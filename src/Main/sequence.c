@@ -29,7 +29,7 @@ s32 func_001028c0(void)
     }
     func_0044ea90(D_005DCB28, 0x7D);
     mem = D_008873F4[0](1, 0x18, 0x40000);
-    handle = (s32)func_00451de0((const void *)(D_005DCB40), 0xF, 0, 0, func_00102780, func_00102890, (u8 *)(mem));
+    handle = (s32)kwlnTaskCreate((const void *)(D_005DCB40), 0xF, 0, 0, func_00102780, func_00102890, (u8 *)(mem));
     *(s32 *)(mem + 4) = -1;
     *(s32 *)(mem + 8) = -1;
     iGpffffb1a8 = (u8 *)(u32)handle;

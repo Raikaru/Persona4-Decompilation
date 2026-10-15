@@ -25,8 +25,8 @@ extern void func_00144e10(s32 a);
 extern void func_00144ed0(s32 a);
 extern s32 func_00144f60(void);
 extern s32 func_002859e0(s32 a, s32 b, s32 c);
-extern s32 func_00452490(s32 handle);
-extern void func_00452080(s32 handle);
+extern s32 kwlnTaskIsLinked(s32 handle);
+extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern void func_00145080(void);
 
 
@@ -37,7 +37,7 @@ void func_0033dc90(u8 *arg0, s8 arg1)
 
     func_0044ea90(D_0064A400, 0xAF);
     work = D_008873F4[0](1, 0x14, 0x40000);
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A420), 0xF, 0, 0, func_0033d9d0, func_0033dc60, (u8 *)(work));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A420), 0xF, 0, 0, func_0033d9d0, func_0033dc60, (u8 *)(work));
     work[0] = 0;
     *(s8 *)(work + 0x10) = arg1;
 }
@@ -85,7 +85,7 @@ void func_0033de90(u8 *arg0, s32 arg1)
 
     func_0044ea90(D_0064A400, 0x10A);
     work = D_008873F4[0](1, 4, 0x40000);
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, fclCombineEventGate, fclCombineEventDestroy, (u8 *)(work));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, fclCombineEventGate, fclCombineEventDestroy, (u8 *)(work));
     *(s32 *)work = arg1;
 }
 
@@ -123,10 +123,10 @@ s32 func_0033df40(u8 *arg0)
             *(s32 *)(temp_16 + 0xC) = func_002859e0(*(s32 *)(temp_16 + 4), *(s32 *)(temp_16 + 8), 0);
             temp_16[0] = (s8)((s8)temp_16[0] + 1);
         case 3:
-            if (func_00452490(*(s32 *)(temp_16 + 0xC)) != 1) {
+            if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0xC)) != 1) {
                 temp_4_2 = *(s32 *)(temp_16 + 0x10);
                 if (temp_4_2 != 0) {
-                    func_00452080(temp_4_2);
+                    kwlnTaskDestroyWithHierarchy(temp_4_2);
                 }
                 if (*(s32 *)(temp_16 + 8) == 0xA) {
                     func_00145080();
@@ -161,7 +161,7 @@ void func_0033e120(u8 *arg0, s32 arg1, s32 arg2)
 
     func_0044ea90(D_0064A400, 0x192);
     work = D_008873F4[0](1, 0x14, 0x40000);
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, func_0033df40, func_0033e0f0, (u8 *)(work));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, func_0033df40, func_0033e0f0, (u8 *)(work));
     *(s32 *)(work + 4) = arg1;
     *(s32 *)(work + 8) = arg2;
     work[0] = 0;

@@ -5,7 +5,7 @@
 #include "type.h"
 #include "evt_internal.h"
 
-extern u8 *func_00452380(s8 *name);
+extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u32 func_00452560(void *task);
 extern void func_004b1250(void *model, f32 *position);
 extern s32 func_0045aeb0(s16 channel, const char *name);
@@ -49,7 +49,7 @@ extern s32 func_00249770(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_0029d020(void);
 extern void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0025c310(void);
-extern void func_00452080(s32 handle);
+extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 D_00635A78[];
 extern s32 D_006359F0[];
 extern s32 D_00635A20[];
@@ -57,7 +57,7 @@ extern s32 D_00635A00[];
 extern s16 D_00635BB8[];
 extern s32 D_00635B38[];
 extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_00452490(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 arg0);
 extern void func_0046b0d0(u8* arg0);
 extern void H_Cdvd_Destroy(u8* arg0);
 extern u8* func_00454a60(void* arg0, s32 arg1);
@@ -938,8 +938,8 @@ void func_0024b990(u8 *task)
     for (i = 0; i < 5; i++) {
         h = *(s32*)((u8*)t + i * 4 + 0xC);
         if (h != 0) {
-            if (func_00452490(h) != 0) {
-                func_00452080(h);
+            if (kwlnTaskIsLinked(h) != 0) {
+                kwlnTaskDestroyWithHierarchy(h);
             }
         }
     }
@@ -957,14 +957,14 @@ void func_0024ba60(s32 arg0)
     s32 task;
     CmmScriptTask *t;
 
-    task = (s32)func_00452380((s8 *)(D_00635A78));
+    task = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
     if (arg0 < 0 || arg0 >= 5) {
         func_0046d730(D_006359F0, 0x3B2);
     }
     if (task != 0) {
         t = (CmmScriptTask *)((int)(s32)func_00452560((void *)(u32)(task)));
         if (t->handles[arg0] != 0) {
-            func_00452080(t->handles[arg0]);
+            kwlnTaskDestroyWithHierarchy(t->handles[arg0]);
             t->handles[arg0] = 0;
         }
     }
@@ -973,7 +973,7 @@ void func_0024ba60(s32 arg0)
 /* measured: O1 probe for global-load scheduling; revert if it does not match. */
 #pragma optimization_level 1
 s32 func_0024bb00(s32 arg0) {
-    extern s32 func_00452080(struct KwlnTask* task);
+    extern s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask* task);
     extern s32 func_00455f70(s32 arg0, s32* arg1);
     extern s32 func_0025ff60(s32 arg0);
     s64 pos;
@@ -993,13 +993,13 @@ s32 func_0024bb00(s32 arg0) {
     u8 loaded;
     s64 posXY;
     f32 posZ;
-    task = (s32)(s32)func_00452380((s8 *)((s8*)&D_00635A78));
+    task = (s32)(s32)kwlnTaskGetTaskByName((s8 *)((s8*)&D_00635A78));
     posXY = *(s64*)D_00635A88;
     posZ = *(f32*)(D_00635A88 + 8);
     pos = posXY;
     sp48 = posZ;
     *(f32*)((u8*)&pos + 8) = sp48;
-    loadTask = (s32)(s32)func_00452380((s8 *)((s8*)&D_00635A78));
+    loadTask = (s32)(s32)kwlnTaskGetTaskByName((s8 *)((s8*)&D_00635A78));
     if (loadTask == 0) {
         func_0046d730(&D_006359F0, 0x392);
     }
@@ -1015,7 +1015,7 @@ s32 func_0024bb00(s32 arg0) {
     temp_16 = temp_2_2 + 3;
     oldHandle = temp_2_2[3];
     if (oldHandle != 0) {
-        func_00452080((struct KwlnTask*)(uintptr_t)oldHandle);
+        kwlnTaskDestroyWithHierarchy((struct KwlnTask*)(uintptr_t)oldHandle);
     }
     switch (arg0) {
     case 0:
@@ -1126,7 +1126,7 @@ s32 func_0024be40(void)
             choiceIndex++;
         }
     }
-    task = (CmmScriptTask *)func_00452560(func_00452380((s8 *)D_00635A78));
+    task = (CmmScriptTask *)func_00452560(kwlnTaskGetTaskByName((s8 *)D_00635A78));
     if (task == 0) {
         func_0046d730(D_006359F0, 1041);
     }
@@ -1147,8 +1147,8 @@ s32 func_0024c0e0(u8 *arg0, u8 *arg1)
     s32 temp_2_4;
     s32 temp_2_5;
 
-    task = (s32)func_00452380((s8 *)(D_00635A78));
-    loadTask = (s32)func_00452380((s8 *)(D_00635A78));
+    task = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
+    loadTask = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
     if (loadTask == 0) {
         func_0046d730(D_006359F0, 0x392);
     }
@@ -1229,8 +1229,8 @@ s32 func_0024c460(u8 *arg0, u8 *work)
     f32 scale;
     f32 y;
 
-    task = func_00452380((s8 *)D_00635A78);
-    loadTask = func_00452380((s8 *)D_00635A78);
+    task = kwlnTaskGetTaskByName((s8 *)D_00635A78);
+    loadTask = kwlnTaskGetTaskByName((s8 *)D_00635A78);
     if (loadTask == 0) {
         func_0046d730(D_006359F0, 0x392);
     }
@@ -1397,8 +1397,8 @@ static inline void *cmmScoreAtlas(void)
     u8 *task;
     u8 *loadTask;
     s32 loaded;
-    task = func_00452380((s8 *)D_00635A78);
-    loadTask = func_00452380((s8 *)D_00635A78);
+    task = kwlnTaskGetTaskByName((s8 *)D_00635A78);
+    loadTask = kwlnTaskGetTaskByName((s8 *)D_00635A78);
     if (loadTask == NULL) {
         func_0046d730(D_006359F0, 0x392);
     }
@@ -1704,7 +1704,7 @@ void func_0024f080(s32 arg0, s32 arg1)
     cmmScriptEntry* e;
     s32 p;
 
-    p = (s32)func_00452380((s8 *)(D_00635B38));
+    p = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635B38));
     if (p == 0) {
         func_0046d730(D_006359F0, 0x67E);
     }
@@ -1765,7 +1765,7 @@ s32 func_0024f160(u8 *arg0)
         goto done;
     }
 
-    rec = (s32)func_00452560((void *)(u32)((s32)func_00452380((s8 *)(D_00635A78))));
+    rec = (s32)func_00452560((void *)(u32)((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78))));
     if (rec == 0) {
         func_0046d730(D_006359F0, 0x41B);
     }
@@ -1798,8 +1798,8 @@ s32 func_0024f160(u8 *arg0)
             func_0045aeb0((s16)(2), (const char *)(D_00635B50));
         }
 
-        task = (s32)func_00452380((s8 *)(D_00635A78));
-        loadTask = (s32)func_00452380((s8 *)(D_00635A78));
+        task = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
+        loadTask = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
         if (loadTask == 0) {
             func_0046d730(D_006359F0, 0x392);
         }
@@ -1841,17 +1841,17 @@ s32 func_0024f160(u8 *arg0)
         goto done;
     }
 
-    if ((rec = (s32)func_00452380((s8 *)(D_00635A78))) != 0) {
+    if ((rec = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78))) != 0) {
         rec = (s32)func_00452560((void *)(u32)(rec));
         if (*(s32 *)(rec + 0x10) != 0) {
-            func_00452080(*(s32 *)(rec + 0x10));
+            kwlnTaskDestroyWithHierarchy(*(s32 *)(rec + 0x10));
             *(s32 *)(rec + 0x10) = 0;
         }
     }
-    if ((rec = (s32)func_00452380((s8 *)(D_00635A78))) != 0) {
+    if ((rec = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78))) != 0) {
         rec = (s32)func_00452560((void *)(u32)(rec));
         if (*(s32 *)(rec + 0x18) != 0) {
-            func_00452080(*(s32 *)(rec + 0x18));
+            kwlnTaskDestroyWithHierarchy(*(s32 *)(rec + 0x18));
             *(s32 *)(rec + 0x18) = 0;
         }
     }
@@ -1928,7 +1928,7 @@ s32 func_0024f790(u8 *work)
         goto done;
     }
 
-    fishingData = (u8 *)func_00452560(func_00452380((s8 *)D_00635A78));
+    fishingData = (u8 *)func_00452560(kwlnTaskGetTaskByName((s8 *)D_00635A78));
     if (fishingData == 0) {
         func_0046d730(D_006359F0, 0x41B);
     }
@@ -1955,7 +1955,7 @@ s32 func_0024f790(u8 *work)
         {
             u8 *directionTask;
 
-            directionTask = func_00452380((s8 *)D_00635B38);
+            directionTask = kwlnTaskGetTaskByName((s8 *)D_00635B38);
             if (directionTask == 0) {
                 func_0046d730(D_006359F0, 0x696);
             }
@@ -1988,7 +1988,7 @@ s32 func_0024f790(u8 *work)
         }
         if (directionPressed != 0) {
             func_0045af60(0, 0, 4, 3);
-            task = func_00452380((s8 *)D_00635B38);
+            task = kwlnTaskGetTaskByName((s8 *)D_00635B38);
             if (task == 0) {
                 func_0046d730(D_006359F0, 0x6A2);
             }
@@ -2031,8 +2031,8 @@ s32 func_0024f790(u8 *work)
         f32 origin = start.value[2];
         result.value[2] = cmmFishingBlend(delta, ratio, origin);
     }
-    task = func_00452380((s8 *)D_00635A78);
-    loadTask = func_00452380((s8 *)D_00635A78);
+    task = kwlnTaskGetTaskByName((s8 *)D_00635A78);
+    loadTask = kwlnTaskGetTaskByName((s8 *)D_00635A78);
     if (loadTask == 0) {
         func_0046d730(D_006359F0, 0x392);
     }
@@ -2084,7 +2084,7 @@ s32 func_0024ff60(u8 *task)
     case 1:
         e->unk4 = 2;
     case 2:
-        loadTask = (s32)func_00452380((s8 *)(D_00635A78));
+        loadTask = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
         if (loadTask == 0) {
             func_0046d730(D_006359F0, 0x392);
         }
@@ -2140,30 +2140,30 @@ s32 func_00250120(void)
     u8* parent;
     u8* e;
 
-    handle = (s32)func_00452380((s8 *)(D_00635BA8));
+    handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
     if (handle != 0) {
-        func_00452080(handle);
+        kwlnTaskDestroyWithHierarchy(handle);
     }
-    if ((s32)func_00452380((s8 *)(D_00635A78)) == 0) {
+    if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
         parent = func_00285af0();
-        if ((s32)func_00452380((s8 *)(D_00635A78)) == 0) {
+        if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
             func_0044ea90(D_006359F0, 0x402);
             e = D_008873F4[0](1, 0x28, 0x40000);
             *(s32*)(e + 4) = 0;
-            (s32)func_00451fc0((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
+            (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
         }
     }
     parent = func_00285af0();
-    handle = (s32)func_00452380((s8 *)(D_00635B38));
+    handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635B38));
     if (handle != 0) {
-        func_00452080(handle);
+        kwlnTaskDestroyWithHierarchy(handle);
     }
     func_0044ea90(D_006359F0, 0x66C);
     e = D_008873F4[0](1, 0x5C, 0x40000);
     *(s32*)(e + 0x14) = (s32)func_0024c0e0;
     *(s32*)(e + 0x2C) = (s32)func_0024c460;
     *(s32*)(e + 0x44) = (s32)func_0024d1f0;
-    (s32)func_00451fc0((void *)(parent), (const void *)(D_00635B38), 0xF, 0, 0, func_0024efa0, func_0024f040, (u8 *)(e));
+    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635B38), 0xF, 0, 0, func_0024efa0, func_0024f040, (u8 *)(e));
     for (i = 0; i < 5; i++) {
         func_0024ba60(i);
     }
@@ -2181,28 +2181,28 @@ s32 func_002502f0(void)
 
     if (func_0029d020() == 0) {
         parent = func_00285af0();
-        if ((s32)func_00452380((s8 *)(D_00635BA8)) == 0) {
-            if ((s32)func_00452380((s8 *)(D_00635A78)) == 0) {
-                if ((s32)func_00452380((s8 *)(D_00635A78)) == 0) {
+        if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8)) == 0) {
+            if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
+                if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
                     func_0044ea90(D_006359F0, 0x402);
                     e = (cmmScriptEntry*)D_008873F4[0](1, 0x28, 0x40000);
                     e->unk4 = 0;
-                    (s32)func_00451fc0((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
+                    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
                 }
             }
             func_0044ea90(D_006359F0, 0x81D);
             e = (cmmScriptEntry*)D_008873F4[0](1, 0x24, 0x40000);
             e->unk4 = 0;
-            (s32)func_00451fc0((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
+            (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
         }
-        handle = (s32)func_00452380((s8 *)(D_00635BA8));
+        handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
             func_0046d730(D_006359F0, 0x82A);
         }
         e = (cmmScriptEntry*)(s32)func_00452560((void *)(u32)(handle));
         e->flags |= 1;
     } else {
-        handle = (s32)func_00452380((s8 *)(D_00635BA8));
+        handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
             func_0046d730(D_006359F0, 0x83E);
         }
@@ -2221,7 +2221,7 @@ s32 func_002502f0(void)
         }
         if (ret != 0) {
             scrSetReturnInt(ret - 1);
-            func_00452080((s32)func_00452380((s8 *)(D_00635BA8)));
+            kwlnTaskDestroyWithHierarchy((s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8)));
             return 1;
         }
     }
@@ -2238,28 +2238,28 @@ s32 func_00250560(void)
 
     if (func_0029d020() == 0) {
         parent = func_00285af0();
-        if ((s32)func_00452380((s8 *)(D_00635BA8)) == 0) {
-            if ((s32)func_00452380((s8 *)(D_00635A78)) == 0) {
-                if ((s32)func_00452380((s8 *)(D_00635A78)) == 0) {
+        if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8)) == 0) {
+            if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
+                if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
                     func_0044ea90(D_006359F0, 0x402);
                     e = (cmmScriptEntry*)D_008873F4[0](1, 0x28, 0x40000);
                     e->unk4 = 0;
-                    (s32)func_00451fc0((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
+                    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
                 }
             }
             func_0044ea90(D_006359F0, 0x81D);
             e = (cmmScriptEntry*)D_008873F4[0](1, 0x24, 0x40000);
             e->unk4 = 0;
-            (s32)func_00451fc0((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
+            (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
         }
-        handle = (s32)func_00452380((s8 *)(D_00635BA8));
+        handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
             func_0046d730(D_006359F0, 0x834);
         }
         e = (cmmScriptEntry*)(s32)func_00452560((void *)(u32)(handle));
         e->flags |= 2;
     } else {
-        handle = (s32)func_00452380((s8 *)(D_00635BA8));
+        handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8));
         if (handle == 0) {
             func_0046d730(D_006359F0, 0x84E);
         }
@@ -2276,7 +2276,7 @@ s32 func_00250560(void)
         }
         if (ret != 0) {
             scrSetReturnInt(ret - 1);
-            func_00452080((s32)func_00452380((s8 *)(D_00635BA8)));
+            kwlnTaskDestroyWithHierarchy((s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8)));
             return 1;
         }
     }
@@ -2325,7 +2325,7 @@ s32 func_00250870(void)
         d[1] = b;
         d += 2;
     } while (i > 0);
-    handle = (s32)func_00452380((s8 *)(D_00635A78));
+    handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
     rec = (u8*)(s32)func_00452560((void *)(u32)(handle));
     if (rec == 0) {
         func_0046d730(D_006359F0, 0x41B);

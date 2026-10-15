@@ -9,7 +9,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 
-extern u8 *func_00452380(s8 *name);
+extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern void func_0046d730(const void *file, u32 line);
 extern s32 func_0025f110(void *arg);
 extern void func_0025f230(u32 arg);
@@ -293,7 +293,7 @@ void msgWinStart(void *arg0)
     } else {
         D_007245CC = 0;
     }
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C018), 0xF, 0, 0, msgWinUpdateEntries, 0, (u8 *)((void *)0));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C018), 0xF, 0, 0, msgWinUpdateEntries, 0, (u8 *)((void *)0));
 }
 
 /* measured: byte-exact after preserving the mixed ABI order in both the
@@ -1066,7 +1066,7 @@ void msgWinSelectionPoll(void)
 {
     MsgProcWindowResource *work = &D_007245D0;
 
-    if (func_00452380((s8 *)&D_00723868) != 0) {
+    if (kwlnTaskGetTaskByName((s8 *)&D_00723868) != 0) {
         work->flags |= 1;
     }
 }
@@ -1094,13 +1094,13 @@ static inline s32 msgWinSelectionResource(void)
 {
     MsgProcWindowResource *work = &D_007245D0;
 
-    if (func_00452380((s8 *)&D_00723868) != 0) {
+    if (kwlnTaskGetTaskByName((s8 *)&D_00723868) != 0) {
         if (work->state >= 2) {
             return work->sprite;
         }
-    } else if (func_00452380((s8 *)&D_00723868) == 0) {
+    } else if (kwlnTaskGetTaskByName((s8 *)&D_00723868) == 0) {
         memset(work, 0, 8);
-        func_00451fc0(NULL, &D_00723868, 15, 0, 0, msgWinSelectionUpdate, msgWinSelectionDestroy, NULL);
+        kwlnTaskCreateChild(NULL, &D_00723868, 15, 0, 0, msgWinSelectionUpdate, msgWinSelectionDestroy, NULL);
     }
     return 0;
 }
@@ -2372,7 +2372,7 @@ void msgCalResourcePoll(void)
 {
     u8 *work = (u8 *)&D_00882098;
 
-    if (func_00452380((s8 *)D_0063C180) != 0) {
+    if (kwlnTaskGetTaskByName((s8 *)D_0063C180) != 0) {
         *(s16 *)(work + 2) |= 1;
     }
 }
@@ -2382,14 +2382,14 @@ s32 msgCalResourceGet(s32 arg0)
 {
     MsgProcWindowWork *work = &D_00882098;
 
-    if (func_00452380((s8 *)D_0063C180) != 0) {
+    if (kwlnTaskGetTaskByName((s8 *)D_0063C180) != 0) {
         if (work->field0 >= 2) {
             u32 *arr = (u32 *)((u8 *)work + 4);
             return arr[arg0];
         }
-    } else if (func_00452380((s8 *)D_0063C180) == 0) {
+    } else if (kwlnTaskGetTaskByName((s8 *)D_0063C180) == 0) {
         memset(work, 0, 0xC);
-        (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 0xF, 0, 0, msgCalResourceUpdate, msgCalResourceDestroy, (u8 *)((void *)0));
+        (s32)kwlnTaskCreateChild((void *)((void *)0), (const void *)(D_0063C180), 0xF, 0, 0, msgCalResourceUpdate, msgCalResourceDestroy, (u8 *)((void *)0));
     }
     return 0;
 }
@@ -2409,14 +2409,14 @@ static inline u8 *msgCalendarResource(s32 index)
 {
     MsgProcWindowWork *work = &D_00882098;
 
-    if (func_00452380((s8 *)D_0063C180) != 0) {
+    if (kwlnTaskGetTaskByName((s8 *)D_0063C180) != 0) {
         if (work->field0 >= 2) {
             u32 *arr = (u32 *)((u8 *)work + 4);
             return (u8 *)arr[index];
         }
-    } else if (func_00452380((s8 *)D_0063C180) == 0) {
+    } else if (kwlnTaskGetTaskByName((s8 *)D_0063C180) == 0) {
         memset(work, 0, 0xC);
-        (s32)func_00451fc0((void *)((void *)0), (const void *)(D_0063C180), 0xF, 0, 0, msgCalResourceUpdate, msgCalResourceDestroy, (u8 *)((void *)0));
+        (s32)kwlnTaskCreateChild((void *)((void *)0), (const void *)(D_0063C180), 0xF, 0, 0, msgCalResourceUpdate, msgCalResourceDestroy, (u8 *)((void *)0));
     }
     return NULL;
 }
@@ -2725,13 +2725,13 @@ static inline u32 msgWinResource(void)
 {
     MsgProcWindowWork *work = &D_00882098;
 
-    if (func_00452380((s8 *)D_0063C180) != 0) {
+    if (kwlnTaskGetTaskByName((s8 *)D_0063C180) != 0) {
         if (work->field0 >= 2) {
             return work->field4;
         }
-    } else if (func_00452380((s8 *)D_0063C180) == 0) {
+    } else if (kwlnTaskGetTaskByName((s8 *)D_0063C180) == 0) {
         memset(work, 0, 12);
-        func_00451fc0(NULL, D_0063C180, 15, 0, 0, msgCalResourceUpdate, msgCalResourceDestroy, NULL);
+        kwlnTaskCreateChild(NULL, D_0063C180, 15, 0, 0, msgCalResourceUpdate, msgCalResourceDestroy, NULL);
     }
     return 0;
 }

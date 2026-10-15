@@ -336,7 +336,7 @@ void *FldShadow_CreateCaster(u8 *arg0, u16 arg1, u16 arg2)
         return NULL;
     }
 
-    task = func_00451fc0((void *)(arg0), (const void *)(D_005F18D0), 0x10, 0, 0, FldShadow_StepCasterSetup, FldShadow_ReleaseCaster, (u8 *)(data));
+    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F18D0), 0x10, 0, 0, FldShadow_StepCasterSetup, FldShadow_ReleaseCaster, (u8 *)(data));
     *(u16 *)(data + 0x8) = arg1;
     mode = (u16 *)(data + 0xA);
     *mode = arg2;
@@ -939,6 +939,6 @@ s32 FldShadow_SpawnCasterTask(u8 *arg0) {
     if (buf == NULL) {
         return 0;
     }
-    return (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1910), 8, 0, 0, FldShadow_CasterStep, FldShadow_CasterDestroy, (u8 *)(buf));
+    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1910), 8, 0, 0, FldShadow_CasterStep, FldShadow_CasterDestroy, (u8 *)(buf));
 }
 

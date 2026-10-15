@@ -48,7 +48,7 @@ s32 func_00470280(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     if (mem == NULL) {
         return 0;
     }
-    handle = (s32)func_00451fc0((void *)(arg0), (const void *)(D_00713128), 0x102, 0, 0, func_0046f2b0, func_00470210, (u8 *)(mem));
+    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00713128), 0x102, 0, 0, func_0046f2b0, func_00470210, (u8 *)(mem));
     *(s32 *)(mem + 0x18) = arg1;
     *(s32 *)(mem + 0x1C) = arg2;
     *(s32 *)(mem + 0x20) = 0x80;

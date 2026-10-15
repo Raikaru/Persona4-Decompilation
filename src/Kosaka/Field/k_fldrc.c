@@ -21,7 +21,7 @@ extern u32 strcat();
 extern void* FldResource_Create(char* path);
 extern void func_003c21e0();
 extern void func_003ca270(void *object, void *callback, void *userdata);
-extern s32 func_00452080(void *arg0);
+extern s32 kwlnTaskDestroyWithHierarchy(void *arg0);
 extern u8 *func_004587d0(u8 *arg0, u8 *arg1);
 extern u8 *func_00458ce0(u8 *material, u8 *data);
 struct RpGeometry;
@@ -65,7 +65,7 @@ void FldRc_ReleaseCachedObject(void) {
     u8 *g = iGpffffb590;
 
     if (g != NULL) {
-        func_00452080(g);
+        kwlnTaskDestroyWithHierarchy(g);
         iGpffffb590 = NULL;
     }
 }

@@ -67,7 +67,7 @@ u8 *func_0038d790(u8 *arg0) {
     if (tbl == NULL) {
         func_0046d730(&D_0064F210[0], 0x104);
     }
-    ctx = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(&D_0064F0F0[0]), 0x13, 0, 0, func_0038d660, func_0038d6c0, (u8 *)(tbl));
+    ctx = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064F0F0[0]), 0x13, 0, 0, func_0038d660, func_0038d6c0, (u8 *)(tbl));
     if (ctx == NULL) {
         func_0046d730(&D_0064F210[0], 0x10E);
     }

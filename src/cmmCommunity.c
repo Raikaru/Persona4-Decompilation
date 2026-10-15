@@ -6,7 +6,7 @@
 #include "sdk_snd_internal.h"
 
 extern void *memset(void *dest, s32 value, s32 size);
-extern s32 func_00452380(void *path);
+extern s32 kwlnTaskGetTaskByName(void *path);
 extern u32 func_00452560(s32 task);
 extern void func_0046d730(const void *file, u32 line);
 extern void func_0044ea90(void *arg0, s32 arg1);
@@ -1255,13 +1255,13 @@ void func_00108cf0(s32 arg0)
     func_0044ea90(D_005E42C8, 0x271);
     temp_2 = D_008873F4[0](1, 0x20, 0x40000);
     *(s16 *)temp_2 = arg0;
-    func_00451de0((const void *)(D_005E4308), 0xF, 0, 0, func_00108ca0, func_00108cb0, (u8 *)(temp_2));
+    kwlnTaskCreate((const void *)(D_005E4308), 0xF, 0, 0, func_00108ca0, func_00108cb0, (u8 *)(temp_2));
 }
 
 // FUN_00108DC0
 s32 func_00108dc0(void)
 {
-    s32 ret = func_00452380(D_005E4308);
+    s32 ret = kwlnTaskGetTaskByName(D_005E4308);
     if (ret != 0)
     {
         return (s32)func_00452560(ret);
@@ -1272,7 +1272,7 @@ s32 func_00108dc0(void)
 // FUN_00108E10
 s32 func_00108e10(void)
 {
-    s32 r = func_00452380(D_005E4308);
+    s32 r = kwlnTaskGetTaskByName(D_005E4308);
     if (r != 0)
     {
         r = (s32)func_00452560(r);
@@ -1295,7 +1295,7 @@ s32 func_00108e10(void)
 // FUN_00108E70
 s32 func_00108e70(void)
 {
-    s32 r = func_00452380(D_005E4308);
+    s32 r = kwlnTaskGetTaskByName(D_005E4308);
     if (r != 0)
     {
         r = (s32)func_00452560(r);

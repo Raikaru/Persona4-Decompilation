@@ -104,7 +104,7 @@ extern f32 fGpffff8110;
 
 
 
-extern void func_00452080(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern u8 *resrcMngCreateRes(s32 arg0, s32 arg1);
 extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
@@ -738,7 +738,7 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
         switch (resourceKind) {
         case RESRC_TYPE_MODELCHAR:
             handle164 = resourceRecord->modelHandle164;
-            func_00452080(resourceRecord->handle220);
+            kwlnTaskDestroyWithHierarchy(resourceRecord->handle220);
             resourceRecord->handle220 = 0;
             resourceRecord->handle224 = 0;
             resourceRecord->modelHandle164 = NULL;
@@ -770,7 +770,7 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
             slotValue = (s32)resourceRecord->modelHandle164;
             handle228Case3 = resourceRecord->handle228;
             if (handle228Case3 != NULL) {
-                func_00452080((s32)handle228Case3);
+                kwlnTaskDestroyWithHierarchy((s32)handle228Case3);
                 resourceRecord->handle228 = NULL;
             }
             resourceRecord->handle230 = 0;
@@ -799,7 +799,7 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
             }
             handle290 = resourceRecord->handle290;
             if (handle290 != NULL) {
-                func_00452080((s32)handle290);
+                kwlnTaskDestroyWithHierarchy((s32)handle290);
             }
             value360 = resourceRecord->handle360;
             if (value360 != 0) {

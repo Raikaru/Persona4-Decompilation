@@ -3,7 +3,7 @@
 /* Persona 4 USA decompilation - evtPMFileReader.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
-extern s32 func_00452490();
+extern s32 kwlnTaskIsLinked();
 extern u32 func_00452560(void *task);
 extern u8 D_0063C970[];
 extern u8 D_0063C990[];
@@ -243,12 +243,12 @@ s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     temp_20[0x14 / 4] = arg2;
     temp_20[0x4 / 4] = arg3;
     temp_20[0x8 / 4] = 0;
-    return (s32)func_00451de0((const void *)(D_0063CAA0), 0xF, 1, 1, func_002938c0, func_00293d30, (u8 *)(temp_20));
+    return (s32)kwlnTaskCreate((const void *)(D_0063CAA0), 0xF, 1, 1, func_002938c0, func_00293d30, (u8 *)(temp_20));
 }
 
 // FUN_00293FC0
 s32 func_00293fc0(s32 arg0) {
-    if (func_00452490(arg0) == 0) {
+    if (kwlnTaskIsLinked(arg0) == 0) {
         func_0046d730(D_0063C970, 0x123);
     }
     if (((s32 *)func_00452560((void *)arg0))[0] == 7) {
@@ -259,7 +259,7 @@ s32 func_00293fc0(s32 arg0) {
 
 // FUN_00294040
 u8 *func_00294040(s32 arg0) {
-    if (func_00452490(arg0) == 0) {
+    if (kwlnTaskIsLinked(arg0) == 0) {
         func_0046d730(D_0063C970, 0x131);
     }
     return (u8 *)func_00452560((void *)arg0);
@@ -276,11 +276,11 @@ s32 func_002940a0(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     u8 *p;
 
     memset(base, 0, 0x114);
-    if (func_00452490(arg0) == 0) {
+    if (kwlnTaskIsLinked(arg0) == 0) {
         func_0046d730((char *)D_0063C970, 0x123);
     }
     if (((s32 *)func_00452560((void *)arg0))[0] != 7) {
-        if (func_00452490(arg0) == 0) {
+        if (kwlnTaskIsLinked(arg0) == 0) {
             func_0046d730((char *)D_0063C970, 0x123);
         }
         if (((s32 *)func_00452560((void *)arg0))[0] != 7) {

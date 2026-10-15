@@ -151,7 +151,7 @@ void MT_Scene_SpawnIconTask(u32 arg0)
 
     func_0044ea90(D_0063B090, 0x31);
     p = D_008873F4[0](1, 8, 0x40000);
-    if ((s32)func_00451fc0((void *)(0), (const void *)((char *)D_0063B0A0), 0, 1, 1, func_00268a70, func_00268ad0, (u8 *)(p)) != 0) {
+    if ((s32)kwlnTaskCreateChild((void *)(0), (const void *)((char *)D_0063B0A0), 0, 1, 1, func_00268a70, func_00268ad0, (u8 *)(p)) != 0) {
         *(u32 *)(p + 0) = 2;
         *(u32 *)(p + 4) = arg0;
     }

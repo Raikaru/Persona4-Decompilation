@@ -111,7 +111,7 @@ extern void func_00355370(u8 *arg0, u8 *arg1);
 
 
 extern void func_0046d280(void *node);
-extern void func_00452080(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -830,7 +830,7 @@ s32 i;
     }
     temp_4_2 = *(s32 *)(arg0 + 0x3C);
     if (temp_4_2 != 0) {
-        func_00452080(temp_4_2);
+        kwlnTaskDestroyWithHierarchy(temp_4_2);
         *(s32 *)(arg0 + 0x3C) = 0;
     }
     *(s32 *)(arg0 + 0x1C) = 0;

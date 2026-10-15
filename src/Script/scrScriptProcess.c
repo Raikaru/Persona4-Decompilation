@@ -177,7 +177,7 @@ void H_Dbprt_FmtLog(char* fmt, ...);
 void itfMesWindowReleaseIfActive(s32 handle);
 s32 itfMesWindowInstall(u8* str);
 void itfMesWindowApplyStyle(s32 handle, s32 arg1, s32 arg2);
-s32 func_00452080(KwlnTask* task);
+s32 kwlnTaskDestroyWithHierarchy(KwlnTask* task);
 void H_Cdvd_Destroy(s32 handle);
 u8* func_00468170(void* parent, const char* text);
 s32 sprintf(char* dst, const char* format, ...);
@@ -547,7 +547,7 @@ s32 func_0029d9b0(s32 arg0, u8* arg1, u8* arg2, u8* arg3, u8* arg4, u8* arg5, u8
     {
         func_0046d730(D_0063E3D0, 0x23D);
     }
-    task = (s32)func_00451de0((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
+    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         func_0046d730(D_0063E3D0, 0x1F4);
@@ -567,7 +567,7 @@ s32 func_0029da90(s32 arg0, u8* arg1, s32 arg2)
     {
         func_0046d730(D_0063E3D0, 0x259);
     }
-    task = (s32)func_00451de0((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
+    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         func_0046d730(D_0063E3D0, 0x1F4);
@@ -593,7 +593,7 @@ s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         func_0046d730(D_0063E3D0, 0x27C);
     }
     work->textBuf = text;
-    task = (s32)func_00451de0((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
+    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         func_0046d730(D_0063E3D0, 0x1F4);
@@ -998,7 +998,7 @@ s32 func_0029e550(u8 *arg0)
                 H_Cdvd_Destroy(handle);
                 task->unk_210 = 0;
             }
-            func_00452080((KwlnTask*)task->unk_04);
+            kwlnTaskDestroyWithHierarchy((KwlnTask*)task->unk_04);
             task->unk_04 = 0;
             task->unk_0C = 0;
             break;
@@ -1059,5 +1059,5 @@ void func_0029e8d0(u8* arg0)
 
     func_0044ea90(D_0063E3D0, 0x4AB);
     buf = D_008873F4[0](1, 0x228, 0x40000);
-    (s32)func_00451fc0((void *)((s32)arg0), (const void *)(D_0063E618), 0xC9, 0, 0, func_0029e550, func_0029e7b0, (u8 *)(buf));
+    (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063E618), 0xC9, 0, 0, func_0029e550, func_0029e7b0, (u8 *)(buf));
 }

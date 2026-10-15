@@ -23,7 +23,7 @@ typedef void (*FormationCallback)(void);
 
 extern s32 btlAICommandSelectCandidates();
 
-extern u64 func_00452490();
+extern u64 kwlnTaskIsLinked();
 
 extern u8 *func_001b0cc0();
 extern s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
@@ -104,7 +104,7 @@ extern void func_0029dfe0(u32 a, u8 *b);
 extern u8 *func_00452560(u32 a);
 extern s32 func_0010d740(s32 a);
 extern void itfMesWindowSetString(s32 a, s32 b, u32 c);
-extern void func_00452570(u8 *a, u32 b);
+extern void kwlnTaskAddChild(u8 *a, u32 b);
 extern u8 D_00609E20[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
@@ -1969,7 +1969,7 @@ s32 btlAICommandSpawnActionProc(u8 *p, u8 *q, u32 v, u32 w)
         }
         itfMesWindowSetString(*(s32 *)(v2 + 0x130), 0, d);
     }
-    func_00452570((u8 *)(*(u32 *)(iGpffffb3ac + 0xDC8)), t);
+    kwlnTaskAddChild((u8 *)(*(u32 *)(iGpffffb3ac + 0xDC8)), t);
     *(u32 *)(q + 0x4C) = t;
     return 1;
 }
@@ -2051,7 +2051,7 @@ u32 btlAICommandTryReleaseProc(int param_1)
     uVar1 = 1;
   }
   else {
-    lVar2 = func_00452490(*(int *)(param_1 + 0x4c));
+    lVar2 = kwlnTaskIsLinked(*(int *)(param_1 + 0x4c));
     if (lVar2 == 0) {
       *(u8 *)(param_1 + 0x30) = 0;
       *(u32 *)(param_1 + 0x4c) = 0;

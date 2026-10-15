@@ -44,7 +44,7 @@ extern void func_002b8270(u8 *arg0, F2_0033 arg1, F2_0033 arg2,
 
 extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern s8 iGpffffb59c;
-extern u8 *func_00452380(s8 *arg0);
+extern u8 *kwlnTaskGetTaskByName(s8 *arg0);
 extern s32 func_0015f660(void);
 extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 extern void func_001238c0(s32 arg0);
@@ -74,8 +74,8 @@ extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern void func_00144e10(s32 arg0);
 extern void func_00144ed0(s32 arg0);
 extern s32 func_00144f60(void);
-extern void func_00452080(s32 arg0);
-extern s32 func_00452490(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
+extern s32 kwlnTaskIsLinked(s32 arg0);
 extern u8 *func_00457120(void);
 extern void K_View_SetFov(u8 *arg0, f32 arg1);
 extern f32 func_0014b4d0(void);
@@ -178,7 +178,7 @@ s32 func_00331680(void)
         iGpffffb59c += 1;
         break;
     case 6:
-        if (func_00452380((s8 *)D_00644E80) == 0) {
+        if (kwlnTaskGetTaskByName((s8 *)D_00644E80) == 0) {
             func_001238c0(1);
             iGpffffb59c = 0;
             return 1;
@@ -209,7 +209,7 @@ s32 func_00331770(void)
         iGpffffb59c += 1;
         break;
     case 6:
-        if (func_00452380((s8 *)D_00644E98) == 0) {
+        if (kwlnTaskGetTaskByName((s8 *)D_00644E98) == 0) {
             func_001238c0(1);
             iGpffffb59c = 0;
             return 1;
@@ -240,7 +240,7 @@ s32 func_00331860(void)
         iGpffffb59c += 1;
         break;
     case 6:
-        if (func_00452380((s8 *)D_00644EB0) == 0) {
+        if (kwlnTaskGetTaskByName((s8 *)D_00644EB0) == 0) {
             func_001238c0(1);
             iGpffffb59c = 0;
             return 1;
@@ -363,7 +363,7 @@ s32 func_00331a20(u8 *arg0)
         func_002bb550(work[1]);
         return -1;
     case 2:
-        if (func_00452380((s8 *)D_0064A000) == 0) {
+        if (kwlnTaskGetTaskByName((s8 *)D_0064A000) == 0) {
             return -1;
         }
         break;
@@ -612,10 +612,10 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
          }
          goto out;
      case 3:
-         if (func_00452490(*(s32 *)(work + 8)) != 1) {
+         if (kwlnTaskIsLinked(*(s32 *)(work + 8)) != 1) {
              taskHandle = *(s32 *)(work + 4);
              if (taskHandle != 0) {
-                 func_00452080(taskHandle);
+                 kwlnTaskDestroyWithHierarchy(taskHandle);
              }
              *(s8 *)work = *(s8 *)work + 1;
          }
@@ -719,7 +719,7 @@ s32 func_0033e3f0(u8 *arg0)
 
     func_0044ea90(D_0064A458, 0x85);
     work = D_008873F4[0](1, 0x2C, 0x40000);
-    result = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A470), 0xF, 0, 0, func_0033e1e0, func_0033e3a0, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A470), 0xF, 0, 0, func_0033e1e0, func_0033e3a0, (u8 *)(work));
     work[0] = 0;
     *(s32 *)(work + 4) = func_0046aea0(D_0064A480);
     return result;

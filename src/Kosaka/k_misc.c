@@ -52,7 +52,7 @@ extern void func_0044ea90(const void* file, u32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);  /* RwCalloc slot */
 extern void (*jtbl_008873EC[])(void*);      /* RwFree slot */
 
-extern u8 func_00452080(void* task);        /* kwlnTaskDestroyWithHierarchy */
+extern u8 kwlnTaskDestroyWithHierarchy(void* task);        /* kwlnTaskDestroyWithHierarchy */
 extern u8* mdlGetColor(void* mdl);        /* mdlGetColor */
 extern void mdlSetColor(void* mdl, void* color); /* mdlSetColor */
 extern char D_005EFB28[];                   /* "k_misc.c" */
@@ -80,7 +80,7 @@ s32 KMisc_CreateDelayMdlFree(Model* mdl, s32 countdown)
         return 0;
     }
 
-    task = (s32)func_00451fc0((void *)(0), (const void *)(D_005EFB40), 0xF, 0, 0, KMisc_DelayMdlFreeUpdate, KMisc_DelayMdlFreeDestroy, (u8 *)((u8*)work));
+    task = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005EFB40), 0xF, 0, 0, KMisc_DelayMdlFreeUpdate, KMisc_DelayMdlFreeDestroy, (u8 *)((u8*)work));
     work->mdl = mdl;
     work->countdown = countdown;
 
@@ -92,7 +92,7 @@ s32 KMisc_ScrShutdownUpdate(u8 *arg0)
 {
     KwlnTask* scrShutdownTask = (KwlnTask*)arg0;
 
-    func_00452080(((ScrShutdownWork*)scrShutdownTask->workData)->scrTask);
+    kwlnTaskDestroyWithHierarchy(((ScrShutdownWork*)scrShutdownTask->workData)->scrTask);
 
     return -1;
 }
@@ -118,7 +118,7 @@ s32 KMisc_CreateScrShutdown(KwlnTask* scrTask)
         return 0;
     }
 
-    task = (s32)func_00451fc0((void *)(0), (const void *)(D_005EFB60), 0xF, 0, 0, KMisc_ScrShutdownUpdate, KMisc_ScrShutdownDestroy, (u8 *)((u8*)work));
+    task = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005EFB60), 0xF, 0, 0, KMisc_ScrShutdownUpdate, KMisc_ScrShutdownDestroy, (u8 *)((u8*)work));
     work->scrTask = scrTask;
 
     return task;
@@ -185,7 +185,7 @@ s32 KMisc_CreateRmdFade(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     if (work == NULL) {
         return 0;
     }
-    task = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFB80), 0xF, 0, 0, KMisc_RmdFadeUpdate, KMisc_RmdFadeDestroy, (u8 *)((u8*)work));
+    task = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFB80), 0xF, 0, 0, KMisc_RmdFadeUpdate, KMisc_RmdFadeDestroy, (u8 *)((u8*)work));
     work->mdl = (Model*)arg1;
     target = (f32)(u32)arg3;
     work->targetAlpha = target;

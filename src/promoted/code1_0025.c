@@ -8,7 +8,7 @@ static inline f32 p4_0025_mul_add(f32 left, f32 right, f32 base) {
 static inline f32 p4_0025_add(f32 left, f32 right) {
     return left + right;
 }
-s32 func_00452380(void *arg0);
+s32 kwlnTaskGetTaskByName(void *arg0);
 extern u32 func_00452560(void *task);
 extern void func_0025f230(s32 arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -61,7 +61,7 @@ s16 datGetPartyId(s32 arg0);
 void datSetPartyId(s32 arg0, s32 arg1);
 s16 func_00106cd0(s16 arg0, s16 arg1);
 void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
-s32 func_00452490(s32 arg0);
+s32 kwlnTaskIsLinked(s32 arg0);
 void func_00120f20(s32 arg0);
 s32 func_002aa300(u8 *parent, s32 mode);
 s32 func_002aa3f0(void);
@@ -111,7 +111,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 
 // FUN_0025C310
 void func_0025c310(void) {
-    func_00452380(D_006367C0);
+    kwlnTaskGetTaskByName(D_006367C0);
 }
 
 
@@ -543,7 +543,7 @@ s32 func_0025d760(void) {
 
     temp_16 = scrGetParamInt(0);
     if (func_0029d020() == 0) {
-        if (func_00452490(temp_16) != 0) {
+        if (kwlnTaskIsLinked(temp_16) != 0) {
             func_00120f20(temp_16);
         }
     } else {

@@ -111,7 +111,7 @@ extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern char *datCalcGetSlotRecord(s32 a);
 extern char *strcpy(char *dst, const char *source);
 struct KwlnTask;
-extern s32 func_00452080(struct KwlnTask *task);
+extern s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *task);
 extern void func_00106390(s32 a, s32 b);
 
 
@@ -777,7 +777,7 @@ s32 func_00381a70(u8 *arg0)
             }
             *(u16 *)(view.context + 0x1F2F4) = (u16)(*(u16 *)(view.context + 0x1F2F4) | 0x40);
             if (*(void **)(view.context + 0x1F2A0) != 0) {
-                func_00452080(*(struct KwlnTask **)(view.context + 0x1F2A0));
+                kwlnTaskDestroyWithHierarchy(*(struct KwlnTask **)(view.context + 0x1F2A0));
                 *(s32 *)(view.context + 0x1F2A0) = 0;
             }
             if (view.state->isUpright != 0) {
@@ -853,7 +853,7 @@ s32 func_00381a70(u8 *arg0)
         if (result != 0) {
             *(u16 *)(view.context + 0x1F2F4) = (u16)(*(u16 *)(view.context + 0x1F2F4) & 0xFFF7);
             if (*(void **)(view.context + 0x1F2A0) != 0) {
-                func_00452080(*(struct KwlnTask **)(view.context + 0x1F2A0));
+                kwlnTaskDestroyWithHierarchy(*(struct KwlnTask **)(view.context + 0x1F2A0));
                 *(s32 *)(view.context + 0x1F2A0) = 0;
             }
             result = shuffleResultPersonaState(arg0);
@@ -1198,7 +1198,7 @@ s32 func_00383ae0(u8 *arg0, s32 arg1, u16 arg2, s32 arg3) {
     if (work == NULL) {
         func_0046d730(&D_0064EC70, 0x758);
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064EB60), 0x12, 0, 0, func_00383a40, func_00383aa0, (u8 *)(work));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064EB60), 0x12, 0, 0, func_00383a40, func_00383aa0, (u8 *)(work));
     if (ret == 0) {
         func_0046d730(&D_0064EC70, 0x762);
     }

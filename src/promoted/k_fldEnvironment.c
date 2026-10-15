@@ -71,7 +71,7 @@ s32 func_00153a60(s32 arg0) {
     if (p == NULL) {
         return 0;
     }
-    result = (s32)func_00451fc0((void *)(arg0), (const void *)(&D_005EFE68[0]), 0xF, 0, 0, func_00153a00, func_00153a30, (u8 *)(p));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005EFE68[0]), 0xF, 0, 0, func_00153a00, func_00153a30, (u8 *)(p));
     *(s32 *)(p + 0x8) = 1;
     *(s32 *)(p + 0xC) = 0xC8;
     return result;
@@ -166,7 +166,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     extern void func_0018c750(f32 arg0);
     extern u8 *func_003e8180(u8 *arg0, f32 arg1);
     extern u8 *func_003e81c0(u8 *arg0, f32 arg1);
-    extern void func_00452080(void *arg0);
+    extern void kwlnTaskDestroyWithHierarchy(void *arg0);
     extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
     extern void func_00457170(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
     extern void FldRc_SetClumpVector(void *arg0, void *arg1);
@@ -393,7 +393,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
         s32 i;
         for (i = 0; i < 4; i++) {
             if (((s32 *)iGpffff9db0)[i + 26] != 0) {
-                func_00452080((void *)((s32 *)iGpffff9db0)[i + 26]);
+                kwlnTaskDestroyWithHierarchy((void *)((s32 *)iGpffff9db0)[i + 26]);
                 ((s32 *)iGpffff9db0)[i + 26] = 0;
             }
             {
@@ -408,7 +408,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
         s32 i;
         for (i = 0; i < 4; i++) {
             if (((s32 *)iGpffff9db0)[i + 30] != 0) {
-                func_00452080((void *)((s32 *)iGpffff9db0)[i + 30]);
+                kwlnTaskDestroyWithHierarchy((void *)((s32 *)iGpffff9db0)[i + 30]);
                 ((s32 *)iGpffff9db0)[i + 30] = 0;
             }
             {

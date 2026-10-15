@@ -54,7 +54,7 @@ extern s32 datGetFlag(s32 arg0);
 extern void H_Pad_StopRumble(void);
 extern void memset(u8 *arg0, s32 arg1, s32 arg2);
 typedef struct KwlnTask KwlnTask;
-extern s32 func_00452080(KwlnTask *task);
+extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 extern u16 func_0010f560(s16 arg0, s32 arg1);
 extern u32 func_0010f600(s16 arg0, s32 arg1);
 extern void *datCalcGetIdRecord(u16 arg0);
@@ -1562,7 +1562,7 @@ s32 func_0011fcf0(u8 *arg0) {
 }
 // FUN_0011FD10
 void func_0011fd10(s32 task) {
-    func_00452080((KwlnTask *)task);
+    kwlnTaskDestroyWithHierarchy((KwlnTask *)task);
 }
 // FUN_0011FD30
 void func_0011fd30(u8 *arg0) {

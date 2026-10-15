@@ -4,12 +4,12 @@
 #include "include_asm.h"
 extern s32 evtFindTask();
 
-void func_00452080(s32 arg0);
+void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern u32 func_00452560(void *task);
 extern void (*jtbl_008873EC[])(void *);
 void evtMemAccount(s32 arg0, s32 arg1);
 
-s32 func_00452380(void *arg0);
+s32 kwlnTaskGetTaskByName(void *arg0);
 extern s32 D_0063C2F8[];
 extern void func_0046d730(u8 *file, s32 line);
 extern u8 D_0063C2C8[];
@@ -77,7 +77,7 @@ void func_002854e0(u8 *arg0)
         if ((*(s32 *)(arg0 + 0) & 0x2000) && (func_00122720() != 1)) {
             *(s32 *)(arg0 + 0) &= ~0x2000;
         }
-        if ((*(s32 *)(arg0 + 0) & 0x4000) && (func_00452490(*(s32 *)(arg0 + 0x75C)) == 0)) {
+        if ((*(s32 *)(arg0 + 0) & 0x4000) && (kwlnTaskIsLinked(*(s32 *)(arg0 + 0x75C)) == 0)) {
             *(s32 *)(arg0 + 0) &= ~0x4000;
             *(s32 *)(arg0 + 0x75C) = 0;
         }
@@ -187,7 +187,7 @@ void func_00285980(u8 *task) {
     s32 *temp_2;
 
     temp_2 = (s32 *)func_00452560(task);
-    func_00452080(*(s32 *)((u8 *)temp_2 + 0xC));
+    kwlnTaskDestroyWithHierarchy(*(s32 *)((u8 *)temp_2 + 0xC));
     jtbl_008873EC[0](temp_2);
     evtMemAccount(0, -0x60);
 }
@@ -205,7 +205,7 @@ s32 func_002859e0(s32 arg0, s32 arg1)
     temp_16 = D_008873F4[0](1, 0x60, 0x40000);
     evtMemAccount(0, 0x60);
     memset(temp_16, 0, 0x60);
-    temp_17 = (s32)func_00451de0((const void *)(&D_0063C2F8), 0xF, 0, 0, func_002857c0, func_00285980, (u8 *)(temp_16));
+    temp_17 = (s32)kwlnTaskCreate((const void *)(&D_0063C2F8), 0xF, 0, 0, func_002857c0, func_00285980, (u8 *)(temp_16));
     temp_2 = evtStart(0, 0);
     *(s32 *)(temp_16 + 0xC) = temp_2;
     evtSetId(temp_2, arg0, arg1, 0);
@@ -215,7 +215,7 @@ s32 func_002859e0(s32 arg0, s32 arg1)
 }
 // FUN_00285AF0
 void func_00285af0(void) {
-    if (func_00452380(D_0063C2F8) == 0) {
+    if (kwlnTaskGetTaskByName(D_0063C2F8) == 0) {
         func_002853c0();
     }
 }

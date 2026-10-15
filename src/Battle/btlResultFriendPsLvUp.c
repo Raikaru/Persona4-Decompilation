@@ -6,7 +6,7 @@ void func_0046d730(void *arg0, s32 arg1);
 
 extern u32 func_00452560(void *task);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
-extern u8 *func_00452380(s8 *name);
+extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u8 *func_00117780(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4);
 extern void func_0011d100(u8 *task, f32 *position);
 extern void func_0011bb90(u8 *task);
@@ -113,7 +113,7 @@ s32 func_002239a0(u8 *sdkTaskBytes)
     switch (st) {
     case 0:
         *(s32 *)((u32)r + 56) = 0;
-        v = (s32)func_00452380((s8 *)D_005E4810);
+        v = (s32)kwlnTaskGetTaskByName((s8 *)D_005E4810);
         *(s32 *)((u32)r + 68) = v;
         if (v == 0) {
             v = (s32)func_00117780(0, 15, 4, 5, 0);

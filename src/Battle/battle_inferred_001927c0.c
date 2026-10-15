@@ -117,8 +117,8 @@ extern void func_001f6100(void);
 extern s32 itfMesWindowInstall(u8 *arg0);
 
 extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern u8 *func_00452380(void *arg0);
-extern void func_00452080(s32 arg0);
+extern u8 *kwlnTaskGetTaskByName(void *arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
@@ -193,8 +193,8 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     func_0019ef30(arg0, arg1);
 }
-extern u8 *func_00452380(void *arg0);
-extern void func_00452080(s32 arg0);
+extern u8 *kwlnTaskGetTaskByName(void *arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern s32 func_00192cd0(void);
 extern void func_00194a30(void);
 extern void func_0019d670(void);
@@ -318,8 +318,8 @@ void func_00192ac0(u8 *unusedTask) {
 
 // FUN_00192AE0
 void func_00192ae0(void) {
-    if (func_00452380(&iGpffffa088) != 0) {
-        func_00452080(*(s32 *)(iGpffffb3ac + 0xDC8));
+    if (kwlnTaskGetTaskByName(&iGpffffa088) != 0) {
+        kwlnTaskDestroyWithHierarchy(*(s32 *)(iGpffffb3ac + 0xDC8));
     }
 }
 
@@ -402,8 +402,8 @@ s32 func_00192cd0(void)
             }
         }
     }
-    if (func_00452380(&iGpffffa088) != 0) {
-        func_00452080(*(s32 *)(iGpffffb3ac + 0xDC8));
+    if (kwlnTaskGetTaskByName(&iGpffffa088) != 0) {
+        kwlnTaskDestroyWithHierarchy(*(s32 *)(iGpffffb3ac + 0xDC8));
     }
     jtbl_008873EC[0](iGpffffb3ac);
     iGpffffb3ac = NULL;
@@ -423,9 +423,9 @@ s32 func_00192e90(s32 arg0)
 
     func_00192b90();
     *(s32 *)(iGpffffb3ac + 0xDC8) =
-        (s32)func_00451de0((const void *)(&iGpffffa088), 0x10, arg0 == 0, 0, func_00192610, func_00192ac0, (u8 *)(0));
-    (s32)func_00451fc0((void *)(*(u8 **)(iGpffffb3ac + 0xDC8)), (const void *)(D_005F65B0), 0x11, arg0 == 0, 0, func_001926c0, 0, (u8 *)(NULL));
-    (s32)func_00451fc0((void *)(*(u8 **)(iGpffffb3ac + 0xDC8)), (const void *)(D_005F65C0), 0x11, arg0 == 0, 0, btlUpdateDraw2DTask, 0, (u8 *)(NULL));
+        (s32)kwlnTaskCreate((const void *)(&iGpffffa088), 0x10, arg0 == 0, 0, func_00192610, func_00192ac0, (u8 *)(0));
+    (s32)kwlnTaskCreateChild((void *)(*(u8 **)(iGpffffb3ac + 0xDC8)), (const void *)(D_005F65B0), 0x11, arg0 == 0, 0, func_001926c0, 0, (u8 *)(NULL));
+    (s32)kwlnTaskCreateChild((void *)(*(u8 **)(iGpffffb3ac + 0xDC8)), (const void *)(D_005F65C0), 0x11, arg0 == 0, 0, btlUpdateDraw2DTask, 0, (u8 *)(NULL));
     *(void **)(iGpffffb3ac + 0xE20) = (void *)func_001927c0;
     temp_2 = iGpffffb3ac;
     *(u8 **)(temp_2 + 0xE28) = temp_2;

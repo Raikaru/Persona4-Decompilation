@@ -18,7 +18,7 @@ void func_001437b0(void* arg0, s32 arg1, s32 arg2);
 void func_0034f5d0(void* arg0);
 u32 RpRandom(void);
 void func_0046d280(void *node);
-void func_00452080(s32 arg0);
+void kwlnTaskDestroyWithHierarchy(s32 arg0);
 void func_002bb4e0(void);
 void func_003550d0(s32 arg0, void* arg1, void* arg2);
 void func_00355070(s32 arg0, void* arg1, void* arg2);
@@ -880,11 +880,11 @@ void func_001377e0(u8* arg0) {
         }
     }
     if (*(s32*)(base + 0x1CB4) != 0) {
-        func_00452080(*(s32*)(base + 0x1CB4));
+        kwlnTaskDestroyWithHierarchy(*(s32*)(base + 0x1CB4));
         *(s32*)(base + 0x1CB4) = 0;
     }
     if (*(s32*)(base + 0x1CB8) != 0) {
-        func_00452080(*(s32*)(base + 0x1CB8));
+        kwlnTaskDestroyWithHierarchy(*(s32*)(base + 0x1CB8));
         *(s32*)(base + 0x1CB8) = 0;
     }
     func_002bb4e0();

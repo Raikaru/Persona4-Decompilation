@@ -2,7 +2,7 @@
 #include "sdk_task_registration.h"
 #include "effect_instance_internal.h"
 #include "include_asm.h"
-extern s32 func_00452380();
+extern s32 kwlnTaskGetTaskByName();
 extern u8 iGpffffa7a8;
 
 /* Old-style declaration: the donor source called this without a prototype, and
@@ -13,7 +13,7 @@ extern void (*jtbl_008873EC[])(void *);
 
 void func_0044ea90(const void *msg, s32 id);
 void func_0046d730(const void *file, s32 line);
-s32 func_00452490(s32 buf);
+s32 kwlnTaskIsLinked(s32 buf);
 s32 H_Cdvd_IsFileLoaded(s32 arg0);
 void H_Cdvd_Destroy(s32 arg0);
 s32 strcmp(s32 *arg0, s32 arg1);
@@ -322,7 +322,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
         task1[0] = 0;
         task1[1] = (s32)effBlurFilterDirectCreate(1, &frame.filter1);
         task1[3] = frame.filter1.params.valueB8;
-        (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task1));
+        (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task1));
         break;
 
     case 2:
@@ -438,7 +438,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
             task2[1] = (s32)effBlurFilterDirectCreate(2, &frame.filter2);
         }
         task2[3] = frame.filter2.params.valueB8;
-        (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task2));
+        (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task2));
         break;
     }
 }
@@ -572,7 +572,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         task[0] = 1;
         task[1] = (s32)effBlurFilterCopiedCreate(1, &f1.params);
         task[3] = f1.params.valueB8;
-        return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
+        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
     case 2:
         mode = 0;
         if (arg2[0x1B] & 1) {
@@ -673,7 +673,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             task[1] = (s32)effBlurFilterCopiedCreate(2, &f2.params);
         }
         task[3] = f2.params.valueB8;
-        return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
+        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
     case 3:
         mode = 0;
         if (arg2[0x1B] & 1) {
@@ -789,7 +789,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             task[1] = (s32)effBlurFilterCopiedCreate(3, &f3.params);
         }
         task[3] = f3.params.valueB8;
-        return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
+        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
     case 5:
         mode = 0;
         if (arg2[0x1B] & 1) {
@@ -892,7 +892,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             task[1] = (s32)effBlurFilterCopiedCreate(5, &f5.params);
         }
         task[3] = f5.params.valueB8;
-        return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
+        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
     }
 }
 
@@ -1005,15 +1005,15 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
     p[8] = t | acc;
     *(f32 *)(p + 9) = *(f32 *)((u8 *)func_00457120() + 0x88);
     *(f32 *)(p + 0xA) = D_00764B5C;
-    (s32)func_00451fc0((void *)(arg0), (const void *)(&D_00763898), 0xF, 0, 0, func_0028ee00, func_0028f360, (u8 *)(p));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763898), 0xF, 0, 0, func_0028ee00, func_0028f360, (u8 *)(p));
 }
 
 // FUN_0028F4F0
 void func_0028f4f0(void) {
     s32 h;
 
-    if (h = func_00452380(&iGpffffa7a8)) {
-        func_00452080(h);
+    if (h = kwlnTaskGetTaskByName(&iGpffffa7a8)) {
+        kwlnTaskDestroyWithHierarchy(h);
     }
 }
 
@@ -1053,7 +1053,7 @@ s32 func_0028f540(u8 *arg0) {
         }
         p[0] = 3;
     case 3:
-        if (func_00452490(p[0x44]) != 0) {
+        if (kwlnTaskIsLinked(p[0x44]) != 0) {
             break;
         }
         p[0x44] = 0;
@@ -1070,8 +1070,8 @@ void func_0028f6c0(u8 *arg0) {
     s32 *temp_2;
 
     temp_2 = func_00452560();
-    if (temp_2[0x44] != 0 && func_00452490(temp_2[0x44]) != 0) {
-        func_00452080(temp_2[0x44]);
+    if (temp_2[0x44] != 0 && kwlnTaskIsLinked(temp_2[0x44]) != 0) {
+        kwlnTaskDestroyWithHierarchy(temp_2[0x44]);
     }
     if (temp_2[0x43] != 0) {
         if (H_Cdvd_IsFileLoaded(temp_2[0x43]) == 0) {
@@ -1089,14 +1089,14 @@ void func_0028f770(s32 arg0) {
     func_0044ea90(D_0063C638, 0x1370);
     temp_2 = (s32 *)D_008873F4[0](1, 0x114, 0x40000);
     temp_2[0] = 4;
-    (s32)func_00451fc0((void *)(arg0), (const void *)(&D_0063C690), 0xF, 0, 0, func_0028f540, func_0028f6c0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0063C690), 0xF, 0, 0, func_0028f540, func_0028f6c0, (u8 *)(temp_2));
 }
 
 // FUN_0028F800
 s32 func_0028f800(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *temp_2;
 
-    if (func_00452490(arg0) == 0) {
+    if (kwlnTaskIsLinked(arg0) == 0) {
         func_0046d730(D_0063C638, 0x137E);
     }
     temp_2 = func_00452560(arg0);
@@ -1116,7 +1116,7 @@ s32 func_0028f800(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 // FUN_0028F8E0
 s32 func_0028f8e0(s32 arg0) {
-    if (func_00452490(arg0) == 0) {
+    if (kwlnTaskIsLinked(arg0) == 0) {
         func_0046d730(D_0063C638, 0x1393);
     }
     if (func_00452560(arg0)[0] == 4) {

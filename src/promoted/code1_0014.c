@@ -111,7 +111,7 @@ extern void func_00355370(u8 *arg0, u8 *arg1);
 
 
 extern void func_0046d280(void *node);
-extern void func_00452080(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern void resrcMngDestroy(u8 *arg0);
 extern u8 *resrcMngGetListHead(u8 *arg0, s32 arg1);
@@ -119,7 +119,7 @@ extern void NpcTable_ReleaseSceneTable(void);
 extern void NpcTable_ReleaseSecondaryTable(void);
 extern void func_00160180(void);
 extern void func_003e1a70(void);
-extern void func_00451b70(void);
+extern void kwlnTaskDumpAll(void);
 extern void FldResource_OpenPrimaryFile(s32 arg0, s32 arg1);
 extern void FldResource_QueueFieldResources(s32 arg0, s32 arg1);
 extern s32 FldResource_StepPartLoad(s32 arg0, s32 arg1);

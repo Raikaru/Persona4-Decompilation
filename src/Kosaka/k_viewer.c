@@ -38,7 +38,7 @@ s32 func_0018f3c0(s32 arg0)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F59A0), 0xF, 0, 0, func_0018efe0, func_0018f390, (u8 *)(buf));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F59A0), 0xF, 0, 0, func_0018efe0, func_0018f390, (u8 *)(buf));
     func_0015a630();
     D_00764304 = 0;
     return ret;
@@ -121,7 +121,7 @@ s32 func_0018f700(s32 arg0)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F5AB0), 0xF, 0, 0, func_0018f470, func_0018f6d0, (u8 *)(buf));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F5AB0), 0xF, 0, 0, func_0018f470, func_0018f6d0, (u8 *)(buf));
     func_0015a630();
     D_00764304 = 0;
     return ret;

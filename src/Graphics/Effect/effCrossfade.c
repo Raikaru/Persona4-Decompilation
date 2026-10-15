@@ -8,7 +8,7 @@ extern char D_00714608[];
 extern char D_00714618[];
 extern u8 *iGpffffbb9c;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern u8 *func_00452380(void *path);
+extern u8 *kwlnTaskGetTaskByName(void *path);
 extern void func_0044ea90(const void *msg, s32 id);
 extern void func_0046d730(const char *file, s32 line);
 extern void memset(void *dst, s32 value, u32 size);
@@ -112,7 +112,7 @@ s32 func_004b3110(s16 arg0) {
     u8 *p2;
     u8 *p3;
 
-    p2 = (u8 *)func_00452380(D_007145F0);
+    p2 = (u8 *)kwlnTaskGetTaskByName(D_007145F0);
     if (p2 == NULL) {
         return 0;
     }
@@ -138,5 +138,5 @@ void func_004b3180(s32 arg0) {
     *(void **)(p + 0x18) = (void *)func_004b30a0;
     *(u8 **)(p + 0x20) = p;
     *(u8 *)(p + 0) = 0;
-    (s32)func_00451de0((const void *)(D_007145F0), arg0, 0, 0, func_004b2ed0, 0, (u8 *)(p));
+    (s32)kwlnTaskCreate((const void *)(D_007145F0), arg0, 0, 0, func_004b2ed0, 0, (u8 *)(p));
 }

@@ -92,7 +92,7 @@ heap.
    `RwEngineSetVideoMode(0x52)` and `RwEngineStart` (`func_003e8b10`,
    `func_003e8a10`, `func_003e8a50` in `src/renderware/`), and registers the
    `bmp` and `tmx` image formats through `func_003eb1f0`.
-3. `func_00100e60` brings up the game: the task pool (`func_00451ca0(0x190)`,
+3. `func_00100e60` brings up the game: the task pool (`kwlnTaskInitPool(0x190)`,
    section 4), the CD and sound services (`func_004559b0` in `sdkCdvd.c`,
    `func_00458fa0` in `sdkSnd.c`), the Sofdec player (`mwPlyInitSfdFx`),
    `func_001939a0` (which calls initialisers in the battle address range),
@@ -116,7 +116,7 @@ calls:
 | `func_0045b7c0` | `src/sdkSndcom.c` | Sound command service |
 | `func_004594c0` | `src/sdkSnd.c` | Sound service |
 | `func_00452ce0` | `src/promoted/code1_0045.c` | Updates the two 0x4A-byte records at `D_008C02E0`. **[inferred]** controller ports |
-| `func_00451cf0` | `src/Kernel/sdkTask.c` | Runs every task (section 4) |
+| `kwlnTaskRunFrame` | `src/Kernel/sdkTask.c` | Runs every task (section 4) |
 | `func_00466580` | `src/h_sfdply.c` | Resumes the Sofdec movie thread when it is pending |
 | `func_003e5510(1)` | `src/promoted/code1_003e.c` | Sets `D_00886700` |
 
@@ -202,8 +202,7 @@ Most of these callbacks live in `src/Kosaka/Field/sequenceList.c`
 
 Everything that runs per frame is a task. The kernel is
 `src/Kernel/sdkTask.c`. The P3 FES names `kwlnTask*` in
-`config/symbol_names.p3.txt` belong to it: `kwlnTaskGetTaskByName` is
-`func_00452380` and `kwlnTaskDestroyWithHierarchy` is `func_00452080`. Note
+`config/symbol_names.p3.txt` belong to it, and the kernel functions use them: `kwlnTaskGetTaskByName` and `kwlnTaskDestroyWithHierarchy`. Note
 that `src/Kernel/kwlnTask.c` itself holds two camera helpers, not the kernel.
 
 ### The task object
@@ -214,7 +213,7 @@ public view, `SdkTask`, is in `include/sdktask.h`. The fields that matter:
 | Offset | Field | Meaning |
 |---|---|---|
 | `0x00` | `name[0x18]` | Inline name; tasks are found by name |
-| `0x18` | `nameSum` | Sum of the name bytes, compared before `strcmp`-style matching in `func_00452380` |
+| `0x18` | `nameSum` | Sum of the name bytes, compared before `strcmp`-style matching in `kwlnTaskGetTaskByName` |
 | `0x1C` | `flags` | Low nibble is the list state (1 starting, 2 active, 3 dying). Bit `0x20` skips updates. Bit `0x10` gives the task a neutral input block (zeroed, with `0x80` in the analog fields). |
 | `0x20` | priority | Sort key; lower runs first |
 | `0x2C` / `0x2E` | start delay / free delay | Frames spent in the starting and dying lists. The free delay is at least 2. |
@@ -225,51 +224,51 @@ public view, `SdkTask`, is in `include/sdktask.h`. The fields that matter:
 
 ### Creation
 
-`func_00451de0(name, priority, startDelay, freeDelay, update, destroy, work)`
+`kwlnTaskCreate(name, priority, startDelay, freeDelay, update, destroy, work)`
 creates a task; the prototype is in `include/sdk_task_registration.h`. It
-allocates the object from the pool built by `func_00451ca0`. That pool is
+allocates the object from the pool built by `kwlnTaskInitPool`. That pool is
 `RwFreeListCreateAndPreallocateSpace(0x54, 0x190, ...)`: 400 task slots. The
 symbol is `func_003e1220`, which `src/renderware/core/bacamera.c` `#define`s
 to the RenderWare name.
 
 A task with no start delay goes straight onto the active list.
-`func_00451fc0(parent, ...)` does the same and then links the new task under
-`parent` with `func_00452570`.
+`kwlnTaskCreateChild(parent, ...)` does the same and then links the new task under
+`parent` with `kwlnTaskAddChild`.
 
 ### Running
 
-`func_00451cf0` is the per-frame entry. It runs in three passes:
+`kwlnTaskRunFrame` is the per-frame entry. It runs in three passes:
 
 1. Counts down start delays and moves tasks whose delay has expired onto the
    active list.
-2. Calls `func_004515b0`, which walks the active list in priority order. For
-   each task, `func_00451430`:
+2. Calls `kwlnTaskRunList`, which walks the active list in priority order. For
+   each task, `kwlnTaskRunUpdate`:
    - prepares the 0x94-byte input block at `D_008C0240`, copied from
      `D_008C02E0`, or neutral when flag `0x10` is set
    - calls `update`
    - increments the frame counter at `0x28`, which `kwlnTaskGetTimer` reads
 3. Counts down free delays on the dying list and finalises tasks whose delay
-   has expired (`func_004516b0`).
+   has expired (`kwlnTaskFinalize`).
 
 The update's return value drives the task:
 
 | Return | Effect |
 |---|---|
 | `0` | Keep running |
-| `-1` | End the task: move it and its children to the dying list (`func_00451770`, `func_004518e0`) |
+| `-1` | End the task: move it and its children to the dying list (`kwlnTaskMoveToDying`, `kwlnTaskKillSiblingChain`) |
 | Any other value | Becomes the new update function, so a task can switch state by returning the next handler |
 
 ### Lifetime
 
-`func_00452080` (`kwlnTaskDestroyWithHierarchy`) moves a task and its
+`kwlnTaskDestroyWithHierarchy` moves a task and its
 children to the dying list. When the free delay reaches zero,
-`func_004516b0` ends the task's children, unlinks the task, calls `destroy`
+`kwlnTaskFinalize` ends the task's children, unlinks the task, calls `destroy`
 and returns the slot to the free list.
 
-`func_004522d0` reports a task's list state. `func_00452490(task)` returns 1
+`kwlnTaskGetState` reports a task's list state. `kwlnTaskIsLinked(task)` returns 1
 while the task is still on any list, which is how callers poll for a task to
 finish. `init.c` and `calendar.c` wait instead for a child to reach state 3.
-`func_00451b70` prints the task tree, and is a useful reference for the list
+`kwlnTaskDumpAll` prints the task tree, and is a useful reference for the list
 globals.
 
 ### Priorities seen in this document

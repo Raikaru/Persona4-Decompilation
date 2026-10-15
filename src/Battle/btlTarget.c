@@ -213,7 +213,7 @@ check_flags:
     result = 1;
     goto common;
 check_call:
-    if (func_00452490(*(s32 *)(temp_16 + 0x4C)) != 0)
+    if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x4C)) != 0)
         goto result_zero;
     *(s8 *)(temp_16 + 0x30) = 0;
     *(s32 *)(temp_16 + 0x4C) = 0;

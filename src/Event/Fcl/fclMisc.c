@@ -126,7 +126,7 @@ void func_002bcd20(void)
         *(s8 *)(globalState + 0xc) = 1;
         *(s8 *)(globalState + 0xd) = 1;
     }
-    (s32)func_00451de0((const void *)(D_0063F398), 0xf, 0, 0, func_002bce00, 0, (u8 *)(0));
+    (s32)kwlnTaskCreate((const void *)(D_0063F398), 0xf, 0, 0, func_002bce00, 0, (u8 *)(0));
 }
 
 

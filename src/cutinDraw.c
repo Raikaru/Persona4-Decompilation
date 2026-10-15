@@ -159,7 +159,7 @@ s32 func_00120e20(s32 arg0, s32 arg1)
   hi = *(s16 *)((u8 *)&packed + 2);
   *(s16 *)(work + 4) = lo;
   *(s16 *)(work + 6) = hi;
-  result = (s32)func_00451de0((const void *)(D_005E4FC8), 0xF, 0, 0, func_00120bc0, func_00120db0, (u8 *)(work));
+  result = (s32)kwlnTaskCreate((const void *)(D_005E4FC8), 0xF, 0, 0, func_00120bc0, func_00120db0, (u8 *)(work));
   if (result == 0)
   {
     return 0;

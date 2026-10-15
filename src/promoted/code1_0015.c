@@ -408,7 +408,7 @@ s32 func_001561a0(u8 *task)
     extern u8 *func_001601e0(s32 fieldId);
     extern s32 func_001602a0(u8 *file, s32 fieldId);
     extern s32 func_0029db50(s32 priority, s32 memory, s32 bytes, s32 procedure);
-    extern s32 func_00452490(void *task);
+    extern s32 kwlnTaskIsLinked(void *task);
     extern void fieldSceneLoad(s32 fieldId, s32 roomId);
     extern void func_00144e10(s64 mapState);
     extern void func_00144ed0(s64 environmentState);
@@ -472,7 +472,7 @@ s32 func_001561a0(u8 *task)
     case 2:
         if (work->mode == 0) {
             script = work->scriptTask;
-            if (script != 0 && func_00452490((void *)script) == 1) {
+            if (script != 0 && kwlnTaskIsLinked((void *)script) == 1) {
                 break;
             }
         }
@@ -526,7 +526,7 @@ s32 func_001561a0(u8 *task)
         work->state++;
     case 4:
         script = work->scriptTask;
-        if (script != 0 && func_00452490((void *)script) == 1) {
+        if (script != 0 && kwlnTaskIsLinked((void *)script) == 1) {
             break;
         }
         if (func_0014a190(work->fieldId, work->roomId) == 0) {
@@ -569,7 +569,7 @@ s32 func_00156640(u8 *arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
 
     memset(D_007D24F0, 0, 0x20);
     base = D_007D24F0;
-    temp_21 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFFE0), 0xF, 0, 0, func_001561a0, func_00156630, (u8 *)(base));
+    temp_21 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFFE0), 0xF, 0, 0, func_001561a0, func_00156630, (u8 *)(base));
     *(u16 *)(base + 8) = arg1;
     *(u16 *)(base + 0xA) = arg2;
     *(s16 *)(base + 0xC) = arg3;
@@ -2236,7 +2236,7 @@ s32 func_00159e90(s32 arg0, s32 arg1, s32 arg2) {
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_17 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F0650), 0xF, 0, 0, func_00159a60, func_00159d50, (u8 *)(temp_2));
+    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F0650), 0xF, 0, 0, func_00159a60, func_00159d50, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = arg1;
     *(s32 *)(temp_2 + 8) = arg2;
     func_00106390(0xC25, 0);

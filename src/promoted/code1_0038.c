@@ -1509,7 +1509,7 @@ u8 *func_00388bd0(s32 arg0)
     if (work == NULL) {
         func_0046d730(D_0064EEB0, 0x640);
     }
-    task = func_00451fc0((void *)(arg0), (const void *)(D_0064ECA0), 0x13, 0, 0, func_00388b40, func_00388ba0, (u8 *)(work));
+    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064ECA0), 0x13, 0, 0, func_00388b40, func_00388ba0, (u8 *)(work));
     if (task == NULL) {
         func_0046d730(D_0064EEB0, 0x64A);
     }
@@ -2990,7 +2990,7 @@ u8 *func_0038cec0(s32 arg0)
     if (work == NULL) {
         func_0046d730(D_0064F0E0, 0x59E);
     }
-    task = func_00451fc0((void *)(arg0), (const void *)(D_0064EED0), 0x13, 0, 0, func_0038ce30, func_0038ce90, (u8 *)(work));
+    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064EED0), 0x13, 0, 0, func_0038ce30, func_0038ce90, (u8 *)(work));
     if (task == NULL) {
         func_0046d730(D_0064F0E0, 0x5A8);
     }

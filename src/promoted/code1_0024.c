@@ -9,8 +9,8 @@ extern void func_0044ea90(void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00635990[];
 extern u8 D_006359A0[];
-extern void func_00452080(s32 arg0);
-extern s32 func_00452380(void *path);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
+extern s32 kwlnTaskGetTaskByName(void *path);
 extern void func_0046d730(void *file, s32 line);
 extern u8 D_006359B0[];
 extern u8 D_006359C0[];
@@ -268,7 +268,7 @@ void func_00246590(u8 *unusedTask)
 void func_002465a0(void)
 {
     func_0044ea90(D_00635990, 0xD1);
-    (s32)func_00451de0((const void *)(D_006359A0), 0xF, 0, 0, func_00246580, func_00246590, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
+    (s32)kwlnTaskCreate((const void *)(D_006359A0), 0xF, 0, 0, func_00246580, func_00246590, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
 }
 // FUN_00246620
 void func_00246620(void)
@@ -278,18 +278,18 @@ void func_00246620(void)
 // FUN_00246640
 s32 func_00246640(void)
 {
-    return func_00452380(D_006359B0) != 0;
+    return kwlnTaskGetTaskByName(D_006359B0) != 0;
 }
 // FUN_00246670
 void func_00246670(void)
 {
     s32 temp_2;
 
-    temp_2 = func_00452380(D_006359B0);
+    temp_2 = kwlnTaskGetTaskByName(D_006359B0);
     if (temp_2 == 0) {
         func_0046d730(D_006359C0, 0x3D);
     }
-    func_00452080(temp_2);
+    kwlnTaskDestroyWithHierarchy(temp_2);
 }
 // FUN_002466D0
 void func_002466d0(void)

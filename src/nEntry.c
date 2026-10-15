@@ -12,7 +12,7 @@ extern void func_002a2340(void);
 extern void hsndQueueSound(s32 arg0, s32 arg1);
 extern s32 func_0046aea0(u8 *name);
 extern s32 func_0046a750(s32 handle);
-extern s32 func_004522d0(s32 handle);
+extern s32 kwlnTaskGetState(s32 handle);
 extern s32 func_002a1f20(u8 *arg0);
 extern void func_002a2310(u8 *arg0);
 extern u8 D_0063E900[];
@@ -54,7 +54,7 @@ s32 func_002a2420(u8 *arg0) {
             r = 0;
         } else {
             memset(mem, 0, 0x1C6C);
-            r = (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063E8F0), 0xF, 0, 0, func_002a1f20, func_002a2310, (u8 *)(mem));
+            r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063E8F0), 0xF, 0, 0, func_002a1f20, func_002a2310, (u8 *)(mem));
         }
         *(s32 *)(st + 0x10) = r;
         *(s32 *)st = 3;
@@ -64,8 +64,8 @@ s32 func_002a2420(u8 *arg0) {
         *(s32 *)st = 5;
         break;
     case 5:
-        if (func_004522d0(*(s32 *)(st + 0x10)) != 3) {
-            if (func_004522d0(*(s32 *)(st + 0x10)) != 0) {
+        if (kwlnTaskGetState(*(s32 *)(st + 0x10)) != 3) {
+            if (kwlnTaskGetState(*(s32 *)(st + 0x10)) != 0) {
                 break;
             }
         }
@@ -103,6 +103,6 @@ s32 func_002a2650(u8 *arg0)
         return 0;
     }
     memset(mem, 0, 0x18);
-    return (s32)func_00451fc0((void *)(arg0), (const void *)(D_0063E918), 0xF, 0, 0, func_002a2420, func_002a2600, (u8 *)(mem));
+    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063E918), 0xF, 0, 0, func_002a2420, func_002a2600, (u8 *)(mem));
 }
 

@@ -134,6 +134,6 @@ s32 func_0026da30(s32 arg0, s32 arg1)
     mem = D_008873F4[0](1, 0x10, 0x40000);
     *(s16 *)(mem + 4) = arg0;
     *(s32 *)(mem + 8) = arg1;
-    return (s32)func_00451de0((const void *)(&iGpffffa700), 0xF, 0, 0, func_0026d890, func_0026d9f0, (u8 *)(mem));
+    return (s32)kwlnTaskCreate((const void *)(&iGpffffa700), 0xF, 0, 0, func_0026d890, func_0026d9f0, (u8 *)(mem));
 }
 

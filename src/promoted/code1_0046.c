@@ -1136,7 +1136,7 @@ s32 func_004633f0(u8 *unusedTask)
 
 // FUN_00463520
 void func_00463520(void) {
-    func_00451de0((const void *)(D_00712670), 0x12C, 0, 0, func_004633f0, 0, (u8 *)(0));
+    kwlnTaskCreate((const void *)(D_00712670), 0x12C, 0, 0, func_004633f0, 0, (u8 *)(0));
 }
 
 // FUN_004645E0
@@ -2664,7 +2664,7 @@ s32 func_0046a110(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = (s32)func_00451fc0((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, func_0046a020, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, func_0046a020, (u8 *)(work));
     if (result == 0) {
         return 0;
     }
@@ -2689,7 +2689,7 @@ s32 func_0046a1f0(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = (s32)func_00451fc0((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, func_0046a020, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, func_0046a020, (u8 *)(work));
     if (result == 0) {
         return 0;
     }
@@ -2772,7 +2772,7 @@ loop_done:
         func_0042ba70(count);
     }
 }
-extern void func_00451b70(void);
+extern void kwlnTaskDumpAll(void);
 extern char *func_004526e0(void);
 extern void func_0046d700(const char *file, s32 line, const char *msg, ...);
 extern char D_00713078[], D_00713088[], D_007130A0[];
@@ -2868,7 +2868,7 @@ allocated:
     }
     candidate = finish;
     if (candidate + size >= iGpffffbb10) {
-        func_00451b70();
+        kwlnTaskDumpAll();
         func_00440b68(D_00713078);
         task_name = func_004526e0();
         func_0046d700((const char *)D_00713088, 0xFA,
@@ -3364,7 +3364,7 @@ u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
     if (work == NULL) {
         return NULL;
     }
-    result = (s32)func_00451fc0((void *)((s32)parent), (const void *)(D_00713108), 0x101, 0, 0, func_0046d750, func_0046e7f0, (u8 *)((u8 *)work));
+    result = (s32)kwlnTaskCreateChild((void *)((s32)parent), (const void *)(D_00713108), 0x101, 0, 0, func_0046d750, func_0046e7f0, (u8 *)((u8 *)work));
     work->enabled = 1;
     work->rect = *rect;
     work->first = *first;

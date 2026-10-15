@@ -3,8 +3,8 @@
 #include "sdk_task_registration.h"
 /* Original translation unit shdScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
-extern s32 func_00452490();
-extern s32 func_00452380();
+extern s32 kwlnTaskIsLinked();
+extern s32 kwlnTaskGetTaskByName();
 extern u8 D_00636A30[];
 
 typedef void (*code)(void *);
@@ -148,12 +148,12 @@ s32 func_0025cbc0(u8 *arg0, s32 arg1, s32 arg2)
     *(s32 *)(mem + 4) = arg1;
     *(s32 *)(mem + 8) = arg2;
     *(s32 *)(mem + 0xC) = -1;
-    return (s32)func_00451fc0((void *)(arg0), (const void *)(D_00636A30), 0xF, 0, 0, func_0025c790, func_0025cb80, (u8 *)(mem));
+    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00636A30), 0xF, 0, 0, func_0025c790, func_0025cb80, (u8 *)(mem));
 }
 
 // FUN_0025CC70
 s32 func_0025cc70(void) {
-    return func_00452490(func_00452380(D_00636A30)) != 0;
+    return kwlnTaskIsLinked(kwlnTaskGetTaskByName(D_00636A30)) != 0;
 }
 
 /* measured: explicit hit local and shared done label preserve retail's
@@ -173,10 +173,10 @@ s32 func_0025ccb0(void) {
         *(s32 *)(buf + 4) = a;
         *(s32 *)(buf + 8) = b;
         *(s32 *)(buf + 0xC) = -1;
-        (s32)func_00451fc0((void *)(NULL), (const void *)(D_00636A30), 0xF, 0, 0, func_0025c790, func_0025cb80, (u8 *)(buf));
+        (s32)kwlnTaskCreateChild((void *)(NULL), (const void *)(D_00636A30), 0xF, 0, 0, func_0025c790, func_0025cb80, (u8 *)(buf));
         goto done;
     }
-    hit = func_00452490(func_00452380(D_00636A30)) != 0;
+    hit = kwlnTaskIsLinked(kwlnTaskGetTaskByName(D_00636A30)) != 0;
     if (hit != 0) {
         goto done;
     }

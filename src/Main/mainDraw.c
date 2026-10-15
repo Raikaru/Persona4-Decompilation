@@ -558,7 +558,7 @@ void mainDrawStartClearOt(void) {
 
     func_0044ea90(&D_005DCAE8, 0x13B);
     temp_2 = D_008873F4[0](1, 0x60, 0x40000);
-    temp_2_2 = (s32)func_00451de0((const void *)(&D_005DCAF8), 0xA, 0, 0, mainDrawClearOtUpdate, 0, (u8 *)(temp_2));
+    temp_2_2 = (s32)kwlnTaskCreate((const void *)(&D_005DCAF8), 0xA, 0, 0, mainDrawClearOtUpdate, 0, (u8 *)(temp_2));
     *(void **)(temp_2 + 8) = &D_001013A0;
     *(s32 *)(temp_2 + 0x10) = 0;
     *(void (**)(void))(temp_2 + 0x38) = mainDrawClearCameraAndSky;
@@ -595,7 +595,7 @@ void mainDrawFrameDestroy(u8 *arg0) {
 // FUN_00102610
 void mainDrawStartFrame(void) {
     func_0044ea90(&D_005DCAE8, 0x1FD);
-    if ((s32)func_00451de0((const void *)(&D_005DCB10), 0xC8, 0, 0, mainDrawFrameUpdate, mainDrawFrameDestroy, (u8 *)(D_008873F4[0](1, 4, 0x40000))) == 0) {
+    if ((s32)kwlnTaskCreate((const void *)(&D_005DCB10), 0xC8, 0, 0, mainDrawFrameUpdate, mainDrawFrameDestroy, (u8 *)(D_008873F4[0](1, 4, 0x40000))) == 0) {
         func_0046d730(&D_005DCAE8, 0x208);
     }
 }

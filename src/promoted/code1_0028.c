@@ -6,7 +6,7 @@
 #include "scene_light_override_internal.h"
 #include "evt_internal.h"
 
-s32 func_00452380(void *arg0);
+s32 kwlnTaskGetTaskByName(void *arg0);
 extern s32 D_0063C368[];
 
 extern u32 func_00452560(void *task);
@@ -314,7 +314,7 @@ s32 evtStart(s32 arg0, s32 arg1) {
     if (arg0 != 0) {
         p[0] |= 0x40000000;
     }
-    task = (s32)func_00451de0((const void *)(D_0063C368), 0, 0, 0, func_00285dd0, evtTaskDestroy, (u8 *)(p));
+    task = (s32)kwlnTaskCreate((const void *)(D_0063C368), 0, 0, 0, func_00285dd0, evtTaskDestroy, (u8 *)(p));
     if (arg1 != 0) {
         p[0] |= 0x80000000;
     }
@@ -323,7 +323,7 @@ s32 evtStart(s32 arg0, s32 arg1) {
 // Event task lookup: returns the id of the event task registered under the event name.
 // FUN_00286350
 s32 evtFindTask(void) {
-    return func_00452380(D_0063C368);
+    return kwlnTaskGetTaskByName(D_0063C368);
 }
 
 

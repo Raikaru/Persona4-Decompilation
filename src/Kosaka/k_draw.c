@@ -97,7 +97,7 @@ s32 KDraw_CreateGroupTask(s32 arg0, s32 arg1, s32 arg2)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFBD8), 0xF, 0, 0, func_0014d470, func_0014d4e0, (u8 *)(buf));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFBD8), 0xF, 0, 0, func_0014d470, func_0014d4e0, (u8 *)(buf));
     *(s32 *)(buf + 0xC) = arg1;
     *(s32 *)(buf + 0x4) = 0x14;
     *(s32 *)(buf + 0x110) = arg2;
@@ -157,7 +157,7 @@ s32 KDraw_CreateSphereTask(s32 arg0, s32 arg1)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFBE8), 0xF, 0, 0, KDraw_UpdateSphere, KDraw_DestroySphere, (u8 *)(buf));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFBE8), 0xF, 0, 0, KDraw_UpdateSphere, KDraw_DestroySphere, (u8 *)(buf));
     *(s32 *)(buf + 0x14) = arg1;
     return ret;
 }
@@ -223,7 +223,7 @@ s32 KDraw_CreateCylinderTask(s32 arg0, s32 arg1)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFBF8), 0xF, 0, 0, KDraw_UpdateCylinder, KDraw_DestroyCylinder, (u8 *)(buf));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFBF8), 0xF, 0, 0, KDraw_UpdateCylinder, KDraw_DestroyCylinder, (u8 *)(buf));
     *(s32 *)(buf + 0x18) = arg1;
     return ret;
 }
@@ -299,7 +299,7 @@ s32 KDraw_CreateAxesTask(void *parent, void *drawList)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)func_00451fc0(parent, (const void *)(D_005EFC08), 0xF, 0, 0, KDraw_UpdateAxes, KDraw_DestroyAxes, (u8 *)(buf));
+    ret = (s32)kwlnTaskCreateChild(parent, (const void *)(D_005EFC08), 0xF, 0, 0, KDraw_UpdateAxes, KDraw_DestroyAxes, (u8 *)(buf));
     *(f32 *)(buf + 0x28) = 1.0f;
     *(f32 *)(buf + 0x14) = 1.0f;
     *(f32 *)(buf + 0x00) = 1.0f;

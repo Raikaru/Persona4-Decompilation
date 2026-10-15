@@ -7,7 +7,7 @@
 #include "scene_light_override_internal.h"
 #include "evt_internal.h"
 
-s32 func_00452380(void *arg0);
+s32 kwlnTaskGetTaskByName(void *arg0);
 extern s32 D_0063C368[];
 
 
@@ -69,7 +69,7 @@ s32 func_002853b0(void) {
 
 // FUN_002853C0
 void func_002853c0(void) {
-    func_00452380(&iGpffffa790);
+    kwlnTaskGetTaskByName(&iGpffffa790);
 }
 
 /* measured: retail hoists the lookup table address before the search loop. */

@@ -18,8 +18,8 @@ void memset(void *dst, s32 c, s32 n);
 extern s32 D_008821E0[];
 void MT_Scene_ClearExclusiveRes(void);
 struct KwlnTask;
-s32 func_00452080(struct KwlnTask *handle);
-s32 func_00452490(void *handle);
+s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *handle);
+s32 kwlnTaskIsLinked(void *handle);
 extern u8 D_0063C3C0[];
 extern u8 D_0063C3E0[];
 s32 func_00298130();
@@ -773,10 +773,10 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
         if (arg2 == NULL) {
             if ((temp_6 & 0x80000000) != 0) {
                 if (*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4) != NULL) {
-                    if (func_00452490(*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4)) != 0) {
+                    if (kwlnTaskIsLinked(*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4)) != 0) {
                         func_00120f20(*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4));
                         if (func_00120ee0(*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4)) != 0) {
-                            func_00452080((struct KwlnTask *)*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4));
+                            kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4));
                         }
                     }
                     *(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4) = NULL;
@@ -796,7 +796,7 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                     cutinCode.halves.first = (s16)var_4_3;
                     cutinCode.halves.second = (s16)var_3_3;
                     var_19 = (u8 *)*(s32 *)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4);
-                    if ((var_19 != NULL) && (func_00452490((void *)var_19) != 0)) {
+                    if ((var_19 != NULL) && (kwlnTaskIsLinked((void *)var_19) != 0)) {
                         func_00120f20(var_19);
                     }
                     {
@@ -831,7 +831,7 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                     break;
                 case 2:
                     arg2 = (u8 *)*(s32 *)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4);
-                    if ((arg2 != NULL) && (func_00452490((void *)arg2) != 0)) {
+                    if ((arg2 != NULL) && (kwlnTaskIsLinked((void *)arg2) != 0)) {
                         func_00120f20(arg2);
                     }
                     *(s32 *)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4) = 0;
@@ -1962,7 +1962,7 @@ s32 evtCmdTaskSlot(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             while (arg1 < 3U) {
                 slot = arg2 + arg1 * 4 + 0x6D0;
                 if (*(s32 *)slot != 0) {
-                    func_00452080((struct KwlnTask *)*(s32 *)slot);
+                    kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(s32 *)slot);
                 }
                 *(s32 *)slot = 0;
                 arg1 += 1;
@@ -1976,14 +1976,14 @@ s32 evtCmdTaskSlot(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             offset = (*(u8 *)(arg4 + 0x12) >> 4) * 4;
             slot = (u8 *)((u32)offset + (u32)arg2 + 0x6D0);
             if (*(s32 *)slot != 0) {
-                func_00452080((struct KwlnTask *)*(s32 *)slot);
+                kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(s32 *)slot);
                 *(s32 *)slot = 0;
             }
             switch (*(u8 *)(arg4 + 0x12) & 0xF) {
             case 0:
                 result = *(s32 *)slot;
                 if (result != 0) {
-                    func_00452080((struct KwlnTask *)result);
+                    kwlnTaskDestroyWithHierarchy((struct KwlnTask *)result);
                     result = 0;
                 }
                 break;
@@ -2101,13 +2101,13 @@ s32 evtCmdTaskHandle(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             goto ret;
         }
         if (*(u8 *)(arg4 + 0x10) != 0) {
-            if (*(u32 *)(arg2 + 0x768) != 0 && func_00452490((void *)*(u32 *)(arg2 + 0x768)) != 0) {
-                func_00452080((struct KwlnTask *)*(u32 *)(arg2 + 0x768));
+            if (*(u32 *)(arg2 + 0x768) != 0 && kwlnTaskIsLinked((void *)*(u32 *)(arg2 + 0x768)) != 0) {
+                kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(u32 *)(arg2 + 0x768));
             }
             *(u32 *)(arg2 + 0x768) = func_00186640((u8 *)t);
         } else {
-            if (*(u32 *)(arg2 + 0x768) != 0 && func_00452490((void *)*(u32 *)(arg2 + 0x768)) != 0) {
-                func_00452080((struct KwlnTask *)*(u32 *)(arg2 + 0x768));
+            if (*(u32 *)(arg2 + 0x768) != 0 && kwlnTaskIsLinked((void *)*(u32 *)(arg2 + 0x768)) != 0) {
+                kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(u32 *)(arg2 + 0x768));
             }
             *(u32 *)(arg2 + 0x768) = 0;
         }
@@ -2573,8 +2573,8 @@ loop_6_body:
     temp_2 = (s32 *)(arg0 + (var_16 * 4) + 0x6C4);
     temp_4 = *temp_2;
     if (temp_4 != 0) {
-        if (func_00452490((void *)temp_4) != 0) {
-            func_00452080((struct KwlnTask *)*temp_2);
+        if (kwlnTaskIsLinked((void *)temp_4) != 0) {
+            kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*temp_2);
         }
         *temp_2 = 0;
     }
@@ -2593,13 +2593,13 @@ loop_6_test:
     evtReleaseRes(arg0);
     func_00298190(2, 0);
     temp_4_2 = (s32)(*(s32 *)(arg0 + 0x760));
-    if ((temp_4_2 != 0) && (func_00452490((void *)temp_4_2) != 0)) {
-        func_00452080((struct KwlnTask *)*(s32 *)(arg0 + 0x760));
+    if ((temp_4_2 != 0) && (kwlnTaskIsLinked((void *)temp_4_2) != 0)) {
+        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(s32 *)(arg0 + 0x760));
         *(s32 *)(arg0 + 0x760) = 0;
     }
     temp_4_3 = (s32)(*(s32 *)(arg0 + 0x768));
-    if ((temp_4_3 != 0) && (func_00452490((void *)temp_4_3) != 0)) {
-        func_00452080((struct KwlnTask *)*(s32 *)(arg0 + 0x768));
+    if ((temp_4_3 != 0) && (kwlnTaskIsLinked((void *)temp_4_3) != 0)) {
+        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(s32 *)(arg0 + 0x768));
         *(s32 *)(arg0 + 0x768) = 0;
     }
     if (arg1 != 0) {
@@ -2607,7 +2607,7 @@ loop_6_test:
     }
     temp_4_4 = (s32)(*(s32 *)(arg0 + 0x75C));
     if (temp_4_4 != 0) {
-        func_00452080((struct KwlnTask *)temp_4_4);
+        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)temp_4_4);
         *(s32 *)(arg0 + 0x75C) = 0;
     }
     if (arg0 == NULL) {
@@ -2704,7 +2704,7 @@ void evtDestroy(int param_1, s32 arg1) {
     if ((*(u32 *)param_1 & 0x40000000) == 0) {
         f77c = *(u32 *)(param_1 + 0x77C);
         if (f77c != 0) {
-            func_00452080((struct KwlnTask *)f77c);
+            kwlnTaskDestroyWithHierarchy((struct KwlnTask *)f77c);
             *(u32 *)(param_1 + 0x77C) = 0;
         }
     }

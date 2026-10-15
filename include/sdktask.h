@@ -6,11 +6,10 @@
 
 /* The object every registered task handler receives as its argument.
  *
- * `func_00451fc0(parent, name, prio, a3, a4, update, free, work)` shifts its
- * arguments down and calls `func_00451de0(name, prio, a3, a4, update, free,
- * work)` to build one of these, then attaches it to `parent`. Reading the
- * stores in `func_00451de0` (asm/nonmatchings/sdkTask/func_00451de0.s) gives
- * the offsets below directly:
+ * `kwlnTaskCreateChild(parent, name, prio, a3, a4, update, free, work)` shifts
+ * its arguments down and calls `kwlnTaskCreate(name, prio, a3, a4, update,
+ * free, work)` to build one of these, then attaches it to `parent`. Reading
+ * the stores in `kwlnTaskCreate` gives the offsets below directly:
  *
  *     sb  $3,  0($2)       name bytes stored inline from offset 0
  *     sw  $2,  0x18($21)   signed-byte name accumulator, not a pointer

@@ -11,8 +11,8 @@ extern void *func_00454a60(const char *path, s32 flags);
 extern void H_Cdvd_Destroy(void *handle);
 extern s32 H_Cdvd_IsFileLoaded(void *handle);
 
-extern s32 func_00452490(s32);
-extern void func_00452080(s32 handle);
+extern s32 kwlnTaskIsLinked(s32);
+extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *, void *);
@@ -87,18 +87,18 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
             temp_2_3 = (s32 *)((void *(*)(s32, s32, u32))*(u32 *)allocator)(1, 0xC, 0x40000);
             temp_2_3[0] = 0;
             temp_2_3[1] = (s32)func_004667d0(0, D_005E5770, 0, 0, 0, 0, 0, 0, 0, 0);
-            temp_2->task10 = (s32)func_00451de0((const void *)(&D_00762D98), 0x100, 0, 0, func_0012b890, func_0012b940, (u8 *)(temp_2_3));
+            temp_2->task10 = (s32)kwlnTaskCreate((const void *)(&D_00762D98), 0x100, 0, 0, func_0012b890, func_0012b940, (u8 *)(temp_2_3));
             func_0044ea90(&D_005E5730, 0x4D);
             temp_2_4 = (s32 *)((void *(*)(s32, s32, u32))*(u32 *)allocator)(1, 0xC, 0x40000);
             temp_2_4[0] = 0;
             temp_2_4[1] = (s32)func_004667d0(0, D_005E5790, 0, 0, 0, 0, 0, 0, 0, 0);
-            temp_2->task14 = (s32)func_00451de0((const void *)(&D_00762D98), 0x100, 0, 0, func_0012b890, func_0012b940, (u8 *)(temp_2_4));
+            temp_2->task14 = (s32)kwlnTaskCreate((const void *)(&D_00762D98), 0x100, 0, 0, func_0012b890, func_0012b940, (u8 *)(temp_2_4));
         }
         break;
     case 3:
         temp_19 = temp_2->task10;
         temp_18 = (s32 *)func_00452560(temp_19);
-        if (func_00452490(temp_19) == 0) {
+        if (kwlnTaskIsLinked(temp_19) == 0) {
             var_2 = 0;
         } else if (*temp_18 == 3) {
             var_2 = 1;
@@ -108,7 +108,7 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
         if (var_2 != 0) {
             temp_19_2 = temp_2->task14;
             temp_18_2 = (s32 *)func_00452560(temp_19_2);
-            if (func_00452490(temp_19_2) == 0) {
+            if (kwlnTaskIsLinked(temp_19_2) == 0) {
                 var_2_2 = 0;
             } else if (*temp_18_2 == 3) {
                 var_2_2 = 1;
@@ -192,7 +192,7 @@ void logoTaskDestroy(u8 *unusedTask)
     temp_2 = func_00452560();
     temp_18 = temp_2->task10;
     temp_17 = func_00452560(temp_18);
-    if (func_00452490(temp_18) == 0) {
+    if (kwlnTaskIsLinked(temp_18) == 0) {
         var_2 = 0;
     } else if (*temp_17 == 3) {
         var_2 = 1;
@@ -204,7 +204,7 @@ void logoTaskDestroy(u8 *unusedTask)
     }
     temp_18_2 = temp_2->task14;
     temp_17_2 = func_00452560(temp_18_2);
-    if (func_00452490(temp_18_2) == 0) {
+    if (kwlnTaskIsLinked(temp_18_2) == 0) {
         var_2_2 = 0;
     } else if (*temp_17_2 == 3) {
         var_2_2 = 1;
@@ -214,8 +214,8 @@ void logoTaskDestroy(u8 *unusedTask)
     if (var_2_2 == 0) {
         func_0046d730(&D_005E5730, 0xF9);
     }
-    func_00452080(temp_2->task10);
-    func_00452080(temp_2->task14);
+    kwlnTaskDestroyWithHierarchy(temp_2->task10);
+    kwlnTaskDestroyWithHierarchy(temp_2->task14);
     H_Cdvd_Destroy(temp_2->handle);
     jtbl_008873EC[0](temp_2);
 }
@@ -234,6 +234,6 @@ s32 logoTaskStart(void)
         return 0;
     }
     *(s32 *)((u8 *)temp_2 + 4) = 0;
-    return (s32)func_00451de0((const void *)(&D_005E57A8), 0xF, 0, 0, logoTaskUpdate, logoTaskDestroy, (u8 *)(temp_2));
+    return (s32)kwlnTaskCreate((const void *)(&D_005E57A8), 0xF, 0, 0, logoTaskUpdate, logoTaskDestroy, (u8 *)(temp_2));
 }
 

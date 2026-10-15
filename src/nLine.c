@@ -97,7 +97,7 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1);
 s32 func_0034b970(void) {
     s32 temp_2;
 
-    temp_2 = (s32)func_00451de0((const void *)(&iGpffffa948), 0xC7, 0, 0, func_0034b8d0, 0, (u8 *)(0));
+    temp_2 = (s32)kwlnTaskCreate((const void *)(&iGpffffa948), 0xC7, 0, 0, func_0034b8d0, 0, (u8 *)(0));
     if (temp_2 == 0) {
         func_0046d730(&iGpffffa950, 0x168);
     }

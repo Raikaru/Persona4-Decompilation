@@ -32,9 +32,9 @@ extern s32 datGetFlag(s32 id);
 extern s32 func_00122720(void);
 extern s32 func_001227a0(void);
 extern void func_00122520(s32 a, s32 b);
-extern s32 func_00452380(void *path);
-extern s32 func_00452490(s32 handle);
-extern void func_00452570(void *a, void *b);
+extern s32 kwlnTaskGetTaskByName(void *path);
+extern s32 kwlnTaskIsLinked(s32 handle);
+extern void kwlnTaskAddChild(void *a, void *b);
 extern s32 func_0045a3e0(s32 a, s32 b);
 extern void func_004598e0(s32 fadeDuration);
 extern s32 func_0046a1f0(s32 a, s64 b, void *c);
@@ -84,7 +84,7 @@ void func_0038ee40(void) {
                 func_0038de90();
                 func_0045a3e0(0x23, 1);
             }
-            if ((func_0038df10() == 0) && (func_00452490(*(s32 *)(p + 0x1250)) == 0)) {
+            if ((func_0038df10() == 0) && (kwlnTaskIsLinked(*(s32 *)(p + 0x1250)) == 0)) {
                 func_00122520(func_001227a0(), 0xA);
                 *(s32 *)(p + 0x124C) = 3;
                 if (datGetFlag(0x1472) == 0) {
@@ -191,9 +191,9 @@ s32 func_0038f290(void) {
     if (r == 0xA) {
         func_0044ea90(&iGpffffa9f0, 0x112);
         w = (u8 *)jtbl_008873E8[0](0x1258, 0x40000);
-        state = (s32)func_00451fc0((void *)(0), (const void *)(&iGpffffa9f8), 0xF, 0, 0, func_0038f160, func_0038f220, (u8 *)(w));
-        *(s32 *)(w + 8) = (s32)func_00451de0((const void *)(&D_0064F230), 0x97, 1, 2, func_0038f1c0, 0, (u8 *)(0));
-        func_00452570((void *)state, (void *)*(s32 *)(w + 8));
+        state = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(&iGpffffa9f8), 0xF, 0, 0, func_0038f160, func_0038f220, (u8 *)(w));
+        *(s32 *)(w + 8) = (s32)kwlnTaskCreate((const void *)(&D_0064F230), 0x97, 1, 2, func_0038f1c0, 0, (u8 *)(0));
+        kwlnTaskAddChild((void *)state, (void *)*(s32 *)(w + 8));
         *(s32 *)(w + 0) = 0;
         brpParamSetCurrent(w + 0xC);
         func_0038dd90(w + 0x1C);
@@ -206,7 +206,7 @@ s32 func_0038f290(void) {
         func_0038f7f0();
         *(s32 *)(p + 0x124C) = 0;
         *(s32 *)p |= 1;
-    } else if ((r > 0xA) && (func_00452380(&iGpffffa9f8) == 0)) {
+    } else if ((r > 0xA) && (kwlnTaskGetTaskByName(&iGpffffa9f8) == 0)) {
         return 1;
     }
     return 0;

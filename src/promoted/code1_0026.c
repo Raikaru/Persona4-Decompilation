@@ -77,7 +77,7 @@ static inline u8 *func_0026f1e0_add(u8 *base, u32 index)
 }
 
 extern u8 *func_00452560();
-extern s32 func_00452490();
+extern s32 kwlnTaskIsLinked();
 
 extern s32 func_0025ef20(u8 *arg0);
 extern u8 D_00637420[];
@@ -104,8 +104,8 @@ extern s32 func_0025f110(u8 *arg0);
 extern u8 D_00638F90[];
 extern void func_002674b0(s32 arg0, u8 *arg1);
 extern char D_00637348[];
-extern s32 func_00452380(void *arg0);
-extern void func_00452080(s32 arg0);
+extern s32 kwlnTaskGetTaskByName(void *arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_00263cb0(s32 arg0, u8 *arg1);
 extern void frFontSetStateBits(u32 param_1, int param_2);
 extern s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2);
@@ -160,7 +160,7 @@ void func_00260510(void)
     s32 temp_2;
     u8 *temp_2_2;
 
-    temp_2 = func_00452380(D_00637348);
+    temp_2 = kwlnTaskGetTaskByName(D_00637348);
     if (temp_2 != 0) {
         temp_2_2 = func_00452560(temp_2);
         *(s32 *)(temp_2_2 + 8) |= 1;
@@ -171,9 +171,9 @@ void func_00260560(void)
 {
     s32 temp_2;
 
-    temp_2 = func_00452380(D_00637348);
+    temp_2 = kwlnTaskGetTaskByName(D_00637348);
     if (temp_2 != 0) {
-        func_00452080(temp_2);
+        kwlnTaskDestroyWithHierarchy(temp_2);
     }
 }
 /* measured: declaring func_0025f430's halfword parameters as s16 reproduces
@@ -1626,8 +1626,8 @@ void func_00264d10(u8 *unusedTask)
     u8 *temp_2;
 
     temp_2 = func_00452560();
-    if (func_00452490((u8 *)*(s32 *)(temp_2 + 0x14)) != 0) {
-        func_00452080(*(s32 *)(temp_2 + 0x14));
+    if (kwlnTaskIsLinked((u8 *)*(s32 *)(temp_2 + 0x14)) != 0) {
+        kwlnTaskDestroyWithHierarchy(*(s32 *)(temp_2 + 0x14));
     }
     temp_4 = *(s32 *)(temp_2 + 4);
     if (temp_4 != 0) {
@@ -1652,7 +1652,7 @@ s32 func_00266a40(u32 unk, s32 arg1) {
 void func_00266a90(u8 *arg0) {
     u8 *p;
 
-    if (func_00452490(arg0) != 0) {
+    if (kwlnTaskIsLinked(arg0) != 0) {
         p = func_00452560(arg0);
         *(s32 *)(p + 4) |= 2;
     }
@@ -1664,7 +1664,7 @@ s32 func_00266ae0(s32 arg0)
     u8 *temp_2;
     s32 temp_4;
 
-    if (func_00452490() != 0) {
+    if (kwlnTaskIsLinked() != 0) {
         temp_2 = func_00452560(arg0);
         temp_4 = *(s32 *)(temp_2 + 4);
         if ((temp_4 & 1) && !(temp_4 & 4)) {
@@ -1838,7 +1838,7 @@ s32 func_00267570(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     *(s32 *)(work + 8) = arg3;
     *(s32 *)(work + 0xC) = arg1;
     *(s32 *)(work + 0x10) = arg2;
-    result = (s32)func_00451fc0((void *)(arg0), (const void *)(D_00638FB0), 0xF, 0, 0, func_00266ba0, func_00267510, (u8 *)((s32)work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00638FB0), 0xF, 0, 0, func_00266ba0, func_00267510, (u8 *)((s32)work));
     func_0045a8d0(3, 0);
     func_004598e0(0xA);
     return result;
@@ -2629,8 +2629,8 @@ s32 func_0026df80(void)
 {
     s32 temp_2;
 
-    temp_2 = (s32)func_00451fc0((void *)(0), (const void *)(D_0063B5A0), 0x10, 0, 0, func_0026db60, func_0026dc30, (u8 *)(0));
-    (s32)func_00451fc0((void *)(temp_2), (const void *)(D_0063B5C0), 0x10, 0, 0, func_0026dee0, 0, (u8 *)(0));
+    temp_2 = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063B5A0), 0x10, 0, 0, func_0026db60, func_0026dc30, (u8 *)(0));
+    (s32)kwlnTaskCreateChild((void *)(temp_2), (const void *)(D_0063B5C0), 0x10, 0, 0, func_0026dee0, 0, (u8 *)(0));
     return temp_2;
 }
 /* Allocate a header and count+1 linked records, including the wrap record.

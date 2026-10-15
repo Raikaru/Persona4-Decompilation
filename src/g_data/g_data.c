@@ -208,8 +208,8 @@ extern code DAT_008873ec_abs[];
 
 extern char D_005e4308[];
 extern char D_005E4318[];
-extern long func_00452380(void* path);
-extern void func_00452080(long handle);
+extern long kwlnTaskGetTaskByName(void* path);
+extern void kwlnTaskDestroyWithHierarchy(long handle);
 
 extern void FUN_0046d730(const char* file, s32 line);
 
@@ -1434,10 +1434,10 @@ void func_00108d80(void)
 {
   long handle;
 
-  if ((handle = func_00452380(D_005e4308)) == 0) {
+  if ((handle = kwlnTaskGetTaskByName(D_005e4308)) == 0) {
     return;
   }
-  func_00452080(handle);
+  kwlnTaskDestroyWithHierarchy(handle);
   return;
 }
 

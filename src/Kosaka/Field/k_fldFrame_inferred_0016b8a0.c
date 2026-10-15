@@ -502,7 +502,7 @@ extern float D_00756520[];
 s32 func_0016bdd0(u8 *param_1)
 
 {
-  extern int func_00452080(void *);
+  extern int kwlnTaskDestroyWithHierarchy(void *);
   typedef struct { float x, y, z; } FldTriVec;
   typedef struct { u32 w[16]; } FldMtx64;
   extern float fabsf(float);
@@ -1494,7 +1494,7 @@ s32 func_0016bdd0(u8 *param_1)
           if (fadeTask != (unsigned char *)0x0 &&
               (temp_v4_c = func_0014bd90(fadeTask), temp_v4_c == 1)) {
             mdlClearAlphaBlend(*(unsigned char **)(piVar1[0xa2] + 0x164));
-            func_00452080((void *)piVar1[0xaa]);
+            kwlnTaskDestroyWithHierarchy((void *)piVar1[0xaa]);
             piVar1[0xaa] = 0;
           }
         }
@@ -1502,7 +1502,7 @@ s32 func_0016bdd0(u8 *param_1)
         if (temp_v11_c <= 55.0f + ((float *)piVar1)[0xa4]) {
           if (piVar1[0xaa] != 0) {
             mdlClearAlphaBlend(*(unsigned char **)(piVar1[0xa2] + 0x164));
-            func_00452080((void *)piVar1[0xaa]);
+            kwlnTaskDestroyWithHierarchy((void *)piVar1[0xaa]);
             piVar1[0xaa] = 0;
           }
           mdlSetColor((void *)*(unsigned int *)(piVar1[0xa2] + 0x164),((int *)&fadeColour));
@@ -1760,12 +1760,12 @@ s32 func_0016e2e0(s32 arg0)
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_18 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F16B0), 0x11, 0, 0, func_0016bdd0, func_0016e210, (u8 *)(temp_2));
+    temp_18 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16B0), 0x11, 0, 0, func_0016bdd0, func_0016e210, (u8 *)(temp_2));
     temp_16 = temp_2 + 0xC;
     temp_2_2 = (u8 *)func_003e9320();
     *(u8 **)(temp_16 + 0) = temp_2_2;
     if (temp_2_2 == NULL) {
-        func_00452080(temp_18);
+        kwlnTaskDestroyWithHierarchy(temp_18);
         return 0;
     }
     func_003e9df0(temp_2_2);
@@ -2320,7 +2320,7 @@ u8 *func_0016f130(u8 *arg0, s32 arg1, s32 arg2)
         if (temp_2 == NULL) {
             return NULL;
         }
-            result = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
+            result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
             *(s32 *)(temp_2 + 4) = arg1;
             temp_f20 = KDraw_MatrixYawDeg(
                 mdlGetMatrix(*(s32 *)D_007EFA00));
@@ -2380,7 +2380,7 @@ u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
         if (temp_2 == NULL) {
             return NULL;
         }
-        result = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
+        result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, func_0016f100, (u8 *)(temp_2));
         *(s32 *)(temp_2 + 4) = arg1;
         KDraw_MatrixYawDeg(mdlGetMatrix(*(s32 *)D_007EFA00));
         temp_f0 = KDraw_MatrixYawDeg(

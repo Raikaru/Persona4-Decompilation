@@ -57,7 +57,7 @@ extern u8 D_00794F00[];
 u32 datGetFlag(s32 id);
 void func_00106390(s32, s32);
 s32 func_0045aeb0(s16 channelIndex, u8 *name);
-s32 func_00452490(void *target);
+s32 kwlnTaskIsLinked(void *target);
 extern u8 D_0064A5B0[];
 s32 func_002b2d00(s32, s32, s32, s32, s8);
 s32 func_004b1130(s32);
@@ -410,10 +410,10 @@ u8 *func_0033f690(u8 *arg0, u8 *arg1, s8 arg2) {
     func_0044ea90(D_0064A4A0, 0x1B8);
     base = (u32)D_008873F4;
     blk1 = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x6E0, 0x40000);
-    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A4E0), 0xF, 0, 0, cmbCardPathUpdate, cmbCardReleaseState, (u8 *)(blk1));
+    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A4E0), 0xF, 0, 0, cmbCardPathUpdate, cmbCardReleaseState, (u8 *)(blk1));
     func_0044ea90(D_0064A4A0, 0xAD);
     blk2 = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x19FDC, 0x40000);
-    ret2 = (u8 *)(s32)func_00451fc0((void *)(ret), (const void *)(D_0064A4B0), 0xF, 0, 0, cmbCardLoaderStep, cmbCardControllerDestroy, (u8 *)(blk2));
+    ret2 = (u8 *)(s32)kwlnTaskCreateChild((void *)(ret), (const void *)(D_0064A4B0), 0xF, 0, 0, cmbCardLoaderStep, cmbCardControllerDestroy, (u8 *)(blk2));
     for (i = 0; i < 0xC; i++) {
         *(s16 *)(blk2 + 2 + (s32)i * 2) = *(s16 *)(arg1 + (s32)i * 2);
     }
@@ -674,7 +674,7 @@ s32 func_0033fc80(u8 *arg0) {
                       func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
     case 8:
-        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
+        if (kwlnTaskIsLinked(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 2) {
                 table = obj + (s32)i8 * 4;
@@ -809,7 +809,7 @@ s32 func_003407f0(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
-        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
+        if (kwlnTaskIsLinked(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 3) {
                 table = obj + (s32)i8 * 4;
@@ -951,7 +951,7 @@ s32 func_00341640(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
-        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
+        if (kwlnTaskIsLinked(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 4) {
                 table = obj + (s32)i8 * 4;
@@ -1098,7 +1098,7 @@ s32 func_003427a0(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
-        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
+        if (kwlnTaskIsLinked(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 5) {
                 table = obj + (s32)i8 * 4;
@@ -1251,7 +1251,7 @@ s32 func_00343cf0(u8 *arg0) {
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
-        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
+        if (kwlnTaskIsLinked(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 6) {
                 table = obj + (s32)i8 * 4;
@@ -1422,7 +1422,7 @@ s32 func_00345700(u8 *arg0) {
                       func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU));
         *(s16 *)(obj + 0x63C) = 8;
     case 8:
-        if (func_00452490(*(u8 **)(obj + 0x64C)) != 1) {
+        if (kwlnTaskIsLinked(*(u8 **)(obj + 0x64C)) != 1) {
             i8 = 0;
             while (i8 < 12) {
                 table = obj + (s32)i8 * 4;
@@ -1641,7 +1641,7 @@ u8 *cmbCardEffTaskCreate(u8 *arg0, s32 *arg1) {
 
     func_0044ea90(D_0064A4A0, 0x702);
     blk = D_008873F4[0](1, 0x1B0, 0x40000);
-    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A5D0), 0xF, 0, 0, func_00347c70, cmbCardEffDestroy, (u8 *)(blk));
+    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A5D0), 0xF, 0, 0, func_00347c70, cmbCardEffDestroy, (u8 *)(blk));
     *(s32 **)(blk + 0x118) = arg1;
     *(s32 *)(blk + 0x11C) = 0;
     for (i = 0; i < 3; i++) {
@@ -1841,7 +1841,7 @@ u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2) {
 
     func_0044ea90(D_0064A4A0, 0x7F5);
     blk = D_008873F4[0](1, 0x70, 0x40000);
-    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A5E8), 0xF, 0, 0, func_00348330, cmbCardEffFreeHandle, (u8 *)(blk));
+    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A5E8), 0xF, 0, 0, func_00348330, cmbCardEffFreeHandle, (u8 *)(blk));
     *(s8 *)(blk + 4) = 0;
     *(s8 *)(blk + 0x14) = arg2;
     func_00440b68(D_00763A28, D_0064A4A0, 0x805);
@@ -2014,7 +2014,7 @@ u8 *func_00349290(u8 *arg0, s8 arg1) {
 
     func_0044ea90(D_0064A4A0, 0x8B9);
     blk = D_008873F4[0](1, 0x18, 0x40000);
-    ret = (u8 *)(s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A600), 0xF, 0, 0, func_00348c40, cmbCardEffReleaseState, (u8 *)(blk));
+    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A600), 0xF, 0, 0, func_00348c40, cmbCardEffReleaseState, (u8 *)(blk));
     *(s8 *)(blk + 0) = arg1;
     *(s8 *)(blk + 1) = 0;
     return ret;

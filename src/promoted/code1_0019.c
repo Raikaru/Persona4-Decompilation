@@ -144,8 +144,8 @@ extern s32 btlUnitLoadBlocksFromFile(u8 *arg0, s32 arg1);
 extern void func_0010d480(void);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void func_00195630(u8 *arg0);
-extern u8 *func_00452380(void *arg0);
-extern void func_00452080(s32 arg0);
+extern u8 *kwlnTaskGetTaskByName(void *arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
@@ -284,8 +284,8 @@ extern u8 *func_00457120(void);
 extern s32 func_003e8120(u8 *arg0);
 extern void func_003c1bd0(s32 arg0);
 extern s32 func_003e8110(u8 *arg0);
-extern u8 *func_00452380(void *arg0);
-extern void func_00452080(s32 arg0);
+extern u8 *kwlnTaskGetTaskByName(void *arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern s32 func_00192cd0(void);
 extern void func_00194a30(void);
 extern void func_0019d670(void);
@@ -351,7 +351,7 @@ s32 func_00190130(s32 arg0)
     if (work == NULL) {
         return 0;
     }
-    return (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(D_005F6020), 0xF, 0, 0, func_0018f950, func_001900a0, (u8 *)(work));
+    return (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(D_005F6020), 0xF, 0, 0, func_0018f950, func_001900a0, (u8 *)(work));
 }
 #pragma opt_propagation off
 #pragma opt_propagation on

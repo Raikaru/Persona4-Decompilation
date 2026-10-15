@@ -168,7 +168,7 @@ void *mdlGetMatrix(void *arg0);
 void MT_Scene_DestroyRes(u16 arg0);
 void mdlClearAlphaBlend(s32 arg0);
 void func_004787e0(u8 *arg0);
-void func_00452080(s32 arg0);
+void kwlnTaskDestroyWithHierarchy(s32 arg0);
 s32 func_00162510(u16 arg0, u16 arg1);
 s32 func_0015a160(void);
 s32 FldUnit_UpdatePartyState(u8 *arg0);
@@ -949,16 +949,16 @@ void FldUnit_ReleaseSlot(u8 *arg0)
             KMisc_CreateDelayMdlFree(*(s32 *)(arg0 + 0x50), 0);
         }
         if (*(s32 *)(arg0 + 0x1B0) != 0) {
-            func_00452080(*(s32 *)(arg0 + 0x1B0));
+            kwlnTaskDestroyWithHierarchy(*(s32 *)(arg0 + 0x1B0));
         }
         if (*(s32 *)(arg0 + 0x734) != 0) {
             DAT_008873EC[0](*(void **)(arg0 + 0x734));
         }
         if (*(s32 *)(arg0 + 0x1B4) != 0) {
-            func_00452080(*(s32 *)(arg0 + 0x1B4));
+            kwlnTaskDestroyWithHierarchy(*(s32 *)(arg0 + 0x1B4));
         }
         if (*(s32 *)(arg0 + 0x1B8) != 0) {
-            func_00452080(*(s32 *)(arg0 + 0x1B8));
+            kwlnTaskDestroyWithHierarchy(*(s32 *)(arg0 + 0x1B8));
         }
         *(s32 *)(arg0 + 0x48) = 0;
         *(s32 *)(arg0 + 0x50) = 0;
@@ -1738,15 +1738,15 @@ void FldUnit_SetSlotModel(u8 *arg0, s32 arg1)
             *(u32 *)(p + 0x50) = 0;
         }
         if (*(u32 *)(p + 0x1B0) != 0) {
-            func_00452080(*(u32 *)(p + 0x1B0));
+            kwlnTaskDestroyWithHierarchy(*(u32 *)(p + 0x1B0));
             *(u32 *)(p + 0x1B0) = 0;
         }
         if (*(u32 *)(p + 0x1B8) != 0) {
-            func_00452080(*(u32 *)(p + 0x1B8));
+            kwlnTaskDestroyWithHierarchy(*(u32 *)(p + 0x1B8));
             *(u32 *)(p + 0x1B8) = 0;
         }
         if (*(u32 *)(p + 0x1B4) != 0) {
-            func_00452080(*(u32 *)(p + 0x1B4));
+            kwlnTaskDestroyWithHierarchy(*(u32 *)(p + 0x1B4));
             *(u32 *)(p + 0x1B4) = 0;
         }
     }
@@ -2411,7 +2411,7 @@ s32 FldUnit_SpawnEncounterTask(u8 *arg0, s32 arg1)
     if (r == 0) {
         return 0;
     }
-    task = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1590), 0xF, 0, 0, FldUnit_SetupEncounter, FldUnit_FreeEncounterState, (u8 *)(r));
+    task = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1590), 0xF, 0, 0, FldUnit_SetupEncounter, FldUnit_FreeEncounterState, (u8 *)(r));
     *(s32 *)(r + 0xC) = arg1;
     return task;
 }
@@ -2713,7 +2713,7 @@ s32 FldUnit_SpawnTintTask(u8 *arg0, u8 *arg1)
     if (r == 0) {
         return 0;
     }
-    task = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F15C0), 0xF, 0, 0, D_005F15B0[*(u16 *)(arg1 + 0x1C8)], FldUnit_FreeTintState, (u8 *)(r));
+    task = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F15C0), 0xF, 0, 0, D_005F15B0[*(u16 *)(arg1 + 0x1C8)], FldUnit_FreeTintState, (u8 *)(r));
     *(u8 **)(r + 4) = arg1;
     *(s32 *)(r + 0xC) = 0x28;
     *(s32 *)(*(u32 *)(arg1 + 0x50) + 0xD8) |= 0x80;
@@ -3012,7 +3012,7 @@ s32 FldUnit_SpawnPartyTask(u8 *arg0)
     if (r == 0) {
         return 0;
     }
-    task = (s32)func_00451fc0((void *)(NULL), (const void *)(D_005F15E0), 0xF, 0, 0, FldUnit_UpdatePartyState, FldUnit_FreePartyState, (u8 *)(r));
+    task = (s32)kwlnTaskCreateChild((void *)(NULL), (const void *)(D_005F15E0), 0xF, 0, 0, FldUnit_UpdatePartyState, FldUnit_FreePartyState, (u8 *)(r));
     *(s32 *)(r + 4) = acc & 0xFF;
     *(s32 *)(r + 8) = (acc >> 8) & 0xFF;
     *(s32 *)(r + 0xC) = (acc >> 16) & 0xFF;

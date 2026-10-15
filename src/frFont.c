@@ -2765,9 +2765,9 @@ void frFontStartup(void)
 
     func_002baa20();
     v = func_002e0d60();
-    *(int *)v = (s32)func_00451de0((const void *)(&D_00763840), 0xC8, 0, 0, func_002e17f0, 0, (u8 *)(0));
+    *(int *)v = (s32)kwlnTaskCreate((const void *)(&D_00763840), 0xC8, 0, 0, func_002e17f0, 0, (u8 *)(0));
     frFontInitManager(0x100, 0x100);
-    func_00451de0((const void *)(&D_00763848), 0, 0, 0, frFontMaintainCacheTask, frFontTaskDestroy, (u8 *)(0));
+    kwlnTaskCreate((const void *)(&D_00763848), 0, 0, 0, frFontMaintainCacheTask, frFontTaskDestroy, (u8 *)(0));
     func_002bcd20();
 }
 

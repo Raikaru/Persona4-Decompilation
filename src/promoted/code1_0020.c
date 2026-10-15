@@ -595,7 +595,7 @@ s32 func_002011c0(s32 arg0)
     func_0044ea90(&D_006265B0, 0x3A);
     temp_2_2 = (u8 *)(*jtbl_008873E8)(0xA20, 0x40000);
     memset(temp_2_2, 0, 0xA20);
-    temp_2 = (s32)func_00451fc0((void *)(arg0), (const void *)(&D_00626500), 0xF, 0, 0, func_00200cf0, func_00200f30, (u8 *)(temp_2_2));
+    temp_2 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00626500), 0xF, 0, 0, func_00200cf0, func_00200f30, (u8 *)(temp_2_2));
     func_00200fd0(temp_2, temp_2_2);
     return temp_2;
 }

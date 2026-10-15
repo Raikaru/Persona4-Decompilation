@@ -24,7 +24,7 @@ extern void FldUnit_ClearFlagBlock(void);
 extern void func_002bd410(void);
 extern void func_002bd3e0(void);
 extern void resrcMngSelectDrawSet(s32);
-extern void func_00452080(s32);
+extern void kwlnTaskDestroyWithHierarchy(s32);
 extern void FldResource_Destroy(s32);
 extern s32 func_00102980(void);
 extern void func_001622d0(void);
@@ -91,7 +91,7 @@ extern void FldUnit_SpawnAtEntry(u16, u16, u16);
 extern void resrcMngSetRenderSuppressed(s32);
 extern s32 func_00156640(u8 *, u16, u16, s16, s16, s32, s32, s32);
 extern s32 FldUnit_UpdateTable(void);
-extern s32 func_00452490(s32);
+extern s32 kwlnTaskIsLinked(s32);
 extern s32 func_001614d0(void);
 extern void FldUnit_UpdateFacing(void);
 extern void FldUnit_RequestSceneResource(void);
@@ -197,7 +197,7 @@ s32 func_00155360(u8 *task)
         work->state++;
         /* fallthrough */
     case 3:
-        if (FldUnit_UpdateTable() != 0 && func_00452490(work->loadTask) != 1) {
+        if (FldUnit_UpdateTable() != 0 && kwlnTaskIsLinked(work->loadTask) != 1) {
             if (func_001614d0() == 3) {
                 resrcMngSelectDrawSet(1);
             }
@@ -262,7 +262,7 @@ s32 func_00155360(u8 *task)
         }
         break;
     case 7:
-        if (work->eventReader == 0 && work->scriptTask != 0 && func_00452490(work->scriptTask) == 1) break;
+        if (work->eventReader == 0 && work->scriptTask != 0 && kwlnTaskIsLinked(work->scriptTask) == 1) break;
         work->state++;
         /* fallthrough */
     case 8:
@@ -310,7 +310,7 @@ s32 func_00155360(u8 *task)
         /* fallthrough */
     case 12:
         if (work->scriptTask != 0) {
-            if (func_00452490(work->scriptTask) == 1) break;
+            if (kwlnTaskIsLinked(work->scriptTask) == 1) break;
             if (work->roomData != NULL) {
                 H_Cdvd_Destroy(work->roomData);
                 work->roomData = NULL;
@@ -328,7 +328,7 @@ s32 func_00155360(u8 *task)
         }
         break;
     case 14:
-        if (func_00452490(work->eventTask) != 1 && func_0028b260() == 0) {
+        if (kwlnTaskIsLinked(work->eventTask) != 1 && func_0028b260() == 0) {
             work->state = 18;
         }
         break;
@@ -373,7 +373,7 @@ void func_00155bf0(u8 *arg0)
     resrcMngSelectDrawSet(0);
     temp_4 = *(s32 *)(temp_17 + 0x3C);
     if (temp_4 != 0) {
-        func_00452080(temp_4);
+        kwlnTaskDestroyWithHierarchy(temp_4);
         var_18 = 0;
         while (var_18 < 0x10) {
             temp_16 = var_18 * 4;
@@ -418,7 +418,7 @@ field_done:
         temp_2 = (s32 *)KFIELD_D_007D2510 + temp_16;
         temp_4_3 = *(s32 *)((u8 *)temp_2 + 0x34);
         if (temp_4_3 != 0) {
-            func_00452080(temp_4_3);
+            kwlnTaskDestroyWithHierarchy(temp_4_3);
             *(s32 *)((u8 *)temp_2 + 0x34) = 0;
         }
         temp_16 += 1;
@@ -427,7 +427,7 @@ field_done:
     KFIELD_JTBL_008873EC(*(s32 *)(arg0 + 0x38));
 }
 
-extern void func_00451b70(void);
+extern void kwlnTaskDumpAll(void);
 extern u8 *D_007D3D64[];
 extern u8 D_005EFF10[];
 extern u8 D_005EFF48[];
@@ -474,7 +474,7 @@ s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
     f32 copy_f32;
     u8 *cam;
 
-    func_00451b70();
+    kwlnTaskDumpAll();
     if (D_007D3D64[0] != NULL) {
         KFIELD_JTBL_008873EC((s32)D_007D3D64[0]);
     }
@@ -484,7 +484,7 @@ s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
     if (work == NULL) {
         return 0;
     }
-    handle = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005EFF48), 0xF, 0, 0, func_00155360, func_00155bf0, (u8 *)(work));
+    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFF48), 0xF, 0, 0, func_00155360, func_00155bf0, (u8 *)(work));
     D_007D2510[0] = handle;
     resrcMngSetRenderSuppressed(0);
     if (*(s32 *)&arg10 > 0) {

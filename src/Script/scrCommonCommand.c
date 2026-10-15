@@ -11,7 +11,7 @@ void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 #include "Kosaka/k_command_internal.h"
 #include "include_asm.h"
 
-extern u32 func_00452490(KwlnTask* task);
+extern u32 kwlnTaskIsLinked(KwlnTask* task);
 extern void scrSetReturnInt(s32 retVal);
 extern u32 kwlnTaskGetTimer(KwlnTask* task);
 
@@ -328,7 +328,7 @@ u32 scrCommand_SCR_KILL_SYNC()
 
     task = (KwlnTask*)scrGetParamInt(0);
 
-    return func_00452490(task) == 0;
+    return kwlnTaskIsLinked(task) == 0;
 }
 
 
@@ -340,7 +340,7 @@ u32 scrCommand_SCR_EXISTS()
 
     task = (KwlnTask*)scrGetParamInt(0);
 
-    if (func_00452490(task))
+    if (kwlnTaskIsLinked(task))
     {
         scrSetReturnInt(1);
     }
@@ -361,7 +361,7 @@ u32 scrCommand_SCR_GET_TIMER()
 
     task = (KwlnTask*)scrGetParamInt(0);
 
-    if (!func_00452490(task))
+    if (!kwlnTaskIsLinked(task))
     {
         scrSetReturnInt(0);
     }
