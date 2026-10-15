@@ -146,7 +146,7 @@ static inline u32 cd600Add(u32 flagOffset, u32 tableAddr)
 }
 extern u8 D_005FC900[];
 extern u8 D_005FDE00[];
-void func_001bbef0(u8* camera, f32 step);
+void btlCameraSetDuration(u8* camera, f32 step);
 
 void func_001c6760(void *camera, float angle, float distanceScale, float heightScale, float minimumDistance);
 
@@ -533,7 +533,7 @@ void func_001be050(u8 *camera, f32 nearDegrees, f32 farDegrees)
     extern f32 RwV3dNormalize(Vec3 *, const Vec3 *);
     extern f32 RwV3dLength(const Vec3 *);
     extern f32 func_003e41e0(f32 *, f32 *);
-    extern void func_001bbef0(u8 *, f32);
+    extern void btlCameraSetDuration(u8 *, f32);
     extern f32 tanf(f32);
     extern u32 func_001bc3a0(f32 *, f32 *);
     extern void btlAct_ENEMY_ALL(u8 *);
@@ -704,7 +704,7 @@ void func_001be050(u8 *camera, f32 nearDegrees, f32 farDegrees)
     func_001bc3a0((f32 *)&frames[0], (f32 *)&frames[0]);
     func_001bc3a0((f32 *)&frames[1], (f32 *)&frames[1]);
     func_001bac20((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
-    func_001bbef0(camera, duration);
+    btlCameraSetDuration(camera, duration);
 }
 
 // FUN_001BE8D0
@@ -834,7 +834,7 @@ void func_001c09b0(u8* camera)
         frames[1].pos.y = 25.0f;
     }
     func_001bac20((u16*)camera, (f32*)&frames[0], (f32*)&frames[1], 1);
-    func_001bbef0(camera, fGpffff818c);
+    btlCameraSetDuration(camera, fGpffff818c);
 }
 
 // FUN_001C6560
@@ -995,7 +995,7 @@ void func_001c6760(void *camera, float angle, float distanceScale, float heightS
   scratch.secondPosition.z = scratch.center.value.z + scratch.direction.value.z;
   func_001bcd40(*(u8 **)(cameraAddress + 0xe0), NULL, NULL, 0.0f, 1);
   func_001bac20((u16 *)camera, (f32 *)&scratch.firstPosition, (f32 *)&scratch.secondPosition, 1);
-  func_001bbef0((u8 *)camera, 3.5f);
+  btlCameraSetDuration((u8 *)camera, 3.5f);
 }
 
 
@@ -1106,7 +1106,7 @@ void func_001c6bf0(u8 *arg0)
     }
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 2);
     func_001bac20((u16 *)arg0, (f32 *)&work.firstPosition, (f32 *)&work.secondPosition, 1);
-    func_001bbef0(arg0, 1.5f);
+    btlCameraSetDuration(arg0, 1.5f);
 }
 // FUN_001C6F30
 void func_001c6f30(void)
@@ -1267,7 +1267,7 @@ void func_001c73e0(u8 *arg0)
     }
     func_001bac20((u16 *)arg0, (f32 *)&frames[0],
                   (f32 *)&frames[1], 1);
-    func_001bbef0(arg0, fGpffff80e8);
+    btlCameraSetDuration(arg0, fGpffff80e8);
 }
 // FUN_001C7500
 void func_001c7500(void)
@@ -1321,7 +1321,7 @@ void func_001c7510(BtlCamera* camera)
   buf[9] = buf[22] * fVar20 + fVar7;
   func_001bcd40((u8 *)camera->action, 0, 0, 0.0f, 1);
   func_001bac20((u16 *)camera, (f32 *)buf, (f32 *)(buf + 7), 1);
-  func_001bbef0((u8 *)camera, 2.5f);
+  btlCameraSetDuration((u8 *)camera, 2.5f);
 }
 
 
@@ -1379,7 +1379,7 @@ void func_001c7780(BtlCamera* camera)
   buf[9] = buf[22] * fVar20 + fVar7;
   func_001bcd40((u8 *)camera->action, 0, 0, 0.0f, 1);
   func_001bac20((u16 *)camera, (f32 *)(buf + 7), (f32 *)buf, 1);
-  func_001bbef0((u8 *)camera, 2.5f);
+  btlCameraSetDuration((u8 *)camera, 2.5f);
 }
 
 
@@ -1718,7 +1718,7 @@ void btlAct_TARGET(u8 *arg0)
     func_001bd560(work.first, (f32 *)(arg0 + 0x9C));
     func_001cc5d0(arg0, work.second);
     func_001bac20((u16 *)arg0, (f32 *)work.first, (f32 *)work.second, 1);
-    func_001bbef0(arg0, 10.0f);
+    btlCameraSetDuration(arg0, 10.0f);
 }
 // FUN_001CCA50
 void func_001cca50(void)
@@ -1967,7 +1967,7 @@ void btlAct_NOP(u8 *camera)
     func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
     func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
     func_001baff0((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], (f32 *)&frames[2], 1);
-    func_001bbef0(camera, duration);
+    btlCameraSetDuration(camera, duration);
 }
 // FUN_001CD600
 void func_001cd600(u8 *arg0)
@@ -2094,7 +2094,7 @@ void btlAct_WIN_P(BtlCamera* camera)
                &scratch.frameBytes[0x1c],
                &scratch.frameBytes[0x38],
                &scratch.frameBytes[0x54], 1);
-  func_001bbef0((u8*)camera, 10.0f);
+  btlCameraSetDuration((u8*)camera, 10.0f);
 }
 
 
@@ -2203,7 +2203,7 @@ void btlAct_CONDITION(u8 *camera)
                   60.0f, 0x8c0);
     func_001bac20((u16 *)camera, (f32 *)&work.currentPosition,
                   (f32 *)&work.targetPosition, 1);
-    func_001bbef0(camera, 0.75f);
+    btlCameraSetDuration(camera, 0.75f);
 }
 /* Ported from current P3FES src/Battle/btlCamera.c FUN_002b41e0
  * (0x002b41e0, donor 04d95e2). Historical donor verification is
@@ -2372,7 +2372,7 @@ void func_001cde50(u8* camera)
     frames[1].pos.y = pointNear.y + delta.y;
     frames[1].pos.z = pointNear.z + delta.z;
     func_001bac20((u16*)camera, (f32*)&frames[0], (f32*)&frames[1], 1);
-    func_001bbef0(camera, 1.25f);
+    btlCameraSetDuration(camera, 1.25f);
 }
 
 // FUN_001CE390
@@ -2486,7 +2486,7 @@ s32 func_001d07e0(u8 *arg0, u8 *arg1)
     extern RwV3d *func_003e4320(RwV3d *out, const RwV3d *in, const RwMatrix *matrix);
     extern void func_001bac20(u16 *camera, f32 *first, f32 *second, u16 mode);
     extern void func_001bbe80(u8 *arg0, f32 arg1);
-    extern void func_001bbef0(u8 *arg0, f32 arg1);
+    extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
     extern void func_001bbf40(u8 *arg0, f32 arg1);
     extern RwV3d D_0060A0E0;
     extern RwV3d D_0060A0F0;
@@ -2686,7 +2686,7 @@ next_entry:
         func_001bbe80(arg0, (f32)*(s16 *)entry / 30.0f);
         break;
     case 2:
-        func_001bbef0(arg0, (f32)*(s16 *)entry / 30.0f);
+        btlCameraSetDuration(arg0, (f32)*(s16 *)entry / 30.0f);
         break;
     }
     *(s16 *)(arg1 + 0xA) = (s16)(index + 1);

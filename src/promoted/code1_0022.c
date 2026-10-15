@@ -196,7 +196,7 @@ extern void func_001bab00(u16 *param_1, f32 *param_2);
 extern void func_001bd5a0(f32 *arg0, f32 *arg1);
 extern void func_001bd560(f32 *arg0, f32 *arg1);
 extern void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4);
-extern void func_001bbef0(u8 *arg0, f32 arg1);
+extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
 extern u32 func_00231d70(u32 arg0);
 extern u8 D_0060A0E0[];
 extern s32 func_001ef9a0(void);
@@ -1024,7 +1024,7 @@ void func_002240e0(u8 *camera)
         func_001bab00((u16 *)camera, (f32 *)&poses.second);
     } else {
         func_001bac20((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
-        func_001bbef0(camera, fGpffff80e8);
+        btlCameraSetDuration(camera, fGpffff80e8);
     }
 }
 #pragma pop
@@ -1219,7 +1219,7 @@ group1_party_done:
         return;
     }
     func_001bac20((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
-    func_001bbef0(camera, 0.75f);
+    btlCameraSetDuration(camera, 0.75f);
 }
 // FUN_00224970
 void func_00224970(void)
@@ -1533,11 +1533,11 @@ void func_002250a0(u8 *camera, f32 distanceOffset, f32 duration)
         }
         func_001bac20((u16 *)camera, (f32 *)&poses.first,
                       (f32 *)&poses.second, 1);
-        func_001bbef0(camera, 2.0f);
+        btlCameraSetDuration(camera, 2.0f);
     } else {
         func_001bac20((u16 *)camera, (f32 *)&poses.first,
                       (f32 *)&poses.second, 1);
-        func_001bbef0(camera, duration);
+        btlCameraSetDuration(camera, duration);
     }
 }
 #pragma opt_scalarize on
@@ -1927,7 +1927,7 @@ void func_00225ec0(u8 *camera)
                 frames = *(u16 *)record;
                 scale = (f32)frames / 30.0f;
                 func_001bac20((u16 *)(iGpffffb3ac + 0x24), (f32 *)&rec718.first, (f32 *)&rec718.second, 1);
-                func_001bbef0(iGpffffb3ac + 0x24, scale);
+                btlCameraSetDuration(iGpffffb3ac + 0x24, scale);
                 func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
             } else {
                 record = *(u8 **)(iGpffffb3ac + 0xB98) + 0x618;
@@ -1938,7 +1938,7 @@ void func_00225ec0(u8 *camera)
                 frames = *(u16 *)record;
                 scale = (f32)frames / 30.0f;
                 func_001bac20((u16 *)(iGpffffb3ac + 0x24), (f32 *)&rec618.first, (f32 *)&rec618.second, 1);
-                func_001bbef0(iGpffffb3ac + 0x24, scale);
+                btlCameraSetDuration(iGpffffb3ac + 0x24, scale);
                 func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
             }
             return;
@@ -1980,7 +1980,7 @@ void func_00225ec0(u8 *camera)
     } else {
         scale = 1.25f;
     }
-    func_001bbef0(camera, scale);
+    btlCameraSetDuration(camera, scale);
 }
 // FUN_002266B0
 /* measured: opt_scalarize off retains the real horizontal vector stores.
@@ -2124,7 +2124,7 @@ void func_002266b0(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f
     func_001bc3a0((f32 *)&poses.second, (f32 *)&poses.second);
     func_001bcd40(*(u8 **)(camera + 0xE0), actor + 4, (f32 *)(target + 4), 50.0f, 3);
     func_001bac20((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
-    func_001bbef0(camera, duration);
+    btlCameraSetDuration(camera, duration);
 }
 #pragma opt_scalarize on
 // FUN_00226C40
@@ -2232,7 +2232,7 @@ void func_00226c40(u8 *camera)
         duration = (f32)frames / 30.0f;
         func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                       (f32 *)&selected.first, (f32 *)&selected.second, 1);
-        func_001bbef0(iGpffffb3ac + 0x24, duration);
+        btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     case 6:
@@ -2250,7 +2250,7 @@ void func_00226c40(u8 *camera)
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&player.first, (f32 *)&player.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         } else {
             variant = func_00231d70(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
@@ -2262,7 +2262,7 @@ void func_00226c40(u8 *camera)
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&other.first, (f32 *)&other.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         }
         func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
@@ -2333,7 +2333,7 @@ void func_00227230(u8 *camera)
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&selected.first, (f32 *)&selected.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
             func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
             break;
         }
@@ -2352,7 +2352,7 @@ void func_00227230(u8 *camera)
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&player.first, (f32 *)&player.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         } else {
             variant = func_00231d70(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
@@ -2364,7 +2364,7 @@ void func_00227230(u8 *camera)
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&other.first, (f32 *)&other.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         }
         func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
@@ -2503,7 +2503,7 @@ void func_002277e0(u8 *camera)
         duration = (f32)frames / 30.0f;
         func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                       (f32 *)&selected.first, (f32 *)&selected.second, 1);
-        func_001bbef0(iGpffffb3ac + 0x24, duration);
+        btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     case 6:
@@ -2521,7 +2521,7 @@ void func_002277e0(u8 *camera)
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&player.first, (f32 *)&player.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         } else {
             variant = func_00231d70(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
@@ -2533,7 +2533,7 @@ void func_002277e0(u8 *camera)
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&other.first, (f32 *)&other.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         }
         func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
@@ -2598,7 +2598,7 @@ void func_00227e40(u8 *camera)
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&selected.first, (f32 *)&selected.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
             func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
             break;
         }
@@ -2618,7 +2618,7 @@ void func_00227e40(u8 *camera)
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&player.first, (f32 *)&player.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         } else {
             variant = func_00231d70(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x64C;
@@ -2630,7 +2630,7 @@ void func_00227e40(u8 *camera)
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&other.first, (f32 *)&other.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         }
         func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
@@ -2685,7 +2685,7 @@ void func_002282d0(u8 *arg0)
         var_f1 = var_f1 / 30.0f;
         func_001bac20((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                       (f32 *)&work.second, 1);
-        func_001bbef0(DAT_0076449c + 0x24, var_f1);
+        btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
         func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 1);
         return;
     }
@@ -2720,7 +2720,7 @@ void func_002284d0(u8 *arg0)
     func_001bd780(work.third, temp_16, (u8 *)temp_16 + 0xC, D_0060A0E0);
     work.second = *(Vec3 *)temp_16;
     func_001bac20((u16 *)arg0, (f32 *)&work.first, (f32 *)&work.second, 1);
-    func_001bbef0(arg0, 0.75f);
+    btlCameraSetDuration(arg0, 0.75f);
 }
 // FUN_00228580
 void func_00228580(void)
@@ -2756,7 +2756,7 @@ void func_00228580(void)
     var_f1 = (f32)temp_2_2 / 30.0f;
     func_001bac20((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                   (f32 *)&work.second, 1);
-    func_001bbef0(DAT_0076449c + 0x24, var_f1);
+    btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
 }
 // FUN_002286C0
 void func_002286c0(void)
@@ -2792,7 +2792,7 @@ void func_002286c0(void)
     var_f1 = (f32)temp_2_2 / 30.0f;
     func_001bac20((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                   (f32 *)&work.second, 1);
-    func_001bbef0(DAT_0076449c + 0x24, var_f1);
+    btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
 }
 // FUN_00228800
 void func_00228800(s32 arg0)
@@ -2852,7 +2852,7 @@ void func_00228890(void)
     var_f1 = var_f1 / 30.0f;
     func_001bac20((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                   (f32 *)&work.second, 1);
-    func_001bbef0(DAT_0076449c + 0x24, var_f1);
+    btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
 }
 // FUN_002289B0
 void func_002289b0(u8 *arg0)
@@ -2957,7 +2957,7 @@ loop_7_done:
     var_f1 = var_f1 / 30.0f;
     func_001bac20((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                   (f32 *)&work.second, 1);
-    func_001bbef0(DAT_0076449c + 0x24, var_f1);
+    btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
 }
 // FUN_00228D00
@@ -3038,7 +3038,7 @@ loop_7_done:
     var_f1 = var_f1 / 30.0f;
     func_001bac20((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                   (f32 *)&work.second, 1);
-    func_001bbef0(DAT_0076449c + 0x24, var_f1);
+    btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
 }
 // FUN_00228F60
@@ -3184,7 +3184,7 @@ allow_cut:
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&player.first, (f32 *)&player.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         } else {
             variant = func_00231d70(2);
             record = *(u8 **)(iGpffffb3ac + 0xB98) + (u16)variant * 0x34 + 0x5B0;
@@ -3196,7 +3196,7 @@ allow_cut:
             duration = (f32)frames / 30.0f;
             func_001bac20((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&other.first, (f32 *)&other.second, 1);
-            func_001bbef0(iGpffffb3ac + 0x24, duration);
+            btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         }
         return;
     }
@@ -3304,7 +3304,7 @@ allow_cut:
         }
     }
     func_001bac20((u16 *)camera, (f32 *)&geometry.poses.first, (f32 *)&geometry.poses.second, 1);
-    func_001bbef0(camera, 1.5f);
+    btlCameraSetDuration(camera, 1.5f);
 }
 #pragma opt_scalarize on
 /* measured: opt_propagation off preserves func_002299b0's initial GP-load/store order (nd 0). */

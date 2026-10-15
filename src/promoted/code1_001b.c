@@ -233,8 +233,8 @@ extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
 extern f32 func_001ec630(f32 value, f32 *state);
-extern u32 func_001bbc40(u8 *arg0, f32 *arg1, f32 *arg2);
-extern u32 func_001bbd80(u8 *arg0, f32 arg1);
+extern u32 btlCameraSampleKeyframes(u8 *arg0, f32 *arg1, f32 *arg2);
+extern u32 btlCameraAdvanceKeyframes(u8 *arg0, f32 arg1);
 extern f32 fGpffff8430;
 extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void primAxisLine3D(f32 *arg0, s32 arg1, f32 arg2);
@@ -3898,9 +3898,9 @@ void func_001bbf90(u8 *arg0)
     }
     *(f32 *)(arg0 + 0x80) =
         *(f32 *)(arg0 + 0x80) + var_f12;
-    func_001bbd80(arg0, var_f12);
+    btlCameraAdvanceKeyframes(arg0, var_f12);
     temp_2 = D_0076449C;
-    func_001bbc40(temp_2 + 0x24, (f32 *)(temp_2 + 0xC0),
+    btlCameraSampleKeyframes(temp_2 + 0x24, (f32 *)(temp_2 + 0xC0),
                   (f32 *)(temp_2 + 0xCC));
 }
 // FUN_001BC140
@@ -4769,7 +4769,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
     extern RwMatrix *RwMatrixRotate(RwMatrix *,const RwV3d *,f32,RwOpCombineType);
     extern RwV3d *func_003e4320(RwV3d *,const RwV3d *,const RwMatrix *);
     extern f32 tanf(f32);
-    extern void func_001bbef0(u8 *,f32);
+    extern void btlCameraSetDuration(u8 *,f32);
     extern f32 fGpffff8190,fGpffff8194,fGpffff8170,fGpffff8110,fGpffff8168,fGpffff8130,fGpffff8128;
     extern u8 D_0060A0D0[],D_0060A0F0[],D_0060A100[];
     f32 maxY;
@@ -4931,7 +4931,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
             if (!(radius <= 2.15f)) radius = 2.15f;
         }
         func_001bac20((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
-        func_001bbef0(camera, radius);
+        btlCameraSetDuration(camera, radius);
         goto action_done;
     }
 
@@ -5023,7 +5023,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
         frames[1].pos.y = 25.0f;
     }
     func_001bac20((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
-    func_001bbef0(camera, 1.75f);
+    btlCameraSetDuration(camera, 1.75f);
 action_done:
     return 1;
 }
@@ -5110,7 +5110,7 @@ void func_001bf5e0(u8 *camera)
     extern f32 func_003e41e0(f32 *, f32 *);
     extern f32 RwV3dNormalize(PairVec3 *, const PairVec3 *);
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, PairVec3 *);
-    extern void func_001bbef0(u8 *, f32);
+    extern void btlCameraSetDuration(u8 *, f32);
     extern f32 fGpffff803c, fGpffff80fc, fGpffff8158;
     extern u8 D_0060A100[];
     PairVec3 secondPos;
@@ -5252,7 +5252,7 @@ void func_001bf5e0(u8 *camera)
     frames[1].pos.y = firstPos.y + dir.y;
     frames[1].pos.z = firstPos.z + dir.z;
     func_001bac20((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
-    func_001bbef0(camera, 1.0f);
+    btlCameraSetDuration(camera, 1.0f);
 }
 // FUN_001BFB70
 void func_001bfb70(u8 *arg0)
@@ -5289,7 +5289,7 @@ void btlAct_SKILL_RECITE_E(u8 *camera)
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, DuelVec3 *);
     extern void *func_003dc740(void *, const void *, f32, s32);
     extern u32 func_001bc3a0(f32 *, f32 *);
-    extern void func_001bbef0(u8 *, f32);
+    extern void btlCameraSetDuration(u8 *, f32);
     extern f32 tanf(f32);
     extern f32 fabsf(f32);
     extern f32 fGpffff8118, fGpffff815c, fGpffff804c, fGpffff8160;
@@ -5496,7 +5496,7 @@ void btlAct_SKILL_RECITE_E(u8 *camera)
     func_001bc3a0((f32*)&frames[0], (f32*)&frames[0]);
     func_001bc3a0((f32*)&frames[1], (f32*)&frames[1]);
     func_001bac20((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
-    func_001bbef0(camera, 2.0f);
+    btlCameraSetDuration(camera, 2.0f);
     }
     }
 }
