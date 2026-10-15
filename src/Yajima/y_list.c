@@ -30,8 +30,8 @@ extern void yListDestroy(void);
 extern s8 yListSlotFindFree(void);
 extern void yListSlotRelease(s8 arg0);
 extern void *memset(void *dest, s32 value, u32 size);
-extern s32 func_002e6b20(const void *arg0, const void *arg1);
-extern s32 func_002e6630(const void *arg0, const void *arg1);
+extern s32 yListCompareByKeyDesc(const void *arg0, const void *arg1);
+extern s32 yListCompareByWeightedKeyDesc(const void *arg0, const void *arg1);
 #include "rw/std/stdlib.h"
 extern u8 *func_0010fcb0(s32 arg0);
 extern s32 datPersonaFindRosterSlotById(s32 arg0);
@@ -1595,7 +1595,7 @@ void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
    The comparator's O1 scope preserves the retail selector and key lifetimes. */
 // FUN_002E6630
 #pragma optimization_level 1
-s32 func_002e6630(const void *arg0, const void *arg1) {
+s32 yListCompareByWeightedKeyDesc(const void *arg0, const void *arg1) {
     s16 ia = *(const s16 *)arg0;
     s16 ib = *(const s16 *)arg1;
     u8 *base = *(u8 **)(D_00882F70[0] + 0x38);
@@ -1703,7 +1703,7 @@ s32 func_002e6630(const void *arg0, const void *arg1) {
    jump-table base (lui/addiu) inside the dispatch instead of hoisting it
    into the preheader as retail does. */
 #pragma opt_loop_invariants on
-void func_002e68b0(s8 arg0) {
+void yListSlotSortWeighted(s8 arg0) {
     u8 **slotp = &D_00882F70[arg0];
     u8 *entry;
     u8 *p;
@@ -1727,7 +1727,7 @@ void func_002e68b0(s8 arg0) {
     for (k = 0; k < *(s32 *)(*(u8 **)(entry + 0x38) + 8); k++) {
         arr1[k] = k;
     }
-    qsort(arr1, *(u16 *)((u8 *)*ep + 8), 2, func_002e6630);
+    qsort(arr1, *(u16 *)((u8 *)*ep + 8), 2, yListCompareByWeightedKeyDesc);
     j = 0;
     count2 = *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8);
     if (count2 > 0) {
@@ -1780,7 +1780,7 @@ void func_002e68b0(s8 arg0) {
 // FUN_002E6B20
 #pragma schedule on
 #pragma optimization_level 1
-s32 func_002e6b20(const void *arg0, const void *arg1) {
+s32 yListCompareByKeyDesc(const void *arg0, const void *arg1) {
     const s16 *arg1_p = arg1;
     const s16 *arg0_p = arg0;
     s16 ia;
@@ -1859,7 +1859,7 @@ s32 func_002e6b20(const void *arg0, const void *arg1) {
 // FUN_002E6C90
 /* measured: open opt_loop_invariants scope for func_002e6c90. */
 #pragma opt_loop_invariants on
-void func_002e6c90(s8 arg0) {
+void yListSlotSortByKey(s8 arg0) {
     u8 **slotp = &D_00882F70[arg0];
     u8 *entry;
     u8 *p;
@@ -1883,7 +1883,7 @@ void func_002e6c90(s8 arg0) {
     for (k = 0; k < *(s32 *)(*(u8 **)(entry + 0x38) + 8); k++) {
         arr1[k] = k;
     }
-    qsort(arr1, *(u16 *)((u8 *)*ep + 8), 2, func_002e6b20);
+    qsort(arr1, *(u16 *)((u8 *)*ep + 8), 2, yListCompareByKeyDesc);
     j = 0;
     count2 = *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8);
     if (count2 > 0) {
