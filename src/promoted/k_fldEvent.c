@@ -33,7 +33,7 @@ void func_0044ea90(const void *, u32);
 
 void func_00182390(void);
 void FldEvent_SetTriggerParam(s32, s32);
-s32 func_00171dc0(void);
+s32 FldEvent_FindNearbyEntry(void);
 s32 FldEvent_MoverUpdate(u8 *);
 u16 *datPersonaGetRecord(u16);
 s32 datPersonaFindSkillSlot(u8 *, u16);
@@ -59,7 +59,7 @@ s32 func_0029db50(s32, s32, s32, s32);
 s32 func_00452490(void *);
 s32 *func_00162390(void);
 s32 datUnitCreateEncounterGroup(s32);
-s32 func_00172e00(u8 *);
+s32 FldEvent_FieldToBattle(u8 *);
 u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);
 f32 RwV3dLength(f32 *);
 s32 MT_Scene_GetResListHead(s32);
@@ -111,7 +111,7 @@ extern s32 func_0014a200(void);
 extern s32 func_0014a270(void);
 
 // FUN_00171610
-s32 func_00171610(u8 *arg0)
+s32 FldEvent_ScanNearbyEntries(u8 *arg0)
 {
     s32 *h;
     u8 *p;
@@ -219,7 +219,7 @@ found:
     return 0;
 }
 // FUN_00171A80
-s32 func_00171a80(s32 arg0)
+s32 FldEvent_RunTriggerAndReset(s32 arg0)
 {
     s32 *h;
     s32 r;
@@ -254,7 +254,7 @@ s32 func_00171a80(s32 arg0)
     return 1;
 }
 // FUN_00171BD0
-s32 func_00171bd0(s32 arg0)
+s32 FldEvent_AcquirePointEntry(s32 arg0)
 {
     s32 *h;
     s32 r;
@@ -278,7 +278,7 @@ fail:
     return 0;
 }
 // FUN_00171C60
-s32 func_00171c60(s32 arg0)
+s32 FldEvent_RunTriggerHold(s32 arg0)
 {
     s32 *h;
     s32 r;
@@ -313,7 +313,7 @@ s32 func_00171c60(s32 arg0)
     return 1;
 }
 // FUN_00171DC0
-s32 func_00171dc0(void)
+s32 FldEvent_FindNearbyEntry(void)
 {
     s32 p;
     s32 found;
@@ -350,14 +350,14 @@ s32 func_00171dc0(void)
     return found;
 }
 // FUN_00171F60
-s32 func_00171f60(s32 arg0)
+s32 FldEvent_AcquireNearbyEntry(s32 arg0)
 {
     s32 *h;
     s32 r;
     s32 *p;
 
     h = *(s32 **)(arg0 + 0x38);
-    r = func_00171dc0();
+    r = FldEvent_FindNearbyEntry();
     h[8] = r;
     if (r == 0) {
         goto fail;
@@ -379,7 +379,7 @@ fail:
     return 0;
 }
 // FUN_00171FE0
-s32 func_00171fe0(u8 *arg0)
+s32 FldEvent_RunKindSequence(u8 *arg0)
 {
     u8 *h;
     u8 *s;
@@ -477,7 +477,7 @@ ret1:
 /* measured: separate unsigned counters plus opt_loop_invariants reproduce the
    retail compaction-loop register allocation and hoisted -1 sentinel (MATCH). */
 // FUN_00172360
-s32 func_00172360(u8 *arg0)
+s32 FldEvent_SelectEntryAtPosition(u8 *arg0)
 {
     u8 *h;
     u32 count;
@@ -605,7 +605,7 @@ s32 func_00172360(u8 *arg0)
     }
     return 0;
 }
-/* measured: restore loop-invariant optimization after func_00172360. */
+/* measured: restore loop-invariant optimization after FldEvent_SelectEntryAtPosition. */
 #pragma opt_loop_invariants off
 /* Field event record (0x2C bytes) in the table at (s32)func_00155280() + 0x18DC. */
 typedef struct
@@ -625,7 +625,7 @@ typedef struct
 #pragma push
 #pragma opt_common_subs off
 // FUN_001727F0
-s32 func_001727f0(u8 *arg0)
+s32 FldEvent_HighlightEntry(u8 *arg0)
 {
     u8 *node;
     u16 id;
@@ -690,7 +690,7 @@ s32 func_001727f0(u8 *arg0)
 #undef FLD_EVT_ENTRY
 #undef FLD_EVT_TABLE
 // FUN_00172BA0
-s32 func_00172ba0(void)
+s32 FldEvent_PartyHasSkill(void)
 {
     s32 vals[4];
     s32 i;
@@ -711,7 +711,7 @@ s32 func_00172ba0(void)
 }
 
 // FUN_00172CB0
-s32 func_00172cb0(u8 *arg0)
+s32 FldEvent_SetCameraFocus(u8 *arg0)
 {
     s32 *h;
     FldEventVec3 vec;
@@ -735,7 +735,7 @@ s32 func_00172cb0(u8 *arg0)
 }
 
 // FUN_00172D80
-s32 func_00172d80(u8 *arg0)
+s32 FldEvent_WaitForFieldIdle(u8 *arg0)
 {
     s32 *h;
 
@@ -766,7 +766,7 @@ s32 func_00172d80(u8 *arg0)
 #pragma push
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
-s32 func_00172e00(u8 *arg0)
+s32 FldEvent_FieldToBattle(u8 *arg0)
 {
     extern u32 D_007EFA00[];
     extern u8 D_007EF9B0[];
@@ -798,7 +798,7 @@ s32 func_00172e00(u8 *arg0)
     void func_00166c60(u8 *, s32);
     s32 func_0014e8c0(u8 *, s32);
     s32 func_0016fd00(s32);
-    s32 func_00172ba0(void);
+    s32 FldEvent_PartyHasSkill(void);
     u32 RpRandom(void);
     u32 datGetFlag(s32);
     s32 func_0015a160(void);
@@ -1087,7 +1087,7 @@ s32 func_00172e00(u8 *arg0)
                         void *mTarg = (u8 *)mdlGetMatrix((void *)(work->target->model));
                         if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(mSelf), (const struct RwV3d *)((u8 *)mTarg + 0x30), work->attack->fov) == 0) {
                             u32 th = 0x64;
-                            if (func_00172ba0() == 1) {
+                            if (FldEvent_PartyHasSkill() == 1) {
                                 th = 0x32;
                             }
                             if ((RpRandom() % 100) < th) {
@@ -1098,7 +1098,7 @@ s32 func_00172e00(u8 *arg0)
                             u8 *tbl = iGpffffb2c8;
                             u8 *ent = tbl + offset;
                             s32 v = (s32)*(f32 *)(ent + 0x38);
-                            if (func_00172ba0() == 1) {
+                            if (FldEvent_PartyHasSkill() == 1) {
                                 s32 h2 = v >> 1;
                                 if (v < 0) {
                                     h2 = (v + 1) >> 1;
@@ -1478,7 +1478,7 @@ running:
 #pragma pop
 #pragma pop
 // FUN_00174680
-s32 func_00174680(s32 arg0, s32 arg1, s32 arg2)
+s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2)
 {
     s32 *h;
     s32 *s16;
@@ -1499,7 +1499,7 @@ s32 func_00174680(s32 arg0, s32 arg1, s32 arg2)
         h[0x43] = r;
         goto done;
     }
-    s16 = (s32 *)func_00172e00((u8 *)arg0);
+    s16 = (s32 *)FldEvent_FieldToBattle((u8 *)arg0);
     if (s16 != 0) {
         goto done;
     }
@@ -1634,7 +1634,7 @@ s32 FldEvent_GetTriggerEntry(void)
     return D_007243E8;
 }
 // FUN_00174C20
-void func_00174c20(void)
+void FldEvent_StepGridCell(void)
 {
     s32 temp_18;
     s32 temp_18_2;
