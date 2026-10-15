@@ -646,7 +646,7 @@ request sequences 9, 10, 11, 12, 13 and 25.
 
 `src/Event/evtEvent.c` `func_002859e0(major, minor)` creates the
 **`"evtEvent"`** task (priority `0xF`). It then creates an event player
-object (`func_002862a0`) and passes it the event id with `func_002863e0`,
+object (`evtStart`) and passes it the event id with `evtSetId`,
 both in `src/promoted/code1_0028.c`. The task's update, `func_002857c0`,
 advances the event one frame at a time until the frame counter at `+0x14`
 reaches the length at `+0x10`. It calls `func_0028aaf0` (`src/Event/evtMain.c`)
