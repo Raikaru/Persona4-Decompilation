@@ -125,8 +125,8 @@ extern void func_00203880(s32 arg0, s32 arg1);
 extern BtlPacket *func_0019b6a0(BtlUnit *unit);
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 u32 func_001deeb0(void *arg0);
-void func_001ded30();
-u32 func_001deee0();
+void btlAICommandSetUnitAction();
+u32 btlAICommandTryReleaseProc();
 s32 func_0023dfe0(u8 *unit);
 u32 func_001d8bc0(void *arg0);
 void func_001d8be0(s32 formation, u64 *unit);
@@ -1458,9 +1458,9 @@ void func_001a2b50(u8 *arg0)
     s32 battleFlags;
 
     if (func_001deeb0(arg0 + 0x38) == 0) {
-        func_001ded30(arg0, arg0 + 0x38);
+        btlAICommandSetUnitAction(arg0, arg0 + 0x38);
     }
-    if (func_001deee0(arg0 + 0x38) != 0) {
+    if (btlAICommandTryReleaseProc(arg0 + 0x38) != 0) {
         battleFlags = *(s32 *)(D_0076449C + 0xC);
         if ((battleFlags & 0x1000) &&
             (battleFlags & 0x04000000) &&
