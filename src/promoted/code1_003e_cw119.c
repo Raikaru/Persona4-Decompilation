@@ -137,6 +137,32 @@ typedef struct {
     void *tail_prev;
 } Ctx2430003e;
 /* Archived b210 near-miss (Y3EA_003e3370); exact under b119 with schedule on. */
+#pragma schedule on
+// FUN_003E3370
+s32 func_003e3370(u8 *arg0, s32 arg1) {
+    s32 (*callback)(s32, s32, s32);
+    s32 callback_result;
+    s32 total;
+    u8 *node;
+
+    node = *(u8 **)(arg0 + 0x10);
+    total = 0;
+    if (node != NULL) {
+        do {
+            callback = *(s32 (**)(s32, s32, s32))(node + 0x14);
+            if (callback != NULL) {
+                callback_result = callback(arg1, *(s32 *)(node + 0), *(s32 *)(node + 4));
+                if (callback_result > 0) {
+                    total += callback_result + 0xC;
+                }
+            }
+            node = *(u8 **)(node + 0x30);
+        } while (node != NULL);
+    }
+    return total;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
 
 extern void *D_00887408[];
 extern void *D_00764864;
