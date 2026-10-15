@@ -1117,15 +1117,15 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
         t2 = *(s32 *)(t17 + 0x98) & ~1;
         *(s32 *)(t17 + 0x98) = t2;
         *(s32 *)(t17 + 0x98) = t2 | 2;
-        func_0019d7a0(t17, 4);
+        btlUnitApplyModelState(t17, 4);
         if (*(u16 *)(arg0 + 8) & 8) {
             *(u8 *)(t17 + 0x33) = 0;
         }
         if (*(u16 *)(arg0 + 8) & 1) {
-            func_0019d7a0(t17, 2);
+            btlUnitApplyModelState(t17, 2);
         }
         if (*(u16 *)(arg0 + 8) & 2) {
-            func_0019d7a0(t17, 1);
+            btlUnitApplyModelState(t17, 1);
         }
         if (*(u16 *)(arg0 + 8) & 0x100) {
             *(u8 *)(*(u8 **)(t17 + 0xA00) + 0x280) = 0;
@@ -1482,7 +1482,7 @@ u32 func_0019e220(u8* packet)
     extern u8* iGpffffb3ac;
     extern void mdlLookAtSetupSetRange(void* model, f32 x, f32 y);
     extern void mdlSetBlendWeight(void* model, f32 value);
-    extern void func_0019d7a0(void* unit, s32 state);
+    extern void btlUnitApplyModelState(void* unit, s32 state);
     f32 firstHigh;
     f32 firstLow;
     f32 secondHigh;
@@ -1533,7 +1533,7 @@ u32 func_0019e220(u8* packet)
                     *(u16 *)(firstCurrent + 0xb0) = 2;
                     *(u32 *)(firstCurrent + 0xb4) =
                         *(u32 *)(firstTarget + 0xa8);
-                    func_0019d7a0(firstCurrent, 3);
+                    btlUnitApplyModelState(firstCurrent, 3);
             }
                 firstCurrent = (u8 *)*(BtlUnit **)(firstCurrent + 0xa68);
         }
@@ -1573,7 +1573,7 @@ u32 func_0019e220(u8* packet)
                     *(u16 *)(secondCurrent + 0xb0) = 2;
                     *(u32 *)(secondCurrent + 0xb4) =
                         *(u32 *)(secondTarget + 0xa8);
-                    func_0019d7a0(secondCurrent, 3);
+                    btlUnitApplyModelState(secondCurrent, 3);
                 }
                 secondCurrent = (u8 *)*(BtlUnit **)(secondCurrent + 0xa68);
             }
@@ -1610,7 +1610,7 @@ u32 func_0019e220(u8* packet)
         *(u16 *)(singleCurrent + 0xb0) = 2;
         *(u32 *)(singleCurrent + 0xb4) =
             *(u32 *)(singleTarget + 0xa8);
-        func_0019d7a0(singleCurrent, 3);
+        btlUnitApplyModelState(singleCurrent, 3);
     }
     return 1;
 }

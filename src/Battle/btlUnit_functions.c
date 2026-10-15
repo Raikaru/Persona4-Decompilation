@@ -118,9 +118,9 @@ typedef struct BtlUnitResourceWork {
     u8 padding_0a[2];
     u32 state;
 } BtlUnitResourceWork;
-u32 func_0019bf10(void* work);
-u32 func_0019bf80(void* work);
-u32 func_0019c010(void* work);
+u32 btlUnitResourceLoadPacketInit(void* work);
+u32 btlUnitResourceLoadPacketUpdate(void* work);
+u32 btlUnitReleasePendingResourceLoad(void* work);
 typedef struct LookAtUnitWork {
     BtlUnit* unit;
     BtlUnit* targetUnit;
@@ -377,16 +377,16 @@ BtlPacket* btlUnitCreateHidePacket(BtlUnit* unit)
 
 
 // FUN_0019C030
-BtlPacket* func_0019c030(BtlUnit* unit, u16 id, u16 flags)
+BtlPacket* btlUnitCreateResourceLoadPacket(BtlUnit* unit, u16 id, u16 flags)
 {
     BtlPacket* packet;
     BtlUnitResourceWork* work;
 
     packet = btlPacketAlloc(0x111, sizeof(BtlUnitResourceWork));
     packet->flags &= ~(1 << 0);
-    packet->initFunc = func_0019bf10;
-    packet->updateFunc = func_0019bf80;
-    packet->destroyFunc = func_0019c010;
+    packet->initFunc = btlUnitResourceLoadPacketInit;
+    packet->updateFunc = btlUnitResourceLoadPacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingResourceLoad;
     work = (BtlUnitResourceWork*)packet->workData;
     work->unit = unit;
     work->flags = flags;

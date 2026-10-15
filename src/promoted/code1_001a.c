@@ -6105,7 +6105,7 @@ void func_001abbb0(s64 *arg0)
     extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
     extern void func_0019ea60(u8 *arg0, s32 arg1);
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
-    extern BtlPacket *func_0019c030(BtlUnit *arg0, u16 arg1, u16 arg2);
+    extern BtlPacket *btlUnitCreateResourceLoadPacket(BtlUnit *arg0, u16 arg1, u16 arg2);
     extern BtlPacket *btlCreateTimingPacket(u32 arg0);
     extern BtlPacket *btlMainCreateFadePacket(s32 arg0, s16 arg1);
     extern BtlPacket *btlMainCreateColorFadePacket(s32 arg0);
@@ -6339,7 +6339,7 @@ void func_001abbb0(s64 *arg0)
             *(s64 *)(q1 + 8) = seqId;
             *(s64 *)(q1 + 0x60) = uid;
             btlPacketEnqueue(q1, 1);
-            q2 = (u8 *)func_0019c030((BtlUnit *)unit, curId, 0x10);
+            q2 = (u8 *)btlUnitCreateResourceLoadPacket((BtlUnit *)unit, curId, 0x10);
             *q2 = 4;
             *(s64 *)(q2 + 8) = *(s64 *)(q1 + 0x58);
             btlPacketEnqueue(q2, 1);

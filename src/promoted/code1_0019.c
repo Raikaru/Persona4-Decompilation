@@ -217,10 +217,10 @@ extern void func_001d6c10(s32 arg0);
 extern void btlPacketStep(u8 *arg0);
 extern int mdlHasActiveMode(void *arg0);
 extern void mdlSetLookAtActive(void *arg0);
-extern void func_0019d550(u8 *arg0);
+extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void mdlSetLookAtRequested(void *arg0);
 extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
-extern void func_0019d7a0(u8 *arg0, s32 arg1);
+extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
 extern void func_0047a810(void *arg0);
 extern void mdlSetAlphaBlend(void *arg0);
 extern void mdlSetLookStateWord(void *arg0, u16 arg1);
@@ -235,7 +235,7 @@ extern f32 DAT_0076112c;
 
 
 extern void func_0019d990(u8 *arg0, s32 arg1);
-extern void func_0019d7a0(u8 *arg0, s32 arg1);
+extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
 extern u8 *func_001f7650(u8 *arg0);
 extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
 
@@ -288,7 +288,7 @@ extern u8 *kwlnTaskGetTaskByName(void *arg0);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern s32 func_00192cd0(void);
 extern void btlPacketFlushAll(void);
-extern void func_0019d670(void);
+extern void btlUnitFreeRemovedUnits(void);
 extern void datUnitFree(s32 arg0);
 extern void func_003ef3a0(s32 arg0);
 extern void (*jtbl_008873EC[])(void *arg0);
@@ -1172,8 +1172,8 @@ void func_0019c0d0(void)
                         func_0019d990(entry, 5);
                     } else if (i != 2) {
                         mode = 0x737FB;
-                        func_0019d7a0(entry, 2);
-                        func_0019d7a0(entry, 5);
+                        btlUnitApplyModelState(entry, 2);
+                        btlUnitApplyModelState(entry, 5);
                     }
                     {
                         s32 *e8 = (s32 *)(*(u8 **)(entry + 0xA00) + 0xE8);

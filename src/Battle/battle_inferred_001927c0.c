@@ -197,7 +197,7 @@ extern u8 *kwlnTaskGetTaskByName(void *arg0);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern s32 func_00192cd0(void);
 extern void btlPacketFlushAll(void);
-extern void func_0019d670(void);
+extern void btlUnitFreeRemovedUnits(void);
 extern void datUnitFree(s32 arg0);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void func_0044ea90(void *arg0, s32 arg1);
@@ -368,7 +368,7 @@ s32 func_00192cd0(void)
     s32 temp;
     s32 *base;
     func_001b0bf0();
-    func_0019d670();
+    btlUnitFreeRemovedUnits();
     func_001b68d0();
     func_001b6110();
     func_001d6a70();

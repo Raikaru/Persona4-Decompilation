@@ -205,7 +205,7 @@ extern s32 func_0021db40(s32 task);
 extern s32 func_00122720(void);
 extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
-extern void func_0019d550(u8 *arg0);
+extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void func_001b08f0(void *arg0);
 extern void func_001bc800(u8 *arg0);
 extern void datUnitRemoveEncounterUnit(DatUnitEc *arg0, DatUnit *arg1);
@@ -629,7 +629,7 @@ void func_001b1d70(void) {
     extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
     extern void func_0014a460(u16 arg0, u32 arg1);
-    extern void func_0019d7a0(u8 *arg0, s32 arg1);
+    extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
     extern void func_001987a0(u8 *arg0);
     extern void func_0047d170(void *model);
     extern u8 *mdlGetClump(u8 *arg0);
@@ -687,7 +687,7 @@ void func_001b1d70(void) {
                 *(s32 *)(unit + 0x98) = f | 8;
                 *(u16 *)(unit + 0x9FE) = func_00145510(id, *(void **)(unit + 0xA00));
                 func_0014a460(*(u16 *)(unit + 0x9FE), 1);
-                func_0019d7a0(unit, 1);
+                btlUnitApplyModelState(unit, 1);
                 btlUnitUpdateStatusMotion(unit, 0);
                 func_00198920(unit, *(s16 *)(unit + 0x9EC), 0, *(f32 *)(unit + 0x9F0), *(s8 *)(unit + 0x9F4));
                 func_001987a0(unit);
@@ -695,7 +695,7 @@ void func_001b1d70(void) {
                 if (*(s32 *)(tmp + 0x2D0) == 0) {
                     func_0047d170(tmp);
                 }
-                func_0019d7a0(unit, 4);
+                btlUnitApplyModelState(unit, 4);
                 btlUnitShowModel(unit);
                 *(s32 *)(*(u8 **)(unit + 0xA00) + 0xD8) |= 0x400;
                 mdlClumpSetEnvMapState(mdlGetClump(*(u8 **)(unit + 0xA00)));

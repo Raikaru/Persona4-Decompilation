@@ -137,14 +137,14 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     func_0029db50(arg0, arg1, arg2, arg3);
 }
 extern u8 iGpffffa4d8;
-extern void func_0019d7a0(u8 *arg0, s32 arg1);
+extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
 extern void func_0019d990(u8 *arg0, s32 arg1);
-extern void func_0019d7a0(u8 *arg0, s32 arg1);
+extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
 
 
 
@@ -218,7 +218,7 @@ u32 btlUnitMotionSpeedPacketUpdate(void *workData)
         p4_call_00198920((temp_20 = *(s16 *)(temp_18 + 0x9DA), temp_20), temp_18, temp_17, temp_f20, temp_16);
         if (*(s32 *)(temp_18 + 0x98) & 2)
             func_00479e60(*(u8 **)(temp_18 + 0xA00), 0, (f32)temp_19);
-        func_0019d7a0(temp_18, 4);
+        btlUnitApplyModelState(temp_18, 4);
     }
     return 1;
 }

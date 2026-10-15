@@ -24,7 +24,7 @@ extern void func_00192ae0(void);
 extern s32 func_00457120(void);
 extern s32 func_003e8120(s32 arg0);
 extern void func_0019cfb0(void);
-extern void func_0019d150(void);
+extern void btlUnitQueueAllModelsForDraw(void);
 extern void func_001d6680(void);
 extern void func_001bd9e0(void);
 extern void func_00460ac0(void *arg0, void *arg1);
@@ -122,7 +122,7 @@ s32 func_001926c0(u8 *unusedTask)
     if (func_003e8120(func_00457120()) != 0) {
         btlPacketStepSide(2);
         func_0019cfb0();
-        func_0019d150();
+        btlUnitQueueAllModelsForDraw();
         func_001d6680();
         func_001bd9e0();
         *(s32 *)((u8 *)iGpffffb3ac + 0xE18) = 0;

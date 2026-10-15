@@ -69,7 +69,7 @@ extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
-extern void func_0019d550(u8 *arg0);
+extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void func_001b08f0(void *arg0);
 extern void func_001bc800(u8 *arg0);
 extern void datUnitRemoveEncounterUnit(DatUnitEc *arg0, DatUnit *arg1);
@@ -351,7 +351,7 @@ void func_001b05d0(u8 *arg0)
             }
             break;
         }
-        func_0019d550(*(u8 **)(arg0 + 0x30));
+        btlUnitUnlinkAndFree(*(u8 **)(arg0 + 0x30));
         *(u8 **)(arg0 + 0x30) = NULL;
         *(u16 *)(arg0 + 0x1A) &= 0xFFFE;
     }

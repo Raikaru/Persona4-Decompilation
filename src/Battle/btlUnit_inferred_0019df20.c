@@ -135,7 +135,7 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     func_0029db50(arg0, arg1, arg2, arg3);
 }
 extern u8 iGpffffa4d8;
-extern void func_0019d7a0(u8 *arg0, s32 arg1);
+extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern void mdlSetBlendWeight(void *arg0, float arg1);
@@ -143,7 +143,7 @@ extern void mdlLookAtSetupSetRange(void *arg0, float arg1, float arg2);
 extern f32 DAT_0076112c;
 
 
-extern void func_0019d7a0(u8 *arg0, s32 arg1);
+extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
 
 
 
@@ -232,7 +232,7 @@ s32 func_0019df20(u8 *arg0)
                 *(s16 *)(unit + 0xB0) = 1;
                 *(P4_95730_Vec3 *)(unit + 0xB8) =
                     *(P4_95730_Vec3 *)(arg0 + 4);
-                func_0019d7a0(unit, 3);
+                btlUnitApplyModelState(unit, 3);
             }
             unit = *(u8 **)(unit + 0xA68);
         }
@@ -264,7 +264,7 @@ s32 func_0019df20(u8 *arg0)
         *(s16 *)(unit + 0xB0) = 1;
         *(P4_95730_Vec3 *)(unit + 0xB8) =
             *(P4_95730_Vec3 *)(arg0 + 4);
-        func_0019d7a0(unit, 3);
+        btlUnitApplyModelState(unit, 3);
     }
     return 1;
 }

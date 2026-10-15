@@ -142,7 +142,7 @@ extern int mdlHasActiveMode(void *arg0);
 extern void mdlSetLookAtActive(void *arg0);
 extern void mdlSetLookAtRequested(void *arg0);
 extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
-extern void func_0019d7a0(u8 *arg0, s32 arg1);
+extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
 extern void func_0047a810(void *arg0);
 extern void mdlSetAlphaBlend(void *arg0);
 extern void mdlSetLookStateWord(void *arg0, u16 arg1);
@@ -157,7 +157,7 @@ extern f32 DAT_0076112c;
 
 
 extern void func_0019d990(u8 *arg0, s32 arg1);
-extern void func_0019d7a0(u8 *arg0, s32 arg1);
+extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
 extern u8 *func_001f7650(u8 *arg0);
 
 
@@ -170,7 +170,7 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     func_0019ef30(arg0, arg1);
 }
-extern void func_0019d670(void);
+extern void btlUnitFreeRemovedUnits(void);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
@@ -214,7 +214,7 @@ extern u8 D_00794150[];
 #pragma push
 #pragma pop
 // FUN_0019D670
-void func_0019d670(void)
+void btlUnitFreeRemovedUnits(void)
 {
     u8 *unit;
     u8 *next;
@@ -229,7 +229,7 @@ void func_0019d670(void)
         while (unit != NULL) {
             next = *(u8 **)(unit + 0xA6C);
             unitType = *(u8 *)(unit + 0xA2);
-            func_0019d4e0(unit);
+            btlUnitReleaseAllResources(unit);
             func_001ee430(unit);
             status = *(s8 *)(unit + 0x9FC);
             if (status >= 0)
@@ -254,7 +254,7 @@ void func_0019d670(void)
 
 /* measured: plain-C switch reconstruction reproduces the 488-byte object against the 496-byte retail window; the jump-table base register remains the residual. Committed at nd 61. */
 // FUN_0019D7A0
-void func_0019d7a0(u8 *arg0, s32 arg1)
+void btlUnitApplyModelState(u8 *arg0, s32 arg1)
 {
     s32 temp_4;
     u16 temp_5;
