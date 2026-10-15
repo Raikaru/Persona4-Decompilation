@@ -1267,8 +1267,9 @@ void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
 }
 /* measured: close propagation-off probe for func_00457630. */
 #pragma opt_propagation on
+/* Adds the material's colour user-data entry (key D_00711870) when it is missing, storing the packed RGBA word from the material. An existing entry is left unchanged. */
 // FUN_004585C0
-void func_004585c0(u8 *arg0) {
+void K_Clump_EnsureMatColorUsrData(u8 *arg0) {
     s32 index;
     s32 found;
     s32 value;
