@@ -2163,8 +2163,9 @@ void fclCombineFlashSlot(u8 *arg0, s8 arg1) {
    resume-header-call-domain.json and resume-e5-proof/receipt.json. */
 #pragma push
 #pragma opt_lifetimes on
+// Fcl combine slot fields: draws the sprite set for one slot's fields (a header chip, the variant chip, and value fields), each fading in or out (mode 1) and sliding to its position at the given delay. arg4 and arg5 select the alternate sprite ids and positions; variant (arg6) picks the chip and x shift.
 // FUN_0031E5B0
-void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5, s32 arg6) {
+void fclCombineDrawSlotFields(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5, s32 arg6) {
     FclByte4 c16C;
     FclByte4 c168;
     FclByte4 c164;
@@ -2777,7 +2778,7 @@ void func_00320b80(u8 *task, s8 entryMode) {
 
     /* Phase 2: title, followed by one Persona row and column header per slot. */
     titlePosition = func_002b2970(16.0f, 104.0f);
-    func_0031e5b0(fclSavedCombineTask(&task), titlePosition, 0, 0, 0, 0, 0);
+    fclCombineDrawSlotFields(fclSavedCombineTask(&task), titlePosition, 0, 0, 0, 0, 0);
     for (row = 0, gridMode = savedMode; row < (u16)datPersonaRosterCapacity(); row++) {
         s32 rowIndex;
         s32 gridOffset;
@@ -3095,7 +3096,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                 fclCombinePartyRow(arg0, func_002b2970(16.0f, 128.0f), (s8)ia, *(u16 *)(yListSlotEntry(0, ia) + 2), *(u8 *)(yListSlotEntry(0, ia) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
                 ++ia;
             }
-            func_0031e5b0(arg0, func_002b2970(16.0f, 104.0f), 0, 1, 0, 0, 0);
+            fclCombineDrawSlotFields(arg0, func_002b2970(16.0f, 104.0f), 0, 1, 0, 0, 0);
             fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
             ja = 0;
             while ((s16)ja < (u16)datPersonaRosterCapacity()) {
@@ -3234,7 +3235,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
     } else if (D_008C024E[0] & 0x20) {
         func_0045af60(0, 0, 0, 2);
         datPersonaRosterCapacity();
-        func_0031e5b0(arg0, func_002b2970(16.0f, 104.0f), 0, 1, 0, 0, 0);
+        fclCombineDrawSlotFields(arg0, func_002b2970(16.0f, 104.0f), 0, 1, 0, 0, 0);
         jc = 0;
         while ((s16)jc < (u16)datPersonaRosterCapacity()) {
             fclCombinePartyRow(arg0, func_002b2970(16.0f, 128.0f), (s8)jc, *(u16 *)(yListSlotEntry(0, jc) + 2), *(u8 *)(yListSlotEntry(0, jc) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
@@ -3431,9 +3432,9 @@ void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
     FclVec2 *p;
 
     spE0.position = func_002b2970(16.0f, 104.0f);
-    func_0031e5b0(arg0, spE0.position, 0, arg2, 0, 1, 2);
+    fclCombineDrawSlotFields(arg0, spE0.position, 0, arg2, 0, 1, 2);
     spD8.position = func_002b2970(313, 104.0f);
-    func_0031e5b0(arg0, spD8.position, 0, arg2, 1, 0, 0);
+    fclCombineDrawSlotFields(arg0, spD8.position, 0, arg2, 1, 0, 0);
     for (k = 0; k < *(s32 *)(yListSlotWork(1) + 8); k++) {
         spD0.position = func_002b2970(313, 128.0f);
         fclCombinePartyRow(arg0, spD0.position, (s8)k, *(u16 *)(yListSlotEntry(1, k) + 2), *(u8 *)(yListSlotEntry(1, k) + 4), (s16)(k * arg1), arg2, (count = *(s8 *)(yListSlotWork(1) + 8)));
@@ -3602,8 +3603,8 @@ void func_00324680(u8 *arg0, s32 arg1, s8 arg2) {
 
     t = *(u8 **)(arg0 + 0x38);
     fclCombineLayoutFrame(arg0, 0, arg2);
-    func_0031e5b0(arg0, func_002b2970(6.0f, 104.0f), 0, arg2, 0, 1, 2);
-    func_0031e5b0(arg0, func_002b2970((f32)315, 104.0f), 0, arg2, 1, 0, 0);
+    fclCombineDrawSlotFields(arg0, func_002b2970(6.0f, 104.0f), 0, arg2, 0, 1, 2);
+    fclCombineDrawSlotFields(arg0, func_002b2970((f32)315, 104.0f), 0, arg2, 1, 0, 0);
     i = 0;
     m = (s16)arg1;
     for (; i < 12; i++) {
@@ -4719,7 +4720,7 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
   new_var2 = (u8 **) (arg0 + 0x38);
   obj = *new_var2;
   spC8 = func_002b2970(156.0f, (float) ((float) 87.0f));
-  func_0031e5b0(arg0, spC8, 0, arg3, 0, 1, 1);
+  fclCombineDrawSlotFields(arg0, spC8, 0, arg3, 0, 1, 1);
   i = 0;
   v1 = (s16) arg1;
   new_var9 = (s16) arg2;
@@ -4785,7 +4786,7 @@ void func_0032b9d0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
 
     t = *(u8 **)(arg0 + 0x38);
     sp118 = func_002b2970(88.0f, 127.0f);
-    func_0031e5b0(arg0, sp118, 0, arg3, 0, 1, 3);
+    fclCombineDrawSlotFields(arg0, sp118, 0, arg3, 0, 1, 3);
     spF8 = func_002b2970(390.0f, 127.0f);
     origin = *(FclVec2 *)&spF8;
     c13C = func_002b2a60(0, 0, 0x99, 0xFF);
@@ -5808,7 +5809,7 @@ void func_0032fbc0(u8 *arg0) {
 
     t = *(u8 **)(arg0 + 0x38);
     sp100 = func_002b2970(16.0f, 104.0f);
-    func_0031e5b0(arg0, sp100, 0, 1, 0, 0, 0);
+    fclCombineDrawSlotFields(arg0, sp100, 0, 1, 0, 0, 0);
     i = 0;
     while ((s16)i < (u16)datPersonaRosterCapacity()) {
         spF8 = func_002b2970(16.0f, 128.0f);
