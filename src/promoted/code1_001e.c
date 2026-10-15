@@ -187,85 +187,7 @@ s32 func_001e6c60(void) {
     }
     return 1;
 }
-// FUN_001E6D20
-s32 func_001e6d20(void) {
-    s32 first;
-    s32 second;
-    s32 kind;
-    u8 *result;
 
-    first = scrGetParamIntS32(0) & 0xFFFF;
-    second = scrGetParamIntS32(1) & 0xFFFF;
-    result = 0;
-    kind = first & 0xFFFF;
-    switch (kind) {
-    case 0:
-        result = func_001d9280(second, 1, 0);
-        break;
-    case 1:
-        result = func_001d9280(second, 2, 0x80000);
-        break;
-    }
-    scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
-    return 1;
-}
-
-// FUN_001E6DC0
-s32 func_001e6dc0(void) {
-    u8 *current;
-    u8 *best;
-    u32 min;
-    u16 flags;
-    u8 *entry;
-    u32 value;
-
-    best = NULL;
-    min = 0x0FFFFFFF;
-    current = *(u8 **)(iGpffffb3ac + 0x174);
-    while (current != NULL) {
-        flags = *(u16 *)(current + 0x1A);
-        if ((flags & 1) && (flags & 8)) {
-            entry = *(u8 **)(current + 0x30);
-            if (*(u8 *)(entry + 0xA2) == 1 &&
-                datCalcIsDead(*(s32 *)(entry + 0xA64), 0) == 0) {
-                value = datCalcGetHp(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF;
-                if (value < min) {
-                    best = current;
-                    min = value;
-                }
-            }
-        }
-        current = *(u8 **)(current + 0x450);
-    }
-    scrSetReturnInt(*(s32 *)(best + 8) | 0x80000000);
-    return 1;
-}
-// FUN_001E6EA0
-s32 func_001e6ea0(void) {
-    u8 *work;
-    s64 flags;
-    u16 count;
-    u8 *result;
-
-    work = func_0029d050();
-    flags = scrGetParamInt(0);
-    if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
-        count = *(u16 *)(work + 0x6A);
-        if (count == 1) {
-            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
-        } else {
-            if (flags & 2) {
-                result = btlAICommandPickUnitByHpWeight(work);
-            } else {
-                result = *(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38);
-            }
-            scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
-        }
-    } else {
-        scrSetReturnInt(-1);
-    }
-    return 1;
-}
 // FUN_001E6FA0
 s32 func_001e6fa0(void) {
     u16 count;
@@ -1080,18 +1002,6 @@ s32 func_001e8bb0(void) {
     temp_16 = scrGetParamInt(1);
     temp_18 = scrGetParamInt(2);
     scrSetReturnInt(btlAICommandCollectCommandsOfType(temp_19, func_001b0cc0((u64)(temp_17 << 0x24) >> 0x24), (s16)temp_16, temp_18));
-    return 1;
-}
-// FUN_001E8C60
-s32 func_001e8c60(void) {
-    u64 temp_16;
-
-    func_0029d050();
-    temp_16 = scrGetParamInt(0);
-    scrGetParamInt(1);
-    scrGetParamInt(2);
-    func_001b0cc0((u64) (temp_16 << 0x24) >> 0x24);
-    scrSetReturnInt(-1);
     return 1;
 }
 
