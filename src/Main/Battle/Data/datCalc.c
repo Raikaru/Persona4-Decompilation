@@ -64,7 +64,7 @@ extern u32 func_001069a0(s16 arg0);
 
 extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
-extern s32 func_00238940(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
+extern s32 datCalcInflictStatus(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
 extern s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
 extern u32 datCalcStatusEffectResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u32 datGetFlag(s32 arg0);
@@ -2246,10 +2246,11 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
  * word. Unsigned table indexing keeps its mask distinct from validation.
  * measured: b210 -O2, 3728/3728 bytes, with both real u16 query consumers.
  * The bounded choices array and skill/equipment scans preserve P4 status bits. */
+// Intent: status-infliction roll for skill arg0 from source arg1 on target arg2: picks the skill's status bits (one at random when the row mode is 3), gates them on the target, applies resistance and source-side bonuses unless options bit 1 is set, rolls the chance, and returns the landed bits (0 when resisted or missed; 0x80000 death may be cancelled by a survive flag); [inferred].
 // FUN_00238940
 #pragma push
 #pragma opt_loop_invariants on
-s32 func_00238940(skillId, source, target, options)
+s32 datCalcInflictStatus(skillId, source, target, options)
 u16 skillId;
 u8 *source;
 u8 *target;
@@ -2490,66 +2491,66 @@ u32 datCalcStatusEffectResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, 
             temp_2 = var_2_2 & 0xFFFF;
             switch (temp_2) {
             case 0x24:
-                return func_00238940(0x190, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x190, arg1, arg2, arg5);
             case 0x25:
-                return func_00238940(0x191, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x191, arg1, arg2, arg5);
             case 0x26:
-                return func_00238940(0x192, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x192, arg1, arg2, arg5);
             case 0x27:
-                return func_00238940(0x193, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x193, arg1, arg2, arg5);
             case 0x28:
-                return func_00238940(0x194, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x194, arg1, arg2, arg5);
             case 0x29:
-                return func_00238940(0x195, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x195, arg1, arg2, arg5);
             case 0x2A:
-                return func_00238940(0x196, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x196, arg1, arg2, arg5);
             case 0x2B:
-                return func_00238940(0x197, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x197, arg1, arg2, arg5);
             case 0x2C:
-                return func_00238940(0x198, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x198, arg1, arg2, arg5);
             case 0x2D:
-                return func_00238940(0x199, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x199, arg1, arg2, arg5);
             case 0x2E:
-                return func_00238940(0x19A, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x19A, arg1, arg2, arg5);
             case 0x2F:
-                return func_00238940(0x19B, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x19B, arg1, arg2, arg5);
             case 0x30:
-                return func_00238940(0x19C, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x19C, arg1, arg2, arg5);
             case 0x31:
-                return func_00238940(0x19D, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x19D, arg1, arg2, arg5);
             case 0x32:
-                return func_00238940(0x19E, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x19E, arg1, arg2, arg5);
             case 0x33:
-                return func_00238940(0x19F, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x19F, arg1, arg2, arg5);
             case 0x34:
-                return func_00238940(0x1A0, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x1A0, arg1, arg2, arg5);
             case 0x35:
-                return func_00238940(0x1A1, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x1A1, arg1, arg2, arg5);
             case 0x36:
-                return func_00238940(0x1A2, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x1A2, arg1, arg2, arg5);
             case 0x37:
-                return func_00238940(0x1A3, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x1A3, arg1, arg2, arg5);
             case 0x38:
-                return func_00238940(0x1A4, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x1A4, arg1, arg2, arg5);
             case 0x39:
-                return func_00238940(0x1A5, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x1A5, arg1, arg2, arg5);
             case 0x3A:
-                return func_00238940(0x1A6, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x1A6, arg1, arg2, arg5);
             case 0x3B:
-                return func_00238940(0x1A7, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x1A7, arg1, arg2, arg5);
             case 0x5C:
-                return func_00238940(0x1A8, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x1A8, arg1, arg2, arg5);
             case 0x5D:
-                return func_00238940(0x1A9, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x1A9, arg1, arg2, arg5);
             case 0x5E:
-                return func_00238940(0x1AA, arg1, arg2, arg5);
+                return datCalcInflictStatus(0x1AA, arg1, arg2, arg5);
             }
             goto zero;
         }
 zero:
         var_2 = 0;
     } else {
-        var_2 = func_00238940(arg0, arg1, arg2, arg5);
+        var_2 = datCalcInflictStatus(arg0, arg1, arg2, arg5);
         if ((((u64)((s64)(*(s32 *)(arg2 + 0xC)) << 0x2C) >> 0x2C) != 0) && !(var_2 & 0x180000)) {
             var_2 = 0;
         }
@@ -2578,7 +2579,7 @@ s32 datCalcSureHitResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 a
     if ((s32)temp_4[0x19] < 0x64) {
         func_0046d730(D_00635938, 0xB9F);
     }
-    return func_00238940(arg0, arg1, arg2, arg5);
+    return datCalcInflictStatus(arg0, arg1, arg2, arg5);
 }
 
 // Intent: apply skill arg0 from actor arg1 to target arg2: HP and SP deltas (clamped to the unit's max), status bits into the unit word at +0xC, dead at 0 HP; returns 1 [inferred].
@@ -2602,7 +2603,7 @@ s32 datCalcApplySkillEffect(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
             if ((s32)iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x19] < 0x64) {
                 func_0046d730(D_00635938, 0xB9F);
             }
-            result = func_00238940(arg0, arg1, arg2, 0);
+            result = datCalcInflictStatus(arg0, arg1, arg2, 0);
         }
         if (temp_17 == 0 && arg3 == 0 && temp_21 == 0 && result == 0) {
             return 0;
@@ -2674,7 +2675,7 @@ s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
             if ((s32)iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x19] < 0x64) {
                 func_0046d730(D_00635938, 0xB9F);
             }
-            result = func_00238940(arg0, arg1, arg2, 0);
+            result = datCalcInflictStatus(arg0, arg1, arg2, 0);
         }
         *(s32 *)(arg1 + 0x18) = 0;
         *(s32 *)(arg2 + 0x18) = 0;
@@ -2757,7 +2758,7 @@ s32 func_0023a490(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 *arg4, s32 *arg5, 
                 if ((s32)iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x19] < 0x64) {
                     func_0046d730(D_00635938, 0xB9F);
                 }
-                var_2 = func_00238940(arg0, arg1, arg2, 0);
+                var_2 = datCalcInflictStatus(arg0, arg1, arg2, 0);
             }
             *arg6 = var_2;
         }
