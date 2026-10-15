@@ -136,8 +136,8 @@ extern u8 *iGpffffb440;
 extern u8 *iGpffffb3d4;
 extern f32 iGpffff8504;
 extern void func_002f9c30(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
-extern void func_00310960(u8 *, s32, s32);
-extern void func_00310a10(u8 *, u16);
+extern void fclCombinePlayCue(u8 *, s32, s32);
+extern void fclCombinePlayResultCue(u8 *, u16);
 extern void func_0011b8f0(u8 *, u8 *);
 extern s32 func_0011cc00(u8 *, u16, u16);
 extern u8 *func_00243840(s32);
@@ -501,7 +501,7 @@ void func_002e90d0(u8 *arg0)
     extern s32 func_0033e5a0(u8 *);
     extern void func_00315310(u8 *, s64);
     extern void func_00317410(u8 *, s8);
-    extern void func_002ecfc0(u8 *);
+    extern void fclCombineBuildRows(u8 *);
     extern void func_00318f30(s16);
     extern void func_00318840(u8 *, s8, s8, s16, s16);
     extern s8 func_0032fb60(s8);
@@ -746,7 +746,7 @@ void func_002e90d0(u8 *arg0)
                     func_00106390(0x131E, 1);
                     p[1] = 0x22;
                 } else {
-                    func_002ecfc0(arg0);
+                    fclCombineBuildRows(arg0);
                 }
                 break;
             case 1:
@@ -807,7 +807,7 @@ void func_002e90d0(u8 *arg0)
             break;
         }
         func_002bb550(p[0xD]);
-        func_002ecfc0(arg0);
+        fclCombineBuildRows(arg0);
         break;
     case 0x21:
         if (func_002bb680(p[0xD]) != 0) {
@@ -1320,8 +1320,9 @@ void fclCombineLayoutTransition(u8 *task, s32 transition) {
    FclVec2f base. Table stores use an integer-domain scaled offset so the
    addu has the retail offset-first operand order; direct byte increments
    preserve retail's store-before-next-index schedule. */
+// Fcl combine rows: builds the 10-byte combine row table (ids and sprite offsets) and creates the first row sprite.
 // FUN_002ECFC0
-void func_002ecfc0(u8 *arg0) {
+void fclCombineBuildRows(u8 *arg0) {
     FclVec2 sp38;
     u8 *temp_16;
     FclVec2f *base;
@@ -2153,16 +2154,16 @@ void func_002ed430(u8 *arg0) {
         temp_16_42 = ((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA))[1];
         temp_17_13 = *(u8 *)((u8 *)((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA)) + 4);
         if ((func_00104c70(1) & 0xFF) < temp_17_13) {
-            func_00310960(arg0, 0x26, 0);
+            fclCombinePlayCue(arg0, 0x26, 0);
             temp_18->f1 = 0x31;
         } else if (func_002e53b0(0, (s32)(*(s16 *)((u8 *)((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA)) + 2))) == 1) {
-            func_00310960(arg0, 0x27, 0);
+            fclCombinePlayCue(arg0, 0x27, 0);
             temp_18->f1 = 0x31;
         } else {
             if (func_00105f50(temp_16_42) == 0) {
-                func_00310a10(arg0, temp_16_42);
+                fclCombinePlayResultCue(arg0, temp_16_42);
             } else {
-                func_00310960(arg0, (s8)(func_00105f50(temp_16_42) + 0x2E), 1);
+                fclCombinePlayCue(arg0, (s8)(func_00105f50(temp_16_42) + 0x2E), 1);
             }
             temp_18->f1 = 0x30;
         }
@@ -3482,19 +3483,19 @@ block_215:
         temp_16_77 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA))) + (2)))))));
         temp_18_40 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
         if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_18_40))) {
-            func_00310960(arg0, 0x26, 0);
+            fclCombinePlayCue(arg0, 0x26, 0);
             temp_17->f1 = 0x4AU;
             return;
         }
         if (func_002e53b0(0, (s32)*(s16 *)(func_002e48a0(temp_17->f2F9, temp_17->f2FA) + 2)) == 1) {
-            func_00310960(arg0, 0x27, 0);
+            fclCombinePlayCue(arg0, 0x27, 0);
             temp_17->f1 = 0x4AU;
             return;
         }
         if ((s32)((s32)(((s8)(func_00105f50(temp_16_77))))) == (s32)((s32)(0))) {
-            func_00310a10(arg0, temp_16_77);
+            fclCombinePlayResultCue(arg0, temp_16_77);
         } else {
-            func_00310960(arg0, (s8)((((s8)(func_00105f50(temp_16_77))) + 0x2E)), 1);
+            fclCombinePlayCue(arg0, (s8)((((s8)(func_00105f50(temp_16_77))) + 0x2E)), 1);
         }
         temp_17->f1 = 0x49U;
         return;
@@ -4160,19 +4161,19 @@ void func_002f6cf0(u8 *arg0) {
     case 0x59:
         item = ((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]))[1];
         if (((u8 *)func_002e48a0(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
-            func_00310960(arg0, 0x26, 0);
+            fclCombinePlayCue(arg0, 0x26, 0);
             p[1] = 0x5B;
             break;
         }
         if (func_00313a80(p[0x1A], func_00313ae0(p[0x1A], item)) == 1) {
-            func_00310960(arg0, 0x27, 0);
+            fclCombinePlayCue(arg0, 0x27, 0);
             p[1] = 0x5B;
             break;
         }
         if (func_00105f50(item) == 0) {
-            func_00310a10(arg0, item);
+            fclCombinePlayResultCue(arg0, item);
         } else {
-            func_00310960(arg0, (s8)(func_00105f50(item) + 0x2E), 1);
+            fclCombinePlayCue(arg0, (s8)(func_00105f50(item) + 0x2E), 1);
         }
         p[1] = 0x5A;
         break;
@@ -4574,10 +4575,10 @@ void func_002f9d90(u8 *arg0) {
             func_002e48a0(p[0x2F9], p[0x2FA]);
             func_0045af60(0, 0, 0, 1);
             if (((u8 *)func_002e48a0(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
-                func_00310960(arg0, 0x26, 0);
+                fclCombinePlayCue(arg0, 0x26, 0);
                 p[1] = 0x6B;
             } else {
-                func_00310960(arg0, 0x39, 1);
+                fclCombinePlayCue(arg0, 0x39, 1);
                 p[1] = 0x6A;
             }
         } else if (buttons & 0x80) {
@@ -5657,12 +5658,12 @@ void func_002fbea0(u8 *arg0) {
         } else if (D_008C024E[0] & 0x40) {
             func_0045af60(0, 0, 0, 1);
             if (datPersonaFindRosterRecordById(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)) != 0) {
-                func_00310960(arg0, 0x12, 0);
+                fclCombinePlayCue(arg0, 0x12, 0);
                 p->f1 = 0x9D;
                 return;
             }
             if ((datPersonaRosterCapacity() & 0xFFFF) <= (datPersonaCountValidMembers() & 0xFFFF)) {
-                func_00310960(arg0, 0x14, 0);
+                fclCombinePlayCue(arg0, 0x14, 0);
                 p->f1 = 0x9D;
                 return;
             }
@@ -5681,7 +5682,7 @@ void func_002fbea0(u8 *arg0) {
                 p->f1 = 0x9E;
                 goto conv9A;
             } else {
-                func_00310960(arg0, 0x11, 0);
+                fclCombinePlayCue(arg0, 0x11, 0);
                 p->f1 = 0x9D;
                 goto conv9A;
             }
@@ -6901,17 +6902,17 @@ void func_00304580(u8 *arg0) {
                 }
                 func_0011b8f0(fclDrawGetResource((u8 *)work->f148), work->f30C);
             } else {
-                func_00310960(arg0, 0x22, 0);
+                fclCombinePlayCue(arg0, 0x22, 0);
                 work->f1 = 0x85;
                 break;
             }
             temp_2_2 = (s8)(((func_001102d0() & 0xFFFF) >> 0xC) & 0xF);
             if (temp_2_2 < 4) {
-                func_00310960(arg0, 0x1F, 0);
+                fclCombinePlayCue(arg0, 0x1F, 0);
             } else if (temp_2_2 < 7) {
-                func_00310960(arg0, 0x20, 0);
+                fclCombinePlayCue(arg0, 0x20, 0);
             } else {
-                func_00310960(arg0, 0x21, 0);
+                fclCombinePlayCue(arg0, 0x21, 0);
             }
             work->f1 = 0x85;
         } else {
@@ -7354,7 +7355,7 @@ void func_00304580(u8 *arg0) {
                 func_0011caf0(fclDrawGetResource((u8 *)work->f148));
             }
             if (D_008C024E[0] & 0x40) {
-                func_00310960(arg0, 0x1B, 1);
+                fclCombinePlayCue(arg0, 0x1B, 1);
                 work->f1 = 0x83U;
                 func_0045af60(0, 0, 0, 1);
                 return;
@@ -7610,16 +7611,16 @@ void func_00304580(u8 *arg0) {
         func_002bb550(work->fD);
         temp_16_38 = datPersonaCountValidMembers() & 0xFFFF;
         if (temp_16_38 == (datPersonaRosterCapacity() & 0xFFFF)) {
-            func_00310960(arg0, 0x23, 0);
+            fclCombinePlayCue(arg0, 0x23, 0);
             work->f1 = 0x87U;
             return;
         }
         if (fclCombinePersonaInRoster((*(u16 *)((u8 *)(func_001102e0())+(2)))) == 1) {
-            func_00310960(arg0, 0x27, 0);
+            fclCombinePlayCue(arg0, 0x27, 0);
             work->f1 = 0x87U;
             return;
         }
-        func_00310960(arg0, 0x1E, 1);
+        fclCombinePlayCue(arg0, 0x1E, 1);
         return;
     case 0x86:                                      /* switch 1 */
         if (func_002bb680(work->fD) != 0) {
@@ -8133,12 +8134,12 @@ void func_003097e0(u8 *arg0) {
     case 0xC7:
         if (datGetFlag(0x5B) != 0) {
             if (*(s8 *)(p + 0xB2) == 1) {
-                func_00310960(arg0, 0x28, 0);
+                fclCombinePlayCue(arg0, 0x28, 0);
                 p[1] = 0xC8;
                 return;
             }
             if (*(s8 *)(p + 0xB2) == 2) {
-                func_00310960(arg0, 0x29, 0);
+                fclCombinePlayCue(arg0, 0x29, 0);
                 p[1] = 0xC8;
                 return;
             }
@@ -9708,7 +9709,7 @@ void func_0030f4f0(u8 *task, s16 *materials) {
    (f32)347 / (f32)267 (retail converts them with cvt.s.w). Stored bytes
    are re-read (*(s16 *)(p + 0x2D8), *(s8 *)(p + 0xD)) so b210 forwards
    them as retail does; the D_00640C50/C58/41660 pairs go through a named
-   FclVec2f base; the table rows use the func_002ecfc0 offset spelling; the
+   FclVec2f base; the table rows use the fclCombineBuildRows offset spelling; the
    material switch keeps the 6 -> 5 -> 4 fallthrough labels (jump table);
    i is s8 and declared first, then cls, then p (saved-register order). */
 // FUN_0030F650
@@ -10050,8 +10051,9 @@ void fclCombineRestoreSnapshot(void)
     iGpffffb594 = NULL;
 }
 
+// Fcl combine cue: sets the sound cue on the channel and starts it when arg2 is 1.
 // FUN_00310960
-void func_00310960(u8 *arg0, s32 arg1, s32 arg2)
+void fclCombinePlayCue(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 *p;
     s8 t;
@@ -10068,8 +10070,9 @@ void func_00310960(u8 *arg0, s32 arg1, s32 arg2)
 }
 /* measured: u16 class id, as its three callers pass it (raw lhu). With
    func_00109280(u16), the row index masks into a temp, as retail does. */
+// Fcl combine result cue: plays cue 0x2B, 0x2C or 0x2D by comparing the player's score with the row's thresholds.
 // FUN_00310A10
-void func_00310a10(u8 *arg0, u16 arg1) {
+void fclCombinePlayResultCue(u8 *arg0, u16 arg1) {
     s8 *p = *(s8 **)(arg0 + 0x38);
     s8 *t;
     s32 s0;
