@@ -80,9 +80,9 @@ extern char D_00637348[];
 extern void frFontSetStateBits(u32 param_1, int param_2);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern s32 cmmCommunityGetCurrentId(void);
-extern s32 func_00107ce0(s32 arg0);
-extern s32 func_00107dc0(s32 arg0);
-extern void func_00108290(s32 arg0, s32 arg1);
+extern void cmmCommunitySetRecordFlag1(s32 arg0);
+extern void cmmCommunityClearRecordFlag1(s32 arg0);
+extern s32 cmmCommunityAddScaledPoints(s32 arg0, u32 arg1);
 extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
                            s32 arg5, s32 arg6, s32 arg7,
@@ -1084,14 +1084,14 @@ s32 func_0026f5e0(s32 arg0, u8 *arg1)
         break;
     case 1:
         if (fourth != 0) {
-            func_00107ce0(cmmCommunityGetCurrentId());
+            cmmCommunitySetRecordFlag1(cmmCommunityGetCurrentId());
         } else {
-            func_00107dc0(cmmCommunityGetCurrentId());
+            cmmCommunityClearRecordFlag1(cmmCommunityGetCurrentId());
         }
         break;
     case 2:
     case 3:
-        func_00108290(cmmCommunityGetCurrentId(), fourth & 0xFFFF);
+        cmmCommunityAddScaledPoints(cmmCommunityGetCurrentId(), fourth & 0xFFFF);
         break;
     case 6:
     default:

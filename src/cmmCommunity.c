@@ -15,10 +15,10 @@ extern s32 func_00247dd0(s32 arg0);
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 extern s32 cmmCommunityHasRecord(s32 arg0);
 extern u16 func_00107ac0(s32 arg0);
-extern s32 func_00107c80(s32 arg0);
-extern s32 func_00107ea0(s32 arg0);
+extern s32 cmmCommunityTestRecordFlag1(s32 arg0);
+extern s32 cmmCommunityTestRecordFlag2(s32 arg0);
 extern s32 cmmCommunityFindRecord(s32 arg0);
-extern void func_00108b60(s32 arg0, s32 arg1);
+extern void cmmCommunitySetRank(s32 arg0, s32 arg1);
 extern s32 cmmCommunityGetCurrentId(void);
 extern f32 D_005E42D8[];
 extern f32 D_005E42DC[];
@@ -120,7 +120,7 @@ static inline void CommunityFlags_Clear(s32 community)
     }
 }
 
-// Community refresh flags: clears the flag bands of community arg0 and rebuilds them from its record: the base band (cmmCommunityHasRecord) and the rank band (rank 10 maps to band 1, others to rank + 3), then bands 2 (func_00107c80) and 3 (func_00107ea0).
+// Community refresh flags: clears the flag bands of community arg0 and rebuilds them from its record: the base band (cmmCommunityHasRecord) and the rank band (rank 10 maps to band 1, others to rank + 3), then bands 2 (cmmCommunityTestRecordFlag1) and 3 (cmmCommunityTestRecordFlag2).
 // FUN_00106F40
 void cmmCommunityRefreshFlags(s32 arg0) {
     u8 *record;
@@ -144,10 +144,10 @@ void cmmCommunityRefreshFlags(s32 arg0) {
             cmmCommunitySetFlagBand(arg0, rank + 3);
         }
     }
-    if (func_00107c80(arg0) != 0) {
+    if (cmmCommunityTestRecordFlag1(arg0) != 0) {
         cmmCommunitySetFlagBand(arg0, 2);
     }
-    if (func_00107ea0(arg0) != 0) {
+    if (cmmCommunityTestRecordFlag2(arg0) != 0) {
         cmmCommunitySetFlagBand(arg0, 3);
     }
 }
@@ -250,8 +250,9 @@ s16 cmmCommunityCounterpart(s32 arg0)
     return (s16)arg0;
 }
 
+// Release counterparts: frees the paired records that arg0 displaces (3<->4, 5<->6, 0B<->0C, 0E<->0F, 15<->16, 10<->11, and the 19/1A/1B/1C group) before cmmCommunityAllocRecord claims a slot.
 // FUN_00107370
-void func_00107370(s32 arg0)
+void cmmCommunityReleaseCounterparts(s32 arg0)
 {
     u32 id = arg0 & 0xFFFF;
 
@@ -332,7 +333,7 @@ void cmmCommunityAllocRecord(s32 arg0) {
     if (cmmCommunityHasRecord(arg0) != 0) {
         return;
     }
-    func_00107370(arg0);
+    cmmCommunityReleaseCounterparts(arg0);
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
@@ -526,8 +527,9 @@ s32 cmmCommunityFindActiveSlotInGroup(s32 arg0)
    of the shared retest tail (nd 25). Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
+// Test record flags: returns the record's flag word ANDed with mask arg1, or 0 when arg0 has no record.
 // FUN_00107A00
-s32 func_00107a00(s32 arg0, s32 arg1) {
+s32 cmmCommunityTestRecordFlags(s32 arg0, s32 arg1) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -558,7 +560,7 @@ ret:
     return *(s32 *)r & arg1;
 }
 
-/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
+/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
@@ -595,8 +597,9 @@ ret:
     return *(u16 *)(r + 6);
 }
 
+// Test record flag 4: returns 1 when arg0's record has bit 0x4 set, else 0. Pairs with cmmCommunitySetRecordFlag4.
 // FUN_00107B70
-s32 func_00107b70(s32 arg0)
+s32 cmmCommunityTestRecordFlag4(s32 arg0)
 {
     s32 r = cmmCommunityFindRecord(arg0);
     if (r == 0)
@@ -614,7 +617,7 @@ s32 func_00107b70(s32 arg0)
     return 0;
 }
 
-/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
+/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
@@ -651,13 +654,14 @@ ret:
     }
 }
 
-/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
+/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
+// Set record flag 1: sets bit 0x1 and clears bit 0x2 in arg0's record, then refreshes flag band 2. Nothing happens when arg0 has no record.
 // FUN_00107CE0
-void func_00107ce0(s32 arg0) {
+void cmmCommunitySetRecordFlag1(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -689,13 +693,14 @@ ret:
     }
 }
 
-/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
+/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
+// Clear record flag 1: clears bit 0x1 in arg0's record and calls func_00106390(id + 0x43F, 0); asserts on a zero id when the record exists.
 // FUN_00107DC0
-void func_00107dc0(s32 arg0) {
+void cmmCommunityClearRecordFlag1(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -729,8 +734,9 @@ ret:
     }
 }
 
+// Test record flag 1: returns 1 when arg0's record has bit 0x1 set, else 0. RefreshFlags reads it as flag band 2.
 // FUN_00107C80
-s32 func_00107c80(s32 arg0)
+s32 cmmCommunityTestRecordFlag1(s32 arg0)
 {
     s32 r = cmmCommunityFindRecord(arg0);
     if (r == 0)
@@ -748,8 +754,9 @@ s32 func_00107c80(s32 arg0)
     return 0;
 }
 
+// Test record flag 2: returns 1 when arg0's record has bit 0x2 set, else 0. RefreshFlags reads it as flag band 3.
 // FUN_00107EA0
-s32 func_00107ea0(s32 arg0)
+s32 cmmCommunityTestRecordFlag2(s32 arg0)
 {
     s32 r = cmmCommunityFindRecord(arg0);
     if (r == 0)
@@ -767,13 +774,14 @@ s32 func_00107ea0(s32 arg0)
     return 0;
 }
 
-/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
+/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
+// Set record flag 2: sets bit 0x2 and clears bit 0x1 in arg0's record, then refreshes flag band 3. Nothing happens when arg0 has no record.
 // FUN_00107F00
-void func_00107f00(s32 arg0) {
+void cmmCommunitySetRecordFlag2(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -805,13 +813,14 @@ ret:
     }
 }
 
-/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
+/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
+// Clear record flag 2: clears bit 0x2 in arg0's record and calls func_00106390(id + 0x45F, 0); asserts on a zero id when the record exists.
 // FUN_00107FE0
-void func_00107fe0(s32 arg0) {
+void cmmCommunityClearRecordFlag2(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -850,12 +859,13 @@ ret:
    u32-typed and `0 < x` spellings into a direct and;beqz (2 missing sltu words
    shift the whole tail; nd 64). Everything else matched on the first draft.
    Booleanize floor. */
+// Earn scale: returns the float multiplier for points community arg0 earns, from the kind flag (func_00247c20), the event bit in D_0079B1CC, and the per-slot bands in D_007973A0.
 // FUN_001080C0
 /* The character lookup receives this function's incoming identifier.
    With that argument explicit, the configured O2 profile preserves every
    original instruction; the old omitted-argument O1 workaround is obsolete. */
 #pragma optimization_level 2
-f32 func_001080c0(s32 arg0) {
+f32 cmmCommunityEarnScale(s32 arg0) {
     f32 v;
     s32 i;
     s32 b;
@@ -897,11 +907,12 @@ f32 func_001080c0(s32 arg0) {
 #pragma optimization_level 2
 
 
-/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
+/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 151
    (loop floor plus tail register-allocation noise). Branch-shape floor. */
+// Add scaled points: adds arg1 scaled by cmmCommunityEarnScale to arg0's point counter at +8 and returns the amount added; 0 when arg0 has no record.
 // FUN_00108290
-s32 func_00108290(s32 arg0, u32 arg1) {
+s32 cmmCommunityAddScaledPoints(s32 arg0, u32 arg1) {
     f32 v;
     u8 *r;
     u8 *p;
@@ -975,8 +986,9 @@ ret:
 /* measured: opt_loop_invariants on hoists the u16->int widening of the earned value into both
    predecessors of the threshold loop (retail `move v1,zero` / `andi v1,v1` before the join). */
 #pragma opt_loop_invariants on
+// Add points: adds arg1 scaled by cmmCommunityEarnScale to arg0's point counter at +8, plays the threshold effect (func_0045af60) and the resource check (MT_Scene_CheckResSlot) when arg2 is not -1, and returns the new counter. A zero arg0 uses the current community.
 // FUN_00108590
-u16 func_00108590(s32 arg0, s32 arg1, s32 arg2) {
+u16 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2) {
     extern void kAssertFail(void *file, s32 line);
     typedef struct { f32 x; f32 y; f32 z; } Vec3;
     typedef struct {
@@ -1010,7 +1022,7 @@ u16 func_00108590(s32 arg0, s32 arg1, s32 arg2) {
         if (temp_2_2 == NULL) {
             var_3 = 0;
         } else {
-            temp_f0 = func_001080c0(arg0);
+            temp_f0 = cmmCommunityEarnScale(arg0);
             var_f1 = (f32)(u32)arg1;
             temp_f1 = var_f1 * temp_f0;
             var_3 = (u16)temp_f1;
@@ -1038,10 +1050,11 @@ u16 func_00108590(s32 arg0, s32 arg1, s32 arg2) {
     }
     return *(u16 *)((u8 *)temp_2 + 8);
 }
-/* measured: restore the unit default after func_00108590. */
+/* measured: restore the unit default after cmmCommunityAddPoints. */
 #pragma opt_loop_invariants off
+// Can rank up: returns 1 when arg0 has a record below max rank 0xA and its point counter reaches the threshold for its current rank in the kind record's table, else 0.
 // FUN_001087E0
-s32 func_001087e0(s32 arg0) {
+s32 cmmCommunityCanRankUp(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -1094,7 +1107,7 @@ ret:
 }
 
 
-/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
+/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 93
    (loop floor plus tail noise). Branch-shape floor. */
 /* measured: reconstructed this wave. Slot-search head plus the community
@@ -1116,12 +1129,13 @@ ret:
    and `i < 0x15` to `i <= 0x14`; each scored nd 3, so the nd 1 base
    remains the lowest body. The daddiu residual did not move; this is a
    settled floor after the comparison lever. Committed at nd 1. */
+// Try rank up: runs the same checks as cmmCommunityCanRankUp inline; when they pass, raises the rank by one through cmmCommunitySetRank, zeroes the point counter, and clears record flag 4. Returns 1 on success.
 // FUN_00108950
 /* measured: -O1 is load-bearing for this body - at -O2 mwcc coalesces the
    third cmmCommunityFindRecord result straight into the level saved register and
    drops retail's andi, costing nd 162. */
 #pragma optimization_level 1
-s32 func_00108950(s32 arg0) {
+s32 cmmCommunityTryRankUp(s32 arg0) {
     u8 *r;
     u8 *p;
     s32 id;
@@ -1190,7 +1204,7 @@ ret:
     } else {
         t = *(u16 *)(t + 6);
     }
-    func_00108b60(arg0, (t & 0xFFFF) + 1);
+    cmmCommunitySetRank(arg0, (t & 0xFFFF) + 1);
     *(s16 *)(r + 8) = 0;
     t = cmmCommunityFindRecord(arg0);
     if (t != 0) {
@@ -1203,13 +1217,14 @@ ret0:
 /* measured: closes the -O1 bracket above at the file's -O2 baseline. */
 #pragma optimization_level 2
 
-/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
+/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 18
    (tail matched; s16 arg1 variant only differs by mwcc's post-jal
    re-extension, nd 47 with s32 arg1 from assert-block scheduling).
    Branch-shape floor. */
+// Set rank: stores arg1 (1 to 0xA) as arg0's rank at +6 and sets flag band 1 at max rank, or band rank + 3 otherwise.
 // FUN_00108B60
-void func_00108b60(s32 arg0, s32 arg1) {
+void cmmCommunitySetRank(s32 arg0, s32 arg1) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
@@ -1345,7 +1360,7 @@ u16 cmmCommunityGetTableHead(void)
     return D_0079740C[0];
 }
 
-/* measured: same slot-search floor as func_00107a00/cmmCommunityAllocRecord (found-exit
+/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 93
    (loop floor; the descending switch and call loop match otherwise).
    Branch-shape floor. */
