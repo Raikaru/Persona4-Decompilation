@@ -33,6 +33,6 @@ u8 *fclCombineSlotRecord(u8 *task, s8 slot);
 s32 func_0034b810(u8 *task);
 
 /* This forwarding routine consumes the same signed resource indices. */
-void func_003205f0(u8 *task, s16 firstResource, s16 secondResource);
+void fclCombineSlideInSlotSprites(u8 *task, s16 firstResource, s16 secondResource);
 
 #endif
