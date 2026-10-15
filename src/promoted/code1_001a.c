@@ -204,7 +204,7 @@ s32 func_001fabe0(u8 *arg0);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 s32 datCalcGetSkillMask(u8 *arg0);
 s64 datCalcFindStrongBuff(u8 *arg0);
-s32 func_00243e30(u16 *arg0);
+s32 datCalcIsStatusBlocked(u16 *arg0);
 s32 func_001f6770(u8 *arg0);
 s32 func_001fac30(void);
 s32 btlActionGetCounter420(BtlAction *action);
@@ -549,7 +549,7 @@ void btlActionTryBegin(BtlAction *action) {
         action->unk_41c = 0;
     }
     if ((action->unk_41c != 0) ||
-        (func_00243e30((u16 *)action->unit->datUnit) != 0)) {
+        (datCalcIsStatusBlocked((u16 *)action->unit->datUnit) != 0)) {
         canAct = 0;
     }
     if (canAct != 0) {
@@ -627,7 +627,7 @@ void func_001a0b00(s64 *arg0) {
         btlCountUnitRecordsById(0x104) == 0) {
         btlActionFinishPresentation((BtlAction *)arg0);
         func_001f0a10((u8 *)&result);
-        if (func_00243e30((u16 *)action->unit->data) != 0) {
+        if (datCalcIsStatusBlocked((u16 *)action->unit->data) != 0) {
             result.flags |= 0x80;
         }
         if (action->passiveFlags != 0) {

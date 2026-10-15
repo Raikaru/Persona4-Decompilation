@@ -166,9 +166,9 @@ extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern void datCalcApplyBuffMask(void* data, s32 value, s32 mode);
 extern s32 datCalcIsDead(void* data, s32 mode);
 extern s32 datCalcIsLowHp(void* data);
-extern s32 func_00243e30(void* data);
-extern void func_00243e50(void* data);
-extern void func_00243e70(void* data);
+extern s32 datCalcIsStatusBlocked(void* data);
+extern void datCalcSetStatusBlocked(void* data);
+extern void datCalcClearStatusBlocked(void* data);
 extern void func_0022d600(void* source, u8* packet, s32* hpDelta);
 
 
@@ -782,10 +782,10 @@ s32 func_001f3010(u8* arg0)
         *(u16*)(temp_19 + 0x1a) = *(u16*)(temp_19 + 0x1a) | 0x80;
     }
     if (*(u16*)(arg0 + 0x26) & 0x80) {
-        if (func_00243e30(*(u8**)(temp_18 + 0xa64)) != 0) {
-            func_00243e70(*(u8**)(temp_18 + 0xa64));
+        if (datCalcIsStatusBlocked(*(u8**)(temp_18 + 0xa64)) != 0) {
+            datCalcClearStatusBlocked(*(u8**)(temp_18 + 0xa64));
         } else {
-            func_00243e50(*(u8**)(temp_18 + 0xa64));
+            datCalcSetStatusBlocked(*(u8**)(temp_18 + 0xa64));
         }
     }
     if (*(s32*)(iGpffffb3ac + 0xc) & 0x10) {
@@ -797,7 +797,7 @@ s32 func_001f3010(u8* arg0)
     if ((temp_3 < 0) || (temp_2 = *(s32*)(arg0 + 0xc), temp_2 < 0)) {
         func_00213b10(temp_18);
         if ((*(u16*)(arg0 + 0x26) & 0x300) == 0) {
-            func_00243e70(*(u8**)(temp_18 + 0xa64));
+            datCalcClearStatusBlocked(*(u8**)(temp_18 + 0xa64));
         }
     } else if ((temp_3 > 0) || (temp_2 > 0)) {
         func_00213b30(temp_18);
@@ -829,7 +829,7 @@ s32 func_001f3010(u8* arg0)
         }
         temp_17_2 = (*(u16*)(arg0 + 0x26) & 0x10) != 0;
         temp_16_2 = *(u8**)(temp_19 + 0x30);
-        func_00243e70(*(u8**)(temp_16_2 + 0xa64));
+        datCalcClearStatusBlocked(*(u8**)(temp_16_2 + 0xa64));
         if (temp_17_2 == 1) {
             if (*(u16*)(temp_19 + 0x3f4) != 0x154) {
                 datCalcSetHp(*(u8**)(temp_16_2 + 0xa64), 1);

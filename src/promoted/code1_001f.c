@@ -116,7 +116,7 @@ extern s32 func_001faa00(void);
 extern s32 func_0022bd00(void);
 extern s32 func_00120ee0(s32 arg0);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern void func_00243e70(s32 arg0);
+extern void datCalcClearStatusBlocked(s32 arg0);
 extern void datCalcSetHp(s32 arg0, s32 arg1);
 extern void datCalcClearBadStatus(s32 arg0, s32 arg1);
 extern void datCalcSetBadStatus(s32 arg0, s32 arg1);
@@ -1637,7 +1637,7 @@ void func_001f2eb0(u8 *arg0, s32 arg1)
     u8 *work;
 
     work = *(u8 **)(arg0 + 0x30);
-    func_00243e70(*(s32 *)(work + 0xA64));
+    datCalcClearStatusBlocked(*(s32 *)(work + 0xA64));
     if (arg1 == 1) {
         if (*(u16 *)(arg0 + 0x3F4) != 0x154) {
             datCalcSetHp(*(s32 *)(work + 0xA64), 1);

@@ -206,7 +206,7 @@ void func_001c79f0(u8 *arg0, s32 arg1)
     extern f32 fGpffff8030;
     extern void func_00195d50(u8 *arg0, f32 *arg1);
     extern s32 datCalcIsDead(s32 arg0, s32 arg1);
-    extern s32 func_00243e30(s32 arg0);
+    extern s32 datCalcIsStatusBlocked(s32 arg0);
     extern s32 datCalcIsLowHp(s32 arg0);
     extern f32 tanf(f32 arg0);
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
@@ -286,7 +286,7 @@ void func_001c79f0(u8 *arg0, s32 arg1)
             var_f22 = fGpffff8134;
             var_f21 = 25.0f;
             frame.pos138[1] = frame.pos138[1] - fGpffff8118 * var_f24;
-        } else if (func_00243e30(*(s32 *)(var16 + 0xA64)) != 0) {
+        } else if (datCalcIsStatusBlocked(*(s32 *)(var16 + 0xA64)) != 0) {
             btlUnitGetSphereWorldCenter(var16, frame.pos138);
             var_f23 = fGpffff8138;
             var_f22 = 0.75f;
