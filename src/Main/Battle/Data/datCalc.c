@@ -2277,7 +2277,7 @@ s32 options;
     u8 active;
     s16 message;
     extern s32 func_00243e30(u16 *unit);
-    extern s32 func_0023d740(s32 skill, s32 mask);
+    extern s32 datCalcStatusElement(s32 skill, s32 mask);
 
     if ((skillId & 0xFFFF) >= 0x240) {
         func_0046d730(D_00635938, 0xA30);
@@ -2358,7 +2358,7 @@ return_zero_1:
         default:
             break;
         }
-        resistance = func_0023a6b0(target, (s16)func_0023d740((s16)skillId, (s32)statuses));
+        resistance = func_0023a6b0(target, (s16)datCalcStatusElement((s16)skillId, (s32)statuses));
         if (resistance & 0x27000000) {
             return 0;
         }
@@ -3192,8 +3192,9 @@ s32 datCalcElementBit(s16 arg0)
 
 
 
+// Intent: element index that status bit arg1 counts as for skill arg0 (a skill of element 6 always gives 6); used for the resistance lookup; [inferred].
 // FUN_0023D740
-s32 func_0023d740(s32 arg0, s32 arg1)
+s32 datCalcStatusElement(s32 arg0, s32 arg1)
 {
     s32 var_16;
 
