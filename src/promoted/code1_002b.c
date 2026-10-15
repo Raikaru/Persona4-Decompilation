@@ -72,9 +72,9 @@ extern u8 *func_002e2170(u8 *arg0, s32 arg1, s32 arg2);
 extern void sprintf();
 extern s64 func_001060b0(void);
 extern s32 func_00110d60(s16 arg0);
-extern s32 func_0046aea0(void *arg0);
+extern s32 sdkSpriteRequestLoad(void *arg0);
 extern s32 func_0046a750(s32 arg0);
-extern void func_0046b0d0(void *arg0);
+extern void sdkSpriteRelease(void *arg0);
 extern void func_002e2240(void *arg0, void *arg1, void *arg2);
 extern char D_0063F340[];
 extern char D_0063F360[];
@@ -2075,7 +2075,7 @@ s32 func_002bc9e0(u8 *arg0)
             } else {
                 sprintf(sp40, &D_0063F380, *(s32 *)(temp_17 + 4));
             }
-            *(s32 *)(temp_17 + 8) = func_0046aea0(sp40);
+            *(s32 *)(temp_17 + 8) = sdkSpriteRequestLoad(sp40);
         } else if (func_0046a750(temp_4) != 0) {
             *(s32 *)(temp_17 + 0) = *(s32 *)(temp_17 + 0) | 2;
             temp_4_2 = *(u8 **)(arg0 + 0x18);
@@ -2094,7 +2094,7 @@ loop_20:
                 temp_3_2 = *(s32 *)var_16 & ~4;
                 *(s32 *)var_16 = temp_3_2;
                 *(s32 *)var_16 = temp_3_2 & ~2;
-                func_0046b0d0(*(void **)(var_16 + 8));
+                sdkSpriteRelease(*(void **)(var_16 + 8));
                 *(s32 *)(var_16 + 8) = 0;
             }
         } else {

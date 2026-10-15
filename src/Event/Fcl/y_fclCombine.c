@@ -72,11 +72,11 @@ extern void func_00316470(u8 *, s64, s8);
 extern void func_00316e80(u8 *, s64, s64, s64, s64, s64, s64, s64, s8, s8, s8);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern int frFontExDrawTextDeferredOutB(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
-extern u8 *func_0046d200(u32, u32);
+extern u8 *sdkSpriteNewNode(u32, u32);
 extern s32 func_00331560(void);
-extern f32 func_0046b260(u8 *);
-extern f32 func_0046b2f0(u8 *);
-extern void func_0046d280(void *);
+extern f32 sdkSpriteScaledWidth(u8 *);
+extern f32 sdkSpriteScaledHeight(u8 *);
+extern void sdkSpriteFreeNode(void *);
 extern void func_002b6a70(s16, u8, u8, u8, s32, s16);
 extern void func_002b69f0(s16, FclVec2f, FclVec2f, u32, u32, s16);
 extern void fclDrawSetPlacement(u8 *, s32, u8, s32);
@@ -2682,10 +2682,10 @@ void func_002f0f00(u8 *arg0) {
             base3A = *(FclVec2f *)&sp3B8;
             temp_f1 = (f32)((datPersonaRosterCapacity() & 0xFFFF) * 0x17) / 2.0f;
             sp3C8 = func_002b2970(base3A.x + temp_f1, base3A.y + temp_f1);
-            temp_2_3 = func_0046d200(func_00331560(), 0x7E);
-            temp_f22 = temp_f20_2 * func_0046b260(temp_2_3) / 2.0f;
-            temp_f21 = temp_f20_2 * func_0046b2f0(temp_2_3) / 2.0f;
-            func_0046d280(temp_2_3);
+            temp_2_3 = sdkSpriteNewNode(func_00331560(), 0x7E);
+            temp_f22 = temp_f20_2 * sdkSpriteScaledWidth(temp_2_3) / 2.0f;
+            temp_f21 = temp_f20_2 * sdkSpriteScaledHeight(temp_2_3) / 2.0f;
+            sdkSpriteFreeNode(temp_2_3);
             sp3C0 = func_002b2970(sp3C8.x - temp_f22, sp3C8.y - temp_f21);
             func_002b6c30(0x7E, sp3C0, 156.0f, 0x56);
             func_002b6a70(0x7E, 0, 0xFF, 0, 2, 0);
@@ -2833,14 +2833,14 @@ block_83:
                         u8 *labelNode;
                         labelRow = (s16)gridRow;
                         labelId = (s16)((labelRow + 0x25E));
-                        labelNode = func_0046d200(func_00331560(), 0x39);
+                        labelNode = sdkSpriteNewNode(func_00331560(), 0x39);
                         func_002b6a70(labelId, 0U, 0xFF, 0, 3, 0);
                         func_002b6af0(labelId, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, 0);
                         temp_20_5 = (labelRow * 0x17) + 0x14E;
-                        sp370 = func_002b2970((f32) temp_20_5, 110.0f + (func_0046b2f0(labelNode) / 2.0f));
+                        sp370 = func_002b2970((f32) temp_20_5, 110.0f + (sdkSpriteScaledHeight(labelNode) / 2.0f));
                         sp368 = func_002b2970((f32) temp_20_5, 110.0f);
                         func_002b69f0(labelId, (*(FclVec2f *)&sp370), (*(FclVec2f *)&sp368),  0,  3,  0);
-                        func_0046d280(labelNode);
+                        sdkSpriteFreeNode(labelNode);
                     }
                 }
                 func_002b6140((u8 *)(temp_17->f28C), 0);
@@ -2888,14 +2888,14 @@ block_83:
                         FCL0F00_GRID_ROW(temp_17, gridRow, 0, 1, sp350, sp378, sp3F0, sp3EC);
                         temp_18_10 = (s16)(gridRow);
                         temp_16_13 = (s16)((temp_18_10 + 0x25E));
-                        temp_21_4 = func_0046d200(func_00331560(), 0x39);
+                        temp_21_4 = sdkSpriteNewNode(func_00331560(), 0x39);
                         func_002b6a70(temp_16_13, 0xFFU, 0, 0, 3, 0);
                         func_002b6af0(temp_16_13, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                         temp_18_11 = (temp_18_10 * 0x17) + 0x14E;
                         sp348 = func_002b2970((f32) temp_18_11, 110.0f);
-                        sp340 = func_002b2970((f32) temp_18_11, 110.0f + (func_0046b2f0(temp_21_4) / 2.0f));
+                        sp340 = func_002b2970((f32) temp_18_11, 110.0f + (sdkSpriteScaledHeight(temp_21_4) / 2.0f));
                         func_002b69f0(temp_16_13, (*(FclVec2f *)&sp348), (*(FclVec2f *)&sp340),  0,  3,  0);
-                        func_0046d280(temp_21_4);
+                        sdkSpriteFreeNode(temp_21_4);
                     }
                     func_00317240(arg0, 0, 60.0f);
                     func_002b6140((u8 *)(temp_17->f28C), 1);
@@ -2924,14 +2924,14 @@ block_83:
                             FCL0F00_GRID_ROW(temp_17, gridRow, 1, 1, sp320, sp318, sp3E8, sp3E4);
                             temp_16_17 = (s16)(gridRow);
                             temp_18_15 = (s16)((temp_16_17 + 0x25E));
-                            temp_21_8 = func_0046d200(func_00331560(), 0x39);
+                            temp_21_8 = sdkSpriteNewNode(func_00331560(), 0x39);
                             func_002b6a70(temp_18_15, 0xFFU, 0, 0, 3, 0);
                             func_002b6af0(temp_18_15, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                             temp_22_4 = (temp_16_17 * 0x17) + 0x14E;
                             sp310 = func_002b2970((f32) temp_22_4, 110.0f);
-                            sp308 = func_002b2970((f32) temp_22_4, 110.0f + (func_0046b2f0(temp_21_8) / 2.0f));
+                            sp308 = func_002b2970((f32) temp_22_4, 110.0f + (sdkSpriteScaledHeight(temp_21_8) / 2.0f));
                             func_002b69f0(temp_18_15, (*(FclVec2f *)&sp310), (*(FclVec2f *)&sp308),  0,  3,  0);
-                            func_0046d280(temp_21_8);
+                            sdkSpriteFreeNode(temp_21_8);
                             temp_18_16 = (s8)((s8)((s8)(temp_17->f129)));
                             if ((*((s8 *)((u8 *)((func_002e4870((u32)temp_18_16 + 1U) + (temp_18_16 * 0xC) + temp_16_17)) + (0x14)))) > 0) {
                                 temp_16_18 = (u16 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), gridRow)));
@@ -2965,14 +2965,14 @@ block_83:
                             FCL0F00_GRID_ROW(temp_17, gridColumn, 0, 1, sp2E8, sp378, sp3E0, sp3DC);
                             temp_19_6 = (s16)(gridColumn);
                             temp_16_21 = (s16)((((s8)((temp_19_6 + 0x6A))) + 0x1F4));
-                            temp_18_20 = func_0046d200(func_00331560(), 0x39);
+                            temp_18_20 = sdkSpriteNewNode(func_00331560(), 0x39);
                             func_002b6a70(temp_16_21, 0xFFU, 0, 0, 3, 0);
                             func_002b6af0(temp_16_21, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                             temp_19_7 = (temp_19_6 * 0x17) + 0x14E;
                             sp2E0 = func_002b2970((f32) temp_19_7, 110.0f);
-                            sp2D8 = func_002b2970((f32) temp_19_7, 110.0f + (func_0046b2f0(temp_18_20) / 2.0f));
+                            sp2D8 = func_002b2970((f32) temp_19_7, 110.0f + (sdkSpriteScaledHeight(temp_18_20) / 2.0f));
                             func_002b69f0(temp_16_21, (*(FclVec2f *)&sp2E0), (*(FclVec2f *)&sp2D8),  0,  3,  0);
-                            func_0046d280(temp_18_20);
+                            sdkSpriteFreeNode(temp_18_20);
                         }
                         temp_17->f1 = 0x41U;
                         return;
@@ -6977,19 +6977,19 @@ void func_00304580(u8 *arg0) {
                 sp290 = func_002b2970(16.0f, 104.0f);
                 func_0031e5b0(arg0, sp290, 0, 1, 0, 0, 0);
                 for (gridColumn = 0; gridColumn < (datPersonaRosterCapacity() & 0xFFFF); gridColumn++) {
-                    sp11C = func_0046d200(func_00331560(), 0x77);
+                    sp11C = sdkSpriteNewNode(func_00331560(), 0x77);
                     FCL_COMBINE_GRID_ROW(work, gridColumn, gridRow, 0, sp288, sp250, col2F8, col2F4);
-                    func_0046d280(sp11C);
+                    sdkSpriteFreeNode(sp11C);
                     temp_19_2 = (s16)(gridColumn);
                     temp_16_4 = (s16)((temp_19_2 + 0x25E));
-                    temp_21_2 = func_0046d200(func_00331560(), 0x39);
+                    temp_21_2 = sdkSpriteNewNode(func_00331560(), 0x39);
                     func_002b6a70(temp_16_4, 0xFFU, 0, 0, 3, 0);
                     func_002b6af0(temp_16_4, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                     temp_19_3 = (temp_19_2 * 0x17) + 0x14E;
                     sp280 = func_002b2970((f32) temp_19_3, 110.0f);
-                    sp278 = func_002b2970((f32) temp_19_3, 110.0f + (func_0046b2f0(temp_21_2) / 2.0f));
+                    sp278 = func_002b2970((f32) temp_19_3, 110.0f + (sdkSpriteScaledHeight(temp_21_2) / 2.0f));
                     func_002b69f0(temp_16_4, (*(FclVec2f *)&sp280), (*(FclVec2f *)&sp278), 0, 3, 0);
-                    func_0046d280(temp_21_2);
+                    sdkSpriteFreeNode(temp_21_2);
                 }
                 func_00316e80(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
                 func_002b6140((u8 *)(work->f28C), 1);
@@ -7015,14 +7015,14 @@ void func_00304580(u8 *arg0) {
                         FCL_COMBINE_GRID_ROW(work, gridRow, gridColumn, 1, sp258, sp250, col2F0, col2EC);
                         temp_18_3 = (s16)(gridRow);
                         temp_16_9 = (s16)((temp_18_3 + 0x25E));
-                        temp_21_6 = func_0046d200(func_00331560(), 0x39);
+                        temp_21_6 = sdkSpriteNewNode(func_00331560(), 0x39);
                         func_002b6a70(temp_16_9, 0xFFU, 0, 0, 3, 0);
                         func_002b6af0(temp_16_9, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                         temp_18_4 = (temp_18_3 * 0x17) + 0x14E;
                         sp248 = func_002b2970((f32) temp_18_4, 110.0f);
-                        sp240 = func_002b2970((f32) temp_18_4, 110.0f + (func_0046b2f0(temp_21_6) / 2.0f));
+                        sp240 = func_002b2970((f32) temp_18_4, 110.0f + (sdkSpriteScaledHeight(temp_21_6) / 2.0f));
                         func_002b69f0(temp_16_9, (*(FclVec2f *)&sp248), (*(FclVec2f *)&sp240), 0, 3, 0);
-                        func_0046d280(temp_21_6);
+                        sdkSpriteFreeNode(temp_21_6);
                     }
                     sp238 = func_002b2970((f32) 0x149, 104.0f);
                     func_0031fa20(arg0, sp238, 3, 0);

@@ -27,7 +27,7 @@ extern char D_0064E2F8[];
 u32 func_00105ed0(void);
 s32 func_0046a770(char *param);
 void func_0046d730(char *, s32);
-void func_0046d3b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3,
+void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3,
                   f32 z, s32 arg4);
 void RpSkyRenderStateSet(s32 param, s32 value);
 void func_00489f80(void);
@@ -78,16 +78,16 @@ void func_00364320(Vec2f pos, f32 z, s32 color, s32 num)
         }
         alpha = color & 0xFF;
         alpha = 0xFF - alpha;
-        func_0046d3b0(0, iGpffffb5a8, 0x19, pos.x, pos.y, 0, alpha, z, 0);
+        sdkSpriteDrawOnceAux(0, iGpffffb5a8, 0x19, pos.x, pos.y, 0, alpha, z, 0);
         pos.x += 36.0f;
         for (i = 0; (p = tmp + i, ch = *p) != 0; i++) {
             switch (ch) {
             case '.':
-                func_0046d3b0(0, iGpffffb5a8, 0x18, pos.x, pos.y + 20.0f, 0, alpha, z, 0);
+                sdkSpriteDrawOnceAux(0, iGpffffb5a8, 0x18, pos.x, pos.y + 20.0f, 0, alpha, z, 0);
                 pos.x += 8.0f;
                 break;
             default:
-                func_0046d3b0(0, iGpffffb5a8, ch - 0x22, pos.x, pos.y + 20.0f, 0, alpha, z, 0);
+                sdkSpriteDrawOnceAux(0, iGpffffb5a8, ch - 0x22, pos.x, pos.y + 20.0f, 0, alpha, z, 0);
                 pos.x += 19.0f;
                 break;
             }

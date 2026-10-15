@@ -59,13 +59,13 @@ extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_00457630(void *arg0, void *arg1, void *arg2, s32 arg3);
 extern void func_0011fd30(u8 *arg0);
 extern void func_0011fd50(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
-extern void func_0046d280(void *node);
+extern void sdkSpriteFreeNode(void *node);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_002bb550(s8 arg0);
 extern f32 iGpffff84a4;
 extern s32 func_0046a770(const void *arg0);
 extern void func_0046d730(const void *arg0, s32 arg1);
-extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                           f32 z, s32 arg6);
 extern char D_005E5810[];
@@ -194,7 +194,7 @@ void func_00361a30(u8 *arg0)
         slot = arg0 + (i * 4) + 0x658;
         handle = *(s32 *)slot;
         if (handle != 0) {
-            func_0046d280((void *)handle);
+            sdkSpriteFreeNode((void *)handle);
             *(s32 *)slot = 0;
         }
         i += 1;
@@ -1231,9 +1231,9 @@ void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1)
     }
     alpha = arg1 & 0xFF;
     alpha = 0xFF - alpha;
-    func_0046d4c0(0, tex, 0x49, arg0.f.x, arg0.f.y,
+    sdkSpriteDrawOnceTinted(0, tex, 0x49, arg0.f.x, arg0.f.y,
                   alpha & 0xFF, 0xFB, 0xA2, 0, fparg0, 0);
-    func_0046d4c0(0, tex, 0x48, 108.0f + arg0.f.x,
+    sdkSpriteDrawOnceTinted(0, tex, 0x48, 108.0f + arg0.f.x,
                   arg0.f.y, alpha & 0xFF,
                   0xFB, 0xA2, 0, fparg0, 0);
 }
@@ -1263,11 +1263,11 @@ void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     alpha = arg1 & 0xFF;
     alpha = 0xFF - alpha;
     y = *((f32 *)&arg0 + 1);
-    func_0046d4c0(0, tex1, 0x3C, *(f32 *)&arg0, y,
+    sdkSpriteDrawOnceTinted(0, tex1, 0x3C, *(f32 *)&arg0, y,
                   alpha, 0xFF, 0xFF, 0x81, factor, 0);
-    func_0046d4c0(0, tex1, 0x3B, *(f32 *)&arg0 + 76.0f, y,
+    sdkSpriteDrawOnceTinted(0, tex1, 0x3B, *(f32 *)&arg0 + 76.0f, y,
                   alpha, 0xFF, 0xFF, 0x81, factor, 0);
-    func_0046d4c0(0, tex1, 0x2A, *(f32 *)&arg0 + 7.0f, y + 38.0f,
+    sdkSpriteDrawOnceTinted(0, tex1, 0x2A, *(f32 *)&arg0 + 7.0f, y + 38.0f,
                   alpha, 0xFB, 0xA2, 0, factor, 0);
     if (value < 10) {
         offset = 11;
@@ -1277,7 +1277,7 @@ void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     ybase = y + 31.0f;
     xbase = *(f32 *)&arg0 + 59.0f;
     while (value > 0) {
-        func_0046d4c0(0, tex1, (value % 10) + 0x1D,
+        sdkSpriteDrawOnceTinted(0, tex1, (value % 10) + 0x1D,
                       xbase - (f32)offset, ybase,
                       alpha, 0xFF, 0xA2, 0, factor, 0);
         offset += 22;
@@ -1313,7 +1313,7 @@ void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     if (value <= 0 || value >= 0x20) {
         func_0046d730(D_0064E460, 0x186);
     }
-    func_0046d4c0(0, tex, (u8)((u8)value - 1) + 0x21, *(f32 *)&arg0, 30.0f + y,
+    sdkSpriteDrawOnceTinted(0, tex, (u8)((u8)value - 1) + 0x21, *(f32 *)&arg0, 30.0f + y,
                   (u8)(0xFF - (arg1 & 0xFF)), 0xEC, 0x7C, 0, scale, 0);
 }
 
@@ -1349,7 +1349,7 @@ void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     }
     n = arg1 & 0xFF;
     arg1 = 0xFF - n;
-    func_0046d4c0(0, tex1, 0x39, *(f32 *)&arg0, y, arg1, 0xFB, 0xA2, 0, scale, 0);
+    sdkSpriteDrawOnceTinted(0, tex1, 0x39, *(f32 *)&arg0, y, arg1, 0xFB, 0xA2, 0, scale, 0);
     x = 130.0f + *(f32 *)&arg0;
     ty = 4.0f + y;
     value = *(s32 *)(arg2 + 0x10);
@@ -1359,7 +1359,7 @@ void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
         n /= 10;
     }
     do {
-        func_0046d4c0(0, tex2, (value % 10) + 9, x, ty, arg1, 0x2D, 0x2D, 0x2D, scale, 0);
+        sdkSpriteDrawOnceTinted(0, tex2, (value % 10) + 9, x, ty, arg1, 0x2D, 0x2D, 0x2D, scale, 0);
         value /= 10;
         x -= 16.0f;
     } while (value > 0);
@@ -1405,10 +1405,10 @@ void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     first_x = *(f32 *)&arg0;
     first_x = p4_00362f00_add(first_9, first_x);
     first_x = p4_00362f00_add(first_const, first_x);
-    func_0046d4c0(0, tex0, 0xC9,
+    sdkSpriteDrawOnceTinted(0, tex0, 0xC9,
                   first_x, first_y,
                   alpha, 0xEF, 0x89, 0, factor, 0);
-    func_0046d4c0(0, tex1, 0x1E, *(f32 *)&arg0 + 58.0f,
+    sdkSpriteDrawOnceTinted(0, tex1, 0x1E, *(f32 *)&arg0 + 58.0f,
                   y - 23.0f, alpha, 0xD1, 0x6B, 0, factor, 0);
     if (value < 10) {
         offset = 11;
@@ -1418,7 +1418,7 @@ void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     ybase = first_y - 5.0f;
     xbase = *(f32 *)&arg0 + 64.0f;
     while (value > 0) {
-        func_0046d4c0(0, tex0, (value % 10) + 0x1D,
+        sdkSpriteDrawOnceTinted(0, tex0, (value % 10) + 0x1D,
                       xbase - (f32)offset, ybase,
                       alpha, 0xFF, 0xFF, 0x81, factor, 0);
         offset += 22;

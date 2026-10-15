@@ -110,7 +110,7 @@ extern void func_00355370(u8 *arg0, u8 *arg1);
 
 
 
-extern void func_0046d280(void *node);
+extern void sdkSpriteFreeNode(void *node);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern void resrcMngDestroy(u8 *arg0);

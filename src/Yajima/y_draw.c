@@ -42,10 +42,10 @@ extern void (*D_00887300[])(u32 state, u32 value);
 
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern f32 func_0046b260(u8 *arg0);
-extern f32 func_0046b2f0(u8 *arg0);
-extern u8 *func_0046d200(u32 arg0, u32 arg1);
-extern void func_0046d280(void *node);
+extern f32 sdkSpriteScaledWidth(u8 *arg0);
+extern f32 sdkSpriteScaledHeight(u8 *arg0);
+extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
+extern void sdkSpriteFreeNode(void *node);
 extern void func_002b7cd0(u8 *, s16, s16);
 extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
@@ -369,10 +369,10 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
     *(f32 *)(p + 0x14) = 100.0f;
     *(s32 *)(p + 8) = 0x55;
     *(s16 *)(p + 0x10) = 0;
-    q = func_0046d200(*(u32 *)(p + 0), (s32)arg1);
-    *(s16 *)(p + 0xC) = (s16)(s32)(func_0046b260(q) / 2.0f);
-    *(s16 *)(p + 0xE) = (s16)(s32)(func_0046b2f0(q) / 2.0f);
-    func_0046d280(q);
+    q = sdkSpriteNewNode(*(u32 *)(p + 0), (s32)arg1);
+    *(s16 *)(p + 0xC) = (s16)(s32)(sdkSpriteScaledWidth(q) / 2.0f);
+    *(s16 *)(p + 0xE) = (s16)(s32)(sdkSpriteScaledHeight(q) / 2.0f);
+    sdkSpriteFreeNode(q);
     return result;
 }
 /* measured: restore opt_loop_invariants after the target. */
@@ -597,12 +597,12 @@ void func_002b6c30(s16 arg0, f2 p1, f32 fparg0, s32 arg2) {
     *(s32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x0C) = arg2;
     entry = *(u8 **)(iGpffffb574 + 0x38) + off;
     *(f2 *)(entry + 0x3C) = p1;
-    tmp = func_0046d200(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
+    tmp = sdkSpriteNewNode(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
     base2 = *(u8 **)(iGpffffb574 + 0x38);
-    *(s16 *)(base2 + off + 0x10) = (s16)(func_0046b260(tmp) / 2.0f);
+    *(s16 *)(base2 + off + 0x10) = (s16)(sdkSpriteScaledWidth(tmp) / 2.0f);
     base2 = *(u8 **)(iGpffffb574 + 0x38);
-    *(s16 *)(base2 + off + 0x12) = (s16)(func_0046b2f0(tmp) / 2.0f);
-    func_0046d280(tmp);
+    *(s16 *)(base2 + off + 0x12) = (s16)(sdkSpriteScaledHeight(tmp) / 2.0f);
+    sdkSpriteFreeNode(tmp);
 }
 
 // FUN_002B6D60
@@ -924,7 +924,7 @@ void func_002b77d0(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16
     f2 showConstructed;
     f2 hidePosition;
     f2 showPosition;
-    first = func_0046d200(arg8, (s32)arg1);
+    first = sdkSpriteNewNode(arg8, (s32)arg1);
     if ((s32)arg4 == 1) {
         u8 *tmp;
         u8 *dimensionRows;
@@ -940,18 +940,18 @@ void func_002b77d0(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16
         orderRows = *(u8 **)(iGpffffb574 + 0x38);
         *(s32 *)(orderRows + off + 0x0C) = (s32)arg3;
         *(f2 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x3C) = p1;
-        tmp = func_0046d200(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
+        tmp = sdkSpriteNewNode(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
         dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
-        *(s16 *)(dimensionRows + off + 0x10) = (s16)(func_0046b260(tmp) / 2.0f);
+        *(s16 *)(dimensionRows + off + 0x10) = (s16)(sdkSpriteScaledWidth(tmp) / 2.0f);
         dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
-        *(s16 *)(dimensionRows + off + 0x12) = (s16)(func_0046b2f0(tmp) / 2.0f);
-        func_0046d280(tmp);
+        *(s16 *)(dimensionRows + off + 0x12) = (s16)(sdkSpriteScaledHeight(tmp) / 2.0f);
+        sdkSpriteFreeNode(tmp);
         animationRows = *(u8 **)(iGpffffb574 + 0x38);
         delay = (s32)arg7;
         duration = (s32)arg6;
         func_002b82d0(animationRows + off + 0x14, *(animationRows + off + 0x72), 0, 0, 0, (s16)(duration + delay));
         func_002b8300(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 1.0f, 1.0f, 1.0f, fGpffff8504, 0, (u32)duration, delay);
-        hideConstructed = func_002b2970(p1.x, p1.y + func_0046b2f0(first) / 2.0f);
+        hideConstructed = func_002b2970(p1.x, p1.y + sdkSpriteScaledHeight(first) / 2.0f);
         fclCopyTransitionPosition(&hidePosition, &hideConstructed);
         func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, p1, hidePosition, 0, duration, delay);
     } else {
@@ -976,23 +976,23 @@ void func_002b77d0(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16
         orderRows = *(u8 **)(iGpffffb574 + 0x38);
         *(s32 *)(orderRows + off + 0x0C) = (s32)arg3;
         *(f2 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x3C) = p1;
-        tmp = func_0046d200(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
+        tmp = sdkSpriteNewNode(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
         dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
-        *(s16 *)(dimensionRows + off + 0x10) = (s16)(func_0046b260(tmp) / 2.0f);
+        *(s16 *)(dimensionRows + off + 0x10) = (s16)(sdkSpriteScaledWidth(tmp) / 2.0f);
         dimensionRows = *(u8 **)(iGpffffb574 + 0x38);
-        *(s16 *)(dimensionRows + off + 0x12) = (s16)(func_0046b2f0(tmp) / 2.0f);
-        func_0046d280(tmp);
+        *(s16 *)(dimensionRows + off + 0x12) = (s16)(sdkSpriteScaledHeight(tmp) / 2.0f);
+        sdkSpriteFreeNode(tmp);
         *(FclDrawColor *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x89) = arg2;
         fclRevealOpacity(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, &arg2);
         animationRows = *(u8 **)(iGpffffb574 + 0x38);
         delay = (s32)arg7;
         duration = (s32)arg5;
         func_002b8300(animationRows + off + 0x14, 1.0f, 1.0f, fGpffff8504, 1.0f, 0, (u32)duration, delay);
-        showConstructed = func_002b2970(p1.x, p1.y + func_0046b2f0(first) / 2.0f);
+        showConstructed = func_002b2970(p1.x, p1.y + sdkSpriteScaledHeight(first) / 2.0f);
         fclCopyTransitionPosition(&showPosition, &showConstructed);
         func_002b8270(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, showPosition, p1, 0, duration, delay);
     }
-    func_0046d280(first);
+    sdkSpriteFreeNode(first);
 }
 
 #pragma pop
@@ -1045,21 +1045,21 @@ void func_002b7cd0(u8 *arg0, s16 arg1, s16 arg2) {
 found_check:
     if (selected == 0) {
         frameIndex = arg2;
-        sample = func_0046d200(*(u32 *)context, frameIndex);
-        (void)func_0046b260(sample);
-        (void)func_0046b2f0(sample);
+        sample = sdkSpriteNewNode(*(u32 *)context, frameIndex);
+        (void)sdkSpriteScaledWidth(sample);
+        (void)sdkSpriteScaledHeight(sample);
         side = 0;
         frame = (YDrawSpriteFrameMargins *)(*(u8 **)(*(u8 **)sample + 0x204) + frameIndex * 0x80);
         for (; side < 4; side++) {
             margins[side] = (f32)frame->margins[side];
         }
         if (!(((YDrawCullEntry *)((u8 *)(entries = *(YDrawCullEntry **)(iGpffffb574 + 0x38)) + entryOffset))->x - margins[2] < 640.0f) ||
-            (margins[3] + (((YDrawCullEntry *)((u8 *)entries + entryOffset))->x + func_0046b260(sample)) < 0.0f) ||
+            (margins[3] + (((YDrawCullEntry *)((u8 *)entries + entryOffset))->x + sdkSpriteScaledWidth(sample)) < 0.0f) ||
             !(((YDrawCullEntry *)((u8 *)(entries = *(YDrawCullEntry **)(iGpffffb574 + 0x38)) + entryOffset))->y - margins[0] < 480.0f) ||
-            (margins[1] + (((YDrawCullEntry *)((u8 *)entries + entryOffset))->y + func_0046b2f0(sample)) < 0.0f)) {
+            (margins[1] + (((YDrawCullEntry *)((u8 *)entries + entryOffset))->y + sdkSpriteScaledHeight(sample)) < 0.0f)) {
             ((YDrawCullEntry *)((u8 *)*(YDrawCullEntry **)(iGpffffb574 + 0x38) + entryOffset))->flags &= ~1;
         }
-        func_0046d280(sample);
+        sdkSpriteFreeNode(sample);
     }
 }
 #pragma pop

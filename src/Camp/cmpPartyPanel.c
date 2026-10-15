@@ -4,7 +4,7 @@
 #include "type.h"
 
 void func_0046d730(void* arg0, s32 arg1);
-void func_0046b0d0(u8 *node);
+void sdkSpriteRelease(u8 *node);
 void func_0044ea90(void* file, s32 line);
 
 void memset(void* dest, s32 value, s32 size);
@@ -22,7 +22,7 @@ u32 func_00104d50(s16 arg0);
 u16 func_00104e30(s16 arg0);
 u8* func_00457120(void);
 s16 func_00353b50(s16* dst);
-u8 *func_0046aea0(const char *name);
+u8 *sdkSpriteRequestLoad(const char *name);
 s32 sprintf(char *dst, const char *format, ...);
 u32 func_0046a750(s16 *node);
 void func_00460ac0(u8 *list, u8 *node);
@@ -326,7 +326,7 @@ s32 func_00363610(u8 *task)
     switch (work->state) {
     case 0: {
         s32 i;
-        work->sprite = func_0046aea0((const char *)D_0064E2C0);
+        work->sprite = sdkSpriteRequestLoad((const char *)D_0064E2C0);
         work->count = func_00353b50(roster);
         for (i = 0; i < work->count; i++) {
             panelPosition(&position, (f32)565, work->count, i);
@@ -336,7 +336,7 @@ s32 func_00363610(u8 *task)
             work->rows[i].ready = 0;
             if (id != 0) {
                 sprintf(initialName, (const char *)D_0064E2A0, id);
-                work->rows[i].sprite = func_0046aea0(initialName);
+                work->rows[i].sprite = sdkSpriteRequestLoad(initialName);
                 if (work->rows[i].sprite == NULL) {
                     func_0046d730(D_0064E290, 0x166);
                 }
@@ -418,7 +418,7 @@ s32 func_00363610(u8 *task)
                 work->rows[changed].ready = 0;
                 if (id != 0) {
                     sprintf(addedName, (const char *)D_0064E2A0, id);
-                    work->rows[changed].sprite = func_0046aea0(addedName);
+                    work->rows[changed].sprite = sdkSpriteRequestLoad(addedName);
                     if (work->rows[changed].sprite == NULL) {
                         func_0046d730(D_0064E290, 0x166);
                     }
@@ -459,7 +459,7 @@ s32 func_00363610(u8 *task)
             work->rows[j].id = 0;
             work->rows[j].ready = 0;
             if (work->rows[j].sprite != NULL) {
-                func_0046b0d0(work->rows[j].sprite);
+                sdkSpriteRelease(work->rows[j].sprite);
                 work->rows[j].sprite = NULL;
             }
             removedPosition = work->rows[j].motion.current;
@@ -484,7 +484,7 @@ s32 func_00363610(u8 *task)
             row->id = 0;
             row->ready = 0;
             if (row->sprite != NULL) {
-                func_0046b0d0(row->sprite);
+                sdkSpriteRelease(row->sprite);
                 row->sprite = NULL;
             }
             replacedPosition = row->motion.current;
@@ -498,7 +498,7 @@ s32 func_00363610(u8 *task)
             row->ready = 0;
             if (id != 0) {
                 sprintf(replacedName, (const char *)D_0064E2A0, id);
-                row->sprite = func_0046aea0(replacedName);
+                row->sprite = sdkSpriteRequestLoad(replacedName);
                 if (row->sprite == NULL) {
                     func_0046d730(D_0064E290, 0x166);
                 }
@@ -523,14 +523,14 @@ void func_003640f0(u8* arg0) {
     u8* q;
 
     if (*(s32*)(obj + 0xC) != 0) {
-        func_0046b0d0(*(void**)(obj + 0xC));
+        sdkSpriteRelease(*(void**)(obj + 0xC));
         *(s32*)(obj + 0xC) = 0;
     }
     for (i = 0; i < *(s16*)(obj + 0xA); i++) {
         p = obj + i * 0x28;
         q = p + 0x2C;
         if (*(s32*)(p + 0x2C) != 0) {
-            func_0046b0d0(*(void**)(p + 0x2C));
+            sdkSpriteRelease(*(void**)(p + 0x2C));
             *(s32*)q = 0;
         }
     }

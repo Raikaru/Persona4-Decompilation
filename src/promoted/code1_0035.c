@@ -25,7 +25,7 @@ extern void func_003554b0(u8 *arg0);
 extern void strncpy(void *dst, const void *src, u32 size);
 extern f32 RwV3dNormalize(void *out, const void *in);
 
-extern void func_0046d280(void *node);
+extern void sdkSpriteFreeNode(void *node);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_002bc060(s32 arg0);
 extern s32 func_002467b0(u16 arg0);
@@ -1370,7 +1370,7 @@ void func_00356250(u8 *arg0)
     extern s32 func_00107ea0(s32 arg0);
     extern s32 func_00107c80(s32 arg0);
     extern u8 *func_0046a770(char *arg0);
-    extern u8 *func_0046d200(u32 arg0, u32 arg1);
+    extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
     extern void func_0046d730(const void *arg0, u32 arg1);
     extern s32 func_00246970(void);
     extern void func_002bc010(s32 arg0, u8 *arg1);
@@ -1467,16 +1467,16 @@ void func_00356250(u8 *arg0)
     for (q = 0; q < 0x4D; q++) {
         if (q < 2) {
             slot = (u8 **)(arg0 + q * 4 + 0x11D0);
-            *slot = func_0046d200((u32)h0, D_0064CBE0[q]);
+            *slot = sdkSpriteNewNode((u32)h0, D_0064CBE0[q]);
         } else if (q < 0x33) {
             slot = (u8 **)(arg0 + q * 4 + 0x11D0);
-            *slot = func_0046d200((u32)h1, D_0064CBE0[q]);
+            *slot = sdkSpriteNewNode((u32)h1, D_0064CBE0[q]);
         } else if (q < 0x34) {
             slot = (u8 **)(arg0 + q * 4 + 0x11D0);
-            *slot = func_0046d200((u32)h3, D_0064CBE0[q]);
+            *slot = sdkSpriteNewNode((u32)h3, D_0064CBE0[q]);
         } else {
             slot = (u8 **)(arg0 + q * 4 + 0x11D0);
-            *slot = func_0046d200((u32)h2, D_0064CBE0[q]);
+            *slot = sdkSpriteNewNode((u32)h2, D_0064CBE0[q]);
         }
         if (*slot == NULL) {
             func_0046d730(D_0064CC98, 0x1FC);
@@ -1724,8 +1724,8 @@ void func_00356a10(u8 *work) {
     extern void func_00354ba0(u8 *);
     extern void func_0034f2e0(void *, f32, f32, u8, u8, u8, u8);
     extern void func_0034f320(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
-    extern f32 func_0046b260(u8 *);
-    extern f32 func_0046b2f0(u8 *);
+    extern f32 sdkSpriteScaledWidth(u8 *);
+    extern f32 sdkSpriteScaledHeight(u8 *);
     extern void func_0046d730(const void *, u32);
     extern f32 func_0034f720(u8 *, f32, f32, f32);
     extern s32 frFontExDrawTextWithCharWidth(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
@@ -1961,8 +1961,8 @@ void func_00356a10(u8 *work) {
         backEmblemOpacity = (u8)backEmblemOpacityProduct;
         backScaleBits = (u16)(menu->backEmblemScaleX);
         backEmblemScale = (f32)backScaleBits;
-        backPivotX = (s16)(func_0046b260(emblemTexture) / 2.0f);
-        backPivotY = (s16)(func_0046b2f0(emblemTexture) / 2.0f);
+        backPivotX = (s16)(sdkSpriteScaledWidth(emblemTexture) / 2.0f);
+        backPivotY = (s16)(sdkSpriteScaledHeight(emblemTexture) / 2.0f);
         func_0034f320(emblemTexture, position.x, position.y, 0.0f, 0xFFU, 0xD1U, 0x34U, backEmblemOpacity, (u16)backEmblemScale, (u16)backEmblemScale, backPivotX, (f32) emblemAngle, backPivotY);
         position.x = (f32) 0x221 + (originX + menu->frontEmblemOffset.x);
         position.y = ((originY + menu->frontEmblemOffset.y) - 6.0f);
@@ -1972,8 +1972,8 @@ void func_00356a10(u8 *work) {
         frontEmblemOpacity = (u8)frontEmblemOpacityProduct;
         frontScaleBits = (u16)(menu->frontEmblemScaleX);
         frontEmblemScale = (f32)frontScaleBits;
-        frontPivotX = (s16)(func_0046b260(emblemTexture) / 2.0f);
-        frontPivotY = (s16)(func_0046b2f0(emblemTexture) / 2.0f);
+        frontPivotX = (s16)(sdkSpriteScaledWidth(emblemTexture) / 2.0f);
+        frontPivotY = (s16)(sdkSpriteScaledHeight(emblemTexture) / 2.0f);
         func_0034f320(emblemTexture, position.x, position.y, 0.0f, 0xFFU, 0xFFU, 0x81U, frontEmblemOpacity, (u16)frontEmblemScale, (u16)frontEmblemScale, frontPivotX, (f32) emblemAngle, frontPivotY);
     }
     if (menu->flags & 0x10) {
@@ -2035,7 +2035,7 @@ void func_00356a10(u8 *work) {
         position.x = (183.0f + (originX + menu->titleOffset.x));
         position.y = (22.0f + (originY + menu->titleOffset.y));
         categoryTexture = *(u8 **)((u8 *)add_offset_first((u32)(categoryIndex & 0xFF) * 4, (u32)work) + 0x12A4);
-        func_0034f2e0(categoryTexture, position.x - (func_0046b260(categoryTexture) / 2.0f), position.y, 0xDDU, 0x74U, 0U, titleOpacity);
+        func_0034f2e0(categoryTexture, position.x - (sdkSpriteScaledWidth(categoryTexture) / 2.0f), position.y, 0xDDU, 0x74U, 0U, titleOpacity);
         position.x = (245.0f + (originX + menu->titleOffset.x));
         position.y = (19.0f + (originY + menu->titleOffset.y));
         rankColor = titleOpacity & 0xFF;
@@ -2136,8 +2136,8 @@ void func_00356a10(u8 *work) {
             position.x = 21.5f + originX;
             position.y = 42.0f + originY;
             portraitTexture = (u8 *)(menu->resource127C);
-            portraitPivotX = (s16)(func_0046b260(portraitTexture) / 2.0f);
-            func_0034f320(portraitTexture, position.x, position.y, 0.0f, 0x18U, 0U, 8U, portraitOpacity, 0x1000, 0x1000, portraitPivotX, menu->rotation, (s16)(func_0046b2f0(portraitTexture) / 2.0f));
+            portraitPivotX = (s16)(sdkSpriteScaledWidth(portraitTexture) / 2.0f);
+            func_0034f320(portraitTexture, position.x, position.y, 0.0f, 0x18U, 0U, 8U, portraitOpacity, 0x1000, 0x1000, portraitPivotX, menu->rotation, (s16)(sdkSpriteScaledHeight(portraitTexture) / 2.0f));
             break;
         case 3:
             specialHeaderX = 79.0f + originX;
@@ -2415,7 +2415,7 @@ loop_body:
     slot = arg0 + (index * 4) + 0x11D0;
     handle = *(s32 *)slot;
     if (handle != 0) {
-        func_0046d280((void *)handle);
+        sdkSpriteFreeNode((void *)handle);
         *(s32 *)slot = 0;
     }
     index += 1;
@@ -2599,7 +2599,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
        mismatches the name-sprite call. */
     extern u8 *func_00246830(u16 arg0);
     extern s32 frFontExDrawTextWithCharWidth(f32 arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5, s32 arg6);
-    extern f32 func_0046b260(u8 *arg0);
+    extern f32 sdkSpriteScaledWidth(u8 *arg0);
     extern s32 (*D_00887300[])(s32, s32);
     extern u8 D_0064B2E0[];
     extern u8 D_0064B2E8[];
@@ -2724,7 +2724,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
     px = 105.0f + x2;
     py = y2 + 33.0f * scale;
     spr = *(u8 **)(hudOffsetPtr_003599c0(kind * 4, arg1) + 0x12A0);
-    func_0034f320(spr, px - func_0046b260(spr) / 2.0f, py, 0.0f,
+    func_0034f320(spr, px - sdkSpriteScaledWidth(spr) / 2.0f, py, 0.0f,
                   ctab[0], ctab[1], ctab[2], alpha, w2, h2, 0, 0.0f, 0);
     px = 156.0f + x2;
     py = y2 + 18.0f * scale;
@@ -3560,7 +3560,7 @@ void func_0035e820(u8 *arg0)
 loop_body:
     slot = (s32 *)(base + i * 4 + 0x448);
     if (*slot != 0) {
-        func_0046d280((void *)*slot);
+        sdkSpriteFreeNode((void *)*slot);
         *slot = 0;
     }
     i++;

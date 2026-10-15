@@ -19,10 +19,10 @@ void func_0044ea90(const void *msg, s32 id);
 void memcpy(void *dst, const void *src, u32 size);
 void memset(void *dst, s32 value, u32 size);
 s32 func_00455f70(s32 arg0, s32 *arg1);
-u8 *func_0046aea0(const char *name);
+u8 *sdkSpriteRequestLoad(const char *name);
 u32 func_0046a750(s16 *param);
-f32 func_0046b1f0(void *ptr, s32 index);
-s32 func_0046d5f0(u8 *ptr, s32 index);
+f32 sdkSpriteEntryWidth(void *ptr, s32 index);
+s32 sdkSpriteSlotHandle(u8 *ptr, s32 index);
 void func_0046d730(const void *file, s32 line);
 
 s32 func_0025ea20(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
@@ -104,7 +104,7 @@ u8 *func_0025ef20(u8 *arg0)
 s32 func_0025f110(u8 *arg0)
 {
     s32 func_00455f70(s32, s32 *);
-    u8 *func_0046aea0(const char *);
+    u8 *sdkSpriteRequestLoad(const char *);
     u32 func_0046a750(s16 *);
     s32 temp;
     s32 index;
@@ -127,10 +127,10 @@ s32 func_0025f110(u8 *arg0)
                 &temp);
             if (loaded != 0) {
                 *(u8 **)(*(u8 **)(arg0 + 8) + index * 4) =
-                    func_0046af60((u32)loaded);
+                    sdkSpriteAdoptBlob((u32)loaded);
             } else {
                 *(u8 **)(*(u8 **)(arg0 + 8) + index * 4) =
-                    func_0046aea0(
+                    sdkSpriteRequestLoad(
                         (const char *)(*(u8 **)(*(u8 **)
                             (*(u8 **)(arg0 + 4)) + index * 4)));
             }
@@ -158,7 +158,7 @@ void func_0025f230(u32 param_1)
 
     if (param_1 != 0) {
         for (i = 0; i < *(int *)(*(int *)((int)param_1 + 4) + 4); i = i + 1) {
-            func_0046b0d0((void *)*(u32 *)(*(int *)((int)param_1 + 8) + i * 4));
+            sdkSpriteRelease((void *)*(u32 *)(*(int *)((int)param_1 + 8) + i * 4));
         }
         DAT_008873ec_abs[0](param_1);
     }
@@ -175,10 +175,10 @@ s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2)
     if (temp_3 != 0) {
         temp_7 = (u8 *)(temp_3 + ((arg0 & 0xFFFF) * 8));
         elem = *(u8 **)(*(u32 *)(arg2 + 8) + (*(s8 *)temp_7 * 4));
-        return (s32)func_0046b1f0(elem, *(s16 *)(temp_7 + 2) + arg1);
+        return (s32)sdkSpriteEntryWidth(elem, *(s16 *)(temp_7 + 2) + arg1);
     }
     elem = *(u8 **)(*(u32 *)(arg2 + 8) + (((arg0 >> 16) & 0xFFFF) * 4));
-    return (s32)func_0046b1f0(elem, (arg0 & 0xFFFF) + arg1);
+    return (s32)sdkSpriteEntryWidth(elem, (arg0 & 0xFFFF) + arg1);
 }
 
 /* Integer handle returned by sdkSpr, not a floating-point result.
@@ -194,10 +194,10 @@ s32 func_0025f360(s32 arg0, s32 arg1, u8 *arg2)
     if (temp_3 != 0) {
         temp_7 = (u8 *)(temp_3 + ((arg0 & 0xFFFF) * 8));
         elem = *(u8 **)(*(u32 *)(arg2 + 8) + (*(s8 *)temp_7 * 4));
-        return func_0046d5f0(elem, *(s16 *)(temp_7 + 2) + arg1);
+        return sdkSpriteSlotHandle(elem, *(s16 *)(temp_7 + 2) + arg1);
     }
     elem = *(u8 **)(*(u32 *)(arg2 + 8) + (((arg0 >> 16) & 0xFFFF) * 4));
-    return func_0046d5f0(elem, (arg0 & 0xFFFF) + arg1);
+    return sdkSpriteSlotHandle(elem, (arg0 & 0xFFFF) + arg1);
 }
 
 // FUN_0025F3F0

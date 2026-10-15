@@ -86,9 +86,9 @@ extern f32 D_00644298[];
 extern f32 D_00644350[];
 
 extern void func_002b69f0(s16, FclVec2, FclVec2, u32, u32, s16);
-extern u8 *func_0046d200(u32, u32);
-extern f32 func_0046b2f0(u8 *);
-extern void func_0046d280(void *node);
+extern u8 *sdkSpriteNewNode(u32, u32);
+extern f32 sdkSpriteScaledHeight(u8 *);
+extern void sdkSpriteFreeNode(void *node);
 extern void func_002b68d0(s16, s16, s8);
 extern f32 D_007495C0[];
 extern f32 D_00749600[];
@@ -106,10 +106,10 @@ extern s32 func_00331560(void);
 
 
 extern u8 *func_002b81f0(u8 *);
-extern f32 func_0046b260(u8 *);
+extern f32 sdkSpriteScaledWidth(u8 *);
 extern void func_00314ef0(u8 *, s8, FclVec2, s16, s16, s8);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern void func_0046b0d0(u8 *arg0);
+extern void sdkSpriteRelease(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
 extern void itfMesWindowReleaseIfActive(s32 arg0);
 extern void H_Cdvd_Destroy(u8 *arg0);
@@ -417,16 +417,16 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
     c154 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
     func_002b77d0(id, sp138, 0x131, c154, 153.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
     func_002b68d0(id, 0xE, 0);
-    h = func_0046d200(func_00331560(), 0x131);
+    h = sdkSpriteNewNode(func_00331560(), 0x131);
     slot = (u8 **)(t + 0x258) + arg1;
     *(FclVec2 *)func_002b81f0(*slot) = sp138;
-    x = func_0046b260(h);
-    spF0 = func_002b29e0(x, func_0046b2f0(h));
+    x = sdkSpriteScaledWidth(h);
+    spF0 = func_002b29e0(x, sdkSpriteScaledHeight(h));
     ((FclBoundsPacket *)(func_002b81f0(*slot) + 8))->representation = spF0.representation;
     *(s32 *)(func_002b81f0(*slot) + 0x120) = order;
     *(f32 *)(func_002b81f0(*slot) + 0x18) = 152.0f;
     *(u8 *)(func_002b81f0(*slot) + 0x124) = 0;
-    func_0046d280(h);
+    sdkSpriteFreeNode(h);
     if (kind == -1) {
         return;
     }
@@ -502,16 +502,16 @@ void func_00314ef0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
     c104 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
     func_002b77d0(res, spF8, 0x131, c104, 150.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
     func_002b68d0(res, 0xE, 0);
-    h = func_0046d200(func_00331560(), 0x131);
+    h = sdkSpriteNewNode(func_00331560(), 0x131);
     slot = (u8 **)(t + 0x258) + arg1;
     *(FclVec2 *)func_002b81f0(*slot) = spF8;
-    x = func_0046b260(h);
-    spD0 = func_002b29e0(x, func_0046b2f0(h));
+    x = sdkSpriteScaledWidth(h);
+    spD0 = func_002b29e0(x, sdkSpriteScaledHeight(h));
     ((FclBoundsPacket *)(func_002b81f0(*slot) + 8))->representation = spD0.representation;
     *(s32 *)(func_002b81f0(*slot) + 0x120) = order;
     *(f32 *)(func_002b81f0(*slot) + 0x18) = 149.0f;
     *(u8 *)(func_002b81f0(*slot) + 0x124) = 0;
-    func_0046d280(h);
+    sdkSpriteFreeNode(h);
     func_002b7750(arg3, arg3);
     spE0 = func_002b2970(6.0f + arg2.x, 8.0f + arg2.y);
     c100 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
@@ -1103,10 +1103,10 @@ void func_00317900(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s8 arg3, s16 arg4, s16 
         scale = iGpffff8360;
         *(f32 *)(func_002b6150(sprite) + 0xA0) = scale;
         *(f32 *)(func_002b6150(sprite) + 0xAC) = scale;
-        node = func_0046d200(func_00331560(), (s16)sprite);
-        func_002b69f0(sprite, func_002b2970((5.0f + pos.x) - 2.0f * (func_0046b260(node) / 10.0f), pos.y - 3.0f),
-                      func_002b2970((5.0f + arg2.x) - 2.0f * (func_0046b260(node) / 10.0f), arg2.y - 3.0f), 0, 8, arg4);
-        func_0046d280(node);
+        node = sdkSpriteNewNode(func_00331560(), (s16)sprite);
+        func_002b69f0(sprite, func_002b2970((5.0f + pos.x) - 2.0f * (sdkSpriteScaledWidth(node) / 10.0f), pos.y - 3.0f),
+                      func_002b2970((5.0f + arg2.x) - 2.0f * (sdkSpriteScaledWidth(node) / 10.0f), arg2.y - 3.0f), 0, 8, arg4);
+        sdkSpriteFreeNode(node);
         c230 = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
         *(FclByte4 *)(func_002b6150(sprite) + 0x85) = c230;
         func_002b6c30(0x1DC, pos, 60.0f, 0xAA);
@@ -1216,9 +1216,9 @@ void func_00318840(u8 *arg0, s8 arg1, s8 arg2, s16 arg3, s16 arg4) {
         *(f32 *)(func_002b6150(icon) + 0xAC) = scale;
         *(f32 *)(func_002b6150(icon) + 0x14) = 59.0f;
         *(s32 *)(func_002b6150(icon) + 0x8) = 0xAB;
-        h = func_0046d200(func_00331560(), icon);
-        *(FclVec2 *)(func_002b6150(icon) + 0x38) = func_002b2970((5.0f + pos.x) - 2.0f * (func_0046b260(h) / 10.0f), pos.y - 3.0f);
-        func_0046d280(h);
+        h = sdkSpriteNewNode(func_00331560(), icon);
+        *(FclVec2 *)(func_002b6150(icon) + 0x38) = func_002b2970((5.0f + pos.x) - 2.0f * (sdkSpriteScaledWidth(h) / 10.0f), pos.y - 3.0f);
+        sdkSpriteFreeNode(h);
         c11C = func_002b2a60(0xE0, 0xFF, 0x33, 0xFF);
         *(FclDrawColor *)(func_002b6150(icon) + 0x85) = c11C;
         func_002b68d0(arg2 + 0x20D, 0, 1);
@@ -1359,12 +1359,12 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
     c = (s8)arg2;
     arg1.y += (f32)(c * 23);
     id = (s16)(c + 0x21C);
-    hA = func_0046d200(func_00331560(), 0x193);
+    hA = sdkSpriteNewNode(func_00331560(), 0x193);
     if ((s8)arg6 == 1) {
         func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, arg5 + 3);
         sc = iGpffff8504;
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(arg1.x, y = arg1.y), func_002b2970(arg1.x, arg1.y + func_0046b2f0(hA) / 2.0f), 0, 3, arg5);
+        func_002b69f0(id, func_002b2970(arg1.x, y = arg1.y), func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hA) / 2.0f), 0, 3, arg5);
     } else {
         y = arg1.y;
         func_002b6c30(id, func_002b2970(arg1.x, y), 191.0f, 0x57);
@@ -1383,11 +1383,11 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
         }
         sc = iGpffff8504;
         func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(arg1.x, arg1.y + func_0046b2f0(hA) / 2.0f), func_002b2970(arg1.x, arg1.y), 0, 3, arg5);
+        func_002b69f0(id, func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hA) / 2.0f), func_002b2970(arg1.x, arg1.y), 0, 3, arg5);
     }
-    func_0046d280(hA);
+    sdkSpriteFreeNode(hA);
     id = (s16)(c + 0x22B);
-    hB = func_0046d200(func_00331560(), 0x19A);
+    hB = sdkSpriteNewNode(func_00331560(), 0x19A);
     if ((s8)arg6 == 1) {
         if (*(s16 *)(t + 0x11E) == c) {
             func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
@@ -1395,7 +1395,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
             func_002b6a70(id, *(u8 *)(func_002b6150(id) + 0x6E), 0, 0, 0, arg5 + 3);
         }
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(301 + arg1.x, arg1.y), func_002b2970(301 + arg1.x, arg1.y + func_0046b2f0(hB) / 2.0f), 0, 3, arg5);
+        func_002b69f0(id, func_002b2970(301 + arg1.x, arg1.y), func_002b2970(301 + arg1.x, arg1.y + sdkSpriteScaledHeight(hB) / 2.0f), 0, 3, arg5);
     } else {
         func_002b6c30(id, func_002b2970(301 + arg1.x, y), 192.0f, 0x57);
         if (special == 1) {
@@ -1412,20 +1412,20 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
             func_002b6a70(id, 0, 0x66, 0, 0, arg5);
         }
         func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(301 + arg1.x, arg1.y + func_0046b2f0(hB) / 2.0f), func_002b2970(301 + arg1.x, arg1.y), 0, 3, arg5);
+        func_002b69f0(id, func_002b2970(301 + arg1.x, arg1.y + sdkSpriteScaledHeight(hB) / 2.0f), func_002b2970(301 + arg1.x, arg1.y), 0, 3, arg5);
     }
-    func_0046d280(hB);
+    sdkSpriteFreeNode(hB);
     id = (s16)(c + 0x238);
-    hC = func_0046d200(func_00331560(), 0x188);
+    hC = sdkSpriteNewNode(func_00331560(), 0x188);
     if ((s8)arg6 == 1) {
         func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(arg1.x, arg1.y), func_002b2970(arg1.x, arg1.y + func_0046b2f0(hC) / 2.0f), 0, 3, arg5);
+        func_002b69f0(id, func_002b2970(arg1.x, arg1.y), func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hC) / 2.0f), 0, 3, arg5);
     } else {
         func_002b6c30(id, func_002b2970(arg1.x, arg1.y), 163.0f, 0x57);
         func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
         func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(arg1.x, arg1.y + func_0046b2f0(hC) / 2.0f), func_002b2970(arg1.x, arg1.y), 0, 3, arg5);
+        func_002b69f0(id, func_002b2970(arg1.x, arg1.y + sdkSpriteScaledHeight(hC) / 2.0f), func_002b2970(arg1.x, arg1.y), 0, 3, arg5);
         if (special == 1) {
             c280 = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
             *(FclByte4 *)(func_002b6150(id) + 0x85) = c280;
@@ -1441,18 +1441,18 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
             }
         }
     }
-    func_0046d280(hC);
+    sdkSpriteFreeNode(hC);
     id = (s16)(c + 0x244);
-    hD = func_0046d200(func_00331560(), 0x18C);
+    hD = sdkSpriteNewNode(func_00331560(), 0x18C);
     if ((s8)arg6 == 1) {
         func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(55.0f + arg1.x, arg1.y), func_002b2970(55.0f + arg1.x, arg1.y + func_0046b2f0(hD) / 2.0f), 0, 3, arg5);
+        func_002b69f0(id, func_002b2970(55.0f + arg1.x, arg1.y), func_002b2970(55.0f + arg1.x, arg1.y + sdkSpriteScaledHeight(hD) / 2.0f), 0, 3, arg5);
     } else {
         func_002b6c30(id, func_002b2970(55.0f + arg1.x, arg1.y), 163.0f, 0x57);
         func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
         func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(55.0f + arg1.x, arg1.y + func_0046b2f0(hD) / 2.0f), func_002b2970(55.0f + arg1.x, arg1.y), 0, 3, arg5);
+        func_002b69f0(id, func_002b2970(55.0f + arg1.x, arg1.y + sdkSpriteScaledHeight(hD) / 2.0f), func_002b2970(55.0f + arg1.x, arg1.y), 0, 3, arg5);
         if (special == 1) {
             c270 = func_002b2a60(0x8C, 0xE2, 0xFF, 0xFF);
             *(FclByte4 *)(func_002b6150(id) + 0x85) = c270;
@@ -1468,7 +1468,7 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
             }
         }
     }
-    func_0046d280(hD);
+    sdkSpriteFreeNode(hD);
     if (*(s16 *)(t + 0x11E) == c) {
         func_002b83e0(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
                       (c260 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF)), (c25C = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF)),
@@ -1485,11 +1485,11 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
     }
     n = (s8)arg2 + 0x39;
     id = (s16)n;
-    h2 = func_0046d200(func_00331560(), n);
+    h2 = sdkSpriteNewNode(func_00331560(), n);
     if ((s8)arg6 == 1) {
         func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), func_002b2970(4.0f + arg1.x, 5.0f + arg1.y + func_0046b2f0(h2) / 2.0f), 0, 3, arg5);
+        func_002b69f0(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), func_002b2970(4.0f + arg1.x, 5.0f + arg1.y + sdkSpriteScaledHeight(h2) / 2.0f), 0, 3, arg5);
     } else {
         func_002b6c30(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), 158.0f, 0x59);
         if (special == 1) {
@@ -1504,16 +1504,16 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
         }
         func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
         func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-        func_002b69f0(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y + func_0046b2f0(h2) / 2.0f), func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), 0, 3, arg5);
+        func_002b69f0(id, func_002b2970(4.0f + arg1.x, 5.0f + arg1.y + sdkSpriteScaledHeight(h2) / 2.0f), func_002b2970(4.0f + arg1.x, 5.0f + arg1.y), 0, 3, arg5);
     }
-    func_0046d280(h2);
+    sdkSpriteFreeNode(h2);
     if (c < arg7) {
         id = (s16)(c + 0x250);
-        h3 = func_0046d200(func_00331560(), (s16)((datPersonaGetArcana(arg3) & 0xFF) + 0x1B));
+        h3 = sdkSpriteNewNode(func_00331560(), (s16)((datPersonaGetArcana(arg3) & 0xFF) + 0x1B));
         if ((s8)arg6 == 1) {
             func_002b6a70(id, 0xFF, 0, 0, 0, arg5 + 3);
             func_002b6af0(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
-            func_002b69f0(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), func_002b2970(28.0f + arg1.x, 2.0f + arg1.y + func_0046b2f0(h3) / 2.0f), 0, 3, arg5);
+            func_002b69f0(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), func_002b2970(28.0f + arg1.x, 2.0f + arg1.y + sdkSpriteScaledHeight(h3) / 2.0f), 0, 3, arg5);
         } else {
             func_002b6c30(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), 46.0f, 0x59);
             *(s16 *)(func_002b6150(id) + 4) = (s16)((datPersonaGetArcana(arg3) & 0xFF) + 0x1B);
@@ -1529,9 +1529,9 @@ void func_003191c0(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s16 arg
             }
             func_002b6a70(id, 0, 0xFF, 0, 0, arg5);
             func_002b6af0(id, 1.0f, 1.0f, sc, 1.0f, 0, 3, arg5);
-            func_002b69f0(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y + func_0046b2f0(h3) / 2.0f), func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), 0, 3, arg5);
+            func_002b69f0(id, func_002b2970(28.0f + arg1.x, 2.0f + arg1.y + sdkSpriteScaledHeight(h3) / 2.0f), func_002b2970(28.0f + arg1.x, 2.0f + arg1.y), 0, 3, arg5);
         }
-        func_0046d280(h3);
+        sdkSpriteFreeNode(h3);
         if (special == 1) {
             c29C = func_002b2a60(0, 0, 0x66, 0xFF);
         } else if (*(s16 *)(t + 0x11E) == c) {
@@ -1593,71 +1593,71 @@ void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 perso
             sprite = (s16)(rowIndex + 0x270);
             func_002b7750(sprite, 0x193);
             func_002b6c30(sprite, func_002b2970(position.x, rowY), 191.0f, 0x57);
-            resource = func_0046d200(func_00331560(), 0x193);
+            resource = sdkSpriteNewNode(func_00331560(), 0x193);
             if (mode == 1) {
                 func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
                 transitionScale = iGpffff8504;
                 func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
                 ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                 func_002b6a70(sprite, 0, alpha, 0, 0, delay);
                 transitionScale = iGpffff8504;
                 func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(resource);
+            sdkSpriteFreeNode(resource);
             sprite = (s16)(rowIndex + 0x27D);
             func_002b7750(sprite, 0x19B);
             func_002b6c30(sprite, func_002b2970(286.0f + position.x, rowY), 192.0f, 0x57);
-            resource = func_0046d200(func_00331560(), 0x19B);
+            resource = sdkSpriteNewNode(func_00331560(), 0x19B);
             if (mode == 1) {
                 func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
                 func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(286.0f + position.x, rowY), func_002b2970(286.0f + position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(286.0f + position.x, rowY), func_002b2970(286.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
                 ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                 func_002b6a70(sprite, 0, alpha, 0, 0, delay);
                 func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(286.0f + position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(286.0f + position.x, rowY), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(286.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(286.0f + position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(resource);
+            sdkSpriteFreeNode(resource);
             sprite = (s16)(rowIndex + 0x28B);
             func_002b6c30(sprite, func_002b2970(position.x, rowY), 163.0f, 0x57);
-            resource = func_0046d200(func_00331560(), 0x188);
+            resource = sdkSpriteNewNode(func_00331560(), 0x188);
             if (mode == 1) {
                 func_002b6a70(sprite, 0xFF, 0, 0, 0, delay + 3);
                 func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
                 ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                 func_002b6a70(sprite, 0, 0xFF, 0, 0, delay);
                 func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(resource);
+            sdkSpriteFreeNode(resource);
             sprite = (s16)(rowIndex + 0x297);
             func_002b6c30(sprite, func_002b2970(36.0f + position.x, rowY), 163.0f, 0x57);
-            resource = func_0046d200(func_00331560(), 0x18C);
+            resource = sdkSpriteNewNode(func_00331560(), 0x18C);
             if (mode == 1) {
                 func_002b6a70(sprite, 0xFF, 0, 0, 0, delay + 3);
                 func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(36.0f + position.x, rowY), func_002b2970(36.0f + position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(36.0f + position.x, rowY), func_002b2970(36.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
                 ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
                 func_002b6a70(sprite, 0, 0xFF, 0, 0, delay);
                 func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(36.0f + position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(36.0f + position.x, rowY), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(36.0f + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(36.0f + position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(resource);
+            sdkSpriteFreeNode(resource);
         }
         sprite = (s16)(rowIndex + 0x2A3);
-        resource = func_0046d200(func_00331560(), (u16)((datPersonaGetArcana((u16)persona) & 0xFF) + 0x1B));
+        resource = sdkSpriteNewNode(func_00331560(), (u16)((datPersonaGetArcana((u16)persona) & 0xFF) + 0x1B));
         if (mode == 1) {
             func_002b6a70(sprite, 0xFF, 0, 0, 0, delay + 3);
             transitionScale = iGpffff8504;
             func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-            func_002b69f0(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY), func_002b2970(8.0f + position.x, 2.0f + rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
+            func_002b69f0(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY), func_002b2970(8.0f + position.x, 2.0f + rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
         } else {
             func_002b6c30(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY), 46.0f, 0x59);
             ((FclCombineRowSprite *)func_002b6150(sprite))->image = (datPersonaGetArcana((u16)persona) & 0xFF) + 0x1B;
@@ -1665,9 +1665,9 @@ void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 perso
             func_002b6a70(sprite, 0, 0xFF, 0, 0, delay);
             transitionScale = iGpffff8504;
             func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-            func_002b69f0(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(8.0f + position.x, 2.0f + rowY), 0, 3, delay);
+            func_002b69f0(sprite, func_002b2970(8.0f + position.x, 2.0f + rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(8.0f + position.x, 2.0f + rowY), 0, 3, delay);
         }
-        func_0046d280(resource);
+        sdkSpriteFreeNode(resource);
         /* The persona lookup is complete; this scalar now carries the digit delay. */
         persona = delay;
         digitRow = (s8)(rowIndex + 0xC);
@@ -1677,33 +1677,33 @@ void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 perso
             sprite = (s16)(rowIndex + 0x270);
             func_002b7750(sprite, 0x193);
             func_002b6c30(sprite, func_002b2970(position.x, rowY), 191.0f, 0x57);
-            resource = func_0046d200(func_00331560(), 0x193);
+            resource = sdkSpriteNewNode(func_00331560(), 0x193);
             if (mode == 1) {
                 func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
                 func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY), func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
                 ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0, 0, 0x99, 0xFF);
                 func_002b6a70(sprite, 0, 0, 0, 0, delay);
                 func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970(position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970(position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970(position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(resource);
+            sdkSpriteFreeNode(resource);
             sprite = (s16)(rowIndex + 0x27D);
             func_002b7750(sprite, 0x19B);
             func_002b6c30(sprite, func_002b2970((f32)0x11D + position.x, rowY), 192.0f, 0x57);
-            resource = func_0046d200(func_00331560(), 0x19B);
+            resource = sdkSpriteNewNode(func_00331560(), 0x19B);
             if (mode == 1) {
                 func_002b6a70(sprite, ((FclCombineRowSprite *)func_002b6150(sprite))->alpha, 0, 0, 0, delay + 3);
                 func_002b6af0(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970((f32)0x11D + position.x, rowY), func_002b2970((f32)0x11D + position.x, rowY + func_0046b2f0(resource) / 2.0f), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970((f32)0x11D + position.x, rowY), func_002b2970((f32)0x11D + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, delay);
             } else {
                 ((FclCombineRowSprite *)func_002b6150(sprite))->color = func_002b2a60(0, 0, 0x99, 0xFF);
                 func_002b6a70(sprite, 0, 0, 0, 0, delay);
                 func_002b6af0(sprite, 1.0f, 1.0f, transitionScale, 1.0f, 0, 3, delay);
-                func_002b69f0(sprite, func_002b2970((f32)0x11D + position.x, rowY + func_0046b2f0(resource) / 2.0f), func_002b2970((f32)0x11D + position.x, rowY), 0, 3, delay);
+                func_002b69f0(sprite, func_002b2970((f32)0x11D + position.x, rowY + sdkSpriteScaledHeight(resource) / 2.0f), func_002b2970((f32)0x11D + position.x, rowY), 0, 3, delay);
             }
-            func_0046d280(resource);
+            sdkSpriteFreeNode(resource);
             func_002b7750(0xCF, 0xCF);
             func_002b77d0(0xCF, func_002b2970(position.x - 10.0f, rowY - 12.0f), 0xCF, func_002b2a60(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, func_00331560());
             func_002b7750(0xD2, 0xD2);
@@ -2178,20 +2178,20 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
     if (t6 == 3) {
         pos.x = pos.x + 1.0f;
     }
-    h0 = func_0046d200(func_00331560(), 0x193);
+    h0 = sdkSpriteNewNode(func_00331560(), 0x193);
     func_002b6c30(id, func_002b2970(pos.x, pos.y), 191.0f, 0x57);
     c16C = func_002b2a60(0, 0, 0x99, 0xFF);
     p = func_002b6150(id);
     *(FclByte4 *)(p + 0x85) = c16C;
     func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + func_0046b2f0(h0) / 2.0f), func_002b2970(pos.x, pos.y), 0, 3, arg2);
+    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h0) / 2.0f), func_002b2970(pos.x, pos.y), 0, 3, arg2);
     if ((s8)arg3 == 1) {
         func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, func_002b2970(pos.x, pos.y), func_002b2970(pos.x, pos.y + func_0046b2f0(h0) / 2.0f), 0, 3, arg2);
+        func_002b69f0(id, func_002b2970(pos.x, pos.y), func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h0) / 2.0f), 0, 3, arg2);
     }
-    func_0046d280(h0);
+    sdkSpriteFreeNode(h0);
     switch (t6) {
     case 0:
         id = 0x19A;
@@ -2235,20 +2235,20 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
         id = 0x28A;
     }
     func_002b7750(id, idB);
-    h1 = func_0046d200(func_00331560(), idB);
+    h1 = sdkSpriteNewNode(func_00331560(), idB);
     func_002b6c30(id, func_002b2970(pos.x, pos.y), 191.0f, 0x57);
     c168 = func_002b2a60(0, 0, 0x99, 0xFF);
     p = func_002b6150(id);
     *(FclByte4 *)(p + 0x85) = c168;
     func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + func_0046b2f0(h1) / 2.0f), func_002b2970(pos.x, pos.y), 0, 3, arg2);
+    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h1) / 2.0f), func_002b2970(pos.x, pos.y), 0, 3, arg2);
     if ((s8)arg3 == 1) {
         func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, func_002b2970(pos.x, pos.y), func_002b2970(pos.x, pos.y + func_0046b2f0(h1) / 2.0f), 0, 3, arg2);
+        func_002b69f0(id, func_002b2970(pos.x, pos.y), func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h1) / 2.0f), 0, 3, arg2);
     }
-    func_0046d280(h1);
+    sdkSpriteFreeNode(h1);
 
     id = 0x51;
     by = arg1.y;
@@ -2266,20 +2266,20 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
     if (t6 == 1) {
         pos.x = pos.x + 3.0f;
     }
-    h2 = func_0046d200(func_00331560(), 0x51);
+    h2 = sdkSpriteNewNode(func_00331560(), 0x51);
     func_002b6c30(id, pos, 176.0f, 0x59);
     c164 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
     p = func_002b6150(id);
     *(FclByte4 *)(p + 0x85) = c164;
     func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + func_0046b2f0(h2) / 2.0f), pos, 0, 3, arg2);
+    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h2) / 2.0f), pos, 0, 3, arg2);
     if ((s8)arg3 == 1) {
         func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + func_0046b2f0(h2) / 2.0f), 0, 3, arg2);
+        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h2) / 2.0f), 0, 3, arg2);
     }
-    func_0046d280(h2);
+    sdkSpriteFreeNode(h2);
 
     id = 0x52;
     pos = func_002b2970(151.0f + arg1.x, y);
@@ -2295,20 +2295,20 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
     if (t6 == 1) {
         pos.x = pos.x + 3.0f;
     }
-    h3 = func_0046d200(func_00331560(), 0x52);
+    h3 = sdkSpriteNewNode(func_00331560(), 0x52);
     func_002b6c30(id, pos, 176.0f, 0x59);
     c160 = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
     p = func_002b6150(id);
     *(FclByte4 *)(p + 0x85) = c160;
     func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + func_0046b2f0(h3) / 2.0f), pos, 0, 3, arg2);
+    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h3) / 2.0f), pos, 0, 3, arg2);
     if ((s8)arg3 == 1) {
         func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + func_0046b2f0(h3) / 2.0f), 0, 3, arg2);
+        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h3) / 2.0f), 0, 3, arg2);
     }
-    func_0046d280(h3);
+    sdkSpriteFreeNode(h3);
 
     id = 0x53;
     y = 6.0f + by;
@@ -2325,20 +2325,20 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
     if (t6 == 1) {
         pos.x = pos.x + 3.0f;
     }
-    h4 = func_0046d200(func_00331560(), 0x53);
+    h4 = sdkSpriteNewNode(func_00331560(), 0x53);
     func_002b6c30(id, pos, 176.0f, 0x59);
     c15C = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
     p = func_002b6150(id);
     *(FclByte4 *)(p + 0x85) = c15C;
     func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + func_0046b2f0(h4) / 2.0f), pos, 0, 3, arg2);
+    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h4) / 2.0f), pos, 0, 3, arg2);
     if ((s8)arg3 == 1) {
         func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + func_0046b2f0(h4) / 2.0f), 0, 3, arg2);
+        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h4) / 2.0f), 0, 3, arg2);
     }
-    func_0046d280(h4);
+    sdkSpriteFreeNode(h4);
 
     id = 0x73;
     y = 9.0f + by;
@@ -2355,18 +2355,18 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
     if (t6 == 1) {
         pos.x = pos.x + 3.0f;
     }
-    h5 = func_0046d200(func_00331560(), 0x73);
+    h5 = sdkSpriteNewNode(func_00331560(), 0x73);
     func_002b6c30(id, pos, 175.0f, 0x59);
     c158 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
     p = func_002b6150(id);
     *(FclByte4 *)(p + 0x85) = c158;
     func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + func_0046b2f0(h5) / 2.0f), pos, 0, 3, arg2);
+    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), pos, 0, 3, arg2);
     if ((s8)arg3 == 1) {
         func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + func_0046b2f0(h5) / 2.0f), 0, 3, arg2);
+        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), 0, 3, arg2);
     }
 
     id = 0x237;
@@ -2389,13 +2389,13 @@ void func_0031e5b0(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg4, s32 arg5
     *(FclByte4 *)(p + 0x85) = c154;
     func_002b6a70(id, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(id, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(id, func_002b2970(pos.x, pos.y + func_0046b2f0(h5) / 2.0f), pos, 0, 3, arg2);
+    func_002b69f0(id, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), pos, 0, 3, arg2);
     if ((s8)arg3 == 1) {
         func_002b6a70(id, 0xFF, 0, 0, 0, (s16)((s16)arg2 + 3));
         func_002b6af0(id, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + func_0046b2f0(h5) / 2.0f), 0, 3, arg2);
+        func_002b69f0(id, pos, func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(h5) / 2.0f), 0, 3, arg2);
     }
-    func_0046d280(h5);
+    sdkSpriteFreeNode(h5);
 }
 #pragma pop
 
@@ -2421,21 +2421,21 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
     f32 x;
     f32 top;
 
-    node0 = func_0046d200(func_00331560(), 0x193);
+    node0 = sdkSpriteNewNode(func_00331560(), 0x193);
     x = arg1.y;
     func_002b6c30(0x27C, func_002b2970(*(f32 *)&arg1, x), 191.0f, 0x57);
     c13C = func_002b2a60(0, 0, 0x99, 0xFF);
     *(FclByte4 *)(func_002b6150(0x27C) + 0x85) = c13C;
     func_002b6a70(0x27C, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(0x27C, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(0x27C, func_002b2970(arg1.x, x + func_0046b2f0(node0) / 2.0f), func_002b2970(arg1.x, x), 0, 3, arg2);
+    func_002b69f0(0x27C, func_002b2970(arg1.x, x + sdkSpriteScaledHeight(node0) / 2.0f), func_002b2970(arg1.x, x), 0, 3, arg2);
     if (arg3 == 1) {
         func_002b6a70(0x27C, 0xFF, 0, 0, 0, arg2 + 3);
         func_002b6af0(0x27C, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
-        func_002b69f0(0x27C, func_002b2970(arg1.x, x), func_002b2970(arg1.x, x + func_0046b2f0(node0) / 2.0f), 0, 3, arg2);
+        func_002b69f0(0x27C, func_002b2970(arg1.x, x), func_002b2970(arg1.x, x + sdkSpriteScaledHeight(node0) / 2.0f), 0, 3, arg2);
     }
-    func_0046d280(node0);
-    node1 = func_0046d200(func_00331560(), 0x19B);
+    sdkSpriteFreeNode(node0);
+    node1 = sdkSpriteNewNode(func_00331560(), 0x19B);
     y = arg1.y;
     x = (f32)0x11D + arg1.x;
     func_002b6c30(0x289, func_002b2970(x, y), 191.0f, 0x57);
@@ -2443,15 +2443,15 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
     *(FclByte4 *)(func_002b6150(0x289) + 0x85) = c138;
     func_002b6a70(0x289, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(0x289, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(0x289, func_002b2970(x, y + func_0046b2f0(node1) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
+    func_002b69f0(0x289, func_002b2970(x, y + sdkSpriteScaledHeight(node1) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
         func_002b6a70(0x289, 0xFF, 0, 0, 0, arg2 + 3);
         func_002b6af0(0x289, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         x = (f32)0x11D + arg1.x;
-        func_002b69f0(0x289, func_002b2970(x, y), func_002b2970(x, y + func_0046b2f0(node1) / 2.0f), 0, 3, arg2);
+        func_002b69f0(0x289, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node1) / 2.0f), 0, 3, arg2);
     }
-    func_0046d280(node1);
-    node2 = func_0046d200(func_00331560(), 0x72);
+    sdkSpriteFreeNode(node1);
+    node2 = sdkSpriteNewNode(func_00331560(), 0x72);
     top = arg1.y;
     y = 4.0f + top;
     x = 102.0f + arg1.x;
@@ -2460,17 +2460,17 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
     *(FclByte4 *)(func_002b6150(0x72) + 0x85) = c134;
     func_002b6a70(0x72, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(0x72, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(0x72, func_002b2970(x, y + func_0046b2f0(node2) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
+    func_002b69f0(0x72, func_002b2970(x, y + sdkSpriteScaledHeight(node2) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
         func_002b6a70(0x72, 0xFF, 0, 0, 0, arg2 + 3);
         func_002b6af0(0x72, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         top = arg1.y;
         y = 4.0f + top;
         x = 102.0f + arg1.x;
-        func_002b69f0(0x72, func_002b2970(x, y), func_002b2970(x, y + func_0046b2f0(node2) / 2.0f), 0, 3, arg2);
+        func_002b69f0(0x72, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node2) / 2.0f), 0, 3, arg2);
     }
-    func_0046d280(node2);
-    node3 = func_0046d200(func_00331560(), 0x73);
+    sdkSpriteFreeNode(node2);
+    node3 = sdkSpriteNewNode(func_00331560(), 0x73);
     top = arg1.y;
     y = 9.0f + top;
     x = 55.0f + arg1.x;
@@ -2479,14 +2479,14 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
     *(FclByte4 *)(func_002b6150(0x2AF) + 0x85) = c130;
     func_002b6a70(0x2AF, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(0x2AF, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(0x2AF, func_002b2970(x, y + func_0046b2f0(node3) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
+    func_002b69f0(0x2AF, func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
         func_002b6a70(0x2AF, 0xFF, 0, 0, 0, arg2 + 3);
         func_002b6af0(0x2AF, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         top = arg1.y;
         y = 9.0f + top;
         x = 55.0f + arg1.x;
-        func_002b69f0(0x2AF, func_002b2970(x, y), func_002b2970(x, y + func_0046b2f0(node3) / 2.0f), 0, 3, arg2);
+        func_002b69f0(0x2AF, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), 0, 3, arg2);
     }
     top = arg1.y;
     y = 9.0f + top;
@@ -2496,16 +2496,16 @@ void func_0031fa20(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
     *(FclByte4 *)(func_002b6150(0x2B0) + 0x85) = c12C;
     func_002b6a70(0x2B0, 0, 0xFF, 0, 0, arg2);
     func_002b6af0(0x2B0, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg2);
-    func_002b69f0(0x2B0, func_002b2970(x, y + func_0046b2f0(node3) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
+    func_002b69f0(0x2B0, func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), func_002b2970(x, y), 0, 3, arg2);
     if (arg3 == 1) {
         func_002b6a70(0x2B0, 0xFF, 0, 0, 0, arg2 + 3);
         func_002b6af0(0x2B0, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, arg2);
         top = arg1.y;
         y = 9.0f + top;
         x = 208.0f + arg1.x;
-        func_002b69f0(0x2B0, func_002b2970(x, y), func_002b2970(x, y + func_0046b2f0(node3) / 2.0f), 0, 3, arg2);
+        func_002b69f0(0x2B0, func_002b2970(x, y), func_002b2970(x, y + sdkSpriteScaledHeight(node3) / 2.0f), 0, 3, arg2);
     }
-    func_0046d280(node3);
+    sdkSpriteFreeNode(node3);
 }
 
 /* measured: nd 182-209 (4 attempts: FclVec2* base local 188, FclVec2* tbl+
@@ -2772,7 +2772,7 @@ void func_00320b80(u8 *task, s8 entryMode) {
                       (listCountByte = *(s8 *)&((FclCombinePersonaListHeader *)func_002e4870(0))->count));
         {
             s16 columnSprite = rowIndex + 0x25E;
-            u8 *columnResource = (u8 *)func_0046d200(func_00331560(), 0x39);
+            u8 *columnResource = (u8 *)sdkSpriteNewNode(func_00331560(), 0x39);
             s32 columnSpriteX;
             gridOffset = rowIndex * 23;
             columnSpriteX = gridOffset + 0x14E;
@@ -2785,10 +2785,10 @@ void func_00320b80(u8 *task, s8 entryMode) {
             }
             func_002b6a70(columnSprite, 0, 0xFF, 0, 2, rowIndex);
             func_002b6af0(columnSprite, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 2, rowIndex);
-            columnSlideStart = func_002b2970((f32)columnSpriteX, 110.0f + func_0046b2f0(columnResource) / 2.0f);
+            columnSlideStart = func_002b2970((f32)columnSpriteX, 110.0f + sdkSpriteScaledHeight(columnResource) / 2.0f);
             columnSlideEnd = func_002b2970((f32)columnSpriteX, 110.0f);
             func_002b69f0(columnSprite, columnSlideStart, columnSlideEnd, 0, 2, rowIndex);
-            func_0046d280(columnResource);
+            sdkSpriteFreeNode(columnResource);
         }
         {
             u8 *columnHeaderElement = fclCombineSlotRecord(work->gridColumnHeaderTask, (s8)row);
@@ -2941,13 +2941,13 @@ void func_003218a0(u8 *arg0, s16 arg1) {
                       0xFF, 0xFF, 32.0f, 159.0f, 2, order, 0, 0);
         r = i + 0x25E;
         res = r;
-        h = func_0046d200(func_00331560(), 0x39);
+        h = sdkSpriteNewNode(func_00331560(), 0x39);
         func_002b6a70(res, 0, 0xFF, 0, 0, order + 3);
         func_002b6af0(res, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg1);
         xx = x + 0x14E;
-        func_002b69f0(r, func_002b2970(xx, 110.0f + func_0046b2f0(h) / 2.0f), func_002b2970(xx, 110.0f), 0, 3, arg1);
+        func_002b69f0(r, func_002b2970(xx, 110.0f + sdkSpriteScaledHeight(h) / 2.0f), func_002b2970(xx, 110.0f), 0, 3, arg1);
         func_002b68d0(res, 0, 0);
-        func_0046d280(h);
+        sdkSpriteFreeNode(h);
         j = 0;
         p = t + i * 4;
         row = i * 12;
@@ -3102,13 +3102,13 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                 {
                     s16 normalizedRow = ja;
                     s16 resource = (s16)((u32)normalizedRow + 0x25E);
-                    ha = func_0046d200(func_00331560(), 0x39);
+                    ha = sdkSpriteNewNode(func_00331560(), 0x39);
                     func_002b6a70(resource, 0xFF, 0, 0, 3, 0);
                     func_002b6af0(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                     xa = (u32)normalizedRow * 23 + 0x14E;
                     func_002b69f0(resource, func_002b2970((f32)xa, 110.0f),
-                                  func_002b2970((f32)xa, 110.0f + func_0046b2f0(ha) / 2.0f), 0, 3, 0);
-                    func_0046d280(ha);
+                                  func_002b2970((f32)xa, 110.0f + sdkSpriteScaledHeight(ha) / 2.0f), 0, 3, 0);
+                    sdkSpriteFreeNode(ha);
                 }
                 ++ja;
             }
@@ -3151,13 +3151,13 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                     {
                         s16 normalizedRow = jb1;
                         s16 resource = (s16)((u32)normalizedRow + 0x25E);
-                        hb1 = func_0046d200(func_00331560(), 0x39);
+                        hb1 = sdkSpriteNewNode(func_00331560(), 0x39);
                         func_002b6a70(resource, 0xFF, 0, 0, 3, 0);
                         func_002b6af0(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                         xb1 = (u32)normalizedRow * 23 + 0x14E;
                         func_002b69f0(resource, func_002b2970((f32)xb1, 110.0f),
-                                      func_002b2970((f32)xb1, 110.0f + func_0046b2f0(hb1) / 2.0f), 0, 3, 0);
-                        func_0046d280(hb1);
+                                      func_002b2970((f32)xb1, 110.0f + sdkSpriteScaledHeight(hb1) / 2.0f), 0, 3, 0);
+                        sdkSpriteFreeNode(hb1);
                         c = *(s8 *)(t + 0x128);
                         if (*(s8 *)(func_002e4870(0) + c * 12 + (u32)normalizedRow + 0x14) > 0) {
                             func_002f9c30((u16 *)func_002e48a0(*(s8 *)(t + 0x128) + 1, jb1),
@@ -3242,13 +3242,13 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
             {
                 s16 normalizedRow = jc;
                 s16 resource = (s16)((u32)normalizedRow + 0x25E);
-                hc = func_0046d200(func_00331560(), 0x39);
+                hc = sdkSpriteNewNode(func_00331560(), 0x39);
                 func_002b6a70(resource, 0xFF, 0, 0, 3, 0);
                 func_002b6af0(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                 xc = (u32)normalizedRow * 23 + 0x14E;
                 func_002b69f0(resource, func_002b2970((f32)xc, 110.0f),
-                              func_002b2970((f32)xc, 110.0f + func_0046b2f0(hc) / 2.0f), 0, 3, 0);
-                func_0046d280(hc);
+                              func_002b2970((f32)xc, 110.0f + sdkSpriteScaledHeight(hc) / 2.0f), 0, 3, 0);
+                sdkSpriteFreeNode(hc);
             }
             ++jc;
         }
@@ -5270,7 +5270,7 @@ void func_0032c660(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosi
         }
     }
     if (showing == 1) {
-        temp_22 = func_0046d200(func_00331560(), 0x80U);
+        temp_22 = sdkSpriteNewNode(func_00331560(), 0x80U);
         upperClipSlot = (u8 **)(work + 0x258) + (s8)(u32)slot * 2;
         sp230 = func_002b2970(shownPosition.x - 120.0f, shownPosition.y - 40.0f);
         temp_2_14 = func_002b81f0(*upperClipSlot);
@@ -5281,7 +5281,7 @@ void func_0032c660(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosi
         *(s32 *)(func_002b81f0(*upperClipSlot) + 0x120) = (s32) (s16)upperOrder;
         *(f32 *)(func_002b81f0(*upperClipSlot) + 0x18) = 110.0f;
         *(u8 *)(func_002b81f0(*upperClipSlot) + 0x124) = 0;
-        func_0046d280(temp_22);
+        sdkSpriteFreeNode(temp_22);
     }
     origin = func_002b2970(origin.x, 99.0f + origin.y);
     lowerOrder = 0x6B;
@@ -5464,7 +5464,7 @@ void func_0032c660(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosi
         }
     }
     if (showing == 1) {
-        temp_19 = func_0046d200(func_00331560(), 0x80U);
+        temp_19 = sdkSpriteNewNode(func_00331560(), 0x80U);
         lowerClipSlot = (u8 **)(work + 0x25C) + (s8)(u32)slot * 2;
         sp138 = func_002b2970(shownPosition.x - 120.0f, 99.0f + (shownPosition.y - 27.0f));
         temp_2_29 = func_002b81f0(*lowerClipSlot);
@@ -5475,7 +5475,7 @@ void func_0032c660(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosi
         *(s32 *)(func_002b81f0(*lowerClipSlot) + 0x120) = (s32) (s16)lowerOrder;
         *(f32 *)(func_002b81f0(*lowerClipSlot) + 0x18) = 110.0f;
         *(u8 *)(func_002b81f0(*lowerClipSlot) + 0x124) = 0;
-        func_0046d280(temp_19);
+        sdkSpriteFreeNode(temp_19);
     }
 }
 /* Each point is built inside its func_00330e50 call (func_002b2970 returns
@@ -5842,7 +5842,7 @@ void func_0032fbc0(u8 *arg0) {
         {
             s16 normalizedRow = i;
             s16 resource = (s16)(normalizedRow + 0x25E);
-            h = func_0046d200(func_00331560(), 0x39);
+            h = sdkSpriteNewNode(func_00331560(), 0x39);
             func_002b6a70(resource, 0xFF, 0, 0, 3, 0);
             {
                 f32 unitScale = 1.0f;
@@ -5850,9 +5850,9 @@ void func_0032fbc0(u8 *arg0) {
             }
             spE8 = func_002b2970((f32)(normalizedRow * 23 + 0x14E), 110.0f);
             spE0 = func_002b2970((f32)(normalizedRow * 23 + 0x14E),
-                         110.0f + func_0046b2f0(h) / 2.0f);
+                         110.0f + sdkSpriteScaledHeight(h) / 2.0f);
             func_002b69f0(resource, spE8, spE0, 0, 3, 0);
-            func_0046d280(h);
+            sdkSpriteFreeNode(h);
         }
         ++i;
     }
@@ -6118,8 +6118,8 @@ s32 func_00330f20(u8 *arg0) {
         if (H_Cdvd_IsFileLoaded(*(u32 *)(t + 0x18)) == 0) {
             return 0;
         }
-        *(u32 *)(t + 4) = func_0046aea0(D_00644D70);
-        *(u32 *)(t + 8) = func_0046aea0(D_00644D90);
+        *(u32 *)(t + 4) = sdkSpriteRequestLoad(D_00644D70);
+        *(u32 *)(t + 8) = sdkSpriteRequestLoad(D_00644D90);
         *(u32 *)(t + 0x34) = func_004667d0(0, D_00644DB0, 0, 0, 0, 0, 0, 0, 0, 0);
         *(u32 *)(t + 0x38) = func_004667d0(0, D_00644DD0, 0, 0, 0, 0, 0, 0, 0, 0);
         *(u32 *)(t + 0x3C) = func_004667d0(0, D_00644DF0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -6180,8 +6180,8 @@ void func_003312e0(u8 *arg0) {
     u8 *t;
 
     t = *(u8 **)(arg0 + 0x38);
-    func_0046b0d0((u8 *)*(u32 *)(t + 4));
-    func_0046b0d0((u8 *)*(u32 *)(t + 8));
+    sdkSpriteRelease((u8 *)*(u32 *)(t + 4));
+    sdkSpriteRelease((u8 *)*(u32 *)(t + 8));
     func_003ef3a0((u8 *)*(u32 *)(t + 0x24));
     func_003ef3a0((u8 *)*(u32 *)(t + 0x28));
     func_003ef3a0((u8 *)*(u32 *)(t + 0x2C));

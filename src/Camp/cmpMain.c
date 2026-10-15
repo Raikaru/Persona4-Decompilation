@@ -22,7 +22,7 @@ void func_0012d140(void);
 u8 *func_00454a60(u8 *param, s32 mode);
 s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 void H_Cdvd_Destroy(u8 *ptr);
-s32 func_0046b000(u32 param);
+s32 sdkSpriteCreateFromName(u32 param);
 s32 func_0046a750(s32 param);
 
 /* Camp-family helpers declared locally; the retail TUs are separate objects. */
@@ -514,7 +514,7 @@ state1:
         for (i = 0; i < 6; i++) {
             q = p + i * 4;
             dst = q + 0x1C;
-            *(s32 *)dst = func_0046b000(*(u32 *)(q + 4));
+            *(s32 *)dst = sdkSpriteCreateFromName(*(u32 *)(q + 4));
             if (*(s32 *)dst == 0) {
                 func_0046d730(D_005E5890, 0x30C);
             }

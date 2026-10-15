@@ -67,9 +67,9 @@ s32 mcIconTaskCreate(u8 *parent, s32 mode);
 s32 func_002aa3f0(void);
 extern s32 func_00481450(void);
 extern void func_00481440(s32 arg0);
-extern void func_0046b380(u8 *arg0, s32 arg1);
-extern void func_0046d280(void *arg0);
-extern u8 *func_0046d200(u32 arg0, u32 arg1);
+extern void sdkSpriteDraw(u8 *arg0, s32 arg1);
+extern void sdkSpriteFreeNode(void *arg0);
+extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_0025ec10(s32 arg0, u8 *arg1);
@@ -662,7 +662,7 @@ void func_0025e9e0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2,
 s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5) {
     u8 *temp_2;
 
-    temp_2 = func_0046d200((u32)arg3, arg2);
+    temp_2 = sdkSpriteNewNode((u32)arg3, arg2);
     *(f32 *)(temp_2 + 8) = farg0;
     *(f32 *)(temp_2 + 0xC) = farg1;
     *(f32 *)(temp_2 + 0x24) = farg2;
@@ -677,9 +677,9 @@ s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, 
     *(u16 *)(temp_2 + 0x22) = (u16)(4096.0f * farg5);
     if ((*(u16 *)(temp_2 + 0x20) != 0) &&
         (*(u16 *)(temp_2 + 0x22) != 0)) {
-        func_0046b380(temp_2, arg4);
+        sdkSpriteDraw(temp_2, arg4);
     }
-    func_0046d280(temp_2);
+    sdkSpriteFreeNode(temp_2);
     return 0;
 }
 /* measured: plain `(u16)(4096.0f * farg4)` and `(u16)(4096.0f * farg5)` casts reproduce both compiler-generated float-to-unsigned conversion paths; MATCH object 588B/window 592B. Each retail site begins `lui 0x4580; mtc1; mul.s; lui 0x4F00; mtc1; c.ole.s`, then uses low `cvt.w.s; mfc1; andi` or high `sub.s; cvt.w.s; mfc1; lui 0x8000; or; andi` before `sh`. The `or` is after `mfc1`, and the 4096.0f `mul.s` is genuine scaling. */
@@ -692,7 +692,7 @@ s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
     u8 *temp_2;
 
     temp_16 = func_00460990();
-    temp_2 = func_0046d200((u32)arg3, arg2);
+    temp_2 = sdkSpriteNewNode((u32)arg3, arg2);
     *(f32 *)(temp_2 + 8) = farg0;
     *(f32 *)(temp_2 + 0xC) = farg1;
     *(f32 *)(temp_2 + 0x24) = farg2;
@@ -724,19 +724,19 @@ callback_call:
     func_00460ac0(arg7, temp_16);
     goto done;
 cleanup:
-    func_0046d280(temp_2);
+    sdkSpriteFreeNode(temp_2);
 done:
     return 0;
 }
 // FUN_0025EC10
 void func_0025ec10(s32 arg0, u8 *arg1) {
-    func_0046b380(arg1, 1);
-    func_0046d280(arg1);
+    sdkSpriteDraw(arg1, 1);
+    sdkSpriteFreeNode(arg1);
 }
 // FUN_0025EC50
 void func_0025ec50(s32 arg0, u8 *arg1) {
-    func_0046b380(arg1, 0);
-    func_0046d280(arg1);
+    sdkSpriteDraw(arg1, 0);
+    sdkSpriteFreeNode(arg1);
 }
 // FUN_0025EC90
 void func_0025ec90(f32 farg0, f32 farg1, f32 farg2,

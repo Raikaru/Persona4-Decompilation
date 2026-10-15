@@ -17,7 +17,7 @@ s32 func_0034c210(void);
 void func_001437b0(void* arg0, s32 arg1, s32 arg2);
 void func_0034f5d0(void* arg0);
 u32 RpRandom(void);
-void func_0046d280(void *node);
+void sdkSpriteFreeNode(void *node);
 void kwlnTaskDestroyWithHierarchy(s32 arg0);
 void func_002bb4e0(void);
 void func_003550d0(s32 arg0, void* arg1, void* arg2);
@@ -57,7 +57,7 @@ void func_001356d0(u8* arg0) {
  extern s16 func_00353c10(s16* arg0);
  extern void* memset(void* dst, s32 value, u32 size);
  extern u8* func_0046a770(char* arg0);
- extern u8* func_0046d200(u32 arg0, u32 arg1);
+ extern u8* sdkSpriteNewNode(u32 arg0, u32 arg1);
  extern u8 func_002baac0(u8* arg0);
  extern u8* func_00354a50(s32 arg0, u16 arg1);
  extern u8* func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -153,13 +153,13 @@ void func_001356d0(u8* arg0) {
   for (i = 0; i < 23; i++) {
    if (i < 6) {
     slot = (s32*)(arg0 + i * 4 + 0x1C54);
-    *slot = (s32)func_0046d200((u32)resource0, *(u8*)(D_005E9FB0 + i));
+    *slot = (s32)sdkSpriteNewNode((u32)resource0, *(u8*)(D_005E9FB0 + i));
    } else if (i < 9) {
     slot = (s32*)(arg0 + i * 4 + 0x1C54);
-    *slot = (s32)func_0046d200((u32)resource2, *(u8*)(D_005E9FB0 + i));
+    *slot = (s32)sdkSpriteNewNode((u32)resource2, *(u8*)(D_005E9FB0 + i));
    } else {
     slot = (s32*)(arg0 + i * 4 + 0x1C54);
-    *slot = (s32)func_0046d200((u32)resource1, *(u8*)(D_005E9FB0 + i));
+    *slot = (s32)sdkSpriteNewNode((u32)resource1, *(u8*)(D_005E9FB0 + i));
    }
    if (*slot == 0) {
     func_0046d730(&D_005EB580[0], 0x1AB);
@@ -875,7 +875,7 @@ void func_001377e0(u8* arg0) {
     for (i = 0; i < 0x17; i++) {
         p = (s32*)(base + i * 4 + 0x1C54);
         if (*p != 0) {
-            func_0046d280((void *)*p);
+            sdkSpriteFreeNode((void *)*p);
             *p = 0;
         }
     }

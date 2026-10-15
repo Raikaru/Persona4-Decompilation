@@ -16,7 +16,7 @@ typedef unsigned int ShdByte __attribute__((mode(QI)));
 
 void func_0011e230(u8 *arg0, s32 arg1);
 void func_0011e240();
-void func_0046d4c0(s32, s32, s32, f32, f32, u8, u8, u8, u8, f32, s32);
+void sdkSpriteDrawOnceTinted(s32, s32, s32, f32, f32, u8, u8, u8, u8, f32, s32);
 void func_0011e2b0(u8 *arg0, Vec2f *arg1, Vec2f *arg2);
 void func_0011aaa0();
 void func_0011ba40();
@@ -382,7 +382,7 @@ void func_00116190(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
             func_0046d730(D_005E4868, 0x171);
         }
         high = *((f32 *)&arg0 + 1);
-        func_0046d4c0(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, high, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
+        sdkSpriteDrawOnceTinted(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, high, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
         x = (f32)(s32)(114.0f + *(f32 *)&arg0);
         y = (f32)(s32)(2.0f + high);
         frFontExDrawText(x, y, fparg0, color | -0x100, 8, 1, (const char *)func_0010d6d0(*(s16 *)arg2), 8, 0);
@@ -406,14 +406,14 @@ void func_001162f0(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
     m = arg1 & 0xFF;
     c = 0xFF - m;
     hi = *((f32 *)&arg0 + 1);
-    func_0046d4c0(0, t17, 0x47, *(f32 *)&arg0, hi, c, 0x2D, 0x2D, 0x2D, fparg0, 0);
-    func_0046d4c0(0, t17, 0x41, 126.0f + *(f32 *)&arg0, hi, c, 0x2D, 0x2D, 0x2D, fparg0, 0);
+    sdkSpriteDrawOnceTinted(0, t17, 0x47, *(f32 *)&arg0, hi, c, 0x2D, 0x2D, 0x2D, fparg0, 0);
+    sdkSpriteDrawOnceTinted(0, t17, 0x41, 126.0f + *(f32 *)&arg0, hi, c, 0x2D, 0x2D, 0x2D, fparg0, 0);
 }
 
 
 
 u8 datPersonaGetArcana(u16 personaId);
-f32 func_0046b1f0(s32, s32);
+f32 sdkSpriteEntryWidth(s32, s32);
 /* measured: FP/GP colouring residual, nd 99. The family's real signature
    IS (s64 arg0, u8 *arg2, s32 *arg3, f32 fparg0) with the color and its
    float bits coming from arg0's HIGH WORD (the callers clobber $a1 with
@@ -476,13 +476,13 @@ void func_001163e0(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
     }
     sp90[1] = 6.0f + high;
     width = (((count & 0xFFFF) - 1) & 0xFFFF) + 0x21;
-    sp90[0] = 80.0f + *(f32 *)&arg0 - func_0046b1f0(id0, width) / 2.0f;
+    sp90[0] = 80.0f + *(f32 *)&arg0 - sdkSpriteEntryWidth(id0, width) / 2.0f;
     count = arg1 & 0xFF;
     count = 0xFF - count;
-    func_0046d4c0(0, id0, width, sp90[0], sp90[1], count, 0xFF, 0xFF, 0xFF, fparg0, 0);
+    sdkSpriteDrawOnceTinted(0, id0, width, sp90[0], sp90[1], count, 0xFF, 0xFF, 0xFF, fparg0, 0);
     sp90[0] = 53.0f + *(f32 *)&arg0;
     sp90[1] = 43.0f + high;
-    func_0046d4c0(0, id1, 0x2A, sp90[0], sp90[1], count, 0xFF, 0xFF, 0xFF, fparg0, 0);
+    sdkSpriteDrawOnceTinted(0, id1, 0x2A, sp90[0], sp90[1], count, 0xFF, 0xFF, 0xFF, fparg0, 0);
     sp90[0] = 83.0f + *(f32 *)&arg0;
     sp90[1] = 36.0f + high;
     color[0] = 0xFF;
@@ -526,7 +526,7 @@ void func_00116610(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
     }
     sp190.x = 129.0f + *(f32 *)&arg0;
     sp190.y = 39.0f + high;
-    func_0046d4c0(0, id0, 0x39, sp190.x, sp190.y, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
+    sdkSpriteDrawOnceTinted(0, id0, 0x39, sp190.x, sp190.y, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
     sp190.x = 259.0f + *(f32 *)&arg0;
     sp190.y = 43.0f + high;
     sp19c[0] = 0x2D;
@@ -579,14 +579,14 @@ void func_00116820(Vec2f position, f32 depth, u8 alpha, u8 *persona, s32 *sprite
     point.y = baseY;
     value = alpha & 0xFF;
     value = 0xFF - value;
-    func_0046d4c0(0, panelSprites, 0x42, point.x, point.y, value, 0xFF, 0xA0, 0x0B, depth, 0);
+    sdkSpriteDrawOnceTinted(0, panelSprites, 0x42, point.x, point.y, value, 0xFF, 0xA0, 0x0B, depth, 0);
     point.x = position.x - 273.0f;
     point.y = 3.0f + baseY;
     affinityIndex = 0;
     while (affinityIndex < 7U) {
         rowY = point.y;
-        func_0046d4c0(0, affinitySprites, affinityIndex + 0x2E, point.x, rowY, value, 0xFF, 0xFF, 0x81, depth, 0);
-        func_0046d4c0(0, panelSprites, 0x43, point.x - 2.0f, 22.0f + rowY, value, 0xFF, 0xE9, 0x2C, depth, 0);
+        sdkSpriteDrawOnceTinted(0, affinitySprites, affinityIndex + 0x2E, point.x, rowY, value, 0xFF, 0xFF, 0x81, depth, 0);
+        sdkSpriteDrawOnceTinted(0, panelSprites, 0x43, point.x - 2.0f, 22.0f + rowY, value, 0xFF, 0xE9, 0x2C, depth, 0);
         entry = *(s32 *)((u8 *)persona + affinityIndex * 4 + 0x14);
         if ((entry & 0x02000000) != 0) {
             icon = 0x35;
@@ -601,7 +601,7 @@ void func_00116820(Vec2f position, f32 depth, u8 alpha, u8 *persona, s32 *sprite
         } else {
             icon = 0x3A;
         }
-        func_0046d4c0(0, affinitySprites, icon, point.x, 24.0f + rowY, value, 0xDE, 0x75, 0, depth, 0);
+        sdkSpriteDrawOnceTinted(0, affinitySprites, icon, point.x, 24.0f + rowY, value, 0xDE, 0x75, 0, depth, 0);
         if (affinityIndex == 0) {
             point.x += 51.0f;
         } else {
@@ -617,12 +617,12 @@ void func_00116820(Vec2f position, f32 depth, u8 alpha, u8 *persona, s32 *sprite
     point.y = 152.0f + baseY;
     value = (u32)alpha & 0xFFU;
     value = 0xFFU - value;
-    func_0046d4c0(0, panelSprites, 0x44, point.x, point.y, value, 0xFF, 0xA0, 0x0B, depth, 0);
+    sdkSpriteDrawOnceTinted(0, panelSprites, 0x44, point.x, point.y, value, 0xFF, 0xA0, 0x0B, depth, 0);
     point.x = position.x + 31.0f - 315.0f;
     rowY = 152.0f + (baseY - 93.0f);
     point.y = rowY;
-    func_0046d4c0(0, affinitySprites, 0x2C, point.x, rowY, value, 0xFF, 0xFF, 0x81, depth, 0);
-    func_0046d4c0(0, affinitySprites, 0x2D, point.x, 57.0f + rowY, value, 0xFF, 0xFF, 0x81, depth, 0);
+    sdkSpriteDrawOnceTinted(0, affinitySprites, 0x2C, point.x, rowY, value, 0xFF, 0xFF, 0x81, depth, 0);
+    sdkSpriteDrawOnceTinted(0, affinitySprites, 0x2D, point.x, 57.0f + rowY, value, 0xFF, 0xFF, 0x81, depth, 0);
     value = 0;
     numberX = position.x + 65.0f - 315.0f;
     baseY = 152.0f + (baseY - 88.0f);
@@ -693,11 +693,11 @@ void func_00116d40(Vec2f position, f32 depth, u8 alpha, u8 filled, u8 added,
         ((s8 *)colors[0].rgba)[3] = (s8)alpha;
     }
     y = position.y;
-    func_0046d4c0(0, resource, 0x3D, position.x, y,
+    sdkSpriteDrawOnceTinted(0, resource, 0x3D, position.x, y,
                   (0xFF - colors[1].rgba[3]) & 0xFF, colors[1].rgba[0], colors[1].rgba[1], colors[1].rgba[2], depth, 0);
-    func_0046d4c0(0, resource, 0x3E, 214.0f + position.x, y,
+    sdkSpriteDrawOnceTinted(0, resource, 0x3E, 214.0f + position.x, y,
                   (0xFF - colors[1].rgba[3]) & 0xFF, colors[1].rgba[0], colors[1].rgba[1], colors[1].rgba[2], depth, 0);
-    func_0046d4c0(0, resource, 0x3F, position.x, y,
+    sdkSpriteDrawOnceTinted(0, resource, 0x3F, position.x, y,
                   (0xFF - (shadeAlpha & 0xFF)) & 0xFF, shade, shade, blue, depth, 0);
     width = (f32)(((filled & 0xFF) * 204) / 99 + 10);
     position.x += width;
@@ -720,7 +720,7 @@ void func_00116d40(Vec2f position, f32 depth, u8 alpha, u8 filled, u8 added,
         func_0045d6e0(colors[0].rgba, rectangle.transport, depth, 0);
         position.x += bonusWidth;
     }
-    func_0046d4c0(0, resource, 0x40, position.x, position.y,
+    sdkSpriteDrawOnceTinted(0, resource, 0x40, position.x, position.y,
                   (0xFF - colors[0].rgba[3]) & 0xFF, colors[0].rgba[0], colors[0].rgba[1], colors[0].rgba[2], depth, 0);
 }
 #pragma pop
@@ -781,7 +781,7 @@ void func_001171c0(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg3)
     inv = 0xFF;
     inv -= *((u8 *)&packed + 3);
     do {
-        func_0046d4c0(0, id, (rem % 10) + 0x1D, f, y, inv,
+        sdkSpriteDrawOnceTinted(0, id, (rem % 10) + 0x1D, f, y, inv,
                       shdPackedLow(&packed), b1, b2, farg, 0);
         n = ((u32)(n & 0xFF) / 10U) & 0xFF;
         f -= 22.0f;
@@ -825,7 +825,7 @@ void func_00117310(Vec2f arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg3, s32 arg
     arg4 = 0xFF;
     arg4 -= *((u8 *)&arg1 + 3);
     do {
-        func_0046d4c0(0, id, (n % 10U) + 9,
+        sdkSpriteDrawOnceTinted(0, id, (n % 10U) + 9,
                       f, y, (u8)arg4, *((u8 *)&arg1), b1, b2,
                       fparg0, 0);
         n /= 10U;
@@ -1575,7 +1575,7 @@ void func_001190f0(f32 *arg0, u8 arg1)
 
 
 s32 func_00107890(s32);
-void func_0046d2b0(s32, s32, s32, f32, f32, u8, f32, s32);
+void sdkSpriteDrawOnce(s32, s32, s32, f32, f32, u8, f32, s32);
 void func_001190f0(f32 *, u8);
 extern u8 D_005E4DB0[];
 extern f32 iGpffff8368;
@@ -1686,19 +1686,19 @@ void func_00119210(u8 *work)
     RpSkyRenderStateSet(2, (void *)0x44);
     inverseAlpha = 0xFF - (alpha & 0xFF);
     {
-        func_0046d2b0(0, *(s32 *)(work + 0x2C8), 0, 322.0f, 176.0f, inverseAlpha, 0.0f, 0);
+        sdkSpriteDrawOnce(0, *(s32 *)(work + 0x2C8), 0, 322.0f, 176.0f, inverseAlpha, 0.0f, 0);
         if ((communityRank & 0xFF) == 0xA) {
-            func_0046d2b0(0, *(s32 *)(work + 0x2C8), 0xC, 520.0f, 170.0f, inverseAlpha, 0.0f, 0);
+            sdkSpriteDrawOnce(0, *(s32 *)(work + 0x2C8), 0xC, 520.0f, 170.0f, inverseAlpha, 0.0f, 0);
         } else {
             s32 rank = communityRank & 0xFF;
-            func_0046d2b0(0, *(s32 *)(work + 0x2C8), rank + 1, (f32)0x209, 173.0f, inverseAlpha, 0.0f, 0);
+            sdkSpriteDrawOnce(0, *(s32 *)(work + 0x2C8), rank + 1, (f32)0x209, 173.0f, inverseAlpha, 0.0f, 0);
         }
     }
     digitX = (f32)0x232;
     digitY = 220.0f;
     digits = *(u32 *)(animation + 4);
     do {
-        func_0046d2b0(0, *(s32 *)(work + 0x2C8), (digits % 10) + 1, digitX, digitY, inverseAlpha, 0.0f, 0);
+        sdkSpriteDrawOnce(0, *(s32 *)(work + 0x2C8), (digits % 10) + 1, digitX, digitY, inverseAlpha, 0.0f, 0);
         digitX -= 28.0f;
         digitY += 5.0f;
         digits /= 10;
@@ -1803,9 +1803,9 @@ void func_00119810(u8 *work)
         s32 inverseAlpha;
         mode = 8;
         inverseAlpha = 255 - *(u8 *)(work + 0x505);
-        func_0046d4c0(0, *(s32 *)(work + 0x2BC), 0x5C, (f32)0x1A5, (f32)0x147,
+        sdkSpriteDrawOnceTinted(0, *(s32 *)(work + 0x2BC), 0x5C, (f32)0x1A5, (f32)0x147,
                       inverseAlpha, 0x2D, 0x2D, 0x2D, 0.0f, 0);
-        func_0046d4c0(0, *(s32 *)(work + 0x2BC), 0x5D, (f32)0x25B, (f32)0x147,
+        sdkSpriteDrawOnceTinted(0, *(s32 *)(work + 0x2BC), 0x5D, (f32)0x25B, (f32)0x147,
                       inverseAlpha, 0x2D, 0x2D, 0x2D, 0.0f, 0);
     } else {
         mode = 7;
@@ -2045,7 +2045,7 @@ void func_00119e10(u8 *task, u8 *argument)
             position.xy.x = px;
             py = 17.0f + work->channels[4].current.y;
             position.xy.y = py;
-            func_0046d2b0(0, work->sprites[3], 3, px, py, (0xFF - work->channels[4].alpha) & 0xFF, 0.0f, 0);
+            sdkSpriteDrawOnce(0, work->sprites[3], 3, px, py, (0xFF - work->channels[4].alpha) & 0xFF, 0.0f, 0);
         }
         if ((work->flags & 0x80) != 0) {
             f32 px;
@@ -2069,7 +2069,7 @@ void func_00119e10(u8 *task, u8 *argument)
                     func_0046d730(D_005E4868, 0x171);
                 }
                 headerY = headerPosition.xy.y;
-                func_0046d4c0(0, id, 0x59, 207.0f + headerPosition.xy.x, headerY, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                sdkSpriteDrawOnceTinted(0, id, 0x59, 207.0f + headerPosition.xy.x, headerY, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
                 x = (f32)(s32)(114.0f + headerPosition.xy.x);
                 y = (f32)(s32)(2.0f + headerY);
                 frFontExDrawText(x, y, 0.0f, color | ~0xFF, 8, 1, (const char *)func_0010d6d0((s16)work->persona[0].category), 8, 0);
@@ -2099,8 +2099,8 @@ void func_00119e10(u8 *task, u8 *argument)
             }
             inv = 0xFF - (alpha & 0xFF);
             sy = labelPosition.xy.y;
-            func_0046d4c0(0, id, 0x47, labelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
-            func_0046d4c0(0, id, 0x41, 126.0f + labelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+            sdkSpriteDrawOnceTinted(0, id, 0x47, labelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+            sdkSpriteDrawOnceTinted(0, id, 0x41, 126.0f + labelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
             px = -23.0f + work->channels[2].current.x;
             position.xy.x = px;
             py = 76.0f + work->channels[2].current.y;
@@ -2124,8 +2124,8 @@ void func_00119e10(u8 *task, u8 *argument)
                 }
                 inv = 0xFF - (alpha & 0xFF);
                 sy = comparisonLabelPosition.xy.y;
-                func_0046d4c0(0, id, 0x47, comparisonLabelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
-                func_0046d4c0(0, id, 0x41, 126.0f + comparisonLabelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                sdkSpriteDrawOnceTinted(0, id, 0x47, comparisonLabelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
+                sdkSpriteDrawOnceTinted(0, id, 0x41, 126.0f + comparisonLabelPosition.xy.x, sy, inv, 0x2D, 0x2D, 0x2D, 0.0f, 0);
                 px = -23.0f + work->channels[8].current.x;
                 position.xy.x = px;
                 py = 76.0f + work->channels[8].current.y;

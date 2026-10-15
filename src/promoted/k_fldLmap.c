@@ -22,7 +22,7 @@ extern void H_Cdvd_Destroy(u8 *ptr);
 extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 extern s32 func_00455f70(u8 *param, s32 *out);
 extern s32 func_0046a750(s32 param);
-extern void func_0046b0d0(void *ptr);
+extern void sdkSpriteRelease(void *ptr);
 
 extern void func_003e0f40(u8 *param);
 extern void func_00145080();
@@ -166,11 +166,11 @@ s32 func_001866d0(u8 *arg0)
         /* fallthrough */
     case 1:
         if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_16 + 4)) != 0) {
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x38) = (s32)func_0046af60((u32)func_00455f70(D_005F1F10, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x3C) = (s32)func_0046af60((u32)func_00455f70(D_005F1F30, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x40) = (s32)func_0046af60((u32)func_00455f70(D_005F1F50, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x44) = (s32)func_0046af60((u32)func_00455f70(D_005F1F70, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x48) = (s32)func_0046af60((u32)func_00455f70(D_005F1F90, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x38) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F10, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x3C) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F30, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x40) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F50, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x44) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F70, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x48) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F90, &sp8C));
             *(s32 *)temp_16 = *(s32 *)temp_16 + 1;
         }
         break;
@@ -458,11 +458,11 @@ s32 func_00186eb0(u8 *arg0)
             u8 *tmp2 = func_00457120();
             func_003e9cb0(*(s32 *)(tmp2 + 4), *(u8 **)(st + 0x18), 0);
         }
-        *(s32 *)(st + 0x24) = (s32)func_0046af60((u32)func_00455f70(D_005F2010, &out));
-        *(s32 *)(st + 0x2C) = (s32)func_0046af60((u32)func_00455f70(D_005F2030, &out));
-        *(s32 *)(st + 0x30) = (s32)func_0046af60((u32)func_00455f70(D_005F2050, &out));
-        *(s32 *)(st + 0x28) = (s32)func_0046af60((u32)func_00455f70(D_005F2070, &out));
-        *(s32 *)(st + 0x34) = (s32)func_0046af60((u32)func_00455f70(D_005F2090, &out));
+        *(s32 *)(st + 0x24) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2010, &out));
+        *(s32 *)(st + 0x2C) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2030, &out));
+        *(s32 *)(st + 0x30) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2050, &out));
+        *(s32 *)(st + 0x28) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2070, &out));
+        *(s32 *)(st + 0x34) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2090, &out));
         *(u8 **)(st + 0x160) = func_0029db50(15, *(s32 *)(*(u8 **)(st + 0x20) + 0x110), *(s32 *)(*(u8 **)(st + 0x20) + 0x118), 0);
         *(s32 *)st = *(s32 *)st + 1;
     }
@@ -680,16 +680,16 @@ void func_00187da0(u8 *arg0)
     u8 *temp_16;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
-    func_0046b0d0(*(u8 **)(temp_16 + 0x24));
-    func_0046b0d0(*(u8 **)(temp_16 + 0x2C));
-    func_0046b0d0(*(u8 **)(temp_16 + 0x30));
-    func_0046b0d0(*(u8 **)(temp_16 + 0x28));
-    func_0046b0d0(*(u8 **)(temp_16 + 0x34));
-    func_0046b0d0(*(u8 **)(temp_16 + 0x38));
-    func_0046b0d0(*(u8 **)(temp_16 + 0x3C));
-    func_0046b0d0(*(u8 **)(temp_16 + 0x40));
-    func_0046b0d0(*(u8 **)(temp_16 + 0x44));
-    func_0046b0d0(*(u8 **)(temp_16 + 0x48));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x24));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x2C));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x30));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x28));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x34));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x38));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x3C));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x40));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x44));
+    sdkSpriteRelease(*(u8 **)(temp_16 + 0x48));
     func_00145080();
     func_003e0f40(*(u8 **)(temp_16 + 0x18));
     H_Cdvd_Destroy(*(u8 **)(temp_16 + 0x20));

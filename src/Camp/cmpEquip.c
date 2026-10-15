@@ -13,7 +13,7 @@ s32 func_00106c80(s16 arg0);
 s16 func_00353ce0(void *arg0);
 void memset(void *arg0, s32 arg1, s32 arg2);
 void *func_0046a770(void *arg0);
-s32 func_0046d200(void *arg0, s8 arg1);
+s32 sdkSpriteNewNode(void *arg0, s8 arg1);
 void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_005E5830[];
 extern u8 D_005E5850[];
@@ -117,15 +117,15 @@ void func_001312b0(u8 *arg0)
         if (final_i < 0x29) {
             slot = (s32 *)(base + final_i * 4 + 0x14C0);
             byte = D_005E76E0[final_i];
-            *slot = func_0046d200(asset0, byte);
+            *slot = sdkSpriteNewNode(asset0, byte);
         } else if (final_i < 0x33) {
             slot = (s32 *)(base + final_i * 4 + 0x14C0);
             byte = D_005E76E0[final_i];
-            *slot = func_0046d200(asset1, byte);
+            *slot = sdkSpriteNewNode(asset1, byte);
         } else {
             slot = (s32 *)(base + final_i * 4 + 0x14C0);
             byte = D_005E76E0[final_i];
-            *slot = func_0046d200(asset2, byte);
+            *slot = sdkSpriteNewNode(asset2, byte);
         }
         if (*slot == 0) {
             func_0046d730(D_005E9FA0, 0x27B);

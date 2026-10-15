@@ -142,19 +142,19 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
     f32 pos_y;
     u8 *handle;
     u8 *temp;
-    extern u8 *func_0046d200(u32 arg0, u32 arg1);
-    extern f32 func_0046b2f0(u8 *arg0);
+    extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
+    extern f32 sdkSpriteScaledHeight(u8 *arg0);
     u8 *base;
-    extern void func_0046d280(void *node);
+    extern void sdkSpriteFreeNode(void *node);
     temp = *(u8 **)(arg0 + 0x38);
     pos_x = *(f32 *)(temp + 0x2C);
     pos_y = *(f32 *)(temp + 0x30);
     pos.x = pos_x;
     pos.y = pos_y;
     if ((s8)arg4 == 1) {
-        handle = func_0046d200(*(u32 *)(temp + 0xF4), (s16)arg1);
+        handle = sdkSpriteNewNode(*(u32 *)(temp + 0xF4), (s16)arg1);
         out1 = func_002b2970(pos.x,
-                             pos.y - (func_0046b2f0(handle) / 2.0f));
+                             pos.y - (sdkSpriteScaledHeight(handle) / 2.0f));
         out1_x = out1.x;
         out1_y = out1.y;
         draw1.x = out1_x;
@@ -162,12 +162,12 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
         arg3 = (s16)arg3;
         func_002b8270(*(u8 **)(arg0 + 0x38) + 4, pos, draw1, 0, arg2,
                        arg3);
-        func_0046d280(handle);
+        sdkSpriteFreeNode(handle);
         func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, 0, 0xFF, 0, arg2, arg3);
     } else {
-        handle = func_0046d200(*(u32 *)(temp + 0xF4), (s16)arg1);
+        handle = sdkSpriteNewNode(*(u32 *)(temp + 0xF4), (s16)arg1);
         out2 = func_002b2970(pos.x,
-                             pos.y + (func_0046b2f0(handle) / 2.0f));
+                             pos.y + (sdkSpriteScaledHeight(handle) / 2.0f));
         out2_x = out2.x;
         out2_y = out2.y;
         draw2.x = out2_x;
@@ -175,7 +175,7 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
         arg3 = (s16)arg3;
         func_002b8270(*(u8 **)(arg0 + 0x38) + 4, pos, draw2, 0, arg2,
                        arg3);
-        func_0046d280(handle);
+        sdkSpriteFreeNode(handle);
         func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, 0xFF, 0, 0, 0,
                        (s16)((s32)arg3 + arg2));
     }

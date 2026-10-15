@@ -29,7 +29,7 @@ typedef struct PersonaWork PersonaWork;
 
 
 extern f32 iGpffff84a4;
-extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                           f32 z, s32 arg6);
 extern char D_005E5810[];

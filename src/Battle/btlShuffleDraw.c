@@ -55,7 +55,7 @@ extern void func_00371f40(u8 *arg0, f32 fparg0, u8 *arg1);
 extern void func_00373f00(u8 *arg0);
 extern void func_00371e50(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4);
 extern void func_00371160(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, u8 *arg4, f32 fparg0);
-extern void func_0046b0d0(void *ptr);
+extern void sdkSpriteRelease(void *ptr);
 extern void func_0044ea90(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern f32 func_00373c20(u8 *arg0);
@@ -300,7 +300,7 @@ s32 func_003742b0(u8 *work)
             u8 *p;
             for (spriteIndex = 0; spriteIndex < 3; spriteIndex++, archiveIndex++) {
                 p = work + spriteIndex * 4 + 0x1F2AC;
-                *(u8 **)p = func_0046af60((u32)func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, NULL));
+                *(u8 **)p = sdkSpriteAdoptBlob((u32)func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, NULL));
                 if (*(u8 **)p == NULL) {
                     func_0046d730(&D_0064EA20, 0x109);
                 }
@@ -364,7 +364,7 @@ void func_00374610(u8 *arg0) {
         p = (u8 *)(arg0 + j * 4 + 0x1F2AC);
         v = *(s32 *)p;
         if (v != 0) {
-            func_0046b0d0((void *)v);
+            sdkSpriteRelease((void *)v);
             *(s32 *)p = 0;
         }
     }

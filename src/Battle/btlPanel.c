@@ -18,7 +18,7 @@ void H_Cdvd_Destroy(u8* ptr);
 s32 H_Cdvd_IsFileLoaded(u8* ptr);
 s32 datGetFlag(s32 id);
 s32 func_0019ef90(s32 a, s32 b);
-s32 func_0046b000(u32 param);
+s32 sdkSpriteCreateFromName(u32 param);
 s32 func_0046a750(s32 param);
 s32 func_0046a770(u32 param);
 extern u8* func_00452560(s32 param);
@@ -75,16 +75,16 @@ s32 func_00202890(void* param)
                 if (idx < 8) {
                     if (func_0019ef90(0, (idx + 1) & 0xFFFF) != 0) {
                         if (datGetFlag(0x1438) == 0 || idx != 0) {
-                            recs->resources[idx] = func_0046b000(D_00626720[idx]);
+                            recs->resources[idx] = sdkSpriteCreateFromName(D_00626720[idx]);
                         } else {
-                            recs->resources[idx] = func_0046b000(iGpffffa570);
+                            recs->resources[idx] = sdkSpriteCreateFromName(iGpffffa570);
                         }
                     } else {
                         recs->resources[idx] = 0;
                         panel->index++;
                     }
                 } else if (idx < 0xC) {
-                    recs->resources[idx] = func_0046b000(D_00626720[idx]);
+                    recs->resources[idx] = sdkSpriteCreateFromName(D_00626720[idx]);
                 }
             } else if (func_0046a750(recs->resources[panel->index]) != 0) {
                 if (++panel->index == 0xC) {

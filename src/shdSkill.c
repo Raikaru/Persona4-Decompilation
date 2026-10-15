@@ -23,7 +23,7 @@ extern char D_005E4800[];
 extern char D_005E47F0[];
 u8 *func_00243840(s32 arg0);
 
-void func_0046d4c0(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8, f32 arg9, s32 arg10);
+void sdkSpriteDrawOnceTinted(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8, f32 arg9, s32 arg10);
 extern char D_005E5830[];
 extern char D_005E5850[];
 void func_002bc860(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
@@ -119,7 +119,7 @@ void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descript
     }
     if (data->flags != 0) {
         if (data->flags & 2) {
-            func_0046d4c0(0, (s32)texture, 2, position.x, position.y,
+            sdkSpriteDrawOnceTinted(0, (s32)texture, 2, position.x, position.y,
                           (255 - alpha) & 0xFF,
                           backgroundRed, backgroundGreen, backgroundBlue, scale, 0);
         }
@@ -146,24 +146,24 @@ void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descript
     if (firstCost != 0) {
         s32 inverseAlpha = 255 - textAlpha;
         while (firstCost > 0) {
-            func_0046d4c0(0, (s32)texture, firstCost % 10 + 9, digitX, digitY,
+            sdkSpriteDrawOnceTinted(0, (s32)texture, firstCost % 10 + 9, digitX, digitY,
                           inverseAlpha & 0xFF, numberRed, numberGreen, numberBlue, scale, 0);
             firstCost /= 10;
             digitX -= 16.0f;
         }
-        func_0046d4c0(0, (s32)texture, 86, 268.0f + position.x, 11.0f + baseY,
+        sdkSpriteDrawOnceTinted(0, (s32)texture, 86, 268.0f + position.x, 11.0f + baseY,
                       inverseAlpha, unitRed, unitGreen, unitBlue, scale, 0);
     } else {
         secondCost = (s32)data->data.fields.second;
         if (secondCost != 0) {
             s32 inverseAlpha = 255 - textAlpha;
             while (secondCost > 0) {
-                func_0046d4c0(0, (s32)texture, secondCost % 10 + 9, digitX, digitY,
+                sdkSpriteDrawOnceTinted(0, (s32)texture, secondCost % 10 + 9, digitX, digitY,
                               inverseAlpha & 0xFF, numberRed, numberGreen, numberBlue, scale, 0);
                 secondCost /= 10;
                 digitX -= 16.0f;
             }
-            func_0046d4c0(0, (s32)texture, 87, 268.0f + position.x, 11.0f + baseY,
+            sdkSpriteDrawOnceTinted(0, (s32)texture, 87, 268.0f + position.x, 11.0f + baseY,
                           inverseAlpha, unitRed, unitGreen, unitBlue, scale, 0);
         } else {
             f32 dashY;
@@ -173,7 +173,7 @@ void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descript
             index = 0;
             inverseAlpha = 255 - textAlpha;
             while (index < 4) {
-                func_0046d4c0(0, (s32)texture, 60, digitX, dashY,
+                sdkSpriteDrawOnceTinted(0, (s32)texture, 60, digitX, dashY,
                               inverseAlpha & 0xFF, unitRed, unitGreen, unitBlue, scale, 0);
                 digitX += 20.0f;
                 index++;
@@ -287,9 +287,9 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
     drawY = 304.0f + (baseY + (f32)(((s32)index % 4) * 25));
     position.y = drawY;
     inverseAlpha = 255 - opacity;
-    func_0046d4c0(0, (s32)texture, 90, position.x, drawY, inverseAlpha & 0xFF,
+    sdkSpriteDrawOnceTinted(0, (s32)texture, 90, position.x, drawY, inverseAlpha & 0xFF,
                   red, green, blue, scale, 0);
-    func_0046d4c0(0, (s32)texture, 91, 192.0f + position.x, drawY, inverseAlpha,
+    sdkSpriteDrawOnceTinted(0, (s32)texture, 91, 192.0f + position.x, drawY, inverseAlpha,
                   red, green, blue, scale, 0);
     if ((s32)index < *(u16 *)(state + 0x68)) {
         position.x += 96.0f;
@@ -392,15 +392,15 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
         position.x = firstColumn;
         position.y = 304.0f + baseY;
         inverseAlpha = 255 - drawAlpha;
-        func_0046d4c0(0, (s32)frameTexture, 58, firstColumn, position.y, inverseAlpha & 0xFF,
+        sdkSpriteDrawOnceTinted(0, (s32)frameTexture, 58, firstColumn, position.y, inverseAlpha & 0xFF,
                       255, 162, 0, scale, 0);
-        func_0046d4c0(0, (s32)frameTexture, 59, 192.0f + position.x, position.y, inverseAlpha,
+        sdkSpriteDrawOnceTinted(0, (s32)frameTexture, 59, 192.0f + position.x, position.y, inverseAlpha,
                       255, 162, 0, scale, 0);
         position.x = 422.0f + base.x;
         position.y = 310.0f + baseY;
-        func_0046d4c0(0, (s32)frameTexture, 60, position.x, position.y, inverseAlpha,
+        sdkSpriteDrawOnceTinted(0, (s32)frameTexture, 60, position.x, position.y, inverseAlpha,
                       255, 255, 129, scale, 0);
-        func_0046d4c0(0, (s32)helpTexture, 42, 76.0f + position.x, 4.0f + position.y, inverseAlpha,
+        sdkSpriteDrawOnceTinted(0, (s32)helpTexture, 42, 76.0f + position.x, 4.0f + position.y, inverseAlpha,
                       255, 255, 129, scale, 0);
         number = *(u16 *)(state + 0x1EC);
         if ((s32)number < 10) {
@@ -410,7 +410,7 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
         }
         position.y = 306.0f + baseY;
         do {
-            func_0046d4c0(0, (s32)helpTexture, (s32)number % 10 + 29, position.x, position.y,
+            sdkSpriteDrawOnceTinted(0, (s32)helpTexture, (s32)number % 10 + 29, position.x, position.y,
                           inverseAlpha, 255, 255, 129, scale, 0);
             number /= 10U;
             position.x -= 22.0f;
@@ -419,9 +419,9 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
         position.y = (f32)327 + baseY;
         alphaWord = alpha;
         inverseAlpha = 255 - alphaWord;
-        func_0046d4c0(0, (s32)panelTexture, 92, position.x, position.y, inverseAlpha & 0xFF,
+        sdkSpriteDrawOnceTinted(0, (s32)panelTexture, 92, position.x, position.y, inverseAlpha & 0xFF,
                       red, green, blue, scale, 0);
-        func_0046d4c0(0, (s32)panelTexture, 93, 182.0f + position.x, position.y, inverseAlpha,
+        sdkSpriteDrawOnceTinted(0, (s32)panelTexture, 93, 182.0f + position.x, position.y, inverseAlpha,
                       red, green, blue, scale, 0);
         index = 0;
         nameX = fGpffff8368 + base.x;
@@ -457,11 +457,11 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
             } else if (index < 7) {
                 position.x = firstColumn + (f32)((index - 1) * 33);
                 position.y = starsY;
-                func_0046d4c0(0, (s32)frameTexture, 69, position.x, starsY, inverseAlpha,
+                sdkSpriteDrawOnceTinted(0, (s32)frameTexture, 69, position.x, starsY, inverseAlpha,
                               255, 162, 0, scale, 0);
                 position.x += 5.0f;
                 position.y += 3.0f;
-                func_0046d4c0(0, (s32)frameTexture, 70, position.x, position.y, inverseAlpha,
+                sdkSpriteDrawOnceTinted(0, (s32)frameTexture, 70, position.x, position.y, inverseAlpha,
                               255, 255, 129, scale, 0);
             }
             index++;
@@ -532,7 +532,7 @@ void ShdSkill_DrawIcon(Vec2f arg0, f32 fparg0, Color4 arg1, u16 arg2, s32 arg3) 
 
     temp = ShdSkill_GetIconId(arg2);
     if (temp > 0) {
-        func_0046d4c0(0,
+        sdkSpriteDrawOnceTinted(0,
                       arg3,
                       temp,
                       arg0.x,
@@ -579,15 +579,15 @@ void ShdSkill_DrawSelectionFrame(Vec2f arg0, f32 fparg0, u8 arg1, u16 arg2) {
     y = arg0.y - 1.0f;
     temp_17 = arg1;
     temp_16 = 0xFF - temp_17;
-    func_0046d4c0(0, temp_2, 0x61, x, y, temp_16 & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
+    sdkSpriteDrawOnceTinted(0, temp_2, 0x61, x, y, temp_16 & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
     x = 393.0f + arg0.x;
     y = arg0.y - 1.0f;
     temp_16 = 0xFF - temp_17;
-    func_0046d4c0(0, temp_2, 0x60, x, y, temp_16 & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
+    sdkSpriteDrawOnceTinted(0, temp_2, 0x60, x, y, temp_16 & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
     x = arg0.x - 1.0f;
     y = arg0.y;
     temp_16 = 0xFF - temp_17;
-    func_0046d4c0(0, temp_2, 0x17, x, y, temp_16 & 0xFF, 0xFF, 0xA0, 0x0B, fparg0, 0);
+    sdkSpriteDrawOnceTinted(0, temp_2, 0x17, x, y, temp_16 & 0xFF, 0xFF, 0xA0, 0x0B, fparg0, 0);
     temp_7 = arg2;
     if (temp_7 != 0) {
         x = 62.0f + arg0.x;

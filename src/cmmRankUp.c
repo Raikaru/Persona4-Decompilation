@@ -765,7 +765,7 @@ s32 func_0025f3f0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4,
 s32 func_0025f430(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5);
 void func_0045dfd0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4);
 u8 *func_0046a770(char *a0);
-f32 func_0046b1f0(void *a0, s32 a1);
+f32 sdkSpriteEntryWidth(void *a0, s32 a1);
 void func_0025e9e0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, void *a3, s32 a4);
 u8 *func_00246830(u32 a0);
 
@@ -932,7 +932,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
             if (font == NULL) {
                 func_0046d730(D_00635CF8, 0x1E4);
             }
-            width = (s32)func_0046b1f0(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 0x20);
+            width = (s32)sdkSpriteEntryWidth(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 0x20);
             complement = 1.0f;
             complement -= value;
             offset = (s32)(450.0f * complement);
@@ -988,7 +988,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
             if (font == NULL) {
                 func_0046d730(D_00635CF8, 0x1E4);
             }
-            width = (s32)func_0046b1f0(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 0x20);
+            width = (s32)sdkSpriteEntryWidth(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 0x20);
             func_0025e9e0(
                 (f32)(299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255,
                 ((u8 *)func_002467b0((u32)relation & 0xFFFF))[8] + 0x20, font, 1);
@@ -1097,7 +1097,7 @@ s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
 void func_0045dfd0(void *, void *, f32, s32, s32, s32);
 u8 *func_0046a770(char *);
-f32 func_0046b1f0(void *, s32);
+f32 sdkSpriteEntryWidth(void *, s32);
 void func_0025e9e0(f32, f32, f32, s32, u8, s32, void *, s32);
 u8 *func_00246830(u32);
 
@@ -1331,7 +1331,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         }
         /* The width query and glyph lookup use signed and unsigned word
            masks respectively; this preserves both retail narrowing points. */
-        width = (s32)func_0046b1f0(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 32);
+        width = (s32)sdkSpriteEntryWidth(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 32);
         func_0025e9e0((f32)(299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255, ((u8 *)func_002467b0((u32)relation & 0xFFFF))[8] + 32, font, 1);
         func_0025f3f0(355.0f, 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
         frFontExDrawText(392.0f, 403.0f, 0.0f, -1, 0, 1,
@@ -1400,7 +1400,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         }
         /* The width query and glyph lookup use signed and unsigned word
            masks respectively; this preserves both retail narrowing points. */
-        width = (s32)func_0046b1f0(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 32);
+        width = (s32)sdkSpriteEntryWidth(font, ((u8 *)func_002467b0(relation & 0xFFFF))[8] + 32);
         origin = 500.0f;
         origin *= value;
         value = origin;

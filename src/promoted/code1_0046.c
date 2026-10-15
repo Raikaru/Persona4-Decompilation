@@ -78,7 +78,7 @@ extern void func_0046a340(u32 arg0);
 extern s32 D_00724BEC;
 extern s32 D_00724BF0;
 
-extern void func_0046ab90(u8 *arg0);
+extern void sdkSpriteLoadStep(u8 *arg0);
 extern u8 *D_00724C08;
 
 extern void func_0046d730(void *arg0, s32 arg1);
@@ -2999,7 +2999,7 @@ void func_0046ab40(void)
     u8 *attachment = D_00724C08;
 loop_1:
     if (attachment != NULL) {
-        func_0046ab90(attachment);
+        sdkSpriteLoadStep(attachment);
         attachment = *(u8 **)(attachment + 0x238);
         goto loop_1;
     }

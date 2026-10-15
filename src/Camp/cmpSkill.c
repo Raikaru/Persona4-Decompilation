@@ -38,7 +38,7 @@ u16 *datPersonaGetRecord(u16);
 u16 *datPersonaGetSkills(s32);
 void func_0010fa80(s32, s32, u16, s32, s32 *, s32, s32);
 void func_001437b0(void *, s32, s32);
-void func_0046d280(void *);
+void sdkSpriteFreeNode(void *);
 s32 func_0034c210(void);
 u32 RpRandom(void);
 s32 datCalcSkillElement(u8 *, u16);
@@ -63,7 +63,7 @@ extern u8 D_0064B2E8[];
 extern u8 D_0064B2EC[];
 extern u8 D_0064B2F4[];
 void *func_0046a770(char *);
-s32 func_0046d200(void *, u8);
+s32 sdkSpriteNewNode(void *, u8);
 s16 func_00353b50(void *);
 void func_0046d730(char *, s32);
 void memset(void *, s32, s32);
@@ -208,17 +208,17 @@ resolve_body:
         narrow.half = n;
         slot = (s32 *)(arg0 + narrow.half * 4 + 0x1244);
         asset_id = D_005ED750[narrow.half];
-        *slot = func_0046d200(asset0, asset_id);
+        *slot = sdkSpriteNewNode(asset0, asset_id);
     } else if (narrow.half < 0x3A) {
         narrow.half = n;
         slot = (s32 *)(arg0 + narrow.half * 4 + 0x1244);
         asset_id = D_005ED750[narrow.half];
-        *slot = func_0046d200(asset1, asset_id);
+        *slot = sdkSpriteNewNode(asset1, asset_id);
     } else {
         narrow.half = n;
         slot = (s32 *)(arg0 + narrow.half * 4 + 0x1244);
         asset_id = D_005ED750[narrow.half];
-        *slot = func_0046d200(asset2, asset_id);
+        *slot = sdkSpriteNewNode(asset2, asset_id);
     }
     if (*slot == 0) {
         func_0046d730(D_005ED9C0, 0x270);
@@ -1168,7 +1168,7 @@ void func_0013ab30(u8 *arg0)
     for (i = 0; i < 0x3C; i++) {
         slot = (s32 *)(arg0 + i * 4 + 0x1244);
         if (*slot != 0) {
-            func_0046d280((void *)*slot);
+            sdkSpriteFreeNode((void *)*slot);
             *slot = 0;
         }
     }

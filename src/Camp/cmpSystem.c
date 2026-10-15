@@ -20,7 +20,7 @@ s8 func_002bab80(void *);
 s32 func_003544f0(void);
 void memset(void *, s32, s32);
 void *func_0046a770(char *);
-s32 func_0046d200(void *, u8);
+s32 sdkSpriteNewNode(void *, u8);
 void func_0046d730(char *, s32);
 s32 func_0035fa20(u8 *, u32);
 
@@ -94,19 +94,19 @@ void func_0035f5b0(u8 *arg0)
         if (i4 < 0x25) {
             slot = (s32 *)(arg0 + i4 * 4 + 0x658);
             byte = D_0064E240[i4];
-            *slot = func_0046d200(spr1, byte);
+            *slot = sdkSpriteNewNode(spr1, byte);
         } else if (i4 < 0x28) {
             slot = (s32 *)(arg0 + i4 * 4 + 0x658);
             byte = D_0064E240[i4];
-            *slot = func_0046d200(spr2, byte);
+            *slot = sdkSpriteNewNode(spr2, byte);
         } else if (i4 < 0x29) {
             slot = (s32 *)(arg0 + i4 * 4 + 0x658);
             byte = D_0064E240[i4];
-            *slot = func_0046d200(spr3, byte);
+            *slot = sdkSpriteNewNode(spr3, byte);
         } else {
             slot = (s32 *)(arg0 + i4 * 4 + 0x658);
             byte = D_0064E240[i4];
-            *slot = func_0046d200(spr4, byte);
+            *slot = sdkSpriteNewNode(spr4, byte);
         }
         if (*slot == 0) {
             func_0046d730(D_0064E270, 0x171);
