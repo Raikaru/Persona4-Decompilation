@@ -3667,11 +3667,11 @@ block_215:
 /* The colour packers take byte channels through the shared interface: the
    alphas are u8 locals and retail passes them unmasked. func_00313ae0 is
    (s8 kind, u16 id) and widens the id once on entry. */
-// Fcl combine menu pair step (states 3-5): shared step for the pair-selection states; each advances to the next state.
+// Fcl combine menu material pick (states 3-5): picks the roster persona for material slot p[0x1A] (0-2), shows its detail with d-pad paging, and plays the cue; the 0x5C-0x5E path hands to the result handler (state 0x0D, sub-state 0xC5). Cancel returns to the menu root.
 // FUN_002F6CF0
 #pragma push
 #pragma opt_lifetimes on
-void fclCombineMenuPairStep(u8 *arg0) {
+void fclCombineMenuMaterialPick(u8 *arg0) {
     extern void func_00313800(s8);
     extern void func_00323d00(u8 *, s32, s8);
     extern s32 func_003139d0(s8, s8);
