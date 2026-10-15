@@ -230,7 +230,7 @@ block_9:
 /* measured: restore the unit default after btlEplUnitIsSelected. */
 #pragma opt_loop_invariants off
 // FUN_001FC4A0
-s32 *func_001fc4a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 *btlEplNewIdHandle(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *result;
 
     chkmemAllocSiteTag(D_00625230, 0xB1);
@@ -244,7 +244,7 @@ s32 *func_001fc4a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 }
 
 // FUN_001FC550
-s32 *func_001fc550(u8 *arg0) {
+s32 *btlEplNewIdHandleFromUnit(u8 *arg0) {
     s32 *field;
     s32 *result;
     s32 value;
@@ -261,7 +261,7 @@ s32 *func_001fc550(u8 *arg0) {
     return result;
 }
 // FUN_001FC5E0
-void func_001fc5e0(s32 *arg0) {
+void btlEplFreeIdHandle(s32 *arg0) {
     if (*arg0 != 0) {
         func_004abd60(*arg0);
     }
@@ -1005,7 +1005,7 @@ void func_001fec00(u8 *arg0)
     }
 }
 // FUN_001FF300
-s32 *func_001ff300(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 *btlEplNewWideIdHandle(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *result;
 
     chkmemAllocSiteTag(D_00625230, 0x429);
@@ -1019,7 +1019,7 @@ s32 *func_001ff300(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 }
 
 // FUN_001FF3B0
-s32 *func_001ff3b0(u8 *arg0) {
+s32 *btlEplNewWideIdHandleFromUnit(u8 *arg0) {
     s32 *field;
     s32 *result;
     s32 value;
@@ -1036,7 +1036,7 @@ s32 *func_001ff3b0(u8 *arg0) {
     return result;
 }
 // FUN_001FF440
-void func_001ff440(s32 *arg0) {
+void btlEplFreeWideIdHandle(s32 *arg0) {
     if (*arg0 != 0) {
         func_004abd60(*arg0);
     }
@@ -1285,7 +1285,7 @@ void btlEplUnitApplyMotion(u8 *arg0)
     }
 }
 // FUN_00200090
-s32 *func_00200090(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 *btlEplNewZeroedIdHandle(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *result;
 
     chkmemAllocSiteTag(D_00625230, 0x54D);
@@ -1300,7 +1300,7 @@ s32 *func_00200090(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 }
 
 // FUN_00200150
-s32 *func_00200150(u8 *arg0) {
+s32 *btlEplNewZeroedIdHandleFromUnit(u8 *arg0) {
     s32 *field;
     s32 *result;
     s32 value;
@@ -1319,7 +1319,7 @@ s32 *func_00200150(u8 *arg0) {
 }
 
 // FUN_002001E0
-void func_002001e0(s32 *arg0) {
+void btlEplFreeZeroedIdHandle(s32 *arg0) {
     if (*arg0 != 0) {
         func_004abd60(*arg0);
     }
@@ -1415,7 +1415,7 @@ void btlEplApplyScaleEffect(u8 *arg0) {
 }
 
 // FUN_00200550
-s32 *func_00200550(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 *btlEplNewPatternWork(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     BtlEplEplWork *result;
     s32 value;
     u32 rnd;
@@ -1438,7 +1438,7 @@ s32 *func_00200550(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 }
 
 // FUN_00200650
-s32 *func_00200650(u8 *arg0) {
+s32 *btlEplNewPatternWorkFromUnit(u8 *arg0) {
     s32 *field;
     BtlEplEplWork *result;
     s32 value;
