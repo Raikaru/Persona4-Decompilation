@@ -8026,10 +8026,10 @@ static inline void fclCombineStartFade(u8 *task)
 
 /* measured: the loop-invariant pragma hoists the slot-search id and count out of
    every inlined search, as retail does. */
-// Fcl combine menu closing (state 0x0D): starts the fade and releases the entries.
+// Fcl combine menu result (state 0x0D): tallies the slot outcome, shows the result text and cues, then hands off to skill pick (sub-state 0xA0) or finish (state 0x0E, sub-state 0xD2); the fade ends the sequence.
 // FUN_003097E0
 #pragma opt_loop_invariants on
-void fclCombineMenuClosing(u8 *arg0) {
+void fclCombineMenuResult(u8 *arg0) {
     extern void func_0034a640(s32, u16, s32);
     extern s32 func_0033f690(u8 *, u16 *, s32);
     extern s32 func_003488d0(u8 *, void *, s32);
