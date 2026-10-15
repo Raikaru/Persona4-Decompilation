@@ -631,7 +631,7 @@ u32 MT_Scene_SetResMotion(u16 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32
     }
     if (func_00479dd0(var_16, arg1, (s16)arg2) == 0) {
         func_0047a0e0(var_16, arg1, fparg0);
-        func_00479940((u8*)var_16, (u16)arg1, (s16)arg2, (u16)arg3, var_17 & 0xFFFF);
+        mdlDispatchAnimIfPresent((u8*)var_16, (u16)arg1, (s16)arg2, (u16)arg3, var_17 & 0xFFFF);
         if (arg5 > 0) {
             func_00479e60(var_16, arg1, (f32)arg5);
         }

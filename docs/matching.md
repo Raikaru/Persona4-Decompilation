@@ -4321,7 +4321,7 @@ preserves those real helper paths without introducing runtime calls.
 Both null-sub callback comparisons remain conjunctive: either sentinel
 suppresses the ordinary secondary seek.
 
-`func_00479940` matches **all 752 bytes**. Its validated dispatch helper
+`mdlDispatchAnimIfPresent` (was `func_00479940`) matches **all 752 bytes**. Its validated dispatch helper
 retains base-matrix preparation, layer dispatch, attached-animation flags
 and the five-child traversal. The matrix copy is a complete `RwMatrix`
 assignment; identity fallback preserves padding and ORs the existing flags.
@@ -4335,7 +4335,7 @@ instead of inserting narrowing at dispatch's call site. No register
 parameters or incompatible function-pointer casts are needed.
 
 Live dispatch declarations use one contract:
-`s32 func_00479940(u8*, u32, s32, s32, s32)`.
+`s32 mdlDispatchAnimIfPresent(u8*, u32, s32, s32, s32)` (was `func_00479940`).
 The caller migration preserves explicit masks already present in source
 and replaces integer-address arguments with explicit pointer casts.
 Generated reference archives are not live callers.

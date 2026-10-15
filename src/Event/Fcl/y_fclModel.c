@@ -385,7 +385,7 @@ s32 func_00349c50(u8 *arg0)
     case 2:
         if (func_004782b0(*(u8 **)(obj + 0xC)) != 0) {
             if (*(s8 *)(obj + 0x28) == 1) {
-                func_00479940(*(u8 **)(obj + 0xC), 0, 0, 0, 1);
+                mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, 0, 0, 1);
             } else {
                 *(s8 *)(obj + 4) = 0;
             }
@@ -423,11 +423,11 @@ s32 func_00349c50(u8 *arg0)
                         if (a == 0x16) {
                             FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
                             s16 an = tbl[a].field_6;
-                            func_00479940(*(u8 **)(obj + 0xC), 0, an, 0, 0);
+                            mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, an, 0, 0);
                         } else {
                             FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
                             s16 an = tbl[a].field_6;
-                            func_00479940(*(u8 **)(obj + 0xC), 0, an, 10, 0);
+                            mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, an, 10, 0);
                         }
                     }
                     *(s8 *)(obj + 4) = 1;
@@ -480,11 +480,11 @@ s32 func_00349c50(u8 *arg0)
                     {
                         u8 *mdl = *(u8 **)(obj + 0xC);
                         if (*(u8 *)(mdl + 0xEE) == 1) {
-                            func_00479940(mdl, 0, 0, 30, 1);
+                            mdlDispatchAnimIfPresent(mdl, 0, 0, 30, 1);
                             *(s8 *)(obj + 5) = 0;
                             *(s8 *)(obj + 4) = 4;
                         } else if ((f32)func_00285b30() >= 700.0f) {
-                            func_00479940(*(u8 **)(obj + 0xC), 0, 0, 30, 1);
+                            mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, 0, 30, 1);
                             *(s8 *)(obj + 5) = 0;
                             *(s8 *)(obj + 4) = 4;
                         }

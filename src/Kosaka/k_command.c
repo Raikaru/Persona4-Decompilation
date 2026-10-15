@@ -120,11 +120,11 @@ s32 Cmd_PlayModelMotion(void)
         {
             if (x != 0)
             {
-                func_00479940((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 1);
+                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 1);
             }
             else
             {
-                func_00479940((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 0);
+                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 0);
             }
             func_0047a0e0(*(s32*)(p + 0x164), 0, g);
         }
@@ -137,11 +137,11 @@ s32 Cmd_PlayModelMotion(void)
         {
             if (x != 0)
             {
-                func_00479940((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 1);
+                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 1);
             }
             else
             {
-                func_00479940((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 0);
+                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 0);
             }
             func_0047a0e0(*(s32*)(p + 0x164), 0, g);
         }
@@ -154,11 +154,11 @@ s32 Cmd_PlayModelMotion(void)
         {
             if (x != 0)
             {
-                func_00479940((u8*)*(s32*)(p + 0x144), 0, (s16)w, (u16)iv, 1);
+                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x144), 0, (s16)w, (u16)iv, 1);
             }
             else
             {
-                func_00479940((u8*)*(s32*)(p + 0x144), 0, (s16)w, (u16)iv, 0);
+                mdlDispatchAnimIfPresent((u8*)*(s32*)(p + 0x144), 0, (s16)w, (u16)iv, 0);
             }
             func_0047a0e0(*(s32*)(p + 0x144), 0, g);
         }
@@ -594,7 +594,7 @@ s32 Cmd_CreateFieldModel(void)
             vec[2] = KDraw_MatrixRollDeg(p2);
             MT_Scene_SetResPlacement(flag & 0xFFFF, (u8*)(p2 + 0x30), (u8 *)&vec);
             func_0047a1c0(v, p2, 0);
-            func_00479940((u8*)v, 0, 0, 8, 1);
+            mdlDispatchAnimIfPresent((u8*)v, 0, 0, 8, 1);
         }
         if (tmp == 1)
         {

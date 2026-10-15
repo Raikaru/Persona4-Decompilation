@@ -533,7 +533,7 @@ void FldUnit_UpdateFacing(void)
                         fieldUnitLayerAt(unit, layerIndex)->flags |= 1;
                     }
                 }
-                func_00479940((u8 *)*characterModel, 0,
+                mdlDispatchAnimIfPresent((u8 *)*characterModel, 0,
                               func_0016fd00(fieldUnitSlotAt(&partyIndex)->characterId), 0, 1);
             }
         } else {
@@ -568,7 +568,7 @@ void FldUnit_UpdateFacing(void)
                 FldFrameTask_Rotate((*sceneResource)->movementTask, D_00756510,
                     90.0f * (f32)((((FieldUnitGridView *)(u32)gridRow)->cells[
                         ((FieldUnitGridView *)func_00155280())->spawnColumn].direction + 2) % 4));
-                func_00479940((u8 *)*characterModel, 0,
+                mdlDispatchAnimIfPresent((u8 *)*characterModel, 0,
                               func_0016fd00(unitForSetup->characterId), 0, 1);
                 *formationMatrix = *(FieldUnitMatrix *)mdlGetMatrix(
                     (*(FieldUnitSceneResource **)D_007EFA04)->model);
@@ -858,7 +858,7 @@ s32 FldUnit_SetupSlot(s32 arg0)
     mode = 3;
   }
   *((s32 *) (temp_16 + 0x54)) = (s32) MT_Scene_GetRes(func_00145540((arg0 + 0x64) & 0xFFFF, mode, *((u8 **) (temp_16 + 0x50))) & 0xFFFF);
-  func_00479940(*((u8 **) (temp_16 + 0x50)), 0, 0, 0x10, 1);
+  mdlDispatchAnimIfPresent(*((u8 **) (temp_16 + 0x50)), 0, 0, 0x10, 1);
   func_0047aa30(*((u8 **) (temp_16 + 0x50)), D_005DC920);
   temp_2 = (*((s32 *) (temp_16 + 0x1C0))) - func_0014c780();
   if (temp_2 < (-3))
@@ -1561,7 +1561,7 @@ void FldUnit_UpdateSlot(s32 arg0)
         mdlScale((Model *)(*(u8 **)(*temp_20_2 + 0x228)), (const RwV3d *)(&sp70[0]), 2);
         func_00478e70(*(u8 **)(*temp_20_2 + 0x228));
         if (datUnitGroupIsDefeated(*temp_21) == 0) {
-            func_00479940(*temp_16, 0, (s16)func_0016fd00(*(u16 *)(D_007F00D8 + (arg0 * 0x750))), 0, 1);
+            mdlDispatchAnimIfPresent(*temp_16, 0, (s16)func_0016fd00(*(u16 *)(D_007F00D8 + (arg0 * 0x750))), 0, 1);
         }
         if (arg0 != 0) {
             stride = 0x750;
@@ -2060,9 +2060,9 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
         func_0047a1a0(*(u8 **)(temp_2 + 0x144), D_00756510, *(f32 *)(arg1 + 0x14C), 2);
         func_0047a180((RwMatrix *)*(u8 **)(temp_2 + 0x144), (const RwV3d *)(arg1 + 0x140), 2);
         if (*(s32 *)(arg0 + 8) != 0) {
-            func_00479940(*(u8 **)(temp_2 + 0x144), 0, 2, 0, 0);
+            mdlDispatchAnimIfPresent(*(u8 **)(temp_2 + 0x144), 0, 2, 0, 0);
         } else if (temp_17 == 1) {
-            func_00479940(*(u8 **)(temp_2 + 0x144), 0, 3, 0, 0);
+            mdlDispatchAnimIfPresent(*(u8 **)(temp_2 + 0x144), 0, 3, 0, 0);
         }
         temp_3 = *(u8 **)(temp_2 + 0x144);
         *(s32 *)(temp_3 + 0xD8) |= 0x80;

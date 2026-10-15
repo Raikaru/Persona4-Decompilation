@@ -1552,7 +1552,7 @@ void func_004abbb0(u8 *arg0)
 {
     func_0047a2a0(arg0);
     if (func_00479ca0(arg0, 0) != 0) {
-        func_00479940(arg0, 0, 0, 0, 0);
+        mdlDispatchAnimIfPresent(arg0, 0, 0, 0, 0);
         func_0047a0e0(arg0, 0, 1.0f);
     }
     *(s32 *)(arg0 + 0xD8) &= ~2;
@@ -1578,7 +1578,7 @@ loop_004abc50_check:
     temp_2 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, arg0, (u32)arg1, 1);
     func_0047a2a0(temp_2);
     if (func_00479ca0(temp_2, 0) != 0) {
-        func_00479940(temp_2, 0, 0, 0, 0);
+        mdlDispatchAnimIfPresent(temp_2, 0, 0, 0, 0);
         func_0047a0e0(temp_2, 0, 1.0f);
     }
     *(s32 *)(temp_2 + 0xD8) &= ~2;

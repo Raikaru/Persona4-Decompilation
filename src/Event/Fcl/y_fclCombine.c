@@ -10179,7 +10179,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
             q = MT_Scene_GetResListHead(3);
             while (q != 0) {
                 if ((*(u16 *)q & 0x3FF) == 0x38) {
-                    func_00479940((u8*)*(u32 *)(q + 0x164), 0, 0xD, 0, 1);
+                    mdlDispatchAnimIfPresent((u8*)*(u32 *)(q + 0x164), 0, 0xD, 0, 1);
                 }
                 q = *(u8 **)(q + 0x138);
             }

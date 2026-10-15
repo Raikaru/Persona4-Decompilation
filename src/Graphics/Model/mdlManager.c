@@ -4218,7 +4218,7 @@ void func_00477ca0(u8* arg0)
     }
     if (func_00479ca0(arg0, 0) != 0) {
         mdlAttachSlotHierarchy(arg0 + 0xEC, *(void**)(arg0 + 0xDC), 1);
-        func_00479940(arg0, 0, 0, 0, 1);
+        mdlDispatchAnimIfPresent(arg0, 0, 0, 0, 1);
         for (var_17 = (u64)1; (var_17 & 0xFFFF) < 2; var_17++) {
             temp_16 = entries[var_17];
             if (*(s32*)(temp_16 + 0x120) != 0) {
@@ -4584,7 +4584,7 @@ void func_00478410(u8* source, u8* destination)
     if (*(void**)(source + 0x2d0) != 0)
         func_0047ea40(destination + 0x2d0, source + 0x2d0);
     if (func_00479ca0(destination, 0) != 0)
-        func_00479940(destination, 0, 0, 0, 1);
+        mdlDispatchAnimIfPresent(destination, 0, 0, 0, 1);
 }
 // FUN_00478750
 u32* func_00478750(u8* param_1)
@@ -5154,14 +5154,15 @@ static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s16 animation, u16
             if (*(u8*)(slot + 0x28c) & 1) {
                 child = (void**)(slot + 0x290);
                 if (*child && func_0047ae90(mdl, i))
-                    func_00479940(*child, 0, animation, frame, flags);
+                    mdlDispatchAnimIfPresent(*child, 0, animation, frame, flags);
             }
         }
     }
 }
 #pragma opt_common_subs on
+/* Dispatches the animation through mdl_dispatch_animation when func_00479d10 reports the layer present, and always returns 1. The presence test is not yet named. */
 // FUN_00479940
-s32 func_00479940(u8* mdl, u32 layer, s16 animation, u16 frame, s32 flags)
+s32 mdlDispatchAnimIfPresent(u8* mdl, u32 layer, s16 animation, u16 frame, s32 flags)
 {
     if (func_00479d10(mdl, layer, animation))
         mdl_dispatch_animation(mdl, layer, animation, frame, flags);

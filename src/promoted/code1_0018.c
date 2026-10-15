@@ -2431,7 +2431,7 @@ s32 func_0018a200(u8 *param_1)
       }
       initialAnimationObject = (FldActorObject *)puVar1[3];
       initialAnimationId = *(s16 *)(initialAnimationObject->kind1Data + 6);
-      func_00479940(initialAnimationObject->model, 0, initialAnimationId, 0, 1);
+      mdlDispatchAnimIfPresent(initialAnimationObject->model, 0, initialAnimationId, 0, 1);
     }
     else if (objectKind == 2) {
       temp_v5 = *(unsigned int *)(*(int *)(temp_v5 + 0x284) + 0x78);
@@ -2470,7 +2470,7 @@ s32 func_0018a200(u8 *param_1)
       }
       initialAnimationObject = (FldActorObject *)puVar1[3];
       initialAnimationId = *(s16 *)(initialAnimationObject->kind2Data + 0x6c);
-      func_00479940(initialAnimationObject->model, 0, initialAnimationId, 0, 1);
+      mdlDispatchAnimIfPresent(initialAnimationObject->model, 0, initialAnimationId, 0, 1);
     }
     initialPathObject = (FldActorObject *)puVar1[3];
     if (initialPathObject->pointCount < 4) {
@@ -2500,7 +2500,7 @@ s32 func_0018a200(u8 *param_1)
                (initialPathObject->speed / temp_v13);
       ((float*)puVar1)[7] = temp_v13;
       ((float*)puVar1)[6] = (((float*)puVar1)[6] + temp_v13);
-      func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
+      mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
       func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, *(f32 *)((u32)puVar1 + 0x18), &vecD0[0], 0);
       temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
       *(FldCopyVec *)vecC0 = *(FldCopyVec *)(temp_v4 + 0x30);
@@ -2571,21 +2571,21 @@ s32 func_0018a200(u8 *param_1)
           temp_v5 = puVar1[3];
           updateAnimationKind = ((FldActorObject *)temp_v5)->kind;
           if (updateAnimationKind == 1) {
-            func_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x280) + 6),4
+            mdlDispatchAnimIfPresent(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x280) + 6),4
                           ,1);
             break;
           }
           if (updateAnimationKind != 2) {
             break;
           }
-          func_00479940(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x284) + 0x6c),
+          mdlDispatchAnimIfPresent(*(unsigned char **)(temp_v5 + 0x164),0,(int)*(short *)(*(int *)(temp_v5 + 0x284) + 0x6c),
                         4,1);
           break;
         }
       }
       savedAnimation = puVar1[0xb];
       if (savedAnimation >= 0) {
-        func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,(s16)savedAnimation,4,1);
+        mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,(s16)savedAnimation,4,1);
         puVar1[0xb] = 0xffffffff;
       }
       temp_v5 = puVar1[3];
@@ -2600,7 +2600,7 @@ s32 func_0018a200(u8 *param_1)
         FldActorWork *pathWork;
         if (((movementMode != 4) || ((float *)puVar1)[6] != 1.0f) &&
             (temp_v3 = func_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
-          func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
+          mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
         }
         func_003bb5b0((void *)(u32)*(u32 *)(puVar1[3] + 0x360), 10, ((f32 *)puVar1)[6], &vecF0[0], 0);
         temp_v4 = func_0047a2f0(*(unsigned int *)(puVar1[3] + 0x164));
@@ -2639,7 +2639,7 @@ s32 func_0018a200(u8 *param_1)
         if (*(unsigned short *)(puVar1[3] + 0x220) == 4) {
           if (!(pathWork->progress <= 1.0f)) {
             pathWork->progress = 1.0f;
-            func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
+            mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
           }
         }
         else if (!(pathWork->progress <= 1.0f)) {
@@ -2654,7 +2654,7 @@ s32 func_0018a200(u8 *param_1)
           puVar1[10] = temp_v11_s3 - 1;
         } else {
           if ((temp_v11_s3 == 0) && (temp_v3 = func_00479c30(*(int *)(temp_v5 + 0x164),0), temp_v3 != 1)) {
-            func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
+            mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,1,4,1);
           }
           if ((int)puVar1[9] > 0) {
             FldFrameTask_Rotate(*(unsigned char **)(puVar1[3] + 0x228), D_00756510, 2.0f);
@@ -2706,7 +2706,7 @@ s32 func_0018a200(u8 *param_1)
                 puVar1[9] = 0x5a;
                 pauseRoll = RpRandom();
                 puVar1[10] = pauseRoll % 0x5a + 0x3c;
-                func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
+                mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
               }
             }
             else if (motionWork->progress < zero) {
@@ -2715,7 +2715,7 @@ s32 func_0018a200(u8 *param_1)
               puVar1[9] = 0x5a;
               pauseRoll = RpRandom();
               puVar1[10] = pauseRoll % 0x5a + 0x3c;
-              func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
+              mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
             }
             }
           }
@@ -2760,11 +2760,11 @@ s32 func_0018a200(u8 *param_1)
     }
     if (temp_v13 == 1.0f) {
       if (*puVar1 == 5) {
-        func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,3,8,0);
+        mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,3,8,0);
         *puVar1 = 7;
       }
       else {
-        func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
+        mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
         *puVar1 = 4;
       }
     }
@@ -2773,7 +2773,7 @@ s32 func_0018a200(u8 *param_1)
     finalModel = ((FldActorObject *)puVar1[3])->model;
     if (finalModel[0xee] == 1 &&
        (temp_v3 = func_00479c30((s32)finalModel,0), temp_v3 != 0)) {
-      func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
+      mdlDispatchAnimIfPresent(*(unsigned char **)(puVar1[3] + 0x164),0,0,8,1);
     }
   
   case 8:
@@ -2882,12 +2882,11 @@ void func_0018bc20(u8 *arg0)
                 *(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164), 0);
         target = *(void **)(*(u8 **)(temp_16 + 0xC) + 0x164);
         zero = 0;
-        func_00479940(target, zero, 1, 4, 1);
+        mdlDispatchAnimIfPresent(target, zero, 1, 4, 1);
         *(s32 *)temp_16 = 5;
         return;
     }
-    func_00479940(
-        *(void **)(*(u8 **)(temp_16 + 0xC) + 0x164), 0, 3, 8, 0);
+    mdlDispatchAnimIfPresent(*(void **)(*(u8 **)(temp_16 + 0xC) + 0x164), 0, 3, 8, 0);
     *(s32 *)temp_16 = 7;
 }
 #pragma pop
@@ -2928,11 +2927,11 @@ void func_0018bdd0(u8 *arg0)
         *(struct Direction *)(temp_16 + 0x3C) = *(struct Direction *)(temp_16 + 0x30);
         target = *(u8 **)(*(u8 **)(temp_16 + 0xC) + 0x164);
         zero = 0;
-        func_00479940(target, zero, 1, 4, 1);
+        mdlDispatchAnimIfPresent(target, zero, 1, 4, 1);
         *(s32 *)temp_16 = 6;
         return;
     }
-    func_00479940(*(u8 **)(*(u8 **)(temp_16 + 0xC) + 0x164),
+    mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(temp_16 + 0xC) + 0x164),
                   0, 0, 8, 1);
     *(s32 *)temp_16 = 4;
 }

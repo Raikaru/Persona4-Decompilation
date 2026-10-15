@@ -1652,7 +1652,7 @@ s32 FldResource_TryInstallEntries(u8 *arg0)
             if (*(u16 *)(arg0 + j * 0x18 + 0x122) & 1) {
                 func_0047a0e0(*(void **)(arg0 + j * 0x18 + 0x12C), 0, 0.0f);
             } else {
-                func_00479940(*(void **)(arg0 + j * 0x18 + 0x12C), 0, 0, 8, 1);
+                mdlDispatchAnimIfPresent(*(void **)(arg0 + j * 0x18 + 0x12C), 0, 0, 8, 1);
             }
         } else if (*(u16 *)(arg0 + j * 0x18 + 0x120) == 1) {
             if (iGpffffb204 == 0) {

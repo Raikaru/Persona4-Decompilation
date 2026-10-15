@@ -670,7 +670,7 @@ void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4)
         if ((*(u16 *)(arg0 + 0x9D8) & 0x40) != 0) {
             v11 = 27;
         }
-        func_00479940(*(u8 **)(arg0 + 0xA00), 0, (s32)(s16)v11, arg2, v12);
+        mdlDispatchAnimIfPresent(*(u8 **)(arg0 + 0xA00), 0, (s32)(s16)v11, arg2, v12);
         func_0047a0e0(*(u8 **)(arg0 + 0xA00), 0, *(f32 *)(arg0 + 0x9E0));
         sp = (s16 *)func_0019eda0(arg0, a1m);
         *(f32 *)(arg0 + 0x80) = (f32)sp[0];
