@@ -100,8 +100,8 @@ extern s32 func_0025e8f0(s32 arg0);
 extern s32 mcIconTaskCreate(u8 *arg0, s32 arg1);
 extern s32 func_002aa3f0(void);
 extern s32 func_0012dea0(u8 *arg0, s32 arg1);
-extern void func_0046d280(void *node);
-extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
+extern void sdkSpriteFreeNode(void *node);
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
 extern s32 func_0034c210(void);
 
@@ -192,7 +192,7 @@ extern void func_004598e0(s32 arg0);
 extern void func_004787e0(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s16 func_00353b50(void *arg0);
-extern u8 *func_0046d200(u32 sprites, u32 index);
+extern u8 *sdkSpriteNewNode(u32 sprites, u32 index);
 extern u8 D_005E5F40[];
 extern u8 D_005E7670[];
 extern u8 D_005E5830[];
@@ -229,8 +229,8 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     extern u16 func_00104dc0(s16 unit);
     extern u32 func_00104d50(s16 unit);
     extern u16 func_00104e30(s16 unit);
-    extern void func_0046d4c0(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, u8 red, u8 green, u8 blue, f32 depth, s32 flags);
-    extern void func_0046d2b0(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, f32 depth, s32 flags);
+    extern void sdkSpriteDrawOnceTinted(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, u8 red, u8 green, u8 blue, f32 depth, s32 flags);
+    extern void sdkSpriteDrawOnce(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, f32 depth, s32 flags);
     extern void func_0045d6e0(void *color, void *rectangle, f32 depth, s32 mode);
     extern u8 D_005E5830[];
     extern u8 D_005E5850[];
@@ -319,7 +319,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
         hpY = 27.0f;
         hpY += origin.y;
         point.y = hpY;
-        func_0046d4c0(0, helpSprites, 0x3D, hpMarkerX, hpY, (0xFF - alpha) & 0xFF, 0xFF, 0xA2, 0, depth, 0);
+        sdkSpriteDrawOnceTinted(0, helpSprites, 0x3D, hpMarkerX, hpY, (0xFF - alpha) & 0xFF, 0xFF, 0xA2, 0, depth, 0);
         point.x = 103.0f + origin.x;
         point.y = hpY;
         maxHpNumber = func_00104dc0(unit) & 0xFFFF;
@@ -337,8 +337,8 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     alpha = (u8)opacity;
     alpha = 0xFF - alpha;
     hpY = point.y;
-    func_0046d2b0(0, panelSprites, 0x4B, point.x, hpY, (u8)alpha, depth, 0);
-    func_0046d2b0(0, panelSprites, 0x4C, point.x, hpY, alpha & 0xFF, depth, 0);
+    sdkSpriteDrawOnce(0, panelSprites, 0x4B, point.x, hpY, (u8)alpha, depth, 0);
+    sdkSpriteDrawOnce(0, panelSprites, 0x4C, point.x, hpY, alpha & 0xFF, depth, 0);
     currentHp = func_00104ce0(unit) & 0xFFFF;
     maximumHp = func_00104dc0(unit) & 0xFFFF;
     missingHpWidth = (s32)((maximumHp - (currentHp & 0xFFFF)) * 0x58) / maximumHp;
@@ -359,7 +359,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
         spY = 43.0f;
         spY += origin.y;
         point.y = spY;
-        func_0046d4c0(0, helpSprites, 0x3D, spMarkerX, spY, (u32)alpha & 0xFFU, 0xFF, 0xA2, 0, depth, 0);
+        sdkSpriteDrawOnceTinted(0, helpSprites, 0x3D, spMarkerX, spY, (u32)alpha & 0xFFU, 0xFF, 0xA2, 0, depth, 0);
         point.x = 103.0f + origin.x;
         point.y = spY;
         maxSpNumber = func_00104e30(unit) & 0xFFFF;
@@ -377,8 +377,8 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     alpha = (u32)opacity & 0xFFU;
     alpha = 0xFFU - (u32)alpha;
     spY = point.y;
-    func_0046d2b0(0, panelSprites, 0x4B, point.x, spY, (u8)alpha, depth, 0);
-    func_0046d2b0(0, panelSprites, 0x4D, point.x, spY, alpha & 0xFF, depth, 0);
+    sdkSpriteDrawOnce(0, panelSprites, 0x4B, point.x, spY, (u8)alpha, depth, 0);
+    sdkSpriteDrawOnce(0, panelSprites, 0x4D, point.x, spY, alpha & 0xFF, depth, 0);
     {
         s32 currentSp = func_00104d50(unit) & 0xFFFF;
         s32 maximumSp = func_00104e30(unit) & 0xFFFF;
@@ -410,7 +410,7 @@ void func_00120ae0(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 s
     alpha = 0xFF;
     alpha -= color.b[3];
     do {
-        func_0046d4c0(0, panelSprites, (remaining % 10U) + 9,
+        sdkSpriteDrawOnceTinted(0, panelSprites, (remaining % 10U) + 9,
                       position.x, position.y,
                       alpha & 0xFF, color.b[0], green,
                       blue, depth, 0);
@@ -963,9 +963,9 @@ void func_00122a40(void *unusedNode, void *work)
 {
     extern s32 (*D_00887304[])(RwRenderState state, void *value);
     extern s32 (*D_00887300[])(RwRenderState state, void *value);
-    extern void func_0046d3b0(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 shadowAlpha, u8 alpha, f32 depth, s32 flags);
-    extern f32 func_0046b2f0(u8 *sprite);
-    extern void func_0046b380(u8 *sprite, s32 flags);
+    extern void sdkSpriteDrawOnceAux(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 shadowAlpha, u8 alpha, f32 depth, s32 flags);
+    extern f32 sdkSpriteScaledHeight(u8 *sprite);
+    extern void sdkSpriteDraw(u8 *sprite, s32 flags);
     extern void func_001104d0(s32 date, s32 *month, s32 *day);
     extern s32 func_00110580(s32 date);
     extern s32 func_00110d30(s32 date);
@@ -1035,17 +1035,17 @@ void func_00122a40(void *unusedNode, void *work)
         }
         progress = (elapsed * 0x90) / duration;
         xOffset = (f32)0x23E;
-        func_0046d3b0(0, calendar->field_110, 0x25, xOffset + calendar->records[0].field_10, calendar->records[0].field_14, 0, (0xFF - calendar->records[0].field_1A) & 0xFF, 0.0f, 1);
+        sdkSpriteDrawOnceAux(0, calendar->field_110, 0x25, xOffset + calendar->records[0].field_10, calendar->records[0].field_14, 0, (0xFF - calendar->records[0].field_1A) & 0xFF, 0.0f, 1);
         if (calendar->field_18 != 0) {
             if (calendar->field_1C == 0) {
-                sprite = (u8 *)func_0046d200((u32)calendar->field_110, 0x1D);
+                sprite = (u8 *)sdkSpriteNewNode((u32)calendar->field_110, 0x1D);
             } else {
-                sprite = (u8 *)func_0046d200((u32)calendar->field_110, 0x1E);
+                sprite = (u8 *)sdkSpriteNewNode((u32)calendar->field_110, 0x1E);
             }
         } else if ((func_0015a160() == 0) && (evtHasTaskHandle() == 0)) {
-            sprite = (u8 *)func_0046d200((u32)calendar->field_110, 0x1D);
+            sprite = (u8 *)sdkSpriteNewNode((u32)calendar->field_110, 0x1D);
         } else {
-            sprite = (u8 *)func_0046d200((u32)calendar->field_110, 0x1E);
+            sprite = (u8 *)sdkSpriteNewNode((u32)calendar->field_110, 0x1E);
         }
         *(s32 *)(sprite + 0x24) = 0;
         backgroundX = (f32)0x223;
@@ -1055,39 +1055,39 @@ void func_00122a40(void *unusedNode, void *work)
         *(s16 *)(sprite + 0x1C) = 0x50;
         *(s16 *)(sprite + 0x1E) = 0x2D;
         *(f32 *)(sprite + 0x18) = (f32)(0x90 - progress);
-        func_0046b380(sprite, 1);
+        sdkSpriteDraw(sprite, 1);
         /* Preserve the forwarded word before releasing the temporary sprite. */
         parent = (s32)sprite;
-        func_0046d280(sprite);
+        sdkSpriteFreeNode(sprite);
     }
     if ((calendar->field_0C & 2) != 0) {
         func_001104d0(calendar->daysSinceApr5, &month, &day);
         value = (s32)calendar->records[2].field_10;
-        func_0046d4c0(parent, calendar->field_110, 7, (f32)(value + 0x1C2), 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
-        func_0046d4c0(parent, calendar->field_110, 8, (f32)(value + 0x246), 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
+        sdkSpriteDrawOnceTinted(parent, calendar->field_110, 7, (f32)(value + 0x1C2), 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
+        sdkSpriteDrawOnceTinted(parent, calendar->field_110, 8, (f32)(value + 0x246), 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
         value = month / 10 + 9;
         xOffset = (f32)0x1CF;
         xOffset += calendar->records[2].field_10;
-        func_0046d3b0(parent, calendar->field_110, value, 14.0f + xOffset, 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
-        func_0046d3b0(parent, calendar->field_110, month % 10 + 9, 14.0f + (476.0f + calendar->records[2].field_10), 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
-        func_0046d3b0(parent, calendar->field_110, 0x13, 14.0f + (490.0f + calendar->records[2].field_10), 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
-        func_0046d3b0(parent, calendar->field_110, day / 10 + 9, 14.0f + (500.0f + calendar->records[2].field_10), 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
+        sdkSpriteDrawOnceAux(parent, calendar->field_110, value, 14.0f + xOffset, 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
+        sdkSpriteDrawOnceAux(parent, calendar->field_110, month % 10 + 9, 14.0f + (476.0f + calendar->records[2].field_10), 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
+        sdkSpriteDrawOnceAux(parent, calendar->field_110, 0x13, 14.0f + (490.0f + calendar->records[2].field_10), 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
+        sdkSpriteDrawOnceAux(parent, calendar->field_110, day / 10 + 9, 14.0f + (500.0f + calendar->records[2].field_10), 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
         value = day % 10 + 9;
         xOffset = (f32)0x201;
         xOffset += calendar->records[2].field_10;
-        func_0046d3b0(parent, calendar->field_110, value, 14.0f + xOffset, 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
+        sdkSpriteDrawOnceAux(parent, calendar->field_110, value, 14.0f + xOffset, 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
         if (func_00110d30(calendar->daysSinceApr5) != 0) {
             value = func_00110580(calendar->daysSinceApr5);
             xOffset = (f32)0x219;
-            func_0046d4c0(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0xFF, 0xAC, 0x99, 0.0f, 1);
+            sdkSpriteDrawOnceTinted(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0xFF, 0xAC, 0x99, 0.0f, 1);
         } else if (func_00110580(calendar->daysSinceApr5) == 6) {
             value = func_00110580(calendar->daysSinceApr5);
             xOffset = (f32)0x219;
-            func_0046d4c0(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x99, 0xA4, 0xFF, 0.0f, 1);
+            sdkSpriteDrawOnceTinted(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x99, 0xA4, 0xFF, 0.0f, 1);
         } else {
             value = func_00110580(calendar->daysSinceApr5);
             xOffset = (f32)0x219;
-            func_0046d4c0(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0xFF, 0xFF, 0xFF, 0.0f, 1);
+            sdkSpriteDrawOnceTinted(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0xFF, 0xFF, 0xFF, 0.0f, 1);
         }
         startFrame = calendar->records[3].field_28;
         value = calendar->field_10;
@@ -1132,38 +1132,38 @@ void func_00122a40(void *unusedNode, void *work)
                     break;
                 }
         }
-        sprite = (u8 *)func_0046d200((u32)calendar->field_110, spriteIndex);
+        sprite = (u8 *)sdkSpriteNewNode((u32)calendar->field_110, spriteIndex);
         *(s32 *)(sprite + 0x24) = 0;
         *(f32 *)(sprite + 8) = 552.0f + calendar->records[3].field_10;
         *(f32 *)(sprite + 0xC) = 31.0f + calendar->records[3].field_14;
         *(s8 *)(sprite + 0x10) = (s8)(0xFF - calendar->records[3].field_1A);
-        height = (s32)func_0046b2f0(sprite);
+        height = (s32)sdkSpriteScaledHeight(sprite);
         *(s16 *)(sprite + 0x20) = 0xFF6;
         *(s16 *)(sprite + 0x22) = (s16)progress;
-        value = (s32)(func_0046b2f0(sprite) / 2.0f + (f32)(height / 2));
+        value = (s32)(sdkSpriteScaledHeight(sprite) / 2.0f + (f32)(height / 2));
         yOffset = 31.0f + calendar->records[3].field_14;
         yOffset -= (f32)value;
         *(f32 *)(sprite + 0xC) = (f32)height + yOffset;
-        func_0046b380(sprite, 1);
+        sdkSpriteDraw(sprite, 1);
         /* Preserve the forwarded word before releasing the temporary sprite. */
         parent = (s32)sprite;
-        func_0046d280(sprite);
+        sdkSpriteFreeNode(sprite);
     }
     if ((calendar->field_0C & 4) != 0) {
         if (calendar->field_18 != 0) {
             if (calendar->field_1C == 0) {
                 xOffset = (f32)0x247;
-                func_0046d3b0(parent, calendar->field_110, 0x1F, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
+                sdkSpriteDrawOnceAux(parent, calendar->field_110, 0x1F, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
                 value = calendar->field_08 + 0x20;
                 xOffset = (f32)0x247;
-                func_0046d3b0(parent, calendar->field_110, value, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
+                sdkSpriteDrawOnceAux(parent, calendar->field_110, value, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
             }
         } else if ((func_0015a160() == 0) && (evtHasTaskHandle() == 0)) {
             xOffset = (f32)0x247;
-            func_0046d3b0(parent, calendar->field_110, 0x1F, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
+            sdkSpriteDrawOnceAux(parent, calendar->field_110, 0x1F, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
             value = calendar->field_08 + 0x20;
             xOffset = (f32)0x247;
-            func_0046d3b0(parent, calendar->field_110, value, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
+            sdkSpriteDrawOnceAux(parent, calendar->field_110, value, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
         }
     }
     states[0](rwRENDERSTATEFOGENABLE, (void *)savedFog);
@@ -4498,7 +4498,7 @@ void func_0012d410(u8 *arg0)
     while (var_18 < 0x15) {
         temp_3 = var_18 * 4;
         temp_4 = (s32 *)(arg0 + temp_3 + 0x3C);
-        temp_2_4 = (s32)func_0046d200(temp_2_2,
+        temp_2_4 = (s32)sdkSpriteNewNode(temp_2_2,
                                  *(u32 *)((u8 *)D_005E5B60 + temp_3));
         *temp_4 = temp_2_4;
         if (temp_2_4 == 0) {
@@ -5004,7 +5004,7 @@ void func_0012e150(s32 arg0)
         temp_16 = temp_3 + 0x3C;
         temp_4 = *(s32 *)temp_16;
         if (temp_4 != 0) {
-            func_0046d280((void *)temp_4);
+            sdkSpriteFreeNode((void *)temp_4);
             *(s32 *)temp_16 = 0;
         }
         var_17 += 1;
@@ -5148,17 +5148,17 @@ s32 func_0012e2f0(u8 *arg0)
         if (ii < 28) {
             res_slot = arg0 + (ii * 4) + 0x1B18;
             temp_byte = D_005E7670[ii];
-            temp_16 = (s32)func_0046d200((u32)res_1, temp_byte);
+            temp_16 = (s32)sdkSpriteNewNode((u32)res_1, temp_byte);
             *(s32 *)res_slot = temp_16;
         } else if (ii < 49) {
             res_slot = arg0 + (ii * 4) + 0x1B18;
             temp_byte = D_005E7670[ii];
-            temp_16 = (s32)func_0046d200((u32)res_2, temp_byte);
+            temp_16 = (s32)sdkSpriteNewNode((u32)res_2, temp_byte);
             *(s32 *)res_slot = temp_16;
         } else {
             res_slot = arg0 + (ii * 4) + 0x1B18;
             temp_byte = D_005E7670[ii];
-            temp_16 = (s32)func_0046d200((u32)res_3, temp_byte);
+            temp_16 = (s32)sdkSpriteNewNode((u32)res_3, temp_byte);
             *(s32 *)res_slot = temp_16;
         }
         if (*(s32 *)res_slot == 0) {

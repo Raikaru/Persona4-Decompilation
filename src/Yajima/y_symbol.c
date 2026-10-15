@@ -60,10 +60,10 @@ extern s32 func_002b2a30(u8, u8, u8, u8);
 extern void func_002b2bd0(f32 *arg0, s64 arg1, f32 arg2, f32 arg3, f32 arg4,
                           f32 arg5);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern f32 func_0046b260(u8 *arg0);
-extern f32 func_0046b2f0(u8 *arg0);
-extern u8 *func_0046d200(s32 arg0, s32 arg1);
-extern void func_0046d280(void *node);
+extern f32 sdkSpriteScaledWidth(u8 *arg0);
+extern f32 sdkSpriteScaledHeight(u8 *arg0);
+extern u8 *sdkSpriteNewNode(s32 arg0, s32 arg1);
+extern void sdkSpriteFreeNode(void *node);
 
 extern s32 func_002b3720(u8 *arg0);
 extern void func_002b3960(u8 *arg0);
@@ -87,10 +87,10 @@ s32 func_002b3990(s32 arg0)
     *(u32 *)(work + 0xC) = 0x3F400000;
     *(u32 *)(work + 0x10) = 0;
     work[0x20] = 0;
-    t = func_0046d200(func_002ac740(), 0x10);
-    *(s16 *)(work + 0x14) = (s16)(s32)(func_0046b260(t) / 2.0f);
-    *(s16 *)(work + 0x16) = (s16)(s32)(func_0046b2f0(t) / 2.0f);
-    func_0046d280(t);
+    t = sdkSpriteNewNode(func_002ac740(), 0x10);
+    *(s16 *)(work + 0x14) = (s16)(s32)(sdkSpriteScaledWidth(t) / 2.0f);
+    *(s16 *)(work + 0x16) = (s16)(s32)(sdkSpriteScaledHeight(t) / 2.0f);
+    sdkSpriteFreeNode(t);
     return ret;
 }
 /* Re-derived body: the prior nd118 candidate is retained in

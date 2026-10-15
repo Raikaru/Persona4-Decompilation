@@ -27,8 +27,8 @@ extern void func_0020a5c0(void);
 extern void func_00202d20();
 extern void func_00113500(void);
 extern void func_00113480(s32 a0, s32 a1, s32 a2, s32 a3);
-extern f32 func_0046b260(u8 *arg0);
-extern f32 func_0046b2f0(u8 *arg0);
+extern f32 sdkSpriteScaledWidth(u8 *arg0);
+extern f32 sdkSpriteScaledHeight(u8 *arg0);
 extern s32 func_00201ee0(void);
 extern s32 func_00202820(void);
 extern void func_0021afa0(s32 arg0);
@@ -121,7 +121,7 @@ extern s32 func_00201b00(u8 *arg0);
 extern void func_00201db0(void *arg0);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern void itfMesWindowReleaseIfActive(s32 arg0);
-extern void func_0046b0d0(void *arg0);
+extern void sdkSpriteRelease(void *arg0);
 extern s32 datCalcGetHp(s32 arg0);
 extern s32 datCalcMaxHp(s32 arg0);
 extern void func_004abd60(s32 arg0);
@@ -519,7 +519,7 @@ void func_00200f30(u8 *unusedTask)
 loop_body:
     temp_4 = *(s32 *)(temp_2 + (var_16 * 4) + 0x2C);
     if (temp_4 != 0) {
-        func_0046b0d0((void *)temp_4);
+        sdkSpriteRelease((void *)temp_4);
     }
     var_16 += 1;
 loop_test:
@@ -658,7 +658,7 @@ void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1)
 
         *(f32 *)(arg0 + 0x74) = (f32)*(s32 *)(arg0 + 4) + fparg0;
         *(f32 *)(arg0 + 0x78) = (f32)*(s32 *)(arg0 + 8) + fparg1;
-        func_0046b380(arg0 + 0x6C, 0);
+        sdkSpriteDraw(arg0 + 0x6C, 0);
         return;
     }
     *(f32 *)(arg0 + 0x74) =
@@ -681,7 +681,7 @@ void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1)
         *(s16 *)(arg0 + 0x8A) =
             (s16)(*(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x18));
     }
-    func_0046b380(arg0 + 0x6C, 0);
+    sdkSpriteDraw(arg0 + 0x6C, 0);
     *(u16 *)(arg0 + 0x8C) = 0;
     *(u16 *)(arg0 + 0x8E) = 0;
 }
@@ -781,7 +781,7 @@ f32 func_00201950(u8 *arg0, s32 arg1, s32 arg2)
     *(s32 *)(arg0 + 0x6C) =
         *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x2C);
     *(s32 *)(arg0 + 0x70) = arg2;
-    return func_0046b260(arg0 + 0x6C);
+    return sdkSpriteScaledWidth(arg0 + 0x6C);
 }
 // FUN_00201990
 f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2)
@@ -789,7 +789,7 @@ f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2)
     *(s32 *)(arg0 + 0x6C) =
         *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x2C);
     *(s32 *)(arg0 + 0x70) = arg2;
-    return func_0046b2f0(arg0 + 0x6C);
+    return sdkSpriteScaledHeight(arg0 + 0x6C);
 }
 // FUN_002019D0
 void func_002019d0(u8 *arg0, f32 fparg0, f32 fparg1)

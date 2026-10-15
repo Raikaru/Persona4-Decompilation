@@ -13,7 +13,7 @@ extern u8 *func_00452560();
 extern u8 *func_00460990();
 extern void func_00460ac0(void *, void *);
 extern u8 *func_00452560();
-extern void func_0046b0d0(void *);
+extern void sdkSpriteRelease(void *);
 void func_0046d730(const void *file, s32 line);
 void func_0044ea90(const void *msg, s32 id);
 
@@ -43,7 +43,7 @@ void cldDayChangeDrawPolygon(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
                    u8 *arg4, s32 arg5, f32 fparg1, f32 fparg2);
 s32 sprintf(char *buf, const char *fmt, ...);
 u8 *func_00455f70(void *arg0, u32 *arg1);
-u8 *func_0046aea0(const char *name);
+u8 *sdkSpriteRequestLoad(const char *name);
 s32 func_0046a750(s32 param);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern u8 D_006376F0[];
@@ -100,17 +100,17 @@ s32 cldDayChangeUpdateState(u8 *arg0) {
         break;
     case 2:
         if (p[2] != 0) {
-            func_0046b0d0((void *)p[2]);
+            sdkSpriteRelease((void *)p[2]);
             p[2] = 0;
             p[1] &= ~4;
         }
         sprintf((char *)buf, (const char *)D_006376F0, p[4]);
         s = func_00455f70(buf, &tmp);
         if (s == 0) {
-            p[2] = (s32)func_0046aea0((const char *)buf);
+            p[2] = (s32)sdkSpriteRequestLoad((const char *)buf);
             p[0] = 3;
         } else {
-            p[2] = (s32)func_0046af60((u32)s);
+            p[2] = (s32)sdkSpriteAdoptBlob((u32)s);
             p[0] = 3;
         }
         break;
@@ -706,7 +706,7 @@ void cldDayChangeTaskDestroy(u8 *arg0) {
     p = func_00452560();
     v = *(s32 *)(p + 8);
     if (v != 0) {
-        func_0046b0d0((void *)v);
+        sdkSpriteRelease((void *)v);
     }
     jtbl_008873EC[0](p);
 }

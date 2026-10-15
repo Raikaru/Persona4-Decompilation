@@ -33,7 +33,7 @@ extern char D_0063F0F0[];
 
 extern u8 *func_00457120(void);
 extern u8 *func_00461390(void *a, s32 b, void *c, s32 d);
-extern u8 *func_0046d200(u32 a, u32 b);
+extern u8 *sdkSpriteNewNode(u32 a, u32 b);
 extern void memset(void *dst, s32 value, u32 size);
 extern char D_0063EFD8[];
 extern void RpSkyRenderStateSet(s32 a, s32 b);
@@ -59,8 +59,8 @@ extern void func_00460ac0(void *param, void *work);
 extern void func_00440b68();
 extern u8 *func_00454a60(u8 *param, s32 mode);
 extern s32 func_0046a750(s32 param);
-extern s32 func_0046aea0(const u8 *name);
-extern void func_0046d280(void *node);
+extern s32 sdkSpriteRequestLoad(const u8 *name);
+extern void sdkSpriteFreeNode(void *node);
 extern void func_0046d730(void *msg, s32 id);
 extern s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern s32 func_004669d0(s32, s32 *, s32);
@@ -89,7 +89,7 @@ extern u8 D_00764660;   /* gp-relative, -0x4A90 */
 
 /* func_002b1520 callees */
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
-extern void func_0046b380(u8 *, s32);
+extern void sdkSpriteDraw(u8 *, s32);
 extern void func_002b3c60(u8 *, u8);
 extern u8 *func_002b2940(u8 *);
 extern s64 iGpffffa840;  /* gp-relative, -0x57C0 */
@@ -125,7 +125,7 @@ extern void func_002b4240(u8 *, s8);
 extern void func_002b69b0(u8 *, YVec2f, YVec2f, u32, u32, s16);
 extern void func_002b6a40(u8 *, u8, u8, u8, s32, s16);
 extern void func_002b6be0(u8 *, YVec2f, u32, f32);
-extern f32 func_0046b2f0(u8 *);
+extern f32 sdkSpriteScaledHeight(u8 *);
 extern void func_002b10d0(u8 *, s8);
 extern void func_002b10f0(u8 *, s8);
 
@@ -142,11 +142,11 @@ s32 func_002ac400(u8 *arg0) {
 
     switch (*(s8 *)(p + 4)) {
     case 0:
-        D_00764640 = func_0046aea0(D_0063EF70);
+        D_00764640 = sdkSpriteRequestLoad(D_0063EF70);
         if (D_00764640 == 0) {
             func_0046d730(D_0063EF60, 0x93);
         }
-        D_00764644 = func_0046aea0(D_0063EF90);
+        D_00764644 = sdkSpriteRequestLoad(D_0063EF90);
         if (D_00764644 == 0) {
             func_0046d730(D_0063EF60, 0x95);
         }
@@ -980,18 +980,18 @@ void func_002ae520(u8 *arg0) {
     p = *(u8 **)(arg0 + 0x38);
     i = 0;
     while (i < 4) {
-        func_0046d280(*(void **)(p + i * 4 + 0x24));
+        sdkSpriteFreeNode(*(void **)(p + i * 4 + 0x24));
         i++;
     }
     i = 0;
     while (i < 6) {
-        func_0046d280(*(void **)(p + i * 4 + 0x34));
-        func_0046d280(*(void **)(p + i * 4 + 0x4C));
-        func_0046d280(*(void **)(p + i * 4 + 0x64));
+        sdkSpriteFreeNode(*(void **)(p + i * 4 + 0x34));
+        sdkSpriteFreeNode(*(void **)(p + i * 4 + 0x4C));
+        sdkSpriteFreeNode(*(void **)(p + i * 4 + 0x64));
         i++;
     }
-    func_0046d280(*(void **)(p + 0x7C));
-    func_0046d280(*(void **)(p + 0x80));
+    sdkSpriteFreeNode(*(void **)(p + 0x7C));
+    sdkSpriteFreeNode(*(void **)(p + 0x80));
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
@@ -1208,7 +1208,7 @@ u8 *func_002ae630(u8 *arg0)
         u8 *sprite;
         YVec3f *enemyPosition;
         s32 enemyIndex;
-        sprite = func_0046d200(D_00764644, 0x12);
+        sprite = sdkSpriteNewNode(D_00764644, 0x12);
         for (enemyIndex = 0; enemyIndex < 8; enemyIndex++) {
             u8 *entry;
             entry = D_007E80A0 + enemyIndex * 0x168;
@@ -1227,7 +1227,7 @@ u8 *func_002ae630(u8 *arg0)
                 *(s32 *)(work + enemyIndex * 4 + 0x114) = func_002b4fe0((s32)task, foePosition, (enemyIndex & 0xFF));
             }
         }
-        func_0046d280(sprite);
+        sdkSpriteFreeNode(sprite);
     }
     *(s32 *)(work + 0x748) = func_002b6590((s32)task, 0xC, D_00764644);
     *(s32 *)(work + 0x74C) = func_002b6590((s32)task, 0xD, D_00764644);
@@ -1296,19 +1296,19 @@ void func_002af3e0(u8 *arg0, s8 arg1)
         *(s8 *)(p + 0xB8) = 0;
         {
             YVec2f pos = func_002b2970(15.0f, 406.0f);
-            resource = func_0046d200(D_00764644, 12);
+            resource = sdkSpriteNewNode(D_00764644, 12);
             func_002b6ac0(*(u8 **)(p + 0x748), 1.0f, 1.0f, 1.0f, 0.1f, 0, 3, 0);
             func_002b69b0(*(u8 **)(p + 0x748), pos,
-                func_002b2970(pos.x, pos.y + func_0046b2f0(resource) / 2.0f), 0, 3, 0);
+                func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, 0);
             func_002b6a40(*(u8 **)(p + 0x748), 255, 0, 0, 0, 3);
-            func_0046d280(resource);
+            sdkSpriteFreeNode(resource);
             pos = func_002b2970(104.0f, 406.0f);
-            resource = func_0046d200(D_00764644, 13);
+            resource = sdkSpriteNewNode(D_00764644, 13);
             func_002b6ac0(*(u8 **)(p + 0x74C), 1.0f, 1.0f, 1.0f, 0.1f, 0, 3, 0);
             func_002b69b0(*(u8 **)(p + 0x74C), pos,
-                func_002b2970(pos.x, pos.y + func_0046b2f0(resource) / 2.0f), 0, 3, 0);
+                func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), 0, 3, 0);
             func_002b6a40(*(u8 **)(p + 0x74C), 255, 0, 0, 0, 3);
-            func_0046d280(resource);
+            sdkSpriteFreeNode(resource);
         }
     } else {
         u8 *resource;
@@ -1316,21 +1316,21 @@ void func_002af3e0(u8 *arg0, s8 arg1)
         *(s8 *)(p + 0xB8) = 1;
         {
             YVec2f pos = func_002b2970(15.0f, 406.0f);
-            resource = func_0046d200(D_00764644, 12);
+            resource = sdkSpriteNewNode(D_00764644, 12);
             func_002b6be0(*(u8 **)(p + 0x748), pos, 0x4D, 60008);
             func_002b6ac0(*(u8 **)(p + 0x748), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
             func_002b69b0(*(u8 **)(p + 0x748),
-                func_002b2970(pos.x, pos.y + func_0046b2f0(resource) / 2.0f), pos, 0, 5, 0);
+                func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), pos, 0, 5, 0);
             func_002b6a40(*(u8 **)(p + 0x748), 0, 255, 0, 0, 0);
-            func_0046d280(resource);
+            sdkSpriteFreeNode(resource);
             pos = func_002b2970(104.0f, 406.0f);
-            resource = func_0046d200(D_00764644, 13);
+            resource = sdkSpriteNewNode(D_00764644, 13);
             func_002b6be0(*(u8 **)(p + 0x74C), pos, 0x4D, 60008);
             func_002b6ac0(*(u8 **)(p + 0x74C), 1.0f, 1.0f, 0.1f, 1.0f, 0, 5, 0);
             func_002b69b0(*(u8 **)(p + 0x74C),
-                func_002b2970(pos.x, pos.y + func_0046b2f0(resource) / 2.0f), pos, 0, 5, 0);
+                func_002b2970(pos.x, pos.y + sdkSpriteScaledHeight(resource) / 2.0f), pos, 0, 5, 0);
             func_002b6a40(*(u8 **)(p + 0x74C), 0, 255, 0, 0, 0);
-            func_0046d280(resource);
+            sdkSpriteFreeNode(resource);
         }
         for (z = 0; z < 24; z++) {
             for (y = 0; y < 16; y++) {
@@ -2141,11 +2141,11 @@ void func_002b1520(s32 arg0, u8 *q) {
                 *(u8 *)(*(u8 **)(q + (s32)i1 * 0x18 + (s32)j1 * 4 + 0x34) + 0x10) = vv;
             }
         }
-        func_0046b380(*(u8 **)(q + 0x7C), 0);
-        func_0046b380(*(u8 **)(q + 0x80), 0);
+        sdkSpriteDraw(*(u8 **)(q + 0x7C), 0);
+        sdkSpriteDraw(*(u8 **)(q + 0x80), 0);
         for (i2 = 0; i2 < 3; i2++) {
             for (j2 = 0; j2 < 6; j2++) {
-                func_0046b380(*(u8 **)(q + (s32)i2 * 0x18 + (s32)j2 * 4 + 0x34), 0);
+                sdkSpriteDraw(*(u8 **)(q + (s32)i2 * 0x18 + (s32)j2 * 4 + 0x34), 0);
             }
         }
         *(f32 *)(sp + 12) = func_002b2aa0(0, (f32)327, 264.0f, (f32)*(s16 *)(q + 0x764), 10.0f);
@@ -2190,11 +2190,11 @@ void func_002b1520(s32 arg0, u8 *q) {
         /* fallthrough */
     }
     case 4:
-        func_0046b380(*(u8 **)(q + 0x7C), 0);
-        func_0046b380(*(u8 **)(q + 0x80), 0);
+        sdkSpriteDraw(*(u8 **)(q + 0x7C), 0);
+        sdkSpriteDraw(*(u8 **)(q + 0x80), 0);
         for (i4 = 0; i4 < 3; i4++) {
             for (j4 = 0; j4 < 6; j4++) {
-                func_0046b380(*(u8 **)(q + (s32)i4 * 0x18 + (s32)j4 * 4 + 0x34), 0);
+                sdkSpriteDraw(*(u8 **)(q + (s32)i4 * 0x18 + (s32)j4 * 4 + 0x34), 0);
             }
         }
         break;
@@ -2230,7 +2230,7 @@ void func_002b1520(s32 arg0, u8 *q) {
             u16 ww;
             ww = (u16)sa;
             *(u16 *)(*pp + 0x22) = ww;
-            func_0046b380(*pp, 0);
+            sdkSpriteDraw(*pp, 0);
         }
     }
     *(f32 *)(func_002b2940(*(u8 **)(q + 0xBC)) + 0x10) = b;
@@ -2292,7 +2292,7 @@ void func_002b2290(u8 *arg0)
     q = *(SmapWork **)(arg0 + 0x38);
     for (i = 0; i < 4; i++) {
         /* sdkSpr consumes the resource handle as an unsigned storage word. */
-        q->a[i] = (SmapItem *)func_0046d200(*(u32 *)&D_00764644, i + 3);
+        q->a[i] = (SmapItem *)sdkSpriteNewNode(*(u32 *)&D_00764644, i + 3);
     }
     q->a[0]->x = 17.0f;
     q->a[0]->y = 264.0f;
@@ -2304,23 +2304,23 @@ void func_002b2290(u8 *arg0)
     q->a[3]->y = 341.0f;
     for (j = 0; j < 6; j++) {
         p = &q->b[j];
-        *p = (SmapItem *)func_0046d200(D_00764644, 8);
+        *p = (SmapItem *)sdkSpriteNewNode(D_00764644, 8);
         (*p)->x = 190.0f;
         t = 108.0f * (f32)j;
         y = t;
         z = -99.0f + y;
         (*p)->y = z;
         p = &q->c[j];
-        *p = (SmapItem *)func_0046d200(D_00764644, 8);
+        *p = (SmapItem *)sdkSpriteNewNode(D_00764644, 8);
         (*p)->x = 298.0f;
         (*p)->y = z;
         p = &q->d[j];
-        *p = (SmapItem *)func_0046d200(D_00764644, 9);
+        *p = (SmapItem *)sdkSpriteNewNode(D_00764644, 9);
         (*p)->x = 406.0f;
         (*p)->y = z;
     }
-    q->e[0] = (SmapItem *)func_0046d200(D_00764644, 0xA);
-    q->e[1] = (SmapItem *)func_0046d200(D_00764644, 0xB);
+    q->e[0] = (SmapItem *)sdkSpriteNewNode(D_00764644, 0xA);
+    q->e[1] = (SmapItem *)sdkSpriteNewNode(D_00764644, 0xB);
     for (k = 0; k < 2; k++) {
         q->e[k]->x = 312.0f;
         q->e[k]->y = -10.0f;

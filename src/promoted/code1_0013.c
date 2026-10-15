@@ -21,7 +21,7 @@ static inline u8 *code13AddOff(s32 offset, u8 *base) {
 static inline f32 code13Add(f32 left, f32 right) {
     return left + right;
 }
-extern void func_0046d280(void *node);
+extern void sdkSpriteFreeNode(void *node);
 extern void func_001400f0(u8 *arg0);
 extern void func_00141d10(u8 *arg0);
 extern void func_001437b0(void *arg0, s32 arg1, s32 arg2);
@@ -108,7 +108,7 @@ extern s16 func_00353b50(s16 *arg0);
 extern s32 FldUnit_SpawnPartyTask(u8 *arg0);
 extern u8 *func_00354a50(s32 arg0, u16 arg1);
 extern u8 *func_0046a770(char *arg0);
-extern u8 *func_0046d200(u32 arg0, u32 arg1);
+extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 extern void func_0046d730(void *arg0, s32 arg1);
 extern s32 func_00141d80(u8 *arg0, s32 arg1);
 extern u8 D_005E57F0[];
@@ -238,7 +238,7 @@ void func_00130580(u8 *arg0) {
         p = q + 0x1b18;
         temp = *(s32 *)(q + 0x1b18);
         if (temp != 0) {
-            func_0046d280((void *)temp);
+            sdkSpriteFreeNode((void *)temp);
             *(s32 *)p = 0;
         }
         i++;
@@ -634,7 +634,7 @@ void func_00134ab0(u8 *arg0) {
         p = q + 0x14c0;
         temp = *(s32 *)(q + 0x14c0);
         if (temp != 0) {
-            func_0046d280((void *)temp);
+            sdkSpriteFreeNode((void *)temp);
             *(s32 *)p = 0;
         }
         var18++;

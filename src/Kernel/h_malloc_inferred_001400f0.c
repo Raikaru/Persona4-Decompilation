@@ -110,7 +110,7 @@ extern void func_00355370(u8 *arg0, u8 *arg1);
 
 
 
-extern void func_0046d280(void *node);
+extern void sdkSpriteFreeNode(void *node);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
@@ -824,7 +824,7 @@ s32 i;
         q = p + 0x1810;
         temp_4 = *(s32 *)(p + 0x1810);
         if (temp_4 != 0) {
-            func_0046d280((void *)temp_4);
+            sdkSpriteFreeNode((void *)temp_4);
             *(s32 *)q = 0;
         }
     }

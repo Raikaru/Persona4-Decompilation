@@ -8,7 +8,7 @@
 typedef struct { f32 x, y; } Vec2f;
 
 void func_0046d730(void* arg0, s32 arg1);
-void func_0046d280(void *node);
+void sdkSpriteFreeNode(void *node);
 void func_00460ac0(void* param, void* work);
 void func_00106390(s32 a, s32 b);
 s32 func_0035f0c0(u32* arg0, s32* arg1, u8* arg2);
@@ -18,7 +18,7 @@ void memset(void* dest, s32 value, s32 size);
 
 void func_0034c260(s32 arg0);
 void* func_0046a770(char* arg0);
-s32 func_0046d200();
+s32 sdkSpriteNewNode();
 s32 datGetFlag(s32 arg0);
 void func_00113480(s32 a, s32 b, s32 c, s32 d);
 void func_001437b0(void* arg0, s32 arg1, s32 arg2);
@@ -150,7 +150,7 @@ void func_0035c830(u8* arg0) {
     for (k = 0; k < 11; k++) {
         dst = arg0 + k * 4 + 0x448;
         code = D_0064D3B8[k];
-        *(s32 *)dst = func_0046d200(resource, code);
+        *(s32 *)dst = sdkSpriteNewNode(resource, code);
         if (*(s32 *)dst == 0) {
             func_0046d730(D_0064D3C8, 0x136);
         }
@@ -802,7 +802,7 @@ void func_0035e6a0(u8* arg0) {
         s32 v = *(s32*)(q + 0x448);
 
         if (v != 0) {
-            func_0046d280((void *)v);
+            sdkSpriteFreeNode((void *)v);
             *(s32*)(arg0 + i * 4 + 0x448) = 0;
         }
     }

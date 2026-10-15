@@ -10,7 +10,7 @@ extern u8 D_0063E8E0[];
 extern u8 D_0063E918[];
 extern void func_002a2340(void);
 extern void hsndQueueSound(s32 arg0, s32 arg1);
-extern s32 func_0046aea0(u8 *name);
+extern s32 sdkSpriteRequestLoad(u8 *name);
 extern s32 func_0046a750(s32 handle);
 extern s32 kwlnTaskGetState(s32 handle);
 extern s32 func_002a1f20(u8 *arg0);
@@ -40,7 +40,7 @@ s32 func_002a2420(u8 *arg0) {
         hsndQueueSound(0x14, 0x1E);
         break;
     case 1:
-        *(s32 *)(st + 8) = func_0046aea0(D_0063E900);
+        *(s32 *)(st + 8) = sdkSpriteRequestLoad(D_0063E900);
         *(s32 *)st = 2;
         break;
     case 2:
@@ -86,7 +86,7 @@ void func_002a2600(u8 *arg0)
 {
     u8 *b = *(u8 **)(arg0 + 0x38);
     if (*(s32 *)(b + 0x8) != 0) {
-        func_0046b0d0(*(s32 *)(b + 0x8));
+        sdkSpriteRelease(*(s32 *)(b + 0x8));
         *(s32 *)(b + 0x8) = 0;
     }
     jtbl_008873EC[0](b);

@@ -10,7 +10,7 @@ void func_001437b0(void *arg0, s32 arg1, s32 arg2);
 s32 func_001b5fd0(void);
 void func_0025cbc0(void *arg0, s32 arg1, s32 arg2);
 s32 func_0025cc70(void);
-u8 *func_0046d200(u32 arg0, u32 arg1);
+u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 u32 RpRandom(void);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
@@ -20,8 +20,8 @@ extern s8 D_00629170[];
 extern s32 D_00629560[];
 extern s32 D_006295F0[];
 void H_Cdvd_Destroy(u8 *ptr);
-void func_0046b0d0(void *ptr);
-void func_0046d280(void *node);
+void sdkSpriteRelease(void *ptr);
+void sdkSpriteFreeNode(void *node);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 void func_0044ea90(const void *msg, s32 id);
@@ -215,19 +215,19 @@ void func_0021ef70(BtlResultWork *work)
     for (j = 0; j < 42; j++) {
         if (j < 13) {
             out = (u8 **)(base + j * 4 + 0x414);
-            *out = func_0046d200(*(u32 *)(base + 0x400), (u32)D_00629170[j]);
+            *out = sdkSpriteNewNode(*(u32 *)(base + 0x400), (u32)D_00629170[j]);
         } else if (j < 15) {
             out = (u8 **)(base + j * 4 + 0x414);
-            *out = func_0046d200(*(u32 *)(base + 0x404), (u32)D_00629170[j]);
+            *out = sdkSpriteNewNode(*(u32 *)(base + 0x404), (u32)D_00629170[j]);
         } else if (j < 25) {
             out = (u8 **)(base + j * 4 + 0x414);
-            *out = func_0046d200(*(u32 *)(base + 0x40C), (u32)D_00629170[j]);
+            *out = sdkSpriteNewNode(*(u32 *)(base + 0x40C), (u32)D_00629170[j]);
         } else if (j < 36) {
             out = (u8 **)(base + j * 4 + 0x414);
-            *out = func_0046d200(*(u32 *)(base + 0x410), (u32)D_00629170[j]);
+            *out = sdkSpriteNewNode(*(u32 *)(base + 0x410), (u32)D_00629170[j]);
         } else {
             out = (u8 **)(base + j * 4 + 0x414);
-            *out = func_0046d200(*(u32 *)(base + 0x408), (u32)D_00629170[j]);
+            *out = sdkSpriteNewNode(*(u32 *)(base + 0x408), (u32)D_00629170[j]);
         }
         if (*out == 0) {
             func_0046d730(&D_00629610, 0x159);
@@ -291,7 +291,7 @@ s32 func_0021f340(BtlResultWork *work)
             var_18 = 0;
             while (var_18 < 3) {
                 dest = (s32 *)(arg0 + var_18 * 4 + 0x400);
-                *dest = (s32)func_0046af60((u32)func_00455ea0(*(u8 **)(arg0 + 0x4BC), var_18, 0));
+                *dest = (s32)sdkSpriteAdoptBlob((u32)func_00455ea0(*(u8 **)(arg0 + 0x4BC), var_18, 0));
                 if (*dest == 0) {
                     func_0046d730(&D_00629610, 0x181);
                 }
@@ -1063,14 +1063,14 @@ void func_002214d0(u8 *unusedTask) {
     for (i = 0; i < 3; i++) {
         s32 *el = (s32 *)(addBase((u32)p, (u32)(i * 4)) + 0x400);
         if (*el != 0) {
-            func_0046b0d0((void *)*el);
+            sdkSpriteRelease((void *)*el);
             *el = 0;
         }
     }
     for (j = 0; j < 0x2A; j++) {
         s32 *el = (s32 *)(addBase((u32)p, (u32)(j * 4)) + 0x414);
         if (*el != 0) {
-            func_0046d280((void *)*el);
+            sdkSpriteFreeNode((void *)*el);
             *el = 0;
         }
     }

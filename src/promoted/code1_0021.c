@@ -65,14 +65,14 @@ extern u8 D_00796340[];
 extern s32 func_0046a750(s32 arg0);
 extern s32 func_0021d4a0(u8 *task);
 extern u8 *iGpffffb3c4;
-extern s32 func_0046aea0(void *arg0);
+extern s32 sdkSpriteRequestLoad(void *arg0);
 extern u8 D_00626C30[];
 extern u8 D_00626CA0[];
 extern void func_00212270(u8 *drawPayload, s32 workAddress, void *callback);
 
 
 
-extern void func_0046b0d0(void *arg0);
+extern void sdkSpriteRelease(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern s32 func_00213a80(void);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
@@ -754,7 +754,7 @@ void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
     extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height,
         s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY,
         BtlShuffleMatrix *matrix, s32 texture, f32 (*uv)[2]);
-    extern s32 func_0046d5f0(u8 *file, s32 tile);
+    extern s32 sdkSpriteSlotHandle(u8 *file, s32 tile);
     /* Four render objects and the position reproduce the retail 0x3A0 frame. */
     Vec2f drawPosition;
     BtlShuffleSkyVertex bars[4];
@@ -919,7 +919,7 @@ void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
         uv[3][1] = 0.921875f;
         func_00366c70(0x13F, 0xE0, 0.0f, 0x78, 0x98, 0xFFFF761E, alpha,
             0, 0x3C, 0x4C, &matrix,
-            func_0046d5f0((u8 *)*(s32 *)(work + 4), 2),
+            sdkSpriteSlotHandle((u8 *)*(s32 *)(work + 4), 2),
             uv);
     }
     func_00201820(0);
@@ -1209,7 +1209,7 @@ void func_00213840(u8 *arg0) {
     p = (u8 *)func_00452560(arg0);
     v = *(s32 *)(p + 4);
     if (v != 0) {
-        func_0046b0d0((void *)v);
+        sdkSpriteRelease((void *)v);
     }
     jtbl_008873EC[0](p);
 }
@@ -1224,7 +1224,7 @@ void func_002138a0(s32 arg0)
     func_0044ea90(&D_00626C30, 0x3A);
     temp_2 = (f32 *)jtbl_008873E8[0](0x48, 0x40000);
     memset(temp_2, 0, 0x48);
-    *(s32 *)((u8 *)temp_2 + 4) = func_0046aea0(&D_00626CA0);
+    *(s32 *)((u8 *)temp_2 + 4) = sdkSpriteRequestLoad(&D_00626CA0);
     *(s16 *)((u8 *)temp_2 + 0) = 1;
     *(void **)((u8 *)temp_2 + 0x10) = (void *)func_00212270;
     *(f32 **)((u8 *)temp_2 + 0x18) = temp_2;

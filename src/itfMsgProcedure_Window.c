@@ -283,13 +283,13 @@ void msgWinStart(void *arg0)
 
     tmp = func_00455f70(D_0063BFE0, &local);
     if (tmp != 0) {
-        D_007245C8 = (s32)func_0046af60((u32)tmp);
+        D_007245C8 = (s32)sdkSpriteAdoptBlob((u32)tmp);
     } else {
         D_007245C8 = 0;
     }
     tmp = func_00455f70(D_0063C000, &local);
     if (tmp != 0) {
-        D_007245CC = (s32)func_0046af60((u32)tmp);
+        D_007245CC = (s32)sdkSpriteAdoptBlob((u32)tmp);
     } else {
         D_007245CC = 0;
     }

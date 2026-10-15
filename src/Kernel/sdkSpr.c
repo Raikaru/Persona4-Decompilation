@@ -13,7 +13,7 @@ u8 *func_00454a60(void *arg0, s32 arg1);
 void func_003ec330(void *ptr);
 s32 func_004667d0(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
 s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
-void func_0046b380(u8 *arg0, s32 arg1);
+void sdkSpriteDraw(u8 *arg0, s32 arg1);
 
 /* Sprite dispatcher slot at 0x008873EC (absolute, outside gp window). */
 extern void (*jtbl_008873EC[])(void *node);
@@ -216,7 +216,7 @@ static inline void sdkSpritePositionQuad(SdkSpriteVertex vertex[4], const RwV2d 
 
 
 // FUN_0046AB90
-void func_0046ab90(u8 *arg0)
+void sdkSpriteLoadStep(u8 *arg0)
 {
     u8 temp[8];
     u8 temp2[8];
@@ -306,7 +306,7 @@ void func_0046ab90(u8 *arg0)
 }
 
 // FUN_0046AEA0
-u8 *func_0046aea0(const char *name)
+u8 *sdkSpriteRequestLoad(const char *name)
 {
     u8 *node;
     u8 *last;
@@ -332,7 +332,7 @@ loop:
 }
 
 // FUN_0046AF60
-u8 *func_0046af60(u32 arg0)
+u8 *sdkSpriteAdoptBlob(u32 arg0)
 {
     u8 *node;
     u8 *last;
@@ -358,7 +358,7 @@ loop:
 }
 
 // FUN_0046B000
-u8 *func_0046b000(const char *name)
+u8 *sdkSpriteCreateFromName(const char *name)
 {
     u8 *node;
     u8 *last;
@@ -386,7 +386,7 @@ loop:
 }
 
 // FUN_0046B0D0
-void func_0046b0d0(u8 *node)
+void sdkSpriteRelease(u8 *node)
 {
     s32 i;
 
@@ -428,7 +428,7 @@ void func_0046b0d0(u8 *node)
    right/left at 0x5c/0x54. The `sdkAddOffset` inline carries the offset-first
    operand order retail emits (addu $v0,$a1,$a0). */
 // FUN_0046B1F0
-f32 func_0046b1f0(u8 *blob, u32 index)
+f32 sdkSpriteEntryWidth(u8 *blob, u32 index)
 {
     u32 value;
     u32 offset;
@@ -447,7 +447,7 @@ f32 func_0046b1f0(u8 *blob, u32 index)
     return (f32)value;
 }
 // FUN_0046B260
-f32 func_0046b260(u8 *param_1)
+f32 sdkSpriteScaledWidth(u8 *param_1)
 {
     u32 value;
     u32 offset;
@@ -473,7 +473,7 @@ f32 func_0046b260(u8 *param_1)
     return (f32)value;
 }
 // FUN_0046B2F0
-f32 func_0046b2f0(u8 *param_1)
+f32 sdkSpriteScaledHeight(u8 *param_1)
 {
     u32 value;
     u32 offset;
@@ -521,7 +521,7 @@ static inline u8 *sdkSpriteTableRecord(u8 *sample)
  * record pointer that the flags test reuses; the redundant alpha mask
  * reproduces retail's second andi before the fade load. */
 // FUN_0046B380
-void func_0046b380(u8 *sample, s32 setStates)
+void sdkSpriteDraw(u8 *sample, s32 setStates)
 {
     RwV2d verticalLeft;
     RwV2d horizontalTop;
@@ -905,7 +905,7 @@ void func_0046b380(u8 *sample, s32 setStates)
 #undef SDK_SPRITE_RASTERS
 
 // FUN_0046D200
-u8 *func_0046d200(u32 arg0, u32 arg1)
+u8 *sdkSpriteNewNode(u32 arg0, u32 arg1)
 {
     u8 *node;
 
@@ -920,13 +920,13 @@ u8 *func_0046d200(u32 arg0, u32 arg1)
 }
 
 // FUN_0046D280
-void func_0046d280(void *node)
+void sdkSpriteFreeNode(void *node)
 {
     jtbl_008873EC[0](node);
 }
 
 // FUN_0046D2B0
-void func_0046d2b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, f32 z, s32 arg3)
+void sdkSpriteDrawOnce(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, f32 z, s32 arg3)
 {
     u8 *node;
 
@@ -941,12 +941,12 @@ void func_0046d2b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, f32 z,
     *(f32 *)(node + 8) = x;
     *(f32 *)(node + 0xC) = y;
     *(u8 *)(node + 0x10) = arg2;
-    func_0046b380(node, arg3);
+    sdkSpriteDraw(node, arg3);
     jtbl_008873EC[0](node);
 }
 
 // FUN_0046D3B0
-void func_0046d3b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3, f32 z, s32 arg4)
+void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3, f32 z, s32 arg4)
 {
     u8 *node;
 
@@ -962,12 +962,12 @@ void func_0046d3b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg
     *(f32 *)(node + 0xC) = y;
     *(u8 *)(node + 0x10) = arg2;
     *(u8 *)(node + 0x11) = arg3;
-    func_0046b380(node, arg4);
+    sdkSpriteDraw(node, arg4);
     jtbl_008873EC[0](node);
 }
 
 // FUN_0046D4C0
-void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6)
+void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6)
 {
     u8 *node;
 
@@ -985,7 +985,7 @@ void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg
     *(u8 *)(node + 0x28) = arg3;
     *(u8 *)(node + 0x29) = arg4;
     *(u8 *)(node + 0x2A) = arg5;
-    func_0046b380(node, arg6);
+    sdkSpriteDraw(node, arg6);
     jtbl_008873EC[0](node);
 }
 
@@ -995,7 +995,7 @@ void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg
    the brief's recipes before treating any of it as established. */
 /* Measured nd 9 (object 176 / window 192); the body matches the allocation, field initialization, callback, and result path but retains nine normalized instruction differences. */
 // FUN_0046D5F0
-s32 func_0046d5f0(u8 *arg0, s32 arg1) {
+s32 sdkSpriteSlotHandle(u8 *arg0, s32 arg1) {
     s32 temp_16;
     u8 *temp_2;
     u8 *temp_5;
@@ -1018,6 +1018,6 @@ s32 func_0046d5f0(u8 *arg0, s32 arg1) {
     return temp_16;
 }
 // FUN_0046D6A0
-void func_0046d6a0(void)
+void sdkSpriteNoop(void)
 {
 }

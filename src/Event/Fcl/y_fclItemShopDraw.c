@@ -59,13 +59,13 @@ void func_0044ea90(const void *, u32);
 
 void func_002e29a0(void);
 void H_Cdvd_Destroy(void *);
-void func_0046b0d0(void *);
+void sdkSpriteRelease(void *);
 s32 func_00106a90(s64);
-void *func_0046d200(void *, s32, ...);
+void *sdkSpriteNewNode(void *, s32, ...);
 void func_002e24a0(s32, s32, s32, s32);
-f32 func_0046b260(void *);
-f32 func_0046b2f0(void *);
-void func_0046d280(void *);
+f32 sdkSpriteScaledWidth(void *);
+f32 sdkSpriteScaledHeight(void *);
+void sdkSpriteFreeNode(void *);
 s32 func_0033d390(void *, s32);
 void func_0033d320(u8 *arg0, s32 arg1, s8 arg2);
 f32 func_002b2aa0(s32, f32, f32, f32, f32);
@@ -95,7 +95,7 @@ extern u8 D_0064A360[];
 extern u8 D_0064A3A0[];
 extern u8 D_00763A18[];
 extern void func_00332b60(u8 *, u8 *);
-extern s32 func_0046aea0(void *);
+extern s32 sdkSpriteRequestLoad(void *);
 extern void func_00440b68(void *, void *, s32);
 extern void *func_00454a60(void *, s32);
 extern s32 func_0046a750(s32);
@@ -199,7 +199,7 @@ s32 func_00332bb0(u8 *arg0) {
     func_00460ac0(D_00795FE0, task);
     switch (*(s8 *)(work + 0)) {
     case 0:
-        *(s32 *)(work + 0xC) = func_0046aea0(D_0064A360);
+        *(s32 *)(work + 0xC) = sdkSpriteRequestLoad(D_0064A360);
         func_00440b68("%s %d", D_0064A380, 0x17B);
         *(void **)(work + 0x428) = func_00454a60(D_0064A3A0, 0);
         *(s8 *)(work + 0) = 1;
@@ -287,12 +287,12 @@ s32 func_00332bb0(u8 *arg0) {
         func_0033d320(*(void **)(work + 0x164), 0, 0);
         func_0033d4b0(*(void **)(work + 0x164), 0, 0xFF, 0, 0, 0x2B);
         func_0033d4e0(*(void **)(work + 0x164), 0.1f, 1.0f, 0, 0xF, 0x2B);
-        labelFont = func_0046d200(*(void **)(work + 0xC), 0x55);
+        labelFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x55);
         func_0033d3e0(*(void **)(work + 0x164),
-                      func_002b2970((func_0046b260(labelFont) / 10.0f) * 5.0f + tbl->x + 0.0f,
-                                    (func_0046b2f0(labelFont) / 10.0f) * 5.0f + tbl->y + 0.0f),
+                      func_002b2970((sdkSpriteScaledWidth(labelFont) / 10.0f) * 5.0f + tbl->x + 0.0f,
+                                    (sdkSpriteScaledHeight(labelFont) / 10.0f) * 5.0f + tbl->y + 0.0f),
                       func_002b2970(tbl->x, tbl->y), 0, 0xF, 0x2B);
-        func_0046d280(labelFont);
+        sdkSpriteFreeNode(labelFont);
         func_0033d3c0(*(void **)(work + 0x164), 69.0f);
         func_0033d3d0(*(void **)(work + 0x164), 0x56);
         *(s16 *)(work + 0x3D4) = 0x2D;
@@ -353,12 +353,12 @@ s32 func_00332bb0(u8 *arg0) {
             func_0033d4b0(*(void **)(work + j * 4 + 0x1C), 0, 0xFF, 0, 5, layer0);
             func_0033d3c0(*(void **)(work + j * 4 + 0x1C), (f32)(j + 0x1A));
             func_0033d3d0(*(void **)(work + j * 4 + 0x1C), 0x63);
-            rowFont = func_0046d200(*(void **)(work + 0xC), rowIndex);
+            rowFont = sdkSpriteNewNode(*(void **)(work + 0xC), rowIndex);
             func_0033d3e0(*(void **)(work + j * 4 + 0x1C),
-                          func_002b2970((func_0046b260(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
-                                        (func_0046b2f0(rowFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
+                          func_002b2970((sdkSpriteScaledWidth(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
+                                        (sdkSpriteScaledHeight(rowFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
                           func_002b2970(coords[0], coords[1]), 0, 5, layer0);
-            func_0046d280(rowFont);
+            sdkSpriteFreeNode(rowFont);
         }
         *(s8 *)(work + 0) = 3;
         for (i = 0; i < 0x24; i++) {
@@ -628,12 +628,12 @@ s32 func_00332bb0(u8 *arg0) {
                         slotPos = (f32 *)((u8 *)D_0064A090 + slot * 8);
                         func_0033d4e0(*(void **)(work + n * 4 + 0x1C), 1.0f, 0.5f, 0, 3, n);
                         func_0033d4b0(*(void **)(work + n * 4 + 0x1C), 0xFF, 0, 0, 3, n);
-                        slotFont = func_0046d200(*(void **)(work + 0xC), slot);
+                        slotFont = sdkSpriteNewNode(*(void **)(work + 0xC), slot);
                         func_0033d3e0(*(void **)(work + n * 4 + 0x1C), func_002b2970(slotPos[0], slotPos[1]),
-                                      func_002b2970((func_0046b260(slotFont) / 10.0f) * 1.5f + slotPos[0] + 0.0f,
-                                                    (func_0046b2f0(slotFont) / 10.0f) * 1.5f + slotPos[1] + 0.0f),
+                                      func_002b2970((sdkSpriteScaledWidth(slotFont) / 10.0f) * 1.5f + slotPos[0] + 0.0f,
+                                                    (sdkSpriteScaledHeight(slotFont) / 10.0f) * 1.5f + slotPos[1] + 0.0f),
                                       0, 3, n);
-                        func_0046d280(slotFont);
+                        sdkSpriteFreeNode(slotFont);
                     }
                 }
                 func_0033d320(*(void **)(work + 0x14), 0, 0);
@@ -765,12 +765,12 @@ s32 func_00332bb0(u8 *arg0) {
         func_0033d4e0(*(void **)(work + 0x158), 0.1f, 1.0f, 0, 8, 0xF);
         func_0033d3c0(*(void **)(work + 0x158), 45.0f);
         func_0033d3d0(*(void **)(work + 0x158), 0x5B);
-        labelFont = func_0046d200(*(void **)(work + 0xC), 0x52);
+        labelFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x52);
         func_0033d3e0(*(void **)(work + 0x158),
-                      func_002b2970((func_0046b260(labelFont) / 10.0f) * 5.0f + tbl->x + 0.0f,
-                                    (func_0046b2f0(labelFont) / 10.0f) * 5.0f + tbl->y + 0.0f),
+                      func_002b2970((sdkSpriteScaledWidth(labelFont) / 10.0f) * 5.0f + tbl->x + 0.0f,
+                                    (sdkSpriteScaledHeight(labelFont) / 10.0f) * 5.0f + tbl->y + 0.0f),
                       func_002b2970(tbl->x, tbl->y), 0, 8, 0xF);
-        func_0046d280(labelFont);
+        sdkSpriteFreeNode(labelFont);
         tbl = (F2_0033 *)D_0064A200;
         func_0033d320(*(void **)(work + 0xC8), 0, 0);
         func_0033d3e0(*(void **)(work + 0xC8), func_002b2970(660.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 1, 0x14, 5);
@@ -798,12 +798,12 @@ s32 func_00332bb0(u8 *arg0) {
             func_0033d4b0(*(void **)(work + j * 4 + 0x2C), 0, 0xFF, 0, 5, layer1);
             func_0033d3c0(*(void **)(work + j * 4 + 0x2C), (f32)(j + 0x1A));
             func_0033d3d0(*(void **)(work + j * 4 + 0x2C), 0x63);
-            rowFont = func_0046d200(*(void **)(work + 0xC), listIndex);
+            rowFont = sdkSpriteNewNode(*(void **)(work + 0xC), listIndex);
             func_0033d3e0(*(void **)(work + j * 4 + 0x2C),
-                          func_002b2970((func_0046b260(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
-                                        (func_0046b2f0(rowFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
+                          func_002b2970((sdkSpriteScaledWidth(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
+                                        (sdkSpriteScaledHeight(rowFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
                           func_002b2970(coords[0], coords[1]), 0, 5, layer1);
-            func_0046d280(rowFont);
+            sdkSpriteFreeNode(rowFont);
         }
         func_0033d320(*(void **)(work + 0x18), 0, 0);
         func_0033d4b0(*(void **)(work + 0x18), 0, 0xFF, 0, 0x14, 0xA);
@@ -871,7 +871,7 @@ s32 func_00332bb0(u8 *arg0) {
         func_0033d3c0(*(void **)(work + 0xD8), 61.0f);
         func_0033d3d0(*(void **)(work + 0xD8), 0x5B);
         if (*(s8 *)(work + 0x424) == 1) {
-            capFont = func_0046d200(*(void **)(work + 0xC), 0x51);
+            capFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x51);
             tbl = (F2_0033 *)D_0064A318;
             func_0033d320(*(void **)(work + 0x154), 0, 0);
             func_0033d3e0(*(void **)(work + 0x154), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 0, 0);
@@ -879,8 +879,8 @@ s32 func_00332bb0(u8 *arg0) {
             func_0033d3c0(*(void **)(work + 0x154), 40.0f);
             func_0033d3d0(*(void **)(work + 0x154), 0x62);
             *(s16 *)(func_0033d310(*(void **)(work + 0x154)) + 0x100) = 0;
-            *(s16 *)(func_0033d310(*(void **)(work + 0x154)) + 0x102) = func_0046b2f0(capFont);
-            func_0046d280(capFont);
+            *(s16 *)(func_0033d310(*(void **)(work + 0x154)) + 0x102) = sdkSpriteScaledHeight(capFont);
+            sdkSpriteFreeNode(capFont);
         }
         if (*(s8 *)(work + 9) == 1) {
             tbl = (F2_0033 *)D_0064A340;
@@ -899,18 +899,18 @@ s32 func_00332bb0(u8 *arg0) {
             *(f32 *)(func_0033d310(*(void **)(work + 0x16C)) + 0xC4) = 0.0f;
             func_0033d3c0(*(void **)(work + 0x16C), 23.0f);
             func_0033d3d0(*(void **)(work + 0x16C), 0x63);
-            labelFont = func_0046d200(*(void **)(work + 0xC), 0x58);
+            labelFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x58);
             tbl = (F2_0033 *)D_0064A350;
             func_0033d320(*(void **)(work + 0x170), 0, 0);
             func_0033d3e0(*(void **)(work + 0x170),
-                          func_002b2970(tbl->x + func_0046b260(labelFont) / 2.0f, tbl->y + func_0046b2f0(labelFont) / 2.0f),
+                          func_002b2970(tbl->x + sdkSpriteScaledWidth(labelFont) / 2.0f, tbl->y + sdkSpriteScaledHeight(labelFont) / 2.0f),
                           func_002b2970(tbl->x - 4.0f, tbl->y - 3.0f), 0, 5, 0x23);
             func_0033d4e0(*(void **)(work + 0x170), 0.0f, 1.05f, 2, 5, 0x23);
             func_0033d4b0(*(void **)(work + 0x170), 0, 0xFF, 0, 0, 0x23);
             *(f32 *)(func_0033d310(*(void **)(work + 0x170)) + 0xC4) = 0.0f;
             func_0033d3c0(*(void **)(work + 0x170), 22.0f);
             func_0033d3d0(*(void **)(work + 0x170), 0x63);
-            func_0046d280(labelFont);
+            sdkSpriteFreeNode(labelFont);
             tbl = (F2_0033 *)D_0064A358;
             func_0033d320(*(void **)(work + 0x174), 0, 0);
             func_0033d420(*(u8 **)(work + 0x174), func_002b2970(0x113 + tbl->x, tbl->y),
@@ -1100,12 +1100,12 @@ s32 func_00332bb0(u8 *arg0) {
                     func_0033d4b0(*(void **)(work + 0x158), 0xFF, 0, 0, 5, 0);
                     func_0033d4e0(*(void **)(work + 0x158), 1.0f, 0.6f, 0, 5, 0);
                     func_0033d3c0(*(void **)(work + 0x158), 45.0f);
-                    cardFont = func_0046d200(*(void **)(work + 0xC), 0x52);
+                    cardFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x52);
                     func_0033d3e0(*(void **)(work + 0x158), func_002b2970(tbl->x, tbl->y),
-                                  func_002b2970((func_0046b260(cardFont) / 10.0f) * 2.0f + tbl->x + 0.0f,
-                                                (func_0046b2f0(cardFont) / 10.0f) * 2.0f + tbl->y + 0.0f),
+                                  func_002b2970((sdkSpriteScaledWidth(cardFont) / 10.0f) * 2.0f + tbl->x + 0.0f,
+                                                (sdkSpriteScaledHeight(cardFont) / 10.0f) * 2.0f + tbl->y + 0.0f),
                                   0, 5, 0);
-                    func_0046d280(cardFont);
+                    sdkSpriteFreeNode(cardFont);
                     tbl = (F2_0033 *)D_0064A200;
                     func_0033d320(*(void **)(work + 0xC8), 0, 0);
                     func_0033d3e0(*(void **)(work + 0xC8), func_002b2970(tbl->x, tbl->y), func_002b2970(660.0f, tbl->y), 0,
@@ -1128,12 +1128,12 @@ s32 func_00332bb0(u8 *arg0) {
                         func_0033d4e0(*(void **)(work + j * 4 + 0x2C), 1.0f, 0.7f, 0, 4, layer2);
                         func_0033d4b0(*(void **)(work + j * 4 + 0x2C), 0xFF, 0, 0, 4, layer2);
                         func_0033d3c0(*(void **)(work + j * 4 + 0x2C), (f32)(j + 0x1A));
-                        font = func_0046d200(*(void **)(work + 0xC), cardIndex);
+                        font = sdkSpriteNewNode(*(void **)(work + 0xC), cardIndex);
                         func_0033d3e0(*(void **)(work + j * 4 + 0x2C), func_002b2970(coords[0], coords[1]),
-                                      func_002b2970((func_0046b260(font) / 10.0f) * 1.5f + coords[0] + 0.0f,
-                                                    (func_0046b2f0(font) / 10.0f) * 1.5f + coords[1] + 0.0f),
+                                      func_002b2970((sdkSpriteScaledWidth(font) / 10.0f) * 1.5f + coords[0] + 0.0f,
+                                                    (sdkSpriteScaledHeight(font) / 10.0f) * 1.5f + coords[1] + 0.0f),
                                       0, 4, layer2);
-                        func_0046d280(font);
+                        sdkSpriteFreeNode(font);
                     }
                     func_0033d320(*(void **)(work + 0x18), 0, 0);
                     func_0033d4b0(*(void **)(work + 0x18), 0xFF, 0, 0, 5, 0);
@@ -1262,12 +1262,12 @@ s32 func_00332bb0(u8 *arg0) {
                         func_0033d4b0(*(void **)(work + i16 * 4 + 0x1C), 0, 0xFF, 0, 4, layer3);
                         func_0033d4b0(*(void **)(work + i16 * 4 + 0x1C), 0, 0xFF, 0, 0, layer3);
                         func_0033d3c0(*(void **)(work + i16 * 4 + 0x1C), (f32)(i16 + 0x1A));
-                        iconFont = func_0046d200(*(void **)(work + 0xC), index);
+                        iconFont = sdkSpriteNewNode(*(void **)(work + 0xC), index);
                         func_0033d3e0(*(void **)(work + i16 * 4 + 0x1C),
-                                      func_002b2970((func_0046b260(iconFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
-                                                    (func_0046b2f0(iconFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
+                                      func_002b2970((sdkSpriteScaledWidth(iconFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
+                                                    (sdkSpriteScaledHeight(iconFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
                                       func_002b2970(coords[0], coords[1]), 0, 4, layer3);
-                        func_0046d280(iconFont);
+                        sdkSpriteFreeNode(iconFont);
                     }
                     func_0033d320(*(void **)(work + 0x14), 0, 0);
                     func_0033d4b0(*(void **)(work + 0x14), 0, 0xFF, 0, 0xA, 0x14);
@@ -1659,7 +1659,7 @@ void func_0033bdc0(u8 *arg0) {
         H_Cdvd_Destroy((void *)*(s32 *)(work + 0x428));
     }
     if (*(s32 *)(work + 0xC) != 0) {
-        func_0046b0d0((void *)*(s32 *)(work + 0xC));
+        sdkSpriteRelease((void *)*(s32 *)(work + 0xC));
         *(s32 *)(work + 0xC) = 0;
     }
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
@@ -1740,13 +1740,13 @@ void func_0033bf90(u8 *arg0) {
         func_0033d4e0((void *)*(s32 *)item, 1.0f, 0.5f, 0, 10, layer);
         func_0033d4b0((void *)*(s32 *)item, 0xFF, 0, 0, 10, layer);
         func_0033d3d0((void *)*(s32 *)item, 0xAC);
-        font = func_0046d200((void *)*(s32 *)(work + 0xC), item_index);
+        font = sdkSpriteNewNode((void *)*(s32 *)(work + 0xC), item_index);
         pos0 = func_002b2970(coords[0], coords[1]);
-        x = (func_0046b260(font) / 10.0f) * 1.5f + coords[0] + 0.0f;
-        y = (func_0046b2f0(font) / 10.0f) * 1.5f + coords[1] + 0.0f;
+        x = (sdkSpriteScaledWidth(font) / 10.0f) * 1.5f + coords[0] + 0.0f;
+        y = (sdkSpriteScaledHeight(font) / 10.0f) * 1.5f + coords[1] + 0.0f;
         pos1 = func_002b2970(x, y);
         func_0033d3e0((void *)*(s32 *)item, pos0, pos1, 0, 10, layer);
-        func_0046d280(font);
+        sdkSpriteFreeNode(font);
         i = (s16)(i + 1);
     }
     func_0033d320((void *)*(s32 *)(work + 0x14), 0, 0);
@@ -2071,10 +2071,10 @@ u8 *func_0033d130(void *arg0, s32 arg1, s32 arg2) {
     *(s32 *)(work + 8) = 0x42C80000;
     *(s32 *)(work + 0xFC) = 0x55;
     *(s16 *)(work + 4) = 0;
-    r = func_0046d200((void *)*(s32 *)(work + 0xF4), 0, item_data, i);
-    *(s16 *)(work + 0x100) = (s16)(s32)(func_0046b260(r) / 2.0f);
-    *(s16 *)(work + 0x102) = (s16)(s32)(func_0046b2f0(r) / 2.0f);
-    func_0046d280(r);
+    r = sdkSpriteNewNode((void *)*(s32 *)(work + 0xF4), 0, item_data, i);
+    *(s16 *)(work + 0x100) = (s16)(s32)(sdkSpriteScaledWidth(r) / 2.0f);
+    *(s16 *)(work + 0x102) = (s16)(s32)(sdkSpriteScaledHeight(r) / 2.0f);
+    sdkSpriteFreeNode(r);
     return temp_17;
 }
 /* measured: see annotation above (func_0033d130). */

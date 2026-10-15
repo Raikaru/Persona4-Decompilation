@@ -59,9 +59,9 @@ extern u16 func_0010f560(s16 arg0, s32 arg1);
 extern u32 func_0010f600(s16 arg0, s32 arg1);
 extern void *datCalcGetIdRecord(u16 arg0);
 
-extern void func_0046d3b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
+extern void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, f32 z, s32 arg4);
-extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                           f32 z, s32 arg6);
 extern u32 func_00106880(s16 arg0);
@@ -1180,7 +1180,7 @@ void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4
         if (mode != -1) {
             alpha = 255;
             alpha -= arg1 & 0xFF;
-            func_0046d4c0(0, selected, mode, arg0.x, arg0.y,
+            sdkSpriteDrawOnceTinted(0, selected, mode, arg0.x, arg0.y,
                           alpha & 0xFF,
                           color_a.b[0], color_a.b[1], color_a.b[2],
                           fparg0, 0);
@@ -1212,7 +1212,7 @@ static inline void func_00112830_number(Vec2f pos, f32 depth, u16 value,
         x = 22.0f + pos.x;
     }
     do {
-        func_0046d4c0(0, tex, value % 10 + 0x1E, x, pos.y, 0xFF - color.b[3],
+        sdkSpriteDrawOnceTinted(0, tex, value % 10 + 0x1E, x, pos.y, 0xFF - color.b[3],
                       color.b[0], color.b[1], color.b[2], depth, 0);
         x -= 15.0f;
         value /= 10;
@@ -1230,7 +1230,7 @@ static inline void func_00112830_arrow(Vec2f pos, f32 depth, StatColor color,
         } else if (prev < value) {
             glyph = 41;
         }
-        func_0046d4c0(0, tex, glyph, pos.x, pos.y - 1.0f, 0xFF - color.b[3],
+        sdkSpriteDrawOnceTinted(0, tex, glyph, pos.x, pos.y - 1.0f, 0xFF - color.b[3],
                       color.b[0], color.b[1], color.b[2], depth, 0);
     }
 }
@@ -1288,7 +1288,7 @@ void func_00112830(Vec2f pos, f32 depth, u8 alpha, u8 *arg2, s32 tex)
         pos.x += 35.0f;
         pos.y += 4.0f;
         for (i = 0; i < 4; i++) {
-            func_0046d4c0(0, tex, 60, pos.x, pos.y, 0xFF - alpha,
+            sdkSpriteDrawOnceTinted(0, tex, 60, pos.x, pos.y, 0xFF - alpha,
                           color.b[0], color.b[1], color.b[2], depth, 0);
             pos.x += 34.0f;
         }
@@ -1305,7 +1305,7 @@ static inline s32 fontDrawLeadingGlyph(const Vec2f *position, f32 depth, u8 opac
     *blue = color->b;
     *green = color->g;
     alpha = 255 - (opacity & 0xFF);
-    func_0046d4c0(0, texture, 0x47, position->x, 2.0f + position->y,
+    sdkSpriteDrawOnceTinted(0, texture, 0x47, position->x, 2.0f + position->y,
                   alpha, color->r, *green, *blue, depth, 0);
     return alpha;
 }
@@ -1346,7 +1346,7 @@ void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     loop_color2 = color2;
     loop_color1 = color1;
     while (var_20 >= 0) {
-        func_0046d4c0(0, arg3, stack.text[var_20] - 0x27,
+        sdkSpriteDrawOnceTinted(0, arg3, stack.text[var_20] - 0x27,
                       arg0.x, arg0.y, alpha_byte,
                       stack.color.r, loop_color1, loop_color2, fparg0, 0);
         arg0.x -= 14.0f;
@@ -1407,7 +1407,7 @@ void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1, s16 arg2, s32 arg3,
     if (mode != -1) {
         alpha = 0xFF;
         alpha -= ((u8 *)&arg1)[3];
-        func_0046d4c0(0, id, mode, arg0.x, arg0.y,
+        sdkSpriteDrawOnceTinted(0, id, mode, arg0.x, arg0.y,
                       alpha & 0xFF,
                       ((u8 *)&arg1)[0], ((u8 *)&arg1)[1],
                       ((u8 *)&arg1)[2], scale, 0);
@@ -1615,12 +1615,12 @@ void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
     }
     if (p4_0011_signext16(temp_17) == -1) {
         alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-        func_0046d3b0(0, temp_2, 3, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        sdkSpriteDrawOnceAux(0, temp_2, 3, arg0.x, arg0.y, 0, alpha, arg4, 1);
         return;
     }
     if (func_00106c30(temp_17, *(s16 *)arg2) == 0) {
         alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-        func_0046d3b0(0, temp_2, 3, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        sdkSpriteDrawOnceAux(0, temp_2, 3, arg0.x, arg0.y, 0, alpha, arg4, 1);
         return;
     }
     mode = func_00106c80(temp_17);
@@ -1629,53 +1629,53 @@ void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
         temp_20 = func_001068b0(temp_17) & 0xFFFF;
         if (temp_20 == (func_001068b0(func_00106cd0(*(s16 *)arg2, 0)) & 0xFFFF)) {
             alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-            func_0046d3b0(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            sdkSpriteDrawOnceAux(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
             return;
         }
         temp_17_2 = func_001068b0(temp_17) & 0xFFFF;
         if (temp_17_2 >= (func_001068b0(func_00106cd0(*(s16 *)arg2, 0)) & 0xFFFF)) {
             alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-            func_0046d3b0(0, temp_2, 1, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            sdkSpriteDrawOnceAux(0, temp_2, 1, arg0.x, arg0.y, 0, alpha, arg4, 1);
             return;
         }
         alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-        func_0046d3b0(0, temp_2, 2, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        sdkSpriteDrawOnceAux(0, temp_2, 2, arg0.x, arg0.y, 0, alpha, arg4, 1);
         return;
     case 1:
         temp_20_2 = func_00106940(temp_17) & 0xFFFF;
         if (temp_20_2 >= (func_00106940(func_00106cd0(*(s16 *)arg2, 1)) & 0xFFFF)) {
             alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-            func_0046d3b0(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            sdkSpriteDrawOnceAux(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
             return;
         }
         temp_17_3 = func_00106940(temp_17) & 0xFFFF;
         if (temp_17_3 >= (func_00106940(func_00106cd0(*(s16 *)arg2, 1)) & 0xFFFF)) {
             alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-            func_0046d3b0(0, temp_2, 1, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            sdkSpriteDrawOnceAux(0, temp_2, 1, arg0.x, arg0.y, 0, alpha, arg4, 1);
             return;
         }
         alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-        func_0046d3b0(0, temp_2, 2, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        sdkSpriteDrawOnceAux(0, temp_2, 2, arg0.x, arg0.y, 0, alpha, arg4, 1);
         return;
     case 2:
         temp_20_3 = func_00106970(temp_17) & 0xFFFF;
         if (temp_20_3 >= (func_00106970(func_00106cd0(*(s16 *)arg2, 2)) & 0xFFFF)) {
             alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-            func_0046d3b0(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            sdkSpriteDrawOnceAux(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
             return;
         }
         temp_17_4 = func_00106970(temp_17) & 0xFFFF;
         if (temp_17_4 >= (func_00106970(func_00106cd0(*(s16 *)arg2, 2)) & 0xFFFF)) {
             alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-            func_0046d3b0(0, temp_2, 1, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            sdkSpriteDrawOnceAux(0, temp_2, 1, arg0.x, arg0.y, 0, alpha, arg4, 1);
             return;
         }
         alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-        func_0046d3b0(0, temp_2, 2, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        sdkSpriteDrawOnceAux(0, temp_2, 2, arg0.x, arg0.y, 0, alpha, arg4, 1);
         return;
     case 3:
         alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
-        func_0046d3b0(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        sdkSpriteDrawOnceAux(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
         return;
     }
 }

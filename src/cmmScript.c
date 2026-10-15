@@ -58,7 +58,7 @@ extern s16 D_00635BB8[];
 extern s32 D_00635B38[];
 extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
 extern s32 kwlnTaskIsLinked(s32 arg0);
-extern void func_0046b0d0(u8* arg0);
+extern void sdkSpriteRelease(u8* arg0);
 extern void H_Cdvd_Destroy(u8* arg0);
 extern u8* func_00454a60(void* arg0, s32 arg1);
 extern s32 H_Cdvd_IsFileLoaded(u8* arg0);
@@ -914,7 +914,7 @@ s32 func_0024b870(u8 *task)
         t->state = 4;
         loadId = func_00455f70(D_00635A60, (u32*)&sp2c);
         if (loadId != 0) {
-            t->data = (s32)func_0046af60((u32)loadId);
+            t->data = (s32)sdkSpriteAdoptBlob((u32)loadId);
         }
     case 4:
         if (func_0046a750(t->data) != 0) {
@@ -945,7 +945,7 @@ void func_0024b990(u8 *task)
     }
     x = t->data;
     if (x != 0) {
-        func_0046b0d0((u8*)x);
+        sdkSpriteRelease((u8*)x);
         t->data = 0;
     }
     H_Cdvd_Destroy((u8*)t->cdvdHandle);
