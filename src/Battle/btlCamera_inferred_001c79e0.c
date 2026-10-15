@@ -1,0 +1,1208 @@
+#include "btl_motion_internal.h"
+#include "btl_skill_target_internal.h"
+#include "include_asm.h"
+#include "type.h"
+#include "effect_instance_internal.h"
+
+/* Preserve source operand order in the camera's height products. */
+static inline f32 p4_cacd0_mul(f32 left, f32 right)
+{
+    return left * right;
+}
+
+typedef struct BtlUnitStateWork BtlUnitStateWork;
+typedef struct BtlUnit BtlUnit;
+typedef struct RwV3d RwV3d;
+typedef struct RwMatrixTag RwMatrix;
+typedef struct RtQuat RtQuat;
+
+struct RwV3d {
+    f32 x;
+    f32 y;
+    f32 z;
+};
+
+typedef struct P4Vec4_001EC2B0 { f32 x, y, z, w; } P4Vec4_001EC2B0;
+typedef struct P4Vec4Holder_001EC2B0 { P4Vec4_001EC2B0 quat; } P4Vec4Holder_001EC2B0;
+typedef struct P4CameraFrame { RwV3d pos; P4Vec4Holder_001EC2B0 rot; } P4CameraFrame;
+typedef struct P4CameraBlend {
+    P4Vec4Holder_001EC2B0 first, second;
+    f32 scalar;
+    s32 flag;
+} P4CameraBlend;
+typedef struct P4CameraVec2 { f32 x, y; } P4CameraVec2;
+
+
+struct RwMatrixTag {
+    RwV3d right;
+    u32 flags;
+    RwV3d up;
+    u32 pad1;
+    RwV3d at;
+    u32 pad2;
+    RwV3d pos;
+    u32 pad3;
+};
+
+extern void func_001c9820(u8 *camera, f32 angleLimit, s32 reverse, s32 preserveSide);
+extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
+extern u32 func_001c6f40(u8 *camera, s32 resultCode, s32 useAlternate,
+                          P4CameraFrame *firstOut, P4CameraFrame *secondOut);
+extern f32 fGpffff809c;
+extern f32 fGpffff8198;
+extern f32 fGpffff8110;
+extern f32 DAT_00761278;
+extern f32 fGpffff8100;
+extern f32 RwV3dNormalize(RwV3d *arg0, const RwV3d *arg1);
+extern void func_001bd560();
+extern void func_001958f0(BtlUnit *unit, RwV3d *out);
+extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
+extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
+extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
+extern u32 func_001bc3a0(f32 *arg0, f32 *arg1);
+extern f32 tanf(f32 arg0);
+extern f32 fGpffff80fc;
+extern f32 fGpffff8114;
+extern u8 *iGpffffb3ac;
+extern u8 *iGpffffb3e0;
+extern f32 fGpffff811c;
+extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
+extern s32 func_001d8df0(u8 *arg0);
+extern u32 func_001d8bc0(void *formation);
+extern void func_001c79f0(u8 *arg0, s32 arg1);
+extern void func_001c80f0(u8 *arg0, s32 arg1);
+extern void func_001c8b00(u8 *arg0);
+extern void func_001bd4f0(u8 *arg0);
+extern void func_001bd530(u8 *arg0);
+extern u8 *func_00457120(void);
+extern void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second);
+extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
+extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
+extern u8 D_005F7CA0[];
+extern u8 D_005F91A0[];
+extern u8 D_005FA2D0[];
+extern u8 D_005F78C0[];
+extern u8 D_005F7AB0[];
+extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
+extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
+extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
+extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
+extern u8 D_0060A0D0[];
+extern u8 D_0060A0E0[];
+extern RwV3d D_0060A0F0;
+extern u8 D_0060A100[];
+extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
+extern f32 func_001ec250(f32 *arg0, u8 *arg1);
+extern s32 func_0044dcd8(f32 arg0);
+extern s32 func_0044b310(s32 arg0);
+extern f32 func_0044e7d8(s32 arg0);
+extern f32 fGpffff819c;
+extern u8 D_00607DD0[];
+extern u8 D_00607DD8[];
+extern f32 D_00607DDC[];
+extern f32 D_00607DE0[];
+extern f32 D_00607DE4[];
+extern f32 D_00607DF0[];
+extern f32 D_00607DFC[];
+extern f32 D_00607E10[];
+extern f32 D_00607E14[];
+extern f32 D_00607E18[];
+extern f32 D_00607E1C[];
+extern f32 D_00607E20[];
+extern f32 D_00607E24[];
+extern f32 D_00607E30[];
+extern f32 D_00607E3C[];
+extern RwV3d *RtQuatTransformVectors(RwV3d *arg0, const RwV3d *arg1, s32 arg2, const RtQuat *arg3);
+static inline f32 func_001c_mul_add(f32 arg0, f32 arg1, f32 arg2)
+{
+    return arg0 * arg1 + arg2;
+}
+static inline void func_001c_copy_pair(s64 *arg0, f32 *arg1,
+                                       s64 *arg2, f32 *arg3)
+{
+    s64 pair;
+    f32 value;
+
+    pair = *arg2;
+    value = *arg3;
+    *arg0 = pair;
+    *arg1 = value;
+}
+static inline void func_001c_rotate(RwMatrix *arg0, const RwV3d *arg1,
+                                    f32 arg2, s32 arg3)
+{
+    RwMatrixRotate(arg0, arg1, arg2, arg3);
+}
+
+/* Promoted from the canonical function map: every function here is a
+   retail window with an INCLUDE_ASM fallback and no C body yet. */
+
+/* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
+
+static inline f32 cameraSideRadius(f32 first, f32 second)
+{
+    if (first > second) return first;
+    return second;
+}
+
+/* Source unit: src/promoted/code1_001c.c */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001c79e0-001c9820 */
+
+// FUN_001C79E0
+void func_001c79e0(void) {}
+
+/* MATCH.  The last two words were the order of two operand loads feeding one
+   add: retail loads the position Y coordinate into $f1 before the direction Y
+   coordinate into $f0, this body did the reverse.  Snapshotting the position
+   Y into an ordinary float local immediately before the first Y output, and
+   using it in both Y expressions, gives retail's order - retail reuses that
+   value in the final height calculation, which is why it loads it first.
+   The position of the snapshot is the whole trick: taken before the X output
+   it scores 5, and before the position X update 20, which is why the earlier
+   pass recorded "hoisting pos138[1] into a local (5)" and concluded the load
+   pair was a scheduler coin-flip.  It was not.
+   Also measured at 2 and byte-identical on the way here: `schedule off`,
+   `opt_loop_invariants on`, `opt_unroll_loops off`, an explicit `tmpMul`
+   temporary, a reassociated `dir128[1] * var_f20 + pos138[1]`, and fully
+   parenthesised operands.  Worse: reordering the three `outC0[i]` assignments
+   (17 and 8), splitting the add into `= pos; += dir * f` (40), `schedule on`
+   (388), `peephole off` (402), `opt_propagation off` (397),
+   `opt_common_subs off` (401). */
+// FUN_001C79F0
+void func_001c79f0(u8 *arg0, s32 arg1)
+{
+    struct Frame {
+        u8 mat60[0x40];
+        f32 poseA0[7];
+        u8 padBC[4];
+        f32 outC0[3];
+        f32 quatCC[4];
+        f32 padDC;
+        f32 horizE0[2];
+        f32 actorE8[3];
+        f32 padF4;
+        f32 baseF8[3];
+        f32 pad104;
+        f32 eye108[3];
+        f32 pad114;
+        f32 target118[3];
+        f32 pad124;
+        f32 dir128[3];
+        f32 pad134;
+        f32 pos138[3];
+        f32 pad144;
+        f32 min148;
+        f32 max14C;
+    } frame;
+    extern f32 fGpffff8110;
+    extern f32 fGpffff8128;
+    extern f32 fGpffff812c;
+    extern f32 fGpffff8118;
+    extern f32 fGpffff8130;
+    extern f32 fGpffff8134;
+    extern f32 fGpffff8138;
+    extern f32 fGpffff813c;
+    extern f32 fGpffff8030;
+    extern void func_00195d50(u8 *arg0, f32 *arg1);
+    extern s32 datCalcIsDead(s32 arg0, s32 arg1);
+    extern s32 func_00243e30(s32 arg0);
+    extern s32 datCalcIsLowHp(s32 arg0);
+    extern f32 tanf(f32 arg0);
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    f32 var_f24;
+    f32 var_f23;
+    f32 var_f22;
+    f32 var_f21;
+    f32 var_f20;
+    f32 positionY;
+    u8 *saved_arg0;
+    u8 *var17;
+    u8 *var16;
+    (void)arg1;
+
+    saved_arg0 = arg0;
+    if (*(u16 *)(saved_arg0 + 0x106) != 0) {
+        func_001bd560(frame.poseA0, (f32 *)(saved_arg0 + 0x9C));
+        var16 = *(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30);
+        var_f20 = func_00196040(3, 0, (RwV3d *)(frame.target118), 0, 0, 1);
+        func_00196040(1, 0, NULL, &frame.max14C, &frame.min148, 1);
+        frame.target118[1] = frame.min148 + 0.5f * (frame.max14C - frame.min148);
+        var_f20 = (0.75f * var_f20) / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
+        func_001958f0((BtlUnit *)(var16), (RwV3d *)(frame.actorE8));
+        frame.eye108[0] = frame.actorE8[0];
+        frame.eye108[1] = frame.target118[1];
+        frame.eye108[2] = frame.actorE8[2];
+        frame.dir128[0] = frame.actorE8[0] - frame.target118[0];
+        frame.dir128[1] = frame.target118[1] - frame.target118[1];
+        frame.dir128[2] = frame.actorE8[2] - frame.target118[2];
+        {
+            f32 tmpLen;
+            tmpLen = RwV3dNormalize((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128);
+            tmpLen = p4_cacd0_mul(fGpffff8128, tmpLen);
+            frame.dir128[0] = frame.dir128[0] * tmpLen;
+            frame.dir128[1] = frame.dir128[1] * tmpLen;
+            frame.dir128[2] = frame.dir128[2] * tmpLen;
+        }
+        frame.baseF8[0] = frame.target118[0] + frame.dir128[0];
+        frame.baseF8[1] = frame.target118[1] + frame.dir128[1];
+        frame.baseF8[2] = frame.target118[2] + frame.dir128[2];
+        frame.eye108[0] = frame.actorE8[0];
+        frame.eye108[1] = frame.max14C;
+        frame.eye108[2] = frame.actorE8[2];
+        func_001bd780((void *)frame.quatCC, (void *)frame.eye108, (void *)frame.baseF8, (void *)D_0060A0E0);
+        RtQuatTransformVectors((RwV3d *)frame.dir128, (const RwV3d *)D_0060A100, 1, (const RtQuat *)frame.quatCC);
+        frame.dir128[0] = frame.dir128[0] * var_f20;
+        frame.dir128[1] = frame.dir128[1] * var_f20;
+        frame.dir128[2] = frame.dir128[2] * var_f20;
+        var_f20 = p4_cacd0_mul(var_f20 * tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f);
+        var_f20 = var_f20 * fGpffff812c;
+        frame.horizE0[0] = frame.dir128[0];
+        frame.horizE0[1] = frame.dir128[2];
+        func_003e41e0(frame.horizE0, frame.horizE0);
+        frame.baseF8[0] = frame.horizE0[1] * var_f20 + frame.baseF8[0] + 0.0f;
+        frame.baseF8[2] = (frame.baseF8[2] + 0.0f) - frame.horizE0[0] * var_f20;
+        frame.outC0[0] = frame.baseF8[0] + frame.dir128[0];
+        frame.outC0[1] = frame.baseF8[1] + frame.dir128[1];
+        frame.outC0[2] = frame.baseF8[2] + frame.dir128[2];
+        func_001bc3a0(frame.outC0, frame.outC0);
+        btlMainCurveSetPoses((u16 *)saved_arg0, frame.poseA0, frame.outC0, 1);
+        btlCameraSetDuration(saved_arg0, 0.75f);
+    } else {
+        *(s32 *)(saved_arg0 + 0x148) = 1;
+        var17 = (u8 *)func_001d8bc0(*(u8 **)(saved_arg0 + 0xE0) + 0x98);
+        var16 = *(u8 **)(var17 + 0x30);
+        var_f20 = *(f32 *)(var16 + 0x90) * *(f32 *)(var16 + 0x2C);
+        var_f24 = 0.5f * (*(f32 *)(var16 + 0x8C) * *(f32 *)(var16 + 0x2C));
+        if (datCalcIsDead(*(s32 *)(var16 + 0xA64), 0) != 0) {
+            func_00195d50(var16, frame.pos138);
+            var_f23 = 1.5f;
+            var_f22 = 3.5f;
+            var_f21 = 25.0f;
+            frame.pos138[1] = frame.pos138[1] - fGpffff8118 * var_f24;
+        } else if (datCalcChkBadStatus(*(s32 *)(var16 + 0xA64), 0x100000) != 0) {
+            btlUnitGetSphereWorldCenter(var16, frame.pos138);
+            var_f23 = fGpffff8130;
+            var_f22 = fGpffff8134;
+            var_f21 = 25.0f;
+            frame.pos138[1] = frame.pos138[1] - fGpffff8118 * var_f24;
+        } else if (func_00243e30(*(s32 *)(var16 + 0xA64)) != 0) {
+            btlUnitGetSphereWorldCenter(var16, frame.pos138);
+            var_f23 = fGpffff8138;
+            var_f22 = 0.75f;
+            var_f21 = 15.0f;
+            frame.pos138[1] = frame.pos138[1] + fGpffff8118 * var_f24;
+        } else if (datCalcIsLowHp(*(s32 *)(var16 + 0xA64)) != 0) {
+            btlUnitGetSphereWorldCenter(var16, frame.pos138);
+            var_f23 = fGpffff8138;
+            var_f22 = 1.0f;
+            var_f21 = 25.0f;
+            frame.pos138[1] = frame.pos138[1] - fGpffff8030 * var_f24;
+        } else {
+            btlUnitGetSphereWorldCenter(var16, frame.pos138);
+            var_f23 = 1.25f;
+            var_f22 = 1.0f;
+            var_f21 = 25.0f;
+            frame.pos138[1] = frame.pos138[1] + fGpffff813c * var_f24;
+        }
+        if (var_f20 > var_f24) {
+            var_f20 = (var_f20 * var_f23) / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
+        } else {
+            var_f20 = (var_f24 * var_f23) / tanf(0.5f * *(f32 *)(saved_arg0 + 0xB8));
+        }
+        RtQuatTransformVectors((RwV3d *)frame.dir128, (const RwV3d *)(&D_0060A0F0), 1, (const RtQuat *)(var16 + 0x1C));
+        RwMatrixRotate((RwMatrix *)frame.mat60, (const RwV3d *)D_0060A0E0, var_f21, 0);
+        func_003e4320((RwV3d *)frame.dir128, (const RwV3d *)frame.dir128, (const RwMatrix *)frame.mat60);
+        var_f21 = p4_cacd0_mul(var_f20 * tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8))), 0.21875f);
+        var_f21 = var_f21 * fGpffff8118;
+        frame.horizE0[0] = frame.dir128[0];
+        frame.horizE0[1] = frame.dir128[2];
+        func_003e41e0(frame.horizE0, frame.horizE0);
+        frame.pos138[0] = frame.horizE0[1] * var_f21 + frame.pos138[0] + 0.0f;
+        frame.pos138[2] = (frame.pos138[2] + 0.0f) - frame.horizE0[0] * var_f21;
+        frame.outC0[0] = frame.pos138[0] + frame.dir128[0] * var_f20;
+        positionY = frame.pos138[1];
+        frame.outC0[1] = positionY + frame.dir128[1] * var_f20;
+        frame.outC0[2] = frame.pos138[2] + frame.dir128[2] * var_f20;
+        frame.outC0[1] = positionY + var_f24 * var_f22;
+        func_001bd780((void *)frame.quatCC, (void *)frame.outC0, (void *)frame.pos138, (void *)D_0060A0E0);
+        func_001bcd40(var17, (u8 *)0, (f32 *)0, 0.0f, 1);
+        btlMainCurveReset((u16 *)(saved_arg0), (f32 *)frame.outC0);
+    }
+}
+
+/* Interpolate the group and target orientations using a complete
+ * quaternion cache and four complete poses. Position weights remain
+ * distinct from the sine-adjusted quaternion weights.
+ * b210 -O2: 2012 exact bytes and four zero alignment bytes. */
+// FUN_001C80F0
+void func_001c80f0(u8 *camera, s32 immediate)
+{
+    f32 top;
+    RwV3d direction;
+    RwV3d delta;
+    RwV3d focus;
+    RwV3d actorPosition;
+    RwV3d center;
+    P4CameraFrame frames[2];
+    P4CameraFrame endpoints[2];
+    P4CameraBlend blend;
+    P4Vec4Holder_001EC2B0 heading;
+    f32 distance;
+    f32 doubledRadius;
+    f32 separation;
+    f32 halfFov;
+    f32 heightDistance;
+    f32 minimumDistance;
+    f32 scale;
+    f32 firstWeight;
+    f32 secondWeight;
+    f32 x;
+    f32 x2;
+    f32 r;
+    f32 r2;
+    u8 *unit;
+    u8 *next;
+    u8 *target;
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
+    extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
+    extern void func_001bd560(f32 *out, f32 *in);
+    extern void func_001bd5e0(f32 *out, f32 *in);
+    extern void func_001ec1c0(u8 *out, u8 *first, u8 *second);
+    extern void func_003dcc70(const void *first, const void *second, void *result);
+    extern f32 tanf(f32 angle);
+    extern f32 fGpffff8118, fGpffff80bc, fGpffff8120, fGpffff8124;
+    extern f32 fGpffff8104, fGpffff8054, fGpffff8058, fGpffff805c, fGpffff8060, fGpffff8108;
+
+    unit = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
+    next = (u8 *)func_001d8bc0(*(u8 **)(camera + 0xE0) + 0x98);
+    func_001bd560((f32 *)&frames[0], (f32 *)(camera + 0x9C));
+    btlUnitGetSphereWorldCenter((BtlUnit *)unit, &actorPosition);
+    doubledRadius = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
+    doubledRadius *= 2.0f;
+    actorPosition.y = 0.0f + actorPosition.y + fGpffff8118 * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
+    distance = func_00196040(2, 0, &center, &top, NULL, 1);
+    top *= fGpffff8100;
+    center.y = top;
+    func_001ec1c0((u8 *)&heading, (u8 *)&actorPosition, (u8 *)&center);
+    RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)&heading);
+    direction.x *= doubledRadius;
+    direction.y *= doubledRadius;
+    direction.z *= doubledRadius;
+    actorPosition.x += direction.x;
+    actorPosition.y += direction.y;
+    actorPosition.z += direction.z;
+    delta.x = actorPosition.x - center.x;
+    delta.y = actorPosition.y - center.y;
+    delta.z = actorPosition.z - center.z;
+    separation = RwV3dNormalize(&delta, &delta);
+    scale = fGpffff811c * separation;
+    focus.x = delta.x * scale;
+    focus.y = delta.y * scale;
+    focus.z = delta.z * scale;
+    focus.x += center.x;
+    focus.y += center.y;
+    focus.z += center.z;
+    direction = actorPosition;
+    func_001bd780(&endpoints[0].rot, &direction, &focus, D_0060A0E0);
+    halfFov = 0.5f * *(f32 *)(camera + 0xB8);
+    if (*(u16 *)(camera + 0x106) == 0) {
+        heightDistance = 0.75f * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
+        heightDistance /= tanf(halfFov);
+        minimumDistance = (0.75f * distance) / tanf(halfFov);
+    } else {
+        heightDistance = fGpffff811c * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
+        heightDistance /= tanf(halfFov);
+        minimumDistance = (fGpffff811c * distance) / tanf(halfFov);
+    }
+    distance = heightDistance + separation;
+    distance = cameraSideRadius(distance, minimumDistance);
+    RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&endpoints[0].rot);
+    scale = distance * tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    scale *= 0.109375f;
+    scale *= fGpffff80bc;
+    center.x = 0.0f + center.x + direction.z * scale;
+    center.z = 0.0f + center.z - direction.x * scale;
+    direction.x *= distance;
+    direction.y *= distance;
+    direction.z *= distance;
+    endpoints[0].pos.x = center.x + direction.x;
+    endpoints[0].pos.y = center.y + direction.y;
+    endpoints[0].pos.z = center.z + direction.z;
+    if (*(u16 *)(camera + 0x106) == 0) {
+        target = *(u8 **)(next + 0x30);
+        func_001958f0((BtlUnit *)(target), (RwV3d *)((f32 *)&center));
+        if (!(50.0f <= center.y)) center.y = 50.0f;
+        func_001ec1c0((u8 *)&heading, (u8 *)&actorPosition, (u8 *)&center);
+        RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)&heading);
+        direction.x *= doubledRadius;
+        direction.y *= doubledRadius;
+        direction.z *= doubledRadius;
+        actorPosition.x += direction.x;
+        actorPosition.y += direction.y;
+        actorPosition.z += direction.z;
+        delta.x = actorPosition.x - center.x;
+        delta.y = actorPosition.y - center.y;
+        delta.z = actorPosition.z - center.z;
+        RwV3dNormalize(&delta, &delta);
+        scale = fGpffff811c * RwV3dNormalize(&delta, &delta);
+        focus.x = delta.x * scale;
+        focus.y = delta.y * scale;
+        focus.z = delta.z * scale;
+        focus.x += center.x;
+        focus.y += center.y;
+        focus.z += center.z;
+        direction = actorPosition;
+        func_001bd780(&endpoints[1].rot, &direction, &focus, D_0060A0E0);
+        endpoints[1].pos = endpoints[0].pos;
+        func_003dcc70(&endpoints[0].rot, &endpoints[1].rot, &blend);
+        firstWeight = fGpffff8120;
+        secondWeight = fGpffff8124;
+        if (blend.flag == 0) {
+            x = firstWeight * blend.scalar;
+            x2 = x * x;
+            r = 0.0f + fGpffff8054 + fGpffff8104 * x2;
+            r = 0.0f + fGpffff8058 + x2 * r;
+            r = 0.0f + fGpffff805c + x2 * r;
+            r = 0.0f + fGpffff8060 + x2 * r;
+            r2 = 0.0f + fGpffff8108 + x2 * r;
+            r = x2 * x;
+            firstWeight = 0.0f + x + r * r2;
+            x = secondWeight * blend.scalar;
+            x2 = x * x;
+            r = 0.0f + fGpffff8054 + fGpffff8104 * x2;
+            r = 0.0f + fGpffff8058 + x2 * r;
+            r = 0.0f + fGpffff805c + x2 * r;
+            r = 0.0f + fGpffff8060 + x2 * r;
+            r2 = 0.0f + fGpffff8108 + x2 * r;
+            r = x2 * x;
+            secondWeight = 0.0f + x + r * r2;
+        }
+        frames[1].rot.quat.x = blend.first.quat.x * firstWeight;
+        frames[1].rot.quat.y = blend.first.quat.y * firstWeight;
+        frames[1].rot.quat.z = blend.first.quat.z * firstWeight;
+        frames[1].rot.quat.x = 0.0f + frames[1].rot.quat.x + blend.second.quat.x * secondWeight;
+        frames[1].rot.quat.y = 0.0f + frames[1].rot.quat.y + blend.second.quat.y * secondWeight;
+        frames[1].rot.quat.z = 0.0f + frames[1].rot.quat.z + blend.second.quat.z * secondWeight;
+        frames[1].rot.quat.w = blend.first.quat.w * firstWeight + blend.second.quat.w * secondWeight;
+        x = endpoints[0].pos.x;
+        x *= fGpffff8120;
+        endpoints[0].pos.x = x;
+        endpoints[0].pos.y *= fGpffff8120;
+        endpoints[0].pos.z *= fGpffff8120;
+        x = endpoints[1].pos.x;
+        secondWeight = fGpffff8124;
+        endpoints[1].pos.x = x * secondWeight;
+        endpoints[1].pos.y *= secondWeight;
+        endpoints[1].pos.z *= secondWeight;
+        frames[1].pos.x = endpoints[0].pos.x + endpoints[1].pos.x;
+        frames[1].pos.y = endpoints[0].pos.y + endpoints[1].pos.y;
+        frames[1].pos.z = endpoints[0].pos.z + endpoints[1].pos.z;
+    } else {
+        func_001bd5e0((f32 *)&frames[1], (f32 *)&endpoints[0]);
+    }
+    if (frames[0].pos.y < 25.0f) frames[0].pos.y = 25.0f;
+    if (frames[1].pos.y < 25.0f) frames[1].pos.y = 25.0f;
+    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0xE0);
+    if (immediate != 0) {
+        btlMainCurveReset((u16 *)camera, (f32 *)&frames[1]);
+        return;
+    }
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlCameraSetDuration(camera, 0.75f);
+}
+
+// FUN_001C88D0
+s32 func_001c88d0(u8 *arg0, s32 *arg1, f32 *arg2, u8 *arg3)
+{
+    struct Frame {
+        u8 pad48[0x8];
+        f32 value58;
+        f32 value5C;
+        f32 value60;
+        f32 value64;
+        f32 value68;
+        f32 value6C;
+        f32 value70;
+        f32 value74;
+        f32 value78;
+        f32 value7C;
+        f32 value80;
+        f32 value84;
+        f32 value88;
+        f32 value8C;
+        f32 value90;
+        f32 value94;
+        f32 value98;
+        f32 value9C;
+        f32 valueA0;
+        f32 valueA4;
+        f32 valueA8;
+        f32 valueAC;
+    } frame;
+    f32 product;
+    f32 distance1;
+    f32 distance2;
+    product = *(f32 *)(arg0 + 0x90) * *(f32 *)(arg0 + 0x2C);
+    distance1 = fGpffff809c * product;
+    product = *(f32 *)(arg0 + 0x8C) * *(f32 *)(arg0 + 0x2C);
+    distance2 = 0.5f * (fGpffff809c * product);
+    btlUnitGetSphereWorldCenter(arg0, &frame.valueA0);
+    frame.value90 = frame.valueA0;
+    frame.value94 = frame.valueA4 + distance2;
+    frame.value98 = frame.valueA8;
+    func_003e4320((RwV3d *)(u8 *)&frame.value70, (const RwV3d *)D_0060A0D0, (const RwMatrix *)arg3);
+    frame.value70 = frame.value70 * distance1;
+    frame.value74 = frame.value74 * distance1;
+    frame.value78 = frame.value78 * distance1;
+    frame.value80 = frame.valueA0 + frame.value70;
+    frame.value84 = frame.valueA4 + frame.value74;
+    frame.value88 = frame.valueA8 + frame.value78;
+    if ((func_001ec4a0(&frame.valueA0, &frame.value68) != 0) &&
+        (func_001ec4a0(&frame.value90, &frame.value60) != 0) &&
+        (func_001ec4a0(&frame.value80, &frame.value58) != 0)) {
+        *arg2 = func_001ec250(&frame.valueA0, arg3 + 0x30);
+        distance1 = func_0044e7d8(
+            func_0044b310(func_0044dcd8(frame.value64 - frame.value6C)));
+        distance2 = func_0044e7d8(
+            func_0044b310(func_0044dcd8(frame.value58 - frame.value68)));
+        arg1[0] = (s32)(frame.value68 - distance2);
+        arg1[1] = (s32)(frame.value6C - distance1);
+        arg1[3] = (s32)(2.0f * distance1);
+        arg1[2] = (s32)(2.0f * distance2);
+        return 1;
+    }
+    return 0;
+}
+
+// FUN_001C8B00
+void func_001c8b00(u8 *arg0)
+{
+    struct Frame {
+        s32 value60;
+        s32 value64;
+        s32 value68;
+        s32 value6C;
+        s32 value70;
+        s32 value74;
+        s32 value78;
+        s32 value7C;
+        u8 pad80[8];
+        f32 value88;
+        f32 value8C;
+    } frame;
+    u8 *var20;
+    u8 *temp19;
+    u8 *temp18;
+    s32 var17;
+    u8 *temp16;
+
+    if (*(u16 *)(arg0 + 0x106) == 0) {
+        temp18 = *(u8 **)(func_00457120() + 4) + 0x10;
+        temp19 = *(u8 **)((u8 *)func_001d8bc0(*(u8 **)(arg0 + 0xE0) + 0x98) + 0x30);
+        temp16 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
+        if (func_001c88d0(temp19, &frame.value60, &frame.value88, temp18) != 0) {
+            func_001bd530(temp19);
+            var17 = 0;
+            goto outer_test;
+outer_body:
+            var20 = *(u8 **)(iGpffffb3ac + (var17 << 3) + 0x178);
+            goto inner_test;
+inner_body:
+            if (((*(s32 *)(var20 + 0x9C) & 8) != 0) &&
+                (temp19 != var20) &&
+                (temp16 != var20)) {
+                if (func_001c88d0(var20, &frame.value70, &frame.value8C, temp18) == 0) {
+                    func_001bd530(temp19);
+                } else if (!(frame.value8C <= frame.value88)) {
+                    func_001bd530(temp19);
+                } else {
+                    if (frame.value60 > frame.value70 + frame.value78) {
+                        goto range_reject;
+                    }
+                    if (frame.value70 > frame.value60 + frame.value68) {
+                        goto range_reject;
+                    }
+                    if (frame.value64 > frame.value74 + frame.value7C) {
+                        goto range_reject;
+                    }
+                    if (frame.value74 > frame.value64 + frame.value6C) {
+                        goto range_reject;
+                    }
+                    func_001bd4f0(var20);
+                    goto range_done;
+range_reject:
+                    func_001bd530(temp19);
+range_done:
+                    ;
+                }
+            }
+            var20 = *(u8 **)(var20 + 0xA6C);
+inner_test:
+            if (var20 != NULL) {
+                goto inner_body;
+            }
+            var17 += 1;
+outer_test:
+            if (var17 < 2) {
+                goto outer_body;
+            }
+        }
+    }
+}
+
+/* measured: optimization_level 1 probe for c8cf0 argument order. */
+// FUN_001C8CF0
+void func_001c8cf0(u8 *arg0)
+{
+    u8 *temp_16;
+    u8 *call_arg0;
+    s32 call_arg1;
+    u16 call_arg2;
+
+    temp_16 = *(u8 **)(arg0 + 0xE0);
+    call_arg0 = temp_16;
+    call_arg1 = 0;
+    call_arg2 = *(u16 *)(temp_16 + 0x6E);
+    *(s16 *)(arg0 + 0x106) = func_001d7f10(call_arg0, (u8 *)call_arg1, (u16)call_arg2, 0);
+    *(s16 *)(arg0 + 0x104) = func_001d8df0(temp_16 + 0x98);
+    *(s32 *)(arg0 + 0x100) = 0;
+}
+
+/* measured: close optimization_level after c8cf0. */
+// FUN_001C8D50
+void func_001c8d50(u8 *arg0)
+{
+    s32 flag;
+    u16 mode;
+    u16 type;
+    u8 *next;
+    u8 *current;
+
+    next = (u8 *)func_001d8bc0(*(u8 **)(arg0 + 0xE0) + 0x98);
+    if (*(u16 *)(arg0 + 0x104) == 2) {
+        func_001c8b00(arg0);
+    }
+    if ((next == NULL) ||
+        ((current = *(u8 **)(arg0 + 0x100), current == next)) ||
+        ((current != NULL) && (*(u16 *)(arg0 + 0x106) != 0))) {
+        return;
+    }
+    if (current == NULL) {
+        mode = *(u16 *)(iGpffffb3ac + 0x108);
+        switch (mode) {
+        case 0x21:
+        case 0x28:
+        case 2:
+        case 0x29:
+            flag = 0;
+            break;
+        default:
+            flag = 1;
+            break;
+        }
+    } else {
+        flag = 0;
+    }
+    *(u8 **)(arg0 + 0x100) = next;
+    type = *(u16 *)(arg0 + 0x104);
+    switch (type) {
+    case 2:
+        func_001c80f0(arg0, flag);
+        return;
+    case 1:
+    default:
+        func_001c79f0(arg0, flag);
+        return;
+    }
+}
+
+/* Produce current and adjusted poses with a limited quaternion angle.
+ * The interpolation cache and all vectors are complete objects.
+ * b210 -O2:2228 exact bytes and12 zero alignment bytes. */
+// FUN_001C8E90
+void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second)
+{
+    f32 xz[2];
+    RwV3d alternateEye;
+    RwV3d viewDirection;
+    RwV3d direction;
+    RwV3d alternateDirection;
+    RwV3d focus;
+    RwV3d basePosition;
+    RwV3d actorPosition;
+    RwV3d targetPosition;
+    P4Vec4Holder_001EC2B0 limitedRotation;
+    P4Vec4Holder_001EC2B0 secondRotation;
+    P4Vec4Holder_001EC2B0 firstRotation;
+    P4CameraBlend blend;
+    u8 *action;
+    u8 *actor;
+    u8 *targetAction;
+    u8 *target;
+    f32 distance;
+    f32 height;
+    f32 halfHeight;
+    f32 span;
+    f32 scale;
+    f32 angle;
+    f32 threshold;
+    f32 ratio;
+    f32 firstWeight;
+    f32 x;
+    f32 x2;
+    f32 r;
+    f32 r2;
+    f32 alignmentDot;
+    f32 alternateDot;
+    f32 baseZ;
+    f32 horizontalLength;
+    f32 firstAngle;
+    f32 secondAngle;
+    f32 lateralOffset;
+    f32 tanHalfFov;
+    f32 zero;
+    extern void func_001bd560(f32 *out, f32 *in);
+    extern void func_00195aa0(BtlUnit *unit, BtlUnit *target, RwV3d *out);
+    extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
+    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
+    extern void func_003dcc70(const void *first, const void *second, void *out);
+    extern RtQuat *func_003dc740(RtQuat *quat, const RwV3d *axis, f32 angle, s32 combine);
+    extern f32 tanf(f32 angle);
+    extern f32 RwV2dLength(f32 *in);
+    extern f32 func_003e41e0(f32 *out, f32 *in);
+    extern f32 fabsf(f32 x);
+    extern f32 fGpffff8118, fGpffff815c, fGpffff804c, fGpffff8160;
+    extern f32 fGpffff8104, fGpffff8054, fGpffff8058, fGpffff805c, fGpffff8060, fGpffff8108;
+
+    action = *(u8 **)(camera + 0xE0);
+    actor = *(u8 **)(action + 0x30);
+    targetAction = *(u8 **)(action + 0x38);
+    target = *(u8 **)(targetAction + 0x30);
+    *(u8 **)(camera + 0x124) = targetAction;
+    func_001bd560((f32 *)first, (f32 *)(camera + 0x9C));
+    actorPosition.x = *(f32 *)(actor + 0xDC);
+    actorPosition.y = *(f32 *)(actor + 0x84) * *(f32 *)(actor + 0x2C);
+    actorPosition.z = *(f32 *)(actor + 0xE4);
+    func_00195aa0((BtlUnit *)target, (BtlUnit *)actor, &targetPosition);
+    height = 0.0f + actorPosition.y + p4_cacd0_mul(*(f32 *)(actor + 0x8C), *(f32 *)(actor + 0x2C)) * fGpffff8118;
+    height += 0.0f + targetPosition.y + p4_cacd0_mul(*(f32 *)(target + 0x8C), *(f32 *)(target + 0x2C)) * fGpffff8118;
+    span = 0.0f + *(f32 *)(actor + 0xE8);
+    span += *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
+    span += *(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C);
+    targetPosition.y = 0.0f;
+    actorPosition.y = 0.0f;
+    zero = 0.0f;
+    direction.x = *(f32 *)(actor + 0xDC) - targetPosition.x;
+    direction.y = *(f32 *)(actor + 0xE0) - zero;
+    direction.z = *(f32 *)(actor + 0xE4) - targetPosition.z;
+    RwV3dNormalize(&direction, &direction);
+    scale = 0.25f * span;
+    focus.x = direction.x * scale;
+    focus.y = direction.y * scale;
+    focus.z = direction.z * scale;
+    focus.x += targetPosition.x;
+    focus.y += targetPosition.y;
+    focus.z += targetPosition.z;
+    halfHeight = 0.5f * height;
+    focus.y = halfHeight;
+    viewDirection = first->pos;
+    viewDirection.y = height;
+    *(f32 *)(camera + 0x10C) = 0.5f * *(f32 *)(actor + 0xE8);
+    *(RwV3d *)(camera + 0x100) = focus;
+    func_001bd780(&second->rot, &viewDirection, &focus, D_0060A0E0);
+    height = 0.0f + span;
+    height += *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
+    height += *(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C);
+    angle = func_001ec2b0(&first->rot, &second->rot);
+    threshold = fGpffff815c;
+    if (!(angle <= threshold)) {
+        ratio = threshold / angle;
+        func_003dcc70(&first->rot, &second->rot, &blend);
+        if (ratio <= 0.0f) {
+            limitedRotation = first->rot;
+        } else if (1.0f <= ratio) {
+            limitedRotation = second->rot;
+        } else {
+            firstWeight = 1.0f - ratio;
+            if (blend.flag == 0) {
+                x = firstWeight * blend.scalar;
+                x2 = x * x;
+                r = 0.0f + fGpffff8054 + fGpffff8104 * x2;
+                r = 0.0f + fGpffff8058 + x2 * r;
+                r = 0.0f + fGpffff805c + x2 * r;
+                r = 0.0f + fGpffff8060 + x2 * r;
+                r2 = 0.0f + fGpffff8108 + x2 * r;
+                r = x2 * x;
+                firstWeight = 0.0f + x + r * r2;
+                x = ratio * blend.scalar;
+                x2 = x * x;
+                r = 0.0f + fGpffff8054 + fGpffff8104 * x2;
+                r = 0.0f + fGpffff8058 + x2 * r;
+                r = 0.0f + fGpffff805c + x2 * r;
+                r = 0.0f + fGpffff8060 + x2 * r;
+                r2 = 0.0f + fGpffff8108 + x2 * r;
+                r = x2 * x;
+                ratio = 0.0f + x + r * r2;
+            }
+            limitedRotation.quat.x = blend.first.quat.x * firstWeight;
+            limitedRotation.quat.y = blend.first.quat.y * firstWeight;
+            limitedRotation.quat.z = blend.first.quat.z * firstWeight;
+            limitedRotation.quat.x = 0.0f + limitedRotation.quat.x + blend.second.quat.x * ratio;
+            limitedRotation.quat.y = 0.0f + limitedRotation.quat.y + blend.second.quat.y * ratio;
+            limitedRotation.quat.z = 0.0f + limitedRotation.quat.z + blend.second.quat.z * ratio;
+            limitedRotation.quat.w = blend.first.quat.w * firstWeight + blend.second.quat.w * ratio;
+        }
+        RtQuatTransformVectors(&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&limitedRotation);
+        viewDirection.x += focus.x;
+        viewDirection.y += focus.y;
+        viewDirection.z += focus.z;
+        func_001bd780(&second->rot, &viewDirection, &focus, D_0060A0E0);
+    } else if (angle < fGpffff804c) {
+        func_003dc740((RtQuat *)&second->rot, (const RwV3d *)D_0060A0E0, fGpffff8160, 2);
+    }
+    if (height < 450.0f) height = 450.0f;
+    tanHalfFov = tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    distance = (0.5f * height) / tanHalfFov;
+    RtQuatTransformVectors(&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&second->rot);
+    direction.y = viewDirection.y;
+    RwV3dNormalize(&direction, &direction);
+    alignmentDot = viewDirection.x * direction.x + viewDirection.y * direction.y + viewDirection.z * direction.z;
+    if (!(alignmentDot < 0.0f)) {
+        height = *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
+        basePosition = actorPosition;
+    } else {
+        height = *(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C);
+        basePosition = targetPosition;
+    }
+    alternateEye.x = 0.0f + targetPosition.x + direction.z * height;
+    alternateEye.y = focus.y;
+    alternateEye.z = 0.0f + targetPosition.z - direction.x * height;
+    alternateDirection.x = alternateEye.x - focus.x;
+    alternateDirection.y = focus.y - focus.y;
+    alternateDirection.z = alternateEye.z - focus.z;
+    RwV3dNormalize(&alternateDirection, &alternateDirection);
+    alternateDot = alternateDirection.x * direction.x + alternateDirection.y * direction.y + alternateDirection.z * direction.z;
+    if (!(fabsf(alignmentDot) <= fabsf(alternateDot)) && alternateDot != 0.0f && alignmentDot != 0.0f) {
+        xz[0] = focus.x - basePosition.x;
+        baseZ = basePosition.z;
+        xz[1] = focus.z - baseZ;
+        horizontalLength = RwV2dLength(xz);
+        alternateEye.y = focus.y + (halfHeight * horizontalLength) / distance;
+        alternateEye.x = 0.0f + basePosition.x + direction.z * height;
+        alternateEye.z = 0.0f + baseZ - direction.x * height;
+        func_001bd780(&firstRotation, &alternateEye, &focus, D_0060A0E0);
+        firstAngle = func_001ec2b0(&first->rot, &firstRotation);
+        alternateEye.x = 0.0f + basePosition.x - direction.z * height;
+        alternateEye.z = 0.0f + baseZ + direction.x * height;
+        func_001bd780(&secondRotation, &alternateEye, &focus, D_0060A0E0);
+        secondAngle = func_001ec2b0(&first->rot, &secondRotation);
+        if (firstAngle < secondAngle) second->rot = firstRotation;
+        else second->rot = secondRotation;
+        RtQuatTransformVectors(&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&second->rot);
+    }
+    viewDirection.x *= distance;
+    viewDirection.y *= distance;
+    viewDirection.z *= distance;
+    tanHalfFov = tanf(fGpffff8110 * (0.5f * *(f32 *)(camera + 0xB8)));
+    lateralOffset = distance * tanHalfFov;
+    lateralOffset *= 0.21875f;
+    lateralOffset *= 0.5f;
+    xz[0] = viewDirection.x;
+    xz[1] = viewDirection.z;
+    func_003e41e0(xz, xz);
+    focus.x = 0.0f + focus.x + xz[1] * lateralOffset;
+    focus.z = 0.0f + focus.z - xz[0] * lateralOffset;
+    second->pos.x = focus.x + viewDirection.x;
+    second->pos.y = focus.y + viewDirection.y;
+    second->pos.z = focus.z + viewDirection.z;
+}
+
+// FUN_001C9750
+void func_001c9750(u8 *arg0)
+{
+    struct {
+        P4CameraFrame first;
+        P4CameraFrame second;
+    } work;
+
+    func_001c8e90(arg0, &work.first, &work.second);
+    btlMainCurveSetPoses((u16 *)arg0, (f32 *)&work.first, (f32 *)&work.second, 1);
+    btlCameraSetDuration(arg0, fGpffff811c);
+}
+
+// FUN_001C97B0
+void func_001c97b0(u8 *arg0)
+{
+    u8 *temp_4;
+    f32 value;
+
+    temp_4 = *(u8 **)(arg0 + 0xE0);
+    if ((temp_4 != NULL) &&
+        (*(u16 *)(temp_4 + 0x6A) == 1) &&
+        (*(s32 *)(arg0 + 0x124) == *(s32 *)(temp_4 + 0x38)) &&
+        ((*(u16 *)(temp_4 + 0x1A) & 1) != 0)) {
+        value = *(f32 *)(arg0 + 0x10C);
+        func_001bcd40(temp_4, arg0 + 0x9C, (f32 *)(arg0 + 0x100), value, 0xC3);
+    }
+}
+
+/* Construct an angle-limited camera transition from complete pose geometry. */
+// FUN_001C9820
+void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
+{
+    RwV3d actorCenter;
+    RwV3d targetCenter;
+    RwV3d center;
+    RwV3d focus;
+    RwV3d direction;
+    RwV3d eye;
+    RwV3d savedDirection;
+    P4CameraVec2 projectedCenter;
+    P4CameraVec2 projection;
+    struct { P4CameraVec2 horizontal; P4CameraVec2 camera;
+             P4CameraVec2 focus; P4CameraVec2 eye; } plane;
+    P4CameraFrame frames[2];
+    u8 *action;
+    u8 *actor;
+    u8 *target;
+    u8 *otherUnit;
+    u8 *viewUnit;
+    f32 distance;
+    f32 angleLimit;
+    f32 geometry;
+    f32 actorRadius;
+    f32 targetRadius;
+    f32 forwardDot;
+    f32 scale;
+    f32 side;
+    f32 difference;
+    f32 tangent;
+    f32 baseZ;
+    f32 baseY;
+    f32 angleScale;
+    extern f32 fGpffff8098, fGpffff80cc, fGpffff810c, fGpffff8110;
+    extern f32 fGpffff8128, fGpffff816c, fGpffff8168, fGpffff8170;
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
+    extern void func_001bd560(f32 *out, f32 *in);
+    extern f32 func_003e41e0(f32 *out, f32 *in);
+    extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
+    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
+    extern f32 tanf(f32 angle);
+
+    angleLimit = suppliedLimit;
+    func_001bd560((f32 *)&frames[0], (f32 *)(camera + 0x9C));
+    action = *(u8 **)(camera + 0xE0);
+    actor = *(u8 **)(action + 0x30);
+    target = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
+    btlUnitGetSphereWorldCenter((BtlUnit *)actor, &actorCenter);
+    btlUnitGetSphereWorldCenter((BtlUnit *)target, &targetCenter);
+    geometry = 0.0f + targetCenter.y + 0.5f * (*(f32 *)(target + 0x8C) * *(f32 *)(target + 0x2C));
+    if (targetCenter.y < 125.0f) targetCenter.y = 125.0f;
+    actorRadius = *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
+    targetRadius = *(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C);
+    direction.x = actorCenter.x - targetCenter.x;
+    direction.y = actorCenter.y - targetCenter.y;
+    direction.z = actorCenter.z - targetCenter.z;
+    distance = RwV3dNormalize(&direction, &direction);
+    scale = fGpffff8128 * distance;
+    focus.x = direction.x * scale;
+    focus.y = direction.y * scale;
+    focus.z = direction.z * scale;
+    focus.x += targetCenter.x;
+    focus.y += targetCenter.y;
+    focus.z += targetCenter.z;
+    plane.camera.x = *(f32 *)(camera + 0x9C) - focus.x;
+    plane.camera.y = *(f32 *)(camera + 0xA4) - focus.z;
+    func_003e41e0((f32 *)&plane.camera, (f32 *)&plane.camera);
+    plane.horizontal.x = direction.x;
+    plane.horizontal.y = direction.z;
+    forwardDot = plane.horizontal.x * plane.camera.x + plane.horizontal.y * plane.camera.y;
+    if ((!(forwardDot < 0.0f) || preserveSide == 1) && reverse == 0) {
+        viewUnit = actor;
+        otherUnit = target;
+        center = actorCenter;
+        side = 2.5f * (*(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C));
+        if (geometry <= 400.0f) {
+            focus.y = 0.0f + focus.y + fGpffff8098 * (*(f32 *)(target + 0x8C) * *(f32 *)(target + 0x2C));
+        } else {
+            focus.y = 0.0f + focus.y + fGpffff810c * (*(f32 *)(target + 0x8C) * *(f32 *)(target + 0x2C));
+        }
+        plane.horizontal.x = direction.z;
+        plane.horizontal.y = -direction.x;
+        geometry = plane.horizontal.x * plane.camera.x + plane.horizontal.y * plane.camera.y;
+        baseY = center.y;
+        eye.y = 0.0f + baseY + 0.5f * (*(f32 *)(actor + 0x8C) * *(f32 *)(actor + 0x2C));
+        if (!(geometry < 0.0f)) {
+            eye.x = 0.0f + center.x + direction.z * side;
+            baseZ = center.z;
+            eye.z = (0.0f + baseZ) - direction.x * side;
+        } else {
+            eye.x = (0.0f + center.x) - direction.z * side;
+            baseZ = center.z;
+            eye.z = 0.0f + baseZ + direction.x * side;
+            savedDirection = direction;
+        }
+        func_001bd780(&frames[1].rot, &eye, &focus, D_0060A0E0);
+        RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
+        plane.focus.x = focus.x;
+        plane.focus.y = focus.z;
+        plane.eye.x = eye.x;
+        plane.eye.y = eye.z;
+        projectedCenter.x = center.x;
+        projectedCenter.y = baseZ;
+        distance = func_001ec3d0((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
+        distance = 0.0f + distance + 2.0f * (*(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C));
+        eye.x = projection.x;
+        eye.y = 0.0f + baseY + 0.25f * (*(f32 *)(actor + 0x8C) * *(f32 *)(actor + 0x2C));
+        eye.z = projection.y;
+        angleScale = fGpffff8110;
+        scale = distance / tanf(angleScale * (0.5f * *(f32 *)(camera + 0xB8)));
+        direction.x *= scale;
+        direction.y *= scale;
+        direction.z *= scale;
+        if (geometry < 0.0f) {
+            side = 2.0f * (*(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C));
+            eye.x = 0.0f + eye.x + savedDirection.z * side;
+            eye.z = (0.0f + eye.z) - savedDirection.x * side;
+        }
+        frames[1].pos.x = eye.x + direction.x;
+        frames[1].pos.y = eye.y + direction.y;
+        frames[1].pos.z = eye.z + direction.z;
+    } else {
+        f32 side;
+        viewUnit = target;
+        otherUnit = actor;
+        scale = 0.5f * distance;
+        focus.x = direction.x * scale;
+        focus.y = direction.y * scale;
+        focus.z = direction.z * scale;
+        focus.x += targetCenter.x;
+        focus.y += targetCenter.y;
+        focus.z += targetCenter.z;
+        center = targetCenter;
+        side = 1.25f * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
+        plane.horizontal.x = direction.z;
+        plane.horizontal.y = -direction.x;
+        geometry = plane.horizontal.x * plane.camera.x + plane.horizontal.y * plane.camera.y;
+        baseY = center.y;
+        eye.y = baseY;
+        if (baseY < actorCenter.y) eye.y = actorCenter.y;
+        if (!(geometry < 0.0f)) {
+            eye.x = 0.0f + center.x + direction.z * side;
+            baseZ = center.z;
+            eye.z = (0.0f + baseZ) - direction.x * side;
+            savedDirection = direction;
+        } else {
+            eye.x = (0.0f + center.x) - direction.z * side;
+            baseZ = center.z;
+            eye.z = 0.0f + baseZ + direction.x * side;
+        }
+        func_001bd780(&frames[1].rot, &eye, &focus, D_0060A0E0);
+        RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
+        plane.focus.x = focus.x;
+        plane.focus.y = focus.z;
+        plane.eye.x = eye.x;
+        plane.eye.y = eye.z;
+        projectedCenter.x = center.x;
+        projectedCenter.y = baseZ;
+        distance = func_001ec3d0((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
+        distance = 0.0f + distance + 1.5f * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
+        eye.x = projection.x;
+        eye.y = baseY;
+        eye.z = projection.y;
+        angleScale = fGpffff8110;
+        scale = distance / tanf(angleScale * (0.5f * *(f32 *)(camera + 0xB8)));
+        if (scale < (f32)550) scale = (f32)550;
+        direction.x *= scale;
+        direction.y *= scale;
+        direction.z *= scale;
+        if (!(geometry < 0.0f)) {
+            side = 0.5f * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
+            eye.x = (0.0f + eye.x) - savedDirection.z * side;
+            eye.z = 0.0f + eye.z + savedDirection.x * side;
+        }
+        frames[1].pos.x = eye.x + direction.x;
+        frames[1].pos.y = eye.y + direction.y;
+        frames[1].pos.z = eye.z + direction.z;
+    }
+    difference = func_001ec2b0(&frames[0].rot, &frames[1].rot);
+    if (angleLimit > 0.0f) {
+        angleLimit = p4_cacd0_mul(fGpffff816c, angleLimit);
+        if (difference <= angleLimit) goto limitedTransition;
+    }
+    {
+        if (forwardDot < 0.0f) {
+            btlMainCurveReset((u16 *)camera, (f32 *)&frames[1]);
+            RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[1].rot);
+            direction.x *= 200.0f;
+            direction.y *= 200.0f;
+            direction.z *= 200.0f;
+            frames[0].pos.x = frames[1].pos.x + direction.x;
+            frames[0].pos.y = frames[1].pos.y + direction.y;
+            frames[0].pos.z = frames[1].pos.z + direction.z;
+            frames[0].rot = frames[1].rot;
+            if (frames[0].pos.y < 25.0f) frames[0].pos.y = 25.0f;
+            if (frames[1].pos.y < 25.0f) frames[1].pos.y = 25.0f;
+            btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+            btlCameraSetDuration(camera, fGpffff8168);
+        } else {
+            forwardDot = *(f32 *)(viewUnit + 0x90) * *(f32 *)(viewUnit + 0x2C);
+            direction.x = actorCenter.x - targetCenter.x;
+            direction.y = actorCenter.y - targetCenter.y;
+            direction.z = actorCenter.z - targetCenter.z;
+            RwV3dNormalize(&direction, &direction);
+            eye.y = 0.0f + baseY + fGpffff8170 * (*(f32 *)(viewUnit + 0x8C) * *(f32 *)(viewUnit + 0x2C));
+            if (!(geometry < 0.0f)) {
+                eye.x = (0.0f + center.x) - direction.z * forwardDot;
+                eye.z = 0.0f + baseZ + direction.x * forwardDot;
+            } else {
+                eye.x = 0.0f + center.x + direction.z * forwardDot;
+                eye.z = (0.0f + baseZ) - direction.x * forwardDot;
+            }
+            func_001bd780(&frames[0].rot, &eye, &focus, D_0060A0E0);
+            RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&frames[0].rot);
+            plane.focus.x = focus.x;
+            plane.focus.y = focus.z;
+            plane.eye.x = eye.x;
+            plane.eye.y = eye.z;
+            projectedCenter.x = center.x;
+            projectedCenter.y = baseZ;
+            func_001ec3d0((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
+            eye.x = projection.x;
+            eye.y = 0.0f + baseY + fGpffff8170 * (*(f32 *)(viewUnit + 0x8C) * *(f32 *)(viewUnit + 0x2C));
+            eye.z = projection.y;
+            tangent = tanf(angleScale * (0.5f * *(f32 *)(camera + 0xB8)));
+            scale = (4.0f * (*(f32 *)(viewUnit + 0x90) * *(f32 *)(viewUnit + 0x2C))) / tangent;
+            direction.x *= scale;
+            direction.y *= scale;
+            direction.z *= scale;
+            frames[0].pos.x = eye.x + direction.x;
+            frames[0].pos.y = eye.y + direction.y;
+            frames[0].pos.z = eye.z + direction.z;
+            if (frames[0].pos.y < 25.0f) frames[0].pos.y = 25.0f;
+            if (frames[1].pos.y < 25.0f) frames[1].pos.y = 25.0f;
+            btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+            btlCameraSetDuration(camera, fGpffff8168);
+        }
+        actorRadius = actorRadius > targetRadius ? actorRadius : targetRadius;
+        func_001bcd40(*(u8 **)(camera + 0xE0), otherUnit + 4, (f32 *)&frames[1], actorRadius, 3);
+        return;
+    }
+limitedTransition:
+    actorRadius = actorRadius > targetRadius ? actorRadius : targetRadius;
+    func_001bcd40(*(u8 **)(camera + 0xE0), otherUnit + 4, (f32 *)&frames[1], actorRadius, 0xC3);
+    if (frames[0].pos.y < 25.0f) frames[0].pos.y = 25.0f;
+    if (frames[1].pos.y < 25.0f) frames[1].pos.y = 25.0f;
+    difference = func_001ec2b0(&frames[0].rot, &frames[1].rot);
+    forwardDot = 1.25f;
+    if (!(difference <= 0.0f)) {
+        scale = angleLimit / difference;
+        if (!(scale <= 1.0f)) forwardDot = scale * fGpffff80cc;
+        else forwardDot = fGpffff80cc;
+        if (!(forwardDot <= 1.25f)) forwardDot = 1.25f;
+    }
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlCameraSetDuration(camera, forwardDot);
+}
+
