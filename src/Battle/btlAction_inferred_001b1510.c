@@ -618,7 +618,7 @@ void btlMainUnitCreateInit(void) {
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
     extern void func_0014a460(u16 arg0, u32 arg1);
     extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
-    extern void func_001987a0(u8 *arg0);
+    extern void btlUnitSetRandomAnimFrame(u8 *arg0);
     extern void mdlRunDataCallback(void *model);
     extern u8 *mdlGetClump(u8 *arg0);
     extern void mdlClumpSetEnvMapState(u8 *arg0);
@@ -678,7 +678,7 @@ void btlMainUnitCreateInit(void) {
                 btlUnitApplyModelState(unit, 1);
                 btlUnitUpdateStatusMotion(unit, 0);
                 func_00198920(unit, *(s16 *)(unit + 0x9EC), 0, *(f32 *)(unit + 0x9F0), *(s8 *)(unit + 0x9F4));
-                func_001987a0(unit);
+                btlUnitSetRandomAnimFrame(unit);
                 tmp = *(u8 **)(unit + 0xA00);
                 if (*(s32 *)(tmp + 0x2D0) == 0) {
                     mdlRunDataCallback(tmp);
