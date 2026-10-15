@@ -2383,11 +2383,11 @@ typedef struct {
 } while (0)
 
 
-// Fcl combine menu pick target (state 2): draws the slot records and advances to state 3.
+// Fcl combine menu fusion triple (state 2): a fusion with a second source. Picks the second persona from the roster and the third through the grid (0x38-0x47), then rolls the rare chance (0x4D), builds the result list with inherited skills (0x4F-0x50), and hands to the result handler (state 0x0D, sub-state 0xC5).
 // FUN_002F0F00
 #pragma push
 #pragma opt_loop_invariants on
-void fclCombineMenuPickTarget(u8 *arg0) {
+void fclCombineMenuFusionTriple(u8 *arg0) {
 
     u8 *s0;
     FclDrawColor sp3FC;
