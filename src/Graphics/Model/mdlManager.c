@@ -110,7 +110,7 @@ extern s32 func_003b85b0(u8* object);
 extern void func_003b8520(u8* object, s32 value);
 extern s32 func_00399b10(s32 object);
 extern u32 func_003b8500(int object);
-extern void func_00473140(int param_1);
+extern void mdlSetupMatFXMaterial(int param_1);
 
 typedef struct MdlAnimEntry MdlAnimEntry;
 
@@ -283,9 +283,10 @@ extern void func_0047b050(void* a, int b);
 /* measured: mwcc b210 rematerializes the 1.0f and 0x20003 constants inside the
    loop body; #pragma opt_loop_invariants on hoists both to function top to
    match retail (nd 54 -> 0). */
+/* Allocates a dispatch anim table: a 16-byte header plus arg0 entries of 0x50 bytes each, zeroed. Callers create one lazily per layer. */
 // FUN_00470E90
 #pragma opt_loop_invariants on
-u8* func_00470e90(u16 arg0)
+u8* mdlDispatchAnimTableCreate(u16 arg0)
 {
     s32 size;
     u8* obj;
@@ -323,8 +324,9 @@ u8* func_00470e90(u16 arg0)
    the retail body masks and sltiu tests; the prior nd~6 omission is gone. */
 /* measured: opt_common_subs off probe for repeated u16 counter masks. */
 #pragma opt_common_subs off
+/* Drops one reference on a dispatch anim table (count at +0xA). On the last release it cleans up the table's entries and then the table. */
 // FUN_00471010
-void func_00471010(u8* arg0)
+void mdlDispatchAnimTableRelease(u8* arg0)
 {
     extern s32 func_003d5300(u8* arg0);
     extern void func_003d5830(u8* arg0);
@@ -398,10 +400,11 @@ loop20_check:
         DAT_008873ec[0](arg0);
     }
 }
-/* measured: closes opt_common_subs off probe around func_00471010. */
+/* measured: closes opt_common_subs off probe around mdlDispatchAnimTableRelease. */
 #pragma opt_common_subs on
+/* Looks up the HAnim hierarchy of frame param_1. If none exists it queues the frame with func_003e9af0, using this function as the callback, and returns the frame. Otherwise it stores the hierarchy in *param_2 and returns NULL. */
 // FUN_004711E0
-void* func_004711e0(void* param_1, void* param_2)
+void* mdlFindFrameHierarchy(void* param_1, void* param_2)
 {
     u32 value;
 
@@ -410,7 +413,7 @@ void* func_004711e0(void* param_1, void* param_2)
     {
         goto store_value;
     }
-    func_003e9af0(param_1, func_004711e0, param_2);
+    func_003e9af0(param_1, mdlFindFrameHierarchy, param_2);
     return param_1;
 store_value:
     *(u32*)param_2 = value;
@@ -419,8 +422,9 @@ store_value:
 
 
 
+/* Per-atomic callback for RpClumpForAllAtomics: attaches hierarchy to atomic param_1 through func_003b83d0 and returns the atomic. Passed as a function pointer by the clump hierarchy setup. */
 // FUN_00471250
-void* func_00471250(void* param_1, void* hierarchy)
+void* mdlSetAtomicHierarchy(void* param_1, void* hierarchy)
 {
     func_003b83d0((s32)param_1, (s32)hierarchy);
     return param_1;
@@ -1392,8 +1396,9 @@ void func_00473000(u8* arg0, u8* arg1)
         *(s32*)(*(u8**)(arg0 + 0x20) + 0x3C) = *(s32*)DAT_00922ba0_abs;
     }
 }
+/* Dispatches on the material's MatFX effect type (RpMatFXMaterialGetEffects) and sets up the matching effect state. Callers pass each material from an owner's material array at +0x20. */
 // FUN_00473140
-void func_00473140(int param_1)
+void mdlSetupMatFXMaterial(int param_1)
 {
     u32 uVar1;
     u32 uVar2;
@@ -1467,7 +1472,7 @@ void* func_00473250(void* param_1, void* data)
         iVar5 = *(u8**)(iVar5 + 0x18);
         iVar1 = *(int*)(iVar5 + 0x24);
         for (iVar6 = 0; iVar6 < iVar1; iVar6 = iVar6 + 1) {
-            func_00473140(*(u32*)(*(u8**)(iVar5 + 0x20) + iVar6 * 4));
+            mdlSetupMatFXMaterial(*(u32*)(*(u8**)(iVar5 + 0x20) + iVar6 * 4));
         }
         return param_1;
     }
@@ -1627,7 +1632,7 @@ void func_004735b0(u8 *arg0)
     }
     if (*(u32*)(arg0 + 0x34) != 0)
     {
-        func_00471010((u8*)*(u32*)(arg0 + 0x34));
+        mdlDispatchAnimTableRelease((u8*)*(u32*)(arg0 + 0x34));
         *(u32*)(arg0 + 0x34) = 0;
     }
     if ((*(u16*)(arg0 + 0) & 2) != 0)
@@ -1675,10 +1680,10 @@ void func_00473710(u8 *arg0, u8 *arg1, s32 arg2)
     u32 hierarchy = 0;
     u8 **frame = &((MdlClumpView *)arg1)->frame;
 
-    func_003e9af0(*frame, func_004711e0, &hierarchy);
+    func_003e9af0(*frame, mdlFindFrameHierarchy, &hierarchy);
     selected = (MdlHierarchyView *)hierarchy;
     model->hierarchy = selected;
-    RpClumpForAllAtomics(arg1, func_00471250, selected);
+    RpClumpForAllAtomics(arg1, mdlSetAtomicHierarchy, selected);
     if (arg2 != 0)
         RpClumpForAllAtomics(arg1, func_00473250, *frame);
     func_004633c0(arg1, model->hierarchy);
@@ -2602,7 +2607,7 @@ void* func_00475090(void* param_1, void* data)
 
     iVar2 = *(int*)(iVar1 + 0x24);
     for (iVar5 = 0; iVar5 < iVar2; iVar5 = iVar5 + 1) {
-        func_00473140(*(u32*)(*(int*)(iVar1 + 0x20) + iVar5 * 4));
+        mdlSetupMatFXMaterial(*(u32*)(*(int*)(iVar1 + 0x20) + iVar5 * 4));
     }
 
     return param_1;
@@ -6188,7 +6193,7 @@ s32 func_0047b0c0(u8 *model)
         {
             void *animation;
             if (LOAD_LAYER()->resource == 0) {
-                MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
+                MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)mdlDispatchAnimTableCreate(capacity);
                 LOAD_LAYER()->resource = table;
             }
             animation = func_003d53c0(state->stream);
@@ -6264,7 +6269,7 @@ s32 func_0047b0c0(u8 *model)
             continue;
         case 0xf0f00001:
         if (LOAD_LAYER()->resource == 0) {
-            MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
+            MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)mdlDispatchAnimTableCreate(capacity);
             LOAD_LAYER()->resource = table;
         }
         mdlLoaderSetAnimation(D_00922BC0_abs, LOAD_LAYER()->resource, state->slot);
@@ -6273,7 +6278,7 @@ s32 func_0047b0c0(u8 *model)
 
         case 0xf0f00005:
         if (LOAD_LAYER()->resource == 0) {
-            MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)func_00470e90(capacity);
+            MdlDispatchAnimTable *table = (MdlDispatchAnimTable *)mdlDispatchAnimTableCreate(capacity);
             LOAD_LAYER()->resource = table;
         }
         layerResource = LOAD_LAYER()->resource;
