@@ -29,11 +29,11 @@ extern void datResetTotalBtl(void);
 extern void func_00106020(s32 arg0);
 
 extern s16 func_001060b0(void);
-extern s32 func_00249010(s32 arg0);
-extern s32 func_00249230(s32 arg0);
-extern s32 func_002492b0(s32 arg0);
-extern s32 func_00249370(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_002494c0(s32 arg0, s32 arg1);
+extern s32 cmmDateTableFindIndex(s32 arg0);
+extern s32 cmmDateTableHasEntry(s32 arg0);
+extern s32 cmmDateTableHasSpecialRecord(s32 arg0);
+extern s32 cmmDateTableReadColumn(s32 arg0, s32 arg1, s32 arg2);
+extern s32 cmmDateTableApplyColumnDelta(s32 arg0, s32 arg1);
 
 extern u8* cmmCommunityGetCurrentWork(void);
 extern s32 cmmCommunityGetCurrentId(void);
@@ -42,10 +42,10 @@ extern void cmmCommunitySetRecordFlag4(s32 arg0);
 extern void func_00108d80(void);
 extern void cmmCommunitySetCurrent(u16 arg0);
 extern s16 func_00248d80(s16 arg0);
-extern s32 func_00249670(s32 arg0, s32 arg1);
+extern s32 cmmDateTableAddCount(s32 arg0, s32 arg1);
 extern s16 func_00247820(s16 arg0);
 extern u8* func_002485e0(s32 arg0, u16 arg1);
-extern s32 func_00249770(s32 arg0, s32 arg1, s32 arg2);
+extern s32 cmmDateTableFindNthMatch(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_0029d020(void);
 extern void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0025c310(void);
@@ -83,8 +83,8 @@ extern s32 func_00248040(s32 arg0);
 extern s32 func_00110580(s32 arg0, s32* arg1, s32* arg2);
 extern s32 func_002468a0(s32 arg0);
 extern s32 datGetItemNameId(s32 arg0);
-extern s32 func_002490b0(s32 arg0);
-extern s32 func_00249180(s32 arg0);
+extern s32 cmmDateTableFindRecord(s32 arg0);
+extern s32 cmmDateTableFindSpecialRecord(s32 arg0);
 extern void itfMesWindowSetNumber(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00246c90(s32 arg0);
 extern s32 func_00246d50(s32 arg0);
@@ -104,8 +104,8 @@ extern u8 D_005DC7D0[];
 extern s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3);
 extern s32 func_0025ff60(s32 arg0);
 extern u8* func_00246e90(s32 arg0);
-extern s32 func_00249960(s32 arg0);
-extern void func_00249a60(s32 arg0);
+extern s32 cmmDateTableRollValue(s32 arg0);
+extern void cmmDateTableRunEffect(s32 arg0);
 extern void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern f32 sinf(f32 arg0);
 extern void func_004b14f0(s32 arg0, void* arg1);
@@ -631,7 +631,7 @@ s32 cmmScriptGetEntryIndex(void)
 // FUN_0024AE40
 s32 func_0024ae40(void)
 {
-    scrSetReturnInt(func_00249010(func_001060b0()));
+    scrSetReturnInt(cmmDateTableFindIndex(func_001060b0()));
     return 1;
 }
 
@@ -640,7 +640,7 @@ s32 func_0024ae40(void)
 // FUN_0024AE80
 s32 func_0024ae80(void)
 {
-    scrSetReturnInt(func_00249230(func_001060b0()) != 0);
+    scrSetReturnInt(cmmDateTableHasEntry(func_001060b0()) != 0);
     return 1;
 }
 
@@ -649,7 +649,7 @@ s32 func_0024ae80(void)
 // FUN_0024AEC0
 s32 func_0024aec0(void)
 {
-    scrSetReturnInt(func_002492b0(func_001060b0()) != 0);
+    scrSetReturnInt(cmmDateTableHasSpecialRecord(func_001060b0()) != 0);
     return 1;
 }
 
@@ -668,9 +668,9 @@ s32 func_0024af00(void)
         return 1;
     }
     if (param0 == 0) {
-        scrSetReturnInt(func_00249370(0, func_001060b0(), param1));
+        scrSetReturnInt(cmmDateTableReadColumn(0, func_001060b0(), param1));
     } else {
-        scrSetReturnInt(func_00249370(1, func_001060b0(), param1));
+        scrSetReturnInt(cmmDateTableReadColumn(1, func_001060b0(), param1));
     }
     return 1;
 }
@@ -687,7 +687,7 @@ s32 func_0024afe0(void)
     if ((param0 != 0) && (param0 != 1)) {
         return 1;
     }
-    scrSetReturnInt(func_002494c0(func_001060b0(), param0));
+    scrSetReturnInt(cmmDateTableApplyColumnDelta(func_001060b0(), param0));
     return 1;
 }
 
@@ -704,9 +704,9 @@ s32 cmmItemInfoShow(void)
     rec = scrGetParamInt(0);
     slot = func_001060b0();
     if (rec == 0) {
-        rec = func_002490b0(slot);
+        rec = cmmDateTableFindRecord(slot);
     } else {
-        rec = func_00249180(slot);
+        rec = cmmDateTableFindSpecialRecord(slot);
     }
     if (rec == 0) {
         kAssertFail(D_006359F0, 0x27A);
@@ -779,7 +779,7 @@ s32 func_0024b430(void)
 
     param0 = scrGetParamInt(0);
     param1 = scrGetParamInt(1);
-    scrSetReturnInt(func_00249670(param0, param1));
+    scrSetReturnInt(cmmDateTableAddCount(param0, param1));
     return 1;
 }
 /* measured: -O2 CSEs `id & 0xFFFF` into callee-saved copies (frame 0xF0);
@@ -852,7 +852,7 @@ s32 func_0024b6a0(void)
     param0 = scrGetParamInt(0);
     param1 = scrGetParamInt(1);
     param2 = scrGetParamInt(2);
-    scrSetReturnInt(func_00249770(param0, param1, param2));
+    scrSetReturnInt(cmmDateTableFindNthMatch(param0, param1, param2));
     return 1;
 }
 // Script record field: returns one field of the record for the id (0 and 3 read 32-bit values, 1, 2, 4, and 5 read bytes; anything else asserts).
@@ -1777,7 +1777,7 @@ s32 func_0024f160(u8 *arg0)
         cmmScriptArmEntry(0, 1);
         id = cmmWeatherRoll();
         func_00246e90((u16)id);
-        *(s16 *)(arg0 + 0xE) = func_00249960(id);
+        *(s16 *)(arg0 + 0xE) = cmmDateTableRollValue(id);
     case 1:
         break;
     default:
@@ -1793,10 +1793,10 @@ s32 func_0024f160(u8 *arg0)
     *(s16 *)(arg0 + 0xC) += 1;
     if (*(s16 *)(arg0 + 0xC) >= *(s16 *)(arg0 + 0xE)) {
         *(s16 *)(arg0 + 0xC) = 0;
-        *(s16 *)(arg0 + 0xE) = func_00249960(id);
+        *(s16 *)(arg0 + 0xE) = cmmDateTableRollValue(id);
         cmmScriptSpawnHandle(4);
         *(s16 *)(arg0 + 0x10) += 1;
-        func_00249a60(id);
+        cmmDateTableRunEffect(id);
         state = *(s16 *)(arg0 + 0x10);
         if (state >= 3) {
             if (state >= 10 ||

@@ -40,7 +40,7 @@ extern s32 datPersonaCountValidMembers(void);
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
 extern s32 func_00110600(s32 a, s32 b);
 extern s32 func_00110d30(s32 idx);
-extern s32 func_00249010();
+extern s32 cmmDateTableFindIndex();
 extern u16 func_002489c0(s32 arg0);
 extern s32 func_00248a60(s32 arg0);
 extern void func_00113480(s32 a, s32 b, s32 c, s32 d);
@@ -681,7 +681,7 @@ s32 func_00247c20(s16 arg0) {
    instruction; changing this function's return type from s32 to u16 removes
    the redundant `andi $v0,$s0,0xffff` at the epilogue, leaving retail's
    `move $v0,$s0`. Guard spelling probes (`n >= 4` versus `n > 3`) were
-   measured separately on func_00249670; the base spelling was retained.
+   measured separately on cmmDateTableAddCount; the base spelling was retained.
    Committed at nd 0. */
 // FUN_00247CB0
 u16 func_00247cb0(s64 arg0) {
@@ -1413,8 +1413,9 @@ s32 func_00248f20(s32 arg0, s32 arg1) {
     return 2;
 }
 
+// Date table find index: returns the index of the ordinary record whose month and day (func_001104D0 of the seed) match, or -1 when none does.
 // FUN_00249010
-s32 func_00249010(s32 seed) {
+s32 cmmDateTableFindIndex(s32 seed) {
     u8 *base = D_008814D0[0];
     u8 *p = base + 8;
     s32 count = *(s32 *)(base + 4);
@@ -1439,8 +1440,9 @@ s32 func_00249010(s32 seed) {
 /* measured: the hit path copies the index (`k = i; goto found;`) and the exhausted path sets
    `k = -1` - the copy keeps retail's bne / b-to-found pair; `if (k != -1) return entry; return NULL;`
    places the NULL return out of line as retail. */
+// Date table find record: returns the ordinary record for the date seed, or NULL when none matches.
 // FUN_002490B0
-u8 *func_002490b0(s32 seed) {
+u8 *cmmDateTableFindRecord(s32 seed) {
     s32 sp4C;
     s32 sp48;
     u8 *temp_17;
@@ -1474,8 +1476,9 @@ found:
     return NULL;
 }
 
+// Date table find special record: returns the special record (slot from func_001064F0 at 0x6D) when flag 0xA61 is set and arg0 has reached its threshold, else NULL.
 // FUN_00249180
-u8 *func_00249180(u32 arg0) {
+u8 *cmmDateTableFindSpecialRecord(u32 arg0) {
     s32 sp3C;
     s32 sp38;
     u8 *temp_17 = D_008814D0[0] + 8;
@@ -1489,11 +1492,12 @@ u8 *func_00249180(u32 arg0) {
     }
     return NULL;
 }
+// Date table has entry: returns 1 when cmmDateTableFindIndex finds an ordinary entry for the seed. The seed local is never assigned in this body; the matched code passes the argument register through as-is.
 // FUN_00249230
-s32 func_00249230(void) {
+s32 cmmDateTableHasEntry(void) {
     s32 seed;
     u8 *base8 = D_008814D0[0] + 8;
-    s32 idx = func_00249010(seed);
+    s32 idx = cmmDateTableFindIndex(seed);
     u8 *p;
 
     if (idx != -1) {
@@ -1510,8 +1514,9 @@ s32 func_00249230(void) {
 /* measured: both failure paths reach one `p = NULL; t = p;` block (a goto target) and the success
    path copies `t = p` before the join - the copy keeps retail's b-over-null trampoline; the return
    is `if (t == NULL) return 0; return 1;` (retail bnez / move v0,zero / li 1 tail). */
+// Date table has special record: returns 1 when the special record for date arg0 is unlocked (flag 0xA61 and its threshold), else 0.
 // FUN_002492B0
-s32 func_002492b0(u32 arg0) {
+s32 cmmDateTableHasSpecialRecord(u32 arg0) {
     s32 sp3C;
     s32 sp38;
     u8 *p;
@@ -1541,8 +1546,9 @@ join:
    measured: the neighboring shared-NULL join/copy pattern retains retail's
    branch trampolines; cmmMiscAddOff preserves the final address operand order.
    Exact 328B instructions plus 8B zero tail; caller-facing s32 ABI unchanged. */
+// Date table read column: returns the 32-bit value at +12 of column arg2 (0 or 1) of the record selected for date arg1; special selects the special record, otherwise the ordinary record. Returns 0 when no record is selected.
 // FUN_00249370
-s32 func_00249370(s32 special, s32 date, s32 column)
+s32 cmmDateTableReadColumn(s32 special, s32 date, s32 column)
 {
     s32 month;
     s32 day;
@@ -1552,7 +1558,7 @@ s32 func_00249370(s32 special, s32 date, s32 column)
 
     if (special == 0) {
         record = D_008814D0[0] + 8;
-        index = func_00249010(date);
+        index = cmmDateTableFindIndex(date);
         if (index != -1) {
             record += index * 36;
         } else {
@@ -1585,8 +1591,9 @@ static inline u32 cmmMiscAddAddress(u32 offset, u32 base)
     return offset + base;
 }
 
+// Date table apply column: selects the record for date (special record when flag 0xA61 allows it), then applies the column's two counter deltas clamped at 99 through func_00106620; asserts column is 0 or 1.
 // FUN_002494C0
-s32 func_002494c0(s32 date, s32 column)
+s32 cmmDateTableApplyColumnDelta(s32 date, s32 column)
 {
     s32 month;
     s32 day;
@@ -1665,10 +1672,11 @@ static inline s32 cmmAddCountFirst(s32 count, s32 delta) { return count + delta;
    Committed at nd 4. */
 /* measured: parked body committed at nd 4. */
 /* measured: parked body committed at nd 4. */
+// Date table add count: selects counter slot arg0 (0 = the next free slot), adds arg1 through cmmAddCountFirst, and at 4 completes the slot by setting flag 0x9AF+slot and clearing the counter.
 // FUN_00249670
 /* measured: opt_propagation off is required for the parked nd4 body. */
 #pragma opt_propagation off
-s32 func_00249670(s32 arg0, s32 arg1)
+s32 cmmDateTableAddCount(s32 arg0, s32 arg1)
 {
     s32 n;
 
@@ -1693,8 +1701,9 @@ s32 func_00249670(s32 arg0, s32 arg1)
 }
 /* measured: opt_propagation scope closes at the file baseline. */
 #pragma opt_propagation on
+// Date table find nth match: counts the 20 records of D_008814E0 whose date matches arg0 (0 = any) and whose status matches arg1 (0-3); returns the 1-based index of the record at count arg2, or 0 when none.
 // FUN_00249770
-s32 func_00249770(s32 arg0, s32 arg1, s32 arg2) {
+s32 cmmDateTableFindNthMatch(s32 arg0, s32 arg1, s32 arg2) {
     s32 var_16;
     s32 var_20;
     s32 off;
@@ -1762,8 +1771,9 @@ s32 func_00249770(s32 arg0, s32 arg1, s32 arg2) {
    helper / named or-temp x named-t / inline-div / named-w / parenthesised
    product) all give exactly nd 21. FPU allocation + scheduling floor.
    Committed at nd 21. */
+// Date table roll value: returns the entry's base value plus a random fraction of its span (D_008814EC roll table); asserts index is 0-5.
 // FUN_00249960
-s32 func_00249960(s32 index)
+s32 cmmDateTableRollValue(s32 index)
 {
   u8 *base = (u8 *) D_008814EC[0];
   s32 offset;
@@ -1802,8 +1812,9 @@ s32 func_00249960(s32 index)
    puts the slti result in $at (see docs/matching.md); re-masking in both
    halves of the || is what makes bltz test the masked value. Same shape as
    FUN_00246E90. */
+// Date table run effect: runs the effect recorded in roll entry arg0 (D_008814EC) through func_00113480.
 // FUN_00249A60
-void func_00249a60(s32 arg0) {
+void cmmDateTableRunEffect(s32 arg0) {
     u8 *temp_16 = (u8 *)D_008814EC[0];
     s32 off;
     s16 v;
