@@ -93,7 +93,7 @@ s32 func_00380980(u8 *arg0)
     } Result;
     extern s32 func_0036f640(s32 arg0, s32 *arg1);
     extern u8 *datPersonaGetRow(u16 arg0);
-    extern u8 *func_00243840(s32 arg0);
+    extern u8 *datCalcGetIdRecord(s32 arg0);
     extern s32 func_002bad10(s32 arg0);
     extern void func_002bbd20(s32 arg0, void *arg1);
     extern void func_0038daf0(u8 *arg0, s32 arg1);
@@ -141,8 +141,8 @@ s32 func_00380980(u8 *arg0)
             func_002bbd20(0, datPersonaGetRow(output.value0));
         }
         if ((*flags & 2) != 0) {
-            func_002bbd20(1, func_00243840(output.value1));
-            func_002bbd20(4, func_00243840(output.value2));
+            func_002bbd20(1, datCalcGetIdRecord(output.value1));
+            func_002bbd20(4, datCalcGetIdRecord(output.value2));
         }
         if ((*flags & 4) != 0) {
             sprintf(text, &iGpffffa9E8, (s16)output.value2);

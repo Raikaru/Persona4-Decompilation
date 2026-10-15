@@ -57,7 +57,7 @@ typedef struct KwlnTask KwlnTask;
 extern s32 func_00452080(KwlnTask *task);
 extern u16 func_0010f560(s16 arg0, s32 arg1);
 extern u32 func_0010f600(s16 arg0, s32 arg1);
-extern void *func_00243840(u16 arg0);
+extern void *datCalcGetIdRecord(u16 arg0);
 
 extern void func_0046d3b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, f32 z, s32 arg4);
@@ -1543,7 +1543,7 @@ void func_00113800(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3)
 
     scale = arg4;
 
-    temp = func_00243840(*(u16 *)((u8 *)arg2 + 0xA));
+    temp = datCalcGetIdRecord(*(u16 *)((u8 *)arg2 + 0xA));
     color = -0x100 | (((arg1 & 0xFF) * 0xFF) / 255U);
     index = *(char *)((s32)D_005E47F0 + (*(s16 *)((u8 *)arg2 + 2) * 2));
     frFontExDrawText((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, index, 1, temp, 0, 0);

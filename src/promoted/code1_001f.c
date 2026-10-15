@@ -1143,7 +1143,7 @@ void func_001f14f0(u8 *arg0)
             func_0023e1f0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
             cntB = func_0023e2f0(ctx, sub);
         } else {
-            cntA = func_00243650(ctx, id, sub);
+            cntA = datCalcRollSkillValue(ctx, id, sub);
             cntB = 1;
         }
         e4 = *(s32 *)(unit + 0xE4);
