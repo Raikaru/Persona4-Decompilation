@@ -119,7 +119,7 @@ extern void func_0016ea30(s32 arg0, f32 arg1);
 extern void func_0016eaa0(s32 arg0, s8 arg1, void *arg2);
 extern u8 *func_0016eaf0(s32 arg0);
 extern u8 *mdlGetMatrix(s32 arg0);
-extern s32 func_00457c90(s32 arg0, const void *arg1);
+extern s32 K_Clump_ClumpHasMatUsrData(s32 arg0, const void *arg1);
 extern u8 D_005F0690[];
 extern u8 D_005F06A0[];
 extern void func_0016eb00(s32 arg0);
@@ -2918,12 +2918,12 @@ body:
                 flag = 1;
             }
             if (flag == 1) {
-                if (func_00457c90(
+                if (K_Clump_ClumpHasMatUsrData(
                         mdlGetClump(*(s32 *)(entry + 0x144)),
                         D_005F0690) != 0) {
                     func_00479940((u8*)*(s32 *)(entry + 0x144), 0, 2, 0, 0);
                 }
-                if (func_00457c90(
+                if (K_Clump_ClumpHasMatUsrData(
                         mdlGetClump(*(s32 *)(entry + 0x144)),
                         D_005F06A0) != 0) {
                     *(s32 *)(entry + 0x150) = 0;

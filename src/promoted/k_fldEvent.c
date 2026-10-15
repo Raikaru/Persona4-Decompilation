@@ -105,7 +105,7 @@ extern char D_005F1770[];
 extern char D_005F1780[];
 extern u32 D_007EFA04[];
 extern u8 *mdlGetClump(s32);
-extern s32 func_00457c90(u8 *, char *);
+extern s32 K_Clump_ClumpHasMatUsrData(u8 *, char *);
 extern u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *, const struct RwV3d *, f32);
 extern s32 func_0014a200(void);
 extern s32 func_0014a270(void);
@@ -147,7 +147,7 @@ s32 FldEvent_ScanNearbyEntries(u8 *arg0)
     vec = *(FldEventVec3 *)(o + 0x30);
     while (p != 0) {
         if ((*(s32 *)(p + 0x28) & 2) != 0 &&
-            func_00457c90((u8 *)mdlGetClump(*(s32 *)(p + 0x144)),
+            K_Clump_ClumpHasMatUsrData((u8 *)mdlGetClump(*(s32 *)(p + 0x144)),
                           D_005F1770) != 0) {
             cx = (s32)((600.0f + *(f32 *)((u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(p + 0x144))) +
                                           0x30)) /
@@ -186,7 +186,7 @@ s32 FldEvent_ScanNearbyEntries(u8 *arg0)
 found:
     q = (u8 *)MT_Scene_GetResListHead(0xA);
     while (q != 0) {
-        if (func_00457c90((u8 *)mdlGetClump(*(s32 *)(q + 0x144)),
+        if (K_Clump_ClumpHasMatUsrData((u8 *)mdlGetClump(*(s32 *)(q + 0x144)),
                           D_005F1780) != 0) {
             cx2 = (s32)((600.0f +
                          *(f32 *)((u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(q + 0x144))) + 0x30)) /

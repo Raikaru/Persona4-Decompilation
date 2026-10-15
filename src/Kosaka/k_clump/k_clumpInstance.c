@@ -24,7 +24,7 @@ extern void *func_003e6a90(void *arg0);
 extern void func_003e6870(void *arg0, void *arg1);
 extern void func_003ef1b0(void *arg0);
 extern void *func_003c0f20(void *arg0);
-extern s32 func_00457c90(void *arg0, const char *arg1);
+extern s32 K_Clump_ClumpHasMatUsrData(void *arg0, const char *arg1);
 extern void func_003c0960(void *arg0, void *arg1);
 extern void func_0046d730(const char *arg0, s32 arg1);
 extern void func_0044ea90(const char *arg0, s32 arg1);
@@ -33,7 +33,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern void func_003e2910(void *arg0, void *arg1, s32 arg2);
 extern void func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_003e2ab0(void *arg0, void *arg1, s32 arg2);
-extern void func_00463250(void *arg0);
+extern void K_Clump_FreeTextureNameList(void *arg0);
 extern void func_003e2e40(void *arg0, s32 arg1);
 extern void *func_00191e20(void *object, void *data);
 extern void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2);
@@ -97,15 +97,15 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
             case 0x16:
                 s3 = func_003e6a90(s1);
                 func_003e6870(s3, s0);
-                func_003ef260((const struct RwTexDictionary *)s3, &func_00463100, &sp70[7]);
+                func_003ef260((const struct RwTexDictionary *)s3, &K_Clump_AppendTextureName, &sp70[7]);
                 func_003ef1b0(s3);
                 break;
             case 0x10:
                 *(s32 *)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150) =
                     (s32)func_003c0f20(s1);
-                if (func_00457c90(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150),
+                if (K_Clump_ClumpHasMatUsrData(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150),
                                   D_005F64C0) == 0 &&
-                    func_00457c90(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150),
+                    K_Clump_ClumpHasMatUsrData(*(void **)(arg2 + *(s32 *)(arg2 + 0x14C) * 4 + 0x150),
                                   D_005F64E0) == 0)
                 {
                     if (*(s32 *)(arg2 + 0x14C) != 0)
@@ -132,7 +132,7 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
         }
         if (sp70[7] != 0)
         {
-            func_00463250((void *)sp70[7]);
+            K_Clump_FreeTextureNameList((void *)sp70[7]);
         }
         func_003e2e40(s1, 0);
         func_003e2e40(s0, 0);

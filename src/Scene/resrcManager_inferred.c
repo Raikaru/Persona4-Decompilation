@@ -711,7 +711,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     extern void FldResource_QueueDrawCallbacksSecondary(u8 *arg0, u8 *arg1);
     extern void func_004b1210(void *arg0, void *arg1);
     extern s32 func_00462df0(u8 *arg0);
-    extern u32 func_00462e80(const u32 *state);
+    extern u32 K_Clump_StateFlagIsSet(const u32 *state);
     extern void func_00479100(void *queue, u8 *model);
     extern void *mdlGetColor(void *model);
     extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
@@ -825,7 +825,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 func_00479100(D_007942D0, *(u8 **)(l10 + 0x144));
             } else if (t & 0x01000000) {
                 func_00479100(D_007947E0, *(u8 **)(l10 + 0x144));
-            } else if (func_00462e80(*(const u32 **)(*(u8 **)(l10 + 0x144) + 0xE0)) == 1) {
+            } else if (K_Clump_StateFlagIsSet(*(const u32 **)(*(u8 **)(l10 + 0x144) + 0xE0)) == 1) {
                 if (flag != 0) {
                     func_00479100(D_00793F10, *(u8 **)(l10 + 0x144));
                 } else {

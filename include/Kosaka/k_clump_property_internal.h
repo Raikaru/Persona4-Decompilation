@@ -15,7 +15,7 @@ typedef struct KClumpIntPropertyResult
 typedef char KClumpIntPropertyResultSize[
     (sizeof(KClumpIntPropertyResult) == 8) ? 1 : -1];
 
-void func_00458430(KClumpIntPropertyResult *result, void *object,
+void K_Clump_GetIntUsrDataAt(KClumpIntPropertyResult *result, void *object,
                    const char *name, s32 index);
 
 #endif

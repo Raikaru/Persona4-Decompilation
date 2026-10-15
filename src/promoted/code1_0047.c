@@ -59,7 +59,7 @@ extern void H_Cdvd_Destroy(u8 *arg0);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 extern void H_Cdvd_ReadSync(u8 *arg0);
-extern void func_00463250(void *arg0);
+extern void K_Clump_FreeTextureNameList(void *arg0);
 extern s32 func_0047b0c0(u8 *arg0);
 extern s32 func_0047c660(u8 *arg0);
 extern void func_0047e450(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4);
@@ -261,7 +261,7 @@ L_D8_check:
 L_after_c3:
     case 4:
         if (*(s32 *)(obj + 0x34) != 0) {
-            func_00463250(*(void **)(obj + 0x34));
+            K_Clump_FreeTextureNameList(*(void **)(obj + 0x34));
         }
         func_003e2e40(*(s32 *)(obj + 0), (s32 *)(obj + 0x2C));
         if (*(u8 **)(obj + 0x38) != NULL) {
