@@ -148,7 +148,7 @@ extern f32 DAT_0076112c;
 
 
 extern u8 *btlUnitCreate(s32 arg0);
-extern void func_0019ea60(u8 *arg0, s32 arg1);
+extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
 
 
 
@@ -171,12 +171,12 @@ extern u8 *func_001b0930(void);
 extern s32 func_001b0d70(u8 *arg0);
 extern s32 func_0022e630(u8 *arg0);
 extern s32 func_00243d80(u8 *arg0);
-extern void func_0019ef30(u8 *arg0, u16 arg1);
+extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void func_0019f1d0(u8 *arg0);
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
-    func_0019ef30(arg0, arg1);
+    btlUnitInitChild(arg0, arg1);
 }
 extern void btlUnitHoldPendingLookAt(u8 *arg0);
 extern s32 btlUnitLookAtSidePacketUpdate(u8 *arg0);
@@ -244,7 +244,7 @@ u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value)
 }
 
 // FUN_0019EA60
-void func_0019ea60(u8 *arg0, s32 arg1)
+void btlUnitInitFromRecord(u8 *arg0, s32 arg1)
 {
     extern void func_00201280(u8 *arg0, u8 *arg1);
     u8 *data;
@@ -323,7 +323,7 @@ void func_0019ea60(u8 *arg0, s32 arg1)
 }
 
 // FUN_0019EDA0
-u8 *func_0019eda0(u8 *arg0, s32 arg1)
+u8 *btlUnitGetRecordPtr(u8 *arg0, s32 arg1)
 {
     s32 temp_16;
     s32 temp_3;
@@ -371,12 +371,12 @@ u8 *func_0019eda0(u8 *arg0, s32 arg1)
 }
 
 // FUN_0019EF30
-void func_0019ef30(u8 *arg0, u16 arg1) {
-    extern void func_0019ea60(u8 *arg0, u16 arg1);
+void btlUnitInitChild(u8 *arg0, u16 arg1) {
+    extern void btlUnitInitFromRecord(u8 *arg0, u16 arg1);
     if (*(u8 **)(arg0 + 0xA0C) == NULL) {
         *(u8 **)(arg0 + 0xA0C) = btlUnitCreate(2);
     }
-    func_0019ea60(*(u8 **)(arg0 + 0xA0C), arg1);
+    btlUnitInitFromRecord(*(u8 **)(arg0 + 0xA0C), arg1);
 }
 
 // FUN_0019EF90
@@ -674,7 +674,7 @@ u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2)
     }
     if (arg2 != NULL) {
         *(u16 **)(var_17 + 0xA64) = arg2;
-        func_0019ea60(var_17, (u16)(arg1 & 0xFFFF));
+        btlUnitInitFromRecord(var_17, (u16)(arg1 & 0xFFFF));
         if (temp_16 == 1 &&
             (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
             func_0019f1d0(var_17);

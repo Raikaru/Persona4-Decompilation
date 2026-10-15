@@ -148,7 +148,7 @@ extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
-    func_0019ef30(arg0, arg1);
+    btlUnitInitChild(arg0, arg1);
 }
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];

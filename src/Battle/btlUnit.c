@@ -135,7 +135,7 @@ struct BtlUnitAnimBounds
     u16 unk_6;
     u16 radius;
 };
-u8* func_0019eda0(u8* unit, s32 id);
+u8* btlUnitGetRecordPtr(u8* unit, s32 id);
 
 
 BtlPacket* btlPacketAlloc(u32 id, s32 workDataSize);
@@ -171,7 +171,7 @@ void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2)
     RwV3d *out;
 
     func_001ec1c0(&work.rotation, (RwV3d *)(arg0 + 4), (RwV3d *)((u8 *)arg1 + 4));
-    bounds = (BtlUnitAnimBounds *)func_0019eda0(arg0, 0xA);
+    bounds = (BtlUnitAnimBounds *)btlUnitGetRecordPtr(arg0, 0xA);
     centerY = (f32)bounds->centerY;
     centerZ = (f32)bounds->centerZ;
     centerX = (f32)bounds->centerX;
@@ -662,7 +662,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
             else
             {
                 func_001ec1c0(&frame.rotateB, &target->pos, &packet->unit->pos);
-                bounds = (const BtlUnitAnimBounds *)func_0019eda0((u8 *)target, 0);
+                bounds = (const BtlUnitAnimBounds *)btlUnitGetRecordPtr((u8 *)target, 0);
                 centerY = (f32)bounds->centerY;
                 centerZ = (f32)bounds->centerZ;
                 centerX = (f32)bounds->centerX;
@@ -692,7 +692,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
         }
         else
         {
-            bounds = (const BtlUnitAnimBounds *)func_0019eda0((u8 *)target, 0);
+            bounds = (const BtlUnitAnimBounds *)btlUnitGetRecordPtr((u8 *)target, 0);
             centerY = (f32)bounds->centerY;
             centerZ = (f32)bounds->centerZ;
             centerX = (f32)bounds->centerX;
@@ -721,7 +721,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
         else
         {
             target = packet->unit;
-            bounds = (const BtlUnitAnimBounds *)func_0019eda0((u8 *)target, 0);
+            bounds = (const BtlUnitAnimBounds *)btlUnitGetRecordPtr((u8 *)target, 0);
             centerY = (f32)bounds->centerY;
             centerZ = (f32)bounds->centerZ;
             centerX = (f32)bounds->centerX;
@@ -1685,7 +1685,7 @@ void func_001959d0(BtlUnit* unit, RwV3d* param_2)
     f32 centerZ;
     f32 centerX;
 
-    bounds = (const BtlUnitAnimBounds *)func_0019eda0((u8 *)unit, 0);
+    bounds = (const BtlUnitAnimBounds *)btlUnitGetRecordPtr((u8 *)unit, 0);
     centerY = bounds->centerY;
     centerZ = bounds->centerZ;
     centerX = bounds->centerX;
