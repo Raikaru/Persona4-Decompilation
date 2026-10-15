@@ -70,7 +70,7 @@ s32 FldAI_ChaserUpdate(u8 *task)
     extern struct RwMatrix *func_003e9700(struct RwFrame *);
     extern f32 RwV3dNormalize(RwV3d *, const RwV3d *);
     extern f32 func_0014c3d0(const struct RwMatrix *, const RwV3d *, f32, f32, f32);
-    extern f32 func_00175db0(void);
+    extern f32 FldEvent_GetMoveStep(void);
     extern f32 func_0044b920(f32);
     extern s32 KMisc_CreateRmdFade(s32, s32, s32, s32, s32);
     extern s32 func_0014bd90(u8 *);
@@ -230,7 +230,7 @@ discoveryAvailabilityDone:
                 *(s32 *)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164), 0, 255, 10);
             *(s32 *)(work + 0x68) = 0;
         }
-        if (!(func_00175db0() <= 0.0f))
+        if (!(FldEvent_GetMoveStep() <= 0.0f))
             *(s32 *)(work + 0xC) = 1;
         if (*(s32 *)(work + 0xC) == 0) {
             currentAnimation = (s16)func_00479c30(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
@@ -354,7 +354,7 @@ neighborAvailabilityDone:
             leaderDelta.z = coordinate - *(f32 *)(mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)) + 0x38);
         }
         distance = RwV3dNormalize(&leaderDelta, &leaderDelta);
-        if (func_00175db0() <= 0.0f)
+        if (FldEvent_GetMoveStep() <= 0.0f)
             goto idleDistance;
         limit = 400.0f;
         goto distanceChosen;
@@ -1005,7 +1005,7 @@ extern int func_0015c1e0(int);
 extern void func_00168ae0(unsigned char *, unsigned char *);
 extern void func_00168cb0(unsigned char *, float);
 extern void func_00168de0(u8 *task, const void *axis, f32 angle);
-extern float func_00175db0(void);
+extern float FldEvent_GetMoveStep(void);
 extern int func_00452080(void *);
 extern int func_0045af60(short, short, short, short);
 extern void mdlSetAlphaBlend(unsigned char *);
@@ -1548,7 +1548,7 @@ else {
       }
       break;
     case 8:
-      temp_v8 = func_00175db0();
+      temp_v8 = FldEvent_GetMoveStep();
       if (temp_v8 == 0.0f) {
         temp_v0 = (int)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]);
         aiPos2 = *(FldAIVec3 *)(temp_v0 + 0x30);
@@ -1575,7 +1575,7 @@ else {
           *piVar1 = 7;
         }
         else {
-          temp_v8 = func_00175db0();
+          temp_v8 = FldEvent_GetMoveStep();
           temp_v8 = temp_v8 - ((float *)piVar1)[0x1a];
           if (temp_v8 < 0.0f) {
             temp_v8 = temp_v8 * -1.0f;
@@ -1593,9 +1593,9 @@ else {
           temp_v9 = temp_v9 / temp_v8;
           temp_v0 = (int)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]);
           state8Forward = *(FldAIVec3 *)(temp_v0 + 0x20);
-          state8Forward.x = state8Forward.x * (temp_v9 * func_00175db0());
-          state8Forward.y = state8Forward.y * (temp_v9 * func_00175db0());
-          state8Forward.z = state8Forward.z * (temp_v9 * func_00175db0());
+          state8Forward.x = state8Forward.x * (temp_v9 * FldEvent_GetMoveStep());
+          state8Forward.y = state8Forward.y * (temp_v9 * FldEvent_GetMoveStep());
+          state8Forward.z = state8Forward.z * (temp_v9 * FldEvent_GetMoveStep());
           temp_v0 = (int)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]);
           aiPos2 = *(FldAIVec3 *)(temp_v0 + 0x30);
           aiPos2.x = aiPos2.x + state8Forward.x;

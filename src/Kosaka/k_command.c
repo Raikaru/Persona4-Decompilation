@@ -30,8 +30,8 @@ extern u8* D_00762EA0;
 
 extern void func_0046d730(const char* file, s32 line);
 extern s32 func_00457120(void);
-extern void* func_00174c00(void);
-extern void* func_00174c10(void);
+extern void* FldEvent_GetNearestEntry(void);
+extern void* FldEvent_GetTriggerEntry(void);
 extern s32 func_0026bc10(u32 resourceId, u32 value);
 extern s32 func_00104c70(s32 value);
 extern void scrSetReturnInt(s32 value);
@@ -756,7 +756,7 @@ s32 Cmd_SetFieldSlotAlt(void)
 s32 Cmd_FaceNearestAxis(void)
 {
     s32 v = scrGetParamInt(0);
-    u8* p = func_00174c00();
+    u8* p = FldEvent_GetNearestEntry();
     Vec3f diff;
     Vec3f v1;
     f32 v2x;
@@ -853,7 +853,7 @@ s32 Cmd_SetFloatGlobal(void)
 // FUN_001784A0
 s32 Cmd_LoadFieldWord(void)
 {
-    u16* p = func_00174c00();
+    u16* p = FldEvent_GetNearestEntry();
     if (p != 0)
     {
         scrSetReturnInt(*p);
@@ -870,7 +870,7 @@ s32 Cmd_LoadFieldWord(void)
 // FUN_00178500
 s32 Cmd_LoadFieldWordAlt(void)
 {
-    u16* p = func_00174c10();
+    u16* p = FldEvent_GetTriggerEntry();
     if (p != 0)
     {
         scrSetReturnInt(*p);

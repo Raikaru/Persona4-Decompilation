@@ -32,14 +32,14 @@ extern FldEventVec3 D_005F1838;
 void func_0044ea90(const void *, u32);
 
 void func_00182390(void);
-void func_00174be0(s32, s32);
+void FldEvent_SetTriggerParam(s32, s32);
 s32 func_00171dc0(void);
-s32 func_00175dc0(u8 *);
+s32 FldEvent_MoverUpdate(u8 *);
 u16 *datPersonaGetRecord(u16);
 s32 datPersonaFindSkillSlot(u8 *, u16);
 s16 datGetPartyId(s32);
 s16 func_00106cd0(s16, s32);
-s32 func_001747d0(u8 *);
+s32 FldEvent_TriggerUpdate(u8 *);
 s32 func_0014a160(void);
 s32 func_0015a160(void);
 s32 func_0014c850(f32, f32, void *);
@@ -77,7 +77,7 @@ void func_0016e540(s32, s32);
 void func_0016e560(s32, s32);
 void func_0017d100(u8 *);
 void func_0017d0f0(s32, s32);
-s32 func_00174e10(u8 *);
+s32 FldEvent_StepMoveToward(u8 *);
 s32 func_0018bea0();
 void func_0018bc20(s32);
 void func_0018bed0(s32, s32);
@@ -834,7 +834,7 @@ s32 func_00172e00(u8 *arg0)
     void SceneDraw_SetResVisible(u16, u32);
     void func_0015a350(struct P4_0015_Vec3 *);
     struct RwMatrixTag *func_0047a180(struct RwMatrixTag *, const struct RwV3d *, s32);
-    s32 func_00175ea0(s32, s32, s32);
+    s32 FldEvent_SpawnMover(s32, s32, s32);
     u8 *func_002ae630(u8 *);
     void func_002b2950(s32);
     s32 func_0018c7e0(void);
@@ -1400,7 +1400,7 @@ s32 func_00172e00(u8 *arg0)
                 }
                 work->resource = (u8 *)MT_Scene_GetRes(0x400);
                 res = work->resource;
-                work->fieldEffect = func_00175ea0(*(s32 *)((u8 *)func_00155280() + 0x8), *(s32 *)(res + 0x220), *(s32 *)(res + 0x164));
+                work->fieldEffect = FldEvent_SpawnMover(*(s32 *)((u8 *)func_00155280() + 0x8), *(s32 *)(res + 0x220), *(s32 *)(res + 0x164));
                 t12 = (s32)func_002ae630((u8 *)(*(s32 *)(u8 *)func_00155280()));
                 *(s32 *)((u8 *)func_00155280() + 0x18) = t12;
                 func_002b2950(1);
@@ -1522,7 +1522,7 @@ done:
     return r;
 }
 // FUN_001747D0
-s32 func_001747d0(u8 *arg0)
+s32 FldEvent_TriggerUpdate(u8 *arg0)
 {
     u8 *h;
     s32 t;
@@ -1559,7 +1559,7 @@ s32 func_001747d0(u8 *arg0)
             *(s32 *)(h + 0x14) = 0;
             *(s32 *)h = 1;
         } else {
-            func_00174e10(arg0);
+            FldEvent_StepMoveToward(arg0);
             break;
         }
     case 1:
@@ -1587,13 +1587,13 @@ s32 func_001747d0(u8 *arg0)
 }
 
 // FUN_00174AA0
-void func_00174aa0(u8 *arg0)
+void FldEvent_TriggerDestroy(u8 *arg0)
 {
     jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x38));
 }
 
 // FUN_00174AD0
-s32 func_00174ad0(s32 arg0)
+s32 FldEvent_SpawnTrigger(s32 arg0)
 {
     u8 *temp_2;
     u8 *temp_18;
@@ -1604,32 +1604,32 @@ s32 func_00174ad0(s32 arg0)
     if (temp_2 == 0) {
         return 0;
     }
-    arg0 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1828), 0xF, 0, 0, func_001747d0, func_00174aa0, (u8 *)(temp_2));
+    arg0 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1828), 0xF, 0, 0, FldEvent_TriggerUpdate, FldEvent_TriggerDestroy, (u8 *)(temp_2));
     func_00182390();
     *(s32 *)(temp_2 + 0xC) = -1;
     temp_18 = temp_2 + 0x18;
     *(u8 **)temp_18 = (u8 *)MT_Scene_GetRes(0x400);
-    func_00174be0(arg0, D_00724358);
+    FldEvent_SetTriggerParam(arg0, D_00724358);
     *(u16 *)(temp_2 + 0x2E) = 0xFFFF;
     temp_2_2 = *(u8 **)temp_18;
-    *(s32 *)(temp_2 + 0x13C) = func_00175ea0(arg0, *(s32 *)(temp_2_2 + 0x220),
+    *(s32 *)(temp_2 + 0x13C) = FldEvent_SpawnMover(arg0, *(s32 *)(temp_2_2 + 0x220),
                                               *(s32 *)(temp_2_2 + 0x164));
     return arg0;
 }
 // FUN_00174BE0
-void func_00174be0(s32 arg0, s32 arg1)
+void FldEvent_SetTriggerParam(s32 arg0, s32 arg1)
 {
     if (arg0 != 0) {
         *(s32 *)(*(s32 *)(arg0 + 0x38) + 8) = arg1;
     }
 }
 // FUN_00174C00
-s32 func_00174c00(void)
+s32 FldEvent_GetNearestEntry(void)
 {
     return D_007243EC;
 }
 // FUN_00174C10
-s32 func_00174c10(void)
+s32 FldEvent_GetTriggerEntry(void)
 {
     return D_007243E8;
 }
@@ -1697,7 +1697,7 @@ void func_00174c20(void)
 #pragma push
 #pragma opt_dead_assignments off
 // FUN_00174E10
-s32 func_00174e10(u8 *arg0)
+s32 FldEvent_StepMoveToward(u8 *arg0)
 {
     typedef struct {
         FldEventVec3 right;
@@ -2047,12 +2047,12 @@ moving:
 
 #pragma pop
 // FUN_00175DB0
-f32 func_00175db0(void)
+f32 FldEvent_GetMoveStep(void)
 {
     return D_007243DC;
 }
 // FUN_00175DC0
-s32 func_00175dc0(u8 *arg0)
+s32 FldEvent_MoverUpdate(u8 *arg0)
 {
     s32 *h;
     FldEventVec3 vec;
@@ -2080,13 +2080,13 @@ end:
 
 
 // FUN_00175E70
-void func_00175e70(u8 *arg0)
+void FldEvent_MoverDestroy(u8 *arg0)
 {
     jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x38));
 }
 
 // FUN_00175EA0
-s32 func_00175ea0(s32 arg0, s32 arg1, s32 arg2)
+s32 FldEvent_SpawnMover(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *temp_2;
     s32 ret;
@@ -2096,7 +2096,7 @@ s32 func_00175ea0(s32 arg0, s32 arg1, s32 arg2)
     if (temp_2 == 0) {
         return 0;
     }
-    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1848), 0xF, 0, 0, func_00175dc0, func_00175e70, (u8 *)(temp_2));
+    ret = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1848), 0xF, 0, 0, FldEvent_MoverUpdate, FldEvent_MoverDestroy, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 0x44) = arg1;
     *(s32 *)(temp_2 + 0x48) = arg2;
     return ret;

@@ -1336,7 +1336,7 @@ extern void KDraw_SetCylinderRadius(unsigned char *, float);
 extern void KDraw_SetCylinderHeight(unsigned char *, float);
 extern s32 func_0016b080(const RwV3d *, f32, RwV3d *, RwV3d *);
 extern void func_0016e8e0(u8 *, f32);
-extern float func_00175db0(void);
+extern float FldEvent_GetMoveStep(void);
 extern float RwV3dLength(float *);
 extern void func_0046d730(void *, int);
 extern void mdlSetAlphaBlend(void *);
@@ -2038,7 +2038,7 @@ s32 func_0016bdd0(u8 *param_1)
           if ((((wallZero != wallNormalX || wallZero != *(float *)((u8 *)(u32)piVar1 + 0x2b4)) ||
                (wallZero != *(float *)((u8 *)(u32)piVar1 + 0x2b8))) &&
               ((*(float *)((u8 *)(u32)piVar1 + 0x294) < *(float *)((u8 *)(u32)piVar1 + 0x28c) && ((D_008C024C[0] & 0xf) == 0)))) &&
-             ((!(temp_v11_s4 < -48.0f) && ((temp_v11_s4 <= 48.0f && (temp_v11_s4 = func_00175db0(), temp_v11_s4 > 0.0f)))))) {
+             ((!(temp_v11_s4 < -48.0f) && ((temp_v11_s4 <= 48.0f && (temp_v11_s4 = FldEvent_GetMoveStep(), temp_v11_s4 > 0.0f)))))) {
             {
               float forwardZ, forwardY, forwardX;
               float *forwardVector;
@@ -2248,7 +2248,7 @@ s32 func_0016bdd0(u8 *param_1)
           else if ((0.0f == *(float *)((u8 *)(u32)piVar1 + 0x2ac)) && ((piVar1[1] & 2U) == 0)) {
             {
               float maximumStep;
-              if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > func_00175db0()) ? func_00175db0() : maximumStep)) {
+              if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > FldEvent_GetMoveStep()) ? FldEvent_GetMoveStep() : maximumStep)) {
                 temp_v11_c = 15.0f;
               }
             }
@@ -2301,7 +2301,7 @@ s32 func_0016bdd0(u8 *param_1)
                 (*(float *)&piVar1[0xa5] < ((float *)piVar1)[0xa3])) {
           {
             float maximumStep;
-            if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > func_00175db0()) ? func_00175db0() : maximumStep)) {
+            if (0.0f == (temp_v11_c = ((maximumStep = 15.0f) > FldEvent_GetMoveStep()) ? FldEvent_GetMoveStep() : maximumStep)) {
               temp_v11_c = 15.0f;
             }
           }
@@ -2508,7 +2508,7 @@ s32 func_0016bdd0(u8 *param_1)
         else if (!(temp_v11_d <= *(float *)((u8 *)(u32)piVar1 + 0x294))) {
           {
             float maximumStep;
-            if (0.0f == (temp_v14_d = ((maximumStep = 20.0f) > func_00175db0()) ? func_00175db0() : maximumStep)) {
+            if (0.0f == (temp_v14_d = ((maximumStep = 20.0f) > FldEvent_GetMoveStep()) ? FldEvent_GetMoveStep() : maximumStep)) {
               temp_v14_d = 20.0f;
             }
           }
