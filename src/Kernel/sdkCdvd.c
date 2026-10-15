@@ -52,7 +52,7 @@ void H_Cdvd_NormalizePath(void* a0, void* a1);
 s32 strcmp(void* a0, void* a1);
 void H_Dbprt_FmtLog(void* a0, void* a1);
 void func_00440b68();
-s16 func_0044ec40(void);
+s16 chkmemGetClasses(void);
 void H_Cdvd_BuildVolumePaths(void* a0, void* a1, void* a2);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_008D1B80[];
@@ -261,7 +261,7 @@ u8* func_00454a60(u8* arg0, s32 arg1) {
     *(s32*)(newnode + 0x150) = arg1;
     *(s16*)(newnode + 0x35A) = 1;
     *(s32*)(newnode + 0x154) = 0;
-    *(s16*)(newnode + 0x362) = func_0044ec40();
+    *(s16*)(newnode + 0x362) = chkmemGetClasses();
     return newnode;
 }
 

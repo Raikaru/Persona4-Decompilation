@@ -38,7 +38,7 @@ extern s32 func_0042ba20(void);
 extern void func_0042ba70(void);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void func_0043ed08(void *ptr);
-extern s32 func_0044eaa0(s32 arg0, s32 arg1, u16 arg2, s16 arg3);
+extern s32 chkmemRegisterBlock(s32 arg0, s32 arg1, u16 arg2, s16 arg3);
 extern char iGpffffac30;
 extern void memset(void *dst, s32 value, u32 size);
 
@@ -50,7 +50,7 @@ static inline u32 e8Slot(u32 offset, u32 base)
 }
 
 // FUN_0044E8D0
-void func_0044e8d0(E8Node *node)
+void chkmemPoolAppend(E8Node *node)
 {
     ChkMemPool *pool;
 
@@ -69,7 +69,7 @@ void func_0044e8d0(E8Node *node)
 }
 
 // FUN_0044E920
-static void func_0044e920(E8Node *node)
+static void chkmemPoolUnlink(E8Node *node)
 {
     E8Node *next;
 
@@ -108,7 +108,7 @@ done:
  * set. Staging the pool load before e8Slot preserves the retail load and
  * offset-first addu order at both class-index updates. */
 // FUN_0044E9E0
-static void func_0044e9e0(u8 *arg0)
+static void chkmemUntrackBlock(u8 *arg0)
 {
     s32 var_5;
     u8 temp_3;
@@ -133,7 +133,7 @@ static void func_0044e9e0(u8 *arg0)
                               (u32)D_00763D1C);
         *(s32 *)(temp_4 + 0x58) = *(s32 *)(temp_4 + 0x58) - var_5;
     }
-    func_0044e920((E8Node *)(arg0 + 0xC));
+    chkmemPoolUnlink((E8Node *)(arg0 + 0xC));
     *(s16 *)(arg0 + 8) = 0;
 }
 
@@ -143,7 +143,7 @@ void func_0044ea90(const void *file, s32 line) {}
    class-size temporary preserves retail's classBytes load order. */
 #pragma opt_propagation off
 // FUN_0044EAA0
-s32 func_0044eaa0(s32 arg0, s32 arg1, u16 arg2, s16 arg3)
+s32 chkmemRegisterBlock(s32 arg0, s32 arg1, u16 arg2, s16 arg3)
 {
     ChkMemEntry *temp_2;
     s32 temp_16;
@@ -181,23 +181,23 @@ s32 func_0044eaa0(s32 arg0, s32 arg1, u16 arg2, s16 arg3)
         temp_18 = temp_2->size - (temp_2->pad_04 + 24);
         D_00763D1C->classCount[(u8)D_00763D1C->classes] += temp_18;
     }
-    func_0044e8d0((E8Node *)((u8 *)temp_2 + 12));
+    chkmemPoolAppend((E8Node *)((u8 *)temp_2 + 12));
     *(u16 *)((u8 *)temp_2 + 8) = D_00763D1C->classes;
     return temp_16;
 }
 #pragma opt_propagation on
 // FUN_0044EC30
-s32 func_0044ec30(void) {
+s32 chkmemGetBytes(void) {
     return D_00763D1C->bytes;
 }
 
 // FUN_0044EC40
-u16 func_0044ec40(void) {
+u16 chkmemGetClasses(void) {
     return D_00763D1C->classes;
 }
 
 // FUN_0044EC50
-void func_0044ec50(s32 arg0) {
+void chkmemSetLock(s32 arg0) {
     D_00764AC0 = arg0;
 }
 
@@ -211,7 +211,7 @@ void func_0044ec50(s32 arg0) {
 /* measured: preserves retail allocator reload order. */
 #pragma opt_propagation off
 // FUN_0044EC60
-s32 func_0044ec60(u32 arg0)
+s32 chkmemAllocate(u32 arg0)
 {
     s32 temp_17;
     s32 temp_16;
@@ -259,7 +259,7 @@ s32 func_0044ec60(u32 arg0)
         temp_18 = temp_2->size - (temp_2->pad_04 + 24);
         D_00763D1C->classCount[(u8)D_00763D1C->classes] += temp_18;
     }
-    func_0044e8d0((E8Node *)((u8 *)temp_2 + 12));
+    chkmemPoolAppend((E8Node *)((u8 *)temp_2 + 12));
     *(u16 *)((u8 *)temp_2 + 8) = D_00763D1C->classes;
     if (temp_17 != 0) {
         func_0042ba70();
@@ -274,7 +274,7 @@ s32 func_0044ec60(u32 arg0)
  * visibility keeps `block` live in $v0 across unlink, which emits the clear
  * before the following $a0 move exactly as retail. */
 // FUN_0044EE70
-void func_0044ee70(u8 *arg0)
+void chkmemFree(u8 *arg0)
 {
     s32 lock;
     u8 *block;
@@ -310,7 +310,7 @@ void func_0044ee70(u8 *arg0)
         delta = *(s32 *)(pool2 + 0x58) - size;
         *(s32 *)(pool2 + 0x58) = delta;
     }
-    func_0044e920((E8Node *)(block + 0xC));
+    chkmemPoolUnlink((E8Node *)(block + 0xC));
     *(s16 *)(block + 8) = 0;
     func_0043ed08(block);
     if (lock != 0) {
@@ -329,7 +329,7 @@ void func_0044ee70(u8 *arg0)
 /* measured: preserves retail expression and class-array reload order. */
 #pragma opt_propagation off
 // FUN_0044EF70
-s32 func_0044ef70(s32 arg0, s32 arg1, s32 arg2)
+s32 chkmemAllocAligned(s32 arg0, s32 arg1, s32 arg2)
 {
     u16 temp_16_2;
     ChkMemEntry *temp_2;
@@ -379,7 +379,7 @@ s32 func_0044ef70(s32 arg0, s32 arg1, s32 arg2)
         temp_18 = temp_2->size - (temp_2->pad_04 + 24);
         D_00763D1C->classCount[(u8)D_00763D1C->classes] += temp_18;
     }
-    func_0044e8d0((E8Node *)((u8 *)temp_2 + 12));
+    chkmemPoolAppend((E8Node *)((u8 *)temp_2 + 12));
     *(u16 *)((u8 *)temp_2 + 8) = D_00763D1C->classes;
     return temp_16;
 }
@@ -396,7 +396,7 @@ s32 func_0044ef70(s32 arg0, s32 arg1, s32 arg2)
 #pragma push
 /* Preserve retail scheduling and the branch join after nested restore. */
 #pragma schedule off
-s32 func_0044f140(void *arg0, u32 arg1)
+s32 chkmemReallocate(void *arg0, u32 arg1)
 {
     u32 copySize;
     s32 block;
@@ -424,7 +424,7 @@ s32 func_0044f140(void *arg0, u32 arg1)
             func_0046d700(D_007104E0, 0x65F, D_007104F0,
                           D_00763D1C->bytes, arg1);
         }
-        allocation = func_0044eaa0(block, allocationSize, 0x10, 0);
+        allocation = chkmemRegisterBlock(block, allocationSize, 0x10, 0);
         if (allocateLock != 0) {
             func_0042ba70();
         }
@@ -445,7 +445,7 @@ s32 func_0044f140(void *arg0, u32 arg1)
             func_0046d700(D_007104E0, 0x65F, D_007104F0,
                           D_00763D1C->bytes, arg1);
         }
-        allocation = func_0044eaa0(newBlock, newAllocationSize, 0x10, 0);
+        allocation = chkmemRegisterBlock(newBlock, newAllocationSize, 0x10, 0);
         if (resizeLock != 0) {
             func_0042ba70();
         }
@@ -455,7 +455,7 @@ s32 func_0044f140(void *arg0, u32 arg1)
             func_0046d730(D_007104E0, 0x670);
         }
         oldHeader = *oldHeaderSlot;
-        func_0044e9e0((u8 *)oldHeader);
+        chkmemUntrackBlock((u8 *)oldHeader);
         func_0043ed08(oldHeader);
         if (freeLock != 0) {
             func_0042ba70();
@@ -469,7 +469,7 @@ s32 func_0044f140(void *arg0, u32 arg1)
 }
 #pragma pop
 // FUN_0044F3A0
-s32 func_0044f3a0(s32 arg0, s32 arg1)
+s32 chkmemAllocZeroed(s32 arg0, s32 arg1)
 {
     s32 temp_16;
     s32 temp_17;
@@ -488,7 +488,7 @@ s32 func_0044f3a0(s32 arg0, s32 arg1)
     if (temp_2 == 0) {
         func_0046d700(D_007104E0, 0x65F, D_007104F0, D_00763D1C->bytes, temp_18);
     }
-    temp_19_2 = func_0044eaa0(temp_2, temp_19_2, 0x10, 0);
+    temp_19_2 = chkmemRegisterBlock(temp_2, temp_19_2, 0x10, 0);
     if (temp_16 != 0) {
         func_0042ba70();
     }

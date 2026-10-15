@@ -86,7 +86,7 @@ heap.
    the sound drivers.
 2. `func_00100670` starts RenderWare. It calls `RwEngineInit(func_0044f510(),
    0, 0x800000)`, where `func_0044f510` returns the game's memory table (slots
-   `func_0044ec60`, `func_0044ee70`, `func_0044f140`, `func_0044f3a0` in
+   `chkmemAllocate`, `chkmemFree`, `chkmemReallocate`, `chkmemAllocZeroed` in
    `src/Kernel/sdkChkmem.c`). It then attaches plugins
    (`RpUVAnimPluginAttach`, ...), calls `RwEngineOpen`,
    `RwEngineSetVideoMode(0x52)` and `RwEngineStart` (`func_003e8b10`,
@@ -283,7 +283,7 @@ initDataRead, sdlScheduler and ItemTblDataRead.
 ### Heaps
 
 `src/Kernel/sdkChkmem.c` is the checked allocator that RenderWare is given
-at boot; `func_0044ec60` rounds sizes up and keeps the allocation count and
+at boot; `chkmemAllocate` rounds sizes up and keeps the allocation count and
 byte total in `D_00763D1C`. `src/promoted/code1_0046.c` `func_0046a430` is a
 second allocator (the `sdkMalloc.c` strings at `0x756748`) that hands out
 16-byte-aligned blocks from a slot table at `iGpffffbb14`;

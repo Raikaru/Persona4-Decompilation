@@ -51,7 +51,7 @@ extern s32 func_003ea370(s32 *arg0);
 
 
 /* text3d helpers */
-extern void func_0044ec50(s32 arg0);
+extern void chkmemSetLock(s32 arg0);
 extern void func_0044ea90(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_00446ed8(void *buf, const void *fmt, void *va);
@@ -480,11 +480,11 @@ void func_004501f0(s64 arg0, s32 arg1, s32 arg2, ...) {
     f32 arg0hi;
 
     arg0hi = *(f32 *)((u8 *)&arg0 + 4);
-    func_0044ec50(1);
+    chkmemSetLock(1);
     func_0044ea90(D_00710500, 0x1EA);
     temp_2 = D_008873F4[0](1, 0x118, 0x40000);
     if (temp_2 != NULL) {
-        func_0044ec50(0);
+        chkmemSetLock(0);
         va_start(args, arg2);
         func_00446ed8(temp_2 + 0x10, (void *)arg2, args);
         *(f32 *)(temp_2 + 4) = *(f32 *)&arg0;
@@ -517,11 +517,11 @@ void func_00450340(s64 arg0, const char *arg1, ...) {
     f32 arg0hi;
 
     arg0hi = *(f32 *)((u8 *)&arg0 + 4);
-    func_0044ec50(1);
+    chkmemSetLock(1);
     func_0044ea90(D_00710500, 0x20A);
     temp_2 = D_008873F4[0](1, 0x118, 0x40000);
     if (temp_2 != NULL) {
-        func_0044ec50(0);
+        chkmemSetLock(0);
         va_start(args, arg1);
         func_00446ed8(temp_2 + 0x10, arg1, args);
         *(f32 *)(temp_2 + 4) = *(f32 *)&arg0;
