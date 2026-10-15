@@ -118,7 +118,7 @@ extern s32 atoi(const char *arg0);
 extern void strcpy(char *dst, char *src);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 D_00754D88[];
-extern s32 func_0044ec30(void);
+extern s32 chkmemGetBytes(void);
 extern s32 func_003c0520(s32 arg0);
 extern s32 func_00478750(s32 arg0);
 extern s32 func_004b11b0(s32 arg0);
@@ -276,7 +276,7 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
         *(s16 *)(fldResourceWorkOffset(*(s32 *)(work + 0x98) * 4, work) + 0x9E) = (s16)arg1;
         *(s32 *)(iGpffff9db0 + 0x98) += 1;
     }
-    iGpffffb208 = func_0044ec30();
+    iGpffffb208 = chkmemGetBytes();
 }
 #pragma pop
 /* Field-loader recovery history (the final byte-exact result is recorded below):
@@ -753,7 +753,7 @@ waitResourceInitialization:
             }
             *( s32 * )(iGpffff9db0 + 0x94) = 4;
 loadNpcTables:
-            temp_3_10 = (s32)(func_0044ec30() - iGpffffb208);
+            temp_3_10 = (s32)(chkmemGetBytes() - iGpffffb208);
             iGpffffb208 = temp_3_10;
             if (*( s32 * )(iGpffff9db0 + 0) < 0xC8) {
                 iGpffffb208 = (s32) (temp_3_10 + 0x32000);

@@ -2121,7 +2121,7 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
     extern void *memcpy(void *dst, const void *src, size_t size);
     extern void *memset(void *dst, s32 val, size_t size);
     extern void func_0044ea90(void *arg0, s32 arg1);
-    extern void func_0044ec50(s32 arg0);
+    extern void chkmemSetLock(s32 arg0);
     extern u8 kwlnTaskDestroyWithHierarchyByName(const char *name);
     extern void H_Cdvd_StartPlayback(void *handle, void *path, s32 sync);
     extern s32 func_00457120(void);
@@ -2246,12 +2246,12 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
             parameters->nsec = 1;
             parameters->buffmt = 2;
             parameters->wksize = mwPlyCalcWorkCprmSfd(parameters);
-            func_0044ec50(1);
+            chkmemSetLock(1);
             func_0044ea90(D_00712FF8, 0x135);
             work->decoderWorkAddress = (u32)jtbl_008873E8[0](parameters->wksize + 0x40, 0x40000);
             func_0044ea90(D_00712FF8, 0x136);
             work->imageBuffer = (void *)((u32)(D_008873F4[0](1U, 0x118000, 0x40000)));
-            func_0044ec50(0);
+            chkmemSetLock(0);
             func_00440b68(D_00713030, work->decoderWorkAddress);
             decoderWork = work->decoderWorkAddress;
             if ((decoderWork == 0) || ((u32)work->imageBuffer == 0)) {
@@ -2280,7 +2280,7 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
             } else {
                 H_Cdvd_StartPlayback((void *)playerHandle, *(u8 **)(D_00712C54 + (work->movieIndex * 0x28)), 0);
             }
-            func_0044ec50(1);
+            chkmemSetLock(1);
             rasterKind = (*(s16 *)(D_00712C50 + (work->movieIndex * 0x28)));
             switch (rasterKind) {
             case 0:
@@ -2290,7 +2290,7 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
                 work->raster = RwRasterCreate(0x280, 0x170, 0x20, 0x584);
                 break;
             }
-            func_0044ec50(0);
+            chkmemSetLock(0);
             if (work->raster == 0) {
                 work->state = 0xB;
                 goto movieComplete;

@@ -44,10 +44,10 @@ extern s32 (*D_008BE290[])(u32);
 extern void (*D_008BE294[])(u8 *);
 extern s32 (*D_008BE298[])(void *, u32);
 extern s32 (*D_008BE29C[])(s32, s32);
-s32 func_0044ec60(u32);
-void func_0044ee70(u8 *);
-s32 func_0044f140(void *, u32);
-s32 func_0044f3a0(s32, s32);
+s32 chkmemAllocate(u32);
+void chkmemFree(u8 *);
+s32 chkmemReallocate(void *, u32);
+s32 chkmemAllocZeroed(s32, s32);
 s32 func_0044f4d0(void);
 s32 func_00446108();
 
@@ -657,9 +657,9 @@ s32 func_0044f4d0(void) {
 // FUN_0044F510
 s32 (**func_0044f510(void))(u32) {
     D_00763D1C->fn_30 = func_0044f4d0;
-    D_008BE290[0] = func_0044ec60;
-    D_008BE294[0] = func_0044ee70;
-    D_008BE298[0] = func_0044f140;
-    D_008BE29C[0] = func_0044f3a0;
+    D_008BE290[0] = chkmemAllocate;
+    D_008BE294[0] = chkmemFree;
+    D_008BE298[0] = chkmemReallocate;
+    D_008BE29C[0] = chkmemAllocZeroed;
     return D_008BE290;
 }
