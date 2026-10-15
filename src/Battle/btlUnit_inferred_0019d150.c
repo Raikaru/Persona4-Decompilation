@@ -142,7 +142,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *func_0019d210(s32 arg0);
+extern u8 *btlUnitCreate(s32 arg0);
 
 
 
@@ -219,7 +219,7 @@ void func_0019d150(void)
 }
 
 // FUN_0019D210
-u8 *func_0019d210(s32 arg0)
+u8 *btlUnitCreate(s32 arg0)
 {
     f32 var_f1;
     s32 temp_3_2;
