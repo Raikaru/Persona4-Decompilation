@@ -1308,7 +1308,7 @@ s32 mdlUpdateHierarchyPose(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
       if ((*(float *)&puVar3[0xe] < 1.0f) && (*(unsigned char **)(modelState + 0x12) != (unsigned char *)0x0)) {
         func_003d5e90((unsigned char *)hierarchy->currentAnim,*(unsigned char **)(modelState + 0x12),(unsigned char *)puVar3[puVar3[0x11] + 4]
                       ,*(float *)&puVar3[0xe]);
-        /* func_004740c0 stores blend duration as f32 at control+0x34;
+        /* mdlStartLayerAnimation stores blend duration as f32 at control+0x34;
          * retail 00472dd0-00472de0 loads it directly without integer conversion. */
         temp_v20 = *(float *)&puVar3[0xd];
         temp_v20 = 1.0f / temp_v20;
@@ -2051,8 +2051,9 @@ typedef struct MdlDispatchAnimTable {
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
+/* Starts an animation on a layer: records the animation index and flags, and stores the blend duration (blendTicks) as f32 at the control block's +0x34. */
 // FUN_004740C0
-void func_004740c0(u8* layer, s16 animation, u16 blendTicks, s32 flags)
+void mdlStartLayerAnimation(u8* layer, s16 animation, u16 blendTicks, s32 flags)
 {
     u32 narrowFlags;
     s32 entryCount;
@@ -2183,8 +2184,9 @@ void func_004740c0(u8* layer, s16 animation, u16 blendTicks, s32 flags)
     *(s16*)(layer + 4) = animation;
 }
 #pragma pop
+/* Releases one reference on an anim entry table (count at +0x6). On the last release it releases the table's entries. */
 // FUN_004745F0
-void func_004745f0(MdlAnimEntryTable* table)
+void mdlReleaseAnimEntryTable(MdlAnimEntryTable* table)
 {
     u16 i;
 
@@ -4590,7 +4592,7 @@ void func_004787e0(u8* param_1)
         mdlDestroySlotEffects(param_1 + i * 0xA4 + 0xEC);
     }
     if (*(void**)(param_1 + 0x234) != 0) {
-        func_004745f0(*(void**)(param_1 + 0x234));
+        mdlReleaseAnimEntryTable(*(void**)(param_1 + 0x234));
         *(void**)(param_1 + 0x234) = 0;
     }
     if (*(void**)(param_1 + 0x254) != 0) {
@@ -5112,7 +5114,7 @@ static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s16 animation, u16
             func_0047fe90(blend, 0.0f, 1.0f);
         func_00475350(*(void**)(mdl + 0xdc), (MdlAnimControlView*)(mdl + 0x23c), animation, frame, flags);
     }
-    func_004740c0(mdl + 0xec + (u16)layer * 0xa4, animation, frame, flags);
+    mdlStartLayerAnimation(mdl + 0xec + (u16)layer * 0xa4, animation, frame, flags);
     if (*(void**)(mdl + 0x2d0) && !((narrowFlags = (u16)flags) & 0x40) && baseLayer == 0) {
         if (narrowFlags & 0x100) {
             *(u16*)(mdl + 0x2e0) &= ~0x20;

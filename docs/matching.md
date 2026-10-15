@@ -5053,7 +5053,7 @@ matching retail:
 
 | Function | Owner | Emitted / window | Residual |
 | --- | --- | --- | --- |
-| `func_004740c0` | `src/Graphics/Model/mdlManager.c` | 1320B / 1328B | Eight zero-tail bytes |
+| `mdlStartLayerAnimation` (was `func_004740c0`) | `src/Graphics/Model/mdlManager.c` | 1320B / 1328B | Eight zero-tail bytes |
 | `func_00459ad0` | `src/sdkSnd.c` | 2316B / 2320B | Four zero-tail bytes |
 
 For layer animation, member-first field bases and a signed promoted
