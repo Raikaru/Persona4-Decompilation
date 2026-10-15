@@ -67,7 +67,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
-extern s32 func_001d8df0(u8 *arg0);
+extern s32 btlEffectCollectGenusMask(u8 *arg0);
 extern u32 func_001d8bc0(void *formation);
 extern void btlCameraFrameStatus(u8 *arg0, s32 arg1);
 extern void btlCameraFrameSideView(u8 *arg0, s32 arg1);
@@ -665,7 +665,7 @@ void btlCameraReleaseOcclusion(u8 *arg0)
     call_arg1 = 0;
     call_arg2 = *(u16 *)(temp_16 + 0x6E);
     *(s16 *)(arg0 + 0x106) = func_001d7f10(call_arg0, (u8 *)call_arg1, (u16)call_arg2, 0);
-    *(s16 *)(arg0 + 0x104) = func_001d8df0(temp_16 + 0x98);
+    *(s16 *)(arg0 + 0x104) = btlEffectCollectGenusMask(temp_16 + 0x98);
     *(s32 *)(arg0 + 0x100) = 0;
 }
 

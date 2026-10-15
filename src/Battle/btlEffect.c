@@ -40,8 +40,8 @@ typedef struct BtlPacket {
 
 extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 extern void func_001d7700(void);
-extern u32 func_001d7760(void);
-extern u32 func_001d79e0(u16 *param_1);
+extern u32 btlEffectLoadTable(void);
+extern u32 btlEffectReleaseId(u16 *param_1);
 extern u32 func_001d7a60(u8 *param_1);
 
 typedef u8 bool;
@@ -74,7 +74,7 @@ extern char D_006095C0[];
 
 
 // FUN_001D6880
-void func_001d6880(u16 *param_1)
+void btlEffectResetEntry(u16 *param_1)
 
 {
   if (*(int *)(param_1 + 8) != 0) {
@@ -99,7 +99,7 @@ void func_001d6880(u16 *param_1)
 
 
 // FUN_001D6CE0
-u16 *func_001d6ce0(int param_1)
+u16 *btlEffectAllocEntry(int param_1)
 {
   u16 *entry;
   u32 index;
@@ -138,7 +138,7 @@ u16 *func_001d6ce0(int param_1)
 
 
 // FUN_001D6DE0
-u32 func_001d6de0(int param_1, u16 *entry)
+u32 btlEffectFreeEntry(int param_1, u16 *entry)
 {
   u32 index;
   u32 mask;
@@ -176,7 +176,7 @@ u32 func_001d6de0(int param_1, u16 *entry)
 
 
 // FUN_001D7760
-u32 func_001d7760(void)
+u32 btlEffectLoadTable(void)
 {
   u32 firstIndex = 0;
   u32 firstValue = 0;
@@ -200,7 +200,7 @@ u32 func_001d7760(void)
 }
 
 // FUN_001D7880
-u8 *func_001d7880(void)
+u8 *btlEffectCreateLoadPacket(void)
 
 {
   int iVar1 = 0;
@@ -208,7 +208,7 @@ u8 *func_001d7880(void)
   iVar1 = (int)btlPacketAlloc(0x306,0);
   *(u8 *)(iVar1 + 0x47) = *(u8 *)(iVar1 + 0x47) & 0xfe;
   *(code *)(iVar1 + 0x68) = (code)func_001d7700;
-  *(code *)(iVar1 + 0x6c) = (code)func_001d7760;
+  *(code *)(iVar1 + 0x6c) = (code)btlEffectLoadTable;
   return (u8 *)iVar1;
 }
 
@@ -216,7 +216,7 @@ u8 *func_001d7880(void)
 
 
 // FUN_001D78D0
-void func_001d78d0(void) {
+void btlEffectLoadFilesSync(void) {
     s32 *out;
     s32 offset;
     s32 i;
@@ -242,19 +242,19 @@ void func_001d78d0(void) {
 }
 
 // FUN_001D79E0
-u32 func_001d79e0(u16 *param_1)
+u32 btlEffectReleaseId(u16 *param_1)
 {
     func_004b3110(*param_1);
     return 1;
 }
 /* Both callers attach dependencies to the allocated packet returned here. */
 // FUN_001D7A10
-BtlPacket *func_001d7a10(u16 mode)
+BtlPacket *btlEffectCreateReleasePacket(u16 mode)
 {
     BtlPacket *packet;
 
     packet = btlPacketAlloc(0x308, sizeof(u16));
-    packet->updateFunc = (BtlPacketFunc)func_001d79e0;
+    packet->updateFunc = (BtlPacketFunc)btlEffectReleaseId;
     *(u16 *)packet->workData = mode;
     return packet;
 }
@@ -262,7 +262,7 @@ BtlPacket *func_001d7a10(u16 mode)
 
 
 // FUN_001D7AB0
-BtlPacket* func_001d7ab0(u8 *param_1,u16 param_2)
+BtlPacket* btlEffectCreateMessagePacket(u8 *param_1,u16 param_2)
 
 {
   typedef struct BtlMessageArgs {
@@ -286,7 +286,7 @@ BtlPacket* func_001d7ab0(u8 *param_1,u16 param_2)
  * recorded W161 annotation of nd0 -> nd50. */
 #pragma opt_loop_invariants on
 // FUN_001D8DF0
-u32 func_001d8df0(int param_1)
+u32 btlEffectCollectGenusMask(int param_1)
 {
   u32 result;
   u16 count;
@@ -318,7 +318,7 @@ u32 func_001d8df0(int param_1)
 
 
 // FUN_00202010
-BtlPacket* func_00202010(u32 param_1, u16 param_2)
+BtlPacket* btlEffectCreateSpriteFramePacket(u32 param_1, u16 param_2)
 {
   u32 *puVar1;
   int iVar2 = 0;

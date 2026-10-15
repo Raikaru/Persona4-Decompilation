@@ -99,7 +99,7 @@ extern u8 D_00635560[], D_00635580[];
 extern u8 iGpffffa4d8[4];
 extern u8 *func_001ebb00(s32 action, s32 kind, u8 *name);
 extern u8 *btlPacketAllocZeroed(void *callback, void *data);
-extern BtlPacket *func_001d7ab0(u8 *values, u16 duration);
+extern BtlPacket *btlEffectCreateMessagePacket(u8 *values, u16 duration);
 extern BtlPacket *func_001d7b60(u16 duration);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 extern u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 id, s16 animation);
@@ -269,7 +269,7 @@ extern void func_00105730(s16 character, s16 value);
 extern void datCalcClearBadStatusById(s16 character, u32 mask);
 extern s32 func_001b0d70(u8 *target);
 
-extern BtlPacket *func_00202010(u32 unit, u16 effect);
+extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 unit, u16 effect);
 extern BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
 extern BtlPacket *btlUnitCreateRotateTowardUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u32 flags);
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rotation, u32 flags);
@@ -1051,7 +1051,7 @@ void func_00224450(u8 *camera)
     extern s32 func_00243d80(u8 *unitData);
     extern s32 datCalcIsStatusBlocked(u16 *unitData);
     extern s32 func_001ef9a0(void);
-    extern u32 func_001d8df0(s32 targets);
+    extern u32 btlEffectCollectGenusMask(s32 targets);
     extern void btlCameraReleaseOcclusion(u8 *camera);
     extern u8 D_00634890[];
     extern u8 D_0063489C[];
@@ -1137,7 +1137,7 @@ void func_00224450(u8 *camera)
     }
     action = *(u8 **)(camera + 0xE0);
     skill = *(u16 *)(action + 0x6E);
-    targetGroups = func_001d8df0((s32)(action + 0x98)) & 0xFFFF;
+    targetGroups = btlEffectCollectGenusMask((s32)(action + 0x98)) & 0xFFFF;
     classification = func_001d7f10(*(u8 **)(camera + 0xE0), 0, skill, 0) & 0xFFFF;
     btlCameraCopyPose((f32 *)&poses.first, (f32 *)(camera + 0x9C));
     targetMask = targetGroups & 0xFFFF;
@@ -3478,7 +3478,7 @@ void func_00229da0(u8 *action)
     btlFormationCopyRecord(formation, (u32)func_0022ced0(0xC));
     *(u32 *)(iGpffffb3ac + 0xC) |= 0x80000;
 
-    packet = (u8 *)func_00202010(*(u32 *)(action + 0x30),
+    packet = (u8 *)btlEffectCreateSpriteFramePacket(*(u32 *)(action + 0x30),
                                 *(u16 *)(action + 0x6E));
     *(u64 *)(packet + 0x60) = *(u64 *)action;
     btlPacketEnqueue(packet, 3);
@@ -4097,7 +4097,7 @@ void func_0022b120(u8 *action)
     *(u64 *)(wait0 + 0x60) = *(u64 *)action;
     btlPacketEnqueue(wait0, 2);
 
-    packet = (u8 *)func_001d7ab0(iGpffffa4d8, 0x1E);
+    packet = (u8 *)btlEffectCreateMessagePacket(iGpffffa4d8, 0x1E);
     packet[0] = 4;
     *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
     *(u16 *)(packet + 0x48) = 0x19A;

@@ -299,7 +299,7 @@ extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_0018f950(u8 *task);
-extern void func_001d78d0(void);
+extern void btlEffectLoadFilesSync(void);
 extern void btlUiRegisterAvailability(void);
 extern void func_001f8480(void);
 extern void btlPanelLoadSync(void);

@@ -172,7 +172,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_001d78d0(void);
+extern void btlEffectLoadFilesSync(void);
 extern void btlUiRegisterAvailability(void);
 extern void func_001f8480(void);
 extern void btlPanelLoadSync(void);
@@ -298,7 +298,7 @@ loop_8_check:
 
 // FUN_001939A0
 void func_001939a0(void) {
-    func_001d78d0();
+    btlEffectLoadFilesSync();
     btlUiRegisterAvailability();
     func_001f8480();
     btlPanelLoadSync();

@@ -14,7 +14,7 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern void func_001d6de0(s32 arg0, s32 arg1);
+extern void btlEffectFreeEntry(s32 arg0, s32 arg1);
 extern s32 func_001d6360(u8 *arg0);
 extern void btlFormationSetPlacement(s32 arg0);
 extern u32 iGpffffb3b8;
@@ -101,7 +101,7 @@ void func_001d6300(u8 *arg0) {
     btlFormationCopyDefault(*(u8 **)(arg0 + 0));
     temp_3 = (u8 *)(*(u8 **)(arg0 + 4));
     *(u16 *)(temp_3 + 0xA0) = (u16) (*(u16 *)(temp_3 + 0xA0) + 1);
-    *(s32 *)(arg0 + 0x18) = func_001d6ce0(*(s32 *)((u8 *)(*(u8 **)(arg0 + 4)) + 0xA08));
+    *(s32 *)(arg0 + 0x18) = btlEffectAllocEntry(*(s32 *)((u8 *)(*(u8 **)(arg0 + 4)) + 0xA08));
 }
 
 /* measured: opt_propagation off probe for func_001d6360 argument setup and register coloring. */
@@ -175,7 +175,7 @@ s32 func_001d6360(u8 *arg0)
 // FUN_001D6570
 void func_001d6570(u8 *arg0)
 {
-    func_001d6de0(*(s32 *)(*(u8 **)(arg0 + 4) + 0xA08), *(s32 *)(arg0 + 0x18));
+    btlEffectFreeEntry(*(s32 *)(*(u8 **)(arg0 + 4) + 0xA08), *(s32 *)(arg0 + 0x18));
     btlFormationSetPlacement(*(s32 *)arg0);
     *(u16 *)(*(u8 **)(arg0 + 4) + 0xA0) =
         *(u16 *)(*(u8 **)(arg0 + 4) + 0xA0) - 1;
