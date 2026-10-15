@@ -62,7 +62,7 @@ extern void btlUnitSetColor(BtlUnit *unit, RwRGBA color);
 extern u32 datCalcClearBadStatus(s32 unit, u32 mask);
 extern void btlUnitShowModel(u8 *unit);
 extern u32 datGetFlag(s32 bit);
-extern void func_001bdeb0();
+extern void btlCameraUpdateEffectList();
 
 u8 *kwlnTaskGetTaskByName(s8 *name);
 
@@ -121,14 +121,14 @@ extern void func_00223ed0();
 extern void func_00223ee0(u8 *task);
 extern s32 btlUnitMotionClassValue(u8 *arg0, s32 arg1);
 extern s32 btlUnitIsUnavailable(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_001cbf80(u8 *arg0);
+extern void btlCameraWaitMotionFrames(u8 *arg0);
 extern void btlCameraSelectPreset(int param_1);
 extern s32 func_00243ce0(u8 *arg0);
 extern void func_002250a0(u8 *arg0, f32 arg1, f32 arg2);
 extern void func_002258b0(u8 *arg0, f32 arg1, f32 arg2);
 extern u16 func_001eb440(BtlTarget *target);
 extern s32 func_001f0a50(u8 *arg0);
-extern void func_001c9750(u8 *arg0);
+extern void btlCameraApplyPosePair(u8 *arg0);
 extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
 extern f32 func_003e41e0(f32 *out, f32 *in);
@@ -154,7 +154,7 @@ extern f32 fGpffff8118;
 extern f32 fGpffff8174;
 extern f32 fGpffff8178;
 extern f32 fGpffff817c;
-extern void func_001c9820(u8 *camera, f32 angleLimit, s32 reverseSide, s32 forceActorSide);
+extern void btlCameraSetLimitFrame(u8 *camera, f32 angleLimit, s32 reverseSide, s32 forceActorSide);
 extern void func_002266b0(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration);
 extern s32 func_0019fc70(u8 *action);
 
@@ -163,15 +163,15 @@ extern u8 D_006296E8[];
 
 extern u8 D_00629700[];
 
-void func_001c8d50(void);
+void btlCameraUpdateFrame(void);
 
 extern u8 *DAT_0076449c;
-extern void func_001c97b0(u8 *arg0);
+extern void btlCameraFrameAim(u8 *arg0);
 extern s32 btlCameraUnitAnimFinished(u8 *arg0, u8 *arg1);
 extern void func_0019de70(BtlUnitStateWork *work, u16 value);
 extern void func_00195590(BtlUnit *unit, const RwV3d *target);
-extern s32 func_001c0e50(u8 *camera);
-extern void func_001c5110(u8 *camera);
+extern s32 btlCameraSelectMode(u8 *camera);
+extern void btlCameraUpdateMode(u8 *camera);
 extern s32 func_0022f950(u8 *action, u8 *subordinate);
 extern void func_002240e0(u8 *camera);
 
@@ -224,7 +224,7 @@ extern s32 func_0022ff70(u8 *arg0);
 extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern u8 *func_00202400(s32 arg0, s32 arg1);
-extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
+extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern u8 D_00632240[];
 extern u8 *btlUnitFindInSideById(s32 arg0, s32 arg1);
@@ -1052,7 +1052,7 @@ void func_00224450(u8 *camera)
     extern s32 datCalcIsStatusBlocked(u16 *unitData);
     extern s32 func_001ef9a0(void);
     extern u32 func_001d8df0(s32 targets);
-    extern void func_001c8cf0(u8 *camera);
+    extern void btlCameraReleaseOcclusion(u8 *camera);
     extern u8 D_00634890[];
     extern u8 D_0063489C[];
     u8 *battleWork;
@@ -1143,7 +1143,7 @@ void func_00224450(u8 *camera)
     targetMask = targetGroups & 0xFFFF;
     if (targetMask == 2) {
         if ((*(s32 *)(DAT_0076449c + 0x10) & 0x400) != 0 && (classification & 0xFFFF) == 0) {
-            func_001c8cf0(camera);
+            btlCameraReleaseOcclusion(camera);
             *(s32 *)(DAT_0076449c + 0xC0C) = 1;
         } else {
             actor2 = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
@@ -1199,7 +1199,7 @@ group1_party_done:
             btlCameraLookAtQuat(&poses.secondRotation, record1, record1 + 0xC, D_0060A0E0);
             poses.second = *(RwV3d *)record1;
         } else {
-            func_001c8cf0(camera);
+            btlCameraReleaseOcclusion(camera);
             *(s32 *)(DAT_0076449c + 0xC0C) = 1;
             return;
         }
@@ -1225,7 +1225,7 @@ group1_party_done:
 void func_00224970(void)
 {
     if (*(s32 *)(DAT_0076449c + 0xC0C) != 0) {
-        func_001c8d50();
+        btlCameraUpdateFrame();
     }
 }
 
@@ -1560,7 +1560,7 @@ void func_00225740(u8 *arg0)
                 func_002250a0(base, 0.0f, 1.0f);
             }
         } else {
-            func_001c9750(base);
+            btlCameraApplyPosePair(base);
             *(u16 *)(DAT_0076449c + 0xC00) = 1;
         }
     } else if ((temp_4 & 0xFFFF & 2) == 0) {
@@ -1568,7 +1568,7 @@ void func_00225740(u8 *arg0)
             func_002250a0(base, 0.0f, 1.0f);
             return;
         }
-        func_001c9750(base);
+        btlCameraApplyPosePair(base);
         *(u16 *)(DAT_0076449c + 0xC00) = 1;
     }
 }
@@ -1582,7 +1582,7 @@ void func_00225860(u8 *arg0)
     if ((temp_3 != NULL) && ((*(u16 *)(temp_3 + 0x1A) & 1) != 0)) {
         temp_5 = *(u16 *)(DAT_0076449c + 0xC00);
         if (temp_5 == 1) {
-            func_001c97b0(arg0);
+            btlCameraFrameAim(arg0);
         }
     }
 }
@@ -1617,7 +1617,7 @@ void func_002258b0(u8 *camera, f32 distanceOffset, f32 duration)
         }
         unit = *(u8 **)(action + 0x30);
         if (*(u8 *)(unit + 0xA2) == 0) {
-            func_001c9820(camera, 0.0f, 0, 1);
+            btlCameraSetLimitFrame(camera, 0.0f, 0, 1);
             return;
         }
         target = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
@@ -1735,7 +1735,7 @@ void func_00225c00(u8 *arg0)
             *(s32 *)(self + 0x100) = *(s32 *)(*(u8 **)(self + 0xE0) + 0x38);
             return;
         }
-        func_001cbf80(self);
+        btlCameraWaitMotionFrames(self);
     }
 }
 /* measured 00225d00 plain-C reconstruction matches the complete 256-byte retail window at normalized_diff 0. */
@@ -1782,7 +1782,7 @@ void func_00225e50(u8 *arg0)
          (*(u8 *)(*(s32 *)(iVar1 + 0x30) + 0xA2) != 0)) &&
         (((iVar1 != 0) && ((*(u16 *)(iVar1 + 0x1A) & 1) != 0)) &&
          (*(u16 *)(DAT_0076449c + 0xC00) == 1))) {
-        func_001c97b0(arg0);
+        btlCameraFrameAim(arg0);
     }
 }
 
@@ -1831,7 +1831,7 @@ void func_00225ec0(u8 *camera)
     extern f32 func_00196040(u32 arg0, u32 arg1, void *arg2, f32 *arg3, void *arg4, u32 arg5);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
     extern f32 tanf(f32 x);
-    extern void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2);
+    extern void btlCameraFrameStatusRoll(u8 *arg0, f32 arg1, f32 arg2);
     extern void btlAct_ENEMY_ALL(u8 *arg0);
     extern void func_001b73f0(u8 *arg0);
     struct PosePair {
@@ -1955,7 +1955,7 @@ void func_00225ec0(u8 *camera)
     if (var17 != 0 || (!(len <= fGpffff80e4) && var16 == 1)) {
         func_001b73f0(NULL);
         if (*(u8 *)(unit + 0xA2) == 1 && func_00243ce0(*(u8 **)(unit + 0xA64)) != 0) {
-            func_001cfad0(camera, 2.25f, 2.0f);
+            btlCameraFrameStatusRoll(camera, 2.25f, 2.0f);
         } else {
             btlAct_ENEMY_ALL(camera);
         }
@@ -2169,7 +2169,7 @@ void func_00226c40(u8 *camera)
             index = (u16)(index + 1);
         }
     }
-    *(u16 *)(camera + 0x110) = func_001c0e50(camera);
+    *(u16 *)(camera + 0x110) = btlCameraSelectMode(camera);
     matchesSubordinate = subordinate != NULL &&
         func_0022f950(*(u8 **)(camera + 0xE0), subordinate) != 0;
     if (matchesSubordinate && *(u16 *)(camera + 0x110) != 1) {
@@ -2186,7 +2186,7 @@ void func_00226c40(u8 *camera)
     case 1:
     case 2:
     case 4:
-        func_001c5110(camera);
+        btlCameraUpdateMode(camera);
         action = *(u8 **)(camera + 0xE0);
         if (*(u16 *)(action + 0x6A) != 1) {
             break;
@@ -2289,7 +2289,7 @@ void func_00227230(u8 *camera)
     u16 variant;
     u32 frames;
 
-    *(u16 *)(camera + 0x110) = func_001c0e50(camera);
+    *(u16 *)(camera + 0x110) = btlCameraSelectMode(camera);
     targetFlags = func_001eb440((BtlTarget *)(*(u8 **)(camera + 0xE0) + 0x38));
     *(u32 *)(camera + 0x12C) = 0;
     action = *(u8 **)(camera + 0xE0);
@@ -2302,7 +2302,7 @@ void func_00227230(u8 *camera)
     case 1:
         action = *(u8 **)(camera + 0xE0);
         if ((*(u16 *)(action + 0x1A) & 0x10) != 0) {
-            func_001c5110(camera);
+            btlCameraUpdateMode(camera);
             break;
         }
     case 2:
@@ -2434,7 +2434,7 @@ void func_002277e0(u8 *camera)
             index = (u16)(index + 1);
         }
     }
-    *(u16 *)(camera + 0x110) = func_001c0e50(camera);
+    *(u16 *)(camera + 0x110) = btlCameraSelectMode(camera);
     matchesSubordinate = subordinate != NULL &&
         func_0022f950(*(u8 **)(camera + 0xE0), subordinate) != 0;
     if (matchesSubordinate && *(u16 *)(camera + 0x110) != 1) {
@@ -2449,7 +2449,7 @@ void func_002277e0(u8 *camera)
     switch (*(u16 *)(camera + 0x110)) {
     case 0:
     case 1:
-        func_001c5110(camera);
+        btlCameraUpdateMode(camera);
         action = *(u8 **)(camera + 0xE0);
         if (*(u16 *)(action + 0x6A) != 1) {
             break;
@@ -2470,7 +2470,7 @@ void func_002277e0(u8 *camera)
             *(u8 *)(*(u8 **)(action + 0x30) + 0xA2) == 0 &&
             (target = *(u8 **)(action + 0x38), action != target) &&
             *(u8 *)(*(u8 **)(target + 0x30) + 0xA2) == 0) {
-            func_001c5110(camera);
+            btlCameraUpdateMode(camera);
             func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
             break;
         }
@@ -2562,7 +2562,7 @@ void func_00227e40(u8 *camera)
     u16 variant;
     u32 frames;
 
-    *(u16 *)(camera + 0x110) = func_001c0e50(camera);
+    *(u16 *)(camera + 0x110) = btlCameraSelectMode(camera);
     targetFlags = func_001eb440((BtlTarget *)(*(u8 **)(camera + 0xE0) + 0x38));
     *(u32 *)(camera + 0x12C) = 0;
     action = *(u8 **)(camera + 0xE0);
@@ -2869,13 +2869,13 @@ void func_002289b0(u8 *arg0)
     flag_offset = (effMiscRand(0) & 1) * 0xF4;
     index_offset = (temp_16 & 0xFFFF) * 0x1E8;
     target = (u8 *)&D_00632240 + index_offset;
-    func_001bdd80(arg0, target + flag_offset, 8);
+    btlCameraStartEffect(arg0, target + flag_offset, 8);
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 3);
 }
 // FUN_00228A60
 void func_00228a60(void)
 {
-    func_001bdeb0();
+    btlCameraUpdateEffectList();
 }
 
 // FUN_00228A80
@@ -2911,7 +2911,7 @@ void func_00228a80(u8 *arg0)
     if (func_001f0ff0((u32)*(u8 **)(arg0 + 0xE0)) != 0) {
         flag_offset = (effMiscRand(0) & 1) * 0xF4;
         index_offset = ((temp_16 & 0xFFFF) - 2) * 0x1E8;
-        func_001bdd80(arg0, (u8 *)&D_00633740 + index_offset + flag_offset, 8);
+        btlCameraStartEffect(arg0, (u8 *)&D_00633740 + index_offset + flag_offset, 8);
         func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 3);
         return;
     }
@@ -2963,7 +2963,7 @@ loop_7_done:
 // FUN_00228D00
 void func_00228d00(u8 *arg0) {
     if (func_001f0ff0((u32)*(u8 **)((u8 *)(arg0) + 0xE0)) != 0) {
-        func_001bdeb0(arg0);
+        btlCameraUpdateEffectList(arg0);
     }
 }
 

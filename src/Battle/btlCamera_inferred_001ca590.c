@@ -44,7 +44,7 @@ struct RwMatrixTag {
     u32 pad3;
 };
 
-extern void func_001bdeb0();
+extern void btlCameraUpdateEffectList();
 extern void func_001b73f0(u8 *arg0);
 extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);
@@ -65,18 +65,18 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
-extern void func_001ca590(u8 *arg0, f32 arg1, f32 arg2);
-extern void func_001cacd0(u8 *arg0, f32 arg1, f32 arg2);
+extern void btlCameraFrameSweep(u8 *arg0, f32 arg1, f32 arg2);
+extern void btlCameraFrameFourPoseCurve(u8 *arg0, f32 arg1, f32 arg2);
 extern void func_0019de70(BtlUnitStateWork *work, u16 value);
 extern s32 btlCameraUnitAnimFinished(u8 *arg0, u8 *arg1);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
-extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
+extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
 extern s32 func_001f0ff0(u8 *arg0);
-extern void func_001c2ee0(u8 *arg0, s32 arg1, s32 arg2);
+extern void btlCameraFrameWithFlags(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
@@ -142,7 +142,7 @@ static inline f32 cameraSideRadius(f32 first, f32 second)
 /* measured: optimization_level 1 probe for c8cf0 argument order. */
 /* measured: close optimization_level after c8cf0. */
 // FUN_001CA590
-void func_001ca590(u8 *camera, f32 angle, f32 duration)
+void btlCameraFrameSweep(u8 *camera, f32 angle, f32 duration)
 {
     f32 xz[2];
     RwV3d alternateEye;
@@ -305,7 +305,7 @@ void func_001ca590(u8 *camera, f32 angle, f32 duration)
 /* 1052/1056 bytes; 19 resolved relocations; four zero alignment bytes.
  * Build the current pose plus three orbit keys with a halfword frame index. */
 // FUN_001CACD0
-void func_001cacd0(u8 *arg0, f32 fparg0, f32 fparg1)
+void btlCameraFrameFourPoseCurve(u8 *arg0, f32 fparg0, f32 fparg1)
 {
     struct Vec3 {
         f32 x;
@@ -425,7 +425,7 @@ void func_001cacd0(u8 *arg0, f32 fparg0, f32 fparg1)
 }
 
 // FUN_001CB0F0
-void func_001cb0f0(u8 *arg0)
+void btlCameraUpdateSweepFrame(u8 *arg0)
 {
     u8 *temp_5;
     u8 *temp_6;
@@ -441,27 +441,27 @@ void func_001cb0f0(u8 *arg0)
         temp_5_2 = *(u16 *)(temp_6 + 0x10E);
         switch (temp_5_2) {
         case 0:
-            func_001ca590(arg0, 40.0f, 2.0f);
+            btlCameraFrameSweep(arg0, 40.0f, 2.0f);
             return;
         case 1:
-            func_001cacd0(arg0, 100.0f, 3.0f);
+            btlCameraFrameFourPoseCurve(arg0, 100.0f, 3.0f);
             return;
         }
     } else {
         temp_5_2 = *(u16 *)(temp_6 + 0x10E);
         switch (temp_5_2) {
         case 0:
-            func_001ca590(arg0, 20.0f, 2.0f);
+            btlCameraFrameSweep(arg0, 20.0f, 2.0f);
             return;
         case 1:
-            func_001cacd0(arg0, 50.0f, 3.0f);
+            btlCameraFrameFourPoseCurve(arg0, 50.0f, 3.0f);
             return;
         }
     }
 }
 
 // FUN_001CB200
-void func_001cb200(u8 *arg0)
+void btlCameraHoldFrame(u8 *arg0)
 {
     s32 temp_5;
     u16 temp_3;
@@ -495,7 +495,7 @@ void func_001cb200(u8 *arg0)
 }
 
 // FUN_001CB2E0
-void func_001cb2e0(u8 *arg0)
+void btlCameraSpawnRandomWork(u8 *arg0)
 {
     u16 value;
     s32 flag_offset;
@@ -506,16 +506,16 @@ void func_001cb2e0(u8 *arg0)
     flag_offset = (effMiscRand(0) & 1) * 0xF4;
     index_offset = (value & 0xFFFF) * 0x1E8;
     target = (u8 *)&D_005F7CA0 + index_offset;
-    func_001bdd80(arg0, target + flag_offset, 2);
+    btlCameraStartEffect(arg0, target + flag_offset, 2);
 }
 
 // FUN_001CB380
-void func_001cb380(void) {
-    func_001bdeb0();
+void btlCameraEffectListTick(void) {
+    btlCameraUpdateEffectList();
 }
 
 // FUN_001CB3A0
-void func_001cb3a0(u8 *arg0)
+void btlCameraSpawnEffectB(u8 *arg0)
 {
     u8 *temp;
     u16 value;
@@ -529,16 +529,16 @@ void func_001cb3a0(u8 *arg0)
     flag_offset = (effMiscRand(0) & 1) * 0xF4;
     index_offset = ((value & 0xFFFF) - 2) * 0x1E8;
     target = (u8 *)&D_005F91A0 + index_offset;
-    func_001bdd80(arg0, target + flag_offset, 2);
+    btlCameraStartEffect(arg0, target + flag_offset, 2);
 }
 
 // FUN_001CB440
-void func_001cb440(void) {
-    func_001bdeb0();
+void btlCameraEffectListTickAlt(void) {
+    btlCameraUpdateEffectList();
 }
 
 // FUN_001CB460
-void func_001cb460(u8 *arg0)
+void btlCameraFrameRandomCut(u8 *arg0)
 {
     u16 value;
     s32 flag_offset;
@@ -550,20 +550,20 @@ void func_001cb460(u8 *arg0)
         flag_offset = (effMiscRand(0) & 1) * 0xF4;
         index_offset = ((value & 0xFFFF) - 2) * 0x1E8;
         target = (u8 *)&D_005FA2D0 + index_offset;
-        func_001bdd80(arg0, target + flag_offset, 2);
+        btlCameraStartEffect(arg0, target + flag_offset, 2);
         func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 3);
     } else {
-        func_001c2ee0(arg0, 0, 1);
+        btlCameraFrameWithFlags(arg0, 0, 1);
     }
 }
 
 // FUN_001CB540
-void func_001cb540(u8 *arg0)
+void btlCameraFrameAnimWait(u8 *arg0)
 {
     u8 *temp;
 
     if (func_001f0ff0(*(u8 **)(arg0 + 0xE0)) != 0) {
-        func_001bdeb0(arg0);
+        btlCameraUpdateEffectList(arg0);
         goto done;
     }
     temp = *(u8 **)(arg0 + 0xE0);
@@ -588,7 +588,7 @@ done:
 /* 840/848 bytes; 27 resolved relocations; eight zero alignment bytes.
    Build both position/quaternion keys before clamping their heights. */
 // FUN_001CB610
-void func_001cb610(u8 *arg0)
+void btlCameraFrameRotateView(u8 *arg0)
 {
     struct Vec3 {
         f32 x;
@@ -688,7 +688,7 @@ void func_001cb960(void) {}
  * b210 -O2:1540 exact bytes,12 zero alignment bytes; comparison
  * lowering is documented in Camera_001cb970_20260920.md. */
 // FUN_001CB970
-void func_001cb970(u8 *camera, f32 duration, s32 initialize)
+void btlCameraApplyPreset(u8 *camera, f32 duration, s32 initialize)
 {
     RwV3d actorPosition;
     RwV3d targetPosition;
@@ -843,7 +843,7 @@ void func_001cb970(u8 *camera, f32 duration, s32 initialize)
 }
 
 // FUN_001CBF80
-void func_001cbf80(u8 *arg0) {
+void btlCameraWaitMotionFrames(u8 *arg0) {
     *(s16 *)(arg0 + 0x10E) =
         btlUnitMotionFrames(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30), 4, 1.0f);
     *(s32 *)(arg0 + 0x100) = *(s32 *)(*(u8 **)(arg0 + 0xE0) + 0x38);

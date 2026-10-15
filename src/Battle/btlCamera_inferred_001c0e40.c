@@ -69,14 +69,14 @@ extern f32 fGpffff811c;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
 extern void func_0019de70(BtlUnitStateWork *work, u16 value);
 extern s32 btlCameraUnitAnimFinished(u8 *arg0, u8 *arg1);
-extern void func_001c79f0(u8 *arg0, s32 arg1);
+extern void btlCameraFrameStatus(u8 *arg0, s32 arg1);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
 extern s32 func_001f0ff0(u8 *arg0);
-extern void func_001c2ee0(u8 *arg0, s32 arg1, s32 arg2);
+extern void btlCameraFrameWithFlags(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
 extern s32 func_001bc140(u8 *arg0);
@@ -112,10 +112,10 @@ extern f32 D_00607E30[];
 extern f32 D_00607E3C[];
 extern u8 *btlCameraRandomTableEntry(s32 arg0, s32 arg1);
 extern RwV3d *RtQuatTransformVectors(RwV3d *arg0, const RwV3d *arg1, s32 arg2, const RtQuat *arg3);
-extern void func_001c1040(u8 *arg0, s32 arg1);
-extern void func_001c17a0(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_001c21d0(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_001c3f70(u8 *arg0, s32 arg1, s32 arg2);
+extern void btlCameraFrameRandomOrbit(u8 *arg0, s32 arg1);
+extern void btlCameraFrameRandomEntry(u8 *arg0, s32 arg1, s32 arg2);
+extern void btlCameraFrameDistinctPair(u8 *arg0, s32 arg1, s32 arg2);
+extern void btlCameraFrameSplit(u8 *arg0, s32 arg1, s32 arg2);
 static inline f32 func_001c_mul_add(f32 arg0, f32 arg1, f32 arg2)
 {
     return arg0 * arg1 + arg2;
@@ -155,7 +155,7 @@ static inline f32 cameraSideRadius(f32 first, f32 second)
 void func_001c0e40(void) {}
 
 // FUN_001C0E50
-s32 func_001c0e50(u8 *arg0) {
+s32 btlCameraSelectMode(u8 *arg0) {
     s16 mode;
     s32 state;
     s32 check;
@@ -215,7 +215,7 @@ s32 func_001c0e50(u8 *arg0) {
 
 /* Frame the acting unit and group with two complete camera poses. */
 // FUN_001C1040
-void func_001c1040(u8 *camera, s32 unused)
+void btlCameraFrameRandomOrbit(u8 *camera, s32 unused)
 {
     extern s32 func_001bc240(s32 cameraAddress);
     extern s32 func_001bc1b0(u8 *camera);
@@ -397,7 +397,7 @@ void func_001c1040(u8 *camera, s32 unused)
 /* Build the two animation or orbit camera poses around the acting unit.
  * Vector snapshots, horizontal directions and pose frames are complete objects. */
 // FUN_001C17A0
-void func_001c17a0(u8 *camera, s32 notify, s32 unused)
+void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused)
 {
     RwV3d orbitDirection;
     RwV3d animationPosition;
@@ -564,7 +564,7 @@ void func_001c17a0(u8 *camera, s32 notify, s32 unused)
 }
 
 // FUN_001C1F70
-void func_001c1f70(u8 *arg0)
+void btlCameraEnterRandomFrame(u8 *arg0)
 {
     struct Frame {
         f32 value50;
@@ -644,7 +644,7 @@ void func_001c1f70(u8 *arg0)
 /* cold 001c21d0 (2026-09-19): honest redo per Main — 138:156 recovered (18, real, explicit (f32)0x2EE + volatile f32, gone from >15 list); surplus at 740:761 removed (pure-float 548 vs 833 -285 774 edits, no object-larger vs baseline 710 with 11 vs 40 + 9 vs 41); 434:471 37 vs 1 (quatFC copy + out10C add + 25.0 clamp) and 565:585 24 vs 1 (saves + madd) still missing (61); volatile 855 vs 836 +19 1008 edits frame -0x200 vs -0x180 128B game jal 32 exact in band only via cancelling (61 missing +64 lump 21 vs 85 at 740:761) refused per 7u; production stays INCLUDE_ASM. */
 /* Construct side or approach camera poses from actor and target geometry. */
 // FUN_001C21D0
-void func_001c21d0(u8 *camera, s32 notify, s32 distinctPoses)
+void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
 {
     extern s32 func_001bc330(u8 *camera);
     extern s32 func_001bc240(s32 cameraAddress);
@@ -938,7 +938,7 @@ void func_001c21d0(u8 *camera, s32 notify, s32 distinctPoses)
 /* rejected: pragma inflation into band measured +185 and refused as gate-defeating per Main (gate proves shape, not volume; real wins 10-60 words per 7s). `opt_common_subs off` 811 (+49), `commons+dead` 832 (+70), triple `commons+dead+peephole` 947 (+185); triple+3dup 982 (890 edits/probe 929) and +prop 984 (892/probe 926) via /tmp/cand_982.c + /tmp/cand_984.c -- DO NOT INSTALL. Re-assoc of 4 tanf args closed (v9_7p 758 instrs, probe 901 vs 897). Method: M2C/romwright de-noise as before with block externs func_0044b868/func_003e41e0; faithful diff held in /tmp/base_3dup.c. */
 /* Build side or group camera poses, retaining both focus snapshots. */
 // FUN_001C2EE0
-void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
+void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
 {
     extern s32 func_001bc330(u8 *camera);
     extern s32 func_001bc240(s32 cameraAddress);
@@ -1300,7 +1300,7 @@ void func_001c2ee0(u8 *camera, s32 notify, s32 distinctPoses)
 }
 
 // FUN_001C3EB0
-void func_001c3eb0(u8 *arg0, s32 arg1)
+void btlCameraWaitForAnimFrame(u8 *arg0, s32 arg1)
 {
     u8 *temp_4;
 
@@ -1321,7 +1321,7 @@ void func_001c3eb0(u8 *arg0, s32 arg1)
 
 /* Frame target and actor geometry with separate side and approach poses. */
 // FUN_001C3F70
-void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
+void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
 {
     extern s32 func_001bc240(s32 cameraAddress);
     extern s32 func_001bc1b0(u8 *camera);
@@ -1712,7 +1712,7 @@ void func_001c3f70(u8 *camera, s32 notify, s32 distinctPoses)
 }
 
 // FUN_001C5110
-void func_001c5110(u8 *arg0)
+void btlCameraUpdateMode(u8 *arg0)
 {
     u8 *temp;
     s32 arg1;
@@ -1723,7 +1723,7 @@ void func_001c5110(u8 *arg0)
     temp = *(u8 **)(temp + 0xA0C);
     arg1 = 1;
     arg2 = 1;
-    *(u16 *)(arg0 + 0x110) = (u16)func_001c0e50(arg0);
+    *(u16 *)(arg0 + 0x110) = (u16)btlCameraSelectMode(arg0);
     if (*(u16 *)(arg0 + 0xE4) == 0x1D) {
         arg1 = 0;
         arg2 = 0;
@@ -1737,34 +1737,34 @@ void func_001c5110(u8 *arg0)
     mode = *(u16 *)(arg0 + 0x110);
     switch (mode) {
     case 1:
-        func_001c17a0(arg0, arg1, arg2);
+        btlCameraFrameRandomEntry(arg0, arg1, arg2);
         return;
     case 2:
-        func_001c21d0(arg0, arg1, arg2);
+        btlCameraFrameDistinctPair(arg0, arg1, arg2);
         return;
     case 3:
-        func_001c2ee0(arg0, arg1, arg2);
+        btlCameraFrameWithFlags(arg0, arg1, arg2);
         return;
     case 4:
         if ((*(s32 *)(arg0 + 0x114) == 0) &&
             ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0)) {
-            func_001c3f70(arg0, arg1, arg2);
+            btlCameraFrameSplit(arg0, arg1, arg2);
             return;
         }
-        func_001c21d0(arg0, arg1, arg2);
+        btlCameraFrameDistinctPair(arg0, arg1, arg2);
         return;
     case 5:
-        func_001c2ee0(arg0, arg1, arg2);
+        btlCameraFrameWithFlags(arg0, arg1, arg2);
         return;
     case 6:
-        func_001c1040(arg0, 1);
+        btlCameraFrameRandomOrbit(arg0, 1);
     default:
         return;
     }
 }
 
 // FUN_001C52C0
-void func_001c52c0(u8 *arg0)
+void btlCameraUpdateWaitMode(u8 *arg0)
 {
     switch (*(u16 *)(arg0 + 0x110)) {
     case 0:
@@ -1818,7 +1818,7 @@ void func_001c52c0(u8 *arg0)
         }
         break;
     case 5:
-        func_001c3eb0(arg0, 0);
+        btlCameraWaitForAnimFrame(arg0, 0);
         break;
     case 6:
         if ((*(u8 **)(arg0 + 0xE0) != NULL) &&
@@ -1834,7 +1834,7 @@ void func_001c52c0(u8 *arg0)
 }
 
 // FUN_001C5500
-void func_001c5500(u8 *arg0, s32 arg1)
+void btlCameraFrameTargetPose(u8 *arg0, s32 arg1)
 {
     RwV3d actorPosition;
     RwV3d targetPosition;
@@ -2044,7 +2044,7 @@ void func_001c5500(u8 *arg0, s32 arg1)
    Locals are declared in stack order (highest address first): b210 lays them out in declaration order
    and puts small objects ahead of the matrix and pose block, so `top` fills the pad after `groupCenter`. */
 // FUN_001C5B80
-void func_001c5b80(u8 *arg0, s32 arg1)
+void btlCameraFrameFlagged(u8 *arg0, s32 arg1)
 {
     extern s32 btlCameraStateRecordFlag(u8 *arg0);
     extern void btlCameraCopyPose(f32 *out, f32 *in);

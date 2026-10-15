@@ -130,7 +130,7 @@ extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 extern void func_001ee1c0(void);
 extern void func_00194660(void);
-extern void func_001bdb60(void);
+extern void btlCameraInitSystem(void);
 extern void func_001f7260(void);
 extern void func_001f9bf0(void);
 extern void func_001d6a60(void);
