@@ -5038,7 +5038,7 @@ s32 func_001e5d90(void) {
 }
 
 // FUN_001E5E40
-s32 func_001e5e40(void) {
+s32 btlAICommandScriptSetDownFlag(void) {
     u8 *p = func_0029d050();
     if ((scrGetParamInt(0) & 0xFFFF) == 0) {
         u32 f = *(u32 *)(*(u8 **)(p + 0x30) + 0xA64);
@@ -5051,7 +5051,7 @@ s32 func_001e5e40(void) {
 }
 
 // FUN_001E5EC0
-s32 func_001e5ec0(void) {
+s32 btlAICommandScriptSetSlipFlag(void) {
     u8 *p = func_0029d050();
     if ((scrGetParamInt(0) & 0xFFFF) == 0) {
         u32 f = *(u32 *)(*(u8 **)(p + 0x30) + 0xA64);
