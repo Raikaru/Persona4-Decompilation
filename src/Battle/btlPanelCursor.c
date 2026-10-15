@@ -6,8 +6,8 @@
 #include "btl_panel_internal.h"
 
 extern u32 kwlnTaskGetWork(void *task);
-extern void func_002016e0(u8 *work, s16 mode, s32 tile, f32 angle);
-extern void func_00201820(s32 mode);
+extern void btlUiSetTileOffset(u8 *work, s16 mode, s32 tile, f32 angle);
+extern void btlUiSetRenderMode(s32 mode);
 extern void func_0021ae80(u8 *work, s32 unused);
 extern f32 func_0021b0a0(u8 *work);
 extern f32 func_003e41e0(f32 *out, f32 *in);
@@ -23,10 +23,10 @@ static inline void drawCursorSegment(u8 *work, CursorColor color, f32 x, f32 y,
     if (index >= 8) {
         kAssertFail(D_00626C00, 401);
     }
-    func_002016e0(work, 13, (s32)(38.0f + distance), 360.0f * (f32)index / 8.0f + rotation);
-    func_00201650(work, 10, 2, x - 13.0f, (y - 38.0f) - distance,
+    btlUiSetTileOffset(work, 13, (s32)(38.0f + distance), 360.0f * (f32)index / 8.0f + rotation);
+    btlUiDrawSpriteFaded(work, 10, 2, x - 13.0f, (y - 38.0f) - distance,
                   color.r, color.g, color.b, color.a);
-    func_002016e0(work, 0, 0, 0.0f);
+    btlUiSetTileOffset(work, 0, 0, 0.0f);
 }
 
 extern f32 fGpffff837c;
@@ -130,7 +130,7 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
     if (*(u16 *)(cursor + 0x10) & 4) {
         count = *(s32 *)(cursor + 0x14);
         *(s16 *)(cursor + 0x18) = (*(s16 *)(cursor + 0x18) + 2) % 360;
-        func_00201820(2);
+        btlUiSetRenderMode(2);
         color.r = 255;
         color.g = 174;
         color.b = 0;
@@ -139,7 +139,7 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
             drawCursorSegment(work, color, position[0], position[1], i,
                               (f32)*(s16 *)(cursor + 0x18), 0.0f);
         }
-        func_00201820(0);
+        btlUiSetRenderMode(0);
     }
     if (*(u16 *)(cursor + 0x10) & 1) {
         point.x = 22.0f + position[0];
@@ -253,15 +253,15 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
         count = *(s32 *)(cursor + 0x14);
         *(s16 *)(cursor + 0x18) = (*(s16 *)(cursor + 0x18) + 2) % 360;
         *(s16 *)(cursor + 0x1A) = (*(s16 *)(cursor + 0x1A) + 356) % 360;
-        func_00201820(2);
+        btlUiSetRenderMode(2);
         color.r = 255;
         color.g = 148;
         color.b = 50;
         color.a = (u8)(204.0f * alpha);
-        func_002016e0(work, 56, 53, (f32)*(s16 *)(cursor + 0x1A));
-        func_00201650(work, 10, 4, position[0] - 56.0f, position[1] - 53.0f,
+        btlUiSetTileOffset(work, 56, 53, (f32)*(s16 *)(cursor + 0x1A));
+        btlUiDrawSpriteFaded(work, 10, 4, position[0] - 56.0f, position[1] - 53.0f,
                       color.r, color.g, color.b, color.a);
-        func_002016e0(work, 0, 0, 0.0f);
+        btlUiSetTileOffset(work, 0, 0, 0.0f);
         color.r = 255;
         color.g = 174;
         color.b = 0;
@@ -270,7 +270,7 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
             drawCursorSegment(work, color, position[0], position[1], i,
                               (f32)*(s16 *)(cursor + 0x18), 0.0f);
         }
-        func_00201820(0);
+        btlUiSetRenderMode(0);
     }
     if (*(u16 *)(cursor + 0x10) & 1) {
         point.x = 22.0f + position[0];
@@ -390,7 +390,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
         break;
     }
     if (*(u16 *)(cursor + 0x10) & 4) {
-        func_00201820(2);
+        btlUiSetRenderMode(2);
         color.r = 255;
         color.g = 174;
         color.b = 0;
@@ -399,7 +399,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
             drawCursorSegment(work, color, position[0], position[1], i * 2,
                               0.0f, *(f32 *)(cursor + 0x14));
         }
-        func_00201820(0);
+        btlUiSetRenderMode(0);
     }
     if (*(u16 *)(cursor + 0x10) & 1) {
         point.x = position[0];
@@ -409,13 +409,13 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
     if (*(u16 *)(cursor + 0x10) & 8) {
         point.x = position[0];
         point.y = position[1];
-        func_00201820(2);
+        btlUiSetRenderMode(2);
         packed = 0xFF620000 | (u8)(255.0f * alpha);
         t = *(f32 *)(cursor + 0x18);
         func_00364c90(point, 0.0f, packed, 5.0f * t, 77.0f * t, fGpffff837c, 1);
         t = *(f32 *)(cursor + 0x18);
         func_00364c90(point, 0.0f, packed, 5.0f * t, 77.0f * t, D_00761590, 1);
-        func_00201820(0);
+        btlUiSetRenderMode(0);
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
         t = func_0021b0a0(panel);
@@ -431,7 +431,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
 // FUN_0020D6A0
 void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
-    extern void func_00201720(u8 *work, f32 arg1, f32 arg2);
+    extern void btlUiSetScale(u8 *work, f32 arg1, f32 arg2);
     extern f32 D_00626C20[];
     extern f32 fGpffff84a4;
     typedef struct { f32 values[4]; } CursorDirections;
@@ -536,7 +536,7 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
         break;
     }
     if (*(u16 *)(cursor + 0x10) & 4) {
-        func_00201820(2);
+        btlUiSetRenderMode(2);
         color.r = 14;
         color.g = 255;
         color.b = 2;
@@ -546,7 +546,7 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
             drawCursorSegment(work, color, position[0], position[1], i * 2,
                               45.0f, *(f32 *)(cursor + 0x14));
         }
-        func_00201820(0);
+        btlUiSetRenderMode(0);
     }
     if (*(u16 *)(cursor + 0x10) & 1) {
         point.x = position[0];
@@ -557,7 +557,7 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
         /* Snapshot all four direction components before publishing
          * them to the bounded ring-coordinate workspace. */
         dir = *(const CursorDirections *)D_00626C20;
-        func_00201820(2);
+        btlUiSetRenderMode(2);
         for (i = 0; i < 4; i++) {
             /* Separate these from the earlier interpolation values. */
             f32 ringScale;
@@ -576,10 +576,10 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
         color.g = 255;
         color.b = 2;
         color.a = (u8)(255.0f * alpha);
-        func_00201720(work, t, t);
-        func_00201650(work, 10, 3, point.x, point.y, color.r, color.g, color.b, color.a);
-        func_00201720(work, 1.0f, 1.0f);
-        func_00201820(0);
+        btlUiSetScale(work, t, t);
+        btlUiDrawSpriteFaded(work, 10, 3, point.x, point.y, color.r, color.g, color.b, color.a);
+        btlUiSetScale(work, 1.0f, 1.0f);
+        btlUiSetRenderMode(0);
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
         t = func_0021b0a0(panel);

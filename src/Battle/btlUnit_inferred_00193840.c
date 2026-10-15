@@ -173,7 +173,7 @@ extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_001d78d0(void);
-extern void func_00200cb0(void);
+extern void btlUiRegisterAvailability(void);
 extern void func_001f8480(void);
 extern void func_00202be0(void);
 extern u8 iGpffffa088;
@@ -299,7 +299,7 @@ loop_8_check:
 // FUN_001939A0
 void func_001939a0(void) {
     func_001d78d0();
-    func_00200cb0();
+    btlUiRegisterAvailability();
     func_001f8480();
     func_00202be0();
 }

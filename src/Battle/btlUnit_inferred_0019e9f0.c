@@ -246,7 +246,7 @@ u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value)
 // FUN_0019EA60
 void btlUnitInitFromRecord(u8 *arg0, s32 arg1)
 {
-    extern void func_00201280(u8 *arg0, u8 *arg1);
+    extern void btlUiInitSpritePair(u8 *arg0, u8 *arg1);
     u8 *data;
     f32 var_f0;
     f32 var_f0_2;
@@ -319,7 +319,7 @@ void btlUnitInitFromRecord(u8 *arg0, s32 arg1)
     temp_2_4 = *(u16 *)(data + 8);
     var_f0_2 = (f32)(u32)temp_2_4;
     *(f32 *)(arg0 + 0x90) = var_f0_2;
-    func_00201280(arg0, arg0 + 0xA10);
+    btlUiInitSpritePair(arg0, arg0 + 0xA10);
 }
 
 // FUN_0019EDA0

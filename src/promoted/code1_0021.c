@@ -25,7 +25,7 @@ extern void sprintf(u8 *dst, const char *fmt, s32 arg);
 extern void itfMesWindowSetString(u8 *arg0, s32 arg1, u8 *arg2);
 extern void frFontListKeepOrRelease(s32 arg0);
 extern void itfMesWindowClear(s32 arg0, s32 arg1);
-extern void func_00201350(void);
+extern void btlUiSetRenderStates(void);
 extern void func_00211650(u8 *arg0, u8 *arg1);
 
 extern void memset(void *destination, s32 value, u32 size);
@@ -91,9 +91,9 @@ extern void datPersonaAddExp(u8 *arg0, s32 arg1);
 extern s32 func_0010c6f0(PersonaWork *arg0);
 extern void datPersonaApplyLevelUp(u8 *arg0, u8 *arg1);
 extern u16 *datPersonaGetRecord(u16 arg0);
-extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
-extern void func_00201300(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
-extern void func_002016e0(u8 *arg0, s16 arg1, s32 arg2, f32 arg3);
+extern void btlUiSetScale(void *arg0, f32 arg1, f32 arg2);
+extern void btlUiSetRect(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
+extern void btlUiSetTileOffset(u8 *arg0, s16 arg1, s32 arg2, f32 arg3);
 extern void func_002019d0(u8 *arg0, f32 arg1, f32 arg2);
 extern s32 datCalcUnitClass(u8 *arg0);
 extern s32 func_001b1540(void);
@@ -196,7 +196,7 @@ void func_00210c70(u8 *arg0, u8 *arg1)
         if (btlTargetFindInRange((s32)(transition + 4), (u8 *)pos) != 0) {
             work = *(u8 **)transition + 0xA3C;
             info.drawGauge = 0;
-            func_00201300(panel, pos[0] - 86.0f, pos[1] - 86.0f, 172.0f, 172.0f);
+            btlUiSetRect(panel, pos[0] - 86.0f, pos[1] - 86.0f, 172.0f, 172.0f);
             drew = 0;
             if (*(u16 *)(transition + 0x20) & 1) {
                 func_0020ea60(task, transition, work, (u8 *)&info);
@@ -218,8 +218,8 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                 if (!(rate <= scale)) {
                     scale = fGpffff827c - fGpffff8110 * rate;
                     func_002019d0((u8 *)icon, scale, scale);
-                    func_00201650((u8 *)icon, 0xA, 0xF, 57.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
-                    func_00201650((u8 *)icon, 0xA, 0x10, 86.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
+                    btlUiDrawSpriteFaded((u8 *)icon, 0xA, 0xF, 57.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
+                    btlUiDrawSpriteFaded((u8 *)icon, 0xA, 0x10, 86.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
                     func_002019d0((u8 *)icon, 1.0f, 1.0f);
                 }
                 rate = func_0020e5c0(stage, 5, 7, 0);
@@ -227,8 +227,8 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                     alpha = 255.0f * rate;
                     fade = ws14_mul(20.0f, ws14_sub(1.0f, rate));
                     height = ws14_add(75.0f, fade);
-                    func_00201650((u8 *)icon, 0xA, 0xA, 47.0f, height, 0x15U, 0x15U, 0x15U, (u8)alpha);
-                    func_00201650((u8 *)icon, 0xA, 9, 47.0f, height, 0xFFU, 0xFU, 2U, (u8)alpha);
+                    btlUiDrawSpriteFaded((u8 *)icon, 0xA, 0xA, 47.0f, height, 0x15U, 0x15U, 0x15U, (u8)alpha);
+                    btlUiDrawSpriteFaded((u8 *)icon, 0xA, 9, 47.0f, height, 0xFFU, 0xFU, 2U, (u8)alpha);
                 }
                 drew = 1;
             }
@@ -406,7 +406,7 @@ union ColorWord {
 void func_00211650(u8 *arg0, u8 *arg1)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
-    extern void func_00201820(s32 arg0);
+    extern void btlUiSetRenderMode(s32 arg0);
     extern s32 func_0021be60(void);
     extern void func_0021b630(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
                               f32 fparg4, f32 fparg5, f32 fparg6, f32 fparg7,
@@ -420,7 +420,7 @@ void func_00211650(u8 *arg0, u8 *arg1)
     s32 var_17;
 
     D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)func_0021be60());
-    func_00201820(2);
+    btlUiSetRenderMode(2);
     frame.bytes[0] = 0x52;
     frame.bytes[1] = 0xF3;
     frame.bytes[2] = 0;
@@ -446,7 +446,7 @@ void func_00211650(u8 *arg0, u8 *arg1)
                       49.0f, 218.0f, 49.0f, 239.0f, frame);
         func_0021b630(138.0f, temp_f20, 0.0f, 12.0f, temp_f21,
                       49.0f, 218.0f, 37.0f, 239.0f, frame);
-        func_00201820(0);
+        btlUiSetRenderMode(0);
         frame.bytes[0] = 0xD;
         frame.bytes[1] = 0x1B;
         frame.bytes[2] = 0;
@@ -456,7 +456,7 @@ void func_00211650(u8 *arg0, u8 *arg1)
                       235.0f, 252.0f, 254.0f, frame);
         return;
     }
-    func_00201820(0);
+    btlUiSetRenderMode(0);
 }
 // FUN_00211950
 void func_00211950(u8 *arg0, s32 arg1) {
@@ -524,7 +524,7 @@ void func_00211ad0(u8 *arg0, u8 *arg1)
 
     temp_2 = (s32 *)kwlnTaskGetWork(*(void **)(arg1 + 4));
     if ((*temp_2 & 1) != 0) {
-        func_00201350();
+        btlUiSetRenderStates();
         var_18 = *(u8 **)arg1;
         goto loop_test;
 loop_body:
@@ -552,7 +552,7 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
 {
     extern void func_00195f70(u8 *arg0, f32 *arg1);
     extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
-    extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
+    extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
     extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
     extern f32 func_0020e5c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_0020fa70(u8 *arg0, u8 *arg1);
@@ -576,7 +576,7 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
     context = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 4));
     if (*(u32 *)context & 1) {
         if (*(u16 *)(arg1 + 8) & 1) {
-            func_00201350();
+            btlUiSetRenderStates();
             for (group = 0; group < 2; group++) {
                 for (unit = *(u8 **)(iGpffffb3ac + 0x178 + group * 8);
                      unit != NULL; unit = *(u8 **)(unit + 0xA6C)) {
@@ -590,18 +590,18 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
                     if (!btlTargetFindInRange(world, screen)) {
                         continue;
                     }
-                    func_002012d0(context, screen[0] - 86.0f, screen[1] - 86.0f);
+                    btlUiSetOrigin(context, screen[0] - 86.0f, screen[1] - 86.0f);
                     draw = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 4));
                     if (++*(u16 *)(unit + 0xA44) >= 25) {
                         *(u16 *)(unit + 0xA44) = 0;
                     }
                     pulse = sinf((fGpffff81e0 * (f32)(s32)*(u16 *)(unit + 0xA44)) / 25.0f);
-                    func_00201650(draw, 10, 17, 64.0f, (0.0f + 45.0f) + 10.0f * pulse,
+                    btlUiDrawSpriteFaded(draw, 10, 17, 64.0f, (0.0f + 45.0f) + 10.0f * pulse,
                                    12, 79, 85, 255);
-                    func_00201650(draw, 10, 17, 64.0f, (0.0f + 37.0f) + 5.0f * pulse,
+                    btlUiDrawSpriteFaded(draw, 10, 17, 64.0f, (0.0f + 37.0f) + 5.0f * pulse,
                                    63, 255, 245, 255);
-                    func_00201650(draw, 10, 8, 55.0f, 44.0f, 63, 255, 245, 255);
-                    func_00201650(draw, 10, 7, 55.0f, 44.0f, 12, 79, 85, 255);
+                    btlUiDrawSpriteFaded(draw, 10, 8, 55.0f, 44.0f, 63, 255, 245, 255);
+                    btlUiDrawSpriteFaded(draw, 10, 7, 55.0f, 44.0f, 12, 79, 85, 255);
                 }
             }
         }
@@ -629,7 +629,7 @@ void func_00211f90(s32 arg0, u8 *arg1) {
     u8 sp30[0x20];
     u8 *b = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 4));
 
-    func_00201350();
+    btlUiSetRenderStates();
     if ((*(u16 *)(arg1 + 8) & 0x10) == 0) {
         return;
     }
@@ -742,7 +742,7 @@ void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
     extern BtlShuffleVec3 D_0060A0F0[];
     extern f32 fGpffff8370;
     extern f32 fGpffff8374;
-    extern void func_00201820(s32 mode);
+    extern void btlUiSetRenderMode(s32 mode);
     extern s32 func_00457120(void);
     extern BtlShuffleMatrix *RwMatrixRotate(BtlShuffleMatrix *matrix,
         const BtlShuffleVec3 *axis, f32 angle, BtlShuffleCombine combine);
@@ -796,8 +796,8 @@ void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
         entering = 0;
         animationFrame -= 0x24;
     }
-    func_00201350();
-    func_00201820(2);
+    btlUiSetRenderStates();
+    btlUiSetRenderMode(2);
     {
         if (entering) {
             f32 ratio;
@@ -922,7 +922,7 @@ void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
             sdkSpriteSlotHandle((u8 *)*(s32 *)(work + 4), 2),
             uv);
     }
-    func_00201820(0);
+    btlUiSetRenderMode(0);
     {
         if (entering) {
             f32 ratio;
@@ -963,7 +963,7 @@ void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
     drawPosition.y = 224.0f + slideOffset;
     func_00364fb0(drawPosition, 0.0f, 0xFF,
         fGpffff8378, 0, 1);
-    func_00201820(2);
+    btlUiSetRenderMode(2);
     {
         if (entering) {
             f32 ratio;
@@ -1102,7 +1102,7 @@ void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
     bars[3].u.els.color.b = 0.0f;
     bars[3].u.els.color.a = 0.0f;
     (*(BtlShuffleRenderPrimitive *)renderTable)(rwPRIMTYPETRISTRIP, bars, 4);
-    func_00201820(0);
+    btlUiSetRenderMode(0);
     if (entering) {
         f32 ratio;
         u8 labelAlpha;
@@ -1616,16 +1616,16 @@ void func_00213e20(u8 *arg0, u8 *arg1)
 void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 {
     typedef struct DatUnit DatUnit;
-    extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
-    extern void func_00201300(s32 *arg0, f32 fparg0, f32 fparg1,
+    extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
+    extern void btlUiSetRect(s32 *arg0, f32 fparg0, f32 fparg1,
         f32 fparg2, f32 fparg3);
-    extern void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
+    extern void btlUiDrawSpriteEntry(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
         f32 fparg1);
-    extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
+    extern void btlUiDrawSpriteFaded(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
         f32 fparg1, u8 arg5, u8 arg6, u8 arg7,
         u8 arg8);
-    extern void func_002016b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_00201820(s32 arg0);
+    extern void btlUiAdjustTileOffset(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern void btlUiSetRenderMode(s32 arg0);
     extern void func_002019d0(u8 *arg0, f32 fparg0, f32 fparg1);
     extern u16 datCalcGetHp(s32 arg0);
     extern u16 datCalcGetSp(s32 arg0);
@@ -1811,7 +1811,7 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
             baseX = 0.0f;
             baseY = 0.0f;
         } else {
-            func_002012d0((u8 *)arg0, fparg0, fparg1);
+            btlUiSetOrigin((u8 *)arg0, fparg0, fparg1);
             memset(offset, 0, 0x18);
             memset(y, 0, 0x18);
             memset(x, 0, 0x18);
@@ -1921,16 +1921,16 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
     } else {
         memset(effect, 0, 0x18);
     }
-    func_00201300(arg0, fparg0, fparg1, 136.0f, 136.0f);
+    btlUiSetRect(arg0, fparg0, fparg1, 136.0f, 136.0f);
     if (*(s32 *)(arg1 + 0xA10) & 0x200) {
-        func_00201650((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
+        btlUiDrawSpriteFaded((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
             0x22, 0xFF);
     }
     if (*(s32 *)(arg1 + 0xA10) & 2) {
         temp = D_00626F60[*(s16 *)(arg1 + 0xA1A)];
         alpha = (u8)(160.0f * temp);
         alpha2 = (u8)(255.0f * temp);
-        func_00201650((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
+        btlUiDrawSpriteFaded((u8 *)arg0, 8, 0xE, 29.0f, 27.0f, 0x9D, 0xFF,
             0x22, alpha2);
         *(s16 *)(arg1 + 0xA1A) += 1;
         if (*(s16 *)(arg1 + 0xA1A) >= 0x18) {
@@ -1938,38 +1938,38 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         }
     }
     if (colors.status != 0) {
-        func_00201650((u8 *)arg0, 0xB, 0,
+        btlUiDrawSpriteFaded((u8 *)arg0, 0xB, 0,
             29.0f + effect[0].x + offset[0].x,
             27.0f + effect[0].y + offset[0].y,
             colors.rgba[0xC], colors.rgba[0xD],
             colors.rgba[0xE], 0xFF);
     }
-    func_00201650((u8 *)arg0, tile, 1,
+    btlUiDrawSpriteFaded((u8 *)arg0, tile, 1,
         27.0f + effect[2].x + offset[2].x,
         16.0f + effect[2].y + offset[2].y, colors.rgba[4],
         colors.rgba[5], colors.rgba[6], 0xFF);
-    func_00201650((u8 *)arg0, tile, 1,
+    btlUiDrawSpriteFaded((u8 *)arg0, tile, 1,
         20.0f + effect[1].x + offset[1].x,
         20.0f + effect[1].y + offset[1].y, colors.rgba[0],
         colors.rgba[1], colors.rgba[2], 0xFF);
-    func_00201410((u8 *)arg0, tile, 0,
+    btlUiDrawSpriteEntry((u8 *)arg0, tile, 0,
         20.0f + effect[0].x + offset[0].x,
         20.0f + effect[0].y + offset[0].y);
     if (colors.status != 0) {
-        func_00201820(2);
-        func_00201650((u8 *)arg0, tile, 0,
+        btlUiSetRenderMode(2);
+        btlUiDrawSpriteFaded((u8 *)arg0, tile, 0,
             20.0f + effect[0].x + offset[0].x,
             20.0f + effect[0].y + offset[0].y,
             colors.rgba[8], colors.rgba[9], colors.rgba[0xA],
             0xFF);
-        func_00201820(0);
+        btlUiSetRenderMode(0);
     }
     if (*(s32 *)(arg1 + 0xA10) & 3) {
-        func_00201820(2);
-        func_00201650((u8 *)arg0, tile, 0, 20.0f + effect[0].x,
+        btlUiSetRenderMode(2);
+        btlUiDrawSpriteFaded((u8 *)arg0, tile, 0, 20.0f + effect[0].x,
             20.0f + effect[0].y, 0xFF, 0xFF, 0xFF,
             alpha);
-        func_00201820(0);
+        btlUiSetRenderMode(0);
     }
     if (colors.status != 0) {
         f32 statusX;
@@ -1978,57 +1978,57 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         statusY = effect[0].y + offset[0].y;
         switch (colors.status) {
         case 2:
-            func_00201410((u8 *)arg0, 0xB, 0xA, 89.0f + statusX, 25.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 0xC, 66.0f + statusX, 53.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 0xB, 48.0f + statusX, 22.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 9, 27.0f + statusX, 86.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0xA, 89.0f + statusX, 25.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0xC, 66.0f + statusX, 53.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0xB, 48.0f + statusX, 22.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 9, 27.0f + statusX, 86.0f + statusY);
             break;
         case 4:
-            func_00201410((u8 *)arg0, 0xB, 0xE, 59.0f + statusX, 18.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 0xF, 46.0f + statusX, 77.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0xE, 59.0f + statusX, 18.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0xF, 46.0f + statusX, 77.0f + statusY);
             break;
         case 8:
-            func_00201410((u8 *)arg0, 0xB, 0xD, 73.0f + statusX, 25.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0xD, 73.0f + statusX, 25.0f + statusY);
             break;
         case 0x10:
-            func_00201410((u8 *)arg0, 0xB, 5, 36.0f + statusX, 27.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 6, 87.0f + statusX, 27.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 8, 32.0f + statusX, 88.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 7, 65.0f + statusX, 67.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 5, 36.0f + statusX, 27.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 6, 87.0f + statusX, 27.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 8, 32.0f + statusX, 88.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 7, 65.0f + statusX, 67.0f + statusY);
             break;
         case 1:
-            func_00201410((u8 *)arg0, 0xB, 0x10, 59.0f + statusX, 21.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 0x12, 109.0f + statusX, 38.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 0x14, 46.0f + statusX, 27.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 0x11, 23.0f + statusX, 76.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 0x13, 38.0f + statusX, 99.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x10, 59.0f + statusX, 21.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x12, 109.0f + statusX, 38.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x14, 46.0f + statusX, 27.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x11, 23.0f + statusX, 76.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x13, 38.0f + statusX, 99.0f + statusY);
             break;
         case 0x20:
-            func_00201410((u8 *)arg0, 0xB, 1, 82.0f + statusX, 22.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 2, 47.0f + statusX, 23.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 3, 31.0f + statusX, 91.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 4, 31.0f + statusX, 44.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 4, 65.0f + statusX, 84.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 1, 82.0f + statusX, 22.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 2, 47.0f + statusX, 23.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 3, 31.0f + statusX, 91.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 4, 31.0f + statusX, 44.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 4, 65.0f + statusX, 84.0f + statusY);
             break;
         case 0x40:
-            func_00201410((u8 *)arg0, 0xB, 0x15, 73.0f + statusX, 22.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 0x16, 60.0f + statusX, 51.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x15, 73.0f + statusX, 22.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x16, 60.0f + statusX, 51.0f + statusY);
             break;
         case 0x80:
-            func_00201410((u8 *)arg0, 0xB, 0x17, 83.0f + statusX, 30.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 0x18, 62.0f + statusX, 50.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 0x19, 78.0f + statusX, 26.0f + statusY);
-            func_00201410((u8 *)arg0, 0xB, 0x1A, 32.0f + statusX, 88.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x17, 83.0f + statusX, 30.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x18, 62.0f + statusX, 50.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x19, 78.0f + statusX, 26.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x1A, 32.0f + statusX, 88.0f + statusY);
             break;
         case 0x80000:
-            func_00201410((u8 *)arg0, 0xB, 0x1B, 29.0f + statusX, 27.0f + statusY);
+            btlUiDrawSpriteEntry((u8 *)arg0, 0xB, 0x1B, 29.0f + statusX, 27.0f + statusY);
             break;
         }
     }
-    func_00201650((u8 *)arg0, 8, 0xA, 63.0f + baseX, 82.0f + baseY,
+    btlUiDrawSpriteFaded((u8 *)arg0, 8, 0xA, 63.0f + baseX, 82.0f + baseY,
         colors.rgba[0x10], colors.rgba[0x11],
         colors.rgba[0x12], 0xFF);
-    func_00201650((u8 *)arg0, 8, 0xB, 66.0f + baseX, 85.0f + baseY,
+    btlUiDrawSpriteFaded((u8 *)arg0, 8, 0xB, 66.0f + baseX, 85.0f + baseY,
         0x26, 0x26, 0x26, 0xFF);
     {
         f32 hpWidth;
@@ -2036,9 +2036,9 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         if (hpWidth < 5.0f && hpWidth > 0.0f) {
             hpWidth = 5.0f;
         }
-        func_002016b0((s32)arg0, 8, 0xC, (s32)hpWidth);
+        btlUiAdjustTileOffset((s32)arg0, 8, 0xC, (s32)hpWidth);
     }
-    func_00201650((u8 *)arg0, 8, 0xC, 70.0f + baseX, 88.0f + baseY,
+    btlUiDrawSpriteFaded((u8 *)arg0, 8, 0xC, 70.0f + baseX, 88.0f + baseY,
         0xFF, 0xE0, 0x51, 0xFF);
     {
         f32 spWidth;
@@ -2046,28 +2046,28 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         if (spWidth < 5.0f && spWidth > 0.0f) {
             spWidth = 5.0f;
         }
-        func_002016b0((s32)arg0, 8, 0xC, (s32)spWidth);
+        btlUiAdjustTileOffset((s32)arg0, 8, 0xC, (s32)spWidth);
     }
-    func_00201650((u8 *)arg0, 8, 0xC, 70.0f + baseX, 94.0f + baseY,
+    btlUiDrawSpriteFaded((u8 *)arg0, 8, 0xC, 70.0f + baseX, 94.0f + baseY,
         0xB7, 0xFF, 0x54, 0xFF);
-    func_00201410((u8 *)arg0, 8, sp % 10,
+    btlUiDrawSpriteEntry((u8 *)arg0, 8, sp % 10,
         121.0f + x[0].x, 64.0f + x[0].y);
     if (sp / 10 != 0) {
-        func_00201410((u8 *)arg0, 8, (sp / 10) % 10,
+        btlUiDrawSpriteEntry((u8 *)arg0, 8, (sp / 10) % 10,
             108.0f + x[1].x, 69.0f + x[1].y);
     }
     if (sp / 100 != 0) {
-        func_00201410((u8 *)arg0, 8, (sp / 100) % 10,
+        btlUiDrawSpriteEntry((u8 *)arg0, 8, (sp / 100) % 10,
             95.0f + x[2].x, 74.0f + x[2].y);
     }
-    func_00201410((u8 *)arg0, 8, hp % 10,
+    btlUiDrawSpriteEntry((u8 *)arg0, 8, hp % 10,
         122.0f + y[0].x, 47.0f + y[0].y);
     if (hp / 10 != 0) {
-        func_00201410((u8 *)arg0, 8, (hp / 10) % 10,
+        btlUiDrawSpriteEntry((u8 *)arg0, 8, (hp / 10) % 10,
             109.0f + y[1].x, 52.0f + y[1].y);
     }
     if (hp / 100 != 0) {
-        func_00201410((u8 *)arg0, 8, (hp / 100) % 10,
+        btlUiDrawSpriteEntry((u8 *)arg0, 8, (hp / 100) % 10,
             96.0f + y[2].x, 57.0f + y[2].y);
     }
 }
@@ -2081,7 +2081,7 @@ void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
     extern f32 fGpffff8218;
     extern f32 func_00201950(u8 *arg0, s32 arg1, s32 arg2);
     extern f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2);
-    extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, u8 arg5, u8 arg6, u8 arg7, u8 arg8);
+    extern void btlUiDrawSpriteFaded(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, u8 arg5, u8 arg6, u8 arg7, u8 arg8);
     s32 *var_s19;
     u8 *var_s18;
     u32 var_s17;
@@ -2183,9 +2183,9 @@ void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
     }
 
     var_f20 = 1.0f;
-    func_00201300(var_s19, fparg0, fparg1, 136.0f, 136.0f);
+    btlUiSetRect(var_s19, fparg0, fparg1, 136.0f, 136.0f);
     if (var_f20 == var_f21) {
-        func_00201650((u8 *)var_s19, 8, 0xE, 29.0f, 27.0f, 0xFE, 0xFF, 0x22, 0xFF);
+        btlUiDrawSpriteFaded((u8 *)var_s19, 8, 0xE, 29.0f, 27.0f, 0xFE, 0xFF, 0x22, 0xFF);
     } else {
         f32 ret1;
         f32 ret2;
@@ -2197,9 +2197,9 @@ void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         ret2 = func_00201990((u8 *)var_s19, 8, 0xE);
         f2 = 0.5f * ret2;
         var_f20 = 27.0f + var_f20 * f2;
-        func_00201720(var_s19, var_f21, var_f21);
-        func_00201650((u8 *)var_s19, 8, 0xE, fparg1, var_f20, 0xFE, 0xFF, 0x22, 0xFF);
-        func_00201720(var_s19, 1.0f, 1.0f);
+        btlUiSetScale(var_s19, var_f21, var_f21);
+        btlUiDrawSpriteFaded((u8 *)var_s19, 8, 0xE, fparg1, var_f20, 0xFE, 0xFF, 0x22, 0xFF);
+        btlUiSetScale(var_s19, 1.0f, 1.0f);
     }
 }
 // FUN_002161D0
@@ -2322,10 +2322,10 @@ void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         }
         fparg0 = fparg0 + 180.0f * var_f2;
     }
-    func_00201300(var_s20, fparg0, fparg1, 136.0f, 136.0f);
-    func_002016e0((u8 *)var_s20, 0x42, 0x41, *(f32 *)(var_s19 + 0xA24));
-    func_00201650((u8 *)var_s20, 8, 0xD, 13.0f, 12.0f, 0xFE, 0xFF, 0x22, var_s17);
-    func_002016e0((u8 *)var_s20, 0, 0, 0.0f);
+    btlUiSetRect(var_s20, fparg0, fparg1, 136.0f, 136.0f);
+    btlUiSetTileOffset((u8 *)var_s20, 0x42, 0x41, *(f32 *)(var_s19 + 0xA24));
+    btlUiDrawSpriteFaded((u8 *)var_s20, 8, 0xD, 13.0f, 12.0f, 0xFE, 0xFF, 0x22, var_s17);
+    btlUiSetTileOffset((u8 *)var_s20, 0, 0, 0.0f);
 }
 /* 844/848 bytes; nine resolved relocations; four zero alignment bytes.
  * Snapshot the four party slots before callbacks can update the actor list. */
@@ -2348,7 +2348,7 @@ void func_002167f0(u8 *arg0, u8 *arg1)
 
     work = (s32 *)kwlnTaskGetWork((void *)(*(u8 **)(arg1 + 0xC)));
     if ((*(s32 *)work & 1) != 0 && (*(s32 *)arg1 & 0x100) != 0) {
-        func_00201350();
+        btlUiSetRenderStates();
         selected = (u8 *)func_001b1540();
         if (selected != NULL) selected = *(u8 **)(selected + 0x30);
         else selected = *(u8 **)(arg1 + 8);
@@ -2544,9 +2544,9 @@ void func_00216e50(void)
 void func_00216e60(u8 *arg0, u8 *arg1)
 {
     extern s32 btlUnitGetDataRow(u8 *arg0);
-    extern void func_002012d0(u8 *arg0, f32 x, f32 y);
-    extern void func_00201410(u8 *arg0, s32 font, s32 id, f32 x, f32 y);
-    extern void func_00201820(s32 mode);
+    extern void btlUiSetOrigin(u8 *arg0, f32 x, f32 y);
+    extern void btlUiDrawSpriteEntry(u8 *arg0, s32 font, s32 id, f32 x, f32 y);
+    extern void btlUiSetRenderMode(s32 mode);
     extern u8 *frFontCreateTextList(u8 *text, s32 style, s8 mode, s32 arg3, u8 *arg4);
     extern void frFontSetCharWidth(s32 arg0, s32 arg1);
     extern void frFontMoveListTo(s32 arg0, s32 arg1, s32 arg2);
@@ -2566,10 +2566,10 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                              s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     extern s32 itfMesWindowRunEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 state);
-    extern void func_00201350(void);
+    extern void btlUiSetRenderStates(void);
     extern s32 itfMesWindowMeasureText(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_00201650(u8 *work, s32 mode, s32 tile, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
-    extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
+    extern void btlUiDrawSpriteFaded(u8 *work, s32 mode, s32 tile, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
+    extern void btlUiSetScale(void *arg0, f32 arg1, f32 arg2);
     extern u16 D_008C024E[];
     extern BtlShuffleRenderStateSet D_00887300[];
     extern s32 iGpffffb4b0;
@@ -2601,8 +2601,8 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     if ((*p & 1) == 0) {
         return;
     }
-    func_00201350();
-    func_002012d0((u8 *)p, 0.0f, 0.0f);
+    btlUiSetRenderStates();
+    btlUiSetOrigin((u8 *)p, 0.0f, 0.0f);
     switch (*(u16 *)(arg1 + 0x14)) {
     case 0:
         break;
@@ -2700,7 +2700,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                     func_0045d6e0(colorBytes, (f32 *)&box, 51.0f, 0);
                     (*(BtlShuffleRenderStateSet *)renderStates)(rwRENDERSTATEZWRITEENABLE, 0);
                 }
-                func_00201720((u8 *)p, 1.0f, fade);
+                btlUiSetScale((u8 *)p, 1.0f, fade);
                 fade = 18.5f * (1.0f - fade);
                 statusX = 0.0f;
                 colorBytes[3] = 0;
@@ -2712,15 +2712,15 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                 animated = 0;
             }
             if (*(u16 *)(arg1 + 0x10) & 8) {
-                func_002012d0((u8 *)p, 0.0f, 81.0f);
-                func_00201410((u8 *)p, 10, 44, 186.0f, fade);
-                func_00201410((u8 *)p, 10, 41, 402.0f, fade);
-                func_00201720((u8 *)p, 1.0f, 1.0f);
+                btlUiSetOrigin((u8 *)p, 0.0f, 81.0f);
+                btlUiDrawSpriteEntry((u8 *)p, 10, 44, 186.0f, fade);
+                btlUiDrawSpriteEntry((u8 *)p, 10, 41, 402.0f, fade);
+                btlUiSetScale((u8 *)p, 1.0f, 1.0f);
             } else {
-                func_002012d0((u8 *)p, 94.0f, 81.0f);
-                func_00201410((u8 *)p, 10, 40, 0.0f, fade);
-                func_00201410((u8 *)p, 10, 41, 400.0f, fade);
-                func_00201720((u8 *)p, 1.0f, 1.0f);
+                btlUiSetOrigin((u8 *)p, 94.0f, 81.0f);
+                btlUiDrawSpriteEntry((u8 *)p, 10, 40, 0.0f, fade);
+                btlUiDrawSpriteEntry((u8 *)p, 10, 41, 400.0f, fade);
+                btlUiSetScale((u8 *)p, 1.0f, 1.0f);
                 if ((*(u16 *)(arg1 + 0x10) & 4) && colorBytes[3] > 0) {
                     u8 *bits;
                     s32 allAttacks;
@@ -2736,7 +2736,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                     u8 speedRed;
                     u8 speedGreen;
                     u8 speedBlue;
-                    func_002012d0((u8 *)p, 94.0f + statusX, 81.0f);
+                    btlUiSetOrigin((u8 *)p, 94.0f + statusX, 81.0f);
                     bits = *(u8 **)(*(s32 *)(arg1 + 0x20) + 0xA64);
                     if (datCalcHasBuffMask(bits, 0x400) || datCalcHasBuffMask(bits, 0x800)) {
                         allAttacks = 1;
@@ -2804,31 +2804,31 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                         colorBytes[1] = 0xFF;
                         colorBytes[2] = 0xFF;
                     }
-                    func_00201650((u8 *)p, 10, 42, 222.0f, 6.0f,
+                    btlUiDrawSpriteFaded((u8 *)p, 10, 42, 222.0f, 6.0f,
                                   colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
-                    func_00201650((u8 *)p, 10, 43, 384.0f, 6.0f,
+                    btlUiDrawSpriteFaded((u8 *)p, 10, 43, 384.0f, 6.0f,
                                   colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
-                    func_00201650((u8 *)p, 10, 34, 233.0f, 8.0f,
+                    btlUiDrawSpriteFaded((u8 *)p, 10, 34, 233.0f, 8.0f,
                                   colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
-                    func_00201650((u8 *)p, 10, 35, 285.0f, 8.0f,
+                    btlUiDrawSpriteFaded((u8 *)p, 10, 35, 285.0f, 8.0f,
                                   colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
-                    func_00201650((u8 *)p, 10, 36, 337.0f, 8.0f,
+                    btlUiDrawSpriteFaded((u8 *)p, 10, 36, 337.0f, 8.0f,
                                   colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
-                    func_00201650((u8 *)p, 10, defenseSprite, 313.0f, 10.0f,
+                    btlUiDrawSpriteFaded((u8 *)p, 10, defenseSprite, 313.0f, 10.0f,
                                   defenseRed, defenseGreen, defenseBlue, colorBytes[3]);
-                    func_00201650((u8 *)p, 10, speedSprite, 365.0f, 10.0f,
+                    btlUiDrawSpriteFaded((u8 *)p, 10, speedSprite, 365.0f, 10.0f,
                                   speedRed, speedGreen, speedBlue, colorBytes[3]);
                     if (!allAttacks) {
-                        func_00201650((u8 *)p, 10, attackSprite, 261.0f, 10.0f,
+                        btlUiDrawSpriteFaded((u8 *)p, 10, attackSprite, 261.0f, 10.0f,
                                       attackRed, attackGreen, attackBlue, colorBytes[3]);
                     } else {
-                        func_00201650((u8 *)p, 10, 0x56, 262.0f, -8.0f,
+                        btlUiDrawSpriteFaded((u8 *)p, 10, 0x56, 262.0f, -8.0f,
                                       colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
-                        func_00201650((u8 *)p, 10, 0x57, 252.0f, 26.0f,
+                        btlUiDrawSpriteFaded((u8 *)p, 10, 0x57, 252.0f, 26.0f,
                                       colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]);
-                        func_00201650((u8 *)p, 10, 0x25, 261.0f, 4.0f,
+                        btlUiDrawSpriteFaded((u8 *)p, 10, 0x25, 261.0f, 4.0f,
                                       0xFF, 0x65, 0x74, colorBytes[3]);
-                        func_00201650((u8 *)p, 10, 0x25, 261.0f, 15.0f,
+                        btlUiDrawSpriteFaded((u8 *)p, 10, 0x25, 261.0f, 15.0f,
                                       0xFF, 0x65, 0x74, colorBytes[3]);
                         if (attackSprite == 0x25) {
                             u8 pulseAlpha;
@@ -2838,10 +2838,10 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                             if (fGpffffb47c >= 180.0f) {
                                 fGpffffb47c -= 180.0f;
                             }
-                            func_00201820(2);
-                            func_00201650((u8 *)p, 10, 0x58, 256.0f, -1.0f,
+                            btlUiSetRenderMode(2);
+                            btlUiDrawSpriteFaded((u8 *)p, 10, 0x58, 256.0f, -1.0f,
                                           0xFC, 0x30, 0x30, pulseAlpha);
-                            func_00201820(0);
+                            btlUiSetRenderMode(0);
                         }
                     }
                 }
@@ -2871,9 +2871,9 @@ void func_00216e60(u8 *arg0, u8 *arg1)
         } else {
             fade = 2.0f * t - t * t;
         }
-        func_002012d0((u8 *)p, 0.0f, -8.0f);
-        func_00201720((u8 *)p, 1.0f, 1.0f);
-        func_00201650((u8 *)p, 9, 0x52, ws14_add(379.0f, ws14_mul(-400.0f, 1.0f - fade)),
+        btlUiSetOrigin((u8 *)p, 0.0f, -8.0f);
+        btlUiSetScale((u8 *)p, 1.0f, 1.0f);
+        btlUiDrawSpriteFaded((u8 *)p, 9, 0x52, ws14_add(379.0f, ws14_mul(-400.0f, 1.0f - fade)),
                       303.0f, 0x21, 0x21, 0x21, 0xFF);
         t = (f32)(*(s32 *)(arg1 + 0x34) - 4) / 6.0f;
         if (t > 1.0f) {
@@ -2884,17 +2884,17 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             fade = 2.0f * t - t * t;
         }
         if (fade > 0.0f) {
-            func_00201720((u8 *)p, 1.0f, fade);
-            func_00201650((u8 *)p, 9, 0x50, 170.0f, 367.0f + 17.0f * (1.0f - fade),
+            btlUiSetScale((u8 *)p, 1.0f, fade);
+            btlUiDrawSpriteFaded((u8 *)p, 9, 0x50, 170.0f, 367.0f + 17.0f * (1.0f - fade),
                           0xFF, 0xF1, 0, 0xFF);
-            func_00201650((u8 *)p, 9, 0x51, 473.0f, 367.0f + 17.0f * (1.0f - fade),
+            btlUiDrawSpriteFaded((u8 *)p, 9, 0x51, 473.0f, 367.0f + 17.0f * (1.0f - fade),
                           0xFF, 0xF1, 0, 0xFF);
-            func_00201720((u8 *)p, 1.0f, 1.0f);
+            btlUiSetScale((u8 *)p, 1.0f, 1.0f);
         }
         if (fade == 1.0f) {
-            func_00201650((u8 *)p, 9, 0x53, 211.0f, 371.0f,
+            btlUiDrawSpriteFaded((u8 *)p, 9, 0x53, 211.0f, 371.0f,
                           0xFF, 0xFF, 0xFF, 0xFF);
-            func_00201650((u8 *)p, 9, 0x54, 328.0f, 371.0f,
+            btlUiDrawSpriteFaded((u8 *)p, 9, 0x54, 328.0f, 371.0f,
                           0xFF, 0xFF, 0xFF, 0xFF);
             frFontExDrawText(244.0f, 359.0f, 0.0f, 0x212121FF, 5, 0, iGpffffa590, 0, 0);
             frFontExDrawText(361.0f, 359.0f, 0.0f, 0x212121FF, 5, 0, iGpffffa594, 0, 0);
@@ -3135,7 +3135,7 @@ void func_0021a7b0(u8 *task, u8 *state)
     s32 *renderWork;
     s32 tick;
     s32 flags;
-    extern void func_002012d0(u8 *task, f32 fparg0, f32 fparg1);
+    extern void btlUiSetOrigin(u8 *task, f32 fparg0, f32 fparg1);
 
     renderWork = (s32 *)kwlnTaskGetWork(*(void **)(state + 0x10));
     if ((*renderWork & 1) == 0) {
@@ -3150,10 +3150,10 @@ void func_0021a7b0(u8 *task, u8 *state)
             }
         }
         tick = *(u16 *)(state + 4);
-        func_00201350();
+        btlUiSetRenderStates();
         {
             f32 depth = 0.0f;
-            func_002012d0((u8 *)renderWork, depth, depth);
+            btlUiSetOrigin((u8 *)renderWork, depth, depth);
         }
         if (*(u16 *)(state + 0) & 4) {
             originX = -10.0f;
@@ -3494,15 +3494,15 @@ void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
     }
     if (amount != 0.0f) {
         fparg1 = (1.0f - amount) * 5.5f + fparg1 + 0.0f;
-        func_00201720(context, 1.0f, amount);
-        func_00201650(context, 10, 0, fparg0, fparg1, 0x19, 0x19, 0x19, 0xFF);
+        btlUiSetScale(context, 1.0f, amount);
+        btlUiDrawSpriteFaded(context, 10, 0, fparg0, fparg1, 0x19, 0x19, 0x19, 0xFF);
         if (!(fparg2 <= fGpffff849c)) {
-            func_00201720(context, fparg2, amount);
-            func_00201650(context, 10, 1,
+            btlUiSetScale(context, fparg2, amount);
+            btlUiDrawSpriteFaded(context, 10, 1,
                           (1.0f - fparg2) * 5.0f + fparg0 + 0.0f,
                           fparg1, 0xFF, 0xFF, 0x51, 0xFF);
         }
-        func_00201720(context, 1.0f, 1.0f);
+        btlUiSetScale(context, 1.0f, 1.0f);
     }
 }
 // FUN_0021B500
@@ -3845,7 +3845,7 @@ void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
     (void)callback;
     work = (u8 *)(u32)workAddress;
     kwlnTaskGetWork(*(void **)(work + 8));
-    func_00201350();
+    btlUiSetRenderStates();
     if (*(u16 *)work & 1) {
         if (*(u16 *)(work + 2) < 48) {
             if (*(u16 *)(iGpffffb3ac + 0x1A) == 1) {
@@ -4207,7 +4207,7 @@ void func_0021dc50(s32 arg0, s32 *arg1)
     Vec2f sp38;
     f32 var_f1;
 
-    func_00201350();
+    btlUiSetRenderStates();
     var_f20 = (f32)*(s32 *)(arg1 + 0) / 12.0f;
     if (!(var_f20 <= 1.0f)) {
         var_f20 = 1.0f;

@@ -75,7 +75,7 @@ extern u8 D_005F65B0[];
 extern u8 D_005F65C0[];
 
 extern void memcpy(void *dst, void *src, s32 size);
-extern s32 func_002011c0(s32 arg0);
+extern s32 btlUiCreateTask(s32 arg0);
 extern s32 datGetFlag(s32 arg0);
 extern void func_001b5f70(s32 arg0);
 extern s32 func_00192610(u8 *task);
@@ -300,7 +300,7 @@ extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_0018f950(u8 *task);
 extern void func_001d78d0(void);
-extern void func_00200cb0(void);
+extern void btlUiRegisterAvailability(void);
 extern void func_001f8480(void);
 extern void func_00202be0(void);
 extern void func_0047d170(void *model);
