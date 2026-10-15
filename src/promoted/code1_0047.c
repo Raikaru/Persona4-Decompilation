@@ -387,8 +387,9 @@ void mdlInitObjectSlots(u8 *arg0)
     *(s16 *)(arg0 + 0x26) = -1;
     *(u16 *)(arg0 + 0x10) |= 0x20;
 }
+/* Drops one reference on the object held in *arg0 (the count at +8, paired with mdlRetainObject). At zero it frees the object and its inner block, then clears the slot. */
 // FUN_0047EAA0
-void func_0047eaa0(u8 *arg0)
+void mdlReleaseObject(u8 *arg0)
 {
     u8 *object;
     s32 refCount;
@@ -408,8 +409,9 @@ void func_0047eaa0(u8 *arg0)
         *(s32 *)arg0 = 0;
     }
 }
+/* Requests animation arg1 with blend ticks arg2 on a motion state, restarting it when the state's current request does not match. Requests tied to a starting sound slot are queued in the pending fields and started by mdlTickMotionState. */
 // FUN_0047EB20
-void func_0047eb20(u8 *arg0, s16 arg1, u16 arg2)
+void mdlRequestMotionAnim(u8 *arg0, s16 arg1, u16 arg2)
 {
     u16 status;
     s32 kind;
@@ -480,8 +482,9 @@ static inline void code1_0047_abd0(s16 arg0, s32 arg1, s16 arg2)
    (`n = x + 1; x = n; temp = x;`): the reload forwards to a dsll32/dsra32 after the sh,
    as retail. The call argument re-reads the slot as `*(s16 *)((u32)arg0 + 8)` so it is
    not CSE'd with the forwarded value and stays a real lh (retail). */
+/* Advances a motion state by one tick: counts down the wait and pending-start timers, starts a queued request when its timer expires, and retries a failed start up to eight times. */
 // FUN_0047ED60
-void func_0047ed60(u8 *arg0)
+void mdlTickMotionState(u8 *arg0)
 {
     s16 waitTicks;
     s16 scratch;
@@ -554,8 +557,9 @@ void func_0047ed60(u8 *arg0)
         }
     }
 }
+/* Binary search over a track's key times: returns the index of the last key whose time is at or before fparg0. */
 // FUN_0047EF10
-static s32 func_0047ef10(u8 *arg0, f32 fparg0)
+static s32 mdlFindTrackKeyIndex(u8 *arg0, f32 fparg0)
 {
     s32 mid;
     s32 hi;
@@ -578,8 +582,9 @@ static s32 func_0047ef10(u8 *arg0, f32 fparg0)
     } while (lo < hi);
     return mid;
 }
+/* Samples a scalar track at fparg0 by linear interpolation between the surrounding keys, clamped to the last key. Writes the value to fGpffffbb4c and returns &fGpffffbb48, which holds the time. */
 // FUN_0047EF70
-u8 *func_0047ef70(u8 *arg0, f32 fparg0)
+u8 *mdlSampleTrackScalar(u8 *arg0, f32 fparg0)
 {
     s32 lastIndex;
     s32 pairs;
@@ -623,13 +628,14 @@ u8 *func_0047ef70(u8 *arg0, f32 fparg0)
     return (u8 *)&fGpffffbb48;
 }
 /* measured: duplicating the scalar sampler around the static exact
- * func_0047ef10 preserves both track pointers, times, and the blend factor.
+ * mdlFindTrackKeyIndex preserves both track pointers, times, and the blend factor.
  * Assigning each GP result pair to a two-float aggregate forces retail's
  * 0x20 frame and exact stack snapshots across the second call; the staged
  * inline madd helper closes the final blend. Object 340B/window 352B,
  * normalized_diff 0 with three retail zero-tail words. */
+/* Samples two scalar tracks at fparg0 and fparg1 and blends the two values by fparg2. Returns &fGpffffbb50 with the result. */
 // FUN_0047F040
-void *func_0047f040(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
+void *mdlBlendTrackSamples(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
                    f32 fparg2)
 {
     s32 index;
@@ -643,7 +649,7 @@ void *func_0047f040(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
     f32 difference;
 
     base = *(u8 **)(arg0 + 0xC);
-    index = func_0047ef10(arg0, fparg0);
+    index = mdlFindTrackKeyIndex(arg0, fparg0);
     if ((u32)index >= (u32)(*(s32 *)arg0 - 1)) {
         index *= 8;
         fGpffffbb4c = *(f32 *)(viewAddReverse((s32)base, index) + 4);
@@ -670,7 +676,7 @@ void *func_0047f040(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
     first = *(Code47Pair *)&fGpffffbb48;
 
     base = *(u8 **)(arg1 + 0xC);
-    index = func_0047ef10(arg1, fparg1);
+    index = mdlFindTrackKeyIndex(arg1, fparg1);
     if ((u32)index >= (u32)(*(s32 *)arg1 - 1)) {
         index *= 8;
         fGpffffbb4c = *(f32 *)(viewAddReverse((s32)base, index) + 4);
@@ -700,15 +706,16 @@ void *func_0047f040(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
     fGpffffbb54 = code1_0047_madd(difference, fparg2, first.value);
     return &fGpffffbb50;
 }
-/* measured: keeping the exact func_0047ef10 helper static exposes its narrow
+/* measured: keeping the exact mdlFindTrackKeyIndex helper static exposes its narrow
  * clobber set, preserving the caller's $t2/$t1/$f13 values. Caching the track
  * base before the call, scaling `index` in place in each branch, and carrying
  * the GP output address as an integer reproduce retail's register lifetimes.
  * Splitting the final difference/addend before the inline madd helper preserves
  * both evaluation order and FMA operand order. The object is 276B in a 288B
  * retail window with only three retail zero-tail words. */
+/* Samples the scalar track arg0 at fparg0 and moves the value toward (1 - byte 3 of arg1 / 255) by fparg1. Returns the sample pair in fGpffffbb48. */
 // FUN_0047F1A0
-void *func_0047f1a0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
+void *mdlBlendTrackWithAlpha(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
 {
     s32 index;
     u8 *base;
@@ -717,7 +724,7 @@ void *func_0047f1a0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
     f32 addend;
 
     base = *(u8 **)(arg0 + 0xC);
-    index = func_0047ef10(arg0, fparg0);
+    index = mdlFindTrackKeyIndex(arg0, fparg0);
     if ((u32)index >= (u32)(*(s32 *)arg0 - 1)) {
         index *= 8;
         fGpffffbb4c = *(f32 *)(viewAddReverse((s32)base, index) + 4);
@@ -750,15 +757,16 @@ void *func_0047f1a0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
         difference, fparg1, addend);
     return (f32 *)out;
 }
-/* measured: func_0047f3a0 remains 300B in a 304B retail window with
+/* measured: mdlSampleVec4Track remains 300B in a 304B retail window with
  * only one retail zero-tail word. Keeping the exact helper static in this
- * code1 TU exposes its real register clobbers to MWCC, so func_0047f4d0
+ * code1 TU exposes its real register clobbers to MWCC, so mdlBlendVec4Tracks
  * retains $t1/$f13/$f14 across both calls. The pointer-first source signature
  * preserves the independent integer/float ABI while ordering the second
- * call's $a0 setup before $f12; func_0047f4d0 is 216B in a 224B window with
+ * call's $a0 setup before $f12; mdlBlendVec4Tracks is 216B in a 224B window with
  * only two retail zero-tail words. */
+/* Samples the Vec4 track table at t: binary search over the key times, interpolates the four components into DAT_00922c30, and returns that buffer with t in its first word. */
 // FUN_0047F3A0
-static u32 *func_0047f3a0(int *table, float t)
+static u32 *mdlSampleVec4Track(int *table, float t)
 {
   float *entry;
   float fraction;
@@ -817,21 +825,22 @@ typedef struct Code47Vec4 {
     f32 w;
 } Code47Vec4;
 extern Code47Vec4 D_00922C40;
+/* Samples two Vec4 tracks at fparg0 and fparg1 and linearly blends their y, z and w components by fparg2 into D_00922C40. */
 // FUN_0047F4D0
-void *func_0047f4d0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
+void *mdlBlendVec4Tracks(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
                    f32 fparg2)
 {
     Code47Vec4 first;
     Code47Vec4 second;
 
-    first = *(Code47Vec4 *)func_0047f3a0((int *)arg0, fparg0);
-    second = *(Code47Vec4 *)func_0047f3a0((int *)arg1, fparg1);
+    first = *(Code47Vec4 *)mdlSampleVec4Track((int *)arg0, fparg0);
+    second = *(Code47Vec4 *)mdlSampleVec4Track((int *)arg1, fparg1);
     D_00922C40.y = 0.0f + first.y + fparg2 * (second.y - first.y);
     D_00922C40.z = 0.0f + first.z + fparg2 * (second.z - first.z);
     D_00922C40.w = 0.0f + first.w + fparg2 * (second.w - first.w);
     return &D_00922C40;
 }
-/* measured: the static exact func_0047f3a0 body preserves $t1/$f13 across
+/* measured: the static exact mdlSampleVec4Track body preserves $t1/$f13 across
  * the call. Computing bytes 1 and 2 before byte 0 assigns retail's $f4/$f3
  * roles; staging each addend after its normalized value prevents load
  * hoisting, and the reverse-order inline madd helper reproduces all three
@@ -839,8 +848,9 @@ void *func_0047f4d0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
  * the final retail word is zero tail padding. The sample callback returns
  * its borrowed output buffer, which the dispatcher passes to each apply
  * callback. */
+/* Samples the Vec4 track arg0 at fparg0, then blends its three components toward the byte colour in arg1 (bytes 0..2 divided by 255) by fparg1. Returns the sampled buffer. */
 // FUN_0047F5B0
-void *func_0047f5b0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
+void *mdlBlendTrackColorBytes(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
 {
     f32 *out;
     f32 second;
@@ -849,7 +859,7 @@ void *func_0047f5b0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
     f32 addend;
     f32 difference;
 
-    out = (f32 *)func_0047f3a0((int *)arg0, fparg0);
+    out = (f32 *)mdlSampleVec4Track((int *)arg0, fparg0);
     second = (f32)(u32)arg1[1] / 255.0f;
     third = (f32)(u32)arg1[2] / 255.0f;
     first = (f32)(u32)arg1[0] / 255.0f;
@@ -870,8 +880,9 @@ void *func_0047f5b0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
     out[3] = code1_0047_madd_reverse(difference, fparg1, addend);
     return out;
 }
+/* Converts the float RGB components of arg0 (words 1..3) to bytes at arg1 + 4. */
 // FUN_0047F710
-void func_0047f710(void *arg0, void *arg1)
+void mdlStoreColorBytes(void *arg0, void *arg1)
 {
     u8 *dst;
 
@@ -880,8 +891,9 @@ void func_0047f710(void *arg0, void *arg1)
     dst[1] = (u8)(255.0f * ((f32 *)arg0)[2]);
     dst[2] = (u8)(255.0f * ((f32 *)arg0)[3]);
 }
+/* Returns the shared sample scratch buffer D_00922C50. */
 // FUN_0047F830
-u8 *func_0047f830(void)
+u8 *mdlGetSampleScratch(void)
 {
     return D_00922C50;
 }
@@ -909,8 +921,9 @@ extern Code47Dispatch D_00713220[4];
  * snapshot; callback and item-array loads remain visible after callbacks. */
 #pragma push
 #pragma opt_loop_invariants on
+/* Runs the four track row kinds against the target list at +0x50: a row with data on both sides is blended with the matching right-hand row, otherwise it is sampled, and its apply callback writes the result to every target. */
 // FUN_0047F850
-void func_0047f850(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
+void mdlDispatchTrackRows(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
                    f32 fparg2)
 {
     u32 count;

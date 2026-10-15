@@ -7,7 +7,7 @@
  * Layer and flags remain promoted words and are narrowed by their consumers. */
 s32 mdlDispatchAnimIfPresent(u8 *model, u32 layer, s16 animation, u16 blendTicks, s32 flags);
 s32 mdlLayerHasAnimation(u8 *model, u32 layer, s16 animation);
-void func_0047eb20(u8 *state, s16 animation, u16 blendTicks);
+void mdlRequestMotionAnim(u8 *state, s16 animation, u16 blendTicks);
 /* Model registry bucket table: head of each model-object list, indexed by model type (retail D_00922BE0). */
 extern void *D_00922BE0[];
 

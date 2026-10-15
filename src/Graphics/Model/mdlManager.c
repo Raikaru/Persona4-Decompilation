@@ -4655,7 +4655,7 @@ void mdlDestroyModelObject(u8* param_1)
     if (*(void**)(param_1 + 0x2CC) != 0) {
         mdlEffectListDestroy(*(void**)(param_1 + 0x2CC));
     }
-    func_0047eaa0(param_1 + 0x2D0);
+    mdlReleaseObject(param_1 + 0x2D0);
     if (*(void**)(param_1 + 0x308) != 0) {
         *(void**)((u8*)*(void**)(param_1 + 0x308) + 0x304) = *(void**)(param_1 + 0x304);
     }
@@ -4691,7 +4691,7 @@ extern void func_0047de00(u32 a, void* b);
 extern void mdlRefreshSecondaryEffect(u8* a, void* model);
 extern void mdlEffectListSetUniformScale(s32* a, f32* b);
 extern void func_0047d540(u8** a, u8* b);
-extern void func_0047ed60(void* a);
+extern void mdlTickMotionState(void* a);
 extern void mdlSetLayerWeight(u8* a, s32 b, f32 c);
 extern void mdlCopyScale(void* a, RwV3d* b);
 extern int mdlHasActiveMode(void* a);
@@ -4787,7 +4787,7 @@ void mdlAdvanceModel(u8* mdl, s32 tick)
                 }
             }
         }
-        func_0047ed60(mdl + 0x2D0);
+        mdlTickMotionState(mdl + 0x2D0);
         for (child = 0; child < 5; child++) {
             u8* childBase = mdl + child * 0xC;
             if ((*(u8*)(childBase + 0x28C) & 1) != 0) {
@@ -5163,10 +5163,10 @@ static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s16 animation, u16
     if (*(void**)(mdl + 0x2d0) && !((narrowFlags = (u16)flags) & 0x40) && baseLayer == 0) {
         if (narrowFlags & 0x100) {
             *(u16*)(mdl + 0x2e0) &= ~0x20;
-            func_0047eb20(mdl + 0x2d0, animation, frame);
+            mdlRequestMotionAnim(mdl + 0x2d0, animation, frame);
         } else {
             *(u16*)(mdl + 0x2e0) |= 0x20;
-            func_0047eb20(mdl + 0x2d0, animation, frame);
+            mdlRequestMotionAnim(mdl + 0x2d0, animation, frame);
         }
     }
     if (*(u32*)(mdl + 0xd8) & 0x10000) {
