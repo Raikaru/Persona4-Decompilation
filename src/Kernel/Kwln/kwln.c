@@ -7,7 +7,7 @@ extern void itfMesFlushPending(void* a0);
 
 extern void func_002a1fa0(void* a0);
 
-extern void func_002a6510(void* a0);
+extern void mcDrawDispatch(void* a0);
 
 extern void func_003694d0(void* a0);
 
@@ -40,7 +40,7 @@ void func_002a1ef0(void* param_1, void* param_2)
 // FUN_002A6650
 void func_002a6650(void* param_1, void* param_2)
 {
-    func_002a6510(param_2);
+    mcDrawDispatch(param_2);
 }
 
 
