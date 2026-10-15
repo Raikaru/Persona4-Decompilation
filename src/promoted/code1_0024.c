@@ -264,24 +264,28 @@ s32 func_00246580(u8 *unusedTask)
 void func_00246590(u8 *unusedTask)
 {
 }
+// Intent: Creates the model_neck_test debug task with the mdlNeckTest.c alloc site [inferred]
 // FUN_002465A0
-void func_002465a0(void)
+void mdlNeckTestCreate(void)
 {
     chkmemAllocSiteTag(D_00635990, 0xD1);
     (s32)kwlnTaskCreate((const void *)(D_006359A0), 0xF, 0, 0, func_00246580, func_00246590, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
 }
+// Intent: Starts the model_neck_test debug task by calling mdlNeckTestCreate [inferred]
 // FUN_00246620
-void func_00246620(void)
+void mdlNeckTestStart(void)
 {
-    func_002465a0();
+    mdlNeckTestCreate();
 }
+// Intent: Reports whether the model_neck_test debug task exists [inferred]
 // FUN_00246640
-s32 func_00246640(void)
+s32 mdlNeckTestExists(void)
 {
     return kwlnTaskGetTaskByName(D_006359B0) != 0;
 }
+// Intent: Destroys the model_neck_test debug task, asserting it exists (niidaTestMenu.c) [inferred]
 // FUN_00246670
-void func_00246670(void)
+void mdlNeckTestDestroy(void)
 {
     s32 temp_2;
 
@@ -321,8 +325,9 @@ s32 func_00249b10(void)
 }
 /* measured: closes optimization_level 1 around func_00249b10. */
 #pragma optimization_level 2
+// Intent: Event command CMM_EXIST (p4flow Event 0x3002): stores whether the cmm entry exists [inferred]
 // FUN_00249B80
-s32 func_00249b80(void)
+s32 cmmExist(void)
 {
     s32 var_2;
 
@@ -333,8 +338,9 @@ s32 func_00249b80(void)
     scrSetReturnInt(func_001077f0(var_2 & 0xFFFF));
     return 1;
 }
+// Intent: Event command CMM_GET_LV (p4flow Event 0x3003): returns the cmm entry level [inferred]
 // FUN_00249BE0
-s32 func_00249be0(void)
+s32 cmmGetLevel(void)
 {
     s32 var_2;
 
@@ -357,8 +363,9 @@ s32 func_00249c40(void)
     func_00108950(var_2 & 0xFFFF);
     return 1;
 }
+// Intent: Event command CMM_CHK_LVUP (p4flow Event 0x300E): returns whether the cmm entry can level up [inferred]
 // FUN_00249C90
-s32 func_00249c90(void)
+s32 cmmCheckLevelUp(void)
 {
     s32 var_2;
 
@@ -387,8 +394,9 @@ s32 func_00249d00(void)
     func_00108290(var_17 & 0xFFFF, temp_16 & 0xFFFF);
     return 1;
 }
+// Intent: Event command CMM_ADD_POINT_ID (p4flow Event 0x3031): adds points to the cmm entry [inferred]
 // FUN_00249D70
-s32 func_00249d70(void)
+s32 cmmAddPointId(void)
 {
     s32 temp_16;
     s32 temp_17;
@@ -414,8 +422,9 @@ s32 func_00249de0(void)
     }
     return 1;
 }
+// Intent: Event command CMM_SET_REVERSE (p4flow Event 0x3011): sets or clears the reverse flag [inferred]
 // FUN_00249E50
-s32 func_00249e50(void)
+s32 cmmSetReverse(void)
 {
     s32 temp_16;
     s32 var_17;
@@ -448,8 +457,9 @@ s32 func_00249ee0(void)
     }
     return 1;
 }
+// Intent: Event command CMM_SET_BROKEN (p4flow Event 0x3012): sets or clears the broken flag [inferred]
 // FUN_00249F50
-s32 func_00249f50(void)
+s32 cmmSetBroken(void)
 {
     s32 temp_16;
     s32 var_17;
