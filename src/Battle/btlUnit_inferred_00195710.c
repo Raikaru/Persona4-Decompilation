@@ -78,7 +78,7 @@ extern u8 D_0060A0E0[];
 extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 
-extern void func_00195630(u8 *arg0);
+extern void btlUnitOverridePacketUpdate(u8 *arg0);
 
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
@@ -190,7 +190,7 @@ u8 *btlUnitCreateOverridePacket(u8 *unit, u8 *position, u8 *rotation, u8 *color)
 
     packet = (u8 *)btlPacketAlloc(0x11C, 0x28);
     *(void (**)(u8 *))(packet + 0x68) = btlUnitHoldPendingOverride;
-    *(void (**)(u8 *))(packet + 0x6C) = func_00195630;
+    *(void (**)(u8 *))(packet + 0x6C) = btlUnitOverridePacketUpdate;
     *(void (**)(u8 *))(packet + 0x70) = btlUnitReleasePendingOverride;
     work = *(u8 **)(packet + 0x78);
     *(u8 **)work = unit;
