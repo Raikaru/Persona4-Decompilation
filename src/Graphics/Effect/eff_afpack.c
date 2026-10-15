@@ -512,9 +512,9 @@ void func_004b6e80(void) {
     typedef int (*code)();
     extern code DAT_008873ec_abs[];
     void *(**table);
-    extern void func_004b5950(void *arg0);
-    extern void func_004b5c60(void *arg0);
-    extern s32 func_004bce30(void *arg0);
+    extern void Vpad_UpdateRenderEntries(void *arg0);
+    extern void Vpad_DrawEntries(void *arg0);
+    extern s32 Vpad_HasEntries(void *arg0);
     s32 flags;
     u8 *first;
     u8 *prev;
@@ -531,9 +531,9 @@ void func_004b6e80(void) {
         while (first != NULL) {
             flags = *(s32 *)(first + 0);
             if (flags & 8) {
-                func_004b5950(first);
+                Vpad_UpdateRenderEntries(first);
             } else if (flags & 2) {
-                func_004b5950(first);
+                Vpad_UpdateRenderEntries(first);
                 *(s32 *)(first + 0) = *(s32 *)(first + 0) & ~2;
             }
             first = *(u8 **)(first + 0x1C);
@@ -545,7 +545,7 @@ void func_004b6e80(void) {
             bits = 0;
             i = 0;
             while (i < *(s16 *)(*(u8 **)(temp + 4) + 4)) {
-                bits |= func_004bce30(*(u8 **)(temp + 0x10) + (i << 5));
+                bits |= Vpad_HasEntries(*(u8 **)(temp + 0x10) + (i << 5));
                 i++;
             }
             if (bits == 0) {
@@ -588,9 +588,9 @@ void func_004b6e80(void) {
         while (first != NULL) {
             flags = *(s32 *)(first + 0);
             if (flags & 8) {
-                func_004b5c60(first);
+                Vpad_DrawEntries(first);
             } else if (flags & 4) {
-                func_004b5c60(first);
+                Vpad_DrawEntries(first);
                 *(s32 *)(first + 0) = *(s32 *)(first + 0) & ~4;
             }
             first = *(u8 **)(first + 0x1C);

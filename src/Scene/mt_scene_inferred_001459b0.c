@@ -108,7 +108,7 @@ extern void func_00452080(s32 arg0);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern u8 *resrcMngCreateRes(s32 arg0, s32 arg1);
 extern u8 *func_00147530(u8 *arg0, u16 arg1);
-extern void func_0015f720(u8 *arg0, const u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
+extern void Vpad_BuildRotatedQuad(u8 *arg0, const u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
 extern u8 *func_003e0f80(void);
 extern void memcpy(void *dest, const void *src, s32 size);
 extern void func_00147430();
@@ -441,7 +441,7 @@ s32 func_00145d60(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, Field
     *(f32 *)(temp_2 + 0x158) = fparg2;
     color = arg2;
     *(Rgba8_0014 *)(temp_2 + 0x140) = color;
-    func_0015f720(temp_2 + 0x15C, (const u8 *)arg1, fparg0, fparg1, fparg2);
+    Vpad_BuildRotatedQuad(temp_2 + 0x15C, (const u8 *)arg1, fparg0, fparg1, fparg2);
     *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 8;
     return temp_17;
 }
@@ -471,7 +471,7 @@ s32 func_00145e90(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, Field
     *(f32 *)(temp_2 + 0x158) = fparg2;
     color = arg2;
     *(Rgba8_0014 *)(temp_2 + 0x140) = color;
-    func_0015f720(temp_2 + 0x15C, (const u8 *)arg1, fparg0, fparg1, fparg2);
+    Vpad_BuildRotatedQuad(temp_2 + 0x15C, (const u8 *)arg1, fparg0, fparg1, fparg2);
     *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 8;
     return temp_17;
 }
