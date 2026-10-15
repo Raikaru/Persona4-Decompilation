@@ -39,7 +39,7 @@ extern char D_0063EBD0[];
 extern char D_0063EB20[];
 extern char D_0063ED38[];
 extern char D_00763900;
-extern void func_00149680(s32);
+extern void resrcMngSetRenderSuppressed(s32);
 extern s32 func_002a4570(u8 *);
 extern s32 func_002a4d10(s32);
 extern s32 func_002a73c0(s32, u8 *, u8 *, s32);
@@ -1130,14 +1130,14 @@ s32 func_002a4b10(u8 *sdkTaskBytes) {
         if (*(u32 *)(w + 4) & 0x400) {
             break;
         }
-        func_00149680(1);
+        resrcMngSetRenderSuppressed(1);
         *(s16 *)(w + 0) = 6;
         /* fallthrough */
     case 6:
         if (func_002a4570(w) == 0) {
             break;
         }
-        func_00149680(0);
+        resrcMngSetRenderSuppressed(0);
         *(s16 *)(w + 0) = 7;
         break;
     case 7:

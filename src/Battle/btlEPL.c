@@ -42,9 +42,9 @@ extern u8 *func_001b7020(void);
 extern u8 *func_001b7030(void);
 extern u8 *func_001b7040(void);
 extern u8 *func_001b7050(void);
-extern void func_001496c0(void *arg0);
-extern u8 *func_00149ca0(void);
-extern u8 *func_00149ce0(void);
+extern void resrcMngApplyColorFactors(void *arg0);
+extern u8 *resrcMngGetColorValue(void);
+extern u8 *resrcMngGetColorTarget(void);
 extern f32 D_0076129C;
 extern f32 D_00922CA0[];
 extern s32 D_00922CC0[];
@@ -789,19 +789,19 @@ void func_001fe090(u8 *arg0)
         color.v[1] = color.v[1] * mul[0].v[1];
         color.v[2] = color.v[2] * mul[0].v[2];
         color.v[3] = color.v[3] * mul[0].v[3];
-        *(V4 *)func_00149ca0() = color;
+        *(V4 *)resrcMngGetColorValue() = color;
         rgba.rgba = param->color[1].rgba;
         btlEplRgbaToV4(&color, &rgba.c);
         color.v[0] = color.v[0] * mul[1].v[0];
         color.v[1] = color.v[1] * mul[1].v[1];
         color.v[2] = color.v[2] * mul[1].v[2];
         color.v[3] = color.v[3] * mul[1].v[3];
-        *(V4 *)func_00149ce0() = color;
+        *(V4 *)resrcMngGetColorTarget() = color;
         break;
     case 1:
         if (count == 0) {
-            target[0] = *(V4 *)func_00149ca0();
-            target[1] = *(V4 *)func_00149ce0();
+            target[0] = *(V4 *)resrcMngGetColorValue();
+            target[1] = *(V4 *)resrcMngGetColorTarget();
         }
         {
             f32 inv;
@@ -827,7 +827,7 @@ void func_001fe090(u8 *arg0)
             color.v[1] = a1 + b1;
             color.v[2] = a2 + b2;
             color.v[3] = a3 + b3 * scale;
-            *(V4 *)func_00149ca0() = color;
+            *(V4 *)resrcMngGetColorValue() = color;
 
             rgba.rgba = param->color[1].rgba;
             btlEplRgbaToV4(&color, &rgba.c);
@@ -847,13 +847,13 @@ void func_001fe090(u8 *arg0)
             color.v[1] = a1 + b1;
             color.v[2] = a2 + b2;
             color.v[3] = a3 + b3 * scale;
-            *(V4 *)func_00149ce0() = color;
+            *(V4 *)resrcMngGetColorTarget() = color;
         }
         break;
     case 2:
         if (count == total - param->fadeOut) {
-            target[0] = *(V4 *)func_00149ca0();
-            target[1] = *(V4 *)func_00149ce0();
+            target[0] = *(V4 *)resrcMngGetColorValue();
+            target[1] = *(V4 *)resrcMngGetColorTarget();
         }
         {
             f32 inv;
@@ -873,7 +873,7 @@ void func_001fe090(u8 *arg0)
             color.v[1] = a1 + b1;
             color.v[2] = a2 + b2;
             color.v[3] = a3 + b3 * scale;
-            *(V4 *)func_00149ca0() = color;
+            *(V4 *)resrcMngGetColorValue() = color;
             a0 = mul[1].v[0] * inv;
             a1 = mul[1].v[1] * inv;
             a2 = mul[1].v[2] * inv;
@@ -886,7 +886,7 @@ void func_001fe090(u8 *arg0)
             color.v[1] = a1 + b1;
             color.v[2] = a2 + b2;
             color.v[3] = a3 + b3 * scale;
-            *(V4 *)func_00149ce0() = color;
+            *(V4 *)resrcMngGetColorTarget() = color;
         }
         break;
     }
@@ -961,7 +961,7 @@ void func_001fec00(u8 *arg0)
         btlEplRgbaToV4(&color, &rgba.c);
         color.v[3] = 1.0f;
         *heap = color;
-        func_001496c0(&color);
+        resrcMngApplyColorFactors(&color);
         break;
     case 1:
         if (count == 0) {
@@ -981,7 +981,7 @@ void func_001fec00(u8 *arg0)
         blend.v[2] = a2 + b2 * scale;
         blend.v[3] = 1.0f;
         *heap = blend;
-        func_001496c0(&blend);
+        resrcMngApplyColorFactors(&blend);
         break;
     case 2:
         if (count == total - param->fadeOut) {
@@ -1000,7 +1000,7 @@ void func_001fec00(u8 *arg0)
         blend.v[2] = a2 + b2 * scale;
         blend.v[3] = 1.0f;
         *heap = blend;
-        func_001496c0(&blend);
+        resrcMngApplyColorFactors(&blend);
         break;
     }
 }

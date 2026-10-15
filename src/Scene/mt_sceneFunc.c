@@ -119,7 +119,7 @@ extern void func_003e9df0(void *arg0);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern void func_003e0f40(void *arg0);
 extern void MT_Scene_OffsetPointByRotation(f32 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *arg1);
-extern u8 *func_00147620(u32 arg0);
+extern u8 *resrcMngGetTableEntry(u32 arg0);
 extern f32 cosf(f32 arg0);
 extern f32 func_0044b938(f32 arg0);
 extern f32 func_0044b950(f32 arg0, f32 arg1);
@@ -2277,7 +2277,7 @@ float MT_Scene_SampleCurveTable(u32 arg0, float param_2, float param_3)
     *(u32 *)(auStack + 4) = 0;
     *(u32 *)(auStack + 8) = 0;
     *(u32 *)(auStack + 0xC) = 0;
-    p = func_00147620(arg0);
+    p = resrcMngGetTableEntry(arg0);
     *(f32 *)(auStack + 0x10) = *(f32 *)(p + 0);
     *(f32 *)(auStack + 0x14) = *(f32 *)(p + 8);
     *(u32 *)(auStack + 0x18) = 0;

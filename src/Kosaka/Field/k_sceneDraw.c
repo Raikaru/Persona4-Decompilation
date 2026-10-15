@@ -39,7 +39,7 @@ typedef struct MtScene
 
 extern u32 PTR_DAT_00762ea0;
 #define gMtScene ((MtScene*)PTR_DAT_00762ea0)
-extern Resrc* func_00147530(ResrcManager* resManager, u16 resTypeId);
+extern Resrc* resrcMngFindResById(ResrcManager* resManager, u16 resTypeId);
 
 #define SCENEDRAW_RESRC_FLAG_DIRECTIONAL_ONLY 0x40000000
 
@@ -88,7 +88,7 @@ void SceneDraw_SetCustomLight(u16 resTypeId, u32 customLight)
     type = RESRC_GET_TYPE(resTypeId);
     if (type == RESRC_TYPE_MODELCHAR)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         if (res == NULL) return;
         if (customLight == 1)
         {
@@ -103,7 +103,7 @@ void SceneDraw_SetCustomLight(u16 resTypeId, u32 customLight)
     }
     if (type == RESRC_TYPE_MODELNPC)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         if (res == NULL) return;
         if (customLight == 1)
         {
@@ -118,7 +118,7 @@ void SceneDraw_SetCustomLight(u16 resTypeId, u32 customLight)
     }
     if (type == RESRC_TYPE_MODELUNK)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         if (res == NULL) return;
         if (customLight == 1) res->flags |= SCENEDRAW_RESRC_FLAG_CUSTOM_LIGHT;
         else res->flags &= ~SCENEDRAW_RESRC_FLAG_CUSTOM_LIGHT;
@@ -136,7 +136,7 @@ void func_0014a460(u16 resTypeId, u32 directionalOnly)
     type = RESRC_GET_TYPE(resTypeId);
     if (type == RESRC_TYPE_MODELCHAR)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         if (res == NULL) return;
         if (directionalOnly == 1)
         {
@@ -151,7 +151,7 @@ void func_0014a460(u16 resTypeId, u32 directionalOnly)
     }
     if (type == RESRC_TYPE_MODELNPC)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         if (res == NULL) return;
         if (directionalOnly == 1)
         {
@@ -166,7 +166,7 @@ void func_0014a460(u16 resTypeId, u32 directionalOnly)
     }
     if (type == RESRC_TYPE_MODELUNK)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         if (res == NULL) return;
         if (directionalOnly == 1) res->flags |= SCENEDRAW_RESRC_FLAG_DIRECTIONAL_ONLY;
         else res->flags &= ~SCENEDRAW_RESRC_FLAG_DIRECTIONAL_ONLY;
@@ -184,17 +184,17 @@ void* SceneDraw_GetLightColorA(u16 resTypeId)
     type = RESRC_GET_TYPE(resTypeId);
     if (type == RESRC_TYPE_MODELCHAR)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x168;
     }
     if (type == RESRC_TYPE_MODELNPC)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x168;
     }
     if (type == RESRC_TYPE_MODELUNK)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x15c;
     }
     return NULL;
@@ -208,17 +208,17 @@ void* SceneDraw_GetLightColorB(u16 resTypeId)
     type = RESRC_GET_TYPE(resTypeId);
     if (type == RESRC_TYPE_MODELCHAR)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x178;
     }
     if (type == RESRC_TYPE_MODELNPC)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x178;
     }
     if (type == RESRC_TYPE_MODELUNK)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x16c;
     }
     return NULL;
@@ -232,17 +232,17 @@ void* SceneDraw_GetLightMatrixA(u16 resTypeId)
     type = RESRC_GET_TYPE(resTypeId);
     if (type == RESRC_TYPE_MODELCHAR)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x190;
     }
     if (type == RESRC_TYPE_MODELNPC)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x190;
     }
     if (type == RESRC_TYPE_MODELUNK)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x180;
     }
     return NULL;
@@ -259,17 +259,17 @@ void* SceneDraw_GetLightTint(u16 resTypeId)
     type = RESRC_GET_TYPE(resTypeId);
     if (type == RESRC_TYPE_MODELCHAR)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x1d0;
     }
     if (type == RESRC_TYPE_MODELNPC)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x1d0;
     }
     if (type == RESRC_TYPE_MODELUNK)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x1c0;
     }
     return NULL;
@@ -283,17 +283,17 @@ void* SceneDraw_GetLightMatrixB(u16 resTypeId)
     type = RESRC_GET_TYPE(resTypeId);
     if (type == RESRC_TYPE_MODELCHAR)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x1e0;
     }
     if (type == RESRC_TYPE_MODELNPC)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x1e0;
     }
     if (type == RESRC_TYPE_MODELUNK)
     {
-        res = func_00147530(gMtScene->resManager, resTypeId);
+        res = resrcMngFindResById(gMtScene->resManager, resTypeId);
         return res == NULL ? NULL : (u8*)res + 0x1d0;
     }
     return NULL;
@@ -373,7 +373,7 @@ void SceneDraw_ResetResource(u16 resTypeId)
     type = RESRC_GET_TYPE(resTypeId);
     if (type == RESRC_TYPE_MODELCHAR || type == RESRC_TYPE_MODELNPC)
     {
-        func_00147530(gMtScene->resManager, resTypeId);
+        resrcMngFindResById(gMtScene->resManager, resTypeId);
     }
 }
 // FUN_0014ACD0
@@ -578,7 +578,7 @@ void SceneDraw_SetResVisibleChecked(u16 resTypeId, u32 visible)
     {
         goto done;
     }
-    res = func_00147530(gMtScene->resManager, resTypeId);
+    res = resrcMngFindResById(gMtScene->resManager, resTypeId);
     goto setFlags;
 
 done:
@@ -606,7 +606,7 @@ void SceneDraw_SetResPersona(u16 resTypeId, u32 persona)
     {
         goto done;
     }
-    res = func_00147530(gMtScene->resManager, resTypeId);
+    res = resrcMngFindResById(gMtScene->resManager, resTypeId);
     goto setFlags;
 
 done:

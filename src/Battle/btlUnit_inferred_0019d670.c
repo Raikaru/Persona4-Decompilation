@@ -141,7 +141,7 @@ extern void func_001ee430(u8 *arg0);
 extern int mdlHasActiveMode(void *arg0);
 extern void mdlSetLookAtActive(void *arg0);
 extern void mdlSetLookAtRequested(void *arg0);
-extern u8 *func_00147530(u8 *arg0, u16 arg1);
+extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
 extern void func_0019d7a0(u8 *arg0, s32 arg1);
 extern void func_0047a810(void *arg0);
 extern void mdlSetAlphaBlend(void *arg0);
@@ -269,7 +269,7 @@ void func_0019d7a0(u8 *arg0, s32 arg1)
             temp_5 = *(u16 *)(arg0 + 0x9FE);
             if ((temp_5 != 0) &&
                 (((s32)(temp_5 & 0xFFC00) >> 10) == 1)) {
-                temp_2 = func_00147530(*(u8 **)(iGpffff9db0 + 8), temp_5);
+                temp_2 = resrcMngFindResById(*(u8 **)(iGpffff9db0 + 8), temp_5);
                 *(s32 *)(temp_2 + 0x22C) = 0x34;
                 *(s32 *)(temp_2 + 0x28) |= 0x04000000;
                 return;
@@ -335,7 +335,7 @@ void func_0019d990(u8 *arg0, s32 arg1)
             temp_5 = *(u16 *)(arg0 + 0x9FE);
             if ((temp_5 != 0) &&
                 (((s32)(temp_5 & 0xFFC00) >> 10) == 1)) {
-                temp_2 = func_00147530(*(u8 **)(iGpffff9db0 + 8), temp_5);
+                temp_2 = resrcMngFindResById(*(u8 **)(iGpffff9db0 + 8), temp_5);
                 *(s32 *)(temp_2 + 0x28) &= 0xFBFFFFFF;
                 return;
             }

@@ -92,7 +92,7 @@ extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_0010d7b0(void);
 extern void func_00121b20(void);
 extern void func_00122430(s32 arg0);
-extern u8 *func_00149620(u8 *parent);
+extern u8 *resrcMngSpawnRenderTask(u8 *parent);
 extern void func_001605a0(void);
 extern void func_001939a0(void);
 extern void func_002312e0(void);

@@ -96,9 +96,9 @@ struct RwV4d
     f32 z;
     f32 w;
 };
-extern RwV4d* func_00149ca0(void);
-extern RwV4d* func_00149ce0(void);
-extern void func_001496c0(void* value);
+extern RwV4d* resrcMngGetColorValue(void);
+extern RwV4d* resrcMngGetColorTarget(void);
+extern void resrcMngApplyColorFactors(void* value);
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
@@ -233,8 +233,8 @@ u32 btlMainUpdateCameraLerp(void* work)
 
     if (lerpWork->currentFrame == 0)
     {
-        *(RwV4d*)&lerpWork->value0 = *func_00149ca0();
-        *(RwV4d*)&lerpWork->target0 = *func_00149ce0();
+        *(RwV4d*)&lerpWork->value0 = *resrcMngGetColorValue();
+        *(RwV4d*)&lerpWork->target0 = *resrcMngGetColorTarget();
     }
 
     totalFrames = lerpWork->totalFrames;
@@ -259,22 +259,22 @@ u32 btlMainUpdateCameraLerp(void* work)
         result.y = firstY + secondY;
         result.z = firstZ + secondZ;
         result.w = firstW + secondW * ratio;
-        *func_00149ca0() = result;
+        *resrcMngGetColorValue() = result;
 
         global = iGpffffb3ac;
         result.x = lerpWork->target0 * inverse + *(f32*)(global + 0x1cc) * ratio;
         result.y = lerpWork->target1 * inverse + *(f32*)(global + 0x1d0) * ratio;
         result.z = lerpWork->target2 * inverse + *(f32*)(global + 0x1d4) * ratio;
         result.w = lerpWork->target3 * inverse + *(f32*)(global + 0x1d8) * ratio;
-        *func_00149ce0() = result;
+        *resrcMngGetColorTarget() = result;
 
     }
     else
     {
         global = iGpffffb3ac;
-        *func_00149ca0() = *(RwV4d*)(global + 0x1bc);
+        *resrcMngGetColorValue() = *(RwV4d*)(global + 0x1bc);
         global = iGpffffb3ac;
-        *func_00149ce0() = *(RwV4d*)(global + 0x1cc);
+        *resrcMngGetColorTarget() = *(RwV4d*)(global + 0x1cc);
         return 1;
     }
 
@@ -466,7 +466,7 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
         result.w = 1.0f;
         global = iGpffffb3ac;
         *(RwV4d*)(global + 0x24c) = result;
-        func_001496c0(&result);
+        resrcMngApplyColorFactors(&result);
 
         firstX = work->current1.x * inverse;
         firstY = work->current1.y * inverse;
@@ -495,7 +495,7 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
     }
     else
     {
-        func_001496c0(work);
+        resrcMngApplyColorFactors(work);
         global = iGpffffb3ac;
         *(RwV4d*)(global + 0x24c) = work->target0;
         *(RwV4d*)(global + 0x1ec) = work->target1;
@@ -601,8 +601,8 @@ u32 btlMainUpdateFade(void *workRaw)
         work->from0 = *(RwV4d *)(global + 0x24c);
         work->from3 = *(RwV4d *)(global + 0x1ec);
         work->from4 = *(RwV4d *)(global + 0x1fc);
-        work->from1 = *func_00149ca0();
-        work->from2 = *func_00149ce0();
+        work->from1 = *resrcMngGetColorValue();
+        work->from2 = *resrcMngGetColorTarget();
         {
             u8 *unit;
             u32 group;
@@ -654,7 +654,7 @@ u32 btlMainUpdateFade(void *workRaw)
         tmp.z = firstZ + secondZ * ratio;
         tmp.w = 1.0f;
         *(RwV4d *)(iGpffffb3ac + 0x24c) = tmp;
-        func_001496c0(&tmp);
+        resrcMngApplyColorFactors(&tmp);
         firstX = work->from1.x * inv;
         firstY = work->from1.y * inv;
         firstZ = work->from1.z * inv;
@@ -667,7 +667,7 @@ u32 btlMainUpdateFade(void *workRaw)
         tmp.y = firstY + secondY;
         tmp.z = firstZ + secondZ;
         tmp.w = firstW + secondW * ratio;
-        *func_00149ca0() = tmp;
+        *resrcMngGetColorValue() = tmp;
         firstX = work->from2.x * inv;
         firstY = work->from2.y * inv;
         firstZ = work->from2.z * inv;
@@ -680,7 +680,7 @@ u32 btlMainUpdateFade(void *workRaw)
         tmp.y = firstY + secondY;
         tmp.z = firstZ + secondZ;
         tmp.w = firstW + secondW * ratio;
-        *func_00149ce0() = tmp;
+        *resrcMngGetColorTarget() = tmp;
         firstX = work->from3.x * inv;
         firstY = work->from3.y * inv;
         firstZ = work->from3.z * inv;
@@ -744,10 +744,10 @@ u32 btlMainUpdateFade(void *workRaw)
             }
         }
     } else {
-        func_001496c0(&target);
+        resrcMngApplyColorFactors(&target);
         *(RwV4d *)(iGpffffb3ac + 0x24c) = target;
-        *func_00149ca0() = *(RwV4d *)(iGpffffb3ac + 0x1bc);
-        *func_00149ce0() = *(RwV4d *)(iGpffffb3ac + 0x1cc);
+        *resrcMngGetColorValue() = *(RwV4d *)(iGpffffb3ac + 0x1bc);
+        *resrcMngGetColorTarget() = *(RwV4d *)(iGpffffb3ac + 0x1cc);
         *(RwV4d *)(iGpffffb3ac + 0x1ec) = *(RwV4d *)(iGpffffb3ac + 0x21c);
         *(RwV4d *)(iGpffffb3ac + 0x1fc) = *(RwV4d *)(iGpffffb3ac + 0x22c);
         if ((work->flags & 2) == 0) {
