@@ -737,7 +737,7 @@ void fclCombineMenuRoot(u8 *arg0)
             for (n = 0; n < 3; n++) {
                 off = n * 2;
                 pos9 = func_002b2970(26.0f, (f32)(n * 34 + 87));
-                func_003147e0(arg0, n, pos9, *(s16 *)(p + off + 0xB8), (s16)off, 1);
+                fclCombineDrawListRow(arg0, n, pos9, *(s16 *)(p + off + 0xB8), (s16)off, 1);
             }
             switch (p[0xB3]) {
             case 0:
@@ -779,7 +779,7 @@ void fclCombineMenuRoot(u8 *arg0)
                 fclSpriteStartAlphaAt(0x85, 0xFF, 0, 0, 6, 0);
                 for (n = 0; n < 3; n++) {
                     pos11 = func_002b2970(26.0f, (f32)(n * 34 + 87));
-                    func_003147e0(arg0, n, pos11, *(s16 *)(p + n * 2 + 0xB8), 0, 1);
+                    fclCombineDrawListRow(arg0, n, pos11, *(s16 *)(p + n * 2 + 0xB8), 0, 1);
                 }
                 p[1] = 0x19;
                 break;
@@ -796,7 +796,7 @@ void fclCombineMenuRoot(u8 *arg0)
             fclSpriteStartAlphaAt(0x85, 0xFF, 0, 0, 6, 0);
             for (n = 0; n < 3; n++) {
                 pos12 = func_002b2970(26.0f, (f32)(n * 34 + 87));
-                func_003147e0(arg0, n, pos12, *(s16 *)(p + n * 2 + 0xB8), 0, 1);
+                fclCombineDrawListRow(arg0, n, pos12, *(s16 *)(p + n * 2 + 0xB8), 0, 1);
             }
             p[1] = 0x19;
             func_0045af60(0, 0, 0, 2);
@@ -948,7 +948,7 @@ void fclCombineMenuRoot(u8 *arg0)
             if (p[0xB6] == p[0xB7] - 1) {
                 for (j = 0; j < p[0xB7]; j++) {
                     slotPos0 = *(FclVec2 *)(fclSpriteEntry((j + 4) * 2 + 0x1F4) + 0x38);
-                    func_003147e0(arg0, j + 4, slotPos0, *(s16 *)(p + j * 2 + 0xB8), (s16)(j * 2), 1);
+                    fclCombineDrawListRow(arg0, j + 4, slotPos0, *(s16 *)(p + j * 2 + 0xB8), (s16)(j * 2), 1);
                 }
                 func_00315310(arg0, 3);
                 func_003205f0(arg0, 0x92, 0x96);
@@ -959,7 +959,7 @@ void fclCombineMenuRoot(u8 *arg0)
             } else {
                 for (j = 0; j < p[0xB7]; j++) {
                     slotPos2 = *(FclVec2 *)(fclSpriteEntry((j + 4) * 2 + 0x1F4) + 0x38);
-                    func_003147e0(arg0, j + 4, slotPos2, *(s16 *)(p + j * 2 + 0xB8), (s16)(j * 2), 1);
+                    fclCombineDrawListRow(arg0, j + 4, slotPos2, *(s16 *)(p + j * 2 + 0xB8), (s16)(j * 2), 1);
                 }
                 switch (p[0xB6]) {
                 case 0:
@@ -1007,7 +1007,7 @@ void fclCombineMenuRoot(u8 *arg0)
         } else if (buttons & 0x20) {
             for (j = 0; j < p[0xB7]; j++) {
                 slotPos1 = *(FclVec2 *)(fclSpriteEntry((j + 4) * 2 + 0x1F4) + 0x38);
-                func_003147e0(arg0, j + 4, slotPos1, *(s16 *)(p + j * 2 + 0xB8), (s16)(j * 2), 1);
+                fclCombineDrawListRow(arg0, j + 4, slotPos1, *(s16 *)(p + j * 2 + 0xB8), (s16)(j * 2), 1);
             }
             func_00315310(arg0, 3);
             fclSpriteStartAlphaAt(0x1C6, fclSpriteEntry(0x1C6)[0x6E], 0, 0, 0xA, 0);
@@ -1027,7 +1027,7 @@ void fclCombineMenuRoot(u8 *arg0)
         for (j = 0; j < p[0xB7]; j++) {
             off = j * 2;
             pos14 = func_002b2970(26.0f, (f32)(j * 34 + 87));
-            func_003147e0(arg0, j + 4, pos14, *(s16 *)(p + off + 0xB8), (s16)off, 0);
+            fclCombineDrawListRow(arg0, j + 4, pos14, *(s16 *)(p + off + 0xB8), (s16)off, 0);
         }
         color15 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
         te = fclSpriteEntry((p[0xB6] + 4) * 2 + 0x1F5);
@@ -8463,7 +8463,7 @@ void fclCombineMenuMaterialGrid(u8 *arg0)
         }
         for (j = 0; j < 6; j++) {
             v0 = func_002b2970(26.0f, (f32)(j * 0x22 + 0x57));
-            func_003147e0(arg0, (s8)j, v0, (s16)(j + 0x179), (s16)(j * 2 + 2), 0);
+            fclCombineDrawListRow(arg0, (s8)j, v0, (s16)(j + 0x179), (s16)(j * 2 + 2), 0);
         }
         c0 = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
         te = fclSpriteEntry((s16)(*(s16 *)(p + 0x11E) * 2 + 500));
@@ -8530,8 +8530,7 @@ void fclCombineMenuMaterialGrid(u8 *arg0)
                                     lim = e + 6;
                                     for (; e < lim; e++, k++) {
                                         v3 = func_002b2970(26.0f, (f32)(k * 0x22 + 0x57));
-                                        func_003147e0(arg0, (s8)k, v3, (s16)(e + 0x179),
-                                                      (s16)((5 - k) * 2), 1);
+                                        fclCombineDrawListRow(arg0, (s8)k, v3, (s16)(e + 0x179), (s16)((5 - k) * 2), 1);
                                     }
                                     fclCombineLayoutTransition(arg0, 0);
                                     *p = 0;
@@ -8561,7 +8560,7 @@ void fclCombineMenuMaterialGrid(u8 *arg0)
    501 -> 500 copy is a struct copy between the two elements); the flag
    words are read directly (b210 CSEs them where retail does); case 0 tests
    func_00104f10(1) >= 3 && !flag 0x96F for the 0x70 arm; *(s8 *)te is the
-   second func_003147e0 argument. The row loop derives the second byte as
+   second fclCombineDrawListRow argument. The row loop derives the second byte as
    &D_00882FB0[j * 2] + 1: that second use of j is what makes b210
    re-extend j at the top of the body instead of reusing the test's copy. */
 // Fcl combine menu option pick (state 0x0A): lists the option rows (kinds 0-3 and 0xB), shows the selected kind's message on select (0x40), and returns to state 0 on cancel (0x20).
@@ -8600,28 +8599,28 @@ void fclCombineMenuOptionPick(u8 *arg0) {
         *(s16 *)(p + 0x11E) = 0;
         *(p + 0x139) = 0;
         v0 = func_002b2970(26.0f, 87.0f);
-        func_003147e0(arg0, 0, v0, 0x168, 2, 0);
+        fclCombineDrawListRow(arg0, 0, v0, 0x168, 2, 0);
         D_00882FB0[*(s8 *)(p + 0x139) * 2] = 0;
         D_00882FB1[*(s8 *)(p + 0x139) * 2] = 0;
         *(s8 *)(p + 0x139) += 1;
         v1 = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
-        func_003147e0(arg0, 1, v1, 0x174, 4, 0);
+        fclCombineDrawListRow(arg0, 1, v1, 0x174, 4, 0);
         D_00882FB0[*(s8 *)(p + 0x139) * 2] = 1;
         D_00882FB1[*(s8 *)(p + 0x139) * 2] = 0xC;
         *(s8 *)(p + 0x139) += 1;
         v2 = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
-        func_003147e0(arg0, 2, v2, 0x170, 6, 0);
+        fclCombineDrawListRow(arg0, 2, v2, 0x170, 6, 0);
         D_00882FB0[*(s8 *)(p + 0x139) * 2] = 2;
         D_00882FB1[*(s8 *)(p + 0x139) * 2] = 8;
         *(s8 *)(p + 0x139) += 1;
         v3 = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
-        func_003147e0(arg0, 3, v3, 0x171, 8, 0);
+        fclCombineDrawListRow(arg0, 3, v3, 0x171, 8, 0);
         D_00882FB0[*(s8 *)(p + 0x139) * 2] = 3;
         D_00882FB1[*(s8 *)(p + 0x139) * 2] = 9;
         *(s8 *)(p + 0x139) += 1;
         if (datGetFlag(0x1305) != 0) {
             v4 = func_002b2970(26.0f, (f32)(*(s8 *)(p + 0x139) * 0x22 + 0x57));
-            func_003147e0(arg0, 0xB, v4, 0x173, 0xA, 0);
+            fclCombineDrawListRow(arg0, 0xB, v4, 0x173, 0xA, 0);
             D_00882FB0[*(s8 *)(p + 0x139) * 2] = 0xB;
             D_00882FB1[*(s8 *)(p + 0x139) * 2] = 0xB;
             *(s8 *)(p + 0x139) += 1;
@@ -8724,7 +8723,7 @@ void fclCombineMenuOptionPick(u8 *arg0) {
                 for (i = 0; i < *(s8 *)(p + 0x139); i++) {
                     te = &D_00882FB0[i * 2];
                     v5 = func_002b2970(26.0f, (f32)(i * 0x22 + 0x57));
-                    func_003147e0(arg0, *(s8 *)te, v5, (s16)(*(s8 *)(te + 1) + 0x168), (s16)(i * 2 + 2), 1);
+                    fclCombineDrawListRow(arg0, *(s8 *)te, v5, (s16)(*(s8 *)(te + 1) + 0x168), (s16)(i * 2 + 2), 1);
                 }
                 if (*(s8 *)(p + 0x138) > 0) {
                     func_0032f060(arg0, 1);

@@ -107,7 +107,7 @@ extern s32 func_00331560(void);
 
 extern u8 *fclSpriteWork(u8 *);
 extern f32 sdkSpriteScaledWidth(u8 *);
-extern void func_00314ef0(u8 *, s8, FclVec2, s16, s16, s8);
+extern void fclCombineDrawListRowPlain(u8 *, s8, FclVec2, s16, s16, s8);
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern void sdkSpriteRelease(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
@@ -359,8 +359,10 @@ u8 *fclDrawGetResource(u8 *arg0) {
    homes (dropping them costs 8 words). */
 #pragma push
 #pragma opt_loop_invariants on
+// Fcl combine list row: draws row arg1 of a combine list (two bar sprites and a label sprite); the row's sprite handle is kept in the menu work table at +0x258.
+// Kinds 0x174 and 0x160 add extra cells; kind 0x16C draws through fclCombineDrawListRowPlain at a fixed position.
 // FUN_003147E0
-void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5) {
+void fclCombineDrawListRow(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5) {
     FclByte4 c15C;
     FclByte4 c158;
     FclByte4 c154;
@@ -394,7 +396,7 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
     base = arg1 * 5 + 0x66;
     if (kind == 0x16C) {
         sp128 = func_002b2970(67.0f, 175.0f);
-        func_00314ef0(arg0, arg1, sp128, 0x16C, arg4, arg5);
+        fclCombineDrawListRowPlain(arg0, arg1, sp128, 0x16C, arg4, arg5);
         return;
     }
     two = arg1 * 2;
@@ -460,8 +462,9 @@ void func_003147e0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5)
    `(u8 **)(t + 0x258) + slot`; each 81f0 lookup used directly as the store
    base so 149.0f is materialized before its lookup; and the 77d0 prototype
    carrying depth before order. See docs/probe_archive/FclDraw_00314ef0_20260925.md. */
+// Fcl combine list row, plain variant: the same row layout without the kind-specific cells; reached for kind 0x16C.
 // FUN_00314EF0
-void func_00314ef0(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5) {
+void fclCombineDrawListRowPlain(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, s8 arg5) {
     FclByte4 c10C;
     FclByte4 c108;
     FclByte4 c104;
@@ -551,7 +554,7 @@ void func_00315310(u8 *arg0, s64 arg1) {
     for (; (s16)i < 3; i = (s16)(i + 1)) {
         off = (s16)i * 2;
         sp60 = func_002b2970(26.0f, (f32)((s16)i * 34 + 0x57));
-        func_003147e0(arg0, (s8)(s16)i, sp60, *(s16 *)(t + off + 0xB8), (s16)(base + off), 0);
+        fclCombineDrawListRow(arg0, (s8)(s16)i, sp60, *(s16 *)(t + off + 0xB8), (s16)(base + off), 0);
     }
     c7C = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
     p = fclSpriteEntry((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
@@ -5735,7 +5738,7 @@ void func_0032f4d0(u8 *arg0) {
     i = 0;
     for (; (s16)i < *(s8 *)(t + 0xB7); i = (s16)(i + 1)) {
         n = (s16)i;
-        func_003147e0(arg0, (s8)(n + 4), tbl[n], *(s16 *)(t + n * 2 + 0xB8), (s16)(n * 2 + 3), 0);
+        fclCombineDrawListRow(arg0, (s8)(n + 4), tbl[n], *(s16 *)(t + n * 2 + 0xB8), (s16)(n * 2 + 3), 0);
     }
     r = (s16)fclCombineMapSlotKind(*(s8 *)(t + 0xB6));
     cBC.channels = func_002b2a60(0xC6, 0xEE, 1, 0xFF);
