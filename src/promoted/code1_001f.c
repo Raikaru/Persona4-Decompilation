@@ -4666,7 +4666,7 @@ s32 func_001f9750(s32 *arg0) {
 }
 
 // FUN_001F9800
-s32 func_001f9800(u8 *arg0)
+s32 btlVoicePacketUpdate(u8 *arg0)
 {
     s32 temp_2;
     u8 *temp_16;
@@ -4729,7 +4729,7 @@ void func_001f9a90(void) {
 /* measured: opt_propagation off preserves 9ac0's explicit boolean branch. */
 #pragma opt_propagation off
 // FUN_001F9AC0
-s32 func_001f9ac0(u8 *arg0)
+s32 btlVoiceIdPacketUpdate(u8 *arg0)
 {
     s32 value;
     s32 code;
@@ -4769,7 +4769,7 @@ return_one_a:
 return_zero:
     return 0;
 }
-/* measured: close opt_propagation after func_001f9ac0 probe. */
+/* measured: close opt_propagation after btlVoiceIdPacketUpdate probe. */
 #pragma opt_propagation on
 // FUN_001F9BE0
 void func_001f9be0(void)

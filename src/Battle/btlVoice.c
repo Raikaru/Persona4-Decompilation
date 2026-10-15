@@ -25,14 +25,14 @@ typedef struct BtlVoicePacket001f99c0 {
 } BtlVoicePacket001f99c0;
 
 BtlPacket* btlPacketAlloc(u32 type, s32 workSize);
-u32 func_001f9800(void* work);
+u32 btlVoicePacketUpdate(void* work);
 
 typedef struct BtlVoicePacketA03Work {
     u32 result;
     u32 state;
     u16 voiceId;
 } BtlVoicePacketA03Work;
-u32 func_001f9ac0(BtlVoicePacketA03Work* work);
+u32 btlVoiceIdPacketUpdate(BtlVoicePacketA03Work* work);
 
 typedef struct BtlCamera {
     u8 padding_00[0xe0];
@@ -51,7 +51,7 @@ BtlPacket* btlVoiceCreatePacket(BtlAction* action, u16 param_2, s32 param_3,
     BtlVoicePacket001f99c0* work;
 
     packet = btlPacketAlloc(0xa01, sizeof(BtlVoicePacket001f99c0));
-    packet->updateFunc = func_001f9800;
+    packet->updateFunc = btlVoicePacketUpdate;
     work = (BtlVoicePacket001f99c0*)packet->workData;
     work->action = action;
     work->unk_04 = param_2;
@@ -65,14 +65,14 @@ BtlPacket* btlVoiceCreatePacket(BtlAction* action, u16 param_2, s32 param_3,
 
 
 // FUN_001F9B80
-BtlPacket* func_001f9b80(u16 voiceId)
+BtlPacket* btlVoiceCreateIdPacket(u16 voiceId)
 {
     BtlPacket* packet;
     BtlVoicePacketA03Work* work;
 
     packet = btlPacketAlloc(0xa03, sizeof(BtlVoicePacketA03Work));
     packet->unk_47 &= 0xfe;
-    packet->updateFunc = (BtlPacketUpdateFunc)func_001f9ac0;
+    packet->updateFunc = (BtlPacketUpdateFunc)btlVoiceIdPacketUpdate;
     work = (BtlVoicePacketA03Work*)packet->workData;
     work->voiceId = voiceId;
     work->result = 0;
