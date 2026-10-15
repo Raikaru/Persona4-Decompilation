@@ -5707,8 +5707,9 @@ void mdlSetBlendWeight(void* param_1, float param_2)
     *(float*)((u8*)param_1 + 0x144) = param_2;
 }
 
+/* Stores a high/low pair at +0x148/+0x14C for look-at setup. Battle passes the unit's look-at range (or the 70/60 and 70/80 pairs and call angles) next to the blend weight. Consumer not yet traced. */
 // FUN_0047A8A0
-void func_0047a8a0(void* param_1, float param_2, float param_3)
+void mdlLookAtSetupSetRange(void* param_1, float param_2, float param_3)
 {
     *(float*)((u8*)param_1 + 0x148) = param_2;
     *(float*)((u8*)param_1 + 0x14C) = param_3;
