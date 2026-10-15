@@ -253,7 +253,7 @@ void func_001790a0(RwCamera* camera)
 
 
 // FUN_00179130
-void* func_00179130(void* atomic, void* data)
+void* FldShadow_AccumulateAtomicBounds(void* atomic, void* data)
 {
     FldShadowBoundsAccum* accum = data;
     const RwSphere* sphere;
@@ -275,7 +275,7 @@ void* func_00179130(void* atomic, void* data)
 
 /* measured: MATCH nd0 obj1668/win1680 (12B 3-word zero tail only); V12 u32 c0/c1/c2; MAC dot mula/madda/madd + 1.5f mul+add unfused + adda/msub color exact. */
 // FUN_001791D0
-struct RpCollisionTriangle* func_001791d0(
+struct RpCollisionTriangle* FldShadow_ProjectTriangle(
     struct RpIntersection* intersection, struct RpWorldSector* sector,
     struct RpCollisionTriangle* tri, f32 distance, void* data)
 {
@@ -418,10 +418,10 @@ struct RpCollisionTriangle* func_001791d0(
     (*(u32*)(workSaved + 0x5460)) += 3;
     return (struct RpCollisionTriangle*)triSaved;
 }
-/* Skinned twin of func_001791d0: each vertex is first transformed by its
+/* Skinned twin of FldShadow_ProjectTriangle: each vertex is first transformed by its
    atomic's frame matrix, then projected and emitted the same way. */
 // FUN_00179860
-struct RpCollisionTriangle* func_00179860(
+struct RpCollisionTriangle* FldShadow_ProjectSkinnedTriangle(
     struct RpIntersection* intersection, struct RpCollisionTriangle* triangle,
     f32 distance, void* data)
 {
@@ -576,6 +576,6 @@ void* func_00179f70(void* atomic, void* data)
 {
     FldShadowAtomicContext* context = data;
     context->atomic = atomic;
-    func_00394e70(atomic, context->intersection, func_00179860, context);
+    func_00394e70(atomic, context->intersection, FldShadow_ProjectSkinnedTriangle, context);
     return atomic;
 }
