@@ -129,7 +129,7 @@ void func_00278b80(u8 *arg0);
 s32 func_00278da0(u8 *arg0);
 u8 *func_002776a0(u8 *arg0);
 extern u8 DAT_008817E0_abs[];
-s32 func_00271b70(s32 arg0);
+s32 frFontListKeepOrRelease(s32 arg0);
 void func_0027a630(void *arg0, s32 arg1);
 void func_0027a650(void *arg0, s32 arg1);
 void func_0027baa0(s32 arg0);
@@ -780,7 +780,7 @@ void func_00277b10(u8 *arg0, s32 arg1)
 
     base = arg0 + 0x1C;
     if (*(s32 *)(arg0 + 0x20) != 0) {
-        func_00271b70(*(s32 *)(arg0 + 0x20));
+        frFontListKeepOrRelease(*(s32 *)(arg0 + 0x20));
         *(s32 *)(base + 4) = 0;
     }
     func_0027a650(base, 0);
@@ -792,7 +792,7 @@ void func_00277b10(u8 *arg0, s32 arg1)
     if (arg1 != 0) {
         base2 = arg0 + 0x14;
         if (*(s32 *)base2 != 0) {
-            func_00271b70(*(s32 *)base2);
+            frFontListKeepOrRelease(*(s32 *)base2);
             *(s32 *)base2 = 0;
         }
         func_0027a630(arg0 + 0x14, 0);
@@ -842,7 +842,7 @@ void func_00277be0(s32 arg0, s32 arg1)
     base = object + 0x3C;
     old_font = *(s32 *)(object + 0x40);
     if (old_font != 0) {
-        func_00271b70(old_font);
+        frFontListKeepOrRelease(old_font);
         *(s32 *)(base + 4) = 0;
     }
     data = *(u8 **)(record + 4);
@@ -911,7 +911,7 @@ void func_00277ec0(u8 *arg0)
         func_0046d730(D_0063BE10, 0x6F0);
     base = arg0 + 0x3C;
     if (*(s32 *)(arg0 + 0x40) != 0) {
-        func_00271b70(*(s32 *)(arg0 + 0x40));
+        frFontListKeepOrRelease(*(s32 *)(arg0 + 0x40));
         *(s32 *)(base + 4) = 0;
     }
     *(s16 *)(base + 0xC) = 0;
@@ -1219,7 +1219,7 @@ s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     res = (s32)func_002745c0(0, 0, 0, arg3 & 0xFF, 0, 0, 0xFF, r, 0);
     iGpffffb4b0 = local;
     final = func_0027a520(res);
-    func_00271b70(res);
+    frFontListKeepOrRelease(res);
     return final;
 }
 // FUN_00278940
@@ -1291,7 +1291,7 @@ void func_00278b80(u8 *arg0)
             func_0046d730(D_0063BE10, 0x6F0);
         base = arg0 + 0x3C;
         if (*(s32 *)(arg0 + 0x40) != 0) {
-            func_00271b70(*(s32 *)(arg0 + 0x40));
+            frFontListKeepOrRelease(*(s32 *)(arg0 + 0x40));
             *(s32 *)(base + 4) = 0;
         }
         *(s16 *)(base + 0xC) = 0;
@@ -1535,14 +1535,14 @@ s32 func_002791f0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
     obj = func_00279030(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
     func_002728c0(obj, arg1);
     func_00273140(obj, 1);
-    func_00271b70((s32)obj);
+    frFontListKeepOrRelease((s32)obj);
     return 0;
 }
 
 // FUN_00279300
 void func_00279300(u8 *arg0, s32 arg1) {
     func_00273170((void *)arg1, 1, 0);
-    func_00271b70(arg1);
+    frFontListKeepOrRelease(arg1);
 }
 
 // FUN_00279350
@@ -1585,7 +1585,7 @@ s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
     }
     func_002728c0(r, arg1);
     func_00273140(r, 1);
-    func_00271b70((s32)r);
+    frFontListKeepOrRelease((s32)r);
     return 0;
 }
 
@@ -1644,7 +1644,7 @@ void func_00279780(u8 *arg0)
 
     base = arg0 + 0x1C;
     if (*(s32 *)(arg0 + 0x20) != 0) {
-        func_00271b70(*(s32 *)(arg0 + 0x20));
+        frFontListKeepOrRelease(*(s32 *)(arg0 + 0x20));
         *(s32 *)(base + 4) = 0;
     }
     index = *(s16 *)(base + 0x10);
@@ -1829,7 +1829,7 @@ void func_00279dd0(u8 *arg0, u8 *arg1)
         func_0046d730(D_0063BE10, 0xD96);
     base = arg0 + 0x14;
     if (*(s32 *)(arg0 + 0x14) != 0)
-        func_00271b70(*(s32 *)(arg0 + 0x14));
+        frFontListKeepOrRelease(*(s32 *)(arg0 + 0x14));
     global = iGpffffb4b0;
     if (global == 0)
         iGpffffb4b0 = 0x7B;
@@ -1860,7 +1860,7 @@ void func_00279e90(u8 *arg0, u8 *arg1)
     if (*(u16 *)(arg0 + 0x18) == v)
         return;
     if (*(s32 *)base != 0) {
-        func_00271b70(*(s32 *)base);
+        frFontListKeepOrRelease(*(s32 *)base);
         *(s32 *)base = 0;
     }
     *(u16 *)(base + 4) = v;
@@ -1944,7 +1944,7 @@ static inline void releaseMessageListNode(u8 **link)
     *(u8 **)(node + 0x24) = NULL;
     *(u8 **)(node + 0x28) = NULL;
     *(u8 **)(node + 0x2C) = node;
-    func_00271b70((s32)node);
+    frFontListKeepOrRelease((s32)node);
     *link = next;
 }
 

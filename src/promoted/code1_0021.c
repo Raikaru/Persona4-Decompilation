@@ -23,7 +23,7 @@ extern f32 D_007615B8;
 extern void (*D_00887314_abs[])(s32 arg0, void *arg1, s32 arg2, void *arg3, s32 arg4);
 extern void sprintf(u8 *dst, const char *fmt, s32 arg);
 extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
-extern void func_00271b70(s32 arg0);
+extern void frFontListKeepOrRelease(s32 arg0);
 extern void func_00277ad0(s32 arg0, s32 arg1);
 extern void func_00201350(void);
 extern void func_00211650(u8 *arg0, u8 *arg1);
@@ -2479,7 +2479,7 @@ void func_00216ca0(s32 task) {
     u8 *b = (u8 *)func_00452560((void *)task) + 0x84C;
 
     if (*(s32 *)b != 0) {
-        func_00271b70(*(s32 *)b);
+        frFontListKeepOrRelease(*(s32 *)b);
         *(s32 *)b = 0;
     }
     func_00277ad0(*(s32 *)(b + 0x18), 0);
@@ -2611,7 +2611,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
         s32 half;
         s32 old;
         if (*(s32 *)arg1 != 0) {
-            func_00271b70(*(s32 *)arg1);
+            frFontListKeepOrRelease(*(s32 *)arg1);
             *(s32 *)arg1 = 0;
         }
         func_00277ad0(*(s32 *)(arg1 + 0x18), 0);
@@ -2664,7 +2664,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             (*(s32 *)(arg1 + 8))++ >= *(s32 *)(arg1 + 4)) {
             subctx = (u8 *)func_00452560(*(void **)(arg1 + 0x3C)) + 0x84C;
             if (*(s32 *)subctx != 0) {
-                func_00271b70(*(s32 *)subctx);
+                frFontListKeepOrRelease(*(s32 *)subctx);
                 *(s32 *)subctx = 0;
             }
             func_00277ad0(*(s32 *)(subctx + 0x18), 0);

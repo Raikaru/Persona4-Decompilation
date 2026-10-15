@@ -31,7 +31,7 @@ extern u8 *func_002736d0(u8 **, s32);
 extern s32 func_002738d0(u8 *);
 extern void func_00272a10(u8 *, f32, f32);
 extern void func_00272ba0(u8 *, s32);
-extern void func_00271b70(u8 *);
+extern void frFontListKeepOrRelease(u8 *);
 extern f32 iGpffff8094;
 extern f32 sinf(f32);
 extern void func_00366670(s32, s32, f32, s32, s32, s32, s32, s32, s32,
@@ -89,7 +89,7 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
         }
         func_00272ba0(var_18, arg1);
         func_00273170(var_18, 1, 0);
-        func_00271b70(var_18);
+        frFontListKeepOrRelease(var_18);
         var_17++;
     }
     return var_17 * 0x1C;

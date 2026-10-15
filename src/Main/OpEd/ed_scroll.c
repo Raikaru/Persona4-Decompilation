@@ -4,7 +4,7 @@
 #include "fr_font_internal.h"
 #include "ed_staff_internal.h"
 
-extern void func_00271b70(u32 resource);
+extern void frFontListKeepOrRelease(u32 resource);
 
 extern void func_00272950(u32 resource, s32 x, s32 y);
 extern void frFontExSetScale(u32 resource, f32 angle);
@@ -300,7 +300,7 @@ void func_0038e6d0(u32* record)
     s32 i;
 
     for (i = 0; i < (s32)record[0x21]; i++) {
-        func_00271b70(*(u32*)((u8*)record + i * 8 + 8));
+        frFontListKeepOrRelease(*(u32*)((u8*)record + i * 8 + 8));
     }
     record[0] &= ~1u;
 }

@@ -30,7 +30,7 @@ extern void frFontRasterEvictExpired(void);
 extern u32 DAT_00881528_abs[];
 extern u32 DAT_0088152C_abs[];
 extern u32 DAT_0088179C_abs[];
-extern u32 func_00271bd0(int param_1);
+extern u32 frFontListRelease(int param_1);
 extern u32 func_00272cb0(int param_1);
 extern void *memset(void *dst, s32 value, u32 size);
 extern int func_0045af90(int param_1);
@@ -69,7 +69,7 @@ extern s32 D_007645BC;
 extern s32 D_008815B0[];
 extern s32 func_0026e010();
 extern void frFontRasterCreateCache();
-extern void func_00271860(void);
+extern void frFontLoadTables(void);
 
 extern u32 DAT_0088176C_abs[];
 extern u32 DAT_00881770_abs[];
@@ -97,7 +97,7 @@ extern void H_Cdvd_ReadSync(s32 arg0);
 extern u8 *func_00455f70(void *arg0, void *arg1);
 extern void func_0026e170(int param_1);
 extern void frFontRasterDestroyCache(void);
-extern void func_00271a40(void);
+extern void frFontReleaseSlots(void);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern void func_00440b68();
 extern char D_0063BBB0[];
@@ -355,7 +355,7 @@ void frFontInitManager(s32 arg0, s32 arg1)
     frFontInitSlotGrid(DAT_0088177C_abs[0], 0x10, var_16, 0x20, 0x20, 0x10);
     DAT_0088175c_abs[0] = func_0026e010(0x2c, arg1 * 4);
     *(s32 *)DAT_00881760_abs = func_0026e010(0x44, arg1);
-    func_00271860();
+    frFontLoadTables();
     var_4 = 0;
     bb0 = D_008815B0;
     while (var_4 < 0x20) {
@@ -376,9 +376,9 @@ void frFontTaskDestroy(u8 *unusedTask)
 {
     void *(**tab);
 
-    func_00271a40();
-    func_00271bd0(DAT_0088179C_abs[0]);
-    func_00271bd0(DAT_008817A0_abs[0]);
+    frFontReleaseSlots();
+    frFontListRelease(DAT_0088179C_abs[0]);
+    frFontListRelease(DAT_008817A0_abs[0]);
     func_0026e170(DAT_0088175c_abs[0]);
     func_0026e170(*(u32 *)DAT_00881760_abs);
     if (DAT_0088152C_abs[0] != 0) {
@@ -452,8 +452,9 @@ void frFontSlotFree(u32 param_1)
 // retail form is the implicit call.
 
 
+/* Loads the font table on first use (synchronous read), then snapshots the manager data into the five backup tables. */
 // FUN_00271860
-void func_00271860(void)
+void frFontLoadTables(void)
 {
     int sp1C;
     u8 *var_7;
@@ -570,13 +571,14 @@ void func_00271860(void)
    0x1C into the base addiu where retail keeps it in the lw. CSE-of-mask
    floor. */
 
+/* Releases every in-use slot's block and clears its entry. */
 /* measured: opt_propagation off, three differently spelled masks of the loop index (`i & 0xff`,
    `(u32)i & 0xff`, `(u32)(u8)i`) so none is CSE'd with another (retail andi s2/s1/v0 from s3), and
    the free-slot pointer computed into a saved local BEFORE func_00454bd0 (retail addiu s1 before
    the jal); the table base stays in $a1 for both the par load and the slot address. */
 // FUN_00271A40
 #pragma opt_propagation off
-void func_00271a40(void)
+void frFontReleaseSlots(void)
 {
     s32 i;
     s32 mask;
@@ -610,8 +612,9 @@ void func_00271a40(void)
 }
 #pragma opt_propagation on
 
+/* Keeps the list if it is still in use, otherwise releases it. */
 // FUN_00271B70
-int func_00271b70(int param_1)
+int frFontListKeepOrRelease(int param_1)
 {
     char cVar1;
     int uVar2;
@@ -620,12 +623,13 @@ int func_00271b70(int param_1)
     if (cVar1 != '\0') {
         uVar2 = param_1;
     } else {
-        uVar2 = func_00271bd0(param_1);
+        uVar2 = frFontListRelease(param_1);
     }
     return uVar2;
 }
+/* Releases a list: drops reference counts, frees unused entries back to the free list, and returns 0. */
 // FUN_00271BD0
-u32 func_00271bd0(int param_1)
+u32 frFontListRelease(int param_1)
 {
     int iVar4;
     int iVar1;
@@ -682,11 +686,12 @@ extern s8 D_00763808[8];
 
 
 
+/* Computes the metrics of one glyph node from the height table and the scale globals. */
 /* measured: 576B/576B MATCH (b210). Native /32 and /128 restore the signed
    rounding instruction sequence; unary negation fixes the final mult operand
    order. The complete eight-byte table retains retail GP-relative access. */
 // FUN_00271D10
-void func_00271d10(u8 *arg0, s32 arg1)
+void frFontComputeGlyphMetrics(u8 *arg0, s32 arg1)
 {
     FrFontSlot4 *temp_8;
     s32 temp_3;
@@ -792,6 +797,7 @@ void func_00271d10(u8 *arg0, s32 arg1)
         }
     }
 }
+/* Acquires the glyph for character arg1 in a font: uses the cached raster or loads and decodes it, then takes a node off the free list. */
 // FUN_00271F50
 extern char D_0063BC20[];
 extern u32 frFontRasterLookup(u32 param_1, int param_2);
@@ -799,7 +805,7 @@ extern u32 frFontFindOrLoadEntry(u32 param_1, u32 param_2, u32 param_3);
 extern u16 func_00273910(u32 param_1);
 extern u16 func_00273940(u32 param_1);
 
-u8 *func_00271f50(u8 *arg0, u32 arg1)
+u8 *frFontAcquireGlyph(u8 *arg0, u32 arg1)
 {
     u8 *var_18;
     u8 *temp_17;
@@ -857,8 +863,9 @@ extern u8 *func_0026e0e0(s32 param_1);
 
 
 
+/* Creates a text glyph node for character arg0 in slot arg1 with style arg2 and flags arg3, and computes its metrics. */
 // FUN_00272170
-u8 * func_00272170(u16 arg0, u8 arg1, u8 arg2, u8 arg3)
+u8 * frFontCreateGlyphNode(u16 arg0, u8 arg1, u8 arg2, u8 arg3)
 {
     u8 *node;
     u16 ch;
@@ -906,8 +913,8 @@ u8 * func_00272170(u16 arg0, u8 arg1, u8 arg2, u8 arg3)
     }
     width = 0x147;
 width_ok:
-    *(u32 *)(node + 0x1C) = (u32)func_00271f50(node, width);
-    func_00271d10(node, width);
+    *(u32 *)(node + 0x1C) = (u32)frFontAcquireGlyph(node, width);
+    frFontComputeGlyphMetrics(node, width);
     if ((*(u8 *)(node + 0x17) & 0x10) == 0) {
         goto zero_store;
     }
@@ -1019,7 +1026,7 @@ LAB_002724C4:
 }
 
 extern u8 D_007645B4;
-extern u8 *func_00272170(u16 arg0, u8 arg1, u8 arg2, u8 arg3);
+extern u8 *frFontCreateGlyphNode(u16 arg0, u8 arg1, u8 arg2, u8 arg3);
 
 
 
@@ -1078,7 +1085,7 @@ u8 *func_002724d0(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
             i += 1;
             ch = (u16)(((u16)value << 8) | *(u8 *)(arg0 + i));
         }
-        var17 = func_00272170(ch, D_007645B4, a2, a3);
+        var17 = frFontCreateGlyphNode(ch, D_007645B4, a2, a3);
         if (var16 == NULL) {
             *(u8 **)(var19 + 0x1C) = var17;
         } else {
@@ -1719,7 +1726,7 @@ result_check:
 // FUN_00273610
 s32 func_00273610(u8 *unusedTask)
 {
-    DAT_0088179C_abs[0] = func_00271bd0(DAT_0088179C_abs[0]);
+    DAT_0088179C_abs[0] = frFontListRelease(DAT_0088179C_abs[0]);
     frFontRasterEvictExpired();
     return 0;
 }
