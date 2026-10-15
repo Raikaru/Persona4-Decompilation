@@ -612,7 +612,7 @@ s32 fclCombineMenuUpdate(u8 *arg0)
     void fclDrawSetFlag(u8 *arg0, s8 arg1);
     void fclCombineMenuPickSource(u8 *arg0);
     void fclCombineMenuPickTarget(u8 *arg0);
-    void fclCombineMenuPairStep(u8 *arg0);
+    void fclCombineMenuMaterialPick(u8 *arg0);
     void fclCombineMenuPreview(u8 *arg0);
     void fclCombineMenuPriceInfo(u8 *arg0);
     void fclCombineMenuDetailPanels(u8 *arg0);
@@ -704,19 +704,19 @@ case_03:
     P4_002E7AC0_DRAW();
     *(s8 *)(work + 0x1A) = 4;
     fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
-    fclCombineMenuPairStep(arg0);
+    fclCombineMenuMaterialPick(arg0);
     goto done;
 case_04:
     P4_002E7AC0_DRAW();
     *(s8 *)(work + 0x1A) = 5;
     fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
-    fclCombineMenuPairStep(arg0);
+    fclCombineMenuMaterialPick(arg0);
     goto done;
 case_05:
     P4_002E7AC0_DRAW();
     *(s8 *)(work + 0x1A) = 6;
     fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
-    fclCombineMenuPairStep(arg0);
+    fclCombineMenuMaterialPick(arg0);
     goto done;
 case_06:
     P4_002E7AC0_DRAW();
