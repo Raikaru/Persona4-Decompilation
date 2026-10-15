@@ -2410,8 +2410,8 @@ typedef struct { u8 b0, b1, b2, b3; } BattleSkillIconColor;
 extern void ShdSkill_DrawIcon(Vec2f position, f32 scale,
                           BattleSkillIconColor color, u16 skill, s32 texture);
 extern u32 func_0023d9b0(u8 *unit, s32 skill);
-extern s32 func_0023ddc0(u8 *unit, s32 skill);
-extern u16 func_0023dd90(u8 *unit, s32 skill);
+extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
+extern u16 datCalcThresholdKind(u8 *unit, s32 skill);
 
 // FUN_00205170
 #pragma push
@@ -2442,7 +2442,7 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
     glyphs = (u8 *)func_00452560(*(void **)(work + 0x5B0));
     unit = *(u8 **)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64);
     skill = *(s16 *)(p4_002091f0_add((u32)(slot * 2), work) + 0x194);
-    if (skill >= 0x1B8 || func_0023ddc0(unit, (u16)skill) != 0) {
+    if (skill >= 0x1B8 || datCalcThresholdTrigger(unit, (u16)skill) != 0) {
         if (highlighted != 0) {
             tone = 0x6E;
         } else {
@@ -2491,7 +2491,7 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
                 func_00201650(glyphs, 0xC, (hundreds % 10) + 9,
                               digitX, digitY, tone, tone, tone, opacity);
             }
-            if ((func_0023dd90(unit, (u16)skill) & 0xFFFF) == 1) {
+            if ((datCalcThresholdKind(unit, (u16)skill) & 0xFFFF) == 1) {
                 func_00201650(glyphs, 0xC, 0x56, 310.0f + x, 12.0f + y,
                               tone, tone, tone, opacity);
             } else {
@@ -3710,7 +3710,7 @@ void func_00208a50(u8 *arg0, u8 *arg1)
 // FUN_00208B00
 u16 func_00208b00(u8 *arg0, u8 *arg1)
 {
-    extern s32 func_0023ddc0(u8 *arg0, s32 arg1);
+    extern s32 datCalcThresholdTrigger(u8 *arg0, s32 arg1);
     extern s32 func_0023df70(s32 arg0);
     s32 temp_2;
     u16 var_16;
@@ -3722,7 +3722,7 @@ u16 func_00208b00(u8 *arg0, u8 *arg1)
     case 2:
         idx2 = (s32)*(s16 *)(arg0 + 4) * 2;
         temp_16 = *(u16 *)(idx2 + (u32)arg1 + 0x194);
-        if (func_0023ddc0(*(u8 **)(*(u8 **)(*(u8 **)(arg1 + 0x178) +
+        if (datCalcThresholdTrigger(*(u8 **)(*(u8 **)(*(u8 **)(arg1 + 0x178) +
                                            0x30) + 0xA64),
                           temp_16) == 0) {
             if ((func_0023df70(temp_16) != 0) &&

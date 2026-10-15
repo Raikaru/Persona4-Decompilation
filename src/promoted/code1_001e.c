@@ -47,7 +47,7 @@ extern s32 datCalcGetSp();
 
 extern s32 datCalcSkillElement(u8 *unit, u16 skill);
 extern u32 datCalcGetTableLength(u8 *arg0);
-extern s32 func_0023ddc0(u8 *unit, s32 skill);
+extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
 extern s32 datCalcDefaultSkillId(u8 *unit);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
 extern u8 *func_001b1510(void);
@@ -1388,7 +1388,7 @@ s32 func_001e9950(void) {
     extern u16 func_001d7f10(u8 *action, u8 *targets, s32 skill, u32 reverseGroups);
     extern s32 func_0023df70(s32 arg0);
     extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
-    extern u16 func_0023dd90(u8 *arg0, s32 arg1);
+    extern u16 datCalcThresholdKind(u8 *arg0, s32 arg1);
     extern s32 btlAICommandNomalCheck(u8 *arg0, s32 arg1, s32 arg2);
     extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     extern u8 *func_001b0cc0(s32 arg0);
@@ -1470,7 +1470,7 @@ outer_body:
         if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x80008) != 0) {
             goto outer_next;
         }
-        if (func_0023ddc0(*(u8 **)(unit + 0xA64), skill) != 0) {
+        if (datCalcThresholdTrigger(*(u8 **)(unit + 0xA64), skill) != 0) {
             goto outer_next;
         }
     }
@@ -1527,7 +1527,7 @@ outer_body:
 scored:
     if (bestScore <= curScore) {
         if (bestScore == curScore) {
-            if ((func_0023dd90(*(u8 **)(unit + 0xA64), skill) & 0xFFFF) == 2) {
+            if ((datCalcThresholdKind(*(u8 **)(unit + 0xA64), skill) & 0xFFFF) == 2) {
                 cost = func_0023d9b0(*(u8 **)(unit + 0xA64), skill);
                 if (cost < bestCost) {
                     bestSkill = skillStore;
@@ -2486,7 +2486,7 @@ void func_001ebc00(u8 *action, u8 *command)
             case 0xAB:
             case 0xAC:
             case 0xAD:
-                if (func_0023ddc0(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64), skill) == 0) {
+                if (datCalcThresholdTrigger(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64), skill) == 0) {
                     choices[count & 0xFFFF] = skill;
                     count = (count + 1) & 0xFFFF;
                 }
