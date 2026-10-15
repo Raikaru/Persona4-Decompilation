@@ -6637,9 +6637,10 @@ typedef struct {
     } \
 } while (0)
 
-// Fcl combine menu state 8: draws the roster page and plays its cue.
+// Fcl combine menu roster fusion (state 8): picks two roster personas (0x75-0x7E) and previews the match bonus, then confirms (0x81-0x83), writes the fused persona and removes both sources from the roster.
+// The result is added to the roster and may replace a skill (0x85-0x89).
 // FUN_00304580
-void fclCombineMenuConfirm(u8 *arg0) {
+void fclCombineMenuRosterFusion(u8 *arg0) {
     FclDrawColor col2FC;
     FclDrawColor col2F8;
     FclDrawColor col2F4;
