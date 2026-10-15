@@ -30,7 +30,7 @@ typedef struct {
     u8 pad1;
     u8 flag32;
 } TnFlags;
-s32 func_00464100(u8 *arg0, s32 arg1);
+s32 tmxUploadStream(u8 *arg0, s32 arg1);
 u8 *func_003ef2e0(u8 *arg0);
 void func_0046d730(const char *file, s32 line);
 void func_00488d70(u8 *arg0);
@@ -107,7 +107,7 @@ s32 func_00481300(u16 arg0) {
 // FUN_00481360
 void func_00481360(u8 *arg0)
 {
-    func_00464100(arg0, 1);
+    tmxUploadStream(arg0, 1);
 }
 
 
@@ -115,7 +115,7 @@ void func_00481360(u8 *arg0)
 // FUN_00481390
 void func_00481390(u8 *arg0)
 {
-    u8 *obj = func_003ef2e0((u8 *)func_00464100(arg0, 1));
+    u8 *obj = func_003ef2e0((u8 *)tmxUploadStream(arg0, 1));
     s32 flags = (*(s32 *)(obj + 0x50) & ~0xFF) | 2;
 
     *(s32 *)(obj + 0x50) = flags;

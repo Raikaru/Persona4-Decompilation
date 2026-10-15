@@ -334,8 +334,8 @@ void func_00100670(void)
     extern void func_0046d740(const void *arg0, const void *arg1, u32 arg2);
     extern RwImage *func_003d8c00(const char *name);
     extern RwImage *func_003d96b0(RwImage *image, const char *name);
-    extern RwImage *func_00463d60(const char *name);
-    extern RwImage *func_00463e60(RwImage *image, const char *name);
+    extern RwImage *tmxLoadFile(const char *name);
+    extern RwImage *tmxImageWriteCallback(RwImage *image, const char *name);
     extern u8 D_0064F2F0[];
     extern u8 D_0064F380[];
     extern u8 D_0064F3A0[];
@@ -596,7 +596,7 @@ void func_00100670(void)
         ok = 0;
         goto check;
     }
-    if (func_003eb1f0((const char *)&iGpffff8594, func_00463d60, func_00463e60) == 0) {
+    if (func_003eb1f0((const char *)&iGpffff8594, tmxLoadFile, tmxImageWriteCallback) == 0) {
         ok = 0;
         goto check;
     }
