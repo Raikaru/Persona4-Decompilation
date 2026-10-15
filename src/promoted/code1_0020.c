@@ -202,7 +202,7 @@ extern f32 fGpffff8478;
 extern f32 fGpffffb478;
 extern void btlGaugeSetActive(u8 *arg0, s32 arg1);
 extern void btlSelectionUpdateTransition(u8 *arg0);
-extern void func_00219130(void *arg0);
+extern void btlPanelLoadModels(void *arg0);
 extern void func_0021b1e0(void *arg0);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern u8 D_00794810[];
@@ -227,8 +227,8 @@ extern void btlEncounterInitEntry(u8 *arg0, s32 arg1);
 extern void btlPortraitDrawRoster(void);
 extern void btlPanelInitRecord(u8 *arg0, s32 arg1);
 extern void btlMessageDrawTimed(void);
-extern void func_00218e50(u8 *arg0, s32 arg1);
-extern void func_00219790(void);
+extern void btlPanelClear(u8 *arg0, s32 arg1);
+extern void btlPanelAnimate(void);
 extern void btlPanelDrawFlourish(u8 *task, u8 *state);
 extern void btlGaugeInitValue(u8 *arg0, s32 arg1);
 extern void btlGaugeStepAll(s32 arg0, s32 *arg1);
@@ -502,7 +502,7 @@ s32 btlUiTaskInit(u8 *unusedTask)
     *(s32 *)(temp_2 + 0x72C) = 0;
     *(s32 *)(temp_2 + 0x730) = 0;
     func_00460ac0(D_00795020, temp_2 + 0x72C);
-    func_00219130(temp_2 + 0x8C0);
+    btlPanelLoadModels(temp_2 + 0x8C0);
     *(s32 *)(temp_2 + 0x980) = 0;
     *(s32 *)(temp_2 + 0x984) = 0;
     func_00460ac0(D_00794FF0, temp_2 + 0x980);
@@ -576,8 +576,8 @@ void btlUiInitComponents(s32 arg0, u8 *arg1)
     btlPanelInitRecord(arg1 + 0x84C, arg0);
     *(void **)(arg1 + 0x894) = (void *)btlMessageDrawTimed;
     *(u8 **)(arg1 + 0x89C) = arg1 + 0x84C;
-    func_00218e50(arg1 + 0x8C0, arg0);
-    *(void **)(arg1 + 0x958) = (void *)func_00219790;
+    btlPanelClear(arg1 + 0x8C0, arg0);
+    *(void **)(arg1 + 0x958) = (void *)btlPanelAnimate;
     temp_3_3 = arg1 + 0x8C0;
     *(u8 **)(arg1 + 0x960) = temp_3_3;
     *(void **)(arg1 + 0x988) = (void *)btlPanelDrawFlourish;
@@ -5271,10 +5271,10 @@ void btlSelectionDispatchTargetMode(s32 arg0, u8 *arg1, u8 *arg2)
     extern void func_00195d50(u8 *arg0, f32 *arg1);
     extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
     extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
-    extern void func_0020bff0(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-    extern void func_0020c680(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-    extern void func_0020ce60(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-    extern void func_0020d6a0(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+    extern void btlPanelCursorDrawA(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+    extern void btlPanelCursorDrawB(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+    extern void btlPanelCursorDrawC(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+    extern void btlPanelCursorDrawD(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
     struct E010Frame {
         u8 pad[8];
         u8 value[4];
@@ -5315,16 +5315,16 @@ flags_done:
         temp_4 = *(u16 *)(arg1 + 0);
         switch (temp_4) {
         case 0:
-            func_0020bff0(arg0, arg1, arg2, (f32 *)work.value);
+            btlPanelCursorDrawA(arg0, arg1, arg2, (f32 *)work.value);
             return;
         case 1:
-            func_0020c680(arg0, arg1, arg2, (f32 *)work.value);
+            btlPanelCursorDrawB(arg0, arg1, arg2, (f32 *)work.value);
             return;
         case 2:
-            func_0020ce60(arg0, arg1, arg2, (f32 *)work.value);
+            btlPanelCursorDrawC(arg0, arg1, arg2, (f32 *)work.value);
             return;
         case 3:
-            func_0020d6a0(arg0, arg1, arg2, (f32 *)work.value);
+            btlPanelCursorDrawD(arg0, arg1, arg2, (f32 *)work.value);
             break;
         }
     }

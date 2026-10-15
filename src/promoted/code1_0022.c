@@ -74,7 +74,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void chkmemAllocSiteTag();
 extern void memset();
 
-extern s32 func_00221f40(u8 *task);
+extern s32 btlResultHeroLvUpRun(u8 *task);
 extern void func_002230a0(u8 *task);
 extern void func_00222d20(u8 *drawData, s32 workAddress, void *callback);
 extern s32 func_002232a0(u8 *task);
@@ -98,7 +98,7 @@ extern void kAssertFail(const void *file, u32 line);
 extern u8 D_00635560[], D_00635580[];
 extern u8 iGpffffa4d8[4];
 extern u8 *func_001ebb00(s32 action, s32 kind, u8 *name);
-extern u8 *func_00194c90(void *callback, void *data);
+extern u8 *btlPacketAllocZeroed(void *callback, void *data);
 extern BtlPacket *func_001d7ab0(u8 *values, u16 duration);
 extern BtlPacket *func_001d7b60(u16 duration);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
@@ -116,7 +116,7 @@ extern void func_002236c0(u8 *task);
 
 extern u8 D_00629640[];
 extern u8 D_00629738[];
-extern s32 func_002239a0(u8 *task);
+extern s32 btlResultFriendPsUpdate(u8 *task);
 extern void func_00223ed0();
 extern void func_00223ee0(u8 *task);
 extern s32 btlUnitMotionClassValue(u8 *arg0, s32 arg1);
@@ -585,7 +585,7 @@ s32 func_002230e0(s32 arg0)
     chkmemAllocSiteTag(&D_00629698, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x74, 0x40000);
     memset(temp_2, 0, 0x74);
-    temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629640), 0xF, 0, 0, func_00221f40, func_002230a0, (u8 *)(temp_2)));
+    temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629640), 0xF, 0, 0, btlResultHeroLvUpRun, func_002230a0, (u8 *)(temp_2)));
     temp_2_2 = (u16 *)(kwlnTaskGetWork((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);
@@ -862,7 +862,7 @@ s32 func_00223f40(s32 arg0)
     chkmemAllocSiteTag(&D_00629738, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x4C, 0x40000);
     memset(temp_2, 0, 0x4C);
-    temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629700), 0xF, 0, 0, func_002239a0, func_00223ee0, (u8 *)(temp_2)));
+    temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629700), 0xF, 0, 0, btlResultFriendPsUpdate, func_00223ee0, (u8 *)(temp_2)));
     temp_2_2 = (u16 *)(kwlnTaskGetWork((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);
@@ -4066,7 +4066,7 @@ void func_0022b120(u8 *action)
     *(u64 *)(anchor + 0x60) = *(u64 *)action;
     btlPacketEnqueue(anchor, 1);
 
-    packet = func_00194c90((void *)func_0022b0b0, action);
+    packet = btlPacketAllocZeroed((void *)func_0022b0b0, action);
     packet[0] = 4;
     *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
     *(u64 *)(packet + 0x60) = *(u64 *)action;
@@ -4156,7 +4156,7 @@ void func_0022b120(u8 *action)
     *(u64 *)(anchor + 0x60) = *(u64 *)action;
     btlPacketEnqueue(anchor, 1);
 
-    packet = func_00194c90((void *)func_0022b0e0, action);
+    packet = btlPacketAllocZeroed((void *)func_0022b0e0, action);
     packet[0] = 4;
     *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
     *(u16 *)(packet + 0x48) = 1;

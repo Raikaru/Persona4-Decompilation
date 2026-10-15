@@ -302,7 +302,7 @@ extern s32 func_0018f950(u8 *task);
 extern void func_001d78d0(void);
 extern void btlUiRegisterAvailability(void);
 extern void func_001f8480(void);
-extern void func_00202be0(void);
+extern void btlPanelLoadSync(void);
 extern void func_0047d170(void *model);
 extern s32 func_0047e6f0(void **owner);
 extern void btlUnitUpdateLookAtTarget(u8 *arg0);

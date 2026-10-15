@@ -57,7 +57,7 @@ extern u32 D_00795F20[];
 extern s32 iGpffffa5C0;
 
 // FUN_00221AB0
-void func_00221ab0(void)
+void btlResultHeroLvUpInit(void)
 {
     s16 list[4];
     s32 i = 0;
@@ -138,7 +138,7 @@ void func_00221ab0(void)
 // residual the $v0-vs-$at compare-temp floor. The permuter cracked it from the
 // preserved body.
 #pragma tailcall off
-s32 func_00221cf0(BtlResultWork* work)
+s32 btlResultHeroLvUpStep(BtlResultWork* work)
 {
     BtlResultWork* work_p = work;
     u32 sp30[4];
@@ -198,7 +198,7 @@ s32 func_00221cf0(BtlResultWork* work)
 #pragma tailcall on
 
 // FUN_00221F40
-s32 func_00221f40(u8* arg0)
+s32 btlResultHeroLvUpRun(u8* arg0)
 {
     BtlResultWork* work = (BtlResultWork*)kwlnTaskGetWork((u32)arg0);
     s32 i;
@@ -225,11 +225,11 @@ s32 func_00221f40(u8* arg0)
                 kAssertFail(D_00629660, 0x52);
             }
         }
-        func_00221ab0();
+        btlResultHeroLvUpInit();
         work->state = 2;
         break;
     case 2:
-        if (func_00221cf0(work) != 0) {
+        if (btlResultHeroLvUpStep(work) != 0) {
             s32 f = *(s32*)(work->field3C + 0x60);
 
             if (f & 8) {

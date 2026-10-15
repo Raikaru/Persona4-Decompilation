@@ -93,8 +93,8 @@ extern float fGpffff8354;
 extern float fGpffff811c;
 extern u32 strlen(const char *text);
 extern char *strcpy(char *destination, const char *source);
-extern void func_001d5ca0(u32 *param_1);
-extern u32 func_001d5d60(u32 *param_1);
+extern void btlBedCopyRecord(u32 *param_1);
+extern u32 btlBedLoad(u32 *param_1);
 
 typedef u8 bool;
 
@@ -1341,8 +1341,8 @@ BtlPacket *btlFormationCreateNamedPacket(u32 param_1, const char *param_2, u16 p
 
     packet = btlPacketAlloc(0x400, strlen(param_2) + sizeof(FormationStringWork));
     packet->flags &= 0xfe;
-    packet->initFunc = (BtlPacketInitFunc)func_001d5ca0;
-    packet->updateFunc = (BtlPacketUpdateFunc)func_001d5d60;
+    packet->initFunc = (BtlPacketInitFunc)btlBedCopyRecord;
+    packet->updateFunc = (BtlPacketUpdateFunc)btlBedLoad;
     work = packet->workData;
     work->value = param_1;
     work->text = (char *)(work + 1);

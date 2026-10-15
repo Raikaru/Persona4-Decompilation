@@ -175,7 +175,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_001d78d0(void);
 extern void btlUiRegisterAvailability(void);
 extern void func_001f8480(void);
-extern void func_00202be0(void);
+extern void btlPanelLoadSync(void);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
@@ -301,7 +301,7 @@ void func_001939a0(void) {
     func_001d78d0();
     btlUiRegisterAvailability();
     func_001f8480();
-    func_00202be0();
+    btlPanelLoadSync();
 }
 
 // FUN_001939E0

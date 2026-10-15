@@ -18,7 +18,7 @@ extern RwV3d D_00881430;
 
 
 // FUN_00194C60
-void func_00194c60(BtlPacketCallbackWork* work)
+void btlPacketCallbackRun(BtlPacketCallbackWork* work)
 {
     work->callback(work->data);
 }
@@ -28,7 +28,7 @@ void func_00194c60(BtlPacketCallbackWork* work)
 /* measured probe: opt_loop_invariants on hoists the wait-type constant into the loop preheaders. */
 #pragma opt_loop_invariants on
 // FUN_00194C90
-u8 *func_00194c90(void *arg0, void *arg1)
+u8 *btlPacketAllocZeroed(void *arg0, void *arg1)
 {
     typedef struct BtlPacketWaitCondition BtlPacketWaitCondition;
     struct BtlPacketWaitCondition
@@ -97,16 +97,16 @@ u8 *func_00194c90(void *arg0, void *arg1)
     }
     packet->workData = (u8 *)packet + sizeof(BtlPacket);
     packet->unk_47 |= 0x31;
-    packet->updateFunc = (BtlPacketCallback)func_00194c60;
+    packet->updateFunc = (BtlPacketCallback)btlPacketCallbackRun;
     callbackWork = (BtlPacketCallbackWork *)packet->workData;
     callbackWork->callback = (BtlPacketCallback)arg0;
     callbackWork->data = arg1;
     return (u8 *)packet;
 }
-/* measured probe: closes the opt_loop_invariants scope for func_00194c90. */
+/* measured probe: closes the opt_loop_invariants scope for btlPacketAllocZeroed. */
 #pragma opt_loop_invariants off
 // FUN_00194DC0
-void func_00194dc0(BtlUnit* unit)
+void btlPacketResetUnit(BtlUnit* unit)
 {
     unit->scale = 1.0f;
     unit->pos = D_00881430;

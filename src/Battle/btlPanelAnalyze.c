@@ -32,7 +32,7 @@ static inline f32 panelAdd2(f32 left, f32 right) { return left + right; }
    retail's parameter-save order (MATCH nd0; without it, nd10). */
 #pragma opt_propagation off
 // FUN_00218760
-void func_00218760(void *arg0, u32 arg1, f32 fparg0, s32 arg2, f32 fparg1) {
+void btlPanelAddEntry(void *arg0, u32 arg1, f32 fparg0, s32 arg2, f32 fparg1) {
     struct {
         char text[128];
     } locals;
@@ -134,7 +134,7 @@ mode_done:
         break;
     }
 }
-/* measured: restores propagation after func_00218760. */
+/* measured: restores propagation after btlPanelAddEntry. */
 #pragma opt_propagation on
 
 typedef struct {
@@ -147,7 +147,7 @@ typedef struct {
 } PanelQuad;
 
 // FUN_00218AF0
-void func_00218af0(f32 fparg0, f32 fparg1, f32 fparg2) {
+void btlPanelSetRgb(f32 fparg0, f32 fparg1, f32 fparg2) {
     PanelQuad quads[4];
     u8 *p;
     f32 zval;
@@ -198,7 +198,7 @@ void func_00218af0(f32 fparg0, f32 fparg1, f32 fparg2) {
 }
 
 // FUN_00218C60
-void func_00218c60(u8 *arg0, s32 arg1, s64 arg2, f32 fparg0, f32 fparg1) {
+void btlPanelAddStatusEntry(u8 *arg0, s32 arg1, s64 arg2, f32 fparg0, f32 fparg1) {
     s32 temp;
     f32 temp_f12;
     f32 temp_f13;
@@ -231,7 +231,7 @@ void func_00218c60(u8 *arg0, s32 arg1, s64 arg2, f32 fparg0, f32 fparg1) {
 }
 
 // FUN_00218E50
-void func_00218e50(u8 *arg0, s32 arg1) {
+void btlPanelClear(u8 *arg0, s32 arg1) {
     memset(arg0, 0, 0x90);
     *(s32 *)(arg0 + 0x10) = arg1;
     *(s16 *)(arg0 + 0x2) = 0;
@@ -245,7 +245,7 @@ void func_00218e50(u8 *arg0, s32 arg1) {
    each iteration, consumed after the loop): a loop-carried alias of src_base
    drops it to $s0. Found by tools/permute_ast.py, minimised to this one line. */
 // FUN_00218EA0
-void func_00218ea0(u8 *arg0) {
+void btlPanelSetupLayout(u8 *arg0) {
     typedef struct { f32 x, y, z, w; } PanelVec4X;
     s32 *src;
     u8 *temp_2;
@@ -300,7 +300,7 @@ void func_00218ea0(u8 *arg0) {
 }
 
 // FUN_00219060
-void func_00219060(u8 *arg0) {
+void btlPanelResetLayout(u8 *arg0) {
     u8 *temp;
 
     func_003e8110(func_00457120());
@@ -318,7 +318,7 @@ void func_00219060(u8 *arg0) {
  * Preserve unsigned controller conversion before subtracting 128, matrix
  * initialization before composition, and callback-visible field reloads. */
 // FUN_00219130
-void func_00219130(u8 *arg0) {
+void btlPanelLoadModels(u8 *arg0) {
     typedef struct { f32 x, y, z; } AnalyzeVec3;
     typedef struct { f32 matrix[16]; } AnalyzeMatrix;
     extern u8 D_005DC9C8[];
@@ -383,8 +383,8 @@ void func_00219130(u8 *arg0) {
                 *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) |= 0x800;
             }
         }
-        mdlSetDrawCallback(*(u8 **)(arg0 + 0xC), func_00218ea0, arg0);
-        mdlSetResetCallback(*(u8 **)(arg0 + 0xC), func_00219060, arg0);
+        mdlSetDrawCallback(*(u8 **)(arg0 + 0xC), btlPanelSetupLayout, arg0);
+        mdlSetResetCallback(*(u8 **)(arg0 + 0xC), btlPanelResetLayout, arg0);
         *(u16 *)(arg0 + 0) &= ~2;
         *(u16 *)(arg0 + 0) |= 1;
         *(f32 *)(arg0 + 0x88) = 0.0f;
@@ -397,8 +397,8 @@ void func_00219130(u8 *arg0) {
         *(u8 **)(arg0 + 0xC) = model;
         mdlSetAttachedOwner(model, D_005DC9C8);
         *(u32 *)(*(u8 **)(arg0 + 0xC) + 0xD8) &= ~0x100;
-        mdlSetDrawCallback(*(u8 **)(arg0 + 0xC), func_00218ea0, arg0);
-        mdlSetResetCallback(*(u8 **)(arg0 + 0xC), func_00219060, arg0);
+        mdlSetDrawCallback(*(u8 **)(arg0 + 0xC), btlPanelSetupLayout, arg0);
+        mdlSetResetCallback(*(u8 **)(arg0 + 0xC), btlPanelResetLayout, arg0);
         *(f32 *)(arg0 + 0x88) = 0.0f;
         *(u16 *)(arg0 + 2) = 3;
     case 3:
@@ -480,7 +480,7 @@ static inline u8 btlPanelEnemyKind(u32 offset)
 /* Name, affinity, skill and footer phases keep separate coordinates and fades.
  * See docs/probe_archive/BtlPanelAnalyze_00219790_20260929.md. */
 // FUN_00219790
-void func_00219790(s32 unusedTask, u8 *panel)
+void btlPanelAnimate(s32 unusedTask, u8 *panel)
 {
     extern f32 fGpffff84a4;
     extern u8 *iGpffffb3c4;
@@ -588,17 +588,17 @@ void func_00219790(s32 unusedTask, u8 *panel)
                 if (hp > 999U) {
                     hp = 999;
                 }
-                func_00218760(work, hp, nameX, 0, 167.0f);
+                btlPanelAddEntry(work, hp, nameX, 0, 167.0f);
                 sp = datCalcMaxSp(*(u8 **)(unit + 0xA64)) & 0xFFFF;
                 if (sp > 999U) {
                     sp = 999;
                 }
-                func_00218760(work, sp, nameX, 1, 187.0f);
+                btlPanelAddEntry(work, sp, nameX, 1, 187.0f);
             } else {
                 f32 bx;
                 bx = 15.0f + nameX;
-                func_00218760(work, 0, bx, 2, 167.0f);
-                func_00218760(work, 0, bx, 3, 187.0f);
+                btlPanelAddEntry(work, 0, bx, 2, 167.0f);
+                btlPanelAddEntry(work, 0, bx, 3, 187.0f);
                 nameX = panelAdd2(111.0f, nameX);
                 btlUiDrawSpriteFaded(work, 10, 0x48, nameX, 166.0f, 0x70, 0x70, 0x70, 0xFF);
                 btlUiDrawSpriteFaded(work, 10, 0x49, 22.0f + nameX, 166.0f, 0x70, 0x70, 0x70, 0xFF);
@@ -625,7 +625,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
             {
                 f32 calculatedTop = 215.0f + ((51.0f * inv) / 2.0f);
                 f32 displayedTop = calculatedTop;
-                func_00218af0(-10.0f, displayedTop, 51.0f * affinityFade);
+                btlPanelSetRgb(-10.0f, displayedTop, 51.0f * affinityFade);
             }
             iconX = 19.0f;
             yBase = 217.0f + ((49.0f * inv) / 2.0f);
@@ -636,7 +636,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
                 affinity = &D_00628FB8[affinityIndex];
                 if (func_001f0950((s32)enemyIndex & 0xFFFF, (s32)*affinity) != 0) {
                     btlUiDrawSpriteFaded(work, 13, affinityIndex + 0x2E, iconX, yBase, 0x24, 0x4C, 0, 0xFF);
-                    func_00218c60(work, *(s32 *)(unit + 0xA64), (s64)*affinity, iconX - 2.0f, y22);
+                    btlPanelAddStatusEntry(work, *(s32 *)(unit + 0xA64), (s64)*affinity, iconX - 2.0f, y22);
                 } else {
                     btlUiDrawSpriteFaded(work, 13, affinityIndex + 0x2E, iconX, yBase, 0x70, 0x70, 0x70, 0xFF);
                     btlUiDrawSpriteFaded(work, 14, 0x43, iconX - 2.0f, y22, 0x70, 0x70, 0x70, 0xFF);

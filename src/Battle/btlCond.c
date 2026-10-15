@@ -40,7 +40,7 @@ s32 btlCond_MYHP(u8 *arg0, s32 arg1)
 }
 
 // FUN_001D97B0
-s32 func_001d97b0(u8 *arg0, s32 arg1)
+s32 btlCondCheckMaxHp(u8 *arg0, s32 arg1)
 {
     u32 uVar2 = 0;
     u32 uVar1 = 0;
@@ -105,7 +105,7 @@ void btlCond_ENHP_O(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001d97b0);
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCondCheckMaxHp);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on

@@ -186,7 +186,7 @@ u16 btlTargetGetUnitIndex(BtlTarget* target)
     }
     return mask;
 }
-/* measured: see the annotation above the matching `on` pragma (func_001eb440). */
+/* measured: see the annotation above the matching `on` pragma (btlTargetGetUnitIndex). */
 #pragma opt_loop_invariants off
 
 
@@ -278,7 +278,7 @@ f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0 *right, P4Vec4Holder_001EC2B0 *left
     }
     return 2.0f * func_0044b920(dot);
 }
-/* measured: close opt_propagation probe for func_001ec2b0. */
+/* measured: close opt_propagation probe for btlTargetQuatAngle. */
 #pragma opt_propagation on
 
 // FUN_001EC3D0

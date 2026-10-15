@@ -46,7 +46,7 @@ typedef struct {
 /* 716/720 bytes; thirty-two resolved relocations; four zero alignment bytes.
  * Capture store indices but reload the panel index after readiness callbacks. */
 // FUN_00202890
-s32 func_00202890(void* param)
+s32 btlPanelIsEnabled(void* param)
 {
     BtlPanel* panel = (BtlPanel*)param;
     BtlPanelResources* recs = (BtlPanelResources*)kwlnTaskGetWork(panel->field34);
@@ -112,15 +112,15 @@ check:
 
 
 // FUN_00202B60
-s32 func_00202890(void* panel);
+s32 btlPanelIsEnabled(void* panel);
 
-u8* func_00202b60(s32 param)
+u8* btlPanelCreatePacket(s32 param)
 {
     u8* p = btlPacketAlloc(0x508, 0x40);
     u8* rec;
 
     p[0x47] &= 0xFE;
-    *(u32*)(p + 0x6C) = (u32)func_00202890;
+    *(u32*)(p + 0x6C) = (u32)btlPanelIsEnabled;
     rec = *(u8**)(p + 0x78);
     memset(rec, 0, 0x40);
     *(s32*)(rec + 0x34) = param;
@@ -130,7 +130,7 @@ u8* func_00202b60(s32 param)
 
 
 // FUN_00202BE0
-void func_00202be0(void)
+void btlPanelLoadSync(void)
 {
     u8* t;
 

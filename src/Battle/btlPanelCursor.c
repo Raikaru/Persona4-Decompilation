@@ -40,7 +40,7 @@ extern f32 D_00761590;
    extra instructions (`lui`/`mtc1` of 1.0f into $f20) at the top and cost
    the whole match. */
 // FUN_0020BFF0
-void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
+void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     CursorColor color;
     Vec2f point;
@@ -161,7 +161,7 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
    extra instructions (`lui`/`mtc1` of 1.0f into $f20) at the top and cost
    the whole match. */
 // FUN_0020C680
-void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
+void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     CursorColor color;
     Vec2f point;
@@ -292,7 +292,7 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
    sites pass a constant distance, where the conversion folds away, which
    is why they matched with the wrong width. */
 // FUN_0020CE60
-void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
+void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     CursorColor color;
     Vec2f point;
@@ -429,7 +429,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
 #pragma push
 #pragma opt_lifetimes on
 // FUN_0020D6A0
-void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
+void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     extern void btlUiSetScale(u8 *work, f32 arg1, f32 arg2);
     extern f32 D_00626C20[];

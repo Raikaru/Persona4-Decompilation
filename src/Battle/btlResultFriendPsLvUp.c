@@ -40,7 +40,7 @@ extern u8 D_00629720[];
 
 
 // FUN_002238F0
-s32 func_002238f0(s64 arg0)
+s32 btlResultFriendPsCheck(s64 arg0)
 {
     s64 kind;
 
@@ -86,7 +86,7 @@ static inline u32 friendResultAddress(u32 offset, u32 base)
    alive"). The (u32)base argument of friendResultAddress keeps base alive
    the same way, giving retail's $s3/$s2 for r/base. */
 // FUN_002239A0
-s32 func_002239a0(u8 *sdkTaskBytes)
+s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
 {
     s32 arg0 = (s32)sdkTaskBytes;
     /* The menu consumes eleven IDs. The position provider reads two floats.
@@ -187,7 +187,7 @@ s32 func_002239a0(u8 *sdkTaskBytes)
                 func_001f86d0();
                 func_001f9a50((u16)t, 3);
             } else {
-                s32 stmp = func_002238f0(*(s16 *)(friendResultAddress((u32)*(s32 *)(r + 56) * 2, (u32)base) + 0x69A)) + 125;
+                s32 stmp = btlResultFriendPsCheck(*(s16 *)(friendResultAddress((u32)*(s32 *)(r + 56) * 2, (u32)base) + 0x69A)) + 125;
                 s16 u = (s16)(stmp + datCalcRandomBelow(3));
                 func_001f9a90();
                 func_001f8690((u16)u);

@@ -238,7 +238,7 @@ u8 *btlUnitCreate(s32 arg0)
     temp_3 = iGpffffa0a8;
     iGpffffa0a8 = temp_3 + 1;
     *(u32 *)(temp_2 + 0xA8) = temp_3;
-    func_00194dc0(temp_2);
+    btlPacketResetUnit(temp_2);
     *(f32 *)(temp_2 + 0x8C) = 150.0f;
     *(s32 *)(temp_2 + 0x90) = 0x42480000;
     *(s32 *)(temp_2 + 0x80) = 0;
