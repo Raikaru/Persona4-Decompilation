@@ -31,8 +31,8 @@ extern f32 D_005E42F8[];
 extern f32 D_005E42FC[];
 extern f32 D_005E4300[];
 extern s32 func_00247c20(s32 arg0);
-extern void *func_00246b80(void);
-extern u8 *func_00246ba0(void);
+extern void *cmmEarnScaleTable(void);
+extern u8 *cmmEntryValueRecord(void);
 extern s32 datRankForPoints(s16 arg0, s16 arg1);
 extern s16 D_007973F4[];
 extern u32 D_0079B1CC[];
@@ -877,26 +877,26 @@ f32 cmmCommunityEarnScale(s32 arg0) {
 
     v = 1.0f;
     if (func_00247c20((s8)func_00248760(arg0)) != 0) {
-        v = v * *(f32 *)func_00246b80();
+        v = v * *(f32 *)cmmEarnScaleTable();
     }
-    if (*(s32 *)((u8 *)func_00246b80() + 4) != 0) {
-        b = *(s32 *)((u8 *)func_00246b80() + 4);
+    if (*(s32 *)((u8 *)cmmEarnScaleTable() + 4) != 0) {
+        b = *(s32 *)((u8 *)cmmEarnScaleTable() + 4);
         w = &D_0079B1CC[b / 32];
         hit = (*w & (1 << (b % 32))) != 0;
         if (hit != 0) {
-            v = v * *(f32 *)((u8 *)func_00246b80() + 8);
+            v = v * *(f32 *)((u8 *)cmmEarnScaleTable() + 8);
         }
     }
     if ((*(s32 *)((u8 *)cmmKindRecord(arg0) + 4) & 0x20) != 0) {
         i = 0;
         while (i < 3) {
             off = i * 8;
-            if (*(s32 *)((u8 *)func_00246b80() + off + 0xC) != 0) {
-                b = *(s32 *)((u8 *)func_00246b80() + off + 0xC);
+            if (*(s32 *)((u8 *)cmmEarnScaleTable() + off + 0xC) != 0) {
+                b = *(s32 *)((u8 *)cmmEarnScaleTable() + off + 0xC);
                 q = (s32 *)(D_007973A0 + (b / 32) * 4);
                 hit = (*(s32 *)((u8 *)q + 0x3E2C) & (1 << (b % 32))) != 0;
                 if (hit != 0) {
-                    v = v * *(f32 *)((u8 *)func_00246b80() + off + 0x10);
+                    v = v * *(f32 *)((u8 *)cmmEarnScaleTable() + off + 0x10);
                 }
             }
             i++;
@@ -952,26 +952,26 @@ ret:
     }
     v = 1.0f;
     if (func_00247c20((s8)func_00248760(x)) != 0) {
-        v = v * *(f32 *)func_00246b80();
+        v = v * *(f32 *)cmmEarnScaleTable();
     }
-    if (*(s32 *)((u8 *)func_00246b80() + 4) != 0) {
-        b = *(s32 *)((u8 *)func_00246b80() + 4);
+    if (*(s32 *)((u8 *)cmmEarnScaleTable() + 4) != 0) {
+        b = *(s32 *)((u8 *)cmmEarnScaleTable() + 4);
         w = &D_0079B1CC[b / 32];
         hit = (*w & (1 << (b % 32))) != 0;
         if (hit != 0) {
-            v = v * *(f32 *)((u8 *)func_00246b80() + 8);
+            v = v * *(f32 *)((u8 *)cmmEarnScaleTable() + 8);
         }
     }
     if ((*(s32 *)((u8 *)cmmKindRecord(x) + 4) & 0x20) != 0) {
         x = 0;
         while (x < 3) {
             id = x * 8;
-            if (*(s32 *)((u8 *)func_00246b80() + id + 0xC) != 0) {
-                b = *(s32 *)((u8 *)func_00246b80() + id + 0xC);
+            if (*(s32 *)((u8 *)cmmEarnScaleTable() + id + 0xC) != 0) {
+                b = *(s32 *)((u8 *)cmmEarnScaleTable() + id + 0xC);
                 q = (s32 *)(D_007973A0 + (b / 32) * 4);
                 hit = (*(s32 *)((u8 *)q + 0x3E2C) & (1 << (b % 32))) != 0;
                 if (hit != 0) {
-                    v = v * *(f32 *)((u8 *)func_00246b80() + id + 0x10);
+                    v = v * *(f32 *)((u8 *)cmmEarnScaleTable() + id + 0x10);
                 }
             }
             x++;
@@ -1454,7 +1454,7 @@ s32 cmmCommunityGetCurrentEntryValue(void)
     s16 id;
     s32 index;
 
-    work = func_00246ba0();
+    work = cmmEntryValueRecord();
     id = *(s16 *)work;
     index = (s16)datRankForPoints(id, D_007973F4[id]);
     if (index <= 0) {
