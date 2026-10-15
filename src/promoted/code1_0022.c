@@ -119,7 +119,7 @@ extern u8 D_00629738[];
 extern s32 func_002239a0(u8 *task);
 extern void func_00223ed0();
 extern void func_00223ee0(u8 *task);
-extern s32 func_001998e0(u8 *arg0, s32 arg1);
+extern s32 btlUnitMotionClassValue(u8 *arg0, s32 arg1);
 extern s32 func_0019fe60(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_001cbf80(u8 *arg0);
 extern void func_001cbfe0(int param_1);
@@ -1726,10 +1726,10 @@ void func_00225c00(u8 *arg0)
             } else {
                 func_002250a0(self, 0.0f, 0.75f);
             }
-            arg0 = (u8 *)(s64)(s16)func_001998e0(
+            arg0 = (u8 *)(s64)(s16)btlUnitMotionClassValue(
                 *(u8 **)(*(u8 **)(self + 0xE0) + 0x30), 4);
             *(s16 *)(self + 0x10E) =
-                func_001999f0(*(u8 **)(*(u8 **)(self + 0xE0) + 0x30),
+                btlUnitMotionHitFrames(*(u8 **)(*(u8 **)(self + 0xE0) + 0x30),
                               4, 1.0f, (s64)((u32)arg0 & 0xFFFF));
             *(s16 *)(self + 0x10C) = 0;
             *(s32 *)(self + 0x100) = *(s32 *)(*(u8 **)(self + 0xE0) + 0x38);
@@ -3584,7 +3584,7 @@ void func_00229da0(u8 *action)
             *(u64 *)(packet + 8) = *(u64 *)(statusAnimation + 0x58);
             *(u64 *)(packet + 0x60) = *(u64 *)action;
             btlPacketEnqueue(packet, 1);
-            animationFrames = func_00199500(*(u8 **)(target + 0x30), 0xB, 1.0f);
+            animationFrames = btlUnitMotionModelFrames(*(u8 **)(target + 0x30), 0xB, 1.0f);
         } else {
             animationFrames = 0;
         }

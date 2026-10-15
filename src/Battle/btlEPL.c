@@ -35,7 +35,7 @@ extern void RtQuatConvertFromMatrix(void *arg0, void *arg1);
 extern void func_001ec350(void *arg0, void *arg1);
 extern u32 func_0047a7c0(u32 arg0);
 extern void btlUnitClearModelState(void *arg0, s32 arg1);
-extern void func_00199890(void *arg0, s32 arg1);
+extern void btlUnitSetModelAnimFrame(void *arg0, s32 arg1);
 extern void btlUnitApplyModelState(void *arg0, s32 arg1);
 extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
 extern u8 *func_001b7020(void);
@@ -1275,7 +1275,7 @@ void btlEplUnitApplyMotion(u8 *arg0)
                     func_00198920((u8 *)node, (s16)value, param->frame, param->rate, param->option);
                     value = param->unk10;
                     if (value != 0) {
-                        func_00199890(node, (s16)value);
+                        btlUnitSetModelAnimFrame(node, (s16)value);
                     }
                     btlUnitApplyModelState(node, 4);
                 }

@@ -747,7 +747,7 @@ s32 btlUnitIdleAnimTick(u8 *arg0)
             datCalcIsDead(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), 0) != 0) {
             return 0;
         }
-        if ((s16)func_00199830(*(u8 **)(arg0 + 0x30)) < 4) {
+        if ((s16)btlUnitModelAnimFrame(*(u8 **)(arg0 + 0x30)) < 4) {
             btlPacketEnqueue(btlUnitCreateAnimPacket(*(u8 **)(arg0 + 0x30),
                                          0x11, 4, 0, 1.0f),
                           0);

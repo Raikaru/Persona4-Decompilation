@@ -321,7 +321,7 @@ extern u8 D_00794150[];
 
 
 extern s64 btlUnitGetMotionId(u8 *arg0, u16 arg1);
-extern s16 func_001991c0(u8 *arg0, u16 arg1, f32 fparg0);
+extern s16 btlUnitMotionFrames(u8 *arg0, u16 arg1, f32 fparg0);
 extern void btlPacketStepSide(s32 arg0);
 extern void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
 // FUN_001900A0
@@ -488,7 +488,7 @@ extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern s32 func_00198810(u8 *arg0);
 extern u32 func_00198840(u8 *arg0);
 extern u32 func_001988b0(u8 *arg0);
-extern s64 func_00199830(u8 *arg0);
+extern s64 btlUnitModelAnimFrame(u8 *arg0);
 static inline u32 p4_add_index_base(u32 offset, u32 base)
 {
     return offset + base;
@@ -516,7 +516,7 @@ void func_00198380(u8 *arg0) {
             mdlSetLayerWeight(temp_16, 0, 0.0f);
             return;
         }
-        if ((temp_3 & 4) && ((s16)func_00199830(arg0) >= *(s16 *)(arg0 + 0x9E6)) && (*(s16 *)(arg0 + 0x9E8) > 0)) {
+        if ((temp_3 & 4) && ((s16)btlUnitModelAnimFrame(arg0) >= *(s16 *)(arg0 + 0x9E6)) && (*(s16 *)(arg0 + 0x9E8) > 0)) {
             mdlSetLayerWeight(temp_16, 0, 0.0f);
             *(s16 *)(arg0 + 0x9E8) = (s16) (*(s16 *)(arg0 + 0x9E8) - 1);
             return;
@@ -574,8 +574,8 @@ void func_00198380(u8 *arg0) {
         case 3:
             if (!(*(f32 *)(temp_16 + 0x108) < 1.0f)) {
                 temp_19 = (s16)func_00198810(arg0);
-                temp_18 = (s16)func_00199830(arg0);
-                if (temp_18 >= (s16)func_001991c0(arg0, temp_19 & 0xFFFF, 1.0f)) {
+                temp_18 = (s16)btlUnitModelAnimFrame(arg0);
+                if (temp_18 >= (s16)btlUnitMotionFrames(arg0, temp_19 & 0xFFFF, 1.0f)) {
                     mdlSetLayerWeight(temp_16, 0, 0.0f);
                 }
             }

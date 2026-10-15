@@ -170,7 +170,7 @@ u32 func_001d1f30(u32 *work)
     extern void func_00195aa0(struct BtlUnit *, struct BtlUnit *, struct RwV3d *);
     extern void func_001958f0(struct BtlUnit *, struct RwV3d *);
     extern f32 func_00196040(u32, u32, struct RwV3d *, f32 *, f32 *, u32);
-    extern s32 func_00199d00(s32, u8 *, s16, s32);
+    extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
     extern s32 func_001f1210(u8 *unit, s16 action, s32 paired);
     extern void func_001951f0(u8 *unit, u8 *target, u8 *partner, s32 category,
                             f32 *position, f32 *rotation, s32 options);
@@ -310,10 +310,10 @@ u32 func_001d1f30(u32 *work)
                  * retail; only the later distance clamp may set it. */
                 if (entry != NULL) {
                     isClose = func_001f1210(entry, (s16)h6E, 1);
-                    sel = (s16)func_00199d00((s32)((s32)entry), unitB, (s16)h6E, 1);
+                    sel = (s16)btlUnitOpeningMotionMode((s32)((s32)entry), unitB, (s16)h6E, 1);
                     len = (0.0f + len) - *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
                     if (isClose == 0) {
-                        tmp = (s16)func_00199d00((s32)((s32)entry), unitB, (s16)h6E, 1);
+                        tmp = (s16)btlUnitOpeningMotionMode((s32)((s32)entry), unitB, (s16)h6E, 1);
                         switch (tmp) {
                         case 0:
                         case 2:
@@ -590,7 +590,7 @@ void func_001d2e00(u32 *work)
  * docs/probe_archive/Formation_callback_001d2e20_20260924.md. */
 #pragma push
 #pragma opt_propagation off
-extern s32 func_00199d00(s32, u8 *, s16, s32);
+extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
 extern s32 func_001f1210(u8 *, s16, s32);
 extern void func_001951f0(u8 *, u8 *, u8 *, s32, f32 *, f32 *, s32);
 
@@ -617,9 +617,9 @@ static inline u32 placeFormation(BtlFormationPlacementWork *work, u8 *node, u8 *
     actionBits = work->action;
     paired = work->partnerAction != NULL;
     mode = (s16)actionBits;
-    category = (s16)func_00199d00((s32)node, unit, mode, paired);
+    category = (s16)btlUnitOpeningMotionMode((s32)node, unit, mode, paired);
     if (func_001f1210(node, mode, paired) == 0) {
-        kind = (s16)func_00199d00((s32)node, unit, mode, paired);
+        kind = (s16)btlUnitOpeningMotionMode((s32)node, unit, mode, paired);
         switch (kind) {
         case 0:
         case 2:
