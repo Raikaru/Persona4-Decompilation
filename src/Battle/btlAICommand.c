@@ -1988,7 +1988,7 @@ s32 btlAICommandSpawnActionProc(u8 *p, u8 *q, u32 v, u32 w)
    DAT_007ce4cc->iGpffffb3cc, DAT_007ce4d0->iGpffffb42c. func_001de800 declared
    locally as u32 to keep the &0xFFFF mask from folding to 0xff. */
 // FUN_001DED30
-void func_001ded30(int param_1, int param_2)
+void btlAICommandSetUnitAction(int param_1, int param_2)
 {
     u8 type;
     u16 baseActionId;
@@ -2039,7 +2039,7 @@ void func_001ded30(int param_1, int param_2)
 
 
 // FUN_001DEEE0
-u32 func_001deee0(int param_1)
+u32 btlAICommandTryReleaseProc(int param_1)
 {
   u32 uVar1 = 0;
   long lVar2 = 0;
@@ -2067,7 +2067,7 @@ u32 func_001deee0(int param_1)
 
 
 // FUN_001DEF60
-u32 func_001def60(void)
+u32 btlAICommandScriptSetDefaultAction(void)
 {
   extern u8 *func_0029d050(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
@@ -2080,7 +2080,7 @@ u32 func_001def60(void)
 
 
 // FUN_001DEFA0
-s32 func_001defa0(void) {
+s32 btlAICommandScriptSetActionParam(void) {
     u8 *p = func_0029d050();
     s32 r = scrGetParamInt(0);
     if (r == 0)
@@ -2093,7 +2093,7 @@ s32 func_001defa0(void) {
 }
 
 // FUN_001DF040
-s32 func_001df040(void) {
+s32 btlAICommandScriptSetSkillAction(void) {
     u8 *p = func_0029d050();
     s32 r = scrGetParamInt(0);
     if (r >= 0) {
@@ -2107,7 +2107,7 @@ s32 func_001df040(void) {
 }
 
 // FUN_001DF0C0
-u32 func_001df0c0(void)
+u32 btlAICommandScriptSetAction8001(void)
 {
   extern u8 *func_0029d050(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
@@ -2121,7 +2121,7 @@ u32 func_001df0c0(void)
 
 
 // FUN_001DF100
-u32 func_001df100(void)
+u32 btlAICommandScriptSetAction8002(void)
 {
   extern u8 *func_0029d050(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
@@ -2135,7 +2135,7 @@ u32 func_001df100(void)
 
 
 // FUN_001DF140
-s32 func_001df140(void) {
+s32 btlAICommandScriptSetActionSubword(void) {
     u8 *p = func_0029d050();
     *(u16 *)(p + 0xEC) = scrGetParamInt(0);
     btlAICommandSetActionCode(p, p + 0x38, 0x8002);
@@ -2143,7 +2143,7 @@ s32 func_001df140(void) {
 }
 
 // FUN_001DF1A0
-s32 func_001df1a0(void) {
+s32 btlAICommandScriptSetAiPlan(void) {
     u8 *p = func_0029d050();
     *(u16 *)(p + 0x6C) = 9;
     *(u16 *)(p + 0x6E) = 0x111;
@@ -2154,7 +2154,7 @@ s32 func_001df1a0(void) {
 }
 
 // FUN_001DF230
-s32 func_001df230(void) {
+s32 btlAICommandScriptSetAiPlanWithArg(void) {
     u8 *p = func_0029d050();
     *(u16 *)(p + 0x6C) = 9;
     *(u16 *)(p + 0x6E) = 0x111;
@@ -2166,7 +2166,7 @@ s32 func_001df230(void) {
 }
 
 // FUN_001DF2D0
-u32 func_001df2d0(void)
+u32 btlAICommandScriptSetAction8007(void)
 {
   extern u8 *func_0029d050(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
