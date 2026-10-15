@@ -257,7 +257,7 @@ s32 func_001762a0(void)
 }
 
 // FUN_001762E0
-s32 func_001762e0(void)
+s32 K_Cmd_CALL_TITLE(void)
 {
     if (func_0015f660() == 0) {
         return 0;
@@ -267,7 +267,7 @@ s32 func_001762e0(void)
 }
 
 // FUN_00176320
-s32 func_00176320(void) {
+s32 K_Cmd_CALL_TV(void) {
     if (func_0015f660() == 0) {
         return 0;
     }
@@ -276,7 +276,7 @@ s32 func_00176320(void) {
 }
 
 // FUN_00176370
-s32 func_00176370(void) {
+s32 K_Cmd_CALL_LMAP(void) {
     s32 sp1C;
 
     if (func_0015f660() == 0) {
@@ -290,7 +290,7 @@ s32 func_00176370(void) {
 }
 
 // FUN_001763F0
-s32 func_001763f0(void) {
+s32 K_Cmd_CALL_FOOD_COURT(void) {
     if (func_0015f660() == 0) {
         return 0;
     }
@@ -300,7 +300,7 @@ s32 func_001763f0(void) {
 }
 
 // FUN_00176450
-s32 func_00176450(void)
+s32 K_Cmd_CALL_FIELD(void)
 {
     s16 sp10[14];
 
@@ -337,7 +337,7 @@ s32 func_00176500(void)
 }
 
 // FUN_001765C0
-s32 func_001765c0(void)
+s32 K_Cmd_CALL_EVENT(void)
 {
     s32 sp30[7];
     s32 temp_17;
@@ -390,7 +390,7 @@ s32 func_001766e0(void)
 }
 
 // FUN_00176770
-s32 func_00176770(void)
+s32 K_Cmd_CALL_DNG_FLOOR(void)
 {
     s32 sp18[2];
 
