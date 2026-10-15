@@ -247,7 +247,7 @@ extern f32 sqrtf(f32 x);
  * The resource selector shares the existing field selector's output contract.
  * Measured: 1324 retail instruction bytes and four zero alignment bytes. */
 // FUN_0016B8A0
-s32 func_0016b8a0(const RwV3d *line, RwV3d *hitPointDst)
+s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
 {
     typedef struct FldRayLine
     {
@@ -1096,7 +1096,7 @@ s32 func_0016bdd0(u8 *param_1)
         temp_v8_c = piVar1[0xb0];
         segment[1] = *(FldCopyVec *)(temp_v8_c + 0x30);
         *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((followFrame + 0x10));
-        temp_v6_c = func_0016b8a0((const RwV3d *)segment,(RwV3d *)&stk130[0]);
+        temp_v6_c = FldFrame_RaycastField((const RwV3d *)segment,(RwV3d *)&stk130[0]);
         if (temp_v6_c == 1) {
           stk130[0] = stk130[0] - segment[0].x;
           stk130[1] = stk130[1] - segment[0].y;
@@ -1602,7 +1602,7 @@ s32 func_0016bdd0(u8 *param_1)
           chaseSegment[1].z = chaseSegment[1].z + scaledZ;
         }
         *(FldMtx64 *)(piVar1[0xb0]) = *(FldMtx64 *)((temp_v4_d + 0x10));
-        temp_v6_d = func_0016b8a0((const RwV3d *)chaseSegment,(RwV3d *)&stk230.x);
+        temp_v6_d = FldFrame_RaycastField((const RwV3d *)chaseSegment,(RwV3d *)&stk230.x);
         if (temp_v6_d == 1) {
           stk230.x = stk230.x - chaseSegment[0].x;
           stk230.y = stk230.y - chaseSegment[0].y;
@@ -1809,21 +1809,21 @@ s32 func_0016e2e0(s32 arg0)
 
 #pragma pop
 // FUN_0016E540
-void func_0016e540(u8 *arg0, s32 arg1)
+void FldFrame_SetStateFlags(u8 *arg0, s32 arg1)
 {
     u8 *temp_0 = *(u8 **)(arg0 + 0x38);
     *(s32 *)(temp_0 + 4) = *(s32 *)(temp_0 + 4) | arg1;
 }
 
 // FUN_0016E560
-void func_0016e560(u8 *arg0, s32 arg1)
+void FldFrame_ClearStateFlags(u8 *arg0, s32 arg1)
 {
     u8 *temp_0 = *(u8 **)(arg0 + 0x38);
     *(s32 *)(temp_0 + 4) = *(s32 *)(temp_0 + 4) & ~arg1;
 }
 
 // FUN_0016E580
-s32 func_0016e580(u8 *arg0)
+s32 FldFrame_GetStatus(u8 *arg0)
 {
     return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x8);
 }
@@ -1996,7 +1996,7 @@ done:
 
 /* measured: closes opt_propagation off for func_0016e8e0. */
 // FUN_0016E9F0
-void func_0016e9f0(u8 *arg0, u8 *arg1)
+void FldFrame_SetViewOffset(u8 *arg0, u8 *arg1)
 {
     u8 *temp_3;
 
@@ -2005,7 +2005,7 @@ void func_0016e9f0(u8 *arg0, u8 *arg1)
 }
 
 // FUN_0016EA20
-void func_0016ea20(u8 *arg0, f32 arg1)
+void FldFrame_SetViewDistance(u8 *arg0, f32 arg1)
 {
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x20) = arg1;
 }
