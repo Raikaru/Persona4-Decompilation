@@ -106,7 +106,7 @@ extern s32 func_001eb860(void);
 #pragma pop
 /* AI script command 0x20c2 (p4flow AI.json AI_FUNCTION_00C2). */
 // FUN_001EAA80
-s32 func_001eaa80(void) {
+s32 btlEffectScriptSetBattleFlag2000(void) {
     if (func_001eb860() == 1) {
         *(s32 *)(iGpffffb3ac + 0xC) |= 0x2000;
     }
@@ -115,7 +115,7 @@ s32 func_001eaa80(void) {
 
 /* AI script command 0x20c3 (p4flow AI.json AI_FUNCTION_00C3). */
 // FUN_001EAAC0
-s32 func_001eaac0(void)
+s32 btlEffectScriptClearBattleFlag2000(void)
 {
     u8 *temp_4;
 
@@ -129,7 +129,7 @@ s32 func_001eaac0(void)
 
 /* AI script command 0x20c4 (p4flow AI.json AI_FUNCTION_00C4). */
 // FUN_001EAB10
-s32 func_001eab10(void) {
+s32 btlEffectScriptSetDamageSourceOn(void) {
     func_00213b50(*(s32 *)(iGpffffb3ac + 0xDD4));
     if (func_001eb860() == 1) {
         btlDamageSetSource(*(u8 **)(iGpffffb3ac + 0xDD4), 1);
@@ -139,7 +139,7 @@ s32 func_001eab10(void) {
 
 /* AI script command 0x20c5 (p4flow AI.json AI_FUNCTION_00C5). */
 // FUN_001EAB60
-s32 func_001eab60(void) {
+s32 btlEffectScriptSetDamageSourceOff(void) {
     func_00213b80(*(s32 *)(iGpffffb3ac + 0xDD4));
     if (func_001eb860() == 1) {
         btlDamageSetSource(*(u8 **)(iGpffffb3ac + 0xDD4), 0);
@@ -149,7 +149,7 @@ s32 func_001eab60(void) {
 
 /* AI script command 0x20c8 (p4flow AI.json AI_FUNCTION_00C8). */
 // FUN_001EABC0
-s32 func_001eabc0(void) {
+s32 btlEffectScriptCheckSideAndId(void) {
     u8 *p = func_001b1510();
     u32 a = scrGetParamIntS32(0) & 0xFFFF;
     u32 b = scrGetParamIntS32(1) & 0xFFFF;
@@ -177,7 +177,7 @@ s32 func_001eabc0(void) {
 /* measured probe: preserve the retail filter branch chain */
 #pragma push
 /* AI script command 0x20fb (p4flow AI.json AI_FUNCTION_00FB). */
-s32 func_001eaca0(void) {
+s32 btlEffectScriptFormationMoveUnit(void) {
     extern s32 btlFormationAllocWork(u32 arg0);
     extern void btlFormationCopyRecord(u8 *arg0, u8 *arg1);
     extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
@@ -235,7 +235,7 @@ selected:
 #pragma pop
 /* AI script command 0x20fc (p4flow AI.json AI_FUNCTION_00FC). */
 // FUN_001EAE30
-s32 func_001eae30(void) {
+s32 btlEffectScriptNoHitRecorded(void) {
     s64 mask;
     s32 hit;
 
@@ -248,7 +248,7 @@ s32 func_001eae30(void) {
 
 /* AI script command 0x20fd (p4flow AI.json AI_FUNCTION_00FD). */
 // FUN_001EAEC0
-s32 func_001eaec0(void)
+s32 btlEffectScriptApplyToSideUnit(void)
 {
     extern u8 *func_001d9280(s64 arg0, s32 arg1, s32 arg2);
     s64 temp_20;
@@ -279,10 +279,10 @@ s32 func_001eaec0(void)
 // FUN_001EAFB0
 /* measured probe: preserve retail conditional branch shape */
 #pragma push
-/* measured: func_001eafb0 MATCH -> MISMATCH without this pragma. */
+/* measured: btlEffectScriptSetUnitPositionByIndex MATCH -> MISMATCH without this pragma. */
 #pragma opt_rebuildconditionals off
 /* AI script command 0x20fe (p4flow AI.json AI_FUNCTION_00FE). */
-s32 func_001eafb0(void) {
+s32 btlEffectScriptSetUnitPositionByIndex(void) {
     extern void btlTargetPositionToCell();
     extern void btlUnitSetPos();
     extern s64 scrGetParamInt();
@@ -328,7 +328,7 @@ done:
 #pragma pop
 /* AI script command 0x20ff (p4flow AI.json AI_FUNCTION_00FF). */
 // FUN_001EB0B0
-s32 func_001eb0b0(void) {
+s32 btlEffectScriptFinishPresentation(void) {
     u8 *o;
 
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));
@@ -340,7 +340,7 @@ s32 func_001eb0b0(void) {
 
 /* AI script command 0x210b (p4flow AI.json AI_FUNCTION_010B). */
 // FUN_001EB110
-s32 func_001eb110(void) {
+s32 btlEffectScriptEnqueueEventPacket(void) {
     u8 sp20[0x200];
     s64 temp_16;
     s64 temp_2;
