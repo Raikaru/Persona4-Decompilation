@@ -940,7 +940,7 @@ void func_001f14f0(u8 *arg0)
     /* lint: allow H011 -- retail passes flags as the third argument; the callee leaves it unused. */
     extern s32 func_001fb360(u8 *, s32, s32);
     extern s32 func_00242990(u8 *, s32);
-    extern s32 func_002411a0(u8 *, u8 *, s32, s32, s32);
+    extern s32 datCalcHitResult(u8 *, u8 *, s32, s32, s32);
     /* lint: allow H011 -- retail forwards an already zero-extended skill word; the callee consumes its low 16 bits. */
     extern s32 func_0023d8e0(u8 *, s32);
     extern u8 *func_001efd50(u8 *);
@@ -1135,7 +1135,7 @@ void func_001f14f0(u8 *arg0)
         if (*(s32 *)(unit + 0xE4) != 0) {
             selectedSub = 1;
         } else {
-            selectedSub = func_002411a0(ctx, target, id, res, flags);
+            selectedSub = datCalcHitResult(ctx, target, id, res, flags);
         }
         sub = selectedSub & 0xFFFF;
         if (func_0023df70(id) != 0) {
