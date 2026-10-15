@@ -11,6 +11,7 @@
 #include "btl_cond_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_target_state_packet_internal.h"
+#include "g_data_internal.h"
 /* Force the offset operand into the first addu slot. */
 static inline u32 addOffsetFirst(u32 offset, u32 base) {
     return offset + base;
@@ -57,7 +58,6 @@ extern s32 func_00231f80(u8 *arg0);
 extern u16 func_00232290(u8 *arg0);
 extern s32 datCalcGetBadStatusNoDown(u8 *arg0);
 extern u32 datCalcIsDead(s32 unit, s32 hpDelta);
-extern s32 datGetFlag(s32 arg0);
 extern s32 func_0010f420(s32 arg0, s32 arg1);
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;

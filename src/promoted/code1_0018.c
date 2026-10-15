@@ -7,6 +7,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "message_frame_internal.h"
+#include "g_data_internal.h"
 extern void *func_0018c680(void *object, void *data);
 
 typedef struct RwV3d {
@@ -189,7 +190,6 @@ extern u8 D_007E8C00[];
 extern s64 func_001060b0(void);
 extern s32 func_001060c0(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
-extern s32 datGetFlag(s32 arg0);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0015a160(void);
 extern void func_004598e0(s32 arg0);
@@ -2043,12 +2043,11 @@ extern int D_007EFA04[];
 extern float fGpffff8300; /* 0xffff8300 */
 extern float fGpffff8420; /* 0xffff8420 */
 
-extern long func_00106330(int);
 extern u8 *MT_Scene_GetResListHead(s32);
 extern u32 K_FldEvent_IsPosWithinFov(const RainMatrix *, const RainVector *, f32);
 extern u32 K_FldEvent_ArePosWithinDist(const RainVector *, const RainVector *, f32);
 extern u8 *func_002467b0(s32);
-extern int func_003b7060(void);
+extern u32 RpRandom(void);
 struct RpSpline;
 extern struct RpSpline *func_003bbbe0(s32 count, s32 type, RainVector *points);
 extern unsigned int func_003e0f80(void);
@@ -2169,7 +2168,7 @@ s32 func_0018a200(u8 *param_1)
   RainVector *turnRight;
   u8 *finalModel;
   unsigned int temp_v8;
-  long temp_v9;
+  u32 temp_v9;
   u32 fovResult;
   u32 distanceResult;
   long long temp_v10;
@@ -2446,11 +2445,11 @@ s32 func_0018a200(u8 *param_1)
           temp_v3 = (short)temp_v10;
         }
         eventResource = temp_v3;
-        temp_v9 = func_00106330(eventResource + 0x43f);
+        temp_v9 = datGetFlag(eventResource + 0x43f);
         if (temp_v9 != 0) {
           actorIndex = 2;
         } else {
-          temp_v9 = func_00106330(eventResource + 0x45f);
+          temp_v9 = datGetFlag(eventResource + 0x45f);
           if (temp_v9 != 0) {
             actorIndex = 0;
           }
@@ -2705,7 +2704,7 @@ s32 func_0018a200(u8 *param_1)
                 motionWork->progress = (one - motionWork->step);
                 motionWork->direction = -1.0f;
                 puVar1[9] = 0x5a;
-                pauseRoll = func_003b7060();
+                pauseRoll = RpRandom();
                 puVar1[10] = pauseRoll % 0x5a + 0x3c;
                 func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
               }
@@ -2714,7 +2713,7 @@ s32 func_0018a200(u8 *param_1)
               motionWork->progress = motionWork->step;
               motionWork->direction = 1.0f;
               puVar1[9] = 0x5a;
-              pauseRoll = func_003b7060();
+              pauseRoll = RpRandom();
               puVar1[10] = pauseRoll % 0x5a + 0x3c;
               func_00479940(*(unsigned char **)(puVar1[3] + 0x164),0,0,4,1);
             }
