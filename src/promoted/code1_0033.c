@@ -36,7 +36,7 @@ typedef struct {
 } D9D0Locals;
 
 extern void func_002bdea0(void);
-extern void func_00308f40(void);
+extern void fclCombineApplyPackedResult(void);
 extern void (*D_00887300[])(s32, s32);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void fclSpriteStartPosition(u8 *arg0, F2_0033 arg1, F2_0033 arg2,
@@ -255,7 +255,7 @@ s32 func_00331860(void)
 s32 func_00331950(void)
 {
     func_002bdea0();
-    func_00308f40();
+    fclCombineApplyPackedResult();
     return 1;
 }
 // FUN_00331980

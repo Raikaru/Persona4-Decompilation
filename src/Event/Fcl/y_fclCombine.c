@@ -6460,7 +6460,7 @@ s32 fclCombineStageValue(s32 arg0, s8 arg1)
 }
 
 /* A 0x30-byte combination recipe, as copied out by func_002e4960 and
-   passed by value to func_00304410.  Its word alignment gives the
+   passed by value to fclCombinePickCandidateId.  Its word alignment gives the
    two-word copy loop retail uses for the argument. */
 typedef struct {
     s32 data[12];
@@ -6475,8 +6475,9 @@ typedef struct {
    local after the sign-extended s64 count; a signed modulo result and a
    named s16 *entry table pointer give retail's dsll32/dsra32 remainder
    and its separate addiu 0x70 before lhu. */
+// Fcl combine candidate id: picks a random persona id for the recipe from the ids of the same kind (func_00313690) as arg1, excluding arg1 itself. The draw loop stops at the first pick that datPersonaFindSkillSlot reports as absent (-1), as written.
 // FUN_00304410
-u16 func_00304410(FclCombineRecipe recipe, s16 arg1) {
+u16 fclCombinePickCandidateId(FclCombineRecipe recipe, s16 arg1) {
     s16 table[0x240];
     s64 key;
     s64 count;
@@ -7739,7 +7740,7 @@ s32 fclCombineRollTier(u8 *task)
    then lh ($v0); mwcc b210 folds the 0x48 into the load displacement
    (sll/addu/lh 0x48($v0)) no matter the spelling — probed array-index,
    named pointer, byte-offset arithmetic, for-loop, initializer-list, and
-   #pragma schedule on (nd 56); best nd 40. Same floor family as func_00308f40. */
+   #pragma schedule on (nd 56); best nd 40. Same floor family as fclCombineApplyPackedResult. */
 /* MATCHED wave 14: same fix as fclCombineFindMatchPtr — the table INITIALIZER was the
    defect. Individual stores `table[0]=0xD; …` (not the array initializer,
    which pulls the 4 constants from a gp pool) reproduce retail's addiu/sh
@@ -7774,8 +7775,9 @@ s32 fclCombineFindMatchIndex(u8 *arg0) {
    func_001102c0 takes u16 (no mask / sign-extension at either call site).
    The byte sum reads ((u8 *)&func_001102e0()[0x13])[j] (addu, lbu 0x26)
    and packed is declared before j (register rotation). */
+// Fcl combine packed result: applies the packed four-nibble result word (func_001102d0) to the roster flags (cycling the 0x20/0x40/0x80 bits of members with bit 4) and, when flag 0x1306 is set and 0x1307 is not, either hands the working record to the other hero (when the nibble or total rule fires) or raises the two stat bytes chosen by n0 by D_00749350[n3], capped at 0x63.
 // FUN_00308F40
-void func_00308f40(void) {
+void fclCombineApplyPackedResult(void) {
     u16 raw;
     s8 n0;
     s8 n1;
@@ -9539,7 +9541,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         } else if (func_002bb1c0(*(s8 *)(p + 0xD)) == 0) {
             func_002bb550(*(s8 *)(p + 0xD));
             yListSlotCopyEntry((u8 *)&info, *(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
-            *(s16 *)(p + 0x24) = func_00304410(info, *(s16 *)(p + 0x1C));
+            *(s16 *)(p + 0x24) = fclCombinePickCandidateId(info, *(s16 *)(p + 0x1C));
             *(s16 *)(p + 0x2D8) = 0;
             p[1] = 0xBA;
         } else {
