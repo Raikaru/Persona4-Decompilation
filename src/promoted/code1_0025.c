@@ -17,7 +17,7 @@ extern void func_0045aeb0(s32 arg0, const char *arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_00250ad0(s32 *arg0, u8 *arg1);
 extern u16 *datPersonaGetRecord(u16 arg0);
-extern s32 func_0010cfa0(u8 *arg0, u16 arg1, u8 *arg2);
+extern s32 datPersonaLoadRecord(u8 *arg0, u16 arg1, u8 *arg2);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern s16 D_00636A40[];
 extern char D_00635C00[];
@@ -863,7 +863,7 @@ s32 func_0025d580(void) {
         return 1;
     }
     temp_2_2 = (s32)datPersonaGetRecord(temp_16);
-    func_0010cfa0(
+    datPersonaLoadRecord(
         (u8 *)sp60,
         *(u16 *)((u8 *)sp30 + ((temp_16 & 0xFFFF) * 4) + 2),
         (u8 *)temp_2_2);

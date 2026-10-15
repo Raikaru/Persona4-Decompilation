@@ -2663,7 +2663,7 @@ u8* func_0010fde0(u8* arg0)
 }
 
 // FUN_0010FFA0
-extern void func_0010cad0(u8 *arg0, u16 arg1);
+extern void datPersonaInitRecord(u8 *arg0, u16 arg1);
 void func_0010ffa0(void) {
     u8 buf[0x30];
     u8 *base;
@@ -2674,7 +2674,7 @@ void func_0010ffa0(void) {
     while (i < 0x100)
     {
         FUN_0043f9c8(buf, 0, 0x30);
-        func_0010cad0(buf, (u16)i);
+        datPersonaInitRecord(buf, (u16)i);
         *(u16 *)buf |= 1;
         if (((s32)*(u16 *)(buf + 2) < 0) || ((s32)*(u16 *)(buf + 2) >= 0x100))
         {

@@ -747,8 +747,8 @@ arena at `D_007F17B0`, and its address is stored at the destination.
 |---|---|---|
 | `battle/SKILL.TBL` | `0x7644A4`, `0x7644A8` | skill tables |
 | `battle/UNIT.TBL` | `0x7644B4`, `0x7644B8`, `0x7644C8` | enemy unit data |
-| `battle/MSG.TBL` | `0x76453C`, `0x764538`, `0x764534`, `0x764530`, ... | `DAT_00764530`, read by `func_00109220` (`0x11`-byte entries per persona id) |
-| `battle/PERSONA.TBL` | `0x7644C4`, `0x7644CC`, `0x7644D4`, `0x7644D8` | `DAT_007644c4`, read by `func_00109280` (`0xE`-byte entries per persona, 256 personas = `0xE00` bytes) |
+| `battle/MSG.TBL` | `0x76453C`, `0x764538`, `0x764534`, `0x764530`, ... | `DAT_00764530`, read by `datPersonaGetRow` (`0x11`-byte entries per persona id) |
+| `battle/PERSONA.TBL` | `0x7644C4`, `0x7644CC`, `0x7644D4`, `0x7644D8` | `DAT_007644c4`, read by `datPersonaGetArcana` (`0xE`-byte entries per persona, 256 personas = `0xE00` bytes) |
 | `battle/ENCOUNT.TBL` | `0x764504`..`0x764510` | `src/Kosaka/k_encount.c` |
 | `battle/EFFECT.TBL` | `0x7644AC` | `iGpffffb3bc`, the four-byte skill flag records in `include/btl_skill_internal.h` |
 | `battle/MODEL.TBL` | `0x7644B0`, `0x7644BC`, `0x7644D0` | |
@@ -757,12 +757,12 @@ arena at `D_007F17B0`, and its address is stored at the destination.
 ### Persona data
 
 `src/Main/Battle/Data/datPersona.c` (58 functions,
-`include/datPersona_internal.h`) is the persona table API. `func_00109220`
-and `func_00109280` look up per-persona rows by id, and `func_00109510`
-selects a persona's learned-skill range (its comment and
+`include/datPersona_internal.h`) is the persona table API. `datPersonaGetRow`
+and `datPersonaGetArcana` look up per-persona rows by id, and `datPersonaCollectLearnableSkills`
+lists a persona's learnable skills in its level range (its comment and
 `docs/probe_archive/Persona_skills_00109510_20260922.md`). **[inferred]**
-`func_00109920`..`func_00109e30` are stat accessors and
-`func_0010c750(persona, level)` is the experience curve. None are named yet.
+`datPersonaGetBuffedStat`..`datPersonaGetEquipStatBonus` are stat accessors and
+`datPersonaGetExpForLevel(persona, level)` is the experience curve.
 
 The player's persona stock is save data. Its named accessors are in
 `src/g_data/g_data.c`: `datPersonaGetLevel`, `datPersonaGetNextExp`,

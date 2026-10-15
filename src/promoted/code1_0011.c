@@ -3,7 +3,7 @@
 #include "type.h"
 #include "fr_font_internal.h"
 extern u8 *datPersonaGetSkills(void);
-extern s32 func_00109510(u8 *persona, void *skills, void *levels);
+extern s32 datPersonaCollectLearnableSkills(u8 *persona, void *skills, void *levels);
 extern void func_0010e710(s32, u8 *, s32);
 typedef struct {
     f32 x;
@@ -1483,7 +1483,7 @@ void func_00113610(s32 arg0, u8 *arg1)
         i++;
     }
     *(s16 *)(arg1 + 0x60) = i;
-    count = (s16)func_00109510((u8 *)(u32)arg0, sp70, sp30);
+    count = (s16)datPersonaCollectLearnableSkills((u8 *)(u32)arg0, sp70, sp30);
     j = 0;
     while (j < count) {
         index = (s32)j * 0xC;

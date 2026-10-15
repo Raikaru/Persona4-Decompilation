@@ -13,7 +13,7 @@ extern u8 *func_002e48a0(s8 arg0, s16 arg1);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void func_0046d730(void *file, s32 line);
 extern void *memset(void *dst, s32 value, u32 size);
-extern void func_0010cad0(u8 *arg0, u16 arg1);
+extern void datPersonaInitRecord(u8 *arg0, u16 arg1);
 extern u8 *iGpffffb3d4;
 extern char D_00642F30[];
 extern s32 func_00312220(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3);
@@ -195,7 +195,7 @@ s32 func_00312220(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3) {
             gate = allowed;
 flag_done:
             if (gate) {
-                func_0010cad0((u8 *)arg0, *entry);
+                datPersonaInitRecord((u8 *)arg0, *entry);
                 for (skillIndex = 0; skillIndex < 4; skillIndex++) {
                     skill = (u16 *)((u8 *)&entry[skillIndex] + 24);
                     if (*skill != 0 && datPersonaFindSkillSlot((u8 *)arg0, *skill) == -1 &&
@@ -278,7 +278,7 @@ s32 func_003124a0(u16 *output, u16 first, u16 second)
         persona = func_003130e0(result, level, excluded);
         if (persona == 0) return 0;
     }
-    func_0010cad0((u8 *)output, persona);
+    datPersonaInitRecord((u8 *)output, persona);
     return 1;
 }
 
@@ -313,7 +313,7 @@ s32 func_003127e0(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     if (ret == 0) {
         return 0;
     }
-    func_0010cad0((u8 *)arg0, ret);
+    datPersonaInitRecord((u8 *)arg0, ret);
     return 1;
 }
 
