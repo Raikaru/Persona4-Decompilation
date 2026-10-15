@@ -277,9 +277,9 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     func_0019ef30(arg0, arg1);
 }
-extern void func_0019e830(u8 *arg0);
+extern void btlUnitIncrementPacketCountIfUnit(u8 *arg0);
 extern s32 func_0019e850(u8 *arg0);
-extern void func_0019e9d0(u8 *arg0);
+extern void btlUnitDecrementPacketCountIfUnit(u8 *arg0);
 extern u8 *func_00457120(void);
 extern s32 func_003e8120(u8 *arg0);
 extern void func_003c1bd0(s32 arg0);
