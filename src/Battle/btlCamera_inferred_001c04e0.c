@@ -60,7 +60,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
-extern void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second);
+extern void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *second);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
@@ -125,7 +125,7 @@ static inline f32 cameraSideRadius(f32 first, f32 second)
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001c04e0-001c09a0 */
 
 // FUN_001C04E0
-void func_001c04e0(u8 *camera)
+void btlCameraFrameActionSide(u8 *camera)
 {
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, RwV3d *);
     extern f32 RwV3dNormalize(RwV3d *, const RwV3d *);
@@ -241,7 +241,7 @@ void func_001c04e0(u8 *camera)
     frame.pos.z = position.z + direction.z;
     if (frame.pos.y < 25.0f) frame.pos.y = 25.0f;
     btlCameraCopyPoseSnapshot((f32 *)(camera + 0x9C), (f32 *)&frame);
-    func_001c8e90(camera, &frame, &adjusted);
+    btlCameraBuildPosePair(camera, &frame, &adjusted);
     btlMainCurveReset((u16 *)camera, (f32 *)&adjusted);
     func_001bcd40(*(u8 **)(camera + 0xE0), camera + 0x9C, (f32 *)(camera + 0x100), 0.5f * (radius2 + (length + radius1)),
                   3);

@@ -49,7 +49,7 @@ extern void (*D_005F6E20[])(u8 *arg0);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern u32 iGpffffa0b8;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
-extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
+extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
@@ -62,7 +62,7 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
 extern s32 btlCameraFrameActionStart(u8 *arg0, u8 *arg1);
 extern u8 *btlCameraGetCurrentEntry(u8 *arg0);
 extern void btlCameraInitWork(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
-extern void func_001bdeb0(u8 *arg0);
+extern void btlCameraUpdateEffectList(u8 *arg0);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern void func_001bdd60(void);
@@ -140,7 +140,7 @@ extern f32 fGpffff8108;
 /* measured: opt_common_subs off preserves the retail per-use masked index. */
 /* measured: restore common-subexpression optimization after func_001bd390. */
 // FUN_001BD7D0
-void func_001bd7d0(void)
+void btlCameraApplyView(void)
 {
     typedef struct {
         f32 x;
@@ -247,7 +247,7 @@ void func_001bd7d0(void)
 /* measured: plain C candidate is 380 bytes in the 384-byte retail window with normalized_diff 6; residual is limited to the global-position load order and one retail tail padding word. */
 // Committed at nd 6.
 // FUN_001BD9E0
-void func_001bd9e0(void)
+void btlCameraDrawDebug(void)
 {
   typedef struct 
   {
@@ -345,7 +345,7 @@ void func_001bd9e0(void)
 }
 
 // FUN_001BDB60
-void func_001bdb60(void)
+void btlCameraInitSystem(void)
 {
     s32 temp_2;
     s32 var_4;
@@ -399,7 +399,7 @@ loop_test:
 }
 
 // FUN_001BDD30
-void func_001bdd30(void)
+void btlCameraResetWorkList(void)
 {
     s32 temp_4;
 
@@ -416,7 +416,7 @@ void func_001bdd60(void) {
 
 /* measured: opt_propagation off probe for bdd80 nd28 float scheduling. */
 // FUN_001BDD80
-void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2)
+void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2)
 {
     u16 var_7;
     u16 temp_16;
@@ -456,7 +456,7 @@ void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2)
 
 /* measured: close opt_propagation probe for bdd80. */
 // FUN_001BDEB0
-void func_001bdeb0(u8 *arg0)
+void btlCameraUpdateEffectList(u8 *arg0)
 {
     u16 temp_16;
     s32 var_2;

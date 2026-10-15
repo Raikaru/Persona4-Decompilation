@@ -107,7 +107,7 @@ extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 extern void func_001ee1c0(void);
 extern void func_00194660(void);
-extern void func_001bdb60(void);
+extern void btlCameraInitSystem(void);
 extern void func_001f7260(void);
 extern void func_001f9bf0(void);
 extern void func_001d6a60(void);
@@ -351,7 +351,7 @@ void btlInit(void)
     func_00106390(0x1438, 0);
     func_001ee1c0();
     func_00194660();
-    func_001bdb60();
+    btlCameraInitSystem();
     func_001f7260();
     func_001f9bf0();
     func_001d6a60();
@@ -374,7 +374,7 @@ s32 btlRelease(void)
     func_001d6a70();
     func_001f9c40();
     func_001f73c0();
-    func_001bdd30();
+    btlCameraResetWorkList();
     func_001f61b0();
     func_0022cc90();
     btlPacketFlushAll();

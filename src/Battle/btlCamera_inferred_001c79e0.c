@@ -44,7 +44,7 @@ struct RwMatrixTag {
     u32 pad3;
 };
 
-extern void func_001c9820(u8 *camera, f32 angleLimit, s32 reverse, s32 preserveSide);
+extern void btlCameraSetLimitFrame(u8 *camera, f32 angleLimit, s32 reverse, s32 preserveSide);
 extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
 extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);
@@ -69,13 +69,13 @@ extern f32 fGpffff811c;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
 extern s32 func_001d8df0(u8 *arg0);
 extern u32 func_001d8bc0(void *formation);
-extern void func_001c79f0(u8 *arg0, s32 arg1);
-extern void func_001c80f0(u8 *arg0, s32 arg1);
-extern void func_001c8b00(u8 *arg0);
+extern void btlCameraFrameStatus(u8 *arg0, s32 arg1);
+extern void btlCameraFrameSideView(u8 *arg0, s32 arg1);
+extern void btlCameraUpdateOcclusion(u8 *arg0);
 extern void func_001bd4f0(u8 *arg0);
 extern void func_001bd530(u8 *arg0);
 extern u8 *func_00457120(void);
-extern void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second);
+extern void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *second);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
 extern u8 D_005F7CA0[];
@@ -170,7 +170,7 @@ void func_001c79e0(void) {}
    (388), `peephole off` (402), `opt_propagation off` (397),
    `opt_common_subs off` (401). */
 // FUN_001C79F0
-void func_001c79f0(u8 *arg0, s32 arg1)
+void btlCameraFrameStatus(u8 *arg0, s32 arg1)
 {
     struct Frame {
         u8 mat60[0x40];
@@ -336,7 +336,7 @@ void func_001c79f0(u8 *arg0, s32 arg1)
  * distinct from the sine-adjusted quaternion weights.
  * b210 -O2: 2012 exact bytes and four zero alignment bytes. */
 // FUN_001C80F0
-void func_001c80f0(u8 *camera, s32 immediate)
+void btlCameraFrameSideView(u8 *camera, s32 immediate)
 {
     f32 top;
     RwV3d direction;
@@ -513,7 +513,7 @@ void func_001c80f0(u8 *camera, s32 immediate)
 }
 
 // FUN_001C88D0
-s32 func_001c88d0(u8 *arg0, s32 *arg1, f32 *arg2, u8 *arg3)
+s32 btlCameraFindOccluder(u8 *arg0, s32 *arg1, f32 *arg2, u8 *arg3)
 {
     struct Frame {
         u8 pad48[0x8];
@@ -576,7 +576,7 @@ s32 func_001c88d0(u8 *arg0, s32 *arg1, f32 *arg2, u8 *arg3)
 }
 
 // FUN_001C8B00
-void func_001c8b00(u8 *arg0)
+void btlCameraUpdateOcclusion(u8 *arg0)
 {
     struct Frame {
         s32 value60;
@@ -601,7 +601,7 @@ void func_001c8b00(u8 *arg0)
         temp18 = *(u8 **)(func_00457120() + 4) + 0x10;
         temp19 = *(u8 **)((u8 *)func_001d8bc0(*(u8 **)(arg0 + 0xE0) + 0x98) + 0x30);
         temp16 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
-        if (func_001c88d0(temp19, &frame.value60, &frame.value88, temp18) != 0) {
+        if (btlCameraFindOccluder(temp19, &frame.value60, &frame.value88, temp18) != 0) {
             func_001bd530(temp19);
             var17 = 0;
             goto outer_test;
@@ -612,7 +612,7 @@ inner_body:
             if (((*(s32 *)(var20 + 0x9C) & 8) != 0) &&
                 (temp19 != var20) &&
                 (temp16 != var20)) {
-                if (func_001c88d0(var20, &frame.value70, &frame.value8C, temp18) == 0) {
+                if (btlCameraFindOccluder(var20, &frame.value70, &frame.value8C, temp18) == 0) {
                     func_001bd530(temp19);
                 } else if (!(frame.value8C <= frame.value88)) {
                     func_001bd530(temp19);
@@ -653,7 +653,7 @@ outer_test:
 
 /* measured: optimization_level 1 probe for c8cf0 argument order. */
 // FUN_001C8CF0
-void func_001c8cf0(u8 *arg0)
+void btlCameraReleaseOcclusion(u8 *arg0)
 {
     u8 *temp_16;
     u8 *call_arg0;
@@ -671,7 +671,7 @@ void func_001c8cf0(u8 *arg0)
 
 /* measured: close optimization_level after c8cf0. */
 // FUN_001C8D50
-void func_001c8d50(u8 *arg0)
+void btlCameraUpdateFrame(u8 *arg0)
 {
     s32 flag;
     u16 mode;
@@ -681,7 +681,7 @@ void func_001c8d50(u8 *arg0)
 
     next = (u8 *)func_001d8bc0(*(u8 **)(arg0 + 0xE0) + 0x98);
     if (*(u16 *)(arg0 + 0x104) == 2) {
-        func_001c8b00(arg0);
+        btlCameraUpdateOcclusion(arg0);
     }
     if ((next == NULL) ||
         ((current = *(u8 **)(arg0 + 0x100), current == next)) ||
@@ -708,11 +708,11 @@ void func_001c8d50(u8 *arg0)
     type = *(u16 *)(arg0 + 0x104);
     switch (type) {
     case 2:
-        func_001c80f0(arg0, flag);
+        btlCameraFrameSideView(arg0, flag);
         return;
     case 1:
     default:
-        func_001c79f0(arg0, flag);
+        btlCameraFrameStatus(arg0, flag);
         return;
     }
 }
@@ -721,7 +721,7 @@ void func_001c8d50(u8 *arg0)
  * The interpolation cache and all vectors are complete objects.
  * b210 -O2:2228 exact bytes and12 zero alignment bytes. */
 // FUN_001C8E90
-void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second)
+void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *second)
 {
     f32 xz[2];
     RwV3d alternateEye;
@@ -919,20 +919,20 @@ void func_001c8e90(u8 *camera, P4CameraFrame *first, P4CameraFrame *second)
 }
 
 // FUN_001C9750
-void func_001c9750(u8 *arg0)
+void btlCameraApplyPosePair(u8 *arg0)
 {
     struct {
         P4CameraFrame first;
         P4CameraFrame second;
     } work;
 
-    func_001c8e90(arg0, &work.first, &work.second);
+    btlCameraBuildPosePair(arg0, &work.first, &work.second);
     btlMainCurveSetPoses((u16 *)arg0, (f32 *)&work.first, (f32 *)&work.second, 1);
     btlCameraSetDuration(arg0, fGpffff811c);
 }
 
 // FUN_001C97B0
-void func_001c97b0(u8 *arg0)
+void btlCameraFrameAim(u8 *arg0)
 {
     u8 *temp_4;
     f32 value;
@@ -949,7 +949,7 @@ void func_001c97b0(u8 *arg0)
 
 /* Construct an angle-limited camera transition from complete pose geometry. */
 // FUN_001C9820
-void func_001c9820(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
+void btlCameraSetLimitFrame(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
 {
     RwV3d actorCenter;
     RwV3d targetCenter;

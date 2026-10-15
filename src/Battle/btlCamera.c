@@ -57,12 +57,12 @@ u32 btlCameraUpdateSetStatePacket(void* work);
 void btlCameraBuildLookAtFrame(float *param_1,float *param_2,float *param_3,float *param_4);
 void RtQuatConvertFromMatrix(void* out, void* in);
 
-u16 func_001c0e50(void* camera);
+u16 btlCameraSelectMode(void* camera);
 void btlCameraFrameActionDegrees(u8* camera, f32 angle, f32 distance);
-void func_001c5500(u8* camera, s32 arg);
-void func_001c5b80(void* camera, s32 arg);
-void func_001c1040(void* camera, u32 arg);
-void func_001c9820(u8* camera, f32 suppliedLimit, s32 reverse, s32 preserveSide);
+void btlCameraFrameTargetPose(u8* camera, s32 arg);
+void btlCameraFrameFlagged(void* camera, s32 arg);
+void btlCameraFrameRandomOrbit(void* camera, u32 arg);
+void btlCameraSetLimitFrame(u8* camera, f32 suppliedLimit, s32 reverse, s32 preserveSide);
 extern u8 D_005FE1D0[];
 extern u32 datCalcRandomBelow(u32 arg0);
 void FUN_0043f9c8(void* memory, s32 value, u32 size);
@@ -107,7 +107,7 @@ extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
 void btlMainCurveSetPoses(u16* work, f32* first, f32* second, u16 mode);
 void btlCameraCopyPose(f32 *out, f32 *in);
 void btlCameraFrameSlerpTarget(u8 *camera, f32 *out);
-void func_001bdd80(u8* camera, void* data, s32 mode);
+void btlCameraStartEffect(u8* camera, void* data, s32 mode);
 extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
 extern void func_003dcc70(f32* first, f32* second, void* result);
 extern f32 func_003e41e0(f32* out, f32* in);
@@ -169,9 +169,9 @@ extern f32 DAT_00761254;
 extern f32 DAT_00761188;
 extern f32 DAT_00761258;
 extern u8 *iGpffffb3ac;
-extern void func_001c1f70(void *arg0, s32 arg1);
-extern void func_001bdeb0(void);
-void func_001cb970(u8* camera, f32 duration, s32 initialize);
+extern void btlCameraEnterRandomFrame(void *arg0, s32 arg1);
+extern void btlCameraUpdateEffectList(void);
+void btlCameraApplyPreset(u8* camera, f32 duration, s32 initialize);
 extern f32 fGpffff80e8;
 extern f32 fGpffff8180;
 extern f32 fGpffff8170;
@@ -842,26 +842,26 @@ void btlCameraDispatchFrameMode(void* camera)
 {
   u16 uVar1;
 
-  uVar1 = func_001c0e50(camera);
+  uVar1 = btlCameraSelectMode(camera);
   *(u16 *)((int)camera + 0x110) = uVar1;
   switch(*(u16 *)((int)camera + 0x110)) {
   case 1:
     btlCameraFrameActionDegrees((u8 *)camera, 45.0f, 200.0f);
     break;
   case 2:
-    func_001c5500((u8 *)camera, 1);
+    btlCameraFrameTargetPose((u8 *)camera, 1);
     break;
   case 3:
-    func_001c5b80(camera,1);
+    btlCameraFrameFlagged(camera,1);
     break;
   case 4:
-    func_001c5500((u8 *)camera, 1);
+    btlCameraFrameTargetPose((u8 *)camera, 1);
     break;
   case 5:
-    func_001c5b80(camera,1);
+    btlCameraFrameFlagged(camera,1);
     break;
   case 6:
-    func_001c1040(camera,1);
+    btlCameraFrameRandomOrbit(camera,1);
   }
   return;
 }
@@ -1025,7 +1025,7 @@ void func_001c6ba0(void)
 // FUN_001C6BB0
 void btlCameraResetToDefault(void *arg0)
 {
-    func_001c1f70(arg0, 1);
+    btlCameraEnterRandomFrame(arg0, 1);
 }
 // FUN_001C6BE0
 void func_001c6be0(void)
@@ -1386,7 +1386,7 @@ void btlCameraFrameActionUnitPoseMirror(BtlCamera* camera)
 
 // FUN_001CA550
 void btlCameraSetDefaultLimit(u8 *arg0) {
-    func_001c9820(arg0, 50.0f, 0, 0);
+    btlCameraSetLimitFrame(arg0, 50.0f, 0, 0);
 }
 
 // FUN_001CBFE0
@@ -1405,7 +1405,7 @@ void btlCameraSelectPreset(int param_1)
     else {
       speed = DAT_00761258;
     }
-    func_001cb970((u8*)param_1, speed, *(u16 *)(param_1 + 0x10c) == 0);
+    btlCameraApplyPreset((u8*)param_1, speed, *(u16 *)(param_1 + 0x10c) == 0);
     *(short *)(param_1 + 0x10c) = *(u16 *)(param_1 + 0x10c) + 1;
   }
   return;
@@ -1975,7 +1975,7 @@ void btlCameraSpawnRandomEffect(u8 *arg0)
     u16 temp_16;
 
     temp_16 = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA4);
-    func_001bdd80(
+    btlCameraStartEffect(
         arg0,
         (void *)(uintptr_t)cd600Add(
             (effMiscRand(0) & 1) * 0xF4,
@@ -1986,7 +1986,7 @@ void btlCameraSpawnRandomEffect(u8 *arg0)
 // FUN_001CD6A0
 void btlCameraStopEffects(void)
 {
-    func_001bdeb0();
+    btlCameraUpdateEffectList();
 }
 // FUN_001CD6C0
 void btlCameraCountLiveUnits(u8 *arg0)
@@ -2010,7 +2010,7 @@ loop_cond:
         goto loop_body;
     }
     var_16 = (var_16 & 0xFFFF) != 4;
-    func_001bdd80(
+    btlCameraStartEffect(
         arg0,
         (void *)(uintptr_t)cd600Add(
             (effMiscRand(0) & 1) * 0xF4,
@@ -2020,7 +2020,7 @@ loop_cond:
 // FUN_001CD7B0
 void btlCameraStopEffectsAlt(void)
 {
-    func_001bdeb0();
+    btlCameraUpdateEffectList();
 }
 // FUN_001CD7D0
 void btlAct_WIN_P(BtlCamera* camera)

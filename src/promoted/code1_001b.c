@@ -172,7 +172,7 @@ void func_002baf40(u32 arg0);
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern void func_001b73f0(u8 *arg0);
-extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
+extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
 extern s32 func_001be990(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
@@ -189,7 +189,7 @@ extern u8 *resrcMngGetColorTarget(void);
 extern s32 btlCameraFrameActionStart(u8 *arg0, u8 *arg1);
 extern u8 *btlCameraGetCurrentEntry(u8 *arg0);
 extern void btlCameraInitWork(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
-extern void func_001bdeb0(u8 *arg0);
+extern void btlCameraUpdateEffectList(u8 *arg0);
 extern BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 extern u8 *func_00194b60(void);
 extern BtlPacket *func_001f60c0(void);
@@ -3361,7 +3361,7 @@ first_done:
     temp_17 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
     temp_16 = *(u16 *)(temp_17 + 0xA4);
     func_001b73f0(temp_17);
-    func_001bdd80(arg0,
+    btlCameraStartEffect(arg0,
                   func_001bf3a0_add((effMiscRand(0) & 1) * 0xF4,
                                     (u8 *)((s32)D_005FB400 +
                                            ((temp_16 & 0xFFFF) * 0x1E8))),
@@ -3390,7 +3390,7 @@ void func_001bf530(u8 *arg0)
     u8 *temp4;
 
     if (*(s32 *)(arg0 + 0x144) == 0) goto process;
-    func_001bdeb0(arg0);
+    btlCameraUpdateEffectList(arg0);
     goto done;
 process:
     temp4 = *(u8 **)(arg0 + 0xE0);

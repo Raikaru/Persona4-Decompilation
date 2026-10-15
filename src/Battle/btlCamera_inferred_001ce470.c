@@ -44,15 +44,15 @@ struct RwMatrixTag {
     u32 pad3;
 };
 
-extern void func_001bdeb0();
-extern void func_001ce620(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
-extern void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
+extern void btlCameraUpdateEffectList();
+extern void btlCameraFrameRotated(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
+extern void btlCameraFrameRotatedWide(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void func_001b73f0(u8 *arg0);
 extern void func_004b3110(s32 arg0);
 extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
 extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);
-extern void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2);
+extern void btlCameraFrameStatusRoll(u8 *arg0, f32 arg1, f32 arg2);
 extern f32 fGpffff809c;
 extern f32 fGpffff8198;
 extern f32 fGpffff8110;
@@ -76,7 +76,7 @@ extern f32 fGpffff811c;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
-extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
+extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
@@ -149,7 +149,7 @@ static inline f32 cameraSideRadius(f32 first, f32 second)
 /* measured: func_001ce470 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001CE470
-void func_001ce470(u8 *arg0)
+void btlCameraFrameFixed(u8 *arg0)
 {
     struct Frame {
         f32 value10;
@@ -205,7 +205,7 @@ void func_001ce470(u8 *arg0)
 /* measured: func_001ce620 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_001CE620
-void func_001ce620(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
+void btlCameraFrameRotated(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 {
     struct Frame {
         u8 matrix[0x40];
@@ -251,7 +251,7 @@ void func_001ce620(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 /* measured: func_001ce7f0 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 // FUN_001CE7F0
-void func_001ce7f0(u8 *arg0) {
+void btlCameraFrameRandomShift(u8 *arg0) {
     s32 random;
     u32 shifted;
     u32 masked;
@@ -276,12 +276,12 @@ void func_001ce7f0(u8 *arg0) {
 /* measured: btlAct_ROUNDUP_MES, func_001ce8c0, func_001ceba0 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_001CE880
-void func_001ce880(u8 *arg0) {
-    func_001ce620(arg0, -17.5f, 0.25f, 0.75f);
+void btlCameraFrameRotatedAlt(u8 *arg0) {
+    btlCameraFrameRotated(arg0, -17.5f, 0.25f, 0.75f);
 }
 
 // FUN_001CE8C0
-void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
+void btlCameraFrameRotatedWide(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 {
     struct Frame {
         u8 matrix[0x40];
@@ -349,7 +349,7 @@ void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 }
 
 // FUN_001CEBA0
-void func_001ceba0(u8 *arg0)
+void btlCameraSetUnitFlags(u8 *arg0)
 {
     s32 index;
     s32 check;
@@ -396,8 +396,8 @@ search_done:
 }
 
 // FUN_001CECB0
-void func_001cecb0(u8 *arg0) {
-    func_001ce8c0(arg0, -16.0f, fGpffff8198, fGpffff80fc);
+void btlCameraFrameRotatedWideAlt(u8 *arg0) {
+    btlCameraFrameRotatedWide(arg0, -16.0f, fGpffff8198, fGpffff80fc);
 }
 
 // FUN_001CECE0
@@ -447,7 +447,7 @@ void btlAct_ROUNDUP_MES(u8 *arg0)
 /* measured: func_001cef20 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 // FUN_001CEF20
-void func_001cef20(u8 *arg0) {
+void btlCameraFrameRandomHold(u8 *arg0) {
     s32 random;
     u32 shifted;
     u32 masked;
@@ -472,18 +472,18 @@ void func_001cef20(u8 *arg0) {
 /* measured: func_001cf020, func_001cf070 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_001CEFB0
-void func_001cefb0(u8 *arg0) {
-    func_001ce620(arg0, -10.0f, 0.125f, fGpffff809c);
+void btlCameraFrameRotatedFar(u8 *arg0) {
+    btlCameraFrameRotated(arg0, -10.0f, 0.125f, fGpffff809c);
 }
 
 // FUN_001CEFF0
-void func_001ceff0(void) {
+void btlCameraFrameEnd(void) {
     func_001b73f0(NULL);
     func_004b3110(5);
 }
 
 // FUN_001CF020
-void func_001cf020(u8 *arg0) {
+void btlCameraFrameBuildPair(u8 *arg0) {
     P4CameraFrame frame;
 
     btlCameraBuildFramePair(arg0, 0, 0, NULL, &frame);
@@ -491,7 +491,7 @@ void func_001cf020(u8 *arg0) {
 }
 
 // FUN_001CF070
-void func_001cf070(u8 *arg0, u8 *arg1)
+void btlCameraFrameSpawn(u8 *arg0, u8 *arg1)
 {
     s16 mode;
     u8 *target;
@@ -506,20 +506,20 @@ void func_001cf070(u8 *arg0, u8 *arg1)
         target = (u8 *)&D_005F7AB0 + (effMiscRand(0) & 1) * 0xF4;
         break;
     }
-    func_001bdd80(arg0, target, 2);
+    btlCameraStartEffect(arg0, target, 2);
     func_004b3110(5);
 }
 
 // FUN_001CF140
-void func_001cf140(void) {
-    func_001bdeb0();
+void btlCameraEffectListTickC(void) {
+    btlCameraUpdateEffectList();
 }
 
 /* measured probe: optimization_level 1 preserves 001CF160 low-bit OR coloring. */
 /* measured: func_001cf160 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 // FUN_001CF160
-void func_001cf160(u8 *arg0) {
+void btlCameraFrameRandomHoldAlt(u8 *arg0) {
     s32 random;
     u32 shifted;
     u32 masked;
@@ -543,7 +543,7 @@ void func_001cf160(u8 *arg0) {
 /* measured: btlAct_ALL, btlAct_TARGET_ONLY, func_001cf1f0, func_001cf350, func_001cfad0 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_001CF1F0
-void func_001cf1f0(u8 *arg0)
+void btlCameraFrameMatrixOffset(u8 *arg0)
 {
     struct Frame {
         u8 pad20[0x40];
@@ -578,7 +578,7 @@ void func_001cf1f0(u8 *arg0)
 }
 
 // FUN_001CF350
-void func_001cf350(u8 *arg0)
+void btlCameraFrameClampedRotate(u8 *arg0)
 {
     struct {
         f32 sp40;
@@ -828,7 +828,7 @@ void btlAct_ALL(u8 *arg0)
 }
 
 // FUN_001CFAD0
-void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2)
+void btlCameraFrameStatusRoll(u8 *arg0, f32 arg1, f32 arg2)
 {
     struct {
         f32 first[7];
@@ -920,7 +920,7 @@ void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2)
 
 // FUN_001CFED0
 void btlAct_ENEMY_ALL(u8 *arg0) {
-    func_001cfad0(arg0, fGpffff8114, 2.5f);
+    btlCameraFrameStatusRoll(arg0, fGpffff8114, 2.5f);
 }
 
 // FUN_001CFF00
