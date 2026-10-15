@@ -129,7 +129,7 @@ extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
 extern void Vpad_BuildRotatedQuad(u8 *arg0, const u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
 extern u8 *func_003e0f80(void);
 extern void memcpy(void *dest, const void *src, s32 size);
-extern void func_00147430();
+extern void resrcMngDestroyRes();
 extern void FldResource_Destroy(void *arg0);
 extern void MT_Scene_SpawnIconTask(void *arg0);
 extern void func_003bbb60(s32 arg0);

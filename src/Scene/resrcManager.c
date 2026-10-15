@@ -71,10 +71,10 @@ extern char D_005EFA50[];
 extern char D_005EFA70[];
 
 extern Resrc* resrcMngGetListHead(ResrcManager* resManager, u8 resType);
-extern void func_00147430(ResrcManager* resManager, Resrc* res);
+extern void resrcMngDestroyRes(ResrcManager* resManager, Resrc* res);
 
 /* Ported from P3FES src/Scene/resrcManager.c FUN_003b5020 (verified MATCH
- * there). 003b5430 -> func_00147500, 003b5360 -> func_00147430,
+ * there). 003b5430 -> func_00147500, 003b5360 -> resrcMngDestroyRes,
  * RwFree (rwGlobals.memFuncs.RwFree slot 0096017c) -> DAT_008873ec. */
 
 
@@ -105,7 +105,7 @@ void resrcMngDestroy(ResrcManager* resManager)
 
             while (currList != NULL)
             {
-                func_00147430(resManager, currList);
+                resrcMngDestroyRes(resManager, currList);
 
                 currList = resrcMngGetListHead(resManager, i);
             }
@@ -234,7 +234,7 @@ Resrc* resrcMngCreateRes(ResrcManager* resManager, u16 resTypeId)
 }
 
 // FUN_00147430
-void func_00147430(ResrcManager* resManager, Resrc* res)
+void resrcMngDestroyRes(ResrcManager* resManager, Resrc* res)
 {
     Resrc* currRes;
     Resrc* prevRes;
