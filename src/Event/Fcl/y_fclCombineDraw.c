@@ -4709,8 +4709,9 @@ void fclCombineDrawCounter(u8 *arg0, s8 arg1) {
    The retail loop passes word-sized list indices; a narrowed call declaration
    inserts two normalization instructions. Removing the unused expression that
    read new_var/f20/f21 before initialization preserves every emitted word. */
+// Fcl combine roster rows: draws arg2 persona rows from list index 0 (per-row delay step arg1), then the slot frames and header, and places the 0xB1 indicator at the window start (t+0x11E minus t+0x120) times the float row step at t+0x124; 0xB5 sits 52 below it.
 // FUN_0032B770
-void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
+void fclCombineDrawRosterRows(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
 {
   float new_var5;
   f32 *new_var4;
@@ -4770,8 +4771,9 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
 
 /* The mode byte is passed unconverted to every callee, so each callee takes it as s8.
    See docs/probe_archive/FclDraw_0032b9d0_20260925.md for the recipe. */
+// Fcl combine roster list: draws the windowed persona list, arg2 rows from the window start (t+0x11E minus t+0x120). The row whose index equals t+0x120 gets the highlighted cell (0xCC FF 33). Also draws the panel and header, the slot frames, the 0xB1/0xB5 indicator and the counter. arg1 is the per-row delay step; arg3 is the mode.
 // FUN_0032B9D0
-void func_0032b9d0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
+void fclCombineDrawRosterList(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
     FclByte4 c13C;
     FclByte4 c138;
     FclByte4 c134;

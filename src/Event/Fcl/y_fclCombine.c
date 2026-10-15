@@ -27,8 +27,8 @@ typedef struct {
 
 typedef FclVec2 FclVec2f;
 
-extern void func_0032b770(u8 *, s32, s32, s8);
-extern void func_0032b9d0(u8 *, s32, s32, s8);
+extern void fclCombineDrawRosterRows(u8 *, s32, s32, s8);
+extern void fclCombineDrawRosterList(u8 *, s32, s32, s8);
 extern void func_002e68b0(s8);
 extern void func_002e6c90(s8);
 extern void fclDrawSetSlot(u8 *, s32, s8, s8);
@@ -4783,7 +4783,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 func_002badc0(p->fD, 0xE);
                 p->f1 = 0x93;
             } else {
-                func_0032b770(arg0, 2, var_16_6, 0);
+                fclCombineDrawRosterRows(arg0, 2, var_16_6, 0);
                 p->f1 = 0x8D;
             }
         } else if (p->f0 == 0xF) {
@@ -4791,7 +4791,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (datGetFlag(0x1460) == 0) {
                 func_002e68b0(0);
             }
-            func_0032b9d0(arg0, 2, var_16_6, 0);
+            fclCombineDrawRosterList(arg0, 2, var_16_6, 0);
             p->f1 = 0x98;
         }
         *(u8 *)(fclSpriteEntry(p->f11E + 0x270) + 0x6E) = *(u8 *)(fclSpriteEntry(p->f11E + 0x27D) + 0x6E) = 0xFF;
@@ -4906,7 +4906,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
                     p->f124 = 125.0f / (f32)(*(s32 *)(yListSlotWork(0) + 8) - 8);
                 }
-                func_0032b770(arg0, 0, var_16_6, 1);
+                fclCombineDrawRosterRows(arg0, 0, var_16_6, 1);
                 p->f1 = 0x8E;
                 func_0045af60(0, 0, 0, 1);
             }
@@ -5003,7 +5003,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             p->fD = func_002bab80((void *)func_00331660());
             func_002badc0(p->fD, 0xD);
             p->f1 = 0x92;
-            func_0032b770(arg0, 0, var_16_6, 1);
+            fclCombineDrawRosterRows(arg0, 0, var_16_6, 1);
             return;
         }
         p->f1 = 0x8D;
@@ -5201,7 +5201,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             func_002b6140((u8 *)(p->f28C), 0);
             func_002b6140((u8 *)(p->f290), 0);
             if (*(s32 *)(yListSlotWork(0) + 8) > 0) {
-                func_0032b770(arg0, 0, var_16_6, 0);
+                fclCombineDrawRosterRows(arg0, 0, var_16_6, 0);
                 p->f11E = 0;
                 p->f120 = 0;
                 p->f1 = 0x8B;
@@ -5424,7 +5424,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
                 p->f124 = 125.0f / (f32)(*(s32 *)(yListSlotWork(0) + 8) - 8);
             }
-            func_0032b9d0(arg0, 0, var_16_6, 1);
+            fclCombineDrawRosterList(arg0, 0, var_16_6, 1);
             p->f1 = 0x99;
             func_0045af60(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x20) {
@@ -5435,7 +5435,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
                 p->f124 = 125.0f / (f32)(*(s32 *)(yListSlotWork(0) + 8) - 8);
             }
-            func_0032b9d0(arg0, 0, var_16_6, 1);
+            fclCombineDrawRosterList(arg0, 0, var_16_6, 1);
             p->f1 = 0x9C;
             func_0045af60(0, 0, 0, 2);
         }
@@ -5686,7 +5686,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
                     p->f124 = 125.0f / (f32)(*(s32 *)(yListSlotWork(0) + 8) - 8);
                 }
-                func_0032b9d0(arg0, 0, var_16_6, 0);
+                fclCombineDrawRosterList(arg0, 0, var_16_6, 0);
                 p->f1 = 0x9B;
                 *(s8 *)(func_0034a630((u8 *)p->f254) + 1) = 1;
                 func_0034a840((u8 *)p->f254);
