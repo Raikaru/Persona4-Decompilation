@@ -4935,7 +4935,7 @@ void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1)
 
 // Intent: mark the targets for the selected skill, setting each unit's skill element and buff or ailment flags. [inferred]
 // FUN_0020B6D0
-extern u32 func_001d8df0(u8 *arg0);
+extern u32 btlEffectCollectGenusMask(u8 *arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 extern u16 func_0010f8c0(s32 arg0);
@@ -4976,7 +4976,7 @@ void btlSelectionMarkTargets(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3)
     *(s16 *)(temp_2 + 0x724) = arg3;
     *(s16 *)(temp_2_3 + 4) = 1;
     *(u8 *)(arg2 + 0x3C) |= 1;
-    if ((func_001d8df0(arg2) & 0xFFFF) == 1) {
+    if ((btlEffectCollectGenusMask(arg2) & 0xFFFF) == 1) {
         *(u16 *)temp_2_3 |= 2;
     } else {
         *(u16 *)temp_2_3 &= 0xFFFD;

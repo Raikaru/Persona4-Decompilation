@@ -14,7 +14,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern s32 func_001d6360(u8 *arg0);
-extern void func_001d6880(u8 *arg0);
+extern void btlEffectResetEntry(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void func_001d6910(u8 *arg0);
 extern void func_001d75d0(u8 *arg0);
@@ -159,7 +159,7 @@ void func_001d6c10(u8 *arg0)
     i = 0;
     while (i < 0x30U) {
         entry = *(u8 **)(arg0 + (i * 4));
-        func_001d6880(entry);
+        btlEffectResetEntry(entry);
         next = *(u8 **)(entry + 0x20);
         if (next != NULL) {
             *(u8 **)(next + 0x1C) = *(u8 **)(entry + 0x1C);

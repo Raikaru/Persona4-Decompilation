@@ -115,7 +115,7 @@ extern u8 *func_0019bbe0(u8 *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg
 extern u8 *btlUnitCreateShowPacket(u8 *arg0);
 extern u8 *btlUnitCreateHidePacket(u8 *arg0);
 extern u16 btlSelectionGetTargetMark(s32 task);
-extern u32 func_001d8df0(s32 formation);
+extern u32 btlEffectCollectGenusMask(s32 formation);
 extern void btlSelectionResetUnitFlags(s32 arg0);
 extern u32 btlSelectionGetFormationEntryAlt(s32 task);
 extern u32 btlSelectionGetFormationEntry(s32 task);
@@ -159,7 +159,7 @@ extern BtlPacket *btlFormationCreateReturnPacket(u16 arg0);
 extern u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value);
 extern BtlPacket *btlFormationCreateEventPacket(u32 action);
 BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
-BtlPacket *func_001d7a10(u16 mode);
+BtlPacket *btlEffectCreateReleasePacket(u16 mode);
 u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern s32 datCalcAilmentChance(u8 *unit, s32 element);

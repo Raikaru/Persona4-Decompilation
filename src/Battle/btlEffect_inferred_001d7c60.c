@@ -238,7 +238,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     extern void func_003e42a0(f32 *dst, f32 *src, u8 *cam);
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 btlTargetAngleBetween(f32 *a0, f32 *a1, f32 *a2, f32 *a3);
-    extern s32 func_001d8df0(u8 *a0);
+    extern s32 btlEffectCollectGenusMask(u8 *a0);
     extern u8 *func_001d8bc0(u8 *a0);
     extern u16 D_008C027A[];
     extern u16 D_008C0276[];
@@ -284,7 +284,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     } else {
         return;
     }
-    if ((func_001d8df0(arg1) & 0xFFFF) == 1) {
+    if ((btlEffectCollectGenusMask(arg1) & 0xFFFF) == 1) {
         switch (mode) {
         case 0:
         case 4:
@@ -388,7 +388,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     case 0:
     case 1: {
         btlUnitGetSphereWorldCenter(*(u8 **)(arg0 + 0x30), POS);
-        func_00196040(func_001d8df0(arg1) & 0xFFFF, 0, (RwV3d *)CENTER, 0, 0, 1);
+        func_00196040(btlEffectCollectGenusMask(arg1) & 0xFFFF, 0, (RwV3d *)CENTER, 0, 0, 1);
         BASEXZ[0] = POS[0];
         BASEXZ[1] = POS[2];
         CENTERXZ[0] = CENTER[0];

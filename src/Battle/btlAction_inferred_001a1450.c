@@ -112,7 +112,7 @@ extern u8 *func_0019bbe0(u8 *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg
 extern u8 *btlUnitCreateShowPacket(u8 *arg0);
 extern u8 *btlUnitCreateHidePacket(u8 *arg0);
 extern u16 btlSelectionGetTargetMark(s32 task);
-extern u32 func_001d8df0(s32 formation);
+extern u32 btlEffectCollectGenusMask(s32 formation);
 extern void btlSelectionResetUnitFlags(s32 arg0);
 extern u32 btlSelectionGetFormationEntryAlt(s32 task);
 extern u32 btlSelectionGetFormationEntry(s32 task);
@@ -153,7 +153,7 @@ extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect,
 u8 *func_00194b60(void);
 extern BtlPacket *btlFormationCreateReturnPacket(u16 arg0);
 BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
-BtlPacket *func_001d7a10(u16 mode);
+BtlPacket *btlEffectCreateReleasePacket(u16 mode);
 u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern s32 datCalcAilmentChance(u8 *unit, s32 element);
@@ -680,7 +680,7 @@ void btlActionTargetUpdate(u8 *action) {
     if ((D_008C024C[0] & 8) && !(selectionState & 0xFFFF)) {
         battleFlags = (*(s32*)(iGpffffb3ac + 0xC));
         if (battleFlags & 0x20000) {
-            if (!(battleFlags & 0x10000) && ((func_001d8df0((s32)(action + 0x98)) & 0xFFFF) != 1)) {
+            if (!(battleFlags & 0x10000) && ((btlEffectCollectGenusMask((s32)(action + 0x98)) & 0xFFFF) != 1)) {
                 btlSelectionSetTargetFlag((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
                 enteredBattle = iGpffffb3ac;
                 (*(s32*)(enteredBattle + 0xC)) = (s32) ((*(s32*)(enteredBattle + 0xC)) | 0x10000);
@@ -2622,7 +2622,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
     extern BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
     extern u8 *func_001f99c0(u8 *action, u16 voice, s32 option, s32 argument, s32 flags);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
-    extern BtlPacket *func_00202010(u32 unit, u16 skill);
+    extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 unit, u16 skill);
     extern u8 *btlPacketCreateEffectCounter();
     extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
     extern u8 *iGpffffb3ac;
@@ -2816,7 +2816,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
     hasTargetFlags6 = 0;
     counterPending = 0;
     setEffectFlags = 0;
-    btlPacketEnqueue((u8 *)func_00202010((u32)battleUnit, (*(u16 *)(arg0 + (0x6E)))), 3);
+    btlPacketEnqueue((u8 *)btlEffectCreateSpriteFramePacket((u32)battleUnit, (*(u16 *)(arg0 + (0x6E)))), 3);
     func_001a0290((BtlAction *)arg0, (*(u16 *)(arg0 + (0x6E))), (u8 *)effectIndices);
     if ((*(u16 *)(arg0 + (0x6A))) == 1) {
         rotatePacket = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)(arg0 + (0x30))), (*(u8 **)((u8 *)((*(u8 **)(arg0 + (0x38)))) + (0x30))), 0));
@@ -3555,7 +3555,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern u8 *btlCutinCreatePacket(u8 *data);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
     extern u8 *btlPacketCreateFinishEffect(void);
-    extern BtlPacket *func_00202010(u32 param_1, u16 param_2);
+    extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 param_1, u16 param_2);
     extern BtlPacket *btlPacketCreateSpriteStep(u32 action, u16 arg1);
     extern BtlPacket *btlPacketCreateEffectCounter(s32 arg0, s32 arg1);
     extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
@@ -4069,7 +4069,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     }
     hitModeDelay = (s16)hitMode;
     if (isKind3 == 0) {
-        pkt11 = (BtlPacketTiming *)(func_00202010(*(u32 *)(arg0 + 0x30), (u16) skill));
+        pkt11 = (BtlPacketTiming *)(btlEffectCreateSpriteFramePacket(*(u32 *)(arg0 + 0x30), (u16) skill));
         pkt11->delay = (s16) hitModeDelay;
         pkt11->ownerId = actionId;
         btlPacketEnqueue((u8 *)pkt11, 3);
@@ -5552,7 +5552,7 @@ void btlActionSummonUpdate(s64 *arg0)
     typedef struct DatUnitEc DatUnitEc;
     extern s32 btlFormationAllocWork(u32 arg0);
     extern void btlFormationSetPlacement(u32 arg0);
-    extern BtlPacket *func_00202010(u32 arg0, u16 arg1);
+    extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 arg0, u16 arg1);
     extern u8 *btlTargetCreateHitPacket(u8 *arg0);
     extern void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2);
     extern s32 func_001b7080(s32 arg0);
@@ -5628,7 +5628,7 @@ void btlActionSummonUpdate(s64 *arg0)
     aux = selector;
     {
         u8 *pkt;
-        pkt = (u8 *)func_00202010((u32)action->unitRef.pointer, selector);
+        pkt = (u8 *)btlEffectCreateSpriteFramePacket((u32)action->unitRef.pointer, selector);
         *(s64 *)(pkt + 0x60) = uid;
         btlPacketEnqueue(pkt, 3);
     }
@@ -5774,7 +5774,7 @@ void btlActionSummonUpdate(s64 *arg0)
             if ((*(u16 *)((u32)off + (u32)iGpffffb3bc + 2) & 0x40) == 0) {
                 {
                     u8 *pkt;
-                    pkt = (u8 *)func_001d7a10(5);
+                    pkt = (u8 *)btlEffectCreateReleasePacket(5);
                     *pkt = 4;
                     *(s64 *)(pkt + 8) = seqId;
                     *(s64 *)(pkt + 0x60) = uid;
@@ -5966,7 +5966,7 @@ void btlActionErrorUpdate(u8 *action) {
     u16 actionKind;
     u8 *animationPacket;
 
-    BtlPacket *func_00202010(u32 action, u16 arg1);
+    BtlPacket *btlEffectCreateSpriteFramePacket(u32 action, u16 arg1);
     BtlPacket *btlPacketCreateSpriteStep(u32 action, u16 arg1);
     BtlPacket *btlMainCreateFadePacket(s32 action, s16 mode);
     BtlPacket *btlCreateTimingPacket(u32 value);
@@ -5985,7 +5985,7 @@ void btlActionErrorUpdate(u8 *action) {
     packetIdentity = *(s64 *)action;
     if (alternateAction == 0) {
         u8 *packet;
-        packet = (u8 *)func_00202010(*(s32 *)(action + 0x30),
+        packet = (u8 *)btlEffectCreateSpriteFramePacket(*(s32 *)(action + 0x30),
                                *(u16 *)(action + 0x6E));
         *(s64 *)(packet + 0x60) = packetIdentity;
         btlPacketEnqueue(packet, 3);

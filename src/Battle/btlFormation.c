@@ -34,7 +34,7 @@ extern u32 btlFormationUpdateMovement(u16 *param_1);
 extern u32 btlFormationUpdateDeadPosition(u16 *param_1);
 extern u32 btlFormationAdvanceSlot(u8 **param_1);
 extern u32 btlFormationApplyDefaultPose(void);
-extern u32 func_001d6ce0(u32 param_1);
+extern u32 btlEffectAllocEntry(u32 param_1);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern u8 D_00609498[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -104,7 +104,7 @@ typedef u8 bool;
 u32 btlFormationGetCount(void *formation);
 u32 btlFormationGetEntry(void *formation, u32 index);
 
-extern u32 func_001d6de0(int param_1, u16 *param_2);
+extern u32 btlEffectFreeEntry(int param_1, u16 *param_2);
 extern void btlFormationSetPlacement(u32 param_1);
 extern void btlFormationRefresh(u32 *param_1);
 extern u32 btlFormationIsReady(u32 *param_1);
@@ -1371,7 +1371,7 @@ void btlFormationRefresh(u32 *work)
         work[5] = *(u32 *)(work[2] + 0xa08);
         break;
     }
-    work[4] = func_001d6ce0(work[5]);
+    work[4] = btlEffectAllocEntry(work[5]);
 }
 // FUN_001D6010
 /* measured: opt_propagation off preserves func_001d6010's index-before-value argument-load order (MATCH nd0). */
@@ -1457,7 +1457,7 @@ bool btlFormationHasEntry(u32 *param_1)
 // FUN_001D61E0
 void btlFormationRelease(u32 *param_1)
 {
-    func_001d6de0(param_1[5], (u16 *)param_1[4]);
+    btlEffectFreeEntry(param_1[5], (u16 *)param_1[4]);
     btlFormationSetPlacement(*(int *)param_1);
     *(u16 *)(param_1[1] + 0xa0) = *(u16 *)(param_1[1] + 0xa0) + -1;
     *(u16 *)(param_1[2] + 0xa0) = *(u16 *)(param_1[2] + 0xa0) + -1;

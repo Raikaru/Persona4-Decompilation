@@ -87,7 +87,7 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 u8 *btlUnitCreateMotionRequestPacket(u8 *arg0, u16 arg1);
 extern f32 fGpffff811c;
 BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
-BtlPacket *func_001d7a10(u16 mode);
+BtlPacket *btlEffectCreateReleasePacket(u16 mode);
 u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
@@ -278,7 +278,7 @@ loop_test:
             btlPacketEnqueue(effectPacket, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 8) {
-            subPacket = (u8 *)func_001d7a10(5);
+            subPacket = (u8 *)btlEffectCreateReleasePacket(5);
             *(s64 *)(subPacket + 0x60) = *(s64 *)action;
             btlPacketEnqueue(subPacket, 1);
         }

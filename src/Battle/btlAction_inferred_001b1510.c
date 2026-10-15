@@ -1183,7 +1183,7 @@ void btlMainUnitLoadInit(void)
 {
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
     extern u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
-    extern u8 *func_001d7880(void);
+    extern u8 *btlEffectCreateLoadPacket(void);
     extern u8 *func_00202b60(s32 arg0);
     extern u8 *func_001f6710(s32 arg0);
     extern s32 iGpffffb450;
@@ -1259,7 +1259,7 @@ void btlMainUnitLoadInit(void)
     }
     flags = *(s32 *)(D_0076449C + 0xC);
     if (!(flags & 0x20000000)) {
-        effect_packet = func_001d7880();
+        effect_packet = btlEffectCreateLoadPacket();
         *(s8 *)(effect_packet + 0) = 4;
         *(s64 *)(effect_packet + 8) = previous_unit_uid;
         btlPacketEnqueue(effect_packet, 1);

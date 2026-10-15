@@ -4,7 +4,7 @@
 #include "type.h"
 
 /* Canonical grouped function declarations. */
-extern void func_001d6880(void* param_1);
+extern void btlEffectResetEntry(void* param_1);
 extern void btlFormationSetPlacement(u32 param_1);
 extern u8* DAT_0076449c;
 extern void (*jtbl_008873EC[])(void* ptr);
@@ -67,7 +67,7 @@ void func_001d7040(u8* arg0)
     u32 table;
 
     temp_16 = *(u8**)(arg0 + 8);
-    func_001d6880(temp_16);
+    btlEffectResetEntry(temp_16);
     temp_3 = *(u8**)(temp_16 + 0x20);
     if (temp_3 != 0)
     {

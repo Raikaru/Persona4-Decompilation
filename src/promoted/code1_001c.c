@@ -79,7 +79,7 @@ extern void btlCameraFrameSweep(u8 *arg0, f32 arg1, f32 arg2);
 extern void btlCameraFrameFourPoseCurve(u8 *arg0, f32 arg1, f32 arg2);
 extern void func_0019de70(BtlUnitStateWork *work, u16 value);
 extern s32 btlCameraUnitAnimFinished(u8 *arg0, u8 *arg1);
-extern s32 func_001d8df0(u8 *arg0);
+extern s32 btlEffectCollectGenusMask(u8 *arg0);
 extern u32 func_001d8bc0(void *formation);
 extern void btlCameraFrameStatus(u8 *arg0, s32 arg1);
 extern void btlCameraFrameSideView(u8 *arg0, s32 arg1);

@@ -18,7 +18,7 @@ s16 func_001d7130(s32 param_1);
 void func_001d8be0(s32 param_1, u64* param_2);
 void func_001d8bf0(s32 param_1, s32 param_2);
 u32 btlCond_MORE(s32 param_1);
-extern void func_001d6880(void* param_1);
+extern void btlEffectResetEntry(void* param_1);
 extern void btlFormationSetPlacement(u32 param_1);
 extern u8* DAT_0076449c;
 extern void (*jtbl_008873EC[])(void* ptr);
