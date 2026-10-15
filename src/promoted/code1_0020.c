@@ -279,7 +279,7 @@ void func_00200770(u8 *arg0)
     extern void func_00478e70(void *arg0);
     extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
     extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
-    extern void func_001bab00(u16 *arg0, f32 *arg1);
+    extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
     extern u8 *iGpffffb474;
     Frame frame;
     u8 *temp_17;
@@ -319,7 +319,7 @@ void func_00200770(u8 *arg0)
             func_0047a510(*(u8 **)temp_17, *(u16 *)(temp_17 + 4) + 1, frame.sp90 + 0x10);
             frame.sp40 = *(Vec3 *)frame.sp90;
             func_001bd780(&frame.sp4C, frame.sp90, frame.spD0, frame.sp70);
-            func_001bab00((u16 *)(iGpffffb474 + 0x24), (f32 *)(&frame.sp40));
+            btlMainCurveReset((u16 *)(iGpffffb474 + 0x24), (f32 *)(&frame.sp40));
         }
     }
 }

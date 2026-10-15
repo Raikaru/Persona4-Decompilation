@@ -511,7 +511,7 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
 /* measured: restore propagation after btlMainUpdateColorWork. */
 #pragma opt_propagation on
 // FUN_001B83F0
-BtlPacket* func_001b83f0(s32 param_1, s32 param_2, s32 param_3, u32 param_4, u16 param_5)
+BtlPacket* btlMainCreateColorWorkPacket(s32 param_1, s32 param_2, s32 param_3, u32 param_4, u16 param_5)
 {
     float *pfVar1;
     int iVar2;
@@ -1153,7 +1153,7 @@ BtlPacket* btlMainCreateColorSetPacket(s32 arg)
 
 
 // FUN_001BA9E0
-u32 func_001ba9e0(u16 *param_1, f32 *param_2, f32 *param_3)
+u32 btlMainCurveAppendKeyframe(u16 *param_1, f32 *param_2, f32 *param_3)
 {
     u16 index;
     u32 address;
@@ -1210,7 +1210,7 @@ u32 func_001ba9e0(u16 *param_1, f32 *param_2, f32 *param_3)
 
 
 // FUN_001BAB00
-void func_001bab00(u16 *param_1, f32 *param_2)
+void btlMainCurveReset(u16 *param_1, f32 *param_2)
 {
     u16 index;
     u32 address;
@@ -1273,7 +1273,7 @@ void func_001bab00(u16 *param_1, f32 *param_2)
 
 
 // FUN_001BAC20
-void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
+void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
 {
     u16 index;
     u16 index0;
@@ -1449,7 +1449,7 @@ void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
    reloads, including when an input aliases spline storage.
    Measured: 984/992B, eight resolved relocations, eight zero-tail bytes. */
 // FUN_001BAFF0
-void func_001baff0(u16 *param_1, f32 *param_2, f32 *param_3, f32 *param_4, u16 param_5)
+void btlMainCurveSetThreePoses(u16 *param_1, f32 *param_2, f32 *param_3, f32 *param_4, u16 param_5)
 {
     u16 index;
     u16 index0;
@@ -1620,7 +1620,7 @@ void func_001baff0(u16 *param_1, f32 *param_2, f32 *param_3, f32 *param_4, u16 p
 /* Exact: 948B/960B, four resolved spline calls and twelve zero-tail bytes.
    Keep each append's count/index reloads and callback-visible copy order. */
 // FUN_001BB3D0
-void func_001bb3d0(void *camera, void *first, void *second,
+void btlMainCurveSetFourPoses(void *camera, void *first, void *second,
                    void *third, void *fourth, u16 mode)
 {
     u16 *state = (u16 *)camera;

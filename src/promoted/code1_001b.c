@@ -51,7 +51,7 @@ extern s32 func_001d3d50(s32 arg0);
 extern BtlPacket *func_001d5eb0(u32 arg0, const char *arg1, u16 arg2);
 extern u8 *btlSoundCreateSkillSEPacket(s32 arg0, s32 arg1);
 extern u8 *btlMainCreateColorLerpPacket(s32 arg0, s32 arg1, s32 arg2);
-extern BtlPacket *func_001b83f0(s32 first, s32 second, s32 third, u32 frames, u16 mode);
+extern BtlPacket *btlMainCreateColorWorkPacket(s32 first, s32 second, s32 third, u32 frames, u16 mode);
 extern u8 *btlMainCreateTintPacket(s32 arg0, s32 arg1);
 extern void func_001f0a10(u8 *arg0);
 extern u8 *func_00202740(u8 *arg0);
@@ -228,7 +228,7 @@ extern void func_001bc660(s32 state, BtlAction *action, u32 param_3);
 extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
 extern void func_001bd560(f32 *arg0, f32 *arg1);
 extern void func_001ba790(f32 *arg0, f32 *arg1, f32 *arg2, f32 arg3);
-extern u32 func_001ba9e0(u16 *arg0, f32 *arg1, f32 *arg2);
+extern u32 btlMainCurveAppendKeyframe(u16 *arg0, f32 *arg1, f32 *arg2);
 extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
@@ -2027,7 +2027,7 @@ void func_001b4060(void)
     func_00194590(next, 1);
     id = func_001b7080(0x13D);
     func_001b70a0(0x13D, &camA, &camB);
-    next = (u8 *)func_001b83f0(id, camA, camB, 0x10, 0);
+    next = (u8 *)btlMainCreateColorWorkPacket(id, camA, camB, 0x10, 0);
     *(s64 *)(next + 0x60) = *(s64 *)action;
     func_00194590(next, 1);
     next = btlMainCreateTintPacket(func_001b7090(0x13D), 0x10);
@@ -2368,7 +2368,7 @@ void func_001b4880(u8 *arg0) {
         *(s16 *)(pkt + 0x48) = work->delay + 1;
         *(s64 *)(pkt + 0x60) = *(s64 *)base;
         func_00194590(pkt, 1);
-        pkt = (u8 *)func_001b83f0((s32)0xFF808080U, (s32)0xFF88C3FFU, (s32)0xFFCFFCF6U, 0, 0);
+        pkt = (u8 *)btlMainCreateColorWorkPacket((s32)0xFF808080U, (s32)0xFF88C3FFU, (s32)0xFFCFFCF6U, 0, 0);
         *(s16 *)(pkt + 0x48) = work->delay + 1;
         *(s64 *)(pkt + 0x60) = *(s64 *)base;
         func_00194590(pkt, 1);
@@ -4038,12 +4038,12 @@ s32 func_001bc980(u8 *arg0)
     *(s16 *)(temp_3 + 0x9C) = 0;
     *(s32 *)(temp_3 + 0xA4) = 0;
     *(s32 *)(temp_3 + 0xA0) = 0;
-    func_001ba9e0((u16 *)temp_17, frame.v50, frame.v5C);
+    btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v50, frame.v5C);
     func_001ba790(frame.v30, frame.v50, frame.v6C, fGpffff82f8);
-    func_001ba9e0((u16 *)temp_17, frame.v30, frame.v30 + 3);
+    btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v30, frame.v30 + 3);
     func_001ba790(frame.v30, frame.v50, frame.v6C, fGpffff80c8);
-    func_001ba9e0((u16 *)temp_17, frame.v30, frame.v30 + 3);
-    func_001ba9e0((u16 *)temp_17, frame.v6C, frame.v78);
+    btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v30, frame.v30 + 3);
+    btlMainCurveAppendKeyframe((u16 *)temp_17, frame.v6C, frame.v78);
     temp_3_2 = D_0076449C;
     *(f32 *)(temp_3_2 + 0xA8) =
         (60.0f * (2.0f * *(f32 *)(arg0 + 0x3C))) / 2.0f;
@@ -4726,7 +4726,7 @@ typedef struct P4Vec4_001EC2B0 { f32 x, y, z, w; } P4Vec4_001EC2B0;
 typedef struct P4Vec4Holder_001EC2B0 { P4Vec4_001EC2B0 quat; } P4Vec4Holder_001EC2B0;
 extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *, P4Vec4Holder_001EC2B0 *);
 extern RwV3d *RtQuatTransformVectors(RwV3d *, const RwV3d *, s32, const RtQuat *);
-extern void func_001bac20(u16 *, f32 *, f32 *, u16);
+extern void btlMainCurveSetPoses(u16 *, f32 *, f32 *, u16);
 
 // FUN_001BE900
 void func_001be900(u8 *arg0)
@@ -4930,7 +4930,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
             else radius = fGpffff8168;
             if (!(radius <= 2.15f)) radius = 2.15f;
         }
-        func_001bac20((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+        btlMainCurveSetPoses((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
         btlCameraSetDuration(camera, radius);
         goto action_done;
     }
@@ -5022,7 +5022,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
     {
         frames[1].pos.y = 25.0f;
     }
-    func_001bac20((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlMainCurveSetPoses((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(camera, 1.75f);
 action_done:
     return 1;
@@ -5251,7 +5251,7 @@ void func_001bf5e0(u8 *camera)
     frames[1].pos.x = firstPos.x + dir.x;
     frames[1].pos.y = firstPos.y + dir.y;
     frames[1].pos.z = firstPos.z + dir.z;
-    func_001bac20((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlMainCurveSetPoses((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(camera, 1.0f);
 }
 // FUN_001BFB70
@@ -5495,7 +5495,7 @@ void btlAct_SKILL_RECITE_E(u8 *camera)
     frames[1].pos.z = center.z + eyeAdj.z;
     func_001bc3a0((f32*)&frames[0], (f32*)&frames[0]);
     func_001bc3a0((f32*)&frames[1], (f32*)&frames[1]);
-    func_001bac20((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlMainCurveSetPoses((u16*)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(camera, 2.0f);
     }
     }

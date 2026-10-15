@@ -103,8 +103,8 @@ extern void func_0019de70(BtlUnitStateWork *work, u16 value);
 extern void func_001959d0(BtlUnit *arg0, RwV3d *arg1);
 extern RwV3d* RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count,
                           const RtQuat *quat);
-extern void func_001bab00(u16 *arg0, f32 *arg1);
-void func_001bac20(u16* work, f32* first, f32* second, u16 mode);
+extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
+void btlMainCurveSetPoses(u16* work, f32* first, f32* second, u16 mode);
 void func_001bd560(f32 *out, f32 *in);
 void func_001cc5d0(u8 *camera, f32 *out);
 void func_001bdd80(u8* camera, void* data, s32 mode);
@@ -184,7 +184,7 @@ typedef struct BtlCameraKeyFrame
     RwV3d pos;  // 0x00
     RtQuat rot; // 0x0c
 } BtlCameraKeyFrame;
-void func_001bb3d0(void* camera, void* first, void* second, void* third, void* fourth, u16 mode);
+void btlMainCurveSetFourPoses(void* camera, void* first, void* second, void* third, void* fourth, u16 mode);
 
 
 
@@ -703,7 +703,7 @@ void func_001be050(u8 *camera, f32 nearDegrees, f32 farDegrees)
     }
     func_001bc3a0((f32 *)&frames[0], (f32 *)&frames[0]);
     func_001bc3a0((f32 *)&frames[1], (f32 *)&frames[1]);
-    func_001bac20((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(camera, duration);
 }
 
@@ -833,7 +833,7 @@ void func_001c09b0(u8* camera)
     {
         frames[1].pos.y = 25.0f;
     }
-    func_001bac20((u16*)camera, (f32*)&frames[0], (f32*)&frames[1], 1);
+    btlMainCurveSetPoses((u16*)camera, (f32*)&frames[0], (f32*)&frames[1], 1);
     btlCameraSetDuration(camera, fGpffff818c);
 }
 
@@ -994,7 +994,7 @@ void func_001c6760(void *camera, float angle, float distanceScale, float heightS
   scratch.secondPosition.y = scratch.center.value.y + scratch.direction.value.y;
   scratch.secondPosition.z = scratch.center.value.z + scratch.direction.value.z;
   func_001bcd40(*(u8 **)(cameraAddress + 0xe0), NULL, NULL, 0.0f, 1);
-  func_001bac20((u16 *)camera, (f32 *)&scratch.firstPosition, (f32 *)&scratch.secondPosition, 1);
+  btlMainCurveSetPoses((u16 *)camera, (f32 *)&scratch.firstPosition, (f32 *)&scratch.secondPosition, 1);
   btlCameraSetDuration((u8 *)camera, 3.5f);
 }
 
@@ -1105,7 +1105,7 @@ void func_001c6bf0(u8 *arg0)
         work.secondPosition.y = 25.0f;
     }
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 2);
-    func_001bac20((u16 *)arg0, (f32 *)&work.firstPosition, (f32 *)&work.secondPosition, 1);
+    btlMainCurveSetPoses((u16 *)arg0, (f32 *)&work.firstPosition, (f32 *)&work.secondPosition, 1);
     btlCameraSetDuration(arg0, 1.5f);
 }
 // FUN_001C6F30
@@ -1262,10 +1262,10 @@ void func_001c73e0(u8 *arg0)
     {
         func_001b73f0(0);
         cameraApplyVisibility(0.0f, arg0, 0x100);
-        func_001bab00((u16 *)(arg0), (f32 *)(&frames[1]));
+        btlMainCurveReset((u16 *)(arg0), (f32 *)(&frames[1]));
         return;
     }
-    func_001bac20((u16 *)arg0, (f32 *)&frames[0],
+    btlMainCurveSetPoses((u16 *)arg0, (f32 *)&frames[0],
                   (f32 *)&frames[1], 1);
     btlCameraSetDuration(arg0, fGpffff80e8);
 }
@@ -1320,7 +1320,7 @@ void func_001c7510(BtlCamera* camera)
   buf[8] = buf[21] * fVar20 + fVar8;
   buf[9] = buf[22] * fVar20 + fVar7;
   func_001bcd40((u8 *)camera->action, 0, 0, 0.0f, 1);
-  func_001bac20((u16 *)camera, (f32 *)buf, (f32 *)(buf + 7), 1);
+  btlMainCurveSetPoses((u16 *)camera, (f32 *)buf, (f32 *)(buf + 7), 1);
   btlCameraSetDuration((u8 *)camera, 2.5f);
 }
 
@@ -1378,7 +1378,7 @@ void func_001c7780(BtlCamera* camera)
   buf[8] = buf[21] * fVar20 + fVar8;
   buf[9] = buf[22] * fVar20 + fVar7;
   func_001bcd40((u8 *)camera->action, 0, 0, 0.0f, 1);
-  func_001bac20((u16 *)camera, (f32 *)(buf + 7), (f32 *)buf, 1);
+  btlMainCurveSetPoses((u16 *)camera, (f32 *)(buf + 7), (f32 *)buf, 1);
   btlCameraSetDuration((u8 *)camera, 2.5f);
 }
 
@@ -1570,7 +1570,7 @@ void func_001cc0a0(u8 *camera)
     }
 
     func_001bcd40(*(u8 **)(camera + 0xE0), (u8 *)&work.pos, (f32 *)&target, 400.0f, 3);
-    func_001bab00((u16 *)(camera), (f32 *)(&work.pos));
+    btlMainCurveReset((u16 *)(camera), (f32 *)(&work.pos));
 }
 // FUN_001CC5C0
 void func_001cc5c0(void)
@@ -1717,7 +1717,7 @@ void btlAct_TARGET(u8 *arg0)
 
     func_001bd560(work.first, (f32 *)(arg0 + 0x9C));
     func_001cc5d0(arg0, work.second);
-    func_001bac20((u16 *)arg0, (f32 *)work.first, (f32 *)work.second, 1);
+    btlMainCurveSetPoses((u16 *)arg0, (f32 *)work.first, (f32 *)work.second, 1);
     btlCameraSetDuration(arg0, 10.0f);
 }
 // FUN_001CCA50
@@ -1813,7 +1813,7 @@ void func_001cca60(BtlCamera* camera)
     scratch.out.z = scratch.diff.z + scratch.target.z;
     func_001bc3a0((f32*)&scratch.out, (f32*)&scratch.out);
     func_001bcd40((u8*)0, (u8*)0, (f32 *)0, 0.0f, 0x100);
-    func_001bab00((u16 *)(uintptr_t)iVar2, (f32 *)&scratch.out);
+    btlMainCurveReset((u16 *)(uintptr_t)iVar2, (f32 *)&scratch.out);
     func_001bd5a0((f32*)(iVar2 + 0x9c), (f32*)&scratch.out);
 }
 // FUN_001CCDA0
@@ -1832,7 +1832,7 @@ void btlAct_NOP(u8 *camera)
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, RwV3d *);
     extern f32 func_00196040(u32, u32, RwV3d *, f32 *, f32 *, u32);
     extern void func_001ba790(f32 *out, f32 *first, f32 *second, f32 weight);
-    extern void func_001baff0(u16 *camera, f32 *first, f32 *middle, f32 *last, u16 mode);
+    extern void btlMainCurveSetThreePoses(u16 *camera, f32 *first, f32 *middle, f32 *last, u16 mode);
     extern RtQuat *func_003dc740(RtQuat *rotation, const RwV3d *axis, f32 angle, s32 mode);
     extern f32 RwV3dLength(const RwV3d *vector);
     extern f32 fGpffff8128;
@@ -1966,7 +1966,7 @@ void btlAct_NOP(u8 *camera)
     }
     func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
     func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
-    func_001baff0((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], (f32 *)&frames[2], 1);
+    btlMainCurveSetThreePoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], (f32 *)&frames[2], 1);
     btlCameraSetDuration(camera, duration);
 }
 // FUN_001CD600
@@ -2090,7 +2090,7 @@ void btlAct_WIN_P(BtlCamera* camera)
     i = (i + 1) & 0xffff;
   }
   func_001bcd40((u8*)camera->action, 0, 0, 0.0f, 1);
-  func_001bb3d0(camera, &scratch.frameBytes[0],
+  btlMainCurveSetFourPoses(camera, &scratch.frameBytes[0],
                &scratch.frameBytes[0x1c],
                &scratch.frameBytes[0x38],
                &scratch.frameBytes[0x54], 1);
@@ -2201,7 +2201,7 @@ void btlAct_CONDITION(u8 *camera)
     func_001bcd40(*(u8 **)(camera + 0xe0), (u8 *)&work.currentPosition,
                   (f32 *)work.unitPosition,
                   60.0f, 0x8c0);
-    func_001bac20((u16 *)camera, (f32 *)&work.currentPosition,
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&work.currentPosition,
                   (f32 *)&work.targetPosition, 1);
     btlCameraSetDuration(camera, 0.75f);
 }
@@ -2371,7 +2371,7 @@ void func_001cde50(u8* camera)
     frames[1].pos.x = pointNear.x + delta.x;
     frames[1].pos.y = pointNear.y + delta.y;
     frames[1].pos.z = pointNear.z + delta.z;
-    func_001bac20((u16*)camera, (f32*)&frames[0], (f32*)&frames[1], 1);
+    btlMainCurveSetPoses((u16*)camera, (f32*)&frames[0], (f32*)&frames[1], 1);
     btlCameraSetDuration(camera, 1.25f);
 }
 
@@ -2484,7 +2484,7 @@ s32 func_001d07e0(u8 *arg0, u8 *arg1)
     extern void func_001bd780(void *out, const void *first, const void *second, const void *config);
     extern RwMatrix *RwMatrixRotate(RwMatrix *matrix, const RwV3d *axis, f32 angle, s32 mode);
     extern RwV3d *func_003e4320(RwV3d *out, const RwV3d *in, const RwMatrix *matrix);
-    extern void func_001bac20(u16 *camera, f32 *first, f32 *second, u16 mode);
+    extern void btlMainCurveSetPoses(u16 *camera, f32 *first, f32 *second, u16 mode);
     extern void func_001bbe80(u8 *arg0, f32 arg1);
     extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
     extern void func_001bbf40(u8 *arg0, f32 arg1);
@@ -2677,7 +2677,7 @@ next_entry:
         up = D_0060A0E0;
     }
     func_001bd780(&poses[1].rot, &poses[1].pos, &focus[1], &up);
-    func_001bac20((u16 *)arg0, (f32 *)&poses[0], (f32 *)&poses[1], 1);
+    btlMainCurveSetPoses((u16 *)arg0, (f32 *)&poses[0], (f32 *)&poses[1], 1);
     switch (*(s16 *)(base + 2)) {
     case 0:
         func_001bbf40(arg0, (f32)*(s16 *)entry / 30.0f);
