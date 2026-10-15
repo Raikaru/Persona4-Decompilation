@@ -48,7 +48,7 @@ extern void fclCombineSlideInHeaderSprites(f32, f32, u8 *, s64, s8);
 extern s32 func_0011ba00(u8 *);
 extern char iGpffffa8a4;
 extern u16 D_008C0252[];
-extern void func_0032a960(u8 *, s8);
+extern void fclCombineDrawPanelBorder(u8 *, s8);
 extern void func_002b5e90(u8 *, FclVec2, FclVec2, u32);
 extern void func_002b60f0(u8 *, u8, u8, u32);
 extern void fclCombineFadeCursorArrow(u8 *, s64, f32);
@@ -5601,7 +5601,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 ps = fclSpriteEntry(0x2E0);
                 fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
                 fclDrawSetVisible(p->f148, 0);
-                func_0032a960(arg0, 1);
+                fclCombineDrawPanelBorder(arg0, 1);
                 func_002b5e90((u8 *)p->f2AC, func_002b2970(0.0f, 0.0f), func_002b2970(0.0f, -7.0f), 4);
                 func_002b5e90((u8 *)p->f2B0, func_002b2970(0.0f, 432.0f), func_002b2970(0.0f, 480.0f), 6);
                 func_002b5ef0((u8 *)p->f2B4, func_002b2970(0.0f, 69.0f), func_002b2970(0.0f, 93.0f), func_002b29e0(640.0f, (f32)0x157), func_002b29e0(640.0f, 294.0f), 5);
@@ -5619,7 +5619,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 ps = fclSpriteEntry(0x2E0);
                 fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
                 fclDrawSetVisible(p->f148, 1);
-                func_0032a960(arg0, 0);
+                fclCombineDrawPanelBorder(arg0, 0);
                 func_0045af60(0, 0, 0, 5);
                 func_002b5e90((u8 *)p->f2AC, func_002b2970(0.0f, -10.0f), func_002b2970(0.0f, 0.0f), 4);
                 func_002b5e90((u8 *)p->f2B0, func_002b2970(0.0f, 480.0f), func_002b2970(0.0f, 432.0f), 6);
@@ -5671,7 +5671,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclDrawSetStateByte(p->f148, 3);
                 fclCombineDrawStageBanner(arg0, 1, 1);
                 if (p->f122 == 1) {
-                    func_0032a960(arg0, 1);
+                    fclCombineDrawPanelBorder(arg0, 1);
                     func_002b5e90((u8 *)p->f2AC, func_002b2970(0.0f, 0.0f), func_002b2970(0.0f, -7.0f), 5);
                     func_002b5e90((u8 *)p->f2B0, func_002b2970(0.0f, 432.0f), func_002b2970(0.0f, 480.0f), 5);
                     func_002b5ef0((u8 *)p->f2B4, func_002b2970(0.0f, 69.0f), func_002b2970(0.0f, 239.0f), func_002b29e0(640.0f, (f32)0x157), func_002b29e0(640.0f, 0.0f), 5);
