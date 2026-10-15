@@ -26,7 +26,7 @@ extern void func_004704d0(u8 *arg0);
 extern void func_00478a30(u8 *arg0, s32 arg1);
 
 struct MdlFlags78ec0;
-extern void func_00478ec0(void* context, struct MdlFlags78ec0* model);
+extern void mdlApplyDrawState(void* context, struct MdlFlags78ec0* model);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 
 extern s32 mdlLayerIsPresent(u8 *arg0, s32 arg1);
