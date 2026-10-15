@@ -39,7 +39,7 @@ extern u8 *iGpffffb414;
 extern f32 *iGpffffb40c;
 extern u8 *datUnitGetRecord(s16 arg0);
 extern u32 datPersonaGetExpById(s16 arg0);
-extern void func_00105990(s16 arg0, u32 value);
+extern void datSetHeroExp(s16 arg0, u32 value);
 extern u8 func_001059e0(s32 arg0);
 extern s32 datAddMoney(s32 arg0);
 extern s32 func_00106600(s16 id);
@@ -4609,7 +4609,7 @@ void btlXpApplyAwards(u8 *arg0, u8 *arg1)
     temp_2 = (s32)datPersonaGetExpById(1);
     if ((func_001059e0(temp_2) & 0xFF) < 0x63) {
         temp_16 = temp_2 + *(s32 *)(arg0 + 4);
-        func_00105990(1, temp_16);
+        datSetHeroExp(1, temp_16);
         datCalcSetLevel((u8 *)temp_17, func_001059e0(temp_16));
     }
     var_16 = *(s32 *)(arg1 + 8);

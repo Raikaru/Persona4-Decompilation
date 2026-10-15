@@ -42,7 +42,7 @@ extern s32 datPersonaRosterCapacity(void);
 extern s32 datPersonaRosterSlotActive(s16 arg0);
 extern u16 *datPersonaRosterSlot(s16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
-extern void func_0010ffa0(void);
+extern void datPersonaInitAllRecords(void);
 extern s32 yListRecordsDiffer(u8 *arg0, u8 *arg1);
 extern s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern s64 func_00311d00(s32 id);
@@ -702,7 +702,7 @@ s32 yListSlotRefresh(u8 *arg0) {
         }
         break;
     case 8:
-        func_0010ffa0();
+        datPersonaInitAllRecords();
         for (i = 1; i < 0xC0; i++) {
             datPersonaInitRecord(p + ((i - 1) * 0x30) + 0x14, (u16)i);
             *(s32 *)(p + 8) += 1;

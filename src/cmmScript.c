@@ -39,7 +39,7 @@ extern u8* cmmCommunityGetCurrentWork(void);
 extern s32 cmmCommunityGetCurrentId(void);
 extern void cmmCommunityAdvanceForm(s32 arg0);
 extern void cmmCommunitySetRecordFlag4(s32 arg0);
-extern void func_00108d80(void);
+extern void datDestroyTaskByName(void);
 extern void cmmCommunitySetCurrent(u16 arg0);
 extern s16 func_00248d80(s16 arg0);
 extern s32 cmmDateTableAddCount(s32 arg0, s32 arg1);
@@ -276,7 +276,7 @@ s32 cmmMsgStreamUpdate(void)
                 func_001029a0(0xA, &pack2, 0x1C, 2);
                 p->counter = 0;
             } else {
-                func_00108d80();
+                datDestroyTaskByName();
                 func_002483c0(p->unk00);
                 return 1;
             }
@@ -490,7 +490,7 @@ s32 cmmScriptSetCurrentEntry(void)
 
     id = scrGetParamInt(0);
     if (id == 0) {
-        func_00108d80();
+        datDestroyTaskByName();
     } else {
         cmmCommunitySetCurrent(id & 0xFFFF);
     }

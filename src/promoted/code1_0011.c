@@ -678,7 +678,7 @@ void func_001113b0(void)
     void func_00105690(s16, u8);
     void func_001056e0(s16, s16);
     void func_00105730(s16, s16);
-    void func_00105990(s16, u32);
+    void datSetHeroExp(s16, u32);
     void func_00105c90(s16, s16);
     void datCalcSetBadStatusById(s16, s16);
     void func_00105dc0(s16, s16, s16);
@@ -718,7 +718,7 @@ loop_1:
     datCalcInitUnitById((s16)i);
     if (i == 1) {
         func_00105690((s16)i, 1);
-        func_00105990((s16)i, 0);
+        datSetHeroExp((s16)i, 0);
     }
     func_001056e0((s16)i, 1);
     func_00105730((s16)i, 1);
