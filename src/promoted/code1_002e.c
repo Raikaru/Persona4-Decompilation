@@ -603,25 +603,25 @@ void func_002e7a80(s32 arg0)
 // FUN_002E7AC0
 s32 fclCombineMenuUpdate(u8 *arg0)
 {
-    void func_002e90d0(u8 *arg0);
+    void fclCombineMenuEnter(u8 *arg0);
     u8 *fclSpriteEntry(s16 arg0);
     s16 fclSpriteFlagBit(s16 arg0, s16 arg1);
     s32 func_002b2a30(u8, u8, u8, u8);
     u32 func_0010d6d0(s16 arg0);
     
     void fclDrawSetFlag(u8 *arg0, s8 arg1);
-    void func_002ed430(u8 *arg0);
-    void func_002f0f00(u8 *arg0);
-    void func_002f6cf0(u8 *arg0);
-    void func_002f9d90(u8 *arg0);
-    void func_002fbea0(u8 *arg0);
-    void func_00302770(u8 *arg0);
-    void func_00304580(u8 *arg0);
-    void func_003097e0(u8 *arg0);
-    void func_0030b060(u8 *arg0);
-    void func_0030b7b0(u8 *arg0);
-    void func_0030c3c0(u8 *arg0);
-    void func_0030f650(u8 *arg0);
+    void fclCombineMenuPickSource(u8 *arg0);
+    void fclCombineMenuPickTarget(u8 *arg0);
+    void fclCombineMenuPairStep(u8 *arg0);
+    void fclCombineMenuPreview(u8 *arg0);
+    void fclCombineMenuPriceInfo(u8 *arg0);
+    void fclCombineMenuValidate(u8 *arg0);
+    void fclCombineMenuConfirm(u8 *arg0);
+    void fclCombineMenuClosing(u8 *arg0);
+    void fclCombineMenuMaterialGrid(u8 *arg0);
+    void fclCombineMenuItemPick(u8 *arg0);
+    void fclCombineMenuSkillPick(u8 *arg0);
+    void fclCombineMenuFinish(u8 *arg0);
     extern u8 D_00794E70[];
     u8 *work;
     u8 state;
@@ -681,7 +681,7 @@ s32 fclCombineMenuUpdate(u8 *arg0)
     }
     switch (state) {
     case 0:
-        func_002e90d0(arg0);
+        fclCombineMenuEnter(arg0);
         break;
     default:
         break;
@@ -692,63 +692,63 @@ case_01:
     P4_002E7AC0_DRAW();
     fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
     *(s8 *)(work + 0x1A) = 2;
-    func_002ed430(arg0);
+    fclCombineMenuPickSource(arg0);
     goto done;
 case_02:
     P4_002E7AC0_DRAW();
     fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
     *(s8 *)(work + 0x1A) = 3;
-    func_002f0f00(arg0);
+    fclCombineMenuPickTarget(arg0);
     goto done;
 case_03:
     P4_002E7AC0_DRAW();
     *(s8 *)(work + 0x1A) = 4;
     fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
-    func_002f6cf0(arg0);
+    fclCombineMenuPairStep(arg0);
     goto done;
 case_04:
     P4_002E7AC0_DRAW();
     *(s8 *)(work + 0x1A) = 5;
     fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
-    func_002f6cf0(arg0);
+    fclCombineMenuPairStep(arg0);
     goto done;
 case_05:
     P4_002E7AC0_DRAW();
     *(s8 *)(work + 0x1A) = 6;
     fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
-    func_002f6cf0(arg0);
+    fclCombineMenuPairStep(arg0);
     goto done;
 case_06:
     P4_002E7AC0_DRAW();
     *(s8 *)(work + 0x1A) = 7;
     fclDrawSetFlag(*(u8 **)(work + 0x148), 0);
-    func_002f9d90(arg0);
+    fclCombineMenuPreview(arg0);
     goto done;
 case_07:
-    func_00302770(arg0);
+    fclCombineMenuValidate(arg0);
     goto done;
 case_08:
     P4_002E7AC0_DRAW();
-    func_00304580(arg0);
+    fclCombineMenuConfirm(arg0);
     goto done;
 case_10:
     fclDrawSetFlag(*(u8 **)(work + 0x148), 1);
-    func_002fbea0(arg0);
+    fclCombineMenuPriceInfo(arg0);
     goto done;
 case_0c:
-    func_0030c3c0(arg0);
+    fclCombineMenuSkillPick(arg0);
     goto done;
 case_09:
-    func_0030b060(arg0);
+    fclCombineMenuMaterialGrid(arg0);
     goto done;
 case_0a:
-    func_0030b7b0(arg0);
+    fclCombineMenuItemPick(arg0);
     goto done;
 case_0d:
-    func_003097e0(arg0);
+    fclCombineMenuClosing(arg0);
     goto done;
 case_0e:
-    func_0030f650(arg0);
+    fclCombineMenuFinish(arg0);
     goto done;
 return_minus_one:
     return -1;

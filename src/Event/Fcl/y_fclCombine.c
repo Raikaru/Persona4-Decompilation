@@ -491,10 +491,11 @@ typedef struct {
    (MWCC tests the sparse labels in reverse); opt_lifetimes gives each loop
    index its own register as retail does; the second reward scan keeps its own
    selection local; row lookups use the 10-byte FclCombineRow at +0xC4. */
+// Fcl combine menu enter (state 0): claims the slot, builds the rows and the intro sprites, then runs the sub-states 0x11-0x20 that open the menu.
 // FUN_002E90D0
 #pragma push
 #pragma opt_lifetimes on
-void func_002e90d0(u8 *arg0)
+void fclCombineMenuEnter(u8 *arg0)
 {
     extern u8 D_00641870[];
     extern s32 datGetFlag(s32);
@@ -1447,8 +1448,9 @@ typedef struct {
 
 /* measured: 15048B/window 15056B, eight zero alignment bytes. See
    docs/probe_archive/FclCombine_002ed430_recovery_20260925.md. */
+// Fcl combine menu pick source (state 1): draws the roster page for the first pick and advances to state 2.
 // FUN_002ED430
-void func_002ed430(u8 *arg0) {
+void fclCombineMenuPickSource(u8 *arg0) {
     extern void func_00313800(s8);
     extern f32 D_00640E70[];
     s16 var_19_3;
@@ -2381,10 +2383,11 @@ typedef struct {
 } while (0)
 
 
+// Fcl combine menu pick target (state 2): draws the slot records and advances to state 3.
 // FUN_002F0F00
 #pragma push
 #pragma opt_loop_invariants on
-void func_002f0f00(u8 *arg0) {
+void fclCombineMenuPickTarget(u8 *arg0) {
 
     u8 *s0;
     FclDrawColor sp3FC;
@@ -3664,10 +3667,11 @@ block_215:
 /* The colour packers take byte channels through the shared interface: the
    alphas are u8 locals and retail passes them unmasked. func_00313ae0 is
    (s8 kind, u16 id) and widens the id once on entry. */
+// Fcl combine menu pair step (states 3-5): shared step for the pair-selection states; each advances to the next state.
 // FUN_002F6CF0
 #pragma push
 #pragma opt_lifetimes on
-void func_002f6cf0(u8 *arg0) {
+void fclCombineMenuPairStep(u8 *arg0) {
     extern void func_00313800(s8);
     extern void func_00323d00(u8 *, s32, s8);
     extern s32 func_003139d0(s8, s8);
@@ -4303,8 +4307,9 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
    is its own int local (retail gives them distinct registers and passes them to
    002b2a30 unmasked), the 0x68 roster loop uses its own index, and the state
    range checks are written `> 5` / `> 0xD`. */
+// Fcl combine menu preview (state 6): draws the preview of the selected pair and advances to state 7.
 // FUN_002F9D90
-void func_002f9d90(u8 *arg0) {
+void fclCombineMenuPreview(u8 *arg0) {
     extern void yListSlotAppend(s8, s32, s8);
     extern void func_00324680(u8 *, s32, s8);
     extern void func_0011d140(u8 *, s32); /* retail loads the colour into $a1 */
@@ -4736,8 +4741,9 @@ typedef struct {
     u8 pad2C0[0x60];
 } FclCombineSel;
 
+// Fcl combine menu price info (states 0x0F/0x10): shows the buffed stats and the discount.
 // FUN_002FBEA0
-void func_002fbea0(u8 *arg0) {
+void fclCombineMenuPriceInfo(u8 *arg0) {
 
     struct {
         s16 firstEntry;
@@ -5879,8 +5885,9 @@ s32 fclCombineApplyDiscount(u16 arg0, s32 arg1)
    are (f32) int conversions (cvt.s.w); the format string is a gp-relative
    s32 (iGpffffa8a0). Stack slots follow declaration order: fv0 first, the
    FclVec2 constructor results, then fv7..fv1, then buf. */
+// Fcl combine menu validate (state 7): checks the fusion rules and ids, then runs the layout transition.
 // FUN_00302770
-void func_00302770(u8 *arg0) {
+void fclCombineMenuValidate(u8 *arg0) {
     extern u8 *fclSpriteWork(u8 *arg0);
     extern void func_0032e570(u8 *arg0);
     FclVec2f fv0;
@@ -6629,8 +6636,9 @@ typedef struct {
     } \
 } while (0)
 
+// Fcl combine menu state 8: draws the roster page and plays its cue.
 // FUN_00304580
-void func_00304580(u8 *arg0) {
+void fclCombineMenuConfirm(u8 *arg0) {
     FclDrawColor col2FC;
     FclDrawColor col2F8;
     FclDrawColor col2F4;
@@ -8018,9 +8026,10 @@ static inline void fclCombineStartFade(u8 *task)
 
 /* measured: the loop-invariant pragma hoists the slot-search id and count out of
    every inlined search, as retail does. */
+// Fcl combine menu closing (state 0x0D): starts the fade and releases the entries.
 // FUN_003097E0
 #pragma opt_loop_invariants on
-void func_003097e0(u8 *arg0) {
+void fclCombineMenuClosing(u8 *arg0) {
     extern void func_0034a640(s32, u16, s32);
     extern s32 func_0033f690(u8 *, u16 *, s32);
     extern s32 func_003488d0(u8 *, void *, s32);
@@ -8418,8 +8427,9 @@ void func_003097e0(u8 *arg0) {
    addiu base then lwc1 0/4); the flag at p+0x13A is s8; the scroll loop
    declares k before e and keeps lim as s32; the 0xD store is re-read as
    *(s8 *)(p + 0xD) for func_002badc0 (b210 forwards it after the lh). */
+// Fcl combine menu material grid (state 0x09): sets up the six-row ingredient grid and its colours; sub-states 0xC2-0xC4 step through it.
 // FUN_0030B060
-void func_0030b060(u8 *arg0)
+void fclCombineMenuMaterialGrid(u8 *arg0)
 {
     u8 *p;
     u8 kind;
@@ -8552,8 +8562,9 @@ void func_0030b060(u8 *arg0)
    second func_003147e0 argument. The row loop derives the second byte as
    &D_00882FB0[j * 2] + 1: that second use of j is what makes b210
    re-extend j at the top of the body instead of reusing the test's copy. */
+// Fcl combine menu item pick (state 0x0A): picks the item for the selected slot.
 // FUN_0030B7B0
-void func_0030b7b0(u8 *arg0) {
+void fclCombineMenuItemPick(u8 *arg0) {
     u8 *p;
     u8 kind;
     s16 i;
@@ -8737,7 +8748,7 @@ void func_0030b7b0(u8 *arg0) {
 }
 
 /* One four-byte ingredient slot of the D_0063FCA0 recipe rows and the
-   D_006406F0 calendar rows read by func_0030c3c0. */
+   D_006406F0 calendar rows read by fclCombineMenuSkillPick. */
 typedef struct {
     s8 kind;
     s8 weight;
@@ -8760,7 +8771,7 @@ static inline s32 fclCombineHasSlotKind(u8 *arg0, s8 kind)
 }
 
 /* The item table lookup of fclCombineStageValue, which retail inlines into
-   func_0030c3c0 with the kind read before the roll is made. */
+   fclCombineMenuSkillPick with the kind read before the roll is made. */
 static inline s16 fclCombinePickItem(s8 kind, s8 roll)
 {
     switch (kind) {
@@ -8793,13 +8804,14 @@ static inline u16 fclItemHalf(const s32 *value)
     return *value;
 }
 #pragma pop
+// Fcl combine menu skill pick (state 0x0C): lists the persona's skill slots and applies the pick.
 // FUN_0030C3C0
 #pragma push
 /* measured: hoists each slot scan's count and kind out of its loop. */
 #pragma opt_loop_invariants on
 /* measured: keeps the 0xAC slot pointer as its own index-first address. */
 #pragma opt_propagation off
-void func_0030c3c0(u8 *arg0) {
+void fclCombineMenuSkillPick(u8 *arg0) {
     extern s32 datGetFlag(s32);
     extern u32 func_0011f560(u8 *);
     extern void fclDrawSetHandleValue(u8 *, u32);
@@ -9712,8 +9724,9 @@ void func_0030f4f0(u8 *task, s16 *materials) {
    FclVec2f base; the table rows use the fclCombineBuildRows offset spelling; the
    material switch keeps the 6 -> 5 -> 4 fallthrough labels (jump table);
    i is s8 and declared first, then cls, then p (saved-register order). */
+// Fcl combine menu finish (state 0x0E): runs the finish sequence (sub-states 0xD2-0xD4): waits for the draw, plays the cues, then destroys the task after 720 frames.
 // FUN_0030F650
-void func_0030f650(u8 *arg0) {
+void fclCombineMenuFinish(u8 *arg0) {
     s8 i;
     s16 cls;
     u8 *p;
