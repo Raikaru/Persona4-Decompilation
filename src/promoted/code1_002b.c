@@ -108,7 +108,7 @@ extern s32 func_002b1210(u8 *arg0);
 
 extern f32 func_002b1260(s32 arg0, f32 fparg0);
 extern f32 func_002b1320(s32 arg0, f32 fparg0);
-extern void func_002b3ae0(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2);
+extern void mapSymbolMarkerDraw(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2);
 extern u8 *mdlGetMatrix(u32 arg0);
 extern u32 D_007EFA00[];
 extern u8 D_007EFA04[];
@@ -764,7 +764,7 @@ s32 func_002b3720(u8 *arg0)
                               18.0f) - 2.0f;
     }
     color = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
-    func_002b3ae0(arg0, *(s64 *)&out, 60002.0f, color);
+    mapSymbolMarkerDraw(arg0, *(s64 *)&out, 60002.0f, color);
     return 0;
 }
 // FUN_002B3960
