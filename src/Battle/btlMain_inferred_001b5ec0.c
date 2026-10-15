@@ -23,7 +23,7 @@ typedef struct DatUnit DatUnit;
 typedef struct BtlAction BtlAction;
 extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_001fc1b0(s16 arg0);
-extern s32 func_002aa300(u8 *parent, s32 mode);
+extern s32 mcIconTaskCreate(u8 *parent, s32 mode);
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
@@ -140,7 +140,7 @@ s32 func_001b5ed0(void)
 // FUN_001B5F00
 void func_001b5f00(void)
 {
-    *(s32 *)(D_0076449C + 0xDCC) = func_002aa300(0, 0);
+    *(s32 *)(D_0076449C + 0xDCC) = mcIconTaskCreate(0, 0);
 }
 
 // FUN_001B5F30

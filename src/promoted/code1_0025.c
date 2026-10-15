@@ -63,7 +63,7 @@ s16 func_00106cd0(s16 arg0, s16 arg1);
 void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 s32 kwlnTaskIsLinked(s32 arg0);
 void func_00120f20(s32 arg0);
-s32 func_002aa300(u8 *parent, s32 mode);
+s32 mcIconTaskCreate(u8 *parent, s32 mode);
 s32 func_002aa3f0(void);
 extern s32 func_00481450(void);
 extern void func_00481440(s32 arg0);
@@ -422,7 +422,7 @@ s32 func_0025d440(void) {
     s32 temp_2;
 
     if (func_0029d020() == 0) {
-        func_002aa300(0, 1);
+        mcIconTaskCreate(0, 1);
         goto block_4;
     }
     temp_2 = func_002aa3f0();
@@ -439,7 +439,7 @@ s32 func_0025d4b0(void) {
     s32 temp_2;
 
     if (func_0029d020() == 0) {
-        func_002aa300(0, 0);
+        mcIconTaskCreate(0, 0);
     } else {
         temp_2 = func_002aa3f0();
         if (temp_2 != 0) {
