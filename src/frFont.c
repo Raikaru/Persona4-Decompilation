@@ -42,7 +42,7 @@ extern s32 func_002e17f0(u8 *task);
 extern void frFontTaskDestroy(u8 *task);
 extern void frFontInitManager(int param_1, int param_2);
 extern s8 func_002746e0(void *param_1, int param_2);
-extern void func_002746b0(u32 param_1);
+extern void frFontSetMode(u32 param_1);
 extern u8 *func_002740b0(void *data);
 extern u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
                          u32 param_5, u32 param_6, u32 param_7, u32 param_8,
@@ -1163,7 +1163,7 @@ void frFontSetCharWidth(int param_1, int param_2)
         func_0046d730(D_0063BAE8, 0x6C3);
     }
     *(u8 *)(param_1 + 3) = param_2;
-    *(u32 *)(param_1 + 0xc) = func_002738d0(param_1);
+    *(u32 *)(param_1 + 0xc) = frFontNodeWidth(param_1);
 }
 
 /* Sets the slot byte (+0x15) of every glyph in every node of the list. */
@@ -1786,7 +1786,7 @@ body:
 
 
 
-extern int func_00273970(int param_1);
+extern int frFontCountRuns(int param_1);
 
 
 
@@ -1794,7 +1794,7 @@ extern int func_00273970(int param_1);
 /* measured 2026-08-08: reconstructed the 0x40-byte-linked-list extractor
    with a typed local node and explicit goto CFG. The declaration order
    temp_3,var_18,temp_17,var_7,... plus the forward count guard
-   `func_00273970(temp_17) > var_18` yields retail's saved colors and
+   `frFontCountRuns(temp_17) > var_18` yields retail's saved colors and
    `slt $at`; optimization_level 1 with opt_common_subs on is load-bearing.
    MATCH nd 0, object 464/window 464 (O2 nd2; O1 without common-substitutions
    nd36). */
@@ -1834,10 +1834,10 @@ u8 *frFontSplitRun(u8 **arg0, s32 arg1)
     if (temp_17 == NULL) {
         return NULL;
     }
-    if (func_00273970((int)temp_17) < 2) {
+    if (frFontCountRuns((int)temp_17) < 2) {
         return NULL;
     }
-    if (func_00273970((int)temp_17) > var_18) {
+    if (frFontCountRuns((int)temp_17) > var_18) {
         goto count_ok;
     }
     return NULL;
@@ -1929,16 +1929,18 @@ loop32_check:
 
 
 
+/* Loads data into the system font slot (slot 8). */
 // FUN_002738A0
-void func_002738a0(u8 *param_1)
+void frFontLoadSystemSlot(u8 *param_1)
 {
     frFontSlotLoad(8, param_1, 0);
 }
 
 
 
+/* Returns a node's total width: each glyph's advance plus the node's line height. */
 // FUN_002738D0
-int func_002738d0(FrFontNode *node)
+int frFontNodeWidth(FrFontNode *node)
 {
     int total = 0;
     FrFontGlyph *glyph;
@@ -1974,8 +1976,9 @@ u16 func_00273940(u32 param_1)
 
 
 
+/* Returns the number of same-type runs in a node's chain. */
 // FUN_00273970
-int func_00273970(int node)
+int frFontCountRuns(int node)
 {
     int result = 0;
     int child;
@@ -2415,7 +2418,7 @@ u8 *func_002740b0(void *data)
         FrFontCommand *handlers;
         s32 count;
     } FrFontCommandGroup;
-    extern void func_00274640(void);
+    extern void frFontClearStateFlags(void);
     extern u8 iGpffffa748;
     extern s32 D_00763800;
     FrFontScript *script;
@@ -2441,7 +2444,7 @@ u8 *func_002740b0(void *data)
     if (((script->data[0] & 0xF0) != 0xF0) && (script->data[1] == 5)) {
         script->pos += 4;
     }
-    func_00274640();
+    frFontClearStateFlags();
     D_00763810 = (s16)(D_00763810 | 1) & ~2;
     while ((code = script->data[script->pos++]) != 0) {
         if ((code & 0xF0) == 0xF0) {
@@ -2600,13 +2603,14 @@ u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
     data.f1c = 1;
     data.f1d = 1;
     data.f1e = 0x20;
-    func_002746b0(0);
+    frFontSetMode(0);
     return func_002740b0(&data);
 }
 
 
+/* Clears the state flag word. */
 // FUN_00274640
-void func_00274640(void)
+void frFontClearStateFlags(void)
 {
     D_007637F8 = 0;
 }
@@ -2620,8 +2624,9 @@ u32 frFontMaskFlags(u32 value)
     return frFontFlagMask & value;
 }
 
+/* Sets (enable != 0) or clears the given bits in the state flag word. */
 // FUN_00274660
-void func_00274660(u32 param_1, int param_2)
+void frFontSetStateBits(u32 param_1, int param_2)
 {
     if (param_2 != 0) {
         D_007637F8 |= param_1;
@@ -2630,14 +2635,16 @@ void func_00274660(u32 param_1, int param_2)
     }
 }
 
+/* Returns the current mode word. */
 // FUN_002746A0
-u32 func_002746a0(void)
+u32 frFontGetMode(void)
 {
     return D_00764594;
 }
 
+/* Sets the mode word. */
 // FUN_002746B0
-void func_002746b0(u32 param_1)
+void frFontSetMode(u32 param_1)
 {
     D_00764594 = param_1;
 }

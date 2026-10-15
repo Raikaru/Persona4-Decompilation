@@ -69,7 +69,7 @@ extern s16 D_00882064[];
 extern s16 D_00882066[];
 extern f32 iGpffff81d8;
 extern void func_0025ec90(f32, f32, f32, s32, u8, s32, void *, s32, void *);
-extern s32 func_002738d0(void *arg0);
+extern s32 frFontNodeWidth(void *arg0);
 extern void frFontSetGlyphColor(void *arg0, s32 arg1);
 extern void func_0027a490(void *a0, s32 a1, s32 a2, s32 a3);
 extern void func_0027a4b0(void *a0, s32 a1, s32 a2, s32 a3);
@@ -1152,7 +1152,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
     extern PrimitiveRectangleWords D_0063C130;
     extern PrimitiveRectangleWords D_0063C140;
     extern s32 func_0025f500(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, void *a6, f32 f0, f32 f1, f32 f2);
-    extern s32 func_00273970(s32 arg0);
+    extern s32 frFontCountRuns(s32 arg0);
     PrimitiveRectangleColor color;
     PrimitiveRectangleColor backgroundColor;
     PrimitiveRectangleColor selectionColor;
@@ -1639,7 +1639,7 @@ s32 func_0027f6f0(s32 arg0, u32 arg1)
             frFontReplaceGlyphAux(pv2, 0, 0);
             frFontSetListFlag(pv2, 0xFF);
             frFontSetNodeId(pv2, 0xFF);
-            tmp2 = func_00273970((s32)pv2);
+            tmp2 = frFontCountRuns((s32)pv2);
             if (tmp2 < 3) {
                 D_0088202C[0] = 0;
             } else if (tmp2 < 4) {
@@ -2106,7 +2106,7 @@ s32 func_00282250(u8 *arg0, s32 arg1)
             frFontSetGlyphAux(pv, 0);
         }
         if ((pv2 = (void *)func_00278fb0(arg0)) != NULL) {
-            func_002738d0(pv2);
+            frFontNodeWidth(pv2);
             frFontSetListSlot(pv2, 0);
             frFontSetGlyphAux(pv2, 0);
             frFontSetGlyphColor(pv2, 0xFFAE20FF);
@@ -2139,7 +2139,7 @@ s32 func_00282250(u8 *arg0, s32 arg1)
             backgroundY = (4 - v79010) * 0x1E + 0xCE;
             func_00366380((s32)(-5.0f - (1.0f - f) * 500.0f), backgroundY, 0.0f, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
             if ((pv = (void *)func_00278fb0(arg0)) != NULL) {
-                v738d0 = func_002738d0(pv);
+                v738d0 = frFontNodeWidth(pv);
                 frFontMoveListToFloat(pv, (f * 443.0f - 4.0f) - (float)v738d0, 351.0f);
             }
             if ((pv2 = (void *)func_00278ff0(arg0)) != NULL) {

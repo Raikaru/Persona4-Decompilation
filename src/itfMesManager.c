@@ -73,7 +73,7 @@ extern char iGpffffa760;
 extern s32 iGpffffb444;
 int func_00278de0(int param_1, int param_2);
 s32 func_0027a520(int param_1);
-void func_002738a0(u8 *arg0);
+void frFontLoadSystemSlot(u8 *arg0);
 u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8, u32 param_9);
 void memcpy(void *arg0, void *arg1, u32 arg2);
 s32 strlen(const void *param_1);
@@ -85,7 +85,7 @@ extern char D_0063BE60[];
 void func_0027b7c0(s32 arg0);
 void func_00279e90(u8 *arg0, u8 *arg1);
 void func_00279780(u8 *arg0);
-s32 func_002738d0(u8 *arg0);
+s32 frFontNodeWidth(u8 *arg0);
 u8 *frFontAppendList(u8 *arg0, u8 *arg1, s32 arg2);
 extern char D_0063BE80[];
 extern char D_0063BEA0[];
@@ -739,7 +739,7 @@ s32 func_002778c0(s32 arg0, s32 arg1, s32 arg2)
     func_00279ce0(obj + 0x94);
     v = *(s32 *)(obj + 8);
     if (v != 0)
-        func_002738a0((u8 *)v);
+        frFontLoadSystemSlot((u8 *)v);
     func_0027b7c0(arg0);
     func_00279780(obj);
     bits = *(s32 *)obj;
@@ -873,7 +873,7 @@ void func_00277be0(s32 arg0, s32 arg1)
     func_00279ce0(object + 0x94);
     font = *(s32 *)(object + 8);
     if (font != 0)
-        func_002738a0((u8 *)font);
+        frFontLoadSystemSlot((u8 *)font);
     saved_font = iGpffffb4b0;
     if (saved_font == 0)
         iGpffffb4b0 = 0x7B;
@@ -1206,7 +1206,7 @@ s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_00279ce0(obj + 0x94);
     r = *(s32 *)(obj + 8);
     if (r != 0) {
-        func_002738a0((u8 *)r);
+        frFontLoadSystemSlot((u8 *)r);
     }
     r = func_00279740((int)t, arg2);
     if (r == 0) {
@@ -1579,7 +1579,7 @@ s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
         if (*(s32 *)(r + 0x24) == 0) {
             r2 = func_00279030(fparg0, 25.0f + fparg1, fparg2, arg0, arg1, arg2, arg3, arg6, arg7);
         } else {
-            r2 = func_00279030(fparg0 + (f32)func_002738d0(r), 25.0f + fparg1, fparg2, arg0, arg1, arg2, arg3, arg6, arg7);
+            r2 = func_00279030(fparg0 + (f32)frFontNodeWidth(r), 25.0f + fparg1, fparg2, arg0, arg1, arg2, arg3, arg6, arg7);
         }
         r = frFontAppendList(r, r2, 0);
     }

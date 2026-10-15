@@ -45,7 +45,7 @@ extern void func_00279d40(s32 arg0);
 extern u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
                          s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u8 *frFontSplitRun(u8 **arg0, s32 arg1);
-extern s32 func_002738d0(u8 *arg0);
+extern s32 frFontNodeWidth(u8 *arg0);
 extern void frFontMoveListToFloat(u8 *arg0, f32 fparg0, f32 fparg1);
 extern void frFontSetGlyphColor(u8 *arg0, s32 arg1);
 
@@ -203,7 +203,7 @@ void func_002987d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
         node = p;
         sum = 0;
         while (node != NULL) {
-            sum += func_002738d0(node);
+            sum += frFontNodeWidth(node);
             node = *(u8 **)(node + 0x24);
         }
         frFontMoveListToFloat(p, fparg0 - (f32)sum / 2.0f, fparg1);

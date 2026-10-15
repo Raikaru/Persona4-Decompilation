@@ -14,7 +14,7 @@ extern void frFontMoveListToFloat(int param_1, float param_2, float param_3);
 extern void frFontSetGlyphColor(u32 resource, u32 color);
 extern u32 frFontFadeNodes(int param_1);
 extern u32 frFontListRelease(int param_1);
-extern int func_002738d0(int node);
+extern int frFontNodeWidth(int node);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
 extern void memset(void *dst, s32 value, s32 size);
@@ -204,7 +204,7 @@ int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, in
         func_0046d730(D_0063BAE8, 0x6C3);
     }
     *(s8 *)(font + 3) = charWidth;
-    *(int *)(font + 0xc) = func_002738d0(font);
+    *(int *)(font + 0xc) = frFontNodeWidth(font);
     tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
         result = tmp;
@@ -233,7 +233,7 @@ int frFontExDrawTextOutA(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
         func_0046d730(D_0063BAE8, 0x6C3);
     }
     *(s8 *)(font + 3) = charWidth;
-    *(int *)(font + 0xc) = func_002738d0(font);
+    *(int *)(font + 0xc) = frFontNodeWidth(font);
     tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
         result = tmp;
@@ -263,7 +263,7 @@ int frFontExDrawTextOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
         func_0046d730(D_0063BAE8, 0x6C3);
     }
     *(s8 *)(font + 3) = charWidth;
-    *(int *)(font + 0xc) = func_002738d0(font);
+    *(int *)(font + 0xc) = frFontNodeWidth(font);
     tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
         result = tmp;
@@ -331,7 +331,7 @@ int frFontExDrawTextDeferredWithCharWidth(f32 x, f32 y, f32 scale, int color, s8
         func_0046d730(D_0063BAE8, 0x6C3);
     }
     *(s8 *)(font + 3) = charWidth;
-    *(int *)(font + 0xc) = func_002738d0(font);
+    *(int *)(font + 0xc) = frFontNodeWidth(font);
     tmp = frFontExLayoutText(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
         result = tmp;

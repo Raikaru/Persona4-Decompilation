@@ -4246,7 +4246,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     extern u32 func_00452560(void *task);
     extern s16 func_00105f00(s16 selection);
     extern u32 func_0010d6d0(s16 selection);
-    extern s32 func_002738d0(struct FrFontNode *node);
+    extern s32 frFontNodeWidth(struct FrFontNode *node);
     extern void frFontMoveListTo(s32 node, s32 x, s32 y);
     extern s32 frFontListKeepOrRelease(s32 node);
     BattleRenderDispatch *renderer;
@@ -4350,7 +4350,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     frFontSetFlagBits(0x40);
     nameAddress = func_0010d6d0(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4));
     font = (u8 *)(u32)frFontExCreateText(357.0f, 332.0f, 50.0f, -1, 0, 1, (const char *)nameAddress, 0, NULL);
-    nameWidth = func_002738d0((struct FrFontNode *)font);
+    nameWidth = frFontNodeWidth((struct FrFontNode *)font);
     {
         f32 center;
         f32 widthSpace;

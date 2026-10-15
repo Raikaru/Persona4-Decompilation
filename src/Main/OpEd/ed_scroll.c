@@ -26,7 +26,7 @@ extern s32 strlen(const char *text);
 extern void strncpy(void *dst, const void *src, s32 size);
 extern void frFontSetFlagBits(s32 mode);
 extern void frFontClearFlagBits(s32 mode);
-extern s32 func_002738d0(u32 handle);
+extern s32 frFontNodeWidth(u32 handle);
 
 typedef struct EdColor {
     u8 r;
@@ -392,7 +392,7 @@ void func_0038e810(u32 *work, char *text, s32 align)
                     *(f32 *)((u8 *)work + 4 + count * 8) = width;
                     count++;
                     start += tokenLength;
-                    width += (f32)func_002738d0(handle);
+                    width += (f32)frFontNodeWidth(handle);
                     inToken = 0;
                 }
             }

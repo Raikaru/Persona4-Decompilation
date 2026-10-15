@@ -8,7 +8,7 @@
 extern s32 iGpffffb4bc;
 extern s32 iGpffffa730;
 extern s32 datGetFlag(s32 arg0);
-extern s32 func_00273970(u8 *arg0);
+extern s32 frFontCountRuns(u8 *arg0);
 extern void func_0026d810();
 
 extern u8 D_0063B5A0[];
@@ -107,7 +107,7 @@ extern char D_00637348[];
 extern s32 func_00452380(void *arg0);
 extern void func_00452080(s32 arg0);
 extern void func_00263cb0(s32 arg0, u8 *arg1);
-extern void func_00274660(u32 param_1, int param_2);
+extern void frFontSetStateBits(u32 param_1, int param_2);
 extern s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00266a40(u32 arg0, s32 arg1);
 extern void func_00266a90(u8 *arg0);
@@ -126,7 +126,7 @@ extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
                            s32 arg5, s32 arg6, s32 arg7,
                            s32 arg_sp0);
-extern u32 func_002746a0(void);
+extern u32 frFontGetMode(void);
 extern void func_00273cc0(u8 *text, u8 *context);
 extern u32 func_001067f0(s16 id);
 extern s64 func_0010d660(s32 arg0);
@@ -2723,7 +2723,7 @@ s32 func_0026e4c0(s32 arg0, u8 *arg1)
     u8 temp_3_2;
     u8 *temp_3;
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     temp_3_4 = *(s32 *)(arg1 + 0x18);
@@ -2745,7 +2745,7 @@ s32 func_0026e4c0(s32 arg0, u8 *arg1)
 // FUN_0026E560
 s32 func_0026e560(void)
 {
-    func_002746a0();
+    frFontGetMode();
     return 0;
 }
 /* measured: opt_propagation off forces func_0026e590 field-load order. */
@@ -2760,7 +2760,7 @@ s32 func_0026e590(s32 arg0, u8 *arg1)
     u8 temp_3_2;
     u8 *temp_3;
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     temp_3_4 = *(s32 *)(arg1 + 0x18);
@@ -2791,7 +2791,7 @@ s32 func_0026e630(s32 arg0, u8 *arg1)
     u8 temp_3_2;
     u8 *temp_3;
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     temp_3_4 = *(s32 *)(arg1 + 0x18);
@@ -2813,7 +2813,7 @@ s32 func_0026e630(s32 arg0, u8 *arg1)
 // FUN_0026E6D0
 s32 func_0026e6d0(void)
 {
-    func_002746a0();
+    frFontGetMode();
     return 0;
 }
 /* measured: opt_propagation off preserves field-load order for func_0026e700. */
@@ -2828,7 +2828,7 @@ s32 func_0026e700(s32 arg0, u8 *arg1)
     u8 temp_3_2;
     u8 *temp_3;
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     temp_3_4 = *(s32 *)(arg1 + 0x18);
@@ -2899,10 +2899,10 @@ s32 func_0026e7f0(s32 arg0, u8 *arg1)
     }
     var_2 &= 0xFF;
     temp_5 = (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
-    if (func_002746a0() == 0) {
+    if (frFontGetMode() == 0) {
         goto success;
     }
-    if (func_002746a0() != 1) {
+    if (frFontGetMode() != 1) {
         return 0;
     }
 success:
@@ -2917,7 +2917,7 @@ success:
 // FUN_0026E910
 s32 func_0026e910(void)
 {
-    func_00274660(1, 1);
+    frFontSetStateBits(1, 1);
     return 1;
 }
 /* measured: opt_propagation off preserves decode and field-store order for func_0026e940. */
@@ -2947,7 +2947,7 @@ s32 func_0026e940(s32 arg0, u8 *arg1)
     }
     var_2 &= 0xFF;
     temp_4 = (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     if (*(s32 *)(*(u8 **)(arg1 + 0x14) + 0x34) != 0) {
@@ -2960,7 +2960,7 @@ s32 func_0026e940(s32 arg0, u8 *arg1)
     if (temp_6 < 0) {
         *(s32 *)temp_7 = 0;
     }
-    func_00274660(0x20, 1);
+    frFontSetStateBits(0x20, 1);
     return 0;
 }
 /* measured: closing opt_propagation off for func_0026e940. */
@@ -2992,7 +2992,7 @@ s32 func_0026ea50(s32 arg0, u8 *arg1)
     }
     var_2 &= 0xFF;
     temp_4 = (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     if (datGetFlag(0x3B) == 0) {
@@ -3005,7 +3005,7 @@ s32 func_0026ea50(s32 arg0, u8 *arg1)
     if (iGpffffa730 != 0) {
         goto direct_store;
     }
-    temp_6 = func_00273970(*(u8 **)(arg1 + 0x14));
+    temp_6 = frFontCountRuns(*(u8 **)(arg1 + 0x14));
     temp_7 = temp_6 << 4;
     temp_6 = temp_7 - temp_6;
     temp_7 = temp_6 << 2;
@@ -3016,7 +3016,7 @@ direct_store:
 after_store:
     iGpffffa730 = -1;
     iGpffffb4bc = 1;
-    func_00274660(0x10, 1);
+    frFontSetStateBits(0x10, 1);
     return 0;
 }
 /* measured: closing opt_propagation off for func_0026ea50. */
@@ -3024,8 +3024,8 @@ after_store:
 // FUN_0026EBA0
 s32 func_0026eba0(void)
 {
-    func_00274660(1, 1);
-    func_00274660(2, 1);
+    frFontSetStateBits(1, 1);
+    frFontSetStateBits(2, 1);
     return 1;
 }
 /* measured: opt_propagation off preserves target scan preheader ordering. */
@@ -3043,7 +3043,7 @@ s32 func_0026ebe0(s32 arg0, u8 *arg1)
     s32 temp_3_6;
     u8 *temp_3_3;
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     var_16 = 0;
@@ -3074,7 +3074,7 @@ scan_loop:
                   (void *)(*(s32 *)(arg1 + 0x10) + *(s32 *)(arg1 + 0x18)),
                   var_16);
     *((u8 *)((s32)&D_0088152F + var_16)) = 0;
-    func_00274660(4, 1);
+    frFontSetStateBits(4, 1);
     *(s32 *)(arg1 + 0x18) = *(s32 *)(arg1 + 0x18) + var_16;
     return 0;
 }
@@ -3093,7 +3093,7 @@ s32 func_0026ed00(s32 arg0, u8 *arg1)
     u8 temp_3_2;
     u8 *temp_3;
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     if (*(s32 *)(*(u8 **)(arg1 + 0x14) + 0x34) != 0) {
@@ -3148,7 +3148,7 @@ s32 func_0026ee00(s32 arg0, u8 *arg1)
     }
     var_2 &= 0xFF;
     temp_4 = (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     if (*(s32 *)(*(u8 **)(arg1 + 0x14) + 0x34) != 0) {
@@ -3168,7 +3168,7 @@ s32 func_0026ee00(s32 arg0, u8 *arg1)
 // FUN_0026EF00
 s32 func_0026ef00(s32 arg0, u8 *arg1)
 {
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     *(s8 *)(arg1 + 0xF) = 0x14;
@@ -3232,7 +3232,7 @@ s32 func_0026ef60(s32 arg0, u8 *arg1)
                           (temp_4 & 0xFF)));
     temp_18 = temp_q2;
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     var_4 = (u8 *)&D_0063BA30[0];
@@ -3308,7 +3308,7 @@ s32 func_0026f0a0(s32 arg0, u8 *arg1)
                           (temp_4 & 0xFF)));
     temp_18 = temp_q2;
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     var_4 = (u8 *)&D_0063BA30[0];
@@ -3354,7 +3354,7 @@ s32 func_0026f1e0(s32 arg0, u32 arg1, s32 arg2)
     var_2 &= 0xFF;
     temp_16 = (u16)(s16)((var_2 << 8) | (u8)temp_4);
     temp_16 &= 0xFFFF;
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     if (D_008815B0[temp_16 & 0xFFFF] != 0) {
@@ -3426,7 +3426,7 @@ s32 func_0026f2c0(s32 arg0, u8 *arg1)
     }
     third = (u16)(s16)(((high_third & 0xFF) << 8) | (low & 0xFF));
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     slot = &D_008815B0[(u16)third];
@@ -3485,7 +3485,7 @@ s32 func_0026f2c0(s32 arg0, u8 *arg1)
 // FUN_0026F5A0
 s32 func_0026f5a0(void)
 {
-    if (func_002746a0() != 2) {
+    if (frFontGetMode() != 2) {
         return 0;
     }
     return 0;
@@ -3519,7 +3519,7 @@ s32 func_0026f5e0(s32 arg0, u8 *arg1)
     s32 i;
     u8 *temp_3;
 
-    if (func_002746a0() != 3) {
+    if (frFontGetMode() != 3) {
         return 0;
     }
 
@@ -3684,12 +3684,12 @@ s32 func_0026f860(s32 arg0, u8 *arg1)
     fourth = (s64)(s16)(((var_2_4 & 0xFF) << 8) | (temp_3_3 & 0xFF));
 
     iGpffffa730 = -1;
-    if (func_002746a0() == 0) {
+    if (frFontGetMode() == 0) {
         if (first == 1) {
             iGpffffa730 = fourth;
         }
     }
-    if (func_002746a0() != 1) {
+    if (frFontGetMode() != 1) {
         return 0;
     }
     if (datGetFlag(0x3A) == 0) {
@@ -3745,7 +3745,7 @@ s32 func_0026fba0(s32 arg0, u8 *arg1)
 {
     s8 sp20[0x20];
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     sprintf((char *)sp20, (const char *)&iGpffffa734, func_0010d660(1));
@@ -3758,7 +3758,7 @@ s32 func_0026fc20(s32 arg0, u8 *arg1)
 {
     s8 sp20[0x20];
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     sprintf((char *)sp20, (const char *)&iGpffffa734, func_0010d6d0(1));
@@ -3771,7 +3771,7 @@ s32 func_0026fca0(s32 arg0, u8 *arg1)
 {
     s8 sp20[0x23];
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     sprintf((char *)sp20, (const char *)&iGpffffa734, func_0010d6d0(1));
@@ -3847,7 +3847,7 @@ s32 func_0026fd90(s32 arg0, u8 *arg1)
     }
     third = (u16)(s16)(((high_third & 0xFF) << 8) | (low & 0xFF));
 
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     if ((first & 0xFFFF) != -1) {
@@ -3932,7 +3932,7 @@ s32 func_0026fff0(s32 arg0, u8 *arg1)
     }
     var_2_2 &= 0xFF;
     temp_17 = (s32)(s16)((var_2_2 << 8) | (u8)temp_4);
-    if (func_002746a0() != 0) {
+    if (frFontGetMode() != 0) {
         return 0;
     }
     func_00106620((s16)temp_16, temp_17 & 0xFF);
