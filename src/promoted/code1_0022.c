@@ -53,7 +53,7 @@ extern char D_007636C0[8];
 extern char D_007636C8[8];
 extern char D_007636D0[8];
 extern u8 D_0062E070[];
-extern void func_004777d0(void *model, s32 name, u8 alpha);
+extern void mdlSetFrameColorByName(void *model, s32 name, u8 alpha);
 extern s32 datCalcAddHp(DatUnit *unit, s32 hpDelta);
 extern void datCalcClearBuffLevel(u8 *unit, s32 effect);
 extern RtQuat *func_003dc740(RtQuat *out, const RwV3d *axis, f32 angle, s32 mode);
@@ -5073,19 +5073,19 @@ void func_0022d600(void *source, u8 *packet, s32 *hpDelta)
             mdlScale(*(Model **)(resource + 0x144), &scale, 0);
             func_0047a180(*(RwMatrix **)(resource + 0x144), &translation, 2);
             model = *(void **)(resource + 0x144);
-            func_004777d0(model, (s32)D_006355C0, 0xFF);
+            mdlSetFrameColorByName(model, (s32)D_006355C0, 0xFF);
         }
         if (hp * 100 <= maxHp * 50) {
             mdlScale(*(Model **)(resource + 0x144), &scale, 0);
             func_0047a180(*(RwMatrix **)(resource + 0x144), &translation, 2);
             model = *(void **)(resource + 0x144);
-            func_004777d0(model, (s32)D_006355E0, 0xFF);
+            mdlSetFrameColorByName(model, (s32)D_006355E0, 0xFF);
         }
         if (hp * 100 <= maxHp * 75) {
             mdlScale(*(Model **)(resource + 0x144), &scale, 0);
             func_0047a180(*(RwMatrix **)(resource + 0x144), &translation, 2);
             model = *(void **)(resource + 0x144);
-            func_004777d0(model, (s32)D_00635600, 0xFF);
+            mdlSetFrameColorByName(model, (s32)D_00635600, 0xFF);
         }
         break;
     case 0x104:
@@ -5668,11 +5668,11 @@ s32 func_0022eba0(u8 *packet)
         switch (*(u16 *)(packet + 0x6E)) {
         case 0x16E:
             model = *(void **)(other + 0xA00);
-            func_004777d0(model, (s32)D_007636C0, 0);
+            mdlSetFrameColorByName(model, (s32)D_007636C0, 0);
             model = *(void **)(other + 0xA00);
-            func_004777d0(model, (s32)D_007636C8, 0);
+            mdlSetFrameColorByName(model, (s32)D_007636C8, 0);
             model = *(void **)(other + 0xA00);
-            func_004777d0(model, (s32)D_007636D0, 255);
+            mdlSetFrameColorByName(model, (s32)D_007636D0, 255);
             *(s16 *)(DAT_0076449c + 0xC34) = 1;
             **(u16 **)(unit + 0xA64) |= 0x20;
             target = func_001b0c80((s32)other);
@@ -5683,11 +5683,11 @@ s32 func_0022eba0(u8 *packet)
             break;
         case 0x16F:
             model = *(void **)(other + 0xA00);
-            func_004777d0(model, (s32)D_007636C0, 0);
+            mdlSetFrameColorByName(model, (s32)D_007636C0, 0);
             model = *(void **)(other + 0xA00);
-            func_004777d0(model, (s32)D_007636C8, 255);
+            mdlSetFrameColorByName(model, (s32)D_007636C8, 255);
             model = *(void **)(other + 0xA00);
-            func_004777d0(model, (s32)D_007636D0, 255);
+            mdlSetFrameColorByName(model, (s32)D_007636D0, 255);
             *(s16 *)(DAT_0076449c + 0xC34) = 2;
             **(u16 **)(unit + 0xA64) |= 0x20;
             target = func_001b0c80((s32)other);
@@ -5698,11 +5698,11 @@ s32 func_0022eba0(u8 *packet)
             break;
         case 0x170:
             model = *(void **)(other + 0xA00);
-            func_004777d0(model, (s32)D_007636C0, 255);
+            mdlSetFrameColorByName(model, (s32)D_007636C0, 255);
             model = *(void **)(other + 0xA00);
-            func_004777d0(model, (s32)D_007636C8, 255);
+            mdlSetFrameColorByName(model, (s32)D_007636C8, 255);
             model = *(void **)(other + 0xA00);
-            func_004777d0(model, (s32)D_007636D0, 255);
+            mdlSetFrameColorByName(model, (s32)D_007636D0, 255);
             /* fall through */
         case 0x171:
             *(s16 *)(DAT_0076449c + 0xC34) = 3;
