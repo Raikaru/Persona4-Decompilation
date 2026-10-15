@@ -6378,9 +6378,9 @@ void func_00303de0(u8 *arg0)
     }
 }
 #pragma opt_loop_invariants reset
-/* Defined below.  The selector is a signed byte that func_003040d0 forwards
+/* Defined below.  The selector is a signed byte that fclCombineRollOutcome forwards
    without re-extending it. */
-s32 func_003042f0(s32 arg0, s8 arg1);
+s32 fclCombineStageValue(s32 arg0, s8 arg1);
 /* measured: object 532B/window 544B, nd 0. The five-byte weight table copy is
    the tree's load / advance / decrement / store order through a named byte
    temporary. The random roll is an s32 holding the (s8) remainder (extended
@@ -6391,8 +6391,9 @@ s32 func_003042f0(s32 arg0, s8 arg1);
    further extension; count is an s32 narrowed with `(s8)(count + 1)` so the
    final call passes it raw. Declaration order colours k/limit/count into
    $s5/$s4/$s3 (count reuses arg1's register after its last use). */
+// Fcl combine outcome roll: picks the stage (0-4) from the five weights, then the result count, and returns its value.
 // FUN_003040D0
-s32 func_003040d0(u8 *arg0, s16 arg1, s8 arg2)
+s32 fclCombineRollOutcome(u8 *arg0, s16 arg1, s8 arg2)
 {
     s8 weights[5];
     u8 *work;
@@ -6455,10 +6456,11 @@ check2:
     if (k < 10) goto body2;
 done:
     *(s8 *)(work + 0x1E) = count;
-    return func_003042f0(count, arg2);
+    return fclCombineStageValue(count, arg2);
 }
+// Fcl combine stage value: returns the entry at 'arg0' in the table for stage 'arg1' (1-6); -1 for other stages.
 // FUN_003042F0
-s32 func_003042f0(s32 arg0, s8 arg1)
+s32 fclCombineStageValue(s32 arg0, s8 arg1)
 {
     switch (arg1) {
     case 1:
@@ -8752,7 +8754,7 @@ static inline s32 fclCombineHasSlotKind(u8 *arg0, s8 kind)
     return 0;
 }
 
-/* The item table lookup of func_003042f0, which retail inlines into
+/* The item table lookup of fclCombineStageValue, which retail inlines into
    func_0030c3c0 with the kind read before the roll is made. */
 static inline s16 fclCombinePickItem(s8 kind, s8 roll)
 {
@@ -9405,7 +9407,7 @@ void func_0030c3c0(u8 *arg0) {
                 break;
             }
         }
-        *(s16 *)(p + 0x1C) = func_003040d0(arg0, ((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[4], *(s8 *)(p + 0x1F));
+        *(s16 *)(p + 0x1C) = fclCombineRollOutcome(arg0, ((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[4], *(s8 *)(p + 0x1F));
         item = *(u16 *)(p + 0x1C);
         if (datPersonaFindSkillSlot((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
             p[0xD] = func_002bab80((void *)func_00331660());
