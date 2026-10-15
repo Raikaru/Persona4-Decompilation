@@ -60,7 +60,7 @@ void func_00293270(void);
 void func_0028be70();
 void func_0028b230(int param_1);
 void func_002e0dd0(void);
-void func_0028d0a0(u8 *arg0);
+void evtReleaseRes(u8 *arg0);
 void func_00290b00(u32 *param_1);
 void func_00291900(void);
 void func_00290fa0(u8 *arg0);

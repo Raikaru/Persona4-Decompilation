@@ -559,10 +559,11 @@ s32 func_0028b650(void) {
     return *(s32 *)(func_00285480((u8 *)func_00452560((void *)h)) + 0x768) != 0;
 }
 
+// Event handle table: frees every handle in the table at +0x7A4 and clears it.
 // FUN_0028B6B0
 /* measured: the table local at the loop-body head reproduces retail's
    sll-before-lw body order; nd 0, object 244B / window 256B. */
-void func_0028b6b0(u8 *arg0)
+void evtClearHandles(u8 *arg0)
 {
     s32 count;
     s32 i;
@@ -621,7 +622,7 @@ void func_0028b7b0(u8 *arg0) {
 
     count = 0;
     index = 0;
-    func_0028b6b0(arg0);
+    evtClearHandles(arg0);
     for (i = 1; i < 0x16; i++) {
         count_node = MT_Scene_GetResListHead(i);
         if (count_node != NULL) {
@@ -1341,8 +1342,9 @@ s32 func_0028d060(s32 arg0) {
     return D_008825F0[arg0];
 }
 
+// Event resource list: releases each resource id stored in the node's list.
 // FUN_0028D0A0
-void func_0028d0a0(u8 *arg0) {
+void evtReleaseRes(u8 *arg0) {
     s32 i;
 
     i = 0;
