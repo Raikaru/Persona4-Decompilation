@@ -188,3 +188,146 @@ read_flags:
    P001 balance and restores the -O2 default for any following code. */
 #pragma schedule off
 #pragma no_branch_likely off
+
+// FUN_0038FE90
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_rotateloops off
+u8 *func_0038fe90(u8 *arg0, u32 arg1, s32 arg2, f32 *arg3, s32 *arg4)
+{
+    u32 input0;
+    u32 input1;
+    u32 input2;
+    u32 input3;
+    u8 dummy[8];
+    s32 failure[2];
+    u8 *records[36];
+    CollTree *tree;
+    u8 *data;
+    u8 *record;
+    u32 depth;
+    u32 i;
+    u32 j;
+    s32 value;
+
+    *arg4 = 0;
+    tree = (CollTree *)func_0038f990(arg1 & 0xFFFF, arg2 & 0xFFFF, arg3, 1);
+    if (tree == NULL) {
+        return NULL;
+    }
+
+    if ((s32)tree->numSplits <= 0) {
+        goto check_stream;
+    }
+
+    data = (u8 *)tree->splits;
+    i = 0;
+    if (i < tree->numSplits) {
+        goto read_splits;
+    }
+
+walk_tree:
+    *(u16 *)(dummy + 2) = 0;
+    dummy[1] = 0xFF;
+    record = dummy;
+    depth = 1;
+
+walk_tree_loop:
+    if (record[1] != 0xFF) {
+        goto walk_tree_pop;
+    }
+    record = (u8 *)tree->splits + (*(u16 *)(record + 2) * 0x10);
+    records[depth++] = record + 8;
+
+walk_tree_test:
+    if (depth != 0) {
+        goto walk_tree_loop;
+    }
+
+check_flags:
+    if (tree->flags & 1) {
+        i = 0;
+        if (i < tree->numEntries) {
+            j = 0;
+            do {
+                if (func_003df360(arg0, &input3, 4) == 0) {
+                    jtbl_008873EC[0](tree);
+                    return NULL;
+                }
+                i++;
+                *(u16 *)((u8 *)tree->map + j) = input3;
+                j += 2;
+            } while (i < tree->numEntries);
+        }
+    }
+    return (u8 *)tree;
+
+read_splits:
+    do {
+        if (func_003df360(arg0, &input0, 4) == 0 ||
+            func_003df360(arg0, &input1, 4) == 0 ||
+            func_003df300(arg0, data + 4, 4) == 0 ||
+            func_003df300(arg0, data + 0xC, 4) == 0) {
+            goto error_splits;
+        }
+        data[8] = input0 >> 16;
+        data[0] = data[8] | 1;
+        *(s16 *)(data + 0xA) = input1;
+        *(s16 *)(data + 2) = input1 >> 16;
+        if (((input0 >> 8) & 0xFF) == 2) {
+            data[1] = 0xFF;
+        } else {
+            data[1] = 0;
+        }
+        if ((u8)input0 == 2) {
+            data[9] = 0xFF;
+        } else {
+            data[9] = 0;
+        }
+        i++;
+        data += 0x10;
+    } while (i < tree->numSplits);
+    goto walk_tree;
+
+error_splits:
+    jtbl_008873EC[0](tree);
+    return NULL;
+
+walk_tree_pop:
+    if (func_003df360(arg0, &input2, 4) == 0) {
+        goto error_tree;
+    }
+    value = (input2 >> 16) & 0xFFFF;
+    if (value >= 0xF0) {
+        goto error_failure;
+    }
+    record[1] = value;
+    depth--;
+    *(u16 *)(record + 2) = input2;
+    record = records[depth];
+    goto walk_tree_test;
+
+error_tree:
+    jtbl_008873EC[0](tree);
+    return NULL;
+
+error_failure:
+    *arg4 = 1;
+    jtbl_008873EC[0](tree);
+    failure[0] = 0x11D;
+    failure[1] = func_003df590(1);
+    func_003df4d0(failure);
+    return NULL;
+
+check_stream:
+    if (func_003e2ce0(arg0, 4) != 0) {
+        goto check_flags;
+    }
+    jtbl_008873EC[0](tree);
+    return NULL;
+}
+/* measured: closing bracket for the schedule-on above; satisfies decomp_lint
+   P001 balance and restores the -O2 default for any following code. */
+#pragma schedule off
+#pragma no_branch_likely off
+#pragma opt_rotateloops reset
