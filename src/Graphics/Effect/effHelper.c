@@ -10,7 +10,7 @@ void *memcpy(void *dst, const void *src, s32 size);
 void *memset(void *dst, s32 value, s32 size);
 u8 *func_004abc50(u8 *base, s32 size);
 s32 mdlLayerIsPresent(s32 res, s32 arg1);
-u32 func_0047a7c0(s32 res);
+u32 mdlCountIntUserData(s32 res);
 void func_00485b20(u32 arg);
 void func_004abd60(s32 res);
 void *mdlFindOrCreateModelObject(u32 a, u16 b, u32 c);
@@ -91,7 +91,7 @@ void *func_004ad460(void *arg0)
             mdlDispatchAnimIfPresent((u8*)work->res, 0, 0, 0, 1);
         }
     }
-    work->count = func_0047a7c0(work->res);
+    work->count = mdlCountIntUserData(work->res);
     if (work->count == 0) {
         return work;
     }
@@ -169,7 +169,7 @@ void func_004ad880(EffHlpWork *work, EffHlpWork *src)
             mdlDispatchAnimIfPresent((u8*)work->res, 0, 0, 0, 1);
         }
     }
-    work->count = func_0047a7c0(work->res);
+    work->count = mdlCountIntUserData(work->res);
     if (src->listAlloc != NULL) {
         if (work->listAlloc != NULL) {
             for (i = 0; i < work->count; i++) {

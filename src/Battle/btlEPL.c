@@ -33,7 +33,7 @@ extern void RwMatrixScale(void *arg0, f32 *arg1, s32 arg2);
 extern void RwMatrixMultiply(void *arg0, void *arg1, void *arg2);
 extern void RtQuatConvertFromMatrix(void *arg0, void *arg1);
 extern void func_001ec350(void *arg0, void *arg1);
-extern u32 func_0047a7c0(u32 arg0);
+extern u32 mdlCountIntUserData(u32 arg0);
 extern void btlUnitClearModelState(void *arg0, s32 arg1);
 extern void btlUnitSetModelAnimFrame(void *arg0, s32 arg1);
 extern void btlUnitApplyModelState(void *arg0, s32 arg1);
@@ -1427,7 +1427,7 @@ s32 *func_00200550(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     if ((arg2 != 0) && ((arg1 & 0xFFFF) == 3)) {
         value = func_004abc50(arg2, arg3);
         result->target = value;
-        rnd = func_0047a7c0(value);
+        rnd = mdlCountIntUserData(value);
         if ((rnd >> 1) != 0) {
             result->pattern = (s16)((effMiscRand(0) % (rnd / 2)) * 2);
         }
@@ -1453,7 +1453,7 @@ s32 *func_00200650(u8 *arg0) {
     if (value != 0) {
         value = func_004abd80(value);
         result->target = value;
-        rnd = func_0047a7c0(value);
+        rnd = mdlCountIntUserData(value);
         if ((rnd >> 1) != 0) {
             result->pattern = (s16)((effMiscRand(0) % (rnd / 2)) * 2);
         }

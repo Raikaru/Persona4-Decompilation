@@ -5596,8 +5596,9 @@ s32 func_0047a320(void* arg0) {
     return 0;
   }
 
+/* Clears the bits of the mask read from data in the word at +0x8 of the atomic's +0x18 block. Walker callback for mdlClearAtomicFlags; returns the atomic. */
 // FUN_0047A4A0
-void *func_0047a4a0(void *arg0, void *arg1) {
+void *mdlClearAtomicFlagsCallback(void *arg0, void *arg1) {
     /* arg1 is reassigned rather than using a fresh local: retail reuses the
        $a1 argument register for the node pointer once the mask is loaded. */
     s32 mask = *(s32 *)arg1;
@@ -5607,10 +5608,11 @@ void *func_0047a4a0(void *arg0, void *arg1) {
     return arg0;
 }
 
+/* Clears the mask bits from every atomic of a model's clump through mdlClearAtomicFlagsCallback. */
 // FUN_0047A4D0
-void func_0047a4d0(void* param_1, int param_2)
+void mdlClearAtomicFlags(void* param_1, int param_2)
 {
-    RpClumpForAllAtomics(*(void**)((u8*)param_1 + 0xDC), func_0047a4a0, &param_2);
+    RpClumpForAllAtomics(*(void**)((u8*)param_1 + 0xDC), mdlClearAtomicFlagsCallback, &param_2);
 }
 
 
@@ -5729,8 +5731,9 @@ s32 func_0047a6d0(void* arg0, s32 arg1, void* arg2)
     *(RwV3d*)((u8*)arg2) = *(RwV3d*)(buf + 12);
     return 1;
 }
+/* Returns the model's int user-data count: the cached count at +0x2C8 when set, else the count of int user data on its clump. */
 // FUN_0047A7C0
-u32 func_0047a7c0(void* param_1)
+u32 mdlCountIntUserData(void* param_1)
 {
     u16* p = *(u16**)((u8*)param_1 + 0x2C8);
     if (p != 0) {
@@ -5739,8 +5742,9 @@ u32 func_0047a7c0(void* param_1)
     return K_Clump_CountIntUsrData(*(void**)((u8*)param_1 + 0xDC), (const char*)D_007131D8);
 }
 
+/* Sets bit 0 of the model flags at +0xD8, the inverse of mdlClearBattleStateFlag. Called from battle unit code and the field shadow code. */
 // FUN_0047A810
-void func_0047a810(void* param_1)
+void mdlSetBattleStateFlag(void* param_1)
 {
     *(u32*)((u8*)param_1 + 0xD8) |= 1;
 }

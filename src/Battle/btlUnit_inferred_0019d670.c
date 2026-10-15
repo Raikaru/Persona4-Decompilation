@@ -143,7 +143,7 @@ extern void mdlSetLookAtActive(void *arg0);
 extern void mdlSetLookAtRequested(void *arg0);
 extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
 extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
-extern void func_0047a810(void *arg0);
+extern void mdlSetBattleStateFlag(void *arg0);
 extern void mdlSetAlphaBlend(void *arg0);
 extern void mdlSetLookStateWord(void *arg0, u16 arg1);
 extern u16 mdlGetLookStateWord(void *arg0);
@@ -281,7 +281,7 @@ void btlUnitApplyModelState(u8 *arg0, s32 arg1)
                 (*(u8 *)(arg0 + 0xA2) != 0)) {
                 if (((temp_4 & 0x200) == 0) ||
                     (*(u8 *)(arg0 + 0xA2) != 1)) {
-                    func_0047a810(*(u8 **)(arg0 + 0xA00));
+                    mdlSetBattleStateFlag(*(u8 **)(arg0 + 0xA00));
                     *(u8 **)(*(u8 **)(arg0 + 0xA00) + 0x2F8) =
                         D_007940F0;
                     *(f32 *)(*(u8 **)(arg0 + 0xA00) + 0x274) =
