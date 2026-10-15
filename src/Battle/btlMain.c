@@ -33,8 +33,8 @@ extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
 
 u32 btlMainUpdateCameraLerp(void* work);
 typedef struct BtlMainColorWork BtlMainColorWork;
-extern u32 func_001b7e70(BtlMainColorWork* param_1); /* retail update target */
-u32 func_001b87e0(void* work);
+extern u32 btlMainUpdateColorWork(BtlMainColorWork* param_1); /* retail update target */
+u32 btlMainUpdateFade(void* work);
 typedef struct BtlMainLerpWork
 {
     f32 value0;
@@ -138,8 +138,8 @@ extern f32 fGpffff81a4; /* P4 gp -0x7e5c */
 
 extern f32 fGpffff8434; /* P4 gp -0x7bcc */
 
-extern void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1);
-extern void func_001bb790(u8* param_2, f32* param_3, f32 param_1);
+extern void btlMainEvalLinearPosition(u8* param_2, f32* param_3, f32 param_1);
+extern void btlMainEvalBezierPosition(u8* param_2, f32* param_3, f32 param_1);
 extern void func_003bb5b0(void* curve, s32 mode, f32 time, RwV3d* dst, void* aux);
 extern void func_003dcc70(f32* first, f32* second, BtlMainSlerpResult* result);
 extern f32 fGpffff83f8;
@@ -148,7 +148,7 @@ extern f32 fGpffff8058;
 extern f32 fGpffff8344;
 extern f32 fGpffff843c;
 extern f32 fGpffff8440;
-extern void func_001bb9b0(u8* param_2, f32* param_3, f32 param_1);
+extern void btlMainEvalSlerpRotation(u8* param_2, f32* param_3, f32 param_1);
 extern f32 fGpffff8438; /* P4 gp -0x7bc8 */
 
 
@@ -299,7 +299,7 @@ BtlPacket* btlCreateTimingPacket(u32 value)
 /* measured: opt_loop_invariants on hoists the unit-loop byte constants into the retail preheader registers. */
 #pragma opt_loop_invariants on
 // FUN_001B7E70
-u32 func_001b7e70(BtlMainColorWork* work)
+u32 btlMainUpdateColorWork(BtlMainColorWork* work)
 {
     u8* global;
     u8* unit;
@@ -506,9 +506,9 @@ u32 func_001b7e70(BtlMainColorWork* work)
     work->currentFrame++;
     return 0;
 }
-/* measured: restore loop-invariant extraction after func_001b7e70. */
+/* measured: restore loop-invariant extraction after btlMainUpdateColorWork. */
 #pragma opt_loop_invariants off
-/* measured: restore propagation after func_001b7e70. */
+/* measured: restore propagation after btlMainUpdateColorWork. */
 #pragma opt_propagation on
 // FUN_001B83F0
 BtlPacket* func_001b83f0(s32 param_1, s32 param_2, s32 param_3, u32 param_4, u16 param_5)
@@ -518,7 +518,7 @@ BtlPacket* func_001b83f0(s32 param_1, s32 param_2, s32 param_3, u32 param_4, u16
     union { u32 value; u8 bytes[4]; } packed;
 
     iVar2 = (int)func_00194470(0x602, 0x6c);
-    *(code **)(iVar2 + 0x6c) = (code *)func_001b7e70;
+    *(code **)(iVar2 + 0x6c) = (code *)btlMainUpdateColorWork;
     pfVar1 = *(float **)(iVar2 + 0x78);
 
     packed.value = (u32)param_1;
@@ -573,7 +573,7 @@ static inline void btlMainColorToV4d(RwV4d *out, const BtlCameraPalette *color)
 // FUN_001B87E0
 #pragma push
 #pragma opt_loop_invariants on
-u32 func_001b87e0(void *workRaw)
+u32 btlMainUpdateFade(void *workRaw)
 {
     BtlMainFadeWork *work = (BtlMainFadeWork *)workRaw;
     u8 *global;
@@ -778,7 +778,7 @@ BtlPacket* btlMainCreateFadePacket(s32 arg, s16 mode)
     u8* work;
 
     packet = func_00194470(0x603, 0x5c);
-    packet->updateFunc = func_001b87e0;
+    packet->updateFunc = btlMainUpdateFade;
     work = (u8*)packet->workData;
     *(s32*)(work + 0x50) = arg;
     *(s16*)(work + 0x58) = mode;
@@ -1816,7 +1816,7 @@ extern RwV3d D_00881430;
    Scoped loop extraction hoists positive zero; the coefficient pointer
    retains retail's stack-address materialization with propagation off. */
 // FUN_001BB790
-void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
+void btlMainEvalBezierPosition(u8 *arg0, f32 *arg1, f32 fparg0)
 {
     f32 weights[4];
     f32 f0;
@@ -1861,7 +1861,7 @@ void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
 }
 #pragma pop
 // FUN_001BB8C0
-void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1)
+void btlMainEvalLinearPosition(u8* param_2, f32* param_3, f32 param_1)
 {
     u16 currentIndex;
     u16 nextIndex;
@@ -1915,7 +1915,7 @@ void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1)
 
 
 // FUN_001BB9B0
-void func_001bb9b0(u8* param_2, f32* param_3, f32 param_1)
+void btlMainEvalSlerpRotation(u8* param_2, f32* param_3, f32 param_1)
 {
     u16 index;
     u16 nextIndex;
@@ -2021,11 +2021,11 @@ has_frame:
     }
     if (frame < 4)
     {
-        func_001bb8c0(param_1, param_2, *(f32*)(param_1 + 0x7c));
+        btlMainEvalLinearPosition(param_1, param_2, *(f32*)(param_1 + 0x7c));
     }
     else if ((*(u16*)param_1 & 1) != 0)
     {
-        func_001bb790(param_1, param_2, *(f32*)(param_1 + 0x7c));
+        btlMainEvalBezierPosition(param_1, param_2, *(f32*)(param_1 + 0x7c));
     }
     else
     {
@@ -2034,7 +2034,7 @@ has_frame:
                      *(f32*)(param_1 + 0x7c),
                      (RwV3d *)param_2, ((void*)0));
     }
-    func_001bb9b0(param_1, param_3, *(f32*)(param_1 + 0x7c));
+    btlMainEvalSlerpRotation(param_1, param_3, *(f32*)(param_1 + 0x7c));
     return 1;
 }
 
