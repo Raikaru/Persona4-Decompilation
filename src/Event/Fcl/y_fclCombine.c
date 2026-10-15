@@ -1448,9 +1448,9 @@ typedef struct {
 
 /* measured: 15048B/window 15056B, eight zero alignment bytes. See
    docs/probe_archive/FclCombine_002ed430_recovery_20260925.md. */
-// Fcl combine menu pick source (state 1): draws the roster page for the first pick and advances to state 2.
+// Fcl combine menu fusion (state 1): the fusion core. Shows the partner grid (0x2A) for the selected source, confirms with cues and money and duplicate checks (0x2D-0x31), rolls the rare chance (0x34), builds the result list with inherited skills (0x36-0x37), then hands to the result handler (state 0x0D, sub-state 0xC5).
 // FUN_002ED430
-void fclCombineMenuPickSource(u8 *arg0) {
+void fclCombineMenuFusion(u8 *arg0) {
     extern void func_00313800(s8);
     extern f32 D_00640E70[];
     s16 var_19_3;
