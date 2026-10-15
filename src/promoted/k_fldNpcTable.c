@@ -208,7 +208,7 @@ u16 *NpcTable_GetMarkedEntry(s32 arg0)
 
 
 // FUN_0015CC40
-void func_0015cc40(void)
+void NpcTable_ReleaseSceneTable(void)
 {
     if (*(s32 *)((u8 *)func_00155280() + 0x18E8) != 0) {
         (*DAT_008873EC)(*(void **)((u8 *)func_00155280() + 0x18E8));
@@ -294,7 +294,7 @@ ret0:
 }
 
 // FUN_0015CF10
-void func_0015cf10(void)
+void NpcTable_ReleaseSecondaryTable(void)
 {
     if (*(s32 *)((u8 *)func_00155280() + 0x18E0) != 0) {
         (*DAT_008873EC)(*(void **)((u8 *)func_00155280() + 0x18E0));
