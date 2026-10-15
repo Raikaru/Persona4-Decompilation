@@ -274,7 +274,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
         *(u8 *)(temp_17 + 0x12) = 0x10 * *(u32 *)(arg0 + 4);
         break;
     case 0x35:
-        func_0028b2a0((s32)arg2, 0);
+        evtEnvSlot((s32)arg2, 0);
         *(u8 *)(temp_17 + 0x10) = DAT_00764B38;
         *(u8 *)(temp_17 + 0x14) = DAT_00764B3C;
         *(u8 *)(temp_17 + 0x15) = DAT_00764B40;
@@ -2022,7 +2022,7 @@ s32 func_00289b10(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             break;
         }
         if (arg1 == *(u32 *)(arg2 + 0xC)) {
-            func_0028b440((s32)arg2, 0);
+            evtEnvSlotRestore((s32)arg2, 0);
         }
         return 1;
     case 1:
@@ -2683,11 +2683,12 @@ u8 *func_0028afe0(void) {
     return p;
 }
 
+// Event teardown: restores env/camera state, releases the scene task, frees the node.
 // FUN_0028B160
-void func_0028b160(int param_1, s32 arg1) {
+void evtDestroy(int param_1, s32 arg1) {
     u32 f77c;
     func_0028ad90((u8 *)param_1, arg1);
-    func_0028b440(param_1, 0);    func_0028b5d0(param_1);
+    evtEnvSlotRestore(param_1, 0);    evtCamPosRestore(param_1);
     func_0026bf20();
     if ((*(u32 *)param_1 & 0x40000000) == 0) {
         f77c = *(u32 *)(param_1 + 0x77C);
@@ -2712,8 +2713,9 @@ void func_0028b230(int param_1) {
 // FUN_0028B260
 u32 func_0028b260(void) { return DAT_007645D8 != 0; }
 
+// Environment save slot: returns slot 'idx' (0 or 1) of event 'evt'.
 // FUN_0028B2A0
-void *func_0028b2a0(int param_1, int param_2) {
+void *evtEnvSlot(int param_1, int param_2) {
     if (param_1 == 0) {
         func_0046d730(D_0063C3B0, 0x10B6);
     }
@@ -2723,8 +2725,9 @@ void *func_0028b2a0(int param_1, int param_2) {
     return (void *)(param_1 + param_2 * 20 + 0x68);
 }
 
+// Environment save slot: stores the current light and camera state into slot 'idx'.
 // FUN_0028B320
-void func_0028b320(s32 arg0, s32 arg1) {
+void evtEnvSlotSave(s32 arg0, s32 arg1) {
     u8 *p;
 
     if (arg0 == 0) {
@@ -2744,8 +2747,9 @@ void func_0028b320(s32 arg0, s32 arg1) {
     *(f32 *)(p + 0x10) = D_00764B5C;
 }
 
+// Environment save slot: restores the light and camera state stored in slot 'idx'.
 // FUN_0028B440
-void func_0028b440(int param_1, int param_2) {
+void evtEnvSlotRestore(int param_1, int param_2) {
     int p;
     f32 v;
     void *cam;
@@ -2772,8 +2776,9 @@ void func_0028b440(int param_1, int param_2) {
     D_00764B5C = *(f32 *)(p + 0x10);
 }
 
+// Camera position: saves camera x/y into the event node at +0x98.
 // FUN_0028B550
-void func_0028b550(int param_1) {
+void evtCamPosSave(int param_1) {
     f32 *p;
     void *cam;
     if (param_1 == 0) {
@@ -2787,8 +2792,9 @@ void func_0028b550(int param_1) {
     p[1] = *(f32 *)((u8 *)cam + 0x84);
 }
 
+// Camera position: restores the x/y stored at +0x98 into the camera.
 // FUN_0028B5D0
-void func_0028b5d0(int param_1) {
+void evtCamPosRestore(int param_1) {
     f32 *p;
     if (param_1 == 0) {
         func_0046d730(D_0063C3B0, 0x110D);
