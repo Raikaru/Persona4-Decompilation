@@ -8,7 +8,7 @@ typedef struct PanelVec3 {
     f32 z;
 } PanelVec3;
 
-extern void func_0036a900(u8* work);
+extern void pscLightInitQuad(u8* work);
 
 extern f32 D_00761480;
 extern f32 D_00761484;
@@ -88,7 +88,7 @@ void sflDataSetupLayoutPanel(void* work)
 
     sflDataInitPanel(panel);
     *(u32*)(panel + 0x4) = 0;
-    func_0036a900(panel + 0xe0);
+    pscLightInitQuad(panel + 0xe0);
     *(u32*)(panel + 0x170) = 0;
     v1.x = valA = D_00761488;
     v1.y = valB = D_0076148C;
@@ -475,7 +475,7 @@ void sflDataSetupFramePanel(void* work)
     panel = (u8*)work;
     sflDataInitPanel(panel);
     *(u32*)(panel + 4) = 1;
-    func_0036a900(panel + 0xe0);
+    pscLightInitQuad(panel + 0xe0);
     *(u32*)(panel + 0x328) = 0;
 
     outerUpperRight.x = 3.0f;
@@ -620,7 +620,7 @@ void sflDataSetupQuadPanel(void* work)
     panel = (u8*)work;
     sflDataInitPanel(panel);
     *(u32*)(panel + 4) = 2;
-    func_0036a900(panel + 0xe0);
+    pscLightInitQuad(panel + 0xe0);
 
     upperRight.x = 3.0f;
     upperRight.y = D_00761480;

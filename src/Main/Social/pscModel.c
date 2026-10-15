@@ -447,8 +447,9 @@ void func_0036a8f0(void* work, u32 value)
     *(u32*)((u8*)work + 0x38) = value;
 }
 
+// Intent: fill a PscLight[4] quad with default corner positions, white colour and fixed fade values (the e0 block of PscModel). [inferred]
 // FUN_0036A900
-void func_0036a900(PscLight *dst)
+void pscLightInitQuad(PscLight *dst)
 {
     PscVec v0;
     PscVec v1;

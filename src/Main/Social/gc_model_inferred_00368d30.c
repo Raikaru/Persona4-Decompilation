@@ -45,7 +45,7 @@ static inline f32 p4_00362f00_add(f32 left, f32 right)
     return left + right;
 }
 extern void sflDataInitPanel(void);
-extern void func_0036a900(u8 *arg0);
+extern void pscLightInitQuad(u8 *arg0);
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
 extern u16 D_008C024E[];
@@ -107,7 +107,7 @@ void func_00368d30(u8 *arg0)
 
     sflDataInitPanel();
     *(s32 *)(arg0 + 4) = 3;
-    func_0036a900(arg0 + 0xE0);
+    pscLightInitQuad(arg0 + 0xE0);
     p1.x = 3.0f;
     p1.y = fGpffff8390;
     p1.z = 0.0f;
