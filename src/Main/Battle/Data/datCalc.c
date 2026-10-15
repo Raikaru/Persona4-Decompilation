@@ -4612,9 +4612,10 @@ u32 datCalcIsLowHp(DatUnit *unit)
    the helper and all tied at one differing word, which is what produced the incorrect
    floor claim in the earlier note.  The three sibling sites in this function already
    used the helper; this was the one that did not. */
+// Intent: effective skill id for unit arg0 given base skill arg1: a replacement id found in the unit's slots (0x20F-0x231 families, some by random roll), or -1 when none applies; [inferred].
 // FUN_00242990
 #pragma opt_loop_invariants on
-s32 func_00242990(u8 *arg0, s32 arg1)
+s32 datCalcResolveSkillId(u8 *arg0, s32 arg1)
 {
     s32 temp_16;
     s32 temp_2;

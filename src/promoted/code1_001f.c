@@ -939,7 +939,7 @@ void func_001f14f0(u8 *arg0)
     extern s32 func_001fb1f0(u8 *, s32, s32);
     /* lint: allow H011 -- retail passes flags as the third argument; the callee leaves it unused. */
     extern s32 func_001fb360(u8 *, s32, s32);
-    extern s32 func_00242990(u8 *, s32);
+    extern s32 datCalcResolveSkillId(u8 *, s32);
     extern s32 datCalcHitResult(u8 *, u8 *, s32, s32, s32);
     /* lint: allow H011 -- retail forwards an already zero-extended skill word; the callee consumes its low 16 bits. */
     extern s32 func_0023d8e0(u8 *, s32);
@@ -1308,7 +1308,7 @@ void func_001f14f0(u8 *arg0)
                 s32 v;
 
                 if (*(u16 *)(actor + 0x3F4) == 0x240) {
-                    v = func_00242990(*(u8 **)(*(u8 **)(actor + 0x30) + 0xA64), id);
+                    v = datCalcResolveSkillId(*(u8 **)(*(u8 **)(actor + 0x30) + 0xA64), id);
                 } else {
                     v = (s16)*(u16 *)(actor + 0x3F4);
                 }
