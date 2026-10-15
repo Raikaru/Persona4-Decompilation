@@ -2,7 +2,7 @@
 /* Original translation unit nmlist.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-void func_0044ea90(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *msg, s32 id);
 void func_0046d730(const void *file, s32 line);
 void memset(void *dst, s32 value, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -39,7 +39,7 @@ u8 *func_002e1d00(s32 arg0) {
     u8 *node;
 
     size = arg0 + 0x18;
-    func_0044ea90(&D_0063FC38, 0x5C);
+    chkmemAllocSiteTag(&D_0063FC38, 0x5C);
     node = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (node == NULL) {
         func_0046d730(&D_0063FC38, 0x5E);
@@ -62,7 +62,7 @@ u8 *func_002e1db0(s32 arg0, code arg1, code arg2, code arg3) {
     u8 *node;
 
     size = arg0 + 0x28;
-    func_0044ea90(&D_0063FC38, 0x33);
+    chkmemAllocSiteTag(&D_0063FC38, 0x33);
     node = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (node == NULL) {
         func_0046d730(&D_0063FC38, 0x35);

@@ -14,7 +14,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_0045a8d0(s32 a, s32 b);
 extern void func_00106390(s32 a, s32 b);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern u8 *func_002e1db0(s32 a, s32 b, s32 c, s32 d);
 extern void func_0045b2e0(s32 a);
 extern u8 D_00638FC0[];
@@ -60,7 +60,7 @@ s32 func_00268990(s32 arg0) {
     u8 **v1;
     s32 ret;
 
-    func_0044ea90(D_00638FC0, 0x33D);
+    chkmemAllocSiteTag(D_00638FC0, 0x33D);
     s0 = D_008873F4[0](1, 0xC, 0x40000);
     *(s32 *)s0 = 0;
     v0 = func_002e1db0(0x10, 0, 0, 0);

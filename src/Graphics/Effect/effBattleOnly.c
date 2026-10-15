@@ -4,7 +4,7 @@
 #include "effect_instance_internal.h"
 
 void func_0046d730(u8 *file, s32 line);
-void func_0044ea90(u8 *file, s32 line);
+void chkmemAllocSiteTag(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
 
 extern u8 D_007146A0[];
@@ -58,7 +58,7 @@ u8 *func_004b50f0(s32 id, s32 arg1)
     } else {
     }
     size = D_00764C90[(id & 0xFFFF)].size;
-    func_0044ea90(D_007146A0, 0x1F);
+    chkmemAllocSiteTag(D_007146A0, 0x1F);
     work = (EffBattleWork *)(*jtbl_008873E8)(size + 0x40, 0x40000);
     if (work == NULL) {
         func_0046d730(D_007146A0, 0x20);

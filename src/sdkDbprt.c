@@ -52,7 +52,7 @@ extern s32 func_003ea370(s32 *arg0);
 
 /* text3d helpers */
 extern void chkmemSetLock(s32 arg0);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_00446ed8(void *buf, const void *fmt, void *va);
 extern char iGpffffac30;
@@ -481,7 +481,7 @@ void func_004501f0(s64 arg0, s32 arg1, s32 arg2, ...) {
 
     arg0hi = *(f32 *)((u8 *)&arg0 + 4);
     chkmemSetLock(1);
-    func_0044ea90(D_00710500, 0x1EA);
+    chkmemAllocSiteTag(D_00710500, 0x1EA);
     temp_2 = D_008873F4[0](1, 0x118, 0x40000);
     if (temp_2 != NULL) {
         chkmemSetLock(0);
@@ -518,7 +518,7 @@ void func_00450340(s64 arg0, const char *arg1, ...) {
 
     arg0hi = *(f32 *)((u8 *)&arg0 + 4);
     chkmemSetLock(1);
-    func_0044ea90(D_00710500, 0x20A);
+    chkmemAllocSiteTag(D_00710500, 0x20A);
     temp_2 = D_008873F4[0](1, 0x118, 0x40000);
     if (temp_2 != NULL) {
         chkmemSetLock(0);

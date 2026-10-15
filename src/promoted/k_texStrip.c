@@ -7,7 +7,7 @@
 extern void (*jtbl_008873EC[])(void *);
 
 extern void func_00428618(s32 arg0);
-extern void func_0044ea90(const void *file, u32 line);
+extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void func_00440b68(const char *fmt, ...);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void *func_003ef650(void *arg0, const char *arg1);
@@ -145,7 +145,7 @@ loop_body:
             func_003deff0(temp_18, (u32)spill.s[0], (u32)spill.s[1], spill.s[2], spill.s[3]);
             func_003e2ab0(temp_18, &buffer[0], 0x14);
             func_003e2ce0(temp_19, buffer[2]);
-            func_0044ea90(D_005F6168, 0xBB);
+            chkmemAllocSiteTag(D_005F6168, 0xBB);
             temp_2 = D_008873F4[0](1, buffer[1] + buffer[2], 0x40000);
             func_003e2910(temp_19, temp_2 + buffer[2], buffer[1]);
             func_003e2ab0(temp_18, temp_2, buffer[1] + buffer[2]);
@@ -153,7 +153,7 @@ loop_body:
             break;
         default:
             if (spill.s[1] != 0) {
-                func_0044ea90(D_005F6168, 0xCA);
+                chkmemAllocSiteTag(D_005F6168, 0xCA);
                 var_16 = D_008873F4[0](1, spill.u[1], 0x40000);
                 func_003e2910(temp_19, var_16, spill.s[1]);
             }
@@ -241,7 +241,7 @@ item_check:
             break;
         default:
             if (spill.s[1] != 0) {
-                func_0044ea90(D_005F6168, 0x141);
+                chkmemAllocSiteTag(D_005F6168, 0x141);
                 var_16 = D_008873F4[0](1, spill.u[1], 0x40000);
                 func_003e2910(temp_20, var_16, spill.s[1]);
             }
@@ -387,7 +387,7 @@ s32 func_00190c10(u8 *task)
                 func_004288d8(sourcePath, &fileStat);
                 sprintf(targetPath, D_005F6310, ((s16 *)work[0x93])[2], *item);
                 func_004288d8(sourcePath, &copyStat);
-                func_0044ea90(D_005F6168, 0x166);
+                chkmemAllocSiteTag(D_005F6168, 0x166);
                 copyBuffer = D_008873F4[0](1, copyStat.size, 0x40000);
                 if (copyBuffer != 0) {
                     if ((descriptor = func_00426cf0(sourcePath, 1, 0x1FF)) >= 0) {
@@ -506,7 +506,7 @@ s32 func_00191610(void)
 {
     void *mem;
 
-    func_0044ea90(D_005F6168, 0x2ED);
+    chkmemAllocSiteTag(D_005F6168, 0x2ED);
     mem = D_008873F4[0](1, 0xE74, 0x40000);
     if (mem == NULL)
     {
@@ -545,7 +545,7 @@ loop_body:
             break;
         default:
             if (spill.s[1] != 0) {
-                func_0044ea90(D_005F6168, 0x330);
+                chkmemAllocSiteTag(D_005F6168, 0x330);
                 var_16 = D_008873F4[0](1, spill.u[1], 0x40000);
                 func_003e2910(temp_18, var_16, spill.s[1]);
             }
@@ -675,7 +675,7 @@ s32 func_00191bc0(void)
     s32 ret;
     void *mem;
 
-    func_0044ea90(D_005F6168, 0x3D4);
+    chkmemAllocSiteTag(D_005F6168, 0x3D4);
     mem = D_008873F4[0](1, 0xE74, 0x40000);
     if (mem == NULL)
     {
@@ -731,7 +731,7 @@ s32 func_00191d90(void)
 {
     void *mem;
 
-    func_0044ea90(D_005F6168, 0x435);
+    chkmemAllocSiteTag(D_005F6168, 0x435);
     mem = D_008873F4[0](1, 0x8, 0x40000);
     if (mem == NULL)
     {

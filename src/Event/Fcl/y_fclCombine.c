@@ -212,7 +212,7 @@ extern void func_00330060(u8 *arg0, s32);
 extern u16 D_008C0276[];
 extern f32 D_00640D78[];
 extern void func_00106390(s32, s32);
-extern void func_0044ea90(const void *, s32);
+extern void chkmemAllocSiteTag(const void *, s32);
 extern void *memcpy(void *, void *, u32);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00641B00[];
@@ -312,7 +312,7 @@ s32 fclCombineMenuCreate(u8 *arg0) {
     FclDrawColor menuColor;
     u8 *e;
 
-    func_0044ea90(D_00641B00, 0x166);
+    chkmemAllocSiteTag(D_00641B00, 0x166);
     out = D_008873F4[0](1, 0x314, 0x40000);
     task = (s32)kwlnTaskCreateChild((void *)((void *)((s32)arg0)), (const void *)(D_00641B10), 0xF, 0, 0, fclCombineMenuUpdate, fclCombineMenuDestroy, (u8 *)(out));
     *out = 0;
@@ -10004,7 +10004,7 @@ void fclCombineSaveSnapshot(void)
     s16 i;
     s16 j;
 
-    func_0044ea90(&D_00641B00[0], 0x2ABD);
+    chkmemAllocSiteTag(&D_00641B00[0], 0x2ABD);
     iGpffffb594 = D_008873F4[0](1, 0x3004, 0x40000);
     memset(iGpffffb594, 0, 0x3000);
     i = 0;
@@ -10281,7 +10281,7 @@ s32 fclCombineTaskCreate(u8 *arg0)
 
     result = (s32)arg0;
     found = 0;
-    func_0044ea90(&D_00641B00[0], 0x2C88);
+    chkmemAllocSiteTag(&D_00641B00[0], 0x2C88);
     p = D_008873F4[0](1, 0x2C, 0x40000);
     result = (s32)kwlnTaskCreateChild((void *)((void *)(result)), (const void *)(D_00641BE0), 0xF, 0, 0, fclCombineTaskUpdate, fclCombineTaskDestroy, (u8 *)(p));
     p[0] = 8;

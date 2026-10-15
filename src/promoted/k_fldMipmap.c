@@ -5,7 +5,7 @@
 
 extern void (*jtbl_008873EC[])(void *);
 
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_005F5370[];
@@ -158,7 +158,7 @@ s32 func_0018c580(u8 *parent)
 {
     u8 *mem;
 
-    func_0044ea90(D_005F5370, 0xC3);
+    chkmemAllocSiteTag(D_005F5370, 0xC3);
     mem = D_008873F4[0](1, 0x48, 0x40000);
     if (mem == NULL) {
         return 0;

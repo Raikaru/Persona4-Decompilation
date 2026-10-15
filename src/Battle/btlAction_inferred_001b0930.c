@@ -44,7 +44,7 @@ extern u8 D_005F7000[];
 extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *arg0);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void func_001eb380(u8 *arg0);
 extern s64 btlGetUID(void);
 extern u32 datCalcRandomBelow(u32 arg0);
@@ -101,7 +101,7 @@ u8 *func_001b0930(void)
     u8 *temp_2;
     u8 *temp_2_2;
 
-    func_0044ea90(&D_005F6FE8, 0x3A);
+    chkmemAllocSiteTag(&D_005F6FE8, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x458, 0x40000);
     memset(temp_2, 0, 0x458);
     func_001eb380(temp_2 + 0x38);

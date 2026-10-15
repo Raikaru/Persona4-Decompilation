@@ -10,7 +10,7 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 /* 0x004833f0 is a texture release helper shared by the eff* units. */
 extern void func_004833f0(void *arg0);
 extern void func_0046d730(const char *file, s32 line);
-extern void func_0044ea90(const char *file, s32 line);
+extern void chkmemAllocSiteTag(const char *file, s32 line);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *);
@@ -71,7 +71,7 @@ u8 *func_00495160(u8 *parameters)
     u32 alpha;
 
     copyCount = *(u32 *)(parameters + 0x38);
-    func_0044ea90(D_00713E50, 0x50);
+    chkmemAllocSiteTag(D_00713E50, 0x50);
     list = (*jtbl_008873E8)(copyCount * 0x10 + 4, 0x40000);
     if (list == 0) {
         func_0046d730(D_00713E50, 0x51);
@@ -675,7 +675,7 @@ u8 *func_00496340(u8 *parameters)
     u32 alpha;
 
     copyCount = *(u32 *)(parameters + 0x38);
-    func_0044ea90(D_00713E50, 0x2B5);
+    chkmemAllocSiteTag(D_00713E50, 0x2B5);
     list = (*jtbl_008873E8)(copyCount * 0x30 + 0x10, 0x40000);
     if (list == 0) {
         func_0046d730(D_00713E50, 0x2B6);
@@ -1361,7 +1361,7 @@ u8 *func_00497750(u8 *parameters)
     u32 alpha;
 
     copyCount = *(u32 *)(parameters + 0x38);
-    func_0044ea90(D_00713E50, 0x499);
+    chkmemAllocSiteTag(D_00713E50, 0x499);
     list = (*jtbl_008873E8)(copyCount * 0x0C + 4, 0x40000);
     if (list == 0) {
         func_0046d730(D_00713E50, 0x49A);
@@ -2045,7 +2045,7 @@ u8 *func_004988c0(u16 arg0, u8 *arg1)
     }
     idx = arg0;
     size = D_00713E84[idx * 6];
-    func_0044ea90(D_00713E50, 0x6A5);
+    chkmemAllocSiteTag(D_00713E50, 0x6A5);
     p = (u8 *)(*jtbl_008873E8)(size + 0x40, 0x40000);
     if (p == NULL)
     {

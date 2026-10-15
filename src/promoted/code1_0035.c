@@ -96,7 +96,7 @@ extern s32 func_004669d0(s32 arg0, void *arg1, s32 arg2);
 extern u8 iGpffffa960;
 extern u8 D_0064B360[];
 extern u8 D_0064B380[];
-extern void func_0044ea90(const void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 
 
 extern u8 D_0064B410[];
@@ -437,7 +437,7 @@ s32 func_00354500(void) {
         goto block_10;
     }
     slot = scrGetParamInt(0) - 1;
-    func_0044ea90(&D_0064B310, 0x3AB);
+    chkmemAllocSiteTag(&D_0064B310, 0x3AB);
     newTask = D_008873F4[0](1, 0x10, 0x40000);
     if (newTask == NULL) {
         func_0046d730(&D_0064B310, 0x3AC);
@@ -468,7 +468,7 @@ s32 func_00354660(void) {
         goto block_10_2;
     }
     slot = scrGetParamInt(0) - 1;
-    func_0044ea90(&D_0064B310, 0x3AB);
+    chkmemAllocSiteTag(&D_0064B310, 0x3AB);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work == NULL) {
         func_0046d730(&D_0064B310, 0x3AC);
@@ -567,7 +567,7 @@ u8 *func_00354a50(s32 arg0, u16 arg1) {
     u8 *task;
     u8 *work;
 
-    func_0044ea90(&D_0064B310, 0x48C);
+    chkmemAllocSiteTag(&D_0064B310, 0x48C);
     work = D_008873F4[0](1, 0x258, 0x40000);
     if (work == NULL) {
         return NULL;
@@ -946,7 +946,7 @@ s32 func_00355550(s16 arg0, s32 arg1, s16 arg2, s16 arg3,
 {
     s32 result;
     u8 *work;
-    func_0044ea90(&D_0064B310, 0x63D);
+    chkmemAllocSiteTag(&D_0064B310, 0x63D);
     work = D_008873F4[0](1, 0x22C, 0x40000);
     if (work == NULL) {
         func_0046d730(&D_0064B310, 0x63E);
@@ -2820,7 +2820,7 @@ u8 *func_0035adc0(s32 arg0, s64 arg1, s32 arg2)
     u8 *work;
     u8 *task;
 
-    func_0044ea90(&D_0064CC98, 0x6ED);
+    chkmemAllocSiteTag(&D_0064CC98, 0x6ED);
     work = D_008873F4[0](1, 0x144, 0x40000);
     if (work == NULL) {
         func_0046d730(&D_0064CC98, 0x6EE);
@@ -3304,7 +3304,7 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
     u8 *work;
     u8 *task;
 
-    func_0044ea90(&D_0064CC98, 0x905);
+    chkmemAllocSiteTag(&D_0064CC98, 0x905);
     work = D_008873F4[0](1, 0x144, 0x40000);
     if (work == NULL) {
         func_0046d730(&D_0064CC98, 0x906);

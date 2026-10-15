@@ -5,7 +5,7 @@
 
 
 extern void func_00440b68(...);
-extern void func_0044ea90(const void *file, u32 line);
+extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void func_0046d730(const void *file, u32 line);
 extern void *func_00454a60(const char *path, s32 flags);
 extern void H_Cdvd_Destroy(void *handle);
@@ -82,13 +82,13 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
     case 2:
         if (H_Cdvd_IsFileLoaded((void *)temp_2->handle) != 0) {
             temp_2->state = 3;
-            func_0044ea90(&D_005E5730, 0x4D);
+            chkmemAllocSiteTag(&D_005E5730, 0x4D);
             allocator = (u32)D_008873F4;
             temp_2_3 = (s32 *)((void *(*)(s32, s32, u32))*(u32 *)allocator)(1, 0xC, 0x40000);
             temp_2_3[0] = 0;
             temp_2_3[1] = (s32)func_004667d0(0, D_005E5770, 0, 0, 0, 0, 0, 0, 0, 0);
             temp_2->task10 = (s32)kwlnTaskCreate((const void *)(&D_00762D98), 0x100, 0, 0, func_0012b890, func_0012b940, (u8 *)(temp_2_3));
-            func_0044ea90(&D_005E5730, 0x4D);
+            chkmemAllocSiteTag(&D_005E5730, 0x4D);
             temp_2_4 = (s32 *)((void *(*)(s32, s32, u32))*(u32 *)allocator)(1, 0xC, 0x40000);
             temp_2_4[0] = 0;
             temp_2_4[1] = (s32)func_004667d0(0, D_005E5790, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -228,7 +228,7 @@ s32 logoTaskStart(void)
 {
     void *temp_2;
 
-    func_0044ea90(&D_005E5730, 0x107);
+    chkmemAllocSiteTag(&D_005E5730, 0x107);
     temp_2 = D_008873F4[0](1, 0x18, 0x40000);
     if (temp_2 == NULL) {
         return 0;

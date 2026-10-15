@@ -431,7 +431,7 @@ extern void kwlnTaskDumpAll(void);
 extern u8 *D_007D3D64[];
 extern u8 D_005EFF10[];
 extern u8 D_005EFF48[];
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void resrcMngSetRenderSuppressed(s32 arg0);
@@ -479,7 +479,7 @@ s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
         KFIELD_JTBL_008873EC((s32)D_007D3D64[0]);
     }
     memset(D_007D2510, 0, 0x18DC);
-    func_0044ea90(D_005EFF10, 0x2AF);
+    chkmemAllocSiteTag(D_005EFF10, 0x2AF);
     work = D_008873F4[0](1, 0xF4, 0x40000);
     if (work == NULL) {
         return 0;

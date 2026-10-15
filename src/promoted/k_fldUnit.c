@@ -158,7 +158,7 @@ u8 *func_00454a60(u8 *arg0, s32 arg1);
 s32 func_0014a200(void);
 s32 func_0014a270(void);
 s32 FldUnit_SetupEncounter(u8 *arg0);
-void func_0044ea90(u8 *arg0, s32 arg1);
+void chkmemAllocSiteTag(u8 *arg0, s32 arg1);
 f32 sinf(f32 arg0);
 u8 *mdlGetColor(s32 arg0);
 void mdlSetColor(s32 arg0, u8 *arg1);
@@ -221,7 +221,7 @@ s32 FldUnit_UpdateTable(void)
                 if (H_Cdvd_IsFileLoaded((HCdvd *)(v18)) == 0) {
                     return 0;
                 }
-                func_0044ea90(D_005F1500, 0x218);
+                chkmemAllocSiteTag(D_005F1500, 0x218);
                 v7 = ((s32 *)D_007EF9B0) + i * 468;
                 field = (s32)(v7 + 460);
                 resource = *(s32 *)(v7[460] + 0x118);
@@ -1997,7 +1997,7 @@ s32 FldUnit_InstallResources(void)
                 u8* fileSlot;
                 fileSlot = (u8*)&D_007643C0[(u32)pair];
                 *(u32*)(instance + 0x28C) = *(u32*)(loaded + 0x118);
-                func_0044ea90(D_005F1500, 0x990);
+                chkmemAllocSiteTag(D_005F1500, 0x990);
                 allocation = DAT_008873F4[0](1, *(u32*)(instance + 0x28C), 0x40000);
                 *(void**)(instance + 0x288) = allocation;
                 {
@@ -2406,7 +2406,7 @@ s32 FldUnit_SpawnEncounterTask(u8 *arg0, s32 arg1)
     if (func_0014a200() == 0 && func_0014a270() == 0) {
         return 0;
     }
-    func_0044ea90(D_005F1500, 0xB93);
+    chkmemAllocSiteTag(D_005F1500, 0xB93);
     r = ((s32 (*)(s32, s32, s32))DAT_008873F4[0])(1, 0x10, 0x40000);
     if (r == 0) {
         return 0;
@@ -2708,7 +2708,7 @@ s32 FldUnit_SpawnTintTask(u8 *arg0, u8 *arg1)
 {
     s32 r;
     s32 task;
-    func_0044ea90(D_005F1500, 0xD36);
+    chkmemAllocSiteTag(D_005F1500, 0xD36);
     r = ((s32 (*)(s32, s32, s32))DAT_008873F4[0])(1, 0x10, 0x40000);
     if (r == 0) {
         return 0;
@@ -3007,7 +3007,7 @@ s32 FldUnit_SpawnPartyTask(u8 *arg0)
     if (func_00162510(*(u16 *)D_00762EA0, *(u16 *)(D_00762EA0 + 4)) == 1 || func_0015a160() == 0) {
         return 0;
     }
-    func_0044ea90(D_005F1500, 0xED8);
+    chkmemAllocSiteTag(D_005F1500, 0xED8);
     r = ((s32 (*)(s32, s32, s32))DAT_008873F4[0])(1, 0x28, 0x40000);
     if (r == 0) {
         return 0;

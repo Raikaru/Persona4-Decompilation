@@ -5,7 +5,7 @@
 #include "effect_instance_internal.h"
 
 void func_0046d730(u8 *file, s32 line);
-void func_0044ea90(u8 *file, s32 line);
+void chkmemAllocSiteTag(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
 void *memset(void *dst, s32 value, s32 size);
 u8 *func_004abc50(u8 *base, s32 size);
@@ -52,7 +52,7 @@ void *func_004ad460(void *arg0)
     u8 *tex;
     u32 i;
 
-    func_0044ea90(D_007144F8, 0x1D);
+    chkmemAllocSiteTag(D_007144F8, 0x1D);
     allocSlot = jtbl_008873E8;
     work = (EffHlpWork *)(*allocSlot)(0xA4, 0x40000);
     if (work == NULL) {
@@ -102,7 +102,7 @@ void *func_004ad460(void *arg0)
         }
         {
             u32 bytes = work->count * 4;
-            func_0044ea90(D_007144F8, 0x57);
+            chkmemAllocSiteTag(D_007144F8, 0x57);
             work->listAlloc = (*allocSlot)(bytes, 0x40000);
         }
         if (work->listAlloc == NULL) {
@@ -179,7 +179,7 @@ void func_004ad880(EffHlpWork *work, EffHlpWork *src)
         }
         {
             u32 bytes = work->count * 4;
-            func_0044ea90(D_007144F8, 0xCB);
+            chkmemAllocSiteTag(D_007144F8, 0xCB);
             work->listAlloc = (*jtbl_008873E8)(bytes, 0x40000);
         }
         if (work->listAlloc == NULL) {

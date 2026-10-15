@@ -19,7 +19,7 @@ typedef struct {
 } PolygonWindColor;
 
 extern PolygonWindColor iGpffffbb64; /* 0x00724C54 */
-extern void func_0044ea90(char *, s32);
+extern void chkmemAllocSiteTag(char *, s32);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *func_00483e10(s32, s32, s32, s32, s32);
 extern s32 func_00481300(s32);
@@ -63,7 +63,7 @@ u8 *func_004a20b0(u8 *arg0, s32 arg1)
     s32 size;
 
     size = *(s32 *)(arg0 + 0x38) * 0x30 + 0xC;
-    func_0044ea90(D_00714110, 0x52);
+    chkmemAllocSiteTag(D_00714110, 0x52);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
         func_0046d730(D_00714110, 0x53);
@@ -94,7 +94,7 @@ u8 *func_004a21e0(u8 *arg0)
     p16 = *(u8 **)(arg0 + 0x3C);
     p17 = *(u8 **)(arg0 + 0x40);
     size = *(s32 *)(p17 + 0x38) * 0x30 + 0xC;
-    func_0044ea90(D_00714110, 0x52);
+    chkmemAllocSiteTag(D_00714110, 0x52);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
         func_0046d730(D_00714110, 0x53);
@@ -659,7 +659,7 @@ u8 *func_004a33e0(u8 *arg0, s32 arg1)
     s32 size;
 
     size = *(s32 *)(arg0 + 0x38) * 0x30 + 0xC;
-    func_0044ea90(D_00714110, 0x212);
+    chkmemAllocSiteTag(D_00714110, 0x212);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
         func_0046d730(D_00714110, 0x213);
@@ -690,7 +690,7 @@ u8 *func_004a3510(u8 *arg0)
     p16 = *(u8 **)(arg0 + 0x3C);
     p17 = *(u8 **)(arg0 + 0x40);
     size = *(s32 *)(p17 + 0x38) * 0x30 + 0xC;
-    func_0044ea90(D_00714110, 0x212);
+    chkmemAllocSiteTag(D_00714110, 0x212);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
         func_0046d730(D_00714110, 0x213);
@@ -1291,7 +1291,7 @@ u8 *func_004a4790(u8 *arg0, s32 arg1)
     s32 size;
 
     size = *(s32 *)(arg0 + 0x38) * 0x2C + 0xC;
-    func_0044ea90(D_00714110, 0x3E4);
+    chkmemAllocSiteTag(D_00714110, 0x3E4);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
         func_0046d730(D_00714110, 0x3E5);
@@ -1322,7 +1322,7 @@ u8 *func_004a48d0(u8 *arg0)
     p16 = *(u8 **)(arg0 + 0x3C);
     p17 = *(u8 **)(arg0 + 0x40);
     size = *(s32 *)(p17 + 0x38) * 0x2C + 0xC;
-    func_0044ea90(D_00714110, 0x3E4);
+    chkmemAllocSiteTag(D_00714110, 0x3E4);
     work = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (work == NULL) {
         func_0046d730(D_00714110, 0x3E5);
@@ -1767,7 +1767,7 @@ void *func_004a5630(s32 arg0, void *arg1)
     }
     temp_16 = arg0 & 0xFFFF;
     temp_17 = *(s32 *)(D_00714148 + temp_16 * 0x1C);
-    func_0044ea90(D_00714110, 0x5A3);
+    chkmemAllocSiteTag(D_00714110, 0x5A3);
     p18 = jtbl_008873E8[0](temp_17 + 0x50, 0x40000);
     if (p18 == NULL) {
         func_0046d730(D_00714110, 0x5A4);

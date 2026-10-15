@@ -200,7 +200,7 @@ extern void btlPacketFlushAll(void);
 extern void btlUnitFreeRemovedUnits(void);
 extern void datUnitFree(s32 arg0);
 extern void (*jtbl_008873EC[])(void *arg0);
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -340,7 +340,7 @@ void func_00192b90(void)
     s32 i;
     *(u64 *)&iGpffffa090 = 1;
     iGpffffa098 = 0x100;
-    func_0044ea90(D_005F65D0, 0x3A);
+    chkmemAllocSiteTag(D_005F65D0, 0x3A);
     iGpffffb3ac = (u8 *)D_008873E8[0](0xE88, 0x40000);
     memset(iGpffffb3ac, 0, 0xE88);
     *(s32 *)(iGpffffb3ac + 0xC60) = itfMesWindowInstall((u8 *)iGpffffb43c);

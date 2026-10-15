@@ -28,7 +28,7 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern void func_0044ea90(u8 *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(u8 *arg0, s32 arg1);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void memset(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_00609498[];
@@ -119,13 +119,13 @@ u8 *func_001d6ad0(void)
     u8 *node;
     u8 *head;
     u32 table;
-    func_0044ea90(D_00609558, 0x51);
+    chkmemAllocSiteTag(D_00609558, 0x51);
     table = (u32)jtbl_008873E8;
     array = (u8 *)((u8 *(*)(s32, s32))*(u32 *)table)(0xC8, 0x40000);
     memset(array, 0, 0xC8);
     i = 0;
     while (i < 0x30) {
-        func_0044ea90(D_00609558, 0x51);
+        chkmemAllocSiteTag(D_00609558, 0x51);
         node = (u8 *)((u8 *(*)(s32, s32))*(u32 *)table)(0x24, 0x40000);
         memset(node, 0, 0x24);
         *(s32 *)(node + 4) = -1;

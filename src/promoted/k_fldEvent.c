@@ -29,7 +29,7 @@ extern u32 D_007EFA00[];
 typedef struct { f32 x, y, z; } FldEventVec3;
 extern FldEventVec3 D_005F1838;
 
-void func_0044ea90(const void *, u32);
+void chkmemAllocSiteTag(const void *, u32);
 
 void func_00182390(void);
 void FldEvent_SetTriggerParam(s32, s32);
@@ -1599,7 +1599,7 @@ s32 FldEvent_SpawnTrigger(s32 arg0)
     u8 *temp_18;
     u8 *temp_2_2;
 
-    func_0044ea90(D_005F1798, 0x990);
+    chkmemAllocSiteTag(D_005F1798, 0x990);
     temp_2 = D_008873F4[0](1, 0x160, 0x40000);
     if (temp_2 == 0) {
         return 0;
@@ -2091,7 +2091,7 @@ s32 FldEvent_SpawnMover(s32 arg0, s32 arg1, s32 arg2)
     u8 *temp_2;
     s32 ret;
 
-    func_0044ea90(D_005F1798, 0xB7F);
+    chkmemAllocSiteTag(D_005F1798, 0xB7F);
     temp_2 = D_008873F4[0](1, 0x60, 0x40000);
     if (temp_2 == 0) {
         return 0;

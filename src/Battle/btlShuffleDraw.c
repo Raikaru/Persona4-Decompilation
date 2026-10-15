@@ -56,7 +56,7 @@ extern void func_00373f00(u8 *arg0);
 extern void func_00371e50(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4);
 extern void func_00371160(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, u8 *arg4, f32 fparg0);
 extern void sdkSpriteRelease(void *ptr);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern f32 func_00373c20(u8 *arg0);
 extern s32 datGetFlag(s32 arg0);
@@ -286,7 +286,7 @@ s32 func_003742b0(u8 *work)
             u8 *p;
             for (copyIndex = 0; copyIndex < 9; copyIndex++, archiveIndex++) {
                 source = func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, &byteCount);
-                func_0044ea90(&D_0064EA20, 0x101);
+                chkmemAllocSiteTag(&D_0064EA20, 0x101);
                 val = D_008873F4[0](1, byteCount, 0x40000);
                 p = work + copyIndex * 4 + 0x1F2B8;
                 *(u8 **)p = val;
@@ -311,7 +311,7 @@ s32 func_003742b0(u8 *work)
             u8 *p;
             for (copyIndex = 0; copyIndex < 3; copyIndex++, archiveIndex++) {
                 source = func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, &byteCount);
-                func_0044ea90(&D_0064EA20, 0x10F);
+                chkmemAllocSiteTag(&D_0064EA20, 0x10F);
                 val = D_008873F4[0](1, byteCount, 0x40000);
                 p = work + copyIndex * 4 + 0x1F2DC;
                 *(u8 **)p = val;
@@ -1196,7 +1196,7 @@ void func_003766f0(f32 **arg0, void (*arg1)(u8 **), u8 **arg2, u8 *arg3) {
     f32 *temp_3;
     f32 key;
 
-    func_0044ea90(D_0064EA20, 0x589);
+    chkmemAllocSiteTag(D_0064EA20, 0x589);
     temp_2 = (f32 *)D_008873F4[0](1, 0x10, 0x40000);
     if (temp_2 == NULL) {
         func_0046d730(D_0064EA20, 0x58A);
@@ -1744,7 +1744,7 @@ s32 func_00377eb0(u8 *arg0, s32 arg1)
 
     parent = arg0;
     cardIndex = arg1;
-    func_0044ea90(D_0064EA20, 0x76C);
+    chkmemAllocSiteTag(D_0064EA20, 0x76C);
     work = D_008873F4[0](1, 0x240, 0x40000);
     if (work == NULL) {
         func_0046d730(D_0064EA20, 0x76D);

@@ -292,7 +292,7 @@ extern void btlUnitFreeRemovedUnits(void);
 extern void datUnitFree(s32 arg0);
 extern void func_003ef3a0(s32 arg0);
 extern void (*jtbl_008873EC[])(void *arg0);
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -346,7 +346,7 @@ s32 func_00190130(s32 arg0)
 {
     s32 *work;
 
-    func_0044ea90(D_005F6010, 0x184);
+    chkmemAllocSiteTag(D_005F6010, 0x184);
     work = (s32 *)D_008873F4[0](1, 0x1CD20, 0x40000);
     if (work == NULL) {
         return 0;

@@ -9,7 +9,7 @@ extern u8 D_00636A30[];
 
 typedef void (*code)(void *);
 extern code DAT_008873ec_abs[];
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 *D_00636820[];
@@ -143,7 +143,7 @@ s32 func_0025cbc0(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 *mem;
 
-    func_0044ea90(D_00636838, 0x113);
+    chkmemAllocSiteTag(D_00636838, 0x113);
     mem = D_008873F4[0](1, 0x10, 0x40000);
     *(s32 *)(mem + 4) = arg1;
     *(s32 *)(mem + 8) = arg2;
@@ -168,7 +168,7 @@ s32 func_0025ccb0(void) {
     if (func_0029d020() == 0) {
         a = scrGetParamInt(0);
         b = scrGetParamInt(1);
-        func_0044ea90(D_00636838, 0x113);
+        chkmemAllocSiteTag(D_00636838, 0x113);
         buf = D_008873F4[0](1, 0x10, 0x40000);
         *(s32 *)(buf + 4) = a;
         *(s32 *)(buf + 8) = b;

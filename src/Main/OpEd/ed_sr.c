@@ -10,7 +10,7 @@ extern u8 iGpffffa9f8;
 
 /* Shared end-scene helpers (defined in sibling TUs of the same ed_* unit). */
 extern void func_0046d730(void *file, s32 line);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void func_0038ddf0(void);
 extern void func_0038f010(void);
 extern void func_0038f0b0(void);
@@ -189,7 +189,7 @@ s32 func_0038f290(void) {
 
     r = func_0029d020();
     if (r == 0xA) {
-        func_0044ea90(&iGpffffa9f0, 0x112);
+        chkmemAllocSiteTag(&iGpffffa9f0, 0x112);
         w = (u8 *)jtbl_008873E8[0](0x1258, 0x40000);
         state = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(&iGpffffa9f8), 0xF, 0, 0, func_0038f160, func_0038f220, (u8 *)(w));
         *(s32 *)(w + 8) = (s32)kwlnTaskCreate((const void *)(&D_0064F230), 0x97, 1, 2, func_0038f1c0, 0, (u8 *)(0));

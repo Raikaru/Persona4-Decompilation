@@ -9,7 +9,7 @@ extern void *func_00454a60(const char *path, s32 flags);
 extern void H_Cdvd_Destroy(void *handle);
 extern s32 H_Cdvd_IsFileLoaded(void *handle);
 
-extern void func_0044ea90(const void *file, u32 line);
+extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void func_00104c50(void);
 extern s32 func_00123730(s32);
 extern void func_002aaa80(void);
@@ -81,7 +81,7 @@ s32 initDataReadStart(void)
     s32 temp_2;
     s32 var_2;
 
-    func_0044ea90(&D_00762CC0, 0x21E);
+    chkmemAllocSiteTag(&D_00762CC0, 0x21E);
     temp_2 = (s32)D_008873F4[0](1, 0xC, 0x40000);
     if (temp_2 == 0) {
         return 0;
@@ -162,7 +162,7 @@ s32 initBootChainStart(void)
 {
     s32 temp_2;
 
-    func_0044ea90(&D_00762CC0, 0x288);
+    chkmemAllocSiteTag(&D_00762CC0, 0x288);
     temp_2 = (s32)D_008873F4[0](1, 0xC, 0x40000);
     if (temp_2 == 0) {
         return 0;

@@ -6,7 +6,7 @@
 
 extern void (*DAT_008873EC[])(void *);
 
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern char D_005F0A88[];
@@ -195,7 +195,7 @@ s32 func_0015d730(u8 *task)
         D_007E3714[0] = (s32)func_00454a60((u8 *)D_005F0BD0, 0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x12D);
         D_007E3718[0] = (s32)func_00454a60((u8 *)D_005F0BF0, 0);
-        func_0044ea90(D_005F0A88, 0xC5);
+        chkmemAllocSiteTag(D_005F0A88, 0xC5);
         soundMemory = (u16 *)D_008873F4[0](1, 0x414, 0x40000);
         uGpffffb270 = soundMemory;
         iGpffffb26c = func_0045b1c0(task, 6, (s32)soundMemory, D_005F0AE0);
@@ -210,7 +210,7 @@ s32 func_0015d730(u8 *task)
             if (scriptFile == NULL) {
                 scriptReady = 1;
             } else if (H_Cdvd_IsFileLoaded(scriptFile) != 0) {
-                func_0044ea90(D_005F0A88, 0x94);
+                chkmemAllocSiteTag(D_005F0A88, 0x94);
                 scriptAllocationSize = scriptFile->fileSize;
                 scriptMemory = (u16 *)D_008873F4[0](1, scriptAllocationSize, 0x40000);
                 iGpffffb284 = (s32)scriptMemory;
@@ -382,7 +382,7 @@ television_texture_test:
         if (televisionTextureIndex < 2) {
             goto television_texture_body;
         }
-        func_0044ea90(D_005F0A88, 0x1BB);
+        chkmemAllocSiteTag(D_005F0A88, 0x1BB);
         supportAllocationSize = work->supportScript->fileSize;
         supportMemory = (u16 *)D_008873F4[0](1, supportAllocationSize, 0x40000);
         iGpffffb27c = (s32)supportMemory;
@@ -422,7 +422,7 @@ s32 func_0015e7d0(void)
     u8 *mem;
     s32 result;
 
-    func_0044ea90(D_005F0A88, 0x1ED);
+    chkmemAllocSiteTag(D_005F0A88, 0x1ED);
     mem = D_008873F4[0](1, 0xF4, 0x40000);
     if (mem == NULL) {
         return 0;

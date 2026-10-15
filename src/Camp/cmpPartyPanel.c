@@ -5,7 +5,7 @@
 
 void func_0046d730(void* arg0, s32 arg1);
 void sdkSpriteRelease(u8 *node);
-void func_0044ea90(void* file, s32 line);
+void chkmemAllocSiteTag(void* file, s32 line);
 
 void memset(void* dest, s32 value, s32 size);
 void func_00363540(u8* arg0, u8* arg1);
@@ -543,7 +543,7 @@ s32 func_003641a0(s32 arg0) {
     s32 r;
     u8* work;
 
-    func_0044ea90(D_0064E290, 0x253);
+    chkmemAllocSiteTag(D_0064E290, 0x253);
     work = D_008873F4[0](1, 0xE0, 0x40000);
     if (work == NULL) {
         func_0046d730(D_0064E290, 0x254);

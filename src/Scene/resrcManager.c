@@ -60,7 +60,7 @@ typedef struct ResrcManager
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
-extern void func_0044ea90(const char* file, s32 line);
+extern void chkmemAllocSiteTag(const char* file, s32 line);
 extern void func_0046d730(const char* file, s32 line);
 extern void func_00440b68(const char* fmt, ...);
 extern void memset(void* dst, s32 value, u32 size);
@@ -84,7 +84,7 @@ ResrcManager* resrcMngCreate()
 {
     ResrcManager* resMgr;
 
-    func_0044ea90(D_005EFA40, 0x29);
+    chkmemAllocSiteTag(D_005EFA40, 0x29);
     resMgr = (ResrcManager*)(*jtbl_008873E8)(sizeof(ResrcManager), 0x40000);
     memset(resMgr, 0, sizeof(ResrcManager));
 
@@ -192,7 +192,7 @@ Resrc* resrcMngCreateRes(ResrcManager* resManager, u16 resTypeId)
         return NULL;
     }
 
-    func_0044ea90(D_005EFA40, 0x92);
+    chkmemAllocSiteTag(D_005EFA40, 0x92);
     res = (Resrc*)(*jtbl_008873E8)(resSize, 0x40000);
     memset(res, 0, resSize);
     res->resTypeId = resTypeId;

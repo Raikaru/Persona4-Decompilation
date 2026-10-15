@@ -159,7 +159,7 @@ extern u16 D_008C024E[];
 extern u16 D_008C0252[];
 extern u16 D_008C0256[];
 
-void func_0044ea90(char* file, s32 line);
+void chkmemAllocSiteTag(char* file, s32 line);
 void func_0046d730(char* file, s32 line);
 void func_0046d740(const void *msg, const void *file, u32 line);
 void func_0046d700(char* file, s32 line, char* msg, s32 value);
@@ -209,7 +209,7 @@ ScrPool* scrPoolCreate(s32 elemSize, s32 elemCount)
     s32 i;
     s32 last;
 
-    func_0044ea90(D_0063E3D0, 0x3D);
+    chkmemAllocSiteTag(D_0063E3D0, 0x3D);
     size = elemSize + 8;
     pool = ((ScrPool* (*)(s32, s32, s32))D_008873F4[0])(1, size * elemCount + 0x10, 0x40000);
     pool->freeList = (u8*)(pool + 1);
@@ -1057,7 +1057,7 @@ void func_0029e8d0(u8* arg0)
 {
     u8* buf;
 
-    func_0044ea90(D_0063E3D0, 0x4AB);
+    chkmemAllocSiteTag(D_0063E3D0, 0x4AB);
     buf = D_008873F4[0](1, 0x228, 0x40000);
     (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063E618), 0xC9, 0, 0, func_0029e550, func_0029e7b0, (u8 *)(buf));
 }

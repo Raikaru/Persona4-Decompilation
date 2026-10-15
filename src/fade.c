@@ -9,7 +9,7 @@ extern char iGpffff9c60;
 extern u8 *iGpffffb1cc;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-void func_0044ea90();
+void chkmemAllocSiteTag();
 
 s32 func_00121b70(u8 *task);
 void func_00121db0(u8 *task);
@@ -32,7 +32,7 @@ s32 func_00122430(s32 arg0)
     s32 temp_17;
     u8 *temp_2;
 
-    func_0044ea90(&iGpffff9c60, 0x14D);
+    chkmemAllocSiteTag(&iGpffff9c60, 0x14D);
     temp_2 = D_008873F4[0](1, 0x20, 0x40000);
     if (temp_2 == NULL) {
         return 0;

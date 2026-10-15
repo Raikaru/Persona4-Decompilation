@@ -68,7 +68,7 @@ extern void btlUnitSetPos(u8 *arg0, f32 *arg1);
 extern void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2);
 extern u8 *func_0019eda0(u8 *arg0, s32 arg1);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
-extern void func_0044ea90(u8 *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(u8 *arg0, s32 arg1);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void memset(u8 *arg0, s32 arg1, s32 arg2);
 extern s8 datCalcRandomBelow(s32 arg0);

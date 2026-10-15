@@ -35,7 +35,7 @@ typedef enum RwStreamAccessType {
 extern RwStream *func_003e2f60(RwStreamType type, RwStreamAccessType access, const void *data);
 extern u32 func_003e2910(RwStream *stream, void *destination, u32 length);
 extern s32 func_003e2e40(RwStream *stream, void *data);
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void memcpy(u8 *dst, void *src, s32 size);
 extern u8 *(*jtbl_008873E8[])(s32 size, s32 align);
 extern void (*jtbl_008873EC[])(void *);
@@ -457,7 +457,7 @@ RwImage *func_00463d60(const char *name)
     fh = func_003e2f60(rwSTREAMFILENAME, rwSTREAMREAD, name);
     if (fh != NULL) {
         func_003e2910(fh, hdr, 0x40);
-        func_0044ea90(D_00712688, 0x3BE);
+        chkmemAllocSiteTag(D_00712688, 0x3BE);
         buf = jtbl_008873E8[0](*(s32 *)(hdr + 4), 0x40000);
         func_003e2910(fh, buf + 0x40, *(s32 *)(hdr + 4) - 0x40);
         memcpy(buf, hdr, 0x40);

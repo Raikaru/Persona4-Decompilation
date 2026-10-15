@@ -13,7 +13,7 @@ extern code DAT_008873ec_abs[];
 
 
 
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void func_0046d730(const void *file, u32 line);
 extern u8 D_0063CF80[];
 extern u8 D_0063CF90[];
@@ -136,7 +136,7 @@ s32 func_00298550(void)
                 return 1;
             }
         }
-        func_0044ea90(D_0063CF80, 0x4F);
+        chkmemAllocSiteTag(D_0063CF80, 0x4F);
         work = D_008873F4[0](1, 8, 0x40000);
         *(s32 *)(work + 0) = (s32)mdlFindOrCreateModelObject(5, v1 & 0xFFFF, 0);
         *(s32 *)(work + 4) = v0;
@@ -303,7 +303,7 @@ s32 func_00298c60(void)
         kwlnTaskDestroyWithHierarchy((void *)task);
     }
     v0 = func_00285af0();
-    func_0044ea90(D_0063CF80, 0xF6);
+    chkmemAllocSiteTag(D_0063CF80, 0xF6);
     (s32)kwlnTaskCreateChild((void *)(v0), (const void *)(D_0063CFA0), 0xF, 0, 0, func_00298b80, func_00298c10, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
     return 1;
 }

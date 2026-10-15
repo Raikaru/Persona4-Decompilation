@@ -2,7 +2,7 @@
 /* Original translation unit titleVisual.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern u8 *func_00460990();
 extern void func_00460ac0(void *arg0, void *arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -47,7 +47,7 @@ void func_002aaf20(f32 fparg0, f32 fparg1, f32 fparg2, u8 *arg0, f32 fparg3, f32
     u8 *temp_16;
     u8 *temp_2;
 
-    func_0044ea90(D_0063EE50, 0x91);
+    chkmemAllocSiteTag(D_0063EE50, 0x91);
     temp_16 = D_008873F4[0](1, 0x1C, 0x40000);
     var_3 = (u8 *)&sp70[0];
     var_2 = 0x10;
@@ -143,7 +143,7 @@ void func_002ab380(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     u8 *temp_2;
     u8 *temp_2_2;
 
-    func_0044ea90(D_0063EE50, 0xE1);
+    chkmemAllocSiteTag(D_0063EE50, 0xE1);
     temp_2 = D_008873F4[0](1, 0x1C, 0x40000);
     *(f32 *)(temp_2 + 0) = fparg0;
     *(f32 *)(temp_2 + 4) = fparg1;
@@ -312,7 +312,7 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
         sp140[2] = fparg2;
     }
     RwMatrixTranslate(spE0, sp140, 2);
-    func_0044ea90(D_0063EE50, 0x16B);
+    chkmemAllocSiteTag(D_0063EE50, 0x16B);
     temp_2_2 = D_008873F4[0](1, 0x60, 0x40000);
     *(u32 *)(temp_2_2 + 0) = (arg0 << 8) | arg1;
     *(s32 *)(temp_2_2 + 0x50) = *(s32 *)(arg3 + 0xD8);
@@ -399,7 +399,7 @@ void func_002abb30(
         } while (count != 0);
     }
     spC8[1] = spC8[0];
-    func_0044ea90(D_0063EE50, 0x91);
+    chkmemAllocSiteTag(D_0063EE50, 0x91);
     alloc = D_008873F4;
     packet = alloc[0](1, 0x1C, 0x40000);
     var = (u8 *)&sp90[0];
@@ -433,7 +433,7 @@ void func_002abb30(
     ((u8 *)&spC8[1])[1] = (u8)(color >> 16);
     ((u8 *)&spC8[1])[2] = (u8)(color >> 8);
     ((u8 *)&spC8[1])[3] = (u8)color;
-    func_0044ea90(D_0063EE50, 0x91);
+    chkmemAllocSiteTag(D_0063EE50, 0x91);
     packet = alloc[0](1, 0x1C, 0x40000);
     var = (u8 *)&spA0[0];
     count = 0x10;
@@ -460,7 +460,7 @@ void func_002abb30(
     } else {
         func_002aabf0(NULL, packet);
     }
-    func_0044ea90(D_0063EE50, 0x91);
+    chkmemAllocSiteTag(D_0063EE50, 0x91);
     packet3 = alloc[0](1, 0x1C, 0x40000);
     var = (u8 *)&spB0[0];
     count = 0x10;

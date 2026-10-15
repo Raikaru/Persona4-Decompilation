@@ -30,7 +30,7 @@ extern void func_004833f0(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void func_0049a570(void *arg0);
 
-extern void func_0044ea90();
+extern void chkmemAllocSiteTag();
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00713390[];
 extern s32 func_0048abd0();
@@ -71,7 +71,7 @@ u8 *func_00498da0(u8 *arg0) {
     u32 i;
     u8 *dst;
 
-    func_0044ea90(D_00713EF0, 0x39);
+    chkmemAllocSiteTag(D_00713EF0, 0x39);
     alloc = (u8 *)(*jtbl_008873E8)(4, 0x40000);
     if (alloc == NULL) {
         func_0046d730(D_00713EF0, 0x3A);
@@ -387,7 +387,7 @@ u8 *func_00499510(u8 *arg0) {
         *(u32 *)(arg0 + 0x38) = 3;
     }
     count = *(u32 *)(arg0 + 0x38);
-    func_0044ea90(D_00713EF0, 0x10F);
+    chkmemAllocSiteTag(D_00713EF0, 0x10F);
     stride = count * 4;
     p = (u8 *)(*jtbl_008873E8)(stride + 0x10, 0x40000);
     if (p == NULL) {
@@ -697,7 +697,7 @@ u8 *func_00499cd0(u8 *arg0) {
     u32 i;
     u8 *dst;
 
-    func_0044ea90(D_00713EF0, 0x1E6);
+    chkmemAllocSiteTag(D_00713EF0, 0x1E6);
     alloc = (u8 *)(*jtbl_008873E8)(4, 0x40000);
     if (alloc == NULL) {
         func_0046d730(D_00713EF0, 0x1E7);
@@ -968,7 +968,7 @@ u8 *func_0049a370(u16 arg0, u8 *arg1)
     }
     idx = arg0;
     size = D_00713F24[idx * 6];
-    func_0044ea90(D_00713EF0, 0x2C1);
+    chkmemAllocSiteTag(D_00713EF0, 0x2C1);
     p = (u8 *)(*jtbl_008873E8)(size + 0x50, 0x40000);
     if (p == NULL) {
         func_0046d730(D_00713EF0, 0x2C2);

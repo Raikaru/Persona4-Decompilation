@@ -12,7 +12,7 @@ extern char D_0064F250[];
 extern char D_0064F260[];
 
 extern void func_0046d730(const char *file, s32 line);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 /* Defined below in this file; called at line 33, above its definition. */
 extern void func_0038f8d0(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
@@ -57,7 +57,7 @@ void func_0038f680(void)
                 work[3] = (u32)func_0038f400((const u32 *)data);
                 break;
             case 1:
-                func_0044ea90(D_0064F250, 0x56);
+                chkmemAllocSiteTag(D_0064F250, 0x56);
                 copy = (*jtbl_008873E8)(size, 0x40000);
                 memcpy(copy, data, size);
                 frFontSlotLoadData(6, copy);

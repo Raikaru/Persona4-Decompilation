@@ -59,7 +59,7 @@ extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern void (*D_00887300[])(u32, u32);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void func_0044ea90(const void *msg, s32 line);
+extern void chkmemAllocSiteTag(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void H_Cdvd_ReadSync(void *arg0);
 extern void memcpy(void *dst, void *src, u32 size);
@@ -287,7 +287,7 @@ void func_001605a0(void)
     u8 *temp_2;
 
     if (iGpffffb2b0 == NULL) {
-        func_0044ea90(D_005F11E8, 0xEE);
+        chkmemAllocSiteTag(D_005F11E8, 0xEE);
         iGpffffb2b0 = (u8 *)D_008873F4[0](1, 0x12400, 0x40000);
     }
     func_00440b68((char *)&iGpffff9f00, D_005F11E8, 0xF4);

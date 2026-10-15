@@ -57,7 +57,7 @@ extern u32 DAT_00881764_abs[];
 extern u32 DAT_00881768_abs[];
 
 void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern s8 D_007645B0;
 
 extern u32 DAT_00881518_abs[];
@@ -186,13 +186,13 @@ s32 frFontInitSlotGrid(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s
     DAT_00881520_abs[0] = width * height / 2;
     (*(s32 *)DAT_00881528_abs) = columns * rows;
     DAT_00881524_abs[0] = columns * rows;
-    func_0044ea90(D_0063BAE8, 0x18C);
+    chkmemAllocSiteTag(D_0063BAE8, 0x18C);
     alloc = jtbl_008873E8;
     (*(s32 *)DAT_0088152C_abs) = DAT_00881510_abs[0] = (u32)alloc[0]((*(s32 *)DAT_00881528_abs) * 32, 0x40000);
     if ((*(s32 *)DAT_0088152C_abs) == 0)
         func_0046d730(D_0063BAE8, 0x18E);
     if (aux_size != 0) {
-        func_0044ea90(D_0063BAE8, 0x192);
+        chkmemAllocSiteTag(D_0063BAE8, 0x192);
         aux = (u8 *)(DAT_00881514_abs[0] = (u32)alloc[0](aux_size * (*(s32 *)DAT_00881528_abs), 0x40000));
         if (aux == 0)
             func_0046d730(D_0063BAE8, 0x194);
@@ -823,7 +823,7 @@ u8 *frFontAcquireGlyph(u8 *arg0, u32 arg1)
     }
     if (var_18 == NULL) {
         temp_17 = (u8 *)((u32)gFrFontManagerData_abs + (arg0[0x15] << 5));
-        func_0044ea90(D_0063BAE8, 0x526);
+        chkmemAllocSiteTag(D_0063BAE8, 0x526);
         temp_20 = (u8 *)jtbl_008873E8[0](0x200, 0x40000);
         func_0026e1a0(*(int **)(temp_17 + 0x1C), (int *)sp60);
         func_0026e1e0((int)temp_20, (int)arg1, *(int *)(temp_17 + 0x1C), (int *)sp60);

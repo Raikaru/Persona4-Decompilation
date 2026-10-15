@@ -18,7 +18,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
-extern void func_0044ea90(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 
 
@@ -63,7 +63,7 @@ void func_002e24a0(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     if (iGpffffb58c != NULL) {
         func_002e29a0();
     }
-    func_0044ea90(D_0063FC48, 0x67);
+    chkmemAllocSiteTag(D_0063FC48, 0x67);
     buf = D_008873F4[0](1, 0x1810, 0x40000);
     iGpffffb58c = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, func_002e23b0, func_002e2470, (u8 *)(buf));
     *(s32 *)(buf + 4) = arg0;
@@ -77,7 +77,7 @@ void func_002e24a0(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
 void func_002e2590(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
     u8 *buf;
 
-    func_0044ea90(D_0063FC48, 0x82);
+    chkmemAllocSiteTag(D_0063FC48, 0x82);
     buf = D_008873F4[0](1, 0x1810, 0x40000);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063FC58), 0xF, 0, 0, func_002e2410, func_002e2470, (u8 *)(buf));
     *(s32 *)(buf + 4) = arg1;
@@ -735,7 +735,7 @@ void func_002e4610(s32 arg0, s8 arg1) {
     if (*slot != NULL) {
         func_002e4820(arg1);
     }
-    func_0044ea90(D_0063FC48, 0x38F);
+    chkmemAllocSiteTag(D_0063FC48, 0x38F);
     buf = D_008873F4[0](1, 0x3014, 0x40000);
     *slot = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, func_002e4090, func_002e45e0, (u8 *)(buf));
     buf[0] = 0;
@@ -1933,7 +1933,7 @@ u8 *func_002e6f00(void) {
     s16 i;
     s16 value;
 
-    func_0044ea90(D_0063FC48, 0x649);
+    chkmemAllocSiteTag(D_0063FC48, 0x649);
     buf = (s16 *)D_008873F4[0](1, 0x62, 0x40000);
     i = 0;
     value = -1;

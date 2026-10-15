@@ -87,7 +87,7 @@ extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern s32 sprintf(char *destination, const char *format, ...);
 extern char *strcpy(char *destination, const char *source);
 extern s32 func_00440b68(const char *format, ...);
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern u32 H_Cdvd_FileExists(const char *path);
 extern u8 *func_00454a60(void *arg0, s32 arg1);
 extern u32 H_Cdvd_Destroy(void *arg0);
@@ -190,10 +190,10 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
     if (iGpffffb2a8 != 0) {
         u8 *base;
 
-        func_0044ea90(D_005F1068, 0x117);
+        chkmemAllocSiteTag(D_005F1068, 0x117);
         base = (u8 *)D_008873F4;
         iGpffffb2a4 = ((void *(*)(size_t, size_t, u32))*(u32 *)base)(1, *(u32 *)(fbn + 8) * sizeof(void *), 0x40000);
-        func_0044ea90(D_005F1068, 0x118);
+        chkmemAllocSiteTag(D_005F1068, 0x118);
         iGpffffb2a0 = ((void *(*)(size_t, size_t, u32))*(u32 *)base)(1, *(u32 *)(fbn + 8) * sizeof(FbnEntry), 0x40000);
     }
     p = fbn + 0x18;
@@ -406,7 +406,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             *(s32 *)(res + 0x294) = func_0018bb20(*(s32 *)(res + 0x228), (s32)res);
             *(u32 *)(res + 0x28C) = FBN_ENTRY(i)->field_18;
             *(s32 *)(res + 0x288) = FBN_ENTRY(i)->field_14;
-            func_0044ea90(D_005F1068, 0x26F);
+            chkmemAllocSiteTag(D_005F1068, 0x26F);
             *(void **)(res + 0x288) = D_008873F4[0](1, *(u32 *)(res + 0x28C), 0x40000);
             memcpy(*(void **)(res + 0x288), (void *)FBN_ENTRY(i)->field_14, *(u32 *)(res + 0x28C));
             func_0015d270((u8 *)FBN_ENTRY(i));

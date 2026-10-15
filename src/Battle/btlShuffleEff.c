@@ -4,7 +4,7 @@
 #include "sdk_snd_internal.h"
 
 extern void func_0046d730(const void *file, u32 line);
-extern void func_0044ea90(const void *file, u32 line);
+extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 D_0064F0F0[];
@@ -62,7 +62,7 @@ u8 *func_0038d790(u8 *arg0) {
     u8 *tbl;
     u8 *ctx;
 
-    func_0044ea90(&D_0064F210[0], 0x103);
+    chkmemAllocSiteTag(&D_0064F210[0], 0x103);
     tbl = D_008873F4[0](1, 0x50, 0x40000);
     if (tbl == NULL) {
         func_0046d730(&D_0064F210[0], 0x104);

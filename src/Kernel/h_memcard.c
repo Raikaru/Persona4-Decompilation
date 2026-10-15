@@ -33,7 +33,7 @@ extern char D_007127B0[];
 extern char D_007128B0[];
 extern char D_007128E0[];
 extern s32 D_008E4910[];
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void memset(void *dst, s32 value, s32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -366,7 +366,7 @@ s32 func_00465a10(void)
         }
         goto done;
     case 2:
-        func_0044ea90(D_00712908, 0x32d);
+        chkmemAllocSiteTag(D_00712908, 0x32d);
         D_00764BAC = (*jtbl_008873E8)(0x38, 0x40000);
         if (D_00764BA0 != 0)
         {

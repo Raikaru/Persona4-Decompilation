@@ -195,7 +195,7 @@ extern u8 D_005EFAA0[];
 extern u8 D_007E80A0[];
 extern u8 D_007E8C00[];
 extern u16 D_007D24B0[];
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern u8 D_005EFC18[];
 extern u8 D_005EFC28[];
 extern u8 iGpffff9de0;
@@ -677,7 +677,7 @@ s32 func_0014e5e0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
     s32 temp_17;
     u8 *temp_2;
 
-    func_0044ea90(&iGpffff9de0, 0xC2);
+    chkmemAllocSiteTag(&iGpffff9de0, 0xC2);
     temp_2 = D_008873F4[0](1, 0xFC, 0x40000);
     if (temp_2 == NULL) {
         return 0;
@@ -914,7 +914,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
     s32 result;
     u8 *temp_2;
     u8 *header;
-    func_0044ea90(&iGpffff9de0, 0x2DF);
+    chkmemAllocSiteTag(&iGpffff9de0, 0x2DF);
     allocator_table = (u8 **)D_008873F4;
     temp_2 = ((u8 *(*)(s32, s32, s32))allocator_table[0])(1, 0x50, 0x40000);
     if (temp_2 == NULL) {
@@ -924,7 +924,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
     result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(header), 0xF, 0, 0, func_0014e950, func_0014ec20, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = arg1;
     if (arg1 == 0) {
-        func_0044ea90(&iGpffff9de0, 0xC2);
+        chkmemAllocSiteTag(&iGpffff9de0, 0xC2);
         temp_2_2 = ((u8 *(*)(s32, s32, s32))allocator_table[0])(1, 0xFC, 0x40000);
         if (temp_2_2 == NULL) {
             arg1 = 0;
@@ -937,7 +937,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
         }
         *(s32 *)(temp_2 + 0xC) = arg1;
     } else if (arg1 == 1) {
-        func_0044ea90(&iGpffff9de0, 0xC2);
+        chkmemAllocSiteTag(&iGpffff9de0, 0xC2);
         temp_2_2 = ((u8 *(*)(s32, s32, s32))allocator_table[0])(1, 0xFC, 0x40000);
         if (temp_2_2 == NULL) {
             arg1 = 0;

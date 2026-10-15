@@ -186,7 +186,7 @@ void func_002be3c0(void);
 s32 func_0010d6d0(s16);
 void func_00105780(s32);
 s32 func_00106b20(s16);
-void func_0044ea90(const void *, u32);
+void chkmemAllocSiteTag(const void *, u32);
 
 s32 func_002e0100(u8 *task);
 void memcpy(void *, s32, s32);
@@ -2680,7 +2680,7 @@ s32 func_002ca830(s32 arg0) {
     s32 temp_17;
     u8 *temp_2;
 
-    func_0044ea90(&D_0063FAC0, 0xC47);
+    chkmemAllocSiteTag(&D_0063FAC0, 0xC47);
     temp_2 = D_008873F4[0](1, 0x1174, 0x40000);
     temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((char *)&D_0063FB30), 0xF, 0, 0, func_002be530, func_002ca770, (u8 *)(temp_2));
     *(s8 *)(temp_2 + 0) = 9;
@@ -7188,7 +7188,7 @@ s32 func_002e0300(s32 arg0, s16 arg1, u32 arg2) {
     u8 *src;
     s16 i;
     void *h;
-    func_0044ea90(&D_0063FAC0, 0x1D6A);
+    chkmemAllocSiteTag(&D_0063FAC0, 0x1D6A);
     w = D_008873F4[0](1, 0x104, 0x40000);
     r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((char *)&D_0063FB70), 0xF, 0, 0, func_002e0100, func_002e02d0, (u8 *)(w));
     w[0] = 0;

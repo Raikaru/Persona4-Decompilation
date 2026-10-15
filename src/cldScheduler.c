@@ -3,7 +3,7 @@
 /* Source unit: src/cldScheduler.c */
 #include "type.h"
 
-extern void func_0044ea90(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern void func_0046d730(const void *file, u32 line);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -56,7 +56,7 @@ void func_0025ff90(void)
     {
         func_0046d730(D_006372B0, 0x3E);
     }
-    func_0044ea90(D_006372B0, 0x3F);
+    chkmemAllocSiteTag(D_006372B0, 0x3F);
     D_0076457C = (s32)D_008873F4[0](1, 0x20000, 0x40000);
     memset(&D_008814F0[0], 0, 0xC);
 }

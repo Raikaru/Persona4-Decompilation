@@ -2,7 +2,7 @@
 #include "include_asm.h"
 #include "type.h"
 
-extern void func_0044ea90();
+extern void chkmemAllocSiteTag();
 extern void memset(void *dest, s32 value, s32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007241D8;
@@ -27,7 +27,7 @@ void *func_0047dea0(u32 arg0, u16 arg1, s32 arg2)
 {
     void *temp_2;
 
-    func_0044ea90(&D_007241D8, 0x2B);
+    chkmemAllocSiteTag(&D_007241D8, 0x2B);
     temp_2 = jtbl_008873E8[0](0x28, 0x40000);
     memset(temp_2, 0, 0x28);
     *(s32 *)((u8 *)temp_2 + 8) = 1;
@@ -271,7 +271,7 @@ void func_0047e450(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4)
         switch (temp_4) {
         case 1:
             if (temp_5 == NULL) {
-                func_0044ea90(&D_007241D8, 0x2B);
+                chkmemAllocSiteTag(&D_007241D8, 0x2B);
                 temp_2 = jtbl_008873E8[0](0x28, 0x40000);
                 memset(temp_2, 0, 0x28);
                 *(s32 *)((u8 *)temp_2 + 8) = 1;
@@ -281,7 +281,7 @@ void func_0047e450(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4)
                 *arg0 = temp_2;
             }
             temp_16 = *arg0_p;
-            func_0044ea90(&D_007241D8, 0x49);
+            chkmemAllocSiteTag(&D_007241D8, 0x49);
             temp_2_2 = jtbl_008873E8[0](arg4, 0x40000);
             *(void **)((u8 *)temp_16 + 0) = temp_2_2;
             memcpy(temp_2_2, (void *)var_17, arg4);
@@ -292,7 +292,7 @@ void func_0047e450(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4)
             return;
         case 2:
             if (temp_5 == NULL) {
-                func_0044ea90(&D_007241D8, 0x2B);
+                chkmemAllocSiteTag(&D_007241D8, 0x2B);
                 temp_2_3 = jtbl_008873E8[0](0x28, 0x40000);
                 memset(temp_2_3, 0, 0x28);
                 *(s32 *)((u8 *)temp_2_3 + 8) = 1;
@@ -340,7 +340,7 @@ static inline void copyLoadedRequest(void **owner, s32 requestOffset)
     request = *(void **)((u8 *)node + requestOffset);
     fileSize = *(u32 *)((u8 *)request + 0x118);
     source = *(void **)((u8 *)request + 0x110);
-    func_0044ea90(&D_007241D8, 0x49);
+    chkmemAllocSiteTag(&D_007241D8, 0x49);
     memory = jtbl_008873E8[0](fileSize, 0x40000);
     *(void **)node = memory;
     memcpy(memory, source, fileSize);

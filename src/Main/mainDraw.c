@@ -16,7 +16,7 @@ extern void H_Dbprt_Flush(void);
 extern void func_00460a80(void *arg0, s32 arg1);
 extern void func_00460ac0(void *arg0, void *arg1);
 extern void func_004623a0(s32 arg0);
-extern void func_0044ea90(void *file, s32 line);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern void func_0046d730(void *file, s32 line);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 
@@ -556,7 +556,7 @@ void mainDrawStartClearOt(void) {
     u8 *temp_2;
     s32 temp_2_2;
 
-    func_0044ea90(&D_005DCAE8, 0x13B);
+    chkmemAllocSiteTag(&D_005DCAE8, 0x13B);
     temp_2 = D_008873F4[0](1, 0x60, 0x40000);
     temp_2_2 = (s32)kwlnTaskCreate((const void *)(&D_005DCAF8), 0xA, 0, 0, mainDrawClearOtUpdate, 0, (u8 *)(temp_2));
     *(void **)(temp_2 + 8) = &D_001013A0;
@@ -594,7 +594,7 @@ void mainDrawFrameDestroy(u8 *arg0) {
 /* Starts the mainDraw frame task (priority 0xC8). */
 // FUN_00102610
 void mainDrawStartFrame(void) {
-    func_0044ea90(&D_005DCAE8, 0x1FD);
+    chkmemAllocSiteTag(&D_005DCAE8, 0x1FD);
     if ((s32)kwlnTaskCreate((const void *)(&D_005DCB10), 0xC8, 0, 0, mainDrawFrameUpdate, mainDrawFrameDestroy, (u8 *)(D_008873F4[0](1, 4, 0x40000))) == 0) {
         func_0046d730(&D_005DCAE8, 0x208);
     }

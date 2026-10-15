@@ -6,7 +6,7 @@
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
 extern void func_004808b0(int param_1);
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void func_0047f850(u8 *param_1, u8 *param_2, f32 param_3, f32 param_4, f32 param_5);
 extern u8 D_00713260[];
 extern u32 D_00713220[];
@@ -39,7 +39,7 @@ s32 *func_0047f9f0(void)
 {
     s32 *anim;
 
-    func_0044ea90(D_00713260, 0x22C);
+    chkmemAllocSiteTag(D_00713260, 0x22C);
     anim = (s32 *)jtbl_008873E8[0](4, 0x40000);
     memset(anim, 0, 4);
     *anim = 0;
@@ -348,7 +348,7 @@ s32 func_004800d0(void *arg0, u8 **arg1, u32 arg2, void *arg3)
         name = nameBuf;
         allocated = 0;
     } else {
-        func_0044ea90(D_00713260, 0x307);
+        chkmemAllocSiteTag(D_00713260, 0x307);
         name = jtbl_008873E8[0](header.nameLength + 1, 0x40000);
         allocated = 1;
     }
@@ -371,7 +371,7 @@ s32 func_004800d0(void *arg0, u8 **arg1, u32 arg2, void *arg3)
     node = NULL;
 found:
     if (node == NULL) {
-        func_0044ea90(D_00713260, 0x19C);
+        chkmemAllocSiteTag(D_00713260, 0x19C);
         node = jtbl_008873E8[0](0x58, 0x40000);
         memset(node, 0, 0x58);
         i = 0;
@@ -424,7 +424,7 @@ looptest2:
             *(u32 *)channel = header.count;
             *(f32 *)(channel + 4) = header.duration;
             *(u32 *)(channel + 8) = header.stride;
-            func_0044ea90(D_00713260, 0x349);
+            chkmemAllocSiteTag(D_00713260, 0x349);
             *(u8 **)(channel + 0xC) = jtbl_008873E8[0](dataSize, 0x40000);
             func_003e2910(arg0, *(u8 **)(channel + 0xC), dataSize);
         } else {
@@ -581,7 +581,7 @@ u8 *func_00480840(s32 arg0)
 {
     u8 *anim;
 
-    func_0044ea90(D_00713260, 0x3E1);
+    chkmemAllocSiteTag(D_00713260, 0x3E1);
     anim = (u8 *)jtbl_008873E8[0]((u16)arg0 * 4 + 0xC, 0x40000);
     *(s32 *)anim = (s32)(anim + 0xC);
     *(u16 *)(anim + 4) = 0;

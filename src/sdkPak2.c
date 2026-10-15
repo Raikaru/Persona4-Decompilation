@@ -3,7 +3,7 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern s32 func_004c8708(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 chkmemAllocAligned(s32 size, s32 align, s32 flags);
 extern void func_004c9010(s32 arg0, s32 arg1, s32 arg2);
@@ -44,7 +44,7 @@ void func_00468a50(void) {
             }
             *(s32 *)(p + 0xC) = *(s32 *)(*(s32 *)(p + 0x21C) + 4);
             n = (*(s32 *)(*(s32 *)(p + 0x21C) + 4) * 4 + 0x7FF) / 0x800;
-            func_0044ea90(D_00712AC0, 0x63);
+            chkmemAllocSiteTag(D_00712AC0, 0x63);
             *(s32 *)(p + 0x10) = chkmemAllocAligned(n << 11, 0x40, 0x40000);
             func_004c9010(*(s32 *)(p + 0x218), n, *(s32 *)(p + 0x10));
             *(s32 *)(p + 8) = 5;
@@ -107,7 +107,7 @@ s32 func_00468bf0(u8 *arg0, s32 arg1)
             *(s32 *)slot = func_004c8708(
                 tbl + 0x18, 0,
                 *(s32 *)(idxp + (u32)*(u8 **)(tbl + 0x10) + 4), len);
-            func_0044ea90(D_00712AC0, 0xC7);
+            chkmemAllocSiteTag(D_00712AC0, 0xC7);
             *(s32 *)(*(u8 **)(arg0 + 0x38) + *(s32 *)(arg0 + 0x44) * 4) =
                 chkmemAllocAligned(len << 11, 0x40, 0x40000);
             func_004c9010(*(s32 *)slot, len,

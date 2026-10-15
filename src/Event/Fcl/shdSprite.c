@@ -15,7 +15,7 @@ typedef void (*shd_cb)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 // emit andi zero-extensions the retail never has.
 
 s32 strlen(const char *text);
-void func_0044ea90(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *msg, s32 id);
 void memcpy(void *dst, const void *src, u32 size);
 void memset(void *dst, s32 value, u32 size);
 s32 func_00455f70(s32 arg0, s32 *arg1);
@@ -61,7 +61,7 @@ u8 *func_0025ef20(u8 *arg0)
     i += *(s32 *)(arg0 + 0xC) * 8;
     i += 0x14;
     totalSize = (u32)((u8 *)(i) + totalSize);
-    func_0044ea90(&D_00637280, 0x7E);
+    chkmemAllocSiteTag(&D_00637280, 0x7E);
     result = D_008873F4[0](1, totalSize, 0x40000);
     *(s32 *)result = 0;
     data = result + 0x14;

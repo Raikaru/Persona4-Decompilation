@@ -166,7 +166,7 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 }
 extern void btlPacketFlushAll(void);
 extern void (*jtbl_008873EC[])(void *arg0);
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -601,7 +601,7 @@ u8 *btlPacketAlloc(s32 arg0, s32 arg1)
     u8 *temp_2;
 
     temp_18 = arg1 + 0x90;
-    func_0044ea90(D_005F6C00, 0x51);
+    chkmemAllocSiteTag(D_005F6C00, 0x51);
     temp_2 = D_008873E8[0](temp_18, 0x40000);
     memset(temp_2, 0, temp_18);
     *(s32 *)(temp_2 + 0x40) = arg0;
@@ -883,7 +883,7 @@ u8 *func_00194b60(void)
     u8 *base;
     s32 value;
 
-    func_0044ea90(D_005F6C00, 0x51);
+    chkmemAllocSiteTag(D_005F6C00, 0x51);
     temp_16 = (u8 *)D_008873E8[0](0x90, 0x40000);
     memset(temp_16, 0, 0x90);
     *(s32 *)(temp_16 + 0x40) = 0xFF00;

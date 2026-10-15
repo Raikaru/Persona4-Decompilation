@@ -24,7 +24,7 @@ void sdkSpriteRelease(void *ptr);
 void sdkSpriteFreeNode(void *node);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-void func_0044ea90(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *msg, s32 id);
 void memset(void *dst, s32 value, u32 size);
 
 extern char D_00629628[];
@@ -1082,7 +1082,7 @@ s32 func_002215c0(s32 arg0) {
     u16 *q;
     s32 r;
 
-    func_0044ea90(&D_00629628, 0x3A);
+    chkmemAllocSiteTag(&D_00629628, 0x3A);
     buf = (u8 *)(*jtbl_008873E8)(0x578, 0x40000);
     memset(buf, 0, 0x578);
     r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006290F0), 0xF, 0, 0, func_0021f790, func_002214d0, (u8 *)(buf));

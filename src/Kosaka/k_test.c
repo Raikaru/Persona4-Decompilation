@@ -8,7 +8,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005F5718[];
 extern u8 D_00763098;
 
-extern void func_0044ea90(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *msg, s32 id);
 
 extern void mdlDestroyModelObject(s32 handle);
 extern void *memset(void *dest, s32 value, s32 size);
@@ -33,7 +33,7 @@ typedef struct
 // FUN_0018E520
 void func_0018e520(s32 arg0)
 {
-    func_0044ea90(D_005F5718, 0x7A);
+    chkmemAllocSiteTag(D_005F5718, 0x7A);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763098), 0xF, 0, 0, func_0018e450, func_0018e4d0, (u8 *)(D_008873F4[0](1, 0x1C, 0x40000)));
 }
 
@@ -103,6 +103,6 @@ void func_0018e730(u8 *arg0)
 // FUN_0018E780
 void func_0018e780(s32 arg0)
 {
-    func_0044ea90(D_005F5718, 0xE0);
+    chkmemAllocSiteTag(D_005F5718, 0xE0);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763098), 0x12, 0, 0, func_0018e5b0, func_0018e730, (u8 *)(D_008873F4[0](1, 0x1C, 0x40000)));
 }

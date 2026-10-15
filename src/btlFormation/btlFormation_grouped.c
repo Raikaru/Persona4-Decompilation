@@ -24,7 +24,7 @@ extern u8* DAT_0076449c;
 extern void (*jtbl_008873EC[])(void* ptr);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern char D_00609558[];
-extern void func_0044ea90(const void* msg, s32 id);
+extern void chkmemAllocSiteTag(const void* msg, s32 id);
 extern void memset(void* dst, s32 value, u32 size);
 extern void func_001d42e0(u8* arg0);
 extern void func_001d40d0(u8* arg0);

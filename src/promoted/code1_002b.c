@@ -1324,13 +1324,13 @@ s64 func_002bab80(void *arg0)
     s64 var_2;
     extern s32 itfMesWindowInstall(s32 arg0);
     extern s32 func_002bbf80(s32 *arg0, s32 arg1);
-    extern void func_0044ea90(const void *arg0, s32 arg1);
+    extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 
     temp_16 = func_002bacb0();
     if (temp_16 == -1) {
         return -1;
     }
-    func_0044ea90(&D_0063F2A0, 0x90);
+    chkmemAllocSiteTag(&D_0063F2A0, 0x90);
     temp_2 = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
     {
         s32 **temp_5;

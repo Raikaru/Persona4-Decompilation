@@ -82,7 +82,7 @@ extern f32 func_0028f960(s32 arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void func_0028f990(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
                           f32 *arg4);
 typedef signed __int128 s128;
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
 
@@ -623,7 +623,7 @@ func_0028b7b0_count_valid_done:
     }
     if (count != 0) {
         *(s32 *)(arg0 + 0x7A0) = count;
-        func_0044ea90(D_00748340, 0x52);
+        chkmemAllocSiteTag(D_00748340, 0x52);
         size = count * 4;
         allocator = (u32)D_008873F4;
         array = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, size, 0x40000);
@@ -666,7 +666,7 @@ func_0028b7b0_copy_valid_done:
                         type = (*(u16 *)array & 0xFFC00) >> 10;
                         switch (type) {
                         case 1:
-                            func_0044ea90(D_00748340, 0x52);
+                            chkmemAllocSiteTag(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x230, 0x40000);
                             evtMemAccount(12, 0x230);
                             n_one = 0x23;
@@ -681,7 +681,7 @@ func_0028b7b0_copy_valid_done:
                             } while (n_one > 0);
                             break;
                         case 3:
-                            func_0044ea90(D_00748340, 0x52);
+                            chkmemAllocSiteTag(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x370, 0x40000);
                             evtMemAccount(12, 0x370);
                             n_one = 0x37;
@@ -696,7 +696,7 @@ func_0028b7b0_copy_valid_done:
                             } while (n_one > 0);
                             break;
                         case 5:
-                            func_0044ea90(D_00748340, 0x52);
+                            chkmemAllocSiteTag(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x200, 0x40000);
                             evtMemAccount(12, 0x200);
                             n = 0x10;
@@ -713,7 +713,7 @@ func_0028b7b0_copy_valid_done:
                             } while (n > 0);
                             break;
                         case 6:
-                            func_0044ea90(D_00748340, 0x52);
+                            chkmemAllocSiteTag(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x148, 0x40000);
                             evtMemAccount(12, 0x148);
                             n32 = 0x29;
@@ -730,7 +730,7 @@ func_0028b7b0_copy_valid_done:
                             } while (n32 > 0);
                             break;
                         case 7:
-                            func_0044ea90(D_00748340, 0x52);
+                            chkmemAllocSiteTag(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x150, 0x40000);
                             evtMemAccount(12, 0x150);
                             n32 = 0x2A;
@@ -747,7 +747,7 @@ func_0028b7b0_copy_valid_done:
                             } while (n32 > 0);
                             break;
                         case 8:
-                            func_0044ea90(D_00748340, 0x52);
+                            chkmemAllocSiteTag(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x140, 0x40000);
                             evtMemAccount(12, 0x140);
                             n32 = 0x28;
@@ -764,7 +764,7 @@ func_0028b7b0_copy_valid_done:
                             } while (n32 > 0);
                             break;
                         case 9:
-                            func_0044ea90(D_00748340, 0x52);
+                            chkmemAllocSiteTag(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x148, 0x40000);
                             evtMemAccount(12, 0x148);
                             n32 = 0x29;
@@ -781,7 +781,7 @@ func_0028b7b0_copy_valid_done:
                             } while (n32 > 0);
                             break;
                         case 10:
-                            func_0044ea90(D_00748340, 0x52);
+                            chkmemAllocSiteTag(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x170, 0x40000);
                             evtMemAccount(12, 0x170);
                             n32 = 0x2E;
@@ -798,7 +798,7 @@ func_0028b7b0_copy_valid_done:
                             } while (n32 > 0);
                             break;
                         case 12:
-                            func_0044ea90(D_00748340, 0x52);
+                            chkmemAllocSiteTag(D_00748340, 0x52);
                             copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x1B0, 0x40000);
                             evtMemAccount(12, 0x1B0);
                             n_one = 0x1B;

@@ -4,7 +4,7 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 
-void func_0044ea90(void *file, s32 line);
+void chkmemAllocSiteTag(void *file, s32 line);
 void func_0046d730(void *arg0, s32 arg1);
 void func_00460ac0(void *param, void *work);
 s32 func_0034bb20(s32 arg0);
@@ -446,7 +446,7 @@ s32 func_0012d000(s32 arg0, s16 arg1) {
     s32 r;
     u8 *p;
 
-    func_0044ea90(D_005E5890, 0x27E);
+    chkmemAllocSiteTag(D_005E5890, 0x27E);
     p = (u8 *)D_008873F4[0](1, 0x9740, 0x40000);
     if (iGpffffb1ec != 0) {
         func_0046d730(D_005E5890, 0x27F);
@@ -548,7 +548,7 @@ s32 func_0012d320(void) {
     s32 r;
     u8 *p;
 
-    func_0044ea90(D_005E5890, 0x32C);
+    chkmemAllocSiteTag(D_005E5890, 0x32C);
     p = (u8 *)D_008873F4[0](1, 0x38, 0x40000);
     if (p == NULL) {
         return 0;

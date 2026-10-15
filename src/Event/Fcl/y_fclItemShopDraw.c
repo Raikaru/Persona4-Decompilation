@@ -55,7 +55,7 @@ extern u8 D_0064A3F0[];
 s32 func_00332bb0(u8 *arg0);
 extern void func_00332a80(void);
 extern s32 func_0033cc40(u8 *task);
-void func_0044ea90(const void *, u32);
+void chkmemAllocSiteTag(const void *, u32);
 
 void func_002e29a0(void);
 void H_Cdvd_Destroy(void *);
@@ -1676,7 +1676,7 @@ u8 *func_0033be40(u8 *arg0) {
     u8 *temp_17;
     s8 *temp_2;
 
-    func_0044ea90(D_0064A380, 0x958);
+    chkmemAllocSiteTag(D_0064A380, 0x958);
     temp_2 = (s8 *)D_008873F4[0](1, 0x42C, 0x40000);
     temp_17 = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A3D8), 0xF, 0, 0, func_00332bb0, func_0033bdc0, (u8 *)((u8 *)temp_2));
     *(s8 *)(temp_2 + 0) = 0;
@@ -2050,7 +2050,7 @@ u8 *func_0033d130(void *arg0, s32 arg1, s32 arg2) {
     f32 *item_data;
     void *r;
 
-    func_0044ea90(D_0064A380, 0xACA);
+    chkmemAllocSiteTag(D_0064A380, 0xACA);
     work = D_008873F4[0](1, 0x104, 0x40000);
     temp_17 = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A3F0), 0xF, 0, 0, func_0033cc40, func_0033d100, (u8 *)(work));
     work[0] = 0;

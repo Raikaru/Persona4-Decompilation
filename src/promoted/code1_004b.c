@@ -85,7 +85,7 @@ extern void func_0048a150(void *arg0, void *arg1);
 extern void func_0048a980(f32 *arg0);
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern void func_0046d730(void *arg0, s32 arg1);
 extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
@@ -399,7 +399,7 @@ void *func_004b16c0(void *opaqueSource) {
     u8 *temp_2_2;
     u8 *temp_3;
 
-    func_0044ea90(&iGpffffb118, 0x1A);
+    chkmemAllocSiteTag(&iGpffffb118, 0x1A);
     temp_2 = (u8 *)jtbl_008873E8[0](0xB0, 0x40000);
     if (temp_2 == NULL) {
         func_0046d730(&iGpffffb118, 0x1B);

@@ -19,7 +19,7 @@ extern s32 D_00764350;
 extern s32 D_00764494;
 
 extern void func_0015a630(void);
-extern void func_0044ea90(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *msg, s32 id);
 
 extern s32 func_00102980(void);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
@@ -33,7 +33,7 @@ s32 func_0018f3c0(s32 arg0)
     s32 *buf;
     s32 ret;
 
-    func_0044ea90(D_005F5990, 0xFB);
+    chkmemAllocSiteTag(D_005F5990, 0xFB);
     buf = D_008873F4[0](1, 0x10, 0x40000);
     if (buf == NULL) {
         return 0;
@@ -116,7 +116,7 @@ s32 func_0018f700(s32 arg0)
     s32 *buf;
     s32 ret;
 
-    func_0044ea90(D_005F5990, 0x183);
+    chkmemAllocSiteTag(D_005F5990, 0x183);
     buf = D_008873F4[0](1, 0x10, 0x40000);
     if (buf == NULL) {
         return 0;

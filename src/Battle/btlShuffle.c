@@ -22,7 +22,7 @@ extern u8 D_0064E610[];
 
 extern u8 D_0064E790[];
 
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
@@ -332,7 +332,7 @@ s32 func_0036e690(u8 *arg0, u8 *arg1)
     s32 handle;
     s32 tmp;
 
-    func_0044ea90(D_0064E7A0, 0x3A);
+    chkmemAllocSiteTag(D_0064E7A0, 0x3A);
     work = (u8 *)(*jtbl_008873E8)(0x21ABC, 0x40000);
     memset(work, 0, 0x21ABC);
     handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064E780), 0x12, 0, 0, func_0036e140, func_0036e600, (u8 *)(work));

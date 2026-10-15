@@ -35,7 +35,7 @@ extern void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5);
 extern void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5);
 
 
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void RpSkyRenderStateSet(s32, s32);
 extern void (*D_00887300[])(u32 state, u32 value);
@@ -101,7 +101,7 @@ s32 func_002b5c90(s32 arg0, f2 p1) {
     s32 handle;
     u8 *p;
     s32 i;
-    func_0044ea90(&D_0063F178, 0xD4);
+    chkmemAllocSiteTag(&D_0063F178, 0xD4);
     p = D_008873F4[0](1, 0x190, 0x40000);
     handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F188), 0xF, 0, 0, func_002b52a0, func_002b5c60, (u8 *)(p));
     *(f2 *)(p + 0x134) = p1;
@@ -336,7 +336,7 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
     u8 c2;
     u8 c3;
     f32 zero;
-    func_0044ea90(&D_0063F178, 0x236);
+    chkmemAllocSiteTag(&D_0063F178, 0x236);
     p = D_008873F4[0](1, 0x100, 0x40000);
     result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1A0), 0xF, 0, 0, func_002b6340, func_002b6560, (u8 *)(p));
     *(s16 *)(p + 4) = arg1;
@@ -812,7 +812,7 @@ u8 *func_002b74f0(s32 arg0, s32 arg1) {
     f32 unitScale;
     f32 zero;
 
-    func_0044ea90(&D_0063F178, 0x3F3);
+    chkmemAllocSiteTag(&D_0063F178, 0x3F3);
     data = D_008873F4[0](1, 0x31220, 0x40000);
     iGpffffb574 = (u8 *)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1B0), 0xF, 0, 0, func_002b6ec0, func_002b74c0, (u8 *)(data));
     *(s32 *)(data + 0) = arg1;
@@ -1170,7 +1170,7 @@ void func_002b8120(u8 *arg0) {
 s32 func_002b8150(s32 arg0) {
     s32 handle;
     u8 *p;
-    func_0044ea90(&D_0063F178, 0x4A2);
+    chkmemAllocSiteTag(&D_0063F178, 0x4A2);
     p = D_008873F4[0](1, 0x130, 0x40000);
     handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1D0), 0xF, 0, 0, func_002b7f20, func_002b8120, (u8 *)(p));
     p[0x124] = 1;
@@ -1652,7 +1652,7 @@ s32 func_002b9f90(s32 arg0, s16 arg1, s32 arg2) {
     s32 handle;
     u8 *p;
     s32 i;
-    func_0044ea90(&D_0063F178, 0x693);
+    chkmemAllocSiteTag(&D_0063F178, 0x693);
     p = D_008873F4[0](1, 0x6610, 0x40000);
     handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1E0), 0xF, 0, 0, func_002b9e10, func_002b9f60, (u8 *)(p));
     for (i = 0; i < 0x30; i++) {

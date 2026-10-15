@@ -27,7 +27,7 @@ typedef struct RwTexture RwTexture;
 extern RpMaterial *func_003c42b0(RpMaterial *material, RwTexture *texture);
 extern void *func_00481390(void *arg0);
 extern void func_003ef3a0(void *arg0);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void *memset(void *dst, s32 value, u32 size);
 extern void func_0046d730(void *file, s32 line);
@@ -65,7 +65,7 @@ void *func_00486a50(s32 arg0)
 {
     u8 *p;
 
-    func_0044ea90(D_00713CC0, 0x171);
+    chkmemAllocSiteTag(D_00713CC0, 0x171);
     p = (u8 *)(*jtbl_008873E8)(0x60, 0x40000);
     memset(p, 0, 0x60);
     if (p == NULL) {
@@ -100,7 +100,7 @@ void *func_00486b00(void *opaqueSource)
     if (count > 300) {
         count = 300;
     }
-    func_0044ea90(D_00713CC0, 0x171);
+    chkmemAllocSiteTag(D_00713CC0, 0x171);
     allocatorAddress = (u32)jtbl_008873E8;
     {
         u8 *const particle = (*(void *(**)(u32, u32))allocatorAddress)(0x60, 0x40000);
@@ -142,7 +142,7 @@ void *func_00486b00(void *opaqueSource)
             case 7:
                 func_00487650(particle, *(s32 *)(*(u8 **)(particle + 0x4C) + 8), 7);
                 func_00487ba0(particle, resource);
-                func_0044ea90(D_00713CC0, 0x171);
+                chkmemAllocSiteTag(D_00713CC0, 0x171);
                 link = (*(void *(**)(u32, u32))allocatorAddress)(0x30, 0x40000);
                 memset(link, 0, 0x30);
                 *(u8 **)(particle + 0x5C) = link;
@@ -229,7 +229,7 @@ void *func_00486fb0(void *opaqueSource)
     if (s19 > 0x12C) {
         s19 = 0x12C;
     }
-    func_0044ea90(D_00713CC0, 0x171);
+    chkmemAllocSiteTag(D_00713CC0, 0x171);
     p = (u8 *)(*jtbl_008873E8)(0x60, 0x40000);
     memset(p, 0, 0x60);
     if (p == NULL) {
@@ -302,7 +302,7 @@ void func_00487160(u8 *arg0, u8 *arg1)
         if (count5 * 4 == 0) {
             return;
         }
-        func_0044ea90(D_00713CD0, 0x12C);
+        chkmemAllocSiteTag(D_00713CD0, 0x12C);
         *(u8 **)(arg0 + 0x38) = (u8 *)(*jtbl_008873E8)(count5 * 4, 0x40000);
         if (*(u8 **)(arg0 + 0x38) == NULL) {
             func_0046d730(D_00713CD0, 0x12D);
@@ -339,7 +339,7 @@ void func_00487160(u8 *arg0, u8 *arg1)
         if (count6 * 4 == 0) {
             return;
         }
-        func_0044ea90(D_00713CD0, 0x14C);
+        chkmemAllocSiteTag(D_00713CD0, 0x14C);
         *(u8 **)(arg0 + 0x40) = (u8 *)(*jtbl_008873E8)(count6 * 4, 0x40000);
         if (*(u8 **)(arg0 + 0x40) == NULL) {
             func_0046d730(D_00713CD0, 0x14D);
@@ -364,7 +364,7 @@ void func_00487160(u8 *arg0, u8 *arg1)
         if (*(s32 *)(arg0 + 0x5C) != 0) {
             func_0046d730(D_00713CD0, 0x15F);
         }
-        func_0044ea90(D_00713CC0, 0x171);
+        chkmemAllocSiteTag(D_00713CC0, 0x171);
         p = (u8 *)(*jtbl_008873E8)(0x30, 0x40000);
         memset(p, 0, 0x30);
         *(u8 **)(arg0 + 0x5C) = p;
@@ -473,7 +473,7 @@ void func_004878c0(u8 *arg0, void *arg1)
         *(u8 **)(arg0 + 0x38) = NULL;
     }
     if (count * 4 != 0) {
-        func_0044ea90(D_00713CD0, 0x21C);
+        chkmemAllocSiteTag(D_00713CD0, 0x21C);
         *(u8 **)(arg0 + 0x38) = (u8 *)(*jtbl_008873E8)(count * 4, 0x40000);
         if (*(u8 **)(arg0 + 0x38) == NULL) {
             func_0046d730(D_00713CD0, 0x21D);
@@ -505,7 +505,7 @@ void func_00487a30(u8 *arg0, void *arg1)
         *(u8 **)(arg0 + 0x40) = NULL;
     }
     if (count * 4 != 0) {
-        func_0044ea90(D_00713CD0, 0x24F);
+        chkmemAllocSiteTag(D_00713CD0, 0x24F);
         *(u8 **)(arg0 + 0x40) = (u8 *)(*jtbl_008873E8)(count * 4, 0x40000);
         if (*(u8 **)(arg0 + 0x40) == NULL) {
             func_0046d730(D_00713CD0, 0x250);

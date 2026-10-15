@@ -150,7 +150,7 @@ extern s32 func_00246e10(s32 arg0);
 extern s32 func_00104c70(s32 arg0);
 extern s32 func_00247900(s32 arg0, s32 arg1, s32 arg2);
 
-extern void func_0044ea90(const void* arg0, s32 arg1);
+extern void chkmemAllocSiteTag(const void* arg0, s32 arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_0024f160(u8* arg0);
 extern s32 func_0024f790(u8* arg0);
@@ -2147,7 +2147,7 @@ s32 func_00250120(void)
     if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
         parent = func_00285af0();
         if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
-            func_0044ea90(D_006359F0, 0x402);
+            chkmemAllocSiteTag(D_006359F0, 0x402);
             e = D_008873F4[0](1, 0x28, 0x40000);
             *(s32*)(e + 4) = 0;
             (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
@@ -2158,7 +2158,7 @@ s32 func_00250120(void)
     if (handle != 0) {
         kwlnTaskDestroyWithHierarchy(handle);
     }
-    func_0044ea90(D_006359F0, 0x66C);
+    chkmemAllocSiteTag(D_006359F0, 0x66C);
     e = D_008873F4[0](1, 0x5C, 0x40000);
     *(s32*)(e + 0x14) = (s32)func_0024c0e0;
     *(s32*)(e + 0x2C) = (s32)func_0024c460;
@@ -2184,13 +2184,13 @@ s32 func_002502f0(void)
         if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8)) == 0) {
             if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
                 if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
-                    func_0044ea90(D_006359F0, 0x402);
+                    chkmemAllocSiteTag(D_006359F0, 0x402);
                     e = (cmmScriptEntry*)D_008873F4[0](1, 0x28, 0x40000);
                     e->unk4 = 0;
                     (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
                 }
             }
-            func_0044ea90(D_006359F0, 0x81D);
+            chkmemAllocSiteTag(D_006359F0, 0x81D);
             e = (cmmScriptEntry*)D_008873F4[0](1, 0x24, 0x40000);
             e->unk4 = 0;
             (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));
@@ -2241,13 +2241,13 @@ s32 func_00250560(void)
         if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8)) == 0) {
             if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
                 if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
-                    func_0044ea90(D_006359F0, 0x402);
+                    chkmemAllocSiteTag(D_006359F0, 0x402);
                     e = (cmmScriptEntry*)D_008873F4[0](1, 0x28, 0x40000);
                     e->unk4 = 0;
                     (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, func_0024b870, func_0024b990, (u8 *)(e));
                 }
             }
-            func_0044ea90(D_006359F0, 0x81D);
+            chkmemAllocSiteTag(D_006359F0, 0x81D);
             e = (cmmScriptEntry*)D_008873F4[0](1, 0x24, 0x40000);
             e->unk4 = 0;
             (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635BA8), 0xF, 0, 0, func_0024ff60, func_002500e0, (u8 *)(e));

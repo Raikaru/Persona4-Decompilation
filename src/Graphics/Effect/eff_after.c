@@ -46,7 +46,7 @@ typedef struct RuntimeResetWork
 extern void func_004bc4d0(u8 *arg0, f32 arg1);
 extern void func_004bc500(void* work);
 
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);
 extern f32 RwV3dLength(void *a0);
 extern void RwV3dNormalize(f32 *a, f32 *b);
@@ -806,7 +806,7 @@ void effAfterAllocVectorBuffers(u8 *arg0, u8 *arg1) {
     size = 0;
     size += (*(s32 *)(arg1 + 8) * 3 << 3);
     size += (*(s32 *)(arg1 + 8) * 3 << 4);
-    func_0044ea90(D_007146E0, 0x2A5);
+    chkmemAllocSiteTag(D_007146E0, 0x2A5);
     p = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     *(void **)(arg0 + 0x10) = p;
     q = p + *(s32 *)(arg1 + 8) * 0xC;

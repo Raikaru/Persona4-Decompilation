@@ -13,7 +13,7 @@ extern u32 datGetFlag(s32 arg0);
 extern s32 func_0015a0c0(void);
 extern s32 func_0014a160(void);
 
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern char D_005EFE50[];
 extern char D_005EFE68[];
@@ -66,7 +66,7 @@ s32 func_00153a60(s32 arg0) {
     u8 *p;
     s32 result;
 
-    func_0044ea90(&D_005EFE50[0], 0x58);
+    chkmemAllocSiteTag(&D_005EFE50[0], 0x58);
     p = D_008873F4[0](1, 0x14, 0x40000);
     if (p == NULL) {
         return 0;

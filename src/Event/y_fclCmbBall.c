@@ -10,7 +10,7 @@ extern void func_0034ad40(u8 *task);
 
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_0044ea90(const void *, s32);
+extern void chkmemAllocSiteTag(const void *, s32);
 extern char D_0064A740[];
 extern char D_0064A750[];
 extern char D_0064A770[];
@@ -34,7 +34,7 @@ s32 fclCmbBallTaskCreateSlots(s32 arg0, u8 arg1, s16 arg2) {
     u8 *buf;
     s32 i;
 
-    func_0044ea90(&D_0064A740, 0x98);
+    chkmemAllocSiteTag(&D_0064A740, 0x98);
     buf = (u8 *)D_008873F4[0](1, 0x1810, 0x40000);
     handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0064A750), 0xF, 0, 0, func_0034ac00, func_0034ad40, (u8 *)(buf));
     for (i = 0; i < 0xC; i++) {
@@ -221,7 +221,7 @@ s32 fclCmbBallTaskCreate(s32 arg0) {
     u8 *buf;
     s16 i;
 
-    func_0044ea90(&D_0064A740, 0x14D);
+    chkmemAllocSiteTag(&D_0064A740, 0x14D);
     buf = (u8 *)D_008873F4[0](1, 0xF10, 0x40000);
     handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0064A770), 0xF, 0, 0, fclCmbBallUpdate, fclCmbBallDestroy, (u8 *)(buf));
     i = 0;

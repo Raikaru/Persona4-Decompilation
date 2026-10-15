@@ -66,7 +66,7 @@ u8 *MT_Scene_GetResListHead(s32 arg0);
 void MT_Scene_SetResEnabledById();
 void func_00161460(u8, u8, u8);
 void func_00161500(u8);
-extern void func_0044ea90(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern char D_00748340[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -124,7 +124,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
 
     switch (*(u32 *)arg0) {
     case 10:
-        func_0044ea90(D_00748340, 0x52);
+        chkmemAllocSiteTag(D_00748340, 0x52);
         r = D_008873F4[0](1, 0x30, 0x40000);
         evtMemAccount(9, 0x30);
         if (r == NULL) {
@@ -136,7 +136,7 @@ u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
     case 0x19:
         break;
     }
-    func_0044ea90(D_00748340, 0x52);
+    chkmemAllocSiteTag(D_00748340, 0x52);
     temp_17 = D_008873F4[0](1, 0x54, 0x40000);
     evtMemAccount(8, 0x54);
     if (temp_17 == NULL) {
@@ -428,7 +428,7 @@ static void evtNodeUnlink(int param_1, int param_2) {
 // FUN_00286F00
 void *evtNodeAlloc(int param_1, int param_2) {
     void *r;
-    func_0044ea90(D_00748340, 0x52);
+    chkmemAllocSiteTag(D_00748340, 0x52);
     r = D_008873F4[0](1, 0x98, 0x40000);
     evtMemAccount(7, 0x98);
     if (r == 0) {
@@ -470,7 +470,7 @@ void *evtNodeAllocWithRes(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
     s32 *r;
     u8 *t;
 
-    func_0044ea90(D_00748340, 0x52);
+    chkmemAllocSiteTag(D_00748340, 0x52);
     r = D_008873F4[0](1, 0x98, 0x40000);
     evtMemAccount(7, 0x98);
     if (r == NULL) {
@@ -2653,7 +2653,7 @@ u8 *func_0028afe0(void) {
     u32 tmp;
     s32 i;
 
-    func_0044ea90(D_00748340, 0x52);
+    chkmemAllocSiteTag(D_00748340, 0x52);
     p = D_008873F4[0](1, 0x7B0, 0x40000);
     evtMemAccount(0, 0x7B0);
     memset(p, 0, 0x7B0);

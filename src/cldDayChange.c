@@ -15,7 +15,7 @@ extern void func_00460ac0(void *, void *);
 extern u8 *func_00452560();
 extern void sdkSpriteRelease(void *);
 void func_0046d730(const void *file, s32 line);
-void func_0044ea90(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *msg, s32 id);
 
 s32 func_0045a8d0();
 s32 func_004598e0();
@@ -58,7 +58,7 @@ void cldDayChangeStartTask(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (arg3 == 0) {
         func_0046d730(&D_006376B0, 0x451);
     }
-    func_0044ea90(&D_006376B0, 0x452);
+    chkmemAllocSiteTag(&D_006376B0, 0x452);
     p = D_008873F4[0](1, 0x24, 0x40000);
     *(s32 *)(p + 0) = 0;
     *(s32 *)(p + 8) = arg3;
@@ -720,7 +720,7 @@ s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2) {
     if (arg2 == 0) {
         func_0046d730(&D_006376B0, 0x692);
     }
-    func_0044ea90(&D_006376B0, 0x693);
+    chkmemAllocSiteTag(&D_006376B0, 0x693);
     p = D_008873F4[0](1, 0x24, 0x40000);
     *(s32 *)(p + 0) = 0;
     *(s32 *)(p + 0xC) = arg2;

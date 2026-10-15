@@ -8,7 +8,7 @@
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void func_0046d730(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00637190[];
@@ -365,7 +365,7 @@ void func_0025e800(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *temp_2;
 
-    func_0044ea90(&D_00637248, 0x204);
+    chkmemAllocSiteTag(&D_00637248, 0x204);
     temp_2 = D_008873F4[0](1, 0x2C, 0x40000);
     *(s32 *)(temp_2 + 8) = arg1;
     *(s32 *)(temp_2 + 0xC) = arg2;

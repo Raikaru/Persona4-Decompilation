@@ -11,7 +11,7 @@ typedef struct RwV3d RwV3d;
 extern void func_004abd60(s32 arg0);
 extern void (*jtbl_008873EC[])(void *);
 
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern s32 func_004abc50(s32 arg0, s32 arg1);
 extern s32 func_004abd80(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -233,7 +233,7 @@ block_9:
 s32 *func_001fc4a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *result;
 
-    func_0044ea90(D_00625230, 0xB1);
+    chkmemAllocSiteTag(D_00625230, 0xB1);
     result = (s32 *)(*jtbl_008873E8)(4, 0x40000);
     if ((arg2 != 0) && ((arg1 & 0xFFFF) == 3)) {
         *result = func_004abc50(arg2, arg3);
@@ -250,7 +250,7 @@ s32 *func_001fc550(u8 *arg0) {
     s32 value;
 
     field = *(s32 **)(arg0 + 0x30);
-    func_0044ea90(D_00625230, 0xB1);
+    chkmemAllocSiteTag(D_00625230, 0xB1);
     result = (s32 *)(*jtbl_008873E8)(4, 0x40000);
     value = *field;
     if (value != 0) {
@@ -423,7 +423,7 @@ void func_001fc630(u8 *arg0)
 
 // FUN_001FCE30
 void func_001fce30(void) {
-    func_0044ea90(D_00625230, 0x1D3);
+    chkmemAllocSiteTag(D_00625230, 0x1D3);
     (*jtbl_008873E8)(0x20, 0x40000);
 }
 
@@ -727,7 +727,7 @@ void func_001fd790(u8 *arg0)
 
 // FUN_001FE010
 void func_001fe010(void) {
-    func_0044ea90(D_00625230, 0x2DF);
+    chkmemAllocSiteTag(D_00625230, 0x2DF);
     (*jtbl_008873E8)(0x20, 0x40000);
 }
 
@@ -894,7 +894,7 @@ void func_001fe090(u8 *arg0)
 #pragma opt_dead_assignments on
 // FUN_001FEB80
 void func_001feb80(void) {
-    func_0044ea90(D_00625230, 0x389);
+    chkmemAllocSiteTag(D_00625230, 0x389);
     (*jtbl_008873E8)(0x10, 0x40000);
 }
 
@@ -1008,7 +1008,7 @@ void func_001fec00(u8 *arg0)
 s32 *func_001ff300(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *result;
 
-    func_0044ea90(D_00625230, 0x429);
+    chkmemAllocSiteTag(D_00625230, 0x429);
     result = (s32 *)(*jtbl_008873E8)(0x24, 0x40000);
     if ((arg2 != 0) && ((arg1 & 0xFFFF) == 3)) {
         *result = func_004abc50(arg2, arg3);
@@ -1025,7 +1025,7 @@ s32 *func_001ff3b0(u8 *arg0) {
     s32 value;
 
     field = *(s32 **)(arg0 + 0x30);
-    func_0044ea90(D_00625230, 0x429);
+    chkmemAllocSiteTag(D_00625230, 0x429);
     result = (s32 *)(*jtbl_008873E8)(0x24, 0x40000);
     value = *field;
     if (value != 0) {
@@ -1288,7 +1288,7 @@ void btlEplUnitApplyMotion(u8 *arg0)
 s32 *func_00200090(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *result;
 
-    func_0044ea90(D_00625230, 0x54D);
+    chkmemAllocSiteTag(D_00625230, 0x54D);
     result = (s32 *)(*jtbl_008873E8)(4, 0x40000);
     *result = 0;
     if ((arg2 != 0) && ((arg1 & 0xFFFF) == 3)) {
@@ -1306,7 +1306,7 @@ s32 *func_00200150(u8 *arg0) {
     s32 value;
 
     field = *(s32 **)(arg0 + 0x30);
-    func_0044ea90(D_00625230, 0x54D);
+    chkmemAllocSiteTag(D_00625230, 0x54D);
     result = (s32 *)(*jtbl_008873E8)(4, 0x40000);
     *result = 0;
     value = *field;
@@ -1420,7 +1420,7 @@ s32 *func_00200550(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 value;
     u32 rnd;
 
-    func_0044ea90(D_00625230, 0x60D);
+    chkmemAllocSiteTag(D_00625230, 0x60D);
     result = (BtlEplEplWork *)(*jtbl_008873E8)(8, 0x40000);
     result->target = 0;
     result->pattern = 0;
@@ -1445,7 +1445,7 @@ s32 *func_00200650(u8 *arg0) {
     u32 rnd;
 
     field = *(s32 **)(arg0 + 0x30);
-    func_0044ea90(D_00625230, 0x60D);
+    chkmemAllocSiteTag(D_00625230, 0x60D);
     result = (BtlEplEplWork *)(*jtbl_008873E8)(8, 0x40000);
     result->target = 0;
     result->pattern = 0;

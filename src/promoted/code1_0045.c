@@ -155,7 +155,7 @@ extern void func_00426f80(s32 arg0);
 extern void func_00428f08(void *arg0, s32 arg1);
 extern s32 func_003dd900(s32 arg0);
 extern s32 func_003dd290(void *arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern void func_00440b68();
 extern u8 D_007117C8[];
 extern u8 D_007117E0[];
@@ -1322,7 +1322,7 @@ u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
     if (func_003dd900(arg4) != 0) {
         return NULL;
     }
-    func_0044ea90(D_007117C8, 0x106);
+    chkmemAllocSiteTag(D_007117C8, 0x106);
     alloc_table = D_008873F4;
     record = (*alloc_table)(1, 0x5C, 0x40000);
     *(void **)(record + 0x14) = (void *)H_Cdvd_FileContextSlot;
@@ -1335,7 +1335,7 @@ u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
     *(void **)(record + 0x38) = (void *)H_Cdvd_SlotSeek;
     *(void **)(record + 0x4C) = (void *)H_Cdvd_ProbeFile;
     *(void **)(record + 0x1C) = (void *)func_00456c30;
-    func_0044ea90(D_007117C8, 0x116);
+    chkmemAllocSiteTag(D_007117C8, 0x116);
     entries = (*alloc_table)(arg0, 0x90, 0x40000);
     *(u8 **)(record + 0x58) = entries;
     index = 0;

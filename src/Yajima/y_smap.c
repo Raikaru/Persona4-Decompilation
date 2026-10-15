@@ -52,7 +52,7 @@ extern f32 D_008872F8[];
 extern u8 D_00794D50[];
 extern void func_002b1520(s32, u8 *);
 extern void func_002b2500(void);
-extern void func_0044ea90(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *msg, s32 id);
 
 
 extern void func_00460ac0(void *param, void *work);
@@ -184,7 +184,7 @@ s32 func_002ac400(u8 *arg0) {
 void func_002ac600(u8 *arg0) {
     s16 i;
 
-    func_0044ea90(D_0063EF60, 0x44);
+    chkmemAllocSiteTag(D_0063EF60, 0x44);
     D_00764658 = (s16 *)D_008873F4[0](1, 0x30, 0x40000);
     i = 0;
     while (i < 0x18) {
@@ -199,7 +199,7 @@ void func_002ac600(u8 *arg0) {
 void func_002ac6b0(void) {
     u8 *p;
 
-    func_0044ea90(D_0063EF60, 0xD5);
+    chkmemAllocSiteTag(D_0063EF60, 0xD5);
     p = D_008873F4[0](1, 0xC, 0x40000);
     D_00764650 = (s32)(s32)kwlnTaskCreate((const void *)(D_0063EFC8), 0xF, 0, 0, func_002ac400, func_002ac600, (u8 *)(p));
     *(u8 *)(p + 4) = 0;
@@ -1047,7 +1047,7 @@ u8 *func_002ae630(u8 *arg0)
     s32 nodeIndex;
     u8 *nodeMatrix;
 
-    func_0044ea90(D_0063EF60, 0x389);
+    chkmemAllocSiteTag(D_0063EF60, 0x389);
     work = D_008873F4[0](1, 0x768, 0x40000);
     task = kwlnTaskCreateChild(arg0, D_0063EFD8, 0xF, 0, 0,
                         func_002add90, func_002ae520, work);
@@ -1500,7 +1500,7 @@ u8 *func_002b0250(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6
     if (arg3 == -1) {
         return NULL;
     }
-    func_0044ea90(D_0063EF60, 0x5C4);
+    chkmemAllocSiteTag(D_0063EF60, 0x5C4);
     blk = D_008873F4[0](1, 0x160, 0x40000);
     ret = (u8 *)(s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063EFD8), 0xF, 0, 0, func_002afbc0, func_002b0220, blk);
     *(u8 **)blk = blk;
@@ -2424,7 +2424,7 @@ u8 *func_002b2830(u8 *arg0, YVec2f arg1, f32 arg2, f32 arg3, u32 arg4) {
     u8 *p;
     u8 *task;
 
-    func_0044ea90(D_0063EF60, 0x97A);
+    chkmemAllocSiteTag(D_0063EF60, 0x97A);
     p = D_008873F4[0](1, 0x120, 0x40000);
     task = kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063F0F0), 0xF, 0, 0, func_002b25d0, func_002b2800, (u8 *)(p));
     *(u32 *)p = (u32)p;

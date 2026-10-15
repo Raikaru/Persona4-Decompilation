@@ -4,7 +4,7 @@
 extern s32 datScriptTargetLacksFlag4(void);
 extern f32 datScriptCalcFloat(s32 arg0, s32 arg1);
 #include "datScript_internal.h"
-extern void func_0044ea90(void *file, s32 line);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00635990[];
@@ -267,7 +267,7 @@ void func_00246590(u8 *unusedTask)
 // FUN_002465A0
 void func_002465a0(void)
 {
-    func_0044ea90(D_00635990, 0xD1);
+    chkmemAllocSiteTag(D_00635990, 0xD1);
     (s32)kwlnTaskCreate((const void *)(D_006359A0), 0xF, 0, 0, func_00246580, func_00246590, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
 }
 // FUN_00246620

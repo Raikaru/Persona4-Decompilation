@@ -15,7 +15,7 @@ extern void func_00492e30(u16 *emitter, f32 scale);
 extern void func_00489f40(void *arg0, u32 color);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void func_0044ea90(const void *file, u32 line);
+extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void func_0046d730(const void *file, s32 line);
 extern void memset(void *dst, s32 value, u32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
@@ -74,7 +74,7 @@ void *func_00492e70(u32 arg0)
 {
     u8 *w;
 
-    func_0044ea90(&D_00713E20, 0x171);
+    chkmemAllocSiteTag(&D_00713E20, 0x171);
     w = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
     memset(w, 0, 0x38);
     if (w == NULL) {
@@ -112,7 +112,7 @@ void *func_00492f20(void *opaqueSource)
     if (var > 0x64) {
         var = 0x64;
     }
-    func_0044ea90(&D_00713E20, 0x171);
+    chkmemAllocSiteTag(&D_00713E20, 0x171);
     t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
     memset(t2, 0, 0x38);
     if (t2 == NULL) {
@@ -268,7 +268,7 @@ void *func_004933a0(void *opaqueSource)
     if (var > 0x64) {
         var = 0x64;
     }
-    func_0044ea90(&D_00713E20, 0x171);
+    chkmemAllocSiteTag(&D_00713E20, 0x171);
     t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
     memset(t2, 0, 0x38);
     if (t2 == NULL) {
@@ -315,7 +315,7 @@ void *func_00493530(void *opaqueSource)
     if (var > 0x64) {
         var = 0x64;
     }
-    func_0044ea90(&D_00713E20, 0x171);
+    chkmemAllocSiteTag(&D_00713E20, 0x171);
     t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
     memset(t2, 0, 0x38);
     if (t2 == NULL) {
@@ -650,7 +650,7 @@ u8 *func_00493e60(u16 count, u16 segments) {
     }
     count16 = count & 0xFFFF;
     size = (count16 * 2) + 0x1C;
-    func_0044ea90(&D_00713E30, 0x20A);
+    chkmemAllocSiteTag(&D_00713E30, 0x20A);
     track = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (track == NULL) {
         func_0046d730(&D_00713E30, 0x20B);

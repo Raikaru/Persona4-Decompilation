@@ -15,7 +15,7 @@ extern s32 func_00455f70(u8 *arg0, s32 *arg1);
 extern s32 *func_002904f0(s32 **arg0);
 extern s32 *func_002905a0(s32 **arg0);
 extern s32 *func_00290660(s32 **arg0);
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void evtMemAccount(s32 arg0, s32 arg1);
 extern void memset(void *dest, s32 value, s32 size);
 
@@ -234,7 +234,7 @@ void func_00293d30(u8 *task) {
 s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *temp_20;
 
-    func_0044ea90(D_00748340, 0x52);
+    chkmemAllocSiteTag(D_00748340, 0x52);
     temp_20 = (s32 *)D_008873F4[0](1, 0x40, 0x40000);
     evtMemAccount(1, 0x40);
     memset(temp_20, 0, 0x40);

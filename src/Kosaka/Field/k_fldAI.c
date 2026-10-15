@@ -12,7 +12,7 @@ extern u8 D_005F1B18[];
 extern u8 D_005F1B28[];
 extern u8 D_005F1CF0[];
 extern f32 iGpffffba6c;
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 
 extern s32 func_00457120(void);
 extern s32 FldAI_ChaserUpdate(u8 *arg0);
@@ -563,7 +563,7 @@ s32 FldAI_SpawnChaser(s32 arg0, s32 arg1, s32 arg2)
     s32 ret;
     u8 *work;
 
-    func_0044ea90(D_005F1B18, 0x3D9);
+    chkmemAllocSiteTag(D_005F1B18, 0x3D9);
     work = D_008873F4[0](1, 0x74, 0x40000);
     if (work == NULL) {
         return 0;
@@ -1977,7 +1977,7 @@ s32 FldAI_SpawnPatrol(s32 arg0, s32 arg1, s32 arg2)
     s32 ret;
     u8 *work;
 
-    func_0044ea90(D_005F1B18, 0xA50);
+    chkmemAllocSiteTag(D_005F1B18, 0xA50);
     work = D_008873F4[0](1, 0xA0, 0x40000);
     if (work == NULL) {
         return 0;

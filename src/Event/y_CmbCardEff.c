@@ -15,7 +15,7 @@ typedef FclDrawColor CmbRGBA;
 
 static inline u8 *cmbAddPtrRev(u32 base, u32 index) { return (u8 *)(index + base); }
 
-void func_0044ea90(void *arg0, u32 arg1);
+void chkmemAllocSiteTag(void *arg0, u32 arg1);
 
 struct HCdvd;
 s32 func_00440b68(const char *format, ...);
@@ -407,11 +407,11 @@ u8 *func_0033f690(u8 *arg0, u8 *arg1, s8 arg2) {
     u8 *ret2;
     s16 i;
     s16 j;
-    func_0044ea90(D_0064A4A0, 0x1B8);
+    chkmemAllocSiteTag(D_0064A4A0, 0x1B8);
     base = (u32)D_008873F4;
     blk1 = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x6E0, 0x40000);
     ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A4E0), 0xF, 0, 0, cmbCardPathUpdate, cmbCardReleaseState, (u8 *)(blk1));
-    func_0044ea90(D_0064A4A0, 0xAD);
+    chkmemAllocSiteTag(D_0064A4A0, 0xAD);
     blk2 = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x19FDC, 0x40000);
     ret2 = (u8 *)(s32)kwlnTaskCreateChild((void *)(ret), (const void *)(D_0064A4B0), 0xF, 0, 0, cmbCardLoaderStep, cmbCardControllerDestroy, (u8 *)(blk2));
     for (i = 0; i < 0xC; i++) {
@@ -1639,7 +1639,7 @@ u8 *cmbCardEffTaskCreate(u8 *arg0, s32 *arg1) {
     u8 *blk;
     s16 i;
 
-    func_0044ea90(D_0064A4A0, 0x702);
+    chkmemAllocSiteTag(D_0064A4A0, 0x702);
     blk = D_008873F4[0](1, 0x1B0, 0x40000);
     ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A5D0), 0xF, 0, 0, func_00347c70, cmbCardEffDestroy, (u8 *)(blk));
     *(s32 **)(blk + 0x118) = arg1;
@@ -1839,7 +1839,7 @@ u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2) {
     u8 *ret;
     u8 *blk;
 
-    func_0044ea90(D_0064A4A0, 0x7F5);
+    chkmemAllocSiteTag(D_0064A4A0, 0x7F5);
     blk = D_008873F4[0](1, 0x70, 0x40000);
     ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A5E8), 0xF, 0, 0, func_00348330, cmbCardEffFreeHandle, (u8 *)(blk));
     *(s8 *)(blk + 4) = 0;
@@ -2012,7 +2012,7 @@ u8 *func_00349290(u8 *arg0, s8 arg1) {
     u8 *blk;
     u8 *ret;
 
-    func_0044ea90(D_0064A4A0, 0x8B9);
+    chkmemAllocSiteTag(D_0064A4A0, 0x8B9);
     blk = D_008873F4[0](1, 0x18, 0x40000);
     ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A600), 0xF, 0, 0, func_00348c40, cmbCardEffReleaseState, (u8 *)(blk));
     *(s8 *)(blk + 0) = arg1;

@@ -10,7 +10,7 @@ extern u8* DAT_0076449c;
 extern void (*jtbl_008873EC[])(void* ptr);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern char D_00609558[];
-extern void func_0044ea90(const void* msg, s32 id);
+extern void chkmemAllocSiteTag(const void* msg, s32 id);
 extern void memset(void* dst, s32 value, u32 size);
 
 /* Source unit: src/btlFormation/btlFormation_001d4120.c (8 function markers) */
@@ -26,7 +26,7 @@ u8* func_001d6f20(s32 arg0)
     u8* temp_2_3;
     u32 table;
 
-    func_0044ea90(D_00609558, 0x48);
+    chkmemAllocSiteTag(D_00609558, 0x48);
     table = (u32)jtbl_008873E8;
     temp_2 = (u8*)((void* (*)(u32, u32))*(u32*)table)(0x18, 0x40000);
     *(s32*)(temp_2 + 4) = arg0;
@@ -34,7 +34,7 @@ u8* func_001d6f20(s32 arg0)
     *(s8*)(temp_2 + 0) = 0;
     *(s32*)(temp_2 + 0x14) = -1;
     *(s32*)(temp_2 + 0xC) = 0;
-    func_0044ea90(D_00609558, 0x51);
+    chkmemAllocSiteTag(D_00609558, 0x51);
     temp_2_2 = (u8*)((void* (*)(u32, u32))*(u32*)table)(0x24, 0x40000);
     memset(temp_2_2, 0, 0x24);
     *(s32*)(temp_2_2 + 4) = -1;

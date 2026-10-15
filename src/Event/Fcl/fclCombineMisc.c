@@ -410,7 +410,7 @@ extern void func_002e6f90(u8 *arg0, s16 arg1);
 extern void func_002e7010(u8 *arg0, s16 arg1);
 extern void func_002e7190(u8 *arg0);
 extern void func_00440b68(const void *arg0);
-extern void func_0044ea90(const void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *iGpffffb3b4;
@@ -510,7 +510,7 @@ s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
     if (freeSlots < remaining) {
         remaining = freeSlots;
     }
-    func_0044ea90(D_00642F30, 0x3CC);
+    chkmemAllocSiteTag(D_00642F30, 0x3CC);
     weights = (*jtbl_008873E8)(*(s16 *)(pool + 0x60) * 4, 0x40000);
     while (remaining != 0) {
         total = 0;

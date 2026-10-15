@@ -61,7 +61,7 @@ extern void FldResource_Destroy(s32 arg0);
 extern s32 func_0014e710();
 extern void func_0046d730();
 extern void memcpy();
-extern void func_0044ea90(const void *msg, s32 line);
+extern void chkmemAllocSiteTag(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_0014e5e0();
 extern s32 H_Cdvd_FileExists(void *arg0);
@@ -2231,7 +2231,7 @@ s32 func_00159e90(s32 arg0, s32 arg1, s32 arg2) {
     s32 temp_17;
     u8 *temp_2;
 
-    func_0044ea90(D_005F05E8, 0x718);
+    chkmemAllocSiteTag(D_005F05E8, 0x718);
     temp_2 = (u8 *)D_008873F4[0](1, 0x48, 0x40000);
     if (temp_2 == NULL) {
         return 0;
@@ -3293,7 +3293,7 @@ s32 func_0015c4b0(u8 *arg0) {
         return 1;
     }
     if (H_Cdvd_IsFileLoaded() != 0) {
-        func_0044ea90(D_005F05E8, 0xC30);
+        chkmemAllocSiteTag(D_005F05E8, 0xC30);
         size = *(s32 *)(arg0 + 0x118);
         *(u8 **)(temp_17 + 0x2C) =
             (u8 *)D_008873F4[0](1, size, 0x40000);

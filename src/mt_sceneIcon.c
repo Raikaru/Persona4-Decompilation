@@ -15,7 +15,7 @@ extern code DAT_008873ec_abs[];
 extern u8 iGpffffa6f8;
 /* gp - 0x5900 = 0x007637F0. */
 extern u8 iGpffffa700;
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 // lint: allow H011 -- measured: u16 prototype regresses func_0026da30 (andi on the wide icon id); retail declared this old-style
@@ -130,7 +130,7 @@ s32 func_0026da30(s32 arg0, s32 arg1)
             return 0;
         }
     }
-    func_0044ea90(D_0063B558, 0xC1);
+    chkmemAllocSiteTag(D_0063B558, 0xC1);
     mem = D_008873F4[0](1, 0x10, 0x40000);
     *(s16 *)(mem + 4) = arg0;
     *(s32 *)(mem + 8) = arg1;

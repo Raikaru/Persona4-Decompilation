@@ -4,7 +4,7 @@
 #include "type.h"
 #include "h_cdvd.h"
 
-void func_0044ea90(void *arg0, s32 arg1);
+void chkmemAllocSiteTag(void *arg0, s32 arg1);
 void strcpy(void *arg0, const char *arg1);
 void func_00440b68(char *arg0, const char *arg1, s32 arg2);
 void memcpy(void *arg0, void *arg1, s32 arg2);
@@ -282,7 +282,7 @@ void sdkSpriteLoadStep(u8 *arg0)
         }
         *(s16 *)arg0 = 4;
     case 4:
-        func_0044ea90(D_007130C8, 0xFD);
+        chkmemAllocSiteTag(D_007130C8, 0xFD);
         *(u32 *)(arg0 + 0x204) =
             (u32)D_008873F4[0](*(u16 *)(arg0 + 0x22E), 0x80, 0x40000);
         for (i = 0; i < *(u16 *)(arg0 + 0x22E); i++) {
@@ -311,7 +311,7 @@ u8 *sdkSpriteRequestLoad(const char *name)
     u8 *node;
     u8 *last;
 
-    func_0044ea90(D_007130C8, 0x115);
+    chkmemAllocSiteTag(D_007130C8, 0x115);
     node = D_008873F4[0](1, 0x240, 0x40000);
     *(s16 *)node = 0;
     strcpy(node + 2, name);
@@ -337,7 +337,7 @@ u8 *sdkSpriteAdoptBlob(u32 arg0)
     u8 *node;
     u8 *last;
 
-    func_0044ea90(D_007130C8, 0x12D);
+    chkmemAllocSiteTag(D_007130C8, 0x12D);
     node = D_008873F4[0](1, 0x240, 0x40000);
     *(s16 *)node = 1;
     *(u32 *)(node + 0x20C) = arg0;
@@ -364,7 +364,7 @@ u8 *sdkSpriteCreateFromName(const char *name)
     u8 *last;
     u32 out;
 
-    func_0044ea90(D_007130C8, 0x146);
+    chkmemAllocSiteTag(D_007130C8, 0x146);
     node = D_008873F4[0](1, 0x240, 0x40000);
     *(s16 *)node = 1;
     strcpy(node + 2, name);
@@ -909,7 +909,7 @@ u8 *sdkSpriteNewNode(u32 arg0, u32 arg1)
 {
     u8 *node;
 
-    func_0044ea90(D_007130C8, 0x3AF);
+    chkmemAllocSiteTag(D_007130C8, 0x3AF);
     node = D_008873F4[0](1, 0x2C, 0x40000);
     *(u8 *)(node + 0x28) = 0xFF;
     *(u8 *)(node + 0x29) = 0xFF;
@@ -930,7 +930,7 @@ void sdkSpriteDrawOnce(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, f3
 {
     u8 *node;
 
-    func_0044ea90(D_007130C8, 0x3AF);
+    chkmemAllocSiteTag(D_007130C8, 0x3AF);
     node = D_008873F4[0](1, 0x2C, 0x40000);
     *(u8 *)(node + 0x28) = 0xFF;
     *(u8 *)(node + 0x29) = 0xFF;
@@ -950,7 +950,7 @@ void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2,
 {
     u8 *node;
 
-    func_0044ea90(D_007130C8, 0x3AF);
+    chkmemAllocSiteTag(D_007130C8, 0x3AF);
     node = D_008873F4[0](1, 0x2C, 0x40000);
     *(u8 *)(node + 0x28) = 0xFF;
     *(u8 *)(node + 0x29) = 0xFF;
@@ -971,7 +971,7 @@ void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 ar
 {
     u8 *node;
 
-    func_0044ea90(D_007130C8, 0x3AF);
+    chkmemAllocSiteTag(D_007130C8, 0x3AF);
     node = D_008873F4[0](1, 0x2C, 0x40000);
     *(u8 *)(node + 0x28) = 0xFF;
     *(u8 *)(node + 0x29) = 0xFF;
@@ -1002,7 +1002,7 @@ s32 sdkSpriteSlotHandle(u8 *arg0, s32 arg1) {
     u8 *output;
     s32 index;
 
-    func_0044ea90(D_007130C8, 0x3AF);
+    chkmemAllocSiteTag(D_007130C8, 0x3AF);
     temp_2 = D_008873F4[0](1, 0x2C, 0x40000);
     *(u8 *)(temp_2 + 0x28) = 0xFF;
     *(u8 *)(temp_2 + 0x29) = 0xFF;
