@@ -163,7 +163,7 @@ extern u8 D_005F197C[];
 extern u8 D_005F1AE0[];
 extern u8 D_005F1B00[];
 extern u8 iGpffff9f54;
-extern void *SceneDraw_GetList4Vec2(void);
+extern void *SceneDraw_GetList4Matrix(void);
 extern u8 *func_003e81c0(u8 *, f32);
 extern u8 *func_003e8180(u8 *, f32);
 extern u8 *RwCameraSetViewWindow(u8 *, const f32 *);

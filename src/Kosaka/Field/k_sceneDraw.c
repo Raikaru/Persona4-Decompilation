@@ -176,7 +176,7 @@ void func_0014a460(u16 resTypeId, u32 directionalOnly)
 
 
 // FUN_0014A5D0
-void* SceneDraw_GetScaleA(u16 resTypeId)
+void* SceneDraw_GetLightColorA(u16 resTypeId)
 {
     Resrc* res;
     u32 type;
@@ -200,7 +200,7 @@ void* SceneDraw_GetScaleA(u16 resTypeId)
     return NULL;
 }
 // FUN_0014A6C0
-void* SceneDraw_GetScaleB(u16 resTypeId)
+void* SceneDraw_GetLightColorB(u16 resTypeId)
 {
     Resrc* res;
     u32 type;
@@ -224,7 +224,7 @@ void* SceneDraw_GetScaleB(u16 resTypeId)
     return NULL;
 }
 // FUN_0014A7B0
-void* SceneDraw_GetMatrixA(u16 resTypeId)
+void* SceneDraw_GetLightMatrixA(u16 resTypeId)
 {
     Resrc* res;
     u32 type;
@@ -251,7 +251,7 @@ void* SceneDraw_GetMatrixA(u16 resTypeId)
 
 
 // FUN_0014A8A0
-void* SceneDraw_GetOffsetVec(u16 resTypeId)
+void* SceneDraw_GetLightTint(u16 resTypeId)
 {
     Resrc* res;
     u32 type;
@@ -275,7 +275,7 @@ void* SceneDraw_GetOffsetVec(u16 resTypeId)
     return NULL;
 }
 // FUN_0014A990
-void* SceneDraw_GetMatrixB(u16 resTypeId)
+void* SceneDraw_GetLightMatrixB(u16 resTypeId)
 {
     Resrc* res;
     u32 type;
@@ -310,11 +310,11 @@ void SceneDraw_ResetResource(u16 resTypeId)
     u8 *temp_16;
     u32 type;
 
-    temp_17 = SceneDraw_GetScaleA(resTypeId);
-    temp_16 = SceneDraw_GetScaleB(resTypeId);
-    temp_19 = SceneDraw_GetMatrixA(resTypeId);
-    temp_21 = SceneDraw_GetOffsetVec(resTypeId);
-    temp_18 = SceneDraw_GetMatrixB(resTypeId);
+    temp_17 = SceneDraw_GetLightColorA(resTypeId);
+    temp_16 = SceneDraw_GetLightColorB(resTypeId);
+    temp_19 = SceneDraw_GetLightMatrixA(resTypeId);
+    temp_21 = SceneDraw_GetLightTint(resTypeId);
+    temp_18 = SceneDraw_GetLightMatrixB(resTypeId);
     *(s32 *)(temp_17 + 0x0) = 0x3f000000;
     *(s32 *)(temp_17 + 0x4) = 0x3f000000;
     *(s32 *)(temp_17 + 0x8) = 0x3f000000;
@@ -377,7 +377,7 @@ void SceneDraw_ResetResource(u16 resTypeId)
     }
 }
 // FUN_0014ACD0
-void* SceneDraw_GetList4Vec0(void)
+void* SceneDraw_GetList4FirstColor(void)
 {
     u8* res;
 
@@ -389,7 +389,7 @@ void* SceneDraw_GetList4Vec0(void)
     return NULL;
 }
 // FUN_0014AD10
-void* SceneDraw_GetList4Vec1(void)
+void* SceneDraw_GetList4SecondColor(void)
 {
     u8* res;
 
@@ -401,7 +401,7 @@ void* SceneDraw_GetList4Vec1(void)
     return NULL;
 }
 // FUN_0014AD50
-void* SceneDraw_GetList4Vec2(void)
+void* SceneDraw_GetList4Matrix(void)
 {
     u8* res;
 
@@ -534,7 +534,7 @@ void func_0014ad90(void)
     RwMatrixRotate(var_16, &sp[0], 2, -45.0f);
 }
 // FUN_0014B000
-void* SceneDraw_GetList5Vec0(void)
+void* SceneDraw_GetList5FirstColor(void)
 {
     u8* res;
 
@@ -546,7 +546,7 @@ void* SceneDraw_GetList5Vec0(void)
     return NULL;
 }
 // FUN_0014B040
-void* SceneDraw_GetList5Vec1(void)
+void* SceneDraw_GetList5SecondColor(void)
 {
     u8* res;
 
@@ -558,7 +558,7 @@ void* SceneDraw_GetList5Vec1(void)
     return NULL;
 }
 // FUN_0014B080
-void* SceneDraw_GetList5Vec2(void)
+void* SceneDraw_GetList5Matrix(void)
 {
     u8* res;
 

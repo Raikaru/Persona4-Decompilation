@@ -35,7 +35,7 @@ void func_0017a700(u8 *arg0, u8 *arg1);
 void func_0017a8d0(u8 *arg0, u8 *arg1);
 void func_0017aae0(u8 *arg0, u8 *arg1);
 void func_0017abd0(u8 *arg0, u8 *arg1);
-extern void *SceneDraw_GetList4Vec2(void);
+extern void *SceneDraw_GetList4Matrix(void);
 extern f32 iGpffff8214;
 extern f32 iGpffff826c;
 extern f32 iGpffff8360;
@@ -574,7 +574,7 @@ void FldShadow_UpdateSceneShadow(u8 *unused, u8 *state)
             RwMatrixOptimize(frame + 0x10, localTolerance);
             RwMatrixUpdate(frame + 0x10);
         } else {
-            u8 *basis = SceneDraw_GetList4Vec2();
+            u8 *basis = SceneDraw_GetList4Matrix();
             frameSlot = (u8 **)(camera + 4);
             frame = *frameSlot;
             *(RwV3d *)(frame + 0x10) = *(RwV3d *)(basis + 0);
@@ -708,7 +708,7 @@ void FldShadow_UpdateModelShadow(u8 *unused, u8 *state)
             RwMatrixOptimize(frame + 0x10, localTolerance);
             RwMatrixUpdate(frame + 0x10);
         } else {
-            u8 *basis = SceneDraw_GetList4Vec2();
+            u8 *basis = SceneDraw_GetList4Matrix();
             frameSlot = (u8 **)(camera + 4);
             frame = *frameSlot;
             *(RwV3d *)(frame + 0x10) = *(RwV3d *)(basis + 0);

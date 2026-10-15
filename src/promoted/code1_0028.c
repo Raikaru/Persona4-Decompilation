@@ -100,9 +100,9 @@ extern u8 iGpffffa790;
 
 extern s32 D_008825F0[10];
 extern void SceneDraw_SetCustomLight(u16 resTypeId, u32 customLight);
-extern void *SceneDraw_GetList5Vec0(void);
-extern void *SceneDraw_GetList5Vec1(void);
-extern void *SceneDraw_GetList5Vec2(void);
+extern void *SceneDraw_GetList5FirstColor(void);
+extern void *SceneDraw_GetList5SecondColor(void);
+extern void *SceneDraw_GetList5Matrix(void);
 extern SceneLightMatrix *RwMatrixRotate(SceneLightMatrix *matrix, const SceneLightAxis *axis, f32 angle, s32 combine);
 extern u8 D_005EFA10[];
 extern u8 D_005EFA20[];
@@ -1236,9 +1236,9 @@ void func_0028c580(u8 *workBytes, u8 *resource, u8 *defaults)
                 model->firstColor = modelDefaults->firstColor;
                 model->secondColor = modelDefaults->secondColor;
                 model->matrix = modelDefaults->matrix;
-                first = SceneDraw_GetList5Vec0();
-                second = SceneDraw_GetList5Vec1();
-                matrix = SceneDraw_GetList5Vec2();
+                first = SceneDraw_GetList5FirstColor();
+                second = SceneDraw_GetList5SecondColor();
+                matrix = SceneDraw_GetList5Matrix();
                 *first = work->firstColor;
                 *second = work->secondColor;
                 *matrix = work->matrix;
@@ -1277,9 +1277,9 @@ void func_0028c580(u8 *workBytes, u8 *resource, u8 *defaults)
         RwMatrixRotate(&modelMatrix, (const SceneLightAxis *)D_005EFA10, angleX, 1);
         model->matrix = modelMatrix;
         if (updateScene == 1) {
-            first = SceneDraw_GetList5Vec0();
-            second = SceneDraw_GetList5Vec1();
-            matrix = SceneDraw_GetList5Vec2();
+            first = SceneDraw_GetList5FirstColor();
+            second = SceneDraw_GetList5SecondColor();
+            matrix = SceneDraw_GetList5Matrix();
             *first = model->firstColor;
             *second = model->secondColor;
             *matrix = model->matrix;
