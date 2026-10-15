@@ -2224,8 +2224,9 @@ extern void* mdlResolveLoopAnimation(void* a, u8* b);
    mov.s $f13,$f14 in the fe90 call), and the fd10 arg materialization order
    (move/lwc1) swaps. Tried: one=1.0f local, alpha/one decl order, void*
    params. FP/integer register-allocation floor. */
+/* Updates the blend track in state arg0 from the animation entry for the slot at arg1+4. It cross-fades between the current and next entries by the blend factor at arg1+0x1C when that factor is below 1.0. */
 // FUN_004746B0
-void func_004746b0(u8* arg0, u8* arg1)
+void mdlUpdateBlendTrack(u8* arg0, u8* arg1)
 {
     f32 temp_f14;
     f32 var_f12;
@@ -2290,8 +2291,9 @@ void func_004746b0(u8* arg0, u8* arg1)
     }
 }
 
+/* Drops the count at +0xE of a blend track. On the last release it releases the two subobjects, each 8-byte entry, and then the block. */
 // FUN_00474890
-void func_00474890(void* param_1)
+void mdlReleaseBlendTrack(void* param_1)
 {
     void* piVar1;
     int* piVar2;
@@ -3143,7 +3145,7 @@ extern void func_003dcc70(f32* first, f32* second, void* result);
 extern f32 func_0044b920(f32 value);
 extern u8 *func_004571b0(void);
 extern u8 *func_004571c0(void);
-extern void func_004746b0(u8* a, u8* b);
+extern void mdlUpdateBlendTrack(u8* a, u8* b);
 extern void func_00479910(void* a);
 extern void* mdlGetMatrix(void* a);
 extern s32 func_0047a510(void* a, s32 b, void* c);
@@ -3282,7 +3284,7 @@ void func_00475cd0(MdlDrawState* owner)
             func_00397c40(owner->hierarchy);
         }
         if ((owner->flagsD8 & 0x80000) != 0) {
-            func_004746b0(owner->state234, (u8*)&owner->animFlags);
+            mdlUpdateBlendTrack(owner->state234, (u8*)&owner->animFlags);
         }
         {
         u32 needsReset;
@@ -3332,7 +3334,7 @@ void func_00475cd0(MdlDrawState* owner)
                         func_00397c40(model->hierarchy);
                     }
                     if ((model->flagsD8 & 0x80000) != 0) {
-                        func_004746b0(model->state234, (u8*)&model->animFlags);
+                        mdlUpdateBlendTrack(model->state234, (u8*)&model->animFlags);
                     }
                 }
             }
@@ -3401,7 +3403,7 @@ void func_00475cd0(MdlDrawState* owner)
     renderStateSet->set(0xE, 0);
     RpSkyRenderStateSet(2, 0x44);
     if ((owner->flagsD8 & 0x80000) != 0) {
-        func_004746b0(owner->state234, (u8*)&owner->animFlags);
+        mdlUpdateBlendTrack(owner->state234, (u8*)&owner->animFlags);
     }
     mdlClumpApplyMatColorScale(owner->clump, (u32*)&color,
                         (u16)(s64)((owner->flags & 8) != 0));
@@ -3515,7 +3517,7 @@ void func_00475cd0(MdlDrawState* owner)
                     func_00397c40(attached.model->hierarchy);
                 }
                 if ((attached.model->flagsD8 & 0x80000) != 0) {
-                    func_004746b0(attached.model->state234, (u8*)&attached.model->animFlags);
+                    mdlUpdateBlendTrack(attached.model->state234, (u8*)&attached.model->animFlags);
                 }
                 mdlClumpApplyMatColorScale(source, (u32*)&color,
                                     (u16)(s64)((attached.model->flags & 8) != 0));
@@ -4596,7 +4598,7 @@ void func_004787e0(u8* param_1)
         *(void**)(param_1 + 0x234) = 0;
     }
     if (*(void**)(param_1 + 0x254) != 0) {
-        func_00474890(*(void**)(param_1 + 0x254));
+        mdlReleaseBlendTrack(*(void**)(param_1 + 0x254));
         *(void**)(param_1 + 0x254) = 0;
     }
     t = *(void**)(param_1 + 0x2C8);
@@ -4798,7 +4800,7 @@ void func_00478eb0(void* param_1, int param_2, int param_3)
     *(int*)((u8*)param_1 + 0x31C) = param_3;
 }
 
-extern void func_004746b0(u8* a, u8* b);
+extern void mdlUpdateBlendTrack(u8* a, u8* b);
 extern void func_00489f80(u32 a);
 extern s64 iGpffffabe8;
 
@@ -4820,7 +4822,7 @@ void func_00478ec0(void* param_1, MdlFlags78ec0* o)
     s32 t;
 
     if (o->d8 & 0x80000) {
-        func_004746b0((u8*)o + 0x234, (u8*)o + 0xEC);
+        mdlUpdateBlendTrack((u8*)o + 0x234, (u8*)o + 0xEC);
         o->d8 &= 0xFFF7FFFF;
     }
     dc = o->dc;
