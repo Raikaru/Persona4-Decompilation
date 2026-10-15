@@ -150,7 +150,7 @@ extern u16 *fclCombineFindMatchPtr(u8 *);
 extern s32 fclCombineRollTier(u8 *);
 extern s32 fclCombineFindMatchIndex(u8 *);
 extern s32 fclCombinePersonaInRoster(u16);
-extern s32 func_003096d0(u8 *);
+extern s32 fclCombineFindRandomSkillIndex(u8 *);
 extern s32 datPersonaReplaceSkill(u8 *, s16, u16);
 extern u16 datPersonaCountValidMembers(void);
 extern u8 *func_001102e0(void);
@@ -278,7 +278,7 @@ extern s32 kwlnTaskIsLinked(s32);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *);
 extern s32 func_00459760(void);
 extern void func_0045a3e0(s32, s32);
-extern void func_0030f4f0(u8 *, s16 *);
+extern void fclCombineConsumeMaterials(u8 *, s16 *);
 extern s32 fclDrawTaskCreate(u8 *);
 extern s32 fclCombineClaimSlot(u8 *);
 extern f32 D_00640C50[];
@@ -7591,7 +7591,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         if (func_002bb1c0(work->fD) == 0) {
             temp_4_3 = func_001102d0() & 0xFFFF;
             if ((((s8)(((temp_4_3 >> 0xC) & 0xF))) >= ((s8)(((temp_4_3 >> 4) & 0xF)))) && (datGetFlag(0x1307) == 0)) {
-                work->f1C = func_003096d0(arg0);
+                work->f1C = fclCombineFindRandomSkillIndex(arg0);
                 temp_3_18 = work->f1C;
                 if (temp_3_18 == -1) {
                     datPersonaInsertRosterRecord((u8 *)func_001102e0());
@@ -7912,8 +7912,9 @@ s32 fclCombinePersonaInRoster(u16 arg0)
     }
     return 0;
 }
+// Fcl combine random skill index: draws a random skill of the working persona and scans the skill-pair table (iGpffffb3ec) for it, drawing again after each table group ends, for up to four attempts. Returns the table index of the match, or -1.
 // FUN_003096D0
-s32 func_003096d0(u8 *task)
+s32 fclCombineFindRandomSkillIndex(u8 *task)
 {
     u32 temp_16;
     u16 *temp_17;
@@ -9633,10 +9634,11 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
  * Halfword counters/bound and loop-invariant motion recover the narrowing.
  * Direct identifier comparisons let the compiler cache the masked key;
  * an explicit second identifier local instead rotates three saved registers. */
+// Fcl combine consume materials: removes the material personas in materials (count at work+0x1A, where 7 means 12) from the roster, except the lead persona, then inserts the result record. If the lead persona was a material, the result is selected in its place and the lead is removed; the selected roster member is removed last.
 // FUN_0030F4F0
 #pragma push
 #pragma opt_loop_invariants on
-void func_0030f4f0(u8 *task, s16 *materials) {
+void fclCombineConsumeMaterials(u8 *task, s16 *materials) {
     s16 materialIndex;
     s16 searchIndex;
     s16 count;
@@ -9788,7 +9790,7 @@ void fclCombineMenuFinish(u8 *arg0) {
             }
             break;
         }
-        func_0030f4f0(arg0, mats);
+        fclCombineConsumeMaterials(arg0, mats);
         if (*(s32 *)(p + 0x304) != 0) {
             kwlnTaskDestroyWithHierarchy((KwlnTask *)(u32)*(s32 *)(p + 0x304));
             *(s32 *)(p + 0x304) = 0;
