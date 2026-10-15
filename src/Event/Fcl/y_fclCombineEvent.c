@@ -12,7 +12,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern s32 func_0033d9d0(u8 *task);
 extern void func_0033dc60(u8 *arg0);
-extern s32 func_0033dd40(u8 *arg0);
+extern s32 fclCombineEventGate(u8 *arg0);
 extern s32 func_0033df40(u8 *arg0);
 extern s32 func_00285b30(void);
 extern void func_00106390(s32 a, s32 b);
@@ -43,8 +43,9 @@ void func_0033dc90(u8 *arg0, s8 arg1)
 }
 
 
+// Fcl combine event gate: returns -1 and sets the event's flag when a blocking flag or map range applies, else 0.
 // FUN_0033DD40
-s32 func_0033dd40(u8 *arg0)
+s32 fclCombineEventGate(u8 *arg0)
 {
     s32 *temp_16;
 
@@ -69,8 +70,9 @@ s32 func_0033dd40(u8 *arg0)
 }
 
 
+// Fcl combine event destroy: stops sound channel 2 and frees the task's work buffer.
 // FUN_0033DE40
-void func_0033de40(u8 *arg0) {
+void fclCombineEventDestroy(u8 *arg0) {
     func_0045aac0(2, 0, 0);
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
@@ -83,7 +85,7 @@ void func_0033de90(u8 *arg0, s32 arg1)
 
     func_0044ea90(D_0064A400, 0x10A);
     work = D_008873F4[0](1, 4, 0x40000);
-    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, func_0033dd40, func_0033de40, (u8 *)(work));
+    (s32)func_00451fc0((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, fclCombineEventGate, fclCombineEventDestroy, (u8 *)(work));
     *(s32 *)work = arg1;
 }
 
