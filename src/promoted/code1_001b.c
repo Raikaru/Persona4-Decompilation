@@ -624,7 +624,7 @@ done:
 // FUN_001B1D70
 void func_001b1d70(void) {
     extern s32 iGpffffb414;
-    extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
+    extern u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2);
     extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
     extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
@@ -667,7 +667,7 @@ void func_001b1d70(void) {
                 break;
             tmp = *(u8 **)(w2 + 4);
             id = *(u16 *)(tmp + 2);
-            pkt = func_0019f5f0(0, id, (u16 *)tmp);
+            pkt = btlActionCreateWork(0, id, (u16 *)tmp);
             unit = *(u8 **)(pkt + 0x30);
             datCalcClearBadStatus(*(s32 *)(unit + 0xA64), 0xFFF7FFFF);
             *(u16 *)(*(u8 **)(unit + 0xA64)) &= 0xFFDF;
@@ -708,7 +708,7 @@ void func_001b1d70(void) {
     k = 0;
     while (k < 6) {
         if (*(u16 *)(list + 2) != 0 && datCalcIsDead((s32)list, 0) == 0) {
-            func_0019f5f0(1, *(s16 *)(list + 2), (u16 *)list);
+            btlActionCreateWork(1, *(s16 *)(list + 2), (u16 *)list);
         }
         k++;
         list += 0x30;

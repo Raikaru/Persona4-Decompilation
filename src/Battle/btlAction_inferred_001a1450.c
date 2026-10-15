@@ -5563,7 +5563,7 @@ void func_001abbb0(s64 *arg0)
     extern BtlPacket *btlMainCreateTintPacket(u32 arg0, u32 arg1);
     extern BtlPacket *btlSoundCreateSkillSEPacket(u16 arg0, u16 arg1);
     extern u8 *func_00194b60(void);
-    extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
+    extern u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2);
     extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
     extern BtlPacket *btlUnitCreateResourceLoadPacket(BtlUnit *arg0, u16 arg1, u16 arg2);
@@ -5747,7 +5747,7 @@ void func_001abbb0(s64 *arg0)
         if (curId == 0) {
             break;
         }
-        loopPkt = func_0019f5f0(1, curId, NULL);
+        loopPkt = btlActionCreateWork(1, curId, NULL);
         unit = ((UnitReference *)(loopPkt + 0x30))->pointer;
         unit->data = datUnitAddEncounterUnit(*(DatUnitEc **)(iGpffffb3ac + 0xC68), curId);
         btlUnitInitFromRecord((u8 *)unit, curId & 0xFFFF);
