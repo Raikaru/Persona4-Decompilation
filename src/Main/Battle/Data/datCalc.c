@@ -720,7 +720,7 @@ s32 datCalcGetSkillMask(u8 *arg0)
 }
 #pragma pop
 
-// Intent: signed 4-bit buff level at index arg1 (0..23) of unit arg0; 0..4 follow DatPersonaStat (St/Ma/En/Ag/Lu), read as buff or debuff by func_002340c0; [inferred].
+// Intent: signed 4-bit buff level at index arg1 (0..23) of unit arg0; 0..4 follow DatPersonaStat (St/Ma/En/Ag/Lu), read as buff or debuff by datCalcHasBuffMask; [inferred].
 // FUN_002332A0
 s8 datCalcGetBuffLevel(u8 *arg0, s32 arg1)
 {
@@ -959,8 +959,9 @@ void datCalcClearAllBuffs(u8 *arg0)
     }
 }
 
+// Intent: buff level (signed) for index arg1 below 16, or the flag bit for indices 16..23, of unit arg0.
 // FUN_00233A90
-s8 func_00233a90(u8 *arg0, s32 arg1)
+s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1)
 {
     s8 nibble;
     u8 result;
@@ -1113,8 +1114,9 @@ f32 func_00233bc0(u8 *arg0, s32 arg1, u16 arg2)
    emitted body plus the retail zero-padding tail). The 0x30000 branch uses
    goto-labelled shared return blocks, and each s64 flag normalization is
    explicitly re-booleanized after dsra32 to preserve retail's sltu sequence. */
+// Intent: true when unit arg0 has a buff (>0) or debuff (<0) on any stat selected by mask arg1; [inferred].
 // FUN_002340C0
-s32 func_002340c0(u8 *arg0, s32 arg1)
+s32 datCalcHasBuffMask(u8 *arg0, s32 arg1)
 {
     s32 temp_3;
     s64 var_2;
@@ -1277,8 +1279,9 @@ check_01000000:
     return 0;
 }
 
+// Intent: applies signed buff delta arg2 to the stats selected by mask arg1 (bit pairs for up and down on stats 0..4); [inferred].
 // FUN_00234830
-void func_00234830(u8 *arg0, s32 arg1, s64 arg2)
+void datCalcApplyBuffMask(u8 *arg0, s32 arg1, s64 arg2)
 {
     if (arg1 != 0) {
         if (arg1 & 1) {
@@ -1425,8 +1428,9 @@ void func_00234830(u8 *arg0, s32 arg1, s64 arg2)
     }
 }
 
+// Intent: clears the buff and secondary levels of each index flagged in the mask at +0x18 of unit arg0, then clears that mask.
 // FUN_00235020
-void func_00235020(u8 *arg0)
+void datCalcClearFlaggedBuffs(u8 *arg0)
 {
     u32 i;
     s32 i8;
@@ -1486,8 +1490,9 @@ static inline void P4CalcSetLevel(u8 *unit, u8 index, s8 level)
 
 /* measured: 524B/528B, only one zero-tail word. Signed-byte boundaries and
    per-branch setter addresses preserve the saved offset and retail merges. */
+// Intent: raises the secondary level (cap 15) of every active buff in 0..15 by one; [inferred].
 // FUN_00235110
-void func_00235110(u8 *unit)
+void datCalcAdvanceSecondaryBuffs(u8 *unit)
 {
     s32 checked;
     u32 index;
@@ -1513,8 +1518,9 @@ void func_00235110(u8 *unit)
 /* measured: b210 owner profile, 504B/512B, no differing emitted words;
    hoist the signed threshold comparison out of the loop. */
 #pragma opt_loop_invariants on
+// Intent: index of the first buff level in 0..15 that is active and at or above a threshold (3, doubled for flag-4 units with table bit 0x1000), else -1; [inferred].
 // FUN_00235320
-s64 func_00235320(u8 *unit)
+s64 datCalcFindStrongBuff(u8 *unit)
 {
     s32 checked;
     s8 threshold;

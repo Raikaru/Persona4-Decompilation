@@ -203,7 +203,7 @@ s32 func_001ef720(s32 arg0, s32 arg1);
 s32 func_001fabe0(u8 *arg0);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 s32 datCalcGetSkillMask(u8 *arg0);
-s64 func_00235320(u8 *arg0);
+s64 datCalcFindStrongBuff(u8 *arg0);
 s32 func_00243e30(u16 *arg0);
 s32 func_001f6770(u8 *arg0);
 s32 func_001fac30(void);
@@ -558,7 +558,7 @@ void btlActionTryBegin(BtlAction *action) {
             (action->unk_28 == 0) && (action->unk_29 == 0)) {
             *(s32 *)(iGpffffb3ac + 0x20) += 1;
         }
-        if ((s8)func_00235320((u8 *)action->unit->datUnit) >= 0) {
+        if ((s8)datCalcFindStrongBuff((u8 *)action->unit->datUnit) >= 0) {
             btlActionSetState(action, 0xA);
             return;
         }
@@ -684,7 +684,7 @@ void func_001a0b00(s64 *arg0) {
                 }
             }
         }
-        if ((s8)func_00235320((u8 *)action->unit->data) >= 0) {
+        if ((s8)datCalcFindStrongBuff((u8 *)action->unit->data) >= 0) {
             btlActionSetState(arg0, 0xA);
         } else if (func_001f6770((u8 *)arg0) != 0) {
             btlActionSetState(arg0, 0xB);
@@ -1531,7 +1531,7 @@ void func_001a2d70(u8 *arg0) {
 
     if (func_00193cd0(0x506) == 0) {
         unit = *(u8 **)((u8 *)arg0 + 0x30);
-        kind = (u8)func_00235320(*(u8 **)(unit + 0xA64));
+        kind = (u8)datCalcFindStrongBuff(*(u8 **)(unit + 0xA64));
         if (kind < 0) {
             goto fallback;
         }
@@ -2238,7 +2238,7 @@ static inline u8 *actionReadCandidate(u8 *action, const u16 *index)
 // FUN_001A43A0
 void func_001a43a0(u8 *action)
 {
-    extern s8 func_00233a90(u8 *action, s32 arg1);
+    extern s8 datCalcGetBuffStatus(u8 *action, s32 arg1);
     extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 kind, s32 id, s32 flags, s32 mode);
     struct {
         s16 element;
@@ -2278,7 +2278,7 @@ void func_001a43a0(u8 *action)
         if (datCalcIsDead(*(s32 *)(workspace + 0xA64), 0) != 0) {
             continue;
         }
-        if (func_00233a90(*(u8 **)(workspace + 0xA64), 0x10) > 0) {
+        if (datCalcGetBuffStatus(*(u8 **)(workspace + 0xA64), 0x10) > 0) {
             continue;
         }
         {
@@ -8223,7 +8223,7 @@ void func_001afb50(u8 *action)
     void func_001b13c0(u8 *action);
     void func_001b1450(u8 *action);
     void func_001f5a00(s32 advance);
-    void func_00235110(u8 *unit);
+    void datCalcAdvanceSecondaryBuffs(u8 *unit);
     void func_001f2cc0(u8 *action);
     void datCalcSetHp(s32 unit, u16 hp);
     u32 datCalcSetBadStatus(s32 unit, u32 badStatus);
@@ -8293,7 +8293,7 @@ void func_001afb50(u8 *action)
                         *(s64 *)(packet + 0x60) = *(s64 *)action;
                         func_00194590(packet, 1);
                     }
-                    func_00235110(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
+                    datCalcAdvanceSecondaryBuffs(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
                     func_001f5a00(1);
                     func_001b13c0(action);
                 } else {

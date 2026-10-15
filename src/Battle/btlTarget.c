@@ -163,7 +163,7 @@ extern void datCalcAddSp(void* data, s32 value);
 extern void datCalcSetBadStatus(void* data, s32 value);
 extern void datCalcClearBadStatus(void* data, s32 value);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-extern void func_00234830(void* data, s32 value, s32 mode);
+extern void datCalcApplyBuffMask(void* data, s32 value, s32 mode);
 extern s32 datCalcIsDead(void* data, s32 mode);
 extern s32 datCalcIsLowHp(void* data);
 extern s32 func_00243e30(void* data);
@@ -809,7 +809,7 @@ s32 func_001f3010(u8* arg0)
     }
     temp_5 = *(s32*)(arg0 + 0x18);
     if (temp_5 != 0) {
-        func_00234830(*(u8**)(temp_18 + 0xa64), temp_5, 1);
+        datCalcApplyBuffMask(*(u8**)(temp_18 + 0xa64), temp_5, 1);
     }
     if ((datCalcIsDead(*(u8**)(temp_18 + 0xa64), 0) != 0) && (temp_17 == 0)) {
         if (*(u8*)(temp_18 + 0xa2) == 1) {

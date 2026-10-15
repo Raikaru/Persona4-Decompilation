@@ -1222,7 +1222,7 @@ s32 func_001b2380(void)
     extern void btlFadeStartImmediate(void);
     extern u32 datCalcSetBadStatus(s32 unit, u32 badStatus);
     extern u32 datCalcIsLowHp(s32 unit);
-        extern void func_00234830(u8 *arg0, s32 arg1, s64 arg2);
+        extern void datCalcApplyBuffMask(u8 *arg0, s32 arg1, s64 arg2);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
     extern f32 fGpffff8128;
     extern f32 fGpffff8170;
@@ -1541,17 +1541,17 @@ unit_done:
             hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x202);
             if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64),0x53) != 0)
                 ) || (hasSkill214 == 1)) {
-              func_00234830(*(u8 **)(unit + 0xa64),5,1);
+              datCalcApplyBuffMask(*(u8 **)(unit + 0xa64),5,1);
             }
             hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x203);
             if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64),0x54) != 0)
                 ) || (hasSkill213 == 1)) {
-              func_00234830(*(u8 **)(unit + 0xa64),0x40,1);
+              datCalcApplyBuffMask(*(u8 **)(unit + 0xa64),0x40,1);
             }
             hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x204);
             if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64),0x55) != 0)
                 ) || (hasSkill215 == 1)) {
-              func_00234830(*(u8 **)(unit + 0xa64),0x110,1);
+              datCalcApplyBuffMask(*(u8 **)(unit + 0xa64),0x110,1);
             }
             **(u16 **)(unit + 0xa64) = **(u16 **)(unit + 0xa64) & 0xf3ff;
           }
