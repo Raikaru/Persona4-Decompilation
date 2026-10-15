@@ -36,7 +36,7 @@ extern s32 datGetFlag(s32 id);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 // FUN_0015C750
-s32 func_0015c750(void)
+s32 NpcTable_RequestSceneTable(void)
 {
     char sp90[0x80];
     char sp10[0x80];
@@ -59,7 +59,7 @@ ret1:
 
 
 // FUN_0015C800
-s32 func_0015c800(u8 *arg0)
+s32 NpcTable_InstallSceneTable(u8 *arg0)
 {
     s32 temp;
     u8 *table;
@@ -119,7 +119,7 @@ ret0:
 }
 
 // FUN_0015CA30
-void *func_0015ca30(void)
+void *NpcTable_FindActiveEntry(void)
 {
     s32 sp6C;
     s32 sp68;
@@ -181,7 +181,7 @@ void *func_0015ca30(void)
    rematerialized in the body (nd 6); with it the address hoists to the
    preheader like retail (nd 1, the last word being all-zero padding tail). */
 #pragma opt_loop_invariants on
-u16 *func_0015cbe0(s32 arg0)
+u16 *NpcTable_GetMarkedEntry(s32 arg0)
 {
     u16 *work = *(u16 **)(func_00155280() + 0x18F4);
     s32 count = 0;
@@ -197,7 +197,7 @@ u16 *func_0015cbe0(s32 arg0)
     }
     return work;
 }
-/* measured: see annotation above (func_0015cbe0). */
+/* measured: see annotation above (NpcTable_GetMarkedEntry). */
 #pragma opt_loop_invariants off
 
 
@@ -221,7 +221,7 @@ void func_0015cc40(void)
 
 
 // FUN_0015CCC0
-s32 func_0015ccc0(void)
+s32 NpcTable_RequestSecondaryTable(void)
 {
     char sp90[0x80];
     char sp10[0x80];
@@ -244,7 +244,7 @@ ret1:
 
 
 // FUN_0015CD70
-s32 func_0015cd70(u8 *arg0)
+s32 NpcTable_InstallSecondaryTable(u8 *arg0)
 {
     u8 *arg;
     s32 temp;
@@ -304,7 +304,7 @@ void func_0015cf10(void)
 
 
 // FUN_0015CF70
-s32 func_0015cf70(void)
+s32 NpcTable_RequestFixedTable(void)
 {
     char sp90[0x80];
     char sp10[0x80];
@@ -324,7 +324,7 @@ s32 func_0015cf70(void)
    invariant base inside the body (nd 6); with it it hoists to the preheader
    like retail (nd 0). */
 #pragma opt_loop_invariants on
-s32 func_0015d000(u8 *arg0)
+s32 NpcTable_InstallFixedTable(u8 *arg0)
 {
     s32 handle;
     s32 count;
@@ -355,12 +355,12 @@ s32 func_0015d000(u8 *arg0)
     H_Cdvd_Destroy(arg0);
     return 1;
 }
-/* measured: see annotation above (func_0015d000). */
+/* measured: see annotation above (NpcTable_InstallFixedTable). */
 #pragma opt_loop_invariants off
 
 
 // FUN_0015D100
-void func_0015d100(u8 *arg0, s32 arg1)
+void NpcTable_RequestBlockTable(u8 *arg0, s32 arg1)
 {
     char spB0[0x80];
     char sp30[0x80];
@@ -375,7 +375,7 @@ void func_0015d100(u8 *arg0, s32 arg1)
 
 
 // FUN_0015D1A0
-s32 func_0015d1a0(u8 *arg0, s32 arg1)
+s32 NpcTable_InstallBlockTable(u8 *arg0, s32 arg1)
 {
     s32 size;
 

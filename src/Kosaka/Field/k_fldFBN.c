@@ -72,10 +72,10 @@ extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
 extern f32 KDraw_MatrixPitchDeg(u8 *arg0);
 extern f32 KDraw_MatrixYawDeg(u8 *arg0);
 extern f32 KDraw_MatrixRollDeg(u8 *arg0);
-extern void *func_0015ca30(void);
-extern u16 *func_0015cbe0(s32 arg0);
-extern void func_0015d100(u8 *arg0, s32 arg1);
-extern s32 func_0015d1a0(u8 *arg0, s32 arg1);
+extern void *NpcTable_FindActiveEntry(void);
+extern u16 *NpcTable_GetMarkedEntry(s32 arg0);
+extern void NpcTable_RequestBlockTable(u8 *arg0, s32 arg1);
+extern s32 NpcTable_InstallBlockTable(u8 *arg0, s32 arg1);
 extern void func_0015d270(u8 *arg0);
 extern u16 *func_0015d2c0(u32 arg0);
 extern u8 *func_0015d310(u16 *arg0);
@@ -216,10 +216,10 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
         p += *(s32 *)(fbn + 0xC);
     }
     if (D_00764340 == 0) {
-        u8 *head = func_0015ca30();
+        u8 *head = NpcTable_FindActiveEntry();
 
         if (head != NULL) {
-            AnimEntry *ae = (AnimEntry *)func_0015cbe0(*(s32 *)(head + 0xC));
+            AnimEntry *ae = (AnimEntry *)NpcTable_GetMarkedEntry(*(s32 *)(head + 0xC));
 
             for (j = 0; ae->field_0 != 0xFFFF; j++, ae++) {
                 s32 kind;
@@ -277,7 +277,7 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
                             FBN_ENTRY(out)->field_4 = (s32)e2;
                             FBN_ENTRY(out)->field_8 = j;
                             FBN_ENTRY(out)->field_10 = k;
-                            func_0015d100((u8 *)FBN_ENTRY(out), k);
+                            NpcTable_RequestBlockTable((u8 *)FBN_ENTRY(out), k);
                             out++;
                         }
                         break;
@@ -324,7 +324,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
         return 1;
     }
     for (n = 0; n < iGpffffb2a8; n++) {
-        if (func_0015d1a0((u8 *)FBN_ENTRY(n), iGpffffb2a0[n].field_10) == 0) {
+        if (NpcTable_InstallBlockTable((u8 *)FBN_ENTRY(n), iGpffffb2a0[n].field_10) == 0) {
             return 0;
         }
         if ((FBN_ENTRY(n)->kind == 0) && (func_004782b0((u8 *)iGpffffb2a4[n]) == 0)) {

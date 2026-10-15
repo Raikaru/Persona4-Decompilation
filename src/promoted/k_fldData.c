@@ -63,13 +63,13 @@ extern u8 *func_00454a60(u8 *path, s32 mode);
 extern void H_Cdvd_ReadSync(HCdvd *file);
 extern void *func_00477f10(u32 kind, u16 id, void *memory, u32 size, u32 flags);
 extern s32 sprintf(char *buf, const char *fmt, ...);
-extern s32 func_0015cf70(void);
+extern s32 NpcTable_RequestFixedTable(void);
 extern s32 func_00161510(void);
 extern s32 func_004782b0(u8 *model);
 
 extern void *memcpy(void *destination, const void *source, u32 size);
 extern u32 H_Cdvd_Destroy(HCdvd *file);
-extern s32 func_0015d000(u8 *arg0);
+extern s32 NpcTable_InstallFixedTable(u8 *arg0);
 extern s32 func_001615a0(u8 *file);
 extern s32 func_0045b1c0(void *parent, s32 kind, s32 buffer, void *name);
 extern s32 func_0045b170(void *request);
@@ -177,7 +177,7 @@ s32 func_0015d730(u8 *task)
         sprintf(dungeonPath, D_005F0AC0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0xA9);
         work->dungeonTable = (HCdvd *)func_00454a60((u8 *)dungeonPath, 0);
-        work->npcTable = (HCdvd *)func_0015cf70();
+        work->npcTable = (HCdvd *)NpcTable_RequestFixedTable();
         work->unitTable = (HCdvd *)func_00161510();
         func_00440b68(&D_00762FC8, D_005F0A88, 0x124);
         work->rainModels[0] = (HCdvd *)func_00454a60((u8 *)D_005F0B10, 0);
@@ -244,7 +244,7 @@ s32 func_0015d730(u8 *task)
                 return 0;
             }
             work->dungeonTable = NULL;
-            if (func_0015d000((u8 *)work->npcTable) == 0) {
+            if (NpcTable_InstallFixedTable((u8 *)work->npcTable) == 0) {
                 return 0;
             }
             work->npcTable = NULL;
