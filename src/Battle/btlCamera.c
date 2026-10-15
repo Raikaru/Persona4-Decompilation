@@ -2487,7 +2487,7 @@ s32 btlCameraFrameActionStart(u8 *arg0, u8 *arg1)
     extern void btlMainCurveSetPoses(u16 *camera, f32 *first, f32 *second, u16 mode);
     extern void func_001bbe80(u8 *arg0, f32 arg1);
     extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
-    extern void func_001bbf40(u8 *arg0, f32 arg1);
+    extern void btlCameraSetTransitionDuration(u8 *arg0, f32 arg1);
     extern RwV3d D_0060A0E0;
     extern RwV3d D_0060A0F0;
     extern RwV3d D_0060A100;
@@ -2680,7 +2680,7 @@ next_entry:
     btlMainCurveSetPoses((u16 *)arg0, (f32 *)&poses[0], (f32 *)&poses[1], 1);
     switch (*(s16 *)(base + 2)) {
     case 0:
-        func_001bbf40(arg0, (f32)*(s16 *)entry / 30.0f);
+        btlCameraSetTransitionDuration(arg0, (f32)*(s16 *)entry / 30.0f);
         break;
     case 1:
         func_001bbe80(arg0, (f32)*(s16 *)entry / 30.0f);

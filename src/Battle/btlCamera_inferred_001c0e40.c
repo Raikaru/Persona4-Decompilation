@@ -946,7 +946,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
     extern s32 btlCameraIsTargetEligible(u8 *camera);
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 tanf(f32 angle);
-    extern void func_001bbf40(u8 *camera, f32 duration);
+    extern void btlCameraSetTransitionDuration(u8 *camera, f32 duration);
     extern f32 fGpffff80cc;
     extern f32 fGpffff80e8;
     extern f32 fGpffff8110;
@@ -1292,7 +1292,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
     if (directTiming == 0) {
         btlCameraSetDuration(camera, distance);
     } else {
-        func_001bbf40(camera, distance);
+        btlCameraSetTransitionDuration(camera, distance);
     }
     if (notify != 0) {
         func_004b3110(8);
