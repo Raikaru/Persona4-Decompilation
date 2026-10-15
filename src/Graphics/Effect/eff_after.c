@@ -840,7 +840,7 @@ void effAfterFreeVectorBuffers(void *arg0) {
 /* Cold 004b8f40 (1932 instrs, frame -0x1A0 s19-s23/s30): no probe_archive */
 /* entry; m2c (u8*,void**) + romwright (u8*,int*) agree on signature (pointer */
 /* + pointer-to-pointer), m2c has 63 M2C_ERROR (mula/madd/msub) vs rw 0 errors */
-/* with counted fors (correct, not do/while). Stripped rw skeleton (FUN_->D_, */
+/* with counted fors (correct, not do/while). Stripped rw skeleton (fn refs->D_, */
 /* true->1, ._4_4_->u32>>32, void*+int->(u8*)*+int, externs stripped): retail */
 /* 1932/object 2721 (+40%, +789) edits 4101+6 gate outside (needs 1874-1990). */
 /* Surplus is one 436-instr pure lump [503] (duplicated phase where retail */

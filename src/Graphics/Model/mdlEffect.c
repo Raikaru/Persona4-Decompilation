@@ -522,7 +522,7 @@ void func_00482700(int param_1, float *param_2)
 }
 
 
-/* Removing this loses FUN_00482730 (MATCH nd0 -> MISMATCH nd45) - measured W161. */
+/* Removing this loses 0x00482730 (MATCH nd0 -> MISMATCH nd45) - measured W161. */
 
 // FUN_00482730
 /* measured: opt_loop_invariants on is required for func_00482730 (MATCH nd0). */

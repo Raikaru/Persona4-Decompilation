@@ -1,6 +1,6 @@
 /* Whole-file translation unit: src/Graphics/primitive.c */
 
-/* Source unit: src/Graphics/primitive_0045f0b0.c (donor P3 FUN_00358a30 primQuad3D) */
+/* Source unit: src/Graphics/primitive_0045f0b0.c (donor P3 0x00358a30 primQuad3D) */
 #include "include_asm.h"
 #include "type.h"
 
