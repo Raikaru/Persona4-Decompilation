@@ -526,8 +526,9 @@ void fclCombineDrawListRowPlain(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 a
    u32 base for the normalized 16-bit index, and write the loop increment as
    i = (s16)(i + 1); addOff(index*2, (u32)t) supplies the retail offset-first
    c74 address. */
+// Fcl combine slot rows: draws the three slot rows at the base offset (fclCombineDrawListRow for each), then recolours the selected slot's sprites; the middle row uses 0x160 when flag 0x1305 is set.
 // FUN_00315310
-void func_00315310(u8 *arg0, s64 arg1) {
+void fclCombineDrawSlotRows(u8 *arg0, s64 arg1) {
     FclByte4 c7C;
     FclByte4 c78;
     FclByte4 c74;
@@ -582,8 +583,9 @@ void func_00315310(u8 *arg0, s64 arg1) {
    first base into each load), fclSpriteCreate takes an s16 resource here, and
    the then-branch's second table index is its own s16 (retail $s1) while
    the else-branch reuses the first one ($s0). */
+// Fcl combine detail layout: arg1 == 0 creates the detail sprite set at its table positions and tints it; any other value only repositions the existing sprites.
 // FUN_00315600
-void func_00315600(u8 *arg0, s64 arg1) {
+void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
     extern s64 func_001060b0(void);
     extern s32 func_00110580(s32 arg0);
     extern s32 func_00110d30(s32 arg0);
@@ -690,8 +692,9 @@ void func_00315600(u8 *arg0, s64 arg1) {
    becomes live in each transition branch and remains shared by later rows.
    MWCC b210 -O2 reproduces 2572/2576 bytes with every relocation resolved.
    Evidence: docs/probe_archive/FclDraw_00316470_worker5_20260920.md. */
+// Fcl combine frame layout: arg1 == 1 places the four plate sprites 0xC1-0xC4; arg2 == 0 creates the header, bars and two count digits (0x69, 0x1AD, 0x2B3, 0x26E, 0x26F) and tints them, otherwise they are only repositioned.
 // FUN_00316470
-void func_00316470(u8 *arg0, s64 arg1, s8 arg2) {
+void fclCombineLayoutFrame(u8 *arg0, s64 arg1, s8 arg2) {
     extern s32 func_00104c70(s32);
     extern f32 D_00644380[];
     extern f32 D_00644378[];
@@ -864,8 +867,9 @@ void func_00316470(u8 *arg0, s64 arg1, s8 arg2) {
         }
     }
 }
+// Fcl combine label fades: five label sprites (0x8B, 0x8C, 0x8A, 0x8E, 0x8D), each with a show flag and a second flag. When the show flag is 1, a second flag of 0 creates the sprite at its table position and fades it in; nonzero fades it out from its current alpha.
 // FUN_00316E80
-void func_00316e80(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s64 arg6, s64 arg7, s8 arg8, s8 arg9, s8 arg10) {
+void fclCombineFadeLabelSprites(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s64 arg6, s64 arg7, s8 arg8, s8 arg9, s8 arg10) {
     FclVec2 sp88;
     FclVec2 sp80;
     FclVec2 sp78;
@@ -946,8 +950,9 @@ void fclCombineFadePanelSprite(u8 *arg0, s64 arg1, f32 fparg0) {
     fclSpriteStartAlphaAt(0x1E4, *(u8 *)(fclSpriteEntry(0x1E4) + 0x6E), 0, 0, 0xA, 0);
 }
 
+// Fcl combine cursor arrow fade: sprite 0x1E4 at x 358 plus fparg0 (the fixed-column variant of fclCombineFadePanelSprite); arg1 == 0 creates it and fades in, otherwise it fades out from its current alpha.
 // FUN_00317320
-void func_00317320(u8 *arg0, s64 arg1, f32 fparg0) {
+void fclCombineFadeCursorArrow(u8 *arg0, s64 arg1, f32 fparg0) {
     FclVec2 sp18;
     f32 *b;
 
@@ -962,8 +967,9 @@ void func_00317320(u8 *arg0, s64 arg1, f32 fparg0) {
     fclSpriteStartAlphaAt(0x1E4, *(u8 *)(fclSpriteEntry(0x1E4) + 0x6E), 0, 0, 0xA, 0);
 }
 
+// Fcl combine slot selection: recolours the selector sprites for the current slot (t+0xB3), steps the slot index (arg1 0 uses func_002b2cb0, 1 uses func_002b2d00), then recolours the selector for the new slot.
 // FUN_00317410
-void func_00317410(u8 *arg0, s8 arg1) {
+void fclCombineStepSlotSelection(u8 *arg0, s8 arg1) {
     FclByte4 sp6C;
     FclByte4 sp68;
     FclByte4 sp64;
@@ -3086,7 +3092,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                 ++ia;
             }
             func_0031e5b0(arg0, func_002b2970(16.0f, 104.0f), 0, 1, 0, 0, 0);
-            func_00316e80(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0);
             ja = 0;
             while ((s16)ja < (u16)datPersonaRosterCapacity()) {
                 ma = ja * 23;
@@ -3263,8 +3269,8 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
             fclSpriteStartAlphaAt(0x7E, 0xFF, 0, 0, 0xA, 0);
             fclSpriteSetFlag(0x7E, 0, 0);
         }
-        func_00316470(arg0, 1, 1);
-        func_00316e80(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
+        fclCombineLayoutFrame(arg0, 1, 1);
+        fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
         *(u8 *)(t + 1) = arg3;
     }
 }
@@ -3598,7 +3604,7 @@ void func_00324680(u8 *arg0, s32 arg1, s8 arg2) {
     FclVec2 *v;
 
     t = *(u8 **)(arg0 + 0x38);
-    func_00316470(arg0, 0, arg2);
+    fclCombineLayoutFrame(arg0, 0, arg2);
     func_0031e5b0(arg0, func_002b2970(6.0f, 104.0f), 0, arg2, 0, 1, 2);
     func_0031e5b0(arg0, func_002b2970((f32)315, 104.0f), 0, arg2, 1, 0, 0);
     i = 0;
@@ -3742,7 +3748,7 @@ void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s8 arg3) {
     fclSpriteStartAlphaAt(0xB5, 0, 0xFF, 0, 6, 0);
 }
 
-/* The cursor arrow at x 358 is func_00317320 with a zero offset. Retail
+/* The cursor arrow at x 358 is fclCombineFadeCursorArrow with a zero offset. Retail
    inlines it here, and it loads D_00644C90 before testing the flag. */
 static inline void fclShowCursorArrow(s8 flag)
 {
@@ -4140,18 +4146,18 @@ void func_00325450(u8 *arg0, s32 arg1, s8 arg2) {
     }
     if ((s8)arg2 == 0) {
         if ((s8)arg1 == 0) {
-            func_00316e80(arg0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0);
             fclShowCursorArrow(arg2);
         } else if ((s8)arg1 == 1) {
-            func_00316e80(arg0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0);
             fclShowCursorArrow(arg2);
         }
     } else {
         if ((s8)arg1 == 0) {
-            func_00316e80(arg0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1);
+            fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1);
             fclShowCursorArrow(arg2);
         } else if ((s8)arg1 == 1) {
-            func_00316e80(arg0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0);
+            fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0);
         }
     }
 }
