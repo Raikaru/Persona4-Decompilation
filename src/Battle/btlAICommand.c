@@ -3731,7 +3731,7 @@ s32 btlAICommandSideIdQueryAllHasBuff(void) {
    payload and m for c02 with conditional rebuilds disabled gives nd 0. */
 // FUN_001E2A80
 #pragma opt_rebuildconditionals off
-s32 func_001e2a80(void)
+s32 btlAICommandOppSideIdQueryAllHasBuff(void)
 {
     u32 shift;
     u32 v;
@@ -4118,7 +4118,7 @@ done:
 /* Removing this loses FUNC_001E3270 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUNC_001E3270
-s32 func_001e3270(void) {
+s32 btlAICommandOppSideIdQueryMyGroup(void) {
     u32 shift;
     u32 *r;
     s32 x;
@@ -4147,7 +4147,7 @@ s32 func_001e3270(void) {
 /* Removing this loses FUNC_001E3320 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUNC_001E3320
-s32 func_001e3320(void) {
+s32 btlAICommandOppSideIdQueryMyHrec(void) {
     u32 shift;
     u32 *r;
     s32 x;
@@ -4172,7 +4172,7 @@ s32 func_001e3320(void) {
 #pragma opt_rebuildconditionals on
 
 // FUN_001E33D0
-s32 func_001e33d0(void) {
+s32 btlAICommandScriptUnitIsIdOnSide(void) {
     u8 *p = func_0029d050();
     u32 a = scrGetParamInt(0) & 0xFFFF;
     u32 b = scrGetParamInt(1) & 0xFFFF;
@@ -4595,7 +4595,7 @@ u32 btlAICommandSideIdQueryMyAbleSkil(void)
 
 
 // FUN_001E43D0
-s32 func_001e43d0(void) {
+s32 btlAICommandScriptSelfHasBuff(void) {
     u8 *p = func_0029d050();
     scrSetReturnInt(datCalcHasBuffMask(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64), scrGetParamInt(0)) != 0);
     return 1;
@@ -4639,7 +4639,7 @@ u32 btlAICommandSideIdQueryMyAttrSkil(void)
 
 
 // FUN_001E4520
-s32 func_001e4520(void) {
+s32 btlAICommandScriptIsSelfListed(void) {
     u8 *p = func_0029d050();
     u32 flag = 0;
     u16 i;
@@ -4659,7 +4659,7 @@ s32 func_001e4520(void) {
 }
 
 // FUN_001E45D0
-s32 func_001e45d0(void) {
+s32 btlAICommandScriptAlwaysFalse(void) {
     scrSetReturnInt(0);
     return 1;
 }
@@ -4710,7 +4710,7 @@ s32 btlAICommandScriptQueryEnTaisei(void) {
 }
 
 // FUN_001E4810
-s32 func_001e4810(void) {
+s32 btlAICommandScriptRunAi(void) {
     u8 *p = func_0029d050();
     if (!((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0))
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
@@ -4760,7 +4760,7 @@ s32 btlAICommandCondQueryNotBad(void) {
 }
 
 // FUN_001E4B30
-s32 func_001e4b30(void) {
+s32 btlAICommandScriptPickMyIdFromArgs(void) {
     u32 a = scrGetParamInt(0);
     u32 b = scrGetParamInt(1);
     btlAICommandSelectCandidates(func_0029d050(), a, b, 0, 0, btlCond_MYID);
