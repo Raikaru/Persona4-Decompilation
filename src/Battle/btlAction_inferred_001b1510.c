@@ -102,7 +102,7 @@ extern s32 func_001ef9a0(void);
 extern void func_002aaaa0(void);
 extern void btlFadeStart(s32 arg0);
 extern s32 func_001faaa0(u8 *arg0);
-extern s32 func_00230210(void);
+extern s32 btlBossIsAllowedAction(void);
 extern s32 func_001fae10(void);
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
@@ -117,7 +117,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *arg0);
 extern u32 datCalcRandomBelow(u32 arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-extern void func_0022fdc0(u8 *arg0);
+extern void btlBossCollectTargets(u8 *arg0);
 extern s32 datCalcUnitClass(u8 *arg0);
 extern void func_001b1020(s32 arg0);
 extern void func_001b1280(s32 arg0);
@@ -357,7 +357,7 @@ void func_001b15b0(void)
     temp_5_2 = D_0076449C;
     if ((*(s32 *)(temp_5_2 + 0xC) & 0x200000) != 0 &&
         (*(u16 *)(temp_5_2 + 0x290) & 0x10) != 0) {
-        func_0022fdc0(0);
+        btlBossCollectTargets(0);
         temp_4_6 = D_0076449C;
         *(u16 *)(temp_4_6 + 0x290) &= 0xFFEF;
     }
@@ -707,7 +707,7 @@ void btlMainUnitCreateInit(void) {
             if ((*entry & 0x10) == 0) {
                 *(u16 *)(D_0076449C + 0x1A) = 0;
             }
-            func_0022fdc0((u8 *)0);
+            btlBossCollectTargets((u8 *)0);
         } else {
             *(u16 *)(D_0076449C + 0x1A) = func_001ef8c0();
             switch (*(u16 *)(D_0076449C + 0x1A)) {
@@ -1335,7 +1335,7 @@ void btlMainStartInit(void)
     if (func_001faaa0((u8 *)*(s32 *)(D_0076449C + 0x170)) == 0) {
         goto done;
     }
-    if (func_00230210() == 0) {
+    if (btlBossIsAllowedAction() == 0) {
         goto done;
     }
     var16 = *(u8 **)(D_0076449C + 0x17C);
@@ -1370,7 +1370,7 @@ s32 btlMainStartUpdate(void)
     if (func_001fab40(*(u8 **)(D_0076449C + 0x170)) != 0) {
         return 0;
     }
-    if (func_00230210() != 0) {
+    if (btlBossIsAllowedAction() != 0) {
         var_16 = *(u8 **)(D_0076449C + 0x17C);
         goto check;
 loop:

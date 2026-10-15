@@ -22,8 +22,8 @@ typedef struct BtlPacket {
 } BtlPacket;
 
 BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
-u32 func_002303e0(void* work);
-u32 func_00230450(void* work);
+u32 btlBossLoadPakInit(void* work);
+u32 btlBossLoadPakUpdate(void* work);
 extern s32 func_001f0ff0();
 extern s32 func_0019fc70();
 extern s32 func_001ef9a0();
@@ -48,7 +48,7 @@ extern char D_00635668[];
 /* Full-word zero/one predicate, shared with formation placement.
  * Both provider and caller retain their original native code. */
 // FUN_0022FB90
-s32 func_0022fb90(BtlUnit* first, BtlUnit* second)
+s32 btlBossUnitsSameGenus(BtlUnit* first, BtlUnit* second)
 {
     if ((*(u32*)(DAT_0076449c + 0xc) & 0x200000) == 0)
     {
@@ -68,7 +68,7 @@ s32 func_0022fb90(BtlUnit* first, BtlUnit* second)
 
 
 // FUN_0022FC00
-s32 func_0022fc00(u8* arg0)
+s32 btlBossTargetBlocked(u8* arg0)
 {
     u8 temp_4;
     BtlUnit* temp_3;
@@ -106,7 +106,7 @@ s32 func_0022fc00(u8* arg0)
     return 0;
 }
 // FUN_0022FCE0
-u32 func_0022fce0(s32 first, s32 second)
+u32 btlBossFlagPairOk(s32 first, s32 second)
 {
     u8 value;
 
@@ -127,7 +127,7 @@ u32 func_0022fce0(s32 first, s32 second)
 
 
 // FUN_0022FD30
-s32 func_0022fd30(u8* arg0)
+s32 btlBossActionBlocked(u8* arg0)
 {
     if ((*(s32*)(DAT_0076449c + 0xc) & 0x200000) == 0)
     {
@@ -144,7 +144,7 @@ s32 func_0022fd30(u8* arg0)
     return !((u32)func_0019fc70());
 }
 // FUN_0022FDC0
-void func_0022fdc0(u8 *arg0)
+void btlBossCollectTargets(u8 *arg0)
 {
     s32 *temp_16;
     s32 temp_2;
@@ -223,7 +223,7 @@ loop_16:
    argument materialization; object 168B, retail window 176B. */
 #pragma optimization_level 1
 // FUN_0022FF70
-s32 func_0022ff70(u8 *arg0)
+s32 btlBossSkillResultBlocked(u8 *arg0)
 {
     s32 value;
     s32 temp_3;
@@ -257,7 +257,7 @@ done:
 #pragma optimization_level 2
 /* measured: literal-return switch reproduces the retail branch after the zero assignment. */
 // FUN_00230020
-s32 func_00230020(u8 *arg0)
+s32 btlBossSkillAllowed(u8 *arg0)
 {
     u16 temp_4;
 
@@ -286,7 +286,7 @@ s32 func_00230020(u8 *arg0)
     return 1;
 }
 // FUN_002300F0
-u32 func_002300f0(u8 *arg0, u16 *out1, u16 *out2)
+u32 btlBossRemapSkillPair(u8 *arg0, u16 *out1, u16 *out2)
 {
     if ((*(u32 *)(DAT_0076449c + 0xc) & 0x200000) == 0)
         return 0;
@@ -298,10 +298,10 @@ u32 func_002300f0(u8 *arg0, u16 *out1, u16 *out2)
     *out2 = 0x110;
     return 1;
 }
-/* measured probe: opt_loop_invariants on for func_00230170 */
+/* measured probe: opt_loop_invariants on for btlBossCopyPartnerMark */
 #pragma opt_loop_invariants on
 // FUN_00230170
-void func_00230170(u8 *arg0)
+void btlBossCopyPartnerMark(u8 *arg0)
 {
     u8 *temp_6;
     u8 *var_6;
@@ -332,7 +332,7 @@ loop_done:
 
 #pragma opt_loop_invariants off
 // FUN_00230210
-s32 func_00230210(void)
+s32 btlBossIsAllowedAction(void)
 {
     s32 temp_2;
 
@@ -377,7 +377,7 @@ s32 func_00230210(void)
     }
 }
 // FUN_00230340
-void func_00230340(u8 *arg0)
+void btlBossResetPendingCue(u8 *arg0)
 {
     u8 *temp_5;
     u8 *temp_6;
@@ -408,7 +408,7 @@ void func_00230340(u8 *arg0)
     }
 }
 // FUN_002303E0
-u32 func_002303e0(void* work)
+u32 btlBossLoadPakInit(void* work)
 {
     u8 buf[0x80];
 
@@ -420,7 +420,7 @@ u32 func_002303e0(void* work)
 
 
 // FUN_00230450
-u32 func_00230450(void* work)
+u32 btlBossLoadPakUpdate(void* work)
 {
     u32 handle;
 
@@ -444,8 +444,8 @@ BtlPacket* btlBossCreateLoadPakPacket(void)
 
     packet = btlPacketAlloc(0xe00, 0);
     packet->flags &= ~(1 << 0);
-    packet->initFunc = func_002303e0;
-    packet->updateFunc = func_00230450;
+    packet->initFunc = btlBossLoadPakInit;
+    packet->updateFunc = btlBossLoadPakUpdate;
 
     return packet;
 }
@@ -458,7 +458,7 @@ typedef struct BtlBossEndBgmWork {
 } BtlBossEndBgmWork;
 
 // FUN_00230500
-u32 func_00230500(BtlBossEndBgmWork* work)
+u32 btlBossLoadEndBgmStep(BtlBossEndBgmWork* work)
 {
     u8 buf[0x80];
 

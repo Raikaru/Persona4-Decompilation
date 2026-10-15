@@ -182,9 +182,9 @@ u32 btlFormationPlaceUnits(u32 *work)
     extern f32 RwV2dLength(f32 *vector);
     extern s32 func_001f0ff0(u32 action);
     extern s32 func_001f11e0(s16 action);
-    extern s32 func_0022fb90(struct BtlUnit *, struct BtlUnit *);
-    extern s32 func_0022fc00(u8 *);
-    extern u32 func_0022fce0(s32, s32);
+    extern s32 btlBossUnitsSameGenus(struct BtlUnit *, struct BtlUnit *);
+    extern s32 btlBossTargetBlocked(u8 *);
+    extern u32 btlBossFlagPairOk(s32, s32);
     extern u8 *iGpffffb3ac;
     extern f32 fGpffff809c;
     typedef struct { f32 v[3]; } Vec3;
@@ -258,13 +258,13 @@ u32 btlFormationPlaceUnits(u32 *work)
             if ((*(u32 *)(iGpffffb3ac + 0x10) & 0x1000000) != 0) {
                 return 1;
             }
-            if (func_0022fc00(base) == 0) {
+            if (btlBossTargetBlocked(base) == 0) {
                 return 1;
             }
             unitB = *(u8 **)(base + 0x30);
             other = *(u8 **)(unitA + 0x30);
             entry = *(u8 **)(unitB + 0xA0C);
-            if (func_0022fb90((struct BtlUnit *)(unitB), (struct BtlUnit *)(other)) != 0) {
+            if (btlBossUnitsSameGenus((struct BtlUnit *)(unitB), (struct BtlUnit *)(other)) != 0) {
                 *(u32 *)(iGpffffb3ac + 0xC) |= 0x400000;
                 *(u16 *)(iGpffffb3ac + 0x18) |= 0xE;
             }
@@ -272,7 +272,7 @@ u32 btlFormationPlaceUnits(u32 *work)
             func_00195aa0((struct BtlUnit *)(other), (struct BtlUnit *)(unitB), (struct RwV3d *)((f32 *)&centerB));
             centerB.v[1] = *(f32 *)(unitB + 8);
             centerA[1] = centerB.v[1];
-            if (work[2] == 1 && other != unitB && func_0022fce0((s32)(unitB), (s32)(other)) != 0) {
+            if (work[2] == 1 && other != unitB && btlBossFlagPairOk((s32)(unitB), (s32)(other)) != 0) {
                 if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
                     btlUnitGetSphereWorldCenter((struct BtlUnit *)(other), (struct RwV3d *)((f32 *)&tmpF0));
                     btlTargetBlendVectors((u8 *)(quat), (u8 *)((f32 *)&tmpF0), (u8 *)(centerA));

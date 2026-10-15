@@ -3567,8 +3567,8 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern s32 func_0022eba0(u8 *packet);
     extern s32 func_0022f8b0(u8 *arg0, s32 arg1);
     extern s32 func_0022f950(u8 *arg0, u8 *arg1);
-    extern s32 func_0022fd30();
-    extern s32 func_00230020(u8 *arg0);
+    extern s32 btlBossActionBlocked();
+    extern s32 btlBossSkillAllowed(u8 *arg0);
     extern u16 datCalcGetHp(s32 unit);
     extern s32 func_0023df70(s32 skill);
     /* lint: allow H011 -- the definition is an asm function returning int. */
@@ -4019,7 +4019,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     if (pendingFollow != 0) {
         sp2B0 = 1;
     }
-    bossCheck = (s32)(s32)(func_00230020(arg0));
+    bossCheck = (s32)(s32)(btlBossSkillAllowed(arg0));
     if (side >= 0) {
         if (sp2B0 != 0) {
             rotateFlags = 0x1002;
@@ -4445,7 +4445,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 waitPkt46->ownerId = actionId;
                 btlPacketEnqueue((u8 *)animPacket, 0);
             }
-            if ((actionFlag4000 == 0) && ((s32)(func_0022fd30(arg0, skillIndex)) != (s32)(0))) {
+            if ((actionFlag4000 == 0) && ((s32)(btlBossActionBlocked(arg0, skillIndex)) != (s32)(0))) {
                 cameraPkt47 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x15));
                 cameraPkt47->queue = 4;
                 cameraPkt47->startTime = animPacket->endTime;

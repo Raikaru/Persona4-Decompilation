@@ -307,7 +307,7 @@ extern void func_0047d170(void *model);
 extern s32 func_0047e6f0(void **owner);
 extern void btlUnitUpdateLookAtTarget(u8 *arg0);
 extern void func_001fc1b0(s16 arg0);
-extern s32 func_002300f0();
+extern s32 btlBossRemapSkillPair();
 extern void btlUnitModelLoadPacketInit(u8 *arg0);
 extern s32 btlUnitModelMotionPacketUpdate();
 extern void func_001d6ee0(s32 arg0);

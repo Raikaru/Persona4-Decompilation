@@ -218,8 +218,8 @@ extern void btlTargetPositionToCell(s16 *outX, s16 *outZ, f32 *position);
 extern u8 *iGpffffb3e0;
 extern s32 func_001f0ff0(u32 action);
 extern s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2);
-extern s32 func_0022fc00(u8 *arg0);
-extern s32 func_0022ff70(u8 *arg0);
+extern s32 btlBossTargetBlocked(u8 *arg0);
+extern s32 btlBossSkillResultBlocked(u8 *arg0);
 
 extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
@@ -4244,7 +4244,7 @@ s32 func_0022b870(u8 *arg0)
     extern u32 datUnitInit(DatUnit *unit, u8 genus, u16 id);
     extern s32 func_001b0d70(u8 *arg0);
     extern s32 func_001b1540(void);
-    extern void func_0022fdc0(u8 *arg0);
+    extern void btlBossCollectTargets(u8 *arg0);
     extern u8 *func_001f7650(u8 *arg0);
     extern u8 D_00630C50[];
     u32 index;
@@ -4267,7 +4267,7 @@ s32 func_0022b870(u8 *arg0)
         *(u16 *)temp |= 0x20;
         *(u16 *)(arg0 + 0x1A) |= 0x100;
         func_001b0d70(arg0);
-        func_0022fdc0((u8 *)func_001b1540());
+        btlBossCollectTargets((u8 *)func_001b1540());
         index = 0;
         fill = -1;
         goto loop_test;
@@ -6000,10 +6000,10 @@ s32 func_0022f950(u8 *arg0, u8 *arg1) {
                      (*(u16 *)(arg1 + 0xA4) * 0x58)) & 0x20)) {
             return 1;
         }
-        if (func_0022ff70(arg0) == 1) {
+        if (btlBossSkillResultBlocked(arg0) == 1) {
             return 1;
         }
-        if (func_0022fc00(arg0) == 0) {
+        if (btlBossTargetBlocked(arg0) == 0) {
             return 1;
         }
     }
