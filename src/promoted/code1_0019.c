@@ -350,14 +350,6 @@ s32 func_00190130(s32 arg0)
     }
     return (s32)func_00451fc0((void *)((u8 *)arg0), (const void *)(D_005F6020), 0xF, 0, 0, func_0018f950, func_001900a0, (u8 *)(work));
 }
-// FUN_00191E20
-void *func_00191e20(void *arg0, void *data) {
-    if (func_003e8120(func_00457120()) != 0) {
-        func_003c1bd0((s32)(uintptr_t)arg0);
-    }
-    func_003e8110(func_00457120());
-    return arg0;
-}
 /* measured: opt_propagation off is scoped to func_001927c0. */
 #pragma opt_propagation off
 // FUN_001927C0
