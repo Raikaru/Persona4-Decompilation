@@ -74,13 +74,13 @@ s32 FldAI_ChaserUpdate(u8 *task)
     extern f32 func_0044b920(f32);
     extern s32 KMisc_CreateRmdFade(s32, s32, s32, s32, s32);
     extern s32 func_0014bd90(u8 *);
-    extern s32 func_001687d0(u8 *);
-    extern s32 func_001687e0(u8 *);
-    extern void func_00168750(u8 *, s32);
-    extern void func_001687f0(u8 *, u8 *);
-    extern void func_00168ae0(u8 *, u8 *);
-    extern void func_00168cb0(u8 *, f32);
-    extern void func_00168de0(u8 *, const void *, f32);
+    extern s32 FldFrameTask_GetTileX(u8 *);
+    extern s32 FldFrameTask_GetTileZ(u8 *);
+    extern void FldFrameTask_ClearFlags(u8 *, s32);
+    extern void FldFrameTask_GetPosition(u8 *, u8 *);
+    extern void FldFrameTask_SetPosition(u8 *, u8 *);
+    extern void FldFrameTask_StartMove(u8 *, f32);
+    extern void FldFrameTask_Rotate(u8 *, const void *, f32);
     extern s32 func_0016fd00(s32);
     extern s32 func_0016ffd0(s32);
     extern s32 FldAI_ChaserGetState(u8 *);
@@ -195,11 +195,11 @@ discoveryAvailabilityDone:
 
     }
     case 1:
-        tileX = func_001687d0(*(u8 **)(D_007EFA00[1] + 0x220));
-        tileZ = func_001687e0(*(u8 **)(D_007EFA00[1] + 0x220));
+        tileX = FldFrameTask_GetTileX(*(u8 **)(D_007EFA00[1] + 0x220));
+        tileZ = FldFrameTask_GetTileZ(*(u8 **)(D_007EFA00[1] + 0x220));
         {
             struct RwFrame *frame = *(struct RwFrame **)((u8 *)(u32)func_00457120() + 4);
-            func_001687f0(selfPosition.bytes,
+            FldFrameTask_GetPosition(selfPosition.bytes,
                 *(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220));
             focusPosition = *(RwV3d *)selfPosition.bytes;
             focusPosition.y += 180.0f;
@@ -254,7 +254,7 @@ discoveryAvailabilityDone:
                 *(s32 *)(work + 0x58) = 0;
                 *(s32 *)(work + 0x5C) = 0;
                 *(s32 *)(work + 0x4C) = -1;
-                func_00168750(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), 1);
+                FldFrameTask_ClearFlags(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), 1);
                 *(s32 *)(work + 0x18) = 1;
                 if (*(s32 *)(work + 0x1C) != *(s32 *)(work + 0x18)) {
                     u32 random = RpRandom() & 1;
@@ -486,7 +486,7 @@ distanceChosen:
         if (*(s32 *)(work + 8) != 0)
             goto moveFollower;
             matrix = mdlGetMatrix(*(u8 **)(D_007EFA00[1] + 0x164));
-            func_00168ae0(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), matrix + 0x30);
+            FldFrameTask_SetPosition(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), matrix + 0x30);
             *(s32 *)(work + 0x4C) = -1;
             *(s32 *)(work + 0x58) = 0;
             *(s32 *)(work + 0x5C) = 0;
@@ -496,13 +496,13 @@ moveFollower:
             active = 0;
             historyIndex = *(s32 *)(*(u8 **)(work + 0x10) + 0x710) - 1;
             if (turn != 0.0f && speed != 0.0f)
-                func_00168de0(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), D_00756510, turn);
+                FldFrameTask_Rotate(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), D_00756510, turn);
             if (speed != 0.0f)
-                func_00168cb0(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), speed);
+                FldFrameTask_StartMove(*(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220), speed);
             if (historyIndex < 0) historyIndex = 63;
             entry = *(u8 **)(work + 0x10);
             if (*(fldFollowerStorageOffset(historyIndex, entry) + 0x1D0) != 0) {
-                func_001687f0(historyPoint.bytes, *(u8 **)(*(u8 **)(entry + 0x54) + 0x220));
+                FldFrameTask_GetPosition(historyPoint.bytes, *(u8 **)(*(u8 **)(entry + 0x54) + 0x220));
                 historyDelta = *(RwV3d *)historyPoint.bytes;
                 {
                     u8 *historySample = fldFollowerStorageOffset(historyIndex * 8, *(u8 **)(work + 0x10));
@@ -1002,9 +1002,9 @@ extern void func_0014dce0(unsigned char *, unsigned char *);
 extern void func_0014dd10(unsigned char *, unsigned char *);
 extern int func_0014e740(unsigned char *, float *);
 extern int func_0015c1e0(int);
-extern void func_00168ae0(unsigned char *, unsigned char *);
-extern void func_00168cb0(unsigned char *, float);
-extern void func_00168de0(u8 *task, const void *axis, f32 angle);
+extern void FldFrameTask_SetPosition(unsigned char *, unsigned char *);
+extern void FldFrameTask_StartMove(unsigned char *, float);
+extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 extern float FldEvent_GetMoveStep(void);
 extern int func_00452080(void *);
 extern int func_0045af60(short, short, short, short);
@@ -1308,13 +1308,13 @@ availabilityDone:
         if (state2Delta.x * state2Right.x + state2Delta.y * state2Right.y + state2Delta.z * state2Right.z < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
-        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
+        FldFrameTask_Rotate(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
         temp_v11 = fldAIAccumulateTurn(&((float *)piVar1)[0x1c], temp_v11);
         if ((!(temp_v11 <= 360.0f)) || (temp_v11 < -360.0f)) {
           *piVar1 = 1;
         }
       }
-      func_00168cb0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
+      FldFrameTask_StartMove(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
       if (0 < piVar1[0x18]) {
         if (piVar1[0x19] != 0) {
           ((float *)piVar1)[0x1a] = (((float *)piVar1)[0x1a] +
@@ -1344,7 +1344,7 @@ else {
       break;
     case 3:
       if (piVar1[0x23] >= 0) {
-        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510,
+        FldFrameTask_Rotate(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510,
                       *(float *)(piVar1[5] + 0x18) * 10.0f * ((float *)piVar1)[0x1d]);
         temp_v0 = FldAI_ChaserCanSeeTarget((unsigned char *)piVar1[3]);
         if (temp_v0 == 1) {
@@ -1499,9 +1499,9 @@ else {
         if (state7Delta.x * state7Right.x + state7Delta.y * state7Right.y + state7Delta.z * state7Right.z < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
-        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
+        FldFrameTask_Rotate(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
       }
-      func_00168cb0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
+      FldFrameTask_StartMove(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
       if (0 < piVar1[0x18]) {
         *(float *)((u8 *)(u32)piVar1 + 0x68) = (*(float *)((u8 *)(u32)piVar1 + 0x68) +
                             (*(float *)(piVar1[5] + 0x20) - *(float *)(piVar1[5] + 0x18)) / 15.0f);
@@ -1630,9 +1630,9 @@ else {
         if (state8Delta.x * state8Right.x + state8Delta.y * state8Right.y + state8Delta.z * state8Right.z < 0.0f) {
           temp_v11 = temp_v11 * -1.0f;
         }
-        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
+        FldFrameTask_Rotate(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
       }
-      func_00168cb0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
+      FldFrameTask_StartMove(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
       if (0 < piVar1[0x18]) {
         *(float *)((u8 *)(u32)piVar1 + 0x68) = (*(float *)((u8 *)(u32)piVar1 + 0x68) +
                             (*(float *)(piVar1[5] + 0x20) - *(float *)(piVar1[5] + 0x18)) / 15.0f);
@@ -1736,8 +1736,8 @@ else {
       if (state9Delta.x * state9Right.x + state9Delta.y * state9Right.y + state9Delta.z * state9Right.z < 0.0f) {
         temp_v11 = temp_v11 * -1.0f;
       }
-      func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
-      func_00168cb0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
+      FldFrameTask_Rotate(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v11);
+      FldFrameTask_StartMove(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
       if (0 < piVar1[0x18]) {
         ((float *)piVar1)[0x1a] = (((float *)piVar1)[0x1a] +
                             (*(float *)(piVar1[5] + 0x20) - *(float *)(piVar1[5] + 0x18)) / 15.0f);
@@ -1789,14 +1789,14 @@ else {
       if (state10Delta.x * state10Right.x + state10Delta.y * state10Right.y + state10Delta.z * state10Right.z < 0.0f) {
         temp_v9 = temp_v9 * -1.0f;
       }
-      func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v9);
+      FldFrameTask_Rotate(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v9);
       temp_v9 = fldAIAccumulateTurn(&((float *)piVar1)[0x1c], temp_v9);
       if ((!(temp_v9 <= 360.0f)) || (temp_v9 < -360.0f)) {
         *(unsigned int *)(piVar1[3] + 0x40) = *(unsigned int *)(piVar1[3] + 0x40) & 0xfffffffb;
         ((float *)piVar1)[0x1a] = *(float *)(piVar1[5] + 0x18);
         *piVar1 = 1;
       }
-      func_00168cb0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
+      FldFrameTask_StartMove(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),temp_v8);
       if (0 < piVar1[0x18]) {
         ((float *)piVar1)[0x1a] = (((float *)piVar1)[0x1a] +
                             (*(float *)(piVar1[5] + 0x20) - *(float *)(piVar1[5] + 0x18)) / 15.0f);
@@ -1841,7 +1841,7 @@ else {
         if (state11Delta.x * state11Right.x + state11Delta.y * state11Right.y + state11Delta.z * state11Right.z < 0.0f) {
           temp_v9 = temp_v9 * -1.0f;
         }
-        func_00168de0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v9);
+        FldFrameTask_Rotate(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220), D_00756510, temp_v9);
       }
       temp_v0 = FldAI_ChaserCanSeeTarget((unsigned char *)piVar1[3]);
       if (temp_v0 == 1) {
@@ -1923,7 +1923,7 @@ else {
       if (temp_v0 != 0) {
         func_00452080((void *)piVar1[0x22]);
         piVar1[0x22] = 0;
-        func_00168ae0(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),(u8 *)&((FldAINpc *)piVar1[3])->origin);
+        FldFrameTask_SetPosition(*(unsigned char **)(*(int *)(piVar1[3] + 0x54) + 0x220),(u8 *)&((FldAINpc *)piVar1[3])->origin);
         temp_v0 = piVar1[3];
         if (*(unsigned char *)(temp_v0 + 0x1ca) == '\0') {
           temp_v0 = KMisc_CreateRmdFade((int)param_1,*(int *)(temp_v0 + 0x50),0,0xff,10);

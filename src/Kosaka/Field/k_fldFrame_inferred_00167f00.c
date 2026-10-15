@@ -72,7 +72,7 @@ extern u8 D_005F1630[];
 extern u8 D_005F1610[];
 extern u8 D_007F00D8[];
 extern u8 D_007E9328[];
-extern s32 func_00168060(u8 *arg0);
+extern s32 FldFrameTask_Update(u8 *arg0);
 extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void func_00478e70(s32 arg0);
 extern s32 iGpffff9f00;
@@ -191,7 +191,7 @@ static inline f32 code1_0016_cvt(s32 value) {
 /* measured: optimization_level 1 reproduces func_001623f0's register coloring. */
 /* measured: restore baseline optimization level after func_001623f0. */
 // FUN_00167F00
-s32 func_00167f00(u8 *arg0)
+s32 FldFrameTask_UpdateFollower(u8 *arg0)
 {
     s32 temp_3;
     s32 temp_4_2;
@@ -235,13 +235,13 @@ s32 func_00167f00(u8 *arg0)
 }
 
 // FUN_00168030
-void func_00168030(u8 *arg0)
+void FldFrameTask_DestroyFollower(u8 *arg0)
 {
     (*DAT_008873EC)(*(void **)(arg0 + 0x38));
 }
 
 // FUN_00168060
-s32 func_00168060(u8 *arg0)
+s32 FldFrameTask_Update(u8 *arg0)
 {
     F8060Frame stack;
     s32 state;
@@ -356,17 +356,17 @@ s32 func_00168060(u8 *arg0)
 }
 
 // FUN_00168470
-void func_00168470(u8 *arg0)
+void FldFrameTask_Destroy(u8 *arg0)
 {
     (*DAT_008873EC)(*(void **)(arg0 + 0x38));
 }
 
 // FUN_001684A0
 /* measured: opt_loop_invariants hoists the two resource-table strides and
-   their absolute bases for func_001684a0. */
-/* measured: func_001684a0 MATCH -> MISMATCH without this pragma. */
+   their absolute bases for FldFrameTask_Spawn. */
+/* measured: FldFrameTask_Spawn MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 func_001684a0(s32 arg0, s32 arg1, f32 fparg0)
+s32 FldFrameTask_Spawn(s32 arg0, s32 arg1, f32 fparg0)
 {
     s32 temp_18;
     s32 temp_7;
@@ -390,7 +390,7 @@ s32 func_001684a0(s32 arg0, s32 arg1, f32 fparg0)
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_18 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1630), 0xF, 0, 0, func_00168060, func_00168470, (u8 *)(temp_2));
+    temp_18 = (s32)func_00451fc0((void *)(arg0), (const void *)(D_005F1630), 0xF, 0, 0, FldFrameTask_Update, FldFrameTask_Destroy, (u8 *)(temp_2));
     *(s32 *)temp_2 = 1;
     temp_4 = arg1 & 0xFFFF;
     *(s16 *)(temp_2 + 8) = arg1;
@@ -435,37 +435,37 @@ s32 func_001684a0(s32 arg0, s32 arg1, f32 fparg0)
     func_0044ea90(D_005F15F8, 0x83);
     base = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x10, 0x40000);
     if (base != NULL) {
-        (s32)func_00451fc0((void *)(temp_18), (const void *)(D_005F1610), 0x10, 0, 0, func_00167f00, func_00168030, (u8 *)(base));
+        (s32)func_00451fc0((void *)(temp_18), (const void *)(D_005F1610), 0x10, 0, 0, FldFrameTask_UpdateFollower, FldFrameTask_DestroyFollower, (u8 *)(base));
         *(s16 *)(base + 4) = arg1;
     }
     return temp_18;
 }
 
-/* measured: closes the opt_loop_invariants scope for func_001684a0. */
-/* measured: func_001687f0, func_00168890, func_00168cb0 MATCH -> MISMATCH without this pragma. */
+/* measured: closes the opt_loop_invariants scope for FldFrameTask_Spawn. */
+/* measured: FldFrameTask_GetPosition, FldFrameTask_SetOrientation, FldFrameTask_StartMove MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants off
 // FUN_00168730
-void func_00168730(u8 *arg0, s32 arg1)
+void FldFrameTask_SetFlags(u8 *arg0, s32 arg1)
 {
     u8 *temp_0 = *(u8 **)(arg0 + 0x38);
     *(s32 *)(temp_0 + 4) = *(s32 *)(temp_0 + 4) | arg1;
 }
 
 // FUN_00168750
-void func_00168750(u8 *arg0, s32 arg1)
+void FldFrameTask_ClearFlags(u8 *arg0, s32 arg1)
 {
     u8 *temp_0 = *(u8 **)(arg0 + 0x38);
     *(s32 *)(temp_0 + 4) = *(s32 *)(temp_0 + 4) & ~arg1;
 }
 
 // FUN_00168770
-f32 func_00168770(u8 *arg0)
+f32 FldFrameTask_GetHeight(u8 *arg0)
 {
     return *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x24);
 }
 
 // FUN_00168780
-void func_00168780(u8 *arg0, f32 fparg0) {
+void FldFrameTask_SetHeight(u8 *arg0, f32 fparg0) {
     u8 *temp_5;
 
     temp_5 = (u8 *)(*(u8 **)(arg0 + 0x38));
@@ -478,19 +478,19 @@ void func_00168780(u8 *arg0, f32 fparg0) {
 }
 
 // FUN_001687D0
-s32 func_001687d0(u8 *arg0)
+s32 FldFrameTask_GetTileX(u8 *arg0)
 {
     return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x40);
 }
 
 // FUN_001687E0
-s32 func_001687e0(u8 *arg0)
+s32 FldFrameTask_GetTileZ(u8 *arg0)
 {
     return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x44);
 }
 
 // FUN_001687F0
-void func_001687f0(u8 *arg0, u8 *arg1)
+void FldFrameTask_GetPosition(u8 *arg0, u8 *arg1)
 {
     RwV3d sp20;
     u8 *var_4;
@@ -518,7 +518,7 @@ void func_001687f0(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00168890
-void func_00168890(u8 *arg0, u8 *arg1)
+void FldFrameTask_SetOrientation(u8 *arg0, u8 *arg1)
 {
     RwV3d sp70;
     RwV3d sp60;
@@ -583,7 +583,7 @@ void func_00168890(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00168AE0
-void func_00168ae0(u8 *arg0, u8 *arg1)
+void FldFrameTask_SetPosition(u8 *arg0, u8 *arg1)
 {
     RwV3d sp30;
     s32 temp_4;
@@ -616,7 +616,7 @@ void func_00168ae0(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00168C00
-void func_00168c00(u8 *arg0) {
+void FldFrameTask_UpdateTile(u8 *arg0) {
     u8 *temp_16;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
@@ -629,7 +629,7 @@ void func_00168c00(u8 *arg0) {
 }
 
 // FUN_00168CB0
-void func_00168cb0(u8 *arg0, f32 fparg0)
+void FldFrameTask_StartMove(u8 *arg0, f32 fparg0)
 {
     RwV3d sp30;
     u8 *var_4;
@@ -668,7 +668,7 @@ void func_00168cb0(u8 *arg0, f32 fparg0)
 }
 
 // FUN_00168DE0
-void func_00168de0(u8 *arg0, const void *arg1, f32 fparg0) {
+void FldFrameTask_Rotate(u8 *arg0, const void *arg1, f32 fparg0) {
     RwV3d sp50;
     RwV3d sp40;
     s32 temp_4;

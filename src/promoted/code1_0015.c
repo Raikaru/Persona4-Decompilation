@@ -123,8 +123,8 @@ extern s32 func_00457c90(s32 arg0, const void *arg1);
 extern u8 D_005F0690[];
 extern u8 D_005F06A0[];
 extern void func_0016eb00(s32 arg0);
-extern s32 func_001687d0(s32 arg0);
-extern s32 func_001687e0(s32 arg0);
+extern s32 FldFrameTask_GetTileX(s32 arg0);
+extern s32 FldFrameTask_GetTileZ(s32 arg0);
 extern f32 KDraw_MatrixYawDeg(u8 *arg0);
 extern void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3,
                           s32 arg4, s32 arg5, u8 arg6, s32 *arg7);
@@ -3046,8 +3046,8 @@ void func_0015bae0(void)
     var_15 = 0;
     if (func_0014a160() != 0) {
         if (temp_s5 != NULL) {
-            var_16 = func_001687d0(*(s32 *)(temp_s5 + 0x220));
-            var_15 = func_001687e0(*(s32 *)(temp_s5 + 0x220));
+            var_16 = FldFrameTask_GetTileX(*(s32 *)(temp_s5 + 0x220));
+            var_15 = FldFrameTask_GetTileZ(*(s32 *)(temp_s5 + 0x220));
             goto clear_test;
 clear_body:
             *(u32 *)(var_19 + 0x28) &= ~2U;

@@ -149,7 +149,7 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
 
-extern s32 func_001684a0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
+extern s32 FldFrameTask_Spawn(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
@@ -356,7 +356,7 @@ s32 func_00145540(u16 arg0, u16 arg1, void *arg2) {
     *(void **)(temp_2 + 0x164) = arg2;
     func_0047a180((RwMatrix *)arg2, (const RwV3d *)sp50, 0);
     RwMatrixUpdate((u8 *)mdlGetMatrix(*(void **)(temp_2 + 0x164)));
-    temp_2_2 = func_001684a0(0, temp_16 & 0xFFFF, 0, 60.0f);
+    temp_2_2 = FldFrameTask_Spawn(0, temp_16 & 0xFFFF, 0, 60.0f);
     *(s32 *)(temp_2 + 0x220) = temp_2_2;
     *(void **)(temp_2 + 0x224) = FldShadow_CreateCaster((u8 *)temp_2_2, shadowId, arg1);
     return temp_16;
@@ -434,7 +434,7 @@ s32 func_00145780(u16 arg0, u16 arg1, s32 arg2) {
     }
     *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 0x10000000;
     *(s32 *)(temp_2 + 0x164) = arg2;
-    temp_2_2 = func_001684a0(0, temp_17 & 0xFFFF, 0, 60.0f);
+    temp_2_2 = FldFrameTask_Spawn(0, temp_17 & 0xFFFF, 0, 60.0f);
     *(s32 *)(temp_2 + 0x228) = temp_2_2;
     *(void **)(temp_2 + 0x230) = FldShadow_CreateCaster((u8 *)temp_2_2, shadowId, arg1);
     return temp_17;
