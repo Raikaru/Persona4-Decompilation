@@ -84,7 +84,7 @@ extern void datCalcIsDeadById(s16 arg0);
 extern void func_001056e0(s16 arg0, s16 arg1);
 extern void datCalcClearBadStatusById(s16 arg0, s32 arg1);
 extern void KMisc_CreateScrShutdown(s32 arg0);
-extern void func_00260510(void);
+extern void sdlSchedulerEnable(void);
 extern u8 iGpffffa0a0;
 extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
@@ -619,7 +619,7 @@ s32 func_00193450(void)
                 dep = iGpffffb280;
                 func_0029db50(0xF, iGpffffb284, dep, 0);
                 KMisc_CreateScrShutdown(*(s32 *)(func_0029d040() + 0x148));
-                func_00260510();
+                sdlSchedulerEnable();
                 iGpffffb3b0 = 1;
                 goto block_13;
             }

@@ -45,7 +45,7 @@ extern s32 func_0015f660();
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
 extern s32 func_00102980(void);
 extern void func_00145080(void);
-extern void func_00260510(void);
+extern void sdlSchedulerEnable(void);
 extern void *memset(void *dst, s32 value, s32 size);
 extern s32 func_00110e80(void);
 /* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
@@ -282,7 +282,7 @@ s32 func_00176370(void) {
     if (func_0015f660() == 0) {
         return 0;
     }
-    func_00260510();
+    sdlSchedulerEnable();
     memset(&sp1C, 0, 4);
     sp1C = scrGetParamInt(0);
     func_001029a0(0xC, &sp1C, 4, 2);
@@ -294,7 +294,7 @@ s32 func_001763f0(void) {
     if (func_0015f660() == 0) {
         return 0;
     }
-    func_00260510();
+    sdlSchedulerEnable();
     func_001029a0(0xD, NULL, 0, 2);
     return 1;
 }
@@ -307,7 +307,7 @@ s32 func_00176450(void)
     if (func_0015f660() == 0) {
         return 0;
     }
-    func_00260510();
+    sdlSchedulerEnable();
     memset(sp10, 0, 0x1C);
     sp10[0] = (s16)scrGetParamInt(0);
     sp10[1] = (s16)scrGetParamInt(1);
@@ -325,7 +325,7 @@ s32 func_00176500(void)
     if (func_0015f660() == 0) {
         return 0;
     }
-    func_00260510();
+    sdlSchedulerEnable();
     *(s16 *)(iGpffff9db0 + 0x10) = -1;
     memset(sp10, 0, 0x1C);
     sp10[0] = (s16)scrGetParamInt(0);
@@ -379,7 +379,7 @@ s32 func_001766e0(void)
     if (func_0015f660() == 0) {
         return 0;
     }
-    func_00260510();
+    sdlSchedulerEnable();
     if (func_00102980() != 0xB) {
         func_00145080();
     }
@@ -400,7 +400,7 @@ s32 func_00176770(void)
     if (func_00102980() != 0xB) {
         func_00145080();
     }
-    func_00260510();
+    sdlSchedulerEnable();
     sp18[0] = scrGetParamInt(0);
     sp18[1] = scrGetParamInt(1);
     func_001029a0(0xB, sp18, 8, 4);

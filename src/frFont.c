@@ -67,7 +67,7 @@ extern u32 DAT_00881524_abs[];
 
 extern s32 D_007645BC;
 extern s32 D_008815B0[];
-extern s32 func_0026e010();
+extern s32 rbRingBufCreate();
 extern void frFontRasterCreateCache();
 extern void frFontLoadTables(void);
 
@@ -353,8 +353,8 @@ void frFontInitManager(s32 arg0, s32 arg1)
     }
     DAT_00881778_abs[0] = var_2_3 & 0xff;
     frFontInitSlotGrid(DAT_0088177C_abs[0], 0x10, var_16, 0x20, 0x20, 0x10);
-    DAT_0088175c_abs[0] = func_0026e010(0x2c, arg1 * 4);
-    *(s32 *)DAT_00881760_abs = func_0026e010(0x44, arg1);
+    DAT_0088175c_abs[0] = rbRingBufCreate(0x2c, arg1 * 4);
+    *(s32 *)DAT_00881760_abs = rbRingBufCreate(0x44, arg1);
     frFontLoadTables();
     var_4 = 0;
     bb0 = D_008815B0;

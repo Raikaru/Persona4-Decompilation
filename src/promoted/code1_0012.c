@@ -46,7 +46,7 @@ extern u8 D_005E5870[];
 extern u8 *func_0046a770(char *filename);
 extern void func_001238c0(s32 arg0);
 
-extern void func_00267570();
+extern void cldTimeChangeCreate();
 
 extern s32 iGpffffb1e0;
 extern s32 iGpffffb1e8;
@@ -888,7 +888,7 @@ void func_00122820(s32 arg0, s32 arg1)
 // FUN_00122860
 void func_00122860(s32 arg0, s32 arg1)
 {
-    func_00267570(0, arg0, arg1, D_00796670);
+    cldTimeChangeCreate(0, arg0, arg1, D_00796670);
 }
 
 

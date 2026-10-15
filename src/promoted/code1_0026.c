@@ -154,8 +154,9 @@ extern void func_0048a000(void);
 extern s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2);
 extern void func_0025f620(f32, f32, f32, s32, u8, const char *, s32, s16, s16, Code1_0026Callback, u8 *);
 extern s32 func_0026e360(s64 arg0);
+// Intent: Sets the enable flag on the sdlScheduler task when it exists [inferred]
 // FUN_00260510
-void func_00260510(void)
+void sdlSchedulerEnable(void)
 {
     s32 temp_2;
     u8 *temp_2_2;
@@ -166,8 +167,9 @@ void func_00260510(void)
         *(s32 *)(temp_2_2 + 8) |= 1;
     }
 }
+// Intent: Destroys the sdlScheduler task when it exists [inferred]
 // FUN_00260560
-void func_00260560(void)
+void sdlSchedulerDestroy(void)
 {
     s32 temp_2;
 
@@ -1823,8 +1825,9 @@ void func_00267510(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
+// Intent: Creates the cldTimeChange child task with its work block (cldTimeChange.c alloc site) [inferred]
 // FUN_00267570
-s32 func_00267570(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 cldTimeChangeCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     u8 *work;
     s32 result;
@@ -2637,8 +2640,9 @@ s32 func_0026df80(void)
    measured: a u32 allocation base expresses the header as one word and
    gives retail's saved-register assignment without pragmas. Keep the
    pointer-value copy call and byte-stride helper. Exact 204B plus 4B zero tail. */
+// Intent: Allocates a ring buffer of count nodes at size-byte stride (rbRingBuf.c alloc site) [inferred]
 // FUN_0026E010
-s32 func_0026e010(s32 size, s32 count)
+s32 rbRingBufCreate(s32 size, s32 count)
 {
     u8 *allocated;
     u32 *base;

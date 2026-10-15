@@ -541,7 +541,7 @@ s32 func_00110f00(void)
     var_2 = 0;
     temp_16 = iGpffffb19c;
     if (iGpffffb1b4 != 0) {
-        func_00260560();
+        sdlSchedulerDestroy();
         func_00122520(1, 1);
         temp_17 = func_001110e0();
         func_001113b0();
@@ -562,7 +562,7 @@ s32 func_00110f00(void)
 #pragma opt_propagation on
 // FUN_00110FC0
 void func_00110fc0(void) {
-    func_00260560();
+    sdlSchedulerDestroy();
     func_00122520(1, 1);
     func_001029a0(0x1B, 0, 0, 8);
 }
