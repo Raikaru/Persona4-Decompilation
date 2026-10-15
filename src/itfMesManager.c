@@ -86,7 +86,7 @@ void func_0027b7c0(s32 arg0);
 void func_00279e90(u8 *arg0, u8 *arg1);
 void func_00279780(u8 *arg0);
 s32 func_002738d0(u8 *arg0);
-u8 *func_00273650(u8 *arg0, u8 *arg1, s32 arg2);
+u8 *frFontAppendList(u8 *arg0, u8 *arg1, s32 arg2);
 extern char D_0063BE80[];
 extern char D_0063BEA0[];
 typedef signed __int128 s128;
@@ -1581,7 +1581,7 @@ s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
         } else {
             r2 = func_00279030(fparg0 + (f32)func_002738d0(r), 25.0f + fparg1, fparg2, arg0, arg1, arg2, arg3, arg6, arg7);
         }
-        r = func_00273650(r, r2, 0);
+        r = frFontAppendList(r, r2, 0);
     }
     frFontSetListSlot(r, arg1);
     frFontDrawListMode(r, 1);

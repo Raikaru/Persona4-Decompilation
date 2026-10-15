@@ -1674,6 +1674,7 @@ s32 frFontDrawList(void *arg0, u32 arg1, u32 arg2)
     return total;
 }
 #pragma opt_propagation on
+/* Returns the total advance of a list if no node is still animating, otherwise 0. Measures without drawing. */
 /* measured: reconstructed from the matched frFontReadyNode case logic. Reusing
    arg0 as the walking node and declaring flag before sum gives retail's
    node=$s2/flag=$s1/sum=$s0 prologue. Assigning the result pointer only after
@@ -1681,7 +1682,7 @@ s32 frFontDrawList(void *arg0, u32 arg1, u32 arg2)
    the shared move/beqz block. MATCH at normalized_diff 0, object 340B/window
    352B; exact body archived at build/WCKFldUnit_734b0_match.c. */
 // FUN_002734B0
-s32 func_002734b0(u8 *arg0)
+s32 frFontMeasureList(u8 *arg0)
 {
     s32 temp_3;
     s32 temp_3_2;
@@ -1744,15 +1745,17 @@ result_check:
     }
     return var_16;
 }
+/* Cache maintenance task: releases the cached list and evicts expired raster entries. */
 // FUN_00273610
-s32 func_00273610(u8 *unusedTask)
+s32 frFontMaintainCacheTask(u8 *unusedTask)
 {
     DAT_0088179C_abs[0] = frFontListRelease(DAT_0088179C_abs[0]);
     frFontRasterEvictExpired();
     return 0;
 }
+/* Splices list param_1 onto the tail of param_2 and returns the joined head (either argument if the other is 0). When param_3 is 1 also moves param_2 to just after param_1 (x + width * 16, y). */
 // FUN_00273650
-int func_00273650(int param_1, int param_2, int param_3)
+int frFontAppendList(int param_1, int param_2, int param_3)
 {
     if (param_1 != 0)
     {
@@ -1787,6 +1790,7 @@ extern int func_00273970(int param_1);
 
 
 
+/* Detaches the run of same-type nodes at index arg1 from *arg0 and returns the run's last node; *arg0 is updated to the remaining head. */
 /* measured 2026-08-08: reconstructed the 0x40-byte-linked-list extractor
    with a typed local node and explicit goto CFG. The declaration order
    temp_3,var_18,temp_17,var_7,... plus the forward count guard
@@ -1795,12 +1799,12 @@ extern int func_00273970(int param_1);
    MATCH nd 0, object 464/window 464 (O2 nd2; O1 without common-substitutions
    nd36). */
 // FUN_002736D0
-/* measured: opens the optimization_level 1 scope for func_002736d0; the
+/* measured: opens the optimization_level 1 scope for frFontSplitRun; the
    common-substitution setting is required for MATCH nd 0. */
 #pragma push
 #pragma optimization_level 1
 #pragma opt_common_subs on
-u8 *func_002736d0(u8 **arg0, s32 arg1)
+u8 *frFontSplitRun(u8 **arg0, s32 arg1)
 {
     struct FrFontTreeNode {
         u8 unknown_00[8];
@@ -1918,7 +1922,7 @@ loop32_check:
     *arg0 = (u8 *)var_4;
     return (u8 *)var_2;
 }
-/* measured: closes the optimization_level 1 scope; func_002736d0 remains
+/* measured: closes the optimization_level 1 scope; frFontSplitRun remains
    MATCH nd 0, object 464/window 464 at the file's O2 baseline. */
 #pragma optimization_level 2
 #pragma pop
@@ -2079,7 +2083,7 @@ text_body:
                 linked_node = node;
                 goto store_new_node;
 link_new_node:
-                linked_node = (FrFontNode *)func_00273650(
+                linked_node = (FrFontNode *)frFontAppendList(
                     (s32)node, (s32)new_node, 1);
 store_new_node:
                 node = linked_node;
@@ -2093,7 +2097,7 @@ create_first_node:
                 linked_node = node;
                 goto store_first_node;
 link_first_node:
-                linked_node = (FrFontNode *)func_00273650(
+                linked_node = (FrFontNode *)frFontAppendList(
                     (s32)node, (s32)first_node, 1);
 store_first_node:
                 node = linked_node;
@@ -2230,7 +2234,7 @@ loop_body_30:
                 var_16_4 = var_16_2;
                 goto store_node_1;
 call_node_1:
-                var_16_4 = (struct FrFontNode3 *)func_00273650(
+                var_16_4 = (struct FrFontNode3 *)frFontAppendList(
                     (s32)var_16_2, (s32)temp_2, 1);
                 goto store_node_1;
 store_node_1:
@@ -2245,7 +2249,7 @@ null_node_1:
                 var_16_4 = var_16_2;
                 goto store_node_2;
 call_node_2:
-                var_16_4 = (struct FrFontNode3 *)func_00273650(
+                var_16_4 = (struct FrFontNode3 *)frFontAppendList(
                     (s32)var_16_2, (s32)temp_2_2, 1);
                 goto store_node_2;
 store_node_2:
@@ -2291,7 +2295,7 @@ loop_test_30:
 #pragma no_branch_likely off
 #pragma pop
 // FUN_00273F70
-/* measured: full func_002736d0 recipe stack. */
+/* measured: full frFontSplitRun recipe stack. */
 #pragma push
 #pragma optimization_level 1
 #pragma opt_common_subs on
@@ -2347,7 +2351,7 @@ void func_00273f70(u8 *arg0)
         updated = list;
         goto call_after;
     }
-    updated = (struct FrFontNode2 *)func_00273650((int)list, (int)result, 1);
+    updated = (struct FrFontNode2 *)frFontAppendList((int)list, (int)result, 1);
     goto call_after;
 call_after:
     list = updated;
@@ -2483,7 +2487,7 @@ u8 *func_002740b0(void *data)
                 linked = node;
                 goto store_node;
 link_node:
-                linked = (FrFontNode *)func_00273650((s32)node, (s32)allocated, 1);
+                linked = (FrFontNode *)frFontAppendList((s32)node, (s32)allocated, 1);
 store_node:
                 node = linked;
                 *(FrFontNode **)(context + 0x14) = node;
@@ -2748,7 +2752,7 @@ void func_00274970(void)
     v = func_002e0d60();
     *(int *)v = (s32)func_00451de0((const void *)(&D_00763840), 0xC8, 0, 0, func_002e17f0, 0, (u8 *)(0));
     frFontInitManager(0x100, 0x100);
-    func_00451de0((const void *)(&D_00763848), 0, 0, 0, func_00273610, frFontTaskDestroy, (u8 *)(0));
+    func_00451de0((const void *)(&D_00763848), 0, 0, 0, frFontMaintainCacheTask, frFontTaskDestroy, (u8 *)(0));
     func_002bcd20();
 }
 

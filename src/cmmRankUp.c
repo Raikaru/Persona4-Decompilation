@@ -273,7 +273,7 @@ extern s64 func_00248d80(s16 arg0);
 extern void func_00279d40(s32 arg0);
 extern u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
                          s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-extern u8 *func_002736d0(u8 **arg0, s32 arg1);
+extern u8 *frFontSplitRun(u8 **arg0, s32 arg1);
 extern s32 func_002738d0(u8 *arg0);
 extern void frFontMoveListToFloat(u8 *arg0, f32 fparg0, f32 fparg1);
 extern void frFontSetGlyphColor(u8 *arg0, s32 arg1);
@@ -1578,7 +1578,7 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
     spAC = func_00279030(fparg0, fparg1, fparg2, (arg0 << 8) | arg1, arg2,
                          arg3, arg4, arg5, arg6);
     if (spAC != NULL) {
-        var_18 = func_002736d0(&spAC, arg7);
+        var_18 = frFontSplitRun(&spAC, arg7);
         if (var_18 == NULL) {
             var_18 = spAC;
             spAC = NULL;
