@@ -4,8 +4,8 @@
 #include "primitive_point_buffer.h"
 #include "primitive_rectangle_packet.h"
 
-typedef struct { u8 c[4]; } PrimByte4;
-typedef struct { f32 v[4]; } PrimFloat4;
+typedef struct { u8 c[4]; } PrimColorBytes;
+typedef struct { f32 v[4]; } PrimRectangleFloats;
 typedef struct {
     f32 x;
     f32 y;
@@ -73,11 +73,11 @@ void func_0045da40(const PrimitiveRectangleColor *arg0, const PrimitiveRectangle
 
 // FUN_0045DB40
 void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, f32 fparg3) {
-    struct { s32 saved[6]; u8 pad1[8]; f32 out; u8 pad2[0xFC]; PrimFloat4 pos; } work;
+    struct { s32 saved[6]; u8 pad1[8]; f32 out; u8 pad2[0xFC]; PrimRectangleFloats pos; } work;
     u32 i;
     u32 j;
     s32 *p;
-    work.pos = *(PrimFloat4 *)arg1;
+    work.pos = *(PrimRectangleFloats *)arg1;
     if (arg2 != 0) {
         for (i = 0; i < 6; i++) {
             p = (s32 *)&D_00712490[i];
@@ -106,8 +106,8 @@ void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4,
 void func_0045dd30(PrimVertex *out, const u8 *colors, const void *positions,
                   f32 depth, u32 count, s32 offsetX, s32 offsetY,
                   f32 rotation, f32 scaleX, f32 scaleY) {
-    PrimFloat2 base;
-    const PrimFloat2 *position;
+    PrimPoint base;
+    const PrimPoint *position;
     PrimVertex *vertex;
     const u8 *color;
     f32 inv;
@@ -126,13 +126,13 @@ void func_0045dd30(PrimVertex *out, const u8 *colors, const void *positions,
     angle = iGpffff81d0 * rotation;
     sine = sinf(angle);
     cosine = cosf(angle);
-    base = *(const PrimFloat2 *)positions;
+    base = *(const PrimPoint *)positions;
     i = 0;
     centerX = base.v[0] + (f32)offsetX;
     centerY = base.v[1] + (f32)offsetY;
     negSine = -sine;
     while (i < count) {
-        position = (const PrimFloat2 *)((const u8 *)positions + i * sizeof(PrimFloat2));
+        position = (const PrimPoint *)((const u8 *)positions + i * sizeof(PrimPoint));
         x = position->v[0] - centerX;
         y = position->v[1] - centerY;
         x *= scaleX;
@@ -206,7 +206,7 @@ void func_0045dfd0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4)
 
 
 typedef struct {
-    PrimByte4 *colors;
+    PrimColorBytes *colors;
     void *positions;
     f32 scale;
     u32 count;
@@ -221,7 +221,7 @@ void func_0045e310(void *unused, PrimBatch *work) {
     s32 saved[6];
     s32 *p;
     PrimVertex *out;
-    PrimFloat2 *positions;
+    PrimPoint *positions;
     u8 *colors;
     f32 z;
     f32 inv;
@@ -234,7 +234,7 @@ void func_0045e310(void *unused, PrimBatch *work) {
     u32 table_addr;
     void (**release)(void *);
 
-    positions = (PrimFloat2 *)work->positions;
+    positions = (PrimPoint *)work->positions;
     colors = (u8 *)work->colors;
     scale = work->scale;
     enabled = work->enabled;
@@ -254,7 +254,7 @@ void func_0045e310(void *unused, PrimBatch *work) {
     inv = 1.0f / *(f32 *)(func_00457120() + 0x80);
     z = D_008872F8[0] - scale;
     for (k = 0; k < count; k++) {
-        PrimFloat2 *pos = &positions[k];
+        PrimPoint *pos = &positions[k];
         PrimVertex *vertex = &out[k];
         u8 *color;
 
@@ -337,22 +337,22 @@ void func_0045e8e0(void *colors, void *positions, f32 depth, s32 count,
     f32 angle;
     f32 sine;
     f32 cosine;
-    PrimFloat2 base;
+    PrimPoint base;
     f32 centerX;
     f32 centerY;
     f32 x;
     f32 y;
     f32 negSine;
-    PrimFloat2 *position;
+    PrimPoint *position;
     s32 i;
 
     func_0044ea90(D_007124C0, 0x328);
-    positionBytes = count * sizeof(PrimFloat2);
-    colorBytes = count * sizeof(PrimByte4);
+    positionBytes = count * sizeof(PrimPoint);
+    colorBytes = count * sizeof(PrimColorBytes);
     storage = D_008873F4[0](1, colorBytes + sizeof(PrimBatch) + positionBytes, 0x40000);
     work = (PrimBatch *)storage;
-    work->colors = (PrimByte4 *)(work + 1);
-    work->positions = (PrimFloat2 *)(work->colors + count);
+    work->colors = (PrimColorBytes *)(work + 1);
+    work->positions = (PrimPoint *)(work->colors + count);
     work->scale = depth;
     work->count = count;
     work->enabled = preserveState;
@@ -362,20 +362,20 @@ void func_0045e8e0(void *colors, void *positions, f32 depth, s32 count,
     angle = iGpffff81d0 * rotation;
     sine = sinf(angle);
     cosine = cosf(angle);
-    base = *(PrimFloat2 *)work->positions;
+    base = *(PrimPoint *)work->positions;
     i = 0;
     centerX = base.v[0] + (f32)offsetX;
     centerY = base.v[1] + (f32)offsetY;
     negSine = -sine;
     while (i < count) {
-        position = (PrimFloat2 *)work->positions;
+        position = (PrimPoint *)work->positions;
         position += i;
         x = position->v[0] - centerX;
         y = position->v[1] - centerY;
         x *= scaleX;
         y *= scaleY;
         position->v[0] = base.v[0] + (f32)offsetX + (x * cosine + y * sine);
-        ((PrimFloat2 *)work->positions)[i].v[1] = base.v[1] + (f32)offsetY + (x * negSine + y * cosine);
+        ((PrimPoint *)work->positions)[i].v[1] = base.v[1] + (f32)offsetY + (x * negSine + y * cosine);
         i++;
     }
     callback = func_00460990();
@@ -401,22 +401,22 @@ void func_0045eb20(void *colors, void *positions, f32 depth, s32 count,
     f32 angle;
     f32 sine;
     f32 cosine;
-    PrimFloat2 base;
+    PrimPoint base;
     f32 centerX;
     f32 centerY;
     f32 x;
     f32 y;
     f32 negSine;
-    PrimFloat2 *position;
+    PrimPoint *position;
     s32 i;
 
     func_0044ea90(D_007124C0, 0x328);
-    positionBytes = count * sizeof(PrimFloat2);
-    colorBytes = count * sizeof(PrimByte4);
+    positionBytes = count * sizeof(PrimPoint);
+    colorBytes = count * sizeof(PrimColorBytes);
     storage = D_008873F4[0](1, colorBytes + sizeof(PrimBatch) + positionBytes, 0x40000);
     work = (PrimBatch *)storage;
-    work->colors = (PrimByte4 *)(work + 1);
-    work->positions = (PrimFloat2 *)(work->colors + count);
+    work->colors = (PrimColorBytes *)(work + 1);
+    work->positions = (PrimPoint *)(work->colors + count);
     work->scale = depth;
     work->count = count;
     work->enabled = preserveState;
@@ -426,20 +426,20 @@ void func_0045eb20(void *colors, void *positions, f32 depth, s32 count,
     angle = iGpffff81d0 * rotation;
     sine = sinf(angle);
     cosine = cosf(angle);
-    base = *(PrimFloat2 *)work->positions;
+    base = *(PrimPoint *)work->positions;
     i = 0;
     centerX = base.v[0] + (f32)offsetX;
     centerY = base.v[1] + (f32)offsetY;
     negSine = -sine;
     while (i < count) {
-        position = (PrimFloat2 *)work->positions;
+        position = (PrimPoint *)work->positions;
         position += i;
         x = position->v[0] - centerX;
         y = position->v[1] - centerY;
         x *= scaleX;
         y *= scaleY;
         position->v[0] = base.v[0] + (f32)offsetX + (x * cosine + y * sine);
-        ((PrimFloat2 *)work->positions)[i].v[1] = base.v[1] + (f32)offsetY + (x * negSine + y * cosine);
+        ((PrimPoint *)work->positions)[i].v[1] = base.v[1] + (f32)offsetY + (x * negSine + y * cosine);
         i++;
     }
     work->alpha = 1;

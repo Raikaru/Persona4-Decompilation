@@ -533,7 +533,7 @@ typedef struct {
 s32 func_00252a60(s32 root, u8 *work, u8 *context)
 {
     RankUpVectorCopy axis;
-    PrimFloat2 displacement;
+    PrimPoint displacement;
     RankUpVectorCopy axisTemplate;
     Sp120 state;
     RankUpMatrix matrix;
@@ -541,7 +541,7 @@ s32 func_00252a60(s32 root, u8 *work, u8 *context)
     RankUpMatrix product;
     union { f32 coordinates[4][2]; s32 words[8]; } uv;
     union { f32 coordinates[4][2]; s32 words[8]; } overlayUv;
-    union { PrimFloat2 points[5]; s32 words[10]; } positions;
+    union { PrimPoint points[5]; s32 words[10]; } positions;
     s32 done;
     s32 is10;
     s32 frame;
@@ -777,10 +777,10 @@ u8 *func_00246830(u32 a0);
 // FUN_00253850
 s32 func_00253850(u8 *root, u8 *work, u8 *context)
 {
-    PrimFloat2 positions[8];
-    PrimFloat2 movingPoints[4];
+    PrimPoint positions[8];
+    PrimPoint movingPoints[4];
     RankUpVertexColor movingColors[4];
-    PrimFloat2 fixedPoints[4];
+    PrimPoint fixedPoints[4];
     RankUpVertexColor fixedColors[4];
     s32 special;
     s32 color;
@@ -1111,14 +1111,14 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
     RankUpExitColorCopy clipColorSource;
     RankUpExitColorCopy resetColor;
     RankUpExitColorCopy resetColorSource;
-    PrimFloat2 positions[8];
+    PrimPoint positions[8];
     RankUpExitRect clipRect;
     RankUpExitRect clipRectSource;
     RankUpExitRect resetRect;
     RankUpExitRect resetRectSource;
-    PrimFloat2 fixedPoints[4];
+    PrimPoint fixedPoints[4];
     RankUpExitColor fixedColors[4];
-    PrimFloat2 movingPoints[4];
+    PrimPoint movingPoints[4];
     RankUpExitColor movingColors[4];
     s32 special;
     s32 elapsed;

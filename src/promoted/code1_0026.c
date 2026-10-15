@@ -2001,8 +2001,8 @@ s32 func_00267800(u8 **arg0, u8 *arg1)
    source points are reloaded across renderer callbacks. The closing pass
    copies the outline pointer into its own cursor, which keeps that pointer
    in its retail saved register. */
-typedef struct { const PrimFloat2 *value[19]; } ContourSourceTable;
-static inline const PrimFloat2 *const *contourOutlinePoints(const PrimFloat2 *const *sources, s32 shape)
+typedef struct { const PrimPoint *value[19]; } ContourSourceTable;
+static inline const PrimPoint *const *contourOutlinePoints(const PrimPoint *const *sources, s32 shape)
 {
     return sources + shape * 2 + 1;
 }
@@ -2015,7 +2015,7 @@ static inline u32 contourChannelValue(const ContourChannels *color, s32 componen
     return color->value[component];
 }
 
-static inline PrimFloat2 *contourPointAt(PrimFloat2 *points, s32 index)
+static inline PrimPoint *contourPointAt(PrimPoint *points, s32 index)
 {
     return points + index;
 }
@@ -2049,7 +2049,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     extern void func_00364c70(void);
     ContourColor backdrop;
     ContourColor backdropScratch;
-    PrimFloat2 points[257];
+    PrimPoint points[257];
     u8 colors[256 * 4];
     ContourCountTable counts;
     ContourSourceTable sources;
@@ -2063,10 +2063,10 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     s32 count9;
     s32 countA;
     s32 countB;
-    const PrimFloat2 *ptr9;
-    const PrimFloat2 *ptrA;
-    const PrimFloat2 *ptrB;
-    const PrimFloat2 *ptrC;
+    const PrimPoint *ptr9;
+    const PrimPoint *ptrA;
+    const PrimPoint *ptrB;
+    const PrimPoint *ptrC;
     u8 b0_9;
     u8 b1_9;
     u8 b2_9;
@@ -2089,11 +2089,11 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
         } while (remaining > 0);
     }
     {
-        const PrimFloat2 *const *src = D_0063AA30.value;
-        const PrimFloat2 * *dst = sources.value;
+        const PrimPoint *const *src = D_0063AA30.value;
+        const PrimPoint * *dst = sources.value;
         s32 remaining = 19;
         do {
-            const PrimFloat2 * value = *src;
+            const PrimPoint * value = *src;
             src++;
             remaining--;
             *dst = value;
@@ -2224,7 +2224,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     iC = 1;
     while (iC < countA) {
         const f32 *srcC = ptrC[iC].v;
-        PrimFloat2 *dstC = contourPointAt(points, iC);
+        PrimPoint *dstC = contourPointAt(points, iC);
         u8 *colC;
         dstC[-1].v[0] = (fparg0 + srcC[0]) - ptrC[0].v[0];
         dstC[-1].v[1] = (fparg1 + srcC[1]) - ptrC[0].v[1];

@@ -2248,7 +2248,7 @@ void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     u8 spCC[4];
     PrimPointRow sp90[6];
     s8 sp70[0x20];
-    PrimFloat2 sp40[6];
+    PrimPoint sp40[6];
     s32 *src;
     PrimPointRow *dst;
     s32 count;
