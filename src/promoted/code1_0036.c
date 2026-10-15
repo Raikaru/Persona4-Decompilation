@@ -913,7 +913,7 @@ void func_00366960(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
     extern s64 iGpffffabe8;
     extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s16, s16, f32, f32, f32, void *);
     extern void func_0045e8e0(void *, void *, f32, s32, s32, s32, s32, s16, f32, f32, f32, void *);
-    PrimFloat2 points[4] = { 0.0f };
+    PrimPoint points[4] = { 0.0f };
     u8 colors[16];
     RwV3d transformed;
     u32 i;

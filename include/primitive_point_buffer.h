@@ -3,11 +3,11 @@
 
 #include "type.h"
 
-typedef struct { f32 v[2]; } PrimFloat2;
+typedef struct { f32 v[2]; } PrimPoint;
 
 typedef union {
     struct { u32 w0, w1; } words;
-    PrimFloat2 point;
+    PrimPoint point;
 } PrimPointRow;
 
 /* Immediate input buffers: four color bytes and a two-float point per vertex. */
