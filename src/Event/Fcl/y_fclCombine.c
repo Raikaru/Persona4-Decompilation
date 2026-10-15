@@ -37,7 +37,7 @@ extern s32 func_0034a630(u8 *);
 extern void func_0011d1d0(u8 *, f32);
 extern void func_00314750(u8 *, s8);
 extern u8 datPersonaGetBuffedStat(u8 *, s32);
-extern s32 func_003026c0(u16, s32);
+extern s32 fclCombineApplyDiscount(u16, s32);
 extern void func_002e7a80(s32);
 extern void func_002cacd0(FclVec2, f32, FclDrawColor, s32, s16, u32, s32, s32, s32, s32, s32);
 extern void *func_0046a770(void *);
@@ -279,7 +279,7 @@ extern s32 func_00459760(void);
 extern void func_0045a3e0(s32, s32);
 extern void func_0030f4f0(u8 *, s16 *);
 extern s32 func_00314320(u8 *);
-extern s32 func_00302570(u8 *);
+extern s32 fclCombineClaimSlot(u8 *);
 extern f32 D_00640C50[];
 extern f32 D_00640C58[];
 extern u8 D_00641BB0[];
@@ -701,7 +701,7 @@ void func_002e90d0(u8 *arg0)
         if (datGetFlag(0x1305) != 0 && datGetFlag(0x1308) == 0) {
             p[0x138] |= 2;
         }
-        if (func_00302570(arg0) == 0) {
+        if (fclCombineClaimSlot(arg0) == 0) {
             p[1] = 0x18;
         }
         break;
@@ -839,7 +839,7 @@ void func_002e90d0(u8 *arg0)
             break;
         }
         func_002bb550(p[0xD]);
-        if (func_00302570(arg0) == 0) {
+        if (fclCombineClaimSlot(arg0) == 0) {
             p[1] = 0x18;
         }
         break;
@@ -870,7 +870,7 @@ void func_002e90d0(u8 *arg0)
                 func_002b68d0(0x2F2, 0, 1);
                 func_0045af60(0, 0, 0, 1);
                 if (((FclCombineRow *)(p + 0xC4))[p[0xB4]].id == 8) {
-                    if (func_00302570(arg0) == 0) {
+                    if (fclCombineClaimSlot(arg0) == 0) {
                         p[1] = 0x18;
                     }
                     func_002eb270(arg0, 1);
@@ -882,7 +882,7 @@ void func_002e90d0(u8 *arg0)
                 }
             } else if (buttons & 0x20) {
                 func_002b68d0(0x2F2, 0, 1);
-                if (func_00302570(arg0) == 0) {
+                if (fclCombineClaimSlot(arg0) == 0) {
                     p[1] = 0x18;
                 }
                 func_002eb270(arg0, 1);
@@ -952,7 +952,7 @@ void func_002e90d0(u8 *arg0)
                 func_00315310(arg0, 3);
                 func_003205f0(arg0, 0x92, 0x96);
                 func_002b6a70(0x1C6, func_002b6150(0x1C6)[0x6E], 0, 0, 0xA, 0);
-                if (func_00302570(arg0) == 0) {
+                if (fclCombineClaimSlot(arg0) == 0) {
                     p[1] = 0x18;
                 }
             } else {
@@ -987,7 +987,7 @@ void func_002e90d0(u8 *arg0)
                     } else {
                         func_00315310(arg0, 3);
                         func_003205f0(arg0, 0x92, 0x96);
-                        if (func_00302570(arg0) == 0) {
+                        if (fclCombineClaimSlot(arg0) == 0) {
                             p[1] = 0x18;
                         }
                     }
@@ -996,7 +996,7 @@ void func_002e90d0(u8 *arg0)
                     if (datGetFlag(0x1305) != 0) {
                         func_00315310(arg0, 3);
                         func_003205f0(arg0, 0x92, 0x96);
-                        if (func_00302570(arg0) == 0) {
+                        if (fclCombineClaimSlot(arg0) == 0) {
                             p[1] = 0x18;
                         }
                     }
@@ -1011,7 +1011,7 @@ void func_002e90d0(u8 *arg0)
             func_00315310(arg0, 3);
             func_002b6a70(0x1C6, func_002b6150(0x1C6)[0x6E], 0, 0, 0xA, 0);
             func_003205f0(arg0, 0x92, 0x96);
-            if (func_00302570(arg0) == 0) {
+            if (fclCombineClaimSlot(arg0) == 0) {
                 p[1] = 0x18;
             }
             func_0045af60(0, 0, 0, 2);
@@ -5279,7 +5279,7 @@ void func_002fbea0(u8 *arg0) {
             return;
         }
         func_002bb550(p->fD);
-        if (func_00302570(arg0) == 0) {
+        if (fclCombineClaimSlot(arg0) == 0) {
             if ((s8)func_00314660(p->f148) == 5) {
                 func_00314670(p->f148, 3);
                 func_00325450(arg0, 0, 1);
@@ -5344,7 +5344,7 @@ void func_002fbea0(u8 *arg0) {
             tmpu8 = *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4);
             func_002ba5d0((u8 *)p->f2BC, sp1B0, tmpu8, func_002b2970(74.0f, 151.0f + 23.0f * (f32)var_18), fc_colW7, 46.0f, 0x59);
             total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
-            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
+            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
             if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
                     *(u8 *)(func_002b6150(((var_18 + 0x270))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x27D))) + 0x6E) = 0xFF;
@@ -5495,7 +5495,7 @@ void func_002fbea0(u8 *arg0) {
         if (func_002bb1c0(p->fD) == 0) {
             datPersonaInsertRosterRecord((u8 *)func_002e48a0(0, p->f11E));
             total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) + 0x7D0;
-            saved = func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2), total);
+            saved = fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2), total);
             func_002e7a80(func_002e7a60() - saved);
             func_002bb550(p->fD);
             p->fD = func_002bab80((void *)func_00331660());
@@ -5666,7 +5666,7 @@ void func_002fbea0(u8 *arg0) {
                 return;
             }
             total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) + 0x7D0;
-            saved = func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2), total);
+            saved = fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2), total);
             if (func_002e7a60() >= saved) {
                 p->fD = func_002bab80((void *)func_00331660());
                 sprintf(sp2A0, &iGpffffa8a4, ((char *)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + (2))) * 0x11));
@@ -5752,7 +5752,7 @@ void func_002fbea0(u8 *arg0) {
                 *(s16 *)(func_002b6150(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
             }
             total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
-            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW4, 0x10, 5, func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
+            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW4, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
             if (func_002b6970(*(s16 *)(func_002b6150(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
                     *(u8 *)(func_002b6150(((var_18 + 0x270))) + 0x6E) = *(u8 *)(func_002b6150(((var_18 + 0x27D))) + 0x6E) = 0xFF;
@@ -5807,7 +5807,7 @@ void func_002fbea0(u8 *arg0) {
             }
             frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, caption.fontColor, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
-            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW2, 0x10, 5, func_003026c0(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
+            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW2, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
             var_19++;
             var_18++;
         }
@@ -5828,8 +5828,9 @@ void func_002fbea0(u8 *arg0) {
 }
 
 #pragma pop
+// Fcl combine slot claim: takes the first free combine slot (0-3) whose gate is met and sets up its item; 0 if none.
 // FUN_00302570
-s32 func_00302570(u8 *arg0) {
+s32 fclCombineClaimSlot(u8 *arg0) {
     u8 *p;
     s32 idx;
     s8 i;
@@ -5853,8 +5854,9 @@ s32 func_00302570(u8 *arg0) {
     return 0;
 }
 
+// Fcl combine discount: reduces 'arg1' by the rate of the first set discount flag (25, 20, 15 or 10 percent).
 // FUN_003026C0
-s32 func_003026c0(u16 arg0, s32 arg1)
+s32 fclCombineApplyDiscount(u16 arg0, s32 arg1)
 {
     s16 i;
 
@@ -9820,7 +9822,7 @@ void func_0030f650(u8 *arg0) {
         func_002b68d0(0x84, 0, 0);
         func_002b68d0(0x85, 0, 0);
         func_002b68d0(0x1C6, 0, 0);
-        if (func_00302570(arg0) == 0) {
+        if (fclCombineClaimSlot(arg0) == 0) {
             if (*(s32 *)(p + 0x148) != 0) {
                 *(s32 *)(p + 0x148) = 0;
             }
@@ -9922,7 +9924,7 @@ void func_0030f650(u8 *arg0) {
             func_002bbcf0(*(s8 *)(p + 0xD));
         } else {
             func_002bb550(*(s8 *)(p + 0xD));
-            if (func_00302570(arg0) == 0) {
+            if (fclCombineClaimSlot(arg0) == 0) {
                 *p = 0;
                 *(p + 1) = 0x17;
             }
