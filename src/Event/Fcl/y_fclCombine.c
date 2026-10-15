@@ -491,11 +491,11 @@ typedef struct {
    (MWCC tests the sparse labels in reverse); opt_lifetimes gives each loop
    index its own register as retail does; the second reward scan keeps its own
    selection local; row lookups use the 10-byte FclCombineRow at +0xC4. */
-// Fcl combine menu enter (state 0): claims the slot, builds the rows and the intro sprites, then runs the sub-states 0x11-0x20 that open the menu.
+// Fcl combine menu root (state 0): opens the screen (intro 0x11-0x17), runs the command bar (0x18) and the row list (0x1A), and routes each row to its target state; state 0x0B leaves the screen.
 // FUN_002E90D0
 #pragma push
 #pragma opt_lifetimes on
-void fclCombineMenuEnter(u8 *arg0)
+void fclCombineMenuRoot(u8 *arg0)
 {
     extern u8 D_00641870[];
     extern s32 datGetFlag(s32);
