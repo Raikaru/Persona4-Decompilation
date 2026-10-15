@@ -121,7 +121,7 @@ extern s32 func_002bb680(s32);
 extern s32 func_00122720(void);
 extern s32 func_00122520(s32, s32);
 extern s16 func_00247770(s32);
-extern s32 func_00312bc0(s8);
+extern s32 fclRollRareChance(s8);
 extern void func_003144d0(u8 *, s32, s8, s32, s32);
 extern s32 func_00311930(s32,  u8 *,  s8);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
@@ -2211,7 +2211,7 @@ void func_002ed430(u8 *arg0) {
             var_16_4 = 0;
         }
         if ((s32)((s32)(datGetFlag(0x1461))) == (s32)((s32)(0))) {
-            if ((s32)((s32)(func_00312bc0(var_16_4))) == (s32)((s32)(1))) {
+            if ((s32)((s32)(fclRollRareChance(var_16_4))) == (s32)((s32)(1))) {
                 if (RpRandom() % 1000U < 0x1F4U) {
                     temp_18->f1 = 0x36U;
                     temp_18->fB2 = 1;
@@ -3542,7 +3542,7 @@ block_215:
             var_16_10 = 0;
         }
         if ((s32)((s32)(datGetFlag(0x1461))) == (s32)((s32)(0))) {
-            if ((s32)((s32)(func_00312bc0(var_16_10))) == (s32)((s32)(1))) {
+            if ((s32)((s32)(fclRollRareChance(var_16_10))) == (s32)((s32)(1))) {
                 if (RpRandom() % 1000U < 0x1F4U) {
                     temp_17->f1 = 0x4FU;
                     temp_17->fB2 = 1;
