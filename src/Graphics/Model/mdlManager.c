@@ -169,7 +169,7 @@ extern u8 LAB_00474a90_abs[];
 extern s32 func_00397470(u8* frame);
 extern void RwMatrixMultiply(void* a, void* b, void* c);
 
-extern void func_004585c0(u8* arg0);
+extern void K_Clump_EnsureMatColorUsrData(u8* arg0);
 extern void* mdlMatColorScaleCallback(void* object, void* data);
 extern u8 D_00713160[];
 extern s32 K_Clump_CountIntUsrData(void* object, const char* data);
@@ -3673,8 +3673,9 @@ void mdlDrawSkyPass(MdlFlags78ec0* o)
 }
 #pragma opt_propagation on
 
+/* Atomic callback: ensures the colour user-data entry on every material of the atomic's geometry. */
 // FUN_00476E10
-void* func_00476e10(void* param_1, void* data)
+void* mdlEnsureAtomicMatColors(void* param_1, void* data)
 {
     u8* iVar1;
     u32 uVar2;
@@ -3683,7 +3684,7 @@ void* func_00476e10(void* param_1, void* data)
     iVar1 = *(u8**)((u8*)param_1 + 0x18);
     uVar2 = *(u32*)(iVar1 + 0x24);
     for (uVar3 = 0; uVar3 < uVar2; uVar3 = uVar3 + 1) {
-        func_004585c0((u8*)(*(u32**)(iVar1 + 0x20))[uVar3]);
+        K_Clump_EnsureMatColorUsrData((u8*)(*(u32**)(iVar1 + 0x20))[uVar3]);
     }
 
     return param_1;
@@ -4238,7 +4239,7 @@ void mdlSetupPreparedModel(u8* arg0)
         }
     }
     *(void**)(arg0 + 0xE0) = func_00462ae0(*(void**)(arg0 + 0xDC));
-    RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), func_00476e10, NULL);
+    RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), mdlEnsureAtomicMatColors, NULL);
     temp_3 = *(u16*)(arg0 + 0xD4);
     switch (temp_3) {
     case 1:
