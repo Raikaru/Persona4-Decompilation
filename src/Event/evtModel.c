@@ -71,7 +71,7 @@ extern void func_0046d730(void *file, s32 line);
 extern void *mdlGetMatrix(s32 a);
 extern void func_0047a890(s32 a, f32 b);
 extern void func_0047a900(s32 a, void *b);
-extern void func_0047a950(s32 a, f32 b, f32 c);
+extern void mdlSetTrackScaleRange(s32 a, f32 b, f32 c);
 extern u8 *func_0047a980(s32 a);
 extern void func_0047a990(s32 a);
 extern s32 func_0047a9d0(s32 a);
@@ -107,7 +107,7 @@ state_ready:
         if (func_0047a9d0(model) == 0) {
             rec->flags |= 1;
         }
-        func_0047a950(model, 30.0f, 0.0f);
+        mdlSetTrackScaleRange(model, 30.0f, 0.0f);
         var_f12 = fGpffff8218 * temp_f21;
         if (!(var_f12 <= 1.0f)) {
             var_f12 = 1.0f;
@@ -137,7 +137,7 @@ state1_counter:
             var_2 = 0;
         }
         if (var_2 != 0) {
-            func_0047a950(model, 0.0f, 0.0f);
+            mdlSetTrackScaleRange(model, 0.0f, 0.0f);
             var_f12 = fGpffff8218 * temp_f21;
             if (!(var_f12 <= 1.0f)) {
                 var_f12 = 1.0f;
@@ -245,7 +245,7 @@ state_ready:
         if (func_0047a9d0(model) == 0) {
             rec->flags |= 1;
         }
-        func_0047a950(model, 0.0f, 15.0f);
+        mdlSetTrackScaleRange(model, 0.0f, 15.0f);
         var_f12 = fGpffff82cc * temp_f20;
         if (!(var_f12 <= 1.0f)) {
             var_f12 = 1.0f;
@@ -275,7 +275,7 @@ block_21:
             var_2 = 0;
         }
         if (var_2 != 0) {
-            func_0047a950(model, 0.0f, -17.5f);
+            mdlSetTrackScaleRange(model, 0.0f, -17.5f);
             var_f12_2 = fGpffff8504 * temp_f20;
             if (!(var_f12_2 <= 1.0f)) {
                 var_f12_2 = 1.0f;
@@ -318,7 +318,7 @@ block_42:
             var_2_2 = 0;
         }
         if (var_2_2 != 0) {
-            func_0047a950(model, 0.0f, 17.5f);
+            mdlSetTrackScaleRange(model, 0.0f, 17.5f);
             var_f12_4 = fGpffff8504 * temp_f20;
             if (!(var_f12_4 <= 1.0f)) {
                 var_f12_4 = 1.0f;
@@ -361,7 +361,7 @@ block_63:
             var_2_3 = 0;
         }
         if (var_2_3 != 0) {
-            func_0047a950(model, 0.0f, -15.0f);
+            mdlSetTrackScaleRange(model, 0.0f, -15.0f);
             var_f12_6 = fGpffff8504 * temp_f20;
             if (!(var_f12_6 <= 1.0f)) {
                 var_f12_6 = 1.0f;
@@ -403,7 +403,7 @@ block_84:
             var_2_4 = 0;
         }
         if (var_2_4 != 0) {
-            func_0047a950(model, 0.0f, 10.0f);
+            mdlSetTrackScaleRange(model, 0.0f, 10.0f);
             var_f12_8 = fGpffff8504 * temp_f20;
             if (!(var_f12_8 <= 1.0f)) {
                 var_f12_8 = 1.0f;
@@ -446,7 +446,7 @@ block_105:
             var_2_5 = 0;
         }
         if (var_2_5 != 0) {
-            func_0047a950(model, 0.0f, 0.0f);
+            mdlSetTrackScaleRange(model, 0.0f, 0.0f);
             var_f12_10 = fGpffff8218 * temp_f20;
             if (!(var_f12_10 <= 1.0f)) {
                 var_f12_10 = 1.0f;
