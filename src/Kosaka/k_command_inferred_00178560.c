@@ -47,7 +47,7 @@ extern s32 func_0015a160(void);
    promotion order of an old-style call with a u16 local for b and an explicit
    (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
    loads (nd4). Sole caller in this unit. */
-extern s32 func_00161630(s32 field, s32 room, s32 encounter, s32 level);
+extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
 extern s32 func_00452490(s32 arg0);
 extern s32 iGpffffb284;
 extern s32 iGpffffb300;
@@ -234,7 +234,7 @@ s32 func_00178870(void)
     u8 *p = iGpffff9db0;
     u16 b = func_0015a160();
 
-    scrSetReturnInt(func_00161630(*(u16 *)p, *(u16 *)(p + 4), b, (u16)a) & 0xFFFF);
+    scrSetReturnInt(Encount_PickEncounter(*(u16 *)p, *(u16 *)(p + 4), b, (u16)a) & 0xFFFF);
     return 1;
 }
 

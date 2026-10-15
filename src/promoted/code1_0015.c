@@ -138,7 +138,7 @@ extern s32 D_0076432C;
 extern s32 iGpffffb2e4;
 extern void func_002ac360(void);
 extern u8 *func_002ac3b0(void);
-extern u8 *func_00161c80(s32 field, s32 room, u16 index, u16 mode);
+extern u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode);
 extern u8 D_005F0080[];
 extern u8 D_005F0591[];
 extern u8 D_005F0592[];
@@ -2857,7 +2857,7 @@ slots_body:
             h0 = *(u16 *)iGpffff9db0;
             h4 = *(u16 *)(iGpffff9db0 + 4);
             *(u8 **)(dest + 0x160) =
-                func_00161c80(h0, h4, field, 0);
+                Encount_FindRecord(h0, h4, field, 0);
         } else if (mode == 1) {
             if (D_00764334 == NULL) {
                 field = 0;
@@ -2867,7 +2867,7 @@ slots_body:
             h0 = *(u16 *)iGpffff9db0;
             h4 = *(u16 *)(iGpffff9db0 + 4);
             *(u8 **)(dest + 0x160) =
-                func_00161c80(h0, h4, field, 1);
+                Encount_FindRecord(h0, h4, field, 1);
         } else {
             if (D_00764334 == NULL) {
                 field = 0;
@@ -2877,7 +2877,7 @@ slots_body:
             h0 = *(u16 *)iGpffff9db0;
             h4 = *(u16 *)(iGpffff9db0 + 4);
             *(u8 **)(dest + 0x160) =
-                func_00161c80(h0, h4, field, 2);
+                Encount_FindRecord(h0, h4, field, 2);
         }
     }
     slot_index++;
