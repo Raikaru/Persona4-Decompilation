@@ -56,7 +56,7 @@ void func_0027a6c0();
 void func_0027a6f0(s32 arg0);
 void func_0027b830(s32 arg0);
 void func_002851f0();
-s8 func_002748e0(int param_1, int param_2, int param_3);
+s8 frFontRunCommand(int param_1, int param_2, int param_3);
 u8 *frFontBuildTextSimple(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8);
 u32 func_00279740(int param_1, int param_2);
 void func_0027a340(u8 *arg0, s32 arg1);
@@ -855,7 +855,7 @@ void func_00277be0(s32 arg0, s32 arg1)
         if (remaining_mask & 1U) {
             remaining_mask >>= 1;
         } else {
-            func_002748e0(*text, 2, 0);
+            frFontRunCommand(*text, 2, 0);
             if (frFontMaskFlags(8) != 0)
                 new_mask |= 1U << index;
         }
@@ -1602,7 +1602,7 @@ s64 func_00279690(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         func_0046d730(D_0063BE10, 0xC50);
     base = (u8 *)*(s32 *)(obj + 4);
     address = (u8 *)(arg1 * 8) + (u32)base;
-    return func_002748e0(func_00279740(*(s32 *)(address + 0x24), 0), arg2, arg3);
+    return frFontRunCommand(func_00279740(*(s32 *)(address + 0x24), 0), arg2, arg3);
 }
 // FUN_00279740
 u32 func_00279740(int param_1,int param_2)
@@ -1716,7 +1716,7 @@ list_done:
             value = 0;
         else
             value = *(s32 *)(((u32)index << 2) + (s32)table + 0x1C);
-        func_002748e0(value, 1, 0);
+        frFontRunCommand(value, 1, 0);
     }
 }
 #pragma pop

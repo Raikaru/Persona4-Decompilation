@@ -101,7 +101,7 @@ extern void func_00246700(void);
 extern void func_0025ff90(void);
 extern void cldDayChangePreloadData(void);
 extern void func_0026d840(void);
-extern void func_00274970(void);
+extern void frFontStartup(void);
 extern void func_00278940(void);
 extern void func_002789a0(void);
 extern void func_0029d950(void);
