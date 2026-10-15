@@ -85,7 +85,7 @@ void func_001d8cb0(void *arg0, void *arg1);
 s32 btlUnitIsMoving(u8 *arg0);
 
 void btlActionFinishPresentation(BtlAction *action);
-void func_001dbf20(void *arg0, s32 arg1);
+void btlAICommandPickAiTarget(void *arg0, s32 arg1);
 BtlPacket *func_001d3700(u16 arg0, u16 arg1);
 s64 func_00194590(u8 *arg0, u32 arg1);
 extern void func_0022db90(u8 *arg0);
@@ -6450,7 +6450,7 @@ void btlActionReset(BtlAction *action) {
 
     btlActionFinishPresentation(action);
     func_001eb3b0((u8 *)action + 0x38);
-    func_001dbf20(action, 0);
+    btlAICommandPickAiTarget(action, 0);
     btlActionFinishPresentation(action);
     resetPacket = (u8 *)func_001d3700(3, 0xFFF);
     *(s64 *)(resetPacket + 0x60) = *(s64 *)action;

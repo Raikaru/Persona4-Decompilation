@@ -1482,7 +1482,7 @@ s32 func_001e9950(void) {
     extern s32 btlAICommandNomalCheck(u8 *arg0, s32 arg1, s32 arg2);
     extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     extern u8 *func_001b0cc0(s32 arg0);
-    extern s32 func_001dbf20(u8 *arg0, u32 arg1);
+    extern s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1);
     u8 *work;
     u8 *unit;
     s32 bestSkill;
@@ -1649,7 +1649,7 @@ outer_test:
             *(u8 **)(work + 0x38) = func_001b0cc0(bestTarget);
             *(u16 *)(work + 0x6A) = 1;
         } else {
-            func_001dbf20(work, 0);
+            btlAICommandPickAiTarget(work, 0);
         }
     }
     scrSetReturnInt(bestSkill);
