@@ -654,8 +654,9 @@ s32 func_00270ca0(s32 arg0, u8 *arg1)
         func_00108590((u16)first, (u16)second, third);
     return 0;
 }
+// Intent: Sets the reverse flag on the current community entry unless the font is in a mode that blocks it [inferred]
 // FUN_00270E30
-s32 func_00270e30(void) {
+s32 cmmCommunitySetReverseCurrent(void) {
     s32 temp_2;
 
     if (frFontGetMode() != 0) {
@@ -668,8 +669,9 @@ s32 func_00270e30(void) {
     return 0;
 }
 
+// Intent: Clears the reverse flag on the current community entry unless the font is in a blocking mode [inferred]
 // FUN_00270E90
-s32 func_00270e90(void) {
+s32 cmmCommunityClearReverseCurrent(void) {
     s32 temp_2;
 
     if (frFontGetMode() != 0) {
@@ -682,8 +684,9 @@ s32 func_00270e90(void) {
     return 0;
 }
 
+// Intent: Sets the broken flag on the current community entry unless the font is in a blocking mode [inferred]
 // FUN_00270EF0
-s32 func_00270ef0(void) {
+s32 cmmCommunitySetBrokenCurrent(void) {
     s32 temp_2;
 
     if (frFontGetMode() != 0) {
@@ -696,8 +699,9 @@ s32 func_00270ef0(void) {
     return 0;
 }
 
+// Intent: Clears the broken flag on the current community entry unless the font is in a blocking mode [inferred]
 // FUN_00270F50
-s32 func_00270f50(void) {
+s32 cmmCommunityClearBrokenCurrent(void) {
     s32 temp_2;
 
     if (frFontGetMode() != 0) {
@@ -1680,8 +1684,9 @@ s32 func_0027bf10(s32 arg0)
  * rectangle literal retains its own temporary; clear cursors and counts
  * have separate lifetimes. Native b210: 2992/2992 bytes, no differences.
  * Evidence: build/first-party-finish-20260929/worker5/func_0027bf30. */
+// Intent: Draws the calendar screen: month and day text, tile backdrop and sky render states (msgCal resources) [inferred]
 // FUN_0027BF30
-void func_0027bf30(u8 *unusedTask, u8 *arg1)
+void calDrawScreen(u8 *unusedTask, u8 *arg1)
 {
     typedef struct {
         s32 x;
