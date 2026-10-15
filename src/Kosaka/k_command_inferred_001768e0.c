@@ -40,7 +40,7 @@ typedef struct
     u8 alpha;
 } FieldColor_0017;
 extern s32 *func_00155280(void);
-/* measured: func_00178870 needs this call unprototyped - retail masks $a2 (b)
+/* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
    before the two lhu loads and $a3 (a) after them, which is the default-
    promotion order of an old-style call with a u16 local for b and an explicit
    (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
@@ -130,7 +130,7 @@ extern s32 iGpffffba48;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0017.c; members 001768e0-00176bc0 */
 
 // FUN_001768E0
-s32 func_001768e0(void)
+s32 Cmd_GetFieldPartyValue(void)
 {
     s32 temp_4_2;
     s32 temp_4;
@@ -186,7 +186,7 @@ block_12:
 }
 
 // FUN_00176A50
-s32 func_00176a50(void)
+s32 Cmd_CountResListEntries(void)
 {
     u8 *node;
     s32 count;
@@ -202,7 +202,7 @@ s32 func_00176a50(void)
 }
 
 // FUN_00176AB0
-s32 func_00176ab0(void)
+s32 Cmd_GetResListEntryLevel(void)
 {
     s32 temp_16;
     s32 var_3;
@@ -235,7 +235,7 @@ loop_3_done:
 }
 
 // FUN_00176B60
-s32 func_00176b60(void) {
+s32 Cmd_GetCurrentFieldMajorId(void) {
     s32 v;
 
     v = 0;
@@ -247,7 +247,7 @@ s32 func_00176b60(void) {
 }
 
 // FUN_00176BC0
-s32 func_00176bc0(void) {
+s32 Cmd_GetCurrentFieldMinorId(void) {
     s32 v;
 
     v = 0;

@@ -42,7 +42,7 @@ typedef struct
 extern void FldEvent_StepGridCell();
 extern s32 *func_00155280(void);
 extern s32 func_0015a160(void);
-/* measured: func_00178870 needs this call unprototyped - retail masks $a2 (b)
+/* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
    before the two lhu loads and $a3 (a) after them, which is the default-
    promotion order of an old-style call with a u16 local for b and an explicit
    (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
@@ -144,14 +144,14 @@ extern s32 iGpffffba48;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0017.c; members 00178560-001788e0 */
 
 // FUN_00178560
-s32 func_00178560(void)
+s32 Cmd_StepGridCell(void)
 {
     FldEvent_StepGridCell();
     return 1;
 }
 
 // FUN_00178590
-s32 func_00178590(void) {
+s32 Cmd_GetNearestEntryFacing(void) {
     Vec3_00178590 sp50;
     Vec3_00178590 sp40;
     f32 temp_f20;
@@ -185,7 +185,7 @@ s32 func_00178590(void) {
 }
 
 // FUN_001786F0
-s32 func_001786f0(void)
+s32 Cmd_WaitForFieldEvent(void)
 {
     s32 temp_2;
     u8 *temp_16;
@@ -204,7 +204,7 @@ s32 func_001786f0(void)
 }
 
 // FUN_00178790
-s32 func_00178790(void)
+s32 Cmd_BeginEncounter(void)
 {
     s32 temp_16;
     s32 temp_17;
@@ -228,7 +228,7 @@ s32 func_00178790(void)
 }
 
 // FUN_00178870
-s32 func_00178870(void)
+s32 Cmd_PickEncounter(void)
 {
     s32 a = scrGetParamInt(0);
     u8 *p = iGpffff9db0;
@@ -239,7 +239,7 @@ s32 func_00178870(void)
 }
 
 // FUN_001788E0
-s32 func_001788e0(void)
+s32 Cmd_StartFieldSequence(void)
 {
     s32 temp_17;
     s32 temp_16;

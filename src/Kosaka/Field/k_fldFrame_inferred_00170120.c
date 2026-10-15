@@ -41,7 +41,7 @@ extern s32 func_0016fd00(void);
 extern s32 func_00162510(u16 arg0, u16 arg1);
 extern u32 RpRandom(void);
 extern s32 func_0015a160(void);
-/* measured: func_00178870 needs this call unprototyped - retail masks $a2 (b)
+/* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
    before the two lhu loads and $a3 (a) after them, which is the default-
    promotion order of an old-style call with a u16 local for b and an explicit
    (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
