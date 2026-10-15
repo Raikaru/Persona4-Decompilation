@@ -142,7 +142,7 @@ extern u32 datCalcRandomBelow(u32 arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern u32 datCalcGetBattleStat(u8 *arg0, s32 arg1);
 extern void func_0022fdc0(u8 *arg0);
-extern s32 func_00243e90(u8 *arg0);
+extern s32 datCalcUnitClass(u8 *arg0);
 extern void func_001b1020(s32 arg0);
 extern void func_001b1280(s32 arg0);
 extern u32 iGpffffa0b8;
@@ -386,7 +386,7 @@ after_count:
     if (*(u16 *)(temp_5 + 0xC) != 1) goto done;
     temp_3 = *(u8 **)(temp_5 + 0x30);
     if (*(u8 *)(temp_3 + 0xA2) == 0) {
-        if ((s16)func_00243e90(*(u8 **)(temp_3 + 0xA64)) == 4) {
+        if ((s16)datCalcUnitClass(*(u8 **)(temp_3 + 0xA64)) == 4) {
             *(s16 *)(*(u8 **)temp_6 + 0x14) = 5;
         } else {
             *(s16 *)(*(u8 **)temp_6 + 0x14) = 8;
@@ -1048,7 +1048,7 @@ normal_opening:
                 if (((value == 0) &&
                     (value = datCalcIsLowHp(*(s32 *)(unit + 0xa64)), value == 0)) &&
                    ((*(u8 **)(action + 0x30) != unit ||
-                    (unitClassOrFrames = func_00243e90(*(u8 **)(unit + 0xa64)), unitClassOrFrames == 4)))) {
+                    (unitClassOrFrames = datCalcUnitClass(*(u8 **)(unit + 0xa64)), unitClassOrFrames == 4)))) {
                   recoveryPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x11, 4, 1.0f, 0);
                   *recoveryPacket = 4;
                   *(u64 *)(recoveryPacket + 8) = *(u64 *)(nodeOrPacket + 0x58);
@@ -1088,7 +1088,7 @@ normal_opening:
               if (((value == 0) &&
                   (value = datCalcIsLowHp(*(s32 *)(unit + 0xa64)), value == 0)) &&
                  ((*(u8 **)(action + 0x30) != unit ||
-                  (unitClassOrFrames = func_00243e90(*(u8 **)(unit + 0xa64)), unitClassOrFrames == 4)))) {
+                  (unitClassOrFrames = datCalcUnitClass(*(u8 **)(unit + 0xa64)), unitClassOrFrames == 4)))) {
                 recoveryPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x11, 4, 1.0f, 0);
                 *recoveryPacket = 4;
                 *(u64 *)(recoveryPacket + 8) = *(u64 *)(nodeOrPacket + 0x58);

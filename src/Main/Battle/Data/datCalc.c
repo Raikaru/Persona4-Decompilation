@@ -5216,8 +5216,9 @@ void datCalcClearStatusBlocked(u16 *arg0)
     *arg0 &= 0xFDFF;
 }
 
+// Intent: class of unit arg0: 4 for the main character (id 1), else the record byte at +0x10; callers compare against 4; [inferred].
 // FUN_00243E90
-s32 func_00243e90(u8 *arg0)
+s32 datCalcUnitClass(u8 *arg0)
 {
     if (*(u16 *)(arg0 + 2) == 1) {
         return 4;
@@ -5225,8 +5226,9 @@ s32 func_00243e90(u8 *arg0)
     return *(s8 *)(arg0 + 0x10);
 }
 
+// Intent: store class byte arg1 in the unit record at +0x10; [inferred].
 // FUN_00243EC0
-void func_00243ec0(u8 *arg0, s8 arg1)
+void datCalcSetUnitClass(u8 *arg0, s8 arg1)
 {
     arg0[0x10] = (u8)arg1;
 }
