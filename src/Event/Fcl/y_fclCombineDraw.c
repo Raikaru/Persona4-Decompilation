@@ -5510,8 +5510,9 @@ void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVe
    keep their own row/count locals, which is what gives them retail's
    different register colouring, and the else branch holds its text x in a
    local (retail $f21) while its loop still spells 153.0f. */
+// Fcl combine detail panel: draws the text panel for the highlighted choice. When its table index (t+0x2D6 selecting an entry in t+0x2D4) is -1 it draws the empty-choice header and the entries flagged in t+0x2C4; otherwise it draws the entry's three info lines or its header, then the same flagged-entry list.
 // FUN_0032E570
-void func_0032e570(u8 *arg0) {
+void fclCombineDrawDetailPanel(u8 *arg0) {
     extern u8 func_002e78a0(void);
     extern s32 func_002e78e0(void);
     extern s64 func_00110a60(s32 arg0, s32 arg1);
@@ -5631,8 +5632,9 @@ void func_0032e570(u8 *arg0) {
     }
 }
 
+// Fcl combine detail frame: mode 0 creates the five frame sprites of the detail panel (0x162, 0x163, 0x164, 0x165 and 0x2DA) at their table positions and fades them in; any other mode fades them out.
 // FUN_0032F060
-void func_0032f060(u8 *arg0, s32 arg1) {
+void fclCombineDrawDetailFrame(u8 *arg0, s32 arg1) {
     FclByte4 sp6C, sp68, sp64, sp60, sp5C;
     FclPackedPosition sp50, sp48, sp40, sp38, sp30;
     s32 v16;
@@ -5711,8 +5713,9 @@ static inline void fclStoreId0032f4d0(s16 id, s32 offset, u8 *work)
 {
     *(s16 *)((u32)offset + (u32)work + 0xB8) = id;
 }
+// Fcl combine action list: builds the action rows (sprite ids 0x169 and 0x16A, then 0x16B and 0x16C when flags 0x1305 and 0x1306 are set, then 0x16D and 0x16E), lays them out 34 units apart, draws them with fclCombineDrawListRow and sets the row colours. Flag 0x1306 also recolours sprites 0x200, 0x201, 0x16B and 0x301.
 // FUN_0032F4D0
-void func_0032f4d0(u8 *arg0) {
+void fclCombineDrawActionList(u8 *arg0) {
     FclVec2 tbl[5];
     FclColor0032f4d0 cBC;
     FclColor0032f4d0 cB8;
@@ -5812,8 +5815,9 @@ s8 fclCombineMapSlotKind(s8 arg0) {
    row conversions reproduce 1180 code bytes plus four retail zero bytes.
    All 32 relocations resolve exactly; no target-owned data is emitted.
    Evidence: docs/probe_archive/FclDraw_0032fbc0_worker4_20260920.md. */
+// Fcl combine grid rows: draws the roster grid: a slot-field header, then one party row per roster entry with its eight slot cells, and each row's marker sprite (0x25E + row), which fades in and slides to x = 0x14E + 23 * row.
 // FUN_0032FBC0
-void func_0032fbc0(u8 *arg0) {
+void fclCombineDrawGridRows(u8 *arg0) {
     FclByte4 c10C;
     FclByte4 c108;
     FclVec2 sp100;
@@ -5891,8 +5895,9 @@ void func_0032fbc0(u8 *arg0) {
    draw order in the shared placement call. MWCC b210 reproduces all
    1872 code bytes and the six-entry switch table after relocation.
    Evidence: docs/probe_archive/FclDraw_00330060_continuation_20260921.md. */
+// Fcl combine grid cursor: moves the grid cursor (t+0x11E) and its in-window row (t+0x120) for command arg1 over the eight-entry grid with a window of six, redraws the window highlights and places the 0xB1 indicator and 0xB5 mark. Cases 0, 1, 4 and 5 step by one; cases 2 and 3 use the paged helpers with count 8.
 // FUN_00330060
-void func_00330060(u8 *arg0, s32 arg1) {
+void fclCombineMoveGridCursor(u8 *arg0, s32 arg1) {
     FclByte4 cAC;
     FclByte4 cA8;
     FclByte4 cA4;
@@ -6035,8 +6040,9 @@ void func_00330060(u8 *arg0, s32 arg1) {
    emits addu $v0,$v0,$s3 (scaled+base) which the raw (u8*)(lh*2+arg2)+1
    spelling never did; (4) hoisted s8 temp3 for the 0xA/0xB chain with ==1
    tests. nd path 244->14->0. */
+// Fcl combine choice cursor: highlights the selected entry of the choice table at arg2 (kind byte at each even index; kinds 0xA and 0xB take an extra colour from the flags at t+0x138), moves the cursor for command arg1 with the count at t+0x139 minus one as the last index (cases 2 and 3 do nothing), then redraws the highlights of the new selection.
 // FUN_003307B0
-void func_003307b0(u8 *arg0, s64 arg1, s32 arg2) {
+void fclCombineMoveChoiceCursor(u8 *arg0, s64 arg1, s32 arg2) {
     FclByte4 sp8C, sp88, sp84, sp80, sp7C, sp78, sp74, sp70, sp6C, sp68;
     u8 *obj = *(u8 **)(arg0 + 0x38);
     s64 t17 = (s8)obj[0x139];
