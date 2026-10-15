@@ -1337,7 +1337,8 @@ void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst)
  * position comes from the grid cell fields (unk_94/unk_96, 25 units per
  * cell, -0x6d6 origin) instead of pos.x/pos.z. The two formulas are
  * near-duplicates; the battle target/group and camera callers want the grid
- * position. FUN_001958F0 */
+ * position. */
+// FUN_001958F0
 void btlUnitGetGridSphereCenter(BtlUnit* unit, RwV3d* dst)
 {
     RwV3d scaledCenter;
