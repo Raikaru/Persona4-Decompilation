@@ -32,7 +32,7 @@ extern void func_001b0fa0(s32 arg0);
 extern void func_001b11c0(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern u8 *iGpffffb414;
-void func_0022c430(void);
+void btlFormationAllocEncounterSlots(void);
 void func_00440b68();
 void sprintf();
 extern u8* func_00454a60(u8* param, s32 mode);
@@ -431,7 +431,7 @@ u32 btlBossLoadPakUpdate(void* work)
     }
     if (H_Cdvd_IsFileLoaded((u8*)handle) != 0)
     {
-        func_0022c430();
+        btlFormationAllocEncounterSlots();
         return 1;
     }
     return 0;

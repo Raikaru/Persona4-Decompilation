@@ -206,7 +206,7 @@ f32 func_00196bd0(u8 *unit, u8 *target, u16 motion)
         temp_f20 = *(f32 *)(unit + 0x2C) *
                    (f32)*(s16 *)((u8 *)p4_base_add_00194590(
                        temp_4 * 0xA, (s32)(table, table)) + 6);
-        temp_f0 = func_0022cf00(unit, target, motion);
+        temp_f0 = btlUnitGetActionAnchorHeight(unit, target, motion);
         if (!(temp_f0 < 0.0f)) {
             temp_f20 += temp_f0;
             goto add_base_00196bd0;

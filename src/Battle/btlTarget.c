@@ -169,7 +169,7 @@ extern s32 datCalcIsLowHp(void* data);
 extern s32 datCalcIsStatusBlocked(void* data);
 extern void datCalcSetStatusBlocked(void* data);
 extern void datCalcClearStatusBlocked(void* data);
-extern void func_0022d600(void* source, u8* packet, s32* hpDelta);
+extern void btlUnitUpdateHpGauge(void* source, u8* packet, s32* hpDelta);
 
 
 
@@ -882,7 +882,7 @@ s32 btlTargetApplyHpSpChange(u8* arg0)
             }
         }
     }
-    func_0022d600(*(u8**)(arg0 + 0), temp_19, (s32 *)(arg0 + 8));
+    btlUnitUpdateHpGauge(*(u8**)(arg0 + 0), temp_19, (s32 *)(arg0 + 8));
     btlUnitUpdateStatusMotion(temp_18, 6);
     return 1;
 }

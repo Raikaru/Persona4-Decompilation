@@ -105,7 +105,7 @@ extern s32 func_001f1030(u8 *arg0);
 extern s32 func_001f11e0(s16 arg0);
 extern s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-extern s32 func_0022f950(u8 *arg0, u8 *arg1);
+extern s32 btlUnitSkillBlocked(u8 *arg0, u8 *arg1);
 extern void btlUnitSetFlags(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);

@@ -32,7 +32,7 @@ void func_001f9a90(void);
 extern u32 datCalcRandomBelow(u32 max);
 void kAssertFail(const char* file, s32 line);
 extern char D_00629660[];
-s32 func_00221970(u8* work);
+s32 btlLogoUnlockStage(u8* work);
 extern u8 func_002baac0(u8 *message);
 void func_002bad10(s32 param);
 void func_002bb4e0(void);
@@ -157,7 +157,7 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
         break;
     case 1:
         if (func_00353f50(1) == 0) {
-            if (func_00221970((u8*)work_p) != 0) {
+            if (btlLogoUnlockStage((u8*)work_p) != 0) {
                 func_002bad10(4);
                 work_p->state40 = 2;
             } else {

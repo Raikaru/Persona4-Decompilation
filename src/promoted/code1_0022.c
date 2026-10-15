@@ -29,8 +29,8 @@ extern void mdlScale(Model *model, const RwV3d *scale, int combineOp);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 typedef struct BtlAction BtlAction;
 extern void btlActionSetState(BtlAction *action, u16 state);
-extern void func_00229da0(u8 *packet);
-extern void func_0022a730(u8 *packet);
+extern void btlActionRunPresentation(u8 *packet);
+extern void btlActionRunMotionSequence(u8 *packet);
 struct RwV3d {
     f32 x;
     f32 y;
@@ -76,8 +76,8 @@ extern void memset();
 
 extern s32 btlResultHeroLvUpRun(u8 *task);
 extern void func_002230a0(u8 *task);
-extern void func_00222d20(u8 *drawData, s32 workAddress, void *callback);
-extern s32 func_002232a0(u8 *task);
+extern void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback);
+extern s32 btlResultOverlayTick(u8 *task);
 extern u8 D_00795F20[];
 extern u8 D_006296D0[];
 extern u8 D_008C0240[0x94];
@@ -111,21 +111,21 @@ extern BtlPacket *btlCreateTimingPacket(u32 duration);
 extern BtlPacket *btlMainCreateFadePacket(s32 duration, s16 mode);
 extern BtlPacket *btlMainCreateColorFadePacket(s32 duration);
 extern BtlPacket *btlMainCreateColorSetPacket(s32 duration);
-extern void func_002236b0();
-extern void func_002236c0(u8 *task);
+extern void btlResultOverlayOnEvent();
+extern void btlResultOverlayDestroy(u8 *task);
 
 extern u8 D_00629640[];
 extern u8 D_00629738[];
 extern s32 btlResultFriendPsUpdate(u8 *task);
-extern void func_00223ed0();
-extern void func_00223ee0(u8 *task);
+extern void btlResultSummaryOnEventAlt();
+extern void btlResultSummaryDestroy(u8 *task);
 extern s32 btlUnitMotionClassValue(u8 *arg0, s32 arg1);
 extern s32 btlUnitIsUnavailable(u8 *arg0, s32 arg1, s32 arg2);
 extern void btlCameraWaitMotionFrames(u8 *arg0);
 extern void btlCameraSelectPreset(int param_1);
 extern s32 func_00243ce0(u8 *arg0);
-extern void func_002250a0(u8 *arg0, f32 arg1, f32 arg2);
-extern void func_002258b0(u8 *arg0, f32 arg1, f32 arg2);
+extern void btlCameraFrameTarget(u8 *arg0, f32 arg1, f32 arg2);
+extern void btlCameraFrameWrapTargetWalk(u8 *arg0, f32 arg1, f32 arg2);
 extern u16 btlTargetGetUnitIndex(BtlTarget *target);
 extern s32 func_001f0a50(u8 *arg0);
 extern void btlCameraApplyPosePair(u8 *arg0);
@@ -155,7 +155,7 @@ extern f32 fGpffff8174;
 extern f32 fGpffff8178;
 extern f32 fGpffff817c;
 extern void btlCameraSetLimitFrame(u8 *camera, f32 angleLimit, s32 reverseSide, s32 forceActorSide);
-extern void func_002266b0(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration);
+extern void btlCameraFrameActorTarget(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration);
 extern s32 func_0019fc70(u8 *action);
 
 extern u8 D_006296B0[];
@@ -172,8 +172,8 @@ extern void func_0019de70(BtlUnitStateWork *work, u16 value);
 extern void func_00195590(BtlUnit *unit, const RwV3d *target);
 extern s32 btlCameraSelectMode(u8 *camera);
 extern void btlCameraUpdateMode(u8 *camera);
-extern s32 func_0022f950(u8 *action, u8 *subordinate);
-extern void func_002240e0(u8 *camera);
+extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
+extern void btlCameraSelectEncounterPreset(u8 *camera);
 
 extern u8 *func_00193bf0(u64 uid, u64 mask);
 extern void func_00106390(s32 arg0, s32 arg1);
@@ -234,7 +234,7 @@ extern u8 D_0062D920[];
 extern void btlActionFinishPresentation(s64 *arg0);
 extern s32 btlFormationAllocWork(u32 param_1);
 extern void btlFormationSetSlot(s32 formation, u32 data);
-extern u8 *func_0022ced0(s32 arg0);
+extern u8 *btlFormationGetRecord(s32 arg0);
 extern void btlFormationCopyRecord(int destination, u32 source);
 extern BtlPacket *func_0019bbe0(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
 extern void func_001f0a10(u8 *arg0);
@@ -252,7 +252,7 @@ extern void func_0029dfe0(u8 *arg0, u8 *arg1);
 extern u8 *func_0010d740(s16 arg0);
 extern void itfMesWindowSetString(u8 *arg0, s32 arg1, u8 *arg2);
 extern void kwlnTaskAddChild(u8 *arg0, u8 *arg1);
-extern void func_00225ec0(u8 *camera);
+extern void btlCameraFrameActionCutscene(u8 *camera);
 extern u8 D_00629750[], D_00629EA0[], D_0062CA80[], D_0062D1D0[];
 extern u8 D_0062E7C0[], D_0062EF10[], D_0062F660[], D_0062FDB0[];
 extern u8 D_00630500[], D_00630C50[], D_006313A0[], D_00631AF0[];
@@ -289,8 +289,9 @@ s32 func_002218e0(KwlnTask *task)
 {
     return (*(u16 *)kwlnTaskGetWork(task) & 4) != 0;
 }
+// Intent: Report whether the logo task named D_006290F0 exists. [inferred]
 // FUN_00221910
-s32 func_00221910(void)
+s32 btlLogoTaskExists(void)
 {
     return kwlnTaskGetTaskByName((s8 *)D_006290F0) != 0;
 }
@@ -300,8 +301,9 @@ s32 func_00221940(KwlnTask *task)
 {
     return ((*(u16 *)kwlnTaskGetWork(task) & 0x10) != 0) ^ 1;
 }
+// Intent: Advance the logo stage flags and set the stage byte from the counter. [inferred]
 // FUN_00221970
-s32 func_00221970(u8 *arg0)
+s32 btlLogoUnlockStage(u8 *arg0)
 {
     s32 temp_2;
     s32 temp_3;
@@ -385,8 +387,9 @@ static inline void logoDrawTitle(u8 *work, LogoVec2 ofs, LogoColor col, LogoVec2
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
+// Intent: Draw the logo title sprites at the given alpha. [inferred]
 // FUN_00222210
-void func_00222210(u8 *work, u32 alpha)
+void btlLogoDrawTitle(u8 *work, u32 alpha)
 {
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
@@ -496,13 +499,14 @@ void func_00222210(u8 *work, u32 alpha)
  * conversion, and pack the color before preparing the overlay dimensions. */
 #pragma push
 #pragma opt_propagation off
+// Intent: Draw the logo scene and title for one frame. [inferred]
 // FUN_00222D20
-void func_00222d20(u8 *drawData, s32 workAddress, void *callback)
+void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
 {
     typedef struct { f32 x, y; } Vec2fLocal;
     typedef struct { s32 lo, hi; } DescriptorPair;
     typedef union { Vec2fLocal draw; DescriptorPair descriptor; } OriginPair;
-    extern void func_00222210(u8 *work, u32 alpha);
+    extern void btlLogoDrawTitle(u8 *work, u32 alpha);
     extern void func_0034f1e0(void);
     extern void func_0034c270(Vec2fLocal arg0, s32 arg1, s32 arg2, f32 arg3);
     extern void func_00354ba0(u8 *arg0);
@@ -544,7 +548,7 @@ void func_00222d20(u8 *drawData, s32 workAddress, void *callback)
         origin.draw.x = 0.0f;
         origin.draw.y = 0.0f;
         func_0034c270(origin.draw, alpha, 0x16, 0.0f);
-        func_00222210(work, alpha);
+        btlLogoDrawTitle(work, alpha);
         func_00354ba0(*(u8 **)(work + 0x4C));
         origin.draw.x = 0.0f;
         origin.draw.y = 0.0f;
@@ -575,8 +579,9 @@ void func_00222d20(u8 *drawData, s32 workAddress, void *callback)
     }
 }
 #pragma pop
+// Intent: Create the logo title task and its child draw. [inferred]
 // FUN_002230E0
-s32 func_002230e0(s32 arg0)
+s32 btlLogoTitleCreate(s32 arg0)
 {
     u8 *temp_2;
     s32 temp_16;
@@ -590,13 +595,14 @@ s32 func_002230e0(s32 arg0)
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);
     memset((u8 *)(temp_2) + 0xC, 0, 0x30);
-    *(void (**)(u8 *, s32, void *))((u8 *)(temp_2) + 0x14) = func_00222d20;
+    *(void (**)(u8 *, s32, void *))((u8 *)(temp_2) + 0x14) = btlLogoDraw;
     *(u8 **)((u8 *)(temp_2) + 0x1C) = (u8 *)(temp_2);
     *(u16 *)((u8 *)(temp_2) + 0) = (u16)(*(u16 *)((u8 *)(temp_2) + 0) | 1);
     return temp_16;
 }
+// Intent: Advance the logo title task state after its overlay finishes. [inferred]
 // FUN_002231E0
-void func_002231e0(KwlnTask *task) {
+void btlLogoTitleAdvance(KwlnTask *task) {
     u16 *temp_2;
 
     temp_2 = (u16 *)(kwlnTaskGetWork(task));
@@ -609,21 +615,24 @@ void func_002231e0(KwlnTask *task) {
     *(s32 *)((u8 *)(temp_2) + 4) = 5;
 }
 
+// Intent: Report whether the logo title task is ready (flag bit 1). [inferred]
 // FUN_00223240
-s32 func_00223240(KwlnTask *task)
+s32 btlLogoTitleIsReady(KwlnTask *task)
 {
     return *(u16 *)kwlnTaskGetWork(task) & 1;
 }
+// Intent: Report whether the logo title task exists by name. [inferred]
 // FUN_00223270
-s32 func_00223270(void)
+s32 btlLogoTitleExists(void)
 {
     return kwlnTaskGetTaskByName((s8 *)D_00629640) != 0;
 }
 
+// Intent: Run the result overlay state machine for one tick. [inferred]
 // FUN_002232A0
 /* 1036/1040 bytes; 26 code relocations and all nine switch entries exact. */
 #pragma opt_propagation off
-s32 func_002232a0(u8 *sdkTaskBytes)
+s32 btlResultOverlayTick(u8 *sdkTaskBytes)
 {
     KwlnTask *task = (KwlnTask *)sdkTaskBytes;
     u8 *work;
@@ -757,15 +766,17 @@ s32 func_002232a0(u8 *sdkTaskBytes)
     return 0;
 }
 #pragma opt_propagation on
+// Intent: Result overlay event callback; ignores events once the flag is set. [inferred]
 // FUN_002236B0
-void func_002236b0(s32 arg0, u16 *arg1, s32 arg2)
+void btlResultOverlayOnEvent(s32 arg0, u16 *arg1, s32 arg2)
 {
     if ((*arg1 & 2) != 0) {
         return;
     }
 }
+// Intent: Destroy the result overlay task work. [inferred]
 // FUN_002236C0
-void func_002236c0(u8 *sdkTaskBytes)
+void btlResultOverlayDestroy(u8 *sdkTaskBytes)
 {
     KwlnTask *task = (KwlnTask *)sdkTaskBytes;
     u8 *p;
@@ -782,8 +793,9 @@ void func_002236c0(u8 *sdkTaskBytes)
     (*jtbl_008873EC)(p);
 }
 
+// Intent: Create the result overlay task. [inferred]
 // FUN_00223730
-s32 func_00223730(s32 arg0)
+s32 btlResultOverlayCreate(s32 arg0)
 {
     u8 *temp_2;
     s32 temp_16;
@@ -792,18 +804,19 @@ s32 func_00223730(s32 arg0)
     chkmemAllocSiteTag(&D_006296E8, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x54, 0x40000);
     memset(temp_2, 0, 0x54);
-    temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_006296B0), 0xF, 0, 0, func_002232a0, func_002236c0, (u8 *)(temp_2)));
+    temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_006296B0), 0xF, 0, 0, btlResultOverlayTick, btlResultOverlayDestroy, (u8 *)(temp_2)));
     temp_2_2 = (u16 *)(kwlnTaskGetWork((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x40) = (u16 *)(temp_2_2);
     memset((u8 *)(temp_2) + 8, 0, 0x30);
-    *(void (**)(u16 *))((u8 *)(temp_2) + 0x10) = (void (*)(u16 *))(func_002236b0);
+    *(void (**)(u16 *))((u8 *)(temp_2) + 0x10) = (void (*)(u16 *))(btlResultOverlayOnEvent);
     *(u8 **)((u8 *)(temp_2) + 0x18) = (u8 *)(temp_2);
     *(u16 *)((u8 *)(temp_2) + 0) = (u16)(*(u16 *)((u8 *)(temp_2) + 0) | 1);
     return temp_16;
 }
+// Intent: Start the result overlay and set its state. [inferred]
 // FUN_00223830
-void func_00223830(KwlnTask *task) {
+void btlResultOverlayStart(KwlnTask *task) {
     u16 *temp_2;
 
     temp_2 = (u16 *)(kwlnTaskGetWork(task));
@@ -816,28 +829,32 @@ void func_00223830(KwlnTask *task) {
     *(s32 *)((u8 *)(temp_2) + 4) = 7;
 }
 
+// Intent: Report whether the result overlay is ready. [inferred]
 // FUN_00223890
-s32 func_00223890(KwlnTask *task)
+s32 btlResultOverlayIsReady(KwlnTask *task)
 {
     return *(u16 *)kwlnTaskGetWork(task) & 1;
 }
+// Intent: Report whether the result overlay task exists by name. [inferred]
 // FUN_002238C0
-s32 func_002238c0(void)
+s32 btlResultOverlayExists(void)
 {
     return kwlnTaskGetTaskByName((s8 *)D_006296B0) != 0;
 }
 
 
 
+// Intent: Result summary event callback (same body as the overlay callback). [inferred]
 // FUN_00223ED0
-void func_00223ed0(s32 arg0, u16 *arg1, s32 arg2)
+void btlResultSummaryOnEventAlt(s32 arg0, u16 *arg1, s32 arg2)
 {
     if ((*arg1 & 2) != 0) {
         return;
     }
 }
+// Intent: Destroy the result summary task work. [inferred]
 // FUN_00223EE0
-void func_00223ee0(u8 *sdkTaskBytes)
+void btlResultSummaryDestroy(u8 *sdkTaskBytes)
 {
     KwlnTask *task = (KwlnTask *)sdkTaskBytes;
     u8 *p;
@@ -852,8 +869,9 @@ void func_00223ee0(u8 *sdkTaskBytes)
     (*jtbl_008873EC)(p);
 }
 
+// Intent: Create the result summary task. [inferred]
 // FUN_00223F40
-s32 func_00223f40(s32 arg0)
+s32 btlResultSummaryCreate(s32 arg0)
 {
     u8 *temp_2;
     s32 temp_16;
@@ -862,18 +880,19 @@ s32 func_00223f40(s32 arg0)
     chkmemAllocSiteTag(&D_00629738, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x4C, 0x40000);
     memset(temp_2, 0, 0x4C);
-    temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629700), 0xF, 0, 0, btlResultFriendPsUpdate, func_00223ee0, (u8 *)(temp_2)));
+    temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629700), 0xF, 0, 0, btlResultFriendPsUpdate, btlResultSummaryDestroy, (u8 *)(temp_2)));
     temp_2_2 = (u16 *)(kwlnTaskGetWork((void *)arg0));
     *(s32 *)((u8 *)(temp_2) + 4) = 0;
     *(u16 **)((u8 *)(temp_2) + 0x3C) = (u16 *)(temp_2_2);
     memset((u8 *)(temp_2) + 8, 0, 0x30);
-    *(void (**)(u16 *))((u8 *)(temp_2) + 0x10) = (void (*)(u16 *))(func_00223ed0);
+    *(void (**)(u16 *))((u8 *)(temp_2) + 0x10) = (void (*)(u16 *))(btlResultSummaryOnEventAlt);
     *(u8 **)((u8 *)(temp_2) + 0x18) = (u8 *)(temp_2);
     *(u16 *)((u8 *)(temp_2) + 0) = (u16)(*(u16 *)((u8 *)(temp_2) + 0) | 1);
     return temp_16;
 }
+// Intent: Start the result summary task. [inferred]
 // FUN_00224040
-void func_00224040(KwlnTask *task)
+void btlResultSummaryStart(KwlnTask *task)
 {
     u16 *temp_16;
 
@@ -881,13 +900,15 @@ void func_00224040(KwlnTask *task)
     btlShuffleStartOverlay();
     *(s32 *)(temp_16 + 2) = 5;
 }
+// Intent: Report whether the result summary is ready. [inferred]
 // FUN_00224080
-s32 func_00224080(KwlnTask *task)
+s32 btlResultSummaryIsReady(KwlnTask *task)
 {
     return *(u16 *)kwlnTaskGetWork(task) & 1;
 }
+// Intent: Report whether the result summary task exists by name. [inferred]
 // FUN_002240B0
-s32 func_002240b0(void)
+s32 btlResultSummaryExists(void)
 {
     return kwlnTaskGetTaskByName((s8 *)D_00629700) != 0;
 }
@@ -918,8 +939,9 @@ static inline s16 btlCameraPresetPresence(s32 present)
     return present != 0;
 }
 
+// Intent: Select the encounter camera preset from the party ordinal and roster status. [inferred]
 // FUN_002240E0
-void func_002240e0(u8 *camera)
+void btlCameraSelectEncounterPreset(u8 *camera)
 {
     struct CameraPosePair {
         RwV3d first;
@@ -1039,8 +1061,9 @@ void func_002240e0(u8 *camera)
  * Preserve that path and its unwritten automatic storage. The corresponding
  * target-mask-1 path returns immediately; neither path is given new state.
  */
+// Intent: Select the skill camera preset from the roster and actor party index. [inferred]
 // FUN_00224450
-void func_00224450(u8 *camera)
+void btlCameraSelectSkillPreset(u8 *camera)
 {
     struct CameraPosePair {
         RwV3d first;
@@ -1221,8 +1244,9 @@ group1_party_done:
     btlMainCurveSetPoses((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
     btlCameraSetDuration(camera, 0.75f);
 }
+// Intent: Per-frame camera tick, run while the camera flag is set. [inferred]
 // FUN_00224970
-void func_00224970(void)
+void btlCameraTickFrame(void)
 {
     if (*(s32 *)(DAT_0076449c + 0xC0C) != 0) {
         btlCameraUpdateFrame();
@@ -1231,10 +1255,11 @@ void func_00224970(void)
 
 
 
+// Intent: Apply actor and target pair height offsets and return the framing distance. [inferred]
 // FUN_002249A0
 /* measured: ordinary C, 1780/1792 bytes, 32 code relocations and zero
  * normalized differences; the remaining 12 bytes are zero tail alignment. */
-f32 func_002249a0(u8 *actor, u8 *target, RwV3d *actorPosition, RwV3d *targetPosition)
+f32 btlCameraApplyPairOffsets(u8 *actor, u8 *target, RwV3d *actorPosition, RwV3d *targetPosition)
 {
     u32 actorKind;
     f32 height;
@@ -1359,10 +1384,11 @@ f32 func_002249a0(u8 *actor, u8 *target, RwV3d *actorPosition, RwV3d *targetPosi
     }
     return 3.5f;
 }
+// Intent: Frame the camera on the target with a distance offset and duration. [inferred]
 // FUN_002250A0
 /* 1688/1696 bytes; all 36 resolved code relocations exact. */
 #pragma opt_scalarize off
-void func_002250a0(u8 *camera, f32 distanceOffset, f32 duration)
+void btlCameraFrameTarget(u8 *camera, f32 distanceOffset, f32 duration)
 {
     RwV3d actorPosition;
     RwV3d targetPosition;
@@ -1408,7 +1434,7 @@ void func_002250a0(u8 *camera, f32 distanceOffset, f32 duration)
     action = *(u8 **)(camera + 0xE0);
     actor = *(u8 **)(action + 0x30);
     target = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
-    framingScale = func_002249a0(actor, target, &actorPosition, &targetPosition);
+    framingScale = btlCameraApplyPairOffsets(actor, target, &actorPosition, &targetPosition);
     actorRadius = *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
     targetRadius = *(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C);
     geometry.horizontal[0] = *(f32 *)(camera + 0x9C) - actorPosition.x;
@@ -1541,8 +1567,9 @@ void func_002250a0(u8 *camera, f32 distanceOffset, f32 duration)
     }
 }
 #pragma opt_scalarize on
+// Intent: Choose the camera frame mode for a unit pair from the party flags. [inferred]
 // FUN_00225740
-void func_00225740(u8 *arg0)
+void btlCameraFrameUnitPair(u8 *arg0)
 {
     u16 temp_4;
     u8 *temp_2;
@@ -1557,7 +1584,7 @@ void func_00225740(u8 *arg0)
     if (*(u8 *)(temp_16 + 0xA2) == 0) {
         if ((temp_4 & 0xFFFF & 1) == 0) {
             if (func_001f0a50(*(u8 **)(base + 0xE0)) == 0) {
-                func_002250a0(base, 0.0f, 1.0f);
+                btlCameraFrameTarget(base, 0.0f, 1.0f);
             }
         } else {
             btlCameraApplyPosePair(base);
@@ -1565,15 +1592,16 @@ void func_00225740(u8 *arg0)
         }
     } else if ((temp_4 & 0xFFFF & 2) == 0) {
         if (func_00243ce0((u8 *)*(s32 *)(temp_16 + 0xA64)) != 0) {
-            func_002250a0(base, 0.0f, 1.0f);
+            btlCameraFrameTarget(base, 0.0f, 1.0f);
             return;
         }
         btlCameraApplyPosePair(base);
         *(u16 *)(DAT_0076449c + 0xC00) = 1;
     }
 }
+// Intent: Tick the camera aim for the active action. [inferred]
 // FUN_00225860
-void func_00225860(u8 *arg0)
+void btlCameraTickAim(u8 *arg0)
 {
     u16 temp_5;
     u8 *temp_3;
@@ -1587,11 +1615,12 @@ void func_00225860(u8 *arg0)
     }
 }
 
+// Intent: Frame the camera on a wrapping target walk. [inferred]
 // FUN_002258B0
 /* Measured: 800/800 bytes, 20 resolved relocations, zero differences.
  * Disabling common-subexpression folding preserves the wrapping target walk. */
 #pragma opt_common_subs off
-void func_002258b0(u8 *camera, f32 distanceOffset, f32 duration)
+void btlCameraFrameWrapTargetWalk(u8 *camera, f32 distanceOffset, f32 duration)
 {
     u8 *action;
     u8 *unit;
@@ -1699,20 +1728,22 @@ void func_002258b0(u8 *camera, f32 distanceOffset, f32 duration)
         default:
             break;
         }
-        func_002266b0(camera, heightScale, scale, distanceOffset, duration);
+        btlCameraFrameActorTarget(camera, heightScale, scale, distanceOffset, duration);
     }
 }
 #pragma opt_common_subs on
+// Intent: Frame the camera on a wrapped target with a default duration. [inferred]
 // FUN_00225BD0
-void func_00225bd0(u8 *arg0)
+void btlCameraFrameWrapTarget(u8 *arg0)
 {
-    func_002258b0(arg0, 0.0f, 2.0f);
+    btlCameraFrameWrapTargetWalk(arg0, 0.0f, 2.0f);
 }
 
 
 
+// Intent: Tick the camera while waiting for the target motion. [inferred]
 // FUN_00225C00
-void func_00225c00(u8 *arg0)
+void btlCameraTickTargetWait(u8 *arg0)
 {
     u8 *self;
     u8 *temp_3;
@@ -1722,9 +1753,9 @@ void func_00225c00(u8 *arg0)
     if (temp_3 != NULL) {
         if (func_00243ce0((u8 *)*(s32 *)(*(u8 **)(temp_3 + 0x30) + 0xA64)) != 0) {
             if (btlUnitIsUnavailable(*(u8 **)(self + 0xE0), 0, 0) != 0) {
-                func_002258b0(self, 0.0f, 0.75f);
+                btlCameraFrameWrapTargetWalk(self, 0.0f, 0.75f);
             } else {
-                func_002250a0(self, 0.0f, 0.75f);
+                btlCameraFrameTarget(self, 0.0f, 0.75f);
             }
             arg0 = (u8 *)(s64)(s16)btlUnitMotionClassValue(
                 *(u8 **)(*(u8 **)(self + 0xE0) + 0x30), 4);
@@ -1740,8 +1771,9 @@ void func_00225c00(u8 *arg0)
 }
 /* measured 00225d00 plain-C reconstruction matches the complete 256-byte retail window at normalized_diff 0. */
 #pragma optimization_level 1
+// Intent: Tick the camera preset selection after the action flag. [inferred]
 // FUN_00225D00
-void func_00225d00(u8 *arg0)
+void btlCameraTickSelectPreset(u8 *arg0)
 {
     u32 temp_4;
     s32 temp_3;
@@ -1765,15 +1797,16 @@ void func_00225d00(u8 *arg0)
             return;
         }
         if (btlUnitIsUnavailable(*(u8 **)(arg0 + 0xE0), 0, 0) != 0) {
-            func_002258b0(arg0, 400.0f, fGpffff809c);
+            btlCameraFrameWrapTargetWalk(arg0, 400.0f, fGpffff809c);
             return;
         }
-        func_002250a0(arg0, 400.0f, fGpffff809c);
+        btlCameraFrameTarget(arg0, 400.0f, fGpffff809c);
     }
 }
 #pragma optimization_level 2
+// Intent: Tick the camera aim on the actor during the action. [inferred]
 // FUN_00225E50
-void func_00225e50(u8 *arg0)
+void btlCameraTickAimOnActor(u8 *arg0)
 {
     s32 iVar1;
 
@@ -1824,8 +1857,9 @@ static inline s32 func_00225ec0_flag(u8 *action)
     }
     return 1;
 }
+// Intent: Frame the camera for the action cutscene. [inferred]
 // FUN_00225EC0
-void func_00225ec0(u8 *camera)
+void btlCameraFrameActionCutscene(u8 *camera)
 {
     extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
     extern f32 func_00196040(u32 arg0, u32 arg1, void *arg2, f32 *arg3, void *arg4, u32 arg5);
@@ -1982,12 +2016,13 @@ void func_00225ec0(u8 *camera)
     }
     btlCameraSetDuration(camera, scale);
 }
+// Intent: Frame the camera on the actor and target pair with height and scale. [inferred]
 // FUN_002266B0
 /* measured: opt_scalarize off retains the real horizontal vector stores.
  * Staged radius scaling and the scoped two-halfword skill table give
  * 1420/1424 bytes, 21 code relocations and zero normalized differences. */
 #pragma opt_scalarize off
-void func_002266b0(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration)
+void btlCameraFrameActorTarget(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration)
 {
     RwV3d actorPosition;
     RwV3d targetPosition;
@@ -2127,11 +2162,12 @@ void func_002266b0(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f
     btlCameraSetDuration(camera, duration);
 }
 #pragma opt_scalarize on
+// Intent: Tick the camera mode state machine. [inferred]
 // FUN_00226C40
 /* 1516/1520 bytes, 48 resolved code relocations and all
  * seven switch targets match retail; four zero tail-alignment bytes. */
 #pragma opt_common_subs off
-void func_00226c40(u8 *camera)
+void btlCameraTickModeState(u8 *camera)
 {
     RwRGBA color;
     struct CameraPosePair {
@@ -2171,7 +2207,7 @@ void func_00226c40(u8 *camera)
     }
     *(u16 *)(camera + 0x110) = btlCameraSelectMode(camera);
     matchesSubordinate = subordinate != NULL &&
-        func_0022f950(*(u8 **)(camera + 0xE0), subordinate) != 0;
+        btlUnitSkillBlocked(*(u8 **)(camera + 0xE0), subordinate) != 0;
     if (matchesSubordinate && *(u16 *)(camera + 0x110) != 1) {
         btlUnitHideModel(subordinate);
         color.red = *(u8 *)(subordinate + 0x30);
@@ -2271,10 +2307,11 @@ void func_00226c40(u8 *camera)
     }
 }
 #pragma opt_common_subs on
+// Intent: Apply the camera mode selected for the current action. [inferred]
 // FUN_00227230
 /* 1336/1344 bytes, 48 resolved code relocations and all
  * seven switch targets match retail; eight zero tail-alignment bytes. */
-void func_00227230(u8 *camera)
+void btlCameraApplyMode(u8 *camera)
 {
     struct CameraPosePair {
         RwV3d first;
@@ -2307,17 +2344,17 @@ void func_00227230(u8 *camera)
         }
     case 2:
         if (((u16)targetFlags & 2) == 0) {
-            func_002266b0(camera, 0.0f, 3.0f, 0.0f, 2.0f);
+            btlCameraFrameActorTarget(camera, 0.0f, 3.0f, 0.0f, 2.0f);
             break;
         }
     case 4:
         if (((u16)targetFlags & 2) == 0) {
             if (func_00243ce0(*(u8 **)(*(u8 **)(*(u8 **)(camera + 0xE0) + 0x30) + 0xA64)) != 0 &&
                 func_0019fc70(*(u8 **)(camera + 0xE0)) != 0) {
-                func_002250a0(camera, 0.0f, 0.75f);
+                btlCameraFrameTarget(camera, 0.0f, 0.75f);
                 break;
             }
-            func_002266b0(camera, 0.0f, 3.0f, 0.0f, 2.0f);
+            btlCameraFrameActorTarget(camera, 0.0f, 3.0f, 0.0f, 2.0f);
             break;
         }
     case 3:
@@ -2372,8 +2409,9 @@ void func_00227230(u8 *camera)
         break;
     }
 }
+// Intent: Tick a camera unit animation until it finishes. [inferred]
 // FUN_00227770
-void func_00227770(u8 *arg0)
+void btlCameraTickUnitAnim(u8 *arg0)
 {
     u8 *temp_3;
     u8 *temp_5;
@@ -2390,13 +2428,14 @@ void func_00227770(u8 *arg0)
 }
 
 
+// Intent: Apply the party-member camera pose by ordinal. [inferred]
 // FUN_002277E0
 /* measured: opt_common_subs off preserves per-use 16-bit ordinal masks.
  * Independent target/party ordinals and the materialized subordinate predicate
  * give 1620/1632 bytes, 50 code relocations and zero normalized differences.
  * Each pose pair is two contiguous seven-float poses, without padding. */
 #pragma opt_common_subs off
-void func_002277e0(u8 *camera)
+void btlCameraApplyPartyPose(u8 *camera)
 {
     RwRGBA color;
     struct CameraPosePair {
@@ -2436,7 +2475,7 @@ void func_002277e0(u8 *camera)
     }
     *(u16 *)(camera + 0x110) = btlCameraSelectMode(camera);
     matchesSubordinate = subordinate != NULL &&
-        func_0022f950(*(u8 **)(camera + 0xE0), subordinate) != 0;
+        btlUnitSkillBlocked(*(u8 **)(camera + 0xE0), subordinate) != 0;
     if (matchesSubordinate && *(u16 *)(camera + 0x110) != 1) {
         btlUnitHideModel(subordinate);
         color.red = *(u8 *)(subordinate + 0x30);
@@ -2541,13 +2580,14 @@ void func_002277e0(u8 *camera)
         break;
     }
 }
-/* measured: closing opt_common_subs off for func_002277e0. */
+/* measured: closing opt_common_subs off for btlCameraApplyPartyPose. */
 #pragma opt_common_subs on
+// Intent: Apply the encounter camera mode for each camera state. [inferred]
 // FUN_00227E40
 /* measured: 1168/1168 bytes, 44 code relocations and zero differences.
  * Preserve the switch fallthrough's repeated target-kind tests and the
  * three distinct, contiguous seven-float pose pairs. No extra pragma. */
-void func_00227e40(u8 *camera)
+void btlCameraApplyEncounterMode(u8 *camera)
 {
     struct CameraPosePair {
         RwV3d first;
@@ -2575,13 +2615,13 @@ void func_00227e40(u8 *camera)
     case 1:
     case 2:
         if (((u16)targetFlags & 2) == 0) {
-            func_002240e0(camera);
+            btlCameraSelectEncounterPreset(camera);
             break;
         }
         /* Fall through: state 4 has its own identical target-kind test. */
     case 4:
         if (((u16)targetFlags & 2) == 0) {
-            func_002240e0(camera);
+            btlCameraSelectEncounterPreset(camera);
             break;
         }
         /* Fall through to the shared selected-target camera. */
@@ -2638,8 +2678,9 @@ void func_00227e40(u8 *camera)
         break;
     }
 }
+// Intent: Set a random skill camera pose from the table. [inferred]
 // FUN_002282D0
-void func_002282d0(u8 *arg0)
+void btlCameraSetRandomSkillPose(u8 *arg0)
 {
     typedef struct {
         f32 x;
@@ -2691,15 +2732,17 @@ void func_002282d0(u8 *arg0)
     }
     func_001bf5e0(arg0);
 }
+// Intent: Tick the skill pose while the unit is free. [inferred]
 // FUN_00228480
-void func_00228480(u8 *arg0) {
+void btlCameraTickUnitPose(u8 *arg0) {
     if (func_00243ce0((u8 *)*(s32 *)((u8 *)(*(u8 **)((u8 *)(*(u8 **)((u8 *)(arg0) + 0xE0)) + 0x30)) + 0xA64)) == 0) {
         func_001bfb70(arg0);
     }
 }
 
+// Intent: Set the fixed camera pose with a 0.75 s duration. [inferred]
 // FUN_002284D0
-void func_002284d0(u8 *arg0)
+void btlCameraSetFixedPose(u8 *arg0)
 {
     typedef struct {
         f32 x;
@@ -2722,8 +2765,9 @@ void func_002284d0(u8 *arg0)
     btlMainCurveSetPoses((u16 *)arg0, (f32 *)&work.first, (f32 *)&work.second, 1);
     btlCameraSetDuration(arg0, 0.75f);
 }
+// Intent: Set a random record camera pose. [inferred]
 // FUN_00228580
-void func_00228580(void)
+void btlCameraSetRandomRecordPose(void)
 {
     typedef struct {
         f32 x;
@@ -2758,8 +2802,9 @@ void func_00228580(void)
                   (f32 *)&work.second, 1);
     btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
 }
+// Intent: Set a random selected camera pose from the pose table. [inferred]
 // FUN_002286C0
-void func_002286c0(void)
+void btlCameraSetRandomSelectedPose(void)
 {
     typedef struct {
         f32 x;
@@ -2794,8 +2839,9 @@ void func_002286c0(void)
                   (f32 *)&work.second, 1);
     btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
 }
+// Intent: Apply a camera pose from the fixed table entry. [inferred]
 // FUN_00228800
-void func_00228800(s32 arg0)
+void btlCameraApplyTablePose(s32 arg0)
 {
     typedef struct {
         f32 x;
@@ -2814,8 +2860,9 @@ void func_00228800(s32 arg0)
     btlMainCurveReset((u16 *)(DAT_0076449c + 0x24), (f32 *)&values.position);
     btlCameraCopyPoseSnapshot((f32 *)((u8 *)arg0 + 0x9C), (f32 *)&values.position);
 }
+// Intent: Set the recorded camera pose from the pose table. [inferred]
 // FUN_00228890
-void func_00228890(void)
+void btlCameraSetRecordedPose(void)
 {
     typedef struct {
         f32 x;
@@ -2854,8 +2901,9 @@ void func_00228890(void)
                   (f32 *)&work.second, 1);
     btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
 }
+// Intent: Start a random effect camera sequence for the unit. [inferred]
 // FUN_002289B0
-void func_002289b0(u8 *arg0)
+void btlCameraStartRandomEffect(u8 *arg0)
 {
     u16 temp_16;
     u32 flag_offset;
@@ -2872,14 +2920,16 @@ void func_002289b0(u8 *arg0)
     btlCameraStartEffect(arg0, target + flag_offset, 8);
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 3);
 }
+// Intent: Tick the camera effect list. [inferred]
 // FUN_00228A60
-void func_00228a60(void)
+void btlCameraTickEffects(void)
 {
     btlCameraUpdateEffectList();
 }
 
+// Intent: Set a random camera pose from a party member. [inferred]
 // FUN_00228A80
-void func_00228a80(u8 *arg0)
+void btlCameraSetRandomPartyPose(u8 *arg0)
 {
     typedef struct {
         f32 x;
@@ -2960,15 +3010,17 @@ loop_7_done:
     btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
 }
+// Intent: Tick the effect list when the unit is active. [inferred]
 // FUN_00228D00
-void func_00228d00(u8 *arg0) {
+void btlCameraTickEffectsIfActive(u8 *arg0) {
     if (func_001f0ff0((u32)*(u8 **)((u8 *)(arg0) + 0xE0)) != 0) {
         btlCameraUpdateEffectList(arg0);
     }
 }
 
+// Intent: Set the camera pose for the actor. [inferred]
 // FUN_00228D50
-void func_00228d50(u8 *arg0)
+void btlCameraSetActorPose(u8 *arg0)
 {
     typedef struct {
         f32 x;
@@ -2992,7 +3044,7 @@ void func_00228d50(u8 *arg0)
     u8 *temp_2;
 
     if (*(u8 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA2) == 0) {
-        func_00225ec0(arg0);
+        btlCameraFrameActionCutscene(arg0);
         return;
     }
     temp_16 = *(u8 **)(*(u8 **)(DAT_0076449c + 0x170) + 0x30);
@@ -3041,8 +3093,9 @@ loop_7_done:
     btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
 }
+// Intent: Set the camera pose from the snapshot table or the frame. [inferred]
 // FUN_00228F60
-void func_00228f60(u8 *arg0)
+void btlCameraSetSnapshotPose(u8 *arg0)
 {
     typedef struct {
         f32 x;
@@ -3061,7 +3114,7 @@ void func_00228f60(u8 *arg0)
     if (*(u8 *)(temp_2 + 0xA2) != 0) {
         goto body;
     }
-    func_00225ec0(arg0);
+    btlCameraFrameActionCutscene(arg0);
     return;
 body:
     temp = (f32 *)(*(u8 **)(DAT_0076449c + 0xB98) + 0x6CC);
@@ -3073,8 +3126,9 @@ body:
 
 /* 2444/2448 bytes; all 56 resolved code relocations exact. */
 #pragma opt_scalarize off
+// Intent: Frame the camera on the actor and target pair with a full pose set. [inferred]
 // FUN_00229020
-void func_00229020(u8 *camera)
+void btlCameraFramePair(u8 *camera)
 {
     RwV3d firstCenter;
     RwV3d secondCenter;
@@ -3307,10 +3361,11 @@ allow_cut:
     btlCameraSetDuration(camera, 1.5f);
 }
 #pragma opt_scalarize on
-/* measured: opt_propagation off preserves func_002299b0's initial GP-load/store order (nd 0). */
+/* measured: opt_propagation off preserves btlEncounterStartSequence's initial GP-load/store order (nd 0). */
 #pragma opt_propagation off
+// Intent: Start the encounter presentation sequence (formation, camera state, packets). [inferred]
 // FUN_002299B0
-void func_002299b0(u8 *arg0)
+void btlEncounterStartSequence(u8 *arg0)
 {
     u8 *saved_arg0;
     u32 payload[8];
@@ -3333,7 +3388,7 @@ void func_002299b0(u8 *arg0)
     }
     btlActionFinishPresentation((s64 *)saved_arg0);
     temp_17 = btlFormationAllocWork(0);
-    btlFormationCopyRecord((int)temp_17, (u32)func_0022ced0(0xC));
+    btlFormationCopyRecord((int)temp_17, (u32)btlFormationGetRecord(0xC));
     {
         u8 *temp_2;
         temp_2 = (u8 *)func_001b1510();
@@ -3409,10 +3464,11 @@ after_ef90:
     }
     btlFormationSetPlacement(temp_17);
 }
-/* measured: close opt_propagation after func_002299b0 (nd 0). */
+/* measured: close opt_propagation after btlEncounterStartSequence (nd 0). */
 #pragma opt_propagation on
+// Intent: Finish the encounter step; return 1 while the action is still active. [inferred]
 // FUN_00229C40
-s32 func_00229c40(u8 *arg0)
+s32 btlEncounterFinishStep(u8 *arg0)
 {
     u8 *temp_2_2;
     u8 *temp_2;
@@ -3444,9 +3500,10 @@ s32 func_00229c40(u8 *arg0)
     }
     return 1;
 }
+// Intent: Run the action presentation packet sequence. [inferred]
 // FUN_00229DA0
 /* 2312/2320 bytes; 75 resolved code relocations and nine switch entries exact. */
-void func_00229da0(u8 *action)
+void btlActionRunPresentation(u8 *action)
 {
     s32 formation;
     u8 *packet;
@@ -3475,7 +3532,7 @@ void func_00229da0(u8 *action)
     } targetParams, statusParams;
 
     formation = btlFormationAllocWork(0);
-    btlFormationCopyRecord(formation, (u32)func_0022ced0(0xC));
+    btlFormationCopyRecord(formation, (u32)btlFormationGetRecord(0xC));
     *(u32 *)(iGpffffb3ac + 0xC) |= 0x80000;
 
     packet = (u8 *)btlEffectCreateSpriteFramePacket(*(u32 *)(action + 0x30),
@@ -3708,8 +3765,9 @@ next_return_target:
     }
     btlFormationSetPlacement((u32)formation);
 }
+// Intent: Wait until the target presentation finishes, then clear its flag. [inferred]
 // FUN_0022A6B0
-s32 func_0022a6b0(s64 *arg0) {
+s32 btlEncounterWaitCleared(s64 *arg0) {
     u8 *temp_4;
 
     if (func_00193bf0(*arg0,
@@ -3752,8 +3810,9 @@ static inline u16 btlUnitRosterIndex(u8 *unit)
 /* The scan records the last affected entry; when none exists, retail tests
    `last` without a store (an unwritten saved register at 0022a80c). The C
    keeps that exact test of the uninitialised local. */
+// Intent: Run the unit motion request sequence for the action. [inferred]
 // FUN_0022A730
-void func_0022a730(u8 *arg0)
+void btlActionRunMotionSequence(u8 *arg0)
 {
     extern u8 *btlUnitCreateMotionRequestPacket(u8 *arg0, u16 arg1);
     extern f32 func_00196040(u32 arg0, u32 arg1, RwV3d *arg2, f32 *arg3, f32 *arg4, u32 arg5);
@@ -3867,8 +3926,9 @@ void func_0022a730(u8 *arg0)
         delay += 4;
     }
 }
+// Intent: Wait for the presentation to finish, then clear the release flags. [inferred]
 // FUN_0022ABD0
-s32 func_0022abd0(s64 *arg0) {
+s32 btlEncounterReleaseFlags(s64 *arg0) {
     u8 *temp_4;
 
     if (func_00193bf0(*arg0,
@@ -3886,8 +3946,9 @@ s32 func_0022abd0(s64 *arg0) {
     }
     return 1;
 }
+// Intent: Start the camera state packet and effect counter for the encounter. [inferred]
 // FUN_0022ACB0
-void func_0022acb0(u8 *arg0)
+void btlEncounterStartCameraState(u8 *arg0)
 {
     u8 *temp_2;
     u8 *temp_2_2;
@@ -3900,8 +3961,9 @@ void func_0022acb0(u8 *arg0)
     *(s64 *)(temp_2_2 + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(temp_2_2, 3);
 }
+// Intent: Wait for the release events to finish. [inferred]
 // FUN_0022AD40
-s32 func_0022ad40(s64 *arg0) {
+s32 btlEncounterWaitReleaseEvents(s64 *arg0) {
     u8 *temp_4;
 
     if (func_00193bf0(*arg0,
@@ -3917,8 +3979,9 @@ s32 func_0022ad40(s64 *arg0) {
     }
     return 1;
 }
+// Intent: Reset the encounter slot indices. [inferred]
 // FUN_0022AE00
-void func_0022ae00(u8 *arg0)
+void btlEncounterResetSlots(u8 *arg0)
 {
     struct {
         u8 data[0x10];
@@ -3954,7 +4017,7 @@ void func_0022ae00(u8 *arg0)
     }
     btlActionFinishPresentation((s64 *)arg0);
     temp_16 = btlFormationAllocWork(0);
-    btlFormationCopyRecord((int)temp_16, (u32)func_0022ced0(0xC));
+    btlFormationCopyRecord((int)temp_16, (u32)btlFormationGetRecord(0xC));
     {
         u8 *temp_2;
         temp_2 = (u8 *)func_001b1510();
@@ -4009,8 +4072,9 @@ void func_0022ae00(u8 *arg0)
     }
     btlFormationSetPlacement(temp_16);
 }
+// Intent: Wait until the presentation is idle, then clear its flag. [inferred]
 // FUN_0022B040
-s32 func_0022b040(s64 *arg0)
+s32 btlEncounterWaitIdle(s64 *arg0)
 {
     u8 *temp_4;
 
@@ -4024,23 +4088,26 @@ s32 func_0022b040(s64 *arg0)
 }
 
  
+// Intent: Set the encounter state to 0x2D. [inferred]
 // FUN_0022B0B0
-s32 func_0022b0b0(void)
+s32 btlEncounterSetState2D(void)
 {
     btlSoundFadeOutBgm(0x2D);
     return 1;
 }
+// Intent: Play the cue when the frame flag 0x40 is set. [inferred]
 // FUN_0022B0E0
-s32 func_0022b0e0(void)
+s32 btlEncounterPlayCueIfFlag40(void)
 {
     if (*(s32 *)(DAT_0076449c + 0xC) & 0x40) {
         func_0045a3e0(6, 1);
     }
     return 1;
 }
+// Intent: Run the formation presentation sequence for an action. [inferred]
 // FUN_0022B120
 /* 1860/1872 bytes; all 67 resolved code relocations exact. */
-void func_0022b120(u8 *action)
+void btlActionRunFormationSequence(u8 *action)
 {
     u8 *actor;
     s32 openingFormation;
@@ -4058,15 +4125,15 @@ void func_0022b120(u8 *action)
     btlActionFinishPresentation((s64 *)action);
     openingFormation = btlFormationAllocWork(0);
     closingFormation = btlFormationAllocWork(0);
-    btlFormationCopyRecord(openingFormation, (u32)func_0022ced0(0xC));
-    btlFormationCopyRecord(closingFormation, (u32)func_0022ced0(0xD));
+    btlFormationCopyRecord(openingFormation, (u32)btlFormationGetRecord(0xC));
+    btlFormationCopyRecord(closingFormation, (u32)btlFormationGetRecord(0xD));
     *(u32 *)(DAT_0076449c + 0xC) |= 0x80000;
 
     anchor = func_001ebb00((s32)action, 3, D_00635560);
     *(u64 *)(anchor + 0x60) = *(u64 *)action;
     btlPacketEnqueue(anchor, 1);
 
-    packet = btlPacketAllocZeroed((void *)func_0022b0b0, action);
+    packet = btlPacketAllocZeroed((void *)btlEncounterSetState2D, action);
     packet[0] = 4;
     *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
     *(u64 *)(packet + 0x60) = *(u64 *)action;
@@ -4156,7 +4223,7 @@ void func_0022b120(u8 *action)
     *(u64 *)(anchor + 0x60) = *(u64 *)action;
     btlPacketEnqueue(anchor, 1);
 
-    packet = btlPacketAllocZeroed((void *)func_0022b0e0, action);
+    packet = btlPacketAllocZeroed((void *)btlEncounterPlayCueIfFlag40, action);
     packet[0] = 4;
     *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
     *(u16 *)(packet + 0x48) = 1;
@@ -4235,10 +4302,11 @@ void func_0022b120(u8 *action)
     btlFormationSetPlacement((u32)closingFormation);
     btlFormationSetPlacement((u32)openingFormation);
 }
-/* measured: opt_loop_invariants on probe for func_0022b870. */
+/* measured: opt_loop_invariants on probe for btlEncounterFinishSetup. */
 #pragma opt_loop_invariants on
+// Intent: Finish encounter setup once the presentation completes. [inferred]
 // FUN_0022B870
-s32 func_0022b870(u8 *arg0)
+s32 btlEncounterFinishSetup(u8 *arg0)
 {
     extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
     extern u32 datUnitInit(DatUnit *unit, u8 genus, u16 id);
@@ -4289,12 +4357,13 @@ loop_test:
     }
     return 1;
 }
-/* measured: closes opt_loop_invariants around func_0022b870. */
+/* measured: closes opt_loop_invariants around btlEncounterFinishSetup. */
 #pragma opt_loop_invariants off
-/* measured: optimization_level 1 preserves func_0022ba40's loop branch. */
+/* measured: optimization_level 1 preserves btlEncounterResetUnit's loop branch. */
 #pragma optimization_level 1
+// Intent: Reset the encounter unit by id. [inferred]
 // FUN_0022BA40
-void func_0022ba40(u16 arg1)
+void btlEncounterResetUnit(u16 arg1)
 {
     s32 value;
     s32 id;
@@ -4322,7 +4391,7 @@ found:
         }
     }
 }
-/* measured: closes optimization_level 1 around func_0022ba40. */
+/* measured: closes optimization_level 1 around btlEncounterResetUnit. */
 #pragma optimization_level 2
 
 // FUN_0022BAC0
@@ -4331,8 +4400,9 @@ s32 func_0022bac0(void)
     return 0;
 }
 
+// Intent: Show the unit status window for the given slot. [inferred]
 // FUN_0022BAD0
-s32 func_0022bad0(u8 *arg0, u16 arg1)
+s32 btlUnitStatusWindowShow(u8 *arg0, u16 arg1)
 {
     u8 *target;
     u8 *handle;
@@ -4356,7 +4426,7 @@ changed:
     } else {
         target = arg0;
     }
-    temp = func_0022ced0(0);
+    temp = btlFormationGetRecord(0);
     handle = func_0029da90(
         *(s32 *)(*(u8 **)(iGpffffb3ac + 0xDC8) + 0x20) - 1,
         temp, arg1);
@@ -4385,8 +4455,9 @@ changed:
         *(s32 *)(arg0 + 0x20);
     return 1;
 }
+// Intent: Report whether the task slot is linked. [inferred]
 // FUN_0022BC80
-s32 func_0022bc80(s32 arg0) {
+s32 btlTaskSlotIsLinked(s32 arg0) {
     u8 *b = DAT_0076449c;
     u8 *o = *(u8 **)(b + 0xBA0);
 
@@ -4403,8 +4474,9 @@ s32 func_0022bc80(s32 arg0) {
     return 1;
 }
 
+// Intent: Report whether the task slot is set. [inferred]
 // FUN_0022BD00
-s32 func_0022bd00(void)
+s32 btlTaskSlotIsSet(void)
 {
     return *(s32 *)(DAT_0076449c + 0xBA0) != 0;
 }
@@ -4423,8 +4495,9 @@ s32 func_0022bd20(void)
    in the clearing-loop preheader. The pragma does not affect other functions. */
 #pragma push
 #pragma opt_loop_invariants on
+// Intent: Initialise the encounter globals for each battle id. [inferred]
 // FUN_0022BD60
-void func_0022bd60(void)
+void btlEncounterInitGlobals(void)
 {
     u32 i;
 
@@ -4561,158 +4634,159 @@ void func_0022bd60(void)
 /* measured: 1876B / 1888B window; 123 code relocations and all 22 table
    relocations resolve exactly. The omitted 12B are zero alignment.
    Keep each lookup/allocation/set/store sequence and its global reload. */
+// Intent: Allocate the encounter formation slots for each battle id. [inferred]
 // FUN_0022C430
-void func_0022c430(void)
+void btlFormationAllocEncounterSlots(void)
 {
     u8 *data;
     s32 formation;
 
     switch (func_001ef9a0()) {
     case 0x200:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
-        data = func_0022ced0(8);
+        data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x201:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         break;
     case 0x202:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         break;
     case 0x203:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
-        data = func_0022ced0(8);
+        data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x204:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
-        data = func_0022ced0(8);
+        data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x205:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
-        data = func_0022ced0(8);
+        data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x206:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
-        data = func_0022ced0(8);
+        data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
-        data = func_0022ced0(9);
+        data = btlFormationGetRecord(9);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF4) = formation;
         break;
     case 0x207:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         break;
     case 0x208:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
-        data = func_0022ced0(8);
+        data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x209:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
-        data = func_0022ced0(5);
+        data = btlFormationGetRecord(5);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE4) = formation;
-        data = func_0022ced0(6);
+        data = btlFormationGetRecord(6);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE8) = formation;
-        data = func_0022ced0(7);
+        data = btlFormationGetRecord(7);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBEC) = formation;
         break;
     case 0x20A:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
-        data = func_0022ced0(8);
+        data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x20B:
     case 0x215:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
-        data = func_0022ced0(8);
+        data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x20D:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
-        data = func_0022ced0(5);
+        data = btlFormationGetRecord(5);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE4) = formation;
-        data = func_0022ced0(6);
+        data = btlFormationGetRecord(6);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE8) = formation;
-        data = func_0022ced0(7);
+        data = btlFormationGetRecord(7);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBEC) = formation;
         break;
     case 0x214:
-        data = func_0022ced0(4);
+        data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
-        data = func_0022ced0(8);
+        data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
@@ -4723,8 +4797,9 @@ static inline u8 *cb90AddBaseIndex(u32 base, u32 index)
 {
     return (u8 *)(base + index);
 }
+// Intent: Look up the formation slot index for a unit. [inferred]
 // FUN_0022CB90
-s32 func_0022cb90(u8 *arg0, u16 arg1)
+s32 btlFormationLookupSlot(u8 *arg0, u16 arg1)
 {
     s32 temp_6;
     s8 temp_2;
@@ -4763,8 +4838,9 @@ s32 func_0022cb90(u8 *arg0, u16 arg1)
     }
 }
 #pragma opt_propagation off
+// Intent: Clear the formation slots and their placements. [inferred]
 // FUN_0022CC90
-void func_0022cc90(void)
+void btlFormationClearSlots(void)
 {
     extern void H_Cdvd_Destroy(s32 arg0);
     extern void btlFormationSetPlacement(s32 arg0, u8 *arg1);
@@ -4811,8 +4887,9 @@ void func_0022cc90(void)
     }
 }
 #pragma opt_propagation on
+// Intent: Return the encounter record for an index, or NULL. [inferred]
 // FUN_0022CDB0
-u8 *func_0022cdb0(s32 arg0)
+u8 *btlEncounterGetRecord(s32 arg0)
 {
     s32 temp_2;
     u8 *var_2;
@@ -4846,14 +4923,16 @@ u8 *func_0022cdb0(s32 arg0)
     }
     return var_2;
 }
+// Intent: Return the formation record for an index. [inferred]
 // FUN_0022CED0
-u8 *func_0022ced0(s32 arg0)
+u8 *btlFormationGetRecord(s32 arg0)
 {
     return func_00455ea0(*(u8 **)(DAT_0076449c + 0xB90), arg0 & 0xFFFF, 0);
 }
 
+// Intent: Return the action anchor height for a unit. [inferred]
 // FUN_0022CF00
-f32 func_0022cf00(u8 *arg0, u8 *arg1, u16 arg2) {
+f32 btlUnitGetActionAnchorHeight(u8 *arg0, u8 *arg1, u16 arg2) {
     s32 temp_3;
     u16 temp_2;
 
@@ -4924,10 +5003,11 @@ f32 func_0022cf00(u8 *arg0, u8 *arg1, u16 arg2) {
 fail:
     return -1.0f;
 }
+// Intent: Select the formation slot for the action's unit. [inferred]
 // FUN_0022D200
 /* Measured: 824/832 bytes, one resolved relocation, zero differences;
  * the remaining eight retail bytes are zero alignment. */
-s32 func_0022d200(u8 *action)
+s32 btlActionSelectFormationSlot(u8 *action)
 {
     u8 *global;
     u8 *unit;
@@ -5000,8 +5080,9 @@ s32 func_0022d200(u8 *action)
         return *(s32 *)(global + 0xBE0);
     }
 }
+// Intent: Report whether an action has a formation slot. [inferred]
 // FUN_0022D540
-s32 func_0022d540(u8 *arg0, u8 *arg1) {
+s32 btlActionHasFormationSlot(u8 *arg0, u8 *arg1) {
     u16 temp_3;
     u8 *temp_4;
     u8 *temp_6;
@@ -5032,8 +5113,9 @@ s32 func_0022d540(u8 *arg0, u8 *arg1) {
 /* measured: 1412B / 1424B window, all 59 relocations exact; twelve
    retail zero-alignment bytes. Keep the real unused source input and the
    explicit unsigned counter update with its signed clamp interpretation. */
+// Intent: Update the unit HP gauge from the packet. [inferred]
 // FUN_0022D600
-void func_0022d600(void *source, u8 *packet, s32 *hpDelta)
+void btlUnitUpdateHpGauge(void *source, u8 *packet, s32 *hpDelta)
 {
     u8 *unit;
     u8 *resource;
@@ -5104,7 +5186,7 @@ void func_0022d600(void *source, u8 *packet, s32 *hpDelta)
             remaining = func_001064f0(0x7A);
             remaining += (u32)*hpDelta;
             if ((s32)remaining <= 0) {
-                func_001fae60((s32)func_0022ae00, (s32)func_0022b040, (s32)packet);
+                func_001fae60((s32)btlEncounterResetSlots, (s32)btlEncounterWaitIdle, (s32)packet);
                 remaining = 0;
             }
             func_00106550(0x7A, remaining);
@@ -5135,7 +5217,7 @@ void func_0022d600(void *source, u8 *packet, s32 *hpDelta)
             percentage = 100;
         if (btlCond_MYHP(packet, 100 - percentage) ||
             *(u16 *)(*(u8 **)(*(u8 **)(packet + 0x30) + 0xA64) + 8) < 2)
-            func_001fae60((s32)func_002299b0, (s32)func_00229c40, (s32)packet);
+            func_001fae60((s32)btlEncounterStartSequence, (s32)btlEncounterFinishStep, (s32)packet);
         break;
     case 0x107:
         if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
@@ -5157,8 +5239,9 @@ void func_0022d600(void *source, u8 *packet, s32 *hpDelta)
         break;
     }
 }
+// Intent: Select the unit's record table by battle id. [inferred]
 // FUN_0022DB90
-void func_0022db90(u8 *arg0) {
+void btlUnitSelectRecordTable(u8 *arg0) {
     u16 id;
     u8 *temp_5;
     u8 *temp_6;
@@ -5189,8 +5272,9 @@ void func_0022db90(u8 *arg0) {
 /* measured: 2164B / 2176B window, 74 code and 20 table relocations exact.
    Twelve bytes are retail zero alignment. Keep node declared before started:
    reversing them swaps saved-register uses in nine retail instructions. */
+// Intent: Apply packet flags to the unit state. [inferred]
 // FUN_0022DC70
-void func_0022dc70(u8 *packet)
+void btlUnitApplyPacketFlags(u8 *packet)
 {
     u8 *node;
     s32 started;
@@ -5204,7 +5288,7 @@ void func_0022dc70(u8 *packet)
         switch (func_001ef9a0()) {
         case 0x215:
             if (*(u16 *)(packet + 0x6C) == 2 && *(u16 *)(packet + 0x6E) == 0x115)
-                func_001fae60((s32)func_0022ba40, (s32)func_0022bac0, (s32)packet);
+                func_001fae60((s32)btlEncounterResetUnit, (s32)func_0022bac0, (s32)packet);
             break;
         }
         return;
@@ -5324,7 +5408,7 @@ void func_0022dc70(u8 *packet)
             switch (*(u16 *)(packet + 0x6E)) {
             case 0x17B:
             case 0x184:
-                func_001fae60((s32)func_00229da0, (s32)func_0022a6b0, (s32)packet);
+                func_001fae60((s32)btlActionRunPresentation, (s32)btlEncounterWaitCleared, (s32)packet);
                 *(u16 *)(packet + 0x6C) = 8;
                 btlActionSetState((BtlAction *)packet, 25);
                 *(s32 *)(DAT_0076449c + 0xC38) = 3;
@@ -5357,7 +5441,7 @@ void func_0022dc70(u8 *packet)
                     node = *(u8 **)(node + 0x450);
                 }
                 if (node != NULL) {
-                    func_001fae60((s32)func_0022a730, (s32)func_0022abd0, (s32)packet);
+                    func_001fae60((s32)btlActionRunMotionSequence, (s32)btlEncounterReleaseFlags, (s32)packet);
                     started = 1;
                 }
             }
@@ -5366,7 +5450,7 @@ void func_0022dc70(u8 *packet)
         if (*counter > 0 && started == 0) {
             *counter -= 1;
             if (*(s32 *)(DAT_0076449c + 0xC3C) <= 0 && datGetFlag(0x1435) != 0)
-                func_001fae60((s32)func_0022acb0, (s32)func_0022ad40, (s32)packet);
+                func_001fae60((s32)btlEncounterStartCameraState, (s32)btlEncounterWaitReleaseEvents, (s32)packet);
         }
         break;
     case 0x10A:
@@ -5426,8 +5510,9 @@ void func_0022dc70(u8 *packet)
         break;
     }
 }
+// Intent: Report whether the action matches the expected skill. [inferred]
 // FUN_0022E4F0
-s32 func_0022e4f0(u8 *arg0, s32 arg1) {
+s32 btlActionMatchesSkill(u8 *arg0, s32 arg1) {
     u16 temp_4_2;
     u8 *temp_4;
     u8 *temp_6;
@@ -5482,8 +5567,9 @@ block_25:
    alignment bytes; all 28 relocations resolved and no executable differences.
    Enqueue always receives the target, including the four unconditional calls
    for battle 0x215. Stat results and the status-clear mask are explicit. */
+// Intent: Apply the encounter roster to the unit. [inferred]
 // FUN_0022E630
-s32 func_0022e630(u8 *arg0)
+s32 btlUnitApplyEncounterRoster(u8 *arg0)
 {
     u8 *unit;
     if ((*(s32 *)(DAT_0076449c + 0xC) & 0x200000) == 0) {
@@ -5585,8 +5671,9 @@ s32 func_0022e630(u8 *arg0)
     }
     return 1;
 }
+// Intent: Realign enemy cells for battle 0x202. [inferred]
 // FUN_0022EAD0
-s32 func_0022ead0(void) {
+s32 btlUnitRealignCells(void) {
     struct {
         s32 sp20;
         s32 sp24;
@@ -5624,8 +5711,9 @@ loop_check:
 /* measured: 2428B / 2432B window; all 115 relocations resolve exactly.
    The remaining four bytes are retail zero alignment. Keep the single-case
    action switch, model reloads before each callback, and structured list loop. */
+// Intent: Apply packet effects to the unit by battle id. [inferred]
 // FUN_0022EBA0
-s32 func_0022eba0(u8 *packet)
+s32 btlUnitApplyPacketEffects(u8 *packet)
 {
     u8 *unit;
     u8 *other;
@@ -5823,8 +5911,9 @@ targets_check:
     }
     return 1;
 }
+// Intent: React to the death of unit 0x102 with an animation. [inferred]
 // FUN_0022F520
-s32 func_0022f520(void)
+s32 btlUnitReactToDeath(void)
 {
     struct {
         s64 a;
@@ -5913,8 +6002,9 @@ loop_0022f520_25_check:
 block_0022f520_27:
     return 0;
 }
+// Intent: Return the entry position for a unit. [inferred]
 // FUN_0022F7D0
-s32 func_0022f7d0(u8 *arg0, u8 *arg1) {
+s32 btlUnitGetEntryPosition(u8 *arg0, u8 *arg1) {
     s32 temp_2;
     u8 *temp_2_2;
     u8 *temp_4;
@@ -5980,9 +6070,10 @@ fail:
 /* measured: scoped propagation preserves the post-query skill reload
  * before the unit move; canonical s16 arguments leave two swapped words
  * without it. The query receives its real action pointer. */
+// Intent: Report whether the unit's skill is blocked. [inferred]
 #pragma push
 #pragma opt_propagation off
-s32 func_0022f950(u8 *arg0, u8 *arg1) {
+s32 btlUnitSkillBlocked(u8 *arg0, u8 *arg1) {
     s32 paired;
     s16 skill;
     u8 *unit;
@@ -6011,8 +6102,9 @@ s32 func_0022f950(u8 *arg0, u8 *arg1) {
 }
 #pragma pop
 
+// Intent: Report whether the slot is open for the unit. [inferred]
 // FUN_0022FA90
-s32 func_0022fa90(u8 *arg0, s16 arg1)
+s32 btlUnitSlotIsOpen(u8 *arg0, s16 arg1)
 {
     u8 *temp_6;
 
@@ -6029,8 +6121,9 @@ s32 func_0022fa90(u8 *arg0, s16 arg1)
     /* Form the EE byte address without arithmetic on an invented pointer. */
     return *(s8 *)((u32)(s32)arg1 + (u32)temp_6 + 0xC10) != -2;
 }
+// Intent: Report whether the encounter skips the presentation. [inferred]
 // FUN_0022FB10
-s32 func_0022fb10(void)
+s32 btlEncounterSkipsPresentation(void)
 {
     s32 temp_2;
 

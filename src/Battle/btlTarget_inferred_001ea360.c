@@ -89,8 +89,8 @@ extern u8 D_00609E40[];
 extern s32 btlUnitFindInSideById(s32 arg0, s32 arg1);
 extern s32 func_001b0c80(s32 arg0);
 extern void func_001fae60(s32 initialize, s32 update, s32 packet);
-extern void func_0022b120(u8 *action);
-extern s32 func_0022b870(u8 *action);
+extern void btlActionRunFormationSequence(u8 *action);
+extern s32 btlEncounterFinishSetup(u8 *action);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
@@ -156,9 +156,9 @@ set_flag:
     *(s32 *)(iGpffffb3ac + 0x10) |= 0x10000000;
     goto done;
 body:
-    if (*(void **)(iGpffffb3ac + 0xB40) == (void *)func_0022b120)
+    if (*(void **)(iGpffffb3ac + 0xB40) == (void *)btlActionRunFormationSequence)
         goto done;
-    if (*(void **)(iGpffffb3ac + 0xB44) == (void *)func_0022b870)
+    if (*(void **)(iGpffffb3ac + 0xB44) == (void *)btlEncounterFinishSetup)
         goto done;
     temp_2 = btlUnitFindInSideById(1, 0x10B);
     if (temp_2 == 0)
@@ -166,7 +166,7 @@ body:
     temp_2_2 = func_001b0c80(temp_2);
     if (temp_2_2 == 0)
         goto done;
-    func_001fae60((s32)func_0022b120, (s32)func_0022b870, temp_2_2);
+    func_001fae60((s32)btlActionRunFormationSequence, (s32)btlEncounterFinishSetup, temp_2_2);
 done:
     return 1;
 }

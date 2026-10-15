@@ -72,7 +72,7 @@ extern f32 fGpffff80c8;
 extern f32 fGpffff8430;
 extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void primAxisLine3D(f32 *arg0, s32 arg1, f32 arg2);
-extern u8 *func_0022cdb0(s32 arg0);
+extern u8 *btlEncounterGetRecord(s32 arg0);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern s32 func_00457120(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
@@ -185,7 +185,7 @@ void btlCameraApplyView(void)
         temp_2 = *(s32 *)(D_0076449C + 0x100);
         if (temp_2 <= 0) {
             temp_16 = *(u16 *)(D_0076449C + 0xF4);
-            temp_7 = func_0022cdb0(temp_16);
+            temp_7 = btlEncounterGetRecord(temp_16);
             if (temp_7 == NULL) {
                 temp_7 = D_005F74C0 + ((temp_16 & 0xFFFF) * 0x14);
             }

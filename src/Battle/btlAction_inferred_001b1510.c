@@ -92,7 +92,7 @@ extern void func_002bb4e0(void);
 
 extern u8 *D_0076449C;
 extern s32 func_0022bd20(void);
-extern void func_0022bd60(void);
+extern void btlEncounterInitGlobals(void);
 extern s32 func_001fadc0(u8 *arg0);
 extern u32 btlCountUnitRecords(void);
 extern BtlPacket *btlTargetCreateTargetPacket(u32 arg0, u16 arg1, u32 arg2, u32 arg3, u32 arg4);
@@ -443,7 +443,7 @@ s32 btlMainInitUpdate(void) {
     b = D_0076449C;
     *(u16 *)(b + 0xC6C) = *(u16 *)(b + 0xC6C) + 1;
     if (func_0022bd20() != 0) {
-        func_0022bd60();
+        btlEncounterInitGlobals();
     }
     return 3;
 }

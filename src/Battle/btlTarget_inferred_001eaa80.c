@@ -93,7 +93,7 @@ extern BtlPacket *func_002306d0(void);
 extern u8 *btlSoundCreateStreamPacket(s32 arg0, void *arg1);
 extern void sprintf(void *arg0, void *arg1, s64 arg2);
 extern u8 D_00609E40[];
-extern u8 *func_0022ced0(s32 arg0);
+extern u8 *btlFormationGetRecord(s32 arg0);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
@@ -193,7 +193,7 @@ s32 func_001eaca0(void) {
     temp_16 = (u8 *)btlFormationAllocWork(0);
     temp_4 = scrGetParamIntS32(0) & 0xFFFF;
     temp_4 = temp_4 + 1;
-    btlFormationCopyRecord(temp_16, func_0022ced0(temp_4 & 0xFFFF));
+    btlFormationCopyRecord(temp_16, btlFormationGetRecord(temp_4 & 0xFFFF));
     temp_18 = *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30);
     var_17 = *(u8 **)(iGpffffb3ac + 0x180);
     goto loop_test;
