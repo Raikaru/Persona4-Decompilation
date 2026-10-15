@@ -25,10 +25,10 @@ extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 func_002e23b0(u8 *arg0);
 extern s32 func_002e2410(u8 *arg0);
 extern void func_002e2470(u8 *arg0);
-extern s32 func_002e4090(u8 *arg0);
-extern void func_002e29a0(void);
-extern s8 func_002e47b0(void);
-extern void func_002e4820(s8 arg0);
+extern s32 yListSlotRefresh(u8 *arg0);
+extern void yListDestroy(void);
+extern s8 yListSlotFindFree(void);
+extern void yListSlotRelease(s8 arg0);
 extern void *memset(void *dest, s32 value, u32 size);
 extern s32 func_002e6b20(const void *arg0, const void *arg1);
 extern s32 func_002e6630(const void *arg0, const void *arg1);
@@ -43,7 +43,7 @@ extern s32 datPersonaRosterSlotActive(s16 arg0);
 extern u16 *datPersonaRosterSlot(s16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern void func_0010ffa0(void);
-extern s32 func_002e5270(u8 *arg0, u8 *arg1);
+extern s32 yListRecordsDiffer(u8 *arg0, u8 *arg1);
 extern s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern s64 func_00311d00(s32 id);
 extern s32 func_00311d60(s32 id);
@@ -57,11 +57,11 @@ extern u32 func_00106b50(s16 arg0);
 
 /* 228/240 bytes; fifteen resolved relocations and twelve zero alignment bytes. */
 // FUN_002E24A0
-void func_002e24a0(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
+void yListCreate(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     u8 *buf;
 
     if (iGpffffb58c != NULL) {
-        func_002e29a0();
+        yListDestroy();
     }
     chkmemAllocSiteTag(D_0063FC48, 0x67);
     buf = D_008873F4[0](1, 0x1810, 0x40000);
@@ -74,7 +74,7 @@ void func_002e24a0(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
 }
 
 // FUN_002E2590
-void func_002e2590(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
+void yListCreateChild(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
     u8 *buf;
 
     chkmemAllocSiteTag(D_0063FC48, 0x82);
@@ -88,7 +88,7 @@ void func_002e2590(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4) {
 }
 
 // FUN_002E2670
-s16 func_002e2670(void) {
+s16 yListCount(void) {
     u8 *g = iGpffffb58c;
 
     if (g == NULL) {
@@ -108,7 +108,7 @@ s32 func_002e26a0(void) {
 }
 
 // FUN_002E26F0
-s16 func_002e26f0(void *arg0) {
+s16 yListCountFor(void *arg0) {
     return *(s16 *)(*(u8 **)((u8 *)arg0 + 0x38) + 2);
 }
 
@@ -118,7 +118,7 @@ s32 func_002e2700(void *arg0) {
 }
 
 // FUN_002E2740
-s32 func_002e2740(s32 arg0) {
+s32 yListValueAt(s32 arg0) {
     u8 *g = iGpffffb58c;
     u8 *p;
     s32 count;
@@ -158,7 +158,7 @@ s32 func_002e2740(s32 arg0) {
 }
 
 // FUN_002E2830
-s32 func_002e2830(u8 *arg0, s32 arg1) {
+s32 yListValueAtFor(u8 *arg0, s32 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     if (*(s16 *)(p + 2) < arg1) {
@@ -187,7 +187,7 @@ s32 func_002e2830(u8 *arg0, s32 arg1) {
 }
 
 // FUN_002E28F0
-s16 func_002e28f0(u8 *arg0, s32 arg1) {
+s16 yListAuxValueAtFor(u8 *arg0, s32 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     if (*(s16 *)(p + 2) < arg1) {
@@ -212,7 +212,7 @@ s16 func_002e28f0(u8 *arg0, s32 arg1) {
 }
 
 // FUN_002E29A0
-void func_002e29a0(void) {
+void yListDestroy(void) {
     u8 *g = iGpffffb58c;
 
     if (g != NULL) {
@@ -222,7 +222,7 @@ void func_002e29a0(void) {
 }
 
 // FUN_002E29D0
-s8 func_002e29d0(void) {
+s8 yListKind(void) {
     u8 *g = iGpffffb58c;
 
     if (g != NULL) {
@@ -232,7 +232,7 @@ s8 func_002e29d0(void) {
 }
 
 // FUN_002E2A00
-s8 func_002e2a00(void *arg0) {
+s8 yListKindFor(void *arg0) {
     return *(s8 *)(*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -282,7 +282,7 @@ static inline s32 yListAcceptsItem(u8 *owner, s16 id)
 /* measured: 2888 code bytes and eight zero alignment bytes; the scoped
    common-subexpression and loop-invariant settings preserve all siblings. */
 // FUN_002E2A10
-void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
+void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     s32 reorder[0x600];
     s32 sortbuf[0x600];
     s32 out_count;
@@ -455,7 +455,7 @@ void func_002e2a10(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
 #pragma opt_loop_invariants on
 /* measured: all 2864 code bytes match with the same scoped settings. */
 // FUN_002E3560
-void func_002e3560(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
+void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
     s32 reorder[0x600];
     s32 sortbuf[0x600];
     s32 out_count;
@@ -630,7 +630,7 @@ typedef char YListPersonaSizeCheck[sizeof(YListPersonaRecord) == 0x30 ? 1 : -1];
 // FUN_002E4090
 #pragma push
 #pragma opt_lifetimes on
-s32 func_002e4090(u8 *arg0) {
+s32 yListSlotRefresh(u8 *arg0) {
     YListPersonaRecord registered;
     YListPersonaRecord current;
     s16 i;
@@ -686,7 +686,7 @@ s32 func_002e4090(u8 *arg0) {
                 memcpy(&current, datPersonaRosterSlot(i), 0x30);
                 if (*(u8 *)(iGpffffb3d4 + current.id * 0xE + 2) < 0x16) {
                     memcpy(&registered, func_0010fcb0(current.id), 0x30);
-                    if (func_002e5270((u8 *)&current, (u8 *)&registered) == 1) {
+                    if (yListRecordsDiffer((u8 *)&current, (u8 *)&registered) == 1) {
                         memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
                         memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, datPersonaRosterSlot(i), 0x30);
                         *(s32 *)(p + 8) += 1;
@@ -718,26 +718,26 @@ s32 func_002e4090(u8 *arg0) {
 
 #pragma pop
 // FUN_002E45E0
-void func_002e45e0(u8 *arg0) {
+void yListSlotDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
 // FUN_002E4610
-void func_002e4610(s32 arg0, s8 arg1) {
+void yListSlotCreate(s32 arg0, s8 arg1) {
     u8 *buf;
     u8 **slot;
     u8 *base;
     s16 i;
     s16 j;
 
-    func_002e47b0();
+    yListSlotFindFree();
     slot = &D_00882F70[arg1];
     if (*slot != NULL) {
-        func_002e4820(arg1);
+        yListSlotRelease(arg1);
     }
     chkmemAllocSiteTag(D_0063FC48, 0x38F);
     buf = D_008873F4[0](1, 0x3014, 0x40000);
-    *slot = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, func_002e4090, func_002e45e0, (u8 *)(buf));
+    *slot = (u8 *)(s32)kwlnTaskCreate((const void *)(D_0063FC58), 0xF, 0, 0, yListSlotRefresh, yListSlotDestroy, (u8 *)(buf));
     buf[0] = 0;
     *(s32 *)(buf + 4) = arg0;
     *(s32 *)(buf + 8) = 0;
@@ -762,7 +762,7 @@ void func_002e4610(s32 arg0, s8 arg1) {
     }
 }
 // FUN_002E47B0
-s8 func_002e47b0(void) {
+s8 yListSlotFindFree(void) {
     s16 i = 0;
     u8 **base = D_00882F70;
 
@@ -776,7 +776,7 @@ s8 func_002e47b0(void) {
 }
 
 // FUN_002E4820
-void func_002e4820(s8 arg0) {
+void yListSlotRelease(s8 arg0) {
     u8 **p = &D_00882F70[arg0];
 
     if (*p != NULL) {
@@ -786,12 +786,12 @@ void func_002e4820(s8 arg0) {
 }
 
 // FUN_002E4870
-u8 *func_002e4870(s8 arg0) {
+u8 *yListSlotWork(s8 arg0) {
     return *(void **)(D_00882F70[arg0] + 0x38);
 }
 
 // FUN_002E48A0
-u8 *func_002e48a0(s8 arg0, s16 arg1) {
+u8 *yListSlotEntry(s8 arg0, s16 arg1) {
     u8 *p = *(u8 **)(D_00882F70[arg0] + 0x38);
 
     switch (*(u32 *)(p + 4)) {
@@ -829,7 +829,7 @@ u8 *func_002e48a0(s8 arg0, s16 arg1) {
    direct switch rewrite; all retained nd 19 or worsened the object.
    Committed at nd 16. */
 // FUN_002E4960
-void func_002e4960(u8 *arg0, s8 arg1, s16 arg2) {
+void yListSlotCopyEntry(u8 *arg0, s8 arg1, s16 arg2) {
  u8 *p; u8 *p0; u8 *p1; s32 n3; u8 *src; u8 *src2; s32 n; p=*(u8 **)(D_00882F70[arg1]+0x38); switch(*(s32 *)(p+4)) {
  case 0: case 7: case 8: p0=p; src=p0; src=(u8 *)(u32)src; src=(u8 *)((s32)arg2*0x30)+(u32)src; src+=0x14; n=6; do{s32 v0=*(s32*)src;s32 v1=*(s32*)(src+4);src+=8;n--;*(s32*)arg0=v0;*(s32*)(arg0+4)=v1;arg0+=8;}while(n>0);break;
  case 1: case 10: case 5: case 6: p1=p; src=p1; src=(u8 *)(u32)src; src=(u8 *)((s32)arg2*0x30)+(u32)src; src+=0xa4; n=6; do{s32 v0=*(s32*)src;s32 v1=*(s32*)(src+4);src+=8;n--;*(s32*)arg0=v0;*(s32*)(arg0+4)=v1;arg0+=8;}while(n>0);break;
@@ -869,7 +869,7 @@ static inline u8 *yListEntryInWork(u8 *work, s16 index) {
 // FUN_002E4AC0
 #pragma push
 #pragma opt_loop_invariants on
-void func_002e4ac0(s32 arg0, s32 arg1) {
+void yListBuildAvailability(s32 arg0, s32 arg1) {
     u8 *base;
     u8 *row;
     u8 *flag;
@@ -947,7 +947,7 @@ extern s32 func_003129b0(u8 *arg0, s32 arg1, s32 arg2);
 // FUN_002E5000
 #pragma push
 #pragma opt_loop_invariants on
-void func_002e5000(void) {
+void yListBuildPairFlags(void) {
     u8 *base;
     u8 *row;
     u8 *flag;
@@ -974,7 +974,7 @@ void func_002e5000(void) {
 #pragma pop
 
 // FUN_002E5270
-s32 func_002e5270(u8 *arg0, u8 *arg1) {
+s32 yListRecordsDiffer(u8 *arg0, u8 *arg1) {
     s16 i;
     s16 j;
     s16 k;
@@ -1006,7 +1006,7 @@ s32 func_002e5270(u8 *arg0, u8 *arg1) {
 #pragma opt_loop_invariants on
 /* measured: without `opt_loop_invariants on` the switch jump-table base is
    rematerialized in the loop body instead of hoisted to the preheader (nd 30+). */
-s32 func_002e53b0(s8 arg0, s16 arg1) {
+s32 yListSlotContainsId(s8 arg0, s16 arg1) {
     u8 **entryp = &D_00882F70[arg0];
     u8 *entry;
     u8 *p;
@@ -1055,7 +1055,7 @@ s32 func_002e53b0(s8 arg0, s16 arg1) {
    jump-table base (lui/addiu) inside the loop body instead of hoisting it into
    the preheader as retail does, giving nd 30+. */
 #pragma opt_loop_invariants on
-s16 func_002e54c0(s8 arg0, s16 arg1) {
+s16 yListSlotIndexOf(s8 arg0, s16 arg1) {
     s16 i = 0;
     u8 **entryp = &D_00882F70[arg0];
     u8 *entry;
@@ -1104,7 +1104,7 @@ s16 func_002e54c0(s8 arg0, s16 arg1) {
    materialization; explicit (u16)arg1 preserves ac10's 16-bit argument. */
 #pragma opt_common_subs off
 // FUN_002E55C0
-void func_002e55c0(s8 arg0, s32 arg1, s8 arg2) {
+void yListSlotAppend(s8 arg0, s32 arg1, s8 arg2) {
     u8 **entryp;
     u8 *entry;
 
@@ -1224,7 +1224,7 @@ void func_002e55c0(s8 arg0, s32 arg1, s8 arg2) {
 /* measured: restore common-subexpression elimination after func_002e55c0. */
 #pragma opt_common_subs on
 // FUN_002E5960
-void func_002e5960(s8 arg0) {
+void yListSlotClear(s8 arg0) {
     u8 *p;
     s16 i;
     s16 j;
@@ -1301,7 +1301,7 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2)
         return;
     }
     p = *(u8 **)(*slotp + 0x38);
-    func_002e5960(arg0);
+    yListSlotClear(arg0);
     level = (s8)arg2;
     lo = (s16)func_002b2d00(level, 10, 1, 0x63, 1);
     hi = (s16)func_002b2cb0(level, 1, 0x63, 1, 1);
@@ -1331,7 +1331,7 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2)
         }
         if (*(u8 **)(u32)slotp != NULL) {
             for (initialRow = 0; initialRow < *(s32 *)(*(u8 **)(*(u8 **)(u32)slotp + 0x38) + 8); initialRow++) {
-                if (signedIndex == *(u16 *)(func_002e48a0(arg0, initialRow) + 2)) {
+                if (signedIndex == *(u16 *)(yListSlotEntry(arg0, initialRow) + 2)) {
                     found = 1;
                     goto initialSearchDone;
                 }
@@ -1395,7 +1395,7 @@ initialSearchDone:
         *(s32 *)(p + 8) = *(s32 *)(p + 8) + 1;
     }
     if (level >= 0x3C && *(s32 *)(p + 8) < 3) {
-        func_002e5960(arg0);
+        yListSlotClear(arg0);
     }
     if (*(s32 *)(p + 8) != 0) {
         return;
@@ -1405,7 +1405,7 @@ initialSearchDone:
         s32 expansion = outer;
         lo2 = (s16)func_002b2d00(level, expansion * 5 + 10, 1, 0x63, 1);
         hi2 = (s16)func_002b2cb0(level, expansion + 1, 0x63, 1, 1);
-        func_002e5960(arg0);
+        yListSlotClear(arg0);
         i = 0;
         highLimit2 = (s16)hi2;
         lowLimit2 = (s16)lo2;
@@ -1433,7 +1433,7 @@ initialSearchDone:
             }
             if (*slotp != NULL) {
                 for (expandedRow = 0; expandedRow < *(s32 *)(*(u8 **)(*slotp + 0x38) + 8); expandedRow++) {
-                    if (signedIndex == *(u16 *)(func_002e48a0(arg0, expandedRow) + 2)) {
+                    if (signedIndex == *(u16 *)(yListSlotEntry(arg0, expandedRow) + 2)) {
                         found = 1;
                         goto expandedSearchDone;
                     }
@@ -1501,7 +1501,7 @@ expandedSearchDone:
 }
 #pragma pop
 
-/* True when `id` is one of the 13 entries of `exclude`. func_002e6280 uses it
+/* True when `id` is one of the 13 entries of `exclude`. yListSlotFillByLevel uses it
    inline; func_002e5ae0 calls the out-of-line copy. */
 static inline s32 yListExcluded(u16 id, u16 *exclude)
 {
@@ -1548,7 +1548,7 @@ static inline s32 yListContains(s8 list, s16 id)
 
     if (D_00882F70[list] != NULL) {
         for (k = 0; k < *(s32 *)(*(u8 **)(D_00882F70[list] + 0x38) + 8); k++) {
-            if (id == *(u16 *)(func_002e48a0(list, k) + 2)) {
+            if (id == *(u16 *)(yListSlotEntry(list, k) + 2)) {
                 return 1;
             }
         }
@@ -1564,7 +1564,7 @@ static inline s32 yListContains(s8 list, s16 id)
    measured: loop-invariant motion is required (29 words without it). */
 #pragma opt_loop_invariants on
 // FUN_002E6280
-void func_002e6280(s8 list, u16 *exclude, s8 level)
+void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
 {
     u8 *data;
     s32 limit;
@@ -1574,7 +1574,7 @@ void func_002e6280(s8 list, u16 *exclude, s8 level)
         return;
     }
     data = *(u8 **)(D_00882F70[list] + 0x38);
-    func_002e5960(list);
+    yListSlotClear(list);
     limit = (s16)func_002b2cb0(level, 3, 99, 1, 1);
     for (i = 0; i < 0xC0; i++) {
         if (iGpffffb3d4[i * 0xE + 2] == 1 && (*(u16 *)&iGpffffb3d4[i * 0xE] & 8) == 0) {
@@ -1928,7 +1928,7 @@ void func_002e6c90(s8 arg0) {
    constant at the top of the loop body (nd 6) instead of hoisting it into the
    preheader as retail does (addiu $a1,$zero,-1 before the initial branch). */
 #pragma opt_loop_invariants on
-u8 *func_002e6f00(void) {
+u8 *yListAllocIndexTable(void) {
     s16 *buf;
     s16 i;
     s16 value;

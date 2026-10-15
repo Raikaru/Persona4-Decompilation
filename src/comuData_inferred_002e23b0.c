@@ -51,7 +51,7 @@ s32 func_002e23b0(u8 *arg0)
     if (*(s8 *)temp16 == 0) {
         return 0;
     }
-    func_002e2a10(*(s32 *)(temp16 + 4), *(s32 *)(temp16 + 8), *(s8 *)(temp16 + 1), (s32)*(s8 *)(temp16 + 0xC));
+    yListRebuild(*(s32 *)(temp16 + 4), *(s32 *)(temp16 + 8), *(s8 *)(temp16 + 1), (s32)*(s8 *)(temp16 + 0xC));
     *(s8 *)temp16 = 0;
     return 0;
 }
@@ -65,7 +65,7 @@ s32 func_002e2410(u8 *arg0)
     if (*(s8 *)temp16 == 0) {
         return 0;
     }
-    func_002e3560(arg0, *(s32 *)(temp16 + 4), *(s32 *)(temp16 + 8), *(s8 *)(temp16 + 1), *(s8 *)(temp16 + 0xC));
+    yListRebuildFor(arg0, *(s32 *)(temp16 + 4), *(s32 *)(temp16 + 8), *(s8 *)(temp16 + 1), *(s8 *)(temp16 + 0xC));
     *(s8 *)temp16 = 0;
     return 0;
 }

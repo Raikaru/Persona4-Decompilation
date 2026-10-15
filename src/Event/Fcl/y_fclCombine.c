@@ -60,11 +60,11 @@ extern char iGpffffa8a0;
 extern void fclDrawSetSlotMode(u8 *, s32, s8);
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
 extern s32 func_00104c70(s32);
-extern void func_002e4610(s32, s8);
+extern void yListSlotCreate(s32, s8);
 extern void func_00315600(u8 *, s64);
 extern s32 func_003190d0(u8 *);
-extern u8 *func_002e4870(s8);
-extern u8 *func_002e48a0(s8, s16);
+extern u8 *yListSlotWork(s8);
+extern u8 *yListSlotEntry(s8, s16);
 extern void datPersonaPreviewLevelUp(u8 *, u8 *, s32);
 extern s32 func_00313fb0(u8 *);
 extern s32 datPersonaRosterCapacity(void);
@@ -107,13 +107,13 @@ extern u32 RpRandom(void);
 extern void fclSpriteSetFlag(s16, s16, s8);
 extern s32 func_002bb550(s64);
 extern void func_002bbcf0(s32);
-extern s32 func_002e53b0(s8, s16);
+extern s32 yListSlotContainsId(s8, s16);
 extern void fclCombineLayoutTransition(u8 *, s32);
 extern s8 func_00105f50(u16);
 extern u32 datGetFlag(s32);
 extern void *memset(void *, s32, u32);
 extern void func_002e5ae0(s8, u16 *, s8);
-extern void func_002e6280(s8, u16 *, s8);
+extern void yListSlotFillByLevel(s8, u16 *, s8);
 extern s32 datPersonaFindSkillSlot(u8 *, u16);
 extern s32 datPersonaCountSkills(u8 *);
 extern s32 datPersonaAddSkill(u8 *, u16);
@@ -143,7 +143,7 @@ extern s32 func_0011cc00(u8 *, u16, u16);
 extern u8 *func_00243840(s32);
 extern int frFontExDrawTextDeferred(f32, f32, f32, int, s8, int, const char *, int, int, void *);
 extern s32 func_002bb1c0(s8);
-extern void func_002e5000(void);
+extern void yListBuildPairFlags(void);
 extern void func_0032fbc0(u8 *);
 extern u16 *fclCombineFindMatchPtr(u8 *);
 extern s32 fclCombineRollTier(u8 *);
@@ -1642,26 +1642,26 @@ void func_002ed430(u8 *arg0) {
     temp_3 = (u8)((u8)((u8)(temp_18->f1)));
     switch (temp_3) {                               /* switch 1 */
     case 0x23:                                      /* switch 1 */
-        func_002e4610(1, 0);
-        func_002e4610(0xA, 1);
-        func_002e4610(0xA, 2);
-        func_002e4610(0xA, 3);
-        func_002e4610(0xA, 4);
-        func_002e4610(0xA, 5);
-        func_002e4610(0xA, 6);
-        func_002e4610(0xA, 7);
-        func_002e4610(0xA, 8);
-        func_002e4610(0xA, 9);
-        func_002e4610(0xA, 0xA);
-        func_002e4610(0xA, 0xB);
-        func_002e4610(0xA, 0xC);
-        func_002e4610(0, 0xD);
+        yListSlotCreate(1, 0);
+        yListSlotCreate(0xA, 1);
+        yListSlotCreate(0xA, 2);
+        yListSlotCreate(0xA, 3);
+        yListSlotCreate(0xA, 4);
+        yListSlotCreate(0xA, 5);
+        yListSlotCreate(0xA, 6);
+        yListSlotCreate(0xA, 7);
+        yListSlotCreate(0xA, 8);
+        yListSlotCreate(0xA, 9);
+        yListSlotCreate(0xA, 0xA);
+        yListSlotCreate(0xA, 0xB);
+        yListSlotCreate(0xA, 0xC);
+        yListSlotCreate(0, 0xD);
         func_00315600(arg0, 1);
         temp_18->f1 = 0x24U;
         return;
     case 0x24:
-        if (func_003190d0(arg0) != 1 && *(s8 *)func_002e4870(0) == 1 && *(s8 *)func_002e4870(1) == 1
-            && *(s8 *)func_002e4870(2) == 1 && *(s8 *)func_002e4870(0xD) == 1) {
+        if (func_003190d0(arg0) != 1 && *(s8 *)yListSlotWork(0) == 1 && *(s8 *)yListSlotWork(1) == 1
+            && *(s8 *)yListSlotWork(2) == 1 && *(s8 *)yListSlotWork(0xD) == 1) {
             for (var_16 = 0; var_16 < (datPersonaRosterCapacity() & 0xFFFF); var_16++) {
                 col25C = func_002b2a60(0, 0, 0x99, 0xFF);
                 *(FclDrawColor *)(fclCombineSlotRecord((u8 *)temp_18->f188, var_16) + 0x75) = col25C;
@@ -1686,9 +1686,9 @@ void func_002ed430(u8 *arg0) {
             } else {
                 var_17 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
             }
-            if (var_19 < *(s32 *)(func_002e4870(0) + 8)) {
+            if (var_19 < *(s32 *)(yListSlotWork(0) + 8)) {
                 temp_f20 = (f32)(var_19 * 0x17 + 0x80);
-                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_17, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, var_19))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_17, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, var_19))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) == 0
@@ -1708,7 +1708,7 @@ void func_002ed430(u8 *arg0) {
         break;
     case 0x28:                                      /* switch 1 */
         if ((s32)((s32)(((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry(0x21C))+(0x10))), 1))))) != (s32)((s32)(1))) {
-            fclDrawSetPlacement(temp_18->f148, (s32)(((u16 *)func_002e48a0(0, temp_18->f11E))), 0, 0);
+            fclDrawSetPlacement(temp_18->f148, (s32)(((u16 *)yListSlotEntry(0, temp_18->f11E))), 0, 0);
             func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
             temp_16_2 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
             func_0011d140((u8 *)temp_16_2, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
@@ -1748,7 +1748,7 @@ void func_002ed430(u8 *arg0) {
         if ((s8)fclDrawGetState(temp_18->f148) < 0 || (s8)fclDrawGetState(temp_18->f148) > 5) {
             for (var_16_2 = 0; var_16_2 < (datPersonaRosterCapacity() & 0xFFFF); var_16_2++) {
                 sp228.position = func_002b2970(16.0f, 128.0f);
-                func_003191c0(arg0, sp228.position, (s8)(var_16_2), ((u16 *)func_002e48a0(0, var_16_2))[1], *(u8 *)((u8 *)((u16 *)func_002e48a0(0, var_16_2)) + 4), 0, 0, (s64)(*(s8 *)(func_002e4870(0) + 8)));
+                func_003191c0(arg0, sp228.position, (s8)(var_16_2), ((u16 *)yListSlotEntry(0, var_16_2))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_16_2)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
             }
             sp220 = func_002b2970(16.0f, 104.0f);
             func_0031e5b0(arg0, sp220, 0, 0, 0, 0, 0);
@@ -1765,10 +1765,10 @@ void func_002ed430(u8 *arg0) {
         temp_2_2 = fclSpriteEntry(0x7C);
         sp158 = *(FclVec2f *)(temp_2_2 + 0x38);
         temp_16_4 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_3);
-        frFontExDrawTextDeferredOutB(111.0f + sp158.x, sp158.y, 43.0f, temp_16_4, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_3->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp158.x, sp158.y, 43.0f, temp_16_4, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, temp_17_3->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         for (var_19_2 = 0; var_19_2 < (datPersonaRosterCapacity() & 0xFFFF); var_19_2++) {
             func_0031d630(arg0, var_19_2, temp_18->f128, temp_18->f129, 0);
-            if (temp_18->f128 != var_19_2 && *(s8 *)(func_002e4870(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) > 0) {
+            if (temp_18->f128 != var_19_2 && *(s8 *)(yListSlotWork(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) > 0) {
                 temp_23 = var_19_2 + 0x270;
                 temp_f20_2 = (f32)*(s16 *)(fclSpriteEntry(temp_23) + 0x42);
                 spE0 = (u8)func_002b2aa0(0, 0.0f, 255.0f, temp_f20_2, (f32)*(s16 *)(fclSpriteEntry(temp_23) + 0x40));
@@ -1791,13 +1791,13 @@ void func_002ed430(u8 *arg0) {
                     col250 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                     func_002ba970((u8 *)temp_18->f2BC, (s8)(var_19_2 + 0xC), col250);
                     var_21 = func_002b2a30(0x2D, 0x2D, 0x2D, spE0);
-                    if (*(s8 *)(func_002e4870(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) == 2) {
+                    if (*(s8 *)(yListSlotWork(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) == 2) {
                         fclSpriteSetFlag(0xCF, 0, 1);
                         fclSpriteSetFlag(0xD2, 0, 1);
                         fclSpriteSetFlag(temp_23, 0, 0);
                         fclSpriteSetFlag(temp_30, 0, 0);
                     }
-                } else if (*(s8 *)(func_002e4870(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) == 2) {
+                } else if (*(s8 *)(yListSlotWork(0) + temp_18->f128 * 0xC + var_19_2 + 0x14) == 2) {
                     temp_21_2 = var_19_2 + 0x27D;
                     temp_22 = var_19_2 + 0x270U;
                     *(u8 *)(fclSpriteEntry(temp_22) + 0x6E) = *(u8 *)(fclSpriteEntry(temp_21_2) + 0x6E) = 0;
@@ -1831,7 +1831,7 @@ void func_002ed430(u8 *arg0) {
                     var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, spE0);
                 }
                 temp_f20_2 = (f32)(var_19_2 * 0x17 + 0x80);
-                frFontExDrawTextDeferredOutB((f32)0x195, temp_f20_2, 43.0f, var_21, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(temp_18->f128 + 1, var_19_2))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB((f32)0x195, temp_f20_2, 43.0f, var_21, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_19_2))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
         if ((s8)fclDrawGetState(temp_18->f148) < 0 || (s8)fclDrawGetState(temp_18->f148) > 5) {
@@ -1840,21 +1840,21 @@ void func_002ed430(u8 *arg0) {
                 func_00324410(arg0, 0x2E8, 1);
             }
             if (D_008C027A[0] & 0x1000) {
-                temp_18->f11E = (s8)func_002b2d00(temp_18->f11E, 1, 0, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 2);
+                temp_18->f11E = (s8)func_002b2d00(temp_18->f11E, 1, 0, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 2);
                 func_0045af60(0, 0, 0, 0);
             } else if (D_008C027A[0] & 0x4000) {
-                temp_18->f11E = (s8)func_002b2cb0(temp_18->f11E, 1, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 0, 2);
+                temp_18->f11E = (s8)func_002b2cb0(temp_18->f11E, 1, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 0, 2);
                 func_0045af60(0, 0, 0, 0);
             } else if (D_008C024E[0] & 0x40) {
-                if (temp_18->f128 != temp_18->f11E && *(s8 *)(func_002e4870(0) + temp_18->f128 * 0xC + temp_18->f11E + 0x14) > 0) {
+                if (temp_18->f128 != temp_18->f11E && *(s8 *)(yListSlotWork(0) + temp_18->f128 * 0xC + temp_18->f11E + 0x14) > 0) {
                     func_0045af60(0, 0, 0, 1);
                     for (var_17_2 = 0; var_17_2 < (datPersonaRosterCapacity() & 0xFFFF); var_17_2++) {
                         sp218.position = func_002b2970((f32)0x149, 128.0f);
-                        temp_16_6 = ((u16 *)func_002e48a0(temp_18->f128 + 1, var_17_2))[1];
-                        slotByte = *(u8 *)((u8 *)((u16 *)func_002e48a0(temp_18->f128 + 1, var_17_2)) + 4);
+                        temp_16_6 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_2))[1];
+                        slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_2)) + 4);
                         func_0031ac10(arg0, sp218.position, temp_18->f128, var_17_2, temp_16_6, slotByte, 0, 1, 1, 0xCC);
                         sp210.position = func_002b2970(16.0f, 128.0f);
-                        func_003191c0(arg0, sp210.position, (s8)(var_17_2), ((u16 *)func_002e48a0(0, var_17_2))[1], *(u8 *)((u8 *)((u16 *)func_002e48a0(0, var_17_2)) + 4), 0, 1, (s64)(*(s8 *)(func_002e4870(0) + 8)));
+                        func_003191c0(arg0, sp210.position, (s8)(var_17_2), ((u16 *)yListSlotEntry(0, var_17_2))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_2)) + 4), 0, 1, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
                     }
                     sp208 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp208, 0, 1, 0, 0, 0);
@@ -1870,15 +1870,15 @@ void func_002ed430(u8 *arg0) {
                     func_0045af60(0, 0, 0, 8);
                 }
             } else if (D_008C024C[0] & 0x80) {
-                if (temp_18->f11E < *(s32 *)(func_002e4870(0) + 8)) {
+                if (temp_18->f11E < *(s32 *)(yListSlotWork(0) + 8)) {
                     func_0045af60(0, 1, 0, 3);
                     for (var_17_3 = 0; var_17_3 < (datPersonaRosterCapacity() & 0xFFFF); var_17_3++) {
                         sp1F8.position = func_002b2970((f32)0x149, 128.0f);
-                        temp_16_9 = ((u16 *)func_002e48a0(temp_18->f128 + 1, var_17_3))[1];
-                        slotByte = *(u8 *)((u8 *)((u16 *)func_002e48a0(temp_18->f128 + 1, var_17_3)) + 4);
+                        temp_16_9 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_3))[1];
+                        slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_3)) + 4);
                         func_0031ac10(arg0, sp1F8.position, temp_18->f128, var_17_3, temp_16_9, slotByte, 0, 1, 1, 0xCC);
                         sp1F0.position = func_002b2970(16.0f, 128.0f);
-                        func_003191c0(arg0, sp1F0.position, (s8)(var_17_3), ((u16 *)func_002e48a0(0, var_17_3))[1], *(u8 *)((u8 *)((u16 *)func_002e48a0(0, var_17_3)) + 4), 0, 1, (s64)(*(s8 *)(func_002e4870(0) + 8)));
+                        func_003191c0(arg0, sp1F0.position, (s8)(var_17_3), ((u16 *)yListSlotEntry(0, var_17_3))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_3)) + 4), 0, 1, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
                     }
                     sp1E8 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp1E8, 0, 1, 0, 0, 0);
@@ -1905,8 +1905,8 @@ void func_002ed430(u8 *arg0) {
                 func_0031fa20(arg0, sp1C8, 0, 1);
                 for (var_17_4 = 0; var_17_4 < (datPersonaRosterCapacity() & 0xFFFF); var_17_4++) {
                     sp1C0.position = func_002b2970((f32)0x149, 128.0f);
-                    temp_16_11 = ((u16 *)func_002e48a0(temp_18->f128 + 1, var_17_4))[1];
-                    slotByte = *(u8 *)((u8 *)((u16 *)func_002e48a0(temp_18->f128 + 1, var_17_4)) + 4);
+                    temp_16_11 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_4))[1];
+                    slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_4)) + 4);
                     func_0031ac10(arg0, sp1C0.position, temp_18->f128, var_17_4, temp_16_11, slotByte, 0, 1, 1, 0xCC);
                 }
                 func_003218a0(arg0, 3);
@@ -1918,9 +1918,9 @@ void func_002ed430(u8 *arg0) {
         temp_2_18 = fclSpriteEntry(0x7C);
         sp150 = *(FclVec2f *)(temp_2_18 + 0x38);
         temp_16_12 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
-        frFontExDrawTextDeferredOutB(111.0f + sp150.x, sp150.y, 43.0f, temp_16_12, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp150.x, sp150.y, 43.0f, temp_16_12, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) != 1) {
-            fclDrawSetPlacement(temp_18->f148, (s32)(((u16 *)func_002e48a0(0, temp_18->f11E))), 0, 0);
+            fclDrawSetPlacement(temp_18->f148, (s32)(((u16 *)yListSlotEntry(0, temp_18->f11E))), 0, 0);
             func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
             temp_16_13 = (s32)fclDrawGetResource(temp_18->f148);
             func_0011d140((u8 *)temp_16_13, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
@@ -1931,7 +1931,7 @@ void func_002ed430(u8 *arg0) {
         temp_2_19 = fclSpriteEntry(0x7C);
         sp148 = *(FclVec2f *)(temp_2_19 + 0x38);
         temp_16_14 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
-        frFontExDrawTextDeferredOutB(111.0f + sp148.x, sp148.y, 43.0f, temp_16_14, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp148.x, sp148.y, 43.0f, temp_16_14, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s8)fclDrawGetState(temp_18->f148) == 5) {
             if (func_0011c610(fclDrawGetResource(temp_18->f148)) == 1) {
                 func_0011caf0(fclDrawGetResource(temp_18->f148));
@@ -1963,11 +1963,11 @@ void func_002ed430(u8 *arg0) {
         if ((s8)fclDrawGetState(temp_18->f148) < 0 || (s8)fclDrawGetState(temp_18->f148) > 5) {
             for (var_17_5 = 0; var_17_5 < (datPersonaRosterCapacity() & 0xFFFF); var_17_5++) {
                 sp1B8.position = func_002b2970((f32)0x149, 128.0f);
-                temp_16_15 = ((u16 *)func_002e48a0(temp_18->f128 + 1, var_17_5))[1];
-                slotByte = *(u8 *)((u8 *)((u16 *)func_002e48a0(temp_18->f128 + 1, var_17_5)) + 4);
+                temp_16_15 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_5))[1];
+                slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_5)) + 4);
                 func_0031ac10(arg0, sp1B8.position, temp_18->f128, var_17_5, temp_16_15, slotByte, 0, 0, 1, 0xCC);
                 sp1B0.position = func_002b2970(16.0f, 128.0f);
-                func_003191c0(arg0, sp1B0.position, (s8)(var_17_5), ((u16 *)func_002e48a0(0, var_17_5))[1], *(u8 *)((u8 *)((u16 *)func_002e48a0(0, var_17_5)) + 4), 0, 0, (s64)(*(s8 *)(func_002e4870(0) + 8)));
+                func_003191c0(arg0, sp1B0.position, (s8)(var_17_5), ((u16 *)yListSlotEntry(0, var_17_5))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_5)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
             }
             sp1A8 = func_002b2970(16.0f, 104.0f);
             func_0031e5b0(arg0, sp1A8, 0, 0, 0, 0, 0);
@@ -1986,19 +1986,19 @@ void func_002ed430(u8 *arg0) {
         temp_2_20 = fclSpriteEntry(0x7C);
         sp140 = *(FclVec2f *)(temp_2_20 + 0x38);
         temp_16_18 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_17);
-        frFontExDrawTextDeferredOutB(111.0f + sp140.x, sp140.y, 43.0f, temp_16_18, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_8->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp140.x, sp140.y, 43.0f, temp_16_18, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, temp_17_8->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) != 1) {
             temp_18->f2F9 = temp_18->f128 + 1;
             temp_18->f2FA = temp_18->f11E;
             temp_16_19 = temp_18->f2FA;
-            temp_17_9 = ((u16 *)func_002e48a0(temp_18->f2F9, temp_16_19));
-            temp_16_20 = (FclPartySlot *)(func_002e4870(temp_18->f2F9) + (s8)temp_16_19);
-            temp_19_5 = (s16)func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA))[1] * 14 + 2]);
-            slotMode = func_00311930(temp_19_5, (u8 *)((u8 *)((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA))), 0);
+            temp_17_9 = ((u16 *)yListSlotEntry(temp_18->f2F9, temp_16_19));
+            temp_16_20 = (FclPartySlot *)(yListSlotWork(temp_18->f2F9) + (s8)temp_16_19);
+            temp_19_5 = (s16)func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))[1] * 14 + 2]);
+            slotMode = func_00311930(temp_19_5, (u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))), 0);
             fclDrawSetPlacementEx(temp_18->f148, (s32)(temp_17_9), temp_16_20->f2E4, slotMode, 1);
             temp_16_21 = (s32)fclDrawGetResource(temp_18->f148);
             func_0011d140((u8 *)temp_16_21, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-            temp_16_22 = *(u8 *)((u8 *)((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA)) + 4);
+            temp_16_22 = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA)) + 4);
             if ((func_00104c70(1) & 0xFF) < temp_16_22) {
                 temp_16_23 = (s32)fclDrawGetResource(temp_18->f148);
                 func_0011d140((u8 *)temp_16_23, func_002b2a30(0x14, 0x14, 0x14, 0xFF));
@@ -2057,26 +2057,26 @@ void func_002ed430(u8 *arg0) {
                 case 0:                             /* switch 2 */
                     temp_16_24 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                     func_0011d140((u8 *)temp_16_24, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    fclDrawSetPlacementEx(temp_18->f148, (s32)(((u16 *)func_002e48a0(0, temp_18->f128))), 0, 0, 1);
+                    fclDrawSetPlacementEx(temp_18->f148, (s32)(((u16 *)yListSlotEntry(0, temp_18->f128))), 0, 0, 1);
                     return;
                 case 1:                             /* switch 2 */
                     temp_16_25 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                     func_0011d140((u8 *)temp_16_25, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    fclDrawSetPlacementEx(temp_18->f148, (s32)(((u16 *)func_002e48a0(0, temp_18->f11E))), 0, 0, 1);
+                    fclDrawSetPlacementEx(temp_18->f148, (s32)(((u16 *)yListSlotEntry(0, temp_18->f11E))), 0, 0, 1);
                     return;
                 case 2:                             /* switch 2 */
                     temp_16_26 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                     func_0011d140((u8 *)temp_16_26, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    temp_16_27 = (u8)((u8)((u8)((*(u8 *)((u8 *)(((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA)))+(4))))));
+                    temp_16_27 = (u8)((u8)((u8)((*(u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA)))+(4))))));
                     if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_16_27))) {
                         temp_16_28 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                         func_0011d140((u8 *)temp_16_28, func_002b2a30(0x14, 0x14, 0x14, 0xFFU));
                     }
                     temp_16_29 = (s8)((s8)((s8)(temp_18->f2FA)));
-                    temp_17_10 = (u16 *)(((u16 *)func_002e48a0(temp_18->f2F9, temp_16_29)));
-                    temp_16_30 = (FclPartySlot *)(func_002e4870(temp_18->f2F9) + (s8)temp_16_29);
-                    temp_19_6 = (s16)func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA))[1] * 14 + 2]);
-                    slotMode = func_00311930(temp_19_6, (u8 *)((u8 *)((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA))), 0);
+                    temp_17_10 = (u16 *)(((u16 *)yListSlotEntry(temp_18->f2F9, temp_16_29)));
+                    temp_16_30 = (FclPartySlot *)(yListSlotWork(temp_18->f2F9) + (s8)temp_16_29);
+                    temp_19_6 = (s16)func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))[1] * 14 + 2]);
+                    slotMode = func_00311930(temp_19_6, (u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))), 0);
                     fclDrawSetPlacementEx(temp_18->f148, (s32)(temp_17_10), temp_16_30->f2E4, slotMode, 1);
                     return;
                 }
@@ -2096,26 +2096,26 @@ void func_002ed430(u8 *arg0) {
                 case 0:                             /* switch 3 */
                     temp_16_31 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                     func_0011d140((u8 *)temp_16_31, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    fclDrawSetPlacementEx(temp_18->f148, (s32)(((u16 *)func_002e48a0(0, temp_18->f128))), 0, 0, 1);
+                    fclDrawSetPlacementEx(temp_18->f148, (s32)(((u16 *)yListSlotEntry(0, temp_18->f128))), 0, 0, 1);
                     return;
                 case 1:                             /* switch 3 */
                     temp_16_32 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                     func_0011d140((u8 *)temp_16_32, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    fclDrawSetPlacementEx(temp_18->f148, (s32)(((u16 *)func_002e48a0(0, temp_18->f11E))), 0, 0, 1);
+                    fclDrawSetPlacementEx(temp_18->f148, (s32)(((u16 *)yListSlotEntry(0, temp_18->f11E))), 0, 0, 1);
                     return;
                 case 2:                             /* switch 3 */
                     temp_16_33 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                     func_0011d140((u8 *)temp_16_33, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    temp_16_34 = (u8)((u8)((u8)((*(u8 *)((u8 *)(((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA)))+(4))))));
+                    temp_16_34 = (u8)((u8)((u8)((*(u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA)))+(4))))));
                     if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_16_34))) {
                         temp_16_35 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
                         func_0011d140((u8 *)temp_16_35, func_002b2a30(0x14, 0x14, 0x14, 0xFFU));
                     }
                     temp_16_36 = (s8)((s8)((s8)(temp_18->f2FA)));
-                    temp_17_11 = (u16 *)(((u16 *)func_002e48a0(temp_18->f2F9, temp_16_36)));
-                    temp_16_37 = (FclPartySlot *)(func_002e4870(temp_18->f2F9) + (s8)temp_16_36);
-                    temp_19_7 = (s16)func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA))[1] * 14 + 2]);
-                    slotMode = func_00311930(temp_19_7, (u8 *)((u8 *)((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA))), 0);
+                    temp_17_11 = (u16 *)(((u16 *)yListSlotEntry(temp_18->f2F9, temp_16_36)));
+                    temp_16_37 = (FclPartySlot *)(yListSlotWork(temp_18->f2F9) + (s8)temp_16_36);
+                    temp_19_7 = (s16)func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))[1] * 14 + 2]);
+                    slotMode = func_00311930(temp_19_7, (u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))), 0);
                     fclDrawSetPlacementEx(temp_18->f148, (s32)(temp_17_11), temp_16_37->f2E4, slotMode, 1);
                     return;
                 }
@@ -2128,17 +2128,17 @@ void func_002ed430(u8 *arg0) {
         temp_2_22 = fclSpriteEntry(0x7C);
         sp138 = *(FclVec2f *)(temp_2_22 + 0x38);
         temp_16_39 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_38);
-        frFontExDrawTextDeferredOutB(111.0f + sp138.x, sp138.y, 43.0f, temp_16_39, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, temp_17_12->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp138.x, sp138.y, 43.0f, temp_16_39, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, temp_17_12->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s8)fclDrawGetState(temp_18->f148) == 0xE) {
             func_00316470(arg0, 1, 0);
             func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             temp_18->f129 = -1;
             for (var_17_6 = 0; var_17_6 < (datPersonaRosterCapacity() & 0xFFFF); var_17_6++) {
                 sp178.position = func_002b2970(16.0f, 128.0f);
-                func_003191c0(arg0, sp178.position, (s8)(var_17_6), ((u16 *)func_002e48a0(0, var_17_6))[1], *(u8 *)((u8 *)((u16 *)func_002e48a0(0, var_17_6)) + 4), 0, 0, (s64)(*(s8 *)(func_002e4870(0) + 8)));
+                func_003191c0(arg0, sp178.position, (s8)(var_17_6), ((u16 *)yListSlotEntry(0, var_17_6))[1], *(u8 *)((u8 *)((u16 *)yListSlotEntry(0, var_17_6)) + 4), 0, 0, (s64)(*(s8 *)(yListSlotWork(0) + 8)));
                 sp170.position = func_002b2970((f32)0x149, 128.0f);
-                temp_16_41 = ((u16 *)func_002e48a0(temp_18->f128 + 1, var_17_6))[1];
-                slotByte = *(u8 *)((u8 *)((u16 *)func_002e48a0(temp_18->f128 + 1, var_17_6)) + 4);
+                temp_16_41 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_6))[1];
+                slotByte = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_6)) + 4);
                 func_0031ac10(arg0, sp170.position, temp_18->f128, var_17_6, temp_16_41, slotByte, 0, 0, 1, 0xCC);
             }
             sp168 = func_002b2970(16.0f, 104.0f);
@@ -2151,12 +2151,12 @@ void func_002ed430(u8 *arg0) {
         }
         break;
     case 0x2F:
-        temp_16_42 = ((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA))[1];
-        temp_17_13 = *(u8 *)((u8 *)((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA)) + 4);
+        temp_16_42 = ((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))[1];
+        temp_17_13 = *(u8 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA)) + 4);
         if ((func_00104c70(1) & 0xFF) < temp_17_13) {
             fclCombinePlayCue(arg0, 0x26, 0);
             temp_18->f1 = 0x31;
-        } else if (func_002e53b0(0, (s32)(*(s16 *)((u8 *)((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA)) + 2))) == 1) {
+        } else if (yListSlotContainsId(0, (s32)(*(s16 *)((u8 *)((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA)) + 2))) == 1) {
             fclCombinePlayCue(arg0, 0x27, 0);
             temp_18->f1 = 0x31;
         } else {
@@ -2209,7 +2209,7 @@ void func_002ed430(u8 *arg0) {
         break;
     case 0x34:                                      /* switch 1 */
         var_16_4 = 2;
-        if ((*(s8 *)((u8 *)((func_002e4870(0) + (temp_18->f128 * 0xC) + temp_18->f11E))+(0x14))) == 2) {
+        if ((*(s8 *)((u8 *)((yListSlotWork(0) + (temp_18->f128 * 0xC) + temp_18->f11E))+(0x14))) == 2) {
             var_16_4 = 0;
         }
         if ((s32)((s32)(datGetFlag(0x1461))) == (s32)((s32)(0))) {
@@ -2233,43 +2233,43 @@ void func_002ed430(u8 *arg0) {
         return;
     case 0x36:
         memset(&sp110, 0, 0x1A);
-        for (var_16_5 = 0; var_16_5 < *(s32 *)(func_002e4870(0) + 8); var_16_5++) {
-            sp110[var_16_5] = ((u16 *)func_002e48a0(0, var_16_5))[1];
+        for (var_16_5 = 0; var_16_5 < *(s32 *)(yListSlotWork(0) + 8); var_16_5++) {
+            sp110[var_16_5] = ((u16 *)yListSlotEntry(0, var_16_5))[1];
         }
-        temp_16_43 = ((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA))[1];
-        sp110[*(s32 *)(func_002e4870(0) + 8)] = temp_16_43;
+        temp_16_43 = ((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA))[1];
+        sp110[*(s32 *)(yListSlotWork(0) + 8)] = temp_16_43;
         func_002e5ae0(0xD, sp110, (s8)func_00104c70(1));
-        temp_16_44 = *(u32 *)(func_002e4870(0xD) + 8);
+        temp_16_44 = *(u32 *)(yListSlotWork(0xD) + 8);
         temp_16_45 = (RpRandom() % temp_16_44) * 0xA;
-        temp_19_9 = (s8)(temp_16_45 % *(u32 *)(func_002e4870(0xD) + 8));
+        temp_19_9 = (s8)(temp_16_45 % *(u32 *)(yListSlotWork(0xD) + 8));
         temp_18->f2F9 = temp_18->f128 + 1;
         temp_18->f2FA = temp_18->f11E;
         for (var_17_7 = 0; var_17_7 < 8; var_17_7++) {
-            if ((((1 << var_17_7) & 0xFF & *(s8 *)(func_002e4870(temp_18->f2F9) + temp_18->f2FA + 0x2E4)) >> var_17_7) == 1
-                && (s32)datPersonaCountSkills((u8 *)(((u16 *)func_002e48a0(0xD, temp_19_9)))) < 8) {
-                temp_16_47 = ((u16 *)func_002e48a0(temp_18->f128 + 1, temp_18->f11E))[var_17_7 + 6];
-                if (datPersonaFindSkillSlot((u8 *)((u16 *)func_002e48a0(0xD, temp_19_9)), temp_16_47) == -1) {
-                    datPersonaAddSkill((u8 *)((u16 *)func_002e48a0(0xD, temp_19_9)), temp_16_47);
+            if ((((1 << var_17_7) & 0xFF & *(s8 *)(yListSlotWork(temp_18->f2F9) + temp_18->f2FA + 0x2E4)) >> var_17_7) == 1
+                && (s32)datPersonaCountSkills((u8 *)(((u16 *)yListSlotEntry(0xD, temp_19_9)))) < 8) {
+                temp_16_47 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, temp_18->f11E))[var_17_7 + 6];
+                if (datPersonaFindSkillSlot((u8 *)((u16 *)yListSlotEntry(0xD, temp_19_9)), temp_16_47) == -1) {
+                    datPersonaAddSkill((u8 *)((u16 *)yListSlotEntry(0xD, temp_19_9)), temp_16_47);
                 }
             }
         }
         temp_18->f2F9 = 0xD;
         temp_18->f2FA = temp_19_9;
-        temp_16_48 = ((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f2FA));
-        fclDrawSetSlotMode(temp_18->f148, (s32)(temp_16_48), *(s8 *)(func_002e4870(temp_18->f128 + 1) + temp_18->f11E + 0x2E4));
+        temp_16_48 = ((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f2FA));
+        fclDrawSetSlotMode(temp_18->f148, (s32)(temp_16_48), *(s8 *)(yListSlotWork(temp_18->f128 + 1) + temp_18->f11E + 0x2E4));
         temp_18->f0 = 0xD;
         temp_18->f1 = 0xC5;
         break;
     case 0x37:
         var_19_3 = 0x63;
         memset(&spF0, 0, 0x1A);
-        for (var_16_6 = 0; var_16_6 < *(s32 *)(func_002e4870(0) + 8); var_16_6++) {
-            spF0[var_16_6] = ((u16 *)func_002e48a0(0, var_16_6))[1];
+        for (var_16_6 = 0; var_16_6 < *(s32 *)(yListSlotWork(0) + 8); var_16_6++) {
+            spF0[var_16_6] = ((u16 *)yListSlotEntry(0, var_16_6))[1];
         }
-        temp_16_49 = ((u16 *)func_002e48a0(temp_18->f128 + 1, temp_18->f11E))[1];
-        spF0[*(s32 *)(func_002e4870(0) + 8)] = temp_16_49;
-        func_002e6280(0xD, spF0, (s8)func_00104c70(1));
-        if (*(s32 *)(func_002e4870(0xD) + 8) == 0) {
+        temp_16_49 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, temp_18->f11E))[1];
+        spF0[*(s32 *)(yListSlotWork(0) + 8)] = temp_16_49;
+        yListSlotFillByLevel(0xD, spF0, (s8)func_00104c70(1));
+        if (*(s32 *)(yListSlotWork(0xD) + 8) == 0) {
             temp_18->f2F9 = temp_18->f128 + 1;
             temp_18->f2FA = temp_18->f11E;
             temp_18->f1 = 0x36;
@@ -2277,14 +2277,14 @@ void func_002ed430(u8 *arg0) {
             break;
         }
         temp_18->f2F9 = 0xD;
-        for (var_17_8 = 0; var_17_8 < *(s32 *)(func_002e4870(0xD) + 8); var_17_8++) {
-            temp_16_50 = *(u8 *)((u8 *)((u16 *)func_002e48a0(0xD, var_17_8)) + 4);
+        for (var_17_8 = 0; var_17_8 < *(s32 *)(yListSlotWork(0xD) + 8); var_17_8++) {
+            temp_16_50 = *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_17_8)) + 4);
             if (temp_16_50 >= (func_00104c70(1) & 0xFF)) {
                 temp_18->f2FA = var_17_8;
                 break;
             }
-            if (var_19_3 > (func_00104c70(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)func_002e48a0(0xD, var_17_8)) + 4)) {
-                temp_16_51 = *(u8 *)((u8 *)((u16 *)func_002e48a0(0xD, var_17_8)) + 4);
+            if (var_19_3 > (func_00104c70(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_17_8)) + 4)) {
+                temp_16_51 = *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_17_8)) + 4);
                 var_19_3 = (func_00104c70(1) & 0xFF) - temp_16_51;
                 temp_18->f2FA = var_17_8;
             }
@@ -2292,17 +2292,17 @@ void func_002ed430(u8 *arg0) {
         temp_19_10 = temp_18->f2FA;
         temp_18->f2F9 = temp_18->f128 + 1;
         for (var_17_9 = 0; var_17_9 < 8; var_17_9++) {
-            if ((((1 << var_17_9) & 0xFF & *(s8 *)(func_002e4870(temp_18->f2F9) + temp_18->f11E + 0x2E4)) >> var_17_9) == 1
-                && (s32)datPersonaCountSkills((u8 *)(((u16 *)func_002e48a0(0xD, temp_19_10)))) < 8) {
-                temp_16_53 = ((u16 *)func_002e48a0(temp_18->f2F9, temp_18->f11E))[var_17_9 + 6];
-                if (datPersonaFindSkillSlot((u8 *)((u16 *)func_002e48a0(0xD, temp_19_10)), temp_16_53) == -1) {
-                    datPersonaAddSkill((u8 *)((u16 *)func_002e48a0(0xD, temp_19_10)), temp_16_53);
+            if ((((1 << var_17_9) & 0xFF & *(s8 *)(yListSlotWork(temp_18->f2F9) + temp_18->f11E + 0x2E4)) >> var_17_9) == 1
+                && (s32)datPersonaCountSkills((u8 *)(((u16 *)yListSlotEntry(0xD, temp_19_10)))) < 8) {
+                temp_16_53 = ((u16 *)yListSlotEntry(temp_18->f2F9, temp_18->f11E))[var_17_9 + 6];
+                if (datPersonaFindSkillSlot((u8 *)((u16 *)yListSlotEntry(0xD, temp_19_10)), temp_16_53) == -1) {
+                    datPersonaAddSkill((u8 *)((u16 *)yListSlotEntry(0xD, temp_19_10)), temp_16_53);
                 }
             }
         }
         temp_18->f2F9 = 0xD;
-        temp_16_54 = ((u16 *)func_002e48a0(0xD, temp_18->f2FA));
-        fclDrawSetSlotMode(temp_18->f148, (s32)(temp_16_54), *(s8 *)(func_002e4870(temp_18->f128 + 1) + temp_18->f11E + 0x2E4));
+        temp_16_54 = ((u16 *)yListSlotEntry(0xD, temp_18->f2FA));
+        fclDrawSetSlotMode(temp_18->f148, (s32)(temp_16_54), *(s8 *)(yListSlotWork(temp_18->f128 + 1) + temp_18->f11E + 0x2E4));
         temp_18->f0 = 0xD;
         temp_18->f1 = 0xC5;
         break;
@@ -2632,25 +2632,25 @@ void func_002f0f00(u8 *arg0) {
     temp_3 = (u8)((u8)((u8)(temp_17->f1)));
     switch (temp_3) {                               /* switch 1 */
     case 0x38:                                      /* switch 1 */
-        func_002e4610(1, 0);
-        func_002e4610(0xA, 1);
-        func_002e4610(0xA, 2);
-        func_002e4610(0xA, 3);
-        func_002e4610(0xA, 4);
-        func_002e4610(0xA, 5);
-        func_002e4610(0xA, 6);
-        func_002e4610(0xA, 7);
-        func_002e4610(0xA, 8);
-        func_002e4610(0xA, 9);
-        func_002e4610(0xA, 0xA);
-        func_002e4610(0xA, 0xB);
-        func_002e4610(0xA, 0xC);
-        func_002e4610(0, 0xD);
+        yListSlotCreate(1, 0);
+        yListSlotCreate(0xA, 1);
+        yListSlotCreate(0xA, 2);
+        yListSlotCreate(0xA, 3);
+        yListSlotCreate(0xA, 4);
+        yListSlotCreate(0xA, 5);
+        yListSlotCreate(0xA, 6);
+        yListSlotCreate(0xA, 7);
+        yListSlotCreate(0xA, 8);
+        yListSlotCreate(0xA, 9);
+        yListSlotCreate(0xA, 0xA);
+        yListSlotCreate(0xA, 0xB);
+        yListSlotCreate(0xA, 0xC);
+        yListSlotCreate(0, 0xD);
         func_00315600(arg0, 1);
         temp_17->f1 = 0x39U;
         return;
     case 0x39:                                      /* switch 1 */
-        if (func_003190d0(arg0) != 1 && *(s8 *)func_002e4870(0) == 1) {
+        if (func_003190d0(arg0) != 1 && *(s8 *)yListSlotWork(0) == 1) {
             for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                 sp3FC = func_002b2a60(0, 0, 0x99, 0xFF);
                 *(FclDrawColor *)(fclCombineSlotRecord((u8 *)temp_17->f188, partyRow) + 0x75) = sp3FC;
@@ -2672,9 +2672,9 @@ void func_002f0f00(u8 *arg0) {
             } else {
                 var_19 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
             }
-            if (partyRow < *(s32 *)(func_002e4870(0) + 8)) {
+            if (partyRow < *(s32 *)(yListSlotWork(0) + 8)) {
                 temp_f20 = (f32)(partyRow * 0x17 + 0x80);
-                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_19, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_19, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
             }
         }
         if (((*(s16 *)fclCombineSlotRecord(((u8 **)((u8 *)temp_17 + 0x150))[datPersonaRosterCapacity() & 0xFFFF], (datPersonaRosterCapacity() & 0xFFFF) - 1) & 4) >> 2) == 0) {
@@ -2728,9 +2728,9 @@ void func_002f0f00(u8 *arg0) {
             } else {
                 var_18 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7_2);
             }
-            if (gridRow < *(s32 *)(func_002e4870(0) + 8)) {
+            if (gridRow < *(s32 *)(yListSlotWork(0) + 8)) {
                 temp_f20 = (f32)(gridRow * 0x17 + 0x80);
-                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_18, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, gridRow))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_18, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, gridRow))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
         if (((s32)((s32)(((s32) (*(s16 *)fclCombineSlotRecord((u8 *)(temp_17->rows[0]), 0) & 4) >> 2))) == (s32)((s32)(0))) && ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) == (s32)((s32)(0)))) {
@@ -2752,9 +2752,9 @@ void func_002f0f00(u8 *arg0) {
             } else {
                 var_19_3 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7_3);
             }
-            if (partyRow < *(s32 *)(func_002e4870(0) + 8)) {
+            if (partyRow < *(s32 *)(yListSlotWork(0) + 8)) {
                 temp_f20 = (f32)(partyRow * 0x17 + 0x80);
-                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_19_3, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, partyRow))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB(113.0f, temp_f20, 43.0f, var_19_3, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, partyRow))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
             temp_2_2 = (s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(partyRow + 0x21C) + 0x10), 1);
             if (temp_2_2 == 1) {
@@ -2774,7 +2774,7 @@ void func_002f0f00(u8 *arg0) {
         break;
     case 0x3E:                                      /* switch 1 */
         if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
-            fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)func_002e48a0(0, temp_17->f11E)), 0, 0);
+            fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)yListSlotEntry(0, temp_17->f11E)), 0, 0);
             func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
             temp_16_3 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
             func_0011d140((u8 *)temp_16_3,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
@@ -2820,7 +2820,7 @@ block_83:
                 for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                     sp390 = func_002b2970(16.0f, 128.0f);
 
-                    func_003191c0(arg0, sp390, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (4))))), 0, 0, ((s8)*(s32 *)(func_002e4870(0) + 8)));
+                    func_003191c0(arg0, sp390, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                 }
                 sp388 = func_002b2970(16.0f, 104.0f);
                 func_0031e5b0(arg0, sp388, 0, 0, 0, 0, 0);
@@ -2861,26 +2861,26 @@ block_83:
         temp_2_4 = (u8 *)(fclSpriteEntry(0x7C));
         sp1E8 = *(FclVec2f *)(temp_2_4 + 0x38);
         temp_16_9 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_8)));
-        frFontExDrawTextDeferredOutB(111.0f + sp1E8.x, sp1E8.y, 43.0f, temp_16_9, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_8->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1E8.x, sp1E8.y, 43.0f, temp_16_9, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_8->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s8)fclDrawGetState((u8 *)temp_17->f148) < 0 || (s8)fclDrawGetState((u8 *)temp_17->f148) > 5) {
             if (D_008C027A[0] & 0x1000) {
-                temp_17->f11E = (s16)((s16)(func_002b2d00(temp_17->f11E, 1, 0, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 2)));
+                temp_17->f11E = (s16)((s16)(func_002b2d00(temp_17->f11E, 1, 0, (s16)(((*((s32 *)((u8 *)(yListSlotWork(0)) + (8)))) - 1)), 2)));
                 func_0045af60(0, 0, 0, 0);
                 return;
             }
             if (D_008C027A[0] & 0x4000) {
-                temp_17->f11E = (s16)((s16)(func_002b2cb0(temp_17->f11E, 1, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 0, 2)));
+                temp_17->f11E = (s16)((s16)(func_002b2cb0(temp_17->f11E, 1, (s16)(((*((s32 *)((u8 *)(yListSlotWork(0)) + (8)))) - 1)), 0, 2)));
                 func_0045af60(0, 0, 0, 0);
                 return;
             }
             if (D_008C024E[0] & 0x80) {
                 temp_16_10 = (s16)((s16)((s16)(temp_17->f11E)));
-                if (temp_16_10 < (*((s32 *)((u8 *)(func_002e4870(0)) + (8))))) {
+                if (temp_16_10 < (*((s32 *)((u8 *)(yListSlotWork(0)) + (8))))) {
                     func_0045af60(0, 1, 0, 3);
                     for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                         sp360 = func_002b2970(16.0f, 128.0f);
 
-                        func_003191c0(arg0, sp360, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (4))))), 0, 1, ((s8)*(s32 *)(func_002e4870(0) + 8)));
+                        func_003191c0(arg0, sp360, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                     }
                     sp358 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp358, 0, 1, 0, 0, 0);
@@ -2907,7 +2907,7 @@ block_83:
             } else {
                 if (D_008C024E[0] & 0x40) {
                     temp_5 = (s16)((s16)((s16)(temp_17->f11E)));
-                    if ((temp_17->f128 != temp_5) && ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_5))) + (2)))) != 0)) {
+                    if ((temp_17->f128 != temp_5) && ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_5))) + (2)))) != 0)) {
                         func_0045af60(0, 0, 0, 1);
                         temp_17->f129 = (s8)((s8)((s8) temp_17->f11E));
                         basePos = (FclVec2f *)D_00640C18;
@@ -2917,10 +2917,10 @@ block_83:
                         for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
                         temp_18_12 = (s16)(gridRow);
                             temp_16_14 = (s8)((s8)((s8)(temp_17->f129)));
-                            if ((*((s8 *)((u8 *)((func_002e4870((u32)temp_16_14 + 1U) + (temp_16_14 * 0xC) + temp_18_12)) + (0x14)))) > 0) {
+                            if ((*((s8 *)((u8 *)((yListSlotWork((u32)temp_16_14 + 1U) + (temp_16_14 * 0xC) + temp_18_12)) + (0x14)))) > 0) {
                                 sp328 = func_002b2970((f32) 0x149, 128.0f);
 
-                                func_0031ac10(arg0, sp328, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_16_14 + 1)), gridRow))) + (4))))), 3, 0, 1, 0xCC);
+                                func_0031ac10(arg0, sp328, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_16_14 + 1)), gridRow))) + (4))))), 3, 0, 1, 0xCC);
                             }
                             FCL0F00_GRID_ROW(temp_17, gridRow, 1, 1, sp320, sp318, sp3E8, sp3E4);
                             temp_16_17 = (s16)(gridRow);
@@ -2934,11 +2934,11 @@ block_83:
                             fclSpriteStartPositionAt(temp_18_15, (*(FclVec2f *)&sp310), (*(FclVec2f *)&sp308),  0,  3,  0);
                             sdkSpriteFreeNode(temp_21_8);
                             temp_18_16 = (s8)((s8)((s8)(temp_17->f129)));
-                            if ((*((s8 *)((u8 *)((func_002e4870((u32)temp_18_16 + 1U) + (temp_18_16 * 0xC) + temp_16_17)) + (0x14)))) > 0) {
-                                temp_16_18 = (u16 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), gridRow)));
-                                temp_21_9 = (u16 *)(((u16 *)func_002e48a0(0, temp_17->f128)));
-                                temp_22_5 = (u16 *)(((u16 *)func_002e48a0(0, temp_17->f129)));
-                                func_002f9c30(temp_16_18, (u8 *)temp_21_9, (u8 *)temp_22_5, (u8 *)((u16 *)func_002e48a0(0, gridRow)), NULL, NULL, NULL, 3, (s8)((temp_18_16 + 1)), (s8)(gridRow));
+                            if ((*((s8 *)((u8 *)((yListSlotWork((u32)temp_18_16 + 1U) + (temp_18_16 * 0xC) + temp_16_17)) + (0x14)))) > 0) {
+                                temp_16_18 = (u16 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), gridRow)));
+                                temp_21_9 = (u16 *)(((u16 *)yListSlotEntry(0, temp_17->f128)));
+                                temp_22_5 = (u16 *)(((u16 *)yListSlotEntry(0, temp_17->f129)));
+                                func_002f9c30(temp_16_18, (u8 *)temp_21_9, (u8 *)temp_22_5, (u8 *)((u16 *)yListSlotEntry(0, gridRow)), NULL, NULL, NULL, 3, (s8)((temp_18_16 + 1)), (s8)(gridRow));
                             }
                         }
                         sp300 = func_002b2970((f32) 0x149, 104.0f);
@@ -2953,12 +2953,12 @@ block_83:
                 }
                 if (D_008C024C[0] & 0x80) {
                     temp_16_19 = (s16)((s16)((s16)(temp_17->f11E)));
-                    if (temp_16_19 < (*((s32 *)((u8 *)(func_002e4870(0)) + (8))))) {
+                    if (temp_16_19 < (*((s32 *)((u8 *)(yListSlotWork(0)) + (8))))) {
                         func_0045af60(0, 1, 0, 3);
                         for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                             sp2F8 = func_002b2970(16.0f, 128.0f);
 
-                            func_003191c0(arg0, sp2F8, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (4))))), 0, 1, ((s8)*(s32 *)(func_002e4870(0) + 8)));
+                            func_003191c0(arg0, sp2F8, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                         }
                         sp2F0 = func_002b2970(16.0f, 104.0f);
                         func_0031e5b0(arg0, sp2F0, 0, 1, 0, 0, 0);
@@ -3015,9 +3015,9 @@ block_83:
         temp_2_6 = (u8 *)(fclSpriteEntry(0x7C));
         sp1E0 = *(FclVec2f *)(temp_2_6 + 0x38);
         temp_16_22 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        frFontExDrawTextDeferredOutB(111.0f + sp1E0.x, sp1E0.y, 43.0f, temp_16_22, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1E0.x, sp1E0.y, 43.0f, temp_16_22, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
-            fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)func_002e48a0(0, temp_17->f11E)), 0, 0);
+            fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)yListSlotEntry(0, temp_17->f11E)), 0, 0);
             func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
             temp_16_23 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
             func_0011d140((u8 *)temp_16_23,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
@@ -3029,7 +3029,7 @@ block_83:
         temp_2_7 = (u8 *)(fclSpriteEntry(0x7C));
         sp1D8 = *(FclVec2f *)(temp_2_7 + 0x38);
         temp_16_24 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        frFontExDrawTextDeferredOutB(111.0f + sp1D8.x, sp1D8.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1D8.x, sp1D8.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(5)) {
             if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
                 func_0011caf0(fclDrawGetResource((u8 *)(temp_17->f148)));
@@ -3067,7 +3067,7 @@ block_166:
                 for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                     sp2B8 = func_002b2970(16.0f, 128.0f);
 
-                    func_003191c0(arg0, sp2B8, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0(0, partyRow))) + (4))))), 0, 0, ((s8)*(s32 *)(func_002e4870(0) + 8)));
+                    func_003191c0(arg0, sp2B8, (s8)partyRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, partyRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                 }
                 sp2B0 = func_002b2970(16.0f, 104.0f);
                 func_0031e5b0(arg0, sp2B0, 0, 0, 0, 0, 0);
@@ -3087,39 +3087,39 @@ block_166:
         temp_2_8 = (u8 *)(fclSpriteEntry(0x7C));
         sp1D0 = *(FclVec2f *)(temp_2_8 + 0x38);
         temp_16_26 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_25)));
-        frFontExDrawTextDeferredOutB(111.0f + sp1D0.x, sp1D0.y, 43.0f, temp_16_26, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_23->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1D0.x, sp1D0.y, 43.0f, temp_16_26, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_23->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_27 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
         temp_18_24 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_9 = (u8 *)(fclSpriteEntry(0x7D));
         sp1C8 = *(FclVec2f *)(temp_2_9 + 0x38);
         temp_16_28 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_27)));
-        frFontExDrawTextDeferredOutB(111.0f + sp1C8.x, sp1C8.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_24->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1C8.x, sp1C8.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_24->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s8)fclDrawGetState((u8 *)temp_17->f148) < 0 || (s8)fclDrawGetState((u8 *)temp_17->f148) > 5) {
             if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x1C7)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
                 func_00324410(arg0, 0x1C7, 0);
                 func_00324410(arg0, 0x2E8, 1);
             }
             if (D_008C027A[0] & 0x1000) {
-                temp_17->f11E = (s16)((s16)(func_002b2d00(temp_17->f11E, 1, 0, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 2)));
+                temp_17->f11E = (s16)((s16)(func_002b2d00(temp_17->f11E, 1, 0, (s16)(((*((s32 *)((u8 *)(yListSlotWork(0)) + (8)))) - 1)), 2)));
                 func_0045af60(0, 0, 0, 0);
                 return;
             }
             if (D_008C027A[0] & 0x4000) {
-                temp_17->f11E = (s16)((s16)(func_002b2cb0(temp_17->f11E, 1, (s16)(((*((s32 *)((u8 *)(func_002e4870(0)) + (8)))) - 1)), 0, 2)));
+                temp_17->f11E = (s16)((s16)(func_002b2cb0(temp_17->f11E, 1, (s16)(((*((s32 *)((u8 *)(yListSlotWork(0)) + (8)))) - 1)), 0, 2)));
                 func_0045af60(0, 0, 0, 0);
                 return;
             }
             if (D_008C024E[0] & 0x80) {
                 temp_16_29 = (s16)((s16)((s16)(temp_17->f11E)));
-                if (temp_16_29 < (*((s32 *)((u8 *)(func_002e4870(0)) + (8))))) {
+                if (temp_16_29 < (*((s32 *)((u8 *)(yListSlotWork(0)) + (8))))) {
                     func_0045af60(0, 1, 0, 3);
                     for (resultRow = 0; resultRow < (datPersonaRosterCapacity() & 0xFFFF); resultRow++) {
                         sp2A8 = func_002b2970((f32) 0x149, 128.0f);
 
-                        func_0031ac10(arg0, sp2A8, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
+                        func_0031ac10(arg0, sp2A8, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
                         sp2A0 = func_002b2970(16.0f, 128.0f);
 
-                        func_003191c0(arg0, sp2A0, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(func_002e4870(0) + 8)));
+                        func_003191c0(arg0, sp2A0, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                     }
                     sp298 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp298, 0, 1, 0, 0, 0);
@@ -3138,15 +3138,15 @@ block_166:
                     temp_3_4 = (s16)((s16)((s16)(temp_17->f11E)));
                     if (temp_17->f128 != temp_3_4) {
                         temp_2_10 = (s8)((s8)((s8)(temp_17->f129)));
-                        if ((temp_2_10 != temp_3_4) && ((*((s8 *)((u8 *)((func_002e4870((s8) ((s8)((temp_2_10 + 1)))) + (temp_17->f129 * 0xC) + temp_17->f11E)) + (0x14)))) > 0)) {
+                        if ((temp_2_10 != temp_3_4) && ((*((s8 *)((u8 *)((yListSlotWork((s8) ((s8)((temp_2_10 + 1)))) + (temp_17->f129 * 0xC) + temp_17->f11E)) + (0x14)))) > 0)) {
                             func_0045af60(0, 0, 0, 1);
                             for (resultRow = 0; resultRow < (datPersonaRosterCapacity() & 0xFFFF); resultRow++) {
                                 sp288 = func_002b2970((f32) 0x149, 128.0f);
 
-                                func_0031ac10(arg0, sp288, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
+                                func_0031ac10(arg0, sp288, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
                                 sp280 = func_002b2970(16.0f, 128.0f);
 
-                                func_003191c0(arg0, sp280, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(func_002e4870(0) + 8)));
+                                func_003191c0(arg0, sp280, (s8)resultRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, resultRow))) + (4))))), 0, 1, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                             }
                             sp278 = func_002b2970(16.0f, 104.0f);
                             func_0031e5b0(arg0, sp278, 0, 1, 0, 0, 0);
@@ -3178,7 +3178,7 @@ block_166:
                     for (resultRow = 0; resultRow < (datPersonaRosterCapacity() & 0xFFFF); resultRow++) {
                         sp250 = func_002b2970((f32) 0x149, 128.0f);
 
-                        func_0031ac10(arg0, sp250, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
+                        func_0031ac10(arg0, sp250, (s64)temp_17->f129, resultRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), resultRow))) + (4))))), 0, 1, 1, 0xCC);
                     }
                     func_003218a0(arg0, 3);
                     func_003205f0(arg0, 0x94, 0x95);
@@ -3192,14 +3192,14 @@ block_166:
         temp_2_12 = (u8 *)(fclSpriteEntry(0x7C));
         sp1C0 = *(FclVec2f *)(temp_2_12 + 0x38);
         temp_16_35 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        frFontExDrawTextDeferredOutB(111.0f + sp1C0.x, sp1C0.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1C0.x, sp1C0.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_18_25 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_13 = (u8 *)(fclSpriteEntry(0x7D));
         sp1B8 = *(FclVec2f *)(temp_2_13 + 0x38);
         temp_16_36 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        frFontExDrawTextDeferredOutB(111.0f + sp1B8.x, sp1B8.y, 43.0f, temp_16_36, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_25->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1B8.x, sp1B8.y, 43.0f, temp_16_36, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_25->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
-            fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)func_002e48a0(0, temp_17->f11E)), 0, 0);
+            fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)yListSlotEntry(0, temp_17->f11E)), 0, 0);
             func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
             temp_16_37 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
             func_0011d140((u8 *)temp_16_37,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
@@ -3211,12 +3211,12 @@ block_166:
         temp_2_14 = (u8 *)(fclSpriteEntry(0x7C));
         sp1B0 = *(FclVec2f *)(temp_2_14 + 0x38);
         temp_16_38 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        frFontExDrawTextDeferredOutB(111.0f + sp1B0.x, sp1B0.y, 43.0f, temp_16_38, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1B0.x, sp1B0.y, 43.0f, temp_16_38, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_18_26 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_15 = (u8 *)(fclSpriteEntry(0x7D));
         sp1A8 = *(FclVec2f *)(temp_2_15 + 0x38);
         temp_16_39 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
-        frFontExDrawTextDeferredOutB(111.0f + sp1A8.x, sp1A8.y, 43.0f, temp_16_39, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_26->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1A8.x, sp1A8.y, 43.0f, temp_16_39, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_26->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(5)) {
             if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
                 func_0011caf0(fclDrawGetResource((u8 *)(temp_17->f148)));
@@ -3257,12 +3257,12 @@ block_215:
 
                     sp248 = func_002b2970(16.0f, 128.0f);
 
-                    func_003191c0(arg0, sp248, (s8)gridRow, ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, gridRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0(0, gridRow))) + (4))))), 0, 0, ((s8)*(s32 *)(func_002e4870(0) + 8)));
+                    func_003191c0(arg0, sp248, (s8)gridRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                     temp_18_28 = (s8)((s8)((s8)(temp_17->f129)));
-                    if ((*((s8 *)((u8 *)((func_002e4870((u32)temp_18_28 + 1U) + (temp_18_28 * 0xC) + gridRow)) + (0x14)))) > 0) {
+                    if ((*((s8 *)((u8 *)((yListSlotWork((u32)temp_18_28 + 1U) + (temp_18_28 * 0xC) + gridRow)) + (0x14)))) > 0) {
                         sp240 = func_002b2970((f32) 0x149, 128.0f);
 
-                        func_0031ac10(arg0, sp240, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_18_28 + 1)), gridRow))) + (4))))), 0, 0, 1, 0xCC);
+                        func_0031ac10(arg0, sp240, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_18_28 + 1)), gridRow))) + (4))))), 0, 0, 1, 0xCC);
                     }
                 }
                 sp238 = func_002b2970(16.0f, 104.0f);
@@ -3280,25 +3280,25 @@ block_215:
         temp_2_16 = (u8 *)(fclSpriteEntry(0x7C));
         sp1A0 = *(FclVec2 *)(temp_2_16 + 0x38);
         temp_16_43 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_42)));
-        frFontExDrawTextDeferredOutB(111.0f + sp1A0.x, sp1A0.y, 43.0f, temp_16_43, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_29->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp1A0.x, sp1A0.y, 43.0f, temp_16_43, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_29->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_44 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
         temp_18_30 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_17 = (u8 *)(fclSpriteEntry(0x7D));
         sp198 = *(FclVec2 *)(temp_2_17 + 0x38);
         temp_16_45 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_44)));
-        frFontExDrawTextDeferredOutB(111.0f + sp198.x, sp198.y, 43.0f, temp_16_45, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_30->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp198.x, sp198.y, 43.0f, temp_16_45, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_30->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             temp_17->f2F9 = (s8)((s8)((s8) (temp_17->f129 + 1)));
             temp_2_18 = (s16)((s16)((s16)(temp_17->f11E)));
             temp_17->f2FA = (s8) temp_2_18;
             temp_16_46 = temp_17->f2FA;
-            temp_18_31 = (u16 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_16_46)));
-            temp_16_47 = (u8 *)(func_002e4870(temp_17->f2F9) + ((s8)(temp_16_46)));
-            temp_19_11 = (s64)((s64)((s16)func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA))[1] * 14 + 2])));
-            fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_31), (*(s8 *)((u8 *)(temp_16_47)+(0x2E4))), func_00311930(temp_19_11, (u8 *)((u8 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
+            temp_18_31 = (u16 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_16_46)));
+            temp_16_47 = (u8 *)(yListSlotWork(temp_17->f2F9) + ((s8)(temp_16_46)));
+            temp_19_11 = (s64)((s64)((s16)func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))[1] * 14 + 2])));
+            fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_31), (*(s8 *)((u8 *)(temp_16_47)+(0x2E4))), func_00311930(temp_19_11, (u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
             temp_16_48 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
             func_0011d140((u8 *)temp_16_48,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-            temp_16_49 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
+            temp_16_49 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
             if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_16_49))) {
                 temp_16_50 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                 func_0011d140((u8 *)temp_16_50,  func_002b2a30(0x14, 0x14, 0x14, 0xFFU));
@@ -3315,13 +3315,13 @@ block_215:
         temp_2_19 = (u8 *)(fclSpriteEntry(0x7C));
         sp190 = *(FclVec2 *)(temp_2_19 + 0x38);
         temp_16_52 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_51)));
-        frFontExDrawTextDeferredOutB(111.0f + sp190.x, sp190.y, 43.0f, temp_16_52, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_32->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp190.x, sp190.y, 43.0f, temp_16_52, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_32->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_53 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
         temp_18_33 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_20 = (u8 *)(fclSpriteEntry(0x7D));
         sp188 = *(FclVec2 *)(temp_2_20 + 0x38);
         temp_16_54 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_53)));
-        frFontExDrawTextDeferredOutB(111.0f + sp188.x, sp188.y, 43.0f, temp_16_54, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_33->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp188.x, sp188.y, 43.0f, temp_16_54, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_33->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s8)fclDrawGetState((u8 *)(temp_17->f148))) == (s32)(0xD)) {
             if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
                 func_0011caf0(fclDrawGetResource((u8 *)(temp_17->f148)));
@@ -3370,31 +3370,31 @@ block_215:
                 case 0:                             /* switch 3 */
                     temp_16_55 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                     func_0011d140((u8 *)temp_16_55,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)func_002e48a0(0, temp_17->f128))), 0, 0, 1);
+                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, temp_17->f128))), 0, 0, 1);
                     return;
                 case 1:                             /* switch 3 */
                     temp_16_56 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                     func_0011d140((u8 *)temp_16_56,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)func_002e48a0(0, temp_17->f129))), 0, 0, 1);
+                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, temp_17->f129))), 0, 0, 1);
                     return;
                 case 2:                             /* switch 3 */
                     temp_16_57 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                     func_0011d140((u8 *)temp_16_57,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)func_002e48a0(0, temp_17->f11E))), 0, 0, 1);
+                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, temp_17->f11E))), 0, 0, 1);
                     return;
                 case 3:                             /* switch 3 */
                     temp_16_58 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                     func_0011d140((u8 *)temp_16_58,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    temp_16_59 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
+                    temp_16_59 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
                     if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_16_59))) {
                         temp_16_60 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                         func_0011d140((u8 *)temp_16_60,  func_002b2a30(0x14, 0x14, 0x14, 0xFFU));
                     }
                     temp_16_61 = (s8)((s8)((s8)(temp_17->f2FA)));
-                    temp_18_34 = (u16 *)(((u16 *)func_002e48a0(temp_17->f2F9, (s64) temp_16_61)));
-                    temp_16_62 = (u8 *)(func_002e4870(temp_17->f2F9) + ((s8)(temp_16_61)));
-                    temp_19_12 = (s64)((s64)((s16)func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA))[1] * 14 + 2])));
-                    fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_34), (*(s8 *)((u8 *)(temp_16_62)+(0x2E4))), func_00311930(temp_19_12, (u8 *)((u8 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
+                    temp_18_34 = (u16 *)(((u16 *)yListSlotEntry(temp_17->f2F9, (s64) temp_16_61)));
+                    temp_16_62 = (u8 *)(yListSlotWork(temp_17->f2F9) + ((s8)(temp_16_61)));
+                    temp_19_12 = (s64)((s64)((s16)func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))[1] * 14 + 2])));
+                    fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_34), (*(s8 *)((u8 *)(temp_16_62)+(0x2E4))), func_00311930(temp_19_12, (u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
                     return;
                 }
             } else if (D_008C024E[0] & 4) {
@@ -3413,31 +3413,31 @@ block_215:
                 case 0:                             /* switch 4 */
                     temp_16_63 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                     func_0011d140((u8 *)temp_16_63,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)func_002e48a0(0, temp_17->f128))), 0, 0, 1);
+                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, temp_17->f128))), 0, 0, 1);
                     return;
                 case 1:                             /* switch 4 */
                     temp_16_64 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                     func_0011d140((u8 *)temp_16_64,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)func_002e48a0(0, temp_17->f129))), 0, 0, 1);
+                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, temp_17->f129))), 0, 0, 1);
                     return;
                 case 2:                             /* switch 4 */
                     temp_16_65 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                     func_0011d140((u8 *)temp_16_65,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)func_002e48a0(0, temp_17->f11E))), 0, 0, 1);
+                    fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(temp_17) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, temp_17->f11E))), 0, 0, 1);
                     return;
                 case 3:                             /* switch 4 */
                     temp_16_66 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                     func_0011d140((u8 *)temp_16_66,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    temp_16_67 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
+                    temp_16_67 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
                     if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_16_67))) {
                         temp_16_68 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                         func_0011d140((u8 *)temp_16_68,  func_002b2a30(0x14, 0x14, 0x14, 0xFFU));
                     }
                     temp_16_69 = (s8)((s8)((s8)(temp_17->f2FA)));
-                    temp_18_35 = (u16 *)(((u16 *)func_002e48a0(temp_17->f2F9, (s64) temp_16_69)));
-                    temp_16_70 = (u8 *)(func_002e4870(temp_17->f2F9) + ((s8)(temp_16_69)));
-                    temp_19_13 = (s64)((s64)((s16)func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA))[1] * 14 + 2])));
-                    fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_35), (*(s8 *)((u8 *)(temp_16_70)+(0x2E4))), func_00311930(temp_19_13, (u8 *)((u8 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
+                    temp_18_35 = (u16 *)(((u16 *)yListSlotEntry(temp_17->f2F9, (s64) temp_16_69)));
+                    temp_16_70 = (u8 *)(yListSlotWork(temp_17->f2F9) + ((s8)(temp_16_69)));
+                    temp_19_13 = (s64)((s64)((s16)func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))[1] * 14 + 2])));
+                    fclDrawSetPlacementEx((u8 *)(temp_17->f148), (s32)(temp_18_35), (*(s8 *)((u8 *)(temp_16_70)+(0x2E4))), func_00311930(temp_19_13, (u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA)))), 0), 1);
                     return;
                 }
             }
@@ -3449,13 +3449,13 @@ block_215:
         temp_2_21 = (u8 *)(fclSpriteEntry(0x7C));
         sp180 = *(FclVec2f *)(temp_2_21 + 0x38);
         temp_16_72 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_71)));
-        frFontExDrawTextDeferredOutB(111.0f + sp180.x, sp180.y, 43.0f, temp_16_72, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_36->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp180.x, sp180.y, 43.0f, temp_16_72, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_36->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         temp_16_73 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
         temp_18_37 = *(FclCombineCtl **)(arg0 + 0x38);
         temp_2_22 = (u8 *)(fclSpriteEntry(0x7D));
         sp178 = *(FclVec2f *)(temp_2_22 + 0x38);
         temp_16_74 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_73)));
-        frFontExDrawTextDeferredOutB(111.0f + sp178.x, sp178.y, 43.0f, temp_16_74, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, temp_18_37->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp178.x, sp178.y, 43.0f, temp_16_74, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_37->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(0xE)) {
             func_00316470(arg0, 1, 0);
             func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
@@ -3463,12 +3463,12 @@ block_215:
 
                 sp208 = func_002b2970(16.0f, 128.0f);
 
-                func_003191c0(arg0, sp208, (s8)gridRow, ((*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, gridRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0(0, gridRow))) + (4))))), 0, 0, ((s8)*(s32 *)(func_002e4870(0) + 8)));
+                func_003191c0(arg0, sp208, (s8)gridRow, ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (2))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0, gridRow))) + (4))))), 0, 0, ((s8)*(s32 *)(yListSlotWork(0) + 8)));
                 temp_18_39 = (s8)((s8)((s8)(temp_17->f129)));
-                if ((*((s8 *)((u8 *)((func_002e4870((u32)temp_18_39 + 1U) + (temp_18_39 * 0xC) + gridRow)) + (0x14)))) > 0) {
+                if ((*((s8 *)((u8 *)((yListSlotWork((u32)temp_18_39 + 1U) + (temp_18_39 * 0xC) + gridRow)) + (0x14)))) > 0) {
                     sp200 = func_002b2970((f32) 0x149, 128.0f);
 
-                    func_0031ac10(arg0, sp200, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_18_39 + 1)), gridRow))) + (4))))), 0, 0, 1, 0xCC);
+                    func_0031ac10(arg0, sp200, (s64)temp_17->f129, gridRow, ((u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), gridRow))) + (2)))))))), ((*((u8 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_18_39 + 1)), gridRow))) + (4))))), 0, 0, 1, 0xCC);
                 }
             }
             sp1F8 = func_002b2970(16.0f, 104.0f);
@@ -3480,14 +3480,14 @@ block_215:
         }
         break;
     case 0x48:                                      /* switch 1 */
-        temp_16_77 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA))) + (2)))))));
-        temp_18_40 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
+        temp_16_77 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (2)))))));
+        temp_18_40 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (4)))))));
         if ((s32)((s32)((func_00104c70(1) & 0xFF))) < (s32)((s32)((s32) temp_18_40))) {
             fclCombinePlayCue(arg0, 0x26, 0);
             temp_17->f1 = 0x4AU;
             return;
         }
-        if (func_002e53b0(0, (s32)*(s16 *)(func_002e48a0(temp_17->f2F9, temp_17->f2FA) + 2)) == 1) {
+        if (yListSlotContainsId(0, (s32)*(s16 *)(yListSlotEntry(temp_17->f2F9, temp_17->f2FA) + 2)) == 1) {
             fclCombinePlayCue(arg0, 0x27, 0);
             temp_17->f1 = 0x4AU;
             return;
@@ -3540,7 +3540,7 @@ block_215:
         break;
     case 0x4D:                                      /* switch 1 */
         var_16_10 = 3;
-        if ((*((s8 *)((u8 *)((func_002e4870(0) + (temp_17->f129 * 0xC) + temp_17->f11E)) + (0x14)))) == 2) {
+        if ((*((s8 *)((u8 *)((yListSlotWork(0) + (temp_17->f129 * 0xC) + temp_17->f11E)) + (0x14)))) == 2) {
             var_16_10 = 0;
         }
         if ((s32)((s32)(datGetFlag(0x1461))) == (s32)((s32)(0))) {
@@ -3569,30 +3569,30 @@ block_215:
         return;
     case 0x4F:                                      /* switch 1 */
         memset(&sp150, 0, 0x1A);
-        for (var_16_11 = 0; var_16_11 < (*((s32 *)((u8 *)(func_002e4870(0)) + (8)))); var_16_11++) {
-            sp150[var_16_11] = (u16)((u16)((u16) (*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, var_16_11))) + (2))))));
+        for (var_16_11 = 0; var_16_11 < (*((s32 *)((u8 *)(yListSlotWork(0)) + (8)))); var_16_11++) {
+            sp150[var_16_11] = (u16)((u16)((u16) (*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, var_16_11))) + (2))))));
         }
-        temp_16_78 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f2FA))) + (2)))))));
-        sp150[(*((s32 *)((u8 *)(func_002e4870(0)) + (8))))] = temp_16_78;
+        temp_16_78 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f2FA))) + (2)))))));
+        sp150[(*((s32 *)((u8 *)(yListSlotWork(0)) + (8))))] = temp_16_78;
         func_002e5ae0(0xD, (u16 *)(sp150), (s8)(func_00104c70(1)));
-        temp_16_79 = (*((u32 *)((u8 *)(func_002e4870(0xD)) + (8))));
+        temp_16_79 = (*((u32 *)((u8 *)(yListSlotWork(0xD)) + (8))));
         temp_16_80 = (u32)((u32)((RpRandom() % temp_16_79) * 0xA));
-        selectedResult = (s64)((s64)((s8)((temp_16_80 % (u32) (*((u32 *)((u8 *)(func_002e4870(0xD)) + (8))))))));
+        selectedResult = (s64)((s64)((s8)((temp_16_80 % (u32) (*((u32 *)((u8 *)(yListSlotWork(0xD)) + (8))))))));
         temp_17->f2F9 = (s8)((s8)((s8) (temp_17->f129 + 1)));
         temp_17->f2FA = (s8)((s8)((s8) temp_17->f11E));
         for (var_18_7 = 0; var_18_7 < 8; var_18_7++) {
 
-            if (((s32)((s32)(((s32) ((1 << var_18_7) & 0xFF & (*((s8 *)((u8 *)((func_002e4870(temp_17->f2F9) + temp_17->f2FA)) + (0x2E4))))) >> var_18_7))) == (s32)((s32)(1))) && ((s32)((s32)(datPersonaCountSkills((u8 *)(func_002e48a0(0xD, selectedResult))))) < (s32)((s32)(8)))) {
-                temp_16_82 = (u16)((u16)((u16)((*((u16 *)((u8 *)((((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), temp_17->f11E)) + var_18_7)) + (0xC)))))));
-                if ((s32)((s32)(datPersonaFindSkillSlot((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_82))) == (s32)((s32)(-1))) {
-                    datPersonaAddSkill((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_82);
+            if (((s32)((s32)(((s32) ((1 << var_18_7) & 0xFF & (*((s8 *)((u8 *)((yListSlotWork(temp_17->f2F9) + temp_17->f2FA)) + (0x2E4))))) >> var_18_7))) == (s32)((s32)(1))) && ((s32)((s32)(datPersonaCountSkills((u8 *)(yListSlotEntry(0xD, selectedResult))))) < (s32)((s32)(8)))) {
+                temp_16_82 = (u16)((u16)((u16)((*((u16 *)((u8 *)((((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), temp_17->f11E)) + var_18_7)) + (0xC)))))));
+                if ((s32)((s32)(datPersonaFindSkillSlot((u8 *)(((u16 *)yListSlotEntry(0xD, selectedResult))),  temp_16_82))) == (s32)((s32)(-1))) {
+                    datPersonaAddSkill((u8 *)(((u16 *)yListSlotEntry(0xD, selectedResult))),  temp_16_82);
                 }
             }
         }
         temp_17->f2F9 = 0xD;
         temp_17->f2FA = (s8) selectedResult;
         temp_18_42 = temp_17->f2FA;
-        fclDrawSetSlotMode((u8 *)(temp_17->f148), (s32)((u16 *)func_002e48a0(temp_17->f2F9, temp_18_42)), (*((s8 *)((u8 *)((func_002e4870(temp_17->f2F9) + ((s8)(temp_18_42)))) + (0x2E4)))));
+        fclDrawSetSlotMode((u8 *)(temp_17->f148), (s32)((u16 *)yListSlotEntry(temp_17->f2F9, temp_18_42)), (*((s8 *)((u8 *)((yListSlotWork(temp_17->f2F9) + ((s8)(temp_18_42)))) + (0x2E4)))));
         temp_17->f0 = 0xD;
         temp_17->f1 = 0xC5U;
         return;
@@ -3605,13 +3605,13 @@ block_215:
             s32 temp_16_85;
             var_19_11 = 0x63;
             memset(&sp130, 0, 0x1A);
-            for (var_16_12 = 0; var_16_12 < (*((s32 *)((u8 *)(func_002e4870(0)) + (8)))); var_16_12++) {
-                sp130[var_16_12] = (u16)((u16)((u16) (*((u16 *)((u8 *)(((u16 *)func_002e48a0(0, var_16_12))) + (2))))));
+            for (var_16_12 = 0; var_16_12 < (*((s32 *)((u8 *)(yListSlotWork(0)) + (8)))); var_16_12++) {
+                sp130[var_16_12] = (u16)((u16)((u16) (*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, var_16_12))) + (2))))));
             }
-            temp_16_84 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)func_002e48a0((s8)((temp_17->f129 + 1)), temp_17->f11E))) + (2)))))));
-            sp130[(*((s32 *)((u8 *)(func_002e4870(0)) + (8))))] = temp_16_84;
-            func_002e6280(0xD, (u16 *)(sp130), (s8)(func_00104c70(1)));
-            if ((*((s32 *)((u8 *)(func_002e4870(0xD)) + (8)))) == 0) {
+            temp_16_84 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry((s8)((temp_17->f129 + 1)), temp_17->f11E))) + (2)))))));
+            sp130[(*((s32 *)((u8 *)(yListSlotWork(0)) + (8))))] = temp_16_84;
+            yListSlotFillByLevel(0xD, (u16 *)(sp130), (s8)(func_00104c70(1)));
+            if ((*((s32 *)((u8 *)(yListSlotWork(0xD)) + (8)))) == 0) {
                 temp_17->f2F9 = (s8)((s8)((s8) (temp_17->f129 + 1)));
                 temp_17->f2FA = (s8)((s8)((s8) temp_17->f11E));
                 temp_17->f1 = 0x4FU;
@@ -3619,14 +3619,14 @@ block_215:
                 return;
             }
             temp_17->f2F9 = 0xD;
-            for (var_18_8 = 0; var_18_8 < *(s32 *)(func_002e4870(0xD) + 8); var_18_8++) {
-                temp_16_85 = (*((u8 *)((u8 *)(((u16 *)func_002e48a0(0xD, var_18_8))) + (4))));
+            for (var_18_8 = 0; var_18_8 < *(s32 *)(yListSlotWork(0xD) + 8); var_18_8++) {
+                temp_16_85 = (*((u8 *)((u8 *)(((u16 *)yListSlotEntry(0xD, var_18_8))) + (4))));
                 if ((s32)((s32)((s32) temp_16_85)) >= (s32)((s32)((func_00104c70(1) & 0xFF)))) {
                     temp_17->f2FA = (s8) var_18_8;
                     break;
                 } else {
-                    if ((s16)var_19_11 > (s8)((func_00104c70(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)func_002e48a0(0xD, var_18_8)) + 4))) {
-                        var_19_11 = (s8)((func_00104c70(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)func_002e48a0(0xD, var_18_8)) + 4));
+                    if ((s16)var_19_11 > (s8)((func_00104c70(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_18_8)) + 4))) {
+                        var_19_11 = (s8)((func_00104c70(1) & 0xFF) - *(u8 *)((u8 *)((u16 *)yListSlotEntry(0xD, var_18_8)) + 4));
                         temp_17->f2FA = (s8) var_18_8;
                     }
 
@@ -3637,16 +3637,16 @@ block_215:
         temp_17->f2F9 = (s8)((s8)((s8) (temp_17->f129 + 1)));
         for (var_18_9 = 0; var_18_9 < 8; var_18_9++) {
 
-            if (((s32)((s32)(((s32) ((1 << var_18_9) & 0xFF & (*((s8 *)((u8 *)((func_002e4870(temp_17->f2F9) + temp_17->f11E)) + (0x2E4))))) >> var_18_9))) == (s32)((s32)(1))) && ((s32)((s32)(datPersonaCountSkills((u8 *)(func_002e48a0(0xD, selectedResult))))) < (s32)((s32)(8)))) {
-                temp_16_88 = (u16)((u16)((u16)((*((u16 *)((u8 *)((((u16 *)func_002e48a0(temp_17->f2F9, temp_17->f11E)) + var_18_9)) + (0xC)))))));
-                if ((s32)((s32)(datPersonaFindSkillSlot((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_88))) == (s32)((s32)(-1))) {
-                    datPersonaAddSkill((u8 *)(((u16 *)func_002e48a0(0xD, selectedResult))),  temp_16_88);
+            if (((s32)((s32)(((s32) ((1 << var_18_9) & 0xFF & (*((s8 *)((u8 *)((yListSlotWork(temp_17->f2F9) + temp_17->f11E)) + (0x2E4))))) >> var_18_9))) == (s32)((s32)(1))) && ((s32)((s32)(datPersonaCountSkills((u8 *)(yListSlotEntry(0xD, selectedResult))))) < (s32)((s32)(8)))) {
+                temp_16_88 = (u16)((u16)((u16)((*((u16 *)((u8 *)((((u16 *)yListSlotEntry(temp_17->f2F9, temp_17->f11E)) + var_18_9)) + (0xC)))))));
+                if ((s32)((s32)(datPersonaFindSkillSlot((u8 *)(((u16 *)yListSlotEntry(0xD, selectedResult))),  temp_16_88))) == (s32)((s32)(-1))) {
+                    datPersonaAddSkill((u8 *)(((u16 *)yListSlotEntry(0xD, selectedResult))),  temp_16_88);
                 }
             }
         }
         temp_17->f2F9 = 0xD;
         temp_18_44 = (s8)((s8)((s8)(temp_17->f2FA)));
-        fclDrawSetSlotMode((u8 *)(temp_17->f148), (s32)((u16 *)func_002e48a0(0xD, temp_18_44)), (*((s8 *)((u8 *)((func_002e4870(temp_17->f2F9) + ((s8)(temp_18_44)))) + (0x2E4)))));
+        fclDrawSetSlotMode((u8 *)(temp_17->f148), (s32)((u16 *)yListSlotEntry(0xD, temp_18_44)), (*((s8 *)((u8 *)((yListSlotWork(temp_17->f2F9) + ((s8)(temp_18_44)))) + (0x2E4)))));
         temp_17->f0 = 0xD;
         temp_17->f1 = 0xC5U;
         break;
@@ -3729,26 +3729,26 @@ void func_002f6cf0(u8 *arg0) {
     p = *(s8 **)(arg0 + 0x38);
     switch ((u8)p[1]) {
     case 0x51:
-        func_002e4610(0xA, 0);
-        func_002e4610(0xA, 1);
-        func_002e4610(0xA, 2);
-        func_002e4610(0xA, 3);
-        func_002e4610(0xA, 4);
-        func_002e4610(0xA, 5);
-        func_002e4610(0xA, 6);
-        func_002e4610(0xA, 7);
-        func_002e4610(0xA, 8);
-        func_002e4610(0xA, 9);
-        func_002e4610(0xA, 0xA);
-        func_002e4610(0xA, 0xB);
-        func_002e4610(0xA, 0xC);
+        yListSlotCreate(0xA, 0);
+        yListSlotCreate(0xA, 1);
+        yListSlotCreate(0xA, 2);
+        yListSlotCreate(0xA, 3);
+        yListSlotCreate(0xA, 4);
+        yListSlotCreate(0xA, 5);
+        yListSlotCreate(0xA, 6);
+        yListSlotCreate(0xA, 7);
+        yListSlotCreate(0xA, 8);
+        yListSlotCreate(0xA, 9);
+        yListSlotCreate(0xA, 0xA);
+        yListSlotCreate(0xA, 0xB);
+        yListSlotCreate(0xA, 0xC);
         func_00315600(arg0, 1);
         func_00316470(arg0, 0, 0);
         func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
         p[1] = 0x52;
         break;
     case 0x52:
-        if (*(s8 *)func_002e4870(0) == 0) {
+        if (*(s8 *)yListSlotWork(0) == 0) {
             break;
         }
         if (func_003190d0(arg0) == 1) {
@@ -3775,10 +3775,10 @@ void func_002f6cf0(u8 *arg0) {
         p[1] = 0x53;
         break;
     case 0x53:
-        for (i = 0; i < *(s32 *)(func_002e4870(*(s16 *)(p + 0x11E) + 1) + 8); i++) {
+        for (i = 0; i < *(s32 *)(yListSlotWork(*(s16 *)(p + 0x11E) + 1) + 8); i++) {
             rowPos.position = func_002b2970((f32)0x139, 128.0f);
             rowPos.position.y += (f32)(i * 23);
-            if (((s8 *)func_002e4870(*(s16 *)(p + 0x11E) + 1))[i + 0x14] == 0) {
+            if (((s8 *)yListSlotWork(*(s16 *)(p + 0x11E) + 1))[i + 0x14] == 0) {
                 alpha = (u8)func_002b2aa0(0, 0.0f, 128.0f, *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x42),
                                           *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x40));
             } else {
@@ -3787,11 +3787,11 @@ void func_002f6cf0(u8 *arg0) {
             }
             rgba = func_002b2a30(0xCC, 0xFF, 0xFF, alpha);
             frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, rgba, 0, 2,
-                          (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[1] * 0x11),
+                          (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, i))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
             *(s16 *)(fclSpriteEntry(i + 0x250) + 4) =
-                (u8)datPersonaGetArcana(((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[1]) + 0x1B;
-            if (((u8 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[4] == 0) {
+                (u8)datPersonaGetArcana(((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, i))[1]) + 0x1B;
+            if (((u8 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, i))[4] == 0) {
                 row = i;
                 color1 = func_002b2a60(0x24, 0x3F, 0x9F, 0xFF);
                 *(FclDrawColor *)(fclSpriteEntry(row + 0x238) + 0x85) = color1;
@@ -3810,11 +3810,11 @@ void func_002f6cf0(u8 *arg0) {
                 shade = 0xCC;
                 fclSpriteEntry(i + 0x21C)[0x6E] = shade;
                 fclSpriteEntry(row + 0x22B)[0x6E] = shade;
-                func_002ba5d0(*(u8 **)(p + 0x2BC), (s8)i, ((u8 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[4],
+                func_002ba5d0(*(u8 **)(p + 0x2BC), (s8)i, ((u8 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, i))[4],
                               rowPos.position, color6 = func_002b2a60(shade, 0xFF, 0xFF, alpha), 46.0f, 0x59);
             }
         }
-        for (k = 0; k < *(s32 *)(func_002e4870(0) + 8); k++) {
+        for (k = 0; k < *(s32 *)(yListSlotWork(0) + 8); k++) {
             alpha2 = (u8)func_002b2aa0(0, 0.0f, 255.0f, *(s16 *)(fclSpriteEntry(k + 0x270) + 0x42),
                                        *(s16 *)(fclSpriteEntry(k + 0x270) + 0x40));
             if (*(s16 *)(p + 0x11E) == k) {
@@ -3834,7 +3834,7 @@ void func_002f6cf0(u8 *arg0) {
                 rgba2 = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
             }
             frFontExDrawTextDeferredOutB(97.0f, (f32)(k * 23 + 0x80), 43.0f, rgba2, 0, 2,
-                          (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, k))[1] * 0x11),
+                          (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(0, k))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
             fclSpriteEntry(k + 0x270)[0x6E] = fclSpriteEntry(k + 0x27D)[0x6E] = 0x97;
             color10 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
@@ -3864,7 +3864,7 @@ void func_002f6cf0(u8 *arg0) {
                 *(FclDrawColor *)(fclSpriteEntry(objC) + 0x85) = color14;
             }
         }
-        for (m = 0; m < *(s32 *)(func_002e4870(1) + 8); m++) {
+        for (m = 0; m < *(s32 *)(yListSlotWork(1) + 8); m++) {
             if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(m + 0x21C) + 0x10), 1) == 1) {
                 return;
             }
@@ -3875,12 +3875,12 @@ void func_002f6cf0(u8 *arg0) {
         buttons = D_008C027A[0];
         if (buttons & 0x1000) {
             func_0045af60(0, 0, 0, 0);
-            *(s16 *)(p + 0x11E) = func_002b2d00(*(s16 *)(p + 0x11E), 1, 0, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 2);
+            *(s16 *)(p + 0x11E) = func_002b2d00(*(s16 *)(p + 0x11E), 1, 0, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 2);
             break;
         }
         if (buttons & 0x4000) {
             func_0045af60(0, 0, 0, 0);
-            *(s16 *)(p + 0x11E) = func_002b2cb0(*(s16 *)(p + 0x11E), 1, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 0, 2);
+            *(s16 *)(p + 0x11E) = func_002b2cb0(*(s16 *)(p + 0x11E), 1, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 0, 2);
             break;
         }
         buttons = D_008C024E[0];
@@ -3925,12 +3925,12 @@ void func_002f6cf0(u8 *arg0) {
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) == 1) {
             break;
         }
-        id = ((u16 *)func_002e48a0(0, p[0x2FA]))[1];
-        datPersonaInitRecord((u8 *)func_002e48a0(0, p[0x2FA]), id);
-        fclDrawSetPlacement(*(u8 **)(p + 0x148), (s32)func_002e48a0(0, p[0x2FA]), 0, 0);
+        id = ((u16 *)yListSlotEntry(0, p[0x2FA]))[1];
+        datPersonaInitRecord((u8 *)yListSlotEntry(0, p[0x2FA]), id);
+        fclDrawSetPlacement(*(u8 **)(p + 0x148), (s32)yListSlotEntry(0, p[0x2FA]), 0, 0);
         func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
         func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-        if (((u8 *)func_002e48a0(0, p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+        if (((u8 *)yListSlotEntry(0, p[0x2FA]))[4] > (u8)func_00104c70(1)) {
             func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
         }
         p[1] = 0x55;
@@ -3975,8 +3975,8 @@ void func_002f6cf0(u8 *arg0) {
         }
         break;
     case 0x56:
-        for (i = 0; i < *(s32 *)(func_002e4870(1) + 8); i++) {
-            if (((s8 *)func_002e4870(*(s16 *)(p + 0x11E) + 1))[i + 0x14] == 0) {
+        for (i = 0; i < *(s32 *)(yListSlotWork(1) + 8); i++) {
+            if (((s8 *)yListSlotWork(*(s16 *)(p + 0x11E) + 1))[i + 0x14] == 0) {
                 alpha3 = (u8)func_002b2aa0(0, 128.0f, 0.0f, *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x42),
                                            *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x40));
             } else {
@@ -3985,10 +3985,10 @@ void func_002f6cf0(u8 *arg0) {
             }
             rgba3 = func_002b2a30(0xCC, 0xFF, 0xFF, alpha3);
             frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, rgba3, 0, 2,
-                          (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, i))[1] * 0x11),
+                          (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, i))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
         }
-        for (k = 0; k < *(s32 *)(func_002e4870(0) + 8); k++) {
+        for (k = 0; k < *(s32 *)(yListSlotWork(0) + 8); k++) {
             if (func_003139d0(p[0x1A], (s8)k) == 1) {
                 alpha3 = (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(fclSpriteEntry(k + 0x270) + 0x42),
                                            *(s16 *)(fclSpriteEntry(k + 0x270) + 0x40));
@@ -4003,7 +4003,7 @@ void func_002f6cf0(u8 *arg0) {
                 rgba3 = func_002b2a30(0x2D, 0x2D, 0x2D, alpha3);
             }
             frFontExDrawTextDeferredOutB(97.0f, (f32)(k * 23 + 0x80), 43.0f, rgba3, 0, 2,
-                          (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, k))[1] * 0x11),
+                          (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(0, k))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
         }
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x2B4) + 0x10), 1) != 0) {
@@ -4025,15 +4025,15 @@ void func_002f6cf0(u8 *arg0) {
         p[0x2F9] = 0;
         if (func_003139d0(p[0x1A], p[0x2FA]) == 1) {
             slot = p[0x2FA];
-            func_002f9c30((u16 *)func_002e48a0(0, slot), (u8 *)func_002e48a0(p[0x2FA] + 1, 0),
-                          (u8 *)func_002e48a0(p[0x2FA] + 1, 1), (u8 *)func_002e48a0(p[0x2FA] + 1, 2),
-                          (u8 *)func_002e48a0(p[0x2FA] + 1, 3), (u8 *)func_002e48a0(p[0x2FA] + 1, 4),
-                          (u8 *)func_002e48a0(slot + 1, 5), p[0x1A], 0, slot);
+            func_002f9c30((u16 *)yListSlotEntry(0, slot), (u8 *)yListSlotEntry(p[0x2FA] + 1, 0),
+                          (u8 *)yListSlotEntry(p[0x2FA] + 1, 1), (u8 *)yListSlotEntry(p[0x2FA] + 1, 2),
+                          (u8 *)yListSlotEntry(p[0x2FA] + 1, 3), (u8 *)yListSlotEntry(p[0x2FA] + 1, 4),
+                          (u8 *)yListSlotEntry(slot + 1, 5), p[0x1A], 0, slot);
         }
-        fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(p[0x2F9], p[0x2FA]), ((s8 *)func_002e4870(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
-                      (u8 *)func_002e48a0(p[0x2F9], p[0x2FA]), 0), 1);
+        fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+                      (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
         func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-        if (((u8 *)func_002e48a0(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+        if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
             func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
         }
         func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
@@ -4072,10 +4072,10 @@ void func_002f6cf0(u8 *arg0) {
                 fclDrawSetFlag(*(u8 **)(p + 0x148), 1);
             }
         } else if (buttons & 8) {
-            if (p[0x122] != *(s32 *)(func_002e4870(*(s16 *)(p + 0x11E) + 1) + 8)) {
+            if (p[0x122] != *(s32 *)(yListSlotWork(*(s16 *)(p + 0x11E) + 1) + 8)) {
                 func_0045af60(0, 2, 0, 5);
             }
-            p[0x122] = func_002b2cb0(p[0x122], 1, *(s32 *)(func_002e4870(*(s16 *)(p + 0x11E) + 1) + 8), 0, 1);
+            p[0x122] = func_002b2cb0(p[0x122], 1, *(s32 *)(yListSlotWork(*(s16 *)(p + 0x11E) + 1) + 8), 0, 1);
             switch (p[0x1A] + 1) {
             case 5:
                 step = 0x55;
@@ -4099,20 +4099,20 @@ void func_002f6cf0(u8 *arg0) {
             fclSpriteStartPositionAt(0x2E0, *(FclVec2 *)(ps + 0x38), pos4.position, 1, 4, 0);
             if (p[0x122] < p[0x1A]) {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(p[0x2FA] + 1, p[0x122]), 0, 0, 1);
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2FA] + 1, p[0x122]), 0, 0, 1);
             } else {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                if (((u8 *)func_002e48a0(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
                     func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
                 }
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(p[0x2F9], p[0x2FA]), ((s8 *)func_002e4870(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
-                              (u8 *)func_002e48a0(p[0x2F9], p[0x2FA]), 0), 1);
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+                              (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
         } else if (buttons & 4) {
             if (p[0x122] != 0) {
                 func_0045af60(0, 2, 0, 5);
             }
-            p[0x122] = func_002b2d00(p[0x122], 1, 0, *(s32 *)(func_002e4870(*(s16 *)(p + 0x11E) + 1) + 8), 1);
+            p[0x122] = func_002b2d00(p[0x122], 1, 0, *(s32 *)(yListSlotWork(*(s16 *)(p + 0x11E) + 1) + 8), 1);
             switch (p[0x1A] + 1) {
             case 5:
                 step2 = 0x55;
@@ -4136,14 +4136,14 @@ void func_002f6cf0(u8 *arg0) {
             fclSpriteStartPositionAt(0x2E0, *(FclVec2 *)(ps + 0x38), pos6.position, 1, 4, 0);
             if (p[0x122] < p[0x1A]) {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(p[0x2FA] + 1, p[0x122]), 0, 0, 1);
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2FA] + 1, p[0x122]), 0, 0, 1);
             } else {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                if (((u8 *)func_002e48a0(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
                     func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
                 }
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(p[0x2F9], p[0x2FA]), ((s8 *)func_002e4870(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
-                              (u8 *)func_002e48a0(p[0x2F9], p[0x2FA]), 0), 1);
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+                              (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
         }
         break;
@@ -4159,8 +4159,8 @@ void func_002f6cf0(u8 *arg0) {
         p[1] = 0x53;
         break;
     case 0x59:
-        item = ((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]))[1];
-        if (((u8 *)func_002e48a0(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+        item = ((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1];
+        if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
             fclCombinePlayCue(arg0, 0x26, 0);
             p[1] = 0x5B;
             break;
@@ -4212,7 +4212,7 @@ void func_002f6cf0(u8 *arg0) {
     case 0x5C:
         if (fclDrawGetState(*(u8 **)(p + 0x148)) == 0xE) {
             p[1] = 0x5E;
-            switch (((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]))[1]) {
+            switch (((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1]) {
             case 0x17:
                 func_00106390(0x130E, 1);
                 break;
@@ -4294,7 +4294,7 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
     }
     datPersonaInitRecord((u8 *)arg0, arg0[1]);
     v = (s8)func_00312c60(arg0, (u8 *)buf, (s8)arg7);
-    *(func_002e4870(arg8) + arg9 + 0x2E4) = v;
+    *(yListSlotWork(arg8) + arg9 + 0x2E4) = v;
 }
 
 /* measured: 8460 executable bytes / 8464-byte window, verify MATCH, 298 relocations.
@@ -4305,7 +4305,7 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
    range checks are written `> 5` / `> 0xD`. */
 // FUN_002F9D90
 void func_002f9d90(u8 *arg0) {
-    extern void func_002e55c0(s8, s32, s8);
+    extern void yListSlotAppend(s8, s32, s8);
     extern void func_00324680(u8 *, s32, s8);
     extern void func_0011d140(u8 *, s32); /* retail loads the colour into $a1 */
     extern s16 func_002b2d50(s16, s16, s16, s16, s16);
@@ -4337,25 +4337,25 @@ void func_002f9d90(u8 *arg0) {
     p = *(s8 **)(arg0 + 0x38);
     switch ((u8)p[1]) {
     case 0x63:
-        func_002e4610(0xA, 0);
-        func_002e4610(0xA, 1);
-        func_002e55c0(0, 1, 1);
-        func_002e55c0(0, 0x2C, 1);
-        func_002e55c0(0, 0x92, 1);
-        func_002e55c0(0, 0x7F, 1);
-        func_002e55c0(0, 0x45, 1);
-        func_002e55c0(0, 0x1E, 1);
-        func_002e55c0(0, 0x56, 1);
-        func_002e55c0(0, 0xA3, 1);
-        func_002e55c0(0, 0x23, 1);
-        func_002e55c0(0, 2, 1);
-        func_002e55c0(0, 0xB, 1);
-        func_002e55c0(0, 0x81, 1);
-        func_002e55c0(1, 0xBD, 0);
+        yListSlotCreate(0xA, 0);
+        yListSlotCreate(0xA, 1);
+        yListSlotAppend(0, 1, 1);
+        yListSlotAppend(0, 0x2C, 1);
+        yListSlotAppend(0, 0x92, 1);
+        yListSlotAppend(0, 0x7F, 1);
+        yListSlotAppend(0, 0x45, 1);
+        yListSlotAppend(0, 0x1E, 1);
+        yListSlotAppend(0, 0x56, 1);
+        yListSlotAppend(0, 0xA3, 1);
+        yListSlotAppend(0, 0x23, 1);
+        yListSlotAppend(0, 2, 1);
+        yListSlotAppend(0, 0xB, 1);
+        yListSlotAppend(0, 0x81, 1);
+        yListSlotAppend(1, 0xBD, 0);
         p[1] = 0x64;
         break;
     case 0x64:
-        if (*(s8 *)func_002e4870(0) == 0) {
+        if (*(s8 *)yListSlotWork(0) == 0) {
             break;
         }
         if (func_003190d0(arg0) == 1) {
@@ -4363,7 +4363,7 @@ void func_002f9d90(u8 *arg0) {
         }
         p[0x20] = 0;
         for (i = 0; i < 12; i++) {
-            if (((u8 *)func_002e48a0(0, i))[4] == 0) {
+            if (((u8 *)yListSlotEntry(0, i))[4] == 0) {
                 p[0x20] = 1;
             }
         }
@@ -4399,8 +4399,8 @@ void func_002f9d90(u8 *arg0) {
             break;
         }
         for (i = 0; i < 12; i++) {
-            if (i < *(s32 *)(func_002e4870(0) + 8)) {
-                if (((u8 *)func_002e48a0(0, i))[4] > 0) {
+            if (i < *(s32 *)(yListSlotWork(0) + 8)) {
+                if (((u8 *)yListSlotEntry(0, i))[4] > 0) {
                     alpha = (u8)func_002b2aa0(0, 0.0f, 255.0f,
                                           *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x42),
                                           *(s16 *)(fclSpriteEntry(i + 0x21C) + 0x40));
@@ -4419,7 +4419,7 @@ void func_002f9d90(u8 *arg0) {
                 rowColor = func_002b2a60(0xCC, 0xFF, 0xFF, alpha);
                 func_002ba970((u8 *)*(u8 **)(p + 0x2BC), i, *(FclDrawColor *)&rowColor);
                 frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, color, 0, 2,
-                      (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, i))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                      (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(0, i))[1] * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
         alpha3 = (u8)func_002b2aa0(0, 0.0f, 255.0f, *(s16 *)(fclSpriteEntry(0x270) + 0x42),
@@ -4427,7 +4427,7 @@ void func_002f9d90(u8 *arg0) {
         color0C = func_002b2a60(0x2D, 0x2D, 0x2D, alpha3);
         func_002ba970((u8 *)*(u8 **)(p + 0x2BC), 0xC, *(FclDrawColor *)&color0C);
         frFontExDrawTextDeferredOutB(97.0f, 195.0f, 43.0f, func_002b2a30(0x2D, 0x2D, 0x2D, alpha3), 0, 2,
-                      (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(1, 0))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                      (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(1, 0))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         fclSpriteEntry(0x270)[0x6E] = fclSpriteEntry(0x27D)[0x6E] = 0xFF;
         if ((fclDrawGetState(*(u8 **)(p + 0x148)) < 8 || fclDrawGetState(*(u8 **)(p + 0x148)) > 0xD) &&
             (fclDrawGetState(*(u8 **)(p + 0x148)) < 0 || fclDrawGetState(*(u8 **)(p + 0x148)) > 5)) {
@@ -4445,10 +4445,10 @@ void func_002f9d90(u8 *arg0) {
                     func_0045af60(0, 0, 0, 1);
                     p[0x2F9] = 1;
                     p[0x2FA] = 0;
-                    fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(p[0x2F9], p[0x2FA]), 0, func_00311930(func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
-                                  (u8 *)func_002e48a0(p[0x2F9], p[0x2FA]), 0), 1);
+                    fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+                                  (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
                     func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                    if (((u8 *)func_002e48a0(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+                    if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
                         func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
                     }
                     func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
@@ -4485,7 +4485,7 @@ void func_002f9d90(u8 *arg0) {
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) == 1) {
             break;
         }
-        fclDrawSetPlacement(*(u8 **)(p + 0x148), (s32)func_002e48a0(1, 0), 0, 0);
+        fclDrawSetPlacement(*(u8 **)(p + 0x148), (s32)yListSlotEntry(1, 0), 0, 0);
         func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
         if (p[0x20] == 0) {
             func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
@@ -4537,7 +4537,7 @@ void func_002f9d90(u8 *arg0) {
         }
         break;
     case 0x68:
-        for (j = 0; j < *(s32 *)(func_002e4870(0) + 8); j++) {
+        for (j = 0; j < *(s32 *)(yListSlotWork(0) + 8); j++) {
             alpha2 = (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(fclSpriteEntry(j + 0x21C) + 0x42),
                                   *(s16 *)(fclSpriteEntry(j + 0x21C) + 0x40));
             color2 = func_002b2a30(0xCC, 0xFF, 0xFF, alpha2);
@@ -4545,15 +4545,15 @@ void func_002f9d90(u8 *arg0) {
                 color2 = func_002b2a30(0x2D, 0x2D, 0x2D, alpha2);
             }
             frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(j * 23 + 0x80), 43.0f, color2, 0, 2,
-                      (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(0, j))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                      (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(0, j))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         }
-        alpha4 = (*(s32 *)(func_002e4870(0) + 8) >= 0xC)
+        alpha4 = (*(s32 *)(yListSlotWork(0) + 8) >= 0xC)
                     ? (u8)func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(fclSpriteEntry(0x270) + 0x42),
                                         *(s16 *)(fclSpriteEntry(0x270) + 0x40))
                     : (u8)func_002b2aa0(0, 128.0f, 0.0f, *(s16 *)(fclSpriteEntry(0x270) + 0x42),
                                         *(s16 *)(fclSpriteEntry(0x270) + 0x40));
         frFontExDrawTextDeferredOutB(97.0f, 195.0f, 43.0f, func_002b2a30(0xCC, 0xFF, 0xFF, alpha4), 0, 2,
-                      (const char *)((u8 *)iGpffffb440 + ((u16 *)func_002e48a0(1, 0))[1] * 0x11), 0, 0, D_00795E60, 0x15);
+                      (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(1, 0))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x71) + 0x10), 1) == 0 &&
             (s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x70) + 0x10), 1) == 0) {
             fclCombineLayoutTransition(arg0, 0);
@@ -4572,9 +4572,9 @@ void func_002f9d90(u8 *arg0) {
         }
         buttons = D_008C024E[0];
         if (buttons & 0x40) {
-            func_002e48a0(p[0x2F9], p[0x2FA]);
+            yListSlotEntry(p[0x2F9], p[0x2FA]);
             func_0045af60(0, 0, 0, 1);
-            if (((u8 *)func_002e48a0(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+            if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
                 fclCombinePlayCue(arg0, 0x26, 0);
                 p[1] = 0x6B;
             } else {
@@ -4621,14 +4621,14 @@ void func_002f9d90(u8 *arg0) {
             func_00329310(arg0, 0, 0);
             if (p[0x122] < 0xC) {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(0, p[0x122]), 0, 0, 1);
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(0, p[0x122]), 0, 0, 1);
             } else {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                if (((u8 *)func_002e48a0(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
                     func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
                 }
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(p[0x2F9], p[0x2FA]), 0, func_00311930(func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
-                              (u8 *)func_002e48a0(p[0x2F9], p[0x2FA]), 0), 1);
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+                              (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
         } else if (D_008C024E[2] & 4) {
             if (p[0x122] != 0) {
@@ -4645,14 +4645,14 @@ void func_002f9d90(u8 *arg0) {
             func_00329310(arg0, 0, 0);
             if (p[0x122] < 0xC) {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(0, p[0x122]), 0, 0, 1);
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(0, p[0x122]), 0, 0, 1);
             } else {
                 func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-                if (((u8 *)func_002e48a0(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
+                if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)func_00104c70(1)) {
                     func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
                 }
-                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(p[0x2F9], p[0x2FA]), 0, func_00311930(func_00247770(iGpffffb3d4[((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
-                              (u8 *)func_002e48a0(p[0x2F9], p[0x2FA]), 0), 1);
+                fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, func_00311930(func_00247770(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
+                              (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
         }
         break;
@@ -4775,12 +4775,12 @@ void func_002fbea0(u8 *arg0) {
     case 0x8A:
         func_00315600(arg0, 1);
         if (p->f0 == 0x10) {
-            func_002e4610(6, 0);
+            yListSlotCreate(6, 0);
         } else if (p->f0 == 0xF) {
             if (datGetFlag(0x1460) != 0) {
-                func_002e4610(8, 0);
+                yListSlotCreate(8, 0);
             } else {
-                func_002e4610(2, 0);
+                yListSlotCreate(2, 0);
             }
         }
         p->f11E = 0;
@@ -4791,7 +4791,7 @@ void func_002fbea0(u8 *arg0) {
         p->f1 = 0x8B;
         return;
     case 0x8B:
-        if (*(s8 *)func_002e4870(0) == 0) {
+        if (*(s8 *)yListSlotWork(0) == 0) {
             return;
         }
         for (var_19 = 0; var_19 < p->fB7; var_19++) {
@@ -4799,13 +4799,13 @@ void func_002fbea0(u8 *arg0) {
                 return;
             }
         }
-        var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-        if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+        var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+        if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
-            p->f124 = 125.0f / (f32)(*(s32 *)(func_002e4870(0) + 8) - 8);
+            p->f124 = 125.0f / (f32)(*(s32 *)(yListSlotWork(0) + 8) - 8);
         }
         if (p->f0 == 0x10) {
-            if (*(s32 *)(func_002e4870(0) + 8) == 0) {
+            if (*(s32 *)(yListSlotWork(0) + 8) == 0) {
                 p->fD = func_002bab80((void *)func_00331660());
                 func_002badc0(p->fD, 0xE);
                 p->f1 = 0x93;
@@ -4829,8 +4829,8 @@ void func_002fbea0(u8 *arg0) {
         func_002ba970((u8 *)p->f2BC, (s8)(p->f11E + 0xC), func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
         return;
     case 0x8D:
-        var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-        if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+        var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+        if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
         }
         var_19 = p->f11E - p->f120;
@@ -4846,13 +4846,13 @@ void func_002fbea0(u8 *arg0) {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
                 fc_colW5 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
-            frFontExDrawTextDeferredOutB(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            frFontExDrawTextDeferredOutB(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             drawSlot = (s8)(var_18 + 0xC);
             func_002ba5d0((u8 *)p->f2BC, drawSlot,
-                          *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4),
+                          *(u8 *)((u8 *)yListSlotEntry(0, var_19) + 4),
                           func_002b2970(146.0f, 111.0f + 23.0f * (f32)var_18),
                           fc_colW5, 46.0f, 0x59);
-            *(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
+            *(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2)) & 0xFF) + 0x1B);
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
@@ -4874,7 +4874,7 @@ void func_002fbea0(u8 *arg0) {
             break;
         }
         if ((D_008C0276[0] & 0x1000) && (p->f13A == 0)) {
-            if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+            if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 break;
             }
             func_0045af60(0, 0, 0, 0);
@@ -4884,38 +4884,38 @@ void func_002fbea0(u8 *arg0) {
             if (p->f11E != 0) {
                 func_0045af60(0, 0, 0, 0);
             }
-            if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+            if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 break;
             }
             func_0032c0c0(arg0, 1);
             return;
         } else if ((D_008C0276[0] & 0x4000) && (p->f13A == 0)) {
-            if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+            if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 break;
             }
             func_0045af60(0, 0, 0, 0);
             func_0032c0c0(arg0, 4);
             return;
         } else if (D_008C027A[0] & 0x4000) {
-            if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+            if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 break;
             }
-            if (p->f11E != (s16)((*(s32 *)(func_002e4870(0) + 8) - 1))) {
+            if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
                 func_0045af60(0, 0, 0, 0);
             }
             func_0032c0c0(arg0, 0);
             return;
         } else if (D_008C027A[0] & 0x2000) {
-            if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+            if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 break;
             }
-            if (p->f11E != (s16)((*(s32 *)(func_002e4870(0) + 8) - 1))) {
+            if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
                 func_0045af60(0, 0, 0, 0);
             }
             func_0032c0c0(arg0, 2);
             return;
         } else if (D_008C027A[0] & 0x8000) {
-            if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+            if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 break;
             }
             if (p->f11E != 0) {
@@ -4924,21 +4924,21 @@ void func_002fbea0(u8 *arg0) {
             func_0032c0c0(arg0, 3);
             return;
         } else if (D_008C024E[0] & 0x40) {
-            if (*(s32 *)(func_002e4870(0) + 8) > p->f11E) {
+            if (*(s32 *)(yListSlotWork(0) + 8) > p->f11E) {
                 p->f122 = 0;
-                var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-                if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+                var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+                if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
                     var_16_6 = 8;
                 }
-                if (*(s32 *)(func_002e4870(0) + 8) > 8) {
-                    p->f124 = 125.0f / (f32)(*(s32 *)(func_002e4870(0) + 8) - 8);
+                if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
+                    p->f124 = 125.0f / (f32)(*(s32 *)(yListSlotWork(0) + 8) - 8);
                 }
                 func_0032b770(arg0, 0, var_16_6, 1);
                 p->f1 = 0x8E;
                 func_0045af60(0, 0, 0, 1);
             }
         } else if (D_008C024E[0] & 0x80) {
-            if (*(s32 *)(func_002e4870(0) + 8) > 0) {
+            if (*(s32 *)(yListSlotWork(0) + 8) > 0) {
                 p->fD = func_002bab80((void *)func_00331660());
                 func_002bafc0(p->fD, 0);
                 func_002badc0(p->fD, 0xC);
@@ -4952,7 +4952,7 @@ void func_002fbea0(u8 *arg0) {
             var_18 = 0;
             var_22 = (s16)var_16_6 + var_19;
             while (var_19 < var_22) {
-                func_0031ac10(arg0, func_002b2970(162.0f, 111.0f), -1, var_18, *(u16 *)((u8 *)func_002e48a0(0, var_19) + 2), *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4), 0, 1, 0, 0xCC);
+                func_0031ac10(arg0, func_002b2970(162.0f, 111.0f), -1, var_18, *(u16 *)((u8 *)yListSlotEntry(0, var_19) + 2), *(u8 *)((u8 *)yListSlotEntry(0, var_19) + 4), 0, 1, 0, 0xCC);
                 var_19++;
                 var_18++;
             }
@@ -4970,14 +4970,14 @@ void func_002fbea0(u8 *arg0) {
             return;
         }
         if (func_002bb1c0(p->fD) == 0) {
-            originalFlags = *(u16 *)func_002e48a0(0, p->f11E);
-            if (*(u16 *)func_002e48a0(0, p->f11E) & 4) {
-                *(u16 *)func_002e48a0(0, p->f11E) = 0;
-                *(u16 *)func_002e48a0(0, p->f11E) |= 1;
-                func_0010fd40(func_002e48a0(0, p->f11E));
-                *(u16 *)func_002e48a0(0, p->f11E) = originalFlags;
+            originalFlags = *(u16 *)yListSlotEntry(0, p->f11E);
+            if (*(u16 *)yListSlotEntry(0, p->f11E) & 4) {
+                *(u16 *)yListSlotEntry(0, p->f11E) = 0;
+                *(u16 *)yListSlotEntry(0, p->f11E) |= 1;
+                func_0010fd40(yListSlotEntry(0, p->f11E));
+                *(u16 *)yListSlotEntry(0, p->f11E) = originalFlags;
             } else {
-                func_0010fd40(func_002e48a0(0, p->f11E));
+                func_0010fd40(yListSlotEntry(0, p->f11E));
             }
             func_002bb550(p->fD);
             p->fD = func_002bab80((void *)func_00331660());
@@ -4989,8 +4989,8 @@ void func_002fbea0(u8 *arg0) {
         func_002bb550(p->fD);
         return;
     case 0x96:
-        var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-        if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+        var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+        if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
         }
         var_19 = p->f11E - p->f120;
@@ -5004,7 +5004,7 @@ void func_002fbea0(u8 *arg0) {
             } else {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
             }
-            frFontExDrawTextDeferredOutB(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            frFontExDrawTextDeferredOutB(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             var_19++;
             var_18++;
         }
@@ -5014,15 +5014,15 @@ void func_002fbea0(u8 *arg0) {
         }
         if (func_002bb1c0(p->fD) == 0) {
             var_19 = 0;
-            while (var_19 < *(s32 *)(func_002e4870(0) + 8)) {
-                bitSav = *(u16 *)func_002e48a0(0, var_19);
-                if (*(u16 *)func_002e48a0(0, var_19) & 4) {
-                    *(u16 *)func_002e48a0(0, var_19) = 0;
-                    *(u16 *)func_002e48a0(0, var_19) |= 1;
-                    func_0010fd40(func_002e48a0(0, var_19));
-                    *(u16 *)func_002e48a0(0, var_19) = bitSav;
+            while (var_19 < *(s32 *)(yListSlotWork(0) + 8)) {
+                bitSav = *(u16 *)yListSlotEntry(0, var_19);
+                if (*(u16 *)yListSlotEntry(0, var_19) & 4) {
+                    *(u16 *)yListSlotEntry(0, var_19) = 0;
+                    *(u16 *)yListSlotEntry(0, var_19) |= 1;
+                    func_0010fd40(yListSlotEntry(0, var_19));
+                    *(u16 *)yListSlotEntry(0, var_19) = bitSav;
                 } else {
-                    func_0010fd40(func_002e48a0(0, var_19));
+                    func_0010fd40(yListSlotEntry(0, var_19));
                 }
                 var_19++;
             }
@@ -5040,7 +5040,7 @@ void func_002fbea0(u8 *arg0) {
         if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x270) + 0x10), 1) != 1) {
             func_002b6140((u8 *)(p->f28C), 1);
             func_002b6140((u8 *)(p->f290), 1);
-            fclDrawSetPlacement(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
             func_0011c6e0(fclDrawGetResource(p->f148), 1);
             func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             func_00325450(arg0, 0, 0);
@@ -5057,23 +5057,23 @@ void func_002fbea0(u8 *arg0) {
         }
         if ((D_008C0276[0] & 0x1000) && (p->f13A == 0)) {
             if (func_0011c610(fclDrawGetResource(p->f148)) == 0) {
-                if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+                if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                     goto conv8F;
                 }
                 func_0045af60(0, 2, 0, 5);
                 func_0032c0c0(arg0, 5);
                 if (p->f122 == 0) {
-                    fclDrawSetPlacement(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 } else {
-                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 }
                 goto conv8F;
             }
         } else if (D_008C027A[0] & 0x1000) {
             if (func_0011c610(fclDrawGetResource(p->f148)) == 0) {
-                if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+                if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                     goto conv8F;
                 }
                 if (p->f11E != 0) {
@@ -5081,80 +5081,80 @@ void func_002fbea0(u8 *arg0) {
                 }
                 func_0032c0c0(arg0, 1);
                 if (p->f122 == 0) {
-                    fclDrawSetPlacement(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 } else {
-                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 }
                 goto conv8F;
             }
         } else if (D_008C027A[0] & 1) {
-            if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+            if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 goto conv8F;
             }
             func_0045af60(0, 2, 0, 5);
             func_0032c0c0(arg0, 5);
             if (p->f122 == 0) {
-                fclDrawSetPlacement(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
+                fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             } else {
-                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             }
             goto conv8F;
         } else if ((D_008C0276[0] & 0x4000) && (p->f13A == 0)) {
             if (func_0011c610(fclDrawGetResource(p->f148)) == 0) {
-                if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+                if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                     goto conv8F;
                 }
                 func_0045af60(0, 2, 0, 5);
                 func_0032c0c0(arg0, 4);
                 if (p->f122 == 0) {
-                    fclDrawSetPlacement(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 } else {
-                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 }
                 goto conv8F;
             }
         } else if (D_008C027A[0] & 0x4000) {
             if (func_0011c610(fclDrawGetResource(p->f148)) == 0) {
-                if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+                if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                     goto conv8F;
                 }
-                if (p->f11E != (s16)((*(s32 *)(func_002e4870(0) + 8) - 1))) {
+                if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
                     func_0045af60(0, 2, 0, 5);
                 }
                 func_0032c0c0(arg0, 0);
                 if (p->f122 == 0) {
-                    fclDrawSetPlacement(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 } else {
-                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+                    fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                     func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
                 }
                 goto conv8F;
             }
         } else if (D_008C0252[0] & 2) {
-            if (*(s32 *)(func_002e4870(0) + 8) <= 1) {
+            if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 goto conv8F;
             }
             func_0045af60(0, 2, 0, 5);
             func_0032c0c0(arg0, 4);
             if (p->f122 == 0) {
-                fclDrawSetPlacement(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
+                fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             } else {
-                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             }
             if (p->f122 == 0) {
-                fclDrawSetPlacement(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
+                fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             } else {
-                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                 func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             }
             goto conv8F;
@@ -5165,7 +5165,7 @@ void func_002fbea0(u8 *arg0) {
                 fclSpriteStartPositionAt(0x150, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
                 ps = fclSpriteEntry(0x2E0);
                 fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
-                fclDrawSetSlot(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
+                fclDrawSetSlot(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
                 func_0045af60(0, 2, 0, 5);
             }
             goto conv8F;
@@ -5176,13 +5176,13 @@ void func_002fbea0(u8 *arg0) {
                 fclSpriteStartPositionAt(0x150, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
                 ps = fclSpriteEntry(0x2E0);
                 fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
-                fclDrawSetSlot(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 0);
+                fclDrawSetSlot(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 0);
                 func_0045af60(0, 2, 0, 5);
             }
             goto conv8F;
         } else if (D_008C024E[0] & 0x40) {
             p->fD = func_002bab80((void *)func_00331660());
-            sprintf(sp2A0, &iGpffffa8a4, ((char *)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + (2))) * 0x11));
+            sprintf(sp2A0, &iGpffffa8a4, ((char *)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11));
             func_002bbd80(p->fD, 0, &sp2A0);
             func_002bafc0(p->fD, 0);
             func_002badc0(p->fD, 0xB);
@@ -5217,17 +5217,17 @@ void func_002fbea0(u8 *arg0) {
         p->f13A = 0;
         break;
     case 0x90:
-        if (((s8)fclDrawGetState(p->f148) < 0 || (s8)fclDrawGetState(p->f148) > 5) && *(s8 *)func_002e4870(0) != 0) {
-            var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-            if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+        if (((s8)fclDrawGetState(p->f148) < 0 || (s8)fclDrawGetState(p->f148) > 5) && *(s8 *)yListSlotWork(0) != 0) {
+            var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+            if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
                 var_16_6 = 8;
             }
-            if (*(s32 *)(func_002e4870(0) + 8) > 8) {
-                p->f124 = 125.0f / (f32)(*(s32 *)(func_002e4870(0) + 8) - 8);
+            if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
+                p->f124 = 125.0f / (f32)(*(s32 *)(yListSlotWork(0) + 8) - 8);
             }
             func_002b6140((u8 *)(p->f28C), 0);
             func_002b6140((u8 *)(p->f290), 0);
-            if (*(s32 *)(func_002e4870(0) + 8) > 0) {
+            if (*(s32 *)(yListSlotWork(0) + 8) > 0) {
                 func_0032b770(arg0, 0, var_16_6, 0);
                 p->f11E = 0;
                 p->f120 = 0;
@@ -5248,7 +5248,7 @@ void func_002fbea0(u8 *arg0) {
         func_002bb550(p->fD);
         fclDrawSetStateByte(p->f148, 3);
         func_00325450(arg0, 0, 1);
-        func_002e4610(6, 0);
+        yListSlotCreate(6, 0);
         p->f1 = 0x90;
         return;
     case 0x92:
@@ -5291,8 +5291,8 @@ void func_002fbea0(u8 *arg0) {
         }
         break;
     case 0x94:
-        var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-        if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+        var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+        if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
         }
         var_19 = p->f11E - p->f120;
@@ -5306,7 +5306,7 @@ void func_002fbea0(u8 *arg0) {
             } else {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
             }
-            frFontExDrawTextDeferredOutB(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            frFontExDrawTextDeferredOutB(244.0f, (f32)(s32)((var_18 * 0x17) + 0x6E), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             var_19++;
             var_18++;
         }
@@ -5321,8 +5321,8 @@ void func_002fbea0(u8 *arg0) {
         break;
     case 0x98:
         func_002cacd0(func_002b2970(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0x56);
-        var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-        if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+        var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+        if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
         }
         var_19 = p->f11E - p->f120;
@@ -5338,15 +5338,15 @@ void func_002fbea0(u8 *arg0) {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
                 fc_colW7 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
-            frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 0x10), 1) == 0) {
-                *(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
+                *(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2)) & 0xFF) + 0x1B);
             }
             sp1B0 = (s8)(var_18 + 0xC);
-            tmpu8 = *(u8 *)((u8 *)func_002e48a0(0, var_19) + 4);
+            tmpu8 = *(u8 *)((u8 *)yListSlotEntry(0, var_19) + 4);
             func_002ba5d0((u8 *)p->f2BC, sp1B0, tmpu8, func_002b2970(74.0f, 151.0f + 23.0f * (f32)var_18), fc_colW7, 46.0f, 0x59);
-            total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
-            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
+            total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) + 0x7D0;
+            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
@@ -5391,13 +5391,13 @@ void func_002fbea0(u8 *arg0) {
             func_0032c0c0(arg0, 4);
             return;
         } else if (D_008C027A[0] & 0x4000) {
-            if (p->f11E != (s16)((*(s32 *)(func_002e4870(0) + 8) - 1))) {
+            if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
                 func_0045af60(0, 0, 0, 0);
             }
             func_0032c0c0(arg0, 0);
             return;
         } else if (D_008C027A[0] & 0x2000) {
-            if (p->f11E != (s16)((*(s32 *)(func_002e4870(0) + 8) - 1))) {
+            if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
                 func_0045af60(0, 0, 0, 0);
             }
             func_0032c0c0(arg0, 2);
@@ -5444,23 +5444,23 @@ void func_002fbea0(u8 *arg0) {
             goto conv98;
         } else if (D_008C024E[0] & 0x40) {
             p->f122 = 0;
-            var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-            if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+            var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+            if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
                 var_16_6 = 8;
             }
-            if (*(s32 *)(func_002e4870(0) + 8) > 8) {
-                p->f124 = 125.0f / (f32)(*(s32 *)(func_002e4870(0) + 8) - 8);
+            if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
+                p->f124 = 125.0f / (f32)(*(s32 *)(yListSlotWork(0) + 8) - 8);
             }
             func_0032b9d0(arg0, 0, var_16_6, 1);
             p->f1 = 0x99;
             func_0045af60(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x20) {
-            var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-            if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+            var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+            if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
                 var_16_6 = 8;
             }
-            if (*(s32 *)(func_002e4870(0) + 8) > 8) {
-                p->f124 = 125.0f / (f32)(*(s32 *)(func_002e4870(0) + 8) - 8);
+            if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
+                p->f124 = 125.0f / (f32)(*(s32 *)(yListSlotWork(0) + 8) - 8);
             }
             func_0032b9d0(arg0, 0, var_16_6, 1);
             p->f1 = 0x9C;
@@ -5495,13 +5495,13 @@ void func_002fbea0(u8 *arg0) {
             return;
         }
         if (func_002bb1c0(p->fD) == 0) {
-            datPersonaInsertRosterRecord((u8 *)func_002e48a0(0, p->f11E));
-            total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) + 0x7D0;
-            saved = fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2), total);
+            datPersonaInsertRosterRecord((u8 *)yListSlotEntry(0, p->f11E));
+            total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) + 0x7D0;
+            saved = fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2), total);
             func_002e7a80(func_002e7a60() - saved);
             func_002bb550(p->fD);
             p->fD = func_002bab80((void *)func_00331660());
-            func_002bbd80(p->fD, 0, (void *)(((s32)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + (2))) * 0x11)));
+            func_002bbd80(p->fD, 0, (void *)(((s32)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11)));
             func_002badc0(p->fD, 0x10);
             p->f1 = 0x9F;
             func_0045af60(1, 0, 2, 6);
@@ -5531,7 +5531,7 @@ void func_002fbea0(u8 *arg0) {
     case 0x99:
         if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x270) + 0x10), 1) != 1) {
             fclDrawSetVisible(p->f148, 0);
-            fclDrawSetPlacement(p->f148, (s32)func_002e48a0(0, p->f11E), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
             func_0011c6e0(fclDrawGetResource(p->f148), 1);
             func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             func_00325450(arg0, 1, 0);
@@ -5568,7 +5568,7 @@ void func_002fbea0(u8 *arg0) {
             }
             func_0045af60(0, 2, 0, 5);
             func_0032c0c0(arg0, 5);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C027A[0] & 0x1000) {
             if (func_0011c610(fclDrawGetResource(p->f148)) != 0) {
@@ -5578,12 +5578,12 @@ void func_002fbea0(u8 *arg0) {
                 func_0045af60(0, 2, 0, 5);
             }
             func_0032c0c0(arg0, 1);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C0252[0] & 1) {
             func_0045af60(0, 2, 0, 5);
             func_0032c0c0(arg0, 5);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if ((D_008C0276[0] & 0x4000) && (p->f13A == 0)) {
             if (func_0011c610(fclDrawGetResource(p->f148)) != 0) {
@@ -5591,22 +5591,22 @@ void func_002fbea0(u8 *arg0) {
             }
             func_0045af60(0, 2, 0, 5);
             func_0032c0c0(arg0, 4);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C027A[0] & 0x4000) {
             if (func_0011c610(fclDrawGetResource(p->f148)) != 0) {
                 return;
             }
-            if (p->f11E != (s16)((*(s32 *)(func_002e4870(0) + 8) - 1))) {
+            if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
                 func_0045af60(0, 2, 0, 5);
             }
             func_0032c0c0(arg0, 0);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C0252[0] & 2) {
             func_0045af60(0, 2, 0, 5);
             func_0032c0c0(arg0, 4);
-            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+            fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             goto conv9A;
         } else if (D_008C024E[0] & 0x80) {
             if (p->f122 == 1) {
@@ -5634,7 +5634,7 @@ void func_002fbea0(u8 *arg0) {
                 func_002b5ef0((u8 *)p->f2B4, func_002b2970(0.0f, 69.0f), func_002b2970(0.0f, 93.0f), func_002b29e0(640.0f, (f32)0x157), func_002b29e0(640.0f, 294.0f), 5);
                 func_002b60f0((u8 *)p->f2B4, 0xE5, 0, 5);
                 func_00317320(arg0, 0, 0.0f);
-                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)), 0, 1);
+                fclDrawSetPlacement(p->f148, (s32)func_0010fcb0(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                 func_0045af60(0, 0, 0, 5);
             }
             goto conv9A;
@@ -5657,7 +5657,7 @@ void func_002fbea0(u8 *arg0) {
             goto conv9A;
         } else if (D_008C024E[0] & 0x40) {
             func_0045af60(0, 0, 0, 1);
-            if (datPersonaFindRosterRecordById(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2)) != 0) {
+            if (datPersonaFindRosterRecordById(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)) != 0) {
                 fclCombinePlayCue(arg0, 0x12, 0);
                 p->f1 = 0x9D;
                 return;
@@ -5667,11 +5667,11 @@ void func_002fbea0(u8 *arg0) {
                 p->f1 = 0x9D;
                 return;
             }
-            total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, p->f11E), 4) & 0xFF)) + 0x7D0;
-            saved = fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + 2), total);
+            total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) + 0x7D0;
+            saved = fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2), total);
             if (func_002e7a60() >= saved) {
                 p->fD = func_002bab80((void *)func_00331660());
-                sprintf(sp2A0, &iGpffffa8a4, ((char *)iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, p->f11E)) + (2))) * 0x11));
+                sprintf(sp2A0, &iGpffffa8a4, ((char *)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11));
                 func_002bbd80(p->fD, 0, &sp2A0);
                 sprintf(sp220, &iGpffffa8a0, saved);
                 func_002bbd80(p->fD, 1, &sp220);
@@ -5706,12 +5706,12 @@ void func_002fbea0(u8 *arg0) {
                     func_00317240(arg0, 1, 0.0f);
                 }
                 func_0034a890((u8 *)p->f254);
-                var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-                if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+                var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+                if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
                     var_16_6 = 8;
                 }
-                if (*(s32 *)(func_002e4870(0) + 8) > 8) {
-                    p->f124 = 125.0f / (f32)(*(s32 *)(func_002e4870(0) + 8) - 8);
+                if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
+                    p->f124 = 125.0f / (f32)(*(s32 *)(yListSlotWork(0) + 8) - 8);
                 }
                 func_0032b9d0(arg0, 0, var_16_6, 0);
                 p->f1 = 0x9B;
@@ -5732,8 +5732,8 @@ void func_002fbea0(u8 *arg0) {
         return;
     case 0x9B:
         func_002cacd0(func_002b2970(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0x56);
-        var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-        if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+        var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+        if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
         }
         var_19 = p->f11E - p->f120;
@@ -5749,12 +5749,12 @@ void func_002fbea0(u8 *arg0) {
                 var_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
                 fc_colW4 = func_002b2a60(0xCC, 0xFF, 0xFF, temp_7);
             }
-            frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, var_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 0x10), 1) == 0) {
-                *(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2)) & 0xFF) + 0x1B);
+                *(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2)) & 0xFF) + 0x1B);
             }
-            total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
-            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW4, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
+            total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) + 0x7D0;
+            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW4, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
@@ -5788,8 +5788,8 @@ void func_002fbea0(u8 *arg0) {
         }
         break;
     case 0x9C:
-        var_16_6 = *(s16 *)(func_002e4870(0) + 8);
-        if (*(s32 *)(func_002e4870(0) + 8) > 8) {
+        var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
+        if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
         }
         caption.firstEntry = p->f11E - p->f120;
@@ -5807,9 +5807,9 @@ void func_002fbea0(u8 *arg0) {
                 caption.fontColor = func_002b2a30(0xCC, 0xFF, 0xFF, caption.alpha);
                 fc_colW2 = func_002b2a60(0xCC, 0xFF, 0xFF, caption.alpha);
             }
-            frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, caption.fontColor, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
-            total = ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)func_002e48a0(0, var_19), 4) & 0xFF)) + 0x7D0;
-            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW2, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(func_002e48a0(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
+            frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, caption.fontColor, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+            total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) + 0x7D0;
+            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW2, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
             var_19++;
             var_18++;
         }
@@ -6256,39 +6256,39 @@ s32 fclCombineCheckIds(u8 *arg0) {
 
     switch (p[0x1A]) {
     case 2:
-        buf[0] = *(u16 *)((u16 *)func_002e48a0(0, p[0x128]) + 1);
-        buf[1] = *(u16 *)((u16 *)func_002e48a0(0, *(s16 *)(p + 0x11E)) + 1);
-        buf[2] = *(u16 *)((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]) + 1);
+        buf[0] = *(u16 *)((u16 *)yListSlotEntry(0, p[0x128]) + 1);
+        buf[1] = *(u16 *)((u16 *)yListSlotEntry(0, *(s16 *)(p + 0x11E)) + 1);
+        buf[2] = *(u16 *)((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]) + 1);
         break;
     case 3:
-        buf[0] = *(u16 *)((u16 *)func_002e48a0(0, p[0x128]) + 1);
-        buf[1] = *(u16 *)((u16 *)func_002e48a0(0, p[0x129]) + 1);
-        buf[2] = *(u16 *)((u16 *)func_002e48a0(0, *(s16 *)(p + 0x11E)) + 1);
-        buf[3] = *(u16 *)((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]) + 1);
+        buf[0] = *(u16 *)((u16 *)yListSlotEntry(0, p[0x128]) + 1);
+        buf[1] = *(u16 *)((u16 *)yListSlotEntry(0, p[0x129]) + 1);
+        buf[2] = *(u16 *)((u16 *)yListSlotEntry(0, *(s16 *)(p + 0x11E)) + 1);
+        buf[3] = *(u16 *)((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]) + 1);
         break;
     case 4:
-        buf[0] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 0) + 1);
-        buf[1] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 1) + 1);
-        buf[2] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 2) + 1);
-        buf[3] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 3) + 1);
-        buf[4] = *(u16 *)((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]) + 1);
+        buf[0] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 0) + 1);
+        buf[1] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 1) + 1);
+        buf[2] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 2) + 1);
+        buf[3] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 3) + 1);
+        buf[4] = *(u16 *)((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]) + 1);
         break;
     case 5:
-        buf[0] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 0) + 1);
-        buf[1] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 1) + 1);
-        buf[2] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 2) + 1);
-        buf[3] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 3) + 1);
-        buf[4] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 4) + 1);
-        buf[5] = *(u16 *)((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]) + 1);
+        buf[0] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 0) + 1);
+        buf[1] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 1) + 1);
+        buf[2] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 2) + 1);
+        buf[3] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 3) + 1);
+        buf[4] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 4) + 1);
+        buf[5] = *(u16 *)((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]) + 1);
         break;
     case 6:
-        buf[0] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 0) + 1);
-        buf[1] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 1) + 1);
-        buf[2] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 2) + 1);
-        buf[3] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 3) + 1);
-        buf[4] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 4) + 1);
-        buf[5] = *(u16 *)((u16 *)func_002e48a0((s8)(*(s16 *)(p + 0x11E) + 1), 5) + 1);
-        buf[6] = *(u16 *)((u16 *)func_002e48a0(p[0x2F9], p[0x2FA]) + 1);
+        buf[0] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 0) + 1);
+        buf[1] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 1) + 1);
+        buf[2] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 2) + 1);
+        buf[3] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 3) + 1);
+        buf[4] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 4) + 1);
+        buf[5] = *(u16 *)((u16 *)yListSlotEntry((s8)(*(s16 *)(p + 0x11E) + 1), 5) + 1);
+        buf[6] = *(u16 *)((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]) + 1);
         break;
     }
     return fclCombineCheckRules(arg0, p[0x1A], buf);
@@ -6924,25 +6924,25 @@ void func_00304580(u8 *arg0) {
             func_00316e80(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
             func_00316470(arg0, 1, 0);
             fclDrawSetFlag((u8 *)work->f148, 0);
-            func_002e4610(5, 0);
-            func_002e4610(0xA, 1);
-            func_002e4610(0xA, 2);
-            func_002e4610(0xA, 3);
-            func_002e4610(0xA, 4);
-            func_002e4610(0xA, 5);
-            func_002e4610(0xA, 6);
-            func_002e4610(0xA, 7);
-            func_002e4610(0xA, 8);
-            func_002e4610(0xA, 9);
-            func_002e4610(0xA, 0xA);
-            func_002e4610(0xA, 0xB);
-            func_002e4610(0xA, 0xC);
+            yListSlotCreate(5, 0);
+            yListSlotCreate(0xA, 1);
+            yListSlotCreate(0xA, 2);
+            yListSlotCreate(0xA, 3);
+            yListSlotCreate(0xA, 4);
+            yListSlotCreate(0xA, 5);
+            yListSlotCreate(0xA, 6);
+            yListSlotCreate(0xA, 7);
+            yListSlotCreate(0xA, 8);
+            yListSlotCreate(0xA, 9);
+            yListSlotCreate(0xA, 0xA);
+            yListSlotCreate(0xA, 0xB);
+            yListSlotCreate(0xA, 0xC);
             work->f1 = 0x78;
         }
         break;
     case 0x78:
-        if (*(s8 *)func_002e4870(0) != 0) {
-            func_002e5000();
+        if (*(s8 *)yListSlotWork(0) != 0) {
+            yListBuildPairFlags();
             work->f11E = 0;
             func_00320b80(arg0, 1);
             work->f1 = 0x79;
@@ -6971,9 +6971,9 @@ void func_00304580(u8 *arg0) {
                 for (var_16_3 = 0; var_16_3 < (datPersonaRosterCapacity() & 0xFFFF); var_16_3++) {
                     sp298 = func_002b2970(16.0f, 128.0f);
                     func_003191c0(arg0, sp298, (s8)var_16_3,
-                        ((u16 *)func_002e48a0(0, var_16_3))[1],
-                        *(u8 *)((u8 *)func_002e48a0(0, var_16_3) + 4),
-                        0, 1, (s8)*(s32 *)(func_002e4870(0) + 8));
+                        ((u16 *)yListSlotEntry(0, var_16_3))[1],
+                        *(u8 *)((u8 *)yListSlotEntry(0, var_16_3) + 4),
+                        0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
                 }
                 sp290 = func_002b2970(16.0f, 104.0f);
                 func_0031e5b0(arg0, sp290, 0, 1, 0, 0, 0);
@@ -7000,7 +7000,7 @@ void func_00304580(u8 *arg0) {
             }
             if (D_008C024E[0] & 0x40) {
                 temp_16_5 = (s16)(work->f11E);
-                if (temp_16_5 < (*(s32 *)((u8 *)(func_002e4870(0))+(8)))) {
+                if (temp_16_5 < (*(s32 *)((u8 *)(yListSlotWork(0))+(8)))) {
                     func_0045af60(0, 0, 0, 1);
                     work->f128 = (s8) work->f11E;
                     work->f129 = -1;
@@ -7010,8 +7010,8 @@ void func_00304580(u8 *arg0) {
                     func_0031c2b0(arg0, work->f11E, *(FclVec2f *)&sp270, *(FclVec2f *)&sp268);
                     for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
                         sp260 = func_002b2970((f32) 0x149, 128.0f);
-                        temp_16_6 = (u16)((*(u16 *)((u8 *)(func_002e48a0((s8)((work->f128 + 1)), gridRow))+(2))));
-                        slotByte = *(u8 *)((u8 *)func_002e48a0(work->f128 + 1, gridRow) + 4);
+                        temp_16_6 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), gridRow))+(2))));
+                        slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, gridRow) + 4);
                         func_0031ac10(arg0, sp260, work->f128, gridRow, temp_16_6, slotByte, 3, 0, 1, 0xCC);
                         FCL_COMBINE_GRID_ROW(work, gridRow, gridColumn, 1, sp258, sp250, col2F0, col2EC);
                         temp_18_3 = (s16)(gridRow);
@@ -7045,7 +7045,7 @@ void func_00304580(u8 *arg0) {
         break;
     case 0x7C:                                      /* switch 1 */
         if (((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry(0x21C))+(0x10))), 1))) != 1) {
-            fclDrawSetPlacement((u8 *)work->f148, (s32)func_002e48a0(0, work->f11E), 0, 0);
+            fclDrawSetPlacement((u8 *)work->f148, (s32)yListSlotEntry(0, work->f11E), 0, 0);
             temp_16_10 = (s32)(fclDrawGetResource((u8 *)work->f148));
             func_0011d140((u8 *)temp_16_10, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
             func_0011c6e0(fclDrawGetResource((u8 *)work->f148), 1);
@@ -7058,9 +7058,9 @@ void func_00304580(u8 *arg0) {
             for (var_16_4 = 0; var_16_4 < (datPersonaRosterCapacity() & 0xFFFF); var_16_4++) {
                 sp230 = func_002b2970(16.0f, 128.0f);
                 func_003191c0(arg0, sp230, (s8)var_16_4,
-                    ((u16 *)func_002e48a0(0, var_16_4))[1],
-                    *(u8 *)((u8 *)func_002e48a0(0, var_16_4) + 4),
-                    0, 0, (s8)*(s32 *)(func_002e4870(0) + 8));
+                    ((u16 *)yListSlotEntry(0, var_16_4))[1],
+                    *(u8 *)((u8 *)yListSlotEntry(0, var_16_4) + 4),
+                    0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
             }
             sp228 = func_002b2970(16.0f, 104.0f);
             func_0031e5b0(arg0, sp228, 0, 0, 0, 0, 0);
@@ -7081,9 +7081,9 @@ void func_00304580(u8 *arg0) {
             } else {
                 var_18_3 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
             }
-            if (var_19_3 < *(s32 *)(func_002e4870(0) + 8) - 1) {
+            if (var_19_3 < *(s32 *)(yListSlotWork(0) + 8) - 1) {
                 temp_f20 = (f32)(var_19_3 * 0x17 + 0x80);
-                frFontExDrawTextDeferred(113.0f, temp_f20, 43.0f, var_18_3, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(0, var_19_3))[1] * 0x11), 0, 0, D_00795E60);
+                frFontExDrawTextDeferred(113.0f, temp_f20, 43.0f, var_18_3, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, var_19_3))[1] * 0x11), 0, 0, D_00795E60);
             }
         }
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) == 0
@@ -7101,10 +7101,10 @@ void func_00304580(u8 *arg0) {
         temp_2_4 = (u8 *)(fclSpriteEntry(0x7C));
         sp160 = *(FclVec2f *)(temp_2_4 + 0x38);
         temp_16_13 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_12);
-        frFontExDrawTextDeferredOutB(111.0f + sp160.x, sp160.y, 43.0f, temp_16_13, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_7->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp160.x, sp160.y, 43.0f, temp_16_13, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, temp_18_7->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_4 = 0; var_19_4 < (datPersonaRosterCapacity() & 0xFFFF); var_19_4++) {
             func_0031d630(arg0, (s8)(var_19_4), work->f128, work->f129, 0);
-            if ((((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry((s16)((var_19_4 + 0x270))))+(0x10))), 1))) == 0) && (work->f128 != var_19_4) && ((*(s8 *)((u8 *)((func_002e4870(0) + (work->f128 * 0xC) + var_19_4))+(0x14))) > 0)) {
+            if ((((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry((s16)((var_19_4 + 0x270))))+(0x10))), 1))) == 0) && (work->f128 != var_19_4) && ((*(s8 *)((u8 *)((yListSlotWork(0) + (work->f128 * 0xC) + var_19_4))+(0x14))) > 0)) {
                 if (var_19_4 == work->f11E) {
                     id27D = var_19_4 + 0x27D;
                     id270 = var_19_4 + 0x270U;
@@ -7141,27 +7141,27 @@ void func_00304580(u8 *arg0) {
                     var_18_4 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
                 }
                 temp_f20 = (f32) ((var_19_4 * 0x17) + 0x80);
-                frFontExDrawTextDeferred((f32) 0x195, temp_f20, 43.0f, var_18_4, 0, 2, (const char *)(iGpffffb440 + ((*(u16 *)((u8 *)(func_002e48a0((s8)((work->f128 + 1)), var_19_4))+(2))) * 0x11)), 0, 0, D_00795E60);
+                frFontExDrawTextDeferred((f32) 0x195, temp_f20, 43.0f, var_18_4, 0, 2, (const char *)(iGpffffb440 + ((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_19_4))+(2))) * 0x11)), 0, 0, D_00795E60);
             }
         }
         if ((((s8)(fclDrawGetState((u8 *)work->f148))) < 0) || (((s8)(fclDrawGetState((u8 *)work->f148))) > 5)) {
             if (D_008C027A[0] & 0x1000) {
-                work->f11E = func_002b2d00(work->f11E, 1, 0, (*(s32 *)((u8 *)(func_002e4870(0))+(8))) - 1, 2);
+                work->f11E = func_002b2d00(work->f11E, 1, 0, (*(s32 *)((u8 *)(yListSlotWork(0))+(8))) - 1, 2);
                 func_0045af60(0, 0, 0, 0);
                 return;
             }
             if (D_008C027A[0] & 0x4000) {
-                work->f11E = func_002b2cb0(work->f11E, 1, (*(s32 *)((u8 *)(func_002e4870(0))+(8))) - 1, 0, 2);
+                work->f11E = func_002b2cb0(work->f11E, 1, (*(s32 *)((u8 *)(yListSlotWork(0))+(8))) - 1, 0, 2);
                 func_0045af60(0, 0, 0, 0);
                 return;
             }
             if (D_008C024E[0] & 0x40) {
-                if ((work->f128 != work->f11E) && ((*(s8 *)((u8 *)((func_002e4870(0) + (work->f128 * 0xC) + work->f11E))+(0x14))) > 0)) {
+                if ((work->f128 != work->f11E) && ((*(s8 *)((u8 *)((yListSlotWork(0) + (work->f128 * 0xC) + work->f11E))+(0x14))) > 0)) {
                     func_0045af60(0, 0, 0, 1);
                     for (var_18_5 = 0; var_18_5 < (datPersonaRosterCapacity() & 0xFFFF); var_18_5++) {
                         sp220 = func_002b2970((f32) 0x149, 128.0f);
-                        temp_16_15 = (u16)((*(u16 *)((u8 *)(func_002e48a0((s8)((work->f128 + 1)), var_18_5))+(2))));
-                        slotByte = *(u8 *)((u8 *)func_002e48a0(work->f128 + 1, var_18_5) + 4);
+                        temp_16_15 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_5))+(2))));
+                        slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_5) + 4);
                         func_0031ac10(arg0, sp220, work->f128, var_18_5, temp_16_15, slotByte, 3, 1, 1, 0xCC);
                     }
                     work->f2F9 = (s8) (work->f128 + 1);
@@ -7173,39 +7173,39 @@ void func_00304580(u8 *arg0) {
                     temp_3_10 = (s8)(fclCombineFindMatchIndex(arg0));
                     switch (temp_3_10) {            /* switch 3; irregular */
                     case 0:                         /* switch 3 */
-                        temp_2_15 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                        temp_2_15 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (*(u8 *)((u8 *)(temp_2_15)+(0x1C))) = (u8) ((*(u8 *)((u8 *)(temp_2_15)+(0x1C))) + 6);
-                        temp_2_16 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                        temp_2_16 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (*(u8 *)((u8 *)(temp_2_16)+(0x1D))) = (u8) ((*(u8 *)((u8 *)(temp_2_16)+(0x1D))) + 6);
                         work->f30C[0] = 6;
                         work->f30C[1] = 6;
                         break;
                     case 1:                         /* switch 3 */
-                        temp_2_17 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                        temp_2_17 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (*(u8 *)((u8 *)(temp_2_17)+(0x1E))) = (u8) ((*(u8 *)((u8 *)(temp_2_17)+(0x1E))) + 6);
-                        temp_2_18 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                        temp_2_18 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (*(u8 *)((u8 *)(temp_2_18)+(0x1F))) = (u8) ((*(u8 *)((u8 *)(temp_2_18)+(0x1F))) + 6);
                         work->f30C[2] = 6;
                         work->f30C[3] = 6;
                         break;
                     case 2:                         /* switch 3 */
-                        temp_2_19 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                        temp_2_19 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (*(u8 *)((u8 *)(temp_2_19)+(0x20))) = (u8) ((*(u8 *)((u8 *)(temp_2_19)+(0x20))) + 6);
-                        temp_2_20 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                        temp_2_20 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (*(u8 *)((u8 *)(temp_2_20)+(0x1C))) = (u8) ((*(u8 *)((u8 *)(temp_2_20)+(0x1C))) + 6);
                         work->f30C[4] = 6;
                         work->f30C[0] = 6;
                         break;
                     case 3:                         /* switch 3 */
-                        temp_2_21 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                        temp_2_21 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (*(u8 *)((u8 *)(temp_2_21)+(0x1D))) = (u8) ((*(u8 *)((u8 *)(temp_2_21)+(0x1D))) + 6);
-                        temp_2_22 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                        temp_2_22 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (*(u8 *)((u8 *)(temp_2_22)+(0x1E))) = (u8) ((*(u8 *)((u8 *)(temp_2_22)+(0x1E))) + 6);
                         work->f30C[1] = 6;
                         work->f30C[2] = 6;
                         break;
                     }
-                    fclDrawSetPlacementEx((u8 *)work->f148, (s32)func_002e48a0(work->f2F9, work->f2FA), 0, 0, 1);
+                    fclDrawSetPlacementEx((u8 *)work->f148, (s32)yListSlotEntry(work->f2F9, work->f2FA), 0, 0, 1);
                     temp_16_16 = (s32)(fclDrawGetResource((u8 *)work->f148));
                     func_0011d140((u8 *)temp_16_16, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
                     func_0011c6e0(fclDrawGetResource((u8 *)work->f148), 1);
@@ -7213,9 +7213,9 @@ void func_00304580(u8 *arg0) {
                     for (var_16_5 = 0; var_16_5 < (datPersonaRosterCapacity() & 0xFFFF); var_16_5++) {
                         sp218 = func_002b2970(16.0f, 128.0f);
                         func_003191c0(arg0, sp218, (s8)var_16_5,
-                            ((u16 *)func_002e48a0(0, var_16_5))[1],
-                            *(u8 *)((u8 *)func_002e48a0(0, var_16_5) + 4),
-                            0, 1, (s8)*(s32 *)(func_002e4870(0) + 8));
+                            ((u16 *)yListSlotEntry(0, var_16_5))[1],
+                            *(u8 *)((u8 *)yListSlotEntry(0, var_16_5) + 4),
+                            0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
                     }
                     sp210 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp210, 0, 1, 0, 0, 0);
@@ -7234,14 +7234,14 @@ void func_00304580(u8 *arg0) {
                     func_0045af60(0, 1, 0, 3);
                     for (var_18_6 = 0; var_18_6 < (datPersonaRosterCapacity() & 0xFFFF); var_18_6++) {
                         sp200 = func_002b2970((f32) 0x149, 128.0f);
-                        temp_16_17 = (u16)((*(u16 *)((u8 *)(func_002e48a0((s8)((work->f128 + 1)), var_18_6))+(2))));
-                        slotByte = *(u8 *)((u8 *)func_002e48a0(work->f128 + 1, var_18_6) + 4);
+                        temp_16_17 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_6))+(2))));
+                        slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_6) + 4);
                         func_0031ac10(arg0, sp200, work->f128, var_18_6, temp_16_17, slotByte, 0, 1, 1, 0xCC);
                         sp1F8 = func_002b2970(16.0f, 128.0f);
                         func_003191c0(arg0, sp1F8, (s8)var_18_6,
-                            ((u16 *)func_002e48a0(0, var_18_6))[1],
-                            *(u8 *)((u8 *)func_002e48a0(0, var_18_6) + 4),
-                            0, 1, (s8)*(s32 *)(func_002e4870(0) + 8));
+                            ((u16 *)yListSlotEntry(0, var_18_6))[1],
+                            *(u8 *)((u8 *)yListSlotEntry(0, var_18_6) + 4),
+                            0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
                     }
                     sp1F0 = func_002b2970(16.0f, 104.0f);
                     func_0031e5b0(arg0, sp1F0, 0, 1, 0, 0, 0);
@@ -7268,8 +7268,8 @@ void func_00304580(u8 *arg0) {
                     func_0031fa20(arg0, sp1D0, 0, 1);
                     for (var_18_7 = 0; var_18_7 < (datPersonaRosterCapacity() & 0xFFFF); var_18_7++) {
                         sp1C8 = func_002b2970((f32) 0x149, 128.0f);
-                        temp_16_19 = (u16)((*(u16 *)((u8 *)(func_002e48a0((s8)((work->f128 + 1)), var_18_7))+(2))));
-                        slotByte = *(u8 *)((u8 *)func_002e48a0(work->f128 + 1, var_18_7) + 4);
+                        temp_16_19 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_7))+(2))));
+                        slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_7) + 4);
                         func_0031ac10(arg0, sp1C8, work->f128, var_18_7, temp_16_19, slotByte, 0, 1, 1, 0xCC);
                     }
                     func_003218a0(arg0, 3);
@@ -7285,9 +7285,9 @@ void func_00304580(u8 *arg0) {
         temp_2_24 = (u8 *)(fclSpriteEntry(0x7C));
         sp158 = *(FclVec2f *)(temp_2_24 + 0x38);
         temp_16_21 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_20);
-        frFontExDrawTextDeferredOutB(111.0f + sp158.x, sp158.y, 43.0f, temp_16_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_11->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp158.x, sp158.y, 43.0f, temp_16_21, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, temp_18_11->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry(0x270))+(0x10))), 1))) != 1) {
-            fclDrawSetPlacement((u8 *)work->f148, (s32)func_002e48a0(0, work->f11E), 0, 0);
+            fclDrawSetPlacement((u8 *)work->f148, (s32)yListSlotEntry(0, work->f11E), 0, 0);
             temp_16_22 = (s32)(fclDrawGetResource((u8 *)work->f148));
             func_0011d140((u8 *)temp_16_22, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
             func_0011c6e0(fclDrawGetResource((u8 *)work->f148), 1);
@@ -7301,18 +7301,18 @@ void func_00304580(u8 *arg0) {
         temp_2_25 = (u8 *)(fclSpriteEntry(0x7C));
         sp150 = *(FclVec2f *)(temp_2_25 + 0x38);
         temp_16_24 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_23);
-        frFontExDrawTextDeferredOutB(111.0f + sp150.x, sp150.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_12->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp150.x, sp150.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, temp_18_12->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((((s8)(fclDrawGetState((u8 *)work->f148))) < 0) || (((s8)(fclDrawGetState((u8 *)work->f148))) > 5)) {
             for (var_18_8 = 0; var_18_8 < (datPersonaRosterCapacity() & 0xFFFF); var_18_8++) {
                 sp1C0 = func_002b2970((f32) 0x149, 128.0f);
-                temp_16_25 = (u16)((*(u16 *)((u8 *)(func_002e48a0((s8)((work->f128 + 1)), var_18_8))+(2))));
-                slotByte = *(u8 *)((u8 *)func_002e48a0(work->f128 + 1, var_18_8) + 4);
+                temp_16_25 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_8))+(2))));
+                slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_8) + 4);
                 func_0031ac10(arg0, sp1C0, work->f128, var_18_8, temp_16_25, slotByte, 0, 0, 1, 0xCC);
                 sp1B8 = func_002b2970(16.0f, 128.0f);
                 func_003191c0(arg0, sp1B8, (s8)var_18_8,
-                    ((u16 *)func_002e48a0(0, var_18_8))[1],
-                    *(u8 *)((u8 *)func_002e48a0(0, var_18_8) + 4),
-                    0, 0, (s8)*(s32 *)(func_002e4870(0) + 8));
+                    ((u16 *)yListSlotEntry(0, var_18_8))[1],
+                    *(u8 *)((u8 *)yListSlotEntry(0, var_18_8) + 4),
+                    0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
             }
             sp1B0 = func_002b2970(16.0f, 104.0f);
             func_0031e5b0(arg0, sp1B0, 0, 0, 0, 0, 0);
@@ -7330,7 +7330,7 @@ void func_00304580(u8 *arg0) {
         temp_2_26 = (u8 *)(fclSpriteEntry(0x7C));
         sp148 = *(FclVec2f *)(temp_2_26 + 0x38);
         temp_16_28 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_27);
-        frFontExDrawTextDeferredOutB(111.0f + sp148.x, sp148.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_13->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp148.x, sp148.y, 43.0f, temp_16_28, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, temp_18_13->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_5 = 0; var_19_5 < (datPersonaRosterCapacity() & 0xFFFF); var_19_5++) {
             func_0031d630(arg0, (s8)(var_19_5), work->f128, work->f129, 0);
             if (var_19_5 == work->f11E) {
@@ -7341,9 +7341,9 @@ void func_00304580(u8 *arg0) {
             temp_2_27 = (s8)(work->f128);
             if (temp_2_27 != var_19_5) {
                 temp_18_14 = (s8)(temp_2_27);
-                if ((*(s8 *)((u8 *)((func_002e4870(0) + (temp_18_14 * 0xC) + var_19_5))+(0x14))) > 0) {
+                if ((*(s8 *)((u8 *)((yListSlotWork(0) + (temp_18_14 * 0xC) + var_19_5))+(0x14))) > 0) {
                     temp_f20 = (f32) ((var_19_5 * 0x17) + 0x80);
-                    frFontExDrawTextDeferred((f32) 0x195, temp_f20, 43.0f, var_21, 0, 2, (const char *)(iGpffffb440 + ((*(u16 *)((u8 *)(func_002e48a0((s8)((temp_18_14 + 1)), var_19_5))+(2))) * 0x11)), 0, 0, D_00795E60);
+                    frFontExDrawTextDeferred((f32) 0x195, temp_f20, 43.0f, var_21, 0, 2, (const char *)(iGpffffb440 + ((*(u16 *)((u8 *)(yListSlotEntry((s8)((temp_18_14 + 1)), var_19_5))+(2))) * 0x11)), 0, 0, D_00795E60);
                 }
             }
         }
@@ -7376,12 +7376,12 @@ void func_00304580(u8 *arg0) {
                 for (var_18_9 = 0; var_18_9 < (datPersonaRosterCapacity() & 0xFFFF); var_18_9++) {
                     sp1A0 = func_002b2970(16.0f, 128.0f);
                     func_003191c0(arg0, sp1A0, (s8)var_18_9,
-                        ((u16 *)func_002e48a0(0, var_18_9))[1],
-                        *(u8 *)((u8 *)func_002e48a0(0, var_18_9) + 4),
-                        0, 0, (s8)*(s32 *)(func_002e4870(0) + 8));
+                        ((u16 *)yListSlotEntry(0, var_18_9))[1],
+                        *(u8 *)((u8 *)yListSlotEntry(0, var_18_9) + 4),
+                        0, 0, (s8)*(s32 *)(yListSlotWork(0) + 8));
                     sp198 = func_002b2970((f32) 0x149, 128.0f);
-                    temp_16_31 = (u16)((*(u16 *)((u8 *)(func_002e48a0((s8)((work->f128 + 1)), var_18_9))+(2))));
-                    slotByte = *(u8 *)((u8 *)func_002e48a0(work->f128 + 1, var_18_9) + 4);
+                    temp_16_31 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_9))+(2))));
+                    slotByte = *(u8 *)((u8 *)yListSlotEntry(work->f128 + 1, var_18_9) + 4);
                     func_0031ac10(arg0, sp198, work->f128, var_18_9, temp_16_31, slotByte, 0, 0, 1, 0xCC);
                 }
                 sp190 = func_002b2970(16.0f, 104.0f);
@@ -7397,27 +7397,27 @@ void func_00304580(u8 *arg0) {
                 temp_4_2 = (s8)(fclCombineFindMatchIndex(arg0));
                 switch (temp_4_2) {                 /* switch 4; irregular */
                 case 0:                             /* switch 4 */
-                    temp_2_28 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                    temp_2_28 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (*(u8 *)((u8 *)(temp_2_28)+(0x1C))) = (u8) ((*(u8 *)((u8 *)(temp_2_28)+(0x1C))) - 6);
-                    temp_2_29 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                    temp_2_29 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (*(u8 *)((u8 *)(temp_2_29)+(0x1D))) = (u8) ((*(u8 *)((u8 *)(temp_2_29)+(0x1D))) - 6);
                     return;
                 case 1:                             /* switch 4 */
-                    temp_2_30 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                    temp_2_30 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (*(u8 *)((u8 *)(temp_2_30)+(0x1E))) = (u8) ((*(u8 *)((u8 *)(temp_2_30)+(0x1E))) - 6);
-                    temp_2_31 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                    temp_2_31 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (*(u8 *)((u8 *)(temp_2_31)+(0x1F))) = (u8) ((*(u8 *)((u8 *)(temp_2_31)+(0x1F))) - 6);
                     return;
                 case 2:                             /* switch 4 */
-                    temp_2_32 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                    temp_2_32 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (*(u8 *)((u8 *)(temp_2_32)+(0x20))) = (u8) ((*(u8 *)((u8 *)(temp_2_32)+(0x20))) - 6);
-                    temp_2_33 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                    temp_2_33 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (*(u8 *)((u8 *)(temp_2_33)+(0x1C))) = (u8) ((*(u8 *)((u8 *)(temp_2_33)+(0x1C))) - 6);
                     return;
                 case 3:                             /* switch 4 */
-                    temp_2_34 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                    temp_2_34 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (*(u8 *)((u8 *)(temp_2_34)+(0x1D))) = (u8) ((*(u8 *)((u8 *)(temp_2_34)+(0x1D))) - 6);
-                    temp_2_35 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                    temp_2_35 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (*(u8 *)((u8 *)(temp_2_35)+(0x1E))) = (u8) ((*(u8 *)((u8 *)(temp_2_35)+(0x1E))) - 6);
                     return;
                 }
@@ -7440,13 +7440,13 @@ void func_00304580(u8 *arg0) {
                     temp_3_13 = (s8)(work->f122);
                     switch (temp_3_13) {            /* switch 5; irregular */
                     case 0:                         /* switch 5 */
-                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)func_002e48a0(0, work->f128), 0, 0, 1);
+                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)yListSlotEntry(0, work->f128), 0, 0, 1);
                         break;
                     case 1:                         /* switch 5 */
-                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)func_002e48a0(0, work->f129), 0, 0, 1);
+                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)yListSlotEntry(0, work->f129), 0, 0, 1);
                         break;
                     case 2:                         /* switch 5 */
-                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)func_002e48a0(work->f2F9, work->f2FA), 0, 0, 1);
+                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)yListSlotEntry(work->f2F9, work->f2FA), 0, 0, 1);
                         break;
                     }
                     temp_16_32 = (s32)(fclDrawGetResource((u8 *)work->f148));
@@ -7471,13 +7471,13 @@ void func_00304580(u8 *arg0) {
                     temp_3_15 = (s8)(work->f122);
                     switch (temp_3_15) {            /* switch 6; irregular */
                     case 0:                         /* switch 6 */
-                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)func_002e48a0(0, work->f128), 0, 0, 1);
+                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)yListSlotEntry(0, work->f128), 0, 0, 1);
                         break;
                     case 1:                         /* switch 6 */
-                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)func_002e48a0(0, work->f129), 0, 0, 1);
+                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)yListSlotEntry(0, work->f129), 0, 0, 1);
                         break;
                     case 2:                         /* switch 6 */
-                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)func_002e48a0(work->f2F9, work->f2FA), 0, 0, 1);
+                        fclDrawSetPlacementEx((u8 *)work->f148, (s32)yListSlotEntry(work->f2F9, work->f2FA), 0, 0, 1);
                         break;
                     }
                     temp_16_33 = (s32)(fclDrawGetResource((u8 *)work->f148));
@@ -7503,7 +7503,7 @@ void func_00304580(u8 *arg0) {
         temp_2_36 = (u8 *)(fclSpriteEntry(0x7C));
         sp140 = *(FclVec2f *)(temp_2_36 + 0x38);
         temp_16_35 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_34);
-        frFontExDrawTextDeferredOutB(111.0f + sp140.x, sp140.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(func_002e48a0(0, temp_18_15->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(111.0f + sp140.x, sp140.y, 43.0f, temp_16_35, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, temp_18_15->f128))+(2))) * 0x11)), 0, 0, D_00795E60, 0x15);
         for (var_19_6 = 0; var_19_6 < (datPersonaRosterCapacity() & 0xFFFF); var_19_6++) {
             func_0031d630(arg0, (s8)(var_19_6), work->f128, work->f129, 0);
             if (((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry((s16)((var_19_6 + 0x270))))+(0x10))), 1))) == 0) {
@@ -7515,9 +7515,9 @@ void func_00304580(u8 *arg0) {
                 temp_2_37 = (s8)(work->f128);
                 if (temp_2_37 != var_19_6) {
                     temp_18_16 = (s8)(temp_2_37);
-                    if ((*(s8 *)((u8 *)((func_002e4870(0) + (temp_18_16 * 0xC) + var_19_6))+(0x14))) > 0) {
+                    if ((*(s8 *)((u8 *)((yListSlotWork(0) + (temp_18_16 * 0xC) + var_19_6))+(0x14))) > 0) {
                         temp_f20 = (f32)(var_19_6 * 0x17 + 0x80);
-                        frFontExDrawTextDeferred((f32)0x195, temp_f20, 43.0f, var_21_2, 0, 2, (const char *)(iGpffffb440 + ((u16 *)func_002e48a0(temp_18_16 + 1, var_19_6))[1] * 0x11), 0, 0, D_00795E60);
+                        frFontExDrawTextDeferred((f32)0x195, temp_f20, 43.0f, var_21_2, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(temp_18_16 + 1, var_19_6))[1] * 0x11), 0, 0, D_00795E60);
                     }
                 }
             }
@@ -7554,35 +7554,35 @@ void func_00304580(u8 *arg0) {
             temp_3_17 = (s8)(fclCombineFindMatchIndex(arg0));
             switch (temp_3_17) {                    /* switch 7; irregular */
             case 0:                                 /* switch 7 */
-                temp_2_38 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                temp_2_38 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (*(u8 *)((u8 *)(temp_2_38)+(0x1C))) = (u8) ((*(u8 *)((u8 *)(temp_2_38)+(0x1C))) - 6);
-                temp_2_39 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                temp_2_39 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (*(u8 *)((u8 *)(temp_2_39)+(0x1D))) = (u8) ((*(u8 *)((u8 *)(temp_2_39)+(0x1D))) - 6);
                 break;
             case 1:                                 /* switch 7 */
-                temp_2_40 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                temp_2_40 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (*(u8 *)((u8 *)(temp_2_40)+(0x1E))) = (u8) ((*(u8 *)((u8 *)(temp_2_40)+(0x1E))) - 6);
-                temp_2_41 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                temp_2_41 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (*(u8 *)((u8 *)(temp_2_41)+(0x1F))) = (u8) ((*(u8 *)((u8 *)(temp_2_41)+(0x1F))) - 6);
                 break;
             case 2:                                 /* switch 7 */
-                temp_2_42 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                temp_2_42 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (*(u8 *)((u8 *)(temp_2_42)+(0x20))) = (u8) ((*(u8 *)((u8 *)(temp_2_42)+(0x20))) - 6);
-                temp_2_43 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                temp_2_43 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (*(u8 *)((u8 *)(temp_2_43)+(0x1C))) = (u8) ((*(u8 *)((u8 *)(temp_2_43)+(0x1C))) - 6);
                 break;
             case 3:                                 /* switch 7 */
-                temp_2_44 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                temp_2_44 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (*(u8 *)((u8 *)(temp_2_44)+(0x1D))) = (u8) ((*(u8 *)((u8 *)(temp_2_44)+(0x1D))) - 6);
-                temp_2_45 = (u16 *)(func_002e48a0(work->f2F9, work->f2FA));
+                temp_2_45 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (*(u8 *)((u8 *)(temp_2_45)+(0x1E))) = (u8) ((*(u8 *)((u8 *)(temp_2_45)+(0x1E))) - 6);
                 break;
             }
             temp_18_17 = (s8)(fclCombineRollTier(arg0));
             temp_16_37 = (s8)(fclCombineFindMatchIndex(arg0));
             func_00110270((u8 *)fclCombineFindMatchPtr(arg0), ((((s8)(temp_18_17)) << 8) | (((s8)(temp_16_37)) | 0x30)) & 0xFFFF);
-            datPersonaRemoveRosterMemberById((*(u16 *)((u8 *)(func_002e48a0(0, work->f128))+(2))));
-            datPersonaRemoveRosterMemberById((*(u16 *)((u8 *)(func_002e48a0(0, work->f129))+(2))));
+            datPersonaRemoveRosterMemberById((*(u16 *)((u8 *)(yListSlotEntry(0, work->f128))+(2))));
+            datPersonaRemoveRosterMemberById((*(u16 *)((u8 *)(yListSlotEntry(0, work->f129))+(2))));
             func_003205f0(arg0, 0x96, 0x94);
             work->f1 = 0x84U;
         } else {
@@ -7747,11 +7747,11 @@ u16 *fclCombineFindMatchPtr(u8 *arg0) {
     table[2] = 0x49;
     table[3] = 0x66;
     for (i = 0; i < 4; i++) {
-        if (table[i] == ((u16 *)func_002e48a0(0, p[0x128]))[1]) {
-            return (u16 *)func_002e48a0(0, p[0x129]);
+        if (table[i] == ((u16 *)yListSlotEntry(0, p[0x128]))[1]) {
+            return (u16 *)yListSlotEntry(0, p[0x129]);
         }
-        if (table[i] == ((u16 *)func_002e48a0(0, p[0x129]))[1]) {
-            return (u16 *)func_002e48a0(0, p[0x128]);
+        if (table[i] == ((u16 *)yListSlotEntry(0, p[0x129]))[1]) {
+            return (u16 *)yListSlotEntry(0, p[0x128]);
         }
     }
     return 0;
@@ -7798,8 +7798,8 @@ s32 fclCombineFindMatchIndex(u8 *arg0) {
     table[2] = 0x49;
     table[3] = 0x66;
     for (i = 0; i < 4; i++) {
-        if (table[i] == ((u16 *)func_002e48a0(0, p[0x128]))[1]) return (s8)i;
-        if (table[i] == ((u16 *)func_002e48a0(0, p[0x129]))[1]) return (s8)i;
+        if (table[i] == ((u16 *)yListSlotEntry(0, p[0x128]))[1]) return (s8)i;
+        if (table[i] == ((u16 *)yListSlotEntry(0, p[0x129]))[1]) return (s8)i;
     }
     return -1;
 }
@@ -8044,7 +8044,7 @@ void func_003097e0(u8 *arg0) {
     u16 buf[12];
 
     p = *(u8 **)(arg0 + 0x38);
-    cls = *(u16 *)((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 1);
+    cls = *(u16 *)((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 1);
     switch (p[1]) {
     case 0xC5:
         func_00106390(0x58, 0);
@@ -8075,43 +8075,43 @@ void func_003097e0(u8 *arg0) {
         }
         switch (*(s8 *)(p + 0x1A)) {
         case 2:
-            buf[0] = *(u16 *)((u16 *)func_002e48a0(0, *(s8 *)(p + 0x128)) + 1);
-            buf[1] = *(u16 *)((u16 *)func_002e48a0(0, *(s16 *)(p + 0x11E)) + 1);
+            buf[0] = *(u16 *)((u16 *)yListSlotEntry(0, *(s8 *)(p + 0x128)) + 1);
+            buf[1] = *(u16 *)((u16 *)yListSlotEntry(0, *(s16 *)(p + 0x11E)) + 1);
             *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 1);
             break;
         case 3:
-            buf[0] = *(u16 *)((u16 *)func_002e48a0(0, *(s8 *)(p + 0x128)) + 1);
-            buf[1] = *(u16 *)((u16 *)func_002e48a0(0, *(s8 *)(p + 0x129)) + 1);
-            buf[2] = *(u16 *)((u16 *)func_002e48a0(0, *(s16 *)(p + 0x11E)) + 1);
+            buf[0] = *(u16 *)((u16 *)yListSlotEntry(0, *(s8 *)(p + 0x128)) + 1);
+            buf[1] = *(u16 *)((u16 *)yListSlotEntry(0, *(s8 *)(p + 0x129)) + 1);
+            buf[2] = *(u16 *)((u16 *)yListSlotEntry(0, *(s16 *)(p + 0x11E)) + 1);
             *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 2);
             break;
         case 4:
-            buf[0] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 0) + 1);
-            buf[1] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 1) + 1);
-            buf[2] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 2) + 1);
-            buf[3] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 3) + 1);
+            buf[0] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 0) + 1);
+            buf[1] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 1) + 1);
+            buf[2] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 2) + 1);
+            buf[3] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 3) + 1);
             *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 3);
             break;
         case 5:
-            buf[0] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 0) + 1);
-            buf[1] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 1) + 1);
-            buf[2] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 2) + 1);
-            buf[3] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 3) + 1);
-            buf[4] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 4) + 1);
+            buf[0] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 0) + 1);
+            buf[1] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 1) + 1);
+            buf[2] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 2) + 1);
+            buf[3] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 3) + 1);
+            buf[4] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 4) + 1);
             *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 4);
             break;
         case 6:
-            buf[0] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 0) + 1);
-            buf[1] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 1) + 1);
-            buf[2] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 2) + 1);
-            buf[3] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 3) + 1);
-            buf[4] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 4) + 1);
-            buf[5] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 5) + 1);
+            buf[0] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 0) + 1);
+            buf[1] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 1) + 1);
+            buf[2] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 2) + 1);
+            buf[3] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 3) + 1);
+            buf[4] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 4) + 1);
+            buf[5] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 5) + 1);
             *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 5);
             break;
         case 7:
             for (i = 0; i < 0xC; i++) {
-                buf[i] = *(u16 *)((u16 *)func_002e48a0(0, i) + 1);
+                buf[i] = *(u16 *)((u16 *)yListSlotEntry(0, i) + 1);
             }
             *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 6);
             break;
@@ -8147,7 +8147,7 @@ void func_003097e0(u8 *arg0) {
                 p[1] = 0xCB;
                 *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
                 func_002badc0(*(s8 *)(p + 0xD), 0x2A);
-                *(u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) |= 4;
+                *(u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) |= 4;
                 return;
             }
             if (iGpffffb3d4[cls * 0xE + 0xD] == 0) {
@@ -8171,7 +8171,7 @@ void func_003097e0(u8 *arg0) {
             p[1] = 0xCB;
             *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
             func_002badc0(*(s8 *)(p + 0xD), 0x2A);
-            *(u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) |= 4;
+            *(u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) |= 4;
             return;
         }
         if (iGpffffb3d4[cls * 0xE + 0xD] == 0) {
@@ -8280,7 +8280,7 @@ void func_003097e0(u8 *arg0) {
         } else {
             *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
             func_002bbd80(*(s8 *)(p + 0xD), 0,
-                          iGpffffb44c + datPersonaGetArcana(*(u16 *)((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9),
+                          iGpffffb44c + datPersonaGetArcana(*(u16 *)((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9),
                                                                              *(s8 *)(p + 0x2FA)) + 1)) * 0x15);
             sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
             func_002bbd80(*(s8 *)(p + 0xD), 1, spA0);
@@ -8296,7 +8296,7 @@ void func_003097e0(u8 *arg0) {
         func_002bb550(*(s8 *)(p + 0xD));
         if (fclCombineHasEntry(arg0, 8) == 1) {
             v = func_00247770(iGpffffb3d4[cls * 0xE + 2]);
-            *(s32 *)(p + 0x10) = func_00311930(v, func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 1);
+            *(s32 *)(p + 0x10) = func_00311930(v, yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 1);
             if (fclCombineCheckIds(arg0) == 1) {
                 *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
                 sprintf(spA0, (const char *)&iGpffffa8a4, func_00311900(func_00247770(iGpffffb3d4[cls * 0xE + 2])));
@@ -8314,7 +8314,7 @@ void func_003097e0(u8 *arg0) {
             fclCombineStartFade(arg0);
             p[1] = 0xD1;
         } else {
-            *(s32 *)(p + 0x10) = func_00311930(func_00247770(iGpffffb3d4[cls * 0xE + 2]), func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 0);
+            *(s32 *)(p + 0x10) = func_00311930(func_00247770(iGpffffb3d4[cls * 0xE + 2]), yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 0);
             func_0034a820(*(s32 *)(p + 0x254));
             func_00106390(0x59, 1);
             fclCombineStartFade(arg0);
@@ -8811,7 +8811,7 @@ void func_0030c3c0(u8 *arg0) {
     extern void func_0011cdd0(u8 *, s32);
     extern void func_0011ce30(u8 *);
     extern s32 func_0011cb70(u8 *, u16);
-    extern void func_002e4960(u8 *, s8, s16);
+    extern void yListSlotCopyEntry(u8 *, s8, s16);
     extern void fclDrawSetState(u8 *, s8);
     extern s32 D_00641B90[];
     extern u8 D_00641AD0[];
@@ -8875,12 +8875,12 @@ void func_0030c3c0(u8 *arg0) {
     u16 id;
 
     p = *(u8 **)(arg0 + 0x38);
-    id = ((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[1];
+    id = ((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[1];
     switch (p[1]) {
     case 0xA0:
         if (datGetFlag(0x5E) != 0) {
             *((s8 *)func_0034a630(*(u8 **)(p + 0x254))) = 4;
-            fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 0, 0, 0);
+            fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 0, 0, 0);
             func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
             p[1] = 0xA1;
@@ -8893,7 +8893,7 @@ void func_0030c3c0(u8 *arg0) {
             {
                 u8 *persona;
                 s32 experience;
-                persona = func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
+                persona = yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
                 experience = *(s32 *)(p + 0x10);
                 datPersonaPreviewLevelUp(persona, p + 0x28, experience);
             }
@@ -8942,11 +8942,11 @@ void func_0030c3c0(u8 *arg0) {
         break;
     case 0xA2:
         if (*(s8 *)(p + 0xB1) != 0) {
-            *(s32 *)(p + 0x14) = func_00313fb0(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
+            *(s32 *)(p + 0x14) = func_00313fb0(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
             {
                 u8 *persona;
                 s32 experience;
-                persona = func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
+                persona = yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
                 experience = *(s32 *)(p + 0x14);
                 datPersonaPreviewLevelUp(persona, p + 0x28, experience);
             }
@@ -9029,9 +9029,9 @@ void func_0030c3c0(u8 *arg0) {
             }
         } else {
             func_0045aa90(0, 0);
-            *(s32 *)(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += func_00313fb0(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
+            *(s32 *)(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += func_00313fb0(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
             if (*(s8 *)(p + 0xB1) == 0) {
-                *(s32 *)(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += *(s32 *)(p + 0x10);
+                *(s32 *)(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += *(s32 *)(p + 0x10);
             }
             *(u8 **)(p + 0x2A4) = func_0011f410((s32)arg0, (s32)fclDrawGetResource(*(u8 **)(p + 0x148)), p + 0x28,
                                                 func_00331660(), 0, (s32 *)D_00641AD0);
@@ -9126,7 +9126,7 @@ void func_0030c3c0(u8 *arg0) {
                 name[i4] = 0;
                 text[i4] = 0;
             }
-            e = (u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
+            e = (u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
             best = 0;
             top = e[0x1C];
             for (i5 = 1; i5 < 5; i5++) {
@@ -9140,14 +9140,14 @@ void func_0030c3c0(u8 *arg0) {
             frFontExCopyString(text, name, 0x20);
             func_002bbd80(*(s8 *)(p + 0xD), 0, name);
             list[*(s8 *)(p + 0x13D)] = *(s8 *)(p + 0x13C);
-            ((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x13D) + 0x1C] += (u8)p[0x13C];
+            ((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x13D) + 0x1C] += (u8)p[0x13C];
             for (i6 = 0; i6 < 0x20; i6++) {
                 name[i6] = 0;
                 text[i6] = 0;
             }
             sprintf(text, &iGpffffa8a0, *(s8 *)(p + 0x13C));
             func_002bbd80(*(s8 *)(p + 0xD), 1, text);
-            e = (u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
+            e = (u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
             best = 0;
             top = e[0x1C];
             for (i7 = 1; i7 < 5; i7++) {
@@ -9158,7 +9158,7 @@ void func_0030c3c0(u8 *arg0) {
             }
             p[0x13E] = best;
             list[best] = *(s8 *)(p + 0x13C);
-            ((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x13E) + 0x1C] += (u8)p[0x13C];
+            ((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x13E) + 0x1C] += (u8)p[0x13C];
             func_0011b8f0(fclDrawGetResource(*(u8 **)(p + 0x148)), list);
             p[0xB0] = 0;
             func_002badc0(*(s8 *)(p + 0xD), 0x3E);
@@ -9308,7 +9308,7 @@ void func_0030c3c0(u8 *arg0) {
             func_002bb550(*(s8 *)(p + 0xD));
             *(s16 *)(p + 0x2D8) = 0;
             p[1] = 0xB7;
-            e = func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
+            e = yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
             {
                 u16 selectedSkill;
                 selectedSkill = *(u16 *)(p + 0x1C);
@@ -9318,7 +9318,7 @@ void func_0030c3c0(u8 *arg0) {
                     func_002bbd80(*(s8 *)(p + 0xD), 0, text);
                     func_002badc0(*(s8 *)(p + 0xD), 0x52);
                     p[1] = 0xB4;
-                } else if ((s32)datPersonaCountSkills(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
+                } else if ((s32)datPersonaCountSkills(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
                     p[1] = 0xB5;
                     *(u8 **)(p + 0x2A8) = func_0011fbc0((s32)arg0, fclDrawGetResource(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
                 }
@@ -9412,9 +9412,9 @@ void func_0030c3c0(u8 *arg0) {
                 break;
             }
         }
-        *(s16 *)(p + 0x1C) = fclCombineRollOutcome(arg0, ((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[4], *(s8 *)(p + 0x1F));
+        *(s16 *)(p + 0x1C) = fclCombineRollOutcome(arg0, ((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[4], *(s8 *)(p + 0x1F));
         item = *(u16 *)(p + 0x1C);
-        if (datPersonaFindSkillSlot((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
+        if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
             p[0xD] = func_002bab80((void *)func_00331660());
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
             func_002bbd80(*(s8 *)(p + 0xD), 1, text);
@@ -9424,7 +9424,7 @@ void func_0030c3c0(u8 *arg0) {
             kind = *(s8 *)(p + 0x1F);
             roll = func_002b2cb0(*(s8 *)(p + 0x1E), 1, 9, 0, 1);
             item = (u16)fclCombinePickItem(kind, roll);
-            if (datPersonaFindSkillSlot((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
+            if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
                 p[0xD] = func_002bab80((void *)func_00331660());
                 sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                 func_002bbd80(*(s8 *)(p + 0xD), 1, text);
@@ -9435,7 +9435,7 @@ void func_0030c3c0(u8 *arg0) {
                 kind = *(s8 *)(p + 0x1F);
                 roll = func_002b2d00(*(s8 *)(p + 0x1E), 1, 0, 9, 1);
                 item = (u16)fclCombinePickItem(kind, roll);
-                if (datPersonaFindSkillSlot((u8 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
+                if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
                     p[0xD] = func_002bab80((void *)func_00331660());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                     func_002bbd80(*(s8 *)(p + 0xD), 1, text);
@@ -9462,8 +9462,8 @@ void func_0030c3c0(u8 *arg0) {
             func_002bb550(*(s8 *)(p + 0xD));
             if (*(s8 *)(p + 0x20) == 1) {
                 for (j8 = 0; j8 < 8; j8++) {
-                    if (((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[j8 + 6] != 0 &&
-                        *(s16 *)(p + 0x1C) == ((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[j8 + 6]) {
+                    if (((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[j8 + 6] != 0 &&
+                        *(s16 *)(p + 0x1C) == ((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[j8 + 6]) {
                         p[0xD] = func_002bab80((void *)func_00331660());
                         sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
                         func_002bbd80(*(s8 *)(p + 0xD), 0, text);
@@ -9483,7 +9483,7 @@ void func_0030c3c0(u8 *arg0) {
             } else {
                 p[1] = 0xB1;
                 *(s16 *)(p + 0x2D8) = 0;
-                if ((s32)datPersonaCountSkills(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
+                if ((s32)datPersonaCountSkills(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
                     p[1] = 0xAF;
                     *(u8 **)(p + 0x2A8) = func_0011fbc0((s32)arg0, fclDrawGetResource(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
                 }
@@ -9557,11 +9557,11 @@ void func_0030c3c0(u8 *arg0) {
     case 0xB8:
         p[0xD] = func_002bab80((void *)func_00331660());
         do {
-            count = datPersonaCountSkills(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
+            count = datPersonaCountSkills(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
             p[0x27] = RpRandom() % count;
-        } while ((s16)func_00313690(((s16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6]) == 0);
-        sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6]));
-        *(s16 *)(p + 0x1C) = ((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6];
+        } while ((s16)func_00313690(((s16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6]) == 0);
+        sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6]));
+        *(s16 *)(p + 0x1C) = ((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[*(s8 *)(p + 0x27) + 6];
         func_002bbd80(*(s8 *)(p + 0xD), 0, text);
         func_002badc0(*(s8 *)(p + 0xD), 0x56);
         func_002bafc0(*(s8 *)(p + 0xD), 0);
@@ -9574,7 +9574,7 @@ void func_0030c3c0(u8 *arg0) {
             func_002bbcf0(*(s8 *)(p + 0xD));
         } else if (func_002bb1c0(*(s8 *)(p + 0xD)) == 0) {
             func_002bb550(*(s8 *)(p + 0xD));
-            func_002e4960((u8 *)&info, *(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
+            yListSlotCopyEntry((u8 *)&info, *(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA));
             *(s16 *)(p + 0x24) = func_00304410(info, *(s16 *)(p + 0x1C));
             *(s16 *)(p + 0x2D8) = 0;
             p[1] = 0xBA;
@@ -9593,7 +9593,7 @@ void func_0030c3c0(u8 *arg0) {
                 originalSkill = *(u16 *)(p + 0x1C);
                 func_0011cc00(personaTask, originalSkill, *(u16 *)(p + 0x24));
             }
-            datPersonaReplaceSkill(func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), *(s16 *)(p + 0x1C), *(u16 *)(p + 0x24));
+            datPersonaReplaceSkill(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), *(s16 *)(p + 0x1C), *(u16 *)(p + 0x24));
             func_0045af60(1, 3, 3, 2);
         }
         if (*(s16 *)(p + 0x2D8) >= 0x28) {
@@ -9690,11 +9690,11 @@ void func_0030f4f0(u8 *task, s16 *materials) {
         }
         materialIndex++;
     }
-    datPersonaInsertRosterRecord((u8 *)func_002e48a0(*(s8 *)(work + 0x2F9), *(s8 *)(work + 0x2FA)));
+    datPersonaInsertRosterRecord((u8 *)yListSlotEntry(*(s8 *)(work + 0x2F9), *(s8 *)(work + 0x2FA)));
     searchIndex = 0;
     while (searchIndex < count) {
         if ((u16)equippedId == materials[searchIndex]) {
-            datPersonaSelectRosterMemberById(*(u16 *)((u16 *)func_002e48a0(*(s8 *)(work + 0x2F9), *(s8 *)(work + 0x2FA)) + 1));
+            datPersonaSelectRosterMemberById(*(u16 *)((u16 *)yListSlotEntry(*(s8 *)(work + 0x2F9), *(s8 *)(work + 0x2FA)) + 1));
             datPersonaRemoveRosterMemberById(equippedId);
             break;
         }
@@ -9735,7 +9735,7 @@ void func_0030f650(u8 *arg0) {
     FclVec2f *base;
 
     p = *(u8 **)(arg0 + 0x38);
-    cls = *(s16 *)((u16 *)func_002e48a0(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 1);
+    cls = *(s16 *)((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 1);
     kind = *(p + 1);
     switch (kind) {
     case 0xD2:
@@ -9797,27 +9797,27 @@ void func_0030f650(u8 *arg0) {
         }
         switch (*(s8 *)(p + 0x1A)) {
         case 2:
-            mats[0] = *(u16 *)((u16 *)func_002e48a0(0, *(s8 *)(p + 0x128)) + 1);
-            mats[1] = *(u16 *)((u16 *)func_002e48a0(0, *(s16 *)(p + 0x11E)) + 1);
+            mats[0] = *(u16 *)((u16 *)yListSlotEntry(0, *(s8 *)(p + 0x128)) + 1);
+            mats[1] = *(u16 *)((u16 *)yListSlotEntry(0, *(s16 *)(p + 0x11E)) + 1);
             break;
         case 3:
-            mats[0] = *(u16 *)((u16 *)func_002e48a0(0, *(s8 *)(p + 0x128)) + 1);
-            mats[1] = *(u16 *)((u16 *)func_002e48a0(0, *(s8 *)(p + 0x129)) + 1);
-            mats[2] = *(u16 *)((u16 *)func_002e48a0(0, *(s16 *)(p + 0x11E)) + 1);
+            mats[0] = *(u16 *)((u16 *)yListSlotEntry(0, *(s8 *)(p + 0x128)) + 1);
+            mats[1] = *(u16 *)((u16 *)yListSlotEntry(0, *(s8 *)(p + 0x129)) + 1);
+            mats[2] = *(u16 *)((u16 *)yListSlotEntry(0, *(s16 *)(p + 0x11E)) + 1);
             break;
         case 6:
-            mats[5] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 5) + 1);
+            mats[5] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 5) + 1);
         case 5:
-            mats[4] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 4) + 1);
+            mats[4] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 4) + 1);
         case 4:
-            mats[0] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 0) + 1);
-            mats[1] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 1) + 1);
-            mats[2] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 2) + 1);
-            mats[3] = *(u16 *)((u16 *)func_002e48a0(*(s16 *)(p + 0x11E) + 1, 3) + 1);
+            mats[0] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 0) + 1);
+            mats[1] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 1) + 1);
+            mats[2] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 2) + 1);
+            mats[3] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 3) + 1);
             break;
         case 7:
             for (i = 0; i < 0xC; i++) {
-                mats[i] = *(u16 *)((u16 *)func_002e48a0(0, i) + 1);
+                mats[i] = *(u16 *)((u16 *)yListSlotEntry(0, i) + 1);
             }
             break;
         }

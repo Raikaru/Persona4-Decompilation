@@ -68,8 +68,8 @@ extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
 extern u8 *fclSpriteEntry(s16);
 extern s16 fclSpriteFlagBit(s16, s16);
 extern void fclSpriteReset(s16, s16);
-extern u8 *func_002e4870(s8 arg0);
-extern u8 *func_002e48a0(s8 arg0, s16 arg1);
+extern u8 *yListSlotWork(s8 arg0);
+extern u8 *yListSlotEntry(s8 arg0, s16 arg1);
 extern void func_002ba970(u8 *, s16, FclDrawColor);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 datPersonaRosterCapacity(void);
@@ -1586,7 +1586,7 @@ void func_0031ac10(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 perso
     rowIndex = (s8)row;
     rowY += (f32)(rowIndex * 23);
     if (checkAvailability == 1) {
-        availability = *(s8 *)(func_002e4870(0) + (s32)selectedRow * 12 + rowIndex + 0x14);
+        availability = *(s8 *)(yListSlotWork(0) + (s32)selectedRow * 12 + rowIndex + 0x14);
     }
     if (work->firstSelectedRow != rowIndex && work->secondSelectedRow != rowIndex && (rowAvailability = availability) > 0) {
         if (rowAvailability != 2) {
@@ -1759,8 +1759,8 @@ void func_0031c2b0(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
     s16 b;
     u8 alpha;
 
-    w = *(s16 *)(func_002e48a0(0, arg1) + 2);
-    b = *(u8 *)(func_002e48a0(0, arg1) + 4);
+    w = *(s16 *)(yListSlotEntry(0, arg1) + 2);
+    b = *(u8 *)(yListSlotEntry(0, arg1) + 4);
     pos = arg2;
     alpha = *(u8 *)(fclSpriteEntry(0x7C) + 0x6E);
     fclSpriteCreate(0x7C, func_002b2970(pos.x, pos.y - 2.0f), 124.0f, 0x58);
@@ -1832,8 +1832,8 @@ void func_0031cce0(u8 *arg0, s16 arg1, FclVec2 arg2, FclVec2 arg3) {
     s16 b;
     u8 alpha;
 
-    w = *(s16 *)(func_002e48a0(0, arg1) + 2);
-    b = *(u8 *)(func_002e48a0(0, arg1) + 4);
+    w = *(s16 *)(yListSlotEntry(0, arg1) + 2);
+    b = *(u8 *)(yListSlotEntry(0, arg1) + 4);
     pos = arg2;
     alpha = *(u8 *)(fclSpriteEntry(0x7C) + 0x6E);
     fclSpriteCreate(0x7D, func_002b2970(pos.x, pos.y - 1.0f), 125.0f, 0x58);
@@ -1931,7 +1931,7 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
                     p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i);
                     *(FclByte4 *)(p + 0x75) = cDC;
                     *(u8 *)(fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i) + 0x5E) = 0xFF;
-                    if (*(s8 *)((u8 *)(off12 + (uintptr_t)func_002e4870(0)) + (s16)i + 0x14) > 0) {
+                    if (*(s8 *)((u8 *)(off12 + (uintptr_t)yListSlotWork(0)) + (s16)i + 0x14) > 0) {
                         cD8 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                         p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)i);
                         *(FclByte4 *)(p + 0x75) = cD8;
@@ -1941,7 +1941,7 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
         }
     } else {
         ret = func_0031ddf0(arg0, arg1, 0, 0xFF);
-        if (*(s32 *)(func_002e4870(0) + 8) <= v) {
+        if (*(s32 *)(yListSlotWork(0) + 8) <= v) {
             s32 overflowSlot = (s8)arg1;
             cD4 = func_002b2a60(0x24, 0x3F, 0x9F, 0xFF);
             p = fclSpriteEntry((s16)(overflowSlot + 0x244));
@@ -1987,7 +1987,7 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
                     p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j);
                     *(FclByte4 *)(p + 0x75) = cBC;
                     *(u8 *)(fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j) + 0x5E) = 0xA5;
-                    if (*(s8 *)((u8 *)(off12 + (uintptr_t)func_002e4870(0)) + (s16)j + 0x14) > 0) {
+                    if (*(s8 *)((u8 *)(off12 + (uintptr_t)yListSlotWork(0)) + (s16)j + 0x14) > 0) {
                         cB8 = func_002b2a60(0x49, 0x72, 0xFF, 0xA5);
                         p = fclCombineSlotRecord(*(u8 **)(base + 0x154), (s8)j);
                         *(FclByte4 *)(p + 0x75) = cB8;
@@ -1997,9 +1997,9 @@ void func_0031d630(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
             }
         }
     }
-    if (v < *(s32 *)(func_002e4870(0) + 8)) {
+    if (v < *(s32 *)(yListSlotWork(0) + 8)) {
         f = (f32)((s32)v * 0x17 + 0x80);
-        frFontExDrawTextDeferredOutB(113.0f, f, 43.0f, ret, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)(func_002e48a0(0, (s8)arg1) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
+        frFontExDrawTextDeferredOutB(113.0f, f, 43.0f, ret, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)(yListSlotEntry(0, (s8)arg1) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
     }
 }
 
@@ -2726,7 +2726,7 @@ static inline void fclAnimatePairGridRow(FclCombineRowWork *work, s64 renderedRo
    Descriptive names below are recovered roles, not original Atlus symbols. */
 // FUN_00320B80
 void func_00320b80(u8 *task, s8 entryMode) {
-    extern void func_002e4ac0(s32, s32);
+    extern void yListBuildAvailability(s32, s32);
     FclDrawColor columnSpriteColor;
     FclDrawColor columnHeaderStartColor;
     FclDrawColor columnHeaderEndColor;
@@ -2750,7 +2750,7 @@ void func_00320b80(u8 *task, s8 entryMode) {
     work->firstSelectedRow = -1;
     savedMode = entryMode;
     if (!savedMode) {
-        func_002e4ac0(0, 0);
+        yListBuildAvailability(0, 0);
     }
 
     /* Phase 2: title, followed by one Persona row and column header per slot. */
@@ -2762,14 +2762,14 @@ void func_00320b80(u8 *task, s8 entryMode) {
         s32 personaId;
         rowIndex = row;
         personaRowPosition = func_002b2970(16.0f, 128.0f);
-        personaId = ((FclCombinePersonaHeader *)func_002e48a0(0, row))->personaId;
+        personaId = ((FclCombinePersonaHeader *)yListSlotEntry(0, row))->personaId;
         /* The two entry lookups and the signed-byte count read are deliberate.
            Keep the second (s16)row conversion in the delay expression. */
         func_003191c0(task, personaRowPosition, (s8)row,
                       personaId,
-                      ((FclCombinePersonaHeader *)func_002e48a0(0, row))->level,
+                      ((FclCombinePersonaHeader *)yListSlotEntry(0, row))->level,
                       (s16)(row * 2), 0,
-                      (listCountByte = *(s8 *)&((FclCombinePersonaListHeader *)func_002e4870(0))->count));
+                      (listCountByte = *(s8 *)&((FclCombinePersonaListHeader *)yListSlotWork(0))->count));
         {
             s16 columnSprite = rowIndex + 0x25E;
             u8 *columnResource = (u8 *)sdkSpriteNewNode(func_00331560(), 0x39);
@@ -2856,7 +2856,7 @@ void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
             if (*(s8 *)temp_2 == 0) {
                 if (((*(s16 *)fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j) & 0x200) >> 9) == 0) {
                     fclSpriteStartColor(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j), spE8, spEC, 0, 2, 1);
-                    if (*(s8 *)((u8 *)addOff(temp_22, (u32)func_002e4870(0)) + (s32)(s16)j + 0x14) > 0) {
+                    if (*(s8 *)((u8 *)addOff(temp_22, (u32)yListSlotWork(0)) + (s32)(s16)j + 0x14) > 0) {
                         fclSpriteStartColor(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j), spE8, spE4, 0, 2, 1);
                         cell2 = fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j);
                         fclSpriteStartAlpha(cell2, *(u8 *)(fclCombineSlotRecord(*(u8 **)(temp_17 + 0x154), j) + 0x5E), 0xCC, 0, 2, 1);
@@ -2886,9 +2886,9 @@ void func_003212e0(u8 *arg0, u8 arg1, s8 arg2) {
             } else {
                 var_3 = func_002b2a30(0xCC, 0xFF, 0xFF, temp_7);
             }
-            if ((s16)i < *(s32 *)((u8 *)func_002e4870(0) + 8)) {
+            if ((s16)i < *(s32 *)((u8 *)yListSlotWork(0) + 8)) {
                 f20 = (f32)(s32)((s16)i * 0x17 + 0x80);
-                frFontExDrawTextDeferredOutB(113.0f, f20, 43.0f, var_3, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)((u8 *)func_002e48a0(0, i) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
+                frFontExDrawTextDeferredOutB(113.0f, f20, 43.0f, var_3, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)((u8 *)yListSlotEntry(0, i) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
             }
         }
     }
@@ -2956,14 +2956,14 @@ void func_003218a0(u8 *arg0, s16 arg1) {
             if (*(s16 *)(t + 0x11E) == i) {
                 c164 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                 *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75) = c164;
-                if (((s8 *)func_002e4870(0))[row + j + 0x14] > 0) {
+                if (((s8 *)yListSlotWork(0))[row + j + 0x14] > 0) {
                     c160 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
                     *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75) = c160;
                 }
             } else {
                 c15C = func_002b2a60(0, 0, 0x99, 0xA5);
                 *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75) = c15C;
-                if (((s8 *)func_002e4870(0))[row + j + 0x14] > 0) {
+                if (((s8 *)yListSlotWork(0))[row + j + 0x14] > 0) {
                     c158 = func_002b2a60(0x49, 0x72, 0xFF, 0xCC);
                     *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75) = c158;
                 }
@@ -3008,7 +3008,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
     extern u16 D_008C024C[];
     extern f32 D_00644150[];
     extern void func_002f9c30(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
-    extern void func_002e4ac0(s32, s32);
+    extern void yListBuildAvailability(s32, s32);
     extern s32 func_0045af60(s16, s16, s16, s16);
     FclByte4 c21C;
     u8 *t;
@@ -3070,12 +3070,12 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
         return;
     }
     if (D_008C024E[0] & 0x80) {
-        if (*(s16 *)(t + 0x11E) < *(s32 *)(func_002e4870(0) + 8)) {
+        if (*(s16 *)(t + 0x11E) < *(s32 *)(yListSlotWork(0) + 8)) {
             func_0045af60(0, 1, 0, 3);
             ia = 0;
             while ((s16)ia < (u16)datPersonaRosterCapacity()) {
-                func_003191c0(arg0, func_002b2970(16.0f, 128.0f), (s8)ia, *(u16 *)(func_002e48a0(0, ia) + 2),
-                              *(u8 *)(func_002e48a0(0, ia) + 4), 0, 1, (rowCount = *(s8 *)(func_002e4870(0) + 8)));
+                func_003191c0(arg0, func_002b2970(16.0f, 128.0f), (s8)ia, *(u16 *)(yListSlotEntry(0, ia) + 2),
+                              *(u8 *)(yListSlotEntry(0, ia) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
                 ++ia;
             }
             func_0031e5b0(arg0, func_002b2970(16.0f, 104.0f), 0, 1, 0, 0, 0);
@@ -3120,7 +3120,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
             }
         }
     } else if (D_008C024C[0] & 0x40) {
-        if (*(s16 *)(t + 0x11E) < *(s32 *)(func_002e4870(0) + 8)) {
+        if (*(s16 *)(t + 0x11E) < *(s32 *)(yListSlotWork(0) + 8)) {
             func_0045af60(0, 0, 0, 1);
             *(s8 *)(t + 0x128) = *(s16 *)(t + 0x11E);
             v = (FclVec2 *)D_00644150;
@@ -3129,8 +3129,8 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                 jb1 = 0;
                 while ((s16)jb1 < (u16)datPersonaRosterCapacity()) {
                     func_0031ac10(arg0, func_002b2970((f32)0x149, 128.0f), *(s8 *)(t + 0x128), (s8)jb1,
-                                  *(u16 *)(func_002e48a0(*(s8 *)(t + 0x128) + 1, jb1) + 2),
-                                  *(u8 *)(func_002e48a0(*(s8 *)(t + 0x128) + 1, jb1) + 4), 3, 0, 1, 0xCC);
+                                  *(u16 *)(yListSlotEntry(*(s8 *)(t + 0x128) + 1, jb1) + 2),
+                                  *(u8 *)(yListSlotEntry(*(s8 *)(t + 0x128) + 1, jb1) + 4), 3, 0, 1, 0xCC);
                     mb1 = jb1 * 23;
                     pb1 = fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)jb1);
                     func_002b83e0(pb1, func_002b2970((f32)(mb1 + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
@@ -3159,10 +3159,10 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                                       func_002b2970((f32)xb1, 110.0f + sdkSpriteScaledHeight(hb1) / 2.0f), 0, 3, 0);
                         sdkSpriteFreeNode(hb1);
                         c = *(s8 *)(t + 0x128);
-                        if (*(s8 *)(func_002e4870(0) + c * 12 + (u32)normalizedRow + 0x14) > 0) {
-                            func_002f9c30((u16 *)func_002e48a0(*(s8 *)(t + 0x128) + 1, jb1),
-                                          func_002e48a0(0, *(s8 *)(t + 0x128)),
-                                          func_002e48a0(0, jb1), 0, 0, 0, 0, 2, (s8)(c + 1), (s8)jb1);
+                        if (*(s8 *)(yListSlotWork(0) + c * 12 + (u32)normalizedRow + 0x14) > 0) {
+                            func_002f9c30((u16 *)yListSlotEntry(*(s8 *)(t + 0x128) + 1, jb1),
+                                          yListSlotEntry(0, *(s8 *)(t + 0x128)),
+                                          yListSlotEntry(0, jb1), 0, 0, 0, 0, 2, (s8)(c + 1), (s8)jb1);
                         }
                     }
                     ++jb1;
@@ -3172,7 +3172,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                 fclSpriteSetFlag(0x1C7, 2, 1);
                 func_0031e320(arg0, (s32)*(s8 *)(t + 0x128));
             } else {
-                func_002e4ac0(1, *(s8 *)(t + 0x128));
+                yListBuildAvailability(1, *(s8 *)(t + 0x128));
                 fclSpriteStartAlphaAt(0x7E, 0xFF, 0, 0, 6, 0);
                 *(u8 *)(fclSpriteEntry(0x7E) + 0x47) = 0;
                 jb2 = 0;
@@ -3184,7 +3184,7 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                     m = cur * 12;
                     rowb2 = t + cur * 4;
                     while ((s16)kb2 < (u16)datPersonaRosterCapacity()) {
-                        if (*(s8 *)((u8 *)addOff(m, (u32)func_002e4870(0)) + kb2 + 0x14) == 0) {
+                        if (*(s8 *)((u8 *)addOff(m, (u32)yListSlotWork(0)) + kb2 + 0x14) == 0) {
                             if (*(s16 *)(t + 0x11E) == cur) {
                                 c21C = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                             } else {
@@ -3222,8 +3222,8 @@ void func_00321e60(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
         func_0031e5b0(arg0, func_002b2970(16.0f, 104.0f), 0, 1, 0, 0, 0);
         jc = 0;
         while ((s16)jc < (u16)datPersonaRosterCapacity()) {
-            func_003191c0(arg0, func_002b2970(16.0f, 128.0f), (s8)jc, *(u16 *)(func_002e48a0(0, jc) + 2),
-                          *(u8 *)(func_002e48a0(0, jc) + 4), 0, 1, (rowCount = *(s8 *)(func_002e4870(0) + 8)));
+            func_003191c0(arg0, func_002b2970(16.0f, 128.0f), (s8)jc, *(u16 *)(yListSlotEntry(0, jc) + 2),
+                          *(u8 *)(yListSlotEntry(0, jc) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
             m = jc * 23;
             func_002b83e0(fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)jc), func_002b2970((f32)(m + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
                           func_002b2a60(0, 0, 0x99, 0xFF), 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
@@ -3297,7 +3297,7 @@ void func_003233d0(u8 *arg0) {
     t = *(u8 **)(arg0 + 0x38);
     for (i = 0; (s16)i < (u16)datPersonaRosterCapacity(); ++i) {
         func_0031d630(arg0, (s8)i, *(s8 *)(t + 0x128), *(s8 *)(t + 0x129), 0);
-        if ((s16)i < *(s32 *)(func_002e4870(0) + 8)) {
+        if ((s16)i < *(s32 *)(yListSlotWork(0) + 8)) {
             if ((s16)i == *(s16 *)(t + 0x11E)) {
                 u8 *p297;
                 u8 *p28B;
@@ -3319,13 +3319,13 @@ void func_003233d0(u8 *arg0) {
                 cD4.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
                 func_002ba970(*(u8 **)(t + 0x2BC), (s16)((s16)i + 0xC), cD4.channels);
                 func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
-                if (*(s8 *)(func_002e4870(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
+                if (*(s8 *)(yListSlotWork(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
                     fclSpriteSetFlag(0xCF, 0, 1);
                     fclSpriteSetFlag(0xD2, 0, 1);
                     fclSpriteSetFlag((s16)((s16)i + 0x270), 0, 0);
                     fclSpriteSetFlag((s16)((s16)i + 0x27D), 0, 0);
                 }
-            } else if (*(s8 *)(func_002e4870(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
+            } else if (*(s8 *)(yListSlotWork(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
                 u8 *p27D;
                 *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x6E) =
                     *(u8 *)(fclSpriteEntry((s16)((s16)i + 0x27D)) + 0x6E) = 0;
@@ -3365,7 +3365,7 @@ void func_003233d0(u8 *arg0) {
                 func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
             }
             if (*(s8 *)(t + 0x128) != (s16)i && *(s8 *)(t + 0x129) != (s16)i) {
-                if (*(s8 *)(func_002e4870((s8)(*(s8 *)(t + 0x129) + 1)) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) > 0) {
+                if (*(s8 *)(yListSlotWork((s8)(*(s8 *)(t + 0x129) + 1)) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) > 0) {
                     f32 v42 = (f32)*(s16 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x42);
                     s16 v40 = *(s16 *)(fclSpriteEntry((s16)((s16)i + 0x270)) + 0x40);
                     f32 f = func_002b2aa0(0, 0.0f, 255.0f, v42, (f32)v40);
@@ -3376,11 +3376,11 @@ void func_003233d0(u8 *arg0) {
                         ret = func_002b2a30(0x2D, 0x2D, 0x2D, alpha);
                     } else {
                         ret = func_002b2a30(0xCC, 0xFF, 0xFF, alpha);
-                        if (*(s8 *)(func_002e4870(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
+                        if (*(s8 *)(yListSlotWork(0) + *(s8 *)(t + 0x129) * 0xC + (s16)i + 0x14) == 2) {
                             ret = func_002b2a30(0xFF, 0xCC, 0xFA, alpha);
                         }
                     }
-                    frFontExDrawTextDeferredOutB(405.0f, (f32)((s16)i * 0x17 + 0x80), 43.0f, ret, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)(func_002e48a0((s8)(*(s8 *)(t + 0x129) + 1), (s16)i) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
+                    frFontExDrawTextDeferredOutB(405.0f, (f32)((s16)i * 0x17 + 0x80), 43.0f, ret, 0, 2, (const char *)((u8 *)iGpffffb440 + (u16)(*(u16 *)(yListSlotEntry((s8)(*(s8 *)(t + 0x129) + 1), (s16)i) + 2)) * 0x11), 0, 0, D_00795E60, 0x15);
                 }
             }
         }
@@ -3420,17 +3420,17 @@ void func_00323d00(u8 *arg0, s32 arg1, s8 arg2) {
     func_0031e5b0(arg0, spE0.position, 0, arg2, 0, 1, 2);
     spD8.position = func_002b2970(313, 104.0f);
     func_0031e5b0(arg0, spD8.position, 0, arg2, 1, 0, 0);
-    for (k = 0; k < *(s32 *)(func_002e4870(1) + 8); k++) {
+    for (k = 0; k < *(s32 *)(yListSlotWork(1) + 8); k++) {
         spD0.position = func_002b2970(313, 128.0f);
         func_003191c0(arg0, spD0.position, (s8)k,
-                      *(u16 *)(func_002e48a0(1, k) + 2),
-                      *(u8 *)(func_002e48a0(1, k) + 4),
+                      *(u16 *)(yListSlotEntry(1, k) + 2),
+                      *(u8 *)(yListSlotEntry(1, k) + 4),
                       (s16)(k * arg1), arg2,
-                      (count = *(s8 *)(func_002e4870(1) + 8)));
+                      (count = *(s8 *)(yListSlotWork(1) + 8)));
     }
-    for (k = 0; k < *(s32 *)(func_002e4870(0) + 8); k++) {
+    for (k = 0; k < *(s32 *)(yListSlotWork(0) + 8); k++) {
         spC8.position = func_002b2970(16.0f, 128.0f);
-        func_0031ac10(arg0, spC8.position, 0, (s8)k, *(u16 *)(func_002e48a0(0, k) + 2), *(u8 *)(func_002e48a0(0, k) + 4), (s16)(k * arg1), arg2, 1, 0xCC);
+        func_0031ac10(arg0, spC8.position, 0, (s8)k, *(u16 *)(yListSlotEntry(0, k) + 2), *(u8 *)(yListSlotEntry(0, k) + 4), (s16)(k * arg1), arg2, 1, 0xCC);
     }
     {
         s32 hidden;
@@ -3597,12 +3597,12 @@ void func_00324680(u8 *arg0, s32 arg1, s8 arg2) {
     i = 0;
     m = (s16)arg1;
     for (; i < 12; i++) {
-        func_003191c0(arg0, func_002b2970((f32)315, 128.0f), (s8)i, *(u16 *)(func_002e48a0(0, i) + 2),
-                      *(u8 *)(func_002e48a0(0, i) + 4), (s16)(i * m), arg2,
-                      (count = *(s8 *)(func_002e4870(0) + 8)));
+        func_003191c0(arg0, func_002b2970((f32)315, 128.0f), (s8)i, *(u16 *)(yListSlotEntry(0, i) + 2),
+                      *(u8 *)(yListSlotEntry(0, i) + 4), (s16)(i * m), arg2,
+                      (count = *(s8 *)(yListSlotWork(0) + 8)));
     }
-    func_0031ac10(arg0, func_002b2970(6.0f, 195.0f), 0, 0, *(u16 *)(func_002e48a0(1, 0) + 2),
-                  *(u8 *)(func_002e48a0(1, 0) + 4), 0, arg2, 0, 0xCC);
+    func_0031ac10(arg0, func_002b2970(6.0f, 195.0f), 0, 0, *(u16 *)(yListSlotEntry(1, 0) + 2),
+                  *(u8 *)(yListSlotEntry(1, 0) + 4), 0, arg2, 0, 0xCC);
     if ((s8)arg2 == 0) {
         u8 *p297;
         u8 *p28B;
@@ -4723,7 +4723,7 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
     spC0 = func_002b2970(162.0f, 111.0);
     ;
     ;
-    func_0031ac10(arg0, spC0, -1, (s8) i, (*((u16 *) (func_002e48a0(0, i) + 2))) & 0xFFFFu, *((u8 *) (func_002e48a0(0, i) + 4)), (s16) (((s16) i) * v1), arg3, 0, 0x99);
+    func_0031ac10(arg0, spC0, -1, (s8) i, (*((u16 *) (yListSlotEntry(0, i) + 2))) & 0xFFFFu, *((u8 *) (yListSlotEntry(0, i) + 4)), (s16) (((s16) i) * v1), arg3, 0, 0x99);
     i++;
   }
 
@@ -4808,7 +4808,7 @@ void func_0032b9d0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
                the row offset is evaluated ahead of the constructor call. */
 
             func_0031ac10(arg0, sp110 = func_002b2970(90.0f, 151.0f), -1, row,
-                          *(u16 *)(func_002e48a0(0, entry) + 2), *(u8 *)(func_002e48a0(0, entry) + 4),
+                          *(u16 *)(yListSlotEntry(0, entry) + 2), *(u8 *)(yListSlotEntry(0, entry) + 4),
                           (s16)(row * step), arg3, 0, 0x99);
         }
         t2 = *(u8 **)(arg0 + 0x38);
@@ -4851,44 +4851,44 @@ void func_0032c0c0(u8 *arg0, s64 arg1) {
 
     obj = *(u8 **)(arg0 + 0x38);
     r = 8;
-    if (*(s32 *)(func_002e4870(0) + 8) < 8) {
-        r = *(s16 *)(func_002e4870(0) + 8);
+    if (*(s32 *)(yListSlotWork(0) + 8) < 8) {
+        r = *(s16 *)(yListSlotWork(0) + 8);
     }
     *(s8 *)(obj + 0x13A) = 1;
     switch ((s8)arg1) {
     case 0:
-        *(s16 *)(obj + 0x11E) = func_002b2cb0(*(s16 *)(obj + 0x11E), 1, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 0, 1);
-        *(s16 *)(obj + 0x120) = func_002b2d50(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), r, 1);
+        *(s16 *)(obj + 0x11E) = func_002b2cb0(*(s16 *)(obj + 0x11E), 1, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 0, 1);
+        *(s16 *)(obj + 0x120) = func_002b2d50(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), r, 1);
         break;
     case 1:
         *(s16 *)(obj + 0x11E) = func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, 0, 1);
         {
-        s16 count = *(s16 *)(func_002e4870(0) + 8);
+        s16 count = *(s16 *)(yListSlotWork(0) + 8);
         *(s16 *)(obj + 0x120) = func_002b2d50(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), count, r, -1);
         }
         break;
     case 2:
-        func_002b2e70(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), *(s32 *)(func_002e4870(0) + 8), 8, (s16 *)(obj + 0x11E), (s16 *)(obj + 0x120));
+        func_002b2e70(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), *(s32 *)(yListSlotWork(0) + 8), 8, (s16 *)(obj + 0x11E), (s16 *)(obj + 0x120));
         break;
     case 3:
-        func_002b2f90(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), *(s32 *)(func_002e4870(0) + 8), 8, (s16 *)(obj + 0x11E), (s16 *)(obj + 0x120));
+        func_002b2f90(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), *(s32 *)(yListSlotWork(0) + 8), 8, (s16 *)(obj + 0x11E), (s16 *)(obj + 0x120));
         break;
     case 4:
-        v4 = func_002b2cb0(*(s16 *)(obj + 0x11E), 1, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 0, 2);
+        v4 = func_002b2cb0(*(s16 *)(obj + 0x11E), 1, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 0, 2);
         *(u16 *)(obj + 0x11E) = (u16)v4;
         if ((s16)v4 == 0) {
             *(s16 *)(obj + 0x120) = 0;
         } else {
-            *(s16 *)(obj + 0x120) = func_002b2d50(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), r, 1);
+            *(s16 *)(obj + 0x120) = func_002b2d50(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), r, 1);
         }
         break;
     case 5:
         if (*(s16 *)(obj + 0x11E) == 0) {
-            *(s16 *)(obj + 0x11E) = func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 2);
+            *(s16 *)(obj + 0x11E) = func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 2);
             *(s16 *)(obj + 0x120) = (s16)((s16)r - 1);
         } else {
-            *(s16 *)(obj + 0x11E) = func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 2);
-            *(s16 *)(obj + 0x120) = func_002b2d50(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), r, -1);
+            *(s16 *)(obj + 0x11E) = func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 2);
+            *(s16 *)(obj + 0x120) = func_002b2d50(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), r, -1);
         }
         break;
     }
@@ -4931,15 +4931,15 @@ void func_0032c480(u8 *arg0)
 
     obj = (CdfCombineWork *)*(u8 **)(arg0 + 0x38);
     frFontExDrawTextDeferredOutB(140.0f, 101.0f, 1.0f, func_002b2a30(0, 0, 0, 0xFF), 0, 2,
-        (const char *)((u8 *)iGpffffb440 + *(u16 *)(func_002e48a0(0, obj->selection) + 2) * 0x11),
+        (const char *)((u8 *)iGpffffb440 + *(u16 *)(yListSlotEntry(0, obj->selection) + 2) * 0x11),
         0, 0, D_00796310, 0x15);
-    n = (s16)((datPersonaGetArcana(*(u16 *)(func_002e48a0(0, obj->selection) + 2)) & 0xFF) + 0x1B);
+    n = (s16)((datPersonaGetArcana(*(u16 *)(yListSlotEntry(0, obj->selection) + 2)) & 0xFF) + 0x1B);
     sp38 = func_002b2970(54.0f, 103.0f);
     func_00330e50(n, sp38, 1.0f, 0xFF000000, 0xFF, 1, 1.0f, 1.0f, D_00796310);
     n = (s16)func_00331640();
     itfMesWindowQueueEntry(54.0f, 138.0f, 1.0f, -1, 1, 0, 1, n,
-        *(u16 *)(func_002e48a0(0, obj->selection) + 2), D_00796370);
-    func_0034a640((s32)obj->model, *(u16 *)(func_002e48a0(0, obj->selection) + 2), 1);
+        *(u16 *)(yListSlotEntry(0, obj->selection) + 2), D_00796370);
+    func_0034a640((s32)obj->model, *(u16 *)(yListSlotEntry(0, obj->selection) + 2), 1);
     *(u8 *)(func_0034a630(obj->model) + 1) = 0;
     func_0011d1d0(cdfPersona(obj->draw), 64000.0f);
 }
@@ -5804,8 +5804,8 @@ void func_0032fbc0(u8 *arg0) {
     i = 0;
     while ((s16)i < (u16)datPersonaRosterCapacity()) {
         spF8 = func_002b2970(16.0f, 128.0f);
-        func_003191c0(arg0, spF8, (s8)i, *(u16 *)(func_002e48a0(0, i) + 2),
-                      *(u8 *)(func_002e48a0(0, i) + 4), 0, 1, (s8)*(u8 *)(func_002e4870(0) + 8));
+        func_003191c0(arg0, spF8, (s8)i, *(u16 *)(yListSlotEntry(0, i) + 2),
+                      *(u8 *)(yListSlotEntry(0, i) + 4), 0, 1, (s8)*(u8 *)(yListSlotWork(0) + 8));
         j = 0;
         p = t + (s16)i * 4;
         while ((s16)j < (u16)datPersonaRosterCapacity()) {
