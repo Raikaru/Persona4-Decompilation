@@ -53,4 +53,17 @@ struct BtlAction
     BtlAction *next;         /* 0x450. Walked as the action list from D_0076449C+0x174 */
 };
 
+/* Retail action state table at 0x005F6E20, indexed by BtlAction.currState:
+ * 38 entries from NON (0) through TEST (37), decoded from SLUS_217.82. Each
+ * entry is {init, update, name} at 12 bytes. Handlers are named
+ * btlAction<StateName><Init|Update>. */
+typedef void (*BtlActionStateFn)(BtlAction *action);
+typedef struct BtlActionState
+{
+    BtlActionStateFn init;
+    BtlActionStateFn update;
+    const char *name;
+} BtlActionState;
+extern BtlActionState D_005f6e20[];
+
 #endif

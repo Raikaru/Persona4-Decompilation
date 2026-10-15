@@ -30,15 +30,6 @@ extern void btlActionSetState(BtlAction* action, u16 state);
 
 extern BtlPacket* btlPacketFindFirstByActionUID(u64 actionUID, u64 mask);
 
-typedef void (*BtlActionStateFn)(BtlAction* action);
-typedef struct BtlActionState {
-    BtlActionStateFn init;
-    BtlActionStateFn update;
-    const char* name;
-} BtlActionState;
-
-extern BtlActionState D_005f6e20[];
-
 
 
 // FUN_001A1100
