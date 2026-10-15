@@ -50,7 +50,7 @@ extern u8 D_00796750[];
 extern u8 D_00796754[];
 extern u8 D_00796758[];
 extern u8 D_0079675C[];
-extern void func_00111b30(void);
+extern s32 initBootChainStart(void);
 extern s32 func_00452380(void *arg0);
 extern void func_002a2650(s32 arg0);
 extern s32 func_002a2710(void);

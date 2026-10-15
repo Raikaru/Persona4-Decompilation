@@ -43,7 +43,7 @@ extern u8 D_00796750[];
 extern u8 D_00796754[];
 extern u8 D_00796758[];
 extern u8 D_0079675C[];
-extern void func_00111b30(void);
+extern s32 initBootChainStart(void);
 extern s32 func_00452380(void *arg0);
 
 extern s32 iGpffff85b8;
@@ -130,7 +130,7 @@ extern u8 iGpffff85d0;
 /* measured: opt_propagation on closes the bracket after the exact-match body. */
 // FUN_00102B90
 void func_00102b90(void) {
-    func_00111b30();
+    initBootChainStart();
 }
 
 // FUN_00102BB0

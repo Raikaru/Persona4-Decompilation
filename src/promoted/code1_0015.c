@@ -409,7 +409,7 @@ s32 func_001561a0(u8 *task)
     extern s32 func_001602a0(u8 *file, s32 fieldId);
     extern s32 func_0029db50(s32 priority, s32 memory, s32 bytes, s32 procedure);
     extern s32 func_00452490(void *task);
-    extern void func_00144c90(s32 fieldId, s32 roomId);
+    extern void fieldSceneLoad(s32 fieldId, s32 roomId);
     extern void func_00144e10(s64 mapState);
     extern void func_00144ed0(s64 environmentState);
     extern s32 func_00160000(u8 *file);
@@ -478,7 +478,7 @@ s32 func_001561a0(u8 *task)
         }
         fieldId = work->fieldId;
         work->file = func_0015ff20(fieldId, work->roomId);
-        func_00144c90(work->fieldId, work->roomId);
+        fieldSceneLoad(work->fieldId, work->roomId);
         func_00144e10(work->mapState);
         if (work->environmentState != 0) {
             func_00144ed0(work->environmentState);

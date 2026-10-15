@@ -252,7 +252,7 @@ extern s32 func_002e8410(u8 *arg0);
 extern s32 func_00452490(s32 arg0);
 extern void func_00122640(s32, s32);
 extern s32 H_Cdvd_IsFileLoaded(void *arg0);
-extern void func_00144c90(s32, s32);
+extern void fieldSceneLoad(s32, s32);
 extern void func_00144e10(s32);
 extern s16 func_00104f10(s16);
 extern s32 func_0033e120(u8 *arg0, s32, s32);
@@ -10132,7 +10132,7 @@ s32 func_00310bf0(u8 *arg0) {
         if (H_Cdvd_IsFileLoaded(*(u8 **)(p + 0x10)) != 0) {
             if ((func_002e78a0() & 0xFF) == 3 && (func_002e78e0() & 0xFF) >= 0x14 && (func_002e78e0() & 0xFF) < 0x20) {
                 if (datGetFlag(0x1459) == 0) {
-                    func_00144c90(8, 3);
+                    fieldSceneLoad(8, 3);
                     func_00144e10(1);
                 }
                 p[0] = 9;
@@ -10152,7 +10152,7 @@ s32 func_00310bf0(u8 *arg0) {
                 return 0;
             }
             if (datGetFlag(0x1459) == 0) {
-                func_00144c90(8, 3);
+                fieldSceneLoad(8, 3);
                 func_00144e10(1);
             }
             p[0] = 9;

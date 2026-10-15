@@ -20,7 +20,7 @@ extern u8 D_005F5490[];
 extern u8 D_005F54B0[];
 extern char iGpffff9f90;
 extern void *func_003e0f80(void);
-extern void func_00144c90(s32 arg0, s32 arg1);
+extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern void func_00144ed0(s64 arg0);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00144f60(void);
@@ -64,7 +64,7 @@ s32 func_0018d950(u8 *arg0) {
     switch (temp_2) {
     case 0:
         *(u8 **)(temp_16 + 4) = (u8 *)func_003e0f80();
-        func_00144c90(9, 1);
+        fieldSceneLoad(9, 1);
         func_00144ed0((s64)(s16)func_001546a0(9, 1));
         if (clndIsDateInRange(4, 1, 7, 0x1F) == 1) {
             func_00440b68(&iGpffff9f90, D_005F5450, 0x58);

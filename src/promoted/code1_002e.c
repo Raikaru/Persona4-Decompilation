@@ -446,7 +446,7 @@ loop_test:
 // FUN_002E72C0
 s32 func_002e72c0(u8 *arg0)
 {
-    s32 func_00144c90(s32 arg0, s32 arg1);
+    void fieldSceneLoad(s32 arg0, s32 arg1);
     s32 func_00122520(s32 arg0, s32 arg1);
     s32 func_00122640(s32 arg0, s32 arg1);
     s32 func_00122720(void);
@@ -470,7 +470,7 @@ s32 func_002e72c0(u8 *arg0)
     state = *(s8 *)work;
     switch (state) {
     case 1:
-        func_00144c90(8, 6);
+        fieldSceneLoad(8, 6);
         *(s8 *)work = 2;
         /* fallthrough */
     case 2:
