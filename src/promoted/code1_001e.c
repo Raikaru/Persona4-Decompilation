@@ -1390,7 +1390,7 @@ s32 func_001e9950(void) {
     extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
     extern u16 datCalcThresholdKind(u8 *arg0, s32 arg1);
     extern s32 btlAICommandNomalCheck(u8 *arg0, s32 arg1, s32 arg2);
-    extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
+    extern s32 datCalcSkillAmount(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     extern u8 *func_001b0cc0(s32 arg0);
     extern s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1);
     u8 *work;
@@ -1483,7 +1483,7 @@ outer_body:
         for (; (idxA & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxA = (idxA + 1) & 0xFFFF) {
             entryA = tgt.entries[(u16)idxA];
             if (btlAICommandNomalCheck(entryA, paramA, 1) != 0) {
-                dmg = func_00235520(skill, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryA + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+                dmg = datCalcSkillAmount(skill, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryA + 0x30) + 0xA64), 1, 1, 1, 0, 1);
                 hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
                 maxHp = datCalcMaxHp(*(s32 *)(*(u8 **)(entryA + 0x30) + 0xA64)) & 0xFFFF;
                 neg = (s32)(0u - (u32)dmg);
@@ -1511,7 +1511,7 @@ outer_body:
                     goto scored;
                 }
             } else {
-                dmg = func_00235520(skill, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+                dmg = datCalcSkillAmount(skill, *(u8 **)(unit + 0xA64), *(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), 1, 1, 1, 0, 1);
                 hp = datCalcGetHp(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
                 maxHp = datCalcMaxHp(*(s32 *)(*(u8 **)(entryB + 0x30) + 0xA64)) & 0xFFFF;
                 neg = (s32)(0u - (u32)dmg);

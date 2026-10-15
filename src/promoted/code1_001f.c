@@ -928,7 +928,7 @@ static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
 // FUN_001F14F0
 void func_001f14f0(u8 *arg0)
 {
-    extern s32 func_00235520(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
+    extern s32 datCalcSkillAmount(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     /* H011: datCalc.c declares the C89-promoted s32 call interface before its K&R definition. */
     extern s32 func_0023e6f0(u8 *, u8 *, s32, s32);
     /* lint: allow H011 -- retail passes (arg0, unit, id); the empty callee ignores all arguments. */
@@ -1208,8 +1208,8 @@ void func_001f14f0(u8 *arg0)
             *pa = 0;
             pb = (u16 *)(unit + (j << 5) + 0x10A);
             *pb = 0;
-            va = func_00235520(id, ctx, target, 1, res, sub, flags, 1);
-            vb = func_00235520(id, ctx, target, 1, res, sub, flags, 2);
+            va = datCalcSkillAmount(id, ctx, target, 1, res, sub, flags, 1);
+            vb = datCalcSkillAmount(id, ctx, target, 1, res, sub, flags, 2);
             if ((s32)((f32)va * scale) != 0) {
                 va = (f32)va * scale;
             }
