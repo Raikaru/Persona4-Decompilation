@@ -250,7 +250,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *func_0029da90(s32 arg0, u8 *arg1, s32 arg2);
 extern void func_0029dfe0(u8 *arg0, u8 *arg1);
 extern u8 *func_0010d740(s16 arg0);
-extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
+extern void itfMesWindowSetString(u8 *arg0, s32 arg1, u8 *arg2);
 extern void func_00452570(u8 *arg0, u8 *arg1);
 extern void func_00225ec0(u8 *camera);
 extern u8 D_00629750[], D_00629EA0[], D_0062CA80[], D_0062D1D0[];
@@ -4365,11 +4365,11 @@ changed:
     if (*(s32 *)(state + 0x130) >= 0) {
         unit = *(u8 **)(target + 0x30);
         if (*(u8 *)(unit + 0xA2) == 0) {
-            func_00278450(
+            itfMesWindowSetString(
                 *(u8 **)(state + 0x130), 0,
                 func_0010d740(*(s16 *)(unit + 0xA4)));
         } else {
-            func_00278450(
+            itfMesWindowSetString(
                 *(u8 **)(state + 0x130), 0,
                 iGpffffb444 + (u16)(*(u16 *)(unit + 0xA4)) * 0x15);
         }

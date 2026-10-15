@@ -22,9 +22,9 @@ extern f32 D_007615B4;
 extern f32 D_007615B8;
 extern void (*D_00887314_abs[])(s32 arg0, void *arg1, s32 arg2, void *arg3, s32 arg4);
 extern void sprintf(u8 *dst, const char *fmt, s32 arg);
-extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
+extern void itfMesWindowSetString(u8 *arg0, s32 arg1, u8 *arg2);
 extern void frFontListKeepOrRelease(s32 arg0);
-extern void func_00277ad0(s32 arg0, s32 arg1);
+extern void itfMesWindowClear(s32 arg0, s32 arg1);
 extern void func_00201350(void);
 extern void func_00211650(u8 *arg0, u8 *arg1);
 
@@ -2482,7 +2482,7 @@ void func_00216ca0(s32 task) {
         frFontListKeepOrRelease(*(s32 *)b);
         *(s32 *)b = 0;
     }
-    func_00277ad0(*(s32 *)(b + 0x18), 0);
+    itfMesWindowClear(*(s32 *)(b + 0x18), 0);
     *(u16 *)(b + 0x10) &= 0xFFFD;
     *(u16 *)(b + 0x16) = 0;
     *(s32 *)(b + 8) = *(s32 *)(b + 4);
@@ -2516,7 +2516,7 @@ void func_00216da0(u8 *arg0, s32 arg1) {
     u8 sp20[0x80];
 
     sprintf(sp20, (const char *)&iGpffffa598, arg1);
-    func_00278450(arg0, 1, sp20);
+    itfMesWindowSetString(arg0, 1, sp20);
 }
 
 // FUN_00216DF0
@@ -2558,16 +2558,16 @@ void func_00216e60(u8 *arg0, u8 *arg1)
     extern void frFontExSetScale(s32 arg0, f32 width);
     extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 mode,
                                s32 font, const char *text, s32 flags, s32 extra);
-    extern void func_002778c0(s32 arg0, s32 arg1, s32 arg2);
-    extern void func_00278090(s32 arg0, s32 arg1, s32 arg2);
-    extern void func_00278170(s32 arg0, s32 arg1);
-    extern void func_00278ef0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern s32 func_002791f0(f32 x, f32 y, f32 scale, s32 color, s32 arg4,
+    extern void itfMesWindowBindRecord(s32 arg0, s32 arg1, s32 arg2);
+    extern void itfMesWindowMove(s32 arg0, s32 arg1, s32 arg2);
+    extern void itfMesWindowSetFlagBits(s32 arg0, s32 arg1);
+    extern void itfMesWindowSetGlyphStyle(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 arg4,
                              s32 arg5, s32 arg6, s32 arg7, s32 arg8);
-    extern s32 func_00279690(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern s32 itfMesWindowRunEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 state);
     extern void func_00201350(void);
-    extern s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern s32 itfMesWindowMeasureText(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_00201650(u8 *work, s32 mode, s32 tile, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
     extern void func_00201720(void *arg0, f32 arg1, f32 arg2);
     extern u16 D_008C024E[];
@@ -2614,26 +2614,26 @@ void func_00216e60(u8 *arg0, u8 *arg1)
             frFontListKeepOrRelease(*(s32 *)arg1);
             *(s32 *)arg1 = 0;
         }
-        func_00277ad0(*(s32 *)(arg1 + 0x18), 0);
+        itfMesWindowClear(*(s32 *)(arg1 + 0x18), 0);
         *(u16 *)(arg1 + 0x10) &= (u16)~2;
         *(s32 *)(arg1 + 8) = *(s32 *)(arg1 + 4);
         if (*(u16 *)(arg1 + 0x12) == 1) {
             if (*(s32 *)(arg1 + 0x20) != 0) {
-                func_00278450((u8 *)(*(s32 *)(arg1 + 0x18)), 0,
+                itfMesWindowSetString((u8 *)(*(s32 *)(arg1 + 0x18)), 0,
                               (u8 *)func_0019f050((u8 *)*(s32 *)(arg1 + 0x20)));
             }
-            func_00278ef0(*(s32 *)(arg1 + 0x18), 2, 0, 0xFF, 0xFF);
-            func_002778c0(*(s32 *)(arg1 + 0x18), *(s32 *)(arg1 + 0x1C), 0);
-            func_00278ef0(*(s32 *)(arg1 + 0x18), 2, 0, 0xFF, 0xFF);
-            func_00278170(*(s32 *)(arg1 + 0x18), 0x800000);
-            n = func_002787d0(*(s32 *)(arg1 + 0x18), *(s32 *)(arg1 + 0x1C), 0, 2);
+            itfMesWindowSetGlyphStyle(*(s32 *)(arg1 + 0x18), 2, 0, 0xFF, 0xFF);
+            itfMesWindowBindRecord(*(s32 *)(arg1 + 0x18), *(s32 *)(arg1 + 0x1C), 0);
+            itfMesWindowSetGlyphStyle(*(s32 *)(arg1 + 0x18), 2, 0, 0xFF, 0xFF);
+            itfMesWindowSetFlagBits(*(s32 *)(arg1 + 0x18), 0x800000);
+            n = itfMesWindowMeasureText(*(s32 *)(arg1 + 0x18), *(s32 *)(arg1 + 0x1C), 0, 2);
             half = n / 16;
             if (*(u16 *)(arg1 + 0x10) & 4) {
                 old = half / 2;
-                func_00278090(*(s32 *)(arg1 + 0x18), (0xD0 - old) << 4, 0x2A0);
+                itfMesWindowMove(*(s32 *)(arg1 + 0x18), (0xD0 - old) << 4, 0x2A0);
             } else {
                 old = half / 2;
-                func_00278090(*(s32 *)(arg1 + 0x18), (0x12F - old) << 4, 0x2B0);
+                itfMesWindowMove(*(s32 *)(arg1 + 0x18), (0x12F - old) << 4, 0x2B0);
             }
         } else {
             frFontSetFlagBits(1);
@@ -2667,7 +2667,7 @@ void func_00216e60(u8 *arg0, u8 *arg1)
                 frFontListKeepOrRelease(*(s32 *)subctx);
                 *(s32 *)subctx = 0;
             }
-            func_00277ad0(*(s32 *)(subctx + 0x18), 0);
+            itfMesWindowClear(*(s32 *)(subctx + 0x18), 0);
             *(u16 *)(subctx + 0x10) &= (u16)~2;
             *(u16 *)(subctx + 0x16) = 0;
             *(s32 *)(subctx + 8) = *(s32 *)(subctx + 4);
@@ -2901,10 +2901,10 @@ void func_00216e60(u8 *arg0, u8 *arg1)
         }
         if (fade == 1.0f) {
             if (*(s32 *)(arg1 + 0x38) == 0) {
-                func_00279690(*(s32 *)(arg1 + 0x2C), *(s32 *)(arg1 + 0x30), 1, 0xF561);
+                itfMesWindowRunEntry(*(s32 *)(arg1 + 0x2C), *(s32 *)(arg1 + 0x30), 1, 0xF561);
                 *(s32 *)(arg1 + 0x38) = 1;
             }
-            func_002791f0(31.0f, 300.0f, 0.0f, -1, 0, 0, 0,
+            itfMesWindowDrawEntry(31.0f, 300.0f, 0.0f, -1, 0, 0, 0,
                           *(s32 *)(arg1 + 0x2C), *(s32 *)(arg1 + 0x30));
             key = *(s16 *)(arg1 + 0x2A);
             if (key == 0) {
@@ -3018,7 +3018,7 @@ void func_00218420(s32 task, u8 *arg1)
     sub = work + 0x84C;
     *(s16 *)(work + 0x874) = -1;
     *(s32 *)(work + 0x880) = 0;
-    *(s32 *)(sub + 0x2C) = func_002774d0(func_001f3b80(0xCB));
+    *(s32 *)(sub + 0x2C) = itfMesWindowInstall(func_001f3b80(0xCB));
     *(s32 *)(sub + 0x30) = 0;
     *(s32 *)(sub + 0x38) = 0;
     *(s16 *)(sub + 0x2A) = 8;
@@ -3048,7 +3048,7 @@ void func_00218500(s32 task)
     *(s16 *)(work + 0x874) = -1;
     handle = *(s32 *)(work + 0x878);
     if (handle != -1) {
-        func_002777f0(handle);
+        itfMesWindowReleaseIfActive(handle);
         *(s32 *)(sub + 0x2C) = -1;
     }
     *(u16 *)(sub + 0x10) = *(u16 *)(sub + 0x10) & 0xFFEF;

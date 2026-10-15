@@ -103,7 +103,7 @@ extern s32 func_0029da90(u8 *a, u32 b, s32 c);
 extern void func_0029dfe0(u32 a, u8 *b);
 extern u8 *func_00452560(u32 a);
 extern s32 func_0010d740(s32 a);
-extern void func_00278450(s32 a, s32 b, u32 c);
+extern void itfMesWindowSetString(s32 a, s32 b, u32 c);
 extern void func_00452570(u8 *a, u32 b);
 extern u8 D_00609E20[];
 extern u8 *iGpffffb428;
@@ -1967,7 +1967,7 @@ s32 btlAICommandSpawnActionProc(u8 *p, u8 *q, u32 v, u32 w)
             d = (u32)iGpffffb444 + (*(u16 *)(*(u32 *)(p + 0x30) + 0xA4)) * 21;
             break;
         }
-        func_00278450(*(s32 *)(v2 + 0x130), 0, d);
+        itfMesWindowSetString(*(s32 *)(v2 + 0x130), 0, d);
     }
     func_00452570((u8 *)(*(u32 *)(iGpffffb3ac + 0xDC8)), t);
     *(u32 *)(q + 0x4C) = t;

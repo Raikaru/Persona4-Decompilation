@@ -110,7 +110,7 @@ extern void func_004b13f0(void *object, s32 *color);
 extern u8 *func_001102f0(u8 *position, s32 screenX, s32 screenY, f32 distance);
 extern u8 *func_00457120(void);
 extern s32 func_003e9700(s32 arg0);
-extern void func_00278450(s32 arg0, s32 arg1, void *arg2);
+extern void itfMesWindowSetString(s32 arg0, s32 arg1, void *arg2);
 extern void func_0045aeb0(s32 arg0, void *arg1);
 extern f32 fGpffffa66c;
 extern f32 fGpffffa670;
@@ -270,8 +270,8 @@ extern void *memcpy(void *dst, const void *src, u32 size);
 extern u8 *func_002467b0(s32 arg0);
 extern s32 datGetFlag(s32 flag);
 extern s64 func_00248d80(s16 arg0);
-extern void func_00279d40(s32 arg0);
-extern u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
+extern void itfMesWindowApplySlots(s32 arg0);
+extern u8 *itfMesWindowBuildEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
                          s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u8 *frFontSplitRun(u8 **arg0, s32 arg1);
 extern s32 frFontNodeWidth(u8 *arg0);
@@ -1574,8 +1574,8 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
     u8 *var_17;
     s32 var_16;
 
-    func_00279d40(arg5);
-    spAC = func_00279030(fparg0, fparg1, fparg2, (arg0 << 8) | arg1, arg2,
+    itfMesWindowApplySlots(arg5);
+    spAC = itfMesWindowBuildEntry(fparg0, fparg1, fparg2, (arg0 << 8) | arg1, arg2,
                          arg3, arg4, arg5, arg6);
     if (spAC != NULL) {
         var_18 = frFontSplitRun(&spAC, arg7);
@@ -2533,7 +2533,7 @@ s32 func_00257900(u8 *task) {
             } else if (mode0Frame < 0x1EB) {
                 func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
                 temp_17_2 = (s32)(*(s32 *)(context + 8) - 0xBE);
-                func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+                itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
                 temp_2_3 = (s32)(*(s32 *)(context + 0xC));
                 if (temp_2_3 > 0) {
                     *(s32 *)(context + 0xC) = (s32) (temp_2_3 + 1);
@@ -2638,7 +2638,7 @@ s32 func_00257900(u8 *task) {
             } else if (mode0Frame < 0x213) {
                 func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
                 func_002561f0(0.0f, 40.0f, 0.0f, 0, 0x99, 0x99, 0x99, 1, 0, 0, 1.0f, 1.0f);
-                func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+                itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
                 func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 0);
                 func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 1);
                 func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 2);
@@ -2651,7 +2651,7 @@ s32 func_00257900(u8 *task) {
                 func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
                 temp_f0_4 = 153.0f * temp_f21;
                 func_002561f0(0.0f, 40.0f, 0.0f, 0, (s32)( temp_f0_4), (s32)( temp_f0_4), (s32)( temp_f0_4), 1, 0, 0, 1.0f, 1.0f);
-                func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+                itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
                 temp_f0_5 = 255.0f * temp_f21;
                 func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 0);
                 func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 1);
@@ -2736,8 +2736,8 @@ s32 func_00257900(u8 *task) {
         } else if (mode10Frame < 0x1C3) {
             func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
             temp_17_3 = (s32)(*(s32 *)(context + 8) - 0x96);
-            func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            func_00278450(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
             temp_2_18 = (s32)(*(s32 *)(context + 0xC));
             if (temp_2_18 > 0) {
                 *(s32 *)(context + 0xC) = (s32) (temp_2_18 + 1);
@@ -2842,8 +2842,8 @@ s32 func_00257900(u8 *task) {
         } else if (mode10Frame < 0x1F5) {
             func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
             func_00256460(0.0f, 40.0f, 0.0f, 0, 0x99, 0x99, 0x99, 1, 0, 0, 1.0f, 1.0f);
-            func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            func_00278450(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
             func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 0);
             func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 1);
             func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 2);
@@ -2858,8 +2858,8 @@ s32 func_00257900(u8 *task) {
             func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
             temp_f0_9 = 153.0f * temp_f21_2;
             func_00256460(0.0f, 40.0f, 0.0f, 0, (s32)( temp_f0_9), (s32)( temp_f0_9), (s32)( temp_f0_9), 1, 0, 0, 1.0f, 1.0f);
-            func_00278450(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            func_00278450(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)func_00246d90((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
             temp_f0_10 = 255.0f * temp_f21_2;
             func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 0);
             func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 1);
@@ -3216,8 +3216,8 @@ extern void func_002518d0();
 extern s32 func_00189fa0();
 extern void func_00452080();
 extern s32 func_00452380();
-extern s32 func_002774d0();
-extern void func_002777f0();
+extern s32 itfMesWindowInstall();
+extern void itfMesWindowReleaseIfActive();
 extern s32 func_002bb680();
 extern void func_002bb420();
 extern void func_002bb550();
@@ -3410,7 +3410,7 @@ s32 func_0025b240(u8 *arg0) {
         goto tail;
     case 9:
         *(s32 *)(ctx + 4) = 10;
-        *(s8 *)(ctx + 0x3C) = (s8)func_002774d0(*(s32 *)(ctx + 0x38));
+        *(s8 *)(ctx + 0x3C) = (s8)itfMesWindowInstall(*(s32 *)(ctx + 0x38));
         *(s32 *)(ctx + 0x44) = 0;
         *(s32 *)ctx |= 2;
         tmp4 = *(s32 *)(ctx + 0x1C);
@@ -3430,7 +3430,7 @@ s32 func_0025b240(u8 *arg0) {
             goto tail;
         }
         *(s32 *)(ctx + 4) = 0xB;
-        func_002777f0(*(s8 *)(ctx + 0x3C));
+        itfMesWindowReleaseIfActive(*(s8 *)(ctx + 0x3C));
         *(s32 *)(ctx + 8) = 0;
         goto tail;
     case 11:

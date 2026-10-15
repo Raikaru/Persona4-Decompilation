@@ -16,7 +16,7 @@ void *func_0027BE60(s32 handle)
 
   
 
-  iVar1 = func_00277840(handle);
+  iVar1 = itfMesWindowGetSubTable(handle);
 
   return *(void **)(iVar1 + 0x18);
 

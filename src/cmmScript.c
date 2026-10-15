@@ -85,7 +85,7 @@ extern s32 func_002468a0(s32 arg0);
 extern s32 func_001067f0(s32 arg0);
 extern s32 func_002490b0(s32 arg0);
 extern s32 func_00249180(s32 arg0);
-extern void func_002784e0(s32 arg0, s32 arg1, s32 arg2);
+extern void itfMesWindowSetNumber(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00246c90(s32 arg0);
 extern s32 func_00246d50(s32 arg0);
 extern u8 func_001060c0(void);
@@ -135,9 +135,9 @@ extern s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
                          s32 arg4, s16 arg5, s16 arg6,
                          f32 farg3, f32 farg4, f32 farg5, void* arg7);
 extern s32 func_00243840(s32 arg0);
-extern void func_002782c0(s32 arg0, s32 arg1, s32 arg2, u32 arg3);
+extern void itfMesWindowFormatValue(s32 arg0, s32 arg1, s32 arg2, u32 arg3);
 extern void frFontExCopyString();
-extern void func_00278450();
+extern void itfMesWindowSetString();
 extern s32 iGpffffa658;
 extern s32 iGpffffa62c;
 extern u8* iGpffffb3d4;
@@ -330,17 +330,17 @@ s32 func_0024a490(void)
     }
     key = func_002487e0(id & 0xFFFF, 0);
     if (key != 0) {
-        func_00278450(mesMgr, 0, func_0010d620((s16)key));
+        itfMesWindowSetString(mesMgr, 0, func_0010d620((s16)key));
     }
     frFontExCopyString(func_00246830(id & 0xFFFF), buf, 0x80);
-    func_00278450(mesMgr, 1, buf);
-    func_00278450(mesMgr, 2, func_002438b0((u8)func_00248760(id & 0xFFFF)));
+    itfMesWindowSetString(mesMgr, 1, buf);
+    itfMesWindowSetString(mesMgr, 2, func_002438b0((u8)func_00248760(id & 0xFFFF)));
     frFontExCopyString(func_00246b10((s8)func_00248760(id & 0xFFFF)), buf, 0x80);
-    func_00278450(mesMgr, 3, buf);
-    func_002782c0(mesMgr, 4, func_00107ac0(id & 0xFFFF) & 0xFFFF, 0);
+    itfMesWindowSetString(mesMgr, 3, buf);
+    itfMesWindowFormatValue(mesMgr, 4, func_00107ac0(id & 0xFFFF) & 0xFFFF, 0);
     key = func_00247820((s16)id);
     if (key != 0) {
-        func_00278450(mesMgr, 5, datPersonaGetRow(key & 0xFFFF));
+        itfMesWindowSetString(mesMgr, 5, datPersonaGetRow(key & 0xFFFF));
     }
     idx = func_00248040(func_001060b0());
     if (idx != 0) {
@@ -353,10 +353,10 @@ s32 func_0024a490(void)
             *dst++ = tmp;
         } while (i > 0);
         frFontExCopyString(tbl[func_00110580(idx, dst, src)], buf, 0x80);
-        func_00278450(mesMgr, 6, buf);
+        itfMesWindowSetString(mesMgr, 6, buf);
     }
     frFontExCopyString(func_002468a0(id & 0xFFFF), buf, 0x80);
-    func_00278450(mesMgr, 7, buf);
+    itfMesWindowSetString(mesMgr, 7, buf);
     return 1;
 }
 
@@ -394,14 +394,14 @@ s32 cmmPersonaInfoLookupShow(void)
     if (entry != 0) {
         u8 *base = iGpffffb3d4;
         s32 off = entry * 14;
-        func_002782c0(mesMgr, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
-        func_00278450(mesMgr, 1, datPersonaGetRow(entry & 0xFFFF));
+        itfMesWindowFormatValue(mesMgr, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
+        itfMesWindowSetString(mesMgr, 1, datPersonaGetRow(entry & 0xFFFF));
         for (i = 0; i < 3; i++) {
-            func_00278450(mesMgr, i + 2, &iGpffffa62c);
+            itfMesWindowSetString(mesMgr, i + 2, &iGpffffa62c);
         }
         func_0010d360(entry & 0xFFFF, vals, &count);
         for (j = 0; j < count; j++) {
-            func_00278450(mesMgr, j + 2, func_00243840(vals[j]));
+            itfMesWindowSetString(mesMgr, j + 2, func_00243840(vals[j]));
         }
     }
     scrSetReturnInt(entry);
@@ -436,14 +436,14 @@ s32 cmmPersonaInfoShow(void)
     if (entry != 0) {
         u8 *base = iGpffffb3d4;
         s32 off = entry * 14;
-        func_002782c0(mesMgr, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
-        func_00278450(mesMgr, 1, datPersonaGetRow(entry & 0xFFFF));
+        itfMesWindowFormatValue(mesMgr, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
+        itfMesWindowSetString(mesMgr, 1, datPersonaGetRow(entry & 0xFFFF));
         for (i = 0; i < 3; i++) {
-            func_00278450(mesMgr, i + 2, &iGpffffa62c);
+            itfMesWindowSetString(mesMgr, i + 2, &iGpffffa62c);
         }
         func_0010d360(entry & 0xFFFF, vals, &count);
         for (j = 0; j < count; j++) {
-            func_00278450(mesMgr, j + 2, func_00243840(vals[j]));
+            itfMesWindowSetString(mesMgr, j + 2, func_00243840(vals[j]));
         }
     }
     scrSetReturnInt(entry);
@@ -707,39 +707,39 @@ s32 func_0024b070(void)
     if (mesMgr < 0) {
         func_0046d730(D_006359F0, 0x27D);
     }
-    func_00278450(mesMgr, 0, func_001067f0(*(s16*)(rec + 4)));
-    func_00278450(mesMgr, 2, func_001067f0(*(s16*)(rec + 8)));
-    func_00278450(mesMgr, 4, func_001067f0(*(s16*)(rec + 0x14)));
-    func_00278450(mesMgr, 6, func_001067f0(*(s16*)(rec + 0x18)));
-    func_002784e0(mesMgr, 0xE, *(u16*)(rec + 4));
-    func_002784e0(mesMgr, 0xF, *(u16*)(rec + 8));
-    func_002784e0(mesMgr, 0x10, *(u16*)(rec + 0x14));
-    func_002784e0(mesMgr, 0x11, *(u16*)(rec + 0x18));
-    func_002782c0(mesMgr, 1, *(s16*)(rec + 6), 0);
-    func_002782c0(mesMgr, 3, *(s16*)(rec + 0xA), 0);
-    func_002782c0(mesMgr, 5, *(s16*)(rec + 0x16), 0);
-    func_002782c0(mesMgr, 7, *(s16*)(rec + 0x1A), 0);
-    func_002782c0(mesMgr, 8, *(u32*)(rec + 0xC), 0);
-    func_002782c0(mesMgr, 9, *(u32*)(rec + 0x1C), 0);
+    itfMesWindowSetString(mesMgr, 0, func_001067f0(*(s16*)(rec + 4)));
+    itfMesWindowSetString(mesMgr, 2, func_001067f0(*(s16*)(rec + 8)));
+    itfMesWindowSetString(mesMgr, 4, func_001067f0(*(s16*)(rec + 0x14)));
+    itfMesWindowSetString(mesMgr, 6, func_001067f0(*(s16*)(rec + 0x18)));
+    itfMesWindowSetNumber(mesMgr, 0xE, *(u16*)(rec + 4));
+    itfMesWindowSetNumber(mesMgr, 0xF, *(u16*)(rec + 8));
+    itfMesWindowSetNumber(mesMgr, 0x10, *(u16*)(rec + 0x14));
+    itfMesWindowSetNumber(mesMgr, 0x11, *(u16*)(rec + 0x18));
+    itfMesWindowFormatValue(mesMgr, 1, *(s16*)(rec + 6), 0);
+    itfMesWindowFormatValue(mesMgr, 3, *(s16*)(rec + 0xA), 0);
+    itfMesWindowFormatValue(mesMgr, 5, *(s16*)(rec + 0x16), 0);
+    itfMesWindowFormatValue(mesMgr, 7, *(s16*)(rec + 0x1A), 0);
+    itfMesWindowFormatValue(mesMgr, 8, *(u32*)(rec + 0xC), 0);
+    itfMesWindowFormatValue(mesMgr, 9, *(u32*)(rec + 0x1C), 0);
     p = (u8*)func_00246c90(*(u16*)(rec + 0x12));
     if (p != 0) {
         frFontExCopyString(p, buf, 0x80);
-        func_00278450(mesMgr, 0xA, buf);
+        itfMesWindowSetString(mesMgr, 0xA, buf);
     }
     p = (u8*)func_00246c90(*(u16*)(rec + 0x22));
     if (p != 0) {
         frFontExCopyString(p, buf, 0x80);
-        func_00278450(mesMgr, 0xB, buf);
+        itfMesWindowSetString(mesMgr, 0xB, buf);
     }
     p = (u8*)func_00246d50(*(u16*)(rec + 0x10));
     if (p != 0) {
         frFontExCopyString(p, buf, 0x80);
-        func_00278450(mesMgr, 0xC, buf);
+        itfMesWindowSetString(mesMgr, 0xC, buf);
     }
     p = (u8*)func_00246d50(*(u16*)(rec + 0x20));
     if (p != 0) {
         frFontExCopyString(p, buf, 0x80);
-        func_00278450(mesMgr, 0xD, buf);
+        itfMesWindowSetString(mesMgr, 0xD, buf);
     }
     return 1;
 }
@@ -810,26 +810,26 @@ s32 func_0024b490(void)
     q = (u8*)func_00246cd0(id & 0xFFFF) + 0xC;
     if (q != 0) {
         frFontExCopyString(q, buf, 0x80);
-        func_00278450(mesMgr, 0, buf);
+        itfMesWindowSetString(mesMgr, 0, buf);
     }
-    func_002782c0(mesMgr, 1, *(s32*)(func_00246cd0(id & 0xFFFF) + 4), 0);
+    itfMesWindowFormatValue(mesMgr, 1, *(s32*)(func_00246cd0(id & 0xFFFF) + 4), 0);
     q = (u8*)func_00246cd0(id & 0xFFFF) + 0x22;
     if (q != 0) {
         frFontExCopyString(q, buf, 0x80);
-        func_00278450(mesMgr, 2, buf);
+        itfMesWindowSetString(mesMgr, 2, buf);
     }
     tblIdx = *(s8*)(func_00246cd0(id & 0xFFFF) + 8);
     if (tblIdx != -1) {
         frFontExCopyString(tbl[tblIdx], buf, 0x80);
-        func_00278450(mesMgr, 3, buf);
+        itfMesWindowSetString(mesMgr, 3, buf);
     }
-    func_002782c0(mesMgr, 4, *(s8*)(func_00246cd0(id & 0xFFFF) + 9), 0);
+    itfMesWindowFormatValue(mesMgr, 4, *(s8*)(func_00246cd0(id & 0xFFFF) + 9), 0);
     tblIdx = *(s8*)(func_00246cd0(id & 0xFFFF) + 0xA);
     if (tblIdx != -1) {
         frFontExCopyString(tbl[tblIdx], buf, 0x80);
-        func_00278450(mesMgr, 5, buf);
+        itfMesWindowSetString(mesMgr, 5, buf);
     }
-    func_002782c0(mesMgr, 6, *(s8*)(func_00246cd0(id & 0xFFFF) + 0xB), 0);
+    itfMesWindowFormatValue(mesMgr, 6, *(s8*)(func_00246cd0(id & 0xFFFF) + 0xB), 0);
     return 1;
 }
 #pragma optimization_level 2

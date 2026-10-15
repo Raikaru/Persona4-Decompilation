@@ -8,7 +8,7 @@ extern s32 D_0063BF80[];
 extern u16 D_008C024E[];
 
 extern void func_0046a340(s32 arg0);
-extern void func_0027a370();
+extern void itfMesListSetColor();
 extern void func_0027a400();
 
 extern s32 frFontGetMode(void);
@@ -56,7 +56,7 @@ extern s32 func_001105b0(s32 arg0);
 extern void frFontExCopyString(void *arg0, void *arg1, s32 arg2);
 extern s8 D_0063BAB0[];
 extern s32 func_00108e10(void);
-extern void func_00278a70(s32 arg0);
+extern void itfMesWindowFree(s32 arg0);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 
@@ -772,7 +772,7 @@ done:
 // FUN_0027A490
 void func_0027a490(void)
 {
-    func_0027a370();
+    itfMesListSetColor();
 }
 
 // FUN_0027A4B0
@@ -926,7 +926,7 @@ void func_0027a970(u8 *arg0)
     extern s32 frFontMeasureList(u8 *arg0);
     extern void frFontLoadSystemSlot(u8 *arg0);
     extern void func_002746c0(s32 arg0, s32 arg1);
-    extern void func_00279780(u8 *arg0);
+    extern void itfMesWindowBuildRow(u8 *arg0);
     extern void func_00440b68(void *arg0);
     extern void func_0045a9a0(s32 arg0, s32 arg1);
     extern u16 D_008C024C[];
@@ -989,7 +989,7 @@ do_action:
                 }
                 if (*(s32 *)(arg0 + 8) != 0)
                     frFontLoadSystemSlot((u8 *)*(s32 *)(arg0 + 8));
-                func_00279780(arg0);
+                itfMesWindowBuildRow(arg0);
                 *(s32 *)arg0 = *(s32 *)arg0 & ~7;
                 *(s32 *)arg0 |= 3;
         } else {
@@ -1017,7 +1017,7 @@ void func_0027ac50(u8 *arg0)
 {
     extern s32 frFontListKeepOrRelease(s32 arg0);
     extern void frFontRunCommand(s32 arg0, s32 arg1, s32 arg2);
-    extern s32 func_0027a150();
+    extern s32 itfMesReleaseTagRun();
     extern s32 func_0027ae90(u8 *arg0);
     u8 *state;
     s32 flags;
@@ -1070,7 +1070,7 @@ void func_0027ac50(u8 *arg0)
             call_arg1 = *(s16 *)(state + 0xE);
             call_arg2 = *(s16 *)(state + 0x12);
             call_arg0 = *(s32 *)(state + 4);
-            *(s32 *)(state + 4) = func_0027a150(
+            *(s32 *)(state + 4) = itfMesReleaseTagRun(
                 call_arg0, call_arg1, call_arg2);
             entry = *(u8 **)(arg0 + 4);
             entry = *(u8 **)((u8 *)add_retail_ptr(
@@ -1446,7 +1446,7 @@ void func_0027b690(u8 *unusedTask)
     var_3 = *(u8 **)DAT_008817EC_abs;
     while (var_3 != NULL) {
         temp_16 = *(u8 **)(var_3 + 4);
-        func_00278a70(*(s32 *)(var_3 + 8));
+        itfMesWindowFree(*(s32 *)(var_3 + 8));
         var_3 = temp_16;
     }
 }
@@ -1455,8 +1455,8 @@ s32 func_0027b7c0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    *(s32 *)(func_00277840(arg0) + 0x14) = 0;
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    *(s32 *)(itfMesWindowGetSubTable(arg0) + 0x14) = 0;
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0);
     }
@@ -1468,9 +1468,9 @@ s32 func_0027b830(s32 arg0)
     u8 *base;
     s32 (*temp_2)(s32, s32);
 
-    base = (u8 *)func_00277840(arg0);
+    base = (u8 *)itfMesWindowGetSubTable(arg0);
     *(s32 *)(base + 0x14) = 1;
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 1);
     }
@@ -1482,9 +1482,9 @@ s32 func_0027b8a0(s32 arg0)
     u8 *base;
     s32 (*temp_2)(s32, s32);
 
-    base = (u8 *)func_00277840(arg0);
+    base = (u8 *)itfMesWindowGetSubTable(arg0);
     *(s32 *)(base + 0x14) = 2;
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 2);
     }
@@ -1496,9 +1496,9 @@ s32 func_0027b910(s32 arg0)
     u8 *base;
     s32 (*temp_2)(s32, s32);
 
-    base = (u8 *)func_00277840(arg0);
+    base = (u8 *)itfMesWindowGetSubTable(arg0);
     *(s32 *)(base + 0x14) = 3;
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 3);
     }
@@ -1509,8 +1509,8 @@ s32 func_0027b980(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 4);
     }
@@ -1521,8 +1521,8 @@ s32 func_0027b9e0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 5);
     }
@@ -1533,8 +1533,8 @@ s32 func_0027ba40(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 6);
     }
@@ -1545,8 +1545,8 @@ s32 func_0027baa0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 7);
     }
@@ -1557,8 +1557,8 @@ s32 func_0027bb00(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 8);
     }
@@ -1569,8 +1569,8 @@ s32 func_0027bb60(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 9);
     }
@@ -1581,8 +1581,8 @@ s32 func_0027bbc0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0xA);
     }
@@ -1593,8 +1593,8 @@ s32 func_0027bc20(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0xB);
     }
@@ -1605,8 +1605,8 @@ s32 func_0027bc80(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0xC);
     }
@@ -1617,8 +1617,8 @@ s32 func_0027bce0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0xD);
     }
@@ -1629,8 +1629,8 @@ s32 func_0027bd40(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0x10);
     }
@@ -1641,8 +1641,8 @@ s32 func_0027bda0(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0x11);
     }
@@ -1653,8 +1653,8 @@ s32 func_0027be00(s32 arg0)
 {
     s32 (*temp_2)(s32, s32);
 
-    func_00277840(arg0);
-    temp_2 = *(s32 (**)(s32, s32))func_00277840(arg0);
+    itfMesWindowGetSubTable(arg0);
+    temp_2 = *(s32 (**)(s32, s32))itfMesWindowGetSubTable(arg0);
     if (temp_2 != NULL) {
         return temp_2(arg0, 0x12);
     }
@@ -1665,7 +1665,7 @@ s32 func_0027bec0(s32 handle)
 {
     s32 temp_2;
 
-    temp_2 = func_00278110(handle);
+    temp_2 = itfMesWindowGetFlags(handle);
     if (!(temp_2 & 0x80000) || ((temp_2 & 0x300) < 0x100)) {
         return 1;
     }

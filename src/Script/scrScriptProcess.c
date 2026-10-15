@@ -174,9 +174,9 @@ s32 func_0029e970(void);
 void func_0029e960(s32 arg0);
 void func_00440b68(char* fmt, ...);
 void H_Dbprt_FmtLog(char* fmt, ...);
-void func_002777f0(s32 handle);
-s32 func_002774d0(u8* str);
-void func_00278640(s32 handle, s32 arg1, s32 arg2);
+void itfMesWindowReleaseIfActive(s32 handle);
+s32 itfMesWindowInstall(u8* str);
+void itfMesWindowApplyStyle(s32 handle, s32 arg1, s32 arg2);
 s32 func_00452080(KwlnTask* task);
 void H_Cdvd_Destroy(s32 handle);
 u8* func_00468170(void* parent, const char* text);
@@ -398,9 +398,9 @@ ScrScriptWork* func_0029d2f0(ScrHeader* header, ScrContentEntry* entries, u8* pr
     work->msgB = msg + 0x320;
     if (arg5 != NULL)
     {
-        handle = func_002774d0(arg5);
+        handle = itfMesWindowInstall(arg5);
         work->soundHandle = handle;
-        func_00278640(handle, 0, 0);
+        itfMesWindowApplyStyle(handle, 0, 0);
     }
     if (D_0076460C == NULL)
     {
@@ -613,7 +613,7 @@ void func_0029dc80(ScrScriptWork* work)
     handle = work->soundHandle;
     if (handle >= 0)
     {
-        func_002777f0(handle);
+        itfMesWindowReleaseIfActive(handle);
         func_00440b68(D_0063E580);
     }
     handle = (s32)work->textBuf;
@@ -982,7 +982,7 @@ s32 func_0029e550(u8 *arg0)
                 scrPoolFree(D_00764614, child->msgA);
                 handle = child->soundHandle;
                 if (handle >= 0) {
-                    func_002777f0(handle);
+                    itfMesWindowReleaseIfActive(handle);
                     func_00440b68(D_0063E580);
                 }
                 if (child->textBuf != NULL) {
@@ -1030,7 +1030,7 @@ void func_0029e7b0(u8* arg0)
         handle = work->soundHandle;
         if (handle >= 0)
         {
-            func_002777f0(handle);
+            itfMesWindowReleaseIfActive(handle);
             func_00440b68(D_0063E580);
         }
         handle = (s32)work->textBuf;

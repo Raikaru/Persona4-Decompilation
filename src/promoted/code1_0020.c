@@ -120,7 +120,7 @@ extern void func_00200fd0(s32 arg0, u8 *arg1);
 extern s32 func_00201b00(u8 *arg0);
 extern void func_00201db0(void *arg0);
 extern void memcpy(void *dst, const void *src, u32 size);
-extern void func_002777f0(s32 arg0);
+extern void itfMesWindowReleaseIfActive(s32 arg0);
 extern void func_0046b0d0(void *arg0);
 extern s32 datCalcGetHp(s32 arg0);
 extern s32 datCalcMaxHp(s32 arg0);
@@ -234,7 +234,7 @@ extern void func_0021b190(u8 *arg0, s32 arg1);
 extern void func_0021b1f0(s32 arg0, s32 *arg1);
 extern void func_0021be10(u8 *arg0, s32 arg1);
 extern void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback);
-extern s32 func_002774d0(void *arg0);
+extern s32 itfMesWindowInstall(void *arg0);
 extern u8 D_006253B0[];
 
 
@@ -528,7 +528,7 @@ loop_test:
     }
     goto loop_done;
 loop_done:
-    func_002777f0(*(s32 *)(temp_2 + 0x98));
+    itfMesWindowReleaseIfActive(*(s32 *)(temp_2 + 0x98));
     jtbl_008873EC[0](temp_2);
 }
 // FUN_00200FD0
@@ -584,7 +584,7 @@ void func_00200fd0(s32 arg0, u8 *arg1)
     *(f32 *)(arg1 + 0x18) = 1.0f;
     *(f32 *)(arg1 + 0x1C) = 1.0f;
     *(f32 *)(arg1 + 0x20) = 1.0f;
-    *(s32 *)(arg1 + 0x98) = func_002774d0(D_006253B0);
+    *(s32 *)(arg1 + 0x98) = itfMesWindowInstall(D_006253B0);
 }
 // FUN_002011C0
 s32 func_002011c0(s32 arg0)
@@ -2708,7 +2708,7 @@ void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
         opacity);
 }
 #pragma pop
-extern s32 func_002791f0(f32 x, f32 y, f32 scale, s32 color, s32 mode,
+extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 mode,
                          s32 style, s32 flags, s32 handle, s32 index);
 /* 488/496 bytes; seven resolved relocations; eight zero alignment bytes.
  * Preserve the two narrow tone assignments instead of rebuilding a merge. */
@@ -2732,7 +2732,7 @@ void func_00205e00(u8 *panel, s32 index, f32 x, f32 y,
                   color, color, color, opacity);
     if (draw_text != 0) {
         frFontSetFlagBits(0x40);
-        func_002791f0(10.0f + (2.0f + (42.0f + x) - 1.0f), 36.0f + y, 0.0f,
+        itfMesWindowDrawEntry(10.0f + (2.0f + (42.0f + x) - 1.0f), 36.0f + y, 0.0f,
                       (s32)(0xFFFFFF00U | (u8)opacity), 1, 0, 0,
                       *(s32 *)(work + 0x98), index);
         frFontClearFlagBits(0x40);
