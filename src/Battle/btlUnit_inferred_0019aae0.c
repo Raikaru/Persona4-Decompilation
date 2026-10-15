@@ -143,7 +143,7 @@ extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-extern void func_0019d990(u8 *arg0, s32 arg1);
+extern void btlUnitClearModelState(u8 *arg0, s32 arg1);
 extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
 
 
@@ -209,7 +209,7 @@ u32 btlUnitMotionSpeedPacketUpdate(void *workData)
     temp_17 = *(u16 *)(arg0 + 4);
     temp_18 = *(u8 **)arg0;
     if (*(s32 *)(temp_18 + 0x98) & 2) {
-        func_0019d990(temp_18, 4);
+        btlUnitClearModelState(temp_18, 4);
         if (*(s32 *)(temp_18 + 0x98) & 2)
             temp_19_low = (s32)(s16)(s32)func_0047a080(*(s32 *)(temp_18 + 0xA00), 0);
         else

@@ -234,7 +234,7 @@ extern void mdlLookAtSetupSetRange(void *arg0, float arg1, float arg2);
 extern f32 DAT_0076112c;
 
 
-extern void func_0019d990(u8 *arg0, s32 arg1);
+extern void btlUnitClearModelState(u8 *arg0, s32 arg1);
 extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
 extern u8 *func_001f7650(u8 *arg0);
 extern void SceneDraw_SetResVisibleChecked(u16 arg0, u32 arg1);
@@ -305,7 +305,7 @@ extern void func_001f8480(void);
 extern void func_00202be0(void);
 extern void func_0047d170(void *model);
 extern s32 func_0047e6f0(void **owner);
-extern void func_0019db40(u8 *arg0);
+extern void btlUnitUpdateLookAtTarget(u8 *arg0);
 extern void func_001fc1b0(s16 arg0);
 extern s32 func_002300f0();
 extern void btlUnitModelLoadPacketInit(u8 *arg0);
@@ -1168,8 +1168,8 @@ void func_0019c0d0(void)
                     if (col.a >= 0xFE) {
                         col.a = 0xFF;
                         mode = 0x737FB;
-                        func_0019d990(entry, 2);
-                        func_0019d990(entry, 5);
+                        btlUnitClearModelState(entry, 2);
+                        btlUnitClearModelState(entry, 5);
                     } else if (i != 2) {
                         mode = 0x737FB;
                         btlUnitApplyModelState(entry, 2);
@@ -1242,7 +1242,7 @@ loop_5:
     goto loop_check;
 loop_body:
     if (*(s32 *)(entry + 0x98) & 2) {
-        func_0019db40(entry);
+        btlUnitUpdateLookAtTarget(entry);
     }
     entry = *(u8 **)(entry + 0xA68);
 loop_check:
@@ -1258,7 +1258,7 @@ loop_7:
 // FUN_0019D040
 void btlUnitShowModel(u8 *arg0) {
     *(s32 *)(arg0 + 0x9C) &= ~0x1000;
-    func_0019d990(arg0, 5);
+    btlUnitClearModelState(arg0, 5);
     if (*(u16 *)(arg0 + 0x9FE) != 0) {
         SceneDraw_SetResVisibleChecked(*(u16 *)(arg0 + 0x9FE), 1);
         *(s32 *)(arg0 + 0x9C) &= ~2;
@@ -1272,7 +1272,7 @@ void btlUnitShowModel(u8 *arg0) {
 // FUN_0019D0C0
 void btlUnitHideModel(u8 *arg0) {
     *(s32 *)(arg0 + 0x9C) |= 0x1000;
-    func_0019d990(arg0, 5);
+    btlUnitClearModelState(arg0, 5);
     if (*(u16 *)(arg0 + 0x9FE) != 0) {
         SceneDraw_SetResVisibleChecked(*(u16 *)(arg0 + 0x9FE), 0);
     }

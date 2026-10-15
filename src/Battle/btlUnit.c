@@ -967,7 +967,7 @@ struct BtlUnitPacketLookAt
 };
 
 void func_0019df00(BtlUnitPacketCountRef* work);
-u32 func_0019df20(void* work);
+u32 btlUnitSetLookAtRanges(void* work);
 void func_0019e130(BtlUnitPacketCountRef* work);
 
 // FUN_0019ACD0
@@ -1104,7 +1104,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
                 if (t16_sts & 2) {
                     *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x200;
                 } else if (t16_sts & 4) {
-                    func_0019d990(t17, 2);
+                    btlUnitClearModelState(t17, 2);
                     *(u16 *)(arg0 + 8) &= ~1;
                 }
                 if (t16_sts & 8) {
@@ -1237,7 +1237,7 @@ BtlPacket* btlUnitCreateLookAtPacket(BtlUnit* unit, const RwV3d* targetPos, u16 
     packet = btlPacketAlloc(0x117, sizeof(BtlUnitPacketLookAt));
 
     packet->initFunc = (BtlPacketFunc)func_0019df00;
-    packet->updateFunc = func_0019df20;
+    packet->updateFunc = btlUnitSetLookAtRanges;
     packet->destroyFunc = (BtlPacketFunc)func_0019e130;
 
     work = (BtlUnitPacketLookAt*)packet->workData;
