@@ -65,7 +65,7 @@ extern s64 func_001060b0(void);
 extern s32 func_001060c0(void);
 extern s32 func_00110850(s16 arg0, s16 arg1);
 extern s32 func_0015a160(void);
-extern s32 func_0028b650(void);
+extern s32 evtHasTaskHandle(void);
 extern s32 iGpffffb1c8;
 extern s32 func_001060d0(void);
 extern s32 func_001060e0(void);
@@ -1042,7 +1042,7 @@ void func_00122a40(void *unusedNode, void *work)
             } else {
                 sprite = (u8 *)func_0046d200((u32)calendar->field_110, 0x1E);
             }
-        } else if ((func_0015a160() == 0) && (func_0028b650() == 0)) {
+        } else if ((func_0015a160() == 0) && (evtHasTaskHandle() == 0)) {
             sprite = (u8 *)func_0046d200((u32)calendar->field_110, 0x1D);
         } else {
             sprite = (u8 *)func_0046d200((u32)calendar->field_110, 0x1E);
@@ -1122,7 +1122,7 @@ void func_00122a40(void *unusedNode, void *work)
                     break;
                 }
             }
-        } else if ((func_0015a160() != 0) || (func_0028b650() != 0)) {
+        } else if ((func_0015a160() != 0) || (evtHasTaskHandle() != 0)) {
             switch (spriteIndex) {
                 case 0x18:
                     spriteIndex = 0x1B;
@@ -1158,7 +1158,7 @@ void func_00122a40(void *unusedNode, void *work)
                 xOffset = (f32)0x247;
                 func_0046d3b0(parent, calendar->field_110, value, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
             }
-        } else if ((func_0015a160() == 0) && (func_0028b650() == 0)) {
+        } else if ((func_0015a160() == 0) && (evtHasTaskHandle() == 0)) {
             xOffset = (f32)0x247;
             func_0046d3b0(parent, calendar->field_110, 0x1F, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
             value = calendar->field_08 + 0x20;
@@ -1320,7 +1320,7 @@ void func_00123a10(void) {
         if (func_0015a160() != 0) {
             goto set1;
         }
-        if (func_0028b650() != 0) {
+        if (evtHasTaskHandle() != 0) {
             goto set1;
         }
         p->field_1C = 0;
