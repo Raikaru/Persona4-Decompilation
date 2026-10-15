@@ -409,7 +409,7 @@ s32 func_00286430(u8 *arg0) {
         return 1;
     case 1:
         expected = *(s16 *)(arg0 + 0xA);
-        if (expected != func_0028d060(*(s16 *)(arg0 + 8))) {
+        if (expected != evtResultGet(*(s16 *)(arg0 + 8))) {
             goto fail;
         }
         return 1;
@@ -1324,8 +1324,9 @@ void func_0028c580(u8 *workBytes, u8 *resource, u8 *defaults)
 
 
 
+// Event result slot: stores a call result in slot 'arg0' (0-9); out-of-range indices are ignored.
 // FUN_0028D020
-void func_0028d020(s32 arg0, s32 arg1) {
+void evtResultSet(s32 arg0, s32 arg1) {
     if ((arg0 >= 0xA) || (arg0 < 0)) {
         return;
     }
@@ -1334,8 +1335,9 @@ void func_0028d020(s32 arg0, s32 arg1) {
 
 
 
+// Event result slot: reads slot 'arg0'; -1 for an out-of-range index.
 // FUN_0028D060
-s32 func_0028d060(s32 arg0) {
+s32 evtResultGet(s32 arg0) {
     if (arg0 >= 0xA) {
         return -1;
     }
