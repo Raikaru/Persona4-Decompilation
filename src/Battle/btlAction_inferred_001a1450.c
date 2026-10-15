@@ -132,7 +132,7 @@ extern u8 *iGpffffb3b8;
 void func_001d8e50(u8 *arg0, u8 *arg1);
 void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
 extern void func_00212010(s32 task);
-void func_0019faf0(u8 *arg0);
+void btlUnitRequestLookAtOthers(u8 *arg0);
 u8 func_0023e1f0(u8 *unitData);
 extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
 static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
@@ -429,7 +429,7 @@ loop_19_test:
         func_00203670(*(s32 *)(iGpffffb3ac + 0xDD4), (u8 *)arg0);
         func_00213c10(*(s32 *)(iGpffffb3ac + 0xDD4));
     }
-    func_0019faf0((u8 *)arg0);
+    btlUnitRequestLookAtOthers((u8 *)arg0);
     *(s32 *)(iGpffffb3ac + 0xC) |= 0x20000;
     *(u16 *)((u8 *)arg0 + 0x41C) = 0;
     *(s32 *)((u8 *)arg0 + 0x420) = 0;
@@ -451,7 +451,7 @@ void func_001a17d0(u8 *arg0)
     u8 *i;
 
     func_0019fc60();
-    func_0019fa40();
+    btlUnitTickIdleAnims();
     func_00212010(*(s32 *)(iGpffffb3ac + 0xDD4));
     if (*(s32 *)(arg0 + 0x420) == 1) {
         t = *(u16 *)(arg0 + 0x41C);
@@ -625,7 +625,7 @@ after_type_1c80:
     *(s64 *)(packet + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(packet, 0);
     func_00212010(*(s32 *)(D_0076449C + 0xDD4));
-    func_0019faf0(arg0);
+    btlUnitRequestLookAtOthers(arg0);
     if (lookAtUnit != NULL) {
         packet = actionLookAtUnit(NULL, *(u8 **)(lookAtUnit + 0x30), 1);
         btlPacketEnqueue(packet, 1);
@@ -638,7 +638,7 @@ after_type_1c80:
 // FUN_001A1EA0
 void func_001a1ea0(u8 *action) {
     extern u16 D_008C024C[];
-    extern void func_0019fa40(void);
+    extern void btlUnitTickIdleAnims(void);
     extern void func_0019fc60(void);
     extern s32 func_001fb170(s32 condition);
     extern void func_002019f0(s32 unit, u32 message);
@@ -675,7 +675,7 @@ void func_001a1ea0(u8 *action) {
     u8 *clearCursor;
 
     func_0019fc60();
-    func_0019fa40();
+    btlUnitTickIdleAnims();
     selectionState = func_0020ba00((s32)(*(u8**)(iGpffffb3ac + 0xDD4))) & 0xFFFF;
     if ((D_008C024C[0] & 8) && !(selectionState & 0xFFFF)) {
         battleFlags = (*(s32*)(iGpffffb3ac + 0xC));

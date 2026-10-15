@@ -158,7 +158,7 @@ extern s32 func_0010d740(s16 arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
 extern s32 iGpffffb444;
 extern s32 btlUnitIsMoving(u8 *arg0);
-extern s32 func_0019f8a0(u8 *arg0);
+extern s32 btlUnitIdleAnimTick(u8 *arg0);
 extern u8 *btlUnitCreateLookAtPacket(u8 *arg0, f32 *arg1, s32 arg2);
 extern s32 datCalcIsLowHp(u8 *arg0);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
@@ -718,7 +718,7 @@ u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2)
 }
 
 // FUN_0019F8A0
-s32 func_0019f8a0(u8 *arg0)
+s32 btlUnitIdleAnimTick(u8 *arg0)
 {
     s32 temp_2;
     u16 *temp_4;
@@ -760,7 +760,7 @@ s32 func_0019f8a0(u8 *arg0)
 }
 
 // FUN_0019FA40
-void func_0019fa40(void)
+void btlUnitTickIdleAnims(void)
 {
     u16 flags;
     u16 type;
@@ -778,7 +778,7 @@ void func_0019fa40(void)
                 switch (type) {
                 case 1:
                 case 5:
-                    func_0019f8a0(work);
+                    btlUnitIdleAnimTick(work);
                     break;
                 default:
                     break;
@@ -790,7 +790,7 @@ void func_0019fa40(void)
 }
 
 // FUN_0019FAF0
-void func_0019faf0(u8 *arg0)
+void btlUnitRequestLookAtOthers(u8 *arg0)
 {
     f32 sp40[3];
     u16 temp_4;

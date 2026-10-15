@@ -135,7 +135,7 @@ extern u8 *iGpffffb3b8;
 void func_001d8e50(u8 *arg0, u8 *arg1);
 void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
 extern void func_00212010(s32 task);
-void func_0019faf0(u8 *arg0);
+void btlUnitRequestLookAtOthers(u8 *arg0);
 u8 func_0023e1f0(u8 *unitData);
 extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
 static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
