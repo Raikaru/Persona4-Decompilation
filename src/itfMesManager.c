@@ -57,7 +57,7 @@ void func_0027a6f0(s32 arg0);
 void func_0027b830(s32 arg0);
 void func_002851f0();
 s8 func_002748e0(int param_1, int param_2, int param_3);
-u8 *func_00274570(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8);
+u8 *frFontBuildTextSimple(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8);
 u32 func_00279740(int param_1, int param_2);
 void func_0027a340(u8 *arg0, s32 arg1);
 void func_0027a4d0(int param_1, u32 param_2);
@@ -74,7 +74,7 @@ extern s32 iGpffffb444;
 int func_00278de0(int param_1, int param_2);
 s32 func_0027a520(int param_1);
 void frFontLoadSystemSlot(u8 *arg0);
-u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8, u32 param_9);
+u8 *frFontBuildTextFull(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8, u32 param_9);
 void memcpy(void *arg0, void *arg1, u32 arg2);
 s32 strlen(const void *param_1);
 void frFontSetGlyphAux(u8 *arg0, s32 arg1);
@@ -1178,8 +1178,8 @@ u32 func_002786c0(int arg0, int arg1, int arg2)
 
 /* MATCH (wave14): the old "$v0/$v1-coalescing + saved-reg-reuse floor" was
    a lever-1 miss - the function was INCLUDE_ASM with no prototype, but retail
-   RETURNS a value (e.g. func_002745c0/0027a520 result). Writing the body as
-   s32 func_002787d0(s32,s32,s32,s32) with the 9-arg func_002745c0 call and
+   RETURNS a value (e.g. frFontBuildTextFull/0027a520 result). Writing the body as
+   s32 func_002787d0(s32,s32,s32,s32) with the 9-arg frFontBuildTextFull call and
    returning func_0027a520's result matched byte-exact (nd 0). mwcc requires
    explicit casts (u8*<->int) at the func_00278de0/00279740 call sites. */
 // FUN_002787D0
@@ -1216,7 +1216,7 @@ s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (local == 0) {
         iGpffffb4b0 = 0x7B;
     }
-    res = (s32)func_002745c0(0, 0, 0, arg3 & 0xFF, 0, 0, 0xFF, r, 0);
+    res = (s32)frFontBuildTextFull(0, 0, 0, arg3 & 0xFF, 0, 0, 0xFF, r, 0);
     iGpffffb4b0 = local;
     final = func_0027a520(res);
     frFontListKeepOrRelease(res);
@@ -1510,7 +1510,7 @@ u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
     result = (u8 *)func_00279740((s32)entry, 0);
     if (result == NULL)
         func_0046d730(D_0063BE10, 0xBE6);
-    result = func_00274570(
+    result = frFontBuildTextSimple(
         (s32)(16.0f * fparg0),
         (s32)(8.0f * fparg1),
         (u32)arg1 & 0xFF,
@@ -1660,7 +1660,7 @@ void func_00279780(u8 *arg0)
     {
         u32 originX = 0;
         u32 originY = 0;
-        obj = func_00274570(
+        obj = frFontBuildTextSimple(
             originX, originY, *(u8 *)(base + 0xA), *(u8 *)(base + 0xB),
             *(u8 *)(base + 0xC), *(u8 *)(base + 0xD), (u32)slot, 0);
     }
@@ -1833,7 +1833,7 @@ void func_00279dd0(u8 *arg0, u8 *arg1)
     global = iGpffffb4b0;
     if (global == 0)
         iGpffffb4b0 = 0x7B;
-    *(s32 *)(base + 0) = (s32)func_00274570(0, 0, 0, 2, 0, 0xFF, (u32)arg1, 0);
+    *(s32 *)(base + 0) = (s32)frFontBuildTextSimple(0, 0, 0, 2, 0, 0xFF, (u32)arg1, 0);
     iGpffffb4b0 = global;
     *(u16 *)(base + 4) = 0xFFFF;
 }
@@ -1874,13 +1874,13 @@ void func_00279e90(u8 *arg0, u8 *arg1)
             u32 p7;
             off = (masked & 0x7FFF) << 2;
             p7 = *(u32 *)(addOff7e90(off, (s32)arg0) + 0x94);
-            *(s32 *)base = (s32)func_00274570(0, 0, 0, 0, 0, 0xFF, p7, 0);
+            *(s32 *)base = (s32)frFontBuildTextSimple(0, 0, 0, 0, 0, 0xFF, p7, 0);
         } else {
             s32 ep;
             s32 v2;
             v2 = *(u16 *)(arg0 + 0x18);
             ep = *(s32 *)((*(s32 *)(*(s32 *)(arg0 + 4) + 0x18) << 3) + *(s32 *)(arg0 + 4) + 0x20);
-            *(s32 *)base = (s32)func_00274570(0, 0, 0, 0, 0, 0xFF,
+            *(s32 *)base = (s32)frFontBuildTextSimple(0, 0, 0, 0, 0, 0xFF,
                 (u32)*(s32 *)(ep + (v2 << 2)), 0);
         }
         func_0027a340((u8 *)*(s32 *)base, *(s32 *)(arg0 + 0xC));
@@ -1917,7 +1917,7 @@ u8 *func_0027a010(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s
         if (arg2 & 1) {
             arg2 >>= 1;
         } else {
-            result = func_00274570(arg3, arg4, (u8)arg7, 5, 0, 0xFF, *arg0, (u32)result);
+            result = frFontBuildTextSimple(arg3, arg4, (u8)arg7, 5, 0, 0xFF, *arg0, (u32)result);
             if (arg6 == 0)
                 arg4 += *(s16 *)(result + 0x12) * 8;
             else

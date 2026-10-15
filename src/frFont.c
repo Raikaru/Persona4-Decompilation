@@ -43,8 +43,8 @@ extern void frFontTaskDestroy(u8 *task);
 extern void frFontInitManager(int param_1, int param_2);
 extern s8 func_002746e0(void *param_1, int param_2);
 extern void frFontSetMode(u32 param_1);
-extern u8 *func_002740b0(void *data);
-extern u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
+extern u8 *frFontBuildText(void *data);
+extern u8 *frFontBuildTextFull(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
                          u32 param_5, u32 param_6, u32 param_7, u32 param_8,
                          u32 param_9);
 extern u32 D_00763840;
@@ -2400,6 +2400,7 @@ return_point:
 
 
 
+/* Builds a text chain from a descriptor (data) and returns its head (the value stored at the context's +0x14). */
 /* measured: the neighboring positive insertion-branch recipe, natural u32
    byte temporary and real three-byte glyph buffer close the old placement
    and register floor. Keep the full signed pair for the C080 threshold.
@@ -2409,7 +2410,7 @@ return_point:
 #pragma push
 #pragma no_branch_likely on
 #pragma opt_rebuildconditionals off
-u8 *func_002740b0(void *data)
+u8 *frFontBuildText(void *data)
 {
     s8 character;
     s32 style;
@@ -2563,14 +2564,15 @@ store_node:
 
 /* Forward the allocated chain explicitly; callers consume the return value. */
 // FUN_00274570
-u8 *func_00274570(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
+u8 *frFontBuildTextSimple(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
                    u32 param_5, u32 param_6, u32 param_7, u32 param_8)
 {
-    return func_002745c0(param_1, param_2, 0, param_3, param_4, param_5, param_6, param_7, param_8);
+    return frFontBuildTextFull(param_1, param_2, 0, param_3, param_4, param_5, param_6, param_7, param_8);
 }
 
+/* Builds a text chain from nine parameters: packs them into a descriptor (the third shifted by 4), sets mode 0, and calls frFontBuildText. */
 // FUN_002745C0
-u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
+u8 *frFontBuildTextFull(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
                    u32 param_5, u32 param_6, u32 param_7, u32 param_8,
                    u32 param_9)
 {
@@ -2604,7 +2606,7 @@ u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
     data.f1d = 1;
     data.f1e = 0x20;
     frFontSetMode(0);
-    return func_002740b0(&data);
+    return frFontBuildText(&data);
 }
 
 

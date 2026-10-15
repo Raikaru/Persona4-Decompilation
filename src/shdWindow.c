@@ -25,7 +25,7 @@ extern s32 func_0025e170(u8 *task);
 extern void func_0025e4a0(s32, s32);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *, void *);
-extern u8 *func_00274570(u32, u32, u32, u32, u32, u32, u32, u32);
+extern u8 *frFontBuildTextSimple(u32, u32, u32, u32, u32, u32, u32, u32);
 extern s32 frFontCountRuns(u8 *);
 extern u8 *frFontSplitRun(u8 **, s32);
 extern s32 frFontNodeWidth(u8 *);
@@ -65,7 +65,7 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
     }
     temp_22 = *(s32 *)((u8 *)&D_00637190 + arg2 * 8);
     var_17 = 0;
-    sp9C = func_00274570(0, 0, 2, 0, 0, 0xFF, temp_22, 0);
+    sp9C = frFontBuildTextSimple(0, 0, 2, 0, 0, 0xFF, temp_22, 0);
     temp_22 = frFontCountRuns(sp9C) * 0x1C;
 
     while (sp9C != NULL) {
