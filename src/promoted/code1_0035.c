@@ -1372,7 +1372,7 @@ void func_00356250(u8 *arg0)
     extern u8 *func_0046a770(char *arg0);
     extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
     extern void kAssertFail(const void *arg0, u32 arg1);
-    extern s32 func_00246970(void);
+    extern s32 cmmAuxTable(void);
     extern void func_002bc010(s32 arg0, u8 *arg1);
     extern u8 *func_0035adc0(s32 arg0, s64 arg1, s32 arg2);
     extern u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2);
@@ -1483,7 +1483,7 @@ void func_00356250(u8 *arg0)
         }
     }
     func_00359400(arg0, 0);
-    func_002bc010(0xB, (u8 *)func_00246970());
+    func_002bc010(0xB, (u8 *)cmmAuxTable());
     *(u8 **)(arg0 + 0x1308) = func_00354a50(0, 1);
     *(u8 **)(arg0 + 0x130C) = func_0035adc0(0, 0, 0);
     *(u8 **)(arg0 + 0x1310) = func_0035bf10(0, 0, 0);
@@ -1730,8 +1730,8 @@ void func_00356a10(u8 *work) {
     extern f32 func_0034f720(u8 *, f32, f32, f32);
     extern s32 frFontExDrawTextWithCharWidth(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
     extern u8 *cmmNameRecord(u32);
-    extern u8 *func_00246910(s16);
-    extern u8 *func_00246940(s16);
+    extern u8 *cmmRankNameRecord(s16);
+    extern u8 *cmmDetailRecord(s16);
     extern void func_002bc0b0(f32, f32, f32, u32, u32, u32, s32, s32);
     extern f32 func_0035aff0(u8 *, u8);
     extern f32 func_0035c040(u8 *, u8);
@@ -2042,7 +2042,7 @@ void func_00356a10(u8 *work) {
         nameColor = rankColor | ~0x7EFF;
         nameId = (u16 *)((u8 *)add_offset_first((u32)(selectedIndex * 12), (u32)work) + 0x3A);
         frFontExDrawTextWithCharWidth(position.x, position.y, 0.0f, nameColor, 0, 1, (const char *)cmmNameRecord(*nameId), 0, -2);
-        rankNames = func_00246910((s16)*nameId);
+        rankNames = cmmRankNameRecord((s16)*nameId);
         position.x = (130.0f + (originX + menu->titleOffset.x));
         position.y = (46.0f + (originY + menu->titleOffset.y));
         rankColor |= ~0xFF;
@@ -2227,7 +2227,7 @@ void func_00356a10(u8 *work) {
         if (menu->detailCount > 0) {
             detailId = *(u16 *)((u8 *)add_offset_first((u32)(menu->selectedDetail * 2), (u32)work) + 0x136);
             currentRank = (s32)(func_00107ac0(*nameId) & 0xFFFF);
-            detailValues = func_00246940((s16)detailId);
+            detailValues = cmmDetailRecord((s16)detailId);
             position.x = (244.0f + (originX + menu->detailFooterOffset.x));
             position.y = (320.0f + (originY + menu->detailFooterOffset.y));
             numberAlpha = (u8)(menu->detailFooterOpacity);

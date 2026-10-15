@@ -92,8 +92,9 @@ static inline s32 cmmMiscOr(s32 left, s32 right) {
 }
 
 
+// Loads the cmm.bin event file (retail path string at D_006359E0) and fills D_00881480[0..0x1B] with its 28 chunks. Called once from the kwln table init.
 // FUN_00246700
-void func_00246700(void) {
+void cmmLoadTables(void) {
     s32 sp3C;
     s32 i;
     void *handle;
@@ -151,14 +152,16 @@ u8 *cmmTextRecord(u32 arg0) {
    hoisted `s32 base` local + the cmmMiscAddOff inline helper (measured:
    nd 2 -> 1, fixes the `addu $v0,$v0,$a1` mul-first operand order). Retail
    loads the global into $a1 FIRST, then the x24 chain, then `addu $v0,$v0,$a1`. */
+// Rank name record: 24-byte record from chunk 7 (D_0088149C) for rank index arg0.
 // FUN_00246910
 #pragma opt_propagation off
-u8 *func_00246910(s16 arg0) {
+u8 *cmmRankNameRecord(s16 arg0) {
     s32 base = D_0088149C[0];
     s32 mul = (s16)arg0 * 24;
     return (u8 *)(cmmMiscAddOff(mul, base) + 8);
 }
 #pragma opt_propagation on
+// Detail record: 20-byte record from chunk 8 (D_008814A0) for detail index arg0.
 // FUN_00246940
 /* MATCHED (wave 14): same recipe as func_00246910 — `#pragma opt_propagation
    off` (measured: nd 9 -> 1, forces the single-use D_008814A0 load into $a1
@@ -166,19 +169,21 @@ u8 *func_00246910(s16 arg0) {
    (fixes the `addu $v0,$v0,$a1` operand order). Final residual is a benign
    reloc-masked word. */
 #pragma opt_propagation off
-u8 *func_00246940(s16 arg0) {
+u8 *cmmDetailRecord(s16 arg0) {
     s32 base = D_008814A0[0];
     s32 mul = (s16)arg0 * 20;
     return (u8 *)(cmmMiscAddOff(mul, base) + 8);
 }
 #pragma opt_propagation on
+// Aux table: returns the chunk 9 table header (D_008814A4) with no record stride. Callers pass it to func_002bc010.
 // FUN_00246970
-s32 func_00246970(void) {
+s32 cmmAuxTable(void) {
     return D_008814A4[0];
 }
 
+// Rank string: returns the address of the string for kind arg0 and level arg1 in chunk 10 (D_008814A8), with 65-byte kind and 13-byte level strides.
 // FUN_00246980
-s32 func_00246980(s16 arg0, s16 arg1) {
+s32 cmmRankStringAt(s16 arg0, s16 arg1) {
     s32 base = D_008814A8[0] + 8;
 
     if (arg0 >= 5) {
@@ -196,8 +201,9 @@ s32 func_00246980(s16 arg0, s16 arg1) {
    call fixed the first addu; the second call `cmmMiscAddOff(arg1*2, mid)`
    fixed the second. Original residual was `addu $v0,$v1,$v0` vs retail
    `addu $v0,$v0,$v1` (fresh sll result in rs). */
+// Rank threshold: returns the s16 threshold from chunk 11 (D_008814AC) for category arg0 at level arg1. g_data.c uses it for rank thresholds.
 // FUN_00246A50
-s32 func_00246a50(s16 arg0, s16 arg1) {
+s32 cmmRankThreshold(s16 arg0, s16 arg1) {
     s32 base = D_008814AC[0] + 8;
     s32 index;
     s32 mid;
@@ -212,8 +218,9 @@ s32 func_00246a50(s16 arg0, s16 arg1) {
     mid = cmmMiscAddOff(index, base);
     return *(s16 *)(cmmMiscAddOff(arg1 * 2, mid) - 2);
 }
+// Label record: 64-byte label record from chunk 12 (D_008814B0) for id arg0. cmmPersonaDetailShow copies it as a display string.
 // FUN_00246B10
-u8 *func_00246b10(u32 arg0) {
+u8 *cmmLabelRecord(u32 arg0) {
     u32 temp_16;
     u8 *temp_17;
 
@@ -225,13 +232,15 @@ u8 *func_00246b10(u32 arg0) {
     return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
 }
 
+// Earn-scale table: returns the chunk 14 header (D_008814B8) at its record area. cmmCommunity earn scaling reads its f32 multipliers and counts from it.
 // FUN_00246B80
-s32 func_00246b80(void) {
+s32 cmmEarnScaleTable(void) {
     return D_008814B8[0] + 8;
 }
 
+// Entry value record: 24-byte record from chunk 15 (D_008814BC) for entry arg0. cmmCommunityEntryValue reads its value from this record.
 // FUN_00246BA0
-u8 *func_00246ba0(s32 arg0) {
+u8 *cmmEntryValueRecord(s32 arg0) {
     u8 *temp_16 = D_008814BC[0];
     s32 off;
 
@@ -242,8 +251,9 @@ u8 *func_00246ba0(s32 arg0) {
     return (u8 *)(off + (u32)temp_16 + 8);
 }
 
+// Slot name record: 64-byte name record from chunk 17 (D_008814C4) for community slot arg0. Read by the group-slot text in code1_0027.c.
 // FUN_00246C20
-u8 *func_00246c20(u32 arg0) {
+u8 *cmmSlotNameRecord(u32 arg0) {
     u32 temp_16;
     u8 *temp_17;
 
@@ -255,16 +265,18 @@ u8 *func_00246c20(u32 arg0) {
     return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
 }
 
+// Item description text record: 64-byte text record from chunk 21 (D_008814D4), or NULL when id arg0 is out of range. Read through the item record's text slots 0x12/0x22.
 // FUN_00246C90
-u8 *func_00246c90(u32 arg0) {
+u8 *cmmItemDescRecordOrNull(u32 arg0) {
     if (arg0 >= *(u32 *)(D_008814D4[0] + 4)) {
         return NULL;
     }
     return (u8 *)((arg0 << 6) + (u32)D_008814D4[0] + 8);
 }
 
+// Item info record: 72-byte item record from chunk 24 (D_008814E0) for id arg0. cmmItemInfoShow reads its name, value, and text fields.
 // FUN_00246CD0
-u8 *func_00246cd0(s32 arg0) {
+u8 *cmmItemInfoRecord(s32 arg0) {
     u8 *temp_16 = D_008814E0[0];
     s32 off;
 
@@ -275,16 +287,18 @@ u8 *func_00246cd0(s32 arg0) {
     return (u8 *)(off + (u32)temp_16 + 8);
 }
 
+// Item extra text record: 64-byte text record from chunk 22 (D_008814D8), or NULL when id arg0 is out of range. Read through the item record's text slots 0x10/0x20.
 // FUN_00246D50
-u8 *func_00246d50(u32 arg0) {
+u8 *cmmItemExtraRecordOrNull(u32 arg0) {
     if (arg0 >= *(u32 *)(D_008814D8[0] + 4)) {
         return NULL;
     }
     return (u8 *)((arg0 << 6) + (u32)D_008814D8[0] + 8);
 }
 
+// Persona record: 66-byte record from chunk 25 (D_008814E4) for id arg0. The persona row sits at +0x40.
 // FUN_00246D90
-u8 *func_00246d90(s32 arg0) {
+u8 *cmmPersonaRecord(s32 arg0) {
     u8 *temp_16 = D_008814E4[0];
     s32 off;
 
@@ -295,8 +309,9 @@ u8 *func_00246d90(s32 arg0) {
     return (u8 *)(off + (u32)temp_16 + 8);
 }
 
+// Month profile: 72-byte month profile from chunk 26 (D_008814E8) for index arg0, offset by -0x40 (see CmmMonthProfile in cmmScript.c).
 // FUN_00246E10
-s32 func_00246e10(s32 arg0) {
+s32 cmmMonthProfileRecord(s32 arg0) {
     s32 temp_16;
     s32 temp_2;
     s32 off;
@@ -310,8 +325,9 @@ s32 func_00246e10(s32 arg0) {
     return off + (u32)temp_16 - 0x40;
 }
 
+// Fishing entry: 14-byte fishing record from chunk 27 (D_008814EC) for index arg0, asserting the index is at most 5.
 // FUN_00246E90
-u8 *func_00246e90(s32 arg0) {
+u8 *cmmFishingEntryRecord(s32 arg0) {
     u8 *temp_16 = (u8 *)D_008814EC[0];
     s32 off;
 
@@ -321,8 +337,9 @@ u8 *func_00246e90(s32 arg0) {
     off = (u16)arg0 * 14;
     return (u8 *)(off + (u32)temp_16 + 8);
 }
+// Condition check: scans the 8-byte condition table (chunk 13, D_008814B4) and returns 1 when an entry for id arg0 is met. Kind 0 tests func_00110680, kind 1 tests func_00110580.
 // FUN_00246F10
-s32 func_00246f10(s32 arg0) {
+s32 cmmConditionMet(s32 arg0) {
     u16 temp_2;
     u16 temp_3;
     u8 *var_19 = D_008814B4[0] + 8;
@@ -429,7 +446,7 @@ s32 func_00247270(void) {
                     if ((u32)temp_18 >= temp_17_2[1]) {
                         kAssertFail(D_006359D0, 0x4C);
                     }
-                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestMarked(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
+                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestMarked(var_19 & 0xFFFF) == 0) && (cmmConditionMet(var_19 & 0xFFFF) == 0)) {
                         return var_19 & 0xFFFF;
                     }
                 }
@@ -490,7 +507,7 @@ s32 func_002474f0(void) {
                     if ((u32)temp_18 >= temp_17_2[1]) {
                         kAssertFail(D_006359D0, 0x4C);
                     }
-                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestMarked(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
+                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (cmmCommunityTestMarked(var_19 & 0xFFFF) == 0) && (cmmConditionMet(var_19 & 0xFFFF) == 0)) {
                         return var_19 & 0xFFFF;
                     }
                 }
