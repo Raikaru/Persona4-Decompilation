@@ -45,18 +45,18 @@ s32 func_0018e050(u8 *arg0)
     {
         KwlnTask *buf;
 
-        buf = func_00470250((KwlnTask *)arg0, 0x100, 0x40);
+        buf = sdkLboxCreate((KwlnTask *)arg0, 0x100, 0x40);
         *(KwlnTask **)(p + 4) = buf;
-        func_00470810(buf, D_005F55B0, 0xA);
-        func_00470430(*(u8 **)(p + 4), 0x14);
-        func_004703c0(*(u8 **)(p + 4), 4);
-        func_004703d0(*(u8 **)(p + 4), 1);
+        sdkLboxAddDescriptors(buf, D_005F55B0, 0xA);
+        sdkLboxSetVisibleRows(*(u8 **)(p + 4), 0x14);
+        sdkLboxSetState(*(u8 **)(p + 4), 4);
+        sdkLboxSetSelection(*(u8 **)(p + 4), 1);
         *(s32 *)p = *(s32 *)p + 1;
         break;
     }
     case 1:
         if (D_008C024E[0] & 0x40) {
-            switch (func_00470e20(*(u8 **)(p + 4))) {
+            switch (sdkLboxGetSelectedId(*(u8 **)(p + 4))) {
             case 0:
                 *(s32 *)(p + 8) = func_0018ef50(arg0);
                 break;
@@ -93,7 +93,7 @@ s32 func_0018e050(u8 *arg0)
                 kAssertFail(D_005F56F0, 0xA1);
                 break;
             }
-            func_004703d0(*(u8 **)(p + 4), 0);
+            sdkLboxSetSelection(*(u8 **)(p + 4), 0);
             *(s32 *)p = 2;
         } else if (D_008C024E[0] & 0x20) {
             *(s32 *)p = 3;
@@ -101,7 +101,7 @@ s32 func_0018e050(u8 *arg0)
         break;
     case 2:
         if (kwlnTaskIsLinked(*(s32 *)(p + 8)) != 1) {
-            func_004703d0(*(u8 **)(p + 4), 1);
+            sdkLboxSetSelection(*(u8 **)(p + 4), 1);
             *(s32 *)p = 1;
         }
         break;

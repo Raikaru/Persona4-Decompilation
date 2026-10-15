@@ -65,7 +65,7 @@ class MutatorTests(unittest.TestCase):
     def test_declaration_reorder_keeps_every_declaration(self) -> None:
         """Local declaration order is the highest-yield lever in this campaign.
 
-        It matched sdkWrap func_004672c0, sdkLbox func_00470280, sdkUttmx
+        It matched sdkWrap func_004672c0, sdkLbox sdkLboxCreateEx, sdkUttmx
         func_00463d60 and cmmMisc func_00249670 on its own, so a reorder that
         drops or duplicates a declaration would silently change semantics.
         """

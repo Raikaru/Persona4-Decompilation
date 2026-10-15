@@ -3714,9 +3714,9 @@ s32 func_0046f2b0(u8 *task)
     extern s32 func_0046ea10(u8 *task);
     extern void func_0046ea60(u8 *task, u8 *arg1);
     extern void func_0046ec70(u8 *task);
-    extern void func_00470490(u8 *task, s32 arg1, s32 arg2);
-    extern u8 *func_00470d10(u8 *task, s32 arg1);
-    extern s32 func_00470e20(u8 *task);
+    extern void sdkLboxSetOrigin(u8 *task, s32 arg1, s32 arg2);
+    extern u8 *sdkLboxFindEntry(u8 *task, s32 arg1);
+    extern s32 sdkLboxGetSelectedId(u8 *task);
     extern s32 (*D_00887310[])(s32, void *, s32);
     extern u16 D_008C024C[];
     extern u16 D_008C024E[];
@@ -3924,7 +3924,7 @@ s32 func_0046f2b0(u8 *task)
                 } else if (!(joystick[2] <= 48.0f)) {
                     work->rectangle.y = (s32) (work->rectangle.y + 0xA);
                 }
-                func_00470490(task, work->rectangle.x, work->rectangle.y);
+                sdkLboxSetOrigin(task, work->rectangle.x, work->rectangle.y);
             }
             if (!(work->flags & 2)) {
                 delay = work->delay;
@@ -3934,7 +3934,7 @@ s32 func_0046f2b0(u8 *task)
                     work->selectedValue = func_00453d70(work->input);
                     work->selectedRow = func_00453dc0(work->input);
                 } else if (D_008C0252[0] & 0x2000) {
-                    incrementEntry = (ControllerEntry *)func_00470d10(task, func_00470e20(task));
+                    incrementEntry = (ControllerEntry *)sdkLboxFindEntry(task, sdkLboxGetSelectedId(task));
                     if (incrementEntry != NULL) {
                         incrementType = incrementEntry->type;
                         switch (incrementType) {
@@ -3995,7 +3995,7 @@ s32 func_0046f2b0(u8 *task)
                         }
                     }
                 } else if (D_008C0252[0] & 0x8000) {
-                    decrementEntry = (ControllerEntry *)func_00470d10(task, func_00470e20(task));
+                    decrementEntry = (ControllerEntry *)sdkLboxFindEntry(task, sdkLboxGetSelectedId(task));
                     if (decrementEntry != NULL) {
                         decrementType = decrementEntry->type;
                         switch (decrementType) {
@@ -4056,7 +4056,7 @@ s32 func_0046f2b0(u8 *task)
                         }
                     }
                 } else if (D_008C024E[0] & 0x40) {
-                    selectedEntry = (ControllerEntry *)func_00470d10(task, func_00470e20(task));
+                    selectedEntry = (ControllerEntry *)sdkLboxFindEntry(task, sdkLboxGetSelectedId(task));
                     if (selectedEntry != NULL) {
                         entryCallback = selectedEntry->callback;
                         if (entryCallback != NULL) {

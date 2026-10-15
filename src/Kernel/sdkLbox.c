@@ -5,7 +5,7 @@
 #include "type.h"
 extern void func_00453fa0(u8 *list, s32 visibleRows);
 extern s32 func_00453e60(u8 *list);
-extern void func_004704d0(u8 *task);
+extern void sdkLboxRecalcLayout(u8 *task);
 extern void func_0046ea50();
 extern void func_0046ea60();
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
@@ -19,7 +19,7 @@ extern void func_00453c80(u8 *arg0);
 extern s32 func_00453e10(u8 *arg0);
 extern u8 D_00713128[];
 extern s32 func_0046f2b0(u8 *task);
-extern void func_00470210(u8 *arg0);
+extern void sdkLboxDestroy(u8 *arg0);
 extern void sprintf(void *buf, const void *fmt, ...);
 extern s32 strlen(const void *str);
 extern s32 func_0044dcd8(f32 value);
@@ -37,7 +37,7 @@ extern u8 D_007641F8;
    (20 -> 3, the rest being window padding). Any order that puts `handle`
    ahead of `mem` works; the relative position of `vec` does not matter. */
 // FUN_00470280
-s32 func_00470280(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 sdkLboxCreateEx(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     s32 handle;
     u8 *mem;
@@ -48,7 +48,7 @@ s32 func_00470280(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     if (mem == NULL) {
         return 0;
     }
-    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00713128), 0x102, 0, 0, func_0046f2b0, func_00470210, (u8 *)(mem));
+    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00713128), 0x102, 0, 0, func_0046f2b0, sdkLboxDestroy, (u8 *)(mem));
     *(s32 *)(mem + 0x18) = arg1;
     *(s32 *)(mem + 0x1C) = arg2;
     *(s32 *)(mem + 0x20) = 0x80;
@@ -64,16 +64,16 @@ s32 func_00470280(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 }
 
 // FUN_004703C0
-void func_004703c0(u8 *arg0, s32 arg1) {
+void sdkLboxSetState(u8 *arg0, s32 arg1) {
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 4) = arg1;
 }
 
 // FUN_004703D0
-void func_004703d0(u8 *arg0, s32 arg1) {
+void sdkLboxSetSelection(u8 *arg0, s32 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
     u8 *q;
 
-    func_004704d0(arg0);
+    sdkLboxRecalcLayout(arg0);
     *(s32 *)(p + 0xC) = arg1;
     *(s32 *)(p + 0x10) = 2;
     q = *(u8 **)(p + 0x130);
@@ -83,16 +83,16 @@ void func_004703d0(u8 *arg0, s32 arg1) {
 }
 
 // FUN_00470430
-void func_00470430(u8 *arg0, s32 visibleRows) {
+void sdkLboxSetVisibleRows(u8 *arg0, s32 visibleRows) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     func_00453fa0(p + 0x164, visibleRows);
     *(s32 *)(p + 0x13C) = func_00453e60(p + 0x164);
-    func_004704d0(arg0);
+    sdkLboxRecalcLayout(arg0);
 }
 
 // FUN_00470490
-void func_00470490(u8 *arg0, s32 arg1, s32 arg2) {
+void sdkLboxSetOrigin(u8 *arg0, s32 arg1, s32 arg2) {
     u8 *p = *(u8 **)(arg0 + 0x38);
     u8 *q;
 
@@ -105,7 +105,7 @@ void func_00470490(u8 *arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_004704D0
-void func_004704d0(u8 *arg0)
+void sdkLboxRecalcLayout(u8 *arg0)
 {
     u8 sp60[0x100];
     s32 temp16;
@@ -217,7 +217,7 @@ loop_29_check:
    $s1, b210 does the reverse. Logic, frame, call sequence and the list-walk loop
    all match exactly.
 
-   Unlike func_00470280 above (and sdkWrap func_004672c0, sdkUttmx tmxLoadFile),
+   Unlike sdkLboxCreateEx above (and sdkWrap func_004672c0, sdkUttmx tmxLoadFile),
    this mirror is NOT declaration-order drivable: node-first, p-first,
    work-last, and the initialised-declaration idiom this file uses elsewhere
    (`u8 *work = *(u8 **)(arg0 + 0x38);`) all score 18. Retail gives $s0 to the
@@ -233,7 +233,7 @@ loop_29_check:
    local afterwards, rather than casting inline at the store. That single hoist
    fixes the whole $s0/$s1 mirror. Nothing else about the body changed. */
 // FUN_00470970
-s32 func_00470970(u8 *arg0, u8 *arg1)
+s32 sdkLboxAddEntry(u8 *arg0, u8 *arg1)
 {
     u8 *work;
     u8 *node;
@@ -258,7 +258,7 @@ s32 func_00470970(u8 *arg0, u8 *arg1)
     }
     *p = handle;
     *(s32 *)(work + 0x140) = *(s32 *)(work + 0x140) + 1;
-    func_004704d0(arg0);
+    sdkLboxRecalcLayout(arg0);
     func_00453c80(work + 0x164);
     *(s32 *)(work + 0x140) = func_00453e10(work + 0x164);
     return *(s32 *)node;
