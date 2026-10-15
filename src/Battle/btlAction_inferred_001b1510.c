@@ -125,7 +125,7 @@ extern u32 iGpffffa0b8;
 extern void func_0014a2e0(u32 arg0);
 extern void func_001b6120(void);
 extern u32 datGetFlag(s32 arg0);
-extern BtlPacket *func_001f9b80(u16 arg0);
+extern BtlPacket *btlVoiceCreateIdPacket(u16 arg0);
 extern u8 *func_001f97b0(void);
 extern u8 *btlBossCreateLoadPakPacket(void);
 extern s32 func_00230790(void);
@@ -465,7 +465,7 @@ s32 btlMainSceneSetUpdate(void)
     extern void func_0014a2e0(u32 arg0);
     extern void func_001b6120(void);
     extern u32 datGetFlag(s32 arg0);
-    extern BtlPacket *func_001f9b80(u16 arg0);
+    extern BtlPacket *btlVoiceCreateIdPacket(u16 arg0);
     extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
     extern u8 *func_001f97b0(void);
     extern s32 func_0022bd20(void);
@@ -496,7 +496,7 @@ s32 btlMainSceneSetUpdate(void)
 set_zero:
     var_2 = 0;
 got_var:
-    temp_2 = (u8 *)func_001f9b80((u16)(var_2 & 0xFFFF));
+    temp_2 = (u8 *)btlVoiceCreateIdPacket((u16)(var_2 & 0xFFFF));
     btlPacketEnqueue(temp_2, 1);
     temp_2_2 = func_001f97b0();
     *(s8 *)(temp_2_2 + 0) = 4;

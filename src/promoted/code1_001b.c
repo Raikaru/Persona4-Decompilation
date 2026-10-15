@@ -149,7 +149,7 @@ extern u32 iGpffffa0b8;
 extern void func_0014a2e0(u32 arg0);
 extern void func_001b6120(void);
 extern u32 datGetFlag(s32 arg0);
-extern BtlPacket *func_001f9b80(u16 arg0);
+extern BtlPacket *btlVoiceCreateIdPacket(u16 arg0);
 extern u8 *func_001f97b0(void);
 extern u8 *btlBossCreateLoadPakPacket(void);
 extern s32 func_00230790(void);
