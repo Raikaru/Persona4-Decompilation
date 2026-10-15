@@ -31,7 +31,7 @@ extern D_00881808_t D_00881808[];
 
 void func_002746c0(int param_1, u32 param_2);
 
-void func_002727f0(int param_1);
+void frFontEnableList(int param_1);
 extern u8 DAT_008817EC_abs[];
 extern u8 DAT_008817E4_abs[];
 extern u16 D_008817E8_abs[];
@@ -77,8 +77,8 @@ void func_002738a0(u8 *arg0);
 u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8, u32 param_9);
 void memcpy(void *arg0, void *arg1, u32 arg2);
 s32 strlen(const void *param_1);
-void func_00272b00(u8 *arg0, s32 arg1);
-void func_00272ba0(u8 *arg0, s32 arg1);
+void frFontSetGlyphAux(u8 *arg0, s32 arg1);
+void frFontSetGlyphColor(u8 *arg0, s32 arg1);
 void frFontExSetScale(u8 *arg0, f32 fparg0);
 void *func_00285170(void *arg0);
 extern char D_0063BE60[];
@@ -105,7 +105,7 @@ extern u8 D_00881530[];
 void func_00279dd0(u8 *arg0, u8 *arg1);
 extern s32 iGpffffb4b0;
 void func_00279ce0();
-void func_002728c0();
+void frFontSetListSlot();
 void func_00273140();
 u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 void func_00279300(u8 *arg0, s32 arg1);
@@ -134,7 +134,7 @@ void func_0027a630(void *arg0, s32 arg1);
 void func_0027a650(void *arg0, s32 arg1);
 void func_0027baa0(s32 arg0);
 void func_00277b10(u8 *arg0, s32 arg1);
-void func_00272950(s32 arg0, s32 arg1, s32 arg2);
+void frFontMoveListTo(s32 arg0, s32 arg1, s32 arg2);
 void func_00277ec0(u8 *arg0);
 void func_00279a80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 void func_00279c00(u8 *arg0, s32 arg1, s32 arg2);
@@ -979,7 +979,7 @@ void func_00278090(s32 arg0, s32 arg1, s32 arg2)
     object = D_00881808[arg0].unk0;
     if (object == NULL)
         func_0046d730(D_0063BE10, 0x769);
-    func_00272950(*(s32 *)(object + 0x20), arg1, arg2);
+    frFontMoveListTo(*(s32 *)(object + 0x20), arg1, arg2);
 }
 
 // FUN_00278110
@@ -1449,10 +1449,10 @@ void func_00278ef0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg4)
     object = D_00881808[arg0].unk0;
     tmp = *(u8 **)(object + 0x20);
     if (tmp != NULL) {
-        func_00272730(tmp, arg3 & 0xFF);
-        func_002727a0(tmp, (s64)(s16)arg4);
-        func_002728c0(tmp, arg1);
-        func_00272b00(tmp, arg2 & 0xFF);
+        frFontSetListFlag(tmp, arg3 & 0xFF);
+        frFontSetNodeId(tmp, (s64)(s16)arg4);
+        frFontSetListSlot(tmp, arg1);
+        frFontSetGlyphAux(tmp, arg2 & 0xFF);
         return;
     }
     *(s8 *)(object + 0x26) = arg1;
@@ -1521,8 +1521,8 @@ u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
         0U
     );
     if (arg3 & 1)
-        func_00272b00(result, (u32)arg2 & 0xFF);
-    func_00272ba0(result, arg0);
+        frFontSetGlyphAux(result, (u32)arg2 & 0xFF);
+    frFontSetGlyphColor(result, arg0);
     frFontExSetScale(result, fparg2);
     return result;
 }
@@ -1533,7 +1533,7 @@ s32 func_002791f0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
 
     func_00279ce0(D_00881808[arg4].unk0 + 0x94);
     obj = func_00279030(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
-    func_002728c0(obj, arg1);
+    frFontSetListSlot(obj, arg1);
     func_00273140(obj, 1);
     frFontListKeepOrRelease((s32)obj);
     return 0;
@@ -1553,7 +1553,7 @@ s32 func_00279350(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
 
     func_00279ce0(D_00881808[arg4].unk0 + 0x94);
     obj = func_00279030(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
-    func_002728c0(obj, arg1);
+    frFontSetListSlot(obj, arg1);
     cb = func_00460990();
     *(void (**)(void))(cb + 8) = (void (*)(void))func_00279300;
     *(u8 **)(cb + 0x10) = obj;
@@ -1583,7 +1583,7 @@ s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
         }
         r = func_00273650(r, r2, 0);
     }
-    func_002728c0(r, arg1);
+    frFontSetListSlot(r, arg1);
     func_00273140(r, 1);
     frFontListKeepOrRelease((s32)r);
     return 0;
@@ -2151,7 +2151,7 @@ void func_0027a580(int param_1)
 {
   for (; param_1 != 0; param_1 = *(int *)(param_1 + 0x24)) {
     if (*(u8 *)(*(int *)(param_1 + 0x1c) + 0x16) == '\0') {
-      func_002727f0(param_1);
+      frFontEnableList(param_1);
     }
   }
 

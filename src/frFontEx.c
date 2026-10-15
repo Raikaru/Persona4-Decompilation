@@ -10,8 +10,8 @@ extern char D_0063BC78[];
 /* Font lock / busy flag (s16 at gp-0x58E0). */
 extern s16 D_00763810;
 
-extern void func_00272a10(int param_1, float param_2, float param_3);
-extern void func_00272ba0(u32 resource, u32 color);
+extern void frFontMoveListToFloat(int param_1, float param_2, float param_3);
+extern void frFontSetGlyphColor(u32 resource, u32 color);
 extern u32 func_00272cb0(int param_1);
 extern u32 frFontListRelease(int param_1);
 extern int func_002738d0(int node);
@@ -146,7 +146,7 @@ int frFontExCreateText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     if ((flags & 4) != 0) {
         y -= (f32)func_00275a40_typed(id);
     }
-    func_00272a10(font, x, y);
+    frFontMoveListToFloat(font, x, y);
     node = font;
     if (font == 0) {
         func_0046d730(D_0063BC78, 0x12);
@@ -155,7 +155,7 @@ int frFontExCreateText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
         *(f32 *)(node + 0x14) = scale;
         node = *(int *)(node + 0x24);
     }
-    func_00272ba0(font, color);
+    frFontSetGlyphColor(font, color);
     if (width_out != 0) {
         *width_out = width;
     }

@@ -4247,7 +4247,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     extern s16 func_00105f00(s16 selection);
     extern u32 func_0010d6d0(s16 selection);
     extern s32 func_002738d0(struct FrFontNode *node);
-    extern void func_00272950(s32 node, s32 x, s32 y);
+    extern void frFontMoveListTo(s32 node, s32 x, s32 y);
     extern s32 frFontListKeepOrRelease(s32 node);
     BattleRenderDispatch *renderer;
     s32 rect[4];
@@ -4361,7 +4361,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
         widthSpace = 16.0f * center;
         nameX16 = (s32)widthSpace;
     }
-    func_00272950((s32)(u32)font, nameX16, 0xA60);
+    frFontMoveListTo((s32)(u32)font, nameX16, 0xA60);
     func_00273170(font, 1, 0);
     frFontListKeepOrRelease((s32)(u32)font);
     func_00272c80(0x40);

@@ -29,8 +29,8 @@ extern u8 *func_00274570(u32, u32, u32, u32, u32, u32, u32, u32);
 extern s32 func_00273970(u8 *);
 extern u8 *func_002736d0(u8 **, s32);
 extern s32 func_002738d0(u8 *);
-extern void func_00272a10(u8 *, f32, f32);
-extern void func_00272ba0(u8 *, s32);
+extern void frFontMoveListToFloat(u8 *, f32, f32);
+extern void frFontSetGlyphColor(u8 *, s32);
 extern void frFontListKeepOrRelease(u8 *);
 extern f32 iGpffff8094;
 extern f32 sinf(f32);
@@ -81,13 +81,13 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
             var_19 = *(u8 **)(var_19 + 0x24);
         }
         if (arg3 != 0) {
-            func_00272a10(var_18,
+            frFontMoveListToFloat(var_18,
                           fparg0 - (f32)var_20 / 2.0f,
                           fparg1 + 28.0f * (f32)var_17 - (f32)temp_22 / 2.0f);
         } else {
-            func_00272a10(var_18, fparg0, fparg1);
+            frFontMoveListToFloat(var_18, fparg0, fparg1);
         }
-        func_00272ba0(var_18, arg1);
+        frFontSetGlyphColor(var_18, arg1);
         func_00273170(var_18, 1, 0);
         frFontListKeepOrRelease(var_18);
         var_17++;

@@ -6,10 +6,10 @@
 
 extern void frFontListKeepOrRelease(u32 resource);
 
-extern void func_00272950(u32 resource, s32 x, s32 y);
+extern void frFontMoveListTo(u32 resource, s32 x, s32 y);
 extern void frFontExSetScale(u32 resource, f32 angle);
 
-extern void func_00272ba0(u32 resource, u32 color);
+extern void frFontSetGlyphColor(u32 resource, u32 color);
 
 extern void func_0046d730(const char *file, s32 line);
 extern char D_0064F220[];
@@ -261,7 +261,7 @@ void func_0038e4b0(void)
         if ((~elem[1] & 1) == 0) {
             for (j = 0; j < (s32)record[0x21]; j++) {
                 u32 *handlePtr = (u32 *)((u8 *)record + j * 8 + 8);
-                func_00272ba0(*(u32 *)((u8 *)record + j * 8 + 8), packed);
+                frFontSetGlyphColor(*(u32 *)((u8 *)record + j * 8 + 8), packed);
                 func_00273170((void *)*handlePtr, 1, 0);
             }
         }
@@ -439,7 +439,7 @@ void func_0038eae0(u32* work, const f32* pos)
 
     for (i = 0; i < (s32)work[0x84 / 4]; i++) {
         f32* entry = (f32*)((u8*)work + i * 8 + 4);
-        func_00272950(*(u32*)(entry + 1), (s32)((pos[0] + entry[0]) * 16.0f),
+        frFontMoveListTo(*(u32*)(entry + 1), (s32)((pos[0] + entry[0]) * 16.0f),
                       (s32)(pos[1] * 8.0f));
         frFontExSetScale(*(u32*)(entry + 1), 0.0f);
     }
@@ -454,7 +454,7 @@ void func_0038ebb0(u32* work, const u8* color)
     packed = (u32)color[0] << 24 | (u32)color[1] << 16 |
              (u32)color[2] << 8 | (u32)color[3];
     for (i = 0; i < (s32)work[0x84 / 4]; i++) {
-        func_00272ba0(*(u32*)((u8*)work + i * 8 + 8), packed);
+        frFontSetGlyphColor(*(u32*)((u8*)work + i * 8 + 8), packed);
     }
 }
 

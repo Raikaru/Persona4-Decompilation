@@ -46,8 +46,8 @@ extern u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
                          s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u8 *func_002736d0(u8 **arg0, s32 arg1);
 extern s32 func_002738d0(u8 *arg0);
-extern void func_00272a10(u8 *arg0, f32 fparg0, f32 fparg1);
-extern void func_00272ba0(u8 *arg0, s32 arg1);
+extern void frFontMoveListToFloat(u8 *arg0, f32 fparg0, f32 fparg1);
+extern void frFontSetGlyphColor(u8 *arg0, s32 arg1);
 
 /* measured: the operands must travel through this helper's parameters to get
    retail's offset-first `addu $v0,$v0,$s0`; every callsite spelling (p+scaled,
@@ -206,8 +206,8 @@ void func_002987d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
             sum += func_002738d0(node);
             node = *(u8 **)(node + 0x24);
         }
-        func_00272a10(p, fparg0 - (f32)sum / 2.0f, fparg1);
-        func_00272ba0(p, arg1 | ~0xFF);
+        frFontMoveListToFloat(p, fparg0 - (f32)sum / 2.0f, fparg1);
+        frFontSetGlyphColor(p, arg1 | ~0xFF);
         if (spAC != NULL) {
             func_00273170(p, 1, 0);
         }
