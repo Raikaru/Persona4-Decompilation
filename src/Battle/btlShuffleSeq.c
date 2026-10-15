@@ -65,7 +65,7 @@ extern void func_002bb050(s32 a);
 extern void func_002bbf60(void);
 extern void func_002bad10(s32 a);
 extern void strcpy(char *dst, s32 value);
-extern char *func_002438b0(s32 a);
+extern char *datCalcGetSlotRecord(s32 a);
 extern void func_002bbd20(s32 a, void *b);
 extern void func_00389200(s32 a, s32 b, s32 c, s32 d);
 extern s32 func_00389280(s32 a);
@@ -487,7 +487,7 @@ s32 func_00379240(u8 *arg0) {
         if (datGetFlag(0x142A) != 0) {
             strcpy(sp30, D_00763AD0);
             func_002baac0((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
-            text = func_002438b0(0x14);
+            text = datCalcGetSlotRecord(0x14);
             func_002bbd20(0, text);
             func_002bbd20(1, sp30);
             func_002bad10(0xF);
@@ -497,7 +497,7 @@ s32 func_00379240(u8 *arg0) {
         if (datGetFlag(0x142B) != 0) {
             strcpy(sp30, D_00763AD4);
             func_002baac0((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
-            text = func_002438b0(0x14);
+            text = datCalcGetSlotRecord(0x14);
             func_002bbd20(0, text);
             func_002bbd20(1, sp30);
             func_002bad10(0xF);

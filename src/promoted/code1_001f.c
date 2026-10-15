@@ -1056,7 +1056,7 @@ void func_001f14f0(u8 *arg0)
             }
         }
     }
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1 && func_00243fa0(id, 1) == 0) {
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1 && datCalcSkillTypeAllowed(id, 1) == 0) {
         u8 *res = *(u8 **)(arg0 + 0x30);
         s32 personaOffset = *(u16 *)(res + 0xA4) * 0xE8;
         f32 r = *(f32 *)(res + 0x2C) /
