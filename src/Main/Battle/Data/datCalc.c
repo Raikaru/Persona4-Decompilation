@@ -2148,8 +2148,9 @@ u8 arg7;
 #pragma pop
 
 
+// Intent: signed per-unit roll for kind-6 skill arg0 on unit arg1 (0 unless the table kind is 6): level and battle-stat base times a random 90-110% factor, positive on the monster side; the only caller stores it per slot; [inferred].
 // FUN_002384B0
-s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
+s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
 {
     /* measured: retail compiled this caller against the s32-returning
        prototype other units use (see datScript.c), so the u8 return of

@@ -1224,7 +1224,7 @@ void func_001f14f0(u8 *arg0)
             pm = (s32 *)(unit + (j << 5) + 0xF8);
             *pm = mask;
             *(s32 *)(unit + (j << 5) + 0xFC) = mask2;
-            x = func_002384b0(id, ctx, target, flags);
+            x = datCalcSkillRoll(id, ctx, target, flags);
             t = *(u8 *)((u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8) + 0x11);
             switch (t) {
             case 0xC:
