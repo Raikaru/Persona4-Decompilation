@@ -135,7 +135,7 @@ extern void btlShuffleDrawViewRestore(u8 *arg0);
 
 extern void btlShuffleDrawFrame(u8 *arg0);
 
-extern s32 func_00213a80(void);
+extern s32 btlEncounterIsActive(void);
 
 extern s32 btlShuffleSeqCardTask(u8 *arg0);
 
@@ -229,7 +229,7 @@ case2_body:
         /* fallthrough */
     case 4:
         if (((*(u16 *)work) & 0x100) == 0) {
-            if (func_00213a80() != 0) {
+            if (btlEncounterIsActive() != 0) {
                 break;
             }
             *(u16 *)work |= 0x100;
@@ -248,7 +248,7 @@ case2_body:
     case 6:
         break;
     case 7:
-        if (func_00213a80() != 0) {
+        if (btlEncounterIsActive() != 0) {
             break;
         }
         cnt = ++*(u16 *)(work + 2);

@@ -8,8 +8,8 @@
 extern u32 kwlnTaskGetWork(void *task);
 extern void btlUiSetTileOffset(u8 *work, s16 mode, s32 tile, f32 angle);
 extern void btlUiSetRenderMode(s32 mode);
-extern void func_0021ae80(u8 *work, s32 unused);
-extern f32 func_0021b0a0(u8 *work);
+extern void btlUnitGaugeClear(u8 *work, s32 unused);
+extern f32 btlGaugeHpRatio(u8 *work);
 extern f32 func_003e41e0(f32 *out, f32 *in);
 extern void kAssertFail(void *file, s32 line);
 extern f32 iGpffff83d4[2];
@@ -57,7 +57,7 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:
-        func_0021ae80(panel, 0);
+        btlUnitGaugeClear(panel, 0);
         *(u16 *)(cursor + 4) = 0;
         *(s32 *)(cursor + 0x14) = 0;
         *(s16 *)(cursor + 0x18) = 0;
@@ -68,7 +68,7 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
         break;
     case 2:
         if (*(u16 *)control & 2) {
-            func_0021ae80(panel, 0);
+            btlUnitGaugeClear(panel, 0);
             *(u16 *)(cursor + 4) = 0;
             *(s32 *)(cursor + 0x14) = 0;
             *(s16 *)(cursor + 0x18) = 0;
@@ -89,7 +89,7 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
             position[0] = *(f32 *)(cursor + 8) + delta[0];
             position[1] = *(f32 *)(cursor + 0xC) + delta[1];
             if (++*(u16 *)(cursor + 4) == 4) {
-                func_0021ae80(panel, 0);
+                btlUnitGaugeClear(panel, 0);
                 *(u16 *)(cursor + 4) = 0;
                 *(s32 *)(cursor + 0x14) = 0;
                 *(s16 *)(cursor + 0x18) = 0;
@@ -147,8 +147,8 @@ void func_0020bff0(s32 task, u8 *cursor, u8 *panel, f32 *position)
         func_003657d0(point, 0.0f, 255, 22.0f, iGpffff83d4[1] * alpha, 1);
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
-        t = func_0021b0a0(panel);
-        func_0021aeb0(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
+        t = btlGaugeHpRatio(panel);
+        btlGaugeDrawUnit(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
 }
 /* measured triage: no real C body was produced for the 2016B retail window;
@@ -178,7 +178,7 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:
-        func_0021ae80(panel, 0);
+        btlUnitGaugeClear(panel, 0);
         *(u16 *)(cursor + 4) = 0;
         *(s32 *)(cursor + 0x14) = 0;
         *(s16 *)(cursor + 0x18) = 0;
@@ -189,7 +189,7 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
         break;
     case 2:
         if (*(u16 *)control & 2) {
-            func_0021ae80(panel, 0);
+            btlUnitGaugeClear(panel, 0);
             *(u16 *)(cursor + 4) = 0;
             *(s32 *)(cursor + 0x14) = 0;
             *(s16 *)(cursor + 0x18) = 0;
@@ -210,7 +210,7 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
             position[0] = *(f32 *)(cursor + 8) + delta[0];
             position[1] = *(f32 *)(cursor + 0xC) + delta[1];
             if (++*(u16 *)(cursor + 4) == 4) {
-                func_0021ae80(panel, 0);
+                btlUnitGaugeClear(panel, 0);
                 *(u16 *)(cursor + 4) = 0;
                 *(s32 *)(cursor + 0x14) = 0;
                 *(s16 *)(cursor + 0x18) = 0;
@@ -278,8 +278,8 @@ void func_0020c680(s32 task, u8 *cursor, u8 *panel, f32 *position)
         func_003657d0(point, 0.0f, 255, 22.0f, iGpffff83d4[1] * alpha, 1);
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
-        t = func_0021b0a0(panel);
-        func_0021aeb0(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
+        t = btlGaugeHpRatio(panel);
+        btlGaugeDrawUnit(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
 }
 /* measured triage: no real C body was produced for the 2112B retail window;
@@ -309,7 +309,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:
-        func_0021ae80(panel, 0);
+        btlUnitGaugeClear(panel, 0);
         *(u16 *)(cursor + 4) = 0;
         *(f32 *)(cursor + 0x18) = 1.5f;
         *(f32 *)(cursor + 0x14) = 10.0f;
@@ -319,7 +319,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
         break;
     case 2:
         if (*(u16 *)control & 2) {
-            func_0021ae80(panel, 0);
+            btlUnitGaugeClear(panel, 0);
             *(u16 *)(cursor + 4) = 0;
             *(f32 *)(cursor + 0x18) = 1.5f;
             *(f32 *)(cursor + 0x14) = 10.0f;
@@ -339,7 +339,7 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
             position[0] = *(f32 *)(cursor + 8) + delta[0];
             position[1] = *(f32 *)(cursor + 0xC) + delta[1];
             if (++*(u16 *)(cursor + 4) == 4) {
-                func_0021ae80(panel, 0);
+                btlUnitGaugeClear(panel, 0);
                 *(u16 *)(cursor + 4) = 0;
                 *(f32 *)(cursor + 0x18) = 1.5f;
                 *(f32 *)(cursor + 0x14) = 10.0f;
@@ -418,8 +418,8 @@ void func_0020ce60(s32 task, u8 *cursor, u8 *panel, f32 *position)
         btlUiSetRenderMode(0);
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
-        t = func_0021b0a0(panel);
-        func_0021aeb0(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
+        t = btlGaugeHpRatio(panel);
+        btlGaugeDrawUnit(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
 }
 /* Native b210 O2: 2404/2416 bytes, 32 resolved relocations and twelve
@@ -453,7 +453,7 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
     control = work + 0x710;
     switch (*(u16 *)(cursor + 2)) {
     case 1:
-        func_0021ae80(panel, 0);
+        btlUnitGaugeClear(panel, 0);
         *(u16 *)(cursor + 4) = 0;
         *(f32 *)(cursor + 0x18) = 1.5f;
         *(f32 *)(cursor + 0x14) = 10.0f;
@@ -463,7 +463,7 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
         break;
     case 2:
         if (*(u16 *)control & 2) {
-            func_0021ae80(panel, 0);
+            btlUnitGaugeClear(panel, 0);
             *(u16 *)(cursor + 4) = 0;
             *(f32 *)(cursor + 0x18) = 1.5f;
             *(f32 *)(cursor + 0x14) = 10.0f;
@@ -483,7 +483,7 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
             position[0] = *(f32 *)(cursor + 8) + delta[0];
             position[1] = *(f32 *)(cursor + 0xC) + delta[1];
             if (++*(u16 *)(cursor + 4) == 4) {
-                func_0021ae80(panel, 0);
+                btlUnitGaugeClear(panel, 0);
                 *(u16 *)(cursor + 4) = 0;
                 *(f32 *)(cursor + 0x18) = 1.5f;
                 *(f32 *)(cursor + 0x14) = 10.0f;
@@ -582,8 +582,8 @@ void func_0020d6a0(s32 task, u8 *cursor, u8 *panel, f32 *position)
         btlUiSetRenderMode(0);
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
-        t = func_0021b0a0(panel);
-        func_0021aeb0(task, panel, position[0] - 9.0f, position[1] + 5.0f, 255, t);
+        t = btlGaugeHpRatio(panel);
+        btlGaugeDrawUnit(task, panel, position[0] - 9.0f, position[1] + 5.0f, 255, t);
     }
 }
 #pragma pop

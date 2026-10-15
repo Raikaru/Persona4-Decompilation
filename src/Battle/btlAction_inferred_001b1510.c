@@ -28,9 +28,9 @@ extern void func_00213b80(u8 *arg0);
 extern s32 func_001ef7e0(u8 *arg0);
 extern s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2);
 extern s32 datCalcGetBadStatus(s32 arg0);
-extern void func_002138a0(u8 *arg0);
-extern s32 func_0021d980(s32 arg0, u8 *arg1);
-extern void func_0021dab0(s32 arg0);
+extern void btlEncounterStart(u8 *arg0);
+extern s32 btlShuffleCreate(s32 arg0, u8 *arg1);
+extern void btlShuffleCancel(s32 arg0);
 extern s32 datCalcGetLevel(s32 arg0);
 extern s32 func_00193260(u8 *arg0);
 extern void memset(void *dst, s32 value, s32 size);
@@ -66,7 +66,7 @@ extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *arg0);
 extern u32 kwlnTaskGetWork(s32 arg0);
 extern s32 func_00459760(s32 arg0);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
-extern void func_00213a10(s32 task);
+extern void btlEncounterSetFinish(s32 task);
 extern u32 datCalcIsDead(s32 arg0, s32 arg1);
 extern u8 *func_00193bf0(u64 arg0, u64 arg1);
 extern s32 func_001f6290(void);
@@ -133,13 +133,13 @@ extern BtlPacket *func_002305c0(s32 arg0);
 extern void func_002aaa80(void);
 extern void func_001fc280(void);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-extern s32 func_0021d470(s32 task);
+extern s32 btlShuffleIsIdle(s32 task);
 extern void func_001eb7f0(void);
 extern s32 func_001eb860(void);
 extern s32 func_001faaf0(void);
 extern s32 func_001fab40(u8 *arg0);
 extern s32 func_001fab90(void);
-extern void func_00212240(u8 *arg0, s32 arg1);
+extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
 extern u8 func_002baac0(u8 *message);
 void func_002bad10(u32 arg0);
@@ -158,14 +158,14 @@ extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg
 extern u8 *func_00194b60(void);
 extern BtlPacket *btlTargetCreateEmptyPacket(void);
 extern void func_001f86d0(void);
-extern void func_00212100(s32 arg0);
-extern void func_00213990(s32 task);
-extern s32 func_002139d0(s32 task);
+extern void btlDamageStartFlash(s32 arg0);
+extern void btlEncounterSetReady(s32 task);
+extern s32 btlEncounterIsIntroDone(s32 task);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
-extern s32 func_0021db10(s32 task);
-extern s32 func_00213a50(s32 arg0);
-extern s32 func_0021db40(s32 task);
+extern s32 btlShuffleIsCanceled(s32 task);
+extern s32 btlEncounterIsInactive(s32 arg0);
+extern s32 btlShuffleIsBusy(s32 task);
 extern s32 func_00122720(void);
 extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern void func_001bdd60(void);
@@ -534,7 +534,7 @@ void btlMainContinuousInit(void)
 s32 btlMainContinuousUpdate(void)
 {
     extern u8 *btlTargetCreateTargetPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern void func_00212240(u8 *arg0, s32 arg1);
+    extern void btlDamageSetSource(u8 *arg0, s32 arg1);
     extern void btlSelectionClearTargetFlag(s32 arg0);
     extern void func_00213b50(s32 task);
     extern void func_00213c40(s32 task);
@@ -597,7 +597,7 @@ second_check:
     if (func_001eb860() == 1) {
         work = (u8 *)iGpffffb3ac;
         *(s32 *)(work + 0xC) |= 0x2000;
-        func_00212240(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4), 1);
+        btlDamageSetSource(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4), 1);
         func_001eb7f0();
     }
     return 5;
@@ -783,7 +783,7 @@ void btlMainUnitCreateInit(void) {
 s32 btlMainUnitCreateUpdate(void)
 {
     extern void func_001f73d0(void);
-    extern void func_0021d440(s32 task);
+    extern void btlShuffleStart(s32 task);
     extern s32 iGpffffb414;
     extern s32 func_001b1540(void);
     extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
@@ -1141,7 +1141,7 @@ unit_done:
       }
       btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 2),0);
       if ((*(u32 *)(D_0076449C + 0xc) & 0x100000) != 0) {
-        func_0021d440(*(s32 *)(D_0076449C + 0xdd4));
+        btlShuffleStart(*(s32 *)(D_0076449C + 0xdd4));
         *(u32 *)(D_0076449C + 0xc) = *(u32 *)(D_0076449C + 0xc) & 0xffefffff;
       }
       if ((*(u32 *)(D_0076449C + 0x10) & 1) == 0) {
@@ -1156,7 +1156,7 @@ unit_done:
         value = func_001eb860();
         if (value == 1) {
           *(u32 *)(D_0076449C + 0xc) = *(u32 *)(D_0076449C + 0xc) | 0x2000;
-          func_00212240(*(u8 **)(D_0076449C + 0xdd4),1);
+          btlDamageSetSource(*(u8 **)(D_0076449C + 0xdd4),1);
         }
         else {
           u8 *battle = D_0076449C;
@@ -1363,7 +1363,7 @@ s32 btlMainStartUpdate(void)
     u8 *temp_4;
     u8 *var_16;
 
-    if (func_0021d470(*(s32 *)(D_0076449C + 0xDD4)) != 1) goto done;
+    if (btlShuffleIsIdle(*(s32 *)(D_0076449C + 0xDD4)) != 1) goto done;
     if (btlCountUnitRecords() != 0) goto done;
     if (func_001faaf0() != 0) goto done;
     if (func_001fab90() != 0) goto done;
@@ -1384,7 +1384,7 @@ check:
     if (func_001eb860() == 1) {
         temp_3 = D_0076449C;
         *(s32 *)(temp_3 + 0xC) |= 0x2000;
-        func_00212240(*(u8 **)(D_0076449C + 0xDD4), 1);
+        btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 1);
     } else {
         temp_4 = D_0076449C;
         *(s32 *)(temp_4 + 0xC) &= ~0x2000;
@@ -1431,7 +1431,7 @@ s32 btlMainActionUpdate(void)
     if ((*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x80) != 0) {
         func_001b1830();
         func_00213b80(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4));
-        func_00212240(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4), 0);
+        btlDamageSetSource(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4), 0);
         state = *(u16 *)((u8 *)iGpffffb3ac + 0x1C);
         switch (state) {
         case 1:
@@ -1506,11 +1506,11 @@ s32 btlMainActionUpdate(void)
             }
             if ((*(u16 *)((u8 *)iGpffffb3ac + 0xCAC) & 1) != 0 &&
                 (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x20000000) == 0) {
-                func_002138a0(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4));
+                btlEncounterStart(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4));
             }
             *(s32 *)((u8 *)iGpffffb3ac + 0xDD0) =
-                func_0021d980(*(s32 *)((u8 *)iGpffffb3ac + 0xDC8), (u8 *)iGpffffb3ac + 0xCAC);
-            func_0021dab0(*(s32 *)((u8 *)iGpffffb3ac + 0xDD0));
+                btlShuffleCreate(*(s32 *)((u8 *)iGpffffb3ac + 0xDC8), (u8 *)iGpffffb3ac + 0xCAC);
+            btlShuffleCancel(*(s32 *)((u8 *)iGpffffb3ac + 0xDD0));
             state = *(u16 *)((u8 *)iGpffffb3ac + 0x1C);
             if (state == 1) {
                 return (*(s32 *)((u8 *)iGpffffb3ac + 0x10) & 2) ? 12 : 11;
@@ -1717,7 +1717,7 @@ s32 btlMainRevivalUpdate(void)
             temp_4 = D_0076449C;
             *(s32 *)(temp_4 + 0xC) &= ~0x80;
             if (func_001eb860() == 1) {
-                func_00212240(*(u8 **)(D_0076449C + 0xDD4), 1);
+                btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 1);
             }
             btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)(temp_16), (u16)(0x24)), 0);
         } else {
@@ -1777,7 +1777,7 @@ s32 func_001b4860(s32 *arg0)
 // FUN_001B4880
 void btlMainWinInit(u8 *arg0) {
     extern void func_001eb7f0(void);
-    extern void func_00212240(u8 *arg0, s32 arg1);
+    extern void btlDamageSetSource(u8 *arg0, s32 arg1);
     extern void func_001eb3b0(u8 *arg0);
     extern u8 *btlUnitCreateResourceFreePacket(u8 *arg0);
     extern u8 *func_00194c90(void *arg0, void *arg1);
@@ -1852,7 +1852,7 @@ void btlMainWinInit(u8 *arg0) {
     } else {
         func_001eb7f0();
         *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) & 0xFFFFDFFF;
-        func_00212240(*(u8 **)(iGpffffb3ac + 0xDD4), 0);
+        btlDamageSetSource(*(u8 **)(iGpffffb3ac + 0xDD4), 0);
         work->animationFrames = animationFrames;
         work->duration = 0x14;
     }
@@ -2018,7 +2018,7 @@ s32 btlMainWinUpdate(u8 *arg0)
     }
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) != 0 &&
         (*(s32 *)(p + 8) == *(u16 *)(p + 0x12))) {
-        func_00212100(*(s32 *)(iGpffffb3ac + 0xDD4));
+        btlDamageStartFlash(*(s32 *)(iGpffffb3ac + 0xDD4));
     }
     if ((*(u16 *)(iGpffffb3ac + 0xCAC) & 1) == 0) {
         goto after_cac;
@@ -2032,10 +2032,10 @@ s32 btlMainWinUpdate(u8 *arg0)
         goto after_cac;
     }
     if (*(s32 *)(p + 8) == limit) {
-        func_00213990(*(s32 *)(iGpffffb3ac + 0xDD4));
+        btlEncounterSetReady(*(s32 *)(iGpffffb3ac + 0xDD4));
         return 0;
     }
-    if (func_002139d0(*(s32 *)(iGpffffb3ac + 0xDD4)) == 0) {
+    if (btlEncounterIsIntroDone(*(s32 *)(iGpffffb3ac + 0xDD4)) == 0) {
         return 0;
     }
 after_cac:
@@ -2135,7 +2135,7 @@ fallback:
     if ((temp4 & 0x20000000) != 0) {
         goto done;
     }
-    func_00213a10(*(s32 *)(D_0076449C + 0xDD4));
+    btlEncounterSetFinish(*(s32 *)(D_0076449C + 0xDD4));
 done:
     return;
 }
@@ -2152,7 +2152,7 @@ s32 btlMainFadeOutUpdate(u8 *arg0)
     if (*(s32 *)(arg0 + 0xC) != 0) {
         goto check_status;
     }
-    if (func_0021db10(*(s32 *)(iGpffffb3ac + 0xDD0)) != 0) {
+    if (btlShuffleIsCanceled(*(s32 *)(iGpffffb3ac + 0xDD0)) != 0) {
         goto check_status;
     }
     if ((*(u16 *)(iGpffffb3ac + 0xCAC) & 1) == 0) {
@@ -2161,7 +2161,7 @@ s32 btlMainFadeOutUpdate(u8 *arg0)
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) != 0) {
         goto set_status;
     }
-    func_00213a10(*(s32 *)(iGpffffb3ac + 0xDD4));
+    btlEncounterSetFinish(*(s32 *)(iGpffffb3ac + 0xDD4));
 set_status:
     *(s32 *)(arg0 + 0xC) = 1;
 check_status:
@@ -2174,12 +2174,12 @@ check_status:
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) != 0) {
         goto status_fallback;
     }
-    if (func_00213a50(*(s32 *)(iGpffffb3ac + 0xDD4)) != 0) {
+    if (btlEncounterIsInactive(*(s32 *)(iGpffffb3ac + 0xDD4)) != 0) {
         goto status_fallback;
     }
     return 0;
 status_fallback:
-    if (func_0021db40(*(s32 *)(iGpffffb3ac + 0xDD0)) != 0) {
+    if (btlShuffleIsBusy(*(s32 *)(iGpffffb3ac + 0xDD0)) != 0) {
         goto return_zero;
     }
     return 0xF;

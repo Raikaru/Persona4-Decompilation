@@ -4,7 +4,7 @@
 /* Original translation unit btlResultSimple.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-void func_0021dda0(void);
+void btlShuffleStartOverlay(void);
 extern u16 *kwlnTaskGetWork();
 void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 s32 btlMainGetPhase(void);
@@ -46,7 +46,7 @@ extern s32 sprintf(void *dst, const void *fmt, ...);
 void func_00460ac0(void *param, void *work);
 extern u32 D_00795F20[];
 s32 func_0021f520(u8 *arg0);
-s32 func_0021de60(void);
+s32 btlShuffleOverlayIdle(void);
 static inline u32 addBase(u32 base, u32 index) { return base + index; }
 extern char iGpffffa5b8;
 extern u8 *iGpffffa5a0[2];
@@ -474,7 +474,7 @@ s32 func_0021f790(u8 *arg0) {
         }
         goto L;
     case 5:
-        if (func_0021de60() != 0) {
+        if (btlShuffleOverlayIdle() != 0) {
             work->state = 6;
         case 6:
             if (work->flags & 0x80) {
@@ -688,7 +688,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
     void func_00364c70(void);
     s32 datCalcGetLevelById(s32);
     u32 func_0010d6d0(s16);
-    s32 func_0021e050(u8 *);
+    s32 btlXpBaseAward(u8 *);
     void func_001125d0(u8 *);
     void func_00112300(Vec2f, f32, u8, u8 *);
     int frFontExDrawText(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
@@ -868,7 +868,7 @@ void func_0021fea0(u8 *arg0, u8 *arg1)
             func_0021ed10(w, &position.v[0], 0.0f, bEA | (s32)0xEC7C0000, fld64, 0);
             sprite = *(u8 **)(w + 0x42C);
             func_0034f2e0(sprite, 5.0f + position.v[0], 9.0f + position.v[1], 0xEC, 0x7C, 0, bEA);
-            eret = (u32)(func_0021e050((u8 *)&p16->flags));
+            eret = (u32)(btlXpBaseAward((u8 *)&p16->flags));
             position.v[0] =(75.0f + (*(f32 *)(w + 0x110)));
             position.v[1] =(112.0f + (*(f32 *)(w + 0x114)));
             b11A = (u8)((*(u8 *)(w + 0x11A)));
@@ -1109,7 +1109,7 @@ void func_002216e0(void) {
 
     temp_2 = kwlnTaskGetWork();
     if (temp_2[0] & 0x80) {
-        func_0021dda0();
+        btlShuffleStartOverlay();
         *(s32 *)(temp_2 + 2) = 5;
         return;
     }

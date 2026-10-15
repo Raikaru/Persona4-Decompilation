@@ -26,7 +26,7 @@ extern void itfMesWindowSetString(u8 *arg0, s32 arg1, u8 *arg2);
 extern void frFontListKeepOrRelease(s32 arg0);
 extern void itfMesWindowClear(s32 arg0, s32 arg1);
 extern void btlUiSetRenderStates(void);
-extern void func_00211650(u8 *arg0, u8 *arg1);
+extern void btlDamageDrawGaugeBar(u8 *arg0, u8 *arg1);
 
 extern void memset(void *destination, s32 value, u32 size);
 
@@ -44,8 +44,8 @@ extern u8 func_001059e0(s32 arg0);
 extern s32 func_00106020(s32 arg0);
 extern s32 func_00106600(s16 id);
 extern void datCalcSetLevel(u8 *arg0, u8 arg1);
-extern s32 func_00212180(s32);
-extern void func_00216c40(s32, s32);
+extern s32 btlDamageIsIdle(s32);
+extern void btlPanelSetCountdown(s32, s32);
 extern void func_001f7620(s16 channel, s32 fadeFrames);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern u32 datGetFlag(s32 arg0);
@@ -63,27 +63,27 @@ extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);
 extern u8 D_00796340[];
 extern s32 func_0046a750(s32 arg0);
-extern s32 func_0021d4a0(u8 *task);
+extern s32 btlShuffleUpdateTask(u8 *task);
 extern u8 *iGpffffb3c4;
 extern s32 sdkSpriteRequestLoad(void *arg0);
 extern u8 D_00626C30[];
 extern u8 D_00626CA0[];
-extern void func_00212270(u8 *drawPayload, s32 workAddress, void *callback);
+extern void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback);
 
 
 
 extern void sdkSpriteRelease(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
-extern s32 func_00213a80(void);
+extern s32 btlEncounterIsActive(void);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_00626C80[];
-extern void func_0021b310();
+extern void btlGaugeSetActive();
 extern s32 func_00221940(KwlnTask *task);
 extern void func_0036e870(s32 arg0);
 extern void func_00221770(s32 arg0);
 extern u8 D_006290E0[];
 
-extern void func_0021dc50(s32 arg0, s32 *arg1);
+extern void btlShuffleDrawSweep(s32 arg0, s32 *arg1);
 extern void func_0021dd60(u8 *task);
 extern u16 *datPersonaRosterSlot(s16 arg0);
 extern u16 datPersonaCountValidMembers(void);
@@ -97,22 +97,22 @@ extern void btlUiSetTileOffset(u8 *arg0, s16 arg1, s32 arg2, f32 arg3);
 extern void btlUiSetFactorXY(u8 *arg0, f32 arg1, f32 arg2);
 extern s32 datCalcUnitClass(u8 *arg0);
 extern s32 func_001b1540(void);
-extern void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
-extern void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
-extern void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
+extern void btlPortraitDraw(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
+extern void btlPortraitDrawPulse(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
+extern void btlPortraitDrawFlash(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
 extern f32 fGpffff84a0;
-extern void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
+extern void btlGaugeDrawSegment(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
 extern s32 datCalcMaxHp(s32 arg0);
 extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
 extern f32 fGpffff8498;
 extern f32 fGpffff8200;
-extern s32 func_0021dba0(u8 *task);
-extern void func_00210c70(u8 *arg0, u8 *arg1);
+extern s32 btlShuffleTickFrame(u8 *task);
+extern void btlDamageDrawPanel(u8 *arg0, u8 *arg1);
 extern void btlTransitionDrawFrame(u8 *arg0, u8 *arg1);
-extern void func_0021e110(u8 *arg0, u8 *arg1);
-extern void func_0021e9a0(u8 *arg0, u8 *arg1);
-extern void func_0021eb60(u8 *arg0);
-extern void func_0021ec40(s32 arg0);
+extern void btlXpPrepareAwards(u8 *arg0, u8 *arg1);
+extern void btlXpApplyAwards(u8 *arg0, u8 *arg1);
+extern void btlXpAddRosterExp(u8 *arg0);
+extern void btlXpAddPartyExp(s32 arg0);
 
 static inline f32 ws14_mul(f32 left, f32 right)
 {
@@ -145,8 +145,9 @@ typedef struct {
  * flag compound-clear preserves the expiration reload; the gauge provider
  * takes X/Y before color in the independent EE integer/float argument banks.
  * See docs/probe_archive/Battle_damage_panel_00210c70_20260922.md. */
+// Intent: draw the damage popup's HP and SP numbers, gauge and status icon for one target. [inferred]
 // FUN_00210C70
-void func_00210c70(u8 *arg0, u8 *arg1)
+void btlDamageDrawPanel(u8 *arg0, u8 *arg1)
 {
     extern s32 btlTargetFindInRange(s32 arg0, u8 *arg1);
     extern f32 btlSelectionEaseCurve(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -273,7 +274,7 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                 }
                 if (info.drawGauge != 0) {
                     unit = *(u8 **)transition;
-                    func_0021aeb0(*(s32 *)(task + 4), unit, info.gaugeX,
+                    btlGaugeDrawUnit(*(s32 *)(task + 4), unit, info.gaugeX,
                                   info.gaugeY + shift, 0xFF, *(f32 *)(unit + 0xA2C));
                 }
                 base += 27.0f;
@@ -307,8 +308,9 @@ void func_00210c70(u8 *arg0, u8 *arg1)
 #pragma opt_loop_invariants on
 /* Exact: 912/912 bytes, no relocations. Loop extraction retains the
    shared decay constants; separate counters describe independent phases. */
+// Intent: fill the decaying trail alpha table for a damage popup. [inferred]
 // FUN_002112C0
-static void func_002112c0(u8 *state, u8 *output)
+static void btlDamageBuildTrail(u8 *state, u8 *output)
 {
     s32 i;
 
@@ -402,13 +404,14 @@ union ColorWord {
     u8 bytes[4];
 };
 
+// Intent: draw the damage popup's gauge bar segments from the trail table. [inferred]
 // FUN_00211650
-void func_00211650(u8 *arg0, u8 *arg1)
+void btlDamageDrawGaugeBar(u8 *arg0, u8 *arg1)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
     extern void btlUiSetRenderMode(s32 arg0);
     extern s32 func_0021be60(void);
-    extern void func_0021b630(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
+    extern void btlPanelDrawQuad(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
                               f32 fparg4, f32 fparg5, f32 fparg6, f32 fparg7,
                               f32 fparg8, union ColorWord arg0);
     extern f32 fGpffff84a0;
@@ -427,7 +430,7 @@ void func_00211650(u8 *arg0, u8 *arg1)
     temp_16 = *(s32 *)(arg1 + 4);
     for (var_17 = 0; var_17 < temp_16; var_17++) {
         frame.bytes[3] = (s8)*(u16 *)(arg1 + 8 + (var_17 << 1));
-        func_0021b630(21.0f + (f32)(var_17 * 0x14),
+        btlPanelDrawQuad(21.0f + (f32)(var_17 * 0x14),
                       386.0f, 0.0f, 22.0f, 22.0f,
                       114.0f, 197.0f, 136.0f, 219.0f, frame);
     }
@@ -440,26 +443,27 @@ void func_00211650(u8 *arg0, u8 *arg1)
         temp_f21 = 21.0f * temp_f22;
         temp_f20 = ws14_mul(temp_f22, -10.5f);
         temp_f20 = ws14_add(fGpffff84a0, temp_f20);
-        func_0021b630(14.0f, temp_f20, 0.0f, 12.0f, temp_f21,
+        btlPanelDrawQuad(14.0f, temp_f20, 0.0f, 12.0f, temp_f21,
                       37.0f, 218.0f, 49.0f, 239.0f, frame);
-        func_0021b630(26.0f, temp_f20, 0.0f, 112.0f, temp_f21,
+        btlPanelDrawQuad(26.0f, temp_f20, 0.0f, 112.0f, temp_f21,
                       49.0f, 218.0f, 49.0f, 239.0f, frame);
-        func_0021b630(138.0f, temp_f20, 0.0f, 12.0f, temp_f21,
+        btlPanelDrawQuad(138.0f, temp_f20, 0.0f, 12.0f, temp_f21,
                       49.0f, 218.0f, 37.0f, 239.0f, frame);
         btlUiSetRenderMode(0);
         frame.bytes[0] = 0xD;
         frame.bytes[1] = 0x1B;
         frame.bytes[2] = 0;
         frame.bytes[3] = 0xFF;
-        func_0021b630(24.0f, fGpffff84a0 + ws14_mul(temp_f22, -9.5f),
+        btlPanelDrawQuad(24.0f, fGpffff84a0 + ws14_mul(temp_f22, -9.5f),
                       0.0f, 116.0f, 19.0f * temp_f22, 136.0f,
                       235.0f, 252.0f, 254.0f, frame);
         return;
     }
     btlUiSetRenderMode(0);
 }
+// Intent: initialise a list entry node with its owner and a reference count of one. [inferred]
 // FUN_00211950
-void func_00211950(u8 *arg0, s32 arg1) {
+void btlEntryInit(u8 *arg0, s32 arg1) {
     memset(arg0, 0, 0x20);
     *(s32 *)(arg0 + 4) = arg1;
     *(s32 *)(arg0 + 0x10) = 1;
@@ -467,8 +471,9 @@ void func_00211950(u8 *arg0, s32 arg1) {
 
 
 
+// Intent: release every entry in a list and clear its head. [inferred]
 // FUN_002119A0
-void func_002119a0(u8 **arg0) {
+void btlEntryListFlush(u8 **arg0) {
     u8 *p = *arg0;
     u8 *next;
 
@@ -481,8 +486,9 @@ void func_002119a0(u8 **arg0) {
     *arg0 = NULL;
 }
 
+// Intent: remove finished entries from a list and advance the age of the rest. [inferred]
 // FUN_00211A10
-void func_00211a10(u8 **arg0)
+void btlEntryListPrune(u8 **arg0)
 {
     u8 *var_4;
     u8 *var_17;
@@ -515,8 +521,9 @@ loop_test:
         goto loop_body;
     }
 }
+// Intent: draw each active damage popup and its timed follow-up. [inferred]
 // FUN_00211AD0
-void func_00211ad0(u8 *arg0, u8 *arg1)
+void btlDamageDrawList(u8 *arg0, u8 *arg1)
 {
     s32 *temp_2;
     u16 temp_4;
@@ -528,7 +535,7 @@ void func_00211ad0(u8 *arg0, u8 *arg1)
         var_18 = *(u8 **)arg1;
         goto loop_test;
 loop_body:
-        func_00210c70(arg1, var_18);
+        btlDamageDrawPanel(arg1, var_18);
         var_18 = *(u8 **)(var_18 + 0x24);
 loop_test:
         if (var_18 != NULL) {
@@ -547,8 +554,9 @@ loop_test:
 /* Measured: 1000/1008 bytes, eighteen resolved relocations and eight zero
  * alignment bytes. Projection writes three world and two screen floats;
  * the fade consumer reads the initialized twelve-byte typed packet. */
+// Intent: draw the pulsing bad-status ring over party units while the popup is active. [inferred]
 // FUN_00211BA0
-void func_00211ba0(u8 *arg0, u8 *arg1)
+void btlDamageDrawBadStatus(u8 *arg0, u8 *arg1)
 {
     extern void func_00195f70(u8 *arg0, f32 *arg1);
     extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
@@ -624,8 +632,9 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
         }
     }
 }
+// Intent: draw the damage popup bars when its flag and value are set. [inferred]
 // FUN_00211F90
-void func_00211f90(s32 arg0, u8 *arg1) {
+void btlDamageDrawBars(s32 arg0, u8 *arg1) {
     u8 sp30[0x20];
     u8 *b = (u8 *)kwlnTaskGetWork(*(void **)(arg1 + 4));
 
@@ -636,28 +645,31 @@ void func_00211f90(s32 arg0, u8 *arg1) {
     if (*(s32 *)(arg1 + 0x10) == 0) {
         return;
     }
-    func_002112c0(arg1, sp30);
-    func_00211650(b, sp30);
+    btlDamageBuildTrail(arg1, sp30);
+    btlDamageDrawGaugeBar(b, sp30);
 }
 
+// Intent: set the active bit of the damage popup. [inferred]
 // FUN_00212010
-void func_00212010(s32 task)
+void btlDamageSetActive(s32 task)
 {
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x764) = *(u16 *)(p + 0x764) | 1;
 }
+// Intent: clear the active bit of the damage popup. [inferred]
 // FUN_00212040
-void func_00212040(s32 task)
+void btlDamageClearActive(s32 task)
 {
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x764) = *(u16 *)(p + 0x764) & 0xFFFE;
 }
+// Intent: start a damage popup, playing its cue and setting its flags from the target. [inferred]
 // FUN_00212070
-void func_00212070(u8 *arg0, u8 *arg1)
+void btlDamageStart(u8 *arg0, u8 *arg1)
 {
     u8 *p;
     u8 *sub;
@@ -673,12 +685,13 @@ void func_00212070(u8 *arg0, u8 *arg1)
     func_0045af60(1, 0xF, 2, 0xD);
     *(u16 *)(sub + 8) |= 2;
 }
+// Intent: start the damage flash when the popup is idle. [inferred]
 // FUN_00212100
-void func_00212100(s32 arg0) {
+void btlDamageStartFlash(s32 arg0) {
     u8 *temp_16;
 
     temp_16 = (u8 *)kwlnTaskGetWork((void *)arg0) + 0x75C;
-    if (func_00212180(arg0) != 0) {
+    if (btlDamageIsIdle(arg0) != 0) {
         func_0045af60(1, 0xE, 2, 2);
         *(s16 *)(temp_16 + 0xE) = 0;
         *(u16 *)(temp_16 + 8) |= 8;
@@ -687,16 +700,18 @@ void func_00212100(s32 arg0) {
 
 
 
+// Intent: report whether the damage popup is not flashing. [inferred]
 // FUN_00212180
-s32 func_00212180(s32 arg0)
+s32 btlDamageIsIdle(s32 arg0)
 {
     s32 flag;
 
     flag = (*(u16 *)((u8 *)kwlnTaskGetWork((void *)arg0) + 0x764) & 8) != 0;
     return flag ^ 1;
 }
+// Intent: reset the damage popup phase counters and start its display phase. [inferred]
 // FUN_002121B0
-void func_002121b0(s32 task)
+void btlDamageBeginPhase(s32 task)
 {
     u8 *work;
     u8 *sub;
@@ -709,8 +724,9 @@ void func_002121b0(s32 task)
     *(u16 *)(sub + 8) = *(u16 *)(sub + 8) | 0x10;
 }
 
+// Intent: end the damage popup display phase and clear its active bit. [inferred]
 // FUN_00212210
-void func_00212210(s32 task)
+void btlDamageEndPhase(s32 task)
 {
     u8 *p;
 
@@ -718,8 +734,9 @@ void func_00212210(s32 task)
     *(s16 *)(p + 0x772) = 0;
     *(u16 *)(p + 0x764) = *(u16 *)(p + 0x764) & 0xFFEF;
 }
+// Intent: store the damage popup's source value. [inferred]
 // FUN_00212240
-void func_00212240(u8 *arg0, s32 arg1) {
+void btlDamageSetSource(u8 *arg0, s32 arg1) {
     *(s32 *)((u8 *)kwlnTaskGetWork(arg0) + 0x76C) = arg1;
 }
 
@@ -734,8 +751,9 @@ static inline f32 btlTransitionExitCurve(f32 coefficient, f32 fraction)
     return 1.0f + eased;
 }
 
+// Intent: draw the encounter transition sky, bars and panel for its current frame. [inferred]
 // FUN_00212270
-void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
+void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback)
 {
     extern BtlShuffleRenderPrimitive D_00887310[];
     extern BtlShuffleVec3 D_0060A0E0[];
@@ -1151,8 +1169,9 @@ void func_00212270(u8 *drawPayload, s32 workAddress, void *callback)
             0xFF, 0x1000, (u16)labelScale, 0.0f, 0, 0);
     }
 }
+// Intent: advance the encounter task state machine and return -1 when it finishes. [inferred]
 // FUN_002136F0
-s32 func_002136f0(u8 *sdkTaskBytes)
+s32 btlEncounterUpdateTask(u8 *sdkTaskBytes)
 {
     s32 task = (s32)sdkTaskBytes;
     s16 temp_2_2;
@@ -1201,8 +1220,9 @@ block_14:
         return 0;
     }
 }
+// Intent: release an encounter task and its sprite. [inferred]
 // FUN_00213840
-void func_00213840(u8 *arg0) {
+void btlEncounterDestroyTask(u8 *arg0) {
     u8 *p;
     s32 v;
 
@@ -1214,8 +1234,9 @@ void func_00213840(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
+// Intent: create an encounter task and its transition state. [inferred]
 // FUN_002138A0
-void func_002138a0(s32 arg0)
+void btlEncounterStart(s32 arg0)
 {
     f32 *temp_2;
     u8 *temp_17;
@@ -1226,13 +1247,14 @@ void func_002138a0(s32 arg0)
     memset(temp_2, 0, 0x48);
     *(s32 *)((u8 *)temp_2 + 4) = sdkSpriteRequestLoad(&D_00626CA0);
     *(s16 *)((u8 *)temp_2 + 0) = 1;
-    *(void **)((u8 *)temp_2 + 0x10) = (void *)func_00212270;
+    *(void **)((u8 *)temp_2 + 0x10) = (void *)btlEncounterDrawTransition;
     *(f32 **)((u8 *)temp_2 + 0x18) = temp_2;
     *(s32 *)(temp_17 + 0x778) =
-        (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00626C80), 0xF, 0, 0, func_002136f0, func_00213840, (u8 *)(temp_2));
+        (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00626C80), 0xF, 0, 0, btlEncounterUpdateTask, btlEncounterDestroyTask, (u8 *)(temp_2));
 }
+// Intent: mark the encounter task as ready to proceed. [inferred]
 // FUN_00213990
-void func_00213990(s32 task)
+void btlEncounterSetReady(s32 task)
 {
     u8 *p;
     s32 value;
@@ -1241,13 +1263,15 @@ void func_00213990(s32 task)
     value = 1;
     *(s32 *)(p + 0x40) = value;
 }
+// Intent: report whether the encounter intro has finished. [inferred]
 // FUN_002139D0
-s32 func_002139d0(s32 task)
+s32 btlEncounterIsIntroDone(s32 task)
 {
     return *(s32 *)((u8 *)kwlnTaskGetWork(*(s32 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x778)) + 0x38) >= 0x24;
 }
+// Intent: mark the encounter task as finishing. [inferred]
 // FUN_00213A10
-void func_00213a10(s32 task)
+void btlEncounterSetFinish(s32 task)
 {
     u8 *p;
     s32 value;
@@ -1256,21 +1280,24 @@ void func_00213a10(s32 task)
     value = 1;
     *(s32 *)(p + 0x44) = value;
 }
+// Intent: report whether no encounter task is active. [inferred]
 // FUN_00213A50
-s32 func_00213a50(void)
+s32 btlEncounterIsInactive(void)
 {
     s32 flag;
 
-    flag = func_00213a80() != 0;
+    flag = btlEncounterIsActive() != 0;
     return flag ^ 1;
 }
+// Intent: report whether an encounter task exists. [inferred]
 // FUN_00213A80
-s32 func_00213a80(void)
+s32 btlEncounterIsActive(void)
 {
     return kwlnTaskGetTaskByName(&D_00626C80) != 0;
 }
+// Intent: initialise encounter parameters with their default values. [inferred]
 // FUN_00213AB0
-void func_00213ab0(s32 arg0, u8 *arg1) {
+void btlEncounterInitParams(s32 arg0, u8 *arg1) {
     memset(arg1, 0, 0x18);
     *(f32 *)(arg1 + 0x10) = 0.5f;
     *(f32 *)(arg1 + 0x14) = 170.0f;
@@ -1359,8 +1386,9 @@ void func_00213ca0(u8 *view)
     p = (u8 *)kwlnTaskGetWork(view);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) & ~0x100;
 }
+// Intent: initialise an encounter entry and its status word. [inferred]
 // FUN_00213CD0
-void func_00213cd0(u8 *arg0, s32 arg1) {
+void btlEncounterInitEntry(u8 *arg0, s32 arg1) {
     memset(arg0, 0, 0x10);
     *(s32 *)(arg0 + 0xC) = arg1;
     *(s32 *)(arg0 + 0) |= 0x100;
@@ -1368,8 +1396,9 @@ void func_00213cd0(u8 *arg0, s32 arg1) {
 
 
 
+// Intent: advance every encounter entry's timers toward the flag state. [inferred]
 // FUN_00213D20
-void func_00213d20(u8 *arg0)
+void btlEncounterUpdateEntries(u8 *arg0)
 {
     u8 *entry;
 
@@ -1406,8 +1435,9 @@ void func_00213d20(u8 *arg0)
         }
     }
 }
+// Intent: build the status icon and colour for a bad-status value. [inferred]
 // FUN_00213E20
-void func_00213e20(u8 *arg0, u8 *arg1)
+void btlEncounterBuildStatusIcon(u8 *arg0, u8 *arg1)
 {
     extern s32 datCalcGetBadStatusNoDown(s32 arg0);
     s32 value;
@@ -1610,10 +1640,11 @@ void func_00213e20(u8 *arg0, u8 *arg1)
  * output. The slide's duration, coefficient, curve and mutable frame have
  * one phase lifetime; the per-direction ratio temporaries stay local.
  * See docs/probe_archive/Battle_portrait_002142b0_20260922.md. */
+// Intent: draw a unit portrait with its HP and SP bars, status colour and slide. [inferred]
 // FUN_002142B0
 #pragma push
 #pragma opt_loop_invariants on
-void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
+void btlPortraitDraw(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 {
     typedef struct DatUnit DatUnit;
     extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
@@ -1667,7 +1698,7 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 
     row = arg2;
     context = (u8 *)arg0 + 0x80C;
-    func_00213e20(arg1, (u8 *)&colors);
+    btlEncounterBuildStatusIcon(arg1, (u8 *)&colors);
     hp = datCalcGetHp(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
     sp = datCalcGetSp(*(s32 *)(arg1 + 0xA64)) & 0xFFFF;
     maxHp = datCalcMaxHp(*(DatUnit **)(arg1 + 0xA64)) & 0xFFFF;
@@ -2073,8 +2104,9 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 }
 
 #pragma pop
+// Intent: draw the flashing portrait effect for a unit. [inferred]
 // FUN_00215C10
-void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
+void btlPortraitDrawFlash(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 {
     extern f32 D_007615A4;
     extern f32 D_007615A8;
@@ -2202,8 +2234,9 @@ void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         btlUiSetScale(var_s19, 1.0f, 1.0f);
     }
 }
+// Intent: draw the pulsing portrait effect for a unit. [inferred]
 // FUN_002161D0
-void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
+void btlPortraitDrawPulse(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 {
     extern f32 D_007615A4;
     extern f32 D_007615A8;
@@ -2329,10 +2362,11 @@ void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
 }
 /* 844/848 bytes; nine resolved relocations; four zero alignment bytes.
  * Snapshot the four party slots before callbacks can update the actor list. */
+// Intent: draw the portrait roster, updating the selected unit and its portrait effects. [inferred]
 // FUN_002167F0
 #pragma push
 #pragma opt_loop_invariants on
-void func_002167f0(u8 *arg0, u8 *arg1)
+void btlPortraitDrawRoster(u8 *arg0, u8 *arg1)
 {
     s32 *work;
     u8 *selected;
@@ -2411,8 +2445,8 @@ void func_002167f0(u8 *arg0, u8 *arg1)
             old = *(u8 **)(local + 0x20 + i * 4);
             x = *(f32 *)(local + i * 8);
             y = *(f32 *)(local + 4 + i * 8);
-            if ((*(s32 *)(old + 0xA10) & 0x1C) != 0) func_00215c10(work, old, x, y, i & 0xFFFF);
-            if ((*(s32 *)(old + 0xA10) & 0xE0) != 0) func_002161d0(work, old, x, y, i & 0xFFFF);
+            if ((*(s32 *)(old + 0xA10) & 0x1C) != 0) btlPortraitDrawFlash(work, old, x, y, i & 0xFFFF);
+            if ((*(s32 *)(old + 0xA10) & 0xE0) != 0) btlPortraitDrawPulse(work, old, x, y, i & 0xFFFF);
             i += 1;
         }
         j = 0;
@@ -2420,15 +2454,16 @@ void func_002167f0(u8 *arg0, u8 *arg1)
             old = *(u8 **)(local + 0x20 + j * 4);
             x = *(f32 *)(local + j * 8);
             y = *(f32 *)(local + 4 + j * 8);
-            func_002142b0(work, old, x, y, j & 0xFFFF);
+            btlPortraitDraw(work, old, x, y, j & 0xFFFF);
             j += 1;
         }
         btlUiSetFactorXY((u8 *)work, 1.0f, 1.0f);
     }
 }
 #pragma pop
+// Intent: start a panel entry with a single value and its countdown. [inferred]
 // FUN_00216B40
-void func_00216b40(s32 arg0, s32 arg1) {
+void btlPanelStartEntry(s32 arg0, s32 arg1) {
     u8 *temp_16;
     u8 *temp_2;
 
@@ -2437,14 +2472,15 @@ void func_00216b40(s32 arg0, s32 arg1) {
     *(s16 *)(temp_16 + 0x12) = 0;
     *(s16 *)(temp_16 + 0x14) = 1;
     *(s32 *)(temp_16 + 0x24) = arg1;
-    func_00216c40(arg0, 0x20);
+    btlPanelSetCountdown(arg0, 0x20);
     *(u16 *)(temp_16 + 0x10) &= 0xFFF3;
 }
 
 
 
+// Intent: start a panel entry with three values and its countdown. [inferred]
 // FUN_00216BB0
-void func_00216bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void btlPanelStartValues(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *temp_16;
     u8 *temp_2;
 
@@ -2455,14 +2491,15 @@ void func_00216bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(s32 *)(temp_16 + 0x20) = arg1;
     *(s32 *)(temp_16 + 0x18) = arg2;
     *(s32 *)(temp_16 + 0x1C) = arg3;
-    func_00216c40(arg0, 0x20);
+    btlPanelSetCountdown(arg0, 0x20);
     *(u16 *)(temp_16 + 0x10) &= 0xFFF3;
 }
 
 
 
+// Intent: set the panel countdown and its pause bit. [inferred]
 // FUN_00216C40
-void func_00216c40(s32 arg0, s32 arg1) {
+void btlPanelSetCountdown(s32 arg0, s32 arg1) {
     u8 *b = (u8 *)kwlnTaskGetWork((void *)arg0);
     u8 *p = b + 0x84C;
 
@@ -2474,8 +2511,9 @@ void func_00216c40(s32 arg0, s32 arg1) {
     }
 }
 
+// Intent: release a panel's font list and clear its message window. [inferred]
 // FUN_00216CA0
-void func_00216ca0(s32 task) {
+void btlPanelReleaseText(s32 task) {
     u8 *b = (u8 *)kwlnTaskGetWork((void *)task) + 0x84C;
 
     if (*(s32 *)b != 0) {
@@ -2504,23 +2542,26 @@ void func_00216d40(s32 task)
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x85C) = *(u16 *)(p + 0x85C) | 4;
 }
+// Intent: store the target unit for a panel. [inferred]
 // FUN_00216D70
-void func_00216d70(u8 *arg0, s32 arg1) {
+void btlPanelSetTarget(u8 *arg0, s32 arg1) {
     *(s32 *)((u8 *)kwlnTaskGetWork(arg0) + 0x86C) = arg1;
 }
 
 
 
+// Intent: format a number into a panel's message window. [inferred]
 // FUN_00216DA0
-void func_00216da0(u8 *arg0, s32 arg1) {
+void btlPanelSetValueText(u8 *arg0, s32 arg1) {
     u8 sp20[0x80];
 
     sprintf(sp20, (const char *)&iGpffffa598, arg1);
     itfMesWindowSetString(arg0, 1, sp20);
 }
 
+// Intent: initialise a panel record with its unit slots cleared. [inferred]
 // FUN_00216DF0
-void func_00216df0(u8 *arg0, s32 arg1) {
+void btlPanelInitRecord(u8 *arg0, s32 arg1) {
     memset(arg0, 0, 0x40);
     *(s32 *)(arg0 + 0x18) = -1;
     *(s32 *)(arg0 + 0x3C) = arg1;
@@ -2540,8 +2581,9 @@ void func_00216e50(void)
  * timed messages share the render path, and rectangles use rounded integer
  * coordinates. Render-state scopes retain the table address while reloading
  * its callback. See Battle_message_panel_00216e60_20260922.md. */
+// Intent: draw a timed message with its status icon and text list. [inferred]
 // FUN_00216E60
-void func_00216e60(u8 *arg0, u8 *arg1)
+void btlMessageDrawTimed(u8 *arg0, u8 *arg1)
 {
     extern s32 btlUnitGetDataRow(u8 *arg0);
     extern void btlUiSetOrigin(u8 *arg0, f32 x, f32 y);
@@ -2922,8 +2964,9 @@ void func_00216e60(u8 *arg0, u8 *arg1)
         (*(s32 *)(arg1 + 0x34))++;
     }
 }
+// Intent: start a short timed message with a randomised offset. [inferred]
 // FUN_00218160
-void func_00218160(u8 *arg0, u8 *arg1)
+void btlMessageStartShort(u8 *arg0, u8 *arg1)
 {
     u8 *p;
     u8 *sub;
@@ -2941,18 +2984,21 @@ void func_00218160(u8 *arg0, u8 *arg1)
     func_001f62b0();
     *(u16 *)(sub + 0x10) |= 0x10;
 }
+// Intent: report whether a message is still running. [inferred]
 // FUN_00218200
-s32 func_00218200(s32 task)
+s32 btlMessageIsActive(s32 task)
 {
     return ~(*(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874)) != 0;
 }
+// Intent: return the message's result code. [inferred]
 // FUN_00218230
-s32 func_00218230(s32 task)
+s32 btlMessageGetResult(s32 task)
 {
     return *(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874);
 }
+// Intent: reset a message's result and release its window. [inferred]
 // FUN_00218260
-void func_00218260(s32 task) {
+void btlMessageReset(s32 task) {
     u8 *temp_16;
     u8 *temp_2;
 
@@ -2966,8 +3012,9 @@ void func_00218260(s32 task) {
 
 
 
+// Intent: start a long timed message with a randomised offset. [inferred]
 // FUN_002182C0
-void func_002182c0(u8 *arg0, u8 *arg1)
+void btlMessageStartLong(u8 *arg0, u8 *arg1)
 {
     u8 *p;
     u8 *sub;
@@ -2985,18 +3032,21 @@ void func_002182c0(u8 *arg0, u8 *arg1)
     func_001f62b0();
     *(u16 *)(sub + 0x10) |= 0x10;
 }
+// Intent: report whether a message is still running (duplicate of btlMessageIsActive). [inferred]
 // FUN_00218360
-s32 func_00218360(s32 task)
+s32 btlMessageIsActiveAlt(s32 task)
 {
     return ~(*(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874)) != 0;
 }
+// Intent: return the message's result code (duplicate of btlMessageGetResult). [inferred]
 // FUN_00218390
-s32 func_00218390(s32 task)
+s32 btlMessageGetResultAlt(s32 task)
 {
     return *(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874);
 }
+// Intent: reset a message's result and release its window (duplicate of btlMessageReset). [inferred]
 // FUN_002183C0
-void func_002183c0(s32 task) {
+void btlMessageResetAlt(s32 task) {
     u8 *temp_16;
     u8 *temp_2;
 
@@ -3008,8 +3058,9 @@ void func_002183c0(s32 task) {
     *(u16 *)(temp_16 + 0x10) &= 0xFFEF;
 }
 
+// Intent: install a message window and reset the message state. [inferred]
 // FUN_00218420
-void func_00218420(s32 task, u8 *arg1)
+void btlMessageInstallWindow(s32 task, u8 *arg1)
 {
     u8 *work;
     u8 *sub;
@@ -3026,18 +3077,21 @@ void func_00218420(s32 task, u8 *arg1)
     *(u16 *)(sub + 0x10) = *(u16 *)(sub + 0x10) | 0x10;
 }
 
+// Intent: report whether a message is still running (duplicate of btlMessageIsActive). [inferred]
 // FUN_002184A0
-s32 func_002184a0(s32 task)
+s32 btlMessageIsActiveAlt2(s32 task)
 {
     return ~(*(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874)) != 0;
 }
+// Intent: return the message's result code (duplicate of btlMessageGetResult). [inferred]
 // FUN_002184D0
-s32 func_002184d0(s32 task)
+s32 btlMessageGetResultAlt2(s32 task)
 {
     return *(s16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x874);
 }
+// Intent: release a message window and clear its result. [inferred]
 // FUN_00218500
-void func_00218500(s32 task)
+void btlMessageRelease(s32 task)
 {
     u8 *work;
     u8 *sub;
@@ -3054,8 +3108,9 @@ void func_00218500(s32 task)
     *(u16 *)(sub + 0x10) = *(u16 *)(sub + 0x10) & 0xFFEF;
 }
 
+// Intent: set up a message from a unit's flags and start its state. [inferred]
 // FUN_00218560
-void func_00218560(u8 *arg0, u8 *arg1)
+void btlMessageSetup(u8 *arg0, u8 *arg1)
 {
     u8 *sub;
 
@@ -3082,16 +3137,18 @@ void func_00218560(u8 *arg0, u8 *arg1)
     *(s16 *)(sub + 2) = 1;
     *(s16 *)(sub + 4) = 0;
 }
+// Intent: report whether a message is not pending. [inferred]
 // FUN_00218690
-s32 func_00218690(s32 task)
+s32 btlMessageIsIdle(s32 task)
 {
     s32 flag;
 
     flag = (*(u16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x8C0) & 2) != 0;
     return flag ^ 1;
 }
+// Intent: store a pending value and set the message state to pending. [inferred]
 // FUN_002186C0
-void func_002186c0(u8 *arg0, s32 arg1) {
+void btlMessageSetPendingValue(u8 *arg0, s32 arg1) {
     u8 *temp_2;
 
     temp_2 = (u8 *)kwlnTaskGetWork(arg0);
@@ -3099,24 +3156,27 @@ void func_002186c0(u8 *arg0, s32 arg1) {
     *(s16 *)(temp_2 + 0x8C2) = 2;
 }
 
+// Intent: set the message state to done. [inferred]
 // FUN_00218700
-void func_00218700(s32 task)
+void btlMessageSetDone(s32 task)
 {
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s16 *)(p + 0x8C2) = 4;
 }
+// Intent: set the message's hidden bit. [inferred]
 // FUN_00218730
-void func_00218730(s32 task)
+void btlMessageSetHidden(s32 task)
 {
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x8C0) = *(u16 *)(p + 0x8C0) | 0x10;
 }
+// Intent: draw a panel flourish with sky vertices and its fade. [inferred]
 // FUN_0021A7B0
-void func_0021a7b0(u8 *task, u8 *state)
+void btlPanelDrawFlourish(u8 *task, u8 *state)
 {
     PackedVec2f effectPosition;
     BtlShuffleSkyVertex vertices[6];
@@ -3293,20 +3353,23 @@ void func_0021a7b0(u8 *task, u8 *state)
     }
 }
 
+// Intent: initialise a gauge with its default range. [inferred]
 // FUN_0021AE60
-void func_0021ae60(u8 *arg0, u8 *arg1)
+void btlGaugeInit(u8 *arg0, u8 *arg1)
 {
     *(f32 *)(arg1 + 0) = -1.0f;
     *(f32 *)(arg1 + 4) = 1.0f;
     *(s16 *)(arg1 + 0x10) = -1;
 }
+// Intent: clear a unit's gauge state. [inferred]
 // FUN_0021AE80
-void func_0021ae80(s32 arg0)
+void btlUnitGaugeClear(s32 arg0)
 {
-    func_0021b310(arg0 + 0xA3C);
+    btlGaugeSetActive(arg0 + 0xA3C);
 }
+// Intent: draw a unit's gauge with its HP fraction and fill. [inferred]
 // FUN_0021AEB0
-void func_0021aeb0(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2, f32 fparg2)
+void btlGaugeDrawUnit(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2, f32 fparg2)
 {
     f32 temp_f0;
     f32 var_f20;
@@ -3332,11 +3395,12 @@ void func_0021aeb0(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2, f32 fpa
             }
         }
 callback:
-        func_0021b330(arg0, arg1 + 0xA3C, fparg0, fparg1, var_f20);
+        btlGaugeDrawSegment(arg0, arg1 + 0xA3C, fparg0, fparg1, var_f20);
     }
 }
+// Intent: refresh the HP ratio of each party gauge. [inferred]
 // FUN_0021AFA0
-void func_0021afa0(void)
+void btlGaugeRefreshAll(void)
 {
     u8 *p;
     u8 *work;
@@ -3377,8 +3441,9 @@ outer_test:
    A u16 return declaration matches func_00231f80's definition but regresses
    this call site to object 244B / nd 137, so the call-site s32 return view is
    intentional. */
+// Intent: return a unit's HP as a fraction of its max HP. [inferred]
 // FUN_0021B0A0
-f32 func_0021b0a0(u8 *arg0)
+f32 btlGaugeHpRatio(u8 *arg0)
 {
     typedef struct DatUnit DatUnit;
     extern s32 datCalcGetHp(DatUnit *arg0);
@@ -3400,8 +3465,9 @@ f32 func_0021b0a0(u8 *arg0)
     var_f0 = (f32)temp_2_2;
     return var_f0 / var_f20;
 }
+// Intent: initialise a gauge value and its counter. [inferred]
 // FUN_0021B190
-void func_0021b190(u8 *arg0, s32 arg1)
+void btlGaugeInitValue(u8 *arg0, s32 arg1)
 {
     memset(arg0, 0, 4);
     *(s32 *)arg0 = arg1;
@@ -3410,10 +3476,11 @@ void func_0021b190(u8 *arg0, s32 arg1)
 void func_0021b1e0(void)
 {
 }
+// Intent: step every unit's gauge animation toward its target. [inferred]
 // FUN_0021B1F0
 // measured: loop-invariant constant hoisting probe for func_0021b1f0.
 #pragma opt_loop_invariants on
-void func_0021b1f0(s32 arg0, s32 *arg1)
+void btlGaugeStepAll(s32 arg0, s32 *arg1)
 {
     f32 temp_f0;
     f32 temp_f3;
@@ -3460,8 +3527,9 @@ void func_0021b1f0(s32 arg0, s32 *arg1)
 }
 // measured: restore loop-invariant baseline after func_0021b1f0.
 #pragma opt_loop_invariants off
+// Intent: set a gauge's active state. [inferred]
 // FUN_0021B310
-void func_0021b310(u8 *arg0, s32 arg1)
+void btlGaugeSetActive(u8 *arg0, s32 arg1)
 {
     if (arg1 != 0) {
         *(s32 *)(arg0 + 0) = 0;
@@ -3473,8 +3541,9 @@ void func_0021b310(u8 *arg0, s32 arg1)
    Best legal plain-C body; residual is saved FPU parameter coloring and 12B
    tail padding. */
 /* object 452B; retail window 464B; normalized_diff 6; differing offsets 0x28, 0x30, 0xF8, 0x11C, 0x12C, 0x13C; best legal plain-C body; residual is saved FPU parameter-coloring and 12B tail padding. */
+// Intent: draw one gauge segment with its scale and fill. [inferred]
 // FUN_0021B330
-void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
+void btlGaugeDrawSegment(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
 {
     extern f32 fGpffff849c;
     u8 *context;
@@ -3505,8 +3574,9 @@ void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
         btlUiSetScale(context, 1.0f, 1.0f);
     }
 }
+// Intent: store a gauge quad's position, depth, colour and texture coordinates. [inferred]
 // FUN_0021B500
-static void func_0021b500(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+static void btlGaugeSetStyle(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    f32 fparg3, f32 fparg4, f32 fparg5, s32 arg1)
 {
     union {
@@ -3539,8 +3609,9 @@ typedef struct {
 /* One four-vertex strip. The union preserves the packed RGBA bits through
  * the retail float-local spill; channel values are stored as floats.
  * Nine float formals precede the color union to preserve caller scheduling. */
+// Intent: draw one textured four-vertex strip at a panel position. [inferred]
 // FUN_0021B630
-void func_0021b630(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
+void btlPanelDrawQuad(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
                    f32 fparg4, f32 fparg5, f32 fparg6, f32 fparg7,
                    f32 fparg8, union ColorWord arg0)
 {
@@ -3615,8 +3686,9 @@ void func_0021b630(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
     *(f32 *)(p + 0x18) = scale;
     D_00887310[0](4, &quads[0], 4);
 }
+// Intent: draw the sky pulse effect for one frame index. [inferred]
 // FUN_0021BBB0
-void func_0021bbb0(s32 arg0, u16 arg1)
+void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
     extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
@@ -3687,8 +3759,9 @@ void func_0021bbb0(s32 arg0, u16 arg1)
         }
     }
 }
+// Intent: initialise an effect block with its frame and its state. [inferred]
 // FUN_0021BE10
-void func_0021be10(u8 *arg0, s32 arg1)
+void btlEffectInit(u8 *arg0, s32 arg1)
 {
     memset(arg0, 0, 0xC);
     *(s32 *)(arg0 + 8) = arg1;
@@ -3732,7 +3805,7 @@ extern s32 func_00457120(void);
 static inline void btlAdvantageTile(s32 index, union ColorWord color)
 {
     BtlAdvantageTile *tile = &D_00628FD0[index];
-    func_0021b630(tile->x, tile->y, 0.0f, tile->width, tile->height,
+    btlPanelDrawQuad(tile->x, tile->y, 0.0f, tile->width, tile->height,
         tile->u, tile->v, tile->u + tile->width, tile->v + tile->height, color);
 }
 
@@ -3740,7 +3813,7 @@ static inline void btlAdvantageMirror(f32 horizontal, f32 vertical,
     union ColorWord color)
 {
     BtlAdvantageTile *tile = &D_00628FD0[4];
-    func_0021b630(tile->x, tile->y, 0.0f,
+    btlPanelDrawQuad(tile->x, tile->y, 0.0f,
         fGpffff84cc * (horizontal * tile->width), vertical * tile->height,
         tile->u + tile->width, tile->v + tile->height, tile->u, tile->v, color);
 }
@@ -3792,7 +3865,7 @@ static inline void btlAdvantageSegment(s32 index, union ColorWord color)
     verticalCenter = 228.5f;
     relativeY = (anchors.position[group].y - verticalCenter) + (f32)signY * tile->y;
     y = verticalCenter - relativeY;
-    func_0021b630(x, y, 0.0f, horizontalScale * ((f32)-signX * width),
+    btlPanelDrawQuad(x, y, 0.0f, horizontalScale * ((f32)-signX * width),
         (f32)-signY * height, u0, v0, u0 + width, v0 + height, color);
 }
 
@@ -3808,10 +3881,10 @@ static inline void btlAdvantageBuildQuad(f32 x, f32 y, f32 z,
     v0 /= 256.0f;
     u1 /= 256.0f;
     v1 /= 256.0f;
-    func_0021b500((u8 *)&vertices[count++], x, y, depth, u0, v0, reciprocalZ, color.word);
-    func_0021b500((u8 *)&vertices[count++], x + width, y, depth, u1, v0, reciprocalZ, color.word);
-    func_0021b500((u8 *)&vertices[count++], x, y + height, depth, u0, v1, reciprocalZ, color.word);
-    func_0021b500((u8 *)&vertices[count++], x + width, y + height, depth, u1, v1, reciprocalZ, color.word);
+    btlGaugeSetStyle((u8 *)&vertices[count++], x, y, depth, u0, v0, reciprocalZ, color.word);
+    btlGaugeSetStyle((u8 *)&vertices[count++], x + width, y, depth, u1, v0, reciprocalZ, color.word);
+    btlGaugeSetStyle((u8 *)&vertices[count++], x, y + height, depth, u0, v1, reciprocalZ, color.word);
+    btlGaugeSetStyle((u8 *)&vertices[count++], x + width, y + height, depth, u1, v1, reciprocalZ, color.word);
     if (count > 4) {
         kAssertFail(D_00629090, 122);
     }
@@ -3830,8 +3903,9 @@ static inline u16 btlAdvantageChooseSegments(void)
     return selected & eligible;
 }
 
+// Intent: draw the advantage panel's background, segments and random pattern. [inferred]
 // FUN_0021BE80
-void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
+void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
     extern u32 RpRandom(void);
@@ -3856,7 +3930,7 @@ void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
                 color.bytes[1] = 0x9F;
                 color.bytes[2] = 0xFF;
                 color.bytes[3] = 0xFF;
-                func_0021bbb0(color.word, *(u16 *)(work + 2));
+                btlEffectDrawSkyPulse(color.word, *(u16 *)(work + 2));
                 D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)iGpffffb470);
                 btlAdvantageBackground();
                 RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x48);
@@ -3892,7 +3966,7 @@ void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
                 color.bytes[1] = 0x24;
                 color.bytes[2] = 0x23;
                 color.bytes[3] = 0xFF;
-                func_0021bbb0(color.word, *(u16 *)(work + 2));
+                btlEffectDrawSkyPulse(color.word, *(u16 *)(work + 2));
                 D_00887300[0](rwRENDERSTATETEXTURERASTER, (void *)iGpffffb470);
                 btlAdvantageBackground();
                 RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void *)0x48);
@@ -3931,8 +4005,9 @@ void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback)
         }
     }
 }
+// Intent: start a shuffle task and mark it ready. [inferred]
 // FUN_0021D440
-void func_0021d440(s32 task)
+void btlShuffleStart(s32 task)
 {
     u8 *p;
 
@@ -3940,22 +4015,24 @@ void func_0021d440(s32 task)
     *(s16 *)(p + 0x9E6) = 0;
     *(u16 *)(p + 0x9E4) = *(u16 *)(p + 0x9E4) | 1;
 }
+// Intent: report whether the shuffle task is not ready. [inferred]
 // FUN_0021D470
-s32 func_0021d470(s32 task)
+s32 btlShuffleIsIdle(s32 task)
 {
     s32 flag;
 
     flag = (*(u16 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x9E4) & 1) != 0;
     return flag ^ 1;
 }
+// Intent: advance the shuffle task state machine. [inferred]
 // FUN_0021D4A0
-s32 func_0021d4a0(u8 *sdkTaskBytes)
+s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
 {
     s32 arg0 = (s32)sdkTaskBytes;
     extern s32 func_0036e8a0(s32 arg0);
     extern s32 func_002218e0(KwlnTask *task);
     extern void func_0036e7e0(s32 arg0);
-    extern void func_0021e110(u8 *arg0, u8 *arg1);
+    extern void btlXpPrepareAwards(u8 *arg0, u8 *arg1);
     extern s32 func_002216b0(s32 arg0);
     extern s32 func_0036e840(s32 arg0);
     extern void func_0036e810(s32 arg0);
@@ -4012,7 +4089,7 @@ s32 func_0021d4a0(u8 *sdkTaskBytes)
             func_0036e7e0(*(s32 *)(work + 0x938));
             *(s32 *)(work + 4) = 4;
         } else {
-            func_0021e110(work + 0x60, work + 8);
+            btlXpPrepareAwards(work + 0x60, work + 8);
             func_002216b0(*(s32 *)(work + 0x93C));
             *(s32 *)(work + 4) = 5;
         }
@@ -4021,7 +4098,7 @@ s32 func_0021d4a0(u8 *sdkTaskBytes)
         if (func_0036e840(*(s32 *)(work + 0x938)) == 0) {
             func_0036e810(*(s32 *)(work + 0x938));
             *(s32 *)(work + 0x938) = 0;
-            func_0021e110(work + 0x60, work + 8);
+            btlXpPrepareAwards(work + 0x60, work + 8);
             func_002216b0(*(s32 *)(work + 0x93C));
             *(s32 *)(work + 4) = 5;
         }
@@ -4032,22 +4109,22 @@ s32 func_0021d4a0(u8 *sdkTaskBytes)
             *(s32 *)(work + 0x93C) = 0;
             flags = *(s32 *)(work + 0x60);
             if ((flags & 2) != 0) {
-                func_0021e9a0(work + 0x60, work + 8);
+                btlXpApplyAwards(work + 0x60, work + 8);
                 *(s32 *)(work + 0x940) = func_002230e0(arg0);
                 *(s32 *)(work + 4) = 6;
             } else if ((flags & 8) != 0) {
-                func_0021e9a0(work + 0x60, work + 8);
+                btlXpApplyAwards(work + 0x60, work + 8);
                 *(s32 *)(work + 0x944) = func_00223730(arg0);
                 *(s32 *)(work + 4) = 7;
             } else if ((flags & 0x10) != 0) {
-                func_0021e9a0(work + 0x60, work + 8);
-                func_0021eb60(work + 0x60);
+                btlXpApplyAwards(work + 0x60, work + 8);
+                btlXpAddRosterExp(work + 0x60);
                 *(s32 *)(work + 0x948) = func_00223f40(arg0);
                 *(s32 *)(work + 4) = 8;
             } else {
-                func_0021e9a0(work + 0x60, work + 8);
-                func_0021eb60(work + 0x60);
-                func_0021ec40((s32)(work + 0x60));
+                btlXpApplyAwards(work + 0x60, work + 8);
+                btlXpAddRosterExp(work + 0x60);
+                btlXpAddPartyExp((s32)(work + 0x60));
                 *(s32 *)(work + 4) = 9;
             }
         }
@@ -4061,12 +4138,12 @@ s32 func_0021d4a0(u8 *sdkTaskBytes)
                 *(s32 *)(work + 0x944) = func_00223730(arg0);
                 *(s32 *)(work + 4) = 7;
             } else if ((flags & 0x10) != 0) {
-                func_0021eb60(work + 0x60);
+                btlXpAddRosterExp(work + 0x60);
                 *(s32 *)(work + 0x948) = func_00223f40(arg0);
                 *(s32 *)(work + 4) = 8;
             } else {
-                func_0021eb60(work + 0x60);
-                func_0021ec40((s32)(work + 0x60));
+                btlXpAddRosterExp(work + 0x60);
+                btlXpAddPartyExp((s32)(work + 0x60));
                 *(s32 *)(work + 4) = 9;
             }
         }
@@ -4080,7 +4157,7 @@ s32 func_0021d4a0(u8 *sdkTaskBytes)
                 *(s32 *)(work + 0x948) = func_00223f40(arg0);
                 *(s32 *)(work + 4) = 8;
             } else {
-            func_0021ec40((s32)(work + 0x60));
+            btlXpAddPartyExp((s32)(work + 0x60));
                 *(s32 *)(work + 4) = 9;
             }
         }
@@ -4104,8 +4181,9 @@ s32 func_0021d4a0(u8 *sdkTaskBytes)
     }
     return 0;
 }
+// Intent: release a shuffle task and its load handle. [inferred]
 // FUN_0021D920
-void func_0021d920(u8 *sdkTaskBytes)
+void btlShuffleDestroyTask(u8 *sdkTaskBytes)
 {
     s32 task = (s32)sdkTaskBytes;
     u8 *p;
@@ -4118,8 +4196,9 @@ void func_0021d920(u8 *sdkTaskBytes)
     }
     jtbl_008873EC[0](p);
 }
+// Intent: create a shuffle task with its child task and state. [inferred]
 // FUN_0021D980
-s32 func_0021d980(s32 arg0, u16 *arg1)
+s32 btlShuffleCreate(s32 arg0, u16 *arg1)
 {
     u8 *work;
     s32 result;
@@ -4127,7 +4206,7 @@ s32 func_0021d980(s32 arg0, u16 *arg1)
     chkmemAllocSiteTag(&D_006290D0, 0x3A);
     work = (u8 *)jtbl_008873E8[0](0x94C, 0x40000);
     memset(work, 0, 0x94C);
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_006290C0), 0xF, 0, 0, func_0021d4a0, func_0021d920, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_006290C0), 0xF, 0, 0, btlShuffleUpdateTask, btlShuffleDestroyTask, (u8 *)(work));
     memcpy(work + 8, arg1, 0x58);
     if ((*arg1 & 1) != 0) {
         *(s32 *)(work + 0x60) |= 1;
@@ -4139,8 +4218,9 @@ s32 func_0021d980(s32 arg0, u16 *arg1)
     *(s32 *)(work + 0x93C) = func_002215c0(result);
     return result;
 }
+// Intent: cancel a shuffle task and its children. [inferred]
 // FUN_0021DAB0
-void func_0021dab0(s32 task)
+void btlShuffleCancel(s32 task)
 {
     u8 *p;
 
@@ -4151,13 +4231,15 @@ void func_0021dab0(s32 task)
     func_00221770(*(s32 *)(p + 0x93C));
     *(s32 *)p |= 2;
 }
+// Intent: report whether a shuffle task was canceled. [inferred]
 // FUN_0021DB10
-s32 func_0021db10(s32 task)
+s32 btlShuffleIsCanceled(s32 task)
 {
     return (*(s32 *)kwlnTaskGetWork((void *)task) & 2) != 0;
 }
+// Intent: report whether a shuffle task still has an active child. [inferred]
 // FUN_0021DB40
-s32 func_0021db40(s32 task)
+s32 btlShuffleIsBusy(s32 task)
 {
     u8 *p;
     s32 temp;
@@ -4172,8 +4254,9 @@ s32 func_0021db40(s32 task)
     }
     return 0;
 }
+// Intent: advance a shuffle task's frame counter and return -1 when done. [inferred]
 // FUN_0021DBA0
-s32 func_0021dba0(u8 *sdkTaskBytes)
+s32 btlShuffleTickFrame(u8 *sdkTaskBytes)
 {
     s32 task = (s32)sdkTaskBytes;
     u8 *p;
@@ -4198,8 +4281,9 @@ s32 func_0021dba0(u8 *sdkTaskBytes)
 exit:
     return 0;
 }
+// Intent: draw the shuffle sweep quad for the current frame. [inferred]
 // FUN_0021DC50
-void func_0021dc50(s32 arg0, s32 *arg1)
+void btlShuffleDrawSweep(s32 arg0, s32 *arg1)
 {
     f32 var_f20;
     f32 temp_f0;
@@ -4221,8 +4305,9 @@ void func_0021dc50(s32 arg0, s32 *arg1)
     func_00364c90(sp38, 0.0f, 0xFF,
                   1500.0f, 1000.0f, fGpffff8378, 0);
 }
+// Intent: start the shuffle overlay task if it is not already running. [inferred]
 // FUN_0021DDA0
-void func_0021dda0(void)
+void btlShuffleStartOverlay(void)
 {
     u8 *work;
 
@@ -4230,13 +4315,14 @@ void func_0021dda0(void)
         chkmemAllocSiteTag(&D_006290D0, 0x3A);
         work = (u8 *)jtbl_008873E8[0](0x34, 0x40000);
         memset(work, 0, 0x34);
-        (s32)kwlnTaskCreate((const void *)(&D_006290E0), 0x10, 0, 0, func_0021dba0, func_0021dd60, (u8 *)(work));
-        *(void **)(work + 0xC) = (void *)func_0021dc50;
+        (s32)kwlnTaskCreate((const void *)(&D_006290E0), 0x10, 0, 0, btlShuffleTickFrame, func_0021dd60, (u8 *)(work));
+        *(void **)(work + 0xC) = (void *)btlShuffleDrawSweep;
         *(u8 **)(work + 0x14) = work;
     }
 }
+// Intent: report whether the shuffle overlay task has finished. [inferred]
 // FUN_0021DE60
-s32 func_0021de60(void)
+s32 btlShuffleOverlayIdle(void)
 {
     return kwlnTaskGetTaskByName(&D_006290E0) == 0;
 }
@@ -4244,10 +4330,11 @@ s32 func_0021de60(void)
    the remaining eight bytes are zero alignment. The u32 result retains retail
    allocation only with signed casts at both clamp bounds. Valid tables,
    nonzero divisor and representable intermediate conversions are required. */
+// Intent: compute an XP award for one persona from its level scaling and the award flags. [inferred]
 // FUN_0021DE90
 #pragma push
 #pragma opt_propagation off
-s32 func_0021de90(s32 arg0, u8 *arg1)
+s32 btlXpComputeAward(s32 arg0, u8 *arg1)
 {
     s32 value;
     u32 result;
@@ -4298,8 +4385,9 @@ finish:
 }
 #pragma opt_propagation on
 #pragma pop
+// Intent: return the base XP award for one persona after the award flags. [inferred]
 // FUN_0021E050
-s32 func_0021e050(u8 *arg0)
+s32 btlXpBaseAward(u8 *arg0)
 {
     s32 value;
 
@@ -4329,8 +4417,9 @@ extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
  * Loop invariants on preserves the retail award hoists: 2188/2192 bytes,
  * 49 resolved calls, with only four zero alignment bytes remaining. */
 #pragma opt_loop_invariants on
+// Intent: prepare the XP award blocks for the leader and the party without applying them. [inferred]
 // FUN_0021E110
-void func_0021e110(u8 *arg0, u8 *arg1)
+void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
 {
     s32 i;
     s32 j;
@@ -4367,7 +4456,7 @@ void func_0021e110(u8 *arg0, u8 *arg1)
         *(u32 *)arg0 |= 1;
     }
     c = datCalcGetLevelById(1) & 0xFF;
-    level = func_0021de90(c, arg1);
+    level = btlXpComputeAward(c, arg1);
     base = level;
     if (func_001069d0(func_00106cd0(1, 0)) == 0x86) {
         level += (s32)(0.5f * (f32)level);
@@ -4387,7 +4476,7 @@ void func_0021e110(u8 *arg0, u8 *arg1)
     for (i = 0; i < count; i++) {
         entry2 = datPersonaRosterSlot((s16)i);
         id = datPersonaGetLevel((s32)entry2) & 0xFF;
-        lv = func_0021de90(id, arg1);
+        lv = btlXpComputeAward(id, arg1);
         if (entry2[1] == ref) {
             level = lv;
             if (datPersonaLeadBoosted(1) != 0) {
@@ -4447,7 +4536,7 @@ void func_0021e110(u8 *arg0, u8 *arg1)
         if (id2 != 1) {
             entry3 = datPersonaGetRecord((u16)id2);
             v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
-            lv2 = func_0021de90(v5, arg1);
+            lv2 = btlXpComputeAward(v5, arg1);
             level2 = lv2;
             if (func_001069d0(func_00106cd0((s16)id2, 0)) == 0x86) {
                 level2 += (s32)(0.5f * (f32)lv2);
@@ -4471,7 +4560,7 @@ void func_0021e110(u8 *arg0, u8 *arg1)
     if (datGetFlag(0x38) != 0) {
         entry3 = datPersonaGetRecord(5);
         v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
-        lv3 = func_0021de90(v5, arg1);
+        lv3 = btlXpComputeAward(v5, arg1);
         level2 = lv3;
         if (func_001069d0(func_00106cd0(5, 0)) == 0x86) {
             level2 += (s32)(0.5f * (f32)lv3);
@@ -4503,8 +4592,9 @@ void func_0021e110(u8 *arg0, u8 *arg1)
    the dsll32/dsra32 canonicalisation, slti and li then share $v0 as retail; an s32
    temporary with an (s16) compare colours the sign-extension into $v1. The named
    call-result operand on the left keeps the addu order (v1 + v0). */
+// Intent: apply the prepared level and skill-point awards to the leader and party. [inferred]
 // FUN_0021E9A0
-void func_0021e9a0(u8 *arg0, u8 *arg1)
+void btlXpApplyAwards(u8 *arg0, u8 *arg1)
 {
     s32 temp_16;
     s32 temp_17;
@@ -4546,8 +4636,9 @@ void func_0021e9a0(u8 *arg0, u8 *arg1)
         var_17 += 1;
     }
 }
+// Intent: add prepared experience to each roster member and apply any level-ups. [inferred]
 // FUN_0021EB60
-void func_0021eb60(u8 *arg0)
+void btlXpAddRosterExp(u8 *arg0)
 {
     s32 limit;
     s32 value;
@@ -4568,8 +4659,9 @@ void func_0021eb60(u8 *arg0)
         i += 1;
     }
 }
+// Intent: add prepared experience to the four party slots and apply any level-ups. [inferred]
 // FUN_0021EC40
-void func_0021ec40(s32 arg0)
+void btlXpAddPartyExp(s32 arg0)
 {
     s32 temp_2;
     s32 temp_19;

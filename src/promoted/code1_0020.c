@@ -31,13 +31,13 @@ extern f32 sdkSpriteScaledWidth(u8 *arg0);
 extern f32 sdkSpriteScaledHeight(u8 *arg0);
 extern s32 btlPacketFinishEffect(void);
 extern s32 btlUiEndSequence(void);
-extern void func_0021afa0(s32 arg0);
+extern void btlGaugeRefreshAll(s32 arg0);
 extern void btlSelectionFlushEntries();
 
 extern u32 datGetFlag(s32 arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-extern void func_00213ab0(s32 arg0, u8 *arg1);
-extern void func_0021ae60(u8 *arg0, u8 *arg1);
+extern void btlEncounterInitParams(s32 arg0, u8 *arg1);
+extern void btlGaugeInit(u8 *arg0, u8 *arg1);
 
 extern void memset(void *destination, s32 value, u32 size);
 extern void btlSelectionSetRepeat(u8 *arg0, s16 *arg1);
@@ -87,14 +87,14 @@ extern void func_0011c630(u8 *arg0);
 extern void func_0011c6e0(u8 *arg0, s32 arg1);
 extern void func_0011caf0(u8 *arg0);
 extern void btlUiDrawSpriteEntry(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1);
-extern void func_002119a0(u8 *arg0);
+extern void btlEntryListFlush(u8 *arg0);
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
-extern void func_00216c40(s32 arg0, s32 arg1);
+extern void btlPanelSetCountdown(s32 arg0, s32 arg1);
 extern s32 datCalcUnitClass(u8 *arg0);
-extern void func_00216b40(s32 arg0, s32 arg1);
-extern void func_00216bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void btlPanelStartEntry(s32 arg0, s32 arg1);
+extern void btlPanelStartValues(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00216d10(s32 task);
 
 
@@ -193,14 +193,14 @@ extern u8 *iGpffffb3ac;
 
 extern s32 D_00881444_abs[];
 extern void func_0021be70(void *arg0);
-extern void func_00213d20(void *arg0);
+extern void btlEncounterUpdateEntries(void *arg0);
 extern void func_00216e50(void *arg0);
-extern void func_00211a10(void *arg0);
+extern void btlEntryListPrune(void *arg0);
 extern void btlPanelUpdate(void *arg0);
 extern s32 datCalcIsLowHp(u8 *arg0);
 extern f32 fGpffff8478;
 extern f32 fGpffffb478;
-extern void func_0021b310(u8 *arg0, s32 arg1);
+extern void btlGaugeSetActive(u8 *arg0, s32 arg1);
 extern void btlSelectionUpdateTransition(u8 *arg0);
 extern void func_00219130(void *arg0);
 extern void func_0021b1e0(void *arg0);
@@ -219,21 +219,21 @@ extern void func_0020b5a0(void);
 extern void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1);
 extern void btlSelectionInitTransition(u8 *arg0, s32 arg1);
 extern void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1);
-extern void func_00211950(u8 *arg0, s32 arg1);
-extern void func_00211ad0(u8 *arg0, u8 *arg1);
-extern void func_00211ba0(void);
-extern void func_00211f90(s32 arg0, u8 *arg1);
-extern void func_00213cd0(u8 *arg0, s32 arg1);
-extern void func_002167f0(void);
-extern void func_00216df0(u8 *arg0, s32 arg1);
-extern void func_00216e60(void);
+extern void btlEntryInit(u8 *arg0, s32 arg1);
+extern void btlDamageDrawList(u8 *arg0, u8 *arg1);
+extern void btlDamageDrawBadStatus(void);
+extern void btlDamageDrawBars(s32 arg0, u8 *arg1);
+extern void btlEncounterInitEntry(u8 *arg0, s32 arg1);
+extern void btlPortraitDrawRoster(void);
+extern void btlPanelInitRecord(u8 *arg0, s32 arg1);
+extern void btlMessageDrawTimed(void);
 extern void func_00218e50(u8 *arg0, s32 arg1);
 extern void func_00219790(void);
-extern void func_0021a7b0(u8 *task, u8 *state);
-extern void func_0021b190(u8 *arg0, s32 arg1);
-extern void func_0021b1f0(s32 arg0, s32 *arg1);
-extern void func_0021be10(u8 *arg0, s32 arg1);
-extern void func_0021be80(u8 *drawPayload, s32 workAddress, void *callback);
+extern void btlPanelDrawFlourish(u8 *task, u8 *state);
+extern void btlGaugeInitValue(u8 *arg0, s32 arg1);
+extern void btlGaugeStepAll(s32 arg0, s32 *arg1);
+extern void btlEffectInit(u8 *arg0, s32 arg1);
+extern void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback);
 extern s32 itfMesWindowInstall(void *arg0);
 extern u8 D_006253B0[];
 
@@ -473,7 +473,7 @@ s32 btlUiTaskInit(u8 *unusedTask)
     *(s32 *)(temp_2 + 0x7AC) = 0;
     *(s32 *)(temp_2 + 0x7B0) = 0;
     func_00460ac0(D_00794FF0, temp_2 + 0x7AC);
-    func_00213d20(temp_2 + 0x80C);
+    btlEncounterUpdateEntries(temp_2 + 0x80C);
     *(s32 *)(temp_2 + 0x81C) = 0;
     *(s32 *)(temp_2 + 0x820) = 0;
     func_00460ac0(D_00795020, temp_2 + 0x81C);
@@ -481,7 +481,7 @@ s32 btlUiTaskInit(u8 *unusedTask)
     *(s32 *)(temp_2 + 0x88C) = 0;
     *(s32 *)(temp_2 + 0x890) = 0;
     func_00460ac0(D_00795080, temp_2 + 0x88C);
-    func_00211a10(temp_2 + 0x75C);
+    btlEntryListPrune(temp_2 + 0x75C);
     *(s32 *)(temp_2 + 0x77C) = 0;
     *(s32 *)(temp_2 + 0x780) = 0;
     func_00460ac0(D_00795080, temp_2 + 0x77C);
@@ -523,7 +523,7 @@ void btlUiTaskDestroy(u8 *unusedTask)
     s32 temp_4;
     s32 var_16;
     temp_2 = (u8 *)kwlnTaskGetWork();
-    func_002119a0(temp_2 + 0x75C);
+    btlEntryListFlush(temp_2 + 0x75C);
     var_16 = 0;
     goto loop_test;
 loop_body:
@@ -562,31 +562,31 @@ void btlUiInitComponents(s32 arg0, u8 *arg1)
     btlSelectionInitTransition(arg1 + 0x710, arg0);
     *(void **)(arg1 + 0x734) = (void *)btlSelectionDrawTargetFrame;
     *(u8 **)(arg1 + 0x73C) = arg1 + 0x710;
-    func_00211950(arg1 + 0x75C, arg0);
-    *(void **)(arg1 + 0x784) = (void *)func_00211ad0;
+    btlEntryInit(arg1 + 0x75C, arg0);
+    *(void **)(arg1 + 0x784) = (void *)btlDamageDrawList;
     temp_3_2 = arg1 + 0x75C;
     *(u8 **)(arg1 + 0x78C) = temp_3_2;
-    *(void **)(arg1 + 0x7B4) = (void *)func_00211ba0;
+    *(void **)(arg1 + 0x7B4) = (void *)btlDamageDrawBadStatus;
     *(u8 **)(arg1 + 0x7BC) = temp_3_2;
-    *(void **)(arg1 + 0x7E4) = (void *)func_00211f90;
+    *(void **)(arg1 + 0x7E4) = (void *)btlDamageDrawBars;
     *(u8 **)(arg1 + 0x7EC) = temp_3_2;
-    func_00213cd0(arg1 + 0x80C, arg0);
-    *(void **)(arg1 + 0x824) = (void *)func_002167f0;
+    btlEncounterInitEntry(arg1 + 0x80C, arg0);
+    *(void **)(arg1 + 0x824) = (void *)btlPortraitDrawRoster;
     *(u8 **)(arg1 + 0x82C) = arg1 + 0x80C;
-    func_00216df0(arg1 + 0x84C, arg0);
-    *(void **)(arg1 + 0x894) = (void *)func_00216e60;
+    btlPanelInitRecord(arg1 + 0x84C, arg0);
+    *(void **)(arg1 + 0x894) = (void *)btlMessageDrawTimed;
     *(u8 **)(arg1 + 0x89C) = arg1 + 0x84C;
     func_00218e50(arg1 + 0x8C0, arg0);
     *(void **)(arg1 + 0x958) = (void *)func_00219790;
     temp_3_3 = arg1 + 0x8C0;
     *(u8 **)(arg1 + 0x960) = temp_3_3;
-    *(void **)(arg1 + 0x988) = (void *)func_0021a7b0;
+    *(void **)(arg1 + 0x988) = (void *)btlPanelDrawFlourish;
     *(u8 **)(arg1 + 0x990) = temp_3_3;
-    func_0021b190(arg1 + 0x9B0, arg0);
-    *(void **)(arg1 + 0x9BC) = (void *)func_0021b1f0;
+    btlGaugeInitValue(arg1 + 0x9B0, arg0);
+    *(void **)(arg1 + 0x9BC) = (void *)btlGaugeStepAll;
     *(u8 **)(arg1 + 0x9C4) = arg1 + 0x9B0;
-    func_0021be10(arg1 + 0x9E4, arg0);
-    *(void **)(arg1 + 0x9F8) = (void *)func_0021be80;
+    btlEffectInit(arg1 + 0x9E4, arg0);
+    *(void **)(arg1 + 0x9F8) = (void *)btlAdvantageDrawPanel;
     *(u8 **)(arg1 + 0xA00) = arg1 + 0x9E4;
     *(u8 *)(arg1 + 0x94) = 0xFF;
     *(u8 *)(arg1 + 0x95) = 0xFF;
@@ -614,8 +614,8 @@ s32 btlUiCreateTask(s32 arg0)
 // Intent: initialise the sprite pair at offset +0x18 of a UI component. [inferred]
 // FUN_00201280
 void btlUiInitSpritePair(u8 *arg0, u8 *arg1) {
-    func_00213ab0((s32)arg0, arg1);
-    func_0021ae60(arg0, arg1 + 0x18);
+    btlEncounterInitParams((s32)arg0, arg1);
+    btlGaugeInit(arg0, arg1 + 0x18);
 }
 
 
@@ -836,11 +836,11 @@ void btlUiSelectEffect(s32 arg0, u32 arg1)
 
     if (arg1 < 0x1000U) {
         temp_2 = D_0076449C;
-        func_00216bb0(*(s32 *)(temp_2 + 0xDD4), arg0,
+        btlPanelStartValues(*(s32 *)(temp_2 + 0xDD4), arg0,
                       *(s32 *)(temp_2 + 0xC60), arg1);
         return;
     }
-    func_00216b40(*(s32 *)(D_0076449C + 0xDD4),
+    btlPanelStartEntry(*(s32 *)(D_0076449C + 0xDD4),
                   iGpffffb448 + (((arg1 - 0x1000) & 0xFFFF) * 0x13));
     func_00216d10(*(s32 *)(D_0076449C + 0xDD4));
 }
@@ -1010,7 +1010,7 @@ u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 ta
 s32 btlPacketFinishEffect(void)
 {
     btlSelectionFlushEntries(*(s32 *)(D_0076449C + 0xDD4));
-    func_0021afa0(*(s32 *)(D_0076449C + 0xDD4));
+    btlGaugeRefreshAll(*(s32 *)(D_0076449C + 0xDD4));
     return 1;
 }
 // Intent: allocate the finish-effect packet (type 0x50B). [inferred]
@@ -1037,7 +1037,7 @@ s32 btlPacketStepSpriteFrame(u8 *arg0)
         return 1;
     }
     if (*(u32 *)(arg0 + 8) == 0) {
-        func_00216b40(*(s32 *)(temp_4 + 0xDD4),
+        btlPanelStartEntry(*(s32 *)(temp_4 + 0xDD4),
                       iGpffffb448 + (*(u16 *)(arg0 + 4) * 0x13));
         func_00216d10(*(s32 *)(D_0076449C + 0xDD4));
     }
@@ -1058,7 +1058,7 @@ s32 btlPacketStepSpriteFrameLookup(u8 *arg0)
         return 1;
     }
     if (*(u32 *)(arg0 + 8) == 0) {
-        func_00216b40(*(s32 *)(D_0076449C + 0xDD4),
+        btlPanelStartEntry(*(s32 *)(D_0076449C + 0xDD4),
                       datGetItemNameId(*(s16 *)(arg0 + 4)));
         func_00216d10(*(s32 *)(D_0076449C + 0xDD4));
     }
@@ -1108,11 +1108,11 @@ s32 btlPacketStepSpriteTable(u8 *arg0)
         if (temp_2 == 0) {
             return 1;
         }
-        func_00216b40(*(s32 *)(D_0076449C + 0xDD4), D_0062656C[temp_2]);
+        btlPanelStartEntry(*(s32 *)(D_0076449C + 0xDD4), D_0062656C[temp_2]);
         if (var_16 == 0) {
-            func_00216c40(*(s32 *)(D_0076449C + 0xDD4), 0x20);
+            btlPanelSetCountdown(*(s32 *)(D_0076449C + 0xDD4), 0x20);
         } else {
-            func_00216c40(*(s32 *)(D_0076449C + 0xDD4), 0x10);
+            btlPanelSetCountdown(*(s32 *)(D_0076449C + 0xDD4), 0x10);
         }
         func_00216d10(*(s32 *)(D_0076449C + 0xDD4));
     }
@@ -1156,11 +1156,11 @@ s32 btlPacketStepEffectCounter(u8 *arg0)
         temp_8 = *(s32 *)(arg0 + 0);
         if (temp_7 < 0x1000U) {
             temp_2_2 = D_0076449C;
-            func_00216bb0(*(s32 *)(temp_2_2 + 0xDD4),
+            btlPanelStartValues(*(s32 *)(temp_2_2 + 0xDD4),
                           temp_8,
                           *(s32 *)(temp_2_2 + 0xC60), temp_7);
         } else {
-            func_00216b40(*(s32 *)(D_0076449C + 0xDD4),
+            btlPanelStartEntry(*(s32 *)(D_0076449C + 0xDD4),
                           iGpffffb448 +
                               (((temp_7 - 0x1000) & 0xFFFF) * 0x13));
             func_00216d10(*(s32 *)(D_0076449C + 0xDD4));
@@ -5117,9 +5117,9 @@ void btlSelectionInitTransition(u8 *arg0, s32 arg1) {
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0019f0f0(u8 *arg0);
 extern void func_001d8010(u8 *arg0, u8 *arg1);
-extern void func_00216ca0(s32 task);
+extern void btlPanelReleaseText(s32 task);
 extern void func_00216d40(s32 task);
-extern void func_00216d70(u8 *task, s32 arg1);
+extern void btlPanelSetTarget(u8 *task, s32 arg1);
 extern void btlSelectionSetRowIdle(u8 *arg0);
 extern void btlSelectionSwapRowState(u8 *arg0, u8 *arg1);
 extern u16 D_008C024E[];
@@ -5136,20 +5136,20 @@ void btlSelectionUpdateTransition(u8 *arg0)
                 --*(u16 *)(arg0 + 4);
             } else if (D_008C024E[0] & 0x20) {
                 func_0045af60(0, 0, 0, 2);
-                func_00216ca0(*(s32 *)(arg0 + 0x18));
+                btlPanelReleaseText(*(s32 *)(arg0 + 0x18));
                 *(u16 *)(arg0 + 2) = 2;
             } else if (D_008C024E[0] & 0x40) {
-                func_00216ca0(*(s32 *)(arg0 + 0x18));
+                btlPanelReleaseText(*(s32 *)(arg0 + 0x18));
                 *(u16 *)(arg0 + 2) = 1;
             } else {
                 func_001d8010(*(u8 **)(arg0 + 8), *(u8 **)(arg0 + 0x10));
                 if (*(u8 *)(*(u8 **)(arg0 + 0x10) + 0x3C) & 1) {
                     if ((u16)func_0010f8c0(*(u16 *)(arg0 + 0x14)) == 0) {
                         selected = (u8 *)func_001d8bc0(*(u8 **)(arg0 + 0x10));
-                        func_00216b40(*(s32 *)(arg0 + 0x18), func_0019f0f0(*(u8 **)(selected + 0x30)));
-                        func_00216c40(*(s32 *)(arg0 + 0x18), -1);
+                        btlPanelStartEntry(*(s32 *)(arg0 + 0x18), func_0019f0f0(*(u8 **)(selected + 0x30)));
+                        btlPanelSetCountdown(*(s32 *)(arg0 + 0x18), -1);
                         func_00216d40(*(s32 *)(arg0 + 0x18));
-                        func_00216d70(*(u8 **)(arg0 + 0x18), *(s32 *)(selected + 0x30));
+                        btlPanelSetTarget(*(u8 **)(arg0 + 0x18), *(s32 *)(selected + 0x30));
                         if (*(u8 **)(arg0 + 0xC) == NULL) {
                             btlSelectionSetRowIdle(*(u8 **)(selected + 0x30) + 0xA48);
                         } else if (*(u8 **)(arg0 + 0xC) != selected) {
@@ -5162,7 +5162,7 @@ void btlSelectionUpdateTransition(u8 *arg0)
                 }
             }
         } else {
-            func_00216ca0(*(s32 *)(arg0 + 0x18));
+            btlPanelReleaseText(*(s32 *)(arg0 + 0x18));
             *(u8 *)(*(u8 **)(arg0 + 0x10) + 0x3C) |= 1;
         }
     }
@@ -5404,7 +5404,7 @@ void btlSelectionPushEntry(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4)
 // Intent: flush the selection entry list. [inferred]
 // FUN_0020E3F0
 void btlSelectionFlushEntries() {
-    func_002119a0((u8 *)kwlnTaskGetWork() + 0x75C);
+    btlEntryListFlush((u8 *)kwlnTaskGetWork() + 0x75C);
 }
 
 /* measured: entry parks are emitted in PARAMETER order, so the floats sit
@@ -5528,7 +5528,7 @@ void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
             *(f32 *)(output + 0x10) = 89.0f;
             *(s32 *)(output + 8) = 1;
         } else if (frame == 3) {
-            func_0021b310(panel, 1);
+            btlGaugeSetActive(panel, 1);
         } else if (frame > 3) {
             *(f32 *)(output + 0xC) = 55.0f;
             *(f32 *)(output + 0x10) = 89.0f;
@@ -5590,7 +5590,7 @@ void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
         *(f32 *)(output + 0x10) = 89.0f;
         *(s32 *)(output + 8) = 1;
     } else if (frame == 6) {
-        func_0021b310(panel, 1);
+        btlGaugeSetActive(panel, 1);
     } else if (frame > 6) {
         *(f32 *)(output + 0xC) = 54.0f;
         *(f32 *)(output + 0x10) = 89.0f;
@@ -5655,7 +5655,7 @@ void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
         *(f32 *)(output + 0x10) = 89.0f;
         *(s32 *)(output + 8) = 1;
     } else if (frame == 6) {
-        func_0021b310(panel, 1);
+        btlGaugeSetActive(panel, 1);
     } else if (frame > 6) {
         *(f32 *)(output + 0xC) = 54.0f;
         *(f32 *)(output + 0x10) = 89.0f;

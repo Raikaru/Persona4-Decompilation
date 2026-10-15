@@ -15,6 +15,6 @@ s32 btlSelectionReadInput(u8 *selection);
 void func_00213c70(u8 *view);
 void func_00213ca0(u8 *view);
 
-void func_0021aeb0(s32 task, u8 *unit, f32 x, f32 y, s32 color, f32 fraction);
+void btlGaugeDrawUnit(s32 task, u8 *unit, f32 x, f32 y, s32 color, f32 fraction);
 
 #endif

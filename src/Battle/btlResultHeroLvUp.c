@@ -49,7 +49,7 @@ void func_003672d0(void* work, s16 pcId);
 s32 func_00354a50(u8* param, s32 mode);
 void radarDrawEdge(s32 param, s32 a, s32 b, s32 c);
 void func_00355300(s32 param, s32 mode);
-s32 func_0021de60(void);
+s32 btlShuffleOverlayIdle(void);
 extern u8* kwlnTaskGetWork(u32 param);
 void func_00460ac0(void* param, void* work);
 s32 func_0046a770(u32 param);
@@ -254,7 +254,7 @@ s32 func_00221f40(u8* arg0)
         }
         break;
     case 4:
-        if (func_0021de60() != 0) {
+        if (btlShuffleOverlayIdle() != 0) {
             work->state = 5;
         case 5:
             if ((work->flags & 4) || (++work->count >= 5)) {

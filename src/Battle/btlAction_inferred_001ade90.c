@@ -108,7 +108,7 @@ u8 *func_001fa720(const void *data);
 s32 func_001eb860(void);
 u8 *func_001fa8f0(void);
 u8 *func_001faa60(void);
-extern void func_00212240(u8 *arg0, s32 arg1);
+extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 s32 func_0019ff60(u8 *arg0);
 s64 *func_001b1540(void);
 s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
@@ -121,10 +121,10 @@ u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
 u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
 u8 *func_001fa320(void);
 u8 *func_001fa450(void);
-extern void func_00218160(u8 *task, u8 *unit);
-extern s32 func_00218200(s32 task);
-extern s32 func_00218230(s32 task);
-extern void func_00218260(s32 task);
+extern void btlMessageStartShort(u8 *task, u8 *unit);
+extern s32 btlMessageIsActive(s32 task);
+extern s32 btlMessageGetResult(s32 task);
+extern void btlMessageReset(s32 task);
 s16 func_001d15a0(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
@@ -595,7 +595,7 @@ void btlActionRoundupMesInit(u8 *action)
         flags = *(u32 *)(iGpffffb3ac + 12);
         flags = flags & ~0x2000;
         *(u32 *)(iGpffffb3ac + 12) = flags;
-        func_00212240(*(u8 **)(iGpffffb3ac + 3540), 0);
+        btlDamageSetSource(*(u8 **)(iGpffffb3ac + 3540), 0);
     }
     *(u8 **)(action + 1052) = target;
     *(s32 *)(action + 1056) = 0;
@@ -652,7 +652,7 @@ void btlActionRoundupMesUpdate(u8 *arg0)
 
     if (*(s32 *)(arg0 + 0x420) == 0) {
         if (*(s16 *)(arg0 + 0x42C) <= 0) {
-            func_00218160(*(u8 **)(D_0076449C + 0xDD4),
+            btlMessageStartShort(*(u8 **)(D_0076449C + 0xDD4),
                           *(u8 **)(arg0 + 0x41C));
             *(s32 *)(arg0 + 0x420) = 1;
         } else {
@@ -666,10 +666,10 @@ void btlActionRoundupMesUpdate(u8 *arg0)
     }
 
     if (*(s32 *)(arg0 + 0x428) == 0) {
-        if (func_00218200(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
+        if (btlMessageIsActive(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
             return;
         }
-        if (func_00218230(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
+        if (btlMessageGetResult(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
             packet1 = btlTargetCreateActionPacket(arg0, 2);
             *(u64 *)(packet1 + 0x60) = *(u64 *)arg0;
             btlPacketEnqueue(packet1, 1);
@@ -701,7 +701,7 @@ void btlActionRoundupMesUpdate(u8 *arg0)
         *(u16 *)(arg0 + 0x18) &= 0xFFF7;
         if (func_001eb860() == 1) {
             *(s32 *)(D_0076449C + 0xC) |= 0x2000;
-            func_00212240(*(u8 **)(D_0076449C + 0xDD4), 1);
+            btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 1);
         }
         *(s32 *)(arg0 + 0x428) = 1;
         *(u16 *)(arg0 + 0x42E) = 6;
@@ -709,7 +709,7 @@ void btlActionRoundupMesUpdate(u8 *arg0)
     }
 
     if (*(u16 *)(arg0 + 0x42E) == 0) {
-        func_00218260(*(s32 *)(D_0076449C + 0xDD4));
+        btlMessageReset(*(s32 *)(D_0076449C + 0xDD4));
         *(s32 *)(D_0076449C + 0xC) |= 0x400000;
         *(u16 *)(D_0076449C + 0x18) |= 7;
         btlActionSetState((BtlAction *)arg0, 0x20);

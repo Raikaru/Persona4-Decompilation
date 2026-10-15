@@ -103,11 +103,11 @@ extern void func_001f9a50(s32 arg0, s32 arg1);
 extern void func_001f9a90(void);
 extern void func_00213bb0(s32 arg0);
 extern void func_00213be0(s32 arg0);
-extern void func_00218560(u8 *arg0, u8 *arg1);
-extern s32 func_00218690(s32 arg0);
-extern void func_002186c0(u8 *arg0, s32 arg1);
-extern void func_00218700(s32 arg0);
-extern void func_00218730(s32 arg0);
+extern void btlMessageSetup(u8 *arg0, u8 *arg1);
+extern s32 btlMessageIsIdle(s32 arg0);
+extern void btlMessageSetPendingValue(u8 *arg0, s32 arg1);
+extern void btlMessageSetDone(s32 arg0);
+extern void btlMessageSetHidden(s32 arg0);
 extern u8 *func_0019bbe0(u8 *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern u8 *btlUnitCreateShowPacket(u8 *arg0);
 extern u8 *btlUnitCreateHidePacket(u8 *arg0);
@@ -131,7 +131,7 @@ void func_001d8be0(s32 formation, u64 *unit);
 extern u8 *iGpffffb3b8;
 void func_001d8e50(u8 *arg0, u8 *arg1);
 void btlSelectionMarkTargets(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
-extern void func_00212010(s32 task);
+extern void btlDamageSetActive(s32 task);
 void btlUnitRequestLookAtOthers(u8 *arg0);
 u8 func_0023e1f0(u8 *unitData);
 extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
@@ -159,13 +159,13 @@ u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern s32 datCalcAilmentChance(u8 *unit, s32 element);
 u8 *func_001fa720(const void *data);
 s32 func_001eb860(void);
-extern void func_00218420(s32 task, u8 *arg1);
+extern void btlMessageInstallWindow(s32 task, u8 *arg1);
 u8 *func_001fa8f0(void);
-extern s32 func_002184a0(s32 task);
-extern s32 func_002184d0(s32 task);
+extern s32 btlMessageIsActiveAlt2(s32 task);
+extern s32 btlMessageGetResultAlt2(s32 task);
 u8 *func_001faa60(void);
-extern void func_00218500(s32 task);
-extern void func_00212240(u8 *arg0, s32 arg1);
+extern void btlMessageRelease(s32 task);
+extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 s32 func_0019ff60(u8 *arg0);
 s64 *func_001b1540(void);
 s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
@@ -176,17 +176,17 @@ u8 *func_001fa9c0(void);
 s32 btlAICommandNomalStatusCheck(u8 *arg0, s64 arg1);
 u32 btlCountUnitRecordsById(u32 arg0);
 u8 *func_001fa110(u8 *arg0);
-extern void func_002182c0(u8 *arg0, u8 *arg1);
+extern void btlMessageStartLong(u8 *arg0, u8 *arg1);
 u8 *btlUnitCreateRotateTowardUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *func_00194c90(s32 arg0, s32 arg1);
 u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
-extern s32 func_00218360(s32 task);
-extern s32 func_00218390(s32 task);
+extern s32 btlMessageIsActiveAlt(s32 task);
+extern s32 btlMessageGetResultAlt(s32 task);
 u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
 u8 *func_001fa320(void);
 u8 *func_001fa450(void);
 u8 *btlFormationCreateDefaultPacket(void);
-extern void func_002183c0(s32 task);
+extern void btlMessageResetAlt(s32 task);
 s16 func_001d15a0(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
@@ -452,7 +452,7 @@ void btlActionCommandUpdate(u8 *arg0)
 
     func_0019fc60();
     btlUnitTickIdleAnims();
-    func_00212010(*(s32 *)(iGpffffb3ac + 0xDD4));
+    btlDamageSetActive(*(s32 *)(iGpffffb3ac + 0xDD4));
     if (*(s32 *)(arg0 + 0x420) == 1) {
         t = *(u16 *)(arg0 + 0x41C);
         if (t == 0) {
@@ -539,8 +539,8 @@ void btlActionCommandUpdate(u8 *arg0)
     }
 tail:
     *(u16 *)(arg0 + 0x18) = *(u16 *)(arg0 + 0x18) | 2;
-    func_00212040(*(s32 *)(iGpffffb3ac + 0xDD4));
-    func_00216ca0(*(s32 *)(iGpffffb3ac + 0xDD4));
+    btlDamageClearActive(*(s32 *)(iGpffffb3ac + 0xDD4));
+    btlPanelReleaseText(*(s32 *)(iGpffffb3ac + 0xDD4));
     btlPanelReset(*(s32 *)(iGpffffb3ac + 0xDD4));
     func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
     for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
@@ -549,8 +549,8 @@ tail:
     return;
 check9:
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) != 0) {
-        func_00212040(*(s32 *)(iGpffffb3ac + 0xDD4));
-        func_00216ca0(*(s32 *)(iGpffffb3ac + 0xDD4));
+        btlDamageClearActive(*(s32 *)(iGpffffb3ac + 0xDD4));
+        btlPanelReleaseText(*(s32 *)(iGpffffb3ac + 0xDD4));
         btlPanelReset(*(s32 *)(iGpffffb3ac + 0xDD4));
         func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
         for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
@@ -624,7 +624,7 @@ after_type_1c80:
     packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x22);
     *(s64 *)(packet + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(packet, 0);
-    func_00212010(*(s32 *)(D_0076449C + 0xDD4));
+    btlDamageSetActive(*(s32 *)(D_0076449C + 0xDD4));
     btlUnitRequestLookAtOthers(arg0);
     if (lookAtUnit != NULL) {
         packet = actionLookAtUnit(NULL, *(u8 **)(lookAtUnit + 0x30), 1);
@@ -647,12 +647,12 @@ void btlActionTargetUpdate(u8 *action) {
     extern void btlPanelClearFlag(s32 task);
     extern void btlSelectionSetTargetFlag(s32 task);
     extern void btlSelectionClearTargetFlag(s32 task);
-    extern void func_00212040(s32 task);
+    extern void btlDamageClearActive(s32 task);
     extern void func_00213b50(s32 task);
     extern void func_00213b80(s32 task);
     extern void func_00213c10(s32 task);
     extern void func_00213c40(s32 task);
-    extern void func_00216ca0(s32 task);
+    extern void btlPanelReleaseText(s32 task);
     s32 selectionState;
     s32 selectedAddress;
     s32 battleFlags;
@@ -709,8 +709,8 @@ select_action:
     case 0:
         selectionBattle = iGpffffb3ac;
         if ((*(s32*)(selectionBattle + 0xC)) & 0x1000) {
-            func_00212040((s32)(*(u8**)(selectionBattle + 0xDD4)));
-            func_00216ca0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlDamageClearActive((s32)(*(u8**)(selectionBattle + 0xDD4)));
+            btlPanelReleaseText((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             btlPanelReset((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00213c40((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
@@ -781,8 +781,8 @@ select_action:
         } break;
         default: {
             (*(u16*)(action + 0x18)) = (u16) ((*(u16*)(action + 0x18)) | 2);
-            func_00212040((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            func_00216ca0((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlDamageClearActive((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlPanelReleaseText((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             btlPanelReset((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             func_00213c40((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
@@ -871,9 +871,9 @@ void btlActionAnalyzeUpdate(u8 *action)
             index++;
         }
         func_00213be0(*(s32 *)(D_0076449C + 0xDD4));
-        func_00218560(*(u8 **)(D_0076449C + 0xDD4), selected);
+        btlMessageSetup(*(u8 **)(D_0076449C + 0xDD4), selected);
         if (hasOther) {
-            func_00218730(*(s32 *)(D_0076449C + 0xDD4));
+            btlMessageSetHidden(*(s32 *)(D_0076449C + 0xDD4));
         }
         btlActionFinishPresentation((BtlAction *)action);
         {
@@ -885,13 +885,13 @@ void btlActionAnalyzeUpdate(u8 *action)
         func_001f86d0();
         if (func_001eb860() == 1) {
             *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
-            func_00212240(*(u8 **)(D_0076449C + 0xDD4), 0);
+            btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 0);
         }
         *(s32 *)(action + 0x41C) = 2;
         break;
     }
     case 2: {
-        if (func_00218690(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
+        if (btlMessageIsIdle(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
             u8 *unit = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
             if (unit != NULL) {
                 s32 resource = func_001f62f0(unit);
@@ -956,13 +956,13 @@ void btlActionAnalyzeUpdate(u8 *action)
                 func_0045af60(0, 0, 0, 5);
                 *(u8 **)(action + 0x38) = *(u8 **)((u8 *)func_001a_add_offset(selectedIndex * 4, (s32)action) + 0x98);
                 *(u16 *)(action + 0xD2) = cursor;
-                func_002186c0(*(u8 **)(D_0076449C + 0xDD4), *(s32 *)(action + 0x38));
+                btlMessageSetPendingValue(*(u8 **)(D_0076449C + 0xDD4), *(s32 *)(action + 0x38));
             }
         } else if ((input & 0x40) || (input & 0x20)) {
             func_0045af60(0, 0, 0, 4);
             if (func_001eb860() == 1) {
                 *(s32 *)(D_0076449C + 0xC) |= 0x2000;
-                func_00212240(*(u8 **)(D_0076449C + 0xDD4), 1);
+                btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 1);
             }
             *(s32 *)(action + 0x41C) = 4;
         }
@@ -986,7 +986,7 @@ void btlActionAnalyzeUpdate(u8 *action)
             iter = *(u8 **)(iter + 0x450);
         }
         func_00213bb0(*(s32 *)(D_0076449C + 0xDD4));
-        func_00218700(*(s32 *)(D_0076449C + 0xDD4));
+        btlMessageSetDone(*(s32 *)(D_0076449C + 0xDD4));
         btlActionSetState((BtlAction *)action, *(u16 *)(action + 0x14));
         *(s32 *)(action + 0x41C) = 0;
         break;
@@ -1667,7 +1667,7 @@ loop_test:
     }
     if (func_001eb860() == 1) {
         *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
-        func_00212240(*(u8 **)(D_0076449C + 0xDD4), 0);
+        btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 0);
     }
     *(s32 *)((u8 *)action + 0x41C) = 0;
     *(s32 *)((u8 *)action + 0x420) = 0;
@@ -1695,7 +1695,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
             btlActionFinishPresentation((BtlAction *)arg0);
             btlPacketEnqueue(btlPacketCreateEndSequence(), 1);
             btlPacketEnqueue(func_001fa8f0(), 1);
-            func_002182c0(*(u8 **)(D_0076449C + 0xDD4), (u8 *)arg0);
+            btlMessageStartLong(*(u8 **)(D_0076449C + 0xDD4), (u8 *)arg0);
             btlPacketEnqueue((u8 *)btlFormationCreateSlotPacket(3, 0xFFF), 0);
             partner = (void *)func_001b1540();
             btlPacketEnqueue(
@@ -1723,13 +1723,13 @@ void btlActionPursuitMesUpdate(u8 *arg0)
                 2);
             if (func_001eb860() == 1) {
                 *(s32 *)(D_0076449C + 0xC) |= 0x2000;
-                func_00212240(*(u8 **)(D_0076449C + 0xDD4), 1);
+                btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 1);
             }
             *(s32 *)(arg0 + 0x41C) = 1;
         }
     } else if (*(s32 *)(arg0 + 0x420) == 0) {
-        if (func_00218360(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
-            if (func_00218390(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
+        if (btlMessageIsActiveAlt(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
+            if (btlMessageGetResultAlt(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
                 btlPacketEnqueue(func_001f99c0((u8 *)arg0, 8, 0, 0, 0), 1);
                 effectPacket = func_001fa450();
                 *(s8 *)(effectPacket + 0) = 0xA;
@@ -1746,7 +1746,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
         waitFrames = *(u16 *)(arg0 + 0x424);
         if (waitFrames == 0) {
             btlPacketEnqueue((u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3), 1);
-            if (func_00218390(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
+            if (btlMessageGetResultAlt(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
                 targetUnit = func_001b1540();
                 btlPacketEnqueue(btlTargetCreateActionPacket((u8 *)targetUnit, 2), 1);
                 *(u16 *)((u8 *)targetUnit + 0x18) |= 0x8000;
@@ -1754,7 +1754,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
             } else {
                 btlActionSetState((BtlAction *)arg0, 0x20);
             }
-            func_002183c0(*(s32 *)(D_0076449C + 0xDD4));
+            btlMessageResetAlt(*(s32 *)(D_0076449C + 0xDD4));
             return;
         }
         *(u16 *)(arg0 + 0x424) = waitFrames - 1;
@@ -3560,7 +3560,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern BtlPacket *btlPacketCreateEffectCounter(s32 arg0, s32 arg1);
     extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
     extern u8 *btlPacketCreateHpRatio(u8 *unit);
-    extern void func_00216da0(u8 *arg0, s32 arg1);
+    extern void btlPanelSetValueText(u8 *arg0, s32 arg1);
     extern s32 func_0022d200(u8 *action);
     extern s32 func_0022d540(u8 *action, u8 *handles);
     extern s32 func_0022e4f0(u8 *arg0, s32 arg1);
@@ -5096,7 +5096,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     if ((act->fieldEC != 0) && !(act->fieldD8 & 1)) {
                         hitRowWord = (s32)((*( s32 * )((u8 *)(((s32)(arg0) + ((u32)hitIndex << 5))) + (0x104))));
                         if (hitRowWord != 0) {
-                            func_00216da0((u8 *)(*(s32 *)(iGpffffb3ac + 0xC60)), func_0043c6a0(hitRowWord));
+                            btlPanelSetValueText((u8 *)(*(s32 *)(iGpffffb3ac + 0xC60)), func_0043c6a0(hitRowWord));
                         }
                         pkt113 = (BtlPacketTiming *)(btlPacketCreateEffectCounter(*(s32 *)(arg0 + 0x30), act->fieldEC));
                         pkt113->queue = 5;
@@ -5108,7 +5108,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                         if (*(s16 *)(targetAction + 0xEC) != 0) {
                             hitField14 = hitRow->result.field14;
                             if (hitField14 != 0) {
-                                func_00216da0((u8 *)(*(s32 *)(iGpffffb3ac + 0xC60)), func_0043c6a0(hitField14));
+                                btlPanelSetValueText((u8 *)(*(s32 *)(iGpffffb3ac + 0xC60)), func_0043c6a0(hitField14));
                             }
                             pkt114 = (BtlPacketTiming *)(btlPacketCreateEffectCounter(*(s32 *)(targetAction + 0x30), *(s16 *)(targetAction + 0xEC)));
                             pkt114->queue = 5;
@@ -6398,7 +6398,7 @@ void btlActionEscapeMesInit(u8 *arg0)
     btlPacketEnqueue(cutinPacket, 1);
     if (func_001eb860() == 1) {
         *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
-        func_00212240(*(u8 **)(D_0076449C + 0xDD4), 0);
+        btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 0);
     }
     *(s32 *)(arg0 + 0x41C) = 0;
 }
@@ -6414,22 +6414,22 @@ void btlActionEscapeMesUpdate(u8 *arg0)
     if (func_00193bf0(*(s64 *)arg0, 0x3FFFFFFFFFFFFFFFLL) != 0) {
         goto done;
     }
-    func_00218420(*(s32 *)(D_0076449C + 0xDD4), arg0);
+    btlMessageInstallWindow(*(s32 *)(D_0076449C + 0xDD4), arg0);
     temp = func_001fa8f0();
     *(s64 *)(temp + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(temp, 1);
     *(s32 *)(arg0 + 0x41C) = 1;
 common:
-    if (func_002184a0(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
+    if (btlMessageIsActiveAlt2(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
         goto done;
     }
     if (func_001eb860() != 1) {
         goto after_flag;
     }
     *(s32 *)(D_0076449C + 0xC) |= 0x2000;
-    func_00212240(*(u8 **)(D_0076449C + 0xDD4), 1);
+    btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 1);
 after_flag:
-    if (func_002184d0(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
+    if (btlMessageGetResultAlt2(*(s32 *)(D_0076449C + 0xDD4)) != 0) {
         goto alternate;
     }
     btlActionSetState((BtlAction *)arg0, 0x1D);
@@ -6440,7 +6440,7 @@ after_state:
     temp = func_001faa60();
     *(s64 *)(temp + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(temp, 1);
-    func_00218500(*(s32 *)(D_0076449C + 0xDD4));
+    btlMessageRelease(*(s32 *)(D_0076449C + 0xDD4));
 done:
     return;
 }

@@ -76,7 +76,7 @@ void btlActionFinishPresentation(BtlAction *action);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void func_0022db90(u8 *arg0);
 extern void btlTargetClearWork(void *arg0);
-extern void func_00212070(u8 *arg0, u8 *arg1);
+extern void btlDamageStart(u8 *arg0, u8 *arg1);
 
 extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
@@ -197,7 +197,7 @@ void btlActionStartInit(BtlAction *action) {
     }
     if ((s32)action->unk_28 > 0) {
         if (!(*(s32 *)(iGpffffb3ac + 0x10) & 0x20)) {
-            func_00212070(*(u8 **)(iGpffffb3ac + 0xDD4), (u8 *)action);
+            btlDamageStart(*(u8 **)(iGpffffb3ac + 0xDD4), (u8 *)action);
             btlPacketEnqueue(func_001f99c0((u8 *)action, 0xE, 0, 0, 0), 1);
         }
     } else {

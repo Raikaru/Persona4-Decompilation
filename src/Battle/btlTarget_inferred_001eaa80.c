@@ -45,7 +45,7 @@ extern s32 *gEncountTbl;
 extern void func_00213b80(s32 task);
 extern void func_00213b50(s32 task);
 extern s32 func_001eb860(void);
-extern void func_00212240(u8 *arg0, s32 arg1);
+extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 extern s32 D_00724504;
 extern void func_001eb7f0(void);
 extern s32 func_001eb860(void);
@@ -129,7 +129,7 @@ s32 func_001eaac0(void)
 s32 func_001eab10(void) {
     func_00213b50(*(s32 *)(iGpffffb3ac + 0xDD4));
     if (func_001eb860() == 1) {
-        func_00212240(*(u8 **)(iGpffffb3ac + 0xDD4), 1);
+        btlDamageSetSource(*(u8 **)(iGpffffb3ac + 0xDD4), 1);
     }
     return 1;
 }
@@ -138,7 +138,7 @@ s32 func_001eab10(void) {
 s32 func_001eab60(void) {
     func_00213b80(*(s32 *)(iGpffffb3ac + 0xDD4));
     if (func_001eb860() == 1) {
-        func_00212240(*(u8 **)(iGpffffb3ac + 0xDD4), 0);
+        btlDamageSetSource(*(u8 **)(iGpffffb3ac + 0xDD4), 0);
     }
     return 1;
 }
