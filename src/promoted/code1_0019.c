@@ -286,7 +286,7 @@ extern void func_003c1bd0(s32 arg0);
 extern s32 func_003e8110(u8 *arg0);
 extern u8 *kwlnTaskGetTaskByName(void *arg0);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
-extern s32 func_00192cd0(void);
+extern s32 btlRelease(void);
 extern void btlPacketFlushAll(void);
 extern void btlUnitFreeRemovedUnits(void);
 extern void datUnitFree(s32 arg0);

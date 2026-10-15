@@ -1211,7 +1211,7 @@ void btlActionEndInit(u8 *arg0)
 void btlActionEndUpdate(u8 *action)
 {
     s32 func_0019ff60(u8 *action);
-    s32 func_00193060(void);
+    s32 btlCheckBattleEnd(void);
     s32 func_001b0e30(s32 action);
     s32 func_001b0dd0(u8 *action);
     void func_001b13c0(u8 *action);
@@ -1249,7 +1249,7 @@ void btlActionEndUpdate(u8 *action)
         if ((*(u16 *)(action + 0x18) & 0x8000) == 0 && specialOrder == 0) {
             *(s32 *)(action + 0x20) = *(s32 *)(action + 0x20) + 1;
         }
-        if (func_00193060() == 0) {
+        if (btlCheckBattleEnd() == 0) {
             if ((*(u16 *)(action + 0x18) & 0x8000) == 0 && specialOrder == 0) {
                 if (*(action + 0x29) > 0) {
                     if (*(action + 0x28) == 0 && datCalcIsDead(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0) == 0) {
@@ -1340,7 +1340,7 @@ void btlActionEndUpdate(u8 *action)
                 datCalcSetBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0x80000);
                 datCalcSetHp(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0);
             }
-            if (func_00193060() != 0) {
+            if (btlCheckBattleEnd() != 0) {
                 *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x80;
             }
             btlActionSetState((BtlAction *)action, 0x24);

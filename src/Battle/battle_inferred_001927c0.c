@@ -195,7 +195,7 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 }
 extern u8 *kwlnTaskGetTaskByName(void *arg0);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
-extern s32 func_00192cd0(void);
+extern s32 btlRelease(void);
 extern void btlPacketFlushAll(void);
 extern void btlUnitFreeRemovedUnits(void);
 extern void datUnitFree(s32 arg0);
@@ -218,7 +218,7 @@ extern u8 D_00794150[];
 /* measured: func_001927c0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001927C0
-void func_001927c0(void)
+void btlRenderStateSetup(void)
 {
     u8 color[4];
     void (**base)(s32, s32);
@@ -247,7 +247,7 @@ void func_001927c0(void)
 /* measured: func_001928c0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001928C0
-void func_001928c0(void)
+void btlSkyScroll(void)
 {
     f32 delta;
     u32 i;
@@ -312,19 +312,19 @@ void func_001928c0(void)
 /* measured: func_00192cd0, func_001932f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_00192AC0
-void func_00192ac0(u8 *unusedTask) {
-    func_00192cd0();
+void btlReleaseTask(u8 *unusedTask) {
+    btlRelease();
 }
 
 // FUN_00192AE0
-void func_00192ae0(void) {
+void btlDestroyTask(void) {
     if (kwlnTaskGetTaskByName(&iGpffffa088) != 0) {
         kwlnTaskDestroyWithHierarchy(*(s32 *)(iGpffffb3ac + 0xDC8));
     }
 }
 
 // FUN_00192B20
-void func_00192b20(void) {
+void btlResetEffectSlots(void) {
     s32 i;
 
     for (i = 0x15C0; i <= 0x15FF; i++) {
@@ -335,7 +335,7 @@ void func_00192b20(void) {
 }
 
 // FUN_00192B90
-void func_00192b90(void)
+void btlInit(void)
 {
     s32 i;
     *(u64 *)&iGpffffa090 = 1;
@@ -362,7 +362,7 @@ void func_00192b90(void)
 }
 
 // FUN_00192CD0
-s32 func_00192cd0(void)
+s32 btlRelease(void)
 {
     u32 i;
     s32 temp;
@@ -411,7 +411,7 @@ s32 func_00192cd0(void)
 }
 
 // FUN_00192E90
-s32 func_00192e90(s32 arg0)
+s32 btlTaskCreate(s32 arg0)
 {
     s32 temp_16;
     u8 *temp_2;
@@ -421,15 +421,15 @@ s32 func_00192e90(s32 arg0)
     u8 *temp_3_3;
     u8 *temp_3_4;
 
-    func_00192b90();
+    btlInit();
     *(s32 *)(iGpffffb3ac + 0xDC8) =
-        (s32)kwlnTaskCreate((const void *)(&iGpffffa088), 0x10, arg0 == 0, 0, func_00192610, func_00192ac0, (u8 *)(0));
+        (s32)kwlnTaskCreate((const void *)(&iGpffffa088), 0x10, arg0 == 0, 0, func_00192610, btlReleaseTask, (u8 *)(0));
     (s32)kwlnTaskCreateChild((void *)(*(u8 **)(iGpffffb3ac + 0xDC8)), (const void *)(D_005F65B0), 0x11, arg0 == 0, 0, func_001926c0, 0, (u8 *)(NULL));
     (s32)kwlnTaskCreateChild((void *)(*(u8 **)(iGpffffb3ac + 0xDC8)), (const void *)(D_005F65C0), 0x11, arg0 == 0, 0, btlUpdateDraw2DTask, 0, (u8 *)(NULL));
-    *(void **)(iGpffffb3ac + 0xE20) = (void *)func_001927c0;
+    *(void **)(iGpffffb3ac + 0xE20) = (void *)btlRenderStateSetup;
     temp_2 = iGpffffb3ac;
     *(u8 **)(temp_2 + 0xE28) = temp_2;
-    *(void **)(iGpffffb3ac + 0xE50) = (void *)func_001928c0;
+    *(void **)(iGpffffb3ac + 0xE50) = (void *)btlSkyScroll;
     temp_2_2 = iGpffffb3ac;
     *(u8 **)(temp_2_2 + 0xE58) = temp_2_2;
     *(s32 *)(iGpffffb3ac + 0xDD4) =
@@ -458,7 +458,7 @@ s32 func_00192e90(s32 arg0)
 }
 
 // FUN_00193060
-s32 func_00193060(void)
+s32 btlCheckBattleEnd(void)
 {
     u8 *var_20;
     s32 var_19;

@@ -49,7 +49,7 @@ extern s32 D_00922CC0[];
 extern u8 *D_0076449C;
 extern s32 func_001ef9a0(void);
 extern s32 func_002aa3f0(void);
-extern void func_00192b20(void);
+extern void btlResetEffectSlots(void);
 extern void func_00145080();
 extern void func_001b69c0(void);
 extern u8 D_005F7180[];
@@ -147,7 +147,7 @@ void btlMainMcInit(void)
 s32 btlMainMcUpdate(void)
 {
     if (func_002aa3f0() != 0) {
-        func_00192b20();
+        btlResetEffectSlots();
         return 0x12;
     }
     return 0;
