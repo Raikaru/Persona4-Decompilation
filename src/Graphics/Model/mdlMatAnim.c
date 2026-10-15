@@ -5,7 +5,7 @@
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
-extern void func_004808b0(int param_1);
+extern void mdlReleaseU16Ref(int param_1);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void mdlDispatchTrackRows(u8 *param_1, u8 *param_2, f32 param_3, f32 param_4, f32 param_5);
 extern u8 D_00713260[];
@@ -21,7 +21,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void memset(void *dest, s32 value, s32 size);
 extern s32 func_003bd0b0(u8 *userData, s32 index);
 extern s32 strcmp(const char *left, const char *right);
-extern void func_00480910(int *param_1,u32 param_2);
+extern void mdlAppendU32Entry(int *param_1,u32 param_2);
 extern u8 DAT_007641e0;
 
 extern void *func_00480430(void *object, void *data);
@@ -67,7 +67,7 @@ void func_0047fa60(int param_1)
       puVar3[1] = 0;
       puVar3[2] = 0;
     }
-    func_004808b0(*(u32 *)(iVar2 + 0x50));
+    mdlReleaseU16Ref(*(u32 *)(iVar2 + 0x50));
     ((void (*)())DAT_008873ec_abs[0])(iVar2);
     iVar2 = iVar1;
   }
@@ -341,7 +341,7 @@ s32 func_004800d0(void *arg0, u8 **arg1, u32 arg2, void *arg3)
     extern u16 func_00480800(void *a, u32 b);
     extern u8 *func_00480840(s32 a);
     extern void *func_00480630(void *a, void *b);
-    extern u32 func_004808f0(s32 a);
+    extern u32 mdlRetainU16Ref(s32 a);
 
     func_003e2910(arg0, &header, 0x14);
     if (header.nameLength < 0x80U) {
@@ -388,7 +388,7 @@ looptest2:
             goto loop2;
         }
         *(u8 **)(node + 0x54) = NULL;
-        entry = (u8 *)func_004808f0((s32)table);
+        entry = (u8 *)mdlRetainU16Ref((s32)table);
         *(u8 **)(node + 0x50) = entry;
         mat = *(u8 **)entry;
         mat = *(u8 **)mat;
@@ -403,7 +403,7 @@ looptest2:
             *arg1 = node;
         }
     }
-    func_004808b0((s32)search[0]);
+    mdlReleaseU16Ref((s32)search[0]);
     switch (arg2) {
     case 0xF0F00080:
         channel = node;
@@ -461,7 +461,7 @@ void *func_00480430(void *param_1, void *context)
         if (func_003bd050(userData) == 3) {
           data = (char *)func_003bd0b0((u8 *)userData,dataIndex);
           if (strcmp((char *)param_2[1],data) == 0) {
-            func_00480910((int *)*param_2,(u32)param_1);
+            mdlAppendU32Entry((int *)*param_2,(u32)param_1);
             return 0;
           }
         }

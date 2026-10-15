@@ -828,7 +828,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
     extern u8 *func_00460990(void);
     extern void func_00460a80(void *, s32);
     extern void func_00460ac0(void *, void *);
-    extern void func_004623a0(void *);
+    extern void sdkOtFlushBuckets(void *);
     extern void mdlQueueModelForDraw(void *, void *);
     extern void FldShadow_SaveFrameSlots(u8 *, u8 *);
     extern void FldShadow_RestoreFrameSlots(u8 *);
@@ -914,7 +914,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
         *(void **)(work + 0xC) = (void *)FldShadow_RestoreFrameSlots;
         *(u8 **)(work + 0x14) = state;
         func_00460ac0(state + 4, work);
-        func_004623a0(state + 4);
+        sdkOtFlushBuckets(state + 4);
         break;
     }
     case 2:

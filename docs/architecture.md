@@ -358,7 +358,7 @@ Each frame is bracketed by two tasks created in `src/Main/mainDraw.c`:
 3. **`"mainDraw(drawOt)"`**: `mainDrawStartFrame`, priority `0xC8`, update
    `mainDrawFrameUpdate`. It brackets the walk with the camera's begin/end-update
    (`func_003e8120` and `func_003e8110` in `src/rw/bacamera.c`, which call
-   camera slots `0x18` and `0x1C`). In between it calls `func_004623a0` on
+   camera slots `0x18` and `0x1C`). In between it calls `sdkOtFlushBuckets` (was `func_004623a0`) on
    each of the `0xD8` buckets in order.
 
 **[inferred]** The function table at `D_00887300` is RenderWare's
@@ -865,7 +865,7 @@ They are the best targets for naming and typing work.
 | Calendar and social links | `src/calendar.c`, `src/cldDayChange.c`, `src/cmmCommunity.c` (39), `src/cmmScript.c` (51), `src/cmmRankUp.c`, `src/cmmMisc.c` (57) | Only `clndGetMoonPhase` and `clndIsDateInRange` are named. The social link record and flag scheme above is read from offsets. |
 | Persona data | `src/Main/Battle/Data/datPersona.c` (58), `src/shdPersona.c` (104), `src/shdSkill.c` | No names. The persona/skill/MSG table layouts are only known from strides. |
 | Messages and fonts | `src/itfMesManager.c` (85), `src/itfMsgProcedure_Window.c`, `src/frFont*.c` | Unnamed. |
-| Rendering core | `src/Graphics/Model/mdlManager.c` (135, 6 named), `src/sdkOt.c`, the bucket flush `func_004623a0` | The ordering-table bucket semantics and the meaning of the fixed bucket callbacks. |
+| Rendering core | `src/Graphics/Model/mdlManager.c` (135, 6 named), `src/sdkOt.c`, the bucket flush `sdkOtFlushBuckets` (was `func_004623a0`) | The ordering-table bucket semantics and the meaning of the fixed bucket callbacks. |
 | Effects | `src/Graphics/Effect/*` | Apart from `effBlurFilter*`, `effMisc*` and three `effAfter*` helpers, the effect families are unnamed. The effect pack loader is not traced. |
 | Facilities | `src/Event/Fcl/y_fclCombine*.c` (118), `y_fclShop*.c` | Unnamed. |
 | Battle shuffle and results | `src/Battle/btlShuffle*.c` (176), `btlResult*.c` | Unnamed. |

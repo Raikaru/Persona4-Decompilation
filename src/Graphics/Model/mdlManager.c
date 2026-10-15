@@ -1610,7 +1610,7 @@ void mdlDestroySlotEffects(u8 *arg0)
             p = (u32*)(base + j);
             if (*p != 0)
             {
-                func_0047dcc0(*p);
+                mdlReleaseSharedWrapper(*p);
             }
             i++;
         }
@@ -1855,8 +1855,9 @@ extern s32 func_003d5e90(void* a, void* b, void* c, f32 d);
 #pragma push
 #pragma opt_propagation off
 #pragma opt_common_subs off
+/* Returns arg1 when the layer has no animation. Otherwise advances the layer's clock or blend by the frame delta, rebases its pose, and returns the layer. */
 // FUN_00473B20
-u8 *func_00473b20(u8 *arg0, u8 *arg1, s32 arg2)
+u8 *mdlAdvanceLayer(u8 *arg0, u8 *arg1, s32 arg2)
 {
     s32 idx;
     u8 *table;
@@ -4025,8 +4026,9 @@ void func_00477810(void *arg0, void *arg1)
 /* Removing this loses 0x00477900 (MATCH nd0 -> MISMATCH nd51) - measured W161 (ported from P3FES donor; re-probed in P4: nd0 -> nd51). */
 #pragma opt_loop_invariants on
 
+/* Atomic callback: doubles the fourth float of each entry in the atomic's table and marks the object with flag 2 at +0x4c. The volatile values array is measured and must stay. */
 // FUN_00477900
-void* func_00477900(void* param_1, void* data)
+void* mdlDoubleAtomicEntryW(void* param_1, void* data)
 {
     u8* iVar1;
     u32 uVar2;
@@ -4040,7 +4042,7 @@ void* func_00477900(void* param_1, void* data)
     f32 y;
     f32 z;
     f32 w;
-    volatile /* Removing this qualifier loses func_00477900 (MATCH nd0 -> MISMATCH nd105, size 172 -> 132) - measured W170 (ported from P3FES donor; re-probed in P4: nd0 -> nd105, size 132). */ f32 values[4];
+    volatile /* Removing this qualifier loses mdlDoubleAtomicEntryW (MATCH nd0 -> MISMATCH nd105, size 172 -> 132) - measured W170 (ported from P3FES donor; re-probed in P4: nd0 -> nd105, size 132). */ f32 values[4];
 
     iVar4 = param_1;
     iVar1 = *(u8**)(iVar4 + 0x18);
@@ -4221,7 +4223,7 @@ void mdlSetupPreparedModel(u8* arg0)
     u8* temp_16;
 
     entries = (u8 (*)[0xA4])arg0;
-    RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), func_00477900, NULL);
+    RpClumpForAllAtomics(*(void**)(arg0 + 0xDC), mdlDoubleAtomicEntryW, NULL);
     if (*(s32*)(arg0 + 0x254) != 0) {
         mdlSetupNamedFrameAnims(arg0 + 0x23C, *(void**)(arg0 + 0xDC));
     }
@@ -4682,12 +4684,12 @@ void mdlUpdateModelMatrix(Model* mdl)
 
 
 extern void mdlAdvanceAnimControl(void* a, void* b);
-extern u8* func_00473b20(u8* a, u8* b, s32 c);
+extern u8* mdlAdvanceLayer(u8* a, u8* b, s32 c);
 extern s32 mdlCopyIndexedMatrix(void* a, s32 b, void* c);
 extern void* mdlGetMatrix(void* a);
 extern void mdlEffectListReleaseHandles(u32 *a);
-extern void func_0047de50(u32 a);
-extern void func_0047de00(u32 a, void* b);
+extern void mdlClearWrapperHandle(u32 a);
+extern void mdlSetWrapperValue(u32 a, void* b);
 extern void mdlRefreshSecondaryEffect(u8* a, void* model);
 extern void mdlEffectListSetUniformScale(s32* a, f32* b);
 extern void func_0047d540(u8** a, u8* b);
@@ -4728,7 +4730,7 @@ void mdlAdvanceModel(u8* mdl, s32 tick)
         }
         for (animationLayer = 0; animationLayer < 2; animationLayer++) {
             if (mdlLayerIsPresent(mdl, (u16)animationLayer) != 0) {
-                previousLayer = func_00473b20(mdl + animationLayer * 0xA4 + 0xEC,
+                previousLayer = mdlAdvanceLayer(mdl + animationLayer * 0xA4 + 0xEC,
                                              previousLayer, tick);
             }
         }
@@ -4751,11 +4753,11 @@ void mdlAdvanceModel(u8* mdl, s32 tick)
                 if (attachments->pendingSecondary != 0) {
                     draw = attachments->secondaryDraw;
                     if (draw != 0) {
-                        func_0047de50((u32)draw);
+                        mdlClearWrapperHandle((u32)draw);
                     }
                     draw = attachments->nextSecondary;
                     if (draw != 0) {
-                        func_0047de00((u32)draw, mdl);
+                        mdlSetWrapperValue((u32)draw, mdl);
                     }
                     attachments->secondaryDraw = attachments->nextSecondary;
                     attachments->pendingSecondary = 0;

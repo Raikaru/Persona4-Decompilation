@@ -870,8 +870,9 @@ void func_00462230(u8 *arg0)
 }
 // measured: closes opt_propagation around func_00462230.
 #pragma opt_propagation on
+/* Walks the ordering-table bucket list, calling each node's start callback and then the callback tables D_00887308..D_00887314 for each entry. */
 // FUN_004623A0
-void func_004623a0(u8 *arg0)
+void sdkOtFlushBuckets(u8 *arg0)
 {
     u8 *p;
     s8 sp2C[4];
