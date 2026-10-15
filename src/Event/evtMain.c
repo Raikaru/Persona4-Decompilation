@@ -1130,7 +1130,7 @@ typedef union EvtDirectionMatrix {
 s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
 {
     extern u8 *MT_Scene_GetRes(s32);
-    extern void func_00146a10(u8 *, u8 *, u8 *, u8 *);
+    extern void MT_Scene_ApplyResTransform(u8 *, u8 *, u8 *, u8 *);
     extern u32 MT_Scene_GetSegmentHeadingAngle(float *, float *, float *);
     extern s32 MT_Scene_BeginResMoveToward(u32, u8 *, f32);
     extern s32 MT_Scene_BeginResScale(u32, u8 *, s32);
@@ -1289,7 +1289,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                         angles.x = *(f32 *)(command + 0x28);
                         angles.y = *(f32 *)(command + 0x2C);
                         angles.z = 0.0f;
-                        func_00146a10(res, (u8 *)&position, (u8 *)&angles, 0);
+                        MT_Scene_ApplyResTransform(res, (u8 *)&position, (u8 *)&angles, 0);
                     }
                     break;
                 }

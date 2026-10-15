@@ -278,7 +278,7 @@ extern f32 D_008872F8[];
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001459b0-00146a10 */
 
 // FUN_001459B0
-s32 func_001459b0(u16 arg0, s32 arg1, s8 arg2) {
+s32 MT_Scene_CreateObjectRes(u16 arg0, s32 arg1, s8 arg2) {
     f32 sp[3];
     s32 temp_16;
     s32 temp_4;
@@ -309,7 +309,7 @@ s32 func_001459b0(u16 arg0, s32 arg1, s8 arg2) {
 }
 
 // FUN_00145AC0
-s32 func_00145ac0(u16 arg0, s32 arg1) {
+s32 MT_Scene_CreateModelFldRes(u16 arg0, s32 arg1) {
     s8 sp30[0xC];
     s32 temp_17;
     s32 temp_4;
@@ -345,7 +345,7 @@ s32 func_00145ac0(u16 arg0, s32 arg1) {
 }
 
 // FUN_00145BA0
-s32 func_00145ba0(u16 arg0, s32 arg1) {
+s32 MT_Scene_CreateRes11(u16 arg0, s32 arg1) {
     s8 sp30[0xC];
     s32 temp_17;
     s32 temp_4;
@@ -381,7 +381,7 @@ s32 func_00145ba0(u16 arg0, s32 arg1) {
 }
 
 // FUN_00145C80
-s32 func_00145c80(u16 arg0, s32 arg1) {
+s32 MT_Scene_CreateFldRes(u16 arg0, s32 arg1) {
     s8 sp30[0xC];
     s32 temp_17;
     s32 temp_4;
@@ -417,7 +417,7 @@ s32 func_00145c80(u16 arg0, s32 arg1) {
 }
 
 // FUN_00145D60
-s32 func_00145d60(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, FieldRgba8 arg2) {
+s32 MT_Scene_CreateFldHitLight(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, FieldRgba8 arg2) {
     s32 temp_17;
     s32 temp_4;
     u8 *temp_2;
@@ -447,7 +447,7 @@ s32 func_00145d60(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, Field
 }
 
 // FUN_00145E90
-s32 func_00145e90(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, FieldRgba8 arg2) {
+s32 MT_Scene_CreateRes21Light(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, FieldRgba8 arg2) {
     s32 temp_17;
     s32 temp_4;
     u8 *temp_2;
@@ -477,7 +477,7 @@ s32 func_00145e90(u16 arg0, f32 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, Field
 }
 
 // FUN_00145FC0
-s32 func_00145fc0(u16 arg0, f32 *arg1, f32 fparg0) {
+s32 MT_Scene_CreatePointRes14(u16 arg0, f32 *arg1, f32 fparg0) {
     s32 temp_17;
     s32 temp_4;
     u8 *temp_2;
@@ -501,7 +501,7 @@ s32 func_00145fc0(u16 arg0, f32 *arg1, f32 fparg0) {
 }
 
 // FUN_00146080
-s32 func_00146080(u16 arg0, f32 *arg1, f32 fparg0) {
+s32 MT_Scene_CreatePointRes15(u16 arg0, f32 *arg1, f32 fparg0) {
     s32 temp_17;
     s32 temp_4;
     u8 *temp_2;
@@ -525,7 +525,7 @@ s32 func_00146080(u16 arg0, f32 *arg1, f32 fparg0) {
 }
 
 // FUN_00146140
-s32 func_00146140(u16 arg0, f32 *arg1, f32 fparg0) {
+s32 MT_Scene_CreatePointRes16(u16 arg0, f32 *arg1, f32 fparg0) {
     s32 temp_17;
     s32 temp_4;
     u8 *temp_2;
@@ -549,7 +549,7 @@ s32 func_00146140(u16 arg0, f32 *arg1, f32 fparg0) {
 }
 
 // FUN_00146200
-s32 func_00146200(u16 arg0, f32 *arg1, f32 fparg0) {
+s32 MT_Scene_CreatePointRes17(u16 arg0, f32 *arg1, f32 fparg0) {
     s32 temp_17;
     s32 temp_4;
     u8 *temp_2;
@@ -573,7 +573,7 @@ s32 func_00146200(u16 arg0, f32 *arg1, f32 fparg0) {
 }
 
 // FUN_001462C0
-s32 func_001462c0(u16 arg0, f32 *arg1, f32 fparg0) {
+s32 MT_Scene_CreatePointRes18(u16 arg0, f32 *arg1, f32 fparg0) {
     s32 temp_17;
     s32 temp_4;
     u8 *temp_2;
@@ -597,7 +597,7 @@ s32 func_001462c0(u16 arg0, f32 *arg1, f32 fparg0) {
 }
 
 // FUN_00146380
-s32 func_00146380(u16 arg0, f32 *arg1, f32 fparg0) {
+s32 MT_Scene_CreatePointRes19(u16 arg0, f32 *arg1, f32 fparg0) {
     s32 temp_17;
     s32 temp_4;
     u8 *temp_2;
@@ -621,7 +621,7 @@ s32 func_00146380(u16 arg0, f32 *arg1, f32 fparg0) {
 }
 
 // FUN_00146440
-s32 func_00146440(u16 arg0, s32 arg1, f32 fparg0, u8 *arg2, u8 *arg3, u8 *arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6) {
+s32 MT_Scene_CreateCameraRes(u16 arg0, s32 arg1, f32 fparg0, u8 *arg2, u8 *arg3, u8 *arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6) {
     s32 temp_22;
     s32 temp_2_2;
     s32 temp_2_3;
@@ -877,7 +877,7 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
    four 12-byte initializer vectors and a four-byte zero suffix.
    See Resource_transform_00146a10_20260922_worker1.md. */
 // FUN_00146A10
-void func_00146a10(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput)
+void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput)
 {
     extern u8 D_005EF9D0[];
     extern u8 D_005EF9F0[];

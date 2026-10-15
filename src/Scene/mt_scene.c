@@ -20,7 +20,7 @@ typedef struct MtScene
 
 extern MtScene* gMtScene;
 extern u8 *resrcMngFindResById(ResrcManager* resManager, u16 resTypeId);
-extern void func_00146a10(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput);
+extern void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput);
 
 /* Ported from P3FES src/Scene/mt_scene.c FUN_003b5df0 (verified MATCH there).
  * 007cd540 -> PTR_DAT_00762ea0, 003b5550 -> resrcMngGetTotalResInList. */
@@ -189,7 +189,7 @@ void MT_Scene_SetResPlacement(u16 resourceId, u8 *position, u8 *angles)
 
     if (resource != 0)
     {
-        (func_00146a10)(resource, position, angles, 0);
+        (MT_Scene_ApplyResTransform)(resource, position, angles, 0);
     }
 }
 
@@ -211,7 +211,7 @@ void MT_Scene_SetResAngles(u16 resourceId, u8 *angles)
 
     if (resource != 0)
     {
-        (func_00146a10)(resource, 0, 0, angles);
+        (MT_Scene_ApplyResTransform)(resource, 0, 0, angles);
     }
 }
 // FUN_00146F50

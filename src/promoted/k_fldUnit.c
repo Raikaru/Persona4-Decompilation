@@ -81,7 +81,7 @@ extern u8 *func_0014cef0(s32 arg0, s32 arg1);
 extern void func_0014c920(void);
 extern s32 func_0014c960(s32 *arg0, s32 *arg1);
 extern s32 datGetFlag(s32 arg0);
-extern s32 func_00145ac0(s32 arg0, s32 arg1);
+extern s32 MT_Scene_CreateModelFldRes(s32 arg0, s32 arg1);
 extern u8 *func_00162330(void);
 typedef struct DatUnitPc DatUnitPc;
 extern DatUnitPc *datUnitCreatePc(u16 arg0);
@@ -2052,7 +2052,7 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
 
     if (arg0 != NULL) {
         temp_17 = (s32)(((*(u8 **)(arg0 + 0x160) + 7)[0] & 1) != 0);
-        *(u16 *)(arg0 + 0xC) = (u16)func_00145ac0(arg2 & 0xFFFF, (s32)func_00478750((u8 *)(*(s32 *)(func_0015a320()))));
+        *(u16 *)(arg0 + 0xC) = (u16)MT_Scene_CreateModelFldRes(arg2 & 0xFFFF, (s32)func_00478750((u8 *)(*(s32 *)(func_0015a320()))));
         temp_2 = (u8 *)MT_Scene_GetRes(*(u16 *)(arg0 + 0xC));
         func_0047aa30(*(u8 **)(temp_2 + 0x144), D_005DC920);
         temp_21 = temp_17 * 0xC;

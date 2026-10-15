@@ -990,7 +990,7 @@ typedef union SceneEffectColor {
     RwRGBA rgba;
 } SceneEffectColor;
 
-extern void func_00146a10(u8 *resource, u8 *position, u8 *rotation, u8 *scale);
+extern void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *scale);
 extern void MT_Scene_GetAngleDelta(f32 *start, f32 *end, f32 *delta);
 extern f32 MT_Scene_SampleCurveTable(u32 kind, f32 duration, f32 elapsed);
 extern s32 MT_Scene_GetTerrainAtPoint(u16 *position);
@@ -1227,7 +1227,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
                     }
                     remaining--;
                 } while (remaining > 0);
-                func_00146a10(arg0, (u8 *)&resource->position, NULL, NULL);
+                MT_Scene_ApplyResTransform(arg0, (u8 *)&resource->position, NULL, NULL);
             } else if (resource->moveKind == 1) {
                 sceneUpdateDifference(&delta, &end, &resource->moveStart);
                 if (resource->moveDuration.frame == 0) {
@@ -1261,7 +1261,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
                         resource->moveElapsed.frame += frames;
                     }
                 }
-                func_00146a10(arg0, (u8 *)&resource->position, NULL, NULL);
+                MT_Scene_ApplyResTransform(arg0, (u8 *)&resource->position, NULL, NULL);
             } else if (resource->moveKind == 2) {
                 s32 i;
                 sceneUpdatePath(resource, &position, &rotation);
@@ -1276,10 +1276,10 @@ void MT_Scene_UpdateResource(u8 *arg0)
                 for (i = 0; i < frames; i++) {
                     resource->moveElapsed.distance += resource->moveSpeed;
                 }
-                func_00146a10(arg0, (u8 *)&resource->position, NULL, NULL);
+                MT_Scene_ApplyResTransform(arg0, (u8 *)&resource->position, NULL, NULL);
                 if (!(resource->flags & 8)) {
                     resource->rotation = rotation;
-                    func_00146a10(arg0, NULL, (u8 *)&resource->rotation, NULL);
+                    MT_Scene_ApplyResTransform(arg0, NULL, (u8 *)&resource->rotation, NULL);
                 }
             }
         }
@@ -1287,7 +1287,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
             if (resource->rotationDuration == 0) {
                 resource->rotation = resource->rotationEnd;
                 resource->flags &= ~4;
-                func_00146a10(arg0, NULL, (u8 *)&resource->rotation, NULL);
+                MT_Scene_ApplyResTransform(arg0, NULL, (u8 *)&resource->rotation, NULL);
             } else if (resource->rotationElapsed == 0) {
                 resource->rotationElapsed += frames;
             } else {
@@ -1327,7 +1327,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
                     resource->rotationElapsed += frames;
                 }
                 if (frames != 0) {
-                    func_00146a10(arg0, NULL, (u8 *)&resource->rotation, NULL);
+                    MT_Scene_ApplyResTransform(arg0, NULL, (u8 *)&resource->rotation, NULL);
                 }
             }
         }
@@ -1341,7 +1341,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
         if (scale->duration == 0) {
             resource->scale = scale->end;
             resource->flags &= ~0x8000;
-            func_00146a10(arg0, NULL, NULL, (u8 *)&resource->scale);
+            MT_Scene_ApplyResTransform(arg0, NULL, NULL, (u8 *)&resource->scale);
         } else {
             f32 duration = (f32)scale->duration;
             u32 elapsed = scale->elapsed;
@@ -1357,7 +1357,7 @@ void MT_Scene_UpdateResource(u8 *arg0)
                 scale->elapsed += frames;
             }
             if (frames != 0) {
-                func_00146a10(arg0, NULL, NULL, (u8 *)&resource->scale);
+                MT_Scene_ApplyResTransform(arg0, NULL, NULL, (u8 *)&resource->scale);
             }
         }
     }

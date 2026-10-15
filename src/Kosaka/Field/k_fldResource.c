@@ -335,7 +335,7 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
  * (H011, retail 0x0014FE90 area).
  * 2026-10-09: 99 -> 94: the frame record is the list base plus `i * 0x18`, added
  * after the base load.
- * 2026-10-09: 94 -> 90: func_00146440 takes the camera entry arrays as pointers.
+ * 2026-10-09: 94 -> 90: MT_Scene_CreateCameraRes takes the camera entry arrays as pointers.
  * 2026-10-09: 90 -> 86: func_0015e960's last parameter is s16.
  * 2026-10-09: 86 -> 84: the loaded HBN entry is its own local `hbnEntry`.
  * 2026-10-09: 84 -> 83: the first file check assigns `var_2 = 1` in its NULL branch.
@@ -475,16 +475,16 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     extern void MT_Scene_SetResPlacement(s32 id, u8 *position, u8 *angles);
     /* lint: allow H011 -- the final arguments are array addresses; the provider
      * casts its s32 words to memcpy sources of 0x20 and 0x180 bytes. */
-    extern s32 func_00146440(u16 id, s32 kind, f32 fieldOfView, u8 *cameraMatrix, u8 *secondaryMatrix, u8 *position, f32 value60, f32 value64, s8 *indices, Vec3 *positions);
+    extern s32 MT_Scene_CreateCameraRes(u16 id, s32 kind, f32 fieldOfView, u8 *cameraMatrix, u8 *secondaryMatrix, u8 *position, f32 value60, f32 value64, s8 *indices, Vec3 *positions);
     extern u8 *MT_Scene_GetResListHead(s32 arg0);
     // lint: allow H011 -- measured: u16 prototype regresses FldResource_StepPartLoad (andi on wide id args)
     extern u8 *MT_Scene_GetRes(s32 arg0);
     extern void MT_Scene_DestroyRes(u16 arg0);
-    extern s32 func_00145ac0(u16 arg0, s32 arg1);
-    extern s32 func_00145ba0(u16 arg0, s32 arg1);
+    extern s32 MT_Scene_CreateModelFldRes(u16 arg0, s32 arg1);
+    extern s32 MT_Scene_CreateRes11(u16 arg0, s32 arg1);
     /* lint: allow H011 -- the resource pointer is stored unchanged in the
      * provider's +0x1A0 field; its s32 parameter is a 32-bit address carrier. */
-    extern s32 func_00145c80(u16 id, u8 *resource);
+    extern s32 MT_Scene_CreateFldRes(u16 id, u8 *resource);
     extern u8 *func_0015f8e0(s32 arg0, s32 arg1);
     extern s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3);
     extern void func_0015fb00(u8 *arg0, s32 arg1);
@@ -909,7 +909,7 @@ block_123:
                 func_001599d0();
                 func_0015b240();
             } else {
-                func_00145c80(0, *( u8 ** )(iGpffff9db0 + 0x28));
+                MT_Scene_CreateFldRes(0, *( u8 ** )(iGpffff9db0 + 0x28));
                 var_17_3 = 0;
                 while (var_17_3 < (u32) *( u32 * )((temp_3_13 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28))) + 0x11C)) {
                     temp_16_7 = var_17_3 * 0x18;
@@ -918,7 +918,7 @@ block_123:
                     if ((temp_3_14 == 0) || (temp_3_14 == 2)) {
                         temp_2_5 = *( u8 ** )(iGpffff9db0 + 0x28);
                         temp_2_5 += var_17_3 * 0x18;
-                        temp_19 = (s32)(func_00145ac0(*( u16 * )(temp_2_5 + 0x124), *( s32 * )(temp_2_5 + 0x12C)) & 0xFFFF);
+                        temp_19 = (s32)(MT_Scene_CreateModelFldRes(*( u16 * )(temp_2_5 + 0x124), *( s32 * )(temp_2_5 + 0x12C)) & 0xFFFF);
                         if (temp_19 == 0) {
                             func_0046d730((const char *)D_005EFC80, 0x297);
                         }
@@ -949,7 +949,7 @@ block_123:
                     temp_4_10 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
                     if (*( u16 * )((temp_4_10 + temp_16_8) + 0x120) == 1) {
                         temp_2_7 = (u8 *)(temp_4_10 + (var_17_4 * 0x18));
-                        temp_18_3 = (s32)(func_00145ba0(*( u16 * )(temp_2_7 + 0x124), *( s32 * )(temp_2_7 + 0x130)) & 0xFFFF);
+                        temp_18_3 = (s32)(MT_Scene_CreateRes11(*( u16 * )(temp_2_7 + 0x124), *( s32 * )(temp_2_7 + 0x130)) & 0xFFFF);
                         if (temp_18_3 == 0) {
                             func_0046d730((const char *)D_005EFC80, 0x2C7);
                         }
@@ -1002,7 +1002,7 @@ waitEnvironment:
             }
 readCamera:
             if (func_00154be0((u8 *)(*( s32 * )(iGpffff9db0 + 0xDC)), (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, &fieldOfView, &cameraKind, (u8 *)&cameraPosition, &cameraValue60, &cameraValue64, (s32 *)cameraEntries, (s32 *)cameraEntryPositions) != 0) {
-                func_00146440(0, cameraKind, fieldOfView, (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, (u8 *)&cameraPosition, cameraValue60, cameraValue64, cameraEntries, cameraEntryPositions);
+                MT_Scene_CreateCameraRes(0, cameraKind, fieldOfView, (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, (u8 *)&cameraPosition, cameraValue60, cameraValue64, cameraEntries, cameraEntryPositions);
                 *( s32 * )(iGpffff9db0 + 0x94) = 0xB;
                 goto block_259;
             }
