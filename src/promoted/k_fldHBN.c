@@ -8,7 +8,7 @@
 extern u8 *func_00155280(void);
 extern void func_00160180(void);
 extern void (*DAT_008873EC[])(void *);
-extern s32 func_0014eec0(void);
+extern s32 FldRc_GetLoadSource(void);
 extern void strcpy(void *arg0, const char *arg1);
 extern void sprintf();
 extern s32 H_Cdvd_FileExists(void *arg0);
@@ -37,7 +37,7 @@ u8 *func_0015f8e0(s32 arg0, s32 arg1)
     char spB0[0x80];
     char sp30[0x80];
 
-    if (func_0014eec0() == 0)
+    if (FldRc_GetLoadSource() == 0)
     {
         strcpy(&spB0, D_005F1118);
         sprintf(&sp30, D_005F1130, arg0 & 0xFFFF, arg1 & 0xFFFF);
@@ -63,11 +63,11 @@ s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
     {
         return 1;
     }
-    if ((func_0014eec0() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0))
+    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0))
     {
         return 0;
     }
-    if (func_0014eec0() == 0)
+    if (FldRc_GetLoadSource() == 0)
     {
         sp9C = *(u32 *)(arg0 + 0x118);
         data = (u8 *)*(u32 **)(arg0 + 0x110);
@@ -84,7 +84,7 @@ s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
         *arg1 = buf;
         memcpy(buf, data, sp9C);
     }
-    if (func_0014eec0() == 0)
+    if (FldRc_GetLoadSource() == 0)
     {
         H_Cdvd_Destroy(arg0);
     }
@@ -197,7 +197,7 @@ u8 *func_0015ff20(s32 arg0, s32 arg1)
     {
         return NULL;
     }
-    if (func_0014eec0() == 0)
+    if (FldRc_GetLoadSource() == 0)
     {
         strcpy(&spB0, D_005F1118);
         sprintf(&sp30, D_005F1170, id, arg1 & 0xFFFF);
@@ -223,11 +223,11 @@ s32 func_00160000(u8 *arg0)
     {
         return 1;
     }
-    if ((func_0014eec0() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0))
+    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0))
     {
         return 0;
     }
-    if (func_0014eec0() == 0)
+    if (FldRc_GetLoadSource() == 0)
     {
         sp8C = *(u32 *)(arg0 + 0x118);
         data = *(u8 **)(arg0 + 0x110);
@@ -247,7 +247,7 @@ s32 func_00160000(u8 *arg0)
         *(u8 **)((u8 *)func_00155280() + 0x18DC) = temp_2;
         memcpy(*(void **)((u8 *)func_00155280() + 0x18DC), data, sp8C);
     }
-    if (func_0014eec0() == 0)
+    if (FldRc_GetLoadSource() == 0)
     {
         H_Cdvd_Destroy(arg0);
     }
@@ -273,7 +273,7 @@ u8 *func_001601e0(s32 arg0)
     char spA0[0x80];
     char sp20[0x80];
 
-    if (func_0014eec0() == 0)
+    if (FldRc_GetLoadSource() == 0)
     {
         strcpy(&spA0, D_005F1118);
         sprintf(&sp20, D_005F11B0, arg0 & 0xFFFF);
@@ -299,7 +299,7 @@ s32 func_001602a0(u8 *arg0, s32 arg1)
     {
         return 1;
     }
-    if (func_0014eec0() == 0)
+    if (FldRc_GetLoadSource() == 0)
     {
         if (H_Cdvd_IsFileLoaded(arg0) != 0)
         {

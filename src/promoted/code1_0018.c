@@ -107,7 +107,7 @@ extern s32 iGpffffb240;
 extern void func_001582f0(s32 mode, s32 value, s32 arg2);
 extern void func_0017d1f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
                            f32 arg5, f32 arg6, f32 arg7, s32 arg4);
-extern void func_0014def0(u8 *arg0, u8 *arg1,
+extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
                           f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
                           f32 fparg4, u8 *arg2, s32 arg3,
                           f32 fparg5, f32 fparg6, f32 fparg7, s32 arg4,
@@ -127,7 +127,7 @@ extern s32 K_Clump_MatUsrDataHasData(u8 *arg0, u8 *arg1);
 extern struct RpMaterial *func_003c42b0(struct RpMaterial *material, RwTexture *texture);
 extern u8 D_005F5438[];
 extern s32 *func_00155280(void);
-extern void func_0014e8f0(s32 a, s32 b, s32 c);
+extern void FldRc_SetPositionSlotLock(s32 a, s32 b, s32 c);
 extern RwTexDictionary *func_003ef6d0(void);
 extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
 extern void func_003f6800(s32 a, f32 fp);
@@ -2060,10 +2060,10 @@ extern f32 KDraw_MatrixRollDeg(void *);
 extern s32 KMisc_CreateRmdFade(s32, s32, s32, s32, s32);
 extern s32 func_0014bd90(unsigned char *);
 extern u32 func_0014c240(void *, void *, f32, f32);
-extern s32 func_0014e710(unsigned char *);
-extern s32 func_0014e740(unsigned char *, float *);
-extern void func_0014e880(unsigned char *, s32, s16);
-extern void func_0014e920(unsigned char *, s32, s32);
+extern s32 FldRc_FileLoadIsReady(unsigned char *);
+extern s32 FldRc_RequestPositionSlot(unsigned char *, float *);
+extern void FldRc_SetPositionSlotPriority(unsigned char *, s32, s16);
+extern void FldRc_SetPositionSlotVisibility(unsigned char *, s32, s32);
 extern void FldFrameTask_GetPosition(unsigned char *, unsigned char *);
 extern void FldFrameTask_SetOrientation(unsigned char *, unsigned char *);
 extern void FldFrameTask_SetPosition(unsigned char *, unsigned char *);
@@ -2237,7 +2237,7 @@ s32 func_0018a200(u8 *param_1)
         actorVisible = (iStack_4 != 0) ^ 1;
         temp_v4 = (s32)func_00155280();
         visibilityTarget = *(u8 **)(temp_v4 + puVar1[0x14] * 4 + 0x34);
-        func_0014e920(visibilityTarget,puVar1[0x15],actorVisible);
+        FldRc_SetPositionSlotVisibility(visibilityTarget,puVar1[0x15],actorVisible);
       }
       if ((*(unsigned int *)(puVar1[3] + 0x28) & 2) == 0) {
         func_0018bed0(param_1,1);
@@ -2398,7 +2398,7 @@ s32 func_0018a200(u8 *param_1)
         break;
       }
       temp_v4 = (s32)func_00155280();
-      temp_v4 = func_0014e710(*(unsigned char **)(temp_v4 + 0x34));
+      temp_v4 = FldRc_FileLoadIsReady(*(unsigned char **)(temp_v4 + 0x34));
       if (temp_v4 == 0) {
         break;
       }
@@ -2407,7 +2407,7 @@ s32 func_0018a200(u8 *param_1)
         break;
       }
       temp_v4 = (s32)func_00155280();
-      temp_v4 = func_0014e710(*(unsigned char **)(temp_v4 + 0x38));
+      temp_v4 = FldRc_FileLoadIsReady(*(unsigned char **)(temp_v4 + 0x38));
       if (temp_v4 == 0) {
         break;
       }
@@ -2416,7 +2416,7 @@ s32 func_0018a200(u8 *param_1)
         break;
       }
       temp_v4 = (s32)func_00155280();
-      temp_v4 = func_0014e710(*(unsigned char **)(temp_v4 + 0x3c));
+      temp_v4 = FldRc_FileLoadIsReady(*(unsigned char **)(temp_v4 + 0x3c));
       if (temp_v4 == 0) {
         break;
       }
@@ -2462,9 +2462,9 @@ s32 func_0018a200(u8 *param_1)
         }
         actorOffset = actorIndex * 4;
         temp_v4 = (s32)func_00155280();
-        temp_v5 = func_0014e740(*(unsigned char **)(temp_v4 + actorOffset + 0x34),&vecA0[0]);
+        temp_v5 = FldRc_RequestPositionSlot(*(unsigned char **)(temp_v4 + actorOffset + 0x34),&vecA0[0]);
         temp_v4 = (s32)func_00155280();
-        func_0014e880(*(unsigned char **)(temp_v4 + actorOffset + 0x34),temp_v5,4);
+        FldRc_SetPositionSlotPriority(*(unsigned char **)(temp_v4 + actorOffset + 0x34),temp_v5,4);
         puVar1[0x14] = actorIndex;
         puVar1[0x15] = temp_v5;
       }
@@ -2970,7 +2970,7 @@ void func_0018bed0(u8 *arg0, s32 arg1) {
     if (*(s32 *)((u8 *)func_00155280() + *(s32 *)(p + 0x50) * 4 + 0x34) == 0) {
         return;
     }
-    func_0014e8f0(*(s32 *)((u8 *)func_00155280() + *(s32 *)(p + 0x50) * 4 + 0x34),
+    FldRc_SetPositionSlotLock(*(s32 *)((u8 *)func_00155280() + *(s32 *)(p + 0x50) * 4 + 0x34),
                   *(s32 *)(p + 0x54), arg1);
 }
 
@@ -3592,7 +3592,7 @@ s32 func_0018e810(u8 *arg0)
                     }
                     if (((MapTestGrid *)(rowOffset + (intptr_t)func_00155280()))->cells[0][x].occupied == 2) {
                         color = iGpffff9fd8;
-                        func_0014def0(D_007966D0, panels + x * 0x120 + 0x10,
+                        FldRc_QueueScreenQuad(D_007966D0, panels + x * 0x120 + 0x10,
                                       (f32)(x * 0x12), (f32)ty, 0.0f, 18.0f, 18.0f,
                                       (u8 *)&color, 0, 0.0f, 0.0f, 0.0f, 0, 0.0f);
                     }
@@ -3902,10 +3902,10 @@ s32 func_0018f950(u8 *arg0)
             func_0015c630(work + 0x28);
         }
         board = board_color;
-        func_0014def0(D_007966D0, work + 0x1870, 80.0f, 6.0f, 0.0f, 288.0f, 432.0f,
+        FldRc_QueueScreenQuad(D_007966D0, work + 0x1870, 80.0f, 6.0f, 0.0f, 288.0f, 432.0f,
                       (u8 *)&board, 0, 0.0f, 0.0f, 0.0f, 0, 0.0f);
         icon = icon_color;
-        func_0014def0(D_007966D0, work + 0x1BE0, 452.0f, 52.0f, 0.0f, 70.0f, 70.0f,
+        FldRc_QueueScreenQuad(D_007966D0, work + 0x1BE0, 452.0f, 52.0f, 0.0f, 70.0f, 70.0f,
                       (u8 *)&icon, 0, 0.0f, 0.0f, 0.0f, 0, 0.0f);
         func_0017d240(D_007966D0, work + 0x1AC0, *(s32 *)(work + 0x1D00), 0, 0x36, 0x36,
                       *(s32 *)(work + 0x1AB8), 460.0f, 60.0f, 0.0f);

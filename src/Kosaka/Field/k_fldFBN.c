@@ -61,7 +61,7 @@ typedef struct AnimEntry2
     u16 field_6A;  /* 0x6A */
 } AnimEntry2;
 
-extern s32 func_0014eec0(void);
+extern s32 FldRc_GetLoadSource(void);
 extern s16 func_001060b0(void);
 extern u8 func_001060c0(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
@@ -129,7 +129,7 @@ u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2)
     iGpffffb2a8 = 0;
     iGpffffb2a4 = 0;
     iGpffffb2a0 = 0;
-    if (func_0014eec0() == 0)
+    if (FldRc_GetLoadSource() == 0)
     {
         strcpy(spC0, D_005F1078);
         sprintf(sp40, D_005F1090, arg0 & 0xFFFF, arg1 & 0xFFFF, arg2);
@@ -170,10 +170,10 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
         return 1;
     }
     *arg1 = NULL;
-    if ((func_0014eec0() == 0) && (H_Cdvd_IsFileLoaded((HCdvd *)arg0) == 0)) {
+    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded((HCdvd *)arg0) == 0)) {
         return 0;
     }
-    if (func_0014eec0() == 0) {
+    if (FldRc_GetLoadSource() == 0) {
         fbn = *(u8 **)(arg0 + 0x110);
     } else {
         sprintf(path, D_005F10B0, arg2 & 0xFFFF, arg3 & 0xFFFF, (s16)arg4);
@@ -331,7 +331,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             return 0;
         }
     }
-    if (func_0014eec0() == 0) {
+    if (FldRc_GetLoadSource() == 0) {
         fbn = *(u8 **)(arg0 + 0x110);
     } else if (arg1 != NULL) {
         fbn = arg1;
@@ -421,7 +421,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
     iGpffffb2a8 = 0;
     iGpffffb2a4 = NULL;
     iGpffffb2a0 = NULL;
-    if (func_0014eec0() == 0) {
+    if (FldRc_GetLoadSource() == 0) {
         H_Cdvd_Destroy(arg0);
     }
     return 1;

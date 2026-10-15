@@ -75,7 +75,7 @@ extern u8 D_00794E70[];
 
 
 extern s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_0014ec50(s32 arg0, s32 arg1);
+extern s32 FldRc_CreateTransitionTask(s32 arg0, s32 arg1);
 extern s32 func_0029d050(void);
 extern void func_0029dfe0(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(s32 arg0);
@@ -90,7 +90,7 @@ extern s32 func_00179fc0(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
 extern S_00178590 *FldEvent_GetNearestEntry(void);
 extern void RwV3dNormalize(void *arg0, void *arg1);
 extern u8 D_007EFA00[];
-extern void func_0014def0(u8 *arg0, u8 *arg1,
+extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
                            f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6,
                            void *arg7, s32 arg8,
                            f32 arg9, f32 arg10, f32 arg11,
@@ -193,7 +193,7 @@ s32 Cmd_WaitForFieldEvent(void)
     temp_16 = func_0029d040();
     temp_2 = func_0029d050();
     if (temp_2 == 0) {
-        func_0029dfe0(*(s32 *)(temp_16 + 0x148), func_0014ec50(0, 1));
+        func_0029dfe0(*(s32 *)(temp_16 + 0x148), FldRc_CreateTransitionTask(0, 1));
         return 0;
     }
     if (kwlnTaskIsLinked(temp_2) == 1) {

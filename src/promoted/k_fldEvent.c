@@ -45,7 +45,7 @@ s32 func_0015a160(void);
 s32 func_0014c850(f32, f32, void *);
 u8 *func_001823c0(void);
 s32 func_0015c1e0(s32);
-s32 func_0014e740(u8 *, f32 *);
+s32 FldRc_RequestPositionSlot(u8 *, f32 *);
 void func_00182310(s32);
 extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 void FldFrameTask_SetOrientation(u8 *, u8 *);
@@ -725,7 +725,7 @@ s32 FldEvent_SetCameraFocus(u8 *arg0)
             t = (u8 *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
             vec = *(FldEventVec3 *)(t + 0x30);
             vec.y += 100.0f;
-            func_0014e740((u8 *)(func_0015c1e0(0)), (f32 *)(&vec));
+            FldRc_RequestPositionSlot((u8 *)(func_0015c1e0(0)), (f32 *)(&vec));
             func_00182310(1);
             h[1] = 2;
             return 1;
@@ -791,12 +791,12 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     u32 K_FldEvent_IsPosWithinFov(const struct RwMatrix *, const struct RwV3d *, f32);
     void *mdlGetMatrix(void *);
     s32 func_0015c1e0(s32);
-    s32 func_0014e740(u8 *, f32 *);
+    s32 FldRc_RequestPositionSlot(u8 *, f32 *);
     void func_00182310(s32);
     u8 *func_001823c0(void);
     s32 *func_00155280(void);
     void FldUnit_SetMode(u8 *, s32);
-    s32 func_0014e8c0(u8 *, s32);
+    s32 FldRc_GetPositionSlotCount(u8 *, s32);
     s32 func_0016fd00(s32);
     s32 FldEvent_PartyHasSkill(void);
     u32 RpRandom(void);
@@ -1003,7 +1003,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                                 u8 *m = (u8 *)mdlGetMatrix((void *)(work->target->model));
                                 cameraTarget = *(FldEventVec3 *)(m + 0x30);
                                 cameraTarget.y += 100.0f;
-                                func_0014e740((u8 *)(func_0015c1e0(0)), (f32 *)(&cameraTarget));
+                                FldRc_RequestPositionSlot((u8 *)(func_0015c1e0(0)), (f32 *)(&cameraTarget));
                                 func_00182310(1);
                                 FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
                                 work->state = 4;
@@ -1013,7 +1013,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         u8 *m = (u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
                         playerTarget = *(FldEventVec3 *)(m + 0x30);
                         playerTarget.y += 100.0f;
-                        func_0014e740((u8 *)(func_0015c1e0(0)), (f32 *)(&playerTarget));
+                        FldRc_RequestPositionSlot((u8 *)(func_0015c1e0(0)), (f32 *)(&playerTarget));
                         func_00182310(1);
                         work->state = 2;
                     } else {
@@ -1032,7 +1032,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
         case 2:
             {
                 s32 nearbyCount = 0;
-                if (func_0014e8c0((u8 *)(func_0015c1e0(0)), -1) >= 5) {
+                if (FldRc_GetPositionSlotCount((u8 *)(func_0015c1e0(0)), -1) >= 5) {
                     work->attack = iGpffffb2cc;
                     work->nearby[0] = NULL;
                     work->nearby[1] = NULL;
@@ -1183,7 +1183,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             }
             goto running;
         case 4:
-            if (func_0014e8c0((u8 *)(func_0015c1e0(0)), -1) >= 5) {
+            if (FldRc_GetPositionSlotCount((u8 *)(func_0015c1e0(0)), -1) >= 5) {
                 func_001fc1b0(0);
                 func_0045af60(0, 0xA, 3, 0);
                 work->state = 5;

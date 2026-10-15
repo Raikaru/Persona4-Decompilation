@@ -298,8 +298,8 @@ extern u8 D_005EFC18[];
 extern u8 D_005EFC28[];
 extern u8 iGpffff9de0;
 extern u8 iGpffff9de8;
-extern s32 func_0014e2a0(u8 *arg0);
-extern void func_0014e540(u8 *arg0);
+extern s32 FldRc_FileLoadStep(u8 *arg0);
+extern void FldRc_FileLoadDestroy(u8 *arg0);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 iGpffff9da8;
