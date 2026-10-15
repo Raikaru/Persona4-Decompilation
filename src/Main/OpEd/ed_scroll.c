@@ -24,8 +24,8 @@ extern u32 func_0038ee10(void);
 extern u32 func_0038f950(void);
 extern s32 strlen(const char *text);
 extern void strncpy(void *dst, const void *src, s32 size);
-extern void func_00272c60(s32 mode);
-extern void func_00272c80(s32 mode);
+extern void frFontSetFlagBits(s32 mode);
+extern void frFontClearFlagBits(s32 mode);
 extern s32 func_002738d0(u32 handle);
 
 typedef struct EdColor {
@@ -349,8 +349,8 @@ void func_0038e810(u32 *work, char *text, s32 align)
     start = text;
     length = strlen(text);
     count = 0;
-    func_00272c60(1);
-    func_00272c80(2);
+    frFontSetFlagBits(1);
+    frFontClearFlagBits(2);
     inToken = 0;
     width = 0.0f;
     for (i = 0; i < length + 1; i++, cursor++) {
@@ -427,8 +427,8 @@ void func_0038e810(u32 *work, char *text, s32 align)
             break;
         }
     }
-    func_00272c80(1);
-    func_00272c60(2);
+    frFontClearFlagBits(1);
+    frFontSetFlagBits(2);
     work[0x84 / 4] = count;
 }
 

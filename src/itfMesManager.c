@@ -96,7 +96,7 @@ void func_0027bb60(s32 arg0);
 void func_0027bbc0(s32 arg0);
 int func_00279fd0(int param_1, u32 param_2);
 u8 *func_0027a010(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
-s32 func_00272bf0(int param_1);
+s32 frFontListTail(int param_1);
 void func_0027bb00(s32 arg0);
 s32 func_0027a2d0(u8 *arg0, u8 *arg1);
 void func_0027a2a0(int param_1, int param_2);
@@ -1669,7 +1669,7 @@ void func_00279780(u8 *arg0)
         func_0046d730(D_0063BE10, 0xCAA);
     *(u8 **)(base + 4) = obj;
     if (obj != NULL)
-        *(s16 *)(base + 0xE) = func_0027a2d0((u8 *)func_00272bf0((s32)obj), obj);
+        *(s16 *)(base + 0xE) = func_0027a2d0((u8 *)frFontListTail((s32)obj), obj);
     flags = frFontMaskFlags(3);
     *(u8 *)(base + 9) = (u8)flags;
     if (*(u8 *)(base + 9) & 2U)
