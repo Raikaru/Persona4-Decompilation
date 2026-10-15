@@ -159,7 +159,7 @@ extern u32 mdlGetFrameNameUserData(void* param_1);
 extern int strncmp();
 extern int func_003d8130();
 extern void RtAnimInterpolatorSetAnimLoopCallBack();
-extern void* func_00474ba0(void* param_1, void* param_2);
+extern void* mdlAnimLoopCallback(void* param_1, void* param_2);
 extern char gp0xffff9d10;
 extern u8 LAB_00474a50;
 extern u8 LAB_00474a50_abs[];
@@ -2395,8 +2395,9 @@ void func_00474ad0(void) {}
 
 // FUN_00474AE0
 void func_00474ae0(void) {}
+/* Anim-loop callback for RtAnimInterpolatorSetAnimLoopCallBack. When the slot entry at the state's raw index is valid and not already flagged, it sets the interpolator time from its first sub-object (func_003d5e40_typed) and sets the loop-done byte at state+1. */
 // FUN_00474AF0
-void* func_00474af0(void* param_1, u16* param_2)
+void* mdlAnimLoopRewind(void* param_1, u16* param_2)
 {
     s16 rawIndex;
     u16 count;
@@ -2424,8 +2425,9 @@ void* func_00474af0(void* param_1, u16* param_2)
 
 /* measured: probing opt_propagation off for first-target register scheduling. */
 #pragma opt_propagation off
+/* Anim-loop callback with two modes. With no state, or a valid state whose flag bit 0 is set, it re-seeds the interpolator (func_003d5840) and installs the accessor hooks at +0x40 and +0x44. Otherwise it sets the interpolator time as mdlAnimLoopRewind does and sets the state's +2 byte. */
 // FUN_00474BA0
-void* func_00474ba0(void* param_1, void* param_2)
+void* mdlAnimLoopCallback(void* param_1, void* param_2)
 {
     struct Mdl74ba0Ctx {
         u16 flags;
@@ -2539,7 +2541,7 @@ void func_00474df0(u8* param_1, void* param_2)
 
             if (((userData != 0) && (strncmp(userData, &gp0xffff9d10, 5) == 0)) &&
                 (animation = func_003d8130(*puVar2, 0), animation != 0)) {
-                RtAnimInterpolatorSetAnimLoopCallBack(animation, func_00474ba0, 0);
+                RtAnimInterpolatorSetAnimLoopCallBack(animation, mdlAnimLoopCallback, 0);
 
                 *(u8**)((int)animation + 0x40) = LAB_00474a50_abs;
                 *(u8**)((int)animation + 0x44) = LAB_00474a90_abs;
@@ -2800,11 +2802,11 @@ void func_00475350(void *clump, MdlAnimControlView *state,
                         if (func_003d5750(animation) == 1) func_00399bf0(*object, 5);
                         else func_00399bf0(*object, 6);
                         if (special == 1) {
-                            RtAnimInterpolatorSetAnimLoopCallBack(interpolator, func_00474ba0, state);
+                            RtAnimInterpolatorSetAnimLoopCallBack(interpolator, mdlAnimLoopCallback, state);
                             interpolator->keyFrameBlendCB = (RtAnimKeyFrameBlendCallBack)func_00474a50;
                             interpolator->keyFrameInterpolateCB = (void *)func_00474a90;
                         } else {
-                            RtAnimInterpolatorSetAnimLoopCallBack(interpolator, func_00474af0, state);
+                            RtAnimInterpolatorSetAnimLoopCallBack(interpolator, mdlAnimLoopRewind, state);
                             interpolator->keyFrameBlendCB = ((MdlAnimSchemeView *)animation->interpInfo)->keyFrameBlendCB;
                             interpolator->keyFrameInterpolateCB = ((MdlAnimSchemeView *)animation->interpInfo)->keyFrameInterpolateCB;
                         }
@@ -2836,12 +2838,12 @@ static inline void mdl_step_secondary(MdlAnimControlView* state, u32* it)
         if (interp != NULL) {
             if (interp->keyFrameBlendCB == (RtAnimKeyFrameBlendCallBack)func_00474a50 &&
                 interp->keyFrameInterpolateCB == (void*)func_00474a90) {
-                RtAnimInterpolatorSetAnimLoopCallBack(interp, func_00474ba0, state);
+                RtAnimInterpolatorSetAnimLoopCallBack(interp, mdlAnimLoopCallback, state);
                 func_003d5e40((u8*)interp, state->secondaryTime);
                 interp->keyFrameBlendCB = (RtAnimKeyFrameBlendCallBack)func_00474a50;
                 interp->keyFrameInterpolateCB = (void*)func_00474a90;
             } else {
-                RtAnimInterpolatorSetAnimLoopCallBack(interp, func_00474af0, state);
+                RtAnimInterpolatorSetAnimLoopCallBack(interp, mdlAnimLoopRewind, state);
                 if (interp->keyFrameBlendCB != (RtAnimKeyFrameBlendCallBack)func_00474ad0 &&
                     interp->keyFrameInterpolateCB != (void*)func_00474ae0) {
                     func_003d5e40((u8*)interp, state->secondaryTime);
@@ -2857,9 +2859,9 @@ static inline void mdl_step_secondary(MdlAnimControlView* state, u32* it)
         if (interp != NULL) {
             if (interp->keyFrameBlendCB == (RtAnimKeyFrameBlendCallBack)func_00474a50 &&
                 interp->keyFrameInterpolateCB == (void*)func_00474a90) {
-                RtAnimInterpolatorSetAnimLoopCallBack(interp, func_00474ba0, state);
+                RtAnimInterpolatorSetAnimLoopCallBack(interp, mdlAnimLoopCallback, state);
             } else {
-                RtAnimInterpolatorSetAnimLoopCallBack(interp, func_00474af0, state);
+                RtAnimInterpolatorSetAnimLoopCallBack(interp, mdlAnimLoopRewind, state);
             }
         }
     }
