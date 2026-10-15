@@ -105,7 +105,7 @@ extern f32 fGpffff8108;
 /* measured: func_001b0020 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001B0020
-void func_001b0020(u8 *arg0)
+void btlActionEndHomeInit(u8 *arg0)
 {
     extern s32 func_001b1510(void);
     extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
@@ -171,7 +171,7 @@ void func_001b0020(u8 *arg0)
 }
 
 // FUN_001B0260
-void func_001b0260(u8 *arg0)
+void btlActionEndHomeUpdate(u8 *arg0)
 {
     f32 sp20[3];
     u8 *temp_2;
@@ -188,7 +188,7 @@ void func_001b0260(u8 *arg0)
 }
 
 // FUN_001B0300
-void func_001b0300(u8 *arg0)
+void btlActionDeadInit(u8 *arg0)
 {
     u8 *p;
     u8 status;
@@ -228,7 +228,7 @@ void func_001b0300(u8 *arg0)
 }
 
 // FUN_001B0460
-void func_001b0460(u8 *arg0)
+void btlActionDeadUpdate(u8 *arg0)
 {
     u8 status;
     u8 *p;
@@ -263,7 +263,7 @@ void func_001b0460(u8 *arg0)
 }
 
 // FUN_001B0590
-void func_001b0590(u8 *arg0)
+void btlActionExitInit(u8 *arg0)
 {
     s32 temp;
     u8 *p;
@@ -288,7 +288,7 @@ void func_001b0590(u8 *arg0)
 /* measured: func_001b05d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
 // FUN_001B05D0
-void func_001b05d0(u8 *arg0)
+void btlActionExitUpdate(u8 *arg0)
 {
     u8 *found;
     u8 *base;
@@ -362,7 +362,7 @@ void func_001b05d0(u8 *arg0)
 
 #pragma pop
 // FUN_001B07C0
-void func_001b07c0(void)
+void btlActionTestInit(void)
 {
 }
 

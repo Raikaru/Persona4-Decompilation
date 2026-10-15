@@ -139,7 +139,7 @@ void func_001fad10(void);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001a.c; members 001ade90-001afb50 */
 
 extern s32 func_001a05f0(BtlAction *action);
-extern void func_001a7720(u8 *arg0);
+extern void btlActionSkillUpdate(u8 *arg0);
 u8 func_0023e1f0(u8 *unitData);
 static inline s16 btlCameraField_001a59a0(u16 unitId, s16 *firstField)
 {
@@ -311,7 +311,7 @@ static inline const void *battleHitPayload(const u8 *record)
 #pragma push
 #pragma pop
 // FUN_001ADE90
-void func_001ade90(void)
+void btlActionBadDamageInit(void)
 {
 }
 
@@ -320,7 +320,7 @@ void func_001ade90(void)
  * The result is a complete 32-byte object; the ID snapshot follows the
  * status query. See docs/probe_archive/Action_status_response_001adea0_20260924.md. */
 // FUN_001ADEA0
-void func_001adea0(u8 *action)
+void btlActionBadDamageUpdate(u8 *action)
 {
     u32 datCalcGetBadStatus(s32 unit);
     u8 *unit;
@@ -486,7 +486,7 @@ s32 btlActionGetCounter428(BtlAction *action)
  * Native b210 O2: 1072/1072 bytes, every relocation resolved; all other
  * owner functions and data preserved. See the 001ae3d0 recovery note. */
 // FUN_001AE3D0
-void func_001ae3d0(u8 *action)
+void btlActionRoundupMesInit(u8 *action)
 {
     u8 *currentAction;
     u8 *target;
@@ -605,7 +605,7 @@ void func_001ae3d0(u8 *action)
 }
 
 // FUN_001AE800
-void func_001ae800(u8 *arg0)
+void btlActionRoundupMesUpdate(u8 *arg0)
 {
     u8 *gp2;
     u8 *packet1;
@@ -719,7 +719,7 @@ void func_001ae800(u8 *arg0)
 }
 
 // FUN_001AEC20
-void func_001aec20(u8 *arg0)
+void btlActionRoundupInit(u8 *arg0)
 {
     s32 activeCountMasked;
     s32 unitIndex;
@@ -779,7 +779,7 @@ loop_7_test:
 #pragma push
 /* measured: func_001aed50 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_001aed50(u8 *arg0)
+void btlActionRoundupUpdate(u8 *arg0)
 {
     typedef struct PartyActionView {
         u8 unknown00[0x30];
@@ -1168,12 +1168,12 @@ void func_001aed50(u8 *arg0)
 
 #pragma pop
 // FUN_001AF9D0
-void func_001af9d0(void)
+void btlActionPacketInit(void)
 {
 }
 
 // FUN_001AF9E0
-void btlActionAdvanceToState21(BtlAction *action)
+void btlActionPacketUpdate(BtlAction *action)
 {
     if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
         btlActionSetState(action, 0x21U);
@@ -1181,7 +1181,7 @@ void btlActionAdvanceToState21(BtlAction *action)
 }
 
 // FUN_001AFA50
-void func_001afa50(u8 *arg0)
+void btlActionEndInit(u8 *arg0)
 {
     if (*(u16 *)(arg0 + 0x18) & 0x4000) {
         *(s32 *)(D_0076449C + 0xC) |= 0x400000;
@@ -1208,7 +1208,7 @@ void func_001afa50(u8 *arg0)
  * This paired recovery preserves the other 69 functions and allocated data.
  * See docs/probe_archive/Action_readiness_001afb50_20260924.md. */
 // FUN_001AFB50
-void func_001afb50(u8 *action)
+void btlActionEndUpdate(u8 *action)
 {
     s32 func_0019ff60(u8 *action);
     s32 func_00193060(void);

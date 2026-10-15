@@ -322,7 +322,7 @@ static inline s32 actionResourceAt(ActionResourcePrefix *table, u16 index)
    addu b,a*k); the table base must be copied first so its lw leads the block. */
 /* measured: restore propagation for the rest of the unit. */
 // FUN_001A1450
-void func_001a1450(s64 *arg0)
+void btlActionCommandInit(s64 *arg0)
 {
     struct Vec3 {
         f32 x;
@@ -437,7 +437,7 @@ loop_19_test:
 
 /* measured 001a17d0: obj 1192B/window 1200B (-8B, -0.7% inside, 2-instr slack); 0 words via `python3 tools/measure_guarded.py src/promoted/code1_001a.c func_001a17d0`, 0 edits (+28 reloc-only) 298/298 via `python3 tools/fnalign.py src/promoted/code1_001a.c func_001a17d0 --candidate /tmp/candF_f32.c --quiet`; Jal 36 both sides. Switch v4 &0xFFFF reverse 2,0/default (compiler checks 0 first, matching retail layout; was if/else with bne losing andi+beq+b); switch v10 numeric 1,2,3,10 (compiler checks 10,3,2,1, matching retail; was reverse 10,3,2/1 checking 1 first); s32 f (was u16, fixes $a0 vs $v1 + extra andi); tail before check9 (was 9 before tail, fixing 37/37 pure hole/lump exactly equal, 294/297 inside hiding swap, edits 120->0). Production MATCH. */
 // FUN_001A17D0
-void func_001a17d0(u8 *arg0)
+void btlActionCommandUpdate(u8 *arg0)
 {
     extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
     extern u16 D_008C024C[];
@@ -561,7 +561,7 @@ check9:
 }
 
 // FUN_001A1C80
-void func_001a1c80(u8 *arg0)
+void btlActionTargetInit(u8 *arg0)
 {
     u8 *lookAtUnit;
     s32 unitIndex;
@@ -636,7 +636,7 @@ after_type_1c80:
 
 #pragma push
 // FUN_001A1EA0
-void func_001a1ea0(u8 *action) {
+void btlActionTargetUpdate(u8 *action) {
     extern u16 D_008C024C[];
     extern void btlUnitTickIdleAnims(void);
     extern void func_0019fc60(void);
@@ -809,7 +809,7 @@ select_action:
 
 #pragma pop
 // FUN_001A24A0
-void btlActionSetPendingFlag(BtlAction *action)
+void btlActionAnalyzeInit(BtlAction *action)
 {
     *(s32 *)((u8 *)action + 0x41C) = 1;
 }
@@ -821,7 +821,7 @@ void btlActionSetPendingFlag(BtlAction *action)
 #pragma push
 /* measured: func_001a24b0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_001a24b0(u8 *action)
+void btlActionAnalyzeUpdate(u8 *action)
 {
     extern u16 D_008C024C[];
     extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
@@ -996,7 +996,7 @@ void func_001a24b0(u8 *action)
 
 #pragma pop
 // FUN_001A2AD0
-void btlActionTryEnterState9(BtlAction *action) {
+void btlActionAiInit(BtlAction *action) {
     func_001eb3b0((u8 *)action + 0x38);
     if ((*(s32 *)(D_0076449C + 0xC) & 0x1000) == 0) {
         return;
@@ -1011,7 +1011,7 @@ void btlActionTryEnterState9(BtlAction *action) {
 }
 
 // FUN_001A2B50
-void btlActionAdvanceAICommand(u8 *arg0)
+void btlActionAiUpdate(u8 *arg0)
 {
     s32 battleFlags;
 
@@ -1031,14 +1031,14 @@ void btlActionAdvanceAICommand(u8 *arg0)
 }
 
 // FUN_001A2C10
-void func_001a2c10(s64 *arg0) {
+void btlActionAutoInit(s64 *arg0) {
     func_001eb3b0((u8 *)arg0 + 0x38);
     func_001d7f10((u8 *)arg0, (u8 *)arg0 + 0x98, 0, 0);
     func_001d8cb0(NULL, arg0 + 0x13);
 }
 
 // FUN_001A2C70
-void btlActionSetDefaultSkill(u8 *arg0)
+void btlActionAutoUpdate(u8 *arg0)
 {
     u8 *battleUnit;
 
@@ -1060,7 +1060,7 @@ void btlActionSetDefaultSkill(u8 *arg0)
 }
 
 // FUN_001A2D60
-void func_001a2d60(void)
+void btlActionSupportInit(void)
 {
 }
 
@@ -1236,7 +1236,7 @@ fallback:
 
 #pragma pop
 // FUN_001A31A0
-void func_001a31a0(u8 *arg0)
+void btlActionBadInit(u8 *arg0)
 {
     func_001f6cd0();
     *(s32 *)(arg0 + 0x41C) = 1;
@@ -1248,7 +1248,7 @@ void func_001a31a0(u8 *arg0)
  * remains a 32-bit word through the low20 selector. Camera and animation
  * packets remain alive until their published UIDs have been consumed. */
 // FUN_001A31E0
-void btlActionRecoverIncapacitated(BtlAction *actionState)
+void btlActionBadUpdate(BtlAction *actionState)
 {
     u8 *action = (u8 *)actionState;
     u32 badStatus;
@@ -1434,7 +1434,7 @@ void btlActionRecoverIncapacitated(BtlAction *actionState)
 /* The mode is established by the action selector before entering this state.
    Movement and target-animation packets are separate dependency owners. */
 // FUN_001A3840
-void func_001a3840(register BtlAction *actionState)
+void btlActionCooperateInit(register BtlAction *actionState)
 {
     u8 *action;
     u8 *movementPacket;
@@ -1624,7 +1624,7 @@ s32 btlActionGetCounter420(BtlAction *action)
 }
 
 // FUN_001A3DF0
-void btlActionEndTurn(BtlAction *action)
+void btlActionPursuitMesInit(BtlAction *action)
 {
     s32 status;
     u8 *iter;
@@ -1674,7 +1674,7 @@ loop_test:
 }
 
 // FUN_001A3F90
-void btlActionUpdatePresentation(u8 *arg0)
+void btlActionPursuitMesUpdate(u8 *arg0)
 {
     u8 frame[0x10];
     struct {
@@ -1762,7 +1762,7 @@ void btlActionUpdatePresentation(u8 *arg0)
 }
 
 // FUN_001A4390
-void func_001a4390(void)
+void btlActionPursuitInit(void)
 {
 }
 
@@ -1782,7 +1782,7 @@ void func_001a4390(void)
 /* measured: func_001a43a0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001A43A0
-void btlActionSelectTargets(u8 *action)
+void btlActionPursuitUpdate(u8 *action)
 {
     extern s8 datCalcGetBuffStatus(u8 *action, s32 arg1);
     extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 kind, s32 id, s32 flags, s32 mode);
@@ -1921,7 +1921,7 @@ void btlActionSelectTargets(u8 *action)
 
 #pragma pop
 // FUN_001A47F0
-void func_001a47f0(void)
+void btlActionReadyInit(void)
 {
 }
 
@@ -1934,7 +1934,7 @@ void func_001a47f0(void)
 // FUN_001A4800
 /* Wait for the participating actions before dispatching the selected action
  * type and submitting its target-state and camera packets. */
-void btlActionDispatchSelected(u8 *arg0)
+void btlActionReadyUpdate(u8 *arg0)
 {
     extern void func_001eb420(u8 *target);
     extern u16 *datPersonaGetRecord(u16 personaId);
@@ -2062,7 +2062,7 @@ donecheck:
 #pragma opt_lifetimes on
 /* measured: func_001a4c80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_dead_assignments off
-void func_001a4c80(u8 *actionBytes)
+void btlActionMoveTargetInit(u8 *actionBytes)
 {
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern void func_00195c50(BtlUnit *unit, BtlUnit *target, RwV3d *out);
@@ -2378,7 +2378,7 @@ range_done:
 
 #pragma pop
 // FUN_001A55A0
-void btlActionSetMoveResultStateAlt(BtlAction *action) {
+void btlActionMoveTargetUpdate(BtlAction *action) {
     u16 actionState;
 
     if (btlUnitIsMoving(*(u8 **)((u8 *)action + 0x30)) == 0) {
@@ -2409,7 +2409,7 @@ void btlActionSetMoveResultStateAlt(BtlAction *action) {
 /* measured: func_001a5650 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001A5650
-void func_001a5650(s64 *arg0)
+void btlActionMoveHomeInit(s64 *arg0)
 {
     RwV3d sp30;
     u32 source_offset, sum, idx4;
@@ -2503,7 +2503,7 @@ void func_001a5650(s64 *arg0)
 
 #pragma pop
 // FUN_001A58E0
-void btlActionSetMoveResultState(BtlAction *action) {
+void btlActionMoveHomeUpdate(BtlAction *action) {
     u16 actionState;
 
     if (btlUnitIsMoving(*(u8 **)((u8 *)action + 0x30)) == 0) {
@@ -2527,7 +2527,7 @@ void btlActionSetMoveResultState(BtlAction *action) {
 }
 
 // FUN_001A5990
-void func_001a5990(void)
+void btlActionAttackInit(void)
 {
 }
 
@@ -2592,7 +2592,7 @@ void func_001a5990(void)
 /* measured: func_001a59a0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001A59A0
-void func_001a59a0(s64 *arg0_) {
+void btlActionAttackUpdate(s64 *arg0_) {
     u8 *arg0 = (u8 *)arg0_;
     u8 *battleUnit;
     extern s64 btlPacketEnqueue(u8 *packet, u32 mode);
@@ -3476,7 +3476,7 @@ createReaction:
 
 #pragma pop
 // FUN_001A7710
-void func_001a7710(void)
+void btlActionSkillInit(void)
 {
 }
 
@@ -3485,7 +3485,7 @@ void func_001a7710(void)
 /* measured: func_001a7720 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001A7720
-void func_001a7720(u8 *arg0) {
+void btlActionSkillUpdate(u8 *arg0) {
 
     extern s32 btlCreateSetFlagsPacket(u32);
     extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
@@ -5534,7 +5534,7 @@ reactionPacket:
 
 #pragma pop
 // FUN_001ABBA0
-void func_001abba0(void)
+void btlActionSummonInit(void)
 {
 }
 
@@ -5546,7 +5546,7 @@ void func_001abba0(void)
 #pragma push
 /* measured: func_001abbb0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_001abbb0(s64 *arg0)
+void btlActionSummonUpdate(s64 *arg0)
 {
     typedef struct DatUnit DatUnit;
     typedef struct DatUnitEc DatUnitEc;
@@ -5905,7 +5905,7 @@ void func_001abbb0(s64 *arg0)
 
 #pragma pop
 // FUN_001AC500
-void btlActionReset(BtlAction *action) {
+void btlActionAssistInit(BtlAction *action) {
     u8 *resetPacket;
     u8 *cameraPacket;
 
@@ -5931,7 +5931,7 @@ void btlActionAssistUpdate(BtlAction *action) {
 }
 
 // FUN_001AC620
-void btlActionQueueModelRelease(void) {
+void btlActionEventInit(void) {
     u8 *p = *(u8 **)(D_0076449C + 0x174);
     u8 *o;
 
@@ -5946,19 +5946,19 @@ void btlActionQueueModelRelease(void) {
 }
 
 // FUN_001AC6A0
-void btlActionRunCallbackThenSetState(BtlAction *action) {
+void btlActionEventUpdate(BtlAction *action) {
     if ((*(s32 (**)(void))((u8 *)action + 0x440))() == 0) {
         btlActionSetState(action, *(u16 *)((u8 *)action + 0x43C));
     }
 }
 
 // FUN_001AC6F0
-void func_001ac6f0(void)
+void btlActionErrorInit(void)
 {
 }
 
 // FUN_001AC700
-void func_001ac700(u8 *action) {
+void btlActionErrorUpdate(u8 *action) {
     s64 packetIdentity;
     s32 alternateAction;
     s32 animationChoice;
@@ -6120,7 +6120,7 @@ void func_001ac700(u8 *action) {
 }
 
 // FUN_001ACB10
-void btlActionApplySkillStatus(u8 *arg0)
+void btlActionEndureInit(u8 *arg0)
 {
     u16 skillId;
     u8 *unitStatePtr;
@@ -6144,7 +6144,7 @@ void btlActionApplySkillStatus(u8 *arg0)
 }
 
 // FUN_001ACBB0
-void func_001acbb0(u8 *arg0) {
+void btlActionEndureUpdate(u8 *arg0) {
     s32 damageResult[8];
     s32 value;
     s32 remainingCount;
@@ -6272,7 +6272,7 @@ void func_001acbb0(u8 *arg0) {
 }
 
 // FUN_001ACF40
-void func_001acf40(void)
+void btlActionWaitInit(void)
 {
 }
 
@@ -6284,7 +6284,7 @@ void func_001f0a10(u8 *arg0);
 extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 s32 func_001f68e0(u8 *arg0);
 
-void func_001acf50(u8 *arg0) {
+void btlActionWaitUpdate(u8 *arg0) {
     struct {
         s32 sp30;
         u8 pad[0x1A];
@@ -6364,7 +6364,7 @@ void func_001acf50(u8 *arg0) {
 }
 
 // FUN_001AD280
-void btlActionStartLookAtCutin(u8 *arg0)
+void btlActionEscapeMesInit(u8 *arg0)
 {
     s16 cutinParams[8];
     u8 *lookAtPacket;
@@ -6404,7 +6404,7 @@ void btlActionStartLookAtCutin(u8 *arg0)
 }
 
 // FUN_001AD3E0
-void btlActionWaitPresentation(u8 *arg0)
+void btlActionEscapeMesUpdate(u8 *arg0)
 {
     u8 *temp;
 
@@ -6446,14 +6446,14 @@ done:
 }
 
 // FUN_001AD540
-void func_001ad540(void)
+void btlActionEscapeInit(void)
 {
 }
 
 // FUN_001AD550
 /* measured: func_001ad550 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_001ad550(s64 *arg0)
+void btlActionEscapeUpdate(s64 *arg0)
 {
     typedef struct RtQuat { RwV3d imag; f32 real; } RtQuat;
     extern void btlUnitGetSphereWorldCenter(BtlUnit *arg0, RwV3d *arg1);
@@ -6667,7 +6667,7 @@ void func_001ad550(s64 *arg0)
 /* measured: func_001adb80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001ADB80
-void func_001adb80(s64 *arg0)
+void btlActionPersonaInit(s64 *arg0)
 {
     u16 person;
     u32 unit;

@@ -120,7 +120,7 @@ extern void btlActionFinishPresentation(BtlAction *action);
 /* measured: loop-invariant probe for 001A0140 preheader materialization. */
 /* measured: close loop-invariant probe for 001A0140. */
 // FUN_001A0670
-void func_001a0670(BtlAction *action) {
+void btlActionStandbyUpdate(BtlAction *action) {
     s32 unitFlags;
 
     unitFlags = (s32)action->unit->flags3;
@@ -135,7 +135,7 @@ void func_001a0670(BtlAction *action) {
 }
 
 // FUN_001A06D0
-void btlActionTryBegin(BtlAction *action) {
+void btlActionStartInit(BtlAction *action) {
     extern void btlActionSetState(BtlAction *action, u16 state);
     BtlAction *otherAction;
     s32 canAct;
@@ -237,7 +237,7 @@ void btlActionTryBegin(BtlAction *action) {
  * and the mask into saved registers. See the 2026-09-20 donor recovery proof. */
 // FUN_001A0B00
 #pragma push
-void func_001a0b00(s64 *arg0) {
+void btlActionStartUpdate(s64 *arg0) {
     extern void func_001f0a10(u8 *arg0);
     extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
@@ -362,7 +362,7 @@ void func_001a0b00(s64 *arg0) {
 /* measured: btlActionSelectMove MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001A0F40
-void btlActionSelectMove(BtlAction *action)
+void btlActionStartHomeInit(BtlAction *action)
 {
     RwV3d sp30;
     s32 tableColumn;

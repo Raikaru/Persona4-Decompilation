@@ -42,7 +42,7 @@ extern BtlActionState D_005f6e20[];
 
 
 // FUN_001A1100
-void btlActionUpdateStateStartHome(BtlAction* action)
+void btlActionStartHomeUpdate(BtlAction* action)
 {
     RwV3d rot;
     BtlPacket* packet;
@@ -62,7 +62,7 @@ void btlActionUpdateStateStartHome(BtlAction* action)
 
 
 // FUN_001A1190
-void func_001a1190(BtlAction* action)
+void btlActionChangeFormationInit(BtlAction* action)
 {
     extern u8* D_0076449C;
     extern f32 fGpffff809c;
@@ -163,7 +163,7 @@ void func_001a1190(BtlAction* action)
     }
 }
 // FUN_001A13E0
-void btlActionUpdateStateChangeFormation(BtlAction* action)
+void btlActionChangeFormationUpdate(BtlAction* action)
 {
     if (btlPacketFindFirstByActionUID(action->uid, BTL_UIDMAX) == NULL)
     {
@@ -174,7 +174,7 @@ void btlActionUpdateStateChangeFormation(BtlAction* action)
 
 
 // FUN_001B07D0
-void btlActionUpdateStateTest(BtlAction* action)
+void btlActionTestUpdate(BtlAction* action)
 {
     btlActionSetState(action, 5);
 }

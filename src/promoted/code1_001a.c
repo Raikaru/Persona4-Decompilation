@@ -222,7 +222,7 @@ void func_001fad10(void);
 
 
 
-extern void func_001a7720(u8 *arg0);
+extern void btlActionSkillUpdate(u8 *arg0);
 #pragma opt_loop_invariants on
 #pragma opt_loop_invariants off
 
@@ -524,7 +524,7 @@ static inline s32 actionResourceAt(ActionResourcePrefix *table, u16 index)
 #pragma pop
 
 // FUN_001ADE10
-void btlActionResumeState(BtlAction *action)
+void btlActionPersonaUpdate(BtlAction *action)
 {
     if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
         if (*(u8 *)(*(u8 **)((u8 *)action + 0x30) + 0xA2) == 0) {
