@@ -40,7 +40,7 @@ extern void func_003e0e20(void *arg0, void *arg1, s32 arg2);
 extern f32 DAT_0076112c;
 extern void func_0039a260(void* a, void* b);
 extern void func_0039ab20(void* a, int b, int c, int d);
-extern int func_00475b90(void* buf, void* v, u32 idx, void* obj);
+extern int mdlComputeAttachMatrix(void* buf, void* v, u32 idx, void* obj);
 extern void* func_00457f40(void* obj, const char* name, s32 idx);
 extern u8* func_003e9700(u8* a);
 extern void func_003d5840(void* a, void* b);
@@ -2646,8 +2646,9 @@ void* func_00475090(void* param_1, void* data)
    and store *(void**)(obj2+0x40) against (void*)mdlKeyFrameBlendCopy/mdlKeyFrameInterpolateCopy
    (u32 casts also work, void* keeps mwcc from adding conversions);
    re-read arg0->0x18 fresh for `list` (retail re-issues the lw). */
+/* Sets the animation control time (arg0+0xC and +0x10) to fparg0, and applies the same time to the copy-hooked interpolators of the frame's MatFX objects (effect kinds 5 and 6), on the primary and, unless arg0+2 is 1, the secondary slot. */
 // FUN_00475170
-void func_00475170(u8* arg0, f32 fparg0)
+void mdlSetAnimControlTime(u8* arg0, f32 fparg0)
 {
     u32* it;
     u32 list;
@@ -2957,8 +2958,9 @@ static inline u8* mdl_find_frame(u8* frame, s32 id)
 
 /* MATCH: 312B/320B, with two zero-tail words. IDA-backed frame lookup
    lifetime and pointer-valued userdata preserve every retail instruction. */
+/* Computes an attachment matrix: finds the entry with key idx in the table v, and writes entry * frame matrix into buf, where the frame is found by the entry's field at +0x44 under the clump of obj. Returns 0 when no entry or frame matches. */
 // FUN_00475B90
-int func_00475b90(void* buf, void* v, u32 idx, void* obj)
+int mdlComputeAttachMatrix(void* buf, void* v, u32 idx, void* obj)
 {
     s32 count;
     u16 i;
@@ -5310,7 +5312,7 @@ void func_00479e60(void* param_1, s32 param_2, f32 param_3)
     *(u16*)(slot + 0xEC) |= 4;
 tail:
     if ((arg1 & 0xFFFF) == 0) {
-        func_00475170((u8*)param_1 + 0x23C, frame);
+        mdlSetAnimControlTime((u8*)param_1 + 0x23C, frame);
     }
 }
 /* measured: closes the scoped opt_common_subs probe for func_00479e60. */
@@ -5669,7 +5671,7 @@ s32 func_0047a6d0(void* arg0, s32 arg1, void* arg2)
     u32 buf[16];
 
     if (*(void**)((u8*)arg0 + 0x2C8) != 0) {
-        result = func_00475b90(buf, *(void**)((u8*)arg0 + 0x2C8), arg1 & 0xFFFF, *(void**)((u8*)arg0 + 0xDC));
+        result = mdlComputeAttachMatrix(buf, *(void**)((u8*)arg0 + 0x2C8), arg1 & 0xFFFF, *(void**)((u8*)arg0 + 0xDC));
     } else {
         src = (u8*)func_00457f40(*(void**)((u8*)arg0 + 0xDC), (const char*)D_007131D8, (s32)arg1);
         if (src == 0) {
