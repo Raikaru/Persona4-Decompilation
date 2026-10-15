@@ -206,7 +206,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_001fc1b0(s16 arg0);
+extern void hFadeTaskStart(s16 arg0);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
@@ -566,7 +566,7 @@ s32 func_001932f0(void)
     u16 temp_3;
     u8 *temp_16;
 
-    func_001fc1b0(1);
+    hFadeTaskStart(1);
     temp_17 = scrGetParamInt(0) & 0xFFFF;
     temp_16 = (u8 *)(iGpffffb414 + (temp_17 * 0x18));
     memset(sp50, 0, 0x3C);
@@ -645,7 +645,7 @@ block_13:
 
 // FUN_001935C0
 s32 func_001935c0(void) {
-    func_001fc1b0(1);
+    hFadeTaskStart(1);
     return 1;
 }
 

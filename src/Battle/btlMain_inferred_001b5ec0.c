@@ -22,7 +22,7 @@ typedef struct DatUnitEc DatUnitEc;
 typedef struct DatUnit DatUnit;
 typedef struct BtlAction BtlAction;
 extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void func_001fc1b0(s16 arg0);
+extern void hFadeTaskStart(s16 arg0);
 extern s32 mcIconTaskCreate(u8 *parent, s32 mode);
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern s32 iGpffffb3ac;
@@ -133,7 +133,7 @@ void btlMainTestInit(void)
 // FUN_001B5ED0
 s32 btlMainTestUpdate(void)
 {
-    func_001fc1b0(0);
+    hFadeTaskStart(0);
     return 2;
 }
 
