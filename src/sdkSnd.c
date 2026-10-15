@@ -168,7 +168,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 /* Shared SDK blob helpers. */
 extern void func_0043c0c0(s32, s32, s32, s32);
 extern void memset(void *, s32, s32);
-extern void func_0044ea90(char *file, s32 line);
+extern void chkmemAllocSiteTag(char *file, s32 line);
 
 extern void func_00440b68(s32 fmt, ...);
 extern s32 sprintf(void *buf, void *fmt, ...);
@@ -250,7 +250,7 @@ void func_00458fa0(void)
     LD32(D_008D2A68, 0) = 0xBB80;
     LD32(D_008D2A70, 0) = 1;
     temp = func_004d8d10(&D_008D2A60);
-    func_0044ea90(D_00712238, 0x94);
+    chkmemAllocSiteTag(D_00712238, 0x94);
     p = (s32)(*(void *(**)(u32, u32))(s32)jtbl_008873E8)(temp, 0x40000);
     D_008D2B50[0] = p;
     D_008D2B30[0] = temp;
@@ -275,7 +275,7 @@ void func_00458fa0(void)
     LD32(D_008D2A90, 0) = 0x5DC0;
     LD32(D_008D2A98, 0) = 1;
     temp = func_004d8d10(&D_008D2A88);
-    func_0044ea90(D_00712238, 0xAB);
+    chkmemAllocSiteTag(D_00712238, 0xAB);
     D_008D2B54[0] = (s32)(*(void *(**)(u32, u32))(s32)jtbl_008873E8)(temp, 0x40000);
     D_008D2B34[0] = temp;
     LD32(D_008D2CD4, 0) = 0;
@@ -290,7 +290,7 @@ void func_00458fa0(void)
     LD32(D_008D2AB8, 0) = 0x5DC0;
     LD32(D_008D2AC0, 0) = 1;
     temp = func_004d8d10(&D_008D2AB0);
-    func_0044ea90(D_00712238, 0xBA);
+    chkmemAllocSiteTag(D_00712238, 0xBA);
     D_008D2B58[0] = (s32)(*(void *(**)(u32, u32))(s32)jtbl_008873E8)(temp, 0x40000);
     D_008D2B38[0] = temp;
     LD32(D_008D2E08, 0) = 0;
@@ -305,7 +305,7 @@ void func_00458fa0(void)
     LD32(D_008D2AE0, 0) = 0x5DC0;
     LD32(D_008D2AE8, 0) = 1;
     temp = func_004d8d10(&D_008D2AD8);
-    func_0044ea90(D_00712238, 0xC9);
+    chkmemAllocSiteTag(D_00712238, 0xC9);
     D_008D2B5C[0] = (s32)(*(void *(**)(u32, u32))(s32)jtbl_008873E8)(temp, 0x40000);
     D_008D2B3C[0] = temp;
     LD32(D_008D2F3C, 0) = 0;
@@ -1172,7 +1172,7 @@ s32 func_0045b1c0(void *arg0, s32 arg1, s32 arg2, void *arg3)
     s32 h;
     u8 *p;
 
-    func_0044ea90(D_00712238, 0x475);
+    chkmemAllocSiteTag(D_00712238, 0x475);
     p = D_008873F4[0](1, 0x118, 0x40000);
     if (p == NULL)
     {

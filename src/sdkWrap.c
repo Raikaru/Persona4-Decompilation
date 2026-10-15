@@ -5,7 +5,7 @@
 #include "h_cdvd_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_00712978[];
@@ -296,7 +296,7 @@ s32 func_004672c0(s32 arg0, u8 *arg1)
     s32 handle;
     u8 *mem;
 
-    func_0044ea90(D_00712978, 0x3C4);
+    chkmemAllocSiteTag(D_00712978, 0x3C4);
     mem = D_008873F4[0](1, 8, 0x40000);
     if (mem == NULL) {
         return 0;

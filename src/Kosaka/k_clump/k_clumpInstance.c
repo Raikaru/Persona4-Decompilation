@@ -27,7 +27,7 @@ extern void *func_003c0f20(void *arg0);
 extern s32 K_Clump_ClumpHasMatUsrData(void *arg0, const char *arg1);
 extern void func_003c0960(void *arg0, void *arg1);
 extern void func_0046d730(const char *arg0, s32 arg1);
-extern void func_0044ea90(const char *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(const char *arg0, s32 arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 extern void func_003e2910(void *arg0, void *arg1, s32 arg2);
@@ -121,7 +121,7 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
                 func_0046d730(D_005F6500, 0x93);
                 break;
             default:
-                func_0044ea90(D_005F6500, 0x9A);
+                chkmemAllocSiteTag(D_005F6500, 0x9A);
                 s3 = D_008873F4[0](1, sp50.u[1], 0x40000);
                 func_003e2910(s1, s3, sp50.s[1]);
                 func_003deff0((void *)s0, (u32)sp50.s[0], (u32)sp50.s[1], sp50.s[2], sp50.s[3]);
@@ -262,7 +262,7 @@ s32 func_001924d0(void)
 {
     void *mem;
 
-    func_0044ea90(D_005F6500, 0x126);
+    chkmemAllocSiteTag(D_005F6500, 0x126);
     mem = D_008873F4[0](1, 0x454, 0x40000);
     if (mem == NULL)
     {

@@ -3,7 +3,7 @@
 #include "type.h"
 
 void func_0046d730(u8 *file, s32 line);
-void func_0044ea90(u8 *file, s32 line);
+void chkmemAllocSiteTag(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
 s32 func_00481390(u8 *ptr);
 void func_003ef3a0(void *ptr);
@@ -71,7 +71,7 @@ TLP *func_00482800(TlpDesc *desc)
     if (count == 0) {
         func_0046d730(D_00713300, 0x2D);
     }
-    func_0044ea90(D_00713300, 0x33);
+    chkmemAllocSiteTag(D_00713300, 0x33);
     work = (TLP *)(*jtbl_008873E8)(count * 0x10 + 0x28 + count * 4, 0x40000);
     work->entries = (TlpEntry *)((u8 *)work + 0x28);
     work->texIds = (u32 *)((u8 *)work->entries + count * 0x10);

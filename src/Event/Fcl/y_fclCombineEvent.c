@@ -4,7 +4,7 @@
 #include "type.h"
 extern void func_0045aac0();
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern u8 D_0064A400[];
 extern u8 D_0064A420[];
 extern u8 D_0064A440[];
@@ -35,7 +35,7 @@ void func_0033dc90(u8 *arg0, s8 arg1)
 {
     u8 *work;
 
-    func_0044ea90(D_0064A400, 0xAF);
+    chkmemAllocSiteTag(D_0064A400, 0xAF);
     work = D_008873F4[0](1, 0x14, 0x40000);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A420), 0xF, 0, 0, func_0033d9d0, func_0033dc60, (u8 *)(work));
     work[0] = 0;
@@ -83,7 +83,7 @@ void func_0033de90(u8 *arg0, s32 arg1)
 {
     u8 *work;
 
-    func_0044ea90(D_0064A400, 0x10A);
+    chkmemAllocSiteTag(D_0064A400, 0x10A);
     work = D_008873F4[0](1, 4, 0x40000);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, fclCombineEventGate, fclCombineEventDestroy, (u8 *)(work));
     *(s32 *)work = arg1;
@@ -159,7 +159,7 @@ void func_0033e120(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 *work;
 
-    func_0044ea90(D_0064A400, 0x192);
+    chkmemAllocSiteTag(D_0064A400, 0x192);
     work = D_008873F4[0](1, 0x14, 0x40000);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A440), 0xF, 0, 0, func_0033df40, func_0033e0f0, (u8 *)(work));
     *(s32 *)(work + 4) = arg1;

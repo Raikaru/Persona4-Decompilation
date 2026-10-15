@@ -18,7 +18,7 @@ extern void func_00492d10(void *arg0);
 extern void func_004ae0a0(void *arg0, void *arg1);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *func_00492b20(u16 arg0, u32 arg1, void *arg2);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern char D_00714508[];
@@ -59,7 +59,7 @@ void *func_004ae460(void *opaqueSource)
     if (var_19 > 0x64) {
         var_19 = 0x64;
     }
-    func_0044ea90(D_00714508, 0x171);
+    chkmemAllocSiteTag(D_00714508, 0x171);
     temp_2 = (u8 *)jtbl_008873E8[0](0x94, 0x40000);
     memset(temp_2, 0, 0x94);
     if (temp_2 == 0) {
@@ -139,7 +139,7 @@ void *func_004ae6d0(void *opaqueSource)
     if (var_19 > 0x64) {
         var_19 = 0x64;
     }
-    func_0044ea90(D_00714508, 0x171);
+    chkmemAllocSiteTag(D_00714508, 0x171);
     temp_2 = (u8 *)jtbl_008873E8[0](0x94, 0x40000);
     memset(temp_2, 0, 0x94);
     if (temp_2 == 0) {
@@ -202,7 +202,7 @@ void func_004ae930(u8 *arg0, u32 arg1, u8 *arg2)
         jtbl_008873EC[0]((void *)*(u32 *)(arg0 + 0x60));
     }
     temp_16 = *(u32 *)(*(u8 **)(arg0 + 0x58) + 8);
-    func_0044ea90(D_00714520, 0x195);
+    chkmemAllocSiteTag(D_00714520, 0x195);
     *(u8 **)(arg0 + 0x60) = (u8 *)jtbl_008873E8[0](temp_16 * 0x18, 0x40000);
     if (*(u8 **)(arg0 + 0x60) == 0) {
         func_0046d730(D_00714520, 0x196);

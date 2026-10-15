@@ -13,7 +13,7 @@ void func_00460ac0(void* param, void* work);
 void func_00106390(s32 a, s32 b);
 s32 func_0035f0c0(u32* arg0, s32* arg1, u8* arg2);
 s32 func_0034c210(void);
-void func_0044ea90(void* file, s32 line);
+void chkmemAllocSiteTag(void* file, s32 line);
 void memset(void* dest, s32 value, s32 size);
 
 void func_0034c260(s32 arg0);
@@ -70,7 +70,7 @@ s32 func_0035c690(void* arg0, s32 arg1) {
     s32 r;
     u8* work;
 
-    func_0044ea90(D_0064D3C8, 0xC5);
+    chkmemAllocSiteTag(D_0064D3C8, 0xC5);
     work = D_008873F4[0](1, 0x4B0, 0x40000);
     if (work == NULL) {
         func_0046d730(D_0064D3C8, 0xC6);

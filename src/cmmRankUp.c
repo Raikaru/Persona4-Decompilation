@@ -39,7 +39,7 @@ extern f32 D_0076122C;
 extern void (*D_00887300[])(u32, u32);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-void func_0044ea90(void *msg, s32 id);
+void chkmemAllocSiteTag(void *msg, s32 id);
 void func_0046d730(const void *file, s32 line);
 extern void func_0047a6d0(s32 arg0, s32 arg1, void *arg2);
 extern void func_00189ec0();
@@ -215,7 +215,7 @@ void func_00251ec0(u8 *unusedTask)
 void func_00251f00(s32 arg0, u32 *arg1) {
     u8 *temp_2;
 
-    func_0044ea90(D_00635CF8, 0x277);
+    chkmemAllocSiteTag(D_00635CF8, 0x277);
     temp_2 = (u8 *)D_008873F4[0](1, 0x9E4, 0x40000);
     *(u8 **)(temp_2 + 0x9E0) = (u8 *)arg1;
     if (temp_2 == NULL) {
@@ -1471,7 +1471,7 @@ u8 *func_00255b90(void) {
         count++;
         cnt = *(u8 **)(cnt + 0x138);
     }
-    func_0044ea90(D_00635CF8, 0x5FA);
+    chkmemAllocSiteTag(D_00635CF8, 0x5FA);
     entry = (u8 *)D_008873F4[0](1, (count + 1) * 0x10, 0x40000);
     count = 0;
     node1 = MT_Scene_GetResListHead(1);
@@ -3339,7 +3339,7 @@ s32 func_0025b240(u8 *arg0) {
         if (palette == 0) {
             func_0046d730(D_00635CF8, 0xAF7);
         }
-        func_0044ea90(D_00635CF8, 0xAF8);
+        chkmemAllocSiteTag(D_00635CF8, 0xAF8);
         paletteCopy = D_008873F4[0](1, 0x400, 0x40000);
         *(u8 **)(ctx + 0x58) = paletteCopy;
         memcpy(paletteCopy, palette, 0x400);
@@ -3392,7 +3392,7 @@ s32 func_0025b240(u8 *arg0) {
         if (tmp3 == 0) {
             func_0046d730(D_00635CF8, 0x25D);
         }
-        func_0044ea90(D_00635CF8, 0x25E);
+        chkmemAllocSiteTag(D_00635CF8, 0x25E);
         pv = D_008873F4[0](1, 0x40, 0x40000);
         *(s32 *)((u8 *)pv + 4) = tmp3;
         *(s32 *)((u8 *)pv + 8) = tmp4;
@@ -3668,7 +3668,7 @@ void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (arg1 == 0) {
         func_0046d730(D_00635CF8, 0xC40);
     }
-    func_0044ea90(D_00635CF8, 0xC41);
+    chkmemAllocSiteTag(D_00635CF8, 0xC41);
     p = (u8 *)D_008873F4[0](1, 0x5C, 0x40000);
     *(s32 *)(p + 0x18) = arg1;
     *(s32 *)(p + 0x1C) = arg2;

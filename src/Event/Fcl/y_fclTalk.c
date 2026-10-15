@@ -10,7 +10,7 @@ extern char D_0064A000[];
 extern char D_0064A018[];
 extern char D_0064A030[];
 extern char D_0064A050[];
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 
 extern s8 func_002bab80(void *);
 extern s32 func_002badc0(s8, s32);
@@ -46,7 +46,7 @@ extern void func_003329b0(u8 *task);
 void func_00331fc0(u8 *arg0) {
     u8 *temp_2;
 
-    func_0044ea90(D_0064A018, 0xC8);
+    chkmemAllocSiteTag(D_0064A018, 0xC8);
     temp_2 = D_008873F4[0](1, 2, 0x40000);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A030), 0xF, 0, 0, func_00331a20, func_00331f90, (u8 *)(temp_2));
     *temp_2 = 0;
@@ -124,7 +124,7 @@ void func_003322a0(u8 *arg0) {
 void func_003322d0(u8 *arg0) {
     u8 *temp_2;
 
-    func_0044ea90(D_0064A018, 0x12D);
+    chkmemAllocSiteTag(D_0064A018, 0x12D);
     temp_2 = D_008873F4[0](1, 2, 0x40000);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A050), 0xF, 0, 0, func_00332060, func_003322a0, (u8 *)(temp_2));
     *temp_2 = 0;
@@ -279,7 +279,7 @@ void func_003329b0(u8 *arg0) {
 void func_003329e0(u8 *arg0) {
     u8 *temp_2;
 
-    func_0044ea90(D_0064A018, 0x1EC);
+    chkmemAllocSiteTag(D_0064A018, 0x1EC);
     temp_2 = D_008873F4[0](1, 0x180C, 0x40000);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A000), 0xF, 0, 0, func_00332520, func_003329b0, (u8 *)(temp_2));
     *temp_2 = 0;

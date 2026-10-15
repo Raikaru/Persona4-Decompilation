@@ -30,7 +30,7 @@ void H_Cdvd_Destroy();
 extern char D_005E4FC8[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-void func_0044ea90();
+void chkmemAllocSiteTag();
 
 s32 func_00120bc0(u8 *arg0);
 void func_00120db0(u8 *task);
@@ -148,7 +148,7 @@ s32 func_00120e20(s32 arg0, s32 arg1)
   s16 lo;
   s16 hi;
   packed = arg1;
-  func_0044ea90(D_005E4FB8, 0x68);
+  chkmemAllocSiteTag(D_005E4FB8, 0x68);
   work = D_008873F4[0](1, 0x2C, 0x40000);
   if (work == NULL)
   {

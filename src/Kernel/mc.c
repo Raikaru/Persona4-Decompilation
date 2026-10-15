@@ -16,7 +16,7 @@ extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void func_002a6650(void *, void *);
 extern void func_002a6680(s32);
 extern void mcIconWorkFree(void *arg0);
-extern void func_0044ea90(const void *file, u32 line);
+extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void func_0046d730(const void *file, u32 line);
 
 extern void RpSkyRenderStateSet(s32, s32);
@@ -178,7 +178,7 @@ void mcSetState(u8 *arg0, s32 arg1) {
         t19 = *(s32 *)(arg0 + 0x3AC);
         p18 = func_0010d7c0(0, &sp6C, 0);
         p17 = sp6C;
-        func_0044ea90(&D_007638F8, 0x16D);
+        chkmemAllocSiteTag(&D_007638F8, 0x16D);
         p = D_008873F4[0](1, 0x38008, 0x40000);
         *(s32 *)(p + 4) = (s32)(p + 8);
         if (p18 != NULL && p17 != 0) {
@@ -678,7 +678,7 @@ s32 func_002a3d80(s32 address) {
     case 18:
         *(s32 *)(arg0 + 0xC) = 0x13;
         file = *(s32 *)(arg0 + 0x3AC);
-        func_0044ea90(&D_007638F8, 0x16D);
+        chkmemAllocSiteTag(&D_007638F8, 0x16D);
         p = D_008873F4[0](1, 0x38008, 0x40000);
         *(u8 **)(p + 4) = p + 8;
         func_00465570(file, *(s32 *)(p + 4), (s32)p);
@@ -2850,7 +2850,7 @@ s32 mcIconTaskCreate(u8 *parent, s32 arg1) {
     u8 *work;
 
     D_00764634 = 0;
-    func_0044ea90(&D_007638F8, 0x8FF);
+    chkmemAllocSiteTag(&D_007638F8, 0x8FF);
     work = D_008873F4[0](1, 0x56C, 0x40000);
     if (work == NULL) {
         func_0046d730(&D_007638F8, 0xE8);

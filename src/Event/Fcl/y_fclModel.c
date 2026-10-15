@@ -7,7 +7,7 @@
 #include "type.h"
 #include "model_matrix_internal.h"
 
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern u8 D_0064A618[];
 extern u8 D_0064A630[];
 extern u8 D_0064A6B0[];
@@ -54,7 +54,7 @@ void func_003493b0(s32 arg0)
 {
     u8 *work;
 
-    func_0044ea90(D_0064A618, 0x555);
+    chkmemAllocSiteTag(D_0064A618, 0x555);
     work = D_008873F4[0](1, 0x1A0, 0x40000);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A630), 0xF, 0, 0, func_00349340, func_00349380, (u8 *)(work));
 }
@@ -650,7 +650,7 @@ s32 func_0034a4f0(s32 arg0, s32 arg1)
     z = *(f32 *)&D_0064A6C0[8];
     *(s64 *)&sp40[0] = xy;
     *(f32 *)&sp40[8] = z;
-    func_0044ea90(D_0064A618, 0x7A9);
+    chkmemAllocSiteTag(D_0064A618, 0x7A9);
     mem = D_008873F4[0](1, 0x100, 0x40000);
     handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A6D0), 0xF, 0, 0, func_00349c50, func_0034a480, (u8 *)(mem));
     *(s8 *)(mem + 0) = 0;

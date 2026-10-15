@@ -16,7 +16,7 @@ typedef struct {
     f32 color[4];
     u8 pad2[16];
 } PrimVertex;
-extern void func_0044ea90(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -61,7 +61,7 @@ void func_0045da40(const PrimitiveRectangleColor *arg0, const PrimitiveRectangle
     packet.rectangle.transport = pos.transport;
     packet.depth = fparg0;
     packet.saveState = arg2;
-    func_0044ea90(D_007124C0, 0x101);
+    chkmemAllocSiteTag(D_007124C0, 0x101);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x1C, 0x40000);
     memcpy(temp_2, &packet, 0x1C);
     temp_2_2 = (u8 *)(func_00460990());
@@ -177,7 +177,7 @@ void func_0045dfd0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4)
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
     }
-    func_0044ea90(D_007124C0, 0x2DA);
+    chkmemAllocSiteTag(D_007124C0, 0x2DA);
     out = (PrimVertex *)D_008873F4[0](1, arg2 << 6, 0x40000);
     inv = 1.0f / *(f32 *)(func_00457120() + 0x80);
     z = D_008872F8[0] - fparg0;
@@ -249,7 +249,7 @@ void func_0045e310(void *unused, PrimBatch *work) {
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
     }
-    func_0044ea90(D_007124C0, 0x30D);
+    chkmemAllocSiteTag(D_007124C0, 0x30D);
     out = (PrimVertex *)jtbl_008873E8[0](count << 6, 0x40000);
     inv = 1.0f / *(f32 *)(func_00457120() + 0x80);
     z = D_008872F8[0] - scale;
@@ -305,7 +305,7 @@ void func_0045e6a0(const void *arg0, const void *arg1, f32 fparg0, u32 arg2, s32
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
     }
-    func_0044ea90(D_007124C0, 0x355);
+    chkmemAllocSiteTag(D_007124C0, 0x355);
     out = (s32 *)jtbl_008873E8[0](arg2 << 6, 0x40000);
     func_0045dd30((PrimVertex *)out, (const u8 *)arg0, arg1,
                   fparg0, arg2, arg5, arg6, fparg1, fparg2, fparg3);
@@ -346,7 +346,7 @@ void func_0045e8e0(void *colors, void *positions, f32 depth, s32 count,
     PrimPoint *position;
     s32 i;
 
-    func_0044ea90(D_007124C0, 0x328);
+    chkmemAllocSiteTag(D_007124C0, 0x328);
     positionBytes = count * sizeof(PrimPoint);
     colorBytes = count * sizeof(PrimColorBytes);
     storage = D_008873F4[0](1, colorBytes + sizeof(PrimBatch) + positionBytes, 0x40000);
@@ -410,7 +410,7 @@ void func_0045eb20(void *colors, void *positions, f32 depth, s32 count,
     PrimPoint *position;
     s32 i;
 
-    func_0044ea90(D_007124C0, 0x328);
+    chkmemAllocSiteTag(D_007124C0, 0x328);
     positionBytes = count * sizeof(PrimPoint);
     colorBytes = count * sizeof(PrimColorBytes);
     storage = D_008873F4[0](1, colorBytes + sizeof(PrimBatch) + positionBytes, 0x40000);

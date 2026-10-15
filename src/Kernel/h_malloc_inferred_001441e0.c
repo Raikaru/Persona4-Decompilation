@@ -206,7 +206,7 @@ extern u8 D_005EFAA0[];
 extern u8 D_007E80A0[];
 extern u8 D_007E8C00[];
 extern u16 D_007D24B0[];
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern u8 D_005EFC18[];
 extern u8 D_005EFC28[];
 extern u8 iGpffff9de0;
@@ -539,7 +539,7 @@ s32 func_00144af0(void)
 {
     s32 temp_2;
 
-    func_0044ea90(&iGpffff9da8, 0xFE);
+    chkmemAllocSiteTag(&iGpffff9da8, 0xFE);
     temp_2 = (s32)D_008873F4[0](1, 0x20, 0x40000);
     if (temp_2 == 0) {
         return 0;

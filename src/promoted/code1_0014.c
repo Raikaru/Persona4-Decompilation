@@ -293,7 +293,7 @@ extern u8 D_007E8C00[];
 extern u16 D_007D24B0[];
 extern void func_0034f5d0(u8 *arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern u8 D_005EFC18[];
 extern u8 D_005EFC28[];
 extern u8 iGpffff9de0;

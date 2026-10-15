@@ -135,7 +135,7 @@ extern u8 D_005F7000[];
 extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *arg0);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void func_001eb380(u8 *arg0);
 extern s64 btlGetUID(void);
 extern u32 datCalcRandomBelow(u32 arg0);

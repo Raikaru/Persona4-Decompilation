@@ -23,7 +23,7 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern void func_0044ea90(u8 *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(u8 *arg0, s32 arg1);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void memset(u8 *arg0, s32 arg1, s32 arg2);
 extern s8 datCalcRandomBelow(s32 arg0);
@@ -94,7 +94,7 @@ u8 *func_001d41b0(u8 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4)
     offset = (u16)arg1 * 0x314;
     base = (u32)arg0;
     size = *(u16 *)((u8 *)p4_001d7f10_add((s32)offset, (s32)base) + 0x10) * 4 + 0x68;
-    func_0044ea90(D_00609498, 0x51);
+    chkmemAllocSiteTag(D_00609498, 0x51);
     result = jtbl_008873E8[0](size, 0x40000);
     memset(result, 0, size);
     *(u8 **)(result + 0) = arg0;

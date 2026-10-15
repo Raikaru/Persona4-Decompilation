@@ -35,7 +35,7 @@ extern u32 func_001d3760(u16 *param_1);
 extern u32 func_001d3950(u8 **param_1);
 extern u32 func_001d3ba0(void);
 extern u32 func_001d6ce0(u32 param_1);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern u8 D_00609498[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *D_0076449C;
@@ -1072,7 +1072,7 @@ s32 func_001d3d50(u32 param_1)
 {
     BtlFormationState *state;
 
-    func_0044ea90(&D_00609498, 0x3A);
+    chkmemAllocSiteTag(&D_00609498, 0x3A);
     state = (BtlFormationState *)jtbl_008873E8[0](0x638, 0x40000);
     switch (param_1 & 0xffff) {
     case 0:

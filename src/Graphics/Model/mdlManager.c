@@ -179,7 +179,7 @@ extern u8 D_00713138[];
 extern u8 D_007241d0;
 extern void func_00440b68(void* a, void* b, int c);
 extern u8* func_00454a60(u8* a, s32 b);
-extern void func_0044ea90(const void* file, s32 line);
+extern void chkmemAllocSiteTag(const void* file, s32 line);
 extern void* memset(void* destination, int value, size_t count);
 extern void* DAT_008873e8[];
 extern s64 DAT_00723cd8;
@@ -292,7 +292,7 @@ u8* mdlDispatchAnimTableCreate(u16 arg0)
     u32 i;
 
     size = (s32)arg0 * 0x50 + 0x10;
-    func_0044ea90(D_00713138, 0x142);
+    chkmemAllocSiteTag(D_00713138, 0x142);
     obj = ((void* (*)(int, int))DAT_008873e8[0])(size, 0x40000);
     memset(obj, 0, size);
     *(u8**)(obj + 0) = obj + 0x10;
@@ -4091,7 +4091,7 @@ void* mdlAllocModelObject(u32 type, u16 id)
     u8 blue;
     u8 alpha;
 
-    func_0044ea90(D_00713138, 0x108A);
+    chkmemAllocSiteTag(D_00713138, 0x108A);
     obj = ((void* (*)(int, int))DAT_008873e8[0])(0x320, 0x40000);
     memset(obj, 0, 0x320);
     *(s32*)(obj + 0xD8) = 0x10118;
@@ -4488,7 +4488,7 @@ static inline MdlCloneAttachmentTable* mdl_clone_attachment_storage(u32 count)
     s32 size = sizeof(MdlCloneAttachmentTable);
     size += count * sizeof(void*);
     size += count * sizeof(void*);
-    func_0044ea90(D_00713138, 0x1d6);
+    chkmemAllocSiteTag(D_00713138, 0x1d6);
     copy = ((void* (*)(int, int))DAT_008873e8[0])(size, 0x40000);
     memset(copy, 0, size);
     copy->count.word = (u16)count;
@@ -6024,7 +6024,7 @@ void func_0047aee0(Model* param_1, RwMatrix* param_2)
 void func_0047af60(void* param_1)
 {
     void* obj;
-    func_0044ea90(D_00713138, 0x1769);
+    chkmemAllocSiteTag(D_00713138, 0x1769);
     obj = ((void* (*)(int, int))DAT_008873e8[0])(0x48, 0x40000);
     *(void**)((u8*)param_1 + 0x30C) = obj;
     memset(obj, 0, 0x48);
@@ -6253,7 +6253,7 @@ s32 func_0047b0c0(u8 *model)
             if (table == 0) {
                 u16 count = capacity;
                 s32 size = (u32)count * sizeof(MdlLoaderEntry) + sizeof(MdlLoaderUvTable);
-                func_0044ea90(D_00713138, 0x908);
+                chkmemAllocSiteTag(D_00713138, 0x908);
                 table = ((void *(*)(int, int))DAT_008873e8[0])(size, 0x40000);
                 memset(table, 0, size);
                 table->entries = (MdlLoaderEntry *)(table + 1);
@@ -6275,7 +6275,7 @@ s32 func_0047b0c0(u8 *model)
                     (s32)func_003e2f60(3, 1, &memory), 0, 0, 0, D_0070B610, 0);
             } else {
                 if (state->uvRequests == 0) {
-                    func_0044ea90(D_00713138, 0x1834);
+                    chkmemAllocSiteTag(D_00713138, 0x1834);
                     state->uvRequests = ((void *(*)(int, int))DAT_008873e8[0])((u32)capacity * 4, 0x40000);
                     memset(state->uvRequests, 0, (u32)capacity * 4);
                 }
@@ -6399,7 +6399,7 @@ s32 func_0047b0c0(u8 *model)
             func_003e2910(state->stream, &sourceIndex, chunk.length);
             if ((*(s16 **)((u8 *)state + state->layer * 4 + 0x24)) == 0) {
                 u16 slot;
-                func_0044ea90(D_00713138, 0x1896);
+                chkmemAllocSiteTag(D_00713138, 0x1896);
                 (*(s16 **)((u8 *)state + state->layer * 4 + 0x24)) = ((void *(*)(int, int))DAT_008873e8[0])((u32)capacity * 2, 0x40000);
                 for (slot = 0; slot < capacity; slot++) {
                     (*(s16 **)((u8 *)state + state->layer * 4 + 0x24))[slot] = -1;
@@ -6418,7 +6418,7 @@ s32 func_0047b0c0(u8 *model)
             if (table == 0) {
                 u16 count = capacity;
                 s32 size = (u32)count * sizeof(MdlLoaderEntry) + sizeof(MdlLoaderMaterialTable);
-                func_0044ea90(D_00713138, 0x850);
+                chkmemAllocSiteTag(D_00713138, 0x850);
                 table = ((void *(*)(int, int))DAT_008873e8[0])(size, 0x40000);
                 memset(table, 0, size);
                 table->entries = (MdlLoaderEntry *)(table + 1);
@@ -6434,7 +6434,7 @@ s32 func_0047b0c0(u8 *model)
                 chunk.type, *(void **)(model + 0xdc));
         } else {
             MdlLoaderMaterial *pending;
-            func_0044ea90(D_00713138, 0x18b7);
+            chkmemAllocSiteTag(D_00713138, 0x18b7);
             pending = ((void *(*)(int, int))DAT_008873e8[0])(sizeof(*pending), 0x40000);
             LOAD_MEMORY();
             pending->kind = chunk.type;
@@ -6449,7 +6449,7 @@ s32 func_0047b0c0(u8 *model)
         case 0xf0f00070:
         {
             void *properties;
-            func_0044ea90(D_00713138, 0x18c5);
+            chkmemAllocSiteTag(D_00713138, 0x18c5);
             properties = ((void *(*)(int, int))DAT_008873e8[0])(0x2b8, 0x40000);
             func_003e2910(state->stream, properties, chunk.length);
             func_00477810(model, properties);
@@ -6466,7 +6466,7 @@ s32 func_0047b0c0(u8 *model)
             s32 size;
             func_003e2910(stream, &matrixCount, 2);
             size = (u32)matrixCount * sizeof(MdlMatrixEntry) + sizeof(MdlMatrixTable);
-            func_0044ea90(D_00713138, 0xc93);
+            chkmemAllocSiteTag(D_00713138, 0xc93);
             entries = ((void *(*)(int, int))DAT_008873e8[0])(size, 0x40000);
             table = (MdlMatrixTable *)(entries + matrixCount);
             table->count = matrixCount;
@@ -6531,7 +6531,7 @@ s32 func_0047b0c0(u8 *model)
                 size = sizeof(MdlCloneAttachmentTable);
                 size += count * sizeof(void*);
                 size += count * sizeof(void*);
-                func_0044ea90(D_00713138, 0x1d6);
+                chkmemAllocSiteTag(D_00713138, 0x1d6);
                 table = ((void* (*)(int, int))DAT_008873e8[0])(size, 0x40000);
                 memset(table, 0, size);
                 table->count.word = (u16)count;
@@ -6551,7 +6551,7 @@ s32 func_0047b0c0(u8 *model)
         {
             u8 *group;
             u16 slot;
-            func_0044ea90(D_00713138, 0xfa);
+            chkmemAllocSiteTag(D_00713138, 0xfa);
             group = ((void *(*)(int, int))DAT_008873e8[0])(0x4c, 0x40000);
             memset(group, 0, 0x4c);
             *(f32 *)(group + 0x30) = 1.0f;
@@ -6578,7 +6578,7 @@ s32 func_0047b0c0(u8 *model)
         layerResource = LOAD_LAYER()->resource;
         if ((*(MdlDispatchAnimEntry *)((u8 *)layerResource->entries + (state->slot) * sizeof(MdlDispatchAnimEntry))).startFrame == 0) {
             s32 *values;
-            func_0044ea90(D_00713138, 0x125);
+            chkmemAllocSiteTag(D_00713138, 0x125);
             values = ((void *(*)(int, int))DAT_008873e8[0])(8, 0x40000);
             memset(values, 0, 8);
             layerResource = LOAD_LAYER()->resource;
@@ -6697,7 +6697,7 @@ s32 func_0047c660(u8 *arg0)
             if (*(void **)(arg0 + 0x254) == 0) {
                 cnt = *(u16 *)(owner + 0x20);
                 size = (u32)cnt * 8 + 0x10;
-                func_0044ea90(D_00713138, 0x908);
+                chkmemAllocSiteTag(D_00713138, 0x908);
                 slot = ((void *(*)(int, int))DAT_008873e8[0])((int)size, 0x40000);
                 memset(slot, 0, (int)size);
                 *(u8 **)(slot + 0) = slot + 0x10;
@@ -6726,7 +6726,7 @@ s32 func_0047c660(u8 *arg0)
                     if (*(void **)(arg0 + 0x254) == 0) {
                         cnt = *(u16 *)(owner + 0x20);
                         size = (u32)cnt * 8 + 0x10;
-                        func_0044ea90(D_00713138, 0x908);
+                        chkmemAllocSiteTag(D_00713138, 0x908);
                         slot = ((void *(*)(int, int))DAT_008873e8[0])((int)size, 0x40000);
                         memset(slot, 0, (int)size);
                         *(u8 **)(slot + 0) = slot + 0x10;
@@ -6774,7 +6774,7 @@ s32 func_0047c660(u8 *arg0)
                 if (*(void **)(arg0 + 0x234) == 0) {
                     cnt = *(u16 *)(owner + 0x20);
                     size = (u32)cnt * 8 + 8;
-                    func_0044ea90(D_00713138, 0x850);
+                    chkmemAllocSiteTag(D_00713138, 0x850);
                     slot = ((void *(*)(int, int))DAT_008873e8[0])((int)size, 0x40000);
                     memset(slot, 0, (int)size);
                     *(u8 **)(slot + 0) = slot + 8;

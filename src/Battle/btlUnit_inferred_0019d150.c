@@ -153,7 +153,7 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     func_0019ef30(arg0, arg1);
 }
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -228,7 +228,7 @@ u8 *btlUnitCreate(s32 arg0)
     u8 *temp_2;
     u8 *temp_2_2;
 
-    func_0044ea90(D_005F6D10, 0x3A);
+    chkmemAllocSiteTag(D_005F6D10, 0x3A);
     temp_2 = (u8 *)D_008873E8[0](0xA70, 0x40000);
     memset(temp_2, 0, 0xA70);
     *(u8 *)(temp_2 + 0xA2) = arg0;

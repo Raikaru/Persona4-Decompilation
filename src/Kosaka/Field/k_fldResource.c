@@ -113,7 +113,7 @@ extern s32 func_0014a230(s32 a0, s32 a1);
 extern s32 func_0014a2a0(s32 a0, s32 a1);
 extern u8 *func_0015c640(s32 a0, s32 a1);
 extern s32 *func_00155280(void);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern s32 atoi(const char *arg0);
 extern void strcpy(char *dst, char *src);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -1201,13 +1201,13 @@ u8 *FldResource_Create(char *arg0)
         char pad[4];
     } local;
 
-    func_0044ea90(D_005EFC80, 0x460);
+    chkmemAllocSiteTag(D_005EFC80, 0x460);
     base = (u32)D_008873F4;
     resource = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(valid, 0xAB0, 0x40000);
     if (resource == NULL) {
         return resource;
     }
-    func_0044ea90(D_005EFC80, 0x462);
+    chkmemAllocSiteTag(D_005EFC80, 0x462);
     work = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(valid, 0x12C, 0x40000);
     *(u8 **)(resource + 0xA44) = work;
     if (work == NULL) {
@@ -2312,7 +2312,7 @@ k_fldResource *FldResource_CloneRotated(k_fldResource *src, void *arg1, u32 arg2
     if (src->flags & 1) {
         return NULL;
     }
-    func_0044ea90(D_005EFC80, 0xA2A);
+    chkmemAllocSiteTag(D_005EFC80, 0xA2A);
     dst = (k_fldResource *)D_008873F4[0](1, 0xAB0, 0x40000);
     dst->flags = src->flags | 2;
     dst->field_04 = src->field_04;

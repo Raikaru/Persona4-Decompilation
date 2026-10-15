@@ -47,7 +47,7 @@ extern void func_003c02e0(void* arg);
 extern void func_003c4220(void* arg);
 extern void effAfterFreeVectorBuffers(void* arg0);
 extern void (*jtbl_008873EC[])(void* ptr);
-extern void func_0044ea90(const void* file, s32 line);
+extern void chkmemAllocSiteTag(const void* file, s32 line);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern void effAfterAllocVectorBuffers(void* arg0, void* arg1);
 extern s32 func_003c4140(void);
@@ -163,7 +163,7 @@ u8 *func_004b6030(void *arg0)
         }
     }
     size += *(u16 *)(header + 8) * 8;
-    func_0044ea90(D_007146B0, 0x1E4);
+    chkmemAllocSiteTag(D_007146B0, 0x1E4);
     base = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     node = base;
     base = base + 0x24;
@@ -354,7 +354,7 @@ u8* func_004b6900(u8* arg0)
     size += *(s16*)(arg0 + 4) * 8;
     size += *(s16*)(arg0 + 4) * 0x20;
     size += *(s16*)(arg0 + 4) * 0x18;
-    func_0044ea90(D_007146B0, 0x287);
+    chkmemAllocSiteTag(D_007146B0, 0x287);
     node = (u8*)(*jtbl_008873E8)(size, 0x40000);
     base = node + 0x24;
     *(u8**)(node + 8) = base;

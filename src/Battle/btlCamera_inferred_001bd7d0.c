@@ -46,7 +46,7 @@ extern u8 D_005F7000[];
 extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *arg0);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern u32 iGpffffa0b8;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
@@ -367,7 +367,7 @@ void func_001bdb60(void)
         *(s32 *)(base + 0xA4) = 0;
         *(s32 *)(base + 0xA0) = 0;
     }
-    func_0044ea90(&D_005F72B0, 0x3A);
+    chkmemAllocSiteTag(&D_005F72B0, 0x3A);
     temp_3_2 = temp_3;
     temp_2 = (s32)(*jtbl_008873E8)(0x30, 0x40000);
     memset((void *)temp_2, 0, 0x30);

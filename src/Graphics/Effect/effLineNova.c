@@ -7,7 +7,7 @@
 #include "include_asm.h"
 
 void func_004833f0(void *arg);
-void func_0044ea90(u8 *file, s32 line);
+void chkmemAllocSiteTag(u8 *file, s32 line);
 void func_0046d730(u8 *file, s32 line);
 void *func_00481460(u16 arg0);
 void *func_00481540(u16 arg0);
@@ -59,7 +59,7 @@ u8 *func_004b32f0(u8 *arg0)
     u32 a1;
     u32 cnt;
     n = *(s32 *)(arg0 + 0x38);
-    func_0044ea90(D_00714628, 0x43);
+    chkmemAllocSiteTag(D_00714628, 0x43);
     r = (u8 *)(*jtbl_008873E8)(n * 8 + 0x10, 0x40000);
     if (r == NULL) {
         func_0046d730(D_00714628, 0x44);
@@ -509,7 +509,7 @@ u8 *func_004b3ed0(u8 *arg0)
     u8 *var_3;
 
     temp_16 = *(u32 *)(arg0 + 0x38);
-    func_0044ea90(D_00714628, 0x16D);
+    chkmemAllocSiteTag(D_00714628, 0x16D);
     temp_2 = (u8 *)(*jtbl_008873E8)(temp_16 * 6 + 0x10, 0x40000);
     if (temp_2 == NULL) {
         func_0046d730(D_00714628, 0x16E);
@@ -858,7 +858,7 @@ u8 *func_004b4cb0(s32 arg0, u8 *arg1) {
     }
     idx = (u16)arg0;
     size = *(s32 *)(&D_00714664[0] + idx * 0x18);
-    func_0044ea90(D_00714628, 0x290);
+    chkmemAllocSiteTag(D_00714628, 0x290);
     w = (u8 *)(*jtbl_008873E8)(size + 0x30, 0x40000);
     if (w == NULL) {
         func_0046d730(D_00714628, 0x291);

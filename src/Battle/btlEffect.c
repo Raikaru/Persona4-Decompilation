@@ -55,7 +55,7 @@ extern u8* func_00454a60(u8* param, s32 mode);
 extern s32 H_Cdvd_IsFileLoaded(u8* ptr);
 extern u8* func_00455ea0(u8* handle, s32 index, s32* out);
 extern void H_Cdvd_ReadSync(void* handle);
-extern void func_0044ea90(void* msg, s32 id);
+extern void chkmemAllocSiteTag(void* msg, s32 id);
 extern void memcpy(void* dst, void* src, u32 size);
 extern void H_Cdvd_Destroy(u8* ptr);
 extern s32 func_001d3d50(u32 param_1);
@@ -232,7 +232,7 @@ void func_001d78d0(void) {
         out = (s32 *)((u8 *)&iGpffffb450 + offset);
         *out = func_001d3d50(2);
         temp19 = *(s32 *)(work + 0x118);
-        func_0044ea90(D_00609558, 0x3A);
+        chkmemAllocSiteTag(D_00609558, 0x3A);
         work2 = jtbl_008873E8[0](temp19, 0x40000);
         memcpy(work2, (void *)*(s32 *)(work + 0x110), *(s32 *)(work + 0x118));
         func_001d4490(*out, (u32)work2);

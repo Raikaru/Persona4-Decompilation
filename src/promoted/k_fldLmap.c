@@ -13,7 +13,7 @@ extern void (*jtbl_008873EC[])(void *);
 typedef struct Vec3 { f32 x; f32 y; f32 z; } Vec3;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(s32, s32);
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);
 extern void func_00440b68();
 extern void sprintf(u8 *dst, u8 *src);
@@ -271,7 +271,7 @@ u8 *func_00186cc0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, u8 *arg2, u8 *arg3
     u8 *temp_3;
     u8 *temp_5;
 
-    func_0044ea90(D_005F1EF8, 0x175);
+    chkmemAllocSiteTag(D_005F1EF8, 0x175);
     temp_2_2 = (u8 *)D_008873F4[0](1, 0x2C, 0x40000);
     if (temp_2_2 == NULL) {
         return NULL;
@@ -489,7 +489,7 @@ s32 func_00186eb0(u8 *arg0)
         H_Cdvd_Destroy(*(u8 **)(st + 0x1C));
         *(u8 **)(st + 0x1C) = NULL;
         *(s32 *)(st + 4) = 0;
-        func_0044ea90(D_005F1EF8, 0x104);
+        chkmemAllocSiteTag(D_005F1EF8, 0x104);
         {
             u8 *mem = (u8 *)D_008873F4[0](1, 12, 0x40000);
             s32 h;
@@ -702,7 +702,7 @@ u8 *func_00187e80(u8 *arg0, s32 arg1, s32 arg2)
     u8 *temp_2_2;
     u8 *temp_2;
 
-    func_0044ea90(D_005F1EF8, 0x343);
+    chkmemAllocSiteTag(D_005F1EF8, 0x343);
     temp_2_2 = (u8 *)D_008873F4[0](1, 0x178, 0x40000);
     if (temp_2_2 == NULL) {
         return NULL;
@@ -1081,7 +1081,7 @@ u8 *func_00188f20(u8 *arg0, s32 arg1, u8 *arg2)
     u8 *temp_3;
     s32 var_16;
 
-    func_0044ea90(D_005F1EF8, 0x622);
+    chkmemAllocSiteTag(D_005F1EF8, 0x622);
     temp_2 = (u8 *)D_008873F4[0](1, 0x60, 0x40000);
     if (temp_2 == NULL) {
         return NULL;
@@ -1213,7 +1213,7 @@ u8 *func_00189550(u8 *arg0)
     u8 *temp_2_2;
     u8 *temp_2;
 
-    func_0044ea90(D_005F1EF8, 0x735);
+    chkmemAllocSiteTag(D_005F1EF8, 0x735);
     temp_2_2 = (u8 *)D_008873F4[0](1, 0x34, 0x40000);
     if (temp_2_2 == NULL) {
         return NULL;

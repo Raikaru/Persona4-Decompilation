@@ -34,7 +34,7 @@ extern RpAtomic *RpAtomicSetFrame(RpAtomic *atomic, RwFrame *frame);
 extern RpAtomic *func_003c0210(RpAtomic *atomic, RpGeometry *geometry, u32 flags);
 extern s32 func_003c2a80(RpGeometry *geometry);
 extern void *memset(void *dst, s32 value, u32 size);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern f32 fGpffff8078;
 extern s32 iGpffffb610;
 extern s32 func_003a2340();
@@ -83,7 +83,7 @@ u8 *func_00482c40(s32 arg0, s32 arg1, s32 arg2) {
     s32 t16;
     s32 t23;
 
-    func_0044ea90(D_00713448, 0x1B);
+    chkmemAllocSiteTag(D_00713448, 0x1B);
     p = jtbl_008873E8[0](0x48, 0x40000);
     t22 = (s32)func_003e9320();
     t16 = (s32)func_003c00e0();
@@ -217,7 +217,7 @@ u8 *func_004830f0(u16 arg0, s32 arg1) {
     u8 *p;
     s32 t;
 
-    func_0044ea90(D_00713448, 0xA6);
+    chkmemAllocSiteTag(D_00713448, 0xA6);
     p = jtbl_008873E8[0](0x48, 0x40000);
     *(s16 *)(p + 0) = 3;
     *(s32 *)(p + 4) = arg1;
@@ -501,7 +501,7 @@ u8 *func_00483a00(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 
     if ((s32)((u32)(verticesPerPart & 0xFFFF) * (partCount & 0xFFFF)) > 0xFFFF) {
         func_0046d730(D_00713448, 459);
     }
-    func_0044ea90(D_00713448, 461);
+    chkmemAllocSiteTag(D_00713448, 461);
     {
         struct RwSphere { RwV3d center; f32 radius; } sphere;
         RwFrame *frame;

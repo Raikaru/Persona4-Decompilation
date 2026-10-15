@@ -8,7 +8,7 @@ extern s32 func_00453e60(u8 *list);
 extern void func_004704d0(u8 *task);
 extern void func_0046ea50();
 extern void func_0046ea60();
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void func_004535c0(u8 *a, s32 b, s32 c);
@@ -43,7 +43,7 @@ s32 func_00470280(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     u8 *mem;
     u8 *vec;
 
-    func_0044ea90(D_00713118, 0x299);
+    chkmemAllocSiteTag(D_00713118, 0x299);
     mem = D_008873F4[0](1, 0x190, 0x40000);
     if (mem == NULL) {
         return 0;
@@ -241,7 +241,7 @@ s32 func_00470970(u8 *arg0, u8 *arg1)
     s32 handle;
 
     work = *(u8 **)(arg0 + 0x38);
-    func_0044ea90(D_00713118, 0x37D);
+    chkmemAllocSiteTag(D_00713118, 0x37D);
     node = D_008873F4[0](1, 0x22C, 0x40000);
     if (node == NULL) {
         func_0046d730(D_00713118, 0x37F);

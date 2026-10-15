@@ -14,7 +14,7 @@ extern u8 D_005F5700[];
 extern f32 D_00761624;
 extern f32 D_0076151C;
 
-extern void func_0044ea90(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern void func_0046d730(void *msg, s32 id);
 extern s32 kwlnTaskIsLinked(s32 buf);
 extern s32 kwlnTaskGetTaskByName(void *buf);
@@ -120,7 +120,7 @@ void func_0018e310(u8 *arg0)
 // FUN_0018E340
 void func_0018e340(void)
 {
-    func_0044ea90(D_005F56F0, 0xCB);
+    chkmemAllocSiteTag(D_005F56F0, 0xCB);
     kwlnTaskCreate((const void *)(D_005F5700), 0xF, 0, 0, func_0018e050, func_0018e310, (u8 *)(D_008873F4[0](1, 0xC, 0x40000)));
 }
 

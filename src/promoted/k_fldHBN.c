@@ -26,7 +26,7 @@ extern u8 *iGpffff9db0;
 extern char iGpffff9ef0;
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern void H_Cdvd_Destroy(void *arg0);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -79,7 +79,7 @@ s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
     }
     if (data != NULL)
     {
-        func_0044ea90(D_005F1108, 0x1AE);
+        chkmemAllocSiteTag(D_005F1108, 0x1AE);
         buf = (u16 *)D_008873F4[0](1, (s32)(sp9C), 0x40000);
         *arg1 = buf;
         memcpy(buf, data, sp9C);
@@ -242,7 +242,7 @@ s32 func_00160000(u8 *arg0)
     {
         func_00160180();
         *(s32 *)((u8 *)func_00155280() + 0x18D8) = sp8C / 44;
-        func_0044ea90(D_005F1108, 0x2AD);
+        chkmemAllocSiteTag(D_005F1108, 0x2AD);
         temp_2 = D_008873F4[0](1, (s32)(sp8C), 0x40000);
         *(u8 **)((u8 *)func_00155280() + 0x18DC) = temp_2;
         memcpy(*(void **)((u8 *)func_00155280() + 0x18DC), data, sp8C);
@@ -303,7 +303,7 @@ s32 func_001602a0(u8 *arg0, s32 arg1)
     {
         if (H_Cdvd_IsFileLoaded(arg0) != 0)
         {
-            func_0044ea90(D_005F1108, 0x2F9);
+            chkmemAllocSiteTag(D_005F1108, 0x2F9);
             buf = D_008873F4[0](1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
             *(u8 **)((u8 *)func_00155280() + 0x1854) = buf;
             *(u32 *)((u8 *)func_00155280() + 0x1858) = *(u32 *)(arg0 + 0x118);
@@ -318,7 +318,7 @@ s32 func_001602a0(u8 *arg0, s32 arg1)
         data = func_00455f70(&sp30, &sp7C);
         if (data != NULL)
         {
-            func_0044ea90(D_005F1108, 0x30C);
+            chkmemAllocSiteTag(D_005F1108, 0x30C);
             buf = D_008873F4[0](1, (s32)(sp7C), 0x40000);
             *(u8 **)((u8 *)func_00155280() + 0x1854) = buf;
             *(u32 *)((u8 *)func_00155280() + 0x1858) = sp7C;

@@ -22,7 +22,7 @@ extern u8 D_0071446C[];
 extern u8 D_00714470[];
 
 extern void func_0046d730(const char *file, s32 line);
-extern void func_0044ea90(const char *file, s32 line);
+extern void chkmemAllocSiteTag(const char *file, s32 line);
 extern void func_003f6690(s32 param, void *out);
 extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void (*D_00887300[])(u32 state, u32 value);
@@ -592,7 +592,7 @@ u8 *func_004a9aa0(u8 *arg0) {
         func_0046d730(D_00714380, 0x169);
     }
     count = *(u32 *)base;
-    func_0044ea90(D_00714380, 0x16F);
+    chkmemAllocSiteTag(D_00714380, 0x16F);
     alloc = (u8 *)(*jtbl_008873E8)(count * 0x34, 0x40000);
     for (i = 0; i < (s32)count; i++) {
         u8 *item = alloc + i * 0x34;
@@ -738,7 +738,7 @@ void func_004a9ea0(u8 *arg0) {
         func_0046d730(D_00714380, 0x292);
     }
     count = *(u32 *)base;
-    func_0044ea90(D_00714380, 0x298);
+    chkmemAllocSiteTag(D_00714380, 0x298);
     alloc = (u8 *)(*jtbl_008873E8)(count * 0x34, 0x40000);
     for (i = 0; i < (s32)count; i++) {
         u8 *item = alloc + i * 0x34;
@@ -987,7 +987,7 @@ u8 *func_004aa560(u8 *arg0) {
         func_0046d730(D_00714380, 0x218);
     }
     count = *(u32 *)base;
-    func_0044ea90(D_00714380, 0x21E);
+    chkmemAllocSiteTag(D_00714380, 0x21E);
     alloc = (u8 *)(*jtbl_008873E8)(count * 0x34, 0x40000);
     for (i = 0; i < (s32)count; i++) {
         u8 *item = alloc + i * 0x34;
@@ -1375,7 +1375,7 @@ u8 *effBlurFilterCopiedCreate(u32 type, const void *initialData)
     dataSize = *(s32 *)(D_007143A4 + kind * 0x18);
     if ((u32)dataSize + 0x60 >= 0x200U)
         func_0046d730(D_00714450, 0x170);
-    func_0044ea90(D_00714450, 0x171);
+    chkmemAllocSiteTag(D_00714450, 0x171);
     allocated = (u8 *)(*jtbl_008873E8)(dataSize + 0x60, 0x40000);
     object = allocated;
     memset(object, 0, dataSize + 0x60);
@@ -1561,7 +1561,7 @@ u8 *effBlurFilterDirectCreate(u32 type, const void *initialData)
     dataSize = *(s32 *)(D_00714474 + kind * 0x18);
     if ((u32)dataSize + 0x60 >= 0x200U)
         func_0046d730(D_00714450, 0x170);
-    func_0044ea90(D_00714450, 0x171);
+    chkmemAllocSiteTag(D_00714450, 0x171);
     allocated = (u8 *)(*jtbl_008873E8)(dataSize + 0x60, 0x40000);
     object = allocated;
     memset(object, 0, dataSize + 0x60);
@@ -1677,7 +1677,7 @@ u8 *func_004ab960(u16 *arg0, u16 arg1) {
     u8 *tmp;
     s32 t;
 
-    func_0044ea90(D_00714450, 0x171);
+    chkmemAllocSiteTag(D_00714450, 0x171);
     tmp = (u8 *)(*jtbl_008873E8)(0xC, 0x40000);
     memset(tmp, 0, 0xC);
     if (tmp == 0) {

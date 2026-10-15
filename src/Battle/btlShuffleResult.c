@@ -13,7 +13,7 @@ extern s32 func_002bb600(void);
 extern u32 func_002bb1e0(int param_1);
 extern s32 func_002bad10(s32 arg0);
 extern void *memset(void *dst, s32 value, size_t size);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void func_0046d730(void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064EB60[];
@@ -1193,7 +1193,7 @@ s32 func_00383ae0(u8 *arg0, s32 arg1, u16 arg2, s32 arg3) {
     u8 *work;
     s32 ret;
 
-    func_0044ea90(&D_0064EC70, 0x757);
+    chkmemAllocSiteTag(&D_0064EC70, 0x757);
     work = D_008873F4[0](1, 0x94, 0x40000);
     if (work == NULL) {
         func_0046d730(&D_0064EC70, 0x758);

@@ -35,7 +35,7 @@ extern RwMatrix* func_003e0670(RwMatrix* matrixOut, RwMatrix* matrixIn);
 extern f32 func_0044b950(f32 x, f32 y);
 extern f32 gPI;
 
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void *func_00460990(void);
@@ -92,7 +92,7 @@ s32 KDraw_CreateGroupTask(s32 arg0, s32 arg1, s32 arg2)
     u8 *buf;
     s32 ret;
 
-    func_0044ea90(D_005EFBC8, 0x72);
+    chkmemAllocSiteTag(D_005EFBC8, 0x72);
     buf = D_008873F4[0](1, 0x114, 0x40000);
     if (buf == NULL) {
         return 0;
@@ -152,7 +152,7 @@ s32 KDraw_CreateSphereTask(s32 arg0, s32 arg1)
     u8 *buf;
     s32 ret;
 
-    func_0044ea90(D_005EFBC8, 0x16E);
+    chkmemAllocSiteTag(D_005EFBC8, 0x16E);
     buf = D_008873F4[0](1, 0x18, 0x40000);
     if (buf == NULL) {
         return 0;
@@ -218,7 +218,7 @@ s32 KDraw_CreateCylinderTask(s32 arg0, s32 arg1)
     u8 *buf;
     s32 ret;
 
-    func_0044ea90(D_005EFBC8, 0x1DF);
+    chkmemAllocSiteTag(D_005EFBC8, 0x1DF);
     buf = D_008873F4[0](1, 0x1C, 0x40000);
     if (buf == NULL) {
         return 0;
@@ -294,7 +294,7 @@ s32 KDraw_CreateAxesTask(void *parent, void *drawList)
     u8 *buf;
     s32 ret;
 
-    func_0044ea90(D_005EFBC8, 0x30E);
+    chkmemAllocSiteTag(D_005EFBC8, 0x30E);
     buf = D_008873F4[0](1, 0x50, 0x40000);
     if (buf == NULL) {
         return 0;

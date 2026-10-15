@@ -42,7 +42,7 @@ extern u8 D_007E8C54[];
 extern u32 D_007EFA00[];
 extern u8 D_007EFA04[];
 
-extern void func_0044ea90(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *msg, s32 id);
 
 extern s32 K_FldEvent_ArePosWithinDist(u8 *arg0, u8 *arg1, f32 arg2);
 extern f32 KDraw_MatrixYawDeg(u8 *arg0);
@@ -78,7 +78,7 @@ s32 func_002b3990(s32 arg0)
     u8 *work;
     u8 *t;
 
-    func_0044ea90(D_0063F120, 0x98);
+    chkmemAllocSiteTag(D_0063F120, 0x98);
     work = D_008873F4[0](1, 0x24, 0x40000);
     ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F130), 0xF, 0, 0, func_002b3720, func_002b3960, (u8 *)(work));
     *(u32 *)(work + 4) = (u32)MT_Scene_GetRes(0x400);
@@ -219,7 +219,7 @@ s32 func_002b4140(s32 arg0, s32 arg1, Vec3 *arg2)
     Vec3 v;
 
     v = *arg2;
-    func_0044ea90(D_0063F120, 0x18D);
+    chkmemAllocSiteTag(D_0063F120, 0x18D);
     work = D_008873F4[0](1, 0x1C, 0x40000);
     ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F140), 0xF, 0, 0, func_002b3c70, func_002b4110, (u8 *)(work));
     *(Vec3 *)(work + 0xC) = v;
@@ -374,7 +374,7 @@ s32 func_002b4a10(s32 arg0, s32 arg1)
     u8 *work;
     s32 ret;
 
-    func_0044ea90(D_0063F120, 0x215);
+    chkmemAllocSiteTag(D_0063F120, 0x215);
     work = D_008873F4[0](1, 0xC, 0x40000);
     ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F150), 0xF, 0, 0, func_002b4250, func_002b49e0, (u8 *)(work));
     work[1] = arg1;
@@ -504,7 +504,7 @@ s32 func_002b4fe0(s32 arg0, Vec2 arg1, s32 arg2)
     u8 *work;
     u8 *e;
 
-    func_0044ea90(D_0063F120, 0x28A);
+    chkmemAllocSiteTag(D_0063F120, 0x28A);
     work = D_008873F4[0](1, 0xC, 0x40000);
     ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F160), 0xF, 0, 0, func_002b4ad0, func_002b4fb0, (u8 *)(work));
     *(Vec2 *)work = arg1;

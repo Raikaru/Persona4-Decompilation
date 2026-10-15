@@ -4,7 +4,7 @@
 #include "type.h"
 
 extern void func_0046d730(u8 *file, s32 line);
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 
 extern s32 func_00102780(u8 *task);
 extern void memcpy(void *dst, const void *src, s32 size);
@@ -27,7 +27,7 @@ s32 func_001028c0(void)
     if (iGpffffb1a8 != 0) {
         func_0046d730(D_005DCB28, 0x7B);
     }
-    func_0044ea90(D_005DCB28, 0x7D);
+    chkmemAllocSiteTag(D_005DCB28, 0x7D);
     mem = D_008873F4[0](1, 0x18, 0x40000);
     handle = (s32)kwlnTaskCreate((const void *)(D_005DCB40), 0xF, 0, 0, func_00102780, func_00102890, (u8 *)(mem));
     *(s32 *)(mem + 4) = -1;
@@ -63,7 +63,7 @@ void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     if (arg3 != 0) {
         *(s32 *)work |= 1;
         if (arg2 != 0) {
-            func_0044ea90(D_005DCB28, 0x10A);
+            chkmemAllocSiteTag(D_005DCB28, 0x10A);
             temp = D_008873F4[0](1, arg2, 0x40000);
             *(u8 **)(work + 0x14) = temp;
             memcpy(temp, (const void *)arg1, arg2);

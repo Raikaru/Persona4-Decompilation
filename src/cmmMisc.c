@@ -44,7 +44,7 @@ extern s32 func_00249010();
 extern u16 func_002489c0(s32 arg0);
 extern s32 func_00248a60(s32 arg0);
 extern void func_00113480(s32 a, s32 b, s32 c, s32 d);
-extern void func_0044ea90(void *, s32);
+extern void chkmemAllocSiteTag(void *, s32);
 
 extern char D_006359D0[];
 extern char D_006359E0[];
@@ -592,7 +592,7 @@ s32 func_00247900(s32 arg0, s32 arg1, s32 arg2) {
     capacity = 0;
     if (arg2 != -1) {
         capacity = func_00247900(arg0, arg1, -1);
-        func_0044ea90(D_006359D0, 0x23A);
+        chkmemAllocSiteTag(D_006359D0, 0x23A);
         list = (s32 *)D_008873F4[0](1, capacity * 4, 0x40000);
     }
     id = 1;

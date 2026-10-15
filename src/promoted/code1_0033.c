@@ -51,7 +51,7 @@ extern void func_001238c0(s32 arg0);
 extern u8 D_00644E80[];
 extern u8 D_00644E98[];
 extern u8 D_00644EB0[];
-extern void func_0044ea90(const void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern s32 sdkSpriteRequestLoad(void *arg0);
@@ -717,7 +717,7 @@ s32 func_0033e3f0(u8 *arg0)
     s32 result;
     u8 *work;
 
-    func_0044ea90(D_0064A458, 0x85);
+    chkmemAllocSiteTag(D_0064A458, 0x85);
     work = D_008873F4[0](1, 0x2C, 0x40000);
     result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A470), 0xF, 0, 0, func_0033e1e0, func_0033e3a0, (u8 *)(work));
     work[0] = 0;

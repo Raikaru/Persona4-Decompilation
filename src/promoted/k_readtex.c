@@ -5,7 +5,7 @@
 
 extern void (*jtbl_008873EC[])(void *);
 
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_005F60B8[];
@@ -132,7 +132,7 @@ void func_00190600(void)
 {
     u8 *mem;
 
-    func_0044ea90(D_005F60B8, 0x91);
+    chkmemAllocSiteTag(D_005F60B8, 0x91);
     mem = D_008873F4[0](1, 0x24, 0x40000);
     if (mem != NULL) {
         (s32)kwlnTaskCreate((const void *)(D_005F6150), 0xF, 0, 0, func_001901d0, func_001905d0, (u8 *)(mem));

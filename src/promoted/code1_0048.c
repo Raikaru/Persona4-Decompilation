@@ -45,7 +45,7 @@ extern void func_00486400(u8 *arg0, f32 arg1);
 extern void func_00484790(u8 *arg0);
 extern void func_004847e0(u8 *arg0);
 extern u8 *func_00482230(s32 *arg0);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 s32 func_00481460(s32 arg0);
 extern void func_00460ac0(s32 arg0, void *arg1);
@@ -100,7 +100,7 @@ u8 *func_00481d80(s32 arg0) {
         var_16 = func_00482230((s32 *)(u32)arg0);
     }
     temp_17 = (*(s32 *)(var_16 + 8) * 0x14) + 0x18;
-    func_0044ea90(D_007132F0, 0x72);
+    chkmemAllocSiteTag(D_007132F0, 0x72);
     temp_2 = (u8 *)jtbl_008873E8[0](temp_17, 0x40000);
     *(u8 **)(temp_2 + 0) = var_16;
     *(u8 **)(temp_2 + 0x10) = temp_2 + 0x18;
@@ -117,7 +117,7 @@ u8 *func_00481e30(u8 **arg0) {
     temp_16 = *arg0;
     *(s32 *)(temp_16 + 0x10) = *(s32 *)(temp_16 + 0x10) + 1;
     temp_17 = (*(s32 *)(temp_16 + 8) * 0x14) + 0x18;
-    func_0044ea90(D_007132F0, 0x8E);
+    chkmemAllocSiteTag(D_007132F0, 0x8E);
     temp_2 = (u8 *)jtbl_008873E8[0](temp_17, 0x40000);
     *(u8 **)(temp_2 + 0) = temp_16;
     *(u8 **)(temp_2 + 0x10) = temp_2 + 0x18;
@@ -272,7 +272,7 @@ u8 *func_00482230(s32 *arg0)
         temp_17 = offset + 0x1C;
         temp_17 += temp_16 * 4;
     }
-    func_0044ea90(D_007132F0, 0x114);
+    chkmemAllocSiteTag(D_007132F0, 0x114);
     temp_2 = (u8 *)jtbl_008873E8[0](temp_17, 0x40000);
     *(u8 **)(temp_2 + 0x18) = temp_2;
     temp_17_2 = temp_2 + 0x1C;
@@ -648,7 +648,7 @@ u8 *func_00484570(u8 *arg0)
     }
 code1_0048_84570_after_check:
     temp_18 = *(u16 *)(arg0 + 4);
-    func_0044ea90(D_00713470, 0x21);
+    chkmemAllocSiteTag(D_00713470, 0x21);
     temp_2 = jtbl_008873E8[0](0x2C, 0x40000);
     if (temp_2 == NULL) {
         func_0046d730(D_00713470, 0x22);
@@ -732,7 +732,7 @@ u8 *func_00484830(u8 *arg0)
     }
 code1_0048_after_check:
     temp_18 = *(u16 *)(arg0 + 4);
-    func_0044ea90(D_00713470, 0x21);
+    chkmemAllocSiteTag(D_00713470, 0x21);
     temp_2 = jtbl_008873E8[0](0x2C, 0x40000);
     if (temp_2 == NULL) {
         func_0046d730(D_00713470, 0x22);
@@ -878,7 +878,7 @@ u8 *func_00484bb0(u8 *arg0)
     s32 tmp;
     u8 *const input = arg0;
 
-    func_0044ea90(D_00713470, 0x546);
+    chkmemAllocSiteTag(D_00713470, 0x546);
     alloc = jtbl_008873E8;
     {
         u8 *const clone = (u8 *)alloc[0](0x90, 0x40000);
@@ -897,7 +897,7 @@ u8 *func_00484bb0(u8 *arg0)
         if (*(u8 **)(input + 0x8C) != NULL) {
             u8 *linkedSource;
             for (node = *(u8 **)(input + 0x8C); node != NULL; node = *(u8 **)(node + 0xAC)) {
-                func_0044ea90(D_00713470, 0x559);
+                chkmemAllocSiteTag(D_00713470, 0x559);
                 nodeClone = (u8 *)alloc[0](0xC0, 0x40000);
                 if (nodeClone == NULL) {
                     func_0046d730(D_00713470, 0x55A);
@@ -915,7 +915,7 @@ u8 *func_00484bb0(u8 *arg0)
                         func_0046d730(D_00713470, 0x2D7);
                     }
                     kind = *(u16 *)(linkedSource + 4);
-                    func_0044ea90(D_00713470, 0x21);
+                    chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
                         func_0046d730(D_00713470, 0x22);
@@ -942,7 +942,7 @@ u8 *func_00484bb0(u8 *arg0)
                         func_0046d730(D_00713470, 0x318);
                     }
                     kind = *(u16 *)(csrc + 4);
-                    func_0044ea90(D_00713470, 0x21);
+                    chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
                         func_0046d730(D_00713470, 0x22);
@@ -980,7 +980,7 @@ u8 *func_00484bb0(u8 *arg0)
             i = 0;
             goto indexed_check;
     indexed_body:
-            func_0044ea90(D_00713470, 0x559);
+            chkmemAllocSiteTag(D_00713470, 0x559);
             nodeClone = (u8 *)alloc[0](0xC0, 0x40000);
             if (nodeClone == NULL) {
                 func_0046d730(D_00713470, 0x55A);
@@ -1023,7 +1023,7 @@ u8 *func_00484bb0(u8 *arg0)
                         func_0046d730(D_00713470, 0x2D7);
                     }
                     kind = *(u16 *)(indexedSource + 4);
-                    func_0044ea90(D_00713470, 0x21);
+                    chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
                         func_0046d730(D_00713470, 0x22);
@@ -1049,7 +1049,7 @@ u8 *func_00484bb0(u8 *arg0)
                         func_0046d730(D_00713470, 0x2D7);
                     }
                     kind = *(u16 *)(indexedSource + 4);
-                    func_0044ea90(D_00713470, 0x21);
+                    chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
                         func_0046d730(D_00713470, 0x22);
@@ -1075,7 +1075,7 @@ u8 *func_00484bb0(u8 *arg0)
                     func_0046d730(D_00713470, 0x318);
                 }
                 kind = *(u16 *)(csrc + 4);
-                func_0044ea90(D_00713470, 0x21);
+                chkmemAllocSiteTag(D_00713470, 0x21);
                 prim = (u8 *)alloc[0](0x2C, 0x40000);
                 if (prim == NULL) {
                     func_0046d730(D_00713470, 0x22);
@@ -1441,7 +1441,7 @@ u8 *func_00485c80(u8 *arg0)
     if (*(u8 **)(arg0 + 0x8C) == NULL) {
         func_0046d730(D_00713470, 0x6B7);
     }
-    func_0044ea90(D_00713470, 0x546);
+    chkmemAllocSiteTag(D_00713470, 0x546);
     alloc = jtbl_008873E8;
     clone = (u8 *)alloc[0](0x90, 0x40000);
     if (clone == NULL) {
@@ -1456,7 +1456,7 @@ u8 *func_00485c80(u8 *arg0)
     *(f32 *)(clone + 0x74) = *(f32 *)(arg0 + 0x74);
     *(s32 *)(clone + 0x68) = *(s32 *)(arg0 + 0x68);
     for (node = *(u8 **)(arg0 + 0x8C); node != NULL; node = *(u8 **)(node + 0xAC)) {
-        func_0044ea90(D_00713470, 0x559);
+        chkmemAllocSiteTag(D_00713470, 0x559);
         nodeClone = (u8 *)alloc[0](0xC0, 0x40000);
         if (nodeClone == NULL) {
             func_0046d730(D_00713470, 0x55A);
@@ -1473,7 +1473,7 @@ u8 *func_00485c80(u8 *arg0)
             func_0046d730(D_00713470, 0x318);
         }
         kind = *(u16 *)(src + 4);
-        func_0044ea90(D_00713470, 0x21);
+        chkmemAllocSiteTag(D_00713470, 0x21);
         prim = (u8 *)alloc[0](0x2C, 0x40000);
         if (prim == NULL) {
             func_0046d730(D_00713470, 0x22);

@@ -46,7 +46,7 @@ extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern void (*D_00887300[])(u32, u32);
-extern void func_0044ea90(const void *msg, s32 line);
+extern void chkmemAllocSiteTag(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
 extern f32 D_007F1730[];
@@ -384,7 +384,7 @@ s32 FldFrameTask_Spawn(s32 arg0, s32 arg1, f32 fparg0)
     u8 *temp_5_2;
 
     stride = 0x750;
-    func_0044ea90(D_005F15F8, 0x182);
+    chkmemAllocSiteTag(D_005F15F8, 0x182);
     base = (u8 *)D_008873F4;
     temp_2 = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x48, 0x40000);
     if (temp_2 == NULL) {
@@ -432,7 +432,7 @@ s32 FldFrameTask_Spawn(s32 arg0, s32 arg1, f32 fparg0)
             *(s32 *)(temp_2 + 0x10) = *(s32 *)(temp_2_3 + 0x164);
         }
     }
-    func_0044ea90(D_005F15F8, 0x83);
+    chkmemAllocSiteTag(D_005F15F8, 0x83);
     base = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x10, 0x40000);
     if (base != NULL) {
         (s32)kwlnTaskCreateChild((void *)(temp_18), (const void *)(D_005F1610), 0x10, 0, 0, FldFrameTask_UpdateFollower, FldFrameTask_DestroyFollower, (u8 *)(base));

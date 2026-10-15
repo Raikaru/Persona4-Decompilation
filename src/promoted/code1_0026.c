@@ -34,7 +34,7 @@ extern char D_005DC7D0[];
 extern char D_0063B580[];
 extern void qsort(u32 *arg0, s32 arg1, s32 arg2,
                            s32 (*arg3)(u8 **arg0, u8 **arg1));
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void *memcpy(void *arg0, const void *arg1, u32 arg2);
 extern void memset(void *arg0, void *arg1, s32 arg2);
@@ -1832,7 +1832,7 @@ s32 func_00267570(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     if (arg3 == 0) {
         func_0046d730(D_00638FA0, 0xF2);
     }
-    func_0044ea90(D_00638FA0, 0xF3);
+    chkmemAllocSiteTag(D_00638FA0, 0xF3);
     work = D_008873F4[0](1, 0x18, 0x40000);
     *(s32 *)(work + 0) = 0;
     *(s32 *)(work + 8) = arg3;
@@ -2556,7 +2556,7 @@ loop_7_test:
         goto loop_7_body;
     }
     if (count != 0) {
-        func_0044ea90(D_0063B580, 0x96);
+        chkmemAllocSiteTag(D_0063B580, 0x96);
         result = (u32 *)jtbl_008873E8[0](count * 4, 0x40000);
         index = 0;
         arg0 = base;
@@ -2646,7 +2646,7 @@ s32 func_0026e010(s32 size, s32 count)
     u32 *next;
     s32 i;
 
-    func_0044ea90(D_0063B5D8, 0x36);
+    chkmemAllocSiteTag(D_0063B5D8, 0x36);
     allocated = jtbl_008873E8[0]((size + 8) * (count + 1) + 4, 0x40000);
     base = (u32 *)allocated;
     memcpy(base, &allocated, 4);

@@ -16,7 +16,7 @@ s32 func_002be100(s32);
 s32 func_00106b20(s16);
 s32 func_00106b50(s16);
 
-void func_0044ea90(const void *, u32);
+void chkmemAllocSiteTag(const void *, u32);
 void func_0045aac0(s16, s32, s32);
 void func_00440b68();
 s32 func_00454a60();
@@ -34,7 +34,7 @@ s32 func_002bdb50(s32 arg0, s8 arg1)
     s32 temp_17;
     s16 i;
 
-    func_0044ea90(D_0063F3C8, 0xB0);
+    chkmemAllocSiteTag(D_0063F3C8, 0xB0);
     temp_2 = D_008873F4[0](1, 0x1840, 0x40000);
     temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F3E0), 0xF, 0, 0, func_002bd8e0, func_002bdb10, (u8 *)(temp_2));
     temp_2[0] = 1;

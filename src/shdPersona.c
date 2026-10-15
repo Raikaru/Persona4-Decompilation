@@ -59,7 +59,7 @@ void ShdSkill_ReplaceActiveSkill(u16, u16, u8 *);
 s32 func_0011dfc0(s32, s32, char *);
 void H_Cdvd_Destroy();
 void func_003ef3a0();
-void func_0044ea90(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern char D_005E4810[];
@@ -931,7 +931,7 @@ u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     u8 *w;
     u8 *r;
 
-    func_0044ea90(D_005E4868, 0x5ED);
+    chkmemAllocSiteTag(D_005E4868, 0x5ED);
     w = D_008873F4[0](1, 0x574, 0x40000);
     if (w == NULL) {
         func_0046d730(D_005E4868, 0x5EE);
@@ -3835,7 +3835,7 @@ u8 *func_0011d460(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
     u8 *r;
     u8 *w;
 
-    func_0044ea90(D_005E4868, 0x1090);
+    chkmemAllocSiteTag(D_005E4868, 0x1090);
     w = D_008873F4[0](1, 0x154, 0x40000);
     if (w == NULL) {
         return NULL;
@@ -4138,7 +4138,7 @@ s32 func_0011dfc0(s32 arg0, s32 arg1, char *arg2)
     s32 r;
     u8 *buf;
 
-    func_0044ea90(D_005E4868, 0x11B2);
+    chkmemAllocSiteTag(D_005E4868, 0x11B2);
     buf = D_008873F4[0](1, 8, 0x40000);
     if (buf == NULL) {
         return 0;
@@ -4170,7 +4170,7 @@ void func_0011e0c0(u8 *arg0, s32 arg1, s32 arg2)
         p48 = *(s32 *)(w + 0x48);
         if (p48 != 0) {
             p4c = *(s32 *)(w + 0x4C);
-            func_0044ea90(D_005E4868, 0x11B2);
+            chkmemAllocSiteTag(D_005E4868, 0x11B2);
             r = D_008873F4[0](1, 8, 0x40000);
             if (r != 0 && (s32)kwlnTaskCreate((const void *)(D_005E4E40), 0xF, 0, 0, func_0011ded0, func_0011df90, (u8 *)(r)) != 0) {
                 if (p4c != 0) {
@@ -4866,7 +4866,7 @@ u8 *func_0011f410(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5)
     u8 *r;
     s32 i;
 
-    func_0044ea90(D_005E4868, 0x1464);
+    chkmemAllocSiteTag(D_005E4868, 0x1464);
     w = D_008873F4[0](1, 0x58, 0x40000);
     if (w == NULL) {
         func_0046d730(D_005E4868, 0x1465);
@@ -5137,7 +5137,7 @@ u8 *func_0011fbc0(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
     u8 *r;
     s32 i;
 
-    func_0044ea90(D_005E4868, 0x1551);
+    chkmemAllocSiteTag(D_005E4868, 0x1551);
     w = D_008873F4[0](1, 0x44, 0x40000);
     if (w == NULL) {
         func_0046d730(D_005E4868, 0x1552);

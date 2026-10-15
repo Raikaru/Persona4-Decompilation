@@ -11,7 +11,7 @@ extern u8 iGpffffa7a8;
 s32 *func_00452560();
 extern void (*jtbl_008873EC[])(void *);
 
-void func_0044ea90(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *msg, s32 id);
 void func_0046d730(const void *file, s32 line);
 s32 kwlnTaskIsLinked(s32 buf);
 s32 H_Cdvd_IsFileLoaded(s32 arg0);
@@ -118,7 +118,7 @@ void func_0028d110(s32 *arg0) {
     if (arg0[0x10] != 0) {
         return;
     }
-    func_0044ea90(D_00748340, 0x52);
+    chkmemAllocSiteTag(D_00748340, 0x52);
     temp_16 = (s32 *)D_008873F4[0](1, 0x130, 0x40000);
     evtMemAccount(0xA, 0x130);
     arg0[0x10] = (s32)temp_16;
@@ -317,7 +317,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
             } while (blocks > 0);
         }
 
-        func_0044ea90(D_0063C638, 0x11E0);
+        chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task1 = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task1[0] = 0;
         task1[1] = (s32)effBlurFilterDirectCreate(1, &frame.filter1);
@@ -429,7 +429,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
         filter2 = effBlurFilterDirectCreate(2, &frame.filter2);
         *(s32 *)(filter2 + 0x28) =
             (s32)func_004ab960((u16 *)&frame.filter1.argument, 4);
-        func_0044ea90(D_0063C638, 0x11E0);
+        chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task2 = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task2[0] = 0;
         if (filter2 != NULL) {
@@ -567,7 +567,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
                 destination += 2;
             } while (blocks > 0);
         }
-        func_0044ea90(D_0063C638, 0x11E0);
+        chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
         task[1] = (s32)effBlurFilterCopiedCreate(1, &f1.params);
@@ -664,7 +664,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         argSave = arg2[0x2A];
         tmp = effBlurFilterCopiedCreate(2, &f2.params);
         *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
-        func_0044ea90(D_0063C638, 0x11E0);
+        chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
         if (tmp != NULL) {
@@ -780,7 +780,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         argSave = arg2[0x2A];
         tmp = effBlurFilterCopiedCreate(3, &f3.params);
         *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
-        func_0044ea90(D_0063C638, 0x11E0);
+        chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
         if (tmp != NULL) {
@@ -883,7 +883,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         argSave = 0;
         tmp = effBlurFilterCopiedCreate(5, &f5.params);
         *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
-        func_0044ea90(D_0063C638, 0x11E0);
+        chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
         if (tmp != NULL) {
@@ -984,7 +984,7 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
     s32 i;
 
     func_0028f4f0();
-    func_0044ea90(D_0063C638, 0x12E4);
+    chkmemAllocSiteTag(D_0063C638, 0x12E4);
     p = (s32 *)D_008873F4[0](1, 0x30, 0x40000);
     src = arg1;
     dst = (u8 *)p + 4;
@@ -1086,7 +1086,7 @@ void func_0028f6c0(u8 *arg0) {
 void func_0028f770(s32 arg0) {
     s32 *temp_2;
 
-    func_0044ea90(D_0063C638, 0x1370);
+    chkmemAllocSiteTag(D_0063C638, 0x1370);
     temp_2 = (s32 *)D_008873F4[0](1, 0x114, 0x40000);
     temp_2[0] = 4;
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0063C690), 0xF, 0, 0, func_0028f540, func_0028f6c0, (u8 *)(temp_2));

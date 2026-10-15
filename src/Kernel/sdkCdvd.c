@@ -47,7 +47,7 @@ extern u8 D_008C8810[];
 extern char D_007116D0[];
 extern char D_00710870[];
 void func_0046d740(const void* file, const void* file2, u32 line);
-void func_0044ea90(const void* file, s32 line);
+void chkmemAllocSiteTag(const void* file, s32 line);
 void H_Cdvd_NormalizePath(void* a0, void* a1);
 s32 strcmp(void* a0, void* a1);
 void H_Dbprt_FmtLog(void* a0, void* a1);
@@ -122,7 +122,7 @@ loop:
             node->readState = 1;
         case 1:
             if (node->fileMemory == NULL) {
-                func_0044ea90(D_00710870, 0xFA);
+                chkmemAllocSiteTag(D_00710870, 0xFA);
                 buffer = (s32)(*jtbl_008873E8)(
                     ((u32)func_004c95f8(node->adxf) << 0xB) + 0x40U, 0x40000);
                 node->unalignedFileMemory = (void *)buffer;
@@ -248,7 +248,7 @@ u8* func_00454a60(u8* arg0, s32 arg1) {
             node = *(u8**)(node + 4);
         }
     }
-    func_0044ea90(D_00710870, 0x198);
+    chkmemAllocSiteTag(D_00710870, 0x198);
     newnode = D_008873F4[0](1, 0x364, 0x40000);
     H_Cdvd_BuildPathUppercase(arg0, newnode + 0x10);
     H_Cdvd_BuildVolumePaths(newnode + 0x10, newnode + 0x158, newnode + 0x258);
@@ -325,7 +325,7 @@ void func_004555d0(void* resultData, void* slotData, s32 amount, s32 mode)
 }
 
 s32 func_003dd900(s32 a0);
-void func_0044ea90(const void* file, s32 line);
+void chkmemAllocSiteTag(const void* file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void H_Cdvd_StreamGetSlot(void);
 extern void H_Cdvd_StreamContextFree(void);
@@ -372,7 +372,7 @@ u8* func_004557e0(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) {
     if (func_003dd900(arg4) != 0) {
         return NULL;
     }
-    func_0044ea90(D_00710870, 0x425);
+    chkmemAllocSiteTag(D_00710870, 0x425);
     base = (u32)D_008873F4;
     obj = ((u8* (*)(s32, s32, s32))*(u32*)base)(1, 0x5C, 0x40000);
     *(void**)(obj + 0x14) = &H_Cdvd_StreamGetSlot;
@@ -383,7 +383,7 @@ u8* func_004557e0(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) {
     *(void**)(obj + 0x44) = &H_Cdvd_StreamAtEnd;
     *(void**)(obj + 0x38) = &func_004555d0;
     *(void**)(obj + 0x4C) = &H_Cdvd_IsCached;
-    func_0044ea90(D_00710870, 0x430);
+    chkmemAllocSiteTag(D_00710870, 0x430);
     sub = ((u8* (*)(s32, s32, s32))*(u32*)base)(arg0, 0x110, 0x40000);
     *(void**)(obj + 0x58) = sub;
     for (i = 0; i < arg0; i++) {

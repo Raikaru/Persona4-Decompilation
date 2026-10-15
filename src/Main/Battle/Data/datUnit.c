@@ -9,7 +9,7 @@ extern void (*jtbl_008873EC[])(void *);
  * there for 7 of 8 functions); adapted to the P4 build: assert lines
  * (0x1B/0x3F/0x64/0x65/0x75/0x86/0x87/0x93/0xB9/0xD3/0xDA/0xFE) and file
  * string D_00635928, DatUnit stride 0x30 (P3: 0x2C), enemy-table stride
- * 0x3C (P3: 0x3E), func_0044ea90 location calls, jtbl_008873E8 malloc. */
+ * 0x3C (P3: 0x3E), chkmemAllocSiteTag location calls, jtbl_008873E8 malloc. */
 
 typedef struct DatEnemyUnitInit
 {
@@ -33,7 +33,7 @@ typedef struct EncountTblEntry
 enum { UNIT_GENUS_PC = 0, UNIT_GENUS_EC = 1 };
 
 extern char D_00635928[];
-extern void func_0044ea90(const char* file, s32 line);
+extern void chkmemAllocSiteTag(const char* file, s32 line);
 extern void func_0046d730(const char* file, s32 line);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern void memset(void* dest, s32 value, s32 size);
@@ -49,7 +49,7 @@ DatUnitPc* datUnitCreatePc(u16 pcId)
 {
     DatUnitPc* pc;
 
-    func_0044ea90(D_00635928, 0x1B);
+    chkmemAllocSiteTag(D_00635928, 0x1B);
     pc = (DatUnitPc*)(*jtbl_008873E8)(sizeof(DatUnitPc), 0x40000);
     memset(pc, 0, sizeof(DatUnitPc));
 
@@ -92,7 +92,7 @@ DatUnitEc* datUnitCreateEncounterGroup(u16 encountId)
         }
     }
 
-    func_0044ea90(D_00635928, 0x3F);
+    chkmemAllocSiteTag(D_00635928, 0x3F);
     ec = (DatUnitEc*)(*jtbl_008873E8)(0x12C, 0x40000);
     memset(ec, 0, 0x12C);
 

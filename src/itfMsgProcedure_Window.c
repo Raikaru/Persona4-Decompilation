@@ -76,7 +76,7 @@ extern void func_0027a4b0(void *a0, s32 a1, s32 a2, s32 a3);
 extern void func_002e0dd0(void);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *arg0);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern s32 itfMesWindowGetFontList(void *arg0);
 extern s32 func_002bd1e0(s32 a0);
 
@@ -1891,7 +1891,7 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
         }
         memset(D_00882040, 0, 0x18);
         if (func_0027BE60((s32)arg0) == NULL) {
-            func_0044ea90(D_0063BFC0, 0x5C0);
+            chkmemAllocSiteTag(D_0063BFC0, 0x5C0);
             func_0027be90((s32)arg0, D_008873F4[0](1, 8, 0x40000));
         }
         break;

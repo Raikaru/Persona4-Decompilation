@@ -159,7 +159,7 @@ extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
 
 extern s32 func_001f8400(u8 **arg0);
 extern s32 iGpffffb464;
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void sprintf(void *dst, void *fmt, ...);
 extern s32 func_00456250(s32 arg0, void *arg1, s32 arg2, void *arg3);
@@ -4079,7 +4079,7 @@ void func_001f8480(void)
     s32 temp_2_2;
     s32 temp_2_3;
 
-    func_0044ea90(&D_00624F50, 0x3A);
+    chkmemAllocSiteTag(&D_00624F50, 0x3A);
     allocator = (void **)jtbl_008873E8;
     temp_17 = ((u8 *(*)(u32, u32))allocator[0])(0xBE4, 0x40000);
     sprintf(sp30, &D_00624F60);
@@ -4096,7 +4096,7 @@ loop_3_test:
         goto loop_3_retry;
     }
     iGpffffb460 = 1;
-    func_0044ea90(&D_00624F50, 0x3A);
+    chkmemAllocSiteTag(&D_00624F50, 0x3A);
     temp_17_2 = ((u8 *(*)(u32, u32))allocator[0])(0x630, 0x40000);
     sprintf(sp30, &D_00624F80);
     func_00456250(4, sp30, 0, temp_17_2);
@@ -4111,7 +4111,7 @@ loop_7_test:
     if (temp_2_2 != 3) {
         goto loop_7_retry;
     }
-    func_0044ea90(&D_00624F50, 0x3A);
+    chkmemAllocSiteTag(&D_00624F50, 0x3A);
     temp_16 = ((u8 *(*)(u32, u32))allocator[0])(0x4A0, 0x40000);
     sprintf(sp30, &D_00624FA0);
     func_00456250(5, sp30, 0, temp_16);

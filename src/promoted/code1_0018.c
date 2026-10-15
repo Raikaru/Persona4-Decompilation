@@ -134,7 +134,7 @@ extern void func_003f6800(s32 a, f32 fp);
 extern u8 D_005F5360[];
 extern u8 iGpffffb310;
 extern void memset(void *dst, s32 value, s32 size);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005F5340[];
 extern u8 D_005F5350[];
@@ -392,7 +392,7 @@ s32 func_00182bc0(u8 *task)
     extern RainMatrix *func_003e0f80(void);
     extern f32 cosf(f32 angle);
     extern f32 sinf(f32 angle);
-    extern void func_0044ea90(const void *msg, s32 id);
+    extern void chkmemAllocSiteTag(const void *msg, s32 id);
     extern f32 RwV3dNormalize(RainVector *dst, const RainVector *src);
     extern RainMatrix *RwMatrixScale(RainMatrix *matrix, const RainVector *scale, enum RwOpCombineType combine);
     extern s32 func_003a2770(struct RpAtomic *atomic, RainLock *lock, u32 dataFlags, enum RpPTankLockFlags lockFlags);
@@ -454,18 +454,18 @@ s32 func_00182bc0(u8 *task)
         *(s32 *)(work + 0x60) = 0;
         *(f32 *)(work + 0x64) = *(f32 *)(work + 0x1C) * sinf(fGpffff815c);
         *(f32 *)(work + 0x68) = *(f32 *)(work + 0x6C) = *(f32 *)(work + 0x70) = *(f32 *)(work + 0x20);
-        func_0044ea90(D_005F1D80, 0x9D);
+        chkmemAllocSiteTag(D_005F1D80, 0x9D);
         allocator = (uintptr_t)D_008873F4;
         *(u8 **)(work + 0x5C) = (*(RainAllocate *)allocator)(*(s32 *)(work + 0x40), 0x10, 0x40000);
         for (columnIndex = 0; columnIndex < *(s32 *)(work + 0x40); columnIndex++) {
             u8 *slotp;
             void *motion;
-            func_0044ea90(D_005F1D80, 0xA2);
+            chkmemAllocSiteTag(D_005F1D80, 0xA2);
             motion = (*(RainAllocate *)allocator)(*(s32 *)(work + 0x2C), 8, 0x40000);
             slotp = *(u8 **)(work + 0x5C) + columnIndex * 0x10;
             *(void **)(slotp + 0x0C) = motion;
         }
-        func_0044ea90(D_005F1D80, 0xA6);
+        chkmemAllocSiteTag(D_005F1D80, 0xA6);
         *(u8 **)(work + 0x38) = (*(RainAllocate *)allocator)(*(s32 *)(work + 0x34), 4, 0x40000);
         for (timerIndex = 0; timerIndex < *(s32 *)(work + 0x34); timerIndex++) {
             *(s32 *)(*(u8 **)(work + 0x38) + timerIndex * 4) = (s32)(RpRandom() % (u32)*(s32 *)(work + 0x30));
@@ -704,7 +704,7 @@ void func_001838d0(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
 {
     u8 *temp_2;
 
-    func_0044ea90(&D_005F1D80, 0x17B);
+    chkmemAllocSiteTag(&D_005F1D80, 0x17B);
     temp_2 = D_008873F4[0](1, 0x78, 0x40000);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9f60), 0xF, 0, 0, func_00182bc0, func_001837f0, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 0x28) = arg1;
@@ -1100,7 +1100,7 @@ s32 func_00185150(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
     if (arg7[3] == 0 && arg7[7] == 0) {
         return 0;
     }
-    func_0044ea90(&D_005F1D80, 0x43A);
+    chkmemAllocSiteTag(&D_005F1D80, 0x43A);
     temp_2_2 = D_008873F4[0](1, 0x460, 0x40000);
     temp_2 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F1D90), 0xF, 0, 0, func_00183b80, func_00185120, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 0x420) = arg1;
@@ -1714,7 +1714,7 @@ void func_00186610(u8 *arg0)
 // FUN_00186640
 s32 func_00186640(u8 *arg0)
 {
-    func_0044ea90(&D_005F1DF8, 0x299);
+    chkmemAllocSiteTag(&D_005F1DF8, 0x299);
     return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005F1E08), 0xF, 0, 0, func_00185850, func_00186610, (u8 *)(D_008873F4[0](1, 0x88D0, 0x40000)));
 }
 // FUN_00189600
@@ -1927,7 +1927,7 @@ void func_00189ec0(void)
     s32 var_16;
     if (*(s32 *)((u8 *)func_00155280() + 0x30) == 0) {
         temp_16 = *(u8 **)func_00155280();
-        func_0044ea90(&D_005F5320, 0x17C);
+        chkmemAllocSiteTag(&D_005F5320, 0x17C);
         temp_2 = D_008873F4[0](1, 0x230, 0x40000);
         if (temp_2 == NULL) {
             var_16 = 0;
@@ -2798,7 +2798,7 @@ s32 func_0018bb20(s32 arg0, s32 arg1)
     s32 temp_17;
     u8 *temp_2;
 
-    func_0044ea90(&D_005F5340, 0x2E6);
+    chkmemAllocSiteTag(&D_005F5340, 0x2E6);
     temp_2 = D_008873F4[0](1, 0x58, 0x40000);
     if (temp_2 == NULL)
         return 0;
@@ -3394,7 +3394,7 @@ s32 func_0018df60(s32 arg0)
 
     if (func_0015a560() == 0)
         return 0;
-    func_0044ea90(&D_005F54D8, 0x91);
+    chkmemAllocSiteTag(&D_005F54D8, 0x91);
     temp_2_2 = D_008873F4[0](1, 0x14, 0x40000);
     if (temp_2_2 == NULL)
         return 0;
@@ -3614,7 +3614,7 @@ void func_0018ef20(u8 *arg0)
 // FUN_0018EF50
 void func_0018ef50(s32 arg0)
 {
-    func_0044ea90(&D_005F57B0, 0x101);
+    chkmemAllocSiteTag(&D_005F57B0, 0x101);
     (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F57C0), 0xF, 0, 0, func_0018e810, func_0018ef20, (u8 *)(D_008873F4[0](1, 0x1B440, 0x40000)));
 }
 #pragma opt_propagation off

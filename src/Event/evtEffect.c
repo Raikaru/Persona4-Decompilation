@@ -3,7 +3,7 @@
 #include "type.h"
 #include "scene_event_internal.h"
 
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);
 extern void evtMemAccount(s32 arg0, s32 arg1);
 extern void H_Cdvd_Destroy(u8 *arg0);
@@ -26,7 +26,7 @@ u8 *func_00290f00(void)
 {
     u8 *work;
 
-    func_0044ea90(D_00748340, 0x52);
+    chkmemAllocSiteTag(D_00748340, 0x52);
     work = D_008873F4[0](1, 0x190, 0x40000);
     evtMemAccount(0xB, 0x190);
     if (work == 0) {

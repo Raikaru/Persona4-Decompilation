@@ -32,7 +32,7 @@ extern u8 D_0064EED0[];
 extern void func_00389cb0(u8 *arg0);
 extern void func_0038d020(u8 *arg0);
 extern void func_003889b0(s32 arg0, u8 *arg1);
-extern void func_0044ea90(const void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 
 extern void func_00388d10(u8 *arg0);
 extern void func_003874c0(s32 arg0, u8 *arg1);
@@ -1504,7 +1504,7 @@ u8 *func_00388bd0(s32 arg0)
     u8 *work;
     u8 *task;
 
-    func_0044ea90(D_0064EEB0, 0x63F);
+    chkmemAllocSiteTag(D_0064EEB0, 0x63F);
     work = D_008873F4[0](1, 0xB0, 0x40000);
     if (work == NULL) {
         func_0046d730(D_0064EEB0, 0x640);
@@ -2985,7 +2985,7 @@ u8 *func_0038cec0(s32 arg0)
     u8 *work;
     u8 *task;
 
-    func_0044ea90(D_0064F0E0, 0x59D);
+    chkmemAllocSiteTag(D_0064F0E0, 0x59D);
     work = D_008873F4[0](1, 0x1B8, 0x40000);
     if (work == NULL) {
         func_0046d730(D_0064F0E0, 0x59E);

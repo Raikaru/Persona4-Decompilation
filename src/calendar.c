@@ -15,7 +15,7 @@ extern u8 D_005E5038[];
 extern u8 D_005E5050[];
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 
 
 extern s32 func_00120f70(u8 *task);
@@ -52,7 +52,7 @@ void calendarOpenFlagClear(void)
     s32 handle;
 
     D_007242B8 = 0;
-    func_0044ea90(D_005E4FD8, 0x79);
+    chkmemAllocSiteTag(D_005E4FD8, 0x79);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work != NULL) {
         handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, func_00120f70, func_00121170, (u8 *)(work));
@@ -232,7 +232,7 @@ s32 calendarStart(void)
     s32 handle;
     u8 *work;
 
-    func_0044ea90(D_005E4FD8, 0x164);
+    chkmemAllocSiteTag(D_005E4FD8, 0x164);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work == NULL) {
         return 0;
@@ -251,7 +251,7 @@ void calendarOpenFlagSet(void)
     s32 handle;
 
     D_007242B8 = 1;
-    func_0044ea90(D_005E4FD8, 0x79);
+    chkmemAllocSiteTag(D_005E4FD8, 0x79);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work != NULL) {
         handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, func_00120f70, func_00121170, (u8 *)(work));

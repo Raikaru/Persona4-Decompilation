@@ -53,7 +53,7 @@ extern s32 func_00243ce0(u8 *arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_006290C0[];
 extern u8 D_006290D0[];
-extern void func_0044ea90(const void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 extern void memcpy(void *dst, void *src, u32 size);
 
 extern s32 func_0036e690(s32 arg0, void *arg1);
@@ -1221,7 +1221,7 @@ void func_002138a0(s32 arg0)
     u8 *temp_17;
 
     temp_17 = (u8 *)func_00452560((void *)arg0);
-    func_0044ea90(&D_00626C30, 0x3A);
+    chkmemAllocSiteTag(&D_00626C30, 0x3A);
     temp_2 = (f32 *)jtbl_008873E8[0](0x48, 0x40000);
     memset(temp_2, 0, 0x48);
     *(s32 *)((u8 *)temp_2 + 4) = sdkSpriteRequestLoad(&D_00626CA0);
@@ -4124,7 +4124,7 @@ s32 func_0021d980(s32 arg0, u16 *arg1)
     u8 *work;
     s32 result;
 
-    func_0044ea90(&D_006290D0, 0x3A);
+    chkmemAllocSiteTag(&D_006290D0, 0x3A);
     work = (u8 *)jtbl_008873E8[0](0x94C, 0x40000);
     memset(work, 0, 0x94C);
     result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_006290C0), 0xF, 0, 0, func_0021d4a0, func_0021d920, (u8 *)(work));
@@ -4227,7 +4227,7 @@ void func_0021dda0(void)
     u8 *work;
 
     if (kwlnTaskGetTaskByName(&D_006290E0) == 0) {
-        func_0044ea90(&D_006290D0, 0x3A);
+        chkmemAllocSiteTag(&D_006290D0, 0x3A);
         work = (u8 *)jtbl_008873E8[0](0x34, 0x40000);
         memset(work, 0, 0x34);
         (s32)kwlnTaskCreate((const void *)(&D_006290E0), 0x10, 0, 0, func_0021dba0, func_0021dd60, (u8 *)(work));

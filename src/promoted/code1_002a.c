@@ -20,7 +20,7 @@ extern void memset(void *dst, s32 value, u32 size);
 
 extern s32 func_002aa890(u8 *arg0);
 extern void func_002aa450(void);
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern u8 D_0063EEC0[];
 extern u8 D_0063EED0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -1310,7 +1310,7 @@ void func_002ac270(u8 *arg0) {
 void func_002ac2a0(void) {
     u8 *p;
 
-    func_0044ea90(D_0063EEC0, 0x4B9);
+    chkmemAllocSiteTag(D_0063EEC0, 0x4B9);
     p = D_008873F4[0](1, 0x4D78, 0x40000);
     (s32)kwlnTaskCreate((const void *)(D_0063EED0), 0xF, 0, 0, func_002abf70, func_002ac270, (u8 *)(p));
     *(u8 *)(p + 0) = 0;

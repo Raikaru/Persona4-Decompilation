@@ -9,7 +9,7 @@ extern void *memset(void *dest, s32 value, s32 size);
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern u32 func_00452560(s32 task);
 extern void func_0046d730(const void *file, u32 line);
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern s64 func_00248760(s32 arg0);
 extern s32 func_00247dd0(s32 arg0);
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
@@ -1252,7 +1252,7 @@ void func_00108cf0(s32 arg0)
     void *temp_2;
 
     func_00108d80();
-    func_0044ea90(D_005E42C8, 0x271);
+    chkmemAllocSiteTag(D_005E42C8, 0x271);
     temp_2 = D_008873F4[0](1, 0x20, 0x40000);
     *(s16 *)temp_2 = arg0;
     kwlnTaskCreate((const void *)(D_005E4308), 0xF, 0, 0, func_00108ca0, func_00108cb0, (u8 *)(temp_2));

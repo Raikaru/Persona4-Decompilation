@@ -31,7 +31,7 @@ extern u8 D_0063FB90[];
 extern u8 D_0063FC80[];
 extern u8 D_0063FC90[];
 extern void *(*D_008873F4[])(size_t numObj, size_t sizeObj, u32 hint);
-extern void func_0044ea90(const void *arg0, u32 arg1);
+extern void chkmemAllocSiteTag(const void *arg0, u32 arg1);
 
 
 
@@ -486,7 +486,7 @@ s32 func_002e7510(s32 arg0)
     u8 *work;
     s32 i;
 
-    func_0044ea90(D_0063FC80, 0x11A);
+    chkmemAllocSiteTag(D_0063FC80, 0x11A);
     work = D_008873F4[0](1, 0x18, 0x40000);
     result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)((char *)D_0063FC90), 0xF, 0, 0, func_002e72c0, func_002e74e0, (u8 *)(work));
     iGpffffb590 = NULL;

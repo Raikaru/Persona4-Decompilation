@@ -71,7 +71,7 @@ extern u8 D_006290F0[];
 u32 func_00452560(void *task);
 extern u8 D_00629698[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern void func_0044ea90();
+extern void chkmemAllocSiteTag();
 extern void memset();
 
 extern s32 func_00221f40(u8 *task);
@@ -582,7 +582,7 @@ s32 func_002230e0(s32 arg0)
     s32 temp_16;
     u16 *temp_2_2;
 
-    func_0044ea90(&D_00629698, 0x3A);
+    chkmemAllocSiteTag(&D_00629698, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x74, 0x40000);
     memset(temp_2, 0, 0x74);
     temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629640), 0xF, 0, 0, func_00221f40, func_002230a0, (u8 *)(temp_2)));
@@ -789,7 +789,7 @@ s32 func_00223730(s32 arg0)
     s32 temp_16;
     u16 *temp_2_2;
 
-    func_0044ea90(&D_006296E8, 0x3A);
+    chkmemAllocSiteTag(&D_006296E8, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x54, 0x40000);
     memset(temp_2, 0, 0x54);
     temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_006296B0), 0xF, 0, 0, func_002232a0, func_002236c0, (u8 *)(temp_2)));
@@ -859,7 +859,7 @@ s32 func_00223f40(s32 arg0)
     s32 temp_16;
     u16 *temp_2_2;
 
-    func_0044ea90(&D_00629738, 0x3A);
+    chkmemAllocSiteTag(&D_00629738, 0x3A);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x4C, 0x40000);
     memset(temp_2, 0, 0x4C);
     temp_16 = (s32)((s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00629700), 0xF, 0, 0, func_002239a0, func_00223ee0, (u8 *)(temp_2)));

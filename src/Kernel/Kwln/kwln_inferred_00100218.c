@@ -48,7 +48,7 @@ extern u8 D_00796750[];
 extern u8 D_00796754[];
 extern u8 D_00796758[];
 extern u8 D_0079675C[];
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 
 extern s32 iGpffff85b8;
 extern s32 iGpffffb194;
@@ -325,7 +325,7 @@ void func_00100670(void)
     extern s32 func_003e8a50(void);
     extern s32 func_001026f0(void);
     extern void func_00456e40(void);
-    extern void func_0044ea90(void *arg0, s32 arg1);
+    extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
     extern void *(*jtbl_008873E8[])(u32 size, u32 align);
     extern void func_0046a2e0(void *arg0, s32 arg1);
     typedef RwImage *(*ImageReadCallback)(const char *name);
@@ -590,7 +590,7 @@ void func_00100670(void)
     func_003e8a50();
     func_001026f0();
     func_00456e40();
-    func_0044ea90((void *)&iGpffff8598, 0x2C3);
+    chkmemAllocSiteTag((void *)&iGpffff8598, 0x2C3);
     func_0046a2e0(jtbl_008873E8[0](0x62000, 0x40000), 0x62000);
     if (func_003eb1f0((const char *)&iGpffff8590, func_003d8c00, func_003d96b0) == 0) {
         ok = 0;

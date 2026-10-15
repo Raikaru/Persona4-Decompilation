@@ -8,7 +8,7 @@ extern void H_Cdvd_Destroy(void *arg0);
 extern void func_003e0f40(void *arg0);
 extern void func_00145080(void);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005F5450[];
@@ -168,7 +168,7 @@ s32 func_0018dd40(u8 *arg0)
 {
     u8 *mem;
 
-    func_0044ea90(D_005F5450, 0xBF);
+    chkmemAllocSiteTag(D_005F5450, 0xBF);
     mem = D_008873F4[0](1, 0x10, 0x40000);
     if (mem == NULL) {
         return 0;

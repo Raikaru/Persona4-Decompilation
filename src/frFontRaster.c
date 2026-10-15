@@ -33,7 +33,7 @@ extern s32 (*D_00887310[])(s32, void *, s32);     /* device.fpIm2DRenderPrimitiv
 /* Runtime helpers (old-style where retail passes no prototype-driven
  * zero-extension). */
 extern void func_0046d730(const void *file, u32 line);
-extern void func_0044ea90(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern void func_00440b68();
 extern s32 func_00457120(void);
 extern void *memset(void *dst, s32 value, u32 size);
@@ -71,7 +71,7 @@ void frFontRasterCreateCache(s32 count)
     if (piGpffffb954 != NULL) {
         func_0046d730(D_0063bc88, 0x26);
     }
-    func_0044ea90(D_0063bc88, 0x27);
+    chkmemAllocSiteTag(D_0063bc88, 0x27);
     memory = D_008873e8_abs[0](size, 0x40000);
     piGpffffb954 = (s32 *)memory;
     memset((void *)memory, 0, (u32)size);

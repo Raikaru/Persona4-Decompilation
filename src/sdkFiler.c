@@ -8,7 +8,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 
 extern void strcpy(s8 *arg0, s32 *arg1);
 extern void kwlnTaskDestroyWithHierarchy(u8 *arg0);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_00712A40[];
@@ -37,7 +37,7 @@ u8 *func_00468170(void *arg0, const char *arg1) {
     u8 *work;
     u8 *temp;
 
-    func_0044ea90(D_00712A40, 0x1AB);
+    chkmemAllocSiteTag(D_00712A40, 0x1AB);
     work = D_008873F4[0](1, 0x81094, 0x40000);
     if (work == NULL) {
         return NULL;
@@ -241,7 +241,7 @@ u8 *func_00468940(u8 *arg0, s64 arg1) {
     u8 *temp;
 
     sp38 = arg1;
-    func_0044ea90(D_00712A40, 0x283);
+    chkmemAllocSiteTag(D_00712A40, 0x283);
     work = D_008873F4[0](1, 0x34, 0x40000);
     if (work == NULL) {
         return NULL;

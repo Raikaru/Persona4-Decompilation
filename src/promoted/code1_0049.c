@@ -19,7 +19,7 @@ extern u32 effMiscRand(EffRandState *state);
 extern s32 D_00713D58[];
 extern s32 D_00713D5C[];
 extern u8 D_00713E10[];
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern void func_0046d730(const void *file, s32 line);
@@ -1395,7 +1395,7 @@ u8 *func_00492b20(u16 arg0, s32 arg1, u8 *arg2)
     temp_18 = D_00713D5C[(arg0 & 0xFFFF) * 4];
     temp_17 += temp_22 + 0x30;
     temp_17 += temp_18 * 2;
-    func_0044ea90(D_00713E10, 0xD73);
+    chkmemAllocSiteTag(D_00713E10, 0xD73);
     temp_2 = (u8 *)jtbl_008873E8[0](temp_17, 0x40000);
     if (temp_2 == NULL) {
         func_0046d730(D_00713E10, 0xD74);

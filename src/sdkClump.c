@@ -3,7 +3,7 @@
 #include "type.h"
 #include "Kosaka/k_clump_internal.h"
 
-extern void func_0044ea90(const void *file, u32 line);
+extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00712518[];
 extern u32 D_00712530[];
@@ -75,7 +75,7 @@ s32 func_00462960(s32 arg0, void *arg1) {
 void func_00462780(u8 *arg0, u32 arg1, u8 *arg2, s32 arg3) {
     u8 *temp_2;
 
-    func_0044ea90(D_00712518, 0x22);
+    chkmemAllocSiteTag(D_00712518, 0x22);
     temp_2 = D_008873F4[0](1, 0x28, 0x40000);
     *(u8 **)(temp_2 + 0) = arg2;
     if (arg3 == 1) {
@@ -142,7 +142,7 @@ void func_00462780(u8 *arg0, u32 arg1, u8 *arg2, s32 arg3) {
 void *func_00462ae0(void *arg0) {
     void *var_16;
 
-    func_0044ea90(D_00712518, 0xAE);
+    chkmemAllocSiteTag(D_00712518, 0xAE);
     var_16 = D_008873F4[0](1, 0x2C, 0x40000);
     RpClumpForAllAtomics(arg0, func_00462a60, var_16);
     if ((*(s32 *)((u8 *)var_16 + 4) == 0) && ((*(u32 *)((u8 *)var_16 + 0) == 0) || ((*(s32 *)((u8 *)var_16 + 0x10) == 0) && (*(s32 *)((u8 *)var_16 + 0xC) == 0) && (*(s32 *)((u8 *)var_16 + 0x14) == 0) && (*(s32 *)((u8 *)var_16 + 0x24) == 0) && (*(s32 *)((u8 *)var_16 + 0x28) == 0) && (*(s32 *)((u8 *)var_16 + 0x18) == 0) && (*(s32 *)((u8 *)var_16 + 0x1C) == 0) && (*(s32 *)((u8 *)var_16 + 0x20) == 0)))) {

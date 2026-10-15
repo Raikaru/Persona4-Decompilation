@@ -73,7 +73,7 @@ extern void func_004a7c00(u8 *arg0, s32 arg1);
 
 extern void func_00479e60(u8 *arg0, s32 arg1, f32 arg2);
 
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void func_003f6690(s32 param, void *out);
 extern void RpSkyRenderStateSet(s32 param, s32 value);
@@ -437,7 +437,7 @@ void *func_004a5bb0(void *source)
     u8 *temp_2_3;
     u8 *temp_3;
 
-    func_0044ea90(D_007141A0, 0x1C);
+    chkmemAllocSiteTag(D_007141A0, 0x1C);
     temp_2 = (u8 *)jtbl_008873E8[0](0xD4, 0x40000);
     if (temp_2 == NULL) {
         func_0046d730(D_007141A0, 0x1D);
@@ -850,7 +850,7 @@ u8 *func_004a6c00(u8 *arg0)
     u8 *temp_2;
     u8 *var_5;
 
-    func_0044ea90(D_00714350, 0x78);
+    chkmemAllocSiteTag(D_00714350, 0x78);
     temp_2 = (u8 *)jtbl_008873E8[0](0x5C, 0x40000);
     if (temp_2 == NULL) {
         func_0046d730(D_00714350, 0x79);
@@ -1040,7 +1040,7 @@ void *func_004a7a90(void *source)
     void *dst;
 
     src = func_00484490(source);
-    func_0044ea90(D_00714350, 0x249);
+    chkmemAllocSiteTag(D_00714350, 0x249);
     dst = jtbl_008873E8[0](0x14, 0x40000);
     *(u32 *)dst = 0;
     memcpy((u8 *)dst + 4, src, 0x10);
@@ -1063,7 +1063,7 @@ void *func_004a7b70(void *arg0)
     void *dst;
 
     src = (u8 *)arg0;
-    func_0044ea90(D_00714350, 0x249);
+    chkmemAllocSiteTag(D_00714350, 0x249);
     dst = jtbl_008873E8[0](0x14, 0x40000);
     *(u32 *)dst = 0;
     memcpy((u8 *)dst + 4, src + 4, 0x10);

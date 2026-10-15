@@ -2120,7 +2120,7 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
     extern s32 func_00419520(u32 *channel, s32 mode, s32 timeout);
     extern void *memcpy(void *dst, const void *src, size_t size);
     extern void *memset(void *dst, s32 val, size_t size);
-    extern void func_0044ea90(void *arg0, s32 arg1);
+    extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
     extern void chkmemSetLock(s32 arg0);
     extern u8 kwlnTaskDestroyWithHierarchyByName(const char *name);
     extern void H_Cdvd_StartPlayback(void *handle, void *path, s32 sync);
@@ -2247,9 +2247,9 @@ void func_00468ff0(void *arg0, MovieNativeWork *work) {
             parameters->buffmt = 2;
             parameters->wksize = mwPlyCalcWorkCprmSfd(parameters);
             chkmemSetLock(1);
-            func_0044ea90(D_00712FF8, 0x135);
+            chkmemAllocSiteTag(D_00712FF8, 0x135);
             work->decoderWorkAddress = (u32)jtbl_008873E8[0](parameters->wksize + 0x40, 0x40000);
-            func_0044ea90(D_00712FF8, 0x136);
+            chkmemAllocSiteTag(D_00712FF8, 0x136);
             work->imageBuffer = (void *)((u32)(D_008873F4[0](1U, 0x118000, 0x40000)));
             chkmemSetLock(0);
             func_00440b68(D_00713030, work->decoderWorkAddress);
@@ -3332,7 +3332,7 @@ void func_0046e7f0(u8 *arg0)
 #pragma push
 #pragma opt_propagation off
 extern s32 func_0046d750(u8 *);
-extern void func_0044ea90(void *, s32);
+extern void chkmemAllocSiteTag(void *, s32);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_007130F8[], D_00713108[];
 // FUN_0046E850
@@ -3358,7 +3358,7 @@ u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
     size_t *size;
     void *(**allocator)(size_t, size_t, u32);
 
-    func_0044ea90(D_007130F8, 379);
+    chkmemAllocSiteTag(D_007130F8, 379);
     allocator = D_008873F4;
     work = (WindowWork *)allocator[0](1, 0x560, 0x40000);
     if (work == NULL) {
@@ -3371,7 +3371,7 @@ u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
     work->second = *second;
     size = &work->buffer_size;
     *size = (rect->x / 8) * (rect->y / 8) + 32;
-    func_0044ea90(D_007130F8, 396);
+    chkmemAllocSiteTag(D_007130F8, 396);
     buffer = allocator[0](1, *size, 0x40000);
     work->buffer = buffer;
     work->cursor = buffer;

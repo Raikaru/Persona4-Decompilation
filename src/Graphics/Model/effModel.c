@@ -77,7 +77,7 @@ void *func_004abe80(void *arg0) {
     u8 *temp_2_2;
     u8 *temp_2_4;
 
-    func_0044ea90(D_007144B8, 0x171);
+    chkmemAllocSiteTag(D_007144B8, 0x171);
     temp_2 = (u8 *)jtbl_008873E8[0](0x9C, 0x40000);
     memset(temp_2, 0, 0x9C);
     if (temp_2 == NULL) {
@@ -344,7 +344,7 @@ void *func_004ac640(void *arg0) {
     u8 *temp_2_4;
     u8 *temp_4;
 
-    func_0044ea90(D_007144B8, 0x171);
+    chkmemAllocSiteTag(D_007144B8, 0x171);
     temp_2 = (u8 *)jtbl_008873E8[0](0xBC, 0x40000);
     memset(temp_2, 0, 0xBC);
     if (temp_2 == NULL) {

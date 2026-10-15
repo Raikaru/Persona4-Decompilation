@@ -46,7 +46,7 @@ extern s32 func_003ef6d0(void);
 extern void func_003ef3a0(void*);
 extern void func_003ef5b0(s32, s32);
 extern void func_00440b68();
-extern void func_0044ea90(void*, s32);
+extern void chkmemAllocSiteTag(void*, s32);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00712620[];
 extern u8 D_00712640[];
@@ -619,7 +619,7 @@ struct RwTexture *K_Clump_AppendTextureName(struct RwTexture *texture, void *lis
     }
     resource = func_003ef650(func_003ef6d0(), arg0 + 0x10);
     func_00440b68(D_00712620, resource + 0x10, *(u8*)(resource + 0x50), *(u32*)(resource + 0x54));
-    func_0044ea90(D_00712640, 0x97);
+    chkmemAllocSiteTag(D_00712640, 0x97);
     work = (char*)D_008873F4[0](1, 0x44, 0x40000);
     strcpy(work, (const char*)(arg0 + 0x10));
     if (*arg1 == NULL)

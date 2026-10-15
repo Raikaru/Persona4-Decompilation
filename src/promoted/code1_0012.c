@@ -129,7 +129,7 @@ typedef struct {
 extern void func_003ef3a0(void *arg0);
 extern void func_001437b0(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0034f5d0(u8 *arg0);
-extern s32 func_0044ea90(const void *file, s32 line);
+extern s32 chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_005E57B8[];
@@ -1187,7 +1187,7 @@ s32 func_00123730(s32 arg0)
 {
     s32 temp_2;
     s32 temp_2_2;
-    func_0044ea90(D_005E5170, 0x179);
+    chkmemAllocSiteTag(D_005E5170, 0x179);
     temp_2_2 = (s32)D_008873F4[0](1, 0x114, 0x40000);
     if (temp_2_2 == 0)
         return 0;
@@ -1472,7 +1472,7 @@ void clndPromptDestroy(u8 *arg0)
 s32 clndPromptStart(void)
 {
     s32 temp_2;
-    func_0044ea90(D_005E51A0, 0x84);
+    chkmemAllocSiteTag(D_005E51A0, 0x84);
     temp_2 = (s32)D_008873F4[0](1, 0xC, 0x40000);
     if (temp_2 == 0) {
         temp_2 = 0;
@@ -4208,7 +4208,7 @@ loop_10_test:
 s32 func_0012b760(void)
 {
     u8 *temp_2;
-    func_0044ea90(D_005E5548, 0x728);
+    chkmemAllocSiteTag(D_005E5548, 0x728);
     temp_2 = D_008873F4[0](1, 0x90, 0x40000);
     if (temp_2 == NULL)
         func_0046d730(D_005E5548, 0x729);
@@ -4440,7 +4440,7 @@ s32 func_0012c460(s32 arg0) {
     s32 var_2;
     u8 *temp_2;
 
-    func_0044ea90(D_005E57B8, 0x74);
+    chkmemAllocSiteTag(D_005E57B8, 0x74);
     temp_2 = D_008873F4[0](1, 0x10, 0x40000);
     if (temp_2 == NULL) {
         return 0;

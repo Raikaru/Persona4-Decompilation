@@ -40,7 +40,7 @@ extern char D_00714010[];
 extern void *func_004a1660(s32, void *);
 
 extern u8 *(*jtbl_008873E8[])(s32, s32);
-extern void func_0044ea90(char *, s32);
+extern void chkmemAllocSiteTag(char *, s32);
 extern void func_0046d730(char *, s32);
 extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
 extern void func_004836b0(void *, void *, void *, void *);
@@ -70,7 +70,7 @@ void *func_0049a900(u8 *arg0, s32 arg1)
         func_0046d730(D_00713FF0, 0x89);
     }
     id = *(u32 *)(arg0 + 0x38);
-    func_0044ea90(D_00713FF0, 0x90);
+    chkmemAllocSiteTag(D_00713FF0, 0x90);
     mem = jtbl_008873E8[0](id * 24 + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0x91);
@@ -575,7 +575,7 @@ void *func_0049b560(u8 *arg0, s32 arg1)
         func_0046d730(D_00713FF0, 0x1DE);
     }
     id = *(u32 *)(arg0 + 0x38);
-    func_0044ea90(D_00713FF0, 0x1E5);
+    chkmemAllocSiteTag(D_00713FF0, 0x1E5);
     mem = jtbl_008873E8[0](id * 28 + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0x1E6);
@@ -1090,7 +1090,7 @@ void *func_0049c2a0(u8 *arg0, s32 arg1)
         func_0046d730(D_00713FF0, 0x349);
     }
     id = *(u32 *)(arg0 + 0x38);
-    func_0044ea90(D_00713FF0, 0x350);
+    chkmemAllocSiteTag(D_00713FF0, 0x350);
     mem = jtbl_008873E8[0](id * 44 + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0x351);
@@ -1632,7 +1632,7 @@ void *func_0049d100(u8 *arg0, void *arg1)
     u8 *mem;
 
     size = *(u32 *)(arg0 + 0x38) * 24;
-    func_0044ea90(D_00713FF0, 0x4A3);
+    chkmemAllocSiteTag(D_00713FF0, 0x4A3);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0x4A4);
@@ -1662,7 +1662,7 @@ void *func_0049d230(u8 *arg0)
     p16 = *(void **)(arg0 + 0x3C);
     p17 = *(void **)(arg0 + 0x40);
     size = *(u32 *)(p17 + 0x38) * 24;
-    func_0044ea90(D_00713FF0, 0x4A3);
+    chkmemAllocSiteTag(D_00713FF0, 0x4A3);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0x4A4);
@@ -2120,7 +2120,7 @@ void *func_0049df10(u8 *arg0, void *arg1)
     u8 *mem;
 
     size = *(u32 *)(arg0 + 0x38) * 24;
-    func_0044ea90(D_00713FF0, 0x643);
+    chkmemAllocSiteTag(D_00713FF0, 0x643);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0x644);
@@ -2147,7 +2147,7 @@ void *func_0049e030(u8 *arg0)
     p16 = *(void **)(arg0 + 0x3C);
     p17 = *(void **)(arg0 + 0x40);
     size = *(u32 *)(p17 + 0x38) * 24;
-    func_0044ea90(D_00713FF0, 0x643);
+    chkmemAllocSiteTag(D_00713FF0, 0x643);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0x644);
@@ -2598,7 +2598,7 @@ void *func_0049ed10(u8 *arg0, void *arg1)
     u8 *mem;
 
     size = *(u32 *)(arg0 + 0x38) * 40;
-    func_0044ea90(D_00713FF0, 0x7EC);
+    chkmemAllocSiteTag(D_00713FF0, 0x7EC);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0x7ED);
@@ -2625,7 +2625,7 @@ void *func_0049ee30(u8 *arg0)
     p16 = *(void **)(arg0 + 0x3C);
     p17 = *(void **)(arg0 + 0x40);
     size = *(u32 *)(p17 + 0x38) * 40;
-    func_0044ea90(D_00713FF0, 0x7EC);
+    chkmemAllocSiteTag(D_00713FF0, 0x7EC);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0x7ED);
@@ -3043,7 +3043,7 @@ void *func_0049fad0(u8 *arg0)
     u8 *mem;
 
     size = *(u32 *)(arg0 + 0x38) * 44;
-    func_0044ea90(D_00713FF0, 0x98E);
+    chkmemAllocSiteTag(D_00713FF0, 0x98E);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0x98F);
@@ -3538,7 +3538,7 @@ void *func_004a09e0(u8 *arg0, void *arg1)
     u8 *mem;
 
     size = *(u32 *)(arg0 + 0x38) * 32;
-    func_0044ea90(D_00713FF0, 0xAF1);
+    chkmemAllocSiteTag(D_00713FF0, 0xAF1);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0xAF2);
@@ -3565,7 +3565,7 @@ void *func_004a0af0(u8 *arg0)
     p16 = *(void **)(arg0 + 0x3C);
     p17 = *(void **)(arg0 + 0x40);
     size = *(u32 *)(p17 + 0x38) * 32;
-    func_0044ea90(D_00713FF0, 0xAF1);
+    chkmemAllocSiteTag(D_00713FF0, 0xAF1);
     mem = jtbl_008873E8[0](size + 0x10, 0x40000);
     if (mem == NULL) {
         func_0046d730(D_00713FF0, 0xAF2);
@@ -3967,7 +3967,7 @@ void *func_004a1660(s32 arg0, void *arg1)
     }
     temp_16 = arg0 & 0xFFFF;
     temp_17 = *(s32 *)(D_00714028 + temp_16 * 0x1C);
-    func_0044ea90(D_00713FF0, 0xCD6);
+    chkmemAllocSiteTag(D_00713FF0, 0xCD6);
     p18 = jtbl_008873E8[0](temp_17 + 0x50, 0x40000);
     if (p18 == NULL) {
         func_0046d730(D_00713FF0, 0xCD7);

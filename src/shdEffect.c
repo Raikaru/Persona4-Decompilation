@@ -32,7 +32,7 @@ typedef struct ShdFarg
     f32 bC;    /* 0x0C */
 } ShdFarg;
 
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 
 extern u32 func_00452560(void *task);
 extern void func_004b1210(void *a, void *b);
@@ -56,7 +56,7 @@ s32 func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext)
 {
     u8 *buf;
 
-    func_0044ea90(D_00637290, 0x46);
+    chkmemAllocSiteTag(D_00637290, 0x46);
     buf = D_008873F4[0](1, 0x14, 0x40000);
     *(s32 *)buf = 0;
     if (arg2 != 0)
@@ -188,7 +188,7 @@ s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3)
     {
         func_0046d730(D_00637290, 0xD8);
     }
-    func_0044ea90(D_00637290, 0xD9);
+    chkmemAllocSiteTag(D_00637290, 0xD9);
     buf = D_008873F4[0](1, 0xC, 0x40000);
     *(s32 *)buf = func_004b1130(arg1);
     *(void **)(buf + 4) = arg3;

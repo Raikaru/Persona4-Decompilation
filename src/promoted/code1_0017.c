@@ -97,7 +97,7 @@ void FldShadow_CasterDestroy(u8 *arg0);
 void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
                     s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
 extern s32 func_0017cd60(u8 *arg0);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 
 extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 sinf(f32 arg0);

@@ -51,7 +51,7 @@ extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern void (*D_00887300[])(u32, u32);
-extern void func_0044ea90(const void *msg, s32 line);
+extern void chkmemAllocSiteTag(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 *func_00457120();
 extern void func_003e9d50(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
@@ -1755,7 +1755,7 @@ s32 func_0016e2e0(s32 arg0)
     u8 *temp_17;
     u8 *temp_19;
 
-    func_0044ea90(D_005F1698, 0x4CE);
+    chkmemAllocSiteTag(D_005F1698, 0x4CE);
     temp_2 = (u8 *)D_008873F4[0](1, 0x2D8, 0x40000);
     if (temp_2 == NULL) {
         return 0;
@@ -2315,7 +2315,7 @@ u8 *func_0016f130(u8 *arg0, s32 arg1, s32 arg2)
 
     result = NULL;
     if (*(s32 *)D_007EF9F8 != 0) {
-        func_0044ea90(D_005F1698, 0x71C);
+        chkmemAllocSiteTag(D_005F1698, 0x71C);
         temp_2 = (u8 *)D_008873F4[0](1, 0x18, 0x40000);
         if (temp_2 == NULL) {
             return NULL;
@@ -2375,7 +2375,7 @@ u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
 
     result = NULL;
     if (*(s32 *)D_007EF9F8 != 0) {
-        func_0044ea90(D_005F1698, 0x774);
+        chkmemAllocSiteTag(D_005F1698, 0x774);
         temp_2 = (u8 *)D_008873F4[0](1, 0x18, 0x40000);
         if (temp_2 == NULL) {
             return NULL;

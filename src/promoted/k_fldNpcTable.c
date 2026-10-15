@@ -21,7 +21,7 @@ extern char D_005F0810[];
 extern char D_005F0830[];
 extern char D_005F0850[];
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern void func_0044ea90(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern void H_Cdvd_Destroy(void *arg0);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -74,7 +74,7 @@ s32 NpcTable_InstallSceneTable(u8 *arg0)
         if (H_Cdvd_IsFileLoaded(arg0) == 0) {
             goto ret0;
         }
-        func_0044ea90(&D_005F07C0, 0x81);
+        chkmemAllocSiteTag(&D_005F07C0, 0x81);
         temp = (s32)(*D_008873F4)(1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
         *(u8 **)(func_00155280() + 0x18E8) = (u8 *)temp;
         {
@@ -96,7 +96,7 @@ s32 NpcTable_InstallSceneTable(u8 *arg0)
     sprintf(sp40, D_005F07D0, *(s32 *)gMtScene, *(s32 *)(gMtScene + 4));
     table = func_00455f70(sp40, &sp8C);
     if (table != 0) {
-        func_0044ea90(&D_005F07C0, 0xA2);
+        chkmemAllocSiteTag(&D_005F07C0, 0xA2);
         temp = (s32)(*D_008873F4)(1, (s32)(sp8C), 0x40000);
         *(u8 **)(func_00155280() + 0x18E8) = (u8 *)temp;
         {
@@ -257,7 +257,7 @@ s32 NpcTable_InstallSecondaryTable(u8 *arg0)
     }
     if (func_0014eec0() == 0) {
         if (H_Cdvd_IsFileLoaded(arg) != 0) {
-            func_0044ea90(&D_005F07C0, 0x158);
+            chkmemAllocSiteTag(&D_005F07C0, 0x158);
             temp = (s32)(*D_008873F4)(1, (s32)(*(u32 *)(arg + 0x118)), 0x40000);
             *(u16 **)(func_00155280() + 0x18E0) = (u16 *)temp;
             *(u32 *)(func_00155280() + 0x18E4) = *(u32 *)(arg + 0x118);
@@ -276,7 +276,7 @@ s32 NpcTable_InstallSecondaryTable(u8 *arg0)
     sprintf(sp30, D_005F0810, *(s32 *)gMtScene, *(s32 *)(gMtScene + 4));
     arg = func_00455f70(sp30, &sp7C);
     if (arg != 0) {
-        func_0044ea90(&D_005F07C0, 0x172);
+        chkmemAllocSiteTag(&D_005F07C0, 0x172);
         temp = (s32)(*D_008873F4)(1, (s32)(sp7C), 0x40000);
         *(u16 **)(func_00155280() + 0x18E0) = (u16 *)temp;
         *(u32 *)(func_00155280() + 0x18E4) = sp7C;
@@ -337,7 +337,7 @@ s32 NpcTable_InstallFixedTable(u8 *arg0)
     if (H_Cdvd_IsFileLoaded(arg0) == 0) {
         return 0;
     }
-    func_0044ea90(D_005F07C0, 0x1B3);
+    chkmemAllocSiteTag(D_005F07C0, 0x1B3);
     handle = (s32)D_008873F4[0](1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
     D_00764384 = handle;
     memcpy((void *)handle, *(void **)(arg0 + 0x110), *(s32 *)(arg0 + 0x118));
@@ -385,7 +385,7 @@ s32 NpcTable_InstallBlockTable(u8 *arg0, s32 arg1)
     if (H_Cdvd_IsFileLoaded(*(u8 **)(arg0 + 0xC)) == 0) {
         goto ret0;
     }
-    func_0044ea90(D_005F07C0, 0x1F6);
+    chkmemAllocSiteTag(D_005F07C0, 0x1F6);
     size = *(u32 *)(*(u8 **)(arg0 + 0xC) + 0x118);
     *(s32 *)(arg0 + 0x14) = (s32)D_008873F4[0](1, (s32)(size), 0x40000);
     *(s32 *)(arg0 + 0x18) = *(s32 *)(*(u8 **)(arg0 + 0xC) + 0x118);

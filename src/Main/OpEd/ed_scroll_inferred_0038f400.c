@@ -16,7 +16,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
 extern u8 D_0064EED0[];
 extern void func_00389cb0(u8 *arg0);
-extern void func_0044ea90(const void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 
 extern u8 *iGpffffb5b0;
 extern u8 D_00794990[];
@@ -81,7 +81,7 @@ EffectStateHeader *func_0038f400(const u32 *arg0)
         size += 4 - remainder;
     }
     size += arg0[2];
-    func_0044ea90(D_0064F240, 0x36);
+    chkmemAllocSiteTag(D_0064F240, 0x36);
     cursor = (u32)jtbl_008873E8[0](size, 0x40000);
     result = (EffectStateHeader *)cursor;
     cursor += sizeof(*result);

@@ -9,7 +9,7 @@ extern char D_00714618[];
 extern u8 *iGpffffbb9c;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *kwlnTaskGetTaskByName(void *path);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void func_0046d730(const char *file, s32 line);
 extern void memset(void *dst, s32 value, u32 size);
 
@@ -129,7 +129,7 @@ s32 func_004b3110(s16 arg0) {
 void func_004b3180(s32 arg0) {
     u8 *p;
 
-    func_0044ea90(D_00714618, 0x171);
+    chkmemAllocSiteTag(D_00714618, 0x171);
     p = (u8 *)(*jtbl_008873E8)(0x40, 0x40000);
     memset(p, 0, 0x40);
     if (p == NULL) {

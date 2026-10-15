@@ -104,7 +104,7 @@ extern void mdlSetLayerWeight(u32 arg0, u16 arg1, f32 arg2);
 extern void func_00479e60(u32 arg0, u16 arg1, f32 arg2);
 extern void *mdlGetColor();
 extern void func_004b14f0(void *object, s32 *color);
-extern void func_0044ea90(const void *msg, u32 id);
+extern void chkmemAllocSiteTag(const void *msg, u32 id);
 
 extern void func_0046d730(const void *msg, u32 line);
 extern void func_00440b68(const void *msg, u32 value);
@@ -149,7 +149,7 @@ void MT_Scene_SpawnIconTask(u32 arg0)
 {
     u8 *p;
 
-    func_0044ea90(D_0063B090, 0x31);
+    chkmemAllocSiteTag(D_0063B090, 0x31);
     p = D_008873F4[0](1, 8, 0x40000);
     if ((s32)kwlnTaskCreateChild((void *)(0), (const void *)((char *)D_0063B0A0), 0, 1, 1, func_00268a70, func_00268ad0, (u8 *)(p)) != 0) {
         *(u32 *)(p + 0) = 2;
@@ -398,7 +398,7 @@ u32 MT_Scene_BeginResPathAnim(Resrc *param_1, u32 param_2, float param_3, u32 pa
     *(u8 *)(iVar3 + 0x54) = 2;
     *(u32 *)(iVar3 + 0x60) = 0;
     if (*(u32 *)(iVar3 + 0x58) == 0) {
-        func_0044ea90(D_0063B090, 0x269);
+        chkmemAllocSiteTag(D_0063B090, 0x269);
         uVar2 = (u32)((u32(*)(u32, u32))jtbl_008873E8[0])(0x130, 0x40000);
         *(u32 *)(iVar3 + 0x58) = uVar2;
         if (uVar2 == 0) {

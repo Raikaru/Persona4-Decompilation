@@ -89,7 +89,7 @@ extern s16 func_00104f50(s16 arg0, s16 arg1);
 
 extern s32 func_00246a50(s16 arg0, s16 arg1);
 
-extern void func_0044ea90(void* msg, s32 id);
+extern void chkmemAllocSiteTag(void* msg, s32 id);
 
 extern void func_00440b68(char *fmt, ...);
 
@@ -250,7 +250,7 @@ void* func_00104900(s32 arg0)
     u32 size;
     u32 idx;
 
-    func_0044ea90(D_005E4298, 0xB8);
+    chkmemAllocSiteTag(D_005E4298, 0xB8);
     idx = (arg0 & 0xFFFF) * 16;
     size = *(u32*)((u8*)iGpffffb1ac + idx + 0) * 32 + 0x10 + *(u32*)((u8*)iGpffffb1ac + idx + 4) * 16;
     new = jtbl_008873E8[0](size, 0x40000);
@@ -282,7 +282,7 @@ void func_00104a60(void)
     H_Cdvd_ReadSync(obj);
     src = *(u8**)(obj + 0x110);
     size = (*(u32*)(src + 0) + *(u32*)(src + 0x10)) * 32 + 0x20 + (*(u32*)(src + 4) + *(u32*)(src + 0x14)) * 16;
-    func_0044ea90(D_005E4298, 0xD2);
+    chkmemAllocSiteTag(D_005E4298, 0xD2);
     iGpffffb1ac = (GDataEntry*)jtbl_008873E8[0](size, 0x40000);
     *(u32*)((u8*)iGpffffb1ac + 0) = *(u32*)(src + 0);
     *(u32*)((u8*)iGpffffb1ac + 4) = *(u32*)(src + 4);
@@ -1781,7 +1781,7 @@ u8 *func_0010d7c0(s32 version, s32 *outSize, s32 compact)
     *(s32 *)D_0079B698 = *(s32 *)iGpffff9db0;
     *(s32 *)D_0079B69C = *(s32 *)(iGpffff9db0 + 4);
     *(s32 *)D_0079B6A0 = func_0015a160();
-    func_0044ea90(D_005E4298, 0x721);
+    chkmemAllocSiteTag(D_005E4298, 0x721);
     buffer = D_008873F4[0](1, 0x2A000, 0x40000);
     tag = 0;
     total = 0;

@@ -35,7 +35,7 @@ extern u8 *iGpffffb884;
 extern u64 iGpffffb8c8;
 extern u64 iGpffffb8e8;
 
-extern void func_0044ea90(u8 *file, s32 line);
+extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern u8 D_007131E8[];
 /* Defined below in this file; called at line 54, above its definition. */
 extern void mdlEffectListClear(u32 *param_1);
@@ -86,7 +86,7 @@ u32 mdlEffectListCreate(void)
 {
     u32 temp_2;
 
-    func_0044ea90(D_007131E8, 0x2D);
+    chkmemAllocSiteTag(D_007131E8, 0x2D);
     temp_2 = (u32)(*jtbl_008873E8)(4, 0x40000);
     mdlEffectListClear((u32 *)temp_2);
     return temp_2;
@@ -102,7 +102,7 @@ u32 *mdlEffectListCopy(u32 **arg0)
     u32 *temp;
     u32 *cur;
 
-    func_0044ea90(D_007131E8, 0x2D);
+    chkmemAllocSiteTag(D_007131E8, 0x2D);
     temp = (u32 *)(*jtbl_008873E8)(4, 0x40000);
     mdlEffectListClear(temp);
     cur = (u32 *)*arg0;
@@ -146,7 +146,7 @@ u32 *mdlEffectListAppendBlock(u32 **arg0, s32 arg1, u32 arg2, u16 arg3, u32 arg4
     u32 *data;
     u32 *node;
 
-    func_0044ea90(D_007131E8, 0x7F);
+    chkmemAllocSiteTag(D_007131E8, 0x7F);
     data = (u32 *)(base = (u32)jtbl_008873E8,
                    ((void *(*)(u32, u32))*(u32 *)base)(arg2 + 0x10, 0x40000));
     data[0] = (u32)((u8 *)data + 0x10);
@@ -154,7 +154,7 @@ u32 *mdlEffectListAppendBlock(u32 **arg0, s32 arg1, u32 arg2, u16 arg3, u32 arg4
     data[3] = arg4;
     data[2] = 1;
     memcpy((void *)data[0], (const void *)arg1, arg2);
-    func_0044ea90(D_007131E8, 0x66);
+    chkmemAllocSiteTag(D_007131E8, 0x66);
     node = (u32 *)((void *(*)(u32, u32))*(u32 *)base)(0x14, 0x40000);
     memset(node, 0, 0x14);
     node[3] = 0;
@@ -180,7 +180,7 @@ u32 *mdlEffectListAppendNode(u32 *list, u32 *arg1, u16 arg2)
     u32 *data;
     u32 *node;
 
-    func_0044ea90(D_007131E8, 0x66);
+    chkmemAllocSiteTag(D_007131E8, 0x66);
     node = (u32 *)(*jtbl_008873E8)(0x14, 0x40000);
     memset(node, 0, 0x14);
     node[3] = 0;
@@ -488,13 +488,13 @@ u32 *mdlEffectListWrapCopy(s32 arg0, s32 arg1)
     u32 *wrap;
     u32 base;
 
-    func_0044ea90(D_007131E8, 0x18A);
+    chkmemAllocSiteTag(D_007131E8, 0x18A);
     node = (u32 *)(base = (u32)jtbl_008873E8,
                    ((void *(*)(u32, u32))*(u32 *)base)(arg1 + 0x10, 0x40000));
     node[0] = (u32)((u8 *)node + 0x10);
     node[1] = 1;
     memcpy((void *)node[0], (void *)arg0, (u32)arg1);
-    func_0044ea90(D_007131E8, 0x17C);
+    chkmemAllocSiteTag(D_007131E8, 0x17C);
     wrap = (u32 *)((void *(*)(u32, u32))*(u32 *)base)(8, 0x40000);
     memset(wrap, 0, 8);
     wrap[0] = (u32)node;
@@ -507,7 +507,7 @@ u32 *mdlEffectListWrapShared(u32 **arg0)
     u32 *obj;
     u32 *temp;
 
-    func_0044ea90(D_007131E8, 0x17C);
+    chkmemAllocSiteTag(D_007131E8, 0x17C);
     temp = (u32 *)(*jtbl_008873E8)(8, 0x40000);
     memset(temp, 0, 8);
     obj = *arg0;

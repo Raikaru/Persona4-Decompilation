@@ -2,7 +2,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void func_0044ea90(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void *memset(void *dst, s32 value, s32 size);
@@ -48,7 +48,7 @@ s32 func_002a2420(u8 *arg0) {
             break;
         }
         D_00764630 = *(s32 *)(st + 8);
-        func_0044ea90(D_0063E8E0, 0xA5E);
+        chkmemAllocSiteTag(D_0063E8E0, 0xA5E);
         mem = D_008873F4[0](1, 0x1C6C, 0x40000);
         if (mem == NULL) {
             r = 0;
@@ -97,7 +97,7 @@ s32 func_002a2650(u8 *arg0)
 {
     u8 *mem;
 
-    func_0044ea90(D_0063E8E0, 0xB03);
+    chkmemAllocSiteTag(D_0063E8E0, 0xB03);
     mem = D_008873F4[0](1, 0x18, 0x40000);
     if (mem == NULL) {
         return 0;

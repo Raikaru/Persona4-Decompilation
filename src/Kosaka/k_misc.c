@@ -48,7 +48,7 @@ typedef struct RmdFadeWork
     s32 framesRemaining; /* 0x10 */
 } RmdFadeWork;
 
-extern void func_0044ea90(const void* file, u32 line);
+extern void chkmemAllocSiteTag(const void* file, u32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);  /* RwCalloc slot */
 extern void (*jtbl_008873EC[])(void*);      /* RwFree slot */
 
@@ -73,7 +73,7 @@ s32 KMisc_CreateDelayMdlFree(Model* mdl, s32 countdown)
     DelayMdlFreeWork* work;
     s32 task;
 
-    func_0044ea90(D_005EFB28, 0x14C);
+    chkmemAllocSiteTag(D_005EFB28, 0x14C);
     work = (DelayMdlFreeWork*)D_008873F4[0](1, sizeof(DelayMdlFreeWork), 0x40000);
     if (work == NULL)
     {
@@ -111,7 +111,7 @@ s32 KMisc_CreateScrShutdown(KwlnTask* scrTask)
     ScrShutdownWork* work;
     s32 task;
 
-    func_0044ea90(D_005EFB28, 0x178);
+    chkmemAllocSiteTag(D_005EFB28, 0x178);
     work = (ScrShutdownWork*)D_008873F4[0](1, sizeof(ScrShutdownWork), 0x40000);
     if (work == NULL)
     {
@@ -180,7 +180,7 @@ s32 KMisc_CreateRmdFade(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     if (arg1 == 0) {
         return 0;
     }
-    func_0044ea90(D_005EFB28, 0x1C6);
+    chkmemAllocSiteTag(D_005EFB28, 0x1C6);
     work = (RmdFadeWork*)D_008873F4[0](1, sizeof(RmdFadeWork), 0x40000);
     if (work == NULL) {
         return 0;

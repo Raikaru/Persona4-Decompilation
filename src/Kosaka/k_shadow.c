@@ -329,7 +329,7 @@ void *FldShadow_CreateCaster(u8 *arg0, u16 arg1, u16 arg2)
     u16 *mode;
 
     i = 0;
-    func_0044ea90(D_005F18C0, 0x5E6);
+    chkmemAllocSiteTag(D_005F18C0, 0x5E6);
     table = D_008873F4;
     data = table[0](1, 0xE0, 0x40000);
     if (data == NULL) {
@@ -420,14 +420,14 @@ camera_registered:
         }
         *(u8 **)(*camera_slot + 0x60) = *raster_slot;
 
-        func_0044ea90(D_005F18C0, 0x62F);
+        chkmemAllocSiteTag(D_005F18C0, 0x62F);
         *(u8 **)(data + 0x4C) = table[0](1, 0x54D0, 0x40000);
         break;
     }
 
     case 4:
     case 3:
-        func_0044ea90(D_005F18C0, 0x634);
+        chkmemAllocSiteTag(D_005F18C0, 0x634);
         *(f32 **)(data + 0x50) = (f32 *)table[0](1, 0xC, 0x40000);
         **(f32 **)(data + 0x50) = 30.0f;
         break;
@@ -934,7 +934,7 @@ void FldShadow_CasterDestroy(u8 *arg0)
 s32 FldShadow_SpawnCasterTask(u8 *arg0) {
     u8 *buf;
 
-    func_0044ea90(D_005F18C0, 0x8E5);
+    chkmemAllocSiteTag(D_005F18C0, 0x8E5);
     buf = D_008873F4[0](1, 0x40, 0x40000);
     if (buf == NULL) {
         return 0;

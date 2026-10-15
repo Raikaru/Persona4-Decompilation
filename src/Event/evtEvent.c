@@ -15,7 +15,7 @@ extern void func_0046d730(u8 *file, s32 line);
 extern u8 D_0063C2C8[];
 extern u8 D_00748340[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_0044ea90(const void *file, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 
 extern void memset(void *dest, s32 value, s32 size);
 extern s32 evtStart(s32, s32);
@@ -201,7 +201,7 @@ s32 func_002859e0(s32 arg0, s32 arg1)
     u8 *temp_16;
     s32 temp_2;
 
-    func_0044ea90(&D_00748340, 0x52);
+    chkmemAllocSiteTag(&D_00748340, 0x52);
     temp_16 = D_008873F4[0](1, 0x60, 0x40000);
     evtMemAccount(0, 0x60);
     memset(temp_16, 0, 0x60);

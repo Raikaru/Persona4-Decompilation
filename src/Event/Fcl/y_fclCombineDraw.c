@@ -49,7 +49,7 @@ static inline void fclZero8(u8 *p)
    The earlier layout experiments and superseded floors are retained in
    build/continuation-20260921/fcl-worker3/closure-003212e0/stage-final/
    historical-conventions.txt and the recovery notes in docs/probe_archive. */
-extern void func_0044ea90(const void *arg0, u32 arg1);
+extern void chkmemAllocSiteTag(const void *arg0, u32 arg1);
 extern void *memset(void *dest, s32 value, s32 size);
 
 extern u8 *func_00117780(s32, s32, s32, s32, s32);
@@ -173,7 +173,7 @@ s32 fclDrawTaskCreate(s32 arg0) {
     s32 ret;
     u8 *p;
 
-    func_0044ea90(D_00644D30, 0x16D);
+    chkmemAllocSiteTag(D_00644D30, 0x16D);
     p = (u8 *)D_008873F4[0](1, 0x14, 0x40000);
     memset(p, 0, 0x14);
     ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00644D50), 0xF, 0, 0, func_00314010, func_003142f0, (u8 *)(p));
@@ -6199,7 +6199,7 @@ void func_00331390(void) {
     if (iGpffffb598 != 0) {
         iGpffffb598 = 0;
     }
-    func_0044ea90(D_00644D30, 0x16A4);
+    chkmemAllocSiteTag(D_00644D30, 0x16A4);
     p = D_008873F4[0](1, 0x48, 0x40000);
     iGpffffb598 = (s32)kwlnTaskCreate((const void *)(D_00644E48), 0xF, 0, 0, func_00330f20, func_003312e0, (u8 *)(p));
     *(s8 *)(p + 0) = 0;

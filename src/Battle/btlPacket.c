@@ -73,13 +73,13 @@ u8 *func_00194c90(void *arg0, void *arg1)
     u8 waitType;
     s32 size;
 
-    extern void func_0044ea90(const void *file, s32 line);
+    extern void chkmemAllocSiteTag(const void *file, s32 line);
     extern void memset(void *dst, s32 value, u32 size);
     extern void *(*jtbl_008873E8[])(u32 size, u32 align);
     extern u8 D_005F6C00[];
 
     size = sizeof(BtlPacket) + sizeof(BtlPacketCallbackWork);
-    func_0044ea90(&D_005F6C00, 0x51);
+    chkmemAllocSiteTag(&D_005F6C00, 0x51);
     packet = (BtlPacket *)jtbl_008873E8[0](size, 0x40000);
     memset(packet, 0, size);
     packet->id = 0xFF01;
