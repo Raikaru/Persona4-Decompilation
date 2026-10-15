@@ -94,7 +94,7 @@ extern u16 *datPersonaGetRecord(u16 arg0);
 extern void btlUiSetScale(void *arg0, f32 arg1, f32 arg2);
 extern void btlUiSetRect(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
 extern void btlUiSetTileOffset(u8 *arg0, s16 arg1, s32 arg2, f32 arg3);
-extern void func_002019d0(u8 *arg0, f32 arg1, f32 arg2);
+extern void btlUiSetFactorXY(u8 *arg0, f32 arg1, f32 arg2);
 extern s32 datCalcUnitClass(u8 *arg0);
 extern s32 func_001b1540(void);
 extern void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
@@ -217,10 +217,10 @@ void func_00210c70(u8 *arg0, u8 *arg1)
                 scale = 0.0f;
                 if (!(rate <= scale)) {
                     scale = fGpffff827c - fGpffff8110 * rate;
-                    func_002019d0((u8 *)icon, scale, scale);
+                    btlUiSetFactorXY((u8 *)icon, scale, scale);
                     btlUiDrawSpriteFaded((u8 *)icon, 0xA, 0xF, 57.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
                     btlUiDrawSpriteFaded((u8 *)icon, 0xA, 0x10, 86.0f, 63.0f, 0x15U, 0x15U, 0x15U, 0xFFU);
-                    func_002019d0((u8 *)icon, 1.0f, 1.0f);
+                    btlUiSetFactorXY((u8 *)icon, 1.0f, 1.0f);
                 }
                 rate = func_0020e5c0(stage, 5, 7, 0);
                 if (!(rate <= 0.0f)) {
@@ -1626,7 +1626,7 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         u8 arg8);
     extern void btlUiAdjustTileOffset(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void btlUiSetRenderMode(s32 arg0);
-    extern void func_002019d0(u8 *arg0, f32 fparg0, f32 fparg1);
+    extern void btlUiSetFactorXY(u8 *arg0, f32 fparg0, f32 fparg1);
     extern u16 datCalcGetHp(s32 arg0);
     extern u16 datCalcGetSp(s32 arg0);
     extern u16 datCalcMaxHp(DatUnit *arg0);
@@ -1709,7 +1709,7 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
             } else {
                 transitionScale = 1.0f;
             }
-            func_002019d0((u8 *)arg0, transitionScale, transitionScale);
+            btlUiSetFactorXY((u8 *)arg0, transitionScale, transitionScale);
         }
         {
             u16 layerIndex;
@@ -1804,7 +1804,7 @@ void func_002142b0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
             selectionY = selectionY - fparg1;
             fparg1 = fparg1 + selectionCurve * selectionY;
             selectionScale = 1.0f - fGpffff8218 * selectionCurve;
-            func_002019d0((u8 *)arg0, selectionScale, selectionScale);
+            btlUiSetFactorXY((u8 *)arg0, selectionScale, selectionScale);
             memset(offset, 0, 0x18);
             memset(y, 0, 0x18);
             memset(x, 0, 0x18);
@@ -2079,8 +2079,8 @@ void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
     extern f32 D_007615A4;
     extern f32 D_007615A8;
     extern f32 fGpffff8218;
-    extern f32 func_00201950(u8 *arg0, s32 arg1, s32 arg2);
-    extern f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2);
+    extern f32 btlUiSpriteWidth(u8 *arg0, s32 arg1, s32 arg2);
+    extern f32 btlUiSpriteHeight(u8 *arg0, s32 arg1, s32 arg2);
     extern void btlUiDrawSpriteFaded(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, u8 arg5, u8 arg6, u8 arg7, u8 arg8);
     s32 *var_s19;
     u8 *var_s18;
@@ -2140,7 +2140,7 @@ void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         var_f12 = 1.0f;
     }
 
-    func_002019d0((u8 *)var_s19, var_f12, var_f12);
+    btlUiSetFactorXY((u8 *)var_s19, var_f12, var_f12);
     if (*(s16 *)(var_s18 + 0xA16) < 0x19) {
         var_f1 = (f32)(s16)(*(s16 *)(var_s18 + 0xA16) - (var_s17 & 0xFFFF) * 2);
         if (var_f1 > 8.0f) {
@@ -2191,10 +2191,10 @@ void func_00215c10(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
         f32 ret2;
         f32 f2;
         var_f20 = 1.0f - var_f21;
-        ret1 = func_00201950((u8 *)var_s19, 8, 0xE);
+        ret1 = btlUiSpriteWidth((u8 *)var_s19, 8, 0xE);
         f2 = 0.5f * ret1;
         fparg1 = 29.0f + var_f20 * f2;
-        ret2 = func_00201990((u8 *)var_s19, 8, 0xE);
+        ret2 = btlUiSpriteHeight((u8 *)var_s19, 8, 0xE);
         f2 = 0.5f * ret2;
         var_f20 = 27.0f + var_f20 * f2;
         btlUiSetScale(var_s19, var_f21, var_f21);
@@ -2281,7 +2281,7 @@ void func_002161d0(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2)
     } else {
         var_f12 = 1.0f;
     }
-    func_002019d0((u8 *)var_s20, var_f12, var_f12);
+    btlUiSetFactorXY((u8 *)var_s20, var_f12, var_f12);
     if (*(s16 *)(var_s19 + 0xA16) < 0x19) {
         var_f1 = (f32)(s16)(*(s16 *)(var_s19 + 0xA16) - (var_s18 & 0xFFFF) * 2);
         if (var_f1 > 8.0f) {
@@ -2423,7 +2423,7 @@ void func_002167f0(u8 *arg0, u8 *arg1)
             func_002142b0(work, old, x, y, j & 0xFFFF);
             j += 1;
         }
-        func_002019d0((u8 *)work, 1.0f, 1.0f);
+        btlUiSetFactorXY((u8 *)work, 1.0f, 1.0f);
     }
 }
 #pragma pop

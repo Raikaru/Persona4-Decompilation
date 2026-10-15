@@ -50,10 +50,10 @@ static inline u8 *actionRecoveryPacketBytes(BtlUnit *unit)
 {
     return (u8 *)btlUnitCreateMotionSettlePacket(unit);
 }
-extern BtlPacket *func_00202400(s32 unit, s32 message);
+extern BtlPacket *btlPacketCreateEffectCounter(s32 unit, s32 message);
 static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 {
-    return func_00202400(unit, message);
+    return btlPacketCreateEffectCounter(unit, message);
 }
 extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 cue, s32 unitId, s32 a, s32 b);
 extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
@@ -145,16 +145,16 @@ extern BtlPacket *btlUnitCreateMoveToUnitPacket(BtlUnit *unit, BtlUnit *target, 
 extern BtlPacket *btlFormationCreateWaitPacket(u32 source, u32 target, u16 mode);
 extern f32 fGpffff811c;
 extern u32 datCalcGetBadStatus(s32 arg0);
-extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
+extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-extern u8 *func_00202740(u8 *arg0);
-extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
+extern u8 *btlPacketCreateHpRatio(u8 *arg0);
+extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 u8 *func_00194b60(void);
 extern BtlPacket *btlFormationCreateReturnPacket(u16 arg0);
 BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
 BtlPacket *func_001d7a10(u16 mode);
-u8 *func_00201f20(void);
+u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern s32 datCalcAilmentChance(u8 *unit, s32 element);
 u8 *func_001fa720(const void *data);
@@ -194,7 +194,7 @@ s64 datCalcFindStrongBuff(u8 *arg0);
 s32 func_001f6770(u8 *arg0);
 s32 btlActionGetCounter420(BtlAction *action);
 
-u8 *func_002022e0(u32 arg0, u16 arg1);
+u8 *btlPacketCreateSpriteTable(u32 arg0, u16 arg1);
 s32 datPersonaSelectRosterMemberById(s32 arg0);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void datPersonaRemoveSelectedRosterMember(void);
@@ -518,7 +518,7 @@ void btlActionCommandUpdate(u8 *arg0)
             sVar2 = func_001fb170(f);
             if (sVar2 != 0) {
                 func_0045af60(0, 15, 0, 8);
-                func_002019f0(*(s32 *)(arg0 + 0x30), sVar2);
+                btlUiSelectEffect(*(s32 *)(arg0 + 0x30), sVar2);
                 *(u16 *)(arg0 + 0x41C) = 6;
                 *(s32 *)(arg0 + 0x420) = 1;
                 func_00203890(*(s32 *)(iGpffffb3ac + 0xDD4));
@@ -641,7 +641,7 @@ void btlActionTargetUpdate(u8 *action) {
     extern void btlUnitTickIdleAnims(void);
     extern void func_0019fc60(void);
     extern s32 func_001fb170(s32 condition);
-    extern void func_002019f0(s32 unit, u32 message);
+    extern void btlUiSelectEffect(s32 unit, u32 message);
     extern void func_002037b0(s32 task);
     extern void func_002038c0(s32 task);
     extern void func_00204d50(s32 task);
@@ -768,7 +768,7 @@ select_action:
         messageId = (s16)func_001fb170(condition);
         if (messageId != 0) {
             func_0045af60(0, 0xF, 0, 8);
-            func_002019f0(*(s32 *)(action + 0x30), (u32)messageId);
+            btlUiSelectEffect(*(s32 *)(action + 0x30), (u32)messageId);
             func_0020ba30((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             return;
         }
@@ -1354,7 +1354,7 @@ void btlActionBadUpdate(BtlAction *actionState)
                     } else {
                         message = 0x69;
                     }
-                    packet = (u8 *)func_00202400((s32)unit, message);
+                    packet = (u8 *)btlPacketCreateEffectCounter((s32)unit, message);
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
                     btlPacketEnqueue(packet, 3);
                 }
@@ -1383,7 +1383,7 @@ void btlActionBadUpdate(BtlAction *actionState)
             }
             message = func_001f7140(action);
             if (message > 0) {
-                u8 *packet = (u8 *)func_00202400(*(s32 *)(action + 0x30), message);
+                u8 *packet = (u8 *)btlPacketCreateEffectCounter(*(s32 *)(action + 0x30), message);
                 *(s64 *)(packet + 0x60) = *(s64 *)action;
                 btlPacketEnqueue(packet, 3);
             }
@@ -1402,7 +1402,7 @@ void btlActionBadUpdate(BtlAction *actionState)
                         btlPacketEnqueue(packet, 0);
                     }
                     {
-                        u8 *packet = (u8 *)func_00202400(*(s32 *)(action + 0x30), message);
+                        u8 *packet = (u8 *)btlPacketCreateEffectCounter(*(s32 *)(action + 0x30), message);
                         *(s64 *)(packet + 0x60) = *(s64 *)action;
                         btlPacketEnqueue(packet, 3);
                     }
@@ -1527,7 +1527,7 @@ void btlActionCooperateInit(register BtlAction *actionState)
     }
     {
         u8 *packet;
-        packet = func_002022e0(*(u32 *)(action + 0x30), displayMode);
+        packet = btlPacketCreateSpriteTable(*(u32 *)(action + 0x30), displayMode);
         packet[0] = 4;
         *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
         *(s64 *)(packet + 0x60) = *(s64 *)action;
@@ -1693,7 +1693,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
                 *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
             btlPacketEnqueue(func_001fa110(frame), 1);
             btlActionFinishPresentation((BtlAction *)arg0);
-            btlPacketEnqueue(func_00202850(), 1);
+            btlPacketEnqueue(btlPacketCreateEndSequence(), 1);
             btlPacketEnqueue(func_001fa8f0(), 1);
             func_002182c0(*(u8 **)(D_0076449C + 0xDD4), (u8 *)arg0);
             btlPacketEnqueue((u8 *)btlFormationCreateSlotPacket(3, 0xFFF), 0);
@@ -2621,10 +2621,10 @@ void btlActionAttackUpdate(s64 *arg0_) {
     extern void func_001f7910(u8 *unit, u32 hit, s32 paired, s16 *cue, s16 *variant);
     extern BtlPacket *func_001f7c20(u16 channel, u16 cue, u16 variant);
     extern u8 *func_001f99c0(u8 *action, u16 voice, s32 option, s32 argument, s32 flags);
-    extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
+    extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
     extern BtlPacket *func_00202010(u32 unit, u16 skill);
-    extern u8 *func_00202400();
-    extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
+    extern u8 *btlPacketCreateEffectCounter();
+    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
     extern u8 *iGpffffb3ac;
     extern u8 *iGpffffb3bc;
     extern u8 *iGpffffb3cc;
@@ -3291,7 +3291,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
             (*(s16 *)((u8 *)(resultPacketB) + (0x48))) = hitTimingBase;
             (*(s64 *)((u8 *)(resultPacketB) + (0x60))) = actionUid;
             btlPacketEnqueue(resultPacketB, 1);
-            statusPacket = (u8 *)(func_00201de0((s32)(battleUnit), *(s32 *)&focusTarget->unit, (*(u16 *)(arg0 + (0x6E))), targetView->effect, targetView->targetFlags, 0, 1, hitResultSaved, 0));
+            statusPacket = (u8 *)(btlPacketCreateHitDisplay((s32)(battleUnit), *(s32 *)&focusTarget->unit, (*(u16 *)(arg0 + (0x6E))), targetView->effect, targetView->targetFlags, 0, 1, hitResultSaved, 0));
             (*(s8 *)((u8 *)(statusPacket) + (0))) = 5;
             (*(s64 *)((u8 *)(statusPacket) + (8))) = animUid;
             (*(s16 *)((u8 *)(statusPacket) + (0x48))) = hitTimingBase;
@@ -3304,7 +3304,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
             (*(s64 *)((u8 *)(statusPacket) + (0x60))) = actionUid;
             btlPacketEnqueue(statusPacket, 3);
             if ((hitRowNumber == 0) && (hitResultSaved->hpDelta != 0)) {
-                statPacket = (u8 *)(func_00202590((s32)(focusTarget->unit), 0, 0));
+                statPacket = (u8 *)(btlPacketCreateUnitCounter((s32)(focusTarget->unit), 0, 0));
                 (*(s8 *)((u8 *)(statPacket) + (0))) = 5;
                 (*(s64 *)((u8 *)(statPacket) + (8))) = animUid;
                 (*(s16 *)((u8 *)(statPacket) + (0x48))) = hitTimingBase;
@@ -3406,7 +3406,7 @@ createReaction:
         btlPacketEnqueue(unitStatePacket, 1);
         auxEffectIndex = (s16)((*(s16 *)(arg0 + (0xEC))));
         if ((auxEffectIndex != 0) && !((*(u8 *)(arg0 + (0xD8))) & 1)) {
-            unitStatePacketB = (u8 *)(func_00202400((*(u8 **)(arg0 + (0x30))), auxEffectIndex));
+            unitStatePacketB = (u8 *)(btlPacketCreateEffectCounter((*(u8 **)(arg0 + (0x30))), auxEffectIndex));
             (*(s8 *)((u8 *)(unitStatePacketB) + (0))) = 5;
             (*(s64 *)((u8 *)(unitStatePacketB) + (8))) = animUid;
             (*(s16 *)((u8 *)(unitStatePacketB) + (0x48))) = hitTimingBase;
@@ -3416,7 +3416,7 @@ createReaction:
         } else {
             auxEffectIndexTarget = (s16)((*(s16 *)((u8 *)(targetView) + (0xEC))));
             if (auxEffectIndexTarget != 0) {
-                unitStatePacketC = (u8 *)(func_00202400(targetView->unit, auxEffectIndexTarget));
+                unitStatePacketC = (u8 *)(btlPacketCreateEffectCounter(targetView->unit, auxEffectIndexTarget));
                 (*(s8 *)((u8 *)(unitStatePacketC) + (0))) = 5;
                 (*(s64 *)((u8 *)(unitStatePacketC) + (8))) = animUid;
                 (*(s16 *)((u8 *)(unitStatePacketC) + (0x48))) = hitTimingBase;
@@ -3553,13 +3553,13 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern u8 *func_001f8430(u32 value);
     extern s32 func_001f99c0();
     extern u8 *func_001fa110(u8 *data);
-    extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
-    extern u8 *func_00201f20(void);
+    extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
+    extern u8 *btlPacketCreateFinishEffect(void);
     extern BtlPacket *func_00202010(u32 param_1, u16 param_2);
-    extern BtlPacket *func_00202120(u32 action, u16 arg1);
-    extern BtlPacket *func_00202400(s32 arg0, s32 arg1);
-    extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
-    extern u8 *func_00202740(u8 *unit);
+    extern BtlPacket *btlPacketCreateSpriteStep(u32 action, u16 arg1);
+    extern BtlPacket *btlPacketCreateEffectCounter(s32 arg0, s32 arg1);
+    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
+    extern u8 *btlPacketCreateHpRatio(u8 *unit);
     extern void func_00216da0(u8 *arg0, s32 arg1);
     extern s32 func_0022d200(u8 *action);
     extern s32 func_0022d540(u8 *action, u8 *handles);
@@ -4074,7 +4074,7 @@ void btlActionSkillUpdate(u8 *arg0) {
         pkt11->ownerId = actionId;
         btlPacketEnqueue((u8 *)pkt11, 3);
     } else {
-        pkt12 = (BtlPacketTiming *)(func_00202120(*(u32 *)(arg0 + 0x30), act->field70));
+        pkt12 = (BtlPacketTiming *)(btlPacketCreateSpriteStep(*(u32 *)(arg0 + 0x30), act->field70));
         pkt12->delay = (s16) hitModeDelay;
         pkt12->ownerId = actionId;
         btlPacketEnqueue((u8 *)pkt12, 3);
@@ -4743,7 +4743,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             if ((targetHitValue != 0) || (*(s32 *)(targetAction + 0xE4) != 0)) {
                 cameraState = 0x1E;
             }
-            pkt79 = (BtlPacketTiming *)(func_00202740(targetUnit12));
+            pkt79 = (BtlPacketTiming *)(btlPacketCreateHpRatio(targetUnit12));
             pkt79->ownerId = actionId;
             btlPacketEnqueue((u8 *)pkt79, 1);
             if ((*(u16 *)(targetAction + 0xDC) != 0x400) && (*(s32 *)(targetAction + 0xE4) != 1)) {
@@ -4885,7 +4885,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     rotatePkt90->ownerId = actionId;
                     btlPacketEnqueue((u8 *)rotatePkt90, 0);
                 }
-                pkt91 = (BtlPacketTiming *)(func_00201f20());
+                pkt91 = (BtlPacketTiming *)(btlPacketCreateFinishEffect());
                 pkt91->queue = 5;
                 pkt91->startTime = formationPkt6->endTime;
                 pkt91->ownerId = actionId;
@@ -5098,7 +5098,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                         if (hitRowWord != 0) {
                             func_00216da0((u8 *)(*(s32 *)(iGpffffb3ac + 0xC60)), func_0043c6a0(hitRowWord));
                         }
-                        pkt113 = (BtlPacketTiming *)(func_00202400(*(s32 *)(arg0 + 0x30), act->fieldEC));
+                        pkt113 = (BtlPacketTiming *)(btlPacketCreateEffectCounter(*(s32 *)(arg0 + 0x30), act->fieldEC));
                         pkt113->queue = 5;
                         pkt113->startTime = animPacket->endTime;
                         pkt113->flags = (u8) (pkt113->flags & 0xDF);
@@ -5110,7 +5110,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                             if (hitField14 != 0) {
                                 func_00216da0((u8 *)(*(s32 *)(iGpffffb3ac + 0xC60)), func_0043c6a0(hitField14));
                             }
-                            pkt114 = (BtlPacketTiming *)(func_00202400(*(s32 *)(targetAction + 0x30), *(s16 *)(targetAction + 0xEC)));
+                            pkt114 = (BtlPacketTiming *)(btlPacketCreateEffectCounter(*(s32 *)(targetAction + 0x30), *(s16 *)(targetAction + 0xEC)));
                             pkt114->queue = 5;
                             pkt114->startTime = animPacket->endTime;
                             pkt114->flags = (u8) (pkt114->flags & 0xDF);
@@ -5119,7 +5119,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                         } else if (hasFollowAction != 0) {
                             targetFieldEC = (s16)(*(s16 *)(effectiveAction + 0xEC));
                             if (targetFieldEC != 0) {
-                                pkt115 = (BtlPacketTiming *)(func_00202400(*(s32 *)(effectiveAction + 0x30), targetFieldEC));
+                                pkt115 = (BtlPacketTiming *)(btlPacketCreateEffectCounter(*(s32 *)(effectiveAction + 0x30), targetFieldEC));
                                 pkt115->queue = 5;
                                 pkt115->startTime = animPacket->endTime;
                                 pkt115->flags = (u8) (pkt115->flags & 0xDF);
@@ -5130,7 +5130,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     }
                 }
                 if ((s32)(*hitResultPtr) != (s32)(0)) {
-                    pkt116 = (BtlPacketTiming *)(func_00202590((s32)(*(u8 **)(effectiveAction + 0x30)), 0, 0));
+                    pkt116 = (BtlPacketTiming *)(btlPacketCreateUnitCounter((s32)(*(u8 **)(effectiveAction + 0x30)), 0, 0));
                     pkt116->queue = 5;
                     pkt116->startTime = animPacket->endTime;
                     pkt116->delay = hitDelay;
@@ -5154,7 +5154,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     sp2E0 = 1;
                 }
                 hitRowBase = btlHitRow_001a7720(targetAction, &hitIndex);
-                hitPkt119 = (BtlPacketTiming *)(func_00201de0((s32)(act->unit), (s32)(*(u8 **)(effectiveAction + 0x30)), skillS32, *(u16 *)(targetAction + 0xDC), *(u16 *)(targetAction + 0xDE), hitIndex, rowHitCount, hitResultPtr, 0));
+                hitPkt119 = (BtlPacketTiming *)(btlPacketCreateHitDisplay((s32)(act->unit), (s32)(*(u8 **)(effectiveAction + 0x30)), skillS32, *(u16 *)(targetAction + 0xDC), *(u16 *)(targetAction + 0xDE), hitIndex, rowHitCount, hitResultPtr, 0));
                 hitPkt119->queue = 5;
                 hitPkt119->startTime = animPacket->endTime;
                 hitPkt119->delay = hitDelay;
@@ -5175,7 +5175,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                     pkt120->ownerId = actionId;
                     btlPacketEnqueue((u8 *)pkt120, 1);
                     actUnit16 = (u8 *)(act->unit);
-                    hitPkt121 = (BtlPacketTiming *)(func_00201de0((s32)(actUnit16), (s32)(actUnit16), -1, 1U, 1U, hitIndex, rowHitCount, &result, 0));
+                    hitPkt121 = (BtlPacketTiming *)(btlPacketCreateHitDisplay((s32)(actUnit16), (s32)(actUnit16), -1, 1U, 1U, hitIndex, rowHitCount, &result, 0));
                     hitPkt121->queue = 4;
                     hitPkt121->startTime = animPacket->endTime;
                     hitPkt121->delay = hitDelayS16;
@@ -5183,11 +5183,11 @@ void btlActionSkillUpdate(u8 *arg0) {
                     btlPacketEnqueue((u8 *)hitPkt121, 3);
                     if (result.hpDelta != 0) {
                         if (hitIndexS32 == 0) {
-                            pkt122 = (BtlPacketTiming *)(func_00202740(act->unit));
+                            pkt122 = (BtlPacketTiming *)(btlPacketCreateHpRatio(act->unit));
                             pkt122->ownerId = actionId;
                             btlPacketEnqueue((u8 *)pkt122, 1);
                         }
-                        pkt123 = (BtlPacketTiming *)(func_00202590((s32)(act->unit), 0, 0));
+                        pkt123 = (BtlPacketTiming *)(btlPacketCreateUnitCounter((s32)(act->unit), 0, 0));
                         pkt123->queue = 4;
                         pkt123->startTime = animPacket->endTime;
                         pkt123->delay = hitDelayS16;
@@ -5311,13 +5311,13 @@ reactionPacket:
             pkt4->ownerId = actionId;
             btlPacketEnqueue((u8 *)pkt4, 1);
             actUnit19 = (u8 *)(act->unit);
-            hitPkt132 = (BtlPacketTiming *)(func_00201de0((s32)(actUnit19), (s32)(actUnit19), -1, 0U, 0U, 0U, 1U, &result, 0));
+            hitPkt132 = (BtlPacketTiming *)(btlPacketCreateHitDisplay((s32)(actUnit19), (s32)(actUnit19), -1, 0U, 0U, 0U, 1U, &result, 0));
             hitPkt132->queue = 4;
             hitPkt132->startTime = (s64)((s64) pkt4->endTime);
             hitPkt132->flags = (u8) (hitPkt132->flags & 0xDF);
             hitPkt132->ownerId = actionId;
             btlPacketEnqueue((u8 *)hitPkt132, 3);
-            pkt133 = (BtlPacketTiming *)(func_00202590((s32)(act->unit), 0, 0));
+            pkt133 = (BtlPacketTiming *)(btlPacketCreateUnitCounter((s32)(act->unit), 0, 0));
             pkt133->queue = 4;
             pkt133->startTime = (s64)((s64) pkt4->endTime);
             pkt133->flags = (u8) (pkt133->flags & 0xDF);
@@ -5494,7 +5494,7 @@ reactionPacket:
         pkt149->delay = 0xC;
         pkt149->ownerId = actionId;
         btlPacketEnqueue((u8 *)pkt149, 1);
-        pkt150 = (BtlPacketTiming *)(func_00202850());
+        pkt150 = (BtlPacketTiming *)(btlPacketCreateEndSequence());
         pkt150->queue = 4;
         pkt150->startTime = animPacket->endTime;
         pkt150->flags = (u8) (pkt150->flags & 0xDF);
@@ -5821,7 +5821,7 @@ void btlActionSummonUpdate(s64 *arg0)
             }
             if (((u16)idx == 0) && (action->ids[1] == 0)) {
                 u8 *q5;
-                q5 = (u8 *)func_00202400(((UnitReference *)(loopPkt + 0x30))->signedAddress, 0x9F);
+                q5 = (u8 *)btlPacketCreateEffectCounter(((UnitReference *)(loopPkt + 0x30))->signedAddress, 0x9F);
                 *q5 = 5;
                 *(s64 *)(q5 + 8) = *(s64 *)(q3 + 0x58);
                 *(s16 *)(q5 + 0x48) = 0x1C;
@@ -5967,7 +5967,7 @@ void btlActionErrorUpdate(u8 *action) {
     u8 *animationPacket;
 
     BtlPacket *func_00202010(u32 action, u16 arg1);
-    BtlPacket *func_00202120(u32 action, u16 arg1);
+    BtlPacket *btlPacketCreateSpriteStep(u32 action, u16 arg1);
     BtlPacket *btlMainCreateFadePacket(s32 action, s16 mode);
     BtlPacket *btlCreateTimingPacket(u32 value);
     BtlPacket *btlMainCreateColorFadePacket(s32 action);
@@ -5991,7 +5991,7 @@ void btlActionErrorUpdate(u8 *action) {
         btlPacketEnqueue(packet, 3);
     } else {
         u8 *packet;
-        packet = (u8 *)func_00202120(*(s32 *)(action + 0x30),
+        packet = (u8 *)btlPacketCreateSpriteStep(*(s32 *)(action + 0x30),
                                *(u16 *)(action + 0x70));
         *(s64 *)(packet + 0x60) = packetIdentity;
         btlPacketEnqueue(packet, 3);
@@ -6169,11 +6169,11 @@ void btlActionEndureUpdate(u8 *arg0) {
     u8 *func_00194b60(void);
     void func_001f0a10(u8 *arg0);
     extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-    extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
+    extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 
-    extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
+    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
     void btlActionSetState(u8 *arg0, u16 arg1);
-    u8 *func_00202740(u8 *arg0);
+    u8 *btlPacketCreateHpRatio(u8 *arg0);
     u32 datCalcGetHp(u8 *arg0);
     u32 datCalcMaxHp(u8 *arg0);
 
@@ -6243,18 +6243,18 @@ void btlActionEndureUpdate(u8 *arg0) {
             *(s64 *)(damagePacket + 8) = secondPacketTag;
             *(s64 *)(damagePacket + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(damagePacket, 1);
-            unitPacket = func_00202740(battleUnit);
+            unitPacket = btlPacketCreateHpRatio(battleUnit);
             *(s8 *)(unitPacket + 0) = 4;
             *(s64 *)(unitPacket + 8) = secondPacketTag;
             *(s64 *)(unitPacket + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(unitPacket, 1);
-            statusPacket = func_00201de0((s32)battleUnit, (s32)battleUnit, -1, 0, 0,
+            statusPacket = btlPacketCreateHitDisplay((s32)battleUnit, (s32)battleUnit, -1, 0, 0,
                                      0, 1, (u8 *)&damageResult, 0);
             *(s8 *)(statusPacket + 0) = 4;
             *(s64 *)(statusPacket + 8) = secondPacketTag;
             *(s64 *)(statusPacket + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(statusPacket, 3);
-            statPacket = func_00202590((s32)battleUnit, 0, 0);
+            statPacket = btlPacketCreateUnitCounter((s32)battleUnit, 0, 0);
             *(s8 *)(statPacket + 0) = 4;
             *(s64 *)(statPacket + 8) = secondPacketTag;
             *(s64 *)(statPacket + 0x60) = *(s64 *)arg0;
@@ -6313,7 +6313,7 @@ void btlActionWaitUpdate(u8 *arg0) {
             } else {
                 actionKind = 8;
             }
-            packet = func_002022e0((u32)battleUnit, actionKind & 0xFFFF);
+            packet = btlPacketCreateSpriteTable((u32)battleUnit, actionKind & 0xFFFF);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(packet, 3);
         }
@@ -6502,7 +6502,7 @@ void btlActionEscapeUpdate(s64 *arg0)
 
     action = (ActionView *)arg0;
     btlActionFinishPresentation((BtlAction *)arg0);
-    first = func_002022e0((u32)action->unit, 6);
+    first = btlPacketCreateSpriteTable((u32)action->unit, 6);
     *(s64 *)(first + 0x60) = action->uid;
     btlPacketEnqueue(first, 3);
     listed = 0;
@@ -6569,7 +6569,7 @@ void btlActionEscapeUpdate(s64 *arg0)
         } else if (spread == 1) {
             {
                 u8 *pkt;
-                pkt = func_00202850();
+                pkt = btlPacketCreateEndSequence();
                 *pkt = 5;
                 *(s64 *)(pkt + 8) = *(s64 *)(first + 0x58);
                 *(u16 *)(pkt + 0x48) = 0x10;
@@ -6705,7 +6705,7 @@ void btlActionPersonaInit(s64 *arg0)
         btlPacketEnqueue(introPacket, 1);
     }
     btlActionFinishPresentation((BtlAction *)arg0);
-    actionPacket = func_002022e0(
+    actionPacket = btlPacketCreateSpriteTable(
         *(u32 *)((u8 *)arg0 + 0x30),
         *(u16 *)((u8 *)arg0 + 0x6C));
     *(s64 *)(actionPacket + 0x60) = *(s64 *)arg0;

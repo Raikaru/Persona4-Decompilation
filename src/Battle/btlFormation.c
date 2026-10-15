@@ -121,7 +121,7 @@ extern u8 D_00763388;
 s32 sprintf(char *destination, const char *format, ...);
 
 void func_001fc2e0(u32 first, u32 second, u32 third);
-u32 func_002027b0(void);
+u32 btlUiBeginSequence(void);
 
 
 
@@ -1518,6 +1518,6 @@ u8 *btlFormationCreateDefaultPacket(void)
     u8 *task;
 
     task = (u8 *)btlPacketAlloc(0x50d, 0);
-    *(u32*)(task + 0x6c) = (u32)func_002027b0;
+    *(u32*)(task + 0x6c) = (u32)btlUiBeginSequence;
     return task;
 }

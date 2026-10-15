@@ -46,10 +46,10 @@ static inline u8 *actionRecoveryPacketBytes(BtlUnit *unit)
 {
     return (u8 *)btlUnitCreateMotionSettlePacket(unit);
 }
-extern BtlPacket *func_00202400(s32 unit, s32 message);
+extern BtlPacket *btlPacketCreateEffectCounter(s32 unit, s32 message);
 static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 {
-    return func_00202400(unit, message);
+    return btlPacketCreateEffectCounter(unit, message);
 }
 extern u8 *iGpffffb3cc;
 extern f32 D_005F6D20[];

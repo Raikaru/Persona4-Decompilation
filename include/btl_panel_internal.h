@@ -6,9 +6,12 @@
 // Intent: draw a battle sprite with per-channel colour and fade parameters. [inferred]
 void btlUiDrawSpriteFaded(u8 *work, s32 mode, s32 tile, f32 x, f32 y,
                    u8 red, u8 green, u8 blue, u8 alpha);
-f32 func_00201950(u8 *work, s32 mode, s32 tile);
-f32 func_00201990(u8 *work, s32 mode, s32 tile);
-s32 func_00202e70(u8 *selection);
+// Intent: return the scaled sprite width for a UI component slot. [inferred]
+f32 btlUiSpriteWidth(u8 *work, s32 mode, s32 tile);
+// Intent: return the scaled sprite height for a UI component slot. [inferred]
+f32 btlUiSpriteHeight(u8 *work, s32 mode, s32 tile);
+// Intent: read the selection input and return the action code (1 to 4) or 0. [inferred]
+s32 btlSelectionReadInput(u8 *selection);
 void func_00213c70(u8 *view);
 void func_00213ca0(u8 *view);
 

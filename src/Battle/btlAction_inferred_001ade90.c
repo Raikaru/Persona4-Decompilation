@@ -50,10 +50,10 @@ static inline u8 *actionRecoveryPacketBytes(BtlUnit *unit)
 {
     return (u8 *)btlUnitCreateMotionSettlePacket(unit);
 }
-extern BtlPacket *func_00202400(s32 unit, s32 message);
+extern BtlPacket *btlPacketCreateEffectCounter(s32 unit, s32 message);
 static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 {
-    return func_00202400(unit, message);
+    return btlPacketCreateEffectCounter(unit, message);
 }
 extern u8 *iGpffffb3cc;
 extern f32 D_005F6D20[];
@@ -94,11 +94,11 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 extern f32 fGpffff811c;
 extern u32 datCalcGetBadStatus(s32 arg0);
 extern s16 func_001f6d60(u8 *arg0);
-extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
+extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-extern u8 *func_00202740(u8 *arg0);
-extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
+extern u8 *btlPacketCreateHpRatio(u8 *arg0);
+extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 extern BtlPacket *btlFormationCreateReturnPacket(u16 arg0);
 extern u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value);
 extern BtlPacket *btlFormationCreateEventPacket(u32 action);
@@ -357,16 +357,16 @@ void btlActionBadDamageUpdate(u8 *action)
                     resultPacket = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action, &result, 1, 1);
                     *(s16 *)(resultPacket + 72) = 12;
                     btlPacketEnqueue(resultPacket, 1);
-                    healthPacket = func_00202740(unit);
+                    healthPacket = btlPacketCreateHpRatio(unit);
                     *(healthPacket + 0) = 4;
                     *(s64 *)(healthPacket + 8) = *(s64 *)(resultPacket + 88);
                     btlPacketEnqueue(healthPacket, 1);
-                    displayPacket = func_00201de0((s32)unit, (s32)unit, -1, 0, 0, 0, 1, &result, 0);
+                    displayPacket = btlPacketCreateHitDisplay((s32)unit, (s32)unit, -1, 0, 0, 0, 1, &result, 0);
                     *(displayPacket + 0) = 4;
                     *(s64 *)(displayPacket + 8) = *(s64 *)(resultPacket + 88);
                     *(displayPacket + 71) = *(displayPacket + 71) & 0xDF;
                     btlPacketEnqueue(displayPacket, 3);
-                    gaugePacket = func_00202590((s32)unit, 0, 0);
+                    gaugePacket = btlPacketCreateUnitCounter((s32)unit, 0, 0);
                     *(gaugePacket + 0) = 4;
                     *(s64 *)(gaugePacket + 8) = *(s64 *)(resultPacket + 88);
                     *(gaugePacket + 71) = *(gaugePacket + 71) & 0xDF;
@@ -411,16 +411,16 @@ void btlActionBadDamageUpdate(u8 *action)
                     resultPacket = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action, &result, 1, 1);
                     *(s16 *)(resultPacket + 72) = 12;
                     btlPacketEnqueue(resultPacket, 1);
-                    healthPacket = func_00202740(unit);
+                    healthPacket = btlPacketCreateHpRatio(unit);
                     *(healthPacket + 0) = 4;
                     *(s64 *)(healthPacket + 8) = *(s64 *)(resultPacket + 88);
                     btlPacketEnqueue(healthPacket, 1);
-                    displayPacket = func_00201de0((s32)unit, (s32)unit, -1, 0, 0, 0, 1, &result, 0);
+                    displayPacket = btlPacketCreateHitDisplay((s32)unit, (s32)unit, -1, 0, 0, 0, 1, &result, 0);
                     *(displayPacket + 0) = 4;
                     *(s64 *)(displayPacket + 8) = *(s64 *)(resultPacket + 88);
                     *(displayPacket + 71) = *(displayPacket + 71) & 0xDF;
                     btlPacketEnqueue(displayPacket, 3);
-                    gaugePacket = func_00202590((s32)unit, 1, 0);
+                    gaugePacket = btlPacketCreateUnitCounter((s32)unit, 1, 0);
                     *(gaugePacket + 0) = 4;
                     *(s64 *)(gaugePacket + 8) = *(s64 *)(resultPacket + 88);
                     *(gaugePacket + 71) = *(gaugePacket + 71) & 0xDF;
@@ -809,7 +809,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     extern BtlPacket *btlMainCreateFadePacket(s32 arg0, s16 arg1);
     extern BtlPacket *btlMainCreateColorFadePacket(s32 arg0);
     extern BtlPacket *func_001f81f0(u16 arg0, const char *arg1);
-    extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
+    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
     extern u8 D_005F6D38[];
     extern u8 D_005F6D48[];
     extern u8 D_005F6D58[];
@@ -988,7 +988,7 @@ void btlActionRoundupUpdate(u8 *arg0)
         }
         {
             u8 *pk;
-            pk = func_00202740(*(u8 **)(unit19 + 0x30));
+            pk = btlPacketCreateHpRatio(*(u8 **)(unit19 + 0x30));
             *(s64 *)(pk + 0x60) = uid;
             btlPacketEnqueue(pk, 1);
         }
@@ -1062,7 +1062,7 @@ void btlActionRoundupUpdate(u8 *arg0)
             }
             if (var22 == 0 && *(const s32 *)battleHitPayload(rec) != 0) {
                 u8 *pk;
-                pk = func_00202590(*(s32 *)(unit19 + 0x30), 0, 0);
+                pk = btlPacketCreateUnitCounter(*(s32 *)(unit19 + 0x30), 0, 0);
                 *pk = 5;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(pk + 0x47) &= (u8)~0x20;
@@ -1095,7 +1095,7 @@ void btlActionRoundupUpdate(u8 *arg0)
             }
             {
                 u8 *pk;
-                pk = func_00201de0(*(s32 *)(arg0 + 0x30), *(s32 *)(unit19 + 0x30), sp100, *(u16 *)(unit17 + 0xDC), *(u16 *)(unit17 + 0xDE), var22, *(u8 *)(unit17 + 0xD9), battleHitPayload(rec), 0);
+                pk = btlPacketCreateHitDisplay(*(s32 *)(arg0 + 0x30), *(s32 *)(unit19 + 0x30), sp100, *(u16 *)(unit17 + 0xDC), *(u16 *)(unit17 + 0xDE), var22, *(u8 *)(unit17 + 0xD9), battleHitPayload(rec), 0);
                 *pk = 5;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(pk + 0x47) &= (u8)~0x20;

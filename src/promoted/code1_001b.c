@@ -54,12 +54,12 @@ extern u8 *btlMainCreateColorLerpPacket(s32 arg0, s32 arg1, s32 arg2);
 extern BtlPacket *btlMainCreateColorWorkPacket(s32 first, s32 second, s32 third, u32 frames, u16 mode);
 extern u8 *btlMainCreateTintPacket(s32 arg0, s32 arg1);
 extern void func_001f0a10(u8 *arg0);
-extern u8 *func_00202740(u8 *arg0);
+extern u8 *btlPacketCreateHpRatio(u8 *arg0);
 extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrameCount, f32 speed, u16 mode);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
-extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
+extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
+extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 extern u8 *btlCreateTimingPacket(s32 arg0);
 extern u8 *btlMainCreateFadePacket(s32 arg0, s32 arg1);
 extern u8 *btlMainCreateColorFadePacket(s32 arg0);
@@ -1640,7 +1640,7 @@ void btlMainRevivalInit(void)
         if (datCalcIsDead(*(s32 *)(unit + 0xA64), 0) != 0) {
             result.words[3] = 0x80000;
         }
-        next = func_00202740(unit);
+        next = btlPacketCreateHpRatio(unit);
         *(s64 *)(next + 0x60) = *(s64 *)action;
         btlPacketEnqueue(next, 1);
         packet = (u8 *)btlFormationCreatePacket(form, (u32)unit, (u32)unit, 1, 0);
@@ -1676,13 +1676,13 @@ void btlMainRevivalInit(void)
         *(s64 *)(unitAction + 0x60) = *(s64 *)action;
         btlPacketEnqueue(unitAction, 1);
         if (result.words[0] != 0) {
-            next = func_00202590((s32)unit, 0, 0);
+            next = btlPacketCreateUnitCounter((s32)unit, 0, 0);
             *next = 4;
             *(s64 *)(next + 8) = *(s64 *)(unitAction + 0x58);
             next[0x47] &= 0xDF;
             btlPacketEnqueue(next, 3);
         }
-        next = func_00201de0((s32)unit, (s32)unit, -1, 0, 0, 0, 1, result.bytes, 0);
+        next = btlPacketCreateHitDisplay((s32)unit, (s32)unit, -1, 0, 0, 0, 1, result.bytes, 0);
         *next = 4;
         *(s64 *)(next + 8) = *(s64 *)(unitAction + 0x58);
         next[0x47] &= 0xDF;

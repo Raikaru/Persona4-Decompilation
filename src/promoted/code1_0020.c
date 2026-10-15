@@ -24,13 +24,13 @@ extern u16 func_00209dc0(u8 *arg0, u8 *arg1);
 extern void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState);
 extern void func_00209f90(void);
 extern void func_0020a5c0(void);
-extern void func_00202d20();
+extern void btlSelectionUpdateWindow();
 extern void func_00113500(void);
 extern void func_00113480(s32 a0, s32 a1, s32 a2, s32 a3);
 extern f32 sdkSpriteScaledWidth(u8 *arg0);
 extern f32 sdkSpriteScaledHeight(u8 *arg0);
-extern s32 func_00201ee0(void);
-extern s32 func_00202820(void);
+extern s32 btlPacketFinishEffect(void);
+extern s32 btlUiEndSequence(void);
 extern void func_0021afa0(s32 arg0);
 extern void func_0020e3f0();
 
@@ -40,10 +40,10 @@ extern void func_00213ab0(s32 arg0, u8 *arg1);
 extern void func_0021ae60(u8 *arg0, u8 *arg1);
 
 extern void memset(void *destination, s32 value, u32 size);
-extern void func_00202e00(u8 *arg0, s16 *arg1);
-extern void func_00202460(u8 *arg0);
-extern s32 func_00202480(u8 *arg0);
-extern void func_00202570(u8 *arg0);
+extern void btlSelectionSetRepeat(u8 *arg0, s16 *arg1);
+extern void btlPacketIncUnitCounter(u8 *arg0);
+extern s32 btlPacketUpdateHpRatio(u8 *arg0);
+extern void btlPacketDecUnitCounter(u8 *arg0);
 extern u32 func_001067f0(s16 arg0);
 extern s32 func_001eb860(void);
 
@@ -100,12 +100,12 @@ extern void func_00216d10(s32 task);
 
 
 extern u8 *btlPacketAlloc(s32 id, s32 size);
-extern s32 func_00202340(u8 *arg0);
-extern s32 func_00202070(u8 *arg0);
-extern s32 func_00202180(u8 *arg0);
+extern s32 btlPacketStepEffectCounter(u8 *arg0);
+extern s32 btlPacketStepSpriteFrameLookup(u8 *arg0);
+extern s32 btlPacketStepSpriteTable(u8 *arg0);
 
 
-extern s32 func_00202640(u8 **arg0);
+extern s32 btlPacketSetHpRatio(u8 **arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00626C30[];
@@ -117,7 +117,7 @@ extern void memset(void *dst, s32 value, u32 size);
 extern s32 btlUiTaskInit(u8 *task);
 extern void btlUiTaskDestroy(u8 *task);
 extern void btlUiInitComponents(s32 arg0, u8 *arg1);
-extern s32 func_00201b00(u8 *arg0);
+extern s32 btlPacketBuildHitFlags(u8 *arg0);
 extern void func_00201db0(void *arg0);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern void itfMesWindowReleaseIfActive(s32 arg0);
@@ -797,35 +797,40 @@ void btlUiSetRenderMode(s32 arg0)
         return;
     }
 }
+// Intent: set the sprite id at the unit's slot and return the scaled sprite width. [inferred]
 // FUN_00201950
-f32 func_00201950(u8 *arg0, s32 arg1, s32 arg2)
+f32 btlUiSpriteWidth(u8 *arg0, s32 arg1, s32 arg2)
 {
     *(s32 *)(arg0 + 0x6C) =
         *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x2C);
     *(s32 *)(arg0 + 0x70) = arg2;
     return sdkSpriteScaledWidth(arg0 + 0x6C);
 }
+// Intent: set the sprite id at the unit's slot and return the scaled sprite height. [inferred]
 // FUN_00201990
-f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2)
+f32 btlUiSpriteHeight(u8 *arg0, s32 arg1, s32 arg2)
 {
     *(s32 *)(arg0 + 0x6C) =
         *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x2C);
     *(s32 *)(arg0 + 0x70) = arg2;
     return sdkSpriteScaledHeight(arg0 + 0x6C);
 }
+// Intent: store the x/y scale factors used by the sprite draw path. [inferred]
 // FUN_002019D0
-void func_002019d0(u8 *arg0, f32 fparg0, f32 fparg1)
+void btlUiSetFactorXY(u8 *arg0, f32 fparg0, f32 fparg1)
 {
     *(f32 *)(arg0 + 0x14) = fparg0;
     *(f32 *)(arg0 + 0x18) = fparg1;
 }
+// Intent: store the alpha value of a UI component. [inferred]
 // FUN_002019E0
-void func_002019e0(u8 *arg0, f32 fparg0)
+void btlUiSetAlpha(u8 *arg0, f32 fparg0)
 {
     *(f32 *)(arg0 + 0x90) = fparg0;
 }
+// Intent: select the effect entry for a state index and start its playback. [inferred]
 // FUN_002019F0
-void func_002019f0(s32 arg0, u32 arg1)
+void btlUiSelectEffect(s32 arg0, u32 arg1)
 {
     u8 *temp_2;
 
@@ -839,8 +844,9 @@ void func_002019f0(s32 arg0, u32 arg1)
                   iGpffffb448 + (((arg1 - 0x1000) & 0xFFFF) * 0x13));
     func_00216d10(*(s32 *)(D_0076449C + 0xDD4));
 }
+// Intent: packet callback; bumps both unit counters and flags a bad-status hit. [inferred]
 // FUN_00201A80
-void func_00201a80(u8 *arg0) {
+void btlPacketHitStatusCheck(u8 *arg0) {
     s32 temp_4;
     u8 *temp_5;
     u8 *temp_5_2;
@@ -861,8 +867,9 @@ void func_00201a80(u8 *arg0) {
  * metadata at their retail callback boundaries. */
 #pragma push
 #pragma opt_propagation off
+// Intent: packet callback; builds the hit display flags from the skill and status fields. [inferred]
 // FUN_00201B00
-s32 func_00201b00(u8 *work)
+s32 btlPacketBuildHitFlags(u8 *work)
 {
     u16 flags;
     u32 input_flags;
@@ -972,8 +979,9 @@ s32 func_00201b00(u8 *work)
 #pragma pop
 /* The display callback reads both flag fields and the hit index/count
  * as unsigned halfwords. The result record is copied without modification. */
+// Intent: allocate a hit-display packet (type 0x50A) and fill its result record. [inferred]
 // FUN_00201DE0
-u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags,
+u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags,
                   u16 hitIndex, u16 hitCount, const void *result, u16 flags)
 {
     u8 *spAC;
@@ -982,8 +990,8 @@ u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags,
 
     temp_2 = (u8 *)btlPacketAlloc(0x50A, 0x3C);
     spAC = temp_2;
-    *(void **)(temp_2 + 0x68) = (void *)func_00201a80;
-    *(void **)(temp_2 + 0x6C) = (void *)func_00201b00;
+    *(void **)(temp_2 + 0x68) = (void *)btlPacketHitStatusCheck;
+    *(void **)(temp_2 + 0x6C) = (void *)btlPacketBuildHitFlags;
     *(void **)(temp_2 + 0x70) = (void *)func_00201db0;
     temp_16 = *(u8 **)(temp_2 + 0x78);
     memcpy(temp_16 + 8, result, 0x20);
@@ -997,26 +1005,29 @@ u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags,
     *(u16 *)(temp_16 + 0x38) = flags;
     return spAC;
 }
+// Intent: packet callback; finishes the effect and the associated panel. [inferred]
 // FUN_00201EE0
-s32 func_00201ee0(void)
+s32 btlPacketFinishEffect(void)
 {
     func_0020e3f0(*(s32 *)(D_0076449C + 0xDD4));
     func_0021afa0(*(s32 *)(D_0076449C + 0xDD4));
     return 1;
 }
+// Intent: allocate the finish-effect packet (type 0x50B). [inferred]
 // FUN_00201F20
-u8 *func_00201f20(void)
+u8 *btlPacketCreateFinishEffect(void)
 {
     u8 *temp_2;
 
     temp_2 = (u8 *)btlPacketAlloc(0x50B, 0);
-    *(void **)(temp_2 + 0x6C) = (void *)func_00201ee0;
+    *(void **)(temp_2 + 0x6C) = (void *)btlPacketFinishEffect;
     return temp_2;
 }
 /* measured: opt_rebuildconditionals off tested for callback completion. */
 #pragma opt_rebuildconditionals off
+// Intent: packet callback; steps a sprite frame over 32 ticks, selecting the sprite from the table. [inferred]
 // FUN_00201F60
-s32 func_00201f60(u8 *arg0)
+s32 btlPacketStepSpriteFrame(u8 *arg0)
 {
     u8 *temp_4;
     u32 temp_2;
@@ -1037,8 +1048,9 @@ s32 func_00201f60(u8 *arg0)
     }
     return 0;
 }
+// Intent: packet callback; steps a sprite frame using a lookup table value. [inferred]
 // FUN_00202070
-s32 func_00202070(u8 *arg0)
+s32 btlPacketStepSpriteFrameLookup(u8 *arg0)
 {
     u32 temp_2;
 
@@ -1059,14 +1071,15 @@ s32 func_00202070(u8 *arg0)
 }
 /* measured: restore conditional rebuilding after callback completion. */
 #pragma opt_rebuildconditionals on
+// Intent: allocate the sprite-step packet (type 0x505). [inferred]
 // FUN_00202120
-BtlPacket *func_00202120(u32 param_1, u16 param_2)
+BtlPacket *btlPacketCreateSpriteStep(u32 param_1, u16 param_2)
 {
   u32 *puVar1;
   int iVar2 = 0;
 
   iVar2 = (int)btlPacketAlloc(0x505, 0xc);
-  *(void **)(iVar2 + 0x6c) = (void *)func_00202070;
+  *(void **)(iVar2 + 0x6c) = (void *)btlPacketStepSpriteFrameLookup;
   puVar1 = *(u32 **)(iVar2 + 0x78);
   *puVar1 = param_1;
   *(u16 *)(puVar1 + 1) = param_2;
@@ -1074,8 +1087,9 @@ BtlPacket *func_00202120(u32 param_1, u16 param_2)
   return (BtlPacket *)iVar2;
 }
 
+// Intent: packet callback; steps the sprite table for a unit, 16 or 32 ticks depending on class. [inferred]
 // FUN_00202180
-s32 func_00202180(u8 *arg0)
+s32 btlPacketStepSpriteTable(u8 *arg0)
 {
     s64 temp_4;
     s32 var_16;
@@ -1112,14 +1126,15 @@ s32 func_00202180(u8 *arg0)
     }
     return 0;
 }
+// Intent: allocate the sprite-table packet (type 0x507). [inferred]
 // FUN_002022E0
-u8 *func_002022e0(u32 param_1, u16 param_2)
+u8 *btlPacketCreateSpriteTable(u32 param_1, u16 param_2)
 {
   u32 *puVar1;
   int iVar2 = 0;
 
   iVar2 = (int)btlPacketAlloc(0x507, 0xc);
-  *(void **)(iVar2 + 0x6c) = (void *)func_00202180;
+  *(void **)(iVar2 + 0x6c) = (void *)btlPacketStepSpriteTable;
   puVar1 = *(u32 **)(iVar2 + 0x78);
   *puVar1 = param_1;
   *(u16 *)(puVar1 + 1) = param_2;
@@ -1127,8 +1142,9 @@ u8 *func_002022e0(u32 param_1, u16 param_2)
   return (u8 *)iVar2;
 }
 
+// Intent: packet callback; steps an effect counter and redraws the effect entry. [inferred]
 // FUN_00202340
-s32 func_00202340(u8 *arg0)
+s32 btlPacketStepEffectCounter(u8 *arg0)
 {
     u32 temp_2;
     u32 temp_7;
@@ -1154,14 +1170,15 @@ s32 func_00202340(u8 *arg0)
     *(u32 *)(arg0 + 8) = temp_2;
     return temp_2 >= 0x21U;
 }
+// Intent: allocate the effect-counter packet (type 0x506). [inferred]
 // FUN_00202400
-BtlPacket *func_00202400(s32 arg0, s32 arg1)
+BtlPacket *btlPacketCreateEffectCounter(s32 arg0, s32 arg1)
 {
     u8 *temp_2;
     u8 *temp_3;
 
     temp_2 = (u8 *)btlPacketAlloc(0x506, 0xC);
-    *(void **)(temp_2 + 0x6C) = (void *)func_00202340;
+    *(void **)(temp_2 + 0x6C) = (void *)btlPacketStepEffectCounter;
     temp_3 = *(u8 **)(temp_2 + 0x78);
     *(s32 *)(temp_3 + 0) = arg0;
     *(s32 *)(temp_3 + 4) = arg1;
@@ -1169,14 +1186,16 @@ BtlPacket *func_00202400(s32 arg0, s32 arg1)
     return (BtlPacket *)temp_2;
 }
 
+// Intent: packet callback; increments the unit counter at +0xA0. [inferred]
 // FUN_00202460
-void func_00202460(u8 *arg0)
+void btlPacketIncUnitCounter(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 
+// Intent: packet callback; updates the unit HP ratio from current and max HP. [inferred]
 // FUN_00202480
-s32 func_00202480(u8 *arg0)
+s32 btlPacketUpdateHpRatio(u8 *arg0)
 {
     s16 temp_2;
     s16 temp_3_2;
@@ -1206,36 +1225,40 @@ s32 func_00202480(u8 *arg0)
     }
     return 1;
 }
+// Intent: packet callback; decrements the unit counter at +0xA0. [inferred]
 // FUN_00202570
-void func_00202570(u8 *arg0)
+void btlPacketDecUnitCounter(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
 
+// Intent: allocate the unit-counter packet (type 0x500) with inc, update and dec callbacks. [inferred]
 // FUN_00202590
-u8 *func_00202590(s32 arg0, s8 arg1, s16 arg2)
+u8 *btlPacketCreateUnitCounter(s32 arg0, s8 arg1, s16 arg2)
 {
     u8 *packet;
     u8 *temp;
 
     packet = (u8 *)btlPacketAlloc(0x500, 8);
     *(u8 *)(packet + 0x47) &= 0xEF;
-    *(void **)(packet + 0x68) = (void *)func_00202460;
-    *(void **)(packet + 0x6C) = (void *)func_00202480;
-    *(void **)(packet + 0x70) = (void *)func_00202570;
+    *(void **)(packet + 0x68) = (void *)btlPacketIncUnitCounter;
+    *(void **)(packet + 0x6C) = (void *)btlPacketUpdateHpRatio;
+    *(void **)(packet + 0x70) = (void *)btlPacketDecUnitCounter;
     temp = *(u8 **)(packet + 0x78);
     *(s32 *)(temp + 0) = arg0;
     *(s8 *)(temp + 4) = arg1;
     *(s16 *)(temp + 6) = arg2;
     return packet;
 }
+// Intent: second increment callback for the unit counter (same body as btlPacketIncUnitCounter). [inferred]
 // FUN_00202620
-void func_00202620(u8 *arg0)
+void btlPacketIncUnitCounterAlt(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
+// Intent: packet callback; sets the HP ratio from the current HP and resets the marker fields. [inferred]
 // FUN_00202640
-s32 func_00202640(u8 **arg0)
+s32 btlPacketSetHpRatio(u8 **arg0)
 {
     f32 var_f0;
     f32 var_f20;
@@ -1249,46 +1272,52 @@ s32 func_00202640(u8 **arg0)
     *(s16 *)(temp_16 + 0xA38) = -1;
     return 1;
 }
+// Intent: second decrement callback for the unit counter (same body as btlPacketDecUnitCounter). [inferred]
 // FUN_00202720
-void func_00202720(u8 *arg0)
+void btlPacketDecUnitCounterAlt(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
+// Intent: allocate the HP-ratio packet (type 0x501) for a unit. [inferred]
 // FUN_00202740
-u8 *func_00202740(u8 *unit)
+u8 *btlPacketCreateHpRatio(u8 *unit)
 {
     u8 *packet;
     packet = (u8 *)btlPacketAlloc(0x501, 4);
     *(u8 *)(packet + 71) &= ~(1 << 4);
-    *(void **)(packet + 0x68) = (void *)func_00202620;
-    *(void **)(packet + 0x6C) = (void *)func_00202640;
-    *(void **)(packet + 0x70) = (void *)func_00202720;
+    *(void **)(packet + 0x68) = (void *)btlPacketIncUnitCounterAlt;
+    *(void **)(packet + 0x6C) = (void *)btlPacketSetHpRatio;
+    *(void **)(packet + 0x70) = (void *)btlPacketDecUnitCounterAlt;
     *(u8 **)*(u8 **)(packet + 0x78) = unit;
 
     return packet;
 }
 
+// Intent: start the UI sequence for the battle UI task. [inferred]
 // FUN_002027B0
-s32 func_002027b0(void) {
+s32 btlUiBeginSequence(void) {
     func_00213b50(*(s32 *)(D_0076449C + 0xDD4));
     return 1;
 }
+// Intent: end the UI sequence for the battle UI task. [inferred]
 // FUN_00202820
-s32 func_00202820(void) {
+s32 btlUiEndSequence(void) {
     func_00213b80(*(s32 *)(D_0076449C + 0xDD4));
     return 1;
 }
+// Intent: allocate the end-sequence packet (type 0x50E). [inferred]
 // FUN_00202850
-u8 *func_00202850(void)
+u8 *btlPacketCreateEndSequence(void)
 {
     u8 *temp_2;
 
     temp_2 = (u8 *)btlPacketAlloc(0x50E, 0);
-    *(void **)(temp_2 + 0x6C) = (void *)func_00202820;
+    *(void **)(temp_2 + 0x6C) = (void *)btlUiEndSequence;
     return temp_2;
 }
+// Intent: initialise a selection block with its callbacks and owner. [inferred]
 // FUN_00202C60
-void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *arg5, void *arg6, u8 *arg7) {
+void btlSelectionInit(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *arg5, void *arg6, u8 *arg7) {
     memset(arg0, 0, 0x34);
     *(s16 *)(arg0 + 6) = arg1;
     *(s16 *)(arg0 + 8) = arg2;
@@ -1298,13 +1327,14 @@ void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *a
     *(void **)(arg0 + 0x1C) = arg6;
     *(u8 **)(arg0 + 0x28) = arg7;
     *(u16 *)(arg0 + 0) |= 8;
-    func_00202e00(arg0, NULL);
+    btlSelectionSetRepeat(arg0, NULL);
 }
 
 
 
+// Intent: recompute the visible selection window (first row and page) from the selected index. [inferred]
 // FUN_00202D20
-void func_00202d20(u8 *arg0, s64 arg1, s64 arg2)
+void btlSelectionUpdateWindow(u8 *arg0, s64 arg1, s64 arg2)
 {
     s32 temp_3;
     s16 temp_7;
@@ -1345,8 +1375,9 @@ void func_00202d20(u8 *arg0, s64 arg1, s64 arg2)
     *(s16 *)(arg0 + 2) = (s16)(temp_9 - 1);
     *(s16 *)(arg0 + 4) = (u16)arg1;
 }
+// Intent: set the key-repeat masks from a table or the default repeat values. [inferred]
 // FUN_00202E00
-void func_00202e00(u8 *arg0, s16 *arg1)
+void btlSelectionSetRepeat(u8 *arg0, s16 *arg1)
 {
     if (arg1 != NULL) {
         memcpy(arg0 + 0x2C, arg1, 8);
@@ -1358,8 +1389,9 @@ void func_00202e00(u8 *arg0, s16 *arg1)
     *(s16 *)(arg0 + 0x32) = 0x2000;
 }
 
+// Intent: store the owner pointer of a selection block. [inferred]
 // FUN_00202E60
-void func_00202e60(u8 *arg0, void *arg1)
+void btlSelectionSetOwner(u8 *arg0, void *arg1)
 {
     *(s32 *)(arg0 + 0x18) = (s32)arg1;
 }
@@ -1382,8 +1414,9 @@ typedef struct BattleSelectionInput {
 
 #pragma push
 #pragma opt_loop_invariants on
+// Intent: read the selection input and return the action code (1 to 4) or 0. [inferred]
 // FUN_00202E70
-s32 func_00202e70(u8 *arg0)
+s32 btlSelectionReadInput(u8 *arg0)
 {
     extern u16 D_008C024E[];
     extern u16 D_008C0276[];
@@ -1698,16 +1731,16 @@ void func_00203670(s32 unused, s32 arg1)
     *(s32 *)(temp_2 + 0xA0) = temp_4;
     temp_4 = temp_4 & 0xFFFFFFFEU;
     *(s32 *)(temp_2 + 0xA0) = temp_4;
-    func_00202c60(temp_16 + 0x40, 8, 8,
+    btlSelectionInit(temp_16 + 0x40, 8, 8,
                   (void *)func_00207140, (void *)func_00207320,
                   (void *)func_00207b00, (void *)func_002089e0, temp_16);
     temp_18 = temp_16 + 0x40;
-    func_00202e60(temp_18, (void *)func_00208870);
+    btlSelectionSetOwner(temp_18, (void *)func_00208870);
     memset((s16 *)&sp38, 0, 8);
     sp38.values[0] = 0x1000;
     sp38.values[1] = 0x4000;
-    func_00202e00(temp_16 + 0x40, (s16 *)&sp38);
-    func_00202d20(temp_16 + 0x40, 3, 0);
+    btlSelectionSetRepeat(temp_16 + 0x40, (s16 *)&sp38);
+    btlSelectionUpdateWindow(temp_16 + 0x40, 3, 0);
     func_00203360(temp_16 + 0x2C, temp_16 + 0x40);
     *(s32 *)(temp_16 + 0x2C) = 0;
     *(s32 *)(temp_16 + 0x30) = 0;
@@ -2225,7 +2258,7 @@ void func_00204b80(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
         state[0](6, 1);
     }
     btlUiSetOrigin(arg0, 36.0f, 19.0f);
-    func_002019e0(arg0, 50.0f);
+    btlUiSetAlpha(arg0, 50.0f);
     btlUiSetRenderMode(2);
     y = 0.0f;
     row = 0;
@@ -2243,7 +2276,7 @@ void func_00204b80(u8 *arg0, f32 farg0, f32 farg1, u8 opacity)
         row++;
     }
     btlUiSetRenderMode(0);
-    func_002019e0(arg0, 0.0f);
+    btlUiSetAlpha(arg0, 0.0f);
     {
         void (**state)(u32, u32);
         state = D_00887300;
@@ -2852,7 +2885,7 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
         showPrompt = 0;
     }
     btlUiSetOrigin(glyphs, scaleOrRowY, scaleY);
-    func_002019e0(glyphs, 50.0f);
+    btlUiSetAlpha(glyphs, 50.0f);
     if (showPrompt != 0) {
         btlUiDrawSpriteFaded(glyphs, 9, 0x18, 261.0f, 410.0f, 0x21, 0x21, 0x21, 0xFF);
         btlUiDrawSpriteFaded(glyphs, 9, 0x2A, 261.0f, 410.0f, 0xFF, 0x7F, 0xE9, 0xFF);
@@ -3047,7 +3080,7 @@ void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, B
         }
     }
     renderer->setState(6, 0);
-    func_002019e0(glyphs, 0.0f);
+    btlUiSetAlpha(glyphs, 0.0f);
 }
 
 #pragma pop
@@ -3103,7 +3136,7 @@ void func_00206dd0(u8 *work, u8 *selection, f32 x, f32 y,
         func_0045d6e0((u8 *)&color, (f32 *)rect, 0.0f, 0);
     }
 
-    func_002019e0(glyphs, 170.0f);
+    btlUiSetAlpha(glyphs, 170.0f);
     btlUiSetScale(glyphs, 1.0f, scale);
     remainingFraction = 1.0f - scale;
     remaining = remainingFraction;
@@ -3116,11 +3149,11 @@ void func_00206dd0(u8 *work, u8 *selection, f32 x, f32 y,
     btlUiSetScale(glyphs, 1.0f, 1.0f);
     renderer = (BattleRenderDispatch *)D_00887300;
     renderer->setState(8, 0);
-    func_002019e0(glyphs, 150.0f);
+    btlUiSetAlpha(glyphs, 150.0f);
     renderer->setState(6, 1);
     drawSelection(work, *(s16 *)(selection + 4), 127.0f, 338.0f, 0xFF, 0, 0);
     renderer->setState(6, 0);
-    func_002019e0(glyphs, 0.0f);
+    btlUiSetAlpha(glyphs, 0.0f);
     btlUiDrawSpriteEntry(glyphs, 9, 0x32, 215.0f, 412.0f);
     btlUiDrawSpriteEntry(glyphs, 9, 0x33, 193.0f, 412.0f);
     btlUiDrawSpriteEntry(glyphs, 9, 0x33, (f32)0x19D, 412.0f);
@@ -3163,7 +3196,7 @@ void func_00207140(u16 *flags, u8 *work)
     if (datGetFlag(0x3C) != 0) {
         action = *(u8 **)(*(u8 **)(work + 0x178) + 0x3F0);
         if (action != NULL) {
-            func_00202d20((u8 *)flags, *(s16 *)(action + 2), *(s16 *)action);
+            btlSelectionUpdateWindow((u8 *)flags, *(s16 *)(action + 2), *(s16 *)action);
         }
     }
     *flags |= 4;
@@ -3208,9 +3241,9 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
     extern s32 datCalcDefaultSkillId(u8 *unit);
     extern u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern u16 datPersonaCountValidMembers(void);
-    extern void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *a, void *b, void *c, void *d, u8 *arg7);
-    extern void func_00202e60(u8 *arg0, void *arg1);
-    extern void func_002019f0(s32 arg0, u32 arg1);
+    extern void btlSelectionInit(u8 *arg0, s16 arg1, s16 arg2, void *a, void *b, void *c, void *d, u8 *arg7);
+    extern void btlSelectionSetOwner(u8 *arg0, void *arg1);
+    extern void btlUiSelectEffect(s32 arg0, u32 arg1);
     extern void func_00208a50(u8 *arg0, u8 *arg1);
     extern u16 func_00208b00(u8 *arg0, u8 *arg1);
     extern void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2);
@@ -3246,7 +3279,7 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
     if (*(s16 *)(work + 0x14) != 0) {
         return 1;
     }
-    input = func_00202e70(selection) & 0xFFFF;
+    input = btlSelectionReadInput(selection) & 0xFFFF;
     if (input == 1) {
     if (*(s16 *)(selection + 4) != 3) {
         func_0045af60(0, 0, 0, 2);
@@ -3284,40 +3317,40 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
     case 4:
         if (func_001f0620(*(u8 **)(work + 0x178), 2) == 0) {
             if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64), 8) != 0) {
-                func_002019f0((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x90);
+                btlUiSelectEffect((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x90);
             }
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
         datPersonaGetRecord(*(u16 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA4));
-        func_00202c60(work + 0x74, 4, *(s16 *)(work + 0x1A4), func_00208a50,
+        btlSelectionInit(work + 0x74, 4, *(s16 *)(work + 0x1A4), func_00208a50,
                       func_00208b00, func_00208d00, func_002090d0, work);
         panel = work + 0x74;
         *nextPanel = panel;
-        func_00202e60(panel, func_00208fd0);
+        btlSelectionSetOwner(panel, func_00208fd0);
         *(s16 *)(work + 0x10) = 0;
         *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
     case 6:
         if (func_001f0620(*(u8 **)(work + 0x178), 3) == 0 || *(s16 *)(work + 0x5A6) == 0) {
             if (*(s16 *)(work + 0x5A6) == 0) {
-                func_002019f0((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x92);
+                btlUiSelectEffect((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x92);
             }
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        func_00202c60(work + 0xA8, 4, *(s16 *)(work + 0x5A6), func_00209140, func_002091f0,
+        btlSelectionInit(work + 0xA8, 4, *(s16 *)(work + 0x5A6), func_00209140, func_002091f0,
                       func_00209370, func_00209740, work);
         panel = work + 0xA8;
         *nextPanel = panel;
-        func_00202e60(panel, func_00209640);
+        btlSelectionSetOwner(panel, func_00209640);
         *(s16 *)(work + 0x10) = 0;
         *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
     case 1:
         if (func_001f0620(*(u8 **)(work + 0x178), 4) == 0) {
             if ((s32)(func_001ef720(1, 0) & 0xFFFF) < 2) {
-                func_002019f0((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x93);
+                btlUiSelectEffect((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x93);
             }
             func_0045af60(0, 0xF, 0, 8);
             return 1;
@@ -3330,22 +3363,22 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
             }
         }
         *(u16 *)(work + 0x18C) = partyCount;
-        func_00202c60(work + 0xDC, 3, (s16)partyCount, func_002097b0, func_00209870,
+        btlSelectionInit(work + 0xDC, 3, (s16)partyCount, func_002097b0, func_00209870,
                       func_002099c0, func_00209cd0, work);
         panel = work + 0xDC;
         *nextPanel = panel;
-        func_00202e60(panel, func_00209bc0);
+        btlSelectionSetOwner(panel, func_00209bc0);
         *(s16 *)(work + 0x10) = 0;
         *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
     case 5:
         if (func_001f0620(*(u8 **)(work + 0x178), 5) == 0) {
             if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64), 8) != 0) {
-                func_002019f0((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x91);
+                btlUiSelectEffect((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x91);
             } else {
                 action = *(u8 **)(work + 0x178);
                 if (!(*(u16 *)(action + 0x18) & 0x400)) {
-                    func_002019f0((s32)(u32)*(u8 **)(action + 0x30), 0x95);
+                    btlUiSelectEffect((s32)(u32)*(u8 **)(action + 0x30), 0x95);
                 }
             }
             func_0045af60(0, 0xF, 0, 8);
@@ -3353,11 +3386,11 @@ s32 func_00207320(u8 *selection, s32 workAddress, u8 **nextPanel)
         }
         *(u8 **)(work + 0x5A8) = func_00117780(*(s32 *)(work + 0x5B0), 0xF, 1, 8, 8);
         *(s16 *)(work + 0x5AC) = -1;
-        func_00202c60(work + 0x144, 4, (s16)datPersonaCountValidMembers(), func_0020a5d0,
+        btlSelectionInit(work + 0x144, 4, (s16)datPersonaCountValidMembers(), func_0020a5d0,
                       func_0020a640, func_0020aa70, func_0020ad70, work);
         panel = work + 0x144;
         *nextPanel = panel;
-        func_00202e60(panel, func_0020ac70);
+        btlSelectionSetOwner(panel, func_0020ac70);
         *(s16 *)(work + 0x10) = 0;
         *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
@@ -3529,7 +3562,7 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
     renderer = (BattleRenderDispatch *)D_00887300;
     renderer->setState(8, 0);
     renderer->setState(6, 0);
-    func_002019e0(glyphs, 0.0f);
+    btlUiSetAlpha(glyphs, 0.0f);
     if (showCommands != 0) {
         f32 t;
         u8 drawOpacity;
@@ -3612,10 +3645,10 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
                 btlUiDrawSpriteFaded(glyphs, 9, 0x20, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                 renderer = (BattleRenderDispatch *)D_00887300;
                 renderer->setState(6, 1);
-                func_002019e0(glyphs, 120.0f);
+                btlUiSetAlpha(glyphs, 120.0f);
                 btlUiDrawSpriteFaded(glyphs, 9, 0x36, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                 renderer->setState(6, 0);
-                func_002019e0(glyphs, 0.0f);
+                btlUiSetAlpha(glyphs, 0.0f);
                 btlUiSetOrigin(glyphs, origin[0] + translationX, origin[1] + offsetY);
                 showHints = 1;
                 break;
@@ -3624,7 +3657,7 @@ void func_00207b00(u8 *selection, s32 workAddress, u8 *drawState)
                 btlUiDrawSpriteFaded(glyphs, 9, 0x1E, 75.0f, 317.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                 renderer = (BattleRenderDispatch *)D_00887300;
                 renderer->setState(6, 1);
-                func_002019e0(glyphs, 120.0f);
+                btlUiSetAlpha(glyphs, 120.0f);
                 btlUiDrawSpriteFaded(glyphs, 9, 0x34, 8.0f, 297.0f, 0x1B, 0x1B, 0x1B, 0xFF);
                 renderer->setState(6, 0);
                 btlUiSetOrigin(glyphs, origin[0] + translationX, origin[1] + offsetY);
@@ -3717,7 +3750,7 @@ void func_00208a50(u8 *arg0, u8 *arg1)
     if (datGetFlag(0x3C) != 0) {
         p = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x3F0);
         if (p != NULL) {
-            func_00202d20(arg0, *(s16 *)(p + 6), *(s16 *)(p + 4));
+            btlSelectionUpdateWindow(arg0, *(s16 *)(p + 6), *(s16 *)(p + 4));
         }
     }
     *(u16 *)arg0 |= 1;
@@ -3739,7 +3772,7 @@ u16 func_00208b00(u8 *arg0, u8 *arg1)
     u16 temp_16;
     s32 idx2;
 
-    var_16 = func_00202e70(arg0) & 0xFFFF;
+    var_16 = btlSelectionReadInput(arg0) & 0xFFFF;
     switch (var_16) {
     case 2:
         idx2 = (s32)*(s16 *)(arg0 + 4) * 2;
@@ -3807,10 +3840,10 @@ void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
     }
     arg2 = (f32 *)D_00887300;
     ((void (**)(u32, u32))arg2)[0](6, 1);
-    func_002019e0(temp, 120.0f);
+    btlUiSetAlpha(temp, 120.0f);
     btlUiDrawSpriteFaded(temp, 9, 0x37, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))arg2)[0](6, 0);
-    func_002019e0(temp, 0.0f);
+    btlUiSetAlpha(temp, 0.0f);
     temp_2 = *(s16 *)(state + 0x1A);
     if (temp_2 < 4) {
         *(s16 *)(state + 0x1A) = temp_2 + 1;
@@ -3889,7 +3922,7 @@ void func_00209140(u8 *arg0, u8 *arg1)
     if (datGetFlag(0x3C) != 0) {
         p = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x3F0);
         if (p != NULL) {
-            func_00202d20(arg0, *(s16 *)(p + 0xA), *(s16 *)(p + 8));
+            btlSelectionUpdateWindow(arg0, *(s16 *)(p + 0xA), *(s16 *)(p + 8));
         }
     }
     *(u16 *)arg0 |= 1;
@@ -3906,7 +3939,7 @@ u16 func_002091f0(u8 *arg0, u8 *arg1)
     s32 temp_2;
     u16 value;
 
-    value = func_00202e70(arg0) & 0xFFFF;
+    value = btlSelectionReadInput(arg0) & 0xFFFF;
     switch (value) {
     case 2:
         *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 3;
@@ -3963,10 +3996,10 @@ void func_00209370(u8 *arg0, s32 arg1, f32 *arg2)
     }
     arg2 = (f32 *)D_00887300;
     ((void (**)(u32, u32))arg2)[0](6, 1);
-    func_002019e0(temp, 120.0f);
+    btlUiSetAlpha(temp, 120.0f);
     btlUiDrawSpriteFaded(temp, 9, 0x39, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))arg2)[0](6, 0);
-    func_002019e0(temp, 0.0f);
+    btlUiSetAlpha(temp, 0.0f);
     temp_2 = *(s16 *)(state + 0x1A);
     if (temp_2 < 4) {
         *(s16 *)(state + 0x1A) = temp_2 + 1;
@@ -4044,7 +4077,7 @@ void func_002097b0(u8 *arg0, u8 *arg1)
     if (datGetFlag(0x3C) != 0) {
         p = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x3F0);
         if (p != NULL) {
-            func_00202d20(arg0, *(s16 *)(p + 0xE), *(s16 *)(p + 0xC));
+            btlSelectionUpdateWindow(arg0, *(s16 *)(p + 0xE), *(s16 *)(p + 0xC));
         }
     }
     *(u16 *)arg0 |= 1;
@@ -4070,7 +4103,7 @@ u16 func_00209870(u8 *arg0, s32 arg1, u8 **arg2)
 
     out = (u8 **)arg2;
     base = (u8 *)(u32)arg1;
-    temp_4 = func_00202e70(arg0) & 0xFFFF;
+    temp_4 = btlSelectionReadInput(arg0) & 0xFFFF;
     switch (temp_4) {
     case 2:
         temp_2 = *(u8 **)(p4_002091f0_add(
@@ -4082,12 +4115,12 @@ u16 func_00209870(u8 *arg0, s32 arg1, u8 **arg2)
         } else {
             var_2 = 4;
         }
-        func_00202c60(base + 0x110, 4, (s16)var_2,
+        btlSelectionInit(base + 0x110, 4, (s16)var_2,
                       (void *)func_00209d40, (void *)func_00209dc0,
                       (void *)func_00209f90, (void *)func_0020a5c0, base);
         temp_4_2 = base + 0x110;
         *out = temp_4_2;
-        func_00202e60(temp_4_2, (void *)func_00209fa0);
+        btlSelectionSetOwner(temp_4_2, (void *)func_00209fa0);
         *(s32 *)(base + 4) &= ~4;
         return 3;
     case 1:
@@ -4111,10 +4144,10 @@ void func_002099c0(u8 *arg0, u8 *arg1, f32 *arg2)
     btlUiDrawSpriteFaded(temp, 9, 0x1F, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     arg2 = (f32 *)D_00887300;
     ((void (**)(u32, u32))arg2)[0](6, 1);
-    func_002019e0(temp, 120.0f);
+    btlUiSetAlpha(temp, 120.0f);
     btlUiDrawSpriteFaded(temp, 9, 0x35, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))arg2)[0](6, 0);
-    func_002019e0(temp, 0.0f);
+    btlUiSetAlpha(temp, 0.0f);
     if (func_001eb860() != 0) {
         btlUiDrawSpriteFaded(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
         btlUiDrawSpriteEntry(temp, 9, 0x1C, 100.0f, (f32)0x19B);
@@ -4186,7 +4219,7 @@ void func_00209cd0(u8 *arg0, u8 *arg1)
 void func_00209d40(u8 *arg0, u8 *arg1)
 {
     func_0045af60(0, 0, 0, 3);
-    func_00202d20(arg0, 0, 0);
+    btlSelectionUpdateWindow(arg0, 0, 0);
     *(u16 *)arg0 |= 1;
     *(u16 *)arg0 |= 2;
     *(s16 *)(arg1 + 0x1C) = 0;
@@ -4208,7 +4241,7 @@ u16 func_00209dc0(u8 *arg0, u8 *arg1)
     s32 temp_3;
     u16 var_16;
 
-    var_16 = func_00202e70(arg0) & 0xFFFF;
+    var_16 = btlSelectionReadInput(arg0) & 0xFFFF;
     switch (var_16) {
     case 2:
         temp_16 = *(s16 *)(arg0 + 4);
@@ -4365,7 +4398,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     }
     renderer = (BattleRenderDispatch *)D_00887300;
     renderer->setState(6, 1);
-    func_002019e0(glyphs, 50.0f);
+    btlUiSetAlpha(glyphs, 50.0f);
     btlUiDrawSpriteFaded(glyphs, 9, 0x3B, 493.0f, 330.0f, 0x1B, 0x1B, 0x1B, 0xFF);
     iconFrame = (s16)func_00105f00(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4)) + 0x3F;
     btlUiDrawSpriteFaded(glyphs, 9, iconFrame, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
@@ -4388,7 +4421,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     frFontListKeepOrRelease((s32)(u32)font);
     frFontClearFlagBits(0x40);
     renderer->setState(6, 0);
-    func_002019e0(glyphs, 0.0f);
+    btlUiSetAlpha(glyphs, 0.0f);
     {
         f32 clamped;
         f32 progress;
@@ -4450,7 +4483,7 @@ u16 func_0020a640(u8 *arg0, u8 *arg1)
     u8 *stats;
     u8 *task;
 
-    var_16 = (u16)(func_00202e70(arg0) & 0xFFFF);
+    var_16 = (u16)(btlSelectionReadInput(arg0) & 0xFFFF);
     switch (var_16) {
     case 2:
         temp_16 = *(s16 *)(arg0 + 4);
@@ -4485,7 +4518,7 @@ u16 func_0020a640(u8 *arg0, u8 *arg1)
                 memset(sp48, 0, 8);
                 sp48[0] = 4;
                 sp48[1] = 8;
-                func_00202e00(arg0, sp48);
+                btlSelectionSetRepeat(arg0, sp48);
                 *(u16 *)arg0 &= ~2;
                 *(u16 *)arg0 &= ~1;
                 *(u16 *)arg0 &= ~8;
@@ -4510,7 +4543,7 @@ u16 func_0020a640(u8 *arg0, u8 *arg1)
             *(s32 *)(iGpffffb3ac + 0xC) |= 0x20000;
             func_0011bc70(*(u8 **)(arg1 + 0x5A8));
             *(s16 *)(arg1 + 0x5AC) = -1;
-            func_00202e00(arg0, NULL);
+            btlSelectionSetRepeat(arg0, NULL);
             func_00213c70(*(u8 **)(arg1 + 0x5B0));
             *(u16 *)arg0 |= 2;
             *(u16 *)arg0 |= 1;
@@ -4560,10 +4593,10 @@ void func_0020aa70(u8 *arg0, u8 *arg1, f32 *arg2)
     btlUiDrawSpriteFaded(temp, 9, 0x22, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     arg2 = (f32 *)D_00887300;
     ((void (**)(u32, u32))arg2)[0](6, 1);
-    func_002019e0(temp, 120.0f);
+    btlUiSetAlpha(temp, 120.0f);
     btlUiDrawSpriteFaded(temp, 9, 0x38, 8.0f, (f32)0x129, 0x1B, 0x1B, 0x1B, 0xFF);
     ((void (**)(u32, u32))arg2)[0](6, 0);
-    func_002019e0(temp, 0.0f);
+    btlUiSetAlpha(temp, 0.0f);
     if (func_001eb860() != 0) {
         btlUiDrawSpriteFaded(temp, 9, 0x18, 100.0f, (f32)0x19B, 0x1B, 0x1B, 0x1B, 0xFF);
         btlUiDrawSpriteEntry(temp, 9, 0x1C, 100.0f, (f32)0x19B);
@@ -5452,10 +5485,10 @@ void func_0020ea60(u8 *task, u8 *transition, u8 *panel, u8 *output)
     else second = 1.0f;
     stretch = 2.0f * first - second;
     if (!(stretch <= 0.0f)) {
-        func_002019d0(work, 1.0f, stretch);
+        btlUiSetFactorXY(work, 1.0f, stretch);
         btlUiDrawSpriteFaded(work, 10, 21, 54.0f, 25.0f, 150, 255, 2, 255);
         btlUiDrawSpriteFaded(work, 10, 22, 54.0f, 70.0f, 150, 255, 2, 255);
-        func_002019d0(work, 1.0f, 1.0f);
+        btlUiSetFactorXY(work, 1.0f, 1.0f);
     }
     if (frame < 2) fade = 0.0f;
     else if (frame < 5) fade = (f32)(frame - 2) / 3.0f;
@@ -5601,8 +5634,8 @@ void func_0020f4d0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
 /* measured: close the F4D0 propagation probe. */
 #pragma opt_propagation on
 extern f32 fGpffff8210;
-f32 func_00201950(u8 *arg0, s32 arg1, s32 arg2);
-f32 func_00201990(u8 *arg0, s32 arg1, s32 arg2);
+f32 btlUiSpriteWidth(u8 *arg0, s32 arg1, s32 arg2);
+f32 btlUiSpriteHeight(u8 *arg0, s32 arg1, s32 arg2);
 
 /* 820/832 bytes with 26 resolved relocations and three exact lookup tables.
    The caller passes a packed four-byte color. Independent complete coordinate
@@ -5667,13 +5700,13 @@ void func_0020f730(u8 *work, u8 *state, s32 packedColor, s32 index)
         }
         sprite = sprites[flipX | (flipY << 1)] - part;
         rowOffset = part * (2 * sizeof(f32));
-        width = func_00201950(work, 10, sprite);
+        width = btlUiSpriteWidth(work, 10, sprite);
         adjustmentX = (f32)flipX * width;
         scaleX = fGpffff8210;
         adjustmentX = adjustmentX / scaleX;
         offsetX = *(f32 *)((u8 *)&offsets[0].fromX + rowOffset);
         drawX = scaleX * (drawX * (offsetX + adjustmentX));
-        height = func_00201990(work, 10, sprite);
+        height = btlUiSpriteHeight(work, 10, sprite);
         adjustmentY = (f32)flipY * height;
         adjustmentY = adjustmentY / scaleY;
         offsetY = *(f32 *)((u8 *)&offsets[0].y.fromY + rowOffset);
@@ -5721,7 +5754,7 @@ void func_0020fa70(u8 *work, u8 *state)
     ring.rgba.c3 = 51;
     fill.rgba.c3 = (u8)(255.0f * extent);
     btlUiSetOrigin(work, (f32)279, 229.0f);
-    func_002019d0(work, 1.0f, 1.0f);
+    btlUiSetFactorXY(work, 1.0f, 1.0f);
     saved.rgba = fill.rgba;
     position.x = (f32)279;
     position.y = 229.0f;
@@ -5751,7 +5784,7 @@ void func_0020fa70(u8 *work, u8 *state)
     for (index = 1; index < 12; index++) func_0020f730(work, state, ring.bits, index);
     btlUiSetTileOffset(work, 0, 0, 0.0f);
     btlUiSetScale(work, 1.0f, 1.0f);
-    func_002019d0(work, 1.0f, 1.0f);
+    btlUiSetFactorXY(work, 1.0f, 1.0f);
 }
 /* Advance the transition frame before its timed drawing phases. The corner
  * opacity is narrowed to one byte before packing the vertex color. */
@@ -5881,9 +5914,9 @@ void func_0020ff00(u8 *glyphs, u8 *transition)
     glyphScale = glyphFadeIn - glyphFadeOut;
     if (!(glyphScale <= 0.0f)) {
         btlUiSetRect((s32 *)glyphs, 239.0f, 161.0f, 128.0f, 127.0f);
-        func_002019d0(glyphs, glyphScale, 1.0f);
+        btlUiSetFactorXY(glyphs, glyphScale, 1.0f);
         btlUiDrawSpriteFaded(glyphs, 0xA, 0x33, 0.0f, 0.0f, 0xCC, 0, 0, 0xFF);
-        func_002019d0(glyphs, glyphScale, 1.0f);
+        btlUiSetFactorXY(glyphs, glyphScale, 1.0f);
     }
     renderer->setState(1, 0);
     btlUiSetRenderMode(2);
