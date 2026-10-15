@@ -495,10 +495,10 @@ s32 func_0014f310(s32 arg0, s32 arg1) {
     extern s32 func_0015f000(u8 *arg0, u8 *arg1);
     extern s32 func_0015c6f0(u8 *arg0);
     extern void func_0015c730(u8 *arg0);
-    extern s32 func_0015c750(void);
-    extern s32 func_0015c800(u8 *arg0);
-    extern s32 func_0015ccc0(void);
-    extern s32 func_0015cd70(u8 *arg0);
+    extern s32 NpcTable_RequestSceneTable(void);
+    extern s32 NpcTable_InstallSceneTable(u8 *arg0);
+    extern s32 NpcTable_RequestSecondaryTable(void);
+    extern s32 NpcTable_InstallSecondaryTable(u8 *arg0);
     extern s32 func_0015a160(void);
     extern s32 func_0015ac60(s32 arg0);
     extern s32 func_0015a7c0(s32 arg0);
@@ -758,15 +758,15 @@ loadNpcTables:
             if (*( s32 * )(iGpffff9db0 + 0) < 0xC8) {
                 iGpffffb208 = (s32) (temp_3_10 + 0x32000);
             }
-            D_007D24E0[0] = func_0015c750();
-            D_007D24E8[0] = func_0015ccc0();
+            D_007D24E0[0] = NpcTable_RequestSceneTable();
+            D_007D24E8[0] = NpcTable_RequestSecondaryTable();
             *( s32 * )(iGpffff9db0 + 0x94) = 5;
 waitNpcTables:
-            if (func_0015c800((u8 *)D_007D24E0[0]) == 0) {
+            if (NpcTable_InstallSceneTable((u8 *)D_007D24E0[0]) == 0) {
                 return 0;
             }
             D_007D24E0[0] = 0;
-            if (func_0015cd70((u8 *)D_007D24E8[0]) == 0) {
+            if (NpcTable_InstallSecondaryTable((u8 *)D_007D24E8[0]) == 0) {
                 return 0;
             }
             D_007D24E8[0] = 0;
