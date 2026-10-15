@@ -194,6 +194,26 @@ extern s32 func_003e47c0(s8 *arg0, s8 *arg1); /* P4: ported verbatim into src/re
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
+extern f32 sqrtf(f32 x);
+
+/* measured: schedule on is required for COP1 FMA accumulator pipelining in func_003e4030. */
 #pragma schedule on
-/* measured: closes the schedule bracket; the unit default is off. */
+// FUN_003E4030
+f32 func_003e4030(f32 *arg0, const f32 *arg1) {
+    f32 x = arg1[0];
+    f32 recip;
+
+    recip = arg1[1] * arg1[1];
+    recip += x * x;
+    recip += arg1[2] * arg1[2];
+    recip = sqrtf(recip);
+    recip = (recip > 0.0f) ? (1.0f / recip) : recip;
+    arg0[0] = x * recip;
+    arg0[1] = arg1[1] * recip;
+    arg0[2] = arg1[2] * recip;
+    return recip;
+}
+/* measured: closes schedule bracket around func_003e4030; unit default is off. */
 #pragma schedule off
+
+
