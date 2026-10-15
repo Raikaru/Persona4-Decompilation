@@ -11,8 +11,8 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 }
 
 extern void btlUnitSetRot(void *arg0, void *arg1);
-extern void func_001ec1c0(void *out, void *first, void *second);
-extern void func_001ec6d0(s16 *arg0, s16 *arg1, f32 *position);
+extern void btlTargetBlendVectors(void *out, void *first, void *second);
+extern void btlTargetPositionToCell(s16 *arg0, s16 *arg1, f32 *position);
 extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
 extern u16 datCalcMaxHp(u8 *arg0);
 extern u16 datCalcMaxSp(u8 *arg0);
@@ -27,12 +27,12 @@ extern u16 datCalcGetHp(u8 *arg0);
 extern u16 datCalcGetSp(u8 *arg0);
 extern void func_001d6de0(s32 arg0, s32 arg1);
 extern s32 func_001d6360(u8 *arg0);
-extern void func_001d42e0(s32 arg0);
+extern void btlFormationResetState(s32 arg0);
 extern void func_00485b20(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
 extern void func_001d6880(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
-extern void func_001d3e00(s32 arg0);
+extern void btlFormationSetPlacement(s32 arg0);
 extern void func_001d6910(u8 *arg0);
 extern void func_001d75d0(u8 *arg0);
 extern void H_Cdvd_Destroy(u8 *arg0);
@@ -60,7 +60,7 @@ extern void func_00460ac0(char *arg0, u8 *arg1);
 extern char D_005DC824[];
 extern char D_00794AE0[];
 extern char D_00794C00[];
-extern void func_001d44a0(f32 arg0, f32 arg1, f32 *arg2, s32 *arg3, u8 *arg4, u8 *arg5);
+extern void btlFormationVuTransform(f32 arg0, f32 arg1, f32 *arg2, s32 *arg3, u8 *arg4, u8 *arg5);
 struct RwV3d;
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
@@ -104,7 +104,7 @@ extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 extern u32 datCalcGetTableLength(u8 *arg0);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 
-extern void func_001d7bb0(void);
+extern void btlFormationDispatchArgs(void);
 extern void *btlPacketAlloc();
 
 extern s32 func_001d7b30(u16 *arg0);
@@ -138,13 +138,13 @@ extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-extern void func_001d4780(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-extern void func_001d48b0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-extern void func_001d49c0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-extern void func_001d4b00(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-extern void func_001d4c40(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-extern void func_001d4cf0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-extern void func_001d4dc0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void btlFormationTransformOffset(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void btlFormationOrientToUnit(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void btlFormationApplyModelMatrix(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void btlFormationApplyModelMatrixAlt(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void btlFormationOffsetTransformA(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void btlFormationOffsetTransformB(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void btlFormationOffsetTransformC(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 // FUN_001D1310
 void func_001d1310(u16 *arg0) {
     u8 *node;
@@ -333,7 +333,7 @@ void func_001d1680(s32 applyPositions, s32 unused)
             entry = layout + slot * 0x18;
             position.x = *(f32 *)(entry + 4);
             position.z = *(f32 *)(entry + 8);
-            func_001ec6d0((s16 *)(actor + 0x94), (s16 *)(actor + 0x96), (f32 *)&position);
+            btlTargetPositionToCell((s16 *)(actor + 0x94), (s16 *)(actor + 0x96), (f32 *)&position);
             if (applyPositions != 0) {
                 position.x = (f32)(*(s16 *)(actor + 0x94) * 25 - 1750);
                 position.z = (f32)(*(s16 *)(actor + 0x96) * 25 - 1750);
@@ -416,7 +416,7 @@ void func_001d1680(s32 applyPositions, s32 unused)
                 entry = layout + slot * 0x18;
                 position.x = *(f32 *)(entry + 0x64);
                 position.z = *(f32 *)(entry + 0x68);
-                func_001ec6d0((s16 *)(enemy + 0x94), (s16 *)(enemy + 0x96), (f32 *)&position);
+                btlTargetPositionToCell((s16 *)(enemy + 0x94), (s16 *)(enemy + 0x96), (f32 *)&position);
                 if (applyPositions != 0) {
                     position.x = (f32)(*(s16 *)(enemy + 0x94) * 25 - 1750);
                     position.z = (f32)(*(s16 *)(enemy + 0x96) * 25 - 1750);
@@ -440,14 +440,14 @@ void func_001d1680(s32 applyPositions, s32 unused)
         facingUnit = *(u8 **)(iGpffffb3ac + 0x17C);
         while (facingUnit != NULL) {
             btlUnitGetSphereWorldCenter(facingUnit, (f32 *)&position);
-            func_001ec1c0(&rotation, &position, &enemyCenter);
+            btlTargetBlendVectors(&rotation, &position, &enemyCenter);
             btlUnitSetRot(facingUnit, &rotation);
             facingUnit = *(u8 **)(facingUnit + 0xA68);
         }
         facingUnit = *(u8 **)(iGpffffb3ac + 0x184);
         while (facingUnit != NULL) {
             btlUnitGetSphereWorldCenter(facingUnit, (f32 *)&position);
-            func_001ec1c0(&rotation, &position, &actorCenter);
+            btlTargetBlendVectors(&rotation, &position, &actorCenter);
             btlUnitSetRot(facingUnit, &rotation);
             facingUnit = *(u8 **)(facingUnit + 0xA68);
         }
@@ -528,13 +528,13 @@ s32 func_001d1cc0(u8 *arg0)
  * only a subset of those objects; their shared pointer contract is unchanged.
  * D_00609500 has fourteen slots, including two null slots at types 5 and 6. */
 typedef void BtlAttachPositionCallback(u8 *work, u8 *unit, u8 *entry, f32 *position);
-BtlAttachPositionCallback func_001d4780;
-BtlAttachPositionCallback func_001d48b0;
-BtlAttachPositionCallback func_001d49c0;
-BtlAttachPositionCallback func_001d4b00;
-BtlAttachPositionCallback func_001d4c40;
-BtlAttachPositionCallback func_001d4cf0;
-BtlAttachPositionCallback func_001d4dc0;
+BtlAttachPositionCallback btlFormationTransformOffset;
+BtlAttachPositionCallback btlFormationOrientToUnit;
+BtlAttachPositionCallback btlFormationApplyModelMatrix;
+BtlAttachPositionCallback btlFormationApplyModelMatrixAlt;
+BtlAttachPositionCallback btlFormationOffsetTransformA;
+BtlAttachPositionCallback btlFormationOffsetTransformB;
+BtlAttachPositionCallback btlFormationOffsetTransformC;
 BtlAttachPositionCallback func_001d4e90;
 BtlAttachPositionCallback func_001d4eb0;
 
@@ -875,7 +875,7 @@ void func_001d53e0(s32 arg0)
         } else {
             btlUnitGetSphereWorldCenter(unit, unitCenter);
             btlUnitGetSphereWorldCenter(w->target, targetCenter);
-            func_001ec1c0(&w->center, unitCenter, targetCenter);
+            btlTargetBlendVectors(&w->center, unitCenter, targetCenter);
         }
         w->size = *(f32 *)(unit + 0x2C);
     }
@@ -1131,7 +1131,7 @@ u8 *func_001d7bf0(u32 param_1, u32 param_2, u32 param_3)
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x309, 0xc);
-    *(code **)(packet + 0x6c) = (code *)func_001d7bb0;
+    *(code **)(packet + 0x6c) = (code *)btlFormationDispatchArgs;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
     work[1] = param_2;

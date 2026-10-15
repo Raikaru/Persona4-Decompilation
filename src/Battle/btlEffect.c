@@ -20,7 +20,7 @@ typedef struct BtlFormationWork {
   u32 items;
 } BtlFormationWork;
 
-extern void func_001d42e0(BtlFormationWork* param_1);
+extern void btlFormationResetState(BtlFormationWork* param_1);
 extern void func_00485b20(u32 param_1);
 extern void mdlDestroyModelObject(u32 param_1);
 
@@ -58,8 +58,8 @@ extern void H_Cdvd_ReadSync(void* handle);
 extern void chkmemAllocSiteTag(void* msg, s32 id);
 extern void memcpy(void* dst, void* src, u32 size);
 extern void H_Cdvd_Destroy(u8* ptr);
-extern s32 func_001d3d50(u32 param_1);
-extern void func_001d4490(int param_1, u32 param_2);
+extern s32 btlFormationAllocWork(u32 param_1);
+extern void btlFormationSetSlot(int param_1, u32 param_2);
 extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 
@@ -78,7 +78,7 @@ void func_001d6880(u16 *param_1)
 
 {
   if (*(int *)(param_1 + 8) != 0) {
-    func_001d42e0((BtlFormationWork *)*(int *)(param_1 + 8));
+    btlFormationResetState((BtlFormationWork *)*(int *)(param_1 + 8));
     *(u32 *)(param_1 + 8) = 0;
   }
   if (*(int *)(param_1 + 10) != 0) {
@@ -111,7 +111,7 @@ u16 *func_001d6ce0(int param_1)
     if ((*(u32 *)(param_1 + 0xc0) & mask) == 0) {
       entry = *(u16 **)(param_1 + index * 4);
       if (*(int *)(entry + 8) != 0) {
-        func_001d42e0((BtlFormationWork *)*(int *)(entry + 8));
+        btlFormationResetState((BtlFormationWork *)*(int *)(entry + 8));
         *(u32 *)(entry + 8) = 0;
       }
       if (*(int *)(entry + 10) != 0) {
@@ -148,7 +148,7 @@ u32 func_001d6de0(int param_1, u16 *entry)
   while (index < 0x30) {
     if (*(u16 **)(param_1 + index * 4) == entry) {
       if (*(int *)(entry + 8) != 0) {
-        func_001d42e0((BtlFormationWork *)*(int *)(entry + 8));
+        btlFormationResetState((BtlFormationWork *)*(int *)(entry + 8));
         *(u32 *)(entry + 8) = 0;
       }
       if (*(int *)(entry + 10) != 0) {
@@ -190,8 +190,8 @@ u32 func_001d7760(void)
     for (firstIndex = 0; firstIndex < 0x30; firstIndex++) {
       firstValue = (u32)func_00455ea0(*(void **)(D_0076449C + 0xDC4), firstIndex, &auStack_4);
       firstOffset = firstIndex * 4;
-      *(u32 *)(D_0076449C + firstOffset + 0xD04) = func_001d3d50(2);
-      func_001d4490(*(u32 *)(D_0076449C + firstOffset + 0xD04), firstValue);
+      *(u32 *)(D_0076449C + firstOffset + 0xD04) = btlFormationAllocWork(2);
+      btlFormationSetSlot(*(u32 *)(D_0076449C + firstOffset + 0xD04), firstValue);
     }
     *(u32 *)(D_0076449C + 0xC) |= 0x40000;
     return 1;
@@ -230,12 +230,12 @@ void func_001d78d0(void) {
         work = func_00454a60(*(u8 **)((u8 *)&iGpffffa2a0 + offset), 0);
         H_Cdvd_ReadSync(work);
         out = (s32 *)((u8 *)&iGpffffb450 + offset);
-        *out = func_001d3d50(2);
+        *out = btlFormationAllocWork(2);
         temp19 = *(s32 *)(work + 0x118);
         chkmemAllocSiteTag(D_00609558, 0x3A);
         work2 = jtbl_008873E8[0](temp19, 0x40000);
         memcpy(work2, (void *)*(s32 *)(work + 0x110), *(s32 *)(work + 0x118));
-        func_001d4490(*out, (u32)work2);
+        btlFormationSetSlot(*out, (u32)work2);
         H_Cdvd_Destroy(work);
         i += 1;
     }

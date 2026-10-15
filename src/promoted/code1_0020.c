@@ -5059,7 +5059,7 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
     extern void func_00201350(void);
     extern u8 *func_001b1560(void);
     extern void func_00195d50(u8 *arg0, f32 *arg1);
-    extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
+    extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
     extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
     extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
                                f32 fparg1, s32 arg5, s32 arg6, s32 arg7,
@@ -5095,7 +5095,7 @@ void func_0020bd70(u8 *arg0, u8 *arg1)
             temp_2_2 = func_001b1560();
             if (temp_2_2 != NULL) {
                 func_00195d50(*(u8 **)(temp_2_2 + 0x30), frame.sp50);
-                if (func_001ec4a0(frame.sp50, frame.sp48) != 0) {
+                if (btlTargetFindInRange(frame.sp50, frame.sp48) != 0) {
                     func_002012d0(temp_2, frame.sp48[0] - 46.0f,
                                   frame.sp48[1] - 17.0f);
                     func_00201820(2);
@@ -5143,7 +5143,7 @@ void func_0020bfd0(u8 *arg0)
 void func_0020e010(s32 arg0, u8 *arg1, u8 *arg2)
 {
     extern void func_00195d50(u8 *arg0, f32 *arg1);
-    extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
+    extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
     extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
     extern void func_0020bff0(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
     extern void func_0020c680(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
@@ -5184,7 +5184,7 @@ flag_clear:
     *(s32 *)(arg2 + 0xA10) &= ~0x200;
 flags_done:
     func_00195d50(arg2, (f32 *)work.vector);
-    if (func_001ec4a0((f32 *)work.vector, (f32 *)work.value) != 0) {
+    if (btlTargetFindInRange((f32 *)work.vector, (f32 *)work.value) != 0) {
         func_002012d0(temp_16, 0.0f, 0.0f);
         temp_4 = *(u16 *)(arg1 + 0);
         switch (temp_4) {

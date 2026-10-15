@@ -148,7 +148,7 @@ typedef struct {
 // FUN_00210C70
 void func_00210c70(u8 *arg0, u8 *arg1)
 {
-    extern s32 func_001ec4a0(s32 arg0, u8 *arg1);
+    extern s32 btlTargetFindInRange(s32 arg0, u8 *arg1);
     extern f32 func_0020e5c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void func_00195ea0(BtlUnit *unit, RwV3d *position);
     extern void func_0020ea60(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
@@ -193,7 +193,7 @@ void func_00210c70(u8 *arg0, u8 *arg1)
         if (*(u16 *)(transition + 0x14) & 8) {
             func_00195ea0((BtlUnit *)*(u8 **)transition, (RwV3d *)(transition + 4));
         }
-        if (func_001ec4a0((s32)(transition + 4), (u8 *)pos) != 0) {
+        if (btlTargetFindInRange((s32)(transition + 4), (u8 *)pos) != 0) {
             work = *(u8 **)transition + 0xA3C;
             info.drawGauge = 0;
             func_00201300(panel, pos[0] - 86.0f, pos[1] - 86.0f, 172.0f, 172.0f);
@@ -551,7 +551,7 @@ loop_test:
 void func_00211ba0(u8 *arg0, u8 *arg1)
 {
     extern void func_00195f70(u8 *arg0, f32 *arg1);
-    extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
+    extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
     extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
     extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
     extern f32 func_0020e5c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -587,7 +587,7 @@ void func_00211ba0(u8 *arg0, u8 *arg1)
                         continue;
                     }
                     func_00195f70(unit, world);
-                    if (!func_001ec4a0(world, screen)) {
+                    if (!btlTargetFindInRange(world, screen)) {
                         continue;
                     }
                     func_002012d0(context, screen[0] - 86.0f, screen[1] - 86.0f);

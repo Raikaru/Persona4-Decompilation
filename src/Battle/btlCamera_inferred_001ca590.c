@@ -185,7 +185,7 @@ void btlCameraFrameSweep(u8 *camera, f32 angle, f32 duration)
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 RwV2dLength(f32 *in);
     extern f32 fabsf(f32 x);
-    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
+    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern f32 tanf(f32 angle);
     extern void btlCameraCopyPose(f32 *out, f32 *in);
 
@@ -272,11 +272,11 @@ void btlCameraFrameSweep(u8 *camera, f32 angle, f32 duration)
         alternateEye.x = 0.0f + basePosition.x + direction.z * extent;
         alternateEye.z = 0.0f + baseZ - direction.x * extent;
         btlCameraLookAtQuat(&firstRotation, &alternateEye, &focus, D_0060A0E0);
-        firstAngle = func_001ec2b0(&frames[0].rot, &firstRotation);
+        firstAngle = btlTargetQuatAngle(&frames[0].rot, &firstRotation);
         alternateEye.x = 0.0f + basePosition.x - direction.z * extent;
         alternateEye.z = 0.0f + baseZ + direction.x * extent;
         btlCameraLookAtQuat(&secondRotation, &alternateEye, &focus, D_0060A0E0);
-        secondAngle = func_001ec2b0(&frames[0].rot, &secondRotation);
+        secondAngle = btlTargetQuatAngle(&frames[0].rot, &secondRotation);
         if (firstAngle < secondAngle) {
             frames[1].rot = firstRotation;
         } else {
@@ -724,8 +724,8 @@ void btlCameraApplyPreset(u8 *camera, f32 duration, s32 initialize)
     u8 *action;
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
-    extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
+    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
+    extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
     extern f32 tanf(f32 angle);
     extern void btlCameraCopyPoseTarget(f32 *out, f32 *in);
     extern void btlCameraCopyPose(f32 *out, f32 *in);
@@ -813,7 +813,7 @@ void btlCameraApplyPreset(u8 *camera, f32 duration, s32 initialize)
     geometry.eyeXZ[1] = eye.z;
     baseXZ[0] = basePosition.x;
     baseXZ[1] = baseZ;
-    projectedRadius = func_001ec3d0((u8 *)geometry.focusXZ, (u8 *)geometry.eyeXZ, (u8 *)baseXZ, (u8 *)projectedXZ);
+    projectedRadius = btlTargetAngleBetween((u8 *)geometry.focusXZ, (u8 *)geometry.eyeXZ, (u8 *)baseXZ, (u8 *)projectedXZ);
     projectedRadius = projectedRadius + 0.0f + radiusFactor * (*(f32 *)(selectedUnit + 0x90) * *(f32 *)(selectedUnit + 0x2C));
     eye.x = projectedXZ[0];
     eye.y = baseY;
@@ -830,7 +830,7 @@ void btlCameraApplyPreset(u8 *camera, f32 duration, s32 initialize)
     if (poses[1].pos.y < 12.5f) poses[1].pos.y = 12.5f;
     btlCameraCopyPose((f32 *)&poses[0], (f32 *)(camera + 0x9C));
     if (initialize != 0) {
-        if (!(func_001ec2b0(&poses[0].rot, &poses[1].rot) <= fGpffff80dc)) {
+        if (!(btlTargetQuatAngle(&poses[0].rot, &poses[1].rot) <= fGpffff80dc)) {
             btlCameraCopyPoseTarget((f32 *)&poses[0], (f32 *)&poses[1]);
             mode = 3;
         } else {

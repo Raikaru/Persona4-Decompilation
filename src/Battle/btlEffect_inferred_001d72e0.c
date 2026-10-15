@@ -14,7 +14,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern void (*jtbl_008873EC[])(void *);
-extern void func_001d3e00(s32 arg0);
+extern void btlFormationSetPlacement(s32 arg0);
 extern void func_001d75d0(u8 *arg0);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern u32 iGpffffb3b8;
@@ -208,7 +208,7 @@ void func_001d75d0(u8 *arg0)
         for (firstIndex = 0; firstIndex < 0x30; firstIndex = firstIndex + 1) {
             state = iGpffffb3ac;
             if (*(int *)(state + firstIndex * 4 + 0xD04) != 0) {
-                func_001d3e00(*(u32 *)(state + firstIndex * 4 + 0xD04));
+                btlFormationSetPlacement(*(u32 *)(state + firstIndex * 4 + 0xD04));
                 *(u32 *)(iGpffffb3ac + firstIndex * 4 + 0xD04) = 0;
             }
         }
@@ -224,7 +224,7 @@ void func_001d75d0(u8 *arg0)
             iVar1 = *(int *)(state + iVar3 + 0xD04);
             if (iVar1 != 0) {
                 (*jtbl_008873EC)((u8 *)(u32)*(u32 *)(iVar1 + 0x634));
-                func_001d3e00(*(u32 *)(iGpffffb3ac + iVar3 + 0xD04));
+                btlFormationSetPlacement(*(u32 *)(iGpffffb3ac + iVar3 + 0xD04));
                 *(u32 *)(iGpffffb3ac + iVar3 + 0xD04) = 0;
             }
         }

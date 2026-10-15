@@ -92,8 +92,8 @@ extern u8 D_0060A0D0[];
 extern u8 D_0060A0E0[];
 extern RwV3d D_0060A0F0;
 extern u8 D_0060A100[];
-extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
-extern f32 func_001ec250(f32 *arg0, u8 *arg1);
+extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
+extern f32 btlTargetVectorDistance(f32 *arg0, u8 *arg1);
 extern s32 func_0044dcd8(f32 arg0);
 extern s32 func_0044b310(s32 arg0);
 extern f32 func_0044e7d8(s32 arg0);
@@ -368,7 +368,7 @@ void btlCameraFrameSideView(u8 *camera, s32 immediate)
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
     extern void btlCameraCopyPose(f32 *out, f32 *in);
     extern void btlCameraCopyPoseTarget(f32 *out, f32 *in);
-    extern void func_001ec1c0(u8 *out, u8 *first, u8 *second);
+    extern void btlTargetBlendVectors(u8 *out, u8 *first, u8 *second);
     extern void func_003dcc70(const void *first, const void *second, void *result);
     extern f32 tanf(f32 angle);
     extern f32 fGpffff8118, fGpffff80bc, fGpffff8120, fGpffff8124;
@@ -384,7 +384,7 @@ void btlCameraFrameSideView(u8 *camera, s32 immediate)
     distance = func_00196040(2, 0, &center, &top, NULL, 1);
     top *= fGpffff8100;
     center.y = top;
-    func_001ec1c0((u8 *)&heading, (u8 *)&actorPosition, (u8 *)&center);
+    btlTargetBlendVectors((u8 *)&heading, (u8 *)&actorPosition, (u8 *)&center);
     RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)&heading);
     direction.x *= doubledRadius;
     direction.y *= doubledRadius;
@@ -433,7 +433,7 @@ void btlCameraFrameSideView(u8 *camera, s32 immediate)
         target = *(u8 **)(next + 0x30);
         func_001958f0((BtlUnit *)(target), (RwV3d *)((f32 *)&center));
         if (!(50.0f <= center.y)) center.y = 50.0f;
-        func_001ec1c0((u8 *)&heading, (u8 *)&actorPosition, (u8 *)&center);
+        btlTargetBlendVectors((u8 *)&heading, (u8 *)&actorPosition, (u8 *)&center);
         RtQuatTransformVectors(&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)&heading);
         direction.x *= doubledRadius;
         direction.y *= doubledRadius;
@@ -558,10 +558,10 @@ s32 btlCameraFindOccluder(u8 *arg0, s32 *arg1, f32 *arg2, u8 *arg3)
     frame.value80 = frame.valueA0 + frame.value70;
     frame.value84 = frame.valueA4 + frame.value74;
     frame.value88 = frame.valueA8 + frame.value78;
-    if ((func_001ec4a0(&frame.valueA0, &frame.value68) != 0) &&
-        (func_001ec4a0(&frame.value90, &frame.value60) != 0) &&
-        (func_001ec4a0(&frame.value80, &frame.value58) != 0)) {
-        *arg2 = func_001ec250(&frame.valueA0, arg3 + 0x30);
+    if ((btlTargetFindInRange(&frame.valueA0, &frame.value68) != 0) &&
+        (btlTargetFindInRange(&frame.value90, &frame.value60) != 0) &&
+        (btlTargetFindInRange(&frame.value80, &frame.value58) != 0)) {
+        *arg2 = btlTargetVectorDistance(&frame.valueA0, arg3 + 0x30);
         distance1 = func_0044e7d8(
             func_0044b310(func_0044dcd8(frame.value64 - frame.value6C)));
         distance2 = func_0044e7d8(
@@ -765,7 +765,7 @@ void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *sec
     extern void btlCameraCopyPose(f32 *out, f32 *in);
     extern void func_00195aa0(BtlUnit *unit, BtlUnit *target, RwV3d *out);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
-    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
+    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
     extern void func_003dcc70(const void *first, const void *second, void *out);
     extern RtQuat *func_003dc740(RtQuat *quat, const RwV3d *axis, f32 angle, s32 combine);
     extern f32 tanf(f32 angle);
@@ -814,7 +814,7 @@ void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *sec
     height = 0.0f + span;
     height += *(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C);
     height += *(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C);
-    angle = func_001ec2b0(&first->rot, &second->rot);
+    angle = btlTargetQuatAngle(&first->rot, &second->rot);
     threshold = fGpffff815c;
     if (!(angle <= threshold)) {
         ratio = threshold / angle;
@@ -892,11 +892,11 @@ void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *sec
         alternateEye.x = 0.0f + basePosition.x + direction.z * height;
         alternateEye.z = 0.0f + baseZ - direction.x * height;
         btlCameraLookAtQuat(&firstRotation, &alternateEye, &focus, D_0060A0E0);
-        firstAngle = func_001ec2b0(&first->rot, &firstRotation);
+        firstAngle = btlTargetQuatAngle(&first->rot, &firstRotation);
         alternateEye.x = 0.0f + basePosition.x - direction.z * height;
         alternateEye.z = 0.0f + baseZ + direction.x * height;
         btlCameraLookAtQuat(&secondRotation, &alternateEye, &focus, D_0060A0E0);
-        secondAngle = func_001ec2b0(&first->rot, &secondRotation);
+        secondAngle = btlTargetQuatAngle(&first->rot, &secondRotation);
         if (firstAngle < secondAngle) second->rot = firstRotation;
         else second->rot = secondRotation;
         RtQuatTransformVectors(&viewDirection, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&second->rot);
@@ -986,8 +986,8 @@ void btlCameraSetLimitFrame(u8 *camera, f32 suppliedLimit, s32 reverse, s32 pres
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern void btlCameraCopyPose(f32 *out, f32 *in);
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
-    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
+    extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
+    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
     extern f32 tanf(f32 angle);
 
     angleLimit = suppliedLimit;
@@ -1051,7 +1051,7 @@ void btlCameraSetLimitFrame(u8 *camera, f32 suppliedLimit, s32 reverse, s32 pres
         plane.eye.y = eye.z;
         projectedCenter.x = center.x;
         projectedCenter.y = baseZ;
-        distance = func_001ec3d0((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
+        distance = btlTargetAngleBetween((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
         distance = 0.0f + distance + 2.0f * (*(f32 *)(actor + 0x90) * *(f32 *)(actor + 0x2C));
         eye.x = projection.x;
         eye.y = 0.0f + baseY + 0.25f * (*(f32 *)(actor + 0x8C) * *(f32 *)(actor + 0x2C));
@@ -1106,7 +1106,7 @@ void btlCameraSetLimitFrame(u8 *camera, f32 suppliedLimit, s32 reverse, s32 pres
         plane.eye.y = eye.z;
         projectedCenter.x = center.x;
         projectedCenter.y = baseZ;
-        distance = func_001ec3d0((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
+        distance = btlTargetAngleBetween((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
         distance = 0.0f + distance + 1.5f * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
         eye.x = projection.x;
         eye.y = baseY;
@@ -1126,7 +1126,7 @@ void btlCameraSetLimitFrame(u8 *camera, f32 suppliedLimit, s32 reverse, s32 pres
         frames[1].pos.y = eye.y + direction.y;
         frames[1].pos.z = eye.z + direction.z;
     }
-    difference = func_001ec2b0(&frames[0].rot, &frames[1].rot);
+    difference = btlTargetQuatAngle(&frames[0].rot, &frames[1].rot);
     if (angleLimit > 0.0f) {
         angleLimit = p4_cacd0_mul(fGpffff816c, angleLimit);
         if (difference <= angleLimit) goto limitedTransition;
@@ -1168,7 +1168,7 @@ void btlCameraSetLimitFrame(u8 *camera, f32 suppliedLimit, s32 reverse, s32 pres
             plane.eye.y = eye.z;
             projectedCenter.x = center.x;
             projectedCenter.y = baseZ;
-            func_001ec3d0((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
+            btlTargetAngleBetween((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
             eye.x = projection.x;
             eye.y = 0.0f + baseY + fGpffff8170 * (*(f32 *)(viewUnit + 0x8C) * *(f32 *)(viewUnit + 0x2C));
             eye.z = projection.y;
@@ -1194,7 +1194,7 @@ limitedTransition:
     func_001bcd40(*(u8 **)(camera + 0xE0), otherUnit + 4, (f32 *)&frames[1], actorRadius, 0xC3);
     if (frames[0].pos.y < 25.0f) frames[0].pos.y = 25.0f;
     if (frames[1].pos.y < 25.0f) frames[1].pos.y = 25.0f;
-    difference = func_001ec2b0(&frames[0].rot, &frames[1].rot);
+    difference = btlTargetQuatAngle(&frames[0].rot, &frames[1].rot);
     forwardDot = 1.25f;
     if (!(difference <= 0.0f)) {
         scale = angleLimit / difference;

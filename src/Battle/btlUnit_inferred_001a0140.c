@@ -27,10 +27,10 @@ typedef struct LargeBattleHitResult {
 } LargeBattleHitResult;
 
 /* Existing byte-view callers use these adapters to the provider definitions. */
-extern BtlPacket *func_001f5f70(u32 action, u16 kind, u32 a, u32 b, u32 c);
+extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 kind, u32 a, u32 b, u32 c);
 static inline u8 *actionTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)
 {
-    return (u8 *)func_001f5f70((u32)action, kind, a, b, c);
+    return (u8 *)btlTargetCreateTargetPacket((u32)action, kind, a, b, c);
 }
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
 static inline void actionSetDelayBytes(u8 *action, s32 state, s32 delay)
@@ -70,7 +70,7 @@ static inline s32 func_001a_fix_var(s32 value)
 
 
 void btlActionFinishPresentation(BtlAction *action);
-BtlPacket *func_001d3700(u16 arg0, u16 arg1);
+BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 
 extern u8 *D_0076449C;
@@ -251,7 +251,7 @@ void btlActionFinishPresentation(BtlAction *action)
             btlPacketEnqueue(lookAtDeactivatePacket, 1);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 2) {
-            ambientPacket = (u8 *)func_001d3700(3, 0xFFF);
+            ambientPacket = (u8 *)btlFormationCreateSlotPacket(3, 0xFFF);
             *(s64 *)(ambientPacket + 0x60) = *(s64 *)action;
             btlPacketEnqueue(ambientPacket, 0);
         }

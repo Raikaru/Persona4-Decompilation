@@ -26,10 +26,10 @@ typedef struct LargeBattleHitResult {
 } LargeBattleHitResult;
 
 /* Existing byte-view callers use these adapters to the provider definitions. */
-extern BtlPacket *func_001f5f70(u32 action, u16 kind, u32 a, u32 b, u32 c);
+extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 kind, u32 a, u32 b, u32 c);
 static inline u8 *actionTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)
 {
-    return (u8 *)func_001f5f70((u32)action, kind, a, b, c);
+    return (u8 *)btlTargetCreateTargetPacket((u32)action, kind, a, b, c);
 }
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
 static inline void actionSetDelayBytes(u8 *action, s32 state, s32 delay)
@@ -52,7 +52,7 @@ static inline void *actionMessagePacketBytes(s32 unit, s32 message)
     return func_00202400(unit, message);
 }
 extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
-extern f32 func_001ec250(const RwV3d *, const RwV3d *);
+extern f32 btlTargetVectorDistance(const RwV3d *, const RwV3d *);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *, const RwV3d *, f32, u32);
 extern u8 *iGpffffb3cc;
 extern f32 D_005F6D20[];
@@ -75,7 +75,7 @@ static inline s32 func_001a_fix_var(s32 value)
 void btlActionFinishPresentation(BtlAction *action);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void func_0022db90(u8 *arg0);
-extern void func_001f0a40(void *arg0);
+extern void btlTargetClearWork(void *arg0);
 extern void func_00212070(u8 *arg0, u8 *arg1);
 
 extern u8 *D_0076449C;
@@ -90,7 +90,7 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 extern f32 fGpffff811c;
 extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
-extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *func_00202740(u8 *arg0);
 extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
@@ -164,7 +164,7 @@ void btlActionStartInit(BtlAction *action) {
         btlActionSetState(action, 0x21);
         return;
     }
-    func_001f0a40(action->unk_d8);
+    btlTargetClearWork(action->unk_d8);
     if (func_001fabe0((u8 *)action) != 0) {
         action->unk_440 = (void *)&func_001fac30;
         action->unk_43c = 2;
@@ -239,7 +239,7 @@ void btlActionStartInit(BtlAction *action) {
 #pragma push
 void btlActionStartUpdate(s64 *arg0) {
     extern void func_001f0a10(u8 *arg0);
-    extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+    extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
     extern u8 *func_00202740(u8 *arg0);
     extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
@@ -324,7 +324,7 @@ void btlActionStartUpdate(s64 *arg0) {
                     btlPacketEnqueue(cuePacket, 1);
                 }
             }
-            resultPacket = (u8 *)func_001f36e0((s32)arg0, (s32)arg0, &result, 1, 1);
+            resultPacket = (u8 *)btlTargetCreateDataPacket((s32)arg0, (s32)arg0, &result, 1, 1);
             *(s64 *)(resultPacket + 0x60) = action->uid;
             btlPacketEnqueue(resultPacket, 1);
             if ((result.hpDelta != 0) || (result.spDelta != 0)) {
@@ -387,7 +387,7 @@ void btlActionStartHomeInit(BtlAction *action)
         return;
     }
     func_00194ff0(battleUnit, (u8 *)&sp30, 0, NULL);
-    if (!(func_001ec250((const RwV3d *)(battleUnit + 4), &sp30) <= 75.0f)) {
+    if (!(btlTargetVectorDistance((const RwV3d *)(battleUnit + 4), &sp30) <= 75.0f)) {
         moveId = 2;
         tableColumn = (u16)(!(iGpffffb3b8[
             (*(u16 *)((u8 *)action + 0x6E) * 0x28)] & 2));

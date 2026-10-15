@@ -80,7 +80,7 @@ extern void btlCameraFrameWithFlags(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
 extern s32 func_001bc140(u8 *arg0);
-extern s32 func_001eb440(u8 *arg0);
+extern s32 btlTargetGetUnitIndex(u8 *arg0);
 extern s32 func_001f1030(u8 *arg0);
 extern s32 func_001f11e0(s16 arg0);
 extern s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2);
@@ -184,7 +184,7 @@ s32 btlCameraSelectMode(u8 *arg0) {
         }
         return 4;
     }
-    state = func_001eb440(*(u8 **)(arg0 + 0xE0) + 0x38) & 0xFFFF;
+    state = btlTargetGetUnitIndex(*(u8 **)(arg0 + 0xE0) + 0x38) & 0xFFFF;
     if (((state & 3) == 3) ||
         (((check = *(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA64),
            check != 0) &&
@@ -651,7 +651,7 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern s32 func_001bc1b0(u8 *camera);
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
+    extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
     extern f32 tanf(f32 angle);
     extern f32 fGpffff8030;
     extern f32 fGpffff8098;
@@ -802,7 +802,7 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
         plane.eye.y = eye.z;
         projectedCenter.x = snapshotCenter.x;
         projectedCenter.y = snapshotCenter.z;
-        lineDistance = func_001ec3d0((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
+        lineDistance = btlTargetAngleBetween((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
         extentScale = 0.0f + lineDistance + frameRadius * extentScale;
         eye.x = projection.x;
         eye.y = 0.0f + snapshotCenter.y + 0.25f * actorTop;
@@ -873,7 +873,7 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
         plane.eye.y = eye.z;
         projectedCenter.x = snapshotCenter.x;
         projectedCenter.y = snapshotCenter.z;
-        lineDistance = func_001ec3d0((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
+        lineDistance = btlTargetAngleBetween((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
         targetExtent = 0.0f + lineDistance + targetExtent * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
         eye.x = projection.x;
         eye.y = snapshotCenter.y;
@@ -1328,7 +1328,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern void btlCameraLookAtQuat(void *camera, const void *notify, const void *distinctPoses, const void *arg3);
-    extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
+    extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
     extern f32 tanf(f32 angle);
     extern void func_0019de70(BtlUnitStateWork *action, u16 value);
     extern void func_001bcd40(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
@@ -1507,7 +1507,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
         plane.eye.y = eye.z;
         projectedCenter.x = snapshotCenter.x;
         projectedCenter.y = snapshotCenter.z;
-        lineDistance = func_001ec3d0((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
+        lineDistance = btlTargetAngleBetween((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
         cameraDistance = 0.0f + lineDistance + resourceRadius * fGpffff8138;
         if (cameraDistance < (f32)0x113) {
             cameraDistance = (f32)0x113;
@@ -1584,7 +1584,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
         plane.eye.y = eye.z;
         projectedCenter.x = snapshotCenter.x;
         projectedCenter.y = snapshotCenter.z;
-        lineDistance = func_001ec3d0((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
+        lineDistance = btlTargetAngleBetween((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
         cameraDistance = func_001c_mul_add(actorRadius, 3.0f, 0.0f + lineDistance);
         eye.x = projection.x;
         eye.y = 0.0f + snapshotCenter.y + 0.25f * actorTop;
@@ -1650,7 +1650,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
         plane.eye.y = eye.z;
         projectedCenter.x = snapshotCenter.x;
         projectedCenter.y = snapshotCenter.z;
-        lineDistance = func_001ec3d0((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
+        lineDistance = btlTargetAngleBetween((u8 *)&plane.focus, (u8 *)&plane.eye, (u8 *)&projectedCenter, (u8 *)&projection);
         cameraDistance = 0.0f + lineDistance + 1.5f * (*(f32 *)(targetUnit + 0x90) * *(f32 *)(targetUnit + 0x2C));
         eye.x = projection.x;
         eye.y = snapshotCenter.y;
@@ -1884,8 +1884,8 @@ void btlCameraFrameTargetPose(u8 *arg0, s32 arg1)
     extern void btlCameraCopyPose(f32 *out, f32 *in);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
-    extern f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
-    extern f32 func_001ec2b0(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
+    extern f32 btlTargetAngleBetween(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern void btlCameraCopyPoseTarget(f32 *arg0, f32 *arg1);
     extern f32 tanf(f32 arg0);
 
@@ -1969,7 +1969,7 @@ void btlCameraFrameTargetPose(u8 *arg0, s32 arg1)
     geometry.eyeXZ[1] = eye.z;
     baseXZ[0] = basePosition.x;
     baseXZ[1] = baseZ;
-    projDist = func_001ec3d0((u8 *)geometry.focusXZ,
+    projDist = btlTargetAngleBetween((u8 *)geometry.focusXZ,
                              (u8 *)geometry.eyeXZ,
                              (u8 *)baseXZ,
                              (u8 *)projectionXZ);
@@ -2005,7 +2005,7 @@ void btlCameraFrameTargetPose(u8 *arg0, s32 arg1)
     poses.second.pos.z = eye.z + direction.z;
 
     btlCameraCopyPose((f32 *)&poses.first, (f32 *)(arg0 + 0x9C));
-    if (!(func_001ec2b0((P4Vec4Holder_001EC2B0*)(&poses.first.rot), (P4Vec4Holder_001EC2B0*)(&poses.second.rot)) <= fGpffff8158)) {
+    if (!(btlTargetQuatAngle((P4Vec4Holder_001EC2B0*)(&poses.first.rot), (P4Vec4Holder_001EC2B0*)(&poses.second.rot)) <= fGpffff8158)) {
         btlCameraCopyPoseTarget((f32 *)&poses.first, (f32 *)&poses.second);
         RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A100, 1, (const RtQuat *)&poses.first.rot);
         direction.x *= 150.0f;
@@ -2089,7 +2089,7 @@ void btlCameraFrameFlagged(u8 *arg0, s32 arg1)
     btlCameraCopyPose((f32 *)&frames[0], (f32 *)(arg0 + 0x9C));
     work = *(u8 **)(arg0 + 0xE0);
     if (*(u16 *)(work + 0x6A) > 1) {
-        group = func_001eb440(work + 0x38);
+        group = btlTargetGetUnitIndex(work + 0x38);
     } else {
         group = 3;
     }

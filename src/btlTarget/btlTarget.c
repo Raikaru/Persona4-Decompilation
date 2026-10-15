@@ -22,7 +22,7 @@ typedef struct BtlTargetSimpleWork
     u32 param;
 } BtlTargetSimpleWork;
 
-u32 func_001f6000(BtlTargetSimpleWork* work);
+u32 btlTargetSimpleCommand(BtlTargetSimpleWork* work);
 
 
 
@@ -39,7 +39,7 @@ BtlPacket* func_001f6030(u16 command, u32 param)
     BtlPacket* packet = func_00194470(0x801, 8);
     BtlTargetSimpleWork* work;
 
-    packet->updateFunc = (BtlPacketUpdateFunc)func_001f6000;
+    packet->updateFunc = (BtlPacketUpdateFunc)btlTargetSimpleCommand;
     work = (BtlTargetSimpleWork*)packet->workData;
     work->command = command;
     work->param = param;

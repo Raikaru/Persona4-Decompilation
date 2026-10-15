@@ -82,7 +82,7 @@ extern f32 fGpffff8110;
 #pragma push
 #pragma pop
 // FUN_001D41B0
-u8 *func_001d41b0(u8 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4)
+u8 *btlFormationAllocEntry(u8 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4)
 {
     u32 temp_3;
     u32 offset;

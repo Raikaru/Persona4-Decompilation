@@ -126,15 +126,15 @@ extern void btlCameraSelectPreset(int param_1);
 extern s32 func_00243ce0(u8 *arg0);
 extern void func_002250a0(u8 *arg0, f32 arg1, f32 arg2);
 extern void func_002258b0(u8 *arg0, f32 arg1, f32 arg2);
-extern u16 func_001eb440(BtlTarget *target);
+extern u16 btlTargetGetUnitIndex(BtlTarget *target);
 extern s32 func_001f0a50(u8 *arg0);
 extern void btlCameraApplyPosePair(u8 *arg0);
 extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
 extern f32 func_003e41e0(f32 *out, f32 *in);
 extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *rotation);
-extern f32 func_001ec3d0(u8 *first, u8 *second, u8 *point, u8 *out);
-extern void func_001ec1c0(void *out, void *first, void *second);
+extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
+extern void btlTargetBlendVectors(void *out, void *first, void *second);
 extern void btlCameraCopyPoseTarget(f32 *out, f32 *in);
 extern f32 fGpffff80fc;
 extern f32 fGpffff80dc;
@@ -214,7 +214,7 @@ extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern f32 fGpffff834c;
 extern void func_001958f0(BtlUnit *unit, RwV3d *dst);
 extern void btlUnitSetPos(u8 *arg0, s32 *arg1);
-extern void func_001ec6d0(s16 *outX, s16 *outZ, f32 *position);
+extern void btlTargetPositionToCell(s16 *outX, s16 *outZ, f32 *position);
 extern u8 *iGpffffb3e0;
 extern s32 func_001f0ff0(u32 action);
 extern s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2);
@@ -232,18 +232,18 @@ extern void btlUnitHideModel(u8 *arg0);
 extern void datCalcClearAllBuffs(u8 *arg0);
 extern u8 D_0062D920[];
 extern void btlActionFinishPresentation(s64 *arg0);
-extern s32 func_001d3d50(u32 param_1);
-extern void func_001d4490(s32 formation, u32 data);
+extern s32 btlFormationAllocWork(u32 param_1);
+extern void btlFormationSetSlot(s32 formation, u32 data);
 extern u8 *func_0022ced0(s32 arg0);
-extern void func_001d3ea0(int destination, u32 source);
+extern void btlFormationCopyRecord(int destination, u32 source);
 extern BtlPacket *func_0019bbe0(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
 extern void func_001f0a10(u8 *arg0);
-extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
 extern BtlPacket *func_001f81f0(u16 channel, const char *streamName);
-extern BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
-extern void func_001d3e00(u32 arg0);
+extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
+extern void btlFormationSetPlacement(u32 arg0);
 extern u8 D_006354B0[];
 extern u8 *iGpffffb444;
 extern u8 *iGpffffb3ac;
@@ -278,9 +278,9 @@ extern u32 datCalcIsDead(void *unit, s32 hpDelta);
 extern s32 datCalcIsStatusBlocked(u16 *unit);
 extern s32 func_001ef4a0(s32 action);
 extern u8 D_006354C0[], D_006354D0[], D_00635500[];
-extern BtlPacket *func_001d3700(u16 group, u16 mask);
+extern BtlPacket *btlFormationCreateSlotPacket(u16 group, u16 mask);
 extern f32 fGpffff80e4;
-extern f32 func_001ec2b0(void *first, void *second);
+extern f32 btlTargetQuatAngle(void *first, void *second);
 extern s32 func_004b3110(s16 frames);
 extern s32 func_00104c70(s32 arg0);
 
@@ -1416,7 +1416,7 @@ void func_002250a0(u8 *camera, f32 distanceOffset, f32 duration)
     func_003e41e0(geometry.horizontal, geometry.horizontal);
 
     if (*(u8 *)(actor + 0xA2) == 0) {
-        func_001ec1c0((u8 *)&geometry.yaw, (u8 *)&actorPosition, (u8 *)&targetPosition);
+        btlTargetBlendVectors((u8 *)&geometry.yaw, (u8 *)&actorPosition, (u8 *)&targetPosition);
         RtQuatTransformVectors(&offset, (const RwV3d *)D_0060A100, 1, &geometry.yaw);
         offset.x = offset.x * targetRadius;
         offset.y = offset.y * targetRadius;
@@ -1439,7 +1439,7 @@ void func_002250a0(u8 *camera, f32 distanceOffset, f32 duration)
         baseHeight = basePosition.y;
         eye.y = baseHeight;
     } else {
-        func_001ec1c0((u8 *)&geometry.yaw, (u8 *)&targetPosition, (u8 *)&actorPosition);
+        btlTargetBlendVectors((u8 *)&geometry.yaw, (u8 *)&targetPosition, (u8 *)&actorPosition);
         RtQuatTransformVectors(&offset, (const RwV3d *)D_0060A100, 1, &geometry.yaw);
         offset.x = offset.x * actorRadius;
         offset.y = offset.y * actorRadius;
@@ -1486,7 +1486,7 @@ void func_002250a0(u8 *camera, f32 distanceOffset, f32 duration)
     geometry.eyeXZ[1] = eye.z;
     baseXZ[0] = basePosition.x;
     baseXZ[1] = baseZ;
-    extent = func_001ec3d0((u8 *)geometry.focusXZ, (u8 *)geometry.eyeXZ,
+    extent = btlTargetAngleBetween((u8 *)geometry.focusXZ, (u8 *)geometry.eyeXZ,
                           (u8 *)baseXZ, (u8 *)projectionXZ);
     extent = (0.0f + extent) + framingScale *
         (*(f32 *)(nearUnit + 0x90) * *(f32 *)(nearUnit + 0x2C));
@@ -1509,7 +1509,7 @@ void func_002250a0(u8 *camera, f32 distanceOffset, f32 duration)
         poses.second.y = 22.5f;
     }
     btlCameraCopyPose((f32 *)&poses.first, (f32 *)(camera + 0x9C));
-    if (!(func_001ec2b0(&poses.firstRotation,
+    if (!(btlTargetQuatAngle(&poses.firstRotation,
                         &poses.secondRotation) <= fGpffff80dc)) {
         btlCameraCopyPoseTarget((f32 *)&poses.first, (f32 *)&poses.second);
         flags = 3;
@@ -1553,7 +1553,7 @@ void func_00225740(u8 *arg0)
     *(u16 *)(DAT_0076449c + 0xC00) = 0;
     temp_2 = *(u8 **)(base + 0xE0);
     temp_16 = *(u8 **)(temp_2 + 0x30);
-    temp_4 = func_001eb440((BtlTarget *)(temp_2 + 0x38));
+    temp_4 = btlTargetGetUnitIndex((BtlTarget *)(temp_2 + 0x38));
     if (*(u8 *)(temp_16 + 0xA2) == 0) {
         if ((temp_4 & 0xFFFF & 1) == 0) {
             if (func_001f0a50(*(u8 **)(base + 0xE0)) == 0) {
@@ -1951,7 +1951,7 @@ void func_00225ec0(u8 *camera)
         }
         btlCameraLookAtQuat(&poses.secondRotation, &poses.second, &groupCenter, D_0060A0E0);
     }
-    len = func_001ec2b0(&poses.firstRotation, &poses.secondRotation);
+    len = btlTargetQuatAngle(&poses.firstRotation, &poses.secondRotation);
     if (var17 != 0 || (!(len <= fGpffff80e4) && var16 == 1)) {
         func_001b73f0(NULL);
         if (*(u8 *)(unit + 0xA2) == 1 && func_00243ce0(*(u8 **)(unit + 0xA64)) != 0) {
@@ -2081,7 +2081,7 @@ void func_002266b0(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f
     eyeXZ[1] = eye.z;
     targetXZ[0] = targetSnapshot.x;
     targetXZ[1] = targetZ;
-    fitRadius = func_001ec3d0((u8 *)centerXZ, (u8 *)eyeXZ, (u8 *)targetXZ, (u8 *)projected);
+    fitRadius = btlTargetAngleBetween((u8 *)centerXZ, (u8 *)eyeXZ, (u8 *)targetXZ, (u8 *)projected);
     fitRadius = (0.0f + fitRadius) + scale * (*(f32 *)(target + 0x90) * *(f32 *)(target + 0x2C));
     eye.x = projected[0];
     eye.y = targetY;
@@ -2290,7 +2290,7 @@ void func_00227230(u8 *camera)
     u32 frames;
 
     *(u16 *)(camera + 0x110) = btlCameraSelectMode(camera);
-    targetFlags = func_001eb440((BtlTarget *)(*(u8 **)(camera + 0xE0) + 0x38));
+    targetFlags = btlTargetGetUnitIndex((BtlTarget *)(*(u8 **)(camera + 0xE0) + 0x38));
     *(u32 *)(camera + 0x12C) = 0;
     action = *(u8 **)(camera + 0xE0);
     if ((*(u16 *)(action + 0x1A) & 0x10) != 0) {
@@ -2563,7 +2563,7 @@ void func_00227e40(u8 *camera)
     u32 frames;
 
     *(u16 *)(camera + 0x110) = btlCameraSelectMode(camera);
-    targetFlags = func_001eb440((BtlTarget *)(*(u8 **)(camera + 0xE0) + 0x38));
+    targetFlags = btlTargetGetUnitIndex((BtlTarget *)(*(u8 **)(camera + 0xE0) + 0x38));
     *(u32 *)(camera + 0x12C) = 0;
     action = *(u8 **)(camera + 0xE0);
     if ((*(u16 *)(action + 0x1A) & 0x10) != 0) {
@@ -3259,7 +3259,7 @@ allow_cut:
     geometry.anchorXZ[1] = anchor.z;
     firstXZ[0] = firstCenter.x;
     firstXZ[1] = firstCenter.z;
-    scale = func_001ec3d0((u8 *)geometry.lookAtXZ, (u8 *)geometry.anchorXZ, (u8 *)firstXZ, (u8 *)projectedXZ);
+    scale = btlTargetAngleBetween((u8 *)geometry.lookAtXZ, (u8 *)geometry.anchorXZ, (u8 *)firstXZ, (u8 *)projectedXZ);
     scale += distance;
     distance = scale;
     anchor.x = projectedXZ[0];
@@ -3285,7 +3285,7 @@ allow_cut:
     if (geometry.poses.second.y < 25.0f) {
         geometry.poses.second.y = 25.0f;
     }
-    angle = func_001ec2b0(&geometry.poses.firstRotation, &geometry.poses.secondRotation);
+    angle = btlTargetQuatAngle(&geometry.poses.firstRotation, &geometry.poses.secondRotation);
     if (forceActorSide == 1 || !(angle <= fGpffff80e4)) {
         if (allowCut == 1) {
             geometry.poses.firstRotation = geometry.poses.secondRotation;
@@ -3332,8 +3332,8 @@ void func_002299b0(u8 *arg0)
             (u16)(*(u16 *)(temp_3 + 0x18) | 0x23);
     }
     btlActionFinishPresentation((s64 *)saved_arg0);
-    temp_17 = func_001d3d50(0);
-    func_001d3ea0((int)temp_17, (u32)func_0022ced0(0xC));
+    temp_17 = btlFormationAllocWork(0);
+    btlFormationCopyRecord((int)temp_17, (u32)func_0022ced0(0xC));
     {
         u8 *temp_2;
         temp_2 = (u8 *)func_001b1510();
@@ -3372,7 +3372,7 @@ void func_002299b0(u8 *arg0)
         var_16 = (u8 *)func_001b0c80(temp_2);
         func_001f0a10((u8 *)payload);
         payload[2] = 0x100000;
-        temp_2_5 = (u8 *)func_001f36e0((s32)(u32)var_16, (s32)(u32)var_16,
+        temp_2_5 = (u8 *)btlTargetCreateDataPacket((s32)(u32)var_16, (s32)(u32)var_16,
                                       (void *)payload, 1, 1);
         *(u16 *)(temp_2_5 + 0x48) = 0x20;
         *(s64 *)(temp_2_5 + 0x60) = *(s64 *)saved_arg0;
@@ -3393,7 +3393,7 @@ after_ef90:
     }
     {
         u8 *temp_2;
-        temp_2 = (u8 *)func_001d6240((u32)temp_17,
+        temp_2 = (u8 *)btlFormationCreatePacket((u32)temp_17,
                                     *(u32 *)(saved_arg0 + 0x30),
                                     *(u32 *)(var_16 + 0x30), 0, 0x200);
         *(s64 *)(temp_2 + 0x60) = *(s64 *)saved_arg0;
@@ -3401,13 +3401,13 @@ after_ef90:
     }
     {
         u8 *temp_2;
-        temp_2 = (u8 *)func_001d6240((u32)temp_17,
+        temp_2 = (u8 *)btlFormationCreatePacket((u32)temp_17,
                                     *(u32 *)(saved_arg0 + 0x30),
                                     *(u32 *)(var_16 + 0x30), 1, 0x200);
         *(s64 *)(temp_2 + 0x60) = *(s64 *)saved_arg0;
         btlPacketEnqueue(temp_2, 2);
     }
-    func_001d3e00(temp_17);
+    btlFormationSetPlacement(temp_17);
 }
 /* measured: close opt_propagation after func_002299b0 (nd 0). */
 #pragma opt_propagation on
@@ -3474,8 +3474,8 @@ void func_00229da0(u8 *action)
         u8 bytes[0x20];
     } targetParams, statusParams;
 
-    formation = func_001d3d50(0);
-    func_001d3ea0(formation, (u32)func_0022ced0(0xC));
+    formation = btlFormationAllocWork(0);
+    btlFormationCopyRecord(formation, (u32)func_0022ced0(0xC));
     *(u32 *)(iGpffffb3ac + 0xC) |= 0x80000;
 
     packet = (u8 *)func_00202010(*(u32 *)(action + 0x30),
@@ -3506,7 +3506,7 @@ void func_00229da0(u8 *action)
     }
 
     unit = *(u8 **)(action + 0x30);
-    formationPacket = (u8 *)func_001d6240((u32)formation, (u32)unit,
+    formationPacket = (u8 *)btlFormationCreatePacket((u32)formation, (u32)unit,
                                          (u32)unit, 0, 0x200);
     *(u64 *)(formationPacket + 0x60) = *(u64 *)action;
     btlPacketEnqueue(formationPacket, 2);
@@ -3549,7 +3549,7 @@ void func_00229da0(u8 *action)
             slot = (u16)rosterIndex;
         }
 
-        formationPacket = (u8 *)func_001d6240((u32)formation,
+        formationPacket = (u8 *)btlFormationCreatePacket((u32)formation,
             *(u32 *)(action + 0x30), (u32)unit, 1, 0x200);
         *(u16 *)(formationPacket + 0x48) = (u16)delay;
         *(u64 *)(formationPacket + 0x60) = *(u64 *)action;
@@ -3562,7 +3562,7 @@ void func_00229da0(u8 *action)
 
         positionOffset = (u32)slot * 12;
         unit = *(u8 **)(target + 0x30);
-        func_001ec6d0((s16 *)(unit + 0x94), (s16 *)(unit + 0x96),
+        btlTargetPositionToCell((s16 *)(unit + 0x94), (s16 *)(unit + 0x96),
                       (f32 *)(D_00635500 + positionOffset));
         *(u16 *)(target + 0x1A) &= 0xFFF7;
         **(u16 **)(*(u8 **)(target + 0x30) + 0xA64) |= 0x20;
@@ -3578,7 +3578,7 @@ void func_00229da0(u8 *action)
             *(u64 *)(statusAnimation + 0x60) = *(u64 *)action;
             btlPacketEnqueue(statusAnimation, 0);
 
-            packet = (u8 *)func_001f36e0((s32)(u32)target, (s32)(u32)target,
+            packet = (u8 *)btlTargetCreateDataPacket((s32)(u32)target, (s32)(u32)target,
                                          statusParams.bytes, 1, 1);
             packet[0] = 4;
             *(u64 *)(packet + 8) = *(u64 *)(statusAnimation + 0x58);
@@ -3609,7 +3609,7 @@ void func_00229da0(u8 *action)
             targetParams.halves[15] |= 0x80;
         else
             targetParams.halves[15] &= 0xFF7F;
-        packet = (u8 *)func_001f36e0((s32)(u32)target, (s32)(u32)target,
+        packet = (u8 *)btlTargetCreateDataPacket((s32)(u32)target, (s32)(u32)target,
                                      targetParams.bytes, 1, 1);
         packet[0] = 4;
         *(u64 *)(packet + 8) = *(u64 *)(sequencePacket + 0x58);
@@ -3654,7 +3654,7 @@ next_target:
     *(u64 *)(finishPacket + 0x60) = *(u64 *)action;
     btlPacketEnqueue(finishPacket, 0);
 
-    packet = (u8 *)func_001d3700(2, 0xFFF);
+    packet = (u8 *)btlFormationCreateSlotPacket(2, 0xFFF);
     packet[0] = 4;
     *(u64 *)(packet + 8) = *(u64 *)(finishPacket + 0x58);
     *(u64 *)(packet + 0x60) = *(u64 *)action;
@@ -3706,7 +3706,7 @@ next_target:
 next_return_target:
         returnIndex = (u16)(returnIndex + 1);
     }
-    func_001d3e00((u32)formation);
+    btlFormationSetPlacement((u32)formation);
 }
 // FUN_0022A6B0
 s32 func_0022a6b0(s64 *arg0) {
@@ -3798,7 +3798,7 @@ void func_0022a730(u8 *arg0)
     if (last == NULL) {
         return;
     }
-    packet = (u8 *)func_001d3700(2, 0xFFF);
+    packet = (u8 *)btlFormationCreateSlotPacket(2, 0xFFF);
     *(s16 *)(packet + 0x48) = 8;
     *(s64 *)(packet + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(packet, 0);
@@ -3829,17 +3829,17 @@ void func_0022a730(u8 *arg0)
         **(u16 **)(*(u8 **)(other + 0x30) + 0xA64) &= 0xFFDF;
         **(u16 **)(*(u8 **)(other + 0x30) + 0xA64) &= 0xFFF7;
         **(u16 **)(*(u8 **)(other + 0x30) + 0xA64) &= 0xFFEF;
-        func_001ec6d0((s16 *)(target + 0x94), (s16 *)(target + 0x96), (f32 *)(D_00635530 + btlUnitRosterIndex(target) * 12));
+        btlTargetPositionToCell((s16 *)(target + 0x94), (s16 *)(target + 0x96), (f32 *)(D_00635530 + btlUnitRosterIndex(target) * 12));
         if (count == 1) {
             packet = btlCameraCreateSetStatePacket(other, 10);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(packet, 0);
         }
-        packet = (u8 *)func_001d6240(*(u32 *)(iGpffffb3ac + 0xD74), (u32)target, (u32)target, 1, 0);
+        packet = (u8 *)btlFormationCreatePacket(*(u32 *)(iGpffffb3ac + 0xD74), (u32)target, (u32)target, 1, 0);
         *(s16 *)(packet + 0x48) = delay;
         *(s64 *)(packet + 0x60) = *(s64 *)arg0;
         btlPacketEnqueue(packet, 2);
-        packet = (u8 *)func_001f36e0((s32)other, (s32)other, params.bytes, 1, 1);
+        packet = (u8 *)btlTargetCreateDataPacket((s32)other, (s32)other, params.bytes, 1, 1);
         *(s16 *)(packet + 0x48) = delay;
         *(s64 *)(packet + 0x60) = *(s64 *)arg0;
         btlPacketEnqueue(packet, 1);
@@ -3953,8 +3953,8 @@ void func_0022ae00(u8 *arg0)
             (u16)(*(u16 *)(temp_3_2 + 0x18) | 0x23);
     }
     btlActionFinishPresentation((s64 *)arg0);
-    temp_16 = func_001d3d50(0);
-    func_001d3ea0((int)temp_16, (u32)func_0022ced0(0xC));
+    temp_16 = btlFormationAllocWork(0);
+    btlFormationCopyRecord((int)temp_16, (u32)func_0022ced0(0xC));
     {
         u8 *temp_2;
         temp_2 = (u8 *)func_001b1510();
@@ -3986,7 +3986,7 @@ void func_0022ae00(u8 *arg0)
     *(s32 *)(sp.data + 8) = 0x100000;
     {
         u8 *temp_2_4;
-        temp_2_4 = (u8 *)func_001f36e0((s32)(u32)arg0, (s32)(u32)arg0,
+        temp_2_4 = (u8 *)btlTargetCreateDataPacket((s32)(u32)arg0, (s32)(u32)arg0,
                                       (void *)sp.data, 1, 1);
         *(s64 *)(temp_2_4 + 0x60) = *(s64 *)arg0;
         btlPacketEnqueue(temp_2_4, 1);
@@ -3995,7 +3995,7 @@ void func_0022ae00(u8 *arg0)
         u8 *temp_5;
         u8 *temp_2_5;
         temp_5 = *(u8 **)(arg0 + 0x30);
-        temp_2_5 = (u8 *)func_001d6240((u32)temp_16, (u32)temp_5, (u32)temp_5, 0, 0x200);
+        temp_2_5 = (u8 *)btlFormationCreatePacket((u32)temp_16, (u32)temp_5, (u32)temp_5, 0, 0x200);
         *(s64 *)(temp_2_5 + 0x60) = *(s64 *)arg0;
         btlPacketEnqueue(temp_2_5, 2);
     }
@@ -4003,11 +4003,11 @@ void func_0022ae00(u8 *arg0)
         u8 *temp_5_2;
         u8 *temp_2_6;
         temp_5_2 = *(u8 **)(arg0 + 0x30);
-        temp_2_6 = (u8 *)func_001d6240((u32)temp_16, (u32)temp_5_2, (u32)temp_5_2, 1, 0x200);
+        temp_2_6 = (u8 *)btlFormationCreatePacket((u32)temp_16, (u32)temp_5_2, (u32)temp_5_2, 1, 0x200);
         *(s64 *)(temp_2_6 + 0x60) = *(s64 *)arg0;
         btlPacketEnqueue(temp_2_6, 2);
     }
-    func_001d3e00(temp_16);
+    btlFormationSetPlacement(temp_16);
 }
 // FUN_0022B040
 s32 func_0022b040(s64 *arg0)
@@ -4056,10 +4056,10 @@ void func_0022b120(u8 *action)
     *(u32 *)(DAT_0076449c + 0xC) |= 0x400000;
     *(u16 *)(DAT_0076449c + 0x18) |= 0x23;
     btlActionFinishPresentation((s64 *)action);
-    openingFormation = func_001d3d50(0);
-    closingFormation = func_001d3d50(0);
-    func_001d3ea0(openingFormation, (u32)func_0022ced0(0xC));
-    func_001d3ea0(closingFormation, (u32)func_0022ced0(0xD));
+    openingFormation = btlFormationAllocWork(0);
+    closingFormation = btlFormationAllocWork(0);
+    btlFormationCopyRecord(openingFormation, (u32)func_0022ced0(0xC));
+    btlFormationCopyRecord(closingFormation, (u32)func_0022ced0(0xD));
     *(u32 *)(DAT_0076449c + 0xC) |= 0x80000;
 
     anchor = func_001ebb00((s32)action, 3, D_00635560);
@@ -4085,13 +4085,13 @@ void func_0022b120(u8 *action)
     *(u16 *)(packet + 0x48) = 0x33;
     btlPacketEnqueue(packet, 1);
 
-    wait1 = (u8 *)func_001d6240((u32)openingFormation, (u32)actor, (u32)actor, 0, 0x200);
+    wait1 = (u8 *)btlFormationCreatePacket((u32)openingFormation, (u32)actor, (u32)actor, 0, 0x200);
     wait1[0] = 4;
     *(u64 *)(wait1 + 8) = *(u64 *)(anchor + 0x58);
     *(u64 *)(wait1 + 0x60) = *(u64 *)action;
     btlPacketEnqueue(wait1, 2);
 
-    wait0 = (u8 *)func_001d6240((u32)openingFormation, (u32)actor, (u32)actor, 1, 0x200);
+    wait0 = (u8 *)btlFormationCreatePacket((u32)openingFormation, (u32)actor, (u32)actor, 1, 0x200);
     wait0[0] = 4;
     *(u64 *)(wait0 + 8) = *(u64 *)(anchor + 0x58);
     *(u64 *)(wait0 + 0x60) = *(u64 *)action;
@@ -4186,14 +4186,14 @@ void func_0022b120(u8 *action)
     *(u64 *)(packet + 0x60) = *(u64 *)action;
     btlPacketEnqueue(packet, 1);
 
-    wait0 = (u8 *)func_001d6240((u32)closingFormation, (u32)actor, (u32)actor, 0, 0x200);
+    wait0 = (u8 *)btlFormationCreatePacket((u32)closingFormation, (u32)actor, (u32)actor, 0, 0x200);
     wait0[0] = 4;
     *(u64 *)(wait0 + 8) = *(u64 *)(anchor + 0x58);
     *(u16 *)(wait0 + 0x48) = 2;
     *(u64 *)(wait0 + 0x60) = *(u64 *)action;
     btlPacketEnqueue(wait0, 2);
 
-    wait1 = (u8 *)func_001d6240((u32)closingFormation, (u32)actor, (u32)actor, 1, 0x200);
+    wait1 = (u8 *)btlFormationCreatePacket((u32)closingFormation, (u32)actor, (u32)actor, 1, 0x200);
     wait1[0] = 4;
     *(u64 *)(wait1 + 8) = *(u64 *)(anchor + 0x58);
     *(u16 *)(wait1 + 0x48) = 2;
@@ -4232,8 +4232,8 @@ void func_0022b120(u8 *action)
     *(u64 *)(packet + 0x60) = *(u64 *)action;
     btlPacketEnqueue(packet, 0);
 
-    func_001d3e00((u32)closingFormation);
-    func_001d3e00((u32)openingFormation);
+    btlFormationSetPlacement((u32)closingFormation);
+    btlFormationSetPlacement((u32)openingFormation);
 }
 /* measured: opt_loop_invariants on probe for func_0022b870. */
 #pragma opt_loop_invariants on
@@ -4570,151 +4570,151 @@ void func_0022c430(void)
     switch (func_001ef9a0()) {
     case 0x200:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         data = func_0022ced0(8);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x201:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         break;
     case 0x202:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         break;
     case 0x203:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         data = func_0022ced0(8);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x204:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         data = func_0022ced0(8);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x205:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         data = func_0022ced0(8);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x206:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         data = func_0022ced0(8);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         data = func_0022ced0(9);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF4) = formation;
         break;
     case 0x207:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         break;
     case 0x208:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         data = func_0022ced0(8);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x209:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         data = func_0022ced0(5);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE4) = formation;
         data = func_0022ced0(6);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE8) = formation;
         data = func_0022ced0(7);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBEC) = formation;
         break;
     case 0x20A:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         data = func_0022ced0(8);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x20B:
     case 0x215:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         data = func_0022ced0(8);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     case 0x20D:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         data = func_0022ced0(5);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE4) = formation;
         data = func_0022ced0(6);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE8) = formation;
         data = func_0022ced0(7);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBEC) = formation;
         break;
     case 0x214:
         data = func_0022ced0(4);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBE0) = formation;
         data = func_0022ced0(8);
-        formation = func_001d3d50(2);
-        func_001d4490(formation, (u32)data);
+        formation = btlFormationAllocWork(2);
+        btlFormationSetSlot(formation, (u32)data);
         *(s32 *)(DAT_0076449c + 0xBF0) = formation;
         break;
     }
@@ -4767,7 +4767,7 @@ s32 func_0022cb90(u8 *arg0, u16 arg1)
 void func_0022cc90(void)
 {
     extern void H_Cdvd_Destroy(s32 arg0);
-    extern void func_001d3e00(s32 arg0, u8 *arg1);
+    extern void btlFormationSetPlacement(s32 arg0, u8 *arg1);
     s16 i;
     s32 value;
     s32 temp_index;
@@ -4793,7 +4793,7 @@ void func_0022cc90(void)
             index16 = i;
             temp_index = (s32)(s64)(s16)index16;
             index = temp_index * 4;
-            func_001d3e00(value, base);
+            btlFormationSetPlacement(value, base);
             base = DAT_0076449c;
             *(s32 *)(base + index + 0xBE0) = 0;
         }
@@ -5606,7 +5606,7 @@ loop_body:
             temps.sp20 = 0x439B0000;
             temps.sp24 = 0;
             temps.sp28 = fGpffff834c;
-            func_001ec6d0((s16 *)(var_16 + 0x94), (s16 *)(var_16 + 0x96),
+            btlTargetPositionToCell((s16 *)(var_16 + 0x94), (s16 *)(var_16 + 0x96),
                           (f32 *)&temps.sp20);
             btlUnitSetPos(var_16, &temps.sp20);
         }
@@ -5856,7 +5856,7 @@ loop_0022f520_14_body:
                     (*(u16 *)(temp_16 + 0xA4) != 0x102) &&
                     (datCalcIsDead(*(s32 **)(temp_16 + 0xA64), 0) == 0)) {
                     btlPacketEnqueue(
-                        (u8 *)func_001f36e0((s32)(u32)var_17, (s32)(u32)var_17,
+                        (u8 *)btlTargetCreateDataPacket((s32)(u32)var_17, (s32)(u32)var_17,
                                             (void *)&sp30, 1, 1),
                         1);
                     btlPacketEnqueue(
@@ -5890,7 +5890,7 @@ loop_0022f520_25_body:
                     (*(u16 *)(temp_17 + 0xA4) != 0x103) &&
                     (datCalcIsDead(*(s32 **)(temp_17 + 0xA64), 0) == 0)) {
                     btlPacketEnqueue(
-                        (u8 *)func_001f36e0((s32)(u32)var_16, (s32)(u32)var_16,
+                        (u8 *)btlTargetCreateDataPacket((s32)(u32)var_16, (s32)(u32)var_16,
                                             (void *)&sp30, 1, 1),
                         1);
                     btlPacketEnqueue(

@@ -148,7 +148,7 @@ extern f32 DAT_0076112c;
 
 
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
-extern float func_001d4380(int arg0);
+extern float btlFormationGetScale(int arg0);
 extern s32 btlUnitArcMovePacketUpdate(u8 *arg0);
 extern s32 iGpffffb444;
 
@@ -254,7 +254,7 @@ u8 *btlUnitCreateArcMovePacket(s32 arg0, s16 arg1, s16 arg2)
     *(s32 *)work = arg0;
     *(s16 *)(work + 4) = arg1;
     *(s16 *)(work + 6) = arg2;
-    *(f32 *)(work + 8) = func_001d4380(arg0);
+    *(f32 *)(work + 8) = btlFormationGetScale(arg0);
     return packet;
 }
 

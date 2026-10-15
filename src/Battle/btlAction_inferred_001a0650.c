@@ -26,10 +26,10 @@ typedef struct LargeBattleHitResult {
 } LargeBattleHitResult;
 
 /* Existing byte-view callers use these adapters to the provider definitions. */
-extern BtlPacket *func_001f5f70(u32 action, u16 kind, u32 a, u32 b, u32 c);
+extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 kind, u32 a, u32 b, u32 c);
 static inline u8 *actionTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)
 {
-    return (u8 *)func_001f5f70((u32)action, kind, a, b, c);
+    return (u8 *)btlTargetCreateTargetPacket((u32)action, kind, a, b, c);
 }
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
 static inline void actionSetDelayBytes(u8 *action, s32 state, s32 delay)

@@ -16,7 +16,7 @@ extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern void func_001d6de0(s32 arg0, s32 arg1);
 extern s32 func_001d6360(u8 *arg0);
-extern void func_001d3e00(s32 arg0);
+extern void btlFormationSetPlacement(s32 arg0);
 extern u32 iGpffffb3b8;
 
 extern void func_00485870(s32 arg0);
@@ -98,7 +98,7 @@ void func_001d6300(u8 *arg0) {
     u8 *temp_3;
 
     *(s32 *)(arg0 + 0x1C) = 0;
-    func_001d40d0(*(u8 **)(arg0 + 0));
+    btlFormationCopyDefault(*(u8 **)(arg0 + 0));
     temp_3 = (u8 *)(*(u8 **)(arg0 + 4));
     *(u16 *)(temp_3 + 0xA0) = (u16) (*(u16 *)(temp_3 + 0xA0) + 1);
     *(s32 *)(arg0 + 0x18) = func_001d6ce0(*(s32 *)((u8 *)(*(u8 **)(arg0 + 4)) + 0xA08));
@@ -112,9 +112,9 @@ void func_001d6300(u8 *arg0) {
 s32 func_001d6360(u8 *arg0)
 {
     extern s32 func_00193b70(s64 arg0, s64 arg1);
-    extern u32 func_001d4120(void *arg0);
-    extern s32 func_001d4140(s32 arg0, s32 arg1);
-    extern s32 func_001d41b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern u32 btlFormationGetCount(void *arg0);
+    extern s32 btlFormationGetIndex(s32 arg0, s32 arg1);
+    extern s32 btlFormationAllocEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     s32 count;
     s32 value;
     s32 arg1;
@@ -124,14 +124,14 @@ s32 func_001d6360(u8 *arg0)
     u8 *packet;
     u8 *abort_packet;
     s32 arg4;
-    if (func_001d4120(*(u8 **)(arg0 + 0)) == 0)
+    if (btlFormationGetCount(*(u8 **)(arg0 + 0)) == 0)
         return 0;
     packet = *(u8 **)(arg0 + 0x18);
     if ((*(s32 *)(packet + 4) & 0xFF000000) == 0)
         return 1;
     if ((*(u16 *)(packet + 0) & 0x40) == 0) {
         if ((*(s32 *)(arg0 + 0x20) & 0x4000) == 0) {
-            index_temp = func_001d4140(*(s32 *)(arg0 + 0), 0) * 2;
+            index_temp = btlFormationGetIndex(*(s32 *)(arg0 + 0), 0) * 2;
             index = index_temp;
         } else {
             index_temp = *(s32 *)(arg0 + 0x1C) + 1;
@@ -153,7 +153,7 @@ s32 func_001d6360(u8 *arg0)
                 arg1 = *(s32 *)(arg0 + 4);
                 arg4 = *(s32 *)(arg0 + 0x20);
                 *(s32 *)(packet + 0x10) =
-                    func_001d41b0(*(s32 *)(arg0 + 0), 0, arg1, arg1, arg4);
+                    btlFormationAllocEntry(*(s32 *)(arg0 + 0), 0, arg1, arg1, arg4);
             } else if (value == 2) {
                 if ((*(s32 *)(arg0 + 0x20) & 0x10000) == 0) {
                     *(u16 *)(packet + 0) |= 0xB0;
@@ -176,7 +176,7 @@ s32 func_001d6360(u8 *arg0)
 void func_001d6570(u8 *arg0)
 {
     func_001d6de0(*(s32 *)(*(u8 **)(arg0 + 4) + 0xA08), *(s32 *)(arg0 + 0x18));
-    func_001d3e00(*(s32 *)arg0);
+    btlFormationSetPlacement(*(s32 *)arg0);
     *(u16 *)(*(u8 **)(arg0 + 4) + 0xA0) =
         *(u16 *)(*(u8 **)(arg0 + 4) + 0xA0) - 1;
 }

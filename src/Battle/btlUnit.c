@@ -141,7 +141,7 @@ u8* btlUnitGetRecordPtr(u8* unit, s32 id);
 BtlPacket* btlPacketAlloc(u32 id, s32 workDataSize);
 RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const void* quat);
-void func_001ec1c0(RwV3d* dst, const RwV3d* from, const RwV3d* to);
+void btlTargetBlendVectors(RwV3d* dst, const RwV3d* from, const RwV3d* to);
 extern s32 datCalcIsDead(void *arg0, s32 arg1);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern f32 RwV3dLength(RwV3d *value);
@@ -170,7 +170,7 @@ void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2)
     f32 centerX;
     RwV3d *out;
 
-    func_001ec1c0(&work.rotation, (RwV3d *)(arg0 + 4), (RwV3d *)((u8 *)arg1 + 4));
+    btlTargetBlendVectors(&work.rotation, (RwV3d *)(arg0 + 4), (RwV3d *)((u8 *)arg1 + 4));
     bounds = (BtlUnitAnimBounds *)btlUnitGetRecordPtr(arg0, 0xA);
     centerY = (f32)bounds->centerY;
     centerZ = (f32)bounds->centerZ;
@@ -649,7 +649,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
         {
             if ((packet->flags & 0x40) == 0)
             {
-                func_001ec1c0(&frame.rotateA, &target->pos, &packet->unit->pos);
+                btlTargetBlendVectors(&frame.rotateA, &target->pos, &packet->unit->pos);
                 frame.scaleA.x = target->sphereCenter.x * target->scale;
                 frame.scaleA.y = target->sphereCenter.y * target->scale;
                 frame.scaleA.z = target->sphereCenter.z * target->scale;
@@ -661,7 +661,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
             }
             else
             {
-                func_001ec1c0(&frame.rotateB, &target->pos, &packet->unit->pos);
+                btlTargetBlendVectors(&frame.rotateB, &target->pos, &packet->unit->pos);
                 bounds = (const BtlUnitAnimBounds *)btlUnitGetRecordPtr((u8 *)target, 0);
                 centerY = (f32)bounds->centerY;
                 centerZ = (f32)bounds->centerZ;
@@ -735,7 +735,7 @@ u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
             frame.positionB.z = frame.transformedF.z + target->pos.z;
         }
 
-        func_001ec1c0(&frame.rotate, &frame.positionA, &frame.positionB);
+        btlTargetBlendVectors(&frame.rotate, &frame.positionA, &frame.positionB);
         RtQuatTransformVectors(&frame.finalRotation, &D_0060A0F0, 1, &frame.rotate);
         frame.finalRotation.x *= packet->unk_1c;
         frame.finalRotation.y *= packet->unk_1c;
@@ -1357,7 +1357,7 @@ void func_00195c50(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
     RwV3d scaled;
     RwV3d transformed;
 
-    func_001ec1c0((RwV3d*)&rotation, &unit->pos, &target->pos);
+    btlTargetBlendVectors((RwV3d*)&rotation, &unit->pos, &target->pos);
     scaled.x = unit->sphereCenter.x * unit->scale;
     scaled.y = unit->sphereCenter.y * unit->scale;
     scaled.z = unit->sphereCenter.z * unit->scale;
@@ -1666,7 +1666,7 @@ void func_00195590(BtlUnit* unit, const RwV3d* target)
 {
     RtQuat rotation;
 
-    func_001ec1c0((RwV3d*)&rotation, &unit->pos, target);
+    btlTargetBlendVectors((RwV3d*)&rotation, &unit->pos, target);
     if ((unit->flags3 & BTLUNIT_FLAG3_NOROT) == 0)
     {
         unit->rot = rotation;
@@ -1705,7 +1705,7 @@ void func_00195aa0(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
     RwV3d scaled;
     RwV3d transformed;
 
-    func_001ec1c0((RwV3d*)&rotation, &unit->pos, &target->pos);
+    btlTargetBlendVectors((RwV3d*)&rotation, &unit->pos, &target->pos);
     scaled.x = unit->sphereCenter.x * unit->scale;
     scaled.y = unit->sphereCenter.y * unit->scale;
     scaled.z = unit->sphereCenter.z * unit->scale;

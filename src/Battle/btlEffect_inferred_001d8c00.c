@@ -155,7 +155,7 @@ s32 func_001d8cb0(u8 *arg0, u8 *arg1)
         f32 z;
     };
     extern void func_001958f0(struct BtlUnit *unit, struct RwV3d *dst);
-    extern f32 func_001ec250(const struct RwV3d *first, const struct RwV3d *second);
+    extern f32 btlTargetVectorDistance(const struct RwV3d *first, const struct RwV3d *second);
     struct RwV3d sp60;
     struct RwV3d sp50;
     f32 temp_f0;
@@ -187,7 +187,7 @@ s32 func_001d8cb0(u8 *arg0, u8 *arg1)
     goto distance_test;
 distance_loop:
     func_001958f0(selection->entries[index & 0xFFFF]->unit, &sp50);
-    temp_f0 = func_001ec250(&sp60, &sp50);
+    temp_f0 = btlTargetVectorDistance(&sp60, &sp50);
     if ((temp_f0 < var_f20) || (first != 0)) {
         selection->selected = (u16)index;
         var_f20 = temp_f0;

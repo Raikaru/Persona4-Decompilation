@@ -64,7 +64,7 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
 {
     return left * right;
 }
-extern BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
+extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
@@ -110,7 +110,7 @@ void btlActionEndHomeInit(u8 *arg0)
     extern s32 func_001b1510(void);
     extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
     typedef struct RwV3d { f32 x, y, z; } RwV3d;
-    extern f32 func_001ec250(const RwV3d *first, const RwV3d *second);
+    extern f32 btlTargetVectorDistance(const RwV3d *first, const RwV3d *second);
     extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *position, f32 speed, u32 flags);
     extern u8 *iGpffffb3b8;
     extern u8 *iGpffffb3cc;
@@ -148,7 +148,7 @@ void btlActionEndHomeInit(u8 *arg0)
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 0) {
         *(s32 *)(arg0 + 0x41C) = 1;
     }
-    if (!(func_001ec250((const RwV3d *)(unit + 4), &position) <= 75.0f)) {
+    if (!(btlTargetVectorDistance((const RwV3d *)(unit + 4), &position) <= 75.0f)) {
         speed = 2;
         side = !(iGpffffb3b8[*(u16 *)(arg0 + 0x6E) * 0x28] & 2);
         id = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64) + 2);
@@ -210,7 +210,7 @@ void btlActionDeadInit(u8 *arg0)
             work = (u8 *)func_0019bbe0((BtlUnit *)p, 0xFFFFFF, 6, 0, 4, 0);
             *(s64 *)(work + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(work, 1);
-            work = (u8 *)func_001d6240((u32)*(s32 *)(iGpffffb3ac + 0xD48), (u32)p, (u32)p, 0, 0);
+            work = (u8 *)btlFormationCreatePacket((u32)*(s32 *)(iGpffffb3ac + 0xD48), (u32)p, (u32)p, 0, 0);
             *(s64 *)(work + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(work, 2);
             work = (u8 *)func_001f7c20(0xA, 2, 0xA);

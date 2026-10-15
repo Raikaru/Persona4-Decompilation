@@ -27,7 +27,7 @@ typedef struct BtlCameraSequenceRotation {
  * their caller subsequently schedules and associates with an action UID. */
 u8 *func_001ba530(s32 color, s32 frames);
 u8 *func_001ba710(f32 *rotation, s32 frames);
-u8 *func_001d3b50(u8 *action);
+u8 *btlFormationCreateActionPacket(u8 *action);
 
 /* Camera work predicate: enable bit (bit 0 of +0x0E) read from the camera work;
  * the retail callee reads only its first argument and returns 0 or 1. */

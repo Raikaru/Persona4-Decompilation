@@ -27,7 +27,7 @@ typedef struct BtlTargetSimpleWork
     u16 pad_02;
     u32 param;
 } BtlTargetSimpleWork;
-struct BtlPacket* func_001f60c0(void);
+struct BtlPacket* btlTargetCreateEmptyPacket(void);
 extern u8 *func_001f6030(s32 arg0, s64 arg1); /* lint: allow H011 -- raw s64 argument is passed unconverted, as in code1_001e */
 
 extern s64 scrGetParamInt(); /* lint: allow H011 -- raw s64 call result feeds s64 temporaries, as in code1_001e */
@@ -63,7 +63,7 @@ extern f32 fabsf(f32 x);
 extern u8 *iGpffffb3ac;
 
 // FUN_001EA9A0
-s32 func_001ea9a0(void) {
+s32 btlTargetScriptEnqueue(void) {
     s64 temp_16;
     s64 temp_17;
     u8 *temp_2;
@@ -71,7 +71,7 @@ s32 func_001ea9a0(void) {
 
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
-    temp_2 = (u8 *)func_001f60c0();
+    temp_2 = (u8 *)btlTargetCreateEmptyPacket();
     *(s16 *)(temp_2 + 0x48) = (s16)temp_16;
     btlPacketEnqueue(temp_2, 1);
     temp_2_2 = func_001f6030(0x20, temp_17);
@@ -81,20 +81,20 @@ s32 func_001ea9a0(void) {
 }
 
 // FUN_001EAA30
-s32 func_001eaa30(void)
+s32 btlTargetScriptEnqueueS32(void)
 {
     s32 temp_16;
     u8 *temp_2;
 
     temp_16 = scrGetParamIntS32(0);
-    temp_2 = (u8 *)func_001f60c0();
+    temp_2 = (u8 *)btlTargetCreateEmptyPacket();
     *(s16 *)(temp_2 + 0x48) = (s16)temp_16;
     btlPacketEnqueue(temp_2, 1);
     return 1;
 }
 
 // FUN_001EB1D0
-s32 func_001eb1d0(void) {
+s32 btlTargetAIPickAction(void) {
     s32 temp_3;
     u32 index;
     u8 *temp_2;
@@ -147,8 +147,8 @@ typedef struct BtlPacket {
 
 BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 void memcpy(void* dst, const void* src, u32 size);
-void func_001f36b0(void* arg);
-s32 func_001f3010(u8* arg);
+void btlTargetPacketReleasePending(void* arg);
+s32 btlTargetApplyHpSpChange(u8* arg);
 extern u8* iGpffffb3ac;
 extern void func_00106020(s32 arg);
 extern void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -174,7 +174,7 @@ extern void func_0022d600(void* source, u8* packet, s32* hpDelta);
 
 
 // FUN_001EB440
-u16 func_001eb440(BtlTarget* target)
+u16 btlTargetGetUnitIndex(BtlTarget* target)
 {
     u16 mask = 0;
     u16 i = 0;
@@ -191,7 +191,7 @@ u16 func_001eb440(BtlTarget* target)
 
 
 // FUN_001EBA20
-s32 func_001eba20(u8 *arg0) {
+s32 btlTargetSpawnActionProc(u8 *arg0) {
     s32 result;
     u8 *temp_16;
 
@@ -233,7 +233,7 @@ done:
 }
 
 // FUN_001EC1C0
-void func_001ec1c0(u8 *arg0, u8 *arg1, u8 *arg2) {
+void btlTargetBlendVectors(u8 *arg0, u8 *arg1, u8 *arg2) {
     f32 temp_f12;
     f32 temp_f13;
     f32 var_f0;
@@ -247,7 +247,7 @@ void func_001ec1c0(u8 *arg0, u8 *arg1, u8 *arg2) {
 }
 
 // FUN_001EC250
-f32 func_001ec250(const RwV3d* first, const RwV3d* second)
+f32 btlTargetVectorDistance(const RwV3d* first, const RwV3d* second)
 {
     RwV3d delta;
 
@@ -261,7 +261,7 @@ f32 func_001ec250(const RwV3d* first, const RwV3d* second)
 /* measured: opt_propagation off probe for ec2b0 load ordering. */
 #pragma opt_propagation off
 // FUN_001EC2B0
-f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *right, P4Vec4Holder_001EC2B0 *left)
+f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0 *right, P4Vec4Holder_001EC2B0 *left)
 {
     extern f32 func_0044b920(f32 arg0);
     f32 dot;
@@ -282,7 +282,7 @@ f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *right, P4Vec4Holder_001EC2B0 *left)
 #pragma opt_propagation on
 
 // FUN_001EC3D0
-f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
+f32 btlTargetAngleBetween(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
 {
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
     extern f32 fabsf(f32 arg0);
@@ -305,7 +305,7 @@ f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
 }
 
 // FUN_001EC4A0
-s32 func_001ec4a0(s32 arg0, u8 *arg1)
+s32 btlTargetFindInRange(s32 arg0, u8 *arg1)
 {
     extern void func_003e42a0();
     extern u8 *func_00457120(); /* lint: allow H011 -- pointer view of the s32 definition, as in code1_001e */
@@ -337,7 +337,7 @@ s32 func_001ec4a0(s32 arg0, u8 *arg1)
 /* measured: the `volatile` on `state` is load-bearing (see annotation above);
  * removing it costs FUN_001EC630 MATCH nd0 -> nd6. */
 // FUN_001EC630
-f32 func_001ec630(f32 value, volatile f32* state)
+f32 btlTargetSmoothStep(f32 value, volatile f32* state)
 {
     f32 current;
     f32 slopeBase;
@@ -373,7 +373,7 @@ f32 func_001ec630(f32 value, volatile f32* state)
 
 
 // FUN_001EC6D0
-void func_001ec6d0(s16* outX, s16* outZ, f32* position)
+void btlTargetPositionToCell(s16* outX, s16* outZ, f32* position)
 {
     s32 x = (s32)(position[0] + 1750.0f);
     s32 z = (s32)(position[2] + 1750.0f);
@@ -402,7 +402,7 @@ void func_001ec6d0(s16* outX, s16* outZ, f32* position)
 /* measured: opt_propagation off keeps zMax materialization before the
    xMaxWorld conversion, matching retail's instruction order. */
 #pragma opt_propagation off
-void func_001ec790(void* work, s32 x, s32 z, f32 radius)
+void btlTargetSetRadiusArea(void* work, s32 x, s32 z, f32 radius)
 {
     s32 radiusInt;
     s32 radiusTiles;
@@ -446,7 +446,7 @@ void func_001ec790(void* work, s32 x, s32 z, f32 radius)
    floating-point scheduling. */
 #pragma opt_propagation off
 // FUN_001EC8C0
-s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
+s32 btlTargetNearSegment(f32* first, f32* second, f32* point, f32 threshold)
 {
     f32 delta[2];
     f32 pointDeltaX;
@@ -494,7 +494,7 @@ s32 func_001ec8c0(f32* first, f32* second, f32* point, f32 threshold)
    `i` above `node` cost 40, and spelling `corner` as `node + i * 0x130 + 8`
    cost 223.  A 28-pair pragma sweep was entirely neutral or worse. */
 // FUN_001ECA10
-s32 func_001eca10(u8 *first, u8 *second)
+s32 btlTargetRangeCheck(u8 *first, u8 *second)
 {
     extern f32 RwV2dLength(const f32 *vector);
     u8 *node;
@@ -545,12 +545,12 @@ s32 func_001eca10(u8 *first, u8 *second)
             }
             next = *(f32 **)(node + i * 0x130 + 0x18);
             edge = (f32 *)(node + i * 0x130 + 8);
-            side_a = func_001ecde0(edge, next, (f32 *)(first + 8));
-            side_b = func_001ecde0(edge, next, (f32 *)(second + 8));
+            side_a = btlTargetCrossSign(edge, next, (f32 *)(first + 8));
+            side_b = btlTargetCrossSign(edge, next, (f32 *)(second + 8));
             if (side_a != side_b) {
-                side_a = func_001ecde0((f32 *)(first + 8),
+                side_a = btlTargetCrossSign((f32 *)(first + 8),
                                      (f32 *)(second + 8), corner);
-                side_b = func_001ecde0((f32 *)(first + 8),
+                side_b = btlTargetCrossSign((f32 *)(first + 8),
                                      (f32 *)(second + 8), next);
                 if (side_a != side_b) {
                     intersects = 1;
@@ -588,13 +588,13 @@ s32 func_001eca10(u8 *first, u8 *second)
             s32 side_b;
             next = (f32 *)(node + wrap * 0x130 + 8);
             edge = (f32 *)(node + j * 0x130 + 8);
-            side_a = func_001ecde0(edge, next, (f32 *)(first + 8));
-            side_b = func_001ecde0(edge, next, (f32 *)(second + 8));
+            side_a = btlTargetCrossSign(edge, next, (f32 *)(first + 8));
+            side_b = btlTargetCrossSign(edge, next, (f32 *)(second + 8));
 
             if (side_a != side_b) {
-                side_a = func_001ecde0((f32 *)(first + 8),
+                side_a = btlTargetCrossSign((f32 *)(first + 8),
                                      (f32 *)(second + 8), edge);
-                side_b = func_001ecde0((f32 *)(first + 8),
+                side_b = btlTargetCrossSign((f32 *)(first + 8),
                                      (f32 *)(second + 8), next);
                 if (side_a != side_b) {
                     intersects = 1;
@@ -614,7 +614,7 @@ s32 func_001eca10(u8 *first, u8 *second)
 }
 // FUN_001ECDE0
 /* Private leaf: all twelve retail calls belong to this geometry unit. */
-static s32 func_001ecde0(const f32* param_1, const f32* param_2, const f32* param_3)
+static s32 btlTargetCrossSign(const f32* param_1, const f32* param_2, const f32* param_3)
 {
     f32 cross = (param_2[0] - param_1[0]) * (param_3[1] - param_1[1]) -
                 (param_2[1] - param_1[1]) * (param_3[0] - param_1[0]);
@@ -631,7 +631,7 @@ nonpositive:
 
 // FUN_001ECE50
 /* 520/528 bytes; all six relocations resolve exactly with the private leaf. */
-s32 func_001ece50(f32 *first, f32 *second, f32 margin)
+s32 btlTargetLineClear(f32 *first, f32 *second, f32 margin)
 {
     u8 *node;
     s32 i;
@@ -656,12 +656,12 @@ s32 func_001ece50(f32 *first, f32 *second, f32 margin)
             f32 *next = (f32 *)(node + wrap * 0x130 + 8);
             f32 *edge = (f32 *)(node + i * 0x130 + 8);
             s32 intersects;
-            s32 side_a = func_001ecde0(edge, next, first);
-            s32 side_b = func_001ecde0(edge, next, second);
+            s32 side_a = btlTargetCrossSign(edge, next, first);
+            s32 side_b = btlTargetCrossSign(edge, next, second);
 
             if (side_a != side_b) {
-                side_a = func_001ecde0(first, second, edge);
-                side_b = func_001ecde0(first, second, next);
+                side_a = btlTargetCrossSign(first, second, edge);
+                side_b = btlTargetCrossSign(first, second, next);
                 if (side_a != side_b) {
                     intersects = 1;
                 } else {
@@ -673,7 +673,7 @@ s32 func_001ece50(f32 *first, f32 *second, f32 margin)
             if (intersects != 0) {
                 return 1;
             }
-            if (func_001ec8c0(first, second, edge, margin) != 0) {
+            if (btlTargetNearSegment(first, second, edge, margin) != 0) {
                 return 1;
             }
         }
@@ -682,7 +682,7 @@ s32 func_001ece50(f32 *first, f32 *second, f32 margin)
 }
 
 // FUN_001ED330
-int func_001ed330(const float* param_1, const float* param_2, const float* param_3)
+int btlTargetCheckSide(const float* param_1, const float* param_2, const float* param_3)
 {
     int side;
     float cross;
@@ -702,14 +702,14 @@ int func_001ed330(const float* param_1, const float* param_2, const float* param
 
 
 // FUN_001EEC50
-void func_001eec50(void* work)
+void btlTargetResetWork(void* work)
 {
     *(u16*)((u8*)work + 0x400) = 0;
     *(u16*)((u8*)work + 0x402) = 0;
 }
 
 // FUN_001F0A40
-void func_001f0a40(void* param_1)
+void btlTargetClearWork(void* param_1)
 {
     *(u16*)((u8*)param_1 + 0x14) = 0;
 }
@@ -725,7 +725,7 @@ s32 func_001f0610(void)
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d7970 (verified MATCH there). */
 
 // FUN_001F2FE0
-void func_001f2fe0(void* arg)
+void btlTargetPacketAddPending(void* arg)
 {
     BtlTargetPacketWork* work = (BtlTargetPacketWork*)arg;
     work->source->unit->pendingPacketCount++;
@@ -736,7 +736,7 @@ void func_001f2fe0(void* arg)
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d7df0 (verified MATCH there). */
 
 // FUN_001F3010
-s32 func_001f3010(u8* arg0)
+s32 btlTargetApplyHpSpChange(u8* arg0)
 {
     s32 temp_16;
     s32 temp_17;
@@ -887,7 +887,7 @@ s32 func_001f3010(u8* arg0)
     return 1;
 }
 // FUN_001F36B0
-void func_001f36b0(void* arg)
+void btlTargetPacketReleasePending(void* arg)
 {
     BtlTargetPacketWork* work = (BtlTargetPacketWork*)arg;
     work->source->unit->pendingPacketCount--;
@@ -897,15 +897,15 @@ void func_001f36b0(void* arg)
 
 
 // FUN_001F36E0
-BtlPacket* func_001f36e0(s32 param_1, s32 param_2, const void* param_3, u16 param_4, u16 param_5)
+BtlPacket* btlTargetCreateDataPacket(s32 param_1, s32 param_2, const void* param_3, u16 param_4, u16 param_5)
 {
     BtlPacket* packet;
     u8* work;
 
     packet = btlPacketAlloc(0x700, 0x2c);
-    packet->initFunc = (BtlPacketFunc)func_001f2fe0;
-    packet->updateFunc = (BtlPacketFunc)func_001f3010;
-    packet->destroyFunc = (BtlPacketFunc)func_001f36b0;
+    packet->initFunc = (BtlPacketFunc)btlTargetPacketAddPending;
+    packet->updateFunc = (BtlPacketFunc)btlTargetApplyHpSpChange;
+    packet->destroyFunc = (BtlPacketFunc)btlTargetPacketReleasePending;
     work = (u8*)packet->workData;
     *(s32*)(work + 0) = param_1;
     *(s32*)(work + 4) = param_2;
@@ -915,7 +915,7 @@ BtlPacket* func_001f36e0(s32 param_1, s32 param_2, const void* param_3, u16 para
     return packet;
 }
 // FUN_001F37B0
-void func_001f37b0(u8* arg)
+void btlTargetActionAddPending(u8* arg)
 {
     BtlAction* action;
 
@@ -923,7 +923,7 @@ void func_001f37b0(u8* arg)
     action->unit->pendingPacketCount++;
 }
 // FUN_001F37D0
-u32 func_001f37d0(void* arg)
+u32 btlTargetStatePacketUpdate(void* arg)
 {
     BtlTargetStatePacketWork* work = (BtlTargetStatePacketWork*)arg;
     u8 value;
@@ -952,7 +952,7 @@ u32 func_001f37d0(void* arg)
 }
 
 // FUN_001F3850
-void func_001f3850(u8* param_1)
+void btlTargetReleaseUnitPending(u8* param_1)
 {
     s32 iVar1;
     s32 iVar2;
@@ -965,15 +965,15 @@ void func_001f3850(u8* param_1)
 // FUN_001F3870
 /* The allocator result remains in v0 through packet initialization; all eleven
  * retail callers use it for submission or dependency setup. */
-u8 *func_001f3870(u8 *action, u8 flags)
+u8 *btlTargetCreateActionPacket(u8 *action, u8 flags)
 {
     u8 *packet;
     u8 *work;
 
     packet = (u8 *)btlPacketAlloc(0x701, 8);
-    *(BtlTargetStateHook *)(packet + 0x68) = func_001f37b0;
-    *(BtlTargetStateUpdate *)(packet + 0x6C) = func_001f37d0;
-    *(BtlTargetStateHook *)(packet + 0x70) = func_001f3850;
+    *(BtlTargetStateHook *)(packet + 0x68) = btlTargetActionAddPending;
+    *(BtlTargetStateUpdate *)(packet + 0x6C) = btlTargetStatePacketUpdate;
+    *(BtlTargetStateHook *)(packet + 0x70) = btlTargetReleaseUnitPending;
     work = *(u8 **)(packet + 0x78);
     *(u8 **)(work + 0) = action;
     *(u8 *)(work + 4) = flags;
@@ -981,7 +981,7 @@ u8 *func_001f3870(u8 *action, u8 flags)
 }
 
 // FUN_001F38E0
-void func_001f38e0(u8 **arg0)
+void btlTargetAdvanceWorkPtr(u8 **arg0)
 {
     u8 *temp_4;
 
@@ -990,7 +990,7 @@ void func_001f38e0(u8 **arg0)
 }
 
 // FUN_001F3930
-void func_001f3930(s32* param_1)
+void btlTargetAdvanceWorkCount(s32* param_1)
 {
     s32 iVar1;
     s32 iVar2;
@@ -1001,20 +1001,20 @@ void func_001f3930(s32* param_1)
 }
 
 // FUN_001F3950
-u8 *func_001f3950(u8 *arg0)
+u8 *btlTargetCreateRecordPacket(u8 *arg0)
 {
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x703, 4);
-    *(void **)(packet + 0x68) = (void *)func_001f38e0;
+    *(void **)(packet + 0x68) = (void *)btlTargetAdvanceWorkPtr;
     *(void **)(packet + 0x6C) = (void *)func_001f3900;
-    *(void **)(packet + 0x70) = (void *)func_001f3930;
+    *(void **)(packet + 0x70) = (void *)btlTargetAdvanceWorkCount;
     **(u8 ***)(packet + 0x78) = arg0;
     return packet;
 }
 
 // FUN_001F39B0
-void func_001f39b0(u8 **arg0)
+void btlTargetRewindWorkPtr(u8 **arg0)
 {
     u8 *temp_4;
 
@@ -1023,7 +1023,7 @@ void func_001f39b0(u8 **arg0)
 }
 
 // FUN_001F3B00
-void func_001f3b00(s32* param_1)
+void btlTargetRewindWorkCount(s32* param_1)
 {
     s32 iVar1;
     s32 iVar2;
@@ -1034,14 +1034,14 @@ void func_001f3b00(s32* param_1)
 }
 
 // FUN_001F3B20
-u8 *func_001f3b20(u8 *arg0)
+u8 *btlTargetCreateHitPacket(u8 *arg0)
 {
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x702, 4);
-    *(void **)(packet + 0x68) = (void *)func_001f39b0;
+    *(void **)(packet + 0x68) = (void *)btlTargetRewindWorkPtr;
     *(void **)(packet + 0x6C) = (void *)func_001f39d0;
-    *(void **)(packet + 0x70) = (void *)func_001f3b00;
+    *(void **)(packet + 0x70) = (void *)btlTargetRewindWorkCount;
     **(u8 ***)(packet + 0x78) = arg0;
     return packet;
 }
@@ -1100,7 +1100,7 @@ s32 func_001f4290(void)
 }
 
 // FUN_001F5F70
-BtlPacket* func_001f5f70(u32 param_1, u16 param_2, u32 param_3,
+BtlPacket* btlTargetCreateTargetPacket(u32 param_1, u16 param_2, u32 param_3,
                         u32 param_4, u32 param_5)
 {
     BtlPacket* packet;
@@ -1119,14 +1119,14 @@ BtlPacket* func_001f5f70(u32 param_1, u16 param_2, u32 param_3,
 }
 
 // FUN_001F6000
-u32 func_001f6000(BtlTargetSimpleWork* work)
+u32 btlTargetSimpleCommand(BtlTargetSimpleWork* work)
 {
     func_001f6220(work->command, work->param);
     return 1;
 }
 
 // FUN_001F60C0
-BtlPacket* func_001f60c0(void)
+BtlPacket* btlTargetCreateEmptyPacket(void)
 {
     BtlPacket* packet = btlPacketAlloc(0x802, 0);
     packet->updateFunc = func_001f6090;

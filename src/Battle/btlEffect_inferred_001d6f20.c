@@ -5,7 +5,7 @@
 
 /* Canonical grouped function declarations. */
 extern void func_001d6880(void* param_1);
-extern void func_001d3e00(u32 param_1);
+extern void btlFormationSetPlacement(u32 param_1);
 extern u8* DAT_0076449c;
 extern void (*jtbl_008873EC[])(void* ptr);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
@@ -87,7 +87,7 @@ void func_001d7040(u8* arg0)
     temp_4 = *(u32*)(arg0 + 0xC);
     if (temp_4 != 0)
     {
-        func_001d3e00(temp_4);
+        btlFormationSetPlacement(temp_4);
         *(u32*)(arg0 + 0xC) = 0;
     }
     ((void (**)(void*))table)[0](arg0);

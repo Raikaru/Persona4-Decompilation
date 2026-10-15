@@ -5,13 +5,13 @@
 #include "type.h"
 
 /* Canonical grouped function declarations. */
-extern void func_001d3e00(u32 param_1);
+extern void btlFormationSetPlacement(u32 param_1);
 extern u8* DAT_0076449c;
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern char D_00609558[];
-extern void func_001d42e0(u8* arg0);
-extern void func_001d40d0(u8* arg0);
-extern u8* func_001d41b0(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void btlFormationResetState(u8* arg0);
+extern void btlFormationCopyDefault(u8* arg0);
+extern u8* btlFormationAllocEntry(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00485b20(u32 arg0);
 extern void mdlDestroyModelObject(u32 arg0);
 
@@ -44,7 +44,7 @@ void func_001d7140(u8* arg0)
             temp_4 = *(s32*)(temp_17 + 0x10);
             if (temp_4 != 0)
             {
-                func_001d42e0((u8*)temp_4);
+                btlFormationResetState((u8*)temp_4);
                 *(s32*)(temp_17 + 0x10) = 0;
             }
             temp_4_2 = *(s32*)(temp_17 + 0x14);
@@ -66,7 +66,7 @@ void func_001d7140(u8* arg0)
             temp_4_4 = *(s32*)(arg0 + 0xC);
             if (temp_4_4 != 0)
             {
-                func_001d3e00((u32)temp_4_4);
+                btlFormationSetPlacement((u32)temp_4_4);
                 *(s32*)(arg0 + 0xC) = 0;
             }
             temp_4_5 = *(s16*)(arg0 + 0x10);
@@ -76,10 +76,10 @@ void func_001d7140(u8* arg0)
                 temp_4_9 = temp_4_5 * 4;
                 temp_4_6 = *(s32*)((u8*)(temp_4_9 + temp_4 + 0xD04));
                 *(s32*)(arg0 + 0xC) = temp_4_6;
-                func_001d40d0((u8*)temp_4_6);
+                btlFormationCopyDefault((u8*)temp_4_6);
                 temp_6 = *(s32*)(arg0 + 4);
                 *(s32*)(*(u8**)(arg0 + 8) + 0x10) =
-                    (s32)func_001d41b0(*(u8**)(arg0 + 0xC), 1, temp_6, temp_6, 0);
+                    (s32)btlFormationAllocEntry(*(u8**)(arg0 + 0xC), 1, temp_6, temp_6, 0);
             }
             *arg0 &= (u8)~1;
         }

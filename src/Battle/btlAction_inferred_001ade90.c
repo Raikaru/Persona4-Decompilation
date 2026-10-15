@@ -10,7 +10,7 @@
 #include "btl_target_state_packet_internal.h"
 #include "btl_action_internal.h"
 typedef struct BtlPacket BtlPacket;
-extern BtlPacket *func_001d5eb0(u32 formation, const char *text, u16 mode);
+extern BtlPacket *btlFormationCreateNamedPacket(u32 formation, const char *text, u16 mode);
 u32 datCalcRandomBelow(u32 bound);
 typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
@@ -30,10 +30,10 @@ typedef struct LargeBattleHitResult {
 } LargeBattleHitResult;
 
 /* Existing byte-view callers use these adapters to the provider definitions. */
-extern BtlPacket *func_001f5f70(u32 action, u16 kind, u32 a, u32 b, u32 c);
+extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 kind, u32 a, u32 b, u32 c);
 static inline u8 *actionTargetPacketBytes(u8 *action, u16 kind, u32 a, u32 b, u32 c)
 {
-    return (u8 *)func_001f5f70((u32)action, kind, a, b, c);
+    return (u8 *)btlTargetCreateTargetPacket((u32)action, kind, a, b, c);
 }
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
 static inline void actionSetDelayBytes(u8 *action, s32 state, s32 delay)
@@ -76,7 +76,7 @@ void func_001f14f0(u8 *arg0);
 void func_001eb3b0(u8 *arg0);
 
 
-BtlPacket *func_001d3700(u16 arg0, u16 arg1);
+BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 
 extern u8 *D_0076449C;
@@ -96,12 +96,12 @@ extern u32 datCalcGetBadStatus(s32 arg0);
 extern s16 func_001f6d60(u8 *arg0);
 extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
-extern BtlPacket *func_001f36e0(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *func_00202740(u8 *arg0);
 extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
-extern BtlPacket *func_001d3900(u16 arg0);
+extern BtlPacket *btlFormationCreateReturnPacket(u16 arg0);
 extern u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value);
-extern BtlPacket *func_001d3d00(u32 action);
+extern BtlPacket *btlFormationCreateEventPacket(u32 action);
 BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 u8 *func_001fa720(const void *data);
@@ -129,7 +129,7 @@ s16 func_001d15a0(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 
-BtlPacket *func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
+BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
 s32 func_001fac80(u8 *arg0);
@@ -354,7 +354,7 @@ void btlActionBadDamageUpdate(u8 *action)
                 delta = (s16)func_001f6d60(action);
                 result.hpDelta = delta;
                 if (delta < 0) {
-                    resultPacket = (u8 *)func_001f36e0((s32)action, (s32)action, &result, 1, 1);
+                    resultPacket = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action, &result, 1, 1);
                     *(s16 *)(resultPacket + 72) = 12;
                     btlPacketEnqueue(resultPacket, 1);
                     healthPacket = func_00202740(unit);
@@ -408,7 +408,7 @@ void btlActionBadDamageUpdate(u8 *action)
                 delta = (s16)func_001f6d60(action);
                 result.spDelta = delta;
                 if (delta < 0) {
-                    resultPacket = (u8 *)func_001f36e0((s32)action, (s32)action, &result, 1, 1);
+                    resultPacket = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action, &result, 1, 1);
                     *(s16 *)(resultPacket + 72) = 12;
                     btlPacketEnqueue(resultPacket, 1);
                     healthPacket = func_00202740(unit);
@@ -554,7 +554,7 @@ void btlActionRoundupMesInit(u8 *action)
         changeFormation = 0;
     }
     if (changeFormation != 0) {
-        packet = (u8 *)func_001d3900(1);
+        packet = (u8 *)btlFormationCreateReturnPacket(1);
         *(s64 *)(packet + 96) = *(s64 *)action;
         btlPacketEnqueue(packet, 0);
     }
@@ -569,7 +569,7 @@ void btlActionRoundupMesInit(u8 *action)
         btlPacketEnqueue(packet, 0);
         targetIndex++;
     }
-    packet = (u8 *)func_001d3700(3, 0xFFF);
+    packet = (u8 *)btlFormationCreateSlotPacket(3, 0xFFF);
     *(s64 *)(packet + 96) = *(s64 *)action;
     btlPacketEnqueue(packet, 0);
     packet = btlUnitCreateLookAtSidePacket(0, 3);
@@ -578,7 +578,7 @@ void btlActionRoundupMesInit(u8 *action)
     packet = (u8 *)btlUnitCreateLookAtDeactivatePacket(NULL, 3);
     *(s64 *)(packet + 96) = *(s64 *)action;
     btlPacketEnqueue(packet, 1);
-    packet = (u8 *)func_001d3d00((u32)action);
+    packet = (u8 *)btlFormationCreateEventPacket((u32)action);
     *(s64 *)(packet + 96) = *(s64 *)action;
     btlPacketEnqueue(packet, 0);
     packet = (u8 *)btlMainCreateColorSetPacket(0);
@@ -670,7 +670,7 @@ void btlActionRoundupMesUpdate(u8 *arg0)
             return;
         }
         if (func_00218230(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
-            packet1 = func_001f3870(arg0, 2);
+            packet1 = btlTargetCreateActionPacket(arg0, 2);
             *(u64 *)(packet1 + 0x60) = *(u64 *)arg0;
             btlPacketEnqueue(packet1, 1);
             *(s32 *)(*(u8 **)(D_0076449C + 0x170) + 0x434) =
@@ -790,11 +790,11 @@ void btlActionRoundupUpdate(u8 *arg0)
         PartyActionView *members[4];
         u16 count;
     } PartyStateView;
-    extern s32 func_001d3d50(u32 arg0);
-    extern void func_001d3e00(u32 arg0);
-    extern u32 func_001d43f0(s32 arg0);
+    extern s32 btlFormationAllocWork(u32 arg0);
+    extern void btlFormationSetPlacement(u32 arg0);
+    extern u32 btlFormationGetFlags(s32 arg0);
     extern u8 *func_001d7bf0(u32 arg0, u32 arg1, u32 arg2);
-    extern u8 *func_001f3950(u8 *arg0);
+    extern u8 *btlTargetCreateRecordPacket(u8 *arg0);
     extern s32 func_001ef4a0(s32 arg0);
     extern void func_00230340(u8 *arg0);
     extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
@@ -844,11 +844,11 @@ void btlActionRoundupUpdate(u8 *arg0)
     u8 *list;
 
     uid = *(s64 *)arg0;
-    handle = func_001d3d50(1);
+    handle = btlFormationAllocWork(1);
     for (list = *(u8 **)(iGpffffb3ac + 0x174); list != NULL; list = *(u8 **)(list + 0x450)) {
         if (*(u8 *)(list + 0x28) != 0) {
             u8 *pk;
-            pk = func_001f3870(list, 2);
+            pk = btlTargetCreateActionPacket(list, 2);
             *(s64 *)(pk + 0x60) = uid;
             btlPacketEnqueue(pk, 1);
         }
@@ -935,8 +935,8 @@ void btlActionRoundupUpdate(u8 *arg0)
         *(s64 *)(pk + 0x60) = uid;
         btlPacketEnqueue(pk, 1);
     }
-    func_001d69f0(aux, workBuf);
-    pkt12C = (u8 *)func_001d5eb0(handle, workBuf, 0);
+    btlFormationFormatName(aux, workBuf);
+    pkt12C = (u8 *)btlFormationCreateNamedPacket(handle, workBuf, 0);
     *pkt12C = 5;
     *(s64 *)(pkt12C + 8) = cur58;
     *(s16 *)(pkt12C + 0x48) = 0x3C;
@@ -952,7 +952,7 @@ void btlActionRoundupUpdate(u8 *arg0)
             btlPacketEnqueue(pk, 0);
         }
     }
-    pkt128 = (u8 *)func_001d6240(handle, *(u32 *)(arg0 + 0x30), *(u32 *)(target + 0x30), 0, 0);
+    pkt128 = (u8 *)btlFormationCreatePacket(handle, *(u32 *)(arg0 + 0x30), *(u32 *)(target + 0x30), 0, 0);
     *pkt128 = 4;
     *(s64 *)(pkt128 + 8) = *(s64 *)(pkt12C + 0x58);
     *(s64 *)(pkt128 + 0x60) = uid;
@@ -980,7 +980,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     for (var23 = 0; var23 < *(u16 *)(arg0 + 0x6A); var23++) {
         unit17 = *(u8 **)(arg0 + (u32)var23 * 4 + 0x38);
         func_00230340(unit17);
-        formationFlags = func_001d43f0((s32)(unit17 + 0xD8));
+        formationFlags = btlFormationGetFlags((s32)(unit17 + 0xD8));
         if (*(s32 *)(unit17 + 0xE4) != 0) {
             unit19 = arg0;
         } else {
@@ -992,7 +992,7 @@ void btlActionRoundupUpdate(u8 *arg0)
             *(s64 *)(pk + 0x60) = uid;
             btlPacketEnqueue(pk, 1);
         }
-        chain = (u8 *)func_001d6240(handle, *(u32 *)(arg0 + 0x30), *(u32 *)(unit19 + 0x30), 1, formationFlags | 0x1000);
+        chain = (u8 *)btlFormationCreatePacket(handle, *(u32 *)(arg0 + 0x30), *(u32 *)(unit19 + 0x30), 1, formationFlags | 0x1000);
         *chain = 4;
         *(s64 *)(chain + 8) = *(s64 *)(pkt12C + 0x58);
         *(s16 *)(chain + 0x48) = sp110;
@@ -1007,14 +1007,14 @@ void btlActionRoundupUpdate(u8 *arg0)
         }
         if (*(s32 *)(unit17 + 0xE4) != 0) {
             u8 *pk;
-            pk = (u8 *)func_001d6240(*(u32 *)(iGpffffb3ac + 0xD28), *(u32 *)(arg0 + 0x30), *(u32 *)(unit17 + 0x30), 1, 0);
+            pk = (u8 *)btlFormationCreatePacket(*(u32 *)(iGpffffb3ac + 0xD28), *(u32 *)(arg0 + 0x30), *(u32 *)(unit17 + 0x30), 1, 0);
             *pk = 0xB;
             *(s64 *)(pk + 8) = *(s64 *)(chain + 0x58);
             btlPacketEnqueue(pk, 1);
         }
         if (*(u16 *)(unit17 + 0xDC) == 0x400) {
             u8 *pk;
-            pk = (u8 *)func_001d6240(*(u32 *)(iGpffffb3ac + 0xD2C), *(u32 *)(arg0 + 0x30), *(u32 *)(unit19 + 0x30), 1, 0);
+            pk = (u8 *)btlFormationCreatePacket(*(u32 *)(iGpffffb3ac + 0xD2C), *(u32 *)(arg0 + 0x30), *(u32 *)(unit19 + 0x30), 1, 0);
             *pk = 0xB;
             *(s64 *)(pk + 8) = *(s64 *)(chain + 0x58);
             btlPacketEnqueue(pk, 1);
@@ -1038,7 +1038,7 @@ void btlActionRoundupUpdate(u8 *arg0)
             }
             {
                 u8 *pk;
-                pk = (u8 *)func_001f36e0((s32)arg0, (s32)unit19, battleHitPayload(rec), *(u16 *)(unit17 + 0xDC), *(u16 *)(unit17 + 0xDE));
+                pk = (u8 *)btlTargetCreateDataPacket((s32)arg0, (s32)unit19, battleHitPayload(rec), *(u16 *)(unit17 + 0xDC), *(u16 *)(unit17 + 0xDE));
                 *pk = 5;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(s64 *)(pk + 0x60) = uid;
@@ -1046,7 +1046,7 @@ void btlActionRoundupUpdate(u8 *arg0)
             }
             {
                 u8 *pk;
-                pk = func_001f3950(unit17);
+                pk = btlTargetCreateRecordPacket(unit17);
                 *pk = 5;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(s64 *)(pk + 0x60) = uid;
@@ -1054,7 +1054,7 @@ void btlActionRoundupUpdate(u8 *arg0)
             }
             if (var23 == *(u16 *)(arg0 + 0x6A) - 1 && var22 == *(u8 *)(unit17 + 0xD9) - 1) {
                 u8 *pk;
-                pk = func_001f3950(arg0);
+                pk = btlTargetCreateRecordPacket(arg0);
                 *pk = 5;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(s64 *)(pk + 0x60) = uid;
@@ -1074,7 +1074,7 @@ void btlActionRoundupUpdate(u8 *arg0)
                 u8 *pk;
                 func_001f0a10(tmpBuf.bytes);
                 tmpBuf.words[3] = 0x100001;
-                pk = (u8 *)func_001f36e0((s32)unit17, (s32)unit17, tmpBuf.bytes, 1, 1);
+                pk = (u8 *)btlTargetCreateDataPacket((s32)unit17, (s32)unit17, tmpBuf.bytes, 1, 1);
                 *pk = 4;
                 *(s64 *)(pk + 8) = *(s64 *)(anim + 0x58);
                 *(s64 *)(pk + 0x60) = uid;
@@ -1162,7 +1162,7 @@ void btlActionRoundupUpdate(u8 *arg0)
         *(s64 *)(pk + 0x60) = uid;
         btlPacketEnqueue(pk, 1);
     }
-    func_001d3e00(handle);
+    btlFormationSetPlacement(handle);
     btlActionSetState((BtlAction *)arg0, 0x20);
 }
 

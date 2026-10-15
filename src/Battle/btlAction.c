@@ -58,8 +58,8 @@ void btlActionChangeFormationInit(BtlAction* action)
     extern u8* D_0076449C;
     extern f32 fGpffff809c;
     extern void btlActionFinishPresentation(BtlAction* action);
-    extern BtlPacket* func_001d3900(u16 param_1);
-    extern BtlPacket* func_001d3700(u16 param_1, u16 param_2);
+    extern BtlPacket* btlFormationCreateReturnPacket(u16 param_1);
+    extern BtlPacket* btlFormationCreateSlotPacket(u16 param_1, u16 param_2);
     extern BtlPacket* func_001f99c0(BtlAction* action, u16 param_2, s32 param_3,
                                      s32 param_4, s32 param_5);
     extern BtlPacket* btlUnitCreateMovePacket(void* unit, const RwV3d* targetPos,
@@ -75,7 +75,7 @@ void btlActionChangeFormationInit(BtlAction* action)
 
     btlActionFinishPresentation(action);
 
-    rootPacket = func_001d3900(1);
+    rootPacket = btlFormationCreateReturnPacket(1);
     rootPacket->actionUID = action->uid;
     btlPacketEnqueue(rootPacket, 0);
 
@@ -108,7 +108,7 @@ void btlActionChangeFormationInit(BtlAction* action)
     {
         BtlPacket* packet;
 
-        packet = func_001d3700(2, 1);
+        packet = btlFormationCreateSlotPacket(2, 1);
         *(u8*)packet = 4;
         *(u64*)((u8*)packet + 8) = rootPacket->unk58;
         packet->actionUID = action->uid;
