@@ -49,7 +49,7 @@ extern s32 func_0023d8e0(u8 *unit, u16 skill);
 extern u32 datCalcGetTableLength(u8 *arg0);
 extern s32 func_0023ddc0(u8 *unit, s32 skill);
 extern s32 func_0023dfe0(u8 *unit);
-extern s32 func_00242800(u8 *arg0, s32 arg1);
+extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
 extern u8 *func_001b1510(void);
 extern u8 *func_0029d050();
 
@@ -1296,7 +1296,7 @@ s32 func_001e9350(void) {
     result = func_001b0cc0((u64)(command << 0x24) >> 0x24);
     entry = *(u8 **)(work + 0x30);
     element = (s16)func_0023d8e0(*(u8 **)(entry + 0xA64), 0);
-    if (func_00242800(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
+    if (datCalcAilmentChance(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
         scrSetReturnInt((s16)element);
         return 1;
     }
@@ -1307,7 +1307,7 @@ s32 func_001e9350(void) {
         skill = *(u16 *)(base + index * 2);
         if (skill != 0 && skill < 0x1B8) {
             element = (s16)func_0023d8e0(*(u8 **)(entry + 0xA64), skill);
-            if (func_00242800(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
+            if (datCalcAilmentChance(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
                 scrSetReturnInt((s16)element);
                 return 1;
             }
@@ -1596,7 +1596,7 @@ outer_body:
         for (; ((s32)idxB & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxB = ((s32)idxB + 1) & 0xFFFF) {
             entryB = tgt.entries[(idxB & 0xFFFF)];
             if (func_001db360(entryB, paramB, 1) == 0) {
-                if ((func_00242800(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), kind) & 0x1000000) == 0) {
+                if ((datCalcAilmentChance(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), kind) & 0x1000000) == 0) {
                     curScore = 0.0f;
                     goto scored;
                 }

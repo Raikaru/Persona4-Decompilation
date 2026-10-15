@@ -21,7 +21,8 @@ u32 datCalcIsSpecialItem(u16 itemId);
 u32 datCalcIsDead(DatUnit *unit, s32 hpDelta);
 u32 datCalcIsLowHp(DatUnit *unit);
 void datCalcInitializeCharacters(void);
-void func_00243f20(u16 characterId);
+// Intent: seeds the per-character tables for character id arg0; see datCalcInitializeCharacters.
+void datCalcInitializeCharacter(u16 characterId);
 /* Returns the fixed skill-table length (8) for a unit's table. */
 u32 datCalcGetTableLength(u8 *unused);
 // Intent: maximum HP of unit arg0 from its level and skill/equipment bonuses; capped at 999 unless flag 4.

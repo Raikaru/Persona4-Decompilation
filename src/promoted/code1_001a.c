@@ -162,7 +162,7 @@ BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
 BtlPacket *func_001d7a10(u16 mode);
 u8 *func_00201f20(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
-extern s32 func_00242800(u8 *unit, s32 element);
+extern s32 datCalcAilmentChance(u8 *unit, s32 element);
 u8 *func_001fa720(const void *data);
 s32 func_001eb860(void);
 extern void func_00218420(s32 task, u8 *arg1);
@@ -2285,7 +2285,7 @@ void func_001a43a0(u8 *action)
             u8 *affinityUnit = *(u8 **)(workspace + 0xA64);
             s32 affinityElement = targets.element;
 
-            if (func_00242800(affinityUnit, affinityElement) & 0x7000000) {
+            if (datCalcAilmentChance(affinityUnit, affinityElement) & 0x7000000) {
                 continue;
             }
         }

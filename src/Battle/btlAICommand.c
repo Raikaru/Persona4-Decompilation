@@ -52,7 +52,7 @@ extern u32 func_001b1570(u16 arg0);
 extern u32 datCalcClearBuffLevel(u32 arg0, u32 arg1);
 extern u32 datCalcRandomBelow(u32 arg0);
 extern u16 datCalcGetHp(s32 unit);
-extern s32 func_00242800(u8 *unit, s32 index);
+extern s32 datCalcAilmentChance(u8 *unit, s32 index);
 extern void func_001de640(u8 *a, u8 *b, u16 c);
 
 extern void *D_00609934[];
@@ -301,7 +301,7 @@ s32 func_001db360(u8 *formation, s32 index, s32 enabled)
             }
         }
     }
-    return !(func_00242800(*(u8 **)(unit + 0xA64), (s16)index) & 0x07000000);
+    return !(datCalcAilmentChance(*(u8 **)(unit + 0xA64), (s16)index) & 0x07000000);
 }
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
@@ -323,7 +323,7 @@ s32 func_001db5b0(u8 *formation, s32 index)
 
 // FUN_001DB5E0
 s32 func_001db5e0(u8 *arg0, s16 arg1) {
-    return !(func_00242800(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x7000000);
+    return !(datCalcAilmentChance(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x7000000);
 }
 
 #pragma opt_rebuildconditionals off
@@ -517,7 +517,7 @@ s32 btlCond_MYNOTNOMAL(u8 *arg0, s16 arg1) {
         if (func_0010f420(*(u16 *)(p + 0xA4), index) == 0)
             return 0;
     }
-    return (func_00242800(*(u8 **)(p + 0xA64), (s32)arg1) & 0x7000000) != 0;
+    return (datCalcAilmentChance(*(u8 **)(p + 0xA64), (s32)arg1) & 0x7000000) != 0;
 }
 #pragma pop
 

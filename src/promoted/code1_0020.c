@@ -4829,7 +4829,7 @@ extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
 extern s32 func_0023d6e0(s16 arg0);
 extern s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1);
-extern s32 func_00242800(u8 *arg0, s32 arg1);
+extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
 extern s32 func_001f0950(s32 arg0, s32 arg1);
 extern void func_0020bfc0(u8 *arg0, s16 arg1);
 extern void func_0020bfd0(u8 *arg0);
@@ -4914,7 +4914,7 @@ loop_body:
             }
         }
         if ((var_23 != 0) && !(var_19 & 0xFFFF)) {
-            spA0 = func_00242800(*(u8 **)(temp_16_2 + 0xA64), temp_18);
+            spA0 = datCalcAilmentChance(*(u8 **)(temp_16_2 + 0xA64), temp_18);
             var_2 = (u16)temp_18;
             temp_3 = *(u16 *)(temp_16_2 + 0xA4);
             if (func_001f0950(temp_3, var_2) != 0) {

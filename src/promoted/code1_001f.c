@@ -76,7 +76,7 @@ extern s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2);
 extern u32 datCalcRandomBelow();
 extern s32 func_00243950(s32 arg0);
 extern s32 func_002439c0(s32 arg0);
-extern u16 func_00243a30(u8 *arg0, s32 *arg1);
+extern u16 datCalcPickWeightedSkill(u8 *arg0, s32 *arg1);
 extern void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_0060AB08[];
 extern void func_0045a3e0(s32 arg0, s32 arg1);
@@ -1163,10 +1163,10 @@ void func_001f14f0(u8 *arg0)
             }
         }
         if (e4 == 0) {
-            r1 = func_00241de0(ctx, target, id, res, sub, flags);
-            r2 = func_00241f00(ctx, uctx, id, res, sub, flags);
+            r1 = datCalcSkillAllowedForMode(ctx, target, id, res, sub, flags);
+            r2 = datCalcRollSupportSkillHit(ctx, uctx, id, res, sub, flags);
             if (r1 != 0 || func_00232710(uctx, 0x100000) != 0) {
-                counter = func_00242360(ctx, uctx, id, res, sub, flags);
+                counter = datCalcRollSkillChance(ctx, uctx, id, res, sub, flags);
             }
         } else {
             r1 = 0;
@@ -1587,7 +1587,7 @@ void func_001f2cc0(u8 *arg0)
                 *(s32 *)(D_0076449C + 0xCB4) =
                     *(s32 *)(D_0076449C + 0xCB4) +
                     func_002439c0(*(s32 *)(temp_16 + 0xA64));
-                var_16 = (u16)(func_00243a30(
+                var_16 = (u16)(datCalcPickWeightedSkill(
                     *(u8 **)(temp_16 + 0xA64), &sp3C) & 0xFFFF);
                 if ((sp3C != 1) &&
                     (*(u16 *)(arg0 + 0x80) != 0) &&
@@ -1743,7 +1743,7 @@ s32 func_001f3b80(s32 arg0) {
 s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     extern s32 datCalcGetLevel(u8 *arg0);
-    extern s32 func_00242800(u8 *arg0, s32 arg1);
+    extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
     typedef struct ResistanceScanNode {
         u8 reserved000[0xA4];
         u16 id;
@@ -1804,7 +1804,7 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         {
             for (; firstNode != NULL; firstNode = firstNode->next) {
                 for (scanPosition = 0; (s32)scanPosition < 8; scanPosition++) {
-                    if ((func_00242800(firstNode->data, (s16)scanPosition) & 0x07000000) != 0) {
+                    if ((datCalcAilmentChance(firstNode->data, (s16)scanPosition) & 0x07000000) != 0) {
                         switch (scanPosition) {
                         case 0:
                             primaryMessage = 0x17;
@@ -1840,7 +1840,7 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
                  scanPosition != 0;
                  scanPosition = (uintptr_t)((ResistanceScanNode *)scanPosition)->next) {
                 for (secondElement = 0; secondElement < 8; secondElement++) {
-                    if ((func_00242800(((ResistanceScanNode *)scanPosition)->data, (s16)secondElement) & 0x08000000) != 0) {
+                    if ((datCalcAilmentChance(((ResistanceScanNode *)scanPosition)->data, (s16)secondElement) & 0x08000000) != 0) {
                         switch (secondElement) {
                         case 0:
                             secondaryMessage = 0x1E;
