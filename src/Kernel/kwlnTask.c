@@ -51,8 +51,9 @@ extern void func_003e8440(Camera* camera);
 
 
 
+/* Resizes the camera's frame and Z buffers to the requested view (or the display size) and sets its view window. */
 // FUN_004571D0
-void func_004571d0(Camera* camera, CameraView* requestedView, f32 scale,
+void kwlnCameraResizeView(Camera* camera, CameraView* requestedView, f32 scale,
                    f32 aspectRatio)
 {
     u32 displayInfo[4];
@@ -178,8 +179,9 @@ update_view_window:
 
 
 
+/* Creates a camera with a frame buffer and an optional Z buffer; on failure it frees everything and returns NULL. */
 // FUN_004574D0
-Camera* func_004574d0(u32 width, u32 height, u32 createZBuffer)
+Camera* kwlnCameraCreate(u32 width, u32 height, u32 createZBuffer)
 {
     Camera* camera;
     void* frame;

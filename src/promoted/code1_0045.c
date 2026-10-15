@@ -178,12 +178,12 @@ extern void func_003efd20(void *arg0, void *arg1);
 extern void func_003c3cc0(void *arg0);
 extern s32 func_003e89c0(void);
 extern void func_003e8970(void *arg0, s32 arg1);
-extern u8 *func_004574d0(s32 arg0, s32 arg1, s32 arg2);
+extern u8 *kwlnCameraCreate(u32 arg0, u32 arg1, u32 arg2);
 extern void func_003e81c0(void *arg0, f32 arg1);
 extern void func_003e8180(void *arg0, f32 arg1);
 extern void func_003cbc10(void *arg0, void *arg1);
 extern void func_003e9d50(void *arg0, void *arg1, s32 arg2, f32 arg3);
-extern void func_004571d0(void *arg0, void *arg1, f32 arg2, f32 arg3);
+extern void kwlnCameraResizeView(void *arg0, void *arg1, f32 arg2, f32 arg3);
 extern s32 func_00410360(void);
 extern u8 D_00711800[];
 extern u8 D_00711810[];
@@ -1419,7 +1419,7 @@ loop_00456e40_third_done:
     iGpffffba7c = slot;
     parent = (u8 *)iGpffffba70;
     func_003e8970(work.sp50, func_003e89c0());
-    if ((obj = func_004574d0(*(s32 *)work.sp50, *(s32 *)(work.sp50 + 4), 1)) != NULL) {
+    if ((obj = kwlnCameraCreate(*(s32 *)work.sp50, *(s32 *)(work.sp50 + 4), 1)) != NULL) {
         func_003e81c0(obj, 25600.0f);
         func_003e8180(obj, 20.0f);
         func_003cbc10(parent, obj);
@@ -1427,7 +1427,7 @@ loop_00456e40_third_done:
         *(s32 *)(work.sp40 + 4) = 0;
         *(s32 *)(work.sp40 + 8) = *(s32 *)work.sp50;
         *(s32 *)(work.sp40 + 0xC) = *(s32 *)(work.sp50 + 4);
-        func_004571d0(obj, work.sp40, 0.5f, fGpffff802c);
+        kwlnCameraResizeView(obj, work.sp40, 0.5f, fGpffff802c);
         *(f32 *)(obj + 0x88) = fGpffff8030;
     }
     iGpffffba80 = (s32)obj;
