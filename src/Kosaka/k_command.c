@@ -579,7 +579,7 @@ s32 Cmd_CreateFieldModel(void)
             scrSetReturnInt(0);
             return 1;
         }
-        flag = func_00145ac0(w & 0xFFFF, v) & 0xFFFF;
+        flag = MT_Scene_CreateModelFldRes(w & 0xFFFF, v) & 0xFFFF;
         while (*(s32*)(D_00762EA0 + 0x24) > 0)
         {
             p2 = (u8*)FldResource_FindFrameForId(*(s32*)(D_00762EA0 + 0x28), w, &tmp);
@@ -619,7 +619,7 @@ u32 Cmd_CreateModelResource()
     created = 0;
     if (func_004782b0(model) == true)
     {
-        resourceId = (u16)func_00145ac0(func_0014b510(10), (s32)model);
+        resourceId = (u16)MT_Scene_CreateModelFldRes(func_0014b510(10), (s32)model);
         created = 1;
     }
     scrSetReturnInt(resourceId);

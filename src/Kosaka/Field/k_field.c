@@ -105,7 +105,7 @@ extern s32 func_002859e0(s32, s32, s32);
 extern void func_0016ea40(s32, u16);
 extern void func_0016f130(u8 *, s32, s32);
 extern u16 func_0014b510(s32);
-extern s32 func_00145ac0(u16, s32);
+extern s32 MT_Scene_CreateModelFldRes(u16, s32);
 extern void SceneDraw_SetResVisible(u16, s32);
 extern void func_0015a350(f32 *);
 extern void func_0047a180(s32, f32 *, s32);
@@ -236,7 +236,7 @@ s32 func_00155360(u8 *task)
             func_0016f130(task, 1, -1);
             model = work->model;
             if (model != 0) {
-                modelId = func_00145ac0(func_0014b510(10), model);
+                modelId = MT_Scene_CreateModelFldRes(func_0014b510(10), model);
                 SceneDraw_SetResVisible(modelId, 1);
                 func_0015a350(position);
                 func_0047a180(work->model, position, 2);

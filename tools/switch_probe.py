@@ -19,7 +19,7 @@ universal:
     func_00467bd0   368 -> 328    func_001be990   328 -> 318
     func_0025b240   276 -> 226    func_001d1f30   416 -> 399
     func_001c2ee0   269 -> 208    func_002b0b10    97 -> 114
-    func_00146a10   182 -> 99     func_001b3a00    91 -> 115
+    MT_Scene_ApplyResTransform   182 -> 99     func_001b3a00    91 -> 115
     func_00233bc0   148 -> 70     func_001adea0    49 -> 51
     func_001fd790   590 -> 566    func_001b2380  1392 -> 1394
 
