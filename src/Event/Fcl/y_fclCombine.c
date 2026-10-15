@@ -260,9 +260,9 @@ extern void func_001075d0(s32);
 extern s32 func_00144f60(void);
 extern u8 *MT_Scene_GetResListHead(s32);
 extern u8 *func_00457120(void);
-extern f32 func_0014b4d0(void);
+extern f32 MT_Scene_GetCameraFov(void);
 extern void K_View_SetFov(u8 *arg0, f32 arg1);
-extern s32 func_0014b450(void);
+extern s32 MT_Scene_GetCameraResFirst(void);
 extern void func_003e9cb0(s32, s32, s32);
 extern void func_00331390(void);
 extern s32 func_00331580(void);
@@ -10187,9 +10187,9 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
                 q = *(u8 **)(q + 0x138);
             }
             if (datGetFlag(0x1459) == 0) {
-                K_View_SetFov(func_00457120(), func_0014b4d0());
+                K_View_SetFov(func_00457120(), MT_Scene_GetCameraFov());
                 t2 = func_00457120();
-                r2 = func_0014b450();
+                r2 = MT_Scene_GetCameraResFirst();
                 func_003e9cb0(*(u32 *)(t2 + 4), r2, 0);
             }
             func_00331390();

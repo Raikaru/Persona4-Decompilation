@@ -78,8 +78,8 @@ extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 extern u8 *func_00457120(void);
 extern void K_View_SetFov(u8 *arg0, f32 arg1);
-extern f32 func_0014b4d0(void);
-extern s32 func_0014b450(void);
+extern f32 MT_Scene_GetCameraFov(void);
+extern s32 MT_Scene_GetCameraResFirst(void);
 extern void func_003e9cb0(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00122720(void);
 extern s32 func_0033de90(u8 *arg0, s32 arg1);
@@ -637,9 +637,9 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
              goto out;
          }
          view = func_00457120();
-         K_View_SetFov(view, func_0014b4d0());
+         K_View_SetFov(view, MT_Scene_GetCameraFov());
          viewRec = func_00457120();
-         func_003e9cb0(*(s32 *)(viewRec + 4), func_0014b450(), 0);
+         func_003e9cb0(*(s32 *)(viewRec + 4), MT_Scene_GetCameraResFirst(), 0);
          func_00122640(1, 0xA);
          *(s8 *)work = *(s8 *)work + 1;
      case 8:

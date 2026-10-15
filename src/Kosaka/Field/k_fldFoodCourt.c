@@ -28,10 +28,10 @@ extern s32 func_0015f660(void);
 extern s64 func_001060b0(void);
 extern s32 func_001060c0(void);
 extern s64 func_00110960(s64 arg0, s32 arg1);
-extern u8 *func_0014b490(void);
-extern u8 *func_0014b450(void);
+extern u8 *MT_Scene_GetCameraResSecond(void);
+extern u8 *MT_Scene_GetCameraResFirst(void);
 extern u8 *func_00457120(void);
-extern f32 func_0014b4d0(void);
+extern f32 MT_Scene_GetCameraFov(void);
 extern void K_View_SetFov(u8 *arg0, f32 arg1);
 extern void func_003e9cb0(s32 arg0, u8 *arg1, s32 arg2);
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -87,7 +87,7 @@ s32 func_0018d950(u8 *arg0) {
             }
             temp_17 = (s16)func_001060b0();
             if ((s8)func_00110960(temp_17, func_001060c0() & 0xFF) == 1) {
-                var_2 = (u8 *)func_0014b490();
+                var_2 = (u8 *)MT_Scene_GetCameraResSecond();
                 var_6 = *(u8 **)(temp_16 + 4);
                 var_5 = 8;
                 do {
@@ -100,7 +100,7 @@ s32 func_0018d950(u8 *arg0) {
                     var_6 += 8;
                 } while (var_5 > 0);
             } else {
-                var_2_2 = (u8 *)func_0014b450();
+                var_2_2 = (u8 *)MT_Scene_GetCameraResFirst();
                 var_6 = *(u8 **)(temp_16 + 4);
                 var_5 = 8;
                 do {
@@ -114,7 +114,7 @@ s32 func_0018d950(u8 *arg0) {
                 } while (var_5 > 0);
             }
             temp_17_2 = (u8 *)func_00457120();
-            K_View_SetFov(temp_17_2, func_0014b4d0());
+            K_View_SetFov(temp_17_2, MT_Scene_GetCameraFov());
             temp_17_2 = (u8 *)func_00457120();
             func_003e9cb0(*(s32 *)(temp_17_2 + 4), *(u8 **)(temp_16 + 4), 0);
             temp_2_2 = *(u8 **)(temp_16 + 8);

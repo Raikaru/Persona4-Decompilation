@@ -830,7 +830,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void func_00144e10(s64);
     void func_00144ed0(s64);
     s32 MT_Scene_CreateModelFldRes(u16, s32);
-    u16 func_0014b510(s32);
+    u16 MT_Scene_FindFreeResId(s32);
     void SceneDraw_SetResVisible(u16, u32);
     void func_0015a350(struct P4_0015_Vec3 *);
     struct RwMatrixTag *func_0047a180(struct RwMatrixTag *, const struct RwV3d *, s32);
@@ -1423,7 +1423,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 {
                     s32 tt = work->modelFile;
                     if (tt != 0) {
-                        u16 id = MT_Scene_CreateModelFldRes(func_0014b510(0xA), tt);
+                        u16 id = MT_Scene_CreateModelFldRes(MT_Scene_FindFreeResId(0xA), tt);
                         SceneDraw_SetResVisible(id, 1);
                         func_0015a350((struct P4_0015_Vec3 *)(&translation));
                         func_0047a180((struct RwMatrixTag *)(work->modelFile), (const struct RwV3d *)(&translation), 2);
@@ -1724,7 +1724,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     s32 func_00457120(void);
     MovementMatrix *func_003e9700(void *);
     f32 KDraw_MatrixYawDeg(const MovementMatrix *);
-    f32 func_0014b590(f32);
+    f32 KDraw_RoundYawDeg(f32);
     s32 func_0016e580(u8 *);
     u32 datGetFlag(s32);
     void func_0016e8e0(u8 *, f32);
@@ -1824,7 +1824,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
             if (datGetFlag(0x3E) == 1) {
                 f21 *= -1.0f;
             }
-            a = func_0014b590(KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4))));
+            a = KDraw_RoundYawDeg(KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4))));
             if (a < 0.0f) {
                 a += 360.0f;
             }
@@ -1850,7 +1850,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
                 f21 *= -1.0f;
             }
             {
-                f32 angle = func_0014b590(KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4))));
+                f32 angle = KDraw_RoundYawDeg(KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4))));
 
                 if (angle < 0.0f) {
                     angle += 360.0f;

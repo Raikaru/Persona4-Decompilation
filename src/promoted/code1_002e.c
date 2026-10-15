@@ -406,8 +406,8 @@ s32 func_002e72c0(u8 *arg0)
     s32 func_00122720(void);
     s32 func_00144f60(void);
     void func_00145080(void);
-    s32 func_0014b450(void);
-    f32 func_0014b4d0(void);
+    s32 MT_Scene_GetCameraResFirst(void);
+    f32 MT_Scene_GetCameraFov(void);
     s32 func_0015f660(void);
     s32 func_0033be40(u8 *arg0);
     u8 *func_003e9cb0(u8 *arg0, ...);
@@ -430,9 +430,9 @@ s32 func_002e72c0(u8 *arg0)
     case 2:
         if ((func_00144f60() != 0) && (func_0015f660() != 0)) {
             view = func_00457120();
-            K_View_SetFov(view, func_0014b4d0());
+            K_View_SetFov(view, MT_Scene_GetCameraFov());
             view = func_00457120();
-            func_003e9cb0(*(u8 **)(view + 4), func_0014b450(), 0);
+            func_003e9cb0(*(u8 **)(view + 4), MT_Scene_GetCameraResFirst(), 0);
             *(s8 *)work = 3;
             func_0045a3e0((s16)0x15, 1);
         }

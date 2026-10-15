@@ -290,7 +290,7 @@ extern f32 D_008872F8[];
 /* measured: opt_rebuildconditionals off is scoped to func_0014a190. */
 /* measured: closes opt_rebuildconditionals for func_0014a190. */
 // FUN_0014A2F0
-void func_0014a2f0(s32 arg0)
+void FldState_SetEventViewMode(s32 arg0)
 {
     *(s32 *)(iGpffff9db0 + 0x18) = arg0;
 }
