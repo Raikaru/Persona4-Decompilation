@@ -8,16 +8,23 @@
  * old-style declaration so the s64 argument is passed as measured. */
 u8 *func_00109220(u16 personaId);
 u8 func_00109280(u16 personaId);
-u16 func_001092f0(u32 arg0);
-u16 func_00109300(s32 arg0);
-u16 func_00109360(u16 arg0);
-u8 func_001093a0(s32 arg0);
-u16 func_00109470(s32 arg0);
+// Intent: u16 id stored at +2 of a persona record.
+u16 datPersonaRecordId(u32 arg0);
+// Intent: u16 id at +2 of roster slot arg0; fatal when the slot is NULL.
+u16 datPersonaRosterSlotId(s32 arg0);
+// Intent: u16 id at +2 of the record for persona id arg0.
+u16 datPersonaGetRecordId(u16 arg0);
+// Intent: byte at +4 of roster slot arg0; fatal when the slot is NULL.
+u8 datPersonaRosterSlotByte4(s32 arg0);
+// Intent: u16 flags word of roster slot arg0; fatal when the slot is NULL.
+u16 datPersonaRosterSlotFlags(s32 arg0);
 s32 func_00109510(u8 *persona, void *arg1, void *arg2);
 void func_001097c0(u8 *arg0, s32 arg1);
 u32 func_00109870(u16 arg0, s32 arg1);
-u8 func_00109920(u8 *arg0, s32 arg1);
-s32 func_00109980(s32 arg0, s32 arg1);
+// Intent: byte at +0x1C plus index (0..4) of a persona record.
+u8 datPersonaRecordStatByte(u8 *arg0, s32 arg1);
+// Intent: byte at +0x1C plus index (0..4) of the record for persona id arg0.
+s32 datPersonaRecordStatByteById(s32 arg0, s32 arg1);
 u8 func_001099f0(u8 *arg0, s32 arg1);
 u8 func_00109ad0(u8 *arg0, s32 arg1);
 u8 func_00109bf0(u16 arg0, s32 arg1);

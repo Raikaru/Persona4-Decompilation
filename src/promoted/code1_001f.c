@@ -139,7 +139,7 @@ extern s32 func_001fbb50(u8 *arg0);
 
 
 extern void func_001f38e0(u8 **arg0);
-extern u16 func_00109360(u16 arg0);
+extern u16 datPersonaGetRecordId(u16 arg0);
 extern u16 *datPersonaGetRecord(u16 character);
 extern s32 func_0010ce10(u8 *persona, u16 skill);
 extern s32 func_001f3900(u8 **arg0);
@@ -4160,7 +4160,7 @@ s32 func_001f8700(u8 *arg0, s32 arg1)
     {
         return arg1 - 1;
     }
-    temp_2 = func_00109360(*(u16 *)(temp_4 + 0xA4)) & 0xFFFF;
+    temp_2 = datPersonaGetRecordId(*(u16 *)(temp_4 + 0xA4)) & 0xFFFF;
     switch (temp_2)
     {
     case 0xC0:
