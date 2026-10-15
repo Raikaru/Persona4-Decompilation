@@ -169,7 +169,14 @@ increment:
 #pragma schedule off
 
 /* Archived b210 near-miss (F3B1_003bf360); exact under b119 with schedule on. */
+// FUN_003BF360
 #pragma schedule on
+u8 *func_003bf360(u8 *arg0, s32 *arg1) {
+    *arg1 += 0xC;
+    *arg1 += 0x1C;
+    *arg1 += func_003e3370(D_0070AF70, (s32)arg0) + 0xC;
+    return arg0;
+}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
