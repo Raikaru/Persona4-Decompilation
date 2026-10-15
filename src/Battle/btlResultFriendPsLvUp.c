@@ -30,7 +30,7 @@ extern void func_001f8690(s32 arg0);
 extern s32 func_002bb4e0(void);
 extern u32 func_0011f560(u8 *task);
 extern s32 func_0011f580(u8 *task);
-extern s32 func_0021de60(void);
+extern s32 btlShuffleOverlayIdle(void);
 extern u8 D_00795F20[];
 extern u8 D_005E4810[];
 extern u16 D_008C024C[];
@@ -218,7 +218,7 @@ s32 func_002239a0(u8 *sdkTaskBytes)
         }
         break;
     case 5:
-        if (func_0021de60() != 0) {
+        if (btlShuffleOverlayIdle() != 0) {
             *(u32 *)(r + 4) = 6;
             /* fallthrough */
         case 6:

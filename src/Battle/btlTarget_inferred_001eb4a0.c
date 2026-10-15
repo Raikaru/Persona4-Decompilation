@@ -41,7 +41,7 @@ extern u8 *iGpffffb414;
 extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
 extern s32 func_001eb860(void);
-extern void func_00212210(s32 task);
+extern void btlDamageEndPhase(s32 task);
 extern s32 func_001ef9a0(void);
 extern s32 D_00724504;
 extern void func_001eb7f0(void);
@@ -236,7 +236,7 @@ void func_001eb7f0(void) {
     temp_4 = *(s32 *)(temp_3 + 0xC);
     if (temp_4 & 0x1000) {
         *(s32 *)temp_5 = temp_4 & ~0x1000;
-        func_00212210(*(s32 *)(iGpffffb3ac + 0xDD4));
+        btlDamageEndPhase(*(s32 *)(iGpffffb3ac + 0xDD4));
         func_0045af60(1, 0xF, 2, 0x13);
     }
 }
@@ -264,8 +264,8 @@ done:
 
 // FUN_001EB8D0
 void func_001eb8d0(void) {
-    extern void func_002121b0(s32 task);
-    extern void func_00212210(s32 task);
+    extern void btlDamageBeginPhase(s32 task);
+    extern void btlDamageEndPhase(s32 task);
     extern u16 D_008C024E[];
     s32 flags;
     s32 temp_5;
@@ -293,12 +293,12 @@ void func_001eb8d0(void) {
             if (((D_008C024E[0] & 0x10) || (D_008C024E[0] & 0x20)) &&
                 (temp_5 != 0)) {
                 *(s32 *)temp_6 = *(s32 *)temp_6 & ~0x1000;
-                func_00212210(*(s32 *)(iGpffffb3ac + 0xDD4));
+                btlDamageEndPhase(*(s32 *)(iGpffffb3ac + 0xDD4));
                 func_0045af60(1, 0xF, 2, 0x13);
             }
         } else if ((D_008C024E[0] & 0x10) && (temp_5 == 0)) {
             *(s32 *)temp_6 = flags | 0x1000;
-            func_002121b0(*(s32 *)(iGpffffb3ac + 0xDD4));
+            btlDamageBeginPhase(*(s32 *)(iGpffffb3ac + 0xDD4));
             func_0045af60(1, 0xF, 2, 0x12);
         }
     }

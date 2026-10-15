@@ -93,7 +93,7 @@ extern u8 *func_0011f410(s32 parent, s32 window, u8 *record, s32 payload, s32 op
 extern u32 func_0011f560(u8 *child);
 extern s32 func_0011f580(u8 *child);
 extern s32 func_00353f50(s32 mode);
-extern s32 func_0021de60(void);
+extern s32 btlShuffleOverlayIdle(void);
 extern void kAssertFail(const void *file, u32 line);
 extern u8 D_00635560[], D_00635580[];
 extern u8 iGpffffa4d8[4];
@@ -602,7 +602,7 @@ void func_002231e0(KwlnTask *task) {
     temp_2 = (u16 *)(kwlnTaskGetWork(task));
     *(s32 *)((u8 *)(temp_2) + 8) = 0;
     if (*(u16 *)((u8 *)(temp_2) + 0) & 4) {
-        func_0021dda0();
+        btlShuffleStartOverlay();
         *(s32 *)((u8 *)(temp_2) + 4) = 4;
         return;
     }
@@ -737,7 +737,7 @@ s32 func_002232a0(u8 *sdkTaskBytes)
         *(s32 *)(work + 4) = 8;
         break;
     case 6:
-        if (func_0021de60() == 0) {
+        if (btlShuffleOverlayIdle() == 0) {
             break;
         }
         *(s32 *)(work + 4) = 7;
@@ -809,7 +809,7 @@ void func_00223830(KwlnTask *task) {
     temp_2 = (u16 *)(kwlnTaskGetWork(task));
     *(s16 *)((u8 *)(temp_2) + 0x48) = 0;
     if (*(u16 *)((u8 *)(temp_2) + 0) & 4) {
-        func_0021dda0();
+        btlShuffleStartOverlay();
         *(s32 *)((u8 *)(temp_2) + 4) = 6;
         return;
     }
@@ -878,7 +878,7 @@ void func_00224040(KwlnTask *task)
     u16 *temp_16;
 
     temp_16 = (u16 *)kwlnTaskGetWork(task);
-    func_0021dda0();
+    btlShuffleStartOverlay();
     *(s32 *)(temp_16 + 2) = 5;
 }
 // FUN_00224080
