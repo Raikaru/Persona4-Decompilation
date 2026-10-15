@@ -33,7 +33,7 @@ extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
-extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
+extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
 
@@ -626,7 +626,7 @@ s32 func_00199d00(s32 unused, u8 *arg1, s16 arg2, s32 arg3)
         }
         return 0;
     }
-    raw_3 = func_0023d8e0(*(u8 **)(arg1 + 0xA64), (u16)arg2);
+    raw_3 = datCalcSkillElement(*(u8 **)(arg1 + 0xA64), (u16)arg2);
     narrowed_3 = (s16)raw_3;
     switch (narrowed_3) {
     case 0x10:

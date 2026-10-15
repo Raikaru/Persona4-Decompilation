@@ -942,7 +942,7 @@ void func_001f14f0(u8 *arg0)
     extern s32 datCalcResolveSkillId(u8 *, s32);
     extern s32 datCalcHitResult(u8 *, u8 *, s32, s32, s32);
     /* lint: allow H011 -- retail forwards an already zero-extended skill word; the callee consumes its low 16 bits. */
-    extern s32 func_0023d8e0(u8 *, s32);
+    extern s32 datCalcSkillElement(u8 *, s32);
     extern u8 *func_001efd50(u8 *);
     /* lint: allow H011 -- both IDs are halfwords here; g_data.c masks both word-formal arguments to 16 bits. */
     extern void func_0010f3d0(u16, u16);
@@ -1006,7 +1006,7 @@ void func_001f14f0(u8 *arg0)
     if (*(u16 *)(arg0 + 0x6C) == 3 && *(u16 *)(arg0 + 0x70) > 0) {
         flags |= 1;
     }
-    kind = (s8)func_0023d8e0(ctx, id);
+    kind = (s8)datCalcSkillElement(ctx, id);
     arg0[0xD9] = 0;
     *(u16 *)(arg0 + 0xDC) = 0;
     *(s32 *)(arg0 + 0xE0) = 0;

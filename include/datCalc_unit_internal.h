@@ -9,6 +9,7 @@
 
 /* Definitions in datCalc.c; both read the battle unit at retail offsets such as 0xA64. */
 s32 datCalcHasBuffMask(u8 *arg0, s32 arg1);
-u8 *func_0023e140(u8 *arg0);
+// Intent: pointer to the 8-entry skill-id list for a unit (see datCalcSkillList in datCalc.c); [inferred].
+u8 *datCalcSkillList(u8 *arg0);
 
 #endif

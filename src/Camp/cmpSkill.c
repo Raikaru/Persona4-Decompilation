@@ -41,7 +41,7 @@ void func_001437b0(void *, s32, s32);
 void func_0046d280(void *);
 s32 func_0034c210(void);
 u32 RpRandom(void);
-s32 func_0023d8e0(u8 *, u16);
+s32 datCalcSkillElement(u8 *, u16);
 void func_0034f1e0(void);
 void func_0034c270(Vec2f, s32, s32, f32);
 void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
@@ -1209,7 +1209,7 @@ s32 func_0013ac30(u16 arg0) {
     if ((arg0 & 0xFFFF) >= 0x1B8) {
         return 0x35;
     }
-    v = (s16)func_0023d8e0(NULL, arg0) + 1;
+    v = (s16)datCalcSkillElement(NULL, arg0) + 1;
     switch ((u32)v) {
     case 1:
         return 0x2B;

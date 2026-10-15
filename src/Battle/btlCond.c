@@ -22,7 +22,7 @@ extern u16 datCalcGetHp(u8 *arg0);
 extern u16 datCalcMaxHp(u8 *arg0);
 extern u16 datCalcMaxSp(u8 *arg0);
 extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
-extern s32 func_0023d8e0(u8 *arg0, u16 arg1);
+extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 extern u32 datCalcGetTableLength(u8 *arg0);
 extern s32 func_0023df20(s32 arg0);
 extern u8 *iGpffffb3ac;
@@ -560,7 +560,7 @@ void btlCond_ENWEAK(u8 *arg0, u32 arg1) {
 // FUN_001DA5F0
 s32 btlCond_MYUSEATTR(u8 *arg0, s32 arg1)
 {
-    return p4_001da5f0_xor((s16)func_0023d8e0(
+    return p4_001da5f0_xor((s16)datCalcSkillElement(
         *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64),
         *(u16 *)(arg0 + 0x7E)), arg1) < 1U;
 }
@@ -695,7 +695,7 @@ s32 btlCond_MYHREC(u8 *arg0)
 
     data = *(s32 *)(arg0 + 0x30);
     count = (u16)datCalcGetTableLength(*(u8 **)(data + 0xA64));
-    skills = (u16 *)func_0023e140(*(u8 **)(data + 0xA64));
+    skills = (u16 *)datCalcSkillList(*(u8 **)(data + 0xA64));
     index = 0;
     count = (u16)count;
     while (index < count) {

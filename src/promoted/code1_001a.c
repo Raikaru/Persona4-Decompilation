@@ -127,7 +127,7 @@ BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 u32 func_001deeb0(void *arg0);
 void btlAICommandSetUnitAction();
 u32 btlAICommandTryReleaseProc();
-s32 func_0023dfe0(u8 *unit);
+s32 datCalcDefaultSkillId(u8 *unit);
 u32 func_001d8bc0(void *arg0);
 void func_001d8be0(s32 formation, u64 *unit);
 
@@ -177,7 +177,7 @@ s64 *func_001b1540(void);
 s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 s32 func_001f01a0(u8 *arg0, u8 *arg1);
-s32 func_0023d8e0(u8 *arg0, u16 arg1);
+s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 u8 *func_001fa9c0(void);
 s32 btlAICommandNomalStatusCheck(u8 *arg0, s64 arg1);
 u32 btlCountUnitRecordsById(u32 arg0);
@@ -1487,7 +1487,7 @@ void func_001a2c70(u8 *arg0)
 
     *(s16 *)(arg0 + 0x6C) = 1;
     *(s16 *)(arg0 + 0x6E) =
-        func_0023dfe0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
+        datCalcDefaultSkillId(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
     *(s32 *)(arg0 + 0x38) = func_001d8bc0(arg0 + 0x98);
     *(s16 *)(arg0 + 0x6A) = 1;
     func_001d8be0((s32)(arg0 + 0x98), *(u64 **)(arg0 + 0x38));
@@ -2103,7 +2103,7 @@ loop_test:
     if (status == 1) {
         status = func_001d94d0(
             (u8 *)action,
-            func_0023d8e0(
+            datCalcSkillElement(
                 *(u8 **)(*(u8 **)((u8 *)action + 0x30) + 0xA64),
                 func_001f01a0((u8 *)action, *(u8 **)((u8 *)action + 0x90)) & 0xFFFF) & 0xFFFF,
             2, 0x80000, 2, btlAICommandNomalStatusCheck);
@@ -2263,7 +2263,7 @@ void func_001a43a0(u8 *action)
     referenceAction = *(u8 **)(action + 0x90);
     skill = func_001f01a0(action, referenceAction);
     targetMode = func_001d7f10(action, action + 0x98, skill, 0);
-    rawElement = func_0023d8e0(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64), skill);
+    rawElement = datCalcSkillElement(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64), skill);
     hasReferenceAction = 0;
     otherCount = 0;
     preferredCount = 0;
@@ -4531,7 +4531,7 @@ void func_001a7720(u8 *arg0) {
     if (actionFlag4000 == 0) {
         formationHandle = (s32)(func_001d3d50(1));
     } else {
-        skillKind = (s16)func_0023d8e0(NULL, (u16)skill);
+        skillKind = (s16)datCalcSkillElement(NULL, (u16)skill);
         switch (skillKind) {                           /* switch 1; irregular */
         case 16:                                    /* switch 1 */
             formationHandle = (s32)(*(s32 *)(iGpffffb3ac + 0xD9C));
@@ -4639,7 +4639,7 @@ void func_001a7720(u8 *arg0) {
                 }
             }
             skillU16 = skill;
-            isSkill16 = ((s16)func_0023d8e0(NULL, (u16)skillU16) == 0x10);
+            isSkill16 = ((s16)datCalcSkillElement(NULL, (u16)skillU16) == 0x10);
             if ((s32)(func_0022d540(arg0, (u8 *)effectHandles)) == (s32)(0)) {
                 btlState3_33 = (u8 *)(iGpffffb3ac);
                 effectHandles[0] = (*(s32 *)((u8 *)btlState3_33 + 0xD30));
@@ -5314,7 +5314,7 @@ void func_001a7720(u8 *arg0) {
                     pkt80->startTime = formationPkt6->endTime;
                     func_00194590((u8 *)pkt80, 1);
                 } else {
-                    skillKindRow = (s16)func_0023d8e0(NULL, skillKeyCopy);
+                    skillKindRow = (s16)datCalcSkillElement(NULL, skillKeyCopy);
                     switch (skillKindRow) {                /* switch 2; irregular */
                     case 16:                            /* switch 2 */
                         soundPkt9 = (BtlPacketTiming *)(func_001f7c20(0xC, 2, 0x16));
@@ -5514,7 +5514,7 @@ void func_001a7720(u8 *arg0) {
                     pkt99->ownerId = actionId;
                     func_00194590((u8 *)pkt99, 0);
                     if (act->targetCount == 1) {
-                        skillKindUnit = (s16)func_0023d8e0((u8 *)(u32)(*( s64 * )((u8 *)(act->unit) + (0xA64))), skillKeyCopy);
+                        skillKindUnit = (s16)datCalcSkillElement((u8 *)(u32)(*( s64 * )((u8 *)(act->unit) + (0xA64))), skillKeyCopy);
                         switch (skillKindUnit) {            /* switch 3; irregular */
                         case 1:                         /* switch 3 */
                             motionIdRaw = 0x29;
