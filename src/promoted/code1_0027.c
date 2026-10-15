@@ -923,7 +923,7 @@ node_done:
 void func_0027a970(u8 *arg0)
 {
     extern void frFontEnableList(u8 *arg0);
-    extern s32 func_002734b0(u8 *arg0);
+    extern s32 frFontMeasureList(u8 *arg0);
     extern void func_002738a0(u8 *arg0);
     extern void func_002746c0(s32 arg0, s32 arg1);
     extern void func_00279780(u8 *arg0);
@@ -969,7 +969,7 @@ state_check:
             if (*(u8 *)(state + 9) != 0) {
                 if ((*(s32 *)arg0 & 0x8000000) == 0)
                     return;
-                if (func_002734b0(*(u8 **)(state + 4)) == 0)
+                if (frFontMeasureList(*(u8 **)(state + 4)) == 0)
                     return;
             }
 do_action:
