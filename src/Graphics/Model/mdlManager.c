@@ -189,9 +189,9 @@ extern s32 mdlPrepareModel(u8* a);
 extern void* func_003bfae0(void);
 extern int RwCameraFrustumTestSphere(void* a, void* b);
 extern void* D_008872E0[];
-extern void func_0047af60(void* a);
-extern void func_0047aff0(void* a, void* b);
-extern void func_0047afd0(void* a, void* b);
+extern void mdlAllocAuxBlock(void* a);
+extern void mdlSetAuxResource(void* a, void* b);
+extern void mdlSetAuxPair(void* a, void* b);
 typedef void (*FnVoidPtr)(void*);
 
 extern s32 K_Clump_MatUsrDataGetInt(const RpMaterial* material, const char* name);
@@ -255,12 +255,12 @@ typedef struct Model
 } Model;
 
 extern void func_003e9cb0(void* frame, void* matrix, u32 flags);
-extern void func_0047aee0(Model* mdl, RwMatrix* matrix);
-extern void func_0047ae10(u8* mdl, u16 wpnIdx);
+extern void mdlSetAttachedModelMatrices(Model* mdl, RwMatrix* matrix);
+extern void mdlDetachSlotModel(u8* mdl, u16 wpnIdx);
 extern void mdlEffectListCallFlagged();
 extern void func_0047dda0();
 extern void func_0047ea70(u8* a);
-extern void func_0047adf0(u8* a, u16 b, s32 c);
+extern void mdlSetAttachedSlotValue(u8* a, u16 b, s32 c);
 extern s32 iGpffffbb28;
 extern f32 iGpffff80cc;
 extern void* mdlAllocModelObject(u32 type, u16 id);
@@ -272,9 +272,9 @@ extern void* func_003c0520();
 extern u32 *mdlEffectListCopy(u32 **head);
 extern u32 *mdlEffectListWrapShared(u32 **head);
 extern void func_0047ea40();
-extern s32 func_0047ae90(u8* model, u16 index);
+extern s32 mdlPrepareSlotModel(u8* model, u16 index);
 extern void mdlCopyModelState(u8* a, u8* b);
-extern void func_0047b050(void* a, int b);
+extern void mdlSetAuxValue(void* a, int b);
 
 
 
@@ -3165,7 +3165,7 @@ extern void mdlUpdateBlendTrack(u8* a, u8* b);
 extern void mdlDrawVisibleAtomics(void* a);
 extern void* mdlGetMatrix(void* a);
 extern s32 func_0047a510(void* a, s32 b, void* c);
-extern s32 func_0047ae90(u8* model, u16 index);
+extern s32 mdlPrepareSlotModel(u8* model, u16 index);
 extern void func_0047d540(u8** a, u8* b);
 extern void mdlEffectListSetUniformScale(s32* a, f32* b);
 extern void func_0047dd40(u8* a, void* model);
@@ -3315,7 +3315,7 @@ void func_00475cd0(MdlDrawState* owner)
             slot = (u8*)owner + j * 0xC;
             if ((*(u8*)(slot + 0x28C) & 1) != 0 &&
                 *(child = (u8**)(slot + 0x290)) != 0 &&
-                func_0047ae90((u8*)owner, j) != 0) {
+                mdlPrepareSlotModel((u8*)owner, j) != 0) {
                 model = (MdlDrawState*)*child;
                 if ((model->flagsD8 & 2) == 0) {
                     if (*(frameID = (s32*)(slot + 0x294)) != -1) {
@@ -3490,7 +3490,7 @@ void func_00475cd0(MdlDrawState* owner)
         attached.slot = (u8*)((MdlWpnSlot*)owner + attached.index);
         if ((*(u8*)(attached.slot + 0x28C) & 1) != 0 &&
             *(child = (u8**)(attached.slot + 0x290)) != 0 &&
-            func_0047ae90((u8*)owner, attached.index) != 0) {
+            mdlPrepareSlotModel((u8*)owner, attached.index) != 0) {
             attached.slot = (u8*)owner + attached.index * 0xC;
             attached.model = (MdlDrawState*)*child;
             if (*(frameID = (s32*)(attached.slot + 0x294)) != -1) {
@@ -4167,7 +4167,7 @@ void* mdlAllocModelObject(u32 type, u16 id)
     *(s8*)(obj + 0x282) = 0;
     func_0047ea70(obj + 0x2D0);
     for (i = 0; i < 5; i++) {
-        func_0047adf0(obj, i & 0xFFFF, -1);
+        mdlSetAttachedSlotValue(obj, i & 0xFFFF, -1);
     }
     head = &D_00922BE0[(u16)type];
     prev = *head;
@@ -4199,7 +4199,7 @@ void* mdlFindModelObject(u32 type, u16 id, u32 flags)
     return node;
 }
 
-extern void func_0047b060(void* a);
+extern void mdlFreeAuxBlock(void* a);
 /* measured: MATCH (468B instructions plus 12 zero-tail bytes). The u16
    loop counter preserves retail masks; the canonical hierarchy constructor
    prototype preserves load-before-move argument materialization. */
@@ -4254,7 +4254,7 @@ void func_00477ca0(u8* arg0)
         mdlEffectListRefreshHandles((u32*)temp_4_2);
     }
 }
-/* Creates a model object with mdlAllocModelObject, sets flag 0x4000 when param_4 bit 0 is set, applies the data buffer param_3 through func_0047aff0, and runs the readiness step mdlPrepareModel. */
+/* Creates a model object with mdlAllocModelObject, sets flag 0x4000 when param_4 bit 0 is set, applies the data buffer param_3 through mdlSetAuxResource, and runs the readiness step mdlPrepareModel. */
 // FUN_00477E80
 void* mdlCreateModelObjectFromData(u32 type, u16 id, void* param_3, u32 param_4)
 {
@@ -4262,13 +4262,13 @@ void* mdlCreateModelObjectFromData(u32 type, u16 id, void* param_3, u32 param_4)
     if ((param_4 & 1) != 0) {
         *(u32*)((u8*)obj + 0xD8) |= 0x4000;
     }
-    func_0047af60(obj);
-    func_0047aff0(obj, param_3);
+    mdlAllocAuxBlock(obj);
+    mdlSetAuxResource(obj, param_3);
     mdlPrepareModel(obj);
     return obj;
 }
 
-/* Like mdlCreateModelObjectFromData, but applies the (memory, size) pair through func_0047afd0. Sets flag 0x4000 when flags bit 0 is set. */
+/* Like mdlCreateModelObjectFromData, but applies the (memory, size) pair through mdlSetAuxPair. Sets flag 0x4000 when flags bit 0 is set. */
 // FUN_00477F10
 void* mdlCreateModelObjectFromMemory(u32 type, u16 id, void* memory, u32 size, u32 flags)
 {
@@ -4276,7 +4276,7 @@ void* mdlCreateModelObjectFromMemory(u32 type, u16 id, void* memory, u32 size, u
     if ((flags & 1) != 0) {
         *(u32*)((u8*)obj + 0xD8) |= 0x4000;
     }
-    func_0047af60(obj);
+    mdlAllocAuxBlock(obj);
     {
         struct {
             void* memory;
@@ -4284,7 +4284,7 @@ void* mdlCreateModelObjectFromMemory(u32 type, u16 id, void* memory, u32 size, u
         } data;
         data.memory = memory;
         data.size = size;
-        func_0047afd0(obj, &data);
+        mdlSetAuxPair(obj, &data);
     }
     mdlPrepareModel(obj);
     return obj;
@@ -4323,10 +4323,10 @@ void* func_00477fb0(u32 arg0, u16 arg1, void* arg2, u32 arg3)
         if ((arg3 & 1) != 0) {
             *(u32*)((u8*)arg2 + 0xD8) |= 0x4000;
         }
-        func_0047af60(arg2);
+        mdlAllocAuxBlock(arg2);
         pair0.a = retA;
         pair0.b = retVal;
-        func_0047afd0(arg2, &pair0);
+        mdlSetAuxPair(arg2, &pair0);
         mdlPrepareModel(arg2);
         return arg2;
     }
@@ -4336,10 +4336,10 @@ void* func_00477fb0(u32 arg0, u16 arg1, void* arg2, u32 arg3)
     if ((arg3 & 1) != 0) {
         *(u32*)((u8*)obj + 0xD8) |= 0x4000;
     }
-    func_0047af60(obj);
+    mdlAllocAuxBlock(obj);
     pair1.a = retA;
     pair1.b = retVal;
-    func_0047afd0(obj, &pair1);
+    mdlSetAuxPair(obj, &pair1);
     mdlPrepareModel(obj);
     retB = (u32)func_00455ea0(arg2, 1, (s32*)&stack9c);
     func_0047e450((void**)((u8*)obj + 0x2D0), arg0, arg1, (s32)retB, stack9c);
@@ -4372,11 +4372,11 @@ void* mdlFindOrCreateModelObject(u32 param_1, u16 param_2, u32 param_3)
         if ((param_3 & 1) != 0) {
             *(u32*)((u8*)obj + 0xD8) |= 0x4000;
         }
-        func_0047af60(obj);
-        func_0047aff0(obj, buf);
+        mdlAllocAuxBlock(obj);
+        mdlSetAuxResource(obj, buf);
         mdlPrepareModel(obj);
         if (func_0047d0e0(param_1, param_2) != 0) {
-            func_0047b050(obj, 1);
+            mdlSetAuxValue(obj, 1);
         }
         result = obj;
         goto done;
@@ -4412,7 +4412,7 @@ s32 mdlPrepareModel(u8* param_1)
         if (func_0047e6f0((void**)(param_1 + 0x2D0)) == 0) {
             return 0;
         }
-        func_0047b060(param_1);
+        mdlFreeAuxBlock(param_1);
         func_00477ca0(param_1);
     } else {
         if (func_0047e6f0((void**)(param_1 + 0x2D0)) == 0) {
@@ -4643,7 +4643,7 @@ void mdlDestroyModelObject(u8* param_1)
     for (i = 0; i < 5; i++) {
         if ((*(u8*)(param_1 + i * 0xC + 0x28C) & 1) != 0 &&
             *(void**)(param_1 + i * 0xC + 0x290) != 0) {
-            func_0047ae10(param_1, i & 0xFFFF);
+            mdlDetachSlotModel(param_1, i & 0xFFFF);
         }
     }
     func_004b7140(param_1);
@@ -4671,7 +4671,7 @@ void mdlUpdateModelMatrix(Model* mdl)
     frame = *(void**)((u8*)mdl->clump + 4);
     RwMatrixMultiply(&matrix, &mdl->identityMat, (void*)mdl);
     func_003e9cb0(frame, &matrix, 0);
-    func_0047aee0(mdl, &matrix);
+    mdlSetAttachedModelMatrices(mdl, &matrix);
 }
 
 
@@ -4716,7 +4716,7 @@ void mdlAdvanceModel(u8* mdl, s32 tick)
         frame = *(void**)((u8*)((Model*)mdl)->clump + 4);
         RwMatrixMultiply(&matrix, &((Model*)mdl)->identityMat, mdl);
         func_003e9cb0(frame, &matrix, 0);
-        func_0047aee0((Model*)mdl, &matrix);
+        mdlSetAttachedModelMatrices((Model*)mdl, &matrix);
         previousLayer = 0;
         if (mdlHasActiveMode(mdl) != 0) {
             func_0047aa10(mdl, &((Model*)mdl)->scale);
@@ -4787,7 +4787,7 @@ void mdlAdvanceModel(u8* mdl, s32 tick)
             u8* childBase = mdl + child * 0xC;
             if ((*(u8*)(childBase + 0x28C) & 1) != 0) {
                 void** childSlot = (void**)(childBase + 0x290);
-                if (*childSlot != 0 && func_0047ae90(mdl, (u16)child) != 0) {
+                if (*childSlot != 0 && mdlPrepareSlotModel(mdl, (u16)child) != 0) {
                     ((Model*)*childSlot)->identityMat = ((Model*)mdl)->identityMat;
                     if (tick != 0) {
                         s32* frameId = (s32*)(childBase + 0x294);
@@ -5067,7 +5067,7 @@ layers:
         if ((childBase[0x28c] & 1) != 0)
         {
             void** child = (void**)(childBase + 0x290);
-            if (*child != 0 && func_0047ae90(model, childIndex) != 0)
+            if (*child != 0 && mdlPrepareSlotModel(model, childIndex) != 0)
             {
                 void* childClump = ((Model*)*child)->clump;
                 childUncolored = 1;
@@ -5169,7 +5169,7 @@ static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s16 animation, u16
             u8* slot = mdl + (u16)i * 12;
             if (*(u8*)(slot + 0x28c) & 1) {
                 child = (void**)(slot + 0x290);
-                if (*child && func_0047ae90(mdl, i))
+                if (*child && mdlPrepareSlotModel(mdl, i))
                     mdlDispatchAnimIfPresent(*child, 0, animation, frame, flags);
             }
         }
@@ -5573,7 +5573,7 @@ s32 func_0047a320(void* arg0) {
                 while ((s64)i < 5) {
                     elemOff = (u16)i;
                     slot = (u8*)arg0 + (elemOff * 0xC);
-                    if ((*(u8*)((u8*)slot + 0x28C) & 1) != 0 && *(void**)((u8*)slot + 0x290) != (void*)0 && func_0047ae90(arg0, i) != 0) {
+                    if ((*(u8*)((u8*)slot + 0x28C) & 1) != 0 && *(void**)((u8*)slot + 0x290) != (void*)0 && mdlPrepareSlotModel(arg0, i) != 0) {
                         wpn = *(void**)((u8*)slot + 0x290);
                         inner = *(void**)((u8*)wpn + 0x120);
                         if (inner != (void*)0) {
@@ -5894,8 +5894,8 @@ void func_0047aaa0(void* param_1, u16 param_2, u32 param_3, u16 param_4, void* p
     if ((param_6 & 1) != 0) {
         *(u32*)((u8*)obj + 0xD8) |= 0x4000;
     }
-    func_0047af60(obj);
-    func_0047aff0(obj, param_5);
+    mdlAllocAuxBlock(obj);
+    mdlSetAuxResource(obj, param_5);
     mdlPrepareModel(obj);
     off = (s32)(param_2 & 0xFFFF) * 0xC;
     slot = (void*)(off + (s32)param_1);
@@ -5916,12 +5916,12 @@ void func_0047ab90(void* param_1, u16 param_2, u32 param_3, u16 param_4, s32 par
     if ((param_7 & 1) != 0) {
         *(u32*)((u8*)obj + 0xD8) |= 0x4000;
     }
-    func_0047af60(obj);
+    mdlAllocAuxBlock(obj);
     {
         int tmp[2];
         tmp[0] = param_5;
         tmp[1] = param_6;
-        func_0047afd0(obj, tmp);
+        mdlSetAuxPair(obj, tmp);
     }
     mdlPrepareModel(obj);
     off = (s32)(param_2 & 0xFFFF) * 0xC;
@@ -5945,7 +5945,7 @@ void func_0047ac90(void* param_1, u16 param_2, u32 param_3, u16 param_4, u32 par
         func_0047d110(param_3, param_4, (char*)buf);
         obj = mdlCreateModelObjectFromData(param_3, param_4, buf, param_5);
         if (func_0047d0e0(param_3, param_4) != 0) {
-            func_0047b050(obj, 1);
+            mdlSetAuxValue(obj, 1);
         }
         result = obj;
         goto done;
@@ -5967,8 +5967,9 @@ done:
     *(u8*)((u8*)slot + 0x28C) |= 1;
 }
 
+/* Stores arg2 at +0x294 of the attached slot at arg1; slots are 12 bytes from +0x28C. */
 // FUN_0047ADF0
-void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2) {
+void mdlSetAttachedSlotValue(u8 *arg0, u16 arg1, s32 arg2) {
     /* Offset added to the base, not the other way round: `arg0 + off` makes
        mwcc emit `addu $v1,$a0,$v1` where retail has `addu $v1,$v1,$a0`. */
     s32 off = arg1 * 12;
@@ -5981,8 +5982,9 @@ void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2) {
    iVar1/iVar2/pWpnMdl local structure and the recompute of iVar2+param_1 before
    the post-call byte clear exactly; P4 offsets are wpnMdl ptr 0x290, flags byte
    0x28C, stride 0xC (donor used 0x3b8/0x3b4). */
+/* Destroys the model in attached slot wpnIdx, clears its pointer and bit 0 of the slot flags at +0x28C. */
 // FUN_0047AE10
-void func_0047ae10(u8* param_1, u16 param_2)
+void mdlDetachSlotModel(u8* param_1, u16 param_2)
 {
     int iVar1;
     int iVar2;
@@ -6002,8 +6004,9 @@ void func_0047ae10(u8* param_1, u16 param_2)
     }
 }
 
+/* Returns 1 when attached slot index is empty; otherwise the result of mdlPrepareModel on its model. */
 // FUN_0047AE90
-s32 func_0047ae90(u8 *arg0, u16 arg1)
+s32 mdlPrepareSlotModel(u8 *arg0, u16 arg1)
 {
     s32 off = arg1 * 0xC;
     u8 *p = (u8 *)(off + (s32)arg0);
@@ -6024,8 +6027,9 @@ s32 func_0047ae90(u8 *arg0, u16 arg1)
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
+/* Copies matrix into the +0x90 matrix of every attached slot model. */
 // FUN_0047AEE0
-void func_0047aee0(Model* param_1, RwMatrix* param_2)
+void mdlSetAttachedModelMatrices(Model* param_1, RwMatrix* param_2)
 {
     u16 uVar6;
     int iVar3;
@@ -6042,8 +6046,9 @@ void func_0047aee0(Model* param_1, RwMatrix* param_2)
 }
 #pragma pop
 
+/* Allocates the 0x48-byte auxiliary block at +0x30C; its purpose is not traced. */
 // FUN_0047AF60
-void func_0047af60(void* param_1)
+void mdlAllocAuxBlock(void* param_1)
 {
     void* obj;
     chkmemAllocSiteTag(D_00713138, 0x1769);
@@ -6052,16 +6057,18 @@ void func_0047af60(void* param_1)
     memset(obj, 0, 0x48);
 }
 
+/* Copies the two words of param_2 into the auxiliary block at +0x2C and +0x30. */
 // FUN_0047AFD0
-void func_0047afd0(void* param_1, void* param_2)
+void mdlSetAuxPair(void* param_1, void* param_2)
 {
     void* obj = *(void**)((u8*)param_1 + 0x30C);
     *(u32*)((u8*)obj + 0x2C) = *(u32*)param_2;
     *(u32*)((u8*)obj + 0x30) = *(u32*)((u8*)param_2 + 4);
 }
 
+/* Stores func_00454a60(param_2, 0) at +0x38 of the auxiliary block and clears its first word. */
 // FUN_0047AFF0
-void func_0047aff0(void* param_1, void* param_2)
+void mdlSetAuxResource(void* param_1, void* param_2)
 {
     void* obj = *(void**)((u8*)param_1 + 0x30C);
     func_00440b68(&D_007241d0, D_00713138, 0x1786);
@@ -6069,14 +6076,16 @@ void func_0047aff0(void* param_1, void* param_2)
     *(u32*)((u8*)obj + 0x0) = 0;
 }
 
+/* Stores param_2 at +0x40 of the auxiliary block. */
 // FUN_0047B050
-void func_0047b050(void* param_1, int param_2)
+void mdlSetAuxValue(void* param_1, int param_2)
 {
     *(int*)((u8*)*(void**)((u8*)param_1 + 0x30C) + 0x40) = param_2;
 }
 
+/* Frees the auxiliary block at +0x30C and its child at +0xC, then clears the pointer. */
 // FUN_0047B060
-void func_0047b060(void* param_1)
+void mdlFreeAuxBlock(void* param_1)
 {
     u32* m = (u32*)param_1;
     void* obj = (void*)m[0x30C / 4];
