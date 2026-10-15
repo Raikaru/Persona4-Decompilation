@@ -2086,7 +2086,7 @@ loop_5_test:
 s32 func_00159a60(u8 *arg0)
 {
     extern s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, s32 arg3, s16 arg4, s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9, s64 arg10, s64 arg11, s64 arg12, s64 arg13);
-    extern void *func_00477e80(u32 arg0, u16 arg1, void *arg2, u32 arg3);
+    extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
     extern s32 func_003641a0(s32 arg0);
     extern void func_0015bae0(void);
     extern void func_0015c210(void);
@@ -2108,7 +2108,7 @@ s32 func_00159a60(u8 *arg0)
     switch (*(s32 *)work) {
     case 0:
         *(s32 *)(work + 0x14) = func_0015c440();
-        *(s32 *)(work + 0x38) = (s32)func_00477e80(4, 0xFFFF, D_005F0630, 0);
+        *(s32 *)(work + 0x38) = (s32)mdlCreateModelObjectFromData(4, 0xFFFF, D_005F0630, 0);
         func_0015c210();
         *(s32 *)work += 1;
     case 1:

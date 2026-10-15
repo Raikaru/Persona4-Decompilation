@@ -95,7 +95,7 @@ typedef struct HCdvd HCdvd;
 extern u32 H_Cdvd_IsFileLoaded(HCdvd *arg0);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern void func_0046d700(const char *file, s32 line, const char *message, ...);
-extern void *func_00477e80(u32 arg0, u16 arg1, void *arg2, u32 arg3);
+extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern s32 func_004782b0(u8 *arg0);
 extern u32 *func_00478750(u8 *arg0);
 extern void func_00478e70(u8 *arg0);
@@ -203,12 +203,12 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
         u32 type = *(u16 *)(p + 4);
         if ((type == 4) && (*(u16 *)(p + 6) == 0xFFFF)) {
             if (D_00764340 == 1) {
-                iGpffffb2a4[out] = func_00477e80(4, 0xFFFF, D_005F10D0, 0);
+                iGpffffb2a4[out] = mdlCreateModelObjectFromData(4, 0xFFFF, D_005F10D0, 0);
                 FBN_ENTRY(out)->field_8 = i;
                 out++;
             }
         } else {
-            iGpffffb2a4[out] = func_00478140(type, *(u16 *)(p + 6), 0);
+            iGpffffb2a4[out] = mdlFindOrCreateModelObject(type, *(u16 *)(p + 6), 0);
             FBN_ENTRY(out)->field_8 = i;
             out++;
         }
@@ -247,7 +247,7 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
                         && (*(u16 *)(q + 8) == (u16)((ae->field_0 & 0x3FF) | 0xC00))) {
                         if ((ae->field_2 != 0) || (ae->field_4 != 0)) {
                             D_0076439C = 1;
-                            iGpffffb2a4[out] = func_00478140(ae->field_2, ae->field_4, 0);
+                            iGpffffb2a4[out] = mdlFindOrCreateModelObject(ae->field_2, ae->field_4, 0);
                             FBN_ENTRY(out)->kind = 1;
                             FBN_ENTRY(out)->field_4 = (s32)ae;
                             FBN_ENTRY(out)->field_8 = k;
@@ -272,7 +272,7 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
                         && (*(u16 *)(q + 8) == (u16)((e2->field_0 & 0x3FF) | 0xC00))) {
                         if ((e2->field_68 != 0) || (e2->field_6A != 0)) {
                             D_0076439C = 1;
-                            iGpffffb2a4[out] = func_00478140(e2->field_68, e2->field_6A, 0);
+                            iGpffffb2a4[out] = mdlFindOrCreateModelObject(e2->field_68, e2->field_6A, 0);
                             FBN_ENTRY(out)->kind = 2;
                             FBN_ENTRY(out)->field_4 = (s32)e2;
                             FBN_ENTRY(out)->field_8 = j;

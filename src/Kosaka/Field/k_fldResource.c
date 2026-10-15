@@ -107,8 +107,8 @@ extern char D_005EFE00[];
 extern char D_005EFE10[];
 extern char iGpffff9e10;
 extern void strcat(char *dst, char *src);
-extern void *func_00477e80(u32 arg0, u16 arg1, void *arg2, u32 arg3);
-extern void *func_00477f10(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
+extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
+extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
 extern s32 func_0014a230(s32 a0, s32 a1);
 extern s32 func_0014a2a0(s32 a0, s32 a1);
 extern u8 *func_0015c640(s32 a0, s32 a1);
@@ -1579,7 +1579,7 @@ void FldResource_RequestEntryLoads(u8 *arg0)
                         strcat(sp1A0, sp160);
                         sprintf(sp160, D_005EFDA8, sp1F8.value);
                         strcat(sp1A0, sp160);
-                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)func_00477e80(4, (u16)sp1F8.value, sp1A0, 0);
+                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)mdlCreateModelObjectFromData(4, (u16)sp1F8.value, sp1A0, 0);
                     } else {
                         strcpy(sp1A0, D_005EFDB8);
                         sprintf(sp160, &iGpffff9e10, *(s16 *)(arg0 + 4));
@@ -1587,7 +1587,7 @@ void FldResource_RequestEntryLoads(u8 *arg0)
                         sprintf(sp160, D_005EFDA8, sp1F8.value);
                         strcat(sp1A0, sp160);
                         r = func_00455f70(sp1A0, (s32 *)&sp20C);
-                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)func_00477f10(4, (u16)sp1F8.value, (void *)r, sp20C, 0);
+                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)mdlCreateModelObjectFromMemory(4, (u16)sp1F8.value, (void *)r, sp20C, 0);
                     }
                 } else if (sp200.value == 1) {
                     if (iGpffffb204 == 0) {
@@ -1613,7 +1613,7 @@ void FldResource_RequestEntryLoads(u8 *arg0)
                     strcpy(spA0, D_005EFE00);
                     sprintf(sp60, D_005EFDA8, sp1F8.value);
                     strcat(spA0, sp60);
-                    *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)func_00477e80(4, (u16)(sp1F8.value + 0x3E8), spA0, 0);
+                    *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)mdlCreateModelObjectFromData(4, (u16)(sp1F8.value + 0x3E8), spA0, 0);
                 }
                 K_Clump_GetIntUsrDataAt(&sp1F0, *(void **)(temp_17 + 0x1C), (const char *)D_005EFE10, var_18);
                 if (sp200.value == 0) {

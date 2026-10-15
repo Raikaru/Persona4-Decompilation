@@ -626,7 +626,7 @@ void func_001b1d70(void) {
     extern s32 iGpffffb414;
     extern u8 *func_0019f5f0(s32 arg0, u16 arg1, u16 *arg2);
     extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
-    extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
+    extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
     extern u8 *func_0019b550(u8 *arg0, u16 arg1, s16 arg2);
     extern void func_0014a460(u16 arg0, u32 arg1);
     extern void func_0019d7a0(u8 *arg0, s32 arg1);
@@ -673,7 +673,7 @@ void func_001b1d70(void) {
             *(u16 *)(*(u8 **)(unit + 0xA64)) &= 0xFFDF;
             *(u16 *)(*(u8 **)(unit + 0xA64)) &= 0xFFF7;
             *(u16 *)(*(u8 **)(unit + 0xA64)) &= 0xFFEF;
-            w2 = (s32)func_00477c40((u16)(*(u8 *)(unit + 0xA2) + 1), id, 0);
+            w2 = (s32)mdlFindModelObject((u16)(*(u8 *)(unit + 0xA2) + 1), id, 0);
             *(s32 *)(unit + 0xA00) = w2;
             if (w2 == 0) {
                 pkt = func_0019b550(unit, id, 0x36);

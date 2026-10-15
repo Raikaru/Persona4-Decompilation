@@ -767,10 +767,10 @@ u8 *FldUnit_CreateEncounterUnit(u32 encounter, u8 *placement, s32 variant)
         break;
     }
     if (modelVariant == 0) {
-        *(s32 *)(slot + 0x50) = (s32)func_00478140(8U, 1U, 0);
+        *(s32 *)(slot + 0x50) = (s32)mdlFindOrCreateModelObject(8U, 1U, 0);
         *(s8 *)(slot + 0x1CA) = 0;
     } else {
-        *(s32 *)(slot + 0x50) = (s32)func_00478140(8U, 2U, 0);
+        *(s32 *)(slot + 0x50) = (s32)mdlFindOrCreateModelObject(8U, 2U, 0);
         *(s8 *)(slot + 0x1CA) = 1;
     }
     destination = slot + 0x5C;
@@ -1586,7 +1586,7 @@ void FldUnit_StartSlotAnims(void)
     for (i = 0; i < 0xF; i++) {
         u8 *p = D_007E8C00 + i * 0x750;
         if (*(s32 *)(p + 0x48) != 0) {
-            *(s32 *)(p + 0x50) = (s32)func_00478140(8, (u16)(*(u8 *)(p + 0x1CA) + 1), 0);
+            *(s32 *)(p + 0x50) = (s32)mdlFindOrCreateModelObject(8, (u16)(*(u8 *)(p + 0x1CA) + 1), 0);
         }
     }
 }
@@ -1831,7 +1831,7 @@ loop:
             if (D_007643C8[count] != 0) {
                 func_0046d730(D_005F1500, 0x917);
             }
-            D_007643C8[count] = (s32)func_00478140(9, code, 0);
+            D_007643C8[count] = (s32)mdlFindOrCreateModelObject(9, code, 0);
             func_00440b68((const char *)D_00763008, D_005F1500, 0x91C);
             D_007643C0[count] =
                 (s32)func_00454a60(D_005F13C0 + value * 0x20, 0);
@@ -1855,7 +1855,7 @@ void FldUnit_RequestUnitResource(void)
     for (i = 0; i < 2; i++) {
         u8 *p = D_007E8BE0 + i * 16;
         if (*(s32 *)p != 0) {
-            D_007643C8[j] = (s32)func_00478140(*(u16 *)(p + 4), *(u16 *)(p + 6), 0);
+            D_007643C8[j] = (s32)mdlFindOrCreateModelObject(*(u16 *)(p + 4), *(u16 *)(p + 6), 0);
             func_00440b68((const char *)D_00763008, D_005F1500, 0x939);
             D_007643C0[j] = (s32)func_00454a60(D_005F13C0 + (*(s32 *)(p + 0xC) << 5), 0);
             j++;

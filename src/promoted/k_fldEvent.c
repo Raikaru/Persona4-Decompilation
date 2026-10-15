@@ -864,7 +864,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 func_00160000(u8 *);
     u8 *func_001601e0(s32);
     s32 func_001602a0(u8 *, s32);
-    void *func_00477e80(u32, u16, void *, u32);
+    void *mdlCreateModelObjectFromData(u32, u16, void *, u32);
     s32 func_004782b0(u8 *);
     void func_00457140(u8, u8, u8, u8);
     s8 *func_00457130(void);
@@ -1352,7 +1352,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         extern s32 sprintf(char *, const char *, ...);
                         sprintf((char *)&modelPath, D_005F17B0, v6);
                     }
-                    work->modelFile = (s32)func_00477e80(4, 0xFFFD, &modelPath, 0);
+                    work->modelFile = (s32)mdlCreateModelObjectFromData(4, 0xFFFD, &modelPath, 0);
                 }
                 work->state = work->state + 1;
             }

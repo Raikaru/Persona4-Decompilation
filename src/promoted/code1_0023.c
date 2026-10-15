@@ -40,7 +40,7 @@ extern char D_00635790[];
 extern char D_006357B0[];
 extern s32 strlen(const void *arg0);
 extern char D_006357C8[];
-extern void *func_00477c40(u32 type, u16 id, u32 flags);
+extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
 extern void func_0047aaa0(void *model, u16 slot, u32 type, u16 id,
                            void *path, u32 flags);
 extern void func_0047ac90(void *model, u16 slot, u32 type, u16 id,
@@ -277,7 +277,7 @@ s32 func_00230d30(void *arg0)
     id = func_00106cd0(*(s16 *)((u8 *)arg0 + 0xD6), 0);
     switch (*(u16 *)((s8 *)arg0 + 0xD6)) {
     case 2:
-        if (func_00477c40(7, id, 0) == 0) {
+        if (mdlFindModelObject(7, id, 0) == 0) {
             sprintf((char *)sp40, D_006357E0,
                           (char *)&iGpffffa5f0, id & 0xFFFF);
             func_0047aaa0(arg0, 0, 7, id, sp40, 0);
@@ -285,7 +285,7 @@ s32 func_00230d30(void *arg0)
             func_0047ac90(arg0, 0, 7, id, 0);
         }
         temp_18 = (id & 0xFFFF) + 0x3E8;
-        if (func_00477c40(7, temp_18 & 0xFFFF, 0) == 0) {
+        if (mdlFindModelObject(7, temp_18 & 0xFFFF, 0) == 0) {
             sprintf((char *)sp40, D_00635800,
                           (char *)&iGpffffa5f0, id & 0xFFFF);
             func_0047aaa0(arg0, 1, 7, (u16)temp_18, sp40, 0);

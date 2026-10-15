@@ -16,7 +16,7 @@ extern void func_00479e60(u8 *arg0, s32 arg1, f32 arg2);
 extern void func_004813f0(void);
 extern void func_004abe60(void);
 extern s32 func_00481460(s32 arg0);
-extern void *func_00478140(u32 arg0, u16 arg1, u32 arg2);
+extern void *mdlFindOrCreateModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void func_0046d730(const char *arg0, s32 arg1);
 extern void func_0047a2a0(void *arg0);
 extern s32 func_00479ca0(void *arg0, s32 arg1);
@@ -31,8 +31,8 @@ extern void func_004ac300(s32 arg0, u8 *arg1);
 extern void func_004ac9a0(u8 *arg0, u8 *arg1);
 extern void func_00478ea0(u8 *arg0, void (*arg1)(u8 *), void *arg2);
 extern void func_0047a4d0(void *arg0, s32 arg1);
-extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
-extern void *func_00477f10(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
+extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
+extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
 extern u16 iGpffffbb90;
 extern char D_007144B8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -44,7 +44,7 @@ void *func_004abd80(void *arg0)
 {
     void *work;
 
-    work = func_00478140(*(u16 *)((u8 *)arg0 + 0xD4), *(u16 *)((u8 *)arg0 + 0xD6), 1);
+    work = mdlFindOrCreateModelObject(*(u16 *)((u8 *)arg0 + 0xD4), *(u16 *)((u8 *)arg0 + 0xD6), 1);
     if (work == 0) {
         func_0046d730(D_007144A8, 0x55);
     }
@@ -101,10 +101,10 @@ void *func_004abe80(void *arg0) {
                 func_0046d730(D_007144A8, 0x8A);
             }
             temp_18 = *(s32 *)((u8 *)arg0 + 0x24);
-            while ((lookupType = 6, func_00477c40(lookupType, iGpffffbb90, 0)) != 0) {
+            while ((lookupType = 6, mdlFindModelObject(lookupType, iGpffffbb90, 0)) != 0) {
                 iGpffffbb90 += 1;
             }
-            temp_2_4 = func_00477f10(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
+            temp_2_4 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
             func_0047a2a0(temp_2_4);
             if (func_00479ca0(temp_2_4, 0) != 0) {
                 func_00479940(temp_2_4, 0, 0, 0, 0);
@@ -150,7 +150,7 @@ void func_004ac170(u8 *dst, u8 *src)
     if (*(void **)(dst + 0x94) != 0) {
         func_004787e0(*(u32 *)(dst + 0x94));
     }
-    work = func_00478140(*(u16 *)(*(u32 *)(src + 0x94) + 0xD4), *(u16 *)(*(u32 *)(src + 0x94) + 0xD6), 0);
+    work = mdlFindOrCreateModelObject(*(u16 *)(*(u32 *)(src + 0x94) + 0xD4), *(u16 *)(*(u32 *)(src + 0x94) + 0xD6), 0);
     if (work == 0) {
         func_0046d730(D_007144A8, 0xC5);
     }
@@ -363,10 +363,10 @@ void *func_004ac640(void *arg0) {
                 func_0046d730(D_007144A8, 0x19D);
             }
             temp_18 = *(s32 *)((u8 *)arg0 + 0x24);
-            while ((lookupType = 6, func_00477c40(lookupType, iGpffffbb90, 0)) != 0) {
+            while ((lookupType = 6, mdlFindModelObject(lookupType, iGpffffbb90, 0)) != 0) {
                 iGpffffbb90 += 1;
             }
-            temp_2_4 = func_00477f10(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
+            temp_2_4 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, (void *)temp_2_3, (u32)temp_18, 1);
             func_0047a2a0(temp_2_4);
             if (func_00479ca0(temp_2_4, 0) != 0) {
                 func_00479940(temp_2_4, 0, 0, 0, 0);
@@ -426,7 +426,7 @@ void func_004ac9a0(u8 *dst, u8 *src)
     if (*(void **)(dst + 0xB4) != 0) {
         func_004787e0(*(u32 *)(dst + 0xB4));
     }
-    work = func_00478140(*(u16 *)(*(u32 *)(src + 0xB4) + 0xD4), *(u16 *)(*(u32 *)(src + 0xB4) + 0xD6), 0);
+    work = mdlFindOrCreateModelObject(*(u16 *)(*(u32 *)(src + 0xB4) + 0xD4), *(u16 *)(*(u32 *)(src + 0xB4) + 0xD6), 0);
     if (work == 0) {
         func_0046d730(D_007144A8, 0x1DA);
     }

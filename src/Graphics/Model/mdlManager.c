@@ -152,7 +152,7 @@ extern u32 func_003df5d0();
 extern int mdlAppendUniqueListEntry(int param_1, void* param_2);
 extern void* mdlMatFXSetEnvMapValueCallback(void*, void*);
 extern void* mdlMatFXSetEnvMapStateCallback(void*, void*);
-extern void* func_00479880(void*, void*);
+extern void* mdlDrawAtomicIfVisible(void*, void*);
 extern void* func_004776c0(void* param_1, void* param_2);
 extern void* func_00474a10(void* param_1, void* data);
 extern u32 mdlGetFrameNameUserData(void* param_1);
@@ -264,7 +264,7 @@ extern void func_0047ea70(u8* a);
 extern void func_0047adf0(u8* a, u16 b, s32 c);
 extern s32 iGpffffbb28;
 extern f32 iGpffff80cc;
-extern void* func_004779b0(u32 type, u16 id);
+extern void* mdlAllocModelObject(u32 type, u16 id);
 extern s32 func_00479ca0(void* a, s32 b);
 extern u32* func_003971d0(u8*, s32, s32, s32);
 extern void* func_00462ae0(void* object);
@@ -3161,7 +3161,7 @@ extern f32 func_0044b920(f32 value);
 extern u8 *func_004571b0(void);
 extern u8 *func_004571c0(void);
 extern void mdlUpdateBlendTrack(u8* a, u8* b);
-extern void func_00479910(void* a);
+extern void mdlDrawVisibleAtomics(void* a);
 extern void* mdlGetMatrix(void* a);
 extern s32 func_0047a510(void* a, s32 b, void* c);
 extern s32 func_0047ae90(u8* model, u16 index);
@@ -3434,7 +3434,7 @@ void func_00475cd0(MdlDrawState* owner)
         RpSkyRenderStateSet(3, 0x7D7FB);
     }
     }
-    func_00479910(owner->clump);
+    mdlDrawVisibleAtomics(owner->clump);
     func_004789c0((Model*)owner);
     if ((owner->animFlags & 0x10) != 0) {
         mdlInstallHierarchyScaleHook(owner->hierarchy,
@@ -3545,7 +3545,7 @@ void func_00475cd0(MdlDrawState* owner)
                 } else {
                     RpSkyRenderStateSet(3, 0x7D7FB);
                 }
-                func_00479910(source);
+                mdlDrawVisibleAtomics(source);
                 func_004789c0((Model*)attached.model);
                 if (needsReset != 0) {
                     func_00397c40(attached.model->hierarchy);
@@ -3619,7 +3619,7 @@ typedef struct MdlFlags78ec0
 } MdlFlags78ec0;
 extern void RpSkyRenderStateSet(s32 a, s32 b);
 extern void (*D_00887304[])(s32, void*);
-extern void func_00479910(void* a);
+extern void mdlDrawVisibleAtomics(void* a);
 extern void* func_003bfae0_1(void* a);
 extern void (*D_00887300_abs[])(s32, s32);
 /* P4 port probe: opt_propagation off prevents mwcc folding the D_00887300_abs
@@ -3654,7 +3654,7 @@ void func_00476c70(MdlFlags78ec0* o)
     D_00887304[0](0xE, &sp4C);
     base[0](0xE, 0);
     if (o->e0 == NULL || (o->d8 & 0x200)) {
-        func_00479910(o->dc);
+        mdlDrawVisibleAtomics(o->dc);
     } else {
         list = D_008872E0[0];
         node = *(void**)((u8*)o->e0 + 8);
@@ -4078,8 +4078,9 @@ done:
 
 /* measured: volatile RwRGBA* color forces the four lbu color loads in source
    order (removing it rotates/reorders them, nd 9). */
+/* Allocates a model object of 0x320 bytes, stamps its type at +0xD4 and id at +0xD6, sets default colour, scale and slot records, and links it into the head of its type bucket in D_00922BE0. */
 // FUN_004779B0
-void* func_004779b0(u32 type, u16 id)
+void* mdlAllocModelObject(u32 type, u16 id)
 {
     u8* obj;
     u32 i;
@@ -4176,8 +4177,9 @@ void* func_004779b0(u32 type, u16 id)
     return obj;
 }
 
+/* Finds the model object with the given id in bucket type. When flags is nonzero, the object must also have one of those bits set in its flags at +0xD8. */
 // FUN_00477C40
-void* func_00477c40(u32 type, u16 id, u32 flags)
+void* mdlFindModelObject(u32 type, u16 id, u32 flags)
 {
     void* node = D_00922BE0[type & 0xFFFF];
     u32 v1 = id;
@@ -4247,10 +4249,11 @@ void func_00477ca0(u8* arg0)
         mdlEffectListRefreshHandles((u32*)temp_4_2);
     }
 }
+/* Creates a model object with mdlAllocModelObject, sets flag 0x4000 when param_4 bit 0 is set, applies the data buffer param_3 through func_0047aff0, and runs the readiness step func_004782b0. */
 // FUN_00477E80
-void* func_00477e80(u32 type, u16 id, void* param_3, u32 param_4)
+void* mdlCreateModelObjectFromData(u32 type, u16 id, void* param_3, u32 param_4)
 {
-    void* obj = func_004779b0(type, id);
+    void* obj = mdlAllocModelObject(type, id);
     if ((param_4 & 1) != 0) {
         *(u32*)((u8*)obj + 0xD8) |= 0x4000;
     }
@@ -4260,10 +4263,11 @@ void* func_00477e80(u32 type, u16 id, void* param_3, u32 param_4)
     return obj;
 }
 
+/* Like mdlCreateModelObjectFromData, but applies the (memory, size) pair through func_0047afd0. Sets flag 0x4000 when flags bit 0 is set. */
 // FUN_00477F10
-void* func_00477f10(u32 type, u16 id, void* memory, u32 size, u32 flags)
+void* mdlCreateModelObjectFromMemory(u32 type, u16 id, void* memory, u32 size, u32 flags)
 {
-    void* obj = func_004779b0(type, id);
+    void* obj = mdlAllocModelObject(type, id);
     if ((flags & 1) != 0) {
         *(u32*)((u8*)obj + 0xD8) |= 0x4000;
     }
@@ -4310,7 +4314,7 @@ void* func_00477fb0(u32 arg0, u16 arg1, void* arg2, u32 arg3)
         retA = *(u32*)((u8*)arg2 + 0x110);
         retVal = *(u32*)((u8*)arg2 + 0x118);
         stack9c = retVal;
-        arg2 = func_004779b0(arg0, arg1);
+        arg2 = mdlAllocModelObject(arg0, arg1);
         if ((arg3 & 1) != 0) {
             *(u32*)((u8*)arg2 + 0xD8) |= 0x4000;
         }
@@ -4323,7 +4327,7 @@ void* func_00477fb0(u32 arg0, u16 arg1, void* arg2, u32 arg3)
     }
     retA = (u32)func_00455ea0(arg2, 0, (s32*)&stack9c);
     retVal = stack9c;
-    obj = func_004779b0(arg0, arg1);
+    obj = mdlAllocModelObject(arg0, arg1);
     if ((arg3 & 1) != 0) {
         *(u32*)((u8*)obj + 0xD8) |= 0x4000;
     }
@@ -4339,8 +4343,9 @@ done:
     return result;
 }
 
+/* Finds the model object for type and id. When none exists, it builds the name for the id (func_0047d110), allocates a new object and sets it up. When one exists, it returns it with flag 0x2000 set. */
 // FUN_00478140
-void* func_00478140(u32 param_1, u16 param_2, u32 param_3)
+void* mdlFindOrCreateModelObject(u32 param_1, u16 param_2, u32 param_3)
 {
     void* node;
     void* obj;
@@ -4358,7 +4363,7 @@ void* func_00478140(u32 param_1, u16 param_2, u32 param_3)
     }
     if (node == 0) {
         func_0047d110(param_1, param_2, (char*)buf);
-        obj = func_004779b0(param_1, param_2);
+        obj = mdlAllocModelObject(param_1, param_2);
         if ((param_3 & 1) != 0) {
             *(u32*)((u8*)obj + 0xD8) |= 0x4000;
         }
@@ -4371,7 +4376,7 @@ void* func_00478140(u32 param_1, u16 param_2, u32 param_3)
         result = obj;
         goto done;
     } else {
-        obj = func_004779b0(param_1, param_2);
+        obj = mdlAllocModelObject(param_1, param_2);
         if ((param_3 & 1) != 0) {
             *(u32*)((u8*)obj + 0xD8) |= 0x4000;
         }
@@ -4586,7 +4591,7 @@ u32* func_00478750(u8* param_1)
 {
     u32* obj;
 
-    obj = func_004779b0(*(u16*)(param_1 + 0xD4), *(u16*)(param_1 + 0xD6));
+    obj = mdlAllocModelObject(*(u16*)(param_1 + 0xD4), *(u16*)(param_1 + 0xD6));
     if ((*(s32*)(param_1 + 0xD8) & 0x1000) != 0) {
         func_00478410(param_1, (u8*)obj);
         *(s32*)((u8*)obj + 0xD8) |= 0x1000;
@@ -5066,8 +5071,9 @@ layers:
     }
 }
 
+/* Per-atomic callback for mdlDrawVisibleAtomics: when the atomic has flag 4 and a non-null object at +0x18 that passes the frustum test, it calls the draw hook at +0x48 of the atomic. */
 // FUN_00479880
-void* func_00479880(void* param_1, void* data)
+void* mdlDrawAtomicIfVisible(void* param_1, void* data)
 {
     if ((*(u8*)((u8*)param_1 + 2) & 4) == 0) {
         return param_1;
@@ -5080,10 +5086,11 @@ void* func_00479880(void* param_1, void* data)
     return param_1;
 }
 
+/* Draws the visible atomics of a clump: runs mdlDrawAtomicIfVisible over each atomic of param_1. */
 // FUN_00479910
-void func_00479910(void* param_1)
+void mdlDrawVisibleAtomics(void* param_1)
 {
-    RpClumpForAllAtomics(param_1, func_00479880, 0);
+    RpClumpForAllAtomics(param_1, mdlDrawAtomicIfVisible, 0);
 }
 
 /* IDA 00479940, mdlManager.c:2873-2957: validate raw arguments before
@@ -5855,7 +5862,7 @@ void func_0047aaa0(void* param_1, u16 param_2, u32 param_3, u16 param_4, void* p
     void* obj;
     s32 off;
     void* slot;
-    obj = func_004779b0(param_3, param_4);
+    obj = mdlAllocModelObject(param_3, param_4);
     if ((param_6 & 1) != 0) {
         *(u32*)((u8*)obj + 0xD8) |= 0x4000;
     }
@@ -5877,7 +5884,7 @@ void func_0047ab90(void* param_1, u16 param_2, u32 param_3, u16 param_4, s32 par
     s32 off;
     void* slot;
 
-    obj = func_004779b0(param_3, param_4);
+    obj = mdlAllocModelObject(param_3, param_4);
     if ((param_7 & 1) != 0) {
         *(u32*)((u8*)obj + 0xD8) |= 0x4000;
     }
@@ -5906,16 +5913,16 @@ void func_0047ac90(void* param_1, u16 param_2, u32 param_3, u16 param_4, u32 par
     u32 off;
     void* slot;
 
-    if (func_00477c40(param_3, param_4, 0) == (void*)0) {
+    if (mdlFindModelObject(param_3, param_4, 0) == (void*)0) {
         func_0047d110(param_3, param_4, (char*)buf);
-        obj = func_00477e80(param_3, param_4, buf, param_5);
+        obj = mdlCreateModelObjectFromData(param_3, param_4, buf, param_5);
         if (func_0047d0e0(param_3, param_4) != 0) {
             func_0047b050(obj, 1);
         }
         result = obj;
         goto done;
     } else {
-        obj = func_004779b0(param_3, param_4);
+        obj = mdlAllocModelObject(param_3, param_4);
         if ((param_5 & 1) != 0) {
             *(u32*)((u8*)obj + 0xD8) |= 0x4000;
         }

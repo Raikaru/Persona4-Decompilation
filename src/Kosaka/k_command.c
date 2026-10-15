@@ -551,7 +551,7 @@ u32 K_Cmd_CREATE_FLD_MDL()
         strcat(path, buff);
     }
 
-    mdl = func_00477e80(4, minorId, path, 0);
+    mdl = mdlCreateModelObjectFromData(4, minorId, path, 0);
     scrSetReturnInt((s32)mdl);
 
     return true;
@@ -654,7 +654,7 @@ u32 K_Cmd_CREATE_MDL()
     type = scrGetParamInt(0);
     id = scrGetParamInt(1);
 
-    mdl = func_00478140((u16)type, id, 0);
+    mdl = mdlFindOrCreateModelObject((u16)type, id, 0);
 
     scrSetReturnInt((s32)mdl);
 
