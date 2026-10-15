@@ -6,7 +6,7 @@
 extern u16 btlFindFreeCharResId(void);
 
 extern void func_004787e0(); /* old-style: retail jals with $a1 still holding the compared coordinate */
-extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
+extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void *func_00477fb0(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern u32 *func_00478750(u8 *arg0);
 extern s32 func_0047d110(u32 arg0, u16 arg1, char *arg2);
@@ -995,7 +995,7 @@ void func_0019acd0(u8 *arg0)
             func_004787e0(obj);
             *(u8 **)(p + 0xA00) = NULL;
         }
-        made = func_00477c40(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
+        made = mdlFindModelObject(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
         if (made != 0) {
             *(u8 **)(p + 0xA00) = (u8 *)func_00478750(made);
             flags = *(s32 *)(p + 0x98) | 2;
@@ -1054,7 +1054,7 @@ s32 func_0019ae20(u8 *arg0) {
 
     t17 = *(u8 **)arg0;
     if ((*(s32 *)(t17 + 0x98) & 1) == 0) {
-        made = func_00477c40(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
+        made = mdlFindModelObject(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
         if (made != 0) {
             *(u8 **)(t17 + 0xA00) = (u8 *)func_00478750(made);
         } else {

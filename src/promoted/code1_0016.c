@@ -1031,7 +1031,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
         obj = fldPartyModelCached(slot, type, id);
         entry = D_007F16F0 + slot * 8;
         if (obj == NULL) {
-            obj = func_00478140(modelKind, id, 0);
+            obj = mdlFindOrCreateModelObject(modelKind, id, 0);
             if (type == 1) {
                 func_0047d140(obj);
             } else {
@@ -1063,7 +1063,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
         obj = fldPartyModelCached(slot, 1, m);
         entry = D_007F16F0 + slot * 8;
         if (obj == NULL) {
-            obj = func_00478140(1, m, 0);
+            obj = mdlFindOrCreateModelObject(1, m, 0);
             func_0047d140(obj);
             if (*(u8 **)(D_007F16F4 + slot * 8) != NULL) {
                 s32 j;

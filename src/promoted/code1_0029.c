@@ -160,7 +160,7 @@ s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     extern void func_0047ae10(u8 *arg0, s32 arg1);
     extern s32 func_0047a510(u8 *arg0, s32 arg1, u8 *arg2);
-    extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
+    extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
     extern void func_0047ab90(void *arg0, u16 arg1, u32 arg2, u16 arg3, s32 arg4, s32 arg5, u32 arg6);
     extern void func_0047ac90(void *arg0, u16 arg1, u32 arg2, u16 arg3, u32 arg4);
     extern void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2);
@@ -190,7 +190,7 @@ s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     }
     entry = code29AddOff(arg3 * 2, arg0) + 0x604;
     lookupType = 5;
-    if (func_00477c40(lookupType, *(u16 *)entry, 0) == 0) {
+    if (mdlFindModelObject(lookupType, *(u16 *)entry, 0) == 0) {
         u16 weapon;
         u32 idx4;
         u8 *data;

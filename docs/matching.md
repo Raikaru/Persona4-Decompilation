@@ -5152,7 +5152,7 @@ are the absent twelve zero-padding bytes; every emitted instruction matches.
 The superseded `LaneMdlSE_0047df40_body.c` archive is removed.
 
 The lookup producer already defines
-`void *func_00477c40(u32 type, u32 id, u32 flags)`. Active consumer
+`void *mdlFindModelObject(u32 type, u32 id, u32 flags)` (was `func_00477c40`). Active consumer
 declarations now use that contract rather than the narrower, integer-returning
 reconstruction. The battle-unit consumer also retains the returned address
 as a pointer and uses the clone producer's `u32 *func_00478750(u8 *)`
@@ -12368,7 +12368,7 @@ returns null before allocating or advancing the live count.
 The old three-argument encounter declaration was false. The actual
 `DatUnitEc *func_00231630(u16)` provider receives only the low-half
 encounter ID. The slot also uses the actual
-`void *func_00478140(u32, u32, u32)` model allocator and the RNG's
+`void *mdlFindOrCreateModelObject(u32, u32, u32)` (was `func_00478140`) model allocator and the RNG's
 64-bit return. Keeping the default variant initialized before the calls,
 loading both copy words before either store, and scoped
 `opt_loop_invariants on` reproduce the retail scheduling. The average

@@ -6,7 +6,7 @@ extern void func_0044ea90();
 extern void memset(void *dest, s32 value, s32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007241D8;
-extern void *func_00477c40(u32 type, u16 id, u32 flags);
+extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
 extern s32 iGpffffbb40;
 extern u8 D_00922C10[];
 extern u8 D_00922C14[];
@@ -70,7 +70,7 @@ s32 func_0047df40(u32 type, u16 id)
             break;
         }
         else if (((s32)slotType < 0xC) &&
-                 (func_00477c40(slotType, *(u16*)((u8*)D_00922C10 + (u16)scanIndex * 8 + 6), 0) == 0))
+                 (mdlFindModelObject(slotType, *(u16*)((u8*)D_00922C10 + (u16)scanIndex * 8 + 6), 0) == 0))
         {
             selectedSlot = slotIndex;
             break;

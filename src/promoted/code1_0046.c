@@ -122,7 +122,7 @@ extern u8 *func_003bfae0(s32 arg0);
 extern s32 RwCameraFrustumTestSphere(s32 arg0, u8 *arg1);
 extern void mdlClumpSetEnvMapValue(s32 arg0, s32 arg1);
 extern void func_00476c70(u8 *arg0);
-extern void func_00479910(s32 arg0);
+extern void mdlDrawVisibleAtomics(s32 arg0);
 extern void func_00461560(u8 *arg0);
 extern void func_00461a40(u8 *arg0);
 extern void func_00461be0(u8 *arg0);
@@ -853,7 +853,7 @@ void func_00462230(u8 *arg0)
         self = (u8 *)D_00887300;
         ((WindowRenderStateSet *)self)[0]((RwRenderState)(6), (void *)(1));
         ((WindowRenderStateSet *)self)[0]((RwRenderState)(8), (void *)(0));
-        func_00479910(*(s32 *)(work + 0xDC));
+        mdlDrawVisibleAtomics(*(s32 *)(work + 0xDC));
     } else {
         table = D_00887300;
         table[0]((RwRenderState)(6), (void *)(1));

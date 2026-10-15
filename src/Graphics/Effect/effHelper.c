@@ -13,7 +13,7 @@ s32 func_00479ca0(s32 res, s32 arg1);
 u32 func_0047a7c0(s32 res);
 void func_00485b20(u32 arg);
 void func_004abd60(s32 res);
-void *func_00478140(u32 a, u16 b, u32 c);
+void *mdlFindOrCreateModelObject(u32 a, u16 b, u32 c);
 void func_004abbb0(s32 res);
 
 extern u8 D_007144F8[];
@@ -156,7 +156,7 @@ void func_004ad880(EffHlpWork *work, EffHlpWork *src)
     if (work->res != 0) {
         func_004abd60(work->res);
     }
-    work->res = (s32)func_00478140(*(u16 *)((u8 *)src->res + 0xD4),
+    work->res = (s32)mdlFindOrCreateModelObject(*(u16 *)((u8 *)src->res + 0xD4),
                                    *(u16 *)((u8 *)src->res + 0xD6), 0);
     if (work->res == 0) {
         func_0046d730(D_007144F8, 0xA9);

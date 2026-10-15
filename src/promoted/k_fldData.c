@@ -61,7 +61,7 @@ extern u8 D_005F1050[];
 
 extern u8 *func_00454a60(u8 *path, s32 mode);
 extern void H_Cdvd_ReadSync(HCdvd *file);
-extern void *func_00477f10(u32 kind, u16 id, void *memory, u32 size, u32 flags);
+extern void *mdlCreateModelObjectFromMemory(u32 kind, u16 id, void *memory, u32 size, u32 flags);
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 NpcTable_RequestFixedTable(void);
 extern s32 func_00161510(void);
@@ -166,7 +166,7 @@ s32 func_0015d730(u8 *task)
         func_00440b68(&D_00762FC8, D_005F0A88, 0xE6);
         baseModelFile = (HCdvd *)func_00454a60((u8 *)D_005F0AF8, 0);
         H_Cdvd_ReadSync(baseModelFile);
-        D_00764364 = (s32)func_00477f10(4, 0x7D0,
+        D_00764364 = (s32)mdlCreateModelObjectFromMemory(4, 0x7D0,
                                       baseModelFile->fileMemory, baseModelFile->fileSize, 0);
         sprintf(mapPath, D_005F0A70);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x6B);

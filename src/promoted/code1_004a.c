@@ -126,8 +126,8 @@ extern f32 fGpffffbb74;
 extern f32 fGpffffbb70;
 extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
-extern void *func_00477c40(u32 arg0, u16 arg1, u32 arg2);
-extern void *func_00477f10(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
+extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
+extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
 extern void func_00485fe0(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *);
@@ -1572,10 +1572,10 @@ loop_004abc50_body:
     iGpffffbb90 += 1;
 loop_004abc50_check:
     lookupType = 6;
-    if (func_00477c40(lookupType, iGpffffbb90, 0) != 0) {
+    if (mdlFindModelObject(lookupType, iGpffffbb90, 0) != 0) {
         goto loop_004abc50_body;
     }
-    temp_2 = func_00477f10(6, iGpffffbb90, arg0, (u32)arg1, 1);
+    temp_2 = mdlCreateModelObjectFromMemory(6, iGpffffbb90, arg0, (u32)arg1, 1);
     func_0047a2a0(temp_2);
     if (func_00479ca0(temp_2, 0) != 0) {
         func_00479940(temp_2, 0, 0, 0, 0);

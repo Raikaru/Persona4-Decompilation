@@ -12,7 +12,7 @@ extern s32 func_00106600(s16 id);
 extern void SceneDraw_SetResVisible(u16 resourceId, u32 value);
 extern u16 func_0014b510(s32 type);
 extern void func_00106550(s32 arg0, s32 arg1);
-extern void* func_00477e80(u32 type, u16 id, void* path, u32 mode);
+extern void* mdlCreateModelObjectFromData(u32 type, u16 id, void* path, u32 mode);
 extern s32 MT_Scene_CreateModelFldRes(u16 resourceId, s32 model);
 extern u32 func_002bd360(s32 resourceId, s32 value);
 extern s32 scrGetParamInt(s32 index);
