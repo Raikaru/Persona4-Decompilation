@@ -70,7 +70,7 @@ extern s32 func_001eb860(void);
 extern void btlActionFinishPresentation(s32 arg0);
 extern BtlPacket *func_001d3700(u16 arg0, u16 arg1);
 extern u8 *btlCameraCreateSetStatePacket(s32 arg0, s32 arg1);
-extern s32 func_001dbba0();
+extern s32 btlAICommandSelectCandidates();
 extern u32 datCalcRandomBelow(u32 arg0);
 extern u8 *func_001d9280();
 extern u8 *func_001d8c00();
@@ -78,7 +78,7 @@ extern u8 *btlAICommandPickUnitByHpWeight();
 extern s32 btlAICommandCollectSkillCandidates();
 extern s32 btlAICommandCollectCommandsOfType();
 extern s32 func_001d9390();
-extern s32 func_001dbb90(void);
+extern s32 btlAICommandAlwaysTrue(void);
 
 
 extern void func_00194590(u8 *arg0, s32 arg1);
@@ -249,7 +249,7 @@ s32 func_001e6ea0(void) {
 
     work = func_0029d050();
     flags = scrGetParamInt(0);
-    if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+    if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -272,7 +272,7 @@ s32 func_001e6fa0(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -290,7 +290,7 @@ s32 func_001e7080(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -308,7 +308,7 @@ s32 func_001e7160(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -326,7 +326,7 @@ s32 func_001e7240(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -344,7 +344,7 @@ s32 func_001e7320(void)
     int count;
     u8 *work;
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1)
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1)
     {
         count = *(u16 *)(work + 0x6A);
         if (count == 1)
@@ -525,7 +525,7 @@ s32 func_001e77f0(void) {
     u32 var_22;
 
     temp_21 = func_0029d050();
-    if (func_001dbba0(temp_21, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (btlAICommandSelectCandidates(temp_21, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(temp_21 + 0x6A) == 1) {
             var_19 = *(u8 **)(temp_21 + 0x38);
         } else {
@@ -567,7 +567,7 @@ s32 func_001e7950(void) {
     u8 *sp50[12];
 
     temp_19 = func_0029d050();
-    if (func_001dbba0(temp_19, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (btlAICommandSelectCandidates(temp_19, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         var_17 = 0;
         var_18 = 0;
         goto loop_test;
@@ -601,7 +601,7 @@ loop_test:
    normalized_diff 0. */
 // FUN_001E7AB0
 s32 func_001e7ab0(void) {
-    extern s32 func_001dbba0();
+    extern s32 btlAICommandSelectCandidates();
     extern void func_001db5b0();
     extern s32 datCalcRandomBelow();
     extern s32 datCalcGetLevel();
@@ -618,7 +618,7 @@ s32 func_001e7ab0(void) {
     u8 *var_2;
 
     temp_20 = func_0029d050();
-    if (func_001dbba0(temp_20, scrGetParamInt(0), 0, 0x2C, 1, &func_001db5b0) == 1) {
+    if (btlAICommandSelectCandidates(temp_20, scrGetParamInt(0), 0, 0x2C, 1, &func_001db5b0) == 1) {
         if (*(u16 *)(temp_20 + 0x6A) == 1) {
             var_2 = *(u8 **)(temp_20 + 0x38);
         } else {
@@ -652,7 +652,7 @@ loop_test:
 }
 // FUN_001E7C20
 s32 func_001e7c20(void) {
-    extern s32 func_001dbba0();
+    extern s32 btlAICommandSelectCandidates();
     extern s32 datCalcGetBadStatusNoDown();
     extern s64 scrGetParamInt();
     extern void scrSetReturnInt();
@@ -662,7 +662,7 @@ s32 func_001e7c20(void) {
     s32 var_16;
 
     temp_18 = func_0029d050();
-    if (func_001dbba0(temp_18, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (btlAICommandSelectCandidates(temp_18, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         var_16 = 0;
         var_17 = 0;
         goto loop_test;
@@ -754,7 +754,7 @@ s32 func_001e7fb0(void) {
     u8 *work;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYHOJO) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYHOJO) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -775,7 +775,7 @@ s32 func_001e8090(void) {
 
     work = func_0029d050();
     flags = scrGetParamInt(0);
-    if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYHANSYA) == 1) {
+    if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYHANSYA) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -801,7 +801,7 @@ s32 func_001e8190(void) {
 
     work = func_0029d050();
     flags = scrGetParamInt(0);
-    if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYKYUSYU) == 1) {
+    if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYKYUSYU) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -827,7 +827,7 @@ s32 func_001e8290(void) {
 
     work = func_0029d050();
     flags = scrGetParamInt(0);
-    if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYMUKOU) == 1) {
+    if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYMUKOU) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -853,7 +853,7 @@ s32 func_001e8390(void) {
 
     work = func_0029d050();
     flags = scrGetParamInt(0);
-    if (func_001dbba0(work, flags, 0, 0x2E, 0, &btlCond_MYTAISEI) == 1) {
+    if (btlAICommandSelectCandidates(work, flags, 0, 0x2E, 0, &btlCond_MYTAISEI) == 1) {
         count = *(u16 *)(work + 0x6A);
         if (count == 1) {
             scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
@@ -880,7 +880,7 @@ s32 func_001e8490(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -913,7 +913,7 @@ s32 func_001e85c0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -946,7 +946,7 @@ s32 func_001e86f0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -979,7 +979,7 @@ s32 func_001e8820(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1012,7 +1012,7 @@ s32 func_001e8950(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1045,7 +1045,7 @@ s32 func_001e8a80(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1157,7 +1157,7 @@ s32 func_001e8eb0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1190,7 +1190,7 @@ s32 func_001e8fe0(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1223,7 +1223,7 @@ s32 func_001e9110(void) {
     u32 min;
 
     work = func_0029d050();
-    if (func_001dbba0(work, scrGetParamInt(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1) {
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
         } else {
@@ -1738,7 +1738,7 @@ s32 func_001ea180(void) {
     u8 *sp10[12];
     s32 temp_4;
 
-    temp_4 = (s32)(func_001d9390(func_0029d050(), 0, 0x80000, 2, 0, &func_001dbb90, &sp10) & 0xFFFF);
+    temp_4 = (s32)(func_001d9390(func_0029d050(), 0, 0x80000, 2, 0, &btlAICommandAlwaysTrue, &sp10) & 0xFFFF);
     if (temp_4 > 0) {
         scrSetReturnInt(*(s32 *)(sp10[datCalcRandomBelow(temp_4)] + 8) | 0x80000000);
     } else {
