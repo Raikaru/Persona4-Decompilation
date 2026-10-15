@@ -5019,8 +5019,9 @@ u8 *func_00243840(s32 arg0)
     return iGpffffb448 + (u16)arg0 * 0x13;
 }
 
+// Intent: pointer to the 0x15-byte slot record for index arg0 (0..0x1F) in the slot table; [inferred].
 // FUN_002438B0
-u8 *func_002438b0(s32 arg0)
+u8 *datCalcGetSlotRecord(s32 arg0)
 {
     if ((arg0 & 0xFF) >= 0x20) {
         func_0046d730(D_00635938, 0x14F2);
@@ -5237,8 +5238,9 @@ void datCalcInitializeCharacter(u16 characterId)
    marker for the stub below IS a window boundary (per the
    p3-window-nullsub-discovery Case A procedure), so splitting the
    nullsub out in this file shrinks the window to 352B and this MATCHes. */
+// Intent: returns 0 when skill arg0's type field for slot arg1 (1: +0x11, 2: +0x14) is one of the blocked types, else 1; [inferred].
 // FUN_00243FA0
-s32 func_00243fa0(s32 arg0, s32 arg1)
+s32 datCalcSkillTypeAllowed(s32 arg0, s32 arg1)
 {
     u16 var_17;
     s32 temp_19;

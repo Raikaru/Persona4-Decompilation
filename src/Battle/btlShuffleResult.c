@@ -108,7 +108,7 @@ extern s32 func_00380980(u8 *a);
 extern u16 datPersonaCountValidMembers(void);
 extern u16 *datPersonaFindRosterRecordById(s32 a);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
-extern char *func_002438b0(s32 a);
+extern char *datCalcGetSlotRecord(s32 a);
 extern char *strcpy(char *dst, const char *source);
 struct KwlnTask;
 extern s32 func_00452080(struct KwlnTask *task);
@@ -525,7 +525,7 @@ static inline void shuffleResultDescribe(u8 *work)
     } else {
         strcpy((char *)text, iGpffffa9E4);
     }
-    func_002bbd20(0, func_002438b0(kind));
+    func_002bbd20(0, datCalcGetSlotRecord(kind));
     func_002bbd20(1, text);
     func_002bad10(0xE);
 
@@ -538,7 +538,7 @@ static inline s32 shuffleResultReverse(u8 *work)
     if (datGetFlag(0x1403) != 0 && datGetFlag(0x140E) != 0 && state->isUpright == 0) {
         state->isUpright = 1;
         strcpy((char *)text, iGpffffa9E0);
-        func_002bbd20(0, func_002438b0(6));
+        func_002bbd20(0, datCalcGetSlotRecord(6));
         func_002bbd20(1, text);
         func_002bad10(0xF);
         return 1;
@@ -554,7 +554,7 @@ static inline void shuffleResultDescribePacked(s32 packed)
     } else {
         strcpy((char *)text, iGpffffa9E4);
     }
-    func_002bbd20(0, func_002438b0(((packed & 0xFFFF0000) >> 16) & 0xFF));
+    func_002bbd20(0, datCalcGetSlotRecord(((packed & 0xFFFF0000) >> 16) & 0xFF));
     func_002bbd20(1, text);
     func_002bad10(0x10);
 
@@ -647,7 +647,7 @@ s32 func_00381a70(u8 *arg0)
         }
         break;
     case 4:
-        func_002bbd20(0, func_002438b0(*(u8 *)(arg0 + 0x12)));
+        func_002bbd20(0, datCalcGetSlotRecord(*(u8 *)(arg0 + 0x12)));
         func_002bad10(0xC);
         func_002baf40(0xD);
         func_002bb050(0);
@@ -786,7 +786,7 @@ s32 func_00381a70(u8 *arg0)
                 func_0045af60(1, 3, 2, 2);
             }
             result = (view.state->isUpright != 0 ? 1 : 2) + 0x15;
-            func_002bbd20(0, func_002438b0(view.state->resultCard));
+            func_002bbd20(0, datCalcGetSlotRecord(view.state->resultCard));
             func_002bad10(result);
             view.state->phase = 0xD;
         }
