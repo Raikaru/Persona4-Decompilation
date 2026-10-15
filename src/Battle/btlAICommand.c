@@ -26,7 +26,7 @@ extern s32 func_001dbba0();
 extern u64 func_00452490();
 
 extern u8 *func_001b0cc0();
-extern s32 func_001de000(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
+extern s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
 extern u32 scrGetParamInt();
 extern void scrSetReturnInt();
 extern u8 *func_0029d050();
@@ -53,7 +53,7 @@ extern u32 datCalcClearBuffLevel(u32 arg0, u32 arg1);
 extern u32 datCalcRandomBelow(u32 arg0);
 extern u16 datCalcGetHp(s32 unit);
 extern s32 datCalcAilmentChance(u8 *unit, s32 index);
-extern void func_001de640(u8 *a, u8 *b, u16 c);
+extern void btlAICommandSetActionCode(u8 *a, u8 *b, u16 c);
 
 extern void *D_00609934[];
 extern void *D_00609940[];
@@ -1627,7 +1627,7 @@ s32 btlAICommandCollectRecoveryCommands(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
 // FUN_001DE000
 #pragma push
 #pragma opt_propagation off
-s32 func_001de000(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
+s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
 {
     extern s32 btlAICommandCollectRecoveryCommands(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
     u8 *unit;
@@ -1703,7 +1703,7 @@ s32 func_001de000(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
    D_00609600 is a real, placeable linker symbol. */
 #pragma opt_loop_invariants on
 // FUN_001DE370
-u32 func_001de370(u8 *arg0)
+u32 btlAICommandPickUnitByHpWeight(u8 *arg0)
 {
     u32 i;
     u32 random;
@@ -1796,7 +1796,7 @@ u32 func_001de370(u8 *arg0)
    shared q+0x34=2/q+0x36=v body, reusing the v parameter in $a2 exactly as
    retail). if/else t = v / v & 0xF000, then switch(t & 0xFFFF). */
 // FUN_001DE640
-void func_001de640(u8 *p, u8 *q, u16 v)
+void btlAICommandSetActionCode(u8 *p, u8 *q, u16 v)
 {
     u16 t;
 
@@ -1845,7 +1845,7 @@ void func_001de640(u8 *p, u8 *q, u16 v)
     }
 }
 // FUN_001DE800
-u8 func_001de800(u8 *p) {
+u8 btlAICommandPickTableAction(u8 *p) {
     u8 *base;
     u8 *row;
     s32 k;
@@ -1940,7 +1940,7 @@ u8 *func_001dea90(u8 *p, u32 index)
    always-true. t declared before d (reverse decl order -> d=$19/t=$20),
    buf[32], case 0/1 switch, iGpffffb444 + x*21 chain. */
 // FUN_001DEBB0
-s32 func_001debb0(u8 *p, u8 *q, u32 v, u32 w)
+s32 btlAICommandSpawnActionProc(u8 *p, u8 *q, u32 v, u32 w)
 {
     u8 buf[32];
     u32 c;
@@ -2021,14 +2021,14 @@ void func_001ded30(int param_1, int param_2)
         break;
     }
     if (actionId > 0) {
-        func_001debb0((u8 *)param_1, (u8 *)param_2, data, actionId);
+        btlAICommandSpawnActionProc((u8 *)param_1, (u8 *)param_2, data, actionId);
         *(u8 *)(param_2 + 0x30) = 1;
     }
     else {
-        extern u32 func_001de800(u8 *);
-        actionId = func_001de800((u8 *)param_1) & 0xFFFF;
+        extern u32 btlAICommandPickTableAction(u8 *);
+        actionId = btlAICommandPickTableAction((u8 *)param_1) & 0xFFFF;
         entry = (int)func_001dea90((u8 *)param_1, actionId);
-        func_001de640((u8 *)param_1, (u8 *)param_2, *(u16 *)(entry + 2));
+        btlAICommandSetActionCode((u8 *)param_1, (u8 *)param_2, *(u16 *)(entry + 2));
         actionWord = *(u32 *)(entry + 4);
         result = ((s32 (*)(u8 *, u32))D_00609CE0[((actionWord & 0xff000000) >> 0x18) * 2])((u8 *)param_1, actionWord & 0xffffff);
         if (result == 0) {
@@ -2070,10 +2070,10 @@ u32 func_001deee0(int param_1)
 u32 func_001def60(void)
 {
   extern u8 *func_0029d050(void);
-  extern void func_001de640(void *, void *, u16);
+  extern void btlAICommandSetActionCode(void *, void *, u16);
   char *pVar1 = (char *)func_0029d050();
 
-  func_001de640(pVar1, pVar1 + 0x38, 0x8000);
+  btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8000);
   return 1;
 }
 
@@ -2084,11 +2084,11 @@ s32 func_001defa0(void) {
     u8 *p = func_0029d050();
     s32 r = scrGetParamInt(0);
     if (r == 0)
-        func_001de640(p, p + 0x38, 0x8000);
+        btlAICommandSetActionCode(p, p + 0x38, 0x8000);
     else if (r > 0)
-        func_001de640(p, p + 0x38, (u16)r);
+        btlAICommandSetActionCode(p, p + 0x38, (u16)r);
     else
-        func_001de640(p, p + 0x38, 0x8002);
+        btlAICommandSetActionCode(p, p + 0x38, 0x8002);
     return 1;
 }
 
@@ -2101,7 +2101,7 @@ s32 func_001df040(void) {
         *(u16 *)(p + 0x70) = r;
         *(u16 *)(p + 0x6E) = func_00243920((u16)r);
     } else {
-        func_001de640(p, p + 0x38, 0x8002);
+        btlAICommandSetActionCode(p, p + 0x38, 0x8002);
     }
     return 1;
 }
@@ -2110,11 +2110,11 @@ s32 func_001df040(void) {
 u32 func_001df0c0(void)
 {
   extern u8 *func_0029d050(void);
-  extern void func_001de640(void *, void *, u16);
+  extern void btlAICommandSetActionCode(void *, void *, u16);
   char *pVar1 = 0;
 
   pVar1 = (char *)func_0029d050();
-  func_001de640(pVar1, pVar1 + 0x38, 0x8001);
+  btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8001);
   return 1;
 }
 
@@ -2124,11 +2124,11 @@ u32 func_001df0c0(void)
 u32 func_001df100(void)
 {
   extern u8 *func_0029d050(void);
-  extern void func_001de640(void *, void *, u16);
+  extern void btlAICommandSetActionCode(void *, void *, u16);
   char *pVar1 = 0;
 
   pVar1 = (char *)func_0029d050();
-  func_001de640(pVar1, pVar1 + 0x38, 0x8002);
+  btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8002);
   return 1;
 }
 
@@ -2138,7 +2138,7 @@ u32 func_001df100(void)
 s32 func_001df140(void) {
     u8 *p = func_0029d050();
     *(u16 *)(p + 0xEC) = scrGetParamInt(0);
-    func_001de640(p, p + 0x38, 0x8002);
+    btlAICommandSetActionCode(p, p + 0x38, 0x8002);
     return 1;
 }
 
@@ -2169,11 +2169,11 @@ s32 func_001df230(void) {
 u32 func_001df2d0(void)
 {
   extern u8 *func_0029d050(void);
-  extern void func_001de640(void *, void *, u16);
+  extern void btlAICommandSetActionCode(void *, void *, u16);
   char *pVar1 = 0;
 
   pVar1 = (char *)func_0029d050();
-  func_001de640(pVar1, pVar1 + 0x38, 0x8007);
+  btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8007);
   return 1;
 }
 
@@ -5263,7 +5263,7 @@ s32 func_001e6820(void) {
     temp_18 = (u8 *)(func_0029d050());
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
-    scrSetReturnInt(~func_001de000(temp_18, func_001b0cc0(temp_17 & 0xFFFFFFF), (s16) temp_16, 0) != 0);
+    scrSetReturnInt(~btlAICommandCollectCommandsOfType(temp_18, func_001b0cc0(temp_17 & 0xFFFFFFF), (s16) temp_16, 0) != 0);
     return 1;
 }
 

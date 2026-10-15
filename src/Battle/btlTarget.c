@@ -34,8 +34,8 @@ extern s64 scrGetParamInt(); /* lint: allow H011 -- raw s64 call result feeds s6
 extern s32 scrGetParamIntS32(s32 index);
 extern s64 func_00194590(u8 *arg0, u32 arg1);
 extern u8 *func_0029d050(void); /* lint: allow H011 -- pointer view of the s32 definition, as in code1_001e */
-extern void func_001de640(u8 *arg0, u8 *arg1, u16 arg2);
-extern s32 func_001de800(u8 *arg0); /* lint: allow H011 -- s32 view of the u8 definition, as in code1_001e; the u8 view changes the caller's extension */
+extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
+extern s32 btlAICommandPickTableAction(u8 *arg0); /* lint: allow H011 -- s32 view of the u8 definition, as in code1_001e; the u8 view changes the caller's extension */
 extern u8 *func_001dea90(u8 *arg0, u32 arg1);
 extern void *D_00609CE0[];
 typedef struct P4Vec4_001EC2B0 {
@@ -102,8 +102,8 @@ s32 func_001eb1d0(void) {
     s32 (*callback)(u8 *, s64);
 
     temp_2 = func_0029d050();
-    temp_2_2 = func_001dea90(temp_2, (u32)func_001de800(temp_2) & 0xFFFF);
-    func_001de640(temp_2, temp_2 + 0x38, *(u16 *)(temp_2_2 + 2));
+    temp_2_2 = func_001dea90(temp_2, (u32)btlAICommandPickTableAction(temp_2) & 0xFFFF);
+    btlAICommandSetActionCode(temp_2, temp_2 + 0x38, *(u16 *)(temp_2_2 + 2));
     temp_3 = *(s32 *)(temp_2_2 + 4);
     index = ((u32)temp_3 & 0xFF000000) >> 24;
     callback = *(s32 (**)(u8 *, s64))((u8 *)D_00609CE0 + index * 8);
@@ -196,7 +196,7 @@ s32 func_001eba20(u8 *arg0) {
     u8 *temp_16;
 
     if (*(s32 *)(arg0 + 8) == 0) {
-        func_001debb0(*(u8 **)arg0, *(u8 **)arg0 + 0x38,
+        btlAICommandSpawnActionProc(*(u8 **)arg0, *(u8 **)arg0 + 0x38,
                      *(s32 *)(arg0 + 0xC), *(s32 *)(arg0 + 4));
         *(u8 *)(*(u8 **)arg0 + 0x68) = 1;
         *(s32 *)(arg0 + 8) = 1;
