@@ -1172,7 +1172,7 @@ void func_001f14f0(u8 *arg0)
             r1 = 0;
             r2 = 0;
         }
-        mask = func_002397d0(id, ctx, target, res, sub, flags);
+        mask = datCalcStatusEffectResult(id, ctx, target, res, sub, flags);
         mask2 = func_00239e40(id, ctx, target, res, sub, flags);
         ent = (u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8);
         if (ent[0x18] == 1 && (*(u32 *)(ent + 0x1C) & 0x80000) && ent[0x24] != 9 && !(mask & 0x80000)) {
