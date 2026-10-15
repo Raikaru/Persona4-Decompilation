@@ -78,7 +78,7 @@ extern void *D_00609D80[];
 extern void *D_00609DF0[];
 extern void *D_00609E18[];
 extern void func_001d7c60(u8 *arg0, u8 *arg1, u16 arg2, s32 arg3, u8 *arg4);
-extern s32 func_001dd570(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+extern s32 btlAICommandCollectSkillCandidates(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 func_001dbf20(u8 *arg0, u32 arg1);
 extern char D_006095E0[];
 extern void func_0046d730(void *file, s32 line);
@@ -662,7 +662,7 @@ code arg5;
         if (m3 == 0) {
             goto testm4;
         }
-        if (func_001dd570((u8 *)arg0, temp19, 0, 0) < 0) {
+        if (btlAICommandCollectSkillCandidates((u8 *)arg0, temp19, 0, 0) < 0) {
             continue;
         }
     testm4:
@@ -1271,7 +1271,7 @@ u32 btlCond_HPMAX(u32 param_1)
     return 1;
 }
 // FUN_001DD1C0
-s32 func_001dd1c0(u8 *p, u8 *q, u16 *t, u16 u, u32 v) {
+s32 btlAICommandPickSkillTargetByHp(u8 *p, u8 *q, u16 *t, u16 u, u32 v) {
     u32 s;
     s32 bd;
     s32 best;
@@ -1320,7 +1320,7 @@ s32 func_001dd1c0(u8 *p, u8 *q, u16 *t, u16 u, u32 v) {
     return best;
 }
 // FUN_001DD3A0
-s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
+s32 btlAICommandPickSkillTargetNearMaxHp(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
     u32 s1;
     u32 s2;
     s32 bd;
@@ -1375,7 +1375,7 @@ s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
 // FUN_001DD570
 #pragma push
 #pragma opt_propagation off
-s32 func_001dd570(u8 *p, u8 *q, s32 arg2, s32 arg3)
+s32 btlAICommandCollectSkillCandidates(u8 *p, u8 *q, s32 arg2, s32 arg3)
 {
     u8 *unit0;
     s16 cur0;
@@ -1459,17 +1459,17 @@ next:
     if (n > 0) {
         switch (arg2) {
         case 0:
-            r = func_001dd1c0(p, q, buf, n, 0);
+            r = btlAICommandPickSkillTargetByHp(p, q, buf, n, 0);
             if (r < 0)
-                r = func_001dd1c0(p, q, buf, n, 1);
+                r = btlAICommandPickSkillTargetByHp(p, q, buf, n, 1);
             break;
         case 1:
-            r = func_001dd1c0(p, q, buf, n, 1);
+            r = btlAICommandPickSkillTargetByHp(p, q, buf, n, 1);
             if (r < 0)
-                r = func_001dd1c0(p, q, buf, n, 0);
+                r = btlAICommandPickSkillTargetByHp(p, q, buf, n, 0);
             break;
         default:
-            r = func_001dd1c0(p, q, buf, n, 0xFFFF);
+            r = btlAICommandPickSkillTargetByHp(p, q, buf, n, 0xFFFF);
             break;
         }
         return r;
@@ -1483,7 +1483,7 @@ next:
    Allocator capture traced the former selector/count exchange to the healing
    scan's command/index coloring, rather than their declaration order. */
 // FUN_001DD920
-s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
+s32 btlAICommandCollectRecoveryCommands(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
 {
     u8 *unit;
     u16 count;
@@ -1572,17 +1572,17 @@ s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         if (n > 0) {
             switch (arg3) {
             case 0:
-                r = func_001dd3a0(arg0, arg1, table, n, 0);
+                r = btlAICommandPickSkillTargetNearMaxHp(arg0, arg1, table, n, 0);
                 if (r < 0)
-                    r = func_001dd3a0(arg0, arg1, table, n, 1);
+                    r = btlAICommandPickSkillTargetNearMaxHp(arg0, arg1, table, n, 1);
                 break;
             case 1:
-                r = func_001dd3a0(arg0, arg1, table, n, 1);
+                r = btlAICommandPickSkillTargetNearMaxHp(arg0, arg1, table, n, 1);
                 if (r < 0)
-                    r = func_001dd3a0(arg0, arg1, table, n, 0);
+                    r = btlAICommandPickSkillTargetNearMaxHp(arg0, arg1, table, n, 0);
                 break;
             default:
-                r = func_001dd3a0(arg0, arg1, table, n, 0xFFFF);
+                r = btlAICommandPickSkillTargetNearMaxHp(arg0, arg1, table, n, 0xFFFF);
                 break;
             }
             return r;
@@ -1629,7 +1629,7 @@ s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
 #pragma opt_propagation off
 s32 func_001de000(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
 {
-    extern s32 func_001dd920(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
+    extern s32 btlAICommandCollectRecoveryCommands(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
     u8 *unit;
     s16 queried;
     s16 q;
@@ -1644,7 +1644,7 @@ s32 func_001de000(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
     s32 r;
 
     if (arg2 == 0x10)
-        return func_001dd920(arg0, arg1, arg2, arg3);
+        return btlAICommandCollectRecoveryCommands(arg0, arg1, arg2, arg3);
 
     n = 0;
     unit = *(u8 **)(arg0 + 0x30);
@@ -1678,17 +1678,17 @@ s32 func_001de000(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
     if (n > 0) {
         switch (arg3) {
         case 0:
-            r = func_001dd1c0(arg0, arg1, table, n, 0);
+            r = btlAICommandPickSkillTargetByHp(arg0, arg1, table, n, 0);
             if (r < 0)
-                r = func_001dd1c0(arg0, arg1, table, n, 1);
+                r = btlAICommandPickSkillTargetByHp(arg0, arg1, table, n, 1);
             break;
         case 1:
-            r = func_001dd1c0(arg0, arg1, table, n, 1);
+            r = btlAICommandPickSkillTargetByHp(arg0, arg1, table, n, 1);
             if (r < 0)
-                r = func_001dd1c0(arg0, arg1, table, n, 0);
+                r = btlAICommandPickSkillTargetByHp(arg0, arg1, table, n, 0);
             break;
         default:
-            r = func_001dd1c0(arg0, arg1, table, n, 0xFFFF);
+            r = btlAICommandPickSkillTargetByHp(arg0, arg1, table, n, 0xFFFF);
             break;
         }
     } else {
