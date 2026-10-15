@@ -36,7 +36,7 @@ void datPersonaSetLeadSlot(s16);
 s32 func_00113520(s32, s32, s32, void *);
 u16 *datPersonaGetRecord(u16);
 u16 *datPersonaGetSkills(s32);
-void func_0010fa80(s32, s32, u16, s32, s32 *, s32, s32);
+void datCalcSkillOutcomeById(s32, s32, u16, s32, s32 *, s32, s32);
 void radarAnimateValue(void *, s32, s32);
 void sdkSpriteFreeNode(void *);
 s32 func_0034c210(void);
@@ -347,9 +347,9 @@ void func_00138490(void *arg0)
                             *(SkillRec *)(p + 0x100) = *qr;
                         } else {
                             datPersonaSetLeadSlot(*(s16 *)(p + 0x100));
-                            func_0010fa80(v, v, *(u16 *)(p + 0x102), 0, &x, 0, 0);
+                            datCalcSkillOutcomeById(v, v, *(u16 *)(p + 0x102), 0, &x, 0, 0);
                             datPersonaSetLeadSlot(qr->id);
-                            func_0010fa80(v, v, *kp, 0, &y, 0, 0);
+                            datCalcSkillOutcomeById(v, v, *kp, 0, &y, 0, 0);
                             if (x < y) {
                                 *(SkillRec *)(p + 0x100) = *qr;
                             }

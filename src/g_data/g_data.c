@@ -2405,7 +2405,7 @@ s32 func_0010f540(s32 arg0)
 }
 
 // FUN_0010F560
-u16 func_0010f560(s16 arg0, s32 arg1)
+u16 datCalcThresholdKindById(s16 arg0, s32 arg1)
 {
     u8* p;
 
@@ -2422,7 +2422,7 @@ u16 func_0010f560(s16 arg0, s32 arg1)
 }
 
 // FUN_0010F600
-u32 func_0010f600(s16 arg0, s32 arg1)
+u32 datCalcSkillCostById(s16 arg0, s32 arg1)
 {
     u8* p;
 
@@ -2439,7 +2439,7 @@ u32 func_0010f600(s16 arg0, s32 arg1)
 }
 
 // FUN_0010F6A0
-s32 func_0010f6a0(s16 arg0, u32 arg1)
+s32 datCalcThresholdTriggerById(s16 arg0, u32 arg1)
 {
     u8* ptr;
     u16 v;
@@ -2459,7 +2459,7 @@ s32 func_0010f6a0(s16 arg0, u32 arg1)
 }
 
 // FUN_0010F770
-void func_0010f770(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
+void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
 {
     u8* ptr1;
     u8* ptr2;
@@ -2499,7 +2499,7 @@ u16 func_0010f8c0(s32 arg0)
 }
 
 // FUN_0010F930
-s32 func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
+s32 datCalcSkillEffectFlagsById(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
 {
     u8* ptr1;
     u8* ptr2;
@@ -2527,7 +2527,7 @@ s32 func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
 }
 
 // FUN_0010FA80
-void func_0010fa80(s16 arg0, s16 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, u32 arg6)
+void datCalcSkillOutcomeById(s16 arg0, s16 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, u32 arg6)
 {
     u8* ptr1;
     u8* ptr2;

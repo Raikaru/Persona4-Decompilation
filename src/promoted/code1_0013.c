@@ -14,7 +14,7 @@ struct GDataEntry;
 extern struct GDataEntry *datEntryAt(s16 arg0);
 extern u32 datEntryGetFlags(s16 arg0);
 extern void (*D_00887300[])(u32 state, u32 value);
-extern s32 func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
+extern s32 datCalcSkillEffectFlagsById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 static inline u8 *code13AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -45,7 +45,7 @@ extern u16 *datPersonaGetRecord(u16 arg0);
 extern void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern s32 datPersonaGetLeadSlot(void);
 extern void datPersonaSetLeadSlot(s16 arg0);
-extern s32 func_0010f6a0(s16 arg0, u32 arg1);
+extern s32 datCalcThresholdTriggerById(s16 arg0, u32 arg1);
 extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2);
 extern s32 func_0013a040(s16 *arg0, s32 arg1, s32 arg2);
@@ -99,7 +99,7 @@ typedef signed __int128 code13S128;
 extern void func_001056e0(s16 arg0, s16 arg1);
 extern void func_00105730(s16 arg0, s16 arg1);
 extern void func_00106390(s32 arg0, s32 arg1);
-extern void func_0010f770(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
+extern void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 extern s32 func_00354010(void);
 extern void func_0013aa90(u8 *arg0);
 extern void *memset(void *arg0, s32 arg1, u32 arg2);
@@ -1786,14 +1786,14 @@ s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
         while (index < *(s16 *)(arg2 + 0x3C)) {
             recipient = arg2 + index * 2 + 0x34;
             if (func_0013ca60(arg0, *(s16 *)recipient, item_type) != 0) {
-                func_0010f770(arg0, *(s16 *)recipient, item_type, 1);
+                datCalcApplySkillEffectById(arg0, *(s16 *)recipient, item_type, 1);
                 index_count++;
             }
             index++;
         }
         if (index_count == 0) state = 0;
     } else if (func_0013ca60(arg0, arg1, item_type) != 0) {
-        func_0010f770(arg0, arg1, item_type, 1);
+        datCalcApplySkillEffectById(arg0, arg1, item_type, 1);
     } else state = 0;
     if (state > 0) {
         updated = (s16)(func_00106600(item) & 0xff) - 1;
@@ -1841,7 +1841,7 @@ s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
 s32 func_0013ca60(s16 arg0, s16 arg1, s32 arg2) {
     s32 v = 0;
 
-    if (func_0010f930(arg0, arg1, arg2, 1) == 0) {
+    if (datCalcSkillEffectFlagsById(arg0, arg1, arg2, 1) == 0) {
         v = 1;
     }
     return v;
@@ -2643,7 +2643,7 @@ s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2) {
         var_18 = (s16)datPersonaGetLeadSlot();
         datPersonaSetLeadSlot(temp_17);
     }
-    if (func_0010f6a0(arg0, temp_16) != 0) {
+    if (datCalcThresholdTriggerById(arg0, temp_16) != 0) {
         var_19 = 0;
     }
     if (var_18 != -1) {

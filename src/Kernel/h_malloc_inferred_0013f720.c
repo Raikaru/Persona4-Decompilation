@@ -10,7 +10,7 @@ extern u32 datCalcGetHpById(s16 arg0);
 extern u32 datCalcGetSpById(s16 arg0);
 extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
 struct GDataEntry;
-extern s32 func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
+extern s32 datCalcSkillEffectFlagsById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 static inline u8 *code13AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -22,7 +22,7 @@ extern void radarResetEntries(u8 *arg0);
 extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_0010f540(s32 arg0);
 extern void func_0010b3b0(s16 arg0);
-extern s32 func_0010f6a0(s16 arg0, u32 arg1);
+extern s32 datCalcThresholdTriggerById(s16 arg0, u32 arg1);
 extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
@@ -45,7 +45,7 @@ typedef signed __int128 code13S128;
 extern void func_001056e0(s16 arg0, s16 arg1);
 extern void func_00105730(s16 arg0, s16 arg1);
 extern void func_00106390(s32 arg0, s32 arg1);
-extern void func_0010f770(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
+extern void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 extern s32 func_00354010(void);
 extern void func_0013aa90(u8 *arg0);
 extern void *memset(void *arg0, s32 arg1, u32 arg2);
@@ -157,8 +157,8 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
         while (var_16 < *(s16 *)(arg3 + 0xFC)) {
             temp_3_2 = arg3 + var_16 * 2;
             spA0 = temp_3_2 + 0xF4;
-            if (func_0010f930(arg0, *(s16 *)(temp_3_2 + 0xF4), temp_17, 0) == 0) {
-                func_0010f770(arg0, *(s16 *)spA0, temp_17, 0);
+            if (datCalcSkillEffectFlagsById(arg0, *(s16 *)(temp_3_2 + 0xF4), temp_17, 0) == 0) {
+                datCalcApplySkillEffectById(arg0, *(s16 *)spA0, temp_17, 0);
                 var_22 += 1;
             }
             var_16 += 1;
@@ -166,8 +166,8 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
         if (var_22 == 0) {
             var_19 = 0;
         }
-    } else if (func_0010f930(arg0, arg1, temp_17, 0) == 0) {
-        func_0010f770(arg0, arg1, temp_17, 0);
+    } else if (datCalcSkillEffectFlagsById(arg0, arg1, temp_17, 0) == 0) {
+        datCalcApplySkillEffectById(arg0, arg1, temp_17, 0);
     } else {
         var_19 = 0;
     }
@@ -201,7 +201,7 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
                     var_16_2 = (s16)func_0010b510();
                     func_0010b3b0(temp_22_2);
                 }
-                if (func_0010f6a0(arg0, temp_23_2) != 0) {
+                if (datCalcThresholdTriggerById(arg0, temp_23_2) != 0) {
                     var_17 = 0;
                 }
                 if (var_16_2 != -1) {
