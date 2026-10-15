@@ -115,7 +115,7 @@ extern u8 D_005EF950[];
 extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
-extern void func_0046d730(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *arg0, s32 arg1);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern void func_004b1150(s32 arg0);
@@ -732,7 +732,7 @@ loop_test_4:
         }
 loop_done_4:
         if (var_17 >= 8) {
-            func_0046d730(&iGpffff9de0, 0x100);
+            kAssertFail(&iGpffff9de0, 0x100);
         }
         temp_20 = var_17 * 4;
         temp_19 = p4_e740_add(temp_20, temp_16) + 0x24;

@@ -25,7 +25,7 @@ extern void *mdlCreateModelObjectFromMemory(u32, u16, void *, u32, u32);
 extern void func_0047aa30(s32, u8 *);
 extern s32 func_002919d0(s32);
 extern void MT_Scene_SetResActiveById(u16, s32);
-extern void func_0046d730(u8 *, s32);
+extern void kAssertFail(u8 *, s32);
 extern void evtNodeSetRes(u8 *, u16, u16 *);
 extern u8 *mdlGetColor(s32);
 extern u8 *evtNodeAlloc(s32, u8 *);
@@ -154,7 +154,7 @@ void func_00294610(u8 *arg0, u8 *arg1, s32 arg2) {
             v16 = *(s16 *)(temp_3 + (s32)*(s32 *)(arg0 + 0x98) + 0xA);
             func_0028d110(arg1);
             if (*(s32 *)(arg1 + 0x40) == 0) {
-                func_0046d730(D_0063CAB0, 0x726);
+                kAssertFail(D_0063CAB0, 0x726);
             }
             memcpy((u8 *)(*(s32 *)(arg1 + 0x40)), (u8 *)(*(s32 *)(arg0 + 0x60) + (v16 * 0x130)), 0x130);
             break;
@@ -601,7 +601,7 @@ void func_00295740(s32 arg0, u8 *arg1) {
             MT_Scene_SetResPlacement(temp_16, (u8 *)&sp58, 0);
             temp_2_3 = (u16 *)(MT_Scene_GetRes(temp_16));
             if (temp_2_3 == NULL) {
-                func_0046d730(D_0063CAB0, 0x9C5);
+                kAssertFail(D_0063CAB0, 0x9C5);
             }
             evtNodeSetRes(arg1, temp_16, temp_2_3);
             temp_2_4 = (u8 *)(mdlGetColor(temp_17));
@@ -731,7 +731,7 @@ void func_00295910(u8 *arg0, u8 *arg1) {
                 off2 = var_19_2 * 0x14;
                 var_5 = (u8 *)((s32)*(s32 *)(arg0 + 0x100) + off2);
                 if (*(s16 *)(var_5 + 2) != -1) {
-                    func_0046d730(D_0063CAB0, 0x822);
+                    kAssertFail(D_0063CAB0, 0x822);
                     continue;
                 }
                 if ((*(s32 *)(temp_2 + 0) == *(u8 *)(var_5 + 0)) && (*(s32 *)(temp_2 + 4) == *(u8 *)(var_5 + 1))) {
@@ -891,7 +891,7 @@ void func_00295db0(u8 *arg0, u8 *arg1) {
                 var_5 = (u8 *)*(s32 **)(arg0 + 0x100);
                 var_5 += off2;
                 if (*(s16 *)(var_5 + 2) != -1) {
-                    func_0046d730(D_0063CAB0, 0x822);
+                    kAssertFail(D_0063CAB0, 0x822);
                     continue;
                 }
                 if ((*(s32 *)(temp_2 + 0) == *(u8 *)(var_5 + 0)) &&

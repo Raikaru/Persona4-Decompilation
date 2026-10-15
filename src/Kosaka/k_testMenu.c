@@ -15,7 +15,7 @@ extern f32 D_00761624;
 extern f32 D_0076151C;
 
 extern void chkmemAllocSiteTag(void *msg, s32 id);
-extern void func_0046d730(void *msg, s32 id);
+extern void kAssertFail(void *msg, s32 id);
 extern s32 kwlnTaskIsLinked(s32 buf);
 extern s32 kwlnTaskGetTaskByName(void *buf);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
@@ -90,7 +90,7 @@ s32 func_0018e050(u8 *arg0)
                 *(s32 *)(p + 8) = func_00191d90(0);
                 break;
             default:
-                func_0046d730(D_005F56F0, 0xA1);
+                kAssertFail(D_005F56F0, 0xA1);
                 break;
             }
             func_004703d0(*(u8 **)(p + 4), 0);
@@ -137,7 +137,7 @@ void func_0018e3f0(void)
 
     result = kwlnTaskGetTaskByName(D_005F5700);
     if (result == 0) {
-        func_0046d730(D_005F56F0, 0xF2);
+        kAssertFail(D_005F56F0, 0xF2);
     }
     kwlnTaskDestroyWithHierarchy((KwlnTask *)result);
 }

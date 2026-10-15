@@ -11,7 +11,7 @@ extern u8 D_00635990[];
 extern u8 D_006359A0[];
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern s32 kwlnTaskGetTaskByName(void *path);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern u8 D_006359B0[];
 extern u8 D_006359C0[];
 extern s32 func_001075d0(s32 arg0);
@@ -287,7 +287,7 @@ void func_00246670(void)
 
     temp_2 = kwlnTaskGetTaskByName(D_006359B0);
     if (temp_2 == 0) {
-        func_0046d730(D_006359C0, 0x3D);
+        kAssertFail(D_006359C0, 0x3D);
     }
     kwlnTaskDestroyWithHierarchy(temp_2);
 }

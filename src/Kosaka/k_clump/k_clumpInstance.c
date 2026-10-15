@@ -26,7 +26,7 @@ extern void func_003ef1b0(void *arg0);
 extern void *func_003c0f20(void *arg0);
 extern s32 K_Clump_ClumpHasMatUsrData(void *arg0, const char *arg1);
 extern void func_003c0960(void *arg0, void *arg1);
-extern void func_0046d730(const char *arg0, s32 arg1);
+extern void kAssertFail(const char *arg0, s32 arg1);
 extern void chkmemAllocSiteTag(const char *arg0, s32 arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
@@ -118,7 +118,7 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
                 *(s32 *)(arg2 + 0x14C) = *(s32 *)(arg2 + 0x14C) + 1;
                 break;
             case 0xF0F000E0:
-                func_0046d730(D_005F6500, 0x93);
+                kAssertFail(D_005F6500, 0x93);
                 break;
             default:
                 chkmemAllocSiteTag(D_005F6500, 0x9A);

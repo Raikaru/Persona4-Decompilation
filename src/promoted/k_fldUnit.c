@@ -173,7 +173,7 @@ s32 func_00162510(u16 arg0, u16 arg1);
 s32 func_0015a160(void);
 s32 FldUnit_UpdatePartyState(u8 *arg0);
 u8 *MT_Scene_GetResListHead(s32 arg0);
-void func_0046d730(void *arg0, s32 arg1);
+void kAssertFail(void *arg0, s32 arg1);
 void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *FldUnit_FindNearestSlot(u8 *arg0, u32 *arg1, s32 arg2);
 extern s64 func_001060b0(void);
@@ -1826,10 +1826,10 @@ loop:
                 value = 9;
             }
             if (count >= 2) {
-                func_0046d730(D_005F1500, 0x916);
+                kAssertFail(D_005F1500, 0x916);
             }
             if (D_007643C8[count] != 0) {
-                func_0046d730(D_005F1500, 0x917);
+                kAssertFail(D_005F1500, 0x917);
             }
             D_007643C8[count] = (s32)mdlFindOrCreateModelObject(9, code, 0);
             func_00440b68((const char *)D_00763008, D_005F1500, 0x91C);
@@ -1924,11 +1924,11 @@ s32 FldUnit_InstallResources(void)
     }
     if (nodeCount == 0)
     {
-        func_0046d730(D_005F1500, 0x965);
+        kAssertFail(D_005F1500, 0x965);
     }
     if (nodeCount % 2 != 0)
     {
-        func_0046d730(D_005F1500, 0x966);
+        kAssertFail(D_005F1500, 0x966);
     }
     pair = (s32)(RpRandom() % (u32)(nodeCount >> 1));
     {
@@ -2144,7 +2144,7 @@ void FldUnit_UpdateEnemySlot(void)
         h4 = *(u16 *)(iGpffff9db0 + 4);
         p = Encount_FindRecord(h0, h4, t17, 2);
         if (p == NULL) {
-            func_0046d730(D_005F1500, 0xA63);
+            kAssertFail(D_005F1500, 0xA63);
         }
         slotp = NULL;
         j = 0;
@@ -2194,7 +2194,7 @@ void FldUnit_UpdateAllEnemySlots(void)
                 for (k = 0; k < *(u16 *)(p + 0xE); k++) {
                     node = *(u8 **)(node + 0x138);
                     if (node == 0) {
-                        func_0046d730(D_005F1500, 0xA87);
+                        kAssertFail(D_005F1500, 0xA87);
                     }
                 }
                 {
@@ -2795,7 +2795,7 @@ void FldUnit_UpdateFieldState(void)
                       unitCellZ < playerCellZ - 3 || unitCellZ > playerCellZ + 3 ||
                       selected == NULL || !(*(s32 *)(selected + 0x28) & 2))) {
                     if (unitCount >= 8) {
-                        func_0046d730(D_005F1500, 0xE1F);
+                        kAssertFail(D_005F1500, 0xE1F);
                     }
                     selectedUnit = D_007E8C00 + unitIndex * 0x750;
                     *(s32 *)(selectedUnit + 0x40) |= 1;
@@ -2830,7 +2830,7 @@ void FldUnit_UpdateFieldState(void)
                       objectCellZ < playerCellZ - 2 || objectCellZ > playerCellZ + 2 ||
                       objectResource == NULL || !(*(s32 *)(objectResource + 0x28) & 2))) {
                     if (objectCount >= 8) {
-                        func_0046d730(D_005F1500, 0xE3C);
+                        kAssertFail(D_005F1500, 0xE3C);
                     }
                     selected = D_007E80A0 + objectIndex * 0x168;
                     *(s32 *)(selected + 4) |= 1;

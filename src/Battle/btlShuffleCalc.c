@@ -4,7 +4,7 @@
 #include "btl_shuffle_draw_internal.h"
 #include "sdk_snd_internal.h"
 
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern u32 D_0064E9C0[];
 extern u8 *func_00457120(void);
 extern u8 *func_003e9700(s32 a0);
@@ -69,7 +69,7 @@ void func_00371260(u8 *arg0) {
     k = 100.0f;
     temp_16 = func_00457120() + 0x68;
     if (*(f32 *)temp_16 * k <= 0.0f) {
-        func_0046d730(D_0064E9C0, 0x109);
+        kAssertFail(D_0064E9C0, 0x109);
     }
     func_003e8970(&sp30[0], func_003e89c0());
     scale = (60.0f * (f32)(sp30[0] / 2)) / (k * *(f32 *)temp_16);
@@ -87,7 +87,7 @@ void func_003713b0(u8 *arg0) {
     k = 84.0f;
     temp_16 = func_00457120() + 0x68;
     if (*(f32 *)temp_16 * k <= 0.0f) {
-        func_0046d730(D_0064E9C0, 0x109);
+        kAssertFail(D_0064E9C0, 0x109);
     }
     func_003e8970(&sp30[0], func_003e89c0());
     scale = (60.0f * (f32)(sp30[0] / 2)) / (k * *(f32 *)temp_16);
@@ -150,7 +150,7 @@ f32 func_003716d0(f32 fparg0) {
 
     temp_16 = func_00457120() + 0x68;
     if (fparg0 * *(f32 *)temp_16 <= 0.0f) {
-        func_0046d730(D_0064E9C0, 0x145);
+        kAssertFail(D_0064E9C0, 0x145);
     }
     func_003e8970(&sp30[0], func_003e89c0());
     return (f32)(sp30[0] / 2) / (fparg0 * *(f32 *)temp_16);
@@ -174,7 +174,7 @@ s32 func_003717e0(u8 *arg0, u8 *arg1) {
     temp_16 = func_00457120() + 0x68;
     if (*(f32 *)(arg0 + 8) <= 0.0f || *(f32 *)temp_16 <= 0.0f ||
         *(f32 *)(temp_16 + 4) <= 0.0f) {
-        func_0046d730(D_0064E9C0, 0x15F);
+        kAssertFail(D_0064E9C0, 0x15F);
     }
     func_003e8970(&sp40[0], func_003e89c0());
     x = (f32)(sp40[0] / 2) *
@@ -200,7 +200,7 @@ void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
         *(ShuffleVec3 *)(arg0 + 0x18) = *(ShuffleVec3 *)(arg0 + 0xC);
     }
     if (arg2 == NULL) {
-        func_0046d730(&D_0064E9C0, 0x17C);
+        kAssertFail(&D_0064E9C0, 0x17C);
     }
     *(ShuffleVec3 *)(arg0 + 0x24) = *(ShuffleVec3 *)(arg2 + 0);
 }
@@ -350,7 +350,7 @@ void func_00371f40(u8 *arg0, f32 fparg0, u8 *arg1) {
     f32 half;
 
     if (*(f32 *)(arg0 + 4) <= 0.0f) {
-        func_0046d730(&D_0064E9C0, 0x1EF);
+        kAssertFail(&D_0064E9C0, 0x1EF);
     }
     value = *(u16 *)arg0;
     if (value >= 0) {
@@ -387,7 +387,7 @@ s32 func_003720c0(u8 *arg0) {
     }
     *(u16 *)(arg0 + 0) += 1;
     if (*(f32 *)(arg0 + 4) <= 0.0f) {
-        func_0046d730(&D_0064E9C0, 0x1EF);
+        kAssertFail(&D_0064E9C0, 0x1EF);
     }
     startv = *(f32 *)(arg0 + 0x18);
     count = (f32)(u16)*(u16 *)(arg0 + 0);
@@ -424,7 +424,7 @@ s32 func_00372200(u8 *arg0) {
         return 1;
     }
     if (*(f32 *)(arg0 + 4) <= 0.0f) {
-        func_0046d730(&D_0064E9C0, 0x22F);
+        kAssertFail(&D_0064E9C0, 0x22F);
     }
     t = (f32)(u16)(*(u16 *)(arg0 + 0) += 1);
     t = t + 0.0f;
@@ -462,7 +462,7 @@ void func_003723a0(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, f32 fparg0)
         *(ShuffleVec3 *)(arg0 + 0x18) = *(ShuffleVec3 *)(arg0 + 0xC);
     }
     if (arg4 == NULL) {
-        func_0046d730(&D_0064E9C0, 0x24F);
+        kAssertFail(&D_0064E9C0, 0x24F);
     }
     *(ShuffleVec3 *)(arg0 + 0x24) = *(ShuffleVec3 *)(arg4 + 0);
     *(f32 *)(arg0 + 0x30) = fparg0;
@@ -613,7 +613,7 @@ void func_00372870(u8 *arg0, u16 a1, u16 a2, u8 *arg3, ShuffleVec4 *arg4) {
         *(ShuffleVec4 *)(arg0 + 0x18) = *(ShuffleVec4 *)(arg0 + 0x8);
     }
     if (arg4 == NULL) {
-        func_0046d730(&D_0064E9C0, 0x2B6);
+        kAssertFail(&D_0064E9C0, 0x2B6);
     }
     *(ShuffleVec4 *)(arg0 + 0x28) = *(ShuffleVec4 *)(arg4 + 0);
 }
@@ -734,10 +734,10 @@ void func_00372c30(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
         *(ShuffleVec4 *)(arg0 + 0x18) = *(ShuffleVec4 *)(arg0 + 0x8);
     }
     if (arg5 == NULL) {
-        func_0046d730(&D_0064E9C0, 0x2E0);
+        kAssertFail(&D_0064E9C0, 0x2E0);
     }
     if (arg4 == NULL) {
-        func_0046d730(&D_0064E9C0, 0x2E1);
+        kAssertFail(&D_0064E9C0, 0x2E1);
     }
     *(ShuffleVec4 *)(arg0 + 0x38) = *(ShuffleVec4 *)(arg5 + 0);
     *(ShuffleVec4 *)(arg0 + 0x28) = *(ShuffleVec4 *)(arg4 + 0);
@@ -942,7 +942,7 @@ s32 func_003733f0(u8 *arg0) {
         return 1;
     }
     if ((s32)*(u16 *)(arg0 + 6) <= 0) {
-        func_0046d730(&D_0064E9C0, 0x344);
+        kAssertFail(&D_0064E9C0, 0x344);
     }
     var_f1 = (f32)(u16)*(u16 *)(arg0 + 6);
     var_f0 = (f32)(u16)(*(u16 *)(arg0 + 4) += 1);
@@ -959,7 +959,7 @@ s32 func_003733f0(u8 *arg0) {
 // FUN_00373590
 void func_00373590(u8 *arg0, s16 arg1, s8 arg2, u8 arg3) {
     if ((arg3 & 0xFF) >= 5) {
-        func_0046d730(&D_0064E9C0, 0x350);
+        kAssertFail(&D_0064E9C0, 0x350);
     }
     *(s16 *)(arg0 + 2) = 0;
     *(s16 *)(arg0 + 4) = arg1;
@@ -1009,7 +1009,7 @@ s32 func_00373610(u8 *arg0)
             func_0045af60(1, arg0[0], 5, 4);
             break;
         default:
-            func_0046d730(D_0064E9C0, 0x379);
+            kAssertFail(D_0064E9C0, 0x379);
             break;
         }
         arg0[1] = 0;
@@ -1029,7 +1029,7 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
     f32 f4;
 
     if (arg2 == NULL) {
-        func_0046d730(&D_0064E9C0, 0x38C);
+        kAssertFail(&D_0064E9C0, 0x38C);
     }
     switch (arg1) {
     case 3:
@@ -1139,7 +1139,7 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
         arg2[1] = f0 + f2 * f1;
         return;
     default:
-        func_0046d730(&D_0064E9C0, 0x3BF);
+        kAssertFail(&D_0064E9C0, 0x3BF);
         return;
     }
 }
@@ -1169,7 +1169,7 @@ f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0) {
     if (fparg0 < fparg2) {
         temp_f20 = fparg2 - fparg1;
         if (temp_f20 <= 0.0f) {
-            func_0046d730(&D_0064E9C0, 0x3DD);
+            kAssertFail(&D_0064E9C0, 0x3DD);
         }
         switch (arg0) {
         case 0:
@@ -1179,7 +1179,7 @@ f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0) {
         case 2:
             return 1.0f - cosf((D_00761470 * (fparg0 - fparg1)) / temp_f20);
         default:
-            func_0046d730(&D_0064E9C0, 0x3E9);
+            kAssertFail(&D_0064E9C0, 0x3E9);
         }
     }
     return 1.0f;

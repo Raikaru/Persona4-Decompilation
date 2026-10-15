@@ -2,7 +2,7 @@
 /* Original translation unit btlResultFriendPsLvUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-void func_0046d730(void *arg0, s32 arg1);
+void kAssertFail(void *arg0, s32 arg1);
 
 extern u32 kwlnTaskGetWork(void *task);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
@@ -59,7 +59,7 @@ s32 func_002238f0(s64 arg0)
     case 8:
         return 0x387;
     default:
-        func_0046d730(D_00629720, 0x2C);
+        kAssertFail(D_00629720, 0x2C);
         return 0;
     }
 }
@@ -119,7 +119,7 @@ s32 func_002239a0(u8 *sdkTaskBytes)
             v = (s32)func_00117780(0, 15, 4, 5, 0);
             *(s32 *)(r + 68) = v;
             if (v == 0) {
-                func_0046d730(D_00629720, 116);
+                kAssertFail(D_00629720, 116);
             }
             zw[0] = 0.0f;
             zw[1] = 19.0f;
@@ -149,13 +149,13 @@ s32 func_002239a0(u8 *sdkTaskBytes)
                 switch (sid) {
                 case 0x112:
                     if (datGetFlag(0x1012) != 0) {
-                        func_0046d730(D_00629720, 158);
+                        kAssertFail(D_00629720, 158);
                     }
                     func_00106390(0x1012, 1);
                     break;
                 case 0x113:
                     if (datGetFlag(0x1013) != 0) {
-                        func_0046d730(D_00629720, 163);
+                        kAssertFail(D_00629720, 163);
                     }
                     func_00106390(0x1013, 1);
                     break;

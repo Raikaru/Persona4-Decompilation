@@ -3,7 +3,7 @@
 #include "type.h"
 #include "message_procedure_api.h"
 
-extern void func_0046d730(const void *module, u32 line);
+extern void kAssertFail(const void *module, u32 line);
 extern char D_0063BF60[];
 
 // FUN_0027B6E0
@@ -14,7 +14,7 @@ s32 func_0027b6e0(s32 param_1, s32 param_2)
 
     base = itfMesWindowGetSubTable(param_1);
     if (param_2 >= 4) {
-        func_0046d730(D_0063BF60, 0x1F);
+        kAssertFail(D_0063BF60, 0x1F);
     }
     addr = param_2 * 4;
     addr += base;
@@ -29,7 +29,7 @@ void func_0027b750(s32 param_1, s32 param_2, s32 param_3)
 
     base = itfMesWindowGetSubTable(param_1);
     if (param_2 >= 4) {
-        func_0046d730(D_0063BF60, 0x27);
+        kAssertFail(D_0063BF60, 0x27);
     }
     addr = param_2 * 4;
     addr += base;

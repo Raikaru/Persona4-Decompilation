@@ -3,7 +3,7 @@
 #include "type.h"
 #include "datPersona_internal.h"
 
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern void *memset(void *dest, s32 value, s32 size);
 extern s32 datCalcSkillSlotValue(s32 arg0, u16 arg1);
 extern char D_005E4318[];
@@ -52,7 +52,7 @@ extern s32 (*iGpffffb3e8)[98]; /* gp -0x4C18 */
 u8 *datPersonaGetRow(u16 personaId)
 {
     if (!(personaId < 0x100)) {
-        func_0046d730(D_005E4318, 0x18);
+        kAssertFail(D_005E4318, 0x18);
     }
     return DAT_00764530 + (u32)personaId * 0x11;
 }
@@ -67,7 +67,7 @@ u8 datPersonaGetArcana(u16 personaId)
     u8 *table;
 
     if (!(personaId < 0x100)) {
-        func_0046d730(D_005E4318, 0x26);
+        kAssertFail(D_005E4318, 0x26);
     }
     table = DAT_007644c4;
     return table[(u32)personaId * 0xE + 2];
@@ -86,7 +86,7 @@ u16 datPersonaRosterSlotId(s32 arg0)
 {
     u16 *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
-        func_0046d730(D_005E4318, 0x3E);
+        kAssertFail(D_005E4318, 0x3E);
     }
     return *(u16 *)((u8 *)p + 2);
 }
@@ -104,7 +104,7 @@ u8 datPersonaRosterSlotRank(s32 arg0)
 {
     u16 *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
-        func_0046d730(D_005E4318, 0x5F);
+        kAssertFail(D_005E4318, 0x5F);
     }
     return *(u8 *)((u8 *)p + 4);
 }
@@ -115,7 +115,7 @@ u16 datPersonaRosterSlotFlags(s32 arg0)
 {
     u16 *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
-        func_0046d730(D_005E4318, 0xF1);
+        kAssertFail(D_005E4318, 0xF1);
     }
     return *p;
 }
@@ -157,7 +157,7 @@ s32 datPersonaCollectLearnableSkills(u8 *persona, void *arg1, void *arg2)
 
     if ((s32)*(u16 *)(persona + 2) >= 0x100)
     {
-        func_0046d730(D_005E4318, 0x132);
+        kAssertFail(D_005E4318, 0x132);
     }
     if (datPersonaUsesFixedGrowth(persona) != 0)
     {
@@ -240,7 +240,7 @@ s32 datPersonaCollectLearnableSkills(u8 *persona, void *arg1, void *arg2)
             {
                 if (count >= 0x20)
                 {
-                    func_0046d730(D_005E4318, 0x17B);
+                    kAssertFail(D_005E4318, 0x17B);
                 }
                 ((u16 *)arg1)[count] = *(u16 *)(table + 2);
                 if (arg2 != NULL)
@@ -272,10 +272,10 @@ void datPersonaRunSkillSlot(u8 *arg0, s32 arg1)
     u8 *skillTable;
 
     if ((u16)*(u16 *)(arg0 + 2) >= 0x100) {
-        func_0046d730(D_005E4318, 0x1B7);
+        kAssertFail(D_005E4318, 0x1B7);
     }
     if ((arg1 & 0xFFFF) >= 0x10) {
-        func_0046d730(D_005E4318, 0x1B8);
+        kAssertFail(D_005E4318, 0x1B8);
     }
     skillTable = iGpffffb3d8 + (u16)*(u16 *)(arg0 + 2) * 0x20;
     datCalcSkillSlotValue(0, *(u16 *)(skillTable + (u16)arg1 * 2));
@@ -289,10 +289,10 @@ u32 datPersonaGetSkillSlot(u16 arg0, s32 arg1)
 
     persona = (u8 *)datPersonaGetRecord(arg0);
     if ((u16)*(u16 *)(persona + 2) >= 0x100) {
-        func_0046d730(D_005E4318, 0x1B7);
+        kAssertFail(D_005E4318, 0x1B7);
     }
     if ((arg1 & 0xFFFF) >= 0x10) {
-        func_0046d730(D_005E4318, 0x1B8);
+        kAssertFail(D_005E4318, 0x1B8);
     }
     return (u32)datCalcSkillSlotValue(0, *(u16 *)(iGpffffb3d8 + (u16)*(u16 *)(persona + 2) * 0x20 + (u16)arg1 * 2));
 }
@@ -302,7 +302,7 @@ u32 datPersonaGetSkillSlot(u16 arg0, s32 arg1)
 u8 datPersonaGetStat(u8 *arg0, s32 arg1)
 {
     if ((arg1 & 0xFFFF) >= 5) {
-        func_0046d730(D_005E4318, 0x1DE);
+        kAssertFail(D_005E4318, 0x1DE);
     }
     return arg0[(u16)arg1 + 0x1C];
 }
@@ -317,7 +317,7 @@ s32 arg1;
     u16 *p = datPersonaGetRecord(arg0);
     u8 *base = (u8 *)p;
     if ((arg1 & 0xFFFF) >= 5) {
-        func_0046d730(D_005E4318, 0x1DE);
+        kAssertFail(D_005E4318, 0x1DE);
     }
     return base[(u16)arg1 + 0x1C];
 }
@@ -331,7 +331,7 @@ u8 datPersonaGetBuffedStat(u8 *arg0, s32 arg1)
     s8 c;
     s16 sum;
     if ((arg1 & 0xFFFF) >= 5) {
-        func_0046d730(D_005E4318, 0x1DE);
+        kAssertFail(D_005E4318, 0x1DE);
     }
     a = (s16)arg0[(u16)arg1 + 0x1C];
     b = (s8)datPersonaGetStatBonusA(arg0, arg1);
@@ -354,7 +354,7 @@ u8 datPersonaGetTotalStat(u8 *arg0, s32 arg1)
     s16 sum;
 
     if ((arg1 & 0xFFFF) >= 5) {
-        func_0046d730(D_005E4318, 0x1DE);
+        kAssertFail(D_005E4318, 0x1DE);
     }
     a = (s16)arg0[(u16)arg1 + 0x1C];
     b = (s8)datPersonaGetStatBonusA(arg0, arg1);
@@ -381,7 +381,7 @@ u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1)
     u8 *p = (u8 *)datPersonaGetRecord(arg0);
 
     if ((arg1 & 0xFFFF) >= 5) {
-        func_0046d730(D_005E4318, 0x1DE);
+        kAssertFail(D_005E4318, 0x1DE);
     }
     a = (s16)p[(u16)arg1 + 0x1C];
     b = (s8)datPersonaGetStatBonusA(p, arg1);
@@ -401,7 +401,7 @@ u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1)
 s8 datPersonaGetStatBonusA(u8 *arg0, s32 arg1)
 {
     if ((arg1 & 0xFFFF) >= 5) {
-        func_0046d730(D_005E4318, 0x268);
+        kAssertFail(D_005E4318, 0x268);
     }
     return (s8)arg0[(u16)arg1 + 0x21];
 }
@@ -411,7 +411,7 @@ s8 datPersonaGetStatBonusA(u8 *arg0, s32 arg1)
 s8 datPersonaGetStatBonusB(u8 *arg0, s32 arg1)
 {
     if ((arg1 & 0xFFFF) >= 5) {
-        func_0046d730(D_005E4318, 0x299);
+        kAssertFail(D_005E4318, 0x299);
     }
     return (s8)arg0[(u16)arg1 + 0x26];
 }
@@ -434,19 +434,19 @@ s8 datPersonaGetEquipStatBonus(u8 *arg0, s32 arg1)
     u16 equipment;
     u16 stat = (u16)arg1;
     if (stat >= 5) {
-        func_0046d730(D_005E4318, 0x2CD);
+        kAssertFail(D_005E4318, 0x2CD);
     }
     bonus = 0;
     if (datPersonaUsesFixedGrowth(arg0) != 0) {
         if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) > 0xD7) {
-            func_0046d730(D_005E4318, 0x2D4);
+            kAssertFail(D_005E4318, 0x2D4);
         }
         party = iGpffffb3e4[*(u16 *)(arg0 + 2) - 0xC0][0];
     } else {
         party = 1;
     }
     if ((u16)party >= 0xB) {
-        func_0046d730(D_005E4318, 0x2D9);
+        kAssertFail(D_005E4318, 0x2D9);
     }
     if ((s16)party == 1) {
         equipped = D_00797578[0];
@@ -536,7 +536,7 @@ s32 datPersonaAddStat(u8 *arg0, s32 arg1, s32 arg2)
     s16 statTotal;
 
     if ((arg1 & 0xFFFF) >= 5) {
-        func_0046d730(D_005E4318, 0x36C);
+        kAssertFail(D_005E4318, 0x36C);
     }
 
     stat = (u8 *)((u32)(u16)arg1 + (u32)arg0) + 0x1C;
@@ -561,7 +561,7 @@ s32 datPersonaAddStatById(u16 arg0, s32 arg1, s32 arg2) {
 
     base = (u8 *)datPersonaGetRecord(arg0);
     if ((arg1 & 0xFFFF) >= 5) {
-        func_0046d730(D_005E4318, 0x36C);
+        kAssertFail(D_005E4318, 0x36C);
     }
     stat = (u8 *)((u32)(u16)arg1 + (u32)base) + 0x1C;
     old = (s16)(u16)*stat;
@@ -587,12 +587,12 @@ u16 *datPersonaGetRecord(u16 arg0)
         p = datPersonaRosterSlot(D_00797F88[0]);
     } else {
         if (v >= 0xB) {
-            func_0046d730(D_005E4318, 0x3A5);
+            kAssertFail(D_005E4318, 0x3A5);
         }
         p = (u16 *)((u8 *)D_00796E50 + (v - 2) * 0x88 + 0x54);
     }
     if (p == NULL) {
-        func_0046d730(D_005E4318, 0x3A9);
+        kAssertFail(D_005E4318, 0x3A9);
     }
     return p;
 }
@@ -611,12 +611,12 @@ s32 datPersonaLeadBoosted(s32 arg0)
         p = datPersonaRosterSlot(D_00797F88[0]);
     } else {
         if (v >= 0xB) {
-            func_0046d730(D_005E4318, 0x3A5);
+            kAssertFail(D_005E4318, 0x3A5);
         }
         p = (u16 *)((u8 *)D_00796E50 + (v - 2) * 0x88 + 0x54);
     }
     if (p == NULL) {
-        func_0046d730(D_005E4318, 0x3A9);
+        kAssertFail(D_005E4318, 0x3A9);
     }
     return (*(u16 *)p & 4) != 0;
 }
@@ -695,7 +695,7 @@ u16 *datPersonaRosterSlot(s16 arg0)
     s32 v = (s32)arg0;
 
     if (v < 0 || v >= (u16)datPersonaRosterCapacity()) {
-        func_0046d730(D_005E4318, 0x3FE);
+        kAssertFail(D_005E4318, 0x3FE);
     }
     if ((*(u16 *)((u8 *)D_00797F8C + v * 0x30) & 1) == 0) {
         return NULL;
@@ -741,7 +741,7 @@ s32 datPersonaRemoveRosterSlot(s32 arg0)
 
     id = (s16)arg0;
     if (id < 0 || id >= (u16)datPersonaRosterCapacity()) {
-        func_0046d730(D_005E4318, 0x417);
+        kAssertFail(D_005E4318, 0x417);
     }
     if ((*(u16 *)((u8 *)D_00797F8C + id * 0x30) & 1) == 0) {
         return 0;
@@ -779,7 +779,7 @@ u8 *datPersonaAddRosterMember(u16 personaId)
 {
     u8 *p = datPersonaTryAddRosterMember(personaId);
     if (p == NULL) {
-        func_0046d730(D_005E4318, 0x43A);
+        kAssertFail(D_005E4318, 0x43A);
     }
     return p;
 }
@@ -821,10 +821,10 @@ s32 datPersonaInsertRosterRecord(u8 *arg0)
     u8 *entry;
 
     if (arg0 == NULL) {
-        func_0046d730(D_005E4318, 0x464);
+        kAssertFail(D_005E4318, 0x464);
     }
     if (*(u16 *)(arg0 + 2) == 0 || *(u16 *)(arg0 + 2) >= 0x100) {
-        func_0046d730(D_005E4318, 0x465);
+        kAssertFail(D_005E4318, 0x465);
     }
     i = 0;
     while ((u16)i < (u16)datPersonaRosterCapacity()) {
@@ -875,7 +875,7 @@ s32 datPersonaSetLeadSlot(s32 arg0)
 {
     s32 idx = (s16)arg0;
     if (idx < 0 || idx >= (u16)datPersonaRosterCapacity()) {
-        func_0046d730(D_005E4318, 0x47E);
+        kAssertFail(D_005E4318, 0x47E);
     }
     if ((*(u16 *)((u8 *)D_00797F8C + idx * 0x30) & 1) == 0) {
         return 0;
@@ -892,11 +892,11 @@ u16 datPersonaLeadPersonaId(void)
     s32 off;
 
     if (v < 0 || v >= (u16)datPersonaRosterCapacity()) {
-        func_0046d730(D_005E4318, 0x491);
+        kAssertFail(D_005E4318, 0x491);
     }
     off = v * 0x30;
     if ((*(u16 *)((u8 *)D_00797F8C + off) & 1) == 0) {
-        func_0046d730(D_005E4318, 0x492);
+        kAssertFail(D_005E4318, 0x492);
     }
     return *(u16 *)((u8 *)D_00797F8E + off);
 }
@@ -908,10 +908,10 @@ s32 datPersonaGetLeadSlot(void)
     s32 v = D_00797F88[0];
 
     if (v < 0 || v >= (u16)datPersonaRosterCapacity()) {
-        func_0046d730(D_005E4318, 0x49C);
+        kAssertFail(D_005E4318, 0x49C);
     }
     if ((*(u16 *)((u8 *)D_00797F8C + v * 0x30) & 1) == 0) {
-        func_0046d730(D_005E4318, 0x49D);
+        kAssertFail(D_005E4318, 0x49D);
     }
     return v;
 }
@@ -963,7 +963,7 @@ void datPersonaSetRosterMode(s32 arg0)
         D_0079B40C[0] = datPersonaOrFlag(datPersonaOrFlag(datPersonaOrFlag(flags, 1), 2), 4);
         break;
     default:
-        func_0046d730(D_005E4318, 0x4CD);
+        kAssertFail(D_005E4318, 0x4CD);
         break;
     }
 }
@@ -1046,11 +1046,11 @@ void datPersonaRemoveSelectedRosterMember(void)
             goto valid_index;
         }
     }
-    func_0046d730(D_005E4318, 0x50B);
+    kAssertFail(D_005E4318, 0x50B);
 valid_index:
     temp_off = (s32)selected * 0x30;
     if ((*(u16 *)((u8 *)D_00797F8C + temp_off) & 1) == 0) {
-        func_0046d730(D_005E4318, 0x50C);
+        kAssertFail(D_005E4318, 0x50C);
     }
     if (index != 0) {
         memcpy(sp30, (u8 *)D_007973A0 + temp_off + 0xBEC, 0x30);
@@ -1100,7 +1100,7 @@ s32 datPersonaPlaceRosterMember(s32 arg0, u16 arg1)
             func_0010fde0(p);
         }
         if (p == NULL) {
-            func_0046d730(D_005E4318, 0x43A);
+            kAssertFail(D_005E4318, 0x43A);
         }
         if (D_0079B40C[0] & 4) {
             maxPersonaCount = 0xC;
@@ -1139,7 +1139,7 @@ search_done:
                 goto pass52D;
             }
         }
-        func_0046d730(D_005E4318, 0x52D);
+        kAssertFail(D_005E4318, 0x52D);
 pass52D:
         if (found >= 0) {
             if (D_0079B40C[0] & 4) {
@@ -1156,7 +1156,7 @@ pass52D:
                 goto pass47E;
             }
         }
-        func_0046d730(D_005E4318, 0x47E);
+        kAssertFail(D_005E4318, 0x47E);
 pass47E:
         if ((*(u16 *)((u8 *)D_00797F8C + found * 0x30) & 1) != 0) {
             D_00797F88[0] = found;
@@ -1165,18 +1165,18 @@ pass47E:
         if (v == 1) {
             cur = D_00797F88[0];
             if (cur < 0 || cur >= (u16)datPersonaRosterCapacity()) {
-                func_0046d730(D_005E4318, 0x3FE);
+                kAssertFail(D_005E4318, 0x3FE);
             }
             curOff = cur * 0x30;
             p = ((*(u16 *)((u8 *)D_00797F8C + curOff) & 1) != 0) ? (u8 *)D_007973A0 + curOff + 0xBEC : NULL;
         } else {
             if (v >= 0xB) {
-                func_0046d730(D_005E4318, 0x3A5);
+                kAssertFail(D_005E4318, 0x3A5);
             }
             p = (u8 *)D_00796E50 + (v - 2) * 0x88 + 0x54;
         }
         if (p == NULL) {
-            func_0046d730(D_005E4318, 0x3A9);
+            kAssertFail(D_005E4318, 0x3A9);
         }
         datPersonaInitRecord(p, arg1);
         *(u16 *)p = 1;
@@ -1294,25 +1294,25 @@ void datPersonaPreviewLevelUp(u8 *arg0, u8 *arg1, s32 arg2)
 
     pid = *(u16 *)(arg0 + 2);
     if (pid == 0 || pid >= 0x100) {
-        func_0046d730(D_005E4318, 0x56D);
+        kAssertFail(D_005E4318, 0x56D);
     }
     memset(arg1, 0, 0x88);
     for (statIndex = 0; (statIndex & 0xFFFF) < 5; statIndex = (statIndex + 1) & 0xFFFF) {
         if ((statIndex & 0xFFFF) >= 5) {
-            func_0046d730(D_005E4318, 0x1DE);
+            kAssertFail(D_005E4318, 0x1DE);
         }
         statBytes = arg0 + (u16)statIndex;
         statValue = &stat[(u16)statIndex];
         *statValue = statBytes[0x1C];
         if ((u16)statIndex >= 5) {
-            func_0046d730(D_005E4318, 0x268);
+            kAssertFail(D_005E4318, 0x268);
         }
         /* The next accessor checks this unsigned halfword lvalue. */
         checkedIndex = &bonusIndex;
         *checkedIndex = statIndex;
         *statValue += *(s8 *)(statBytes + 0x21);
         if (*checkedIndex >= 5) {
-            func_0046d730(D_005E4318, 0x299);
+            kAssertFail(D_005E4318, 0x299);
         }
         *statValue += *(s8 *)(statBytes + 0x26);
     }
@@ -1351,7 +1351,7 @@ void datPersonaPreviewLevelUp(u8 *arg0, u8 *arg1, s32 arg2)
             }
         } else {
             if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) > 0xD7) {
-                func_0046d730(D_005E4318, 0x59F);
+                kAssertFail(D_005E4318, 0x59F);
             }
             table = (u8 *)iGpffffb3e4 + (*(u16 *)(arg0 + 2) - 0xC0) * 0x26E;
             if (level >= 2) {
@@ -1423,7 +1423,7 @@ void datPersonaPreviewLevelUp(u8 *arg0, u8 *arg1, s32 arg2)
                 search = DPGrowthFindSkill(*(u16 *)(entry + 2), skills, known);
                 if (search == known) {
                     if ((added & 0xFFFF) >= 32) {
-                        func_0046d730(D_005E4318, 0x604);
+                        kAssertFail(D_005E4318, 0x604);
                     }
                     *(u16 *)(arg1 + (u16)added * 2 + 2) = *(u16 *)(entry + 2);
                     added = (added + 1) & 0xFFFF;
@@ -1435,7 +1435,7 @@ void datPersonaPreviewLevelUp(u8 *arg0, u8 *arg1, s32 arg2)
                 search = DPGrowthFindSkill(*(u16 *)(entry + 2), skills, known);
                 if (search != known) {
                     if ((removed & 0xFFFF) >= 32) {
-                        func_0046d730(D_005E4318, 0x614);
+                        kAssertFail(D_005E4318, 0x614);
                     }
                     *(u16 *)(arg1 + (u16)removed * 2 + 0x42) = *(u16 *)(entry + 2);
                     removed = (removed + 1) & 0xFFFF;
@@ -1446,7 +1446,7 @@ void datPersonaPreviewLevelUp(u8 *arg0, u8 *arg1, s32 arg2)
         case 4:
             break;
         default:
-            func_0046d730(D_005E4318, 0x61F);
+            kAssertFail(D_005E4318, 0x61F);
             break;
         }
         collectIndex = (collectIndex + 1) & 0xFFFF;
@@ -1463,7 +1463,7 @@ void datPersonaApplyLevelUp(u8 *arg0, u8 *arg1)
     s32 k;
 
     if (*(u16 *)(arg0 + 2) == 0 || *(u16 *)(arg0 + 2) >= 0x100) {
-        func_0046d730(D_005E4318, 0x62E);
+        kAssertFail(D_005E4318, 0x62E);
     }
     *(u8 *)(arg0 + 4) += *(u8 *)(arg1 + 0);
     i = 0;
@@ -1517,7 +1517,7 @@ u32 datPersonaGetExpForLevel(void *persona, u16 level)
         }
         if (partyPersona == 0) {
             if (*(u16 *)(work + 2) >= 0x100) {
-                func_0046d730(D_005E4318, 0x673);
+                kAssertFail(D_005E4318, 0x673);
             }
             levelF = (f32)level;
             baseOffset = (s32)*(u16 *)(work + 2) * 0xE;
@@ -1529,11 +1529,11 @@ u32 datPersonaGetExpForLevel(void *persona, u16 level)
         } else {
             if ((*(u16 *)(work + 2) < 0xC0) ||
                 (*(u16 *)(work + 2) > 0xD7)) {
-                func_0046d730(D_005E4318, 0x67B);
+                kAssertFail(D_005E4318, 0x67B);
             }
             curveId = iGpffffb3e4[*(u16 *)(work + 2) - 0xC0][0];
             if ((curveId <= 1) || (curveId >= 0xB)) {
-                func_0046d730(D_005E4318, 0x67D);
+                kAssertFail(D_005E4318, 0x67D);
             }
             result = iGpffffb3e8[curveId - 2][(level & 0xFFFF) - 2];
         }
@@ -1546,7 +1546,7 @@ u32 datPersonaGetExpForLevel(void *persona, u16 level)
 void datPersonaAddExp(u8 *arg0, s32 arg1)
 {
     if (arg1 < 0) {
-        func_0046d730(D_005E4318, 0x689);
+        kAssertFail(D_005E4318, 0x689);
     }
     *(s32 *)(arg0 + 8) += arg1;
 }
@@ -1566,7 +1566,7 @@ void datPersonaCompactSkills(u8 *arg0)
 
     persona_p = arg0;
     if (persona_p == NULL) {
-        func_0046d730(D_005E4318, 0x69D);
+        kAssertFail(D_005E4318, 0x69D);
     }
     maxSkills = 8;
     skillIdx = 0;
@@ -1610,11 +1610,11 @@ void datPersonaInitRecord(u8 *arg0, u16 arg1)
     u8 buf[0x88];
 
     if (arg0 == NULL) {
-        func_0046d730(D_005E4318, 0x6C2);
+        kAssertFail(D_005E4318, 0x6C2);
     }
     id = arg1 & 0xFFFF;
     if (id == 0 || id >= 0x100) {
-        func_0046d730(D_005E4318, 0x6C3);
+        kAssertFail(D_005E4318, 0x6C3);
     }
     id = (u16)arg1;
     offset = id * 0xE;
@@ -1645,7 +1645,7 @@ s32 datPersonaAddSkill(u8 *arg0, u16 arg1)
     s32 i;
 
     if (arg0 == NULL || (arg1 & 0xFFFF) == 0) {
-        func_0046d730(D_005E4318, 0x6E0);
+        kAssertFail(D_005E4318, 0x6E0);
     }
     i = 0;
     while (i < 8) {
@@ -1667,7 +1667,7 @@ s32 datPersonaRemoveSkill(u8 *arg0, u32 arg1)
     u16 v2;
 
     if (arg0 == NULL || (arg1 & 0xFFFF) == 0) {
-        func_0046d730(D_005E4318, 0x6EE);
+        kAssertFail(D_005E4318, 0x6EE);
     }
     i = 0;
     key = arg1 & 0xFFFF;
@@ -1688,7 +1688,7 @@ s32 datPersonaRemoveSkill(u8 *arg0, u32 arg1)
 s32 datPersonaReplaceSkill(u8 *arg0, s16 arg1, u16 arg2)
 {
     if (arg0 == NULL || (s16)arg1 == 0 || (arg2 & 0xFFFF) == 0) {
-        func_0046d730(D_005E4318, 0x6FE);
+        kAssertFail(D_005E4318, 0x6FE);
     }
     {
         s32 r = datPersonaFindSkillSlot(arg0, (u16)arg1);
@@ -1708,7 +1708,7 @@ s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1)
     u32 key;
 
     if (arg0 == NULL || (arg1 & 0xFFFF) == 0) {
-        func_0046d730(D_005E4318, 0x70A);
+        kAssertFail(D_005E4318, 0x70A);
     }
     i = 0;
     key = arg1 & 0xFFFF;
@@ -1730,7 +1730,7 @@ s32 datPersonaCountSkills(u8 *arg0)
     s32 i;
 
     if (arg0 == NULL) {
-        func_0046d730(D_005E4318, 0x717);
+        kAssertFail(D_005E4318, 0x717);
     }
     i = 0;
     while (i < 8) {
@@ -1750,7 +1750,7 @@ u16 datPersonaGetSkillAt(u8 *arg0, s16 arg1)
     s32 off;
 
     if (index >= 8) {
-        func_0046d730(D_005E4318, 0x723);
+        kAssertFail(D_005E4318, 0x723);
     }
     off = index * 2;
     return *(u16 *)(off + (s32)arg0 + 0xC);
@@ -1773,17 +1773,17 @@ s32 datPersonaLoadRecord(u8 *arg0, u16 arg1, u8 *arg2)
     u8 buf[0x90];
 
     if (arg0 == NULL) {
-        func_0046d730(D_005E4318, 0x7AF);
+        kAssertFail(D_005E4318, 0x7AF);
     }
     if (arg2 == NULL) {
-        func_0046d730(D_005E4318, 0x7B0);
+        kAssertFail(D_005E4318, 0x7B0);
     }
     v = *(s32 *)(arg2 + 8);
     datPersonaInitRecord(entry, arg1);
     datPersonaPreviewLevelUp(entry, buf, v);
     datPersonaApplyLevelUp(entry, buf);
     if (v < 0) {
-        func_0046d730(D_005E4318, 0x689);
+        kAssertFail(D_005E4318, 0x689);
     }
     *(s32 *)(entry + 8) += v;
     src = arg2 + 0xC;
@@ -1792,7 +1792,7 @@ s32 datPersonaLoadRecord(u8 *arg0, u16 arg1, u8 *arg2)
         *(u16 *)(dst + i * 2) = *(u16 *)(src + i * 2);
     }
     if (entry == NULL || arg2 == NULL) {
-        func_0046d730(D_005E4318, 0x778);
+        kAssertFail(D_005E4318, 0x778);
     }
     for (i2 = 0; i2 < 5; i2++) {
         *(u8 *)(entry + 0x21 + i2) = *(u8 *)(arg2 + 0x21 + i2);
@@ -1835,7 +1835,7 @@ void datPersonaLearnFixedSkills(u8 *arg0)
             if (*(u8 *)(entry + i * 4) == 0 && *(s8 *)(entry + i * 4 + 1) == 1) {
                 n = *(u16 *)(entry + i * 4 + 2);
                 if (arg0 == NULL || (n & 0xFFFF) == 0) {
-                    func_0046d730(D_005E4318, 0x6E0);
+                    kAssertFail(D_005E4318, 0x6E0);
                 }
                 for (j = 0; j < 8; j++) {
                     if (*(u16 *)(arg0 + j * 2 + 0xC) == 0) {
@@ -1851,7 +1851,7 @@ void datPersonaLearnFixedSkills(u8 *arg0)
             if (*(u8 *)(entry + i * 4) == 0 && *(s8 *)(entry + i * 4 + 1) == 1) {
                 n = *(u16 *)(entry + i * 4 + 2);
                 if (arg0 == NULL || (n & 0xFFFF) == 0) {
-                    func_0046d730(D_005E4318, 0x6E0);
+                    kAssertFail(D_005E4318, 0x6E0);
                 }
                 for (j = 0; j < 8; j++) {
                     if (*(u16 *)(arg0 + j * 2 + 0xC) == 0) {

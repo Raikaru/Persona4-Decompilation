@@ -34,7 +34,7 @@ extern s64 func_001060b0(void);
 extern s32 func_00110d60(s32 arg0);
 void func_00440b68(void *msg, const void *file, s32 line);
 extern u8 *func_00454a60(u8 *param, s32 mode);
-void func_0046d730(const void *file, s32 line);
+void kAssertFail(const void *file, s32 line);
 s32 func_0046a770(u32 param);
 s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 u8 *func_00455ea0(u8 *param, s32 a, s32 *b);
@@ -154,7 +154,7 @@ void func_0021ed10(u8 *arg0, f32 *arg1, f32 arg5, s32 arg2, u32 arg3, s32 arg4)
             default:
                 digit = rev[i] - 0x30;
                 if (digit < 0 || digit > 9) {
-                    func_0046d730(&D_00629610, 0x119);
+                    kAssertFail(&D_00629610, 0x119);
                 }
                 func_0034f2e0(
                     *(void **)(arg0 + digit * 4 + 0x478),
@@ -230,7 +230,7 @@ void func_0021ef70(BtlResultWork *work)
             *out = sdkSpriteNewNode(*(u32 *)(base + 0x408), (u32)D_00629170[j]);
         }
         if (*out == 0) {
-            func_0046d730(&D_00629610, 0x159);
+            kAssertFail(&D_00629610, 0x159);
         }
     }
     for (k = 0; k < 5; k++) {
@@ -293,7 +293,7 @@ s32 func_0021f340(BtlResultWork *work)
                 dest = (s32 *)(arg0 + var_18 * 4 + 0x400);
                 *dest = (s32)sdkSpriteAdoptBlob((u32)func_00455ea0(*(u8 **)(arg0 + 0x4BC), var_18, 0));
                 if (*dest == 0) {
-                    func_0046d730(&D_00629610, 0x181);
+                    kAssertFail(&D_00629610, 0x181);
                 }
                 var_18 += 1;
             }
@@ -589,7 +589,7 @@ void func_0021fa40(u8 *work)
             x += 0.0f + style->originX + particle->amplitude * amount;
             break;
         default:
-            func_0046d730(D_00629610, 0x2AD);
+            kAssertFail(D_00629610, 0x2AD);
             break;
         }
         func_0034f2e0(resource, x, y, 0xFF, 0xFF, 0xFF, opacity);
@@ -1144,21 +1144,21 @@ void func_00221770(void) {
     func_00440b68(&iGpffffa5b8, &D_00629610, 1410);
     work->field4BC = (s32)func_00454a60(iGpffffa5a0[i], 1);
     if (work->field4BC == 0) {
-        func_0046d730(&D_00629610, 1411);
+        kAssertFail(&D_00629610, 1411);
     }
     i = 3;
     for (; i < 5; i++) {
         dst = (s32 *)((u8 *)work + i * 4 + 0x400);
         *dst = func_0046a770(*(s32 *)((u8 *)iGpffffa5a8 + i * 4 - 12));
         if (*dst == 0) {
-            func_0046d730(&D_00629610, 1419);
+            kAssertFail(&D_00629610, 1419);
         }
     }
     func_00440b68(&iGpffffa5b8, &D_00629610, 1423);
     ((BtlResultSubWork *)work->field570)->field934 =
         (s32)func_00454a60((u8 *)iGpffffa5b0, 1);
     if (((BtlResultSubWork *)work->field570)->field934 == 0) {
-        func_0046d730(&D_00629610, 1424);
+        kAssertFail(&D_00629610, 1424);
     }
     work->flags |= 4;
 }

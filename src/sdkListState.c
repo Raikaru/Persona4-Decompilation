@@ -2,7 +2,7 @@
 #include "type.h"
 #include "include_asm.h"
 
-extern void func_0046d730(void* message, u32 code);
+extern void kAssertFail(void* message, u32 code);
 extern s32 func_00453eb0(u8* obj, s32 value);
 extern void func_00453ce0(u8* arg0, s32 arg1);
 extern void memset(void* dst, s32 value, u32 size);
@@ -29,10 +29,10 @@ extern u32 D_007105E8[];
 void func_004535c0(u8* arg0, s32 arg1, s32 arg2)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x45);
+        kAssertFail(D_007105E8, 0x45);
     }
     if (arg1 <= 0) {
-        func_0046d730(D_007105E8, 0x46);
+        kAssertFail(D_007105E8, 0x46);
     }
     memset(arg0, 0, 0x2C);
     func_00453670(arg0, arg1, arg2, 0, 0);
@@ -42,10 +42,10 @@ void func_004535c0(u8* arg0, s32 arg1, s32 arg2)
 void func_00453670(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x4F);
+        kAssertFail(D_007105E8, 0x4F);
     }
     if (arg1 <= 0) {
-        func_0046d730(D_007105E8, 0x50);
+        kAssertFail(D_007105E8, 0x50);
     }
     memset(arg0, 0, 0x2C);
     *(s32*)(arg0 + 0x14) = arg1;
@@ -65,7 +65,7 @@ void func_00453670(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 void func_00453760(u8* arg0, s32 arg1)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x62);
+        kAssertFail(D_007105E8, 0x62);
     }
     if (arg1) {
         *(s32*)(arg0 + 0x0) |= 2;
@@ -78,7 +78,7 @@ void func_00453760(u8* arg0, s32 arg1)
 void func_004537e0(u8* arg0, s32 arg1)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x6F);
+        kAssertFail(D_007105E8, 0x6F);
     }
     if (arg1) {
         *(s32*)(arg0 + 0x0) |= 4;
@@ -91,7 +91,7 @@ void func_004537e0(u8* arg0, s32 arg1)
 void func_00453860(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x7A);
+        kAssertFail(D_007105E8, 0x7A);
     }
     *(s16*)(arg0 + 0x4) = arg1;
     *(s16*)(arg0 + 0x6) = arg2;
@@ -103,7 +103,7 @@ void func_00453860(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 void func_004538e0(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x85);
+        kAssertFail(D_007105E8, 0x85);
     }
     *(s16*)(arg0 + 0xC) = arg1;
     *(s16*)(arg0 + 0xE) = arg2;
@@ -123,7 +123,7 @@ s32 func_00453960(u8* arg0)
     s32 fA;
     result = 0;
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x91);
+        kAssertFail(D_007105E8, 0x91);
     }
     if (*(s32*)(arg0 + 0x0) & 2) {
         func_00454040(arg0);
@@ -183,7 +183,7 @@ done:
 void func_00453c80(u8* arg0)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0xD7);
+        kAssertFail(D_007105E8, 0xD7);
     }
     func_00453ce0(arg0, *(s32*)(arg0 + 0x20) + 1);
 }
@@ -191,7 +191,7 @@ void func_00453c80(u8* arg0)
 void func_00453ce0(u8* arg0, s32 arg1)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0xF4);
+        kAssertFail(D_007105E8, 0xF4);
     }
     if (arg1 < *(s32*)(arg0 + 0x20)) {
         *(s32*)(arg0 + 0x20) = arg1;
@@ -207,7 +207,7 @@ void func_00453ce0(u8* arg0, s32 arg1)
 s32 func_00453d70(u8* arg0)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x101);
+        kAssertFail(D_007105E8, 0x101);
     }
     return *(s32*)(arg0 + 0x28);
 }
@@ -218,7 +218,7 @@ s32 func_00453d70(u8* arg0)
 s32 func_00453dc0(u8* arg0)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x108);
+        kAssertFail(D_007105E8, 0x108);
     }
     return *(s32*)(arg0 + 0x24);
 }
@@ -229,7 +229,7 @@ s32 func_00453dc0(u8* arg0)
 s32 func_00453e10(u8* arg0)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x10F);
+        kAssertFail(D_007105E8, 0x10F);
     }
     return *(s32*)(arg0 + 0x20);
 }
@@ -240,7 +240,7 @@ s32 func_00453e10(u8* arg0)
 s32 func_00453e60(u8* arg0)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x116);
+        kAssertFail(D_007105E8, 0x116);
     }
     return *(s32*)(arg0 + 0x14);
 }
@@ -252,7 +252,7 @@ s32 func_00453eb0(u8* arg0, s32 arg1)
     s32 diff;
     s32 v2;
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x125);
+        kAssertFail(D_007105E8, 0x125);
     }
     if (*(s32*)(arg0 + 0x20) == 0) {
         *(s32*)(arg0 + 0x28) = 0;
@@ -287,7 +287,7 @@ s32 func_00453eb0(u8* arg0, s32 arg1)
 void func_00453fa0(u8* arg0, s32 arg1)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x144);
+        kAssertFail(D_007105E8, 0x144);
     }
     *(s32*)(arg0 + 0x14) = arg1;
 }
@@ -296,7 +296,7 @@ void func_00453fa0(u8* arg0, s32 arg1)
 void func_00453ff0(u8* arg0, s32 arg1)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x14C);
+        kAssertFail(D_007105E8, 0x14C);
     }
     *(s32*)(arg0 + 0x18) = arg1;
 }
@@ -305,7 +305,7 @@ void func_00453ff0(u8* arg0, s32 arg1)
 void func_00454040(u8* arg0)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x154);
+        kAssertFail(D_007105E8, 0x154);
     }
     *(s32*)(arg0 + 0x0) |= 1;
 }
@@ -314,7 +314,7 @@ void func_00454040(u8* arg0)
 void func_00454090(u8* arg0)
 {
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x15B);
+        kAssertFail(D_007105E8, 0x15B);
     }
     *(s32*)(arg0 + 0x0) &= ~1;
 }
@@ -346,7 +346,7 @@ s32 func_004540e0(u8* arg0)
             goto done;
         }
         if (arg0 == NULL) {
-            func_0046d730(D_007105E8, 0x163);
+            kAssertFail(D_007105E8, 0x163);
         }
         flag = (*(s32*)(arg0 + 0x0) & 1) != 0;
         if (!flag) {
@@ -366,7 +366,7 @@ s32 func_004540e0(u8* arg0)
         goto done;
     }
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x163);
+        kAssertFail(D_007105E8, 0x163);
     }
     flag = (*(s32*)(arg0 + 0x0) & 1) != 0;
     if (!flag) {
@@ -409,7 +409,7 @@ s32 func_00454250(u8* arg0)
             goto ret1;
         }
         if (arg0 == NULL) {
-            func_0046d730(D_007105E8, 0x163);
+            kAssertFail(D_007105E8, 0x163);
         }
         flag = (*(s32*)(arg0 + 0x0) & 1) != 0;
         if (!flag) {
@@ -430,7 +430,7 @@ s32 func_00454250(u8* arg0)
         goto ret1;
     }
     if (arg0 == NULL) {
-        func_0046d730(D_007105E8, 0x163);
+        kAssertFail(D_007105E8, 0x163);
     }
     flag = (*(s32*)(arg0 + 0x0) & 1) != 0;
     if (!flag) {

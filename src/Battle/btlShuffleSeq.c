@@ -12,7 +12,7 @@ typedef struct ShuffleUnit {
     u8 data[0xE8];
 } ShuffleUnit;
 
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern u32 RpRandom();
 extern s32 datGetFlag(s32 a);
 extern s32 func_00375970(u8 *a);
@@ -156,7 +156,7 @@ void func_00378600(u8 *arg0)
                 j++;
             }
             if (j >= n) {
-                func_0046d730(D_0064EAA0, 0x56);
+                kAssertFail(D_0064EAA0, 0x56);
             }
             pi = arg0 + i * 0xFB0;
             pd = (u8 *)buf;
@@ -704,7 +704,7 @@ s32 func_00379a70(u8 *arg0) {
                 *(s32 *)(base + 4) = 0;
                 break;
             default:
-                func_0046d730(D_0064EAA0, 0x22F);
+                kAssertFail(D_0064EAA0, 0x22F);
                 break;
             }
             func_002bb1e0(1);
@@ -738,7 +738,7 @@ s32 func_00379b70(u8 *arg0) {
     case 4:
         return func_0037f6e0(arg0);
     default:
-        func_0046d730(D_0064EAA0, 0x25A);
+        kAssertFail(D_0064EAA0, 0x25A);
         return 0;
     }
 }
@@ -782,7 +782,7 @@ s32 func_00379d70(u8 *arg0) {
             func_0038d020(*(s32 *)(arg0 + 0x1F298));
             return 0;
         default:
-            func_0046d730(D_0064EAA0, 0x296);
+            kAssertFail(D_0064EAA0, 0x296);
             return 1;
         }
     }

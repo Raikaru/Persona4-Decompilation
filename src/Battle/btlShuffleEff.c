@@ -3,7 +3,7 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -45,7 +45,7 @@ void func_0038d6c0(u8 *arg0) {
     tbl = *(u8 **)(arg0 + 0x38);
     for (i = 0; i < 9; i++) {
         if (i < 0 || i >= 9) {
-            func_0046d730(&D_0064F210[0], 0x55);
+            kAssertFail(&D_0064F210[0], 0x55);
         }
         e = tbl + i * 8;
         eff = (s32 *)(e + 0xC);
@@ -65,11 +65,11 @@ u8 *func_0038d790(u8 *arg0) {
     chkmemAllocSiteTag(&D_0064F210[0], 0x103);
     tbl = D_008873F4[0](1, 0x50, 0x40000);
     if (tbl == NULL) {
-        func_0046d730(&D_0064F210[0], 0x104);
+        kAssertFail(&D_0064F210[0], 0x104);
     }
     ctx = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064F0F0[0]), 0x13, 0, 0, func_0038d660, func_0038d6c0, (u8 *)(tbl));
     if (ctx == NULL) {
-        func_0046d730(&D_0064F210[0], 0x10E);
+        kAssertFail(&D_0064F210[0], 0x10E);
     }
     *(s32 *)tbl = (s32)func_0036e910(arg0);
     func_0038d890(ctx);
@@ -87,7 +87,7 @@ void func_0038d890(u8 *arg0) {
     for (i = 0; i < 9; i++) {
         if (i != 8) {
             if (i < 0 || i >= 9) {
-                func_0046d730(&D_0064F210[0], 0x55);
+                kAssertFail(&D_0064F210[0], 0x55);
             }
             e = tbl + i * 8;
             eff = (s32 *)(e + 0xC);
@@ -152,12 +152,12 @@ void func_0038daf0(u8 *arg0, s32 arg1) {
     tbl = *(u8 **)(arg0 + 0x38);
     base = *(s32 *)tbl;
     if (arg1 < 0 || arg1 >= 9) {
-        func_0046d730(&D_0064F210[0], 0x165);
+        kAssertFail(&D_0064F210[0], 0x165);
     }
     off = arg1 * 4;
     if (((s32 *)(off + base))[0x7CAE] != 0) {
         if (arg1 < 0 || arg1 >= 9) {
-            func_0046d730(&D_0064F210[0], 0x3E);
+            kAssertFail(&D_0064F210[0], 0x3E);
         }
         mask = 1 << arg1;
         if (!(*(u16 *)(tbl + 4) & (u16)mask)) {
@@ -165,7 +165,7 @@ void func_0038daf0(u8 *arg0, s32 arg1) {
             e = (u8 *)(eoff + (s32)tbl);
             eff = (s32 *)(e + 0xC);
             if (*eff != 0) {
-                func_0046d730(&D_0064F210[0], 0x42);
+                kAssertFail(&D_0064F210[0], 0x42);
             }
             *eff = (s32)func_004b1130(((s32 *)(off + *(s32 *)tbl))[0x7CAE]);
             *(u16 *)(tbl + 4) |= (u16)mask;
@@ -190,7 +190,7 @@ void func_0038daf0(u8 *arg0, s32 arg1) {
         case 8:
             break;
         default:
-            func_0046d730(&D_0064F210[0], 0x180);
+            kAssertFail(&D_0064F210[0], 0x180);
             break;
         }
     }
@@ -208,7 +208,7 @@ void func_0038dcc0(u8 *arg0, s32 arg1)
 
     eff = *(u8 **)(arg0 + 0x38);
     if (arg1 < 0 || arg1 >= 9) {
-        func_0046d730(&D_0064F210[0], 0x55);
+        kAssertFail(&D_0064F210[0], 0x55);
     }
     slot = (s32 *)(bseSlot(arg1 * 8, (u32)eff) + 0xC);
     held = *(s32 *)(bseSlot(arg1 * 8, (u32)eff) + 0xC);

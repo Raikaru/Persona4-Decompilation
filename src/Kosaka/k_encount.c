@@ -21,7 +21,7 @@ extern u8 func_001060c0(void);
 extern s64 func_00110960(s32 day, u32 time);
 extern u32 datGetFlag(s32 bit);
 extern u32 RpRandom(void);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern u8 *iGpffffb41c;
 extern u8 *iGpffffb418;
 extern u8 *iGpffffb424;
@@ -197,7 +197,7 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
         }
     }
     if (total == 0) {
-        func_0046d730(D_005F12C8, 0x69);
+        kAssertFail(D_005F12C8, 0x69);
     }
     draw = (s32)(RpRandom() % (u32)total);
     tables = iGpffffb418;
@@ -330,7 +330,7 @@ u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
         }
     }
     if (total == 0) {
-        func_0046d730(D_005F12C8, 0x166);
+        kAssertFail(D_005F12C8, 0x166);
     }
     rnd = RpRandom() % total;
     /* measured: the draw loop's locals live in their own block, id first and

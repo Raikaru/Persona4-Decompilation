@@ -30,7 +30,7 @@ extern void func_003ef3a0(void *arg0);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void *memset(void *dst, s32 value, u32 size);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern u8 D_00713CC0[];
 extern u8 D_00713CD0[];
 extern void (*jtbl_008873EC[])(void *);
@@ -69,7 +69,7 @@ void *func_00486a50(s32 arg0)
     p = (u8 *)(*jtbl_008873E8)(0x60, 0x40000);
     memset(p, 0, 0x60);
     if (p == NULL) {
-        func_0046d730(D_00713CD0, 0x1F);
+        kAssertFail(D_00713CD0, 0x1F);
     }
     *(s32 *)(p + 0) = arg0;
     *(s32 *)(p + 4) = -1;
@@ -89,7 +89,7 @@ void *func_00486b00(void *opaqueSource)
 
     settings = (u8 *)func_00484490(source);
     if (settings == NULL) {
-        func_0046d730(D_00713CD0, 0x55);
+        kAssertFail(D_00713CD0, 0x55);
     }
     emitCount = *(u32 *)(settings + 0x20);
     if (emitCount == 0) {
@@ -106,13 +106,13 @@ void *func_00486b00(void *opaqueSource)
         u8 *const particle = (*(void *(**)(u32, u32))allocatorAddress)(0x60, 0x40000);
         memset(particle, 0, 0x60);
         if (particle == NULL) {
-            func_0046d730(D_00713CD0, 0x1F);
+            kAssertFail(D_00713CD0, 0x1F);
         }
         *(u32 *)(particle + 0) = count;
         *(s32 *)(particle + 4) = -1;
         *(f32 *)(particle + 8) = 1.0f;
         if (particle == NULL) {
-            func_0046d730(D_00713CD0, 0x57);
+            kAssertFail(D_00713CD0, 0x57);
         }
         func_004875d0(particle, *(u16 *)(source + 0xC), settings);
         if (*(u32 *)particle == 0) {
@@ -150,7 +150,7 @@ void *func_00486b00(void *opaqueSource)
                 *(u8 **)(*(u8 **)(particle + 0x5C) + 0x1C) = particle;
                 break;
             default:
-                func_0046d730(D_00713CD0, 0x7E);
+                kAssertFail(D_00713CD0, 0x7E);
                 break;
             }
             *(u16 *)(particle + 0xC) = *(u16 *)(source + 0x1C);
@@ -214,11 +214,11 @@ void *func_00486fb0(void *opaqueSource)
     u32 v;
 
     if (*(s32 *)(arg0 + 0x4C) == 0) {
-        func_0046d730(D_00713CD0, 0xE0);
+        kAssertFail(D_00713CD0, 0xE0);
     }
     s17 = *(u8 **)(*(u8 **)(arg0 + 0x4C) + 0x24);
     if (s17 == NULL) {
-        func_0046d730(D_00713CD0, 0xE2);
+        kAssertFail(D_00713CD0, 0xE2);
     }
     v = *(u32 *)(s17 + 0x20);
     if (v == 0) {
@@ -233,13 +233,13 @@ void *func_00486fb0(void *opaqueSource)
     p = (u8 *)(*jtbl_008873E8)(0x60, 0x40000);
     memset(p, 0, 0x60);
     if (p == NULL) {
-        func_0046d730(D_00713CD0, 0x1F);
+        kAssertFail(D_00713CD0, 0x1F);
     }
     *(u32 *)(p + 0) = s19;
     *(s32 *)(p + 4) = -1;
     *(s32 *)(p + 8) = 0x3F800000;
     if (p == NULL) {
-        func_0046d730(D_00713CD0, 0xE4);
+        kAssertFail(D_00713CD0, 0xE4);
     }
     func_004875d0(p, *(u16 *)(*(u8 **)(arg0 + 0x4C)), (void *)s17);
     if (*(s32 *)(p + 0) == 0) {
@@ -267,10 +267,10 @@ void func_00487160(u8 *arg0, u8 *arg1)
         break;
     case 2:
         if (*(s32 *)(arg1 + 0x44) == 0) {
-            func_0046d730(D_00713CD0, 0x10D);
+            kAssertFail(D_00713CD0, 0x10D);
         }
         if (*(s32 *)(arg1 + 0x4C) == 0) {
-            func_0046d730(D_00713CD0, 0x10E);
+            kAssertFail(D_00713CD0, 0x10E);
         }
         if (*(s32 *)(arg0 + 0x44) != 0) {
             func_00481ee0(*(s32 *)(arg0 + 0x44));
@@ -286,10 +286,10 @@ void func_00487160(u8 *arg0, u8 *arg1)
             return;
         }
         if (*(s32 *)(arg1 + 0x38) == 0) {
-            func_0046d730(D_00713CD0, 0x119);
+            kAssertFail(D_00713CD0, 0x119);
         }
         if (*(s32 *)(arg1 + 0x4C) == 0) {
-            func_0046d730(D_00713CD0, 0x11A);
+            kAssertFail(D_00713CD0, 0x11A);
         }
         if (*(s32 *)(arg0 + 0x38) != 0) {
             for (i5 = 0; i5 < count5; i5++) {
@@ -305,7 +305,7 @@ void func_00487160(u8 *arg0, u8 *arg1)
         chkmemAllocSiteTag(D_00713CD0, 0x12C);
         *(u8 **)(arg0 + 0x38) = (u8 *)(*jtbl_008873E8)(count5 * 4, 0x40000);
         if (*(u8 **)(arg0 + 0x38) == NULL) {
-            func_0046d730(D_00713CD0, 0x12D);
+            kAssertFail(D_00713CD0, 0x12D);
         }
         *(u8 **)(arg0 + 0x34) = *(u8 **)(arg0 + 0x38);
         for (i5 = 0; i5 < count5; i5++) {
@@ -323,10 +323,10 @@ void func_00487160(u8 *arg0, u8 *arg1)
             return;
         }
         if (*(s32 *)(arg1 + 0x40) == 0) {
-            func_0046d730(D_00713CD0, 0x139);
+            kAssertFail(D_00713CD0, 0x139);
         }
         if (*(s32 *)(arg1 + 0x4C) == 0) {
-            func_0046d730(D_00713CD0, 0x13A);
+            kAssertFail(D_00713CD0, 0x13A);
         }
         if (*(s32 *)(arg0 + 0x40) != 0) {
             for (i6 = 0; i6 < count6; i6++) {
@@ -342,7 +342,7 @@ void func_00487160(u8 *arg0, u8 *arg1)
         chkmemAllocSiteTag(D_00713CD0, 0x14C);
         *(u8 **)(arg0 + 0x40) = (u8 *)(*jtbl_008873E8)(count6 * 4, 0x40000);
         if (*(u8 **)(arg0 + 0x40) == NULL) {
-            func_0046d730(D_00713CD0, 0x14D);
+            kAssertFail(D_00713CD0, 0x14D);
         }
         *(u8 **)(arg0 + 0x3C) = *(u8 **)(arg0 + 0x40);
         for (i6 = 0; i6 < count6; i6++) {
@@ -355,14 +355,14 @@ void func_00487160(u8 *arg0, u8 *arg1)
         u8 *p;
 
         if (*(s32 *)(arg1 + 0x48) == 0) {
-            func_0046d730(D_00713CD0, 0x156);
+            kAssertFail(D_00713CD0, 0x156);
         }
         if (*(s32 *)(arg0 + 0x48) != 0) {
             func_004829c0(*(s32 *)(arg0 + 0x48));
         }
         *(s32 *)(arg0 + 0x48) = func_00482a70(*(s32 *)(arg1 + 0x48));
         if (*(s32 *)(arg0 + 0x5C) != 0) {
-            func_0046d730(D_00713CD0, 0x15F);
+            kAssertFail(D_00713CD0, 0x15F);
         }
         chkmemAllocSiteTag(D_00713CC0, 0x171);
         p = (u8 *)(*jtbl_008873E8)(0x30, 0x40000);
@@ -373,7 +373,7 @@ void func_00487160(u8 *arg0, u8 *arg1)
         break;
     }
     default:
-        func_0046d730(D_00713CD0, 0x16A);
+        kAssertFail(D_00713CD0, 0x16A);
         break;
     }
     *(u16 *)(arg0 + 0xC) = *(u16 *)(arg1 + 0xC);
@@ -476,7 +476,7 @@ void func_004878c0(u8 *arg0, void *arg1)
         chkmemAllocSiteTag(D_00713CD0, 0x21C);
         *(u8 **)(arg0 + 0x38) = (u8 *)(*jtbl_008873E8)(count * 4, 0x40000);
         if (*(u8 **)(arg0 + 0x38) == NULL) {
-            func_0046d730(D_00713CD0, 0x21D);
+            kAssertFail(D_00713CD0, 0x21D);
         }
         *(u8 **)(arg0 + 0x34) = *(u8 **)(arg0 + 0x38);
         *(u8 **)(*(u8 **)(arg0 + 0x34)) = func_00484570((u8 *)arg1);
@@ -508,7 +508,7 @@ void func_00487a30(u8 *arg0, void *arg1)
         chkmemAllocSiteTag(D_00713CD0, 0x24F);
         *(u8 **)(arg0 + 0x40) = (u8 *)(*jtbl_008873E8)(count * 4, 0x40000);
         if (*(u8 **)(arg0 + 0x40) == NULL) {
-            func_0046d730(D_00713CD0, 0x250);
+            kAssertFail(D_00713CD0, 0x250);
         }
         *(u8 **)(arg0 + 0x3C) = *(u8 **)(arg0 + 0x40);
         *(u8 **)(*(u8 **)(arg0 + 0x3C)) = func_00484bb0((u8 *)arg1);
@@ -1107,7 +1107,7 @@ void func_00487fb0(u8* particle, f32 scale)
         u8* animationResource = *(u8**)(particle + 0x44);
         if (animationResource == 0)
         {
-            func_0046d730(D_00713CD0, 0x380);
+            kAssertFail(D_00713CD0, 0x380);
         }
         /* Count only active particles in either animation path. This
          * initialized lifetime begins after the resource diagnostic and
@@ -1360,7 +1360,7 @@ void func_00487fb0(u8* particle, f32 scale)
         emitterOrObjects = *(u8**)(particle + 0x34);
         if (emitterOrObjects == 0)
         {
-            func_0046d730(D_00713CD0, 0x3F3);
+            kAssertFail(D_00713CD0, 0x3F3);
         }
         effectIndex = 0;
         while (effectIndex < particleCount)
@@ -1412,7 +1412,7 @@ void func_00487fb0(u8* particle, f32 scale)
         emitterOrObjects = *(u8**)(particle + 0x3C);
         if (emitterOrObjects == 0)
         {
-            func_0046d730(D_00713CD0, 0x406);
+            kAssertFail(D_00713CD0, 0x406);
         }
         modelIndex = 0;
         while (modelIndex < particleCount)
@@ -1471,7 +1471,7 @@ void func_00487fb0(u8* particle, f32 scale)
     }
     break;
     default:
-        func_0046d730(D_00713CD0, 0x41D);
+        kAssertFail(D_00713CD0, 0x41D);
         break;
     }
 particle_render_done:
@@ -1519,7 +1519,7 @@ void func_00488d70(u8 *arg0)
     extern f32 cosf(f32);
     extern f32 sinf(f32);
     extern ParticleProjectedVec3 *func_003e42a0(ParticleProjectedVec3 *a, const ParticleProjectedVec3 *b, const BtlShuffleMatrix *c);
-    extern void func_0046d730(void *a, s32 b);
+    extern void kAssertFail(void *a, s32 b);
     extern f32 fGpffff81f4;
     extern f32 D_008872F8[];
     extern f32 D_008872FC[];
@@ -1858,7 +1858,7 @@ void func_00488d70(u8 *arg0)
     }
     break;
     default:
-        func_0046d730(D_00713CD0, 0x4F3);
+        kAssertFail(D_00713CD0, 0x4F3);
         break;
     }
     D_00887300[0](rwRENDERSTATETEXTURERASTER, 0);

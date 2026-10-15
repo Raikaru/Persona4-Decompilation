@@ -47,7 +47,7 @@ void kwlnTaskKillSiblingChain(KwlnTask* a0);
 /* GP-relative current-task pointer at gp -0x45EC (absolute 0x00764B04). */
 extern KwlnTask* iGpffffba14;
 extern void (*jtbl_008873FC[])();
-extern void func_0046d730(const void* file, u32 line);
+extern void kAssertFail(const void* file, u32 line);
 extern char D_00710568[];
 extern void func_0046d740(const void* file, const void* file2, u32 line);
 extern char D_00710580[];
@@ -289,21 +289,21 @@ err:
         iGpffffb9f4++;
         if (iGpffffb9f4 > 0x3E8)
         {
-            func_0046d730(D_00710568, 0x121);
+            kAssertFail(D_00710568, 0x121);
         }
         break;
     case 2:
         iGpffffba0c++;
         if (iGpffffba0c > 0x3E8)
         {
-            func_0046d730(D_00710568, 0x125);
+            kAssertFail(D_00710568, 0x125);
         }
         break;
     case 3:
         iGpffffba00++;
         if (iGpffffba00 > 0x3E8)
         {
-            func_0046d730(D_00710568, 0x129);
+            kAssertFail(D_00710568, 0x129);
         }
         break;
     }
@@ -383,7 +383,7 @@ void kwlnTaskRunList(void)
             {
                 if ((iGpffffba14->flags & 0xF) != 2)
                 {
-                    func_0046d730(D_00710568, 0x22F);
+                    kAssertFail(D_00710568, 0x22F);
                 }
                 if (iGpffffba14 != 0)
                 {
@@ -398,7 +398,7 @@ void kwlnTaskRunList(void)
             {
                 if ((node->flags & 0xF) != 2)
                 {
-                    func_0046d730(D_00710568, 0x236);
+                    kAssertFail(D_00710568, 0x236);
                 }
                 node = node->listNext;
             }
@@ -467,7 +467,7 @@ done:
     return;
 err:
     func_00440b68(D_00710580);
-    func_0046d730(D_00710568, 0x308);
+    kAssertFail(D_00710568, 0x308);
     return;
 body:
     kwlnTaskUnlinkFromList(task);
@@ -523,7 +523,7 @@ void kwlnTaskKillSiblingChain(KwlnTask* task)
         default:
 err:
             func_00440b68(D_00710580);
-            func_0046d730(D_00710568, 0x308);
+            kAssertFail(D_00710568, 0x308);
             break;
         case 1:
         case 2:
@@ -695,12 +695,12 @@ void* kwlnTaskCreate(const void* a0, s32 a1, s32 a2, s32 a3, SdkTaskUpdate a4, S
     name = (const s8*)a0;
     if (name[0] == 0)
     {
-        func_0046d730(D_00710568, 0x4A9);
+        kAssertFail(D_00710568, 0x4A9);
     }
     task = D_008873F8[0](iGpffffba18, 0x41001);
     if (task == 0)
     {
-        func_0046d730(D_00710568, 0x4B5);
+        kAssertFail(D_00710568, 0x4B5);
     }
     if (task == 0)
     {
@@ -796,7 +796,7 @@ u8 kwlnTaskDestroyWithHierarchy(KwlnTask* task)
         default:
 inner_err:
             func_00440b68(D_00710580);
-            func_0046d730(D_00710568, 0x308);
+            kAssertFail(D_00710568, 0x308);
             break;
         case 1:
         case 2:
@@ -1033,7 +1033,7 @@ void kwlnTaskRemoveFromParent(KwlnTask* childTask)
     {
         if (childTask->next != NULL)
         {
-            func_0046d730(D_00710568, 0x657);
+            kAssertFail(D_00710568, 0x657);
         }
         return;
     }

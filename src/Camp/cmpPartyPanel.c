@@ -3,7 +3,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 
-void func_0046d730(void* arg0, s32 arg1);
+void kAssertFail(void* arg0, s32 arg1);
 void sdkSpriteRelease(u8 *node);
 void chkmemAllocSiteTag(void* file, s32 line);
 
@@ -105,7 +105,7 @@ void func_00362fd0(u8* arg0, f32* arg1, f32* arg2, s16 arg3) {
         *(Vec2f*)(arg0 + 0x00) = *(Vec2f*)(arg1);
     }
     if (arg2 == NULL) {
-        func_0046d730(D_0064E290, 0x92);
+        kAssertFail(D_0064E290, 0x92);
     }
     *(Vec2f*)(arg0 + 0x08) = *(Vec2f*)(arg2);
     *(Vec2f*)(arg0 + 0x10) = *(Vec2f*)(arg0 + 0x00);
@@ -203,10 +203,10 @@ void func_00363200(u8* arg0, s64 arg1)
         f32 y39;
 
         if (sprB == 0) {
-            func_0046d730(D_0064E290, 0x108);
+            kAssertFail(D_0064E290, 0x108);
         }
         if (sprA == 0) {
-            func_0046d730(D_0064E290, 0x109);
+            kAssertFail(D_0064E290, 0x109);
         }
         xy = *(Vec2f*)(panelSlot(off, arg0) + 0x20);
         hpCur = func_00104ce0(id) & 0xFFFF;
@@ -338,7 +338,7 @@ s32 func_00363610(u8 *task)
                 sprintf(initialName, (const char *)D_0064E2A0, id);
                 work->rows[i].sprite = sdkSpriteRequestLoad(initialName);
                 if (work->rows[i].sprite == NULL) {
-                    func_0046d730(D_0064E290, 0x166);
+                    kAssertFail(D_0064E290, 0x166);
                 }
             }
         }
@@ -420,7 +420,7 @@ s32 func_00363610(u8 *task)
                     sprintf(addedName, (const char *)D_0064E2A0, id);
                     work->rows[changed].sprite = sdkSpriteRequestLoad(addedName);
                     if (work->rows[changed].sprite == NULL) {
-                        func_0046d730(D_0064E290, 0x166);
+                        kAssertFail(D_0064E290, 0x166);
                     }
                 }
                 work->state = 2;
@@ -500,7 +500,7 @@ s32 func_00363610(u8 *task)
                 sprintf(replacedName, (const char *)D_0064E2A0, id);
                 row->sprite = sdkSpriteRequestLoad(replacedName);
                 if (row->sprite == NULL) {
-                    func_0046d730(D_0064E290, 0x166);
+                    kAssertFail(D_0064E290, 0x166);
                 }
             }
             work->state = 2;
@@ -546,11 +546,11 @@ s32 func_003641a0(s32 arg0) {
     chkmemAllocSiteTag(D_0064E290, 0x253);
     work = D_008873F4[0](1, 0xE0, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_0064E290, 0x254);
+        kAssertFail(D_0064E290, 0x254);
     }
     r = (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0064E2E0), 0xC7, 0, 0, func_00363610, func_003640f0, (u8 *)(work));
     if (r == 0) {
-        func_0046d730(D_0064E290, 0x25E);
+        kAssertFail(D_0064E290, 0x25E);
     }
     *(s32 *)(work + 0x4) = 0;
     memset(work + 0xB0, 0, 0x30);

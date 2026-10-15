@@ -28,7 +28,7 @@ extern u8 D_007EF9B0[];
 extern s32 D_00764364;
 extern u8* D_00762EA0;
 
-extern void func_0046d730(const char* file, s32 line);
+extern void kAssertFail(const char* file, s32 line);
 extern s32 func_00457120(void);
 extern void* FldEvent_GetNearestEntry(void);
 extern void* FldEvent_GetTriggerEntry(void);
@@ -165,7 +165,7 @@ s32 Cmd_PlayModelMotion(void)
         break;
     }
     default:
-        func_0046d730(D_005F1858, 0x1E0);
+        kAssertFail(D_005F1858, 0x1E0);
         break;
     }
     return 1;
@@ -208,7 +208,7 @@ s32 Cmd_CheckModelFlag(void)
         break;
     }
     default:
-        func_0046d730(D_005F1858, 0x212);
+        kAssertFail(D_005F1858, 0x212);
         break;
     }
     return 1;
@@ -252,7 +252,7 @@ s32 Cmd_SetModelFloatParam(void)
         break;
     }
     default:
-        func_0046d730(D_005F1858, 0x23C);
+        kAssertFail(D_005F1858, 0x23C);
         break;
     }
     return 1;
@@ -291,7 +291,7 @@ s32 Cmd_CompareModelThreshold(void)
         }
         break;
     default:
-        func_0046d730(D_005F1858, 0x264);
+        kAssertFail(D_005F1858, 0x264);
         break;
     }
     return (f >= threshold) ^ 1;
@@ -339,7 +339,7 @@ s32 Cmd_SetModelScale(void)
         break;
     }
     default:
-        func_0046d730(D_005F1858, 0x294);
+        kAssertFail(D_005F1858, 0x294);
         break;
     }
     return 1;
@@ -369,7 +369,7 @@ s32 Cmd_SetShadowRingRadius(void)
     case 10:
         break;
     default:
-        func_0046d730(D_005F1858, 0x2B2);
+        kAssertFail(D_005F1858, 0x2B2);
         break;
     }
     return 1;
@@ -401,7 +401,7 @@ s32 Cmd_PlaceFieldResource(void)
     {
         Vec3f rotationAxis = {0.0f, 1.0f, 0.0f};
         if (placement == 0) {
-            func_0046d730(D_005F1858, 0x2C3);
+            kAssertFail(D_005F1858, 0x2C3);
         }
         while (placement != 0) {
             if ((*(u16 *)placement & 0x3FF) == placementId) {
@@ -515,7 +515,7 @@ s32 Cmd_PlaceFieldResource(void)
             break;
         }
         default:
-            func_0046d730(D_005F1858, 0x337);
+            kAssertFail(D_005F1858, 0x337);
             break;
         }
         return 1;
@@ -722,7 +722,7 @@ s32 Cmd_SetFieldFloat(void)
         break;
     }
     default:
-        func_0046d730(D_005F1858, 0x404);
+        kAssertFail(D_005F1858, 0x404);
         break;
     }
     return 1;
@@ -860,7 +860,7 @@ s32 Cmd_LoadFieldWord(void)
     }
     else
     {
-        func_0046d730(D_005F1858, 0x462);
+        kAssertFail(D_005F1858, 0x462);
     }
     return 1;
 }
@@ -877,7 +877,7 @@ s32 Cmd_LoadFieldWordAlt(void)
     }
     else
     {
-        func_0046d730(D_005F1858, 0x474);
+        kAssertFail(D_005F1858, 0x474);
     }
     return 1;
 }

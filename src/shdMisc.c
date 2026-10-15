@@ -26,7 +26,7 @@ extern char D_0064E2F8[];
 
 u32 func_00105ed0(void);
 s32 func_0046a770(char *param);
-void func_0046d730(char *, s32);
+void kAssertFail(char *, s32);
 void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3,
                   f32 z, s32 arg4);
 void RpSkyRenderStateSet(s32 param, s32 value);
@@ -61,7 +61,7 @@ void func_00364320(Vec2f pos, f32 z, s32 color, s32 num)
             s32 temp = func_0046a770(D_005E5810);
             iGpffffb5a8 = temp;
             if (temp == 0) {
-                func_0046d730(D_0064E2F8, 0x31);
+                kAssertFail(D_0064E2F8, 0x31);
             }
         }
         {
@@ -182,7 +182,7 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     z = D_008872F8[0] - depth;
     q = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
     if (ptr == NULL) {
-        func_0046d730(D_0064E2F8, 153);
+        kAssertFail(D_0064E2F8, 153);
     }
     alpha = (u8)(((u32)color & 0xFF000000) >> 24);
     red = (u8)(((u32)color & 0x00FF0000) >> 16);
@@ -275,7 +275,7 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
         RpSkyRenderStateSet(2, 0x58);
         break;
     default:
-        func_0046d730(D_0064E2F8, 265);
+        kAssertFail(D_0064E2F8, 265);
         break;
     }
     if (flag) {
@@ -622,7 +622,7 @@ static inline s32 radialCheckedSegmentCount(u32 segments)
 {
     s32 count = (s32)(segments & 0xFFFF);
     if (count <= 0 || count > 100) {
-        func_0046d730(D_0064E2F8, 571);
+        kAssertFail(D_0064E2F8, 571);
     }
     return count;
 }

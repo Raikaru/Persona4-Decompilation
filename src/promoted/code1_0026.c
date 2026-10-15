@@ -95,7 +95,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
-extern void func_0046d730(void *arg0, s32 arg1);
+extern void kAssertFail(void *arg0, s32 arg1);
 extern s32 func_00266ba0(u8 *arg0);
 extern s32 func_0045a8d0(s32 arg0, s32 arg1);
 extern s32 func_004598e0(s32 arg0);
@@ -1830,7 +1830,7 @@ s32 func_00267570(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     s32 result;
 
     if (arg3 == 0) {
-        func_0046d730(D_00638FA0, 0xF2);
+        kAssertFail(D_00638FA0, 0xF2);
     }
     chkmemAllocSiteTag(D_00638FA0, 0xF3);
     work = D_008873F4[0](1, 0x18, 0x40000);

@@ -128,7 +128,7 @@ s32 func_002938c0(u8 *task) {
             if (ready != 0) {
                 *(s32 *)(temp_2 + 0x2C) = (s32)func_002905a0((s32 **)(temp_2 + 0x38));
                 if (*(s32 *)(temp_2 + 0x38) == 0) {
-                    func_0046d730(D_0063C970, 0x88);
+                    kAssertFail(D_0063C970, 0x88);
                 }
                 *(u8 **)temp_2 = (u8 *)4;
             } else {
@@ -150,7 +150,7 @@ s32 func_002938c0(u8 *task) {
             if (ready != 0) {
                 *(s32 *)(temp_2 + 0x30) = (s32)func_00290660((s32 **)(temp_2 + 0x3C));
                 if (*(s32 *)(temp_2 + 0x3C) == 0) {
-                    func_0046d730(D_0063C970, 0xA4);
+                    kAssertFail(D_0063C970, 0xA4);
                 }
                 *(u8 **)temp_2 = (u8 *)6;
             } else {
@@ -249,7 +249,7 @@ s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 // FUN_00293FC0
 s32 func_00293fc0(s32 arg0) {
     if (kwlnTaskIsLinked(arg0) == 0) {
-        func_0046d730(D_0063C970, 0x123);
+        kAssertFail(D_0063C970, 0x123);
     }
     if (((s32 *)kwlnTaskGetWork((void *)arg0))[0] == 7) {
         return 1;
@@ -260,7 +260,7 @@ s32 func_00293fc0(s32 arg0) {
 // FUN_00294040
 u8 *func_00294040(s32 arg0) {
     if (kwlnTaskIsLinked(arg0) == 0) {
-        func_0046d730(D_0063C970, 0x131);
+        kAssertFail(D_0063C970, 0x131);
     }
     return (u8 *)kwlnTaskGetWork((void *)arg0);
 }
@@ -277,14 +277,14 @@ s32 func_002940a0(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
 
     memset(base, 0, 0x114);
     if (kwlnTaskIsLinked(arg0) == 0) {
-        func_0046d730((char *)D_0063C970, 0x123);
+        kAssertFail((char *)D_0063C970, 0x123);
     }
     if (((s32 *)kwlnTaskGetWork((void *)arg0))[0] != 7) {
         if (kwlnTaskIsLinked(arg0) == 0) {
-            func_0046d730((char *)D_0063C970, 0x123);
+            kAssertFail((char *)D_0063C970, 0x123);
         }
         if (((s32 *)kwlnTaskGetWork((void *)arg0))[0] != 7) {
-            func_0046d730((char *)D_0063C970, 0x143);
+            kAssertFail((char *)D_0063C970, 0x143);
         }
         return 0;
     }

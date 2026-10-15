@@ -76,7 +76,7 @@ s32 func_00457120(void);
 f32 sinf(f32 arg0);
 f32 cosf(f32 arg0);
 
-void func_0046d730(void *file, s32 line);
+void kAssertFail(void *file, s32 line);
 void memset(void *dest, s32 value, s32 size);
 void func_0034edc0(void);
 
@@ -99,7 +99,7 @@ s32 func_0034b970(void) {
 
     temp_2 = (s32)kwlnTaskCreate((const void *)(&iGpffffa948), 0xC7, 0, 0, func_0034b8d0, 0, (u8 *)(0));
     if (temp_2 == 0) {
-        func_0046d730(&iGpffffa950, 0x168);
+        kAssertFail(&iGpffffa950, 0x168);
     }
     memset(D_00882FC0, 0, 0x30);
     D_00882FC8[0] = func_0034b950;
@@ -228,7 +228,7 @@ s32 func_0034bb20(s32 arg0) {
             D_00884680[0] = 0;
             return 1;
         }
-        func_0046d730(&iGpffffa950, 0x1F2);
+        kAssertFail(&iGpffffa950, 0x1F2);
     }
     return 0;
 }
@@ -312,7 +312,7 @@ void func_0034bea0(void) {
     u8 flags;
 
     if ((D_00884684[0] == 0) || (D_00884670[0] == 0)) {
-        func_0046d730(&iGpffffa950, 0x235);
+        kAssertFail(&iGpffffa950, 0x235);
     }
     if ((f32)D_00884674[0] < D_00884678[0]) {
         D_00884674[0] += 1;
@@ -437,7 +437,7 @@ void func_0034c270(Vec2f arg0, s32 arg1, s32 arg2, f32 fparg0) {
     D_0088467C[0] = fparg0;
     memset(sp50, 0, 0x16A0);
     if ((arg2 <= 0) || (arg2 >= 0x24)) {
-        func_0046d730(&iGpffffa950, 0x2B8);
+        kAssertFail(&iGpffffa950, 0x2B8);
     }
     *(s32 *)((u8 *)sp50 + 0x1680) = arg2;
     *(s16 *)((u8 *)sp50 + 0x1684) = (s16)(s32)(*(f32 *)(D_007523C4 + arg2 * 0x10));
@@ -630,7 +630,7 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
     case 15: func_0034db60(arg0, 0.5f, 0); break;
     case 16: func_0034db60(arg0, 1.0f, 1); break;
     case 17: func_0034db60(arg0, 1.0f, 0); break;
-    default: func_0046d730(&iGpffffa950, 0x3A9); break;
+    default: kAssertFail(&iGpffffa950, 0x3A9); break;
     }
     switch ((s64)effect) {
     case 0: break;
@@ -684,7 +684,7 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
         func_0034f0d0(arg0 + 0x950, right3, y3, z3, q3, 255, 255, 129, alpha3);
         break;
     case 4: break;
-    default: func_0046d730(&iGpffffa950, 0x3DF); break;
+    default: kAssertFail(&iGpffffa950, 0x3DF); break;
     }
 }
 // FUN_0034CEF0
@@ -697,7 +697,7 @@ void func_0034cef0(u8 *arg0) {
         if ((u32)*(s16 *)(arg0 + 0xFE0) <= 0x33U) {
             /* no-op */
         } else {
-            func_0046d730(&iGpffffa950, 0x3EF);
+            kAssertFail(&iGpffffa950, 0x3EF);
         }
         D_00887310[0](3, arg0 + 0x320, *(s16 *)(arg0 + 0xFE0));
         func_00364c70();
@@ -1372,7 +1372,7 @@ s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
             }
         }
         if (strip_n > 0x33) {
-            func_0046d730(&iGpffffa950, 0x67E);
+            kAssertFail(&iGpffffa950, 0x67E);
         }
         return strip_n;
     }
@@ -1405,12 +1405,12 @@ s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
             --i;
         }
         if (n > 0x33) {
-            func_0046d730(&iGpffffa950, 0x6AC);
+            kAssertFail(&iGpffffa950, 0x6AC);
         }
         return n;
     }
     default:
-        func_0046d730(&iGpffffa950, 0x6AF);
+        kAssertFail(&iGpffffa950, 0x6AF);
         return 0;
     }
 }

@@ -48,7 +48,7 @@ extern s32 D_00724C64;
 extern f32 D_00724C78[2];
 extern f32 D_00724C7C;
 extern u8 D_00714350[];
-extern void func_0046d730(u8 *arg0, s32 arg1);
+extern void kAssertFail(u8 *arg0, s32 arg1);
 extern s32 func_003e9320(void);
 extern s32 func_00457120(void);
 extern void func_003e9830(s32 arg0, s32 arg1);
@@ -440,7 +440,7 @@ void *func_004a5bb0(void *source)
     chkmemAllocSiteTag(D_007141A0, 0x1C);
     temp_2 = (u8 *)jtbl_008873E8[0](0xD4, 0x40000);
     if (temp_2 == NULL) {
-        func_0046d730(D_007141A0, 0x1D);
+        kAssertFail(D_007141A0, 0x1D);
     }
     memset(temp_2, 0, 0xD4);
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(temp_2) : "memory");
@@ -460,7 +460,7 @@ void *func_004a5bb0(void *source)
     *(s32 *)(temp_2 + 0x28) = *(u16 *)(arg0 + 0xC);
     temp_2_3 = func_00484490(arg0);
     if (temp_2_3 == NULL) {
-        func_0046d730(D_007141A0, 0x47);
+        kAssertFail(D_007141A0, 0x47);
     }
     memcpy(temp_2 + 0x30, temp_2_3, 0x98);
     temp_2_4 = func_004844d0(arg0);
@@ -482,7 +482,7 @@ void *func_004a5bb0(void *source)
             *(s32 *)(temp_2 + 0xCC) = func_00482800(temp_2_4);
             break;
         default:
-            func_0046d730(D_007141A0, 0x5D);
+            kAssertFail(D_007141A0, 0x5D);
             break;
         }
     }
@@ -853,7 +853,7 @@ u8 *func_004a6c00(u8 *arg0)
     chkmemAllocSiteTag(D_00714350, 0x78);
     temp_2 = (u8 *)jtbl_008873E8[0](0x5C, 0x40000);
     if (temp_2 == NULL) {
-        func_0046d730(D_00714350, 0x79);
+        kAssertFail(D_00714350, 0x79);
     }
     memset(temp_2, 0, 0x5C);
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(temp_2) : "memory");
@@ -917,7 +917,7 @@ void func_004a6e40(u8 *arg0)
 // FUN_004A77B0
 void func_004a77b0(void) {
     if (D_00724C70 != 0) {
-        func_0046d730(D_00714350, 0x1E9);
+        kAssertFail(D_00714350, 0x1E9);
     }
     D_00724C58 = 0;
     D_00724C5C = 0;

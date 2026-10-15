@@ -39,7 +39,7 @@ extern u8 *D_008817F4_abs[];
 extern u8 D_008817FC_abs[];
 void func_0027b310(u32 param_1);
 extern char D_0063BE10[];
-void func_0046d730(const char *file, s32 line);
+void kAssertFail(const char *file, s32 line);
 void func_002850f0();
 
 s32 func_0027b500(u8 *task);
@@ -163,7 +163,7 @@ s32 itfMesCmdWindowOpen(void)
 
     object = D_00881808[index].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x165);
+        kAssertFail(D_0063BE10, 0x165);
 
     handle = scrGetParamInt(0);
     base = object + 0x1C;
@@ -195,7 +195,7 @@ s32 itfMesCmdWindowClose(void)
 
     object = D_00881808[index].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x18F);
+        kAssertFail(D_0063BE10, 0x18F);
 
     handle = scrGetParamInt(0);
     base = object + 0x1C;
@@ -245,7 +245,7 @@ s32 itfMesCmdWindowOpenStyled(void)
 
     object = D_00881808[index].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x1CE);
+        kAssertFail(D_0063BE10, 0x1CE);
 
     handle = scrGetParamInt(0);
     base = object + 0x1C;
@@ -298,7 +298,7 @@ s32 itfMesCmdWindowOpenAt(void)
 
     object = D_00881808[index].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x210);
+        kAssertFail(D_0063BE10, 0x210);
 
     h0 = scrGetParamInt(0);
     h1 = scrGetParamInt(1);
@@ -340,7 +340,7 @@ s32 itfMesCmdWindowOpenHold(void)
 
     object = D_00881808[index].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x249);
+        kAssertFail(D_0063BE10, 0x249);
 
     handle = scrGetParamInt(0);
     base = object + 0x1C;
@@ -380,7 +380,7 @@ s8 itfMesWindowState(s32 arg0)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x284);
+        kAssertFail(D_0063BE10, 0x284);
     return *(s8 *)(object + 0x24);
 }
 
@@ -391,7 +391,7 @@ void itfMesWindowSetState(s32 arg0, s8 arg1)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x29F);
+        kAssertFail(D_0063BE10, 0x29F);
     *(s8 *)(object + 0x24) = arg1;
 }
 
@@ -410,7 +410,7 @@ s32 itfMesCmdWindowResult(void)
 
     object = D_00881808[index].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x2C2);
+        kAssertFail(D_0063BE10, 0x2C2);
 
     h = scrGetParamInt(0);
     base = object + 0x3C;
@@ -433,7 +433,7 @@ s16 itfMesWindowGetAnim(s32 arg0)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x2F0);
+        kAssertFail(D_0063BE10, 0x2F0);
     return *(s16 *)(object + 0x48);
 }
 
@@ -444,7 +444,7 @@ void itfMesWindowSetAnim(s32 arg0, s16 arg1)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x306);
+        kAssertFail(D_0063BE10, 0x306);
     *(s16 *)(object + 0x48) = arg1;
 }
 
@@ -455,7 +455,7 @@ s32 itfMesWindowGetAnimAux(s32 arg0)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x31F);
+        kAssertFail(D_0063BE10, 0x31F);
     return *(s16 *)(object + 0x4A);
 }
 // FUN_002770D0
@@ -501,7 +501,7 @@ s32 itfMesCmdWindowIsIdle(void)
 
     object = D_00881808[index].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x398);
+        kAssertFail(D_0063BE10, 0x398);
 
     flags = *(s32 *)object & 0x300;
     if (flags == 0x100 || flags == 0x200)
@@ -519,7 +519,7 @@ void itfMesWindowRelease(s32 arg0)
 
     obj = D_00881808[arg0].unk0;
     if (obj == NULL)
-        func_0046d730(D_0063BE10, 0x3B8);
+        kAssertFail(D_0063BE10, 0x3B8);
 
     node = *(u8 **)DAT_008817EC_abs;
     while (node != NULL) {
@@ -612,14 +612,14 @@ s32 itfMesWindowInstall(u8 *arg0)
     u8 *obj;
 
     if (itfMesRecordIsValid(arg0) != 1)
-        func_0046d730(D_0063BE10, 0x525);
+        kAssertFail(D_0063BE10, 0x525);
     manager = (u8 *)func_00285170(DAT_008817EC_abs);
     if (manager == NULL)
-        func_0046d730(D_0063BE10, 0x529);
+        kAssertFail(D_0063BE10, 0x529);
     result = *(s32 *)(manager + 8);
     obj = itfMesObjectCreate(arg0);
     if (manager == NULL || obj == NULL)
-        func_0046d730(D_0063BE10, 0x4F4);
+        kAssertFail(D_0063BE10, 0x4F4);
     i = 0;
     goto slot_test;
 slot_loop:
@@ -634,7 +634,7 @@ slot_test:
     i = -1;
 slot_done:
     if (i != 0)
-        func_0046d730(D_0063BE10, 0x530);
+        kAssertFail(D_0063BE10, 0x530);
     found = 0;
     if (i >= 0 || i < 4) {
         i *= 4;
@@ -660,7 +660,7 @@ u8 *itfMesObjectCreate(u8 *arg0)
     u8 *obj;
 
     if (itfMesRecordIsValid(arg0) != 1)
-        func_0046d730(D_0063BE10, 0x55A);
+        kAssertFail(D_0063BE10, 0x55A);
     func_0046a2d0(D_0063BE10, 0x567);
     obj = func_0046a430(0x130);
     memset(obj, 0, 0x130);
@@ -681,7 +681,7 @@ u8 *itfMesObjectCreate(u8 *arg0)
 s32 itfMesRecordCount(u8 *arg0)
 {
     if (itfMesRecordIsValid(arg0) != 1)
-        func_0046d730(D_0063BE10, 0x589);
+        kAssertFail(D_0063BE10, 0x589);
     return *(s32 *)(arg0 + 0x18);
 }
 
@@ -700,10 +700,10 @@ s32 itfMesWindowGetSubTable(s32 arg0)
     u8 *object;
 
     if (arg0 < 0 || arg0 >= 0x40)
-        func_0046d730(D_0063BE10, 0x134);
+        kAssertFail(D_0063BE10, 0x134);
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x5C7);
+        kAssertFail(D_0063BE10, 0x5C7);
     return (s32)object + 0x114;
 }
 
@@ -719,10 +719,10 @@ s32 itfMesWindowBindRecord(s32 arg0, s32 arg1, s32 arg2)
     u8 *r2;
 
     if (arg0 < 0 || arg0 >= 0x40)
-        func_0046d730(D_0063BE10, 0x134);
+        kAssertFail(D_0063BE10, 0x134);
     obj = D_00881808[arg0].unk0;
     if (obj == NULL)
-        func_0046d730(D_0063BE10, 0x5DE);
+        kAssertFail(D_0063BE10, 0x5DE);
     r = (u8 *)itfMesRecordEntry((s32)obj, arg1);
     if (*(s32 *)r == 1) {
         itfMesWindowLayout(arg0, arg1);
@@ -835,10 +835,10 @@ void itfMesWindowLayout(s32 arg0, s32 arg1)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x686);
+        kAssertFail(D_0063BE10, 0x686);
     record = (u8 *)itfMesRecordEntry((s32)object, arg1);
     if (*(s32 *)record != 1)
-        func_0046d730(D_0063BE10, 0x68A);
+        kAssertFail(D_0063BE10, 0x68A);
     base = object + 0x3C;
     old_font = *(s32 *)(object + 0x40);
     if (old_font != 0) {
@@ -908,7 +908,7 @@ void itfMesWindowResetObject(u8 *arg0)
     s32 v;
 
     if (arg0 == NULL)
-        func_0046d730(D_0063BE10, 0x6F0);
+        kAssertFail(D_0063BE10, 0x6F0);
     base = arg0 + 0x3C;
     if (*(s32 *)(arg0 + 0x40) != 0) {
         frFontListKeepOrRelease(*(s32 *)(arg0 + 0x40));
@@ -932,7 +932,7 @@ void itfMesWindowSetHandle(s32 arg0, u32 arg1)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x714);
+        kAssertFail(D_0063BE10, 0x714);
     *(u32 *)(object + 0x44) = arg1;
 }
 
@@ -949,7 +949,7 @@ void itfMesWindowSetCursor(s32 arg0, s32 arg1)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x729);
+        kAssertFail(D_0063BE10, 0x729);
     base = object + 0x3C;
     zeros = 0;
     bits = *(u32 *)(object + 0x44);
@@ -978,7 +978,7 @@ void itfMesWindowMove(s32 arg0, s32 arg1, s32 arg2)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x769);
+        kAssertFail(D_0063BE10, 0x769);
     frFontMoveListTo(*(s32 *)(object + 0x20), arg1, arg2);
 }
 
@@ -989,7 +989,7 @@ s32 itfMesWindowGetFlags(s32 arg0)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x7A7);
+        kAssertFail(D_0063BE10, 0x7A7);
     return *(s32 *)object;
 }
 
@@ -1000,7 +1000,7 @@ void itfMesWindowSetFlagBits(s32 arg0, s32 arg1)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x7E8);
+        kAssertFail(D_0063BE10, 0x7E8);
     *(u32 *)object |= (u32)arg1 & 0xFFFF0000;
 }
 
@@ -1011,7 +1011,7 @@ void itfMesWindowClearFlagBits(s32 arg0, s32 arg1)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x7FD);
+        kAssertFail(D_0063BE10, 0x7FD);
     *(u32 *)object &= ~((u32)arg1 & 0xFFFF0000);
 }
 
@@ -1022,7 +1022,7 @@ s16 func_00278260(s32 arg0)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0x810);
+        kAssertFail(D_0063BE10, 0x810);
     return *(s16 *)(object + 0x4A);
 }
 
@@ -1086,7 +1086,7 @@ void itfMesWindowFormatValue(int param_1, int param_2, int param_3, u32 param_4)
 void itfMesWindowSetString(s32 arg0, s32 arg1, char *arg2)
 {
     if (arg0 < 0 || arg0 >= 0x40)
-        func_0046d730(D_0063BE10, 0x134);
+        kAssertFail(D_0063BE10, 0x134);
     itfMesObjectSetString(D_00881808[arg0].unk0, arg1, (s32)arg2, 0);
 }
 
@@ -1094,7 +1094,7 @@ void itfMesWindowSetString(s32 arg0, s32 arg1, char *arg2)
 void itfMesWindowSetNumber(s32 arg0, s32 arg1, s32 arg2)
 {
     if (arg0 < 0 || arg0 >= 0x40)
-        func_0046d730(D_0063BE10, 0x134);
+        kAssertFail(D_0063BE10, 0x134);
     itfMesObjectSetNumber(D_00881808[arg0].unk0, arg1, arg2);
 }
 
@@ -1106,7 +1106,7 @@ u8 *itfMesObjectSetRecord(u8 *arg0, u8 *arg1)
     s32 v;
 
     if (arg0 == NULL)
-        func_0046d730(D_0063BE10, 0x8F4);
+        kAssertFail(D_0063BE10, 0x8F4);
     old = *(u8 **)(arg0 + 4);
     *(u8 **)(arg0 + 4) = arg1;
     itfMesRecordFixup(arg1);
@@ -1193,11 +1193,11 @@ s32 itfMesWindowMeasureText(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
     obj = D_00881808[arg0].unk0;
     if (obj == NULL) {
-        func_0046d730(D_0063BE10, 0x9AE);
+        kAssertFail(D_0063BE10, 0x9AE);
     }
     t = (u8 *)itfMesRecordEntry((int)obj, arg1);
     if (*(s32 *)t != 0) {
-        func_0046d730(D_0063BE10, 0x9B3);
+        kAssertFail(D_0063BE10, 0x9B3);
     }
     t = *(u8 **)(t + 4);
     if (*(s16 *)(t + 0x18) == 0) {
@@ -1264,7 +1264,7 @@ void itfMesWindowFree(s32 arg0)
     *(s32 *)(base + 0xC) = 0;
     for (i = 0; i < 4; i++) {
         if (base == NULL || i < 0 || i >= 4)
-            func_0046d730(D_0063BE10, 0x501);
+            kAssertFail(D_0063BE10, 0x501);
         v = *(s32 *)(base + i * 4 + 0x10);
         if (v != 0) {
             *(s32 *)(base + i * 4 + 0x10) = 0;
@@ -1288,7 +1288,7 @@ void itfMesObjectFree(u8 *arg0)
     if (arg0 != NULL) {
         itfMesWindowClearObject(arg0, 1);
         if (arg0 == NULL)
-            func_0046d730(D_0063BE10, 0x6F0);
+            kAssertFail(D_0063BE10, 0x6F0);
         base = arg0 + 0x3C;
         if (*(s32 *)(arg0 + 0x40) != 0) {
             frFontListKeepOrRelease(*(s32 *)(arg0 + 0x40));
@@ -1424,7 +1424,7 @@ s32 itfMesWindowEntryValue(s32 arg0, s32 arg1)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0xB3E);
+        kAssertFail(D_0063BE10, 0xB3E);
     off = arg1 * 8;
     return *(s32 *)(off + (s32)(*(s32 *)(object + 4)) + 0x20);
 }
@@ -1436,7 +1436,7 @@ s32 itfMesWindowRecordCount(s32 arg0)
 
     object = D_00881808[arg0].unk0;
     if (object == NULL)
-        func_0046d730(D_0063BE10, 0xB55);
+        kAssertFail(D_0063BE10, 0xB55);
     return *(s32 *)(*(s32 *)(object + 4) + 0x18);
 }
 
@@ -1500,16 +1500,16 @@ u8 *itfMesWindowBuildEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
 
     obj = D_00881808[arg4].unk0;
     if (obj == NULL)
-        func_0046d730(D_0063BE10, 0xBDD);
+        kAssertFail(D_0063BE10, 0xBDD);
     slot = (u8 *)(((u32)arg5 << 3) + (s32)*(s32 **)((u32)obj + 4) + 0x20);
     if (slot == NULL)
-        func_0046d730(D_0063BE10, 0xBE0);
+        kAssertFail(D_0063BE10, 0xBE0);
     entry = *(u8 **)(slot + 4);
     if (entry == NULL)
-        func_0046d730(D_0063BE10, 0xBE3);
+        kAssertFail(D_0063BE10, 0xBE3);
     result = (u8 *)itfMesRecordTextAt((s32)entry, 0);
     if (result == NULL)
-        func_0046d730(D_0063BE10, 0xBE6);
+        kAssertFail(D_0063BE10, 0xBE6);
     result = frFontBuildTextSimple(
         (s32)(16.0f * fparg0),
         (s32)(8.0f * fparg1),
@@ -1570,9 +1570,9 @@ s32 itfMesWindowDrawPair(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
 
     obj = D_00881808[arg4].unk0;
     if (arg4 < 0)
-        func_0046d730(D_0063BE10, 0xC32);
+        kAssertFail(D_0063BE10, 0xC32);
     if (arg6 < 0)
-        func_0046d730(D_0063BE10, 0xC33);
+        kAssertFail(D_0063BE10, 0xC33);
     itfMesApplySlotTable(obj + 0x94);
     r = itfMesWindowBuildEntry(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
     if (arg7 != 0) {
@@ -1599,7 +1599,7 @@ s64 itfMesWindowRunEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 
     obj = D_00881808[arg0].unk0;
     if (obj == NULL)
-        func_0046d730(D_0063BE10, 0xC50);
+        kAssertFail(D_0063BE10, 0xC50);
     base = (u8 *)*(s32 *)(obj + 4);
     address = (u8 *)(arg1 * 8) + (u32)base;
     return frFontRunCommand(itfMesRecordTextAt(*(s32 *)(address + 0x24), 0), arg2, arg3);
@@ -1655,7 +1655,7 @@ void itfMesWindowBuildRow(u8 *arg0)
     else
         slot = *(u8 **)(((u32)index << 2) + (s32)table + 0x1C);
     if (slot == NULL)
-        func_0046d730(D_0063BE10, 0xC82);
+        kAssertFail(D_0063BE10, 0xC82);
     iGpffffb4b0 = 0x7B;
     {
         u32 originX = 0;
@@ -1666,7 +1666,7 @@ void itfMesWindowBuildRow(u8 *arg0)
     }
     iGpffffb4b0 = 0;
     if (obj == NULL)
-        func_0046d730(D_0063BE10, 0xCAA);
+        kAssertFail(D_0063BE10, 0xCAA);
     *(u8 **)(base + 4) = obj;
     if (obj != NULL)
         *(s16 *)(base + 0xE) = itfMesLineCount((u8 *)frFontListTail((s32)obj), obj);
@@ -1729,9 +1729,9 @@ void itfMesObjectSetString(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     s32 *res;
 
     if (arg0 == NULL)
-        func_0046d730(D_0063BE10, 0xCF1);
+        kAssertFail(D_0063BE10, 0xCF1);
     if ((arg1 < 0) || (arg1 >= 0x20))
-        func_0046d730(D_0063BE10, 0xCF2);
+        kAssertFail(D_0063BE10, 0xCF2);
     base = (s32)arg0 + 0x94;
     slot = (s32 *)(base + arg1 * 4);
     if (*slot != 0) {
@@ -1773,10 +1773,10 @@ void itfMesObjectSetNumber(u8 *arg0, s32 arg1, s32 arg2) {
     s32 *res;
 
     if (arg0 == NULL) {
-        func_0046d730(D_0063BE10, 0xD38);
+        kAssertFail(D_0063BE10, 0xD38);
     }
     if ((arg1 < 0) || (arg1 >= 0x20)) {
-        func_0046d730(D_0063BE10, 0xD39);
+        kAssertFail(D_0063BE10, 0xD39);
     }
     base = (s32)arg0 + 0x94;
     slot = (s32 *)(base + arg1 * 4);
@@ -1812,7 +1812,7 @@ void itfMesWindowApplySlots(s32 arg0)
 
     entry = D_00881808[arg0].unk0;
     if (entry == 0) {
-        func_0046d730(D_0063BE10, 0xD76);
+        kAssertFail(D_0063BE10, 0xD76);
     }
     for (i = 0; i < 0x20; i++) {
         func_002746c0(i, *(u32 *)(entry + i * 4 + 0x94));
@@ -1826,7 +1826,7 @@ void itfMesWindowSetLabel(u8 *arg0, u8 *arg1)
     u8 *base;
 
     if (arg0 == NULL)
-        func_0046d730(D_0063BE10, 0xD96);
+        kAssertFail(D_0063BE10, 0xD96);
     base = arg0 + 0x14;
     if (*(s32 *)(arg0 + 0x14) != 0)
         frFontListKeepOrRelease(*(s32 *)(arg0 + 0x14));
@@ -1964,7 +1964,7 @@ u8 *itfMesReleaseTagRun(u8 *arg0, s32 arg1, s32 arg2)
 
     current = arg0;
     if (current == NULL)
-        func_0046d730(D_0063BE10, 0xE3E);
+        kAssertFail(D_0063BE10, 0xE3E);
     remaining = arg2 - arg1 - 1;
     tag = *(s32 *)(current + 8);
     while (remaining > 0) {
@@ -2008,7 +2008,7 @@ void itfMesWindowSetMetrics(int param_1, int param_2)
 s32 itfMesLineCount(u8 *arg0, u8 *arg1)
 {
     if (*(s16 *)(arg1 + 0x12) <= 0) {
-        func_0046d730(D_0063BE10, 0xE9F);
+        kAssertFail(D_0063BE10, 0xE9F);
     }
     return ((*(s32 *)(arg1 + 8) - *(s32 *)(arg0 + 8)) >> 3) /
                *(s16 *)(arg1 + 0x12) + 1;

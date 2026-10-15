@@ -7,7 +7,7 @@
 
 typedef struct { f32 x, y; } Vec2f;
 
-void func_0046d730(void* arg0, s32 arg1);
+void kAssertFail(void* arg0, s32 arg1);
 void sdkSpriteFreeNode(void *node);
 void func_00460ac0(void* param, void* work);
 void func_00106390(s32 a, s32 b);
@@ -73,7 +73,7 @@ s32 func_0035c690(void* arg0, s32 arg1) {
     chkmemAllocSiteTag(D_0064D3C8, 0xC5);
     work = D_008873F4[0](1, 0x4B0, 0x40000);
     if (work == NULL) {
-        func_0046d730(D_0064D3C8, 0xC6);
+        kAssertFail(D_0064D3C8, 0xC6);
     }
     r = (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0064D3D8), 0xC7, 0, 0, func_0035e720, func_0035e820, (u8 *)(work));
     memset(work + 0x47C, 0, 0x30);
@@ -88,7 +88,7 @@ s32 func_0035c690(void* arg0, s32 arg1) {
         func_0034c260(1);
         break;
     default:
-        func_0046d730(D_0064D3C8, 0xE6);
+        kAssertFail(D_0064D3C8, 0xE6);
         break;
     }
     return r;
@@ -143,7 +143,7 @@ void func_0035c830(u8* arg0) {
     }
     resource = (s32)(u32)func_0046a770((char *)D_005E5850);
     if (resource == 0) {
-        func_0046d730(D_0064D3C8, 0x12F);
+        kAssertFail(D_0064D3C8, 0x12F);
     }
     result = (s32)(u32)func_0046a770((char *)D_005E57F0);
     *(s32 *)(arg0 + 0x474) = result;
@@ -152,7 +152,7 @@ void func_0035c830(u8* arg0) {
         code = D_0064D3B8[k];
         *(s32 *)dst = sdkSpriteNewNode(resource, code);
         if (*(s32 *)dst == 0) {
-            func_0046d730(D_0064D3C8, 0x136);
+            kAssertFail(D_0064D3C8, 0x136);
         }
     }
     for (m = 0; m < 6; m++) {
@@ -305,7 +305,7 @@ s32 func_0035ce10(u8* arg0, s32 mode) {
         *(s32*)(arg0 + 0x24) = 3;
         break;
     default:
-        func_0046d730(D_0064D3C8, 0x207);
+        kAssertFail(D_0064D3C8, 0x207);
         break;
     }
     if (tab != 0) {
@@ -832,7 +832,7 @@ s32 func_0035e720(u8* arg0) {
         p[4] |= 1;
         break;
     default:
-        func_0046d730(D_0064D3C8, 0x49E);
+        kAssertFail(D_0064D3C8, 0x49E);
         break;
     }
     return 0;

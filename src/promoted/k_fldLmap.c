@@ -14,7 +14,7 @@ typedef struct Vec3 { f32 x; f32 y; f32 z; } Vec3;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(s32, s32);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
-extern void func_0046d730(u8 *file, s32 line);
+extern void kAssertFail(u8 *file, s32 line);
 extern void func_00440b68();
 extern void sprintf(u8 *dst, u8 *src);
 extern u8 *func_00454a60(u8 *param, s32 mode);
@@ -157,7 +157,7 @@ s32 func_001866d0(u8 *arg0)
             } else if (temp_3_2 == 1) {
                 sprintf(sp40, D_005F1EE0);
             } else {
-                func_0046d730(D_005F1EF8, 0xC5);
+                kAssertFail(D_005F1EF8, 0xC5);
             }
         }
         func_00440b68(&iGpffff9f68, D_005F1EF8, 0xC8);

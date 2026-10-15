@@ -3,7 +3,7 @@
 #include "type.h"
 
 void chkmemAllocSiteTag(const void *msg, s32 id);
-void func_0046d730(const void *file, s32 line);
+void kAssertFail(const void *file, s32 line);
 void memset(void *dst, s32 value, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -42,7 +42,7 @@ u8 *func_002e1d00(s32 arg0) {
     chkmemAllocSiteTag(&D_0063FC38, 0x5C);
     node = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (node == NULL) {
-        func_0046d730(&D_0063FC38, 0x5E);
+        kAssertFail(&D_0063FC38, 0x5E);
     }
     memset(node, 0, size);
     if (arg0 != 0) {
@@ -65,7 +65,7 @@ u8 *func_002e1db0(s32 arg0, code arg1, code arg2, code arg3) {
     chkmemAllocSiteTag(&D_0063FC38, 0x33);
     node = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (node == NULL) {
-        func_0046d730(&D_0063FC38, 0x35);
+        kAssertFail(&D_0063FC38, 0x35);
     }
     memset(node, 0, size);
     if (arg0 != 0) {
@@ -94,7 +94,7 @@ u8 *func_002e1db0(s32 arg0, code arg1, code arg2, code arg3) {
 void func_002e1ef0(u8 *arg0) {
     func_002e22f0((int)arg0, (int)(arg0 + 4));
     if (arg0 == NULL) {
-        func_0046d730(&D_0063FC38, 0x49);
+        kAssertFail(&D_0063FC38, 0x49);
     }
     memset(arg0, 0, ((NmlistManager *)arg0)->size);
     (*jtbl_008873EC)(arg0);
@@ -103,7 +103,7 @@ void func_002e1ef0(u8 *arg0) {
 // FUN_002E1F70
 void func_002e1f70(NmlistList *list, NmlistNode *after, NmlistNode *node) {
     if (list == NULL) {
-        func_0046d730(&D_0063FC38, 0x113);
+        kAssertFail(&D_0063FC38, 0x113);
     }
     list->count++;
     if (node != NULL) {
@@ -142,10 +142,10 @@ NmlistNode *func_002e2080(NmlistList *list, NmlistNode *node) {
     NmlistNode *temp_3;
 
     if (list == NULL) {
-        func_0046d730(&D_0063FC38, 0x147);
+        kAssertFail(&D_0063FC38, 0x147);
     }
     if (node == NULL) {
-        func_0046d730(&D_0063FC38, 0x148);
+        kAssertFail(&D_0063FC38, 0x148);
     }
     list->count--;
     var_2 = node->prev;
@@ -183,7 +183,7 @@ u8 *func_002e2170(u8 *arg0, u8 *arg1, s32 arg2) {
     u8 *node;
 
     if (arg0 == NULL) {
-        func_0046d730(&D_0063FC38, 0x17B);
+        kAssertFail(&D_0063FC38, 0x17B);
     }
     node = func_002e1d00(arg2);
     if (arg1 == NULL) {
@@ -192,7 +192,7 @@ u8 *func_002e2170(u8 *arg0, u8 *arg1, s32 arg2) {
         *(u8 **)(node + 0) = arg1;
     }
     if (node == NULL) {
-        func_0046d730(&D_0063FC38, 0x17E);
+        kAssertFail(&D_0063FC38, 0x17E);
     }
     func_002e1f70((NmlistList *)(arg0 + 4), *(NmlistNode **)(arg0 + 8), (NmlistNode *)node);
     (*(code *)(arg0 + 0x14))(arg0, node);

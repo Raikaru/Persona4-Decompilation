@@ -8,7 +8,7 @@
 
 void func_004833f0(void *arg);
 void chkmemAllocSiteTag(u8 *file, s32 line);
-void func_0046d730(u8 *file, s32 line);
+void kAssertFail(u8 *file, s32 line);
 void *func_00481460(u16 arg0);
 void *func_00481540(u16 arg0);
 void func_00460ac0(void *arg0, void *arg1);
@@ -62,7 +62,7 @@ u8 *func_004b32f0(u8 *arg0)
     chkmemAllocSiteTag(D_00714628, 0x43);
     r = (u8 *)(*jtbl_008873E8)(n * 8 + 0x10, 0x40000);
     if (r == NULL) {
-        func_0046d730(D_00714628, 0x44);
+        kAssertFail(D_00714628, 0x44);
     }
     *(u8 **)(r + 0) = r + 0x10;
     *(u8 **)(r + 8) = r;
@@ -512,7 +512,7 @@ u8 *func_004b3ed0(u8 *arg0)
     chkmemAllocSiteTag(D_00714628, 0x16D);
     temp_2 = (u8 *)(*jtbl_008873E8)(temp_16 * 6 + 0x10, 0x40000);
     if (temp_2 == NULL) {
-        func_0046d730(D_00714628, 0x16E);
+        kAssertFail(D_00714628, 0x16E);
     }
     *(u8 **)(temp_2 + 0) = temp_2 + 0x10;
     *(u8 **)(temp_2 + 8) = temp_2;
@@ -854,14 +854,14 @@ u8 *func_004b4cb0(s32 arg0, u8 *arg1) {
     u32 idx2;
 
     if ((u16)arg0 >= 3) {
-        func_0046d730(D_00714628, 0x28C);
+        kAssertFail(D_00714628, 0x28C);
     }
     idx = (u16)arg0;
     size = *(s32 *)(&D_00714664[0] + idx * 0x18);
     chkmemAllocSiteTag(D_00714628, 0x290);
     w = (u8 *)(*jtbl_008873E8)(size + 0x30, 0x40000);
     if (w == NULL) {
-        func_0046d730(D_00714628, 0x291);
+        kAssertFail(D_00714628, 0x291);
     }
     *(u8 **)(w + 0x24) = w + 0x30;
     *(s32 *)(w + 0x14) = 0;
@@ -881,11 +881,11 @@ void *func_004b4e10(void *arg0) {
 
     p = func_00484490(arg0);
     if (p == NULL) {
-        func_0046d730(D_00714628, 0x2B3);
+        kAssertFail(D_00714628, 0x2B3);
     }
     p = func_004b4cb0(*(u16 *)((u8 *)arg0 + 0xC), p);
     if (p == NULL) {
-        func_0046d730(D_00714628, 0x2B5);
+        kAssertFail(D_00714628, 0x2B5);
     }
     return p;
 }

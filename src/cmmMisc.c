@@ -10,7 +10,7 @@ extern void func_00440b68(const char *fmt, const char *file, s32 line);
 extern void *func_00454a60(const char *path, s32 flags);
 extern void H_Cdvd_ReadSync(void *handle);
 extern u8 *func_00455ea0(u8 *handle, s32 index, s32 *out);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void func_0046d700(const char *file, s32 line, char *fmt, s32 value);
 extern s32 func_001060b0(void);
 extern u32 datGetFlag(s32 flag);
@@ -111,7 +111,7 @@ u8 *func_002467b0(s32 arg0) {
     s32 off;
 
     if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
-        func_0046d730(D_006359D0, 0x4C);
+        kAssertFail(D_006359D0, 0x4C);
     }
     off = (u16)arg0 * 100;
     return (u8 *)(off + (u32)temp_16 + 8);
@@ -125,7 +125,7 @@ u8 *func_00246830(u32 arg0) {
     temp_17 = D_00881484[0];
     temp_16 = arg0 & 0xFFFF;
     if (temp_16 >= *(u32 *)(temp_17 + 4)) {
-        func_0046d730(D_006359D0, 0x54);
+        kAssertFail(D_006359D0, 0x54);
     }
     return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
 }
@@ -138,7 +138,7 @@ u8 *func_002468a0(u32 arg0) {
     temp_17 = D_008814DC[0];
     temp_16 = arg0 & 0xFFFF;
     if (temp_16 >= *(u32 *)(temp_17 + 4)) {
-        func_0046d730(D_006359D0, 0x5C);
+        kAssertFail(D_006359D0, 0x5C);
     }
     return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
 }
@@ -179,7 +179,7 @@ s32 func_00246980(s16 arg0, s16 arg1) {
     s32 base = D_008814A8[0] + 8;
 
     if (arg0 >= 5) {
-        func_0046d730(D_006359D0, 0xBC);
+        kAssertFail(D_006359D0, 0xBC);
     }
     if ((arg1 <= 0) || (arg1 > 5)) {
         func_0046d700(D_006359D0, 0xBD, &D_007636F8, arg1);
@@ -200,7 +200,7 @@ s32 func_00246a50(s16 arg0, s16 arg1) {
     s32 mid;
 
     if (arg0 >= 5) {
-        func_0046d730(D_006359D0, 0xC8);
+        kAssertFail(D_006359D0, 0xC8);
     }
     if ((arg1 <= 0) || (arg1 > 5)) {
         func_0046d700(D_006359D0, 0xC9, &D_007636F8, arg1);
@@ -217,7 +217,7 @@ u8 *func_00246b10(u32 arg0) {
     temp_17 = D_008814B0[0];
     temp_16 = arg0 & 0xFFFF;
     if (temp_16 >= *(u32 *)(temp_17 + 4)) {
-        func_0046d730(D_006359D0, 0xD1);
+        kAssertFail(D_006359D0, 0xD1);
     }
     return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
 }
@@ -233,7 +233,7 @@ u8 *func_00246ba0(s32 arg0) {
     s32 off;
 
     if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
-        func_0046d730(D_006359D0, 0xEE);
+        kAssertFail(D_006359D0, 0xEE);
     }
     off = (u16)arg0 * 24;
     return (u8 *)(off + (u32)temp_16 + 8);
@@ -247,7 +247,7 @@ u8 *func_00246c20(u32 arg0) {
     temp_17 = D_008814C4[0];
     temp_16 = arg0 & 0xFFFF;
     if (temp_16 >= *(u32 *)(temp_17 + 4)) {
-        func_0046d730(D_006359D0, 0x104);
+        kAssertFail(D_006359D0, 0x104);
     }
     return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
 }
@@ -266,7 +266,7 @@ u8 *func_00246cd0(s32 arg0) {
     s32 off;
 
     if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
-        func_0046d730(D_006359D0, 0x13B);
+        kAssertFail(D_006359D0, 0x13B);
     }
     off = (u16)arg0 * 72;
     return (u8 *)(off + (u32)temp_16 + 8);
@@ -286,7 +286,7 @@ u8 *func_00246d90(s32 arg0) {
     s32 off;
 
     if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
-        func_0046d730(D_006359D0, 0x15B);
+        kAssertFail(D_006359D0, 0x15B);
     }
     off = (u16)arg0 * 66;
     return (u8 *)(off + (u32)temp_16 + 8);
@@ -301,7 +301,7 @@ s32 func_00246e10(s32 arg0) {
     temp_16 = D_008814E8[0];
     temp_2 = arg0 & 0xFFFF;
     if ((temp_2 <= 0) || (temp_2 > 0xC)) {
-        func_0046d730(D_006359D0, 0x163);
+        kAssertFail(D_006359D0, 0x163);
     }
     off = (u16)arg0 * 72;
     return off + (u32)temp_16 - 0x40;
@@ -313,7 +313,7 @@ u8 *func_00246e90(s32 arg0) {
     s32 off;
 
     if (((s32)(arg0 & 0xFFFF) < 0) || ((arg0 & 0xFFFF) > 5)) {
-        func_0046d730(D_006359D0, 0x16B);
+        kAssertFail(D_006359D0, 0x16B);
     }
     off = (u16)arg0 * 14;
     return (u8 *)(off + (u32)temp_16 + 8);
@@ -398,7 +398,7 @@ s32 func_00247270(void) {
         if (func_001087e0(var_19 & 0xFFFF) != 0) {
             temp_18 = var_19 & 0xFFFF;
             if (temp_18 == 0) {
-                func_0046d730(D_006359D0, 0x1B3);
+                kAssertFail(D_006359D0, 0x1B3);
             }
             if (datGetFlag(temp_18 + 0x5BF) != 0) {
                 if ((temp_18 == 0xA) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
@@ -414,7 +414,7 @@ s32 func_00247270(void) {
             if ((var_2 != 0) && (func_00107c80(var_19 & 0xFFFF) == 0) && (func_00107ea0(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) == 0)) {
                 temp_17 = (u32 *)D_00881480[0];
                 if ((u32)temp_18 >= temp_17[1]) {
-                    func_0046d730(D_006359D0, 0x4C);
+                    kAssertFail(D_006359D0, 0x4C);
                 }
                 temp_16 = (var_19 & 0xFFFF) * 0x64;
                 var_2_2 = (*(s32 *)((u32)temp_16 + (u32)temp_17 + 0xC) & 0x10) != 0;
@@ -424,7 +424,7 @@ s32 func_00247270(void) {
                 if (var_2_2 == 0) {
                     temp_17_2 = (u32 *)D_00881480[0];
                     if ((u32)temp_18 >= temp_17_2[1]) {
-                        func_0046d730(D_006359D0, 0x4C);
+                        kAssertFail(D_006359D0, 0x4C);
                     }
                     if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (func_00107b70(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
                         return var_19 & 0xFFFF;
@@ -459,7 +459,7 @@ s32 func_002474f0(void) {
         if (func_001087e0(var_19 & 0xFFFF) != 0) {
             temp_18 = var_19 & 0xFFFF;
             if (temp_18 == 0) {
-                func_0046d730(D_006359D0, 0x1B3);
+                kAssertFail(D_006359D0, 0x1B3);
             }
             if (datGetFlag(temp_18 + 0x5BF) != 0) {
                 if ((temp_18 == 0xA) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
@@ -475,7 +475,7 @@ s32 func_002474f0(void) {
             if ((var_2 != 0) && (func_00107c80(var_19 & 0xFFFF) == 0) && (func_00107ea0(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) != 0)) {
                 temp_17 = (u32 *)D_00881480[0];
                 if ((u32)temp_18 >= temp_17[1]) {
-                    func_0046d730(D_006359D0, 0x4C);
+                    kAssertFail(D_006359D0, 0x4C);
                 }
                 temp_16 = (var_19 & 0xFFFF) * 0x64;
                 var_2_2 = (*(s32 *)((u32)temp_16 + (u32)temp_17 + 0xC) & 0x10) != 0;
@@ -485,7 +485,7 @@ s32 func_002474f0(void) {
                 if (var_2_2 == 0) {
                     temp_17_2 = (u32 *)D_00881480[0];
                     if ((u32)temp_18 >= temp_17_2[1]) {
-                        func_0046d730(D_006359D0, 0x4C);
+                        kAssertFail(D_006359D0, 0x4C);
                     }
                     if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (func_00107b70(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
                         return var_19 & 0xFFFF;
@@ -611,7 +611,7 @@ s32 func_00247900(s32 arg0, s32 arg1, s32 arg2) {
                 if (level <= threshold) {
                     if (list != 0) {
                         if (count >= capacity) {
-                            func_0046d730(D_006359D0, 0x24A);
+                            kAssertFail(D_006359D0, 0x24A);
                         }
                         list[count] = id;
                     }
@@ -626,7 +626,7 @@ s32 func_00247900(s32 arg0, s32 arg1, s32 arg2) {
     if (nextId != 0) {
         if (list != 0) {
             if (count >= capacity) {
-                func_0046d730(D_006359D0, 0x25A);
+                kAssertFail(D_006359D0, 0x25A);
             }
             list[count] = nextId;
         }
@@ -748,7 +748,7 @@ s32 func_00247dd0(s32 arg0)
     while (i < 31) {
         base = D_00881480[0];
         if ((u32)(u16)i >= *(u32 *)(base + 4)) {
-            func_0046d730(D_006359D0, 0x4C);
+            kAssertFail(D_006359D0, 0x4C);
         }
         offset = (i & 0xFFFF) * 100;
         if (*(u32 *)(cmmMiscAddOff(offset, (s32)base) + 12) & 4) {
@@ -927,14 +927,14 @@ void func_00248240(void) {
             temp_16 = (u32 *)D_00881480[0];
             temp_18 = var_20 & 0xFFFF;
             if (temp_18 >= temp_16[1]) {
-                func_0046d730(D_006359D0, 0x4C);
+                kAssertFail(D_006359D0, 0x4C);
             }
             temp_17 = (var_20 & 0xFFFF) * 0x64;
             if (*(u16 *)((u32)temp_17 + (u32)temp_16 + 0x12) != 0) {
                 *(u16 *)(temp_2 + 0xA) = *(u16 *)(temp_2 + 0xA) + 1;
                 temp_16_2 = (u32 *)D_00881480[0];
                 if (temp_18 >= temp_16_2[1]) {
-                    func_0046d730(D_006359D0, 0x4C);
+                    kAssertFail(D_006359D0, 0x4C);
                 }
                 if (*(u16 *)(temp_2 + 0xA) >= *(u16 *)((u32)temp_17 + (u32)temp_16_2 + 0x12)) {
                     var_3 = 1;
@@ -966,7 +966,7 @@ block_13:
    earlier note's better spelling). Same family as FUN_00248240/FUN_00248B80.
    func_00248a60 extern added as s32(s32). */
 /* measured: corrected target callees to func_00248a60(s32), func_00107a00(s32,s32),
-   func_00107ac0(s32), func_0046d730(void *,s32), func_00107ce0(s32), and
+   kAssertFail(void *,s32), func_00107ce0(s32), and
    func_001077f0(s32); active seed measured 552B vs 544B retail window,
    normalized_diff 109 (oversized reconstruction); archived without further probes. */
 // FUN_002483C0
@@ -1038,7 +1038,7 @@ block_14:
             }
             temp_16 = (u32 *)D_00881480[0];
             if (temp_18 >= temp_16[1]) {
-                func_0046d730(D_006359D0, 0x4C);
+                kAssertFail(D_006359D0, 0x4C);
             }
             call_idx = (u16)var_20;
             temp_20 = call_idx * 0x64;
@@ -1048,7 +1048,7 @@ block_14:
             *(u16 *)(temp_2 + 0xA) += temp_17 & 0xFFFF;
             temp_16_2 = (u32 *)D_00881480[0];
             if (temp_18 >= temp_16_2[1]) {
-                func_0046d730(D_006359D0, 0x4C);
+                kAssertFail(D_006359D0, 0x4C);
             }
             if (*(u16 *)(temp_2 + 0xA) >= *(u16 *)((u32)temp_20 + (u32)temp_16_2 + 0x12)) {
                 var_3 = 1;
@@ -1123,7 +1123,7 @@ s64 func_00248760(s32 arg0) {
     s32 off;
 
     if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
-        func_0046d730(D_006359D0, 0x4C);
+        kAssertFail(D_006359D0, 0x4C);
     }
     off = (u16)arg0 * 100;
     return *(s8 *)(off + (u32)temp_16 + 0x10);
@@ -1140,11 +1140,11 @@ s8 func_002487e0(s32 arg0, s8 arg1) {
     s32 v;
 
     if (arg1 >= 8) {
-        func_0046d730(D_006359D0, 0x3A3);
+        kAssertFail(D_006359D0, 0x3A3);
     }
     base = D_00881480[0];
     if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(base + 4)) {
-        func_0046d730(D_006359D0, 0x4C);
+        kAssertFail(D_006359D0, 0x4C);
     }
     off = (u16)arg0 * 100;
     elem = off + (s32)base + 8;
@@ -1170,7 +1170,7 @@ s32 func_002488e0(s32 arg0, s32 arg1) {
     s32 off;
 
     if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
-        func_0046d730(D_006359D0, 0x4C);
+        kAssertFail(D_006359D0, 0x4C);
     }
     off = (u16)arg0 * 100;
     temp_2 = (u8 *)(off + (u32)temp_16 + 8);
@@ -1192,7 +1192,7 @@ u16 func_002489c0(s32 arg0) {
     u8 *temp_2;
 
     if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(temp_16 + 4)) {
-        func_0046d730(D_006359D0, 0x4C);
+        kAssertFail(D_006359D0, 0x4C);
     }
     off = (u16)arg0 * 100;
     temp_2 = (u8 *)(off + (u32)temp_16 + 8);
@@ -1224,13 +1224,13 @@ s32 func_00248a60(s32 arg0) {
     temp_18 = (u32 *)D_00881480[0];
     temp_17 = arg0 & 0xFFFF;
     if (temp_17 >= temp_18[1]) {
-        func_0046d730(D_006359D0, 0x4C);
+        kAssertFail(D_006359D0, 0x4C);
     }
     temp_16 = (arg0 & 0xFFFF) * 0x64;
     if (*(s32 *)((u32)temp_16 + (u32)temp_18 + 0xC) & 1) {
         temp_18_2 = (u32 *)D_00881480[0];
         if (temp_17 >= temp_18_2[1]) {
-            func_0046d730(D_006359D0, 0x4C);
+            kAssertFail(D_006359D0, 0x4C);
         }
         temp_16_2 = *(u8 *)((u32)temp_16 + (u32)temp_18_2 + 0x11);
         if ((s32)temp_16_2 >= (func_00107ac0(arg0) & 0xFFFF)) {
@@ -1272,13 +1272,13 @@ s32 func_00248b80(void) {
             temp_19 = (u32 *)D_00881480[0];
             temp_21 = var_18 & 0xFFFF;
             if (temp_21 >= temp_19[1]) {
-                func_0046d730(D_006359D0, 0x4C);
+                kAssertFail(D_006359D0, 0x4C);
             }
             temp_20 = (var_18 & 0xFFFF) * 0x64;
             if (*(s32 *)((u32)temp_20 + (u32)temp_19 + 0xC) & 1) {
                 temp_19_2 = (u32 *)D_00881480[0];
                 if (temp_21 >= temp_19_2[1]) {
-                    func_0046d730(D_006359D0, 0x4C);
+                    kAssertFail(D_006359D0, 0x4C);
                 }
                 temp_19_3 = *(u8 *)((u32)temp_20 + (u32)temp_19_2 + 0x11);
                 if ((s32)temp_19_3 >= (func_00107ac0(var_18 & 0xFFFF) & 0xFFFF)) {
@@ -1397,7 +1397,7 @@ s32 func_00248f20(s32 arg0, s32 arg1) {
     s32 temp_16;
 
     if (temp_17 >= 5) {
-        func_0046d730(D_006359D0, 0x11B);
+        kAssertFail(D_006359D0, 0x11B);
     }
     temp_16 = temp_17 * 8;
     if (arg1 <= *(s16 *)(temp_19 + temp_16)) {
@@ -1405,7 +1405,7 @@ s32 func_00248f20(s32 arg0, s32 arg1) {
     }
     temp_19 = (u8 *)(D_008814CC[0] + 8);
     if (temp_17 >= 5) {
-        func_0046d730(D_006359D0, 0x11B);
+        kAssertFail(D_006359D0, 0x11B);
     }
     if (arg1 <= *(s16 *)(temp_16 + (u32)temp_19 + 2)) {
         return 1;
@@ -1573,7 +1573,7 @@ null_record:
     }
 selected_record:
     if (column != 0 && column != 1) {
-        func_0046d730(D_006359D0, 0x4A0);
+        kAssertFail(D_006359D0, 0x4A0);
     }
     if (selected == NULL) return 0;
     return *(s32 *)(cmmMiscAddOff(column * 16, (s32)selected) + 12);
@@ -1609,8 +1609,8 @@ null_record:
     record = NULL;
     selected = record;
 selected_record:
-    if (column != 0 && column != 1) func_0046d730(D_006359D0, 0x4AB);
-    if (selected == NULL) func_0046d730(D_006359D0, 0x4AC);
+    if (column != 0 && column != 1) kAssertFail(D_006359D0, 0x4AB);
+    if (selected == NULL) kAssertFail(D_006359D0, 0x4AC);
     offset = column * 16;
     key = (u16 *)(cmmMiscAddOff(offset, (s32)selected) + 4);
     id = *key;
@@ -1675,12 +1675,12 @@ s32 func_00249670(s32 arg0, s32 arg1)
     if (arg0 == 0) {
         arg0 = func_001064f0(0x58);
         if (arg0 == 0) {
-            func_0046d730(D_006359D0, 0x4C8);
+            kAssertFail(D_006359D0, 0x4C8);
         }
     }
     func_00106550(0x58, arg0);
     if (!(func_00106600((s16)(arg0 + 0x4EA)) & 0xFF)) {
-        func_0046d730(D_006359D0, 0x4CC);
+        kAssertFail(D_006359D0, 0x4CC);
     }
     n = cmmAddCountFirst(func_001064f0(0x57), arg1);
     if (n >= 4) {
@@ -1707,7 +1707,7 @@ s32 func_00249770(s32 arg0, s32 arg1, s32 arg2) {
     while (var_16 < 0x14) {
         temp_20 = D_008814E0[0];
         if ((u32)((var_16 + 1) & 0xFFFF) >= *(u32 *)(temp_20 + 4)) {
-            func_0046d730(D_006359D0, 0x13B);
+            kAssertFail(D_006359D0, 0x13B);
         }
         off = (u16)(var_16 + 1) * 72;
         p = (u8 *)(off + (u32)temp_20 + 8);
@@ -1775,7 +1775,7 @@ s32 func_00249960(s32 index)
   f32 scale;
   if ((((s32) (index & 0xFFFF)) < 0) || ((index & 0xFFFF) > 5))
   {
-    func_0046d730(D_006359D0, 0x16B);
+    kAssertFail(D_006359D0, 0x16B);
   }
   offset = ((u16) index) * 14;
   record = (u8 *) ((offset + ((u32) base)) + 8);
@@ -1810,7 +1810,7 @@ void func_00249a60(s32 arg0) {
     s32 a;
 
     if (((s32)(arg0 & 0xFFFF) < 0) || ((arg0 & 0xFFFF) > 5)) {
-        func_0046d730(D_006359D0, 0x16B);
+        kAssertFail(D_006359D0, 0x16B);
     }
     off = (u16)arg0 * 14;
     v = *(s16 *)(off + (u32)temp_16 + 0xE);

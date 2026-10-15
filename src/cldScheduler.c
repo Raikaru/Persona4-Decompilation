@@ -4,7 +4,7 @@
 #include "type.h"
 
 extern void chkmemAllocSiteTag(void *msg, s32 id);
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern char D_006372B0[];
@@ -54,7 +54,7 @@ void func_0025ff90(void)
 {
     if (D_0076457C != 0)
     {
-        func_0046d730(D_006372B0, 0x3E);
+        kAssertFail(D_006372B0, 0x3E);
     }
     chkmemAllocSiteTag(D_006372B0, 0x3F);
     D_0076457C = (s32)D_008873F4[0](1, 0x20000, 0x40000);
@@ -105,7 +105,7 @@ s32 func_00260020(u8 *task)
         {
             if (D_00764578 != 0)
             {
-                func_0046d730(D_006372B0, 0x54);
+                kAssertFail(D_006372B0, 0x54);
             }
             D_007637A0 = day;
             sprintf(buf90, D_006372C0, day);
@@ -136,7 +136,7 @@ s32 func_00260020(u8 *task)
             }
             if (a == 0)
             {
-                func_0046d730(D_006372B0, 0x82);
+                kAssertFail(D_006372B0, 0x82);
             }
             ret = scrFindPrcdIdxByName(a, buf70);
             if (ret == -1)
@@ -151,7 +151,7 @@ s32 func_00260020(u8 *task)
             sched->unk4 = msg;
             if (msg == 0)
             {
-                func_0046d730(D_006372B0, 0xA4);
+                kAssertFail(D_006372B0, 0xA4);
             }
         }
         break;
@@ -162,11 +162,11 @@ s32 func_00260020(u8 *task)
             b = *(s32 *)((u8 *)D_00764578 + 0x110);
             if (a > 0x20000)
             {
-                func_0046d730(D_006372B0, 0x49);
+                kAssertFail(D_006372B0, 0x49);
             }
             if (D_0076457C == 0)
             {
-                func_0046d730(D_006372B0, 0x4A);
+                kAssertFail(D_006372B0, 0x4A);
             }
             memset((void *)D_0076457C, 0, 0x20000);
             memcpy((void *)D_0076457C, (void *)b, (u32)a);
@@ -235,7 +235,7 @@ void func_00260450(void)
     memset(base, 0, 0xC);
     if (base == 0)
     {
-        func_0046d730(D_006372B0, 0xD8);
+        kAssertFail(D_006372B0, 0xD8);
     }
     {
         const void *name = D_00637348;

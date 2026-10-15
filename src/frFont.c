@@ -24,7 +24,7 @@ extern u32 D_00764598;
 extern u32 D_007637F8;
 extern u32 D_00764594;
 extern s32 D_007645A0;
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern char D_0063BAE8[];
 extern void frFontRasterEvictExpired(void);
 extern u32 DAT_00881528_abs[];
@@ -190,12 +190,12 @@ s32 frFontInitSlotGrid(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s
     alloc = jtbl_008873E8;
     (*(s32 *)DAT_0088152C_abs) = DAT_00881510_abs[0] = (u32)alloc[0]((*(s32 *)DAT_00881528_abs) * 32, 0x40000);
     if ((*(s32 *)DAT_0088152C_abs) == 0)
-        func_0046d730(D_0063BAE8, 0x18E);
+        kAssertFail(D_0063BAE8, 0x18E);
     if (aux_size != 0) {
         chkmemAllocSiteTag(D_0063BAE8, 0x192);
         aux = (u8 *)(DAT_00881514_abs[0] = (u32)alloc[0](aux_size * (*(s32 *)DAT_00881528_abs), 0x40000));
         if (aux == 0)
-            func_0046d730(D_0063BAE8, 0x194);
+            kAssertFail(D_0063BAE8, 0x194);
     }
     for (i = 0; i < (u32)((*(s32 *)DAT_00881528_abs) - 1); i++) {
         GslListNode *base = (GslListNode *)(*(s32 *)DAT_0088152C_abs);
@@ -258,7 +258,7 @@ s32 frFontFreeListInsert(u8 *param_1)
   s32 count;
 
   if (node == 0) {
-    func_0046d730(D_0063BAE8, 0x1E9);
+    kAssertFail(D_0063BAE8, 0x1E9);
   }
   head = (GslListNode *)DAT_0088152C_abs[0];
   next = head->next;
@@ -407,7 +407,7 @@ void frFontSlotLoad(s32 arg0, u8 *arg1, u8 *arg2)
         arg1 = arg2;
     }
     if (arg1 == NULL) {
-        func_0046d730(D_0063BAE8, 0x2E9);
+        kAssertFail(D_0063BAE8, 0x2E9);
     }
     temp_4 = arg0 & 0xFF;
     slot = &gFrFontManagerData_abs[0].slots[temp_4];
@@ -597,7 +597,7 @@ void frFontReleaseSlots(void)
         idx = (u32)i & 0xff;
         slot = (u8 *)DAT_00881630_abs + idx * 0x20;
         if (*(u32 *)(slot + 0x1c) == 0)
-            func_0046d730(D_0063BAE8, 0x31D);
+            kAssertFail(D_0063BAE8, 0x31D);
         par = (u8 *)DAT_00881630_abs + idx * 4;
         tmp = *(u32 *)(par + 0x180);
         if (tmp == 0)
@@ -829,7 +829,7 @@ u8 *frFontAcquireGlyph(u8 *arg0, u32 arg1)
         func_0026e1e0((int)temp_20, (int)arg1, *(int *)(temp_17 + 0x1C), (int *)sp60);
         var_18 = (u8 *)(u32)frFontFindOrLoadEntry(arg1, (u32)temp_20, arg0[0x14]);
         if (var_18 == NULL) {
-            func_0046d730(D_0063BAE8, 0x560);
+            kAssertFail(D_0063BAE8, 0x560);
         }
         DAT_008873ec_abs[0](temp_20);
     }
@@ -848,7 +848,7 @@ u8 *frFontAcquireGlyph(u8 *arg0, u32 arg1)
     }
     temp_17 = *(u8 **)(var_16 + 0x14);
     if (temp_17 == NULL) {
-        func_0046d730(D_0063BAE8, 0x50D);
+        kAssertFail(D_0063BAE8, 0x50D);
     }
     *(u16 *)(temp_17 + 4) = 1;
     *(u32 *)(temp_17 + 8) = (u32)var_16;
@@ -1068,7 +1068,7 @@ u8 *frFontCreateTextList(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
         var19 = func_0026e0e0(*(u32 *)DAT_00881760_abs);
         DAT_00881758_abs[0] += 1;
         if (var19 == NULL) {
-            func_0046d730(&D_0063BAE8, 0x665);
+            kAssertFail(&D_0063BAE8, 0x665);
         }
         memset(var19, 0, 0x44);
         *(u8 *)(var19 + 2) = 0xFF;
@@ -1094,7 +1094,7 @@ u8 *frFontCreateTextList(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
             *(u8 **)(var16 + 0x28) = var17;
         }
         if (var17 == NULL) {
-            func_0046d730(&D_0063BAE8, 0x676);
+            kAssertFail(&D_0063BAE8, 0x676);
         }
         *(u8 **)(var17 + 0x24) = var16;
         var16 = var17;
@@ -1122,7 +1122,7 @@ u8 *frFontCreateTextList(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
 void frFontSetListFlag(int param_1, u8 param_2)
 {
     if (param_1 == 0) {
-        func_0046d730(D_0063BAE8, 0x69B);
+        kAssertFail(D_0063BAE8, 0x69B);
     }
     for (; param_1 != 0; param_1 = *(int *)(param_1 + 0x24)) {
         *(u8 *)(param_1 + 2) = param_2;
@@ -1134,7 +1134,7 @@ void frFontSetListFlag(int param_1, u8 param_2)
 void frFontSetNodeId(u32 param_1, u16 param_2)
 {
     if (param_1 == 0) {
-        func_0046d730(D_0063BAE8, 0x6A7);
+        kAssertFail(D_0063BAE8, 0x6A7);
     }
     *(u16 *)param_1 = param_2;
 }
@@ -1148,7 +1148,7 @@ void frFontEnableList(FrFontNode *node)
     node->enabled = 1;
     iter = node;
     if (node == NULL) {
-        func_0046d730(D_0063BAE8, 0x69B);
+        kAssertFail(D_0063BAE8, 0x69B);
     }
     for (; iter != NULL; iter = iter->next) {
         iter->unknown_00[2] = 0xff;
@@ -1160,7 +1160,7 @@ void frFontEnableList(FrFontNode *node)
 void frFontSetCharWidth(int param_1, int param_2)
 {
     if (param_1 == 0) {
-        func_0046d730(D_0063BAE8, 0x6C3);
+        kAssertFail(D_0063BAE8, 0x6C3);
     }
     *(u8 *)(param_1 + 3) = param_2;
     *(u32 *)(param_1 + 0xc) = frFontNodeWidth(param_1);
@@ -1173,7 +1173,7 @@ void frFontSetListSlot(int param_1, u8 param_2)
     int iVar1;
 
     if (param_1 == 0) {
-        func_0046d730(D_0063BAE8, 0x6F2);
+        kAssertFail(D_0063BAE8, 0x6F2);
     }
     for (; param_1 != 0; param_1 = *(int *)(param_1 + 0x24)) {
         for (iVar1 = *(int *)(param_1 + 0x1c); iVar1 != 0;
@@ -1191,7 +1191,7 @@ void frFontMoveListTo(int param_1, int param_2, int param_3)
     int iVar2;
 
     if (param_1 == 0) {
-        func_0046d730(D_0063BAE8, 0x708);
+        kAssertFail(D_0063BAE8, 0x708);
     }
     while (*(int *)(param_1 + 0x24) != 0) {
         param_1 = *(int *)(param_1 + 0x24);
@@ -1213,7 +1213,7 @@ void frFontMoveListToFloat(int param_1, float param_2, float param_3)
     int iVar2;
 
     if (param_1 == 0) {
-        func_0046d730(D_0063BAE8, 0x71F);
+        kAssertFail(D_0063BAE8, 0x71F);
     }
     while (*(int *)(param_1 + 0x24) != 0) {
         param_1 = *(int *)(param_1 + 0x24);
@@ -1305,7 +1305,7 @@ void frFontSetGlyphColor(int param_1, u32 param_2)
 int frFontListTail(int param_1)
 {
     if (param_1 == 0) {
-        func_0046d730(D_0063BAE8, 0x77B);
+        kAssertFail(D_0063BAE8, 0x77B);
     }
     while (*(int *)(param_1 + 0x24) != 0) {
         param_1 = *(int *)(param_1 + 0x24);
@@ -1828,7 +1828,7 @@ u8 *frFontSplitRun(u8 **arg0, s32 arg1)
 
     var_18 = arg1;
     if (arg0 == NULL) {
-        func_0046d730(&D_0063BAE8, 0x96B);
+        kAssertFail(&D_0063BAE8, 0x96B);
     }
     temp_17 = (struct FrFontTreeNode *)*arg0;
     if (temp_17 == NULL) {
@@ -2051,7 +2051,7 @@ void frFontLayoutSlotText(u8 index, u8 *context)
     if (text != NULL) {
         length = strlen(text);
         if (length <= 0) {
-            func_0046d730(D_0063BAE8, 0xB63);
+            kAssertFail(D_0063BAE8, 0xB63);
         }
         previous_style = *(s8 *)(context + 0xC);
         position = 0;
@@ -2110,7 +2110,7 @@ apply_attribute:
                 attribute = *(u8 *)(context + 0xF);
                 attribute_node = (FrFontNode *)*(u8 **)(context + 0x14);
                 if (attribute_node == NULL) {
-                    func_0046d730(&D_0063BAE8, 0x69B);
+                    kAssertFail(&D_0063BAE8, 0x69B);
                 }
                 while (attribute_node != NULL) {
                     attribute_node->unknown_00[2] = attribute;
@@ -2123,7 +2123,7 @@ apply_attribute:
             spacing = D_0076380C;
             glyph_node = *(u8 **)(context + 0x14);
             if (glyph_node == NULL) {
-                func_0046d730(&D_0063BAE8, 0x6C3);
+                kAssertFail(&D_0063BAE8, 0x6C3);
             }
             *(s8 *)(glyph_node + 3) = spacing;
             width = 0;
@@ -2264,7 +2264,7 @@ common_node_1:
                 temp_21 = *(u8 *)(arg1 + 0xF);
                 var_16_3 = (struct FrFontNode3 *)*(u8 **)(arg1 + 0x14);
                 if (var_16_3 == NULL) {
-                    func_0046d730(&D_0063BAE8, 0x69B);
+                    kAssertFail(&D_0063BAE8, 0x69B);
                 }
                 while (var_16_3 != NULL) {
                     *(u8 *)((u8 *)var_16_3 + 2) = temp_21;
@@ -2277,7 +2277,7 @@ common_node_1:
             temp_21_2 = D_0076380C;
             temp_2_3 = *(u8 **)(arg1 + 0x14);
             if (temp_2_3 == NULL) {
-                func_0046d730(&D_0063BAE8, 0x6C3);
+                kAssertFail(&D_0063BAE8, 0x6C3);
             }
             *(s8 *)(temp_2_3 + 3) = temp_21_2;
             var_4_2 = 0;
@@ -2366,7 +2366,7 @@ call_after:
     if (list != NULL) {
         goto loop_check;
     }
-    func_0046d730(&D_0063BAE8, 0x69B);
+    kAssertFail(&D_0063BAE8, 0x69B);
     goto loop_check;
 loop_body:
     list->code_02 = code;
@@ -2378,7 +2378,7 @@ loop_check:
     height = work->height_1E;
     node = work->list_14;
     if (node == NULL) {
-        func_0046d730(&D_0063BAE8, 0x6A7);
+        kAssertFail(&D_0063BAE8, 0x6A7);
     }
     node->value_00 = (u32)(s32)height;
     work->active_1C = 0;
@@ -2456,10 +2456,10 @@ u8 *frFontBuildText(void *data)
             group = (FrFontCommandGroup *)(D_0063BA00 + (((command & 0xE0) >> 5) * 8));
             index = command & 0x1F;
             if (group->count < index) {
-                func_0046d730(D_00748110, 0xA5);
+                kAssertFail(D_00748110, 0xA5);
             }
             if ((command & 0xFF) <= 0) {
-                func_0046d730(D_00748100, 0xA6);
+                kAssertFail(D_00748100, 0xA6);
             }
             result = group->handlers[index](command, script);
             script->pos += (((command & 0xF00) >> 8) - 1) * 2;
@@ -2502,7 +2502,7 @@ store_node:
                 height = *(s16 *)(context + 0x1E);
                 node = *(FrFontNode **)(context + 0x14);
                 if (node == NULL) {
-                    func_0046d730(D_0063BAE8, 0x6A7);
+                    kAssertFail(D_0063BAE8, 0x6A7);
                 }
                 *(s16 *)node = height;
                 *(s8 *)(context + 0x1C) = 0;
@@ -2540,7 +2540,7 @@ store_node:
             spacing = (-D_00763808[*(u8 *)(context + 0xC)] * 2) / 32;
             node = *(FrFontNode **)(context + 0x14);
             if (node == NULL) {
-                func_0046d730(D_0063BAE8, 0x6C3);
+                kAssertFail(D_0063BAE8, 0x6C3);
             }
             node->line_height = spacing;
             width = 0;
@@ -2554,7 +2554,7 @@ store_node:
             duration = *(u32 *)(context + 8);
             node = *(FrFontNode **)(context + 0x14);
             if (node == NULL) {
-                func_0046d730(D_0063BAE8, 0x735);
+                kAssertFail(D_0063BAE8, 0x735);
             }
             *(u32 *)((u8 *)node + 0x14) = duration >> 4;
         }
@@ -2693,10 +2693,10 @@ s8 frFontRunScript(void *param_1, int param_2)
                 group = (FrFontCommandGroup *)
                     (D_0063BA00 + (((command & 0xe0) >> 5) * 8));
                 if (group->count < (command & 0x1f)) {
-                    func_0046d730(D_00748110, 0xa5);
+                    kAssertFail(D_00748110, 0xa5);
                 }
                 if ((command & 0xff) <= 0) {
-                    func_0046d730(D_00748100, 0xa6);
+                    kAssertFail(D_00748100, 0xa6);
                 }
                 result =
                     group->handlers[command & 0x1f](command, script);

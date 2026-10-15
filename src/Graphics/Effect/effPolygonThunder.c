@@ -9,7 +9,7 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 /* 0x004833f0 is a texture release helper shared by the eff* units. */
 extern void func_004833f0(void *arg0);
-extern void func_0046d730(const char *file, s32 line);
+extern void kAssertFail(const char *file, s32 line);
 extern void chkmemAllocSiteTag(const char *file, s32 line);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -74,7 +74,7 @@ u8 *func_00495160(u8 *parameters)
     chkmemAllocSiteTag(D_00713E50, 0x50);
     list = (*jtbl_008873E8)(copyCount * 0x10 + 4, 0x40000);
     if (list == 0) {
-        func_0046d730(D_00713E50, 0x51);
+        kAssertFail(D_00713E50, 0x51);
     }
     *(u8 **)(list + 0) = list + 4;
     if (*(u32 *)(parameters + 0x3C) < 3) {
@@ -678,7 +678,7 @@ u8 *func_00496340(u8 *parameters)
     chkmemAllocSiteTag(D_00713E50, 0x2B5);
     list = (*jtbl_008873E8)(copyCount * 0x30 + 0x10, 0x40000);
     if (list == 0) {
-        func_0046d730(D_00713E50, 0x2B6);
+        kAssertFail(D_00713E50, 0x2B6);
     }
     *(u8 **)(list + 0) = list + 0x10;
     *(u8 **)(list + 0x0C) = list;
@@ -1364,7 +1364,7 @@ u8 *func_00497750(u8 *parameters)
     chkmemAllocSiteTag(D_00713E50, 0x499);
     list = (*jtbl_008873E8)(copyCount * 0x0C + 4, 0x40000);
     if (list == 0) {
-        func_0046d730(D_00713E50, 0x49A);
+        kAssertFail(D_00713E50, 0x49A);
     }
     *(u8 **)(list + 0) = list + 4;
     if (*(u32 *)(parameters + 0x3C) < 3) {
@@ -2041,7 +2041,7 @@ u8 *func_004988c0(u16 arg0, u8 *arg1)
 
     if (arg0 >= 5)
     {
-        func_0046d730(D_00713E50, 0x6A1);
+        kAssertFail(D_00713E50, 0x6A1);
     }
     idx = arg0;
     size = D_00713E84[idx * 6];
@@ -2049,7 +2049,7 @@ u8 *func_004988c0(u16 arg0, u8 *arg1)
     p = (u8 *)(*jtbl_008873E8)(size + 0x40, 0x40000);
     if (p == NULL)
     {
-        func_0046d730(D_00713E50, 0x6A6);
+        kAssertFail(D_00713E50, 0x6A6);
     }
     *(u32 *)(p + 0x34) = (u32)(p + 0x40);
     *(u32 *)(p + 0x28) = 0;
@@ -2073,12 +2073,12 @@ void *func_00498a30(void *arg0)
     tex = func_00484490(arg0);
     if (tex == NULL)
     {
-        func_0046d730(D_00713E50, 0x6C9);
+        kAssertFail(D_00713E50, 0x6C9);
     }
     tex = func_004988c0(*(u16 *)((u8 *)arg0 + 0xC), tex);
     if (tex == NULL)
     {
-        func_0046d730(D_00713E50, 0x6CB);
+        kAssertFail(D_00713E50, 0x6CB);
     }
     return tex;
 }

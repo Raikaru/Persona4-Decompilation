@@ -31,7 +31,7 @@ struct E8Node {
 
 extern char D_007104E0[];
 extern char D_007104F0[];
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void func_0046d700(const char *file, s32 line, const char *msg, ...);
 extern s32 func_0043ece8(s32 size);
 extern s32 func_0042ba20(void);
@@ -151,10 +151,10 @@ s32 chkmemRegisterBlock(s32 arg0, s32 arg1, u16 arg2, s16 arg3)
     s32 *temp_20;
 
     if (arg0 == 0) {
-        func_0046d730(D_007104E0, 0x4BA);
+        kAssertFail(D_007104E0, 0x4BA);
     }
     if (((u32)arg0 & 3) != 0) {
-        func_0046d730(D_007104E0, 0x4BB);
+        kAssertFail(D_007104E0, 0x4BB);
     }
     temp_2 = (ChkMemEntry *)arg0;
     temp_2->size = arg1;
@@ -165,11 +165,11 @@ s32 chkmemRegisterBlock(s32 arg0, s32 arg1, u16 arg2, s16 arg3)
                (temp_2->pad_04 -
                 (((s32)temp_2 + 24) & (temp_2->pad_04 - 1))));
     if (((u32)temp_16 & 3) != 0) {
-        func_0046d730(D_007104E0, 0x4C0);
+        kAssertFail(D_007104E0, 0x4C0);
     }
     *(ChkMemEntry **)(temp_16 - 4) = temp_2;
     if (((s32)temp_2 & 3) != 0) {
-        func_0046d730(D_007104E0, 0x4C4);
+        kAssertFail(D_007104E0, 0x4C4);
     }
     ++D_00763D1C->count;
     D_00763D1C->bytes += temp_2->size;
@@ -221,7 +221,7 @@ s32 chkmemAllocate(u32 arg0)
 
     temp_17 = func_0042ba20();
     if (arg0 == 0) {
-        func_0046d730(D_007104E0, 0x653);
+        kAssertFail(D_007104E0, 0x653);
     }
     temp_16 = (arg0 + 0x37) & -0x10;
     temp_2 = (ChkMemEntry *)func_0043ece8(temp_16);
@@ -230,10 +230,10 @@ s32 chkmemAllocate(u32 arg0)
                       arg0);
     }
     if (temp_2 == NULL) {
-        func_0046d730(D_007104E0, 0x4BA);
+        kAssertFail(D_007104E0, 0x4BA);
     }
     if (((u32)temp_2 & 3) != 0) {
-        func_0046d730(D_007104E0, 0x4BB);
+        kAssertFail(D_007104E0, 0x4BB);
     }
     temp_2->size = temp_16;
     temp_2->pad_04 = 0x10;
@@ -243,11 +243,11 @@ s32 chkmemAllocate(u32 arg0)
                (temp_2->pad_04 -
                 (((s32)temp_2 + 24) & (temp_2->pad_04 - 1))));
     if (((u32)temp_16 & 3) != 0) {
-        func_0046d730(D_007104E0, 0x4C0);
+        kAssertFail(D_007104E0, 0x4C0);
     }
     *(ChkMemEntry **)(temp_16 - 4) = temp_2;
     if (((s32)temp_2 & 3) != 0) {
-        func_0046d730(D_007104E0, 0x4C4);
+        kAssertFail(D_007104E0, 0x4C4);
     }
     ++D_00763D1C->count;
     D_00763D1C->bytes += temp_2->size;
@@ -288,7 +288,7 @@ void chkmemFree(u8 *arg0)
 
     lock = func_0042ba20();
     if (arg0 == NULL) {
-        func_0046d730(D_007104E0, 0x670);
+        kAssertFail(D_007104E0, 0x670);
     }
     block = *(u8 **)(arg0 - 4);
     pool = (u8 *)D_00763D1C;
@@ -350,10 +350,10 @@ s32 chkmemAllocAligned(s32 arg0, s32 arg1, s32 arg2)
                       D_00763D1C->bytes);
     }
     if (temp_2 == NULL) {
-        func_0046d730(D_007104E0, 0x4BA);
+        kAssertFail(D_007104E0, 0x4BA);
     }
     if (((u32)temp_2 & 3) != 0) {
-        func_0046d730(D_007104E0, 0x4BB);
+        kAssertFail(D_007104E0, 0x4BB);
     }
     temp_2->size = temp_19_2;
     temp_2->pad_04 = temp_16_2;
@@ -363,11 +363,11 @@ s32 chkmemAllocAligned(s32 arg0, s32 arg1, s32 arg2)
                (temp_2->pad_04 -
                 (((s32)temp_2 + 24) & (temp_2->pad_04 - 1))));
     if (((u32)temp_16 & 3) != 0) {
-        func_0046d730(D_007104E0, 0x4C0);
+        kAssertFail(D_007104E0, 0x4C0);
     }
     *(ChkMemEntry **)(temp_16 - 4) = temp_2;
     if (((s32)temp_2 & 3) != 0) {
-        func_0046d730(D_007104E0, 0x4C4);
+        kAssertFail(D_007104E0, 0x4C4);
     }
     ++D_00763D1C->count;
     D_00763D1C->bytes += temp_2->size;
@@ -416,7 +416,7 @@ s32 chkmemReallocate(void *arg0, u32 arg1)
     if (arg0 == NULL) {
         allocateLock = func_0042ba20();
         if (arg1 == 0) {
-            func_0046d730(D_007104E0, 0x653);
+            kAssertFail(D_007104E0, 0x653);
         }
         allocationSize = (arg1 + 0x37) & ~0xF;
         block = func_0043ece8(allocationSize);
@@ -437,7 +437,7 @@ s32 chkmemReallocate(void *arg0, u32 arg1)
         }
         resizeLock = func_0042ba20();
         if (arg1 == 0) {
-            func_0046d730(D_007104E0, 0x653);
+            kAssertFail(D_007104E0, 0x653);
         }
         newAllocationSize = (arg1 + 0x37) & ~0xF;
         newBlock = func_0043ece8(newAllocationSize);
@@ -452,7 +452,7 @@ s32 chkmemReallocate(void *arg0, u32 arg1)
         memcpy((void *)allocation, arg0, copySize);
         freeLock = func_0042ba20();
         if (arg0 == NULL) {
-            func_0046d730(D_007104E0, 0x670);
+            kAssertFail(D_007104E0, 0x670);
         }
         oldHeader = *oldHeaderSlot;
         chkmemUntrackBlock((u8 *)oldHeader);
@@ -481,7 +481,7 @@ s32 chkmemAllocZeroed(s32 arg0, s32 arg1)
     temp_16 = func_0042ba20();
     temp_18 = arg1 * arg0;
     if (temp_18 == 0) {
-        func_0046d730(D_007104E0, 0x653);
+        kAssertFail(D_007104E0, 0x653);
     }
     temp_19_2 = (temp_18 + 0x37) & ~0xF;
     temp_2 = func_0043ece8(temp_19_2);

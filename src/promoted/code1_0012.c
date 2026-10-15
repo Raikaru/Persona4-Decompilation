@@ -179,7 +179,7 @@ extern u8 D_005E51A0[];
 extern u8 D_005E51B0[];
 extern void clndPromptDestroy(u8 *arg0);
 extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
-extern void func_0046d730(const void *file, s32 line);
+extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5548[];
 extern s32 func_00106600(s16 id);
 extern u8 D_005E76C8[];
@@ -221,7 +221,7 @@ void func_00120ae0(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 s
 void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 fullName)
 {
     extern u8 *func_0046a770(char *filename);
-    extern void func_0046d730(const void *file, s32 line);
+    extern void kAssertFail(const void *file, s32 line);
     extern u32 func_0010d620(s16 unit);
     extern u32 func_0010d6d0(s16 unit);
     extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
@@ -265,10 +265,10 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     panelSprites = (s32)func_0046a770((char *)D_005E5830);
     helpSprites = (s32)func_0046a770((char *)D_005E5850);
     if (panelSprites == 0) {
-        func_0046d730(D_005E4F88, 0xB1);
+        kAssertFail(D_005E4F88, 0xB1);
     }
     if (helpSprites == 0) {
-        func_0046d730(D_005E4F88, 0xB2);
+        kAssertFail(D_005E4F88, 0xB2);
     }
     unit = *(s16 *)entry;
     entryStyle = *(s16 *)(entry + 6);
@@ -1730,7 +1730,7 @@ s32 func_001246d0(u8 *arg0)
 
     var_17 = 1;
     if (arg0 == NULL) {
-        func_0046d730(D_005E5548, 0xF4);
+        kAssertFail(D_005E5548, 0xF4);
     }
     var_16 = 0;
     goto loop_14;
@@ -1745,7 +1745,7 @@ loop_18:
         }
         var_17 = func_00455f70(sp50, (s32 *)&sp7C);
         if (var_17 == 0) {
-            func_0046d730(D_005E5548, 0xFE);
+            kAssertFail(D_005E5548, 0xFE);
         }
         *(u8 **)temp_4 =
             mdlCreateModelObjectFromMemory(9, 0xFF01, (void *)var_17, sp7C, 0);
@@ -2535,7 +2535,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
     extern s32 func_0045ad50();
     extern void func_0045c870(u8 *colors, s32 enabled);
     extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
-    extern s32 func_0046d730();
+    extern s32 kAssertFail();
     extern s32 mdlPrepareModel();
     extern void mdlAdvanceModelFromFlags(u8 *);
     extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
@@ -3003,7 +3003,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                     sinf(((((1.5707964f * (f32) (temp_16 - 0x3D)) / 80.0f))));
                     for (var_19 = 1; (s32)var_19 < 8; var_19++) {
                         if ((u32) var_19 >= 0x13U) {
-                            func_0046d730(D_005E5548, 0xD1);
+                            kAssertFail(D_005E5548, 0xD1);
                         }
                         temp_21 = (u8 *)&((TitleRecordBlock *)D_005E5230)[(s32)var_19];
                         temp_2 = (s32)((s32)(u32)(temp_16 - 0x3D) - M2C_FIELD(temp_21, s32 *, 0x20));
@@ -3682,7 +3682,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             M2C_FIELD(var_16_2, s32 *, 0xD8) = (s32) (temp_3_21 | 0x40000);
             temp_17_2 = (u32)(taskView->f84);
             if (temp_17_2 >= 0x13U) {
-                func_0046d730(D_005E5548, 0xEB);
+                kAssertFail(D_005E5548, 0xEB);
             }
             mdlSetLayerWeight(var_16_2, 0, *(f32 *)(D_005E5254 + temp_17_2 * 0x28));
             /* Replace writes the matrix fields and flags before concatenation.
@@ -4001,7 +4001,7 @@ s32 func_0012aa70(u8 *task)
             }
             if (activeModel != 0) {
                 if ((u32)updateIndex >= 0x13) {
-                    func_0046d730(D_005E5548, 0xEB);
+                    kAssertFail(D_005E5548, 0xEB);
                 }
                 mdlSetLayerWeight(activeModel, 0, *(f32 *)(animation + 0x24));
             }
@@ -4211,7 +4211,7 @@ s32 func_0012b760(void)
     chkmemAllocSiteTag(D_005E5548, 0x728);
     temp_2 = D_008873F4[0](1, 0x90, 0x40000);
     if (temp_2 == NULL)
-        func_0046d730(D_005E5548, 0x729);
+        kAssertFail(D_005E5548, 0x729);
     *(s32 *)(temp_2 + 0x18) = 0;
     kwlnTaskCreate((const void *)(D_005E5720), 0xF, 0, 0, func_0012aa70, func_0012b660, (u8 *)(temp_2));
 }
@@ -4487,12 +4487,12 @@ void func_0012d410(u8 *arg0)
     }
     temp_2_2 = (u32)func_0046a770((char *)D_005E5810);
     if (temp_2_2 == 0) {
-        func_0046d730(D_005E5BB8, 0xC1);
+        kAssertFail(D_005E5BB8, 0xC1);
     }
     temp_2_3 = (s32)func_0046a770((char *)D_005E57F0);
     *(s32 *)(arg0 + 0x90) = temp_2_3;
     if (temp_2_3 == 0) {
-        func_0046d730(D_005E5BB8, 0xC3);
+        kAssertFail(D_005E5BB8, 0xC3);
     }
     var_18 = 0;
     while (var_18 < 0x15) {
@@ -4502,7 +4502,7 @@ void func_0012d410(u8 *arg0)
                                  *(u32 *)((u8 *)D_005E5B60 + temp_3));
         *temp_4 = temp_2_4;
         if (temp_2_4 == 0) {
-            func_0046d730(D_005E5BB8, 0xC9);
+            kAssertFail(D_005E5BB8, 0xC9);
         }
         var_18++;
     }
@@ -4526,7 +4526,7 @@ void func_0012d410(u8 *arg0)
             }
             break;
         default:
-            func_0046d730(D_005E5BB8, 0xA7);
+            kAssertFail(D_005E5BB8, 0xA7);
             var_2 = 0;
             break;
         }
@@ -5131,17 +5131,17 @@ s32 func_0012e2f0(u8 *arg0)
     *(s16 *)(arg0 + 0x3C) = func_00353b50(arg0 + 0x34);
     res_1 = (u8 *)func_0046a770((char *)D_005E5830);
     if (res_1 == NULL) {
-        func_0046d730(D_005E76C8, 0x1FA);
+        kAssertFail(D_005E76C8, 0x1FA);
     }
     res_2 = (u8 *)func_0046a770((char *)D_005E5850);
     if (res_2 == NULL) {
-        func_0046d730(D_005E76C8, 0x1FC);
+        kAssertFail(D_005E76C8, 0x1FC);
     }
     temp_16 = (s32)func_0046a770((char *)D_005E57F0);
     res_3 = (u8 *)temp_16;
     *(u8 **)(arg0 + 0x1BE4) = (u8 *)temp_16;
     if (res_3 == NULL) {
-        func_0046d730(D_005E76C8, 0x1FE);
+        kAssertFail(D_005E76C8, 0x1FE);
     }
     ii = 0;
     while (ii < 51) {
@@ -5162,7 +5162,7 @@ s32 func_0012e2f0(u8 *arg0)
             *(s32 *)res_slot = temp_16;
         }
         if (*(s32 *)res_slot == 0) {
-            func_0046d730(D_005E76C8, 0x20B);
+            kAssertFail(D_005E76C8, 0x20B);
         }
         ii++;
     }
@@ -5206,7 +5206,7 @@ loop_test:
     if (var_17 <= 0x300) {
         goto guard_done;
     }
-    func_0046d730(D_005E76C8, 0x225);
+    kAssertFail(D_005E76C8, 0x225);
 guard_done:
     ;
 }
@@ -5748,7 +5748,7 @@ s32 func_0012ff60(u8 *arg0, u32 arg1)
         *(s16 *)(arg0 + 0xc40) = 0x14;
         break;
     default:
-        func_0046d730(D_005E76C8, 0x4ab);
+        kAssertFail(D_005E76C8, 0x4ab);
         break;
     }
 #pragma opt_common_subs on

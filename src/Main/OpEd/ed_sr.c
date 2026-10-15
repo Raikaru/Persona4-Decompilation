@@ -9,7 +9,7 @@ extern u8 iGpffffa9f0;
 extern u8 iGpffffa9f8;
 
 /* Shared end-scene helpers (defined in sibling TUs of the same ed_* unit). */
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void func_0038ddf0(void);
 extern void func_0038f010(void);
@@ -60,7 +60,7 @@ void func_0038ee40(void) {
     u8 *p;
 
     if (iGpffffb5b8 == NULL) {
-        func_0046d730(&iGpffffa9f0, 0x64);
+        kAssertFail(&iGpffffa9f0, 0x64);
     }
     p = (u8 *)iGpffffb5b8;
     if (!(~*(s32 *)p & 1)) {
@@ -109,7 +109,7 @@ void func_0038f010(void) {
     s16 v;
 
     if (iGpffffb5b8 == NULL) {
-        func_0046d730(&iGpffffa9f0, 0x64);
+        kAssertFail(&iGpffffa9f0, 0x64);
     }
     p = iGpffffb5b8;
     if (datGetFlag(0x1472) != 0) {
@@ -136,7 +136,7 @@ void func_0038f0b0(void) {
     base = D_00887300;
     base[0](0xE, 0);
     if (iGpffffb5b8 == NULL) {
-        func_0046d730(&iGpffffa9f0, 0x64);
+        kAssertFail(&iGpffffa9f0, 0x64);
     }
     if (!(~*iGpffffb5b8 & 1)) {
         func_0038e4b0();
@@ -149,7 +149,7 @@ void func_0038f0b0(void) {
 s32 func_0038f160(u8 *unusedTask) {
     func_0038ee40();
     if (iGpffffb5b8 == NULL) {
-        func_0046d730(&iGpffffa9f0, 0x64);
+        kAssertFail(&iGpffffa9f0, 0x64);
     }
     if (*iGpffffb5b8 & 1) {
         return 0;
@@ -173,7 +173,7 @@ s32 func_0038f1c0(u8 *arg0) {
 // FUN_0038F220
 void func_0038f220(u8 *arg0) {
     if (iGpffffb5b8 == NULL) {
-        func_0046d730(&iGpffffa9f0, 0x64);
+        kAssertFail(&iGpffffa9f0, 0x64);
     }
     func_0038ddf0();
     func_0038f620();
@@ -200,7 +200,7 @@ s32 func_0038f290(void) {
         *(s32 *)(w + 4) = state;
         iGpffffb5b8 = (s32 *)w;
         if (w == NULL) {
-            func_0046d730(&iGpffffa9f0, 0x64);
+            kAssertFail(&iGpffffa9f0, 0x64);
         }
         p = (u8 *)iGpffffb5b8;
         func_0038f7f0();

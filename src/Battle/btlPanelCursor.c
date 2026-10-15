@@ -11,7 +11,7 @@ extern void func_00201820(s32 mode);
 extern void func_0021ae80(u8 *work, s32 unused);
 extern f32 func_0021b0a0(u8 *work);
 extern f32 func_003e41e0(f32 *out, f32 *in);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern f32 iGpffff83d4[2];
 
 typedef struct { u8 r, g, b, a; } CursorColor;
@@ -21,7 +21,7 @@ static inline void drawCursorSegment(u8 *work, CursorColor color, f32 x, f32 y,
                                       s32 index, f32 rotation, f32 distance)
 {
     if (index >= 8) {
-        func_0046d730(D_00626C00, 401);
+        kAssertFail(D_00626C00, 401);
     }
     func_002016e0(work, 13, (s32)(38.0f + distance), 360.0f * (f32)index / 8.0f + rotation);
     func_00201650(work, 10, 2, x - 13.0f, (y - 38.0f) - distance,

@@ -10,7 +10,7 @@ extern u8 *iGpffffbb9c;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *kwlnTaskGetTaskByName(void *path);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
-extern void func_0046d730(const char *file, s32 line);
+extern void kAssertFail(const char *file, s32 line);
 extern void memset(void *dst, s32 value, u32 size);
 
 extern void func_004b2a00(u8 *arg0);
@@ -37,10 +37,10 @@ s32 func_004b2ed0(u8 *arg0) {
         return 0;
     case 1:
         if (*(s32 *)(st + 8) != 0) {
-            func_0046d730(D_00714608, 0xF2);
+            kAssertFail(D_00714608, 0xF2);
         }
         if (*(u8 **)(st + 0xC) != NULL) {
-            func_0046d730(D_00714608, 0xF3);
+            kAssertFail(D_00714608, 0xF3);
         }
         *(u8 **)(st + 0xC) = (u8 *)func_003e84a0();
         if (*(u8 **)(st + 0xC) == NULL) {
@@ -133,7 +133,7 @@ void func_004b3180(s32 arg0) {
     p = (u8 *)(*jtbl_008873E8)(0x40, 0x40000);
     memset(p, 0, 0x40);
     if (p == NULL) {
-        func_0046d730(D_00714608, 0x15B);
+        kAssertFail(D_00714608, 0x15B);
     }
     *(void **)(p + 0x18) = (void *)func_004b30a0;
     *(u8 **)(p + 0x20) = p;

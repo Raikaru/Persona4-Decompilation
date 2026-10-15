@@ -375,7 +375,7 @@ void *FldShadow_CreateCaster(u8 *arg0, u16 arg1, u16 arg2)
         texture = (u8 **)(data + 0x3C);
         *texture = func_003ef2e0(NULL);
         if (*texture == NULL) {
-            func_0046d730(D_005F18C0, 0x622);
+            kAssertFail(D_005F18C0, 0x622);
         }
         *(u32 *)(*(u8 **)(data + 0x3C) + 0x50) = (*(u32 *)(*(u8 **)(data + 0x3C) + 0x50) & ~0xFF) | 2;
         *(u32 *)(*(u8 **)(data + 0x3C) + 0x50) = (*(u32 *)(*(u8 **)(data + 0x3C) + 0x50) & 0xFFFF00FF) | 0x3300;
@@ -437,14 +437,14 @@ camera_registered:
         obj = (u8 *)MT_Scene_GetRes(arg1);
         *(u8 **)(data + 0xC) = obj;
         if (obj == NULL) {
-            func_0046d730(D_005F18C0, 0x63F);
+            kAssertFail(D_005F18C0, 0x63F);
         }
         *(void **)(data + 0x10) = *(void **)(obj + 0x164);
     } else if ((((u16)arg1 & 0xFFC00) >> 10) == 3) {
         obj = (u8 *)MT_Scene_GetRes(arg1);
         *(u8 **)(data + 0xC) = obj;
         if (obj == NULL) {
-            func_0046d730(D_005F18C0, 0x648);
+            kAssertFail(D_005F18C0, 0x648);
         }
         *(void **)(data + 0x10) = *(void **)(obj + 0x164);
     }
@@ -617,7 +617,7 @@ void FldShadow_UpdateSceneShadow(u8 *unused, u8 *state)
             *savedColor = *(RwRGBA *)mdlGetColor(*(void **)(state + 0x164));
             mdlSetColor(*(u8 **)(state + 0x164), &iGpffff9f4c);
         } else {
-            func_0046d730(D_005F18C0, 0x764);
+            kAssertFail(D_005F18C0, 0x764);
         }
     }
 }
@@ -755,7 +755,7 @@ void FldShadow_UpdateModelShadow(u8 *unused, u8 *state)
             }
             *(s32 *)(*(u8 **)(state + 0x164) + 0xD8) |= 4;
         } else {
-            func_0046d730(D_005F18C0, 0x7F6);
+            kAssertFail(D_005F18C0, 0x7F6);
         }
     }
 }

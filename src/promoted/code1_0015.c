@@ -59,7 +59,7 @@ extern s32 func_0014a200();
 extern s32 func_0014a270(void);
 extern void FldResource_Destroy(s32 arg0);
 extern s32 FldRc_FileLoadIsReady();
-extern void func_0046d730();
+extern void kAssertFail();
 extern void memcpy();
 extern void chkmemAllocSiteTag(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -951,11 +951,11 @@ void func_00157310(u8 *shape, u16 x0, u16 y0, s16 kind)
     placed = 0;
     px = x0 & 0xFFFF;
     if (px + shape[1] - 1 >= 0x10) {
-        func_0046d730(D_005F05E8, 0x20B);
+        kAssertFail(D_005F05E8, 0x20B);
     }
     py = y0 & 0xFFFF;
     if (py + shape[2] - 1 >= 0x18) {
-        func_0046d730(D_005F05E8, 0x20C);
+        kAssertFail(D_005F05E8, 0x20C);
     }
     *((u8 *)func_00155280() + (y0 << 8) + (x0 * 0x10) + 0x55) = 1;
     for (y = 0; y < shape[2]; y++) {
@@ -1625,7 +1625,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     extern void *func_003e42a0(void *out, const void *in, const void *matrix);
     extern void *func_003e0f80(void);
     extern s32 func_003e0f40(void *matrix);
-    extern void func_0046d730(const void *file, s32 line);
+    extern void kAssertFail(const void *file, s32 line);
   s32 templateKind;
   s32 volumeId;
   u32 templateCount;
@@ -1687,13 +1687,13 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     grid = (u8 *)func_00155280();
     validExtent = (s32)(checkedX + *(u8 *)(grid + rowOffset + gridOffset + 0x5a) - 1) < 0x10;
     if (!validExtent) {
-      func_0046d730(D_005F05E8,0x40d);
+      kAssertFail(D_005F05E8,0x40d);
     }
     checkedY = (s32)(placementY & 0xffff);
     grid = (u8 *)func_00155280();
     validExtent = (s32)(checkedY + *(u8 *)(grid + rowOffset + gridOffset + 0x5b) - 1) < 0x18;
     if (!validExtent) {
-      func_0046d730(D_005F05E8,0x40e);
+      kAssertFail(D_005F05E8,0x40e);
     }
     templateScan = (placementY & 0xffff) * 0x100;
     worldColumnOffset = (placementX & 0xffff) * 0x10;
@@ -1725,7 +1725,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     }
     validTemplate = templateIndex < templateCount;
     if (!validTemplate) {
-      func_0046d730(D_005F05E8,0x42a);
+      kAssertFail(D_005F05E8,0x42a);
     }
     cloneRow = (u16)placementY * 0x100;
     cloneColumn = (u16)placementX * 0x10;
@@ -1996,7 +1996,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
       }
       if (c10002 < *(u32 *)(data + 4)) {
         if (4 < *(u32 *)(data + 0x38)) {
-          func_0046d730(D_005F05E8,0x541);
+          kAssertFail(D_005F05E8,0x541);
         }
         for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x38); recordIndex = recordIndex + 1, record = record + 0x14) {
           point_78 = *(SVec3 *)(record + 4);
@@ -2587,7 +2587,7 @@ threshold_done:
 
     map_index = arg0 - *(s16 *)(D_005F05CE + threshold_offset);
     if (map_index >= 0x14) {
-        func_0046d730(D_005F05E8, 0x889);
+        kAssertFail(D_005F05E8, 0x889);
     }
 
     if (D_007D3E10[map_index] == 0) {
@@ -2681,7 +2681,7 @@ done:
     }
     temp_16 = arg0 - *(s16 *)(D_005F05CE + temp_5);
     if (temp_16 >= 0x14) {
-        func_0046d730(D_005F05E8, 0x8E3, var_6);
+        kAssertFail(D_005F05E8, 0x8E3, var_6);
     }
     if (*(u8 *)(D_007D3E10 + temp_16) == 1) {
         work = (u8 *)func_00155280();
@@ -2691,7 +2691,7 @@ done:
                 (arg2 << 7) + (arg1 << 3)) = *(u8 *)(work + 0x5F);
         return 1;
     }
-    func_0046d730(D_005F05E8, 0x8ED);
+    kAssertFail(D_005F05E8, 0x8ED);
     return 0;
 }
 /* measured: closes opt_rebuildconditionals bracket for func_0015ab20. */
@@ -2747,7 +2747,7 @@ threshold_done:
 
     map_index = arg0 - *(s16 *)(D_005F05CE + threshold_offset);
     if (map_index >= 0x14) {
-        func_0046d730(D_005F05E8, 0x906);
+        kAssertFail(D_005F05E8, 0x906);
     }
     memset(D_007E80A0, 0, 0xB40);
     iGpffffb2e4 = 0;
@@ -3216,7 +3216,7 @@ s32 func_0015c280(void) {
         return 1;
     }
     if (iGpffffb244 == NULL) {
-        func_0046d730(D_005F05E8, 0xB58);
+        kAssertFail(D_005F05E8, 0xB58);
         return 1;
     }
     temp_16 = *(u8 **)(iGpffffb244 + 0x38);
@@ -3242,7 +3242,7 @@ s32 func_0015c360(void) {
         return 1;
     }
     if (iGpffffb244 == NULL) {
-        func_0046d730(D_005F05E8, 0xB79);
+        kAssertFail(D_005F05E8, 0xB79);
         return 1;
     }
     temp_16 = *(u8 **)(iGpffffb244 + 0x38);

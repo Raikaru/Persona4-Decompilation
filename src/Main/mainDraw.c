@@ -17,7 +17,7 @@ extern void func_00460a80(void *arg0, s32 arg1);
 extern void func_00460ac0(void *arg0, void *arg1);
 extern void func_004623a0(s32 arg0);
 extern void chkmemAllocSiteTag(void *file, s32 line);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 
 extern u8 D_00793E80[];
@@ -564,7 +564,7 @@ void mainDrawStartClearOt(void) {
     *(void (**)(void))(temp_2 + 0x38) = mainDrawClearCameraAndSky;
     *(s32 *)(temp_2 + 0x40) = 0;
     if (temp_2_2 == 0) {
-        func_0046d730(&D_005DCAE8, 0x14F);
+        kAssertFail(&D_005DCAE8, 0x14F);
     }
 }
 
@@ -596,6 +596,6 @@ void mainDrawFrameDestroy(u8 *arg0) {
 void mainDrawStartFrame(void) {
     chkmemAllocSiteTag(&D_005DCAE8, 0x1FD);
     if ((s32)kwlnTaskCreate((const void *)(&D_005DCB10), 0xC8, 0, 0, mainDrawFrameUpdate, mainDrawFrameDestroy, (u8 *)(D_008873F4[0](1, 4, 0x40000))) == 0) {
-        func_0046d730(&D_005DCAE8, 0x208);
+        kAssertFail(&D_005DCAE8, 0x208);
     }
 }

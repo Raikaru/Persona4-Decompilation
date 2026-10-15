@@ -29,7 +29,7 @@ extern void sdkSpriteFreeNode(void *node);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_002bc060(s32 arg0);
 extern s32 func_002467b0(u16 arg0);
-extern void func_0046d730(const void *module, u32 line);
+extern void kAssertFail(const void *module, u32 line);
 extern void sprintf(void *dst, const void *fmt, ...);
 extern u8 D_0064CCF0[];
 extern u8 D_0064CD10[];
@@ -143,7 +143,7 @@ s16 func_00353b50(s16 *arg0)
     if (len <= 4) {
         goto done;
     }
-    func_0046d730(&D_0064B310, 0x259);
+    kAssertFail(&D_0064B310, 0x259);
 done:
     return len;
 }
@@ -166,7 +166,7 @@ s16 func_00353c10(s16 *arg0)
     if (len <= 8) {
         goto done;
     }
-    func_0046d730(&D_0064B310, 0x26F);
+    kAssertFail(&D_0064B310, 0x26F);
 done:
     return len;
 }
@@ -194,7 +194,7 @@ skip:
     if (len <= 8) {
         goto done;
     }
-    func_0046d730(&D_0064B310, 0x286);
+    kAssertFail(&D_0064B310, 0x286);
 done:
     return len;
 }
@@ -207,7 +207,7 @@ s32 func_00353dc0(s64 arg0)
     result = 0;
     value = (s16)arg0;
     if ((value <= 0) || (value >= 0xB)) {
-        func_0046d730(&D_0064B310, 0x292);
+        kAssertFail(&D_0064B310, 0x292);
     }
     switch (value) {
     case 1:
@@ -249,7 +249,7 @@ s32 func_00353dc0(s64 arg0)
         }
         break;
     default:
-        func_0046d730(&D_0064B310, 0x2B0);
+        kAssertFail(&D_0064B310, 0x2B0);
         break;
     }
     return result;
@@ -334,7 +334,7 @@ s32 func_003540f0(u8 *arg0)
     case 3:
         break;
     default:
-        func_0046d730(&D_0064B310, 0x34A);
+        kAssertFail(&D_0064B310, 0x34A);
         break;
     }
     return 0;
@@ -372,7 +372,7 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
     if (arg2 == 0) {
         flagId = arg1 + 0x100;
         if (datGetFlag(flagId) != 0)
-            func_0046d730(&D_0064B310, 0x369);
+            kAssertFail(&D_0064B310, 0x369);
         i = 0;
         while (i < 0x40) {
             func_00106390(i + 0x180, 0);
@@ -388,7 +388,7 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
         }
     } else {
         if (datGetFlag(arg1 + 0x100) == 0)
-            func_0046d730(&D_0064B310, 0x37E);
+            kAssertFail(&D_0064B310, 0x37E);
         func_00106390(arg1 + 0x180, 0);
         func_00106390(arg1 + 0x140, 1);
         mode = 6;
@@ -407,7 +407,7 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
 u32 func_00354490(s32 arg0)
 {
     if (!(arg0 < 0x40)) {
-        func_0046d730(D_0064B310, 0x3D6);
+        kAssertFail(D_0064B310, 0x3D6);
     }
     return D_0064B1E0[arg0];
 }
@@ -429,7 +429,7 @@ s32 func_00354500(void) {
         state = *(s32 *)(*(u8 **)(task + 0x38) + 4);
         if (state == 3) {
             if (state != 3) {
-                func_0046d730(&D_0064B310, 0x3CC);
+                kAssertFail(&D_0064B310, 0x3CC);
             }
             kwlnTaskDestroyWithHierarchy((s32)(u32)task);
             return 1;
@@ -440,10 +440,10 @@ s32 func_00354500(void) {
     chkmemAllocSiteTag(&D_0064B310, 0x3AB);
     newTask = D_008873F4[0](1, 0x10, 0x40000);
     if (newTask == NULL) {
-        func_0046d730(&D_0064B310, 0x3AC);
+        kAssertFail(&D_0064B310, 0x3AC);
     }
     if (kwlnTaskCreateChild((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(newTask)) == NULL) {
-        func_0046d730(&D_0064B310, 0x3B5);
+        kAssertFail(&D_0064B310, 0x3B5);
     }
     func_00354280(newTask, slot, 0);
 block_10:
@@ -460,7 +460,7 @@ s32 func_00354660(void) {
         state = *(s32 *)(*(u8 **)(task + 0x38) + 4);
         if (state == 3) {
             if (state != 3) {
-                func_0046d730(&D_0064B310, 0x3CC);
+                kAssertFail(&D_0064B310, 0x3CC);
             }
             kwlnTaskDestroyWithHierarchy((s32)(u32)task);
             return 1;
@@ -471,10 +471,10 @@ s32 func_00354660(void) {
     chkmemAllocSiteTag(&D_0064B310, 0x3AB);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work == NULL) {
-        func_0046d730(&D_0064B310, 0x3AC);
+        kAssertFail(&D_0064B310, 0x3AC);
     }
     if (kwlnTaskCreateChild((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(work)) == NULL) {
-        func_0046d730(&D_0064B310, 0x3B5);
+        kAssertFail(&D_0064B310, 0x3B5);
     }
     func_00354280(work, slot, 1);
 block_10_2:
@@ -508,7 +508,7 @@ s32 func_00354830(u8 *arg0) {
             handle = func_00454a60(arg0 + 0x10, 0);
             *(s32 *)(arg0 + 8) = handle;
             if (handle == 0) {
-                func_0046d730(&D_0064B310, 0x434);
+                kAssertFail(&D_0064B310, 0x434);
             }
             *(s32 *)(arg0 + 0) = 1;
         }
@@ -748,10 +748,10 @@ void func_003550d0(u8 *arg0, Float2 *arg1, Float2 *arg2)
 
     work = *(u8 **)(arg0 + 0x38);
     if (arg1 == NULL) {
-        func_0046d730(&D_0064B310, 0x53A);
+        kAssertFail(&D_0064B310, 0x53A);
     }
     if (arg2 == NULL) {
-        func_0046d730(&D_0064B310, 0x53B);
+        kAssertFail(&D_0064B310, 0x53B);
     }
     *(f32 *)(work + 0x18) = arg1->x;
     *(f32 *)(work + 0x1C) = arg1->y;
@@ -858,7 +858,7 @@ void func_003553b0(u8 *arg0, f32 *arg1)
 
     work = *(u8 **)(arg0 + 0x38);
     if (arg1 == NULL) {
-        func_0046d730(D_0064B310, 0x5CD);
+        kAssertFail(D_0064B310, 0x5CD);
     }
     arg1[0] = *(f32 *)(work + 0x38);
     arg1[1] = *(f32 *)(work + 0x3C);
@@ -949,7 +949,7 @@ s32 func_00355550(s16 arg0, s32 arg1, s16 arg2, s16 arg3,
     chkmemAllocSiteTag(&D_0064B310, 0x63D);
     work = D_008873F4[0](1, 0x22C, 0x40000);
     if (work == NULL) {
-        func_0046d730(&D_0064B310, 0x63E);
+        kAssertFail(&D_0064B310, 0x63E);
     }
     result = (s32)kwlnTaskCreate((const void *)(&D_0064B410), arg6, 0, 0, func_003558a0, func_00356140, (u8 *)(work));
     *(s16 *)(work + 0x0) = arg0;
@@ -1189,7 +1189,7 @@ void func_00355920(u8 *arg0, u8 *arg1) {
             break;
         }
         default:
-            func_0046d730(D_0064B310, 0x712);
+            kAssertFail(D_0064B310, 0x712);
             break;
         }
     }
@@ -1219,7 +1219,7 @@ void func_00355920(u8 *arg0, u8 *arg1) {
                 }
                 break;
             default:
-                func_0046d730(D_0064B310, 0x73A);
+                kAssertFail(D_0064B310, 0x73A);
                 break;
             }
         } else {
@@ -1371,7 +1371,7 @@ void func_00356250(u8 *arg0)
     extern s32 func_00107c80(s32 arg0);
     extern u8 *func_0046a770(char *arg0);
     extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
-    extern void func_0046d730(const void *arg0, u32 arg1);
+    extern void kAssertFail(const void *arg0, u32 arg1);
     extern s32 func_00246970(void);
     extern void func_002bc010(s32 arg0, u8 *arg1);
     extern u8 *func_0035adc0(s32 arg0, s64 arg1, s32 arg2);
@@ -1446,23 +1446,23 @@ void func_00356250(u8 *arg0)
     }
     *(s16 *)(arg0 + 0x134) = n;
     if (n > 0x15) {
-        func_0046d730(D_0064CC98, 0x1E2);
+        kAssertFail(D_0064CC98, 0x1E2);
     }
     h0 = func_0046a770(D_005E5830);
     if (h0 == NULL) {
-        func_0046d730(D_0064CC98, 0x1E6);
+        kAssertFail(D_0064CC98, 0x1E6);
     }
     h1 = func_0046a770(D_005E5850);
     if (h1 == NULL) {
-        func_0046d730(D_0064CC98, 0x1E8);
+        kAssertFail(D_0064CC98, 0x1E8);
     }
     h2 = func_0046a770(D_005E5810);
     if (h2 == NULL) {
-        func_0046d730(D_0064CC98, 0x1EA);
+        kAssertFail(D_0064CC98, 0x1EA);
     }
     *(u8 **)(arg0 + 0x1304) = h3 = func_0046a770(D_005E57F0);
     if (h3 == NULL) {
-        func_0046d730(D_0064CC98, 0x1EC);
+        kAssertFail(D_0064CC98, 0x1EC);
     }
     for (q = 0; q < 0x4D; q++) {
         if (q < 2) {
@@ -1479,7 +1479,7 @@ void func_00356250(u8 *arg0)
             *slot = sdkSpriteNewNode((u32)h2, D_0064CBE0[q]);
         }
         if (*slot == NULL) {
-            func_0046d730(D_0064CC98, 0x1FC);
+            kAssertFail(D_0064CC98, 0x1FC);
         }
     }
     func_00359400(arg0, 0);
@@ -1726,7 +1726,7 @@ void func_00356a10(u8 *work) {
     extern void func_0034f320(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
     extern f32 sdkSpriteScaledWidth(u8 *);
     extern f32 sdkSpriteScaledHeight(u8 *);
-    extern void func_0046d730(const void *, u32);
+    extern void kAssertFail(const void *, u32);
     extern f32 func_0034f720(u8 *, f32, f32, f32);
     extern s32 frFontExDrawTextWithCharWidth(f32, f32, f32, s32, s8, s32, const char *, s32, s32);
     extern u8 *func_00246830(u32);
@@ -1988,7 +1988,7 @@ void func_00356a10(u8 *work) {
     if (menu->flags & 2) {
         selectedIndex = (s32)(menu->selectedRow + menu->firstRow);
         if ((selectedIndex < 0) || (selectedIndex >= 0x15)) {
-            func_0046d730(&D_0064CC98, 0x2DD);
+            kAssertFail(&D_0064CC98, 0x2DD);
         }
         selectedEntry = (u8 *)add_offset_first((u32)selectedIndex * 12, (u32)work);
         selectedCount = *( u16 *)((u8 *)(selectedEntry) + (0x3C));
@@ -2204,7 +2204,7 @@ void func_00356a10(u8 *work) {
                 func_0034f2e0(sprite, position.x, position.y, 0xFFU, 0xFFU, 0xFFU, detailOpacity);
                 break;
             default:
-                func_0046d730(&D_0064CC98, 0x455);
+                kAssertFail(&D_0064CC98, 0x455);
                 break;
             }
         }
@@ -2354,7 +2354,7 @@ s32 func_00359400(u8 *arg0, s32 arg1)
         *(s16 *)(arg0 + 0x14C) = 16;
         break;
     default:
-        func_0046d730(&D_0064CC98, 0x51F);
+        kAssertFail(&D_0064CC98, 0x51F);
         break;
     }
     if (table != NULL) {
@@ -2652,7 +2652,7 @@ void func_003599c0(s32 arg0, u8 *arg1)
         name = *(u16 *)((u32)off + (u32)arg1 + 0x3A);
         count = *(u16 *)((u32)off + (u32)arg1 + 0x3C);
         if (kind >= 0x20) {
-            func_0046d730(D_0064CC98, 0x5D5);
+            kAssertFail(D_0064CC98, 0x5D5);
         }
         isSelf = (arg0 == *(s16 *)(arg1 + 0x24));
         mode = *(s32 *)(off + (s32)arg1 + 0x40);
@@ -2791,10 +2791,10 @@ void func_0035ac60(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     u8 *posB;
 
     if ((arg1 < 0) || (arg1 >= 2)) {
-        func_0046d730(&D_0064CC98, 0x6B8);
+        kAssertFail(&D_0064CC98, 0x6B8);
     }
     if (arg0 == NULL) {
-        func_0046d730(&D_0064CC98, 0x6B9);
+        kAssertFail(&D_0064CC98, 0x6B9);
     }
     if (arg3 != 0) {
         posB = D_0064CC60 + (arg1 * 0x1C);
@@ -2823,7 +2823,7 @@ u8 *func_0035adc0(s32 arg0, s64 arg1, s32 arg2)
     chkmemAllocSiteTag(&D_0064CC98, 0x6ED);
     work = D_008873F4[0](1, 0x144, 0x40000);
     if (work == NULL) {
-        func_0046d730(&D_0064CC98, 0x6EE);
+        kAssertFail(&D_0064CC98, 0x6EE);
     }
     task = kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064CCD0), 0xC7, 0, 0, func_0035aec0, func_0035af10, (u8 *)(work));
     *(s8 *)(work + 0x20) = 0;
@@ -3142,7 +3142,7 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
             i++;
         }
         if (vtx > 35) {
-            func_0046d730(&D_0064CC98, 0x835);
+            kAssertFail(&D_0064CC98, 0x835);
         }
         for (ii = 0; ii < 6; ii++) {
             for (jj = 0; jj < 5; jj++) {
@@ -3197,7 +3197,7 @@ f32 func_0035bad0(u8 *arg0)
     }
     ratio = (f32)*(s16 *)(arg0 + 0x22) / 10.0f;
     if ((ratio < 0.0f) || (ratio > 1.0f)) {
-        func_0046d730(&D_0064CC98, 0x881);
+        kAssertFail(&D_0064CC98, 0x881);
     }
     angle = fGpffff84a4 * ratio;
     fromX = *(f32 *)(arg0 + 0x18);
@@ -3307,7 +3307,7 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
     chkmemAllocSiteTag(&D_0064CC98, 0x905);
     work = D_008873F4[0](1, 0x144, 0x40000);
     if (work == NULL) {
-        func_0046d730(&D_0064CC98, 0x906);
+        kAssertFail(&D_0064CC98, 0x906);
     }
     task = kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064CD40), 0xC7, 0, 0, func_0035be70, func_0035bec0, (u8 *)(work));
     *(s16 *)(work + 0x20) = 0;
@@ -3384,7 +3384,7 @@ f32 func_0035c040(u8 *arg0, u8 arg1)
     }
     ret = sinf(fGpffff84a4 * ((f32)*(s16 *)(p + 0x22) / 10.0f));
     if ((ret < 0.0f) || (ret > 1.0f)) {
-        func_0046d730(&D_0064CC98, 0x936);
+        kAssertFail(&D_0064CC98, 0x936);
     }
     *(f32 *)p = *(f32 *)(p + 8) + ret * (*(f32 *)(p + 0x10) - *(f32 *)(p + 8));
     *(f32 *)(p + 4) = *(f32 *)(p + 0xC) + ret * (*(f32 *)(p + 0x14) - *(f32 *)(p + 0xC));
@@ -3528,7 +3528,7 @@ nonzero_case:
             sp168[0] = 0;
             break;
         default:
-            func_0046d730(&D_0064CC98, 0xA05);
+            kAssertFail(&D_0064CC98, 0xA05);
             break;
         }
         sprintf(sp60, D_0064CD60, id, (s8)suffix, sp168);

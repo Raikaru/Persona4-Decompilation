@@ -1,7 +1,7 @@
 /* Original translation unit pscRes.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern void func_003ec330(s32 arg0);
 extern u32 *func_0036ce10(s32 arg0);
 extern void *func_0036cad0(s32 arg0, s32 arg1);
@@ -45,7 +45,7 @@ void func_0036b650(void *arg0) {
     void *p;
 
     if (D_0072469C != 0) {
-        func_0046d730(D_0064E4E0, 0x90);
+        kAssertFail(D_0064E4E0, 0x90);
     }
     p = arg0;
     *(s32 *)((u8 *)p + 0x00) = 0;
@@ -79,7 +79,7 @@ void func_0036b750(void) {
     s32 t2;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0; i < 0x20; i++) {
@@ -88,7 +88,7 @@ void func_0036b750(void) {
             t = *(s32 *)(e + 4);
             switch (t) {
             case 0:
-                func_0046d730(D_0064E4E0, 0xBF);
+                kAssertFail(D_0064E4E0, 0xBF);
                 break;
             case 1:
                 if (H_Cdvd_IsFileLoaded(*(void **)(e + 8)) != 0) {
@@ -98,7 +98,7 @@ void func_0036b750(void) {
                         switch (*(s32 *)(e + 0x114)) {
                         case 0:
                             if (!(~*(u32 *)((u8 *)p + 0x10) & 1)) {
-                                func_0046d730(D_0064E4E0, 0xCD);
+                                kAssertFail(D_0064E4E0, 0xCD);
                             }
                             *(s32 *)((u8 *)p + 4) = func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
                             *(u32 *)((u32)p + 0x10) |= 1;
@@ -107,7 +107,7 @@ void func_0036b750(void) {
                             break;
                         case 1:
                             if (!(~*(u32 *)((s32)p + 0x10) & 2)) {
-                                func_0046d730(D_0064E4E0, 0xD4);
+                                kAssertFail(D_0064E4E0, 0xD4);
                             }
                             *(s32 *)((u8 *)p + 8) = func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
                             *(u32 *)((u32 *)p + 4) |= 2;
@@ -117,7 +117,7 @@ void func_0036b750(void) {
                             break;
                         case 2:
                             if (!(~*(u32 *)((u32)p + 0x10) & 0x10)) {
-                                func_0046d730(D_0064E4E0, 0xE0);
+                                kAssertFail(D_0064E4E0, 0xE0);
                             }
                             *(s32 *)((u8 *)p + 0xC) = func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
                             *(u32 *)((u16 *)p + 8) |= 0x10;
@@ -129,7 +129,7 @@ void func_0036b750(void) {
                         break;
                     case 0:
                         if (!(~*(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x14 + 0x54) & 2)) {
-                            func_0046d730(D_0064E4E0, 0xEB);
+                            kAssertFail(D_0064E4E0, 0xEB);
                         }
                         *(s32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x14 + 0x60) =
                             func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
@@ -139,7 +139,7 @@ void func_0036b750(void) {
                         break;
                     case 1:
                         if (!(~*(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x10 + 0x194) & 2)) {
-                            func_0046d730(D_0064E4E0, 0xF3);
+                            kAssertFail(D_0064E4E0, 0xF3);
                         }
                         *(s32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x10 + 0x19C) =
                             func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
@@ -152,7 +152,7 @@ void func_0036b750(void) {
                 }
                 break;
             case 2:
-                func_0046d730(D_0064E4E0, 0x100);
+                kAssertFail(D_0064E4E0, 0x100);
                 break;
             }
         }
@@ -165,7 +165,7 @@ s32 func_0036bb60(void) {
     void *p;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0; i < 0x20; i++) {
@@ -185,7 +185,7 @@ void func_0036bbf0(void) {
     u8 *e;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (*(u32 *)(p + 0x10) & 0x10) {
@@ -211,7 +211,7 @@ void func_0036bbf0(void) {
         v = *(u32 *)(p + j * 0x14 + 0x54);
         if (!(~v & 1)) {
             if (!(v & 2)) {
-                func_0046d730(D_0064E4E0, 0x13F);
+                kAssertFail(D_0064E4E0, 0x13F);
             }
             e = p + j * 0x14 + 0x54;
             func_003ec330(*(s32 *)(e + 0xC));
@@ -221,7 +221,7 @@ void func_0036bbf0(void) {
         v = *(u32 *)(p + j * 0x10 + 0x194);
         if (!(~v & 1)) {
             if (!(v & 2)) {
-                func_0046d730(D_0064E4E0, 0x148);
+                kAssertFail(D_0064E4E0, 0x148);
             }
             e = p + j * 0x10 + 0x194;
             func_003ec330(*(s32 *)(e + 8));
@@ -236,11 +236,11 @@ s32 func_0036be00(void) {
     void *p;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (!(*(u32 *)((u8 *)p + 0x10) & 1)) {
-        func_0046d730(D_0064E4E0, 0x155);
+        kAssertFail(D_0064E4E0, 0x155);
     }
     return *(s32 *)((u8 *)p + 4);
 }
@@ -250,11 +250,11 @@ s32 func_0036be70(void) {
     void *p;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (!(*(u32 *)((u8 *)p + 0x10) & 2)) {
-        func_0046d730(D_0064E4E0, 0x15F);
+        kAssertFail(D_0064E4E0, 0x15F);
     }
     return *(s32 *)((u8 *)p + 8);
 }
@@ -268,7 +268,7 @@ s32 func_0036bee0(s32 arg0, s32 arg1) {
     void *p;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
@@ -281,11 +281,11 @@ s32 func_0036bee0(s32 arg0, s32 arg1) {
         }
     }
     if (i >= 0x10) {
-        func_0046d730(D_0064E4E0, 0x170);
+        kAssertFail(D_0064E4E0, 0x170);
     }
     scaled = i * 0x14;
     if (!(*(u32 *)((u8 *)((u32)scaled + (u32)p + 0x54)) & 2)) {
-        func_0046d730(D_0064E4E0, 0x171);
+        kAssertFail(D_0064E4E0, 0x171);
     }
     return *(s32 *)((u8 *)((s32)scaled + (s32)p + 0x60));
 }
@@ -299,7 +299,7 @@ s32 func_0036bff0(s32 arg0) {
     u16 v;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0, key = arg0 & 0xFFFF; i < 0x10; i++) {
@@ -309,11 +309,11 @@ s32 func_0036bff0(s32 arg0) {
         }
     }
     if (i >= 0x10) {
-        func_0046d730(D_0064E4E0, 0x182);
+        kAssertFail(D_0064E4E0, 0x182);
     }
     scaled = i << 4;
     if (!(*(u32 *)((u8 *)((u32)scaled + (u32)p + 0x194)) & 2)) {
-        func_0046d730(D_0064E4E0, 0x184);
+        kAssertFail(D_0064E4E0, 0x184);
     }
     return *(s32 *)((u8 *)((s32)scaled + (s32)p + 0x19C));
 }
@@ -323,11 +323,11 @@ s32 func_0036c0d0(void) {
     void *p;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (!(*(u32 *)((u8 *)p + 0x10) & 0x10)) {
-        func_0046d730(D_0064E4E0, 0x18E);
+        kAssertFail(D_0064E4E0, 0x18E);
     }
     return *(s32 *)((u8 *)p + 0xC);
 }
@@ -338,17 +338,17 @@ void func_0036c140(s32 arg0, s32 arg1) {
     s32 v;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = func_0036cad0(arg0, arg1);
     if (*(s32 *)((u8 *)p + 0x10) == 0) {
-        func_0046d730(D_0064E4E0, 0x19B);
+        kAssertFail(D_0064E4E0, 0x19B);
     }
     v = *(s32 *)((u8 *)p + 0x10) - 1;
     *(s32 *)((u8 *)p + 0x10) = v;
     if (v == 0) {
         if (!(*(u32 *)((u8 *)p + 0) & 2)) {
-            func_0046d730(D_0064E4E0, 0x1A4);
+            kAssertFail(D_0064E4E0, 0x1A4);
         }
         func_003ec330(*(s32 *)((u8 *)p + 0xC));
         *(u32 *)((u8 *)p + 0) &= ~2;
@@ -362,17 +362,17 @@ void func_0036c230(s32 arg0) {
     s32 v;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = func_0036ce10(arg0);
     if (*(s32 *)((u8 *)p + 0xC) == 0) {
-        func_0046d730(D_0064E4E0, 0x1B4);
+        kAssertFail(D_0064E4E0, 0x1B4);
     }
     v = *(s32 *)((u8 *)p + 0xC) - 1;
     *(s32 *)((u8 *)p + 0xC) = v;
     if (v == 0) {
         if (!(*(u32 *)((u8 *)p + 0) & 2)) {
-            func_0046d730(D_0064E4E0, 0x1BD);
+            kAssertFail(D_0064E4E0, 0x1BD);
         }
         func_003ec330(*(s32 *)((u8 *)p + 8));
         *(u32 *)((u8 *)p + 0) &= ~2;
@@ -386,11 +386,11 @@ void func_0036c310(void) {
     s32 v;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (*(s32 *)((u8 *)p + 0x4C) == 0) {
-        func_0046d730(D_0064E4E0, 0x1DF);
+        kAssertFail(D_0064E4E0, 0x1DF);
     }
     v = *(s32 *)((u8 *)p + 0x4C) - 1;
     *(s32 *)((u8 *)p + 0x4C) = v;
@@ -406,11 +406,11 @@ void func_0036c3b0(void) {
     s32 v;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (*(s32 *)((u8 *)p + 0x50) == 0) {
-        func_0046d730(D_0064E4E0, 0x1F3);
+        kAssertFail(D_0064E4E0, 0x1F3);
     }
     v = *(s32 *)((u8 *)p + 0x50) - 1;
     *(s32 *)((u8 *)p + 0x50) = v;
@@ -426,14 +426,14 @@ void func_0036c450(void) {
     void *q;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (*(u32 *)((u8 *)p + 0x10) & 2) {
         *(s32 *)((u8 *)p + 0x4C) += 1;
     } else if (*(u32 *)((u8 *)p + 0) & 4) {
         if (*(s32 *)((u8 *)p + 0x4C) == 0) {
-            func_0046d730(D_0064E4E0, 0x212);
+            kAssertFail(D_0064E4E0, 0x212);
         }
         *(s32 *)((u8 *)((u32)p + 0x4C)) += 1;
     } else {
@@ -461,7 +461,7 @@ void func_0036c570(s32 arg0, s32 arg1) {
     s8 v;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (func_0036ca20(arg0, arg1) != 0) {
@@ -525,7 +525,7 @@ void func_0036c7e0(s32 arg0) {
     s32 i;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (func_0036cd70(arg0) != 0) {
@@ -553,14 +553,14 @@ void func_0036c900(void) {
     void *q;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (*(u32 *)((u8 *)p + 0x10) & 0x10) {
         *(s32 *)((u8 *)p + 0x50) += 1;
     } else if (*(u32 *)((u8 *)p + 0) & 0x10) {
         if (*(s32 *)((u8 *)p + 0x50) == 0) {
-            func_0046d730(D_0064E4E0, 0x29B);
+            kAssertFail(D_0064E4E0, 0x29B);
         }
         *(s32 *)((u8 *)((u32)p + 0x50)) += 1;
     } else {
@@ -584,7 +584,7 @@ s32 func_0036ca20(s32 arg0, s32 arg1) {
     void *p;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
@@ -609,7 +609,7 @@ void *func_0036cad0(s32 arg0, s32 arg1) {
     void *p;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
@@ -624,7 +624,7 @@ void *func_0036cad0(s32 arg0, s32 arg1) {
         }
     }
     if (i >= 0x10) {
-        func_0046d730(D_0064E4E0, 0x2D3);
+        kAssertFail(D_0064E4E0, 0x2D3);
     }
     return (u8 *)p + i * 0x14 + 0x54;
 }
@@ -637,7 +637,7 @@ void func_0036cbc0(s32 arg0, s32 arg1) {
     void *p;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
@@ -652,7 +652,7 @@ void func_0036cbc0(s32 arg0, s32 arg1) {
         }
     }
     if (i >= 0x10) {
-        func_0046d730(D_0064E4E0, 0x2D3);
+        kAssertFail(D_0064E4E0, 0x2D3);
     }
     *(u32 *)((u8 *)p + i * 0x14 + 0x64) += 1;
 }
@@ -663,7 +663,7 @@ s32 func_0036ccc0(void) {
     void *p;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
@@ -672,7 +672,7 @@ s32 func_0036ccc0(void) {
         }
     }
     if (i >= 0x10) {
-        func_0046d730(D_0064E4E0, 0x2F0);
+        kAssertFail(D_0064E4E0, 0x2F0);
     }
     return i;
 }
@@ -685,7 +685,7 @@ s32 func_0036cd70(s32 arg0) {
     u16 v;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0, key = arg0 & 0xFFFF; i < 0x10; i++) {
@@ -707,7 +707,7 @@ u32 *func_0036ce10(s32 arg0) {
     u16 v;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0, key = arg0 & 0xFFFF; i < 0x10; i++) {
@@ -719,7 +719,7 @@ u32 *func_0036ce10(s32 arg0) {
         }
     }
     if (i >= 0x10) {
-        func_0046d730(D_0064E4E0, 0x319);
+        kAssertFail(D_0064E4E0, 0x319);
     }
     return (u32 *)((u8 *)p + i * 0x10 + 0x194);
 }
@@ -730,7 +730,7 @@ s32 func_0036cee0(void) {
     void *p;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0; i < 0x10; i++) {
@@ -739,7 +739,7 @@ s32 func_0036cee0(void) {
         }
     }
     if (i >= 0x10) {
-        func_0046d730(D_0064E4E0, 0x32B);
+        kAssertFail(D_0064E4E0, 0x32B);
     }
     return i;
 }
@@ -752,7 +752,7 @@ void func_0036cf80(s32 arg0) {
     u16 v;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0, key = arg0 & 0xFFFF; i < 0x10; i++) {
@@ -764,7 +764,7 @@ void func_0036cf80(s32 arg0) {
         }
     }
     if (i >= 0x10) {
-        func_0046d730(D_0064E4E0, 0x319);
+        kAssertFail(D_0064E4E0, 0x319);
     }
     *(u32 *)((u8 *)p + i * 0x10 + 0x1A0) += 1;
 }
@@ -775,7 +775,7 @@ u32 *func_0036d060(void) {
     void *p;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     for (i = 0; i < 0x20; i++) {
@@ -784,7 +784,7 @@ u32 *func_0036d060(void) {
         }
     }
     if (i >= 0x20) {
-        func_0046d730(D_0064E4E0, 0x352);
+        kAssertFail(D_0064E4E0, 0x352);
     }
     return (u32 *)((u8 *)p + i * 0x124 + 0x294);
 }
@@ -795,11 +795,11 @@ s32 func_0036d130(s32 arg0) {
     u32 *q;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (!(*(u32 *)((u8 *)p + 0x10) & 4)) {
-        func_0046d730(D_0064E4E0, 0x371);
+        kAssertFail(D_0064E4E0, 0x371);
     }
     q = p;
     return q[arg0 + 9];
@@ -810,11 +810,11 @@ s32 func_0036d1b0(s32 arg0) {
     u32 *q;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (!(*(u32 *)((u8 *)p + 0x10) & 8)) {
-        func_0046d730(D_0064E4E0, 0x37C);
+        kAssertFail(D_0064E4E0, 0x37C);
     }
     q = p;
     return q[arg0 + 0x10];
@@ -829,20 +829,20 @@ void func_0036d230(u8 *arg0) {
     s32 off;
 
     if (D_0072469C == 0) {
-        func_0046d730(D_0064E4E0, 0x75);
+        kAssertFail(D_0064E4E0, 0x75);
     }
     p = D_0072469C;
     if (!(~*(u32 *)((u32)p + 0x10) & 4)) {
-        func_0046d730(D_0064E4E0, 0x3A4);
+        kAssertFail(D_0064E4E0, 0x3A4);
     }
     if (!(~*(u32 *)((s32)p + 0x10) & 8)) {
-        func_0046d730(D_0064E4E0, 0x3A5);
+        kAssertFail(D_0064E4E0, 0x3A5);
     }
     if (!(~*(u32 *)((u32 *)p + 4) & 1)) {
-        func_0046d730(D_0064E4E0, 0x3A6);
+        kAssertFail(D_0064E4E0, 0x3A6);
     }
     if (*(u16 *)((u8 *)arg0 + 4) != 10) {
-        func_0046d730(D_0064E4E0, 0x3A7);
+        kAssertFail(D_0064E4E0, 0x3A7);
     }
     for (i = 0; i < 7; i++) {
         off = i * 8;
@@ -930,7 +930,7 @@ s32 func_0036d3e0(const void *input) {
         depth = decodedDepth;
     }
     if (depth == 0) {
-        func_0046d730(D_0064E4E0, 0x409);
+        kAssertFail(D_0064E4E0, 0x409);
     }
     source += 0x40;
     switch (depth) {
@@ -961,7 +961,7 @@ s32 func_0036d3e0(const void *input) {
         rasterFlags |= 0x4500;
         break;
     default:
-        func_0046d730(D_0064E4E0, 0x431);
+        kAssertFail(D_0064E4E0, 0x431);
         break;
     }
     raster = func_003ec590(header->width, header->height, depth, rasterFlags);

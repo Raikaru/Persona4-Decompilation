@@ -32,7 +32,7 @@ extern s32 (*D_00887310[])(s32, void *, s32);     /* device.fpIm2DRenderPrimitiv
 
 /* Runtime helpers (old-style where retail passes no prototype-driven
  * zero-extension). */
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern void func_00440b68();
 extern s32 func_00457120(void);
@@ -69,7 +69,7 @@ void frFontRasterCreateCache(s32 count)
 
     size = count * 0x21c + 0x18;
     if (piGpffffb954 != NULL) {
-        func_0046d730(D_0063bc88, 0x26);
+        kAssertFail(D_0063bc88, 0x26);
     }
     chkmemAllocSiteTag(D_0063bc88, 0x27);
     memory = D_008873e8_abs[0](size, 0x40000);
@@ -251,7 +251,7 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
     corners[6] = right;
     corners[7] = bottom;
     if (*(u8 **)(glyph + 0x1C) == NULL) {
-        func_0046d730(&D_0063BC88, 0x9B);
+        kAssertFail(&D_0063BC88, 0x9B);
     }
     raster = *(u8 **)(*(u8 **)(glyph + 0x1C) + 0x0C);
     if (*(s16 *)(raster + 8) != palette) {
@@ -387,7 +387,7 @@ u8 *frFontRasterAllocEntry(u32 param_1, u8 *param_2, u32 param_3)
     u32 *puVar1;
 
     if (param_2 == 0) {
-        func_0046d730(D_0063bc88, 0x128);
+        kAssertFail(D_0063bc88, 0x128);
     }
     puVar1 = *(u32 **)(iGpffffb954 + 0x10);
     if (puVar1 != (u32 *)0x0) {
@@ -442,7 +442,7 @@ void frFontRasterUploadGlyph(int param_1, u8 *param_2, int param_3)
 
     if (param_2 == (u8 *)0x0) {
         func_00440b68(D_0063bde0);
-        func_0046d730(D_0063bc88, 0x17e);
+        kAssertFail(D_0063bc88, 0x17e);
         return;
     }
     puVar8 = (short *)D_0063bce0;
@@ -487,7 +487,7 @@ void frFontRasterUploadGlyph(int param_1, u8 *param_2, int param_3)
     func_003ec2a0(*(u32 *)(param_1 + 0x14));
     lVar3 = func_003ec3d0(*(u32 *)(param_1 + 0x14), 1);
     if (lVar3 == 0) {
-        func_0046d730(D_0063bc88, 0x1b1);
+        kAssertFail(D_0063bc88, 0x1b1);
     }
     memcpy(lVar3, (u32)D_0063b5f0 + param_3 * 0x40, 0x40);
     func_003ec2e0(*(u32 *)(param_1 + 0x14));

@@ -21,7 +21,7 @@ extern s64 func_002bab80(void *arg0);
 extern void strcpy(u8 *arg0, u8 *arg1);
 extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
 extern s32 func_00248f20(s32 arg0, s32 arg1);
-extern void func_0046d730(u8 *arg0, s32 arg1);
+extern void kAssertFail(u8 *arg0, s32 arg1);
 extern s32 func_002badc0(s8 arg0, s32 arg1);
 extern s32 func_002bb680(s8 arg0);
 extern void func_002bb420(s8 arg0);
@@ -80,7 +80,7 @@ s32 func_0025c790(u8 *task)
             func_002bbd80((s8)work->slot, 0, name);
             message = func_00248f20((s16)work->index, work->value);
             if (message < 0 || message > 2)
-                func_0046d730(D_00636838, 0xD1);
+                kAssertFail(D_00636838, 0xD1);
             func_002badc0((s8)work->slot, message);
         } else {
             return -1;
@@ -94,7 +94,7 @@ s32 func_0025c790(u8 *task)
             increment = work->value;
             index = work->index;
             if (index >= 5)
-                func_0046d730(D_00636838, 0x90);
+                kAssertFail(D_00636838, 0x90);
             previous_rank = func_00104f10((s16)index);
             value = (s32)((u32)increment + (u32)(s32)func_00104ea0(1, (s16)index));
             if (value > 999)

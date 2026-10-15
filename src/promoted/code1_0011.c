@@ -1043,7 +1043,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
     s32 func_00106a90(s16);
     void sprintf(void *, void *, s32);
     s32 func_0046a770(void *);
-    void func_0046d730(void *, s32);
+    void kAssertFail(void *, s32);
     void func_00112610(Vec2f, f32, u8, u8 *, s32, s32);
     void func_00112830(Vec2f, f32, u8, u8 *, s32);
     void func_001130c0(Vec2f, f32, u8, u8 *, s32);
@@ -1061,10 +1061,10 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
     temp16 = func_0046a770(D_005E5830);
     temp19 = func_0046a770(D_005E5850);
     if (temp16 == 0) {
-        func_0046d730(&iGpffff9be0, 0x93);
+        kAssertFail(&iGpffff9be0, 0x93);
     }
     if (temp19 == 0) {
-        func_0046d730(&iGpffff9be0, 0x94);
+        kAssertFail(&iGpffff9be0, 0x94);
     }
     if (*(u16 *)(arg2 + 0x14) != 0) {
         func_00112610(arg0, fparg0, arg1, arg2, temp16, temp19);

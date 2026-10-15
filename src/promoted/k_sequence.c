@@ -9,7 +9,7 @@ extern u8 *func_00155280(void);
 extern s32 func_00155e10(s32 arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4,
                          s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9,
                          s64 arg10, s64 arg11, s64 arg12, s64 arg13);
-extern void func_0046d730(const char *file, s32 line);
+extern void kAssertFail(const char *file, s32 line);
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 kwlnTaskIsLinked(s32 buf);
@@ -33,7 +33,7 @@ void func_00170220(u8 *arg0)
     s32 temp;
 
     if (*(u16 *)(arg0 + 0) == 0) {
-        func_0046d730(D_005F16F8, 0x38);
+        kAssertFail(D_005F16F8, 0x38);
     }
     temp = func_00155e10(0, *(u16 *)(arg0 + 0), *(u16 *)(arg0 + 2),
                          *(u16 *)(arg0 + 4), *(s16 *)(arg0 + 6),
@@ -62,7 +62,7 @@ void func_00170350(u8 *arg0)
     s32 temp;
 
     if (*(s32 *)(arg0 + 0xC) == 0) {
-        func_0046d730(D_005F16F8, 0x69);
+        kAssertFail(D_005F16F8, 0x69);
     }
     temp = func_00155e10(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, *(s32 *)(arg0 + 0xC),
                          *(s32 *)(arg0 + 0x10), *(s32 *)(arg0 + 0x14), 0);
@@ -133,7 +133,7 @@ void func_001705d0(void)
 
     temp = kwlnTaskGetTaskByName(D_005F1708);
     if (temp == 0) {
-        func_0046d730(D_005F16F8, 0xCB);
+        kAssertFail(D_005F16F8, 0xCB);
     }
     kwlnTaskDestroyWithHierarchy(temp);
 }
@@ -157,7 +157,7 @@ void func_00170690(void)
 
     temp = kwlnTaskGetTaskByName(D_005F1718);
     if (temp == 0) {
-        func_0046d730(D_005F16F8, 0xE8);
+        kAssertFail(D_005F16F8, 0xE8);
     }
     kwlnTaskDestroyWithHierarchy(temp);
 }
@@ -181,7 +181,7 @@ void func_00170750(void)
 
     temp = kwlnTaskGetTaskByName(D_005F1730);
     if (temp == 0) {
-        func_0046d730(D_005F16F8, 0x105);
+        kAssertFail(D_005F16F8, 0x105);
     }
     kwlnTaskDestroyWithHierarchy(temp);
 }
@@ -211,7 +211,7 @@ void func_00170840(void)
 
     temp = kwlnTaskGetTaskByName(&D_00763028);
     if (temp == 0) {
-        func_0046d730(D_005F16F8, 0x12B);
+        kAssertFail(D_005F16F8, 0x12B);
     }
     kwlnTaskDestroyWithHierarchy(temp);
 }
@@ -235,7 +235,7 @@ void func_00170900(void)
 
     temp = kwlnTaskGetTaskByName(D_005F1748);
     if (temp == 0) {
-        func_0046d730(D_005F16F8, 0x14A);
+        kAssertFail(D_005F16F8, 0x14A);
     }
     kwlnTaskDestroyWithHierarchy(temp);
 }

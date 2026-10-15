@@ -7,7 +7,7 @@
 
 
 extern u32 RpRandom(void);
-extern void func_0046d730(void *arg0, s32 arg1);
+extern void kAssertFail(void *arg0, s32 arg1);
 extern u8 D_00635938[];
 
 extern u32 RpRandom(void);
@@ -111,7 +111,7 @@ static inline u32 PTDatCalcOffsetAdd(u32 offset, u32 base) { return offset + bas
 u32 datCalcRandomBelow(u32 arg0)
 {
     if (arg0 == 0) {
-        func_0046d730(D_00635938, 0x17);
+        kAssertFail(D_00635938, 0x17);
     }
     return RpRandom() % arg0;
 }
@@ -146,12 +146,12 @@ s32 datCalcGetLevel(u8 *arg0)
     } else {
         level = (s32)datPersonaGetRecord(*(u16 *)(arg0 + 2));
         if (level == 0) {
-            func_0046d730(D_00635938, 0x58);
+            kAssertFail(D_00635938, 0x58);
         }
         level = datPersonaGetLevel(level) & 0xFF;
     }
     if ((s32)(u8)level <= 0) {
-        func_0046d730(D_00635938, 0x5C);
+        kAssertFail(D_00635938, 0x5C);
     }
     return level;
 }
@@ -219,13 +219,13 @@ u16 datCalcMaxHp(DatUnit *unit)
     temp_16 = unit->id;
     if ((unit->flags & 4) != 0) {
         if ((temp_16 & 0xFFFF) >= 0x150) {
-            func_0046d730(D_00635938, 0xBF);
+            kAssertFail(D_00635938, 0xBF);
         }
         base = iGpffffb3c4;
         var_2 = *(u16 *)((u8 *)PTDatCalcOffsetAdd((u32)((temp_16 & 0xFFFF) * 0x3C), (u32)base) + 4);
     } else {
         if ((temp_16 & 0xFFFF) >= 0xB) {
-            func_0046d730(D_00635938, 0xC2);
+            kAssertFail(D_00635938, 0xC2);
         }
         var_2 = (u16)func_001053b0((s16)temp_16);
     }
@@ -287,13 +287,13 @@ u16 datCalcMaxSp(DatUnit *unit)
     temp_16 = unit->id;
     if ((unit->flags & 4) != 0) {
         if ((temp_16 & 0xFFFF) >= 0x150) {
-            func_0046d730(D_00635938, 0xD9);
+            kAssertFail(D_00635938, 0xD9);
         }
         base = iGpffffb3c4;
         var_2 = *(u16 *)((u8 *)PTDatCalcOffsetAdd((u32)((temp_16 & 0xFFFF) * 0x3C), (u32)base) + 6);
     } else {
         if ((temp_16 & 0xFFFF) >= 0xB) {
-            func_0046d730(D_00635938, 0xDC);
+            kAssertFail(D_00635938, 0xDC);
         }
         var_2 = (u16)func_00105460((s16)temp_16);
     }
@@ -474,7 +474,7 @@ u16 datCalcCountIdSlotsWithValue(u16 arg0, u16 arg1)
     u16 val;
 
     if ((arg0 & 0xFFFF) >= 0xB) {
-        func_0046d730(D_00635938, 0x263);
+        kAssertFail(D_00635938, 0x263);
     }
     count = 0;
     id = (s16)arg0;
@@ -507,7 +507,7 @@ s32 datCalcCountSlotsWithValue(u8 *arg0, s32 arg1)
     }
     id16 = *(u16 *)(arg0 + 2);
     if (id16 >= 0xB) {
-        func_0046d730(D_00635938, 0x263);
+        kAssertFail(D_00635938, 0x263);
     }
     count = 0;
     id = (s16)id16;
@@ -615,11 +615,11 @@ u8 datCalcGetUnitStat(u8 *arg0, s32 arg1)
     u8 *base;
 
     if ((s32)(arg1 & 0xFFFF) < 0 || (s32)(arg1 & 0xFFFF) >= 5)
-        func_0046d730(D_00635938, 0x2F0);
+        kAssertFail(D_00635938, 0x2F0);
     temp = *(u16 *)(arg0 + 2);
     if ((*(u16 *)arg0 & 4) != 0) {
         if ((u16)temp >= 0x150)
-            func_0046d730(D_00635938, 0x2F7);
+            kAssertFail(D_00635938, 0x2F7);
         base = (u8 *)iGpffffb3c4;
         index = (u32)(u16)temp * 0x3C;
         base = (u8 *)(index + (u32)base);
@@ -627,7 +627,7 @@ u8 datCalcGetUnitStat(u8 *arg0, s32 arg1)
         value = *(u8 *)(base + 8);
     } else {
         if ((u16)temp >= 0xB)
-            func_0046d730(D_00635938, 0x2FA);
+            kAssertFail(D_00635938, 0x2FA);
         value = (u8)datPersonaGetStatById(temp, arg1);
     }
     if ((s32)value > 0)
@@ -655,14 +655,14 @@ u8 datCalcGetBattleStat(u8 *arg0, s32 arg1)
     u8 flag;
 
     if (((s32)(arg1 & 0xFFFF) < 0) || ((arg1 & 0xFFFF) >= 5)) {
-        func_0046d730(D_00635938, 0x313);
+        kAssertFail(D_00635938, 0x313);
     }
     if ((*(u16 *)arg0 & 4) != 0) {
         v = (u32)datCalcGetUnitStat(arg0, arg1);
         v &= 0xFF;
     } else {
         if (*(u16 *)(arg0 + 2) >= 0xB) {
-            func_0046d730(D_00635938, 0x31A);
+            kAssertFail(D_00635938, 0x31A);
         }
         v = (u32)datPersonaGetTotalStatById(*(u16 *)(arg0 + 2), arg1);
         v &= 0xFF;
@@ -729,7 +729,7 @@ s8 datCalcGetBuffLevel(u8 *arg0, s32 arg1)
     u16 offset;
 
     if ((s32)(arg1 & 0xff) >= 0x18) {
-        func_0046d730(D_00635938, 0x40F);
+        kAssertFail(D_00635938, 0x40F);
     }
     index = arg1;
     offset = index >> 1;
@@ -757,11 +757,11 @@ void datCalcSetBuffLevel(u8 *arg0, u8 arg1, s32 arg2)
     var_17 = arg2;
     temp_16 = arg1 & 0xFF;
     if (temp_16 >= 0x18) {
-        func_0046d730(D_00635938, 0x441);
+        kAssertFail(D_00635938, 0x441);
     }
     temp_19 = (s8)var_17;
     if (temp_19 > 7 || temp_19 < -7) {
-        func_0046d730(D_00635938, 0x442);
+        kAssertFail(D_00635938, 0x442);
     }
     temp_4 = (temp_16 >> 1) & 0xFFFF;
     if (temp_19 < 0) {
@@ -787,10 +787,10 @@ void datCalcSetSecondaryBuffLevel(u8 *arg0, u8 arg1, s8 arg2)
     u8 old;
 
     if (arg1 >= 0x18) {
-        func_0046d730(D_00635938, 0x45E);
+        kAssertFail(D_00635938, 0x45E);
     }
     if (arg2 < 0) {
-        func_0046d730(D_00635938, 0x45F);
+        kAssertFail(D_00635938, 0x45F);
     }
     idx = ((s32)arg1 >> 1) & 0xFFFF;
     b = arg0;
@@ -824,12 +824,12 @@ s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2)
 
     index = arg1 & 0xff;
     if (index >= 24) {
-        func_0046d730(D_00635938, 1142);
+        kAssertFail(D_00635938, 1142);
     }
     result = 0;
     if (index < 16) {
         if (index >= 24) {
-            func_0046d730(D_00635938, 1039);
+            kAssertFail(D_00635938, 1039);
         }
         byteIndex = arg1;
         halfIndex = byteIndex >> 1;
@@ -856,11 +856,11 @@ s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2)
         }
         packed = result;
         if (index >= 24) {
-            func_0046d730(D_00635938, 1089);
+            kAssertFail(D_00635938, 1089);
         }
         checked = packed;
         if (checked > 7 || checked < -7) {
-            func_0046d730(D_00635938, 1090);
+            kAssertFail(D_00635938, 1090);
         }
         offset = halfIndex;
         if (checked < 0) {
@@ -879,7 +879,7 @@ s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2)
             *(s32 *)(arg0 + 20) |= 1 << index;
         }
         if (index >= 24) {
-            func_0046d730(D_00635938, 1118);
+            kAssertFail(D_00635938, 1118);
         }
         offset = halfIndex;
         if (odd) {
@@ -908,11 +908,11 @@ void datCalcClearBuffLevel(u8 *arg0, s32 arg1)
 
     temp_18 = arg1 & 0xFF;
     if (temp_18 >= 0x18) {
-        func_0046d730(D_00635938, 0x4A2);
+        kAssertFail(D_00635938, 0x4A2);
     }
     if (temp_18 < 0x10) {
         if (temp_18 >= 0x18) {
-            func_0046d730(D_00635938, 0x441);
+            kAssertFail(D_00635938, 0x441);
         }
         temp_17 = temp_18 >> 1;
         temp_3 = temp_17 & 0xFFFF;
@@ -925,7 +925,7 @@ void datCalcClearBuffLevel(u8 *arg0, s32 arg1)
             ptr[0x1C] = (u8)(ptr[0x1C] & 0xF0);
         }
         if (temp_18 >= 0x18) {
-            func_0046d730(D_00635938, 0x45E);
+            kAssertFail(D_00635938, 0x45E);
         }
         temp_3_2 = (u16)temp_17;
         if (temp_16 != 0) {
@@ -949,7 +949,7 @@ void datCalcClearAllBuffs(u8 *arg0)
     for (i = 0; i < 0x18; i++) {
         i8 = i & 0xFF;
         if (i8 >= 0x18) {
-            func_0046d730(D_00635938, 0x4A2);
+            kAssertFail(D_00635938, 0x4A2);
         }
         if (i8 < 0x10) {
             datCalcSetBuffLevel(arg0, i, 0);
@@ -971,11 +971,11 @@ s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1)
 
     uVar3 = arg1 & 0xff;
     if (uVar3 >= 0x18) {
-        func_0046d730(D_00635938, 0x4C1);
+        kAssertFail(D_00635938, 0x4C1);
     }
     if (uVar3 < 0x10) {
         if (uVar3 >= 0x18) {
-            func_0046d730(D_00635938, 0x40F);
+            kAssertFail(D_00635938, 0x40F);
         }
         index = arg1;
         offset = index >> 1;
@@ -1024,15 +1024,15 @@ f32 datCalcBuffMultiplier(u8 *arg0, s32 arg1, u16 arg2)
 
     index = arg1 & 0xFF;
     if (index >= 24) {
-        func_0046d730(D_00635938, 1265);
+        kAssertFail(D_00635938, 1265);
     }
     if (index >= 24) {
-        func_0046d730(D_00635938, 1217);
+        kAssertFail(D_00635938, 1217);
     }
     status = (s8)(index < 16 ? datCalcGetBuffLevel(arg0, arg1) :
         (s8)(active = (*(u32 *)(arg0 + 20) & (1U << index)) != 0));
     if (status < -1 || status > 1) {
-        func_0046d730(D_00635938, 1269);
+        kAssertFail(D_00635938, 1269);
     }
     enemyFlag = (*(u16 *)arg0 & 4);
     enemyPredicate = enemyFlag != 0;
@@ -1276,7 +1276,7 @@ check_01000000:
     if (arg1 & 0x02000000) {
         return (((s64)((*(s32 *)(arg0 + 0x14) & 0x20000) != 0) << 0x38) >> 0x38) == 0;
     }
-    func_0046d730(D_00635938, 0x5DE);
+    kAssertFail(D_00635938, 0x5DE);
     return 0;
 }
 
@@ -1443,7 +1443,7 @@ void datCalcClearFlaggedBuffs(u8 *arg0)
             if (mask & (1 << i)) {
                 i8 = i & 0xFF;
                 if (i8 >= 0x18) {
-                    func_0046d730(D_00635938, 0x4A2);
+                    kAssertFail(D_00635938, 0x4A2);
                 }
                 if (i8 < 0x10) {
                     datCalcSetBuffLevel(arg0, i, 0);
@@ -1462,7 +1462,7 @@ static inline s8 P4CalcLevel(u8 *unit, u8 index)
     /* Preserve the signed-byte getter conversion at the branch merge. */
     s32 level;
     if ((s32)index >= 24)
-        func_0046d730(D_00635938, 0x42A);
+        kAssertFail(D_00635938, 0x42A);
     offset = index >> 1;
     if (index & 1)
         level = (s8)(*(u8 *)(unit + offset + 0x24) >> 4);
@@ -1476,9 +1476,9 @@ static inline void P4CalcSetLevel(u8 *unit, u8 index, s8 level)
     u16 offset;
     u8 *ptr;
     if ((s32)index >= 24)
-        func_0046d730(D_00635938, 0x45E);
+        kAssertFail(D_00635938, 0x45E);
     if (level < 0)
-        func_0046d730(D_00635938, 0x45F);
+        kAssertFail(D_00635938, 0x45F);
     offset = index >> 1;
     if (index & 1) {
         ptr = unit + offset;
@@ -1502,7 +1502,7 @@ void datCalcAdvanceSecondaryBuffs(u8 *unit)
     for (index = 0; index < 16; index++) {
         checked = (u8)index;
         if (checked >= 24)
-            func_0046d730(D_00635938, 0x4C1);
+            kAssertFail(D_00635938, 0x4C1);
         if (checked < 16)
             active = datCalcGetBuffLevel(unit, index % 256U);
         else {
@@ -1531,14 +1531,14 @@ s64 datCalcFindStrongBuff(u8 *unit)
     threshold = 3;
     if (*(u16 *)unit & 4) {
         if (*(u16 *)(unit + 2) >= 0x150)
-            func_0046d730(D_00635938, 0x6D8);
+            kAssertFail(D_00635938, 0x6D8);
         if (*(u16 *)(iGpffffb3c4 + *(u16 *)(unit + 2) * 0x3C) & 0x1000)
             threshold *= 2;
     }
     for (index = 0; index < 16; index++) {
         checked = (u8)index;
         if (checked >= 24)
-            func_0046d730(D_00635938, 0x4C1);
+            kAssertFail(D_00635938, 0x4C1);
         if (checked < 16)
             /* Keep the independently narrowed getter argument. */
             active = datCalcGetBuffLevel(unit, index % 256U);
@@ -1571,7 +1571,7 @@ static inline s32 DC411HasEquipmentProperty(u8 *unit, s32 property)
     }
     character = *(u16 *)(unit + 2);
     if ((s32)character >= 0xB) {
-        func_0046d730(D_00635938, 0x23B);
+        kAssertFail(D_00635938, 0x23B);
     }
     if ((func_001069d0(func_00106cd0((s16)character, 0)) & 0xFFFF) == property) {
         return 1;
@@ -1592,7 +1592,7 @@ static inline u16 DCDamageAccessoryProperty(u8 *unit)
     }
     character = *(s16 *)(unit + 2);
     if (character >= 11) {
-        func_0046d730(D_00635938, 0x291);
+        kAssertFail(D_00635938, 0x291);
     }
     return func_001069d0(func_00106cd0(character, 2)) & 0xFFFF;
 }
@@ -1607,11 +1607,11 @@ static inline f32 DCDamageAccessoryFraction(u8 *unit)
     }
     character = *(s16 *)(unit + 2);
     if (character >= 11) {
-        func_0046d730(D_00635938, 0x2A7);
+        kAssertFail(D_00635938, 0x2A7);
     }
     percent = (s16)func_00106a00(func_00106cd0(character, 2));
     if (percent < 0 || percent > 100) {
-        func_0046d730(D_00635938, 0x2AB);
+        kAssertFail(D_00635938, 0x2AB);
     }
     return (f32)percent / 100.0f;
 }
@@ -1678,10 +1678,10 @@ u8 arg7;
 
     checkedSkill = (u16)arg0;
     if (checkedSkill < 0 || checkedSkill >= 0x240) {
-        func_0046d730(D_00635938, 0x711);
+        kAssertFail(D_00635938, 0x711);
     }
     if (checkedSkill >= 0x1B8) {
-        func_0046d730(D_00635938, 0x712);
+        kAssertFail(D_00635938, 0x712);
     }
     attack = 1.0f;
     defense = 1.0f;
@@ -1710,7 +1710,7 @@ u8 arg7;
         maximum = datCalcMaxSp((DatUnit *)arg2);
         break;
     default:
-        func_0046d730(D_00635938, 0x731);
+        kAssertFail(D_00635938, 0x731);
         break;
     }
     switch (effect) {
@@ -1722,7 +1722,7 @@ u8 arg7;
     case 15:
         healing = power;
         if (healing == 0) {
-            func_0046d730(D_00635938, 0x17);
+            kAssertFail(D_00635938, 0x17);
         }
         healing = DCDamageAddBonus((s32)(RpRandom() % healing), bonus);
         break;
@@ -1747,7 +1747,7 @@ u8 arg7;
             healing = datScriptRunCalc(3, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
             break;
         default:
-            func_0046d730(D_00635938, 0x75E);
+            kAssertFail(D_00635938, 0x75E);
             break;
         }
         healing += bonus;
@@ -1794,7 +1794,7 @@ u8 arg7;
             damage = datScriptRunCalc(2, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
             break;
         default:
-            func_0046d730(D_00635938, 0x7A7);
+            kAssertFail(D_00635938, 0x7A7);
             break;
         }
         damage += bonus;
@@ -1835,7 +1835,7 @@ u8 arg7;
         fixed = 0;
         break;
     default:
-        func_0046d730(D_00635938, 0x7DE);
+        kAssertFail(D_00635938, 0x7DE);
         break;
     }
     if (fixed == 0 && damage > 0 && !(arg6 & 1)) {
@@ -1862,7 +1862,7 @@ u8 arg7;
             }
             break;
         default:
-            func_0046d730(D_00635938, 0x803);
+            kAssertFail(D_00635938, 0x803);
             break;
         }
         element = (s16)rawElement;
@@ -1997,7 +1997,7 @@ u8 arg7;
         }
         if (*(u16 *)arg1 & 4) {
             if (*(u16 *)(arg1 + 2) >= 0x150) {
-                func_0046d730(D_00635938, 0x8C0);
+                kAssertFail(D_00635938, 0x8C0);
             }
             if (*(u16 *)(iGpffffb3c4 + *(u16 *)(arg1 + 2) * 0x3C) & 0x20) {
                 attack *= 0.75f;
@@ -2186,7 +2186,7 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
         return 0;
     }
     if (arg1 != (u8 *)arg2) {
-        func_0046d730(D_00635938, 0x9F9);
+        kAssertFail(D_00635938, 0x9F9);
     }
     if (!(*(u16 *)arg1 & 4)) {
         temp_2 = func_00105ed0();
@@ -2197,12 +2197,12 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
         } else {
             temp_2_2 = (s32)datPersonaGetRecord(temp_4);
             if (temp_2_2 == 0) {
-                func_0046d730(D_00635938, 0x58);
+                kAssertFail(D_00635938, 0x58);
             }
             var_16 = datPersonaGetLevel(temp_2_2);
         }
         if ((var_16 & 0xFF) <= 0) {
-            func_0046d730(D_00635938, 0x5C);
+            kAssertFail(D_00635938, 0x5C);
         }
         var_f1_2 = (f32)var_16;
         var_f20 = 4.0f + (var_f1_2 / 5.0f);
@@ -2216,12 +2216,12 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
         } else {
             temp_2_5 = (s32)datPersonaGetRecord(temp_4_2);
             if (temp_2_5 == 0) {
-                func_0046d730(D_00635938, 0x58);
+                kAssertFail(D_00635938, 0x58);
             }
             var_18 = datPersonaGetLevel(temp_2_5);
         }
         if ((var_18 & 0xFF) <= 0) {
-            func_0046d730(D_00635938, 0x5C);
+            kAssertFail(D_00635938, 0x5C);
         }
         var_f1_3 = (f32)var_18;
         var_f20 = 4.0f + (var_f1_3 / 5.0f);
@@ -2283,7 +2283,7 @@ s32 options;
     extern s32 datCalcStatusElement(s32 skill, s32 mask);
 
     if ((skillId & 0xFFFF) >= 0x240) {
-        func_0046d730(D_00635938, 0xA30);
+        kAssertFail(D_00635938, 0xA30);
     }
     offset = (u32)(u16)skillId * 0x28;
     entry = (u8 *)((u32)offset + (u32)iGpffffb3b8);
@@ -2305,7 +2305,7 @@ s32 options;
         }
         choiceCount = count & 0xFFFF;
         if (choiceCount == 0) {
-            func_0046d730(D_00635938, 0x17);
+            kAssertFail(D_00635938, 0x17);
         }
         statuses = 1U << choices[RpRandom() % choiceCount];
     }
@@ -2468,7 +2468,7 @@ u32 datCalcStatusEffectResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, 
     u8 *temp_4;
 
     if ((u16)arg0 >= 0x1B8) {
-        func_0046d730(D_00635938, 0xB1D);
+        kAssertFail(D_00635938, 0xB1D);
     }
     off = (arg0 & 0xFFFF) * 0x28;
     temp_4 = (u8 *)(off + (s32)iGpffffb3b8);
@@ -2487,7 +2487,7 @@ u32 datCalcStatusEffectResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, 
             } else {
                 temp_17 = *(s16 *)(arg1 + 2);
                 if (temp_17 >= 0xB) {
-                    func_0046d730(D_00635938, 0x291);
+                    kAssertFail(D_00635938, 0x291);
                 }
                 var_2_2 = func_001069d0(func_00106cd0(temp_17, 0)) & 0xFFFF;
             }
@@ -2569,7 +2569,7 @@ s32 datCalcSureHitResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 a
     s32 off;
 
     if ((u16)arg0 >= 0x1B8) {
-        func_0046d730(D_00635938, 0xB94);
+        kAssertFail(D_00635938, 0xB94);
     }
     if ((arg3 & 0xFFFF) != 1) {
         return 0;
@@ -2580,7 +2580,7 @@ s32 datCalcSureHitResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 a
         return 0;
     }
     if ((s32)temp_4[0x19] < 0x64) {
-        func_0046d730(D_00635938, 0xB9F);
+        kAssertFail(D_00635938, 0xB9F);
     }
     return datCalcInflictStatus(arg0, arg1, arg2, arg5);
 }
@@ -2598,13 +2598,13 @@ s32 datCalcApplySkillEffect(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
         arg3 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
         temp_21 = datCalcStatusEffectResult(arg0, arg1, arg2, 1, 1, 0);
         if ((u16)arg0 >= 0x1B8) {
-            func_0046d730(D_00635938, 0xB94);
+            kAssertFail(D_00635938, 0xB94);
         }
         if (iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x18] != 2) {
             result = 0;
         } else {
             if ((s32)iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x19] < 0x64) {
-                func_0046d730(D_00635938, 0xB9F);
+                kAssertFail(D_00635938, 0xB9F);
             }
             result = datCalcInflictStatus(arg0, arg1, arg2, 0);
         }
@@ -2670,13 +2670,13 @@ s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
         temp_19 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
         temp_22 = datCalcStatusEffectResult(arg0, arg1, arg2, 1, 1, 0);
         if ((u16)arg0 >= 0x1B8) {
-            func_0046d730(D_00635938, 0xB94);
+            kAssertFail(D_00635938, 0xB94);
         }
         if (iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x18] != 2) {
             result = 0;
         } else {
             if ((s32)iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x19] < 0x64) {
-                func_0046d730(D_00635938, 0xB9F);
+                kAssertFail(D_00635938, 0xB9F);
             }
             result = datCalcInflictStatus(arg0, arg1, arg2, 0);
         }
@@ -2754,13 +2754,13 @@ s32 datCalcSkillOutcome(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 *arg4, s32 *
         }
         if (arg6 != NULL) {
             if ((u16)arg0 >= 0x1B8) {
-                func_0046d730(D_00635938, 0xB94);
+                kAssertFail(D_00635938, 0xB94);
             }
             if (iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x18] != 2) {
                 var_2 = 0;
             } else {
                 if ((s32)iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x19] < 0x64) {
-                    func_0046d730(D_00635938, 0xB9F);
+                    kAssertFail(D_00635938, 0xB9F);
                 }
                 var_2 = datCalcInflictStatus(arg0, arg1, arg2, 0);
             }
@@ -2826,16 +2826,16 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
         return 100;
     }
     if (arg0 == 0) {
-        func_0046d730(D_00635938, 0xCC1);
+        kAssertFail(D_00635938, 0xCC1);
     }
     if (temp_16 >= 0x13 || temp_16 < 0) {
-        func_0046d730(D_00635938, 0xCC2);
+        kAssertFail(D_00635938, 0xCC2);
     }
     if ((*(u16 *)arg0 & 4) == 0) {
         val = datPersonaGetSkillSlot(*(u16 *)(arg0 + 2), (u16)arg1);
     } else {
         if (*(u16 *)(arg0 + 4) >= 0x150) {
-            func_0046d730(D_00635938, 0xCCD);
+            kAssertFail(D_00635938, 0xCCD);
         }
         raw = *(u16 *)(iGpffffb3c8 + *(u16 *)(arg0 + 4) * 0x20 + temp_16 * 2);
         high = (u32)(raw & 0xFF00) << 16;
@@ -3190,7 +3190,7 @@ skp_12_b:
 s32 datCalcElementBit(s16 arg0)
 {
     if (arg0 >= 0x13) {
-        func_0046d730(D_00635938, 0xE47);
+        kAssertFail(D_00635938, 0xE47);
     }
     return 1 << (arg0 + 1);
 }
@@ -3245,7 +3245,7 @@ s32 datCalcStatusElement(s32 arg0, s32 arg1)
         var_16 = 5;
         break;
     default:
-        func_0046d730(D_00635938, 0xE82);
+        kAssertFail(D_00635938, 0xE82);
         break;
     }
     return var_16;
@@ -3297,7 +3297,7 @@ u32 datCalcSkillCost(u8 *arg0, s32 arg1)
     u32 field_offset;
 
     if ((s32)(u16)arg1 >= 0x1B8) {
-        func_0046d730(D_00635938, 0xEB4);
+        kAssertFail(D_00635938, 0xEB4);
     }
     result = 0;
     offset = (u16)arg1 * 0x28;
@@ -3305,7 +3305,7 @@ u32 datCalcSkillCost(u8 *arg0, s32 arg1)
     case 1:
         if (*(u16 *)arg0 & 4) {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
-                func_0046d730(D_00635938, 0xEBE);
+                kAssertFail(D_00635938, 0xEBE);
             }
             return 0;
         }
@@ -3344,7 +3344,7 @@ u32 datCalcSkillCost(u8 *arg0, s32 arg1)
     case 2:
         if (*(u16 *)arg0 & 4) {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
-                func_0046d730(D_00635938, 0xED7);
+                kAssertFail(D_00635938, 0xED7);
             }
             if (*(u16 *)(iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C) & 2) {
                 return 0;
@@ -3415,7 +3415,7 @@ s32 datCalcThresholdTrigger(u8 *arg0, s32 arg1)
 
     var_17 = 0;
     if ((u16)arg1 >= 0x240) {
-        func_0046d730(D_00635938, 0xF1A);
+        kAssertFail(D_00635938, 0xF1A);
     }
     idx = (arg1 & 0xFFFF) * 0x28;
     if (iGpffffb3b8[idx + 0x11] == 0x10) {
@@ -3474,7 +3474,7 @@ s32 func_0023df70(s32 arg0)
     u8 *base;
 
     if ((arg0 & 0xFFFF) >= 0x1B8) {
-        func_0046d730(D_00635938, 0xF5E);
+        kAssertFail(D_00635938, 0xF5E);
     }
     base = iGpffffb3b8 + (u16)arg0 * 0x28;
     return (base[0] & 2) != 0;
@@ -3530,7 +3530,7 @@ s32 datCalcPickSpecialItem(u8 *arg0)
     if (n == 0)
         return 0;
     if (n == 0)
-        func_0046d730(D_00635938, 0x17);
+        kAssertFail(D_00635938, 0x17);
     return choices[RpRandom() % n];
 }
 #pragma pop
@@ -3550,12 +3550,12 @@ u8 *datCalcSkillList(u8 *arg0)
 {
     if (!(*(u16 *)arg0 & 4)) {
         if (*(u16 *)(arg0 + 2) >= 0xB) {
-            func_0046d730(D_00635938, 0xFA5);
+            kAssertFail(D_00635938, 0xFA5);
         }
         return datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
     }
     if (*(u16 *)(arg0 + 2) >= 0x150) {
-        func_0046d730(D_00635938, 0xFA8);
+        kAssertFail(D_00635938, 0xFA8);
     }
     return iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C + 0xE;
 }
@@ -3568,7 +3568,7 @@ u8 func_0023e1f0(u8 *arg0)
         return 0;
     }
     if (*(u16 *)(arg0 + 2) >= 0xB) {
-        func_0046d730(D_00635938, 0xFBB);
+        kAssertFail(D_00635938, 0xFBB);
     }
     base = iGpffffb3c0 + 0x14A;
     return *(u8 *)(base + *(u16 *)(arg0 + 2) * 0x14C);
@@ -3585,7 +3585,7 @@ u16 datCalcPrimaryPersonaId(u8 *arg0)
         return 0;
     }
     if (*(u16 *)(arg0 + 2) >= 0xB) {
-        func_0046d730(D_00635938, 0xFCE);
+        kAssertFail(D_00635938, 0xFCE);
     }
     return (u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF;
 }
@@ -3600,14 +3600,14 @@ s32 datCalcSkillValueBase(u8 *arg0, s32 arg1)
 
     if (*(u16 *)arg0 & 4) {
         if (*(u16 *)(arg0 + 2) >= 0x150) {
-            func_0046d730(D_00635938, 0xFE2);
+            kAssertFail(D_00635938, 0xFE2);
         }
         idx = *(u16 *)(arg0 + 2) * 0xE8;
         b = (u8 *)iGpffffb3cc;
         return b[idx + 0x1A];
     }
     if (*(u16 *)(arg0 + 2) >= 0xB) {
-        func_0046d730(D_00635938, 0xFE6);
+        kAssertFail(D_00635938, 0xFE6);
     }
     v = (u16)arg1;
     if (v & 6) {
@@ -3633,7 +3633,7 @@ u16 func_0023e3e0(u16 *arg0, s32 arg1)
     if (arg0[0] & 0x4) {
         u16 field0 = arg0[1];
         if (field0 >= 0x150) {
-            func_0046d730(D_00635938, 0x1002);
+            kAssertFail(D_00635938, 0x1002);
         }
         switch (arg1 & 0xFF) {
         case 0:
@@ -3643,7 +3643,7 @@ u16 func_0023e3e0(u16 *arg0, s32 arg1)
         case 2:
             return *(u8 *)(iGpffffb3b8 + 0x25);
         default:
-            func_0046d730(D_00635938, 0x100D);
+            kAssertFail(D_00635938, 0x100D);
             goto zero;
         }
     }
@@ -3652,7 +3652,7 @@ u16 func_0023e3e0(u16 *arg0, s32 arg1)
         u32 r;
         field1 = arg0[1];
         if (field1 >= 0xB) {
-            func_0046d730(D_00635938, 0x1011);
+            kAssertFail(D_00635938, 0x1011);
         }
         r = (u16)func_00106cd0((s16)field1, 0) & 0xFFFF;
         switch (arg1 & 0xFF) {
@@ -3663,7 +3663,7 @@ u16 func_0023e3e0(u16 *arg0, s32 arg1)
         case 2:
             return func_00106910((s16)r) & 0xFF;
         default:
-            func_0046d730(D_00635938, 0x101C);
+            kAssertFail(D_00635938, 0x101C);
             goto zero;
         }
     }
@@ -3687,13 +3687,13 @@ s32 func_0023e5b0(u8 *arg0, s32 arg1)
         case 1:
             return 0xA;
         default:
-            func_0046d730(D_00635938, 0x1039);
+            kAssertFail(D_00635938, 0x1039);
             goto ret0;
         }
     } else {
         id = *(u16 *)(arg0 + 2);
         if ((s32)id >= 0xB) {
-            func_0046d730(D_00635938, 0x103D);
+            kAssertFail(D_00635938, 0x103D);
         }
         v = (u16)func_00106cd0((s16)id, 1) & 0xFFFF;
         temp_3 = arg1 & 0xFF;
@@ -3703,7 +3703,7 @@ s32 func_0023e5b0(u8 *arg0, s32 arg1)
         case 1:
             return func_00106940((s16)v);
         default:
-            func_0046d730(D_00635938, 0x1046);
+            kAssertFail(D_00635938, 0x1046);
             goto ret0;
         }
     }
@@ -3718,12 +3718,12 @@ static inline u8 *DC411SkillTable(u8 *arg0)
 {
     if (!(*(u16 *)arg0 & 4)) {
         if (*(u16 *)(arg0 + 2) >= 0xB) {
-            func_0046d730(D_00635938, 0xFA5);
+            kAssertFail(D_00635938, 0xFA5);
         }
         return datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
     }
     if (*(u16 *)(arg0 + 2) >= 0x150) {
-        func_0046d730(D_00635938, 0xFA8);
+        kAssertFail(D_00635938, 0xFA8);
     }
     return iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C + 0xE;
 }
@@ -3793,7 +3793,7 @@ s32 arg3;
 
     checkedSkill = arg2 & 0xFFFF;
     if (checkedSkill >= 0x1B8) {
-        func_0046d730(D_00635938, 0x105E);
+        kAssertFail(D_00635938, 0x105E);
     }
     targetFlags = *(u16 *)arg1;
     if (((*(u16 *)arg0 & 4) != (targetFlags & 4)) &&
@@ -3848,7 +3848,7 @@ s32 arg3;
     }
     element = (s16)rawElement;
     if (element >= 0x13) {
-        func_0046d730(D_00635938, 0xE47);
+        kAssertFail(D_00635938, 0xE47);
     }
     elementMask = 1 << (element + 1);
     if (!(elementMask & 0xE0001)) {
@@ -4121,7 +4121,7 @@ s32 arg4;
 
     tmp22 = arg2 & 0xFFFF;
     if (tmp22 >= 0x1B8) {
-        func_0046d730(D_00635938, 0x122E);
+        kAssertFail(D_00635938, 0x122E);
     }
     switch (arg3 & 0xFFFF) {
     case 0x200:
@@ -4146,7 +4146,7 @@ s32 arg4;
     }
     bits = (s16)lvl;
     if (bits >= 0x13) {
-        func_0046d730(D_00635938, 0xE47);
+        kAssertFail(D_00635938, 0xE47);
     }
     bits = 1U << (bits + 1);
     if ((bits & 0xE0001) != 0) {
@@ -4198,7 +4198,7 @@ s32 arg4;
         scaled = (s32)((f32)base * f20);
         bonus = 0;
         if (tmp22 >= 0x1B8) {
-            func_0046d730(D_00635938, 0xF5E);
+            kAssertFail(D_00635938, 0xF5E);
         }
         if ((u8)((iGpffffb3b8[idx] & 2) != 0)) {
             if (DC411HasEquipmentProperty(arg0, 0x3C)) {
@@ -4236,7 +4236,7 @@ s32 arg4;
     case 2:
         break;
     default:
-        func_0046d730(D_00635938, 0x12EF);
+        kAssertFail(D_00635938, 0x12EF);
         break;
     }
     return 1;
@@ -4284,7 +4284,7 @@ s32 arg4;
 
     idx = (u16)arg2;
     if (idx >= 0x1B8) {
-        func_0046d730(D_00635938, 0x1305);
+        kAssertFail(D_00635938, 0x1305);
     }
     flag1 = *(u32 *)(arg1 + 0xC);
     if (((u32)((flag1 & 0x100000) != 0) != 0)) {
@@ -4317,7 +4317,7 @@ s32 arg4;
         value = *(s8 *)(iGpffffb3b4 + (u32)(u16)arg2 * 2);
     }
     if (value >= 0x13) {
-        func_0046d730(D_00635938, 0xE47);
+        kAssertFail(D_00635938, 0xE47);
     }
     if (((1 << (value + 1)) & 0xE0001) == 0) {
         goto one;
@@ -4334,7 +4334,7 @@ s32 datCalcSkillAllowedForMode(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     u8 *entry;
     u32 offset;
     if (!((arg2 & 0xFFFF) < 0x1B8)) {
-        func_0046d730(D_00635938, 0x1333);
+        kAssertFail(D_00635938, 0x1333);
     }
     if (datCalcSkillAppliesToTarget(arg0, arg1, arg2, arg3, arg4) == 0) {
         return 0;
@@ -4370,7 +4370,7 @@ s32 datCalcRollSupportSkillHit(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     u16 temp_17;
 
     if ((u16)arg2 >= 0x1B8) {
-        func_0046d730(D_00635938, 0x1360);
+        kAssertFail(D_00635938, 0x1360);
     }
     if (!(iGpffffb3b8[(arg2 & 0xFFFF) * 0x28] & 2)) {
         return 0;
@@ -4384,13 +4384,13 @@ s32 datCalcRollSupportSkillHit(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     }
     if (!(temp_3 & 4)) {
         if (*(u16 *)(arg0 + 2) >= 0xB) {
-            func_0046d730(D_00635938, 0x1371);
+            kAssertFail(D_00635938, 0x1371);
         }
         if (*(u16 *)arg0 & 4) {
             var_2 = 0;
         } else {
             if (*(u16 *)(arg0 + 2) >= 0xB) {
-                func_0046d730(D_00635938, 0xFBB);
+                kAssertFail(D_00635938, 0xFBB);
             }
             var_2 = iGpffffb3c0[*(u16 *)(arg0 + 2) * 0x14C + 0x14A];
         }
@@ -4414,7 +4414,7 @@ s32 datCalcRollSupportSkillHit(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     } else {
         temp_17 = *(u16 *)(arg0 + 2);
         if ((s32)temp_17 >= 0xB) {
-            func_0046d730(D_00635938, 0x23B);
+            kAssertFail(D_00635938, 0x23B);
         }
         if ((func_001069d0(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x71) {
             var_2_3 = 1;
@@ -4432,7 +4432,7 @@ s32 datCalcRollSupportSkillHit(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     } else {
         temp_17 = *(u16 *)(arg0 + 2);
         if ((s32)temp_17 >= 0xB) {
-            func_0046d730(D_00635938, 0x23B);
+            kAssertFail(D_00635938, 0x23B);
         }
         if ((func_001069d0(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x72) {
             var_2_4 = 1;
@@ -4450,7 +4450,7 @@ s32 datCalcRollSupportSkillHit(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     } else {
         temp_17 = *(u16 *)(arg0 + 2);
         if ((s32)temp_17 >= 0xB) {
-            func_0046d730(D_00635938, 0x23B);
+            kAssertFail(D_00635938, 0x23B);
         }
         if ((func_001069d0(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x73) {
             var_2_5 = 1;
@@ -4506,7 +4506,7 @@ s32 datCalcRollSkillChance(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     }
     temp_16 = arg2 & 0xFFFF;
     if (temp_16 >= 0x1B8) {
-        func_0046d730(D_00635938, 0x13B6);
+        kAssertFail(D_00635938, 0x13B6);
     }
     temp_2 = datCalcStatusResistance(arg1, 0xC);
     if (temp_2 & 0x27000000) {
@@ -4516,7 +4516,7 @@ s32 datCalcRollSkillChance(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     flag2 = (*(s32 *)(arg1 + 0xC) & 0x100000) != 0;
     if (flag2) {
         if (temp_16 >= 0x1B8) {
-            func_0046d730(D_00635938, 0xF5E);
+            kAssertFail(D_00635938, 0xF5E);
         }
         flag3 = (iGpffffb3b8[(u16)arg2 * 0x28] & 2) != 0;
         if (flag3) {
@@ -4537,12 +4537,12 @@ s32 datCalcRollSkillChance(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
             var_17 = (u16)temp_f1;
             if (!(*(u16 *)arg0 & 4)) {
                 if (*(u16 *)(arg0 + 2) >= 0xB) {
-                    func_0046d730(D_00635938, 0xFA5);
+                    kAssertFail(D_00635938, 0xFA5);
                 }
                 var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
             } else {
                 if (*(u16 *)(arg0 + 2) >= 0x150) {
-                    func_0046d730(D_00635938, 0xFA8);
+                    kAssertFail(D_00635938, 0xFA8);
                 }
                 var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
             }
@@ -4593,10 +4593,10 @@ s32 datCalcAilmentChance(u8 *arg0, s32 arg1)
         return 0;
     }
     if (id >= 0x13) {
-        func_0046d730(D_00635938, 0x13FD);
+        kAssertFail(D_00635938, 0x13FD);
     }
     if (id >= 0x13) {
-        func_0046d730(D_00635938, 0xE47);
+        kAssertFail(D_00635938, 0xE47);
     }
     x = 1 << (id + 1);
     if (x & 1) {
@@ -4663,12 +4663,12 @@ s32 datCalcResolveSkillId(u8 *arg0, s32 arg1)
     }
     if (!(*(u16 *)arg0 & 4)) {
         if (*(u16 *)(arg0 + 2) >= 0xB) {
-            func_0046d730(D_00635938, 0xFA5);
+            kAssertFail(D_00635938, 0xFA5);
         }
         var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
     } else {
         if (*(u16 *)(arg0 + 2) >= 0x150) {
-            func_0046d730(D_00635938, 0xFA8);
+            kAssertFail(D_00635938, 0xFA8);
         }
         var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
     }
@@ -4696,12 +4696,12 @@ done1:
     }
     if (!(*(u16 *)arg0 & 4)) {
         if (*(u16 *)(arg0 + 2) >= 0xB) {
-            func_0046d730(D_00635938, 0xFA5);
+            kAssertFail(D_00635938, 0xFA5);
         }
         var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
     } else {
         if (*(u16 *)(arg0 + 2) >= 0x150) {
-            func_0046d730(D_00635938, 0xFA8);
+            kAssertFail(D_00635938, 0xFA8);
         }
         var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
     }
@@ -4750,12 +4750,12 @@ done2:
         }
         if (!(*(u16 *)arg0 & 4)) {
             if (*(u16 *)(arg0 + 2) >= 0xB) {
-                func_0046d730(D_00635938, 0xFA5);
+                kAssertFail(D_00635938, 0xFA5);
             }
             var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
         } else {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
-                func_0046d730(D_00635938, 0xFA8);
+                kAssertFail(D_00635938, 0xFA8);
             }
             var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
         }
@@ -4783,12 +4783,12 @@ done3:
         }
         if (!(*(u16 *)arg0 & 4)) {
             if (*(u16 *)(arg0 + 2) >= 0xB) {
-                func_0046d730(D_00635938, 0xFA5);
+                kAssertFail(D_00635938, 0xFA5);
             }
             var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
         } else {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
-                func_0046d730(D_00635938, 0xFA8);
+                kAssertFail(D_00635938, 0xFA8);
             }
             var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
         }
@@ -4825,12 +4825,12 @@ done4:
         }
         if (!(*(u16 *)arg0 & 4)) {
             if (*(u16 *)(arg0 + 2) >= 0xB) {
-                func_0046d730(D_00635938, 0xFA5);
+                kAssertFail(D_00635938, 0xFA5);
             }
             var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
         } else {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
-                func_0046d730(D_00635938, 0xFA8);
+                kAssertFail(D_00635938, 0xFA8);
             }
             var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
         }
@@ -4858,12 +4858,12 @@ done5:
         }
         if (!(*(u16 *)arg0 & 4)) {
             if (*(u16 *)(arg0 + 2) >= 0xB) {
-                func_0046d730(D_00635938, 0xFA5);
+                kAssertFail(D_00635938, 0xFA5);
             }
             var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
         } else {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
-                func_0046d730(D_00635938, 0xFA8);
+                kAssertFail(D_00635938, 0xFA8);
             }
             var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
         }
@@ -4896,12 +4896,12 @@ done6:
     if (!(*(u16 *)arg0 & 0x800)) {
         if (!(*(u16 *)arg0 & 4)) {
             if (*(u16 *)(arg0 + 2) >= 0xB) {
-                func_0046d730(D_00635938, 0xFA5);
+                kAssertFail(D_00635938, 0xFA5);
             }
             var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
         } else {
             if (*(u16 *)(arg0 + 2) >= 0x150) {
-                func_0046d730(D_00635938, 0xFA8);
+                kAssertFail(D_00635938, 0xFA8);
             }
             var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
         }
@@ -4934,12 +4934,12 @@ done7:
     }
     if (!(*(u16 *)arg0 & 4)) {
         if (*(u16 *)(arg0 + 2) >= 0xB) {
-            func_0046d730(D_00635938, 0xFA5);
+            kAssertFail(D_00635938, 0xFA5);
         }
         var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
     } else {
         if (*(u16 *)(arg0 + 2) >= 0x150) {
-            func_0046d730(D_00635938, 0xFA8);
+            kAssertFail(D_00635938, 0xFA8);
         }
         var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
     }
@@ -4990,7 +4990,7 @@ u8 datCalcRollSkillValue(u8 *arg0, s32 arg1, s32 arg2)
     u8 *temp_3;
 
     if ((u16)arg1 >= 0x1B8) {
-        func_0046d730(D_00635938, 0x14C5);
+        kAssertFail(D_00635938, 0x14C5);
     }
     temp_3 = iGpffffb3b8 + (arg1 & 0xFFFF) * 0x28;
     if (*(u8 *)temp_3 & 2) {
@@ -4998,14 +4998,14 @@ u8 datCalcRollSkillValue(u8 *arg0, s32 arg1, s32 arg2)
         if (temp_2 == 0) {
             if (temp_2 != 0) {
                 if (*(u16 *)(arg0 + 2) >= 0x150) {
-                    func_0046d730(D_00635938, 0xFE2);
+                    kAssertFail(D_00635938, 0xFE2);
                 }
                 temp_4 = *(u16 *)(arg0 + 2) * 0xE8;
                 temp_5 = (s32)iGpffffb3cc;
                 var_2 = *(u8 *)(temp_4 + temp_5 + 0x1A);
             } else {
                 if (*(u16 *)(arg0 + 2) >= 0xB) {
-                    func_0046d730(D_00635938, 0xFE6);
+                    kAssertFail(D_00635938, 0xFE6);
                 }
                 if ((u16)arg2 & 6) {
                     temp_4 = *(u16 *)(arg0 + 2) * 0x14C;
@@ -5022,7 +5022,7 @@ u8 datCalcRollSkillValue(u8 *arg0, s32 arg1, s32 arg2)
     temp_16 = *(u8 *)(temp_3 + 0xF);
     temp_17_2 = *(u8 *)(temp_3 + 0x10);
     if ((s32)temp_16 <= 0 || (temp_17_2 & 0xFF) <= 0) {
-        func_0046d730(D_00635938, 0x14D3);
+        kAssertFail(D_00635938, 0x14D3);
     }
     temp_3_2 = temp_17_2 & 0xFF;
     if ((s32)temp_16 >= temp_3_2) {
@@ -5030,7 +5030,7 @@ u8 datCalcRollSkillValue(u8 *arg0, s32 arg1, s32 arg2)
     }
     temp_17 = (temp_3_2 - temp_16) + 1;
     if (temp_17 == 0) {
-        func_0046d730(D_00635938, 0x17);
+        kAssertFail(D_00635938, 0x17);
     }
     temp_2 = temp_16 & 0xFF;
     return (u8)(temp_2 + RpRandom() % temp_17);
@@ -5041,7 +5041,7 @@ u8 datCalcRollSkillValue(u8 *arg0, s32 arg1, s32 arg2)
 u8 *datCalcGetIdRecord(s32 arg0)
 {
     if ((arg0 & 0xFFFF) >= 0x240) {
-        func_0046d730(D_00635938, 0x14E4);
+        kAssertFail(D_00635938, 0x14E4);
     }
     return iGpffffb448 + (u16)arg0 * 0x13;
 }
@@ -5051,7 +5051,7 @@ u8 *datCalcGetIdRecord(s32 arg0)
 u8 *datCalcGetSlotRecord(s32 arg0)
 {
     if ((arg0 & 0xFF) >= 0x20) {
-        func_0046d730(D_00635938, 0x14F2);
+        kAssertFail(D_00635938, 0x14F2);
     }
     return iGpffffb44c + (u8)arg0 * 0x15;
 }
@@ -5072,7 +5072,7 @@ u16 datCalcUnderlyingSkillId(s64 arg0)
 u16 datCalcEnemyExp(u8 *arg0)
 {
     if (*(u16 *)(arg0 + 2) >= 0x150) {
-        func_0046d730(D_00635938, 0x1515);
+        kAssertFail(D_00635938, 0x1515);
     }
     return *(u16 *)(iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C + 0x1E);
 }
@@ -5081,7 +5081,7 @@ u16 datCalcEnemyExp(u8 *arg0)
 u16 func_002439c0(u8 *arg0)
 {
     if (*(u16 *)(arg0 + 2) >= 0x150) {
-        func_0046d730(D_00635938, 0x152A);
+        kAssertFail(D_00635938, 0x152A);
     }
     return *(u16 *)(iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C + 0x20);
 }
@@ -5104,10 +5104,10 @@ u16 datCalcPickWeightedSkill(u8 *arg0, s32 *arg1)
     u16 *field;
 
     if (!(*(u16 *)arg0 & 4)) {
-        func_0046d730(D_00635938, 0x153F);
+        kAssertFail(D_00635938, 0x153F);
     }
     if (*(u16 *)(arg0 + 2) >= 0x150) {
-        func_0046d730(D_00635938, 0x1540);
+        kAssertFail(D_00635938, 0x1540);
     }
     entry = iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C;
     result = 0;
@@ -5141,7 +5141,7 @@ u16 datCalcPickWeightedSkill(u8 *arg0, s32 *arg1)
         if (count > 0 &&
             (s32)((RpRandom() % 200U) & 0xFFFF) < count) {
             if (count == 0) {
-                func_0046d730(D_00635938, 0x17);
+                kAssertFail(D_00635938, 0x17);
             }
             total = (u16)(RpRandom() % (u32)count);
             second_total = 0;
@@ -5175,7 +5175,7 @@ s32 func_00243ce0(u8 *arg0)
         return 0;
     }
     if (*(u16 *)(arg0 + 2) >= 0x150) {
-        func_0046d730(D_00635938, 0x15C5);
+        kAssertFail(D_00635938, 0x15C5);
     }
     if (*(u16 *)(iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C) & 4) {
         return 1;
@@ -5192,7 +5192,7 @@ s32 func_00243d80(DatUnit *unit)
         return 0;
     }
     if (unit->id >= 0x150) {
-        func_0046d730(D_00635938, 0x15D2);
+        kAssertFail(D_00635938, 0x15D2);
     }
     b = (s16 *)iGpffffb3cc;
     if (b[unit->id * 0x74 + 0xC] & 0x80) {
@@ -5284,10 +5284,10 @@ s32 datCalcSkillTypeAllowed(s32 arg0, s32 arg1)
 
     temp_19 = arg0 & 0xFFFF;
     if ((s32)((u32)arg0 & 0xFFFF) < 0 || temp_19 >= 0x240) {
-        func_0046d730(D_00635938, 0x165A);
+        kAssertFail(D_00635938, 0x165A);
     }
     if (temp_19 >= 0x1B8) {
-        func_0046d730(D_00635938, 0x165B);
+        kAssertFail(D_00635938, 0x165B);
     }
     temp_3 = arg1 & 0xFF;
     switch (temp_3) {
@@ -5298,7 +5298,7 @@ s32 datCalcSkillTypeAllowed(s32 arg0, s32 arg1)
         var_17 = iGpffffb3b8[(u16)arg0 * 0x28 + 0x14];
         break;
     default:
-        func_0046d730(D_00635938, 0x1666);
+        kAssertFail(D_00635938, 0x1666);
         break;
     }
     var_16 = 1;
@@ -5325,7 +5325,7 @@ s32 datCalcSkillTypeAllowed(s32 arg0, s32 arg1)
         var_16 = 0;
         break;
     default:
-        func_0046d730(D_00635938, 0x1682);
+        kAssertFail(D_00635938, 0x1682);
         break;
     }
     return var_16;

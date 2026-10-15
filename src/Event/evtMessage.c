@@ -8,7 +8,7 @@ extern s32 itfMesWindowInstall();
 extern void itfMesWindowApplyStyle(s32 arg0, s32 arg1, s32 arg2);
 /* Source unit: src/Event/mt_evtMessage_00290a50.c (donor FUN_0039f2a0) */
 
-extern void func_0046d730(u8 *file, s32 line);
+extern void kAssertFail(u8 *file, s32 line);
 extern u8 D_0063C820[];
 extern s32 itfMesWindowEntryValue(s32 arg0, s32 arg1);
 
@@ -33,12 +33,12 @@ s32 func_00290880(u8 *arg0, s32 arg1) {
 
     active = (*(s32 *)arg0 != 0);
     if (active != 0) {
-        func_0046d730(D_0063C820, 0x2D);
+        kAssertFail(D_0063C820, 0x2D);
     }
     *(s32 *)(arg0 + 4) = 0;
     temp_2 = itfMesWindowInstall(arg1);
     if (temp_2 < 0) {
-        func_0046d730(D_0063C820, 0x33);
+        kAssertFail(D_0063C820, 0x33);
     }
     itfMesWindowApplyStyle(temp_2, 0, 0);
     *(s32 *)(arg0 + 8) = temp_2;
@@ -237,7 +237,7 @@ nonzero:
 s32 func_00290e50(u8 *arg0, s32 arg1)
 {
     if (!(u8)(*(u32 *)arg0 != 0)) {
-        func_0046d730(D_0063C820, 0x122);
+        kAssertFail(D_0063C820, 0x122);
     }
     return itfMesWindowEntryValue(*(s32 *)(arg0 + 8), arg1);
 }

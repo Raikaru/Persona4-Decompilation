@@ -361,7 +361,7 @@ struct KwlnTask;
 s32 func_002e17f0(u8 *sdkTaskBytes)
 {
     struct KwlnTask *task = (struct KwlnTask *)sdkTaskBytes;
-    extern void func_0046d730(void *, s32);
+    extern void kAssertFail(void *, s32);
     extern s32 func_001048c0(s64);
     extern void func_001044d0(s64);
     extern u8 D_0063FBD8[], D_0063FBE8[], D_0063FBF8[];
@@ -373,7 +373,7 @@ s32 func_002e17f0(u8 *sdkTaskBytes)
     s32 i;
 
     if (iGpffffb588 == NULL) {
-        func_0046d730(D_0063FBB0, 681);
+        kAssertFail(D_0063FBB0, 681);
     }
     banks = *(u8 **)(iGpffffb588 + 0x24);
     node = *(s32 **)(iGpffffb588 + 4);

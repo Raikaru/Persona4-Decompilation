@@ -14,7 +14,7 @@ extern code DAT_008873ec_abs[];
 
 
 extern void chkmemAllocSiteTag(const void *file, s32 line);
-extern void func_0046d730(const void *file, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern u8 D_0063CF80[];
 extern u8 D_0063CF90[];
 extern u8 D_0063CFA0[];
@@ -86,19 +86,19 @@ s32 func_00298370(u8 *unusedTask) {
         MT_Scene_DestroyRes((u16)((( *(s32 *)(temp_2 + 4) + 0x384) & 0x3FF) | 0xC00));
         temp_17 = (s32)(MT_Scene_CreateModelNpcShadowRes((*(s32 *)(temp_2 + 4) + 0x384) & 0xFFFF, 3, temp_17) & 0xFFFF);
         if (temp_17 == 0) {
-            func_0046d730(D_0063CF80, 0x34);
+            kAssertFail(D_0063CF80, 0x34);
         }
         MT_Scene_SetResActiveById(temp_17, 1);
         temp_18 = (u8 *)MT_Scene_GetRes(temp_17);
         temp_2_2 = func_00285af0();
         if (temp_2_2 == 0) {
-            func_0046d730(D_0063CF80, 0x39);
+            kAssertFail(D_0063CF80, 0x39);
         }
         temp_2_4 = (u8 *)func_00285480(kwlnTaskGetWork(temp_2_2));
         temp_2_2 = *(s32 *)(temp_2 + 4);
         temp_2 = (u8 *)func_00285b80(temp_2_4, temp_2_2);
         if (temp_2 == NULL) {
-            func_0046d730(D_0063CF80, 0x3D);
+            kAssertFail(D_0063CF80, 0x3D);
         }
         evtNodeSetRes(temp_2, temp_17, (u16 *)temp_18);
         temp_2_4 = mdlGetColor(*(s32 *)(temp_18 + 0x164));
@@ -141,7 +141,7 @@ s32 func_00298550(void)
         *(s32 *)(work + 0) = (s32)mdlFindOrCreateModelObject(5, v1 & 0xFFFF, 0);
         *(s32 *)(work + 4) = v0;
         if (*(s32 *)(work + 0) == 0) {
-            func_0046d730(D_0063CF80, 0x52);
+            kAssertFail(D_0063CF80, 0x52);
         }
         (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063CF90), 0xF, 0, 0, func_00298370, func_00298510, (u8 *)(work));
     } else {

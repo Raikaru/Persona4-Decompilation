@@ -119,7 +119,7 @@ extern f32 D_00881424[];
 extern f32 D_00881428[];
 extern f32 fGpffffb458;
 extern u8 *iGpffffb3b8;
-extern void func_0046d730(void *arg0, s32 arg1);
+extern void kAssertFail(void *arg0, s32 arg1);
 extern u8 D_00609E30[];
 extern f32 D_008813F0[];
 extern f32 D_008813F4[];
@@ -1700,7 +1700,7 @@ s32 func_001ea390(void)
     work = func_0029d050();
     index = scrGetParamIntS32(0);
     if ((iGpffffb3b8[index * 0x28] & 2) == 0) {
-        func_0046d730(D_00609E30, 5711);
+        kAssertFail(D_00609E30, 5711);
     }
     *(u16 *)(work + 0x6C) = 1;
     *(u16 *)(work + 0x6E) = index;

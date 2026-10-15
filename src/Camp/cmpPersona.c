@@ -23,7 +23,7 @@ void func_002bb4e0(void);
 void func_003550d0(s32 arg0, void* arg1, void* arg2);
 void func_00355070(s32 arg0, void* arg1, void* arg2);
 void func_00355300(s32 arg0, s32 arg1);
-void func_0046d730(void* arg0, s32 arg1);
+void kAssertFail(void* arg0, s32 arg1);
 void func_00136fc0(u8* arg0);
 void func_00135dc0(u8* arg0);
 extern s32 D_005EB580[];
@@ -138,15 +138,15 @@ void func_001356d0(u8* arg0) {
  *(s16*)(arg0 + 0x34) = func_00353c10((s16*)(arg0 + 0x24));
  resource0 = func_0046a770((char*)D_005E5830);
  if (resource0 == 0) {
-  func_0046d730(&D_005EB580[0], 0x199);
+  kAssertFail(&D_005EB580[0], 0x199);
  }
  resource1 = func_0046a770((char*)D_005E5850);
  if (resource1 == 0) {
-  func_0046d730(&D_005EB580[0], 0x19B);
+  kAssertFail(&D_005EB580[0], 0x19B);
  }
  *(u8**)(arg0 + 0x1CB0) = resource2 = func_0046a770((char*)D_005E57F0);
  if (resource2 == 0) {
-  func_0046d730(&D_005EB580[0], 0x19D);
+  kAssertFail(&D_005EB580[0], 0x19D);
  }
  {
   s16 i;
@@ -162,7 +162,7 @@ void func_001356d0(u8* arg0) {
     *slot = (s32)sdkSpriteNewNode((u32)resource1, *(u8*)(D_005E9FB0 + i));
    }
    if (*slot == 0) {
-    func_0046d730(&D_005EB580[0], 0x1AB);
+    kAssertFail(&D_005EB580[0], 0x1AB);
    }
   }
  }
@@ -319,7 +319,7 @@ void func_00135dc0(u8* work)
     extern f32 cosf(f32 angle);
     extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sourceX, f32 sourceY, f32 width, f32 height,
                               u8 *texture, s32 mode, s32 flag);
-    extern void func_0046d730(void *file, s32 line);
+    extern void kAssertFail(void *file, s32 line);
     extern PersonaMenuColor D_005EB540[8];
     extern u8 D_0064B2E0[];
     extern u8 D_0064B2E8[];
@@ -480,7 +480,7 @@ void func_00135dc0(u8* work)
     }
     if ((menu->visible & 0x100) != 0) {
         if (menu->portrait == 0) {
-            func_0046d730(D_005EB580, 0x2AD);
+            kAssertFail(D_005EB580, 0x2AD);
         }
         {
             u8 *portraitTask = (u8 *)func_0011d1e0(menu->portrait);
@@ -537,7 +537,7 @@ void func_00135dc0(u8* work)
     if ((menu->visible & 0x4) != 0) {
         s32 personaIndex;
         if (menu->personaCount == 0) {
-            func_0046d730(D_005EB580, 0x2FB);
+            kAssertFail(D_005EB580, 0x2FB);
         } else {
             for (personaIndex = 0; personaIndex < (datPersonaRosterCapacity() & 0xFFFF); personaIndex++) {
                 func_00137890(work, personaIndex);
@@ -703,7 +703,7 @@ s32 func_001371a0(u8* arg0, s32 arg1) {
         *(s16*)(arg0 + 0x60) = 8;
         break;
     default:
-        func_0046d730(D_005EB580, 0x3BA);
+        kAssertFail(D_005EB580, 0x3BA);
         break;
     }
 #pragma opt_common_subs on
@@ -965,7 +965,7 @@ void func_00137890(u8 *arg0, s32 arg1)
     Vec2f position;
 
     if (arg1 < 0 || arg1 >= (datPersonaRosterCapacity() & 0xFFFF)) {
-        func_0046d730(D_005EB580, 0x478);
+        kAssertFail(D_005EB580, 0x478);
     }
     menu = (CmpPersonaLayoutView *)arg0;
     x = (menu->x + menu->rows[arg1].x) - 10.0f;
@@ -1065,10 +1065,10 @@ void func_00137e50(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8* var_6;
     CmpPair pair;
     if ((arg1 < 0) || (arg1 > 0)) {
-        func_0046d730(&D_005EB580[0], 0x505);
+        kAssertFail(&D_005EB580[0], 0x505);
     }
     if (arg0 == 0) {
-        func_0046d730(&D_005EB580[0], 0x506);
+        kAssertFail(&D_005EB580[0], 0x506);
     }
     if (arg3 != 0) {
         var_6 = &D_005EB560[arg1 * 0x1C];

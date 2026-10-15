@@ -16,7 +16,7 @@ extern void func_00489f40(void *arg0, u32 color);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
-extern void func_0046d730(const void *file, s32 line);
+extern void kAssertFail(const void *file, s32 line);
 extern void memset(void *dst, s32 value, u32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern char D_00713E20[];
@@ -78,7 +78,7 @@ void *func_00492e70(u32 arg0)
     w = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
     memset(w, 0, 0x38);
     if (w == NULL) {
-        func_0046d730(&D_00713E30, 0x32);
+        kAssertFail(&D_00713E30, 0x32);
     }
     *(u32 *)(w + 0) = arg0;
     *(u32 *)(w + 4) = -1;
@@ -102,7 +102,7 @@ void *func_00492f20(void *opaqueSource)
 
     t = func_00484490(arg0);
     if (t == NULL) {
-        func_0046d730(D_00713E30, 0x61);
+        kAssertFail(D_00713E30, 0x61);
     }
     if (*(u32 *)(t + 0x3C) == 0) {
         var = (u32)(*(s32 *)(t + 0xD4) * *(s32 *)(t + 0x40));
@@ -116,14 +116,14 @@ void *func_00492f20(void *opaqueSource)
     t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
     memset(t2, 0, 0x38);
     if (t2 == NULL) {
-        func_0046d730(D_00713E30, 0x32);
+        kAssertFail(D_00713E30, 0x32);
     }
     *(u32 *)(t2 + 0) = var;
     *(u32 *)(t2 + 4) = -1;
     *(f32 *)(t2 + 8) = 1.0f;
     *(u16 *)(t2 + 0x34) = 1;
     if (t2 == NULL) {
-        func_0046d730(D_00713E30, 0x63);
+        kAssertFail(D_00713E30, 0x63);
     }
     {
         u16 w = *(volatile u16 *)(arg0 + 0xC);
@@ -173,7 +173,7 @@ void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
     case 0:
     case 3:
     default:
-        func_0046d730(D_00713E30, 0xA8);
+        kAssertFail(D_00713E30, 0xA8);
         break;
     }
     *(s16 *)(*(u8 **)(arg0 + 0x2C) + 0xC) = (s16)arg1;
@@ -191,7 +191,7 @@ void *func_00493200(void *opaqueSource)
 
     t = func_00484490(arg0);
     if (t == NULL) {
-        func_0046d730(D_00713E30, 0x61);
+        kAssertFail(D_00713E30, 0x61);
     }
     p = t + 0x1C;
     if (*(u32 *)(t + 0x3C) == 0) {
@@ -204,7 +204,7 @@ void *func_00493200(void *opaqueSource)
     }
     t2 = func_00492e70(var);
     if (t2 == NULL) {
-        func_0046d730(D_00713E30, 0x63);
+        kAssertFail(D_00713E30, 0x63);
     }
     {
         u16 w = *(volatile u16 *)(arg0 + 0xC);
@@ -254,11 +254,11 @@ void *func_004933a0(void *opaqueSource)
     u8 *t2;
 
     if (*(u8 **)(arg0 + 0x30) == NULL) {
-        func_0046d730(D_00713E30, 0xE6);
+        kAssertFail(D_00713E30, 0xE6);
     }
     t17 = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0x24);
     if (t17 == NULL) {
-        func_0046d730(D_00713E30, 0xE8);
+        kAssertFail(D_00713E30, 0xE8);
     }
     if (*(u32 *)(t17 + 0x20) == 0) {
         var = (u32)(*(s32 *)(t17 + 0xB8) * *(s32 *)(t17 + 0x24));
@@ -272,14 +272,14 @@ void *func_004933a0(void *opaqueSource)
     t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
     memset(t2, 0, 0x38);
     if (t2 == NULL) {
-        func_0046d730(D_00713E30, 0x32);
+        kAssertFail(D_00713E30, 0x32);
     }
     *(u32 *)(t2 + 0) = var;
     *(u32 *)(t2 + 4) = -1;
     *(f32 *)(t2 + 8) = 1.0f;
     *(u16 *)(t2 + 0x34) = 1;
     if (t2 == NULL) {
-        func_0046d730(D_00713E30, 0xEA);
+        kAssertFail(D_00713E30, 0xEA);
     }
     {
         u16 w = *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0);
@@ -301,11 +301,11 @@ void *func_00493530(void *opaqueSource)
     u8 *t2;
 
     if (*(u8 **)(arg0 + 0x30) == NULL) {
-        func_0046d730(D_00713E30, 0xFE);
+        kAssertFail(D_00713E30, 0xFE);
     }
     t17 = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0x24);
     if (t17 == NULL) {
-        func_0046d730(D_00713E30, 0x100);
+        kAssertFail(D_00713E30, 0x100);
     }
     if (*(u32 *)(t17 + 0x20) == 0) {
         var = (u32)(*(s32 *)(t17 + 0xB8) * *(s32 *)(t17 + 0x24));
@@ -319,14 +319,14 @@ void *func_00493530(void *opaqueSource)
     t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
     memset(t2, 0, 0x38);
     if (t2 == NULL) {
-        func_0046d730(D_00713E30, 0x32);
+        kAssertFail(D_00713E30, 0x32);
     }
     *(u32 *)(t2 + 0) = var;
     *(u32 *)(t2 + 4) = -1;
     *(f32 *)(t2 + 8) = 1.0f;
     *(u16 *)(t2 + 0x34) = 1;
     if (t2 == NULL) {
-        func_0046d730(D_00713E30, 0x102);
+        kAssertFail(D_00713E30, 0x102);
     }
     {
         u16 w = *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0);
@@ -344,7 +344,7 @@ void func_004936d0(u8 *arg0, u8 *arg1)
     u8 *v;
 
     if (*(u32 *)(arg1 + 0x2C) == 0) {
-        func_0046d730(D_00713E30, 0x115);
+        kAssertFail(D_00713E30, 0x115);
     }
     if (*(u32 *)(arg0 + 0x2C) == 0) {
         v = func_00486a50(*(s32 *)arg0);
@@ -384,7 +384,7 @@ void func_00493820(u8 *arg0, u16 arg1, u8 *arg2)
         func_00492cd0((u8 *)*(u32 *)(arg0 + 0x30));
     }
     if (*(u32 *)(arg2 + 0xC0) != 0) {
-        func_0046d730(&D_00713E30, 0x14E);
+        kAssertFail(&D_00713E30, 0x14E);
     }
     *(u32 *)(arg0 + 0x30) = (u32)func_00492b20(arg1 & 0xFFFF, *(u32 *)(arg0 + 0), arg2);
 }
@@ -646,14 +646,14 @@ u8 *func_00493e60(u16 count, u16 segments) {
     u8 *capEntry;
 
     if ((u16)segments < 2) {
-        func_0046d730(&D_00713E30, 0x205);
+        kAssertFail(&D_00713E30, 0x205);
     }
     count16 = count & 0xFFFF;
     size = (count16 * 2) + 0x1C;
     chkmemAllocSiteTag(&D_00713E30, 0x20A);
     track = (u8 *)(*jtbl_008873E8)(size, 0x40000);
     if (track == NULL) {
-        func_0046d730(&D_00713E30, 0x20B);
+        kAssertFail(&D_00713E30, 0x20B);
     }
     memset(track, 0, size);
     *(u8 **)(track + 0x18) = track + 0x1C;

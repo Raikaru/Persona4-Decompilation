@@ -3726,7 +3726,7 @@ extern f32 fGpffff84cc;
 extern f32 fGpffff84d0;
 extern f32 D_008872F8[];
 extern BtlShuffleRenderPrimitive D_00887310[];
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern s32 func_00457120(void);
 
 static inline void btlAdvantageTile(s32 index, union ColorWord color)
@@ -3770,7 +3770,7 @@ static inline void btlAdvantageSegment(s32 index, union ColorWord color)
 
     anchors = D_006290B0[0];
     if (index < 0 || index >= 12) {
-        func_0046d730(D_00629090, 198);
+        kAssertFail(D_00629090, 198);
     }
     group = index / 6;
     side = (index / 3 + group) & 1;
@@ -3813,7 +3813,7 @@ static inline void btlAdvantageBuildQuad(f32 x, f32 y, f32 z,
     func_0021b500((u8 *)&vertices[count++], x, y + height, depth, u0, v1, reciprocalZ, color.word);
     func_0021b500((u8 *)&vertices[count++], x + width, y + height, depth, u1, v1, reciprocalZ, color.word);
     if (count > 4) {
-        func_0046d730(D_00629090, 122);
+        kAssertFail(D_00629090, 122);
     }
     D_00887310[0](rwPRIMTYPETRISTRIP, vertices, count);
 }

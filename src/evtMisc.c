@@ -12,7 +12,7 @@ s32 *kwlnTaskGetWork();
 extern void (*jtbl_008873EC[])(void *);
 
 void chkmemAllocSiteTag(const void *msg, s32 id);
-void func_0046d730(const void *file, s32 line);
+void kAssertFail(const void *file, s32 line);
 s32 kwlnTaskIsLinked(s32 buf);
 s32 H_Cdvd_IsFileLoaded(s32 arg0);
 void H_Cdvd_Destroy(s32 arg0);
@@ -123,7 +123,7 @@ void func_0028d110(s32 *arg0) {
     evtMemAccount(0xA, 0x130);
     arg0[0x10] = (s32)temp_16;
     if (temp_16 == 0) {
-        func_0046d730(D_0063C638, 0x1068);
+        kAssertFail(D_0063C638, 0x1068);
     }
 }
 
@@ -1045,11 +1045,11 @@ s32 func_0028f540(u8 *arg0) {
     case 2:
         s1 = func_00455f70(&p[3], &local_3C);
         if (p[0x44] != 0) {
-            func_0046d730(D_0063C638, 0x134E);
+            kAssertFail(D_0063C638, 0x134E);
         }
         p[0x44] = func_0029da90(p[2], s1, p[1]);
         if (p[0x44] == 0) {
-            func_0046d730(D_0063C638, 0x1350);
+            kAssertFail(D_0063C638, 0x1350);
         }
         p[0] = 3;
     case 3:
@@ -1075,7 +1075,7 @@ void func_0028f6c0(u8 *arg0) {
     }
     if (temp_2[0x43] != 0) {
         if (H_Cdvd_IsFileLoaded(temp_2[0x43]) == 0) {
-            func_0046d730(D_0063C638, 0x1364);
+            kAssertFail(D_0063C638, 0x1364);
         }
         H_Cdvd_Destroy(temp_2[0x43]);
     }
@@ -1097,7 +1097,7 @@ s32 func_0028f800(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *temp_2;
 
     if (kwlnTaskIsLinked(arg0) == 0) {
-        func_0046d730(D_0063C638, 0x137E);
+        kAssertFail(D_0063C638, 0x137E);
     }
     temp_2 = kwlnTaskGetWork(arg0);
     if (temp_2[0] == 4) {
@@ -1117,7 +1117,7 @@ s32 func_0028f800(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 // FUN_0028F8E0
 s32 func_0028f8e0(s32 arg0) {
     if (kwlnTaskIsLinked(arg0) == 0) {
-        func_0046d730(D_0063C638, 0x1393);
+        kAssertFail(D_0063C638, 0x1393);
     }
     if (kwlnTaskGetWork(arg0)[0] == 4) {
         return 1;

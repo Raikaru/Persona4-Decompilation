@@ -77,7 +77,7 @@ extern u32 datCalcRandomBelow();
 extern s32 datCalcEnemyExp(s32 arg0);
 extern s32 func_002439c0(s32 arg0);
 extern u16 datCalcPickWeightedSkill(u8 *arg0, s32 *arg1);
-extern void func_0046d730(void *arg0, s32 arg1);
+extern void kAssertFail(void *arg0, s32 arg1);
 extern u8 D_0060AB08[];
 extern void func_0045a3e0(s32 arg0, s32 arg1);
 extern s16 func_001060b0(void);
@@ -1576,7 +1576,7 @@ void func_001f2cc0(u8 *arg0)
         temp_16 = *(u8 **)(arg0 + 0x30);
         if (*(u8 *)(temp_16 + 0xA2) == 1) {
             if (*(u16 *)(temp_16 + 0xA4) >= 0x150) {
-                func_0046d730((void *)D_0060AB08, 0x4F5);
+                kAssertFail((void *)D_0060AB08, 0x4F5);
             }
             temp_4 = *(u16 *)(arg0 + 0x1A);
             if ((temp_4 & 0x20) == 0) {

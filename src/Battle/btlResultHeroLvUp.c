@@ -30,7 +30,7 @@ void func_001f86d0(void);
 void func_001f9a50(u16 param, s32 mode);
 void func_001f9a90(void);
 extern u32 datCalcRandomBelow(u32 max);
-void func_0046d730(const char* file, s32 line);
+void kAssertFail(const char* file, s32 line);
 extern char D_00629660[];
 s32 func_00221970(u8* work);
 extern u8 func_002baac0(u8 *message);
@@ -97,7 +97,7 @@ void func_00221ab0(void)
         case 0:
         case 1:
         case 5:
-            func_0046d730(D_00629660, 0x98);
+            kAssertFail(D_00629660, 0x98);
             val = 0;
             break;
         }
@@ -120,7 +120,7 @@ void func_00221ab0(void)
             val = 0x192;
             break;
         default:
-            func_0046d730(D_00629660, 0xAA);
+            kAssertFail(D_00629660, 0xAA);
             val = 0;
             break;
         }
@@ -190,7 +190,7 @@ s32 func_00221cf0(BtlResultWork* work)
         }
         return 1;
     default:
-        func_0046d730(D_00629660, 0x12D);
+        kAssertFail(D_00629660, 0x12D);
         break;
     }
     return 0;
@@ -222,7 +222,7 @@ s32 func_00221f40(u8* arg0)
 
             *slot = func_0046a770(*(u32*)((u8*)&iGpffffa5C0 + i * 4));
             if (*slot == 0) {
-                func_0046d730(D_00629660, 0x52);
+                kAssertFail(D_00629660, 0x52);
             }
         }
         func_00221ab0();

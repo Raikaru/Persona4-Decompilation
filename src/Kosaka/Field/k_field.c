@@ -83,7 +83,7 @@ extern void func_002aaa80(void);
 extern void func_002aaaa0(void);
 extern s32 func_00293fc0(s32);
 extern s32 func_002940a0(s32, s32 *, s32 *, s32 *, s32 *);
-extern void func_0046d730(const void *, s32);
+extern void kAssertFail(const void *, s32);
 extern void FldResource_OpenPrimaryFile(u16, u16);
 extern void func_00162200(s32);
 extern void func_001227d0(void);
@@ -165,7 +165,7 @@ s32 func_00155360(u8 *task)
         if (func_00293fc0(work->eventReader) != 0) {
             if (func_002940a0(work->eventReader, &field, &room, &spawn, &direction) == 1) {
                 if (field == 0) {
-                    func_0046d730(D_005EFF10, 0xD6);
+                    kAssertFail(D_005EFF10, 0xD6);
                 }
                 work->field = field;
                 work->room = room;
@@ -178,7 +178,7 @@ s32 func_00155360(u8 *task)
                 func_001227d0();
                 work->state = 2;
             } else {
-                func_0046d730(D_005EFF10, 0xE8);
+                kAssertFail(D_005EFF10, 0xE8);
             }
         }
         break;

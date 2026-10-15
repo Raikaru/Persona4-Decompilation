@@ -55,7 +55,7 @@ extern u8 *func_003c22f0(u8 *arg0);
 extern u8 *func_00483a00(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00481390(s32 arg0);
 extern void func_003ef3a0(void *arg0);
-extern void func_0046d730(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
 extern void func_00485630(u8 *arg0);
@@ -159,7 +159,7 @@ void func_00481f30(u8 *arg0, s32 arg1)
 
     temp_19 = *(u8 **)(arg0 + 0);
     if (*(s32 *)(*(u8 **)(temp_19 + 0) + 4) <= arg1) {
-        func_0046d730(D_007132F0, 0xCB);
+        kAssertFail(D_007132F0, 0xCB);
     }
     temp_16 = arg1 * 0x14;
     temp_18 = *(u8 **)(temp_19 + 4) + temp_16;
@@ -177,7 +177,7 @@ loop_00481f30_body:
             temp_23 = temp_30 + var_20 * 0x18;
             temp_16_2 = *(s16 *)(temp_23 + 0);
             if (*(s32 *)(*(u8 **)(temp_19 + 0) + 4) <= temp_16_2) {
-                func_0046d730(D_007132F0, 0xB0);
+                kAssertFail(D_007132F0, 0xB0);
             }
             temp_5 = (s32 *)(*(u8 **)(temp_19 + 4) + temp_16_2 * 0x14);
             temp_4 = *(u8 **)(temp_19 + 0) + *temp_5;
@@ -203,7 +203,7 @@ loop_00481f30_check:
                 *(u32 *)(arg0 + 0xC) = 2U;
                 temp_18_2 = *(u8 **)(arg0 + 0x10);
                 if (*(s32 *)(*(u8 **)(temp_19 + 0) + 4) <= arg1) {
-                    func_0046d730(D_007132F0, 0xB0);
+                    kAssertFail(D_007132F0, 0xB0);
                 }
                 temp_5_2 = (s32 *)(*(u8 **)(temp_19 + 4) + temp_16);
                 temp_4_3 = *(u8 **)(temp_19 + 0) + *temp_5_2;
@@ -213,7 +213,7 @@ loop_00481f30_check:
                 *(u8 **)(temp_18_2 + 0x10) = temp_4_3;
                 temp_16_3 = *(u8 **)(arg0 + 0x10) + 0x14;
                 if (*(s32 *)(*(u8 **)(temp_19 + 0) + 4) <= (arg1 + 1)) {
-                    func_0046d730(D_007132F0, 0xB0);
+                    kAssertFail(D_007132F0, 0xB0);
                 }
                 temp_5_3 =
                     (s32 *)(*(u8 **)(temp_19 + 4) + (arg1 + 1) * 0x14);
@@ -228,7 +228,7 @@ loop_00481f30_check:
                 *(u32 *)(arg0 + 0xC) = 1U;
                 temp_18_3 = *(u8 **)(arg0 + 0x10);
                 if (*(s32 *)(*(u8 **)(temp_19 + 0) + 4) <= arg1) {
-                    func_0046d730(D_007132F0, 0xB0);
+                    kAssertFail(D_007132F0, 0xB0);
                 }
                 temp_5_4 = (s32 *)(*(u8 **)(temp_19 + 4) + temp_16);
                 temp_4_5 = *(u8 **)(temp_19 + 0) + *temp_5_4;
@@ -324,7 +324,7 @@ void func_004823e0(u8 *arg0) {
     s32 var_17;
 
     if ((arg0 == NULL) || (*(s32 *)(arg0 + 0x10) == 0)) {
-        func_0046d730(D_007132F0, 0x151);
+        kAssertFail(D_007132F0, 0x151);
     }
     temp_3 = *(s32 *)(arg0 + 0x10) - 1;
     *(s32 *)(arg0 + 0x10) = temp_3;
@@ -438,7 +438,7 @@ s32 func_00482790(u8 **arg0, u32 arg1)
 
     temp_16 = *arg0;
     if (*(u32 *)(temp_16 + 0xC) <= arg1) {
-        func_0046d730(D_007132F0, 0x1E9);
+        kAssertFail(D_007132F0, 0x1E9);
     }
     return *(s32 *)(*(u8 **)(temp_16 + 0x14) + arg1 * 4);
 }
@@ -644,14 +644,14 @@ u8 *func_00484570(u8 *arg0)
     if (temp_3 <= 0xD2U) {
         goto code1_0048_84570_after_check;
     } else {
-        func_0046d730(D_00713470, 0x2D7);
+        kAssertFail(D_00713470, 0x2D7);
     }
 code1_0048_84570_after_check:
     temp_18 = *(u16 *)(arg0 + 4);
     chkmemAllocSiteTag(D_00713470, 0x21);
     temp_2 = jtbl_008873E8[0](0x2C, 0x40000);
     if (temp_2 == NULL) {
-        func_0046d730(D_00713470, 0x22);
+        kAssertFail(D_00713470, 0x22);
     }
     memset(temp_2, 0, 0x2C);
     *(s32 *)(temp_2 + 0) = 0xD2;
@@ -659,10 +659,10 @@ code1_0048_84570_after_check:
     *(u16 *)(temp_2 + 0xC) = *(u16 *)(arg0 + 0xC);
     *(u16 *)(temp_2 + 0x1C) = *(u16 *)(arg0 + 0x1C);
     if (*(u16 *)(temp_2 + 4) >= 0x21U) {
-        func_0046d730(D_00713470, 0x2DD);
+        kAssertFail(D_00713470, 0x2DD);
     }
     if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(temp_2 + 4) << 6)) == NULL) {
-        func_0046d730(D_00713470, 0x2DE);
+        kAssertFail(D_00713470, 0x2DE);
     }
     *(void **)(temp_2 + 8) =
         (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(temp_2 + 4) << 6)))(
@@ -679,7 +679,7 @@ void func_004846d0(u8 *arg0) {
         temp_2 = *(s32 (**)(s32))(D_00713490 +
             (*(u16 *)(base + 4) << 6));
         if (temp_2 == NULL) {
-            func_0046d730(D_00713470, 0x2EB);
+            kAssertFail(D_00713470, 0x2EB);
         }
         code1_0048_call(
             *(s32 (**)(s32))(D_00713490 + (*(u16 *)(base + 4) << 6)),
@@ -728,14 +728,14 @@ u8 *func_00484830(u8 *arg0)
     if (temp_3 <= 0xD2U) {
         goto code1_0048_after_check;
     } else {
-        func_0046d730(D_00713470, 0x318);
+        kAssertFail(D_00713470, 0x318);
     }
 code1_0048_after_check:
     temp_18 = *(u16 *)(arg0 + 4);
     chkmemAllocSiteTag(D_00713470, 0x21);
     temp_2 = jtbl_008873E8[0](0x2C, 0x40000);
     if (temp_2 == NULL) {
-        func_0046d730(D_00713470, 0x22);
+        kAssertFail(D_00713470, 0x22);
     }
     memset(temp_2, 0, 0x2C);
     *(s32 *)(temp_2 + 0) = 0xD2;
@@ -743,7 +743,7 @@ code1_0048_after_check:
     *(u16 *)(temp_2 + 0xC) = *(u16 *)(arg0 + 0xC);
     *(u16 *)(temp_2 + 0x1C) = *(u16 *)(arg0 + 0x1C);
     if (*(EffectInstanceConstructor *)(D_00713494 + (*(u16 *)(temp_2 + 4) << 6)) == NULL) {
-        func_0046d730(D_00713470, 0x321);
+        kAssertFail(D_00713470, 0x321);
     }
     *(void **)(temp_2 + 8) =
         (*(EffectInstanceConstructor *)(D_00713494 + (*(u16 *)(temp_2 + 4) << 6)))(
@@ -883,7 +883,7 @@ u8 *func_00484bb0(u8 *arg0)
     {
         u8 *const clone = (u8 *)alloc[0](0x90, 0x40000);
         if (clone == NULL) {
-            func_0046d730(D_00713470, 0x547);
+            kAssertFail(D_00713470, 0x547);
         }
         memset(clone, 0, 0x90);
         *(s32 *)(clone + 0x80) = 0;
@@ -900,7 +900,7 @@ u8 *func_00484bb0(u8 *arg0)
                 chkmemAllocSiteTag(D_00713470, 0x559);
                 nodeClone = (u8 *)alloc[0](0xC0, 0x40000);
                 if (nodeClone == NULL) {
-                    func_0046d730(D_00713470, 0x55A);
+                    kAssertFail(D_00713470, 0x55A);
                 }
                 memset(nodeClone, 0, 0xC0);
                 memset(nodeClone, 0, 0x90);
@@ -912,13 +912,13 @@ u8 *func_00484bb0(u8 *arg0)
                 if ((*(s32 *)(node + 0x98) & 1) == 0) {
                     linkedSource = *(u8 **)(node + 0x90);
                     if (*(u32 *)linkedSource > 0xD2) {
-                        func_0046d730(D_00713470, 0x2D7);
+                        kAssertFail(D_00713470, 0x2D7);
                     }
                     kind = *(u16 *)(linkedSource + 4);
                     chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
-                        func_0046d730(D_00713470, 0x22);
+                        kAssertFail(D_00713470, 0x22);
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
@@ -926,10 +926,10 @@ u8 *func_00484bb0(u8 *arg0)
                     *(u16 *)(prim + 0xC) = *(u16 *)(linkedSource + 0xC);
                     *(u16 *)(prim + 0x1C) = *(u16 *)(linkedSource + 0x1C);
                     if (*(u16 *)(prim + 4) >= 0x21U) {
-                        func_0046d730(D_00713470, 0x2DD);
+                        kAssertFail(D_00713470, 0x2DD);
                     }
                     if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)) == NULL) {
-                        func_0046d730(D_00713470, 0x2DE);
+                        kAssertFail(D_00713470, 0x2DE);
                     }
                     *(void **)(prim + 8) =
                         (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)))(linkedSource);
@@ -939,13 +939,13 @@ u8 *func_00484bb0(u8 *arg0)
                     idx = func_004867e0(input, found);
                     csrc = *(u8 **)(func_00486780(clone, idx) + 0x90);
                     if (*(u32 *)csrc > 0xD2) {
-                        func_0046d730(D_00713470, 0x318);
+                        kAssertFail(D_00713470, 0x318);
                     }
                     kind = *(u16 *)(csrc + 4);
                     chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
-                        func_0046d730(D_00713470, 0x22);
+                        kAssertFail(D_00713470, 0x22);
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
@@ -953,7 +953,7 @@ u8 *func_00484bb0(u8 *arg0)
                     *(u16 *)(prim + 0xC) = *(u16 *)(csrc + 0xC);
                     *(u16 *)(prim + 0x1C) = *(u16 *)(csrc + 0x1C);
                     if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14) == NULL) {
-                        func_0046d730(D_00713470, 0x321);
+                        kAssertFail(D_00713470, 0x321);
                     }
                     *(void **)(prim + 8) =
                         (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(void **)(csrc + 8));
@@ -983,7 +983,7 @@ u8 *func_00484bb0(u8 *arg0)
             chkmemAllocSiteTag(D_00713470, 0x559);
             nodeClone = (u8 *)alloc[0](0xC0, 0x40000);
             if (nodeClone == NULL) {
-                func_0046d730(D_00713470, 0x55A);
+                kAssertFail(D_00713470, 0x55A);
             }
             memset(nodeClone, 0, 0xC0);
             memset(nodeClone, 0, 0x90);
@@ -998,17 +998,17 @@ u8 *func_00484bb0(u8 *arg0)
                 if ((tmp & 2) != 0) {
                     addr24 = indexedSource + 0x24;
                     if (*(s32 *)addr24 != 0) {
-                        func_0046d730(D_00713470, 0x5BB);
+                        kAssertFail(D_00713470, 0x5BB);
                     }
                     addr20 = indexedSource + 0x20;
                     if (*(s32 *)addr20 != 0) {
-                        func_0046d730(D_00713470, 0x5BC);
+                        kAssertFail(D_00713470, 0x5BC);
                     }
                     idx94 = *(s32 *)(cur + 0x94);
                     slot = base + idx94 * 0xC0;
                     target = input + *(s32 *)(slot + 0x90);
                     if (*(s32 *)(target + 0x24) == 0) {
-                        func_0046d730(D_00713470, 0x5BE);
+                        kAssertFail(D_00713470, 0x5BE);
                     }
                     *(s32 *)addr24 = *(s32 *)(target + 0x24);
                     if (*(s32 *)(target + 0x28) != 0) {
@@ -1020,13 +1020,13 @@ u8 *func_00484bb0(u8 *arg0)
                     }
                     *(u32 *)addr20 = (u32)var2 - (u32)indexedSource;
                     if (*(u32 *)indexedSource > 0xD2) {
-                        func_0046d730(D_00713470, 0x2D7);
+                        kAssertFail(D_00713470, 0x2D7);
                     }
                     kind = *(u16 *)(indexedSource + 4);
                     chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
-                        func_0046d730(D_00713470, 0x22);
+                        kAssertFail(D_00713470, 0x22);
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
@@ -1034,10 +1034,10 @@ u8 *func_00484bb0(u8 *arg0)
                     *(u16 *)(prim + 0xC) = *(u16 *)(indexedSource + 0xC);
                     *(u16 *)(prim + 0x1C) = *(u16 *)(indexedSource + 0x1C);
                     if (*(u16 *)(prim + 4) >= 0x21U) {
-                        func_0046d730(D_00713470, 0x2DD);
+                        kAssertFail(D_00713470, 0x2DD);
                     }
                     if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)) == NULL) {
-                        func_0046d730(D_00713470, 0x2DE);
+                        kAssertFail(D_00713470, 0x2DE);
                     }
                     *(void **)(prim + 8) =
                         (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)))(indexedSource);
@@ -1046,13 +1046,13 @@ u8 *func_00484bb0(u8 *arg0)
                     *(s32 *)addr20 = 0;
                 } else {
                     if (*(u32 *)indexedSource > 0xD2) {
-                        func_0046d730(D_00713470, 0x2D7);
+                        kAssertFail(D_00713470, 0x2D7);
                     }
                     kind = *(u16 *)(indexedSource + 4);
                     chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
-                        func_0046d730(D_00713470, 0x22);
+                        kAssertFail(D_00713470, 0x22);
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
@@ -1060,10 +1060,10 @@ u8 *func_00484bb0(u8 *arg0)
                     *(u16 *)(prim + 0xC) = *(u16 *)(indexedSource + 0xC);
                     *(u16 *)(prim + 0x1C) = *(u16 *)(indexedSource + 0x1C);
                     if (*(u16 *)(prim + 4) >= 0x21U) {
-                        func_0046d730(D_00713470, 0x2DD);
+                        kAssertFail(D_00713470, 0x2DD);
                     }
                     if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)) == NULL) {
-                        func_0046d730(D_00713470, 0x2DE);
+                        kAssertFail(D_00713470, 0x2DE);
                     }
                     *(void **)(prim + 8) =
                         (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)))(indexedSource);
@@ -1072,13 +1072,13 @@ u8 *func_00484bb0(u8 *arg0)
             } else {
                 csrc = *(u8 **)(func_00486780(clone, *(s32 *)(cur + 0x90)) + 0x90);
                 if (*(u32 *)csrc > 0xD2) {
-                    func_0046d730(D_00713470, 0x318);
+                    kAssertFail(D_00713470, 0x318);
                 }
                 kind = *(u16 *)(csrc + 4);
                 chkmemAllocSiteTag(D_00713470, 0x21);
                 prim = (u8 *)alloc[0](0x2C, 0x40000);
                 if (prim == NULL) {
-                    func_0046d730(D_00713470, 0x22);
+                    kAssertFail(D_00713470, 0x22);
                 }
                 memset(prim, 0, 0x2C);
                 *(s32 *)prim = 0xD2;
@@ -1086,7 +1086,7 @@ u8 *func_00484bb0(u8 *arg0)
                 *(u16 *)(prim + 0xC) = *(u16 *)(csrc + 0xC);
                 *(u16 *)(prim + 0x1C) = *(u16 *)(csrc + 0x1C);
                 if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14) == NULL) {
-                    func_0046d730(D_00713470, 0x321);
+                    kAssertFail(D_00713470, 0x321);
                 }
                 *(void **)(prim + 8) =
                     (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(void **)(csrc + 8));
@@ -1386,7 +1386,7 @@ loop_00485b20_body:
         temp_16 = *(u8 **)(var_18 + 0x90);
         if (*(s32 *)(temp_16 + 8) != 0) {
             if (*(s32 *)(D_00713480 + (*(u16 *)(temp_16 + 4) << 6) + 0x10) == 0) {
-                func_0046d730(D_00713470, 0x2EB);
+                kAssertFail(D_00713470, 0x2EB);
             }
             (*(void (**)(s32))(D_00713480 + (*(u16 *)(temp_16 + 4) << 6) + 0x10))(
                 *(s32 *)(temp_16 + 8));
@@ -1439,13 +1439,13 @@ u8 *func_00485c80(u8 *arg0)
     void *(**alloc)(u32, u32);
 
     if (*(u8 **)(arg0 + 0x8C) == NULL) {
-        func_0046d730(D_00713470, 0x6B7);
+        kAssertFail(D_00713470, 0x6B7);
     }
     chkmemAllocSiteTag(D_00713470, 0x546);
     alloc = jtbl_008873E8;
     clone = (u8 *)alloc[0](0x90, 0x40000);
     if (clone == NULL) {
-        func_0046d730(D_00713470, 0x547);
+        kAssertFail(D_00713470, 0x547);
     }
     memset(clone, 0, 0x90);
     *(s32 *)(clone + 0x80) = 0;
@@ -1459,7 +1459,7 @@ u8 *func_00485c80(u8 *arg0)
         chkmemAllocSiteTag(D_00713470, 0x559);
         nodeClone = (u8 *)alloc[0](0xC0, 0x40000);
         if (nodeClone == NULL) {
-            func_0046d730(D_00713470, 0x55A);
+            kAssertFail(D_00713470, 0x55A);
         }
         memset(nodeClone, 0, 0xC0);
         memset(nodeClone, 0, 0x90);
@@ -1470,13 +1470,13 @@ u8 *func_00485c80(u8 *arg0)
         func_00484b30(nodeClone);
         src = *(u8 **)(node + 0x90);
         if (*(u32 *)src > 0xD2) {
-            func_0046d730(D_00713470, 0x318);
+            kAssertFail(D_00713470, 0x318);
         }
         kind = *(u16 *)(src + 4);
         chkmemAllocSiteTag(D_00713470, 0x21);
         prim = (u8 *)alloc[0](0x2C, 0x40000);
         if (prim == NULL) {
-            func_0046d730(D_00713470, 0x22);
+            kAssertFail(D_00713470, 0x22);
         }
         memset(prim, 0, 0x2C);
         *(s32 *)prim = 0xD2;
@@ -1484,7 +1484,7 @@ u8 *func_00485c80(u8 *arg0)
         *(u16 *)(prim + 0xC) = *(u16 *)(src + 0xC);
         *(u16 *)(prim + 0x1C) = *(u16 *)(src + 0x1C);
         if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14) == NULL) {
-            func_0046d730(D_00713470, 0x321);
+            kAssertFail(D_00713470, 0x321);
         }
         *(void **)(prim + 8) =
             (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(void **)(src + 8));
@@ -1915,7 +1915,7 @@ loop_00486780_check:
     if (var_2 != NULL) {
         goto loop_00486780_body;
     }
-    func_0046d730(D_00713470, 0xA87);
+    kAssertFail(D_00713470, 0xA87);
     return NULL;
 }
 // FUN_004867E0
@@ -1931,7 +1931,7 @@ s32 func_004867e0(u8 *arg0, u8 *arg1)
         index++;
         node = *(u8 **)(node + 0xAC);
     }
-    func_0046d730(D_00713470, 0xA9E);
+    kAssertFail(D_00713470, 0xA9E);
     return 0;
 }
 // FUN_00486840

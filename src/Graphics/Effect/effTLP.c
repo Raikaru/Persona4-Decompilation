@@ -2,7 +2,7 @@
 
 #include "type.h"
 
-void func_0046d730(u8 *file, s32 line);
+void kAssertFail(u8 *file, s32 line);
 void chkmemAllocSiteTag(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
 s32 func_00481390(u8 *ptr);
@@ -65,11 +65,11 @@ TLP *func_00482800(TlpDesc *desc)
     u32 i;
 
     if (desc->magic != 0x30504C54) {
-        func_0046d730(D_00713300, 0x29);
+        kAssertFail(D_00713300, 0x29);
     }
     count = desc->count;
     if (count == 0) {
-        func_0046d730(D_00713300, 0x2D);
+        kAssertFail(D_00713300, 0x2D);
     }
     chkmemAllocSiteTag(D_00713300, 0x33);
     work = (TLP *)(*jtbl_008873E8)(count * 0x10 + 0x28 + count * 4, 0x40000);
@@ -106,7 +106,7 @@ void func_004829c0(TLP *work)
     u32 i;
 
     if (work->refCount == 0) {
-        func_0046d730(D_00713300, 0x56);
+        kAssertFail(D_00713300, 0x56);
     }
     n = work->refCount - 1;
     work->refCount = n;
@@ -122,7 +122,7 @@ void func_004829c0(TLP *work)
 TLP *func_00482a70(TLP *work)
 {
     if (work->refCount == 0) {
-        func_0046d730(D_00713300, 0x68);
+        kAssertFail(D_00713300, 0x68);
     }
     work->refCount = work->refCount + 1;
     return work;
@@ -162,7 +162,7 @@ void func_00482ad0(TLP *work, u32 index, TlpSel *out)
                 acc = acc + e->size + 1;
             }
             if (sel < 0) {
-                func_0046d730(D_00713300, 0x9A);
+                kAssertFail(D_00713300, 0x9A);
             }
         }
     }

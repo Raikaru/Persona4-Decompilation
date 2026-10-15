@@ -181,7 +181,7 @@ extern u32 iGpffffb308;
 extern u32 iGpffff9f4c;
 extern u32 iGpffffb30c;
 extern u32 iGpffff9f50;
-extern void func_0046d730(const void *, s32);
+extern void kAssertFail(const void *, s32);
 extern s32 D_005F1930[];
 extern s32 D_005F1934[];
 extern void func_002bd410(void);
