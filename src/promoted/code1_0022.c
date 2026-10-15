@@ -180,7 +180,7 @@ extern void func_00106390(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(void *target);
 extern u8 *func_001b0c80(s32 arg0);
 extern void func_001f2eb0(u8 *arg0, s32 arg1);
-extern void func_001f7530(void);
+extern void btlSoundStopBgmIfEnabled(void);
 
 
 u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
@@ -189,7 +189,7 @@ u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void func_0011b360(u8 *arg0);
-extern void func_001f7570(s16 fadeDuration);
+extern void btlSoundFadeOutBgm(s16 fadeDuration);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
 extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
 extern void btlMainCurveReset(u16 *param_1, f32 *param_2);
@@ -241,7 +241,7 @@ extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
-extern BtlPacket *func_001f81f0(u16 channel, const char *streamName);
+extern BtlPacket *btlSoundCreateStreamPacket(u16 channel, const char *streamName);
 extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 extern void btlFormationSetPlacement(u32 arg0);
 extern u8 D_006354B0[];
@@ -270,7 +270,7 @@ extern void datCalcClearBadStatusById(s16 character, u32 mask);
 extern s32 func_001b0d70(u8 *target);
 
 extern BtlPacket *func_00202010(u32 unit, u16 effect);
-extern BtlPacket *func_001f7c20(u16 channel, u16 cue, u16 variant);
+extern BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
 extern BtlPacket *btlUnitCreateRotateTowardUnitPacket(BtlUnit *unit, BtlUnit *targetUnit, u32 flags);
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rotation, u32 flags);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPosition, f32 speed, u32 flags);
@@ -3387,7 +3387,7 @@ after_ef90:
     }
     {
         u8 *temp_2;
-        temp_2 = (u8 *)func_001f81f0(2, (const char *)D_006354B0);
+        temp_2 = (u8 *)btlSoundCreateStreamPacket(2, (const char *)D_006354B0);
         *(u16 *)(temp_2 + 0x48) = 2;
         btlPacketEnqueue(temp_2, 1);
     }
@@ -3511,7 +3511,7 @@ void func_00229da0(u8 *action)
     *(u64 *)(formationPacket + 0x60) = *(u64 *)action;
     btlPacketEnqueue(formationPacket, 2);
 
-    packet = (u8 *)func_001f7c20(0xC, 5, 0xE);
+    packet = (u8 *)btlSoundCreateChannelCuePacket(0xC, 5, 0xE);
     *(u16 *)(packet + 0x48) = 0x5A;
     *(u64 *)(packet + 0x60) = *(u64 *)action;
     btlPacketEnqueue(packet, 1);
@@ -3555,7 +3555,7 @@ void func_00229da0(u8 *action)
         *(u64 *)(formationPacket + 0x60) = *(u64 *)action;
         btlPacketEnqueue(formationPacket, 2);
 
-        packet = (u8 *)func_001f7c20(0xC, 5, 0xE);
+        packet = (u8 *)btlSoundCreateChannelCuePacket(0xC, 5, 0xE);
         *(u16 *)(packet + 0x48) = 0x6C;
         *(u64 *)(packet + 0x60) = *(u64 *)action;
         btlPacketEnqueue(packet, 1);
@@ -4027,7 +4027,7 @@ s32 func_0022b040(s64 *arg0)
 // FUN_0022B0B0
 s32 func_0022b0b0(void)
 {
-    func_001f7570(0x2D);
+    btlSoundFadeOutBgm(0x2D);
     return 1;
 }
 // FUN_0022B0E0
@@ -4318,7 +4318,7 @@ found:
         p = (u8 *)func_001b0c80((s32)p);
         if (p != NULL) {
             func_001f2eb0(p, 0);
-            func_001f7530();
+            btlSoundStopBgmIfEnabled();
         }
     }
 }

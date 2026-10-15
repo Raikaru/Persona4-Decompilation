@@ -9,12 +9,12 @@ struct BtlUnit;
 
 /* Packet factories return the allocated packet so callers can attach the
  * action UID and dependency before submitting it to the dispatcher. */
-struct BtlPacket *func_001f7d10(u16 channel, u16 cue, u16 variant);
-struct BtlPacket *func_001f8140(u16 state);
+struct BtlPacket *btlSoundCreateCuePacket(u16 channel, u16 cue, u16 variant);
+struct BtlPacket *btlSoundCreateCueQueuePacket(u16 state);
 /* These factories retain the unit in their four-byte work payload and return
  * the packet for dependency setup and submission by the opening controllers. */
-struct BtlPacket *func_001f82b0(struct BtlUnit *unit);
-struct BtlPacket *func_001f8330(struct BtlUnit *unit);
+struct BtlPacket *btlSoundCreateUnitFlagClearPacket(struct BtlUnit *unit);
+struct BtlPacket *btlSoundCreateUnitFlagSetPacket(struct BtlUnit *unit);
 /* The selector arrives as a full word and is stored in a halfword work field. */
 struct BtlPacket *btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u32 duration);
 // Intent: allocate the end-sequence packet (type 0x50E). [inferred]

@@ -126,7 +126,7 @@ extern void func_0014a2e0(u32 arg0);
 extern void func_001b6120(void);
 extern u32 datGetFlag(s32 arg0);
 extern BtlPacket *btlVoiceCreateIdPacket(u16 arg0);
-extern u8 *func_001f97b0(void);
+extern u8 *btlSoundCreateWaitPacket(void);
 extern u8 *btlBossCreateLoadPakPacket(void);
 extern s32 func_00230790(void);
 extern BtlPacket *func_002305c0(s32 arg0);
@@ -428,9 +428,9 @@ s32 btlMainNonUpdate(void)
 
 // FUN_001B18E0
 void btlMainInitInit(void) {
-    func_001f7620(2, 0);
-    func_001f7620(3, 0);
-    func_001f7570(0);
+    btlSoundFadeChannel(2, 0);
+    btlSoundFadeChannel(3, 0);
+    btlSoundFadeOutBgm(0);
     func_00106550(0x78, func_001064f0(0x78) + 1);
 }
 
@@ -467,7 +467,7 @@ s32 btlMainSceneSetUpdate(void)
     extern u32 datGetFlag(s32 arg0);
     extern BtlPacket *btlVoiceCreateIdPacket(u16 arg0);
     extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-    extern u8 *func_001f97b0(void);
+    extern u8 *btlSoundCreateWaitPacket(void);
     extern s32 func_0022bd20(void);
     extern u8 *btlBossCreateLoadPakPacket(void);
     extern s32 func_00230790(void);
@@ -498,7 +498,7 @@ set_zero:
 got_var:
     temp_2 = (u8 *)btlVoiceCreateIdPacket((u16)(var_2 & 0xFFFF));
     btlPacketEnqueue(temp_2, 1);
-    temp_2_2 = func_001f97b0();
+    temp_2_2 = btlSoundCreateWaitPacket();
     *(s8 *)(temp_2_2 + 0) = 4;
     *(s64 *)(temp_2_2 + 8) = *(s64 *)(temp_2 + 0x58);
     btlPacketEnqueue(temp_2_2, 1);
@@ -891,11 +891,11 @@ s32 btlMainUnitCreateUpdate(void)
           datCalcSetHp(*(u32 *)(unit + 0xa64),0);
           *(u32 *)(unit + 0x9c) |= 1;
           btlUnitUpdateStatusMotion(unit,0);
-          btlPacketEnqueue((u8 *)func_001f8330((BtlUnit *)unit),1);
+          btlPacketEnqueue((u8 *)btlSoundCreateUnitFlagSetPacket((BtlUnit *)unit),1);
           btlPacketEnqueue((u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x13, 0, 1.0f, 2),1);
           btlPacketEnqueue((u8 *)btlUnitCreateModelFramePacket((BtlUnit *)unit,
               btlUnitMotionModelFrames(unit,0x13,1.0f)),1);
-          btlPacketEnqueue((u8 *)func_001f82b0((BtlUnit *)unit),1);
+          btlPacketEnqueue((u8 *)btlSoundCreateUnitFlagClearPacket((BtlUnit *)unit),1);
           if ((*(u32 *)(D_0076449C + 0xc) & 0x20000000) != 0) {
             position.x = (f32)(*(s16 *)(unit + 0x94) * 0x19 - 0x6d6);
             position.z = (f32)(*(s16 *)(unit + 0x96) * 0x19 - 0x6d6);
@@ -1621,7 +1621,7 @@ void btlMainRevivalInit(void)
     *(s64 *)(packet + 8) = *(s64 *)(sePacket + 0x58);
     *(s64 *)(packet + 0x60) = *(s64 *)action;
     btlPacketEnqueue(packet, 2);
-    next = (u8 *)func_001f8140(0);
+    next = (u8 *)btlSoundCreateCueQueuePacket(0);
     *next = 5;
     *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
     btlPacketEnqueue(next, 1);
@@ -1645,7 +1645,7 @@ void btlMainRevivalInit(void)
         *(s64 *)(packet + 0x18) = last;
         *(s64 *)(packet + 0x60) = *(s64 *)action;
         btlPacketEnqueue(packet, 2);
-        next = (u8 *)func_001f8140(1);
+        next = (u8 *)btlSoundCreateCueQueuePacket(1);
         *next = 5;
         *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
         btlPacketEnqueue(next, 1);
