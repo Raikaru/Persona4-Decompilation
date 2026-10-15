@@ -196,7 +196,7 @@ extern void func_0021be70(void *arg0);
 extern void func_00213d20(void *arg0);
 extern void func_00216e50(void *arg0);
 extern void func_00211a10(void *arg0);
-extern void func_0020add0(void *arg0);
+extern void btlPanelUpdate(void *arg0);
 extern s32 datCalcIsLowHp(u8 *arg0);
 extern f32 fGpffff8478;
 extern f32 fGpffffb478;
@@ -211,12 +211,12 @@ extern u8 D_00794FF0[];
 extern u8 D_00795020[];
 extern u8 D_00795080[];
 
-extern void func_0020ad80(u8 *arg0, s32 arg1);
-extern void func_0020b1a0(s32 arg0, u8 *arg1);
+extern void btlPanelInitWork(u8 *arg0, s32 arg1);
+extern void btlPanelDrawFrame(s32 arg0, u8 *arg1);
 extern void func_0020bb70(u8 *arg0);
-extern void func_0020b3a0(s32 arg0, u8 *arg1);
+extern void btlPanelDrawBackdropGrid(s32 arg0, u8 *arg1);
 extern void func_0020b5a0(void);
-extern void func_0020b5b0(s32 arg0, u8 *arg1);
+extern void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1);
 extern void func_0020bb20(u8 *arg0, s32 arg1);
 extern void func_0020bd70(u8 *arg0, u8 *arg1);
 extern void func_00211950(u8 *arg0, s32 arg1);
@@ -485,7 +485,7 @@ s32 btlUiTaskInit(u8 *unusedTask)
     *(s32 *)(temp_2 + 0x77C) = 0;
     *(s32 *)(temp_2 + 0x780) = 0;
     func_00460ac0(D_00795080, temp_2 + 0x77C);
-    func_0020add0(temp_2 + 0x9C);
+    btlPanelUpdate(temp_2 + 0x9C);
     *(s32 *)(temp_2 + 0x6E0) = 0;
     *(s32 *)(temp_2 + 0x6E4) = 0;
     func_00460ac0(D_00794810, temp_2 + 0x6E0);
@@ -549,15 +549,15 @@ void btlUiInitComponents(s32 arg0, u8 *arg1)
     u8 *temp_3_2;
     u8 *temp_3_3;
 
-    func_0020ad80(arg1 + 0x9C, arg0);
-    *(void **)(arg1 + 0x658) = (void *)func_0020b1a0;
+    btlPanelInitWork(arg1 + 0x9C, arg0);
+    *(void **)(arg1 + 0x658) = (void *)btlPanelDrawFrame;
     temp_3 = arg1 + 0x9C;
     *(u8 **)(arg1 + 0x660) = temp_3;
-    *(void **)(arg1 + 0x688) = (void *)func_0020b3a0;
+    *(void **)(arg1 + 0x688) = (void *)btlPanelDrawBackdropGrid;
     *(u8 **)(arg1 + 0x690) = temp_3;
     *(void **)(arg1 + 0x6B8) = (void *)func_0020b5a0;
     *(u8 **)(arg1 + 0x6C0) = temp_3;
-    *(void **)(arg1 + 0x6E8) = (void *)func_0020b5b0;
+    *(void **)(arg1 + 0x6E8) = (void *)btlPanelDrawSkyFrame;
     *(u8 **)(arg1 + 0x6F0) = temp_3;
     func_0020bb20(arg1 + 0x710, arg0);
     *(void **)(arg1 + 0x734) = (void *)func_0020bd70;
@@ -3286,10 +3286,10 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     extern void btlSelectionDrawTitle(u8 *arg0, u8 *arg1, f32 *arg2);
     extern void btlSelectionDrawPersonaList(u8 *arg0, u8 *arg1, f32 *arg2);
     extern void btlSelectionSaveCursorFourth(u8 *arg0, u8 *arg1);
-    extern void func_0020a5d0(u16 *arg0, u8 *arg1);
-    extern u16 func_0020a640(u8 *arg0, u8 *arg1);
-    extern void func_0020aa70(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void func_0020ac70(s32 arg0, u8 *arg1, f32 *arg2);
+    extern void btlSelectionResetCursorState(u16 *arg0, u8 *arg1);
+    extern u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1);
+    extern void btlSelectionDrawSwapPanel(u8 *arg0, u8 *arg1, f32 *arg2);
+    extern void btlSelectionDrawLevelList(s32 arg0, u8 *arg1, f32 *arg2);
     extern void func_0020ad70(void);
     u8 *work;
     u8 *panel;
@@ -3413,11 +3413,11 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         }
         *(u8 **)(work + 0x5A8) = func_00117780(*(s32 *)(work + 0x5B0), 0xF, 1, 8, 8);
         *(s16 *)(work + 0x5AC) = -1;
-        btlSelectionInit(work + 0x144, 4, (s16)datPersonaCountValidMembers(), func_0020a5d0,
-                      func_0020a640, func_0020aa70, func_0020ad70, work);
+        btlSelectionInit(work + 0x144, 4, (s16)datPersonaCountValidMembers(), btlSelectionResetCursorState,
+                      btlSelectionHandleSwapInput, btlSelectionDrawSwapPanel, func_0020ad70, work);
         panel = work + 0x144;
         *nextPanel = panel;
-        btlSelectionSetOwner(panel, func_0020ac70);
+        btlSelectionSetOwner(panel, btlSelectionDrawLevelList);
         *(s16 *)(work + 0x10) = 0;
         *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
@@ -4507,8 +4507,9 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
 void func_0020a5c0(void)
 {
 }
+// Intent: reset the selection flags and window fields for the cursor state. [inferred]
 // FUN_0020A5D0
-void func_0020a5d0(u16 *arg0, u8 *arg1) {
+void btlSelectionResetCursorState(u16 *arg0, u8 *arg1) {
     func_0045af60(0, 0, 0, 3);
     *arg0 |= 1;
     *arg0 |= 2;
@@ -4518,11 +4519,12 @@ void func_0020a5d0(u16 *arg0, u8 *arg1) {
     *(s16 *)(arg1 + 0x18) = 0;
 }
 
+// Intent: handle the swap input for the persona roster and start or finish the swap task. [inferred]
 // FUN_0020A640
 /* measured: 1064/1072 bytes; 35 independently resolved relocations and eight
    zero alignment bytes. Separate stats/task snapshots preserve the retail
    argument-load order without narrowing the persona lookup return type. */
-u16 func_0020a640(u8 *arg0, u8 *arg1)
+u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
 {
     s16 sp48[4];
     s16 temp_16;
@@ -4631,8 +4633,9 @@ u16 func_0020a640(u8 *arg0, u8 *arg1)
  * As in func_002099c0, reuse the consumed position view for the callback
  * table base; each state change still reloads the callback slot.
  */
+// Intent: draw the swap panel and advance its slide-in timer. [inferred]
 // FUN_0020AA70
-void func_0020aa70(u8 *arg0, u8 *arg1, f32 *arg2)
+void btlSelectionDrawSwapPanel(u8 *arg0, u8 *arg1, f32 *arg2)
 {
     u8 *temp;
 
@@ -4652,8 +4655,9 @@ void func_0020aa70(u8 *arg0, u8 *arg1, f32 *arg2)
         btlUiDrawSpriteEntry(temp, 9, 0x19, 119.0f, (f32)0x19B);
     }
 }
+// Intent: draw the persona level list and advance its timers. [inferred]
 // FUN_0020AC70
-void func_0020ac70(s32 arg0, u8 *arg1, f32 *arg2)
+void btlSelectionDrawLevelList(s32 arg0, u8 *arg1, f32 *arg2)
 {
     s16 temp_3;
     s16 temp_3_2;
@@ -4699,8 +4703,9 @@ void func_0020ad70(void)
 {
 }
 
+// Intent: initialise a panel work block, clearing it and setting its task pointer. [inferred]
 // FUN_0020AD80
-void func_0020ad80(u8 *arg0, s32 arg1) {
+void btlPanelInitWork(u8 *arg0, s32 arg1) {
     memset(arg0, 0, 0x5B4);
     *(s32 *)(arg0 + 0x5B0) = arg1;
     *(s16 *)(arg0 + 0) = 0;
@@ -4713,8 +4718,9 @@ void func_0020ad80(u8 *arg0, s32 arg1) {
  * measured: 968/976 bytes, 11 resolved relocations, eight zero alignment bytes.
  * Preserve the 4,5,0 source case order and all reloads after callbacks.
  */
+// Intent: advance the panel's animation counters and low-HP pulse for one frame. [inferred]
 // FUN_0020ADD0
-void func_0020add0(void *arg0)
+void btlPanelUpdate(void *arg0)
 {
     u8 *state = arg0;
     if (*(u32 *)(state + 4) & 1) {
@@ -4775,8 +4781,9 @@ void func_0020add0(void *arg0)
         }
     }
 }
+// Intent: draw the panel frame, scaled outlines and the list dispatch when the panel is active. [inferred]
 // FUN_0020B1A0
-void func_0020b1a0(s32 arg0, u8 *arg1)
+void btlPanelDrawFrame(s32 arg0, u8 *arg1)
 {
     extern void btlPanelDrawOutlineFill(u8 *arg0, f32 fparg0, f32 fparg1,
                               u8 arg1, u8 arg2, u8 arg3, s32 arg4);
@@ -4829,8 +4836,9 @@ void func_0020b1a0(s32 arg0, u8 *arg1)
         }
     }
 }
+// Intent: draw the backdrop, the sprite grid and the notify dispatch when the panel is active. [inferred]
 // FUN_0020B3A0
-void func_0020b3a0(s32 arg0, u8 *arg1)
+void btlPanelDrawBackdropGrid(s32 arg0, u8 *arg1)
 {
     extern void btlPanelDrawSpriteGrid(u8 *arg0, f32 farg0, f32 farg1, u8 arg1);
     extern u8 D_00626BE0[];
@@ -4893,8 +4901,9 @@ void func_0020b5a0(void)
 
 /* measured: opt_propagation off keeps D_00887300 cached across its callback sequence. */
 #pragma opt_propagation off
+// Intent: set the sky render states and draw the sky frame when the panel is active. [inferred]
 // FUN_0020B5B0
-void func_0020b5b0(s32 arg0, u8 *arg1)
+void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1)
 {
     extern void func_0045c870(u8 *arg0, s32 arg1);
     u8 *temp_2;
