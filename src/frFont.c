@@ -2002,6 +2002,7 @@ int frFontCountRuns(int node)
     return result;
 }
 
+/* Lays out the string stored for slot index (D_008815B0) as glyph nodes appended to context. */
 /* measured: 724 executable bytes / 736B retail window, fully relocated exact.
    The real three-byte glyph buffer and the neighboring insertion routine's
    branch settings preserve retail stack storage and helper-branch placement.
@@ -2010,7 +2011,7 @@ int frFontCountRuns(int node)
 #pragma push
 #pragma no_branch_likely on
 #pragma opt_rebuildconditionals off
-void func_002739e0(u8 index, u8 *context)
+void frFontLayoutSlotText(u8 index, u8 *context)
 {
     s8 character;
     extern s32 strlen(const void *param_1);
@@ -2150,6 +2151,7 @@ extern s32 strlen(const void *param_1);
 
 
 
+/* Lays out a text string (arg0) as glyph nodes appended to context (arg1). */
 /* measured: MATCH. no_branch_likely on with opt_rebuildconditionals off
    preserves the retail positive helper branches and natural relink loop;
    typed node/child locals preserve the field offsets and tail allocation. */
@@ -2157,7 +2159,7 @@ extern s32 strlen(const void *param_1);
 #pragma push
 #pragma no_branch_likely on
 #pragma opt_rebuildconditionals off
-void func_00273cc0(u8 *arg0, u8 *arg1)
+void frFontLayoutText(u8 *arg0, u8 *arg1)
 {
     s8 character;
     extern s32 strlen(const void *param_1);
@@ -2297,12 +2299,13 @@ loop_test_30:
 #pragma opt_rebuildconditionals on
 #pragma no_branch_likely off
 #pragma pop
+/* Applies pending text work: when active, builds the text list from the string buffer, appends it, sets its codes and height, then applies the pending values. */
 // FUN_00273F70
 /* measured: full frFontSplitRun recipe stack. */
 #pragma push
 #pragma optimization_level 1
 #pragma opt_common_subs on
-void func_00273f70(u8 *arg0)
+void frFontUpdateTextWork(u8 *arg0)
 {
     s8 character;
     extern u8 iGpffffa748;
