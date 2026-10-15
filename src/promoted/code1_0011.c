@@ -55,8 +55,8 @@ extern void H_Pad_StopRumble(void);
 extern void memset(u8 *arg0, s32 arg1, s32 arg2);
 typedef struct KwlnTask KwlnTask;
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
-extern u16 func_0010f560(s16 arg0, s32 arg1);
-extern u32 func_0010f600(s16 arg0, s32 arg1);
+extern u16 datCalcThresholdKindById(s16 arg0, s32 arg1);
+extern u32 datCalcSkillCostById(s16 arg0, s32 arg1);
 extern void *datCalcGetIdRecord(u16 arg0);
 
 extern void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
@@ -1440,13 +1440,13 @@ s32 func_00113520(s32 arg0, s32 arg1, s32 arg2, u8 *arg3)
         if (arg0 != 0) {
             temp_5 = *(u16 *)(arg3 + 2);
             if ((s32)temp_5 < 0x1B8) {
-                temp_3 = func_0010f560((s16)arg0, temp_5) & 0xFFFF;
+                temp_3 = datCalcThresholdKindById((s16)arg0, temp_5) & 0xFFFF;
                 switch (temp_3) {
                 case 1:
-                    *(s32 *)(arg3 + 4) = func_0010f600((s16)arg0, *(u16 *)(arg3 + 2));
+                    *(s32 *)(arg3 + 4) = datCalcSkillCostById((s16)arg0, *(u16 *)(arg3 + 2));
                     break;
                 case 2:
-                    *(s32 *)(arg3 + 8) = func_0010f600((s16)arg0, *(u16 *)(arg3 + 2));
+                    *(s32 *)(arg3 + 8) = datCalcSkillCostById((s16)arg0, *(u16 *)(arg3 + 2));
                     break;
                 }
             }
