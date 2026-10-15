@@ -2579,7 +2579,7 @@ loop_6_test:
     if ((*(s32 *)(arg0 + 4) != 0) && (func_002909a0((u32 *)(arg0 + 0x678)) != 0)) {
         func_00290b00((u32 *)(arg0 + 0x678));
     }
-    func_0028d0a0(arg0);
+    evtReleaseRes(arg0);
     func_00298190(2, 0);
     temp_4_2 = (s32)(*(s32 *)(arg0 + 0x760));
     if ((temp_4_2 != 0) && (func_00452490((void *)temp_4_2) != 0)) {
