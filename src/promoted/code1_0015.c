@@ -58,12 +58,12 @@ extern u8 *iGpffff9db0;
 extern s32 func_0014a200();
 extern s32 func_0014a270(void);
 extern void FldResource_Destroy(s32 arg0);
-extern s32 func_0014e710();
+extern s32 FldRc_FileLoadIsReady();
 extern void func_0046d730();
 extern void memcpy();
 extern void chkmemAllocSiteTag(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_0014e5e0();
+extern s32 FldRc_CreateFileLoadTask();
 extern s32 H_Cdvd_FileExists(void *arg0);
 extern f32 iGpffff853c;
 extern f32 iGpffffb290;
@@ -415,8 +415,8 @@ s32 func_001561a0(u8 *task)
     extern s32 func_00160000(u8 *file);
     extern s32 func_00144f60(void);
     extern s32 func_0014a190(s32 fieldId, s32 roomId);
-    extern s32 func_0014e5e0(u8 *parent, u8 *path, s32 index, s32 file);
-    extern s32 func_0014e710(u8 *task);
+    extern s32 FldRc_CreateFileLoadTask(u8 *parent, u8 *path, s32 index, s32 file);
+    extern s32 FldRc_FileLoadIsReady(u8 *task);
     extern s32 func_0016e2e0(s32 parent);
     extern s32 D_007D3D64[];
     extern s32 D_007D3D68[];
@@ -530,16 +530,16 @@ s32 func_001561a0(u8 *task)
             break;
         }
         if (func_0014a190(work->fieldId, work->roomId) == 0) {
-            D_007D2544[0] = func_0014e5e0(NULL, D_005EFF80, -1, D_007E3710[0]);
-            D_007D2548[0] = func_0014e5e0(NULL, D_005EFFA0, -1, D_007E3714[0]);
-            D_007D254C[0] = func_0014e5e0(NULL, D_005EFFC0, -1, D_007E3718[0]);
+            D_007D2544[0] = FldRc_CreateFileLoadTask(NULL, D_005EFF80, -1, D_007E3710[0]);
+            D_007D2548[0] = FldRc_CreateFileLoadTask(NULL, D_005EFFA0, -1, D_007E3714[0]);
+            D_007D254C[0] = FldRc_CreateFileLoadTask(NULL, D_005EFFC0, -1, D_007E3718[0]);
         }
         work->state++;
     case 5:
         if (func_0014a190(work->fieldId, work->roomId) == 0 &&
-            (func_0014e710((u8 *)D_007D2544[0]) == 0 ||
-             func_0014e710((u8 *)D_007D2548[0]) == 0 ||
-             func_0014e710((u8 *)D_007D254C[0]) == 0)) {
+            (FldRc_FileLoadIsReady((u8 *)D_007D2544[0]) == 0 ||
+             FldRc_FileLoadIsReady((u8 *)D_007D2548[0]) == 0 ||
+             FldRc_FileLoadIsReady((u8 *)D_007D254C[0]) == 0)) {
             break;
         }
         /* The camera task is parented to the active field task. */
@@ -3225,11 +3225,11 @@ s32 func_0015c280(void) {
     }
     if (*(s32 *)(temp_16 + 0x40) == 0) {
         *(s32 *)(temp_16 + 0x40) =
-            func_0014e5e0(iGpffffb244, D_005F06E0, 0x1E, iGpffffb218);
+            FldRc_CreateFileLoadTask(iGpffffb244, D_005F06E0, 0x1E, iGpffffb218);
     }
     if (*(s32 *)(temp_16 + 0x44) == 0) {
         *(s32 *)(temp_16 + 0x44) =
-            func_0014e5e0(iGpffffb244, D_005F0700, 0x14, iGpffffb218);
+            FldRc_CreateFileLoadTask(iGpffffb244, D_005F0700, 0x14, iGpffffb218);
     }
     return 1;
 }
@@ -3249,7 +3249,7 @@ s32 func_0015c360(void) {
     i = 0;
     while (i < 2) {
         if (*(s32 *)(temp_16 + i * 4 + 0x40) != 0 &&
-            func_0014e710(*(s32 *)(temp_16 + i * 4 + 0x40)) == 0) {
+            FldRc_FileLoadIsReady(*(s32 *)(temp_16 + i * 4 + 0x40)) == 0) {
             return 0;
         }
         i++;

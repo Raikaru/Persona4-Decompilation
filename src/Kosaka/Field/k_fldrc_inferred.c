@@ -200,8 +200,8 @@ extern u8 D_005EFC18[];
 extern u8 D_005EFC28[];
 extern u8 iGpffff9de0;
 extern u8 iGpffff9de8;
-extern s32 func_0014e2a0(u8 *arg0);
-extern void func_0014e540(u8 *arg0);
+extern s32 FldRc_FileLoadStep(u8 *arg0);
+extern void FldRc_FileLoadDestroy(u8 *arg0);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 iGpffff9da8;
@@ -367,13 +367,13 @@ extern u8 iGpffff9dd8[8];
 /* measured probe: opt_loop_invariants on hoists the 600.0f/1200.0f constants. */
 /* measured: restore opt_loop_invariants off after func_0014cef0. */
 // FUN_0014DCD0
-void func_0014dcd0(u8 *arg0, s32 arg1)
+void FldRc_SetAxesTargeted(u8 *arg0, s32 arg1)
 {
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x44) = arg1;
 }
 
 // FUN_0014DCE0
-void func_0014dce0(u8 *arg0, u8 *arg1)
+void FldRc_SetAxesColor(u8 *arg0, u8 *arg1)
 {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
@@ -381,7 +381,7 @@ void func_0014dce0(u8 *arg0, u8 *arg1)
 }
 
 // FUN_0014DD10
-void func_0014dd10(u8 *arg0, u8 *arg1) {
+void FldRc_SetAxesPosition(u8 *arg0, u8 *arg1) {
     f32 sp20[4];
     u8 *temp_16;
 
@@ -392,11 +392,11 @@ void func_0014dd10(u8 *arg0, u8 *arg1) {
     RwMatrixUpdate(temp_16);
 }
 
-/* measured probe: opt_propagation off preserves 0014dd80 vtable and float stores. */
-/* measured: func_0014dd80 MATCH -> MISMATCH without this pragma. */
+/* measured probe: opt_propagation off preserves FldRc_DrawScreenQuad vtable and float stores. */
+/* measured: FldRc_DrawScreenQuad MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0014DD80
-void func_0014dd80(u8 *arg0, u8 *arg1) {
+void FldRc_DrawScreenQuad(u8 *arg0, u8 *arg1) {
     void (**base)(u32, u32);
 
     base = D_00887300;
@@ -433,7 +433,7 @@ void func_0014dd80(u8 *arg0, u8 *arg1) {
    instead of $v0, and the four bytes convert as (f32)(u32) so MWCC emits
    its own bltz/srl/or/cvt/add.s sequence.  No pragma. */
 // FUN_0014DEF0
-void func_0014def0(u8 *arg0, u8 *arg1,
+void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
                    f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
                    f32 fparg4, u8 *arg2, s32 arg3,
                    f32 fparg5, f32 fparg6, f32 fparg7, s32 arg4,
@@ -541,12 +541,12 @@ void func_0014def0(u8 *arg0, u8 *arg1,
     *(f32 *)(arg1 + 0x114) = arg_sp0;
     *(s32 *)(arg1 + 0x118) = arg4;
     entry = func_00461390(arg0, 4, arg1, 4);
-    *(void **)(entry + 8) = (void *)func_0014dd80;
+    *(void **)(entry + 8) = (void *)FldRc_DrawScreenQuad;
     *(u8 **)(entry + 0x10) = arg1;
 }
 
 // FUN_0014E2A0
-s32 func_0014e2a0(u8 *arg0) {
+s32 FldRc_FileLoadStep(u8 *arg0) {
     extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
     extern s32 func_00455f70(u8 *arg0, s32 *arg1);
     extern void H_Cdvd_Destroy(u8 *arg0);
@@ -653,7 +653,7 @@ block_31:
 }
 
 // FUN_0014E540
-void func_0014e540(u8 *arg0) {
+void FldRc_FileLoadDestroy(u8 *arg0) {
     s32 i;
     u8 *p;
     s32 temp_4;
@@ -673,7 +673,7 @@ void func_0014e540(u8 *arg0) {
 }
 
 // FUN_0014E5E0
-s32 func_0014e5e0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
+s32 FldRc_CreateFileLoadTask(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
     s32 temp_17;
     u8 *temp_2;
 
@@ -682,7 +682,7 @@ s32 func_0014e5e0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2));
+    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(temp_2));
     if (arg3 == 0) {
         func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
         *(s32 *)(temp_2 + 4) = (s32)func_00454a60(arg1, 0);
@@ -696,18 +696,18 @@ s32 func_0014e5e0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
 }
 
 // FUN_0014E710
-s32 func_0014e710(u8 *arg0) {
+s32 FldRc_FileLoadIsReady(u8 *arg0) {
     if (arg0 == NULL) {
         return 1;
     }
     return *(s32 *)(*(u8 **)(arg0 + 0x38)) >= 1;
 }
 
-/* measured probe: optimization level 1 register allocation for func_0014e740. */
-/* measured: func_0014e740 MATCH -> MISMATCH without this pragma. */
+/* measured probe: optimization level 1 register allocation for FldRc_RequestPositionSlot. */
+/* measured: FldRc_RequestPositionSlot MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 // FUN_0014E740
-s32 func_0014e740(u8 *arg0, f32 *arg1) {
+s32 FldRc_RequestPositionSlot(u8 *arg0, f32 *arg1) {
     s32 temp_20;
     s32 temp_4;
     u8 *temp_19;
@@ -755,11 +755,11 @@ loop_done_4:
     return var_17;
 }
 
-/* measured probe: restore optimization level 2 after func_0014e740. */
-/* measured: func_0014e950, func_0014ec50 MATCH -> MISMATCH without this pragma. */
+/* measured probe: restore optimization level 2 after FldRc_RequestPositionSlot. */
+/* measured: FldRc_TransitionStep, FldRc_CreateTransitionTask MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_0014E880
-void func_0014e880(u8 *arg0, s32 arg1, s16 arg2) {
+void FldRc_SetPositionSlotPriority(u8 *arg0, s32 arg1, s16 arg2) {
     u8 *temp_4;
 
     temp_4 = *(u8 **)(arg0 + 0x38);
@@ -773,7 +773,7 @@ void func_0014e880(u8 *arg0, s32 arg1, s16 arg2) {
 }
 
 // FUN_0014E8C0
-s32 func_0014e8c0(u8 *arg0, s32 arg1) {
+s32 FldRc_GetPositionSlotCount(u8 *arg0, s32 arg1) {
     u8 *temp_3;
 
     temp_3 = *(u8 **)(arg0 + 0x38);
@@ -784,7 +784,7 @@ s32 func_0014e8c0(u8 *arg0, s32 arg1) {
 }
 
 // FUN_0014E8F0
-void func_0014e8f0(u8 *arg0, s32 arg1, s32 arg2) {
+void FldRc_SetPositionSlotLock(u8 *arg0, s32 arg1, s32 arg2) {
     u8 *temp_4;
 
     temp_4 = *(u8 **)(arg0 + 0x38);
@@ -796,7 +796,7 @@ void func_0014e8f0(u8 *arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_0014E920
-void func_0014e920(u8 *arg0, s32 arg1, s32 arg2) {
+void FldRc_SetPositionSlotVisibility(u8 *arg0, s32 arg1, s32 arg2) {
     u8 *temp_4;
 
     temp_4 = *(u8 **)(arg0 + 0x38);
@@ -810,10 +810,10 @@ void func_0014e920(u8 *arg0, s32 arg1, s32 arg2) {
 /* 712/720 bytes; ten resolved relocations; eight zero alignment bytes.
  * Inline predicates preserve reveal ordering and the frame-41 transition. */
 #pragma push
-/* measured: func_0014e950 MATCH -> MISMATCH without this pragma. */
+/* measured: FldRc_TransitionStep MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_0014E950
-s32 func_0014e950(u8 *task)
+s32 FldRc_TransitionStep(u8 *task)
 {
     SVec3 direction;
     SVec3 position;
@@ -848,7 +848,7 @@ s32 func_0014e950(u8 *task)
                 position.x += direction.x;
                 position.y += direction.y;
                 position.z += direction.z;
-                func_0014e740(*(u8 **)(work + 0xC), &position.x);
+                FldRc_RequestPositionSlot(*(u8 **)(work + 0xC), &position.x);
                 func_0045af60(1, 0xB, 3, 4);
                 *(s32 *)(work + 8) = 0;
                 ++*(s32 *)work;
@@ -899,14 +899,14 @@ s32 func_0014e950(u8 *task)
 
 #pragma pop
 // FUN_0014EC20
-void func_0014ec20(u8 *arg0)
+void FldRc_TransitionDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
 // FUN_0014EC50
-s32 func_0014ec50(u8 *arg0, s32 arg1) {
-    extern s32 func_0014e950(u8 *arg0);
+s32 FldRc_CreateTransitionTask(u8 *arg0, s32 arg1) {
+    extern s32 FldRc_TransitionStep(u8 *arg0);
     extern s32 func_00454a60(const void *arg0, s32 arg1);
     extern u8 D_005EFC40[];
     u8 **allocator_table;
@@ -921,7 +921,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
         return 0;
     }
     header = D_005EFC28;
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(header), 0xF, 0, 0, func_0014e950, func_0014ec20, (u8 *)(temp_2));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(header), 0xF, 0, 0, FldRc_TransitionStep, FldRc_TransitionDestroy, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = arg1;
     if (arg1 == 0) {
         chkmemAllocSiteTag(&iGpffff9de0, 0xC2);
@@ -929,7 +929,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
         if (temp_2_2 == NULL) {
             arg1 = 0;
         } else {
-            arg1 = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2_2));
+            arg1 = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(temp_2_2));
             func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
             *(s32 *)(temp_2_2 + 4) = func_00454a60(&D_005EFC40, 0);
             *(s32 *)(temp_2_2 + 8) = 0x53;
@@ -942,7 +942,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
         if (temp_2_2 == NULL) {
             arg1 = 0;
         } else {
-            arg1 = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, func_0014e2a0, func_0014e540, (u8 *)(temp_2_2));
+            arg1 = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(temp_2_2));
             func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
             *(s32 *)(temp_2_2 + 4) = func_00454a60(&D_005EFC40, 0);
             *(s32 *)(temp_2_2 + 8) = 0x32;
@@ -954,7 +954,7 @@ s32 func_0014ec50(u8 *arg0, s32 arg1) {
 }
 
 // FUN_0014EEC0
-s32 func_0014eec0(void) {
+s32 FldRc_GetLoadSource(void) {
     return D_007642F0;
 }
 

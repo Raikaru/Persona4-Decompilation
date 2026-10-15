@@ -4,7 +4,7 @@
 
 extern u8 *func_00155280(void);
 extern void (*DAT_008873EC[])(void *);
-extern s32 func_0014eec0(void);
+extern s32 FldRc_GetLoadSource(void);
 extern void strcpy(void *arg0, const char *arg1);
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 H_Cdvd_FileExists(void *arg0);
@@ -42,7 +42,7 @@ s32 NpcTable_RequestSceneTable(void)
     char sp10[0x80];
     u8 *scene;
 
-    if (func_0014eec0() != 0) {
+    if (FldRc_GetLoadSource() != 0) {
         goto ret1;
     }
     strcpy(sp90, D_005F0790);
@@ -70,7 +70,7 @@ s32 NpcTable_InstallSceneTable(u8 *arg0)
     if (arg0 == 0) {
         return 1;
     }
-    if (func_0014eec0() == 0) {
+    if (FldRc_GetLoadSource() == 0) {
         if (H_Cdvd_IsFileLoaded(arg0) == 0) {
             goto ret0;
         }
@@ -227,7 +227,7 @@ s32 NpcTable_RequestSecondaryTable(void)
     char sp10[0x80];
     u8 *scene;
 
-    if (func_0014eec0() != 0) {
+    if (FldRc_GetLoadSource() != 0) {
         goto ret1;
     }
     strcpy(sp90, D_005F0790);
@@ -255,7 +255,7 @@ s32 NpcTable_InstallSecondaryTable(u8 *arg0)
     if (arg == 0) {
         return 1;
     }
-    if (func_0014eec0() == 0) {
+    if (FldRc_GetLoadSource() == 0) {
         if (H_Cdvd_IsFileLoaded(arg) != 0) {
             chkmemAllocSiteTag(&D_005F07C0, 0x158);
             temp = (s32)(*D_008873F4)(1, (s32)(*(u32 *)(arg + 0x118)), 0x40000);

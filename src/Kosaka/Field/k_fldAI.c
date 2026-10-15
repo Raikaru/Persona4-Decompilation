@@ -997,10 +997,10 @@ extern int KMisc_CreateRmdFade(int, int, int, int, int);
 extern int func_0014bd90(unsigned char *);
 extern unsigned int func_0014c240(void *, void *, float, float);
 extern s32 KDraw_CreateAxesTask(void *, void *);
-extern void func_0014dcd0(unsigned char *, int);
-extern void func_0014dce0(unsigned char *, unsigned char *);
-extern void func_0014dd10(unsigned char *, unsigned char *);
-extern int func_0014e740(unsigned char *, float *);
+extern void FldRc_SetAxesTargeted(unsigned char *, int);
+extern void FldRc_SetAxesColor(unsigned char *, unsigned char *);
+extern void FldRc_SetAxesPosition(unsigned char *, unsigned char *);
+extern int FldRc_RequestPositionSlot(unsigned char *, float *);
 extern int func_0015c1e0(int);
 extern void FldFrameTask_SetPosition(unsigned char *, unsigned char *);
 extern void FldFrameTask_StartMove(unsigned char *, float);
@@ -1168,9 +1168,9 @@ availabilityDone:
       ((float *)piVar1)[0x1b] = *(float *)(piVar1[5] + 0x18);
       pbVar7 = (unsigned char *)KDraw_CreateAxesTask(param_1,D_00794420);
       piVar1[0x26] = (int)pbVar7;
-      func_0014dd10(pbVar7,(u8 *)&((FldAINpc *)piVar1[3])->origin);
-      func_0014dce0((unsigned char *)piVar1[0x26],(unsigned char *)D_005F1CE0);
-      func_0014dcd0((unsigned char *)piVar1[0x26],0);
+      FldRc_SetAxesPosition(pbVar7,(u8 *)&((FldAINpc *)piVar1[3])->origin);
+      FldRc_SetAxesColor((unsigned char *)piVar1[0x26],(unsigned char *)D_005F1CE0);
+      FldRc_SetAxesTargeted((unsigned char *)piVar1[0x26],0);
       *piVar1 = *piVar1 + 1;
       break;
     case 1:
@@ -1179,12 +1179,12 @@ availabilityDone:
         temp_v0 = (int)mdlGetMatrix((u8 *)*(unsigned int *)(piVar1[3] + 0x50));
         aiPos = *(FldAIVec3 *)(temp_v0 + 0x30);
         if (*(int *)(piVar1[3] + 0x73c) != 0) {
-          func_0014dcd0((unsigned char *)piVar1[0x26],1);
-          func_0014dd10((unsigned char *)piVar1[0x26],(unsigned char *)(piVar1 + 0x14));
-          func_0014dce0((unsigned char *)piVar1[0x26],(unsigned char *)(D_005F1CE0 + piVar1[0x12] * 4));
+          FldRc_SetAxesTargeted((unsigned char *)piVar1[0x26],1);
+          FldRc_SetAxesPosition((unsigned char *)piVar1[0x26],(unsigned char *)(piVar1 + 0x14));
+          FldRc_SetAxesColor((unsigned char *)piVar1[0x26],(unsigned char *)(D_005F1CE0 + piVar1[0x12] * 4));
         }
         else {
-          func_0014dcd0((unsigned char *)piVar1[0x26],0);
+          FldRc_SetAxesTargeted((unsigned char *)piVar1[0x26],0);
         }
         temp_v0 = (unsigned int)RpRandom() % 100;
         temp_v3 = 0;
@@ -1336,7 +1336,7 @@ else {
         vec70[1] = vec70[1] +
                     ((float (*)[4])D_005F1CC0)[*(unsigned char *)(piVar1[3] + 0x1ca)][*(unsigned char *)(piVar1[3] + 0x1cb)];
         pbVar7 = (unsigned char *)func_0015c1e0(1);
-        func_0014e740(pbVar7,&vec70[0]);
+        FldRc_RequestPositionSlot(pbVar7,&vec70[0]);
         func_0045af60(1,0xb,3,5);
         piVar1[0x23] = *(int *)(piVar1[5] + 0x30);
         *piVar1 = 6;
@@ -1353,7 +1353,7 @@ else {
           vec80[1] = vec80[1] +
                       ((float (*)[4])D_005F1CC0)[*(unsigned char *)(piVar1[3] + 0x1ca)][*(unsigned char *)(piVar1[3] + 0x1cb)];
           pbVar7 = (unsigned char *)func_0015c1e0(1);
-          func_0014e740(pbVar7,&vec80[0]);
+          FldRc_RequestPositionSlot(pbVar7,&vec80[0]);
           func_0045af60(1,0xb,3,5);
           piVar1[0x23] = *(int *)(piVar1[5] + 0x30);
           *piVar1 = 6;

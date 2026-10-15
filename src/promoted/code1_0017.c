@@ -122,7 +122,7 @@ extern s32 func_0018ced0(void);
 extern void func_0018c7e0(void);
 extern s32 func_00159f70(s32 arg0);
 extern s32 func_00155290(void);
-extern s32 func_0014ec50(s32 arg0, s32 arg1);
+extern s32 FldRc_CreateTransitionTask(s32 arg0, s32 arg1);
 extern s32 func_0029d050(void);
 extern void func_0029dfe0(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(s32 arg0);
@@ -151,7 +151,7 @@ extern void sprintf(void *dst, const void *src);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern s32 func_003ef6d0(void);
 extern s32 func_003ef650(s32 arg0, void *arg1);
-extern void func_0014def0(u8 *arg0, u8 *arg1,
+extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
                            f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6,
                            void *arg7, s32 arg8,
                            f32 arg9, f32 arg10, f32 arg11,
@@ -904,7 +904,7 @@ void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
     temp_f20 = (f32)local_5;
     temp_1 = func_003ef6d0();
     temp_2 = func_003ef650(temp_1, spA0.data);
-    func_0014def0(local_0, local_1,
+    FldRc_QueueScreenQuad(local_0, local_1,
                   temp_f24, temp_f23, temp_f22, temp_f21, temp_f20,
                   (void *)&iGpffff9f54, temp_2,
                   *(f32 *)(temp_9 = (f32 *)(D_005F1970 + temp_18)),

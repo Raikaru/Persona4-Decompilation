@@ -21,7 +21,7 @@ extern s32 func_00153a00(u8 *task);
 extern void func_00153a30(u8 *task);
 
 
-extern s32 func_0014eec0(void);
+extern s32 FldRc_GetLoadSource(void);
 extern void strcpy(void *arg0, const char *arg1);
 extern void sprintf();
 extern s32 H_Cdvd_FileExists(void *arg0);
@@ -125,7 +125,7 @@ s32 func_00153c00(s32 arg0) {
     if (*(s32 *)iGpffff9db0 == -1) {
         return 0;
     }
-    if (func_0014eec0() == 0) {
+    if (FldRc_GetLoadSource() == 0) {
         strcpy(&spA0, D_005EFE78);
         if (func_0014a2a0(*(u16 *)iGpffff9db0, arg0 & 0xFFFF) != 0) {
             sprintf(&sp20, D_005EFE90, *(s32 *)iGpffff9db0 - 0x14, arg0);
@@ -193,10 +193,10 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     if (arg0 == NULL) {
         return 1;
     }
-    if ((func_0014eec0() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0)) {
+    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0)) {
         return 0;
     }
-    if (func_0014eec0() == 0) {
+    if (FldRc_GetLoadSource() == 0) {
         data = *(u8 **)(arg0 + 0x110);
     } else {
         sprintf(&sp60, D_005EFEB0, *(s32 *)iGpffff9db0, arg1);
@@ -423,7 +423,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
         func_0018c700(*(f32 *)(data + 0x374));
         func_0018c750(*(f32 *)(data + 0x378));
     }
-    if (func_0014eec0() == 0) {
+    if (FldRc_GetLoadSource() == 0) {
         H_Cdvd_Destroy(arg0);
     }
     return 1;
@@ -597,7 +597,7 @@ s32 func_00154b10(void) {
     if (*(s32 *)iGpffff9db0 == -1) {
         return 0;
     }
-    if (func_0014eec0() == 0) {
+    if (FldRc_GetLoadSource() == 0) {
         strcpy(&sp90, D_005EFE78);
         sprintf(&sp10, D_005EFED0, *(s32 *)(iGpffff9db0 + 0), *(s32 *)(iGpffff9db0 + 4));
         if (H_Cdvd_FileExists(&sp10) == 0) {
@@ -631,10 +631,10 @@ s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
     if (arg0 == 0) {
         return 1;
     }
-    if ((func_0014eec0() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0)) {
+    if ((FldRc_GetLoadSource() == 0) && (H_Cdvd_IsFileLoaded(arg0) == 0)) {
         return 0;
     }
-    if (func_0014eec0() == 0) {
+    if (FldRc_GetLoadSource() == 0) {
         data = *(u8 **)(arg0 + 0x110);
     } else {
         sprintf(&spA0, D_005EFEF0,
@@ -758,7 +758,7 @@ CMR_loop_skip:
         } while (count > 0);
         func_0016eb00(func_00155280()[1]);
     }
-    if (func_0014eec0() == 0) {
+    if (FldRc_GetLoadSource() == 0) {
         H_Cdvd_Destroy(arg0);
     }
     return 1;
