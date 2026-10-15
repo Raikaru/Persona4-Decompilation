@@ -2642,8 +2642,9 @@ s32 func_00239f50(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
 
 
 
+// Intent: effect flag mask (1 HP, 2 SP, 4 status) for skill arg0 from actor arg1 on target arg2; 0 when the hit misses, 0xFFFF for a full effect; [inferred].
 // FUN_0023A1E0
-s32 func_0023a1e0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
+s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
 {
     s32 temp_21;
     s32 temp_19;

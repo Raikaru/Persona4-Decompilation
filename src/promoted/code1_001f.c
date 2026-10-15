@@ -5107,7 +5107,7 @@ s32 func_001fae80(u8 *arg0, s32 arg1)
 // FUN_001FAF70
 s32 func_001faf70(u8 *arg0, s32 arg1, s32 arg2)
 {
-    extern s32 func_0023a1e0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
+    extern s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
     s32 temp_18;
     u32 var_21;
     u32 var_20;
@@ -5171,7 +5171,7 @@ loop_outer_after:
     var_18 = 0;
     goto loop_24_test;
 loop_24_body:
-    temp_2 = func_0023a1e0(
+    temp_2 = datCalcSkillEffectFlags(
         arg1 & 0xFFFF,
         (u8 *)*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
         (u8 *)*(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) +
