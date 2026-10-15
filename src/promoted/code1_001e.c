@@ -77,7 +77,7 @@ extern u8 *func_001d8c00();
 extern u8 *btlAICommandPickUnitByHpWeight();
 extern s32 btlAICommandCollectSkillCandidates();
 extern s32 btlAICommandCollectCommandsOfType();
-extern s32 func_001d9390();
+extern s32 btlSideSelectUnits();
 extern s32 btlAICommandAlwaysTrue(void);
 
 
@@ -365,7 +365,7 @@ s32 func_001e7320(void)
 /* measured: object 264B vs window 272B, normalized_diff 10; remaining differences are register colouring. Committed at nd 10. */
 // FUN_001E7400
 s32 func_001e7400(void) {
-    extern s32 func_001d9390();
+    extern s32 btlSideSelectUnits();
     extern u32 datCalcRandomBelow(u32 arg0);
     extern s32 scrGetParamInt(s32 arg0);
     extern void scrSetReturnInt(s32 arg0);
@@ -380,7 +380,7 @@ s32 func_001e7400(void) {
 
     unit = (u32)func_0029d050();
     selector = (u32)scrGetParamInt(0);
-    count = func_001d9390(unit, selector, 0x80000, 1, 1,
+    count = btlSideSelectUnits(unit, selector, 0x80000, 1, 1,
                           &btlCond_MYHOJO, candidates);
     if (count > 0) {
         index = 0;
@@ -404,7 +404,7 @@ s32 func_001e7400(void) {
 }
 // FUN_001E7510
 s32 func_001e7510(void) {
-    extern s32 func_001d9390();
+    extern s32 btlSideSelectUnits();
     extern s32 datCalcRandomBelow();
     extern s32 datCalcGetLevel();
     extern s64 scrGetParamInt();
@@ -418,7 +418,7 @@ s32 func_001e7510(void) {
     u8 *sp50[12];
 
     temp_16 = func_0029d050();
-    temp_17 = func_001d9390(temp_16, scrGetParamInt(0), 0x80000, 2, 1, &btlCond_MYHOJO, sp50) & 0xFFFF;
+    temp_17 = btlSideSelectUnits(temp_16, scrGetParamInt(0), 0x80000, 2, 1, &btlCond_MYHOJO, sp50) & 0xFFFF;
     if (temp_17 > 0) {
         var_19 = NULL;
         var_18 = 0;
@@ -1738,7 +1738,7 @@ s32 func_001ea180(void) {
     u8 *sp10[12];
     s32 temp_4;
 
-    temp_4 = (s32)(func_001d9390(func_0029d050(), 0, 0x80000, 2, 0, &btlAICommandAlwaysTrue, &sp10) & 0xFFFF);
+    temp_4 = (s32)(btlSideSelectUnits(func_0029d050(), 0, 0x80000, 2, 0, &btlAICommandAlwaysTrue, &sp10) & 0xFFFF);
     if (temp_4 > 0) {
         scrSetReturnInt(*(s32 *)(sp10[datCalcRandomBelow(temp_4)] + 8) | 0x80000000);
     } else {
@@ -3835,7 +3835,7 @@ s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2)
 /* measured: close ef5f0 branch-shape probe. */
 #pragma opt_common_subs on
 // FUN_001EF720
-s32 func_001ef720(s32 arg0, s32 arg1)
+s32 btlSideCountNotBad(s32 arg0, s32 arg1)
 {
     u8 *current;
     s32 count;

@@ -31,7 +31,7 @@ extern u32 scrGetParamInt();
 extern void scrSetReturnInt();
 extern u8 *func_0029d050();
 
-extern s32 func_001d9390();
+extern s32 btlSideSelectUnits();
 extern s32 func_00235520(s32 skill, u8 *source, u8 *target, s32 count, s32 hit, s32 relation, s32 options, s32 channel);
 extern void datCalcClearField18(u32 arg0);
 extern s32 func_001d8cb0(u32 arg0, u8 *arg1);
@@ -5112,49 +5112,49 @@ s32 func_001e6050(void) {
 // FUN_001E60F0
 s32 btlAICommandScriptCountOwnHojo(void) {
     u8 *p = func_0029d050();
-    scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
+    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6160
 s32 btlAICommandScriptCountOwnNotHojo(void) {
     u8 *p = func_0029d050();
-    scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 1, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
+    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E61D0
 s32 btlAICommandScriptCountOwnBad(void) {
     u8 *p = func_0029d050();
-    scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYBAD, 0) & 0xFFFF);
+    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYBAD, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6240
 s32 btlAICommandScriptCountOppBad(void) {
     u8 *p = func_0029d050();
-    scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYBAD, 0) & 0xFFFF);
+    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYBAD, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E62B0
 s32 btlAICommandScriptCountOppHojo(void) {
     u8 *p = func_0029d050();
-    scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
+    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6320
 s32 btlAICommandScriptCountOppNotHojo(void) {
     u8 *p = func_0029d050();
-    scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 2, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
+    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 2, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6390
 s32 btlAICommandScriptCountOwnHp(void) {
     u8 *p = func_0029d050();
-    scrSetReturnInt(func_001d9390(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHP, 0) & 0xFFFF);
+    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHP, 0) & 0xFFFF);
     return 1;
 }
 
@@ -5196,14 +5196,14 @@ s32 btlAICommandScriptGetCommandRow(void) {
 // FUN_001E6530
 s32 func_001e6530(void) {
     func_0029d050();
-    scrSetReturnInt(func_001ef720(1, 0) & 0xFFFF);
+    scrSetReturnInt(btlSideCountNotBad(1, 0) & 0xFFFF);
     return 1;
 }
 
 // FUN_001E6570
 s32 func_001e6570(void) {
     func_0029d050();
-    scrSetReturnInt(func_001ef720(2, 0) & 0xFFFF);
+    scrSetReturnInt(btlSideCountNotBad(2, 0) & 0xFFFF);
     return -1;
 }
 
