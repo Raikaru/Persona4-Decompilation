@@ -71,7 +71,7 @@ extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 
 extern BtlPacket *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
 extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void func_001b08f0(void *arg0);
-extern void func_001bc800(u8 *arg0);
+extern void btlCameraReleaseActionRefs(u8 *arg0);
 extern void datUnitRemoveEncounterUnit(DatUnitEc *arg0, DatUnit *arg1);
 extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
 extern void datCalcClearAllBuffs(u8 *arg0);
@@ -356,7 +356,7 @@ void btlActionExitUpdate(u8 *arg0)
         *(u16 *)(arg0 + 0x1A) &= 0xFFFE;
     }
     func_001b08f0(arg0);
-    func_001bc800(arg0);
+    btlCameraReleaseActionRefs(arg0);
     *(u16 *)(arg0 + 0x1A) |= 2;
 }
 

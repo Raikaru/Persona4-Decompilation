@@ -43,3 +43,47 @@ H_Cdvd_StreamGetSlot = 0x004556B0; // type:func  evidence: p3:H_Cdvd_StreamGetSl
 
 // battle_draw_2d task update callback: the retail task-name string outranks the p3 name.
 btlUpdateDraw2DTask = 0x00192790; // type:func  evidence: string:"battle_draw_2d"
+
+// btlCamera.c camera work: state, pose, look-at and action-frame helpers (behaviour evidence from bodies and callers).
+btlCameraClampOffsetToLimit = 0x001BC3A0; // type:func  evidence: behaviour: clamps an offset vector to the 1500-unit axis limit, returns whether it clamped
+btlCameraUnitAnimFinished = 0x001BC560; // type:func  evidence: behaviour: returns 1 when the unit's motion frame has reached its frame count
+btlCameraStateRecordFlag = 0x001BC630; // type:func  evidence: behaviour: tests bit 0x4000 of the state record selected by the camera's current entry
+btlCameraSetState = 0x001BC660; // type:func  evidence: behaviour: changes camera state, shifts state history, and runs the state entry callback
+btlCameraGetState = 0x001BC7F0; // type:func  evidence: behaviour: returns the current camera state word
+btlCameraReleaseActionRefs = 0x001BC800; // type:func  evidence: behaviour: clears camera action slots that still point at the given action
+btlCameraCopyPose = 0x001BD560; // type:func  evidence: behaviour: copies a camera pose (position vector and quaternion)
+btlCameraCopyPoseSnapshot = 0x001BD5A0; // type:func  evidence: behaviour: copies a camera pose, identical body to btlCameraCopyPose, used for snapshots
+btlCameraCopyPoseTarget = 0x001BD5E0; // type:func  evidence: behaviour: copies a camera pose, identical body to btlCameraCopyPose, used for target poses
+btlCameraBuildLookAtFrame = 0x001BD620; // type:func  evidence: behaviour: builds a look-at basis (position, forward, right, up) from eye, target and up vectors
+btlCameraLookAtQuat = 0x001BD780; // type:func  evidence: behaviour: converts a look-at basis between two points into a camera quaternion
+btlCameraFrameActionDegrees = 0x001BE050; // type:func  evidence: behaviour: builds the action camera frame pair from near and far angle limits in degrees
+btlCameraFrameActionTarget = 0x001C09B0; // type:func  evidence: p3:btlCameraFrameActionTarget@0x002a7390 (P3 verifier-matched; name also recorded in the source comment above FUN_001C09B0)
+btlCameraDispatchFrameMode = 0x001C6560; // type:func  evidence: behaviour: selects the frame builder for the camera mode (switch over modes 1-6)
+btlCameraUpdateFrameForState = 0x001C6650; // type:func  evidence: behaviour: per-state camera update that tracks the acting unit or waits for its animation
+btlCameraFrameOrbit = 0x001C6760; // type:func  evidence: behaviour: builds an orbit frame around the acting unit from angle, distance and height scales
+btlCameraFrameOrbitTight = 0x001C6B10; // type:func  evidence: behaviour: orbit frame with fixed 10-degree angle, 2.0 distance scale and 250 minimum distance
+btlCameraResetToDefault = 0x001C6BB0; // type:func  evidence: behaviour: resets the camera to its default frame mode
+btlCameraFrameOrbitUnit = 0x001C6BF0; // type:func  evidence: behaviour: builds an orbit frame from the acting unit's sphere center using matrix rotation
+btlCameraBuildFramePair = 0x001C6F40; // type:func  evidence: behaviour: builds the start and end frames for a camera transition and reports whether it should snap
+btlCameraApplyFrameTransition = 0x001C73E0; // type:func  evidence: behaviour: applies the frame pair from btlCameraBuildFramePair as a curve or instant reset
+btlCameraFrameActionUnitPose = 0x001C7510; // type:func  evidence: behaviour: action-camera pose framed on the action unit's sphere center
+btlCameraFrameActionUnitPoseMirror = 0x001C7780; // type:func  evidence: behaviour: action-camera pose framed on the action unit, sibling of btlCameraFrameActionUnitPose
+btlCameraSetDefaultLimit = 0x001CA550; // type:func  evidence: behaviour: sets the camera limit to 50 with zero flags
+btlCameraSelectPreset = 0x001CBFE0; // type:func  evidence: behaviour: selects a camera preset from its index and dispatches it
+btlCameraFrameFreshPose = 0x001CC0A0; // type:func  evidence: behaviour: builds a fresh camera pose; docs/probe_archive/FreshCameraPose_001cc0a0 names this body
+btlCameraFrameSlerpTarget = 0x001CC5D0; // type:func  evidence: behaviour: slerps the camera target between two quaternions and writes the resulting point
+btlCameraFrameClampedDistance = 0x001CCA60; // type:func  evidence: behaviour: computes a clamped follow distance and curve set for the camera frame
+btlCameraSpawnRandomEffect = 0x001CD600; // type:func  evidence: behaviour: spawns a random camera effect entry chosen from the unit's table index
+btlCameraStopEffects = 0x001CD6A0; // type:func  evidence: behaviour: stops the camera effect list
+btlCameraCountLiveUnits = 0x001CD6C0; // type:func  evidence: behaviour: counts flagged units in the battle unit list that are still alive
+btlCameraStopEffectsAlt = 0x001CD7B0; // type:func  evidence: behaviour: stops the camera effect list, identical body to btlCameraStopEffects
+btlCameraFrameActionFocus = 0x001CDE50; // type:func  evidence: behaviour: action-camera focus frame between the acting unit and its target
+btlCameraFrameTrackUnitScaled = 0x001CE390; // type:func  evidence: behaviour: tracks the acting unit's sphere center with a height-scaled offset
+btlCameraSetVisibility = 0x001CE430; // type:func  evidence: behaviour: applies camera visibility without a fade, wrapping cameraApplyVisibility
+btlCameraFrameTrackUnit = 0x001D05E0; // type:func  evidence: behaviour: tracks the acting unit's sphere center with the half-height frame offset
+btlCameraFrameTrackUnitAlt = 0x001D06A0; // type:func  evidence: behaviour: tracks the acting unit, identical body to btlCameraFrameTrackUnit
+btlCameraRandomTableEntry = 0x001D0730; // type:func  evidence: behaviour: returns a camera table entry chosen by index and a random low bit
+btlCameraFrameActionStart = 0x001D07E0; // type:func  evidence: behaviour: starts an action camera frame for the acting unit and schedules its curve and duration
+btlCameraIsEnabled = 0x001D10D0; // type:func  evidence: behaviour: returns the enable bit (bit 0 of +0x0E) of camera work; header btl_camera_sequence_internal.h
+btlCameraInitWork = 0x001D10F0; // type:func  evidence: behaviour: initialises a camera work record and sets its random-flag bit from a 50 percent roll
+btlCameraGetCurrentEntry = 0x001D1200; // type:func  evidence: behaviour: returns the enabled camera table entry for the stored index, or 0
