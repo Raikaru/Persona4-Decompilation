@@ -29,7 +29,7 @@ extern u8 *func_003e6a90(s32 arg0);
 extern void func_003ef1b0(void *arg0);
 extern u8 *func_003c0f20(s32 arg0);
 extern void func_003e2ce0(s32 arg0, u32 arg1);
-extern void func_00463250(void *arg0);
+extern void K_Clump_FreeTextureNameList(void *arg0);
 
 void func_004aea70(u8 *arg0, s32 arg1, s32 arg2);
 
@@ -241,7 +241,7 @@ void func_004aea70(u8 *arg0, s32 arg1, s32 arg2) {
       case 22:
         if (var16 == NULL) {
           var16 = func_003e6a90(temp18);
-          func_003ef260((const struct RwTexDictionary *)var16, func_00463100, &work.out);
+          func_003ef260((const struct RwTexDictionary *)var16, K_Clump_AppendTextureName, &work.out);
           func_003ef1b0(var16);
         }
         break;
@@ -254,7 +254,7 @@ void func_004aea70(u8 *arg0, s32 arg1, s32 arg2) {
       }
     }
   done:
-    func_003e2e40(temp18, &work.in1); if (work.out != 0) func_00463250((void *)work.out); if (var17 == NULL) func_0046d730(D_00714520, 0x1DF); *(u8 **)(arg0 + 0x54) = var17; RpClumpForAllAtomics(var17, func_004ae080, NULL);
+    func_003e2e40(temp18, &work.in1); if (work.out != 0) K_Clump_FreeTextureNameList((void *)work.out); if (var17 == NULL) func_0046d730(D_00714520, 0x1DF); *(u8 **)(arg0 + 0x54) = var17; RpClumpForAllAtomics(var17, func_004ae080, NULL);
 }
 
 

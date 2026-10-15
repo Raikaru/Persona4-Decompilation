@@ -79,7 +79,7 @@ s32 K_Clump_MatUsrDataGetInt(const RpMaterial* material, const char* name)
 
 
 // FUN_004579A0
-f32 func_004579a0(const RpMaterial* material, const char* name)
+f32 K_Clump_MatUsrDataGetFloat(const RpMaterial* material, const char* name)
 {
     s32 i;
     f32 value;
@@ -123,7 +123,7 @@ u32 K_Clump_MatUsrDataHasData(const RpMaterial* material, const char* name)
 
 
 // FUN_00457B60
-void* func_00457b60(void* geometry, void* data)
+void* K_Clump_AtomicMatUsrDataCb(void* geometry, void* data)
 {
     KClumpResourceList* resourceList;
     s32 resourceIndex;
@@ -159,7 +159,7 @@ void* func_00457b60(void* geometry, void* data)
 
 
 // FUN_00457C90
-u32 func_00457c90(void* clump, const char* name)
+u32 K_Clump_ClumpHasMatUsrData(void* clump, const char* name)
 {
     struct
     {
@@ -169,14 +169,14 @@ u32 func_00457c90(void* clump, const char* name)
 
     context.found = 0;
     strcpy(context.copiedName, name);
-    RpClumpForAllAtomics(clump, (KClumpCallback)func_00457b60, &context);
+    RpClumpForAllAtomics(clump, (KClumpCallback)K_Clump_AtomicMatUsrDataCb, &context);
     return context.found;
 }
 
 
 
 // FUN_00457CE0
-u32 func_00457ce0(void* geometry, const char* name)
+u32 K_Clump_GeometryHasMatUsrData(void* geometry, const char* name)
 {
     s32 resourceIndex;
     void* material;
@@ -209,7 +209,7 @@ u32 func_00457ce0(void* geometry, const char* name)
 
 
 // FUN_00457E00
-void* func_00457e00(void* object, void* data)
+void* K_Clump_FindIntUsrDataFrameCb(void* object, void* data)
 {
     u32* context = data;
     s32 resourceIndex;
@@ -235,14 +235,14 @@ void* func_00457e00(void* object, void* data)
             }
         }
     }
-    func_003e9af0(object, func_00457e00, context);
+    func_003e9af0(object, K_Clump_FindIntUsrDataFrameCb, context);
     return object;
 }
 
 
 
 // FUN_00457F40
-void* func_00457f40(void* object, const char* name, s32 value)
+void* K_Clump_FindIntUsrDataFrame(void* object, const char* name, s32 value)
 {
     struct
     {
@@ -275,14 +275,14 @@ void* func_00457f40(void* object, const char* name, s32 value)
             }
         }
     }
-    func_003e9af0(geometry, func_00457e00, context.nameCopy);
+    func_003e9af0(geometry, K_Clump_FindIntUsrDataFrameCb, context.nameCopy);
     return context.result;
 }
 
 
 
 // FUN_00458090
-void* func_00458090(void* object, void* data)
+void* K_Clump_CountIntUsrDataCb(void* object, void* data)
 {
     u32* context = data;
     s32 resourceIndex;
@@ -303,14 +303,14 @@ void* func_00458090(void* object, void* data)
             }
         }
     }
-    func_003e9af0(object, func_00458090, context);
+    func_003e9af0(object, K_Clump_CountIntUsrDataCb, context);
     return object;
 }
 
 
 
 // FUN_004581A0
-s32 func_004581a0(void* object, const char* name)
+s32 K_Clump_CountIntUsrData(void* object, const char* name)
 {
     KClumpUserDataContext context;
     s32 resourceIndex;
@@ -335,7 +335,7 @@ s32 func_004581a0(void* object, const char* name)
             }
         }
     }
-    func_003e9af0(clump, func_00458090, &context);
+    func_003e9af0(clump, K_Clump_CountIntUsrDataCb, &context);
     return (s32)context.count;
 }
 
@@ -356,7 +356,7 @@ typedef char KClumpIntSearchContextSize[
     (sizeof(KClumpIntSearchContext) == 0x54) ? 1 : -1];
 
 // FUN_004582C0
-void* func_004582c0(void* object, void* data)
+void* K_Clump_IntUsrDataAtCb(void* object, void* data)
 {
     KClumpIntSearchContext* context = data;
     s32 resourceIndex;
@@ -388,14 +388,14 @@ void* func_004582c0(void* object, void* data)
             }
         }
     }
-    func_003e9af0(object, func_004582c0, context);
+    func_003e9af0(object, K_Clump_IntUsrDataAtCb, context);
     return object;
 }
 
 
 
 // FUN_00458430
-void func_00458430(KClumpIntPropertyResult* result, void* object, const char* name, s32 index)
+void K_Clump_GetIntUsrDataAt(KClumpIntPropertyResult* result, void* object, const char* name, s32 index)
 {
     KClumpIntSearchContext context;
     s32 resourceIndex;
@@ -428,14 +428,14 @@ void func_00458430(KClumpIntPropertyResult* result, void* object, const char* na
             }
         }
     }
-    func_003e9af0(geometry, func_004582c0, &context);
+    func_003e9af0(geometry, K_Clump_IntUsrDataAtCb, &context);
     *result = context.result;
 }
 
 
 
 // FUN_00461530
-s32 func_00461530(u8 *arg0, s32 *arg1)
+s32 K_Clump_CheckSentinelFrameCb(u8 *arg0, s32 *arg1)
 {
     if (*(u8 *)(arg0 + 7) == 0xFF) {
         *arg1 = 1;
@@ -443,7 +443,7 @@ s32 func_00461530(u8 *arg0, s32 *arg1)
     return (s32)arg0;
 }
 // FUN_00462170
-void* func_00462170(void* item, void* data)
+void* K_Clump_RenderAtomicIfVisibleCb(void* item, void* data)
 {
     RwSphere* sphere;
 
@@ -476,7 +476,7 @@ process:
 
 
 // FUN_00462E80
-u32 func_00462e80(const u32* state)
+u32 K_Clump_StateFlagIsSet(const u32* state)
 {
     if (state == NULL)
     {
@@ -490,7 +490,7 @@ u32 func_00462e80(const u32* state)
 /* measured: opt_propagation off preserves the delimiter preheader instruction order; this bracket was verified at object 592B/window 592B with normalized_diff 0. */
 #pragma opt_propagation off
 // FUN_00462EB0
-void func_00462eb0(s8* arg0)
+void K_Clump_LogCodeCounts(s8* arg0)
 {
     extern u8* func_00455f70(void*, u32*);
     extern void strcat();
@@ -596,7 +596,7 @@ scan_found:
 /* measured: opt_propagation on closes the target-only bracket. */
 #pragma opt_propagation on
 // FUN_00463100
-struct RwTexture *func_00463100(struct RwTexture *texture, void *list)
+struct RwTexture *K_Clump_AppendTextureName(struct RwTexture *texture, void *list)
 {
     u8* arg0;
     u32** arg1;
@@ -640,7 +640,7 @@ struct RwTexture *func_00463100(struct RwTexture *texture, void *list)
     return texture;
 }
 // FUN_00463250
-void func_00463250(u32* arg0)
+void K_Clump_FreeTextureNameList(u32* arg0)
 {
     u32* next;
     u32* current;
@@ -658,7 +658,7 @@ void func_00463250(u32* arg0)
     }
 }
 // FUN_004632F0
-void* func_004632f0(void* object, void* data)
+void* K_Clump_UpdateObjectCb(void* object, void* data)
 {
     s32 state;
 

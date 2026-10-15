@@ -7,7 +7,7 @@ struct RwTexDictionary;
 typedef struct RwTexture *(*P4TextureVisitor)(struct RwTexture *texture,
                                            void *data);
 
-struct RwTexture *func_00463100(struct RwTexture *texture, void *list);
+struct RwTexture *K_Clump_AppendTextureName(struct RwTexture *texture, void *list);
 const struct RwTexDictionary *func_003ef260(
     const struct RwTexDictionary *dictionary, P4TextureVisitor visit, void *data);
 

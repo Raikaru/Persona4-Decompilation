@@ -28,7 +28,7 @@ extern u8 D_00713180[];
 extern u8 D_007131A0[];
 extern u8 D_007131C0[];
 extern s32 K_Clump_MatUsrDataHasData(void* a, u8* b);
-extern f32 func_004579a0(const RpMaterial* a, const char* b);
+extern f32 K_Clump_MatUsrDataGetFloat(const RpMaterial* a, const char* b);
 extern s32 func_0047e6f0(void** owner);
 
 extern u32 RpHAnimFrameGetHierarchy(s32 object);
@@ -41,7 +41,7 @@ extern f32 DAT_0076112c;
 extern void func_0039a260(void* a, void* b);
 extern void func_0039ab20(void* a, int b, int c, int d);
 extern int mdlComputeAttachMatrix(void* buf, void* v, u32 idx, void* obj);
-extern void* func_00457f40(void* obj, const char* name, s32 idx);
+extern void* K_Clump_FindIntUsrDataFrame(void* obj, const char* name, s32 idx);
 extern u8* func_003e9700(u8* a);
 extern void func_003d5840(void* a, void* b);
 extern u8* func_003d5790(s32 numNodes, s32 maxInterpKeyFrameSize);
@@ -172,7 +172,7 @@ extern void RwMatrixMultiply(void* a, void* b, void* c);
 extern void func_004585c0(u8* arg0);
 extern void* mdlMatColorScaleCallback(void* object, void* data);
 extern u8 D_00713160[];
-extern s32 func_004581a0(void* object, const char* data);
+extern s32 K_Clump_CountIntUsrData(void* object, const char* data);
 extern u8 D_007131D8[];
 extern f32 DAT_00761130;
 extern u8 D_00713138[];
@@ -3870,9 +3870,9 @@ void* func_00477510(void* arg0, void* data)
         if (K_Clump_MatUsrDataHasData(item, D_00713180) != 0 &&
             K_Clump_MatUsrDataHasData(item, D_007131A0) != 0 &&
             K_Clump_MatUsrDataHasData(item, D_007131C0) != 0) {
-            buf[0] = func_004579a0((const RpMaterial*)item, (const char*)D_00713180);
-            buf[2] = func_004579a0((const RpMaterial*)item, (const char*)D_007131A0);
-            buf[1] = func_004579a0((const RpMaterial*)item, (const char*)D_007131C0);
+            buf[0] = K_Clump_MatUsrDataGetFloat((const RpMaterial*)item, (const char*)D_00713180);
+            buf[2] = K_Clump_MatUsrDataGetFloat((const RpMaterial*)item, (const char*)D_007131A0);
+            buf[1] = K_Clump_MatUsrDataGetFloat((const RpMaterial*)item, (const char*)D_007131C0);
         } else {
             buf[0] = fGpffff809c;
             buf[2] = fGpffff809c;
@@ -5646,7 +5646,7 @@ s32 func_0047a510(void* arg0, s32 arg1, void* arg2)
     if (list != 0) {
         result = mdl_matrix_from_table(list, arg0, arg1, dst);
     } else {
-        src = (u8*)func_00457f40(*(void**)((u8*)arg0 + 0xDC),
+        src = (u8*)K_Clump_FindIntUsrDataFrame(*(void**)((u8*)arg0 + 0xDC),
                                (const char*)D_007131D8, arg1);
         if (src == NULL) {
             result = 0;
@@ -5673,7 +5673,7 @@ s32 func_0047a6d0(void* arg0, s32 arg1, void* arg2)
     if (*(void**)((u8*)arg0 + 0x2C8) != 0) {
         result = mdlComputeAttachMatrix(buf, *(void**)((u8*)arg0 + 0x2C8), arg1 & 0xFFFF, *(void**)((u8*)arg0 + 0xDC));
     } else {
-        src = (u8*)func_00457f40(*(void**)((u8*)arg0 + 0xDC), (const char*)D_007131D8, (s32)arg1);
+        src = (u8*)K_Clump_FindIntUsrDataFrame(*(void**)((u8*)arg0 + 0xDC), (const char*)D_007131D8, (s32)arg1);
         if (src == 0) {
             result = 0;
         } else {
@@ -5705,7 +5705,7 @@ u32 func_0047a7c0(void* param_1)
     if (p != 0) {
         return p[0];
     }
-    return func_004581a0(*(void**)((u8*)param_1 + 0xDC), (const char*)D_007131D8);
+    return K_Clump_CountIntUsrData(*(void**)((u8*)param_1 + 0xDC), (const char*)D_007131D8);
 }
 
 // FUN_0047A810
@@ -6198,7 +6198,7 @@ s32 func_0047b0c0(u8 *model)
         case 0x16:
         if ((*(u32 *)(model + 0xd8) & 0x4000) != 0) {
             struct RwTexDictionary *dictionary = func_003e6a90(state->stream);
-            func_003ef260(dictionary, func_00463100, &state->textureList);
+            func_003ef260(dictionary, K_Clump_AppendTextureName, &state->textureList);
             func_003ef1b0(dictionary);
         } else {
             LOAD_MEMORY();
@@ -6211,7 +6211,7 @@ s32 func_0047b0c0(u8 *model)
         case 0x23:
         {
             struct RwTexDictionary *dictionary = func_003dc370(state->stream);
-            func_003ef260(dictionary, func_00463100, &state->textureList);
+            func_003ef260(dictionary, K_Clump_AppendTextureName, &state->textureList);
             func_003ef1b0(dictionary);
         }
         continue;
@@ -6669,7 +6669,7 @@ s32 func_0047c660(u8 *arg0)
     if (*(u32 *)(owner + 4) != 0) {
         primaryResult = func_004669d0(*(u8 **)(owner + 4), &loaded.ready, &loaded.handle);
         if (loaded.ready == 1) {
-            func_003ef260((const struct RwTexDictionary *)primaryResult, func_00463100, owner + 0x34);
+            func_003ef260((const struct RwTexDictionary *)primaryResult, K_Clump_AppendTextureName, owner + 0x34);
             func_003ef1b0((void *)primaryResult);
             func_003e2e40((void *)loaded.handle, 0);
             *(u32 *)(owner + 4) = 0;

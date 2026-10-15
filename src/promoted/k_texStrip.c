@@ -16,7 +16,7 @@ extern void func_003ef5b0(s32 arg0, s32 arg1);
 
 extern s32 func_00468170(void *arg0, const char *arg1);
 extern s32 func_004680f0(s32 arg0, void *arg1);
-extern void func_00462eb0(void *arg0);
+extern void K_Clump_LogCodeCounts(void *arg0);
 extern void func_00452080(s32 handle);
 extern char D_005F6168[];
 extern char D_005F6178[];
@@ -66,7 +66,7 @@ extern u8 *FldResource_Create(void *path);
 extern s32 FldResource_IsFileLoaded(void *hdr);
 extern void FldResource_ParseChunks(void *hdr);
 extern s32 FldResource_PollLoads(void *hdr);
-extern s32 func_004581a0(void *object, const char *name);
+extern s32 K_Clump_CountIntUsrData(void *object, const char *name);
 extern s32 func_00426cf0(void *path, s32 a, s32 b);
 extern size_t strlen(const char *buf);
 extern s32 sceWrite(s32 fd, void *buf, s32 n);
@@ -76,7 +76,7 @@ extern s32 func_004275a8(s32 fd, void *buf, s32 n);
 extern void func_00426f80(s32 fd);
 extern void func_00428f08(void *a, s32 b);
 extern void FldResource_Destroy(void *hdr);
-extern void func_00463250(void *a);
+extern void K_Clump_FreeTextureNameList(void *a);
 extern char D_005F61D0[];
 extern char D_005F61F8[];
 extern char D_005F6210[];
@@ -333,15 +333,15 @@ s32 func_00190c10(u8 *task)
             work[0x296] = 0;
             for (resourceIndex = 0; resourceIndex < ((u32 *)work[0x93])[6]; resourceIndex++) {
                 u32 resourceOffset = resourceIndex * 4;
-                s32 propertyCount = func_004581a0((void *)((s32 *)((u32)work[0x93] + resourceOffset))[7], D_005F6230);
+                s32 propertyCount = K_Clump_CountIntUsrData((void *)((s32 *)((u32)work[0x93] + resourceOffset))[7], D_005F6230);
                 for (propertyIndex = 0; propertyIndex < propertyCount; propertyIndex++) {
-                    func_00458430(&kindProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6230, propertyIndex);
+                    K_Clump_GetIntUsrDataAt(&kindProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6230, propertyIndex);
                     if (kindProperty.value == 0) {
-                        func_00458430(&idProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6250, propertyIndex);
+                        K_Clump_GetIntUsrDataAt(&idProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6250, propertyIndex);
                         work[work[0x95] + 0x96] = idProperty.value;
                         work[0x95]++;
                     } else if (kindProperty.value == 1) {
-                        func_00458430(&idProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6250, propertyIndex);
+                        K_Clump_GetIntUsrDataAt(&idProperty, (void *)((s32 *)(resourceOffset + (u32)work[0x93]))[7], D_005F6250, propertyIndex);
                         work[work[0x296] + 0x297] = idProperty.value;
                         work[0x296]++;
                     }
@@ -426,7 +426,7 @@ s32 func_00190c10(u8 *task)
             FldResource_Destroy((void *)work[0x93]);
             hdr = (s32 *)work[0x93];
             hdr = (s32 *)hdr[0x291];
-            func_00463250((void *)hdr[0x4A]);
+            K_Clump_FreeTextureNameList((void *)hdr[0x4A]);
             hdr = (s32 *)work[0x93];
             jtbl_008873EC[0]((void *)hdr[0x291]);
             hdr = (s32 *)work[0x93];
@@ -709,7 +709,7 @@ s32 func_00191c70(u8 *arg0)
             }
             else
             {
-                func_00462eb0(buf);
+                K_Clump_LogCodeCounts(buf);
             }
             func_00452080(work[1]);
             work[0] = 0;

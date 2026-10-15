@@ -39,7 +39,7 @@ extern u8 *func_00461080(u8 *list, s32 arg1);
 extern u8 *func_00461180(u8 *list, s32 arg1);
 extern u8 *func_003e9d50(u8 *arg0);
 extern void FldResource_BeginDrawState(u8 *arg0, u8 *arg1);
-extern s32 func_004581a0(void *object, const char *name);
+extern s32 K_Clump_CountIntUsrData(void *object, const char *name);
 extern void func_0046d730(const char *file, s32 line);
 extern void func_004b1290(s32 a0, f32 f12, f32 f13, f32 f14);
 extern void func_003c9d40(void *arg0);
@@ -68,7 +68,7 @@ extern s32 func_004782b0(u32 arg0);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
 extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
 extern RwMatrix *func_003e9700(RwFrame *frame);
-extern void func_00463250(void *arg0);
+extern void K_Clump_FreeTextureNameList(void *arg0);
 extern s32 func_004b1130(s32 a0);
 extern void *memset(void *dst, s32 value, u32 size);
 extern s32 func_00455f70(void *arg0, s32 *arg1);
@@ -90,8 +90,8 @@ extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern u8 *func_004669d0(s32 arg0, s32 *arg1, s32 *arg2);
-extern s32 func_00457ce0(u8 *arg0, char *arg1);
-extern s32 func_00457c90(u8 *arg0, char *arg1);
+extern s32 K_Clump_GeometryHasMatUsrData(u8 *arg0, char *arg1);
+extern s32 K_Clump_ClumpHasMatUsrData(u8 *arg0, char *arg1);
 extern void *func_00462ae0(void *arg0);
 extern void func_003db550(u8 *arg0, u8 *arg1);
 extern char D_005EFCE0[];
@@ -748,7 +748,7 @@ waitResourceInitialization:
             }
             temp_4_5 = (s32)(*( s32 * )(iGpffff9db0 + 0x8C));
             if (temp_4_5 != 0) {
-                func_00463250((void *)(temp_4_5));
+                K_Clump_FreeTextureNameList((void *)(temp_4_5));
                 *( s32 * )(iGpffff9db0 + 0x8C) = 0;
             }
             *( s32 * )(iGpffff9db0 + 0x94) = 4;
@@ -1337,7 +1337,7 @@ void FldResource_ParseChunks(u8 *resource)
                     break;
                 case 35:
                     callbackHandle = func_003dc370((void *)streamHandle);
-                    func_003ef260((const struct RwTexDictionary *)(u32)callbackHandle, func_00463100,
+                    func_003ef260((const struct RwTexDictionary *)(u32)callbackHandle, K_Clump_AppendTextureName,
                                   *(u8 **)(resource + 0xA44) + 0x128);
                     func_003ef1b0(callbackHandle);
                     break;
@@ -1397,7 +1397,7 @@ s32 FldResource_PollLoads(u8 *arg0)
         }
         temp_18 = (s32)func_004669d0(*(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x84), &sp68, &sp6C);
         if (sp68 == 1) {
-            func_003ef260((const struct RwTexDictionary *)(u32)temp_18, func_00463100, *(u8 **)(arg0 + 0xA44) + 0x128);
+            func_003ef260((const struct RwTexDictionary *)(u32)temp_18, K_Clump_AppendTextureName, *(u8 **)(arg0 + 0xA44) + 0x128);
             func_003ef1b0(temp_18);
             *(s32 *)(*(u8 **)(arg0 + 0xA44) + 0x84) = 0;
             if (sp6C != 0) {
@@ -1414,9 +1414,9 @@ s32 FldResource_PollLoads(u8 *arg0)
                 if (temp_19 == NULL) {
                     func_0046d730((const char *)D_005EFC80, 0x588);
                 }
-                if (func_00457ce0(temp_19, D_005EFCE0) != 0) {
+                if (K_Clump_GeometryHasMatUsrData(temp_19, D_005EFCE0) != 0) {
                     *(s32 *)(arg0 + 0x10) = (s32)temp_19;
-                } else if (func_00457ce0(temp_19, D_005EFD00) != 0) {
+                } else if (K_Clump_GeometryHasMatUsrData(temp_19, D_005EFD00) != 0) {
                     *(s32 *)(arg0 + 0x14) = (s32)temp_19;
                 } else if (*(s32 *)(arg0 + 0xC) == 0) {
                     *(s32 *)(arg0 + 0xC) = (s32)temp_19;
@@ -1441,9 +1441,9 @@ s32 FldResource_PollLoads(u8 *arg0)
                 if (temp_20 == NULL) {
                     func_0046d730((const char *)D_005EFC80, 0x5B4);
                 }
-                if (func_00457c90(temp_20, D_005EFCE0) != 0) {
+                if (K_Clump_ClumpHasMatUsrData(temp_20, D_005EFCE0) != 0) {
                     *(s32 *)(arg0 + 0x10) = (s32)temp_20;
-                } else if (func_00457c90(temp_20, D_005EFD00) != 0) {
+                } else if (K_Clump_ClumpHasMatUsrData(temp_20, D_005EFD00) != 0) {
                     *(s32 *)(arg0 + 0x14) = (s32)temp_20;
                 } else if (!(*(s32 *)(arg0 + 0) & 1) && *(s32 *)(arg0 + 8) == 0) {
                     *(s32 *)(arg0 + 8) = (s32)temp_20;
@@ -1510,14 +1510,14 @@ s32 FldResource_FindFrameForId(u8 *arg0, s32 arg1, s32 *arg2)
     var_22 = 0;
     for (var_17 = 0; var_17 < *(u32 *)(arg0 + 0x18); var_17++) {
         temp_21 = arg0 + var_17 * 4;
-        temp_23 = func_004581a0(*(void **)(temp_21 + 0x1C), (const char *)D_005EFD20);
+        temp_23 = K_Clump_CountIntUsrData(*(void **)(temp_21 + 0x1C), (const char *)D_005EFD20);
         for (var_16 = 0; var_16 < temp_23; var_16++) {
-            func_00458430(&spA0, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD40, var_16);
+            K_Clump_GetIntUsrDataAt(&spA0, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD40, var_16);
             if (spA0.value == 0) {
                 func_0046d730((const char *)D_005EFC80, 0x622);
             }
-            func_00458430(&spA8, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD20, var_16);
-            func_00458430(&sp98, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD60, var_16);
+            K_Clump_GetIntUsrDataAt(&spA8, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD20, var_16);
+            K_Clump_GetIntUsrDataAt(&sp98, *(void **)(temp_21 + 0x1C), (const char *)D_005EFD60, var_16);
             if (sp98.value != 0) {
                 *arg2 = 1;
             } else {
@@ -1557,20 +1557,20 @@ void FldResource_RequestEntryLoads(u8 *arg0)
 
     for (var_19 = 0; var_19 < *(u32 *)(arg0 + 0x18); var_19++) {
         temp_17 = arg0 + var_19 * 4;
-        temp_16 = func_004581a0(*(void **)(temp_17 + 0x1C), (const char *)D_005EFD20);
+        temp_16 = K_Clump_CountIntUsrData(*(void **)(temp_17 + 0x1C), (const char *)D_005EFD20);
         for (var_18 = 0; var_18 < temp_16; var_18++) {
-            func_00458430(&sp1F8, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD80, var_18);
+            K_Clump_GetIntUsrDataAt(&sp1F8, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD80, var_18);
             if (sp1F8.value != 0) {
-                func_00458430(&sp1E8, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD40, var_18);
+                K_Clump_GetIntUsrDataAt(&sp1E8, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD40, var_18);
                 if (sp1E8.value == 0) {
                     func_0046d730((const char *)D_005EFC80, 0x65A);
                 }
                 *(u16 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x124) = (u16)sp1E8.value;
-                func_00458430(&sp1E0, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD60, var_18);
+                K_Clump_GetIntUsrDataAt(&sp1E0, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD60, var_18);
                 if (sp1E0.value != 0) {
                     *(u16 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x122) = 2;
                 }
-                func_00458430(&sp200, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD20, var_18);
+                K_Clump_GetIntUsrDataAt(&sp200, *(void **)(temp_17 + 0x1C), (const char *)D_005EFD20, var_18);
                 *(u16 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x120) = (u16)sp200.value;
                 if (sp200.value == 0) {
                     if (iGpffffb204 == 0) {
@@ -1615,7 +1615,7 @@ void FldResource_RequestEntryLoads(u8 *arg0)
                     strcat(spA0, sp60);
                     *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)func_00477e80(4, (u16)(sp1F8.value + 0x3E8), spA0, 0);
                 }
-                func_00458430(&sp1F0, *(void **)(temp_17 + 0x1C), (const char *)D_005EFE10, var_18);
+                K_Clump_GetIntUsrDataAt(&sp1F0, *(void **)(temp_17 + 0x1C), (const char *)D_005EFE10, var_18);
                 if (sp200.value == 0) {
                     *(u16 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x122) |= (u16)sp1F0.value;
                 }
@@ -1675,7 +1675,7 @@ s32 FldResource_TryInstallEntries(u8 *arg0)
                 *(s32 *)(iGpffff9db0 + 0x8C) = *(u32 *)(*(u8 **)(arg0 + 0xA44) + 0x128);
             }
         } else {
-            func_00463250(*(u8 **)(*(u8 **)(arg0 + 0xA44) + 0x128));
+            K_Clump_FreeTextureNameList(*(u8 **)(*(u8 **)(arg0 + 0xA44) + 0x128));
         }
         jtbl_008873EC[0](*(u8 **)(arg0 + 0xA44));
         *(u8 **)(arg0 + 0xA44) = NULL;

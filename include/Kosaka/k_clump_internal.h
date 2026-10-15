@@ -32,14 +32,14 @@ extern RpUserDataFormat func_003bd050(RpUserDataArray* userData);
 extern s32 func_003bd060(void* object);
 extern s32 func_003bd070(RpUserDataArray* userData, s32 index);
 extern void* RpClumpForAllAtomics(void* object, KClumpCallback callback, void* data);
-extern s32 func_00461530(u8* arg0, s32* arg1);
+extern s32 K_Clump_CheckSentinelFrameCb(u8* arg0, s32* arg1);
 extern void* func_003e9af0(void* object, KClumpCallback callback, void* data);
 extern s32 strcmp(const char* left, const char* right);
 extern char* strcpy(char* destination, const char* source);
 
-extern void* func_00457b60(void* object, void* data);
-extern void* func_00457e00(void* object, void* data);
-extern void* func_00458090(void* object, void* data);
-extern void* func_004582c0(void* object, void* data);
+extern void* K_Clump_AtomicMatUsrDataCb(void* object, void* data);
+extern void* K_Clump_FindIntUsrDataFrameCb(void* object, void* data);
+extern void* K_Clump_CountIntUsrDataCb(void* object, void* data);
+extern void* K_Clump_IntUsrDataAtCb(void* object, void* data);
 
 #endif

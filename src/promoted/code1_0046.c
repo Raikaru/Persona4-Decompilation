@@ -49,7 +49,7 @@ extern s32 iGpffffba98;
 extern s32 iGpffffba9c;
 extern u8 D_008E43C0[];
 extern u8 D_008E43E4[];
-extern void *func_004632f0(void *a0, void *a1);
+extern void *K_Clump_UpdateObjectCb(void *a0, void *a1);
 extern s32 D_00922984[];
 extern s32 D_00922980[];
 extern s32 D_00922988[];
@@ -518,7 +518,7 @@ loop_00461560_second_body:
         sp48 = 0;
         handle = *(s32 *)(*(u8 **)(nodeB + 0) + 0x18);
         if (handle != 0) {
-            func_003c21e0(handle, func_00461530, &sp48);
+            func_003c21e0(handle, K_Clump_CheckSentinelFrameCb, &sp48);
             if (*(f32 *)(nodeB + 0x14) >= 1.0f && sp48 != 0 &&
                 RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                               func_003bfae0(*(s32 *)(nodeB + 0))) != 0) {
@@ -637,7 +637,7 @@ loop_00461A40_body:
         sp38 = 0;
         handle = *(s32 *)(*(u8 **)(node + 0) + 0x18);
         if (handle != 0) {
-            func_003c21e0(handle, func_00461530, &sp38);
+            func_003c21e0(handle, K_Clump_CheckSentinelFrameCb, &sp38);
             if ((sp38 != 1) &&
                 (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                                func_003bfae0(*(s32 *)(node + 0))) != 0)) {
@@ -759,7 +759,7 @@ loop_00461BE0_third_body:
         sp48 = 0;
         handle = *(s32 *)(*(u8 **)(nodeC + 0) + 0x18);
         if (handle != 0) {
-            func_003c21e0(handle, func_00461530, &sp48);
+            func_003c21e0(handle, K_Clump_CheckSentinelFrameCb, &sp48);
             if (sp48 == 0 &&
                 RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                               func_003bfae0(*(s32 *)(nodeC + 0))) != 0) {
@@ -882,7 +882,7 @@ void func_004623a0(u8 *arg0)
     void (*end_cb)(u8 *, s32, void *);
     extern void RwCameraClear(s32, s8 *, s32);
     extern s32 func_003c9d00(u8 *);
-    extern void *func_00462170(void *, void *);
+    extern void *K_Clump_RenderAtomicIfVisibleCb(void *, void *);
     extern void func_00410420(void *, u32, void *, u32);
     extern void func_004104d0(void);
     extern void func_00410520(u32, void *, u32);
@@ -949,7 +949,7 @@ void func_004623a0(u8 *arg0)
             func_00461be0(p);
             break;
         case 9:
-            RpClumpForAllAtomics(*(void **)(p + 0x1C), func_00462170, NULL);
+            RpClumpForAllAtomics(*(void **)(p + 0x1C), K_Clump_RenderAtomicIfVisibleCb, NULL);
             break;
         case 10:
             func_003c9d00(*(u8 **)(p + 0x1C));
@@ -1105,7 +1105,7 @@ s32 func_00462df0(u8 *arg0) {
 // FUN_004633C0
 void func_004633c0(void *arg0, void *arg1)
 {
-    RpClumpForAllAtomics(arg0, func_004632f0, arg1);
+    RpClumpForAllAtomics(arg0, K_Clump_UpdateObjectCb, arg1);
 }
 // FUN_004633F0
 s32 func_004633f0(u8 *unusedTask)
