@@ -1485,7 +1485,7 @@ void func_001a3840(register BtlAction *actionState)
         resultFlags = 30;
         sourceAnimation = 29;
         targetAnimation = 2;
-        targetFrame = (u16)func_001991c0(*(u8 **)(action + 0x30), 29, 1.0f);
+        targetFrame = (u16)btlUnitMotionFrames(*(u8 **)(action + 0x30), 29, 1.0f);
         distance = 50.0f + func_00196bd0(*(u8 **)(action + 0x30),
                                         *(u8 **)(target + 0x30), 29);
         displayMode = 15;
@@ -1567,7 +1567,7 @@ void func_001a3840(register BtlAction *actionState)
         packet[0] = 4;
         *(s64 *)(packet + 8) = *(s64 *)(movementPacket + 0x58);
         *(s64 *)(packet + 0x60) = *(s64 *)action;
-        *(s16 *)(packet + 0x4A) = func_00199500(*(u8 **)(action + 0x30), sourceAnimation, 1.0f);
+        *(s16 *)(packet + 0x4A) = btlUnitMotionModelFrames(*(u8 **)(action + 0x30), sourceAnimation, 1.0f);
         btlPacketEnqueue(packet, 0);
     }
     animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(target + 0x30),
@@ -2245,7 +2245,7 @@ range_done:
                 targetUnit = action->target->unit;
                 subunit = *(u8 **)((u8 *)unit + 0xA0C);
                 paired = func_001f0ff0((u32)action);
-                openingMotion = func_00199d00((s32)subunit, (u8 *)unit, (s16)skill, paired) & 0xFFFF;
+                openingMotion = btlUnitOpeningMotionMode((s32)subunit, (u8 *)unit, (s16)skill, paired) & 0xFFFF;
                 canPosition = func_001f1210(subunit, (s16)skill, paired);
                 btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
                 func_00195c50((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
@@ -2874,11 +2874,11 @@ void func_001a59a0(s64 *arg0_) {
         counterPending = 1;
     }
     if ((btlUnitKind_001a59a0(battleUnit) != 0) || (actionKind == 4) || (actionKind == 0xC)) {
-        actionDuration = func_001991c0(battleUnit, actionKind, timeScale);
+        actionDuration = btlUnitMotionFrames(battleUnit, actionKind, timeScale);
     } else {
-        actionDuration = func_001999f0(battleUnit, actionKind, timeScale, 0);
+        actionDuration = btlUnitMotionHitFrames(battleUnit, actionKind, timeScale, 0);
     }
-    baseDuration = func_00199500(battleUnit, actionKind, timeScale);
+    baseDuration = btlUnitMotionModelFrames(battleUnit, actionKind, timeScale);
     baseDurationSaved = (s32) baseDuration;
     /* Retail truncates the scaled difference, caps it at 25, then narrows each sum. */
     timingValue = (s16)actionDuration;
@@ -2893,7 +2893,7 @@ void func_001a59a0(s64 *arg0_) {
         timingValue = (s16)(timingValue + 8);
     }
     if (hasCounterUnit != 0) {
-        counterDuration = (func_00199500((*(u8 **)((u8 *)((*(s64 **)(arg0 + (0x88)))) + (0x30))), 0x1A, 1.0f)) - 4;
+        counterDuration = (btlUnitMotionModelFrames((*(u8 **)((u8 *)((*(s64 **)(arg0 + (0x88)))) + (0x30))), 0x1A, 1.0f)) - 4;
         if (actionDuration < counterDuration) {
             earlyDelta = counterDuration - actionDuration;
             lateDelta = 0;
@@ -2949,7 +2949,7 @@ void func_001a59a0(s64 *arg0_) {
         } else {
             startDelay = 0;
         }
-        animDuration = (s32) (func_00199350(battleUnit, actionKind, timeScale));
+        animDuration = (s32) (btlUnitMotionFollowFrames(battleUnit, actionKind, timeScale));
         if (btlUnitKind_001a59a0(battleUnit) == 0) {
             cameraEventPacket = (u8 *)(btlCameraCreateSetStatePacket(arg0, 0xE));
             (*(s8 *)((u8 *)(cameraEventPacket) + (0))) = 4;
@@ -3230,7 +3230,7 @@ void func_001a59a0(s64 *arg0_) {
                     btlPacketEnqueue(effectPacketG, 2);
                 }
                 if (hitIndex != lastHitIndex) {
-                    timingDelta = (func_001999f0(battleUnit, actionKind, timeScale, (hitIndex + 1) & 0xFFFF)) - hitTiming;
+                    timingDelta = (btlUnitMotionHitFrames(battleUnit, actionKind, timeScale, (hitIndex + 1) & 0xFFFF)) - hitTiming;
                     hitTiming += timingDelta;
                     hitTimingBase += timingDelta;
                 } else if ((counterPending != 0) && ((*(s32 *)((u8 *)(targetView) + (0xE0))) == 0)) {
@@ -4156,7 +4156,7 @@ void func_001a7720(u8 *arg0) {
             btlPacketEnqueue((u8 *)waitPkt2, 0);
             cutinTime = waitPkt2->endTime;
             if (sp2B0 == 0) {
-                recoveryFrames = func_00199500(act->unit, 0xD, 1.0f);
+                recoveryFrames = btlUnitMotionModelFrames(act->unit, 0xD, 1.0f);
                 recoveryFrames += (s16)blendFrames;
             } else {
                 recoveryFrames = 0;
@@ -4252,8 +4252,8 @@ void func_001a7720(u8 *arg0) {
             soundPkt25->ownerId = actionId;
             btlPacketEnqueue((u8 *)soundPkt25, 1);
             actUnit5_5 = (u8 *)(act->unit);
-            skillFramesKey = (s16)func_00199d00(*(s32 *)(actUnit5_5 + 0xA0C), actUnit5_5, skill, rotateFirst);
-            skillFrames = (s32)(func_001991c0((*( u8 ** )((u8 *)(act->unit) + (0xA0C))), (u16)skillFramesKey, 1.0f));
+            skillFramesKey = (s16)btlUnitOpeningMotionMode(*(s32 *)(actUnit5_5 + 0xA0C), actUnit5_5, skill, rotateFirst);
+            skillFrames = (s32)(btlUnitMotionFrames((*( u8 ** )((u8 *)(act->unit) + (0xA0C))), (u16)skillFramesKey, 1.0f));
             damageFrames = (s32) skillFrames;
             windupFrames = (u16)(func_001996d0(act->unit, 0x10));
             chainTime = animChainPkt->endTime;
@@ -4281,7 +4281,7 @@ void func_001a7720(u8 *arg0) {
                 pkt29->ownerId = actionId;
                 btlPacketEnqueue((u8 *)pkt29, 0);
             }
-            recoveryBase = (s32)(func_001991c0(act->unit, 0xFU, 1.0f));
+            recoveryBase = (s32)(btlUnitMotionFrames(act->unit, 0xFU, 1.0f));
             effectPkt30 = (BtlPacketTiming *)(func_001d65d0(effectHandles[1], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
             effectPkt30->queue = 4;
             effectPkt30->startTime = chainTime;
@@ -4358,7 +4358,7 @@ void func_001a7720(u8 *arg0) {
             btlPacketEnqueue((u8 *)animPacket, 0);
             sceneTime = animPacket->endTime;
             chainTime = 0;
-                    timingFrames = func_001991c0(act->unit, 0x16U, 1.0f) + 6;
+                    timingFrames = btlUnitMotionFrames(act->unit, 0x16U, 1.0f) + 6;
             if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40)) {
                 if ((s32)(func_001f0ff0(arg0)) == (s32)(1)) {
                     formationPkt40 = (BtlPacketTiming *)(func_001d2d90(arg0, 0, 1));
@@ -4460,7 +4460,7 @@ void func_001a7720(u8 *arg0) {
         }
         sceneTime = animPacket->endTime;
         chainTime = 0;
-            timingFrames = func_001991c0(act->unit, (u16) animMotion, animSpeed) + 6;
+            timingFrames = btlUnitMotionFrames(act->unit, (u16) animMotion, animSpeed) + 6;
         if (!((*( u16 * )((u8 *)(skillFlagsOffset + (s32)iGpffffb3bc) + (2))) & 0x40) && (sp2D0 == 0)) {
             formationPkt49 = (BtlPacketTiming *)(func_001d2d90(arg0,(s32)((act->flags & 0x10)) != (s32)(0), 1));
             formationPkt49->queue = 4;
@@ -4502,7 +4502,7 @@ void func_001a7720(u8 *arg0) {
         effectPkt53->ownerId = actionId;
         btlPacketEnqueue((u8 *)effectPkt53, 2);
         animPkt17 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 6, 0, 1.0f, 2));
-        animPkt17->duration = (s16)(func_00199500(act->unit, 6, 1.0f));
+        animPkt17->duration = (s16)(btlUnitMotionModelFrames(act->unit, 6, 1.0f));
         animPkt17->ownerId = actionId;
         btlPacketEnqueue((u8 *)animPkt17, 0);
         soundPkt54 = (BtlPacketTiming *)(func_001f7c20(0xA, 2, 0x11));
@@ -4520,7 +4520,7 @@ void func_001a7720(u8 *arg0) {
         btlPacketEnqueue((u8 *)animPacket, 0);
         sceneTime = 0;
         chainTime = animPacket->endTime;
-        timingFrames = func_001991c0(act->unit, 7U, 1.0f) + 6;
+        timingFrames = btlUnitMotionFrames(act->unit, 7U, 1.0f) + 6;
         if (act->targetCount == 1) {
             firstTarget = (u8 *)(act->target);
             if ((s32)(firstTarget) != (s32)(0)) {
@@ -4573,7 +4573,7 @@ void func_001a7720(u8 *arg0) {
         sp4BC->queue = 4;
         sp4BC->startTime = chainTime;
         sp4BC->delay = timingFrames;
-        sp4BC->duration = (s16) ((func_00199500((*( u8 ** )((u8 *)((s32 *)(u32)followActionPtr) + (0x30))), 0x1A, 1.0f)) - 1);
+        sp4BC->duration = (s16) ((btlUnitMotionModelFrames((*( u8 ** )((u8 *)((s32 *)(u32)followActionPtr) + (0x30))), 0x1A, 1.0f)) - 1);
         sp4BC->ownerId = actionId;
         btlPacketEnqueue((u8 *)sp4BC, 0);
         cameraPkt66 = (BtlPacketTiming *)(btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x1E));
@@ -4942,7 +4942,7 @@ void func_001a7720(u8 *arg0) {
                 /* The two later predicates reload the signed byte after intervening calls. */
                 hitMotion = &hitRow->result.motion;
                 if (hitRow->result.motion == 9) {
-                    motionFrames = (u16)func_00199350(*(u8 **)((u8 *)effectiveAction + 0x30), 9, motionSpeed);
+                    motionFrames = (u16)btlUnitMotionFollowFrames(*(u8 **)((u8 *)effectiveAction + 0x30), 9, motionSpeed);
                     motionFramesCopy = motionFrames;
                     if (((s32) motionFramesCopy > 0) && ((s32) motionFramesCopy < 0xA)) {
                         motionFramesF = (f32) motionFramesCopy;
@@ -5656,7 +5656,7 @@ void func_001abbb0(s64 *arg0)
         btlPacketEnqueue(pkt, 0);
     }
     evId = *(s64 *)(evPkt + 0x58);
-    scaleTmp = func_001991c0((u8 *)action->unitRef.pointer, 8, 1.0f);
+    scaleTmp = btlUnitMotionFrames((u8 *)action->unitRef.pointer, 8, 1.0f);
     func_001b7060(aux, &outHi, &outLo);
     {
         u8 *pkt;
@@ -6005,7 +6005,7 @@ void func_001ac700(u8 *action) {
             selection.resource = (s64)0x21;
         }
         selection.cameraState = 0x14;
-        selection.frames = func_00199500(*(u8 **)(action + 0x30),
+        selection.frames = btlUnitMotionModelFrames(*(u8 **)(action + 0x30),
                                selection.animation, 1.0f);
         speed = 1.0f;
     } else {
@@ -6022,7 +6022,7 @@ void func_001ac700(u8 *action) {
         } else {
             speed = 1.0f;
         }
-        selection.frames = func_001991c0(*(u8 **)(action + 0x30),
+        selection.frames = btlUnitMotionFrames(*(u8 **)(action + 0x30),
                                selection.animation, speed);
     }
     animationPacket = (u8 *)btlUnitCreateAnimPacket(*(BtlUnit **)(action + 0x30),

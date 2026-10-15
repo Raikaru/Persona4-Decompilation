@@ -1639,7 +1639,7 @@ struct BtlUnitPacket00284900
 
 s16 func_00198810(BtlUnit* unit);
 u16 datCalcRandomBelow(u32 max);
-void func_00199890(BtlUnit* unit, s32 param_2);
+void btlUnitSetModelAnimFrame(BtlUnit* unit, s32 param_2);
 extern RwV3d D_0060a0d0;
 extern f32 DAT_007613f8;
 
@@ -1752,10 +1752,10 @@ void func_001987a0(BtlUnit* unit)
 {
     s16 animation;
 
-    animation = (s16)func_00199500(
+    animation = (s16)btlUnitMotionModelFrames(
         (u8 *)unit, (u16)(s32)func_00198810(unit), 1.0f);
     animation = (s16)datCalcRandomBelow(animation);
-    func_00199890(unit, animation);
+    btlUnitSetModelAnimFrame(unit, animation);
 }
 
 // FUN_0019A370

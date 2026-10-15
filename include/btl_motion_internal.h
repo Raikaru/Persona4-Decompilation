@@ -17,18 +17,18 @@ u32 btlUnitMotionSpeedPacketUpdate(void *work);
 
 /* Opening-motion selection and its boss-state predicate consume signed
  * halfword identifiers, not 64-bit action/animation values. */
-s32 func_00199d00(s32 unused, u8 *unit, s16 skill, s32 paired);
+s32 btlUnitOpeningMotionMode(s32 unused, u8 *unit, s16 skill, s32 paired);
 s32 func_0022fa90(u8 *action, s16 motion);
 
 /* Boss motion overrides use both the unit and motion selector. A missing
  * override is -1; the timing helpers consume the returned signed halfword. */
 s32 func_0022cb90(u8 *unit, u16 motion);
 /* The timing queries and distance helper share that selector domain. */
-s16 func_001991c0(u8 *unit, u16 motion, f32 rate);
-s16 func_00199350(u8 *unit, u16 motion, f32 rate);
+s16 btlUnitMotionFrames(u8 *unit, u16 motion, f32 rate);
+s16 btlUnitMotionFollowFrames(u8 *unit, u16 motion, f32 rate);
 s16 func_001996d0(u8 *unit, u16 motion);
 f32 func_0022cf00(u8 *unit, u8 *target, u16 motion);
-s16 func_00199500(u8 *unit, u16 motion, f32 rate);
-s16 func_001999f0(u8 *unit, u16 motion, f32 rate, s64 hit);
+s16 btlUnitMotionModelFrames(u8 *unit, u16 motion, f32 rate);
+s16 btlUnitMotionHitFrames(u8 *unit, u16 motion, f32 rate, s64 hit);
 
 #endif

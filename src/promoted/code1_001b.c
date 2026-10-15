@@ -904,7 +904,7 @@ s32 func_001b2380(void)
           btlPacketEnqueue((u8 *)func_001f8330((BtlUnit *)unit),1);
           btlPacketEnqueue((u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x13, 0, 1.0f, 2),1);
           btlPacketEnqueue((u8 *)btlUnitCreateModelFramePacket((BtlUnit *)unit,
-              func_00199500(unit,0x13,1.0f)),1);
+              btlUnitMotionModelFrames(unit,0x13,1.0f)),1);
           btlPacketEnqueue((u8 *)func_001f82b0((BtlUnit *)unit),1);
           if ((*(u32 *)(D_0076449C + 0xc) & 0x20000000) != 0) {
             position.x = (f32)(*(s16 *)(unit + 0x94) * 0x19 - 0x6d6);
@@ -956,7 +956,7 @@ s32 func_001b2380(void)
                 offset.y = position.y;
                 btlUnitSetPos((BtlUnit *)unit, &offset);
               }
-              animationFrames = func_00199500(unit,0xb,1.0f);
+              animationFrames = btlUnitMotionModelFrames(unit,0xb,1.0f);
               nodeOrPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0xb, 0, 1.0f, 0);
               if (animationFrames > 8) {
                 value = animationFrames - 8;
@@ -1877,7 +1877,7 @@ void func_001b4880(u8 *arg0) {
     } else {
         work->singleUnit = 1;
     }
-    animationFrames = func_00199500(*(u8 **)(base + 0x30), 0x15, 1.0f);
+    animationFrames = btlUnitMotionModelFrames(*(u8 **)(base + 0x30), 0x15, 1.0f);
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) != 0) {
         if (animationFrames > 0x28) {
             if (animationFrames > 8) {

@@ -845,7 +845,7 @@ void func_001cb970(u8 *camera, f32 duration, s32 initialize)
 // FUN_001CBF80
 void func_001cbf80(u8 *arg0) {
     *(s16 *)(arg0 + 0x10E) =
-        func_001991c0(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30), 4, 1.0f);
+        btlUnitMotionFrames(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30), 4, 1.0f);
     *(s32 *)(arg0 + 0x100) = *(s32 *)(*(u8 **)(arg0 + 0xE0) + 0x38);
     *(s16 *)(arg0 + 0x10C) = 0;
 }

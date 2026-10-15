@@ -179,7 +179,7 @@ extern u8 D_00794150[];
 /* measured: opt_propagation off is scoped to func_001990d0. */
 /* measured: closes opt_propagation around func_001990d0. */
 // FUN_001991C0
-s16 func_001991c0(u8 *arg0, u16 arg1, f32 fparg0)
+s16 btlUnitMotionFrames(u8 *arg0, u16 arg1, f32 fparg0)
 {
     u8 *table;
     s32 offset;
@@ -231,7 +231,7 @@ finish:
 }
 
 // FUN_00199350
-s16 func_00199350(u8 *arg0, u16 arg1, f32 fparg0)
+s16 btlUnitMotionFollowFrames(u8 *arg0, u16 arg1, f32 fparg0)
 {
     u8 *table;
     s32 offset;
@@ -290,7 +290,7 @@ return 0;
 }
 
 // FUN_00199500
-s16 func_00199500(u8 *arg0, u16 arg1, f32 fparg0)
+s16 btlUnitMotionModelFrames(u8 *arg0, u16 arg1, f32 fparg0)
 {
     extern f32 func_0047a000(s32 arg0, s32 arg1, s64 arg2);
     u8 *table;
@@ -402,7 +402,7 @@ finish:
 }
 
 // FUN_00199830
-s64 func_00199830(u8 *arg0) {
+s64 btlUnitModelAnimFrame(u8 *arg0) {
     if (*(s32 *)(arg0 + 0x98) & 2) {
         return (s64)(s16)(s32)func_0047a080(*(s32 *)(arg0 + 0xA00), 0);
     }
@@ -410,7 +410,7 @@ s64 func_00199830(u8 *arg0) {
 }
 
 // FUN_00199890
-void func_00199890(u8 *arg0, s32 arg1)
+void btlUnitSetModelAnimFrame(u8 *arg0, s32 arg1)
 {
     if ((*(s32 *)(arg0 + 0x98) & 2) != 0)
         func_00479e60(*(u8 **)(arg0 + 0xA00), 0, (f32)arg1);
@@ -418,7 +418,7 @@ void func_00199890(u8 *arg0, s32 arg1)
 
 /* measured: opt_propagation off is scoped to func_001998e0. */
 // FUN_001998E0
-s32 func_001998e0(u8 *arg0, s32 arg1)
+s32 btlUnitMotionClassValue(u8 *arg0, s32 arg1)
 {
     s32 index;
     s32 result;
@@ -484,7 +484,7 @@ function_done_001998e0:
 /* measured: func_001999f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001999F0
-s16 func_001999f0(u8 *arg0, u16 arg1, f32 fparg0, s64 arg2)
+s16 btlUnitMotionHitFrames(u8 *arg0, u16 arg1, f32 fparg0, s64 arg2)
 {
     u16 index;
     s16 class_result;
@@ -600,7 +600,7 @@ finish_001999f0:
    scoped propagation preserves the staged unsigned table offset. */
 // FUN_00199D00
 #pragma push
-s32 func_00199d00(s32 unused, u8 *arg1, s16 arg2, s32 arg3)
+s32 btlUnitOpeningMotionMode(s32 unused, u8 *arg1, s16 arg2, s32 arg3)
 {
     s32 temp_16;
     u32 offset;
