@@ -19,9 +19,9 @@ typedef struct BtlAction BtlAction;
 
 extern s32 func_00247cb0(s16 arg0);
 extern u16 func_00107ac0(s32 arg0);
-extern void func_00209d40(u8 *arg0, u8 *arg1);
-extern u16 func_00209dc0(u8 *arg0, u8 *arg1);
-extern void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState);
+extern void btlSelectionResetSubList(u8 *arg0, u8 *arg1);
+extern u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1);
+extern void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState);
 extern void func_00209f90(void);
 extern void func_0020a5c0(void);
 extern void btlSelectionUpdateWindow();
@@ -3272,20 +3272,20 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     extern void btlSelectionSetOwner(u8 *arg0, void *arg1);
     extern void btlUiSelectEffect(s32 arg0, u32 arg1);
     extern void btlSelectionResetState(u8 *arg0, u8 *arg1);
-    extern u16 func_00208b00(u8 *arg0, u8 *arg1);
-    extern void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2);
-    extern void func_00208fd0(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void func_002090d0(u8 *arg0, u8 *arg1);
-    extern void func_00209140(u8 *arg0, u8 *arg1);
-    extern u16 func_002091f0(u8 *arg0, u8 *arg1);
-    extern void func_00209370(u8 *arg0, s32 arg1, f32 *arg2);
-    extern void func_00209640(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void func_00209740(u8 *arg0, u8 *arg1);
-    extern void func_002097b0(u8 *arg0, u8 *arg1);
-    extern u16 func_00209870(u8 *arg0, s32 arg1, u8 **arg2);
-    extern void func_002099c0(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void func_00209bc0(u8 *arg0, u8 *arg1, f32 *arg2);
-    extern void func_00209cd0(u8 *arg0, u8 *arg1);
+    extern u16 btlSelectionHandleSkillInput(u8 *arg0, u8 *arg1);
+    extern void btlSelectionDrawSkillPanel(u8 *arg0, s32 arg1, f32 *arg2);
+    extern void btlSelectionStepAnim(u8 *arg0, u8 *arg1, f32 *arg2);
+    extern void btlSelectionSaveCursorSecond(u8 *arg0, u8 *arg1);
+    extern void btlSelectionResetPageState(u8 *arg0, u8 *arg1);
+    extern u16 btlSelectionHandleItemInput(u8 *arg0, u8 *arg1);
+    extern void btlSelectionDrawItemPanel(u8 *arg0, s32 arg1, f32 *arg2);
+    extern void btlSelectionStepItemAnim(u8 *arg0, u8 *arg1, f32 *arg2);
+    extern void btlSelectionSaveCursorThird(u8 *arg0, u8 *arg1);
+    extern void btlSelectionResetSubListState(u8 *arg0, u8 *arg1);
+    extern u16 btlSelectionOpenSubList(u8 *arg0, s32 arg1, u8 **arg2);
+    extern void btlSelectionDrawTitle(u8 *arg0, u8 *arg1, f32 *arg2);
+    extern void btlSelectionDrawPersonaList(u8 *arg0, u8 *arg1, f32 *arg2);
+    extern void btlSelectionSaveCursorFourth(u8 *arg0, u8 *arg1);
     extern void func_0020a5d0(u16 *arg0, u8 *arg1);
     extern u16 func_0020a640(u8 *arg0, u8 *arg1);
     extern void func_0020aa70(u8 *arg0, u8 *arg1, f32 *arg2);
@@ -3351,10 +3351,10 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         }
         datPersonaGetRecord(*(u16 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA4));
         btlSelectionInit(work + 0x74, 4, *(s16 *)(work + 0x1A4), btlSelectionResetState,
-                      func_00208b00, func_00208d00, func_002090d0, work);
+                      btlSelectionHandleSkillInput, btlSelectionDrawSkillPanel, btlSelectionSaveCursorSecond, work);
         panel = work + 0x74;
         *nextPanel = panel;
-        btlSelectionSetOwner(panel, func_00208fd0);
+        btlSelectionSetOwner(panel, btlSelectionStepAnim);
         *(s16 *)(work + 0x10) = 0;
         *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
@@ -3366,11 +3366,11 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        btlSelectionInit(work + 0xA8, 4, *(s16 *)(work + 0x5A6), func_00209140, func_002091f0,
-                      func_00209370, func_00209740, work);
+        btlSelectionInit(work + 0xA8, 4, *(s16 *)(work + 0x5A6), btlSelectionResetPageState, btlSelectionHandleItemInput,
+                      btlSelectionDrawItemPanel, btlSelectionSaveCursorThird, work);
         panel = work + 0xA8;
         *nextPanel = panel;
-        btlSelectionSetOwner(panel, func_00209640);
+        btlSelectionSetOwner(panel, btlSelectionStepItemAnim);
         *(s16 *)(work + 0x10) = 0;
         *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
@@ -3390,11 +3390,11 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
             }
         }
         *(u16 *)(work + 0x18C) = partyCount;
-        btlSelectionInit(work + 0xDC, 3, (s16)partyCount, func_002097b0, func_00209870,
-                      func_002099c0, func_00209cd0, work);
+        btlSelectionInit(work + 0xDC, 3, (s16)partyCount, btlSelectionResetSubListState, btlSelectionOpenSubList,
+                      btlSelectionDrawTitle, btlSelectionSaveCursorFourth, work);
         panel = work + 0xDC;
         *nextPanel = panel;
-        btlSelectionSetOwner(panel, func_00209bc0);
+        btlSelectionSetOwner(panel, btlSelectionDrawPersonaList);
         *(s16 *)(work + 0x10) = 0;
         *(s32 *)(work + 4) = *(s32 *)(work + 4) & ~4;
         return 3;
@@ -3793,8 +3793,9 @@ void btlSelectionResetState(u8 *arg0, u8 *arg1)
 }
 /* 500/512 bytes; twelve zero alignment bytes.
  * The shared four-byte record type preserves the flags-table load order. */
+// Intent: handle the skill list input and return the next state (confirm, cancel or toggle). [inferred]
 // FUN_00208B00
-u16 func_00208b00(u8 *arg0, u8 *arg1)
+u16 btlSelectionHandleSkillInput(u8 *arg0, u8 *arg1)
 {
     extern s32 datCalcThresholdTrigger(u8 *arg0, s32 arg1);
     extern s32 func_0023df70(s32 arg0);
@@ -3853,8 +3854,9 @@ u16 func_00208b00(u8 *arg0, u8 *arg1)
 /* 716/720 bytes; eighteen resolved relocations and four zero alignment bytes.
  * btlListDispatchUpdate forwards the signed state word at node+0x28. Convert that
  * real input to a pointer here; a pointer parameter swaps two entry moves. */
+// Intent: draw the skill panel and advance its slide-in timer. [inferred]
 // FUN_00208D00
-void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
+void btlSelectionDrawSkillPanel(u8 *arg0, s32 arg1, f32 *arg2)
 {
     u8 *state = (u8 *)arg1;
     u8 *temp;
@@ -3887,8 +3889,9 @@ void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
     }
 }
 
+// Intent: advance the selection's animation counters, clamped to their limits. [inferred]
 // FUN_00208FD0
-void func_00208fd0(u8 *arg0, u8 *arg1, f32 *arg2)
+void btlSelectionStepAnim(u8 *arg0, u8 *arg1, f32 *arg2)
 {
     s16 temp_3;
     s16 temp_3_2;
@@ -3928,8 +3931,9 @@ void func_00208fd0(u8 *arg0, u8 *arg1, f32 *arg2)
         }
     }
 }
+// Intent: save the selected row and page to the second cursor slot when the flag is set. [inferred]
 // FUN_002090D0
-void func_002090d0(u8 *arg0, u8 *arg1)
+void btlSelectionSaveCursorSecond(u8 *arg0, u8 *arg1)
 {
     s16 *p;
 
@@ -3944,8 +3948,9 @@ void func_002090d0(u8 *arg0, u8 *arg1)
     (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[2] = *(s16 *)(arg0 + 2);
 }
 
+// Intent: reset the selection flags, page window and counters for the list. [inferred]
 // FUN_00209140
-void func_00209140(u8 *arg0, u8 *arg1)
+void btlSelectionResetPageState(u8 *arg0, u8 *arg1)
 {
     u8 *p;
 
@@ -3964,8 +3969,9 @@ void func_00209140(u8 *arg0, u8 *arg1)
     *(s16 *)(arg1 + 0x18) = 0;
 }
 /* Reconstructed state dispatch and return width; candidate is byte-exact. */
+// Intent: handle the item list input and return the next state. [inferred]
 // FUN_002091F0
-u16 func_002091f0(u8 *arg0, u8 *arg1)
+u16 btlSelectionHandleItemInput(u8 *arg0, u8 *arg1)
 {
     s32 temp_2;
     u16 value;
@@ -4009,8 +4015,9 @@ u16 func_002091f0(u8 *arg0, u8 *arg1)
 /* 716/720 bytes; eighteen resolved relocations and four zero alignment bytes.
  * btlListDispatchUpdate forwards the signed state word at node+0x28. Convert that
  * input locally; preserve the position and callback-table reloads. */
+// Intent: draw the item panel and advance its slide-in timer. [inferred]
 // FUN_00209370
-void func_00209370(u8 *arg0, s32 arg1, f32 *arg2)
+void btlSelectionDrawItemPanel(u8 *arg0, s32 arg1, f32 *arg2)
 {
     u8 *state = (u8 *)arg1;
     u8 *temp;
@@ -4042,8 +4049,9 @@ void func_00209370(u8 *arg0, s32 arg1, f32 *arg2)
         btlUiDrawSpriteEntry(temp, 9, 0x19, 119.0f, (f32)0x19B);
     }
 }
+// Intent: advance the item list animation counters, clamped to their limits. [inferred]
 // FUN_00209640
-void func_00209640(u8 *arg0, u8 *arg1, f32 *arg2)
+void btlSelectionStepItemAnim(u8 *arg0, u8 *arg1, f32 *arg2)
 {
     s16 temp_3;
     s16 temp_3_2;
@@ -4084,8 +4092,9 @@ void func_00209640(u8 *arg0, u8 *arg1, f32 *arg2)
         }
     }
 }
+// Intent: save the selected row and page to the third cursor slot when the flag is set. [inferred]
 // FUN_00209740
-void func_00209740(u8 *arg0, u8 *arg1)
+void btlSelectionSaveCursorThird(u8 *arg0, u8 *arg1)
 {
     s16 *p;
 
@@ -4100,8 +4109,9 @@ void func_00209740(u8 *arg0, u8 *arg1)
     (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[4] = *(s16 *)(arg0 + 2);
 }
 
+// Intent: reset the sub-list window and counters when the sub-list is not active. [inferred]
 // FUN_002097B0
-void func_002097b0(u8 *arg0, u8 *arg1)
+void btlSelectionResetSubListState(u8 *arg0, u8 *arg1)
 {
     u8 *p;
 
@@ -4121,8 +4131,9 @@ void func_002097b0(u8 *arg0, u8 *arg1)
         *(s16 *)(arg1 + 0x18) = 0;
     }
 }
+// Intent: handle the persona sub-list input and open the sub-list selection. [inferred]
 // FUN_00209870
-u16 func_00209870(u8 *arg0, s32 arg1, u8 **arg2)
+u16 btlSelectionOpenSubList(u8 *arg0, s32 arg1, u8 **arg2)
 {
     u16 temp_4;
     u16 var_2;
@@ -4147,11 +4158,11 @@ u16 func_00209870(u8 *arg0, s32 arg1, u8 **arg2)
             var_2 = 4;
         }
         btlSelectionInit(base + 0x110, 4, (s16)var_2,
-                      (void *)func_00209d40, (void *)func_00209dc0,
+                      (void *)btlSelectionResetSubList, (void *)btlSelectionConfirmSubList,
                       (void *)func_00209f90, (void *)func_0020a5c0, base);
         temp_4_2 = base + 0x110;
         *out = temp_4_2;
-        btlSelectionSetOwner(temp_4_2, (void *)func_00209fa0);
+        btlSelectionSetOwner(temp_4_2, (void *)btlSelectionDrawCurrentLabel);
         *(s32 *)(base + 4) &= ~4;
         return 3;
     case 1:
@@ -4165,8 +4176,9 @@ u16 func_00209870(u8 *arg0, s32 arg1, u8 **arg2)
 done:
     return result;
 }
+// Intent: draw the title strip for the selection sub-list and advance its timers. [inferred]
 // FUN_002099C0
-void func_002099c0(u8 *arg0, u8 *arg1, f32 *arg2)
+void btlSelectionDrawTitle(u8 *arg0, u8 *arg1, f32 *arg2)
 {
     u8 *temp;
 
@@ -4186,8 +4198,9 @@ void func_002099c0(u8 *arg0, u8 *arg1, f32 *arg2)
         btlUiDrawSpriteEntry(temp, 9, 0x19, 119.0f, (f32)0x19B);
     }
 }
+// Intent: draw the persona name list when the sub-list is open, and step its counters. [inferred]
 // FUN_00209BC0
-void func_00209bc0(u8 *arg0, u8 *arg1, f32 *arg2)
+void btlSelectionDrawPersonaList(u8 *arg0, u8 *arg1, f32 *arg2)
 {
     s16 temp_3;
     s16 temp_3_2;
@@ -4230,8 +4243,9 @@ void func_00209bc0(u8 *arg0, u8 *arg1, f32 *arg2)
         }
     }
 }
+// Intent: save the selected row and page to the fourth cursor slot when the flag is set. [inferred]
 // FUN_00209CD0
-void func_00209cd0(u8 *arg0, u8 *arg1)
+void btlSelectionSaveCursorFourth(u8 *arg0, u8 *arg1)
 {
     s16 *p;
 
@@ -4246,8 +4260,9 @@ void func_00209cd0(u8 *arg0, u8 *arg1)
     (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[6] = *(s16 *)(arg0 + 2);
 }
 
+// Intent: reset the sub-list cursor fields and window. [inferred]
 // FUN_00209D40
-void func_00209d40(u8 *arg0, u8 *arg1)
+void btlSelectionResetSubList(u8 *arg0, u8 *arg1)
 {
     func_0045af60(0, 0, 0, 3);
     btlSelectionUpdateWindow(arg0, 0, 0);
@@ -4257,8 +4272,9 @@ void func_00209d40(u8 *arg0, u8 *arg1)
     *(s16 *)(arg1 + 0x1E) = 0;
 }
 
+// Intent: handle the sub-list input, store the chosen value and enqueue its packet. [inferred]
 // FUN_00209DC0
-u16 func_00209dc0(u8 *arg0, u8 *arg1)
+u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1)
 {
     extern s16 func_00105f00(s16 arg0);
     extern void func_00105e30(s16 arg0, s16 arg1);
@@ -4326,8 +4342,9 @@ void func_00209f90(void)
  * a draw-state byte view; its first two floats are the drawing origin. */
 struct FrFontNode;
 
+// Intent: draw the current character label and advance its bounded panel timers. [inferred]
 // FUN_00209FA0
-void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
+void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
 {
     extern u32 kwlnTaskGetWork(void *task);
     extern s16 func_00105f00(s16 selection);
