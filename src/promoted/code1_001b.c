@@ -140,7 +140,7 @@ extern void func_001eb380(u8 *arg0);
 extern s64 btlGetUID(void);
 extern u32 datCalcRandomBelow(u32 arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-extern u32 func_00232c70(u8 *arg0, s32 arg1);
+extern u32 datCalcGetBattleStat(u8 *arg0, s32 arg1);
 extern void func_0022fdc0(u8 *arg0);
 extern s32 func_00243e90(u8 *arg0);
 extern void func_001b1020(s32 arg0);
@@ -1539,17 +1539,17 @@ unit_done:
             unit = *(u8 **)(unit + 0xa6c)) {
           if (*(u8 **)(unit + 0xa64) != NULL) {
             hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x202);
-            if (((hasSkill != 0) || (func_00232950(*(u8 **)(unit + 0xa64),0x53) != 0)
+            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64),0x53) != 0)
                 ) || (hasSkill214 == 1)) {
               func_00234830(*(u8 **)(unit + 0xa64),5,1);
             }
             hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x203);
-            if (((hasSkill != 0) || (func_00232950(*(u8 **)(unit + 0xa64),0x54) != 0)
+            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64),0x54) != 0)
                 ) || (hasSkill213 == 1)) {
               func_00234830(*(u8 **)(unit + 0xa64),0x40,1);
             }
             hasSkill = datCalcHasSkill(*(u8 **)(unit + 0xa64),0x204);
-            if (((hasSkill != 0) || (func_00232950(*(u8 **)(unit + 0xa64),0x55) != 0)
+            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(*(u8 **)(unit + 0xa64),0x55) != 0)
                 ) || (hasSkill215 == 1)) {
               func_00234830(*(u8 **)(unit + 0xa64),0x110,1);
             }

@@ -40,7 +40,7 @@ extern u8 *iGpffffb3c0;
 
 extern u8 *func_00106820(s16 arg0);
 
-/* Old-style declaration: the retail call site at func_00232aa0 passes arg0 raw (no 64-bit extension). */
+/* Old-style declaration: the retail call site at datCalcIsFlaggedPersonaSkill passes arg0 raw (no 64-bit extension). */
 u16 func_00243920();
 
 extern u16 func_00104dc0(s16 character);
@@ -54,7 +54,7 @@ extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaGetLevel(s32 arg0);
 extern u32 func_00105ed0(void);
 extern u8 *func_00105510(s32 arg0);
-extern u8 func_00232c70(u8 *arg0, s32 arg1);
+extern u8 datCalcGetBattleStat(u8 *arg0, s32 arg1);
 /* Defined below in this file; used before its definition. */
 extern u16 func_002439c0(u8 *arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
@@ -91,7 +91,7 @@ extern u8 *iGpffffb3cc;
 extern void func_00233370(u8 *arg0, u8 arg1, s32 arg2);
 extern void func_00233490(u8 *arg0, u8 arg1, s8 arg2);
 
-extern u8 func_00232b40(u8 *arg0, s32 arg1);
+extern u8 datCalcGetUnitStat(u8 *arg0, s32 arg1);
 extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
@@ -197,7 +197,7 @@ void datCalcSetSp(DatUnit *unit, u16 sp)
     unit->sp = sp;
 }
 
-/* MATCHED 2026-08-08: func_00231f80 is byte-exact (nd 0, object 784B /
+/* MATCHED 2026-08-08: datCalcMaxHp is byte-exact (nd 0, object 784B /
    window 784B). A raw s32 temp with explicit masks at its uses, a named
    GP-base/index helper, #pragma opt_common_subs off, and
    #pragma opt_propagation off reproduce the retail saved-register lifetimes,
@@ -248,12 +248,12 @@ u16 datCalcMaxHp(DatUnit *unit)
     if (datCalcHasSkill((u8 *)unit, 0x20D) != 0) {
         var_18 -= (temp_16 * 0x32) / 100;
     }
-    var_18 += (func_00232950((u8 *)unit, 0x1A) & 0xFFFF) * 0xA;
-    var_18 += (func_00232950((u8 *)unit, 0x1B) & 0xFFFF) * 0x14;
-    var_18 += (func_00232950((u8 *)unit, 0x1C) & 0xFFFF) * 0x1E;
-    var_18 += (func_00232950((u8 *)unit, 0x1D) & 0xFFFF) * 0x28;
-    var_18 += (func_00232950((u8 *)unit, 0x1E) & 0xFFFF) * 0x32;
-    var_3 = temp_16 + (var_18 + ((func_00232950((u8 *)unit, 0x5B) & 0xFFFF) * 0x64));
+    var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x1A) & 0xFFFF) * 0xA;
+    var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x1B) & 0xFFFF) * 0x14;
+    var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x1C) & 0xFFFF) * 0x1E;
+    var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x1D) & 0xFFFF) * 0x28;
+    var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x1E) & 0xFFFF) * 0x32;
+    var_3 = temp_16 + (var_18 + ((datCalcCountSlotsWithValue((u8 *)unit, 0x5B) & 0xFFFF) * 0x64));
     if ((unit->flags & 4) == 0) {
         if (var_3 > 0x3E7) {
             var_3 = 0x3E7;
@@ -267,9 +267,9 @@ u16 datCalcMaxHp(DatUnit *unit)
 #pragma opt_common_subs on
 
 
-/* MATCHED 2026-08-08: func_00232290 is byte-exact (nd 0, object 784B /
+/* MATCHED 2026-08-08: datCalcMaxSp is byte-exact (nd 0, object 784B /
    window 784B) using the same raw-s32/index-order/clamp template as
-   func_00231f80, with its stat offsets and percentage constants substituted. */
+   datCalcMaxHp, with its stat offsets and percentage constants substituted. */
 // Intent: maximum SP of unit arg0 from its level and SP bonuses; capped at 999 unless flag 4.
 // FUN_00232290
 /* measured: sibling of exact 00231f80 template; raw s32 temp, integer GP-base addition, and direct clamp spelling preserve retail. */
@@ -316,12 +316,12 @@ u16 datCalcMaxSp(DatUnit *unit)
     if (datCalcHasSkill((u8 *)unit, 0x20D) != 0) {
         var_18 += temp_16;
     }
-    var_18 += (func_00232950((u8 *)unit, 0x1F) & 0xFFFF) * 0xA;
-    var_18 += (func_00232950((u8 *)unit, 0x20) & 0xFFFF) * 0x14;
-    var_18 += (func_00232950((u8 *)unit, 0x21) & 0xFFFF) * 0x1E;
-    var_18 += (func_00232950((u8 *)unit, 0x22) & 0xFFFF) * 0x28;
-    var_18 += (func_00232950((u8 *)unit, 0x23) & 0xFFFF) * 0x32;
-    var_3 = temp_16 + (var_18 + ((func_00232950((u8 *)unit, 0x8A) & 0xFFFF) * 0x64));
+    var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x1F) & 0xFFFF) * 0xA;
+    var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x20) & 0xFFFF) * 0x14;
+    var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x21) & 0xFFFF) * 0x1E;
+    var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x22) & 0xFFFF) * 0x28;
+    var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x23) & 0xFFFF) * 0x32;
+    var_3 = temp_16 + (var_18 + ((datCalcCountSlotsWithValue((u8 *)unit, 0x8A) & 0xFFFF) * 0x64));
     if ((unit->flags & 4) == 0) {
         if (var_3 > 0x3E7) {
             var_3 = 0x3E7;
@@ -465,8 +465,9 @@ s32 datCalcIsStandardUnit(u16 *arg0, s64 arg1)
 
 
 
+// Intent: count (0..2) of the two slots of record id arg0 whose value equals arg1.
 // FUN_00232880
-u16 func_00232880(u16 arg0, u16 arg1)
+u16 datCalcCountIdSlotsWithValue(u16 arg0, u16 arg1)
 {
     u16 count;
     s16 id;
@@ -487,13 +488,14 @@ u16 func_00232880(u16 arg0, u16 arg1)
     return count;
 }
 
+// Intent: count (0..2) of unit arg0's two slots whose value equals arg1.
 // FUN_00232950
 /* measured: propagation off preserves both per-record halfword increments.
  * The count is a word-valued query result; callers may test it without narrowing.
  * 58 instructions, zero relocation-masked differences for the whole owner. */
 #pragma push
 #pragma opt_propagation off
-s32 func_00232950(u8 *arg0, s32 arg1)
+s32 datCalcCountSlotsWithValue(u8 *arg0, s32 arg1)
 {
     u32 count;
     s16 id;
@@ -521,8 +523,9 @@ s32 func_00232950(u8 *arg0, s32 arg1)
 #pragma pop
 
 
+// Intent: true when skill id arg0 (below 0x1B8) lacks flag bit 2 and has flag bit 1 set; [inferred].
 // FUN_00232A40
-s32 func_00232a40(s32 arg0)
+s32 datCalcIsSkillAvailable(s32 arg0)
 {
     s32 id;
     u8 *base;
@@ -539,8 +542,9 @@ s32 func_00232a40(s32 arg0)
     }
 }
 
+// Intent: true for skill ids 0x301..0x3FF whose skill record has flag bit 2 set; [inferred].
 // FUN_00232AA0
-s32 func_00232aa0(s32 arg0)
+s32 datCalcIsFlaggedPersonaSkill(s32 arg0)
 {
     u16 id16;
 
@@ -601,8 +605,9 @@ s32 func_00232aa0(s32 arg0)
    source live while scratch andi values feed the guards/index; removed the
    named check and kept the direct bound comparison. normalized_diff 0,
    object 296B/304B. Committed at nd 0. */
+// Intent: stat arg1 (0..4) of unit arg0 clamped to 1..99; fatal when arg1 >= 5.
 // FUN_00232B40
-u8 func_00232b40(u8 *arg0, s32 arg1)
+u8 datCalcGetUnitStat(u8 *arg0, s32 arg1)
 {
     s32 temp;
     u8 value;
@@ -641,8 +646,9 @@ done_value:
    value is a u8 (narrow-unsigned rule) and the function returns u8, which
    keeps it in $v0; `v >>= 1` on the u8 avoids the extra re-mask a spelled-out
    `(u32)v >> 1` adds; `<= 0x63` before the goto gives the slti $at form. */
+// Intent: battle stat arg1 (0..4) of unit arg0: from its table row for flag-4 units, else from its persona record; fatal when arg1 >= 5.
 // FUN_00232C70
-u8 func_00232c70(u8 *arg0, s32 arg1)
+u8 datCalcGetBattleStat(u8 *arg0, s32 arg1)
 {
     u8 v;
     s32 temp_3;
@@ -652,7 +658,7 @@ u8 func_00232c70(u8 *arg0, s32 arg1)
         func_0046d730(D_00635938, 0x313);
     }
     if ((*(u16 *)arg0 & 4) != 0) {
-        v = (u32)func_00232b40(arg0, arg1);
+        v = (u32)datCalcGetUnitStat(arg0, arg1);
         v &= 0xFF;
     } else {
         if (*(u16 *)(arg0 + 2) >= 0xB) {
@@ -1539,7 +1545,7 @@ static inline u16 DCHitEquipmentCount(u8 *unit, s32 property)
     if (*(u16 *)unit & 4) {
         return 0;
     }
-    return func_00232880(*(u16 *)(unit + 2), property);
+    return datCalcCountIdSlotsWithValue(*(u16 *)(unit + 2), property);
 }
 
 static inline s32 DC411HasEquipmentProperty(u8 *unit, s32 property)
@@ -2133,9 +2139,9 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
 {
     /* measured: retail compiled this caller against the s32-returning
        prototype other units use (see datScript.c), so the u8 return of
-       func_00232c70 is not re-masked here; a block-scope declaration
+       datCalcGetBattleStat is not re-masked here; a block-scope declaration
        reproduces that split inside the merged unit. */
-    extern u32 func_00232c70(u8 *arg0, s32 arg1);
+    extern u32 datCalcGetBattleStat(u8 *arg0, s32 arg1);
     f32 var_2;
     f32 var_f0;
     f32 var_f0_2;
@@ -2184,7 +2190,7 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
         }
         var_f1_2 = (f32)var_16;
         var_f20 = 4.0f + (var_f1_2 / 5.0f);
-        temp_2_3 = func_00232c70(arg1, 4);
+        temp_2_3 = datCalcGetBattleStat(arg1, 4);
         var_f0 = (f32)temp_2_3;
         var_f20 = var_f21 / (var_f0 / var_f20);
     } else {
@@ -2203,7 +2209,7 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
         }
         var_f1_3 = (f32)var_18;
         var_f20 = 4.0f + (var_f1_3 / 5.0f);
-        temp_2_6 = func_00232c70(temp_2_4, 4);
+        temp_2_6 = datCalcGetBattleStat(temp_2_4, 4);
         var_f0_2 = (f32)temp_2_6;
         var_f20 = var_f0_2 / var_f20;
         var_f0_3 = (f32)func_002439c0(arg1);

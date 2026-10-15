@@ -30,7 +30,7 @@ extern u8* DAT_007644F4;    /* parameter table (s16 entries) */
 s32 datCalcGetLevel(u16* unit);
 s32 datCalcGetHp(u16* unit);
 s32 datCalcMaxHp(u16* unit);
-s32 func_00232c70(u16* unit, u32 param);
+s32 datCalcGetBattleStat(u16* unit, u32 param);
 s32 func_0023a6b0(u8* unit, s32 param);
 s32 func_0023d740(s16 cmd, s32 param);
 s32 func_0023d8e0(u8* unit, u16 cmd);
@@ -155,12 +155,12 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
     case 13:
         K_ASSERT(arg1 < 5, 0xF7);
         K_ASSERT(D_00881460[0] != 0, 0xF8);
-        result = (f32)(u32)func_00232c70(D_00881460[0], arg1 & 0xFFFF);
+        result = (f32)(u32)datCalcGetBattleStat(D_00881460[0], arg1 & 0xFFFF);
         break;
     case 14:
         K_ASSERT(arg1 < 5, 0x101);
         K_ASSERT(D_00881464[0] != 0, 0x102);
-        result = (f32)(u32)func_00232c70(D_00881464[0], arg1 & 0xFFFF);
+        result = (f32)(u32)datCalcGetBattleStat(D_00881464[0], arg1 & 0xFFFF);
         break;
     case 17:
         K_ASSERT((s32)D_0088146C[0] < 0x1B8, 0x106);
@@ -244,7 +244,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         break;
     case 25:
         K_ASSERT(D_00881460[0] != 0, 0x173);
-        tier = (s16)((s16)(func_00232c70(D_00881460[0], 1) & 0xFF) / 10);
+        tier = (s16)((s16)(datCalcGetBattleStat(D_00881460[0], 1) & 0xFF) / 10);
         if (tier > 9) {
             tier = 9;
         }
@@ -252,7 +252,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         break;
     case 26:
         K_ASSERT(D_00881460[0] != 0, 0x17B);
-        tier = (s16)((s16)(func_00232c70(D_00881460[0], 1) & 0xFF) / 5);
+        tier = (s16)((s16)(datCalcGetBattleStat(D_00881460[0], 1) & 0xFF) / 5);
         if (tier > 0x14) {
             tier = 0x14;
         }
