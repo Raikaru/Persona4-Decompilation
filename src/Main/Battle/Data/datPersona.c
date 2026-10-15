@@ -293,8 +293,8 @@ u32 func_00109870(u16 arg0, s32 arg1)
 }
 
 // FUN_00109920
-// Intent: u8 at +0x1C plus index 0..4 of a persona record (social-stat bytes; [INFERENCE] from the five-index range and five-byte copy in shdPersona).
-u8 datPersonaGetSocialStat(u8 *arg0, s32 arg1)
+// Intent: battle stat (index 0..4, see DatPersonaStat in datPersona_internal.h) at +0x1C of a persona record.
+u8 datPersonaGetStat(u8 *arg0, s32 arg1)
 {
     if ((arg1 & 0xFFFF) >= 5) {
         func_0046d730(D_005E4318, 0x1DE);
@@ -303,9 +303,9 @@ u8 datPersonaGetSocialStat(u8 *arg0, s32 arg1)
 }
 
 // FUN_00109980
-// Intent: social-stat byte (index 0..4) of the record for persona id arg0; same layout as datPersonaGetSocialStat.
+// Intent: battle stat (index 0..4) of the record for persona id arg0; same layout as datPersonaGetStat.
 /* Preserve the public word transport while interpreting the character as a halfword. */
-s32 datPersonaGetSocialStatById(arg0, arg1)
+s32 datPersonaGetStatById(arg0, arg1)
 u16 arg0;
 s32 arg1;
 {

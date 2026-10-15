@@ -68,7 +68,7 @@ extern s32 func_00238940(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
 extern s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
 extern u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u32 datGetFlag(s32 arg0);
-extern s32 datPersonaGetSocialStatById(s32 arg0, s32 arg1);
+extern s32 datPersonaGetStatById(s32 arg0, s32 arg1);
 extern s64 func_00233570(u8 *arg0, s32 arg1, s64 arg2);
 /* func_00241de0 passes a 5th arg (arg4) that func_00241bc0 ignores. */
 extern s32 func_00241bc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -563,7 +563,7 @@ s32 func_00232aa0(s32 arg0)
    mul chain); spelling the tests `(u16)temp_16` and the mul
    `(temp_16 & 0xFFFF)` defeats mwcc's mask CSE (a bare double `& 0xFFFF`
    collapses to one in-place `andi $s0`). Also fixed the wrong extern:
-   datPersonaGetSocialStatById is `s32 (s32, s32)` per datPersona.c (u16 param forced a
+   datPersonaGetStatById is `s32 (s32, s32)` per datPersona.c (u16 param forced a
    bogus pre-call andi). Tail fully matches (daddiu 1/0x63, slti-$at form).
    Residual, best nd 9: the table-index load-sinking floor -- retail lw's
    the iGpffffb3c4 base into $a0 BEFORE the *0x3C mul chain and adds arg1's
@@ -573,7 +573,7 @@ s32 func_00232aa0(s32 arg0)
    combo (test `(u16)temp_16`, index `(temp_16 & 0xFFFF)`, arg1-index
    `(u16)arg1` keep the three andis separate; u16 temp_16 collapses the
    cast into the AND node and hoists one mask into s1, nd 72). Tail fully
-   matches: bltz guard, daddiu 1/0x63, slti-$at form, datPersonaGetSocialStatById call.
+   matches: bltz guard, daddiu 1/0x63, slti-$at form, datPersonaGetStatById call.
    Residual is the same load-sinking floor as func_0023e3e0's case 0:
    retail lw's the iGpffffb3c4 base into $a0 BEFORE the *0x3C andi-chain
    and masks arg1 last; mwcc b210 sinks the lw after the chain into $v0.
@@ -613,7 +613,7 @@ u8 func_00232b40(u8 *arg0, s32 arg1)
     } else {
         if ((u16)temp >= 0xB)
             func_0046d730(D_00635938, 0x2FA);
-        value = (u8)datPersonaGetSocialStatById(temp, arg1);
+        value = (u8)datPersonaGetStatById(temp, arg1);
     }
     if ((s32)value > 0)
         goto clamp_value;

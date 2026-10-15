@@ -142,7 +142,7 @@ s32 func_00115890(u8 *arg0, s32 arg1)
 
 
 s8 datPersonaGetLevel(u8 *arg0);
-s8 datPersonaGetSocialStat(u8 *arg0, s32 arg1);
+s8 datPersonaGetStat(u8 *arg0, s32 arg1);
 s8 func_001099f0(u8 *arg0, s32 arg1);
 s8 func_00109ad0(u8 *arg0, s32 arg1);
 s32 func_001097c0(u8 *arg0, u16 arg1);
@@ -174,11 +174,11 @@ void func_00115940(u8 *arg0, u8 *arg1, s32 arg2)
     *(s32 *)(arg1 + 0x38) = v2;
     switch (arg2) {
     case 0:
-        *(s8 *)(arg1 + 7) = datPersonaGetSocialStat(arg0, 0);
-        *(s8 *)(arg1 + 8) = datPersonaGetSocialStat(arg0, 1);
-        *(s8 *)(arg1 + 9) = datPersonaGetSocialStat(arg0, 2);
-        *(s8 *)(arg1 + 0xA) = datPersonaGetSocialStat(arg0, 3);
-        *(s8 *)(arg1 + 0xB) = datPersonaGetSocialStat(arg0, 4);
+        *(s8 *)(arg1 + 7) = datPersonaGetStat(arg0, 0);
+        *(s8 *)(arg1 + 8) = datPersonaGetStat(arg0, 1);
+        *(s8 *)(arg1 + 9) = datPersonaGetStat(arg0, 2);
+        *(s8 *)(arg1 + 0xA) = datPersonaGetStat(arg0, 3);
+        *(s8 *)(arg1 + 0xB) = datPersonaGetStat(arg0, 4);
         break;
     case 1:
         *(s8 *)(arg1 + 7) = func_001099f0(arg0, 0);
