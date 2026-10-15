@@ -4534,7 +4534,7 @@ s32 func_001e4150(void) {
 }
 
 // FUN_001E4210
-s32 func_001e4210(void) {
+s32 btlAICommandSideSwitchQueryAnalyze(void) {
     u32 a = scrGetParamInt(0) & 0xFFFF;
     u32 b = scrGetParamInt(1) & 0xFFFF;
     u32 *r = 0;
@@ -4562,7 +4562,7 @@ s32 func_001e4210(void) {
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E42E0
-u32 func_001e42e0(void)
+u32 btlAICommandSideIdQueryMyAbleSkil(void)
 {
     u8 *unit;
     u16 id;
@@ -4606,7 +4606,7 @@ s32 func_001e43d0(void) {
    func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E4430
-u32 func_001e4430(void)
+u32 btlAICommandSideIdQueryMyAttrSkil(void)
 {
     u8 *unit;
     u16 id;
