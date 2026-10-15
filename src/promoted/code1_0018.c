@@ -2058,7 +2058,7 @@ extern s32 func_00102980(void);
 extern f32 KDraw_MatrixYawDeg(void *);
 extern f32 KDraw_MatrixPitchDeg(void *);
 extern f32 KDraw_MatrixRollDeg(void *);
-extern s32 func_0014bbe0(s32, s32, s32, s32, s32);
+extern s32 KMisc_CreateRmdFade(s32, s32, s32, s32, s32);
 extern s32 func_0014bd90(unsigned char *);
 extern u32 func_0014c240(void *, void *, f32, f32);
 extern s32 func_0014e710(unsigned char *);
@@ -2345,7 +2345,7 @@ s32 func_0018a200(u8 *param_1)
     }
     if ((puVar1[0x13] == 1) && (!(temp_v13 <= *(f32 *)((u32)puVar1 + 0x48) + 55.0f))) {
       func_0047a850(*(unsigned char **)(puVar1[3] + 0x164));
-      temp_v5 = func_0014bbe0((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,10);
+      temp_v5 = KMisc_CreateRmdFade((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,10);
       puVar1[4] = temp_v5;
       puVar1[0x13] = 0;
     }
@@ -2537,7 +2537,7 @@ s32 func_0018a200(u8 *param_1)
   case 2:
     *(unsigned int *)(puVar1[3] + 0x28) = *(unsigned int *)(puVar1[3] + 0x28) | 0x10000000;
     func_0047a850(*(unsigned char **)(puVar1[3] + 0x164));
-    temp_v5 = func_0014bbe0((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,8);
+    temp_v5 = KMisc_CreateRmdFade((int)param_1,*(int *)(puVar1[3] + 0x164),0,0xff,8);
     puVar1[4] = temp_v5;
     *puVar1 = *puVar1 + 1;
     break;

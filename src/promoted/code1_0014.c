@@ -2658,7 +2658,7 @@ f32 func_0014b590(f32 fparg0) {
     return result;
 }
 // FUN_0014B780
-s32 func_0014b780(u8 *arg0) {
+s32 KMisc_DelayMdlFreeUpdate(u8 *arg0) {
     s32 temp_2;
     s32 temp_3;
     u8 *p;
@@ -2687,7 +2687,7 @@ s32 func_0014b780(u8 *arg0) {
     }
 }
 // FUN_0014B840
-void func_0014b840(u8 *arg0)
+void KMisc_DelayMdlFreeDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
