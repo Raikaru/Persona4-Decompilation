@@ -9,7 +9,7 @@
  *   iGpffffb418 (gp-0x4BE8 = 0x00764508) -- pointer to the 0xF8-stride
  *       per-encounter sub-table (two 0x78 halves, selected by the bool flag)
  *   iGpffffb424 (gp-0x4BDC = 0x00764514) -- pointer to the 0x15C-stride
- *       encounter-record table used by func_00161c80
+ *       encounter-record table used by Encount_FindRecord
  */
 
 extern s32 func_0014a230(s32 field, s32 room);
@@ -47,7 +47,7 @@ static inline u32 encSlot(u32 offset, u32 base)
 // FUN_00161A70
 /* measured: forces the single-use gp base load ahead of the index chain. */
 #pragma opt_propagation off
-s32 func_00161a70(s32 arg0, s32 arg1, s32 arg2) {
+s32 Encount_GetEntryFlags(s32 arg0, s32 arg1, s32 arg2) {
     s32 result;
     u8 *base;
 
@@ -65,7 +65,7 @@ s32 func_00161a70(s32 arg0, s32 arg1, s32 arg2) {
 /* measured: same recipe as FUN_00161A70 -- the pragma forces the single-use gp
    base load ahead of the index chain. */
 #pragma opt_propagation off
-s32 func_00161b10(s32 arg0, s32 arg1, s32 arg2) {
+s32 Encount_GetEntryRate(s32 arg0, s32 arg1, s32 arg2) {
     s32 result;
     u8 *base;
 
@@ -83,7 +83,7 @@ s32 func_00161b10(s32 arg0, s32 arg1, s32 arg2) {
 /* measured: same pair of levers as FUN_00161A70 -- the pragma brings the gp base
    load ahead of the index chain, the helper holds the offset-first addu. */
 #pragma opt_propagation off
-s32 func_001619b0(s32 arg0, s32 arg1, s32 arg2) {
+s32 Encount_GetEntryRateOrOverride(s32 arg0, s32 arg1, s32 arg2) {
     s32 result;
     s32 idx;
     s32 v;
@@ -111,7 +111,7 @@ s32 func_001619b0(s32 arg0, s32 arg1, s32 arg2) {
    (nd 45). `id == *(u16 *)(q + 2)` keeps retail's bne operand order. */
 #pragma opt_loop_invariants on
 // FUN_00161BB0
-s32 func_00161bb0(s16 id) {
+s32 Encount_IsEncounterActive(s16 id) {
     s32 result;
     s32 i;
     s32 j;
@@ -135,7 +135,7 @@ s32 func_00161bb0(s16 id) {
     }
     return result;
 }
-/* measured: closes the hoisting scope after func_00161bb0. */
+/* measured: closes the hoisting scope after Encount_IsEncounterActive. */
 #pragma opt_loop_invariants off
 // FUN_00161630
 /* Choose a category, then draw an encounter from its weighted entries.
@@ -146,7 +146,7 @@ s32 func_00161bb0(s16 id) {
  * expression keeps the threshold lookup distinct from the cached signed offset. */
 #pragma push
 #pragma opt_propagation off
-s32 func_00161630(s32 field, s32 room, s32 encounter, s32 level)
+s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
 {
     u16 selected;
     f32 multiplier;
@@ -262,14 +262,14 @@ typedef struct EncEntry {
 // FUN_00161C80
 /* Pick a weighted record (0x1D records of 0xC bytes) from the block of the
    given encounter. A record is skipped when its id is in the D_005F1260 list
-   with a nonzero func_00106600 count, or when func_00161bb0 or the D_007E80A0
+   with a nonzero func_00106600 count, or when Encount_IsEncounterActive or the D_007E80A0
    slot scan finds it already present; bit 0 of byte 7 selects which modes
    count it. The first pass sums the weights, the second draws against it. */
 /* measured: opt_loop_invariants on hoists the D_005F1260/D_007E80A0 bases and
    the constants ahead of both loops, as retail does. */
 #pragma push
 #pragma opt_loop_invariants on
-u8 *func_00161c80(s32 field, s32 room, u16 index, u16 mode)
+u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
 {
     u8 *base;
     u8 *found;
@@ -303,7 +303,7 @@ u8 *func_00161c80(s32 field, s32 room, u16 index, u16 mode)
                     break;
                 }
             }
-            if (hit == 0 && func_00161bb0(*pid) == 0) {
+            if (hit == 0 && Encount_IsEncounterActive(*pid) == 0) {
                 s16 fieldId = *pid;
                 s32 present = 0;
                 s32 k;
@@ -358,7 +358,7 @@ u8 *func_00161c80(s32 field, s32 room, u16 index, u16 mode)
                         break;
                     }
                 }
-                if (hit == 0 && func_00161bb0(*pid) == 0) {
+                if (hit == 0 && Encount_IsEncounterActive(*pid) == 0) {
                     s16 fieldId = *pid;
                     s32 present = 0;
                     s32 k;
