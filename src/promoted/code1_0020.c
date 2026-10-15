@@ -140,10 +140,10 @@ typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
 extern void func_00206dd0(u8 *work, u8 *state, f32 x, f32 y,
                          BattleSelectionDraw drawSelection);
 
-extern void func_00205170(u8 *arg0, s32 arg1, f32 fx, f32 fy, u8 arg2, s32 arg3, s32 arg4);
-extern void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
+extern void btlPanelDrawSkillEntry(u8 *arg0, s32 arg1, f32 fx, f32 fy, u8 arg2, s32 arg3, s32 arg4);
+extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
-extern void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
+extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
 extern void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
 extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
@@ -171,9 +171,9 @@ extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
 
 
 extern void btlUiSetRenderMode(s32 arg0);
-extern void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
+extern void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
-extern void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
+extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern u16 datCalcUnderlyingSkillId(s64 arg0);
 extern void func_00207140(u16 *flags, u8 *work);
@@ -2486,12 +2486,13 @@ extern u32 datCalcSkillCost(u8 *unit, s32 skill);
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
 extern u16 datCalcThresholdKind(u8 *unit, s32 skill);
 
+// Intent: draw one skill row (icon, name and cost digits) at the given position. [inferred]
 // FUN_00205170
 #pragma push
 #pragma opt_rebuildconditionals off
 #pragma opt_common_subs off
 #pragma opt_propagation off
-void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
+void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
     extern u32 kwlnTaskGetWork(void *task);
@@ -2588,8 +2589,9 @@ void func_00205170(u8 *work, s32 slot, f32 x, f32 y,
 #pragma opt_rebuildconditionals off
 #pragma opt_common_subs off
 #pragma opt_propagation off
+// Intent: draw one entry row (icon, name, digit and optional detail label). [inferred]
 // FUN_002055D0
-void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
+void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 show_detail)
 {
     extern u32 kwlnTaskGetWork(void *task);
@@ -2677,8 +2679,9 @@ void func_002055d0(u8 *work, s32 slot, f32 x, f32 y,
 #pragma opt_rebuildconditionals off
 #pragma opt_common_subs off
 #pragma opt_propagation off
+// Intent: draw a persona row with its lead marker, level digits and name. [inferred]
 // FUN_00205950
-void func_00205950(u8 *work, s32 slot, f32 x, f32 y,
+void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
     extern u32 kwlnTaskGetWork(void *task);
@@ -2743,8 +2746,9 @@ extern u32 func_0010d6d0(s16 arg0);
 #pragma opt_rebuildconditionals off
 #pragma opt_common_subs off
 #pragma opt_propagation off
+// Intent: draw a persona name and its two sprite marks. [inferred]
 // FUN_00205C20
-void func_00205c20(u8 *work, s32 slot, f32 x, f32 y,
+void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
     extern u32 kwlnTaskGetWork(void *task);
@@ -2787,8 +2791,9 @@ extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 mode,
  * Preserve the two narrow tone assignments instead of rebuilding a merge. */
 #pragma push
 #pragma opt_rebuildconditionals off
+// Intent: draw one list row with its marker sprites and optional text. [inferred]
 // FUN_00205E00
-void func_00205e00(u8 *panel, s32 index, f32 x, f32 y,
+void btlPanelDrawListRow(u8 *panel, s32 index, f32 x, f32 y,
                    u8 opacity, s32 selected, s32 draw_text)
 {
     u8 *work;
@@ -2822,8 +2827,9 @@ typedef struct BattleRenderDispatch {
  * four zero alignment bytes. Distinct literal/cached bounds and
  * successive coordinate work preserve the original evaluation
  * order. See docs/probe_archive/Battle_selection_00205ff0_20260923.md. */
+// Intent: draw the battle selection list, rows and highlight, through the render callback. [inferred]
 // FUN_00205FF0
-void func_00205ff0(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, BattleSelectionDraw callback)
+void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, BattleSelectionDraw callback)
 {
     extern u32 kwlnTaskGetWork(void *task);
     extern f32 fGpffff809c;
@@ -3852,7 +3858,7 @@ void func_00208d00(u8 *arg0, s32 arg1, f32 *arg2)
     if (*(u16 *)state == 2) {
         btlUiDrawSpriteFaded(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
         btlUiDrawSpriteFaded(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00206dd0(state, arg0, arg2[0], arg2[1], func_00205170);
+        func_00206dd0(state, arg0, arg2[0], arg2[1], btlPanelDrawSkillEntry);
     } else {
         btlUiDrawSpriteFaded(temp, 9, 0x21, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     }
@@ -3885,7 +3891,7 @@ void func_00208fd0(u8 *arg0, u8 *arg1, f32 *arg2)
     s16 temp_3_6;
 
     if (*(u16 *)(arg1 + 2) != 2) {
-        func_00205ff0(arg1, arg0, arg2[0], arg2[1], func_00205170);
+        btlSelectionDrawList(arg1, arg0, arg2[0], arg2[1], btlPanelDrawSkillEntry);
     }
     temp_3 = *(s16 *)(arg1 + 0x20);
     if (temp_3 < 4) {
@@ -4008,7 +4014,7 @@ void func_00209370(u8 *arg0, s32 arg1, f32 *arg2)
     if (*(u16 *)state == 2) {
         btlUiDrawSpriteFaded(temp, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
         btlUiDrawSpriteFaded(temp, 9, 0x4A, 93.0f, 314.0f, 0x1B, 0x1B, 0x1B, 0xFF);
-        func_00206dd0(state, arg0, arg2[0], arg2[1], func_002055d0);
+        func_00206dd0(state, arg0, arg2[0], arg2[1], btlPanelDrawEntry);
     } else {
         btlUiDrawSpriteFaded(temp, 9, 0x23, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     }
@@ -4040,8 +4046,8 @@ void func_00209640(u8 *arg0, u8 *arg1, f32 *arg2)
     s16 temp_3_6;
 
     if (*(u16 *)(arg1 + 2) != 2) {
-        func_00205ff0(arg1, arg0, arg2[0], arg2[1],
-                      func_002055d0);
+        btlSelectionDrawList(arg1, arg0, arg2[0], arg2[1],
+                      btlPanelDrawEntry);
         temp_3 = *(s16 *)(arg1 + 0x20);
         if (temp_3 < 4) {
             *(s16 *)(arg1 + 0x20) = temp_3 + 1;
@@ -4185,8 +4191,8 @@ void func_00209bc0(u8 *arg0, u8 *arg1, f32 *arg2)
 
     if (*(u8 **)(arg1 + 0x38) == arg1 + 0xDC) {
         if (*(u16 *)arg1 != 2) {
-            func_00205ff0(arg1, arg0, arg2[0], arg2[1],
-                          func_00205c20);
+            btlSelectionDrawList(arg1, arg0, arg2[0], arg2[1],
+                          btlPanelDrawPersonaName);
         }
         temp_3 = *(s16 *)(arg1 + 0x20);
         if (temp_3 < 4) {
@@ -4341,7 +4347,7 @@ void func_00209fa0(u8 *selection, s32 workAddress, u8 *drawState)
     glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
     btlUiSetOrigin(glyphs, origin[0], origin[1]);
     if (*(u16 *)work != 2) {
-        func_00205ff0(work, selection, origin[0], origin[1], func_00205e00);
+        btlSelectionDrawList(work, selection, origin[0], origin[1], btlPanelDrawListRow);
     }
     {
         s16 frame20;
@@ -4633,8 +4639,8 @@ void func_0020ac70(s32 arg0, u8 *arg1, f32 *arg2)
     s16 temp_3_6;
 
     if (*(u16 *)arg1 != 2) {
-        func_00205ff0(arg1, (u8 *)arg0, arg2[0], arg2[1],
-                      func_00205950);
+        btlSelectionDrawList(arg1, (u8 *)arg0, arg2[0], arg2[1],
+                      btlPanelDrawPersonaLevel);
     }
     temp_3 = *(s16 *)(arg1 + 0x20);
     if (temp_3 < 4) {
