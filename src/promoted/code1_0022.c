@@ -223,7 +223,7 @@ extern s32 func_0022ff70(u8 *arg0);
 
 extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-extern u8 *func_00202400(s32 arg0, s32 arg1);
+extern u8 *btlPacketCreateEffectCounter(s32 arg0, s32 arg1);
 extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern u8 D_00632240[];
@@ -3802,7 +3802,7 @@ void func_0022a730(u8 *arg0)
     *(s16 *)(packet + 0x48) = 8;
     *(s64 *)(packet + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(packet, 0);
-    packet = func_00202400(*(s32 *)(last + 0x30), count == 1 ? 0xAC : 0xAD);
+    packet = btlPacketCreateEffectCounter(*(s32 *)(last + 0x30), count == 1 ? 0xAC : 0xAD);
     *(s64 *)(packet + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(packet, 3);
     func_001f0a10(params.bytes);
@@ -3896,7 +3896,7 @@ void func_0022acb0(u8 *arg0)
     temp_2 = btlCameraCreateSetStatePacket(arg0, 0x2C);
     *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(temp_2, 0);
-    temp_2_2 = func_00202400(*(s32 *)(arg0 + 0x30), 0xAF);
+    temp_2_2 = btlPacketCreateEffectCounter(*(s32 *)(arg0 + 0x30), 0xAF);
     *(s64 *)(temp_2_2 + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(temp_2_2, 3);
 }

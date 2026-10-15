@@ -17,7 +17,8 @@ struct BtlPacket *func_001f82b0(struct BtlUnit *unit);
 struct BtlPacket *func_001f8330(struct BtlUnit *unit);
 /* The selector arrives as a full word and is stored in a halfword work field. */
 struct BtlPacket *btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u32 duration);
-u8 *func_00202850(void);
+// Intent: allocate the end-sequence packet (type 0x50E). [inferred]
+u8 *btlPacketCreateEndSequence(void);
 /* Optional payloads contain three position floats, four quaternion floats,
  * and four color bytes, respectively. */
 u8 *btlUnitCreateOverridePacket(u8 *unit, u8 *position, u8 *rotation, u8 *color);

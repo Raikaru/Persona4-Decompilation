@@ -46,10 +46,10 @@ static inline u8 *actionRecoveryPacketBytes(BtlUnit *unit)
 {
     return (u8 *)btlUnitCreateMotionSettlePacket(unit);
 }
-extern BtlPacket *func_00202400(s32 unit, s32 message);
+extern BtlPacket *btlPacketCreateEffectCounter(s32 unit, s32 message);
 static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 {
-    return func_00202400(unit, message);
+    return btlPacketCreateEffectCounter(unit, message);
 }
 extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
 extern f32 btlTargetVectorDistance(const RwV3d *, const RwV3d *);
@@ -88,11 +88,11 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
     return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
 }
 extern f32 fGpffff811c;
-extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
+extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-extern u8 *func_00202740(u8 *arg0);
-extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
+extern u8 *btlPacketCreateHpRatio(u8 *arg0);
+extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 s32 func_001eb860(void);
 s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
@@ -240,9 +240,9 @@ void btlActionStartInit(BtlAction *action) {
 void btlActionStartUpdate(s64 *arg0) {
     extern void func_001f0a10(u8 *arg0);
     extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-    extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
-    extern u8 *func_00202740(u8 *arg0);
-    extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
+    extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
+    extern u8 *btlPacketCreateHpRatio(u8 *arg0);
+    extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
     typedef struct DatUnit DatUnit;
     typedef struct ActionUnitView {
         u8 unknown00[0xA64];
@@ -315,7 +315,7 @@ void btlActionStartUpdate(s64 *arg0) {
         }
         if ((result.flags != 0) || (result.hpDelta != 0) || (result.spDelta != 0)) {
             if ((result.hpDelta != 0) || (result.spDelta != 0)) {
-                unitPacket = func_00202740((u8 *)action->unit);
+                unitPacket = btlPacketCreateHpRatio((u8 *)action->unit);
                 *(s64 *)(unitPacket + 0x60) = action->uid;
                 btlPacketEnqueue(unitPacket, 1);
                 if ((s16)passiveCue != -1) {
@@ -330,13 +330,13 @@ void btlActionStartUpdate(s64 *arg0) {
             if ((result.hpDelta != 0) || (result.spDelta != 0)) {
                 s32 unit;
                 unit = (s32)(u8 *)action->unit;
-                statusPacket = func_00201de0(unit, unit, -1, 0, 0, 0, 1, &result, 8);
+                statusPacket = btlPacketCreateHitDisplay(unit, unit, -1, 0, 0, 0, 1, &result, 8);
                 *(s8 *)(statusPacket + 0) = 4;
                 *(s64 *)(statusPacket + 8) = *(s64 *)(resultPacket + 0x58);
                 *(u8 *)(statusPacket + 0x47) &= ~0x20;
                 btlPacketEnqueue(statusPacket, 3);
                 if (result.hpDelta != 0) {
-                    statPacket = (u8 *)func_00202590((s32)(u8 *)action->unit, 0, 0);
+                    statPacket = (u8 *)btlPacketCreateUnitCounter((s32)(u8 *)action->unit, 0, 0);
                     *(s8 *)(statPacket + 0) = 4;
                     *(s64 *)(statPacket + 8) = *(s64 *)(resultPacket + 0x58);
                     *(u8 *)(statPacket + 0x47) &= ~0x20;

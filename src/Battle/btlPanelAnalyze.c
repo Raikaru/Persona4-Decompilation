@@ -491,7 +491,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
     void btlUiSetRenderStates(void);
     void btlUiSetOrigin(u8 *, f32, f32);
     void btlUiSetScale(u8 *, f32, f32);
-    f32 func_00201950(u8 *, s32, s32);
+    f32 btlUiSpriteWidth(u8 *, s32, s32);
     s32 datCalcGetLevel(void *);
     u16 datCalcMaxHp(void *);
     u16 datCalcMaxSp(void *);
@@ -570,7 +570,7 @@ void func_00219790(s32 unusedTask, u8 *panel)
                     u8 kind;
                     f32 w;
                     kind = btlPanelEnemyKind(tableOffset);
-                    w = func_00201950(work, 14, (s32)kind + 0x20);
+                    w = btlUiSpriteWidth(work, 14, (s32)kind + 0x20);
                     {
                         f32 calculatedX = (57.0f - w / 2.0f) + nameX;
                         f32 displayedX = calculatedX;

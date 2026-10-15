@@ -48,7 +48,7 @@ typedef u8 bool;
 
 
 
-extern u32 func_00201f60(int param_1);
+extern u32 btlPacketStepSpriteFrame(int param_1);
 
 extern void func_00440b68();
 extern u8* func_00454a60(u8* param, s32 mode);
@@ -324,7 +324,7 @@ BtlPacket* func_00202010(u32 param_1, u16 param_2)
   int iVar2 = 0;
 
   iVar2 = (int)btlPacketAlloc(0x504, 0xc);
-  *(code *)(iVar2 + 0x6c) = (code)func_00201f60;
+  *(code *)(iVar2 + 0x6c) = (code)btlPacketStepSpriteFrame;
   puVar1 = *(u32 **)(iVar2 + 0x78);
   *puVar1 = param_1;
   *(u16 *)(puVar1 + 1) = param_2;

@@ -50,10 +50,10 @@ static inline u8 *actionRecoveryPacketBytes(BtlUnit *unit)
 {
     return (u8 *)btlUnitCreateMotionSettlePacket(unit);
 }
-extern BtlPacket *func_00202400(s32 unit, s32 message);
+extern BtlPacket *btlPacketCreateEffectCounter(s32 unit, s32 message);
 static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 {
-    return func_00202400(unit, message);
+    return btlPacketCreateEffectCounter(unit, message);
 }
 extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 cue, s32 unitId, s32 a, s32 b);
 extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
@@ -149,18 +149,18 @@ extern BtlPacket *btlFormationCreateWaitPacket(u32 source, u32 target, u16 mode)
 extern f32 fGpffff811c;
 extern u32 datCalcGetBadStatus(s32 arg0);
 extern s16 func_001f6d60(u8 *arg0);
-extern u8 *func_00202590(s32 unit, s8 kind, s16 value);
+extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-extern u8 *func_00202740(u8 *arg0);
-extern u8 *func_00201de0(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
+extern u8 *btlPacketCreateHpRatio(u8 *arg0);
+extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
 u8 *func_00194b60(void);
 extern BtlPacket *btlFormationCreateReturnPacket(u16 arg0);
 extern u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value);
 extern BtlPacket *btlFormationCreateEventPacket(u32 action);
 BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
 BtlPacket *func_001d7a10(u16 mode);
-u8 *func_00201f20(void);
+u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern s32 datCalcAilmentChance(u8 *unit, s32 element);
 u8 *func_001fa720(const void *data);
@@ -209,7 +209,7 @@ s32 func_001f6770(u8 *arg0);
 s32 func_001fac30(void);
 s32 btlActionGetCounter420(BtlAction *action);
 
-u8 *func_002022e0(u32 arg0, u16 arg1);
+u8 *btlPacketCreateSpriteTable(u32 arg0, u16 arg1);
 s32 datPersonaSelectRosterMemberById(s32 arg0);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void datPersonaRemoveSelectedRosterMember(void);

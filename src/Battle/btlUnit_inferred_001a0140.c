@@ -47,10 +47,10 @@ static inline u8 *actionRecoveryPacketBytes(BtlUnit *unit)
 {
     return (u8 *)btlUnitCreateMotionSettlePacket(unit);
 }
-extern BtlPacket *func_00202400(s32 unit, s32 message);
+extern BtlPacket *btlPacketCreateEffectCounter(s32 unit, s32 message);
 static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 {
-    return func_00202400(unit, message);
+    return btlPacketCreateEffectCounter(unit, message);
 }
 extern u8 *iGpffffb3cc;
 extern f32 D_005F6D20[];
@@ -88,7 +88,7 @@ u8 *btlUnitCreateMotionRequestPacket(u8 *arg0, u16 arg1);
 extern f32 fGpffff811c;
 BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
 BtlPacket *func_001d7a10(u16 mode);
-u8 *func_00201f20(void);
+u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
@@ -288,7 +288,7 @@ loop_test:
             btlPacketEnqueue(cameraPacket, 0);
         }
         if (*(u16 *)(D_0076449C + 0x18) & 0x40) {
-            endPacket = func_00201f20();
+            endPacket = btlPacketCreateFinishEffect();
             *(s64 *)(endPacket + 0x60) = *(s64 *)action;
             btlPacketEnqueue(endPacket, 0);
         }
