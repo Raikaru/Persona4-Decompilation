@@ -1501,7 +1501,7 @@ s32 clndSceneUpdate(u8 *arg0)
     extern void func_00111050(s32 arg0);
     extern void func_00459880(void);
     extern void func_0045a8d0(s32 arg0, s32 arg1);
-    extern s32 func_0012c110(void);
+    extern s32 logoTaskStart(void);
     extern s32 func_0012c1a0(s32 arg0);
     extern s32 func_0046a110(void *arg0, s32 arg1, void *arg2);
     extern void calendarStart(void);
@@ -1558,7 +1558,7 @@ s32 clndSceneUpdate(u8 *arg0)
         func_00111050(1);
         func_00459880();
         func_0045a8d0(3, 0);
-        *(s32 *)(temp_16 + 0xC) = func_0012c110();
+        *(s32 *)(temp_16 + 0xC) = logoTaskStart();
         *(u32 *)temp_16 = 3;
         break;
     case 3:
