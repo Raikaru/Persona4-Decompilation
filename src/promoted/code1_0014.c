@@ -151,7 +151,7 @@ extern u8 D_005EF858[];
 extern void func_004b1150(s32 arg0);
 extern s32 mdlPrepareModel(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
-extern s32 func_00104c70(s32 arg0);
+extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 D_007EF9B0[];
 extern void func_003c38b0(void *arg0, void *arg1);
 extern void func_003e8110(void *arg0);
@@ -366,7 +366,7 @@ extern void func_0034f9d0(Float2_0014 work, f32 fparg0, u8 arg1, s32 arg2, s32 a
 extern void func_00355410(u8 *work, u8 arg1);
 extern void func_00354ba0(void *work);
 extern void func_00367210(CampDisplayWords position, f32 depth, s32 alpha, s16 *label);
-extern s32 func_00104c70(s32 work);
+extern s32 datCalcGetLevelById(s32 work);
 extern u32 func_0010d6d0(s16 work);
 extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
 extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);

@@ -671,16 +671,16 @@ void func_001113b0(void)
     s32 i;
     u8 *p;
     u8 *q;
-    u16 func_00104dc0(s16);
-    u16 func_00104e30(s16);
+    u16 datCalcMaxHpById(s16);
+    u16 datCalcMaxSpById(s16);
     void func_001051a0(s16, s16, s16);
-    void func_001055a0(s16);
+    void datCalcInitUnitById(s16);
     void func_00105690(s16, u8);
     void func_001056e0(s16, s16);
     void func_00105730(s16, s16);
     void func_00105990(s16, u32);
     void func_00105c90(s16, s16);
-    void func_00105ce0(s16, s16);
+    void datCalcSetBadStatusById(s16, s16);
     void func_00105dc0(s16, s16, s16);
     void func_00105fa0(u32);
     void datSetPartyId(s32, s16);
@@ -715,7 +715,7 @@ void func_001113b0(void)
     i = 1;
     goto loop_1_check;
 loop_1:
-    func_001055a0((s16)i);
+    datCalcInitUnitById((s16)i);
     if (i == 1) {
         func_00105690((s16)i, 1);
         func_00105990((s16)i, 0);
@@ -732,15 +732,15 @@ loop_2_check:
         goto loop_2;
     }
     func_00105c90((s16)i, 0);
-    func_00105ce0((s16)i, 0);
+    datCalcSetBadStatusById((s16)i, 0);
     func_00105dc0((s16)i, 0, -1);
     func_00105dc0((s16)i, 1, -1);
     func_00105dc0((s16)i, 2, -1);
     datPersonaResetRosterMode((s16)i);
     q = (u8 *)D_005E4630 + i * 2;
     datPersonaPlaceRosterMember(i & 0xFFFF, *(u16 *)(q - 2));
-    func_001056e0((s16)i, (s16)func_00104dc0((s16)i));
-    func_00105730((s16)i, (s16)func_00104e30((s16)i));
+    func_001056e0((s16)i, (s16)datCalcMaxHpById((s16)i));
+    func_00105730((s16)i, (s16)datCalcMaxSpById((s16)i));
     i++;
 loop_1_check:
     if (i < 11) {

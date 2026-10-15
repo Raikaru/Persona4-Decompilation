@@ -695,7 +695,7 @@ void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
 // Fcl combine frame layout: arg1 == 1 places the four plate sprites 0xC1-0xC4; arg2 == 0 creates the header, bars and two count digits (0x69, 0x1AD, 0x2B3, 0x26E, 0x26F) and tints them, otherwise they are only repositioned.
 // FUN_00316470
 void fclCombineLayoutFrame(u8 *arg0, s64 arg1, s8 arg2) {
-    extern s32 func_00104c70(s32);
+    extern s32 datCalcGetLevelById(s32);
     extern f32 D_00644380[];
     extern f32 D_00644378[];
     extern f32 D_00644388[];
@@ -842,12 +842,12 @@ void fclCombineLayoutFrame(u8 *arg0, s64 arg1, s8 arg2) {
         fclSpriteStartPositionAt(0x2B3, sp158, sp70, 0, 0xA, 0);
     }
     sp158 = func_002b2970((f32)0x263, 50.0f);
-    if ((func_00104c70(1) & 0xFF) < 0xA) {
+    if ((datCalcGetLevelById(1) & 0xFF) < 0xA) {
         sp158 = func_002b2970((f32)0x251, 50.0f);
     }
     if ((s8)arg2 == 0) {
         fclSpriteCreate(0x26E, sp158, 46.0f, 0x56);
-        *(s16 *)(fclSpriteEntry(0x26E) + 4) = (s16)((func_00104c70(1) & 0xFF) % 10 + 0x46);
+        *(s16 *)(fclSpriteEntry(0x26E) + 4) = (s16)((datCalcGetLevelById(1) & 0xFF) % 10 + 0x46);
         sp68 = func_002b2970(f20 + sp158.x, sp158.y);
         fclSpriteStartPositionAt(0x26E, sp68, sp158, 0, 0xA, 0);
     } else {
@@ -855,10 +855,10 @@ void fclCombineLayoutFrame(u8 *arg0, s64 arg1, s8 arg2) {
         fclSpriteStartPositionAt(0x26E, sp158, sp60, 0, 0xA, 0);
     }
     sp158 = func_002b2970((f32)0x251, 50.0f);
-    if ((func_00104c70(1) & 0xFF) / 10 > 0) {
+    if ((datCalcGetLevelById(1) & 0xFF) / 10 > 0) {
         if ((s8)arg2 == 0) {
             fclSpriteCreate(0x26F, sp158, 46.0f, 0x56);
-            *(s16 *)(fclSpriteEntry(0x26F) + 4) = (s16)((func_00104c70(1) & 0xFF) / 10 + 0x46);
+            *(s16 *)(fclSpriteEntry(0x26F) + 4) = (s16)((datCalcGetLevelById(1) & 0xFF) / 10 + 0x46);
             sp58 = func_002b2970(f20 + sp158.x, sp158.y);
             fclSpriteStartPositionAt(0x26F, sp58, sp158, 0, 0xA, 0);
         } else {

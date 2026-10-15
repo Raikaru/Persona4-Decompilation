@@ -172,7 +172,7 @@ s32 func_00380980(u8 *arg0)
 s32 func_00380bd0(u8 **arg0)
 {
     extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
-    extern s32 func_00104c70(s32 arg0);
+    extern s32 datCalcGetLevelById(s32 arg0);
     extern s32 datGetFlag(s32 arg0);
     extern u32 RpRandom(void);
     extern u8 D_0064E760[];
@@ -186,7 +186,7 @@ s32 func_00380bd0(u8 **arg0)
         return 0;
     }
     rawLevel = datPersonaGetTotalStatById(1, 4) & 0xFF;
-    func_00104c70(1);
+    datCalcGetLevelById(1);
     if (datGetFlag(0x1426) != 0) {
         threshold = 0x3C;
     } else if (datGetFlag(0x1427) != 0) {

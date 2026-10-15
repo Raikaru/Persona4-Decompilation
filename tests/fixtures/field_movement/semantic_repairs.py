@@ -11,7 +11,7 @@ def fixture_from_source(source):
     types=raw[s.index('    typedef struct {'):s.index('    extern u16 D_008C024C')]
     start=s.index('                s32 quotient =');end=s.index('                *(u8 **)(h + 0x138)',start)
     rounding=raw[start:end]
-    assert 'func_00105340(s16)' in s and 'u32 func_00105340' in s
+    assert 'datCalcGetBadStatusNoDownById(s16)' in s and 'u32 datCalcGetBadStatusNoDownById' in s
     assert s.count('func_003e0670(&')==2 and 'func_003e0670(&cameraMatrix, &cameraMatrix)' in s
     assert 'func_0044b950(cameraMatrix.right.z, cameraMatrix.right.x)' in s
     assert 'func_0044b950(modelMatrix.right.z, modelMatrix.right.x)' in s

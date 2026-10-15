@@ -116,7 +116,7 @@ extern u8 D_005EF820[];
 extern u8 D_005EF870[];
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern s32 func_00104c70(s32 arg0);
+extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 extern void *mdlGetMatrix(void *model);
@@ -245,7 +245,7 @@ extern u8 D_005EF6A0[];
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
-extern s32 func_00104c70(s32 work);
+extern s32 datCalcGetLevelById(s32 work);
 
 
 #pragma pop
@@ -413,7 +413,7 @@ loop_body_0014c780:
     valid = hit != 0;
     if (valid == (hit = 1)) {
         if (index == 0) {
-            sum += func_00104c70(hit) & 0xFF;
+            sum += datCalcGetLevelById(hit) & 0xFF;
         } else {
             sum += *(s32 *)(entry + 0x1C0);
         }

@@ -6,8 +6,8 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 
-extern u32 func_00104ce0(s16 arg0);
-extern u32 func_00104d50(s16 arg0);
+extern u32 datCalcGetHpById(s16 arg0);
+extern u32 datCalcGetSpById(s16 arg0);
 extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
 struct GDataEntry;
 extern s32 func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
@@ -174,14 +174,14 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
     temp_16 = (s8)var_19;
     if (temp_16 > 0) {
         if (temp_23 > 0) {
-            temp_17_2 = (func_00104ce0(arg0) & 0xFFFF) - temp_23;
+            temp_17_2 = (datCalcGetHpById(arg0) & 0xFFFF) - temp_23;
             if (temp_17_2 <= 0) {
                 kAssertFail(D_005ED9F0, 0x25B);
             }
             func_001056e0(arg0, (s16)temp_17_2);
         }
         if (temp_30 > 0) {
-            temp_17_3 = (func_00104d50(arg0) & 0xFFFF) - temp_30;
+            temp_17_3 = (datCalcGetSpById(arg0) & 0xFFFF) - temp_30;
             if (temp_17_3 < 0) {
                 kAssertFail(D_005ED9F0, 0x261);
             }

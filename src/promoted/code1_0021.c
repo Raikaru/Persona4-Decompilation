@@ -4316,7 +4316,7 @@ s32 func_0021e050(u8 *arg0)
     }
     return value;
 }
-extern s32 func_00104c70(s32 arg0);
+extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 datPersonaGetLevel(int persona);
 extern u32 datPersonaGetNextExp(int persona);
 extern u16 *datPersonaGetSkills(int persona);
@@ -4366,7 +4366,7 @@ void func_0021e110(u8 *arg0, u8 *arg1)
     if (*(u16 *)arg1 & 1) {
         *(u32 *)arg0 |= 1;
     }
-    c = func_00104c70(1) & 0xFF;
+    c = datCalcGetLevelById(1) & 0xFF;
     level = func_0021de90(c, arg1);
     base = level;
     if (func_001069d0(func_00106cd0(1, 0)) == 0x86) {

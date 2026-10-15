@@ -125,7 +125,7 @@ extern u8 D_005EF870[];
 extern void kAssertFail(const void *arg0, s32 arg1);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern s32 func_00104c70(s32 arg0);
+extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 D_007EF9B0[];
 extern s32 func_00457120(void);
 extern u8 D_007E8020[];
@@ -279,7 +279,7 @@ extern void func_0034f9d0(Float2_0014 work, f32 fparg0, u8 arg1, s32 arg2, s32 a
 extern void func_00355410(u8 *work, u8 arg1);
 extern void func_00354ba0(void *work);
 extern void func_00367210(CampDisplayWords position, f32 depth, s32 alpha, s16 *label);
-extern s32 func_00104c70(s32 work);
+extern s32 datCalcGetLevelById(s32 work);
 extern u32 func_0010d6d0(s16 work);
 extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
 extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
@@ -405,7 +405,7 @@ void radarDrawFrame(u8 *work)
                 numberPosition.xy.y = 9.0f + position.xy.y;
             }
             unit = (s16 *)(work + i * 2 + 0x22);
-            level = func_00104c70(*unit) & 0xFF;
+            level = datCalcGetLevelById(*unit) & 0xFF;
             radarDrawNumber(numberPosition.bits, 0.0f, color.packed, work, level);
             name = (const char *)func_0010d6d0(*unit);
             frFontExDrawText((105.0f + position.xy.x) - 20.0f, position.xy.y, 0.0f,

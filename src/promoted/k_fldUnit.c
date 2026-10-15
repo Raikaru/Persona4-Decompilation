@@ -88,7 +88,7 @@ extern DatUnitPc *datUnitCreatePc(u16 arg0);
 extern u8 *func_00162680(u16 arg0, u16 arg1, s32 arg2);
 extern u8 datPersonaGetLevelByPcId(u16 arg0);
 extern s16 datGetPartyId(s32 arg0);
-extern s32 func_00104c70(s32 arg0);
+extern s32 datCalcGetLevelById(s32 arg0);
 extern s32 *func_00155280(void);
 extern void SceneDraw_SetResVisible(u16 arg0, s32 arg1);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
@@ -1014,7 +1014,7 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
             *(u16 *)(unit + 0x728) = 1;
             *(s32 *)(unit + 0x44) = 0;
             *(s32 *)(unit + 0x1C0) = datPersonaGetLevelByPcId(1) & 0xFF;
-            *(s32 *)(unit + 0x1C4) = func_00104c70(1) & 0xFF;
+            *(s32 *)(unit + 0x1C4) = datCalcGetLevelById(1) & 0xFF;
             *(u8 **)(unit + 0x1B4) = (u8 *)func_0017d070(NULL);
             *(u16 *)(unit + 0x58) = entryId;
         }
@@ -1068,7 +1068,7 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
                     *(s32 *)(unit + 0x44) = 0;
                     *(s32 *)(unit + 0x1C0) = datPersonaGetLevelByPcId(pcId) & 0xFF;
                     if (modelId == 1) {
-                        *(s32 *)(unit + 0x1C4) = func_00104c70((s16)pcId) & 0xFF;
+                        *(s32 *)(unit + 0x1C4) = datCalcGetLevelById((s16)pcId) & 0xFF;
                         *(u8 **)(unit + 0x1B4) = (u8 *)func_0017d070(NULL);
                     } else {
                         func_00440b68((const char *)D_00763008, D_005F1500, 0x1DD);
