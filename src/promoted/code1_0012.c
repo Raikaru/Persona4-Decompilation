@@ -39,7 +39,7 @@ static inline s32 code1_0012_stride_loop(s32 base, s32 index)
 extern s32 D_007242B0;
 extern void (*jtbl_008873EC[])(void *);
 
-extern void func_00264d90();
+extern void cldDayChangeStartTask();
 extern s32 D_00796670[];
 extern u8 D_005E50D0[];
 extern u8 D_005E5870[];
@@ -880,7 +880,7 @@ s32 func_001227f0(void)
 // FUN_00122820
 void func_00122820(s32 arg0, s32 arg1)
 {
-    func_00264d90(0, arg0, arg1, D_00796670);
+    cldDayChangeStartTask(0, arg0, arg1, D_00796670);
 }
 
 
