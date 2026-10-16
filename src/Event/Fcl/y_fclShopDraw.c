@@ -204,7 +204,7 @@ void func_002e04f0(u8 *, u32, s8);
 void func_002e0620(u8 *, Vec2f, Vec2f, u32, u32, s16);
 /* The position constructor func_002b2970 (fcl_draw_types.h) returns its
    Vec2f by value. Used as a call argument it yields a compiler temporary,
-   which is what func_002df020's frame layout and saved-register colouring
+   which is what fclShopDrawItemDetail's frame layout and saved-register colouring
    require; `sp = func_002b2970(x, y)` into a whole local writes it directly. */
 void *yListCreateChild(void *, s32, s32, s32, s32);
 char *strcpy(char *, const char *);
@@ -224,7 +224,7 @@ void func_002bb0a0(s32, s32);
 void func_002bbf60(void);
 
 s32 fclShopPlaySound(void *, s32, void *, s8);
-s32 func_002dff90(void *, s32, void *, void *, s8);
+s32 fclShopPlaySoundParams(void *, s32, void *, void *, s8);
 u32 RpRandom(void);
 void memset(void *, s32, s32);
 /* measured: floats first - retail materialises $f12-$f14 before $a0..$t1. */
@@ -255,8 +255,8 @@ u16 datItemValue(s16);
 void func_002bc7f0(s32, s32, s32, s32, s32, s32, f32, f32, f32);
 void func_002e0ca0(s32, Vec2f, f32, s32, u8, s32, u8 *);
 void func_002e0a60(void *, s32, f32);
-void func_002e0080(void *, s8, Vec2f, void *);
-void func_002d8200(void *, s8);
+void fclShopDrawItemText(void *, s8, Vec2f, void *);
+void fclShopSlideIndicator(void *, s8);
 void fclShopDrawSwingCursor(void *);
 s32 yListCount(void);
 s32 func_002e26a0(void);
@@ -359,7 +359,7 @@ s32 func_002be530(u8 *arg0)
     extern s32 sprintf(char *, const char *, ...);
     extern s32 kwlnTaskGetTaskByName(void *);
     extern u8 sdkSndStartChannel(s16, const char *);
-    extern void func_002dfe00(void *arg0);
+    extern void fclShopPlayItemCue(void *arg0);
     extern s32 fclShopIsSpecialItem(u16 arg0);
     extern void fclShopItemPanelDestroy(u8 *task);
     extern void func_002caef0(void *arg0);
@@ -369,7 +369,7 @@ s32 func_002be530(u8 *arg0)
     extern void func_002d3ee0(void *arg0);
     extern s8 func_002d4760(void *arg0, s8 arg1);
     extern s32 func_002d4f30(s16 arg0);
-    extern void func_002d5040(void *arg0);
+    extern void fclShopDrawStats(void *arg0);
     extern void func_002d6190(void *arg0);
     extern void func_002d7300(void *arg0);
     extern void func_002d7f90(void *arg0);
@@ -378,7 +378,7 @@ s32 func_002be530(u8 *arg0)
     extern void func_002db400(void *arg0);
     extern void func_002dd230(void *arg0);
     extern void func_002de5a0(void *arg0);
-    extern void func_002df020(void *arg0, s16 arg1, s32 arg2);
+    extern void fclShopDrawItemDetail(void *arg0, s16 arg1, s32 arg2);
     extern void func_002df4c0(void *arg0);
     extern s32 fclShopItemPanelCreate(s32 arg0, s16 arg1, u32 arg2);
     ShopArgPair sp6A0;
@@ -1373,7 +1373,7 @@ s32 func_002be530(u8 *arg0)
                     if ((*(s8 *)(work + 8)) == var_18_2) {
                         var_22 = func_002b2a30(0x2DU, 0x2DU, 0x2DU, (*(u8 *)(work + var_18_2 + 0xF6A)));
                     }
-                    func_002e0080(arg0, (*(s8 *)(work + var_18_2 + 0xF73)), func_002b2970(71.0f,  86.0f + 35.0f * (f32) var_18_2), (void *) var_22);
+                    fclShopDrawItemText(arg0, (*(s8 *)(work + var_18_2 + 0xF73)), func_002b2970(71.0f,  86.0f + 35.0f * (f32) var_18_2), (void *) var_22);
                 }
             }
             if (((s16) (var_19)) == 0) {
@@ -1500,7 +1500,7 @@ s32 func_002be530(u8 *arg0)
                 if ((*(s8 *)(work + 8)) == ((s16) var_19)) {
                     var_21_2 = func_002b2a30(0x2DU, 0x2DU, 0x2DU, (*(u8 *)(work + ((s16) var_19) + 0xF6A)));
                 }
-                func_002e0080(arg0, (*(s8 *)(work + ((s16) var_19) + 0xF73)), func_002b2970(71.0f,  86.0f + 35.0f * (f32) var_19), (void *) var_21_2);
+                fclShopDrawItemText(arg0, (*(s8 *)(work + ((s16) var_19) + 0xF73)), func_002b2970(71.0f,  86.0f + 35.0f * (f32) var_19), (void *) var_21_2);
             }
         }
         for (var_19_3 = 0; var_19_3 < 2; var_19_3++) {
@@ -1685,9 +1685,9 @@ s32 func_002be530(u8 *arg0)
         }
         break;
     case 0x1D:                                      /* switch 1 */
-        func_002d5040(arg0);
+        fclShopDrawStats(arg0);
         func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
-        func_002e0080(arg0, (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), func_002b2970(51.0f, 48.0f), (void *) func_002b2a30(0xFFU, 0xFFU, 0xFFU, 0xFFU));
+        fclShopDrawItemText(arg0, (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), func_002b2970(51.0f, 48.0f), (void *) func_002b2a30(0xFFU, 0xFFU, 0xFFU, 0xFFU));
         if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
@@ -1707,8 +1707,8 @@ s32 func_002be530(u8 *arg0)
         }
         break;
     case 0x1E:                                      /* switch 1 */
-        func_002d5040(arg0);
-        func_002e0080(arg0, (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), func_002b2970(51.0f, 48.0f), (void *) func_002b2a30(0xFFU, 0xFFU, 0xFFU, 0xFFU));
+        fclShopDrawStats(arg0);
+        fclShopDrawItemText(arg0, (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), func_002b2970(51.0f, 48.0f), (void *) func_002b2a30(0xFFU, 0xFFU, 0xFFU, 0xFFU));
         func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
             func_002bbcf0((*(s8 *)(work + 0x10)));
@@ -1735,7 +1735,7 @@ s32 func_002be530(u8 *arg0)
         }
         break;
     case 0x1F:                                      /* switch 1 */
-        func_002d5040(arg0);
+        fclShopDrawStats(arg0);
         func_002cb6c0(arg0, 1);
         func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
@@ -1892,7 +1892,7 @@ s32 func_002be530(u8 *arg0)
                     break;
                 }
                 func_002caef0(arg0);
-                func_002d8200(arg0, 0);
+                fclShopSlideIndicator(arg0, 0);
                 sdkSndStartStream(0, 0, 0, 5);
             } else if (D_008C027A[0] & 4) {
                 (*(s16 *)(work + 2)) = 0;
@@ -1911,7 +1911,7 @@ s32 func_002be530(u8 *arg0)
                     break;
                 }
                 func_002caef0(arg0);
-                func_002d8200(arg0, 0);
+                fclShopSlideIndicator(arg0, 0);
                 sdkSndStartStream(0, 0, 0, 5);
             } else if (D_008C024E[0] & 0x20) {
                 func_002d3ee0(arg0);
@@ -2117,7 +2117,7 @@ block_368:
         temp_16_74 = yListValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2)));
         temp_18_51 = yListAuxValueAtFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), (s32) (*(s16 *)(work + 2))) & 0xFF;
         func_002cdf80(arg0, 2);
-        func_002df020(arg0, temp_16_74, temp_18_51);
+        fclShopDrawItemDetail(arg0, temp_16_74, temp_18_51);
         func_002dd3b0(arg0);
         if (D_008C027A[0] & 0x1000) {
             temp_18_52 = (*(s16 *)(work + 0x12));
@@ -2157,7 +2157,7 @@ block_368:
             sp678.v0 = (s32) ((s16) (temp_16_74));
             sp678.v1 = 0;
             sprintf(spC0, iGpffffa880, (*(s16 *)(work + 0x12)));
-            (*(s8 *)(work + 0x10)) = func_002dff90(arg0, 2, &sp678, spC0, 1);
+            (*(s8 *)(work + 0x10)) = fclShopPlaySoundParams(arg0, 2, &sp678, spC0, 1);
             (*(s8 *)(work + 0)) = 0x28;
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x20) {
@@ -2181,7 +2181,7 @@ block_368:
         temp_18_54 = yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]));
         temp_23_2 = (*(s16 *)(work + 2));
         temp_30 = (*(s16 *)(work + 4));
-        func_002df020(arg0, temp_19_7, temp_16_75 & 0xFF);
+        fclShopDrawItemDetail(arg0, temp_19_7, temp_16_75 & 0xFF);
         if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else {
@@ -2259,7 +2259,7 @@ block_368:
             }
             if ((*(s16 *)(work + 0xC16)) > 0) {
                 (*(s8 *)(work + 0xC1A)) = 0;
-                func_002dfe00(arg0);
+                fclShopPlayItemCue(arg0);
                 (*(s8 *)(work + 0)) = 0x29;
             }
         }
@@ -2311,7 +2311,7 @@ block_368:
                 }
                 if ((*(s16 *)(work + 0xC16)) > 0) {
                     (*(s8 *)(work + 0xC1A)) = 0;
-                    func_002dfe00(arg0);
+                    fclShopPlayItemCue(arg0);
                     (*(s8 *)(work + 0)) = 0x29;
                 }
             } else {
@@ -2382,7 +2382,7 @@ block_368:
                     (*(s8 *)(work + 0)) = 0x31;
                 }
             } else {
-                func_002dfe00(arg0);
+                fclShopPlayItemCue(arg0);
                 (*(s8 *)(work + 0)) = 0x29;
             }
         }
@@ -3161,7 +3161,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
         func_002e04f0(work->fC90, 0, 1);
     }
     sp1E0 = func_002b2970(51.0f, 48.0f);
-    func_002e0080(arg0, work->kind[work->sel], sp1E0, (void *)func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
+    fclShopDrawItemText(arg0, work->kind[work->sel], sp1E0, (void *)func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
     if (func_002e0570(work->fDC8, 1) == 0) {
         u8 alpha;
 
@@ -3315,7 +3315,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
             yListRebuild(0x8000, 1 << (work->kind[work->sel] + 4), 2, 2);
             break;
         }
-        func_002d8200(arg0, 0);
+        fclShopSlideIndicator(arg0, 0);
     } else if (D_008C027A[0] & 4) {
         sdkSndStartStream(0, 0, 0, 5);
         work->f2 = 0;
@@ -3333,7 +3333,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
             yListRebuild(0x8000, 1 << (work->kind[work->sel] + 4), 2, 2);
             break;
         }
-        func_002d8200(arg0, 1);
+        fclShopSlideIndicator(arg0, 1);
     } else if (D_008C024E[0] & 0x40) {
         if (yListCount() > 0) {
             stock = func_00106a90((s16)yListValueAt(work->f2));
@@ -4443,7 +4443,7 @@ s32 func_002d1590(void *arg0)
     colA = func_002b2a30(0, 0x2D, 0x2D, 0x2D);
     colB = func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF);
     sp238 = func_002b2970(51.0f, 48.0f);
-    func_002e0080(arg0, work->kind[work->sel], sp238, (void *)func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
+    fclShopDrawItemText(arg0, work->kind[work->sel], sp238, (void *)func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
     sp230 = func_002b2970((f32)0x24E, 61.0f);
     c2A4 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
     func_002cacd0(sp230, 1.0f, c2A4, 0x11, 5, func_00106a90((s16)yListValueAt(work->f2)), 0x70, 0x7A,
@@ -5121,6 +5121,7 @@ static inline void shopDrawStat(u32 value, f32 x, f32 y)
     func_002cacd0(func_002b2970(x + (f32)((s16)(func_002b3170(value) - 1) * 8), y), 22.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0xF, 0, value, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
 }
 
+// Draws the item's stat block: stat numbers with their deltas, labels, and the per-row slots.
 /* measured: MATCH, window 1108 words/4432B (1106 code words + 2 alignment).
    Built on the func_002df020/func_002de5a0 levers: a switch on work[7]
    written 0, 1, 2; Vec2f-returning func_002b2970 and the colour calls used
@@ -5137,7 +5138,7 @@ static inline void shopDrawStat(u32 value, f32 x, f32 y)
    evaluate `cur` first through shopStatDelta; case 2 zeroes with
    `dB = dA = 0`. */
 // FUN_002D5040
-void func_002d5040(void *arg0) {
+void fclShopDrawStats(void *arg0) {
     s16 dB;
     s16 dA;
     u8 *work;
@@ -5687,8 +5688,9 @@ void func_002d7f90(void *arg0) {
     sdkSpriteFreeNode((u8 *)r);
 }
 
+// Slides the shop indicator by 4 units (up for arg1 == 0, down for arg1 == 1) on the first sprite node.
 // FUN_002D8200
-void func_002d8200(void *arg0, s8 arg1) {
+void fclShopSlideIndicator(void *arg0, s8 arg1) {
     ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
     s32 r;
     s16 v;
@@ -6940,8 +6942,9 @@ void func_002de5a0(void *arg0) {
    arg1 is an s16 item id: it is passed unchanged to datEntryGetFlags and
    datGetItemNameId, and widened with (s32) for func_00106a90, which retail
    re-extends. */
+// Draws the item detail block (header, name, count, and the flag icon) for item arg1; arg2 is the draw alpha/mode.
 // FUN_002DF020
-void func_002df020(void *arg0, s16 arg1, s32 arg2) {
+void fclShopDrawItemDetail(void *arg0, s16 arg1, s32 arg2) {
     extern u8 D_0063FAA0[];
     extern Vec2f uGpffffa888;
     u8 *work;
@@ -7067,8 +7070,9 @@ s32 fclShopIsSpecialItem(u16 arg0) {
     return 0;
 }
 
+// Plays the cue for item arg0: a special item uses cue 8, any other item cue 7, through fclShopPlaySound.
 // FUN_002DFE00
-void func_002dfe00(void *arg0) {
+void fclShopPlayItemCue(void *arg0) {
     s32 r;
     s32 idx;
     u16 v;
@@ -7109,8 +7113,9 @@ s32 fclShopPlaySound(void *arg0, s32 arg1, void *arg2, s8 arg3) {
     return v;
 }
 
+// Plays a sound through a fresh handle with two parameter sets (arg2 and arg3); arg4 == 1 stops it at once. Returns the handle.
 // FUN_002DFF90
-s32 func_002dff90(void *arg0, s32 arg1, void *arg2, void *arg3, s8 arg4) {
+s32 fclShopPlaySoundParams(void *arg0, s32 arg1, void *arg2, void *arg3, s8 arg4) {
     s8 handle;
     s32 v;
     void *t;
@@ -7129,8 +7134,9 @@ s32 func_002dff90(void *arg0, s32 arg1, void *arg2, void *arg3, s8 arg4) {
     return v;
 }
 
+// Draws an item name label at position arg2 (x offset 77), with the name taken from the item table entry for arg1.
 // FUN_002E0080
-void func_002e0080(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
+void fclShopDrawItemText(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
     frFontExDrawTextDeferred(77.0f + arg2.x, arg2.y, 1.0f, (s32)(u32)arg3, 0, 1,
                   (const char *)func_0010d6d0(arg1), 8, 0, D_00795E60);
 }
