@@ -103,8 +103,8 @@ extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
 extern s32 btlActionHasNoTargetClass(u32 arg0);
 extern void func_001f9cd0(void);
 extern s32 btlConditionMessageId(s32 arg0);
-extern s32 func_001fb1f0(u8 *arg0, s32 arg1);
-extern s32 func_001fb360(u8 *arg0, s32 arg1);
+extern s32 btlBuffMaskCheckEntries(u8 *arg0, s32 arg1);
+extern s32 btlBuffMaskCheckUnit(u8 *arg0, s32 arg1);
 static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
 {
     u16 k;
@@ -323,9 +323,9 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
     /* lint: allow H011 -- this call supplies a u16 code; the callee dispatches only its low 16 bits. */
     extern s32 btlConditionMessageId(u16);
     /* lint: allow H011 -- retail explicitly loads flags into $a2; the callee leaves that argument unused. */
-    extern s32 func_001fb1f0(u8 *, s32, s32);
+    extern s32 btlBuffMaskCheckEntries(u8 *, s32, s32);
     /* lint: allow H011 -- retail passes flags as the third argument; the callee leaves it unused. */
-    extern s32 func_001fb360(u8 *, s32, s32);
+    extern s32 btlBuffMaskCheckUnit(u8 *, s32, s32);
     extern s32 datCalcResolveSkillId(u8 *, s32);
     extern s32 datCalcHitResult(u8 *, u8 *, s32, s32, s32);
     /* lint: allow H011 -- retail forwards an already zero-extended skill word; the callee consumes its low 16 bits. */
@@ -568,7 +568,7 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
         if (mask == 0x80000) {
             *(s32 *)(unit + 0xE0) = 1;
         }
-        special = func_001fb360(unit, idw, flags);
+        special = btlBuffMaskCheckUnit(unit, idw, flags);
         resw = (u16)res;
         if (resw == 1 && *(s32 *)(unit + 0xE4) == 0 && special == 0) {
             bonus = *(s32 *)((u8 *)addOffsetFirst(damageOffset, (u32)iGpffffb3b8) + 0x20);
@@ -789,7 +789,7 @@ void btlTargetResolveSelectedSkill(u8 *arg0)
         *(u16 *)(arg0 + 0x1A) |= 0x4000;
     }
     {
-        u16 t = func_001fb1f0(arg0, idw, flags);
+        u16 t = btlBuffMaskCheckEntries(arg0, idw, flags);
 
         if (t != 0 && *(s32 *)(arg0 + 0xE8) != 1) {
             *(s16 *)(arg0 + 0xEC) = btlConditionMessageId(t);

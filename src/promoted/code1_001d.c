@@ -145,7 +145,7 @@ extern void btlFormationApplyModelMatrixAlt(u8 *arg0, u8 *arg1, u8 *arg2, f32 *a
 extern void btlFormationOffsetTransformA(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 extern void btlFormationOffsetTransformB(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 extern void btlFormationOffsetTransformC(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
-extern void func_001d4eb0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void btlFormationAttachPosition(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 #pragma opt_propagation off
 #pragma opt_propagation on
 #pragma push
@@ -170,7 +170,7 @@ BtlAttachPositionCallback btlFormationOffsetTransformA;
 BtlAttachPositionCallback btlFormationOffsetTransformB;
 BtlAttachPositionCallback btlFormationOffsetTransformC;
 BtlAttachPositionCallback btlFormationClearAttachVector;
-BtlAttachPositionCallback func_001d4eb0;
+BtlAttachPositionCallback btlFormationAttachPosition;
 
 /* Retail keeps {unit,entry,handles,frame,w} in $s0-$s4 and the loop index in
    $s5. The loop compares against `now = (u32)frame`: that converted copy is a

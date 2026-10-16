@@ -277,7 +277,7 @@ void btlEffectUpdateFadeNodes(void)
             }
             if (node->unknown10 != NULL) {
                 *(u32 *)(node->unknown10 + 0x10) = color;
-                func_001d5b20(node->unknown10);
+                btlFormationCameraTaskStart(node->unknown10);
             }
         }
         node->color = color;
