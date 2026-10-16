@@ -232,7 +232,7 @@ extern u16 *datPersonaGetRecord(u16 pcId);
 
 extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 
-extern u32 datPersonaGetNextExp(int persona);
+extern u32 datPersonaGetExp(int persona);
 
 extern void FUN_0043f9c8(void* destination, s32 value, u32 size);
 extern void datBuildPersonaDisplayName(void);
@@ -493,7 +493,7 @@ u32 datPersonaGetExpById(s16 arg0)
         PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(arg0);
 
         K_ASSERT(persona != 0, 0x1B8);
-        return datPersonaGetNextExp((int)persona);
+        return datPersonaGetExp((int)persona);
     }
 }
 
@@ -761,7 +761,7 @@ s32 func_00105a50(s16 arg0)
         PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
         if (persona == 0)
             kAssertFail((const char *)D_005E4298, 0x1B8);
-        value = datPersonaGetNextExp((int)persona);
+        value = datPersonaGetExp((int)persona);
     }
     index = 0;
     i = 0;
@@ -787,7 +787,7 @@ first_done:
         PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
         if (persona == 0)
             kAssertFail((const char *)D_005E4298, 0x1B8);
-        value = datPersonaGetNextExp((int)persona);
+        value = datPersonaGetExp((int)persona);
     }
     index2 = 0;
     i = 0;
@@ -812,7 +812,7 @@ second_done:
         PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
         if (persona == 0)
             kAssertFail((const char *)D_005E4298, 0x1B8);
-        value = datPersonaGetNextExp((int)persona);
+        value = datPersonaGetExp((int)persona);
     }
     return (s32)((u32)value3 - (u32)value);
 }
@@ -1296,8 +1296,9 @@ u16 datItemAccessoryPercent(s16 arg0)
     return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x2A);
 }
 
+// Intent: returns the item's element (u16 at +0x2C). datCalcSkillElement and datCalcHitResult read it for the equipped item.
 // FUN_00106A30
-u16 func_00106a30(s16 arg0)
+u16 datItemElement(s16 arg0)
 {
     return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x2C);
 }
@@ -1309,8 +1310,9 @@ u32 datEntryCategoryMask(s16 arg0)
     return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x30);
 }
 
+// Intent: returns the item's price (u32 at +0x34). fclItemShopDiscountedPrice subtracts the discount from it.
 // FUN_00106A90
-u32 func_00106a90(s16 arg0)
+u32 datItemPrice(s16 arg0)
 {
     return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x34);
 }
@@ -1514,8 +1516,9 @@ u8 datPersonaGetLevelByPcId(u16 pcId)
 
 
 
+// Intent: returns the persona's current exp (u32 at +8 of the record). Callers use it as the exp base for the next-level and remaining-exp figures.
 // FUN_00109430
-u32 datPersonaGetNextExp(int persona)
+u32 datPersonaGetExp(int persona)
 {
     return *(u32*)(persona + 8);
 }

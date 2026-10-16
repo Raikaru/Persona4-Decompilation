@@ -23,7 +23,7 @@ extern s32 D_00884670[];
 extern s32 D_00884684[];
 extern u16 iGpffffb5a4;
 extern u8 *sdkSpriteNewNode(s32 arg0, s32 arg1);
-extern s32 func_002b89a0(void *arg0);
+extern s32 fclSpriteUpdateTweens(void *arg0);
 extern void memcpy(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_00457120(void);
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
@@ -291,7 +291,7 @@ s32 fclCmbBallSlotsUpdate(u8 *arg0)
     while ((s64)(s16)counter < *(u8 *)(base + 0x1800)) {
         entry = base + ((s32)(s64)(s16)(s64)counter << 9);
         sub = entry + 0x104;
-        memcpy(sub, func_002b89a0(sub), 0xF0);
+        memcpy(sub, fclSpriteUpdateTweens(sub), 0xF0);
         if ((*(s16 *)(entry + 0x104) & 1) == 1) {
             f32 field;
             f32 global;

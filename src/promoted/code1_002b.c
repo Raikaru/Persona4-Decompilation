@@ -34,7 +34,7 @@ extern char D_007488E8[];
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 
 
-extern u32 func_00106a90(s16 arg0);
+extern u32 datItemPrice(s16 arg0);
 extern u8 *D_00882F40[];
 extern void itfMesWindowSetString(s32 handle, s32 variable, char *text);
 extern s32 D_0063F2B0[];
