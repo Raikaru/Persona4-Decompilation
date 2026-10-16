@@ -1544,12 +1544,12 @@ u32 datPersonaGetExpForLevel(void *persona, u16 level)
 
 // Intent: adds experience arg1 to persona record arg0 at +8; fatal when negative.
 // FUN_0010C980
-void datPersonaAddExp(u8 *arg0, s32 arg1)
+void datPersonaAddExp(DatPersonaRecord *arg0, s32 arg1)
 {
     if (arg1 < 0) {
         kAssertFail(D_005E4318, 0x689);
     }
-    *(s32 *)(arg0 + 8) += arg1;
+    arg0->exp += arg1;
 }
 
 /* measured: ported the matching P3 FES skill-compaction structure, with
@@ -1745,16 +1745,14 @@ s32 datPersonaCountSkills(u8 *arg0)
 
 // Intent: skill id in slot arg1 (0..7) of persona record arg0.
 // FUN_0010CF40
-u16 datPersonaGetSkillAt(u8 *arg0, s16 arg1)
+u16 datPersonaGetSkillAt(DatPersonaRecord *arg0, s16 arg1)
 {
     s32 index = arg1;
-    s32 off;
 
     if (index >= 8) {
         kAssertFail(D_005E4318, 0x723);
     }
-    off = index * 2;
-    return *(u16 *)(off + (s32)arg0 + 0xC);
+    return arg0->skills[index];
 }
 // Intent: stores source record arg2 (persona id arg1, its skills and stat bonuses) into the 0x30-byte record arg0; returns 1.
 // FUN_0010CFA0
