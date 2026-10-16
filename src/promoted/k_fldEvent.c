@@ -1306,8 +1306,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     }
                 }
                 {
-                    s32 v6 = func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState());
-                    FldResource_OpenPrimaryFile(v6, func_00156180(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
+                    s32 v6 = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState());
+                    FldResource_OpenPrimaryFile(v6, FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
                 }
                 if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
                     work->unitState = FldUnit_GetActiveCount();
@@ -1325,18 +1325,18 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 s32 v6;
                 s32 a;
                 s32 b;
-                a = func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState());
-                work->fieldTask = (s32)func_0015ff20(a, func_00156180(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
-                work->environmentTask = (s32)func_001601e0(func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
+                a = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState());
+                work->fieldTask = (s32)func_0015ff20(a, FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
+                work->environmentTask = (s32)func_001601e0(FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
                 {
                     u32 _p88 = D_00762EA0;
                     *(s32 *)(_p88 + 0x88) = *(s32 *)(_p88 + 0x88) | 0x80000000;
                 }
-                b = func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
-                fieldSceneLoad(b, func_00156180(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF);
-                func_00144e10((s16)func_00156190(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
-                func_00144ed0((s64)(s16)func_001546a0(func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState()), func_00156180(*(u8 **)(u8 *)MT_Scene_GetFrameState())));
-                v6 = func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
+                b = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
+                fieldSceneLoad(b, FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF);
+                func_00144e10((s16)FldLoadTaskMapState(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
+                func_00144ed0((s64)(s16)func_001546a0(FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()), FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState())));
+                v6 = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
                 if (v6 == 0x2C) goto loadFieldModel;
                 if (v6 == 0x2E) goto loadFieldModel;
                 if (v6 == 0x2F) goto loadFieldModel;
@@ -1360,7 +1360,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
         case 14:
             if (func_00160000((u8 *)(work->fieldTask)) != 0) {
                 work->fieldTask = 0;
-                if (func_001602a0((u8 *)(work->environmentTask), func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState())) != 0) {
+                if (func_001602a0((u8 *)(work->environmentTask), FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState())) != 0) {
                     work->environmentTask = 0;
                     if (FldUnit_AllSlotAnimsDone() != 0 && fieldSceneLoadStep() != 0) {
                         s32 t = work->modelFile;

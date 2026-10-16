@@ -77,7 +77,7 @@ extern void func_00160880(void);
 extern s32 D_007D2510[];
 extern u8 D_007D24F0[];
 extern u8 D_005EFFE0[];
-extern s32 func_001561a0(u8 *arg0);
+extern s32 FldLoadTaskUpdate(u8 *arg0);
 extern void func_00156630(u8 *task);
 extern s32 H_Cdvd_IsFileLoaded();
 extern void func_003642e0(s32 arg0, s32 arg1);
@@ -359,28 +359,32 @@ void MT_Scene_SetWorkValue(u8 *arg0, s32 arg1) {
     }
 }
 
+// Intent: Report whether a field-load task has reached its finished state (state 13 or later); a null task is treated as done [inferred]
 // FUN_00156140
-s32 func_00156140(u8 *arg0)
+s32 FldLoadTaskIsDone(u8 *arg0)
 {
     if (arg0 == NULL) {
         return 1;
     }
     return *(s32 *)(*(u8 **)(arg0 + 0x38)) >= 0xD;
 }
+// Intent: Return the field id requested by a field-load task [inferred]
 // FUN_00156170
-s32 func_00156170(u8 *arg0)
+s32 FldLoadTaskFieldId(u8 *arg0)
 {
     return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x18);
 }
 
+// Intent: Return the room id requested by a field-load task [inferred]
 // FUN_00156180
-s32 func_00156180(u8 *arg0)
+s32 FldLoadTaskRoomId(u8 *arg0)
 {
     return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x1A);
 }
 
+// Intent: Return the map state requested by a field-load task [inferred]
 // FUN_00156190
-s32 func_00156190(u8 *arg0)
+s32 FldLoadTaskMapState(u8 *arg0)
 {
     return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x20);
 }
@@ -403,8 +407,9 @@ typedef char FldLoadWorkSizeCheck[sizeof(FldLoadWork) == 0x20 ? 1 : -1];
  * Scoped propagation control preserves file and script argument snapshots. */
 #pragma push
 #pragma opt_propagation off
+// Intent: Field-load task state machine: open the primary file, load the map and environment, run the scene load and apply the camera parameters; returns -1 when finished [inferred]
 // FUN_001561A0
-s32 func_001561a0(u8 *task)
+s32 FldLoadTaskUpdate(u8 *task)
 {
     extern s16 datGetDateIndex(void);
     extern u8 datGetTimeSlot(void);
@@ -569,8 +574,9 @@ void func_00156630(u8 *unusedTask)
 }
 /* measured: opt_propagation off preserves the callback work-area base. */
 #pragma opt_propagation off
+// Intent: Create a field-load task under the given parent, store its request fields and open the primary file [inferred]
 // FUN_00156640
-s32 func_00156640(u8 *arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
+s32 FldLoadTaskCreate(u8 *arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
                   s32 arg5, s32 arg6, s32 arg7)
 {
     u8 *base;
@@ -578,7 +584,7 @@ s32 func_00156640(u8 *arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
 
     memset(D_007D24F0, 0, 0x20);
     base = D_007D24F0;
-    temp_21 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFFE0), 0xF, 0, 0, func_001561a0, func_00156630, (u8 *)(base));
+    temp_21 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFFE0), 0xF, 0, 0, FldLoadTaskUpdate, func_00156630, (u8 *)(base));
     *(u16 *)(base + 8) = arg1;
     *(u16 *)(base + 0xA) = arg2;
     *(s16 *)(base + 0xC) = arg3;
@@ -591,8 +597,9 @@ s32 func_00156640(u8 *arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4,
 }
 /* measured: closes the callback work-area base probe. */
 #pragma opt_propagation on
+// Intent: Unload the previous field scene for the task's request; a second unload runs for the listed map states [inferred]
 // FUN_00156750
-void func_00156750(u8 *arg0)
+void FldLoadTaskUnloadScene(u8 *arg0)
 {
     u8 *work;
     u16 value;

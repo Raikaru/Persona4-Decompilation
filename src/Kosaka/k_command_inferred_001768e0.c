@@ -240,7 +240,7 @@ s32 Cmd_GetCurrentFieldMajorId(void) {
 
     v = 0;
     if (*(s32 *)(u8 *)MT_Scene_GetFrameState() != 0) {
-        v = func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
+        v = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
     }
     scrSetReturnInt(v);
     return 1;
@@ -252,7 +252,7 @@ s32 Cmd_GetCurrentFieldMinorId(void) {
 
     v = 0;
     if (*(s32 *)(u8 *)MT_Scene_GetFrameState() != 0) {
-        v = func_00156180(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
+        v = FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
     }
     scrSetReturnInt(v);
     return 1;
