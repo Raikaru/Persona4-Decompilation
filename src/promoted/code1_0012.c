@@ -1503,7 +1503,7 @@ s32 clndSceneUpdate(u8 *arg0)
     extern void sdkSndFadeOutChannel(s32 arg0, s32 arg1);
     extern s32 logoTaskStart(void);
     extern s32 func_0012c1a0(s32 arg0);
-    extern s32 func_0046a110(void *arg0, s32 arg1, void *arg2);
+    extern s32 mwPlayerCreate(void *arg0, s32 arg1, void *arg2);
     extern void calendarStart(void);
     extern void func_00122640(s32 arg0, s32 arg1);
     extern s32 titleStartLoader(void);
@@ -1568,9 +1568,9 @@ s32 clndSceneUpdate(u8 *arg0)
         break;
     case 4:
         if (iGpffffb1e4 == 0) {
-            *(s32 *)(temp_16 + 0xC) = func_0046a110(arg0, 0x15, D_007963A0);
+            *(s32 *)(temp_16 + 0xC) = mwPlayerCreate(arg0, 0x15, D_007963A0);
         } else {
-            *(s32 *)(temp_16 + 0xC) = func_0046a110(arg0, 0x16, D_007963A0);
+            *(s32 *)(temp_16 + 0xC) = mwPlayerCreate(arg0, 0x16, D_007963A0);
         }
         iGpffffb1e4 = ~iGpffffb1e4;
         *(u32 *)temp_16 = 5;
