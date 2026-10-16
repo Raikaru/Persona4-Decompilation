@@ -75,7 +75,7 @@ extern void mdlSetTrackScaleRange(s32 a, f32 b, f32 c);
 extern u8 *mdlGetLookAtSubobject(s32 a);
 extern void mdlSetLookAtRequested(s32 a);
 extern s32 mdlHasActiveMode(s32 a);
-extern f32 func_004bd4a0(void *a, f32 *b);
+extern f32 effMiscQuatAngle(void *a, f32 *b);
 
 // Intent: Single-model motion state machine: state 0 ramps the blend weight from speed, state 1 aims the look-at subobject at dst, then the timed step ends the motion [inferred]
 // FUN_00291B60
@@ -120,7 +120,7 @@ state_ready:
         goto common;
     }
     if (state == 1) {
-        temp_f20 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
+        temp_f20 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -151,7 +151,7 @@ state1_counter:
         goto common;
     }
     if (state == 2) {
-        temp_f20 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
+        temp_f20 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -259,7 +259,7 @@ state_ready:
         goto common;
     }
     if (state == 1) {
-        temp_f21 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
+        temp_f21 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f21 < -1.0f) || !(temp_f21 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -302,7 +302,7 @@ block_21:
             var_f12_3 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_3);
-        temp_f0_3 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
+        temp_f0_3 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f0_3 < -1.0f) || !(temp_f0_3 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -345,7 +345,7 @@ block_42:
             var_f12_5 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_5);
-        temp_f0_5 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
+        temp_f0_5 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f0_5 < -1.0f) || !(temp_f0_5 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -387,7 +387,7 @@ block_63:
             var_f12_7 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_7);
-        temp_f0_6 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
+        temp_f0_6 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f0_6 < -1.0f) || !(temp_f0_6 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -430,7 +430,7 @@ block_84:
             var_f12_9 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_9);
-        temp_f0_8 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
+        temp_f0_8 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f0_8 < -1.0f) || !(temp_f0_8 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -461,7 +461,7 @@ block_105:
         goto common;
     }
     if (state == 6) {
-        temp_f0_9 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
+        temp_f0_9 = effMiscQuatAngle(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f0_9 < -1.0f) || !(temp_f0_9 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }

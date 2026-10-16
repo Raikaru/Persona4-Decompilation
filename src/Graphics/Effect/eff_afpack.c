@@ -59,7 +59,7 @@ extern void func_003c0210(void* a, void* b, s32 c);
 extern s32 func_003e9320(void);
 extern void RpAtomicSetFrame(void* a, void* b);
 extern void func_003c2a80(void* a);
-extern void func_004bccf0(void* a, void* b);
+extern void effMiscProgressResetWork(void* a, void* b);
 extern void func_003c22f0(void* a);
 
 /* The allocation result lands in `base` first and is copied to `node`:
@@ -404,7 +404,7 @@ u8* AfPackCreateInstance(u8* arg0)
             RpAtomicSetFrame(*(u8**)(*(u8**)(node + 0xC) + i * 8),
                           (void*)func_003e9320());
             func_003c2a80(temp);
-            func_004bccf0(*(u8**)(node + 8) + i * 0x3C, temp);
+            effMiscProgressResetWork(*(u8**)(node + 8) + i * 0x3C, temp);
             func_003c22f0(temp);
             i++;
         }

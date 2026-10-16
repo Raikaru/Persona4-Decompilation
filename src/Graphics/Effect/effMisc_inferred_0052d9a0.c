@@ -64,7 +64,7 @@ typedef struct {
 /* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
 /* measured: closes the schedule-on segment-return bracket through func_0052c870; explicit schedule off restores the following code's baseline state. */
 // FUN_0052D9A0
-void func_0052d9a0(StatAccum52 *acc, s64 value)
+void StatAccum52Add(StatAccum52 *acc, s64 value)
 {
     acc->total += value;
     acc->min = (value < acc->min) ? value : acc->min;

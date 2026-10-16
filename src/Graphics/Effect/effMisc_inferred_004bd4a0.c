@@ -70,7 +70,7 @@ typedef struct {
 #pragma pop
 /* measured: restore propagation for the rest of the unit. */
 // FUN_004BD4A0
-f32 func_004bd4a0(u8 *arg0, u8 *arg1)
+f32 effMiscQuatAngle(u8 *arg0, u8 *arg1)
 {
     Code1_004bBddVec4 a;
     Code1_004bBddVec4 b;

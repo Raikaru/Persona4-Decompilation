@@ -69,7 +69,7 @@ typedef struct {
 #pragma push
 #pragma pop
 // FUN_004BC4D0
-void func_004bc4d0(u8 *arg0, f32 arg1)
+void effMiscProgressStart(u8 *arg0, f32 arg1)
 {
     *(s32 *)(arg0 + 0x28) = 0;
     *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x2c);
@@ -78,7 +78,7 @@ void func_004bc4d0(u8 *arg0, f32 arg1)
 }
 
 // FUN_004BC500
-void func_004bc500(u8 *arg0)
+void effMiscProgressReset(u8 *arg0)
 {
     *(s32 *)(arg0 + 4) = 0;
     *(s32 *)(arg0 + 0x2c) = 0;
@@ -87,7 +87,7 @@ void func_004bc500(u8 *arg0)
 }
 
 // FUN_004BC520
-void func_004bc520(u8 *arg0, f32 *arg1)
+void effMiscProgressAdvance(u8 *arg0, f32 *arg1)
 {
     *(f32 *)(arg0 + 0x2c) += *arg1;
 }
@@ -98,7 +98,7 @@ void func_004bc520(u8 *arg0, f32 *arg1)
 // FUN_004BC540
 /* measured: func_004bc540 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void func_004bc540(u8 *arg0, s32 arg1, f32 fparg0, u8 *arg2)
+void effMiscProgressBlendColor(u8 *arg0, s32 arg1, f32 fparg0, u8 *arg2)
 {
     u8 *temp_5;
     struct {
@@ -167,7 +167,7 @@ void func_004bc540(u8 *arg0, s32 arg1, f32 fparg0, u8 *arg2)
 
 /* measured: restore propagation for the rest of the unit. */
 // FUN_004BCCF0
-void func_004bccf0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3)
+void effMiscProgressResetWork(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3)
 {
     Code1_004bBccf0Temp temp;
     s16 temp_6;
