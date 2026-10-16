@@ -90,7 +90,7 @@ extern s32 iGpffffb278;
 extern s32 iGpffffb27c;
 extern s32 iGpffffb280;
 extern s32 iGpffffb284;
-extern s32 func_0015d730(u8 *arg0);
+extern s32 FldStartupDataUpdate(u8 *arg0);
 
 
 
