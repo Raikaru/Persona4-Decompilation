@@ -2111,7 +2111,7 @@ s32 FldStepTaskUpdate(u8 *arg0)
 {
     extern s32 FldRootCreate(u8 *arg0, u16 arg1, u16 arg2, s32 arg3, s16 arg4, s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9, s64 arg10, s64 arg11, s64 arg12, s64 arg13);
     extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
-    extern s32 func_003641a0(s32 arg0);
+    extern s32 cmpPartyPanelTaskCreate(s32 arg0);
     extern void func_0015bae0(void);
     extern void FldStepPreloadBegin(void);
     extern s32 FldStepPreloadCreateTasks(void);
@@ -2142,7 +2142,7 @@ s32 FldStepTaskUpdate(u8 *arg0)
                 if (FldStepPreloadCreateTasks() != 0 && FldStepPreloadFinish() != 0) {
                     *(u8 **)(work + 0x20) = D_007E3720;
                     if (*(s32 *)(work + 4) != 0x9F) {
-                        *(s32 *)(work + 0x1C) = func_003641a0(0);
+                        *(s32 *)(work + 0x1C) = cmpPartyPanelTaskCreate(0);
                     }
                     *(s32 *)work += 1;
     case 2:

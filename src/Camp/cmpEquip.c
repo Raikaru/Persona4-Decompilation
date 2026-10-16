@@ -4,8 +4,8 @@
 #include "type.h"
 
 void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
-void func_001344d0(u8 *arg0);
-void func_00131a00(u8 *arg0);
+void cmpEquipStepTabAnimations(u8 *arg0);
+void cmpEquipMenuDraw(u8 *arg0);
 s16 func_00106cd0(s16 arg0, s16 arg1);
 s32 func_00106600(s16 id);
 s32 datEntryHasFlag(s16 arg0, s16 arg1);
@@ -38,7 +38,7 @@ extern u8 D_0064B2F4[];
 #pragma opt_loop_invariants on
 /* measured: initializer conversion and table setup match the retail window. */
 // FUN_001312B0
-void func_001312b0(u8 *arg0)
+void cmpEquipMenuInit(u8 *arg0)
 {
     s16 inner_i;
     s16 value;
@@ -100,7 +100,7 @@ void func_001312b0(u8 *arg0)
             inner_i++;
         }
     }
-    func_00134560(base, 0);
+    cmpEquipSetMode(base, 0);
     asset0 = resourceFindByName(D_005E5830);
     if (asset0 == 0) {
         kAssertFail(D_005E9FA0, 0x26A);
@@ -134,7 +134,7 @@ void func_001312b0(u8 *arg0)
 }
 
 // FUN_00131730
-void func_00131730(s16 *arg0) {
+void cmpEquipBuildItemList(s16 *arg0) {
     s16 i;
     s16 count;
     s16 id;
@@ -195,7 +195,7 @@ s32 func_001318c0(u8 *arg0) {
 }
 
 // FUN_00131910
-s32 func_00131910(u8 *arg0) {
+s32 cmpEquipMenuUpdate(u8 *arg0) {
     s32 i;
     s32 rv;
     u8 *p;
@@ -215,8 +215,8 @@ s32 func_00131910(u8 *arg0) {
     if (*(s16 *)(arg0 + 0x22) >= 0x168) {
         *(s16 *)(arg0 + 0x22) = 0;
     }
-    func_001344d0(arg0);
-    func_00131a00(arg0);
+    cmpEquipStepTabAnimations(arg0);
+    cmpEquipMenuDraw(arg0);
     return rv;
 }
 /* Equipment-menu renderer. Whole-owner MWCCPS2 b210 -O2 match (2026-09-30):
@@ -231,7 +231,7 @@ s32 func_00131910(u8 *arg0) {
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_dead_assignments on
-void func_00131a00(u8 *arg0)
+void cmpEquipMenuDraw(u8 *arg0)
 
 {
     typedef struct { f32 x, y; } Vec2f;
@@ -784,7 +784,7 @@ void func_00131a00(u8 *arg0)
 #pragma pop
 
 // FUN_001344B0
-s32 func_001344b0(u8 *arg0, s32 arg1, s16 arg2) {
+s32 cmpEquipSetSelection(u8 *arg0, s32 arg1, s16 arg2) {
     /* The offset must be computed before the base is added: writing
        `arg0 + arg1 * 2` makes mwcc emit `addu $v1,$a0,$v0`, retail has
        `addu $v1,$v0,$a0`. */
@@ -797,7 +797,7 @@ s32 func_001344b0(u8 *arg0, s32 arg1, s16 arg2) {
 }
 
 // FUN_001344D0
-void func_001344d0(u8 *arg0) {
+void cmpEquipStepTabAnimations(u8 *arg0) {
     s32 i;
     s16 v;
 
@@ -814,7 +814,7 @@ void func_001344d0(u8 *arg0) {
 /* measured: common-subexpression elimination is disabled for the setup and switch layout. */
 #pragma opt_common_subs off
 // FUN_00134560
-s32 func_00134560(u8 *arg0, s32 arg1)
+s32 cmpEquipSetMode(u8 *arg0, s32 arg1)
 {
     s32 i;
     s32 j;
@@ -869,7 +869,7 @@ s32 func_00134560(u8 *arg0, s32 arg1)
         break;
     case 6:
         table = D_005E9220;
-        func_00131730((s16 *)arg0);
+        cmpEquipBuildItemList((s16 *)arg0);
         *(s32 *)(arg0 + 0x1C) = 0x3A0B;
         *(s16 *)(arg0 + 0xC78) = 3;
         break;

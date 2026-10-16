@@ -8,11 +8,11 @@ void sdkSpriteRelease(u8 *node);
 void chkmemAllocSiteTag(void* file, s32 line);
 
 void memset(void* dest, s32 value, s32 size);
-void func_00363540(u8* arg0, u8* arg1);
-s32 func_00363610(u8* arg0);
-void func_003640f0(u8* arg0);
+void cmpPartyPanelDraw(u8* arg0, u8* arg1);
+s32 cmpPartyPanelTaskStep(u8* arg0);
+void cmpPartyPanelTaskDestroy(u8* arg0);
 s32 func_00362f00(u8* arg0);
-void func_00363200(u8* arg0, s64 arg1);
+void cmpPartyPanelDrawRow(u8* arg0, s64 arg1);
 void sdkRenderStateSetDefault(void);
 void sdkSpriteDrawOnceAt(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5);
@@ -98,7 +98,7 @@ static inline f32 panelMulReverse(f32 right, f32 left) {
 }
 
 // FUN_00362FD0
-void func_00362fd0(u8* arg0, f32* arg1, f32* arg2, s16 arg3) {
+void cmpPartyPanelSetRowMotion(u8* arg0, f32* arg1, f32* arg2, s16 arg3) {
     if (arg1 == NULL) {
         *(Vec2f*)(arg0 + 0x00) = *(Vec2f*)(arg0 + 0x10);
     } else {
@@ -115,7 +115,7 @@ void func_00362fd0(u8* arg0, f32* arg1, f32* arg2, s16 arg3) {
 
 
 // FUN_00363080
-void func_00363080(f32 fparg0, f32 fparg1, f32 fparg2) {
+void cmpPartyPanelDrawGauge(f32 fparg0, f32 fparg1, f32 fparg2) {
     DrawPacket packet;
     f32 z;
     f32 x;
@@ -183,7 +183,7 @@ void func_00363080(f32 fparg0, f32 fparg1, f32 fparg2) {
  * The sprite API keeps coordinates before byte colors, as its core does.
  * Snapshot the row position and unsigned HP/SP values before drawing. */
 // FUN_00363200
-void func_00363200(u8* arg0, s64 arg1)
+void cmpPartyPanelDrawRow(u8* arg0, s64 arg1)
 {
     s32 off = (s16)arg1 * 0x28;
     s16 id = *(s16*)((u8*)(off + (s32)arg0) + 0x34);
@@ -221,16 +221,16 @@ void func_00363200(u8* arg0, s64 arg1)
         y35 = 35.0f + y;
         x13 = 13.0f + xy.x;
         sdkSpriteDrawOnceAt(sprB, 1, x13, y35, 0xFF, 0xFF, 0xFF, 0xFF);
-        func_00363080(x13, y35, ratio);
+        cmpPartyPanelDrawGauge(x13, y35, ratio);
         y39 = 39.0f + y;
         sdkSpriteDrawOnceAt(sprB, 2, x13, y39, 0xFF, 0xFF, 0xFF, 0xFF);
         ratio = (f32)spCur / (f32)spMax;
-        func_00363080(x13, y39, ratio);
+        cmpPartyPanelDrawGauge(x13, y39, ratio);
     }
 }
 
 // FUN_00363540
-void func_00363540(u8* arg0, u8* arg1) {
+void cmpPartyPanelDraw(u8* arg0, u8* arg1) {
     s32 i;
     s32 j;
     u8* p;
@@ -244,7 +244,7 @@ void func_00363540(u8* arg0, u8* arg1) {
     if (*(u16*)(arg1 + 0) & 1) {
         sdkRenderStateSetDefault();
         for (j = 0; j < *(s16*)(arg1 + 0xA); j++) {
-            func_00363200(arg1, (s64)(s16)j);
+            cmpPartyPanelDrawRow(arg1, (s64)(s16)j);
         }
     }
 }
@@ -303,7 +303,7 @@ static inline void panelPosition(Vec2f *position, f32 x, s16 count, s32 index)
 }
 
 // FUN_00363610
-s32 func_00363610(u8 *task)
+s32 cmpPartyPanelTaskStep(u8 *task)
 {
     PartyPanelWork *work = *(PartyPanelWork **)(task + 0x38);
     s16 roster[4];
@@ -331,7 +331,7 @@ s32 func_00363610(u8 *task)
         for (i = 0; i < work->count; i++) {
             panelPosition(&position, (f32)565, work->count, i);
             id = roster[i];
-            func_00362fd0((u8 *)&work->rows[i].motion, &position.x, &position.x, 0);
+            cmpPartyPanelSetRowMotion((u8 *)&work->rows[i].motion, &position.x, &position.x, 0);
             work->rows[i].id = id;
             work->rows[i].ready = 0;
             if (id != 0) {
@@ -365,7 +365,7 @@ s32 func_00363610(u8 *task)
             work->state = 3;
             for (i = 0; i < work->count; i++) {
                 panelPosition(&startPosition, (f32)565, work->count, i);
-                func_00362fd0((u8 *)&work->rows[i].motion, NULL, &startPosition.x, 8);
+                cmpPartyPanelSetRowMotion((u8 *)&work->rows[i].motion, NULL, &startPosition.x, 8);
             }
         }
         break;
@@ -413,7 +413,7 @@ s32 func_00363610(u8 *task)
                 work->count++;
                 panelPosition(&position, 640.0f, work->count, changed);
                 id = roster[changed];
-                func_00362fd0((u8 *)&work->rows[changed].motion, &position.x, &position.x, 0);
+                cmpPartyPanelSetRowMotion((u8 *)&work->rows[changed].motion, &position.x, &position.x, 0);
                 work->rows[changed].id = id;
                 work->rows[changed].ready = 0;
                 if (id != 0) {
@@ -463,12 +463,12 @@ s32 func_00363610(u8 *task)
                 work->rows[j].sprite = NULL;
             }
             removedPosition = work->rows[j].motion.current;
-            func_00362fd0((u8 *)&work->rows[j].motion, &removedPosition.x, &removedPosition.x, 0);
+            cmpPartyPanelSetRowMotion((u8 *)&work->rows[j].motion, &removedPosition.x, &removedPosition.x, 0);
             {
                 s32 i;
                 for (i = 0; i < work->count; i++) {
                     panelPosition(&shiftedPosition, (f32)565, work->count, i);
-                    func_00362fd0((u8 *)&work->rows[i].motion, NULL, &shiftedPosition.x, 8);
+                    cmpPartyPanelSetRowMotion((u8 *)&work->rows[i].motion, NULL, &shiftedPosition.x, 8);
                 }
             }
             work->state = 3;
@@ -488,12 +488,12 @@ s32 func_00363610(u8 *task)
                 row->sprite = NULL;
             }
             replacedPosition = row->motion.current;
-            func_00362fd0((u8 *)&row->motion, &replacedPosition.x, &replacedPosition.x, 0);
+            cmpPartyPanelSetRowMotion((u8 *)&row->motion, &replacedPosition.x, &replacedPosition.x, 0);
             changed = work->changed;
             panelPosition(&position, 640.0f, work->count, changed);
             id = roster[changed];
             row = &work->rows[changed];
-            func_00362fd0((u8 *)&row->motion, &position.x, &position.x, 0);
+            cmpPartyPanelSetRowMotion((u8 *)&row->motion, &position.x, &position.x, 0);
             row->id = id;
             row->ready = 0;
             if (id != 0) {
@@ -516,7 +516,7 @@ s32 func_00363610(u8 *task)
 
 
 // FUN_003640F0
-void func_003640f0(u8* arg0) {
+void cmpPartyPanelTaskDestroy(u8* arg0) {
     u8* obj = *(u8**)(arg0 + 0x38);
     s32 i;
     u8* p;
@@ -539,7 +539,7 @@ void func_003640f0(u8* arg0) {
 
 
 // FUN_003641A0
-s32 func_003641a0(s32 arg0) {
+s32 cmpPartyPanelTaskCreate(s32 arg0) {
     s32 r;
     u8* work;
 
@@ -548,13 +548,13 @@ s32 func_003641a0(s32 arg0) {
     if (work == NULL) {
         kAssertFail(D_0064E290, 0x254);
     }
-    r = (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0064E2E0), 0xC7, 0, 0, func_00363610, func_003640f0, (u8 *)(work));
+    r = (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0064E2E0), 0xC7, 0, 0, cmpPartyPanelTaskStep, cmpPartyPanelTaskDestroy, (u8 *)(work));
     if (r == 0) {
         kAssertFail(D_0064E290, 0x25E);
     }
     *(s32 *)(work + 0x4) = 0;
     memset(work + 0xB0, 0, 0x30);
-    *(u8 **)(work + 0xB8) = (u8 *)func_00363540;
+    *(u8 **)(work + 0xB8) = (u8 *)cmpPartyPanelDraw;
     *(u8 **)(work + 0xC0) = work;
     return r;
 }

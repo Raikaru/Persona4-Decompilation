@@ -46,7 +46,7 @@ extern void radarAnimateValue(u8 *arg0, s16 arg1, s32 arg2);
 
 extern s32 func_0034c210(void);
 extern u32 datGetFlag(s32 arg0);
-extern s32 func_0035fa00(u8 *arg0, s32 arg1, s16 arg2);
+extern s32 cmpSystemSetSelection(u8 *arg0, s32 arg1, s16 arg2);
 extern void func_0034f8f0(void *arg0);
 extern s32 datCalcGetLevelById(s32 arg0);
 
@@ -92,9 +92,9 @@ extern void pscLightInitQuad(u8 *arg0);
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
 extern void func_00362630(u8 *arg0);
-extern void func_0035f5b0(u8 *arg0);
+extern void cmpSystemMenuInit(u8 *arg0);
 extern s32 datCommunityPanelOpenStepAlt(u8 *arg0);
-extern s32 func_0035fa20(u8 *arg0, u32 arg1);
+extern s32 cmpSystemSetMode(u8 *arg0, u32 arg1);
 extern void func_0034bb20(s32 arg0);
 extern void resrcMngUnsuppressRender(void);
 extern void resrcMngSuppressRender(void);
@@ -457,15 +457,15 @@ void func_00362630(u8 *arg0)
             if (difference + offset >= count) {
                 kAssertFail(D_0064E280, 0x54);
             }
-            func_0035fa00(arg0, 1, difference);
-            func_0035fa00(arg0, 2, offset);
+            cmpSystemSetSelection(arg0, 1, difference);
+            cmpSystemSetSelection(arg0, 2, offset);
             break;
         }
         i++;
     }
     if (i == count) {
-        func_0035fa00(arg0, 1, 0);
-        func_0035fa00(arg0, 2, 0);
+        cmpSystemSetSelection(arg0, 1, 0);
+        cmpSystemSetSelection(arg0, 2, 0);
     }
 }
 /* MATCHED: arg0 is a u32 * state word - the switch on *arg0 is unsigned,
@@ -487,7 +487,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         *(s32 *)(arg2 + 4) = 0;
         *(s32 *)(arg2 + 8) = 0;
         *(u8 *)arg2 = 0xFF;
-        func_0035f5b0(arg2);
+        cmpSystemMenuInit(arg2);
         *arg0 = 1;
         *arg1 = 0;
         goto block_64;
@@ -507,13 +507,13 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         goto block_64;
     case 3:
         if (func_003619b0(arg2) != 0) {
-            func_0035fa20(arg2, 2);
+            cmpSystemSetMode(arg2, 2);
             *arg0 = 4;
         }
         goto block_64;
     case 4:
         if (D_008C024E[0] & 0x20) {
-            func_0035fa20(arg2, resultFlag);
+            cmpSystemSetMode(arg2, resultFlag);
             *arg0 = 2;
             func_0034bb20(0x1E);
             sdkSndStartStream(0, 2, 0, 4);
@@ -521,12 +521,12 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             soundType = *(s16 *)(arg2 + 0x28);
             switch (soundType) {
             case 0:
-                func_0035fa20(arg2, resultFlag);
+                cmpSystemSetMode(arg2, resultFlag);
                 *arg0 = 5;
                 func_0034bb20(0x1E);
                 break;
             case 1:
-                func_0035fa20(arg2, resultFlag);
+                cmpSystemSetMode(arg2, resultFlag);
                 *arg0 = 8;
                 func_0034bb20(0x1E);
                 break;
@@ -547,7 +547,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             func_004538e0(query, 0x4000, 0x1000, 0, 0);
             if (func_00453960(query) != 0) {
                 soundType = *(s16 *)(query + 0x24);
-                func_0035fa00(arg2, 0, soundType);
+                cmpSystemSetSelection(arg2, 0, soundType);
                 sdkSndStartStream(0, 1, 0, 0);
             }
         }
@@ -555,21 +555,21 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
     case 5:
         if (func_003619b0(arg2) != 0) {
             func_00362630(arg2);
-            func_0035fa20(arg2, 3);
+            cmpSystemSetMode(arg2, 3);
             *arg0 = 6;
             func_0034bb20(0x1F);
         }
         goto block_64;
     case 6:
         if (func_003619b0(arg2) != 0) {
-            func_0035fa20(arg2, 4);
+            cmpSystemSetMode(arg2, 4);
             *arg0 = 7;
             resrcMngSuppressRender();
         }
         goto block_64;
     case 7:
         if (D_008C024E[0] & 0x20) {
-            func_0035fa20(arg2, 5);
+            cmpSystemSetMode(arg2, 5);
             *arg0 = 1;
             func_0034bb20(0x20);
             resrcMngUnsuppressRender();
@@ -583,9 +583,9 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             func_004538e0(query, 0x4000, 0x1000, 0x2000, 0x8000);
             if ((queryResult = func_00453960(query)) > 0) {
                 soundType = *(s16 *)(query + 0x24);
-                func_0035fa00(arg2, 1, soundType);
+                cmpSystemSetSelection(arg2, 1, soundType);
                 soundType = *(s16 *)(query + 0x28);
-                func_0035fa00(arg2, 2, soundType);
+                cmpSystemSetSelection(arg2, 2, soundType);
                 if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x32)) {
                     func_00361970(arg2);
                 }
