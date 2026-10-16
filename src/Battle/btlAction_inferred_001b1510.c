@@ -167,7 +167,7 @@ extern s32 btlShuffleIsCanceled(s32 task);
 extern s32 btlEncounterIsInactive(s32 arg0);
 extern s32 btlShuffleIsBusy(s32 task);
 extern s32 func_00122720(void);
-extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
+extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern void func_001bdd60(void);
 extern u8 *datUnitGetRecord(s16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
@@ -1239,7 +1239,7 @@ void btlMainUnitLoadInit(void)
             }
             btlPacketEnqueue(motion_packet, 2);
             previous_motion_uid = *(s64 *)(motion_packet + 0x58);
-            followup_packet = (u8 *)func_0019bbe0((BtlUnit *)unit, 0xFFFFFFFF, 0xC, 0, 3, 1);
+            followup_packet = (u8 *)btlUnitCreateColorPacket((BtlUnit *)unit, 0xFFFFFFFF, 0xC, 0, 3, 1);
             *(s8 *)(followup_packet + 0) = 4;
             *(s64 *)(followup_packet + 8) = *(s64 *)(unit_packet + 0x58);
             *(s8 *)(followup_packet + 0x10) = 5;
@@ -1247,7 +1247,7 @@ void btlMainUnitLoadInit(void)
             *(s16 *)(followup_packet + 0x48) = 0x1D;
             btlPacketEnqueue(followup_packet, 1);
         } else {
-            simple_packet = (u8 *)func_0019bbe0((BtlUnit *)unit, 0xFFFFFFFF, 0, 0, 3, 1);
+            simple_packet = (u8 *)btlUnitCreateColorPacket((BtlUnit *)unit, 0xFFFFFFFF, 0, 0, 3, 1);
             *(s8 *)(simple_packet + 0) = 4;
             *(s64 *)(simple_packet + 8) = *(s64 *)(unit_packet + 0x58);
             *(s16 *)(simple_packet + 0x48) = 2;

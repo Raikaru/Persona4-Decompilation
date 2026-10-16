@@ -118,7 +118,7 @@ extern s32 btlUiTaskInit(u8 *task);
 extern void btlUiTaskDestroy(u8 *task);
 extern void btlUiInitComponents(s32 arg0, u8 *arg1);
 extern s32 btlPacketBuildHitFlags(u8 *arg0);
-extern void func_00201db0(void *arg0);
+extern void btlUnitRotateTowardUnitPacketDestroy(void *arg0);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern void itfMesWindowReleaseIfActive(s32 arg0);
 extern void sdkSpriteRelease(void *arg0);

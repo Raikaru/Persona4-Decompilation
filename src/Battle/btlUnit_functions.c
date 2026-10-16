@@ -135,9 +135,9 @@ typedef struct BtlUnitPacketLookAtDeactivate {
     u16 flags;
     u8 padding_06[2];
 } BtlUnitPacketLookAtDeactivate;
-u32 func_0019e5d0(void* work);
-u32 func_0019e5f0(void* work);
-u32 func_0019e7a0(void* work);
+u32 btlUnitHoldPendingLookAtDeactivate(void* work);
+u32 btlUnitLookAtDeactivatePacketUpdate(void* work);
+u32 btlUnitReleasePendingLookAtDeactivate(void* work);
 
 typedef struct BattleUnit {
     u8 pad[0xa0];
@@ -322,7 +322,7 @@ BtlPacket* btlUnitCreateModelReleasePacket(BtlUnit* unit)
 
 
 // FUN_0019BBE0
-BtlPacket* func_0019bbe0(BtlUnit* unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags)
+BtlPacket* btlUnitCreateColorPacket(BtlUnit* unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags)
 {
     BtlPacket* packet;
     BtlUnitColorWork* work;
@@ -420,7 +420,7 @@ BtlPacket* btlUnitCreateLookAtUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, u16
 
 
 // FUN_0019E5D0
-u32 func_0019e5d0(void *arg0)
+u32 btlUnitHoldPendingLookAtDeactivate(void *arg0)
 {
     u8 *temp;
 
@@ -431,7 +431,7 @@ u32 func_0019e5d0(void *arg0)
     }
 }
 // FUN_0019E5F0
-u32 func_0019e5f0(void* work)
+u32 btlUnitLookAtDeactivatePacketUpdate(void* work)
 {
     extern u8* iGpffffb3ac;
     extern void mdlSetBlendWeight(void* arg0, f32 arg1);
@@ -491,7 +491,7 @@ u32 func_0019e5f0(void* work)
     return 1;
 }
 // FUN_0019E7A0
-u32 func_0019e7a0(void *arg0)
+u32 btlUnitReleasePendingLookAtDeactivate(void *arg0)
 {
     u8 *temp;
 
@@ -508,9 +508,9 @@ BtlPacket* btlUnitCreateLookAtDeactivatePacket(BtlUnit* unit, u16 flags)
     BtlUnitPacketLookAtDeactivate* work;
 
     packet = btlPacketAlloc(0x119, sizeof(BtlUnitPacketLookAtDeactivate));
-    packet->initFunc = func_0019e5d0;
-    packet->updateFunc = func_0019e5f0;
-    packet->destroyFunc = func_0019e7a0;
+    packet->initFunc = btlUnitHoldPendingLookAtDeactivate;
+    packet->updateFunc = btlUnitLookAtDeactivatePacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingLookAtDeactivate;
     work = (BtlUnitPacketLookAtDeactivate*)packet->workData;
     work->unit = unit;
     work->flags = flags;
@@ -521,7 +521,7 @@ BtlPacket* btlUnitCreateLookAtDeactivatePacket(BtlUnit* unit, u16 flags)
 
 
 // FUN_00201DB0
-void func_00201db0(void* work)
+void btlUnitRotateTowardUnitPacketDestroy(void* work)
 {
     RotateTowardUnitPacket* packet;
 

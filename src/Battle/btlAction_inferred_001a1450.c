@@ -95,7 +95,7 @@ extern s32 btlMessageIsIdle(s32 arg0);
 extern void btlMessageSetPendingValue(u8 *arg0, s32 arg1);
 extern void btlMessageSetDone(s32 arg0);
 extern void btlMessageSetHidden(s32 arg0);
-extern u8 *func_0019bbe0(u8 *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
+extern u8 *btlUnitCreateColorPacket(u8 *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern u8 *btlUnitCreateShowPacket(u8 *arg0);
 extern u8 *btlUnitCreateHidePacket(u8 *arg0);
 extern u16 btlSelectionGetTargetMark(s32 task);
@@ -834,7 +834,7 @@ void btlActionAnalyzeUpdate(u8 *action)
                 if (action == iter || !(*(u16 *)(iter + 0x1A) & 8)) {
                     packet = btlUnitCreateHidePacket(*(u8 **)(iter + 0x30));
                 } else {
-                    packet = func_0019bbe0(*(u8 **)(iter + 0x30), 0xFFFFFF, 8, 0, 4, 0);
+                    packet = btlUnitCreateColorPacket(*(u8 **)(iter + 0x30), 0xFFFFFF, 8, 0, 4, 0);
                 }
                 *(s64 *)(packet + 0x60) = *(s64 *)action;
                 btlPacketEnqueue(packet, 0);
@@ -965,7 +965,7 @@ void btlActionAnalyzeUpdate(u8 *action)
                 if (action == iter) {
                     packet = btlUnitCreateShowPacket(*(u8 **)(iter + 0x30));
                 } else {
-                    packet = func_0019bbe0(*(u8 **)(iter + 0x30), (u32)-1, 0, 0, 3, 0);
+                    packet = btlUnitCreateColorPacket(*(u8 **)(iter + 0x30), (u32)-1, 0, 0, 3, 0);
                 }
                 *(s64 *)(packet + 0x60) = *(s64 *)action;
                 btlPacketEnqueue(packet, 0);
@@ -3488,7 +3488,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern BtlPacket *btlUnitCreateModelFramePacket(BtlUnit *unit, s16 value);
     extern BtlPacket *btlUnitCreateMotionSpeedPacket(BtlUnit *unit, u16 value, f32 speed, u16 mode);
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
-    extern BtlPacket *func_0019bbe0(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
+    extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
     extern BtlPacket *btlUnitCreateLookAtPacket(BtlUnit *unit, const RwV3d *targetPos, u16 flags);
     extern s32 btlUnitCreateLookAtDeactivatePacket(void *, u16);
     extern void btlActionFinishPresentation(BtlAction *arg0);
@@ -4286,7 +4286,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             effectPkt32->startTime = chainTime;
             effectPkt32->ownerId = actionId;
             btlPacketEnqueue((u8 *)effectPkt32, 2);
-            colorPkt33 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)act->unit, 0xFF808080, 0, 0xC, 4, 0));
+            colorPkt33 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)act->unit, 0xFF808080, 0, 0xC, 4, 0));
             colorPkt33->queue = 4;
             colorPkt33->startTime = chainTime;
             colorPkt33->ownerId = actionId;
@@ -4298,7 +4298,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             animPkt34->delay = 0xF;
             animPkt34->ownerId = actionId;
             btlPacketEnqueue((u8 *)animPacket, 0);
-            colorPkt35 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)linkedUnit, (u32)(func_00195530(linkedUnit)), 8, 0, 3, 1));
+            colorPkt35 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)linkedUnit, (u32)(func_00195530(linkedUnit)), 8, 0, 3, 1));
             colorPkt35->queue = 4;
             colorPkt35->startTime = animPacket->endTime;
             colorPkt35->ownerId = actionId;
@@ -4841,7 +4841,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             if (sp2D0 == 1) {
                 if ((s32)(followCameraPkt) == (s32)(0)) {
                     if ((altCamera == 1) && (isKind3 == 0) && (noOverride == 0)) {
-                        colorPkt88 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)linkedUnit, 0, 0, 0, 4, 0));
+                        colorPkt88 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)linkedUnit, 0, 0, 0, 4, 0));
                         colorPkt88->queue = 5;
                         colorPkt88->startTime = formationPkt6->endTime;
                         colorPkt88->ownerId = actionId;
@@ -4859,7 +4859,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                         pkt10->ownerId = actionId;
                         btlPacketEnqueue((u8 *)pkt10, 0);
                     }
-                    colorPkt89 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)act->unit, -1, 0, 0, 3, 0));
+                    colorPkt89 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)act->unit, -1, 0, 0, 3, 0));
                     colorPkt89->queue = 5;
                     colorPkt89->startTime = formationPkt6->endTime;
                     colorPkt89->ownerId = actionId;
@@ -5353,7 +5353,7 @@ reactionPacket:
             waitPkt135->ownerId = actionId;
             btlPacketEnqueue((u8 *)waitPkt135, 1);
         } else {
-            colorPkt136 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)actUnit20_420, 0xFFFFFF, 6, 0, 4, 0));
+            colorPkt136 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)actUnit20_420, 0xFFFFFF, 6, 0, 4, 0));
             colorPkt136->queue = 4;
             colorPkt136->startTime = (s64)((s64) pkt4->endTime);
             colorPkt136->ownerId = actionId;
@@ -5455,13 +5455,13 @@ reactionPacket:
             btlPacketEnqueue((u8 *)cameraPkt145, 0);
         }
         if (sp310 == 0) {
-            colorPkt146 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)act->unit, -1, 0, 0xC, 3, 0));
+            colorPkt146 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)act->unit, -1, 0, 0xC, 3, 0));
             colorPkt146->queue = 0xB;
             colorPkt146->startTime = formationPkt6->endTime;
             colorPkt146->ownerId = actionId;
             btlPacketEnqueue((u8 *)colorPkt146, 1);
         }
-        colorPkt147 = (BtlPacketTiming *)(func_0019bbe0((BtlUnit *)linkedUnit, 0xFFFFFF, 8, 0, 4, 0));
+        colorPkt147 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)linkedUnit, 0xFFFFFF, 8, 0, 4, 0));
         colorPkt147->queue = 0xB;
         colorPkt147->startTime = formationPkt6->endTime;
         colorDelay = (rotateFirst != 0 && skillSpecial != 0) ? 7 : 0xF;
@@ -5816,7 +5816,7 @@ void btlActionSummonUpdate(s64 *arg0)
             }
             {
                 u8 *q6;
-                q6 = func_0019bbe0((u8 *)unit, -1, 0xC, 0, 3, 1);
+                q6 = btlUnitCreateColorPacket((u8 *)unit, -1, 0xC, 0, 3, 1);
                 *q6 = 4;
                 *(s64 *)(q6 + 8) = *(s64 *)(q2 + 0x58);
                 *(q6 + 0x10) = 0xB;
@@ -6615,7 +6615,7 @@ void btlActionEscapeUpdate(s64 *arg0)
         btlPacketEnqueue(stepPkt, 1);
         {
             u8 *pkt;
-            pkt = func_0019bbe0((u8 *)cur->unit, 0xFFFFFF, 8, 0, 4, 0);
+            pkt = btlUnitCreateColorPacket((u8 *)cur->unit, 0xFFFFFF, 8, 0, 4, 0);
             *pkt = 5;
             *(s64 *)(pkt + 8) = *(s64 *)(stepPkt + 0x58);
             *(u16 *)(pkt + 0x48) = 0xC;
