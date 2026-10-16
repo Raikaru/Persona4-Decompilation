@@ -15,12 +15,12 @@ u16 datPersonaGetRecordId(u16 character);
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 
 void func_0011e230(u8 *arg0, s32 arg1);
-void func_0011e240();
+void shdPersonaDispCtlSetPosition();
 void sdkSpriteDrawOnceTinted(s32, s32, s32, f32, f32, u8, u8, u8, u8, f32, s32);
-void func_0011e2b0(u8 *arg0, Vec2f *arg1, Vec2f *arg2);
+void shdPersonaDispCtlSetOffsets(u8 *arg0, Vec2f *arg1, Vec2f *arg2);
 void shdPersonaSetupChannels();
 void shdPersonaBeginOpen();
-void func_0011e3c0(s32, s32);
+void shdPersonaDispCtlSetColor(s32, s32);
 void func_0011fd10(s32);
 s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 void shdPersonaBeginClose();
@@ -56,7 +56,7 @@ u32 datPersonaGetExpForLevel(void *persona, u16 level);
 s32 datPersonaGetNextExp();
 s32 datPersonaReplaceSkill(u8 *, s16, u16);
 void ShdSkill_ReplaceActiveSkill(u16, u16, u8 *);
-s32 func_0011dfc0(s32, s32, char *);
+s32 shdPersonaDispCtlCreate(s32, s32, char *);
 void H_Cdvd_Destroy();
 void func_003ef3a0();
 void chkmemAllocSiteTag(const void *msg, s32 id);
@@ -75,8 +75,8 @@ u8 *shdPersonaModelCreate(s32, s32, f32, s32, s32);
 void func_0011e390(u8 *, Vec2f);
 void func_00364680(f32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
 s32 RpSkyRenderStateSet(s32, void *);
-s32 func_0011f5a0(u8 *);
-void func_0011fb90(u8 *);
+s32 shdPersonaSkillReplaceStep(u8 *);
+void shdPersonaSkillReplaceDestroy(u8 *);
 extern s32 D_005E4850[];
 extern char iGpffff9c20;
 extern u8 D_005E4950[];
@@ -93,11 +93,11 @@ s32 func_002baf40(s32 a);
 void func_002bb050(u8 a);
 void func_002bbf60(void);
 u8 *func_00243840(s32 skillId);
-s32 func_0011e490(u8 *);
+s32 shdPersonaPickRandomSkillPair(u8 *);
 void shdPersonaEndSelection(u8 *, s32);
 void func_0011b480(u8 *, s32, u32, s8);
 void shdPersonaDrawQuadStrips(f32, s32, s32, f32, f32, s32, s32, s32);
-u32 func_0011e3e0(u8 *);
+u32 shdPersonaDispCtlIsLoaded(u8 *);
 f32 sinf(f32 arg0);
 f32 cosf(f32 arg0);
 extern f32 D_007613EC;
@@ -1857,11 +1857,11 @@ void func_0011c3e0(u8 *);
 void shdPersonaUpdateSkillPulse(u8 *);
 void shdPersonaUpdateReveal(u8 *);
 void func_0011b110(u8 *);
-void func_0011de40(u8 *, u8);
+void shdPersonaDispCtlSetMode(u8 *, u8);
 void shdPersonaDrawSmoothBar(u8 *);
 void shdPersonaDrawSlidingPanels(u8 *);
 void shdPersonaDrawSineQuad(u8 *);
-void func_0011e400(u8 *, u8 *);
+void shdPersonaDispCtlGetPosition(u8 *, u8 *);
 s32 func_0011e460(u8 *);
 u16 shdPersonaGetSelectedSkillId(u8 *);
 void ShdSkill_DrawSelectionFrame(Vec2f, f32, u8, u16);
@@ -2023,7 +2023,7 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
         func_0011b110((u8 *)work);
     }
     if ((work->flags & 0x400000) == 0) {
-        func_0011de40(work->model, work->alpha);
+        shdPersonaDispCtlSetMode(work->model, work->alpha);
         if ((work->flags & 0x800000) != 0) {
             shdPersonaDrawSmoothBar(work->model);
         }
@@ -2040,10 +2040,10 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
             f32 sx;
             s32 packed;
             model = work->model;
-            if (((work->flags & 0x10000) != 0) && (work->revealFrame >= 0x14) && (func_0011e3e0(model) != 0)) {
+            if (((work->flags & 0x10000) != 0) && (work->revealFrame >= 0x14) && (shdPersonaDispCtlIsLoaded(model) != 0)) {
                 f32 t;
                 phase = shdPersonaEaseProgress(work->revealFrame, 0x17, 0x32, 2);
-                func_0011e400(model, (u8 *)&modelPosition);
+                shdPersonaDispCtlGetPosition(model, (u8 *)&modelPosition);
                 sy = modelPosition.y;
                 sx = modelPosition.x;
                 t = 204.0f * (1.0f - phase);
@@ -2306,7 +2306,7 @@ void shdPersonaSetupChannels(u8 *arg0, u32 arg1)
    arg registers) and saves only $s1=arg0/$s0=i; mwcc b210 colours the element
    pointer into a saved register $s0 (frame 0x40 vs 0x30, whole body shifted,
    nd ~40). Tried declaration orders — identical. Same a2-cache colouring floor
-   as func_0011f5a0. Also: the m2c's 4-arg func_0044b7b0 call and the
+   as shdPersonaSkillReplaceStep. Also: the m2c's 4-arg func_0044b7b0 call and the
    (u16)-cast var_6 pointer are hallucinated (real call is 1-arg). */
 /* Wave-14 re-measure: frame fix confirmed — lever 6 (inline element
    pointer `arg0 + i*36 + off` as an integer-domain address, NO named `p`
@@ -2376,7 +2376,7 @@ void shdPersonaTweenChannelsOpen(u8 *arg0)
 
 extern f32 iGpffff8094;
 /* measured: the documented a2-cache colouring floor (shdPersonaTweenChannelsOpen /
-   func_0011f5a0 family) — retail keeps the per-iteration element pointer
+   shdPersonaSkillReplaceStep family) — retail keeps the per-iteration element pointer
    (arg0 + i*36) in a temp register across the func_0044b7b0 call and
    saves only $s1=arg0/$s0=i (frame 0x30); mwcc b210 colours the element
    pointer into a saved register (frame 0x40, whole body shifted, nd 158).
@@ -2578,9 +2578,9 @@ void func_0011b3d0(u8 *arg0, u8 *arg1)
 
 
 void func_00113610(s32, u8 *);
-void func_0011e0c0(u8 *, s32, s32);
-s32 func_0011dec0(u8 *);
-void func_0011cee0(u8 *);
+void shdPersonaDispCtlReconfigure(u8 *, s32, s32);
+s32 shdPersonaDispCtlGetHandle(u8 *);
+void shdPersonaLevelUpRoute(u8 *);
 // FUN_0011B480
 void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
 {
@@ -2591,9 +2591,9 @@ void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
     u16 t3_2;
 
     work = ((SdkTask *)arg0)->work;
-    t17 = func_0011dec0(*(u8 **)(work + 0x4F8));
+    t17 = shdPersonaDispCtlGetHandle(*(u8 **)(work + 0x4F8));
     if (arg2 == 0) {
-        func_0011e0c0(*(u8 **)(work + 0x4F8), 0, t17);
+        shdPersonaDispCtlReconfigure(*(u8 **)(work + 0x4F8), 0, t17);
         *(s32 *)(work + 0x538) = 1;
         *(s32 *)(work + 0x534) &= ~8;
         return;
@@ -2637,9 +2637,9 @@ void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
         *(s32 *)(work + 0x534) |= 0x80000;
         memset(work + 0x458, 0, 0x68);
     }
-    func_0011e0c0(*(u8 **)(work + 0x4F8), *(u16 *)((u8 *)arg2 + 2), t17);
+    shdPersonaDispCtlReconfigure(*(u8 **)(work + 0x4F8), *(u16 *)((u8 *)arg2 + 2), t17);
     shdPersonaEndSelection(arg0, 0);
-    func_0011cee0(arg0);
+    shdPersonaLevelUpRoute(arg0);
 }
 
 
@@ -2876,8 +2876,8 @@ void shdPersonaStartSlideIn(u8 *arg0)
         src.y = u;
         dst.x = 640.0f + t;
         dst.y = u;
-        func_0011e2b0(*(u8 **)(b + 0x4F8), &dst, &src);
-        func_0011e240(*(u8 **)(b + 0x4F8), 0);
+        shdPersonaDispCtlSetOffsets(*(u8 **)(b + 0x4F8), &dst, &src);
+        shdPersonaDispCtlSetPosition(*(u8 **)(b + 0x4F8), 0);
         shdPersonaSetupChannels(b, 0);
     }
 }
@@ -2940,7 +2940,7 @@ void shdPersonaBeginClose(u8 *arg0)
 
 
 f32 shdPersonaGetBarProgress(u8 *, Vec2f *);
-void func_0011e370(u8 *);
+void shdPersonaDispCtlCommitPosition(u8 *);
 /* measured: fully decompiled, nd 19 (obj 336B / window 336B). The only
    residual is a six-word FP scheduling/allocation permutation at offsets
    188, 192, 196, 200, 204, and 208. Retail emits addiu/mtc1/nop/cvt.s.w
@@ -2982,12 +2982,12 @@ void shdPersonaStartSlideOut(u8 *arg0)
       result = result + (*xField);
       v2.x = result;
         v2.y = (-59.0f) + (*((f32 *) (baseWork + 0x500)));
-        func_0011e2b0(*((u8 **) (baseWork + 0x4F8)), &v2, &v);
-        func_0011e370(*((u8 **) (baseWork + 0x4F8)));
+        shdPersonaDispCtlSetOffsets(*((u8 **) (baseWork + 0x4F8)), &v2, &v);
+        shdPersonaDispCtlCommitPosition(*((u8 **) (baseWork + 0x4F8)));
     }
     else
     {
-      func_0011e2b0(*((u8 **) (0x4F8 + baseWork)), &v2, &v);
+      shdPersonaDispCtlSetOffsets(*((u8 **) (0x4F8 + baseWork)), &v2, &v);
     }
     *((s32 *) (baseWork + 0x534)) |= 0x200000;
   }
@@ -3141,12 +3141,12 @@ do { case 3: case 2: case 4: break; default: arg0++; arg0--; kAssertFail(D_005E4
       }
       v2.x = 131.0f + (*((f32 *) (new_var2 + 0x4FC)));
       v2.y = new_var28 + (*((f32 *) (new_var3 + 0x500)));
-      func_0011e2b0(*new_var30, &v2, &v);
-      func_0011e370(*((u8 **) new_var13));
+      shdPersonaDispCtlSetOffsets(*new_var30, &v2, &v);
+      shdPersonaDispCtlCommitPosition(*((u8 **) new_var13));
     }
     else
     {
-      func_0011e2b0(*((u8 **) (new_var2 + 0x4F8)), &v2, &v);
+      shdPersonaDispCtlSetOffsets(*((u8 **) (new_var2 + 0x4F8)), &v2, &v);
     }
     t4 = new_var22;
     flags = *((s32 *) (new_var2 + 0x534));
@@ -3648,8 +3648,9 @@ void shdPersonaUpdateReveal(u8 *arg0)
 
 
 
+// Intent: Choose the level-up route from the count of valid party members and advance its state 0 to 4 [inferred]
 // FUN_0011CEE0
-void func_0011cee0(u8 *arg0)
+void shdPersonaLevelUpRoute(u8 *arg0)
 {
     u8 *work;
     s32 flags;
@@ -3736,7 +3737,7 @@ u8 shdPersonaGetAlpha(u8 *arg0)
 // FUN_0011D0D0
 void func_0011d0d0(u8 *arg0)
 {
-    func_0011e240(*(s32 *)(((SdkTask *)arg0)->work + 0x4F8));
+    shdPersonaDispCtlSetPosition(*(s32 *)(((SdkTask *)arg0)->work + 0x4F8));
 }
 
 // Intent: Store a two-float origin position at offsets 0x4FC and 0x500 of the persona block [inferred]
@@ -3772,7 +3773,7 @@ void func_0011d140(u8 *arg0, s32 color)
 void func_0011d170(u8 *arg0, s32 arg1, s32 arg2)
 {
     func_0011e230(*(u8 **)(*(u8 **)(arg0 + 0x38) + 0x4F8), arg1);
-    func_0011e3c0(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4F8), arg2);
+    shdPersonaDispCtlSetColor(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4F8), arg2);
 }
 
 
@@ -3827,7 +3828,7 @@ s32 shdPersonaLoadModelStep(u8 *arg0)
                 if (temp_2 == 0) {
                     kAssertFail(D_005E4868, 0x1047);
                 }
-                func_0011e240(arg0, NULL);
+                shdPersonaDispCtlSetPosition(arg0, NULL);
                 *(s32 *)(work + 0) = 1;
             }
         } else {
@@ -3863,7 +3864,7 @@ void shdPersonaModelDestroy(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)(b + 0x48) != 0) {
-        func_0011dfc0(*(s32 *)(b + 0x48), *(s32 *)(b + 0x4C), D_005E4E40);
+        shdPersonaDispCtlCreate(*(s32 *)(b + 0x48), *(s32 *)(b + 0x4C), D_005E4E40);
         *(s32 *)(b + 0x48) = 0;
         *(s32 *)(b + 0x4C) = 0;
         *(s32 *)(b + 0x50) = 0;
@@ -3905,7 +3906,7 @@ u8 *shdPersonaModelCreate(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
     *(f32 *)(w + 0x18) = fparg0;
     *(s32 *)&v.x = 0x43030000;
     *(s32 *)&v.y = 0xC26C0000;
-    func_0011e240(r, (u8 *)&v);
+    shdPersonaDispCtlSetPosition(r, (u8 *)&v);
     *(s32 *)&v.x = 0xC1880000;
     *(s32 *)&v.y = 0x41500000;
     func_0011e390(r, v);
@@ -4065,7 +4066,7 @@ void shdPersonaDrawSineQuad(u8 *arg0)
     s32 a;
 
     work = ((SdkTask *)arg0)->work;
-    if (func_0011e3e0(arg0) != 0 && *(s32 *)(work + 4) != 0) {
+    if (shdPersonaDispCtlIsLoaded(arg0) != 0 && *(s32 *)(work + 4) != 0) {
         t = (f32)*(s32 *)(work + 0x10);
         if (t < 10.0f) {
             *(s32 *)(work + 0x10) += 1;
@@ -4121,8 +4122,9 @@ void shdPersonaDrawSmoothBar(u8 *arg0)
 
 
 
+// Intent: Set the low byte of the display-control mode and colour words at offsets 0x8 and 0xC [inferred]
 // FUN_0011DE40
-void func_0011de40(u8 *arg0, u8 arg1)
+void shdPersonaDispCtlSetMode(u8 *arg0, u8 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     s32 v = arg1;
@@ -4145,8 +4147,9 @@ f32 shdPersonaGetBarProgress(u8 *arg0, Vec2f *arg1)
 
 
 
+// Intent: Return the display-control handle stored at offset 0x8 [inferred]
 // FUN_0011DEC0
-s32 func_0011dec0(u8 *arg0)
+s32 shdPersonaDispCtlGetHandle(u8 *arg0)
 {
     return *(s32 *)(((SdkTask *)arg0)->work + 8);
 }
@@ -4182,8 +4185,9 @@ s32 shdPersonaDispCtlUpdate(u8 *arg0)
     return 0;
 }
 
+// Intent: Destroy a display-control task through its registered destroy callback [inferred]
 // FUN_0011DF90
-void func_0011df90(u8 *arg0)
+void shdPersonaDispCtlDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](((SdkTask *)arg0)->work);
 }
@@ -4192,8 +4196,9 @@ void func_0011df90(u8 *arg0)
 
 
 
+// Intent: Create a display-control task that loads the named resource with the given format [inferred]
 // FUN_0011DFC0
-s32 func_0011dfc0(s32 arg0, s32 arg1, char *arg2)
+s32 shdPersonaDispCtlCreate(s32 arg0, s32 arg1, char *arg2)
 {
     s32 r;
     u8 *buf;
@@ -4203,7 +4208,7 @@ s32 func_0011dfc0(s32 arg0, s32 arg1, char *arg2)
     if (buf == NULL) {
         return 0;
     }
-    r = (s32)kwlnTaskCreate((const void *)(arg2), 0xF, 0, 0, shdPersonaDispCtlUpdate, func_0011df90, (u8 *)(buf));
+    r = (s32)kwlnTaskCreate((const void *)(arg2), 0xF, 0, 0, shdPersonaDispCtlUpdate, shdPersonaDispCtlDestroy, (u8 *)(buf));
     if (r == 0) {
         return 0;
     }
@@ -4218,8 +4223,9 @@ s32 func_0011dfc0(s32 arg0, s32 arg1, char *arg2)
 
 
 s32 shdPersonaDispCtlUpdate(u8 *arg0);
+// Intent: Reconfigure a display-control task by destroying its child and creating a new one [inferred]
 // FUN_0011E0C0
-void func_0011e0c0(u8 *arg0, s32 arg1, s32 arg2)
+void shdPersonaDispCtlReconfigure(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 *w = ((SdkTask *)arg0)->work;
     s32 p48;
@@ -4232,7 +4238,7 @@ void func_0011e0c0(u8 *arg0, s32 arg1, s32 arg2)
             p4c = *(s32 *)(w + 0x4C);
             chkmemAllocSiteTag(D_005E4868, 0x11B2);
             r = D_008873F4[0](1, 8, 0x40000);
-            if (r != 0 && (s32)kwlnTaskCreate((const void *)(D_005E4E40), 0xF, 0, 0, shdPersonaDispCtlUpdate, func_0011df90, (u8 *)(r)) != 0) {
+            if (r != 0 && (s32)kwlnTaskCreate((const void *)(D_005E4E40), 0xF, 0, 0, shdPersonaDispCtlUpdate, shdPersonaDispCtlDestroy, (u8 *)(r)) != 0) {
                 if (p4c != 0) {
                     func_00440b68((s32)D_005E4F10, (s32)(p4c + 0x10));
                 }
@@ -4267,8 +4273,9 @@ void func_0011e230(u8 *arg0, s32 arg1)
 
 
 
+// Intent: Set the display-control position at offsets 0x28 and 0x40 from the source position block [inferred]
 // FUN_0011E240
-void func_0011e240(u8 *arg0, u8 *arg1)
+void shdPersonaDispCtlSetPosition(u8 *arg0, u8 *arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     f32 v0;
@@ -4291,8 +4298,9 @@ void func_0011e240(u8 *arg0, u8 *arg1)
 
 
 
+// Intent: Set the display-control offsets at 0x20, 0x28 and 0x30 from two two-float vectors [inferred]
 // FUN_0011E2B0
-void func_0011e2b0(u8 *arg0, Vec2f *arg1, Vec2f *arg2)
+void shdPersonaDispCtlSetOffsets(u8 *arg0, Vec2f *arg1, Vec2f *arg2)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (arg1 == NULL) {
@@ -4317,8 +4325,9 @@ void func_0011e360(u8 *arg0, s32 arg1)
 
 
 
+// Intent: Copy the display-control position at offset 0x28 to the committed position at offset 0x40 [inferred]
 // FUN_0011E370
-void func_0011e370(u8 *arg0)
+void shdPersonaDispCtlCommitPosition(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     *(f32 *)(b + 0x40) = *(f32 *)(b + 0x28);
@@ -4337,8 +4346,9 @@ void func_0011e390(u8 *arg0, Vec2f arg1)
 
 
 
+// Intent: Set the low 24 bits of the display-control colour word at offset 0xC [inferred]
 // FUN_0011E3C0
-void func_0011e3c0(s32 arg0, s32 arg1)
+void shdPersonaDispCtlSetColor(s32 arg0, s32 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     *(s32 *)(b + 0xC) = (arg1 & 0xFFFFFF00) | *(u8 *)(b + 8);
@@ -4346,16 +4356,18 @@ void func_0011e3c0(s32 arg0, s32 arg1)
 
 
 
+// Intent: Return whether the display-control task has finished loading (state 3) [inferred]
 // FUN_0011E3E0
-u32 func_0011e3e0(u8 *arg0)
+u32 shdPersonaDispCtlIsLoaded(u8 *arg0)
 {
     return *(s32 *)(((SdkTask *)arg0)->work + 0) == 3;
 }
 
 
 
+// Intent: Copy the display-control position at offset 0x28 to the caller's buffer [inferred]
 // FUN_0011E400
-void func_0011e400(u8 *arg0, u8 *arg1)
+void shdPersonaDispCtlGetPosition(u8 *arg0, u8 *arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (arg1 == NULL) {
@@ -4390,8 +4402,9 @@ extern u16 *iGpffffb3ec;
    normalized_diff 0). Explicit goto joins preserve the retail false tails,
    while separate pair values and inner-loop counters preserve the register
    and load ordering. */
+// Intent: Pick a random skill pair from the pair table and write its two ids into the caller's block [inferred]
 // FUN_0011E490
-s32 func_0011e490(u8 *arg0)
+s32 shdPersonaPickRandomSkillPair(u8 *arg0)
 {
     u8 *q;
     u8 *r;
@@ -4468,7 +4481,7 @@ s32 func_0011e490(u8 *arg0)
     return 0;
 }
 
-/* Closes the measured opt_loop_invariants scope opened for func_0011e490
+/* Closes the measured opt_loop_invariants scope opened for shdPersonaPickRandomSkillPair
    above. It must stay scoped: leaving it on regresses neighbours. */
 #pragma opt_loop_invariants off
 
@@ -4502,7 +4515,7 @@ void func_0011e740(u8 *arg0)
         *(s32 *)(arg0 + 0x14) = 4;
         return;
     }
-    if (func_0011e490(arg0) != 0) {
+    if (shdPersonaPickRandomSkillPair(arg0) != 0) {
         func_002bbd20(1, func_00243840(*(u16 *)(arg0 + 6)));
         func_002bad10(*(s32 *)(arg0 + 0x4C));
         func_002baf40(*(s32 *)(arg0 + 0x2C));
@@ -4519,7 +4532,7 @@ void func_0011e740(u8 *arg0)
 s32 datPersonaAddStat(u8 *, s32, s32);
 s32 datPersonaCountSkills(u8 *);
 s32 func_0011fcf0(u8 *);
-u8 *func_0011fbc0(s32, u8 *, s32, u8 *);
+u8 *shdPersonaSkillReplaceCreate(s32, u8 *, s32, u8 *);
 u16 ShdSkill_GetPendingSkill(u8 *);
 s16 ShdSkill_FindSlot(u8 *, s32);
 extern u8 func_002baac0(u8 *message);
@@ -4555,8 +4568,9 @@ static inline s32 personaReplaceLevelSkill(SdkTask *parent, u16 previous, u16 re
     return 0;
 }
 
+// Intent: Advance the level-up skill-learn state machine one step and return its status [inferred]
 // FUN_0011E8E0
-s32 func_0011e8e0(u8 *arg0)
+s32 shdPersonaLevelUpStep(u8 *arg0)
 {
     u8 *e2;
     u8 *b2;
@@ -4755,7 +4769,7 @@ s32 func_0011e8e0(u8 *arg0)
             } else if (datPersonaCountSkills(first) == 8) {
                 *(s32 *)(work + 0x14) = 7;
                 func_002bb4e0();
-                *(u8 **)(work + 0x18) = func_0011fbc0(0, *(u8 **)(work + 0x1C), *(s32 *)(work + 0x24), work + 0x2C);
+                *(u8 **)(work + 0x18) = shdPersonaSkillReplaceCreate(0, *(u8 **)(work + 0x1C), *(s32 *)(work + 0x24), work + 0x2C);
             } else {
                 u16 vv2;
                 u8 *bb;
@@ -4903,8 +4917,9 @@ s32 func_0011e8e0(u8 *arg0)
 }
 
 
+// Intent: Destroy a level-up task, releasing its pending message and freeing its work block [inferred]
 // FUN_0011F3C0
-void func_0011f3c0(u8 *arg0)
+void shdPersonaLevelUpDestroy(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)(b + 0x18) != 0) {
@@ -4917,10 +4932,11 @@ void func_0011f3c0(u8 *arg0)
 
 
 extern char D_005E4F30[];
-s32 func_0011e8e0(u8 *);
-void func_0011f3c0(u8 *);
+s32 shdPersonaLevelUpStep(u8 *);
+void shdPersonaLevelUpDestroy(u8 *);
+// Intent: Create a level-up child task that copies its parameters and the skill table into its work block [inferred]
 // FUN_0011F410
-u8 *func_0011f410(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5)
+u8 *shdPersonaLevelUpCreate(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5)
 {
     u8 *w;
     u8 *r;
@@ -4931,7 +4947,7 @@ u8 *func_0011f410(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5)
     if (w == NULL) {
         kAssertFail(D_005E4868, 0x1465);
     }
-    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4F30), 0xF, 0, 0, func_0011e8e0, func_0011f3c0, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4F30), 0xF, 0, 0, shdPersonaLevelUpStep, shdPersonaLevelUpDestroy, (u8 *)(w));
     if (r == NULL) {
         kAssertFail(D_005E4868, 0x146F);
     }
@@ -4947,16 +4963,18 @@ u8 *func_0011f410(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5)
 
 
 
+// Intent: Return whether the level-up task has reached its final state 0xE [inferred]
 // FUN_0011F560
-u32 func_0011f560(u8 *arg0)
+u32 shdPersonaLevelUpIsDone(u8 *arg0)
 {
     return *(s32 *)(((SdkTask *)arg0)->work + 0x14) == 0xE;
 }
 
 
 
+// Intent: Destroy a task and its hierarchy through the kwln task destroy call [inferred]
 // FUN_0011F580
-s32 func_0011f580(u8 *task)
+s32 shdPersonaDestroyTask(u8 *task)
 {
     return kwlnTaskDestroyWithHierarchy((KwlnTask *)task);
 }
@@ -4983,8 +5001,9 @@ void shdPersonaBeginSelection(u8 *arg0);
  * measured: native b210, 1508B/1520B, 53 resolved code relocations,
  * complete 36B switch table, and twelve retail zero-tail bytes.
  * Proof: build/game-resume-20260921/persona-w2/accepted-dialog. */
+// Intent: Advance the skill-replace state machine one step and return its status [inferred]
 // FUN_0011F5A0
-s32 func_0011f5a0(u8 *arg0)
+s32 shdPersonaSkillReplaceStep(u8 *arg0)
 {
     u16 pendingSkill;
     u8 *work = ((SdkTask *)arg0)->work;
@@ -5182,16 +5201,18 @@ s32 func_0011f5a0(u8 *arg0)
 }
 
 
+// Intent: Destroy a skill-replace task through its registered destroy callback [inferred]
 // FUN_0011FB90
-void func_0011fb90(u8 *arg0)
+void shdPersonaSkillReplaceDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](((SdkTask *)arg0)->work);
 }
 
 
 
+// Intent: Create a skill-replace child task that copies its parameters and a 0xB-word table into its work block [inferred]
 // FUN_0011FBC0
-u8 *func_0011fbc0(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
+u8 *shdPersonaSkillReplaceCreate(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
 {
     u8 *w;
     u8 *r;
@@ -5202,7 +5223,7 @@ u8 *func_0011fbc0(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
     if (w == NULL) {
         kAssertFail(D_005E4868, 0x1552);
     }
-    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4F50), 0xF, 0, 0, func_0011f5a0, func_0011fb90, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4F50), 0xF, 0, 0, shdPersonaSkillReplaceStep, shdPersonaSkillReplaceDestroy, (u8 *)(w));
     if (r == NULL) {
         kAssertFail(D_005E4868, 0x155C);
     }

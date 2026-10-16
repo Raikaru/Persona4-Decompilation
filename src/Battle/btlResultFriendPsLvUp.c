@@ -21,15 +21,15 @@ extern void func_00106390(s32 arg0, s32 arg1);
    argument is always evaluated first (docs/matching.md). */
 extern void func_0011b480(u8 *arg0, u16 arg1, u32 arg2, s8 arg3);
 extern u8 *func_00455ea0(u8 *archive, s32 index, s32 *size);
-extern u8 *func_0011f410(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4, s32 *a5);
+extern u8 *shdPersonaLevelUpCreate(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4, s32 *a5);
 extern u32 datCalcRandomBelow(u32 max);
 extern void btlSoundStopBank3(void);
 extern void func_001f9a50(s32 arg0, s32 arg1);
 extern void func_001f9a90(void);
 extern void btlSoundPlayIndexed(s32 arg0);
 extern s32 func_002bb4e0(void);
-extern u32 func_0011f560(u8 *task);
-extern s32 func_0011f580(u8 *task);
+extern u32 shdPersonaLevelUpIsDone(u8 *task);
+extern s32 shdPersonaDestroyTask(u8 *task);
 extern s32 btlShuffleOverlayIdle(void);
 extern u8 D_00795F20[];
 extern u8 D_005E4810[];
@@ -180,7 +180,7 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
                 a = (s32)func_00455ea0(*(u8 **)(e + 2356), 0, 0);
                 e = *(u8 **)(r + 60);
                 b = (s32)func_00455ea0(*(u8 **)(e + 2356), 1, 0);
-                *(u8 **)(r + 72) = func_0011f410(arg0, *(s32 *)(r + 68), base + *(s32 *)(r + 56) * 136 + 0x6B4, a, b, sp);
+                *(u8 **)(r + 72) = shdPersonaLevelUpCreate(arg0, *(s32 *)(r + 68), base + *(s32 *)(r + 56) * 136 + 0x6B4, a, b, sp);
             }
             if (*(s16 *)(friendResultAddress((u32)*(s32 *)(r + 56) * 2, (u32)base) + 0x69A) == 5) {
                 s16 t = (s16)(datCalcRandomBelow(3) + 468);
@@ -204,10 +204,10 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
         *(u32 *)(r + 4) = 3;
         /* fallthrough */
     case 3:
-        if (func_0011f560(*(u8 **)(r + 72)) == 0) {
+        if (shdPersonaLevelUpIsDone(*(u8 **)(r + 72)) == 0) {
             break;
         }
-        func_0011f580(*(u8 **)(r + 72));
+        shdPersonaDestroyTask(*(u8 **)(r + 72));
         *(u32 *)(r + 4) = 4;
         *(u16 *)(r + 64) = 0;
         /* fallthrough */
