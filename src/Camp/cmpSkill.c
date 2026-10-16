@@ -42,13 +42,13 @@ void sdkSpriteFreeNode(void *);
 s32 func_0034c210(void);
 u32 RpRandom(void);
 s32 datCalcSkillElement(u8 *, u16);
-void func_0034f1e0(void);
+void sdkRenderStateSetDefault(void);
 void func_0034c270(Vec2f, s32, s32, f32);
 void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg1, u8 arg2, u8 arg3, u8 arg4,
                    u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 void sdkSpriteDrawAt(void *, f32, f32, u8, u8, u8, u8);
-void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
+void sdkSpriteDrawFooter(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 void radarDrawSecondSpritePair(u8 *work, Vec2f position, PackedColor4 color);
 void radarDrawSkillCard(void *, Vec2f, s32, void *);
 void datRecordClearHeader(s16 *);
@@ -522,7 +522,7 @@ void func_00138bf0(u8 *work)
     s32 payloadIndex;
 
     menu = (SkillMenuView *)work;
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     originX = menu->x;
     originY = menu->y;
     opacity = (f32)menu->alpha / 255.0f;
@@ -777,7 +777,7 @@ void func_00138bf0(u8 *work)
         value = (f32)menu->animation[36].alpha;
         value = value * opacity;
         spriteAlpha = (u8)value;
-        func_0034f9d0(position, 0.0f, spriteAlpha, menu->footerMode, menu->footer.handle);
+        sdkSpriteDrawFooter(position, 0.0f, spriteAlpha, menu->footerMode, menu->footer.handle);
     }
 }
 #pragma pop

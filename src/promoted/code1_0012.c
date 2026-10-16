@@ -128,7 +128,7 @@ typedef struct {
 
 extern void func_003ef3a0(void *arg0);
 extern void radarAnimateValue(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_0034f5d0(u8 *arg0);
+extern void datCommunityEntryStep(u8 *arg0);
 extern s32 chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
@@ -4587,11 +4587,11 @@ typedef char CampMenuWorkSize[(sizeof(CampMenuWork) == 0x2A4) ? 1 : -1];
 s32 func_0012d630(u8 *menu)
 {
     extern s32 func_0012e1d0(u8 *arg0);
-    extern void func_0034f1e0(void);
+    extern void sdkRenderStateSetDefault(void);
     extern void sdkSpriteDrawSized(u8 *arg0, f32 farg0, f32 farg1, f32 farg2,
                               u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                               u16 arg6, s16 arg7, f32 farg3, s16 arg_sp0);
-    extern void func_0034f9d0(Vec2f pos, f32 z, u8 arg1, s32 arg2, s32 arg3);
+    extern void sdkSpriteDrawFooter(Vec2f pos, f32 z, u8 arg1, s32 arg2, s32 arg3);
     Vec2f pos;
     Vec2f pos2;
     u8 *bytes;
@@ -4666,7 +4666,7 @@ s32 func_0012d630(u8 *menu)
         }
         break;
     }
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     selection = *(s32 *)(bytes + 0x10);
     visibleCount = *(s32 *)(bytes + 0x38);
     for (row = 0; row < visibleCount; row++) {
@@ -4718,7 +4718,7 @@ s32 func_0012d630(u8 *menu)
     pos2.x = *(f32 *)(bytes + 0x254) + 640.0f;
     pos2.y = *(f32 *)(bytes + 0x258) + 400.0f;
     informationColor = *(u8 *)(bytes + 0x25E);
-    func_0034f9d0(pos2, 0.0f, informationColor, 0, *(s32 *)(bytes + 0x90));
+    sdkSpriteDrawFooter(pos2, 0.0f, informationColor, 0, *(s32 *)(bytes + 0x90));
     return finished;
 }
 
@@ -5293,11 +5293,11 @@ typedef struct {
 // FUN_0012E9D0
 void radarDrawPanel(u8 *state)
 {
-    extern void func_0034f1e0(void);
+    extern void sdkRenderStateSetDefault(void);
     extern void func_0034c270(Vec2f position, s32 alpha, s32 mode, f32 depth);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
-    extern f32 func_0034f720(u8 *cell, f32 horizontal, f32 vertical, f32 gain);
+    extern f32 cmpGridCellFade(u8 *cell, f32 horizontal, f32 vertical, f32 gain);
     extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
         u16 scaleY, s16 mode, f32 angle, s16 flags);
     extern void radarDrawSpritePair(u8 *state, s64 position, s32 color);
@@ -5308,7 +5308,7 @@ void radarDrawPanel(u8 *state)
     extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 font, s32 mode, const char *text, s32 flags,
         s32 unused);
     extern void radarDrawEntryCard(u8 *state, PackedVec2f position, s32 alpha, s16 *entry);
-    extern void func_0034f9d0(Vec2f position, f32 depth, u8 alpha, s32 value, s32 mode);
+    extern void sdkSpriteDrawFooter(Vec2f position, f32 depth, u8 alpha, s32 value, s32 mode);
     extern u8 D_005E76B0[];
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E4[];
@@ -5353,7 +5353,7 @@ void radarDrawPanel(u8 *state)
     s32 textIndex;
     u8 *panelSprite;
     s16 selection;
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     originX = *(f32 *)(state + 4);
     originY = *(f32 *)(state + 8);
     value = (f32)*(u8 *)(state + 0);
@@ -5397,7 +5397,7 @@ void radarDrawPanel(u8 *state)
                 cellY = rowY + (f32)(*(s32 *)(row + 0xC50) * 37);
 
                 /* Literal weights retain the compiler-owned small-data constants. */
-                cellWeight = func_0034f720((u8 *)cell, 0.3f, 0.3f, 0.6f);
+                cellWeight = cmpGridCellFade((u8 *)cell, 0.3f, 0.3f, 0.6f);
                 palette = D_005E76B0 + cell->palette * 4;
                 color.channels = *(CampColorBytes *)palette;
                 scaledAlpha = (f32)cachedAlpha * cellWeight;
@@ -5603,7 +5603,7 @@ void radarDrawPanel(u8 *state)
     value = (f32)*(u8 *)(state + 0x1832);
     scaledAlpha = value * opacityScale;
     alphaByte = (u8)scaledAlpha;
-    func_0034f9d0(position.xy, 0.0f, (u8)(alphaByte & 0xFF), *(s16 *)(state + 0xC40), *(s32 *)(state + 0x1BE4));
+    sdkSpriteDrawFooter(position.xy, 0.0f, (u8)(alphaByte & 0xFF), *(s16 *)(state + 0xC40), *(s32 *)(state + 0x1BE4));
 }
 
 #pragma pop
@@ -5626,7 +5626,7 @@ void radarStepSlotAnimB(u8 *arg0)
     }
     for (var_16_2 = 0; var_16_2 < 0x54; var_16_2++) {
         temp_2 = arg0 + (var_16_2 * 0x14);
-        func_0034f5d0(temp_2 + 0xC48);
+        datCommunityEntryStep(temp_2 + 0xC48);
     }
 }
 /* measured: opt_common_subs off preserves the retail base+offset accesses in

@@ -509,7 +509,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
     typedef struct { s32 lo, hi; } DescriptorPair;
     typedef union { Vec2fLocal draw; DescriptorPair descriptor; } OriginPair;
     extern void btlLogoDrawTitle(u8 *work, u32 alpha);
-    extern void func_0034f1e0(void);
+    extern void sdkRenderStateSetDefault(void);
     extern void func_0034c270(Vec2fLocal arg0, s32 arg1, s32 arg2, f32 arg3);
     extern void datScreenWipeDraw(u8 *arg0);
     extern s32 datScreenWipeTexture(u8 *arg0);
@@ -546,7 +546,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
             u8 opaque = 255;
             alpha = opaque;
         }
-        func_0034f1e0();
+        sdkRenderStateSetDefault();
         origin.draw.x = 0.0f;
         origin.draw.y = 0.0f;
         func_0034c270(origin.draw, alpha, 0x16, 0.0f);

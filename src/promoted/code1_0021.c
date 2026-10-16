@@ -764,7 +764,7 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
     extern s32 func_00457120(void);
     extern BtlShuffleMatrix *RwMatrixRotate(BtlShuffleMatrix *matrix,
         const BtlShuffleVec3 *axis, f32 angle, BtlShuffleCombine combine);
-    extern void func_0034f460(s32 file, s32 tile, f32 x, f32 y,
+    extern void sdkSpriteDrawOnceAt(s32 file, s32 tile, f32 x, f32 y,
         u8 red, u8 green, u8 blue, u8 alpha);
     extern void sdkSpriteDrawOnceScaled(s32 file, s32 tile, f32 x, f32 y, f32 z,
         u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY,
@@ -1138,9 +1138,9 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
         eased = easeCoefficient * ratio - ratio * ratio;
         labelAlpha = (u8)(255.0f * (1.0f - eased));
         slideOffset = 400.0f * (1.0f - (1.0f - eased));
-        func_0034f460(*(s32 *)(work + 4), 0, 165.0f + slideOffset, 170.0f,
+        sdkSpriteDrawOnceAt(*(s32 *)(work + 4), 0, 165.0f + slideOffset, 170.0f,
             0, 0, 0, labelAlpha);
-        func_0034f460(*(s32 *)(work + 4), 1, (f32)313 - slideOffset, 224.0f,
+        sdkSpriteDrawOnceAt(*(s32 *)(work + 4), 1, (f32)313 - slideOffset, 224.0f,
             0, 0, 0, labelAlpha);
         return;
     }

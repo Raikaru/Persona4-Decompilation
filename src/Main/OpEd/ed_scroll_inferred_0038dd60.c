@@ -29,7 +29,7 @@ extern f32 D_008872F8[];
 extern u8 D_0064F0E0[];
 extern u8 D_0064EEF0[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
-extern void func_0034f460(s32 resource, s32 slot, f32 x, f32 y,
+extern void sdkSpriteDrawOnceAt(s32 resource, s32 slot, f32 x, f32 y,
                           u8 r, u8 g, u8 b, u8 alpha);
 extern void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                           f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5,

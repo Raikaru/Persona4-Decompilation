@@ -28,7 +28,7 @@ extern void memcpy(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_00457120(void);
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern u8 D_00793E80[];
-extern void func_0034a8b0(u8 *packet, s32 data, void *callback);
+extern void fclCombineDrawPacket(u8 *packet, s32 data, void *callback);
 extern f32 fGpffff8504;
 extern f32 fGpffff8224;
 extern void sdkSpriteFreeNode(void *node);
@@ -39,13 +39,13 @@ extern u8 D_0064A6E8[];
 extern u8 D_0064A6F0[];
 extern u8 D_0064A6F8[];
 
-// struct passed by value to func_0034b820 (64-bit: two floats in $a1-$a2)
+// struct passed by value to fclCombineSetSprite (64-bit: two floats in $a1-$a2)
 typedef struct {
     f32 x;
     f32 y;
 } Svec2f_0034b820;
 
-// struct passed by value to func_0034b820 (32-bit: four bytes in $a3)
+// struct passed by value to fclCombineSetSprite (32-bit: four bytes in $a3)
 typedef struct {
     u8 b0;
     u8 b1;
@@ -86,8 +86,9 @@ void func_00349380(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
+// Intent: Return the combine object's work block pointer [inferred]
 // FUN_0034A630
-s32 func_0034a630(u8 *arg0)
+s32 fclCombineGetWork(u8 *arg0)
 {
     return *(s32 *)(arg0 + 0x38);
 }
@@ -101,11 +102,12 @@ do { \
     (dst).whole = copy_s64; \
     (dst).tail = copy_f32; \
 } while (0)
+// Intent: Set the combine object's model: when its id or kind changes and no fade runs, free the old model, clone the new entry and reset its matrices [inferred]
 // FUN_0034A640
 /* measured: opt_propagation off preserves scalar Pair-copy source order. */
 #pragma push
 #pragma opt_propagation off
-void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
+void fclCombineSetModel(u8 *arg0, u16 arg1, s64 arg2)
 {
     extern void mdlDestroyModelObject(void *arg0);
     extern void datFreeBlock(void *arg0);
@@ -168,10 +170,11 @@ void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
     }
 }
 #undef COPY_SCALAR_PAIR_0034
-/* measured: restore pragma state after func_0034a640 probe. */
+/* measured: restore pragma state after fclCombineSetModel probe. */
 #pragma pop
+// Intent: Clear the combine object's first state byte and set its second to 1 [inferred]
 // FUN_0034A820
-void func_0034a820(u8 *arg0)
+void fclCombineClearState(u8 *arg0)
 {
     u8 *p;
 
@@ -179,8 +182,9 @@ void func_0034a820(u8 *arg0)
     *(u8 *)(p + 4) = 0;
     *(u8 *)(p + 5) = 1;
 }
+// Intent: Zero the combine object's view counters and initialise its view state [inferred]
 // FUN_0034A840
-void func_0034a840(u8 *arg0) {
+void fclCombineInitView(u8 *arg0) {
     u8 *work;
 
     work = (u8 *)(*(u8 **)(arg0 + 0x38));
@@ -189,20 +193,22 @@ void func_0034a840(u8 *arg0) {
     func_003e8130((u8 *)func_00457120(), work + 0xE0);
 }
 
+// Intent: Mark the combine object ready by setting its sixth state byte [inferred]
 // FUN_0034A890
-void func_0034a890(u8 *arg0)
+void fclCombineSetReady(u8 *arg0)
 {
     u8 *p;
 
     p = *(u8 **)(arg0 + 0x38);
     *(u8 *)(p + 6) = 1;
 }
+// Intent: Draw one combine packet: set the sky render states and the far-plane and tint values, then run the state dispatcher [inferred]
 // FUN_0034A8B0
 /* Preserve the dispatcher contract and the four retail far-plane observations. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
-void func_0034a8b0(u8 *packet, s32 data, void *callback)
+void fclCombineDrawPacket(u8 *packet, s32 data, void *callback)
 {
     extern s32 func_003315c0(void);
     f32 reciprocal;
@@ -299,7 +305,7 @@ s32 func_0034ac00(u8 *arg0)
                 offset += index;
                 offset <<= 4;
                 packet = func_00461390(D_00793E80 + offset, 4, entry2, 4);
-                *(void **)(packet + 8) = (void *)func_0034a8b0;
+                *(void **)(packet + 8) = (void *)fclCombineDrawPacket;
                 *(u8 **)(packet + 0x10) = entry2;
             }
         }
@@ -315,14 +321,16 @@ void func_0034ad40(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
+// Intent: Return the combine object's work block pointer, the same body as fclCombineGetWork [inferred]
 // FUN_0034B810
-s32 func_0034b810(u8 *arg0)
+s32 fclCombineGetWorkAlt(u8 *arg0)
 {
     return *(s32 *)(arg0 + 0x38);
 }
 
+// Intent: Set the combine sprite's position, sprite id, colour and scale, and flag the sprite as changed [inferred]
 // FUN_0034B820
-void func_0034b820(u8 *arg0, Svec2f_0034b820 v, s16 s, S4b_0034b820 b, f32 fparg0)
+void fclCombineSetSprite(u8 *arg0, Svec2f_0034b820 v, s16 s, S4b_0034b820 b, f32 fparg0)
 {
     u8 *obj = *(u8 **)(arg0 + 0x38);
     *(Svec2f_0034b820 *)(obj + 0xE38) = v;
@@ -335,8 +343,9 @@ void func_0034b820(u8 *arg0, Svec2f_0034b820 v, s16 s, S4b_0034b820 b, f32 fparg
     *(s16 *)(obj + 0xE10) |= 1;
 }
 
+// Intent: Set the combine's tint bytes and timing and flag the tint as changed [inferred]
 // FUN_0034B880
-void func_0034b880(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s16 arg4, s16 arg5)
+void fclCombineSetTint(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s16 arg4, s16 arg5)
 {
     u8 *p;
 
@@ -355,8 +364,9 @@ void func_0034b8c0(void)
 {
 }
 
+// Intent: Refresh the nLine task: when both state flags are set, run the nLine setup and reset its counters [inferred]
 // FUN_0034B8D0
-s32 func_0034b8d0(u8 *unusedTask)
+s32 nLineRefreshTask(u8 *unusedTask)
 {
     if ((D_00884684[0] != 0) && (D_00884670[0] != 0)) {
         func_0034bea0();
@@ -374,9 +384,10 @@ void func_0034b950(void)
 }
 
 /* measured: opt_propagation off caches the D_00887300 base in $s0. */
+// Intent: Set the base render states for nLine drawing [inferred]
 // FUN_0034EDC0
 #pragma opt_propagation off
-void func_0034edc0(void)
+void nLineSetRenderStateBase(void)
 {
     s32 (**base)(RwRenderState, void *);
 
@@ -390,10 +401,11 @@ void func_0034edc0(void)
     base[0](0xB, (void *)7);
     base[0](0xC, (void *)1);
 }
-/* measured: close opt_propagation bracket for func_0034edc0. */
+/* measured: close opt_propagation bracket for nLineSetRenderStateBase. */
 #pragma opt_propagation on
+// Intent: Draw the three nLine layers, with the middle and right layers faded by the amount [inferred]
 // FUN_0034EE90
-void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
+void nLineDrawLayers(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
 {
     f32 alpha;
     f32 x;
@@ -419,17 +431,18 @@ void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
         baseY = 448.0f + fparg1;
         x = baseX - 208.0f;
         x += *(f32 *)(unit + 0x99C);
-        func_0034f0d0(layers, x, baseY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, 0);
+        nLineSetLayer(layers, x, baseY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, 0);
         baseX = 640.0f + (f32)baseX;
         alpha = 51.0f * fparg2 * (f32)alpha;
-        func_0034f0d0(layers + 0x40, baseX + *(f32 *)(unit + 0x99C), baseY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, (u8)alpha);
-        func_0034f0d0(layers + 0x80, baseX + *(f32 *)(unit + 0x99C), fparg1 + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, 0);
+        nLineSetLayer(layers + 0x40, baseX + *(f32 *)(unit + 0x99C), baseY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, (u8)alpha);
+        nLineSetLayer(layers + 0x80, baseX + *(f32 *)(unit + 0x99C), fparg1 + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, 0);
         return;
     }
     *(s32 *)(unit + 0x990) = 0;
 }
+// Intent: Store one nLine layer's position, scale and colour bytes [inferred]
 // FUN_0034F0D0
-void func_0034f0d0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+void nLineSetLayer(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    f32 fparg3, u8 arg1, u8 arg2, u8 arg3, u8 arg4) {
     *(f32 *)(arg0 + 0) = fparg0;
     *(f32 *)(arg0 + 4) = fparg1;
@@ -440,10 +453,11 @@ void func_0034f0d0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
     *(f32 *)(arg0 + 0x28) = (f32)arg3;
     *(f32 *)(arg0 + 0x2C) = (f32)arg4;
 }
+// Intent: Set the default render states and the sky state values for sprite draws [inferred]
 // FUN_0034F1E0
 /* measured: opt_propagation off keeps the cached D_00887300 base in $s0. */
 #pragma opt_propagation off
-void func_0034f1e0(void)
+void sdkRenderStateSetDefault(void)
 {
     s32 (**base)(RwRenderState, void *);
 
@@ -460,7 +474,7 @@ void func_0034f1e0(void)
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 }
-/* measured: closing opt_propagation bracket for func_0034f1e0. */
+/* measured: closing opt_propagation bracket for sdkRenderStateSetDefault. */
 #pragma opt_propagation on
 /* Coordinates precede byte color and opacity arguments. The core skips
    transparent sprites and stores inverse opacity in the packet. */
@@ -501,8 +515,9 @@ void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
     *(f32 *)(arg0 + 0x18) = fparg3;
     sdkSpriteDraw(arg0, 0);
 }
+// Intent: Draw one sprite through a temporary node at the given position, with the given colour and opacity [inferred]
 // FUN_0034F460
-void func_0034f460(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+void sdkSpriteDrawOnceAt(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5) {
     sdkSpriteDrawOnceScaled(arg0, arg1, fparg0, fparg1, 0.0f, arg2, arg3, arg4, arg5,
                   0x1000, 0x1000, 0.0f, 0, 0);
@@ -528,8 +543,9 @@ void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fpa
    measured: direct short decrement, staged remainder and distance <= half with
    propagation disabled match all 336B, including signed-halving branches. */
 #pragma opt_propagation off
+// Intent: Countdown step for a 0x14-byte entry: when the countdown expires, choose a random state of -1 or 0 to 2 by distance and reset the countdown to 2 to 6 [inferred]
 // FUN_0034F5D0
-void func_0034f5d0(u8 *arg0)
+void datCommunityEntryStep(u8 *arg0)
 {
     u32 remainder;
     s32 extent;
@@ -566,8 +582,9 @@ void func_0034f5d0(u8 *arg0)
 }
 /* measured: restore propagation after the exact countdown update. */
 #pragma opt_propagation on
+// Intent: Fade of a grid cell from its fractions: the product of the two linear interpolations scaled by the third fraction, with range assertions [inferred]
 // FUN_0034F720
-f32 func_0034f720(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2) {
+f32 cmpGridCellFade(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2) {
     if ((fparg0 < 0.0f) || !(fparg0 <= 1.0f)) {
         kAssertFail(D_0064B310, 0xD0);
     }
@@ -624,8 +641,9 @@ void func_0034f8f0(u8 *arg0)
     *((s16 *) (arg0 + 4)) = var_2;
   }
 }
+// Intent: Draw the footer sprite group at the position with the given alpha, style and resource [inferred]
 // FUN_0034F9D0
-void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3) {
+void sdkSpriteDrawFooter(Svec2f_0034b820 unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3) {
     u8 *temp_2;
     u8 *temp_2_100;
     u8 *temp_2_101;

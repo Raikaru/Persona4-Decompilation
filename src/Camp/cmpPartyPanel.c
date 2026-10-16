@@ -13,8 +13,8 @@ s32 func_00363610(u8* arg0);
 void func_003640f0(u8* arg0);
 s32 func_00362f00(u8* arg0);
 void func_00363200(u8* arg0, s64 arg1);
-void func_0034f1e0(void);
-void func_0034f460(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+void sdkRenderStateSetDefault(void);
+void sdkSpriteDrawOnceAt(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5);
 u32 datCalcGetHpById(s16 arg0);
 u16 datCalcMaxHpById(s16 arg0);
@@ -214,16 +214,16 @@ void func_00363200(u8* arg0, s64 arg1)
         spCur = datCalcGetSpById(id) & 0xFFFF;
         spMax = datCalcMaxSpById(id) & 0xFFFF;
         y = xy.y;
-        func_0034f460(sprA, 0, xy.x, y, 0xFF, 0xFF, 0xFF, 0xFF);
-        func_0034f460(sprB, 0, 8.0f + xy.x, 31.0f + y,
+        sdkSpriteDrawOnceAt(sprA, 0, xy.x, y, 0xFF, 0xFF, 0xFF, 0xFF);
+        sdkSpriteDrawOnceAt(sprB, 0, 8.0f + xy.x, 31.0f + y,
                       0xFF, 0xFF, 0xFF, 0xFF);
         ratio = (f32)hpCur / (f32)hpMax;
         y35 = 35.0f + y;
         x13 = 13.0f + xy.x;
-        func_0034f460(sprB, 1, x13, y35, 0xFF, 0xFF, 0xFF, 0xFF);
+        sdkSpriteDrawOnceAt(sprB, 1, x13, y35, 0xFF, 0xFF, 0xFF, 0xFF);
         func_00363080(x13, y35, ratio);
         y39 = 39.0f + y;
-        func_0034f460(sprB, 2, x13, y39, 0xFF, 0xFF, 0xFF, 0xFF);
+        sdkSpriteDrawOnceAt(sprB, 2, x13, y39, 0xFF, 0xFF, 0xFF, 0xFF);
         ratio = (f32)spCur / (f32)spMax;
         func_00363080(x13, y39, ratio);
     }
@@ -242,7 +242,7 @@ void func_00363540(u8* arg0, u8* arg1) {
         }
     }
     if (*(u16*)(arg1 + 0) & 1) {
-        func_0034f1e0();
+        sdkRenderStateSetDefault();
         for (j = 0; j < *(s16*)(arg1 + 0xA); j++) {
             func_00363200(arg1, (s64)(s16)j);
         }
