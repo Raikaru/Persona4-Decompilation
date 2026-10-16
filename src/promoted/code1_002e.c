@@ -44,7 +44,7 @@ extern s32 func_00106b50(s16 arg0);
 
 
 
-s16 func_001060b0(void);
+s16 datGetDateIndex(void);
 void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
 
 s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -523,7 +523,7 @@ u8 func_002e78a0(void)
     s32 sp1C;
     s32 sp18;
 
-    func_001104d0(func_001060b0(), &sp18, &sp1C);
+    func_001104d0(datGetDateIndex(), &sp18, &sp1C);
     return sp18;
 }
 
@@ -536,7 +536,7 @@ s32 func_002e78e0(void)
     s32 sp1C;
     s32 sp18;
 
-    func_001104d0(func_001060b0(), &sp18, &sp1C);
+    func_001104d0(datGetDateIndex(), &sp18, &sp1C);
     return (u8)sp1C;
 }
 
@@ -565,18 +565,18 @@ void func_002e7920(s32 *arg0, s32 *arg1)
     count = 0;
     out1 = arg1;
 
-    func_001104d0(func_001060b0(), (s32 *)&sp60, (s32 *)&sp64);
+    func_001104d0(datGetDateIndex(), (s32 *)&sp60, (s32 *)&sp64);
     count = *(u8 *)&sp64;
-    func_001104d0(func_001060b0(), (s32 *)&sp68, (s32 *)&sp6C);
+    func_001104d0(datGetDateIndex(), (s32 *)&sp68, (s32 *)&sp6C);
     if (func_001104a0(*(u8 *)&sp68) < (count + 1)) {
-        func_001104d0(func_001060b0(), &sp58, &sp5C);
+        func_001104d0(datGetDateIndex(), &sp58, &sp5C);
         *out0 = func_002b2cb0(*(u8 *)&sp58, 1, 0xC, 1, 2);
         *out1 = 1;
         return;
     }
-    func_001104d0(func_001060b0(), &sp50, &sp54);
+    func_001104d0(datGetDateIndex(), &sp50, &sp54);
     *out0 = *(u8 *)&sp50;
-    func_001104d0(func_001060b0(), &sp48, &sp4C);
+    func_001104d0(datGetDateIndex(), &sp48, &sp4C);
     *out1 = *(u8 *)&sp4C + 1;
 }
 // FUN_002E7A60

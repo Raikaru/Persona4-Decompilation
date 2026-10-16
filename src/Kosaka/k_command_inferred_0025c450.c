@@ -18,7 +18,7 @@ extern char D_00635C40[];
 extern char D_00635C60[];
 extern s32 iGpffffb480;
 
-s16 func_001060b0(void);
+s16 datGetDateIndex(void);
 void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
 
 s16 func_00110600(s32 arg0, s32 arg1);
@@ -57,7 +57,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 s32 func_0025c450(void) {
     s16 temp_16;
 
-    temp_16 = func_001060b0();
+    temp_16 = datGetDateIndex();
     scrSetReturnInt((s32)func_00110960(temp_16, datGetTimeSlot() & 0xFF));
     return 1;
 }
@@ -74,7 +74,7 @@ s32 scrCommonChkDays(void) {
     sp38 = 0;
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
-    func_001104d0(func_001060b0(), &sp3C, &sp38);
+    func_001104d0(datGetDateIndex(), &sp3C, &sp38);
     if ((sp3C == temp_17) && (sp38 == temp_16)) {
         scrSetReturnInt(1);
     } else {
@@ -109,7 +109,7 @@ s32 func_0025c600(void) {
     temp_18 = scrGetParamInt(1);
     temp_17 = scrGetParamInt(2);
     temp_16 = scrGetParamInt(3);
-    if (func_001106f0(func_001060b0(), temp_19, temp_18, temp_17, temp_16) == 1) {
+    if (func_001106f0(datGetDateIndex(), temp_19, temp_18, temp_17, temp_16) == 1) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);

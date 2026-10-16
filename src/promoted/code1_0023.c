@@ -16,7 +16,7 @@ extern s32 btlBossLoadEndBgmStep(u8 *work);
 
 extern void func_00231380(s32 *arg0, s32 arg1);
 extern s32 btlCurrentUnitId(void);
-extern s64 func_001060b0(void);
+extern s64 datGetDateIndex(void);
 extern s32 datGetFlag(s32 arg0);
 extern s32 func_00106cd0(s32 arg0, s32 arg1);
 extern s32 func_00110d60(s16 arg0);

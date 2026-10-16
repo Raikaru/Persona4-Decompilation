@@ -32,7 +32,7 @@ extern void func_00120f00(s32 arg0);
 extern void func_00120f40(s32 arg0, s64 arg1);
 extern s32 iGpffffb480;
 
-s16 func_001060b0(void);
+s16 datGetDateIndex(void);
 void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
 void scrSetReturnInt(s32 arg0);
 s32 func_00110580(s64 arg0);

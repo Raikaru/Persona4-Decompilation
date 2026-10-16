@@ -18,7 +18,7 @@ typedef struct SdlSched
     s32 unk8;    /* 0x08 */
 } SdlSched;
 
-extern s16 func_001060b0(void);
+extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
 extern void func_001104d0(s32 date, s32 *month, s32 *day);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
@@ -87,7 +87,7 @@ s32 func_00260020(u8 *task)
     sched = (SdlSched *)kwlnTaskGetWork(task);
     v1 = 0;
     v2 = 0;
-    func_001104d0((s16)func_001060b0(), &v1, &v2);
+    func_001104d0((s16)datGetDateIndex(), &v1, &v2);
     switch (sched->state)
     {
     case 0:
@@ -119,7 +119,7 @@ s32 func_00260020(u8 *task)
             sched->state = 2;
             v3 = 0;
             v4 = 0;
-            func_001104d0((s16)func_001060b0(), &v3, &v4);
+            func_001104d0((s16)datGetDateIndex(), &v3, &v4);
             period = datGetTimeSlot() & 0xFF;
             {
                 char labels[6][8] = { "AM_A", "AM_B", "PM_A", "PM_B", "PM_C", "PM_D" };
@@ -185,11 +185,11 @@ s32 func_00260020(u8 *task)
         break;
     case 2:
         sched->state = 3;
-        if (D_00764574 != (s16)func_001060b0())
+        if (D_00764574 != (s16)datGetDateIndex())
         {
             cmmTickReverseProgress();
         }
-        D_00764574 = (s16)func_001060b0();
+        D_00764574 = (s16)datGetDateIndex();
         /* fallthrough */
     case 3:
         if (kwlnTaskIsLinked((void *)sched->unk4) == 0)
