@@ -723,7 +723,7 @@ void btlCameraFrameActionTarget(u8* camera)
 {
     extern void btlCameraCopyPose(f32*, f32*);
     extern RwV3d D_0060A100;
-    extern void func_00194ff0(u8*, u8*, f32*, f32*);
+    extern void btlUnitGetAnchorPose(u8*, u8*, f32*, f32*);
     extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
     extern void func_003dcc70(f32*, f32*, void*);
     extern f32 tanf(f32);
@@ -752,7 +752,7 @@ void btlCameraFrameActionTarget(u8* camera)
 
     unit = *(u8**)(*(u8**)(camera + 0xe0) + 0x30);
     btlCameraCopyPose((f32*)&frames[0], (f32*)(camera + 0x9c));
-    func_00194ff0(unit, (u8*)&center, NULL, NULL);
+    btlUnitGetAnchorPose(unit, (u8*)&center, NULL, NULL);
     height = *(f32*)(unit + 0x84) * *(f32*)(unit + 0x2c);
     height += fGpffff8118 * (*(f32*)(unit + 0x8c) * *(f32*)(unit + 0x2c));
     center.y = height;

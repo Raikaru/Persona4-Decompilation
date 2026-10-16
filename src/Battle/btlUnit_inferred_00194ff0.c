@@ -187,7 +187,7 @@ extern u8 D_00794150[];
 /* measured: optimization_level 1 reproduces the retail loop initialisation order. */
 /* measured: aggregate Vec3 copies and float frame fields reproduce the 500-byte body. */
 // FUN_00194FF0
-void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
+void btlUnitGetAnchorPose(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
 {
     struct Work {
         f32 vec[3];
@@ -262,7 +262,7 @@ void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
    named scaled index (`off = k * 6`) from being folded into one address. */
 /* measured: func_001951f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5, s32 arg6)
+void btlUnitGetSlotPose(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5, s32 arg6)
 {
     f32 tmp[3];
     f32 pos[3];

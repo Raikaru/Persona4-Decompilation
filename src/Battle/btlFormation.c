@@ -39,7 +39,7 @@ extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern u8 D_00609498[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *D_0076449C;
-extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
+extern void btlUnitGetAnchorPose(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void btlUnitSetPos(void *arg0, void *arg1);
 extern void btlUnitSetRot(void *arg0, void *arg1);
 extern s32 btlUnitIsMoving(void *arg0);
@@ -165,14 +165,14 @@ u32 btlFormationPlaceUnits(u32 *work)
 {
     extern void btlUnitSetPos(struct BtlUnit *, const struct RwV3d *);
     extern void btlUnitSetRot(struct BtlUnit *, const struct RtQuat *);
-    extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
+    extern void btlUnitGetAnchorPose(u8 *, u8 *, f32 *, f32 *);
     extern void btlUnitGetSphereWorldCenter(struct BtlUnit *, struct RwV3d *);
     extern void btlUnitGetSphereCenterTowardTarget(struct BtlUnit *, struct BtlUnit *, struct RwV3d *);
     extern void btlUnitGetGridSphereCenter(struct BtlUnit *, struct RwV3d *);
     extern f32 btlUnitGetGroupBounds(u32, u32, struct RwV3d *, f32 *, f32 *, u32);
     extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
     extern s32 btlTargetCanSelectEntry(u8 *unit, s16 action, s32 paired);
-    extern void func_001951f0(u8 *unit, u8 *target, u8 *partner, s32 category,
+    extern void btlUnitGetSlotPose(u8 *unit, u8 *target, u8 *partner, s32 category,
                             f32 *position, f32 *rotation, s32 options);
     extern u16 btlTargetGetUnitIndex(struct BtlTarget *);
     extern void btlTargetBlendVectors(u8 *, u8 *, u8 *);
@@ -317,15 +317,15 @@ u32 btlFormationPlaceUnits(u32 *work)
                         switch (tmp) {
                         case 0:
                         case 2:
-                            func_001951f0(entry, unitB, other, sel, dest, NULL, 0);
+                            btlUnitGetSlotPose(entry, unitB, other, sel, dest, NULL, 0);
                             break;
                         case 1:
                         case 3:
-                            func_001951f0(entry, unitB, other, sel, dest, NULL, 1);
+                            btlUnitGetSlotPose(entry, unitB, other, sel, dest, NULL, 1);
                             break;
                         }
                     } else {
-                        func_001951f0(entry, unitB, other, sel, dest, NULL, 2);
+                        btlUnitGetSlotPose(entry, unitB, other, sel, dest, NULL, 2);
                     }
                     diff[0] = centerB.v[0] - centerA[0];
                     diff[1] = centerB.v[1] - centerA[1];
@@ -366,7 +366,7 @@ u32 btlFormationPlaceUnits(u32 *work)
                         }
                     } else {
                         radiusA = radiusB;
-                        func_001951f0(entry, unitB, NULL, -1, dest, NULL, 0);
+                        btlUnitGetSlotPose(entry, unitB, NULL, -1, dest, NULL, 0);
                         dest[0] = centerA[0];
                         dest[1] = centerA[1];
                         tmp100[0] = dest[0] - centerA[0];
@@ -479,7 +479,7 @@ u32 btlFormationPlaceUnits(u32 *work)
                         diff[0] *= 200.0f;
                         diff[1] *= 200.0f;
                         diff[2] *= 200.0f;
-                        func_00194ff0((u8 *)(spacingNode), (u8 *)(dest), (f32 *)(NULL), (f32 *)(NULL));
+                        btlUnitGetAnchorPose((u8 *)(spacingNode), (u8 *)(dest), (f32 *)(NULL), (f32 *)(NULL));
                         dest[0] += diff[0];
                         dest[1] += diff[1];
                         dest[2] += diff[2];
@@ -592,7 +592,7 @@ void btlFormationEnterTurn(u32 *work)
 #pragma opt_propagation off
 extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
 extern s32 btlTargetCanSelectEntry(u8 *, s16, s32);
-extern void func_001951f0(u8 *, u8 *, u8 *, s32, f32 *, f32 *, s32);
+extern void btlUnitGetSlotPose(u8 *, u8 *, u8 *, s32, f32 *, f32 *, s32);
 
 typedef struct BtlFormationPlacementWork
 {
@@ -623,17 +623,17 @@ static inline u32 placeFormation(BtlFormationPlacementWork *work, u8 *node, u8 *
         switch (kind) {
         case 0:
         case 2:
-            func_001951f0(node, unit, NULL, category, frame.position, frame.rotation, 0);
+            btlUnitGetSlotPose(node, unit, NULL, category, frame.position, frame.rotation, 0);
             break;
         case 1:
         case 3:
-            func_001951f0(node, unit, NULL, category, frame.position, frame.rotation, 1);
+            btlUnitGetSlotPose(node, unit, NULL, category, frame.position, frame.rotation, 1);
             break;
         }
         btlUnitSetRot(node, frame.rotation);
         btlUnitSetPos(node, frame.position);
     } else {
-        func_001951f0(node, unit, *(u8 **)(work->partnerAction + 0x30),
+        btlUnitGetSlotPose(node, unit, *(u8 **)(work->partnerAction + 0x30),
                       category, frame.position, frame.rotation, 2);
         btlUnitSetRot(node, frame.rotation);
         btlUnitSetPos(node, frame.position);
@@ -821,7 +821,7 @@ u32 btlFormationUpdateMovement(u16 *arg0)
             while (var_20 != NULL) {
                 if (((*(u32 *)(var_20 + 0x9c) & 4) != 0) &&
                     ((temp_17 == 0) || (btlUnitIsMoving(var_20) == 0))) {
-                    func_00194ff0(var_20, sp80, sp70, NULL);
+                    btlUnitGetAnchorPose(var_20, sp80, sp70, NULL);
                     if (temp_16 != 0) {
                         btlUnitSetPos(var_20, sp80);
                         btlUnitClearMoveFlags(var_20);
@@ -878,7 +878,7 @@ u32 btlFormationUpdateDeadPosition(u16 *arg0)
                 } else {
                     var_f20 = 350.0f;
                 }
-                func_00194ff0(var_17, sp60, NULL, sp50);
+                btlUnitGetAnchorPose(var_17, sp60, NULL, sp50);
                 sp50[1] = sp60[1];
                 sp40[0] = sp60[0] - sp50[0];
                 sp40[1] = sp60[1] - sp60[1];
@@ -1029,7 +1029,7 @@ u32 btlFormationApplyDefaultPose(void)
     extern void RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rot);
 
     node = *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30);
-    func_00194ff0(node, vectors.base, vectors.offsets, NULL);
+    btlUnitGetAnchorPose(node, vectors.base, vectors.offsets, NULL);
     btlUnitClearMoveFlags(node);
     btlUnitClearRotateFlags(node);
     btlUnitSetPos(node, vectors.base);
