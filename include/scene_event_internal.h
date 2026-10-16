@@ -44,7 +44,7 @@ f32 MT_Scene_SamplePath(s8 *path, f32 distance, f32 total,
 extern s32 D_00882170[];
 
 /* Event TU prototypes: functions defined in src/Event and the scene-event bucket. */
-void func_00285260(void);
+void evtMenuClearSlots(void);
 void evtSetNodeResourcesEnabled();
 s32 evtFindTask(void);
 void evtDestroyEventScene(u8 *arg0, s32 arg1);
@@ -62,7 +62,7 @@ void evtResetPendingState(int param_1);
 void func_002e0dd0(void);
 void evtReleaseRes(u8 *arg0);
 void evtMessageWindowResetTyped(u32 *param_1);
-void func_00291900(void);
+void evtCustomEventReleaseRes(void);
 void evtEffectTableDestroy(u8 *arg0);
 void evtPolygonMovieFree(s32 *arg0, u32 *arg1);
 void func_00291470();
@@ -80,7 +80,7 @@ extern void *evtEnvSlot(int arg0, int arg1);
 void evtPolygonMovieLerpPose(s32 arg0, f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3);
 void sceneLightSlotSet(s32 slot, s32 mode, s32 modeValue, f32 *arg3, f32 *arg4, f32 *arg5);
 f32 evtCommandParamF32(s32 param);
-void func_0028b270(int param_1);
+void evtMainSetFlag(int param_1);
 void evtFindNodeRange(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3);
 void evtInterpolateNodeMatrices(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3, f32 *arg4, f32 *arg5);
 void evtAppendNodeToList(u8 *arg0, u8 *arg1);
