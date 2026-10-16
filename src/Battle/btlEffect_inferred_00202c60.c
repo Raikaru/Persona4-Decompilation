@@ -18,7 +18,7 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
 extern s32 cmmCommunityForArcana(s16 arg0);
-extern u16 func_00107ac0(s32 arg0);
+extern u16 cmmCommunityRecordValue(s32 arg0);
 extern void btlSelectionResetSubList(u8 *arg0, u8 *arg1);
 extern u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1);
 extern void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState);
@@ -3051,7 +3051,7 @@ u16 btlSelectionOpenSubList(u8 *arg0, s32 arg1, u8 **arg2)
         temp_2 = *(u8 **)(p4_002091f0_add(
             (u32)(*(s16 *)(arg0 + 4) * 4), base) + 0x17C);
         *(u8 **)(base + 0x190) = temp_2;
-        if ((func_00107ac0(cmmCommunityForArcana(*(s16 *)(temp_2 + 0xA4)) &
+        if ((cmmCommunityRecordValue(cmmCommunityForArcana(*(s16 *)(temp_2 + 0xA4)) &
                            0xFFFF) & 0xFFFF) >= 0) {
             var_2 = 5;
         } else {

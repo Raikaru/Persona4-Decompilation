@@ -15,7 +15,7 @@ extern s64 cmmCommunityArcana(s32 arg0);
 extern s32 cmmFindCommunityOfCategory(s32 arg0);
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 extern s32 cmmCommunityHasRecord(s32 arg0);
-extern u16 func_00107ac0(s32 arg0);
+extern u16 cmmCommunityRecordValue(s32 arg0);
 extern s32 cmmCommunityTestReversed(s32 arg0);
 extern s32 cmmCommunityTestBroken(s32 arg0);
 extern s32 cmmCommunityFindRecord(s32 arg0);
@@ -470,8 +470,9 @@ ret:
     return r != NULL;
 }
 
+// Returns the record value of the first community with arcana arg0 that has a record, or 0 when none.
 // FUN_00107890
-s32 func_00107890(s32 arg0)
+s32 cmmCommunityValueForArcana(s32 arg0)
 {
     s32 i;
     s32 id;
@@ -482,7 +483,7 @@ s32 func_00107890(s32 arg0)
     {
         if ((id == (s8)cmmCommunityArcana(i & 0xFFFF)) && (cmmCommunityFindRecord(i & 0xFFFFu) != 0))
         {
-            return func_00107ac0((u16)i) & 0xFFFF;
+            return cmmCommunityRecordValue((u16)i) & 0xFFFF;
         }
         i++;
     }
@@ -566,8 +567,9 @@ ret:
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
+// Returns the u16 value at +6 of the record for community arg0 (the id is matched at +4), or 0 when there is none; ids of 0x1F or more assert.
 // FUN_00107AC0
-u16 func_00107ac0(s32 arg0) {
+u16 cmmCommunityRecordValue(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
     u8 *r;
     u8 *p;
