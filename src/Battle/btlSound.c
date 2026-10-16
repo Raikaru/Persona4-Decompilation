@@ -3,6 +3,8 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "btl_packet_create_internal.h"
+extern s32 btlCond_ESCAPE(u8 *arg0, s32 arg1);
+extern s32 datCalcHasBuffMask(u8 *arg0, s32 arg1);
 
 typedef struct Battle Battle;
 struct Battle
@@ -396,3 +398,384 @@ void btlSoundCreateWaitPacket(void)
     work[0] = 0;
     work[1] = 0;
 }
+extern s32 func_001fa660(void);
+extern s32 func_001fa7a0(s32 *arg0);
+static inline u32 addOffsetFirst(u32 offset, u32 base) {
+    return offset + base;
+}
+extern u8 *iGpffffb3b8;
+extern s32 func_001fa7a0(s32 *arg0);
+extern s32 func_001fa940(void);
+extern s32 func_001faa00(void);
+extern void func_00485b20(s32 arg0);
+extern void func_00486180(s32 arg0);
+extern void func_00120f20(s32 arg0);
+extern void memcpy(void *arg0, void *arg1, u32 arg2);
+extern void func_001fa490(void);
+extern s32 func_001fa660(void);
+#pragma push
+#pragma pop
+// FUN_001FA720
+u8 *func_001fa720(const void *arg0) {
+    u8 *temp_2;
+
+    temp_2 = (u8 *)btlPacketAlloc(0xC04, 0xA);
+    temp_2[0x47] &= 0xEE;
+    *(void **)(temp_2 + 0x68) = (void *)func_001fa490;
+    *(void **)(temp_2 + 0x6C) = (void *)func_001fa660;
+    memcpy(*(s32 **)(temp_2 + 0x78), (void *)arg0, 0xA);
+    return temp_2;
+}
+
+
+// FUN_001FA8F0
+void func_001fa8f0(void) {
+    u8 *temp_2;
+
+    temp_2 = (u8 *)btlPacketAlloc(0xC05, 4);
+    temp_2[0x47] &= 0xEE;
+    *(void **)(temp_2 + 0x6C) = (void *)func_001fa7a0;
+    *(s32 **)(*(u8 **)(temp_2 + 0x78)) = NULL;
+}
+
+
+// FUN_001FA940
+s32 func_001fa940(void) {
+    s32 temp_4;
+    s32 temp_4_2;
+    u8 *temp_3;
+
+    temp_3 = D_0076449C;
+    if (*(s32 *)(temp_3 + 0xB84) != 0) {
+        *(s32 *)(temp_3 + 0xB4C) |= 2;
+    } else {
+        temp_4 = *(s32 *)(temp_3 + 0xB80);
+        if (temp_4 != 0) {
+            func_00485b20(temp_4);
+            *(s32 *)(D_0076449C + 0xB80) = 0;
+        }
+    }
+    temp_4_2 = *(s32 *)(D_0076449C + 0xB88);
+    if (temp_4_2 != 0) {
+        func_00120f20(temp_4_2);
+        *(s32 *)(D_0076449C + 0xB88) = 0;
+    }
+    return 1;
+}
+
+
+// FUN_001FA9C0
+void func_001fa9c0(void) {
+    u8 *temp_2;
+
+    temp_2 = (u8 *)btlPacketAlloc(0xC06, 0);
+    temp_2[0x47] &= 0xEE;
+    *(void **)(temp_2 + 0x6C) = (void *)func_001fa940;
+}
+
+
+// FUN_001FAA00
+s32 func_001faa00(void) {
+    s32 temp_4;
+    s32 temp_4_2;
+
+    temp_4 = *(s32 *)(D_0076449C + 0xB80);
+    if (temp_4 != 0) {
+        func_00486180(temp_4);
+    }
+    temp_4_2 = *(s32 *)(D_0076449C + 0xB88);
+    if (temp_4_2 != 0) {
+        func_00120f20(temp_4_2);
+        *(s32 *)(D_0076449C + 0xB88) = 0;
+    }
+    return 1;
+}
+
+
+// FUN_001FAA60
+void func_001faa60(void) {
+    u8 *temp_2;
+
+    temp_2 = (u8 *)btlPacketAlloc(0xC07, 0);
+    temp_2[0x47] &= 0xEE;
+    *(void **)(temp_2 + 0x6C) = (void *)func_001faa00;
+}
+
+
+// FUN_001FAE60
+void func_001fae60(s32 arg0, s32 arg1, s32 arg2)
+{
+    *(s32 *)(D_0076449C + 0xB40) = arg0;
+    *(s32 *)(D_0076449C + 0xB44) = arg1;
+    *(s32 *)(D_0076449C + 0xB48) = arg2;
+}
+
+
+// FUN_001FAE80
+s32 func_001fae80(u8 *arg0, s32 arg1)
+{
+    extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3,
+                              u32 arg4);
+    u8 sp30[0x38];
+    s32 temp_16;
+    u8 *temp_3;
+
+    if (arg1 <= 0) {
+        return 0;
+    }
+    temp_16 = arg1 * 0x28;
+    temp_3 = (u8 *)((u32)iGpffffb3b8 + temp_16);
+    if ((*(u8 *)temp_3 & 8) == 0) {
+        return 0;
+    }
+    btlEffectCollectTargetUnits(arg0, sp30,
+                   *(u8 *)(temp_3 + 9),
+                   *(u8 *)(temp_3 + 0xA),
+                   *(u16 *)(temp_3 + 0xC));
+    if (*(u16 *)(sp30 + 0x38) == 0) {
+        return 2;
+    }
+    switch (*(u8 *)((u8 *)addOffsetFirst((u32)temp_16,
+                                         (u32)iGpffffb3b8) + 0x24)) {
+    case 2:
+        if (btlCond_ESCAPE(arg0, 0) == 0) {
+            return 6;
+        }
+        break;
+    default:
+        break;
+    }
+    return 0;
+}
+
+
+// FUN_001FAF70
+s32 func_001faf70(u8 *arg0, s32 arg1, s32 arg2)
+{
+    extern s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
+    s32 temp_18;
+    u32 var_21;
+    u32 var_20;
+    s32 temp_19;
+    s32 temp_2;
+    s32 var_2;
+    u32 var_18;
+    u8 *temp_3;
+
+    if (arg1 <= 0) {
+        return 0;
+    }
+    temp_3 = iGpffffb3b8 + (arg1 * 0x28);
+    if (!( *(u8 *)(temp_3 + 0) & 8)) {
+        return 0;
+    }
+    temp_18 = *(s32 *)(temp_3 + 0x20);
+    if ((temp_18 & 0x7F7FFFFF) && !(temp_18 & 0x80800000)) {
+        var_21 = 0;
+        goto loop_outer_test;
+loop_outer_body:
+        temp_19 = 1 << var_21;
+        if (temp_18 & temp_19) {
+            var_20 = 0;
+            goto loop_inner_test;
+loop_inner_body:
+            if (datCalcHasBuffMask((u8 *)(
+                    *(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_20 * 4) + 0x38) +
+                                      0x30) + 0xA64)),
+                    temp_19) != 0) {
+                var_20 += 1;
+                goto loop_inner_test;
+            } else {
+                goto loop_inner_exit;
+            }
+loop_inner_test:
+            if (var_20 < *(u16 *)(arg0 + 0x6A)) {
+                goto loop_inner_body;
+            }
+loop_inner_exit:
+            if (var_20 != *(u16 *)(arg0 + 0x6A)) {
+                goto loop_outer_after;
+            }
+        }
+loop_outer_increment:
+        var_21 += 1;
+loop_outer_test:
+        if (var_21 < 0x20U) {
+            goto loop_outer_body;
+        }
+loop_outer_after:
+        if (var_21 == 0x20) {
+            if (temp_18 & 0x3000) {
+                var_2 = 5;
+            } else {
+                var_2 = 3;
+            }
+            return var_2;
+        }
+    }
+    var_18 = 0;
+    goto loop_24_test;
+loop_24_body:
+    temp_2 = datCalcSkillEffectFlags(
+        arg1 & 0xFFFF,
+        (u8 *)*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+        (u8 *)*(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) +
+                            0x30) + 0xA64),
+        arg2);
+    if (temp_2 != 0 && temp_2 != 0xFFFF) {
+        var_18 += 1;
+        goto loop_24_test;
+    } else {
+        goto loop_24_exit;
+    }
+loop_24_test:
+    if (var_18 < *(u16 *)(arg0 + 0x6A)) {
+        goto loop_24_body;
+    }
+loop_24_exit:
+    if (var_18 == *(u16 *)(arg0 + 0x6A)) {
+        return 4;
+    }
+    return 0;
+}
+
+
+// FUN_001FB170
+s32 func_001fb170(s32 arg0) {
+    u32 temp_2;
+
+    temp_2 = arg0 & 0xFFFF;
+    switch (temp_2) {
+    case 2:
+        return 0x8A;
+    case 3:
+        return 0x8B;
+    case 4:
+        return 0x8C;
+    case 5:
+        return 0x8D;
+    case 6:
+        return 0x8E;
+    case 7:
+        return 0x98;
+    default:
+        return 0;
+    }
+}
+
+
+// FUN_001FB1F0
+s32 func_001fb1f0(u8 *arg0, s32 arg1)
+{
+    s32 temp_16;
+    u32 var_19;
+    u32 var_18;
+    s32 temp_17;
+    s32 var_2;
+    u8 *temp_3;
+
+    if (arg1 <= 0) {
+        return 0;
+    }
+    temp_3 = iGpffffb3b8 + (arg1 * 0x28);
+    if (!(*(u8 *)(temp_3 + 0) & 8)) {
+        return 0;
+    }
+    temp_16 = *(s32 *)(temp_3 + 0x20);
+    if ((temp_16 & 0x7F7FFFFF) && !(temp_16 & 0x80800000)) {
+        var_19 = 0;
+        goto loop_outer_test;
+loop_outer_body:
+        temp_17 = 1 << var_19;
+        if (temp_16 & temp_17) {
+            var_18 = 0;
+            goto loop_inner_test;
+loop_inner_body:
+            if (datCalcHasBuffMask((u8 *)(
+                *(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) + 0x30) + 0xA64)),
+                temp_17) != 0) {
+                var_18 += 1;
+                goto loop_inner_test;
+            } else {
+                goto loop_inner_exit;
+            }
+loop_inner_test:
+            if (var_18 < *(u16 *)(arg0 + 0x6A)) {
+                goto loop_inner_body;
+            }
+loop_inner_exit:
+            if (var_18 != *(u16 *)(arg0 + 0x6A)) {
+                goto loop_outer_after;
+            }
+        }
+loop_outer_increment:
+        var_19 += 1;
+loop_outer_test:
+        if (var_19 < 0x20U) {
+            goto loop_outer_body;
+        }
+loop_outer_after:
+        if (var_19 == 0x20) {
+            if (temp_16 & 0x3000) {
+                var_2 = 7;
+            } else {
+                var_2 = 3;
+            }
+            return var_2;
+        }
+    }
+done:
+        return 0;
+}
+
+
+/* measured: candidate object 284B/window 288B, normalized_diff 1. Committed at nd 1. */
+// FUN_001FB360
+s32 func_001fb360(u8 *arg0, s32 arg1)
+{
+    s32 temp_16;
+    s32 temp_5;
+    s32 var_2;
+    u32 var_17;
+    u8 *temp_3;
+
+    if (arg1 <= 0) {
+        return 0;
+    }
+    temp_3 = iGpffffb3b8 + (arg1 * 0x28);
+    if (!(*(u8 *)(temp_3 + 0) & 8)) {
+        return 0;
+    }
+    temp_16 = *(s32 *)(temp_3 + 0x20);
+    if ((temp_16 & 0x7C7FFFFF) && !(temp_16 & 0x83800000)) {
+        var_17 = 0;
+        goto loop_test;
+loop_body:
+        temp_5 = 1 << var_17;
+        if (!(temp_16 & temp_5)) {
+            goto loop_increment;
+        }
+        if (datCalcHasBuffMask((u8 *)(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64)),
+                          temp_5) == 0) {
+            goto loop_after_call;
+        }
+loop_increment:
+        var_17 += 1;
+loop_test:
+        if (var_17 < 0x20U) {
+            goto loop_body;
+        }
+loop_after_call:
+        if (var_17 == 0x20) {
+            if (temp_16 & 0x3000) {
+                var_2 = 7;
+            } else {
+                var_2 = 3;
+            }
+            return var_2;
+        }
+    }
+    return 0;
+}
+
+
