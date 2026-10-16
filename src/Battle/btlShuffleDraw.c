@@ -26,8 +26,8 @@ extern s32 btlShuffleDrawFlagD(u8 *arg0);
 extern void btlShuffleDrawSetAlpha(u8 *arg0, u8 arg1);
 extern void btlShuffleCalcSetBlend(u8 *arg0, u8 *arg1, u8 *arg2);
 extern void btlShuffleCalcStoreTiming(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-extern void func_00370410(u8 *arg0);
-extern void func_00370a80(u8 *arg0);
+extern void btlShuffleCalcInitMotion(u8 *arg0);
+extern void btlShuffleCalcInitRotation(u8 *arg0);
 extern void btlShuffleCalcScheduleMove(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, f32 fparg0);
 extern void btlShuffleCalcSetKeyframe(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, u8 *arg4, u8 *arg5);
 extern void btlShuffleCalcSetFrameRange(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -994,9 +994,9 @@ typedef struct ShuffleContext { u8 preceding[0x1d6a0]; ShuffleRecord records[]; 
 void btlShuffleDrawSetLayout(u8 *arg0, s32 arg1) {
     s32 idx = arg1 * sizeof(ShuffleRecord);
     ShuffleContext *p = (ShuffleContext *)(arg0 + idx);
-    func_00370410((u8 *)&p->records[0].motion);
+    btlShuffleCalcInitMotion((u8 *)&p->records[0].motion);
     ((ShuffleContext *)((u32)arg0 + idx))->records[0].motionState = 5;
-    func_00370a80((u8 *)&p->records[0].rotation);
+    btlShuffleCalcInitRotation((u8 *)&p->records[0].rotation);
     ((ShuffleContext *)(arg0 + (u32)idx))->records[0].rotationState = 3;
 }
 
