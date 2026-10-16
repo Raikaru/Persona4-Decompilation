@@ -34,7 +34,7 @@ extern u8 *func_0029d050();
 extern s32 btlSideSelectUnits();
 extern s32 datCalcSkillAmount(s32 skill, u8 *source, u8 *target, s32 count, s32 hit, s32 relation, s32 options, s32 channel);
 extern void datCalcClearField18(u32 arg0);
-extern s32 func_001d8cb0(u32 arg0, u8 *arg1);
+extern s32 btlEffectSelectNearestEntry(u32 arg0, u8 *arg1);
 extern u32 func_001d8bc0(u8 *arg0);
 extern s32 datCalcSkillElement(u8 *unit, u16 command);
 extern s32 datCalcElementBit(s16 index);
@@ -1076,7 +1076,7 @@ u32 btlCond_AI_REV(u32 param_1)
 /* measured: MATCH. Copy loop spelled exactly like FUN_001DC9A0 (u16 index,
    for loop, sh count). Else branch: retail keeps func_001dbf20 INLINE and
    puts the store block OUT OF LINE (forward bnez) — lever 1, flip the
-   branch: if (func_001d8cb0(...) == 0) { return func_001dbf20(...); } then
+   branch: if (btlEffectSelectNearestEntry(...) == 0) { return func_001dbf20(...); } then
    the store block falls through. The opposite spelling (store block in the
    if with return 1, func_001dbf20 as trailing return) emits the mirror
    layout at nd 36. */
@@ -1094,7 +1094,7 @@ s32 btlCond_APPOINT(u8 *param_1, u32 param_2)
         *(u16 *)(param_1 + 0x6a) = *(u16 *)(param_1 + 0xd0);
         return 1;
     }
-    if (func_001d8cb0(0, (u8 *)(param_1 + 0x98)) == 0) {
+    if (btlEffectSelectNearestEntry(0, (u8 *)(param_1 + 0x98)) == 0) {
         return btlAICommandPickAiTarget(param_1, param_2);
     }
     *(u32 *)(param_1 + 0x38) = func_001d8bc0((u8 *)(param_1 + 0x98));
