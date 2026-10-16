@@ -37,7 +37,7 @@ extern void ObjectParticleUpdateRecords();
 extern f32 iGpffff8080;
 extern void mdlDestroyModelObject();
 
-extern void func_004841c0(s32 arg0);
+extern void func_004841c0(u8 *arg0);
 extern void (*D_008873ec[])(void *);
 
 extern s32 D_00724C70;
@@ -89,7 +89,7 @@ extern f32 D_008872F8[];
 extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void primAxisLine3D(f32 *arg0, s32 arg1, f32 arg2);
 extern s32 mdlCopyIndexedMatrix(u8 *arg0, s32 arg1, u8 *arg2);
-extern void func_00485870(s32 arg0);
+extern void func_00485870(u8 *arg0);
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
@@ -107,7 +107,7 @@ extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern s32 func_00481e30(s32 arg0);
-extern void func_00481ee0(s32 arg0);
+extern void func_00481ee0(u8 **arg0);
 extern void TlpRelease(s32 arg0);
 extern s32 TlpAddRef(s32 arg0);
 extern void mdlInitIdentityMatrix(void *arg0);
@@ -152,45 +152,7 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern void *func_004a5bb0(void *source);
 
-// FUN_004A5DE0
-void func_004a5de0(u8 *arg0) {
-    s32 temp_4;
-    s32 temp_4_2;
 
-    temp_4 = (s32)(*(s32 *)((u8 *)(arg0) + 0xCC));
-    if (temp_4 != 0) {
-        TlpRelease(temp_4);
-    }
-    temp_4_2 = (s32)(*(s32 *)((u8 *)(arg0) + 0xD0));
-    if (temp_4_2 != 0) {
-        func_00481ee0(temp_4_2);
-    }
-    GeometryBlockDestroy(*(s32 *)((u8 *)(arg0) + 0xC8));
-    (*jtbl_008873EC)(arg0);
-}
-
-// FUN_004A5EF0
-void func_004a5ef0(u8 *arg0, u8 *arg1)
-{
-    s32 temp_4;
-    s32 temp_4_2;
-
-    if (*(s32 *)(arg1 + 0xD0) != 0) {
-        temp_4 = *(s32 *)(arg0 + 0xD0);
-        if (temp_4 != 0) {
-            func_00481ee0(temp_4);
-        }
-        *(s32 *)(arg0 + 0xD0) = func_00481e30(*(s32 *)(arg1 + 0xD0));
-        return;
-    }
-    if (*(s32 *)(arg1 + 0xCC) != 0) {
-        temp_4_2 = *(s32 *)(arg0 + 0xCC);
-        if (temp_4_2 != 0) {
-            TlpRelease(temp_4_2);
-        }
-        *(s32 *)(arg0 + 0xCC) = TlpAddRef(*(s32 *)(arg1 + 0xCC));
-    }
-}
 
 /* Billboard sprite update. The particle colour is the base colour times the
  * animated tint, packed by the COP2 block. Its store to the packed slot is
@@ -217,12 +179,6 @@ typedef struct EffSpriteRGBA {
 
 #pragma opt_loop_invariants on
 #pragma opt_loop_invariants off
-// FUN_004A6DC0
-void func_004a6dc0(u8 *arg0)
-{
-    func_004841c0(*(s32 *)(arg0 + 0x58));
-    jtbl_008873EC[0](arg0);
-}
 
 
 
@@ -267,49 +223,4 @@ void func_004a6dc0(u8 *arg0)
 #pragma pop
 
 
-// FUN_004ADE80
-void func_004ade80(u8 *arg0)
-{
-    u8 frame[0x50];
-    s32 *var_16_2;
-    s32 temp_4;
-    u32 temp_18;
-    u32 var_16;
-    u32 var_17;
-
-    if (*(s32 *)(arg0 + 0x9C) == 0) {
-        *(u8 *)(frame + 0x4C) = 0xFF;
-        *(u8 *)(frame + 0x4D) = 0xFF;
-        *(u8 *)(frame + 0x4E) = 0;
-        *(u8 *)(frame + 0x4F) = 0xFF;
-        var_16 = 0;
-        goto loop_004ade80_a_check;
-loop_004ade80_a_body:
-        if (mdlCopyIndexedMatrix(*(u8 **)(arg0 + 0xA0), var_16, frame) != 0) {
-            primQuad3D((f32 *)(frame + 0x30), frame + 0x4C, 1, 4.0f);
-            primAxisLine3D((f32 *)frame, 1, 30.0f);
-        }
-        var_16 += 1;
-loop_004ade80_a_check:
-        if (var_16 < (u32)*(u32 *)(arg0 + 0x28)) {
-            goto loop_004ade80_a_body;
-        }
-        return;
-    }
-    temp_4 = *(s32 *)(arg0 + 0x90);
-    temp_18 = *(u32 *)(arg0 + 0x28);
-    var_16_2 = *(s32 **)(arg0 + 0x98);
-    if ((*(s32 *)(arg0 + 0x2C) < temp_4) || (temp_4 == 0)) {
-        var_17 = 0;
-        goto loop_004ade80_b_check;
-loop_004ade80_b_body:
-        func_00485870(*var_16_2);
-        var_16_2++;
-        var_17 += 1;
-loop_004ade80_b_check:
-        if (var_17 < temp_18) {
-            goto loop_004ade80_b_body;
-        }
-    }
-}
 

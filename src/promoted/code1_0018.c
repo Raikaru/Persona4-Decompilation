@@ -1166,33 +1166,9 @@ void func_001852f0(void)
 /* measured: stop VU0 register mode after the target. */
 #pragma enable_vu0_registers off
 
-/* measured: enable_vu0_registers + vu0_mmi_reg_binding with optimization_level 1
-   reproduces the sibling 112-byte pcpyld/sq skeleton; direct _pcpyld on separate
-   u64 pairs gives the retail register order and reload. */
 #pragma enable_vu0_registers on
 #pragma vu0_mmi_reg_binding on
-/* measured: optimization_level 1 is required with the VU0 pragmas above;
-   at -O2 the packet stores are reordered and the pcpyld pairs are folded. */
 #pragma optimization_level 1
-// FUN_00185370
-void func_00185370(void)
-{
-    u_long128 *packet;
-    u_long128 packed;
-    u64 a, b, c, d;
-
-    func_003f3eb0((s32)0x80000000, 2);
-    a = 0xE;
-    b = 0x1000000000008001ULL;
-    packed = _pcpyld(a, b);
-    packet = (u_long128 *)(u32)iGpffffb884;
-    *packet = packed;
-    c = 0x4C;
-    d = iGpffffb8c8;
-    packed = _pcpyld(c, d);
-    packet[1] = packed;
-    iGpffffb884 += 0x20;
-}
 /* measured: closes the cluster pcpyld pragma scope and restores the file's -O2
    baseline. */
 #pragma optimization_level 2

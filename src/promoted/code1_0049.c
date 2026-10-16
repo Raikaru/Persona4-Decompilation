@@ -36,7 +36,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
     return left * right;
 }
 
-extern void func_004841c0(void *arg0);
+extern void func_004841c0(u8 *arg0);
 extern void mdlEffectCopyCameraOrigin(u8 *arg0);
 
 extern void func_00484280(u8 *object, s32 resource);
@@ -74,13 +74,6 @@ extern void func_00484280(u8 *object, s32 resource);
 #pragma opt_loop_invariants on
 #pragma opt_pulloutconstants off
 #pragma pop
-// FUN_00494680
-void func_00494680(void *arg0)
-{
-    func_004841c0(*(void **)((u8 *)arg0 + 0x10));
-    func_004841c0(*(void **)((u8 *)arg0 + 0x14));
-    jtbl_008873EC[0](arg0);
-}
 
 
 
@@ -100,23 +93,6 @@ typedef struct TrackVertex
 #pragma pop
 
 
-// FUN_00498D20
-void func_00498d20(u8 *arg0) {
-    u8 *temp_4;
-    u8 *temp_7;
-    u8 *temp_7_2;
-
-    temp_4 = *(u8 **)(*(u8 **)(arg0 + 0x3C));
-    if (iGpffffbb64.c3 != 0xFF) {
-        temp_7 = *(u8 **)(temp_4 + 0x14);
-        *(Code1_0049Color *)(temp_7 + 4) = iGpffffbb64;
-        return;
-    }
-    iGpffffbb64.c3 = 0xFE;
-    temp_7_2 = *(u8 **)(temp_4 + 0x14);
-    *(Code1_0049Color *)(temp_7_2 + 4) = iGpffffbb64;
-    iGpffffbb64.c3 = 0xFF;
-}
 /* measured: the sibling 0049b470 body matches this routine's control-flow and
    call sequence; target entries are 0x18 bytes, so the fill stride is six words. */
 #pragma opt_loop_invariants on
