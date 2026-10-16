@@ -128,7 +128,7 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
 
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
-    func_00198920(arg0, arg1, arg2, arg3, arg4);
+    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
 }
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
@@ -166,7 +166,7 @@ extern u8 D_00794150[];
 
 extern s64 btlUnitGetMotionId(u8 *arg0, u16 arg1);
 extern s16 btlUnitMotionFrames(u8 *arg0, u16 arg1, f32 fparg0);
-extern void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
+extern void btlUnitSetMotion(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
 
 /* Source unit: src/promoted/code1_0019.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 00198380-00198380 */
@@ -218,10 +218,10 @@ void func_00198380(u8 *arg0) {
                     } else {
                         var_f12 = 1.0f;
                     }
-                    func_00198920(arg0, 1, 4U, var_f12, 1);
+                    btlUnitSetMotion(arg0, 1, 4U, var_f12, 1);
                 }
             } else if ((func_001988b0(arg0) != 0) && (func_00198840(arg0) == 0)) {
-                func_00198920(arg0, *(s16 *)(arg0 + 0x9EC), 6U, *(f32 *)(arg0 + 0x9F0), *(s8 *)(arg0 + 0x9F4));
+                btlUnitSetMotion(arg0, *(s16 *)(arg0 + 0x9EC), 6U, *(f32 *)(arg0 + 0x9F0), *(s8 *)(arg0 + 0x9F4));
             }
         }
         temp_3_3 = (u16)(*(u16 *)(arg0 + 0x9DC));
@@ -254,7 +254,7 @@ void func_00198380(u8 *arg0) {
                             break;
                         }
                     }
-                    func_00198920(arg0, *(s16 *)(arg0 + 0x9EC), var_6, *(f32 *)(arg0 + 0x9F0), *(s8 *)(arg0 + 0x9F4));
+                    btlUnitSetMotion(arg0, *(s16 *)(arg0 + 0x9EC), var_6, *(f32 *)(arg0 + 0x9F0), *(s8 *)(arg0 + 0x9F4));
                 }
             }
             break;
@@ -269,12 +269,12 @@ void func_00198380(u8 *arg0) {
             break;
         case 4:
             if ((*(u8 *)(temp_16 + 0xEE) == 1) && ((s16)btlUnitGetMotionState(arg0) != 0xE)) {
-                func_00198920(arg0, 0xE, 0U, 1.0f, 1);
+                btlUnitSetMotion(arg0, 0xE, 0U, 1.0f, 1);
             }
             break;
         case 5:
             if ((*(u8 *)(temp_16 + 0xEE) == 1) && ((s16)btlUnitGetMotionState(arg0) != 0x10)) {
-                func_00198920(arg0, 0x10, 0U, 1.0f, 1);
+                btlUnitSetMotion(arg0, 0x10, 0U, 1.0f, 1);
             }
             break;
         }

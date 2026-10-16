@@ -88,9 +88,9 @@ typedef struct BtlUnitColorWork {
     u8 flags;
     s16 counter;
 } BtlUnitColorWork;
-u32 func_0019b710(void* work);
-u32 func_0019b730(void* work);
-u32 func_0019bbc0(void* work);
+u32 btlUnitHoldPendingColor(void* work);
+u32 btlUnitColorPacketUpdate(void* work);
+u32 btlUnitReleasePendingColor(void* work);
 u32 btlUnitHoldPendingShow(void* work);
 u32 btlUnitShowPacketUpdate(void* work);
 u32 btlUnitReleasePendingShow(void* work);
@@ -328,9 +328,9 @@ BtlPacket* btlUnitCreateColorPacket(BtlUnit* unit, u32 targetColor, s16 startFra
     BtlUnitColorWork* work;
 
     packet = btlPacketAlloc(0x112, sizeof(BtlUnitColorWork));
-    packet->initFunc = func_0019b710;
-    packet->updateFunc = func_0019b730;
-    packet->destroyFunc = func_0019bbc0;
+    packet->initFunc = btlUnitHoldPendingColor;
+    packet->updateFunc = btlUnitColorPacketUpdate;
+    packet->destroyFunc = btlUnitReleasePendingColor;
     work = (BtlUnitColorWork*)packet->workData;
     work->unit = unit;
     work->targetColor = targetColor;

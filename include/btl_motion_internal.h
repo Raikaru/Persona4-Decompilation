@@ -5,7 +5,7 @@
 
 /* Animation and blend frames retain their signed/unsigned halfword domains.
  * Rate occupies f12; integer arguments are unit, motion, frame and option. */
-void func_00198920(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option);
+void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option);
 void btlUnitUpdateStatusMotion(u8 *unit, u16 frame);
 s64 btlUnitGetMotionId(u8 *unit, u16 motion);
 /* Animation-table and boss-override selectors use their low unsigned halfword. */

@@ -271,7 +271,7 @@ s32 btlEffectScriptApplyToSideUnit(void)
     }
     temp_2 = btlEffectFindUnitByIdAndStatus(temp_19 & 0xFFFF, var_2 & 0xFFFF, 0x80000);
     if (temp_2 != NULL) {
-        func_00198920(*(u8 **)(temp_2 + 0x30), (s16)temp_18, (u16)temp_17, 1.0f, (u16)temp_16);
+        btlUnitSetMotion(*(u8 **)(temp_2 + 0x30), (s16)temp_18, (u16)temp_17, 1.0f, (u16)temp_16);
     }
     return 1;
 }

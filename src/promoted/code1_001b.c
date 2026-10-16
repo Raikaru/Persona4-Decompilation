@@ -32,7 +32,7 @@ extern void btlEncounterStart(u8 *arg0);
 extern s32 btlShuffleCreate(s32 arg0, u8 *arg1);
 extern void btlShuffleCancel(s32 arg0);
 extern s32 datCalcGetLevel(s32 arg0);
-extern s32 func_00193260(u8 *arg0);
+extern s32 btlIsLeaderStandardUnit(u8 *arg0);
 extern void memset(void *dst, s32 value, s32 size);
 extern void hFadeTaskStart(s16 arg0);
 extern s32 mcIconTaskCreate(u8 *parent, s32 mode);

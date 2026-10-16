@@ -276,7 +276,7 @@ loop_17_body:
         btlUnitSetPos(var_17, sp40);
         btlUnitSetRot(var_17, sp30);
         btlUnitUpdateStatusMotion(var_17, 0);
-        func_00198920(var_17, *(s16 *)(var_17 + 0x9EC), 0, *(f32 *)(var_17 + 0x9F0), *(s8 *)(var_17 + 0x9F4));
+        btlUnitSetMotion(var_17, *(s16 *)(var_17 + 0x9EC), 0, *(f32 *)(var_17 + 0x9F0), *(s8 *)(var_17 + 0x9F4));
     }
     var_17 = *(u8 **)(var_17 + 0xA6C);
 loop_17_test:

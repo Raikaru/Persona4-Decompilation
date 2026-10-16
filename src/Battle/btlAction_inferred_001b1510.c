@@ -32,7 +32,7 @@ extern void btlEncounterStart(u8 *arg0);
 extern s32 btlShuffleCreate(s32 arg0, u8 *arg1);
 extern void btlShuffleCancel(s32 arg0);
 extern s32 datCalcGetLevel(s32 arg0);
-extern s32 func_00193260(u8 *arg0);
+extern s32 btlIsLeaderStandardUnit(u8 *arg0);
 extern void memset(void *dst, s32 value, s32 size);
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
@@ -677,7 +677,7 @@ void btlMainUnitCreateInit(void) {
                 SceneDraw_SetDirectionalOnly(*(u16 *)(unit + 0x9FE), 1);
                 btlUnitApplyModelState(unit, 1);
                 btlUnitUpdateStatusMotion(unit, 0);
-                func_00198920(unit, *(s16 *)(unit + 0x9EC), 0, *(f32 *)(unit + 0x9F0), *(s8 *)(unit + 0x9F4));
+                btlUnitSetMotion(unit, *(s16 *)(unit + 0x9EC), 0, *(f32 *)(unit + 0x9F0), *(s8 *)(unit + 0x9F4));
                 btlUnitSetRandomAnimFrame(unit);
                 tmp = *(u8 **)(unit + 0xA00);
                 if (*(s32 *)(tmp + 0x2D0) == 0) {
@@ -1342,7 +1342,7 @@ void btlMainStartInit(void)
     goto check;
 loop:
     *(u16 *)(var16 + 0x9D8) = *(u16 *)(var16 + 0x9D8) | 0x40;
-    func_00198920(var16, 0, 0, 1.0f, 1);
+    btlUnitSetMotion(var16, 0, 0, 1.0f, 1);
     var16 = *(u8 **)(var16 + 0xA68);
 check:
     if (var16 != NULL) {
@@ -1376,7 +1376,7 @@ s32 btlMainStartUpdate(void)
 loop:
         *(u16 *)(var_16 + 0x9D8) &= 0xFFBF;
         btlUnitUpdateStatusMotion(var_16, 0);
-        func_00198920(var_16, *(s16 *)(var_16 + 0x9EC), 8, *(f32 *)(var_16 + 0x9F0), *(s8 *)(var_16 + 0x9F4));
+        btlUnitSetMotion(var_16, *(s16 *)(var_16 + 0x9EC), 8, *(f32 *)(var_16 + 0x9F0), *(s8 *)(var_16 + 0x9F4));
         var_16 = *(u8 **)(var_16 + 0xA68);
 check:
         if (var_16 != NULL) goto loop;
@@ -1521,7 +1521,7 @@ s32 btlMainActionUpdate(void)
                 if (*(s32 *)((u8 *)iGpffffb3ac + 0x10) & 0x20000000) {
                     return 12;
                 }
-                return func_00193260((u8 *)iGpffffb3ac) ? 9 : 13;
+                return btlIsLeaderStandardUnit((u8 *)iGpffffb3ac) ? 9 : 13;
             }
             return 14;
         }
