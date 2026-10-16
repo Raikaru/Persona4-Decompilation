@@ -743,10 +743,10 @@ s128 func_004b5760(u8 *arg0, s128 *arg1) {
 }
 
 
-extern u8 *func_004b6030();
-extern u8 *func_004b6900();
-extern void func_004b6bb0();
-extern void func_004b6da0();
+extern u8 *AfPackBindResource();
+extern u8 *AfPackCreateInstance();
+extern void AfPackStartSections();
+extern void AfPackListAppend();
 
 
 // FUN_004B5770
@@ -771,11 +771,11 @@ u8 *func_004b57a0(void *object, s32 arg1) {
     u8 *temp_2;
     u8 *temp_2_2;
 
-    temp_2_2 = func_004b6030(object);
+    temp_2_2 = AfPackBindResource(object);
     *(s32 *)(temp_2_2 + 0x20) = arg1;
-    temp_2 = func_004b6900(temp_2_2);
-    func_004b6da0(temp_2);
-    func_004b6bb0(temp_2);
+    temp_2 = AfPackCreateInstance(temp_2_2);
+    AfPackListAppend(temp_2);
+    AfPackStartSections(temp_2);
     return temp_2;
 }
 

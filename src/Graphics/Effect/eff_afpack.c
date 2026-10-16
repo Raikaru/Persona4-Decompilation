@@ -39,8 +39,8 @@ extern u8 D_007146C0[];
 extern u8 D_007146D0[];
 extern void* D_00922DB8[];
 extern s32 D_00922DC0[];
-extern void func_004b6e80(void);
-extern s32 func_004b6e40(u8 *task);
+extern void AfPackRunList(void);
+extern s32 AfPackTaskUpdate(u8 *task);
 extern void kAssertFail(const void* file, s32 line);
 extern void func_003e9390(void* frame);
 extern void func_003c02e0(void* arg);
@@ -70,8 +70,9 @@ extern void func_003c22f0(void* a);
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
+// Binds the sections of the packed afterimage resource at arg0: walks the header counts and records each table's pointer; the per-record size depends on the header's type word (0x64 or 0x65).
 // FUN_004B6030
-u8 *func_004b6030(void *arg0)
+u8 *AfPackBindResource(void *arg0)
 {
     extern void memcpy(void *dst, void *src, u32 size);
     u8 *aTmp[16];
@@ -334,8 +335,9 @@ u8 *func_004b6030(void *arg0)
     return node;
 }
 #pragma pop
+// Creates the afterimage instance for a pack: allocates the node with its vector, material and ribbon tables, then per section builds the vector buffers, the ribbon geometry (effAfterCreateRibbon) and the atomic and texture bindings.
 // FUN_004B6900
-u8* func_004b6900(u8* arg0)
+u8* AfPackCreateInstance(u8* arg0)
 {
     u8* node;
     u8* base;
@@ -410,8 +412,9 @@ u8* func_004b6900(u8* arg0)
     return node;
 }
 
+// Resets each section's command state from the pack's section config, sets the node's flag bit 0, then runs each section's command stream.
 // FUN_004B6BB0
-void func_004b6bb0(RuntimeListNode* node)
+void AfPackStartSections(RuntimeListNode* node)
 {
     s32 i;
     s32 sp3C;
@@ -439,8 +442,9 @@ void func_004b6bb0(RuntimeListNode* node)
     }
 }
 
+// Loads the afterimage pack from resource D_007146C0 with a synchronous CDVD read, creates the update task at priority arg1 and the render-list task, clears the list, and stores arg0 in D_00764C98.
 // FUN_004B6C90
-void func_004b6c90(s32 arg0, s32 arg1)
+void AfPackInit(s32 arg0, s32 arg1)
 {
     s32 temp_2;
 
@@ -451,15 +455,16 @@ void func_004b6c90(s32 arg0, s32 arg1)
     H_Cdvd_Destroy((u8*)temp_2);
     D_00764CA0 = NULL;
     D_00764C9C = NULL;
-    D_00764CA4 = (s32)kwlnTaskCreate((const void *)(D_007146D0), arg1, 0, 0, func_004b6e40, 0, (u8 *)(NULL));
+    D_00764CA4 = (s32)kwlnTaskCreate((const void *)(D_007146D0), arg1, 0, 0, AfPackTaskUpdate, 0, (u8 *)(NULL));
     memset(D_00922DB0, 0, 0x30);
-    D_00922DB8[0] = (void*)func_004b6e80;
+    D_00922DB8[0] = (void*)AfPackRunList;
     D_00922DC0[0] = 0;
     D_00764C98 = (void*)arg0;
 }
 
+// Returns 1 when node is on the afterimage list and its flag bit 0x8 is clear, otherwise 0.
 // FUN_004B6DE0
-s32 func_004b6de0(RuntimeListNode* node)
+s32 AfPackIsActive(RuntimeListNode* node)
 {
     RuntimeListNode* current;
 
@@ -479,8 +484,9 @@ s32 func_004b6de0(RuntimeListNode* node)
     return !(node->flags & 8);
 }
 
+// Appends a node to the tail of the afterimage list; an empty list makes it both head and tail.
 // FUN_004B6DA0
-void func_004b6da0(void* node)
+void AfPackListAppend(void* node)
 {
     if (D_00764C9C == NULL)
     {
@@ -498,8 +504,9 @@ void func_004b6da0(void* node)
     }
     D_00764C9C = node;
 }
+// Task callback: clears two words of the update state and runs func_00460ac0 on the pack registered in D_00764C98.
 // FUN_004B6E40
-s32 func_004b6e40(u8 *unusedTask)
+s32 AfPackTaskUpdate(u8 *unusedTask)
 {
     D_00922DB0[0] = 0;
     D_00922DB4[0] = 0;
@@ -507,8 +514,9 @@ s32 func_004b6e40(u8 *unusedTask)
     return 0;
 }
 
+// Runs the afterimage list once per frame: updates the render entries, reaps nodes with no live entries (freeing their buffers), then draws the remaining entries.
 // FUN_004B6E80
-void func_004b6e80(void) {
+void AfPackRunList(void) {
     typedef int (*code)();
     extern code DAT_008873ec_abs[];
     void *(**table);
@@ -598,8 +606,9 @@ void func_004b6e80(void) {
     }
 }
 
+// Releases every afterimage instance whose pack's word at +0x20 equals arg0: unlinks it, frees its vector buffers and sections, and frees the node and its pack.
 // FUN_004B7140
-void func_004b7140(s32 arg0)
+void AfPackReleaseByOwner(s32 arg0)
 {
     s32 temp_16;
     u8* var_19;

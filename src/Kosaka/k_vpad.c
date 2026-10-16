@@ -37,7 +37,7 @@ typedef struct RuntimeWork
     u32 selection;
 } RuntimeWork;
 
-extern s32 func_004b6de0(RuntimeListNode* node);
+extern s32 AfPackIsActive(RuntimeListNode* node);
 extern s32 mdlCopyIndexedMatrix(void* context, s32 index, RuntimeMatrix* matrix);
 
 /* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
@@ -45,7 +45,7 @@ extern s32 mdlCopyIndexedMatrix(void* context, s32 index, RuntimeMatrix* matrix)
  * call sites. Retail emits the loop's per-entry lw/sll pair load-first;
  * MWCC schedules the sll ahead of the reload - measured nd 5 (fndiff) /
  * nd 8 (verify). Accepted compiler floor. */
-extern void func_004b7140(void* owner);
+extern void AfPackReleaseByOwner(void* owner);
 typedef struct RuntimeDistanceWork
 {
     void** config;
@@ -163,7 +163,7 @@ void Vpad_RefreshSelection(RuntimeWork* work)
     RuntimeMatrix* firstMatrix;
     RuntimeMatrix* secondMatrix;
 
-    if (func_004b6de0((RuntimeListNode*)work) == 0)
+    if (AfPackIsActive((RuntimeListNode*)work) == 0)
     {
         return;
     }
@@ -332,7 +332,7 @@ void Vpad_UpdateRenderEntries(u8* workData)
 // FUN_004B5C20. Mark an active field runtime node for processing.
 void Vpad_MarkDirty(RuntimeWork* work)
 {
-    if (func_004b6de0((RuntimeListNode*)work) != 0)
+    if (AfPackIsActive((RuntimeListNode*)work) != 0)
     {
         work->flags |= 4;
     }
@@ -416,10 +416,10 @@ void Vpad_DrawEntries(RuntimeVpadWork* work)
 // FUN_004B5F20. Activate a field runtime node and its owner.
 void Vpad_Activate(RuntimeWork* work)
 {
-    if (func_004b6de0((RuntimeListNode*)work) != 0)
+    if (AfPackIsActive((RuntimeListNode*)work) != 0)
     {
         work->flags |= 8;
-        func_004b7140(*(void**)((u8*)(uintptr_t)work->requestFlags + 0x20));
+        AfPackReleaseByOwner(*(void**)((u8*)(uintptr_t)work->requestFlags + 0x20));
     }
 }
 
@@ -451,7 +451,7 @@ void Vpad_SetColor(RuntimeWork* work, const u8* color)
 
     colorWork = (RuntimeColorWork*)work;
     requested = (const RuntimeColor*)color;
-    if (func_004b6de0((RuntimeListNode*)work) == 0)
+    if (AfPackIsActive((RuntimeListNode*)work) == 0)
     {
         return;
     }
