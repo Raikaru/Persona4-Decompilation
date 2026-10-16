@@ -36,7 +36,7 @@ extern u8 *mdlGetColor(s32);
 extern void evtNodeSetRes(u8 *, s32, u16 *);
 extern s32 evtEnsureEventTask(); /* lint: allow H011 -- caller stores the returned value; the definition is void */
 extern s32 evtGetEventTaskWork();
-extern u8 *func_00285b80();
+extern u8 *evtFindSlotEntry();
 extern s32 scrGetParamInt();
 extern s32 scrGetCmdTimer(void);
 extern void *mdlFindOrCreateModelObject(u32, u16, u32);
@@ -97,7 +97,7 @@ s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
         }
         temp_2_4 = (u8 *)evtGetEventTaskWork(kwlnTaskGetWork(temp_2_2));
         temp_2_2 = *(s32 *)(temp_2 + 4);
-        temp_2 = (u8 *)func_00285b80(temp_2_4, temp_2_2);
+        temp_2 = (u8 *)evtFindSlotEntry(temp_2_4, temp_2_2);
         if (temp_2 == NULL) {
             kAssertFail(D_0063CF80, 0x3D);
         }

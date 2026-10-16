@@ -5,14 +5,15 @@
 /* Ported from P3FES src/Event/mt_evtCustomEvent.c FUN_0039eb90 (verified MATCH
  * there). 003b5d10 -> func_00145270, 003b7090 -> func_00146630. */
 
-// lint: allow H011 -- measured: u16 prototype regresses func_00291900 (u32 id passed through, 53 diff)
+// lint: allow H011 -- measured: u16 prototype regresses evtCustomEventReleaseRes (u32 id passed through, 53 diff)
 extern u32 MT_Scene_GetRes(u32);
 extern void MT_Scene_DestroyRes(u32);
 
 
 
+// Intent: Releases the eight custom-event resources (ids from 0x38E in the 0xC00 range) that still exist [inferred]
 // FUN_00291900
-void func_00291900(void)
+void evtCustomEventReleaseRes(void)
 {
     int iVar3;
     u32 uVar1;
@@ -29,8 +30,9 @@ void func_00291900(void)
 }
 
 /* Source unit: src/Event/mt_evtCustomEvent_002919d0.c */
+// Intent: Returns the custom-event resource id for index object (object + 0x38E) [inferred]
 // FUN_002919D0
-s32 func_002919d0(s32 object)
+s32 evtCustomEventResId(s32 object)
 {
     return object + 0x38e;
 }

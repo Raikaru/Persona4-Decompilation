@@ -760,9 +760,9 @@ void evtUpdateCutin(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
         if ((arg2 != NULL) && (*(u16 *)(arg2 + 0) == arg3)) {
             if (*(s8 *)(arg2 + 0x10) == 0) {
                 DAT_007645DC = 0;
-                func_0028b270(0);
+                evtMainSetFlag(0);
             } else {
-                func_0028b270(1);
+                evtMainSetFlag(1);
                 DAT_007645DC = *(s16 *)(arg2 + 0x14);
             }
             func_00440b68((char *)D_0063C400, DAT_007645D8, DAT_007645DC);
@@ -2632,7 +2632,7 @@ loop_6_test:
     if (arg0 == NULL) {
         kAssertFail(D_0063C3B0, 0xF4);
     }
-    func_00291900();
+    evtCustomEventReleaseRes();
     mtMiscDestroyIconResources();
     evtEffectTableDestroy(*(u8 **)(arg0 + 0x5D0));
     *(s32 *)(arg0 + 0x5D0) = 0;
@@ -2701,7 +2701,7 @@ u8 *evtCreateEventState(void) {
         dst++;
     } while (i > 0);
     *(u32 *)p = v;
-    func_00285260();
+    evtMenuClearSlots();
     *(u32 *)p |= 1;
     *(u32 *)(p + 8) = 0x21C;
     *(u32 *)(p + 0x10) = *(u32 *)(p + 8) - 1;
@@ -2739,7 +2739,7 @@ void evtDestroy(int param_1, s32 arg1) {
 // FUN_0028B230
 void evtResetPendingState(int param_1) {
     *(u32 *)(param_1 + 0x774) = 0;
-    func_00285260();
+    evtMenuClearSlots();
 }
 
 // FUN_0028B260

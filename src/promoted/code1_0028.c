@@ -12,7 +12,7 @@ extern s32 D_0063C368[];
 extern u32 kwlnTaskGetWork(void *task);
 
 void memset(void *arg0, s32 arg1, s32 arg2);
-void func_00285260(void);
+void evtMenuClearSlots(void);
 extern void MT_Scene_SetExclusiveRes(s32 arg0);
 extern s32 evtEnsureEventTask(void); /* lint: allow H011 -- caller stores the returned value; the definition is void */
 extern s32 evtGetEventTaskWork(u8 *arg0);
@@ -78,7 +78,7 @@ extern s32 sdkSndCreateStreamTask(s32 arg0, s32 arg1, s32 arg2, void *arg3);
 extern char D_0063C340[];
 extern char D_0063C380[];
 extern char D_0063C350[];
-extern f32 func_0028f960(s32 arg0, f32 arg1, f32 arg2, f32 arg3);
+extern f32 evtLerpFloatIfEnabled(s32 arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void evtPolygonMovieLerpPose(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
                           f32 *arg4);
 typedef signed __int128 s128;
@@ -452,7 +452,7 @@ void evtApplyEventBlock(UnkStruct_002865E0 *arg0) {
         var_4_2++;
     } while (var_3_2 > 0);
     *(s32 *)((u8 *)arg0 + 0) = temp_17;
-    func_00285260();
+    evtMenuClearSlots();
     *(s32 *)((u8 *)arg0 + 0) |= 1;
     *(s32 *)((u8 *)arg0 + 8) = 0x21C;
     *(s32 *)((u8 *)arg0 + 0x10) = *(s32 *)((u8 *)arg0 + 8) - 1;
@@ -1061,8 +1061,8 @@ have_matrix:
         *arg5 = value1;
     } else {
         evtPolygonMovieLerpPose(count, ratio, matrix0, matrix1, dst);
-        *arg4 = func_0028f960(count, ratio, value0, end_value0);
-        *arg5 = func_0028f960(count, ratio, value1, end_value1);
+        *arg4 = evtLerpFloatIfEnabled(count, ratio, value0, end_value0);
+        *arg5 = evtLerpFloatIfEnabled(count, ratio, value1, end_value1);
     }
 
 done:

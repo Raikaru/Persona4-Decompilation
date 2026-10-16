@@ -245,8 +245,9 @@ s32 evtGetEventFrame(void) {
    308 is the retail-only tail padding. Comparison polarity, >=/< /> forms,
    u32 loads, and loop declaration reorder were ruled out. obj 308B/window
    320B, nd 2. Committed at nd 2. */
+// Intent: Returns the arg1-th kind-3 entry of the node list whose resource id is 0x384..0x386 (ordinal among those matches), or NULL when there is none [inferred]
 // FUN_00285B80
-u8 *func_00285b80(u8 *arg0, s32 arg1)
+u8 *evtFindSlotEntry(u8 *arg0, s32 arg1)
 {
   s32 line;
   s32 count;
