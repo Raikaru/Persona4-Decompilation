@@ -7,6 +7,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "datPersona_internal.h"
+#include "datUnit_internal.h"
 
 struct RwV3d;
 struct RwMatrix;
@@ -59,7 +60,6 @@ s32 kwlnTaskIsLinked(void *);
 s32 *FldObjFindFree(void);
 s32 datUnitCreateEncounterGroup(s32);
 s32 FldEvent_FieldToBattle(u8 *);
-u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);
 f32 RwV3dLength(f32 *);
 s32 MT_Scene_GetResListHead(s32);
 s32 FldNpcControlReady(s32);
