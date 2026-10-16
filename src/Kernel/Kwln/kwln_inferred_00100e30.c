@@ -145,7 +145,7 @@ extern void func_0045b430(void);
 extern void PrimCreatePools(s32 arg0, s32 arg1);
 extern void func_00463520(void);
 extern void func_00466680(void);
-extern void func_0046d6b0(s32 arg0);
+extern void sdkSetActiveHandle(s32 arg0);
 extern void mdlResetModelTable(s32 arg0);
 extern void TnSetTableBase(s32 arg0);
 extern void TnInitModule(s32 arg0);
@@ -227,7 +227,7 @@ s32 func_00100e30(void)
 void func_00100e60(void)
 {
     s32 one;
-    func_0046d6b0((s32)&scrReleaseActiveHandle);
+    sdkSetActiveHandle((s32)&scrReleaseActiveHandle);
     kwlnTaskInitPool(0x190);
     PrimCreatePools(0x7D0, 0x64);
     func_004544b0();
