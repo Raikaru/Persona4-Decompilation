@@ -10,7 +10,7 @@ extern u8 *D_00764298;
 extern void func_00440b68();
 extern void func_0042c0d8(void);
 extern u8 *func_00100230(void);
-extern void func_00101350(void);
+extern void kwlnMainLoop(void);
 extern u8 D_00559810[];
 extern u8 D_00559820[];
 
@@ -168,7 +168,7 @@ s32 func_001002c0(void) {
     func_00440b68(D_00559810);
     r = (s32)func_00100230();
     func_00440b68(D_00559820, r);
-    func_00101350();
+    kwlnMainLoop();
     return 1;
 }
 
