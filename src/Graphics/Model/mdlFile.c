@@ -13,7 +13,7 @@ extern u32 K_Clump_MatUsrDataGetInt();
 extern u32 func_004578b0_ptr(u32 param_1,u8 *param_2);
 extern u8 DAT_00713200[];
 extern u8 DAT_00713200_abs[];
-extern u64 func_004586f0();
+extern u64 K_ClumpMatColorStore();
 
 static inline u8 mdlFileToU8(f32 value)
 {
@@ -109,7 +109,7 @@ void mdlApplyMaterialColorRow(void *param_1,void *param_2)
   rgba[0] = (u8)((u32)uVar1 >> 0x10);
   rgba[3] = (u8)alpha;
 
-  func_004586f0((u32)param_2,rgba);
+  K_ClumpMatColorStore((u32)param_2,rgba);
   return;
 }
 

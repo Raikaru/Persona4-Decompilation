@@ -93,7 +93,7 @@ extern u8 D_008C0346[];
 extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
-extern u8 *func_00458ce0(u8 *material, u8 *data);
+extern u8 *K_ClumpMatPropScale(u8 *material, u8 *data);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern u8 D_00711720[];
@@ -242,17 +242,17 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Source unit: src/promoted/code1_0045.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 00458ce0-00458ce0 */
 
-extern void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 /* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: close propagation-off probe for func_00457630. */
+/* measured: close propagation-off probe for K_ClumpLookAtBasis. */
 // FUN_00458CE0
 /* measured: opt_scalarize off keeps the prop triple in stack spill slots with direct sp-relative accesses. */
 #pragma push
-u8 *func_00458ce0(u8 *material, u8 *data) {
+u8 *K_ClumpMatPropScale(u8 *material, u8 *data) {
     Code45Vec3 prop;
     s32 created;
     s32 i;

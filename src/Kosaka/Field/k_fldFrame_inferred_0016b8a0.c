@@ -55,7 +55,7 @@ extern void chkmemAllocSiteTag(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 *func_00457120();
 extern void func_003e9d50(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
-extern void func_00457630(u8 *arg0, void *arg1, void *arg2, s32 arg3);
+extern void K_ClumpLookAtBasis(u8 *arg0, void *arg1, void *arg2, s32 arg3);
 extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
 extern void func_003e0e20(void *arg0, void *arg1, s32 arg2);
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
@@ -777,7 +777,7 @@ s32 func_0016bdd0(u8 *param_1)
           *(FldCopyVec *)stk50 = *(FldCopyVec *)(temp_v4_a + 0x40);
           pbVar9_a = (unsigned char *)func_00457120();
           pbVar7 = (unsigned char *)func_0016e8c0(param_1);
-          func_00457630(pbVar9_a,(unsigned char *)((int *)&stk50[0]),pbVar7,0);
+          K_ClumpLookAtBasis(pbVar9_a,(unsigned char *)((int *)&stk50[0]),pbVar7,0);
         }
         goto LAB_0016e0c0;
       case 3:
@@ -1004,7 +1004,7 @@ s32 func_0016bdd0(u8 *param_1)
             stkD0[2] = targetZ34 - *(float *)(frame + 0x48);
           }
           pbVar9_b = (unsigned char *)func_00457120();
-          func_00457630(pbVar9_b,(unsigned char *)((int *)&stkC0[0]),(unsigned char *)&stkD0[0],0);
+          K_ClumpLookAtBasis(pbVar9_b,(unsigned char *)((int *)&stkC0[0]),(unsigned char *)&stkD0[0],0);
           *(FldCopyVec *)(node4_b + 0x40) = *(FldCopyVec *)((u8 *)piVar1 + 0xc4);
           RwEngineGetMatrixTolerances(&tolerance4);
           RwMatrixOptimize((RwMatrix *)(node4_b + 0x10),&tolerance4);
@@ -1372,7 +1372,7 @@ s32 func_0016bdd0(u8 *param_1)
             temp_v8_c = piVar1[0xb0];
             *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
             pbVar9_s2 = (unsigned char *)func_00457120();
-            func_00457630(pbVar9_s2,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
+            K_ClumpLookAtBasis(pbVar9_s2,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
             *(float *)((u8 *)(u32)piVar1 + 0x294) = temp_v12_s7;
           }
           else if ((0.0f == *(float *)((u8 *)(u32)piVar1 + 0x2ac)) && ((piVar1[1] & 2U) == 0)) {
@@ -1416,7 +1416,7 @@ s32 func_0016bdd0(u8 *param_1)
               if (temp_v8_c == 0) {
                 *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
                 pbVar9_s3 = (unsigned char *)func_00457120();
-                func_00457630(pbVar9_s3,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
+                K_ClumpLookAtBasis(pbVar9_s3,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
               }
               else {
                 *(float *)&piVar1[0xa5] = (*(float *)&piVar1[0xa5] - temp_v11_c);
@@ -1474,7 +1474,7 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v8_c = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
           if (temp_v8_c == 0) {
             pbVar9_c = (unsigned char *)func_00457120();
-            func_00457630(pbVar9_c,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
+            K_ClumpLookAtBasis(pbVar9_c,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
           }
           else {
             *(float *)&piVar1[0xa5] = (*(float *)&piVar1[0xa5] - temp_v11_c);
@@ -1631,7 +1631,7 @@ s32 func_0016bdd0(u8 *param_1)
         if (moved_d == 1) {
           if (temp_v11_d < ((float *)piVar1)[0xa5]) {
             pbVar9_d = (unsigned char *)func_00457120();
-            func_00457630(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,0);
+            K_ClumpLookAtBasis(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,0);
             *(float *)((u8 *)(u32)piVar1 + 0x294) = temp_v11_d;
           }
         }
@@ -1670,7 +1670,7 @@ s32 func_0016bdd0(u8 *param_1)
           *(FldCopyVec *)stk240 = *(FldCopyVec *)(piVar1[0xb0] + 0x30);
           stk240[1] = ((float *)piVar1)[0xa8];
           pbVar9_d = (unsigned char *)func_00457120();
-          func_00457630(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,0);
+          K_ClumpLookAtBasis(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,0);
         }
         goto LAB_0016e0c0;
       default:
@@ -1989,7 +1989,7 @@ process:
     temp_f1 = fparg0;
     func_003e9d50(temp_16, temp_2, temp_f1, 2);
     sp.sp50 = *(RwV3d *)(temp_16 + 0x40);
-    func_00457630(func_00457120(), &sp.sp50, &sp.sp40[0], 0);
+    K_ClumpLookAtBasis(func_00457120(), &sp.sp50, &sp.sp40[0], 0);
 done:
     ;
 }
@@ -2095,14 +2095,14 @@ void func_0016eb00(u8 *arg0)
             sp.sp38 = temp_f0;
             func_003e9d50(temp_16, temp_2, 0.0f, 2);
             sp.sp50 = *(RwV3d *)(temp_16 + 0x40);
-            func_00457630(func_00457120(), &sp.sp50, &sp.sp40[0], 0);
+            K_ClumpLookAtBasis(func_00457120(), &sp.sp50, &sp.sp40[0], 0);
         }
         break;
     case 2:
         temp_17 = *(u8 **)(func_00457120() + 4);
         temp_16_2 = (u8 *)(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0xC) + 0x40);
         temp_2 = func_00457120();
-        func_00457630(temp_2, temp_17 + 0x40, temp_16_2, 0);
+        K_ClumpLookAtBasis(temp_2, temp_17 + 0x40, temp_16_2, 0);
         break;
     case 1:
     case 3:
@@ -2169,7 +2169,7 @@ void func_0016ec90(u8 *arg0)
         temp_2_3 = *(u8 **)(temp_16 + 0x2C0);
         *(RwV3d *)&sp50[0] = *(RwV3d *)(temp_2_3 + 0x30);
         func_003e0e20(*(u8 **)(temp_16 + 0x2C0), temp_17, 2);
-        func_00457630(func_00457120(), &sp50[0], &D_007F1730[0], 0);
+        K_ClumpLookAtBasis(func_00457120(), &sp50[0], &D_007F1730[0], 0);
     }
 }
 
@@ -2230,7 +2230,7 @@ process0:
         temp_f1 = temp_f20;
         func_003e9d50(temp_17, temp_2, temp_f1, 2);
         sp.sp90 = *(RwV3d *)(temp_17 + 0x40);
-        func_00457630(func_00457120(), &sp.sp90, &sp.sp80[0], 0);
+        K_ClumpLookAtBasis(func_00457120(), &sp.sp90, &sp.sp80[0], 0);
 skip_process0:
         *(s32 *)(temp_16 + 0) += 1;
         /* fallthrough */
@@ -2272,7 +2272,7 @@ process1:
                 temp_f1 = temp_f20_2;
                 func_003e9d50(temp_17_2, temp_2_2, temp_f1, 2);
                 sp.sp60 = *(RwV3d *)(temp_17_2 + 0x40);
-                func_00457630(func_00457120(), &sp.sp60,
+                K_ClumpLookAtBasis(func_00457120(), &sp.sp60,
                               &sp.sp50[0], 0);
 skip_process1:
                 ;
@@ -2525,7 +2525,7 @@ void func_0016f750(u8 *arg0, u8 *arg1)
         temp_17_case = (s32)(*(u8 **)(*(u8 **)(arg0 + 0x38) + 0xC) + 0x40);
         temp_16_2_arg = (u8 *)temp_16_2_case + 0x40;
         temp_3 = func_00457120();
-        func_00457630(temp_3, (void *)temp_16_2_arg,
+        K_ClumpLookAtBasis(temp_3, (void *)temp_16_2_arg,
                       (void *)temp_17_case, 0);
     }
         return;

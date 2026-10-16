@@ -245,10 +245,10 @@ static inline s32 fontAtlasColumn(s32 value)
 #pragma push
 #pragma pop
 /* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: func_00457630 MATCH -> MISMATCH without this pragma. */
+/* measured: K_ClumpLookAtBasis MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_00457630
-void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     struct {
         s64 qword;
         f32 value;
