@@ -1,3 +1,4 @@
+#include "rw_types_internal.h"
 #include "mt_scene_internal.h"
 /* Original translation unit cmmRankUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -59,7 +60,6 @@ typedef struct { u32 w0; u32 w1; } CopyPair;
 extern const CopyPair D_00636310[16];
 extern const CopyPair D_00636390[16];
 
-struct RwV3d { f32 x; f32 y; f32 z; };
 struct RwMatrixTag {
     struct RwV3d right; u32 flags;
     struct RwV3d up; u32 pad1;
