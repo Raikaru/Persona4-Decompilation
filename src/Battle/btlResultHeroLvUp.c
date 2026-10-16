@@ -44,8 +44,8 @@ s32 datCalcGetLevelById(s32 param);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern char iGpffffa5C8;
-void func_003671d0(void* work);
-void func_003672d0(void* work, s16 pcId);
+void sflDataResetPersonaState(void* work);
+void sflDataLoadPersonaState(void* work, s16 pcId);
 s32 func_00354a50(u8* param, s32 mode);
 void radarDrawEdge(s32 param, s32 a, s32 b, s32 c);
 void func_00355300(s32 param, s32 mode);
@@ -208,8 +208,8 @@ s32 btlResultHeroLvUpRun(u8* arg0)
     func_00460ac0(D_00795F20, &work->field0C);
     switch (work->state) {
     case 0:
-        func_003671d0(&work->field58);
-        func_003672d0(&work->field58, 1);
+        sflDataResetPersonaState(&work->field58);
+        sflDataLoadPersonaState(&work->field58, 1);
         work->field4C = func_00354a50(arg0, 1);
         radarDrawEdge(work->field4C, 2, 1, 0);
         func_00355300(work->field4C, 0);

@@ -517,7 +517,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
     extern void func_00364680(f32 depth, f32 x, f32 y, f32 shadowX, f32 shadowY,
                               f32 width, f32 height, s32 color, s32 texture,
                               s32 shadow, s32 mode);
-    extern void func_00367210(DescriptorPair origin, f32 depth, s32 alpha, s16 *descriptor);
+    extern void sflDataDrawEntry(DescriptorPair origin, f32 depth, s32 alpha, s16 *descriptor);
     extern s32 RpSkyRenderStateSet(s32 state, s32 value);
     extern s32 func_0045aeb0(s16 channel, const char *name);
     extern u8 D_00629680[];
@@ -575,7 +575,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
                 RpSkyRenderStateSet(2, 0x44);
             }
         }
-        func_00367210(origin.descriptor, 0.0f, alpha, (s16 *)(work + 0x58));
+        sflDataDrawEntry(origin.descriptor, 0.0f, alpha, (s16 *)(work + 0x58));
     }
 }
 #pragma pop

@@ -196,8 +196,8 @@ extern void func_00353fb0(void);
 extern void func_00353fe0(void);
 extern s32 func_00354030(void);
 extern void func_00355190(u8 *arg0, s32 arg1);
-extern void func_003671d0(void *arg0);
-extern void func_003672d0(void *arg0, s16 pcId);
+extern void sflDataResetPersonaState(void *arg0);
+extern void sflDataLoadPersonaState(void *arg0, s16 pcId);
 extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00453760(void *arg0, s32 arg1);
 extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -278,7 +278,7 @@ extern void func_0034f320(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1,
 extern void func_0034f9d0(Float2_0014 work, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 extern void func_00355410(u8 *work, u8 arg1);
 extern void func_00354ba0(void *work);
-extern void func_00367210(CampDisplayWords position, f32 depth, s32 alpha, s16 *label);
+extern void sflDataDrawEntry(CampDisplayWords position, f32 depth, s32 alpha, s16 *label);
 extern s32 datCalcGetLevelById(s32 work);
 extern u32 func_0010d6d0(s16 work);
 extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
@@ -417,56 +417,56 @@ void radarDrawFrame(u8 *work)
         position.xy.y = (23.0f + (originY + *(f32 *)(work + 0x204)));
         alpha = (u8)((f32)(u32)work[0x20A] * opacity);
         *(s16 *)(primaryLabels + 0) = 3;
-        func_00367210(position.words, 0.0f, alpha, (s16 *)primaryLabels);
+        sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
         position.xy.x = (98.0f + (originX + *(f32 *)(work + 0x230)));
         position.xy.y = (85.0f + (originY + *(f32 *)(work + 0x234)));
         alpha = (u8)((f32)(u32)work[0x20A] * opacity);
         *(s16 *)(primaryLabels + 0) = 4;
-        func_00367210(position.words, 0.0f, alpha, (s16 *)primaryLabels);
+        sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
     }
     if ((*(s32 *)(work + 0x1C) & 0x80) != 0) {
         position.xy.x = ((originX + *(f32 *)(work + 0x260)) - 10.0f);
         position.xy.y = (20.0f + (originY + *(f32 *)(work + 0x264)));
         alpha = (u8)((f32)(u32)work[0x26A] * opacity);
         *(s16 *)(primaryLabels + 0) = 1;
-        func_00367210(position.words, 0.0f, alpha, (s16 *)primaryLabels);
+        sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
         position.xy.x = (17.0f + (originX + *(f32 *)(work + 0x290)));
         position.xy.y = (76.0f + (originY + *(f32 *)(work + 0x294)));
         alpha = (u8)((f32)(u32)work[0x29A] * opacity);
         *(s16 *)(primaryLabels + 0) = 6;
-        func_00367210(position.words, 0.0f, alpha, (s16 *)primaryLabels);
+        sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
         position.xy.x = (106.0f + (originX + *(f32 *)(work + 0x2C0)));
         position.xy.y = (108.0f + (originY + *(f32 *)(work + 0x2C4)));
         alpha = (u8)((f32)(u32)work[0x2CA] * opacity);
         *(s16 *)(primaryLabels + 0) = 5;
-        func_00367210(position.words, 0.0f, alpha, (s16 *)primaryLabels);
+        sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
         position.xy.x = (22.0f + (originX + *(f32 *)(work + 0x2F0)));
         position.xy.y = (111.0f + (originY + *(f32 *)(work + 0x2F4)));
         alpha = (u8)((f32)(u32)work[0x2FA] * opacity);
         *(s16 *)(primaryLabels + 0) = 2;
-        func_00367210(position.words, 0.0f, alpha, (s16 *)primaryLabels);
+        sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)primaryLabels);
     }
     if ((*(s32 *)(work + 0x1C) & 0x400) != 0) {
         position.xy.x = (105.0f + (originX + *(f32 *)(work + 0x6E0)));
         position.xy.y = (23.0f + (originY + *(f32 *)(work + 0x6E4)));
         alpha = (u8)((f32)(u32)work[0x6EA] * opacity);
         *(s16 *)(secondaryLabels + 0) = 3;
-        func_00367210(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
+        sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
         position.xy.x = (98.0f + (originX + *(f32 *)(work + 0x740)));
         position.xy.y = (85.0f + (originY + *(f32 *)(work + 0x744)));
         alpha = (u8)((f32)(u32)work[0x6EA] * opacity);
         *(s16 *)(secondaryLabels + 0) = 4;
-        func_00367210(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
+        sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
         position.xy.x = ((originX + *(f32 *)(work + 0x710)) - 10.0f);
         position.xy.y = (20.0f + (originY + *(f32 *)(work + 0x714)));
         alpha = (u8)((f32)(u32)work[0x71A] * opacity);
         *(s16 *)(secondaryLabels + 0) = 1;
-        func_00367210(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
+        sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
         position.xy.x = (17.0f + (originX + *(f32 *)(work + 0x770)));
         position.xy.y = (76.0f + (originY + *(f32 *)(work + 0x774)));
         alpha = (u8)((f32)(u32)work[0x77A] * opacity);
         *(s16 *)(secondaryLabels + 0) = 6;
-        func_00367210(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
+        sflDataDrawEntry(position.words, 0.0f, alpha, (s16 *)secondaryLabels);
     }
     if ((*(s32 *)(work + 0x1C) & 0x20) != 0) {
         f32 radarOpacity;
@@ -1184,8 +1184,8 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             *arg0 = 5;
             func_0034bb20(0x16);
             base4 = arg2 + 0x1878;
-            func_003671d0(base4);
-            func_003672d0(base4, *(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
+            sflDataResetPersonaState(base4);
+            sflDataLoadPersonaState(base4, *(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
             lsrc4 = (s32 *)(arg2 + 0x1878);
             ldst4 = (s32 *)(arg2 + 0x1894);
             n4 = 7;
@@ -1261,8 +1261,8 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
                     *ldst6++ = tmp6;
                 } while (n6 > 0);
                 base6 = arg2 + 0x1878;
-                func_003671d0(base6);
-                func_003672d0(base6, *(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
+                sflDataResetPersonaState(base6);
+                sflDataLoadPersonaState(base6, *(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
                 if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22) == 1) {
                     *(s16 *)(arg2 + 0x38) = 6;
                 } else {
