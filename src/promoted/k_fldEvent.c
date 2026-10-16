@@ -850,7 +850,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 func_0015a130(void);
     s32 func_0029db50(s32, s32, s32, s32);
     s32 kwlnTaskIsLinked(void *);
-    void func_00106390(s32, s32);
+    void datSetFlag(s32, s32);
     s32 btlTaskCreate(s32);
     s32 FldResource_IsPrimaryFileLoaded(void);
     s32 FldResource_IsSecondaryFileLoaded(void);
@@ -1452,7 +1452,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
         case 18:
             if (kwlnTaskIsLinked((void *)(work->scriptTask)) != 1) {
                 if (datGetFlag(0xC25) == 1) {
-                    func_00106390(0xC25, 0);
+                    datSetFlag(0xC25, 0);
                     work->eventPending = 1;
                     return 0;
                 }

@@ -49,7 +49,7 @@ extern void btlShuffleSeqMoveB(u8 *a, s32 b);
 extern s32 btlShuffleSeqDispatch(u8 *a);
 extern s32 btlShuffleSeqStateCheck(u8 *a);
 extern s32 btlShuffleSeqFlag(u8 *a);
-extern void func_00106390(s32 a, s32 b);
+extern void datSetFlag(s32 a, s32 b);
 extern void btlShuffleSeq4Init(u8 *arg0);
 extern void btlShuffleSeq4Step(u8 *arg0);
 extern void btlShuffleSeq4Move(u8 *arg0, s32 arg1, u16 arg2, u16 arg3);
@@ -805,7 +805,7 @@ s32 btlShuffleSeq4Run(u8 *arg0)
         if (++*(u16 *)(arg0 + 0x1F2F0) < 0x1E) {
             break;
         }
-        func_00106390(0x1432, 1);
+        datSetFlag(0x1432, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 5;
         break;
     default:

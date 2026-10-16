@@ -32,7 +32,7 @@ struct E8Node {
 extern char D_007104E0[];
 extern char D_007104F0[];
 extern void kAssertFail(void *file, s32 line);
-extern void func_0046d700(const char *file, s32 line, const char *msg, ...);
+extern void kAssertFailMsg(const char *file, s32 line, const char *msg, ...);
 extern s32 func_0043ece8(s32 size);
 extern s32 func_0042ba20(void);
 extern void func_0042ba70(void);
@@ -226,7 +226,7 @@ s32 chkmemAllocate(u32 arg0)
     temp_16 = (arg0 + 0x37) & -0x10;
     temp_2 = (ChkMemEntry *)func_0043ece8(temp_16);
     if (temp_2 == NULL) {
-        func_0046d700(D_007104E0, 0x65F, D_007104F0, D_00763D1C->bytes,
+        kAssertFailMsg(D_007104E0, 0x65F, D_007104F0, D_00763D1C->bytes,
                       arg0);
     }
     if (temp_2 == NULL) {
@@ -346,7 +346,7 @@ s32 chkmemAllocAligned(s32 arg0, s32 arg1, s32 arg2)
     temp_19_2 = (-temp_16_2) & temp_18_2;
     temp_2 = (ChkMemEntry *)func_0043ece8(temp_19_2);
     if (temp_2 == NULL) {
-        func_0046d700(D_007104E0, 0x69B, (const char *)&iGpffffac30,
+        kAssertFailMsg(D_007104E0, 0x69B, (const char *)&iGpffffac30,
                       D_00763D1C->bytes);
     }
     if (temp_2 == NULL) {
@@ -421,7 +421,7 @@ s32 chkmemReallocate(void *arg0, u32 arg1)
         allocationSize = (arg1 + 0x37) & ~0xF;
         block = func_0043ece8(allocationSize);
         if (block == 0) {
-            func_0046d700(D_007104E0, 0x65F, D_007104F0,
+            kAssertFailMsg(D_007104E0, 0x65F, D_007104F0,
                           D_00763D1C->bytes, arg1);
         }
         allocation = chkmemRegisterBlock(block, allocationSize, 0x10, 0);
@@ -442,7 +442,7 @@ s32 chkmemReallocate(void *arg0, u32 arg1)
         newAllocationSize = (arg1 + 0x37) & ~0xF;
         newBlock = func_0043ece8(newAllocationSize);
         if (newBlock == 0) {
-            func_0046d700(D_007104E0, 0x65F, D_007104F0,
+            kAssertFailMsg(D_007104E0, 0x65F, D_007104F0,
                           D_00763D1C->bytes, arg1);
         }
         allocation = chkmemRegisterBlock(newBlock, newAllocationSize, 0x10, 0);
@@ -486,7 +486,7 @@ s32 chkmemAllocZeroed(s32 arg0, s32 arg1)
     temp_19_2 = (temp_18 + 0x37) & ~0xF;
     temp_2 = func_0043ece8(temp_19_2);
     if (temp_2 == 0) {
-        func_0046d700(D_007104E0, 0x65F, D_007104F0, D_00763D1C->bytes, temp_18);
+        kAssertFailMsg(D_007104E0, 0x65F, D_007104F0, D_00763D1C->bytes, temp_18);
     }
     temp_19_2 = chkmemRegisterBlock(temp_2, temp_19_2, 0x10, 0);
     if (temp_16 != 0) {

@@ -63,7 +63,7 @@ extern void mtMiscCollectType1Records(u8 *arg0);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 0029a020-0029a020 */
 
 // FUN_0029A020
-s32 func_0029a020(void) {
+s32 K_Cmd_CALENDAR_REFRESH(void) {
     calendarRefreshPromptState();
     return 1;
 }

@@ -295,7 +295,7 @@ typedef struct MovieNativeWork {
     u32 field21c;
 } MovieNativeWork;
 extern u32 ourGlobals[4096];
-extern void func_0046d700(const char *file, s32 line, const char *msg, ...);
+extern void kAssertFailMsg(const char *file, s32 line, const char *msg, ...);
 typedef struct WindowDeviceStatePrefix {
     f32 gammaCorrection;
     s32 (*system)(s32, void *, void *, s32);
@@ -382,7 +382,7 @@ void func_0046d6b0(s32 arg0)
 }
 
 // FUN_0046D700
-void func_0046d700(const char *file, s32 line, const char *msg, ...)
+void kAssertFailMsg(const char *file, s32 line, const char *msg, ...)
 {
 }
 
@@ -391,7 +391,7 @@ void func_0046d700(const char *file, s32 line, const char *msg, ...)
 void kAssertFail(void *arg0, s32 arg1) {}
 
 // FUN_0046D740
-void func_0046d740(const void *msg, const void *file, u32 line) {}
+void kAssertFailAt(const void *msg, const void *file, u32 line) {}
 
 /* Initialize and animate the border and fill vertices, then submit the
  * enabled window. The function owns its nine-entry state switch table.

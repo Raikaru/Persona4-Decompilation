@@ -94,7 +94,7 @@ extern u32 H_Cdvd_Destroy(void *arg0);
 typedef struct HCdvd HCdvd;
 extern u32 H_Cdvd_IsFileLoaded(HCdvd *arg0);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
-extern void func_0046d700(const char *file, s32 line, const char *message, ...);
+extern void kAssertFailMsg(const char *file, s32 line, const char *message, ...);
 extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern s32 mdlPrepareModel(u8 *arg0);
 extern u32 *mdlCloneModelObject(u8 *arg0);
@@ -182,7 +182,7 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
             return 1;
         }
         if (fbn == NULL) {
-            func_0046d700(D_005F1068, 0x10D, &D_00762FD8, path);
+            kAssertFailMsg(D_005F1068, 0x10D, &D_00762FD8, path);
         }
         *arg1 = fbn;
     }

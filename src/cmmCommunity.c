@@ -39,7 +39,7 @@ extern u32 D_0079B1CC[];
 extern u8 D_007973A0[];
 extern void *cmmKindRecord(s32 arg0);
 extern void cmmCommunityReleaseRecord(s32 arg0);
-extern void func_00106390(s32 a, s32 b);
+extern void datSetFlag(s32 a, s32 b);
 extern void cmmCommunitySetFlagBand(s32 a, s32 b);
 
 extern void datDestroyTaskByName(void);
@@ -78,14 +78,14 @@ bpath:
         {
             kAssertFail(D_005E42C8, 0x1E);
         }
-        func_00106390(id + ((i << 5) + 0x3FF), 0);
+        datSetFlag(id + ((i << 5) + 0x3FF), 0);
         i++;
     }
     if (id <= 0)
     {
         kAssertFail(D_005E42C8, 0x1E);
     }
-    func_00106390(id + 0x41F, 0);
+    datSetFlag(id + 0x41F, 0);
     goto end;
 cpath:
     if ((u32)(b - 2) >= 2)
@@ -96,14 +96,14 @@ cpath:
     {
         kAssertFail(D_005E42C8, 0x1E);
     }
-    func_00106390((a & 0xFFFF) + 0x43F, 0);
+    datSetFlag((a & 0xFFFF) + 0x43F, 0);
     if ((a & 0xFFFF) <= 0)
     {
         kAssertFail(D_005E42C8, 0x1E);
     }
-    func_00106390(id + 0x45F, 0);
+    datSetFlag(id + 0x45F, 0);
 end:
-    func_00106390(id + ((b << 5) + 0x3FF), 1);
+    datSetFlag(id + ((b << 5) + 0x3FF), 1);
 }
 
 /* measured: 356 executable bytes / 368B retail window, fully relocated exact.
@@ -117,7 +117,7 @@ static inline void CommunityFlags_Clear(s32 community)
         kAssertFail(D_005E42C8, 0x27);
     }
     for (flag = 0; flag < 13; flag++) {
-        func_00106390(id + ((flag << 5) + 0x3FF), 0);
+        datSetFlag(id + ((flag << 5) + 0x3FF), 0);
     }
 }
 
@@ -420,7 +420,7 @@ ret:
         }
         j = 0;
         while (j < 0xD) {
-            func_00106390(id + ((j << 5) + 0x3FF), 0);
+            datSetFlag(id + ((j << 5) + 0x3FF), 0);
             j++;
         }
     }
@@ -701,7 +701,7 @@ ret:
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
-// Clear reversed: clears the REVERSED bit (0x1) and calls func_00106390(id + 0x43F, 0); asserts on a zero id when the record exists.
+// Clear reversed: clears the REVERSED bit (0x1) and calls datSetFlag(id + 0x43F, 0); asserts on a zero id when the record exists.
 // FUN_00107DC0
 void cmmCommunityClearReversed(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
@@ -733,7 +733,7 @@ ret:
         if (id <= 0) {
             kAssertFail(D_005E42C8, 0x1E);
         }
-        func_00106390(id + 0x43F, 0);
+        datSetFlag(id + 0x43F, 0);
     }
 }
 
@@ -821,7 +821,7 @@ ret:
    Branch-shape floor. */
 /* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
    Committed at nd 38. */
-// Clear broken: clears the BROKEN bit (0x2) and calls func_00106390(id + 0x45F, 0); asserts on a zero id when the record exists.
+// Clear broken: clears the BROKEN bit (0x2) and calls datSetFlag(id + 0x45F, 0); asserts on a zero id when the record exists.
 // FUN_00107FE0
 void cmmCommunityClearBroken(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
@@ -853,7 +853,7 @@ ret:
         if (id <= 0) {
             kAssertFail(D_005E42C8, 0x1E);
         }
-        func_00106390(id + 0x45F, 0);
+        datSetFlag(id + 0x45F, 0);
     }
 }
 
@@ -1427,7 +1427,7 @@ ret:
     }
     j = 0;
     while (j < 0xD) {
-        func_00106390(id + ((j << 5) + 0x3FF), 0);
+        datSetFlag(id + ((j << 5) + 0x3FF), 0);
         j++;
     }
     cmmCommunityRefreshFlags(*(u16 *)(r + 4));

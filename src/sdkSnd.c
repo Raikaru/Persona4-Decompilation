@@ -208,7 +208,7 @@ extern void func_004d9148(s32);
 extern void func_004d9180(s32);
 extern void func_004d91b8(s32);
 extern void kAssertFail(void *file, s32 line);
-extern void func_0046d740(const void *msg, const void *file, u32 line);
+extern void kAssertFailAt(const void *msg, const void *file, u32 line);
 extern void mwPlyInitSfdFx(void *);
 
 extern u32 hsndSlotIsStarting();
@@ -821,7 +821,7 @@ s32 func_0045a730(s16 arg0, s16 arg1)
         if (D_008D3ED0[arg0].state == 3 &&
             arg1 != LD16(D_008D3ED2, SLOT_IDX(arg0)))
         {
-            func_0046d740(D_007122D0, D_00712238, 0x2E5);
+            kAssertFailAt(D_007122D0, D_00712238, 0x2E5);
         }
     }
     LD16(D_008D3EDC, SLOT_IDX(arg0)) = 0;

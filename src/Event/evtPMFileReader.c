@@ -24,7 +24,7 @@ extern u8 D_00748340[];
 extern u8 D_0063CAA0[];
 extern s32 func_002938c0(u8 *task);
 extern void func_00293d30(u8 *task);
-extern void func_00106390(s32 a, s32 b);
+extern void datSetFlag(s32 a, s32 b);
 extern void H_Cdvd_Destroy(s32 a);
 extern void func_00440b68(char *fmt, ...);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -171,7 +171,7 @@ s32 func_002938c0(u8 *task) {
             *(u16 *)(temp_2 + 0x18) = 0;
             temp_4 = *(u16 *)(temp_2 + 0x18);
             if ((s32)temp_4 > 0) {
-                func_00106390(temp_4, 1);
+                datSetFlag(temp_4, 1);
             }
             *(u8 **)temp_2 = (u8 *)7;
             func_00440b68((char *)D_0063C990);
@@ -191,7 +191,7 @@ void func_00293d30(u8 *task) {
     p = (s32 *)kwlnTaskGetWork(task);
     h18 = *(u16 *)(p + 0x18 / 4);
     if ((s32)h18 > 0) {
-        func_00106390(h18, 0);
+        datSetFlag(h18, 0);
     }
     if (p[0x1C / 4] != 0) {
         H_Cdvd_Destroy(p[0x1C / 4]);

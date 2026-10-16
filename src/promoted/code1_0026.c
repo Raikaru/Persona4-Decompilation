@@ -112,7 +112,7 @@ extern s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2);
 extern s32 cldDayChangeRequest(u32 arg0, s32 arg1);
 extern void cldDayChangeMarkDone(u8 *arg0);
 extern s32 cldDayChangeIsDone(s32 arg0);
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 extern s32 cmmCommunityGetCurrentId(void);
 extern void cmmCommunitySetReversed(s32 arg0);
 extern void cmmCommunityClearReversed(s32 arg0);
@@ -1120,7 +1120,7 @@ s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
                 cldDayChangeStartStateTask(arg0, *(s32 *)(temp_2 + 4),
                               *(s32 *)(temp_2 + 8));
             if (datGetFlag(0x1471) != 0) {
-                func_00106390(0x1471, 0);
+                datSetFlag(0x1471, 0);
                 return -1;
             }
         }

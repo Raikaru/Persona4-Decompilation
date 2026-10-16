@@ -55,7 +55,7 @@ extern f32 iGpffff850c;
 extern f32 D_008872F8[];
 extern u8 D_00794F00[];
 u32 datGetFlag(s32 id);
-void func_00106390(s32, s32);
+void datSetFlag(s32, s32);
 s32 sdkSndStartChannel(s16 channelIndex, u8 *name);
 s32 kwlnTaskIsLinked(void *target);
 extern u8 D_0064A5B0[];
@@ -269,7 +269,7 @@ s32 cmbCardPathUpdate(u8 *task) {
         return 0;
     }
     if (func_00285b30() >= 1000 && func_00285b30() < 1011) {
-        func_00106390(0x5C, 0);
+        datSetFlag(0x5C, 0);
     }
     switch (work->phase) {
     case 0:
@@ -454,14 +454,14 @@ u8 *func_0033f690(u8 *arg0, u8 *arg1, s8 arg2) {
         *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A580, 6);
         break;
     }
-    func_00106390(0x58, 0);
-    func_00106390(0x59, 0);
-    func_00106390(0x5A, 0);
-    func_00106390(0x5B, 0);
-    func_00106390(0x5C, 0);
-    func_00106390(0x5D, 0);
-    func_00106390(0x5E, 0);
-    func_00106390(0x5F, 0);
+    datSetFlag(0x58, 0);
+    datSetFlag(0x59, 0);
+    datSetFlag(0x5A, 0);
+    datSetFlag(0x5B, 0);
+    datSetFlag(0x5C, 0);
+    datSetFlag(0x5D, 0);
+    datSetFlag(0x5E, 0);
+    datSetFlag(0x5F, 0);
     return ret;
 }
 // FUN_0033FA20
@@ -626,7 +626,7 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
             i0++;
         }
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         return 0;
     }
@@ -715,7 +715,7 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
         break;
     case 11:
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         break;
     case 12:
@@ -759,7 +759,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
             i0++;
         }
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         return 0;
     }
@@ -852,7 +852,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
         break;
     case 11:
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         break;
     case 12:
@@ -897,7 +897,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
             i0++;
         }
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         return 0;
     }
@@ -994,7 +994,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
         break;
     case 11:
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         break;
     case 12:
@@ -1039,7 +1039,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
             i0++;
         }
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         return 0;
     }
@@ -1142,7 +1142,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
         break;
     case 11:
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         break;
     case 12:
@@ -1186,7 +1186,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
             i0++;
         }
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         return 0;
     }
@@ -1296,7 +1296,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
         break;
     case 11:
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         break;
     case 12:
@@ -1341,7 +1341,7 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
             i0++;
         }
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         return 0;
     }
@@ -1468,7 +1468,7 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
         break;
     case 11:
         if (func_00285b30() >= 0x208 && func_00285b30() < 0x348) {
-            func_00106390(0x1450, 1);
+            datSetFlag(0x1450, 1);
         }
         break;
     case 12:

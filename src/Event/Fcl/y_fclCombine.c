@@ -212,7 +212,7 @@ extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern void fclCombineMoveGridCursor(u8 *arg0, s32);
 extern u16 D_008C0276[];
 extern f32 D_00640D78[];
-extern void func_00106390(s32, s32);
+extern void datSetFlag(s32, s32);
 extern void chkmemAllocSiteTag(const void *, s32);
 extern void *memcpy(void *, void *, u32);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -571,7 +571,7 @@ void fclCombineMenuRoot(u8 *arg0)
         if (datGetFlag(0x131D) == 0) {
             p[0xD] = func_002bab80((void *)func_00331660());
             func_002badc0(p[0xD], 0x4C);
-            func_00106390(0x131D, 1);
+            datSetFlag(0x131D, 1);
             p[1] = 0x13;
         }
         break;
@@ -630,7 +630,7 @@ void fclCombineMenuRoot(u8 *arg0)
             break;
         }
         func_002bb550(p[0xD]);
-        func_00106390(*(s32 *)(D_00641870 + p[0x13F] * 8 + 4), 1);
+        datSetFlag(*(s32 *)(D_00641870 + p[0x13F] * 8 + 4), 1);
         selected2 = -1;
         for (k2 = 0; k2 < 2; k2++) {
             entry = D_00641870 + k2 * 8;
@@ -745,7 +745,7 @@ void fclCombineMenuRoot(u8 *arg0)
                 if (datGetFlag(0x131E) == 0) {
                     p[0xD] = func_002bab80((void *)func_00331660());
                     func_002badc0(p[0xD], 0x4D);
-                    func_00106390(0x131E, 1);
+                    datSetFlag(0x131E, 1);
                     p[1] = 0x22;
                 } else {
                     fclCombineBuildRows(arg0);
@@ -755,7 +755,7 @@ void fclCombineMenuRoot(u8 *arg0)
                 if (datGetFlag(0x131B) == 0) {
                     p[0xD] = func_002bab80((void *)func_00331660());
                     func_002badc0(p[0xD], 0x4F);
-                    func_00106390(0x131B, 1);
+                    datSetFlag(0x131B, 1);
                     p[1] = 0x21;
                 } else {
                     vec = (FclVec2 *)D_00641660;
@@ -4184,40 +4184,40 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
             p[1] = 0x5E;
             switch (((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1]) {
             case 0x17:
-                func_00106390(0x130E, 1);
+                datSetFlag(0x130E, 1);
                 break;
             case 0x57:
-                func_00106390(0x130F, 1);
+                datSetFlag(0x130F, 1);
                 break;
             case 0x93:
-                func_00106390(0x1310, 1);
+                datSetFlag(0x1310, 1);
                 break;
             case 0xB9:
-                func_00106390(0x1311, 1);
+                datSetFlag(0x1311, 1);
                 break;
             case 0x52:
-                func_00106390(0x1312, 1);
+                datSetFlag(0x1312, 1);
                 break;
             case 0x77:
-                func_00106390(0x1313, 1);
+                datSetFlag(0x1313, 1);
                 break;
             case 0x26:
-                func_00106390(0x1314, 1);
+                datSetFlag(0x1314, 1);
                 break;
             case 0x14:
-                func_00106390(0x1315, 1);
+                datSetFlag(0x1315, 1);
                 break;
             case 0x53:
-                func_00106390(0x1316, 1);
+                datSetFlag(0x1316, 1);
                 break;
             case 0x68:
-                func_00106390(0x1317, 1);
+                datSetFlag(0x1317, 1);
                 break;
             case 0x90:
-                func_00106390(0x1318, 1);
+                datSetFlag(0x1318, 1);
                 break;
             case 0xA6:
-                func_00106390(0x1319, 1);
+                datSetFlag(0x1319, 1);
                 break;
             }
         }
@@ -5820,7 +5820,7 @@ s32 fclCombineClaimSlot(u8 *arg0) {
             *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
             func_002bbd80(*(s8 *)(p + 0xD), 0, datGetItemNameId((s16)(*(s8 *)(p + 0x130) + 0x464)));
             func_002badc0(*(s8 *)(p + 0xD), *(s8 *)(p + 0x130) + 0x17);
-            func_00106390((s32)i + 0x1309, 1);
+            datSetFlag((s32)i + 0x1309, 1);
             func_00106620((s16)(i + 0x464), 1);
             *(u8 *)(p + 1) = 0x97;
             return 1;
@@ -5916,7 +5916,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
         if (datGetFlag(0x131A) == 0) {
             *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
             func_002badc0(*(s8 *)(p + 0xD), 0x4E);
-            func_00106390(0x131A, 1);
+            datSetFlag(0x131A, 1);
             p[1] = 0x6F;
             break;
         }
@@ -6815,7 +6815,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         if (datGetFlag(0x131C) == 0) {
             work->fD = func_002bab80((void *)func_00331660());
             func_002badc0(work->fD, 0x50);
-            func_00106390(0x131C, 1);
+            datSetFlag(0x131C, 1);
             work->f1 = 0x76;
         } else {
             work->f1 = 0x77;
@@ -7496,7 +7496,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             return;
         }
         if (func_002bb1c0(work->fD) == 0) {
-            func_00106390(0x1306, 1);
+            datSetFlag(0x1306, 1);
             fclDrawSetStateByte((u8 *)work->f148, 0xB);
             fclCombineDrawStageBanner(arg0, 3, 1);
             fclSpriteSetFlag(0x7C, 0, 1);
@@ -7595,8 +7595,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 temp_3_18 = work->f1C;
                 if (temp_3_18 == -1) {
                     datPersonaInsertRosterRecord((u8 *)datStagedRecord());
-                    func_00106390(0x1306, 0);
-                    func_00106390(0x1307, 0);
+                    datSetFlag(0x1306, 0);
+                    datSetFlag(0x1307, 0);
                     work->fBC = 0x16B;
                     goto block_274;
                 }
@@ -7612,8 +7612,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 return;
             }
             datPersonaInsertRosterRecord((u8 *)datStagedRecord());
-            func_00106390(0x1306, 0);
-            func_00106390(0x1307, 0);
+            datSetFlag(0x1306, 0);
+            datSetFlag(0x1307, 0);
             work->fBC = 0x16B;
             for (var_4_6 = 0; var_4_6 < 5; var_4_6++) {
                 sp2A8[var_4_6] = 0;
@@ -7641,8 +7641,8 @@ block_274:
         fclDrawSetStateByte((u8 *)work->f148, 0xB);
         work->f1 = 0x84U;
         datPersonaInsertRosterRecord((u8 *)datStagedRecord());
-        func_00106390(0x1306, 0);
-        func_00106390(0x1307, 0);
+        datSetFlag(0x1306, 0);
+        datSetFlag(0x1307, 0);
         work->fBC = 0x16B;
         return;
     case 0x89:                                      /* switch 1 */
@@ -7662,8 +7662,8 @@ block_274:
             func_002badc0(work->fD, 0x57);
             work->f1 = 0x87U;
             datPersonaInsertRosterRecord((u8 *)datStagedRecord());
-            func_00106390(0x1306, 0);
-            func_00106390(0x1307, 0);
+            datSetFlag(0x1306, 0);
+            datSetFlag(0x1307, 0);
             work->fBC = 0x16B;
             return;
         }
@@ -7821,14 +7821,14 @@ void fclCombineApplyPackedResult(void) {
             p = (u8 *)datStagedRecord();
             datPersonaInitRecord(p, fclCombineOtherHeroId());
             datStageRecord((u8 *)datStagedRecord(), packed);
-            func_00106390(0x1307, 1);
+            datSetFlag(0x1307, 1);
             return;
         }
         if (total >= 0x1E) {
             p = (u8 *)datStagedRecord();
             datPersonaInitRecord(p, fclCombineOtherHeroId());
             datStageRecord((u8 *)datStagedRecord(), packed);
-            func_00106390(0x1307, 1);
+            datSetFlag(0x1307, 1);
             return;
         }
         datStageSetId(packed);
@@ -8011,15 +8011,15 @@ void fclCombineMenuResult(u8 *arg0) {
     cls = *(u16 *)((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 1);
     switch (p[1]) {
     case 0xC5:
-        func_00106390(0x58, 0);
-        func_00106390(0x59, 0);
-        func_00106390(0x5A, 0);
-        func_00106390(0x5B, 0);
-        func_00106390(0x5C, 0);
-        func_00106390(0x5D, 0);
-        func_00106390(0x5E, 0);
-        func_00106390(0x5F, 0);
-        func_00106390(0x1450, 0);
+        datSetFlag(0x58, 0);
+        datSetFlag(0x59, 0);
+        datSetFlag(0x5A, 0);
+        datSetFlag(0x5B, 0);
+        datSetFlag(0x5C, 0);
+        datSetFlag(0x5D, 0);
+        datSetFlag(0x5E, 0);
+        datSetFlag(0x5F, 0);
+        datSetFlag(0x1450, 0);
         *(s8 *)(p + 0x26) = 0;
         *(s8 *)(p + 0x20) = 0;
         *(s16 *)(p + 0xE) = 0;
@@ -8090,7 +8090,7 @@ void fclCombineMenuResult(u8 *arg0) {
             (func_00105f50(cls) <= 0 || func_00348be0(*(s32 *)(p + 0x308)) != 0)) {
             *(s32 *)(p + 0x300) = func_0033dc90(arg0, *(s8 *)(p + 0x1A) - 2);
             if (*(s8 *)(p + 0xB2) != 0) {
-                func_00106390(0x5C, 1);
+                datSetFlag(0x5C, 1);
             }
             p[1] = 0xC7;
         }
@@ -8193,21 +8193,21 @@ void fclCombineMenuResult(u8 *arg0) {
             p[1] = 0xCF;
             if (fclCombineCheckIds(arg0) == 1) {
                 if (fclCombineHasEntry(arg0, 7) == 1) {
-                    func_00106390(0x59, 1);
+                    datSetFlag(0x59, 1);
                     *(s8 *)p = 0xC;
                     p[1] = 0xA0;
                     *(s8 *)(p + 0x13C) = 1;
                     return;
                 }
                 if (fclCombineHasEntry(arg0, 0xD) == 1) {
-                    func_00106390(0x59, 1);
+                    datSetFlag(0x59, 1);
                     *(s8 *)p = 0xC;
                     p[1] = 0xA0;
                     *(s8 *)(p + 0x13C) = 3;
                     return;
                 }
                 if (fclCombineHasEntry(arg0, 0xA) == 1) {
-                    func_00106390(0x59, 1);
+                    datSetFlag(0x59, 1);
                     *(s8 *)p = 0xC;
                     p[1] = 0xA0;
                 }
@@ -8228,7 +8228,7 @@ void fclCombineMenuResult(u8 *arg0) {
                         r = 0;
                     found_cc:
                         if (r == 1) {
-                            func_00106390(0x59, 1);
+                            datSetFlag(0x59, 1);
                             *(s8 *)p = 0xC;
                             p[1] = 0xA0;
                             break;
@@ -8236,7 +8236,7 @@ void fclCombineMenuResult(u8 *arg0) {
                     }
                 }
                 if (fclCombineHasEntry(arg0, 9) == 1) {
-                    func_00106390(0x59, 1);
+                    datSetFlag(0x59, 1);
                     *(s8 *)p = 0xC;
                     p[1] = 0xA0;
                 }
@@ -8274,13 +8274,13 @@ void fclCombineMenuResult(u8 *arg0) {
                 return;
             }
             func_0034a820(*(s32 *)(p + 0x254));
-            func_00106390(0x59, 1);
+            datSetFlag(0x59, 1);
             fclCombineStartFade(arg0);
             p[1] = 0xD1;
         } else {
             *(s32 *)(p + 0x10) = func_00311930(cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2]), yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 0);
             func_0034a820(*(s32 *)(p + 0x254));
-            func_00106390(0x59, 1);
+            datSetFlag(0x59, 1);
             fclCombineStartFade(arg0);
             p[1] = 0xD1;
         }
@@ -8294,21 +8294,21 @@ void fclCombineMenuResult(u8 *arg0) {
         p[1] = 0xCF;
         if (fclCombineCheckIds(arg0) == 1) {
             if (fclCombineHasEntry(arg0, 7) == 1) {
-                func_00106390(0x59, 1);
+                datSetFlag(0x59, 1);
                 *(s8 *)p = 0xC;
                 p[1] = 0xA0;
                 *(s8 *)(p + 0x13C) = 1;
                 return;
             }
             if (fclCombineHasEntry(arg0, 0xD) == 1) {
-                func_00106390(0x59, 1);
+                datSetFlag(0x59, 1);
                 *(s8 *)p = 0xC;
                 p[1] = 0xA0;
                 *(s8 *)(p + 0x13C) = 3;
                 return;
             }
             if (fclCombineHasEntry(arg0, 0xA) == 1) {
-                func_00106390(0x59, 1);
+                datSetFlag(0x59, 1);
                 *(s8 *)p = 0xC;
                 p[1] = 0xA0;
             }
@@ -8329,7 +8329,7 @@ void fclCombineMenuResult(u8 *arg0) {
                     r = 0;
                 found_ce:
                     if (r == 1) {
-                        func_00106390(0x59, 1);
+                        datSetFlag(0x59, 1);
                         *(s8 *)p = 0xC;
                         p[1] = 0xA0;
                         break;
@@ -8337,16 +8337,16 @@ void fclCombineMenuResult(u8 *arg0) {
                 }
             }
             if (fclCombineHasEntry(arg0, 9) == 1) {
-                func_00106390(0x59, 1);
+                datSetFlag(0x59, 1);
                 *(s8 *)p = 0xC;
                 p[1] = 0xA0;
             }
         }
         break;
     case 0xCF:
-        func_00106390(0x59, 1);
-        func_00106390(0x5D, 1);
-        func_00106390(0x5F, 1);
+        datSetFlag(0x59, 1);
+        datSetFlag(0x5D, 1);
+        datSetFlag(0x5F, 1);
         *(s8 *)p = 0xE;
         p[1] = 0xD2;
         fclDrawSetState((u8 *)*(s32 *)(p + 0x148), 0);
@@ -8358,7 +8358,7 @@ void fclCombineMenuResult(u8 *arg0) {
         }
         func_002bb550(*(s8 *)(p + 0xD));
         func_0034a820(*(s32 *)(p + 0x254));
-        func_00106390(0x59, 1);
+        datSetFlag(0x59, 1);
         fclCombineStartFade(arg0);
         p[1] = 0xD1;
         break;
@@ -8662,7 +8662,7 @@ void fclCombineMenuOptionPick(u8 *arg0) {
                     func_002badc0(*(s8 *)(p + 0xD), 0x62);
                     break;
                 case 11:
-                    func_00106390(0x1308, 1);
+                    datSetFlag(0x1308, 1);
                     *(p + 0xD) = func_002bab80((void *)func_00331660());
                     func_002badc0(*(s8 *)(p + 0xD), 0x63);
                     if (*(s8 *)(p + 0x138) == 0) {
@@ -8854,7 +8854,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         }
         break;
     case 0xA1:
-        func_00106390(0x5D, 1);
+        datSetFlag(0x5D, 1);
         if (func_00105f50(id) > 0) {
             p[1] = 0xA2;
             {
@@ -9716,9 +9716,9 @@ void fclCombineMenuFinish(u8 *arg0) {
     case 0xD3:
         *(s16 *)(p + 0x2D8) = func_002b2cb0(*(s16 *)(p + 0x2D8), 1, 0xF, 0, 1);
         if (*(s16 *)(p + 0x2D8) >= 0xF) {
-            func_00106390(0x5F, 1);
-            func_00106390(0x59, 0);
-            func_00106390(0x5B, 0);
+            datSetFlag(0x5F, 1);
+            datSetFlag(0x59, 0);
+            datSetFlag(0x5B, 0);
             *(p + 1) = 0xD4;
         }
         break;
@@ -9750,7 +9750,7 @@ void fclCombineMenuFinish(u8 *arg0) {
         } else {
             func_002bb550(*(s8 *)(p + 0xD));
             *(p + 1) = 0xD7;
-            func_00106390(0x59, 1);
+            datSetFlag(0x59, 1);
         }
         break;
     case 0xD7:
@@ -10012,7 +10012,7 @@ void fclCombineRestoreSnapshot(void)
     while (i < 4) {
         if (*(s8 *)((u32)iGpffffb594 + i + 0x3000) == 1) {
             func_00106620((s16)(i + 0x464), 1);
-            func_00106390(i + 0x1309, 1);
+            datSetFlag(i + 0x1309, 1);
         }
         i++;
     }
@@ -10131,7 +10131,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
                     *(u32 *)(p + 0x1C) = 0;
                 }
                 *(u32 *)(p + 0x1C) = func_0033e120(arg0, 0x294, 0xA);
-                func_00106390(0x413, 1);
+                datSetFlag(0x413, 1);
                 if (!(cmmCommunityRecordValue(0x14) & 0xFFFF)) {
                     cmmCommunityAllocRecord(0x14);
                 }
@@ -10269,26 +10269,26 @@ s32 fclCombineTaskCreate(u8 *arg0)
         datGetFlag(0x1301) != 0 &&
         datGetFlag(0x1302) != 0 &&
         datGetFlag(0x1303) != 0) {
-        func_00106390(0x1304, 1);
+        datSetFlag(0x1304, 1);
     }
     if (datGetFlag(0x1463) != 0) {
         func_00105690(1, 0x63);
         datSetMoney(0xF4240);
-        func_00106390(0x1202, 1);
-        func_00106390(0x1305, 1);
-        func_00106390(0x1301, 1);
-        func_00106390(0x1302, 1);
-        func_00106390(0x1303, 1);
-        func_00106390(0x1304, 1);
-        func_00106390(0x131A, 1);
-        func_00106390(0x131B, 1);
-        func_00106390(0x131C, 1);
-        func_00106390(0x131D, 1);
-        func_00106390(0x131E, 1);
-        func_00106390(0x131F, 1);
-        func_00106390(0x1320, 1);
-        func_00106390(0x1321, 1);
-        func_00106390(0x1322, 1);
+        datSetFlag(0x1202, 1);
+        datSetFlag(0x1305, 1);
+        datSetFlag(0x1301, 1);
+        datSetFlag(0x1302, 1);
+        datSetFlag(0x1303, 1);
+        datSetFlag(0x1304, 1);
+        datSetFlag(0x131A, 1);
+        datSetFlag(0x131B, 1);
+        datSetFlag(0x131C, 1);
+        datSetFlag(0x131D, 1);
+        datSetFlag(0x131E, 1);
+        datSetFlag(0x131F, 1);
+        datSetFlag(0x1320, 1);
+        datSetFlag(0x1321, 1);
+        datSetFlag(0x1322, 1);
         i = 0;
         while (i < (u16)datPersonaCountValidMembers()) {
             if (*(u16 *)((u8 *)datPersonaRosterSlot((s16)i) + 2) == 0x36) {

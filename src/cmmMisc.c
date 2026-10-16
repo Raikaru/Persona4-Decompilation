@@ -11,10 +11,10 @@ extern void *func_00454a60(const char *path, s32 flags);
 extern void H_Cdvd_ReadSync(void *handle);
 extern u8 *func_00455ea0(u8 *handle, s32 index, s32 *out);
 extern void kAssertFail(void *file, s32 line);
-extern void func_0046d700(const char *file, s32 line, char *fmt, s32 value);
+extern void kAssertFailMsg(const char *file, s32 line, char *fmt, s32 value);
 extern s32 datGetDateIndex(void);
 extern u32 datGetFlag(s32 flag);
-extern void func_00106390(s32 id, s32 flag);
+extern void datSetFlag(s32 id, s32 flag);
 extern u32 func_001064f0(s32 idx);
 extern s32 func_00106550(s32 id, s32 value);
 extern s32 func_00106600(s16 idx);
@@ -190,7 +190,7 @@ s32 cmmRankStringAt(s16 arg0, s16 arg1) {
         kAssertFail(D_006359D0, 0xBC);
     }
     if ((arg1 <= 0) || (arg1 > 5)) {
-        func_0046d700(D_006359D0, 0xBD, &D_007636F8, arg1);
+        kAssertFailMsg(D_006359D0, 0xBD, &D_007636F8, arg1);
     }
     return base + arg0 * 0x41 + (arg1 - 1) * 0xD;
 }
@@ -212,7 +212,7 @@ s32 cmmRankThreshold(s16 arg0, s16 arg1) {
         kAssertFail(D_006359D0, 0xC8);
     }
     if ((arg1 <= 0) || (arg1 > 5)) {
-        func_0046d700(D_006359D0, 0xC9, &D_007636F8, arg1);
+        kAssertFailMsg(D_006359D0, 0xC9, &D_007636F8, arg1);
     }
     index = arg0 * 8;
     mid = cmmMiscAddOff(index, base);
@@ -1738,7 +1738,7 @@ s32 cmmDateTableAddCount(s32 arg0, s32 arg1)
     n = cmmAddCountFirst(func_001064f0(0x57), arg1);
     if (n >= 4) {
         n = 0;
-        func_00106390(arg0 + 0x9AF, 1);
+        datSetFlag(arg0 + 0x9AF, 1);
         func_00106550(0x58, 0);
     }
     func_00106550(0x57, n);

@@ -85,7 +85,7 @@ extern u8 D_007E31E4[];
 extern u8 D_005F0650[];
 extern u32 datGetFlag(s32 arg0);
 
-extern s32 func_00106390(s32 arg0, s32 arg1);
+extern s32 datSetFlag(s32 arg0, s32 arg1);
 extern s32 func_00159a60(u8 *arg0);
 extern void func_00159d50(u8 *task);
 extern void func_001587d0(u16 arg0, u32 arg1, u32 arg2);
@@ -2239,7 +2239,7 @@ s32 func_00159e90(s32 arg0, s32 arg1, s32 arg2) {
     temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F0650), 0xF, 0, 0, func_00159a60, func_00159d50, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = arg1;
     *(s32 *)(temp_2 + 8) = arg2;
-    func_00106390(0xC25, 0);
+    datSetFlag(0xC25, 0);
     return temp_17;
 }
 // FUN_00159F70

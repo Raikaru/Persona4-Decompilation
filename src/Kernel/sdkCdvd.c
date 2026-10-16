@@ -46,7 +46,7 @@ extern u8 D_008C880C[];
 extern u8 D_008C8810[];
 extern char D_007116D0[];
 extern char D_00710870[];
-void func_0046d740(const void* file, const void* file2, u32 line);
+void kAssertFailAt(const void* file, const void* file2, u32 line);
 void chkmemAllocSiteTag(const void* file, s32 line);
 void H_Cdvd_NormalizePath(void* a0, void* a1);
 s32 strcmp(void* a0, void* a1);
@@ -127,7 +127,7 @@ loop:
                     ((u32)func_004c95f8(node->adxf) << 0xB) + 0x40U, 0x40000);
                 node->unalignedFileMemory = (void *)buffer;
                 if (buffer == 0) {
-                    func_0046d740(D_00710880, D_00710870, 0xFF);
+                    kAssertFailAt(D_00710880, D_00710870, 0xFF);
                     return;
                 }
                 aligned = buffer / 0x40 * 0x40;
@@ -392,7 +392,7 @@ u8* func_004557e0(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) {
         *(s32*)(sub + i * 0x110 + 0x6C) = arg2;
     }
     if (func_003dd290(obj, arg0, arg4, arg3) != 1) {
-        func_0046d740(D_00711658, D_00710870, 0x441);
+        kAssertFailAt(D_00711658, D_00710870, 0x441);
     }
     return obj;
 }
@@ -450,7 +450,7 @@ extern u8 D_008C8810[];
 extern char D_007116D0[];
 extern char D_007116F0[];
 extern char D_00710870[];
-void func_0046d740(const void* file, const void* file2, u32 line);
+void kAssertFailAt(const void* file, const void* file2, u32 line);
 
 // FUN_00455D70
 void func_00455d70(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
@@ -467,7 +467,7 @@ void func_00455d70(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
             return;
         }
         if (i == 0xFF) {
-            func_0046d740(D_007116D0, D_00710870, 0x4E7);
+            kAssertFailAt(D_007116D0, D_00710870, 0x4E7);
         }
     }
 }
@@ -547,7 +547,7 @@ void func_00456400(s32 arg0, s32 arg1, s32 arg2, u8* arg3) {
             return;
         }
         if (i == 0xFF) {
-            func_0046d740(D_007116F0, D_00710870, 0x5FF);
+            kAssertFailAt(D_007116F0, D_00710870, 0x5FF);
         }
     }
 }

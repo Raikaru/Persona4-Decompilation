@@ -5,7 +5,7 @@
 #include "include_asm.h"
 #include "fr_font_internal.h"
 #include "scene_event_internal.h"
-extern void func_00106390();
+extern void datSetFlag();
 extern void (*jtbl_008873EC[])(void *ptr);
 
 typedef int (*code)();
@@ -274,7 +274,7 @@ s32 func_00298b80(u8 *sdkTaskBytes)
     base = (u8 *)kwlnTaskGetWork();
     *(s32 *)(base + 4) += 1;
     if (D_008C024E[0] & 0x9FF) {
-        func_00106390(0x1211, 1);
+        datSetFlag(0x1211, 1);
     }
     p = (u8 *)func_00460990();
     *(void **)(p + 8) = (void *)func_00298990;
@@ -286,7 +286,7 @@ s32 func_00298b80(u8 *sdkTaskBytes)
 void func_00298c10(u8 *unusedTask) {
     u8 *p = (u8 *)kwlnTaskGetWork();
 
-    func_00106390(0x1211, 0);
+    datSetFlag(0x1211, 0);
     jtbl_008873EC[0](p);
 }
 
@@ -297,7 +297,7 @@ s32 func_00298c60(void)
     s32 v0;
     u8 *work;
 
-    func_00106390(0x1211, 0);
+    datSetFlag(0x1211, 0);
     task = (s32)kwlnTaskGetTaskByName((s8 *)D_0063CFA0);
     if (task != 0) {
         kwlnTaskDestroyWithHierarchy((void *)task);

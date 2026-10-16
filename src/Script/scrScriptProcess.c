@@ -161,8 +161,8 @@ extern u16 D_008C0256[];
 
 void chkmemAllocSiteTag(char* file, s32 line);
 void kAssertFail(char* file, s32 line);
-void func_0046d740(const void *msg, const void *file, u32 line);
-void func_0046d700(char* file, s32 line, char* msg, s32 value);
+void kAssertFailAt(const void *msg, const void *file, u32 line);
+void kAssertFailMsg(char* file, s32 line, char* msg, s32 value);
 void memset(void* dst, s32 value, s32 size);
 void memcpy(void* dst, void* src, s32 size);
 void func_0046a2d0(char* file, s32 line);
@@ -329,12 +329,12 @@ ScrScriptWork* func_0029d2f0(ScrHeader* header, ScrContentEntry* entries, u8* pr
 
     if (header == NULL || entries == NULL || procedure == NULL || arg4 == NULL)
     {
-        func_0046d740(D_0063E3F0, D_0063E3D0, 0x119);
+        kAssertFailAt(D_0063E3F0, D_0063E3D0, 0x119);
         return NULL;
     }
     if (index < 0 || index >= entries->elementCount)
     {
-        func_0046d740(D_0063E420, D_0063E3D0, 0x11D);
+        kAssertFailAt(D_0063E420, D_0063E3D0, 0x11D);
         return NULL;
     }
     work = (ScrScriptWork*)scrPoolAlloc(D_00764610);
@@ -344,7 +344,7 @@ ScrScriptWork* func_0029d2f0(ScrHeader* header, ScrContentEntry* entries, u8* pr
     }
     if (work == NULL)
     {
-        func_0046d740(D_0063E450, D_0063E3D0, 0x124);
+        kAssertFailAt(D_0063E450, D_0063E3D0, 0x124);
         return NULL;
     }
     i = 0;
@@ -379,11 +379,11 @@ ScrScriptWork* func_0029d2f0(ScrHeader* header, ScrContentEntry* entries, u8* pr
     work->proc = NULL;
     if (!(header->localIntNum <= 0xC8))
     {
-        func_0046d700(D_0063E3D0, 0x143, D_0063E480, header->localIntNum);
+        kAssertFailMsg(D_0063E3D0, 0x143, D_0063E480, header->localIntNum);
     }
     if (!(header->localFloatNum <= 8))
     {
-        func_0046d700(D_0063E3D0, 0x144, D_0063E490, header->localFloatNum);
+        kAssertFailMsg(D_0063E3D0, 0x144, D_0063E490, header->localFloatNum);
     }
     msg = scrPoolAlloc(D_00764614);
     if (msg == NULL)
@@ -450,7 +450,7 @@ ScrScriptWork* func_0029d660(ScrHeader* header, s32 index)
     entries = header->entries;
     if (header->magic[0] != 'F' || header->magic[1] != 'L' || header->magic[2] != 'W' || header->magic[3] != '0')
     {
-        func_0046d740(D_0063E4D0, D_0063E3D0, 0x186);
+        kAssertFailAt(D_0063E4D0, D_0063E3D0, 0x186);
         return NULL;
     }
     i = 0;
@@ -480,7 +480,7 @@ ScrScriptWork* func_0029d660(ScrHeader* header, s32 index)
             strings = (u8*)((uintptr_t)header + currEntry->offset);
             break;
         default:
-            func_0046d740(D_0063E4F0, D_0063E3D0, 0x19E);
+            kAssertFailAt(D_0063E4F0, D_0063E3D0, 0x19E);
             return NULL;
         }
     }
@@ -499,7 +499,7 @@ s32 func_0029d870(u8 *task)
     switch (code)
     {
     case 0:  // SCRTRACE_ERROR
-        func_0046d740(D_0063E520, D_0063E3D0, 0x1C2);
+        kAssertFailAt(D_0063E520, D_0063E3D0, 0x1C2);
         return -1;
     case 1:  // SCRTRACE_YIELD
     default:
@@ -922,7 +922,7 @@ s32 func_0029e040(u8 *sdkTask)
                 ret = func_0029cb00((void *)task->unk_214);
                 switch (ret) {
                 case 0:
-                    func_0046d740(D_0063E520, D_0063E3D0, 0x457);
+                    kAssertFailAt(D_0063E520, D_0063E3D0, 0x457);
                     task->flags &= ~1;
                     return 1;
                 case 1:

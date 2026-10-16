@@ -359,7 +359,7 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
     s32 msgId;
     s32 flagId;
     extern s8 func_002bab80(void *arg0);
-    extern void func_00106390(s32 arg0, s32 arg1);
+    extern void datSetFlag(s32 arg0, s32 arg1);
     extern void frFontExCopyString(void *src, void *dst, s32 maxlen);
     extern s32 func_002badc0(s8 arg0, s32 arg1);
     extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
@@ -375,22 +375,22 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
             kAssertFail(&D_0064B310, 0x369);
         i = 0;
         while (i < 0x40) {
-            func_00106390(i + 0x180, 0);
+            datSetFlag(i + 0x180, 0);
             i++;
         }
-        func_00106390(arg1 + 0x180, 1);
-        func_00106390(flagId, 1);
+        datSetFlag(arg1 + 0x180, 1);
+        datSetFlag(flagId, 1);
         mode = 5;
         msgId = 0x2CF;
         if (datGetFlag(0xC3) == 0) {
             *(u16 *)arg0 = *(u16 *)arg0 | 1;
-            func_00106390(0xC3, 1);
+            datSetFlag(0xC3, 1);
         }
     } else {
         if (datGetFlag(arg1 + 0x100) == 0)
             kAssertFail(&D_0064B310, 0x37E);
-        func_00106390(arg1 + 0x180, 0);
-        func_00106390(arg1 + 0x140, 1);
+        datSetFlag(arg1 + 0x180, 0);
+        datSetFlag(arg1 + 0x140, 1);
         mode = 6;
         msgId = 0x2D0;
     }

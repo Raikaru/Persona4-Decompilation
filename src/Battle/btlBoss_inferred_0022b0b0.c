@@ -119,7 +119,7 @@ extern u8 *DAT_0076449c;
 extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
 
 extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(void *target);
 extern u8 *btlActionFindByUnit(s32 arg0);
 extern void btlTargetSetDefeatState(u8 *arg0, s32 arg1);
@@ -487,7 +487,7 @@ s32 btlEncounterFinishSetup(u8 *arg0)
         *(s32 *)(DAT_0076449c + 0xC) &= 0xFFF7FFFF;
         btlUnitInitFromRecord(*(u8 **)(arg0 + 0x30), 0x10E);
         datUnitInit((DatUnit *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)), 1, 0x10E);
-        func_00106390(0x15FF, 1);
+        datSetFlag(0x15FF, 1);
         *(u8 **)(DAT_0076449c + 0xB98) = &D_00630C50[0];
         *(s32 *)(DAT_0076449c + 0xC40) = 1;
         *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) |= 0x2000;
@@ -511,7 +511,7 @@ loop_test:
         value = (s32)btlSoundGetCharacterBank(*(u8 **)(arg0 + 0x30));
         *(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA00) + 0x2DC) = value;
         btlUnitUpdateStatusMotion(*(u8 **)(arg0 + 0x30), 6);
-        func_00106390(0x15C0, 0);
+        datSetFlag(0x15C0, 0);
         *(s32 *)(DAT_0076449c + 0xBB4) = 0;
         *(s32 *)(DAT_0076449c + 0xBC8) = 0;
         *(u16 *)(DAT_0076449c + 0x290) |= 0x10;
@@ -782,7 +782,7 @@ void btlEncounterInitGlobals(void)
         *(u32 *)(DAT_0076449c + 0x10) |= 0x200;
         *(u8 **)(DAT_0076449c + 0xB98) = D_00631AF0;
         *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
-        func_00106390(0x1438, 1);
+        datSetFlag(0x1438, 1);
         break;
     }
     for (i = 0; i < 30; i++) {
@@ -1821,7 +1821,7 @@ s32 btlUnitApplyEncounterRoster(u8 *arg0)
             *(u16 *)(arg0 + 0x1A) |= 0x100;
             btlActionQueuePush(arg0);
         } else {
-            func_00106390(0x15C0, 1);
+            datSetFlag(0x15C0, 1);
             *(u16 *)(arg0 + 0x1A) |= 0x2000;
             btlActionQueuePush(arg0);
             btlActionQueuePush(arg0);
@@ -1990,40 +1990,40 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
         if (*(u16 *)(packet + 0x6C) != 2 || *(u16 *)(packet + 0x6E) != 0x17A)
             break;
         if (datGetFlag(0x15C0) != 0) {
-            func_00106390(0x15C5, 1);
-            func_00106390(0x15C6, 0);
-            func_00106390(0x15C7, 0);
-            func_00106390(0x15C8, 0);
-            func_00106390(0x1435, 1);
+            datSetFlag(0x15C5, 1);
+            datSetFlag(0x15C6, 0);
+            datSetFlag(0x15C7, 0);
+            datSetFlag(0x15C8, 0);
+            datSetFlag(0x1435, 1);
         }
         if (datGetFlag(0x15C1) != 0) {
-            func_00106390(0x15C5, 0);
-            func_00106390(0x15C6, 1);
-            func_00106390(0x15C7, 0);
-            func_00106390(0x15C8, 0);
-            func_00106390(0x1435, 1);
+            datSetFlag(0x15C5, 0);
+            datSetFlag(0x15C6, 1);
+            datSetFlag(0x15C7, 0);
+            datSetFlag(0x15C8, 0);
+            datSetFlag(0x1435, 1);
         }
         if (datGetFlag(0x15C2) != 0) {
-            func_00106390(0x15C5, 0);
-            func_00106390(0x15C6, 0);
-            func_00106390(0x15C7, 1);
-            func_00106390(0x15C8, 0);
-            func_00106390(0x1435, 1);
+            datSetFlag(0x15C5, 0);
+            datSetFlag(0x15C6, 0);
+            datSetFlag(0x15C7, 1);
+            datSetFlag(0x15C8, 0);
+            datSetFlag(0x1435, 1);
         }
         if (datGetFlag(0x15C3) != 0) {
-            func_00106390(0x15C5, 0);
-            func_00106390(0x15C6, 0);
-            func_00106390(0x15C7, 0);
-            func_00106390(0x15C8, 1);
-            func_00106390(0x1435, 1);
+            datSetFlag(0x15C5, 0);
+            datSetFlag(0x15C6, 0);
+            datSetFlag(0x15C7, 0);
+            datSetFlag(0x15C8, 1);
+            datSetFlag(0x1435, 1);
         }
         if (datGetFlag(0x15C4) != 0) {
-            func_00106390(0x15C5, 0);
-            func_00106390(0x15C6, 0);
-            func_00106390(0x15C7, 0);
-            func_00106390(0x15C8, 0);
-            func_00106390(0x15C5 + datCalcRandomBelow(4), 1);
-            func_00106390(0x1435, 1);
+            datSetFlag(0x15C5, 0);
+            datSetFlag(0x15C6, 0);
+            datSetFlag(0x15C7, 0);
+            datSetFlag(0x15C8, 0);
+            datSetFlag(0x15C5 + datCalcRandomBelow(4), 1);
+            datSetFlag(0x1435, 1);
         }
         if (datGetFlag(0x1435) != 0)
             *(s32 *)(DAT_0076449c + 0xC3C) = 3;

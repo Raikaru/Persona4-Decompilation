@@ -529,7 +529,7 @@ s32 func_00379f90(u8 *arg0) {
     extern char D_0064EAC0[];
     extern u16 D_008C024E[];
     extern s32 datGetFlag(s32 arg0);
-    extern void func_00106390(s32 arg0, s32 arg1);
+    extern void datSetFlag(s32 arg0, s32 arg1);
     extern u16 btlShuffleSeqRoll(void);
     extern s32 btlShuffleSeqRecord(u8 *arg0, s32 arg1, s32 arg2);
     extern void btlShuffleSeqMoveA(u8 *arg0, s32 arg1);
@@ -762,7 +762,7 @@ s32 func_00379f90(u8 *arg0) {
         if (++*(u16 *)(arg0 + 0x1F2F0) < 0x1E) {
             break;
         }
-        func_00106390(0x1431, 1);
+        datSetFlag(0x1431, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 7;
         break;
     default:
@@ -853,7 +853,7 @@ extern char D_0064EAE0[];
 extern char D_0064EB00[];
 extern u16 D_008C024E[];
 extern s32 datGetFlag(s32 arg0);
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 extern u16 btlShuffleSeqRoll(void);
 extern s32 btlShuffleSeqRecord(u8 *arg0, s32 arg1, s32 arg2);
 extern void btlShuffleSeqMoveA(u8 *arg0, s32 arg1);
@@ -1095,7 +1095,7 @@ s32 func_0037ad10(u8 *arg0) {
         if (++*(u16 *)(arg0 + 0x1F2F0) < 0x1E) {
             break;
         }
-        func_00106390(0x1431, 1);
+        datSetFlag(0x1431, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 7;
         break;
     default:
@@ -1422,7 +1422,7 @@ s32 func_0037bc80(u8 *arg0) {
         if (++*(u16 *)(arg0 + 0x1F2F0) < 0x1E) {
             break;
         }
-        func_00106390(0x1431, 1);
+        datSetFlag(0x1431, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 7;
         break;
     default:

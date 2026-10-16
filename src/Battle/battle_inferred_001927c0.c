@@ -28,7 +28,7 @@ typedef struct P4_95730_Bytes4 {
 } P4_95730_Bytes4;
 typedef struct DatUnit DatUnit;
 
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);
@@ -329,10 +329,10 @@ void btlResetEffectSlots(void) {
     s32 i;
 
     for (i = 0x15C0; i <= 0x15FF; i++) {
-        func_00106390(i, 0);
+        datSetFlag(i, 0);
     }
-    func_00106390(0x1435, 0);
-    func_00106390(0x1438, 0);
+    datSetFlag(0x1435, 0);
+    datSetFlag(0x1438, 0);
 }
 
 // FUN_00192B90
@@ -346,10 +346,10 @@ void btlInit(void)
     memset(iGpffffb3ac, 0, 0xE88);
     *(s32 *)(iGpffffb3ac + 0xC60) = itfMesWindowInstall((u8 *)iGpffffb43c);
     for (i = 0x15C0; i <= 0x15FF; i++) {
-        func_00106390(i, 0);
+        datSetFlag(i, 0);
     }
-    func_00106390(0x1435, 0);
-    func_00106390(0x1438, 0);
+    datSetFlag(0x1435, 0);
+    datSetFlag(0x1438, 0);
     btlTargetResetRadiusState();
     func_00194660();
     btlCameraInitSystem();

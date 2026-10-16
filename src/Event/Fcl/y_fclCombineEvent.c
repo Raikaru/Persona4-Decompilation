@@ -15,7 +15,7 @@ extern void func_0033dc60(u8 *arg0);
 extern s32 fclCombineEventGate(u8 *arg0);
 extern s32 func_0033df40(u8 *arg0);
 extern s32 func_00285b30(void);
-extern void func_00106390(s32 a, s32 b);
+extern void datSetFlag(s32 a, s32 b);
 extern u16 D_008C024E[];
 extern s32 func_00293ed0(s32 a, s32 b, s32 c, s32 d);
 extern s32 func_00293fc0(s32 arg0);
@@ -58,11 +58,11 @@ s32 fclCombineEventGate(u8 *arg0)
             return 0;
         }
         if (D_008C024E[0] & 0x800) {
-            func_00106390(*temp_16, 1);
+            datSetFlag(*temp_16, 1);
             return -1;
         }
         if (D_008C024E[0] & 0x40) {
-            func_00106390(*temp_16, 1);
+            datSetFlag(*temp_16, 1);
             return -1;
         }
     }

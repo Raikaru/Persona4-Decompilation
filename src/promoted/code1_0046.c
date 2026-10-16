@@ -1187,7 +1187,7 @@ loop_done:
 }
 extern void kwlnTaskDumpAll(void);
 extern char *func_004526e0(void);
-extern void func_0046d700(const char *file, s32 line, const char *msg, ...);
+extern void kAssertFailMsg(const char *file, s32 line, const char *msg, ...);
 extern char D_00713078[], D_00713088[], D_007130A0[];
 extern char D_00756758[], D_00756748[], D_00756730[], D_00756720[];
 /* Inline overlap search preserves retail's early-return branches.
@@ -1262,7 +1262,7 @@ retry:
         }
         func_00440b68(D_00756758);
         task_name = func_004526e0();
-        func_0046d700((const char *)D_00756748, 0xB2,
+        kAssertFailMsg((const char *)D_00756748, 0xB2,
                       (const char *)D_00756730, iGpffffbb04, size,
                       task_name, D_00724BEC, D_00724BF0);
         kAssertFail(D_00756720, 0xB3);
@@ -1273,7 +1273,7 @@ allocated:
         if (finish + size >= iGpffffbb10) {
             func_00440b68(D_00713078);
             task_name = func_004526e0();
-            func_0046d700((const char *)D_00713088, 0xEC,
+            kAssertFailMsg((const char *)D_00713088, 0xEC,
                           (const char *)D_007130A0, iGpffffbb04, size,
                           task_name, D_00724BEC, D_00724BF0);
         }
@@ -1284,7 +1284,7 @@ allocated:
         kwlnTaskDumpAll();
         func_00440b68(D_00713078);
         task_name = func_004526e0();
-        func_0046d700((const char *)D_00713088, 0xFA,
+        kAssertFailMsg((const char *)D_00713088, 0xFA,
                       (const char *)D_007130A0, iGpffffbb04, size,
                       task_name, D_00724BEC, D_00724BF0);
         kAssertFail(D_00713088, 0xFB);

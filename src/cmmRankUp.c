@@ -3236,7 +3236,7 @@ extern char *strcpy(char *destination, const char *source);
 extern void frFontExCopyString(char *source, char *destination, s32 capacity);
 extern void func_002bbd80(s8 handle, s32 variable, void *text);
 extern s32 datGetFlag();
-extern void func_00106390();
+extern void datSetFlag();
 extern u16 *datPersonaGetRecord(u16 character);
 extern s32 datPersonaAddSkill(u8 *character, u16 skill);
 extern void hsndQueueSound();
@@ -3510,7 +3510,7 @@ s32 func_0025b240(u8 *arg0) {
         unlockFlags = *(const RankUpUnlockFlags *)D_00636740;
         c = (s8)func_00255ed0(*(s32 *)(ctx + 0x18), cc);
         if (c >= 2 && c <= 6 && (*(s32 *)ctx & 0x20) != 0) {
-            func_00106390(unlockFlags.values[c - 2], 1);
+            datSetFlag(unlockFlags.values[c - 2], 1);
             switch (c) {
             case 2:
                 func_002bae80(*(s8 *)(ctx + 0x3C), 0xD);
@@ -3571,10 +3571,10 @@ s32 func_0025b240(u8 *arg0) {
             break;
         }
         if (skill == 0x113) {
-            func_00106390(0x1013, 1);
+            datSetFlag(0x1013, 1);
         }
         if (skill == 0x112) {
-            func_00106390(0x1012, 1);
+            datSetFlag(0x1012, 1);
         }
         /* fallthrough */
     case 16:

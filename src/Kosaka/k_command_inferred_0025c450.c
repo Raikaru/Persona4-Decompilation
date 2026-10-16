@@ -54,7 +54,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0025.c; members 0025c450-0025c600 */
 
 // FUN_0025C450
-s32 func_0025c450(void) {
+s32 K_Cmd_DAY_ENTRY_BY_PHASE(void) {
     s16 temp_16;
 
     temp_16 = datGetDateIndex();

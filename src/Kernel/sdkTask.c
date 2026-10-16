@@ -49,7 +49,7 @@ extern KwlnTask* iGpffffba14;
 extern void (*jtbl_008873FC[])();
 extern void kAssertFail(const void* file, u32 line);
 extern char D_00710568[];
-extern void func_0046d740(const void* file, const void* file2, u32 line);
+extern void kAssertFailAt(const void* file, const void* file2, u32 line);
 extern char D_00710580[];
 extern char D_00710550[];
 extern char D_00710598[];
@@ -97,7 +97,7 @@ void kwlnTaskUnlinkFromList(KwlnTask* task)
     {
     default:
 err:
-        func_0046d740(D_00710550, D_00710568, 0x3F);
+        kAssertFailAt(D_00710550, D_00710568, 0x3F);
         break;
     case 1:
     case 2:
@@ -189,7 +189,7 @@ void kwlnTaskLinkToList(KwlnTask* task)
         break;
     default:
 err:
-        func_0046d740(D_00710550, D_00710568, 0xCE);
+        kAssertFailAt(D_00710550, D_00710568, 0xCE);
         return;
     case 0:
         goto err;
@@ -783,7 +783,7 @@ u8 kwlnTaskDestroyWithHierarchy(KwlnTask* task)
 
     if (task == 0 || task == (KwlnTask*)-1)
     {
-        func_0046d740(D_007105D0, D_00710568, 0x516);
+        kAssertFailAt(D_007105D0, D_00710568, 0x516);
         return 0;
     }
     state = task->flags & 0xF;
@@ -847,7 +847,7 @@ inner_err:
         break;
     default:
 outer_err:
-        func_0046d740(D_007105D0, D_00710568, 0x52C);
+        kAssertFailAt(D_007105D0, D_00710568, 0x52C);
         return 0;
     case 0:
         goto outer_err;
@@ -874,7 +874,7 @@ s32 kwlnTaskGetState(void* task)
     case 0:
         return state;
     default:
-        func_0046d740(D_00710580, D_00710568, 0x57C);
+        kAssertFailAt(D_00710580, D_00710568, 0x57C);
         return 0;
     }
 }

@@ -108,7 +108,7 @@ extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
 extern void btlCameraSelectEncounterPreset(u8 *camera);
 
 extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 extern u8 *btlActionFindByUnit(s32 arg0);
 
 
@@ -2105,22 +2105,22 @@ void btlActionRunPresentation(u8 *action)
 
         switch (*(u16 *)(*(u8 **)(target + 0x30) + 0xA4)) {
         case 2:
-            func_00106390(0x15CF, 1);
+            datSetFlag(0x15CF, 1);
             break;
         case 3:
-            func_00106390(0x15D0, 1);
+            datSetFlag(0x15D0, 1);
             break;
         case 4:
-            func_00106390(0x15D1, 1);
+            datSetFlag(0x15D1, 1);
             break;
         case 6:
-            func_00106390(0x15D2, 1);
+            datSetFlag(0x15D2, 1);
             break;
         case 8:
-            func_00106390(0x15D3, 1);
+            datSetFlag(0x15D3, 1);
             break;
         case 7:
-            func_00106390(0x15D4, 1);
+            datSetFlag(0x15D4, 1);
             break;
         }
         delay += (u16)btlUnitSlotValueOrOne(0x17B);
@@ -2202,7 +2202,7 @@ s32 btlEncounterWaitCleared(s64 *arg0) {
 
     if (btlUnitRecordFindByActionUID(*arg0,
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
-        func_00106390(0x15FF, 1);
+        datSetFlag(0x15FF, 1);
         temp_4 = DAT_0076449c;
         *(s32 *)(temp_4 + 0xC) &= 0xFFF7FFFF;
         return 0;
@@ -2337,13 +2337,13 @@ s32 btlEncounterReleaseFlags(s64 *arg0) {
 
     if (btlUnitRecordFindByActionUID(*arg0,
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
-        func_00106390(0x15FF, 0);
-        func_00106390(0x15CF, 0);
-        func_00106390(0x15D0, 0);
-        func_00106390(0x15D1, 0);
-        func_00106390(0x15D2, 0);
-        func_00106390(0x15D3, 0);
-        func_00106390(0x15D4, 0);
+        datSetFlag(0x15FF, 0);
+        datSetFlag(0x15CF, 0);
+        datSetFlag(0x15D0, 0);
+        datSetFlag(0x15D1, 0);
+        datSetFlag(0x15D2, 0);
+        datSetFlag(0x15D3, 0);
+        datSetFlag(0x15D4, 0);
         temp_4 = DAT_0076449c;
         *(s32 *)(temp_4 + 0xC) &= 0xFFF7FFFF;
         return 0;
@@ -2374,11 +2374,11 @@ s32 btlEncounterWaitReleaseEvents(s64 *arg0) {
 
     if (btlUnitRecordFindByActionUID(*arg0,
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
-        func_00106390(0x1435, 0);
-        func_00106390(0x15C5, 0);
-        func_00106390(0x15C6, 0);
-        func_00106390(0x15C7, 0);
-        func_00106390(0x15C8, 0);
+        datSetFlag(0x1435, 0);
+        datSetFlag(0x15C5, 0);
+        datSetFlag(0x15C6, 0);
+        datSetFlag(0x15C7, 0);
+        datSetFlag(0x15C8, 0);
         temp_4 = DAT_0076449c;
         *(s32 *)(temp_4 + 0xC) &= 0xFFF7FFFF;
         return 0;
@@ -2397,7 +2397,7 @@ void btlEncounterResetSlots(u8 *arg0)
     s32 sp38;
     s32 temp_16;
 
-    func_00106390(0x15C0, 0);
+    datSetFlag(0x15C0, 0);
     *(s8 *)(DAT_0076449c + 0xC10) = -1;
     *(s8 *)(DAT_0076449c + 0xC13) = -1;
     *(s8 *)(DAT_0076449c + 0xC28) = -1;
