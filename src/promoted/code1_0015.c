@@ -1704,17 +1704,17 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
   rowOffset = (placementY & 0xffff) * 0x100;
   gridOffset = (placementX & 0xffff) * 0x10;
   grid = (u8 *)MT_Scene_GetFrameState();
-  if ((*(u8 *)(grid + rowOffset + gridOffset + 0x54) == '\x01') &&
-     (grid = (u8 *)MT_Scene_GetFrameState(), (*(u8 *)(grid + rowOffset + gridOffset + 0x55) & 0xf) != 0)) {
+  if ((((FldFrameCell *)(grid + rowOffset + gridOffset + 0x54))->occupied == '\x01') &&
+     (grid = (u8 *)MT_Scene_GetFrameState(), (((FldFrameCell *)(grid + rowOffset + gridOffset + 0x54))->flags & 0xf) != 0)) {
     checkedX = (s32)(placementX & 0xffff);
     grid = (u8 *)MT_Scene_GetFrameState();
-    validExtent = (s32)(checkedX + *(u8 *)(grid + rowOffset + gridOffset + 0x5a) - 1) < 0x10;
+    validExtent = (s32)(checkedX + ((FldFrameCell *)(grid + rowOffset + gridOffset + 0x54))->shapeX - 1) < 0x10;
     if (!validExtent) {
       kAssertFail(D_005F05E8,0x40d);
     }
     checkedY = (s32)(placementY & 0xffff);
     grid = (u8 *)MT_Scene_GetFrameState();
-    validExtent = (s32)(checkedY + *(u8 *)(grid + rowOffset + gridOffset + 0x5b) - 1) < 0x18;
+    validExtent = (s32)(checkedY + ((FldFrameCell *)(grid + rowOffset + gridOffset + 0x54))->shapeZ - 1) < 0x18;
     if (!validExtent) {
       kAssertFail(D_005F05E8,0x40e);
     }
@@ -1723,14 +1723,14 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
     worldScale = 1200.0f;
     worldCoordinate = (f32)(u32)placementX;
     grid = (u8 *)MT_Scene_GetFrameState();
-    worldPosition.x = worldScale * worldCoordinate + (f32)(s32)(*(u8 *)(grid + templateScan + worldColumnOffset + 0x5a) - 1) * 600.0f
+    worldPosition.x = worldScale * worldCoordinate + (f32)(s32)(((FldFrameCell *)(grid + templateScan + worldColumnOffset + 0x54))->shapeX - 1) * 600.0f
     ;
     grid = (u8 *)MT_Scene_GetFrameState();
     worldPosition.y = (f32)(s32)*(s8 *)(grid + templateScan + worldColumnOffset + 0x5d) * 300.0f;
     worldScale = 1200.0f;
     worldCoordinate = (f32)(u32)placementY;
     grid = (u8 *)MT_Scene_GetFrameState();
-    worldPosition.z = worldScale * worldCoordinate + (f32)(s32)(*(u8 *)(grid + templateScan + worldColumnOffset + 0x5b) - 1) * 600.0f;
+    worldPosition.z = worldScale * worldCoordinate + (f32)(s32)(((FldFrameCell *)(grid + templateScan + worldColumnOffset + 0x54))->shapeZ - 1) * 600.0f;
     templateCount = D_005F0590[D_0076432C * 0xc];
     if (FldMap_IsCurrentInBandB() != 0) {
       templateCount = D_005F0591[D_0076432C * 0xc];
@@ -1740,7 +1740,7 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
     while (templateScan < templateCount) {
       templateKind = *(s8 *)(D_005F0590 + D_0076432C * 0xc + templateScan + 2);
       grid = (u8 *)MT_Scene_GetFrameState();
-      if (templateKind == *(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x58)) {
+      if (templateKind == ((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->type) {
         templateIndex = templateScan;
         break;
       }
@@ -1754,21 +1754,21 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
     cloneColumn = (u16)placementX * 0x10;
     templateOffset = templateIndex * 4;
     grid = (u8 *)MT_Scene_GetFrameState();
-    rotation = (u16)((*(u8 *)(grid + cloneRow + cloneColumn + 0x59) + 4) % 4);
+    rotation = (u16)((((FldFrameCell *)(grid + cloneRow + cloneColumn + 0x54))->kind + 4) % 4);
     clonedModel = FldResource_CloneRotated((k_fldResource *)(s32)*(u32 *)(wg0035_add_offset((u32)templateOffset, (u32)iGpffff9db0) + 0x28), &worldPosition, rotation);
     resourceId = (u16)MT_Scene_CreateFldRes(arg0,(s32)clonedModel);
     parentUnit = (u8 *)MT_Scene_GetRes(resourceId);
     SceneDraw_SetResVisible((u16)resourceId,1);
     resrcMngResetRenderSlots();
-    for (rowIndex = 0; grid = (u8 *)MT_Scene_GetFrameState(), rowIndex < (s32)(u32)*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x5b);
+    for (rowIndex = 0; grid = (u8 *)MT_Scene_GetFrameState(), rowIndex < (s32)(u32)(((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->shapeZ);
         rowIndex = rowIndex + 1) {
       columnIndex = 0;
       occupiedRowOffset = (checkedY + rowIndex) * 0x100;
-      for (; grid = (u8 *)MT_Scene_GetFrameState(), columnIndex < (s32)(u32)*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x5a);
+      for (; grid = (u8 *)MT_Scene_GetFrameState(), columnIndex < (s32)(u32)(((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->shapeX);
           columnIndex = columnIndex + 1) {
         occupiedColumnOffset = (checkedX + columnIndex) * 0x10;
         grid = (u8 *)MT_Scene_GetFrameState();
-        *(u16 *)((u8 *)wg0035_add_offset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset + 0x56) = (u16)resourceId;
+        ((FldFrameCell *)((u8 *)wg0035_add_offset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset + 0x54))->resourceId = (u16)resourceId;
         grid = (u8 *)MT_Scene_GetFrameState();
         {
           u8 *cell = (u8 *)wg0035_add_offset((u32)occupiedRowOffset, (u32)grid) + occupiedColumnOffset;
@@ -1824,7 +1824,7 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
         u8 *volumeUnit;
         if ((FldMap_IsCurrentInBandA() == 1) || (FldMap_IsCurrentInBandB() == 1)) {
           grid = (u8 *)MT_Scene_GetFrameState();
-          if (*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x58) == '\x06') {
+          if (((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->type == '\x06') {
             volumeId = 0x3fe;
           }
           else {
@@ -1838,7 +1838,7 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
             f32 cornerAngle;
             u8 *cornerBase;
             grid = (u8 *)MT_Scene_GetFrameState();
-            cornerAngle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+            cornerAngle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
             *matrix = matrix[5] = matrix[10] = 0x3f800000;
             matrix[4] = 0;
             matrix[2] = 0;
@@ -1866,7 +1866,7 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
         if ((FldMap_IsCurrentInBandA() == 1) || (FldMap_IsCurrentInBandB() == 1)) {
           point_20 = *(SVec3 *)(record + 4);
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1896,7 +1896,7 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
         if (FldMap_IsCurrentInBandA() == 1) {
           point_30 = *(SVec3 *)(record + 4);
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1926,7 +1926,7 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
         if (FldMap_IsCurrentInBandA() == 1) {
           point_40 = *(SVec3 *)(record + 4);
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -1957,7 +1957,7 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
           if (FldMap_IsCurrentInBandA() == 1) {
             point_50 = *(SVec3 *)(record + 4);
             grid = (u8 *)MT_Scene_GetFrameState();
-            angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+            angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
             *matrix = matrix[5] = matrix[10] = 0x3f800000;
             matrix[4] = 0;
             matrix[2] = 0;
@@ -1989,7 +1989,7 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
           u8 *lightUnit;
           point_60 = ((FieldSerializedLightRecord *)record)->position;
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
@@ -2024,7 +2024,7 @@ void FldCellCreateResources(u16 arg0, u32 arg1, u32 arg2)
         for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x38); recordIndex = recordIndex + 1, record = record + 0x14) {
           point_78 = *(SVec3 *)(record + 4);
           grid = (u8 *)MT_Scene_GetFrameState();
-          angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
+          angle = (f32)((((FldFrameCell *)((u8 *)wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x54))->kind + 4) % 4) * 90.0f;
           *matrix = matrix[5] = matrix[10] = 0x3f800000;
           matrix[4] = 0;
           matrix[2] = 0;
