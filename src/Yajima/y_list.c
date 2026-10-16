@@ -330,9 +330,9 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
                 if ((type != 0x10) && (type != 0x11) && (type != 0x12)) {
                     if (datGetFlag(0x1462) == 0) {
                         value = (s32)(func_00106b20(i) & 0xFFF00) >> 8;
-                        if (func_002be160(value, func_00106b20(i) & 0xFF) == 1) {
+                        if (fclMoonPhaseAtLeast(value, func_00106b20(i) & 0xFF) == 1) {
                             value = (s32)(func_00106b50(i) & 0xFFF00) >> 8;
-                            if (func_002be160(value, func_00106b50(i) & 0xFF) == 1) {
+                            if (fclMoonPhaseAtLeast(value, func_00106b50(i) & 0xFF) == 1) {
                                 p->rows.paired[i].quantity = 0;
                                 p->rows.paired[p->count].id = i;
                                 count = fclAddClamped(p->count, 1, 0, 0, 0);
@@ -498,9 +498,9 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
                 if ((type != 0x10) && (type != 0x11) && (type != 0x12)) {
                     if (datGetFlag(0x1462) == 0) {
                         value = (s32)(func_00106b20(i) & 0xFFF00) >> 8;
-                        if (func_002be160(value, func_00106b20(i) & 0xFF) == 1) {
+                        if (fclMoonPhaseAtLeast(value, func_00106b20(i) & 0xFF) == 1) {
                             value = (s32)(func_00106b50(i) & 0xFFF00) >> 8;
-                            if (func_002be160(value, func_00106b50(i) & 0xFF) == 1) {
+                            if (fclMoonPhaseAtLeast(value, func_00106b50(i) & 0xFF) == 1) {
                                 p->rows.paired[i].quantity = 0;
                                 p->rows.paired[p->count].id = i;
                                 count = fclAddClamped(p->count, 1, 0, 0, 0);

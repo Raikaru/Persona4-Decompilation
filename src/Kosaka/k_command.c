@@ -1040,12 +1040,12 @@ u32 Cmd_LoadTableWordAlt(void)
 
     return 1;
 }
-extern void func_002bdea0(void);
+extern void fclClearMoonFlagEntries(void);
 extern void fclCombineApplyPackedResult(void);
 // FUN_00331950
 s32 func_00331950(void)
 {
-    func_002bdea0();
+    fclClearMoonFlagEntries();
     fclCombineApplyPackedResult();
     return 1;
 }

@@ -38,7 +38,7 @@ extern void shdPersonaSetOpacity(u8 *, f32);
 extern void fclDrawSetVisible(u8 *, s8);
 extern u8 datPersonaGetBuffedStat(u8 *, s32);
 extern s32 fclCombineApplyDiscount(u16, s32);
-extern void func_002e7a80(s32);
+extern void fclAddMoney(s32);
 extern void fclDrawNumber(FclVec2, f32, FclDrawColor, s32, s16, u32, s32, s32, s32, s32, s32);
 extern void *resourceFindByName(void *);
 extern u8 D_00641B30[];
@@ -161,7 +161,7 @@ extern s32 nmMesWindowSetSlotParam(s64, s32);
 extern void nmMesWindowSetSlotFlag(s64, s8);
 extern int sprintf(char *, const char *, ...);
 extern void nmMesWindowSetNumber(u8 *, s16, s32, FclVec2, FclDrawColor, f32, s64);
-extern u32 func_002e7a60(void);
+extern u32 fclGetMoney(void);
 extern u8 *func_00349290(u8 *, s8);
 
 extern void cmmDateSelectionRefresh(u8 *task);
@@ -226,8 +226,8 @@ extern void datPersonaInitRecord(u8 *arg0, u16 arg1);
 extern s64 func_00312c60(u16 *arg0, u8 *arg1, s64 arg2);
 /* The item id is an s16; the callee sign-extends its own table index. */
 extern s32 func_00313690(s16 arg0);
-extern u8 func_002e78a0(void);
-extern s32 func_002e78e0(void);
+extern u8 fclCalendarMonth(void);
+extern s32 fclCalendarDay(void);
 extern s8 D_00641A60[];
 extern s8 D_00749480[];
 extern u8 *iGpffffb44c;
@@ -433,9 +433,9 @@ s32 fclCombineMenuCreate(u8 *arg0) {
     fclSpriteReset(0x2D8, 0x1D6);
     fclSpriteReset(0x2D9, 0x1D7);
     fclSpriteReset(0x2DA, 0x165);
-    fclSpriteReset(0x2DB, (s16)((func_002e78a0() % 10) + 9));
-    fclSpriteReset(0x2DC, (s16)(((u8)func_002e78e0() / 10) + 9));
-    fclSpriteReset(0x2DD, (s16)(((u8)func_002e78e0() % 10) + 9));
+    fclSpriteReset(0x2DB, (s16)((fclCalendarMonth() % 10) + 9));
+    fclSpriteReset(0x2DC, (s16)(((u8)fclCalendarDay() / 10) + 9));
+    fclSpriteReset(0x2DD, (s16)(((u8)fclCalendarDay() % 10) + 9));
     fclSpriteReset(0x22A, 0x193);
     fclSpriteReset(0x2DE, 0x126);
     fclSpriteReset(0x2DE, 0x125);
@@ -5294,7 +5294,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         }
         break;
     case 0x98:
-        fclDrawNumber(fclMakeVec2(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
+        fclDrawNumber(fclMakeVec2(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, fclGetMoney(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
         var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
         if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
@@ -5472,7 +5472,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             datPersonaInsertRosterRecord((u8 *)yListSlotEntry(0, p->f11E));
             total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) + 0x7D0;
             saved = fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2), total);
-            func_002e7a80(func_002e7a60() - saved);
+            fclAddMoney(fclGetMoney() - saved);
             nmMesWindowDestroySlot(p->fD);
             p->fD = nmMesWindowAcquire((void *)func_00331660());
             nmMesWindowSetSlotString(p->fD, 0, (void *)(((s32)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11)));
@@ -5643,7 +5643,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) + 0x7D0;
             saved = fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2), total);
-            if (func_002e7a60() >= saved) {
+            if (fclGetMoney() >= saved) {
                 p->fD = nmMesWindowAcquire((void *)func_00331660());
                 sprintf(sp2A0, &iGpffffa8a4, ((char *)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11));
                 nmMesWindowSetSlotString(p->fD, 0, &sp2A0);
@@ -5705,7 +5705,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         p->f13A = 0;
         return;
     case 0x9B:
-        fclDrawNumber(fclMakeVec2(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
+        fclDrawNumber(fclMakeVec2(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, fclGetMoney(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
         var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
         if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
@@ -5767,7 +5767,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             var_16_6 = 8;
         }
         caption.firstEntry = p->f11E - p->f120;
-        fclDrawNumber(fclMakeVec2(254.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
+        fclDrawNumber(fclMakeVec2(254.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, fclGetMoney(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
         var_19 = caption.firstEntry;
         var_18 = 0;
         var_22 = (s16)var_16_6 + var_19;
@@ -5928,9 +5928,9 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
     case 0x70:
         cmmDateSelectionRefresh(arg0);
         *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
-        sprintf(buf, (const char *)&iGpffffa8a0, func_002e78a0());
+        sprintf(buf, (const char *)&iGpffffa8a0, fclCalendarMonth());
         nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, buf);
-        sprintf(buf, (const char *)&iGpffffa8a0, (u8)func_002e78e0());
+        sprintf(buf, (const char *)&iGpffffa8a0, (u8)fclCalendarDay());
         nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, buf);
         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x4A);
         p[1] = 0x71;
@@ -6299,8 +6299,8 @@ void fclCombineRollOutcomeList(u8 *arg0)
     /* Keep the pre-callback selector snapshot without forming a pointer
        before the table when the selector is -1. */
     selectedAddress = (u32)D_0063FCA0 + p[724] * 28;
-    month = func_002e78a0();
-    calendar = (s8 *)D_006406F0 + (s8)calGetDayEntryForMonthDay(month, (u8)func_002e78e0()) * 20;
+    month = fclCalendarMonth();
+    calendar = (s8 *)D_006406F0 + (s8)calGetDayEntryForMonthDay(month, (u8)fclCalendarDay()) * 20;
     p[735] = 0;
     if (p[724] == -1) {
         for (i = 0; i < 5; i++) {
@@ -8638,8 +8638,8 @@ void fclCombineMenuOptionPick(u8 *arg0) {
                 switch (t) {
                 case 0:
                     *(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
-                    if ((func_002e78a0() & 0xFF) == 3 && (func_002e78e0() & 0xFF) >= 0x14 &&
-                        (func_002e78e0() & 0xFF) < 0x20) {
+                    if ((fclCalendarMonth() & 0xFF) == 3 && (fclCalendarDay() & 0xFF) >= 0x14 &&
+                        (fclCalendarDay() & 0xFF) < 0x20) {
                         nmMesWindowShowSlotRecord((s8)*(p + 0xD), 0x6F);
                     } else if ((s16)datCategoryRank(1) >= 3 && datGetFlag(0x96F) == 0) {
                         nmMesWindowShowSlotRecord((s8)*(p + 0xD), 0x70);
@@ -8649,7 +8649,7 @@ void fclCombineMenuOptionPick(u8 *arg0) {
                     break;
                 case 1:
                     sidx = (s8)(10.0f * func_00109190());
-                    te = D_006417E0 + ((func_002e78a0() & 0xFF) - 1) * 0xB;
+                    te = D_006417E0 + ((fclCalendarMonth() & 0xFF) - 1) * 0xB;
                     *(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
                     nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), *(s8 *)(te + sidx) + 2);
                     break;
@@ -9202,7 +9202,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         break;
     case 0xB2:
         row = D_0063FCA0 + *(s8 *)(p + 0x2D4) * 28;
-        cal = (FclCombineSlot *)(D_006406F0 + (s8)calGetDayEntryForMonthDay(func_002e78a0(), (u8)func_002e78e0()) * 20);
+        cal = (FclCombineSlot *)(D_006406F0 + (s8)calGetDayEntryForMonthDay(fclCalendarMonth(), (u8)fclCalendarDay()) * 20);
         if (*(s8 *)(p + 0x2D4) == -1) {
             for (i10 = 0; i10 < 5; i10++) {
                 if (*(s8 *)(p + i10 + 0x2DA) == 0xA) {
@@ -10049,7 +10049,7 @@ void fclCombinePlayResultCue(u8 *arg0, u16 arg1) {
     s32 s3;
     u8 x;
 
-    s0 = D_00749480[func_002e78a0() & 0xFF] * 100 + (func_002e78e0() & 0xFF);
+    s0 = D_00749480[fclCalendarMonth() & 0xFF] * 100 + (fclCalendarDay() & 0xFF);
     x = iGpffffb3d4[arg1 * 14 + 2];
     t = D_00641A60 + x * 4;
     s4 = D_00749480[t[0]] * 100 + t[1];
@@ -10118,7 +10118,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
         break;
     case 8:
         if (H_Cdvd_IsFileLoaded(*(u8 **)(p + 0x10)) != 0) {
-            if ((func_002e78a0() & 0xFF) == 3 && (func_002e78e0() & 0xFF) >= 0x14 && (func_002e78e0() & 0xFF) < 0x20) {
+            if ((fclCalendarMonth() & 0xFF) == 3 && (fclCalendarDay() & 0xFF) >= 0x14 && (fclCalendarDay() & 0xFF) < 0x20) {
                 if (datGetFlag(0x1459) == 0) {
                     fieldSceneLoad(8, 3);
                     func_00144e10(1);
@@ -10168,7 +10168,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
         break;
     case 10:
         if (func_00331580() != 0) {
-            if ((func_002e78a0() & 0xFF) == 3 && (func_002e78e0() & 0xFF) >= 0x14 && (func_002e78e0() & 0xFF) < 0x20) {
+            if ((fclCalendarMonth() & 0xFF) == 3 && (fclCalendarDay() & 0xFF) >= 0x14 && (fclCalendarDay() & 0xFF) < 0x20) {
                 p[0] = 0;
                 p[0] = 3;
             } else if (fclCombineRecipeUnlocked() == 1) {

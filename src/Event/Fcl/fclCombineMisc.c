@@ -408,7 +408,7 @@ extern u32 datPersonaCountSkills(void *arg0);
 extern u8 *yListAllocIndexTable(void);
 extern void func_002e6f90(u8 *arg0, s16 arg1);
 extern void func_002e7010(u8 *arg0, s16 arg1);
-extern void func_002e7190(u8 *arg0);
+extern void fclFreeWorkBlock(u8 *arg0);
 extern void func_00440b68(const void *arg0);
 extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -504,7 +504,7 @@ s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
     freeSlots = 8 - datPersonaCountSkills(arg0);
     if (freeSlots == 0) {
         func_00440b68(D_00642F50);
-        func_002e7190(pool);
+        fclFreeWorkBlock(pool);
         return 0;
     }
     if (freeSlots < remaining) {
@@ -542,7 +542,7 @@ s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
         }
     }
     (*jtbl_008873EC)(weights);
-    func_002e7190(pool);
+    fclFreeWorkBlock(pool);
     return taken;
 }
 #pragma pop

@@ -16,7 +16,7 @@ extern u16 D_008C024E[];
 extern s32 scrGetParamInt(s32 arg0);
 extern s32 datGetFlag(s32 arg0);
 extern void datSetFlag(s32 arg0, s32 arg1);
-extern u32 func_002e7a60(void);
+extern u32 fclGetMoney(void);
 
 
 
@@ -35,7 +35,7 @@ typedef struct {
     s32 sp3c;
 } D9D0Locals;
 
-extern void func_002bdea0(void);
+extern void fclClearMoonFlagEntries(void);
 extern void fclCombineApplyPackedResult(void);
 extern void (*D_00887300[])(s32, s32);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
@@ -89,8 +89,8 @@ extern void PrimQueueBatchAlpha(void *, void *, f32, s32, s32, s32, s16, s16,
                          f32, f32, f32, void *);
 extern u8 D_00794A80[];
 extern u8 D_00794AB0[];
-extern u8 func_002e78a0(void);
-extern s32 func_002e78e0(void);
+extern u8 fclCalendarMonth(void);
+extern s32 fclCalendarDay(void);
 extern s32 func_002be100(u8 arg0);
 extern u16 cmmCommunityRecordValue(s32 arg0);
 extern s8 nmMesWindowAcquire(void *arg0);
@@ -290,7 +290,7 @@ s32 weaponShopTalkUpdate(u8 *arg0)
     u8 *e;
 
     work = *(s8 **)(arg0 + 0x38);
-    level_value = (s16)(100 * (func_002be100(func_002e78a0()) & 0xFF) + (func_002e78e0() & 0xFF));
+    level_value = (s16)(100 * (func_002be100(fclCalendarMonth()) & 0xFF) + (fclCalendarDay() & 0xFF));
     switch (*work) {
     case 0:
         if (datGetFlag(0x1C0) == 0) {
@@ -389,7 +389,7 @@ void func_00332a80(void)
 // FUN_00332B60
 void func_00332b60(u8 *arg0, u8 *arg1)
 {
-    func_00364320(*(Vec2f *)(arg1 + 0x1E0), 1.0f, 0xFF, func_002e7a60());
+    func_00364320(*(Vec2f *)(arg1 + 0x1E0), 1.0f, 0xFF, fclGetMoney());
 }
 
 // FUN_0033D310
