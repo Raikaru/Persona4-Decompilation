@@ -69,12 +69,12 @@ extern void mtMiscBuildSceneNodes(u8 *arg0);
  * Preserve the signed readiness gate, callback-visible record reloads, and
  * the complete four-halfword position aggregate. */
 // Collects type-4 records of the current scene into event nodes. Returns early
-// unless the readiness check at +0x678 passes and func_00290e10 reports a
+// unless the readiness check at +0x678 passes and evtMessageWindowRecordCount reports a
 // positive count.
 // FUN_002962F0
 void mtMiscCollectType4Records(u8 *arg0, u8 *arg1)
 {
-  extern s32 func_00290e10(s32 *arg0);
+  extern s32 evtMessageWindowRecordCount(s32 *arg0); /* lint: allow H011 -- the caller compares the count as signed (<= 0); the definition returns the same bits as u32 */
   extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
   extern u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2);
   typedef struct { s16 x, y, z, w; } Pos4_962f0;
@@ -86,11 +86,11 @@ void mtMiscCollectType4Records(u8 *arg0, u8 *arg1)
   u16 var_4;
   u8 *temp_2;
   u8 *temp_7;
-  if (func_002909a0((u32 *)(arg1 + 0x678)) != 1)
+  if (evtMessageWindowIsOpen((u32 *)(arg1 + 0x678)) != 1)
   {
     return;
   }
-  if (func_00290e10((s32 *)(arg1 + 0x678)) <= 0)
+  if (evtMessageWindowRecordCount((s32 *)(arg1 + 0x678)) <= 0)
   {
     return;
   }
