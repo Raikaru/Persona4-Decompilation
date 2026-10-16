@@ -12,6 +12,18 @@ typedef struct { f32 x; f32 y; f32 z; f32 pad; } F32x4;
 typedef struct { s64 a; f32 b; s32 pad; } StateFrame;
 typedef struct { u8 pad[8]; S16x4 coord; F32x4 vec[3]; } StackState;
 
+/* Payload of record arg2: the 0x10-byte table at +0x94 when the scene header
+   kind is 4, otherwise the 0x3C-byte table at +0x98 (recordOffset = arg2 * 0x3C). */
+static inline u8 *evtLoadRecordPayload(u8 *arg0, s32 arg2, s32 recordOffset)
+{
+    MtMiscSceneSource *src = (MtMiscSceneSource *)arg0;
+
+    if (src->header->kind == 4) {
+        return (u8 *)((u8 *)src->records94 + (arg2 * 0x10) + 8);
+    }
+    return (u8 *)((u8 *)src->records98 + recordOffset + 0x14);
+}
+
 
 extern s32 MT_Scene_GetResManager(void);
 extern u16 MT_Scene_CreateRes07(u16);
@@ -70,81 +82,37 @@ void evtNodeLoadRecordEntry(u8 *arg0, u8 *arg1, s32 arg2) {
     sp48.c = temp_7;
     sp48.d = temp_10;
     *(S16x4 *)(arg1 + 8) = sp48;
-    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (arg2 * 0x10) + 8);
-    } else {
-        q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
-    }
+    q = evtLoadRecordPayload(arg0, arg2, temp_3);
     *(s8 *)(arg1 + 0x10) = *(s8 *)q;
-    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (arg2 * 0x10) + 8);
-    } else {
-        q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
-    }
+    q = evtLoadRecordPayload(arg0, arg2, temp_3);
     *(s32 *)(arg1 + 0x14) = *(s32 *)(q + 4);
-    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (arg2 * 0x10) + 8);
-    } else {
-        q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
-    }
+    q = evtLoadRecordPayload(arg0, arg2, temp_3);
     *(s32 *)(arg1 + 0x18) = *(s32 *)(q + 8);
-    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (arg2 * 0x10) + 8);
-    } else {
-        q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
-    }
+    q = evtLoadRecordPayload(arg0, arg2, temp_3);
     *(s32 *)(arg1 + 0x1C) = *(s32 *)(q + 0xC);
-    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (arg2 * 0x10) + 8);
-    } else {
-        q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
-    }
+    q = evtLoadRecordPayload(arg0, arg2, temp_3);
     *(s32 *)(arg1 + 0x20) = *(s32 *)(q + 0x10);
-    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (arg2 * 0x10) + 8);
-    } else {
-        q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
-    }
+    q = evtLoadRecordPayload(arg0, arg2, temp_3);
     *(s32 *)(arg1 + 0x24) = *(s32 *)(q + 0x14);
-    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (arg2 * 0x10) + 8);
-    } else {
-        q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
-    }
+    q = evtLoadRecordPayload(arg0, arg2, temp_3);
     *(s32 *)(arg1 + 0x28) = *(s32 *)(q + 0x18);
-    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-        q = (u8 *)(*(s32 *)(arg0 + 0x94) + (arg2 * 0x10) + 8);
-    } else {
-        q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
-    }
+    q = evtLoadRecordPayload(arg0, arg2, temp_3);
     *(s32 *)(arg1 + 0x2C) = *(s32 *)(q + 0x1C);
     v38 = *(s32 *)(arg1 + 0x38);
     if (v38 == 1) {
         *(s32 *)(arg1 + 0x30) = 0;
     } else if (v38 == 0x30) {
-        if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
-            q = (u8 *)(*(s32 *)(arg0 + 0x94) + (arg2 * 0x10) + 8);
-        } else {
-            q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
-        }
+        q = evtLoadRecordPayload(arg0, arg2, temp_3);
         *(s32 *)(arg1 + 0x30) = *(s32 *)(q + 0x20);
     }
     type2 = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
     if (type2 < 0xC) {
         if (*(s32 *)(arg1 + 0x38) == 1) {
-            if (type2 == 4) {
-                q = (u8 *)(*(s32 *)(arg0 + 0x94) + (arg2 * 0x10) + 8);
-            } else {
-                q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
-            }
+            q = evtLoadRecordPayload(arg0, arg2, temp_3);
             *(s32 *)(arg1 + 0x34) = *(s32 *)(q + 0x20);
         }
     } else {
-        if (type2 == 4) {
-            q = (u8 *)(*(s32 *)(arg0 + 0x94) + (arg2 * 0x10) + 8);
-        } else {
-            q = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x14);
-        }
+        q = evtLoadRecordPayload(arg0, arg2, temp_3);
         *(s32 *)(arg1 + 0x34) = *(s32 *)(q + 0x24);
     }
     *(s32 *)(arg1 + 4) = -1;
