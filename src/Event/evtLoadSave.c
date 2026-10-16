@@ -17,7 +17,7 @@ extern s32 MT_Scene_GetResManager(void);
 extern u16 MT_Scene_CreateRes07(u16);
 extern void MT_Scene_OffsetPointByRotation(f32 *, f32, f32, f32, f32, f32 *);
 extern u8 *evtNodeAllocWithRes(s32, u8 *, u16, u8 *);
-extern void func_0028be70(u8 *, s32);
+extern void evtSetKindExclusiveRes(u8 *, s32);
 extern u8 *evtNodeCreate(u8 *, u16, u8 *);
 extern void func_00294610(u8 *, u8 *, s32);
 extern s32 mtMiscReadSlotValues(s32, s32, s32 *, s32 *);
@@ -282,7 +282,7 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
         }
         MT_Scene_SetResPlacement(resource_id, (u8 *)&stack.vec[2], (u8 *)&stack.vec[0]);
         *(s32 *)((u8 *)MT_Scene_GetRes(resource_id) + 0x144) = 0;
-        func_0028be70(arg1, 0);
+        evtSetKindExclusiveRes(arg1, 0);
         temp_3 = *(u8 **)(arg1 + 0x12C);
         if (temp_3 != NULL) {
             dest = (u8 *)evtNodeAllocWithRes(0x21, arg1, *(u16 *)temp_3, NULL);

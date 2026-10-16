@@ -114,7 +114,7 @@ void taskRecordSetPosition(u8 *arg0, s64 arg1);
    and r=$s1 where mwcc rotates to arg0=$s0/arg1=$s1/arg2=$s4, var_16=$s3,
    r=$s2. Tried the complete m2c switch body + 1 declaration order; nd 324
    (obj 1424B vs window 1248B). Jump-table-density + saved-register floor. */
-// Creates the event node for type 10: allocates its 0x30-byte record, counts it against the event memory, and fills its geometry through func_0028c080; other types create nothing [inferred].
+// Creates the event node for type 10: allocates its 0x30-byte record, counts it against the event memory, and fills its geometry through evtInterpolateNodeMatrices; other types create nothing [inferred].
 // FUN_00286780
 u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
     f32 sp8c;
@@ -131,7 +131,7 @@ u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
         if (r == NULL) {
             kAssertFail(D_0063C3B0, 0x170);
         }
-        func_0028c080(arg2, arg0, arg1, r, &sp8c, &sp88);
+        evtInterpolateNodeMatrices(arg2, arg0, arg1, r, &sp8c, &sp88);
         break;
     case 0x18:
     case 0x19:
@@ -148,7 +148,7 @@ u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
     *(u32 *)(temp_17 + 4) = -1;
     *(u32 *)(temp_17 + 0x40) = 0;
     *(u32 *)(temp_17 + 0x38) = *(u32 *)arg0;
-    func_002866c0(arg0, temp_17);
+    evtAppendNodeToList(arg0, temp_17);
     switch (*(u32 *)arg0) {
     case 2:
         *(f32 *)(temp_17 + 0x10) = fGpffff815c;
@@ -868,7 +868,7 @@ void evtUpdateWaitState(int param_1, int param_2) {
         node = *(u8 **)(node + 0x90);
     }
     if (node != 0) {
-        func_0028bfb0(node, param_1, &a, &b);
+        evtFindNodeRange(node, param_1, &a, &b);
         if (a != 0 && *(u16 *)a == param_1) {
             switch (*(s8 *)(a + 0x10)) {
             case 0:
@@ -1867,7 +1867,7 @@ s32 func_002894b0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4) {
             if ((flag = ((*(u32 *)arg2 & 0x10) != 0), flag == 1)) {
                 return 1;
             }
-            if (func_0028bef0((s32)arg2, arg4, &sp9C, &sp98) == 0) {
+            if (evtDecodeNodeKey((s32)arg2, arg4, &sp9C, &sp98) == 0) {
                 return 1;
             }
             var_18 = D_008821E4[0];
@@ -2704,7 +2704,7 @@ u8 *evtCreateEventState(void) {
     }
     K_View_SetFov(kwlnGetCamera(), 35.0f);
     FldState_SetEventViewMode(1);
-    func_0028be70(p, 0);
+    evtSetKindExclusiveRes(p, 0);
     return p;
 }
 
