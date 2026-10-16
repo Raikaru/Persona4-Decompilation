@@ -136,7 +136,7 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
 }
 extern u8 iGpffffa4d8;
 extern void func_001d1540(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_001ee430(u8 *arg0);
+extern void btlTargetRemoveRadiusNode(u8 *arg0);
 extern void btlEffectDestroyPlacementEntry(s32 arg0);
 extern void btlEffectFreeNodePool(s32 arg0);
 extern void btlUnitUnlinkAndFree(u8 *arg0);
@@ -226,7 +226,7 @@ void btlUnitUnlinkAndFree(u8 *arg0)
         btlEffectFreeNodePool(temp_4_3);
         *(s32 *)(temp_17 + 0xA08) = 0;
     }
-    func_001ee430(temp_17);
+    btlTargetRemoveRadiusNode(temp_17);
     temp_5 = *(s8 *)(temp_17 + 0x9FC);
     if (temp_5 >= 0)
         func_001d1540(temp_17, temp_5, 0);
