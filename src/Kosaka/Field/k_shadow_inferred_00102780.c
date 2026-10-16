@@ -128,7 +128,7 @@ extern u8 iGpffff85d0;
 /* measured: opt_common_subs off keeps each GP-anchor address materialized at its retail call site. */
 /* measured: opt_propagation on closes the bracket after the exact-match body. */
 // FUN_00102780
-s32 func_00102780(u8 *arg0)
+s32 FldShadowAnim_Update(u8 *arg0)
 {
     s32 remaining;
     s32 kind;
@@ -164,7 +164,7 @@ block_10:
 }
 
 // FUN_00102890
-void func_00102890(u8 *arg0) {
+void FldShadowAnim_Destroy(u8 *arg0) {
     iGpffffb1a8 = 0;
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }

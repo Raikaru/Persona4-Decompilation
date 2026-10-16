@@ -128,7 +128,7 @@ void SceneDraw_SetCustomLight(u16 resTypeId, u32 customLight)
 
 
 // FUN_0014A460
-void func_0014a460(u16 resTypeId, u32 directionalOnly)
+void SceneDraw_SetDirectionalOnly(u16 resTypeId, u32 directionalOnly)
 {
     Resrc* res;
     u32 type;
@@ -413,7 +413,7 @@ void* SceneDraw_GetList4Matrix(void)
     return NULL;
 }
 // FUN_0014AD90
-void func_0014ad90(void)
+void SceneDraw_InitResList4(void)
 {
     s32 sp[3];
     s32 one;

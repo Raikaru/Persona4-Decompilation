@@ -2059,7 +2059,7 @@ extern f32 KDraw_MatrixPitchDeg(void *);
 extern f32 KDraw_MatrixRollDeg(void *);
 extern s32 KMisc_CreateRmdFade(s32, s32, s32, s32, s32);
 extern s32 func_0014bd90(unsigned char *);
-extern u32 func_0014c240(void *, void *, f32, f32);
+extern u32 FldEvent_HasLineOfSight(void *, void *, f32, f32);
 extern s32 FldRc_FileLoadIsReady(unsigned char *);
 extern s32 FldRc_RequestPositionSlot(unsigned char *, float *);
 extern void FldRc_SetPositionSlotPriority(unsigned char *, s32, s16);
@@ -2561,7 +2561,7 @@ s32 func_0018a200(u8 *param_1)
         temp_v4 = func_0047a2f0(D_007EFA00[0]);
         interactionAngle = 90.0f;
         interactionRange = 250.0f;
-        temp_v5 = func_0014c240(pvVar11,&((RainMatrix *)temp_v4)->pos,interactionAngle,interactionRange);
+        temp_v5 = FldEvent_HasLineOfSight(pvVar11,&((RainMatrix *)temp_v4)->pos,interactionAngle,interactionRange);
         if (temp_v5 != 0) {
           if (puVar1[0xb] != 0xffffffff) {
             break;

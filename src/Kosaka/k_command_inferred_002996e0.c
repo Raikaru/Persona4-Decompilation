@@ -195,7 +195,7 @@ s32 func_00299a10(void) {
 }
 
 // FUN_00299A50
-s32 func_00299a50(void) {
+s32 scrSetFadeColor(void) {
     s32 a;
     s32 b;
     s32 c;

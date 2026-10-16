@@ -109,8 +109,8 @@ extern char iGpffff9e10;
 extern void strcat(char *dst, char *src);
 extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
-extern s32 func_0014a230(s32 a0, s32 a1);
-extern s32 func_0014a2a0(s32 a0, s32 a1);
+extern s32 FldMap_IsInBandA(s32 a0, s32 a1);
+extern s32 FldMap_IsInBandB(s32 a0, s32 a1);
 extern u8 *func_0015c640(s32 a0, s32 a1);
 extern s32 *func_00155280(void);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
@@ -219,8 +219,8 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
     *(s32 *)(iGpffff9db0 + 0x24) = 0;
     *(s32 *)(iGpffff9db0 + 0x94) = 0;
     memset(iGpffff9db0 + 0x9C, 0, 0x40);
-    if (func_0014a230(arg0, arg1) || func_0014a2a0(arg0, arg1)) {
-        if (func_0014a2a0(arg0, arg1)) {
+    if (FldMap_IsInBandA(arg0, arg1) || FldMap_IsInBandB(arg0, arg1)) {
+        if (FldMap_IsInBandB(arg0, arg1)) {
             var17 = (u16)((u16)arg0 - 0x14);
             *(s32 *)(iGpffff9db0 + 0x88) |= 0x80000000;
             var16 = (s32)func_0015c640(arg0, arg1);

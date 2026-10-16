@@ -98,7 +98,7 @@ u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos,
 #pragma push
 
 // FUN_0014C240
-u32 func_0014c240(const RwMatrix* viewerMat,
+u32 FldEvent_HasLineOfSight(const RwMatrix* viewerMat,
                   const RwV3d* targetPos,
                   f32 fov,
                   f32 maxDist)
@@ -150,7 +150,7 @@ done:
 #pragma push
 
 // FUN_0014C3D0
-f32 func_0014c3d0(const RwMatrix* viewerMat, const RwV3d* targetPos,
+f32 FldEvent_GetVisibleDistance(const RwMatrix* viewerMat, const RwV3d* targetPos,
                   f32 fov, f32 fovMaxDist, f32 maxDist)
 {
     RwV3d delta;

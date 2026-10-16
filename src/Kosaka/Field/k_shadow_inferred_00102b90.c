@@ -129,12 +129,12 @@ extern u8 iGpffff85d0;
 /* measured: opt_common_subs off keeps each GP-anchor address materialized at its retail call site. */
 /* measured: opt_propagation on closes the bracket after the exact-match body. */
 // FUN_00102B90
-void func_00102b90(void) {
+void FldBootChain_Start(void) {
     initBootChainStart();
 }
 
 // FUN_00102BB0
-s32 func_00102bb0(void) {
+s32 FldBootChain_IsRunning(void) {
     return kwlnTaskGetTaskByName(D_005DCB58) != 0;
 }
 

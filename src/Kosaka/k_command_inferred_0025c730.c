@@ -46,7 +46,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0025.c; members 0025c730-0025c730 */
 
 // FUN_0025C730
-s32 func_0025c730(void) {
+s32 scrCommonCheckResSlot(void) {
     s32 temp_16;
     s32 temp_17;
 
