@@ -111,7 +111,7 @@ extern u8 *func_001102f0(u8 *position, s32 screenX, s32 screenY, f32 distance);
 extern u8 *func_00457120(void);
 extern s32 func_003e9700(s32 arg0);
 extern void itfMesWindowSetString(s32 arg0, s32 arg1, void *arg2);
-extern void func_0045aeb0(s32 arg0, void *arg1);
+extern void sdkSndStartChannel(s32 arg0, void *arg1);
 extern f32 fGpffffa66c;
 extern f32 fGpffffa670;
 extern f32 fGpffffa674;
@@ -2665,9 +2665,9 @@ s32 func_00257900(u8 *task) {
                 if (temp_19 == 1) {
                     temp_3_3 = (s32)(*(s32 *)(context + 0x1C));
                     if ((temp_3_3 == 0xA) || (temp_3_3 == 0)) {
-                        func_0045aeb0(2, &D_00635C80);
+                        sdkSndStartChannel(2, &D_00635C80);
                     } else {
-                        func_0045aeb0(2, &D_00635CA0);
+                        sdkSndStartChannel(2, &D_00635CA0);
                     }
                 }
                 func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( (255.0f * (1.0f - ((f32) temp_19 / 40.0f)))), 0.0f, temp_f20, firstTexture, secondTexture);
@@ -2696,7 +2696,7 @@ s32 func_00257900(u8 *task) {
             func_004b1250((void *)(temp_20_11), position);
         }
         if (*(s32 *)(context + 8) == 0xA) {
-            func_0045aeb0(2, &D_006366D0);
+            sdkSndStartChannel(2, &D_006366D0);
         }
         temp_3_4 = (s32)(*(s32 *)(context + 8));
         if (((temp_3_4 % 10) == 0) && (temp_3_4 < 0x1CD)) {
@@ -2875,9 +2875,9 @@ s32 func_00257900(u8 *task) {
             if (temp_19_3 == 1) {
                 temp_3_5 = (s32)(*(s32 *)(context + 0x1C));
                 if ((temp_3_5 == 0xA) || (temp_3_5 == 0)) {
-                    func_0045aeb0(2, &D_00635C80);
+                    sdkSndStartChannel(2, &D_00635C80);
                 } else {
-                    func_0045aeb0(2, &D_00635CA0);
+                    sdkSndStartChannel(2, &D_00635CA0);
                 }
             }
             func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, (s32)( (255.0f * (1.0f - ((f32) temp_19_3 / 40.0f)))), 0.0f, temp_f20_2, firstTexture, secondTexture);
@@ -3242,9 +3242,9 @@ extern s32 datPersonaAddSkill(u8 *character, u16 skill);
 extern void hsndQueueSound();
 extern void func_00459950();
 extern void func_00459880();
-extern void func_004598e0();
-extern void func_0045a8d0();
-extern void func_0045b2e0();
+extern void sdkSndStopChannel();
+extern void sdkSndFadeOutChannel();
+extern void sdkSndRequestTrack();
 extern s32 func_002519e0(u8 *task);
 extern void func_00251ce0(u8 *task);
 extern void func_00460ac0();
@@ -3298,7 +3298,7 @@ s32 func_0025b240(u8 *arg0) {
     case 1:
         *(s32 *)(ctx + 4) = 2;
         if (*(s32 *)(ctx + 0x1C) < 1 || *(s32 *)(ctx + 0x1C) > 9) {
-            func_004598e0(10);
+            sdkSndStopChannel(10);
         }
         /* fallthrough */
     case 2:
@@ -3312,9 +3312,9 @@ s32 func_0025b240(u8 *arg0) {
             func_00459880();
         }
         if (iGpffffa668 != -1) {
-            func_0045b2e0(iGpffffa668);
+            sdkSndRequestTrack(iGpffffa668);
         } else {
-            func_0045a8d0(3, 0);
+            sdkSndFadeOutChannel(3, 0);
         }
         return -1;
     case 3:
@@ -3471,9 +3471,9 @@ s32 func_0025b240(u8 *arg0) {
                 func_00459880();
             }
             if (iGpffffa668 != -1) {
-                func_0045b2e0(iGpffffa668);
+                sdkSndRequestTrack(iGpffffa668);
             } else {
-                func_0045a8d0(3, 0);
+                sdkSndFadeOutChannel(3, 0);
             }
             frFontExCopyString((char *)cmmNameRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);

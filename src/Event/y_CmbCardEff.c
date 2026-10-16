@@ -56,7 +56,7 @@ extern f32 D_008872F8[];
 extern u8 D_00794F00[];
 u32 datGetFlag(s32 id);
 void func_00106390(s32, s32);
-s32 func_0045aeb0(s16 channelIndex, u8 *name);
+s32 sdkSndStartChannel(s16 channelIndex, u8 *name);
 s32 kwlnTaskIsLinked(void *target);
 extern u8 D_0064A5B0[];
 s32 func_002b2d00(s32, s32, s32, s32, s8);
@@ -670,7 +670,7 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
         }
         break;
     case 7:
-        func_0045aeb0(2, D_0064A5B0);
+        sdkSndStartChannel(2, D_0064A5B0);
         func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f),
                       0.0f, 0.0f, 0.0f, 1.0f,
                       func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
@@ -807,7 +807,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
         }
         break;
     case 7:
-        func_0045aeb0(2, D_0064A5B0);
+        sdkSndStartChannel(2, D_0064A5B0);
         func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, -5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
@@ -950,7 +950,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
         }
         break;
     case 7:
-        func_0045aeb0(2, D_0064A5B0);
+        sdkSndStartChannel(2, D_0064A5B0);
         func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
@@ -1098,7 +1098,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
         }
         break;
     case 7:
-        func_0045aeb0(2, D_0064A5B0);
+        sdkSndStartChannel(2, D_0064A5B0);
         func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
@@ -1252,7 +1252,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
         }
         break;
     case 7:
-        func_0045aeb0(2, D_0064A5B0);
+        sdkSndStartChannel(2, D_0064A5B0);
         func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, 1.5f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
@@ -1419,7 +1419,7 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
         }
         break;
     case 7:
-        func_0045aeb0(2, D_0064A5B0);
+        sdkSndStartChannel(2, D_0064A5B0);
         cmbCardEffSetTween(*(u8 **)(obj + 0x64C),
                       func_002b29a0(0.0f, -5.0f, 30.0f),
                       0.0f, 0.0f, 0.0f, iGpffff850c,

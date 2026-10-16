@@ -12,7 +12,7 @@ extern s32 iGpffffa7c8;
 
 s32 mtMiscResourceValue(s32 arg0);
 
-s32 func_0045a8d0(s64 arg0, s32 arg1);
+s32 sdkSndFadeOutChannel(s64 arg0, s32 arg1);
 
 extern void func_0018c7e0(void);
 extern s32 func_0018ced0();
@@ -23,11 +23,11 @@ extern u8 D_00882EDE[];
 extern u8 D_00882EFE[];
 extern char D_0063CB30[];
 extern char D_0063D050[];
-s32 func_004598e0(s16 arg0);
+s32 sdkSndStopChannel(s16 arg0);
 
 
 
-extern void func_0045b2e0(s32 arg0);
+extern void sdkSndRequestTrack(s32 arg0);
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
@@ -74,20 +74,20 @@ extern void mtMiscCollectType2Records(u8 *arg0);
 #pragma pop
 // FUN_002981F0
 s32 func_002981f0(s32 unused, s32 arg1) {
-    func_0045b2e0(arg1);
+    sdkSndRequestTrack(arg1);
     return 0;
 }
 
 // FUN_00298220
 s32 func_00298220(s64 arg0) {
-    func_0045a8d0((s16) arg0, 0);
+    sdkSndFadeOutChannel((s16) arg0, 0);
     return 0;
 }
 
 // Looks up key (arg0 << 16 | arg1) in the 0x86-entry table D_0063CB50 and runs
 // the action in the entry's second word: 1 and 2 call func_0018ced0 (then
-// func_0018c7e0 when it returns 0), 3 calls func_0045a8d0 and func_004598e0(0x1E).
-// Absent keys act as 3. Returns the action code.
+// func_0018c7e0 when it returns 0), 3 calls sdkSndFadeOutChannel(3, 0) and
+// sdkSndStopChannel(0x1E). Absent keys act as 3. Returns the action code.
 // FUN_00298250
 s32 mtMiscDispatchKeyAction(s32 arg0, s32 arg1)
 {
@@ -132,8 +132,8 @@ found_98250:
         }
         break;
     case 3:
-        func_0045a8d0(3, 0);
-        func_004598e0(0x1E);
+        sdkSndFadeOutChannel(3, 0);
+        sdkSndStopChannel(0x1E);
         break;
     }
     return var_16;

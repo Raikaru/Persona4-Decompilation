@@ -15,7 +15,7 @@ extern void func_0029e9b0(void *arg0, ...);
 
 s32 mtMiscResourceValue(s32 arg0);
 
-s32 func_0045a8d0(s64 arg0, s32 arg1);
+s32 sdkSndFadeOutChannel(s64 arg0, s32 arg1);
 
 extern void func_00106390();
 s32 scrGetParamInt(s32 arg0);
@@ -30,7 +30,7 @@ extern u8 D_00882EDE[];
 extern u8 D_00882EFE[];
 extern s32 kwlnTaskIsLinked(s32 arg0);
 extern void sprintf(char *buf, const char *fmt, s32 value);
-extern void func_0045aeb0(s16 arg0, char *buf);
+extern void sdkSndStartChannel(s16 arg0, char *buf);
 extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
 extern char D_0063CB30[];
 extern char D_0063D050[];
@@ -40,7 +40,7 @@ extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
 void func_004b1590(s32 arg0, s16 arg1);
 s32 func_0045a3e0(s16 arg0, s32 arg1);
 s32 func_00459880(void);
-s32 func_004598e0(s16 arg0);
+s32 sdkSndStopChannel(s16 arg0);
 
 u32 datCalcGetHpById(s16 arg0);
 void scrSetReturnInt(s32 arg0);
@@ -50,7 +50,7 @@ u16 datCalcMaxHpById(s16 arg0);
 u32 datCalcGetSpById(s16 arg0);
 extern void func_001056e0(s16 arg0, s16 arg1);
 extern s64 scrGetParamIntS64(s32 arg0);
-extern void func_0045b2e0(s32 arg0);
+extern void sdkSndRequestTrack(s32 arg0);
 extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern s32 D_0063CB50[];
 extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);

@@ -17,7 +17,7 @@ extern void func_0029e9b0(void *arg0, ...);
 
 s32 mtMiscResourceValue(s32 arg0);
 
-s32 func_0045a8d0(s64 arg0, s32 arg1);
+s32 sdkSndFadeOutChannel(s64 arg0, s32 arg1);
 
 extern s32 iGpffffb538;
 extern u8 D_00882ED0[];
@@ -25,7 +25,7 @@ extern u8 D_00882EF0[];
 extern u8 D_00882EDE[];
 extern u8 D_00882EFE[];
 extern void sprintf(char *buf, const char *fmt, s32 value);
-extern void func_0045aeb0(s16 arg0, char *buf);
+extern void sdkSndStartChannel(s16 arg0, char *buf);
 extern char D_0063CB30[];
 extern char D_0063D050[];
 extern void func_0045a9a0(s32 arg0, s32 arg1);
@@ -33,12 +33,12 @@ extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
 void func_004b1590(s32 arg0, s16 arg1);
 s32 func_0045a3e0(s16 arg0, s32 arg1);
 s32 func_00459880(void);
-s32 func_004598e0(s16 arg0);
+s32 sdkSndStopChannel(s16 arg0);
 
 
 
 extern s64 scrGetParamIntS64(s32 arg0);
-extern void func_0045b2e0(s32 arg0);
+extern void sdkSndRequestTrack(s32 arg0);
 extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern s32 D_0063CB50[];
 extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
@@ -152,7 +152,7 @@ s32 func_002998d0(void) {
     if (temp_2 == 0) {
         func_00459880();
     } else {
-        func_004598e0(temp_2);
+        sdkSndStopChannel(temp_2);
     }
     return 1;
 }
@@ -164,7 +164,7 @@ s32 func_00299920(void) {
 
     v = scrGetParamInt(0);
     sprintf(sp10, D_0063D050, v);
-    func_0045aeb0(2, sp10);
+    sdkSndStartChannel(2, sp10);
     return 1;
 }
 
@@ -183,14 +183,14 @@ s32 func_00299970(void) {
 
 // FUN_002999D0
 s32 func_002999d0(void) {
-    func_0045b2e0(scrGetParamInt(0));
+    sdkSndRequestTrack(scrGetParamInt(0));
     return 1;
 }
 
 // FUN_00299A10
 s32 func_00299a10(void) {
     scrGetParamInt(0);
-    func_0045a8d0(3, 0);
+    sdkSndFadeOutChannel(3, 0);
     return 1;
 }
 

@@ -433,7 +433,7 @@ s32 func_00459880(void)
 /* ================================================================== */
 
 // FUN_004598E0
-s32 func_004598e0(s16 arg0)
+s32 sdkSndStopChannel(s16 arg0)
 {
     func_004d8eb0(CH_HANDLE(0), arg0);
     if (D_008D2B90[0].f00 != 0)
@@ -837,7 +837,7 @@ s32 func_0045a730(s16 arg0, s16 arg1)
 /* ================================================================== */
 
 // FUN_0045A8D0
-s32 func_0045a8d0(s16 arg0)
+s32 sdkSndFadeOutChannel(s16 arg0)
 {
     if (D_008D2B90[arg0].f00 != 0)
     {
@@ -1030,7 +1030,7 @@ s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2)
 /* ================================================================== */
 
 // FUN_0045AEB0
-s32 func_0045aeb0(s16 arg0, const char * arg1)
+s32 sdkSndStartChannel(s16 arg0, const char * arg1)
 {
     SndCh *ch;
 
@@ -1195,7 +1195,7 @@ s32 func_0045b1c0(void *arg0, s32 arg1, s32 arg2, void *arg3)
 /* ================================================================== */
 
 // FUN_0045B2E0
-s32 func_0045b2e0(s32 arg0)
+s32 sdkSndRequestTrack(s32 arg0)
 {
     u8 buf[0x100];
 

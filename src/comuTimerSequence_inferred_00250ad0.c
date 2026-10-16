@@ -10,7 +10,7 @@ static inline f32 p4_0025_add(f32 left, f32 right) {
     return left + right;
 }
 extern s32 D_006367C0[];
-extern void func_0045aeb0(s32 arg0, const char *arg1);
+extern void sdkSndStartChannel(s32 arg0, const char *arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_00250ad0(s32 *arg0, u8 *arg1);
 extern s16 D_00636A40[];
@@ -283,23 +283,23 @@ loop_9_test:
 // FUN_002518D0
 void func_002518d0(s32 arg0) {
     if ((arg0 > 0) && (arg0 < 10)) {
-        func_0045aeb0(2, D_00635C00);
+        sdkSndStartChannel(2, D_00635C00);
         return;
     }
     if (arg0 == 10) {
-        func_0045aeb0(2, D_00635C00);
+        sdkSndStartChannel(2, D_00635C00);
         return;
     }
     if (arg0 == 0) {
-        func_0045aeb0(2, D_00635C20);
+        sdkSndStartChannel(2, D_00635C20);
         return;
     }
     if (arg0 == 11) {
-        func_0045aeb0(2, D_00635C40);
+        sdkSndStartChannel(2, D_00635C40);
         return;
     }
     if (arg0 == 12) {
-        func_0045aeb0(2, D_00635C60);
+        sdkSndStartChannel(2, D_00635C60);
     }
 }
 

@@ -192,7 +192,7 @@ extern s32 datGetTimeSlot(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0015a160(void);
-extern void func_004598e0(s32 arg0);
+extern void sdkSndStopChannel(s32 arg0);
 extern void func_0045a3e0(s16 arg0, s32 arg1);
 extern s32 iGpffffb264;
 extern u8 *iGpffff9db0;
@@ -3176,7 +3176,7 @@ s32 func_0018c7e0(void) {
         func_0045a3e0((s16)res, 1);
         return 1;
     }
-    func_004598e0(0x1E);
+    sdkSndStopChannel(0x1E);
     return 0;
 }
 /* MATCHED: the dispatch reads the pair at iGpffff9db0 with only the first
@@ -3188,7 +3188,7 @@ s32 func_0018c7e0(void) {
 s32 func_0018ced0(void)
 {
     extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
-    extern void func_0045b2e0(s32 arg0);
+    extern void sdkSndRequestTrack(s32 arg0);
     u8 *ctx;
     s32 major;
     s32 result;
@@ -3323,8 +3323,8 @@ s32 func_0018ced0(void)
         result = 0x15;
     }
     if (result > 0) {
-        func_004598e0(0x1E);
-        func_0045b2e0(result);
+        sdkSndStopChannel(0x1E);
+        sdkSndRequestTrack(result);
         return 1;
     }
     func_0045aac0(3, 0, 0x1E);

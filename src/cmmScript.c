@@ -8,7 +8,7 @@
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u32 kwlnTaskGetWork(void *task);
 extern void func_004b1250(void *model, f32 *position);
-extern s32 func_0045aeb0(s16 channel, const char *name);
+extern s32 sdkSndStartChannel(s16 channel, const char *name);
 extern s32 func_0045af60(s16 channel, s16 stream, s16 arg2, s16 arg3);
 extern void kAssertFail(void *file, s32 line);
 
@@ -1819,7 +1819,7 @@ s32 func_0024f160(u8 *arg0)
         state = *(s16 *)(arg0 + 0x12);
         if (state == 1) {
             func_00113480(5, 61, 10, 0);
-            func_0045aeb0((s16)(2), (const char *)(D_00635B50));
+            sdkSndStartChannel((s16)(2), (const char *)(D_00635B50));
         }
 
         task = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78));
@@ -1958,7 +1958,7 @@ s32 func_0024f790(u8 *work)
     }
     fishEntry = cmmFishingEntryRecord(*(u16 *)(fishingData + 0x20));
     if ((*(s16 *)(work + 0xC) % 60) == 0) {
-        func_0045aeb0(2, (const char *)D_00635B90);
+        sdkSndStartChannel(2, (const char *)D_00635B90);
     }
     *(s16 *)(work + 0xC) += 1;
     if ((*(s16 *)(work + 0xC) % 20) == 0) {

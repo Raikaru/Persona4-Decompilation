@@ -26,7 +26,7 @@ s32 mtMiscPlayFormattedCue();
 s32 func_00459880();
 void func_0045a3e0();
 void hsndQueueSound();
-void func_004598e0();
+void sdkSndStopChannel();
 void func_0045aac0();
 s32 func_002981f0();
 s32 func_00298220();
@@ -2279,7 +2279,7 @@ s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 hsndQueueSound(*(s16 *)(arg2 + 0x78C), *(s16 *)(arg4 + 0x12));
                 break;
             case 2:
-                func_004598e0(0x78, 1);
+                sdkSndStopChannel(0x78, 1);
                 break;
             case 3:
                 func_00459880(2, 1);

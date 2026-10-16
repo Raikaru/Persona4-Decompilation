@@ -363,7 +363,7 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
     extern void frFontExCopyString(void *src, void *dst, s32 maxlen);
     extern s32 func_002badc0(s8 arg0, s32 arg1);
     extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
-    extern u8 func_0045aeb0(s16 channelIndex, const char *name);
+    extern u8 sdkSndStartChannel(s16 channelIndex, const char *name);
     extern u8 D_0064B340[];
     extern char iGpffffa958;
     extern u32 func_00354490(s32 arg0);
@@ -395,7 +395,7 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
         msgId = 0x2D0;
     }
     sprintf(label, &D_0064B340, msgId);
-    func_0045aeb0(2, (const char *)label);
+    sdkSndStartChannel(2, (const char *)label);
     frFontExCopyString((void *)(u32)func_00354490(arg1), label, 0x40);
     func_002bbd80(*(s8 *)(arg0 + 8), 0, label);
     sprintf(subLabel, &iGpffffa958, arg1 + 1);
