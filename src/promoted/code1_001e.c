@@ -107,7 +107,7 @@ extern u32 datCalcRandomBelow(u32 arg0);
 extern void btlUnitInitChild(u8 *arg0, u64 arg1);
 extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
 extern s32 btlAICommandPickTableAction(u8 *arg0);
-extern u8 *func_001dea90(u8 *arg0, u32 arg1);
+extern u8 *btlAISelectWeightedEntry(u8 *arg0, u32 arg1);
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 scrGetParamFloat(s32 arg0);
