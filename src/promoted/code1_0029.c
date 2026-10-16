@@ -96,8 +96,8 @@ extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 extern s32 func_002a2c10(u8 *arg0, f32 *arg1);
-extern void func_0025e9e0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
-extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
+extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
+extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 
 
 
@@ -776,8 +776,8 @@ do_copy:
             func_002a2c10(temp_18, stack);
             ix = (s32)stack[0];
             iy = (s32)stack[1];
-            func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, color, tbl[arg1].f1, iGpffffb540, 1);
-            func_0025e9e0((f32)((ix + tbl[arg1].f2) - (s32)tbl[arg1].f4), (f32)((iy + tbl[arg1].f3) - (s32)tbl[arg1].f5), 0.0f, 0x8F8F8F, color, tbl[arg1].f0, iGpffffb540, 1);
+            sdkSpriteDrawNowUnscaled((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, color, tbl[arg1].f1, iGpffffb540, 1);
+            sdkSpriteDrawNowUnscaled((f32)((ix + tbl[arg1].f2) - (s32)tbl[arg1].f4), (f32)((iy + tbl[arg1].f3) - (s32)tbl[arg1].f5), 0.0f, 0x8F8F8F, color, tbl[arg1].f0, iGpffffb540, 1);
             return;
         }
         if (v0 != *p16) {
@@ -807,7 +807,7 @@ do_copy:
         ix = (s32)stack[0];
         iy = (s32)stack[1];
         temp30 = tbl[arg1].f1;
-        func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, 0xFF, tbl[arg1].f1, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, 0xFF, tbl[arg1].f1, iGpffffb540, 1);
         temp22 = tbl[arg1].f0;
         t18 = tbl[arg1].f5;
         f3v = tbl[arg1].f3;
@@ -815,9 +815,9 @@ do_copy:
         t17 = tbl[arg1].f4;
         f2v = tbl[arg1].f2;
         x2 = (ix + tbl[arg1].f2) - tbl[arg1].f4;
-        func_0025e9e0((f32)x2, (f32)y2, 0.0f, 0x8F8F8F, 0xFF, tbl[arg1].f0, iGpffffb540, 1);
-        func_0025e9e0((f32)ix, (f32)iy, 0.0f, 0x99, var23, temp30, iGpffffb540, 1);
-        func_0025e9e0((f32)x2, (f32)y2, 0.0f, 0xCCFFFF, var23, temp22, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled((f32)x2, (f32)y2, 0.0f, 0x8F8F8F, 0xFF, tbl[arg1].f0, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled((f32)ix, (f32)iy, 0.0f, 0x99, var23, temp30, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled((f32)x2, (f32)y2, 0.0f, 0xCCFFFF, var23, temp22, iGpffffb540, 1);
         {
             u8 *b2 = code29AddOff(off4, base);
             s32 *pflag = (s32 *)(b2 + 0x1C50);
@@ -836,11 +836,11 @@ do_copy:
             func_002a2c10(temp_19, stack);
             ix = (s32)stack[0];
             iy = (s32)stack[1];
-            func_0025ea20((f32)ix, (f32)iy, 0.0f, 0xCCFF33, 0xFF, temp30, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
-            func_0025ea20((f32)((ix + f2v) - t17), (f32)((iy + f3v) - t18), 0.0f, 0x2D2D2D, 0xFF, temp22, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            sdkSpriteDrawNow((f32)ix, (f32)iy, 0.0f, 0xCCFF33, 0xFF, temp30, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            sdkSpriteDrawNow((f32)((ix + f2v) - t17), (f32)((iy + f3v) - t18), 0.0f, 0x2D2D2D, 0xFF, temp22, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
         }
         if ((arg1 == 0) || (arg1 == 1) || (arg1 == 3)) {
-            func_0025e9e0((f32)((ix + f2v) - t17), (f32)((iy + f3v) - t18), 0.0f, 0xCCFFFF, var23, temp22 + 0xB2, iGpffffb540, 1);
+            sdkSpriteDrawNowUnscaled((f32)((ix + f2v) - t17), (f32)((iy + f3v) - t18), 0.0f, 0xCCFFFF, var23, temp22 + 0xB2, iGpffffb540, 1);
         }
     }
 }

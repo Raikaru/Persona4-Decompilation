@@ -80,7 +80,7 @@ typedef struct YRGBA { u8 a, b, c, d; } YRGBA;
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern void func_002b2bd0(f32 *, s64, f32, f32, f32, f32);
 extern u8 *func_00155280(void);
-extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern void smapDrawQuad(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5);
 extern u8 D_00794DB0[];
 extern u8 D_00794CF0[];
@@ -1440,7 +1440,7 @@ s32 smapDrawCell(u8 *arg0) {
                 showIcon = 1;
             }
             if ((s8)showIcon == 1) {
-                func_0025ecd0(cell->position.x + cell->iconOffset.x, cell->position.y + cell->iconOffset.y, 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (void *)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
+                sdkSpriteDrawQueued(cell->position.x + cell->iconOffset.x, cell->position.y + cell->iconOffset.y, 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (void *)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
             }
         }
         smapDrawQuad(task, cell->position, cell->width, cell->height, 60008.0f, cell->origin, cell->scale, color, cell->orientation, 0x50);
@@ -1462,7 +1462,7 @@ s32 smapDrawCell(u8 *arg0) {
                 showIcon = 1;
             }
             if ((s8)showIcon == 1) {
-                func_0025ecd0(cell->position.x + cell->iconOffset.x, cell->position.y + cell->iconOffset.y, 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (void *)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
+                sdkSpriteDrawQueued(cell->position.x + cell->iconOffset.x, cell->position.y + cell->iconOffset.y, 60007.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0x13, (void *)D_00764644, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
             }
         }
         smapDrawQuad(task, cell->position, cell->width, cell->height, 60008.0f, cell->origin, cell->scale, color, cell->orientation, 0x4C);

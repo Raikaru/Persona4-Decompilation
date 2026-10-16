@@ -25,8 +25,8 @@ f32 sdkSpriteEntryWidth(void *ptr, s32 index);
 s32 sdkSpriteSlotHandle(u8 *ptr, s32 index);
 void kAssertFail(const void *file, s32 line);
 
-s32 func_0025ea20(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
-s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+s32 sdkSpriteDrawNow(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
+s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
 s32 func_0025f540(s32, u8, s32, s32, u8 *, s32, s16, s16, void *, f32, f32, f32, f32, f32, f32);
 u32 func_0025f6b0(f32, f32, f32, s32, u8, s32, s32, s16 *, shd_cb, u8 *);
@@ -218,10 +218,10 @@ s32 func_0025f430(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 * a4
     if (temp_3 != 0) {
         temp_6 = (u8 *)(temp_3 + ((a2 & 0xFFFF) * 8));
         elem = *(u8 **)(*(u32 *)(a4 + 8) + (*(s8 *)temp_6 * 4));
-        func_0025ea20(f0 + (f32)*(s16 *)(temp_6 + 4), f1 + (f32)*(s16 *)(temp_6 + 6), f2, a0, a1, *(s16 *)(temp_6 + 2) + a3, elem, a5, a6, a7, f3, f4, f5);
+        sdkSpriteDrawNow(f0 + (f32)*(s16 *)(temp_6 + 4), f1 + (f32)*(s16 *)(temp_6 + 6), f2, a0, a1, *(s16 *)(temp_6 + 2) + a3, elem, a5, a6, a7, f3, f4, f5);
     } else {
         elem = *(u8 **)(*(u32 *)(a4 + 8) + (((a2 >> 16) & 0xFFFF) * 4));
-        func_0025ea20(f0, f1, f2, a0, a1, (a2 & 0xFFFF) + a3, elem, a5, a6, a7, f3, f4, f5);
+        sdkSpriteDrawNow(f0, f1, f2, a0, a1, (a2 & 0xFFFF) + a3, elem, a5, a6, a7, f3, f4, f5);
     }
     return 0;
 }
@@ -244,10 +244,10 @@ s32 func_0025f540(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7,
     if (temp_3 != 0) {
         temp_6 = (u8 *)(temp_3 + ((a2 & 0xFFFF) * 8));
         elem = *(u8 **)(*(u32 *)(a4 + 8) + (*(s8 *)temp_6 * 4));
-        func_0025ecd0(f0 + (f32)*(s16 *)(temp_6 + 4), f1 + (f32)*(s16 *)(temp_6 + 6), f2, a0, a1, *(s16 *)(temp_6 + 2) + a3, elem, a5, a6, a7, f3, f4, f5, a8);
+        sdkSpriteDrawQueued(f0 + (f32)*(s16 *)(temp_6 + 4), f1 + (f32)*(s16 *)(temp_6 + 6), f2, a0, a1, *(s16 *)(temp_6 + 2) + a3, elem, a5, a6, a7, f3, f4, f5, a8);
     } else {
         elem = *(u8 **)(*(u32 *)(a4 + 8) + (((a2 >> 16) & 0xFFFF) * 4));
-        func_0025ecd0(f0, f1, f2, a0, a1, (a2 & 0xFFFF) + a3, elem, a5, a6, a7, f3, f4, f5, a8);
+        sdkSpriteDrawQueued(f0, f1, f2, a0, a1, (a2 & 0xFFFF) + a3, elem, a5, a6, a7, f3, f4, f5, a8);
     }
     return 0;
 }

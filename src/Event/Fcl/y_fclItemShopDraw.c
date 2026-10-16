@@ -89,7 +89,7 @@ void memcpy(void *, s32, s32);
 s32 func_002b89a0(void *);
 void *func_00460990(void);
 void func_00460ac0(void *, void *);
-s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_00795FE0[];
 extern u8 D_0064A360[];
 extern u8 D_0064A3A0[];
@@ -1797,7 +1797,7 @@ void func_0033bf90(u8 *arg0) {
    written `green = blue = 0` (the andi on $zero). */
 static inline void fclShopDrawItemFrame(u8 *p, f32 y, u8 red, u8 green, u8 blue)
 {
-    func_0025ecd0(44.0f, y, 62.0f, func_002b2a30(0xFF, red, green, blue), 0xFF, 0x24,
+    sdkSpriteDrawQueued(44.0f, y, 62.0f, func_002b2a30(0xFF, red, green, blue), 0xFF, 0x24,
                   *(void **)(p + 0xC), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
@@ -1831,7 +1831,7 @@ void func_0033c490(u8 *arg0)
 
     p = *(u8 **)(arg0 + 0x38);
     if (*(s8 *)(p + 2) == 1) {
-        func_0025ecd0(44.0f, 77.0f, 62.0f, func_002b2a30(0xFF, 0x26, 0x26, 0x26), 0xFF, 0x24,
+        sdkSpriteDrawQueued(44.0f, 77.0f, 62.0f, func_002b2a30(0xFF, 0x26, 0x26, 0x26), 0xFF, 0x24,
                       *(void **)(p + 0xC), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
         color = func_002b2a30(0x26, 0x26, 0x26, 0xFF);
         value = datGetItemNameId((s16)yListValueAt(*(s16 *)(p + 4)));
@@ -1995,7 +1995,7 @@ s32 func_0033cc40(u8 *arg0) {
                 (void *)((u8 *)D_00793E80 +
                          (*(s32 *)(callback_work + 0xFC) * 0x30)),
                 temp_2);
-            func_0025ecd0(
+            sdkSpriteDrawQueued(
                 *(f32 *)(callback_work + 0x2C), *(f32 *)(callback_work + 0x30),
                 *(f32 *)(callback_work + 8),
                 func_002b2a30(0xFF, *(u8 *)(callback_work + 0x79),
@@ -2012,7 +2012,7 @@ s32 func_0033cc40(u8 *arg0) {
             if (!(temp_f20 < temp_f0)) {
                 temp_f21 = *(f32 *)(callback_work + 0xA0);
                 if (!(temp_f21 < temp_f0)) {
-                    func_0025ecd0(
+                    sdkSpriteDrawQueued(
                         *(f32 *)(callback_work + 0x2C), *(f32 *)(callback_work + 0x30),
                         *(f32 *)(callback_work + 8),
                         func_002b2a30(0xFF, *(u8 *)(callback_work + 0x79),

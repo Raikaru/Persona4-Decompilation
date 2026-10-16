@@ -59,7 +59,7 @@ extern s32 func_002b2960(void);
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern void func_002b2bd0(f32 *arg0, s64 arg1, f32 arg2, f32 arg3, f32 arg4,
                           f32 arg5);
-extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 sdkSpriteScaledWidth(u8 *arg0);
 extern f32 sdkSpriteScaledHeight(u8 *arg0);
 extern u8 *sdkSpriteNewNode(s32 arg0, s32 arg1);
@@ -117,10 +117,10 @@ void mapSymbolMarkerDraw(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2)
     temp += *(f32 *)(p + 0x10);
     temp *= -1.0f;
     if (*(s8 *)(p + 0x20) == 1) {
-        func_0025ecd0(*(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, arg2, 0xFF, 0x10, (void *)(u32)smapGetSpriteHandle(), 1, *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), temp, 1.0f, 1.0f, D_00794D20);
+        sdkSpriteDrawQueued(*(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, arg2, 0xFF, 0x10, (void *)(u32)smapGetSpriteHandle(), 1, *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), temp, 1.0f, 1.0f, D_00794D20);
         return;
     }
-    func_0025ecd0(*(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, arg2, 0xFF, 0x10, (void *)(u32)smapGetSpriteHandle(), 1, *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), temp, 1.0f, 1.0f, D_00794DE0);
+    sdkSpriteDrawQueued(*(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, arg2, 0xFF, 0x10, (void *)(u32)smapGetSpriteHandle(), 1, *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), temp, 1.0f, 1.0f, D_00794DE0);
 }
 // FUN_002B3C50
 void mapSymbolMarkerSetHighlight(u8 *arg0, u8 arg1)
@@ -188,7 +188,7 @@ s32 mapSymbolPointUpdate(u8 *arg0)
             keep -= 10.0f;
             *((f32 *)&out + 1) = keep;
             coord0 = out;
-            func_0025ecd0(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA63, func_002b2a30(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
+            sdkSpriteDrawQueued(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA63, func_002b2a30(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
         }
     } else if (*(s8 *)p == 1 &&
                (s8)func_002ac3c0(p[0x18], p[0x19]) == 1) {
@@ -201,7 +201,7 @@ s32 mapSymbolPointUpdate(u8 *arg0)
         keep -= 2.0f;
         *((f32 *)&out + 1) = keep;
         coord1 = out;
-        func_0025ecd0(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA63, func_002b2a30(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
+        sdkSpriteDrawQueued(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA63, func_002b2a30(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
     }
     return 0;
 }
@@ -313,7 +313,7 @@ vtest2:
                 keep -= 10.0f;
                 *((f32 *)&out + 1) = keep;
                 coord0 = out;
-                func_0025ecd0(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA64, func_002b2a30(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
+                sdkSpriteDrawQueued(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA64, func_002b2a30(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
             }
         }
     } else if (*p == 1) {
@@ -356,7 +356,7 @@ vtest4:
                 keep -= 2.0f;
                 *((f32 *)&out + 1) = keep;
                 coord1 = out;
-                func_0025ecd0(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA64, func_002b2a30(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
+                sdkSpriteDrawQueued(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA64, func_002b2a30(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
             }
         }
     }
@@ -458,7 +458,7 @@ vtest1:
                 !(out.point.y < 248.0f) &&
                 (out.point.y <= (f32)0x19B)) {
                 coord.packed = out.packed;
-                func_0025ecd0(
+                sdkSpriteDrawQueued(
                     coord.values[0], coord.values[1], (f32)0xEA65,
                     func_002b2a30(255, 255, 255, 255), 0xFF, 0x12,
                     (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f,
@@ -481,7 +481,7 @@ vtest1:
 vtest2:
         if (var_3 == 1) {
             v = *(Vec2 *)p;
-            func_0025ecd0(
+            sdkSpriteDrawQueued(
                 v.x, v.y, (f32)0xEA65,
                 func_002b2a30(255, 255, 255, 255), 0xFF, 0x12,
                 (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f,

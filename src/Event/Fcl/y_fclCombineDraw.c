@@ -108,7 +108,7 @@ extern s32 func_00331560(void);
 extern u8 *fclSpriteWork(u8 *);
 extern f32 sdkSpriteScaledWidth(u8 *);
 extern void fclCombineDrawListRowPlain(u8 *, s8, FclVec2, s16, s16, s8);
-extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern void sdkSpriteRelease(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
 extern void itfMesWindowReleaseIfActive(s32 arg0);
@@ -6128,7 +6128,7 @@ void fclCombineDrawResourceAt(s32 arg0, FclVec2 arg1, f32 fparg0, s32 arg2, u8 a
     FclVec2 *p;
 
     p = &arg1;
-    func_0025ecd0(p->x, p->y, fparg0, arg2, arg3, (s16)arg0, (void *)(u32)func_00331560(), arg4, 0, 0, 0.0f, fparg1, fparg2, arg5);
+    sdkSpriteDrawQueued(p->x, p->y, fparg0, arg2, arg3, (s16)arg0, (void *)(u32)func_00331560(), arg4, 0, 0, 0.0f, fparg1, fparg2, arg5);
 }
 // Fcl combine CDVD task update: polls the disc load for the task and advances its load state.
 // FUN_00330F20

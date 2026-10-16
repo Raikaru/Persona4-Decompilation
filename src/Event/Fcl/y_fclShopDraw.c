@@ -197,7 +197,7 @@ void func_00460ac0(void *, void *);
    plain load and materialises in slot order (li $a0 before lbu $a1); passed to an
    s32 parameter it counts as a conversion and is hoisted ahead of the constant. */
 s32 func_002b2a30(u8, u8, u8, u8);
-s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 
 
 void func_002e04f0(u8 *, u32, s8);
@@ -228,7 +228,7 @@ s32 func_002dff90(void *, s32, void *, void *, s8);
 u32 RpRandom(void);
 void memset(void *, s32, s32);
 /* measured: floats first - retail materialises $f12-$f14 before $a0..$t1. */
-void func_0025ec90(f32, f32, f32, s32, u8, s32, void *, s32, void *);
+void sdkSpriteDrawQueuedUnscaled(f32, f32, f32, s32, u8, s32, void *, s32, void *);
 void func_002e0700(u8 *, s64, f32, f32, s32, s32, s64);
 void func_002e09e0(u8 *, s32, f32);
 s32 yListCountFor(void *);
@@ -2757,13 +2757,13 @@ void func_002caa10(Vec2f position, f32 depth, RGBA color, u32 number_, s16 glyph
     g = color.g;
     y = position.y;
     do {
-        func_0025ec90(x, y, depth, func_002b2a30(0xFF, color.r, g, b), a, base + number % 10, sprite, 1, entry);
+        sdkSpriteDrawQueuedUnscaled(x, y, depth, func_002b2a30(0xFF, color.r, g, b), a, base + number % 10, sprite, 1, entry);
         number /= 10;
         count = (s8)(count + 1);
         if (count % 3 == 0) {
             if (number != 0) {
                 x -= (f32)commaWidth;
-                func_0025ec90(x, y, depth, func_002b2a30(0xFF, color.r, g, b), a, comma, sprite, 1, entry);
+                sdkSpriteDrawQueuedUnscaled(x, y, depth, func_002b2a30(0xFF, color.r, g, b), a, comma, sprite, 1, entry);
                 x -= (f32)digitWidth;
             } else {
                 x -= (f32)digitWidth;
@@ -2810,13 +2810,13 @@ void func_002cacd0(Vec2f arg0, f32 fparg0, FclDrawColor arg1, s32 arg2, s16 arg3
     y = arg0.y;
     comma = (s16)arg6;
     do {
-        func_0025ec90(x, y, fparg0, func_002b2a30(0xFF, arg1.c0, g, b), a, base + arg4 % 10, (void *)(u32)arg7, 1, entry);
+        sdkSpriteDrawQueuedUnscaled(x, y, fparg0, func_002b2a30(0xFF, arg1.c0, g, b), a, base + arg4 % 10, (void *)(u32)arg7, 1, entry);
         arg4 /= 10;
         count = (s8)(count + 1);
         if (count % 3 == 0) {
             if (arg4 != 0) {
                 x -= (f32)arg3;
-                func_0025ec90(x, y, fparg0, func_002b2a30(0xFF, arg1.c0, g, b), a, comma, (void *)(u32)arg8, 1, entry);
+                sdkSpriteDrawQueuedUnscaled(x, y, fparg0, func_002b2a30(0xFF, arg1.c0, g, b), a, comma, (void *)(u32)arg8, 1, entry);
                 x -= (f32)arg2;
             } else {
                 x -= (f32)arg2;
@@ -7141,7 +7141,7 @@ s32 func_002e0100(u8 *arg0) {
             *(void (**)(void))((u8 *)t + 8) = func_002be3c0;
             *(s32 *)((u8 *)t + 0x10) = 0;
             func_00460ac0(&D_00793E80[work->field_FC * 0x30], t);
-            func_0025ecd0(
+            sdkSpriteDrawQueued(
                 work->field_2C, work->field_30, work->field_8,
                 func_002b2a30(0xFF, work->field_79, work->field_7A, work->field_7B),
                 work->field_62,
@@ -7155,7 +7155,7 @@ s32 func_002e0100(u8 *arg0) {
                 work->field_A0,
                 &D_00793E80[work->field_FC * 0x30]);
         } else {
-            func_0025ecd0(
+            sdkSpriteDrawQueued(
                 work->field_2C, work->field_30, work->field_8,
                 func_002b2a30(0xFF, work->field_79, work->field_7A, work->field_7B),
                 work->field_62,

@@ -350,7 +350,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
     extern u8 *func_0046a770(char *arg0);
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
+    extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
     extern void kAssertFail(void *arg0, s32 arg1);
     extern s32 func_00110580(s32 arg0);
     extern s32 func_00110d30(s32 arg0);
@@ -425,7 +425,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
         for (tile = 0; tile < 24; tile++) {
             x = (tile % 6) * 126;
             y = (tile / 6) * 126;
-            func_0025ea20(x, y, 10.0f, 0xFFFFFF, alpha, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
+            sdkSpriteDrawNow(x, y, 10.0f, 0xFFFFFF, alpha, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
             phase = (phase + 1) % 4;
         }
         frame = (f32)*(s32 *)(arg1 + 0x10) + *(f32 *)(arg1 + 8);
@@ -436,7 +436,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
         if (handle == NULL) {
             kAssertFail(D_007482F0, 0x59);
         }
-        func_0025ea20(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 255.0f * fade, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, 360.0f * rot, 1.0f, 1.0f);
+        sdkSpriteDrawNow(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 255.0f * fade, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, 360.0f * rot, 1.0f, 1.0f);
         frame = *(s32 *)(arg1 + 0x10);
         if (frame < 4) {
             fade = sinf(1.5707964f * (f32)frame / 4.0f);
@@ -444,7 +444,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
                 kAssertFail(D_007482F0, 0x59);
             }
             rot = 1.0f - fade;
-            func_0025ea20(165.0f, 244.0f + 95.0f * fade, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, rot);
+            sdkSpriteDrawNow(165.0f, 244.0f + 95.0f * fade, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, rot);
             func_00366380(0xB0, 271 + 64.0f * fade, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 0.3f + 0.3f * rot);
         } else if (frame < 11) {
             t = (f32)(frame - 4) / 6.0f;
@@ -494,7 +494,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
                 if (handle == NULL) {
                     kAssertFail(D_007482F0, 0x59);
                 }
-                func_0025ea20(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+                sdkSpriteDrawNow(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }
             rot = 1.0f - fade;
             t = 64.0f * rot;
