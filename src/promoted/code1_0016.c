@@ -85,7 +85,7 @@ extern u8 D_007948D0[];
 extern void *func_003e9320(void);
 extern void func_003e9df0(void *arg0);
 extern s32 func_003e0f80(void);
-extern s32 func_0016bdd0(u8 *task);
+extern s32 FldCameraTaskUpdate(u8 *task);
 extern s32 KDraw_CreateGroupTask(s32 arg0, s32 arg1, void *arg2);
 extern s32 KDraw_CreateSphereTask(s32 arg0, void *arg1);
 extern s32 KDraw_CreateCylinderTask(s32 arg0, void *arg1);

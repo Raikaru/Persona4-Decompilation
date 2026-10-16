@@ -433,7 +433,7 @@ s32 FldLoadTaskUpdate(u8 *task)
     extern s32 FldMap_IsInEitherBand(s32 fieldId, s32 roomId);
     extern s32 FldRc_CreateFileLoadTask(u8 *parent, u8 *path, s32 index, s32 file);
     extern s32 FldRc_FileLoadIsReady(u8 *task);
-    extern s32 func_0016e2e0(s32 parent);
+    extern s32 FldCameraTaskCreate(s32 parent);
     extern s32 D_007D3D64[];
     extern s32 D_007D3D68[];
     extern s32 iGpffffb268;
@@ -559,7 +559,7 @@ s32 FldLoadTaskUpdate(u8 *task)
             break;
         }
         /* The camera task is parented to the active field task. */
-        D_007D2514[0] = func_0016e2e0(D_007D2510[0]);
+        D_007D2514[0] = FldCameraTaskCreate(D_007D2510[0]);
         MT_Scene_ApplyCameraParams();
         work->state = 8;
     case 8:
