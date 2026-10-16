@@ -82,9 +82,9 @@ extern s16 iGpffffba28;
 extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
-extern void func_00452870(void *arg0);
-extern void func_00452db0(s32 arg0);
-extern void func_004530b0(s32 arg0);
+extern void sdkPadUpdateRecord(void *arg0);
+extern void sdkPadCookInput(s32 arg0);
+extern void sdkPadDispatchButtons(s32 arg0);
 extern u8 D_008C02E0[];
 extern s16 D_008C0336[];
 extern s16 D_008C0338[];
@@ -234,25 +234,26 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Source unit: src/promoted/code1_0045.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 00452ce0-00452ce0 */
 
-extern void func_00452870(void *arg0);
-extern void func_00452db0(s32 slot);
-extern void func_004530b0(s32 arg0);
+extern void sdkPadUpdateRecord(void *arg0);
+extern void sdkPadCookInput(s32 slot);
+extern void sdkPadDispatchButtons(s32 arg0);
 extern void func_004533d0(void);
 #pragma pop
 /* measured: restore O2 after func_00450e80. */
 /* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
 #pragma push
 #pragma pop
+// Intent: per-frame pad update for both slots: updates each record, cooks its input and dispatches its button edges, then resets the default analog centres to 0x80.
 // FUN_00452CE0
-void func_00452ce0(void) {
+void sdkPadUpdateAll(void) {
     s32 index;
 
     index = 0;
     goto loop_00452ce0_check;
 loop_00452ce0_body:
-    func_00452870((void *)(D_008C02E0 + index * 0x4A));
-    func_00452db0(index);
-    func_004530b0(index);
+    sdkPadUpdateRecord((void *)(D_008C02E0 + index * 0x4A));
+    sdkPadCookInput(index);
+    sdkPadDispatchButtons(index);
     index += 1;
 loop_00452ce0_check:
     if (index < 2) {

@@ -82,7 +82,7 @@ extern s16 iGpffffba28;
 extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
-extern void func_00452db0(s32 arg0);
+extern void sdkPadCookInput(s32 arg0);
 extern u8 D_008C02E0[];
 extern s16 D_008C0336[];
 extern s16 D_008C0338[];
@@ -93,7 +93,7 @@ extern u8 D_008C0346[];
 extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
-extern void func_00453250(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern u8 D_00711720[];
@@ -232,7 +232,7 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Source unit: src/promoted/code1_0045.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 00452db0-00452db0 */
 
-extern void func_00453250(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2);
 #pragma pop
 /* measured: restore O2 after func_00450e80. */
 /* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
@@ -244,8 +244,9 @@ extern void func_00453250(s32 arg0, u16 arg1, s32 arg2);
 #pragma push
 /* measured: func_00452db0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+// Intent: cooks the raw input of slot `slot`. Keeps the raw button bits 4..7, sets the analog direction bits outside the 0x5B..0xA5 neutral band, and runs the button repeat.
 // FUN_00452DB0
-void func_00452db0(s32 slot) {
+void sdkPadCookInput(s32 slot) {
     unsigned off2;
     s32 off;
     u16 *cooked;
@@ -299,17 +300,17 @@ void func_00452db0(s32 slot) {
     cookedVal = *(u16 *)(D_008C02F6 + off2);
     *(u16 *)(D_008C02F8 + off2) = (u16)(cookedVal & (cookedVal ^ *(u16 *)(D_008C02FA + off2)));
     *(u16 *)(D_008C02F2 + off2) = *edge;
-    func_00453250(slot, 0x1000, 0);
-    func_00453250(slot, 0x4000, 1);
-    func_00453250(slot, 0x8000, 2);
-    func_00453250(slot, 0x2000, 3);
-    func_00453250(slot, 4, 4);
-    func_00453250(slot, 1, 5);
-    func_00453250(slot, 8, 6);
-    func_00453250(slot, 2, 7);
-    func_00453250(slot, 0x40, 8);
-    func_00453250(slot, 0x20, 9);
-    func_00453250(slot, 0x10, 0xA);
-    func_00453250(slot, 0x80, 0xB);
+    sdkPadRepeatButton(slot, 0x1000, 0);
+    sdkPadRepeatButton(slot, 0x4000, 1);
+    sdkPadRepeatButton(slot, 0x8000, 2);
+    sdkPadRepeatButton(slot, 0x2000, 3);
+    sdkPadRepeatButton(slot, 4, 4);
+    sdkPadRepeatButton(slot, 1, 5);
+    sdkPadRepeatButton(slot, 8, 6);
+    sdkPadRepeatButton(slot, 2, 7);
+    sdkPadRepeatButton(slot, 0x40, 8);
+    sdkPadRepeatButton(slot, 0x20, 9);
+    sdkPadRepeatButton(slot, 0x10, 0xA);
+    sdkPadRepeatButton(slot, 0x80, 0xB);
 }
 

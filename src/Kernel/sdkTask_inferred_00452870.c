@@ -82,7 +82,7 @@ extern s16 iGpffffba28;
 extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
-extern void func_00452870(void *arg0);
+extern void sdkPadUpdateRecord(void *arg0);
 extern u8 D_008C02E0[];
 extern s16 D_008C0336[];
 extern s16 D_008C0338[];
@@ -248,8 +248,9 @@ static inline s32 fontAtlasColumn(s32 value)
    (3), `u8` instead of `s8` (3), widening it to `s8[4]` (3), and
    `aligned(8)` (3).  Aligning the pressed pair as well is also 0, so the
    actuator alignment alone is the cause. */
+// Intent: polls the pad hardware for record `arg0`, then updates its port state and its pressed pair.
 // FUN_00452870
-void func_00452870(void *arg0)
+void sdkPadUpdateRecord(void *arg0)
 {
     extern void func_0042ffa0(u16 port, u16 slot, u8 *out);
     extern s32 func_00430018(u16 port, u16 slot);
