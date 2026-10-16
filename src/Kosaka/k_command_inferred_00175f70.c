@@ -7,6 +7,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scr_internal.h"
 #include "field_shadow_internal.h"
 #include "rw_atomic_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -78,7 +79,6 @@ extern f32 iGpffff82fc;
 extern u8 D_00794E70[];
 
 
-extern s32 scrGetCmdTimer(void);
 extern s32 calRestoreStateImage(void);
 extern s32 sdlSchedulerTeardown(void);
 extern s32 sndRequestAreaTrack(void);

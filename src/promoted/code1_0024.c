@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scr_internal.h"
 extern s32 datScriptTargetIsNotEnemy(void);
 extern f32 datScriptCalcFloat(s32 arg0, s32 arg1);
 #include "datScript_internal.h"
@@ -19,8 +20,6 @@ extern s32 cmmCommunityHasRecord(s32 arg0);
 extern s32 cmmCommunityGetCurrentId(void);
 extern s32 cmmCommunityRecordValue(s32 arg0);
 extern s32 cmmCommunityTryRankUp(s32 arg0);
-extern s32 scrGetParamInt(s32 arg0);
-extern void scrSetReturnInt(s32 arg0);
 extern s32 cmmCommunityCanRankUp(s32 arg0);
 extern s32 cmmCommunityTestReversed(s32 arg0);
 extern s32 cmmCommunitySetReversed(s32 arg0);

@@ -2,6 +2,7 @@
 /* Source unit: src/Battle/battle_00192560.c */
 #include "include_asm.h"
 #include "type.h"
+#include "scr_internal.h"
 
 static u64 iGpffffa090 = 1;
 
@@ -32,7 +33,6 @@ extern void func_003e8110(s32 arg0);
 extern u8 D_007940C0[];
 extern u8 D_00794120[];
 
-extern s32 scrGetCmdTimer(void);
 extern u32 func_001fc270(void);
 
 typedef struct Battle Battle;

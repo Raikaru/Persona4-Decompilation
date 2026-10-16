@@ -2,6 +2,7 @@
 #include "Kosaka/k_command_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "scr_internal.h"
 #include "effect_instance_internal.h"
 
 static inline f32 p4_0025_mul_add(f32 left, f32 right, f32 base) {
@@ -22,7 +23,6 @@ extern s32 iGpffffb480;
 
 
 
-s32 scrGetCmdTimer(void);
 
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];

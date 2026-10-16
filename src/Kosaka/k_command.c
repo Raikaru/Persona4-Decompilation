@@ -3,6 +3,7 @@
 #include "model_motion_internal.h"
 /* Source unit: "k_command.c" (__FILE__ group 0x00176C70..0x00178500; P3 twin src/Kosaka/k_command.c). Members 0x0025C6D0, 0x0025D100 and 0x00299FD0 have no __FILE__ evidence; they stay in this file as its existing members. */
 #include "Kosaka/k_command_internal.h"
+#include "scr_internal.h"
 
 extern char* strcpy(char* destination, const char* source);
 extern s32 sprintf(char* destination, const char* format, ...);
@@ -12,10 +13,8 @@ extern char* strcat(char* destination, const char* source);
 #include "model_matrix_internal.h"
 #include "include_asm.h"
 
-extern s32 scrGetParamInt(s32 arg0);
 extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 
-extern f32 scrGetParamFloat(s32 arg0);
 extern f32 D_00764B5C;
 
 extern u8 D_00724B3C;
@@ -34,7 +33,6 @@ extern void* FldEvent_GetNearestEntry(void);
 extern void* FldEvent_GetTriggerEntry(void);
 extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
 extern s32 datCalcGetLevelById(s32 value);
-extern void scrSetReturnInt(s32 value);
 extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern void FldFrame_RotateTaskCreate(s32 a, s32 b, s32 c);
 extern void FldFrameRotateTaskCreate(s32 a, s32 b, s32 c);
