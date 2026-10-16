@@ -27,7 +27,7 @@ s32 mdlEffectSlotIsFree(u8 *param_1, u16 param_2);
 
 u8 *ThunderTextureForIndex(u16 kind, u8 *parameters);
 u8 *RingCreateKindInstance(u16 kind, u8 *parameters);
-u8 *func_004b4cb0(s32 kind, u8 *parameters);
+u8 *LineNovaCreateKindInstance(s32 kind, u8 *parameters);
 
 void *func_00484530(void *source);
 void *func_00486b00(void *source);
@@ -74,7 +74,7 @@ void *func_004af740(void *source);
 void *func_004af920(void *source);
 void *func_004b16c0(void *source);
 void *func_004b1950(void *source);
-void *func_004b4e10(void *source);
+void *LineNovaCreateKindInstanceFromObject(void *source);
 void *func_004b4f10(void *source);
 void *func_004b5200(void *source);
 void *func_004b53c0(void *source);
