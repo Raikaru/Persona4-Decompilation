@@ -223,7 +223,7 @@ extern s32 datPersonaInsertRosterRecord(u8 *);
 extern s32 datPersonaSelectRosterMemberById(s32);
 extern void datPersonaRemoveSelectedRosterMember(void);
 extern void datPersonaInitRecord(u8 *arg0, u16 arg1);
-extern s64 func_00312c60(u16 *arg0, u8 *arg1, s64 arg2);
+extern s64 fclFuseRollPersona(u16 *arg0, u8 *arg1, s64 arg2);
 /* The item id is an s16; the callee sign-extends its own table index. */
 extern s32 func_00313690(s16 arg0);
 extern u8 fclCalendarMonth(void);
@@ -4235,7 +4235,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
 }
 #pragma pop
 
-// Fcl combine fusion source records: copies the first arg7 source records (arg1 to arg6, 0x30 bytes each) into a buffer, initialises the result record arg0 from its persona id, computes the fusion result from the buffer (func_00312c60) and stores it in the slot work at arg8, offset arg9 + 0x2E4.
+// Fcl combine fusion source records: copies the first arg7 source records (arg1 to arg6, 0x30 bytes each) into a buffer, initialises the result record arg0 from its persona id, computes the fusion result from the buffer (fclFuseRollPersona) and stores it in the slot work at arg8, offset arg9 + 0x2E4.
 // FUN_002F9C30
 void fclCombineFuseSourceRecords(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, u8 *arg6, s32 arg7, s8 arg8, s8 arg9) {
     u16 buf[6 * 24];
@@ -4264,7 +4264,7 @@ void fclCombineFuseSourceRecords(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *ar
         break;
     }
     datPersonaInitRecord((u8 *)arg0, arg0[1]);
-    v = (s8)func_00312c60(arg0, (u8 *)buf, (s8)arg7);
+    v = (s8)fclFuseRollPersona(arg0, (u8 *)buf, (s8)arg7);
     *(yListSlotWork(arg8) + arg9 + 0x2E4) = v;
 }
 
