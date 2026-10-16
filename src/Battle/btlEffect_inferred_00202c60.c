@@ -3533,7 +3533,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
 }
 
 /* 508/512 bytes, 13 resolved relocations, four zero alignment bytes.
- * As in func_002099c0, reuse the consumed position view for the callback
+ * As in btlSelectionDrawTitle, reuse the consumed position view for the callback
  * table base; each state change still reloads the callback slot.
  */
 // Intent: draw the swap panel and advance its slide-in timer. [inferred]

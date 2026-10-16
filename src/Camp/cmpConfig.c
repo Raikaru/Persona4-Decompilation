@@ -65,7 +65,7 @@ extern u8 D_0064CD90[];
 extern u8 D_0064CF00[];
 extern u8 D_0064D070[];
 
-// Creates the config overlay task under the parent: allocates its 0x4B0-byte work block, installs the detail step and destroy callbacks, and for mode 1 also runs func_0034c260(1) [inferred].
+// Creates the config overlay task under the parent: allocates its 0x4B0-byte work block, installs the detail step and destroy callbacks, and for mode 1 also runs nLineSetActive(1) [inferred].
 // FUN_0035C690
 s32 cmpConfigCreate(void* arg0, s32 arg1) {
     s32 r;

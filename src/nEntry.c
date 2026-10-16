@@ -24,7 +24,7 @@ extern s32 func_002a2420(u8 *arg0);
 /* Case values decoded from jtbl_007486C0 with tools/jtbl.py: a 0/1/2/3/5/6
    state machine with case 4 and the out-of-range default both falling to the
    shared `return 0`, declared in that object order.
-   Two prototypes had to be widened for this: func_00451fc0's `init` callback
+   Two prototypes had to be widened for this: kwlnTaskCreateChild's `init` callback
    returns s32 (retail's func_002a2420 leaves 0 or -1 in $v0 and the window
    manager takes it), and func_002a1f20 is one of those callbacks. */
 s32 func_002a2420(u8 *arg0) {

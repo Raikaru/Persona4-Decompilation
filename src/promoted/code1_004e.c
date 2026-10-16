@@ -225,7 +225,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e76f8);
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e77c0);
 // FUN_004E7978
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e7978);
-/* Known floor: standalone R5900 movz in func_004e7a00; b210 cannot emit it. */
+/* Known floor: standalone R5900 movz in htci_alloc; b210 cannot emit it. */
 // FUN_004E7A58
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e7a58);
 // FUN_004E7BD0

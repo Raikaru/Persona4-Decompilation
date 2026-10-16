@@ -476,7 +476,7 @@ void cmpAssetLoaderDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
-/* Declared here because func_00451de0 below takes this function's address as a
+/* Declared here because kwlnTaskCreate below takes this function's address as a
    callback. */
 s32 cmpAssetLoaderStep(u8 *arg0);
 

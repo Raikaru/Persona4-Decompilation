@@ -1242,9 +1242,9 @@ typedef struct BtlEplMotionParam
     u16 option;          // 0x06
     f32 rate;            // 0x08
     u16 frame;           // 0x0C
-    u8 unk0E;            // 0x0E, zero also calls func_0019d990
+    u8 unk0E;            // 0x0E, zero also calls btlUnitClearModelState
     u8 pad0F;            // 0x0F
-    s32 unk10;           // 0x10, nonzero also calls func_00199890
+    s32 unk10;           // 0x10, nonzero also calls btlUnitSetModelAnimFrame
 } BtlEplMotionParam;
 
 // FUN_001FFF40

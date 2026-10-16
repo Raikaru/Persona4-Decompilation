@@ -1932,7 +1932,7 @@ void datCommunityListDraw(u8 *work) {
     u8 *sprite;
     u8 *cell;
 
-    /* Entries are initialized by func_00356250 with display modes 0 through 3. */
+    /* Entries are initialized by datCommunityMenuInit with display modes 0 through 3. */
     menu = (CommunityMenuView *)work;
     sdkRenderStateSetDefault();
     originX = (menu->origin.x);

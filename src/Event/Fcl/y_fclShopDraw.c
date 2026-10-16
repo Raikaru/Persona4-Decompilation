@@ -4915,7 +4915,7 @@ void func_002d3ee0(void *arg0) {
 
 /* Colour rows are u8[4] (r, g, b, pad).  Both setters address the g/b
    bytes through component pointers: the selected-tab path stores through
-   the g/b addresses again after the second func_002e26f0 call, and retail
+   the g/b addresses again after the second yListCountFor call, and retail
    keeps exactly those addresses live in saved registers ($s0/$s6/$s7/$fp).
    A local RGBA struct array instead grows the frame by 0x20. */
 #define SHOP_SET_RGB(rgb, r, g, b) do { \
