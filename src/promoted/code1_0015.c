@@ -112,7 +112,7 @@ extern s32 *MT_Scene_GetFrameState(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_003e0670(void *arg0, s32 arg1);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
-extern void func_0016e590(s32 arg0, s32 arg1);
+extern void FldCameraAdvanceCurve(s32 arg0, s32 arg1);
 extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
 extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
 extern void func_0016ea30(s32 arg0, f32 arg1);
@@ -253,7 +253,7 @@ void MT_Scene_ApplyCameraParams(void)
         K_View_SetFov((void *)func_00457120(), *(f32 *)(temp_2 + 0x144));
         func_003e0670(sp30, *(s32 *)(temp_2 + 0x148));
         func_003e9cb0(*(s32 *)(func_00457120() + 4), sp30, 0);
-        func_0016e590(MT_Scene_GetFrameState()[1], *(s32 *)(temp_2 + 0x140));
+        FldCameraAdvanceCurve(MT_Scene_GetFrameState()[1], *(s32 *)(temp_2 + 0x140));
         FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], temp_2 + 0x150);
         if ((*(f32 *)(temp_2 + 0x15C) == 0.0f) &&
             (FldMap_IsCurrentInEitherBand() == 1)) {
