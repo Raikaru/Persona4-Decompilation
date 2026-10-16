@@ -2226,8 +2226,8 @@ void FldStepTaskDestroy(u8 *arg0)
     if (temp_4_2 != NULL) {
         jtbl_008873EC[0](temp_4_2);
     }
-    if (*(MT_Scene_GetFrameState() + 1) != 0) {
-        FldFrame_SetStateFlags(*(MT_Scene_GetFrameState() + 1), 1);
+    if (((FldFrame *)MT_Scene_GetFrameState())->cameraTask != 0) {
+        FldFrame_SetStateFlags((s32)((FldFrame *)MT_Scene_GetFrameState())->cameraTask, 1);
     }
     temp_4_3 = *(s32 *)(temp_16 + 0x38);
     if (temp_4_3 != 0) {
