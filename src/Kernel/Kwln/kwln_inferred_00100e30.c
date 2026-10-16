@@ -66,8 +66,8 @@ extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern f32 iGpffffba6c;
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void func_00100350(void);
-extern void func_00100670(void);
+extern void kwlnInitIop(void);
+extern void kwlnInitEngine(void);
 extern void kwlnInitSubsystems(void);
 extern void RpRandomSeed(s32 arg0);
 extern void RpRandomSeedMT(s32 arg0);
@@ -358,8 +358,8 @@ block_5:
 // FUN_00101350
 void kwlnMainLoop(void)
 {
-    func_00100350();
-    func_00100670();
+    kwlnInitIop();
+    kwlnInitEngine();
     kwlnInitSubsystems();
     RpRandomSeed(*(u32 *)0x10000000);
     RpRandomSeedMT(*(u32 *)0x10000000);

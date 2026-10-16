@@ -9,7 +9,7 @@ s32 func_00421da8();
 s32 func_0044a138();
 f32 func_0044b018(s32 arg0, f32 fparg0, f32 fparg1);
 extern s32 D_009389E0[];
-s32 func_004526e0(void);
+s32 kwlnTaskGetCurrent(void);
 s32 func_0044d4d0();
 u64 func_00443fd0(s32 *arg0, s8 *arg1, s8 **arg2, s16 arg3);
 
@@ -419,7 +419,7 @@ f32 __ieee754_sqrtf(f32 arg0);
 // FUN_0044F4D0
 s32 func_0044f4d0(void) {
     s32 temp;
-    temp = func_004526e0();
+    temp = kwlnTaskGetCurrent();
     if (temp != 0) {
         return temp;
     }

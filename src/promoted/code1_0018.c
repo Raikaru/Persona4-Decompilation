@@ -3431,7 +3431,7 @@ void func_0018e4d0(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
-/* One 0x4A-byte pad record; the pads start at 0x8C0240 (func_00452760). */
+/* One 0x4A-byte pad record; the pads start at 0x8C0240 (sdkPadInit). */
 typedef struct {
     u8 unk00[0xC];
     u16 level;

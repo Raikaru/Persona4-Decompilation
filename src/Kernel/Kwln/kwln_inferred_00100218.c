@@ -60,8 +60,8 @@ extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern f32 iGpffffba6c;
-extern void func_00100350(void);
-extern void func_00100670(void);
+extern void kwlnInitIop(void);
+extern void kwlnInitEngine(void);
 extern u8 D_005DD680[];
 /* RenderWare keeps its engine instance in the `ourGlobals` array
    (retail 0x008872E0) and reaches device state through
@@ -161,8 +161,9 @@ u8 *func_00100230(void) {
     return base - 16;
 }
 
+// Intent: boot entry. Prints the two boot messages, loads the boot image through func_00100230 and enters kwlnMainLoop. No C callers (entry point).
 // FUN_001002C0
-s32 func_001002c0(void) {
+s32 kwlnBoot(void) {
     s32 r;
 
     func_00440b68(D_00559810);
@@ -197,8 +198,9 @@ s32 func_00100310(s32 arg0)
 /* IOP reset, timer setup and ordered module loading. Materialized retry
    booleans preserve both reset-loop schedules. Exact 788/800 bytes with
    74 resolved relocations and twelve verified-zero alignment bytes. */
+// Intent: IOP reset, timer setup and ordered module loading. Called from kwlnMainLoop before the engine init.
 // FUN_00100350
-void func_00100350(void)
+void kwlnInitIop(void)
 {
     extern void func_00424f28(s32 arg0);
     extern void func_00429c18(void);
@@ -210,7 +212,7 @@ void func_00100350(void)
     extern void func_004214c0(s32 arg0, s32 (*cb)(s32), s32 arg2);
     extern void func_00422328(s32 arg0);
     extern s32 func_0042ab68(const u8 *path, s32 arg1, const u8 *arg2);
-    extern void func_00452760(void);
+    extern void sdkPadInit(void);
     extern void func_004645e0(void);
     extern s32 func_004216d0(void);
     extern u8 D_005DC530[];
@@ -290,14 +292,15 @@ void func_00100350(void)
     } while (func_0042ab68(D_005DC700, 0, (u8 *)0) < 0);
     do {
     } while (func_0042ab68(D_005DC720, 0x18, D_005DC740) < 0);
-    func_00452760();
+    sdkPadInit();
     func_004645e0();
     D_00764280 = func_004216d0();
 }
 
 /* MATCH: 1888B window, 1888B object, normalized_diff 0 (472/472 instrs, 0 edits +70 reloc-only). Base L10_00100670_body.c scores 24 words at 463/471 instrs; replacing the shared goto-error tail with retail's duplicated-tail shape (ok = 0; goto check in each arm, ok = 1 on success, if (ok == 0) error) closes it. */
+// Intent: engine init sequence: RenderWare and plugin attach, the primitive interp register, the scene rig and the entry table. Called from kwlnMainLoop after kwlnInitIop.
 // FUN_00100670
-void func_00100670(void)
+void kwlnInitEngine(void)
 {
     extern s32 func_0044f510(void);
     extern s32 RwEngineInit(s32 arg0, s32 arg1, s32 arg2);
