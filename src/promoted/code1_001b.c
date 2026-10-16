@@ -209,7 +209,7 @@ extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void func_001b08f0(void *arg0);
 extern void btlCameraReleaseActionRefs(u8 *arg0);
 extern void datUnitRemoveEncounterUnit(DatUnitEc *arg0, DatUnit *arg1);
-extern void func_001bdd60(void);
+extern void btlCameraSuppressEncounterCallback(void);
 extern u8 *datUnitGetRecord(s16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
