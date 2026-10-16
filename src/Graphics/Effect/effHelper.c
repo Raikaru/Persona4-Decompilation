@@ -14,7 +14,7 @@ u32 mdlCountIntUserData(s32 res);
 void mdlEffectDestroyWithNodes(u32 arg);
 void func_004abd60(s32 res);
 void *mdlFindOrCreateModelObject(u32 a, u16 b, u32 c);
-void func_004abbb0(s32 res);
+void EffModelInit(s32 res);
 
 extern u8 D_007144F8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -165,7 +165,7 @@ void EffHelperRebindModel(EffHlpWork *work, EffHlpWork *src)
     if (work->res == 0) {
         kAssertFail(D_007144F8, 0xA9);
     }
-    func_004abbb0(work->res);
+    EffModelInit(work->res);
     if (mdlLayerIsPresent(work->res, 0) != 0) {
         if (work->data.mode != 0) {
             mdlDispatchAnimIfPresent((u8*)work->res, 0, 0, 0, 0);
