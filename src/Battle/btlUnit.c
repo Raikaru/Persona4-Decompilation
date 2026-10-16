@@ -1681,7 +1681,7 @@ void btlUnitFaceTarget(BtlUnit* unit, const RwV3d* target)
 }
 
 // FUN_001959D0
-void func_001959d0(BtlUnit* unit, RwV3d* param_2)
+void btlUnitGetAnimBoundsWorldCenter(BtlUnit* unit, RwV3d* param_2)
 {
     const BtlUnitAnimBounds* bounds;
     RwV3d scaled;
