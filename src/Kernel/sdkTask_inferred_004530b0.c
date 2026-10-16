@@ -93,7 +93,7 @@ extern u8 D_008C0346[];
 extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
-extern void func_00453310(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButtonDispatch(s32 arg0, u16 arg1, s32 arg2);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern u8 D_00711720[];
@@ -232,7 +232,7 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Source unit: src/promoted/code1_0045.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 004530b0-004530b0 */
 
-extern void func_00453310(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButtonDispatch(s32 arg0, u16 arg1, s32 arg2);
 #pragma pop
 /* measured: restore O2 after func_00450e80. */
 /* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
@@ -258,17 +258,17 @@ void sdkPadDispatchButtons(s32 arg0) {
     edge = (u16 *)(D_008C0316 + off);
     *edge = (u16)(heldBits & (heldBits ^ *(u16 *)(D_008C0318 + off)));
     *(u16 *)(D_008C031A + off) = *edge;
-    func_00453310(arg0, 0x1000, 0);
-    func_00453310(arg0, 0x4000, 1);
-    func_00453310(arg0, 0x8000, 2);
-    func_00453310(arg0, 0x2000, 3);
-    func_00453310(arg0, 4, 4);
-    func_00453310(arg0, 1, 5);
-    func_00453310(arg0, 8, 6);
-    func_00453310(arg0, 2, 7);
-    func_00453310(arg0, 0x40, 8);
-    func_00453310(arg0, 0x20, 9);
-    func_00453310(arg0, 0x10, 0xA);
-    func_00453310(arg0, 0x80, 0xB);
+    sdkPadRepeatButtonDispatch(arg0, 0x1000, 0);
+    sdkPadRepeatButtonDispatch(arg0, 0x4000, 1);
+    sdkPadRepeatButtonDispatch(arg0, 0x8000, 2);
+    sdkPadRepeatButtonDispatch(arg0, 0x2000, 3);
+    sdkPadRepeatButtonDispatch(arg0, 4, 4);
+    sdkPadRepeatButtonDispatch(arg0, 1, 5);
+    sdkPadRepeatButtonDispatch(arg0, 8, 6);
+    sdkPadRepeatButtonDispatch(arg0, 2, 7);
+    sdkPadRepeatButtonDispatch(arg0, 0x40, 8);
+    sdkPadRepeatButtonDispatch(arg0, 0x20, 9);
+    sdkPadRepeatButtonDispatch(arg0, 0x10, 0xA);
+    sdkPadRepeatButtonDispatch(arg0, 0x80, 0xB);
 }
 

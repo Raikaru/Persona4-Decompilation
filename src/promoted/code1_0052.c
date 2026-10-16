@@ -271,4 +271,4 @@ typedef struct {
     s64 min;
     s64 max;
     s32 count;
-} StatAccum52;
+} RunningStat;
