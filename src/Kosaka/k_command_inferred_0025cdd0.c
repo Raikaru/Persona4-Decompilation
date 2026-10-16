@@ -49,7 +49,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0025.c; members 0025cdd0-0025cf70 */
 
 // FUN_0025CDD0
-s32 func_0025cdd0(void) {
+s32 scrCommonGetRankProgress(void) {
     s32 temp_16;
 
     temp_16 = scrGetParamInt(0);
@@ -66,7 +66,7 @@ s32 scrCommonGetPcParam(void) {
 
 /* measured: preserving the raw third-call result in s32 before masking the first two arguments reproduces retail's setup order; exact match nd 0 (obj 112B/window 112B). */
 // FUN_0025CE90
-s32 func_0025ce90(void) {
+s32 scrCommonPersonaAddStat(void) {
     s32 temp_16;
     s32 temp_17;
     s32 temp_18;
@@ -79,7 +79,7 @@ s32 func_0025ce90(void) {
 }
 
 // FUN_0025CF00
-s32 func_0025cf00(void) {
+s32 scrCommonPersonaAddBonusStat(void) {
     s32 temp_16;
     s32 temp_17;
 
@@ -90,7 +90,7 @@ s32 func_0025cf00(void) {
 }
 
 // FUN_0025CF70
-s32 func_0025cf70(void) {
+s32 scrCommonPersonaGetTotalStat(void) {
     s32 temp_16;
     s32 temp_17;
 
