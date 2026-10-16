@@ -77,7 +77,7 @@ extern u8 D_00794E70[];
 extern s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2);
 extern s32 FldRc_CreateTransitionTask(s32 arg0, s32 arg1);
 extern s32 scrGetAiState(void);
-extern void func_0029dfe0(s32 arg0, s32 arg1);
+extern void scrSetTaskProc(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 
 extern u8 *scrGetContext(void);
@@ -194,13 +194,13 @@ s32 K_Cmd_FLD_EFFECT_TRAESTO_START(void)
     temp_16 = scrGetContext();
     temp_2 = scrGetAiState();
     if (temp_2 == 0) {
-        func_0029dfe0(*(s32 *)(temp_16 + 0x148), FldRc_CreateTransitionTask(0, 1));
+        scrSetTaskProc(*(s32 *)(temp_16 + 0x148), FldRc_CreateTransitionTask(0, 1));
         return 0;
     }
     if (kwlnTaskIsLinked(temp_2) == 1) {
         return 0;
     }
-    func_0029dfe0(*(s32 *)(temp_16 + 0x148), 0);
+    scrSetTaskProc(*(s32 *)(temp_16 + 0x148), 0);
     return 1;
 }
 

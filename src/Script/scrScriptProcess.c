@@ -13,7 +13,7 @@ void* dds3GetProcessWorkData(KwlnTask* task);
 void dds3SetProcessWorkData(KwlnTask* task, void* workData);
 void scrReleaseScript(ScrData* scr);
 void scrDestroyTask(u8 *task);
-extern s32 func_0029d870(u8 *task);
+extern s32 scrRunTaskStep(u8 *task);
 extern void scrPoolFree(void* pool, void* elem);
 
 typedef enum
@@ -310,8 +310,9 @@ void scrScriptWorkUnlink(ScrScriptWork* s)
     D_00764604--;
 }
 
+// Returns the number of live script works [inferred].
 // FUN_0029D2E0
-s32 func_0029d2e0(void)
+s32 scrGetWorkCount(void)
 {
     return D_00764604;
 }
@@ -492,8 +493,9 @@ ScrScriptWork* scrCreateProcedureWork(ScrHeader* header, s32 index)
 /* measured: see annotation above (func_0029d660). */
 #pragma opt_loop_invariants off
 
+// Runs one script step for the task: returns -1 to end the task on stop, or on error (error also asserts); returns 0 to continue [inferred].
 // FUN_0029D870
-s32 func_0029d870(u8 *task)
+s32 scrRunTaskStep(u8 *task)
 {
     s32 code;
 
@@ -527,8 +529,9 @@ void scrDestroyTask(u8 *sdkTaskBytes)
     dds3SetProcessWorkData(scrTask, NULL);
 }
 
+// Creates the script work pools (three 0x160-byte and three 0x340-byte elements) and runs the conditional init step [inferred].
 // FUN_0029D950
-void func_0029d950(void)
+void scrInitPools(void)
 {
     D_00764610 = scrPoolCreate(0x160, 3);
     D_00764614 = scrPoolCreate(0x340, 3);
@@ -550,7 +553,7 @@ s32 scrStartProcedureWork(s32 arg0, u8* arg1, u8* arg2, u8* arg3, u8* arg4, u8* 
     {
         kAssertFail(D_0063E3D0, 0x23D);
     }
-    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
+    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, scrRunTaskStep, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         kAssertFail(D_0063E3D0, 0x1F4);
@@ -571,7 +574,7 @@ s32 scrStartProcedureIndex(s32 arg0, u8* arg1, s32 arg2)
     {
         kAssertFail(D_0063E3D0, 0x259);
     }
-    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
+    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, scrRunTaskStep, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         kAssertFail(D_0063E3D0, 0x1F4);
@@ -598,7 +601,7 @@ s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         kAssertFail(D_0063E3D0, 0x27C);
     }
     work->textBuf = text;
-    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, func_0029d870, scrDestroyTask, (u8 *)(work));
+    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, scrRunTaskStep, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         kAssertFail(D_0063E3D0, 0x1F4);
@@ -607,8 +610,9 @@ s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     return task;
 }
 
+// Releases a script work: frees its message, text and sound handle, unlinks it from the work list, decrements the count, and returns it to the pool [inferred].
 // FUN_0029DC80
-void func_0029dc80(ScrScriptWork* work)
+void scrReleaseWork(ScrScriptWork* work)
 {
     s32 handle;
 
@@ -649,8 +653,9 @@ void func_0029dc80(ScrScriptWork* work)
     scrPoolFree(D_00764610, (u8*)work);
 }
 
+// Debug dump: logs the live work count and walks the work list [inferred].
 // FUN_0029DDB0
-void func_0029ddb0(void)
+void scrDebugDumpWorkList(void)
 {
     ScrScriptWork* s;
 
@@ -712,8 +717,9 @@ s32 scrFindPrcdIdxByName(ScrHeader* header, const char* name)
     return -1;
 }
 
+// Looks up content entry arg1 in the table at arg0: finds the first table entry with a zero key and returns its content at arg1 * 32, or NULL when out of range [inferred].
 // FUN_0029DF30
-u8* func_0029df30(u8* arg0, s32 arg1)
+u8* scrFindContentEntry(u8* arg0, s32 arg1)
 {
     u8* found;
     u8* entries;
@@ -747,8 +753,9 @@ u8* func_0029df30(u8* arg0, s32 arg1)
     return found + arg1 * 32;
 }
 
+// Sets the work's proc pointer; asserts when the task has no work [inferred].
 // FUN_0029DFE0
-void func_0029dfe0(void* arg0, u8* proc)
+void scrSetTaskProc(void* arg0, u8* proc)
 {
     ScrScriptWork* work;
 
@@ -902,7 +909,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
             } else if (task->unk_218 >= procedureCount) {
                 task->unk_218 = procedureCount - 1;
             }
-            procedureRecord = func_0029df30((u8 *)task->unk_224, task->unk_218);
+            procedureRecord = scrFindContentEntry((u8 *)task->unk_224, task->unk_218);
             H_Dbprt_FmtAt(*(s64 *)((u8 *)task + 0x21C), &iGpffffa7d8, task->unk_218, procedureRecord);
             pixelX = 12.0f * task->unk_21C;
             pixelY = 12.0f * task->unk_220;
@@ -1020,8 +1027,9 @@ s32 scrStartScriptTask(u8 *arg0)
 #pragma opt_loop_invariants off
 
 
+// Task destroy callback: releases the task's script work and CDVD handle, then runs the task's destroy hook [inferred].
 // FUN_0029E7B0
-void func_0029e7b0(u8* arg0)
+void scrTaskDestroyWork(u8* arg0)
 {
     ScrTaskData* task;
     ScrScriptWork* work;
@@ -1059,12 +1067,13 @@ void func_0029e7b0(u8* arg0)
     jtbl_008873EC[0](task);
 }
 
+// Creates a script child task under arg0 with a 0x228-byte task block, running scrStartScriptTask and scrTaskDestroyWork [inferred].
 // FUN_0029E8D0
-void func_0029e8d0(u8* arg0)
+void scrCreateScriptChildTask(u8* arg0)
 {
     u8* buf;
 
     chkmemAllocSiteTag(D_0063E3D0, 0x4AB);
     buf = D_008873F4[0](1, 0x228, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063E618), 0xC9, 0, 0, scrStartScriptTask, func_0029e7b0, (u8 *)(buf));
+    (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063E618), 0xC9, 0, 0, scrStartScriptTask, scrTaskDestroyWork, (u8 *)(buf));
 }
