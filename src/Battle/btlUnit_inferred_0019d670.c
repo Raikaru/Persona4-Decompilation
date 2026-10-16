@@ -386,7 +386,7 @@ void btlUnitUpdateLookAtTarget(u8 *arg0)
     extern void mdlSetLookAtTargetPoint(void *arg0, void *arg1);
     extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
     extern f32 DAT_007613f8;
-    extern u8 *func_0019efe0(s32 arg0);
+    extern u8 *btlUnitFindById(s32 arg0);
     P4_95730_Vec3 pos;
     P4_95730_Vec3 scaled;
     P4_95730_Vec3 rotated;
@@ -433,7 +433,7 @@ void btlUnitUpdateLookAtTarget(u8 *arg0)
                     return;
                 case 2:
                     if (*(s32 *)(arg0 + 0xB4) != 0) {
-                        target = func_0019efe0(*(s32 *)(arg0 + 0xB4) & 0xFFFF);
+                        target = btlUnitFindById(*(s32 *)(arg0 + 0xB4) & 0xFFFF);
                         if (target != NULL && target != arg0) {
                             if (!(*(s32 *)(target + 0x98) & 2)) {
                                 scaled.x = *(f32 *)(target + 0x80) * *(f32 *)(target + 0x2C);
