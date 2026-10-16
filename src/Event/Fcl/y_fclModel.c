@@ -35,8 +35,8 @@ extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
 extern s32 cmbEffModelUpdate(u8 *arg0);
 extern void *mdlFindOrCreateModelObject(u32, u16, u32);
 extern s32 datGetFlag(s32);
-extern s32 func_00348be0(u8 *);
-extern s32 func_00348c10(u8 *);
+extern s32 cmbCardEffSpriteFileLoaded(u8 *);
+extern u32 cmbCardEffSpriteIsActive(u8 *);
 extern u8 *func_001102f0(u8 *, s32, s32, f32);
 extern s32 evtGetEventFrame(void);
 extern u8 *PrimAllocQueueNode(void);
@@ -412,10 +412,10 @@ s32 cmbEffModelUpdate(u8 *arg0)
             if (*(s8 *)(obj + 4) != 4) {
                 switch (*(s8 *)(obj + 4)) {
                 case 0:
-                    if (func_00348be0(*(u8 **)(obj + 0xEC)) == 0) {
+                    if (cmbCardEffSpriteFileLoaded(*(u8 **)(obj + 0xEC)) == 0) {
                         return 0;
                     }
-                    if (func_00348be0(*(u8 **)(obj + 0xF0)) == 0) {
+                    if (cmbCardEffSpriteFileLoaded(*(u8 **)(obj + 0xF0)) == 0) {
                         return 0;
                     }
                     if (*(s8 *)(obj + 5) == 1) {
@@ -433,12 +433,12 @@ s32 cmbEffModelUpdate(u8 *arg0)
                     *(s8 *)(obj + 4) = 1;
                     break;
                 case 1:
-                    if (func_00348c10(*(u8 **)(obj + 0xEC)) == 0) {
+                    if (cmbCardEffSpriteIsActive(*(u8 **)(obj + 0xEC)) == 0) {
                         func_001102f0((u8 *)&pos0, 0x140, 0xA5, 300.0f);
                         color0 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
-                        func_003489c0(*(u8 **)(obj + 0xEC), pos0, 0.0f, 0.0f, 0.0f, 1.0f, color0, 0, -1);
+                        cmbCardEffSpawnSprite(*(u8 **)(obj + 0xEC), pos0, 0.0f, 0.0f, 0.0f, 1.0f, color0, 0, -1);
                     }
-                    if (func_00348c10(*(u8 **)(obj + 0xF0)) == 0) {
+                    if (cmbCardEffSpriteIsActive(*(u8 **)(obj + 0xF0)) == 0) {
                         colorTmp = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
                         *(FclDrawColor *)&color1 = colorTmp;
                         func_001102f0((u8 *)&pos1, 0x140, 0xA5, 300.0f);
@@ -449,7 +449,7 @@ s32 cmbEffModelUpdate(u8 *arg0)
                         } else if (*(u16 *)(obj + 8) == 0x5F) {
                             color1 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xAA);
                         }
-                        func_003489c0(*(u8 **)(obj + 0xF0), pos1, 0.0f, 0.0f, 0.0f, 1.0f, color1, 0, -1);
+                        cmbCardEffSpawnSprite(*(u8 **)(obj + 0xF0), pos1, 0.0f, 0.0f, 0.0f, 1.0f, color1, 0, -1);
                     }
                     if (*(s8 *)(obj + 5) == 1) {
                         u16 v = *(u16 *)(obj + 8);
