@@ -169,7 +169,6 @@ extern u8 D_00629750[], D_00629EA0[], D_0062CA80[], D_0062D1D0[];
 extern u8 D_0062E7C0[], D_0062EF10[], D_0062F660[], D_0062FDB0[];
 extern u8 D_00630500[], D_00630C50[], D_006313A0[], D_00631AF0[];
 extern u8 D_006355A0[];
-extern void datPersonaClearRoster(void);
 extern void btlUnitInitChild(u8 *unit, u16 action);
 extern void func_00106d40(s16 character, s16 slot, s16 value);
 extern u16 datCalcMaxHpById(s16 character);
