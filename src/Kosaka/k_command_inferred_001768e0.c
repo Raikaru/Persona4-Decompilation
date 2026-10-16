@@ -39,7 +39,7 @@ typedef struct
     u8 blue;
     u8 alpha;
 } FieldColor_0017;
-extern s32 *func_00155280(void);
+extern s32 *MT_Scene_GetFrameState(void);
 /* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
    before the two lhu loads and $a3 (a) after them, which is the default-
    promotion order of an old-style call with a u16 local for b and an explicit
@@ -239,8 +239,8 @@ s32 Cmd_GetCurrentFieldMajorId(void) {
     s32 v;
 
     v = 0;
-    if (*(s32 *)(u8 *)func_00155280() != 0) {
-        v = func_00156170(*(u8 **)(u8 *)func_00155280()) & 0xFFFF;
+    if (*(s32 *)(u8 *)MT_Scene_GetFrameState() != 0) {
+        v = func_00156170(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
     }
     scrSetReturnInt(v);
     return 1;
@@ -251,8 +251,8 @@ s32 Cmd_GetCurrentFieldMinorId(void) {
     s32 v;
 
     v = 0;
-    if (*(s32 *)(u8 *)func_00155280() != 0) {
-        v = func_00156180(*(u8 **)(u8 *)func_00155280()) & 0xFFFF;
+    if (*(s32 *)(u8 *)MT_Scene_GetFrameState() != 0) {
+        v = func_00156180(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
     }
     scrSetReturnInt(v);
     return 1;

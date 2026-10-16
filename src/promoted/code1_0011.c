@@ -726,7 +726,7 @@ void datInitDefaultGameState(void)
     void func_0010f390(void);
     void func_0010f4c0(void);
     void func_0010fc80(void);
-    void func_00155250(void);
+    void MT_Scene_ResetFrameState(void);
     void func_0015a630(void);
     void func_00162120(void);
     extern u16 D_005E4630[];
@@ -807,7 +807,7 @@ loop_4_check:
     datSetPartyId(1, 0);
     datSetPartyId(2, 0);
     datSetPartyId(3, 0);
-    func_00155250();
+    MT_Scene_ResetFrameState();
     func_00162120();
     func_0015a630();
     func_0010f390();

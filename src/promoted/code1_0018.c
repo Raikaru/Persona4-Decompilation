@@ -126,7 +126,7 @@ extern void func_003e0f40(s32 arg0);
 extern s32 K_Clump_MatUsrDataHasData(u8 *arg0, u8 *arg1);
 extern struct RpMaterial *func_003c42b0(struct RpMaterial *material, RwTexture *texture);
 extern u8 D_005F5438[];
-extern s32 *func_00155280(void);
+extern s32 *MT_Scene_GetFrameState(void);
 extern void FldRc_SetPositionSlotLock(s32 a, s32 b, s32 c);
 extern RwTexDictionary *func_003ef6d0(void);
 extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
@@ -1925,8 +1925,8 @@ void func_00189ec0(void)
     u8 *temp_16;
     u8 *temp_2;
     s32 var_16;
-    if (*(s32 *)((u8 *)func_00155280() + 0x30) == 0) {
-        temp_16 = *(u8 **)func_00155280();
+    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) == 0) {
+        temp_16 = *(u8 **)MT_Scene_GetFrameState();
         chkmemAllocSiteTag(&D_005F5320, 0x17C);
         temp_2 = D_008873F4[0](1, 0x230, 0x40000);
         if (temp_2 == NULL) {
@@ -1934,17 +1934,17 @@ void func_00189ec0(void)
         } else {
             var_16 = (s32)kwlnTaskCreateChild((void *)(temp_16), (const void *)(&D_005F5330), 0xF, 0, 0, func_00189940, func_00189e90, (u8 *)(temp_2));
         }
-        *(s32 *)((u8 *)func_00155280() + 0x30) = var_16;
+        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) = var_16;
         func_0018a010(-1);
     }
 }
 // FUN_00189FA0
 s32 func_00189fa0(void) {
-    if (*(s32 *)((u8 *)(func_00155280()) + 0x30) == 0) {
+    if (*(s32 *)((u8 *)(MT_Scene_GetFrameState()) + 0x30) == 0) {
         return 0;
     }
-    kwlnTaskDestroyWithHierarchy(*(KwlnTask **)((u8 *)(func_00155280()) + 0x30));
-    *(s32 *)((u8 *)(func_00155280()) + 0x30) = 0;
+    kwlnTaskDestroyWithHierarchy(*(KwlnTask **)((u8 *)(MT_Scene_GetFrameState()) + 0x30));
+    *(s32 *)((u8 *)(MT_Scene_GetFrameState()) + 0x30) = 0;
     return 1;
 }
 
@@ -1974,7 +1974,7 @@ void func_0018a010(s32 arg0)
     s32 slot;
     u8 *p;
 
-    if (*(s32 *)((u8 *)func_00155280() + 0x30) == 0) {
+    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) == 0) {
         return;
     }
     if (arg0 == -1) {
@@ -1998,7 +1998,7 @@ void func_0018a010(s32 arg0)
     } else {
         base = D_005F2210 + arg0 * 0x1A;
     }
-    work = *(u8 **)(*(u8 **)((u8 *)func_00155280() + 0x30) + 0x38);
+    work = *(u8 **)(*(u8 **)((u8 *)MT_Scene_GetFrameState() + 0x30) + 0x38);
     slot = ((*(s32 *)(work + 8) != 0) ^ 1) * 4;
     *(u8 **)(slot + (s32)work + 0x10) = base;
     slot = ((*(s32 *)(work + 8) != 0) ^ 1) * 4;
@@ -2230,12 +2230,12 @@ s32 func_0018a200(u8 *param_1)
       iStack_4 = 0;
       temp_v8 = func_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
       RpClumpForAllAtomics((void *)temp_v8, (KClumpCallback)func_0018a170, &iStack_4);
-      temp_v4 = (s32)func_00155280();
+      temp_v4 = (s32)MT_Scene_GetFrameState();
       if (*(int *)(temp_v4 + puVar1[0x14] * 4 + 0x34) != 0) {
         s32 actorVisible;
         u8 *visibilityTarget;
         actorVisible = (iStack_4 != 0) ^ 1;
-        temp_v4 = (s32)func_00155280();
+        temp_v4 = (s32)MT_Scene_GetFrameState();
         visibilityTarget = *(u8 **)(temp_v4 + puVar1[0x14] * 4 + 0x34);
         FldRc_SetPositionSlotVisibility(visibilityTarget,puVar1[0x15],actorVisible);
       }
@@ -2393,29 +2393,29 @@ s32 func_0018a200(u8 *param_1)
   case 1:
     temp_v4 = func_00102980();
     if (temp_v4 == 9) {
-      temp_v4 = (s32)func_00155280();
+      temp_v4 = (s32)MT_Scene_GetFrameState();
       if (*(int *)(temp_v4 + 0x34) == 0) {
         break;
       }
-      temp_v4 = (s32)func_00155280();
+      temp_v4 = (s32)MT_Scene_GetFrameState();
       temp_v4 = FldRc_FileLoadIsReady(*(unsigned char **)(temp_v4 + 0x34));
       if (temp_v4 == 0) {
         break;
       }
-      temp_v4 = (s32)func_00155280();
+      temp_v4 = (s32)MT_Scene_GetFrameState();
       if (*(int *)(temp_v4 + 0x38) == 0) {
         break;
       }
-      temp_v4 = (s32)func_00155280();
+      temp_v4 = (s32)MT_Scene_GetFrameState();
       temp_v4 = FldRc_FileLoadIsReady(*(unsigned char **)(temp_v4 + 0x38));
       if (temp_v4 == 0) {
         break;
       }
-      temp_v4 = (s32)func_00155280();
+      temp_v4 = (s32)MT_Scene_GetFrameState();
       if (*(int *)(temp_v4 + 0x3c) == 0) {
         break;
       }
-      temp_v4 = (s32)func_00155280();
+      temp_v4 = (s32)MT_Scene_GetFrameState();
       temp_v4 = FldRc_FileLoadIsReady(*(unsigned char **)(temp_v4 + 0x3c));
       if (temp_v4 == 0) {
         break;
@@ -2461,9 +2461,9 @@ s32 func_0018a200(u8 *param_1)
           vecA0[1] = vecA0[1] + 175.0f;
         }
         actorOffset = actorIndex * 4;
-        temp_v4 = (s32)func_00155280();
+        temp_v4 = (s32)MT_Scene_GetFrameState();
         temp_v5 = FldRc_RequestPositionSlot(*(unsigned char **)(temp_v4 + actorOffset + 0x34),&vecA0[0]);
-        temp_v4 = (s32)func_00155280();
+        temp_v4 = (s32)MT_Scene_GetFrameState();
         FldRc_SetPositionSlotPriority(*(unsigned char **)(temp_v4 + actorOffset + 0x34),temp_v5,4);
         puVar1[0x14] = actorIndex;
         puVar1[0x15] = temp_v5;
@@ -2967,10 +2967,10 @@ rest:
 void func_0018bed0(u8 *arg0, s32 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
-    if (*(s32 *)((u8 *)func_00155280() + *(s32 *)(p + 0x50) * 4 + 0x34) == 0) {
+    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + *(s32 *)(p + 0x50) * 4 + 0x34) == 0) {
         return;
     }
-    FldRc_SetPositionSlotLock(*(s32 *)((u8 *)func_00155280() + *(s32 *)(p + 0x50) * 4 + 0x34),
+    FldRc_SetPositionSlotLock(*(s32 *)((u8 *)MT_Scene_GetFrameState() + *(s32 *)(p + 0x50) * 4 + 0x34),
                   *(s32 *)(p + 0x54), arg1);
 }
 
@@ -3511,10 +3511,10 @@ s32 func_0018e810(u8 *arg0)
         if (D_008C0240[0].trigger & 0x40) {
             switch (sdkLboxGetSelectedId(*(u8 **)(state + 0x1B438))) {
             case 0:
-                *((u8 *)func_00155280() + 0x4A) =
+                *((u8 *)MT_Scene_GetFrameState() + 0x4A) =
                     *(*(u8 **)(state + 0x1B434) +
                       *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
-                *((u8 *)func_00155280() + 0x4B) =
+                *((u8 *)MT_Scene_GetFrameState() + 0x4B) =
                     *(*(u8 **)(state + 0x1B434) +
                       *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 2;
@@ -3524,10 +3524,10 @@ s32 func_0018e810(u8 *arg0)
                 *(s32 *)state += 1;
                 break;
             case 1:
-                *((u8 *)func_00155280() + 0x4A) =
+                *((u8 *)MT_Scene_GetFrameState() + 0x4A) =
                     *(*(u8 **)(state + 0x1B434) +
                       *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
-                *((u8 *)func_00155280() + 0x4B) =
+                *((u8 *)MT_Scene_GetFrameState() + 0x4B) =
                     *(*(u8 **)(state + 0x1B434) +
                       *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 0;
@@ -3537,10 +3537,10 @@ s32 func_0018e810(u8 *arg0)
                 *(s32 *)state += 1;
                 break;
             case 2:
-                *((u8 *)func_00155280() + 0x4A) =
+                *((u8 *)MT_Scene_GetFrameState() + 0x4A) =
                     *(*(u8 **)(state + 0x1B434) +
                       *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 8);
-                *((u8 *)func_00155280() + 0x4B) =
+                *((u8 *)MT_Scene_GetFrameState() + 0x4B) =
                     *(*(u8 **)(state + 0x1B434) +
                       *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 1;
@@ -3588,15 +3588,15 @@ s32 func_0018e810(u8 *arg0)
             for (y = 0; y < 0x18; y++) {
                 for (x = 0, rowOffset = y * 0x100, ty = y * 0x12,
                      panels = state + y * 0x1200; x < 0x10; x++) {
-                    if (((MapTestGrid *)(rowOffset + (intptr_t)func_00155280()))->cells[0][x].occupied != 0 &&
-                        (((MapTestGrid *)(rowOffset + (intptr_t)func_00155280()))->cells[0][x].flags & 0xF) == 1) {
+                    if (((MapTestGrid *)(rowOffset + (intptr_t)MT_Scene_GetFrameState()))->cells[0][x].occupied != 0 &&
+                        (((MapTestGrid *)(rowOffset + (intptr_t)MT_Scene_GetFrameState()))->cells[0][x].flags & 0xF) == 1) {
                         off = x;
-                        type = ((MapTestGrid *)(rowOffset + (intptr_t)func_00155280()))->cells[0][off].shape;
+                        type = ((MapTestGrid *)(rowOffset + (intptr_t)MT_Scene_GetFrameState()))->cells[0][off].shape;
                         fx = (f32)(x * 0x12);
                         fy = (f32)ty;
-                        func_0017d1f0(D_007966D0, panels + x * 0x120 + 0x10, type, 0, fx, fy, 0.0f, ((MapTestGrid *)(rowOffset + (intptr_t)func_00155280()))->cells[0][off].rotation);
+                        func_0017d1f0(D_007966D0, panels + x * 0x120 + 0x10, type, 0, fx, fy, 0.0f, ((MapTestGrid *)(rowOffset + (intptr_t)MT_Scene_GetFrameState()))->cells[0][off].rotation);
                     }
-                    if (((MapTestGrid *)(rowOffset + (intptr_t)func_00155280()))->cells[0][x].occupied == 2) {
+                    if (((MapTestGrid *)(rowOffset + (intptr_t)MT_Scene_GetFrameState()))->cells[0][x].occupied == 2) {
                         color = iGpffff9fd8;
                         FldRc_QueueScreenQuad(D_007966D0, panels + x * 0x120 + 0x10,
                                       (f32)(x * 0x12), (f32)ty, 0.0f, 18.0f, 18.0f,

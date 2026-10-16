@@ -2,7 +2,7 @@
 /* Original translation unit k_fldNpcTable.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-extern u8 *func_00155280(void);
+extern u8 *MT_Scene_GetFrameState(void);
 extern void (*DAT_008873EC[])(void *);
 extern s32 FldRc_GetLoadSource(void);
 extern void strcpy(void *arg0, const char *arg1);
@@ -76,20 +76,20 @@ s32 NpcTable_InstallSceneTable(u8 *arg0)
         }
         chkmemAllocSiteTag(&D_005F07C0, 0x81);
         temp = (s32)(*D_008873F4)(1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
-        *(u8 **)(func_00155280() + 0x18E8) = (u8 *)temp;
+        *(u8 **)(MT_Scene_GetFrameState() + 0x18E8) = (u8 *)temp;
         {
-            u8 *state = func_00155280();
+            u8 *state = MT_Scene_GetFrameState();
             s32 size = *(s32 *)(arg0 + 0x118);
             void *dst = *(void **)(state + 0x18E8);
             void *src = *(void **)(arg0 + 0x110);
             memcpy(dst, src, size);
         }
-        table = *(u8 **)(func_00155280() + 0x18E8);
-        *(s32 *)(func_00155280() + 0x18EC) = *(s32 *)table;
+        table = *(u8 **)(MT_Scene_GetFrameState() + 0x18E8);
+        *(s32 *)(MT_Scene_GetFrameState() + 0x18EC) = *(s32 *)table;
         work = table + 0x20;
-        *(u8 **)(func_00155280() + 0x18F0) = work;
-        *(u8 **)(func_00155280() + 0x18F4) =
-            *(u8 **)(func_00155280() + 0x18F0) + *(s32 *)table * 0x20;
+        *(u8 **)(MT_Scene_GetFrameState() + 0x18F0) = work;
+        *(u8 **)(MT_Scene_GetFrameState() + 0x18F4) =
+            *(u8 **)(MT_Scene_GetFrameState() + 0x18F0) + *(s32 *)table * 0x20;
         H_Cdvd_Destroy(arg0);
         return 1;
     }
@@ -98,20 +98,20 @@ s32 NpcTable_InstallSceneTable(u8 *arg0)
     if (table != 0) {
         chkmemAllocSiteTag(&D_005F07C0, 0xA2);
         temp = (s32)(*D_008873F4)(1, (s32)(sp8C), 0x40000);
-        *(u8 **)(func_00155280() + 0x18E8) = (u8 *)temp;
+        *(u8 **)(MT_Scene_GetFrameState() + 0x18E8) = (u8 *)temp;
         {
-            u8 *state = func_00155280();
+            u8 *state = MT_Scene_GetFrameState();
             s32 size = sp8C;
             void *dst = *(void **)(state + 0x18E8);
             void *src = table;
             memcpy(dst, src, size);
         }
-        work = *(u8 **)(func_00155280() + 0x18E8);
-        *(s32 *)(func_00155280() + 0x18EC) = *(s32 *)work;
+        work = *(u8 **)(MT_Scene_GetFrameState() + 0x18E8);
+        *(s32 *)(MT_Scene_GetFrameState() + 0x18EC) = *(s32 *)work;
         table = work + 0x20;
-        *(u8 **)(func_00155280() + 0x18F0) = table;
-        *(u8 **)(func_00155280() + 0x18F4) =
-            *(u8 **)(func_00155280() + 0x18F0) + *(s32 *)work * 0x20;
+        *(u8 **)(MT_Scene_GetFrameState() + 0x18F0) = table;
+        *(u8 **)(MT_Scene_GetFrameState() + 0x18F4) =
+            *(u8 **)(MT_Scene_GetFrameState() + 0x18F0) + *(s32 *)work * 0x20;
     }
     return 1;
 ret0:
@@ -123,7 +123,7 @@ void *NpcTable_FindActiveEntry(void)
 {
     s32 sp6C;
     s32 sp68;
-    u16 *work = *(u16 **)(func_00155280() + 0x18F0);
+    u16 *work = *(u16 **)(MT_Scene_GetFrameState() + 0x18F0);
     u16 *end;
     s32 s3;
     s32 s2;
@@ -133,13 +133,13 @@ void *NpcTable_FindActiveEntry(void)
     if (work == 0) {
         return 0;
     }
-    end = work + (*(s32 *)(func_00155280() + 0x18EC) - 1) * 0x10;
+    end = work + (*(s32 *)(MT_Scene_GetFrameState() + 0x18EC) - 1) * 0x10;
     s3 = 3;
     s2 = 0x1F;
     s1 = 5;
     calSplitDayOfYear((s16)datGetDateIndex(), &sp6C, &sp68);
     i = 0;
-    while (i < *(u32 *)(func_00155280() + 0x18EC)) {
+    while (i < *(u32 *)(MT_Scene_GetFrameState() + 0x18EC)) {
         if (clndIsDateInRange(end[0], end[1], s3, s2) != 1) {
             goto update;
         }
@@ -167,7 +167,7 @@ void *NpcTable_FindActiveEntry(void)
         i++;
         end -= 0x10;
     }
-    if (i >= *(u32 *)(func_00155280() + 0x18EC)) {
+    if (i >= *(u32 *)(MT_Scene_GetFrameState() + 0x18EC)) {
         end = 0;
     }
     return end;
@@ -183,7 +183,7 @@ void *NpcTable_FindActiveEntry(void)
 #pragma opt_loop_invariants on
 u16 *NpcTable_GetMarkedEntry(s32 arg0)
 {
-    u16 *work = *(u16 **)(func_00155280() + 0x18F4);
+    u16 *work = *(u16 **)(MT_Scene_GetFrameState() + 0x18F4);
     s32 count = 0;
 
     for (;;) {
@@ -210,12 +210,12 @@ u16 *NpcTable_GetMarkedEntry(s32 arg0)
 // FUN_0015CC40
 void NpcTable_ReleaseSceneTable(void)
 {
-    if (*(s32 *)((u8 *)func_00155280() + 0x18E8) != 0) {
-        (*DAT_008873EC)(*(void **)((u8 *)func_00155280() + 0x18E8));
-        *(s32 *)((u8 *)func_00155280() + 0x18E8) = 0;
-        *(s32 *)((u8 *)func_00155280() + 0x18EC) = 0;
-        *(s32 *)((u8 *)func_00155280() + 0x18F0) = 0;
-        *(s32 *)((u8 *)func_00155280() + 0x18F4) = 0;
+    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18E8) != 0) {
+        (*DAT_008873EC)(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x18E8));
+        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18E8) = 0;
+        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18EC) = 0;
+        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18F0) = 0;
+        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18F4) = 0;
     }
 }
 
@@ -259,10 +259,10 @@ s32 NpcTable_InstallSecondaryTable(u8 *arg0)
         if (H_Cdvd_IsFileLoaded(arg) != 0) {
             chkmemAllocSiteTag(&D_005F07C0, 0x158);
             temp = (s32)(*D_008873F4)(1, (s32)(*(u32 *)(arg + 0x118)), 0x40000);
-            *(u16 **)(func_00155280() + 0x18E0) = (u16 *)temp;
-            *(u32 *)(func_00155280() + 0x18E4) = *(u32 *)(arg + 0x118);
+            *(u16 **)(MT_Scene_GetFrameState() + 0x18E0) = (u16 *)temp;
+            *(u32 *)(MT_Scene_GetFrameState() + 0x18E4) = *(u32 *)(arg + 0x118);
             {
-                u8 *state = func_00155280();
+                u8 *state = MT_Scene_GetFrameState();
                 s32 size = *(s32 *)(arg + 0x118);
                 void *dst = *(void **)(state + 0x18E0);
                 void *src = *(void **)(arg + 0x110);
@@ -278,10 +278,10 @@ s32 NpcTable_InstallSecondaryTable(u8 *arg0)
     if (arg != 0) {
         chkmemAllocSiteTag(&D_005F07C0, 0x172);
         temp = (s32)(*D_008873F4)(1, (s32)(sp7C), 0x40000);
-        *(u16 **)(func_00155280() + 0x18E0) = (u16 *)temp;
-        *(u32 *)(func_00155280() + 0x18E4) = sp7C;
+        *(u16 **)(MT_Scene_GetFrameState() + 0x18E0) = (u16 *)temp;
+        *(u32 *)(MT_Scene_GetFrameState() + 0x18E4) = sp7C;
         {
-            u8 *state = func_00155280();
+            u8 *state = MT_Scene_GetFrameState();
             s32 size = sp7C;
             void *dst = *(void **)(state + 0x18E0);
             void *src = arg;
@@ -296,9 +296,9 @@ ret0:
 // FUN_0015CF10
 void NpcTable_ReleaseSecondaryTable(void)
 {
-    if (*(s32 *)((u8 *)func_00155280() + 0x18E0) != 0) {
-        (*DAT_008873EC)(*(void **)((u8 *)func_00155280() + 0x18E0));
-        *(s32 *)((u8 *)func_00155280() + 0x18E0) = 0;
+    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18E0) != 0) {
+        (*DAT_008873EC)(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x18E0));
+        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18E0) = 0;
     }
 }
 

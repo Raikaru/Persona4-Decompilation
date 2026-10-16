@@ -198,7 +198,7 @@ extern void func_00460ac0(void *arg0, u8 *arg1);
 
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
-extern void func_001538a0(u32 *resource, const f32 *color);
+extern void MT_Scene_ScaleResColors(u32 *resource, const f32 *color);
 extern void func_00457140(u8 red, u8 green, u8 blue, u8 alpha);
 extern s8 *func_00457160(void);
 extern void func_00153b20(s32 arg0, s32 arg1);
@@ -1205,7 +1205,7 @@ void resrcMngApplyColorFactors(void *value) {
     factors = (const u8 *)value;
     resource = MT_Scene_GetResListHead(0xC);
     while (resource != NULL) {
-        func_001538a0(*(u32 **)(resource + 0x1A0), (const f32 *)factors);
+        MT_Scene_ScaleResColors(*(u32 **)(resource + 0x1A0), (const f32 *)factors);
         resource = *(u8 **)(resource + 0x138);
     }
     if ((*(f32 *)(factors + 0) <= 0.0f && *(f32 *)(factors + 4) <= 0.0f && *(f32 *)(factors + 8) <= 0.0f) || *(f32 *)(factors + 0xC) <= 0.0f) {

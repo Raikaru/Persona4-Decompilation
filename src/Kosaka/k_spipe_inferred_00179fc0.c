@@ -39,7 +39,7 @@ typedef struct
     u8 blue;
     u8 alpha;
 } FieldColor_0017;
-extern s32 *func_00155280(void);
+extern s32 *MT_Scene_GetFrameState(void);
 /* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
    before the two lhu loads and $a3 (a) after them, which is the default-
    promotion order of an old-style call with a u16 local for b and an explicit
@@ -277,12 +277,12 @@ alloc_path:
             v2 = FldFrameTask_GetTileZ(*(u8 **)(alloc + 0x220));
             v2 = v2 * 0x100;
             v1 = v1 * 0x10;
-            ids[0] = *(u16 *)((u8 *)func_00155280() + v2 + v1 + 0x56);
+            ids[0] = *(u16 *)((u8 *)MT_Scene_GetFrameState() + v2 + v1 + 0x56);
             allocs[0] = (u8 *)MT_Scene_GetRes(ids[0]);
             if (allocs[0] != NULL) {
                 count++;
             }
-            ids[1] = *(u16 *)((u8 *)func_00155280() + v2 + v1 + 0x66);
+            ids[1] = *(u16 *)((u8 *)MT_Scene_GetFrameState() + v2 + v1 + 0x66);
             {
             s32 i;
             s32 current;
@@ -300,7 +300,7 @@ alloc_path:
                 }
             }
             }
-            ids[2] = *(u16 *)((u8 *)func_00155280() + v2 + v1 + 0x46);
+            ids[2] = *(u16 *)((u8 *)MT_Scene_GetFrameState() + v2 + v1 + 0x46);
             {
             s32 i;
             s32 current;
@@ -318,7 +318,7 @@ alloc_path:
                 }
             }
             }
-            ids[3] = *(u16 *)((u8 *)func_00155280() + v2 + v1 + 0x156);
+            ids[3] = *(u16 *)((u8 *)MT_Scene_GetFrameState() + v2 + v1 + 0x156);
             {
             s32 i;
             s32 current;
@@ -336,7 +336,7 @@ alloc_path:
                 }
             }
             }
-            ids[4] = *(u16 *)((u8 *)func_00155280() + v2 + v1 - 0xAA);
+            ids[4] = *(u16 *)((u8 *)MT_Scene_GetFrameState() + v2 + v1 - 0xAA);
             {
             s32 i;
             s32 current;

@@ -112,7 +112,7 @@ extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 
 extern s32 FldMap_IsInBandA(s32 a0, s32 a1);
 extern s32 FldMap_IsInBandB(s32 a0, s32 a1);
 extern u8 *func_0015c640(s32 a0, s32 a1);
-extern s32 *func_00155280(void);
+extern s32 *MT_Scene_GetFrameState(void);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern s32 atoi(const char *arg0);
 extern void strcpy(char *dst, char *src);
@@ -224,7 +224,7 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
             var17 = (u16)((u16)arg0 - 0x14);
             *(s32 *)(iGpffff9db0 + 0x88) |= 0x80000000;
             var16 = (s32)func_0015c640(arg0, arg1);
-            *(s32 *)(((u8 *)func_00155280()) + 0x1864) = var16;
+            *(s32 *)(((u8 *)MT_Scene_GetFrameState()) + 0x1864) = var16;
             var16 = D_005F0591[D_005F0590[(u16)var17] * 12];
         } else {
             var17 = (u16)arg0;
@@ -307,7 +307,7 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
  * all three) and test the table entry inline.
  * 2026-10-09: 219 -> 215: the per-resource pointer lists are indexed as arrays
  * (`((u8 **)(w + 0x28))[*(s32 *)(w + 0x24)]`).
- * 2026-10-09: 215 -> 209: grid cells are `(u8 *)(row + (s32)func_00155280()) + col`
+ * 2026-10-09: 215 -> 209: grid cells are `(u8 *)(row + (s32)MT_Scene_GetFrameState()) + col`
  * (retail adds the row base to the call result first).
  * 2026-10-09: 209 -> 205: the pending flags count failures (`pending += 1`).
  * 2026-10-09: 205 -> 194: hbnData, fieldOfView, cameraKind, cameraValue60,
@@ -775,7 +775,7 @@ prepareGrid:
             *( s32 * )(iGpffff9db0 + 0x94) = 7;
 readGrid:
             var_16_3 = 0;
-            if (func_0015c6f0((u8 *)(*( s32 * )(((u8 *)func_00155280()) + 0x1864))) == 0) {
+            if (func_0015c6f0((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864))) == 0) {
                 var_16_3 += 1;
             }
             if (var_16_3 != 0) {
@@ -791,17 +791,17 @@ readGrid:
                 var_17_2 += 1;
             }
             if (FldMap_IsCurrentInBandB() != 0) {
-                temp_16_3 = (s32)(*( s32 * )(*( u8 ** )(((u8 *)func_00155280()) + 0x1864) + 0x110));
-                memcpy(((u8 *)func_00155280()) + 0x54,(const void *)((u8 *)temp_16_3 + 4), 0x1800);
-                func_0015c730((u8 *)(*( s32 * )(((u8 *)func_00155280()) + 0x1864)));
+                temp_16_3 = (s32)(*( s32 * )(*( u8 ** )(((u8 *)MT_Scene_GetFrameState()) + 0x1864) + 0x110));
+                memcpy(((u8 *)MT_Scene_GetFrameState()) + 0x54,(const void *)((u8 *)temp_16_3 + 4), 0x1800);
+                func_0015c730((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864)));
                 for (var_18 = 0; var_18 < 0x18; var_18++) {
                     var_19 = 0;
                     temp_17 = var_18 << 8;
                     for (; var_19 < 0x10; var_19++) {
                         temp_16_4 = var_19 * 0x10;
-                        if ((*( u8 * )(((u8 *)(temp_17 + (s32)func_00155280()) + temp_16_4) + 0x54) == 1) && (*( u8 * )(((u8 *)(temp_17 + (s32)func_00155280()) + temp_16_4) + 0x58) == 6)) {
-                            *( u8 * )(((u8 *)func_00155280()) + 0x44) = (u8)var_19;
-                            *( u8 * )(((u8 *)func_00155280()) + 0x45) = (u8)var_18;
+                        if ((*( u8 * )(((u8 *)(temp_17 + (s32)MT_Scene_GetFrameState()) + temp_16_4) + 0x54) == 1) && (*( u8 * )(((u8 *)(temp_17 + (s32)MT_Scene_GetFrameState()) + temp_16_4) + 0x58) == 6)) {
+                            *( u8 * )(((u8 *)MT_Scene_GetFrameState()) + 0x44) = (u8)var_19;
+                            *( u8 * )(((u8 *)MT_Scene_GetFrameState()) + 0x45) = (u8)var_18;
                             goto found_loop_88;
                         }
                     }
@@ -812,9 +812,9 @@ found_loop_88:
                     temp_17_2 = var_19_2 << 8;
                     for (; var_18_2 < 0x10; var_18_2++) {
                         temp_16_5 = var_18_2 * 0x10;
-                        if ((*( u8 * )(((u8 *)(temp_17_2 + (s32)func_00155280()) + temp_16_5) + 0x54) == 1) && ((*( u8 * )(((u8 *)(temp_17_2 + (s32)func_00155280()) + temp_16_5) + 0x58) == 0xA) || (*( u8 * )(((u8 *)(temp_17_2 + (s32)func_00155280()) + temp_16_5) + 0x58) == 0xC) || (*( u8 * )(((u8 *)(temp_17_2 + (s32)func_00155280()) + temp_16_5) + 0x58) == 0xE))) {
-                            *( u8 * )(((u8 *)func_00155280()) + 0x46) = (u8)var_18_2;
-                            *( u8 * )(((u8 *)func_00155280()) + 0x47) = (u8)var_19_2;
+                        if ((*( u8 * )(((u8 *)(temp_17_2 + (s32)MT_Scene_GetFrameState()) + temp_16_5) + 0x54) == 1) && ((*( u8 * )(((u8 *)(temp_17_2 + (s32)MT_Scene_GetFrameState()) + temp_16_5) + 0x58) == 0xA) || (*( u8 * )(((u8 *)(temp_17_2 + (s32)MT_Scene_GetFrameState()) + temp_16_5) + 0x58) == 0xC) || (*( u8 * )(((u8 *)(temp_17_2 + (s32)MT_Scene_GetFrameState()) + temp_16_5) + 0x58) == 0xE))) {
+                            *( u8 * )(((u8 *)MT_Scene_GetFrameState()) + 0x46) = (u8)var_18_2;
+                            *( u8 * )(((u8 *)MT_Scene_GetFrameState()) + 0x47) = (u8)var_19_2;
                             goto found_loop_99;
                         }
                     }
@@ -822,7 +822,7 @@ found_loop_88:
 found_loop_99:
                 temp_2_3 = (u8 *)(iGpffff9db0);
                 temp_16_6 = (s32)(func_0015f8e0(*( u16 * )(temp_2_3 + 0), *( u16 * )(temp_2_3 + 4)));
-                *( s32 * )(((u8 *)func_00155280()) + 0x1864) = temp_16_6;
+                *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864) = temp_16_6;
             }
             *( s32 * )(iGpffff9db0 + 0x94) = 8;
 readHbnResources:
@@ -844,13 +844,13 @@ readHbnResources:
                     func_0015fb00((u8 *)(*( s8 ** )(*( u8 ** )((temp_17_3 + (var_16_5 * 4)) + 0x28) + 0xA40)), 0);
                     var_16_5 += 1;
                 }
-                if (func_0015f9b0((u8 *)(*( s32 * )(((u8 *)func_00155280()) + 0x1864)),&hbnData, *( u16 * )(temp_17_3 + 0), *( u16 * )(temp_17_3 + 4)) == 0) {
+                if (func_0015f9b0((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864)),&hbnData, *( u16 * )(temp_17_3 + 0), *( u16 * )(temp_17_3 + 4)) == 0) {
                     return 0;
                 }
                 if ((hbnEntry = (u8 *)hbnData) != NULL) {
                     func_0015fb00(hbnEntry, 1);
                     jtbl_008873EC[0](hbnData);
-                    *( s32 * )(((u8 *)func_00155280()) + 0x1864) = 0;
+                    *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864) = 0;
                 }
                 goto block_123;
             }
@@ -885,7 +885,7 @@ block_123:
                     var_9 += 1;
                 }
                 if (func_0015ac60(func_0015a160()) == 0) {
-                    func_001582f0(*( s32 * )(iGpffff9db0 + 0) - 0x28, *( s32 * )(((u8 *)func_00155280()) + 0x4C), 1);
+                    func_001582f0(*( s32 * )(iGpffff9db0 + 0) - 0x28, *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x4C), 1);
                     func_0015a7c0(func_0015a160());
                 }
                 func_001599d0();

@@ -5,7 +5,7 @@
 extern s32 func_00159e90(s32 arg0, s32 arg1, s32 arg2);
 extern s32 D_00764334;
 
-extern u8 *func_00155280(void);
+extern u8 *MT_Scene_GetFrameState(void);
 extern s32 func_00155e10(s32 arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4,
                          s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9,
                          s64 arg10, s64 arg11, s64 arg12, s64 arg13);
@@ -38,22 +38,22 @@ void func_00170220(u8 *arg0)
     temp = func_00155e10(0, *(u16 *)(arg0 + 0), *(u16 *)(arg0 + 2),
                          *(u16 *)(arg0 + 4), *(s16 *)(arg0 + 6),
                          *(s16 *)(arg0 + 8), 0, 6, 0x80, 0, -1, -1, -1, -1);
-    *(s32 *)func_00155280() = temp;
+    *(s32 *)MT_Scene_GetFrameState() = temp;
 }
 
 // FUN_001702C0
 void func_001702c0(void)
 {
-    if (*(s32 *)func_00155280() != 0) {
-        kwlnTaskDestroyWithHierarchy(*(s32 *)func_00155280());
-        *(s32 *)func_00155280() = 0;
+    if (*(s32 *)MT_Scene_GetFrameState() != 0) {
+        kwlnTaskDestroyWithHierarchy(*(s32 *)MT_Scene_GetFrameState());
+        *(s32 *)MT_Scene_GetFrameState() = 0;
     }
 }
 
 // FUN_00170310
 s32 func_00170310(void)
 {
-    return kwlnTaskIsLinked(*(s32 *)func_00155280()) == 1;
+    return kwlnTaskIsLinked(*(s32 *)MT_Scene_GetFrameState()) == 1;
 }
 
 // FUN_00170350
@@ -66,25 +66,25 @@ void func_00170350(u8 *arg0)
     }
     temp = func_00155e10(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, *(s32 *)(arg0 + 0xC),
                          *(s32 *)(arg0 + 0x10), *(s32 *)(arg0 + 0x14), 0);
-    *(s32 *)func_00155280() = temp;
+    *(s32 *)MT_Scene_GetFrameState() = temp;
 }
 
 // FUN_001703F0
 void func_001703f0(void)
 {
-    if (*(s32 *)func_00155280() != 0) {
-        kwlnTaskDestroyWithHierarchy(*(s32 *)func_00155280());
-        *(s32 *)func_00155280() = 0;
+    if (*(s32 *)MT_Scene_GetFrameState() != 0) {
+        kwlnTaskDestroyWithHierarchy(*(s32 *)MT_Scene_GetFrameState());
+        *(s32 *)MT_Scene_GetFrameState() = 0;
     }
 }
 
 // FUN_00170440
 s32 func_00170440(void)
 {
-    if (kwlnTaskIsLinked(*(s32 *)func_00155280()) == 1) {
+    if (kwlnTaskIsLinked(*(s32 *)MT_Scene_GetFrameState()) == 1) {
         return 1;
     }
-    *(s32 *)func_00155280() = 0;
+    *(s32 *)MT_Scene_GetFrameState() = 0;
     return 0;
 }
 
@@ -100,7 +100,7 @@ void func_001704e0(void)
     if (D_00764434 != 0) {
         kwlnTaskDestroyWithHierarchy(D_00764434);
         D_00764434 = 0;
-        *(s32 *)func_00155280() = 0;
+        *(s32 *)MT_Scene_GetFrameState() = 0;
     }
 }
 
