@@ -129,8 +129,9 @@ extern f32 D_007612C4;
 /* measured: without it the point base is recomputed per iteration (271). */
 /* measured: func_0026cef0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+// Intent: Samples a scene path at the elapsed distance, writing position and rotation [inferred]
 // FUN_0026CEF0
-f32 func_0026cef0(s8 *arg0, f32 fparg0, f32 fparg1,
+f32 MT_Scene_SamplePath(s8 *arg0, f32 fparg0, f32 fparg1,
                   f32 *arg1, f32 *arg2)
 {
     typedef struct { f32 x, y, z; } CefV3;
