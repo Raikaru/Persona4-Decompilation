@@ -150,7 +150,7 @@ extern void mdlResetModelTable(s32 arg0);
 extern void TnSetTableBase(s32 arg0);
 extern void TnInitModule(s32 arg0);
 extern void func_004b3250(s32 arg0);
-extern void func_004b6c90(s32 arg0, s32 arg1);
+extern void AfPackInit(s32 arg0, s32 arg1);
 extern void func_004c6eb0(s32 arg0);
 extern s32 func_004c6f50(s32 arg0, s32 arg1, s32 arg2);
 extern void func_004c7188(s32 arg0);
@@ -289,7 +289,7 @@ void func_00100e60(void)
     TnInitModule(0xC7);
     TnSetTableBase((s32)&D_005DC7D0);
     func_004b3250((s32)&D_007948A0);
-    func_004b6c90((s32)&D_00794510, 0xC7);
+    AfPackInit((s32)&D_00794510, 0xC7);
     btlUnitLoadSyncedAssets();
     cmmLoadTables();
     func_0026d840();

@@ -4653,7 +4653,7 @@ void mdlDestroyModelObject(u8* param_1)
             mdlDetachSlotModel(param_1, i & 0xFFFF);
         }
     }
-    func_004b7140(param_1);
+    AfPackReleaseByOwner(param_1);
     if (*(void**)(param_1 + 0x2CC) != 0) {
         mdlEffectListDestroy(*(void**)(param_1 + 0x2CC));
     }
