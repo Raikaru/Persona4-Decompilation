@@ -103,7 +103,6 @@ extern void func_00389350(u8 *a);
 extern void btlShuffleSeqClearA(u8 *a, s32 b);
 extern s32 btlShuffleSeqFlag(u8 *a);
 extern s32 btlShuffleShowRosterMessage(u8 *a);
-extern u16 datPersonaCountValidMembers(void);
 extern struct DatPersonaRecord *datPersonaFindRosterRecordById(s32 a);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern char *datCalcGetSlotRecord(s32 a);

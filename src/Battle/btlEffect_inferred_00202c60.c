@@ -2167,7 +2167,6 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     extern s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern s32 datCalcDefaultSkillId(u8 *unit);
     extern u8 *shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-    extern u16 datPersonaCountValidMembers(void);
     extern void btlSelectionInit(u8 *arg0, s16 arg1, s16 arg2, void *a, void *b, void *c, void *d, u8 *arg7);
     extern void btlSelectionSetOwner(u8 *arg0, void *arg1);
     extern void btlUiSelectEffect(s32 arg0, u32 arg1);
