@@ -171,7 +171,6 @@ extern s32 fadeStatus(void);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern void btlCameraSuppressEncounterCallback(void);
 extern u8 *datUnitGetRecord(s16 arg0);
-extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 extern void btlPanelReset(s32 arg0);
 extern void datCalcSetHp(s32 arg0, u16 arg1);
 extern void datCalcSetSp(s32 arg0, u16 arg1);

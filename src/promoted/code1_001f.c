@@ -141,7 +141,6 @@ extern s32 hFadeTaskUpdate(u8 *arg0);
 
 extern void btlTargetAdvanceWorkPtr(u8 **arg0);
 extern u16 datPersonaGetRecordId(u16 arg0);
-extern s32 datPersonaFindSkillSlot(u8 *persona, u16 skill);
 extern s32 btlTargetClearFlaggedBuffs(u8 **arg0);
 extern void btlTargetAdvanceWorkCount(void);
 extern u8 *btlPacketAlloc(s32 type, s32 workSize);
