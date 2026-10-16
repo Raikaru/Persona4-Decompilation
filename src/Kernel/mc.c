@@ -114,7 +114,7 @@ extern s32 func_0025e8f0(s32);
 extern void H_Memcard_SetAbort(void);
 extern s32 H_Memcard_CheckCard(void);
 extern s32 H_Memcard_ProbeCardStep(s32);
-extern s32 func_004647c0(void);
+extern s32 H_Memcard_PrepareSaveFileStep(void);
 extern void H_Memcard_SetSeqMode9(void);
 extern void H_Memcard_SetSeqMode4(void);
 extern void H_Memcard_BeginSave(s32, s32, s32);
@@ -368,7 +368,7 @@ s32 mcMemcardStep(u8 *arg0) {
     switch (v) {
     case 0:
         temp_16 = *(u8 **)(arg0 + 0x39C);
-        switch (var_17 = func_004647c0()) {
+        switch (var_17 = H_Memcard_PrepareSaveFileStep()) {
         case 100:
             D_008873EC[0](temp_16);
             break;

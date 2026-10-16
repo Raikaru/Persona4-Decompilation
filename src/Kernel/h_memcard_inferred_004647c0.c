@@ -68,8 +68,9 @@ extern char D_008E4594[];
  * 0x10($sp) at 0x0046514C even when the lookup did not write it. This body
  * keeps that uninitialised read, as retail does.
  * See docs/probe_archive/Memcard_004647c0_recovery_20260929.md. */
+// Intent: save-file preparation step. Searches for and creates or verifies the save file through sceMc2 async calls; returns 2 while busy, 4 when ready, and negative codes on error. NONMATCHING: see docs/probe_archive/Memcard_004647c0_worker10_20261005.md.
 // FUN_004647C0
-s32 func_004647c0(void)
+s32 H_Memcard_PrepareSaveFileStep(void)
 {
     s32 cardMode;
     s32 cardCode;
