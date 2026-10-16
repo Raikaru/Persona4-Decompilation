@@ -55,7 +55,7 @@ extern f32 DAT_00761278;
 extern f32 fGpffff8100;
 extern f32 RwV3dNormalize(RwV3d *arg0, const RwV3d *arg1);
 extern void btlCameraCopyPose();
-extern void func_001959d0(BtlUnit *arg0, RwV3d *arg1);
+extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *arg0, RwV3d *arg1);
 extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
 extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
 extern f32 tanf(f32 arg0);
@@ -625,7 +625,7 @@ void btlCameraFrameRotateView(u8 *arg0)
 
     temp17 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x38);
     temp17 = *(u8 **)(temp17 + 0x30);
-    func_001959d0((BtlUnit *)temp17, (RwV3d *)&work.center.x);
+    btlUnitGetAnimBoundsWorldCenter((BtlUnit *)temp17, (RwV3d *)&work.center.x);
     work.center.y = 0.0f + work.center.y +
                     DAT_00761278 *
                     (*(f32 *)(temp17 + 0x8C) *
@@ -736,8 +736,8 @@ void btlCameraApplyPreset(u8 *camera, f32 duration, s32 initialize)
     action = *(u8 **)(camera + 0xE0);
     actor = *(u8 **)(action + 0x30);
     target = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
-    func_001959d0((BtlUnit *)actor, &actorPosition);
-    func_001959d0((BtlUnit *)target, &targetPosition);
+    btlUnitGetAnimBoundsWorldCenter((BtlUnit *)actor, &actorPosition);
+    btlUnitGetAnimBoundsWorldCenter((BtlUnit *)target, &targetPosition);
     direction.x = actorPosition.x - targetPosition.x;
     direction.y = actorPosition.y - targetPosition.y;
     direction.z = actorPosition.z - targetPosition.z;

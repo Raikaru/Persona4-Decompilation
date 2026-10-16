@@ -63,7 +63,7 @@ extern f32 RwV3dNormalize(RwV3d *arg0, const RwV3d *arg1);
 extern f32 RwV3dLength(f32 *arg0);
 extern void btlCameraCopyPose();
 extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *out);
-extern void func_001959d0(BtlUnit *arg0, RwV3d *arg1);
+extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *arg0, RwV3d *arg1);
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
 extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
 extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);

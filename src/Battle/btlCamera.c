@@ -100,7 +100,7 @@ extern void btlUnitGetGridSphereCenter(BtlUnit*, RwV3d*);
 extern f32 tanf(f32 x);
 extern void btlUnitGetSphereWorldCenter(void *unit, void *center);
 extern void func_0019de70(BtlUnitStateWork *work, u16 value);
-extern void func_001959d0(BtlUnit *arg0, RwV3d *arg1);
+extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *arg0, RwV3d *arg1);
 extern RwV3d* RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count,
                           const RtQuat *quat);
 extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
@@ -1054,7 +1054,7 @@ void btlCameraFrameOrbitUnit(u8 *arg0)
 
     temp17 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x38);
     temp17 = *(u8 **)(temp17 + 0x30);
-    func_001959d0((BtlUnit *)temp17, (RwV3d *)&work.center.x);
+    btlUnitGetAnimBoundsWorldCenter((BtlUnit *)temp17, (RwV3d *)&work.center.x);
     work.center.y = 0.0f + work.center.y +
                     DAT_00761278 *
                     (*(f32 *)(temp17 + 0x8C) *
@@ -2479,7 +2479,7 @@ s32 btlCameraFrameActionStart(u8 *arg0, u8 *arg1)
     extern void func_00195aa0(BtlUnit *unit, BtlUnit *target, RwV3d *out);
     extern void btlTargetBlendVectors(u8 *out, u8 *first, u8 *second);
     extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *rotation);
-    extern void func_001959d0(BtlUnit *unit, RwV3d *out);
+    extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *unit, RwV3d *out);
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
     extern RwMatrix *RwMatrixRotate(RwMatrix *matrix, const RwV3d *axis, f32 angle, s32 mode);
@@ -2636,7 +2636,7 @@ next_entry:
     case 3:
         tmpUnit = *(u8 **)(*(u8 **)(arg1 + 4) + 0x30);
         if ((*(u32 *)(tmpUnit + 0x9C) & 0x8000) == 0) {
-            func_001959d0((BtlUnit *)tmpUnit, &position);
+            btlUnitGetAnimBoundsWorldCenter((BtlUnit *)tmpUnit, &position);
         } else {
             btlUnitGetSphereWorldCenter((BtlUnit *)tmpUnit, &position);
         }

@@ -62,7 +62,7 @@ extern f32 RwV3dNormalize(RwV3d *arg0, const RwV3d *arg1);
 extern f32 RwV3dLength(f32 *arg0);
 extern void btlCameraCopyPose();
 extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *out);
-extern void func_001959d0(BtlUnit *arg0, RwV3d *arg1);
+extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *arg0, RwV3d *arg1);
 extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
 extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
 extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
@@ -848,7 +848,7 @@ void btlCameraFrameStatusRoll(u8 *arg0, f32 arg1, f32 arg2)
 
     unit = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
     status = datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100000);
-    func_001959d0((BtlUnit *)unit, (RwV3d *)work.center);
+    btlUnitGetAnimBoundsWorldCenter((BtlUnit *)unit, (RwV3d *)work.center);
     if (status == 0) {
         work.center[1] = 0.0f + work.center[1] + fGpffff810c *
                          (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
