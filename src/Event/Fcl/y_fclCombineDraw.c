@@ -15,6 +15,7 @@
 
 #include "fcl_combine_internal.h"
 #include "fcl_combine_row_internal.h"
+#include "datPersona_internal.h"
 
 typedef FclDrawColor FclByte4;
 typedef FclVec2 f2;
@@ -72,7 +73,6 @@ extern u8 *yListSlotWork(s8 arg0);
 extern u8 *yListSlotEntry(s8 arg0, s16 arg1);
 extern void nmMesWindowSetNumberColor(u8 *, s16, FclDrawColor);
 extern s32 fclPackRgba(u8, u8, u8, u8);
-extern s32 datPersonaRosterCapacity(void);
 extern void fclSpriteStartColorAt(s16, s32, s32, s32, s32, s32);
 extern void fclSpriteStartColor(u8 *, FclByte4, FclByte4, u8, s16, s32);
 extern void fclCombineSetSlotColors(u8 *, s16, FclDrawColor, FclDrawColor, FclDrawColor);
