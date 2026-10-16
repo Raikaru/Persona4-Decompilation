@@ -1,5 +1,5 @@
 {
-  "linked_function_count": 8100,
+  "linked_function_count": 8101,
   "note": "Ratchet floor for C functions linked from compiled source (tools/build.py check_link_floor). Raise it when functions are genuinely added; never lower it to make a build pass. Guards a gap neither SHA1 nor verify.py covers: an ineligible TU falls back to retail bytes, so the image still verifies while its functions stop being proven from source. It counts functions, not translation units, so merging files into their original TU does not move it. The pre-2026-10-14 translation-unit-count history is in git log for this file.",
   "required_c_functions": {
     "src/Kernel/h_memcard.c": [
@@ -10,7 +10,7 @@
     "src/Kernel/h_memcard_inferred_004647c0.c": [
       "004647c0"
     ],
-    "src/promoted/k_fldEvent.c": [
+    "src/Kosaka/Field/k_fldEvent.c": [
       "00174e10"
     ]
   }
