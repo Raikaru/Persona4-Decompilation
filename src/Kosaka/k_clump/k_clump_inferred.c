@@ -303,7 +303,7 @@ void sdkOtFlushBuckets(u8 *arg0)
     extern void TnDispatchSkyDraw(void *);
     extern void TnDispatchBillboards(void *);
     extern void TnDispatchPairedDraw(void *);
-    extern void func_00475cd0(void *);
+    extern void mdlUpdateDrawState(void *);
     extern s32 (*D_00887310[])(s32, void *, s32);
     extern void (*D_00887314[])(s32, void *, s32, void *, s32);
     extern void (*D_00887308[])(s32, s32, s32, s32);
@@ -414,7 +414,7 @@ void sdkOtFlushBuckets(u8 *arg0)
             func_00462230(p);
             break;
         case 28:
-            func_00475cd0(*(void **)(p + 0x1C));
+            mdlUpdateDrawState(*(void **)(p + 0x1C));
             break;
         default:
             break;

@@ -154,7 +154,7 @@ extern void* mdlMatFXSetEnvMapValueCallback(void*, void*);
 extern void* mdlMatFXSetEnvMapStateCallback(void*, void*);
 extern void* mdlDrawAtomicIfVisible(void*, void*);
 extern void* mdlSetFrameColorIfNamed(void* param_1, void* param_2);
-extern void* func_00474a10(void* param_1, void* data);
+extern void* mdlForEachAtomicListEntry(void* param_1, void* data);
 extern u32 mdlGetFrameNameUserData(void* param_1);
 extern int strncmp();
 extern int func_003d8130();
@@ -2357,8 +2357,9 @@ int mdlAppendUniqueListEntry(int param_1, void* param_2)
 
 
 
+// Per-atomic step for RpClumpForAllAtomics: runs the callback in data[0] with data[1] over the atomic's entry list at +0x18 (via func_003c21e0), then returns the atomic.
 // FUN_00474A10
-void* func_00474a10(void* param_1, void* data)
+void* mdlForEachAtomicListEntry(void* param_1, void* data)
 {
     u32* param_2 = data;
     func_003c21e0(*(u32*)((u8*)param_1 + 0x18), *param_2, param_2[1]);
@@ -2536,7 +2537,7 @@ void mdlSetupNamedFrameAnims(u8* param_1, void* param_2)
         callbackData.callback = (code)mdlAppendUniqueListEntry;
         callbackData.value = uVar1;
 
-        RpClumpForAllAtomics(param_2, func_00474a10, &callbackData);
+        RpClumpForAllAtomics(param_2, mdlForEachAtomicListEntry, &callbackData);
 
         *(u32*)(*(int*)(param_1 + 0x18) + 8) = uVar1;
 
@@ -3174,11 +3175,12 @@ extern void mdlRefreshSecondaryEffect(u8* a, void* model);
 extern void (*D_00887300_abs[])(s32, s32);
 extern void (*D_00887304[])(s32, void*);
 
+// Advances one model's draw state by one frame: steps owner->alpha toward owner->targetAlpha by alphaStep, sets the colour alpha from it, and blends owner->rotation toward a light-derived quaternion, limited by owner->minBlend.
 /* Retail ORs identity.flags at sp+0xCC (0x004764F0) before its first store at
  * 0x00476500; nothing earlier defines that word. The C keeps the same
  * read-modify-write of the uninitialised field. */
 // FUN_00475CD0
-void func_00475cd0(MdlDrawState* owner)
+void mdlUpdateDrawState(MdlDrawState* owner)
 {
     s32 current;
     s32 target;

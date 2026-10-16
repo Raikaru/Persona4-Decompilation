@@ -3057,7 +3057,7 @@ just a difference.
 
 **Across 212 byte-exact MATCH first-party functions there are 2909 branches
 and zero filled delay slots.**  Not a few, none.  The same held (2026-09-19)
-for every function that still had a floor: `func_00475cd0` has 179 branches
+for every function that still had a floor: `mdlUpdateDrawState` (was `func_00475cd0`) has 179 branches
 and 179 empty slots, `func_004b1ad0` 76 and 76, `func_004a5fc0` 75 and 75,
 `func_0021a7b0` 49 and 49, `FlashTexturedEmitDirectionalQuads` (was `func_0049e150`) 40 and 40, `func_00308f40` 97 and
 97, `func_003599c0` 112 and 112.
@@ -3069,7 +3069,7 @@ genuine instruction surplus:
 
 | function | with the pragma | truth without it |
 |---|---|---|
-| `func_00475cd0` | 1007/1000 "inside" | 1131/1000, **+13.1%** |
+| `mdlUpdateDrawState` (was `func_00475cd0`) | 1007/1000 "inside" | 1131/1000, **+13.1%** |
 | `func_004b1ad0` | 802/796 "inside" | 909/796, **+14.2%** |
 | `func_004a5fc0` | 762/756 "inside" | 851/756, **+12.6%** |
 | `func_0021a7b0` | 418/427 "inside" | 460/428, **+7.5%** |
@@ -3122,7 +3122,7 @@ prologue before testing any block order.  A short frame is the cheapest
 possible explanation and the most destructive one: it does not change the
 instruction count at all, so the gate and the word score both look healthy
 while the whole body is misaligned.  Note the direction matters - the same
-function's neighbour `func_00475cd0` is 0x1D0 against retail's 0x1A0 with
+function's neighbour `mdlUpdateDrawState` (was `func_00475cd0`) is 0x1D0 against retail's 0x1A0 with
 three extra saved registers, which needs a shrink rather than a pad.
 
 Review note: `pad00` is placeholder storage in a frame struct. STYLE.md
@@ -3482,10 +3482,10 @@ agents had been redrafting it from scratch before anyone checked:
     func_0024c460  cmmScript.c
     func_004b1ad0  code1_004b.c
     func_0035aff0  code1_0035.c   231 lines
-    func_00475cd0  mdlManager.c   installed 2026-09-19 at 1007 against 1000
+    mdlUpdateDrawState (was func_00475cd0)  mdlManager.c   installed 2026-09-19 at 1007 against 1000
 
 **So the first step on any function with no C body is to look for an archived
-draft.**  `func_00475cd0` went from bare assembly to a floor inside the gate
+draft.**  `mdlUpdateDrawState` (was `func_00475cd0`) went from bare assembly to a floor inside the gate
 in minutes that way (that 1007/1000 later proved to depend on
 `#pragma schedule on`; see 7au).
 
