@@ -2,6 +2,7 @@
 #define DATPERSONA_INTERNAL_H
 
 #include "type.h"
+#include "datUnit_internal.h"
 
 /* Persona table, skill table, and stat accessors defined in datPersona.c.
  * func_0010b3b0 is intentionally not declared here: its one caller keeps an
@@ -35,21 +36,21 @@ enum DatPersonaStat {
     PERSONA_STAT_LUC
 };
 // Intent: battle stat (index 0..4, see DatPersonaStat) at +0x1C of a persona record; enemy records read the same index.
-u8 datPersonaGetStat(u8 *arg0, s32 arg1);
+u8 datPersonaGetStat(DatPersonaRecord *arg0, s32 arg1);
 // Intent: battle stat (index 0..4) of the record for persona id arg0; same layout as datPersonaGetStat.
 s32 datPersonaGetStatById(s32 arg0, s32 arg1);
 // Intent: battle stat arg1 of record arg0 plus two stat modifiers, capped at 99; fatal when arg1 >= 5.
-u8 datPersonaGetBuffedStat(u8 *arg0, s32 arg1);
+u8 datPersonaGetBuffedStat(DatPersonaRecord *arg0, s32 arg1);
 // Intent: battle stat arg1 of record arg0 plus two modifiers and the equipment bonus, clamped to 0..99.
-u8 datPersonaGetTotalStat(u8 *arg0, s32 arg1);
+u8 datPersonaGetTotalStat(DatPersonaRecord *arg0, s32 arg1);
 // Intent: battle stat arg1 of the record for persona id arg0, plus modifiers and equipment, clamped to 0..99.
 u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 // Intent: signed per-stat bonus byte at +0x21 of a record for stat arg1; summed into the stat totals.
-s8 datPersonaGetStatBonusA(u8 *arg0, s32 arg1);
+s8 datPersonaGetStatBonusA(DatPersonaRecord *arg0, s32 arg1);
 // Intent: signed per-stat bonus byte at +0x26 of a record for stat arg1; summed into the stat totals.
-s8 datPersonaGetStatBonusB(u8 *arg0, s32 arg1);
+s8 datPersonaGetStatBonusB(DatPersonaRecord *arg0, s32 arg1);
 // Intent: equipment bonus for stat arg1 of record arg0, summed from the equipped items of its party slot.
-s8 datPersonaGetEquipStatBonus(u8 *arg0, s32 arg1);
+s8 datPersonaGetEquipStatBonus(DatPersonaRecord *arg0, s32 arg1);
 // Intent: adds delta arg2 to stat arg1 of record arg0, clamped to 0..99; returns the new value.
 s32 datPersonaAddStat(u8 *arg0, s32 arg1, s32 arg2);
 // Intent: adds delta arg2 to stat arg1 of the record for persona id arg0, clamped to 0..99.
@@ -99,7 +100,7 @@ s32 datPersonaPlaceRosterMember(s32 arg0, u16 arg1);
 // Intent: clears roster mode arg0; mode 1 resets the selection and the roster block, other modes clear one party block.
 void datPersonaResetRosterMode(s16 arg0);
 // Intent: true when persona record arg0 is in the fixed party id range 0xC0..0xD7 (fixed growth rows).
-s32 datPersonaUsesFixedGrowth(u8 *arg0);
+s32 datPersonaUsesFixedGrowth(DatPersonaRecord *arg0);
 // Intent: previews stat, skill and level changes of persona arg0 at level arg2 into arg1 without modifying the persona.
 void datPersonaPreviewLevelUp(u8 *arg0, u8 *arg1, s32 arg2);
 // Intent: applies a level-up delta from arg1 to persona record arg0: level, stat deltas, and newly learned skills.

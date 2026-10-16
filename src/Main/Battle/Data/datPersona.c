@@ -160,7 +160,7 @@ s32 datPersonaCollectLearnableSkills(u8 *persona, void *arg1, void *arg2)
     {
         kAssertFail(D_005E4318, 0x132);
     }
-    if (datPersonaUsesFixedGrowth(persona) != 0)
+    if (datPersonaUsesFixedGrowth((DatPersonaRecord *)persona) != 0)
     {
         table = (u8 *)iGpffffb3e4 + (*(u16 *)(persona + 2) - 0xC0) * 0x26E + 4;
         maximum = 0x20;
@@ -300,12 +300,12 @@ u32 datPersonaGetSkillSlot(u16 arg0, s32 arg1)
 
 // Intent: battle stat (index 0..4, see DatPersonaStat in datPersona_internal.h) at +0x1C of a persona record.
 // FUN_00109920
-u8 datPersonaGetStat(u8 *arg0, s32 arg1)
+u8 datPersonaGetStat(DatPersonaRecord *arg0, s32 arg1)
 {
     if ((arg1 & 0xFFFF) >= 5) {
         kAssertFail(D_005E4318, 0x1DE);
     }
-    return arg0[(u16)arg1 + 0x1C];
+    return arg0->stats[(u16)arg1];
 }
 
 // Intent: battle stat (index 0..4) of the record for persona id arg0; same layout as datPersonaGetStat.
@@ -325,7 +325,7 @@ s32 arg1;
 
 // Intent: battle stat arg1 of record arg0 plus two stat modifiers, capped at 99; fatal when arg1 >= 5.
 // FUN_001099F0
-u8 datPersonaGetBuffedStat(u8 *arg0, s32 arg1)
+u8 datPersonaGetBuffedStat(DatPersonaRecord *arg0, s32 arg1)
 {
     s16 a;
     s16 b;
@@ -334,7 +334,7 @@ u8 datPersonaGetBuffedStat(u8 *arg0, s32 arg1)
     if ((arg1 & 0xFFFF) >= 5) {
         kAssertFail(D_005E4318, 0x1DE);
     }
-    a = (s16)arg0[(u16)arg1 + 0x1C];
+    a = (s16)arg0->stats[(u16)arg1];
     b = (s8)datPersonaGetStatBonusA(arg0, arg1);
     c = (s8)datPersonaGetStatBonusB(arg0, arg1);
     sum = (s16)(a + b + c);
@@ -346,7 +346,7 @@ u8 datPersonaGetBuffedStat(u8 *arg0, s32 arg1)
 
 // Intent: battle stat arg1 of record arg0 plus two modifiers and the equipment bonus, clamped to 0..99.
 // FUN_00109AD0
-u8 datPersonaGetTotalStat(u8 *arg0, s32 arg1)
+u8 datPersonaGetTotalStat(DatPersonaRecord *arg0, s32 arg1)
 {
     s16 a;
     s16 b;
@@ -357,7 +357,7 @@ u8 datPersonaGetTotalStat(u8 *arg0, s32 arg1)
     if ((arg1 & 0xFFFF) >= 5) {
         kAssertFail(D_005E4318, 0x1DE);
     }
-    a = (s16)arg0[(u16)arg1 + 0x1C];
+    a = (s16)arg0->stats[(u16)arg1];
     b = (s8)datPersonaGetStatBonusA(arg0, arg1);
     c = (s8)datPersonaGetStatBonusB(arg0, arg1);
     d = (s8)datPersonaGetEquipStatBonus(arg0, arg1);
@@ -379,12 +379,12 @@ u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1)
     s16 c;
     s8 d;
     s16 sum;
-    u8 *p = (u8 *)datPersonaGetRecord(arg0);
+    DatPersonaRecord *p = (DatPersonaRecord *)datPersonaGetRecord(arg0);
 
     if ((arg1 & 0xFFFF) >= 5) {
         kAssertFail(D_005E4318, 0x1DE);
     }
-    a = (s16)p[(u16)arg1 + 0x1C];
+    a = (s16)p->stats[(u16)arg1];
     b = (s8)datPersonaGetStatBonusA(p, arg1);
     c = (s8)datPersonaGetStatBonusB(p, arg1);
     d = (s8)datPersonaGetEquipStatBonus(p, arg1);
@@ -399,22 +399,22 @@ u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1)
 
 // Intent: signed per-stat bonus byte at +0x21 of a record for stat arg1; summed into the stat totals.
 // FUN_00109D20
-s8 datPersonaGetStatBonusA(u8 *arg0, s32 arg1)
+s8 datPersonaGetStatBonusA(DatPersonaRecord *arg0, s32 arg1)
 {
     if ((arg1 & 0xFFFF) >= 5) {
         kAssertFail(D_005E4318, 0x268);
     }
-    return (s8)arg0[(u16)arg1 + 0x21];
+    return arg0->statBonusA[(u16)arg1];
 }
 
 // Intent: signed per-stat bonus byte at +0x26 of a record for stat arg1; summed into the stat totals.
 // FUN_00109DD0
-s8 datPersonaGetStatBonusB(u8 *arg0, s32 arg1)
+s8 datPersonaGetStatBonusB(DatPersonaRecord *arg0, s32 arg1)
 {
     if ((arg1 & 0xFFFF) >= 5) {
         kAssertFail(D_005E4318, 0x299);
     }
-    return (s8)arg0[(u16)arg1 + 0x26];
+    return arg0->statBonusB[(u16)arg1];
 }
 
 extern u16 datCalcCountIdSlotsWithValue(u16 arg0, u16 arg1);
@@ -427,7 +427,7 @@ extern u8 *iGpffffb1b0;
  * query independent and preserve the signed-byte result for the stat clamp. */
 // Intent: equipment bonus for stat arg1 of record arg0, summed from the equipped items of its party slot.
 // FUN_00109E30
-s8 datPersonaGetEquipStatBonus(u8 *arg0, s32 arg1)
+s8 datPersonaGetEquipStatBonus(DatPersonaRecord *arg0, s32 arg1)
 {
     s16 bonus;
     u16 party;
@@ -439,10 +439,10 @@ s8 datPersonaGetEquipStatBonus(u8 *arg0, s32 arg1)
     }
     bonus = 0;
     if (datPersonaUsesFixedGrowth(arg0) != 0) {
-        if (*(u16 *)(arg0 + 2) < 0xC0 || *(u16 *)(arg0 + 2) > 0xD7) {
+        if (arg0->id < 0xC0 || arg0->id > 0xD7) {
             kAssertFail(D_005E4318, 0x2D4);
         }
-        party = iGpffffb3e4[*(u16 *)(arg0 + 2) - 0xC0][0];
+        party = iGpffffb3e4[arg0->id - 0xC0][0];
     } else {
         party = 1;
     }
@@ -1195,15 +1195,15 @@ void datPersonaResetRosterMode(s16 arg0)
         D_00797F88[0] = -1;
         memset((void *)D_00797F8C, 0, 0x240);
     } else {
-        memset((void *)&((DatPartySlot *)D_00796E50)[v - 2].personaRecord, 0, sizeof(DatUnit));
+        memset((void *)&((DatPartySlot *)D_00796E50)[v - 2].personaRecord, 0, sizeof(DatPersonaRecord));
     }
 }
 
 // Intent: true when persona record arg0 is in the fixed party id range 0xC0..0xD7 (fixed growth rows).
 // FUN_0010BE20
-s32 datPersonaUsesFixedGrowth(u8 *arg0)
+s32 datPersonaUsesFixedGrowth(DatPersonaRecord *arg0)
 {
-    u16 v = *(u16 *)(arg0 + 2);
+    u16 v = arg0->id;
 
     if (v >= 0xC0 && v < 0xD8) {
         return 1;
