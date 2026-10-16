@@ -148,7 +148,7 @@ s32 btlUpdateDraw2DTask(u8 *task)
 
 
 // FUN_001935F0
-u32 func_001935f0(void)
+u32 btlCountIsPositive(void)
 {
     if (func_0029d020() > 0)
     {
