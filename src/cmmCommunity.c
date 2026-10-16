@@ -46,7 +46,7 @@ extern void datDestroyTaskByName(void);
 extern void datFreeTaskWork(u8 *task);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u16 D_0079740C[];
-extern u8 D_00797410[];
+extern CmmCommunityRecord D_00797410[];
 extern s32 D_00797560[];
 extern char D_005E42C8[];
 extern char D_005E4308[];
@@ -124,10 +124,10 @@ static inline void CommunityFlags_Clear(s32 community)
 // Community refresh flags: clears the flag bands of community arg0 and rebuilds them from its record: the base band (cmmCommunityHasRecord) and the rank band (rank 10 maps to band 1, others to rank + 3), then bands 2 (cmmCommunityTestReversed) and 3 (cmmCommunityTestBroken).
 // FUN_00106F40
 void cmmCommunityRefreshFlags(s32 arg0) {
-    u8 *record;
+    CmmCommunityRecord *record;
     s32 id;
     s32 rank;
-    record = (u8 *)cmmCommunityFindRecord(arg0);
+    record = (CmmCommunityRecord *)cmmCommunityFindRecord(arg0);
     id = arg0 & 0xFFFF;
     if (id <= 0) {
         kAssertFail(D_005E42C8, 0x48);
@@ -138,7 +138,7 @@ void cmmCommunityRefreshFlags(s32 arg0) {
     }
     if (cmmCommunityHasRecord(arg0) != 0) {
         cmmCommunitySetFlagBand(arg0, 0);
-        rank = *(u16 *)(record + 6);
+        rank = record->rank;
         if (rank == 0xA) {
             cmmCommunitySetFlagBand(arg0, 1);
         } else {
@@ -164,7 +164,7 @@ void cmmCommunityClearTable(void)
 s32 cmmCommunityFindRecord(s32 arg0)
 {
     s32 id = arg0 & 0xFFFF;
-    s32 ptr;
+    CmmCommunityRecord *ptr;
     s32 i;
 
     if (id >= 0x1F)
@@ -175,15 +175,15 @@ s32 cmmCommunityFindRecord(s32 arg0)
     {
         return 0;
     }
-    ptr = (s32)D_00797410;
+    ptr = D_00797410;
     i = 0;
     while (i < 0x15)
     {
-        if (*(u16 *)(ptr + 4) == id)
+        if (ptr->id == id)
         {
-            return ptr;
+            return (s32)ptr;
         }
-        ptr += 0x10;
+        ptr++;
         i++;
     }
     return 0;
@@ -327,8 +327,8 @@ void cmmCommunityReleaseCounterparts(s32 arg0)
 // Community alloc record: when arg0 has no record, claims the first free slot of the table at D_00797410, sets its id and its +6 field to 1, and sets flag bands 0 and 4. Asserts on a full table or a zero id.
 // FUN_001075D0
 void cmmCommunityAllocRecord(s32 arg0) {
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
 
     if (cmmCommunityHasRecord(arg0) != 0) {
@@ -338,11 +338,11 @@ void cmmCommunityAllocRecord(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == 0) {
+        if (p->id == 0) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -354,9 +354,9 @@ ret:
         kAssertFail(D_005E42C8, 0x108);
     }
     memset(r, 0, 0x10);
-    *(s32 *)r = 0;
-    *(s16 *)(r + 4) = arg0;
-    *(s16 *)(r + 6) = 1;
+    r->flags = 0;
+    r->id = arg0;
+    r->rank = 1;
     cmmCommunitySetFlagBand(arg0, 0);
     cmmCommunitySetFlagBand(arg0, 4);
 }
@@ -390,8 +390,8 @@ ret:
 void cmmCommunityReleaseRecord(s32 arg0) {
     s32 j;
     s32 id = arg0 & 0xFFFF;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
 
     if (id >= 0x1F) {
@@ -404,11 +404,11 @@ void cmmCommunityReleaseRecord(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -444,8 +444,8 @@ ret:
 // FUN_001077F0
 s32 cmmCommunityHasRecord(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
 
     if (id >= 0x1F) {
@@ -458,11 +458,11 @@ s32 cmmCommunityHasRecord(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -533,8 +533,8 @@ s32 cmmCommunityFindActiveSlotInGroup(s32 arg0)
 // FUN_00107A00
 s32 cmmCommunityTestRecordFlags(s32 arg0, s32 arg1) {
     s32 id = arg0 & 0xFFFF;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
 
     if (id >= 0x1F) {
@@ -547,11 +547,11 @@ s32 cmmCommunityTestRecordFlags(s32 arg0, s32 arg1) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -571,8 +571,8 @@ ret:
 // FUN_00107AC0
 u16 cmmCommunityRecordValue(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
 
     if (id >= 0x1F) {
@@ -585,11 +585,11 @@ u16 cmmCommunityRecordValue(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -597,7 +597,7 @@ ret:
     if (r == NULL) {
         return 0;
     }
-    return *(u16 *)(r + 6);
+    return r->rank;
 }
 
 // Test marked: returns 1 when arg0's record has the MARKED bit (0x4) set, else 0. The bit's meaning is not evidenced (see include/cmm_internal.h).
@@ -629,8 +629,8 @@ s32 cmmCommunityTestMarked(s32 arg0)
 // FUN_00107BD0
 void cmmCommunitySetMarked(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
 
     if (id >= 0x1F) {
@@ -643,11 +643,11 @@ void cmmCommunitySetMarked(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -666,8 +666,8 @@ ret:
 // FUN_00107CE0
 void cmmCommunitySetReversed(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
 
     if (id >= 0x1F) {
@@ -680,11 +680,11 @@ void cmmCommunitySetReversed(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -705,8 +705,8 @@ ret:
 // FUN_00107DC0
 void cmmCommunityClearReversed(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
 
     if (id >= 0x1F) {
@@ -719,11 +719,11 @@ void cmmCommunityClearReversed(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -786,8 +786,8 @@ s32 cmmCommunityTestBroken(s32 arg0)
 // FUN_00107F00
 void cmmCommunitySetBroken(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
 
     if (id >= 0x1F) {
@@ -800,11 +800,11 @@ void cmmCommunitySetBroken(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -825,8 +825,8 @@ ret:
 // FUN_00107FE0
 void cmmCommunityClearBroken(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
 
     if (id >= 0x1F) {
@@ -839,11 +839,11 @@ void cmmCommunityClearBroken(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -889,7 +889,7 @@ f32 cmmCommunityEarnScale(s32 arg0) {
             v = v * *(f32 *)((u8 *)cmmEarnScaleTable() + 8);
         }
     }
-    if ((*(s32 *)((u8 *)cmmKindRecord(arg0) + 4) & 0x20) != 0) {
+    if ((((CmmKindRecord *)cmmKindRecord(arg0))->flags & 0x20) != 0) {
         i = 0;
         while (i < 3) {
             off = i * 8;
@@ -917,8 +917,8 @@ f32 cmmCommunityEarnScale(s32 arg0) {
 // FUN_00108290
 s32 cmmCommunityAddScaledPoints(s32 arg0, u32 arg1) {
     f32 v;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 x;
     s32 id;
     s32 i;
@@ -940,11 +940,11 @@ s32 cmmCommunityAddScaledPoints(s32 arg0, u32 arg1) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -964,7 +964,7 @@ ret:
             v = v * *(f32 *)((u8 *)cmmEarnScaleTable() + 8);
         }
     }
-    if ((*(s32 *)((u8 *)cmmKindRecord(x) + 4) & 0x20) != 0) {
+    if ((((CmmKindRecord *)cmmKindRecord(x))->flags & 0x20) != 0) {
         x = 0;
         while (x < 3) {
             id = x * 8;
@@ -980,7 +980,7 @@ ret:
         }
     }
     n = (u16)((f32)arg1 * v);
-    *(u16 *)(r + 8) = *(u16 *)(r + 8) + n;
+    r->points = r->points + n;
     return n;
 }
 
@@ -1059,8 +1059,8 @@ u16 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2) {
 // FUN_001087E0
 s32 cmmCommunityCanRankUp(s32 arg0) {
     s32 id = arg0 & 0xFFFF;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
     s32 t;
     s32 rank;
@@ -1074,11 +1074,11 @@ s32 cmmCommunityCanRankUp(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -1102,8 +1102,8 @@ ret:
         t = *(u16 *)(t + 6);
     }
     id = t & 0xFFFF;
-    rank = *(u16 *)(r + 8);
-    if (rank >= *(u16 *)((u8 *)cmmKindRecord(arg0) + (id & 0xFFFF) * 2 + 0x10)) {
+    rank = r->points;
+    if (rank >= ((CmmKindRecord *)cmmKindRecord(arg0))->rankThreshold[id & 0xFFFF]) {
         return 1;
     }
     return 0;
@@ -1139,8 +1139,8 @@ ret:
    drops retail's andi, costing nd 162. */
 #pragma optimization_level 1
 s32 cmmCommunityTryRankUp(s32 arg0) {
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 id;
     s32 i;
     s32 t;
@@ -1158,11 +1158,11 @@ s32 cmmCommunityTryRankUp(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -1191,7 +1191,7 @@ ret:
             }
             lv = u & 0xFFFF;
             id = *(u16 *)(id + 8);
-            if (id >= *(u16 *)((u8 *)cmmKindRecord(arg0) + (lv & 0xFFFF) * 2 + 0x10)) {
+            if (id >= ((CmmKindRecord *)cmmKindRecord(arg0))->rankThreshold[lv & 0xFFFF]) {
                 ok = (u8)1;
             } else {
                 ok = 0;
@@ -1208,7 +1208,7 @@ ret:
         t = *(u16 *)(t + 6);
     }
     cmmCommunitySetRank(arg0, (t & 0xFFFF) + 1);
-    *(s16 *)(r + 8) = 0;
+    r->points = 0;
     t = cmmCommunityFindRecord(arg0);
     if (t != 0) {
         *(s32 *)t = *(s32 *)t & ~CMM_RECORD_FLAG_MARKED;
@@ -1229,8 +1229,8 @@ ret0:
 // FUN_00108B60
 void cmmCommunitySetRank(s32 arg0, s32 arg1) {
     s32 id = arg0 & 0xFFFF;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
 
     if (id >= 0x1F) {
@@ -1243,11 +1243,11 @@ void cmmCommunitySetRank(s32 arg0, s32 arg1) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -1261,12 +1261,12 @@ ret:
     if (arg1 > 0xA) {
         kAssertFail(D_005E42C8, 0x255);
     }
-    *(s16 *)(r + 6) = arg1;
-    if (*(u16 *)(r + 6) == 0xA) {
+    r->rank = arg1;
+    if (r->rank == 0xA) {
         cmmCommunitySetFlagBand(arg0, 1);
         return;
     }
-    cmmCommunitySetFlagBand(arg0, *(u16 *)(r + 6) + 3);
+    cmmCommunitySetFlagBand(arg0, r->rank + 3);
 }
 
 // Community task noop: the first task callback passed to kwlnTaskCreate; does nothing and returns 0.
@@ -1371,8 +1371,8 @@ u16 cmmCommunityGetTableHead(void)
 // FUN_00108EF0
 void cmmCommunityAdvanceForm(s32 arg0) {
     s32 id;
-    u8 *r;
-    u8 *p;
+    CmmCommunityRecord *r;
+    CmmCommunityRecord *p;
     s32 i;
     s32 j;
 
@@ -1387,11 +1387,11 @@ void cmmCommunityAdvanceForm(s32 arg0) {
     p = D_00797410;
     i = 0;
     while (i < 0x15) {
-        if (*(u16 *)(p + 4) == id) {
+        if (p->id == id) {
             r = p;
             goto ret;
         }
-        p += 0x10;
+        p++;
         i++;
     }
     r = NULL;
@@ -1401,25 +1401,25 @@ ret:
     }
     switch (id) {
     case 3:
-        *(s16 *)(r + 4) = 4;
+        r->id = 4;
         break;
     case 5:
-        *(s16 *)(r + 4) = 6;
+        r->id = 6;
         break;
     case 0xB:
-        *(s16 *)(r + 4) = 0xC;
+        r->id = 0xC;
         break;
     case 0xE:
-        *(s16 *)(r + 4) = 0xF;
+        r->id = 0xF;
         break;
     case 0x15:
-        *(s16 *)(r + 4) = 0x16;
+        r->id = 0x16;
         break;
     case 0x19:
-        *(s16 *)(r + 4) = 0x1A;
+        r->id = 0x1A;
         break;
     case 0x1B:
-        *(s16 *)(r + 4) = 0x1C;
+        r->id = 0x1C;
         break;
     }
     if (id <= 0) {
@@ -1430,7 +1430,7 @@ ret:
         datSetFlag(id + ((j << 5) + 0x3FF), 0);
         j++;
     }
-    cmmCommunityRefreshFlags(*(u16 *)(r + 4));
+    cmmCommunityRefreshFlags(r->id);
 }
 
 
