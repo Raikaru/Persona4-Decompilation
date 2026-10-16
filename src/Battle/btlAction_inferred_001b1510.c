@@ -787,7 +787,7 @@ s32 btlMainUnitCreateUpdate(void)
     extern s32 iGpffffb414;
     extern s32 func_001b1540(void);
     extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
-    extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
+    extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern void func_001ee250(u8 *arg0, u8 *arg1);
     extern void btlTargetBlendVectors(u8 *rotation, u8 *from, u8 *to);
     extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
@@ -880,7 +880,7 @@ s32 btlMainUnitCreateUpdate(void)
           }
         }
       }
-      func_00196040(2,0,&groupCenter,NULL,NULL,1);
+      btlUnitGetGroupBounds(2,0,&groupCenter,NULL,NULL,1);
       spacingIncrement = 0.0f;
       for (unit = *(u8 **)(D_0076449C + 0x178); unit != NULL;
           unit = *(u8 **)(unit + 0xa6c)) {
@@ -903,7 +903,7 @@ s32 btlMainUnitCreateUpdate(void)
           }
         } else {
           func_00194ff0(unit,(u8 *)&position,NULL,(f32 *)&targetDirection);
-          func_00196040(2,0,&groupCenter,NULL,NULL,1);
+          btlUnitGetGroupBounds(2,0,&groupCenter,NULL,NULL,1);
           if ((*(u32 *)(D_0076449C + 0xc) & 0x20000000) == 0) {
             mode = *(u16 *)(D_0076449C + 0x1a);
             switch (mode) {

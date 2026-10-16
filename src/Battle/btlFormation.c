@@ -169,7 +169,7 @@ u32 btlFormationPlaceUnits(u32 *work)
     extern void btlUnitGetSphereWorldCenter(struct BtlUnit *, struct RwV3d *);
     extern void btlUnitGetSphereCenterTowardTarget(struct BtlUnit *, struct BtlUnit *, struct RwV3d *);
     extern void btlUnitGetGridSphereCenter(struct BtlUnit *, struct RwV3d *);
-    extern f32 func_00196040(u32, u32, struct RwV3d *, f32 *, f32 *, u32);
+    extern f32 btlUnitGetGroupBounds(u32, u32, struct RwV3d *, f32 *, f32 *, u32);
     extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
     extern s32 func_001f1210(u8 *unit, s16 action, s32 paired);
     extern void func_001951f0(u8 *unit, u8 *target, u8 *partner, s32 category,
@@ -419,7 +419,7 @@ u32 btlFormationPlaceUnits(u32 *work)
                 btlUnitGetSphereWorldCenter((struct BtlUnit *)(unitB), (struct RwV3d *)(centerA));
                 /* An empty filtered group leaves X/Z unwritten, as in
                  * retail. Only Y is replaced before using the center. */
-                func_00196040(2, 0, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
+                btlUnitGetGroupBounds(2, 0, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
                 centerB.v[1] = *(f32 *)(unitB + 8);
                 centerA[1] = centerB.v[1];
                 tmpE0 = centerB;
@@ -467,7 +467,7 @@ u32 btlFormationPlaceUnits(u32 *work)
                     btlUnitSetPos((struct BtlUnit *)(unitB), (const struct RwV3d *)(dest));
                 }
             } else if ((*(u32 *)(iGpffffb3ac + 0x10) & 0x80) != 0) {
-                func_00196040(2, 0, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
+                btlUnitGetGroupBounds(2, 0, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
                 for (spacingNode = *(u8 **)(iGpffffb3ac + 0x17C); spacingNode != NULL; spacingNode = *(u8 **)(spacingNode + 0xA68)) {
                     if ((*(u32 *)(spacingNode + 0x9C) & 8) != 0) {
                         btlUnitGetSphereWorldCenter((struct BtlUnit *)(spacingNode), (struct RwV3d *)(centerA));
@@ -507,7 +507,7 @@ u32 btlFormationPlaceUnits(u32 *work)
         btlUnitGetSphereWorldCenter((struct BtlUnit *)(groupUnit), (struct RwV3d *)(centerA));
         groupRadius = *(f32 *)(groupUnit + 0x90) * *(f32 *)(groupUnit + 0x2C);
         if (work[2] == 1) {
-            func_00196040(targetCount, 1, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
+            btlUnitGetGroupBounds(targetCount, 1, (struct RwV3d *)((f32 *)&centerB), NULL, NULL, 1);
             /* best is written only for a qualifying farther target.
              * Retail still consumes its stack slot after an empty scan. */
             farthestDistance = 0.0f;

@@ -95,7 +95,7 @@ static inline void cameraApplyVisibility(f32 radius, u8 *camera, u16 mode)
 {
     func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, radius, mode);
 }
-extern f32 func_00196040(u32, u32, void*, f32*, void*, u32);
+extern f32 btlUnitGetGroupBounds(u32, u32, void*, f32*, void*, u32);
 extern void btlUnitGetGridSphereCenter(BtlUnit*, RwV3d*);
 extern f32 tanf(f32 x);
 extern void btlUnitGetSphereWorldCenter(void *unit, void *center);
@@ -1157,7 +1157,7 @@ u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
 
     cam = (BtlCamera *)camera;
     btlCameraCopyPose((f32 *)&frames[0], (f32 *)(camera + 0x9C));
-    groupRadius = func_00196040(2, 0, &target, &distance, NULL, 1);
+    groupRadius = btlUnitGetGroupBounds(2, 0, &target, &distance, NULL, 1);
     if (distance < 350.0f) {
         target.y = 0.25f * distance;
     } else {
@@ -1606,7 +1606,7 @@ void btlCameraFrameSlerpTarget(u8 *camera, f32 *out)
     f32 minDistance;
     f32 factor;
 
-    value = func_00196040(3, 1, work.target, &work.distance,
+    value = btlUnitGetGroupBounds(3, 1, work.target, &work.distance,
                            &work.aux, 1);
     angleScale = tanf(DAT_00761200 *
                                (0.5f * *(f32 *)(camera + 0xB8)));
@@ -1756,7 +1756,7 @@ void btlCameraFrameClampedDistance(BtlCamera* camera)
     {
         iVar1 = *(int*)(*(int*)(iGpffffb3ac + 0x170) + 0x30);
     }
-    distance = func_00196040(3, 1, &scratch.target, &height, 0, 1);
+    distance = btlUnitGetGroupBounds(3, 1, &scratch.target, &height, 0, 1);
     btlUnitGetGridSphereCenter((BtlUnit*)iVar1, &scratch.pos);
     scratch.target.y = 0.0f;
     scratch.pos.y = 0.0f;
@@ -1830,7 +1830,7 @@ void func_001ccda0(void)
 void btlAct_NOP(u8 *camera)
 {
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, RwV3d *);
-    extern f32 func_00196040(u32, u32, RwV3d *, f32 *, f32 *, u32);
+    extern f32 btlUnitGetGroupBounds(u32, u32, RwV3d *, f32 *, f32 *, u32);
     extern void func_001ba790(f32 *out, f32 *first, f32 *second, f32 weight);
     extern void btlMainCurveSetThreePoses(u16 *camera, f32 *first, f32 *middle, f32 *last, u16 mode);
     extern RtQuat *func_003dc740(RtQuat *rotation, const RwV3d *axis, f32 angle, s32 mode);
@@ -1853,8 +1853,8 @@ void btlAct_NOP(u8 *camera)
         switch (*(u16 *)(iGpffffb3ac + 0x1A)) {
         case 0:
         case 1:
-            distance = func_00196040(3, 0, NULL, &height, NULL, 0);
-            func_00196040(2, 0, &groupCenter, NULL, NULL, 0);
+            distance = btlUnitGetGroupBounds(3, 0, NULL, &height, NULL, 0);
+            btlUnitGetGroupBounds(2, 0, &groupCenter, NULL, NULL, 0);
             groupCenter.y = 0.25f * height;
             btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
             unitCenter.y = 0.0f + unitCenter.y - fGpffff803c *
@@ -1884,7 +1884,7 @@ void btlAct_NOP(u8 *camera)
             duration = uGpffff81a0;
             break;
         case 2:
-            func_00196040(2, 0, &groupCenter, &height, NULL, 0);
+            btlUnitGetGroupBounds(2, 0, &groupCenter, &height, NULL, 0);
             groupCenter.y = fGpffff8128 * height;
             btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
             unitCenter.y = fGpffff8030 * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
@@ -1935,8 +1935,8 @@ void btlAct_NOP(u8 *camera)
         }
     } else {
         btlCameraBuildFramePair(camera, 1, 1, NULL, &frames[2]);
-        distance = func_00196040(1, 0, NULL, &height, NULL, 0);
-        func_00196040(2, 0, &groupCenter, NULL, NULL, 0);
+        distance = btlUnitGetGroupBounds(1, 0, NULL, &height, NULL, 0);
+        btlUnitGetGroupBounds(2, 0, &groupCenter, NULL, NULL, 0);
         if (!(200.0f <= distance)) {
             distance = 200.0f;
         }

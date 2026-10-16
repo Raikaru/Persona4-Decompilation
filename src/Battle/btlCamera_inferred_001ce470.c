@@ -63,7 +63,7 @@ extern f32 RwV3dLength(f32 *arg0);
 extern void btlCameraCopyPose();
 extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *out);
 extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *arg0, RwV3d *arg1);
-extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
+extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
 extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
 extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
 extern u32 btlCameraClampOffsetToLimit(f32 *arg0, f32 *arg1);
@@ -218,7 +218,7 @@ void btlCameraFrameRotated(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 
     if (*(s32 *)(arg0 + 0x120) != 0) {
         *(f32 *)(arg0 + 0x11C) =
-            func_00196040(3, 0, (RwV3d *)(arg0 + 0x104), 0, 0, 1);
+            btlUnitGetGroupBounds(3, 0, (RwV3d *)(arg0 + 0x104), 0, 0, 1);
         *(f32 *)(arg0 + 0x108) = 0.0f;
         *(s32 *)(arg0 + 0x120) = 0;
     }
@@ -295,9 +295,9 @@ void btlCameraFrameRotatedWide(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
     f32 scale;
 
     if (*(s32 *)(arg0 + 0x120) != 0) {
-        func_00196040(2, 1, (RwV3d *)(frame.target), 0, 0, 1);
+        btlUnitGetGroupBounds(2, 1, (RwV3d *)(frame.target), 0, 0, 1);
         *(f32 *)(arg0 + 0x11C) =
-            func_00196040(3, 0, (RwV3d *)(arg0 + 0x104), 0, 0, 2);
+            btlUnitGetGroupBounds(3, 0, (RwV3d *)(arg0 + 0x104), 0, 0, 2);
         *(f32 *)(arg0 + 0x108) = 0.0f;
         frame.diff[0] = *(f32 *)(arg0 + 0x104) - frame.target[0];
         frame.diff[1] = *(f32 *)(arg0 + 0x108) - frame.target[1];
@@ -416,7 +416,7 @@ void btlAct_ROUNDUP_MES(u8 *arg0)
 
     work = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
     btlCameraCopyPose(frame.first, arg0 + 0x9C);
-    scale = func_00196040(3, 1, (RwV3d *)(frame.target), 0, 0, 1);
+    scale = btlUnitGetGroupBounds(3, 1, (RwV3d *)(frame.target), 0, 0, 1);
     frame.target[1] = 0.0f;
     btlUnitGetGridSphereCenter((BtlUnit *)(work), (RwV3d *)(frame.source));
     frame.source[1] +=
@@ -633,7 +633,7 @@ void btlCameraFrameClampedRotate(u8 *arg0)
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
 
     work = *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30);
-    var_f21 = func_00196040(3, 1, (RwV3d *)((u8 *)&frame.spD0), 0, 0, 1);
+    var_f21 = btlUnitGetGroupBounds(3, 1, (RwV3d *)((u8 *)&frame.spD0), 0, 0, 1);
     if (var_f21 < 550.0f) {
         var_f21 = 550.0f;
     }
@@ -761,7 +761,7 @@ void btlAct_ALL(u8 *arg0)
     extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
 
     work = *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30);
-    var_f21 = func_00196040(2, 1, (RwV3d *)((u8 *)&frame.spD0), 0, 0, 1);
+    var_f21 = btlUnitGetGroupBounds(2, 1, (RwV3d *)((u8 *)&frame.spD0), 0, 0, 1);
     btlUnitGetGridSphereCenter((BtlUnit *)(work), (RwV3d *)(&frame.sp110));
     frame.sp100 = frame.sp110 - frame.spD0;
     frame.sp104 = frame.sp114 - frame.spD4;

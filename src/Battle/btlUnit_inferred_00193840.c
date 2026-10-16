@@ -68,7 +68,7 @@ extern void H_Cdvd_ReadSync(s32 arg0);
 extern s32 H_Cdvd_IsFileLoaded(s32 arg0);
 extern void H_Cdvd_Destroy(s32 arg0);
 typedef struct RwV3d RwV3d;
-extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
+extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
