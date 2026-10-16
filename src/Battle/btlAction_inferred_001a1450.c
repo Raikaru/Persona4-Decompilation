@@ -3514,7 +3514,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern u32 btlFormationGetFlags(s32 param_1);
     extern BtlPacket *btlFormationCreatePacket(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32 param_5);
     extern u16 btlTargetGetUnitIndex(BtlTarget *target);
-    extern s32 func_001ef4a0(u16 arg0); /* lint: allow H011 -- retail passes the lhu skill unconverted */
+    extern s32 btlUnitSlotValueOrOne(u16 arg0); /* lint: allow H011 -- retail passes the lhu skill unconverted */
     /* lint: allow H011 -- retail passes these u16 arguments without conversion:
      * this caller saw u16 parameters (the definitions take u32/s32). */
     extern void btlFormationFormatName(u16 value, char *destination); /* lint: allow H011 -- retail passes the u16 unconverted */
@@ -4695,7 +4695,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     if (actionFlag4000 != 0) {
         hitDelayBase = 4;
     } else {
-        hitDelayBase = (s32)((u16)func_001ef4a0(skillKey));
+        hitDelayBase = (s32)((u16)btlUnitSlotValueOrOne(skillKey));
     }
     hitDelta = (u16)hitDelayBase;
     hitWait = 0;

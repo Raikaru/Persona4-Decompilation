@@ -782,7 +782,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     extern u32 btlFormationGetFlags(s32 arg0);
     extern u8 *func_001d7bf0(u32 arg0, u32 arg1, u32 arg2);
     extern u8 *btlTargetCreateRecordPacket(u8 *arg0);
-    extern s32 func_001ef4a0(s32 arg0);
+    extern s32 btlUnitSlotValueOrOne(s32 arg0);
     extern void btlBossResetPendingCue(u8 *arg0);
     extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
     extern void btlMainSkillColorPairDefaults(u32 arg0, s32 *arg1, s32 *arg2);
@@ -963,7 +963,7 @@ void btlActionRoundupUpdate(u8 *arg0)
         btlPacketEnqueue(pk, 1);
     }
     sp110 = 0;
-    frameInterval = (u16)func_001ef4a0(selector);
+    frameInterval = (u16)btlUnitSlotValueOrOne(selector);
     for (var23 = 0; var23 < *(u16 *)(arg0 + 0x6A); var23++) {
         unit17 = *(u8 **)(arg0 + (u32)var23 * 4 + 0x38);
         btlBossResetPendingCue(unit17);

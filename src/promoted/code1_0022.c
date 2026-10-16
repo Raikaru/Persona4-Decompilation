@@ -199,7 +199,7 @@ extern void btlMainCurveSetPoses(u16 *param_1, f32 *param_2, f32 *param_3, u16 p
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
 extern u32 datCalcRandomBelow(u32 arg0);
 extern u8 D_0060A0E0[];
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 extern u8 D_006348B0[];
 extern u8 D_00634CB0[];
 extern u8 D_006350B0[];
@@ -276,7 +276,7 @@ extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rotation
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPosition, f32 speed, u32 flags);
 extern u32 datCalcIsDead(void *unit, s32 hpDelta);
 extern s32 datCalcIsStatusBlocked(u16 *unit);
-extern s32 func_001ef4a0(s32 action);
+extern s32 btlUnitSlotValueOrOne(s32 action);
 extern u8 D_006354C0[], D_006354D0[], D_00635500[];
 extern BtlPacket *btlFormationCreateSlotPacket(u16 group, u16 mask);
 extern f32 fGpffff80e4;
@@ -1013,7 +1013,7 @@ void btlCameraSelectEncounterPreset(u8 *camera)
         enemy = *(u8 **)(enemy + 0xA6C);
     }
     variant = hasPriorityStatus != 0 ? 2 : (u16)btlCameraPresetPresence(hasStatus);
-    if (func_001ef9a0() == 0x208 && (u16)variant == 0) {
+    if (btlCurrentUnitId() == 0x208 && (u16)variant == 0) {
         ally = *(u8 **)(iGpffffb3ac + 0x178);
         while (ally != NULL) {
             if ((*(u32 *)(ally + 0x9C) & 8) != 0 &&
@@ -1026,7 +1026,7 @@ void btlCameraSelectEncounterPreset(u8 *camera)
         }
     }
     btlCameraCopyPose((f32 *)&poses.first, (f32 *)(camera + 0x9C));
-    if (func_001ef9a0() != 0x215) {
+    if (btlCurrentUnitId() != 0x215) {
         record = (struct EyeFocus *)(*(u8 **)(iGpffffb3ac + 0xB98) +
                  (u16)partyIndex * 0x48 + (u16)variant * 0x18);
         btlCameraLookAtQuat(&poses.secondRotation, &record->eye, &record->focus, D_0060A0E0);
@@ -1073,7 +1073,7 @@ void btlCameraSelectSkillPreset(u8 *camera)
     } poses;
     extern s32 func_00243d80(u8 *unitData);
     extern s32 datCalcIsStatusBlocked(u16 *unitData);
-    extern s32 func_001ef9a0(void);
+    extern s32 btlCurrentUnitId(void);
     extern u32 btlEffectCollectGenusMask(s32 targets);
     extern void btlCameraReleaseOcclusion(u8 *camera);
     extern u8 D_00634890[];
@@ -1145,7 +1145,7 @@ void btlCameraSelectSkillPreset(u8 *camera)
         selectedPreset = (u16)btlCameraPresetPresence(hasStatus);
     }
     preset = selectedPreset & 0xFFFF;
-    if (func_001ef9a0() == 0x208 && (preset & 0xFFFF) == 0) {
+    if (btlCurrentUnitId() == 0x208 && (preset & 0xFFFF) == 0) {
         ally = *(u8 **)(DAT_0076449c + 0x178);
         while (ally != NULL) {
             if ((*(s32 *)(ally + 0x9C) & 8) != 0) {
@@ -1232,7 +1232,7 @@ group1_party_done:
         btlCameraLookAtQuat(&poses.secondRotation, record, record + 0xC, D_0060A0E0);
         poses.second = *(RwV3d *)record;
     }
-    if (func_001ef9a0() == 0x215) {
+    if (btlCurrentUnitId() == 0x215) {
         btlCameraLookAtQuat(&poses.secondRotation, D_00634890, D_0063489C, D_0060A0E0);
         poses.second = *(RwV3d *)D_00634890;
     }

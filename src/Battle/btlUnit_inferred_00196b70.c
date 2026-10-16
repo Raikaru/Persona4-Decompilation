@@ -169,8 +169,8 @@ extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void btlPacketStepSide(s32 arg0);
 extern void btlTargetResetWork(void *work);
-extern s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius);
-extern s32 func_001ef110(u8 *route, const f32 *startXZ, const f32 *endXZ, const f32 *centerXZ);
+extern s32 btlRouteFindPath(u8 *route, f32 *start, f32 *end, f32 radius);
+extern s32 btlRouteBuildArc(u8 *route, const f32 *startXZ, const f32 *endXZ, const f32 *centerXZ);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 /* measured: optimization_level 1 with the index and value locals declared
    before the loop reproduces func_00194470 exactly, object 284 bytes against
@@ -354,12 +354,12 @@ u32 func_00196d00(void *workData)
             routeEnd[0] = *(f32 *)(arg0 + 4);
             routeEnd[1] = *(f32 *)(arg0 + 0xC);
             if ((*(s32 *)(arg0 + 0x10) & 0x80) == 0) {
-                func_001eed10(unit + 0xEC, routeStart, routeEnd, 50.0f);
+                btlRouteFindPath(unit + 0xEC, routeStart, routeEnd, 50.0f);
             } else {
                 func_00196040(3, 1, &position.vector, NULL, NULL, 1);
                 routeCenter[0] = position.values[0];
                 routeCenter[1] = position.values[2];
-                func_001ef110(unit + 0xEC, routeStart, routeEnd, routeCenter);
+                btlRouteBuildArc(unit + 0xEC, routeStart, routeEnd, routeCenter);
             }
             index = *(u16 *)(unit + 0x4EC);
             if (index == 0) {

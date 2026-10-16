@@ -71,7 +71,7 @@ extern s32 func_0045af90(s32 arg0);
 
 extern void memset(void *destination, s32 value, u32 size);
 
-extern s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2);
+extern s32 btlSideAverageBattleStat(s32 arg0, s32 arg1, s32 arg2);
 
 extern u32 datCalcRandomBelow();
 extern s32 datCalcEnemyExp(s32 arg0);
@@ -96,7 +96,7 @@ extern u16 D_00624FD8[];
 extern s32 func_001f65d0(u8 *arg0);
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern s32 func_00459880(void);
 

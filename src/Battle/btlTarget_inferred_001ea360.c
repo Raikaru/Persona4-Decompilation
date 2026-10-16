@@ -42,7 +42,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 extern s32 D_00724504;
 extern void btlActionFinishPresentation(s32 arg0);
 extern BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
@@ -97,7 +97,7 @@ extern u8 *iGpffffb42c;
 /* Source unit: src/promoted/code1_001e.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001e.c; members 001ea360-001ea8e0 */
 
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 #pragma push
 #pragma pop
 /* AI script command 0x2106 (p4flow AI.json AI_FUNCTION_0106). */
@@ -148,7 +148,7 @@ s32 btlEffectScriptQueueFormationSequence(void) {
     s32 temp_2;
     s32 temp_2_2;
 
-    if (func_001ef9a0() != 0x20B)
+    if (btlCurrentUnitId() != 0x20B)
         goto set_flag;
     if (datGetFlag(0x15FF) != 1)
         goto body;

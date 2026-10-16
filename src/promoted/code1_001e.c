@@ -63,7 +63,7 @@ extern void func_00213b50(s32 task);
 extern s32 func_001eb860(void);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 extern void btlDamageEndPhase(s32 task);
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 extern s32 D_00724504;
 extern void func_001eb7f0(void);
 extern s32 func_001eb860(void);

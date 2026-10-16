@@ -135,7 +135,7 @@ extern void btlSoundFadeOutBgm(s16 fadeDuration);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
 extern u32 datCalcRandomBelow(u32 arg0);
 extern u8 D_0060A0E0[];
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 extern u8 D_006348B0[];
 extern u8 D_00634CB0[];
 extern u8 D_006350B0[];
@@ -662,7 +662,7 @@ void btlEncounterInitGlobals(void)
 
     *(u32 *)(DAT_0076449c + 0xC) |= 0x200000;
     *(u32 *)(DAT_0076449c + 0x10) |= 1;
-    switch (func_001ef9a0()) {
+    switch (btlCurrentUnitId()) {
     case 0x200:
         *(u32 *)(DAT_0076449c + 0x10) |= 2;
         *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
@@ -755,7 +755,7 @@ void btlEncounterInitGlobals(void)
         *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
         *(u32 *)(DAT_0076449c + 0x10) |= 0x200;
         *(u32 *)(DAT_0076449c + 0x10) |= 0x2000;
-        if (func_001ef9a0() == 0x20B) {
+        if (btlCurrentUnitId() == 0x20B) {
             *(u8 **)(DAT_0076449c + 0xB98) = D_00630500;
         } else {
             *(u8 **)(DAT_0076449c + 0xB98) = D_00630C50;
@@ -801,7 +801,7 @@ void btlFormationAllocEncounterSlots(void)
     u8 *data;
     s32 formation;
 
-    switch (func_001ef9a0()) {
+    switch (btlCurrentUnitId()) {
     case 0x200:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
@@ -1011,7 +1011,7 @@ void btlFormationClearSlots(void)
     u8 *slot;
     u8 *base;
 
-    switch (func_001ef9a0()) {
+    switch (btlCurrentUnitId()) {
     case 0x214:
         datPersonaClearRoster();
         datPersonaAddRosterMember(1);
@@ -1058,7 +1058,7 @@ u8 *btlEncounterGetRecord(s32 arg0)
     if ((*(s32 *)(DAT_0076449c + 0x10) & 0x10) == 0) {
         return NULL;
     }
-    temp_2 = func_001ef9a0();
+    temp_2 = btlCurrentUnitId();
     switch (temp_2) {
     case 0x20B:
         if (*(s32 *)(DAT_0076449c + 0xC40) == 0) {
@@ -1452,7 +1452,7 @@ void btlUnitApplyPacketFlags(u8 *packet)
         return;
     unit = *(u8 **)(packet + 0x30);
     if (unit[0xA2] != 1) {
-        switch (func_001ef9a0()) {
+        switch (btlCurrentUnitId()) {
         case 0x215:
             if (*(u16 *)(packet + 0x6C) == 2 && *(u16 *)(packet + 0x6E) == 0x115)
                 func_001fae60((s32)btlEncounterResetUnit, (s32)func_0022bac0, (s32)packet);
@@ -1746,7 +1746,7 @@ s32 btlUnitApplyEncounterRoster(u8 *arg0)
     }
     unit = *(u8 **)(arg0 + 0x30);
     if (*(u8 *)(unit + 0xA2) != 1) {
-        switch (func_001ef9a0()) {
+        switch (btlCurrentUnitId()) {
         case 0x214:
             datPersonaClearRoster();
             datPersonaAddRosterMember(0xE0);
@@ -1816,7 +1816,7 @@ s32 btlUnitApplyEncounterRoster(u8 *arg0)
     case 0x10E:
         *(u32 *)(unit + 0x9C) |= 0x2000;
         *(u32 *)(unit + 0x9C) &= ~0x8000;
-        if (func_001ef9a0() != 0x215) {
+        if (btlCurrentUnitId() != 0x215) {
             **(u16 **)(unit + 0xA64) |= 0x20;
             *(u16 *)(arg0 + 0x1A) |= 0x100;
             func_001b0d70(arg0);
@@ -1854,7 +1854,7 @@ s32 btlUnitRealignCells(void) {
     if (!( *(s32 *)(DAT_0076449c + 0xC) & 0x200000)) {
         return 0;
     }
-    switch (func_001ef9a0()) {
+    switch (btlCurrentUnitId()) {
     case 0x202:
         var_16 = *(u8 **)(DAT_0076449c + 0x180);
         goto loop_check;
@@ -2098,7 +2098,7 @@ s32 btlUnitReactToDeath(void)
     if ((*(s32 *)(DAT_0076449c + 0xC) & 0x200000) == 0) {
         return 0;
     }
-    temp_2 = func_001ef9a0();
+    temp_2 = btlCurrentUnitId();
     switch (temp_2) {
     case 0x202: {
         u8 *var_17;
@@ -2182,7 +2182,7 @@ s32 btlUnitGetEntryPosition(u8 *arg0, u8 *arg1) {
     u8 *temp_2_2;
     u8 *temp_4;
 
-    temp_2 = func_001ef9a0();
+    temp_2 = btlCurrentUnitId();
     switch (temp_2) {
     case 0x208:
         temp_2_2 = (u8 *)func_001b1510();
@@ -2307,7 +2307,7 @@ s32 btlEncounterSkipsPresentation(void)
     if (!(*(s32 *)(DAT_0076449c + 0xC) & 0x200000)) {
         return 1;
     }
-    temp_2 = func_001ef9a0();
+    temp_2 = btlCurrentUnitId();
     switch (temp_2) {
     case 0x209:
     case 0x20C:

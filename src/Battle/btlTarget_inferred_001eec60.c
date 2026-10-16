@@ -42,7 +42,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 extern s32 D_00724504;
 extern u32 datCalcRandomBelow(u32 arg0);
 
@@ -166,7 +166,7 @@ static inline s32 routeInClosedList(RouteNode *scan, RouteNode *node)
 /* measured: object 172B vs window 176B, normalized_diff 2; the remaining
    residual is the best-node register assignment. Committed at nd 2. */
 // FUN_001EEC60
-u8 *func_001eec60(void) {
+u8 *btlRouteExtractBestOpenNode(void) {
     f32 value;
     f32 max;
     u8 *best;
@@ -214,7 +214,7 @@ return_best:
 }
 
 // FUN_001EED10
-s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius)
+s32 btlRouteFindPath(u8 *route, f32 *start, f32 *end, f32 radius)
 {
     f32 startDelta[2];
     f32 goalDelta[2];
@@ -272,7 +272,7 @@ s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius)
     *(u8 **)(world + 0xA3C) = world + 0x7DC;
     found = 0;
     while (*(u8 **)(iGpffffb3ac + 0xA3C) != NULL) {
-        node = (RouteNode *)func_001eec60();
+        node = (RouteNode *)btlRouteExtractBestOpenNode();
         if ((u8 *)node == iGpffffb3ac + 0x90C) {
             found = 1;
             break;
@@ -336,9 +336,9 @@ s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius)
 /* 904/912 bytes; all eighteen relocations resolve exactly.
    Stage both endpoint loads before either store to preserve overlap. */
 #pragma push
-/* measured: func_001ef110 MATCH -> MISMATCH without this pragma. */
+/* measured: btlRouteBuildArc MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-s32 func_001ef110(u8 *route, const f32 *startXZ,
+s32 btlRouteBuildArc(u8 *route, const f32 *startXZ,
                   const f32 *endXZ, const f32 *centerXZ)
 {
     P4RouteSlerp_001EF110 interpolation;
@@ -455,7 +455,7 @@ s32 func_001ef110(u8 *route, const f32 *startXZ,
 
 #pragma pop
 // FUN_001EF4A0
-s32 func_001ef4a0(s32 arg0)
+s32 btlUnitSlotValueOrOne(s32 arg0)
 {
     s32 value;
 
@@ -510,7 +510,7 @@ s32 btlSideAverageLevel(s32 arg0, s32 arg1)
 /* measured: close ef4d0 branch-shape probe. */
 // FUN_001EF5F0
 /* measured: preserve retail count-result branch shape while probing ef5f0. */
-s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2)
+s32 btlSideAverageBattleStat(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *current;
     u8 *entry;
@@ -578,14 +578,14 @@ s32 btlSideCountNotBad(s32 arg0, s32 arg1)
 
 /* measured: object 224B / window 224B / normalized_diff 0; direct pointer/index locals reproduce retail order. */
 // FUN_001EF7E0
-s32 func_001ef7e0(void)
+s32 btlEncountRollChance(void)
 {
     s32 *temp_3;
     s32 temp_3_2;
     s32 var_3;
     u16 temp_16;
 
-    temp_3 = (s32 *)((s32)gEncountTbl + func_001ef9a0() * 24);
+    temp_3 = (s32 *)((s32)gEncountTbl + btlCurrentUnitId() * 24);
     if (*(u16 *)(iGpffffb3ac + 0xC5A) == 0) {
         return 0;
     }
@@ -608,7 +608,7 @@ s32 func_001ef7e0(void)
 }
 
 // FUN_001EF8C0
-s32 func_001ef8c0(void)
+s32 btlUnitGetMoveStateCode(void)
 {
     u8 *base;
     u8 *table;
@@ -639,13 +639,13 @@ s32 func_001ef8c0(void)
 }
 
 // FUN_001EF9A0
-s32 func_001ef9a0(void) {
+s32 btlCurrentUnitId(void) {
     return *(u16 *)(*(u8 **)(iGpffffb3ac + 0xC68) + 8);
 }
 
 // FUN_001EF9C0
 /* 904/912 bytes; all fifteen relocations resolve exactly. */
-s32 func_001ef9c0(u8 *action)
+s32 btlActionPickStatusTarget(u8 *action)
 {
     s32 rank;
     u8 *status1Targets[4];
@@ -753,7 +753,7 @@ check:
 }
 
 // FUN_001EFD50
-u8 *func_001efd50(u8 *arg0)
+u8 *btlActionPickRandomCandidate(u8 *arg0)
 {
     s16 temp_3;
     u8 *var_19;
@@ -808,7 +808,7 @@ u8 *func_001efd50(u8 *arg0)
 }
 
 // FUN_001EFF50
-s32 func_001eff50(u8 *arg0)
+s32 btlActionPickCounterTarget(u8 *arg0)
 {
     s32 temp_16_2;
     s32 temp_5;

@@ -42,7 +42,7 @@ extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
 extern s32 func_001eb860(void);
 extern void btlDamageEndPhase(s32 task);
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 extern s32 D_00724504;
 extern void func_001eb7f0(void);
 extern s32 func_001eb860(void);
@@ -92,7 +92,7 @@ extern u8 *iGpffffb42c;
 
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 #pragma push
 #pragma pop
 /* measured probe: preserve the retail filter branch chain */
@@ -252,7 +252,7 @@ s32 func_001eb860(void) {
         goto done;
     }
     if (*(s32 *)(temp_3 + 0xC68) != 0) {
-        if (func_001ef9a0() == 0x215) {
+        if (btlCurrentUnitId() == 0x215) {
             result = 0;
             goto done;
         }
@@ -278,7 +278,7 @@ void func_001eb8d0(void) {
     if (*(s32 *)(temp_4 + 0xC) & 0x80) {
         var_3 = 0;
     } else if ((*(s32 *)(temp_4 + 0xC68) != 0) &&
-               (func_001ef9a0() == 0x215)) {
+               (btlCurrentUnitId() == 0x215)) {
         var_3 = 0;
     } else {
         var_3 = 1;

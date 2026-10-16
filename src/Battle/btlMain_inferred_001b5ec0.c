@@ -47,7 +47,7 @@ extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
 
 extern u8 *D_0076449C;
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 extern s32 func_002aa3f0(void);
 extern void btlResetEffectSlots(void);
 extern void func_00145080();
@@ -377,7 +377,7 @@ void func_001b6120(void)
     *(f32 *)(D_0076449C + 0x260) = fGpffff81f4 * (f32)iGpffffb45c.green;
     *(f32 *)(D_0076449C + 0x264) = fGpffff81f4 * (f32)iGpffffb45c.blue;
     *(f32 *)(D_0076449C + 0x268) = fGpffff81f4 * (f32)iGpffffb45c.alpha;
-    if (func_001ef9a0() != 0x20B) {
+    if (btlCurrentUnitId() != 0x20B) {
         func_003e8180(((u8 *)func_00457120()), 35.0f);
     } else {
         func_003e8180(((u8 *)func_00457120()), 100.0f);
