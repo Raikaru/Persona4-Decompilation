@@ -19,7 +19,7 @@ extern char D_00635C00[];
 extern char D_00635C20[];
 extern char D_00635C40[];
 extern char D_00635C60[];
-extern s32 func_00120e20(s32 arg0, s32 arg1);
+extern s32 cutinDrawTaskCreate(s32 arg0, s32 arg1);
 extern s32 taskRecordIsDone(s32 arg0);
 extern void func_00120f00(s32 arg0);
 extern void taskRecordSetPosition(s32 arg0, s64 arg1);
@@ -245,7 +245,7 @@ s32 scrCommonLoadPersonaRecord(void) {
 }
 
 // FUN_0025D650
-s32 func_0025d650(void) {
+s32 K_Cmd_CUTIN_DRAW_START(void) {
     struct {
         f32 f0;
         f32 f1;
@@ -263,7 +263,7 @@ s32 func_0025d650(void) {
     if (scrGetCmdTimer() == 0) {
         local.h0 = (s16)temp_17;
         local.h1 = (s16)temp_16;
-        iGpffffb480 = func_00120e20(0, *(s32 *)&local.h0);
+        iGpffffb480 = cutinDrawTaskCreate(0, *(s32 *)&local.h0);
         goto block_4;
     }
     if (taskRecordIsDone(iGpffffb480) != 0) {
@@ -300,7 +300,7 @@ s32 K_Cmd_TASK_DESTROY(void) {
    had rewritten the constant as `> (0xB & 0xFFFF) - 1`, which is the same thing.
    Un-chaining the && and negating the inner test do NOT help - both stay nd 2. */
 // FUN_0025D7E0
-s32 func_0025d7e0(void) {
+s32 K_Cmd_FADE_BEGIN_WAIT(void) {
     if (scrGetCmdTimer() == 0xA) {
         fadeBegin();
         goto block_5;

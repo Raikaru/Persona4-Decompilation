@@ -120,7 +120,7 @@ void func_00120db0(u8 *arg0)
 // REACHABLE BUT NOT WITH HONEST SOURCE. tools/permute_ast.py cracks this in 28
 // compiles (~15s), reproducibly:
 //
-//   python tools/permute_ast.py src/cutinDraw.c func_00120e20 --time 900 --seed 5
+//   python tools/permute_ast.py src/cutinDraw.c cutinDrawTaskCreate --time 900 --seed 5
 //
 // after activating the body below. Verified MATCH at 180B. The winning form needs
 // an empty `if (arg1) { }`, `hi` typed `unsigned int` rather than s16, and the lo
@@ -140,7 +140,7 @@ void func_00120db0(u8 *arg0)
    permute_ast + permute_min; the reduction needed no dead code, so it cleaned up to
    ordinary C (renames and cast tidying verified byte-identical). */
 // FUN_00120E20
-s32 func_00120e20(s32 arg0, s32 arg1)
+s32 cutinDrawTaskCreate(s32 arg0, s32 arg1)
 {
   u8 *work;
   s32 packed;

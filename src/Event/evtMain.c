@@ -100,7 +100,7 @@ s32 func_00122520(s32 arg0, s32 arg1);
 s32 func_00122640(s32 arg0, s32 arg1);
 s32 fadeState(void);
 void H_Fade_SetCustomColor(u8 arg0, u8 arg1, u8 arg2);
-s32 func_00120e20(s32 arg0, s32 arg1);
+s32 cutinDrawTaskCreate(s32 arg0, s32 arg1);
 s32 taskRecordIsDone(void *arg0);
 void func_00120f00(void *arg0);
 void func_00120f20(void *arg0);
@@ -800,7 +800,7 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                         func_00120f20(var_19);
                     }
                     {
-                        s32 createdTask = func_00120e20((s32)evtFindTask(), cutinCode.packed);
+                        s32 createdTask = cutinDrawTaskCreate((s32)evtFindTask(), cutinCode.packed);
                         *(s32 *)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4) = createdTask;
                     }
                     cutinPosition.vector.x = (f32)*(s16 *)(arg2 + 0x1C);
