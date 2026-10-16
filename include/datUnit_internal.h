@@ -49,6 +49,25 @@ typedef struct DatUnitEc
     DatUnit units[6];      // 0x0C
 } DatUnitEc;
 
+/* Character record (0x48 bytes) of the protagonist D_007973C4 and of each party slot.
+   Its first 0x30 bytes are a DatUnit, which datCalc reads through the unit accessors. */
+typedef struct DatCharRecord
+{
+    DatUnit unit;       // 0x00
+    u8 unknown30[0x18]; // 0x30
+} DatCharRecord;
+
+/* One party slot (0x88 stride) of D_00796E50. Index arg0 - 2 for party id arg0 (2..10). */
+typedef struct DatPartySlot
+{
+    u8 unknown00[4];         // 0x00
+    DatCharRecord character; // 0x04. Saved to the save file as 0x48 bytes.
+    u8 unknown4C[8];         // 0x4C
+    DatUnit personaRecord;   // 0x54. datPersonaGetRecord returns it as a u16 record (flags, id at +2).
+    u8 unknown84[4];         // 0x84
+} DatPartySlot;
+
+
 /* Battle unit table accessors defined in datUnit.c. */
 /* Allocates and fills the PC unit record for pcId. */
 DatUnitPc* datUnitCreatePc(u16 pcId);

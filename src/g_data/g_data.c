@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "g_data_internal.h"
+#include "datUnit_internal.h"
 #include "h_cdvd.h"
 extern u8 D_007973A0[];
 
@@ -115,7 +116,7 @@ extern u16 cmmCommunityValueForArcana(u8 arg0);
 
 extern void memcpy(void* arg0, void* arg1, u32 arg2);
 
-extern s32 datCalcGetLevel(u8* arg0);
+extern s32 datCalcGetLevel(DatUnit* arg0);
 extern u32 datCalcGetHp(void* arg0);
 extern u32 datCalcGetSp(void* arg0);
 struct DatUnit;
@@ -319,11 +320,11 @@ s32 datCalcGetLevelById(s32 arg0)
 
     if (unit == 1)
     {
-        return datCalcGetLevel(D_007973C4);
+        return datCalcGetLevel((DatUnit *)D_007973C4);
     }
     else
     {
-        return datCalcGetLevel((u8*)D_00796E50 + (unit - 2) * 0x88 + 4);
+        return datCalcGetLevel(&((DatPartySlot *)D_00796E50)[unit - 2].character.unit);
     }
 }
 
@@ -334,11 +335,11 @@ u32 datCalcGetHpById(s16 arg0)
 {
     if (arg0 == 1)
     {
-        return datCalcGetHp(D_007973C4);
+        return datCalcGetHp((DatUnit *)D_007973C4);
     }
     else
     {
-        return datCalcGetHp((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        return datCalcGetHp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
 }
 
@@ -347,11 +348,11 @@ u32 datCalcGetSpById(s16 arg0)
 {
     if (arg0 == 1)
     {
-        return datCalcGetSp(D_007973C4);
+        return datCalcGetSp((DatUnit *)D_007973C4);
     }
     else
     {
-        return datCalcGetSp((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        return datCalcGetSp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
 }
 
@@ -362,11 +363,11 @@ u16 datCalcMaxHpById(s16 arg0)
 {
     if (arg0 == 1)
     {
-        return datCalcMaxHp((struct DatUnit*)D_007973C4);
+        return datCalcMaxHp((DatUnit *)D_007973C4);
     }
     else
     {
-        return datCalcMaxHp((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
+        return datCalcMaxHp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
 }
 
@@ -375,11 +376,11 @@ u16 datCalcMaxSpById(s16 arg0)
 {
     if (arg0 == 1)
     {
-        return datCalcMaxSp((struct DatUnit*)D_007973C4);
+        return datCalcMaxSp((DatUnit *)D_007973C4);
     }
     else
     {
-        return datCalcMaxSp((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
+        return datCalcMaxSp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
 }
 
@@ -541,11 +542,11 @@ void datCalcGetBadStatusNoDownById(s16 arg0)
 {
     if (arg0 == 1)
     {
-        datCalcGetBadStatusNoDown(D_007973C4);
+        datCalcGetBadStatusNoDown((DatUnit *)D_007973C4);
     }
     else
     {
-        datCalcGetBadStatusNoDown((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        datCalcGetBadStatusNoDown(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
 }
 
@@ -557,11 +558,11 @@ u16 func_001053b0(s16 arg0)
 
     if (arg0 == 1)
     {
-        r = datCalcGetLevel(D_007973C4);
+        r = datCalcGetLevel((DatUnit *)D_007973C4);
     }
     else
     {
-        r = datCalcGetLevel((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        r = datCalcGetLevel(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
     return *(u16*)((u8*)D_005DD844 + (r & 0xFF) * 0x2C + (s32)arg0 * 4);
 }
@@ -573,11 +574,11 @@ u16 func_00105460(s16 arg0)
 
     if (arg0 == 1)
     {
-        r = datCalcGetLevel(D_007973C4);
+        r = datCalcGetLevel((DatUnit *)D_007973C4);
     }
     else
     {
-        r = datCalcGetLevel((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        r = datCalcGetLevel(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
     return *(u16*)((u8*)D_005DD846 + (r & 0xFF) * 0x2C + (s32)arg0 * 4);
 }
@@ -587,12 +588,12 @@ u8* datUnitGetRecord(s16 arg0)
 {
     if (arg0 == 1)
     {
-        return (u8*)D_007973C4;
+        return (u8 *)D_007973C4;
     }
     else
     {
         K_ASSERT(arg0 < 0xB, 0x234);
-        return (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
+        return (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
     }
 }
 
@@ -601,11 +602,11 @@ void datCalcInitUnitById(s16 arg0)
 {
     if (arg0 == 1)
     {
-        datCalcInitUnit(D_007973C4, arg0);
+        datCalcInitUnit((DatUnit *)D_007973C4, arg0);
     }
     else
     {
-        datCalcInitUnit((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4, arg0);
+        datCalcInitUnit(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit, arg0);
     }
 }
 // FUN_00105610
@@ -613,11 +614,11 @@ u32 datCalcIsDeadById(s16 arg0)
 {
     if (arg0 == 1)
     {
-        return datCalcIsDead((int)D_007973C4, 0);
+        return datCalcIsDead((int)(DatUnit *)D_007973C4, 0);
     }
     else
     {
-        return datCalcIsDead((int)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4), 0);
+        return datCalcIsDead((int)(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit), 0);
     }
 }
 
@@ -672,20 +673,20 @@ void datClampUnitHpSp(s16 arg0)
 
     if (arg0 == 1)
     {
-        r = datCalcGetHp(D_007973C4);
+        r = datCalcGetHp((DatUnit *)D_007973C4);
     }
     else
     {
-        r = datCalcGetHp((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        r = datCalcGetHp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
     v1 = (u16)r;
     if (arg0 == 1)
     {
-        v2 = datCalcMaxHp((struct DatUnit*)D_007973C4);
+        v2 = datCalcMaxHp((DatUnit *)D_007973C4);
     }
     else
     {
-        v2 = datCalcMaxHp((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
+        v2 = datCalcMaxHp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
     if (v2 < v1)
     {
@@ -701,20 +702,20 @@ void datClampUnitHpSp(s16 arg0)
     }
     if (arg0 == 1)
     {
-        r = datCalcGetSp(D_007973C4);
+        r = datCalcGetSp((DatUnit *)D_007973C4);
     }
     else
     {
-        r = datCalcGetSp((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        r = datCalcGetSp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
     v1 = (u16)r;
     if (arg0 == 1)
     {
-        v2 = datCalcMaxSp((struct DatUnit*)D_007973C4);
+        v2 = datCalcMaxSp((DatUnit *)D_007973C4);
     }
     else
     {
-        v2 = datCalcMaxSp((struct DatUnit*)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4));
+        v2 = datCalcMaxSp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
     if (v2 < v1)
     {
@@ -836,11 +837,11 @@ void datCalcSetBadStatusById(s16 arg0, s16 arg1)
 {
     if (arg0 == 1)
     {
-        datCalcSetBadStatus(D_007973C4);
+        datCalcSetBadStatus((DatUnit *)D_007973C4);
     }
     else
     {
-        datCalcSetBadStatus((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+        datCalcSetBadStatus(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
     }
 }
 
@@ -849,11 +850,11 @@ void datCalcClearBadStatusById(s16 arg0, u32 mask)
 {
     if (arg0 == 1)
     {
-        datCalcClearBadStatus((int)D_007973C4, mask);
+        datCalcClearBadStatus((int)(DatUnit *)D_007973C4, mask);
     }
     else
     {
-        datCalcClearBadStatus((int)((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4), mask);
+        datCalcClearBadStatus((int)(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit), mask);
     }
 }
 
@@ -2027,7 +2028,7 @@ level_done:
         memcpy(cursor, &tag, 4);
         length = 4;
         memcpy(cursor + 4, &length, 4);
-        unit = D_00796E50 + unitIndex * 0x88;
+        unit = (u8 *)&((DatPartySlot *)D_00796E50)[unitIndex];
         memcpy(cursor + 8, unit, 4);
         tag = (unitIndex << 8) + 257;
         memcpy(cursor + 12, &tag, 4);
@@ -2301,7 +2302,7 @@ void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
     case 0xa00:
         index = arg1 >> 8;
         if (arg2 == 4)
-            memcpy(D_00796E50 + (index - 1) * 0x88, arg3, arg2);
+            memcpy(&((DatPartySlot *)D_00796E50)[index - 1], arg3, arg2);
         break;
     case 0x101:
     case 0x201:
@@ -2315,7 +2316,7 @@ void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
     case 0xa01:
         index = arg1 >> 8;
         if (arg2 == 72)
-            memcpy(D_00796E50 + (index - 1) * 0x88 + 4, arg3, arg2);
+            memcpy(&((DatPartySlot *)D_00796E50)[index - 1].character, arg3, arg2);
         break;
     case 0x102:
     case 0x202:
@@ -2329,7 +2330,7 @@ void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
     case 0xa02:
         index = arg1 >> 8;
         if (arg2 == 6)
-            memcpy(D_00796E50 + (index - 1) * 0x88 + 76, arg3, arg2);
+            memcpy(((DatPartySlot *)D_00796E50)[index - 1].unknown4C, arg3, arg2);
         break;
     case 0x105:
     case 0x205:
@@ -2343,7 +2344,7 @@ void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
     case 0xa05:
         index = arg1 >> 8;
         if (arg2 == 48)
-            memcpy(D_00796E50 + (index - 1) * 0x88 + 84, arg3, arg2);
+            memcpy(&((DatPartySlot *)D_00796E50)[index - 1].personaRecord, arg3, arg2);
         break;
     }
 }
@@ -2438,12 +2439,12 @@ u16 datCalcThresholdKindById(s16 arg0, s32 arg1)
 
     if (arg0 == 1)
     {
-        p = (u8*)D_007973C4;
+        p = (u8 *)D_007973C4;
     }
     else
     {
         K_ASSERT(arg0 < 0xB, 0x234);
-        p = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
+        p = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
     }
     return datCalcThresholdKind(p, arg1);
 }
@@ -2455,12 +2456,12 @@ u32 datCalcSkillCostById(s16 arg0, s32 arg1)
 
     if (arg0 == 1)
     {
-        p = (u8*)D_007973C4;
+        p = (u8 *)D_007973C4;
     }
     else
     {
         K_ASSERT(arg0 < 0xB, 0x234);
-        p = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
+        p = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
     }
     return datCalcSkillCost(p, arg1);
 }
@@ -2473,12 +2474,12 @@ s32 datCalcThresholdTriggerById(s16 arg0, u32 arg1)
 
     if (arg0 == 1)
     {
-        ptr = D_007973C4;
+        ptr = (u8 *)D_007973C4;
     }
     else
     {
         K_ASSERT(arg0 < 0xB, 0x234);
-        ptr = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
+        ptr = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
     }
     v = *(u16*)(ptr + 2);
     K_ASSERT(v != 0 && v < 0xB, 0xE54);
@@ -2494,21 +2495,21 @@ void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
     K_ASSERT(arg1 != 0 && arg1 < 0xB, 0xE6A);
     if (arg0 == 1)
     {
-        ptr1 = D_007973C4;
+        ptr1 = (u8 *)D_007973C4;
     }
     else
     {
         K_ASSERT(arg0 < 0xB, 0x234);
-        ptr1 = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
+        ptr1 = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
     }
     if (arg1 == 1)
     {
-        ptr2 = D_007973C4;
+        ptr2 = (u8 *)D_007973C4;
     }
     else
     {
         K_ASSERT(arg1 < 0xB, 0x234);
-        ptr2 = (u8*)D_00796E50 + (arg1 - 2) * 0x88 + 4;
+        ptr2 = (u8 *)&((DatPartySlot *)D_00796E50)[arg1 - 2].character;
     }
     datCalcApplySkillEffect(arg2, ptr1, ptr2, arg3);
 }
@@ -2534,21 +2535,21 @@ s32 datCalcSkillEffectFlagsById(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
     K_ASSERT(arg1 != 0 && arg1 < 0xB, 0xEAC);
     if (arg0 == 1)
     {
-        ptr1 = D_007973C4;
+        ptr1 = (u8 *)D_007973C4;
     }
     else
     {
         K_ASSERT(arg0 < 0xB, 0x234);
-        ptr1 = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
+        ptr1 = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
     }
     if (arg1 == 1)
     {
-        ptr2 = D_007973C4;
+        ptr2 = (u8 *)D_007973C4;
     }
     else
     {
         K_ASSERT(arg1 < 0xB, 0x234);
-        ptr2 = (u8*)D_00796E50 + (arg1 - 2) * 0x88 + 4;
+        ptr2 = (u8 *)&((DatPartySlot *)D_00796E50)[arg1 - 2].character;
     }
     return datCalcSkillEffectFlags(arg2, ptr1, ptr2, arg3);
 }
@@ -2561,21 +2562,21 @@ void datCalcSkillOutcomeById(s16 arg0, s16 arg1, u32 arg2, u32 arg3, u32 arg4, u
 
     if (arg0 == 1)
     {
-        ptr1 = D_007973C4;
+        ptr1 = (u8 *)D_007973C4;
     }
     else
     {
         K_ASSERT(arg0 < 0xB, 0x234);
-        ptr1 = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
+        ptr1 = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
     }
     if (arg1 == 1)
     {
-        ptr2 = D_007973C4;
+        ptr2 = (u8 *)D_007973C4;
     }
     else
     {
         K_ASSERT(arg1 < 0xB, 0x234);
-        ptr2 = (u8*)D_00796E50 + (arg1 - 2) * 0x88 + 4;
+        ptr2 = (u8 *)&((DatPartySlot *)D_00796E50)[arg1 - 2].character;
     }
     datCalcSkillOutcome(arg2, ptr1, ptr2, arg3, (s32*)arg4, (s32*)arg5, (s32*)arg6);
 }
