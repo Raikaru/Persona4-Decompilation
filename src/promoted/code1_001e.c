@@ -434,8 +434,8 @@ typedef struct P4NeighborWorld {
 #pragma opt_dead_assignments off
 #pragma pop
 extern s32 btlTargetLineClear(f32 *first, f32 *second, f32 margin);
-extern void func_001ed700(f32 radius);
-extern s32 func_001ee610(u8 *route, f32 radius);
+extern void btlTargetRebuildRadiusLinks(f32 radius);
+extern s32 btlTargetBuildSmoothRoute(u8 *route, f32 radius);
 
 typedef struct RoutePoint {
     f32 x;
