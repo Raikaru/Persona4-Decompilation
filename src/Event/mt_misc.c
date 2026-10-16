@@ -21,8 +21,9 @@ extern int sdkSndResetChannel();
 
 /* opt_loop_invariants on: measured nd 124 -> 0, object 292/304 -> 292/304. */
 
+// Appends a 0x2C-byte entry (param_2 stored at +0x34) to the table at param_1 and bumps its count at +4 [inferred].
 // FUN_00290EC0
-void func_00290ec0(int param_1, u32 param_2)
+void mtMiscAppendEntry(int param_1, u32 param_2)
 {
     int iVar1;
 
@@ -150,8 +151,9 @@ void func_00291470(int param_1)
 
 
 
+// Plays sound cue param_1 on the sound system; returns 0 [inferred].
 // FUN_00298100
-u64 func_00298100(s16 param_1)
+u64 mtMiscPlayCue(s16 param_1)
 {
     sdkSndPlayCue(param_1, 1);
 
