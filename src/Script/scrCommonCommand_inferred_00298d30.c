@@ -71,8 +71,9 @@ extern void mtMiscCollectType2Records(u8 *arg0);
  * function window ends in eight zero alignment bytes. */
 #pragma push
 #pragma pop
+// Destroys the task (with its children) whose name is D_0063CFA0. Returns 1.
 // FUN_00298D30
-s32 func_00298d30(void) {
+s32 scrDestroyTaskByName(void) {
     s32 temp_2;
 
     temp_2 = kwlnTaskGetTaskByName(D_0063CFA0);
@@ -82,8 +83,10 @@ s32 func_00298d30(void) {
     return 1;
 }
 
+// Script command: pushes the data flag named by parameter 0 as the return value.
+// Returns 1.
 // FUN_00298D70
-s32 func_00298d70(void) {
+s32 scrGetFlag(void) {
     scrSetReturnInt(datGetFlag(scrGetParamInt(0)));
     return 1;
 }
