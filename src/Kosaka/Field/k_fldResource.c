@@ -499,7 +499,7 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     extern s32 NpcTable_InstallSceneTable(u8 *arg0);
     extern s32 NpcTable_RequestSecondaryTable(void);
     extern s32 NpcTable_InstallSecondaryTable(u8 *arg0);
-    extern s32 func_0015a160(void);
+    extern s32 FldStepIndex(void);
     extern s32 func_0015ac60(s32 arg0);
     extern s32 func_0015a7c0(s32 arg0);
     extern void func_001599d0(void);
@@ -884,9 +884,9 @@ block_123:
                     *(s32 *)(a_dst + temp_7) = a_resource;
                     var_9 += 1;
                 }
-                if (func_0015ac60(func_0015a160()) == 0) {
+                if (func_0015ac60(FldStepIndex()) == 0) {
                     func_001582f0(*( s32 * )(iGpffff9db0 + 0) - 0x28, *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x4C), 1);
-                    func_0015a7c0(func_0015a160());
+                    func_0015a7c0(FldStepIndex());
                 }
                 func_001599d0();
                 func_0015b240();
@@ -903,8 +903,8 @@ block_123:
                     *(s32 *)(b_dst + temp_7_2) = b_resource;
                     var_9_2 += 1;
                 }
-                if (func_0015ac60(func_0015a160()) == 0) {
-                    func_0015a7c0(func_0015a160());
+                if (func_0015ac60(FldStepIndex()) == 0) {
+                    func_0015a7c0(FldStepIndex());
                 }
                 func_001599d0();
                 func_0015b240();

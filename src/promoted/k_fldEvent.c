@@ -41,7 +41,7 @@ s16 datGetPartyId(s32);
 s16 func_00106cd0(s16, s32);
 s32 FldEvent_TriggerUpdate(u8 *);
 s32 FldMap_IsCurrentInEitherBand(void);
-s32 func_0015a160(void);
+s32 FldStepIndex(void);
 s32 FldEvent_FindFirstRegionActor(f32, f32, void *);
 u8 *func_001823c0(void);
 s32 func_0015c1e0(s32);
@@ -741,7 +741,7 @@ s32 FldEvent_WaitForFieldIdle(u8 *arg0)
 
     h = *(s32 **)(arg0 + 0x38);
     if (FldMap_IsCurrentInEitherBand() == 1) {
-        if (func_0015a160() != 0x9F) {
+        if (FldStepIndex() != 0x9F) {
             if ((D_008C024E[0] & 0x40) != 0) {
                 h[0xD] = 0;
                 h[0xE] = 0;
@@ -801,7 +801,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 FldEvent_PartyHasSkill(void);
     u32 RpRandom(void);
     u32 datGetFlag(s32);
-    s32 func_0015a160(void);
+    s32 FldStepIndex(void);
     s32 func_0015a7c0(s32);
     void FldResource_Destroy(u8 *);
     s32 FldMap_IsCurrentInBandA(void);
@@ -1198,7 +1198,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 work->viewFog = *(f32 *)((u8 *)func_00457120() + 0x88);
                 work->environmentFog = iGpffffba6c;
                 if (FldUnit_AllSlotsReady() != 0) {
-                    func_0015a7c0(func_0015a160());
+                    func_0015a7c0(FldStepIndex());
                     if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) != 0) {
                         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C)));
                         *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) = 0;
@@ -1652,7 +1652,7 @@ void FldEvent_StepGridCell(void)
              0xF0);
     temp_3 = (u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10);
     temp_3[0x5F] = temp_3[0x5F] | temp_18;
-    func_0015ab20(func_0015a160(), var_17, var_16);
+    func_0015ab20(FldStepIndex(), var_17, var_16);
     if (*(u8 *)((u8 *)(s32)MT_Scene_GetFrameState() + (var_16 << 8) + (var_17 * 0x10) +
                 0x5F) &
         1) {
@@ -1684,7 +1684,7 @@ void FldEvent_StepGridCell(void)
              0xF0);
     temp_3_2 = (u8 *)(s32)MT_Scene_GetFrameState() + (var_16 * 0x100) + (var_17 << 4);
     temp_3_2[0x5F] = temp_3_2[0x5F] | temp_18_2;
-    func_0015ab20(func_0015a160(), var_17, var_16);
+    func_0015ab20(FldStepIndex(), var_17, var_16);
 }
 /* Field movement controller. Retail keeps the unused heading comparison of
  * the 45-degree step branch (`c.lt.s` with no branch after it): the dead
@@ -2023,7 +2023,7 @@ smallmove:
             }
             *(s32 *)(h + 0x148) = 0x3D;
         }
-        if (func_0015a160() != 0) {
+        if (FldStepIndex() != 0) {
             s16 cur = mdlGetLayerAnimation(*(s32 *)(*(s32 *)(h + 0x18) + 0x164), 0);
             if (cur == func_00170120(1) && *(u8 *)(*(s32 *)(*(s32 *)(h + 0x18) + 0x164) + 0xEE) == 1) {
                 *(s32 *)(h + 0x134) = 1;

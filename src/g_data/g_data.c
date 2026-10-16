@@ -1733,7 +1733,7 @@ extern s32 func_0015a6a0(void);
  * 3908/3920 bytes; 219 resolved relocations; 12 zero alignment bytes. */
 extern u8 *iGpffff9db0;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_0015a160(void);
+extern s32 FldStepIndex(void);
 extern u32 datGetClearedWord(void);
 extern u32 D_0079B3CC[];
 extern char D_005E45A0[];
@@ -1785,7 +1785,7 @@ u8 *datSaveBuildImage(s32 version, s32 *outSize, s32 compact)
 
     *(s32 *)D_0079B698 = *(s32 *)iGpffff9db0;
     *(s32 *)D_0079B69C = *(s32 *)(iGpffff9db0 + 4);
-    *(s32 *)D_0079B6A0 = func_0015a160();
+    *(s32 *)D_0079B6A0 = FldStepIndex();
     chkmemAllocSiteTag(D_005E4298, 0x721);
     buffer = D_008873F4[0](1, 0x2A000, 0x40000);
     tag = 0;

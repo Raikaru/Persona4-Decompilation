@@ -79,7 +79,7 @@ extern u8 *datPersonaTryAddRosterMember(u16 personaId);
 extern u16 D_008C024E[];
 extern s32 datGetFlag(s32 a);
 extern s32 cmmCommunityValueForArcana(s32 a);
-extern s32 func_0015a190(void);
+extern s32 FldStepBandFlagSet(void);
 extern u8 func_002baac0(u8 *message);
 extern void *func_0036e910(void *a);
 extern s32 btlShuffleDrawSpawn(u8 *parent, s32 cardIndex);
@@ -500,7 +500,7 @@ static inline s32 shuffleResultRoll(u8 kind)
     if (datGetFlag(0x1403) != 0 && datGetFlag(0x140F) != 0) {
         reversedChance = 0x3C;
     } else {
-        columnValue = func_0015a190();
+        columnValue = FldStepBandFlagSet();
         reversedChance = *(D_0064E72E[kind] + (u8)(columnValue ? 1 : 0));
     }
     randomBits = RpRandom() & 0xFFF;
@@ -941,7 +941,7 @@ block_17:
 /* Column (0/1) of the two-column bonus tables D_0064E6E0 and D_0064E700. */
 static inline u8 shuffleBonusColumn(void)
 {
-    return func_0015a190() ? 1 : 0;
+    return FldStepBandFlagSet() ? 1 : 0;
 }
 
 /* Roll for the shuffle bonus: nonzero when enabled and a 0-99 roll falls
