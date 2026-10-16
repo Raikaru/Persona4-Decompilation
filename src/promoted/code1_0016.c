@@ -1,5 +1,6 @@
 #include "mt_scene_internal.h"
 #include "field_event_internal.h"
+#include "field_frame_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -216,9 +217,9 @@ extern void FldEventSnapshotCapture(FldEventSnapshot *arg0, u8 *arg1);
 // FUN_00160440
 void FldAuxBufferRelease(void)
 {
-    if (*(s32 *)((u8 *)((u8*)MT_Scene_GetFrameState()) + 0x1854) != 0) {
-        (*DAT_008873EC)(*(void **)((u8 *)((u8*)MT_Scene_GetFrameState()) + 0x1854));
-        *(s32 *)((u8 *)((u8*)MT_Scene_GetFrameState()) + 0x1854) = 0;
+    if (((FldFrame *)MT_Scene_GetFrameState())->auxBuffer != 0) {
+        (*DAT_008873EC)(((FldFrame *)MT_Scene_GetFrameState())->auxBuffer);
+        ((FldFrame *)MT_Scene_GetFrameState())->auxBuffer = 0;
     }
 }
 
