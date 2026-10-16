@@ -669,7 +669,7 @@ Affinity is encoded in `enum DatAffinity` (`include/datCalc_internal.h`): NULL 0
 
 The script-side formulas `datScriptCalcPhysicalDamage` and `datScriptCalcMagicDamage` are in `src/Main/Battle/Data/datCalc_inferred_00244110.c`. Their relation to the path above is `[inferred]`.
 
-Where the amount is applied to HP is not traced here. `datCalcSetHp` (`datCalc.c`, 185) has seven callers across `btlAction` and `btlTarget`, and most of them set HP to 0 or 1 directly. The hit rows' `hpDelta` is read by `btlAction_inferred_001a0670.c` (~250–325), which is a starting point for that trace.
+The amount is applied to HP in three steps. `btlTargetCreateDataPacket` (`src/Battle/btlTarget.c`, ~900) makes a packet whose work area holds a copy of the 0x20-byte hit row. `btlAction_inferred_001a0670.c` (~314) is one of its callers. The packet's `updateFunc` is `btlTargetApplyHpSpChange` (`btlTarget.c`, 739). That function reads `hpDelta` at +8 and `spDelta` at +0xC, and calls `datCalcAddHp` and `datCalcAddSp` (`datCalc.c`, 340) only when the battle flag word has bit 0x10 set. Whether the amount in the row is set from `datCalcSkillAmount` is `[inferred]`; the callers that fill the row were not traced. The bit 0x10 meaning is `[inferred]`. `datCalcAddHp` adds the delta, clamps the result to 0..max HP, and stores it as a u16. `datCalcSetHp` (`datCalc.c`, 185) has seven other callers across `btlAction` and `btlTarget`, most of which set HP to 0 or 1 directly.
 
 ### Targeting
 
