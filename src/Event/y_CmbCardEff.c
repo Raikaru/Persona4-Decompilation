@@ -73,7 +73,7 @@ extern u8 D_005DC7D0[];
 
 
 
-void func_002b6130(u8 *, u32);
+void fclSpriteSetOrder(u8 *, u32);
 void fclSpriteSetBaseScale(u8 *, f32);
 
 
@@ -1972,7 +1972,7 @@ s32 cmbFiveSpriteTask(u8 *task) {
             }
             /* Recompute the handle slot for flags and draw depth. */
             updatedHandleSlot = work + (u32)index * 4U + 4;
-            func_002b6130(*(u8 **)updatedHandleSlot, 0xBB);
+            fclSpriteSetOrder(*(u8 **)updatedHandleSlot, 0xBB);
             fclSpriteSetBaseScale(*(u8 **)updatedHandleSlot, 50.0f);
             index++;
         }
