@@ -185,7 +185,7 @@ extern s32 func_00106600(s16 id);
 extern u8 D_005E76C8[];
 extern u8 D_005E5720[];
 extern s32 func_0012aa70(u8 *arg0);
-extern void func_0012b660(u8 *task);
+extern void titleLoaderTeardown(u8 *task);
 extern void func_0025f230(s32 arg0);
 extern void H_Cdvd_Destroy(s32 arg0);
 extern void sdkSndStopChannel(s32 arg0);
@@ -858,7 +858,7 @@ s32 fadeState(void)
     return *(s32 *)(iGpffffb1cc + 4);
 }
 // FUN_001227D0
-void func_001227d0(void)
+void fadeBegin(void)
 {
     if (iGpffffb1cc != 0) {
         *(s32 *)(iGpffffb1cc + 0x14) = 1;
@@ -4165,7 +4165,7 @@ s32 func_0012aa70(u8 *task)
 
 #pragma pop
 // FUN_0012B660
-void func_0012b660(u8 *unusedTask)
+void titleLoaderTeardown(u8 *unusedTask)
 {
     u8 *temp_2;
     s32 temp_3;
@@ -4213,7 +4213,7 @@ s32 titleStartLoader(void)
     if (temp_2 == NULL)
         kAssertFail(D_005E5548, 0x729);
     *(s32 *)(temp_2 + 0x18) = 0;
-    kwlnTaskCreate((const void *)(D_005E5720), 0xF, 0, 0, func_0012aa70, func_0012b660, (u8 *)(temp_2));
+    kwlnTaskCreate((const void *)(D_005E5720), 0xF, 0, 0, func_0012aa70, titleLoaderTeardown, (u8 *)(temp_2));
 }
 // FUN_0012B810
 s32 titleLoaderReap(s32 arg0)
@@ -4233,7 +4233,7 @@ s32 titleLoaderReap(s32 arg0)
 
 
 // FUN_0012B890
-s32 func_0012b890(u8 *unusedTask)
+s32 titleFileLoadStep(u8 *unusedTask)
 {
     s32 sp2C;
     u8 *temp_2;
@@ -4458,7 +4458,7 @@ s32 titleStartSoundTask(s32 arg0) {
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 // FUN_0012D410
-void func_0012d410(u8 *arg0)
+void titleSlotTableInit(u8 *arg0)
 {
     u32 temp_2_2;
     s32 temp_2_3;

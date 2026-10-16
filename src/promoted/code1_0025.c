@@ -47,7 +47,7 @@ extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 
 s32 scrGetCmdTimer(void);
-void func_001227d0(void);
+void fadeBegin(void);
 s32 fadeIsIdle(void);
 
 s32 datGetTimeSlot(void);
