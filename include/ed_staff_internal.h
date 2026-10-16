@@ -11,7 +11,7 @@ typedef struct {
     u32 data;
 } EffectStateHeader;
 
-EffectStateHeader *func_0038f400(const u32 *data);
+EffectStateHeader *edResBuildEffectHeader(const u32 *data);
 void brpParamFree(u8 *allocation);
 u32 brpParamGetEntry(const u32 *work, u32 index);
 u32 brpParamReadWord4(const u32 *work);

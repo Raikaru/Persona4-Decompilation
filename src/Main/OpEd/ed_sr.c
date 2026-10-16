@@ -11,19 +11,19 @@ extern u8 iGpffffa9f8;
 /* Shared end-scene helpers (defined in sibling TUs of the same ed_* unit). */
 extern void kAssertFail(void *file, s32 line);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
-extern void func_0038ddf0(void);
-extern void func_0038f010(void);
-extern void func_0038f0b0(void);
-extern void func_0038de90(void);
-extern u32 func_0038df10(void);
-extern void func_0038df60(void);
-extern void func_0038e4b0(void);
-extern void func_0038f620(void);
-extern void func_0038f680(void);
-extern void func_0038f7f0(void);
-extern u32 func_0038f880(void);
+extern void edScrollRelease(void);
+extern void edSrStartPlayback(void);
+extern void edSrOverlayDraw(void);
+extern void edScrollStart(void);
+extern u32 edScrollIsActive(void);
+extern void edScrollStep(void);
+extern void edScrollDrawLines(void);
+extern void edResRelease(void);
+extern void edResLoadStep(void);
+extern void edResRequestLoad(void);
+extern u32 edResIsPending(void);
 extern void brpParamSetCurrent(u8 *arg0);
-extern void func_0038dd90(u8 *arg0);
+extern void edScrollWorkInit(u8 *arg0);
 
 /* Window / effect / scripting helpers. */
 extern u8 *PrimAllocQueueNode(void);
@@ -54,8 +54,9 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 
 
+// Intent: Step the end-scene state machine: wait, start playback, fade out and finish [inferred]
 // FUN_0038EE40
-void func_0038ee40(void) {
+void edSrStep(void) {
     s32 v;
     u8 *p;
 
@@ -67,24 +68,24 @@ void func_0038ee40(void) {
         v = *(s32 *)(p + 0x124C);
         switch (v) {
         case 0:
-            if (func_0038f880() == 0) {
+            if (edResIsPending() == 0) {
                 *(s32 *)(p + 0x124C) = 1;
             }
             break;
         case 1:
-            func_0038f010();
+            edSrStartPlayback();
             break;
         case 2:
             *(s32 *)(p + 0x1254) += 1;
             if (datGetFlag(0x1472) != 0) {
                 if (mwPlayerGetCurrent() == 0xCC6) {
-                    func_0038de90();
+                    edScrollStart();
                 }
             } else if (*(s32 *)(p + 0x1254) == 1) {
-                func_0038de90();
+                edScrollStart();
                 sdkSndPlayCue(0x23, 1);
             }
-            if ((func_0038df10() == 0) && (kwlnTaskIsLinked(*(s32 *)(p + 0x1250)) == 0)) {
+            if ((edScrollIsActive() == 0) && (kwlnTaskIsLinked(*(s32 *)(p + 0x1250)) == 0)) {
                 func_00122520(fadeState(), 0xA);
                 *(s32 *)(p + 0x124C) = 3;
                 if (datGetFlag(0x1472) == 0) {
@@ -98,13 +99,14 @@ void func_0038ee40(void) {
             }
             break;
         }
-        func_0038f680();
-        func_0038df60();
+        edResLoadStep();
+        edScrollStep();
     }
 }
 
+// Intent: Start playback: create the player when the flag asks for it and enter the fade-in state [inferred]
 // FUN_0038F010
-void func_0038f010(void) {
+void edSrStartPlayback(void) {
     s32 *p;
     s16 v;
 
@@ -124,11 +126,12 @@ void func_0038f010(void) {
     *(s32 *)((u8 *)p + 0x124C) = 2;
 }
 
+// Intent: Queued overlay draw: draw the scroll lines while the work is active [inferred]
 // FUN_0038F0B0
 /* measured: typed D_00887300 base local with opt_propagation off keeps
    retail's single lui/addiu hoist into $16 (same fix as cmpMain func_0012cd90). */
 #pragma opt_propagation off
-void func_0038f0b0(void) {
+void edSrOverlayDraw(void) {
     void (**base)(s32, s32);
     s32 sp2C;
 
@@ -139,15 +142,16 @@ void func_0038f0b0(void) {
         kAssertFail(&iGpffffa9f0, 0x64);
     }
     if (!(~*iGpffffb5b8 & 1)) {
-        func_0038e4b0();
+        edScrollDrawLines();
     }
     base[0](0xE, sp2C);
 }
 #pragma opt_propagation on
 
+// Intent: End-scene task update: step the state machine and return 0 while it is active [inferred]
 // FUN_0038F160
-s32 func_0038f160(u8 *unusedTask) {
-    func_0038ee40();
+s32 edSrTaskUpdate(u8 *unusedTask) {
+    edSrStep();
     if (iGpffffb5b8 == NULL) {
         kAssertFail(&iGpffffa9f0, 0x64);
     }
@@ -157,26 +161,28 @@ s32 func_0038f160(u8 *unusedTask) {
     return -1;
 }
 
+// Intent: Overlay task update: queue the overlay draw callback for this task [inferred]
 // FUN_0038F1C0
-s32 func_0038f1c0(u8 *arg0) {
+s32 edSrOverlayTaskUpdate(u8 *arg0) {
     u8 *work;
     s32 v;
 
     v = *(s32 *)(arg0 + 0x38);
     work = PrimAllocQueueNode();
-    *(s32 *)(work + 0x8) = (s32)func_0038f0b0;
+    *(s32 *)(work + 0x8) = (s32)edSrOverlayDraw;
     *(s32 *)(work + 0x10) = v;
     func_00460ac0(&D_007964C0, work);
     return 0;
 }
 
+// Intent: End-scene task destroy: release the scroll records and the resource, then run the teardown handler [inferred]
 // FUN_0038F220
-void func_0038f220(u8 *arg0) {
+void edSrTaskDestroy(u8 *arg0) {
     if (iGpffffb5b8 == NULL) {
         kAssertFail(&iGpffffa9f0, 0x64);
     }
-    func_0038ddf0();
-    func_0038f620();
+    edScrollRelease();
+    edResRelease();
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
@@ -191,19 +197,19 @@ s32 func_0038f290(void) {
     if (r == 0xA) {
         chkmemAllocSiteTag(&iGpffffa9f0, 0x112);
         w = (u8 *)jtbl_008873E8[0](0x1258, 0x40000);
-        state = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(&iGpffffa9f8), 0xF, 0, 0, func_0038f160, func_0038f220, (u8 *)(w));
-        *(s32 *)(w + 8) = (s32)kwlnTaskCreate((const void *)(&D_0064F230), 0x97, 1, 2, func_0038f1c0, 0, (u8 *)(0));
+        state = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(&iGpffffa9f8), 0xF, 0, 0, edSrTaskUpdate, edSrTaskDestroy, (u8 *)(w));
+        *(s32 *)(w + 8) = (s32)kwlnTaskCreate((const void *)(&D_0064F230), 0x97, 1, 2, edSrOverlayTaskUpdate, 0, (u8 *)(0));
         kwlnTaskAddChild((void *)state, (void *)*(s32 *)(w + 8));
         *(s32 *)(w + 0) = 0;
         brpParamSetCurrent(w + 0xC);
-        func_0038dd90(w + 0x1C);
+        edScrollWorkInit(w + 0x1C);
         *(s32 *)(w + 4) = state;
         iGpffffb5b8 = (s32 *)w;
         if (w == NULL) {
             kAssertFail(&iGpffffa9f0, 0x64);
         }
         p = (u8 *)iGpffffb5b8;
-        func_0038f7f0();
+        edResRequestLoad();
         *(s32 *)(p + 0x124C) = 0;
         *(s32 *)p |= 1;
     } else if ((r > 0xA) && (kwlnTaskGetTaskByName(&iGpffffa9f8) == 0)) {
