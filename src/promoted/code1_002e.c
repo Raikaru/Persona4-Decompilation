@@ -54,12 +54,12 @@ extern u8 D_0063F560[];
 
 
 // FUN_002E04E0
-u8 *func_002e04e0(u8 *arg0)
+u8 *fclObjectGetWork(u8 *arg0)
 {
     return *(u8 **)(arg0 + 0x38);
 }
 // FUN_002E04F0
-void func_002e04f0(u8 *arg0, u32 arg1, s8 arg2) {
+void fclObjChangeFlagBit(u8 *arg0, u32 arg1, s8 arg2) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     if (arg2 == 0) {
         *(s16 *)(base + 4) |= (s16)((1 << (arg1 & 0xffff)) & 0xffff);
@@ -71,7 +71,7 @@ void func_002e04f0(u8 *arg0, u32 arg1, s8 arg2) {
     }
 }
 // FUN_002E0570
-s8 func_002e0570(u8 *arg0, s32 arg1)
+s8 fclObjTestFlagBit(u8 *arg0, s32 arg1)
 {
     s16 flags;
 
@@ -82,7 +82,7 @@ s8 func_002e0570(u8 *arg0, s32 arg1)
 
 
 // FUN_002E05A0
-s8 func_002e05a0(u8 *arg0) {
+s8 fclObjHasStatusFlags(u8 *arg0) {
     s16 flags = *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x4);
     if (((s8)((flags & 2) >> 1)) == 0 && ((s8)((flags & 4) >> 2)) == 0 &&
         ((s8)((flags & 8) >> 3)) == 0 && ((s8)((flags & 0x10) >> 4)) == 0) {
@@ -92,11 +92,11 @@ s8 func_002e05a0(u8 *arg0) {
 }
 
 // FUN_002E0620
-void func_002e0620(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
+void fclObjStartPosition(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
     fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
 }
 // FUN_002E0660
-void func_002e0660(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5)
+void fclObjStartAlpha(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5)
 {
     fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, (s16)arg5);
 }
@@ -115,7 +115,7 @@ void func_002e0690(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg
     fclSpriteStartRevealScale(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
 }
 // FUN_002E06D0
-void func_002e06d0(u8 *arg0, f32 scale0, f32 scale1, f32 scale2, f32 scale3, u32 arg1, u32 arg2, s64 arg3)
+void fclObjStartRevealScale(u8 *arg0, f32 scale0, f32 scale1, f32 scale2, f32 scale3, u32 arg1, u32 arg2, s64 arg3)
 {
     fclSpriteStartRevealScale(*(u8 **)(arg0 + 0x38) + 4, scale0, scale1, scale2, scale3, arg1, arg2, (s16)arg3);
 }
@@ -184,7 +184,7 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
 }
 #pragma pop
 // FUN_002E0940
-void func_002e0940(u8 *arg0, f32 first, f32 second, u8 mode, s32 duration, s64 delay)
+void fclObjStartTween(u8 *arg0, f32 first, f32 second, u8 mode, s32 duration, s64 delay)
 {
     fclSpriteStartTween(*(u8 **)(arg0 + 0x38) + 4, mode, duration, delay, first, second);
 }
@@ -251,7 +251,7 @@ void func_002e0a60(u8 *arg0, s32 arg1, f32 fparg0)
     *(s8 *)(work + 0x3B) = 0;
 }
 // FUN_002E0B20
-void func_002e0b20(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
+void fclDrawEquipSprite(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
                    s32 arg4, u8 *arg5)
 {
     sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FB50), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
@@ -263,7 +263,7 @@ void func_002e0be0(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
     sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FAA0), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 // FUN_002E0CA0
-void func_002e0ca0(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
+void fclDrawEquipHelpSprite(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
                    s32 arg4, u8 *arg5)
 {
     sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FB90), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
