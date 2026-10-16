@@ -38,7 +38,7 @@ extern s32 func_00110580(s32 arg0);
 extern s32 func_00110d30(s32 arg0);
 extern s32 cmmCommunitySetTableHead(s32 arg0);
 extern s32 cmmCommunityGetTableHead(void);
-extern s32 func_00247f60(s32 arg0);
+extern s32 cmmDateNotListed(s32 arg0);
 
 extern void func_00243ed0(void);
 extern f32 D_00761260;

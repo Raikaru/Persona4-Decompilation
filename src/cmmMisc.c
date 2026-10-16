@@ -369,8 +369,9 @@ s32 cmmConditionMet(s32 arg0) {
     }
     return 0;
 }
+// Has pending unlock: returns 1 when unlock flag 0x11 is still unset and the event check func_001106f0 passes for the current community; else 0.
 // FUN_00247020
-s32 func_00247020(void) {
+s32 cmmHasPendingUnlock(void) {
     if ((datGetFlag(0x11) == 0) && (func_001106f0((s16)func_001060b0(), 4, 0x12, 4, 0x1D) != 0)) {
         return 1;
     }
@@ -440,7 +441,7 @@ s32 cmmFindFreshReverseCandidate(void) {
                 temp_16 = (var_19 & 0xFFFF) * 0x64;
                 var_2_2 = (*(s32 *)((u32)temp_16 + (u32)temp_17 + 0xC) & 0x10) != 0;
                 if (var_2_2 != 0) {
-                    var_2_2 = func_00247020() == 1;
+                    var_2_2 = cmmHasPendingUnlock() == 1;
                 }
                 if (var_2_2 == 0) {
                     temp_17_2 = (u32 *)D_00881480[0];
@@ -502,7 +503,7 @@ s32 cmmFindReverseCandidate(void) {
                 temp_16 = (var_19 & 0xFFFF) * 0x64;
                 var_2_2 = (*(s32 *)((u32)temp_16 + (u32)temp_17 + 0xC) & 0x10) != 0;
                 if (var_2_2 != 0) {
-                    var_2_2 = func_00247020() == 1;
+                    var_2_2 = cmmHasPendingUnlock() == 1;
                 }
                 if (var_2_2 == 0) {
                     temp_17_2 = (u32 *)D_00881480[0];
@@ -526,9 +527,10 @@ s32 cmmFindReverseCandidate(void) {
    declared FIRST (measured: nd 12 -> 0) so the allocator picks
    best=$s2/bestId=$s1/se=$s0/i=$s3; `target=(s16)arg0` sign-extends once
    before the loop; `i=1` is set before the empty-init for. */
+// Top community of arcana: returns the community id whose arcana (func_00248760) equals arg0 and whose rank is highest, or 0 when none matches. Event callers pass the class from the Fcl slot table.
 // FUN_00247770
 #pragma opt_common_subs off
-s16 func_00247770(s32 arg0) {
+s16 cmmTopCommunityOfArcana(s32 arg0) {
     s32 i;
     s32 largest;
     s32 result;
@@ -555,9 +557,10 @@ s16 func_00247770(s32 arg0) {
    re-emitted at each call site; declaration order target/i/largest/result
    (measured: nd 8 -> 0) yields retail's $s0=target/$s1=result/$s2=largest/
    $s3=i/$s4=v; `target=(s8)func_00248760(arg0&0xFFFF)` sign-extends once. */
+// Top persona of arcana: returns the roster persona whose arcana matches the arcana of community arg0 and whose rank is highest, or 0 when none matches.
 // FUN_00247820
 #pragma opt_common_subs off
-s16 func_00247820(s32 arg0) {
+s16 cmmTopPersonaOfArcana(s32 arg0) {
     s32 target;
     s32 i;
     s32 largest;
@@ -814,9 +817,10 @@ s32 func_00247ec0(s32 seed) {
    this puts the sentinel in $v0 and yields retail's shared `beqz $v0 ->
    RET1` check. The inverted guard `if (found != 0) return 0; return 1;`
    (measured: nd 9 -> 0) matches retail's branch polarity. */
+// Date not listed: returns 1 when the (month, day) pair for the date seed arg0 is absent from the D_00881498 pair list, else 0. Script callers use it as a date-availability gate.
 // FUN_00247F60
 #pragma opt_loop_invariants on
-s32 func_00247f60(s32 arg0) {
+s32 cmmDateNotListed(s32 arg0) {
     u8 *p;
     s32 key1;
     s32 key2;

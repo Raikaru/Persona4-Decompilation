@@ -43,7 +43,7 @@ extern void datDestroyTaskByName(void);
 extern void cmmCommunitySetCurrent(u16 arg0);
 extern s16 func_00248d80(s16 arg0);
 extern s32 cmmDateTableAddCount(s32 arg0, s32 arg1);
-extern s16 func_00247820(s16 arg0);
+extern s16 cmmTopPersonaOfArcana(s16 arg0);
 extern u8* cmmMsgStreamEntry(s32 arg0, u16 arg1);
 extern s32 cmmDateTableFindNthMatch(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_0029d020(void);
@@ -339,7 +339,7 @@ s32 cmmPersonaDetailShow(void)
     frFontExCopyString(cmmLabelRecord((s8)func_00248760(id & 0xFFFF)), buf, 0x80);
     itfMesWindowSetString(mesMgr, 3, buf);
     itfMesWindowFormatValue(mesMgr, 4, func_00107ac0(id & 0xFFFF) & 0xFFFF, 0);
-    key = func_00247820((s16)id);
+    key = cmmTopPersonaOfArcana((s16)id);
     if (key != 0) {
         itfMesWindowSetString(mesMgr, 5, datPersonaGetRow(key & 0xFFFF));
     }
@@ -512,8 +512,9 @@ u32 cmmScriptTopReversedCommunity(void)
     return 1;
 }
 
+// Script top persona of arcana: sets the script result to cmmTopPersonaOfArcana for the given community id (the current community when 0).
 // FUN_0024AB70
-s32 func_0024ab70(void)
+s32 cmmScriptTopPersonaOfArcana(void)
 {
     s32 id;
     s32 result;
@@ -522,7 +523,7 @@ s32 func_0024ab70(void)
     if (id == 0) {
         id = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    result = func_00247820((s16)id);
+    result = cmmTopPersonaOfArcana((s16)id);
     if (result != 0) {
         scrSetReturnInt(result);
     } else {

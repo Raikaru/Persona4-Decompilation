@@ -14,7 +14,7 @@ extern s32 func_00248040(s32 arg0);
 extern s32 func_00110580(s32 arg0);
 extern s32 func_00110d30(s32 arg0);
 extern s32 cmmCommunityGetTableHead(void);
-extern s32 func_00247f60(s32 arg0);
+extern s32 cmmDateNotListed(s32 arg0);
 
 extern f32 D_00761260;
 extern f32 fGpffff811c;
@@ -42,7 +42,7 @@ s32 func_0024a0e0(void)
 
     var_4 = (cmmCommunityGetTableHead() & 0xFFFF) != 0;
     if (var_4 != 0) {
-        var_4 = func_00247f60((s16)func_001060b0()) != 0;
+        var_4 = cmmDateNotListed((s16)func_001060b0()) != 0;
     }
     scrSetReturnInt(var_4);
     return 1;
