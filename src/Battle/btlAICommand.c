@@ -41,7 +41,7 @@ extern s32 datCalcElementBit(s16 index);
 extern s8 datCalcGetBuffStatus(u8 *unit, s32 status);
 extern u32 datCalcGetTableLength(u8 *unit);
 extern u32 datCalcUnderlyingSkillId(u32 arg0);
-extern u32 *func_001d9280();
+extern u32 *btlEffectFindUnitByIdAndStatus();
 extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
 extern u32 func_0010f420(u32 arg0, u32 arg1);
 extern void func_001d8bf0(u8 *arg0, u8 *arg1);
@@ -156,7 +156,7 @@ void btlCond_ENWEAK_PAI(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 6, (code *)&btlCond_MYWEAK);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 6, (code *)&btlCond_MYWEAK);
 }
 
 #pragma opt_rebuildconditionals on
@@ -176,7 +176,7 @@ void btlCond_ENWEAK_ST_PAI(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 6, (code *)&btlCond_MYWEAK);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 6, (code *)&btlCond_MYWEAK);
 }
 
 #pragma opt_rebuildconditionals on
@@ -198,7 +198,7 @@ void btlCond_ENWEAK_DW_PAI(int param_1, u32 param_2)
   done:
       ;
   }
-  func_001d94d0(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 7,
+  btlEffectFindUnitMatchingCallback(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 7,
                  (code *)&btlCond_MYWEAK);
   return;
 }
@@ -342,7 +342,7 @@ void btlCond_ENNOMAL(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOMAL);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOMAL);
 }
 
 #pragma opt_rebuildconditionals on
@@ -362,7 +362,7 @@ void btlCond_ENNOMAL_ST(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0xA, (code *)&btlCond_MYNOMAL);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0xA, (code *)&btlCond_MYNOMAL);
 }
 
 #pragma opt_rebuildconditionals on
@@ -384,7 +384,7 @@ void btlCond_ENNOMAL_DW(int param_1, u32 param_2)
   done:
       ;
   }
-  func_001d94d0(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0xb,
+  btlEffectFindUnitMatchingCallback(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0xb,
                  (code *)&btlCond_MYNOMAL);
   return;
 }
@@ -482,7 +482,7 @@ s32 btlCond_MYTAISEI(u8 *arg0, s16 arg1) {
 
 // FUN_001DB940
 void btlCond_FRTAISEI(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code *)&btlCond_MYTAISEI);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code *)&btlCond_MYTAISEI);
 }
 
 #pragma opt_rebuildconditionals off
@@ -501,7 +501,7 @@ void btlCond_ENTAISEI(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code *)&btlCond_MYTAISEI);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code *)&btlCond_MYTAISEI);
 }
 
 #pragma opt_rebuildconditionals on
@@ -537,7 +537,7 @@ void btlCond_ENNOTNOMAL(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOTNOMAL);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOTNOMAL);
 }
 
 #pragma opt_rebuildconditionals on
@@ -2982,11 +2982,11 @@ s32 btlAICommandScriptQueryEnWeakSt(void) {
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* AI script command 0x205a (p4flow AI.json AI_FUNCTION_005A). */
 // FUN_001E1530
@@ -3003,7 +3003,7 @@ u32 btlAICommandSideIdQueryMyHp(void)
 
     unit = func_0029d050();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x01000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3024,7 +3024,7 @@ u32 btlAICommandSideIdQueryMyHp(void)
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* AI script command 0x205b (p4flow AI.json AI_FUNCTION_005B). */
 // FUN_001E1620
@@ -3041,7 +3041,7 @@ u32 btlAICommandSideIdQueryMyMp(void)
 
     unit = func_0029d050();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x02000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3062,7 +3062,7 @@ u32 btlAICommandSideIdQueryMyMp(void)
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* AI script command 0x205c (p4flow AI.json AI_FUNCTION_005C). */
 // FUN_001E1710
@@ -3079,7 +3079,7 @@ u32 btlAICommandSideIdQueryMyLvO(void)
 
     unit = func_0029d050();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x06000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3100,7 +3100,7 @@ u32 btlAICommandSideIdQueryMyLvO(void)
 
 /* Ported from P3FES btlEffect.c func_002c9ba0 (argument sideMask dispatch,
    selector tag 0x0b000000, inline shift). func_0035ed20->scrGetParamInt,
-   func_0035f160->func_0029d050, func_002c0e30->func_001d9280,
+   func_0035f160->func_0029d050, func_002c0e30->btlEffectFindUnitByIdAndStatus,
    func_0035f060->scrSetReturnInt, gFormationDispatchTable->D_00609850. */
 /* AI script command 0x205d (p4flow AI.json AI_FUNCTION_005D). */
 // FUN_001E1800
@@ -3121,10 +3121,10 @@ u32 btlAICommandSideIdQueryMyBad(void)
     sideMask = 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff;
     if ((argument & 0x80000) != 0) {
         id = scrGetParamInt(0);
-        context = (u8 *)func_001d9280(id, sideMask, 0);
+        context = (u8 *)btlEffectFindUnitByIdAndStatus(id, sideMask, 0);
     } else {
         id = scrGetParamInt(0);
-        context = (u8 *)func_001d9280(id, sideMask, 0x80000);
+        context = (u8 *)btlEffectFindUnitByIdAndStatus(id, sideMask, 0x80000);
     }
     if (context != 0) {
         dispatchType = (((argument & 0xffffff) | 0x0b000000) & 0xff000000) >> 24;
@@ -3145,7 +3145,7 @@ u32 btlAICommandSideIdQueryMyBad(void)
 // FUN_001E1940
 s32 btlAICommandSideIdQueryHasBuff(void) {
     u8 *p = func_0029d050();
-    u32 *r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
+    u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
     if (r != 0)
         x = datCalcHasBuffMask(*(u8 **)(*(u8 **)((u8 *)r + 0x30) + 0xA64), scrGetParamInt(1));
@@ -3157,7 +3157,7 @@ s32 btlAICommandSideIdQueryHasBuff(void) {
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* AI script command 0x205f (p4flow AI.json AI_FUNCTION_005F). */
 // FUN_001E19F0
@@ -3174,7 +3174,7 @@ u32 btlAICommandSideIdQueryMyHansya(void)
 
     unit = func_0029d050();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x16000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3195,7 +3195,7 @@ u32 btlAICommandSideIdQueryMyHansya(void)
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* AI script command 0x2060 (p4flow AI.json AI_FUNCTION_0060). */
 // FUN_001E1AE0
@@ -3212,7 +3212,7 @@ u32 btlAICommandSideIdQueryMyKyusyu(void)
 
     unit = func_0029d050();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x17000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3233,7 +3233,7 @@ u32 btlAICommandSideIdQueryMyKyusyu(void)
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* AI script command 0x2061 (p4flow AI.json AI_FUNCTION_0061). */
 // FUN_001E1BD0
@@ -3250,7 +3250,7 @@ u32 btlAICommandSideIdQueryMyMukou(void)
 
     unit = func_0029d050();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x18000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3271,7 +3271,7 @@ u32 btlAICommandSideIdQueryMyMukou(void)
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* AI script command 0x2062 (p4flow AI.json AI_FUNCTION_0062). */
 // FUN_001E1CC0
@@ -3288,7 +3288,7 @@ u32 btlAICommandSideIdQueryMyWeak(void)
 
     unit = func_0029d050();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x19000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3309,7 +3309,7 @@ u32 btlAICommandSideIdQueryMyWeak(void)
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* AI script command 0x2063 (p4flow AI.json AI_FUNCTION_0063). */
 // FUN_001E1DB0
@@ -3326,7 +3326,7 @@ u32 btlAICommandSideIdQueryMyUseAttr(void)
 
     unit = func_0029d050();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x22000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3347,7 +3347,7 @@ u32 btlAICommandSideIdQueryMyUseAttr(void)
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* AI script command 0x2064 (p4flow AI.json AI_FUNCTION_0064). */
 // FUN_001E1EA0
@@ -3364,7 +3364,7 @@ u32 btlAICommandSideIdQueryMyUseSkil(void)
 
     unit = func_0029d050();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x25000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3387,7 +3387,7 @@ u32 btlAICommandSideIdQueryMyUseSkil(void)
 // FUN_001E1F90
 s32 btlAICommandSideIdQueryMyGroup(void) {
     u8 *p = func_0029d050();
-    u32 *r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
+    u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
     if (r != 0)
         x = ((s32 (*)(u8 *, s32))D_00609A30[0])((u8 *)r, 0);
@@ -3401,7 +3401,7 @@ s32 btlAICommandSideIdQueryMyGroup(void) {
 // FUN_001E2030
 s32 btlAICommandSideIdQueryMyHrec(void) {
     u8 *p = func_0029d050();
-    u32 *r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
+    u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
     if (r != 0)
         x = ((s32 (*)(u8 *, s32))D_00609A6C[0])((u8 *)r, 0);
@@ -3419,7 +3419,7 @@ s32 btlAICommandSideIdQueryMyHrec(void) {
    e*3 table call) all compile correctly when f is the only difference. */
 /* Ported from P3FES btlEffect.c func_002ca480 (dispatch handler, 8-alt clone
    family). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850; selector tag 0x01000000. */
 #pragma opt_rebuildconditionals off
 /* AI script command 0x209e (p4flow AI.json AI_FUNCTION_009E). */
@@ -3445,7 +3445,7 @@ nonzero:
     shift = 0;
 done:
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << shift & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x01000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3500,7 +3500,7 @@ nonzero:
     shift = 0;
 done:
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << shift & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x02000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3557,7 +3557,7 @@ nonzero:
     shift = 0;
 done:
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << shift & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x06000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3580,7 +3580,7 @@ done:
 
 /* Ported from P3FES btlEffect.c func_002ca7b0 (argument sideMask dispatch,
    selector tag 0x0b000000). func_0035ed20->scrGetParamInt, func_0035f160->func_0029d050,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. Pragma for branchy shift set. */
 #pragma opt_rebuildconditionals off
 /* AI script command 0x20a1 (p4flow AI.json AI_FUNCTION_00A1). */
@@ -3610,10 +3610,10 @@ done:
     sideMask = 1 << shift & 0xffff;
     if ((argument & 0x80000) != 0) {
         id = scrGetParamInt(0);
-        context = (u8 *)func_001d9280(id, sideMask, 0);
+        context = (u8 *)btlEffectFindUnitByIdAndStatus(id, sideMask, 0);
     } else {
         id = scrGetParamInt(0);
-        context = (u8 *)func_001d9280(id, sideMask, 0x80000);
+        context = (u8 *)btlEffectFindUnitByIdAndStatus(id, sideMask, 0x80000);
     }
     if (context != 0) {
         dispatchType = (((argument & 0xffffff) | 0x0b000000) & 0xff000000) >> 24;
@@ -3756,7 +3756,7 @@ s32 btlAICommandOppSideIdQueryHasBuff(void) {
     done:
         ;
     }
-    r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
+    r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
     if (r != 0)
         x = datCalcHasBuffMask(*(u8 **)(*(u8 **)((u8 *)r + 0x30) + 0xA64), scrGetParamInt(1));
     else
@@ -3898,7 +3898,7 @@ nonzero:
     shift = 0;
 done:
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << shift & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x16000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3955,7 +3955,7 @@ nonzero:
     shift = 0;
 done:
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << shift & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x17000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -4012,7 +4012,7 @@ nonzero:
     shift = 0;
 done:
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << shift & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x18000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -4069,7 +4069,7 @@ nonzero:
     shift = 0;
 done:
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << shift & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x19000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -4126,7 +4126,7 @@ nonzero:
     shift = 0;
 done:
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << shift & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x22000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -4183,7 +4183,7 @@ nonzero:
     shift = 0;
 done:
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << shift & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x25000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -4224,7 +4224,7 @@ s32 btlAICommandOppSideIdQueryMyGroup(void) {
     done:
         ;
     }
-    r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
+    r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
     if (r != 0)
         x = ((s32 (*)(u8 *, s32))D_00609A30[0])((u8 *)r, 0);
     else
@@ -4254,7 +4254,7 @@ s32 btlAICommandOppSideIdQueryMyHrec(void) {
     done:
         ;
     }
-    r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
+    r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
     if (r != 0)
         x = ((s32 (*)(u8 *, s32))D_00609A6C[0])((u8 *)r, 0);
     else
@@ -4503,9 +4503,9 @@ s32 btlAICommandScriptQueryEnOverlv(void) {
 }
 
 /* Ported from P3FES btlEffect.c func_002cbba0 (side-switch dispatch, selector
-   tag 0x19000000). func_0035ed20->scrGetParamInt, func_002c0e30->func_001d9280,
+   tag 0x19000000). func_0035ed20->scrGetParamInt, func_002c0e30->btlEffectFindUnitByIdAndStatus,
    func_0035f060->scrSetReturnInt, gFormationDispatchTable->D_00609850. id is u32
-   (masked & 0xFFFF) because func_001d9280 takes s32. switch cases ascending 0/1. */
+   (masked & 0xFFFF) because btlEffectFindUnitByIdAndStatus takes s32. switch cases ascending 0/1. */
 /* AI script command 0x20b9 (p4flow AI.json AI_FUNCTION_00B9). */
 // FUN_001E3DE0
 u32 btlAICommandSideSwitchIdQueryMyWeak(void)
@@ -4524,10 +4524,10 @@ u32 btlAICommandSideSwitchIdQueryMyWeak(void)
     context = 0;
     switch (side) {
     case 0:
-        context = (u8 *)func_001d9280(id, 1, 0x80000);
+        context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1, 0x80000);
         break;
     case 1:
-        context = (u8 *)func_001d9280(id, 2, 0x80000);
+        context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 2, 0x80000);
         break;
     }
     if (context != 0) {
@@ -4556,10 +4556,10 @@ s32 func_001e3f10(void) {
     s32 x;
     switch (a & 0xFFFF) {
     case 0:
-        r = func_001d9280(b, 1, 0x80000);
+        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
         break;
     case 1:
-        r = func_001d9280(b, 2, 0x80000);
+        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
         break;
     default:
         break;
@@ -4581,10 +4581,10 @@ s32 func_001e3fd0(void) {
     s32 x;
     switch (a & 0xFFFF) {
     case 0:
-        r = func_001d9280(b, 1, 0x80000);
+        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
         break;
     case 1:
-        r = func_001d9280(b, 2, 0x80000);
+        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
         break;
     default:
         break;
@@ -4606,10 +4606,10 @@ s32 func_001e4090(void) {
     s32 x;
     switch (a & 0xFFFF) {
     case 0:
-        r = func_001d9280(b, 1, 0x80000);
+        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
         break;
     case 1:
-        r = func_001d9280(b, 2, 0x80000);
+        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
         break;
     default:
         break;
@@ -4631,10 +4631,10 @@ s32 func_001e4150(void) {
     s32 x;
     switch (a & 0xFFFF) {
     case 0:
-        r = func_001d9280(b, 1, 0x80000);
+        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
         break;
     case 1:
-        r = func_001d9280(b, 2, 0x80000);
+        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
         break;
     default:
         break;
@@ -4656,10 +4656,10 @@ s32 btlAICommandSideSwitchQueryAnalyze(void) {
     s32 x;
     switch (a & 0xFFFF) {
     case 0:
-        r = func_001d9280(b, 1, 0x80000);
+        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
         break;
     case 1:
-        r = func_001d9280(b, 2, 0x80000);
+        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
         break;
     default:
         break;
@@ -4674,7 +4674,7 @@ s32 btlAICommandSideSwitchQueryAnalyze(void) {
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* AI script command 0x20cb (p4flow AI.json AI_FUNCTION_00CB). */
 // FUN_001E42E0
@@ -4691,7 +4691,7 @@ u32 btlAICommandSideIdQueryMyAbleSkil(void)
 
     unit = func_0029d050();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x3a000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -4720,7 +4720,7 @@ s32 btlAICommandScriptSelfHasBuff(void) {
 
 /* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
    shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->func_001d9280, func_0035f060->scrSetReturnInt,
+   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
    gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 /* AI script command 0x20d4 (p4flow AI.json AI_FUNCTION_00D4). */
 // FUN_001E4430
@@ -4737,7 +4737,7 @@ u32 btlAICommandSideIdQueryMyAttrSkil(void)
 
     unit = func_0029d050();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x3e000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -5246,7 +5246,7 @@ s32 btlAICommandScriptGetSelfId2(void) {
 // FUN_001E5FD0
 s32 func_001e5fd0(void) {
     u8 *p = func_0029d050();
-    u32 *r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
+    u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     scrSetReturnInt(r != 0 ? *(u32 *)((u8 *)r + 0x20) : 0);
     return 1;
 }
@@ -5269,7 +5269,7 @@ s32 func_001e6050(void) {
     done:
         ;
     }
-    r = func_001d9280(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
+    r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
     scrSetReturnInt(r != 0 ? *(u32 *)((u8 *)r + 0x20) : 0);
     return 1;
 }

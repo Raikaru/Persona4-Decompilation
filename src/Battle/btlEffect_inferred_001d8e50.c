@@ -100,7 +100,7 @@ extern f32 fGpffff8110;
 #pragma push
 #pragma pop
 // FUN_001D8E50
-void func_001d8e50(u8 *arg0, u8 *arg1)
+void btlEffectSelectTargetByStatus(u8 *arg0, u8 *arg1)
 {
     u16 best_value1;
     s16 best_index1;
@@ -294,7 +294,7 @@ mode_done:
 }
 
 // FUN_001D9280
-u8 *func_001d9280(s32 arg0, s32 arg1, s32 arg2) {
+u8 *btlEffectFindUnitByIdAndStatus(s32 arg0, s32 arg1, s32 arg2) {
     s32 work_flags;
     u8 *unit;
     u8 *work;
@@ -381,7 +381,7 @@ test:
 }
 
 // FUN_001D94D0
-int func_001d94d0(int param_1, int param_2, int param_3, int param_4, int param_5, code param_6)
+int btlEffectFindUnitMatchingCallback(int param_1, int param_2, int param_3, int param_4, int param_5, code param_6)
 {
     u8 *unit;
     u8 *work;

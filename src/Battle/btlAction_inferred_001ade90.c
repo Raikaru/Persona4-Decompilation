@@ -98,7 +98,7 @@ u8 *func_001faa60(void);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 s32 func_0019ff60(u8 *arg0);
 s64 *btlActionGetQueueFront(void);
-s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 u32 btlCountUnitRecordsById(u32 arg0);
 u8 *btlCutinCreatePacket(u8 *arg0);

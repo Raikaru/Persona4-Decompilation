@@ -46,7 +46,7 @@ extern s32 *gEncountTbl;
 extern s32 D_00724504;
 extern s32 btlAICommandSelectCandidates();
 extern u32 datCalcRandomBelow(u32 arg0);
-extern u8 *func_001d9280();
+extern u8 *btlEffectFindUnitByIdAndStatus();
 extern u8 *btlAICommandPickUnitByHpWeight();
 
 
@@ -106,10 +106,10 @@ s32 btlEffectScriptPickUnitByKind(void) {
     kind = first & 0xFFFF;
     switch (kind) {
     case 0:
-        result = func_001d9280(second, 1, 0);
+        result = btlEffectFindUnitByIdAndStatus(second, 1, 0);
         break;
     case 1:
-        result = func_001d9280(second, 2, 0x80000);
+        result = btlEffectFindUnitByIdAndStatus(second, 2, 0x80000);
         break;
     }
     scrSetReturnInt(*(s32 *)(result + 8) | 0x80000000);
