@@ -10,7 +10,7 @@ typedef struct { f32 x, y; } Vec2f;
 void kAssertFail(void* arg0, s32 arg1);
 void sdkSpriteFreeNode(void *node);
 void func_00460ac0(void* param, void* work);
-void func_00106390(s32 a, s32 b);
+void datSetFlag(s32 a, s32 b);
 s32 func_0035f0c0(u32* arg0, s32* arg1, u8* arg2);
 s32 func_0034c210(void);
 void chkmemAllocSiteTag(void* file, s32 line);
@@ -222,9 +222,9 @@ apply:
     *(u16 *)(scaled2 + (int)arg0 + 0x3A) = 0;
     if ((idx == 0) && (*state_ptr == 1)) {
         temp = datGetFlag(D_0064D3A0[0]);
-        func_00106390(D_0064D3A0[0], 1);
+        datSetFlag(D_0064D3A0[0], 1);
         datEntryDrawGatedByFlag39(0xA, 0x96, 0xA, 0);
-        func_00106390(D_0064D3A0[0], temp);
+        datSetFlag(D_0064D3A0[0], temp);
     }
     return 1;
 }
@@ -268,9 +268,9 @@ block_9:
     *(s16 *)((u8 *)(arg1 * 2) + (u32)arg0 + 0x3A) = 0;
     if ((arg1 == 0) && (*(s32 *)temp_2 == 1)) {
         temp_16 = datGetFlag(D_0064D3A0[0]);
-        func_00106390(D_0064D3A0[0], 1);
+        datSetFlag(D_0064D3A0[0], 1);
         datEntryDrawGatedByFlag39(0xA, 0x96, 0xA, 0);
-        func_00106390(D_0064D3A0[0], temp_16);
+        datSetFlag(D_0064D3A0[0], temp_16);
     }
     return 1;
 }
@@ -642,9 +642,9 @@ void func_0035dd40(u8* arg0) {
     *(u8*)(arg0 + 4) |= 2;
     for (i = 0; i < 6; i++) {
         if (*(s32*)(arg0 + i * 4 + 0x48) != 0) {
-            func_00106390(D_0064D3A0[i], 1);
+            datSetFlag(D_0064D3A0[i], 1);
         } else {
-            func_00106390(D_0064D3A0[i], 0);
+            datSetFlag(D_0064D3A0[i], 0);
         }
     }
 }

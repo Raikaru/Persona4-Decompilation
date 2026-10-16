@@ -176,7 +176,7 @@ extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
 extern void btlCameraSelectEncounterPreset(u8 *camera);
 
 extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(void *target);
 extern u8 *btlActionFindByUnit(s32 arg0);
 extern void btlTargetSetDefeatState(u8 *arg0, s32 arg1);
@@ -316,9 +316,9 @@ s32 btlLogoUnlockStage(u8 *arg0)
     if (temp_2 >= 0x1E) {
         if (datGetFlag(0x1202) == 0) {
             arg0[0x44] = 0xC;
-            func_00106390(0x1202, 1);
-            func_00106390(0x1201, 1);
-            func_00106390(0x1200, 1);
+            datSetFlag(0x1202, 1);
+            datSetFlag(0x1201, 1);
+            datSetFlag(0x1200, 1);
             temp_3 = 1;
             goto exit;
         }
@@ -326,8 +326,8 @@ s32 btlLogoUnlockStage(u8 *arg0)
     if (temp_2 >= 0x19) {
         if (datGetFlag(0x1201) == 0) {
             arg0[0x44] = 0xA;
-            func_00106390(0x1201, 1);
-            func_00106390(0x1200, 1);
+            datSetFlag(0x1201, 1);
+            datSetFlag(0x1200, 1);
             temp_3 = 1;
             goto exit;
         }
@@ -335,7 +335,7 @@ s32 btlLogoUnlockStage(u8 *arg0)
     if (temp_2 >= 0x14) {
         if (datGetFlag(0x1200) == 0) {
             arg0[0x44] = 8;
-            func_00106390(0x1200, 1);
+            datSetFlag(0x1200, 1);
             temp_3 = 1;
         }
     }

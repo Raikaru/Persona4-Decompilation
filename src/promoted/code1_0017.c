@@ -91,7 +91,7 @@ extern void func_0018a000(s32 arg0, s32 arg1);
 extern void smapRefreshCells(u8 *arg0, s8 arg1);
 extern void smapSetPhase(s32 arg0, s32 arg1);
 extern s32 func_0012d000(s32 arg0, s32 arg1);
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 s32 FldShadow_CasterStep(u8 *arg0);
 void FldShadow_CasterDestroy(u8 *arg0);
 void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
@@ -332,7 +332,7 @@ s32 func_00170bc0(u8 *arg0)
                 func_0018a000(*(s32 *)((u8 *)func_00155280() + 0x30), 0);
             if (datGetFlag(0x1401) != 0) {
                 func_0015a7c0(func_0015a160());
-                func_00106390(0x1401, 0);
+                datSetFlag(0x1401, 0);
                 temp_17 = func_0015a100();
                 func_0029db50(0xF, temp_17, func_0015a130(), 5);
                 *(s32 *)(temp_16 + 4) = 3;

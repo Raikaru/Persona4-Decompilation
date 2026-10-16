@@ -98,7 +98,7 @@ extern u8 D_0064B30C[];
 typedef signed __int128 code13S128;
 extern void func_001056e0(s16 arg0, s16 arg1);
 extern void func_00105730(s16 arg0, s16 arg1);
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 extern void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 extern s32 func_00354010(void);
 extern void func_0013aa90(u8 *arg0);
@@ -1829,7 +1829,7 @@ s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2)
         if (updated < 0) kAssertFail(D_005ED9D0, 0x29c);
         func_00106620(item, updated & 0xff);
         if (state == 3) {
-            func_00106390(5121, 1);
+            datSetFlag(5121, 1);
         } else {
             radarRandomizeEntries(arg2);
             entry = code13AddOff((u32)total * 4U, arg2);

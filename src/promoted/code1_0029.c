@@ -17,7 +17,7 @@ s32 mtMiscResourceValue(s32 arg0);
 
 s32 sdkSndFadeOutChannel(s64 arg0, s32 arg1);
 
-extern void func_00106390();
+extern void datSetFlag();
 s32 scrGetParamInt(s32 arg0);
 extern void sndPlayAreaCue(void);
 extern s32 sndRequestAreaTrack();

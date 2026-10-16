@@ -49,7 +49,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0025.c; members 0025c310-0025c3e0 */
 
 // FUN_0025C310
-void func_0025c310(void) {
+void K_Cmd_TASK_LOOKUP(void) {
     kwlnTaskGetTaskByName(D_006367C0);
 }
 

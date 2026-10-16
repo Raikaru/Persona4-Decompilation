@@ -340,7 +340,7 @@ s32 func_002be530(u8 *arg0)
     extern void *func_00454a60(const void *, s32);
     extern s32 H_Cdvd_IsFileLoaded(void *);
     extern s32 datGetFlag(s32);
-    extern void func_00106390(s32, s32);
+    extern void datSetFlag(s32, s32);
     extern s32 func_00106b50(s16);
     extern void func_00106d40(s16, s16, s16);
     extern s64 calGetDayEntryForMonthDay(s32, s32);
@@ -967,7 +967,7 @@ s32 func_002be530(u8 *arg0)
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else {
             func_002bb550((*(s8 *)(work + 0x10)));
-            func_00106390(0x1324, 1);
+            datSetFlag(0x1324, 1);
             (*(s8 *)(work + 0)) = 0xD;
         }
         break;

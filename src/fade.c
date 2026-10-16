@@ -20,7 +20,7 @@ extern char iGpffffb1d8;
 extern char iGpffffb1d4;
 extern char iGpffffb1d0;
 
-void func_0046d740(const void *msg, const void *file, u32 line);
+void kAssertFailAt(const void *msg, const void *file, u32 line);
 
 extern char D_005E50B0[];
 
@@ -65,7 +65,7 @@ s32 func_00122520(s32 arg0, s32 arg1)
     }
     if (*(s32 *)temp_16 == 0) {
         if (arg0 == 0) {
-            func_0046d740(D_005E5090, &iGpffff9c60, 0x17D);
+            kAssertFailAt(D_005E5090, &iGpffff9c60, 0x17D);
             if (*(s32 *)(temp_16 + 4) == 0) {
                 *(s32 *)(temp_16 + 4) = 1;
             }
@@ -103,7 +103,7 @@ s32 func_00122640(s32 arg0, s32 arg1)
     if (*(s32 *)temp_16 == 3) {
         if (arg0 == 0) {
             if (*(s32 *)(temp_16 + 4) == 0) {
-                func_0046d740(D_005E50B0, &iGpffff9c60, 0x19E);
+                kAssertFailAt(D_005E50B0, &iGpffff9c60, 0x19E);
                 *(s32 *)(temp_16 + 4) = 1;
             }
         } else {

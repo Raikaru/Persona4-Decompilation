@@ -99,7 +99,7 @@ extern void func_00106550(s32 arg0, u32 arg1);
 
 extern s32 datGetFlag(s32 id);
 
-extern void func_00106390(s32 a, s32 b);
+extern void datSetFlag(s32 a, s32 b);
 
 extern void func_0036d940(u8 *arg0);
 
@@ -319,7 +319,7 @@ void btlShuffleTaskDestroy(u8 *unusedTask)
     u8 *work = (u8 *)kwlnTaskGetWork();
 
     if (datGetFlag(0x1430) == 0) {
-        func_00106390(0x1430, 1);
+        datSetFlag(0x1430, 1);
     }
     func_0036d940(work + 0x1F384);
     btlShuffleDrawRelease(work + 0x70);
@@ -836,12 +836,12 @@ s32 btlShuffleBuildRoster(s32 arg0, s32 *arg1)
             if (datGetFlag(*(s32 *)p) != 0) {
                 a = *(u16 *)((u8 *)D_0064E7B4 + idx * 12);
                 b = *(u16 *)((u8 *)D_0064E7B6 + idx * 12);
-                func_00106390(*(s32 *)p, 0);
+                datSetFlag(*(s32 *)p, 0);
                 break;
             }
         }
         result = (u32)b | ((u32)a << 16);
-        func_00106390(0x1403, 0);
+        datSetFlag(0x1403, 0);
     } else {
         result = 0;
     }
@@ -851,12 +851,12 @@ s32 btlShuffleBuildRoster(s32 arg0, s32 *arg1)
             fn = (s32 (*)(s32, s32 *))*(s32 *)((u8 *)D_0064E7B8 + idx2 * 12);
             if (fn == NULL) {
                 *arg1 = 1;
-                func_00106390(*(s32 *)p, 1);
-                func_00106390(0x1403, 1);
+                datSetFlag(*(s32 *)p, 1);
+                datSetFlag(0x1403, 1);
             } else {
                 *arg1 = fn(arg0, arg1);
-                func_00106390(*(s32 *)p, 0);
-                func_00106390(0x1403, 0);
+                datSetFlag(*(s32 *)p, 0);
+                datSetFlag(0x1403, 0);
             }
             func_00106550(0x10, 0);
             break;

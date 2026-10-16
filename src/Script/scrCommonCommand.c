@@ -17,7 +17,7 @@ extern u32 kwlnTaskGetTimer(KwlnTask* task);
 
 extern void kAssertFail(const char* file, u32 line);
 extern void func_00440b68(const char* fmt, ...);
-extern void func_00106390(s32 flag, s32 value);
+extern void datSetFlag(s32 flag, s32 value);
 extern u32 RpRandom(void);
 extern float scrGetParamFloat(s32 paramIdx);
 extern void scrSetReturnFloat(float value);
@@ -81,7 +81,7 @@ u32 func_00298db0(void)
     {
         kAssertFail(D_0063CFB0, 0x47);
     }
-    func_00106390(param, 1);
+    datSetFlag(param, 1);
     return 1;
 }
 
@@ -95,7 +95,7 @@ u32 func_00298e20(void)
     {
         kAssertFail(D_0063CFB0, 0x54);
     }
-    func_00106390(param, 0);
+    datSetFlag(param, 0);
     return 1;
 }
 

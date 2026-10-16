@@ -20,8 +20,8 @@ rest of the code much easier to read.
 
 | Idiom | What it is | Where to see it |
 |---|---|---|
-| `func_0046d730(file, line)` | Assertion-failure hook. The retail body is empty, but callers still pass a source-file string and a line number. | `src/promoted/code1_0046.c` |
-| `func_0046d740(msg, file, line)` | Assertion hook that also takes a message. Its body is empty too. | `src/promoted/code1_0046.c` |
+| `kAssertFail(file, line)` | Assertion-failure hook. The retail body is empty, but callers still pass a source-file string and a line number. | `src/promoted/code1_0046.c` |
+| `kAssertFailAt(msg, file, line)` | Assertion hook that also takes a message. Its body is empty too. | `src/promoted/code1_0046.c` |
 | `chkmemAllocSiteTag(file, line)` | Allocation-site tag that callers issue before an allocation. Its body is empty. | `src/Kernel/sdkChkmem.c` |
 | `func_00440b68(fmt, ...)` | Formatted debug output, for example `"Scene data load..."` in `fieldSceneLoad`. Still `INCLUDE_ASM`. **[inferred]** printf-like | `src/promoted/code1_0044.c` |
 | `jtbl_008873E8[0](size, hint)` | Allocate | e.g. `src/Scene/resrcManager.c` `resrcMngCreate` |
@@ -720,7 +720,7 @@ global block. `func_001070e0(id)` searches 21 records of `0x10` bytes at
 `D_00797410` for link `id` (below `0x1F`); the rank is at `+6`, and rank 10
 is special-cased (**[inferred]** the maximum). `func_00106f40` and
 `func_00106db0` mirror a link's rank and state into per-link flags through
-`func_00106390` (flag base `0x3FF + id`, in 32-flag strides).
+`datSetFlag` (flag base `0x3FF + id`, in 32-flag strides).
 
 `src/cmmScript.c` supplies most of script command group 3. `src/cmmMisc.c`
 holds helpers, including `func_00248240`, which the scheduler calls when the

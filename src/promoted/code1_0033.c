@@ -15,7 +15,7 @@ extern int iGpffffb598;
 extern u16 D_008C024E[];
 extern s32 scrGetParamInt(s32 arg0);
 extern s32 datGetFlag(s32 arg0);
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 extern u32 func_002e7a60(void);
 
 
@@ -268,7 +268,7 @@ s32 func_003319c0(void) {
     s32 r;
 
     if ((D_008C024E[0] & 0x800) != 0) {
-        func_00106390(scrGetParamInt(0), 1);
+        datSetFlag(scrGetParamInt(0), 1);
         r = 1;
     } else {
         r = 0;
@@ -304,7 +304,7 @@ s32 func_00331a20(u8 *arg0)
             work[1] = func_002bab80(D_00645240);
             func_002badc0(work[1], 0);
             (*work)++;
-            func_00106390(0x1C0, 1);
+            datSetFlag(0x1C0, 1);
             return 0;
         }
         if ((cmmCommunityRecordValue(0x13) & 0xFFFF) == 6 || (cmmCommunityRecordValue(0x13) & 0xFFFF) == 7) {
@@ -313,8 +313,8 @@ s32 func_00331a20(u8 *arg0)
                 work[1] = func_002bab80(D_00645240);
                 func_002badc0(work[1], *(s16 *)e);
                 func_00106620(*(s16 *)(e + 2), ((func_00106600(*(s16 *)(e + 2)) & 0xFF) + 1) & 0xFF);
-                func_00106390(*(s32 *)(e + 4), 1);
-                func_00106390(*(s32 *)(e + 8), 0);
+                datSetFlag(*(s32 *)(e + 4), 1);
+                datSetFlag(*(s32 *)(e + 8), 0);
                 (*work)++;
                 return 0;
             }
@@ -329,7 +329,7 @@ s32 func_00331a20(u8 *arg0)
                 !(max < level_value)) {
                 work[1] = func_002bab80(D_00645240);
                 func_002badc0(work[1], *(s16 *)entry);
-                func_00106390(*(s32 *)(entry + 12), 1);
+                datSetFlag(*(s32 *)(entry + 12), 1);
                 (*work)++;
                 return 0;
             }

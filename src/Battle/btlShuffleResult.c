@@ -112,7 +112,7 @@ extern char *datCalcGetSlotRecord(s32 a);
 extern char *strcpy(char *dst, const char *source);
 struct KwlnTask;
 extern s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *task);
-extern void func_00106390(s32 a, s32 b);
+extern void datSetFlag(s32 a, s32 b);
 
 
 
@@ -494,7 +494,7 @@ static inline s32 shuffleResultRoll(u8 kind)
     u32 randomBits;
     f32 randomValue;
     if (datGetFlag(0x1437) == 0) {
-        func_00106390(0x1437, 1);
+        datSetFlag(0x1437, 1);
         return 1;
     }
     if (datGetFlag(0x1403) != 0 && datGetFlag(0x140F) != 0) {
@@ -863,7 +863,7 @@ s32 btlShuffleResultRun(u8 *arg0)
     case 19:
         result = btlShuffleSeqFlag(view.context);
         if (result != 0) {
-            func_00106390(0x1434, 1);
+            datSetFlag(0x1434, 1);
             func_002baac0((u8 *)(*(s32 *)(view.context + 0x1F2DC)));
             view.state->phase = 4;
         }

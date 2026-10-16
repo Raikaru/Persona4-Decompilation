@@ -12,7 +12,7 @@ extern u8 D_007964F0[];
 extern void func_002e1ef0(void *a);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void sdkSndFadeOutChannel(s32 a, s32 b);
-extern void func_00106390(s32 a, s32 b);
+extern void datSetFlag(s32 a, s32 b);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern u8 *func_002e1db0(s32 a, s32 b, s32 c, s32 d);
@@ -29,7 +29,7 @@ void func_00268920(u8 *task) {
     func_002e1ef0((void *)**(s32 **)(s0 + 8));
     jtbl_008873EC[0](s0);
     sdkSndFadeOutChannel(3, 0);
-    func_00106390(0x1470, 0);
+    datSetFlag(0x1470, 0);
 }
 
 // FUN_00268870
@@ -69,7 +69,7 @@ s32 func_00268990(s32 arg0) {
     *(u8 ***)(s0 + 8) = v1;
     ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063B070), 0xF, 0, 0, func_00268870, func_00268920, (u8 *)(s0));
     sdkSndRequestTrack(0x40);
-    func_00106390(0x1470, 1);
+    datSetFlag(0x1470, 1);
     return ret;
 }
 

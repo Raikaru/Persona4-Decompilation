@@ -31,7 +31,7 @@ extern s8 D_005E3A00[];
 s32 func_0029e970(void);
 void func_0029e980(s32);
 
-void func_00106390(s32, s32);
+void datSetFlag(s32, s32);
 s32 calReadDayFlagMask(void);
 void calWriteDayFlagMask(s32);
 void datInitDefaultGameState(void);
@@ -603,12 +603,12 @@ void scrReleaseActiveHandle(void)
 // FUN_00111050
 void calSetDefaultDayFlags(s32 arg0)
 {
-    func_00106390(0x39, 1);
-    func_00106390(0x3A, 1);
-    func_00106390(0x3B, 0);
-    func_00106390(0x3C, 1);
-    func_00106390(0x3D, 1);
-    func_00106390(0x3E, 0);
+    datSetFlag(0x39, 1);
+    datSetFlag(0x3A, 1);
+    datSetFlag(0x3B, 0);
+    datSetFlag(0x3C, 1);
+    datSetFlag(0x3D, 1);
+    datSetFlag(0x3E, 0);
     if (arg0 != 0) {
         iGpffffb1bc = 0;
     }
@@ -636,9 +636,9 @@ void calWriteDayFlagMask(s32 arg0)
     var_16 = 0;
     for (var_16 = 0; var_16 < 6U; var_16++) {
         if (arg0 & (1 << var_16)) {
-            func_00106390(D_005E4610[var_16], 1);
+            datSetFlag(D_005E4610[var_16], 1);
         } else {
-            func_00106390(D_005E4610[var_16], 0);
+            datSetFlag(D_005E4610[var_16], 0);
         }
     }
 }
@@ -671,18 +671,18 @@ void calRestoreDayFlagMask(void)
     if (temp_16 & 0x80000000) {
         for (var_17 = 0; var_17 < 6U; var_17++) {
             if (temp_16 & (1 << var_17)) {
-                func_00106390(D_005E4610[var_17], 1);
+                datSetFlag(D_005E4610[var_17], 1);
             } else {
-                func_00106390(D_005E4610[var_17], 0);
+                datSetFlag(D_005E4610[var_17], 0);
             }
         }
     } else {
-        func_00106390(0x39, 1);
-        func_00106390(0x3A, 1);
-        func_00106390(0x3B, 0);
-        func_00106390(0x3C, 1);
-        func_00106390(0x3D, 1);
-        func_00106390(0x3E, 0);
+        datSetFlag(0x39, 1);
+        datSetFlag(0x3A, 1);
+        datSetFlag(0x3B, 0);
+        datSetFlag(0x3C, 1);
+        datSetFlag(0x3D, 1);
+        datSetFlag(0x3E, 0);
     }
     iGpffffb1bc = 0;
 }
@@ -825,12 +825,12 @@ loop_5_check:
     }
     iGpffffb1f0 = 0;
     iGpffffb19c = 0;
-    func_00106390(0x39, 1);
-    func_00106390(0x3A, 1);
-    func_00106390(0x3B, 0);
-    func_00106390(0x3C, 1);
-    func_00106390(0x3D, 1);
-    func_00106390(0x3E, 0);
+    datSetFlag(0x39, 1);
+    datSetFlag(0x3A, 1);
+    datSetFlag(0x3B, 0);
+    datSetFlag(0x3C, 1);
+    datSetFlag(0x3D, 1);
+    datSetFlag(0x3E, 0);
 }
 // Intent: Carry persistent state across a reset: save the flags, category values and money, reset to the defaults, then restore them with the new end date [inferred]
 // FUN_00111BC0
@@ -849,7 +849,7 @@ void datCarryOverPersistentState(void)
     void func_00106550(s32, u32);
     s32 func_00106600(s16);
     s32 datGetFlag(s32);
-    void func_00106390(s32, s32);
+    void datSetFlag(s32, s32);
     s16 datGetCategoryValueById(s16, s16);
     u32 datGetMoney(void);
     void datSetMoney(u32);
@@ -997,7 +997,7 @@ loop3_check:
     i = 0;
     goto loop4_check;
 loop4:
-    func_00106390(i + 0x39, buf[332 + i]);
+    datSetFlag(i + 0x39, buf[332 + i]);
     i++;
 loop4_check:
     if (i < 7) {
@@ -1012,7 +1012,7 @@ loop5:
         if (v == 0) {
             goto loop5_done;
         }
-        func_00106390(v, buf[132 + i]);
+        datSetFlag(v, buf[132 + i]);
         i++;
     }
 loop5_check:
@@ -1031,10 +1031,10 @@ loop6_check:
         goto loop6;
     }
     if (flag == 1) {
-        func_00106390(0x1DD, 1);
+        datSetFlag(0x1DD, 1);
     }
     fclCombineRestoreSnapshot();
-    func_00106390(0x1210, 1);
+    datSetFlag(0x1210, 1);
     func_00106550(0x7C, (u32)value);
     func_00110470((u32)end_date);
     i = 0;
@@ -1047,7 +1047,7 @@ loop7_check:
         goto loop7;
     }
     datSetMoney((u32)result);
-    func_00106390(0x800, 1);
+    datSetFlag(0x800, 1);
     iGpffffb19c = saved;
 }
 #pragma opt_propagation on
