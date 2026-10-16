@@ -23,7 +23,7 @@ extern void evtNodeLoadRecordEntry(u8 *, u8 *, s32);
 extern s32 mtMiscReadSlotValues(s32, s32, s32 *, s32 *);
 extern void *mdlCreateModelObjectFromMemory(u32, u16, void *, u32, u32);
 extern void mdlSetAttachedOwner(s32, u8 *);
-extern s32 func_002919d0(s32);
+extern s32 evtCustomEventResId(s32);
 extern void MT_Scene_SetResActiveById(u16, s32);
 extern void kAssertFail(u8 *, s32);
 extern void evtNodeSetRes(u8 *, u16, u16 *);
@@ -598,7 +598,7 @@ void evtNodeCreateModel(s32 arg0, u8 *arg1) {
             } else {
                 mdlSetAttachedOwner(temp_17, D_005DC878);
             }
-            temp_16 = (u16)(MT_Scene_CreateModelNpcShadowRes((u16)(func_002919d0(*(s32 *)(arg1 + 4)) & 0xFFFF), 0, temp_17) & 0xFFFF);
+            temp_16 = (u16)(MT_Scene_CreateModelNpcShadowRes((u16)(evtCustomEventResId(*(s32 *)(arg1 + 4)) & 0xFFFF), 0, temp_17) & 0xFFFF);
             MT_Scene_SetResActiveById(temp_16, 1);
             temp_2_2 = (s32)(*(s32 *)(arg1 + 4) * 0x1E);
             sp58.x = (f32)temp_2_2;

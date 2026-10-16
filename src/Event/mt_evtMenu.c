@@ -6,8 +6,9 @@ extern u32 DAT_00882170_abs[];
 
 
 
+// Intent: Clears menu slot words 1 to 12 of the table at DAT_00882170 (word 0 is kept) [inferred]
 // FUN_00285260
-void func_00285260(void)
+void evtMenuClearSlots(void)
 {
     int iVar1;
     u32 *puVar2;
