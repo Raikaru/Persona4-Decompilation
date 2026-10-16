@@ -71,8 +71,9 @@ typedef struct ScrTask450
 
 
 
+// Sets the script flag named by parameter 0 to 1 (asserts the index is below 0x1600).
 // FUN_00298DB0
-u32 func_00298db0(void)
+u32 scrSetFlag(void)
 {
     u32 param;
 
@@ -85,8 +86,9 @@ u32 func_00298db0(void)
     return 1;
 }
 
+// Clears the script flag named by parameter 0 (asserts the index is below 0x1600).
 // FUN_00298E20
-u32 func_00298e20(void)
+u32 scrClearFlag(void)
 {
     u32 param;
 
@@ -99,8 +101,9 @@ u32 func_00298e20(void)
     return 1;
 }
 
+// Returns a random integer in [0, p0]: a uniform value in [0, 1) scaled by p0 + 1.
 // FUN_00298E90
-s32 func_00298e90(void)
+s32 scrRandomInt(void)
 {
     f32 ratio;
 
@@ -108,15 +111,17 @@ s32 func_00298e90(void)
     scrSetReturnInt((s32)(ratio * (f32)(scrGetParamInt(0) + 1)));
     return 1;
 }
+// Returns the square root of float parameter 0.
 // FUN_00298F40
-u32 func_00298f40(void)
+u32 scrSqrt(void)
 {
     scrSetReturnFloat(sqrtf(scrGetParamFloat(0)));
     return 1;
 }
 
+// Returns 1 while the command timer is running (non-zero), else 0.
 // FUN_00298F90
-u32 func_00298f90(void)
+u32 scrCmdTimerActive(void)
 {
     return scrGetCmdTimer() != 0;
 }
@@ -139,15 +144,17 @@ u32 scrCommand_WAIT()
 
 
 
+// Debug print: writes integer parameter 0 through the debug format string D_0063CFC8.
 // FUN_00299020
-u32 func_00299020(void)
+u32 scrDebugPrintInt(void)
 {
     func_00440b68(D_0063CFC8, scrGetParamInt(0));
     return 1;
 }
 
+// Debug print: writes string parameter 0 through the debug format string D_0063CFD8.
 // FUN_00299060
-u32 func_00299060(void)
+u32 scrDebugPrintString(void)
 {
     func_00440b68(D_0063CFD8, scrGetParamString(0));
     return 1;
@@ -181,8 +188,9 @@ u32 func_002990e0(void)
     return 1;
 }
 
+// Returns 1 while the screen fade is in progress.
 // FUN_00299140
-u32 func_00299140(void)
+u32 scrIsFading(void)
 {
     return fadeStatus() != 0;
 }
@@ -205,8 +213,9 @@ u32 func_002991c0(void)
     return ~func_00102980() == 0;
 }
 
+// Case dispatch: parameter 0 selects a case (0..6) and parameter caseIdx + 1 names its label; a negative index or label returns without jumping.
 // FUN_002991F0
-u32 func_002991f0(void)
+u32 scrSwitchCaseJump(void)
 {
     s32 caseIdx;
     s32 lblIdx;
