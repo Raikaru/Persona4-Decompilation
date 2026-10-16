@@ -1,10 +1,10 @@
 /* Source unit: src/Script/scrComuCommand_0024a0b0.c */
 #include "type.h"
+#include "datPersona_internal.h"
 
 u16 cmmCommunityGetTableHead();
 void scrSetReturnInt();
 
-u16 datPersonaLeadPersonaId();
 
 
 
