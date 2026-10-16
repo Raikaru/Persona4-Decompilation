@@ -132,7 +132,7 @@ u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void btlSoundFadeOutBgm(s16 fadeDuration);
-extern void func_0045a3e0(s32 arg0, s32 arg1);
+extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern u32 datCalcRandomBelow(u32 arg0);
 extern u8 D_0060A0E0[];
 extern s32 btlCurrentUnitId(void);
@@ -259,7 +259,7 @@ s32 btlEncounterSetState2D(void)
 s32 btlEncounterPlayCueIfFlag40(void)
 {
     if (*(s32 *)(DAT_0076449c + 0xC) & 0x40) {
-        func_0045a3e0(6, 1);
+        sdkSndPlayCue(6, 1);
     }
     return 1;
 }

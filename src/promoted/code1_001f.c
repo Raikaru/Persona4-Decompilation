@@ -79,7 +79,7 @@ extern s32 func_002439c0(s32 arg0);
 extern u16 datCalcPickWeightedSkill(u8 *arg0, s32 *arg1);
 extern void kAssertFail(void *arg0, s32 arg1);
 extern u8 D_0060AB08[];
-extern void func_0045a3e0(s32 arg0, s32 arg1);
+extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern s16 datGetDateIndex(void);
 extern s32 func_00110d60(s32 arg0);
 extern u8 D_0060AC00[];
@@ -102,7 +102,7 @@ extern s32 func_00459880(void);
 
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern void datCalcClearFlaggedBuffs(s32 arg0);
-extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
+extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 extern void func_002bd3c0(void);
 
 extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);

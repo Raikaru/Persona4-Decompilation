@@ -725,7 +725,7 @@ s32 func_00459ad0(s32 arg0)
 #pragma pop
 
 // FUN_0045A3E0
-s32 func_0045a3e0(s16 arg0)
+s32 sdkSndPlayCue(s16 arg0)
 {
     s32 x, cur, v;
 
@@ -899,7 +899,7 @@ s32 func_0045aa90(s16 index, s16 stream)
    remasked and pragma spellings all stalled at normalized_diff 7-12 on the
    argument-materialization order. */
 // FUN_0045AAC0
-s32 func_0045aac0(s16 arg0, s16 arg1, s32 arg2)
+s32 sdkSndFadeOutChannelFrames(s16 arg0, s16 arg1, s32 arg2)
 {
   int new_var3;
   unsigned int new_var;

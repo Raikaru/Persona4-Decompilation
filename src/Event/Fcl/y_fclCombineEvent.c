@@ -2,7 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
-extern void func_0045aac0();
+extern void sdkSndFadeOutChannelFrames();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern u8 D_0064A400[];
@@ -73,7 +73,7 @@ s32 fclCombineEventGate(u8 *arg0)
 // Fcl combine event destroy: stops sound channel 2 and frees the task's work buffer.
 // FUN_0033DE40
 void fclCombineEventDestroy(u8 *arg0) {
-    func_0045aac0(2, 0, 0);
+    sdkSndFadeOutChannelFrames(2, 0, 0);
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 

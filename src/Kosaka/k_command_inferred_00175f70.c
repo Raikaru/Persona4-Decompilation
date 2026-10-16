@@ -81,8 +81,8 @@ extern u8 D_00794E70[];
 extern s32 func_0029d020(void);
 extern s32 func_00110f00(void);
 extern s32 func_00110fc0(void);
-extern s32 func_0018ced0(void);
-extern void func_0018c7e0(void);
+extern s32 sndRequestAreaTrack(void);
+extern void sndPlayAreaCue(void);
 extern s32 func_00159f70(s32 arg0);
 
 extern s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
@@ -250,8 +250,8 @@ void func_00176280(void)
 // FUN_001762A0
 s32 func_001762a0(void)
 {
-    if (func_0018ced0() == 0) {
-        func_0018c7e0();
+    if (sndRequestAreaTrack() == 0) {
+        sndPlayAreaCue();
     }
     return 1;
 }

@@ -65,7 +65,7 @@ extern u16 D_00624FD8[];
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
-extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
+extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 
 extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
 
@@ -267,7 +267,7 @@ void btlSoundPlayIndexed(s32 arg0) {
 
 // FUN_001F86D0
 void btlSoundStopBank3(void) {
-    func_0045aac0(3, 0, 8);
+    sdkSndFadeOutChannelFrames(3, 0, 8);
 }
 
 // FUN_001F8700

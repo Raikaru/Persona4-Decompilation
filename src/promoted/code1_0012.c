@@ -3892,7 +3892,7 @@ s32 func_0012aa70(u8 *task)
     extern u8 *func_003e9cb0(u8 *frame, const void *matrix, s32 combine);
     extern u8 *func_003e9c10(u8 *frame, const f32 *translation, s32 combine);
     extern u8 hsndQueueSound(s16 id, s16 unused);
-    extern void func_0045aac0(s16 task, s32 arg1, s32 arg2);
+    extern void sdkSndFadeOutChannelFrames(s16 task, s32 arg1, s32 arg2);
 
     extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
     /* The persistent copy destination is a complete 0x5D0-byte buffer. */
@@ -3969,7 +3969,7 @@ s32 func_0012aa70(u8 *task)
         }
         break;
     case 6:
-        func_0045aac0(2, 0, 0x1E);
+        sdkSndFadeOutChannelFrames(2, 0, 0x1E);
         *(s32 *)work = 7;
         *(s32 *)(work + 0x14) = 0;
         *(s32 *)(work + 0xC) = 0;
@@ -4099,7 +4099,7 @@ s32 func_0012aa70(u8 *task)
                 break;
             case 2:
                 *(s32 *)work = 0xC;
-                func_0045aac0(2, 0, 0);
+                sdkSndFadeOutChannelFrames(2, 0, 0);
                 break;
             case 3:
                 *(s32 *)work = 0xE;

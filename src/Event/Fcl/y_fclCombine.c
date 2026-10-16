@@ -204,7 +204,7 @@ extern u8 D_00641C00[];
 extern char iGpffffa8c8;
 extern void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
 extern s32 func_00454a60(void *arg0, s32 arg1);
-extern void func_0045aac0(s32, s32, s32);
+extern void sdkSndFadeOutChannelFrames(s32, s32, s32);
 extern s32 func_00110460(void);
 extern void func_00105690(s32, s32);
 extern void datSetMoney(s32);
@@ -277,7 +277,7 @@ extern s32 func_00285b30(void);
 extern s32 kwlnTaskIsLinked(s32);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *);
 extern s32 func_00459760(void);
-extern void func_0045a3e0(s32, s32);
+extern void sdkSndPlayCue(s32, s32);
 extern void fclCombineConsumeMaterials(u8 *, s16 *);
 extern s32 fclDrawTaskCreate(u8 *);
 extern s32 fclCombineClaimSlot(u8 *);
@@ -9762,7 +9762,7 @@ void fclCombineMenuFinish(u8 *arg0) {
             *(s32 *)(p + 0x304) = 0;
         }
         if (func_00459760() == -1) {
-            func_0045a3e0(0x14, 1);
+            sdkSndPlayCue(0x14, 1);
         }
         switch (*(s8 *)(p + 0x1A)) {
         case 2:
@@ -10136,7 +10136,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
                     cmmCommunityAllocRecord(0x14);
                 }
                 p[0] = 0xB;
-                func_0045a3e0(0x14, 1);
+                sdkSndPlayCue(0x14, 1);
                 return 0;
             }
             if (datGetFlag(0x1459) == 0) {
@@ -10162,7 +10162,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
                 func_003e9cb0(*(u32 *)(t2 + 4), r2, 0);
             }
             fclCombineCdvdTaskCreate();
-            func_0045a3e0(0x14, 1);
+            sdkSndPlayCue(0x14, 1);
             p[0] = 0xA;
         }
         break;
@@ -10256,7 +10256,7 @@ s32 fclCombineTaskCreate(u8 *arg0)
     p[0] = 8;
     func_00440b68(&iGpffffa8c8, D_00641B00, 0x2C96);
     *(s32 *)(p + 0x10) = func_00454a60(D_00641C00, 0);
-    func_0045aac0(3, 0, 0x1E);
+    sdkSndFadeOutChannelFrames(3, 0, 0x1E);
     *(s32 *)(p + 0x4) = 0x41000000;
     *(s32 *)(p + 0x8) = 0x41200000;
     *(u8 *)(p + 0xC) = 0;

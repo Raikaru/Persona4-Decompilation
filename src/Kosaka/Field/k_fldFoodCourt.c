@@ -36,8 +36,8 @@ extern void K_View_SetFov(u8 *arg0, f32 arg1);
 extern void func_003e9cb0(s32 arg0, u8 *arg1, s32 arg2);
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 kwlnTaskIsLinked(s32 arg0);
-extern s32 func_0018ced0(void);
-extern void func_0018c7e0(void);
+extern s32 sndRequestAreaTrack(void);
+extern void sndPlayAreaCue(void);
 extern void func_00122640(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);
 
@@ -126,8 +126,8 @@ s32 K_FldFoodCourt_Update(u8 *arg0) {
         }
     case 2:
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0xC)) != 1) {
-            if (func_0018ced0() == 0) {
-                func_0018c7e0();
+            if (sndRequestAreaTrack() == 0) {
+                sndPlayAreaCue();
             }
             func_00122640(1, 0);
             *(s32 *)temp_16 += 1;
