@@ -110,7 +110,7 @@ extern s32 btlUnitGetEntryPosition(u8 *arg0, f32 *arg1, s32 arg2);
 extern u8 *func_001b1510(void);
 extern void btlTargetBlendVectors(void *arg0, void *arg1, void *arg2);
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-extern void func_00195aa0(void *arg0, void *arg1, void *arg2);
+extern void btlUnitGetSphereCenterTowardTarget(void *arg0, void *arg1, void *arg2);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
 extern P4_95730_Vec3 D_0060A0D0;
