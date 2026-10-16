@@ -40,7 +40,7 @@ void shdPersonaDrawArcanaBadge(s64, f32, u8, u8 *, s32 *);
 void shdPersonaDrawAffinityPanel(Vec2f, f32, u8, u8 *, s32 *);
 void shdPersonaDrawGaugeBar(Vec2f, f32, u8, u8, u8, s16, s32);
 void PrimDrawFlatRectangle(u8 *, f32 *, f32, s32);
-void func_0034c270(Vec2f, f32, u8, s32);
+void nLineDrawSet(Vec2f, f32, u8, s32);
 extern s32 (*D_00887300[])(s32, void *);
 extern char D_005E5810[];
 extern char D_005E5830[];
@@ -2500,10 +2500,10 @@ void shdPersonaDrawByState(u8 *arg0)
     case 0:
     case 2:
     case 4:
-        func_0034c270(z, *(f32 *)(arg0 + 0x53C), *(u8 *)(arg0 + 0x505), 0x10);
+        nLineDrawSet(z, *(f32 *)(arg0 + 0x53C), *(u8 *)(arg0 + 0x505), 0x10);
         return;
     case 3:
-        func_0034c270(z, *(f32 *)(arg0 + 0x53C), *(u8 *)(arg0 + 0x505), 0x23);
+        nLineDrawSet(z, *(f32 *)(arg0 + 0x53C), *(u8 *)(arg0 + 0x505), 0x23);
         return;
     case 1:
         value = (f32)(u32)*(u8 *)(arg0 + 0x505);

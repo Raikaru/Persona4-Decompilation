@@ -58,15 +58,15 @@ extern f32 iGpffff8220;
 
 s32 nLineRefreshTask(u8 *task);
 void func_0034b950(void);
-void func_0034ba20(void);
-void func_0034ba30(void);
-void func_0034c500(u8 *arg0, Vec2f arg1, s32 arg2);
-void func_0034c6c0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 *arg1);
-void func_0034c820(u8 *arg0);
-void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2);
-void func_0034cef0(u8 *arg0);
-s16 func_0034e290(u8 *arg0, s32 arg1);
-s32 func_0034e360(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
+void nLineSetDefaultDuration(void);
+void nLineInitRecords(void);
+void nLineDrawRecords(u8 *arg0, Vec2f arg1, s32 arg2);
+void nLineEmitQuad(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 *arg1);
+void nLineFlushLayer(u8 *arg0);
+void nLineDrawEffect(u8 *arg0, Vec2f arg1, s32 arg2);
+void nLineDrawBatch(u8 *arg0);
+s16 nLineRollStyle(u8 *arg0, s32 arg1);
+s32 nLineBuildDecoration(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 void nLineDrawLayers(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
 u32 RpRandom(void);
 void func_00364c50(void);
@@ -80,21 +80,22 @@ void kAssertFail(void *file, s32 line);
 void memset(void *dest, s32 value, s32 size);
 void nLineSetRenderStateBase(void);
 
-void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
-void func_0034d040(u8 *arg0);
-void func_0034d070(u8 *arg0, s32 arg1);
-void func_0034d280(u8 *arg0, s32 arg1);
-void func_0034d490(u8 *arg0, s32 arg1);
-void func_0034d690(u8 *arg0, s32 arg1);
-void func_0034d890(u8 *arg0, s32 arg1);
-void func_0034ddf0(u8 *arg0, s32 arg1);
-void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1);
+void nLineDrawFrameAt(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
+void nLineDrawFullFrame(u8 *arg0);
+void nLineSweepHorizontal(u8 *arg0, s32 arg1);
+void nLineSweepHorizontalAlt(u8 *arg0, s32 arg1);
+void nLineSweepVertical(u8 *arg0, s32 arg1);
+void nLineSweepVerticalAlt(u8 *arg0, s32 arg1);
+void nLineDrawWaveStrip(u8 *arg0, s32 arg1);
+void nLineDrawBand(u8 *arg0, s32 arg1);
+void nLineDrawScaledFrame(u8 *arg0, f32 fparg0, s32 arg1);
 
 
 
 
+// Intent: creates the line-effect refresh task, resets its records and selects the default set. Returns the task.
 // FUN_0034B970
-s32 func_0034b970(void) {
+s32 nLineInit(void) {
     s32 temp_2;
 
     temp_2 = (s32)kwlnTaskCreate((const void *)(&iGpffffa948), 0xC7, 0, 0, nLineRefreshTask, 0, (u8 *)(0));
@@ -104,13 +105,14 @@ s32 func_0034b970(void) {
     memset(D_00882FC0, 0, 0x30);
     D_00882FC8[0] = func_0034b950;
     D_00882FD0[0] = 0;
-    func_0034ba20();
-    func_0034ba30();
+    nLineSetDefaultDuration();
+    nLineInitRecords();
     return temp_2;
 }
 
+// Intent: sets the default duration of the line effect (0xB0 frames).
 // FUN_0034BA20
-void func_0034ba20(void) {
+void nLineSetDefaultDuration(void) {
     iGpffffb5a4 = 0xB0;
 }
 
@@ -119,8 +121,9 @@ void func_0034ba20(void) {
    retail's destination-first address schedule and register allocation.
    measured: object 212B/window 224B; exact instructions, 12B zero tail. */
 #pragma opt_loop_invariants on
+// Intent: fills the 20 layer records from the compact defaults table; the untouched fields keep their values.
 // FUN_0034BA30
-void func_0034ba30(void) {
+void nLineInitRecords(void) {
     u8 *dst;
     u8 *src;
     s32 i;
@@ -161,13 +164,15 @@ void func_0034ba30(void) {
 /* measured: close the exact ba30 loop-invariant scope at the TU baseline. */
 #pragma opt_loop_invariants off
 
+// Intent: returns the index of the currently selected line set.
 // FUN_0034BB10
-s32 func_0034bb10(void) {
+s32 nLineGetCurrentSet(void) {
     return D_00884670[0];
 }
 
+// Intent: selects line set arg0 (0 to 0x23), rebuilds the 20 records from its table, and starts it. Returns 1 when the set changed.
 // FUN_0034BB20
-s32 func_0034bb20(s32 arg0) {
+s32 nLineSelectSet(s32 arg0) {
     s32 i;
     s32 temp_16;
     u8 *srcBase;
@@ -221,7 +226,7 @@ s32 func_0034bb20(s32 arg0) {
                 *(f32 *)(dst + 0x50) = temp_f2 * *(f32 *)(src + 0x2C);
             }
             D_00884660[0] = 0;
-            D_00883988[0] = func_0034e290(D_00882FF0, arg0);
+            D_00883988[0] = nLineRollStyle(D_00882FF0, arg0);
             D_00884670[0] = arg0;
             D_00884674[0] = 0;
             D_00884678[0] = *(f32 *)(D_007523C4 + temp_16);
@@ -233,12 +238,13 @@ s32 func_0034bb20(s32 arg0) {
     return 0;
 }
 
+// Intent: selects line set arg0 like nLineSelectSet, but with the immediate flag set and the full-alpha record defaults.
 // FUN_0034BD60
 /* measured: without opt_loop_invariants, mwcc rematerializes the 5.0f constant
  * inside the loop ($v0) instead of hoisting it to the preheader like retail
  * (lui $v1 used by both stores), nd 48 -> 0. */
 #pragma opt_loop_invariants on
-s32 func_0034bd60(s32 arg0) {
+s32 nLineSelectSetImmediate(s32 arg0) {
     s32 i;
     u8 *srcBase;
     u8 *dstBase;
@@ -295,10 +301,11 @@ s32 func_0034bd60(s32 arg0) {
 /* measured: opt_propagation off with the mode byte loaded into a u8 local before the
    counter init and masked after it (`flags = ...; var_18 = 0; temp_16 = flags & 1;`)
    gives retail's lbu / move s2,zero / andi preheader; propagation on sinks the load. */
+// Intent: per-frame update of the selected set: advances the sine easing of each of the 20 records and wraps their positions.
 // FUN_0034BEA0
 #pragma opt_propagation off
-void func_0034c120(u8 *arg0);
-void func_0034bea0(void) {
+void nLineWrapRecord(u8 *arg0);
+void nLineUpdate(void) {
     f32 temp_f0;
     f32 temp_f1;
     f32 temp_f20;
@@ -353,14 +360,15 @@ void func_0034bea0(void) {
         *(f32 *)(temp_17 + 0x24) = *(f32 *)(temp_17 + 0x2C) + *(f32 *)(temp_17 + 0x28) * temp_f20;
         *(f32 *)(temp_17 + 0x34) = *(f32 *)(temp_17 + 0x3C) + *(f32 *)(temp_17 + 0x38) * temp_f0;
         if (temp_16 != 0) {
-            func_0034c120(temp_17);
+            nLineWrapRecord(temp_17);
         }
     }
 }
 /* measured: restore propagation for the rest of the unit. */
 #pragma opt_propagation on
+// Intent: wraps one record's position into the 640 by 448 screen by adding or subtracting the screen size.
 // FUN_0034C120
-void func_0034c120(u8 *arg0) {
+void nLineWrapRecord(u8 *arg0) {
     f32 temp_f2 = *(f32 *)(arg0 + 8);
 
     if (temp_f2 < 0.0f) {
@@ -385,16 +393,18 @@ void func_0034c120(u8 *arg0) {
 
 
 
+// Intent: returns 1 when no set is selected or the selected set has finished its duration.
 // FUN_0034C210
-s32 func_0034c210(void) {
+s32 nLineIsIdle(void) {
     if ((D_00884670[0] == 0) || !((f32)D_00884674[0] < D_00884678[0])) {
         return 1;
     }
     return 0;
 }
 
+// Intent: sets the active flag of the line effect.
 // FUN_0034C260
-void func_0034c260(s32 arg0) {
+void nLineSetActive(s32 arg0) {
     D_00884684[0] = arg0;
 }
 
@@ -416,8 +426,9 @@ void func_0034c260(s32 arg0) {
    big wins. FP-coloring + clamp-comparison floor. */
 /* measured: loop-invariant source recipe from the archived c270 probe. */
 #pragma opt_loop_invariants on
+// Intent: builds the draw records for set arg2 at alpha arg1 around the position, then draws them.
 // FUN_0034C270
-void func_0034c270(Vec2f arg0, s32 arg1, s32 arg2, f32 fparg0) {
+void nLineDrawSet(Vec2f arg0, s32 arg1, s32 arg2, f32 fparg0) {
     u8 sp50[0x16A0];
     s32 b;
     f32 hi;
@@ -458,13 +469,14 @@ void func_0034c270(Vec2f arg0, s32 arg1, s32 arg2, f32 fparg0) {
         var_f0 = (f32)var_3;
         *(f32 *)(dst + 0x24) = var_f0;
     }
-    func_0034c500(sp50, arg0, b);
+    nLineDrawRecords(sp50, arg0, b);
     D_0088467C[0] = 0.0f;
 }
 /* measured: closes the c270 loop-invariant scope. */
 #pragma opt_loop_invariants off
+// Intent: draws the current record table at the origin.
 // FUN_0034C4A0
-void func_0034c4a0(void) {
+void nLineDrawCurrent(void) {
     Vec2f sp18;
     u8 *p = (u8 *)&sp18;
     s32 n = 8;
@@ -476,7 +488,7 @@ void func_0034c4a0(void) {
             n--;
         } while (n != 0);
     }
-    func_0034c500(D_00882FF0, sp18, 0xFF);
+    nLineDrawRecords(D_00882FF0, sp18, 0xFF);
 }
 
 /* measured: the by-value Vec2f position gives the retail argument home at
@@ -484,8 +496,9 @@ void func_0034c4a0(void) {
    dimensions; keep the blue/red/green local order for byte-clamp allocation.
    Object 436B/window 448B, normalized_diff 0; twelve zero tail bytes.
    The c270 and c4a0 aggregate callers retain normalized_diff 0. */
+// Intent: draws the 20 records of a table at the given position and alpha, one quad per record.
 // FUN_0034C500
-void func_0034c500(u8 *arg0, Vec2f arg1, s32 arg2) {
+void nLineDrawRecords(u8 *arg0, Vec2f arg1, s32 arg2) {
     u8 bytes[4];
     u8 sp40[0x100];
     f32 x;
@@ -502,8 +515,8 @@ void func_0034c500(u8 *arg0, Vec2f arg1, s32 arg2) {
 
     nLineSetRenderStateBase();
     if (*(s16 *)(D_007523CA + (*(s32 *)(arg0 + 0x1680) * 0x10)) != 0) {
-        func_0034c860(arg0, arg1, arg2);
-        func_0034cef0(arg0 + 0x690);
+        nLineDrawEffect(arg0, arg1, arg2);
+        nLineDrawBatch(arg0 + 0x690);
     }
     var_16 = 0;
     for (; var_16 < 0x14; var_16++) {
@@ -535,8 +548,8 @@ void func_0034c500(u8 *arg0, Vec2f arg1, s32 arg2) {
         bytes[2] = var_2;
         var_3_2 = (u8)*(f32 *)(temp_4 + 0x24);
         bytes[3] = var_3_2;
-        func_0034c6c0(sp40, x, y, var_f14, var_f15, bytes);
-        func_0034c820(sp40);
+        nLineEmitQuad(sp40, x, y, var_f14, var_f15, bytes);
+        nLineFlushLayer(sp40);
     }
 }
 
@@ -550,8 +563,9 @@ void func_0034c500(u8 *arg0, Vec2f arg1, s32 arg2) {
    parameters, then u8* arg1); this makes MWCCPS2 save the float arguments before
    $s0, matching retail exactly. The grouped integer-first declaration was nd 13;
    this order is nd 0. */
+// Intent: emits one quad as four layer vertices at the position with the given size and colour.
 // FUN_0034C6C0
-void func_0034c6c0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 *arg1) {
+void nLineEmitQuad(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 *arg1) {
     f32 z;
     f32 scale;
 
@@ -564,8 +578,9 @@ void func_0034c6c0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 
 }
 
 
+// Intent: flushes the 4-vertex layer queued in the given buffer.
 // FUN_0034C820
-void func_0034c820(u8 *arg0) {
+void nLineFlushLayer(u8 *arg0) {
     D_00887310[0](5, arg0, 4);
 }
 
@@ -576,8 +591,9 @@ void func_0034c820(u8 *arg0) {
    and subF preserves the pre-callback width lifetime. The db60 declaration
    is floats-first. Object 1672B/window 1680B, normalized_diff 0; eight zero
    tail bytes. No stack/register assembly or optimization pragma is needed. */
+// Intent: draws the record table's effect for its kind: edge sweeps, frames, decoration and the 640 by 448 window.
 // FUN_0034C860
-void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
+void nLineDrawEffect(u8 *arg0, Vec2f arg1, s32 arg2) {
     s32 offset;
     s16 kind;
     s16 effect;
@@ -613,23 +629,23 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
     *(u8 *)(arg0 + 0x994) = arg2;
     switch (kind) {
     case 0: break;
-    case 1: func_0034d040(arg0); break;
-    case 2: func_0034d070(arg0, 1); break;
-    case 3: func_0034d280(arg0, 1); break;
-    case 4: func_0034d490(arg0, 1); break;
-    case 5: func_0034d690(arg0, 1); break;
-    case 6: func_0034d890(arg0, 1); break;
-    case 7: func_0034d070(arg0, 0); break;
-    case 8: func_0034d280(arg0, 0); break;
-    case 9: func_0034d490(arg0, 0); break;
-    case 10: func_0034d690(arg0, 0); break;
-    case 11: func_0034d890(arg0, 0); break;
-    case 12: func_0034ddf0(arg0, 1); break;
-    case 13: func_0034ddf0(arg0, 0); break;
-    case 14: func_0034db60(arg0, 0.5f, 1); break;
-    case 15: func_0034db60(arg0, 0.5f, 0); break;
-    case 16: func_0034db60(arg0, 1.0f, 1); break;
-    case 17: func_0034db60(arg0, 1.0f, 0); break;
+    case 1: nLineDrawFullFrame(arg0); break;
+    case 2: nLineSweepHorizontal(arg0, 1); break;
+    case 3: nLineSweepHorizontalAlt(arg0, 1); break;
+    case 4: nLineSweepVertical(arg0, 1); break;
+    case 5: nLineSweepVerticalAlt(arg0, 1); break;
+    case 6: nLineDrawWaveStrip(arg0, 1); break;
+    case 7: nLineSweepHorizontal(arg0, 0); break;
+    case 8: nLineSweepHorizontalAlt(arg0, 0); break;
+    case 9: nLineSweepVertical(arg0, 0); break;
+    case 10: nLineSweepVerticalAlt(arg0, 0); break;
+    case 11: nLineDrawWaveStrip(arg0, 0); break;
+    case 12: nLineDrawBand(arg0, 1); break;
+    case 13: nLineDrawBand(arg0, 0); break;
+    case 14: nLineDrawScaledFrame(arg0, 0.5f, 1); break;
+    case 15: nLineDrawScaledFrame(arg0, 0.5f, 0); break;
+    case 16: nLineDrawScaledFrame(arg0, 1.0f, 1); break;
+    case 17: nLineDrawScaledFrame(arg0, 1.0f, 0); break;
     default: kAssertFail(&iGpffffa950, 0x3A9); break;
     }
     switch ((s64)effect) {
@@ -687,8 +703,9 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
     default: kAssertFail(&iGpffffa950, 0x3DF); break;
     }
 }
+// Intent: sets the render state and draws the three queued line batches of a table.
 // FUN_0034CEF0
-void func_0034cef0(u8 *arg0) {
+void nLineDrawBatch(u8 *arg0) {
     void (**f)(s32, void *, s32);
 
     D_00887300[0](1, 0);
@@ -715,18 +732,20 @@ void func_0034cef0(u8 *arg0) {
         f[0](5, arg0 + 0x200, 4);
     }
 }
+// Intent: draws the full-screen frame at scale 1.
 // FUN_0034D040
-void func_0034d040(u8 *arg0) {
-    func_0034e0b0(arg0, 0.0f, 0.0f, 1.0f);
+void nLineDrawFullFrame(u8 *arg0) {
+    nLineDrawFrameAt(arg0, 0.0f, 0.0f, 1.0f);
 }
 
 /* measured: three separate loop-index locals plus the exact `lh` table access
    reproduce retail's shared $a2 counter coloring; d070 is nd 0
    (object 528B / window 528B). */
+// Intent: sweeps the frame horizontally from the leftmost record edge with an eased fraction. Returns through the frame draw.
 // FUN_0034D070
 /* measured: opens d070's exact loop-invariant scope. */
 #pragma opt_loop_invariants on
-void func_0034d070(u8 *arg0, s32 arg1) {
+void nLineSweepHorizontal(u8 *arg0, s32 arg1) {
     f32 temp_f0;
     f32 temp_f0_2;
     f32 temp_f0_3;
@@ -780,14 +799,15 @@ void func_0034d070(u8 *arg0, s32 arg1) {
     if (arg1 == 0) {
         var_f14 = 1.0f - var_f14;
     }
-    func_0034e0b0(arg0, var_f4 - *(f32 *)(arg0 + 0x99C), -*(f32 *)(arg0 + 0x9A0), var_f14);
+    nLineDrawFrameAt(arg0, var_f4 - *(f32 *)(arg0 + 0x99C), -*(f32 *)(arg0 + 0x9A0), var_f14);
 }
 /* measured: closes the tested d070 loop-invariant scope at the file baseline. */
 #pragma opt_loop_invariants off
+// Intent: the horizontal sweep with the opposite edge scan (same algorithm as nLineSweepHorizontal).
 // FUN_0034D280
 /* measured: opens d280's exact loop-invariant scope. */
 #pragma opt_loop_invariants on
-void func_0034d280(u8 *arg0, s32 arg1) {
+void nLineSweepHorizontalAlt(u8 *arg0, s32 arg1) {
     f32 temp_f0;
     f32 temp_f0_2;
     f32 temp_f0_3;
@@ -843,7 +863,7 @@ void func_0034d280(u8 *arg0, s32 arg1) {
     if (arg1 == 0) {
         var_f14 = 1.0f - var_f14;
     }
-    func_0034e0b0(arg0, var_f4 - *(f32 *)(arg0 + 0x99C), -*(f32 *)(arg0 + 0x9A0), var_f14);
+    nLineDrawFrameAt(arg0, var_f4 - *(f32 *)(arg0 + 0x99C), -*(f32 *)(arg0 + 0x9A0), var_f14);
 }
 /* measured: closes the tested d280 loop-invariant scope at the file baseline. */
 #pragma opt_loop_invariants off
@@ -851,11 +871,12 @@ void func_0034d280(u8 *arg0, s32 arg1) {
 /* measured: three separate loop-index locals plus the exact `lh` table access
    reproduce retail's shared $a2 counter coloring; d280 is nd 0
    (object 528B / window 528B). */
+// Intent: sweeps the frame vertically from the topmost record edge with an eased fraction.
 // FUN_0034D490
 /* measured: opt_loop_invariants hoists the shared 448.0f/4.0f constants for
    this exact loop-index spelling. */
 #pragma opt_loop_invariants on
-void func_0034d490(u8 *arg0, s32 arg1) {
+void nLineSweepVertical(u8 *arg0, s32 arg1) {
     f32 temp_f0;
     f32 temp_f0_2;
     f32 temp_f0_3;
@@ -909,17 +930,18 @@ void func_0034d490(u8 *arg0, s32 arg1) {
     if (arg1 == 0) {
         var_f14 = 1.0f - var_f14;
     }
-    func_0034e0b0(arg0, -*(f32 *)(arg0 + 0x99C), var_f2 - *(f32 *)(arg0 + 0x9A0), var_f14);
+    nLineDrawFrameAt(arg0, -*(f32 *)(arg0 + 0x99C), var_f2 - *(f32 *)(arg0 + 0x9A0), var_f14);
 }
 /* measured: closes the tested loop-invariant scope at the file baseline. */
 #pragma opt_loop_invariants off
 /* measured: separate loop-index locals for d690's three independent extrema
    scans reproduce retail's reused $a2 coloring; `lh` table access and
    opt_loop_invariants give nd 0 (object 504B / window 512B). */
+// Intent: the vertical sweep with the opposite edge scan (same algorithm as nLineSweepVertical).
 // FUN_0034D690
 /* measured: opens the exact d690 loop-invariant scope. */
 #pragma opt_loop_invariants on
-void func_0034d690(u8 *arg0, s32 arg1) {
+void nLineSweepVerticalAlt(u8 *arg0, s32 arg1) {
     f32 temp_f0;
     f32 temp_f0_2;
     f32 temp_f0_3;
@@ -975,13 +997,14 @@ void func_0034d690(u8 *arg0, s32 arg1) {
     if (arg1 == 0) {
         var_f14 = 1.0f - var_f14;
     }
-    func_0034e0b0(arg0, -*(f32 *)(arg0 + 0x99C), var_f2 - *(f32 *)(arg0 + 0x9A0), var_f14);
+    nLineDrawFrameAt(arg0, -*(f32 *)(arg0 + 0x99C), var_f2 - *(f32 *)(arg0 + 0x9A0), var_f14);
 }
 /* measured: closes the tested d690 loop-invariant scope at the file baseline. */
 #pragma opt_loop_invariants off
 
+// Intent: draws the wave strip: four layer quads whose height and offset follow a sine ease.
 // FUN_0034D890
-void func_0034d890(u8 *arg0, s32 arg1) {
+void nLineDrawWaveStrip(u8 *arg0, s32 arg1) {
     f32 temp_f2;
     f32 temp_f21;
     f32 temp_f20;
@@ -1034,8 +1057,9 @@ void func_0034d890(u8 *arg0, s32 arg1) {
 
 /* Measured: declaration order and inline multiply boundaries preserve FP
  * allocation; 652/656 bytes, 13 resolved relocations and four zero tail bytes. */
+// Intent: draws a frame scaled by the given amount about the centre and registers its bounds.
 // FUN_0034DB60
-void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1) {
+void nLineDrawScaledFrame(u8 *arg0, f32 fparg0, s32 arg1) {
     f32 elapsed;
     f32 height;
     f32 width;
@@ -1079,7 +1103,7 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1) {
     right = addF(left, width);
     nLineSetLayer(arg0 + 0x710, right, bottom, depth, reciprocal, 255, 233, 44, 255);
     nLineSetLayer(arg0 + 0x750, right, top, depth, reciprocal, 255, 233, 44, 255);
-    *(s16 *)(arg0 + 0x1670) = func_0034e360(arg0, inset_x + *(f32 *)(arg0 + 0x99C), inset_y + *(f32 *)(arg0 + 0x9A0), width, height);
+    *(s16 *)(arg0 + 0x1670) = nLineBuildDecoration(arg0, inset_x + *(f32 *)(arg0 + 0x99C), inset_y + *(f32 *)(arg0 + 0x9A0), width, height);
     nLineDrawLayers(arg0, 0.0f, 0.0f, amount);
 }
 /* Measured: the initialized output helper keeps the height lifetime separate
@@ -1092,8 +1116,9 @@ static inline void nLineHeight(f32 *height, const f32 *amount)
 }
 #pragma push
 #pragma opt_common_subs on
+// Intent: draws the horizontal band whose height follows a sine ease.
 // FUN_0034DDF0
-void func_0034ddf0(u8 *arg0, s32 arg1) {
+void nLineDrawBand(u8 *arg0, s32 arg1) {
     f32 temp_f2;
     f32 temp_f21;
     f32 temp_f20;
@@ -1146,8 +1171,9 @@ void func_0034ddf0(u8 *arg0, s32 arg1) {
 #pragma opt_common_subs on
 /* measured: snapshot alpha before the camera callback, then narrow for the
    vertex calls. addF keeps each translated corner addition separate. */
+// Intent: draws the 640 by 480 frame at the given offset and scale, then registers its bounds.
 // FUN_0034E0B0
-void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
+void nLineDrawFrameAt(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
 {
     u32 alpha;
     u8 byte_alpha;
@@ -1165,12 +1191,13 @@ void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
     nLineSetLayer(arg0 + 0x6D0, x, addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
     nLineSetLayer(arg0 + 0x710, addF(x, 640.0f), addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
     nLineSetLayer(arg0 + 0x750, addF(x, 640.0f), y, z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
-    *(s16 *)(arg0 + 0x1670) = func_0034e360(arg0, fparg0, fparg1, 640.0f, 448.0f);
+    *(s16 *)(arg0 + 0x1670) = nLineBuildDecoration(arg0, fparg0, fparg1, 640.0f, 448.0f);
     nLineDrawLayers(arg0, fparg0, fparg1, fparg2);
 }
 
+// Intent: rolls the decoration style of the set; for styles 1 to 4 it stores a random phase. Returns the style.
 // FUN_0034E290
-s16 func_0034e290(u8 *arg0, s32 arg1) {
+s16 nLineRollStyle(u8 *arg0, s32 arg1) {
     s16 val;
     s32 r;
     s32 t;
@@ -1237,8 +1264,9 @@ static inline void nLineCurrentDistance(f32 *out, const NLineDecorationStyle *st
 }
 #pragma pop
 
+// Intent: builds the decoration mesh for the given rectangle from its style: V strips for styles 1 to 4, nested rectangles for style 5. Returns the vertex count.
 // FUN_0034E360
-s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
+s32 nLineBuildDecoration(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
     u32 strip_alpha;
     u8 strip_byte_alpha;
     s32 strip_i;

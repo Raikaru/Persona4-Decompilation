@@ -2403,7 +2403,7 @@ s32 FldUnit_PulseTintStep(u8 *arg0)
 
 /* measured: same three defects as sibling FldUnit_PulseTintBlend (see its note): (1)
    (u8) conversions emit c.ole.s 0x46010036 vs retail 0x46000036 â€” 3 words,
-   nLine func_0034c500 floor; (2) temp_f20 (func_0044b7b0 result) spilled to
+   nLine nLineDrawRecords floor; (2) temp_f20 (func_0044b7b0 result) spilled to
    the stack instead of $f20 â€” frame 0x40 vs 0x50; (3) the four sp4C-4F byte
    copies interleave lbu/sb. The madd.s (175+70x) and msub.s (37-10x,
    255-200x) fused expressions and the 0x28 store match. */

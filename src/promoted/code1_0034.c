@@ -4,7 +4,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "rw/plcore/barenderstate.h"
-extern void func_0034c4a0();
+extern void nLineDrawCurrent();
 extern s32 (*D_00887300[])(RwRenderState, void *);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern void sdkSpriteDraw(u8 *arg0, s32 arg1);
@@ -14,7 +14,7 @@ extern u32 RpRandom();
 
 extern void (*jtbl_008873EC[])(void *);
 
-void func_0034bea0();
+void nLineUpdate();
 void func_00460ac0(u8 *arg0, u8 *arg1);
 extern u8 D_00793E80[];
 extern s32 D_00882FC0[];
@@ -371,7 +371,7 @@ void func_0034b8c0(void)
 s32 nLineRefreshTask(u8 *unusedTask)
 {
     if ((D_00884684[0] != 0) && (D_00884670[0] != 0)) {
-        func_0034bea0();
+        nLineUpdate();
         D_00882FC0[0] = 0;
         D_00882FC4[0] = 0;
         func_00460ac0(D_00793E80 + iGpffffb5a4 * 0x30, (u8 *)D_00882FC0);
@@ -382,7 +382,7 @@ s32 nLineRefreshTask(u8 *unusedTask)
 // FUN_0034B950
 void func_0034b950(void)
 {
-    func_0034c4a0();
+    nLineDrawCurrent();
 }
 
 /* measured: opt_propagation off caches the D_00887300 base in $s0. */
