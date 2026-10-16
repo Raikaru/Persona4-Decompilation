@@ -25,7 +25,7 @@ extern s32 func_0046a750(s32 param);
 extern void sdkSpriteRelease(void *ptr);
 
 extern void func_003e0f40(u8 *param);
-extern void func_00145080();
+extern void fieldSceneUnload();
 extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern u8 *func_00460990();
 extern void func_00460ac0(void *param, u8 *work);
@@ -44,7 +44,7 @@ extern s32 datGetFlag(s32 id);
 extern u8 *func_003e0f80();
 extern void fieldSceneLoad(s32 a, s32 b);
 extern void func_00144ed0(s64 param);
-extern s32 func_00144f60();
+extern s32 fieldSceneLoadStep();
 extern u8 *MT_Scene_GetCameraResFirst();
 extern f32 MT_Scene_GetCameraFov();
 extern s32 func_0018ced0();
@@ -440,7 +440,7 @@ s32 func_00186eb0(u8 *arg0)
         *(s32 *)st = *(s32 *)st + 1;
     /* fallthrough */
     case 2: {
-        if (func_00144f60() == 0) {
+        if (fieldSceneLoadStep() == 0) {
             break;
         }
         if (H_Cdvd_IsFileLoaded(*(u8 **)(st + 0x1C)) == 0) {
@@ -690,7 +690,7 @@ void func_00187da0(u8 *arg0)
     sdkSpriteRelease(*(u8 **)(temp_16 + 0x40));
     sdkSpriteRelease(*(u8 **)(temp_16 + 0x44));
     sdkSpriteRelease(*(u8 **)(temp_16 + 0x48));
-    func_00145080();
+    fieldSceneUnload();
     func_003e0f40(*(u8 **)(temp_16 + 0x18));
     H_Cdvd_Destroy(*(u8 **)(temp_16 + 0x20));
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));

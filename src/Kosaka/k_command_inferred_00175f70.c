@@ -44,7 +44,7 @@ extern void func_0015a630();
 extern s32 func_0015f660();
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
 extern s32 func_00102980(void);
-extern void func_00145080(void);
+extern void fieldSceneUnload(void);
 extern void sdlSchedulerEnable(void);
 extern void *memset(void *dst, s32 value, s32 size);
 extern s32 func_00110e80(void);
@@ -381,7 +381,7 @@ s32 func_001766e0(void)
     }
     sdlSchedulerEnable();
     if (func_00102980() != 0xB) {
-        func_00145080();
+        fieldSceneUnload();
     }
     sp18[0] = scrGetParamInt(0);
     sp18[1] = 0xFFFF;
@@ -398,7 +398,7 @@ s32 K_Cmd_CALL_DNG_FLOOR(void)
         return 0;
     }
     if (func_00102980() != 0xB) {
-        func_00145080();
+        fieldSceneUnload();
     }
     sdlSchedulerEnable();
     sp18[0] = scrGetParamInt(0);

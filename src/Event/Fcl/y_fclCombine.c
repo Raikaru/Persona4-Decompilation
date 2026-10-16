@@ -173,7 +173,7 @@ extern void func_002b5e20(u8 *task, f32 depth);
 extern void func_002b6130(u8 *task, u32 order);
 extern void func_002b6140(u8 *task, u8 hidden);
 extern void func_002b6120(u8 *task, u8 mode);
-extern void func_00145080(void);
+extern void fieldSceneUnload(void);
 extern s32 kwlnTaskGetTaskByName(void *);
 extern void func_003315a0(void);
 extern void H_Cdvd_Destroy(void *);
@@ -258,7 +258,7 @@ extern void func_00144e10(s32);
 extern s16 datCategoryRank(s16);
 extern s32 func_0033e120(u8 *arg0, s32, s32);
 extern void cmmCommunityAllocRecord(s32);
-extern s32 func_00144f60(void);
+extern s32 fieldSceneLoadStep(void);
 extern u8 *MT_Scene_GetResListHead(s32);
 extern u8 *func_00457120(void);
 extern f32 MT_Scene_GetCameraFov(void);
@@ -10147,7 +10147,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
         }
         break;
     case 9:
-        if (func_00144f60() != 0) {
+        if (fieldSceneLoadStep() != 0) {
             q = MT_Scene_GetResListHead(3);
             while (q != 0) {
                 if ((*(u16 *)q & 0x3FF) == 0x38) {
@@ -10223,7 +10223,7 @@ void fclCombineTaskDestroy(u8 *arg0)
 
     p = *(u8 **)(arg0 + 0x38);
     if (datGetFlag(0x1459) == 0) {
-        func_00145080();
+        fieldSceneUnload();
     }
     if (kwlnTaskGetTaskByName(D_00641BC8) != 0) {
         func_003315a0();

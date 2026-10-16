@@ -25,7 +25,7 @@ extern void H_Cdvd_Destroy();
 extern void (*DAT_008873EC[])(void *);
 
 extern s32 func_00102980(void);
-extern void func_00145080();
+extern void fieldSceneUnload();
 extern void func_00160440(void);
 
 extern u8 *D_00764334;
@@ -413,7 +413,7 @@ s32 func_001561a0(u8 *task)
     extern void func_00144e10(s64 mapState);
     extern void func_00144ed0(s64 environmentState);
     extern s32 func_00160000(u8 *file);
-    extern s32 func_00144f60(void);
+    extern s32 fieldSceneLoadStep(void);
     extern s32 func_0014a190(s32 fieldId, s32 roomId);
     extern s32 FldRc_CreateFileLoadTask(u8 *parent, u8 *path, s32 index, s32 file);
     extern s32 FldRc_FileLoadIsReady(u8 *task);
@@ -515,7 +515,7 @@ s32 func_001561a0(u8 *task)
             break;
         }
         work->file = NULL;
-        if (func_00144f60() == 0) {
+        if (fieldSceneLoadStep() == 0) {
             break;
         }
         iGpffffb210 = 1;
@@ -591,12 +591,12 @@ void func_00156750(u8 *arg0)
     work = *(u8 **)(arg0 + 0x38);
     func_00160440();
     if ((func_00102980() != 9) && (func_00102980() != 0xB) && (func_00102980() != 0xA)) {
-        func_00145080();
+        fieldSceneUnload();
     }
     value = *(u16 *)(work + 0x18);
     if ((((s32)value >= 0x15) && ((s32)value <= 0x1E)) ||
         ((value == 6) && (value = *(u16 *)(work + 0x1A), value == 1))) {
-        func_00145080(value);
+        fieldSceneUnload(value);
     }
 }
 

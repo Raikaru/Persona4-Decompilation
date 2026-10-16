@@ -158,7 +158,7 @@ extern u8 iGpffffba5c;
 extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
-extern void func_00145080(void);
+extern void fieldSceneUnload(void);
 extern u8 * iGpffff9db0;
 extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
@@ -603,7 +603,7 @@ loop_5_test:
         }
         return;
     }
-    func_00145080();
+    fieldSceneUnload();
     *(s32 *)(iGpffff9db0 + 0x90) = 0;
     *(s32 *)(iGpffff9db0 + 0) = arg0;
     *(s32 *)(iGpffff9db0 + 4) = arg1;
@@ -677,7 +677,7 @@ void func_00144ed0(s64 arg0) {
 }
 
 // FUN_00144F60
-s32 func_00144f60(void)
+s32 fieldSceneLoadStep(void)
 {
     s32 temp_3;
     s32 temp_3_2;
@@ -720,7 +720,7 @@ s32 func_00144f60(void)
 }
 
 // FUN_00145080
-void func_00145080(void) {
+void fieldSceneUnload(void) {
     u8 *temp_17;
     s32 var_16;
     s32 temp_18;

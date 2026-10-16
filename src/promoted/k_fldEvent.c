@@ -806,8 +806,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void FldResource_Destroy(u8 *);
     s32 func_0014a200(void);
     s32 func_0014a270(void);
-    void func_00145080(void);
-    s32 func_00144f60(void);
+    void fieldSceneUnload(void);
+    s32 fieldSceneLoadStep(void);
     void func_00160440(void);
     void FldUnit_SetPartySlotModel(s32);
     void FldUnit_SetFieldSlotModel(s32);
@@ -1242,7 +1242,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         }
                     }
                     work->targetHasUnits = 0;
-                    func_00145080();
+                    fieldSceneUnload();
                     work->state = work->state + 1;
                 }
             }
@@ -1362,7 +1362,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 work->fieldTask = 0;
                 if (func_001602a0((u8 *)(work->environmentTask), func_00156170(*(u8 **)(u8 *)func_00155280())) != 0) {
                     work->environmentTask = 0;
-                    if (FldUnit_AllSlotAnimsDone() != 0 && func_00144f60() != 0) {
+                    if (FldUnit_AllSlotAnimsDone() != 0 && fieldSceneLoadStep() != 0) {
                         s32 t = work->modelFile;
                         if (t == 0 || mdlPrepareModel((u8 *)(t)) != 0) {
                             FldUnit_RequestUnitResource();

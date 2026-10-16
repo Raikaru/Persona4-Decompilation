@@ -37,7 +37,7 @@ extern s32 func_00144b80(s32 arg0, s32 arg1);
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern void func_00144e10(s64 arg0);
 extern void func_00144ed0(s16 arg0);
-extern s32 func_00144f60(void);
+extern s32 fieldSceneLoadStep(void);
 extern void func_00440b68();
 extern u8 D_0063C310[];
 
@@ -205,7 +205,7 @@ s32 func_00285dd0(u8 *sdkTaskBytes) {
             break;
         }
     case 5:
-        if (func_00144f60() != 0) {
+        if (fieldSceneLoadStep() != 0) {
             *(s32 *)(data + 0x76C) = 8;
         }
         break;

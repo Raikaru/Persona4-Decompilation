@@ -6,7 +6,7 @@
 
 extern void H_Cdvd_Destroy(void *arg0);
 extern void func_003e0f40(void *arg0);
-extern void func_00145080(void);
+extern void fieldSceneUnload(void);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 
@@ -23,7 +23,7 @@ extern void *func_003e0f80(void);
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern void func_00144ed0(s64 arg0);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_00144f60(void);
+extern s32 fieldSceneLoadStep(void);
 extern s32 func_0015f660(void);
 extern s64 func_001060b0(void);
 extern s32 datGetTimeSlot(void);
@@ -78,7 +78,7 @@ s32 K_FldFoodCourt_Update(u8 *arg0) {
         }
         *(s32 *)temp_16 += 1;
     case 1:
-        if (func_00144f60() != 0) {
+        if (fieldSceneLoadStep() != 0) {
             if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_16 + 8)) == 0) {
                 return 0;
             }
@@ -159,7 +159,7 @@ void K_FldFoodCourt_Destroy(u8 *arg0)
     work = *(u8 **)(arg0 + 0x38);
     H_Cdvd_Destroy(*(void **)(work + 8));
     func_003e0f40(*(void **)(work + 4));
-    func_00145080();
+    fieldSceneUnload();
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 

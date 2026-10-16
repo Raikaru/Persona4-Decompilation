@@ -73,7 +73,7 @@ extern s32 func_002940a0(s32 arg0, s32 *arg1, s32 *arg2,
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern void func_00144e10(s32 arg0);
 extern void func_00144ed0(s32 arg0);
-extern s32 func_00144f60(void);
+extern s32 fieldSceneLoadStep(void);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 extern u8 *func_00457120(void);
@@ -604,7 +604,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
          }
          goto out;
      case 2:
-         if (func_00144f60() != 0) {
+         if (fieldSceneLoadStep() != 0) {
              *(s32 *)(work + 8) = func_002859e0(
                  0x5A, *(s8 *)(work + 0x10) + 1, 0);
              *(s32 *)(work + 0xC) = func_0033de90(arg0, 0x58);
@@ -630,7 +630,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
          *(s8 *)work = *(s8 *)work + 1;
          goto out;
      case 7:
-         if (func_00144f60() == 0) {
+         if (fieldSceneLoadStep() == 0) {
              goto out;
          }
          if (func_0015f660() == 0) {
