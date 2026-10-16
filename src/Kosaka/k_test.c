@@ -31,14 +31,14 @@ typedef struct
 } TestMenuMsg;
 
 // FUN_0018E520
-void func_0018e520(s32 arg0)
+void K_Test_CreateLauncher(s32 arg0)
 {
     chkmemAllocSiteTag(D_005F5718, 0x7A);
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763098), 0xF, 0, 0, func_0018e450, func_0018e4d0, (u8 *)(D_008873F4[0](1, 0x1C, 0x40000)));
 }
 
 // FUN_0018E5B0
-s32 func_0018e5b0(u8 *arg0)
+s32 K_Test_Update(u8 *arg0)
 {
     u32 *p;
     u32 state;
@@ -87,7 +87,7 @@ s32 func_0018e5b0(u8 *arg0)
 }
 
 // FUN_0018E730
-void func_0018e730(u8 *arg0)
+void K_Test_Destroy(u8 *arg0)
 {
     u8 *p;
     s32 v;
@@ -101,8 +101,8 @@ void func_0018e730(u8 *arg0)
 }
 
 // FUN_0018E780
-void func_0018e780(s32 arg0)
+void K_Test_Create(s32 arg0)
 {
     chkmemAllocSiteTag(D_005F5718, 0xE0);
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763098), 0x12, 0, 0, func_0018e5b0, func_0018e730, (u8 *)(D_008873F4[0](1, 0x1C, 0x40000)));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763098), 0x12, 0, 0, K_Test_Update, K_Test_Destroy, (u8 *)(D_008873F4[0](1, 0x1C, 0x40000)));
 }
