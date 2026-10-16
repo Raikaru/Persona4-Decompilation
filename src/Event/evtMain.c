@@ -2154,8 +2154,9 @@ s32 evtCmdCamPos(int param_1, int param_2, int param_3, int param_4, u16 *param_
     }
 }
 
+// Event command for cue playback: action 2 plays the node's cue (formatted or by id) once per matching node; actions 0 and 1 only report readiness [inferred].
 // FUN_00289FB0
-s32 func_00289fb0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+s32 evtCmdPlayCue(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     s8 temp_3;
     u32 t;
 
@@ -2228,8 +2229,9 @@ s32 func_0028a100(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     }
 }
 
+// Event command for stream playback: action 2 starts the node's sound stream for its type; actions 0 and 1 only report readiness [inferred].
 // FUN_0028A2A0
-s32 func_0028a2a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
+s32 evtCmdPlayStream(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
     evtFindTask();
     switch (arg0) {
     case 0:
@@ -2479,8 +2481,9 @@ s32 evtDispatchNode(s32 arg0, s32 arg1, u8 *arg2) {
    declaration order (5 orders probed), extra unused params (3-5 probed),
    or the slt register ($v0 vs $at). Instruction stream is identical; pure
    saved-register rotation. nd 48. */
+// Resets the event scene: clears the scene light slots, syncs the event nodes with their resource manager entries, and resets the per-node state [inferred].
 // FUN_0028AAF0
-void func_0028aaf0(s32 arg0, u8 *arg1) {
+void evtResetEventScene(s32 arg0, u8 *arg1) {
     s32 temp_18;
     s32 temp_3;
     s32 temp_3_2;
@@ -2562,8 +2565,9 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
     }
 }
 
+// Destroys the event scene: kills the tint task, destroys the model, and releases the child tasks and nodes [inferred].
 // FUN_0028AD90
-void func_0028ad90(u8 *arg0, s32 arg1) {
+void evtDestroyEventScene(u8 *arg0, s32 arg1) {
     s32 temp_4;
     s32 temp_4_2;
     s32 temp_4_3;
@@ -2651,8 +2655,9 @@ loop_27_test:
     }
 }
 
+// Creates the event state block (0x7B0 bytes), zeroes it, resets its pending state, and copies its initial tables from the source block [inferred].
 // FUN_0028AFE0
-u8 *func_0028afe0(void) {
+u8 *evtCreateEventState(void) {
     u32 sp30[15];
     s32 v;
     s32 t;
@@ -2707,7 +2712,7 @@ u8 *func_0028afe0(void) {
 // FUN_0028B160
 void evtDestroy(int param_1, s32 arg1) {
     u32 f77c;
-    func_0028ad90((u8 *)param_1, arg1);
+    evtDestroyEventScene((u8 *)param_1, arg1);
     evtEnvSlotRestore(param_1, 0);    evtCamPosRestore(param_1);
     MT_Scene_ClearExclusiveRes();
     if ((*(u32 *)param_1 & 0x40000000) == 0) {

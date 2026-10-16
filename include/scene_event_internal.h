@@ -47,7 +47,7 @@ extern s32 D_00882170[];
 void func_00285260(void);
 void evtSetNodeResourcesEnabled();
 s32 evtFindTask(void);
-void func_0028ad90(u8 *arg0, s32 arg1);
+void evtDestroyEventScene(u8 *arg0, s32 arg1);
 void evtEnvSlotRestore(int, int);
 void evtCamPosRestore(int);
 u64 func_00298190(s16 param_1, int param_2);

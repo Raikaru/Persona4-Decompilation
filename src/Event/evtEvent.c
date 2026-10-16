@@ -22,7 +22,7 @@ extern s32 evtStart(s32, s32);
 extern void evtSetId(u32, s32, s32, s32);
 extern void func_00286380(s32 task);
 extern s32 func_002863b0(s32);
-extern void func_0028aaf0(s32, s32 *);
+extern void evtResetEventScene(s32, s32 *);
 extern void func_0028c3f0(s32 *);
 extern void func_00290bc0(s32 *);
 void func_002854e0(u8 *arg0);
@@ -157,7 +157,7 @@ s32 func_002857c0(u8 *task)
         *(s32 *)(temp_2_2 + 0) &= ~1;
         temp_4_3 = *(s32 *)(temp_2_2 + 0x14);
         if (temp_4_3 != *(s32 *)(temp_2_2 + 0x18)) {
-            func_0028aaf0(temp_4_3, (s32 *)temp_2_2);
+            evtResetEventScene(temp_4_3, (s32 *)temp_2_2);
         }
         *(s32 *)(temp_2_2 + 0x18) = *(s32 *)(temp_2_2 + 0x14);
         func_0028c3f0((s32 *)temp_2_2);
