@@ -44,7 +44,7 @@ extern s32 *MT_Scene_GetFrameState(void);
 extern void func_0016e590();
 extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
 extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
-extern void FldFrame_BindTypedRes(s32 arg0, f32 arg1);
+extern void func_0016ea30(s32 arg0, f32 arg1);
 extern void FldFrame_SetSlotVector(s32 arg0, s32 arg1, void *arg2);
 extern u8 *FldFrame_GetSlotBuffer(s32 arg0);
 extern void func_0016eb00(s32 arg0);
@@ -703,7 +703,7 @@ s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
         func_0016e590(MT_Scene_GetFrameState()[1], *(u16 *)(data + 0x50));
         FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], data + 0x54);
         FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], *(f32 *)(data + 0x60));
-        FldFrame_BindTypedRes(MT_Scene_GetFrameState()[1], *(f32 *)(data + 0x64));
+        func_0016ea30(MT_Scene_GetFrameState()[1], *(f32 *)(data + 0x64));
         for (i = 0; i < 0x20; i++) {
             id = *(s8 *)(data + 0x68 + i);
             if (id <= -1) {
