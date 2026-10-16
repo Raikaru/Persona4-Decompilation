@@ -464,8 +464,9 @@ s32 cmmScriptSelectEntry(void)
     cmmCommunityAdvanceForm(id & 0xFFFF);
     return 1;
 }
+// Script message-stream check: returns 1 when cmmMsgStreamEntry finds a record for kind arg 0 and community id arg 1 (0 uses the current community), else 0.
 // FUN_0024AA60
-s32 func_0024aa60(void)
+s32 cmmScriptHasMsgStreamEntry(void)
 {
     s32 param0;
     s32 param1;
