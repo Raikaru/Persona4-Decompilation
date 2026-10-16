@@ -845,7 +845,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 FldUnit_SpawnEncounterTask(u8 *, s32);
     u32 FldUnit_IsSettled(u8 *);
     s32 func_00122640(s32, s32);
-    s32 func_00122720(void);
+    s32 fadeStatus(void);
     s32 func_0015a100(void);
     s32 func_0015a130(void);
     s32 func_0029db50(s32, s32, s32, s32);
@@ -1443,7 +1443,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             }
             goto running;
         case 17:
-            if (func_00122720() != 0) {
+            if (fadeStatus() != 0) {
                 s32 a = func_0015a100();
                 work->scriptTask = func_0029db50(0xF, a, func_0015a130(), 6);
                 work->state = work->state + 1;

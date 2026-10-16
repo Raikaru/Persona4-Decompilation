@@ -39,7 +39,7 @@ extern f32 D_007613E0;
 extern f32 D_007613E4;
 extern f32 D_008872FC_abs[];
 extern void func_00122640(s32 arg0, s32 arg1);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
 extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
@@ -249,7 +249,7 @@ s32 hFadeTaskUpdate(u8 *work) {
             break;
         }
         case 3: {
-            if (func_00122720() != 0) {
+            if (fadeStatus() != 0) {
                 func_00122640(1, 0x1E);
                 iGpffffb468 = 0;
                 result = -1;

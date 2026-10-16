@@ -166,7 +166,7 @@ extern u16 D_008C024E[];
 extern s32 btlShuffleIsCanceled(s32 task);
 extern s32 btlEncounterIsInactive(s32 arg0);
 extern s32 btlShuffleIsBusy(s32 task);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern void btlCameraSuppressEncounterCallback(void);
 extern u8 *datUnitGetRecord(s16 arg0);
@@ -2188,7 +2188,7 @@ status_fallback:
     }
     return 0xF;
 no_four_hundred:
-    if (func_00122720() == 0) {
+    if (fadeStatus() == 0) {
         goto return_zero;
     }
     return 0xF;
@@ -2196,7 +2196,7 @@ state_two:
     if ((*(s32 *)(iGpffffb3ac + 0x10) & 0x20000000) == 0) {
         goto state_two_f;
     }
-    if (func_00122720() == 0) {
+    if (fadeStatus() == 0) {
         goto return_zero;
     }
     return 0xF;

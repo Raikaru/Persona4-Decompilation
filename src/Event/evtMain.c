@@ -82,7 +82,7 @@ extern u8 DAT_00764B3C;
 extern u8 DAT_00764B40;
 extern u8 DAT_00764B44;
 extern f32 D_00764B5C;
-s32 func_00122720(void);
+s32 fadeStatus(void);
 extern u32 DAT_00713890;
 extern void func_00113480(s16 a, s16 b, s16 c, s16 d);
 void func_00113500(void);
@@ -637,7 +637,7 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             }
         } else {
             temp_4 = (temp_6 & 0x10) != 0;
-            if ((temp_4 != 1) && (*(u16 *)(arg2 + 0) == arg3) && (func_00122720() != 0)) {
+            if ((temp_4 != 1) && (*(u16 *)(arg2 + 0) == arg3) && (fadeStatus() != 0)) {
                 temp_3_2 = *(s16 *)(arg2 + 0x10);
                 switch (temp_3_2) {
                 case 0:
@@ -873,7 +873,7 @@ void func_00287ad0(int param_1, int param_2) {
                 }
                 break;
             case 1:
-                if (func_00122720() != 0) {
+                if (fadeStatus() != 0) {
                     *(u32 *)param_2 |= 0x2000;
                 }
                 break;
