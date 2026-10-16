@@ -68,7 +68,7 @@ extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
 extern void shdPersonaStartSlideIn(u8 *arg0);
 extern void shdPersonaBeginClose(u8 *arg0);
 extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
-extern void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
+extern void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern u32 shdPersonaIsSelectionActive(u8 *arg0);
 extern void shdPersonaBeginSelection(u8 *arg0);
 extern void shdPersonaEndSelection(u8 *arg0, s32 arg1);
@@ -3518,7 +3518,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
                 } else {
                     stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
                     task = *(u8 **)(arg1 + 0x5A8);
-                    func_0011c2c0(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
+                    shdPersonaBeginDisplay(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
                 }
                 *(s16 *)(arg1 + 0x5AC) = *(s16 *)(arg0 + 4);
             } else if (shdPersonaIsSelectionActive(*(u8 **)(arg1 + 0x5A8)) != 0) {

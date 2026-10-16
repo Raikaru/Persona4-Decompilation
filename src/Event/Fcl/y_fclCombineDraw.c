@@ -61,9 +61,9 @@ extern void shdPersonaSetOrigin(u8 *arg0, f32 *arg1);
 extern void func_0011b480(u8 *, s32, u32, s8);
 extern void shdPersonaBeginClose(u8 *arg0);
 extern void func_0011c180(u8 *, s32, s32, s8);
-extern void func_0011c2c0(u8 *, s32, s32, s8);
+extern void shdPersonaBeginDisplay(u8 *, s32, s32, s8);
 extern void shdPersonaStartSlideOut(u8 *arg0);
-extern void func_0011bf10(u8 *arg0);
+extern void shdPersonaEnterCloseState(u8 *arg0);
 extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
 extern u8 *fclSpriteEntry(s16);
 extern s16 fclSpriteFlagBit(s16, s16);
@@ -239,7 +239,7 @@ void fclDrawSetSlot(u8 *arg0, s32 arg1, s8 arg2, s8 arg3) {
     }
     *(s32 *)(t + 8) = arg1;
     *(s8 *)(t + 0xC) = arg2;
-    func_0011c2c0(*(u8 **)(t + 4), 0, *(s32 *)(t + 8), arg2);
+    shdPersonaBeginDisplay(*(u8 **)(t + 4), 0, *(s32 *)(t + 8), arg2);
 }
 // Fcl draw active: 1 when the task exists, is live and its state is below 6.
 // FUN_003145E0
@@ -282,7 +282,7 @@ void fclDrawResetScale(u8 *arg0) {
 // Fcl draw handle value: sets the value on the object handle.
 // FUN_003146C0
 void fclDrawSetHandleValue(u8 *arg0, u32 value) {
-    func_0011b9e0(*(s32 *)(*(u8 **)(arg0 + 0x38) + 4), value);
+    shdPersonaSetHandleValue(*(s32 *)(*(u8 **)(arg0 + 0x38) + 4), value);
 }
 
 /* The stored selector is signed-byte state throughout the renderer/persona
@@ -335,7 +335,7 @@ void fclDrawSetVisible(u8 *arg0, s8 arg1) {
     if (arg1 == 0) {
         shdPersonaStartSlideOut((u8 *)*(u32 *)(t + 4));
     } else {
-        func_0011bf10((u8 *)*(u32 *)(t + 4));
+        shdPersonaEnterCloseState((u8 *)*(u32 *)(t + 4));
     }
 }
 

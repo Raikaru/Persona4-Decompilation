@@ -354,7 +354,7 @@ typedef struct LogoColor {
     u8 a;
 } LogoColor;
 
-extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+extern void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 
 static inline void logoDrawTitle(u8 *work, LogoVec2 ofs, LogoColor col, LogoVec2 pos)
 {
@@ -365,19 +365,19 @@ static inline void logoDrawTitle(u8 *work, LogoVec2 ofs, LogoColor col, LogoVec2
 
     x = ofs.x + pos.x;
     y = ofs.y + pos.y;
-    func_0034f4a0(*(s32 *)(work + 0x54), 0x1D, x, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - x), (s16)(pos.y - y));
+    sdkSpriteDrawOnceScaled(*(s32 *)(work + 0x54), 0x1D, x, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - x), (s16)(pos.y - y));
     x = ofs.x + pos.x;
     y = ofs.y + pos.y;
     qx = (207.0f + x) - 6.0f;
-    func_0034f4a0(res, 0xB2, qx, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - qx), (s16)(pos.y - y));
+    sdkSpriteDrawOnceScaled(res, 0xB2, qx, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - qx), (s16)(pos.y - y));
     x = ofs.x + pos.x;
     y = ofs.y + pos.y;
     qx = (300.0f + x) - 6.0f;
-    func_0034f4a0(res, 0xB3, qx, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - qx), (s16)(pos.y - y));
+    sdkSpriteDrawOnceScaled(res, 0xB3, qx, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - qx), (s16)(pos.y - y));
     x = ofs.x + pos.x;
     y = ofs.y + pos.y;
     qx = (314.0f + x) - 6.0f;
-    func_0034f4a0(res, 0xB3, qx, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - qx), (s16)(pos.y - y));
+    sdkSpriteDrawOnceScaled(res, 0xB3, qx, y, 0.0f, col.r, col.g, col.b, col.a, 0x1000, 0x1000, 37.0f, (s16)(pos.x - qx), (s16)(pos.y - y));
 }
 
 /* Logo title draw. Each call re-derives the sprite position from its

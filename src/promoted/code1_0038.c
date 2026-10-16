@@ -73,7 +73,7 @@ extern void func_0038a940();
 extern void func_0038b1c0();
 extern void func_0034f460(s32 resource, s32 slot, f32 x, f32 y,
                           u8 r, u8 g, u8 b, u8 alpha);
-extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+extern void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                           f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                           u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0,
                           s16 arg_sp8);
@@ -643,7 +643,7 @@ void func_00385380(u8 *arg0)
     point.y = 2.0f + (235.0f + ((39.0f * (1.0f - blend)) / 2.0f) * cosf(-0.2617994f) + extent * s);
     scaleX = 4096.0f * ratio;
     scaleY = 4096.0f * blend;
-    func_0034f4a0(resource, 0x12, point.x, point.y, 0.0f, 0, 0, 0, alpha, scaleX, scaleY, -15.0f, 0, 0);
+    sdkSpriteDrawOnceScaled(resource, 0x12, point.x, point.y, 0.0f, 0, 0, 0, alpha, scaleX, scaleY, -15.0f, 0, 0);
     if (++*counter >= 0x12) {
         *(u16 *)(arg0 + 0x4C) &= ~8;
     }
@@ -658,7 +658,7 @@ void func_00385970(u8 *arg0)
 {
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+    extern void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern u32 RpRandom(void);
     extern f32 sinf(f32 fparg0);
     extern f32 fGpffff8374;
@@ -864,10 +864,10 @@ void func_00385970(u8 *arg0)
         cornerDisplacement = cornerTransition * 300.0f;
         position.x = 407.0f - cornerDisplacement;
         position.y = 40.0f - cornerDisplacement;
-        func_0034f4a0(spriteResource, 0x38, position.x, position.y, 0.0f, red, green, blue, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
+        sdkSpriteDrawOnceScaled(spriteResource, 0x38, position.x, position.y, 0.0f, red, green, blue, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
         position.x = cornerDisplacement + 103.0f;
         position.y = cornerDisplacement + 186.0f;
-        func_0034f4a0(spriteResource, 0x39, position.x, position.y, 0.0f, red, green, blue, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
+        sdkSpriteDrawOnceScaled(spriteResource, 0x39, position.x, position.y, 0.0f, red, green, blue, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
     }
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
@@ -896,7 +896,7 @@ void func_00385970(u8 *arg0)
             position.x = *(f32 *)(D_0064ED30 + particleIndex * 12);
             position.y = *(f32 *)(D_0064ED30 + particleIndex * 12 + 4);
             alpha = particleOpacity * ((f32)*(u8 *)(state + 8 + particleIndex) * pulse);
-            func_0034f4a0(spriteResource, 0x3B, position.x, position.y, 0.0f, 0xFF, particleGreen, 0xFF, (u8)alpha, 0x1000, 0x1000, 0.0f, 0, 0);
+            sdkSpriteDrawOnceScaled(spriteResource, 0x3B, position.x, position.y, 0.0f, 0xFF, particleGreen, 0xFF, (u8)alpha, 0x1000, 0x1000, 0.0f, 0, 0);
         }
     }
     RpSkyRenderStateSet(3, (void *)0x717FB);
@@ -919,7 +919,7 @@ void func_00386c00(u8 *arg0)
 {
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+    extern void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
     extern f32 sinf(f32 fparg0);
     extern f32 fGpffff812c;
     extern f32 fGpffff83d0;
@@ -1007,10 +1007,10 @@ void func_00386c00(u8 *arg0)
     cornerDisplacement = (cornerScale - 1.0f) * 300.0f;
     pos.x = (f32)359 + cornerDisplacement;
     pos.y = 14.0f + cornerDisplacement;
-    func_0034f4a0(resource, 0x3A, pos.x, pos.y, 0.0f, 0x4A, 0x24, 0, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
+    sdkSpriteDrawOnceScaled(resource, 0x3A, pos.x, pos.y, 0.0f, 0x4A, 0x24, 0, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
     pos.x = 119.0f - cornerDisplacement;
     pos.y = 184.0f - cornerDisplacement;
-    func_0034f4a0(resource, 0x39, pos.x, pos.y, 0.0f, 0x4A, 0x24, 0, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
+    sdkSpriteDrawOnceScaled(resource, 0x39, pos.x, pos.y, 0.0f, 0x4A, 0x24, 0, 0xFF, 0x1000, 0x1000, 45.0f, 0, 0);
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
     *(u16 *)(state + 4) = (*(u16 *)(state + 4) + 1) % 60;
@@ -1035,7 +1035,7 @@ void func_00386c00(u8 *arg0)
             pos.y = *(f32 *)(entry + 4);
             af = (255.0f * (one + t)) / two;
             af *= particleOpacity;
-            func_0034f4a0(resource, 0x3C, pos.x, pos.y, 0.0f, 0xFF, 0xFF, 0xFF, (u8)af, 0x1000, 0x1000, 0.0f, 0, 0);
+            sdkSpriteDrawOnceScaled(resource, 0x3C, pos.x, pos.y, 0.0f, 0xFF, 0xFF, 0xFF, (u8)af, 0x1000, 0x1000, 0.0f, 0, 0);
         }
     }
     RpSkyRenderStateSet(3, (void *)0x717FB);
@@ -1427,7 +1427,7 @@ void func_00387e70(u8 *arg0)
     t = 1.0f - (2.0f * t - t * t);
     pos.x = 0.0f + 6.0f + 200.0f * t;
     pos.y = 0.0f + 90.0f - 120.0f * t;
-    func_0034f4a0(resource, 0x1C, pos.x, pos.y, 0.0f, 0xFF, 0, 0, 0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
+    sdkSpriteDrawOnceScaled(resource, 0x1C, pos.x, pos.y, 0.0f, 0xFF, 0, 0, 0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
     t = (f32)(state[4] - 6) / 6.0f;
     if (t > 1.0f) {
         t = 1.0f;
@@ -1809,7 +1809,7 @@ void func_00389370(u8 **arg0)
     size1 = (s32)size1_f;
 
     {
-        func_0034f4a0(palette, 0, 320.0f - size0_f, 224.0f - size1_f, 0.0f,
+        sdkSpriteDrawOnceScaled(palette, 0, 320.0f - size0_f, 224.0f - size1_f, 0.0f,
                       0xFF, 0xFF, 0xFF, (u8)0xFF,
                       (u16)(4096.0f * q0), (u16)(4096.0f * q1),
                       0.0f, (s16)size0, (s16)size1);
@@ -1893,7 +1893,7 @@ void func_00389640(u8 **arg0)
             if (eased < 0.0f) {
                 eased = 0.0f;
             }
-            func_0034f4a0(palette, 1, 320.0f - size0_f, 224.0f - size1_f, 0.0f,
+            sdkSpriteDrawOnceScaled(palette, 1, 320.0f - size0_f, 224.0f - size1_f, 0.0f,
                           0xFF, 0xAE, 0x49, (u8)((f32)(u32)*(u8 *)(entry + 4) * eased),
                           (u16)(4096.0f * q0), (u16)(4096.0f * q1),
                           *(f32 *)(entry + 8), (s16)(s32)size0_f, (s16)(s32)size1_f);
@@ -2498,13 +2498,13 @@ void func_0038b530(u8 *arg0, s32 arg1, const Vec2f *arg2)
                       407.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 507.0f + arg2->x;
         y = 403.0f + arg2->y;
-        func_0034f4a0(handle, 0x41, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+        sdkSpriteDrawOnceScaled(handle, 0x41, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         func_0034f460(handle, 6, 528.0f + arg2->x,
                       416.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 541.0f + arg2->x;
         y = 414.0f + arg2->y;
-        func_0034f4a0(handle, 1, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+        sdkSpriteDrawOnceScaled(handle, 1, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 2:
@@ -2512,7 +2512,7 @@ void func_0038b530(u8 *arg0, s32 arg1, const Vec2f *arg2)
                       417.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 541.0f + arg2->x;
         y = 414.0f + arg2->y;
-        func_0034f4a0(handle, 3, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+        sdkSpriteDrawOnceScaled(handle, 3, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 3:
@@ -2520,13 +2520,13 @@ void func_0038b530(u8 *arg0, s32 arg1, const Vec2f *arg2)
                       361.0f + arg2->y, 0xB4, 0xB4, 0xB4, 0xFF);
         x = 504.0f + arg2->x;
         y = 358.0f + arg2->y;
-        func_0034f4a0(handle, 4, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+        sdkSpriteDrawOnceScaled(handle, 4, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         func_0034f460(handle, 6, 479.0f + arg2->x,
                       397.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 492.0f + arg2->x;
         y = 394.0f + arg2->y;
-        func_0034f4a0(handle, 5, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+        sdkSpriteDrawOnceScaled(handle, 5, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 4:
@@ -2534,13 +2534,13 @@ void func_0038b530(u8 *arg0, s32 arg1, const Vec2f *arg2)
                       413.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 498.0f + arg2->x;
         y = 410.0f + arg2->y;
-        func_0034f4a0(handle, 0x1D, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+        sdkSpriteDrawOnceScaled(handle, 0x1D, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         func_0034f460(handle, 6, 528.0f + arg2->x,
                       414.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 542.0f + arg2->x;
         y = 414.0f + arg2->y;
-        func_0034f4a0(handle, 0x13, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+        sdkSpriteDrawOnceScaled(handle, 0x13, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     default:
@@ -2749,7 +2749,7 @@ void func_0038c100(u8 *arg0)
     remainderY = 1.0f - scaleY;
     extentY = 26.0f;
     drawY = (f32)407 + (remainderY * extentY) / 2.0f;
-    func_0034f4a0(handle, (*(u16 *)(info + 0xA) + 0x2D) - *(u16 *)(state + 4), drawX, drawY, 0, 0, 0, 0, alpha, (u16)(4096.0f * scale), (u16)(4096.0f * scaleY), 0.0f, 0, 0);
+    sdkSpriteDrawOnceScaled(handle, (*(u16 *)(info + 0xA) + 0x2D) - *(u16 *)(state + 4), drawX, drawY, 0, 0, 0, 0, alpha, (u16)(4096.0f * scale), (u16)(4096.0f * scaleY), 0.0f, 0, 0);
 }
 // FUN_0038C770
 void func_0038c770(u8 *arg0)

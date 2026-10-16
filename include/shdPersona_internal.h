@@ -3,9 +3,10 @@
 
 #include "type.h"
 
-/* Footstep state writers defined in src/shdPersona.c. `task` is the owning
- * SdkTask; the value lands in the per-task work block. */
-void func_0011b9e0(int task, u32 value);
-void func_0011b9f0(int task, u32 value);
+/* Persona block writers defined in src/shdPersona.c. `task` is the owning
+ * SdkTask; the value lands in the persona block at +0x44 (handle value) or
+ * +0x4C4 (extra value). */
+void shdPersonaSetHandleValue(int task, u32 value);
+void shdPersonaSetExtraValue(int task, u32 value);
 
 #endif

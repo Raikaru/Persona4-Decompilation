@@ -766,7 +766,7 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
         const BtlShuffleVec3 *axis, f32 angle, BtlShuffleCombine combine);
     extern void func_0034f460(s32 file, s32 tile, f32 x, f32 y,
         u8 red, u8 green, u8 blue, u8 alpha);
-    extern void func_0034f4a0(s32 file, s32 tile, f32 x, f32 y, f32 z,
+    extern void sdkSpriteDrawOnceScaled(s32 file, s32 tile, f32 x, f32 y, f32 z,
         u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY,
         f32 angle, s16 centerX, s16 centerY);
     extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height,
@@ -1161,10 +1161,10 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
         ratio = 1.0f - ratio;
         labelScale = 4096.0f * ratio;
         labelProgress = 1.0f - ratio;
-        func_0034f4a0(*(s32 *)(work + 4), 0, 165.0f,
+        sdkSpriteDrawOnceScaled(*(s32 *)(work + 4), 0, 165.0f,
             170.0f + 28.0f * labelProgress, 0.0f, 0, 0, 0,
             0xFF, 0x1000, (u16)labelScale, 0.0f, 0, 0);
-        func_0034f4a0(*(s32 *)(work + 4), 1, (f32)313,
+        sdkSpriteDrawOnceScaled(*(s32 *)(work + 4), 1, (f32)313,
             224.0f + 26.5f * labelProgress, 0.0f, 0, 0, 0,
             0xFF, 0x1000, (u16)labelScale, 0.0f, 0, 0);
     }
