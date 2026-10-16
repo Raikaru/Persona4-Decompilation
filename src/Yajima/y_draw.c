@@ -50,8 +50,8 @@ extern void fclSpriteUpdateCulling(u8 *, s16, s16);
 extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s16 func_002b2d00(s32, s32, s32, s32, s8);
-extern void func_002b6180(void);
-extern void func_002b6260(void);
+extern void fclSpriteApplySkyPresetA(void);
+extern void fclSpriteApplySkyPresetB(void);
 extern s32 fclSpriteUpdateAndDrawTask(u8 *arg0);
 extern void fclSpriteDestroyTask(u8 *arg0);
 extern s32 fclSpriteStartPanelLayout(u8 *arg0);
@@ -215,18 +215,21 @@ void fclSpriteStartFade(u8 *arg0, u8 arg1, u8 arg2, u32 arg3) {
     base[0x180] = 1;
 }
 
+// Intent: sets the sprite's mode byte at +0x154 (y_fclCombine callers pass the mode).
 // FUN_002B6120
-void func_002b6120(u8 *arg0, u8 arg1) {
+void fclSpriteSetMode(u8 *arg0, u8 arg1) {
     *(u8 *)(*(u8 **)(arg0 + 0x38) + 0x154) = arg1;
 }
 
+// Intent: sets the sprite's draw order word at +0x188 (y_fclCombine callers pass the order).
 // FUN_002B6130
-void func_002b6130(u8 *arg0, u32 arg1) {
+void fclSpriteSetOrder(u8 *arg0, u32 arg1) {
     *(u32 *)(*(u8 **)(arg0 + 0x38) + 0x188) = arg1;
 }
 
+// Intent: sets the sprite's hidden byte at +0x184 (y_fclCombine callers pass 0 or 1).
 // FUN_002B6140
-void func_002b6140(u8 *arg0, u8 arg1) {
+void fclSpriteSetHidden(u8 *arg0, u8 arg1) {
     *(u8 *)(*(u8 **)(arg0 + 0x38) + 0x184) = arg1;
 }
 
@@ -235,8 +238,9 @@ void func_002b6140(u8 *arg0, u8 arg1) {
 u8 *fclSpriteEntry(s16 arg0) {
     return (u8 *)((u32)(*(u8 **)(D_0076DB7C + 0x38)) + (u32)((s32)arg0 << 8) + 4);
 }
+// Intent: applies sky render-state preset A (texture stage and blend setup, then RpSkyRenderStateSet 3 = 0x71009). Used as a task callback.
 // FUN_002B6180
-void func_002b6180(void) {
+void fclSpriteApplySkyPresetA(void) {
     void (*const *tbl)(u32, u32) = D_00887300;
     tbl[0](6, 1);
     tbl[0](8, 1);
@@ -249,8 +253,9 @@ void func_002b6180(void) {
     RpSkyRenderStateSet(3, 0x71009);
 }
 
+// Intent: applies sky render-state preset B, the same stages as preset A with RpSkyRenderStateSet 3 = 0x7C003. Used as a task callback.
 // FUN_002B6260
-void func_002b6260(void) {
+void fclSpriteApplySkyPresetB(void) {
     void (*const *tbl)(u32, u32) = D_00887300;
     tbl[0](6, 1);
     tbl[0](8, 1);
@@ -287,7 +292,7 @@ s32 fclSpriteUpdateAndDrawTask(u8 *arg0) {
     if (fclSpriteTestRecordFlag(arg0, 0) == 1) {
         if (fclSpriteTestRecordFlag(arg0, 13) == 1) {
             q = PrimAllocQueueNode();
-            *(void (**)(void))(q + 8) = func_002b6180;
+            *(void (**)(void))(q + 8) = fclSpriteApplySkyPresetA;
             *(s32 *)(q + 0x10) = 0;
             func_00460ac0(D_00793E80 + *(s32 *)(p + 8) * 0x30, q);
             color = func_002b2a30(255, p[0x85], p[0x86], p[0x87]);
@@ -644,8 +649,9 @@ void fclSpriteResetScale(s16 arg0) {
 }
 /* measured: opt_propagation off is bracketed around fclSpriteResetScale. */
 #pragma opt_propagation on
+// Intent: applies the masked render-state preset and emits the masked tag pair. Used as a queue callback by fclSpriteStartPanelLayout.
 // FUN_002B6DA0
-void func_002b6da0(void) {
+void fclSpriteApplyMaskedPreset(void) {
     void (*const *tbl)(u32, u32) = D_00887300;
     tbl[0](6, 1);
     tbl[0](7, 2);
@@ -660,8 +666,9 @@ void func_002b6da0(void) {
     mdlEffectEmitMaskedTagPair();
 }
 
+// Intent: emits the plain tag pair for the sprite's queued draw. Used as a queue callback by fclSpriteStartPanelLayout.
 // FUN_002B6EA0
-void func_002b6ea0(void) {
+void fclSpriteEmitTagPair(void) {
     mdlEffectEmitTagPair();
 }
 
@@ -723,7 +730,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
             fl = *(s16 *)(e + 0x14);
             if ((s16)((fl & 0x4000) >> 0xE) == 1) {
                 w = PrimAllocQueueNode();
-                *(void (**)(void))(w + 8) = func_002b6260;
+                *(void (**)(void))(w + 8) = fclSpriteApplySkyPresetB;
                 *(s32 *)(w + 0x10) = 0;
                 b2 = YDRAW_BASE;
                 func_00460ac0(D_00793E80 + *(s32 *)(b2 + (s32)i * 0x100 + 0xC) * 0x30, w);
@@ -748,7 +755,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
                 }
             } else if ((s16)((fl & 0x2000) >> 0xD) == 1) {
                 w = PrimAllocQueueNode();
-                *(void (**)(void))(w + 8) = func_002b6180;
+                *(void (**)(void))(w + 8) = fclSpriteApplySkyPresetA;
                 *(s32 *)(w + 0x10) = 0;
                 b2 = YDRAW_BASE;
                 func_00460ac0(D_00793E80 + *(s32 *)(b2 + (s32)i * 0x100 + 0xC) * 0x30, w);
@@ -1142,7 +1149,7 @@ found_check:
 /* measured: schedule off preserves the D_008872F8 base register through the
    loop body and matches the retail issue order. */
 #pragma schedule off
-// Intent: one-shot layout of the 0x130-byte panel task: sets its four channel records and two render positions, and queues the render job with func_002b6da0 and func_002b6ea0. Returns at once while +0x124 is set; fclSpriteCreatePanelChild sets that flag, and nothing traced so far clears it.
+// Intent: one-shot layout of the 0x130-byte panel task: sets its four channel records and two render positions, and queues the render job with fclSpriteApplyMaskedPreset and fclSpriteEmitTagPair. Returns at once while +0x124 is set; fclSpriteCreatePanelChild sets that flag, and nothing traced so far clears it.
 // FUN_002B7F20
 s32 fclSpriteStartPanelLayout(u8 *arg0) {
     u8 *p;
@@ -1180,10 +1187,10 @@ s32 fclSpriteStartPanelLayout(u8 *arg0) {
     *(f32 *)(p + 0xE4) = *(f32 *)(p + 4) + (f32)*(s32 *)(p + 0x14);
     q = func_00461390(D_00793E80 + *(s32 *)(p + 0x120) * 0x30,
                       4, (void *)(p + 0x20), 4);
-    *(void **)(q + 8) = (void *)func_002b6da0;
+    *(void **)(q + 8) = (void *)fclSpriteApplyMaskedPreset;
     *(u8 **)(q + 0x10) = p;
     q = PrimAllocQueueNode();
-    *(void **)(q + 8) = (void *)func_002b6ea0;
+    *(void **)(q + 8) = (void *)fclSpriteEmitTagPair;
     *(u8 **)(q + 0x10) = p;
     func_00460ac0(D_00793E80 + (*(s32 *)(p + 0x120) + 1) * 0x30, q);
     return 0;
