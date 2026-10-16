@@ -1073,7 +1073,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
         if (H_Cdvd_IsFileLoaded(*(s32 *)(arg0 + 0xC)) != 0) {
             t4 = mdlCreateModelObjectFromResource(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), *(void **)(arg0 + 0xC), 0);
             *(u8 **)(t17 + 0xA00) = t4;
-            func_002311a0((void *)t4);
+            mdlAppBindSecondaryText((void *)t4);
             if (*(u16 *)(arg0 + 4) == 1) {
                 mdlRunSetupCallback(*(u8 **)(t17 + 0xA00));
             }

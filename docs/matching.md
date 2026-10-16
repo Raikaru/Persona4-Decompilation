@@ -533,7 +533,7 @@ below are the codegen consequences.
   Retail `addiu $v1,$v0,0x3f / sra $v0,$v1,6 / bgez $v1 / addiu +0x3f / sra`
   is `(size + 0x3F) / 64 * 64` on a signed operand; an explicit negative
   branch with `>> 6` was the archived "register-class" residual in both
-  `func_00455ea0` (nd 7) and `func_0047e450` (nd 5).
+  `func_00455ea0` (nd 7) and `mdlSeRequestLoad` (was `func_0047e450`) (nd 5).
 - **A 12-byte global origin is a `Vec3` struct assignment** (`ld` + `lwc1`
   with separate `lui` pairs, `sd` + `swc1`): `func_00170f60` spelled it as an
   `s64`/`f32` pair through two globals and stalled at nd 8. If the global base
@@ -4910,7 +4910,7 @@ lint-errors` passes with **7,723 overall MATCH**, **6,093 first-party
 MATCH / 767 ASM**, **172 source-linked units**, both expected retail
 hashes and zero lint findings. No new function is promoted by this repair.
 
-For the pending model-sound callback `func_0047e6f0`, an explicit owner
+For the pending model-sound callback `mdlSeUpdateRecord` (was `func_0047e6f0`), an explicit owner
 alias and a one-field owner record both retain the plain draft's
 **840B/848B, 45-word** comparison. They do not resolve the saved-register
 allocation and are not production candidates.
@@ -4927,7 +4927,7 @@ passed a runtime semantic oracle.
 
 ### Model sound callback: separate inline copy lifetimes
 
-`func_0047e6f0` is now production C in `src/Graphics/Model/mdlSE.c`:
+`mdlSeUpdateRecord` (was `func_0047e6f0`) is now production C in `src/Graphics/Model/mdlSE.c`:
 **840B emitted / 848B retail window, MATCH**. The two remaining standalone
 diff words are zero tail padding. A private inline `copyLoadedRequest`
 holds the shared request-to-allocation copy sequence once. Its local
@@ -5146,7 +5146,7 @@ all three functions.
 
 ### Model sound cache: canonical lookup types and eviction lifetimes
 
-`mdlSE.c::func_0047df40` is promoted at **420B / 432B,
+`mdlSE.c::mdlSeAcquireSlot` (was `func_0047df40`) is promoted at **420B / 432B,
 normalized_diff=0**. The three words reported by the isolated comparator
 are the absent twelve zero-padding bytes; every emitted instruction matches.
 The superseded `LaneMdlSE_0047df40_body.c` archive is removed.

@@ -370,7 +370,7 @@ to `RpSkyRenderStateSet`.
 `src/Graphics/Model/mdlManager.c` is the model layer over RenderWare clumps
 and `RpHAnimHierarchy` animation, ported in part from P3 FES; its named entry
 points so far are `mdlGetClump`, `mdlGetClumpFrame`, `mdlGetMatrix`,
-`mdlScale` and `mdlSetColor`. `src/Graphics/Model/mdlApp.c` `func_00230f20`
+`mdlScale` and `mdlSetColor`. `src/Graphics/Model/mdlApp.c` `mdlAppBindObjectRecord` (was `func_00230f20`)
 picks the file for a model by type and id, including date-dependent
 variants (`datGetFlag`, `func_001060b0`), and queues it with `func_00454a60`.
 `include/model_callbacks_internal.h` documents the callback set that

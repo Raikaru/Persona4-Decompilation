@@ -82,8 +82,8 @@ extern void func_00122430(s32 arg0);
 extern u8 *resrcMngSpawnRenderTask(u8 *parent);
 extern void func_001605a0(void);
 extern void btlUnitLoadSyncedAssets(void);
-extern void func_002312e0(void);
-extern void func_00231330(void);
+extern void mdlAppRegisterModelCallbacks(void);
+extern void mdlAppPreloadResource(void);
 extern void cmmLoadTables(void);
 extern void func_0025ff90(void);
 extern void cldDayChangePreloadData(void);
@@ -281,7 +281,7 @@ void func_00100e60(void)
     func_0045a730(0, 1);
     func_0045a730(1, 2);
     mdlResetModelTable((s32)&D_005DC878);
-    func_002312e0();
+    mdlAppRegisterModelCallbacks();
     func_0044f570(func_00457120());
     func_003f67e0(1);
     func_003f67f0(1);
@@ -293,7 +293,7 @@ void func_00100e60(void)
     btlUnitLoadSyncedAssets();
     cmmLoadTables();
     func_0026d840();
-    func_00231330();
+    mdlAppPreloadResource();
     frFontStartup();
     itfMesInitManager();
     itfMesLoadData();

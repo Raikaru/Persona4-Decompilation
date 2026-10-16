@@ -47,8 +47,8 @@ static inline s32 viewAddReverse(s32 base, s32 offset)
 }
 
 extern s32 mdlPrepareModel(u8 *arg0);
-extern s32 func_0047e6f0(void **owner);
-extern s32 func_0047e0f0(u8 *arg0, s16 arg1, s16 arg2, u16 arg3);
+extern s32 mdlSeUpdateRecord(void **owner);
+extern s32 mdlSeFillEntryState(u8 *arg0, s16 arg1, s16 arg2, u16 arg3);
 extern void func_0045abd0(s16 arg0, s32 arg1, s16 arg2);
 extern s32 hsndSlotIsStarting(s16 arg0);
 extern s32 func_0045af90(s16 arg0);
@@ -61,7 +61,7 @@ extern void H_Cdvd_ReadSync(u8 *arg0);
 extern void K_Clump_FreeTextureNameList(void *arg0);
 extern s32 mdlReadAuxChunks(u8 *arg0);
 extern s32 mdlPollAuxResources(u8 *arg0);
-extern void func_0047e450(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4);
+extern void mdlSeRequestLoad(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4);
 extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;

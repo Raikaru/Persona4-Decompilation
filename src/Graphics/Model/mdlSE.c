@@ -18,12 +18,13 @@ extern void H_Cdvd_Destroy(void *arg0);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 extern s32 hsndSlotIsStarting(s16 arg0);
 extern u32 RpRandom(void);
-extern s32 func_0047df40(u32 type, u16 id);
+extern s32 mdlSeAcquireSlot(u32 type, u16 id);
 
 
 
+/* Allocates a 40-byte sound record: flag word 1 at +8, the type and id at +0xC and +0xE, and the kind at +0x10. */
 // FUN_0047DEA0
-void *func_0047dea0(u32 arg0, u16 arg1, s32 arg2)
+void *mdlSeCreateRecord(u32 arg0, u16 arg1, s32 arg2)
 {
     void *temp_2;
 
@@ -37,6 +38,7 @@ void *func_0047dea0(u32 arg0, u16 arg1, s32 arg2)
     return temp_2;
 }
 
+/* Acquires one of three sound slots for (type, id): reuses a slot already holding it, else takes the first slot whose model is not loaded, else evicts the slot with the smallest tick. Returns slot + 3. */
 /* Measured: 420 instruction bytes plus 12 retail zero-tail bytes, nd 0.
    CSE-off retains repeated slot addresses and index masks. Propagation-off
    preserves the shared sentinel and distinct eviction-loop lifetimes. */
@@ -44,7 +46,7 @@ void *func_0047dea0(u32 arg0, u16 arg1, s32 arg2)
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
-s32 func_0047df40(u32 type, u16 id)
+s32 mdlSeAcquireSlot(u32 type, u16 id)
 {
     s32 selectedSlot;
     s32 scanIndex;
@@ -102,6 +104,7 @@ s32 func_0047df40(u32 type, u16 id)
 }
 #pragma pop
 
+/* Fills the playback state of one sound entry from its 12-byte (column, row) cell: returns 0 for out-of-range or empty cells, otherwise 1 after writing the mode, selected variant, value and packed flags. */
 /* MATCH.  Three things had to be right at once and the old nd-160
    "saved-register rotation" note was a consequence of missing all three, not
    a wall: `opt_loop_invariants on` (166 -> 10 differing words, and the whole
@@ -122,7 +125,7 @@ s32 func_0047df40(u32 type, u16 id)
    switch does not have. */
 // FUN_0047E0F0
 #pragma opt_loop_invariants on
-s32 func_0047e0f0(u8 *arg0, s32 arg1, s32 arg2, u16 arg3)
+s32 mdlSeFillEntryState(u8 *arg0, s32 arg1, s32 arg2, u16 arg3)
 {
     s16 row;
     u32 colOffL;
@@ -230,17 +233,19 @@ s32 func_0047e0f0(u8 *arg0, s32 arg1, s32 arg2, u16 arg3)
 
 
 
+/* Reports that no sound is loaded for (type, id); the retail body is a constant zero. */
 // FUN_0047E440
-s32 func_0047e440(u32 type, u16 id) {
+s32 mdlSeIsLoaded(u32 type, u16 id) {
     return 0;
 }
 
 
+/* Starts loading a sound record into owner: mode 1 copies one payload into a fresh buffer; mode 2 splits the payload into three header-prefixed chunks and hands them to the stream player. */
 /* measured: the record advance is a signed `(size + 0x3F) / 64 * 64`
    (retail addiu $v1 / sra $v0 / bgez fix-up); hand-written shifts with an
    explicit negative branch were the archived nd 5 "register-class" residual. */
 // FUN_0047E450
-void func_0047e450(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4)
+void mdlSeRequestLoad(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4)
 {
     s32 arg3_p = arg3;
     void ** arg0_p = arg0;
@@ -302,7 +307,7 @@ void func_0047e450(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4)
                 *arg0 = temp_2_3;
             }
             *(s32 *)((u8 *)(*arg0_p) + 0x14) = 0;
-            *(s32 *)((u8 *)(*arg0_p) + 4) = func_0047df40(arg1, arg2);
+            *(s32 *)((u8 *)(*arg0_p) + 4) = mdlSeAcquireSlot(arg1, arg2);
             var_16 = 0;
             while (var_16 < 3) {
                 memcpy(sp70, (void *)var_17, 0x100);
@@ -346,8 +351,9 @@ static inline void copyLoadedRequest(void **owner, s32 requestOffset)
     memcpy(memory, source, fileSize);
 }
 
+/* Per-frame poll for a sound record: returns 1 when the record is finished (loaded, copied or nothing pending) and 0 while a request is still pending. */
 // FUN_0047E6F0
-s32 func_0047e6f0(void **owner)
+s32 mdlSeUpdateRecord(void **owner)
 {
     void *current;
     void *request;
