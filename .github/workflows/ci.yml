@@ -206,7 +206,7 @@ jobs:
       - name: Setup, prove clean ASM regeneration, build, and verify
         run: |
           set -eu
-          docker run --rm \
+          docker run --rm --security-opt seccomp=unconfined \
             --mount "type=bind,src=$GITHUB_WORKSPACE,dst=/work" \
             --mount "type=bind,src=$P4_PRIVATE_ROOT,dst=/opt/p4,readonly" \
             --env "P4_MWCC_BINARY=/opt/p4/$P4_PRIVATE_MWCC_PATH" \
@@ -218,6 +218,7 @@ jobs:
             --workdir /work \
             p4-decomp-ci \
             sh -ec '
+              setarch "$(uname -m)" -R true
               test ! -e tools/build_config.local.json
               test ! -e tools/verify_config.local.json
               python tools/build.py --setup-only
