@@ -760,7 +760,7 @@ are not command groups: their counts are not plausible. The table, its library a
 |---|---|---|---|---|---|
 | 0 | `0x63D070` | 121 | `Common.json` | `0x0000`–`0x0078` | `src/Script/scrCommonCommand.c` (`scrCommand_WAIT`, `0x0010`); `K_Cmd_CALL_TV` (`0x003C`) in `src/Kosaka/k_command_inferred_00175f70.c`; `src/itfMesManager.c`, `code1_0025.c`, `code1_0029.c` |
 | 1 | `0x63D440` | 51 | `Field.json` | `0x1000`–`0x1032` | `src/Kosaka/k_command.c` (field handlers and their `FLD_*` names, e.g. `FLD_NPC_MODEL_LOAD` `0x100D`, `FLD_CAMERA_ROTATE` `0x1017`) |
-| 2 | `0x63D5E0` | 276 | `AI.json` | `0x2000`–`0x2113` | `src/Battle/btlAICommand.c` (comments cite `AI_FUNCTION_003D` and so on), `code1_001e.c`, `code1_0019.c` |
+| 2 | `0x63D5E0` | 276 | `AI.json` | `0x2000`–`0x2113` | `src/Battle/btlAICommand.c` (comments cite `AI_FUNCTION_003D` and so on), `code1_0019.c` |
 | 3 | `0x63DE80` | 61 | `Event.json` | `0x3000`–`0x303C` | `src/evtScript.c` (`EVT_NPC_MODEL_LOAD`, `0x3000`); `src/cmmScript.c` and others for the `CMM_*` social-link commands (`0x3002`–`0x3031`) |
 
 Most mode changes come from script commands. The group 0 handlers, including
@@ -805,6 +805,23 @@ subsystems, and `src/Event/mt_evt*.c` hold the scene-side helpers. Most of
 these are unnamed. So are the dialogue and message windows
 (`src/itfMesManager.c` and `src/itfMsgProcedure_Window.c`) and the font renderer
 (`src/frFont*.c`).
+
+### Event lifecycle
+
+An event is created by `evtCreateEventTask` (`src/Event/evtEvent.c`, `func_002859e0`). It allocates the 0x60-byte `EvtEventTask` work block, creates the **`"evtEvent"`** task (priority `0xF`) with `evtNodeTaskUpdate` and `evtNodeTaskDestroy`, starts the event player with `evtStart`, sets the event id with `evtSetId`, and calls `evtRequestLoad` so the loader fetches the event's data. The work block's `state` starts at 0.
+
+`evtNodeTaskUpdate` (`func_002857c0`) is the state machine:
+
+- state 0 moves to state 5;
+- state 5 waits until `evtLoaderIsIdle` reports that the loader is free, then moves to state 3;
+- states 3 and 4 run the event each frame: they clear bit 0 of `waitFlags`, call `evtResetEventScene` when the frame changes, call `evtUpdateSceneLights`, update the message window when `sceneSource` is nonzero, and then either step the frame with `evtStepEventFrame` or, once `frame` reaches `frameLimit`, move to state 6;
+- state 6 returns -1, which ends the task **[inferred]**.
+
+`evtNodeTaskDestroy` (`func_00285980`) destroys the task hierarchy under `eventTask`, frees the work block, and releases its memory account with `evtMemAccount`.
+
+The loader is a separate state machine in `src/promoted/code1_0028.c` (`evtStepEventTask`). `loadState` (+0x76C) runs through states 0 to 14 **[inferred]**, and state 14 resets it to 0 and clears the request. `loadFlags` (+0x770) holds two bits: `0x1` is the pending request (set by `evtRequestLoad`, cleared in state 14), and `0x2` is the idle bit that `evtLoaderIsIdle` tests **[inferred]**.
+
+`evtEnsureEventTask` creates the event task when `kwlnTaskGetTaskByName` finds none. `evtGetEventFrame` returns the frame counter at `+0x14`, or -1 when no event task exists.
 
 ### Facilities (`fcl`)
 
