@@ -349,8 +349,9 @@ void mtMiscCollectType19Records(u8 *arg0, u8 *arg1)
 #pragma push
 /* measured: func_00296850 MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
+// Builds the mt_misc scene for arg1 from the source record arg0: scene nodes, the type 1, 2, 4, 5, and 19 record sets, the header words copied from arg0+0x90, and the per-entry nodes counted at arg0+0x58.
 // FUN_00296850
-s32 func_00296850(u8 *arg0, u8 *arg1)
+s32 mtMiscBuildScene(u8 *arg0, u8 *arg1)
 {
   extern void mtMiscBuildSceneNodes(u8 *arg0);
   extern void mtMiscCollectType1Records(u8 *arg0);
