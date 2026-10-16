@@ -27,9 +27,9 @@ void MT_Scene_BuildResMatrix(u32 *matrix, const void *position, u32 *angles);
 /* The path address refers to a complete 304-byte count/flags/vector record. */
 u32 MT_Scene_BeginResPathAnimById(u32 resourceId, u32 pathAddress, f32 speed, u32 loop);
 s32 MT_Scene_SetResSoundRange(u32 resourceId, s32 motion, u8 sound, s16 start, s16 end, s16 flags);
-void func_002933a0(u16 resourceId, s32 motion, f32 speed);
+void evtModelQueueMotion(u16 resourceId, s32 motion, f32 speed);
 void func_00293550(u16 resourceId, u16 duration, s32 motion, f32 speed);
-void func_00293710(u16 resourceId, s32 motion, f32 positionX, f32 positionY,
+void evtModelQueueMotionAt(u16 resourceId, s32 motion, f32 positionX, f32 positionY,
                   f32 positionZ, f32 angle, s32 flags, u8 *settings);
 
 /* Queued animation records store signed 32-bit motion and frame values.
@@ -56,7 +56,7 @@ void func_00287bf0();
 void sceneLightSlotsReset(void);
 void func_00288020();
 void func_00287d90();
-void func_00293270(void);
+void evtModelDestroy(void);
 void func_0028be70();
 void func_0028b230(int param_1);
 void func_002e0dd0(void);
