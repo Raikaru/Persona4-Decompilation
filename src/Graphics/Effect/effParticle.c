@@ -523,7 +523,7 @@ void ParticleRebuildSubtypeChainAlt(u8 *arg0, void *arg1)
             kAssertFail(D_00713CD0, 0x250);
         }
         *(u8 **)(arg0 + 0x3C) = *(u8 **)(arg0 + 0x40);
-        *(u8 **)(*(u8 **)(arg0 + 0x3C)) = func_00484bb0((u8 *)arg1);
+        *(u8 **)(*(u8 **)(arg0 + 0x3C)) = mdlEffectBuildFromResource((u8 *)arg1);
         for (i = 1; i < count; i++) {
             *(u8 **)(*(u8 **)(arg0 + 0x3C) + i * 4) = mdlEffectCloneWithNodes(*(u8 **)(*(u8 **)(arg0 + 0x3C)));
         }

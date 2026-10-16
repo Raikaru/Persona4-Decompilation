@@ -1137,7 +1137,7 @@ void btlFormationCopyRecord(int destination, u32 source)
                     resource = (u32)mdlEffectCloneWithNodes(*(u8 **)(referencedEntry + 4));
                     entry[0] = referencedEntry[0];
                 } else {
-                    resource = (u32)func_00484bb0((u8 *)(source + *(u32 *)(entry + 4)));
+                    resource = (u32)mdlEffectBuildFromResource((u8 *)(source + *(u32 *)(entry + 4)));
                 }
                 *(u32 *)(entry + 4) = resource;
             }

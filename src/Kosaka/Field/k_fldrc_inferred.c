@@ -118,7 +118,7 @@ extern u8 D_005EF870[];
 extern void kAssertFail(const void *arg0, s32 arg1);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern void func_004b1150(s32 arg0);
+extern void mdlEffectDestroy(s32 arg0);
 extern u8 D_007EF9B0[];
 extern s32 kwlnGetCamera(void);
 extern u8 D_007E8020[];
@@ -150,9 +150,9 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
 
-extern s32 func_004b1130(s32 arg0);
+extern s32 mdlEffectCreateFromResource(s32 arg0);
 extern void mdlEffectStart(s32 arg0);
-extern s32 func_004b11b0(s32 arg0);
+extern s32 mdlEffectClone(s32 arg0);
 extern void func_004b1250(void *object, f32 *position);
 
 extern s32 D_007642E4;
@@ -552,7 +552,7 @@ s32 FldRc_FileLoadStep(u8 *arg0) {
     extern void H_Cdvd_Destroy(u8 *arg0);
 
     extern void func_004b11d0();
-    extern void func_004b1150();
+    extern void mdlEffectDestroy();
     extern u8 D_005DC7D0[];
     s32 sp5C;
     u8 *temp_18;
@@ -574,7 +574,7 @@ s32 FldRc_FileLoadStep(u8 *arg0) {
                 temp_2 = *(u8 **)(temp_18 + 4);
                 if (temp_2 != NULL) {
                     *(s32 *)(temp_18 + 0x14) =
-                        func_004b1130(*(s32 *)(temp_2 + 0x110));
+                        mdlEffectCreateFromResource(*(s32 *)(temp_2 + 0x110));
                     H_Cdvd_Destroy(*(u8 **)(temp_18 + 4));
                     *(u8 **)(temp_18 + 4) = NULL;
                 }
@@ -582,7 +582,7 @@ s32 FldRc_FileLoadStep(u8 *arg0) {
             }
         } else {
             *(s32 *)(temp_18 + 0x14) =
-                func_004b1130(H_Cdvd_LookupRequest(temp_18 + 0xBC, &sp5C));
+                mdlEffectCreateFromResource(H_Cdvd_LookupRequest(temp_18 + 0xBC, &sp5C));
 block_10:
             *(s32 *)(temp_18 + 0) = *(s32 *)(temp_18 + 0) + 1;
         }
@@ -629,7 +629,7 @@ loop_body:
                             *temp_10);
                         *temp_11 = *temp_11 + 1;
                     } else {
-                        func_004b1150(temp_4_2);
+                        mdlEffectDestroy(temp_4_2);
                         *temp_10 = 0;
                         *(s32 *)(temp_18 + 0x20) =
                             *(s32 *)(temp_18 + 0x20) - 1;
@@ -662,12 +662,12 @@ void FldRc_FileLoadDestroy(u8 *arg0) {
     for (i = 0; i < 8; i++) {
         temp_4 = *(s32 *)(p + i * 4 + 0x24);
         if (temp_4 != 0) {
-            func_004b1150(temp_4);
+            mdlEffectDestroy(temp_4);
         }
     }
     temp_4 = *(s32 *)(p + 0x14);
     if (temp_4 != 0) {
-        func_004b1150(temp_4);
+        mdlEffectDestroy(temp_4);
     }
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
@@ -736,7 +736,7 @@ loop_done_4:
         }
         temp_20 = var_17 * 4;
         temp_19 = p4_e740_add(temp_20, temp_16) + 0x24;
-        temp_2 = func_004b11b0(*(s32 *)(temp_16 + 0x14));
+        temp_2 = mdlEffectClone(*(s32 *)(temp_16 + 0x14));
         *(s32 *)temp_19 = temp_2;
         func_004b1250((void *)temp_2, arg1);
         *(s32 *)(p4_e740_add(temp_20, temp_16) + 0x44) = 0;
