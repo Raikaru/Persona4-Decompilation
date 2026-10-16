@@ -318,7 +318,7 @@ s32 K_Cmd_CALL_FIELD(void)
 }
 
 // FUN_00176500
-s32 func_00176500(void)
+s32 K_Cmd_CALL_FIELD_RESET(void)
 {
     s16 sp10[14];
 
@@ -372,7 +372,7 @@ s32 K_Cmd_CALL_EVENT(void)
 }
 
 // FUN_001766E0
-s32 func_001766e0(void)
+s32 K_Cmd_CALL_DNG_FLOOR_ONLY(void)
 {
     s32 sp18[2];
 

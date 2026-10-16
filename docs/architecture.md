@@ -638,7 +638,7 @@ retry the command next frame.
 | 3 | `0x63DE80` | 61 | Social links: `src/cmmScript.c`, `code1_0024.c`, `src/evtScript.c` |
 
 **[inferred]** Most mode changes come from script commands: the group 0
-handlers `K_Cmd_CALL_TV`..`func_001766e0` in `src/promoted/code1_0017.c`
+handlers `K_Cmd_CALL_TV`..`K_Cmd_CALL_DNG_FLOOR_ONLY` in `src/promoted/code1_0017.c`
 request sequences 9, 10, 11, 12, 13 and 25.
 
 ### Events
