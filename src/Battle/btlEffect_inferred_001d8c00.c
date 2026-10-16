@@ -1,3 +1,4 @@
+#include "rw_types_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -50,23 +51,6 @@ typedef int (*code)();
 
 
 
-
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
-
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
 
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
@@ -148,11 +132,6 @@ s32 btlEffectSelectNearestEntry(u8 *arg0, u8 *arg1)
         u16 count;
         u16 selected;
         u8 flags;
-    };
-    struct RwV3d {
-        f32 x;
-        f32 y;
-        f32 z;
     };
     extern void btlUnitGetGridSphereCenter(struct BtlUnit *unit, struct RwV3d *dst);
     extern f32 btlTargetVectorDistance(const struct RwV3d *first, const struct RwV3d *second);
