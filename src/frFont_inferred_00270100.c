@@ -348,8 +348,9 @@ s32 func_002704f0(s32 arg0, u8 *arg1)
 }
 
 /* measured: closes opt_rebuildconditionals off for 002704f0. */
+// Intent: re-lays out the text work with no string while the frFont mode is 0.
 // FUN_002706F0
-s32 func_002706f0(u8 *arg0, u8 *arg1)
+s32 itfMesRefreshText(u8 *arg0, u8 *arg1)
 {
     if (frFontGetMode() != 0) {
         return 0;
@@ -367,10 +368,11 @@ s32 func_00270750(void)
 }
 
 /* measured: opt_propagation off probe for 00270780 family add */
-/* measured: func_00270780 MATCH -> MISMATCH without this pragma. */
+/* measured: itfMesSetSlotNameText MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+// Intent: lays out the name of the active slot in the current group.
 // FUN_00270780
-s32 func_00270780(s32 arg0, u8 *arg1) {
+s32 itfMesSetSlotNameText(s32 arg0, u8 *arg1) {
     u8 sp30[0x20];
     s32 temp_17;
     s32 var_2;
@@ -403,8 +405,9 @@ s32 func_00270780(s32 arg0, u8 *arg1) {
 }
 
 /* measured: close opt_propagation off probe for 00270780 family add */
+// Intent: lays out the first calendar field (month) as text in the text work.
 // FUN_00270870
-s32 func_00270870(s32 arg0, u8 *arg1)
+s32 itfMesSetMonthText(s32 arg0, u8 *arg1)
 {
     s32 sp2C = 0;
     s32 sp28 = 0;
@@ -419,8 +422,9 @@ s32 func_00270870(s32 arg0, u8 *arg1)
     return 0;
 }
 
+// Intent: lays out the second calendar field (day) as text in the text work.
 // FUN_00270910
-s32 func_00270910(s32 arg0, u8 *arg1)
+s32 itfMesSetDayText(s32 arg0, u8 *arg1)
 {
     s32 sp2C = 0;
     s32 sp28 = 0;
@@ -435,8 +439,9 @@ s32 func_00270910(s32 arg0, u8 *arg1)
     return 0;
 }
 
+// Intent: copies the weekday name from the table at D_0063BAB0 into the text work.
 // FUN_002709B0
-s32 func_002709b0(s32 arg0, u8 *arg1)
+s32 itfMesSetWeekdayText(s32 arg0, u8 *arg1)
 {
     struct {
         u8 sp20[0x20];
@@ -472,8 +477,9 @@ s32 func_002709b0(s32 arg0, u8 *arg1)
 }
 
 /* measured: opt_propagation off probe for 00270a80 addu order */
+// Intent: lays out a community name; the current community is used when the key is 0.
 // FUN_00270A80
-s32 func_00270a80(s32 arg0, u8 *arg1) {
+s32 itfMesSetCommunityNameText(s32 arg0, u8 *arg1) {
     u8 sp30[0x40];
     s32 temp_4;
     s32 var_2;
@@ -510,10 +516,11 @@ s32 func_00270a80(s32 arg0, u8 *arg1) {
 }
 
 /* measured: close opt_propagation off probe for 00270a80 */
-/* measured: cmmCommunityClearBrokenCurrent, cmmCommunityClearReverseCurrent, cmmCommunitySetBrokenCurrent, cmmCommunitySetReverseCurrent, func_00270b80 MATCH -> MISMATCH without this pragma. */
+/* measured: cmmCommunityClearBrokenCurrent, cmmCommunityClearReverseCurrent, cmmCommunitySetBrokenCurrent, cmmCommunitySetReverseCurrent, cmmCommunityScriptAddPoints MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
+// Intent: script command that adds points to a community; the current community is used when the id is 0.
 // FUN_00270B80
-s32 func_00270b80(s32 arg0, u8 *arg1)
+s32 cmmCommunityScriptAddPoints(s32 arg0, u8 *arg1)
 {
     s64 first;
     s64 second;
@@ -564,10 +571,11 @@ s32 func_00270b80(s32 arg0, u8 *arg1)
     return 0;
 }
 
+// Intent: script command that adds points only when the community record exists.
 // FUN_00270CA0
-s32 func_00270ca0(s32 arg0, u8 *arg1)
+s32 cmmCommunityScriptAddPointsChecked(s32 arg0, u8 *arg1)
 {
-    extern s32 cmmCommunityHasRecord(u16 arg0); /* lint: allow H011 -- measured: the u16 prototype reproduces retail's narrowing at this call; s32 gives nd 44 on func_00270ca0 */
+    extern s32 cmmCommunityHasRecord(u16 arg0); /* lint: allow H011 -- measured: the u16 prototype reproduces retail's narrowing at this call; s32 gives nd 44 on cmmCommunityScriptAddPointsChecked */
     extern s32 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2);
     s32 second;
     s32 first;
