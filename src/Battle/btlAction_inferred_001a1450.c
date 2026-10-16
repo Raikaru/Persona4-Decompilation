@@ -174,7 +174,7 @@ u8 *btlCutinCreateEndPacket(void);
 u8 *btlCutinCreateStartPacket(void);
 u8 *btlFormationCreateDefaultPacket(void);
 extern void btlMessageResetAlt(s32 task);
-s16 func_001d15a0(void);
+s16 btlCameraSelectFormationIndex(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 s64 datCalcFindStrongBuff(u8 *arg0);
@@ -3334,7 +3334,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
                                 if (reactionRemaining <= 0) {
                                     randomRoll = btlSideCountNotBad(2, 0x80000) & 0xFFFF;
                                     battleStatePtrD = (u8 *)(iGpffffb3ac);
-                                    if (((u32) ((s16) (*(s16 *)((u8 *)(battleStatePtrD) + (0xA72))) >> 1) >= randomRoll) && (counterUnitId16 = (*(s16 *)((u8 *)(battleStatePtrD) + (0xA70))), counterUnitId = (s32) counterUnitId16, (counterUnitId16 != (s16)func_001d15a0()))) {
+                                    if (((u32) ((s16) (*(s16 *)((u8 *)(battleStatePtrD) + (0xA72))) >> 1) >= randomRoll) && (counterUnitId16 = (*(s16 *)((u8 *)(battleStatePtrD) + (0xA70))), counterUnitId = (s32) counterUnitId16, (counterUnitId16 != (s16)btlCameraSelectFormationIndex()))) {
                                         reactionCueFlag = 1;
                                     } else {
                                         goto block_222;
@@ -5213,7 +5213,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                         if (statusRemaining <= 0) {
                             statusTotal2 = (u32)((u16)btlSideCountNotBad(2, 0x80000));
                             btlState18 = (u8 *)(iGpffffb3ac);
-                            if (((u32)(*(s16 *)(btlState18 + 0xA72) >> 1) >= statusTotal2) && (lastActor = *(s16 *)(btlState18 + 0xA70), (lastActor != func_001d15a0()))) {
+                            if (((u32)(*(s16 *)(btlState18 + 0xA72) >> 1) >= statusTotal2) && (lastActor = *(s16 *)(btlState18 + 0xA70), (lastActor != btlCameraSelectFormationIndex()))) {
                                 chanceMiss = 1;
                             } else {
                                 goto block_406;

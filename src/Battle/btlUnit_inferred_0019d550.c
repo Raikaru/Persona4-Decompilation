@@ -135,7 +135,7 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     func_0029db50(arg0, arg1, arg2, arg3);
 }
 extern u8 iGpffffa4d8;
-extern void func_001d1540(u8 *arg0, s32 arg1, s32 arg2);
+extern void btlCameraSetUnitSlotValue(u8 *arg0, s32 arg1, s32 arg2);
 extern void btlTargetRemoveRadiusNode(u8 *arg0);
 extern void btlEffectDestroyPlacementEntry(s32 arg0);
 extern void btlEffectFreeNodePool(s32 arg0);
@@ -229,7 +229,7 @@ void btlUnitUnlinkAndFree(u8 *arg0)
     btlTargetRemoveRadiusNode(temp_17);
     temp_5 = *(s8 *)(temp_17 + 0x9FC);
     if (temp_5 >= 0)
-        func_001d1540(temp_17, temp_5, 0);
+        btlCameraSetUnitSlotValue(temp_17, temp_5, 0);
     temp_3 = *(u8 **)(temp_17 + 0xA6C);
     if (temp_3 != NULL)
         *(u8 **)(temp_3 + 0xA68) = *(u8 **)(temp_17 + 0xA68);
