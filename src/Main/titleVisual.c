@@ -20,7 +20,7 @@ extern void mdlEffectEmitTagPair(void);
 extern void mdlSetColor(void *arg0, void *arg1);
 extern void mdlApplyColorToAtomics(void *arg0);
 extern void mdlUpdateModelMatrix(void *arg0);
-extern void func_0047a320(void *arg0);
+extern void mdlPrepareItemSlots(void *arg0);
 extern void mdlDrawVisibleAtomics(s32 arg0);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void func_001102f0(void *arg0, s32 arg1, s32 arg2, f32 fparg0);
@@ -218,7 +218,7 @@ void func_002ab550(u8 *arg0, s8 *arg1) {
     mdlSetColor(arg0, arg1);
     mdlApplyColorToAtomics(arg0);
     mdlUpdateModelMatrix(arg0);
-    func_0047a320(arg0);
+    mdlPrepareItemSlots(arg0);
     mdlDrawVisibleAtomics(*(s32 *)(arg0 + 0xDC));
     if ((*(s32 *)(arg0 + 0xD8) & 0x40000) != 0) {
         func_00364c70();
