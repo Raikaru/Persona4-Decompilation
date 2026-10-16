@@ -8,7 +8,7 @@ extern void func_00460ac0(void *arg0, void *arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 D_0063EE50[];
-extern void func_002aabf0(void *arg0, void *arg1);
+extern void titleVisualDraw(void *arg0, void *arg1);
 extern void func_002ab550(u8 *arg0, s8 *arg1);
 extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
@@ -68,11 +68,11 @@ void func_002aaf20(f32 fparg0, f32 fparg1, f32 fparg2, u8 *arg0, f32 fparg3, f32
     *(s32 *)(temp_16 + 0x18) = arg1;
     if (arg2 != NULL) {
         temp_2 = PrimAllocQueueNode();
-        *(void **)(temp_2 + 8) = (void *)func_002aabf0;
+        *(void **)(temp_2 + 8) = (void *)titleVisualDraw;
         *(u8 **)(temp_2 + 0x10) = temp_16;
         func_00460ac0(arg2, temp_2);
     } else {
-        func_002aabf0(NULL, temp_16);
+        titleVisualDraw(NULL, temp_16);
     }
 }
 
@@ -421,11 +421,11 @@ void func_002abb30(
     *(s32 *)(packet + 0x18) = 0x12;
     if (arg4 != NULL) {
         callback = PrimAllocQueueNode();
-        *(void **)(callback + 8) = (void *)func_002aabf0;
+        *(void **)(callback + 8) = (void *)titleVisualDraw;
         *(u8 **)(callback + 0x10) = packet;
         func_00460ac0(arg4, callback);
     } else {
-        func_002aabf0(NULL, packet);
+        titleVisualDraw(NULL, packet);
     }
     func_002ab790(fparg0, fparg1, fparg2, arg0, arg1, fparg3, arg2, arg3, arg4);
     color = (u32)((arg0 << 8) | arg1);
@@ -454,11 +454,11 @@ void func_002abb30(
     *(s32 *)(packet + 0x18) = 1;
     if (arg4 != NULL) {
         callback = PrimAllocQueueNode();
-        *(void **)(callback + 8) = (void *)func_002aabf0;
+        *(void **)(callback + 8) = (void *)titleVisualDraw;
         *(u8 **)(callback + 0x10) = packet;
         func_00460ac0(arg4, callback);
     } else {
-        func_002aabf0(NULL, packet);
+        titleVisualDraw(NULL, packet);
     }
     chkmemAllocSiteTag(D_0063EE50, 0x91);
     packet3 = alloc[0](1, 0x1C, 0x40000);
@@ -481,11 +481,11 @@ void func_002abb30(
     *(s32 *)(packet3 + 0x18) = 8;
     if (arg4 != NULL) {
         callback = PrimAllocQueueNode();
-        *(void **)(callback + 8) = (void *)func_002aabf0;
+        *(void **)(callback + 8) = (void *)titleVisualDraw;
         *(u8 **)(callback + 0x10) = packet3;
         func_00460ac0(arg4, callback);
     } else {
-        func_002aabf0(NULL, packet3);
+        titleVisualDraw(NULL, packet3);
     }
 }
 #pragma opt_propagation on
