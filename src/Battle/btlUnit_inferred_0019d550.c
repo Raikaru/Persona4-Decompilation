@@ -137,7 +137,7 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
 extern u8 iGpffffa4d8;
 extern void func_001d1540(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_001ee430(u8 *arg0);
-extern void func_001d7040(s32 arg0);
+extern void btlEffectDestroyPlacementEntry(s32 arg0);
 extern void btlEffectFreeNodePool(s32 arg0);
 extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern f32 fGpffff80fc;
@@ -218,7 +218,7 @@ void btlUnitUnlinkAndFree(u8 *arg0)
         btlUnitUnlinkAndFree(temp_4);
     temp_4_2 = *(s32 *)(temp_17 + 0xA04);
     if (temp_4_2 != 0) {
-        func_001d7040(temp_4_2);
+        btlEffectDestroyPlacementEntry(temp_4_2);
         *(s32 *)(temp_17 + 0xA04) = 0;
     }
     temp_4_3 = *(s32 *)(temp_17 + 0xA08);

@@ -78,7 +78,7 @@ extern u8 iGpffffa4d8[4];
 extern u8 *func_001ebb00(s32 action, s32 kind, u8 *name);
 extern u8 *btlPacketAllocZeroed(void *callback, void *data);
 extern BtlPacket *btlEffectCreateMessagePacket(u8 *values, u16 duration);
-extern BtlPacket *func_001d7b60(u16 duration);
+extern BtlPacket *btlEffectCreateFadeLevelPacket(u16 duration);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 extern u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 id, s16 animation);
 extern BtlPacket *btlBossCreateLoadEndBgmPacket(s32 id);
@@ -406,7 +406,7 @@ void btlActionRunFormationSequence(u8 *action)
     *(u64 *)(packet + 0x60) = *(u64 *)action;
     btlPacketEnqueue(packet, 1);
 
-    packet = (u8 *)func_001d7b60(0x1E);
+    packet = (u8 *)btlEffectCreateFadeLevelPacket(0x1E);
     packet[0] = 4;
     *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
     *(u16 *)(packet + 0x48) = 4;
