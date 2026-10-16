@@ -83,7 +83,7 @@ extern f32 fGpffff8110;
 #pragma push
 #pragma pop
 /* measured: opt_propagation off is required for the default GP load/store register order. */
-/* measured: close opt_propagation after func_001d7400. */
+/* measured: close opt_propagation after btlEffectFlagToColor. */
 // FUN_001D7A60
 s32 func_001d7a60(u8 *arg0) {
     func_00122520(1, *(u16 *)(arg0 + 4));

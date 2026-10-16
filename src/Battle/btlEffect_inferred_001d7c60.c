@@ -91,7 +91,7 @@ extern f32 fGpffff8110;
 #pragma push
 #pragma pop
 /* measured: opt_propagation off is required for the default GP load/store register order. */
-/* measured: close opt_propagation after func_001d7400. */
+/* measured: close opt_propagation after btlEffectFlagToColor. */
 /* 680/688 bytes; five resolved relocations and eight zero alignment bytes.
  * Active battle actions receive type-0/1 work from func_0019f5f0 through
  * btlActionSetUnit. Type-2 auxiliary work lives at work+0xA0C instead.

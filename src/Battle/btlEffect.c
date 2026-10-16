@@ -39,7 +39,7 @@ typedef struct BtlPacket {
 } BtlPacket;
 
 extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
-extern void func_001d7700(void);
+extern void btlEffectReleaseCdvdHandle(void);
 extern u32 btlEffectLoadTable(void);
 extern u32 btlEffectReleaseId(u16 *param_1);
 extern u32 func_001d7a60(u8 *param_1);
@@ -207,7 +207,7 @@ u8 *btlEffectCreateLoadPacket(void)
 
   iVar1 = (int)btlPacketAlloc(0x306,0);
   *(u8 *)(iVar1 + 0x47) = *(u8 *)(iVar1 + 0x47) & 0xfe;
-  *(code *)(iVar1 + 0x68) = (code)func_001d7700;
+  *(code *)(iVar1 + 0x68) = (code)btlEffectReleaseCdvdHandle;
   *(code *)(iVar1 + 0x6c) = (code)btlEffectLoadTable;
   return (u8 *)iVar1;
 }

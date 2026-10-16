@@ -92,7 +92,7 @@ extern f32 fGpffff8110;
 #pragma push
 #pragma pop
 /* measured: opt_propagation off is required for the default GP load/store register order. */
-/* measured: close opt_propagation after func_001d7400. */
+/* measured: close opt_propagation after btlEffectFlagToColor. */
 #pragma push
 /* measured: 25 -> 18 -> 11 -> 0. Hoisting retains the live-count bound copies;
  * opt_lifetimes splits the reused gather counters after those bounds. */
