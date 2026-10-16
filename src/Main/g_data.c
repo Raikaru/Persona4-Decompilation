@@ -47,3 +47,24 @@ u8 func_001059e0(s32 exp)
     return MAX_CHARACTER_LEVEL;
 }
 #pragma opt_loop_invariants off
+extern s8 D_00641E60[];
+/* measured: b210 -O2 with loop-invariant hoisting gives 364B/368B,
+   normalized diff 0; the remaining retail word is zero tail padding.
+   Entries contain a signed 10-bit value and independent bit-14 category
+   and bit-15 required flags. Count/index and found/index declaration order
+   preserves the two retail register pairs; the shared constant 1 is hoisted. */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma pop
+/* measured: loop-invariant absolute table base requires the retail preheader. */
+#pragma opt_loop_invariants on
+/* measured: restore the default invariant setting after this function. */
+#pragma opt_loop_invariants off
+/* Callers pass a signed-halfword selector and narrow the returned word themselves. */
+// FUN_00313690
+s32 func_00313690(s16 arg0)
+{
+    return D_00641E60[(s16)arg0];
+}
+
+

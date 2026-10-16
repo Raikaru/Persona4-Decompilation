@@ -86,6 +86,27 @@ typedef struct
 
 
 
+extern s32 FldStepIndex(void);
+extern void (*jtbl_008873EC[])(void *);
+extern s32 FldSceneLoadReady(void);
+extern void func_002bd410(void);
+extern void func_002bd3c0(void);
+// FUN_00176880
+s32 func_00176880(void)
+{
+    scrSetReturnInt(FldStepIndex());
+    return 1;
+}
+
+
+// FUN_001768B0
+s32 func_001768b0(void)
+{
+    scrSetReturnInt(FldSceneLoadReady());
+    return 1;
+}
+
+
 // FUN_00176C20
 u32 Cmd_SetSceneResourceParam()
 {
@@ -902,6 +923,24 @@ u32 Cmd_TestResourceValue()
 
 
 
+// FUN_001789D0
+s32 func_001789d0(void)
+{
+    func_002bd410();
+    func_002bd3c0();
+    return 1;
+}
+
+
+s32 datGetTimeSlot(void);
+// Intent: Script command: returns the current time slot (datGetTimeSlot) as the script return value [inferred]
+// FUN_0025C420
+s32 scrGetTimeSlot(void) {
+    scrSetReturnInt(datGetTimeSlot() & 0xFF);
+    return 1;
+}
+
+
 // FUN_0025C6D0
 u32 Cmd_SetResourceValueByte(void)
 {
@@ -925,6 +964,75 @@ u32 Cmd_LoadTableWord()
     return true;
 }
 
+u32 datCalcGetHpById(s16 arg0);
+u16 datCalcMaxHpById(s16 arg0);
+u32 datCalcGetSpById(s16 arg0);
+extern void datSetUnitHp(s16 arg0, s16 arg1);
+extern s64 scrGetParamIntS64(s32 arg0);
+extern s32 cmmCommunityGetCurrentSecondary(void);
+extern u16 datCalcMaxSpById(s16 arg0);
+extern void datSetUnitSp(s16 arg0, s16 arg1);
+// FUN_00298340
+s32 func_00298340(void) {
+    scrSetReturnInt(cmmCommunityGetCurrentSecondary());
+    return 1;
+}
+
+
+// FUN_00299C60
+s32 func_00299c60(void) {
+    scrSetReturnInt(datCalcGetHpById(scrGetParamInt(0)) & 0xFFFF);
+    return 1;
+}
+
+
+// FUN_00299CB0
+s32 func_00299cb0(void) {
+    scrSetReturnInt(datCalcMaxHpById((s16)scrGetParamInt(0)) & 0xFFFF);
+    return 1;
+}
+
+
+// FUN_00299D00
+s32 func_00299d00(void)
+{
+    s64 temp_16;
+    s64 temp_17;
+
+    temp_16 = scrGetParamIntS64(0);
+    temp_17 = scrGetParamIntS64(1);
+    datSetUnitHp((s16)temp_16, (s16)temp_17);
+    return 1;
+}
+
+
+// FUN_00299D60
+s32 func_00299d60(void) {
+    scrSetReturnInt(datCalcGetSpById(scrGetParamInt(0)) & 0xFFFF);
+    return 1;
+}
+
+
+// FUN_00299DB0
+s32 func_00299db0(void) {
+    scrSetReturnInt(datCalcMaxSpById((s16)scrGetParamIntS64(0)) & 0xFFFF);
+    return 1;
+}
+
+
+// FUN_00299E00
+s32 func_00299e00(void)
+{
+    s64 temp_16;
+    s64 temp_17;
+
+    temp_16 = scrGetParamIntS64(0);
+    temp_17 = scrGetParamIntS64(1);
+    datSetUnitSp((s16)temp_16, (s16)temp_17);
+    return 1;
+}
+
+
 // FUN_00299FD0
 u32 Cmd_LoadTableWordAlt(void)
 {
@@ -932,3 +1040,14 @@ u32 Cmd_LoadTableWordAlt(void)
 
     return 1;
 }
+extern void func_002bdea0(void);
+extern void fclCombineApplyPackedResult(void);
+// FUN_00331950
+s32 func_00331950(void)
+{
+    func_002bdea0();
+    fclCombineApplyPackedResult();
+    return 1;
+}
+
+

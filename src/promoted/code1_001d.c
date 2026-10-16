@@ -272,20 +272,6 @@ static inline f32 btlAttachFieldScale(u8 *unit)
 
 
 
-// FUN_001D7BF0
-u8 *func_001d7bf0(u32 param_1, u32 param_2, u32 param_3)
-{
-    u32 *work;
-    u8 *packet;
-
-    packet = (u8 *)btlPacketAlloc(0x309, 0xc);
-    *(code **)(packet + 0x6c) = (code *)btlFormationDispatchArgs;
-    work = *(u32 **)(packet + 0x78);
-    work[0] = param_1;
-    work[1] = param_2;
-    work[2] = param_3;
-    return packet;
-}
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on

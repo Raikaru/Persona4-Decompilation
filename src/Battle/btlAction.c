@@ -164,6 +164,19 @@ void btlActionChangeFormationUpdate(BtlAction* action)
 
 
 
+u8 *btlUnitRecordFindByActionUID(u64 arg0, u64 arg1);
+// FUN_001ADE10
+void btlActionPersonaUpdate(BtlAction *action)
+{
+    if (btlUnitRecordFindByActionUID(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
+        if (*(u8 *)(*(u8 **)((u8 *)action + 0x30) + 0xA2) == 0) {
+            *(u16 *)((u8 *)action + 0x18) &= 0xFBFF;
+        }
+        btlActionSetState(action, *(u16 *)((u8 *)action + 0x14));
+    }
+}
+
+
 // FUN_001B07D0
 void btlActionTestUpdate(BtlAction* action)
 {

@@ -124,11 +124,6 @@ extern void mtMiscCollectType1Records(u8 *arg0);
 
 
 
-// FUN_00298340
-s32 func_00298340(void) {
-    scrSetReturnInt(cmmCommunityGetCurrentSecondary());
-    return 1;
-}
 
 
 
@@ -145,56 +140,14 @@ s32 func_00298340(void) {
 
 
 
-// FUN_00299C60
-s32 func_00299c60(void) {
-    scrSetReturnInt(datCalcGetHpById(scrGetParamInt(0)) & 0xFFFF);
-    return 1;
-}
 
 
 
-// FUN_00299CB0
-s32 func_00299cb0(void) {
-    scrSetReturnInt(datCalcMaxHpById((s16)scrGetParamInt(0)) & 0xFFFF);
-    return 1;
-}
 
 
 
-// FUN_00299D00
-s32 func_00299d00(void)
-{
-    s64 temp_16;
-    s64 temp_17;
 
-    temp_16 = scrGetParamIntS64(0);
-    temp_17 = scrGetParamIntS64(1);
-    datSetUnitHp((s16)temp_16, (s16)temp_17);
-    return 1;
-}
 
-// FUN_00299D60
-s32 func_00299d60(void) {
-    scrSetReturnInt(datCalcGetSpById(scrGetParamInt(0)) & 0xFFFF);
-    return 1;
-}
-
-// FUN_00299DB0
-s32 func_00299db0(void) {
-    scrSetReturnInt(datCalcMaxSpById((s16)scrGetParamIntS64(0)) & 0xFFFF);
-    return 1;
-}
-// FUN_00299E00
-s32 func_00299e00(void)
-{
-    s64 temp_16;
-    s64 temp_17;
-
-    temp_16 = scrGetParamIntS64(0);
-    temp_17 = scrGetParamIntS64(1);
-    datSetUnitSp((s16)temp_16, (s16)temp_17);
-    return 1;
-}
 // FUN_0029E9B0
 void scrDiscardArgs(void *arg0, ...)
 {
