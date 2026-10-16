@@ -129,7 +129,7 @@ extern s32 iGpffffba48;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0017.c; members 00170120-00170120 */
 
 // FUN_00170120
-s32 func_00170120(s32 arg0)
+s32 FldPlayerRandomIdleAnimId(s32 arg0)
 {
     u8 *temp_2;
     u8 *temp_4;

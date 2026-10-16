@@ -126,7 +126,7 @@ s32 shdDrawTextBlock(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
 // 220-224 peephole group, 244-247 schedule group). No pair wins; floor stands.
 // `python3 -E -s tools/pragma_sweep.py src/shdWindow.c shdDrawEntryRow --pairs`.
 extern s8 frFontExGlyphHeight(char param_1);
-extern void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
+extern void K_SineRingDraw(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
 // MATCH.  The last six words were the emission slot of `mtc1 $zero, $f12`
 // at the two func_00366670 calls: retail materialises that first float
 // argument before the packed-colour shift/mask pair, this file did it after.
@@ -193,7 +193,7 @@ void shdDrawEntryRow(f32 param_1, f32 param_2, s32 color, u8 *data) {
         }
         break;
     case 1:
-        func_0025d850((f32)399 + param_1, 255.0f + param_2, 0.0f, -1);
+        K_SineRingDraw((f32)399 + param_1, 255.0f + param_2, 0.0f, -1);
         break;
     }
 }

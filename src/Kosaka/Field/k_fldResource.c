@@ -467,7 +467,7 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     extern void resrcMngResetRenderSlots(void);
     extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
     extern s32 FldEnvOpenFile(s32 arg0);
-    extern s32 func_00153d60(u8 *arg0, s32 arg1);
+    extern s32 FldEnvironmentLoad(u8 *arg0, s32 arg1);
     extern s32 FldCamOpenFile(void);
     extern s32 FldCamReadRecord(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4, u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8);
     /* lint: allow H011 -- retail passes an already-u16-masked ID as a word;
@@ -988,7 +988,7 @@ block_123:
             *( s32 * )(temp_3_15 + 0x94) = 9;
 waitEnvironment:
             temp_2_9 = (u8 *)(iGpffff9db0);
-            if (func_00153d60((u8 *)(*( s32 * )(temp_2_9 + 0xDC)), *( s16 * )(temp_2_9 + 0x12)) != 0) {
+            if (FldEnvironmentLoad((u8 *)(*( s32 * )(temp_2_9 + 0xDC)), *( s16 * )(temp_2_9 + 0x12)) != 0) {
                 *( s32 * )(iGpffff9db0 + 0xDC) = FldCamOpenFile();
                 temp_3_17 = (u8 *)(iGpffff9db0);
                 if (*( s32 * )(temp_3_17 + 0xDC) != 0) {
@@ -1167,7 +1167,7 @@ loadEnvironment:
             *( s32 * )(iGpffff9db0 + 0x94) = 0x29;
 waitReloadedEnvironment:
             temp_2_22 = (u8 *)(iGpffff9db0);
-            if (func_00153d60((u8 *)(*( s32 * )(temp_2_22 + 0xDC)), *( s16 * )(temp_2_22 + 0x12)) != 0) {
+            if (FldEnvironmentLoad((u8 *)(*( s32 * )(temp_2_22 + 0xDC)), *( s16 * )(temp_2_22 + 0x12)) != 0) {
                 *( s32 * )(iGpffff9db0 + 0x94) = 0x3E7;
                 goto block_259;
             }

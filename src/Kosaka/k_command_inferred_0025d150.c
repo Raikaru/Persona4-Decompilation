@@ -313,7 +313,7 @@ block_5:
 }
 
 // FUN_0025D850
-void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0) {
+void K_SineRingDraw(f32 farg0, f32 farg1, f32 farg2, s32 arg0) {
     struct {
         u8 spB0[0x100];
         f32 sp1B0[0x7C];
