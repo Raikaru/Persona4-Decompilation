@@ -104,8 +104,9 @@ extern void func_0036b470(void *work, void *vertices);
    - every fn/fn2 assignment names D_00887300 itself, so b210 forms the copy
      from the tbl register in the switch cases and reloads it elsewhere, as
      retail does; the unk48 and tail draws call through tbl. */
+// Intent: Draws one social-link model: sets up the transform, then uploads per-part colours and fades for its mode (0-3) and issues the draw calls [inferred]
 // FUN_003694D0
-void func_003694d0(PscModel *model)
+void pscModelDraw(PscModel *model)
 {
     typedef struct { u8 r, g, b, a; } PscColorCopy;
     u8 tmp[4];
@@ -393,8 +394,9 @@ void func_003694d0(PscModel *model)
 
 
 
+// Intent: Projects a 3D model position to panel screen coordinates using the camera and the viewport size [inferred]
 // FUN_0036A6B0
-void func_0036a6b0(s32 unused, const f32* source, f32 scale, void* viewport)
+void pscModelScreenPos(s32 unused, const f32* source, f32 scale, void* viewport)
 {
     s32 size[8];
     f32* camera;
@@ -410,8 +412,9 @@ void func_0036a6b0(s32 unused, const f32* source, f32 scale, void* viewport)
 
 
 
+// Intent: Returns the panel scale factor for a model, derived from the camera and viewport width [inferred]
 // FUN_0036A790
-f32 func_0036a790(const f32* value, f32 scale)
+f32 pscModelPanelScale(const f32* value, f32 scale)
 {
     s32 size[8];
     f32* camera;
@@ -497,8 +500,9 @@ void pscLightInitQuad(PscLight *dst)
     dst[2].f20 = 0.64453125f;
     dst[3].f20 = 0.0f;
 }
+// Intent: Fills the 0x138-entry index table for the 8x6 panel grid: alternating-parity quads with two triangles per cell and an edge row [inferred]
 // FUN_0036AA20
-void func_0036aa20(void)
+void pscBuildGridIndexTable(void)
 {
     u16 *p;
     s32 v;

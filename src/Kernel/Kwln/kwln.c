@@ -9,7 +9,7 @@ extern void func_002a1fa0(void* a0);
 
 extern void mcDrawDispatch(void* a0);
 
-extern void func_003694d0(void* a0);
+extern void pscModelDraw(void* a0);
 
 
 
@@ -48,5 +48,5 @@ void func_002a6650(void* param_1, void* param_2)
 // FUN_00369440
 void func_00369440(void* param_1, void* param_2)
 {
-    func_003694d0(param_2);
+    pscModelDraw(param_2);
 }

@@ -24,12 +24,12 @@ extern void func_0036b5a0(u8 *arg0, void *arg1);
 extern void func_0036b5c0(u8 *arg0, void *arg1);
 extern void func_0036b600(u8 *arg0, void *arg1);
 extern void func_0036adc0(u8 *arg0, void *arg1);
-extern void func_0036a6b0(void *arg0, const f32 *arg1, f32 fparg2, void *arg3);
-extern f32 func_0036a790(const f32 *value, f32 scale);
+extern void pscModelScreenPos(void *arg0, const f32 *arg1, f32 fparg2, void *arg3);
+extern f32 pscModelPanelScale(const f32 *value, f32 scale);
 extern void func_0036a8f0(u8 *arg0, s32 arg1);
 extern void func_0036b630(u8 *arg0, s32 arg1);
 extern void func_00368e80(u8 *arg0);
-extern void func_003694d0(u8 *arg0);
+extern void pscModelDraw(u8 *arg0);
 extern void func_00369470(s32 objectAddress, u8 *queue);
 extern void pscResReleaseArcanaCard(s32 arg0, s32 arg1);
 extern void pscResReleasePersonaCard(s32 arg0);
@@ -158,7 +158,7 @@ void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 scale, f32 *dst)
     if (dst == NULL) {
         kAssertFail(D_0064E5B0, 0xD5);
     }
-    func_0036a6b0(unit, src, func_0036a790((const f32 *)unit, scale), dst);
+    pscModelScreenPos(unit, src, pscModelPanelScale((const f32 *)unit, scale), dst);
 }
 
 // FUN_0036DD10
@@ -169,7 +169,7 @@ void btlShuffleCardApplyScale(u8 *unit, f32 *src, f32 scale)
     if (src == NULL) {
         kAssertFail(D_0064E5B0, 0xD4);
     }
-    func_0036a6b0(unit, src, func_0036a790((const f32 *)unit, scale), sp40);
+    pscModelScreenPos(unit, src, pscModelPanelScale((const f32 *)unit, scale), sp40);
     btlShuffleCardAttachSprite(unit, sp40);
 }
 
@@ -249,7 +249,7 @@ void btlShuffleCardQueueDraw(u8 *arg0)
         func_0036b630(arg0 + 0x600, temp);
     }
     func_00368e80(arg0);
-    func_003694d0(arg0);
+    pscModelDraw(arg0);
 }
 
 /* The queue remains a pointer through the wrapper. The packet constructor
