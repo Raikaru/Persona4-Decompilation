@@ -285,15 +285,6 @@ s32 func_003dd620(u8 *arg0, u8 *arg1) {
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
-/* Archived b210 near-miss (K3D5_003df1a0); exact under b119 with schedule on. */
-#pragma schedule on
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
-
-/* measured: switch with direct returns in ascending case order; 0xd returns 0. */
-#pragma schedule on
-/* measured: closes the schedule bracket. */
-#pragma schedule off
 
 // FUN_003D3460
 #pragma schedule on
