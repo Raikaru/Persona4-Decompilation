@@ -1,5 +1,6 @@
 /* Source unit: src/Script/scrScriptProcess_0029d900.c */
 #include "type.h"
+#include "scr_internal.h"
 #include "sdk_task_registration.h"
 
 #include "include_asm.h"
@@ -7,7 +8,6 @@
 
 
 typedef struct KwlnTask KwlnTask;
-typedef struct ScrData ScrData;
 
 void* dds3GetProcessWorkData(KwlnTask* task);
 void dds3SetProcessWorkData(KwlnTask* task, void* workData);
@@ -169,7 +169,6 @@ void func_0046a2d0(char* file, s32 line);
 u8* poolAlloc(s32 size);
 void poolFree(void* ptr);
 u32 kwlnTaskGetWork(void* task);
-s32 scrRunCodeLoop(void* arg0, ...);
 s32 func_0029e970(void);
 void func_0029e960(s32 arg0);
 void func_00440b68(char* fmt, ...);
@@ -502,7 +501,7 @@ s32 scrRunTaskStep(u8 *task)
     code = scrRunCodeLoop((void*)kwlnTaskGetWork(task));
     switch (code)
     {
-    case 0:  // SCRTRACE_ERROR
+    case 0:  // no SCRTRACE_* value 0 exists; scrRunCodeLoop returns only 1 or 2 (kept for the matched assert)
         kAssertFailAt(D_0063E520, D_0063E3D0, 0x1C2);
         return -1;
     case 1:  // SCRTRACE_YIELD
@@ -934,7 +933,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
 
                 ret = scrRunCodeLoop((void *)task->unk_214);
                 switch (ret) {
-                case 0:
+                case 0:  // unreachable: scrRunCodeLoop returns only 1 or 2 (see above)
                     kAssertFailAt(D_0063E520, D_0063E3D0, 0x457);
                     task->flags &= ~1;
                     return 1;

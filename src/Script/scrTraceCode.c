@@ -1,6 +1,7 @@
 /* Source unit: src/Script/scrTraceCode_0029ad20.c */
 #include "include_asm.h"
 #include "type.h"
+#include "scr_internal.h"
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -49,7 +50,7 @@ typedef struct
     s16 localFloatNum; // 0x16
 } ScrHeader;
 
-typedef struct ScrData
+struct ScrData
 {
     char scrName[24];           // 0x00
     s32 pc;                     // 0x18
@@ -69,7 +70,7 @@ typedef struct ScrData
     u8 pad_13c[0x140 - 0x13c];
     s32* localInt;    // 0x140
     f32* localFloat;  // 0x144
-} ScrData;
+};
 
 typedef struct
 {
@@ -426,18 +427,59 @@ u32 scrOpNop(ScrData* scr)
     return 1;
 }
 
-/* measured: optimization_level 1 and opt_common_subs off are required for
-   the exact 324-byte object. Saved-local declaration order, the reversed
-   range-guard operands, and the integer-domain second command-pointer sum
-   reproduce retail register coloring and operand order. */
-// FUN_0029AD40
 /* measured: opt_common_subs off is required for the exact object. */
 #pragma opt_common_subs off
-/* measured: optimization_level 1 is required for the exact object. */
+/* measured: optimization_level 1 is required for the exact object. Saved-local
+   declaration order, the reversed range-guard operands, and the integer-domain
+   second command-pointer sum reproduce retail register coloring and operand order. */
 #pragma optimization_level 1
-u32 scrOpCallCommand(u8 *arg0) {
-    ScrData *ctx; s32 group; s32 raw; s32 result; s32 cmdOffset; ScrCmdEntry *cmds; ScrCmdEntry *entry; s32 prevPc; s32 currPc; s32 hasFunc;
-    ctx = (ScrData *)arg0; raw = ctx->instrContent[ctx->pc].opOperand16.sOperand; K_ASSERT(raw >= 0, 0x175); group = ((raw >> 12) & 0xFF) << 3; raw &= 0xFFF; K_ASSERT(*(s32 *)((u8 *)D_00748534 + group) > raw, 0x176); cmdOffset = raw << 3; cmds = *(ScrCmdEntry **)((u8 *)D_00748530 + group); entry = (ScrCmdEntry *)((u8 *)cmds + cmdOffset); hasFunc = (entry->func != 0); K_ASSERT(hasFunc != 0, 0x177); prevPc = ctx->pc; sCurrScript = ctx; result = entry->func(); if (result == 0) return 2; entry = (ScrCmdEntry *)((u8 *)((u32)cmdOffset + (u32)cmds)); ctx->sp -= entry->paramCount; currPc = ctx->pc; if (prevPc == currPc) { currPc++; ctx->pc = currPc; } return 1;
+// FUN_0029AD40
+// Command call (ScrOperation call-command codefunc). The operand packs a command id:
+//   bits 12..19 select the group in D_00748530 (ScrCmdGroup, 8 bytes; byte offset = group << 3),
+//   bits 0..11 select the command in that group (ScrCmdEntry, 8 bytes; byte offset = index << 3).
+// The command runs with sCurrScript = ctx. If it returns 0 the codefunc returns CODEFUNC_YIELD
+// and the same instruction runs again. Otherwise the command's paramCount arguments are popped,
+// and pc advances unless the command already moved it. Returns CODEFUNC_NEXTINSTR.
+u32 scrOpCallCommand(u8 *arg0)
+{
+    ScrData *ctx;
+    s32 groupOffset;   /* byte offset of the group entry: ((cmdId >> 12) & 0xFF) << 3 */
+    s32 cmdId;         /* packed id; the low 12 bits become the command index */
+    s32 result;
+    s32 cmdOffset;     /* byte offset of the command entry: index << 3 */
+    ScrCmdEntry *cmds;
+    ScrCmdEntry *entry;
+    s32 prevPc;
+    s32 currPc;
+    s32 hasFunc;
+
+    ctx = (ScrData *)arg0;
+    cmdId = ctx->instrContent[ctx->pc].opOperand16.sOperand;
+    K_ASSERT(cmdId >= 0, 0x175);
+    groupOffset = ((cmdId >> 12) & 0xFF) << 3;
+    cmdId &= 0xFFF;
+    /* D_00748534 is the count field (+4) of D_00748530[group]: the guard checks count > index. */
+    K_ASSERT(*(s32 *)((u8 *)D_00748534 + groupOffset) > cmdId, 0x176);
+    cmdOffset = cmdId << 3;
+    cmds = *(ScrCmdEntry **)((u8 *)D_00748530 + groupOffset);
+    entry = (ScrCmdEntry *)((u8 *)cmds + cmdOffset);
+    hasFunc = (entry->func != 0);
+    K_ASSERT(hasFunc != 0, 0x177);
+    prevPc = ctx->pc;
+    sCurrScript = ctx;
+    result = entry->func();
+    if (result == 0) {
+        return 2;
+    }
+    /* integer-domain sum: keeps the second command-pointer computation of the retail object */
+    entry = (ScrCmdEntry *)((u8 *)((u32)cmdOffset + (u32)cmds));
+    ctx->sp -= entry->paramCount;
+    currPc = ctx->pc;
+    if (prevPc == currPc) {
+        currPc++;
+        ctx->pc = currPc;
+    }
+    return 1;
 }
 /* measured: restores the default optimization level after the exact object. */
 #pragma optimization_level 2
@@ -1008,7 +1050,10 @@ u32 CodeFunc_JumpIfFalse(ScrData* scr)
     return CODEFUNC_NEXTINSTR;
 }
 
-// Interpreter loop: runs codefuncs from the current pc until they stop, yield or advance the instruction (scrRunCodeLoop).
+// Interpreter loop (scrRunCodeLoop): dispatches the codefunc of the current instruction.
+// CODEFUNC_NEXTINSTR clears cmdTimer and dispatches the next instruction. CODEFUNC_STOP clears
+// cmdTimer and returns SCRTRACE_STOP. CODEFUNC_YIELD bumps cmdTimer and timer and returns
+// SCRTRACE_YIELD. Any other return value re-dispatches the same instruction.
 // FUN_0029CB00
 u32 scrRunCodeLoop(ScrData* scr)
 {
