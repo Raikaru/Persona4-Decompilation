@@ -58,9 +58,9 @@ extern u8 datCalcGetBattleStat(u8 *arg0, s32 arg1);
 /* Defined below in this file; used before its definition. */
 extern u16 func_002439c0(u8 *arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
-extern u16 func_001069d0(s16 arg0);
+extern u16 datItemValue(s16 arg0);
 extern u16 func_00106a30(s16 arg0);
-extern u32 func_001069a0(s16 arg0);
+extern u32 datItemGrantedSkill(s16 arg0);
 
 extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
@@ -401,7 +401,7 @@ static inline s32 PTDatCalcHasSkill(u8 *unit, s32 requestedSkill)
     if (!(*(u16 *)unit & 4)) {
         result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(unit + 2), 2) & 0xFFFF);
         if (result >= 0) {
-            if (skill == func_001069a0((s16)result)) {
+            if (skill == datItemGrantedSkill((s16)result)) {
                 return 1;
             }
         }
@@ -479,10 +479,10 @@ u16 datCalcCountIdSlotsWithValue(u16 arg0, u16 arg1)
     count = 0;
     id = (s16)arg0;
     val = (u16)arg1;
-    if ((func_001069d0(func_00106cd0(id, 0)) & 0xFFFF) == val) {
+    if ((datItemValue(func_00106cd0(id, 0)) & 0xFFFF) == val) {
         count++;
     }
-    if ((func_001069d0(func_00106cd0(id, 1)) & 0xFFFF) == val) {
+    if ((datItemValue(func_00106cd0(id, 1)) & 0xFFFF) == val) {
         count++;
     }
     return count;
@@ -512,10 +512,10 @@ s32 datCalcCountSlotsWithValue(u8 *arg0, s32 arg1)
     count = 0;
     id = (s16)id16;
     val = (u16)arg1;
-    if (func_001069d0(func_00106cd0(id, 0)) == val) {
+    if (datItemValue(func_00106cd0(id, 0)) == val) {
         count = (u16)(count + 1);
     }
-    if (func_001069d0(func_00106cd0(id, 1)) == val) {
+    if (datItemValue(func_00106cd0(id, 1)) == val) {
         count = (u16)(count + 1);
     }
     return count;
@@ -1573,10 +1573,10 @@ static inline s32 DC411HasEquipmentProperty(u8 *unit, s32 property)
     if ((s32)character >= 0xB) {
         kAssertFail(D_00635938, 0x23B);
     }
-    if ((func_001069d0(func_00106cd0((s16)character, 0)) & 0xFFFF) == property) {
+    if ((datItemValue(func_00106cd0((s16)character, 0)) & 0xFFFF) == property) {
         return 1;
     }
-    if ((func_001069d0(func_00106cd0((s16)character, 1)) & 0xFFFF) == property) {
+    if ((datItemValue(func_00106cd0((s16)character, 1)) & 0xFFFF) == property) {
         return 1;
     }
     return 0;
@@ -1594,12 +1594,12 @@ static inline u16 DCDamageAccessoryProperty(u8 *unit)
     if (character >= 11) {
         kAssertFail(D_00635938, 0x291);
     }
-    return func_001069d0(func_00106cd0(character, 2)) & 0xFFFF;
+    return datItemValue(func_00106cd0(character, 2)) & 0xFFFF;
 }
 
 static inline f32 DCDamageAccessoryFraction(u8 *unit)
 {
-    extern u16 func_00106a00(s16 item);
+    extern u16 datItemAccessoryPercent(s16 item);
     s16 character;
     s32 percent;
     if (*(u16 *)unit & 4) {
@@ -1609,7 +1609,7 @@ static inline f32 DCDamageAccessoryFraction(u8 *unit)
     if (character >= 11) {
         kAssertFail(D_00635938, 0x2A7);
     }
-    percent = (s16)func_00106a00(func_00106cd0(character, 2));
+    percent = (s16)datItemAccessoryPercent(func_00106cd0(character, 2));
     if (percent < 0 || percent > 100) {
         kAssertFail(D_00635938, 0x2AB);
     }
@@ -2489,7 +2489,7 @@ u32 datCalcStatusEffectResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, 
                 if (temp_17 >= 0xB) {
                     kAssertFail(D_00635938, 0x291);
                 }
-                var_2_2 = func_001069d0(func_00106cd0(temp_17, 0)) & 0xFFFF;
+                var_2_2 = datItemValue(func_00106cd0(temp_17, 0)) & 0xFFFF;
             }
             temp_2 = var_2_2 & 0xFFFF;
             switch (temp_2) {
@@ -3330,7 +3330,7 @@ u32 datCalcSkillCost(u8 *arg0, s32 arg1)
         if ((*(u16 *)arg0 & 4) == 0) {
             equipment = (u16)func_00106cd0(*(s16 *)(arg0 + 2), 2);
             if (equipment >= 0) {
-                if (func_001069a0((s16)equipment) == 0x20B) {
+                if (datItemGrantedSkill((s16)equipment) == 0x20B) {
                     hit = 1;
                     goto hp_reduction;
                 }
@@ -3379,7 +3379,7 @@ u32 datCalcSkillCost(u8 *arg0, s32 arg1)
         if ((*(u16 *)arg0 & 4) == 0) {
             equipment = (u16)func_00106cd0(*(s16 *)(arg0 + 2), 2);
             if (equipment >= 0) {
-                if (func_001069a0((s16)equipment) == 0x20A) {
+                if (datItemGrantedSkill((s16)equipment) == 0x20A) {
                     hit = 1;
                     goto sp_reduction;
                 }
@@ -3747,7 +3747,7 @@ static inline s32 DC411HasFixedSkill(u8 *unit, s32 requestedSkill)
     if (!(*(u16 *)unit & 4)) {
         equipment = (u32)(u16)func_00106cd0(*(s16 *)(unit + 2), 2);
         if (equipment >= 0) {
-            if (skill == func_001069a0((s16)equipment)) {
+            if (skill == datItemGrantedSkill((s16)equipment)) {
                 return 1;
             }
         }
@@ -4416,9 +4416,9 @@ s32 datCalcRollSupportSkillHit(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
         if ((s32)temp_17 >= 0xB) {
             kAssertFail(D_00635938, 0x23B);
         }
-        if ((func_001069d0(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x71) {
+        if ((datItemValue(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x71) {
             var_2_3 = 1;
-        } else if ((func_001069d0(func_00106cd0((s16)temp_17, 1)) & 0xFFFF) == 0x71) {
+        } else if ((datItemValue(func_00106cd0((s16)temp_17, 1)) & 0xFFFF) == 0x71) {
             var_2_3 = 1;
         } else {
             var_2_3 = 0;
@@ -4434,9 +4434,9 @@ s32 datCalcRollSupportSkillHit(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
         if ((s32)temp_17 >= 0xB) {
             kAssertFail(D_00635938, 0x23B);
         }
-        if ((func_001069d0(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x72) {
+        if ((datItemValue(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x72) {
             var_2_4 = 1;
-        } else if ((func_001069d0(func_00106cd0((s16)temp_17, 1)) & 0xFFFF) == 0x72) {
+        } else if ((datItemValue(func_00106cd0((s16)temp_17, 1)) & 0xFFFF) == 0x72) {
             var_2_4 = 1;
         } else {
             var_2_4 = 0;
@@ -4452,9 +4452,9 @@ s32 datCalcRollSupportSkillHit(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
         if ((s32)temp_17 >= 0xB) {
             kAssertFail(D_00635938, 0x23B);
         }
-        if ((func_001069d0(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x73) {
+        if ((datItemValue(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x73) {
             var_2_5 = 1;
-        } else if ((func_001069d0(func_00106cd0((s16)temp_17, 1)) & 0xFFFF) == 0x73) {
+        } else if ((datItemValue(func_00106cd0((s16)temp_17, 1)) & 0xFFFF) == 0x73) {
             var_2_5 = 1;
         } else {
             var_2_5 = 0;
@@ -4555,7 +4555,7 @@ s32 datCalcRollSkillChance(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
                 var_5 = (var_5 + 1) & 0xFFFF;
             }
             if (!(*(u16 *)arg0 & 4) && (temp_2_2 = (u16)func_00106cd0((s16)*(u16 *)(arg0 + 2), 2) & 0xFFFF, (s32)temp_2_2 >= 0) &&
-                (func_001069a0((s16)temp_2_2) == 0x21C)) {
+                (datItemGrantedSkill((s16)temp_2_2) == 0x21C)) {
                 var_2_2 = 1;
             } else {
                 var_2_2 = 0;
@@ -4683,7 +4683,7 @@ s32 datCalcResolveSkillId(u8 *arg0, s32 arg1)
     if (!(*(u16 *)arg0 & 4)) {
         temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
         if (temp_2 >= 0) {
-            if (func_001069a0((s16)temp_2) == 0x231) {
+            if (datItemGrantedSkill((s16)temp_2) == 0x231) {
                 found = 1;
                 goto done1;
             }
@@ -4716,7 +4716,7 @@ done1:
     if (!(*(u16 *)arg0 & 4)) {
         temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
         if (temp_2 >= 0) {
-            if (func_001069a0((s16)temp_2) == 0x232) {
+            if (datItemGrantedSkill((s16)temp_2) == 0x232) {
                 found = 1;
                 goto done2;
             }
@@ -4770,7 +4770,7 @@ done2:
         if (!(*(u16 *)arg0 & 4)) {
             temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
             if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x211) {
+                if (datItemGrantedSkill((s16)temp_2) == 0x211) {
                     found = 1;
                     goto done3;
                 }
@@ -4803,7 +4803,7 @@ done3:
         if (!(*(u16 *)arg0 & 4)) {
             temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
             if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x221) {
+                if (datItemGrantedSkill((s16)temp_2) == 0x221) {
                     found = 1;
                     goto done4;
                 }
@@ -4845,7 +4845,7 @@ done4:
         if (!(*(u16 *)arg0 & 4)) {
             temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
             if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x212) {
+                if (datItemGrantedSkill((s16)temp_2) == 0x212) {
                     found = 1;
                     goto done5;
                 }
@@ -4878,7 +4878,7 @@ done5:
         if (!(*(u16 *)arg0 & 4)) {
             temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
             if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x222) {
+                if (datItemGrantedSkill((s16)temp_2) == 0x222) {
                     found = 1;
                     goto done6;
                 }
@@ -4916,7 +4916,7 @@ done6:
         if (!(*(u16 *)arg0 & 4)) {
             temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
             if (temp_2 >= 0) {
-                if (func_001069a0((s16)temp_2) == 0x210) {
+                if (datItemGrantedSkill((s16)temp_2) == 0x210) {
                     found = 1;
                     goto done7;
                 }
@@ -4954,7 +4954,7 @@ done7:
     if (!(*(u16 *)arg0 & 4)) {
         temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
         if (temp_2 >= 0) {
-            if (func_001069a0((s16)temp_2) == 0x20F) {
+            if (datItemGrantedSkill((s16)temp_2) == 0x20F) {
                 found = 1;
                 goto done8;
             }
