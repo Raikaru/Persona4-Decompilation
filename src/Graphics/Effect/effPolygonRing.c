@@ -28,7 +28,7 @@ extern void kAssertFail();
 extern u8 D_00713EF0[];
 extern void GeometryBlockDestroy(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
-extern void func_0049a570(void *arg0);
+extern void RingInstanceDestroy(void *arg0);
 
 extern void chkmemAllocSiteTag();
 extern void memcpy(void *dst, void *src, u32 size);
@@ -38,7 +38,7 @@ extern void GeometryBlockSetFrameMatrixCombined(void *arg0, void *arg1, void *ar
 extern void GeometryBlockBindResource(int arg0, int arg1);
 extern f32 iGpffff8044;
 extern f32 fGpffff8044;
-extern void func_0049a610(void *arg0);
+extern void RingInstanceStop(void *arg0);
 extern u8 *GeometryCreateStripGrid(u16 copies, void *indices, s32 vertices, s32 flags);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00713330[];
@@ -47,7 +47,7 @@ extern u_long128 D_00713CE0[];
 extern s32 D_00713F24[];
 extern u32 D_00713F14[];
 extern u32 D_00713F10[];
-extern void func_0049a6c0(void *arg0);
+extern void RingInstanceUpdateIfActive(void *arg0);
 extern void func_003c22f0(void *arg0);
 extern f32 cosf(f32 arg0);
 extern f32 sinf(f32 arg0);
@@ -56,7 +56,7 @@ extern f32 fabsf(f32 x);
 extern f32 D_00713D10[];
 extern f32 D_00713D14[];
 extern f32 D_00713D18[];
-extern void func_0049a660(u8 *arg0);
+extern void RingInstanceAdvance(u8 *arg0);
 
 
 
@@ -371,7 +371,7 @@ void RingWriteLineColour(u8 *arg0) {
         *(LineNovaColor *)(dst + 4) = iGpffffbb64;
         iGpffffbb64.c3 = 0xFF;
     }
-    func_0049a610(*(void **)(p8 + 4));
+    RingInstanceStop(*(void **)(p8 + 4));
 }
 
 // Creates a ring with a per-vertex random scale and a texture from the kind table.
@@ -429,7 +429,7 @@ u8 *RingCreateRandomScaled(u8 *arg0) {
 void RingDestroyBlock(u8 *arg0)
 {
     GeometryBlockDestroy(*(void **)(arg0 + 8));
-    func_0049a570(*(void **)(arg0 + 4));
+    RingInstanceDestroy(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 0xC));
 }
 
@@ -479,7 +479,7 @@ void RingRebuildStrip(u8 *arg0)
     temp_21 = *(s32 *)(arg0 + 0x34);
     temp_20 = *(s32 *)(temp_19 + 0x34);
     if ((temp_20 >= temp_21) || (temp_20 == 0)) {
-        func_0049a660(temp_5);
+        RingInstanceAdvance(temp_5);
         step = (f32)temp_21 / (f32)temp_20;
         RpGeometryLock(*(RpGeometry **)(*(u8 **)(temp_16 + 0x10) + 0x18), 2);
         RpGeometryLock(*(RpGeometry **)(*(u8 **)(*temp_17 + 0x10) + 0x18), 2);
@@ -666,7 +666,7 @@ void RingUpdateLineSegment(u8 *arg0)
             dest = *(u8 **)(temp_16 + 4);
             dstq = (u_long128 *)(dest + 0x10);
             *dstq = *(u_long128 *)(arg0 + 0x10);
-            func_0049a6c0(*(void **)(temp_16 + 4));
+            RingInstanceUpdateIfActive(*(void **)(temp_16 + 4));
             GeometryBlockSetFrameMatrixCombined(temp_17, arg0, arg0 + 0x10, arg0 + 0x20);
             if (*(u8 *)(temp_18 + 0x3C) != 0) {
                 *(u16 *)temp_17 = *(u16 *)temp_17 | 1;
