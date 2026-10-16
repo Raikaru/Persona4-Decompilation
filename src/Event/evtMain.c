@@ -1125,9 +1125,8 @@ typedef struct EvtMotionSettings {
     s32 sound, period, delay, surface;
 } EvtMotionSettings;
 
-typedef struct RwV3d {
-    f32 x, y, z;
-} EvtDirectionVector;
+#include "rw_types_internal.h"
+typedef RwV3d EvtDirectionVector;
 typedef union EvtDirectionMatrix {
     u32 words[16];
     struct {

@@ -4,7 +4,7 @@
 
 /* TMX conversion helpers are private to the loader. The following
  * file loader and upload routine both reference sdkUttmx.c in retail. */
-typedef struct RwRGBA { u8 red, green, blue, alpha; } RwRGBA;
+#include "rw_types_internal.h"
 typedef struct RwImage {
     s32 flags, width, height, depth, stride;
     u8 *cpPixels;

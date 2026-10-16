@@ -22,7 +22,7 @@ typedef struct
     f32 z;
 } Vec3;
 
-typedef struct RwV3d { f32 x, y, z; } RwV3d;
+#include "rw_types_internal.h"
 typedef struct YVec3f { f32 x, y, z; } YVec3f;
 
 extern u8 D_0063F120[];

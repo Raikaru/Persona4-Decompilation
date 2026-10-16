@@ -12,7 +12,6 @@
 struct RpGeometry;
 #include "sdk_snd_internal.h"
 #include "rw/plcore/barenderstate.h"
-typedef struct RwRGBA RwRGBA;
 typedef s32 (*FieldRenderStateSetFunction)(RwRenderState, void *);
 struct Model;
 typedef struct
@@ -649,7 +648,7 @@ typedef struct { Vec3_00178590 right; u32 flags; Vec3_00178590 up; u32 pad1; Vec
    src/Kosaka/Field/k_shadow.c is a different, already-linked TU at
    0x001026B0 and is not merged with it. */
 
-typedef struct RwV3d { f32 x, y, z; } RwV3d;
+#include "rw_types_internal.h"
 struct RwMatrixTag;
 struct RpWorld;
 struct RpWorldSector;

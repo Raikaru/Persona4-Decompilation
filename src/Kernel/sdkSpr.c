@@ -33,13 +33,8 @@ static inline u32 sdkAddOffset(u32 offset, u32 base) { return offset + base; }
 typedef struct RwV2d {
     f32 x, y;
 } RwV2d;
-typedef struct RwV3d {
-    f32 x, y, z;
-} RwV3d;
+#include "rw_types_internal.h"
 typedef struct RwMatrixTag RwMatrix;
-typedef struct RwRGBA {
-    u8 red, green, blue, alpha;
-} RwRGBA;
 typedef enum RwOpCombineType {
     rwCOMBINEREPLACE = 0,
     rwCOMBINEPRECONCAT,
