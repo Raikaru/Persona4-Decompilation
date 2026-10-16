@@ -54,7 +54,7 @@ void func_0025c310(void) {
 }
 
 // FUN_0025C340
-s32 func_0025c340(void) {
+s32 scrCommonGetMonth(void) {
     s32 sp1C;
     s32 sp18;
 
@@ -66,7 +66,7 @@ s32 func_0025c340(void) {
 }
 
 // FUN_0025C390
-s32 func_0025c390(void) {
+s32 scrCommonGetDay(void) {
     s32 sp1C;
     s32 sp18;
 
