@@ -35,7 +35,7 @@ typedef struct ShuffleContext {
 
 extern void kAssertFail(const void *file, u32 line);
 extern u32 RpRandom(void);
-extern s32 func_0037ed90(u8 *ctx, s32 slot);
+extern s32 btlShuffleSeqFindNearestCard(u8 *ctx, s32 slot);
 extern s32 btlShuffleSeqCheck(u8 *ctx, s32 a, s32 b);
 extern void func_00389090(u8 *a, s32 b);
 extern s32 btlShuffleDrawTableLookup(s32 a, s32 b);
@@ -165,10 +165,10 @@ s32 btlShuffleSeq5Check(u8 *arg0)
     s32 temp_17;
 
     var_20 = 0;
-    temp_17 = func_0037ed90(arg0, 4);
+    temp_17 = btlShuffleSeqFindNearestCard(arg0, 4);
     for (var_19 = 0; var_19 < 3; var_19++) {
         if (sub->flags & ((0x10 << var_19) & 0xFFFF)) {
-            temp_2 = func_0037ed90(arg0, var_19);
+            temp_2 = btlShuffleSeqFindNearestCard(arg0, var_19);
             if (btlShuffleSeqCheck(arg0, temp_2, temp_17) != 0) {
                 var_20 = 1;
                 func_00389090(ctx->id_1F294, temp_2);
@@ -197,14 +197,14 @@ s32 btlShuffleSeq5Check2(u8 *arg0)
 
     var_20 = 0;
     sub->count_28 = 0;
-    temp_17 = func_0037ed90(arg0, 4);
+    temp_17 = btlShuffleSeqFindNearestCard(arg0, 4);
     temp_3 = sub->count_28;
     sub->count_28 = temp_3 + 1;
     sub->list[temp_3] = temp_17;
     for (var_19 = 0; var_19 < 3; var_19++) {
         if (sub->flags & ((0x10 << var_19) & 0xFFFF)) {
-            temp_18 = func_0037ed90(arg0, var_19);
-            temp_22 = func_0037ed90(arg0, 8 - var_19);
+            temp_18 = btlShuffleSeqFindNearestCard(arg0, var_19);
+            temp_22 = btlShuffleSeqFindNearestCard(arg0, 8 - var_19);
             if ((btlShuffleSeqCheck(arg0, temp_18, temp_17) != 0) && (btlShuffleSeqCheck(arg0, temp_17, temp_22) != 0)) {
                 var_20 = 1;
                 temp_3 = sub->count_28;
