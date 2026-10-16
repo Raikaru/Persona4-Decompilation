@@ -1461,7 +1461,7 @@ void datStopPadRumble(void) {
 }
 // Intent: Fill a skill cost row from the table entry at the index: the skill id at +2, and the cost at +4 or +8 by the threshold kind; return 1 when the entry is present [inferred]
 // FUN_00113520
-s32 datPersonaFillSkillCostRow(s32 arg0, s32 arg1, s32 arg2, u8 *arg3)
+s32 datPersonaFillSkillCostRow(s32 arg0, struct DatPersonaRecord *arg1, s32 arg2, u8 *arg3)
 {
     s32 temp_3;
     u16 temp_2;
@@ -1470,7 +1470,7 @@ s32 datPersonaFillSkillCostRow(s32 arg0, s32 arg1, s32 arg2, u8 *arg3)
     *(u16 *)(arg3 + 2) = 0;
     *(s32 *)(arg3 + 4) = 0;
     *(s32 *)(arg3 + 8) = 0;
-    temp_2 = *(u16 *)(p4_00113520_add(arg2 * 2, arg1) + 0xC);
+    temp_2 = *(u16 *)(p4_00113520_add(arg2 * 2, (s32)arg1) + 0xC);
     if (temp_2 != 0) {
         *(u16 *)(arg3 + 2) = temp_2;
         if (arg0 != 0) {
