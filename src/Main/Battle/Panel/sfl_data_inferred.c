@@ -40,8 +40,8 @@ extern void memset(void *dst, s32 value, s32 size);
 extern s32 datCalcGetLevelById(s32 arg0);
 
 extern u8 *func_00457120(void);
-extern void func_0011fd30(u8 *arg0);
-extern void func_0011fd50(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
+extern void datPanelResetCursor(u8 *arg0);
+extern void datPanelDrawByKind(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 extern f32 iGpffff84a4;
 extern s32 resourceFindByName(const void *arg0);
 extern void kAssertFail(const void *arg0, s32 arg1);
@@ -696,7 +696,7 @@ void sflDataDrawByteValuePanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
    its two uses (color entry, 0xFF - alpha at the sprite call) as retail does; with CSE on b210
    masks once into $s0 (nd 78). */
 // FUN_00367940
-void func_00367940(P4Pair arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 buf[12]; f32 factor; factor = fparg0; func_0011fd30(buf); *(s32 *)(buf + 8) = 3; *(s16 *)(buf + 6) = 1; *(s16 *)buf = *(s16 *)(arg2 + 4); func_0011fd50(*(s64 *)&arg0, factor, arg1, buf, 1); }
+void func_00367940(P4Pair arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 buf[12]; f32 factor; factor = fparg0; datPanelResetCursor(buf); *(s32 *)(buf + 8) = 3; *(s16 *)(buf + 6) = 1; *(s16 *)buf = *(s16 *)(arg2 + 4); datPanelDrawByKind(*(s64 *)&arg0, factor, arg1, buf, 1); }
 
 // Intent: Draws a right-aligned number from digit sprites beside an icon, one digit column per 16 px [inferred]
 // FUN_003679C0
