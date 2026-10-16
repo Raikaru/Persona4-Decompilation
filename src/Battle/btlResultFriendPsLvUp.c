@@ -11,7 +11,7 @@ extern u8 *shdPersonaTaskCreate(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4);
 extern void shdPersonaSetOrigin(u8 *task, f32 *position);
 extern void shdPersonaStartSlideIn(u8 *task);
 extern void shdPersonaSetPersonaId(u8 *task, s32 a1);
-extern u16 *datPersonaGetRecord(u16 arg0);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 extern u32 datGetFlag(s32 arg0);
 extern void datSetFlag(s32 arg0, s32 arg1);
 /* This unit's view of the window helper takes the 16-bit display id as u16.

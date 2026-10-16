@@ -81,7 +81,7 @@ typedef struct DatPartySlot
     u8 unknown00[4];         // 0x00
     DatCharRecord character; // 0x04. Saved to the save file as 0x48 bytes.
     u8 unknown4C[8];         // 0x4C
-    DatPersonaRecord personaRecord; // 0x54. datPersonaGetRecord returns it as a u16 record (flags, id at +2).
+    DatPersonaRecord personaRecord; // 0x54. datPersonaGetRecord returns a pointer to it (flags, id at +2).
     u8 unknown84[4];         // 0x84
 } DatPartySlot;
 
