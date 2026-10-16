@@ -18,14 +18,14 @@ extern s32 D_00764634;
 extern u8 D_0063EE40[];
 extern void memset(void *dst, s32 value, u32 size);
 
-extern s32 func_002aa890(u8 *arg0);
-extern void func_002aa450(void);
+extern s32 loadingSpinnerTaskUpdate(u8 *arg0);
+extern void loadingSpinnerDraw(void);
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern u8 D_0063EEC0[];
 extern u8 D_0063EED0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-extern s32 func_002abf70(u8 *arg0);
+extern s32 seqYajiTaskUpdate(u8 *arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_003f6690(s32 arg0, s32 *arg1);
@@ -216,8 +216,9 @@ s32 mcIconTaskPoll(void) {
     return r;
 }
 
+// Intent: Draw the rotating three-colour loading spinner for one frame [inferred]
 // FUN_002AA450
-void func_002aa450(void) {
+void loadingSpinnerDraw(void) {
     s64 bits;
     s32 *state;
     u8 *source;
@@ -298,8 +299,9 @@ void func_002aa450(void) {
                   0xE6E6E6, 0xFF, 1, 0x11, 0x16,
                   (const struct RwMatrixTag *)work.matrix, 0);
 }
+// Intent: Loading spinner task update: run its show/hide state machine and queue its draw [inferred]
 // FUN_002AA890
-s32 func_002aa890(u8 *arg0) {
+s32 loadingSpinnerTaskUpdate(u8 *arg0) {
     s32 *state;
     u8 *temp_2;
 
@@ -335,7 +337,7 @@ s32 func_002aa890(u8 *arg0) {
             }
         }
         temp_2 = PrimAllocQueueNode();
-        *(void **)(temp_2 + 8) = (void *)func_002aa450;
+        *(void **)(temp_2 + 8) = (void *)loadingSpinnerDraw;
         *(u8 **)(temp_2 + 0x10) = arg0;
         func_00460ac0(D_007966A0, temp_2);
         break;
@@ -347,18 +349,21 @@ void func_002aaa00(u8 *unusedTask)
 {
 }
 
+// Intent: Create the loading spinner task and clear its state block [inferred]
 // FUN_002AAA10
-void func_002aaa10(void) {
+void loadingSpinnerTaskCreate(void) {
     memset(D_00882F20, 0, 0x10);
-    (s32)kwlnTaskCreateChild((void *)(NULL), (const void *)(D_0063EE40), 0xF, 0, 0, func_002aa890, func_002aaa00, (u8 *)(NULL));
+    (s32)kwlnTaskCreateChild((void *)(NULL), (const void *)(D_0063EE40), 0xF, 0, 0, loadingSpinnerTaskUpdate, func_002aaa00, (u8 *)(NULL));
 }
 
+// Intent: Request the loading spinner to show (sets bit 0 of its state) [inferred]
 // FUN_002AAA80
-void func_002aaa80(void) {
+void loadingSpinnerRequestShow(void) {
     D_00882F20[0] |= 1;
 }
+// Intent: Request the loading spinner to hide (clears bit 0 of its state) [inferred]
 // FUN_002AAAA0
-void func_002aaaa0(void) {
+void loadingSpinnerRequestHide(void) {
     D_00882F20[0] &= ~1;
 }
 
@@ -493,8 +498,9 @@ void func_002aabf0(void *arg0, u8 *arg1) {
 }
 /* measured: closes opt_propagation around func_002aabf0. */
 #pragma opt_propagation on
+// Intent: Seq task update: advance the sequence work each step [inferred]
 // FUN_002ABF70
-s32 func_002abf70(u8 *arg0) {
+s32 seqYajiTaskUpdate(u8 *arg0) {
     s32 temp_3;
     s8 temp_4;
     u8 *temp_16;
@@ -586,18 +592,20 @@ s32 func_002abf70(u8 *arg0) {
     }
     return 0;
 }
+// Intent: Seq task destroy: dispatch the seq task's teardown handler [inferred]
 // FUN_002AC270
-void func_002ac270(u8 *arg0) {
+void seqYajiTaskDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
+// Intent: Create the seq task and initialise its work block [inferred]
 // FUN_002AC2A0
-void func_002ac2a0(void) {
+void seqYajiTaskCreate(void) {
     u8 *p;
 
     chkmemAllocSiteTag(D_0063EEC0, 0x4B9);
     p = D_008873F4[0](1, 0x4D78, 0x40000);
-    (s32)kwlnTaskCreate((const void *)(D_0063EED0), 0xF, 0, 0, func_002abf70, func_002ac270, (u8 *)(p));
+    (s32)kwlnTaskCreate((const void *)(D_0063EED0), 0xF, 0, 0, seqYajiTaskUpdate, seqYajiTaskDestroy, (u8 *)(p));
     *(u8 *)(p + 0) = 0;
     *(s32 *)(p + 0x6B4) = 0x3F800000;
     *(s16 *)(p + 0x6B8) = 0x1F;
@@ -606,8 +614,9 @@ void func_002ac2a0(void) {
     *(s8 *)(p + 0x6BD) = 1;
     *(s32 *)(p + 0x6C0) = 0;
 }
+// Intent: Clear the SMAP reveal bitmap (24 halfwords) [inferred]
 // FUN_002AC360
-void func_002ac360(void) {
+void smapClearRevealTable(void) {
     s16 i;
 
     i = 0;
@@ -616,12 +625,14 @@ void func_002ac360(void) {
         i++;
     }
 }
+// Intent: Return a pointer to the SMAP reveal bitmap [inferred]
 // FUN_002AC3B0
-u32 func_002ac3b0(void) {
+u32 smapRevealTablePtr(void) {
     return (u32)D_00764658;
 }
+// Intent: Test one SMAP reveal bit: bit index arg0 in row arg1 [inferred]
 // FUN_002AC3C0
-s64 func_002ac3c0(s32 arg0, s32 arg1) {
+s64 smapRevealTestBit(s32 arg0, s32 arg1) {
     s32 temp;
 
     temp = arg0 & 0xff;

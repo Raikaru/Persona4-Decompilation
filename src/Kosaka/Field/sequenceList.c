@@ -12,7 +12,7 @@ extern s32 btlIsRunning(void);
 extern void func_002853b0(void);
 extern s32 func_002853c0(void);
 extern void func_0029e8d0(void *);
-extern void func_002ac2a0(void);
+extern void seqYajiTaskCreate(void);
 extern s32 func_002bdb50(s32, s8);
 extern s32 func_002e7510(s32);
 extern s32 fclCombineTaskCreate(s32);
@@ -198,7 +198,7 @@ void SeqEvent_End(void)
 // FUN_001030A0
 void SeqYaji_Start(void)
 {
-    func_002ac2a0();
+    seqYajiTaskCreate();
 }
 
 // FUN_001030C0
