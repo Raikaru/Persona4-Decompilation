@@ -7,7 +7,7 @@
 /* The EE row transition consumes native position and color packets. The
    depth float follows the color: the callee prologue moves $f12 between the
    color and order spills, and callers evaluate depth before the order cast. */
-void func_002b77d0(s16 resource, FclVec2 position, s16 image,
+void fclSpriteStartShowHide(s16 resource, FclVec2 position, s16 image,
                    FclDrawColor color, f32 depth, s16 order, s8 mode,
                    s16 duration, s16 alternate_duration,
                    s16 argument, u32 source);

@@ -1996,7 +1996,7 @@ s32 cmbFiveSpriteTask(u8 *task) {
         break;
     case 1:
         /* --- state-1 check: 5th handle via 5da0, -1 if byte==1 else 0 --- */
-        if (*(s8 *)func_002b5da0((u8 *)*(s32 *)(work + 0x14)) == 1) {
+        if (*(s8 *)fclSpriteWorkAlt((u8 *)*(s32 *)(work + 0x14)) == 1) {
             return -1;
         }
         break;

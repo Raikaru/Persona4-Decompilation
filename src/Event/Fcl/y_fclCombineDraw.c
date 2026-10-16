@@ -406,18 +406,18 @@ void fclCombineDrawListRow(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, 
     o2 = order + 2;
     sp120 = func_002b2970(arg2.x, arg2.y);
     c15C = func_002b2a60(0, 0, 0x66, 0xFF);
-    func_002b77d0(id, sp120, 0x1AC, c15C, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(id, sp120, 0x1AC, c15C, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
     id = two + 0x1F5;
     fclSpriteReset(id, 0x1AF);
     sp130 = func_002b2970(258.0f + arg2.x, arg2.y);
     c158 = func_002b2a60(0, 0, 0x66, 0xFF);
-    func_002b77d0(id, sp130, 0x1AF, c158, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(id, sp130, 0x1AF, c158, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
     sp138 = func_002b2970(sp130.x - 28.0f, sp130.y);
     id = arg1 + 0x2FB;
     fclSpriteReset(id, 0x131);
     sp130 = func_002b2970(266.0f + arg2.x, arg2.y);
     c154 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
-    func_002b77d0(id, sp138, 0x131, c154, 153.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(id, sp138, 0x131, c154, 153.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
     fclSpriteSetFlag(id, 0xE, 0);
     h = sdkSpriteNewNode(func_00331560(), 0x131);
     slot = (u8 **)(t + 0x258) + arg1;
@@ -437,23 +437,23 @@ void fclCombineDrawListRow(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, 
         for (id = 0, o2 = order + 4; id < 2; id++) {
             r = id + 0x174;
             base = r;
-            func_002b77d0(base, sp118 = func_002b2970(6.0f + arg2.x + (f32)(id * 0x67), 4.0f + arg2.y), r,
+            fclSpriteStartShowHide(base, sp118 = func_002b2970(6.0f + arg2.x + (f32)(id * 0x67), 4.0f + arg2.y), r,
                           c150 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, o2, arg5, 3, 3, arg4, func_00331560());
         }
         return;
     }
     if (datGetFlag(0x1305) != 0 && kind == 0x160) {
 
-        func_002b77d0(0x160, sp110 = func_002b2970(6.0f + arg2.x, 4.0f + arg2.y), 0x160,
+        fclSpriteStartShowHide(0x160, sp110 = func_002b2970(6.0f + arg2.x, 4.0f + arg2.y), 0x160,
                       c14C = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, func_00331560());
         fclSpriteReset(0x2EB, 0x16F);
-        func_002b77d0(0x2EB, sp108 = func_002b2970(100.0f + (6.0f + arg2.x), 4.0f + arg2.y), 0x16F,
+        fclSpriteStartShowHide(0x2EB, sp108 = func_002b2970(100.0f + (6.0f + arg2.x), 4.0f + arg2.y), 0x16F,
                       c148 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, func_00331560());
         return;
     }
     sp100 = func_002b2970(6.0f + arg2.x, 4.0f + arg2.y);
     c144 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-    func_002b77d0(arg3, sp100, arg3, c144, 152.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(arg3, sp100, arg3, c144, 152.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
 }
 #pragma pop
 /* measured: nd 0. Exact recipe: FclVec2 position parameter (spilled to 0xC8)
@@ -492,18 +492,18 @@ void fclCombineDrawListRowPlain(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 a
     o2 = order + 2;
     spF0 = func_002b2970(arg2.x, arg2.y);
     c10C = func_002b2a60(0, 0, 0x66, 0xFF);
-    func_002b77d0(res, spF0, 0x1AC, c10C, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(res, spF0, 0x1AC, c10C, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
     res = two + 0x1F5;
     fclSpriteReset(res, 0x1B3);
     x = 217.0f + arg2.x;
     spE8 = func_002b2970(x, arg2.y);
     c108 = func_002b2a60(0, 0, 0x66, 0xFF);
-    func_002b77d0(res, spE8, 0x1B3, c108, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(res, spE8, 0x1B3, c108, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
     spF8 = func_002b2970(x - 28.0f, arg2.y);
     res = arg1 + 0x2FB;
     fclSpriteReset(res, 0x131);
     c104 = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
-    func_002b77d0(res, spF8, 0x131, c104, 150.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(res, spF8, 0x131, c104, 150.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
     fclSpriteSetFlag(res, 0xE, 0);
     h = sdkSpriteNewNode(func_00331560(), 0x131);
     slot = (u8 **)(t + 0x258) + arg1;
@@ -518,7 +518,7 @@ void fclCombineDrawListRowPlain(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 a
     fclSpriteReset(arg3, arg3);
     spE0 = func_002b2970(6.0f + arg2.x, 8.0f + arg2.y);
     c100 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
-    func_002b77d0(arg3, spE0, arg3, c100, 148.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(arg3, spE0, arg3, c100, 148.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
 }
 
 /* measured: nd 0, object 740/window 752 (the final 12 retail bytes are zero
@@ -1721,9 +1721,9 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
             }
             sdkSpriteFreeNode(resource);
             fclSpriteReset(0xCF, 0xCF);
-            func_002b77d0(0xCF, func_002b2970(position.x - 10.0f, rowY - 12.0f), 0xCF, func_002b2a60(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, func_00331560());
+            fclSpriteStartShowHide(0xCF, func_002b2970(position.x - 10.0f, rowY - 12.0f), 0xCF, func_002b2a60(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, func_00331560());
             fclSpriteReset(0xD2, 0xD2);
-            func_002b77d0(0xD2, func_002b2970(282.0f + position.x, rowY - 12.0f), 0xD2, func_002b2a60(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, func_00331560());
+            fclSpriteStartShowHide(0xD2, func_002b2970(282.0f + position.x, rowY - 12.0f), 0xD2, func_002b2a60(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, func_00331560());
             if (mode == 0) {
                 work->cursorPosition = func_002b2970(position.x - 60.0f, rowY - 8.0f);
                 fclSpriteCreate(0x1C7, func_002b2970(position.x - 60.0f, rowY - 8.0f), 190.0f, 0x58);
@@ -2631,19 +2631,19 @@ void fclCombineCreateSlotIcons(u8 *arg0, s8 arg1) {
     p = (FclVec2 *)D_00644020;
     sp48 = func_002b2970(p->x, p->y);
     sp5C = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    func_002b77d0(0x56, sp48, 0x56, sp5C, 55.0f, 0xAA, arg1, 6, 6, 0, func_00331560());
+    fclSpriteStartShowHide(0x56, sp48, 0x56, sp5C, 55.0f, 0xAA, arg1, 6, 6, 0, func_00331560());
     p = (FclVec2 *)D_00644098;
     sp40 = func_002b2970(p->x, p->y);
     sp58 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    func_002b77d0(0x65, sp40, 0x65, sp58, 56.0f, 0xAA, arg1, 6, 6, 0, func_00331560());
+    fclSpriteStartShowHide(0x65, sp40, 0x65, sp58, 56.0f, 0xAA, arg1, 6, 6, 0, func_00331560());
     p = (FclVec2 *)D_00644AD0;
     sp38 = func_002b2970(p->x, p->y);
     sp54 = func_002b2a60(0xE, 0x17, 0x49, 0x80);
-    func_002b77d0(0x1AC, sp38, 0x1AC, sp54, 57.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
+    fclSpriteStartShowHide(0x1AC, sp38, 0x1AC, sp54, 57.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
     p = (FclVec2 *)D_00644B00;
     sp30 = func_002b2970(p->x, p->y);
     sp50 = func_002b2a60(0xE, 0x17, 0x49, 0x80);
-    func_002b77d0(0x1B2, sp30, 0x1B2, sp50, 58.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
+    fclSpriteStartShowHide(0x1B2, sp30, 0x1B2, sp50, 58.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
 }
 
 /* The s16 row/column counters preserve retail's unextended Persona lookups.
@@ -3794,86 +3794,86 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
         c118 = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
     }
     pt = func_002b2970(13.0f + pos.x, pos.y);
-    func_002b77d0(0x12E, pt, 0x12E, c12C, 37.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x12E, pt, 0x12E, c12C, 37.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
     pt = func_002b2970(573 + pos.x, pos.y);
-    func_002b77d0(0x12F, pt, 0x12F, c12C, 38.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x12F, pt, 0x12F, c12C, 38.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
     pt = func_002b2970(pos.x - 5.0f, (pos.y - 14.0f));
-    func_002b77d0(0x12C, pt, 0x12C, c128, 31.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x12C, pt, 0x12C, c128, 31.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
     pt = func_002b2970(559 + pos.x, (pos.y - 14.0f));
-    func_002b77d0(0x12A, pt, 0x12A, c128, 32.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x12A, pt, 0x12A, c128, 32.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
     pt = func_002b2970((40.0f + pos.x), (13.0f + pos.y));
-    func_002b77d0(0x13A, pt, 0x13A, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x13A, pt, 0x13A, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
     pt = func_002b2970(24.0f + pos.x, (13.0f + pos.y));
-    func_002b77d0(0x13C, pt, 0x13C, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x13C, pt, 0x13C, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
     pt = func_002b2970((522 + pos.x), (13.0f + pos.y));
-    func_002b77d0(0x13B, pt, 0x13B, c124, 34.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x13B, pt, 0x13B, c124, 34.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
     pt = func_002b2970(562 + pos.x, (13.0f + pos.y));
-    func_002b77d0(0x13D, pt, 0x13D, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x13D, pt, 0x13D, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
     pt = func_002b2970((87.0f + pos.x), (2.0f + pos.y));
-    func_002b77d0(0x14F, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x14F, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
     pt = func_002b2970((428.0f + (87.0f + pos.x)) - 1.0f, (2.0f + pos.y));
-    func_002b77d0(0x2C2, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x2C2, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
     switch ((s8)arg1) {
     case 0:
         fclSpriteReset(0x2DE, 0x126);
         fclSpriteReset(0x2DF, 0x125);
         pt = func_002b2970(113.0f + pos.x, (13.0f + pos.y));
-        func_002b77d0(0x126, pt, 0x126, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DE, pt, 0x126, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x126, pt, 0x126, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x126, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(320.0f + pos.x, (13.0f + pos.y));
-        func_002b77d0(0x125, pt, 0x125, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DF, pt, 0x125, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x125, pt, 0x125, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x125, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(214.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
-        func_002b77d0(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         fclSpriteReset(0x2E0, 0x150);
-        func_002b77d0(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         break;
     case 1:
         fclSpriteReset(0x2DE, 0x128);
         fclSpriteReset(0x2DF, 0x127);
         pt = func_002b2970((171.0f + pos.x), (12.0f + pos.y));
-        func_002b77d0(0x128, pt, 0x128, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x128, pt, 0x128, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((171.0f + pos.x), (12.0f + pos.y));
-        func_002b77d0(0x2DE, pt, 0x128, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x128, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((354.0f + pos.x), (14.0f + pos.y));
-        func_002b77d0(0x127, pt, 0x127, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x127, pt, 0x127, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((354.0f + pos.x), (14.0f + pos.y));
-        func_002b77d0(0x2DF, pt, 0x127, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x127, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(214.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
-        func_002b77d0(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         fclSpriteReset(0x2E0, 0x150);
-        func_002b77d0(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         break;
     case 2:
         pt = func_002b2970((40.0f + pos.x), (13.0f + pos.y));
-        func_002b77d0(0x13A, pt, 0x13A, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13A, pt, 0x13A, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((522 + pos.x), (13.0f + pos.y));
-        func_002b77d0(0x13B, pt, 0x13B, c124, 34.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13B, pt, 0x13B, c124, 34.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
         fclSpriteReset(0x2DE, 0x1D4);
         fclSpriteReset(0x2DF, 0x1D5);
         pt = func_002b2970((140.0f + pos.x), (12.0f + pos.y));
-        func_002b77d0(0x1D4, pt, 0x1D4, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x1D4, pt, 0x1D4, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((140.0f + pos.x), (12.0f + pos.y));
-        func_002b77d0(0x2DE, pt, 0x1D4, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x1D4, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((355 + pos.x), (14.0f + pos.y));
-        func_002b77d0(0x1D5, pt, 0x1D5, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x1D5, pt, 0x1D5, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((355 + pos.x), (14.0f + pos.y));
-        func_002b77d0(0x2DF, pt, 0x1D5, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x1D5, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(214.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         if ((s8)arg2 == 0) {
             *(s8 *)(t + 0x122) = 1;
         }
         pt = func_002b2970((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
-        func_002b77d0(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         fclSpriteReset(0x2E0, 0x150);
-        func_002b77d0(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x150, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         break;
     case 3:
@@ -3888,22 +3888,22 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
             *(s8 *)(t + 0x122) = 2;
         }
         pt = func_002b2970(138.0f + pos.x, (9.0f + pos.y));
-        func_002b77d0(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(277 + pos.x, (9.0f + pos.y));
-        func_002b77d0(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(416.0f + pos.x, (9.0f + pos.y));
-        func_002b77d0(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x8E), 4.0f + pos.y);
-        func_002b77d0(0x151, pt, 0x151, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E0, pt, 0x151, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x151, pt, 0x151, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x151, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970(142.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(284.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     case 4:
         fclSpriteReset(0x2DE, 0x13F);
@@ -3919,27 +3919,27 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
             *(s8 *)(t + 0x122) = 3;
         }
         pt = func_002b2970(127.0f + pos.x, (9.0f + pos.y));
-        func_002b77d0(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(229.0f + pos.x, (9.0f + pos.y));
-        func_002b77d0(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(334.0f + pos.x, (9.0f + pos.y));
-        func_002b77d0(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(435 + pos.x, (9.0f + pos.y));
-        func_002b77d0(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x6B), 4.0f + pos.y);
-        func_002b77d0(0x152, pt, 0x152, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E0, pt, 0x152, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x152, pt, 0x152, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x152, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970(107.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(214.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(321 + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     case 5:
         fclSpriteReset(0x2DE, 0x13F);
@@ -3958,35 +3958,35 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
             *(s8 *)(t + 0x122) = 4;
         }
         pt = func_002b2970(114.0f + pos.x, (9.0f + pos.y));
-        func_002b77d0(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(199.0f + pos.x, (9.0f + pos.y));
-        func_002b77d0(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(284.0f + pos.x, (9.0f + pos.y));
-        func_002b77d0(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((369 + pos.x), (9.0f + pos.y));
-        func_002b77d0(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(24.0f + (369 + pos.x), 15.0f + (9.0f + pos.y));
-        func_002b77d0(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(446.0f + pos.x, (9.0f + pos.y));
-        func_002b77d0(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x55), 4.0f + pos.y);
-        func_002b77d0(0x153, pt, 0x153, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E0, pt, 0x153, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x153, pt, 0x153, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x153, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970(85.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(170.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(255.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(340.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     case 6:
         fclSpriteReset(0x2DE, 0x13F);
@@ -4009,43 +4009,43 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
             *(s8 *)(t + 0x122) = 5;
         }
         pt = func_002b2970(20.0f + (87.0f + pos.x), (9.0f + pos.y));
-        func_002b77d0(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(15.0f + (71.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        func_002b77d0(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(16.0f + (142.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        func_002b77d0(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(16.0f + (213.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        func_002b77d0(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(24.0f + pt.x, 15.0f + pt.y);
-        func_002b77d0(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(15.0f + (284.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        func_002b77d0(0x143, pt, 0x143, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E8, pt, 0x143, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x143, pt, 0x143, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E8, pt, 0x143, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(25.0f + pt.x, 15.0f + pt.y);
-        func_002b77d0(0x2EA, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2EB, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2EA, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2EB, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(11.0f + (355 + (87.0f + pos.x)), (9.0f + pos.y));
-        func_002b77d0(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((87.0f + pos.x) + (f32)(*(s8 *)(t + 0x122) * 0x47), 4.0f + pos.y);
-        func_002b77d0(0x154, pt, 0x154, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E0, pt, 0x154, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x154, pt, 0x154, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x154, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970((71.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((142.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((213.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        func_002b77d0(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((284.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        func_002b77d0(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((355 + (87.0f + pos.x)), (2.0f + pos.y));
-        func_002b77d0(0x2E9, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E9, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     case 7:
         fclSpriteReset(0x2DE, 0x13F);
@@ -4072,51 +4072,51 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
             *(s8 *)(t + 0x122) = 6;
         }
         pt = func_002b2970(13.0f + (87.0f + pos.x), (9.0f + pos.y));
-        func_002b77d0(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(12.0f + (61.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        func_002b77d0(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(10.0f + (122.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        func_002b77d0(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(10.0f + (183.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        func_002b77d0(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(24.0f + pt.x, 15.0f + pt.y);
-        func_002b77d0(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(10.0f + (244.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        func_002b77d0(0x143, pt, 0x143, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E8, pt, 0x143, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x143, pt, 0x143, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E8, pt, 0x143, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(25.0f + pt.x, 15.0f + pt.y);
-        func_002b77d0(0x2EA, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2EB, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2EA, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2EB, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(10.0f + (305 + (87.0f + pos.x)), (9.0f + pos.y));
-        func_002b77d0(0x144, pt, 0x144, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2EC, pt, 0x144, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x144, pt, 0x144, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2EC, pt, 0x144, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(25.0f + pt.x, 15.0f + pt.y);
-        func_002b77d0(0x2EE, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2EF, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2EE, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2EF, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(6.0f + (366.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        func_002b77d0(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((87.0f + pos.x) + (f32)(*(s8 *)(t + 0x122) * 0x3D), 4.0f + pos.y);
-        func_002b77d0(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E0, pt, 0x155, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x155, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970((61.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((122.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((183.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        func_002b77d0(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((244.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        func_002b77d0(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((305 + (87.0f + pos.x)), (2.0f + pos.y));
-        func_002b77d0(0x2E9, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E9, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970((366.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        func_002b77d0(0x2ED, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2ED, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     case 8:
         fclSpriteReset(0x2DE, 0x14F);
@@ -4133,21 +4133,21 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
         }
         fclCombineDrawStageTiles(arg0, 6, arg2);
         pt = func_002b2970((87.0f + pos.x) + (f32)(*(s16 *)(t + 0x120) * 0x3D), 4.0f + pos.y);
-        func_002b77d0(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        func_002b77d0(0x2E0, pt, 0x155, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x155, func_002b2a60(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = func_002b2970(61.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(122.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2DE, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(183.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2DF, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(244.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2E1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(305 + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         pt = func_002b2970(366.0f + (87.0f + pos.x), (2.0f + pos.y));
-        func_002b77d0(0x2E3, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E3, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
         break;
     }
     if ((s8)arg2 == 0) {
@@ -4230,12 +4230,12 @@ void fclCombineDrawStageTiles(u8 *arg0, s16 arg1, s8 arg2) {
         position = func_002b2970(baseX + (f32)((s32)savedColumn * 61) + *(f32 *)((u8 *)D_007495C0 + tableOffset), baseY);
         *(FclVec2 *)(fclSpriteEntry(resource) + 0x38) = position;
         white.channels = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
-        func_002b77d0(resource, position, resource, white.channels, 29.0f, 0xBD, arg2, arg1, 3, 0, func_00331560());
+        fclSpriteStartShowHide(resource, position, resource, white.channels, 29.0f, 0xBD, arg2, arg1, 3, 0, func_00331560());
         shadow = (s16)((s16)((s32)savedColumn * 3 + 0xF1) + 0x1F4);
         fclSpriteSetFlag(shadow, 0, 1);
         fclSpriteReset(shadow, resource);
         dark.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        func_002b77d0(shadow, position, resource, dark.channels, 25.0f, 0xBF, arg2, arg1, 3, 0, func_00331560());
+        fclSpriteStartShowHide(shadow, position, resource, dark.channels, 25.0f, 0xBF, arg2, arg1, 3, 0, func_00331560());
         if (savedIndex >= 3 && index != 12) {
             s32 group;
             s16 secondary;
@@ -4245,11 +4245,11 @@ void fclCombineDrawStageTiles(u8 *arg0, s16 arg1, s8 arg2) {
             secondary = (s16)((s16)(group + 0xF2) + 0x1F4);
             fclSpriteReset(secondary, 0x14B);
             secondaryWhite.channels = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
-            func_002b77d0(secondary, position, 0x14B, secondaryWhite.channels, 29.0f, 0xBD, arg2, arg1, 3, 0, func_00331560());
+            fclSpriteStartShowHide(secondary, position, 0x14B, secondaryWhite.channels, 29.0f, 0xBD, arg2, arg1, 3, 0, func_00331560());
             secondaryShadow = (s16)((s16)(group + 0xF3) + 0x1F4);
             fclSpriteReset(secondaryShadow, 0x14B);
             secondaryDark.channels = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-            func_002b77d0(secondaryShadow, position, 0x14B, secondaryDark.channels, 25.0f, 0xBF, arg2, arg1, 3, 0, func_00331560());
+            fclSpriteStartShowHide(secondaryShadow, position, 0x14B, secondaryDark.channels, 25.0f, 0xBF, arg2, arg1, 3, 0, func_00331560());
         } else {
             s32 group = column * 3;
             fclSpriteSetFlag((s16)((s16)(group + 0xF2) + 0x1F4), 0, 1);
@@ -4416,61 +4416,61 @@ void fclCombineDrawHeaderPanel(u8 *task, s16 delay, s8 mode) {
         FclDrawColor panelColor = func_002b2a60(0, 0, 0x99, 0xFF);
         FclDrawColor textColor = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
         textColor = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-        func_002b77d0(0x21C, origin, 0x193, panelColor, 191.0f, 0x41, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x21C, origin, 0x193, panelColor, 191.0f, 0x41, mode, 6, 3, delay, func_00331560());
         spD8 = func_002b2970((f32)0x1DF + origin.x, origin.y);
-        func_002b77d0(0x1A3, spD8, 0x1A3, panelColor, 191.0f, 0x41, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x1A3, spD8, 0x1A3, panelColor, 191.0f, 0x41, mode, 6, 3, delay, func_00331560());
         spD0 = func_002b2970(20.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x120, spD0, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x120, spD0, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
         fclSpriteReset(0x2E8, 0x120);
         spC8 = func_002b2970(30.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E8, spC8, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E8, spC8, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
         spC0 = func_002b2970(47.0f + origin.x, 2.0f + origin.y);
-        func_002b77d0(0x11F, spC0, 0x11F, textColor, 183.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x11F, spC0, 0x11F, textColor, 183.0f, 0x56, mode, 6, 3, delay, func_00331560());
         origin = func_002b2970(314.0f, 97.0f);
         spB8 = func_002b2970(214.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x121, spB8, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x121, spB8, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
         fclSpriteReset(0x2E9, 0x121);
         spB0 = func_002b2970(224.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E9, spB0, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E9, spB0, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
         spA8 = func_002b2970(97.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x11E, spA8, 0x11E, textColor, 182.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x11E, spA8, 0x11E, textColor, 182.0f, 0x56, mode, 6, 3, delay, func_00331560());
         panelColor = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
         origin = func_002b2970(79.0f, 97.0f);
         fclSpriteReset(0x2EA, 0x193);
         spA0 = func_002b2970(origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        func_002b77d0(0x2EA, spA0, 0x193, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2EA, spA0, 0x193, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
         fclSpriteReset(0x2EB, 0x19C);
         sp98 = func_002b2970(220.0f + origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        func_002b77d0(0x2EB, sp98, 0x19C, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2EB, sp98, 0x19C, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
         origin = func_002b2970(79.0f, 97.0f);
         fclSpriteReset(0x2EC, 0x11F);
         sp90 = func_002b2970(47.0f + origin.x, 2.0f + origin.y);
-        func_002b77d0(0x2EC, sp90, 0x11F, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2EC, sp90, 0x11F, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         fclSpriteReset(0x2E4, 0x120);
         sp88 = func_002b2970(20.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E4, sp88, 0x120, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E4, sp88, 0x120, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         fclSpriteReset(0x2E5, 0x120);
         sp80 = func_002b2970(30.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E5, sp80, 0x120, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E5, sp80, 0x120, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         origin = func_002b2970(314.0f, 97.0f);
         fclSpriteReset(0x2E1, 0x11E);
         sp78 = func_002b2970(97.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E1, sp78, 0x11E, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E1, sp78, 0x11E, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         fclSpriteReset(0x2E6, 0x121);
         sp70 = func_002b2970(214.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E6, sp70, 0x121, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E6, sp70, 0x121, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         fclSpriteReset(0x2E7, 0x121);
         sp68 = func_002b2970(224.0f + origin.x, 3.0f + origin.y);
-        func_002b77d0(0x2E7, sp68, 0x121, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E7, sp68, 0x121, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
         panelColor = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
         origin = func_002b2970(79.0f, 97.0f);
         fclSpriteReset(0x2E2, 0x193);
         sp60 = func_002b2970(origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        func_002b77d0(0x2E2, sp60, 0x193, func_002b2a60(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E2, sp60, 0x193, func_002b2a60(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
         fclSpriteSetFlag(0x2E2, 0xD, 0);
         fclSpriteReset(0x2E3, 0x19C);
         sp58 = func_002b2970(220.0f + origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        func_002b77d0(0x2E3, sp58, 0x19C, func_002b2a60(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E3, sp58, 0x19C, func_002b2a60(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
         fclSpriteSetFlag(0x2E3, 0xD, 0);
     }
 }
@@ -4808,21 +4808,21 @@ void fclCombineDrawRosterList(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
     spF8 = func_002b2970(390.0f, 127.0f);
     origin = *(FclVec2 *)&spF8;
     c13C = func_002b2a60(0, 0, 0x99, 0xFF);
-    func_002b77d0(0x21E, origin, 0x193, c13C, 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x21E, origin, 0x193, c13C, 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
     y = origin.y;
     spF0 = func_002b2970(151.0f + origin.x, y);
     c138 = func_002b2a60(0, 0, 0x99, 0xFF);
-    func_002b77d0(0x19D, spF0, 0x19D, c138, 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x19D, spF0, 0x19D, c138, 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
     y9 = 9.0f + y;
     spE8 = func_002b2970(24.0f + origin.x, y9);
     c134 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    func_002b77d0(0x2AF, spE8, 0x73, c134, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x2AF, spE8, 0x73, c134, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
     spE0 = func_002b2970(65.0f + origin.x, y9);
     c130 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
-    func_002b77d0(0x2B0, spE0, 0x73, c130, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x2B0, spE0, 0x73, c130, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
     spD8 = func_002b2970(119.0f + origin.x, 5.0f + y);
     c12C = func_002b2a60(0x33, 0xCD, 0xFF, 0xFF);
-    func_002b77d0(0x11D, spD8, 0x11D, c12C, 191.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x11D, spD8, 0x11D, c12C, 191.0f, 0x56, arg3, 6, 3, 0, func_00331560());
     fclCombineDrawHeaderPanel(arg0, 0, arg3);
     entry = *(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120);
     row = 0;
@@ -4844,9 +4844,9 @@ void fclCombineDrawRosterList(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
         if (*(s16 *)(t2 + 0x120) == (s8)row) {
             c128 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF);
         }
-        func_002b77d0((s8)row + 0x21F, cell, 0x193, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
+        fclSpriteStartShowHide((s8)row + 0x21F, cell, 0x193, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
         spC0 = func_002b2970(132.0f + cell.x, cell.y);
-        func_002b77d0((s8)row + 0x2C5, spC0, 0x19E, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
+        fclSpriteStartShowHide((s8)row + 0x2C5, spC0, 0x19E, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
     }
     sp108 = func_002b2970(535, 154.0f);
     fclCombineDrawSlotFrames(arg0, sp108, 0, arg3);

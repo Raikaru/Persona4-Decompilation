@@ -53,7 +53,7 @@ s32 datPersonaAddSkill(u8 *, u16);
 void ShdSkill_AddActiveSkill(u16, u8 *);
 void shdPersonaFillStatusBlock();
 u32 datPersonaGetExpForLevel(void *persona, u16 level);
-s32 datPersonaGetNextExp();
+s32 datPersonaGetExp();
 s32 datPersonaReplaceSkill(u8 *, s16, u16);
 void ShdSkill_ReplaceActiveSkill(u16, u16, u8 *);
 s32 shdPersonaDispCtlCreate(s32, s32, char *);
@@ -133,7 +133,7 @@ s32 shdPersonaCalcExpRemaining(u8 *arg0, s32 arg1)
         kAssertFail(D_005E4868, 0x65);
     }
     s17 = datPersonaGetExpForLevel(arg0, (u16)(s17 + 1));
-    r = s17 - datPersonaGetNextExp(arg0);
+    r = s17 - datPersonaGetExp(arg0);
     if (r < 0) {
         return 0;
     }
@@ -168,7 +168,7 @@ void shdPersonaFillStatusBlock(u8 *arg0, u8 *arg1, s32 arg2)
         if ((s32)b4 > 0x63) {
             kAssertFail(D_005E4868, 0x65);
         }
-        v2 = datPersonaGetExpForLevel(arg0, (b4 + 1) & 0xFFFF) - datPersonaGetNextExp(arg0);
+        v2 = datPersonaGetExpForLevel(arg0, (b4 + 1) & 0xFFFF) - datPersonaGetExp(arg0);
         if (v2 < 0) {
             v2 = 0;
         }
