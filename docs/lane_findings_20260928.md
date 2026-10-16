@@ -129,7 +129,7 @@ regression was exactly 594, and it is 595 once the symbol is defined.
   make b210 emit exactly retail's `bltz`/`srl`,`andi`,`or`/`cvt.s.w`/`add.s` and the
   `0x4F000000` threshold sequences. `func_002b89a0` matched by replacing an m2c-style
   expansion with plain casts. Grep guarded bodies for `2147483648`, `>> 1) |` and `0x80000000`
-  next to `(s32)`; `func_004b36b0` and `func_0021fea0` still contain them.
+  next to `(s32)`; `LineNovaUpdateCameraQuads` (was `func_004b36b0`) and `func_0021fea0` still contain them.
 - **A callee parameter's width decides argument emission order.** A byte loaded into an `s32`
   slot is hoisted before earlier loads; only a `u8` parameter keeps slot order. A callee that
   masks `& 0xFF` on entry can be re-typed `u8`/`u16` and stay MATCH (`func_0011de40`,

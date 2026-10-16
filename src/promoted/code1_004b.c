@@ -47,7 +47,7 @@ typedef struct {
     u8 c3;
 } Code1_004bColor;
 extern Code1_004bColor iGpffffbb64;
-extern void func_004b36b0(void);
+extern void LineNovaUpdateCameraQuads(void);
 extern void func_003efd20(u8 *arg0, s32 arg1);
 extern void func_003e9390(s32 arg0);
 extern void func_003ec330(s32 arg0);
@@ -1059,7 +1059,7 @@ void func_004b3260(u8 *arg0) {
         *(Code1_004bColor *)(dst + 4) = iGpffffbb64;
         iGpffffbb64.c3 = 0xFF;
     }
-    *(void (**)(void))(temp_2 + 0x20) = func_004b36b0;
+    *(void (**)(void))(temp_2 + 0x20) = LineNovaUpdateCameraQuads;
     *(u8 **)(temp_2 + 0x28) = arg0;
 }
 // FUN_004B4EA0
@@ -1077,7 +1077,7 @@ void func_004b4ea0(u8 *arg0)
 void *func_004b4f10(void *opaqueSource)
 {
     u8 *arg0 = opaqueSource;
-    return func_004b4cb0(*(u16 *)(arg0 + 0x18), *(u8 **)(arg0 + 0x24));
+    return LineNovaCreateKindInstance(*(u16 *)(arg0 + 0x18), *(u8 **)(arg0 + 0x24));
 }
 // FUN_004B4F40
 void func_004b4f40(u8 *arg0)
