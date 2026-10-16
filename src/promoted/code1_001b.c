@@ -207,7 +207,6 @@ extern BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void func_001b08f0(void *arg0);
 extern void btlCameraReleaseActionRefs(u8 *arg0);
-extern void datUnitRemoveEncounterUnit(DatUnitEc *arg0, DatUnit *arg1);
 extern void btlCameraSuppressEncounterCallback(void);
 extern u8 *datUnitGetRecord(s16 arg0);
 extern void btlPanelReset(s32 arg0);
@@ -302,6 +301,7 @@ extern u8 *btlActionFindByUnit(s32 arg0);
 
 #include "btl_camera_sequence_internal.h"
 #include "datPersona_internal.h"
+#include "datUnit_internal.h"
 
 typedef struct BtlCameraColorReal {
     f32 red, green, blue, alpha;

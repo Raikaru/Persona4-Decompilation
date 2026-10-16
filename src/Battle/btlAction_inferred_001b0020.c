@@ -14,6 +14,7 @@
 #include "btl_target_state_packet_internal.h"
 #include "btl_packet_create_internal.h"
 #include "btl_formation_internal.h"
+#include "datUnit_internal.h"
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;
@@ -71,7 +72,6 @@ extern BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void func_001b08f0(void *arg0);
 extern void btlCameraReleaseActionRefs(u8 *arg0);
-extern void datUnitRemoveEncounterUnit(DatUnitEc *arg0, DatUnit *arg1);
 extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
 extern void datCalcClearAllBuffs(u8 *arg0);
 extern u8 D_0060A0E0[];
