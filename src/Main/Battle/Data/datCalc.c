@@ -1697,16 +1697,16 @@ u8 arg7;
     switch ((u32)arg7) {
     case 1:
         record = (u8 *)PTDatCalcOffsetAdd(((u32)arg0 % 0x10000U) * 0x28, (u32)iGpffffb3b8);
-        power = *(s16 *)(record + 0x12);
-        effect = record[0x11];
+        power = ((DatSkillEntry *)record)->power;
+        effect = ((DatSkillEntry *)record)->effectKind;
         bonus = 0;
         current = *(u16 *)(arg2 + 8);
         maximum = datCalcMaxHp((DatUnit *)arg2);
         break;
     case 2:
         record = (u8 *)PTDatCalcOffsetAdd(((u32)arg0 % 0x10000U) * 0x28, (u32)iGpffffb3b8);
-        power = *(s16 *)(record + 0x16);
-        effect = record[0x14];
+        power = ((DatSkillEntry *)record)->spPower;
+        effect = ((DatSkillEntry *)record)->spEffectKind;
         bonus = 0;
         current = *(u16 *)(arg2 + 10);
         maximum = datCalcMaxSp((DatUnit *)arg2);
