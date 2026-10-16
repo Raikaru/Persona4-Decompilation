@@ -1,6 +1,7 @@
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
 #include "field_event_internal.h"
+#include "field_frame_internal.h"
 #include "model_motion_internal.h"
 /* Original translation unit k_fldEvent.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
@@ -465,7 +466,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                 if (*(s32 *)(s2 + 0x288) != 0) {
                     fclMiscStopAndClose();
                     fclMiscSetDoneFlag();
-                    FldFrameObjSetActive(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 1);
+                    FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
                     t2 = *(s32 *)(*(u8 **)(h + 0x20) + 0x28C);
                     *(s32 *)(h + 0x10) = scrStartProcedureChecked(
                         0xF, *(s32 *)(*(u8 **)(h + 0x20) + 0x288), t2, 1);
@@ -483,7 +484,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                 FldNpcControlTurnBack(v);
             }
             FldNpcSetPositionLock(*(s32 *)(*(u8 **)(h + 0x20) + 0x294), 0);
-            FldFrameObjSetActive(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 0);
+            FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 0);
             FldSlotBroadcastState(0);
             (*(s32 *)(h + 4))++;
         }
@@ -526,12 +527,12 @@ s32 FldEvent_SelectEntryAtPosition(u8 *arg0)
             return 0;
         }
         if ((u32)index >=
-            *(u32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x18D8)) {
+            ((FldFrame *)MT_Scene_GetFrameState())->eventCount) {
             kAssertFail(D_005F1798, 0x454);
         }
 
         id = *(u16 *)(h + 0x2C);
-        entry = *(u8 **)((u8 *)(s32)MT_Scene_GetFrameState() + 0x18DC) +
+        entry = ((FldFrame *)MT_Scene_GetFrameState())->eventTable +
                 (id & 0x3FF) * 0x2C;
         if ((entry[0xD] == 1 || entry[0xD] == 3) &&
             *(u16 *)(h + 0x2E) == id) {
@@ -678,7 +679,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
         FldSlotBroadcastState(1);
         break;
     case 1:
-        MT_Scene_BeginValueStep(*(u8 **)(s32)MT_Scene_GetFrameState(), FLD_EVT_ENTRY(h)->unk12, FLD_EVT_ENTRY(h)->unk14,
+        MT_Scene_BeginValueStep(((FldFrame *)MT_Scene_GetFrameState())->loadTask, FLD_EVT_ENTRY(h)->unk12, FLD_EVT_ENTRY(h)->unk14,
                       FLD_EVT_ENTRY(h)->unk16);
         *(s32 *)(h + 0x10) = 0;
         *(s32 *)(h + 4) = 2;
@@ -689,7 +690,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
         if (kwlnTaskIsLinked((void *)(*(s32 *)(h + 0x10))) == 1) {
             break;
         }
-        FldFrameObjSetActive(*(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1C), 0);
+        FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 0);
         FldSlotBroadcastState(0);
         *(s32 *)(h + 0x10) = 0;
         *(s32 *)(h + 4) = 4;
@@ -1019,7 +1020,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                                 cameraTarget.y += 100.0f;
                                 FldRc_RequestPositionSlot((u8 *)(FldStepFileTask(0)), (f32 *)(&cameraTarget));
                                 FldSlotBroadcastState(1);
-                                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 1);
+                                FldUnit_SetMode(((FldFrame *)MT_Scene_GetFrameState())->unitTask, 1);
                                 work->state = 4;
                             }
                         }
@@ -1145,7 +1146,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                             work->battle.roomId = 1;
                         }
                     }
-                    FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 1);
+                    FldUnit_SetMode(((FldFrame *)MT_Scene_GetFrameState())->unitTask, 1);
                     hFadeTaskStart(0);
                     sdkSndStartStream(0, 0xA, 3, 0);
                     datEntryDrawGatedByFlag39(3, 0xFF, 3, 0);
@@ -1190,7 +1191,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         work->battle.roomId = 1;
                     }
                 }
-                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 1);
+                FldUnit_SetMode(((FldFrame *)MT_Scene_GetFrameState())->unitTask, 1);
                 hFadeTaskStart(0);
                 sdkSndStartStream(0, 0xA, 3, 0);
                 work->state = 5;
@@ -1213,30 +1214,30 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 work->environmentFog = iGpffffba6c;
                 if (FldUnit_AllSlotsReady() != 0) {
                     func_0015a7c0(FldStepIndex());
-                    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) != 0) {
-                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C)));
-                        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) = 0;
+                    if (((FldFrame *)MT_Scene_GetFrameState())->noiseTask != 0) {
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(((FldFrame *)MT_Scene_GetFrameState())->noiseTask));
+                        ((FldFrame *)MT_Scene_GetFrameState())->noiseTask = 0;
                     }
-                    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0) {
-                        FldPanel2dSetState((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30)), 1);
+                    if (((FldFrame *)MT_Scene_GetFrameState())->panelTask != 0) {
+                        FldPanel2dSetState(((FldFrame *)MT_Scene_GetFrameState())->panelTask, 1);
                     }
                     fclMiscStopAndClose();
                     fclMiscSetDoneFlag();
-                    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) != 0) {
-                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C)));
-                        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) = 0;
+                    if (((FldFrame *)MT_Scene_GetFrameState())->supporterTask != 0) {
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(((FldFrame *)MT_Scene_GetFrameState())->supporterTask));
+                        ((FldFrame *)MT_Scene_GetFrameState())->supporterTask = 0;
                     }
                     FldStepSetPresentFlag(0);
                     calendarSetMode(0);
-                    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4) != 0) {
-                        FldEventSnapshotCapture(&snapshot, (u8 *)*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4));
+                    if (((FldFrame *)MT_Scene_GetFrameState())->cameraTask != 0) {
+                        FldEventSnapshotCapture(&snapshot, ((FldFrame *)MT_Scene_GetFrameState())->cameraTask);
                         work->snapshot = snapshot;
-                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4)));
-                        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4) = 0;
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(((FldFrame *)MT_Scene_GetFrameState())->cameraTask));
+                        ((FldFrame *)MT_Scene_GetFrameState())->cameraTask = 0;
                     }
-                    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0) {
-                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18)));
-                        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) = 0;
+                    if (((FldFrame *)MT_Scene_GetFrameState())->smapObject != 0) {
+                        kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(((FldFrame *)MT_Scene_GetFrameState())->smapObject));
+                        ((FldFrame *)MT_Scene_GetFrameState())->smapObject = 0;
                     }
                     if (work->fieldEffect != 0) {
                         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(work->fieldEffect));
@@ -1320,14 +1321,14 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     }
                 }
                 {
-                    s32 v6 = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState());
-                    FldResource_OpenPrimaryFile(v6, FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
+                    s32 v6 = FldLoadTaskFieldId(((FldFrame *)MT_Scene_GetFrameState())->loadTask);
+                    FldResource_OpenPrimaryFile(v6, FldLoadTaskRoomId(((FldFrame *)MT_Scene_GetFrameState())->loadTask));
                 }
                 if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
                     work->unitState = FldUnit_GetActiveCount();
                     FldUnit_ReleaseAllSlots();
-                    kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)));
-                    *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20) = 0;
+                    kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(((FldFrame *)MT_Scene_GetFrameState())->unitTask));
+                    ((FldFrame *)MT_Scene_GetFrameState())->unitTask = 0;
                 } else {
                     FldUnit_StartSlotAnims();
                 }
@@ -1339,18 +1340,18 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 s32 v6;
                 s32 a;
                 s32 b;
-                a = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState());
-                work->fieldTask = (s32)FldHbnOpenTable(a, FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
-                work->environmentTask = (s32)FldHbnOpenScript(FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
+                a = FldLoadTaskFieldId(((FldFrame *)MT_Scene_GetFrameState())->loadTask);
+                work->fieldTask = (s32)FldHbnOpenTable(a, FldLoadTaskRoomId(((FldFrame *)MT_Scene_GetFrameState())->loadTask));
+                work->environmentTask = (s32)FldHbnOpenScript(FldLoadTaskFieldId(((FldFrame *)MT_Scene_GetFrameState())->loadTask));
                 {
                     u32 _p88 = D_00762EA0;
                     *(s32 *)(_p88 + 0x88) = *(s32 *)(_p88 + 0x88) | 0x80000000;
                 }
-                b = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
-                fieldSceneLoad(b, FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF);
-                fieldSceneRequestRoom((s16)FldLoadTaskMapState(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
-                fieldSceneRequestSecondaryRoom((s64)(s16)FldEnvStateFromCalendar(FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()), FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState())));
-                v6 = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
+                b = FldLoadTaskFieldId(((FldFrame *)MT_Scene_GetFrameState())->loadTask) & 0xFFFF;
+                fieldSceneLoad(b, FldLoadTaskRoomId(((FldFrame *)MT_Scene_GetFrameState())->loadTask) & 0xFFFF);
+                fieldSceneRequestRoom((s16)FldLoadTaskMapState(((FldFrame *)MT_Scene_GetFrameState())->loadTask));
+                fieldSceneRequestSecondaryRoom((s64)(s16)FldEnvStateFromCalendar(FldLoadTaskFieldId(((FldFrame *)MT_Scene_GetFrameState())->loadTask), FldLoadTaskRoomId(((FldFrame *)MT_Scene_GetFrameState())->loadTask)));
+                v6 = FldLoadTaskFieldId(((FldFrame *)MT_Scene_GetFrameState())->loadTask) & 0xFFFF;
                 if (v6 == 0x2C) goto loadFieldModel;
                 if (v6 == 0x2E) goto loadFieldModel;
                 if (v6 == 0x2F) goto loadFieldModel;
@@ -1394,34 +1395,34 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 s32 t13;
                 u8 *res;
                 FldStepSetPresentFlag(1);
-                t10 = FldNoiseTaskCreate(*(u8 **)(u8 *)MT_Scene_GetFrameState());
-                *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) = t10;
-                if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0) {
-                    FldPanel2dSetState((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30)), 0);
+                t10 = FldNoiseTaskCreate(((FldFrame *)MT_Scene_GetFrameState())->loadTask);
+                ((FldFrame *)MT_Scene_GetFrameState())->noiseTask = (u8 *)t10;
+                if (((FldFrame *)MT_Scene_GetFrameState())->panelTask != 0) {
+                    FldPanel2dSetState(((FldFrame *)MT_Scene_GetFrameState())->panelTask, 0);
                 }
                 calendarSetMode(1);
                 FldUnit_UpdateSlots(1);
                 FldUnit_UpdateSlotModels();
                 FldUnit_UpdateAllEnemySlots();
-                FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 0);
-                t11 = FldCameraTaskCreate(*(s32 *)(u8 *)MT_Scene_GetFrameState());
-                *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4) = t11;
-                FldCameraApplyRecord((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4)), (u8 *)(&work->snapshot));
+                FldUnit_SetMode(((FldFrame *)MT_Scene_GetFrameState())->unitTask, 0);
+                t11 = FldCameraTaskCreate((s32)((FldFrame *)MT_Scene_GetFrameState())->loadTask);
+                ((FldFrame *)MT_Scene_GetFrameState())->cameraTask = (u8 *)t11;
+                FldCameraApplyRecord(((FldFrame *)MT_Scene_GetFrameState())->cameraTask, (u8 *)(&work->snapshot));
                 {
                     s32 *field = MT_Scene_GetFrameState();
                     u32 _pA04 = D_007EFA04[0];
-                    FldFrame_BindTypedRes((u8 *)field[1], *(u16 *)(_pA04));
+                    FldFrame_BindTypedRes(((FldFrame *)field)->cameraTask, *(u16 *)(_pA04));
                 }
                 work->resource = (u8 *)MT_Scene_GetRes(0x400);
                 res = work->resource;
                 work->fieldEffect = FldEvent_SpawnMover(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x8), *(s32 *)(res + 0x220), *(s32 *)(res + 0x164));
-                t12 = (s32)smapCreateSymbols((u8 *)(*(s32 *)(u8 *)MT_Scene_GetFrameState()));
-                *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) = t12;
+                t12 = (s32)smapCreateSymbols(((FldFrame *)MT_Scene_GetFrameState())->loadTask);
+                ((FldFrame *)MT_Scene_GetFrameState())->smapObject = (u8 *)t12;
                 ySymbolSetEnabled(1);
                 sndPlayAreaCue();
                 if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
-                    t13 = FldUnit_SpawnEncounterTask((u8 *)(*(s32 *)(u8 *)MT_Scene_GetFrameState()), work->unitState);
-                    *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20) = t13;
+                    t13 = FldUnit_SpawnEncounterTask(((FldFrame *)MT_Scene_GetFrameState())->loadTask, work->unitState);
+                    ((FldFrame *)MT_Scene_GetFrameState())->unitTask = (u8 *)t13;
                 }
                 kwlnSetColorRgba(work->viewColor.r, work->viewColor.g, work->viewColor.b, 0);
                 iGpffffba4c = work->environmentColor.r;
@@ -1451,7 +1452,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             }
             goto running;
         case 16:
-            if (FldUnit_IsSettled((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20))) != 0) {
+            if (FldUnit_IsSettled(((FldFrame *)MT_Scene_GetFrameState())->unitTask) != 0) {
                 func_00122640(1, 0);
                 work->state = work->state + 1;
             }
@@ -1479,9 +1480,9 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
         case 99:
             goto running;
         case 100:
-            if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) == 0) {
-                s32 v = FldSupporterTaskCreate(*(s32 *)(u8 *)MT_Scene_GetFrameState());
-                *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C) = v;
+            if (((FldFrame *)MT_Scene_GetFrameState())->supporterTask == 0) {
+                s32 v = FldSupporterTaskCreate((s32)((FldFrame *)MT_Scene_GetFrameState())->loadTask);
+                ((FldFrame *)MT_Scene_GetFrameState())->supporterTask = (u8 *)v;
             }
             return 0;
         }
@@ -1568,8 +1569,8 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
             if (v == FldMoveAnimPrimary(1) || v == FldMoveAnimSecondary(1)) {
                 mdlDispatchAnimIfPresent((u8*)D_007EFA00[0], 0, (s16)FldCharacterAnimSelect(1), 4, 1);
             }
-            if (*(s32 *)((s32)MT_Scene_GetFrameState() + 4) != 0) {
-                FldFrame_SetStateFlags(*(s32 *)((s32)MT_Scene_GetFrameState() + 4), 2);
+            if (((FldFrame *)MT_Scene_GetFrameState())->cameraTask != 0) {
+                FldFrame_SetStateFlags((s32)((FldFrame *)MT_Scene_GetFrameState())->cameraTask, 2);
             }
             *(s32 *)(h + 0x134) = 0;
             *(s32 *)(h + 0x14) = 0;
@@ -1580,8 +1581,8 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
         }
     case 1:
         if (((s32 (*)(u8 *))D_005F17D4[*(s32 *)(h + 0xC) * 2])(arg0) != 1) {
-            if (*(s32 *)((s32)MT_Scene_GetFrameState() + 4) != 0) {
-                FldFrame_ClearStateFlags(*(s32 *)((s32)MT_Scene_GetFrameState() + 4), 2);
+            if (((FldFrame *)MT_Scene_GetFrameState())->cameraTask != 0) {
+                FldFrame_ClearStateFlags((s32)((FldFrame *)MT_Scene_GetFrameState())->cameraTask, 2);
             }
             *(s32 *)(h + 0xC) = -1;
             *(s32 *)h = 0;
@@ -1825,20 +1826,20 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     camera.z = (f32)D_008C025F[0] - 128.0f;
     camera.x = (f32)D_008C025E[0] - 128.0f;
     if (D_008C024C[0] & 8) {
-        if (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7) {
+        if (FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 0 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 6 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 7) {
             f20 = -iGpffffb288;
             if (datGetFlag(0x3E) == 1) {
                 f20 *= -1.0f;
             }
         }
-    } else if ((D_008C024C[0] & 4) && (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7)) {
+    } else if ((D_008C024C[0] & 4) && (FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 0 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 6 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 7)) {
         f20 = iGpffffb288;
         if (datGetFlag(0x3E) == 1) {
             f20 *= -1.0f;
         }
     }
     if (D_008C024E[0] & 2) {
-        if (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7) {
+        if (FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 0 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 6 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 7) {
             f32 a;
             f32 b;
             f32 rounded;
@@ -1865,7 +1866,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
             }
         }
     } else if (D_008C024E[0] & 1) {
-        if (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7) {
+        if (FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 0 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 6 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 7) {
             f32 add;
             f21 = 45.0f;
             if (datGetFlag(0x3E) == 1) {
@@ -1882,7 +1883,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
             *(u8 **)(h + 0x138) = FldFrameRotateTaskCreate(arg0, 5, (s32)add);
         }
     } else if (camera.x < -48.0f) {
-        if (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7) {
+        if (FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 0 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 6 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 7) {
             f32 scale = DAT_00761640 * -iGpffffb288;
             f20 = scale * (camera.x / -128.0f);
             if (datGetFlag(0x3E) == 1) {
@@ -1890,7 +1891,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
             }
         }
     } else if (!(camera.x <= 48.0f)) {
-        if (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7) {
+        if (FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 0 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 6 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 7) {
             f32 scale = DAT_00761640;
 
             scale *= iGpffffb288;
@@ -1901,8 +1902,8 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
         }
     }
     if (f20 != 0.0f) {
-        FldCameraSetDistance(*(u8 **)((s32)MT_Scene_GetFrameState() + 4), f20);
-    } else if ((D_008C024E[0] & 0x20) && (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7)) {
+        FldCameraSetDistance(((FldFrame *)MT_Scene_GetFrameState())->cameraTask, f20);
+    } else if ((D_008C024E[0] & 0x20) && (FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 0 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 6 || FldFrame_GetStatus(((FldFrame *)MT_Scene_GetFrameState())->cameraTask) == 7)) {
         *(u8 **)(h + 0x138) = FldFrame_RotateTaskCreate(arg0, 5, -1);
     }
     if (move.z < -48.0f) {
