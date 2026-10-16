@@ -54,7 +54,7 @@ extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaGetLevel(s32 arg0);
 extern u32 datGetMoney(void);
 extern u8 *datUnitGetRecord(s32 arg0);
-extern u8 datCalcGetBattleStat(u8 *arg0, s32 arg1);
+extern u8 datCalcGetBattleStat(DatUnit *arg0, s32 arg1);
 /* Defined below in this file; used before its definition. */
 extern u16 func_002439c0(u8 *arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
@@ -91,7 +91,7 @@ extern u8 *iGpffffb3cc;
 extern void datCalcSetBuffLevel(u8 *arg0, u8 arg1, s32 arg2);
 extern void datCalcSetSecondaryBuffLevel(u8 *arg0, u8 arg1, s8 arg2);
 
-extern u8 datCalcGetUnitStat(u8 *arg0, s32 arg1);
+extern u8 datCalcGetUnitStat(DatUnit *arg0, s32 arg1);
 extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
@@ -607,7 +607,7 @@ s32 datCalcIsFlaggedPersonaSkill(s32 arg0)
    object 296B/304B. Committed at nd 0. */
 // Intent: stat arg1 (0..4) of unit arg0 clamped to 1..99; fatal when arg1 >= 5.
 // FUN_00232B40
-u8 datCalcGetUnitStat(u8 *arg0, s32 arg1)
+u8 datCalcGetUnitStat(DatUnit *arg0, s32 arg1)
 {
     s32 temp;
     u8 value;
@@ -616,8 +616,8 @@ u8 datCalcGetUnitStat(u8 *arg0, s32 arg1)
 
     if ((s32)(arg1 & 0xFFFF) < 0 || (s32)(arg1 & 0xFFFF) >= 5)
         kAssertFail(D_00635938, 0x2F0);
-    temp = *(u16 *)(arg0 + 2);
-    if ((*(u16 *)arg0 & 4) != 0) {
+    temp = arg0->id;
+    if ((arg0->flags & 4) != 0) {
         if ((u16)temp >= 0x150)
             kAssertFail(D_00635938, 0x2F7);
         base = (u8 *)iGpffffb3c4;
@@ -648,7 +648,7 @@ done_value:
    `(u32)v >> 1` adds; `<= 0x63` before the goto gives the slti $at form. */
 // Intent: battle stat arg1 (0..4) of unit arg0: from its table row for flag-4 units, else from its persona record; fatal when arg1 >= 5.
 // FUN_00232C70
-u8 datCalcGetBattleStat(u8 *arg0, s32 arg1)
+u8 datCalcGetBattleStat(DatUnit *arg0, s32 arg1)
 {
     u8 v;
     s32 temp_3;
@@ -657,17 +657,17 @@ u8 datCalcGetBattleStat(u8 *arg0, s32 arg1)
     if (((s32)(arg1 & 0xFFFF) < 0) || ((arg1 & 0xFFFF) >= 5)) {
         kAssertFail(D_00635938, 0x313);
     }
-    if ((*(u16 *)arg0 & 4) != 0) {
+    if ((arg0->flags & 4) != 0) {
         v = (u32)datCalcGetUnitStat(arg0, arg1);
         v &= 0xFF;
     } else {
-        if (*(u16 *)(arg0 + 2) >= 0xB) {
+        if (arg0->id >= 0xB) {
             kAssertFail(D_00635938, 0x31A);
         }
-        v = (u32)datPersonaGetTotalStatById(*(u16 *)(arg0 + 2), arg1);
+        v = (u32)datPersonaGetTotalStatById(arg0->id, arg1);
         v &= 0xFF;
     }
-    flag = (*(s32 *)(arg0 + 0xC) & 0x80) != 0;
+    flag = (arg0->bad & 0x80) != 0;
     if (!flag) {
         goto no_shift;
     }
@@ -2157,7 +2157,7 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
        prototype other units use (see datScript.c), so the u8 return of
        datCalcGetBattleStat is not re-masked here; a block-scope declaration
        reproduces that split inside the merged unit. */
-    extern u32 datCalcGetBattleStat(u8 *arg0, s32 arg1);
+    extern u32 datCalcGetBattleStat(DatUnit *arg0, s32 arg1);
     f32 var_2;
     f32 var_f0;
     f32 var_f0_2;
@@ -2206,7 +2206,7 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
         }
         var_f1_2 = (f32)var_16;
         var_f20 = 4.0f + (var_f1_2 / 5.0f);
-        temp_2_3 = datCalcGetBattleStat(arg1, 4);
+        temp_2_3 = datCalcGetBattleStat((DatUnit *)arg1, 4);
         var_f0 = (f32)temp_2_3;
         var_f20 = var_f21 / (var_f0 / var_f20);
     } else {
@@ -2225,7 +2225,7 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
         }
         var_f1_3 = (f32)var_18;
         var_f20 = 4.0f + (var_f1_3 / 5.0f);
-        temp_2_6 = datCalcGetBattleStat(temp_2_4, 4);
+        temp_2_6 = datCalcGetBattleStat((DatUnit *)temp_2_4, 4);
         var_f0_2 = (f32)temp_2_6;
         var_f20 = var_f0_2 / var_f20;
         var_f0_3 = (f32)func_002439c0(arg1);
