@@ -104,8 +104,8 @@ void func_0015fb00(u8 *arg0, s32 arg1)
     extern s32 MT_Scene_CreatePointRes17(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 MT_Scene_CreatePointRes18(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 MT_Scene_CreatePointRes19(u16 arg0, f32 *arg1, f32 fparg0);
-    extern s32 func_0014a200(void);
-    extern s32 func_0014a270(void);
+    extern s32 FldMap_IsCurrentInBandA(void);
+    extern s32 FldMap_IsCurrentInBandB(void);
     u8 *r13;
     u32 c1;
     u8 *r2;
@@ -123,7 +123,7 @@ void func_0015fb00(u8 *arg0, s32 arg1)
             r13 = arg0 + 0x48;
         }
         for (c1 = 0; c1 < *(u32 *)(arg0 + 8);) {
-            if ((((func_0014a200() == 0) && (func_0014a270() == 0)) || (arg1 == 1)) && ((arg1 != 1) || (((*(u16 *)r13 & 0x3FF) != 0x3FE) && ((*(u16 *)r13 & 0x3FF) != 0x3FF)))) {
+            if ((((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (arg1 == 1)) && ((arg1 != 1) || (((*(u16 *)r13 & 0x3FF) != 0x3FE) && ((*(u16 *)r13 & 0x3FF) != 0x3FF)))) {
                 MT_Scene_CreateFldHitLight(*(u16 *)r13 & 0x3FF, (f32 *)(r13 + 8), *(f32 *)(r13 + 0x14), *(f32 *)(r13 + 0x18), *(f32 *)(r13 + 0x1C), *(FieldRgba8 *)(r13 + 4));
             }
             c1++;
@@ -131,20 +131,20 @@ void func_0015fb00(u8 *arg0, s32 arg1)
         }
         r2 = r13;
         for (c2 = 0; c2 < *(u32 *)(arg0 + 0x10);) {
-            if ((((func_0014a200() == 0) && (func_0014a270() == 0)) || (arg1 == 1)) && ((arg1 != 1) || ((*(u16 *)r2 & 0x3FF) != 0x3FF))) {
+            if ((((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (arg1 == 1)) && ((arg1 != 1) || ((*(u16 *)r2 & 0x3FF) != 0x3FF))) {
                 MT_Scene_CreatePointRes14(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
             }
             c2++;
             r2 += 0x14;
         }
-        if (((func_0014a200() == 0) && (func_0014a270() == 0)) || (((func_0014a270() == 1) && (arg1 == 1)))) {
+        if (((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (((FldMap_IsCurrentInBandB() == 1) && (arg1 == 1)))) {
             for (c2 = 0; c2 < *(u32 *)(arg0 + 0x18);) {
                 MT_Scene_CreatePointRes15(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
                 c2++;
                 r2 += 0x14;
             }
         }
-        if (((func_0014a200() == 0) && (func_0014a270() == 0)) || (arg1 == 1)) {
+        if (((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0)) || (arg1 == 1)) {
             for (c3 = 0; c3 < *(u32 *)(arg0 + 0x20);) {
                 MT_Scene_CreatePointRes16(*(u16 *)r2 & 0x3FF, (f32 *)(r2 + 4), *(f32 *)(r2 + 0x10));
                 c3++;

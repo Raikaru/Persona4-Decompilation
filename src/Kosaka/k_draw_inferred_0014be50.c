@@ -284,10 +284,10 @@ extern f32 D_008872F8[];
 /* measured: loop-invariant constants probe for resrcMngSetDrawEnabled. */
 /* measured: closes loop-invariant constants probe for resrcMngSetDrawEnabled. */
 /* measured: closes opt_rebuildconditionals for resrcMngSetDrawEnabled. */
-/* measured: opt_rebuildconditionals off is scoped to func_0014a160. */
-/* measured: closes opt_rebuildconditionals for func_0014a160. */
-/* measured: opt_rebuildconditionals off is scoped to func_0014a190. */
-/* measured: closes opt_rebuildconditionals for func_0014a190. */
+/* measured: opt_rebuildconditionals off is scoped to FldMap_IsCurrentInEitherBand. */
+/* measured: closes opt_rebuildconditionals for FldMap_IsCurrentInEitherBand. */
+/* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
+/* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
 /* 416/416 bytes; eight resolved relocations, no tail or overrun.
  * D_005EFB98 is one 12-byte (0,1,0) vector, not separate XY/Z objects.
  * Its aggregate copy preserves the grouped retail load/store schedule.
@@ -305,7 +305,7 @@ u16 func_0014be50(u8 *arg0, u8 **arg1) {
 
     selectedId = 0xFFFF;
     surface = (u8 *)(MT_Scene_GetResListHead(0xD));
-    if (func_0014a200() == 1) {
+    if (FldMap_IsCurrentInBandA() == 1) {
         return 0xFFFFU;
     }
     while (surface != NULL) {

@@ -294,13 +294,13 @@ extern s32 datCalcGetLevelById(s32 work);
 /* measured: closes loop-invariant constants probe for resrcMngSetDrawEnabled. */
 /* measured: closes opt_rebuildconditionals for resrcMngSetDrawEnabled. */
 
-/* measured: opt_rebuildconditionals off is scoped to func_0014a160. */
+/* measured: opt_rebuildconditionals off is scoped to FldMap_IsCurrentInEitherBand. */
 
-/* measured: closes opt_rebuildconditionals for func_0014a160. */
+/* measured: closes opt_rebuildconditionals for FldMap_IsCurrentInEitherBand. */
 
-/* measured: opt_rebuildconditionals off is scoped to func_0014a190. */
+/* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
 
-/* measured: closes opt_rebuildconditionals for func_0014a190. */
+/* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
 
 /* Source unit: src/promoted/code1_0014.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 0014c540-0014d4e0 */

@@ -68,13 +68,13 @@ extern s32 iGpffffb300;
 extern s32 iGpffffb304;
 extern u8 gMtScene[];
 extern u8 *iGpffff9db0;
-extern s32 func_0014a200(void);
-extern s32 func_0014a270(void);
+extern s32 FldMap_IsCurrentInBandA(void);
+extern s32 FldMap_IsCurrentInBandB(void);
 extern s32 func_00170f60(u8 *arg0, s32 arg1);
 extern s32 D_007EF9F8[];
 extern u32 D_007EFA04[];
 extern u8 D_007EF9B0[];
-extern s32 func_0014a160(void);
+extern s32 FldMap_IsCurrentInEitherBand(void);
 extern s32 func_0015a100(void);
 extern s32 func_0015a130(void);
 extern void func_0015a7c0(s32 arg0);
@@ -424,7 +424,7 @@ s32 func_00170f60(u8 *arg0, s32 arg1)
 
     var_17 = 0;
     var_16 = MT_Scene_GetResListHead(0xD);
-    if ((func_0014a200() == 0) && (func_0014a270() == 0))
+    if ((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0))
         return 0;
     temp_2 = mdlGetMatrix(*(u8 **)(arg0 + 0x50));
     sp70 = *(Vec3_00178590 *)(temp_2 + 0x30);
@@ -488,7 +488,7 @@ s32 func_001711b0(u8 *arg0)
     u8 *temp_16;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
-    if ((func_0014a200() == 0) && (func_0014a270() == 0))
+    if ((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0))
         return 0;
     var_2 = D_007EF9F8[0] != 0;
     if (var_2 != 0)
@@ -516,7 +516,7 @@ s32 func_00171280(u8 *arg0)
     state = *(s32 *)(temp_16 + 4);
     switch (state) {
     case 0:
-        if (func_0014a160() == 1)
+        if (FldMap_IsCurrentInEitherBand() == 1)
             func_0015a7c0(func_0015a160());
         func_002bd410();
         func_002bd3c0();
@@ -549,7 +549,7 @@ s32 func_001713e0(u8 *arg0)
     u8 *temp_16;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
-    if ((func_0014a200() == 0) && (func_0014a270() == 0))
+    if ((FldMap_IsCurrentInBandA() == 0) && (FldMap_IsCurrentInBandB() == 0))
         return 0;
     var_2 = D_007EF9F8[0] != 0;
     if (var_2 != 0)
@@ -577,7 +577,7 @@ s32 func_001714b0(u8 *arg0)
     state = *(s32 *)(temp_16 + 4);
     switch (state) {
     case 0:
-        if (func_0014a160() == 1)
+        if (FldMap_IsCurrentInEitherBand() == 1)
             func_0015a7c0(func_0015a160());
         func_002bd410();
         func_002bd3c0();

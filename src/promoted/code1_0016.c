@@ -150,7 +150,7 @@ typedef struct F8060Frame
     RwV3d sp90;
 } F8060Frame;
 
-extern s32 func_0014a200(void);
+extern s32 FldMap_IsCurrentInBandA(void);
 extern s32 FldFrame_RaycastFieldWorlds(RwV3d *arg0, RwV3d *arg1, f32 fparg0,
                          u16 arg2);
 extern void func_001823d0(s32 arg0, u16 arg1, u16 arg2);

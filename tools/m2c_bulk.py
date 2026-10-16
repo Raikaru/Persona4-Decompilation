@@ -4860,7 +4860,7 @@ def normalize_compile_error_repair(
     elif address == 0x00172CB0:
         body = re.sub(
             r"(?m)^\s*if .*func_001823c0.*$",
-            "    if ((func_0014a160() == 1) && "
+            "    if ((FldMap_IsCurrentInEitherBand() == 1) && "
             "(*func_001823c0() != NULL)) {",
             body,
             count=1,

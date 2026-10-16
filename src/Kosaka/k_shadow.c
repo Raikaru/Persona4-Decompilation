@@ -587,7 +587,7 @@ void FldShadow_UpdateSceneShadow(u8 *unused, u8 *state)
         scaledHeight = iGpffff826c * height;
         func_003e81c0(camera, 10.0f * scaledHeight);
         func_003e8180(camera, iGpffff8214 * scaledHeight);
-        if (func_0014a160() == 1) {
+        if (FldMap_IsCurrentInEitherBand() == 1) {
             viewWindow[0] = 2.0f * (iGpffff826c * height);
             viewWindow[1] = viewWindow[0];
         } else {
@@ -721,7 +721,7 @@ void FldShadow_UpdateModelShadow(u8 *unused, u8 *state)
         scaledHeight = iGpffff826c * height;
         func_003e81c0(camera, 10.0f * scaledHeight);
         func_003e8180(camera, iGpffff8214 * scaledHeight);
-        if (func_0014a160() == 1) {
+        if (FldMap_IsCurrentInEitherBand() == 1) {
             viewWindow[0] = 2.0f * (iGpffff826c * height);
             viewWindow[1] = viewWindow[0];
         } else {
@@ -823,7 +823,7 @@ void FldShadow_DrawBlobModel(u8 *packet, s32 stateAddress, void *callbackSelf)
 s32 FldShadow_CasterStep(u8 *arg0)
 {
     extern u8 *MT_Scene_GetResListHead(s32);
-    extern s32 func_0014a160(void);
+    extern s32 FldMap_IsCurrentInEitherBand(void);
     extern s32 func_001623f0(void);
     extern u8 *func_00460990(void);
     extern void func_00460a80(void *, s32);
@@ -866,7 +866,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
                 *(u8 **)(work + 0x10) = list1;
                 func_00460ac0(state + 4, work);
                 if (*(s32 *)(*(u8 **)(*(u8 **)(list1 + 0x224) + 0x38)) > 0) {
-                    if (func_0014a160() == 1 || func_001623f0() == 1) {
+                    if (FldMap_IsCurrentInEitherBand() == 1 || func_001623f0() == 1) {
                         i = 0;
                         while (i < 5) {
                             p = *(u8 **)(list1 + 0x164) + i * 0xC;
@@ -877,7 +877,7 @@ s32 FldShadow_CasterStep(u8 *arg0)
                     *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) | 4;
                     mdlQueueModelForDraw(state + 4, *(u8 **)(list1 + 0x164));
                     *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) & ~4;
-                    if (func_0014a160() == 1 || func_001623f0() == 1) {
+                    if (FldMap_IsCurrentInEitherBand() == 1 || func_001623f0() == 1) {
                         i = 0;
                         while (i < 5) {
                             p = *(u8 **)(list1 + 0x164) + i * 0xC;

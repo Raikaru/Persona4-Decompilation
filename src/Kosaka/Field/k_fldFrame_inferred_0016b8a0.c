@@ -267,7 +267,7 @@ s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
         void *obj;
     } FldRayContext;
     extern u8 *MT_Scene_GetResListHead(s32 arg0);
-    extern s32 func_0014a160(void);
+    extern s32 FldMap_IsCurrentInEitherBand(void);
     extern s32* func_00155280(void);
     extern void *FldFrame_RaycastWorldLocal(void *collisionWorld, void *ray);
     extern void *RpClumpForAllAtomics(void *collisionWorld, void *(*cb)(void *, void *), void *ray);
@@ -307,7 +307,7 @@ s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
         goto query_complete;
     }
     selectedWorld = 0;
-    if (func_0014a160() != 0) {
+    if (FldMap_IsCurrentInEitherBand() != 0) {
         fieldX = (s32)((600.0f + lineCopy.point[0].x) / 1200.0f);
         fieldZ = (s32)((600.0f + lineCopy.point[0].z) / 1200.0f);
         neighbor = 0;

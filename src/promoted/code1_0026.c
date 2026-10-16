@@ -110,7 +110,7 @@ extern void calDrawDayStripCallback(s32 arg0, u8 *arg1);
 extern void frFontSetStateBits(u32 param_1, int param_2);
 extern s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2);
 extern s32 cldDayChangeRequest(u32 arg0, s32 arg1);
-extern void func_00266a90(u8 *arg0);
+extern void cldDayChangeMarkDone(u8 *arg0);
 extern s32 cldDayChangeIsDone(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern s32 cmmCommunityGetCurrentId(void);
@@ -1143,7 +1143,7 @@ s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
         temp_2_4 = *(s32 *)(temp_2 + 0x20) + 1;
         *(s32 *)(temp_2 + 0x20) = temp_2_4;
         if (temp_2_4 > 0x1E) {
-            func_00266a90((u8 *)*(s32 *)(temp_2 + 0x14));
+            cldDayChangeMarkDone((u8 *)*(s32 *)(temp_2 + 0x14));
             *(u32 *)temp_2 = 0xA;
             *(s32 *)(temp_2 + 0x20) = 0;
         }
@@ -1190,7 +1190,7 @@ s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
         }
         goto block_25;
     case 10:
-        func_00266a90((u8 *)*(s32 *)(temp_2 + 0x14));
+        cldDayChangeMarkDone((u8 *)*(s32 *)(temp_2 + 0x14));
         /* fall through */
     case 11:
         if (cldDayChangeIsDone(*(s32 *)(temp_2 + 0x14)) != 0) {

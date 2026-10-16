@@ -155,8 +155,8 @@ void FldUnit_SetSlotModel(u8 *arg0, s32 arg1);
 s32 mdlPrepareModel(u8 *arg0);
 s32 func_00440b68(const char *fmt, ...);
 u8 *func_00454a60(u8 *arg0, s32 arg1);
-s32 func_0014a200(void);
-s32 func_0014a270(void);
+s32 FldMap_IsCurrentInBandA(void);
+s32 FldMap_IsCurrentInBandB(void);
 s32 FldUnit_SetupEncounter(u8 *arg0);
 void chkmemAllocSiteTag(u8 *arg0, s32 arg1);
 f32 sinf(f32 arg0);
@@ -453,7 +453,7 @@ void FldUnit_UpdateFacing(void)
     extern void FldFrameTask_SetFlags(u8 *task, s32 flags);
     extern void FldFrameTask_SetPosition(u8 *task, u8 *position);
     extern void FldShadow_SetRingParticles(u8 *task, f32 radius);
-    extern s32 func_0014a160(void);
+    extern s32 FldMap_IsCurrentInEitherBand(void);
     extern s32 MT_Scene_CreateModelCharShadowRes(u16 index, u16 variant, void *model);
     extern f32 D_007615DC;
     RwV3d formationOffset;
@@ -572,7 +572,7 @@ void FldUnit_UpdateFacing(void)
                               func_0016fd00(unitForSetup->characterId), 0, 1);
                 *formationMatrix = *(FieldUnitMatrix *)mdlGetMatrix(
                     (*(FieldUnitSceneResource **)D_007EFA04)->model);
-                if (partyIndex == 0 && func_0014a160() != 0) {
+                if (partyIndex == 0 && FldMap_IsCurrentInEitherBand() != 0) {
                     formationOffset = formationMatrix->forward;
                     RwV3dNormalize(&formationOffset.x, &formationOffset.x);
                     formationOffset.x *= 400.0f;
@@ -1147,7 +1147,7 @@ s32 FldUnit_SpawnEncounter(u32 arg0, s32 arg1)
             var_17 += 1;
         }
         var_f20 = (f32)0xBB8;
-        if (func_0014a270() == 1) {
+        if (FldMap_IsCurrentInBandB() == 1) {
             var_f20 = 100.0f;
         }
         while ((temp_2 = FldUnit_FindNearestUnits(var_17, arg0, var_f20)) != NULL) {
@@ -1311,7 +1311,7 @@ u8 *FldUnit_FindNearestUnits(s32 unused, u32 limit, f32 minimumDistance)
     best = NULL;
     func_0015a160();
     bestDistance = 1.1754944e-38f;
-    if (func_0014a200() == 1) {
+    if (FldMap_IsCurrentInBandA() == 1) {
         if (FldUnit_GetActiveCount() < (s32)limit) {
             candidate = MT_Scene_GetResListHead(0xF);
             while (candidate != NULL) {
@@ -1392,7 +1392,7 @@ next_primary_node:
             }
             goto done;
         }
-    } else if (func_0014a270() == 1 && FldUnit_GetActiveCount() < (s32)limit) {
+    } else if (FldMap_IsCurrentInBandB() == 1 && FldUnit_GetActiveCount() < (s32)limit) {
         selection = MT_Scene_GetResListHead(0xF);
         goto secondary_node_test;
 secondary_node_body:
@@ -1791,10 +1791,10 @@ void FldUnit_RequestSceneResource(void)
     memset(D_007E8BE0, 0, 0x20);
     D_007E8BE8[0] = -1;
     D_007E8BF8[0] = -1;
-    if (func_0014a200() == 0) {
+    if (FldMap_IsCurrentInBandA() == 0) {
         goto done;
     }
-    if (func_0014a200() != 0) {
+    if (FldMap_IsCurrentInBandA() != 0) {
         goto loop;
     }
 done:
@@ -1892,7 +1892,7 @@ s32 FldUnit_InstallResources(void)
     void* allocation;
     RwV3d scale;
 
-    if (func_0014a200() == 0 || func_0014a200() == 0)
+    if (FldMap_IsCurrentInBandA() == 0 || FldMap_IsCurrentInBandA() == 0)
     {
         return 1;
     }
@@ -2241,7 +2241,7 @@ u8 *FldUnit_FindNearestSlot(u8 *arg0, u32 *arg1, s32 arg2)
     func_0015a160();
     *arg1 = 0;
     var_16 = 0;
-    if (func_0014a200() == 1) {
+    if (FldMap_IsCurrentInBandA() == 1) {
         if (iGpffffb2e4 < (s32)arg0) {
             var_f22 = 1.1754944e-38f;
             while (var_19 != NULL) {
@@ -2289,7 +2289,7 @@ u8 *FldUnit_FindNearestSlot(u8 *arg0, u32 *arg1, s32 arg2)
                 }
             }
         }
-    } else if (func_0014a270() == 1) {
+    } else if (FldMap_IsCurrentInBandB() == 1) {
         var_2 = 0;
         while (var_19 != NULL) {
             if (var_2 == arg2) {
@@ -2337,7 +2337,7 @@ s32 FldUnit_SetupEncounter(u8 *arg0)
             temp_17 = iGpffff9db0;
             var_17 = Encount_GetEntryRateOrOverride(*(u16 *)temp_17, *(u16 *)(temp_17 + 4), (u16)(func_0015a160() & 0xFFFF));
         }
-        if (func_0014a270() == 1) {
+        if (FldMap_IsCurrentInBandB() == 1) {
             var_17 = *(u32 *)(temp_16 + 0xC);
             if (var_17 == -1U) {
                 var_17 = 0xF;
@@ -2403,7 +2403,7 @@ s32 FldUnit_SpawnEncounterTask(u8 *arg0, s32 arg1)
 {
     s32 r;
     s32 task;
-    if (func_0014a200() == 0 && func_0014a270() == 0) {
+    if (FldMap_IsCurrentInBandA() == 0 && FldMap_IsCurrentInBandB() == 0) {
         return 0;
     }
     chkmemAllocSiteTag(D_005F1500, 0xB93);

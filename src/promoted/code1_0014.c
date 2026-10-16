@@ -453,16 +453,16 @@ extern void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 ar
 /* measured: closes opt_rebuildconditionals for resrcMngSetDrawEnabled. */
 #pragma opt_rebuildconditionals on
 
-/* measured: opt_rebuildconditionals off is scoped to func_0014a160. */
+/* measured: opt_rebuildconditionals off is scoped to FldMap_IsCurrentInEitherBand. */
 #pragma opt_rebuildconditionals off
 
-/* measured: closes opt_rebuildconditionals for func_0014a160. */
+/* measured: closes opt_rebuildconditionals for FldMap_IsCurrentInEitherBand. */
 #pragma opt_rebuildconditionals on
 
-/* measured: opt_rebuildconditionals off is scoped to func_0014a190. */
+/* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
 #pragma opt_rebuildconditionals off
 
-/* measured: closes opt_rebuildconditionals for func_0014a190. */
+/* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
 #pragma opt_rebuildconditionals on
 
 
