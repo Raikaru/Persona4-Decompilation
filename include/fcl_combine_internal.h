@@ -1,6 +1,7 @@
 #ifndef FCL_COMBINE_INTERNAL_H
 #define FCL_COMBINE_INTERNAL_H
 
+#include "type.h"
 #include "fcl_draw_types.h"
 
 /* Resource and position precede depth; integer order keeps its EE register. */
@@ -35,5 +36,55 @@ s32 fclCombineGetWorkAlt(u8 *task);
 
 /* This forwarding routine consumes the same signed resource indices. */
 void fclCombineSlideInSlotSprites(u8 *task, s16 firstResource, s16 secondResource);
+
+/* Combine work block: the combine task's work at +0x38. Offsets not named by a
+   consumer are padding. f0 is the state byte (6 is the menu preview state). */
+typedef struct FclCombineWork {
+    s8 f0;
+    u8 f1;
+    u8 pad2[0x2];
+    s32 spritePool;
+    u8 pad8[0x5];
+    s8 fD;
+    u8 padE[0x12];
+    s32 mesWindow;
+    s32 raster;
+    s32 texture;
+    s32 spriteList;
+    s32 *cardTable;
+    u8 pad34[0x10];
+    s8 rowCount;
+    s8 refreshRequested;
+    u8 pad46[0x6C];
+    s8 fB2;
+    u8 padB3[0x6B];
+    s16 f11E;
+    u8 pad120[0x2];
+    s8 f122;
+    u8 pad123[0x5];
+    s8 f128;
+    s8 f129;
+    u8 pad12A[0x1E];
+    u8 *f148;
+    u8 pad14C[0x3C];
+    s32 f188;
+    u8 pad18C[0x100];
+    u8 *f28C;
+    u8 *f290;
+    u8 pad294[0x28];
+    s32 f2BC;
+    u8 pad2C0[0x39];
+    s8 f2F9;
+    s8 f2FA;
+    u8 pad2FB[0x5];
+} FclCombineWork;
+
+/* Global combine task handle; its work block is at +0x38. */
+extern s32 iGpffffb598;
+
+static inline FclCombineWork *fclCombineWork(void)
+{
+    return *(FclCombineWork **)(iGpffffb598 + 0x38);
+}
 
 #endif

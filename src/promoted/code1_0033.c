@@ -109,54 +109,54 @@ extern u8 D_0064A000[];
 // FUN_00331560
 s32 fclCombineGetSpritePool(void)
 {
-    return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 4);
+    return fclCombineWork()->spritePool;
 }
 
 // FUN_00331580
 s32 fclCombineInPreviewState(void)
 {
-    return *(s8 *)(*(int *)(iGpffffb598 + 0x38)) == 6;
+    return fclCombineWork()->f0 == 6;
 }
 // FUN_003315A0
 void fclCombineRequestRefresh(void)
 {
-    *(s8 *)(*(int *)(iGpffffb598 + 0x38) + 0x45) = 1;
+    fclCombineWork()->refreshRequested = 1;
 }
 
 // FUN_003315C0
 s32 fclCombineGetRaster(void)
 {
-    return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 0x24);
+    return fclCombineWork()->raster;
 }
 
 // FUN_003315E0
 s32 fclCombineGetTexture(void)
 {
-    return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 0x28);
+    return fclCombineWork()->texture;
 }
 
 // FUN_00331600
 s32 fclCombineGetSpriteList(void)
 {
-    return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 0x2C);
+    return fclCombineWork()->spriteList;
 }
 
 // FUN_00331620
 s32 *fclCombineGetCardTable(void)
 {
-    return *(s32 **)(*(int *)(iGpffffb598 + 0x38) + 0x30);
+    return fclCombineWork()->cardTable;
 }
 
 // FUN_00331640
 s8 fclCombineGetRowCount(void)
 {
-    return *(s8 *)(*(int *)(iGpffffb598 + 0x38) + 0x44);
+    return fclCombineWork()->rowCount;
 }
 
 // FUN_00331660
 s32 fclCombineGetMesWindow(void)
 {
-    return *(s32 *)(*(int *)(*(int *)(iGpffffb598 + 0x38) + 0x20) + 0x110);
+    return *(s32 *)(fclCombineWork()->mesWindow + 0x110);
 }
 
 // FUN_00331680
