@@ -179,7 +179,7 @@ extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rotation
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPosition, f32 speed, u32 flags);
 extern u32 datCalcIsDead(void *unit, s32 hpDelta);
 extern s32 datCalcIsStatusBlocked(u16 *unit);
-extern s32 func_001ef4a0(s32 action);
+extern s32 btlUnitSlotValueOrOne(s32 action);
 extern u8 D_006354C0[], D_006354D0[], D_00635500[];
 extern BtlPacket *btlFormationCreateSlotPacket(u16 group, u16 mask);
 extern f32 fGpffff80e4;
@@ -2123,7 +2123,7 @@ void btlActionRunPresentation(u8 *action)
             func_00106390(0x15D4, 1);
             break;
         }
-        delay += (u16)func_001ef4a0(0x17B);
+        delay += (u16)btlUnitSlotValueOrOne(0x17B);
 next_target:
         targetIndex = (u16)(targetIndex + 1);
     }

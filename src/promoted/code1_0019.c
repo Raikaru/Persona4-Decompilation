@@ -477,8 +477,8 @@ extern s32 func_00193d90(u8 *arg0, s32 arg1);
 
 
 extern void btlTargetResetWork(void *work);
-extern s32 func_001eed10(u8 *route, f32 *start, f32 *end, f32 radius);
-extern s32 func_001ef110(u8 *route, const f32 *startXZ, const f32 *endXZ, const f32 *centerXZ);
+extern s32 btlRouteFindPath(u8 *route, f32 *start, f32 *end, f32 radius);
+extern s32 btlRouteBuildArc(u8 *route, const f32 *startXZ, const f32 *endXZ, const f32 *centerXZ);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 
 #pragma opt_propagation off
