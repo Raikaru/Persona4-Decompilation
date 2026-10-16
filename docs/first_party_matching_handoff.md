@@ -5302,7 +5302,7 @@ Recorded 2026-09-16; remeasure before acting.
 | `func_004865c0` | 276/288 bytes, exact executable prefix, twelve zero-tail bytes | Existing exact bridge with C-owned state and packed-color VU operations |
 | `mdlEffectProjectAnchorDepth` (was `func_0048a460`) | 176/176 bytes, fifteen differing instruction words, ten exact relocations | Honest `void` floor; `$vf10` is the output. Production stays ASM because of the measured residual, not because `lqc2` is unreachable from C |
 | `func_0048a980` | 584/592 bytes, five executable FPR differences and two zero-tail words | Plain-C quaternion arithmetic with a final `$vf10` load. Production stays ASM because of the measured FPR/code-shape floor, not the terminal `lqc2` |
-| `func_004ad030` | Retail contains an interior `qmtc2`/`vitof0`/`vmulx`/`vmul`/`vftoi0`/`qmfc2` pipeline | Requires function-specific recovery; do not infer either C reachability or an assembly requirement from the transfer opcodes alone |
+| `EffModelDrawableUpdate` (was `func_004ad030`) | Retail contains an interior `qmtc2`/`vitof0`/`vmulx`/`vmul`/`vftoi0`/`qmfc2` pipeline | Requires function-specific recovery; do not infer either C reachability or an assembly requirement from the transfer opcodes alone |
 
 Do not retry already-closed substitutions:
 
@@ -5631,7 +5631,7 @@ Known exact-looking candidates that remain rejected unless a defined, truthful s
 - `func_00452870`: retail passes six bytes after initializing only two; the consumer reads all six.
 - `ParticleCreateFromSource` (was `func_00486b00`): stored exact proof was invalidated by a current recompilation that produced a different 768-byte object.
 
-The hardware-bound `mdlEffectProjectAnchorDepth` (was `func_0048a460`), `func_0048a980`, and `func_004ad030`
+The hardware-bound `mdlEffectProjectAnchorDepth` (was `func_0048a460`), `func_0048a980`, and `EffModelDrawableUpdate` (was `func_004ad030`)
 floors are documented in the VU/COP2 section above. Do not return them to the
 ordinary source-shaping queue while the clean-C policy remains in force.
 

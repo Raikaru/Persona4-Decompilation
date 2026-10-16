@@ -540,7 +540,7 @@ below are the codegen consequences.
   itself must carry 8-byte alignment, declare it as
   `union { Vec3 value; s64 align; }` and assign its `.value`; three separate
   locals in declaration order produced retail's `0xc0`, `0xb0`, `0xa0`
-  stack slots and exact copy sequence in `func_004accc0`.
+  stack slots and exact copy sequence in `EffModelDrawCallback` (was `func_004accc0`).
 - **`pcpyld $v0,$zero,$v0` is reachable from C.** `func_003a2950`'s
   `*(u64 *)p &= (u64)-0x10000` emits `lui $v0,0xffff / pcpyld $v0,$zero,$v0`
   exactly; it is how b210 materialises a 64-bit constant whose low word is
@@ -1575,7 +1575,7 @@ That is the whole content of the "float parameters ahead of `u8`" lever.
 Where the callee is only declared locally, the order is yours to choose;
 where it is a real definition, check every caller by name after changing it.
 Do not omit later parameters merely because the call site shows no moves.
-In `func_004accc0`, the converted frame index and frame count were already
+In `EffModelDrawCallback` (was `func_004accc0`), the converted frame index and frame count were already
 live in `$a1`/`$a2`; declaring `func_0048aff0` with only its first parameter
 let the allocator recolour both and left nd 6. Its correct three-parameter
 signature preserved those registers and matched.
