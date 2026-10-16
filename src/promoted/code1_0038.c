@@ -243,7 +243,7 @@ u32 func_00383c20(u8 *arg0)
     return *(u32 *)(p + 0x14);
 }
 // FUN_00383C40
-void func_00383c40(u8 *arg0)
+void btlShuffleDrawCardSet(u8 *arg0)
 {
     u8 *base;
     s32 value;
@@ -274,7 +274,7 @@ void func_00383c40(u8 *arg0)
     RpSkyRenderStateSet(2, (void *)0x44);
 }
 // FUN_00383D70
-void func_00383d70(u8 *arg0)
+void btlShuffleDrawGlowCards(u8 *arg0)
 {
     extern f32 sinf(f32 fparg0);
     extern f32 iGpffff81e0;
@@ -322,7 +322,7 @@ void func_00383d70(u8 *arg0)
    primitive table is read through an integer view so its address stays in
    $s0 across the first draw, as in fclCmbBallDraw's twin 0014dd80 recipe. */
 // FUN_00383F80
-void func_00383f80(u8 *arg0)
+void btlShuffleDrawFrameFade(u8 *arg0)
 {
     extern f32 btlShuffleCalcWave(f32 t, f32 a, f32 b, s32 mode);
     extern s32 btlShuffleDrawTableLookup(s32 a, s32 b);
@@ -483,7 +483,7 @@ void func_00383f80(u8 *arg0)
  * The halfword frame increment wraps before the phase test; byte
  * opacities and the shared point preserve the native call boundaries. */
 // FUN_00384CC0
-void func_00384cc0(u8 *work)
+void btlShuffleDrawPatternLineFade(u8 *work)
 {
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 work);
     extern f32 fGpffff83c0;
@@ -1044,10 +1044,10 @@ void func_00386c00(u8 *arg0)
 // FUN_003874C0
 void func_003874c0(s32 arg0, u8 *arg1)
 {
-    extern void func_00383c40(u8 *arg0);
-    extern void func_00383f80(u8 *arg0);
-    extern void func_00383d70(u8 *arg0);
-    extern void func_00384cc0(u8 *arg0);
+    extern void btlShuffleDrawCardSet(u8 *arg0);
+    extern void btlShuffleDrawFrameFade(u8 *arg0);
+    extern void btlShuffleDrawGlowCards(u8 *arg0);
+    extern void btlShuffleDrawPatternLineFade(u8 *arg0);
     extern void func_00385380(u8 *arg0);
     extern void func_00385970(u8 *arg0);
     extern void func_00386c00(u8 *arg0);
@@ -1084,16 +1084,16 @@ void func_003874c0(s32 arg0, u8 *arg1)
         RpSkyRenderStateSet(2, (void *)0x44);
     }
     if ((*(u16 *)(arg1 + 0x4C) & 0x10) != 0) {
-        func_00383c40(arg1);
+        btlShuffleDrawCardSet(arg1);
     }
     if ((*(u16 *)(arg1 + 0x4C) & 0x20) != 0) {
-        func_00383f80(arg1);
+        btlShuffleDrawFrameFade(arg1);
     }
     if ((*(u16 *)(arg1 + 0x4C) & 0x80) != 0) {
-        func_00383d70(arg1);
+        btlShuffleDrawGlowCards(arg1);
     }
     if ((*(u16 *)(arg1 + 0x4C) & 0x40) != 0) {
-        func_00384cc0(arg1);
+        btlShuffleDrawPatternLineFade(arg1);
     }
     if ((*(u16 *)(arg1 + 0x4C) & 8) != 0) {
         func_00385380(arg1);
