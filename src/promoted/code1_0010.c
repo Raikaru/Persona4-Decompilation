@@ -66,7 +66,7 @@ extern void H_Cdvd_UpdateRequests(void);
 extern void resourceLoadSprites(void);
 extern void func_0045b7c0(void);
 extern void sdkSndUpdate(void);
-extern void func_00452ce0(void);
+extern void sdkPadUpdateAll(void);
 extern s32 kwlnTaskRunFrame(void);
 extern void func_00466580(void);
 extern void func_003e5510(s32 arg0);
