@@ -945,12 +945,13 @@ adds them to `CmmCommunityRecord.points`. `0x3004` (`cmmTryRankUp`) calls
 
 **Earn scale.** `cmmCommunityEarnScale` (`FUN_001080C0`) returns a float multiplier
 from `cmmRosterHasArcana`, the event bit and the per-slot bands. The bonus values
-come from the earn-scale table returned by `cmmEarnScaleTable` (`FUN_00246B80`), which
+come from the `CmmEarnScale` table (`include/cmm_internal.h`) returned by `cmmEarnScaleTable` (`FUN_00246B80`), which
 is cmm.bin chunk 14 **[inferred from the `D_00881480` chunk pointer array]**. Each
-bonus is gated by a game flag: the event bit is read from `D_0079B1CC` and the
-slot bands from `D_007973A0 + 0x3E2C`. Both are words of `DatGlobal.flags` at
+bonus is gated by a game flag: the event bit is tested against `D_0079B1CC` and the
+slot bands against `D_007973A0 + 0x3E2C`. Both are words of `DatGlobal.flags` at
 `0x79B1CC`, so `datGetFlag` reads the same bits, but that call form changes codegen
-(measured), so the raw reads stay.
+(measured), so the raw flag reads stay. The table fields are typed; a local pointer to
+the table changes codegen (measured), so each access calls `cmmEarnScaleTable()`.
 
 **Thresholds.** Chunk 0 of cmm.bin holds one 100-byte record per community kind,
 returned by `cmmKindRecord` (`FUN_002467B0`). `arcana` is at `+0x08`, `tierBits` at
