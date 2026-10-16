@@ -306,7 +306,7 @@ s32 fclSpriteUpdateAndDrawTask(u8 *arg0) {
     return 0;
 }
 #pragma pop
-// Intent: destroy callback for the 0x100-byte task created by func_002b6590 (frees the work block at +0x38).
+// Intent: destroy callback for the 0x100-byte task created by fclSpriteCreateDrawTask (frees the work block at +0x38).
 // FUN_002B6560
 void fclSpriteDestroyTask(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
@@ -327,8 +327,9 @@ void fclSpriteDestroyTask(u8 *arg0) {
 #pragma schedule off
 /* Keep dimension constants local to their queries. */
 #pragma opt_pulloutconstants off
+// Intent: creates the 0x100-byte sprite draw task under parent arg0 (update fclSpriteUpdateAndDrawTask, destroy fclSpriteDestroyTask). arg1 is the slot stored at +4 and arg2 the tint word stored at +0. Three channels start at their default state and the size comes from the sprite node. y_smap.c creates two of these, slots 0xC and 0xD, for map symbols.
 // FUN_002B6590
-s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
+s32 fclSpriteCreateDrawTask(s32 arg0, s16 arg1, s32 arg2) {
     s32 result;
     u8 *p;
     s16 i;
