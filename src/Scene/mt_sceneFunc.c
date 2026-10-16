@@ -82,7 +82,7 @@ extern void mdlEffectSeqStop(void);
 
 extern void MT_Scene_WrapObjectAngles(s32 object);
 extern float MT_Scene_GetCurveLength(char *param_1);
-extern s32 mtSceneIconReleaseRes(u16 arg0, s32 arg1);
+extern s32 mtSceneIconSpawnTask(u16 arg0, s32 arg1);
 extern s32 FldShadow_SetCasterFlag(s32 arg0, s32 arg1, s32 arg2);
 extern void memset(void *dst, s32 value, s32 size);
 extern f32 RwV3dNormalize();
@@ -1595,13 +1595,13 @@ s32 MT_Scene_GetTerrainAtPoint(u16 *arg0)
 #pragma opt_propagation on
 
 // FUN_0026BC10
-s32 MT_Scene_CheckResSlot(u32 arg0, u32 arg1)
+s32 MT_Scene_SpawnResIconTask(u32 arg0, u32 arg1)
 {
     u8 *p = MT_Scene_GetRes(arg0);
 
     if (p == NULL) return 0;
     if (p == NULL) return 0;
-    if (mtSceneIconReleaseRes(*(u16 *)p, arg1 & 0xFF) != 0) goto done;
+    if (mtSceneIconSpawnTask(*(u16 *)p, arg1 & 0xFF) != 0) goto done;
     return 0;
 done:
     return 1;

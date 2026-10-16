@@ -58,7 +58,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 
 // FUN_002519E0
 /* Candidate reconstructed from retail dispatch and generated source. */
-s32 func_002519e0(u8 *sdkTaskBytes) {
+s32 cmmRankUpCardTaskUpdate(u8 *sdkTaskBytes) {
     s32 arg0 = (s32)sdkTaskBytes;
     s32 temp_2_4;
     s32 temp_2_5;

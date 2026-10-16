@@ -36,6 +36,7 @@ extern s32 cmmEnsureRecord(void);
 /* measured: optimization_level 1 preserves the saved task id across the guard. */
 /* measured: closes optimization_level 1 around func_00249b10. */
 // Returns 1 when the community table has entries and today's date is not yet listed, else 0 [inferred].
+/* script command 0x3018 (no p4flow name) */
 // FUN_0024A0E0
 s32 cmmTodayNotListed(void)
 {
@@ -50,6 +51,7 @@ s32 cmmTodayNotListed(void)
 }
 
 // Classifies the next unlisted date: 1 when it is tomorrow, 2 when it falls on weekday 0, 3 when it has a day entry, else 0 [inferred].
+/* script command 0x301B (no p4flow name) */
 // FUN_0024A140
 s32 cmmNextUnlistedDateKind(void)
 {
