@@ -30,8 +30,8 @@ u8 *RingCreateKindInstance(u16 kind, u8 *parameters);
 u8 *LineNovaCreateKindInstance(s32 kind, u8 *parameters);
 
 void *func_00484530(void *source);
-void *func_00486b00(void *source);
-void *func_00486fb0(void *source);
+void *ParticleCreateFromSource(void *source);
+void *ParticleCreateFromParent(void *source);
 void *TrackCreateFromEmitter(void *source);
 void *TrackCreateFromSource(void *source);
 void *TrackCreateWithMode(void *source);

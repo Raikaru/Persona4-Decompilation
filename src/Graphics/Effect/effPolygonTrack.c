@@ -5,7 +5,7 @@
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
-extern void func_00486e10(void *arg0);
+extern void ParticleFree(void *arg0);
 extern void func_00494680(void *arg0);
 extern void func_00492cd0(u8 *arg0);
 extern void func_00492d00(int arg0);
@@ -21,9 +21,9 @@ extern void memset(void *dst, s32 value, u32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern char D_00713E20[];
 extern char D_00713E30[];
-extern void *func_00486a50(s32 arg0);
+extern void *ParticleCreateBlock(s32 arg0);
 extern u8 *func_00483270(u8 *arg0);
-extern void func_00487160(void *arg0, void *arg1);
+extern void ParticleCopyModeFromSource(void *arg0, void *arg1);
 extern u8 *func_00492b20(u16 arg0, u32 arg1, void *arg2);
 extern void func_004941f0(void *arg0, void *arg1);
 extern u8 *TrackAllocRibbons(u16 arg0, u16 arg1);
@@ -35,7 +35,7 @@ extern void TrackApplyMode(u8 *arg0, u16 arg1, s32 *arg2);
 extern void func_00492df0(void *arg0, u32 *arg1);
 extern void func_00492db0(void *arg0, u32 *arg1);
 extern void func_00484350(void *arg0, void *arg1, void *arg2, f32 arg3);
-extern void func_00487fb0(void *arg0, f32 arg1);
+extern void ParticleProjectVertices(void *arg0, f32 arg1);
 extern void func_00495090(void *arg0, u32 arg1);
 extern void func_00492d10(void *arg0);
 extern void func_00494740(void *arg0, u16 arg1, void *arg2, f32 arg3);
@@ -44,13 +44,13 @@ extern void func_00494f90(void *arg0);
 extern void func_00494ff0(void *arg0);
 extern u8 *func_00483e10(u16 arg0, u16 arg1, void *arg2, s32 arg3, s32 arg4);
 extern u8 *func_00483c40(u16 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
-extern void func_00487650(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_004877b0(u8 *arg0, s32 arg1);
-extern void func_00487860(u8 *arg0, s32 *arg1);
-extern void func_00487710(u8 *arg0, s32 arg1);
-extern void func_004878c0(u8 *arg0, void *arg1);
-extern void func_00487a30(u8 *arg0, void *arg1);
-extern void func_00487ba0(u8 *arg0, s32 *arg1);
+extern void ParticleSetMaterialSlot(u8 *arg0, s32 arg1, s32 arg2);
+extern void ParticleSetTextureFromHandle(u8 *arg0, s32 arg1);
+extern void ParticleSetLinkedGroup(u8 *arg0, s32 *arg1);
+extern void ParticleSetTextureById(u8 *arg0, s32 arg1);
+extern void ParticleRebuildSubtypeChain(u8 *arg0, void *arg1);
+extern void ParticleRebuildSubtypeChainAlt(u8 *arg0, void *arg1);
+extern void ParticleSetAuxResource(u8 *arg0, s32 *arg1);
 extern u8 D_00764C54[4];
 extern f32 D_00761134;
 extern u8 D_00922D80[];
@@ -137,7 +137,7 @@ void *TrackCreateFromEmitter(void *opaqueSource)
 }
 
 /* measured: correcting the direct effect-helper declarations and passing the
-   selector as func_00487650's third argument keeps arg1&0xFFFF in $a2 across
+   selector as ParticleSetMaterialSlot's third argument keeps arg1&0xFFFF in $a2 across
    the dispatch; object 376B/384B, normalized_diff 0 (jump-table relocations
    are the only fndiff rows). */
 // Applies a mode to the track's sub-object: dispatches on the mode value to the matching setter.
@@ -146,32 +146,32 @@ void TrackApplyMode(u8 *arg0, u16 arg1, s32 *arg2) {
     u8 *o;
 
     if (*(u8 **)(arg0 + 0x2C) == NULL) {
-        o = func_00486a50(*(s32 *)arg0);
+        o = ParticleCreateBlock(*(s32 *)arg0);
         *(u8 **)(arg0 + 0x2C) = o;
         *(s32 *)(o + 0x4C) = *(s32 *)(arg0 + 0x30);
     }
     switch ((u32)arg1) {
     case 1:
-        func_00487650(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
-        func_004877b0(*(u8 **)(arg0 + 0x2C), (s32)arg2);
+        ParticleSetMaterialSlot(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
+        ParticleSetTextureFromHandle(*(u8 **)(arg0 + 0x2C), (s32)arg2);
         break;
     case 2:
-        func_00487650(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
-        func_00487860(*(u8 **)(arg0 + 0x2C), arg2);
+        ParticleSetMaterialSlot(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
+        ParticleSetLinkedGroup(*(u8 **)(arg0 + 0x2C), arg2);
         break;
     case 4:
-        func_00487650(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
-        func_00487710(*(u8 **)(arg0 + 0x2C), *(s32 *)arg2);
+        ParticleSetMaterialSlot(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
+        ParticleSetTextureById(*(u8 **)(arg0 + 0x2C), *(s32 *)arg2);
         break;
     case 5:
-        func_004878c0(*(u8 **)(arg0 + 0x2C), arg2);
+        ParticleRebuildSubtypeChain(*(u8 **)(arg0 + 0x2C), arg2);
         break;
     case 6:
-        func_00487a30(*(u8 **)(arg0 + 0x2C), arg2);
+        ParticleRebuildSubtypeChainAlt(*(u8 **)(arg0 + 0x2C), arg2);
         break;
     case 7:
-        func_00487650(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
-        func_00487ba0(*(u8 **)(arg0 + 0x2C), arg2);
+        ParticleSetMaterialSlot(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
+        ParticleSetAuxResource(*(u8 **)(arg0 + 0x2C), arg2);
         break;
     case 0:
     case 3:
@@ -236,7 +236,7 @@ void TrackFreeInstance(u8 *arg0)
 
     temp_4 = *(u32 *)(arg0 + 0x2C);
     if (temp_4 != 0) {
-        func_00486e10((void *)temp_4);
+        ParticleFree((void *)temp_4);
     }
     temp_4_2 = *(u32 *)(arg0 + 0x28);
     if (temp_4_2 != 0) {
@@ -355,7 +355,7 @@ void TrackCopyState(u8 *arg0, u8 *arg1)
         kAssertFail(D_00713E30, 0x115);
     }
     if (*(u32 *)(arg0 + 0x2C) == 0) {
-        v = func_00486a50(*(s32 *)arg0);
+        v = ParticleCreateBlock(*(s32 *)arg0);
         *(u8 **)(arg0 + 0x2C) = v;
         *(u32 *)(*(u8 **)(arg0 + 0x2C) + 0x4C) =
             *(u32 *)(arg0 + 0x30);
@@ -364,7 +364,7 @@ void TrackCopyState(u8 *arg0, u8 *arg1)
         v = func_00483270(*(u8 **)(*(u8 **)(arg1 + 0x2C) + 0x50));
         *(u8 **)(*(u8 **)(arg0 + 0x2C) + 0x50) = v;
     }
-    func_00487160(*(u8 **)(arg0 + 0x2C), *(u8 **)(arg1 + 0x2C));
+    ParticleCopyModeFromSource(*(u8 **)(arg0 + 0x2C), *(u8 **)(arg1 + 0x2C));
     *(u16 *)(*(u8 **)(arg0 + 0x2C) + 0xC) =
         *(u16 *)(*(u8 **)(arg1 + 0x2C) + 0xC);
 }
@@ -431,7 +431,7 @@ void TrackReleaseSubobject(u8 *arg0)
 void TrackUpdateSlots(u8 *arg0)
 {
     extern f32 fGpffff8044;
-    extern void func_00487c30(void *arg0, f32 arg1);
+    extern void ParticleUpdateScaled(void *arg0, f32 arg1);
     s32 sp9C;
     s32 sp98;
     s32 sp94;
@@ -551,7 +551,7 @@ draw_entry:
         return;
     }
     func_00489f40(*(void **)(arg0 + 0x2C), *(u32 *)(arg0 + 4));
-    func_00487c30(*(void **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
+    ParticleUpdateScaled(*(void **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
 }
 // Applies the track width to its ribbon geometry when the track has more than one sample.
 // FUN_00493B90
@@ -574,7 +574,7 @@ void TrackApplyWidth(u8 *arg0)
                 func_00484350((void *)*(u32 *)(t17 + 0x14), sp50, sp40, 1.0f);
             }
             if (*(u32 *)(arg0 + 0x2C) != 0) {
-                func_00487fb0(*(u8 **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
+                ParticleProjectVertices(*(u8 **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
             }
             func_00495090(t17, *(u16 *)(t16 + 0x54));
         }
@@ -603,7 +603,7 @@ void TrackRefresh(u8 *arg0)
                 func_00484350((void *)*(u32 *)(t17 + 0x14), sp50, sp40, 1.0f);
             }
             if (*(u32 *)(arg0 + 0x2C) != 0) {
-                func_00487fb0(*(u8 **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
+                ParticleProjectVertices(*(u8 **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
             }
             func_00495090(t17, *(u16 *)(t16 + 0x54));
         }

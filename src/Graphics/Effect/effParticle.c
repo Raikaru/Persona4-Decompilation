@@ -39,15 +39,15 @@ extern void func_004846d0(u8 *arg0);
 extern u8 *func_00484830(u8 *arg0);
 extern void func_00485b20(void *arg0);
 extern u8 *func_00483270(void *arg0);
-void func_004875d0(u8 *arg0, s32 arg1, void *arg2);
-void func_00487160(u8 *arg0, u8 *arg1);
-void func_00487650(u8 *arg0, s32 arg1, s32 arg2);
-void func_004877b0(u8 *arg0, s32 arg1);
-void func_00487860(u8 *arg0, s32 *arg1);
-void func_00487710(u8 *arg0, s32 arg1);
-void func_004878c0(u8 *arg0, void *arg1);
-void func_00487a30(u8 *arg0, void *arg1);
-void func_00487ba0(u8 *arg0, s32 *arg1);
+void ParticleAllocRecords(u8 *arg0, s32 arg1, void *arg2);
+void ParticleCopyModeFromSource(u8 *arg0, u8 *arg1);
+void ParticleSetMaterialSlot(u8 *arg0, s32 arg1, s32 arg2);
+void ParticleSetTextureFromHandle(u8 *arg0, s32 arg1);
+void ParticleSetLinkedGroup(u8 *arg0, s32 *arg1);
+void ParticleSetTextureById(u8 *arg0, s32 arg1);
+void ParticleRebuildSubtypeChain(u8 *arg0, void *arg1);
+void ParticleRebuildSubtypeChainAlt(u8 *arg0, void *arg1);
+void ParticleSetAuxResource(u8 *arg0, s32 *arg1);
 extern void func_00484970(u8 *arg0);
 extern void func_00484a90(u8 *arg0, f32 arg1);
 extern void func_00484a40(u8 *arg0, void *arg1);
@@ -60,8 +60,9 @@ extern ParticleSnapshot func_00492df0(s32 arg0, u32 *arg1);
 extern ParticleSnapshot func_00492db0(s32 arg0, u32 *arg1);
 extern void func_004bceb0(void);
 
+// Allocates a 0x60-byte particle block with the given count, unit scale and no links.
 // FUN_00486A50
-void *func_00486a50(s32 arg0)
+void *ParticleCreateBlock(s32 arg0)
 {
     u8 *p;
 
@@ -76,8 +77,9 @@ void *func_00486a50(s32 arg0)
     *(s32 *)(p + 8) = 0x3F800000;
     return p;
 }
+// Creates a particle block from an emitter source: count from the emitter's params (capped at 300), records, then the source's mode.
 // FUN_00486B00
-void *func_00486b00(void *opaqueSource)
+void *ParticleCreateFromSource(void *opaqueSource)
 {
     u8 *source = opaqueSource;
     u8 *settings;
@@ -114,7 +116,7 @@ void *func_00486b00(void *opaqueSource)
         if (particle == NULL) {
             kAssertFail(D_00713CD0, 0x57);
         }
-        func_004875d0(particle, *(u16 *)(source + 0xC), settings);
+        ParticleAllocRecords(particle, *(u16 *)(source + 0xC), settings);
         if (*(u32 *)particle == 0) {
             return particle;
         }
@@ -122,26 +124,26 @@ void *func_00486b00(void *opaqueSource)
         if (resource != NULL) {
             switch (*(u16 *)(source + 0x1C)) {
             case 1:
-                func_00487650(particle, *(s32 *)(*(u8 **)(particle + 0x4C) + 8), 1);
-                func_004877b0(particle, (s32)resource);
+                ParticleSetMaterialSlot(particle, *(s32 *)(*(u8 **)(particle + 0x4C) + 8), 1);
+                ParticleSetTextureFromHandle(particle, (s32)resource);
                 break;
             case 2:
-                func_00487650(particle, *(s32 *)(*(u8 **)(particle + 0x4C) + 8), 2);
-                func_00487860(particle, resource);
+                ParticleSetMaterialSlot(particle, *(s32 *)(*(u8 **)(particle + 0x4C) + 8), 2);
+                ParticleSetLinkedGroup(particle, resource);
                 break;
             case 4:
-                func_00487650(particle, *(s32 *)(*(u8 **)(particle + 0x4C) + 8), 4);
-                func_00487710(particle, *resource);
+                ParticleSetMaterialSlot(particle, *(s32 *)(*(u8 **)(particle + 0x4C) + 8), 4);
+                ParticleSetTextureById(particle, *resource);
                 break;
             case 5:
-                func_004878c0(particle, resource);
+                ParticleRebuildSubtypeChain(particle, resource);
                 break;
             case 6:
-                func_00487a30(particle, resource);
+                ParticleRebuildSubtypeChainAlt(particle, resource);
                 break;
             case 7:
-                func_00487650(particle, *(s32 *)(*(u8 **)(particle + 0x4C) + 8), 7);
-                func_00487ba0(particle, resource);
+                ParticleSetMaterialSlot(particle, *(s32 *)(*(u8 **)(particle + 0x4C) + 8), 7);
+                ParticleSetAuxResource(particle, resource);
                 chkmemAllocSiteTag(D_00713CC0, 0x171);
                 link = (*(void *(**)(u32, u32))allocatorAddress)(0x30, 0x40000);
                 memset(link, 0, 0x30);
@@ -159,8 +161,9 @@ void *func_00486b00(void *opaqueSource)
     }
 }
 
+// Frees a particle block: its records and sub-objects, then the block itself.
 // FUN_00486E10
-void func_00486e10(u8 *arg0)
+void ParticleFree(u8 *arg0)
 {
     u32 count;
     u32 i;
@@ -204,8 +207,9 @@ void func_00486e10(u8 *arg0)
     }
     jtbl_008873EC[0](arg0);
 }
+// Creates a particle block from a parent particle block, copying its records and mode.
 // FUN_00486FB0
-void *func_00486fb0(void *opaqueSource)
+void *ParticleCreateFromParent(void *opaqueSource)
 {
     u8 *arg0 = opaqueSource;
     u32 s19;
@@ -241,14 +245,14 @@ void *func_00486fb0(void *opaqueSource)
     if (p == NULL) {
         kAssertFail(D_00713CD0, 0xE4);
     }
-    func_004875d0(p, *(u16 *)(*(u8 **)(arg0 + 0x4C)), (void *)s17);
+    ParticleAllocRecords(p, *(u16 *)(*(u8 **)(arg0 + 0x4C)), (void *)s17);
     if (*(s32 *)(p + 0) == 0) {
         return p;
     }
     if (*(s32 *)(arg0 + 0x50) != 0) {
         *(s32 *)(p + 0x50) = (s32)func_00483270((void *)*(s32 *)(arg0 + 0x50));
     }
-    func_00487160(p, arg0);
+    ParticleCopyModeFromSource(p, arg0);
     return p;
 }
 /* measured: case-local count/index pairs make b210 color the loop locals
@@ -256,8 +260,9 @@ void *func_00486fb0(void *opaqueSource)
    allocation result remains in $s2 through memset before being stored at
    arg0+0x5C. Shared function-scope counters rotate all four saved registers.
    Object/window 1136B, normalized_diff 0. */
+// Copies the source's mode into the particle block: dispatches on the source's type word to the matching setter.
 // FUN_00487160
-void func_00487160(u8 *arg0, u8 *arg1)
+void ParticleCopyModeFromSource(u8 *arg0, u8 *arg1)
 {
     switch (*(u16 *)(arg1 + 0xC)) {
     case 1:
@@ -379,8 +384,9 @@ void func_00487160(u8 *arg0, u8 *arg1)
     *(u16 *)(arg0 + 0xC) = *(u16 *)(arg1 + 0xC);
 }
 
+// Allocates the particle record block (count times the record size) and marks the block dirty.
 // FUN_004875D0
-void func_004875d0(u8 *arg0, s32 arg1, void *arg2)
+void ParticleAllocRecords(u8 *arg0, s32 arg1, void *arg2)
 {
     if (*(u32 *)(arg0 + 0x4C) != 0) {
         func_00492cd0((u8 *)*(u32 *)(arg0 + 0x4C));
@@ -392,8 +398,9 @@ void func_004875d0(u8 *arg0, s32 arg1, void *arg2)
 
 
 
+// Sets the material slot from the type: types 1 and 4 take a material by id, type 2 takes the second material id, type 7 leaves it.
 // FUN_00487650
-void func_00487650(u8 *arg0, s32 arg1, s32 arg2)
+void ParticleSetMaterialSlot(u8 *arg0, s32 arg1, s32 arg2)
 {
     s32 temp_4 = *(s32 *)(arg0 + 0x50);
 
@@ -413,8 +420,9 @@ void func_00487650(u8 *arg0, s32 arg1, s32 arg2)
     }
 }
 
+// Sets the texture scale from the texture table entry by id and applies the texture to the material.
 // FUN_00487710
-void func_00487710(u8 *arg0, s32 arg1)
+void ParticleSetTextureById(u8 *arg0, s32 arg1)
 {
     void *temp_2 = (void *)func_00481300(arg1 & 0xFFFF);
     u8 *temp_2_2 = *(u8 **)temp_2;
@@ -425,8 +433,9 @@ void func_00487710(u8 *arg0, s32 arg1)
     *(f32 *)(arg0 + 0x58) = f_10 / 2.0f / 16.0f;
     func_003c42b0((RpMaterial *)*(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 0x50) + 0x10) + 0x18) + 0x20)), (RwTexture *)temp_2);
 }
+// Sets the texture scale from a texture handle, applies the texture to the material, then releases the handle.
 // FUN_004877B0
-void func_004877b0(u8 *arg0, s32 arg1)
+void ParticleSetTextureFromHandle(u8 *arg0, s32 arg1)
 {
     void *temp_2 = func_00481390((void *)arg1);
     u8 *temp_2_2 = *(u8 **)temp_2;
@@ -442,8 +451,9 @@ void func_004877b0(u8 *arg0, s32 arg1)
 
 
 
+// Replaces the linked group handle with the one returned for the given list.
 // FUN_00487860
-void func_00487860(u8 *arg0, s32 *arg1)
+void ParticleSetLinkedGroup(u8 *arg0, s32 *arg1)
 {
     s32 temp_4 = *(s32 *)(arg0 + 0x44);
 
@@ -453,8 +463,9 @@ void func_00487860(u8 *arg0, s32 *arg1)
     *(s32 *)(arg0 + 0x44) = func_00481d80(arg1);
 }
 
+// Rebuilds the subtype chain: releases the old chain, then builds count entries from the resource (entry 0 from the resource, the rest linked).
 // FUN_004878C0
-void func_004878c0(u8 *arg0, void *arg1)
+void ParticleRebuildSubtypeChain(u8 *arg0, void *arg1)
 {
     u32 count;
     u32 i;
@@ -485,8 +496,9 @@ void func_004878c0(u8 *arg0, void *arg1)
         }
     }
 }
+// Rebuilds the alternate subtype chain: releases the old chain, then builds count entries linked from the resource; same shape as ParticleRebuildSubtypeChain.
 // FUN_00487A30
-void func_00487a30(u8 *arg0, void *arg1)
+void ParticleRebuildSubtypeChainAlt(u8 *arg0, void *arg1)
 {
     u32 count;
     u32 i;
@@ -521,8 +533,9 @@ void func_00487a30(u8 *arg0, void *arg1)
 
 
 
+// Replaces the auxiliary resource handle with the one returned for the given list.
 // FUN_00487BA0
-void func_00487ba0(u8 *arg0, s32 *arg1)
+void ParticleSetAuxResource(u8 *arg0, s32 *arg1)
 {
     s32 temp_4 = *(s32 *)(arg0 + 0x48);
 
@@ -534,8 +547,9 @@ void func_00487ba0(u8 *arg0, s32 *arg1)
 
 
 
+// Releases the particle record block, if present.
 // FUN_00487C00
-void func_00487c00(int param_1)
+void ParticleReleaseRecords(int param_1)
 {
   if (*(int *)(param_1 + 0x4c) != 0) {
     func_00492d00(*(int *)(param_1 + 0x4c));
@@ -559,8 +573,9 @@ typedef struct ParticleUpdateRecord
  * all VU0 operations, including the transformed subtype-5 start-call omission.
  * Evidence: build/finish-first-party-20260922/particle-next-03/. */
 
+// Per-frame update: scales each live particle record through the VU0 transform and writes its colour and angle.
 // FUN_00487C30
-void func_00487c30(u8* particle, f32 scale)
+void ParticleUpdateScaled(u8* particle, f32 scale)
 {
     f32 transformedPosition[4] __attribute__((aligned(16)));
     u32 translationSnapshot[4] __attribute__((aligned(16)));
@@ -848,8 +863,9 @@ static inline u32 particlePackAnimatedColorTransformed(f32 scale)
  * lifetimes preserve the full renderer and its eight-entry switch table.
  * Evidence: build/finish-first-party-20260922/particle-next-02/. */
 
+// Projects the particle vertices through the VU0 matrix and writes the packed colour per vertex.
 // FUN_00487FB0
-void func_00487fb0(u8* particle, f32 scale)
+void ParticleProjectVertices(u8* particle, f32 scale)
 {
     extern s32 func_003a5180(RpAtomic * atomic);
     extern s32 func_003a2770(RpAtomic * atomic, RpPTankLockStruct * lock, u32 dataFlags, RpPTankLockFlags access);
@@ -1508,8 +1524,9 @@ static inline u32 particleProjectedFrameIndex(const u8 *record)
  * The transformed path reads its unsigned frame index through the accessor before
  * loading the texture resource; both the reload and argument order are significant.
  * Receipt: build/first-party-continue-live/particle/resume-20260922-closure/. */
+// Draws the particle billboards: builds each quad from the projected corners and submits them with the camera near and far planes.
 // FUN_00488D70
-void func_00488d70(u8 *arg0)
+void ParticleDrawBillboards(u8 *arg0)
 {
     extern s32 func_00457120(void);
     extern void func_004bceb0(void);

@@ -24,7 +24,7 @@ extern u32 func_004b11b0();
 extern void func_004824a0(int *param_1, u8 *param_2, float *param_3);
 
 
-extern void func_00487fb0(float param_1, int param_2);
+extern void ParticleProjectVertices(float param_1, int param_2);
 extern void func_00487fb0_evt(float param_1);
 
 extern void func_00492e30(u16 *emitter, f32 scale);

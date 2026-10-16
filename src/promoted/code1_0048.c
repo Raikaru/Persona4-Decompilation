@@ -61,8 +61,8 @@ extern u8 D_00713470[];
 extern void func_00485630(u8 *arg0);
 extern void func_00485870(u8 *arg0);
 extern void func_00492d10(void *object);
-extern void func_00487c30(u8 *arg0, f32 arg1);
-extern void func_00487fb0(u8 *arg0, f32 arg1);
+extern void ParticleUpdateScaled(u8 *arg0, f32 arg1);
+extern void ParticleProjectVertices(u8 *arg0, f32 arg1);
 void func_00483810();
 extern u8 D_00713488[];
 extern u8 D_0071348C[];
@@ -2097,7 +2097,7 @@ void func_00489e00(u8 *arg0)
     temp_4 = *(u8 **)(arg0 + 0x4C);
     if (temp_4 != 0) {
         func_00492d10(temp_4);
-        func_00487c30(arg0, 1.0f);
+        ParticleUpdateScaled(arg0, 1.0f);
     }
 }
 // FUN_00489E80
@@ -2108,9 +2108,9 @@ void func_00489e80(u8 *arg0)
     temp_4 = *(u8 **)(arg0 + 0x4C);
     if (temp_4 != 0) {
         func_00492d10(temp_4);
-        func_00487c30(arg0, 1.0f);
+        ParticleUpdateScaled(arg0, 1.0f);
     }
-    func_00487fb0(arg0, 1.0f);
+    ParticleProjectVertices(arg0, 1.0f);
 }
 // FUN_00489EE0
 void func_00489ee0(u8 *instance, u32 *position)
