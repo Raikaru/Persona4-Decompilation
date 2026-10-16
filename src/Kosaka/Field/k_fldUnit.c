@@ -69,6 +69,7 @@ extern u32 *mdlCloneModelObject(u8 *arg0);
 extern f32 FldFrameTask_GetHeight(s32 arg0);
 extern void mdlAdvanceModelFromFlags(u8 *arg0);
 extern s32 FldAI_SpawnPatrol(s32 arg0, u8 *arg1, s32 arg2);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern s32 datUnitGroupIsDefeated(s32 arg0);
 extern s32 FldCharacterAnimSelect(s32 arg0);
 extern s32 FldAI_SpawnChaser(s32 arg0, u8 *arg1, u8 *arg2);

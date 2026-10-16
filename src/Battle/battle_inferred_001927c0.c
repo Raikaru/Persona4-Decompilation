@@ -48,7 +48,9 @@ extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern s32 datGetPartyId(s32 arg0);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern s32 datUnitCreatePc(s32 arg0);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern s32 datUnitCreateEncounterGroup(s32 arg0);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 extern u8 *iGpffffb3e0;

@@ -58,6 +58,7 @@ s32 FldStepGetScriptSize(void);
 s32 scrStartProcedureChecked(s32, s32, s32, s32);
 s32 kwlnTaskIsLinked(void *);
 s32 *FldObjFindFree(void);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 s32 datUnitCreateEncounterGroup(s32);
 s32 FldEvent_FieldToBattle(u8 *);
 f32 RwV3dLength(f32 *);

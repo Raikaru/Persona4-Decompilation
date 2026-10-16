@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_internal.h"
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern u8 *datPersonaGetSkills(void);
 extern s32 datPersonaCollectLearnableSkills(u8 *persona, void *skills, void *levels);
 extern void func_0010e710(s32, u8 *, s32);
@@ -73,6 +74,7 @@ extern u16 func_00106970(s16 arg0);
 extern s32 datEntryHasFlag(s16 arg0, s16 arg1);
 extern s32 datIdBand(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern u8 *datPersonaDisplayName(s16 arg0);
 extern s8 calendarGetValueLowByte(void);
 extern s16 calendarStateDaysSinceApr5(void);

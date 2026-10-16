@@ -51,8 +51,10 @@ extern void datSetUnitSp(s16 character, s16 value);
 extern void datCalcClearBadStatusById(s16 character, u32 mask);
 
 extern u8 *datPersonaGetSkillsByPcId(u16 arg0);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern s32 datPersonaGetLevel(s32 arg0);
 extern u32 datGetMoney(void);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern u8 *datUnitGetRecord(s32 arg0);
 extern u8 datCalcGetBattleStat(DatUnit *arg0, s32 arg1);
 /* Defined below in this file; used before its definition. */

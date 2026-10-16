@@ -54,6 +54,7 @@ s32 datPersonaAddSkill(u8 *, u16);
 void ShdSkill_AddActiveSkill(u16, u8 *);
 void shdPersonaFillStatusBlock();
 u32 datPersonaGetExpForLevel(void *persona, u16 level);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 s32 datPersonaGetExp();
 s32 datPersonaReplaceSkill(u8 *, s16, u16);
 void ShdSkill_ReplaceActiveSkill(u16, u16, u8 *);
@@ -143,10 +144,15 @@ s32 shdPersonaCalcExpRemaining(DatPersonaRecord *arg0, s32 arg1)
 
 
 
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 s8 datPersonaGetLevel(DatPersonaRecord *arg0);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 s8 datPersonaGetStat(DatPersonaRecord *arg0, s32 arg1);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 s8 datPersonaGetBuffedStat(DatPersonaRecord *arg0, s32 arg1);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 s8 datPersonaGetTotalStat(DatPersonaRecord *arg0, s32 arg1);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 s32 datPersonaRunSkillSlot(u8 *arg0, u16 arg1);
 extern u16 D_007465D0[];
 // Intent: Fill a persona status block with level, EXP to next level, five stats (base, buffed or total by mode) and seven skill slots [inferred]
