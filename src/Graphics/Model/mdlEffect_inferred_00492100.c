@@ -41,11 +41,11 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 /* measured: b210 -O2 needs independent value propagation and loop-invariant
  * constant materialization for the retail register and instruction schedule. */
 #pragma push
-/* measured: func_00492100 MATCH -> MISMATCH without this pragma. */
+/* measured: EffSwayParticleUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-/* measured: func_00492100 MATCH -> MISMATCH without this pragma. */
+/* measured: EffSwayParticleUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_00492100(u8 *arg0)
+void EffSwayParticleUpdate(u8 *arg0)
 {
     extern void effMiscBuildRotationVU(void);
     extern f32 fabsf(f32 value);
