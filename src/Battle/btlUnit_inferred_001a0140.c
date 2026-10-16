@@ -170,7 +170,7 @@ block_20:
 
 /* measured: close loop-invariant probe for 001A0140. */
 // FUN_001A0290
-void func_001a0290(BtlAction *action, u16 arg1, u8 *arg2)
+void btlActionGetEffectIndices(BtlAction *action, u16 arg1, u8 *arg2)
 {
     s32 slotOffset;
     s32 category;
@@ -286,7 +286,7 @@ loop_test:
 }
 
 // FUN_001A05F0
-s32 func_001a05f0(BtlAction *action) {
+s32 btlActionLinkedUnitIsActive(BtlAction *action) {
     u16 flags;
     u8 *unitState;
 
