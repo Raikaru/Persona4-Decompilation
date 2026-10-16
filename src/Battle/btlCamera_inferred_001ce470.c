@@ -47,7 +47,7 @@ struct RwMatrixTag {
 extern void btlCameraUpdateEffectList();
 extern void btlCameraFrameRotated(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void btlCameraFrameRotatedWide(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
-extern void func_001b73f0(u8 *arg0);
+extern void btlMainApplyUnitBaseColors(u8 *arg0);
 extern void func_004b3110(s32 arg0);
 extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
 extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
@@ -478,7 +478,7 @@ void btlCameraFrameRotatedFar(u8 *arg0) {
 
 // FUN_001CEFF0
 void btlCameraFrameEnd(void) {
-    func_001b73f0(NULL);
+    btlMainApplyUnitBaseColors(NULL);
     func_004b3110(5);
 }
 
@@ -913,7 +913,7 @@ void btlCameraFrameStatusRoll(u8 *arg0, f32 arg1, f32 arg2)
     if (work.second[1] < 25.0f) {
         work.second[1] = 25.0f;
     }
-    func_001b73f0(unit);
+    btlMainApplyUnitBaseColors(unit);
     btlMainCurveSetPoses((u16 *)arg0, work.first, work.second, 1);
     btlCameraSetDuration(arg0, 3.0f);
 }

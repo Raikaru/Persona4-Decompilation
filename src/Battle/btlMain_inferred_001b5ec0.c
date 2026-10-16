@@ -59,9 +59,9 @@ extern u8 D_005F7000[];
 extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u32 iGpffffa0b8;
-extern void func_001b6120(void);
+extern void btlMainSetupCameraAndEffects(void);
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-extern void func_001b73f0(u8 *arg0);
+extern void btlMainApplyUnitBaseColors(u8 *arg0);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
@@ -224,7 +224,7 @@ void func_001b6110(void)
 #pragma push
 /* measured: func_001b6120 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_001b6120(void)
+void btlMainSetupCameraAndEffects(void)
 {
     extern u8 *func_004571a0(void);
     extern u8 *func_004571c0(void);
@@ -504,7 +504,7 @@ void func_001b6a00(void)
 }
 
 // FUN_001B6A20
-void func_001b6a20(void)
+void btlMainSyncSceneDrawColors(void)
 {
     struct P4Vec4 {
         f32 a;
@@ -531,7 +531,7 @@ void func_001b6a20(void)
 /* measured (this session): cold reconstruction v2 object 380/retail 348 instrs (9% over, not short); probe_variants 357 words/79 edits; probe_search 120 orders flat (propagation/rebuild/no_branch/dead/loop/lifetimes/strength/size/unroll all 357, common_subs worse 397); fnalign $at none (float/bltz tail, slti $at lever N/A); residual is stack layout (0x160 frame pads) and u32->float halving (bltz) vs dead-store elimination; banked guarded floor. */
 /* measured 001b6ab0 2026-09-19: invented f60/f64 pair removed (retail has constants at buf+0x40, not floats; 18 -> 16 float stores) and schedule pragmas removed (retail is unscheduled with nop after every branch/jal); object 350/retail 348 +0.6% INSIDE, 328 words, 48 edits (+3 reloc-only) via fnalign --candidate (was 311/347 -10.4%, 332 words, 228 edits with schedule on). Remaining pure deletes: 0x1b6afc lui $s0,0x88 + addiu $s0,$s0,0x7300 (table-base copy; candidate materialises per site) and 0x1b6c0c sw $zero,0x24($sp) + sw $zero,0x60($sp) (frame 0x120 vs 0x160 offset shift, same 8 constant stores). Frame offsets differ but counts match. */
 // FUN_001B6AB0
-void func_001b6ab0(void) {
+void btlMainDrawSkyOverlay(void) {
     extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern void (*D_00887300[])(u32 arg0, u32 arg1);
     typedef struct {
@@ -654,7 +654,7 @@ void btlMainSkillColorPairDefaultsAlt(u32 arg0, s32 *arg1, s32 *arg2) {
 // FUN_001B70C0
 #pragma push
 /* Preserve the position/color snapshots and the two cross-product phases. */
-void func_001b70c0(u8 *arg0)
+void btlUnitUpdateModelLight(u8 *arg0)
 {
     extern void *SceneDraw_GetLightColorA(u16 resTypeId);
     extern void *SceneDraw_GetLightTint(u16 resTypeId);
@@ -799,7 +799,7 @@ void func_001b70c0(u8 *arg0)
 
 #pragma pop
 // FUN_001B73F0
-void func_001b73f0(u8 *arg0)
+void btlMainApplyUnitBaseColors(u8 *arg0)
 {
     s32 index;
     u16 masked;
@@ -849,7 +849,7 @@ done:
 /* measured: func_001b7520 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001B7520
-u32 func_001b7520(void *arg0)
+u32 btlMainFieldColorFadePacketUpdate(void *arg0)
 {
     typedef struct { f32 x; f32 y; f32 z; f32 w; } FadeV4;
     typedef struct {

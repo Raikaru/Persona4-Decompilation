@@ -194,7 +194,7 @@ extern void btlCameraFrameTarget(u8 *camera, f32 distanceOffset, f32 duration);
 extern u8 *btlFormationGetRecord(s32 arg0);
 extern s32 btlUnitSkillBlocked(u8 *arg0, u8 *arg1);
 extern s32 datCalcIsStatusBlocked(u16 *unitData);
-extern void func_001b73f0(u8 *unit);
+extern void btlMainApplyUnitBaseColors(u8 *unit);
 static inline s32 func_00225ec0_flag(u8 *action)
 {
     u16 battle;
@@ -275,7 +275,7 @@ void btlCameraFrameActionCutscene(u8 *camera)
     extern f32 tanf(f32 x);
     extern void btlCameraFrameStatusRoll(u8 *arg0, f32 arg1, f32 arg2);
     extern void btlAct_ENEMY_ALL(u8 *arg0);
-    extern void func_001b73f0(u8 *arg0);
+    extern void btlMainApplyUnitBaseColors(u8 *arg0);
     struct PosePair {
         RwV3d first;
         RtQuat firstRotation;
@@ -395,7 +395,7 @@ void btlCameraFrameActionCutscene(u8 *camera)
     }
     len = btlTargetQuatAngle(&poses.firstRotation, &poses.secondRotation);
     if (var17 != 0 || (!(len <= fGpffff80e4) && var16 == 1)) {
-        func_001b73f0(NULL);
+        btlMainApplyUnitBaseColors(NULL);
         if (*(u8 *)(unit + 0xA2) == 1 && func_00243ce0(*(u8 **)(unit + 0xA64)) != 0) {
             btlCameraFrameStatusRoll(camera, 2.25f, 2.0f);
         } else {
@@ -1116,12 +1116,12 @@ void btlCameraSetRandomSkillPose(u8 *arg0)
     u8 *base;
     u16 *raw;
     u8 *temp_17;
-    extern void func_001b73f0(u8 *arg0);
+    extern void btlMainApplyUnitBaseColors(u8 *arg0);
     extern void func_001bf5e0(u8 *camera);
 
     if (func_00243ce0(
             (u8 *)*(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA64)) != 0) {
-        func_001b73f0(0);
+        btlMainApplyUnitBaseColors(0);
         index = (u32)(datCalcRandomBelow(2) & 0xFFFF);
         base = *(u8 **)(DAT_0076449c + 0xB98);
         temp_17 = base + index * 0x34 + 0x548;

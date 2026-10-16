@@ -175,7 +175,7 @@ void btlCameraApplyPreset(u8* camera, f32 duration, s32 initialize);
 extern f32 fGpffff80e8;
 extern f32 fGpffff8180;
 extern f32 fGpffff8170;
-extern void func_001b73f0();
+extern void btlMainApplyUnitBaseColors();
 extern u8 *func_001b1560(void);
 extern u32 btlCameraBuildFramePair(u8 *, s32, s32, P4CameraFrame *, P4CameraFrame *);
 
@@ -1260,7 +1260,7 @@ void btlCameraApplyFrameTransition(u8 *arg0)
     if (btlCameraBuildFramePair(arg0, var_5, 0,
                       &frames[0], &frames[1]) != 0)
     {
-        func_001b73f0(0);
+        btlMainApplyUnitBaseColors(0);
         cameraApplyVisibility(0.0f, arg0, 0x100);
         btlMainCurveReset((u16 *)(arg0), (f32 *)(&frames[1]));
         return;

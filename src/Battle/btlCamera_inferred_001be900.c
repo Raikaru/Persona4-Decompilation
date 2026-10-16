@@ -48,7 +48,7 @@ extern u32 datCalcRandomBelow(u32 arg0);
 extern u32 iGpffffa0b8;
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
-extern void func_001b73f0(u8 *arg0);
+extern void btlMainApplyUnitBaseColors(u8 *arg0);
 extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
 extern s32 func_001be990(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 D_005FB400[];
@@ -421,7 +421,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
     frames[1].pos.z = center.z + forward.z;
     btlCameraLookAtQuat(&frames[1].rot, &frames[1].pos, &center,
                  &D_0060A0E0);
-    func_001b73f0(unit);
+    btlMainApplyUnitBaseColors(unit);
     func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
     if (frames[0].pos.y < 25.0f)
     {
@@ -462,13 +462,13 @@ first_done:
     if (datCalcRandomBelow(0x64) <= 0x19) goto second_random;
     temp_17 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
     temp_16 = *(u16 *)(temp_17 + 0xA4);
-    func_001b73f0(temp_17);
+    btlMainApplyUnitBaseColors(temp_17);
     btlCameraStartEffect(arg0,
                   func_001bf3a0_add((effMiscRand(0) & 1) * 0xF4,
                                     (u8 *)((s32)D_005FB400 +
                                            ((temp_16 & 0xFFFF) * 0x1E8))),
                   2);
-    func_001b73f0(temp_17);
+    btlMainApplyUnitBaseColors(temp_17);
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 1);
     *(s32 *)(arg0 + 0x144) = 1;
     goto finish;

@@ -227,7 +227,7 @@ void func_0019c0d0(void)
     extern u32 btlUnitUpdateFollowPath(u8 *arg0);
     extern void btlBossCopyPartnerMark(u8 *arg0);
     extern void SceneDraw_SetResPersona(u16 arg0, u32 arg1);
-    extern void func_001b70c0(u8 *arg0);
+    extern void btlUnitUpdateModelLight(u8 *arg0);
     extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, void *arg1, s32 arg2);
     extern void *mdlTranslateMatrix(void *arg0, void *arg1, s32 arg2);
@@ -270,7 +270,7 @@ void func_0019c0d0(void)
                 s32 v;
                 s32 n;
 
-                func_001b70c0(entry);
+                btlUnitUpdateModelLight(entry);
                 v = *(u16 *)entry;
                 if ((v & 3) != 0 && (v & 4) == 0) {
                     u8 base;
