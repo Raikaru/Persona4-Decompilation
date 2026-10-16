@@ -367,7 +367,7 @@ extern void datScreenWipeSetAlpha(u8 *work, u8 arg1);
 extern void datScreenWipeDraw(void *work);
 extern void sflDataDrawEntry(CampDisplayWords position, f32 depth, s32 alpha, s16 *label);
 extern s32 datCalcGetLevelById(s32 work);
-extern u32 func_0010d6d0(s16 work);
+extern u32 datPersonaNamePart1(s16 work);
 extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
 extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
 extern void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3);

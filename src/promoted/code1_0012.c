@@ -181,7 +181,7 @@ extern void clndPromptDestroy(u8 *arg0);
 extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
 extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5548[];
-extern s32 func_00106600(s16 id);
+extern s32 datItemCount(s16 id);
 extern u8 D_005E76C8[];
 extern u8 D_005E5720[];
 extern s32 func_0012aa70(u8 *arg0);
@@ -223,7 +223,7 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     extern u8 *resourceFindByName(char *filename);
     extern void kAssertFail(const void *file, s32 line);
     extern u32 datPersonaDisplayName(s16 unit);
-    extern u32 func_0010d6d0(s16 unit);
+    extern u32 datPersonaNamePart1(s16 unit);
     extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags, int charWidth);
     extern u32 datCalcGetHpById(s16 unit);
     extern u16 datCalcMaxHpById(s16 unit);
@@ -306,7 +306,7 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     if (fullName != 0) {
         name = (u8 *)datPersonaDisplayName(unit);
     } else {
-        name = (u8 *)func_0010d6d0(unit);
+        name = (u8 *)datPersonaNamePart1(unit);
     }
     frFontExDrawTextWithCharWidth(point.x, point.y, 0.0f, textColor, fontStyle, 1, (const char *)name, 0, -1);
     hpNumber = datCalcGetHpById(unit) & 0xFFFF;
@@ -5189,7 +5189,7 @@ void titleCollectFlaggedIds(u8 *arg0)
     goto loop_test;
 loop_body:
     temp_16 = (s32)temp_4 + 0x300;
-    temp_4_2 = (s64)(s16)(func_00106600(temp_16) & 0xFF);
+    temp_4_2 = (s64)(s16)(datItemCount(temp_16) & 0xFF);
     if (temp_4_2 != 0) {
         temp_3 = arg0 + ((s16)var_17 * 4);
         *(s16 *)(temp_3 + 0x3E) = (s16)temp_16;

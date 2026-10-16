@@ -183,9 +183,9 @@ extern u8 D_0063FB50[];
 
 s32 fclShopStateUpdate(u8 *arg0);
 void func_002be3c0(void);
-s32 func_0010d6d0(s16);
+s32 datPersonaNamePart1(s16);
 void datClampUnitHpSp(s32);
-s32 func_00106b20(s16);
+s32 datItemMoonGateFirst(s16);
 void chkmemAllocSiteTag(const void *, u32);
 
 s32 fclShopItemPanelUpdate(u8 *task);
@@ -250,7 +250,7 @@ s32 fclDecimalDigitCount(s32);
 void fclDrawNumber(Vec2f, f32, FclDrawColor, s32, s16, u32, s32, s32, s32, s32, s32);
 u8 *resourceFindByName(char *);
 s32 yListValueAtFor(u8 *, s32);
-s32 func_00106600(s16 id);
+s32 datItemCount(s16 id);
 u16 datItemValue(s16);
 void fclMesWindowDraw(s32, s32, s32, s32, s32, s32, f32, f32, f32);
 void fclDrawEquipHelpSprite(s32, Vec2f, f32, s32, u8, s32, u8 *);
@@ -341,7 +341,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern s32 H_Cdvd_IsFileLoaded(void *);
     extern s32 datGetFlag(s32);
     extern void datSetFlag(s32, s32);
-    extern s32 func_00106b50(s16);
+    extern s32 datItemMoonGateSecond(s16);
     extern void func_00106d40(s16, s16, s16);
     extern s64 calGetDayEntryForMonthDay(s32, s32);
     extern s32 func_002b32a0(s32, s32, s32, s32);
@@ -1312,8 +1312,8 @@ s32 fclShopStateUpdate(u8 *arg0)
                     temp_18_32 = yListValueAtFor((*(void * *)(work + 0xF18)), (s32) var_16_17);
                     yListAuxValueAtFor((*(void * *)(work + 0xF18)), (s32) var_16_17);
                     temp_20 = (s16) (temp_18_32);
-                    fclAddClamped(clndGetMoonPhase(temp_20) & 0xFF, func_00106600(temp_18_32) & 0xFF, 0xFF, 0, 1);
-                    temp_4_5 = (*(s32 *)(work + 0xC20)) + ((datItemPrice(temp_20) / 5U) * (func_00106600(temp_18_32) & 0xFF));
+                    fclAddClamped(clndGetMoonPhase(temp_20) & 0xFF, datItemCount(temp_18_32) & 0xFF, 0xFF, 0, 1);
+                    temp_4_5 = (*(s32 *)(work + 0xC20)) + ((datItemPrice(temp_20) / 5U) * (datItemCount(temp_18_32) & 0xFF));
                     (*(s32 *)(work + 0xC20)) = temp_4_5;
                     (*(s32 *)(work + 0xC20)) = fclAddClamped(temp_4_5, 0, 0x98967F, 0, 1);
                 }
@@ -1722,7 +1722,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                 (*(s8 *)(work + 0)) = 0x1F;
             } else {
                 nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
-                func_00106620(((s16) (yListValueAt((*(s16 *)(work + 2))))), ((func_00106600((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) + 1) & 0xFF);
+                datItemSetCount(((s16) (yListValueAt((*(s16 *)(work + 2))))), ((datItemCount((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) + 1) & 0xFF);
                 (*(s8 *)(work + 0)) = 0x1B;
             }
             fclObjChangeFlagBit((*(void * *)(work + 0xC8C)), 0, 0);
@@ -1745,7 +1745,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                 fclAddMoney(fclGetMoney() + (datItemPrice(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) >> 2));
                 sdkSndStartStream(0, 0, 0, 6);
             } else {
-                func_00106620(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7))), ((func_00106600(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) & 0xFF) + 1) & 0xFF);
+                datItemSetCount(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7))), ((datItemCount(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) & 0xFF) + 1) & 0xFF);
             }
             func_00106d40((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)), (s16) ((s16) (yListValueAt((*(s16 *)(work + 2))))));
             nmMesWindowDestroySlot((*(s8 *)(work + 0x10)));
@@ -1927,7 +1927,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                 sdkSndStartStream(0, 1, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
                 if (yListCount() > 0) {
-                    if ((datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) <= fclGetMoney()) && ((func_00106600((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) < 0x63)) {
+                    if ((datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) <= fclGetMoney()) && ((datItemCount((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) < 0x63)) {
                         sp688.v0 = yListValueAt((*(s16 *)(work + 2)));
                         sp688.v1 = 0;
                         (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 1, &sp688, 1);
@@ -2017,7 +2017,7 @@ block_368:
                 var_19_4 = 0;
                 for (var_18_5 = 1; var_18_5 < yListCountFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18))); var_18_5++) {
                     temp_2_85 = yListValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_18_5);
-                    var_19_4 += (datItemPrice(temp_2_85) / 5U) * (func_00106600(temp_2_85) & 0xFF);
+                    var_19_4 += (datItemPrice(temp_2_85) / 5U) * (datItemCount(temp_2_85) & 0xFF);
                 }
                 sprintf(spD0, iGpffffa880, fclAddClamped(var_19_4, 0, 0x98967F, 0, 1));
                 (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 6, spD0, 1);
@@ -2121,19 +2121,19 @@ block_368:
         fclShopDrawScrollThumb(arg0);
         if (D_008C027A[0] & 0x1000) {
             temp_18_52 = (*(s16 *)(work + 0x12));
-            if (temp_18_52 != (func_00106600(temp_16_74) & 0xFF)) {
+            if (temp_18_52 != (datItemCount(temp_16_74) & 0xFF)) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            (*(s16 *)(work + 0x12)) = fclAddClamped((s32) (*(s16 *)(work + 0x12)), 1, func_00106600(temp_16_74) & 0xFF, 1, 1);
+            (*(s16 *)(work + 0x12)) = fclAddClamped((s32) (*(s16 *)(work + 0x12)), 1, datItemCount(temp_16_74) & 0xFF, 1, 1);
             tbl = (f32 *) D_0063F688;
             fclObjStartPosition((*(void * *)(work + 0xCCC)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1] - 7.0f), 1, 0xA, 0);
             (*(s8 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xCCC)))) + 0x85)) = 1;
         } else if (D_008C027A[0] & 0x2000) {
             temp_18_53 = (*(s16 *)(work + 0x12));
-            if (temp_18_53 != (func_00106600(temp_16_74) & 0xFF)) {
+            if (temp_18_53 != (datItemCount(temp_16_74) & 0xFF)) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            (*(s16 *)(work + 0x12)) = fclAddClamped((s32) (*(s16 *)(work + 0x12)), 0xA, func_00106600(temp_16_74) & 0xFF, 1, 1);
+            (*(s16 *)(work + 0x12)) = fclAddClamped((s32) (*(s16 *)(work + 0x12)), 0xA, datItemCount(temp_16_74) & 0xFF, 1, 1);
             tbl = (f32 *) D_0063F688;
             fclObjStartPosition((*(void * *)(work + 0xCCC)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], tbl[1] - 7.0f), 1, 0xA, 0);
             (*(s8 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xCCC)))) + 0x85)) = 1;
@@ -2141,7 +2141,7 @@ block_368:
             if ((*(s16 *)(work + 0x12)) != 1) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            (*(s16 *)(work + 0x12)) = fclSubClamped((s32) (*(s16 *)(work + 0x12)), 1, 1, func_00106600(temp_16_74) & 0xFF, 1);
+            (*(s16 *)(work + 0x12)) = fclSubClamped((s32) (*(s16 *)(work + 0x12)), 1, 1, datItemCount(temp_16_74) & 0xFF, 1);
             tbl = (f32 *) D_0063F690;
             fclObjStartPosition((*(void * *)(work + 0xCD0)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 7.0f + tbl[1]), 1, 0xA, 0);
             (*(s8 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xCD0)))) + 0x85)) = 1;
@@ -2149,7 +2149,7 @@ block_368:
             if ((*(s16 *)(work + 0x12)) != 1) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            (*(s16 *)(work + 0x12)) = fclSubClamped((s32) (*(s16 *)(work + 0x12)), 0xA, 1, func_00106600(temp_16_74) & 0xFF, 1);
+            (*(s16 *)(work + 0x12)) = fclSubClamped((s32) (*(s16 *)(work + 0x12)), 0xA, 1, datItemCount(temp_16_74) & 0xFF, 1);
             tbl = (f32 *) D_0063F690;
             fclObjStartPosition((*(void * *)(work + 0xCD0)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0], 7.0f + tbl[1]), 1, 0xA, 0);
             (*(s8 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xCD0)))) + 0x85)) = 1;
@@ -2194,8 +2194,8 @@ block_368:
                     datSetStateTableEntry(temp_16_76, fclAddClamped(clndGetMoonPhase(temp_16_76) & 0xFF, (s32) (*(s16 *)(work + 0x12)), 0xFF, 0, 1) & 0xFF);
                     for (var_16_20 = 0; var_16_20 < 0x2FF; var_16_20++) {
                         if (!(clndGetMoonPhase(var_16_20) & 0xFF)) {
-                            if (fclMoonPhaseAtLeast(((s32) (func_00106b20(var_16_20) & 0xFFF00) >> 8), func_00106b20(var_16_20) & 0xFF) == 1) {
-                                if (fclMoonPhaseAtLeast(((s32) (func_00106b50(var_16_20) & 0xFFF00) >> 8), func_00106b50(var_16_20) & 0xFF) == 1) {
+                            if (fclMoonPhaseAtLeast(((s32) (datItemMoonGateFirst(var_16_20) & 0xFFF00) >> 8), datItemMoonGateFirst(var_16_20) & 0xFF) == 1) {
+                                if (fclMoonPhaseAtLeast(((s32) (datItemMoonGateSecond(var_16_20) & 0xFFF00) >> 8), datItemMoonGateSecond(var_16_20) & 0xFF) == 1) {
                                     (*(s16 *)((u8 *)((work + ((*(s16 *)(work + 0xC16)) * 2))) + 0x16)) = var_16_20;
                                     (*(s16 *)(work + 0xC16)) = (s16) ((*(s16 *)(work + 0xC16)) + 1);
                                 }
@@ -2206,7 +2206,7 @@ block_368:
                 temp_16_77 = datItemPrice((s32) temp_19_7) / 5U;
                 temp_2_yen = fclGetMoney();
                 fclAddMoney(temp_2_yen + ((*(s16 *)(work + 0x12)) * temp_16_77));
-                func_00106620(temp_19_7, ((func_00106600(temp_19_7) & 0xFF) - (*(s16 *)(work + 0x12))) & 0xFF);
+                datItemSetCount(temp_19_7, ((datItemCount(temp_19_7) & 0xFF) - (*(s16 *)(work + 0x12))) & 0xFF);
                 temp_3_19 = (*(s8 *)(work + 0x11));
                 switch (temp_3_19) {                /* switch 6; irregular */
                 case 0:                             /* switch 6 */
@@ -2216,8 +2216,8 @@ block_368:
                         temp_21_5 = yListValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_19_5);
                         yListAuxValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_19_5);
                         temp_16_79 = (s16) (temp_21_5);
-                        fclAddClamped((clndGetMoonPhase(temp_16_79) & 0xFF), func_00106600(temp_21_5) & 0xFF, 0xFF, 0, 1);
-                        temp_4_12 = (*(s32 *)(work + 0xC20)) + ((datItemPrice(temp_16_79) / 5U) * (func_00106600(temp_21_5) & 0xFF));
+                        fclAddClamped((clndGetMoonPhase(temp_16_79) & 0xFF), datItemCount(temp_21_5) & 0xFF, 0xFF, 0, 1);
+                        temp_4_12 = (*(s32 *)(work + 0xC20)) + ((datItemPrice(temp_16_79) / 5U) * (datItemCount(temp_21_5) & 0xFF));
                         (*(s32 *)(work + 0xC20)) = temp_4_12;
                         (*(s32 *)(work + 0xC20)) = fclAddClamped(temp_4_12, 0, 0x98967F, 0, 1);
                     }
@@ -2277,17 +2277,17 @@ block_368:
                 for (var_18_6 = 1; var_18_6 < yListCountFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18))); var_18_6++) {
                     temp_19_8 = yListValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_18_6);
                     yListAuxValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_18_6);
-                    datSetStateTableEntry(temp_19_8, fclAddClamped((clndGetMoonPhase(temp_19_8) & 0xFF), func_00106600(temp_19_8) & 0xFF, 0xFF, 0, 1) & 0xFF);
-                    temp_16_85 = (datItemPrice(temp_19_8) / 5U) * (func_00106600(temp_19_8) & 0xFF);
+                    datSetStateTableEntry(temp_19_8, fclAddClamped((clndGetMoonPhase(temp_19_8) & 0xFF), datItemCount(temp_19_8) & 0xFF, 0xFF, 0, 1) & 0xFF);
+                    temp_16_85 = (datItemPrice(temp_19_8) / 5U) * (datItemCount(temp_19_8) & 0xFF);
                     temp_2_yen = fclGetMoney();
                     fclAddMoney(temp_2_yen + temp_16_85);
-                    func_00106620(temp_19_8, 0);
+                    datItemSetCount(temp_19_8, 0);
                 }
                 (*(s32 *)(work + 0xC20)) = 0;
                 for (var_16_21 = 0; var_16_21 < 0x2FF; var_16_21++) {
                     if (!(clndGetMoonPhase(var_16_21) & 0xFF)) {
-                        if (fclMoonPhaseAtLeast(((s32) (func_00106b20(var_16_21) & 0xFFF00) >> 8), func_00106b20(var_16_21) & 0xFF) == 1) {
-                            if (fclMoonPhaseAtLeast(((s32) (func_00106b50(var_16_21) & 0xFFF00) >> 8), func_00106b50(var_16_21) & 0xFF) == 1) {
+                        if (fclMoonPhaseAtLeast(((s32) (datItemMoonGateFirst(var_16_21) & 0xFFF00) >> 8), datItemMoonGateFirst(var_16_21) & 0xFF) == 1) {
+                            if (fclMoonPhaseAtLeast(((s32) (datItemMoonGateSecond(var_16_21) & 0xFFF00) >> 8), datItemMoonGateSecond(var_16_21) & 0xFF) == 1) {
                                 (*(s16 *)((u8 *)((work + ((*(s16 *)(work + 0xC16)) * 2))) + 0x16)) = var_16_21;
                                 (*(s16 *)(work + 0xC16)) = (s16) ((*(s16 *)(work + 0xC16)) + 1);
                             }
@@ -3199,7 +3199,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
             iconColor = fclPackRgba(0, 0xFF, 0xAE, 0);
             rowColor = fclMakeDrawColor(0xFF, 0xAE, 0, ((u8 *)fclObjectGetWork(work->fC8C))[0x62]);
             stock = datItemPrice((s16)yListValueAt(cur));
-            if (stock > fclGetMoney() || (func_00106600((s16)yListValueAt(cur)) & 0xFF) == 0x63) {
+            if (stock > fclGetMoney() || (datItemCount((s16)yListValueAt(cur)) & 0xFF) == 0x63) {
                 textColor = fclPackRgba(0xA6, 0x7F, 0x2B, ((u8 *)fclObjectGetWork(work->fC8C))[0x62]);
                 iconColor = fclPackRgba(0, 0xA6, 0x7F, 0x2B);
                 rowColor = fclMakeDrawColor(0xA6, 0x7F, 0x2B, ((u8 *)fclObjectGetWork(work->fC8C))[0x62]);
@@ -3337,7 +3337,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
     } else if (D_008C024E[0] & 0x40) {
         if (yListCount() > 0) {
             stock = datItemPrice((s16)yListValueAt(work->f2));
-            if (stock <= fclGetMoney() && (func_00106600((s16)yListValueAt(work->f2)) & 0xFF) < 0x63) {
+            if (stock <= fclGetMoney() && (datItemCount((s16)yListValueAt(work->f2)) & 0xFF) < 0x63) {
                 sdkSndStartStream(0, 0, 0, 1);
                 work->fF3E = *(FclDrawColor *)((u8 *)fclObjectGetWork(work->fDC8) + 0x79);
                 work->fF42 = *(FclDrawColor *)((u8 *)fclObjectGetWork(work->fDD0) + 0x79);
@@ -3908,7 +3908,7 @@ void fclShopDrawBuyList(void *arg0, s8 arg1) {
                     digits = datItemPrice((s16)yListValueAtFor(work->list[work->sel], cur)) / 5;
                     fclDrawNumber(fclMakeVec2(372.0f + sp1D0.x, 16.0f + sp1D0.y), 115.0f, rowColor, 0x10, 5, digits, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)work->font, 0xA9);
                     fclDrawEquipSprite(0x47, fclMakeVec2(400.0f + sp1D0.x, 18.0f + sp1D0.y), 115.0f, iconColor, 0xFF, 0, D_00795E60);
-                    fclDrawNumber(fclMakeVec2((f32)0x1AF + sp1D0.x, 16.0f + sp1D0.y), 115.0f, rowColor, 0x10, 5, func_00106600((s16)yListValueAtFor(work->list[work->sel], cur)) & 0xFF, 9, 0x7B,
+                    fclDrawNumber(fclMakeVec2((f32)0x1AF + sp1D0.x, 16.0f + sp1D0.y), 115.0f, rowColor, 0x10, 5, datItemCount((s16)yListValueAtFor(work->list[work->sel], cur)) & 0xFF, 9, 0x7B,
                                   (s32)resourceFindByName((char *)(D_0063FB50)), (s32)work->font, 0xA9);
                 }
             }
@@ -4451,7 +4451,7 @@ s32 fclShopListInputStep(void *arg0)
     if (fclObjHasStatusFlags(work->fC60) == 0 && fclObjHasStatusFlags(work->fC80) == 0 && fclObjHasStatusFlags(work->fC70) == 0 &&
         fclObjHasStatusFlags(work->fC84) == 0 && fclObjHasStatusFlags(work->fC74) == 0 && fclObjHasStatusFlags(work->fC78) == 0) {
         stock = datItemPrice((s16)yListValueAt(work->f2));
-        if (stock > fclGetMoney() || (func_00106600((s16)yListValueAt(work->f2)) & 0xFF) == 0x63) {
+        if (stock > fclGetMoney() || (datItemCount((s16)yListValueAt(work->f2)) & 0xFF) == 0x63) {
             colA = fclPackRgba(0, 0xA6, 0x7F, 0x2B);
             c2AC = fclMakeDrawColor(0xA6, 0x7F, 0x2B, 0xFF);
             colB = fclPackRgba(0xA6, 0x7F, 0x2B, 0xFF);
@@ -4469,7 +4469,7 @@ s32 fclShopListInputStep(void *arg0)
         }
         switch (work->f7) {
         case 0:
-            fclMesWindowDraw((s16)func_00106b80((s16)yListValueAt(work->f2)), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 0, 0x57, 109.0f, 324.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset((s16)yListValueAt(work->f2)), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 0, 0x57, 109.0f, 324.0f, 70.0f);
             sp218 = fclMakeVec2(86.0f, 256.0f);
             fclDrawEquipSprite(work->icon[work->sel], sp218, 69.0f, colA, 0xFF, 0, D_00794ED0);
             func_002e09e0(work->fCA0, 0x57, 83.0f);
@@ -4512,7 +4512,7 @@ s32 fclShopListInputStep(void *arg0)
             fclDrawNumber(spA8, 22.0f, c25C, 0xF, 0, uA, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
             break;
         case 1:
-            fclMesWindowDraw((s16)func_00106b80((s16)yListValueAt(work->f2)), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 324.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset((s16)yListValueAt(work->f2)), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 324.0f, 70.0f);
             sp200 = fclMakeVec2(86.0f, 256.0f);
             fclDrawEquipSprite(0x1B, sp200, 69.0f, colA, 0xFF, 0, D_00794ED0);
             func_002e09e0(work->fC9C, 0x57, 81.0f);
@@ -4555,7 +4555,7 @@ s32 fclShopListInputStep(void *arg0)
             fclDrawNumber(sp98, 22.0f, c254, 0xF, 0, uA, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
             break;
         case 2:
-            fclMesWindowDraw((s16)func_00106b80((s16)yListValueAt(work->f2)), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 324.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset((s16)yListValueAt(work->f2)), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 324.0f, 70.0f);
             sp1E8 = fclMakeVec2(86.0f, 256.0f);
             fclDrawEquipSprite(0x1C, sp1E8, 69.0f, colA, 0xFF, 0, D_00794ED0);
             b = (Vec2f *)D_0063F660;
@@ -4632,7 +4632,7 @@ s32 fclShopListInputStep(void *arg0)
             frFontExDrawTextDeferredWithCharWidth(spC8.x, spC8.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 0))), 0, 0, D_00794ED0, -1);
             sp198 = fclMakeVec2(86.0f, 90.0f);
             fclDrawEquipSprite(work->icon[work->sel], sp198, 69.0f, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
-            fclMesWindowDraw((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 0)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 0, 0x57, 109.0f, 158.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset(func_00106cd0(work->kind[work->sel], 0)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 0, 0x57, 109.0f, 158.0f, 70.0f);
             b = (Vec2f *)D_0063F630;
             func_002e09e0(work->fE98, 0x57, 83.0f);
             c27C = fclMakeDrawColor(0xE7, 0xE5, 0xE6, 0xFF);
@@ -4665,7 +4665,7 @@ s32 fclShopListInputStep(void *arg0)
             frFontExDrawTextDeferredWithCharWidth(spC0.x, spC0.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 1))), 0, 0, D_00794ED0, -1);
             sp178 = fclMakeVec2(86.0f, 90.0f);
             fclDrawEquipSprite(0x1B, sp178, 69.0f, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
-            fclMesWindowDraw((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 1)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 1, 0x57, 109.0f, 158.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset(func_00106cd0(work->kind[work->sel], 1)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 1, 0x57, 109.0f, 158.0f, 70.0f);
             b = (Vec2f *)D_0063F628;
             func_002e09e0(work->fE94, 0x57, 81.0f);
             c274 = fclMakeDrawColor(0xE7, 0xE5, 0xE6, 0xFF);
@@ -4698,7 +4698,7 @@ s32 fclShopListInputStep(void *arg0)
             frFontExDrawTextDeferredWithCharWidth(spB8.x, spB8.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 2))), 0, 0, D_00794ED0, -1);
             sp158 = fclMakeVec2(86.0f, 90.0f);
             fclDrawEquipSprite(0x1C, sp158, 69.0f, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
-            fclMesWindowDraw((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 2)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 2, 0x57, 109.0f, 158.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset(func_00106cd0(work->kind[work->sel], 2)), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 2, 0x57, 109.0f, 158.0f, 70.0f);
             b = (Vec2f *)D_0063F668;
             func_002e09e0(work->fCBC, 0x57, 85.0f);
             func_002e09e0(work->fEB0, 0x57, 85.0f);
@@ -6126,7 +6126,7 @@ void fclShopDrawItemRows(void *arg0, s8 arg1, f32 x, f32 y) {
                 fclDrawEquipSprite(0x47, sp148, 141.0f, iconColor, 0xFF, 0, D_00795E60);
                 sp140 = fclMakeVec2((f32)0x1A5 + fx, 142.0f + (f32)(row * 32));
                 fclDrawNumber(sp140, 141.0f, c20C, 0x10, 5,
-                              func_00106600((s16)yListValueAtFor(work->list[idx], cur)) & 0xFF, 9, 0x7B,
+                              datItemCount((s16)yListValueAtFor(work->list[idx], cur)) & 0xFF, 9, 0x7B,
                               (s32)resourceFindByName((char *)(D_0063FB50)), (s32)work->font, 0xA9);
             }
         }
@@ -6800,7 +6800,7 @@ void fclShopDrawScrollThumb(void *arg0) {
     count = datItemPrice((s32)id) / 5U;
     fclDrawNumber(fclMakeVec2(486.0f, 145.0f), 70.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
     fclDrawEquipSprite(0x47, fclMakeVec2((f32)0x202, 147.0f), 70.0f, fclPackRgba(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
-    fclDrawNumber(fclMakeVec2((f32)0x221, 145.0f), 70.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, func_00106600(id) & 0xFF, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
+    fclDrawNumber(fclMakeVec2((f32)0x221, 145.0f), 70.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, datItemCount(id) & 0xFF, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
     if (datItemValue(id) == 0) {
         for (j = 0; j < 15; j++) {
             fclDrawEquipSprite(0x3C, fclMakeVec2((f32)(j * 22 + 111), 178.0f), 86.0f, fclPackRgba(0xFF, 0xFF, 0xC7, 0x31), 0xFF, 0, D_00794ED0);
@@ -6819,7 +6819,7 @@ void fclShopDrawScrollThumb(void *arg0) {
         case 24:
         case 25:
         case 26:
-            fclMesWindowDraw((s16)func_00106b80(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 0, 0x57, 109.0f, 201.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 0, 0x57, 109.0f, 201.0f, 70.0f);
             func_002e09e0(*(void **)(work + 0xCA0), 0x57, 83.0f);
             *(FclDrawColor *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCA0)) + 0x79) = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
             *(Vec2f *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCA0)) + 0x2C) = fclMakeVec2((f32)0x1E1, 174.0f);
@@ -6830,7 +6830,7 @@ void fclShopDrawScrollThumb(void *arg0) {
             shopDrawStatAt(func_001068e0(id), func_001068e0(id) & 0xFFFF, fclMakeVec2((f32)0x20E, 252.0f));
             break;
         case 27:
-            fclMesWindowDraw((s16)func_00106b80(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 201.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 201.0f, 70.0f);
             func_002e09e0(*(void **)(work + 0xC9C), 0x57, 81.0f);
             *(FclDrawColor *)((u8 *)fclObjectGetWork(*(void **)(work + 0xC9C)) + 0x79) = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
             *(Vec2f *)((u8 *)fclObjectGetWork(*(void **)(work + 0xC9C)) + 0x2C) = fclMakeVec2((f32)0x1E1, 174.0f);
@@ -6841,7 +6841,7 @@ void fclShopDrawScrollThumb(void *arg0) {
             shopDrawStatAt(func_00106970(id), func_00106970(id) & 0xFFFF, fclMakeVec2((f32)0x20E, 252.0f));
             break;
         case 28:
-            fclMesWindowDraw((s16)func_00106b80(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 201.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 201.0f, 70.0f);
             func_002e09e0(*(void **)(work + 0xCB8), 0x57, 84.0f);
             *(u8 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCB8)) + 0x62) = 0x7F;
             *(Vec2f *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCB8)) + 0x2C) = fclMakeVec2(478.0f, 166.0f);
@@ -6855,10 +6855,10 @@ void fclShopDrawScrollThumb(void *arg0) {
     case 0:
         if (*(s8 *)(work + 0x11) == 2) {
             fclDrawEquipHelpSprite(0x1B, fclMakeVec2(86.0f, 135.0f), 69.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-            fclMesWindowDraw((s16)func_00106b80(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 4, 0x57, 109.0f, 201.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 4, 0x57, 109.0f, 201.0f, 70.0f);
         } else {
             fclDrawEquipHelpSprite(0x1A, fclMakeVec2(86.0f, 135.0f), 69.0f, fclPackRgba(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-            fclMesWindowDraw((s16)func_00106b80(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 7, 0x57, 109.0f, 201.0f, 70.0f);
+            fclMesWindowDraw((s16)datItemBankOffset(id), fclPackRgba(0xDF, 0x6C, 0, 0xFF), 1, 0, 7, 0x57, 109.0f, 201.0f, 70.0f);
         }
         func_002e09e0(*(void **)(work + 0xCB8), 0x56, 84.0f);
         *(u8 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCB8)) + 0x62) = 0x7F;
@@ -7080,7 +7080,7 @@ void fclShopPlayItemCue(void *arg0) {
     void *work = *(void **)((u8 *)arg0 + 0x38);
 
     idx = *(s16 *)((u8 *)work + 0xC18) * 2;
-    r = func_00106b20(*(s16 *)(idx + (u32)work + 0x16));
+    r = datItemMoonGateFirst(*(s16 *)(idx + (u32)work + 0x16));
     v = (u16)((r & 0xFFF00) >> 8);
     t[0] = v;
     t[1] = 0;
@@ -7138,7 +7138,7 @@ s32 fclShopPlaySoundParams(void *arg0, s32 arg1, void *arg2, void *arg3, s8 arg4
 // FUN_002E0080
 void fclShopDrawItemText(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
     frFontExDrawTextDeferred(77.0f + arg2.x, arg2.y, 1.0f, (s32)(u32)arg3, 0, 1,
-                  (const char *)func_0010d6d0(arg1), 8, 0, D_00795E60);
+                  (const char *)datPersonaNamePart1(arg1), 8, 0, D_00795E60);
 }
 
 // Item panel task update: copies the 0xF0-byte item block into the work, then draws the panel's sprite pair depending on the two state checks.

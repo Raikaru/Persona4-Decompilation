@@ -95,7 +95,7 @@ extern s32 func_002be100(u8 arg0);
 extern u16 cmmCommunityRecordValue(s32 arg0);
 extern s8 nmMesWindowAcquire(void *arg0);
 extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
-extern s32 func_00106600(s16 arg0);
+extern s32 datItemCount(s16 arg0);
 extern s32 nmMesWindowSlotStatus(s8 arg0);
 extern void nmMesWindowStepSlotRelease(s32 arg0);
 extern void nmMesWindowDestroySlot(s8 arg0);
@@ -305,7 +305,7 @@ s32 weaponShopTalkUpdate(u8 *arg0)
             if (datGetFlag(*(s32 *)(e + 12)) != 0 || *(s32 *)(e + 12) == 0) {
                 work[1] = nmMesWindowAcquire(D_00645240);
                 nmMesWindowShowSlotRecord(work[1], *(s16 *)e);
-                func_00106620(*(s16 *)(e + 2), ((func_00106600(*(s16 *)(e + 2)) & 0xFF) + 1) & 0xFF);
+                datItemSetCount(*(s16 *)(e + 2), ((datItemCount(*(s16 *)(e + 2)) & 0xFF) + 1) & 0xFF);
                 datSetFlag(*(s32 *)(e + 4), 1);
                 datSetFlag(*(s32 *)(e + 8), 0);
                 (*work)++;

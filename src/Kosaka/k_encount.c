@@ -15,7 +15,7 @@
 extern s32 FldMap_IsInBandA(s32 field, s32 room);
 extern s32 FldMap_IsInBandB(s32 field, s32 room);
 extern s32 FldStepBandValue();
-extern s32 func_00106600(s16 id);
+extern s32 datItemCount(s16 id);
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
 extern s64 calGetDayEntryByPhase(s32 day, u32 time);
@@ -262,7 +262,7 @@ typedef struct EncEntry {
 // FUN_00161C80
 /* Pick a weighted record (0x1D records of 0xC bytes) from the block of the
    given encounter. A record is skipped when its id is in the D_005F1260 list
-   with a nonzero func_00106600 count, or when Encount_IsEncounterActive or the D_007E80A0
+   with a nonzero datItemCount count, or when Encount_IsEncounterActive or the D_007E80A0
    slot scan finds it already present; bit 0 of byte 7 selects which modes
    count it. The first pass sums the weights, the second draws against it. */
 /* measured: opt_loop_invariants on hoists the D_005F1260/D_007E80A0 bases and
@@ -298,7 +298,7 @@ u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
             s32 hit = 0;
             s32 j;
             for (j = 0; ((s16 *)D_005F1260)[j] != -1; j++) {
-                if (id == ((s16 *)D_005F1260)[j] && (func_00106600(id) & 0xFF) > 0) {
+                if (id == ((s16 *)D_005F1260)[j] && (datItemCount(id) & 0xFF) > 0) {
                     hit = 1;
                     break;
                 }
@@ -353,7 +353,7 @@ u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
                 id = *(u16 *)(rec + 2);
                 hit = 0;
                 for (j = 0; ((s16 *)D_005F1260)[j] != -1; j++) {
-                    if (id == ((s16 *)D_005F1260)[j] && (func_00106600(id) & 0xFF) > 0) {
+                    if (id == ((s16 *)D_005F1260)[j] && (datItemCount(id) & 0xFF) > 0) {
                         hit = 1;
                         break;
                     }

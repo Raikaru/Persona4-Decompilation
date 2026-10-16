@@ -31,7 +31,7 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
     return left + right;
 }
 
-extern s32 func_00106600(s16 arg);
+extern s32 datItemCount(s16 arg);
 
 /* gp - 0x4C48 = 0x007690f0 - 0x4c48 = 0x007644a8 */
 extern u8 *iGpffffb3b8;
@@ -452,14 +452,14 @@ s32 datCalcHasSkill(u8 *arg0, s32 arg1)
     return PTDatCalcHasSkill(arg0, arg1);
 }
 
-// Intent: true when unit arg0 lacks flag 4 and its id has a table entry (func_00106600 > 0); [inferred].
+// Intent: true when unit arg0 lacks flag 4 and its id has a table entry (datItemCount > 0); [inferred].
 // FUN_00232830
 s32 datCalcIsStandardUnit(u16 *arg0, s64 arg1)
 {
     if (*arg0 & 4) {
         return 0;
     }
-    return (func_00106600((s16)arg1) & 0xFF) > 0;
+    return (datItemCount((s16)arg1) & 0xFF) > 0;
 }
 
 
@@ -4743,7 +4743,7 @@ done2:
         if (*(u16 *)arg0 & 4) {
             tmp = 0;
         } else {
-            tmp = (func_00106600(0x340) & 0xFF) > 0;
+            tmp = (datItemCount(0x340) & 0xFF) > 0;
         }
         if (tmp != 0) {
             var_17 = 0x154;
@@ -4818,7 +4818,7 @@ done4:
         if (*(u16 *)arg0 & 4) {
             tmp = 0;
         } else {
-            tmp = (func_00106600(0x340) & 0xFF) > 0;
+            tmp = (datItemCount(0x340) & 0xFF) > 0;
         }
         if (tmp != 0) {
             var_17 = 0x154;

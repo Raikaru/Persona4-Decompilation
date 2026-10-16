@@ -72,7 +72,7 @@ f32 fclEaseInterpolate(s32, f32, f32, f32, f32);
 s32 fclPackRgba(u8, u8, u8, u8);
 extern s32 frFontExDrawTextDeferred(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, void *arg9);
 extern u32 datGetItemNameId(s16 arg0);
-extern s32 func_00106600(s16 arg0);
+extern s32 datItemCount(s16 arg0);
 extern void fclShopDrawNumber(F2_0033 position, f32 depth, FclDrawColor color, u32 number, s16 glyphBase, void *sprite,
                           s32 style);
 extern void fclMesWindowDraw(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
@@ -834,7 +834,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         fclBustupObjStartPosition(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0x198), 57.0f);
         *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x198)) + 0xF8) =
-            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
+            (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
         func_0033d3d0(*(void **)(work + 0x198), 0x5B);
         *(FclDrawColor *)(fclBustupObjGetWork(*(void **)(work + 0x198)) + 0x79) = fclMakeDrawColor(0x7E, 0, 8, 0xFF);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 0);
@@ -842,10 +842,10 @@ s32 fclItemShopUpdate(u8 *arg0) {
         fclBustupObjStartPosition(*(void **)(work + 0x19C), fclMakeVec2(552.0f, 185.0f), fclMakeVec2(552.0f, 185.0f), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0x19C), 57.0f);
         *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x19C)) + 0xF8) =
-            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
+            (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
         func_0033d3d0(*(void **)(work + 0x19C), 0x5B);
         *(FclDrawColor *)(fclBustupObjGetWork(*(void **)(work + 0x19C)) + 0x79) = fclMakeDrawColor(0x7E, 0, 8, 0xFF);
-        if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
+        if ((u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
             fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 1);
             fclBustupObjStartPosition(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
         }
@@ -974,11 +974,11 @@ s32 fclItemShopUpdate(u8 *arg0) {
                 (f32)(*(s16 *)(work + 4) - *(s16 *)(work + 6)) * *(f32 *)(work + 0x420) + tbl->y + 0.0f;
         }
         *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x198)) + 0xF8) =
-            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
+            (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
         fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 0);
         *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x19C)) + 0xF8) =
-            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
-        if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
+            (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
+        if ((u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
             fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 1);
             fclBustupObjStartPosition(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
         }
@@ -1049,7 +1049,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
                 yListRetreatCursorScroll(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);
             } else if (D_008C024E[0] & 0x40) {
                 if (fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) <= fclGetMoney() &&
-                    (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) < 0x63) {
+                    (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) < 0x63) {
                     tbl = (F2_0033 *)D_0064A210;
                     fclBustupObjStartPosition(*(void **)(work + 0xD0),
                                   fclMakeVec2(*(f32 *)(fclBustupObjGetWork(*(void **)(work + 0xD0)) + 0x2C), tbl->y),
@@ -1164,15 +1164,15 @@ s32 fclItemShopUpdate(u8 *arg0) {
                     fclBustupObjStartAlpha(*(void **)(work + 0x198), 0xFF, 0, 0, 0, 5);
                     func_0033d3c0(*(void **)(work + 0x198), 57.0f);
                     *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x198)) + 0xF8) =
-                        (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
+                        (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0x19C), fclMakeVec2(552.0f, 185.0f), fclMakeVec2(552.0f, 185.0f), 0,
                                   0, 0);
                     fclBustupObjStartAlpha(*(void **)(work + 0x19C), 0xFF, 0, 0, 0, 5);
                     func_0033d3c0(*(void **)(work + 0x19C), 57.0f);
                     *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x19C)) + 0xF8) =
-                        (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
-                    if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
+                        (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
+                    if ((u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
                         fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 1);
                         fclBustupObjStartPosition(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f),
                                       fclMakeVec2(0x243, 185.0f), 0, 0, 0);
@@ -1334,11 +1334,11 @@ s32 fclItemShopUpdate(u8 *arg0) {
                       *(void **)(work + 0xC), 0xAB);
         fclItemShopDrawList(arg0);
         *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x198)) + 0xF8) =
-            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
+            (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
         fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 0);
         *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x19C)) + 0xF8) =
-            (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
-        if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
+            (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
+        if ((u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
             fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 1);
             fclBustupObjStartPosition(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
         }
@@ -1378,11 +1378,11 @@ s32 fclItemShopUpdate(u8 *arg0) {
             nmMesWindowRequestRefresh();
             *(s8 *)(work + 0) = 0xD;
         } else if (D_008C027A[0] & 0x1000) {
-            if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))))) {
+            if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))))) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
             *(s8 *)(work + 3) = fclAddClamped(*(s8 *)(work + 3), 1,
-                                              (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
+                                              (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
             if (*(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) > fclGetMoney()) {
                 *(s8 *)(work + 3) = fclGetMoney() / fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4)));
             }
@@ -1398,11 +1398,11 @@ s32 fclItemShopUpdate(u8 *arg0) {
             fclBustupObjStartPosition(*(void **)(work + 0x160), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, 7.0f + tbl->y), 1,
                           0xA, 0);
         } else if (D_008C027A[0] & 0x2000) {
-            if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))))) {
+            if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))))) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
             *(s8 *)(work + 3) = fclAddClamped(*(s8 *)(work + 3), 0xA,
-                                              (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
+                                              (s16)(0x63 - (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
             if (*(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) > fclGetMoney()) {
                 *(s8 *)(work + 3) = fclGetMoney() / fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4)));
             }
@@ -1459,17 +1459,17 @@ s32 fclItemShopUpdate(u8 *arg0) {
         }
         *(s8 *)(work + 0) = 0xC;
         if (!func_002bb1c0(*(s8 *)(work + 8))) {
-            func_00106620((s16)yListValueAt(*(s16 *)(work + 4)),
-                          (u8)(*(s8 *)(work + 3) + (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))));
+            datItemSetCount((s16)yListValueAt(*(s16 *)(work + 4)),
+                          (u8)(*(s8 *)(work + 3) + (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4)))));
             fclAddMoney(fclGetMoney() -
                           *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, (s16)yListValueAt(*(s16 *)(work + 4))));
             *(f32 *)(work + 0x1E0) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(fclGetMoney()) + 0.0f;
             *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x198)) + 0xF8) =
-                (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
+                (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
             fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 0);
             *(u16 *)(fclBustupObjGetWork(*(void **)(work + 0x19C)) + 0xF8) =
-                (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
-            if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
+                (u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
+            if ((u8)datItemCount((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
                 fclBustupObjChangeFlagBit(*(void **)(work + 0x19C), 0, 1);
                 fclBustupObjStartPosition(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0,
                               0);
@@ -1845,7 +1845,7 @@ void fclItemShopDrawList(u8 *arg0)
         fclShopDrawNumber(pos1, 62.0f, col1,
                       fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(p + 4))), 0x19,
                       *(void **)(p + 0xC), 0xAB);
-        fclMesWindowDraw((s16)func_00106b80((s16)yListValueAt(*(s16 *)(p + 4))), -1, 1, 0, 4, 0xAA,
+        fclMesWindowDraw((s16)datItemBankOffset((s16)yListValueAt(*(s16 *)(p + 4))), -1, 1, 0, 4, 0xAA,
                       71.0f, 135.0f, 62.0f);
         fclBustupObjChangeFlagBit(*(void **)(p + 0x120), 0, 1);
         fclBustupObjChangeFlagBit(*(void **)(p + 0x124), 0, 1);
@@ -1892,7 +1892,7 @@ void fclItemShopDrawList(u8 *arg0)
             if (fclGetMoney() < price) {
                 red = 0x4F;
                 green = blue = 0;
-            } else if ((u8)func_00106600((s16)yListValueAt(i)) == 0x63) {
+            } else if ((u8)datItemCount((s16)yListValueAt(i)) == 0x63) {
                 red = 0x4F;
                 green = blue = 0;
             } else if ((u8)clndGetMoonPhase(yListValueAt(i)) & 1) {

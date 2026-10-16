@@ -152,7 +152,7 @@ extern s32 func_001f39d0(u8 **arg0);
 extern void btlTargetRewindWorkCount(void);
 
 extern s32 btlSoundMarkSlotReady(u8 **arg0);
-extern s32 func_00106600(s16 arg0);
+extern s32 datItemCount(s16 arg0);
 extern s32 datCalcAddHp(s32 arg0, s32 arg1);
 extern s32 datCalcAddSp(s32 arg0, s32 arg1);
 extern u32 datCalcSkillCost(u8 *arg0, s32 arg1);

@@ -13,8 +13,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 s32 fclShopDrawCreate(s32);
 s32 func_002be100(s32);
-s32 func_00106b20(s16);
-s32 func_00106b50(s16);
+s32 datItemMoonGateFirst(s16);
+s32 datItemMoonGateSecond(s16);
 
 void chkmemAllocSiteTag(const void *, u32);
 void sdkSndFadeOutChannelFrames(s16, s32, s32);
@@ -57,19 +57,19 @@ s32 func_002bdb50(s32 arg0, s8 arg1)
     *(s16 *)(temp_2 + 0x24) = 0;
     sdkSndFadeOutChannelFrames(3, 0, 0x1E);
     for (i = 0; i < 0x2FF; i++) {
-        if (((func_00106b20(i) & 0xFFF00) >> 8) == 0 &&
-            ((func_00106b50(i) & 0xFFF00) >> 8) == 0) {
+        if (((datItemMoonGateFirst(i) & 0xFFF00) >> 8) == 0 &&
+            ((datItemMoonGateSecond(i) & 0xFFF00) >> 8) == 0) {
             datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
-        } else if (!(func_00106b20(i) & 0xFF) && !(func_00106b50(i) & 0xFF)) {
+        } else if (!(datItemMoonGateFirst(i) & 0xFF) && !(datItemMoonGateSecond(i) & 0xFF)) {
             datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
         }
     }
     for (i = 0x300; i < 0x3FF; i++) {
-        if ((func_002be100((u8)func_00106ac0(i)) & 0xFF) <
+        if ((func_002be100((u8)datItemAvailableMonth(i)) & 0xFF) <
             (func_002be100(4) & 0xFF)) {
             datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
-        } else if ((func_002be100((u8)func_00106ac0(i)) & 0xFF) ==
-                   (func_002be100(4) & 0xFF) && (s8)func_00106af0(i) < 2) {
+        } else if ((func_002be100((u8)datItemAvailableMonth(i)) & 0xFF) ==
+                   (func_002be100(4) & 0xFF) && (s8)datItemAvailableDay(i) < 2) {
             datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
         }
     }
