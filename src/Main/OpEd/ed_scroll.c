@@ -20,8 +20,8 @@ extern f32 fGpffff84fc;
 extern f32 fGpffff8500;
 extern s32 iGpffffa9ec;
 
-extern u32 func_0038ee10(void);
-extern u32 func_0038f950(void);
+extern u32 edScrollShortHoldEnabled(void);
+extern u32 edResGetStream(void);
 extern s32 strlen(const char *text);
 extern void strncpy(void *dst, const void *src, s32 size);
 extern void frFontSetFlagBits(s32 mode);
@@ -35,18 +35,19 @@ typedef struct EdColor {
     u8 a;
 } EdColor;
 
-void func_0038e6d0(u32 *record);
-void func_0038e740(void);
-u32 *func_0038e610(void);
-void func_0038e810(u32 *work, char *text, s32 align);
-void func_0038eae0(u32 *work, const f32 *pos);
-void func_0038ebb0(u32 *work, const u8 *color);
-u32 func_0038ec50(void);
-s32 func_0038ecc0(void);
-void func_0038ed30(void);
+void edScrollFreeRecord(u32 *record);
+void edScrollLayoutRecords(void);
+u32 *edScrollAllocRecord(void);
+void edScrollLayoutText(u32 *work, char *text, s32 align);
+void edScrollMoveRecord(u32 *work, const f32 *pos);
+void edScrollSetRecordColor(u32 *work, const u8 *color);
+u32 edScrollStreamCommand(void);
+s32 edScrollStreamOperand(void);
+void edScrollStreamAdvance(void);
 
+// Intent: Release every scroll record and clear the work pointer [inferred]
 // FUN_0038DDF0
-void func_0038ddf0(void)
+void edScrollRelease(void)
 {
     s32 i;
     u32 *work;
@@ -59,14 +60,15 @@ void func_0038ddf0(void)
         u32 *elem = (u32 *)((u8 *)work + i * 0x90);
         u32 *record = elem + 1;
         if ((~elem[1] & 1) == 0) {
-            func_0038e6d0(record);
+            edScrollFreeRecord(record);
         }
     }
     D_007246A0 = NULL;
 }
 
+// Intent: Start the roll: reset the scroll offsets and timers, lay out the records and set the active bit [inferred]
 // FUN_0038DE90
-void func_0038de90(void)
+void edScrollStart(void)
 {
     u32 *work;
 
@@ -81,13 +83,14 @@ void func_0038de90(void)
     work[0x481] = 0;
     work[0x482] = 0;
     work[0x483] = 0;
-    func_0038e740();
+    edScrollLayoutRecords();
     work[0] |= 1;
     work[0x489] = 0;
 }
 
+// Intent: Report whether the roll is active [inferred]
 // FUN_0038DF10
-u32 func_0038df10(void)
+u32 edScrollIsActive(void)
 {
     if (D_007246A0 == NULL) {
         kAssertFail(D_0064F220, 0x6B);
@@ -95,8 +98,9 @@ u32 func_0038df10(void)
     return D_007246A0[0] & 1;
 }
 
+// Intent: Per-frame roll step: run the hold and scroll phases, parse stream commands into new text records and drift them up [inferred]
 // FUN_0038DF60
-void func_0038df60(void)
+void edScrollStep(void)
 {
     u32 *work;
     u32 *entry;
@@ -126,24 +130,24 @@ void func_0038df60(void)
             work[0x489] = 1;
             work[0] &= ~4u;
         }
-        if (func_0038ee10() != 0) {
+        if (edScrollShortHoldEnabled() != 0) {
             iGpffffa9ec = 0x1e;
         } else {
             iGpffffa9ec = 0x12c;
         }
         switch (work[0x489]) {
         case 0:
-            func_0038ee10();
+            edScrollShortHoldEnabled();
             drift = fGpffff84fc;
             break;
         case 1:
-            func_0038ee10();
+            edScrollShortHoldEnabled();
             step = fGpffff8500 / ((*(f32 *)(work + 0x48a) - 208.0f) * 2.0f);
             segmentFrames = (s32)(fGpffff84fc / step);
             frame = work[0x481];
             if ((s32)frame < segmentFrames) {
                 work[0x481] = frame + 1;
-                func_0038ee10();
+                edScrollShortHoldEnabled();
                 elapsed = (f32)(s32)work[0x481];
                 drift = fGpffff84fc - step * elapsed;
                 *(f32 *)((u8 *)(uintptr_t)work[0x488] + 0x8c) =
@@ -174,13 +178,13 @@ void func_0038df60(void)
         default:
             break;
         }
-        stream = func_0038f950();
+        stream = edResGetStream();
         if ((~work[0] & 2) != 0) {
             height = *(f32 *)(work + 0x487) - drift;
             parse = 1;
             align = 0;
             while ((!(height < 448.0f)) == 0 && parse != 0) {
-                type = func_0038ec50();
+                type = edScrollStreamCommand();
                 switch (type) {
                 case 0:
                     work[0] |= 2;
@@ -189,10 +193,10 @@ void func_0038df60(void)
                     break;
                 case 1:
                 {
-                    entry = func_0038e610();
+                    entry = edScrollAllocRecord();
                     align = align != 0;
                     text = brpParamGetEntry((const u32 *)(uintptr_t)stream, work[0x482]);
-                    func_0038e810(entry, (char *)(uintptr_t)text, align);
+                    edScrollLayoutText(entry, (char *)(uintptr_t)text, align);
                     frame = work[0x482];
                     work[0x482] = frame + 1;
                     if (frame + 1 == brpParamReadWord1((const u32 *)(uintptr_t)stream)) {
@@ -209,7 +213,7 @@ void func_0038df60(void)
                     break;
                 case 3:
                     *(f32 *)(work + 0x487) =
-                        (f32)func_0038ecc0() * 25.0f + *(f32 *)(work + 0x487) + 0.0f;
+                        (f32)edScrollStreamOperand() * 25.0f + *(f32 *)(work + 0x487) + 0.0f;
                     break;
                 case 4:
                     *(f32 *)(work + 0x487) += 10.0f;
@@ -217,7 +221,7 @@ void func_0038df60(void)
                 default:
                     break;
                 }
-                func_0038ed30();
+                edScrollStreamAdvance();
                 height = *(f32 *)(work + 0x487) - drift;
             }
         }
@@ -226,18 +230,19 @@ void func_0038df60(void)
             u32 *record = elem + 1;
             if ((~elem[1] & 1) == 0) {
                 if ((*(f32 *)(record + 0x23) - drift) + 27.0f < 0.0f) {
-                    func_0038e6d0(record);
+                    edScrollFreeRecord(record);
                 }
                 *(f32 *)(record + 0x23) -= drift;
             }
         }
         *(f32 *)(work + 0x487) -= drift;
-        func_0038e740();
+        edScrollLayoutRecords();
     }
 }
 
+// Intent: Colour and draw each active record's glyph lists while the roll is active [inferred]
 // FUN_0038E4B0
-void func_0038e4b0(void)
+void edScrollDrawLines(void)
 {
     s32 i;
     s32 j;
@@ -268,8 +273,9 @@ void func_0038e4b0(void)
     }
 }
 
+// Intent: Allocate the first free record and mark it in use [inferred]
 // FUN_0038E610
-u32 *func_0038e610(void)
+u32 *edScrollAllocRecord(void)
 {
     s32 i;
     u32 *work;
@@ -294,8 +300,9 @@ u32 *func_0038e610(void)
     return record;
 }
 
+// Intent: Release a record's font lists and clear its in-use bit [inferred]
 // FUN_0038E6D0
-void func_0038e6d0(u32* record)
+void edScrollFreeRecord(u32* record)
 {
     s32 i;
 
@@ -305,8 +312,9 @@ void func_0038e6d0(u32* record)
     record[0] &= ~1u;
 }
 
+// Intent: Position and colour every active record at its current row [inferred]
 // FUN_0038E740
-void func_0038e740(void)
+void edScrollLayoutRecords(void)
 {
     u32 *work;
     u32 *elem;
@@ -324,14 +332,15 @@ void func_0038e740(void)
         if ((~elem[1] & 1) == 0) {
             pos[0] = 57.0f;
             pos[1] = *(f32 *)((u8 *)record + 0x8c);
-            func_0038eae0(record, pos);
-            func_0038ebb0(record, (const u8 *)((u8 *)work + 0x122c));
+            edScrollMoveRecord(record, pos);
+            edScrollSetRecordColor(record, (const u8 *)((u8 *)work + 0x122c));
         }
     }
 }
 
+// Intent: Lay out one text line into a record's glyph lists, token by token [inferred]
 // FUN_0038E810
-void func_0038e810(u32 *work, char *text, s32 align)
+void edScrollLayoutText(u32 *work, char *text, s32 align)
 {
     char *cursor;
     s32 length;
@@ -367,7 +376,7 @@ void func_0038e810(u32 *work, char *text, s32 align)
                 case 0:
                     style = 6;
                     D_007246A4 = style;
-                    if (func_0038ee10() != 0) {
+                    if (edScrollShortHoldEnabled() != 0) {
                         mode = 0xB;
                     } else {
                         mode = 9;
@@ -376,7 +385,7 @@ void func_0038e810(u32 *work, char *text, s32 align)
                 case 1:
                     style = 6;
                     D_007246A4 = style;
-                    if (func_0038ee10() != 0) {
+                    if (edScrollShortHoldEnabled() != 0) {
                         mode = 0xC;
                     } else {
                         mode = 0xA;
@@ -432,8 +441,9 @@ void func_0038e810(u32 *work, char *text, s32 align)
     work[0x84 / 4] = count;
 }
 
+// Intent: Move a record's glyph lists to its row and reset their scale [inferred]
 // FUN_0038EAE0
-void func_0038eae0(u32* work, const f32* pos)
+void edScrollMoveRecord(u32* work, const f32* pos)
 {
     s32 i;
 
@@ -445,8 +455,9 @@ void func_0038eae0(u32* work, const f32* pos)
     }
 }
 
+// Intent: Set the colour of a record's glyph lists from a packed RGBA value [inferred]
 // FUN_0038EBB0
-void func_0038ebb0(u32* work, const u8* color)
+void edScrollSetRecordColor(u32* work, const u8* color)
 {
     s32 i;
     u32 packed;
@@ -458,8 +469,9 @@ void func_0038ebb0(u32* work, const u8* color)
     }
 }
 
+// Intent: Return the stream command byte at the current read offset [inferred]
 // FUN_0038EC50
-u32 func_0038ec50(void)
+u32 edScrollStreamCommand(void)
 {
     u32 *work;
     u32 stream;
@@ -469,13 +481,14 @@ u32 func_0038ec50(void)
         kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
-    stream = func_0038f950();
+    stream = edResGetStream();
     base = brpParamReadWord4((const u32 *)(uintptr_t)stream);
     return *(u8 *)(uintptr_t)(base + work[0x120c / 4]);
 }
 
+// Intent: Return the byte after the current stream command, used as its operand [inferred]
 // FUN_0038ECC0
-s32 func_0038ecc0(void)
+s32 edScrollStreamOperand(void)
 {
     u32 *work;
     u32 stream;
@@ -485,13 +498,14 @@ s32 func_0038ecc0(void)
         kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
-    stream = func_0038f950();
+    stream = edResGetStream();
     base = brpParamReadWord4((const u32 *)(uintptr_t)stream);
     return *(u8 *)(uintptr_t)(work[0x120c / 4] + base + 1);
 }
 
+// Intent: Advance the stream read offset by the length of the current command [inferred]
 // FUN_0038ED30
-void func_0038ed30(void)
+void edScrollStreamAdvance(void)
 {
     u32 *work;
     u32 stream;
@@ -503,7 +517,7 @@ void func_0038ed30(void)
         kAssertFail(D_0064F220, 0x6B);
     }
     work = D_007246A0;
-    stream = func_0038f950();
+    stream = edResGetStream();
     base = brpParamReadWord4((const u32 *)(uintptr_t)stream);
     offset = work[0x120c / 4];
     command = *(u8 *)(uintptr_t)(base + offset);

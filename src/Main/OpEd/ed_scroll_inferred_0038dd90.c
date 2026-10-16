@@ -53,8 +53,9 @@ extern void func_00389cb0(u8 *arg0);
  * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
 #pragma push
 #pragma pop
+// Intent: Initialise the scroll work block: clear the records, set the colour to white and publish the work pointer [inferred]
 // FUN_0038DD90
-void func_0038dd90(u8 *arg0) {
+void edScrollWorkInit(u8 *arg0) {
     s32 i;
 
     *(s32 *)arg0 = 0;

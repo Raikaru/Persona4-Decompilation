@@ -54,8 +54,9 @@ extern void func_00389cb0(u8 *arg0);
  * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
 #pragma push
 #pragma pop
+// Intent: Return 1 when script flag 0x1472 is clear, which selects the short hold [inferred]
 // FUN_0038EE10
-s32 func_0038ee10(void) {
+s32 edScrollShortHoldEnabled(void) {
     return !datGetFlag(0x1472);
 }
 

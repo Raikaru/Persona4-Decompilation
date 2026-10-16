@@ -14,7 +14,7 @@ extern char D_0064F260[];
 extern void kAssertFail(const char *file, s32 line);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 /* Defined below in this file; called at line 33, above its definition. */
-extern void func_0038f8d0(void);
+extern void edResFreeText(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
 extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 extern u8 *H_Cdvd_GetArchiveEntry(u8 *resource, s32 index, s32 *size);
@@ -24,20 +24,22 @@ extern void *memcpy(void *dst, const void *src, u32 size);
 extern void frFontSlotLoadData(s32 slot, u8 *data);
 extern void frFontSlotFree(s32 slot);
 
+// Intent: Release the loaded resource and clear the work pointer [inferred]
 // FUN_0038F620
-void func_0038f620(void)
+void edResRelease(void)
 {
     if (sOpTailC == NULL) {
         kAssertFail(D_0064F250, 0x28);
     }
     if ((sOpTailC[1] & 1) != 0) {
-        func_0038f8d0();
+        edResFreeText();
     }
     sOpTailC = NULL;
 }
 
+// Intent: Finish a pending load: build the effect header, load the font slot data and free the file [inferred]
 // FUN_0038F680
-void func_0038f680(void)
+void edResLoadStep(void)
 {
     u32 *work;
     s32 size;
@@ -54,7 +56,7 @@ void func_0038f680(void)
             data = H_Cdvd_GetArchiveEntry((u8 *)(uintptr_t)work[2], i, &size);
             switch (i) {
             case 0:
-                work[3] = (u32)func_0038f400((const u32 *)data);
+                work[3] = (u32)edResBuildEffectHeader((const u32 *)data);
                 break;
             case 1:
                 chkmemAllocSiteTag(D_0064F250, 0x56);
@@ -70,8 +72,9 @@ void func_0038f680(void)
     }
 }
 
+// Intent: Request the resource file for the roll and mark it pending [inferred]
 // FUN_0038F7F0
-void func_0038f7f0(void)
+void edResRequestLoad(void)
 {
     u32 *work;
 
@@ -86,8 +89,9 @@ void func_0038f7f0(void)
     work[0] |= 1;
 }
 
+// Intent: Report whether a resource load is pending [inferred]
 // FUN_0038F880
-u32 func_0038f880(void)
+u32 edResIsPending(void)
 {
     if (sOpTailC == NULL) {
         kAssertFail(D_0064F250, 0x28);
@@ -95,8 +99,9 @@ u32 func_0038f880(void)
     return sOpTailC[0] & 1;
 }
 
+// Intent: Free the parsed stream and the font slot used by the roll [inferred]
 // FUN_0038F8D0
-void func_0038f8d0(void)
+void edResFreeText(void)
 {
     u32 *work;
 
@@ -111,8 +116,9 @@ void func_0038f8d0(void)
     frFontSlotFree(6);
 }
 
+// Intent: Return the parsed stream pointer for the roll [inferred]
 // FUN_0038F950
-u32 func_0038f950(void)
+u32 edResGetStream(void)
 {
     if (sOpTailC == NULL) {
         kAssertFail(D_0064F250, 0x28);

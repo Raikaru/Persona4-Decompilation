@@ -56,10 +56,11 @@ extern s32 (*D_00887310[])(s32, void *, s32);
  * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
 #pragma push
 #pragma pop
+// Intent: Build an EffectStateHeader from a parameter table: entry table, string block and data block [inferred]
 // FUN_0038F400
 extern u8 D_0064F240[];
 extern void *memcpy(void *dst, const void *src, u32 size);
-EffectStateHeader *func_0038f400(const u32 *arg0)
+EffectStateHeader *edResBuildEffectHeader(const u32 *arg0)
 {
     u32 size;
     u32 remainder;
