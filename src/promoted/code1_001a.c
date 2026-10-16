@@ -141,7 +141,7 @@ extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlPacketCreateHpRatio(u8 *arg0);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
-u8 *func_00194b60(void);
+u8 *btlPacketCreateImmediate(void);
 extern BtlPacket *btlFormationCreateReturnPacket(u16 arg0);
 extern u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value);
 extern BtlPacket *btlFormationCreateEventPacket(u32 action);
