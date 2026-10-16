@@ -110,7 +110,7 @@ extern void resrcMngDestroy(u8 *arg0);
 extern u8 *resrcMngGetListHead(u8 *arg0, s32 arg1);
 extern void NpcTable_ReleaseSceneTable(void);
 extern void NpcTable_ReleaseSecondaryTable(void);
-extern void func_00160180(void);
+extern void FldHbnFreeEntryTable(void);
 extern void func_003e1a70(void);
 extern void kwlnTaskDumpAll(void);
 extern void FldResource_OpenPrimaryFile(s32 arg0, s32 arg1);
@@ -801,7 +801,7 @@ loop_20_test:
     }
     NpcTable_ReleaseSceneTable();
     NpcTable_ReleaseSecondaryTable();
-    func_00160180();
+    FldHbnFreeEntryTable();
     *(s32 *)(iGpffff9db0 + 0) = -1;
     *(s32 *)(iGpffff9db0 + 4) = -1;
     *(s16 *)(iGpffff9db0 + 0x10) = 0;

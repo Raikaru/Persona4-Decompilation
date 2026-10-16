@@ -421,14 +421,14 @@ s32 FldLoadTaskUpdate(u8 *task)
     extern void func_002aaa80(void);
     extern s32 FldResource_IsPrimaryFileLoaded(void);
     extern s32 FldMap_IsInBandA(s32 fieldId, s32 roomId);
-    extern u8 *func_001601e0(s32 fieldId);
-    extern s32 func_001602a0(u8 *file, s32 fieldId);
+    extern u8 *FldHbnOpenScript(s32 fieldId);
+    extern s32 FldHbnLoadScriptBuffer(u8 *file, s32 fieldId);
     extern s32 func_0029db50(s32 priority, s32 memory, s32 bytes, s32 procedure);
     extern s32 kwlnTaskIsLinked(void *task);
     extern void fieldSceneLoad(s32 fieldId, s32 roomId);
     extern void func_00144e10(s64 mapState);
     extern void func_00144ed0(s64 environmentState);
-    extern s32 func_00160000(u8 *file);
+    extern s32 FldHbnLoadEntryTable(u8 *file);
     extern s32 fieldSceneLoadStep(void);
     extern s32 FldMap_IsInEitherBand(s32 fieldId, s32 roomId);
     extern s32 FldRc_CreateFileLoadTask(u8 *parent, u8 *path, s32 index, s32 file);
@@ -469,13 +469,13 @@ s32 FldLoadTaskUpdate(u8 *task)
             break;
         }
         if (FldMap_IsInBandA(work->fieldId, work->roomId) == 0) {
-            work->file = func_001601e0(work->fieldId);
+            work->file = FldHbnOpenScript(work->fieldId);
         }
         work->state = 1;
         /* Begin polling the request submitted above. */
     case 1:
         file = work->file;
-        if (func_001602a0(file, work->fieldId) == 0) {
+        if (FldHbnLoadScriptBuffer(file, work->fieldId) == 0) {
             break;
         }
         work->file = NULL;
@@ -493,7 +493,7 @@ s32 FldLoadTaskUpdate(u8 *task)
             }
         }
         fieldId = work->fieldId;
-        work->file = func_0015ff20(fieldId, work->roomId);
+        work->file = FldHbnOpenTable(fieldId, work->roomId);
         fieldSceneLoad(work->fieldId, work->roomId);
         func_00144e10(work->mapState);
         if (work->environmentState != 0) {
@@ -527,7 +527,7 @@ s32 FldLoadTaskUpdate(u8 *task)
         }
         work->state++;
     case 3:
-        if (func_00160000(work->file) == 0) {
+        if (FldHbnLoadEntryTable(work->file) == 0) {
             break;
         }
         work->file = NULL;

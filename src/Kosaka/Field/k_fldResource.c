@@ -485,9 +485,9 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     /* lint: allow H011 -- the resource pointer is stored unchanged in the
      * provider's +0x1A0 field; its s32 parameter is a 32-bit address carrier. */
     extern s32 MT_Scene_CreateFldRes(u16 id, u8 *resource);
-    extern u8 *func_0015f8e0(s32 arg0, s32 arg1);
-    extern s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3);
-    extern void func_0015fb00(u8 *arg0, s32 arg1);
+    extern u8 *FldHbnOpenData(s32 arg0, s32 arg1);
+    extern s32 FldHbnReadData(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3);
+    extern void FldHbnSpawnLights(u8 *arg0, s32 arg1);
     extern u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2);
     /* lint: allow H011 -- retail supplies a signed halfword variant; the
      * provider's only use narrows its s32 parameter to s16 for the filename. */
@@ -786,7 +786,7 @@ readGrid:
                 temp_16_2 = var_17_2 * 4;
                 if (*( s32 * )(*( u8 ** )((temp_3_11 + temp_16_2) + 0x28) + 0xA40) == 0) {
                     temp_2_2 = (u8 *)(*( u8 ** )((iGpffff9db0 + temp_16_2) + 0x28));
-                    *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_16_2) + 0x28) + 0xA3C) = (s32)func_0015f8e0(*( u16 * )(temp_2_2 + 4), *( u16 * )(temp_2_2 + 6));
+                    *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_16_2) + 0x28) + 0xA3C) = (s32)FldHbnOpenData(*( u16 * )(temp_2_2 + 4), *( u16 * )(temp_2_2 + 6));
                 }
                 var_17_2 += 1;
             }
@@ -821,7 +821,7 @@ found_loop_88:
                 }
 found_loop_99:
                 temp_2_3 = (u8 *)(iGpffff9db0);
-                temp_16_6 = (s32)(func_0015f8e0(*( u16 * )(temp_2_3 + 0), *( u16 * )(temp_2_3 + 4)));
+                temp_16_6 = (s32)(FldHbnOpenData(*( u16 * )(temp_2_3 + 0), *( u16 * )(temp_2_3 + 4)));
                 *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864) = temp_16_6;
             }
             *( s32 * )(iGpffff9db0 + 0x94) = 8;
@@ -833,7 +833,7 @@ readHbnResources:
                     temp_2_4 = (u8 *)iGpffff9db0;
                     temp_17_4 = var_16_4 * 4;
                     temp_2_4 = (u8 *)(*( u8 ** )((temp_2_4 + temp_17_4) + 0x28));
-                    if (func_0015f9b0((u8 *)(*( s32 * )(temp_2_4 + 0xA3C)),(u16 **)(temp_2_4 + 0xA40), *( u16 * )(temp_2_4 + 4), *( u16 * )(temp_2_4 + 6)) == 0) {
+                    if (FldHbnReadData((u8 *)(*( s32 * )(temp_2_4 + 0xA3C)),(u16 **)(temp_2_4 + 0xA40), *( u16 * )(temp_2_4 + 4), *( u16 * )(temp_2_4 + 6)) == 0) {
                         return 0;
                     }
                     *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_17_4) + 0x28) + 0xA3C) = 0;
@@ -841,14 +841,14 @@ readHbnResources:
                 }
                 var_16_5 = 0;
                 while (var_16_5 < *( s32 * )((temp_17_3 = (u8 *)(iGpffff9db0)) + 0x24)) {
-                    func_0015fb00((u8 *)(*( s8 ** )(*( u8 ** )((temp_17_3 + (var_16_5 * 4)) + 0x28) + 0xA40)), 0);
+                    FldHbnSpawnLights((u8 *)(*( s8 ** )(*( u8 ** )((temp_17_3 + (var_16_5 * 4)) + 0x28) + 0xA40)), 0);
                     var_16_5 += 1;
                 }
-                if (func_0015f9b0((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864)),&hbnData, *( u16 * )(temp_17_3 + 0), *( u16 * )(temp_17_3 + 4)) == 0) {
+                if (FldHbnReadData((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864)),&hbnData, *( u16 * )(temp_17_3 + 0), *( u16 * )(temp_17_3 + 4)) == 0) {
                     return 0;
                 }
                 if ((hbnEntry = (u8 *)hbnData) != NULL) {
-                    func_0015fb00(hbnEntry, 1);
+                    FldHbnSpawnLights(hbnEntry, 1);
                     jtbl_008873EC[0](hbnData);
                     *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864) = 0;
                 }
@@ -859,7 +859,7 @@ readHbnResources:
                 temp_2_10 = (u8 *)iGpffff9db0;
                 temp_17_5 = var_16_6 * 4;
                 temp_2_10 = (u8 *)(*( u8 ** )((temp_2_10 + temp_17_5) + 0x28));
-                if (func_0015f9b0((u8 *)(*( s32 * )(temp_2_10 + 0xA3C)),(u16 **)(temp_2_10 + 0xA40), *( u16 * )(temp_2_10 + 4), *( u16 * )(temp_2_10 + 6)) == 0) {
+                if (FldHbnReadData((u8 *)(*( s32 * )(temp_2_10 + 0xA3C)),(u16 **)(temp_2_10 + 0xA40), *( u16 * )(temp_2_10 + 4), *( u16 * )(temp_2_10 + 6)) == 0) {
                     return 0;
                 }
                 *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_17_5) + 0x28) + 0xA3C) = 0;
@@ -867,7 +867,7 @@ readHbnResources:
             }
             var_16_7 = 0;
             while (var_16_7 < *( s32 * )((temp_3_12 = (u8 *)(iGpffff9db0)) + 0x24)) {
-                func_0015fb00((u8 *)(*( s8 ** )(*( u8 ** )((temp_3_12 + (var_16_7 * 4)) + 0x28) + 0xA40)), 0);
+                FldHbnSpawnLights((u8 *)(*( s8 ** )(*( u8 ** )((temp_3_12 + (var_16_7 * 4)) + 0x28) + 0xA40)), 0);
                 var_16_7 += 1;
             }
 block_123:

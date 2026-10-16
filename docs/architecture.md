@@ -144,7 +144,7 @@ title, a shop and so on. `src/Main/sequence.c` owns the switch:
   *start*, and then polls *isRunning* every frame. When *isRunning* stops
   returning 1, the sequence id is reset to −1.
 - `func_00102980` returns the current sequence id. Field code uses it to tell
-  which mode it is in (`src/Kosaka/Field/k_field.c` `func_00155bf0`).
+  which mode it is in (`src/Kosaka/Field/k_field.c` `FldRootDestroy`).
 
 The sequence table is still raw data at `0x5DCC20`. Each `0x50`-byte record
 holds `name[0x40]`, a word at `+0x40`, and the *start*, *isRunning* and *end*
@@ -313,7 +313,7 @@ of the type's size and links it; `MT_Scene_GetRes(resTypeId)` finds one; and
 the `next` link at `0x138`.
 
 Callers include battle (`src/Battle/battle.c` `btlFindFreeCharResId`, which
-probes ids `0x400|n`), the field (`k_field.c` `func_00155360`), events
+probes ids `0x400|n`), the field (`k_field.c` `FldRootUpdate`), events
 (`src/evtScript.c`) and social-link screens (`src/cmmRankUp.c`).
 
 ### Disc loading
@@ -407,9 +407,9 @@ prefix comes from the original file names.
 Sequence 9 calls `K_SeqFieldRecordStart` in `src/promoted/k_sequence.c`, which
 passes the 0x1C-byte field packet to `FldRootCreate` in
 `src/Kosaka/Field/k_field.c`. That creates the **`"field root"`** task
-(priority `0xF`, update `func_00155360`, destroy `func_00155bf0`) with a
+(priority `0xF`, update `FldRootUpdate`, destroy `FldRootDestroy`) with a
 `KFieldStateWork` block (`field`, `room`, `entry`, `spawn`, `direction`,
-`loadTask`, `eventTask`, `scriptTask`, `transition`). `func_00155360` is the
+`loadTask`, `eventTask`, `scriptTask`, `transition`). `FldRootUpdate` is the
 field's state machine:
 
 | State | What happens |
@@ -423,9 +423,9 @@ field's state machine:
 | 13 | **[inferred]** Normal play. Waits for `exitRequested`. |
 | 14 | Event mode. Waits for the event task to finish. |
 | 17 | Field-to-field transition. After the fade, requests sequence 9 again with `work->transition`. |
-| 18 | Returns −1. The task ends and `func_00155bf0` tears the field down. |
+| 18 | Returns −1. The task ends and `FldRootDestroy` tears the field down. |
 
-The teardown, `func_00155bf0`, also checks `func_00102980()`. When the next
+The teardown, `FldRootDestroy`, also checks `func_00102980()`. When the next
 sequence is not 9, 10 or 11, it releases more state (`func_001622d0`).
 
 ### NPCs, units and events
