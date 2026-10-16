@@ -40,7 +40,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0035e8b0(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0012d630(u8 *arg0);
-s32 func_0012e900(u8 *arg0);
+s32 radarStepSlotAnimA(u8 *arg0);
 s32 func_00138b20(u8 *arg0);
 s32 func_00356870(u8 *arg0);
 s32 func_00131910(u8 *arg0);
@@ -391,7 +391,7 @@ void func_0012cd90(void) {
             }
         }
         if (*(s32 *)(p + 0x10) & 2) {
-            result = func_0012e900(p + 0x2BC);
+            result = radarStepSlotAnimA(p + 0x2BC);
             if (result != 0) {
                 *(s32 *)(p + 0x10) &= ~2;
             }
