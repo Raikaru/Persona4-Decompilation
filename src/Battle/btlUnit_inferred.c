@@ -183,7 +183,7 @@ static inline u32 p4_add_index_base(u32 offset, u32 base)
 /* measured: closes opt_propagation for func_001949d0. */
 /* measured: declaration-corrected C candidate for func_00198380. */
 // FUN_00198380
-void func_00198380(u8 *arg0) {
+void btlUnitUpdateMotionLayer(u8 *arg0) {
     f32 var_f12;
     s16 temp_16_2;
     s16 temp_2;

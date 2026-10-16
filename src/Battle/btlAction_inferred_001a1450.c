@@ -43,7 +43,7 @@ static inline void *actionMessagePacketBytes(s32 unit, s32 message)
     return btlPacketCreateEffectCounter(unit, message);
 }
 extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 cue, s32 unitId, s32 a, s32 b);
-extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
+extern void btlUnitGetAnchorPose(u8 *, u8 *, f32 *, f32 *);
 extern f32 btlTargetVectorDistance(const RwV3d *, const RwV3d *);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *, const RwV3d *, f32, u32);
 extern u8 *iGpffffb3cc;
@@ -346,7 +346,7 @@ void btlActionCommandInit(s64 *arg0)
     actionType = *(u16 *)((u8 *)arg0 + 0x10);
     if ((actionType != 0x25) && (actionType != 4) && (actionType != 6) &&
         (actionType != 5) && (*(u16 *)(iGpffffb3ac + 0xF4) != 2)) {
-        func_00194ff0(
+        btlUnitGetAnchorPose(
             *(u8 **)((u8 *)arg0 + 0x30), NULL, 0, (f32 *)&sp40);
         listUnit = *(u8 **)(iGpffffb3ac + 0x17C);
         goto loop_14_test;
@@ -370,7 +370,7 @@ loop_14_test:
         goto loop_19_test;
 loop_19_body:
         if (btlUnitIsMoving(listUnit2) == 0) {
-            func_00194ff0(listUnit2, NULL, 0, (f32 *)&sp40);
+            btlUnitGetAnchorPose(listUnit2, NULL, 0, (f32 *)&sp40);
             rotatePacketB = actionRotatePacketBytes(listUnit2, &sp40, 2);
             *(s64 *)(rotatePacketB + 0x60) = *arg0;
             btlPacketEnqueue(rotatePacketB, 0);
@@ -1265,7 +1265,7 @@ void btlActionBadUpdate(BtlAction *actionState)
                 btlPacketEnqueue(cameraPacket, 0);
                 if (*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) {
                     u8 *packet;
-                    func_00194ff0(*(u8 **)(action + 0x30), NULL, NULL, rotation);
+                    btlUnitGetAnchorPose(*(u8 **)(action + 0x30), NULL, NULL, rotation);
                     packet = (u8 *)btlUnitCreateRotatePacket(*(BtlUnit **)(action + 0x30),
                                                             (const RwV3d *)rotation, 2);
                     *(s64 *)(packet + 0x60) = *(s64 *)action;
@@ -2053,7 +2053,7 @@ void btlActionMoveTargetInit(u8 *actionBytes)
 {
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern void btlUnitGetGridSphereCenterTowardTarget(BtlUnit *unit, BtlUnit *target, RwV3d *out);
-    extern void func_001951f0(u8 *subunit, u8 *unit, u8 *target, s32 motion,
+    extern void btlUnitGetSlotPose(u8 *subunit, u8 *unit, u8 *target, s32 motion,
                             f32 *position, f32 *rotation, s32 placement);
     extern void btlTargetBlendVectors(u8 *rotation, u8 *from, u8 *to);
     extern f32 RwV3dLength(const RwV3d *vector);
@@ -2245,7 +2245,7 @@ range_done:
                 } else {
                     speed = speed + unit->radius * unit->scale;
                     speed = speed + targetUnit->radius * targetUnit->scale;
-                    func_001951f0(subunit, (u8 *)unit, (u8 *)targetUnit, (s16)openingMotion, destination.values, NULL, 2);
+                    btlUnitGetSlotPose(subunit, (u8 *)unit, (u8 *)targetUnit, (s16)openingMotion, destination.values, NULL, 2);
                     distance = btlTargetVectorDistance(&destination.vector, &targetCenter);
                     {
                         f32 limit;
@@ -2256,7 +2256,7 @@ range_done:
                             distance = limit;
                         }
                     }
-                    func_001951f0(subunit, (u8 *)unit, NULL, -1, destination.values, NULL, 0);
+                    btlUnitGetSlotPose(subunit, (u8 *)unit, NULL, -1, destination.values, NULL, 0);
                     homeOffset.x = destination.vector.x - unitCenter.x;
                     homeOffset.z = destination.vector.z - unitCenter.z;
                     homeOffset.y = 0.0f;
@@ -2437,7 +2437,7 @@ void btlActionMoveHomeInit(s64 *arg0)
         btlActionSetState((BtlAction *)arg0, actionState);
         return;
     }
-    func_00194ff0(battleUnit, (u8 *)&sp30, NULL, NULL);
+    btlUnitGetAnchorPose(battleUnit, (u8 *)&sp30, NULL, NULL);
     if (!(btlTargetVectorDistance((RwV3d *)(battleUnit + 4), &sp30) <= 75.0f)) {
         btlActionFinishPresentation((BtlAction *)arg0);
         speedIndex = 2;
@@ -6585,7 +6585,7 @@ void btlActionEscapeUpdate(s64 *arg0)
     for (idx = 0; idx < count; idx++) {
         cur = collected[idx];
         btlUnitGetSphereWorldCenter((BtlUnit *)cur->unit, &posD0);
-        func_00194ff0((u8 *)cur->unit, NULL, quat80.values, NULL);
+        btlUnitGetAnchorPose((u8 *)cur->unit, NULL, quat80.values, NULL);
         RtQuatTransformVectors(&vecC0, &D_0060A100, 1, &quat80.rotation);
         if (action->unit->kind == 0) {
             vecC0.x = vecC0.x * 500.0f;

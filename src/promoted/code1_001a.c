@@ -43,7 +43,7 @@ static inline void *actionMessagePacketBytes(s32 unit, s32 message)
     return btlPacketCreateEffectCounter(unit, message);
 }
 extern BtlPacket *btlVoiceCreatePacket(BtlAction *action, u16 cue, s32 unitId, s32 a, s32 b);
-extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
+extern void btlUnitGetAnchorPose(u8 *, u8 *, f32 *, f32 *);
 extern f32 btlTargetVectorDistance(const RwV3d *, const RwV3d *);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *, const RwV3d *, f32, u32);
 extern u8 *iGpffffb3cc;

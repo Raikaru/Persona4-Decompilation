@@ -172,7 +172,7 @@ extern s32 btlActionQueuePush(u8 *arg0);
 extern s32 btlUnitApplyEncounterRoster(u8 *arg0);
 extern s32 func_00243d80(u8 *arg0);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
-extern void func_0019f1d0(u8 *arg0);
+extern void btlUnitApplyBodySizeScale(u8 *arg0);
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
@@ -503,7 +503,7 @@ s32 btlUnitGetDataRowAlt(u8 *arg0)
 /* measured: func_0019f1d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
 // FUN_0019F1D0
-void func_0019f1d0(u8 *unit)
+void btlUnitApplyBodySizeScale(u8 *unit)
 {
     extern u8 *iGpffffb3c4;
     u8 *resource;
@@ -679,7 +679,7 @@ u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2)
         btlUnitInitFromRecord(var_17, (u16)(arg1 & 0xFFFF));
         if (temp_16 == 1 &&
             (*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
-            func_0019f1d0(var_17);
+            btlUnitApplyBodySizeScale(var_17);
         }
         if (datCalcIsDead((u8 *)arg2, 0) != 0) {
             *(s32 *)(var_17 + 0x9C) |= 1;
@@ -815,7 +815,7 @@ void btlUnitRequestLookAtOthers(u8 *arg0)
                 case 1:
                 case 5:
                     if (arg0 != var_17) {
-                        func_00194ff0(temp_16, NULL, NULL, sp40);
+                        btlUnitGetAnchorPose(temp_16, NULL, NULL, sp40);
                         btlPacketEnqueue(btlUnitCreateLookAtPacket(temp_16, sp40, 0), 1);
                     }
                     break;

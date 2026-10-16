@@ -271,7 +271,7 @@ extern s32 btlActionQueuePush(u8 *arg0);
 extern s32 btlUnitApplyEncounterRoster(u8 *arg0);
 extern s32 func_00243d80(u8 *arg0);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
-extern void func_0019f1d0(u8 *arg0);
+extern void btlUnitApplyBodySizeScale(u8 *arg0);
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
