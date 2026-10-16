@@ -55,7 +55,6 @@ static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
 extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
-extern struct DatPersonaRecord *datPersonaRosterSlot(s16 arg0);
 extern s32 datPersonaGetLeadSlot(void);
 extern s32 datPersonaGetLevel(u8 *arg0);
 extern u16 frFontSetFlagBits(s16 arg0);

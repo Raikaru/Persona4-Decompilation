@@ -41,7 +41,6 @@ extern void sdkListStateSetActive(void *arg0, s32 arg1);
 extern void sdkListStateSetSecondaryMasks(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 sdkListStateHandleInput(u8 *arg0);
 extern void cmpPersonaSetSelection(u8 *arg0, s32 arg1, s32 arg2);
-extern struct DatPersonaRecord *datPersonaRosterSlot(s16 arg0);
 extern void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern s32 datPersonaGetLeadSlot(void);
 extern void datPersonaSetLeadSlot(s16 arg0);
@@ -1998,7 +1997,6 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void cmpPersonaScatterGridCells(u8 *arg0);
     extern void shdPersonaStartSlideIn(u8 *arg0);
     extern void radarSetPersonaHighlight(u8 *arg0, s32 arg1);
-    extern struct DatPersonaRecord *datPersonaRosterSlot(s32 arg0);
     u8 buf[0x30];
     f32 temp_f1;
     f32 var_f1;
