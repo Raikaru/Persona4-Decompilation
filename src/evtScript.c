@@ -29,7 +29,7 @@ extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern s32 kwlnTaskIsLinked(void *target);
 extern void MT_Scene_DestroyRes(u32);
 extern void MT_Scene_SetResActiveById(s32, s32);
-// lint: allow H011 -- measured: u16 prototype regresses func_00298370 and func_00298550 (andi on wide id args)
+// lint: allow H011 -- measured: u16 prototype regresses evtNpcModelTaskUpdate and evtCmdNpcModelLoad (andi on wide id args)
 extern u16 *MT_Scene_GetRes(s32);
 extern s32 mdlPrepareModel(u32 arg0);
 extern u8 *mdlGetColor(s32);
@@ -61,18 +61,19 @@ static inline u32 evtSlot(u32 offset, u32 base)
 extern void frFontListKeepOrRelease(u8 *arg0);
 extern f32 sinf(f32 fparg0);
 extern f32 iGpffff8094;
-/* INCLUDE_ASM fallback below; address taken by func_00298550. */
-extern s32 func_00298370(u8 *task);
-/* INCLUDE_ASM fallback below; address stored by func_00298b80. */
-extern void func_00298990(s32 arg0, s32 arg1);
+/* INCLUDE_ASM fallback below; address taken by evtCmdNpcModelLoad. */
+extern s32 evtNpcModelTaskUpdate(u8 *task);
+/* INCLUDE_ASM fallback below; address stored by evtRestartTaskUpdate. */
+extern void evtRestartTaskDraw(s32 arg0, s32 arg1);
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
 // kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
+// Intent: NPC model task update: waits for the model, replaces the NPC shadow resource, and copies its colour into the event node; returns -1 when done [inferred]
 // FUN_00298370
-s32 func_00298370(u8 *unusedTask) {
+s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
     typedef struct { u8 b0; u8 b1; u8 b2; u8 b3; } EvtColor;
     s32 temp_2_2;
     u8 *temp_18;
@@ -107,16 +108,18 @@ s32 func_00298370(u8 *unusedTask) {
     }
     return 0;
 }
+// Intent: NPC model task destroy: frees the task's work block [inferred]
 // FUN_00298510
-void func_00298510(u8 *unusedTask)
+void evtNpcModelTaskDestroy(u8 *unusedTask)
 {
     int iVar1;
 
     iVar1 = kwlnTaskGetWork();
     DAT_008873ec_abs[0](iVar1);
 }
+// Intent: Event command 0x3000, EVT_NPC_MODEL_LOAD (2 params): group 3 table entry 0x3000 in p4flow Event.json. Activates the NPC model resource when it matches, otherwise creates it [inferred]
 // FUN_00298550
-s32 func_00298550(void)
+s32 evtCmdNpcModelLoad(void)
 {
     s32 v0;
     s32 v1;
@@ -143,7 +146,7 @@ s32 func_00298550(void)
         if (*(s32 *)(work + 0) == 0) {
             kAssertFail(D_0063CF80, 0x52);
         }
-        (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063CF90), 0xF, 0, 0, func_00298370, func_00298510, (u8 *)(work));
+        (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063CF90), 0xF, 0, 0, evtNpcModelTaskUpdate, evtNpcModelTaskDestroy, (u8 *)(work));
     } else {
         if (kwlnTaskIsLinked(kwlnTaskGetTaskByName((s8 *)D_0063CF90)) != 0) {
             goto done;
@@ -158,8 +161,9 @@ done:
    s32 local and every p+scaled / scaled+p callsite spelling get canonicalized
    back to base-first; only carrying the operands through a helper's parameters
    holds the order, and expanding it per use keeps nothing live across a call. */
+// Intent: Event command 0x300C (EVT_FUNCTION_000C, 2 params): group 3 table entry 0x300C in Event.json. Writes the value into the event node's slot when the slot is below 5 [inferred]
 // FUN_00298700
-s32 func_00298700(void) {
+s32 evtCmdSetEventSlot(void) {
     s32 slot;
     s32 value;
     s32 kind;
@@ -182,8 +186,9 @@ s32 func_00298700(void) {
     return 1;
 }
 
+// Intent: Draws one centred window text line: applies the window slots, builds the entry, splits the run and draws it centred at fparg0 [inferred]
 // FUN_002987D0
-void func_002987d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
+void evtDrawCenteredWindowText(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
                    s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7)
 {
     u8 *node;
@@ -225,8 +230,9 @@ void func_002987d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
    direct global load, comma assignment, schedule-off, inline evtMulScale and
    evtRamp helpers, reversed multiply operands, alternate float casts, and
    interleaved-parameter order (inapplicable: both target inputs are s32). */
+// Intent: Draws one restart label row, alpha-faded by the row's position within each 0x28-step window [inferred]
 // FUN_00298990
-void func_00298990(s32 unused, s32 arg1) {
+void evtRestartTaskDraw(s32 unused, s32 arg1) {
     f32 temp_f2;
     f32 temp_f0;
     f32 mul_left;
@@ -258,14 +264,15 @@ void func_00298990(s32 unused, s32 arg1) {
             } else {
                 var_5 = 255;
             }
-            func_002987d0(320.0f, 300.0f - ((230.0f * (f32)temp_16) / 300.0f), 0.0f,
+            evtDrawCenteredWindowText(320.0f, 300.0f - ((230.0f * (f32)temp_16) / 300.0f), 0.0f,
                           0xFFFFFF, var_5, 0, 0, 0, temp_19, 0, var_18);
         }
         var_18 += 1;
     }
 }
+// Intent: Restart task update: advances its counter, sets flag 0x1211 while input is held, and queues the draw callback [inferred]
 // FUN_00298B80
-s32 func_00298b80(u8 *sdkTaskBytes)
+s32 evtRestartTaskUpdate(u8 *sdkTaskBytes)
 {
     s32 arg0 = (s32)sdkTaskBytes;
     u8 *base;
@@ -277,21 +284,23 @@ s32 func_00298b80(u8 *sdkTaskBytes)
         datSetFlag(0x1211, 1);
     }
     p = (u8 *)PrimAllocQueueNode();
-    *(void **)(p + 8) = (void *)func_00298990;
+    *(void **)(p + 8) = (void *)evtRestartTaskDraw;
     *(s32 *)(p + 0x10) = arg0;
     PrimAppendNode(D_00795E60, p);
     return 0;
 }
+// Intent: Restart task destroy: clears flag 0x1211 and frees the task's work block [inferred]
 // FUN_00298C10
-void func_00298c10(u8 *unusedTask) {
+void evtRestartTaskDestroy(u8 *unusedTask) {
     u8 *p = (u8 *)kwlnTaskGetWork();
 
     datSetFlag(0x1211, 0);
     jtbl_008873EC[0](p);
 }
 
+// Intent: Event command 0x3032 (EVT_FUNCTION_0032, 0 params): group 3 table entry 0x3032 in Event.json. Clears flag 0x1211, destroys any existing restart task and creates a new one [inferred]
 // FUN_00298C60
-s32 func_00298c60(void)
+s32 evtCmdRestartTask(void)
 {
     s32 task;
     s32 v0;
@@ -304,6 +313,6 @@ s32 func_00298c60(void)
     }
     v0 = evtEnsureEventTask();
     chkmemAllocSiteTag(D_0063CF80, 0xF6);
-    (s32)kwlnTaskCreateChild((void *)(v0), (const void *)(D_0063CFA0), 0xF, 0, 0, func_00298b80, func_00298c10, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
+    (s32)kwlnTaskCreateChild((void *)(v0), (const void *)(D_0063CFA0), 0xF, 0, 0, evtRestartTaskUpdate, evtRestartTaskDestroy, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
     return 1;
 }

@@ -63,7 +63,7 @@ void func_002e0dd0(void);
 void evtReleaseRes(u8 *arg0);
 void evtMessageWindowResetTyped(u32 *param_1);
 void func_00291900(void);
-void func_00290fa0(u8 *arg0);
+void evtEffectTableDestroy(u8 *arg0);
 void func_00290470(s32 *arg0, u32 *arg1);
 void func_00291470();
 void func_00291220();

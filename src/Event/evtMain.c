@@ -1133,10 +1133,11 @@ typedef union EvtDirectionMatrix {
 /* 2424 executable bytes / 2432-byte window; the suffix is eight zero bytes.
    The twelve-entry motion switch owns the 48-byte table at 0x00748440.
    Command snapshots preserve full vector objects and call argument order. */
+// Intent: Event node type 1 and 48 handler: resource command (motion, scale, colour, shadow, model slot) for the node's resource [inferred]
 // FUN_00288170
 #pragma push
 #pragma opt_propagation off
-s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
+s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
 {
     extern u8 *MT_Scene_GetRes(s32);
     extern void MT_Scene_ApplyResTransform(u8 *, u8 *, u8 *, u8 *);
@@ -1518,11 +1519,12 @@ typedef struct EvtCameraCommand {
 /* 1060 executable bytes / 1072-byte window; all 17 code relocations
    resolve exactly, and the remaining 12 bytes are zero padding.
    opt_propagation keeps each command snapshot at its call boundary. */
+// Intent: Event node type 33 handler: camera move; places the camera resource and runs timed or eased moves [inferred]
 // FUN_00288AF0
 #pragma push
 #pragma no_branch_likely on
 #pragma opt_propagation off
-s32 func_00288af0(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *commandBytes)
+s32 evtNodeCameraMove(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *commandBytes)
 {
     SVec3 position;
     SVec3 angles;
@@ -1813,8 +1815,9 @@ s32 evtCmdResPlace(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
 }
 
 /* 720/720 bytes; 49 fully resolved relocations. */
+// Intent: Event node type 4 handler: message step; sets up the message state and handles the selection for the node's id [inferred]
 // FUN_002894B0
-s32 func_002894b0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4) {
+s32 evtNodeMessageSelect(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4) {
     s32 sp9C;
     s32 sp98;
     s32 var_2;
@@ -2190,8 +2193,9 @@ s32 evtCmdPlayCue(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
         return 1;
     }
 }
+// Intent: Event node type 54 handler: soundtrack request or channel fade for the node's id, chosen by the node kind [inferred]
 // FUN_0028A100
-s32 func_0028a100(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+s32 evtNodeSoundTrack(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     s8 temp_3;
     u32 t;
 
@@ -2260,8 +2264,9 @@ s32 evtCmdPlayStream(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
     }
 }
 
+// Intent: Event node type 19 handler: sound cue for the node's id: plays a cue, queues a sound, or stops a channel [inferred]
 // FUN_0028A3B0
-s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+s32 evtNodeSoundCue(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     u16 temp_3;
     s16 temp_3_2;
     u32 t;
@@ -2346,8 +2351,9 @@ s32 evtCmdRangeFlag(s32 arg0, s32 arg1, s32 *arg2, s32 arg3, u8 *arg4) {
     }
 }
 
+// Intent: Event node type 28 handler: draws the gated entry, or stops pad rumble, chosen by the node kind [inferred]
 // FUN_0028A6A0
-s32 func_0028a6a0(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
+s32 evtNodeDrawOrRumble(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
     s16 v18;
     s8 t;
     evtFindTask();
@@ -2628,7 +2634,7 @@ loop_6_test:
     }
     func_00291900();
     mtMiscDestroyIconResources();
-    func_00290fa0(*(u8 **)(arg0 + 0x5D0));
+    evtEffectTableDestroy(*(u8 **)(arg0 + 0x5D0));
     *(s32 *)(arg0 + 0x5D0) = 0;
     goto loop_27_test;
 loop_27_body:

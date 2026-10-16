@@ -9672,7 +9672,7 @@ void fclCombineConsumeMaterials(u8 *task, s16 *materials) {
 }
 #pragma pop
 /* MATCHED: struct colour copies straight into fclSpriteEntry(...) + 0x85;
-   func_00285b30 takes no argument and fclSpriteStartTweenAt ends in two floats
+   evtGetEventFrame takes no argument and fclSpriteStartTweenAt ends in two floats
    (0.0f, -360.0f); the second constructor coordinates for 0x20C are
    (f32)347 / (f32)267 (retail converts them with cvt.s.w). Stored bytes
    are re-read (*(s16 *)(p + 0x2D8), *(s8 *)(p + 0xD)) so b210 forwards

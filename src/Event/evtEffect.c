@@ -21,8 +21,9 @@ extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *H_Cdvd_LookupRequest(u8 *arg0, u32 *arg1);
 extern s32 H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
 
+// Intent: Allocates a 0x190-byte effect table with its count cleared and accounts the memory [inferred]
 // FUN_00290F00
-u8 *func_00290f00(void)
+u8 *evtEffectTableCreate(void)
 {
     u8 *work;
 
@@ -37,8 +38,9 @@ u8 *func_00290f00(void)
     return work;
 }
 
+// Intent: Frees an effect table: destroys its CD requests, releases its sequence and frees the block [inferred]
 // FUN_00290FA0
-void func_00290fa0(u8 *arg0)
+void evtEffectTableDestroy(u8 *arg0)
 {
     s32 i;
     u8 *e;
@@ -55,8 +57,9 @@ void func_00290fa0(u8 *arg0)
         evtMemAccount(0xB, -0x190);
     }
 }
+// Intent: Resets an effect sequence record to state 1 with an empty entry count [inferred]
 // FUN_00291060
-void func_00291060(u32 *param_1)
+void evtEffectSequenceReset(u32 *param_1)
 {
     *param_1 = 1;
     param_1[2] = 0;
@@ -64,8 +67,9 @@ void func_00291060(u32 *param_1)
     return;
 }
 
+// Intent: Effect sequence step: advances the load over each entry (direct load, or wait for a CD file to load and look up its request) [inferred]
 // FUN_00291080
-s32 func_00291080(s32 *arg0)
+s32 evtEffectLoadStep(s32 *arg0)
 {
     u32 sp5C;
     s32 result;
