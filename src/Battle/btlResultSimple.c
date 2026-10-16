@@ -79,7 +79,7 @@ void btlResultSimpleCreateSprites(BtlResultWork *work);
 extern u8 func_002baac0(u8 *message);
 void func_002bad10(s32 param);
 void func_002bb4e0(void);
-s32 func_00353f50(s32 param);
+s32 datMemberNoticeTryBegin(s32 param);
 extern s32 btlResultSimpleUpdate(u8 *arg0);
 
 typedef struct BtlResultSubWork BtlResultSubWork;
@@ -394,7 +394,7 @@ s32 btlResultSimpleStepPhase(u8 *arg0) {
         }
         goto L;
     case 3:
-        if (func_00353f50(1) != 0) {
+        if (datMemberNoticeTryBegin(1) != 0) {
             goto L;
         }
         func_002bb4e0();
@@ -467,7 +467,7 @@ s32 btlResultSimpleUpdate(u8 *arg0) {
         }
         goto L;
     case 4:
-        if (func_00353f50(1) == 0) {
+        if (datMemberNoticeTryBegin(1) == 0) {
             func_002bb4e0();
             work->flags &= 0xFFFE;
             work->state = 7;

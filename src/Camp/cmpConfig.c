@@ -11,7 +11,7 @@ void kAssertFail(void* arg0, s32 arg1);
 void sdkSpriteFreeNode(void *node);
 void func_00460ac0(void* param, void* work);
 void datSetFlag(s32 a, s32 b);
-s32 func_0035f0c0(u32* arg0, s32* arg1, u8* arg2);
+s32 datCommunityDetailStep(u32* arg0, s32* arg1, u8* arg2);
 s32 func_0034c210(void);
 void chkmemAllocSiteTag(void* file, s32 line);
 void memset(void* dest, s32 value, s32 size);
@@ -36,7 +36,7 @@ void mdlEffectEmitMaskedTagPair(void);
 void func_0045c870(void* arg0, s32 arg1);
 void mdlEffectEmitTagPair(void);
 void RpSkyRenderStateSet(s32 a, s32 b);
-void func_0035e820(u8* arg0);
+void datCommunityOverlayDestroy(u8* arg0);
 s32 func_0035e720(u8* arg0);
 s32 func_0035ce10(u8* arg0, s32 mode);
 s32 func_0035cc80(u8* arg0, s32 arg1, s32 arg2);
@@ -75,7 +75,7 @@ s32 func_0035c690(void* arg0, s32 arg1) {
     if (work == NULL) {
         kAssertFail(D_0064D3C8, 0xC6);
     }
-    r = (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0064D3D8), 0xC7, 0, 0, func_0035e720, func_0035e820, (u8 *)(work));
+    r = (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0064D3D8), 0xC7, 0, 0, func_0035e720, datCommunityOverlayDestroy, (u8 *)(work));
     memset(work + 0x47C, 0, 0x30);
     *(s32 *)(work + 0x484) = (s32)func_0035d000;
     *(u8 **)(work + 0x48C) = work;
@@ -817,7 +817,7 @@ s32 func_0035e720(u8* arg0) {
     if (p[4] & 1) {
         return 0;
     }
-    switch (func_0035f0c0((u32*)(p + 0x478), &local, p)) {
+    switch (datCommunityDetailStep((u32*)(p + 0x478), &local, p)) {
     case 0:
         if (local != 0) {
             *(s32*)(p + 0x47C) = 0;
