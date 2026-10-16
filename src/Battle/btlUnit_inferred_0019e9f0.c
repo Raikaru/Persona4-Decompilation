@@ -9,6 +9,7 @@
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 #include "rw_types_internal.h"
+#include "datPersona_internal.h"
 typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
     f32 x;
@@ -151,7 +152,6 @@ extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
 extern s32 datPersonaNamePart1(s16 arg0);
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s32 datPersonaNamePart1Alt(s16 arg0);
-extern u8 *datPersonaGetRow(u16 arg0);
 extern s32 iGpffffb444;
 extern s32 btlUnitIsMoving(u8 *arg0);
 extern s32 btlUnitIdleAnimTick(u8 *arg0);

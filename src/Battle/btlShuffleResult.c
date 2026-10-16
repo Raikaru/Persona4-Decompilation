@@ -4,6 +4,7 @@
 #include "type.h"
 #include "btl_shuffle_draw_internal.h"
 #include "sdk_snd_internal.h"
+#include "datPersona_internal.h"
 
 s32 btlShuffleResultMain(u8 *arg0);
 extern s32 nmMesWindowResetCurrent(void);
@@ -49,7 +50,6 @@ extern void datPersonaInitRecord(u8 *dst, u16 id);
 extern s32 datPersonaRosterCapacity(void);
 extern u16 datPersonaLeadPersonaId(void);
 extern u8 *shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern u8 *datPersonaGetRow(u16 id);
 extern void nmMesWindowSetCurrentString(s32 a, void *text);
 extern s32 nmMesWindowSetCurrentParam(s32 arg0);
 extern void nmMesWindowSetCurrentFlag(u8 param_1);
