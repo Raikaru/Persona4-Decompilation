@@ -1168,10 +1168,10 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
         switch (t3) {
         case 0:
         case 1: {
-            f32 x = unit->rot.x;
-            f32 y = unit->rot.y;
-            f32 z = unit->rot.z;
-            f32 w = unit->rot.w;
+            f32 x = unit->rot.imag.x;
+            f32 y = unit->rot.imag.y;
+            f32 z = unit->rot.imag.z;
+            f32 w = unit->rot.real;
             RwV3d square;
             RwV3d cross;
             RwV3d wimag;
