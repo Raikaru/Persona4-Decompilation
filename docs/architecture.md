@@ -834,7 +834,7 @@ these are unnamed. So are the dialogue and message windows
 
 ### Event lifecycle
 
-An event is created by `evtCreateEventTask` (`src/Event/evtEvent.c`, `func_002859e0`). It allocates the 0x60-byte `EvtEventTask` work block, creates the **`"evtEvent"`** task (priority `0xF`) with `evtNodeTaskUpdate` and `evtNodeTaskDestroy`, starts the event player with `evtStart`, sets the event id with `evtSetId`, and calls `evtRequestLoad` so the loader fetches the event's data. The work block's `state` starts at 0.
+An event is created by `evtCreateEventTask` (`src/Event/evtEvent.c`, `func_002859e0`). It allocates the 0x60-byte `EvtEventTask` work block, creates the **`"evtEvent"`** task (priority `0xF`) with `evtNodeTaskUpdate` and `evtNodeTaskDestroy`, starts the event player with `evtStart`, sets the event id with `evtSetId`, and calls `evtRequestLoad` so the loader fetches the event's data. `evtStart` (`src/promoted/code1_0028.c`) creates the **`"evtEditLoad"`** task (update `evtStepEventTask`). The work block's `state` starts at 0.
 
 `evtNodeTaskUpdate` (`func_002857c0`) is the state machine:
 
