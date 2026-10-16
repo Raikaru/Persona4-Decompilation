@@ -188,7 +188,7 @@ Most of these callbacks live in `src/Kosaka/Field/sequenceList.c`
 2. Sequence 1 runs the `initDataRead` task (`src/Main/init.c`
    `initBootChainStep`). It calls three step callbacks from `0x5E46D0` in turn
    (`initDataReadStart`, which reads `init/itemtbl.bin` into `D_0079BF00`;
-   `func_0012d320` in `src/Camp/cmpMain.c`; `func_0015e7d0` in
+   `func_0012d320` in `src/Camp/cmpMain.c`; `FldStartupDataCreate` in
    `src/promoted/k_fldData.c`), each returning a task, and waits for each
    task to reach the dying state. Then `initBootChainDestroy` requests sequence 27
    with a 5-frame delay.
