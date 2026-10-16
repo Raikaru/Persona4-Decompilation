@@ -71,7 +71,7 @@ extern u32 func_002e7a60(void);
 extern u8 *func_002e2170(u8 *arg0, s32 arg1, s32 arg2);
 extern void sprintf();
 extern s64 datGetDateIndex(void);
-extern s32 func_00110d60(s16 arg0);
+extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 sdkSpriteRequestLoad(void *arg0);
 extern s32 func_0046a750(s32 arg0);
 extern void sdkSpriteRelease(void *arg0);

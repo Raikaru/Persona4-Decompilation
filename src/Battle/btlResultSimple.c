@@ -31,7 +31,7 @@ extern char D_00629628[];
 extern char D_006290F0[];
 extern char D_00629610[];
 extern s64 datGetDateIndex(void);
-extern s32 func_00110d60(s32 arg0);
+extern s32 calGetDayWindowFlags(s32 arg0);
 void func_00440b68(void *msg, const void *file, s32 line);
 extern u8 *func_00454a60(u8 *param, s32 mode);
 void kAssertFail(const void *file, s32 line);
@@ -1139,7 +1139,7 @@ void btlResultSimpleSetupEntries(void) {
     work = (BtlResultWork *)kwlnTaskGetWork();
     {
         u32 r;
-        r = (u32)func_00110d60((s16)datGetDateIndex()) & 1;
+        r = (u32)calGetDayWindowFlags((s16)datGetDateIndex()) & 1;
         i = (0U < r) ^ 1U;
     }
     func_00440b68(&iGpffffa5b8, &D_00629610, 1410);

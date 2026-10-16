@@ -46,7 +46,7 @@ extern char D_0064EA20[];
 extern void kAssertFail(void *file, s32 line);
 extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, s32 arg0, f32 fparg2);
 extern s64 datGetDateIndex(void);
-extern s32 func_00110d60(s16 value);
+extern s32 calGetDayWindowFlags(s16 value);
 extern char iGpffffa9d0;
 extern s32 iGpffffa9c8;
 extern u8 *func_00454a60(u8 *param, s32 mode);
@@ -229,7 +229,7 @@ void btlShuffleDrawLoadSprites(u8 *arg0) {
     s32 temp_17;
     s32 temp_2;
 
-    temp_17 = !(func_00110d60((s16)datGetDateIndex()) & 1);
+    temp_17 = !(calGetDayWindowFlags((s16)datGetDateIndex()) & 1);
     func_00440b68(&iGpffffa9d0, D_0064EA20, 0xB5);
     temp_2 = (s32)(func_00454a60(*(u8 **)((u8 *)&iGpffffa9c8 + temp_17 * 4), 1));
     *(s32 *)(arg0 + 0x1F2E8) = temp_2;

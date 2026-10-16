@@ -32,8 +32,8 @@ s32 func_0029e970(void);
 void func_0029e980(s32);
 
 void func_00106390(s32, s32);
-s32 func_001110e0(void);
-void func_00111160(s32);
+s32 calReadDayFlagMask(void);
+void calWriteDayFlagMask(s32);
 void func_001113b0(void);
 void func_004534f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
@@ -475,8 +475,9 @@ s32 calHasDayEntry(s32 arg0)
 
 /* measured: opt_rebuildconditionals off preserves the direct range guards. */
 #pragma opt_rebuildconditionals off
+// Intent: Return flag 1 when day-of-year arg0 is in Apr 1 to Jun 12 or on or after Oct 10, and flag 2 when the day table has an entry for the current day [inferred]
 // FUN_00110D60
-s32 func_00110d60(s32 arg0)
+s32 calGetDayWindowFlags(s32 arg0)
 {
     s32 temp_18;
     s32 temp_2;
@@ -514,7 +515,7 @@ block_10:
     }
     return var_16;
 }
-/* measured: restore opt_rebuildconditionals on after func_00110d60. */
+/* measured: restore opt_rebuildconditionals on after calGetDayWindowFlags. */
 #pragma opt_rebuildconditionals on
 // FUN_00110E70
 void func_00110e70(s32 arg0)
@@ -553,7 +554,7 @@ s32 func_00110f00(void)
     if (iGpffffb1b4 != 0) {
         sdlSchedulerDestroy();
         func_00122520(1, 1);
-        temp_17 = func_001110e0();
+        temp_17 = calReadDayFlagMask();
         func_001113b0();
         iGpffffb1f0 = 1;
         buffer = (s32)&D_007BBF00;
@@ -561,7 +562,7 @@ s32 func_00110f00(void)
         zero = 0;
         buffer += 4;
         func_0010e710(zero, (u8 *)buffer, temp_18);
-        func_00111160(temp_17);
+        calWriteDayFlagMask(temp_17);
         iGpffffb19c = temp_16;
         func_001029a0(0x1A, 0, 0, 0);
         var_2 = 1;
@@ -589,8 +590,9 @@ void func_00111010(void)
 
 
 
+// Intent: Set the six default day flags (0x39 to 0x3E) and clear the saved mask when arg0 is nonzero [inferred]
 // FUN_00111050
-void func_00111050(s32 arg0)
+void calSetDefaultDayFlags(s32 arg0)
 {
     func_00106390(0x39, 1);
     func_00106390(0x3A, 1);
@@ -603,8 +605,9 @@ void func_00111050(s32 arg0)
     }
 }
 
+// Intent: Read the six day flags in the flag table into a six-bit mask [inferred]
 // FUN_001110E0
-s32 func_001110e0(void) {
+s32 calReadDayFlagMask(void) {
     u32 var_17;
     s32 var_16;
 
@@ -616,8 +619,9 @@ s32 func_001110e0(void) {
     }
     return var_16;
 }
+// Intent: Write each of the six day flags from the matching bit of a six-bit mask [inferred]
 // FUN_00111160
-void func_00111160(s32 arg0)
+void calWriteDayFlagMask(s32 arg0)
 {
     u32 var_16;
     var_16 = 0;
@@ -629,8 +633,9 @@ void func_00111160(s32 arg0)
         }
     }
 }
+// Intent: Read the six day flags into a mask, mark it valid with bit 31, and store it as the saved mask [inferred]
 // FUN_00111200
-s32 func_00111200(void)
+s32 calCaptureDayFlagMask(void)
 {
     u32 var_17;
     s32 var_16;
@@ -646,8 +651,9 @@ s32 func_00111200(void)
     iGpffffb1bc = result;
     return result;
 }
+// Intent: Restore the six day flags from the saved mask when it is valid, else from the defaults, then clear the saved mask [inferred]
 // FUN_00111290
-void func_00111290(void)
+void calRestoreDayFlagMask(void)
 {
     s32 temp_16;
     u32 var_17;
