@@ -31,8 +31,8 @@ static inline s32 viewAddReverse(s32 base, s32 offset)
     return offset + base;
 }
 
-extern s32 func_0047e6f0(void **owner);
-extern s32 func_0047e0f0(u8 *arg0, s16 arg1, s16 arg2, u16 arg3);
+extern s32 mdlSeUpdateRecord(void **owner);
+extern s32 mdlSeFillEntryState(u8 *arg0, s16 arg1, s16 arg2, u16 arg3);
 extern s32 hsndSlotIsStarting(s16 arg0);
 extern s32 func_0045af90(s16 arg0);
 extern f32 fGpffffbb4c;
@@ -136,7 +136,7 @@ void mdlRequestMotionAnim(u8 *arg0, s16 arg1, u16 arg2)
             (*(u16 *)(*(u8 **)arg0 + 0xC) == 2 &&
              (arg1 != 2 || *(s16 *)(arg0 + 4) != arg1 ||
               func_0045af90(status) == 0))) {
-            if (func_0047e0f0(arg0, 0, arg1, arg2) != 0) {
+            if (mdlSeFillEntryState(arg0, 0, arg1, arg2) != 0) {
                 *(s16 *)(arg0 + 8) = 0;
                 *(s16 *)(arg0 + 4) = arg1;
                 *(u16 *)(arg0 + 6) = arg2;
@@ -191,7 +191,7 @@ void mdlTickMotionState(u8 *arg0)
     s32 call_a1;
     s32 retry;
 
-    func_0047e6f0((void **)arg0);
+    mdlSeUpdateRecord((void **)arg0);
     object = *(u8 **)arg0;
     if (object != NULL && (*(u16 *)(object + 0x12) & 1) != 0) {
         retryReady = 1;
@@ -240,7 +240,7 @@ void mdlTickMotionState(u8 *arg0)
             retryCount = *(s16 *)(arg0 + 8);
             if (retryCount < 8) {
                 call_a1 = *(u16 *)(arg0 + 0x06);
-                if (func_0047e0f0(arg0, *(s16 *)((u32)arg0 + 8),
+                if (mdlSeFillEntryState(arg0, *(s16 *)((u32)arg0 + 8),
                                   *(s16 *)(arg0 + 0x04), (u16)call_a1) == 0) {
                     *(s16 *)(arg0 + 8) = -1;
                 }

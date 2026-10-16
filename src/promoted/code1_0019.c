@@ -304,7 +304,7 @@ extern void btlUiRegisterAvailability(void);
 extern void btlSoundLoadBanks(void);
 extern void btlPanelLoadSync(void);
 extern void mdlRunDataCallback(void *model);
-extern s32 func_0047e6f0(void **owner);
+extern s32 mdlSeUpdateRecord(void **owner);
 extern void btlUnitUpdateLookAtTarget(u8 *arg0);
 extern void hFadeTaskStart(s16 arg0);
 extern s32 btlBossRemapSkillPair();
