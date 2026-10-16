@@ -60,8 +60,8 @@ extern u16 D_00624FC0[];
 extern u16 D_00624FD8[];
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
-extern void func_0045a9a0(s32 arg0, s32 arg1);
-extern s32 func_00459880(void);
+extern void sdkSndResetChannel(s32 arg0, s32 arg1);
+extern s32 sdkSndStopMainChannel(void);
 
 
 
@@ -135,10 +135,10 @@ extern void btlSoundAdvanceSlotQueue(void);
 void func_001f75b0(void)
 {
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x40) != 0) {
-        func_0045a9a0(1, 0);
-        func_0045a9a0(2, 0);
-        func_0045a9a0(3, 0);
-        func_00459880();
+        sdkSndResetChannel(1, 0);
+        sdkSndResetChannel(2, 0);
+        sdkSndResetChannel(3, 0);
+        sdkSndStopMainChannel();
     }
 }
 

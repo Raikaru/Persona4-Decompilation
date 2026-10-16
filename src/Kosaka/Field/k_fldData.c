@@ -71,8 +71,8 @@ extern void *memcpy(void *destination, const void *source, u32 size);
 extern u32 H_Cdvd_Destroy(HCdvd *file);
 extern s32 NpcTable_InstallFixedTable(u8 *arg0);
 extern s32 func_001615a0(u8 *file);
-extern s32 func_0045b1c0(void *parent, s32 kind, s32 buffer, void *name);
-extern s32 func_0045b170(void *request);
+extern s32 sdkSndCreateStreamTask(void *parent, s32 kind, s32 buffer, void *name);
+extern s32 sdkSndStreamTaskReap(void *request);
 extern u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 size, const char *cacheName, s32 resultKind, s32 memoryKind);
 extern u8 *func_004669d0(u8 *request, s32 *ready, s32 *source);
 extern s32 FldMipmapLoadTaskCreate(u8 *arg0);
@@ -202,7 +202,7 @@ s32 FldStartupDataUpdate(u8 *task)
         chkmemAllocSiteTag(D_005F0A88, 0xC5);
         soundMemory = (u16 *)D_008873F4[0](1, 0x414, 0x40000);
         uGpffffb270 = soundMemory;
-        iGpffffb26c = func_0045b1c0(task, 6, (s32)soundMemory, D_005F0AE0);
+        iGpffffb26c = sdkSndCreateStreamTask(task, 6, (s32)soundMemory, D_005F0AE0);
         work->state = work->state + 1;
         /* Start polling after queuing the first-stage resources. */
     case 1:
@@ -283,7 +283,7 @@ s32 FldStartupDataUpdate(u8 *task)
             soundRequest = iGpffffb26c;
             if (soundRequest == 0) {
                 soundReady = 1;
-            } else if (func_0045b170((void *)(soundRequest)) == 0) {
+            } else if (sdkSndStreamTaskReap((void *)(soundRequest)) == 0) {
                 soundReady = 0;
             } else {
                 iGpffffb26c = 0;

@@ -23,7 +23,7 @@ s32 kwlnTaskIsLinked(void *handle);
 extern u8 D_0063C3C0[];
 extern u8 D_0063C3E0[];
 s32 mtMiscPlayFormattedCue();
-s32 func_00459880();
+s32 sdkSndStopMainChannel();
 void sdkSndPlayCue();
 void hsndQueueSound();
 void sdkSndStopChannel();
@@ -2265,7 +2265,7 @@ s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             return 0;
         }
         if ((*(u32 *)arg2 & 0x80000000) && (arg4 == NULL) && (arg1 == 0)) {
-            func_00459880(2);
+            sdkSndStopMainChannel(2);
         }
         return 1;
     case 1:
@@ -2285,7 +2285,7 @@ s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 sdkSndStopChannel(0x78, 1);
                 break;
             case 3:
-                func_00459880(2, 1);
+                sdkSndStopMainChannel(2, 1);
                 break;
             default:
                 kAssertFail(D_0063C3B0, 0xE4C);
@@ -2606,7 +2606,7 @@ loop_6_test:
         *(s32 *)(arg0 + 0x768) = 0;
     }
     if (arg1 != 0) {
-        func_00459880();
+        sdkSndStopMainChannel();
     }
     temp_4_4 = (s32)(*(s32 *)(arg0 + 0x75C));
     if (temp_4_4 != 0) {

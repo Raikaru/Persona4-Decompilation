@@ -35,11 +35,11 @@ extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
 extern char D_0063CB30[];
 extern char D_0063D050[];
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
-extern void func_0045a9a0(s32 arg0, s32 arg1);
+extern void sdkSndResetChannel(s32 arg0, s32 arg1);
 extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 void mdlEffectSeqStart(s32 arg0, s16 arg1);
 s32 sdkSndPlayCue(s16 arg0, s32 arg1);
-s32 func_00459880(void);
+s32 sdkSndStopMainChannel(void);
 s32 sdkSndStopChannel(s16 arg0);
 
 u32 datCalcGetHpById(s16 arg0);

@@ -45,7 +45,7 @@ extern u8 *iGpffffb3e0;
 
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
-extern s32 func_0045af90(s32 arg0);
+extern s32 sdkSndIsChannelPlaying(s32 arg0);
 
 
 
@@ -639,7 +639,7 @@ s32 btlSoundPickRandomPartnerVoice(u8 *arg0)
     u8 *temp_4_2;
     u8 *sp60[12];
 
-    if (func_0045af90(3) == 1) {
+    if (sdkSndIsChannelPlaying(3) == 1) {
         return -1;
     }
     temp_3 = *(u8 **)(arg0 + 0x30);

@@ -150,7 +150,7 @@ void itfMesWindowAdvanceRow(u8 *arg0)
     extern void func_002746c0(s32 arg0, s32 arg1);
     extern void itfMesWindowBuildRow(u8 *arg0);
     extern void func_00440b68(void *arg0);
-    extern void func_0045a9a0(s32 arg0, s32 arg1);
+    extern void sdkSndResetChannel(s32 arg0, s32 arg1);
     extern u16 D_008C024C[];
     extern s32 iGpffffb4d0;
     extern u8 D_0063BF40[];
@@ -198,7 +198,7 @@ do_action:
                 func_00440b68(D_0063BF40);
                 *(s16 *)(state + 0x18) = 3;
                 *(s16 *)(state + 0x10) += 1;
-                func_0045a9a0(1, 0);
+                sdkSndResetChannel(1, 0);
                 if (*(s16 *)(state + 0x10) >= *(s16 *)(state + 0x12)) {
                     *(s8 *)(state + 8) = -1;
                     return;

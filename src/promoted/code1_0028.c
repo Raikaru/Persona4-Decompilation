@@ -73,8 +73,8 @@ extern void func_0028b7b0(u8 *arg0);
 extern void evtEnvSlotSave(u8 *arg0, s32 arg1);
 extern void evtCamPosSave(u8 *arg0);
 extern void sprintf(void *arg0, ...);
-extern s32 func_0045b170(s32 arg0);
-extern s32 func_0045b1c0(s32 arg0, s32 arg1, s32 arg2, void *arg3);
+extern s32 sdkSndStreamTaskReap(s32 arg0);
+extern s32 sdkSndCreateStreamTask(s32 arg0, s32 arg1, s32 arg2, void *arg3);
 extern char D_0063C340[];
 extern char D_0063C380[];
 extern char D_0063C350[];
@@ -256,13 +256,13 @@ func_00285dd0_loop_check:
                               *(s32 *)(data + 0x78C),
                               *(s32 *)(data + 0x790));
             }
-            *(s32 *)(data + 0x780) = func_0045b1c0(arg0, 2, 0, path);
+            *(s32 *)(data + 0x780) = sdkSndCreateStreamTask(arg0, 2, 0, path);
         } else {
             *(s32 *)(data + 0x76C) = 14;
             break;
         }
     case 13:
-        if (func_0045b170(*(s32 *)(data + 0x780)) != 0) {
+        if (sdkSndStreamTaskReap(*(s32 *)(data + 0x780)) != 0) {
             *(s32 *)(data + 0x76C) = 14;
         }
         break;
