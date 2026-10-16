@@ -16,7 +16,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 {
     return right * left;
 }
-extern void func_002bd440(void);
+extern void fclMiscCloseActiveHandle(void);
 
 
 
@@ -111,6 +111,6 @@ void func_002bd3e0(void) {
 void func_002bd410(void)
 {
     sdkSndResetChannel(1, 0);
-    func_002bd440();
+    fclMiscCloseActiveHandle();
 }
 

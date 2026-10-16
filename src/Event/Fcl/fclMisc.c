@@ -65,7 +65,7 @@ void func_0014a2e0(u32 value)
 }
 
 // FUN_0027BE90
-void func_0027be90(s32 handle, void *userdata)
+void fclMesWindowSetUserData(s32 handle, void *userdata)
 {
     int iVar1;
 
@@ -261,7 +261,7 @@ s32 func_002bcfb0(u8 *arg0, u8 *arg1) {
     return 0;
 }
 // FUN_002BD1E0
-s32 func_002bd1e0(s32 param_1)
+s32 fclMiscSlotValue(s32 param_1)
 {
     u8* entry;
 
@@ -283,7 +283,7 @@ s32 fclMiscPendingIsEmpty(void)
 
 
 // FUN_002BD240
-void func_002bd240(u32 param_1)
+void fclMiscOrStateFlags(u32 param_1)
 {
     *(u32 *)(iGpffffb57c + 0x14) = *(u32 *)(iGpffffb57c + 0x14) | param_1;
 }
@@ -340,7 +340,7 @@ void func_002bd3c0(void)
 
 
 // FUN_002BD440
-void func_002bd440(void)
+void fclMiscCloseActiveHandle(void)
 {
     u8 *context;
 

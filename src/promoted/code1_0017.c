@@ -130,7 +130,7 @@ extern s32 kwlnTaskIsLinked(s32 arg0);
 extern s32 scrGetParamInt(s32 arg0);
 extern s64 datGetPartyId(s32 arg0);
 extern u8 *scrGetContext(void);
-extern void func_002bd240(s32 arg0);
+extern void fclMiscOrStateFlags(s32 arg0);
 extern void func_002bd270(s32 arg0);
 extern void func_002bd280(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 *kwlnGetCamera(void);

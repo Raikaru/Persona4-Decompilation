@@ -294,7 +294,7 @@ void func_002bc4b0(f32 inputDepth, s16 arg0, s32 arg1, s32 arg2,
 
 #pragma pop
 // FUN_002BC7A0
-void func_002bc7a0(s32 item, f32 x, f32 y, f32 depth,
+void fclMesWindowDrawTableItem(s32 item, f32 x, f32 y, f32 depth,
                     s32 color, s32 font, s32 mode, s32 table)
 {
     extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 color, s32 font,

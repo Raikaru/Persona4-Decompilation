@@ -12,8 +12,8 @@ extern u8 *iGpffffb3d4;
 extern char D_0063FC48[];
 extern char D_0063FC58[];
 extern u8 *D_00882F70[];
-extern s32 func_00312b60(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_00312b90(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+extern s32 fclFusePairByte(s32 arg0, s32 arg1, s32 arg2);
+extern s32 fclFuseTripleByte(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 
@@ -900,7 +900,7 @@ void yListBuildAvailability(s32 arg0, s32 arg1) {
                 if (i != j) {
                     if (mode == 0) {
                         destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
-                        arg0 = (s8)func_00312b60((s32)destination,
+                        arg0 = (s8)fclFusePairByte((s32)destination,
                             *(s16 *)(yListEntryInWork(yListWork(0), i) + 2),
                             *(s16 *)(yListEntryInWork(yListWork(0), j) + 2));
                     } else if (mode == 1) {
@@ -908,7 +908,7 @@ void yListBuildAvailability(s32 arg0, s32 arg1) {
                             arg0 = 0;
                         } else {
                             destination = yListEntryInWork(yListWork((s8)(i + 1)), j);
-                            arg0 = (s8)func_00312b90((u16 *)destination,
+                            arg0 = (s8)fclFuseTripleByte((u16 *)destination,
                                 yListEntryInWork(yListWork(0), selected),
                                 yListEntryInWork(yListWork(0), i),
                                 yListEntryInWork(yListWork(0), j));

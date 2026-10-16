@@ -6,7 +6,7 @@ extern s32 fclCombineRecipeMatchMask(u16 *, u16 *, s32, s16 *);
 extern s32 datPersonaAddSkill(u8 *, u16);
 extern s32 datPersonaFindSkillSlot(u8 *, u16);
 extern s32 fclFusePair(u16 *output, u16 first, u16 second);
-extern s32 func_003127e0();
+extern s32 fclFuseTriple();
 extern u32 RpRandom();
 extern s16 yListSlotIndexOf(s8 arg0, s16 arg1);
 extern u8 *yListSlotEntry(s8 arg0, s16 arg1);
@@ -284,7 +284,7 @@ s32 fclFusePair(u16 *output, u16 first, u16 second)
 }
 
 // FUN_003127E0
-s32 func_003127e0(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
+s32 fclFuseTriple(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     u16 sp78[3];
     u8 sp60[0x18];
     s32 t;
@@ -361,13 +361,13 @@ s32 func_003129b0(u8 *arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_00312B60
-s32 func_00312b60(s32 arg0, s32 arg1, s32 arg2) {
+s32 fclFusePairByte(s32 arg0, s32 arg1, s32 arg2) {
     return fclFusePair((u16 *)arg0, arg1 & 0xFFFF, arg2 & 0xFFFF) & 0xFF;
 }
 
 // FUN_00312B90
-s32 func_00312b90(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
-    return func_003127e0(arg0, arg1, arg2, arg3) & 0xFF;
+s32 fclFuseTripleByte(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
+    return fclFuseTriple(arg0, arg1, arg2, arg3) & 0xFF;
 }
 
 // Fcl rare chance roll: returns 1 with a 1/64 chance for kind 2 and 1/32 for kind 3, else 0.

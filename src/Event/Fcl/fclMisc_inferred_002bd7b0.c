@@ -141,7 +141,7 @@ s32 func_002bd7b0(void)
 }
 
 // FUN_002BD840
-s32 func_002bd840(s32 arg0)
+s32 fclMesWindowShowItemRecord(s32 arg0)
 {
     u8 *p;
 

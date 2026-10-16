@@ -117,7 +117,7 @@ extern s32 nmMesWindowSlotStatus(s8 arg0);
 extern void nmMesWindowCloseSlot(s8 arg0, s32 arg1);
 extern s32 nmMesWindowResetCurrent(void);
 extern s32 func_002bd7b0(const void *arg0);
-extern s32 func_002bd840(s32 arg0);
+extern s32 fclMesWindowShowItemRecord(s32 arg0);
 extern u8 D_0064A790[];
 extern void resrcMngSetRenderSuppressed(s32 arg0);
 extern s32 FldStepNotAtBoundary(void);
@@ -327,7 +327,7 @@ s32 datMemberNoticeStep(u8 *arg0)
             nmMesWindowCloseSlot(*(s8 *)(work + 8), 1);
             if ((*(u16 *)work & 1) != 0) {
                 func_002bd7b0(D_0064A790);
-                func_002bd840(7);
+                fclMesWindowShowItemRecord(7);
                 *(s32 *)(work + 4) = 2;
             } else {
                 *(s32 *)(work + 4) = 3;
@@ -4043,7 +4043,7 @@ void datCommunityMenuDraw(u8 *work)
     extern void frFontExCopyString(void *src, void *dst, s32 n);
     extern s32 frFontExDrawText(f32 x, f32 y, f32 depth, s32 color, s8 character, s32 font,
                             const char *text, s32 flags, s32 reserved);
-    extern void func_002bc7a0(s32 item, f32 x, f32 y, f32 depth,
+    extern void fclMesWindowDrawTableItem(s32 item, f32 x, f32 y, f32 depth,
                               s32 textColor, s32 font, s32 mode, s32 table);
     extern void func_00361d20(s32 idx, u8 *ctx);
     extern s32 RpSkyRenderStateSet(s32 cmd, void *val);
@@ -4327,7 +4327,7 @@ void datCommunityMenuDraw(u8 *work)
             textColor = (opacity | 0xADADAD00);
             displayItem = 0;
         }
-        func_002bc7a0(displayItem, (f32)(s32)position.x, (f32)(s32)position.y, 0.0f, textColor, 1, 8, 8);
+        fclMesWindowDrawTableItem(displayItem, (f32)(s32)position.x, (f32)(s32)position.y, 0.0f, textColor, 1, 8, 8);
         if (*(s32 *)(work + 0x1C) & 8) {
             position.x = 85.0f + (originX + *(f32 *)(work + 0x388));
             position.y = 325.0f + (originY + *(f32 *)(work + 0x38C));

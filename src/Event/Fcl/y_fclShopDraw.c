@@ -334,7 +334,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern u8 D_0063F690[];
     extern u8 D_0063FAF0[];
     extern u8 D_0063FB10[];
-    extern void func_002be4a0(void);
+    extern void fclDrawMoneyDisplay(void);
     extern s32 sdkSpriteRequestLoad(void *);
     extern void func_00440b68(const void *, const void *, s32);
     extern void *H_Cdvd_AcquireDirectory(const void *, s32);
@@ -856,7 +856,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     work = (*(void * *)(arg0 + 0x38));
     var_19 = 0;
     temp_2 = PrimAllocQueueNode();
-    (*(void * *)((u8 *)temp_2 + 8)) = func_002be4a0;
+    (*(void * *)((u8 *)temp_2 + 8)) = fclDrawMoneyDisplay;
     (*(void * *)((u8 *)temp_2 + 0x10)) = work;
     PrimAppendNode(D_00795FE0, temp_2);
     temp_2_2 = (*(s8 *)(work + 0));

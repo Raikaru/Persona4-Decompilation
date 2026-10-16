@@ -78,7 +78,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern s32 itfMesWindowGetFontList(void *arg0);
-extern s32 func_002bd1e0(s32 a0);
+extern s32 fclMiscSlotValue(s32 a0);
 
 typedef struct MsgProcWindowWork {
     s16 field0;
@@ -1892,13 +1892,13 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
         memset(D_00882040, 0, 0x18);
         if (func_0027BE60((s32)arg0) == NULL) {
             chkmemAllocSiteTag(D_0063BFC0, 0x5C0);
-            func_0027be90((s32)arg0, D_008873F4[0](1, 8, 0x40000));
+            fclMesWindowSetUserData((s32)arg0, D_008873F4[0](1, 8, 0x40000));
         }
         break;
     case 1:
         if ((tex = func_0027BE60((s32)arg0)) != NULL) {
             jtbl_008873EC[0](tex);
-            func_0027be90((s32)arg0, NULL);
+            fclMesWindowSetUserData((s32)arg0, NULL);
         }
         break;
     case 4:
@@ -1926,7 +1926,7 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
                 tex = func_0027BE60((s32)arg0);
                 if (tex != NULL) {
                     f = sinf(iGpffff8094 * (f32)(D_00882044[0] - 3) / 7.0f);
-                    sdkSpriteDrawQueued(9.0f - 60.0f * (1.0f - f), 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)func_002bd1e0(*tex), 1,
+                    sdkSpriteDrawQueued(9.0f - 60.0f * (1.0f - f), 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)fclMiscSlotValue(*tex), 1,
                                   0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
                 }
             }
@@ -1942,7 +1942,7 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
             func_00366380(0x46, 0x1B, 0.0f, 0x194, 0x37, 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
             msgWinDrawRing(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
             if ((tex = func_0027BE60((s32)arg0)) != NULL) {
-                sdkSpriteDrawQueued(9.0f, 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)func_002bd1e0(*tex), 1, 0, 0, 0.0f, 1.0f, 1.0f,
+                sdkSpriteDrawQueued(9.0f, 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)fclMiscSlotValue(*tex), 1, 0, 0, 0.0f, 1.0f, 1.0f,
                               D_00796490);
             }
         }
