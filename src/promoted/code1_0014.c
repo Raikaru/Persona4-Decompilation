@@ -173,7 +173,7 @@ extern s32 FldEvent_HasLineOfSight(void *arg0, void *arg1, f32 fparg0, f32 fparg
 extern s32 FldMap_IsInBandA(s32 arg0, s32 arg1);
 extern s32 FldMap_IsInBandB(s32 arg0, s32 arg1);
 extern void func_00440b68();
-extern s32 func_00153a60(s32 arg0);
+extern s32 FldFilterCreate(s32 arg0);
 extern s32 resrcMngCreate(void);
 extern s32 MT_Scene_CreateResLightChar(s32 arg0);
 extern void SceneDraw_InitResList4(void);
@@ -276,13 +276,13 @@ extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
 extern void MT_Scene_ScaleResColors(u32 *resource, const f32 *color);
 extern void func_00457140(u8 red, u8 green, u8 blue, u8 alpha);
 extern s8 *func_00457160(void);
-extern void func_00153b20(s32 arg0, s32 arg1);
+extern void FldFilterSetPrimary(s32 arg0, s32 arg1);
 
-extern void func_00153b60(s32 arg0, s32 arg1);
+extern void FldFilterSetSecondary(s32 arg0, s32 arg1);
 
-extern void func_00153b90(s32 arg0, s32 arg1);
+extern void FldFilterSetTertiary(s32 arg0, s32 arg1);
 
-extern void func_00153bd0(s32 arg0, s32 arg1);
+extern void FldFilterSetIntensity(s32 arg0, s32 arg1);
 extern s32 iGpffff9dd0;
 extern s32 iGpffffb1f8;
 extern s32 iGpffffb1fc;

@@ -201,13 +201,13 @@ extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
 extern void MT_Scene_ScaleResColors(u32 *resource, const f32 *color);
 extern void func_00457140(u8 red, u8 green, u8 blue, u8 alpha);
 extern s8 *func_00457160(void);
-extern void func_00153b20(s32 arg0, s32 arg1);
+extern void FldFilterSetPrimary(s32 arg0, s32 arg1);
 
-extern void func_00153b60(s32 arg0, s32 arg1);
+extern void FldFilterSetSecondary(s32 arg0, s32 arg1);
 
-extern void func_00153b90(s32 arg0, s32 arg1);
+extern void FldFilterSetTertiary(s32 arg0, s32 arg1);
 
-extern void func_00153bd0(s32 arg0, s32 arg1);
+extern void FldFilterSetIntensity(s32 arg0, s32 arg1);
 extern s32 iGpffff9dd0;
 extern s32 iGpffffb1f8;
 extern s32 iGpffffb1fc;
@@ -1288,28 +1288,28 @@ u8 *resrcMngGetTransform(void) {
 void resrcMngSetEnvPrimary(s32 arg0)
 {
     MT_Scene_GetResListHead(12);
-    func_00153b20(*(s32 *)(D_00762EA0 + 32), arg0);
+    FldFilterSetPrimary(*(s32 *)(D_00762EA0 + 32), arg0);
 }
 
 // FUN_00149DB0
 void resrcMngSetEnvSecondary(s32 arg0)
 {
     MT_Scene_GetResListHead(12);
-    func_00153b60(*(s32 *)(D_00762EA0 + 32), arg0);
+    FldFilterSetSecondary(*(s32 *)(D_00762EA0 + 32), arg0);
 }
 
 // FUN_00149E00
 void resrcMngSetEnvTertiary(s32 arg0)
 {
     MT_Scene_GetResListHead(12);
-    func_00153b90(*(s32 *)(D_00762EA0 + 32), arg0);
+    FldFilterSetTertiary(*(s32 *)(D_00762EA0 + 32), arg0);
 }
 
 // FUN_00149E50
 void resrcMngSetEnvIntensity(s32 arg0)
 {
     MT_Scene_GetResListHead(12);
-    func_00153bd0(*(s32 *)(D_00762EA0 + 32), arg0);
+    FldFilterSetIntensity(*(s32 *)(D_00762EA0 + 32), arg0);
 }
 
 /* measured: opt_rebuildconditionals off is scoped to resrcMngResetRenderSlots. */
