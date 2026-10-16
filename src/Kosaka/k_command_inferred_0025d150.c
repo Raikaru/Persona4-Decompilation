@@ -67,7 +67,7 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0025.c; members 0025d150-0025d850 */
 
 // FUN_0025D150
-s32 func_0025d150(void) {
+s32 scrCommonSetItemCount(void) {
     s16 temp_16;
 
     temp_16 = scrGetParamInt(0);
@@ -139,7 +139,7 @@ s32 scrCommonPartyOut(void) {
 }
 
 // FUN_0025D350
-s32 func_0025d350(void) {
+s32 scrCommonGetCharStat(void) {
     s16 temp_16;
     s16 temp_5;
 
@@ -150,7 +150,7 @@ s32 func_0025d350(void) {
 }
 
 // FUN_0025D3C0
-s32 func_0025d3c0(void) {
+s32 scrCommonSetCharStat(void) {
     s16 a;
     s16 b;
 
@@ -194,20 +194,20 @@ s32 func_0025d4b0(void) {
 }
 
 // FUN_0025D520
-s32 func_0025d520(void)
+s32 scrCommonNop(void)
 {
     return 1;
 }
 
 // FUN_0025D530
-s32 func_0025d530(void)
+s32 scrCommonGetPartyMember(void)
 {
     scrSetReturnInt((s16)datGetPartyId(scrGetParamInt(0)));
     return 1;
 }
 
 // FUN_0025D580
-s32 func_0025d580(void) {
+s32 scrCommonLoadPersonaRecord(void) {
     u8 sp30[0x30];
     s16 sp60[18];
     s16 *var_6;
