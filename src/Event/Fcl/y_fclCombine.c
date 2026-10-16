@@ -1378,34 +1378,6 @@ void fclCombineBuildRows(u8 *arg0) {
    gives retail's 0x260 frame; func_00275820 uses its real (f32 x, f32 y,
    f32 scale, ...) signature; `> 5` for the menu range test; store-then-reread
    of f11E/f2FA; fclDrawSetPlacementEx takes the slot byte as s8. */
-typedef struct {
-    s8 f0;
-    u8 f1;
-    u8 pad2[0xB];
-    s8 fD;
-    u8 padE[0xA4];
-    s8 fB2;
-    u8 padB3[0x6B];
-    s16 f11E;
-    u8 pad120[0x2];
-    s8 f122;
-    u8 pad123[0x5];
-    s8 f128;
-    s8 f129;
-    u8 pad12A[0x1E];
-    u8 *f148;
-    u8 pad14C[0x3C];
-    s32 f188;
-    u8 pad18C[0x100];
-    u8 *f28C;
-    u8 *f290;
-    u8 pad294[0x28];
-    s32 f2BC;
-    u8 pad2C0[0x39];
-    s8 f2F9;
-    s8 f2FA;
-    u8 pad2FB[0x5];
-} FclCombineWork;
 
 typedef struct {
     u8 pad0[0x2E4];
