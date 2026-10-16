@@ -25,10 +25,10 @@ s32 cmbFiveSpriteTask(u8 *arg0);
 u32 H_Cdvd_IsFileLoaded(struct HCdvd *ptr);
 void func_004b1150(u8 *arg0);
 u32 H_Cdvd_Destroy(struct HCdvd *ptr);
-void func_0036d940(void *arg0);
-void func_0036d860(u8 *arg0, s32 arg1);
+void pscResTeardown(void *arg0);
+void pscResInitScene(u8 *arg0, s32 arg1);
 void pscResBuildMiscCardW00(u8 *arg0);
-s32 func_0036d960(void);
+s32 pscResIsIdle(void);
 void btlShuffleCardSetupLayout(u8 *arg0, s32 arg1);
 s32 func_00347c70(u8 *arg0);
 u8 *cmbCardEffTaskCreate(u8 *arg0, s32 *arg1);
@@ -132,7 +132,7 @@ s32 cmbCardLoaderStep(u8 *arg0) {
     if (type != 4) {
         switch (type) {
         case 0:
-            func_0036d860(obj->environment, 0);
+            pscResInitScene(obj->environment, 0);
             func_00440b68((const char *)D_00763A28, D_0064A4A0, 0x63);
             obj->file = H_Cdvd_AcquireDirectory(D_0064E590, 0);
             obj->state += 1;
@@ -164,7 +164,7 @@ s32 cmbCardLoaderStep(u8 *arg0) {
             obj->state += 1;
             break;
         case 3:
-            if (func_0036d960() != 0) {
+            if (pscResIsIdle() != 0) {
                 obj->state += 1;
             }
             break;
@@ -177,7 +177,7 @@ s32 cmbCardLoaderStep(u8 *arg0) {
 // FUN_0033E7C0
 /* Frees the card controller's sub-object and destroys its state block. */
 void cmbCardControllerDestroy(u8 *arg0) {
-    func_0036d940((u8 *)(*(u8 **)(arg0 + 0x38)) + 0x20);
+    pscResTeardown((u8 *)(*(u8 **)(arg0 + 0x38)) + 0x20);
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
