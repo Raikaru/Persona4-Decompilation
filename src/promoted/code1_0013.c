@@ -42,7 +42,6 @@ extern void sdkListStateSetSecondaryMasks(u8 *arg0, s32 arg1, s32 arg2, s32 arg3
 extern s32 sdkListStateHandleInput(u8 *arg0);
 extern void cmpPersonaSetSelection(u8 *arg0, s32 arg1, s32 arg2);
 extern void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
-extern s32 datPersonaGetLeadSlot(void);
 extern void datPersonaSetLeadSlot(s16 arg0);
 extern s32 datCalcThresholdTriggerById(s16 arg0, u32 arg1);
 extern void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
