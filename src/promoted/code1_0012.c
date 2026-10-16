@@ -61,7 +61,7 @@ extern void func_001221a0(void *arg0, u8 *arg1);
 extern void func_00122a40(void *unusedNode, void *work);
 extern char D_00796340[];
 extern char D_00795F50[];
-extern s64 func_001060b0(void);
+extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
 extern s32 func_00110850(s16 arg0, s16 arg1);
 extern s32 func_0015a160(void);
@@ -459,14 +459,14 @@ s32 func_00120f70(u8 *arg0) {
             func_00106320(0);
         }
         if ((datGetTimeSlot() & 0xFF) == 5) {
-            func_00106300((s64)(s16)((s16)func_001060b0() + 1));
+            func_00106300((s64)(s16)((s16)datGetDateIndex() + 1));
             func_00106310(0);
         } else if (func_00110d30(
-                       (s64)(s16)func_001060b0()) == 0) {
-            func_00106300(func_001060b0());
+                       (s64)(s16)datGetDateIndex()) == 0) {
+            func_00106300(datGetDateIndex());
             func_00106310(((datGetTimeSlot() & 0xFF) + 1) & 0xFF);
         } else {
-            func_00106300(func_001060b0());
+            func_00106300(datGetDateIndex());
             if ((datGetTimeSlot() & 0xFF) == 0) {
                 func_00106310(3);
             } else if ((datGetTimeSlot() & 0xFF) == 3) {
@@ -929,7 +929,7 @@ s32 func_001228c0(u8 *unusedTask)
         calendar->state = 1;
         break;
     case 1:
-        calendar->daysSinceApr5 = (s16)func_001060b0();
+        calendar->daysSinceApr5 = (s16)datGetDateIndex();
         calendar->period = datGetTimeSlot() & 0xFF;
         calendar->field_08 =
             (s8)func_00110850(calendar->daysSinceApr5, calendar->period);
@@ -1239,7 +1239,7 @@ void func_00123850(void) {
 
     p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        p->daysSinceApr5 = (s16)func_001060b0();
+        p->daysSinceApr5 = (s16)datGetDateIndex();
         t = datGetTimeSlot() & 0xFF;
         p->period = (s16)t;
         first = p->daysSinceApr5;
@@ -4178,7 +4178,7 @@ void func_0012b660(u8 *unusedTask)
     case 2:
         break;
     case 3:
-        if ((s64)(s16)func_001060b0() == 9 &&
+        if ((s64)(s16)datGetDateIndex() == 9 &&
             (datGetTimeSlot() & 0xFF) == 5) {
             break;
         }

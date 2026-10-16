@@ -32,7 +32,7 @@ extern u16 D_008817E8[];
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
-extern s16 func_001060b0(void);
+extern s16 datGetDateIndex(void);
 extern void func_001104d0(s32 date, s32 *month, s32 *day);
 extern s32 sprintf(void *arg0, const void *arg1, s32 arg2);
 extern u8 iGpffffa738;
@@ -98,13 +98,13 @@ s32 func_00270100(s32 arg0, u8 *arg1)
                           (low & 0xFF));
     }
     if (key_state == -1) {
-        if ((func_00110d60((s16)func_001060b0()) & 1) != 0) {
-            if ((func_00110d60((s16)func_001060b0()) & 2) != 0) {
+        if ((func_00110d60((s16)datGetDateIndex()) & 1) != 0) {
+            if ((func_00110d60((s16)datGetDateIndex()) & 2) != 0) {
                 key_state = 4;
             } else {
                 key_state = 3;
             }
-        } else if ((func_00110d60((s16)func_001060b0()) & 2) != 0) {
+        } else if ((func_00110d60((s16)datGetDateIndex()) & 2) != 0) {
             key_state = 2;
         } else {
             key_state = 1;
@@ -415,7 +415,7 @@ s32 itfMesSetMonthText(s32 arg0, u8 *arg1)
 
     if (frFontGetMode() != 0)
         return 0;
-    func_001104d0((s16)func_001060b0(), &sp2C, &sp28);
+    func_001104d0((s16)datGetDateIndex(), &sp2C, &sp28);
     sprintf(sp20, &iGpffffa738, sp2C);
     frFontUpdateTextWork(arg1);
     frFontLayoutText(sp20, arg1);
@@ -432,7 +432,7 @@ s32 itfMesSetDayText(s32 arg0, u8 *arg1)
 
     if (frFontGetMode() != 0)
         return 0;
-    func_001104d0((s16)func_001060b0(), &sp2C, &sp28);
+    func_001104d0((s16)datGetDateIndex(), &sp2C, &sp28);
     sprintf(sp20, &iGpffffa738, sp28);
     frFontUpdateTextWork(arg1);
     frFontLayoutText(sp20, arg1);
@@ -469,7 +469,7 @@ s32 itfMesSetWeekdayText(s32 arg0, u8 *arg1)
     } while (count > 0);
     if (frFontGetMode() != 0)
         return 0;
-    frFontExCopyString(work.sp40 + func_001105b0((s16)func_001060b0()) * 8,
+    frFontExCopyString(work.sp40 + func_001105b0((s16)datGetDateIndex()) * 8,
                   work.sp20, 0x20);
     frFontUpdateTextWork(arg1);
     frFontLayoutText(work.sp20, arg1);

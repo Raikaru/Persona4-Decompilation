@@ -10,7 +10,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffa5f0;
 
 extern void func_00231380(s32 *arg0, s32 arg1);
-extern s64 func_001060b0(void);
+extern s64 datGetDateIndex(void);
 extern s32 func_00110d60(s16 arg0);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void func_00231550(s32 arg0, u16 arg1);
@@ -79,7 +79,7 @@ void func_00231380(s32 *arg0, s32 arg1)
     temp_17 = (s64)var_17;
     if (temp_17 > 0)
     {
-        temp_3_2 = (s64)(s16)func_00110d60((s16)func_001060b0());
+        temp_3_2 = (s64)(s16)func_00110d60((s16)datGetDateIndex());
         if (!(temp_3_2 & 1))
         {
             if (temp_17 & 3)

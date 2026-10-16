@@ -23,7 +23,7 @@ extern s32 cmmCommunitySetBroken(s32 arg0);
 extern s32 cmmCommunityClearBroken(s32 arg0);
 extern s32 cmmCommunityAddScaledPoints(s32 arg0, s32 arg1);
 extern s32 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2);
-extern s64 func_001060b0(void);
+extern s64 datGetDateIndex(void);
 extern s32 func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
 extern s32 cmmNthEligibleCommunity(s32 arg0, s32 arg1, s32 arg2);
 extern s32 cmmCommunitySetTableHead(s32 arg0);
@@ -233,7 +233,7 @@ s32 func_00249fe0(void)
     s32 sp28;
     s32 temp_16;
     temp_16 = scrGetParamInt(0);
-    func_001104d0((s16)func_001060b0(), &sp2C, &sp28);
+    func_001104d0((s16)datGetDateIndex(), &sp2C, &sp28);
     scrSetReturnInt(cmmNthEligibleCommunity(temp_16, sp2C, sp28));
     return 1;
 }

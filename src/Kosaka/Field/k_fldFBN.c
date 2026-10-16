@@ -62,7 +62,7 @@ typedef struct AnimEntry2
 } AnimEntry2;
 
 extern s32 FldRc_GetLoadSource(void);
-extern s16 func_001060b0(void);
+extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
 extern u32 datGetFlag(s32 arg0);
@@ -231,11 +231,11 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
                 }
                 kind = ae->field_18;
                 if (kind == 1) {
-                    if ((s8)func_00110960(func_001060b0(), datGetTimeSlot()) % 2 != 0) {
+                    if ((s8)func_00110960(datGetDateIndex(), datGetTimeSlot()) % 2 != 0) {
                         continue;
                     }
                 } else if (kind == 2) {
-                    if ((s8)func_00110960(func_001060b0(), datGetTimeSlot()) % 2 == 0) {
+                    if ((s8)func_00110960(datGetDateIndex(), datGetTimeSlot()) % 2 == 0) {
                         continue;
                     }
                 }

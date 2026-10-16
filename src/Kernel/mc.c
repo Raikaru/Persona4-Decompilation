@@ -1219,7 +1219,7 @@ s32 mcAnimateTransition(s32 task) {
  * selected-card slide. Keep the pulse multiplication separate from scale. */
 #pragma opt_lifetimes on
 // FUN_002A4F20
-s32 func_002a4f20(s32 arg0)
+s32 mcRunScreenFrame(s32 arg0)
 {
     extern f32 iGpffff8084;
     u8 *p;
@@ -1616,7 +1616,7 @@ s32 mcDrawDispatch(s32 arg0) {
         return 0;
     }
     if (flags & 0x20000) {
-        if (func_002a4f20(arg0) != 0) {
+        if (mcRunScreenFrame(arg0) != 0) {
             *(u32 *)(work + 4) &= ~0x20000;
         }
         return 0;

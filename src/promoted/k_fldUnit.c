@@ -176,7 +176,7 @@ u8 *MT_Scene_GetResListHead(s32 arg0);
 void kAssertFail(void *arg0, s32 arg1);
 void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *FldUnit_FindNearestSlot(u8 *arg0, u32 *arg1, s32 arg2);
-extern s64 func_001060b0(void);
+extern s64 datGetDateIndex(void);
 extern s32 func_001064f0(s32 arg0);
 extern s32 func_00110d60(s16 arg0);
 extern s32 D_007E8BF8[];
@@ -387,7 +387,7 @@ static inline FieldUnitRecord *fieldUnitSlotAt(const s32 *index)
 static inline s32 fieldUnitCalendarRoomMatch(void)
 {
     extern s32 func_00110680(s32 date, s32 month, s32 day);
-    extern s16 func_001060b0(void);
+    extern s16 datGetDateIndex(void);
     extern u8 datGetTimeSlot(void);
     extern s64 func_00110960(s32 date, u32 phase);
     extern FieldUnitRoomKey D_005F1350[];
@@ -402,7 +402,7 @@ static inline s32 fieldUnitCalendarRoomMatch(void)
 
     found = 0;
     /* March 20 bypasses the room scan. */
-    if (func_00110680((s16)func_001060b0(), 3, 0x14) == 1) {
+    if (func_00110680((s16)datGetDateIndex(), 3, 0x14) == 1) {
         return 0;
     }
     roomIndex = 0;
@@ -411,7 +411,7 @@ room_body:
     fieldState = iGpffff9db0;
     if (((FieldUnitRoomKey *)fieldState)->fieldId == fieldId &&
         ((FieldUnitRoomKey *)fieldState)->roomId == entry->roomId) {
-        calendarDay = (s16)func_001060b0();
+        calendarDay = (s16)datGetDateIndex();
         calendarValue = (s8)func_00110960(calendarDay, datGetTimeSlot() & 0xFF);
         /* The signed calendar value can be negative; keep the signed remainder. */
         remainder = calendarValue % 2;
@@ -1807,7 +1807,7 @@ loop:
             s32 parity;
             s32 base;
             base = 10;
-            state = func_00110d60((s16)func_001060b0());
+            state = func_00110d60((s16)datGetDateIndex());
             parity = state & 1;
             if (state < 0 && parity != 0) {
                 parity -= 2;
