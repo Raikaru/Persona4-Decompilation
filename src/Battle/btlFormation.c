@@ -167,7 +167,7 @@ u32 btlFormationPlaceUnits(u32 *work)
     extern void btlUnitSetRot(struct BtlUnit *, const struct RtQuat *);
     extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
     extern void btlUnitGetSphereWorldCenter(struct BtlUnit *, struct RwV3d *);
-    extern void func_00195aa0(struct BtlUnit *, struct BtlUnit *, struct RwV3d *);
+    extern void btlUnitGetSphereCenterTowardTarget(struct BtlUnit *, struct BtlUnit *, struct RwV3d *);
     extern void btlUnitGetGridSphereCenter(struct BtlUnit *, struct RwV3d *);
     extern f32 func_00196040(u32, u32, struct RwV3d *, f32 *, f32 *, u32);
     extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
@@ -269,7 +269,7 @@ u32 btlFormationPlaceUnits(u32 *work)
                 *(u16 *)(iGpffffb3ac + 0x18) |= 0xE;
             }
             btlUnitGetSphereWorldCenter((struct BtlUnit *)(unitB), (struct RwV3d *)(centerA));
-            func_00195aa0((struct BtlUnit *)(other), (struct BtlUnit *)(unitB), (struct RwV3d *)((f32 *)&centerB));
+            btlUnitGetSphereCenterTowardTarget((struct BtlUnit *)(other), (struct BtlUnit *)(unitB), (struct RwV3d *)((f32 *)&centerB));
             centerB.v[1] = *(f32 *)(unitB + 8);
             centerA[1] = centerB.v[1];
             if (work[2] == 1 && other != unitB && btlBossFlagPairOk((s32)(unitB), (s32)(other)) != 0) {
@@ -431,7 +431,7 @@ u32 btlFormationPlaceUnits(u32 *work)
                 line[1] = centerB.v[2];
                 for (nearestNode = *(u8 **)(iGpffffb3ac + 0x184); nearestNode != NULL; nearestNode = *(u8 **)(nearestNode + 0xA68)) {
                     if ((*(u32 *)(nearestNode + 0x9C) & 8) != 0) {
-                        func_00195aa0((struct BtlUnit *)(nearestNode), (struct BtlUnit *)(unitB), (struct RwV3d *)((f32 *)&tmpF0));
+                        btlUnitGetSphereCenterTowardTarget((struct BtlUnit *)(nearestNode), (struct BtlUnit *)(unitB), (struct RwV3d *)((f32 *)&tmpF0));
                         delta[0] = tmpF0.v[0];
                         delta[1] = tmpF0.v[2];
                         btlTargetAngleBetween((u8 *)(query), (u8 *)(line), (u8 *)(delta), (u8 *)(projection));
@@ -532,7 +532,7 @@ u32 btlFormationPlaceUnits(u32 *work)
         }
         for (groupNode = *(u8 **)(iGpffffb3ac + 0x17C); groupNode != NULL; groupNode = *(u8 **)(groupNode + 0xA68)) {
             if ((*(u32 *)(groupNode + 0x9C) & 8) != 0) {
-                func_00195aa0((struct BtlUnit *)(groupNode), (struct BtlUnit *)(groupUnit), (struct RwV3d *)((f32 *)&centerB));
+                btlUnitGetSphereCenterTowardTarget((struct BtlUnit *)(groupNode), (struct BtlUnit *)(groupUnit), (struct RwV3d *)((f32 *)&centerB));
                 diff[0] = centerB.v[0] - centerA[0];
                 diff[1] = centerB.v[1] - centerA[1];
                 diff[2] = centerB.v[2] - centerA[2];

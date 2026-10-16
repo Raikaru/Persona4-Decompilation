@@ -420,7 +420,7 @@ f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
     return radius;
 }
 // FUN_00196610
-u32 func_00196610(u8 *arg0)
+u32 btlUnitUpdateFollowPath(u8 *arg0)
 {
     struct Btl966XZ
     {
@@ -1357,7 +1357,7 @@ void btlUnitGetGridSphereCenter(BtlUnit* unit, RwV3d* dst)
 }
 
 // FUN_00195C50
-void func_00195c50(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
+void btlUnitGetGridSphereCenterTowardTarget(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
 {
     RtQuat rotation;
     RwV3d scaled;
@@ -1705,7 +1705,7 @@ void btlUnitGetAnimBoundsWorldCenter(BtlUnit* unit, RwV3d* param_2)
 }
 
 // FUN_00195AA0
-void func_00195aa0(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
+void btlUnitGetSphereCenterTowardTarget(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
 {
     RtQuat rotation;
     RwV3d scaled;

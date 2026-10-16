@@ -2476,7 +2476,7 @@ static inline f32 btlCamera_product(f32 left, f32 right)
 s32 btlCameraFrameActionStart(u8 *arg0, u8 *arg1)
 {
     extern u8 *func_001b0c80(s32 arg0);
-    extern void func_00195aa0(BtlUnit *unit, BtlUnit *target, RwV3d *out);
+    extern void btlUnitGetSphereCenterTowardTarget(BtlUnit *unit, BtlUnit *target, RwV3d *out);
     extern void btlTargetBlendVectors(u8 *out, u8 *first, u8 *second);
     extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *rotation);
     extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *unit, RwV3d *out);
@@ -2562,8 +2562,8 @@ next_entry:
             btlTargetBlendVectors((u8 *)&rotationA, (u8 *)(unit0 + 4), (u8 *)(unit1 + 4));
             btlTargetBlendVectors((u8 *)&rotationB, (u8 *)(*(u8 **)(*(u8 **)(arg1 + 4) + 0x30) + 4), (u8 *)(*(u8 **)(*(u8 **)(arg1 + 0) + 0x30) + 4));
         } else {
-            func_00195aa0((BtlUnit *)unit0, (BtlUnit *)unit1, &centerA);
-            func_00195aa0(*(BtlUnit **)(*(u8 **)(arg1 + 4) + 0x30), *(BtlUnit **)(*(u8 **)(arg1 + 0) + 0x30), &centerB);
+            btlUnitGetSphereCenterTowardTarget((BtlUnit *)unit0, (BtlUnit *)unit1, &centerA);
+            btlUnitGetSphereCenterTowardTarget(*(BtlUnit **)(*(u8 **)(arg1 + 4) + 0x30), *(BtlUnit **)(*(u8 **)(arg1 + 0) + 0x30), &centerB);
             btlTargetBlendVectors((u8 *)&rotationA, (u8 *)&centerA, (u8 *)&centerB);
             btlTargetBlendVectors((u8 *)&rotationB, (u8 *)&centerB, (u8 *)&centerA);
         }

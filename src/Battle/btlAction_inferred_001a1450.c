@@ -2052,7 +2052,7 @@ donecheck:
 void btlActionMoveTargetInit(u8 *actionBytes)
 {
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
-    extern void func_00195c50(BtlUnit *unit, BtlUnit *target, RwV3d *out);
+    extern void btlUnitGetGridSphereCenterTowardTarget(BtlUnit *unit, BtlUnit *target, RwV3d *out);
     extern void func_001951f0(u8 *subunit, u8 *unit, u8 *target, s32 motion,
                             f32 *position, f32 *rotation, s32 placement);
     extern void btlTargetBlendVectors(u8 *rotation, u8 *from, u8 *to);
@@ -2186,7 +2186,7 @@ range_ineligible:
                         proceed = 0;
                     } else {
                         btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
-                        func_00195c50((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
+                        btlUnitGetGridSphereCenterTowardTarget((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
                         if (btlTargetVectorDistance(&unitCenter, &targetCenter) < 500.0f) {
                             inRange = 1;
                             proceed = 0;
@@ -2235,7 +2235,7 @@ range_done:
                 openingMotion = btlUnitOpeningMotionMode((s32)subunit, (u8 *)unit, (s16)skill, paired) & 0xFFFF;
                 canPosition = func_001f1210(subunit, (s16)skill, paired);
                 btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
-                func_00195c50((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
+                btlUnitGetGridSphereCenterTowardTarget((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
                 speed = btlTargetVectorDistance(&unitCenter, &targetCenter);
                 speed = speed - unit->radius * unit->scale;
                 speed = speed - targetUnit->radius * targetUnit->scale;
@@ -2313,7 +2313,7 @@ range_done:
             if (inRange == 0) {
                 targetUnit = action->target->unit;
                 btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
-                func_00195c50((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
+                btlUnitGetGridSphereCenterTowardTarget((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
                 awayDirection.x = unitCenter.x - targetCenter.x;
                 awayDirection.z = unitCenter.z - targetCenter.z;
                 awayDirection.y = 0.0f;
