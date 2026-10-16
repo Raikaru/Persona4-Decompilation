@@ -79,9 +79,9 @@ void FldPlayerIconUpdatePos(u8 *);
 void FldPlayerIconSetActive(s32, s32);
 s32 FldEvent_StepMoveToward(u8 *);
 s32 func_0018bea0();
-void func_0018bc20(s32);
+void FldNpcControlFacePlayer(s32);
 void FldNpcSetPositionLock(s32, s32);
-void func_0018bdd0(s32);
+void FldNpcControlTurnBack(s32);
 void mdlSetLayerWeight(u8 *, s32, f32);
 void MT_Scene_BeginValueStep(u8 *, u16, u16, u16);
 
