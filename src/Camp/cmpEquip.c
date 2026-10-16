@@ -10,7 +10,7 @@ s16 func_00106cd0(s16 arg0, s16 arg1);
 s32 func_00106600(s16 id);
 s32 datEntryHasFlag(s16 arg0, s16 arg1);
 s32 datIdBand(s16 arg0);
-s16 func_00353ce0(void *arg0);
+s16 datBuildMemberIdListExcluding5(void *arg0);
 void memset(void *arg0, s32 arg1, s32 arg2);
 void *resourceFindByName(void *arg0);
 s32 sdkSpriteNewNode(void *arg0, s8 arg1);
@@ -88,7 +88,7 @@ void func_001312b0(u8 *arg0)
         *(s32 *)(base + second_i * 0x30 + 0x1458) = 0;
         *(s32 *)(base + second_i * 0x30 + 0x145C) = 3;
     }
-    value = func_00353ce0(base + 0x38);
+    value = datBuildMemberIdListExcluding5(base + 0x38);
     *(s16 *)(base + 0x48) = value;
     for (outer_i = 0; outer_i < *(s16 *)(base + 0x48); outer_i++) {
         value = *(s16 *)(base + outer_i * 2 + 0x38);

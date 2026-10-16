@@ -192,8 +192,8 @@ extern void radarDestroy(u8 *arg0);
 extern void radarLoadSlotCoords(u8 *arg0);
 extern s32 func_0034bb20(s32 arg0);
 extern void func_0034bd60(s32 arg0);
-extern void func_00353fb0(void);
-extern void func_00353fe0(void);
+extern void resrcMngUnsuppressRender(void);
+extern void resrcMngSuppressRender(void);
 extern s32 func_00354030(void);
 extern void func_00355190(u8 *arg0, s32 arg1);
 extern void sflDataResetPersonaState(void *arg0);
@@ -1161,7 +1161,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
         if (radarEntriesReady(arg2) != 0) {
             radarSetMode(arg2, 2);
             *arg0 = 4;
-            func_00353fe0();
+            resrcMngSuppressRender();
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 0, 1, 0);
         }
         break;
@@ -1169,7 +1169,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
         if (D_008C024E[0] & 0x20) {
             radarSetMode(arg2, 1);
             *arg0 = 2;
-            func_00353fb0();
+            resrcMngUnsuppressRender();
             func_0034bb20(0x17);
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 0, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);

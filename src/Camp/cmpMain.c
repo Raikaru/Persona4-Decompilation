@@ -9,7 +9,7 @@ void kAssertFail(void *arg0, s32 arg1);
 void func_00460ac0(void *param, void *work);
 s32 func_0034bb20(s32 arg0);
 void func_0034c260(s32 arg0);
-void func_00353fb0(void);
+void resrcMngUnsuppressRender(void);
 void func_00355550(s32 a, u8 *b, s32 c, s32 d, s32 e, s32 f, s32 g, s32 h);
 void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -361,7 +361,7 @@ void func_0012cc50(u8 *arg0) {
         kAssertFail(D_005E5890, 0x223);
         break;
     }
-    func_00353fb0();
+    resrcMngUnsuppressRender();
     jtbl_008873EC[0](p);
     iGpffffb1ec = 0;
 }

@@ -46,10 +46,10 @@ extern void func_001056e0(s16 arg0, s16 arg1);
 extern void func_00105730(s16 arg0, s16 arg1);
 extern void datSetFlag(s32 arg0, s32 arg1);
 extern void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
-extern s32 func_00354010(void);
+extern s32 FldStepNotAtBoundaryQuery(void);
 extern void func_0013aa90(u8 *arg0);
 extern void *memset(void *arg0, s32 arg1, u32 arg2);
-extern s16 func_00353c10(s16 *arg0);
+extern s16 datBuildMemberIdList(s16 *arg0);
 extern u8 *func_00354a50(s32 arg0, u16 arg1);
 extern u8 *resourceFindByName(char *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
@@ -146,7 +146,7 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
         func_0010b3b0(temp_22);
     }
     if ((temp_17 & 0xFFFF) == 0xF6) {
-        if (func_00354010() != 0) {
+        if (FldStepNotAtBoundaryQuery() != 0) {
             var_19 = 3;
         } else {
             var_19 = 0;
@@ -295,7 +295,7 @@ void func_0013fb50(u8 *arg0) {
         n++;
     }
 
-    *(s16 *)(arg0 + 0x32) = func_00353c10((s16 *)(arg0 + 0x22));
+    *(s16 *)(arg0 + 0x32) = datBuildMemberIdList((s16 *)(arg0 + 0x22));
     resource0 = resourceFindByName((char *)D_005E5830);
     if (resource0 == 0) {
         kAssertFail(D_005EF6C8, 0x1EB);

@@ -64,7 +64,7 @@ extern u8 D_0064B2EC[];
 extern u8 D_0064B2F4[];
 void *resourceFindByName(char *);
 s32 sdkSpriteNewNode(void *, u8);
-s16 func_00353b50(void *);
+s16 datBuildPartyIdList(void *);
 void kAssertFail(char *, s32);
 void memset(void *, s32, s32);
 s32 func_0013a040(s16 *, s32, s32);
@@ -185,7 +185,7 @@ loop4_test:
         goto loop4_body;
     }
 
-    *(s16 *)(arg0 + 0xFC) = func_00353b50(arg0 + 0xF4);
+    *(s16 *)(arg0 + 0xFC) = datBuildPartyIdList(arg0 + 0xF4);
     *(s16 *)(arg0 + 0x580) = 0;
 
     asset0 = resourceFindByName(D_005E5830);
