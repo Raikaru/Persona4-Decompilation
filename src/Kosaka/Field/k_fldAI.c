@@ -3,6 +3,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "Kosaka/k_fldFrame_internal.h"
+#include "field_frame_internal.h"
 extern u8 D_00756510[];
 extern s32 FldCharacterAnimSelect();
 extern void func_003e0f40();
@@ -242,15 +243,13 @@ discoveryAvailabilityDone:
             break;
         }
         {
-            s32 rowOffset = tileZ * 0x100;
-            s32 columnOffset = tileX * 0x10;
-            if (*(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 2 ||
-                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 9 ||
-                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 10 ||
-                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 11 ||
-                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 12 ||
-                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 13 ||
-                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 14) {
+            if (((FldFrame *)MT_Scene_GetFrameState())->cells[tileZ][tileX].type == 2 ||
+                ((FldFrame *)MT_Scene_GetFrameState())->cells[tileZ][tileX].type == 9 ||
+                ((FldFrame *)MT_Scene_GetFrameState())->cells[tileZ][tileX].type == 10 ||
+                ((FldFrame *)MT_Scene_GetFrameState())->cells[tileZ][tileX].type == 11 ||
+                ((FldFrame *)MT_Scene_GetFrameState())->cells[tileZ][tileX].type == 12 ||
+                ((FldFrame *)MT_Scene_GetFrameState())->cells[tileZ][tileX].type == 13 ||
+                ((FldFrame *)MT_Scene_GetFrameState())->cells[tileZ][tileX].type == 14) {
                 *(s32 *)(work + 0x58) = 0;
                 *(s32 *)(work + 0x5C) = 0;
                 *(s32 *)(work + 0x4C) = -1;
@@ -703,7 +702,7 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
     s32 result;
     s32 direction;
     u8 *unit;
-    u8 *sourceCell;
+    FldFrameCell *sourceCell;
     u8 *firstOffset;
     u8 *secondOffset;
     s32 cellX;
@@ -724,8 +723,8 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
             f32 centeredX = 600.0f + line[0].x;
             cellX = (s32)(centeredX / 1200.0f);
             cellZ = (s32)((600.0f + line[0].z) / 1200.0f);
-            sourceCell = ((u8 *)MT_Scene_GetFrameState()) + (cellZ * 0x100) + (cellX * 0x10);
-            cell = *(FldAIVec4 *)(sourceCell + 0x54);
+            sourceCell = &((FldFrame *)MT_Scene_GetFrameState())->cells[cellZ][cellX];
+            cell = *(FldAIVec4 *)sourceCell;
             cachedStep = *(s32 *)(work + 0x4C);
             direction = cachedStep & 3;
             if ((cachedStep < 0) && (direction != 0)) {
@@ -777,8 +776,8 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
             f32 centeredX = 600.0f + endpointX;
             s32 endpointCellX = (s32)(centeredX / 1200.0f);
             s32 endpointCellZ = (s32)((600.0f + endpointZ) / 1200.0f);
-            u8 *cellB = ((u8 *)MT_Scene_GetFrameState()) + (endpointCellZ * 0x100) + (endpointCellX * 0x10);
-            if (*(u8 *)(cellB + 0x54) == 1) {
+            FldFrameCell *cellB = &((FldFrame *)MT_Scene_GetFrameState())->cells[endpointCellZ][endpointCellX];
+            if (cellB->occupied == 1) {
                 axis = 0;
                 if (FldFrame_RaycastField(line, &hit) == 1) {
                     s32 hitStep = *(s32 *)(work + 0x4C);
