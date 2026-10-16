@@ -51,7 +51,7 @@ extern s32 func_00311e40(s32 id);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern s32 func_00106600(s16 arg0);
 extern u32 datEntryGetFlags(s16 arg0);
-extern u32 func_00106a60(s16 arg0);
+extern u32 datEntryCategoryMask(s16 arg0);
 extern u32 func_00106b20(s16 arg0);
 extern u32 func_00106b50(s16 arg0);
 
@@ -266,14 +266,14 @@ static inline s32 yListAcceptsItem(u8 *owner, s16 id)
     if (*(s32 *)(filter + 4) == 0 && *(s32 *)(filter + 8) == 0) {
         return 1;
     }
-    if (*(s32 *)(filter + 4) == 0 && (*(s32 *)(filter + 8) & func_00106a60(id))) {
+    if (*(s32 *)(filter + 4) == 0 && (*(s32 *)(filter + 8) & datEntryCategoryMask(id))) {
         return 1;
     }
     if (*(s32 *)(filter + 8) == 0 && (*(s32 *)(filter + 4) & datEntryGetFlags(id))) {
         return 1;
     }
     if ((*(s32 *)(filter + 4) & datEntryGetFlags(id)) &&
-        (*(s32 *)(filter + 8) & func_00106a60(id))) {
+        (*(s32 *)(filter + 8) & datEntryCategoryMask(id))) {
         return 1;
     }
     return 0;
@@ -311,7 +311,7 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
             p->rows.paired[i].id = 0;
             if ((func_00106600(i) & 0xFF) > 0) {
                 ok = yListAcceptsItem(iGpffffb58c, i);
-                if ((ok == 1) && !(func_00106a60(i) & 0x2000)) {
+                if ((ok == 1) && !(datEntryCategoryMask(i) & 0x2000)) {
                     p->rows.paired[p->count].id = i;
                     p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
                     count = func_002b2cb0(p->count, 1, 0, 0, 0);
@@ -479,7 +479,7 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
             p->rows.paired[i].id = 0;
             if ((func_00106600(i) & 0xFF) > 0) {
                 ok = yListAcceptsItem(arg0, i);
-                if ((ok == 1) && !(func_00106a60(i) & 0x2000)) {
+                if ((ok == 1) && !(datEntryCategoryMask(i) & 0x2000)) {
                     p->rows.paired[p->count].id = i;
                     p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
                     count = func_002b2cb0(p->count, 1, 0, 0, 0);

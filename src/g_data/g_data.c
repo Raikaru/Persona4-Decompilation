@@ -1272,20 +1272,23 @@ u16 func_00106970(s16 arg0)
     return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x12);
 }
 
+// Intent: returns the skill id an item grants (u32 at +0x24 of the entry). datCalcSkillCost and PTDatCalcHasSkill compare the result with skill ids.
 // FUN_001069A0
-u32 func_001069a0(s16 arg0)
+u32 datItemGrantedSkill(s16 arg0)
 {
     return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x24);
 }
 
+// Intent: returns the item value (u16 at +0x28). code1_0013 reads it as itemValue.
 // FUN_001069D0
-u16 func_001069d0(s16 arg0)
+u16 datItemValue(s16 arg0)
 {
     return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x28);
 }
 
+// Intent: returns the accessory's damage percent (u16 at +0x2A). DCDamageAccessoryFraction uses it as the percentage.
 // FUN_00106A00
-u16 func_00106a00(s16 arg0)
+u16 datItemAccessoryPercent(s16 arg0)
 {
     return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x2A);
 }
@@ -1296,8 +1299,9 @@ u16 func_00106a30(s16 arg0)
     return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x2C);
 }
 
+// Intent: returns the category bitmask (u32 at +0x30) that y_list.c tests against its filter.
 // FUN_00106A60
-u32 func_00106a60(s16 arg0)
+u32 datEntryCategoryMask(s16 arg0)
 {
     return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x30);
 }

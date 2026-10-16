@@ -833,7 +833,7 @@ void radarDrawPaletteSet(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
 // FUN_00135130
 void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
 {
-    extern u16 func_001069d0(s16 item);
+    extern u16 datItemValue(s16 item);
     extern void func_0045d6e0(u8 *color, f32 *rect, f32 depth, s32 flags);
     extern void func_002bc7a0(s32 item, f32 x, f32 y, f32 depth,
                             s32 color, s32 font, s32 mode, s32 table);
@@ -907,7 +907,7 @@ void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
     if ((datEntryGetFlags(*(s16 *)entry) & 0x8000) != 0) {
         itemValue = 0;
     } else {
-        itemValue = func_001069d0(*(s16 *)entry) & 0xFFFF;
+        itemValue = datItemValue(*(s16 *)entry) & 0xFFFF;
     }
     labelColor = (inputAlpha & 0xFF) | ~0xFF;
     func_002bc7a0(itemValue, (f32)(s32)position.xy.x,
