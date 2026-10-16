@@ -103,7 +103,7 @@ typedef struct F8060Frame
 extern s32 FldMap_IsCurrentInBandA(void);
 extern s32 FldFrame_RaycastFieldWorlds(RwV3d *arg0, RwV3d *arg1, f32 fparg0,
                          u16 arg2);
-extern void func_001823d0(s32 arg0, u16 arg1, u16 arg2);
+extern void FldAmbientTrigger(s32 arg0, u16 arg1, u16 arg2);
 
 
 typedef struct E8E0Frame
@@ -342,7 +342,7 @@ s32 FldFrameTask_Update(u8 *arg0)
         *(s32 *)(work + 0x44) =
             (s32)((*(f32 *)(object + 0x38) + 600.0f) / 1200.0f);
         if ((*(u16 *)(work + 8) & 0x3FF) < 100) {
-            func_001823d0(*(s32 *)(work + 0x10), *(u16 *)(work + 0xA),
+            FldAmbientTrigger(*(s32 *)(work + 0x10), *(u16 *)(work + 0xA),
                           *(u16 *)(work + 8));
         }
         *(s32 *)work += 1;

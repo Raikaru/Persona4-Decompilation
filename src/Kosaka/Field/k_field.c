@@ -133,7 +133,7 @@ extern void H_Cdvd_Destroy(u8 *);
 extern void MT_Scene_SetFadeForState(u16, u16);
 extern s32 func_0018df60(u8 *);
 extern s32 FldEvent_SpawnTrigger(u8 *);
-extern void func_00182310(s32);
+extern void FldSlotBroadcastState(s32);
 extern s32 func_0028b260(void);
 extern void func_001029a0(s32, void *, s32, s32);
 
@@ -319,7 +319,7 @@ s32 FldRootUpdate(u8 *task)
         MT_Scene_SetFadeForState(work->field, work->room);
         D_007D252C[0] = func_0018df60(task);
         D_007D2518[0] = FldEvent_SpawnTrigger(task);
-        func_00182310(0);
+        FldSlotBroadcastState(0);
         work->state++;
         /* fallthrough */
     case 13:
