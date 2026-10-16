@@ -25,6 +25,11 @@ static inline void **fclShopLoadedFile(u8 *work)
 {
     return (void **)(work + 0xF2C);
 }
+/* Sprite resource handle of the shop work (work + 0xF28): loaded by sdkSpriteRequestLoad. */
+static inline s32 *fclShopSpriteResource(u8 *work)
+{
+    return (s32 *)(work + 0xF28);
+}
 static inline f32 shopAdd(f32 left, f32 right) { return left + right; }
 typedef struct {
     u8 pad0a[2];
@@ -873,13 +878,13 @@ s32 fclShopStateUpdate(u8 *arg0)
     temp_2_2 = (*(s8 *)(work + 0));
     switch (temp_2_2) {                             /* switch 1 */
     case 0x9:                                       /* switch 1 */
-        (*(s32 *)(work + 0xF28)) = sdkSpriteRequestLoad(&D_0063FAA0);
+        (*fclShopSpriteResource(work)) = sdkSpriteRequestLoad(&D_0063FAA0);
         func_00440b68(iGpffffa878, D_0063FAC0, 0x147);
         (*fclShopLoadedFile(work)) = H_Cdvd_AcquireDirectory(D_0063FAD0, 0);
         (*(s8 *)(work + 0)) = 0xA;
         /* fallthrough */
     case 0xA:                                       /* switch 1 */
-        if ((func_0046a750((*(s32 *)(work + 0xF28))) != 0) && (H_Cdvd_IsFileLoaded((*fclShopLoadedFile(work))) != 0)) {
+        if ((func_0046a750((*fclShopSpriteResource(work))) != 0) && (H_Cdvd_IsFileLoaded((*fclShopLoadedFile(work))) != 0)) {
             (*(s8 *)(work + 0)) = 0xB;
             (*(s8 *)(work + 0xF30)) = 1;
             for (var_16 = 0; var_16 < 0x91; var_16++) {
@@ -923,10 +928,10 @@ s32 fclShopStateUpdate(u8 *arg0)
             (*(s32 *)(work + 0xF08)) = fclShopItemPanelCreate((s32) arg0, 0x8C, (*(u32 *)(work + 0xF28)));
             (*(s32 *)(work + 0xF0C)) = fclShopItemPanelCreate((s32) arg0, 0x8D, (*(u32 *)(work + 0xF28)));
             (*(s32 *)(work + 0xF10)) = fclShopItemPanelCreate((s32) arg0, 0x8E, (*(u32 *)(work + 0xF28)));
-            temp_2_3 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x48));
+            temp_2_3 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x48));
             temp_f21 = 632.0f + sdkSpriteScaledWidth(temp_2_3);
             sdkSpriteFreeNode(temp_2_3);
-            temp_2_4 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x47));
+            temp_2_4 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x47));
             temp_f20 = 136.0f + sdkSpriteScaledHeight(temp_2_4);
             sdkSpriteFreeNode(temp_2_4);
             temp_f1 = (f32) 0x1A3;
@@ -1044,14 +1049,14 @@ s32 fclShopStateUpdate(u8 *arg0)
         fclObjSetAnchorPosition((*(void * *)(work + 0xC38)), 0x56, 182.0f);
         fclObjSetAnchorPosition((*(void * *)(work + 0xC40)), 0x56, 183.0f);
         *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xC40))) + 0x79) = fclMakeDrawColor(0xFE, 0xBE, 0x1E, 0xFF);
-        temp_2_13 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(2));
+        temp_2_13 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(2));
         (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC40)))) + 0x100)) = (s16) ((s16) (((sdkSpriteScaledWidth(temp_2_13) / 2.0f))));
         (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC40)))) + 0x102)) = (s16) ((s16) (((sdkSpriteScaledHeight(temp_2_13) / 2.0f))));
         sdkSpriteFreeNode(temp_2_13);
         fclObjStartTween((*(void * *)(work + 0xC40)), -90.0f, -90.0f, 0, 0, 0);
         fclObjSetAnchorPosition((*(void * *)(work + 0xC4C)), 0x40, 191.0f);
         *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xC4C))) + 0x79) = fclMakeDrawColor(0, 0, 0, 0xFF);
-        temp_2_15 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(5));
+        temp_2_15 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(5));
         (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC4C)))) + 0x100)) = (s16) ((s16) ((sdkSpriteScaledWidth(temp_2_15))));
         (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC4C)))) + 0x102)) = (s16) ((s16) ((sdkSpriteScaledHeight(temp_2_15))));
         sdkSpriteFreeNode(temp_2_15);
@@ -1062,7 +1067,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xC50))) + 0x79) = fclMakeDrawColor(0xFF, 0xBE, 0x22, 0xFF);
         (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x2C)) = 110.0f;
         (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x30)) = -50.0f;
-        temp_2_17 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(6));
+        temp_2_17 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
         (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x100)) = (s16) ((s16) ((sdkSpriteScaledWidth(temp_2_17))));
         (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x102)) = 0;
         fclObjStartTween((*(void * *)(work + 0xC50)), -90.0f, fGpffff8524, 0, 4, 0);
@@ -1072,7 +1077,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         (*(f32 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x2C)) = 180.0f;
         (*(f32 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x30)) = 30.0f;
         *(FclDrawColor *)((u8 *)fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C))) + 0x79) = fclMakeDrawColor(0xED, 0x81, 3, 0xFF);
-        temp_2_19 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(6));
+        temp_2_19 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
         (*(s16 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x100)) = (s16) ((s16) ((sdkSpriteScaledWidth(temp_2_19))));
         (*(s16 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x102)) = 0;
         sdkSpriteFreeNode(temp_2_19);
@@ -1092,7 +1097,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         fclObjChangeFlagBit((*(void * *)(work + 0xD8C)), 6, 0);
         fclObjSetAnchorPosition((*(void * *)(work + 0xD90)), 0x3D, 209.0f);
         *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xD90))) + 0x79) = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
-        temp_2_22 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x56));
+        temp_2_22 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x56));
         (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xD90)))) + 0x100)) = (s16) ((s16) ((sdkSpriteScaledWidth(temp_2_22))));
         (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xD90)))) + 0x102)) = (s16) ((s16) (((sdkSpriteScaledHeight(temp_2_22) / 2.0f))));
         sdkSpriteFreeNode(temp_2_22);
@@ -1101,7 +1106,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         fclObjStartAlpha((*(void * *)(work + 0xD90)), 0U, 0xFFU, 0U, 0xA, 0);
         fclObjSetAnchorPosition((*(void * *)(work + 0xD94)), 0x3D, 210.0f);
         *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xD94))) + 0x79) = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
-        temp_18_11 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x57));
+        temp_18_11 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x57));
         (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xD94)))) + 0x100)) = 0;
         (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xD94)))) + 0x102)) = (s16) ((s16) (((sdkSpriteScaledHeight(temp_18_11) / 2.0f))));
         sdkSpriteFreeNode(temp_18_11);
@@ -1174,7 +1179,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             fclObjStartAlpha((*(void * *)(work + 0xC44)), 0xFFU, 0U, 0U, 0, (s16) ((((*(s8 *)(work + 7)) * 2) + 2)));
             fclObjStartAlpha((*(void * *)(work + 0xC48)), 0xFFU, 0U, 0U, 0, (s16) ((((*(s8 *)(work + 7)) * 2) + 2)));
             fclObjSetAnchorPosition((*(void * *)(work + 0xC4C)), 0x40, 191.0f);
-            temp_2_30 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(5));
+            temp_2_30 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(5));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC4C)))) + 0x100)) = (s16) ((s16) (((sdkSpriteScaledWidth(temp_2_30) / 2.0f))));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC4C)))) + 0x102)) = (s16) ((s16) (((sdkSpriteScaledHeight(temp_2_30) / 2.0f))));
             sdkSpriteFreeNode(temp_2_30);
@@ -1184,7 +1189,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             fclObjSetAnchorPosition((*(void * *)(work + 0xC50)), 0x40, 192.0f);
             (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x2C)) = 320.0f;
             (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x30)) = 130.0f;
-            temp_2_31 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(6));
+            temp_2_31 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x100)) = (s16) ((s16) (((sdkSpriteScaledWidth(temp_2_31) / 2.0f))));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x102)) = (s16) ((s16) (((sdkSpriteScaledHeight(temp_2_31) / 2.0f))));
             fclObjStartTween((*(void * *)(work + 0xC50)), (*(f32 *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xC50))) + 0xC4)), (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0xC4)) - 5.0f, 0, 0xA, 0);
@@ -1192,7 +1197,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE7C)), 0x40, 190.0f);
             (*(f32 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x2C)) = 320.0f;
             (*(f32 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x30)) = 187.0f;
-            temp_2_32 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(6));
+            temp_2_32 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
             (*(s16 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x100)) = (s16) ((s16) (((sdkSpriteScaledWidth(temp_2_32) / 2.0f))));
             (*(s16 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x102)) = (s16) ((s16) (((sdkSpriteScaledHeight(temp_2_32) / 2.0f))));
             sdkSpriteFreeNode(temp_2_32);
@@ -1246,7 +1251,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             fclObjStartAlpha((*(void * *)(work + 0xC44)), 0xFFU, 0U, 0U, 0, (s16) ((((*(s8 *)(work + 7)) * 2) + 2)));
             fclObjStartAlpha((*(void * *)(work + 0xC48)), 0xFFU, 0U, 0U, 0, (s16) ((((*(s8 *)(work + 7)) * 2) + 2)));
             fclObjSetAnchorPosition((*(void * *)(work + 0xC4C)), 0x40, 191.0f);
-            temp_2_39 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(5));
+            temp_2_39 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(5));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC4C)))) + 0x100)) = (s16) ((s16) (((sdkSpriteScaledWidth(temp_2_39) / 2.0f))));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC4C)))) + 0x102)) = (s16) ((s16) (((sdkSpriteScaledHeight(temp_2_39) / 2.0f))));
             sdkSpriteFreeNode(temp_2_39);
@@ -1256,7 +1261,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             fclObjSetAnchorPosition((*(void * *)(work + 0xC50)), 0x40, 192.0f);
             (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x2C)) = 320.0f;
             (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x30)) = 130.0f;
-            temp_2_40 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(6));
+            temp_2_40 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x100)) = (s16) ((s16) (((sdkSpriteScaledWidth(temp_2_40) / 2.0f))));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x102)) = (s16) ((s16) (((sdkSpriteScaledHeight(temp_2_40) / 2.0f))));
             fclObjStartTween((*(void * *)(work + 0xC50)), (*(f32 *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xC50))) + 0xC4)), (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0xC4)) - 5.0f, 0, 0xA, 0);
@@ -1264,7 +1269,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE7C)), 0x40, 190.0f);
             (*(f32 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x2C)) = 320.0f;
             (*(f32 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x30)) = 187.0f;
-            temp_2_41 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(6));
+            temp_2_41 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
             (*(s16 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x100)) = (s16) ((s16) (((sdkSpriteScaledWidth(temp_2_41) / 2.0f))));
             (*(s16 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x102)) = (s16) ((s16) (((sdkSpriteScaledHeight(temp_2_41) / 2.0f))));
             sdkSpriteFreeNode(temp_2_41);
@@ -1442,7 +1447,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                     (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xDEC)))) + 0x2C)) = 216.0f;
                     (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xDEC)))) + 0x30)) = 368.0f;
                     fclObjSetAnchorPosition((*(void * *)(work + 0xC4C)), 0x40, 191.0f);
-                    temp_2_46 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(5));
+                    temp_2_46 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(5));
                     (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC4C)))) + 0x100)) = (s16) ((s16) ((sdkSpriteScaledWidth(temp_2_46))));
                     (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC4C)))) + 0x102)) = (s16) ((s16) ((sdkSpriteScaledHeight(temp_2_46))));
                     sdkSpriteFreeNode(temp_2_46);
@@ -1452,7 +1457,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                     fclObjSetAnchorPosition((*(void * *)(work + 0xC50)), 0x40, 192.0f);
                     (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x2C)) = 110.0f;
                     (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x30)) = -50.0f;
-                    temp_2_47 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(6));
+                    temp_2_47 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
                     (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x100)) = (s16) ((s16) ((sdkSpriteScaledWidth(temp_2_47))));
                     (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x102)) = 0;
                     fclObjStartTween((*(void * *)(work + 0xC50)), -90.0f, fGpffff8524, 0, 4, 4);
@@ -1461,7 +1466,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                     fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE7C)), 0x40, 190.0f);
                     (*(f32 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x2C)) = 180.0f;
                     (*(f32 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x30)) = 30.0f;
-                    temp_2_48 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(6));
+                    temp_2_48 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
                     (*(s16 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x100)) = (s16) ((s16) ((sdkSpriteScaledWidth(temp_2_48))));
                     (*(s16 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x102)) = 0;
                     sdkSpriteFreeNode(temp_2_48);
@@ -1771,7 +1776,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             tbl = (f32 *) D_0063F7D0;
             fclObjStartUniformRevealScale((*(void * *)(work + 0xD70)), 1.0f, 1.5f, 0, 5, 0);
             fclObjStartAlpha((*(void * *)(work + 0xD70)), (*(u8 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xD70)))) + 0x62)), 0U, 0U, 5, 0);
-            temp_18_48 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x4E));
+            temp_18_48 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x4E));
             fclObjStartPosition((*(void * *)(work + 0xD70)), fclMakeVec2(tbl[0], tbl[1]), fclMakeVec2(tbl[0] - 2.5f * (sdkSpriteScaledWidth(temp_18_48) / 10.0f), tbl[1] - 2.5f * (sdkSpriteScaledHeight(temp_18_48) / 10.0f)), 0, 5, 0);
             sdkSpriteFreeNode(temp_18_48);
             fclObjStartAlpha((*(void * *)(work + 0xD7C)), (*(u8 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xD7C)))) + 0x62)), 0U, 0U, 5, 0);
@@ -2037,7 +2042,7 @@ block_368:
                 fclObjStartAlpha((*(void * *)(work + 0xDCC)), 0xFFU, 0U, 0U, 5, 0);
                 fclObjStartAlpha((*(void * *)(work + 0xDD0)), 0xFFU, 0U, 0U, 5, 0);
                 if ((*(s8 *)(work + 0xC24)) == 0) {
-                    temp_16_66 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x2A));
+                    temp_16_66 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x2A));
                     fclObjSetAnchorPosition((*(void * *)(work + 0xCE0)), 0x56, 16.0f);
                     *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xCE0))) + 0x79) = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
                     fclObjStartRevealScale((*(void * *)(work + 0xCE0)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0);
@@ -2045,7 +2050,7 @@ block_368:
                     fclObjStartAlpha((*(void * *)(work + 0xCE0)), 0U, 0xFFU, 0U, 0, 0);
                     fclObjSetHoldTimer((*(void * *)(work + 0xCE0)), 6.0f, 3);
                     sdkSpriteFreeNode(temp_16_66);
-                    temp_16_67 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x2C));
+                    temp_16_67 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x2C));
                     fclObjSetAnchorPosition((*(void * *)(work + 0xCE8)), 0x56, 18.0f);
                     *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xCE8))) + 0x79) = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
                     fclObjStartRevealScale((*(void * *)(work + 0xCE8)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0);
@@ -2053,7 +2058,7 @@ block_368:
                     fclObjStartAlpha((*(void * *)(work + 0xCE8)), 0U, 0xFFU, 0U, 0, 0);
                     fclObjSetHoldTimer((*(void * *)(work + 0xCE8)), 6.0f, 3);
                     sdkSpriteFreeNode(temp_16_67);
-                    temp_16_68 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x27));
+                    temp_16_68 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x27));
                     fclObjSetAnchorPosition((*(void * *)(work + 0xCD4)), 0x41, 20.0f);
                     *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xCD4))) + 0x79) = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
                     fclObjStartRevealScale((*(void * *)(work + 0xCD4)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0);
@@ -2061,7 +2066,7 @@ block_368:
                     fclObjStartPosition((*(void * *)(work + 0xCD4)), fclMakeVec2(46.0f, 132.0f + 2.0f * (sdkSpriteScaledHeight(temp_16_68) / 10.0f)), fclMakeVec2(46.0f, 132.0f), 2, 4, 0);
                     fclObjSetHoldTimer((*(void * *)(work + 0xCD4)), 6.0f, 3);
                     sdkSpriteFreeNode(temp_16_68);
-                    temp_16_69 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x29));
+                    temp_16_69 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x29));
                     fclObjSetAnchorPosition((*(void * *)(work + 0xCDC)), 0x41, 21.0f);
                     *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xCDC))) + 0x79) = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
                     fclObjStartRevealScale((*(void * *)(work + 0xCDC)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0);
@@ -2070,7 +2075,7 @@ block_368:
                     fclObjSetHoldTimer((*(void * *)(work + 0xCDC)), 6.0f, 3);
                     sdkSpriteFreeNode(temp_16_69);
                 } else {
-                    temp_16_70 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x2B));
+                    temp_16_70 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x2B));
                     fclObjSetAnchorPosition((*(void * *)(work + 0xCE4)), 0x56, 16.0f);
                     *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xCE4))) + 0x79) = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
                     fclObjStartRevealScale((*(void * *)(work + 0xCE4)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0);
@@ -2078,7 +2083,7 @@ block_368:
                     fclObjStartAlpha((*(void * *)(work + 0xCE4)), 0U, 0xFFU, 0U, 0, 0);
                     fclObjSetHoldTimer((*(void * *)(work + 0xCE4)), 6.0f, 3);
                     sdkSpriteFreeNode(temp_16_70);
-                    temp_16_71 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x2C));
+                    temp_16_71 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x2C));
                     fclObjSetAnchorPosition((*(void * *)(work + 0xCE8)), 0x56, 18.0f);
                     *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xCE8))) + 0x79) = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
                     fclObjStartRevealScale((*(void * *)(work + 0xCE8)), 1.0f, 1.0f, 0.5f, 1.0f, 0, 5, 0);
@@ -2086,7 +2091,7 @@ block_368:
                     fclObjStartAlpha((*(void * *)(work + 0xCE8)), 0U, 0xFFU, 0U, 0, 0);
                     fclObjSetHoldTimer((*(void * *)(work + 0xCE8)), 6.0f, 3);
                     sdkSpriteFreeNode(temp_16_71);
-                    temp_16_72 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x28));
+                    temp_16_72 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x28));
                     fclObjSetAnchorPosition((*(void * *)(work + 0xCD8)), 0x41, 20.0f);
                     *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xCD8))) + 0x79) = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
                     fclObjStartRevealScale((*(void * *)(work + 0xCD8)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0);
@@ -2094,7 +2099,7 @@ block_368:
                     fclObjStartPosition((*(void * *)(work + 0xCD8)), fclMakeVec2(48.0f, 127.0f + 2.0f * (sdkSpriteScaledHeight(temp_16_72) / 10.0f)), fclMakeVec2(48.0f, 127.0f), 2, 4, 0);
                     fclObjSetHoldTimer((*(void * *)(work + 0xCD8)), 6.0f, 3);
                     sdkSpriteFreeNode(temp_16_72);
-                    temp_16_73 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x29));
+                    temp_16_73 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(0x29));
                     fclObjSetAnchorPosition((*(void * *)(work + 0xCDC)), 0x41, 21.0f);
                     *(FclDrawColor *)((u8 *)fclObjectGetWork((*(void * *)(work + 0xCDC))) + 0x79) = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
                     fclObjStartRevealScale((*(void * *)(work + 0xCDC)), 1.0f, 1.0f, fGpffff8170, 1.0f, 2, 4, 0);
@@ -2595,7 +2600,7 @@ block_368:
             fclObjStartAlpha((*(void * *)(work + 0xD90)), 0U, 0xFFU, 0U, 0xA, 0);
             fclObjStartAlpha((*(void * *)(work + 0xD94)), 0U, 0xFFU, 0U, 0xA, 0);
             fclObjSetAnchorPosition((*(void * *)(work + 0xC4C)), 0x40, 191.0f);
-            temp_2_131 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(5));
+            temp_2_131 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(5));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC4C)))) + 0x100)) = (s16) ((s16) ((sdkSpriteScaledWidth(temp_2_131))));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC4C)))) + 0x102)) = (s16) ((s16) ((sdkSpriteScaledHeight(temp_2_131))));
             sdkSpriteFreeNode(temp_2_131);
@@ -2605,7 +2610,7 @@ block_368:
             fclObjSetAnchorPosition((*(void * *)(work + 0xC50)), 0x40, 192.0f);
             (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x2C)) = 110.0f;
             (*(f32 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x30)) = -50.0f;
-            temp_2_132 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(6));
+            temp_2_132 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x100)) = (s16) ((s16) ((sdkSpriteScaledWidth(temp_2_132))));
             (*(s16 *)((u8 *)(fclObjectGetWork((*(void * *)(work + 0xC50)))) + 0x102)) = 0;
             fclObjStartTween((*(void * *)(work + 0xC50)), -90.0f, fGpffff8524, 0, 4, 4);
@@ -2614,7 +2619,7 @@ block_368:
             fclObjSetAnchorPosition((void *) (*(s32 *)(work + 0xE7C)), 0x40, 190.0f);
             (*(f32 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x2C)) = 180.0f;
             (*(f32 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x30)) = 30.0f;
-            temp_2_133 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(6));
+            temp_2_133 = sdkSpriteNewNode((u32)((void *) (*fclShopSpriteResource(work))), (u32)(6));
             (*(s16 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x100)) = (s16) ((s16) ((sdkSpriteScaledWidth(temp_2_133))));
             (*(s16 *)((u8 *)(fclObjectGetWork((void *) (*(s32 *)(work + 0xE7C)))) + 0x102)) = 0;
             sdkSpriteFreeNode(temp_2_133);
@@ -6809,9 +6814,9 @@ void fclShopDrawScrollThumb(void *arg0) {
     id = yListValueAtFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)], *(s16 *)(work + 2));
     shopDrawLabel(70.0f, (const char *)((void *)datGetItemNameId(id)), fclMakeVec2(129.0f, 134.0f), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
     count = datItemPrice((s32)id) / 5U;
-    fclDrawNumber(fclMakeVec2(486.0f, 145.0f), 70.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
+    fclDrawNumber(fclMakeVec2(486.0f, 145.0f), 70.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *fclShopSpriteResource(work), 0xA9);
     fclDrawEquipSprite(0x47, fclMakeVec2((f32)0x202, 147.0f), 70.0f, fclPackRgba(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
-    fclDrawNumber(fclMakeVec2((f32)0x221, 145.0f), 70.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, datItemCount(id) & 0xFF, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
+    fclDrawNumber(fclMakeVec2((f32)0x221, 145.0f), 70.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, datItemCount(id) & 0xFF, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *fclShopSpriteResource(work), 0xA9);
     if (datItemValue(id) == 0) {
         for (j = 0; j < 15; j++) {
             fclDrawEquipSprite(0x3C, fclMakeVec2((f32)(j * 22 + 111), 178.0f), 86.0f, fclPackRgba(0xFF, 0xFF, 0xC7, 0x31), 0xFF, 0, D_00794ED0);
@@ -6976,13 +6981,13 @@ void fclShopDrawItemDetail(void *arg0, s16 arg1, s32 arg2) {
     }
     shopDrawLabel(13.0f, (const char *)((void *)datGetItemNameId(arg1)), fclMakeVec2(140.0f, 178.0f), fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF));
     count = datItemPrice((s32)arg1) / 5U;
-    fclDrawNumber(fclMakeVec2(448.0f, 185.0f), 13.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
+    fclDrawNumber(fclMakeVec2(448.0f, 185.0f), 13.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *fclShopSpriteResource(work), 0xA9);
     fclDrawEquipSprite(0x47, fclMakeVec2(476.0f, 187.0f), 13.0f, fclPackRgba(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
     pos = uGpffffa888;
     if (*(s16 *)(work + 0x12) < 10) {
         pos.x = pos.x - 8.0f;
     }
-    fclDrawNumber(pos, 13.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, *(s16 *)(work + 0x12), 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
+    fclDrawNumber(pos, 13.0f, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, *(s16 *)(work + 0x12), 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *fclShopSpriteResource(work), 0xA9);
     fclDrawNumber(fclMakeVec2((f32)0x1F1, 247.0f), 1.0f, fclMakeDrawColor(0xDF, 0x6C, 0, *(u8 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCC8)) + 0x62)), 0x1B, 0, arg2 & 0xFF, 0x2F, 0, (s32)resourceFindByName((char *)(D_0063FAA0)), (s32)resourceFindByName((char *)(D_0063FAA0)), 0xA9);
 }
 
