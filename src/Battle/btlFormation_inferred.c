@@ -172,7 +172,7 @@ static inline f32 btlAttachFieldScale(u8 *unit)
 #pragma push
 #pragma pop
 // FUN_001D4EB0
-void func_001d4eb0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3)
+void btlFormationAttachPosition(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3)
 {
     struct Frame {
         f32 value60;
@@ -616,7 +616,7 @@ void btlFormationCameraUpdate(void) {
 }
 
 // FUN_001D5B20
-void func_001d5b20(u8 *arg0)
+void btlFormationCameraTaskStart(u8 *arg0)
 {
     s32 old_state;
     u8 **entries;
