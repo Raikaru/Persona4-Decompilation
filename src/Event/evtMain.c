@@ -2460,12 +2460,13 @@ s32 func_0028a8e0(s32 param_1) {
 s32 evtDispatchNode(s32 arg0, s32 arg1, u8 *arg2) {
     u32 n;
     s32 t;
-    u8 *node;
+    EvtNode *node;
+    EvtNode *owner = (EvtNode *)arg2;
 
     if (arg2 == NULL) {
         kAssertFail(D_0063C3B0, 0xEDD);
     }
-    n = *(u32 *)arg2;
+    n = owner->kind;
     if (n >= 0x3A) {
         t = 0;
     } else if (D_00882204[0][n] == 0) {
@@ -2475,14 +2476,14 @@ s32 evtDispatchNode(s32 arg0, s32 arg1, u8 *arg2) {
     }
     if (t != 0) {
         if (D_00882204[0][n](0, arg0, arg1, arg2, 0) != 0) {
-            node = *(u8 **)(arg2 + 0x68);
+            node = owner->childHead;
             while (node != NULL) {
-                if (evtCheckCondition(node) != 0) {
-                    D_00882204[0][*(u32 *)arg2](2, arg0, arg1, arg2, node);
+                if (evtCheckCondition((u8 *)node) != 0) {
+                    D_00882204[0][owner->kind](2, arg0, arg1, arg2, (u8 *)node);
                 }
-                node = *(u8 **)(node + 0x4C);
+                node = node->childNext;
             }
-            D_00882204[0][*(u32 *)arg2](1, arg0, arg1, arg2, 0);
+            D_00882204[0][owner->kind](1, arg0, arg1, arg2, 0);
         }
     }
 }
