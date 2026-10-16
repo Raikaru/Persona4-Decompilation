@@ -1024,7 +1024,7 @@ u8 *smapCreateSymbols(u8 *arg0)
     extern s32 mapSymbolMarkerCreate(s32);
     extern s32 mapSymbolPointCreate(s32, s32, YVec3f *);
     extern s32 mapSymbolTargetCreate(s32, YVec2f, s32);
-    extern s32 func_002b6590(s32, s16, s32);
+    extern s32 fclSpriteCreateDrawTask(s32, s16, s32);
     extern void *mdlGetMatrix(void *);
     extern u8 *MT_Scene_GetResListHead(s32);
     u8 *task;
@@ -1230,8 +1230,8 @@ u8 *smapCreateSymbols(u8 *arg0)
         }
         sdkSpriteFreeNode(sprite);
     }
-    *(s32 *)(work + 0x748) = func_002b6590((s32)task, 0xC, D_00764644);
-    *(s32 *)(work + 0x74C) = func_002b6590((s32)task, 0xD, D_00764644);
+    *(s32 *)(work + 0x748) = fclSpriteCreateDrawTask((s32)task, 0xC, D_00764644);
+    *(s32 *)(work + 0x74C) = fclSpriteCreateDrawTask((s32)task, 0xD, D_00764644);
     sceneNode = MT_Scene_GetResListHead(3);
     nodeIndex = 0;
     *(s32 *)(work + 0xD4) = 0;
