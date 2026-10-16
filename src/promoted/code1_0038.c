@@ -83,7 +83,7 @@ static inline u32 add_offset_first_0038(u32 offset, u32 base)
 }
 
 // FUN_00380980
-s32 func_00380980(u8 *arg0)
+s32 btlShuffleShowRosterMessage(u8 *arg0)
 {
     typedef struct {
         s32 active;
@@ -169,7 +169,7 @@ s32 func_00380980(u8 *arg0)
     return 1;
 }
 // FUN_00380BD0
-s32 func_00380bd0(u8 **arg0)
+s32 btlShuffleRollChance(u8 **arg0)
 {
     extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
     extern s32 datCalcGetLevelById(s32 arg0);
@@ -206,7 +206,7 @@ s32 func_00380bd0(u8 **arg0)
     return (rollPercent & 0xFF) < (threshold & 0xFF);
 }
 // FUN_00380D80
-s32 func_00380d80(u8 *arg0, s32 arg1)
+s32 btlShuffleAddRosterMember(u8 *arg0, s32 arg1)
 {
     u16 count2;
     u16 count1;
