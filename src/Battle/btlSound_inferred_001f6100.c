@@ -50,7 +50,7 @@ extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
 extern void func_001f62b0();
-extern void func_001f58d0();
+extern void btlActionStepMessagePhase();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
@@ -148,7 +148,7 @@ void func_001f6100(void)
 // FUN_001F6190
 void func_001f6190(void)
 {
-    func_001f58d0();
+    btlActionStepMessagePhase();
 }
 
 // FUN_001F61B0

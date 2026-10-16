@@ -90,7 +90,7 @@ extern s32 func_001f0d30(u8 *arg0);
 extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
 extern s32 btlActionHasNoTargetClass(u32 arg0);
 extern s32 func_001f1030(u8 *arg0);
-extern s32 func_001f5ea0(s32 arg0);
+extern s32 btlActionIsPendingBit(s32 arg0);
 #pragma push
 #pragma pop
 /* measured: invariant mask materialisation needs opt_loop_invariants on to
@@ -136,7 +136,7 @@ s32 func_001f4040(u8 *arg0) {
     if (*(u8 *)((u8 *)(*(u8 **)(arg0 + 0x30)) + 0xA2) != 0) {
         return -1;
     }
-    if (func_001f5ea0(0) != 0) {
+    if (btlActionIsPendingBit(0) != 0) {
         return 0xCD;
     }
     return 0xCE;

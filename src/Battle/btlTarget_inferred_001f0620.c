@@ -87,7 +87,7 @@ extern u8 D_00624FA0[];
 /* Source unit: src/promoted/code1_001f.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001f.c; members 001f0620-001f0a10 */
 
-extern s32 func_001f5ea0(s32 arg0);
+extern s32 btlActionIsPendingBit(s32 arg0);
 #pragma push
 /* measured: func_001f0620 MATCH -> MISMATCH without this pragma. */
 #pragma opt_rebuildconditionals off
@@ -129,7 +129,7 @@ s32 func_001f0620(u8 *arg0, s64 arg1)
         temp_3_2 = *(s32 *)(iGpffffb414 + ((temp_6 & 0xFFFF) * 0x18));
         if (temp_3_2 & 0x20) return 0;
         if ((temp_3_2 & 1) == 0) return 0;
-        return !func_001f5ea0(0);
+        return !btlActionIsPendingBit(0);
     case 7:
     case 8:
     case 11:

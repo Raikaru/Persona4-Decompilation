@@ -1203,7 +1203,7 @@ void btlActionEndUpdate(u8 *action)
     s32 btlOrderRemoveActionAll(u8 *action);
     void btlOrderQueueAction(u8 *action);
     void btlOrderSetCurrentAction(u8 *action);
-    void func_001f5a00(s32 advance);
+    void btlActionCheckStepTrigger(s32 advance);
     void datCalcAdvanceSecondaryBuffs(u8 *unit);
     void func_001f2cc0(u8 *action);
     void datCalcSetHp(s32 unit, u16 hp);
@@ -1275,11 +1275,11 @@ void btlActionEndUpdate(u8 *action)
                         btlPacketEnqueue(packet, 1);
                     }
                     datCalcAdvanceSecondaryBuffs(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
-                    func_001f5a00(1);
+                    btlActionCheckStepTrigger(1);
                     btlOrderQueueAction(action);
                 } else {
                     btlOrderSetCurrentAction(action);
-                    func_001f5a00(0);
+                    btlActionCheckStepTrigger(0);
                 }
             } else {
                 {

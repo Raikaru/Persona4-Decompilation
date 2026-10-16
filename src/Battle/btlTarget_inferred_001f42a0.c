@@ -43,9 +43,9 @@ extern u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
-extern s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_001f62b0();
-extern void func_001f58d0();
+extern void btlActionStepMessagePhase();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
@@ -125,7 +125,7 @@ extern u8 *func_001b0c80(s32 arg0);
    index arithmetic and the 0x70 field load in a temporary before its saved copy. */
 /* measured: restore propagation for the rest of the unit. */
 // FUN_001F42A0
-s32 func_001f42a0(s32 arg0) {
+s32 btlActionGetCurrentActorMsgCode(s32 arg0) {
     if (*(s32 *)(iGpffffb3ac + 0x170) != arg0) {
         return -1;
     }
@@ -133,7 +133,7 @@ s32 func_001f42a0(s32 arg0) {
 }
 
 // FUN_001F42D0
-s32 func_001f42d0(void) {
+s32 btlActionGetDefaultMsgCode(void) {
     if ((*(s32 *)(iGpffffb3ac + 0x10) & 0x20000000) != 0) {
         if (btlCurrentUnitId() == 0x20B) {
             return 0x18B;
@@ -143,7 +143,7 @@ s32 func_001f42d0(void) {
 }
 
 // FUN_001F4330
-s32 func_001f4330(u8 *arg0)
+s32 btlActionGetSideMsgCode(u8 *arg0)
 {
     if (*(u8 **)(iGpffffb3ac + 0x170) == arg0) {
         return 0x99;
@@ -186,7 +186,7 @@ s32 func_001f4380(u8 *arg0)
 }
 
 // FUN_001F4430
-s32 func_001f4430(u8 *arg0, s32 arg1) {
+s32 btlActionGetCharacterLevelMsg(u8 *arg0, s32 arg1) {
     s32 temp_4;
     u16 temp_2;
 
@@ -346,7 +346,7 @@ s32 func_001f4760(u8 *arg0)
 }
 
 // FUN_001F4810
-s32 func_001f4810(u8 *arg0, s32 arg1, s32 arg2) {
+s32 btlActionPickMsgCodeByRoll(u8 *arg0, s32 arg1, s32 arg2) {
     s32 temp_4;
 
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
@@ -609,7 +609,7 @@ low_switch_4ce0:
    The owned nine-entry switch table resolves to retail at 0x00747500.
    See docs/probe_archive/BattleAction_20260922_resume.md. */
 // FUN_001F4E50
-s64 func_001f4e50(u8 *arg0) {
+s64 btlActionPickRandomStatusMsg(u8 *arg0) {
     struct ActionMessageChoice {
         s16 code;
         s16 actor;
@@ -800,7 +800,7 @@ s64 func_001f4e50(u8 *arg0) {
 }
 
 // FUN_001F55B0
-s32 func_001f55b0(u8 *arg0)
+s32 btlActionGetPendingMsgCode(u8 *arg0)
 {
     u8 *work;
 
@@ -830,7 +830,7 @@ s32 func_001f55b0(u8 *arg0)
 /* The `return -1` and `return v + 0x11` blocks are reached by goto so they
    land in retail's order; writing both as plain returns emits them the other
    way round. */
-s32 func_001f5680(void) {
+s32 btlActionGetSlotMsgCode(void) {
     u8 *p;
     s32 v;
 
@@ -850,7 +850,7 @@ add:
 }
 
 // FUN_001F56D0
-s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4) {
+s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 flags;
     s32 mode;
     s32 index;
@@ -916,7 +916,7 @@ s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4) {
 }
 
 // FUN_001F58D0
-void func_001f58d0(void)
+void btlActionStepMessagePhase(void)
 {
     s16 temp_2;
     u8 *state_ptr;
@@ -976,7 +976,7 @@ done:
 }
 
 // FUN_001F5A00
-void func_001f5a00(s32 arg0)
+void btlActionCheckStepTrigger(s32 arg0)
 {
     extern s32 func_001b1540(void);
     extern s32 func_001b1550(void);
@@ -1008,7 +1008,7 @@ void func_001f5a00(s32 arg0)
                                   ((i & 0xFFFF) * 4) + 0xA44) ==
                          (*(u16 *)(iGpffffb3ac +
                                    ((i & 0xFFFF) * 4) + 0xA46) >> 1))) {
-                        func_001f56d0(
+                        btlActionRunTargetCallback(
                             *(s32 *)(iGpffffb3ac + 0x170), 4, 0, 0, 4);
                     } else {
                         global = iGpffffb3ac;
@@ -1046,9 +1046,9 @@ void func_001f5a00(s32 arg0)
    tree and unsigned conversions without additional storage. */
 // FUN_001F5BD0
 #pragma push
-/* measured: func_001f5bd0 MATCH -> MISMATCH without this pragma. */
+/* measured: btlActionRollGroupRatio MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void func_001f5bd0(s32 arg0)
+void btlActionRollGroupRatio(s32 arg0)
 {
     u32 mask;
     unsigned int random_value;
@@ -1098,18 +1098,18 @@ done:
 
 #pragma pop
 // FUN_001F5EA0
-s32 func_001f5ea0(s32 arg0) {
+s32 btlActionIsPendingBit(s32 arg0) {
     return (s32)((*(u16 *)((u8 *)iGpffffb3ac + 0xA48) & (1 << (arg0 & 0xFFFF))) != 0);
 }
 
 // FUN_001F5ED0
-s32 func_001f5ed0(u8 *arg0)
+s32 btlActionCachedDispatch(u8 *arg0)
 {
     s32 result;
     u8 *global;
 
     if (*(s32 *)(arg0 + 0x14) == 0) {
-        *(s32 *)(arg0 + 0x14) = func_001f56d0(
+        *(s32 *)(arg0 + 0x14) = btlActionRunTargetCallback(
             *(s32 *)(arg0 + 0),
             *(u16 *)(arg0 + 4),
             *(s32 *)(arg0 + 8),
