@@ -7,6 +7,69 @@ typedef struct SVec3 {
     f32 x, y, z;
 } SVec3;
 
+/* mt_misc scene source record: the arg0 block of mtMiscBuildScene and its
+   collect helpers (src/Event/mt_misc_inferred_002962f0.c). Offsets are the
+   ones the readers use; names follow the offsets until a role is proven. */
+typedef struct MtMiscSceneHeader MtMiscSceneHeader;
+typedef struct MtMiscSceneRecord16 MtMiscSceneRecord16;
+typedef struct MtMiscSceneRecord60 MtMiscSceneRecord60;
+typedef struct MtMiscSceneSource MtMiscSceneSource;
+
+struct MtMiscSceneHeader
+{
+    u8 unk_00[0x14];
+    s32 kind;                 /* 0x14. Kind 4 selects the 0x10-byte table at +0x94 */
+};
+
+/* 0x10-byte record, the table at +0x94 when the header kind is 4. */
+struct MtMiscSceneRecord16
+{
+    u16 type;                 /* 0x00. Compared with 4 */
+    u16 id;                   /* 0x02 */
+    u16 unk_04;               /* 0x04 */
+    u8 unk_06[2];
+    s16 unk_08;               /* 0x08 */
+    s16 unk_0a;               /* 0x0A */
+    s8 unk_0c;                /* 0x0C */
+    s8 unk_0d;                /* 0x0D */
+    s8 unk_0e;                /* 0x0E */
+    u8 unk_0f;
+};
+
+/* 0x3C-byte record, the tables at +0x98 and +0xA4. */
+struct MtMiscSceneRecord60
+{
+    u16 type;                 /* 0x00. Compared with 5, 0x13 and 4 */
+    u16 id;                   /* 0x02 */
+    u16 unk_04;               /* 0x04 */
+    u8 unk_06[6];
+    s16 position[4];          /* 0x0C. Four halfwords copied into the scene node */
+    s16 unk_14;               /* 0x14 */
+    union {
+        s16 word;             /* 0x16. Read as a halfword by types 4 and 19 */
+        s8 byte;              /* 0x16. Read as a byte by type 5 */
+    } unk_16;
+    s8 unk_18[3];             /* 0x18 */
+    u8 unk_1b[0x21];
+};
+
+/* Scene source block passed as arg0 to the mt_misc scene collectors. */
+struct MtMiscSceneSource
+{
+    u8 unk_00[0x58];
+    s32 count58;              /* 0x58. Node count for the first loop */
+    u8 unk_5c[0x24];
+    MtMiscSceneHeader *header;        /* 0x80. Kind is read through this */
+    u8 unk_84[0x0C];
+    s32 *headerWords;         /* 0x90. Nine words copied into the scene */
+    MtMiscSceneRecord16 *records94;   /* 0x94 */
+    MtMiscSceneRecord60 *records98;   /* 0x98 */
+    u8 unk_9c[0x08];          /* 0x9C */
+    MtMiscSceneRecord60 *recordsA4;   /* 0xA4 */
+    s32 countA8;              /* 0xA8. Count when the header kind is 6 or more */
+    s32 countAC;              /* 0xAC. Count when the header kind is below 6 */
+};
+
 /* Transform pointers address three consecutive floats; NULL leaves that
    transform unchanged. Resource IDs contain the packed 16-bit type/index. */
 void MT_Scene_SetResPlacement(u16 resourceId, u8 *position, u8 *angles);
