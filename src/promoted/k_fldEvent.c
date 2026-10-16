@@ -31,7 +31,7 @@ extern FldEventVec3 D_005F1838;
 
 void chkmemAllocSiteTag(const void *, u32);
 
-void func_00182390(void);
+void FldAmbientFlagClear(void);
 void FldEvent_SetTriggerParam(s32, s32);
 s32 FldEvent_FindNearbyEntry(void);
 s32 FldEvent_MoverUpdate(u8 *);
@@ -43,10 +43,10 @@ s32 FldEvent_TriggerUpdate(u8 *);
 s32 FldMap_IsCurrentInEitherBand(void);
 s32 FldStepIndex(void);
 s32 FldEvent_FindFirstRegionActor(f32, f32, void *);
-u8 *func_001823c0(void);
+u8 *FldAmbientFlagPtr(void);
 s32 FldStepFileTask(s32);
 s32 FldRc_RequestPositionSlot(u8 *, f32 *);
-void func_00182310(s32);
+void FldSlotBroadcastState(s32);
 extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 void FldFrameTask_SetOrientation(u8 *, u8 *);
 s32 *MT_Scene_GetFrameState(void);

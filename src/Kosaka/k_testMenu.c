@@ -24,7 +24,7 @@ extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
 extern s32 func_0018ef50(u8 *arg0);
 extern s32 K_Test_CreateLauncher(u8 *arg0);
 extern void K_ReadTexTaskCreate(void);
-extern s32 func_001838d0(f32 f0, u8 *arg0, s32 arg1, f32 f1, f32 f2, f32 f3,
+extern s32 FldRainTaskCreate(f32 f0, u8 *arg0, s32 arg1, f32 f1, f32 f2, f32 f3,
                           s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_0017d070(u8 *arg0);
 extern s32 K_Clump_CreateLoadTask(s32 arg0);
@@ -67,7 +67,7 @@ s32 K_TestMenu_Update(u8 *arg0)
                 K_ReadTexTaskCreate();
                 break;
             case 3:
-                *(s32 *)(p + 8) = func_001838d0(200.0f, arg0, 0, D_00761624,
+                *(s32 *)(p + 8) = FldRainTaskCreate(200.0f, arg0, 0, D_00761624,
                                                   D_0076151C, 30.0f, 0x30, 8,
                                                   0xA);
                 break;

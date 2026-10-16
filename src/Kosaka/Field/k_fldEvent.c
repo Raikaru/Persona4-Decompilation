@@ -31,7 +31,7 @@ extern FldEventVec3 D_005F1838;
 
 void chkmemAllocSiteTag(const void *, u32);
 
-void func_00182390(void);
+void FldAmbientFlagClear(void);
 void FldEvent_SetTriggerParam(s32, s32);
 s32 FldEvent_FindNearbyEntry(void);
 s32 FldEvent_MoverUpdate(u8 *);
@@ -43,10 +43,10 @@ s32 FldEvent_TriggerUpdate(u8 *);
 s32 FldMap_IsCurrentInEitherBand(void);
 s32 FldStepIndex(void);
 s32 FldEvent_FindFirstRegionActor(f32, f32, void *);
-u8 *func_001823c0(void);
+u8 *FldAmbientFlagPtr(void);
 s32 FldStepFileTask(s32);
 s32 FldRc_RequestPositionSlot(u8 *, f32 *);
-void func_00182310(s32);
+void FldSlotBroadcastState(s32);
 extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 void FldFrameTask_SetOrientation(u8 *, u8 *);
 s32 *MT_Scene_GetFrameState(void);
@@ -249,14 +249,14 @@ s32 FldEvent_RunTriggerAndReset(s32 arg0)
         r = (s32)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(r + 0x1C), 1);
         h[4] = func_0029db50(0xF, func_0015a100(), func_0015a130(), 3);
-        func_00182310(1);
+        FldSlotBroadcastState(1);
         h[1]++;
         break;
     case 1:
         if (kwlnTaskIsLinked((void *)(h[4])) != 1) {
             r = (s32)MT_Scene_GetFrameState();
             func_0018e030(*(s32 *)(r + 0x1C), 0);
-            func_00182310(0);
+            FldSlotBroadcastState(0);
             D_007243EC = 0;
             D_007243E8 = 0;
             D_007243E4 = 0;
@@ -310,7 +310,7 @@ s32 FldEvent_RunTriggerHold(s32 arg0)
         r = (s32)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(r + 0x1C), 1);
         h[4] = func_0029db50(0xF, func_0015a100(), func_0015a130(), 2);
-        func_00182310(1);
+        FldSlotBroadcastState(1);
         h[1]++;
         break;
     case 1:
@@ -322,7 +322,7 @@ s32 FldEvent_RunTriggerHold(s32 arg0)
         if (kwlnTaskIsLinked((void *)(h[4])) != 1) {
             r = (s32)MT_Scene_GetFrameState();
             func_0018e030(*(s32 *)(r + 0x1C), 0);
-            func_00182310(0);
+            FldSlotBroadcastState(0);
             h[1]++;
         }
         break;
@@ -435,7 +435,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
             }
             func_0018bc20(*(s32 *)(*(u8 **)(h + 0x20) + 0x294));
         }
-        func_00182310(1);
+        FldSlotBroadcastState(1);
         (*(s32 *)(h + 4))++;
     case 1:
         v = *(s32 *)(*(u8 **)(h + 0x20) + 0x294);
@@ -484,7 +484,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
             }
             func_0018bed0(*(s32 *)(*(u8 **)(h + 0x20) + 0x294), 0);
             func_0018e030(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 0);
-            func_00182310(0);
+            FldSlotBroadcastState(0);
             (*(s32 *)(h + 4))++;
         }
         goto ret1;
@@ -675,7 +675,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
                                                *(u32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1858), FLD_EVT_ENTRY(h)->unk10);
             *(s32 *)(h + 4) = 3;
         }
-        func_00182310(1);
+        FldSlotBroadcastState(1);
         break;
     case 1:
         MT_Scene_BeginValueStep(*(u8 **)(s32)MT_Scene_GetFrameState(), FLD_EVT_ENTRY(h)->unk12, FLD_EVT_ENTRY(h)->unk14,
@@ -690,7 +690,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
             break;
         }
         func_0018e030(*(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1C), 0);
-        func_00182310(0);
+        FldSlotBroadcastState(0);
         *(s32 *)(h + 0x10) = 0;
         *(s32 *)(h + 4) = 4;
         /* fall through */
@@ -732,13 +732,13 @@ s32 FldEvent_SetCameraFocus(u8 *arg0)
 
     h = *(s32 **)(arg0 + 0x38);
     if (FldMap_IsCurrentInEitherBand() == 1) {
-        r = *(s32 *)func_001823c0();
+        r = *(s32 *)FldAmbientFlagPtr();
         if (r != 0) {
             t = (u8 *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
             vec = *(FldEventVec3 *)(t + 0x30);
             vec.y += 100.0f;
             FldRc_RequestPositionSlot((u8 *)(FldStepFileTask(0)), (f32 *)(&vec));
-            func_00182310(1);
+            FldSlotBroadcastState(1);
             h[1] = 2;
             return 1;
         }
@@ -806,8 +806,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void *mdlGetMatrix(void *);
     s32 FldStepFileTask(s32);
     s32 FldRc_RequestPositionSlot(u8 *, f32 *);
-    void func_00182310(s32);
-    u8 *func_001823c0(void);
+    void FldSlotBroadcastState(s32);
+    u8 *FldAmbientFlagPtr(void);
     s32 *MT_Scene_GetFrameState(void);
     void FldUnit_SetMode(u8 *, s32);
     s32 FldRc_GetPositionSlotCount(u8 *, s32);
@@ -836,7 +836,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void FldFrame_BindTypedRes(u8 *, u16);
 
     void FldUnit_ReleaseSlot(u8 *);
-    void func_00182390(void);
+    void FldAmbientFlagClear(void);
     u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);
     s32 func_0029da90(s32, u8 *, s32);
 
@@ -1018,17 +1018,17 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                                 cameraTarget = *(FldEventVec3 *)(m + 0x30);
                                 cameraTarget.y += 100.0f;
                                 FldRc_RequestPositionSlot((u8 *)(FldStepFileTask(0)), (f32 *)(&cameraTarget));
-                                func_00182310(1);
+                                FldSlotBroadcastState(1);
                                 FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 1);
                                 work->state = 4;
                             }
                         }
-                    } else if (*(u8 **)func_001823c0() != NULL) {
+                    } else if (*(u8 **)FldAmbientFlagPtr() != NULL) {
                         u8 *m = (u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
                         playerTarget = *(FldEventVec3 *)(m + 0x30);
                         playerTarget.y += 100.0f;
                         FldRc_RequestPositionSlot((u8 *)(FldStepFileTask(0)), (f32 *)(&playerTarget));
-                        func_00182310(1);
+                        FldSlotBroadcastState(1);
                         work->state = 2;
                     } else {
                         FldEventAttack *attack = work->attack;
@@ -1051,7 +1051,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     work->nearby[0] = NULL;
                     work->nearby[1] = NULL;
                     {
-                        FldEventActor *cur = *(FldEventActor **)func_001823c0();
+                        FldEventActor *cur = *(FldEventActor **)FldAmbientFlagPtr();
                         work->target = cur;
                         memset(&work->battle, 0, 0x3C);
                         work->battle.party[0] = (FldEventUnit *)D_007EF9F8[0].x;
@@ -1282,7 +1282,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 if (work->target->unit->count > 0) {
                     work->targetHasUnits = 1;
                 }
-                func_00182390();
+                FldAmbientFlagClear();
                 FldUnit_ReleaseSlot((u8 *)(work->target));
                 {
                     FldEventActor *p48 = work->nearby[0];
@@ -1471,7 +1471,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     return 0;
                 }
                 work->motionState = 0;
-                func_00182310(0);
+                FldSlotBroadcastState(0);
                 work->state = 0x64;
                 goto running;
             }
@@ -1621,7 +1621,7 @@ s32 FldEvent_SpawnTrigger(s32 arg0)
         return 0;
     }
     arg0 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1828), 0xF, 0, 0, FldEvent_TriggerUpdate, FldEvent_TriggerDestroy, (u8 *)(temp_2));
-    func_00182390();
+    FldAmbientFlagClear();
     *(s32 *)(temp_2 + 0xC) = -1;
     temp_18 = temp_2 + 0x18;
     *(u8 **)temp_18 = (u8 *)MT_Scene_GetRes(0x400);
