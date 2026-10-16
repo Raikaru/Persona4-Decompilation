@@ -52,12 +52,12 @@ extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s16 func_002b2d00(s32, s32, s32, s32, s8);
 extern void func_002b6180(void);
 extern void func_002b6260(void);
-extern s32 func_002b6340(u8 *arg0);
+extern s32 fclSpriteUpdateAndDrawTask(u8 *arg0);
 extern void fclSpriteDestroyTask(u8 *arg0);
-extern s32 func_002b7f20(u8 *arg0);
-extern s32 func_002b89a0(u8 *arg0);
+extern s32 fclSpriteStartPanelLayout(u8 *arg0);
+extern s32 fclSpriteUpdateTweens(u8 *arg0);
 extern s8 fclSpriteTestRecordFlag(u8 *arg0, u32 arg1);
-extern s32 func_002b9e10(u8 *arg0);
+extern s32 fclSpriteListUpdate(u8 *arg0);
 extern void fclSpriteBuildCornerQuads(u8 *arg0, u8 *arg1);
 extern s32 fclSpritePoolUpdate(u8 *arg0);
 extern void fclSpritePoolDestroy(u8 *arg0);
@@ -125,8 +125,9 @@ s32 fclSpriteSpawnChild(s32 arg0, f2 p1) {
 }
 /* measured: close opt_loop_invariants scope after fclSpriteSpawnChild. */
 #pragma opt_loop_invariants off
+// Intent: duplicate of fclSpriteWork (same body, kept under the Alt name).
 // FUN_002B5DA0
-u8 *func_002b5da0(u8 *arg0) {
+u8 *fclSpriteWorkAlt(u8 *arg0) {
     return *(u8 **)(arg0 + 0x38);
 }
 
@@ -268,15 +269,16 @@ void func_002b6260(void) {
    comparison's load order under this bounded propagation pragma. */
 #pragma push
 #pragma opt_propagation off
+// Intent: per-frame update of one sprite task: advances its tweens, then, when alpha and scale are above threshold, queues the sprite draw (sdkSpriteDrawQueued) with the layout chosen by flag 13.
 // FUN_002B6340
-s32 func_002b6340(u8 *arg0) {
+s32 fclSpriteUpdateAndDrawTask(u8 *arg0) {
     u8 *p;
     u8 *q;
     s32 color;
     f32 a;
     f32 g;
     p = *(u8 **)(arg0 + 0x38);
-    memcpy(p + 0x10, func_002b89a0(p + 0x10), 0xF0);
+    memcpy(p + 0x10, fclSpriteUpdateTweens(p + 0x10), 0xF0);
     if (p[0x6E] <= 0) return 0;
     a = *(f32 *)(p + 0xA0);
     g = iGpffff84f4;
@@ -344,7 +346,7 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
     f32 zero;
     chkmemAllocSiteTag(&D_0063F178, 0x236);
     p = D_008873F4[0](1, 0x100, 0x40000);
-    result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1A0), 0xF, 0, 0, func_002b6340, fclSpriteDestroyTask, (u8 *)(p));
+    result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1A0), 0xF, 0, 0, fclSpriteUpdateAndDrawTask, fclSpriteDestroyTask, (u8 *)(p));
     *(s16 *)(p + 4) = arg1;
     *(s32 *)(p + 0) = arg2;
     i = 0;
@@ -712,7 +714,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
         entryOffset = (u32)((s32)i << 8);
         e += (s32)entryOffset;
         if ((s16)(*(s16 *)(e + 0x14) & 1) == 1) {
-            animation = func_002b89a0(e + 0x14);
+            animation = fclSpriteUpdateTweens(e + 0x14);
             memcpy(YDRAW_BASE + entryOffset + 0x14, animation, 0xF0);
             fclSpriteUpdateCulling(arg0, i, *(s16 *)(YDRAW_BASE + entryOffset + 8));
             base = YDRAW_BASE;
@@ -942,8 +944,9 @@ static inline void fclRevealOpacity(u8 *work, const FclDrawColor *color)
     fclSpriteStartAlpha(work, initialAlpha, targetAlpha, 0, 0, 0);
 }
 
+// Intent: starts a show or hide transition for pool slot arg0 (arg4 == 1 hides, otherwise shows). Sets the slot's flags, sizes it from the scaled sprite width and height, and starts the alpha, reveal-scale and position tweens with the given duration and delay.
 // FUN_002B77D0
-void func_002b77d0(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16 arg3, s8 arg4, s16 arg5, s16 arg6, s16 arg7, u32 arg8) {
+void fclSpriteStartShowHide(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fparg0, s16 arg3, s8 arg4, s16 arg5, s16 arg6, s16 arg7, u32 arg8) {
     u8 *first;
     s32 off;
     f2 hideConstructed;
@@ -1098,7 +1101,7 @@ found_check:
    condition, u8/u32 c, v2 local or inline doubled expression, u32 shift casts; nd
    111-129). Also retail hoists the D_008872F8 lui into the loop preheader and loads
    the LHS operand first (sub.s $f1, $f0 order), mwcc keeps the lui in the body and
-   loads RHS first (nd 12 in the loop alone, same floor family as func_002b9e10's
+   loads RHS first (nd 12 in the loop alone, same floor family as fclSpriteListUpdate's
    operand-order note). Else-duplication + loop-operand-order floor. */
 /* measured: recipe A (s32 v = lbu load, u32 c copy, (f32)(s32)((c >> 1) | (c & 1)),
    f = f + f doubling, direct-path-first if (v >= 0)) DOES fix the old bltz
@@ -1138,8 +1141,9 @@ found_check:
 /* measured: schedule off preserves the D_008872F8 base register through the
    loop body and matches the retail issue order. */
 #pragma schedule off
+// Intent: one-shot layout of the 0x130-byte panel task: sets its four channel records and two render positions, and queues the render job with func_002b6da0 and func_002b6ea0. Returns at once while +0x124 is set; fclSpriteCreatePanelChild sets that flag, and nothing traced so far clears it.
 // FUN_002B7F20
-s32 func_002b7f20(u8 *arg0) {
+s32 fclSpriteStartPanelLayout(u8 *arg0) {
     u8 *p;
     f32 scale;
     u8 *q;
@@ -1201,7 +1205,7 @@ s32 fclSpriteCreatePanelChild(s32 arg0) {
     u8 *p;
     chkmemAllocSiteTag(&D_0063F178, 0x4A2);
     p = D_008873F4[0](1, 0x130, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1D0), 0xF, 0, 0, func_002b7f20, fclSpriteDestroyPanel, (u8 *)(p));
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1D0), 0xF, 0, 0, fclSpriteStartPanelLayout, fclSpriteDestroyPanel, (u8 *)(p));
     p[0x124] = 1;
     p[0x125] = 0;
     return handle;
@@ -1409,8 +1413,9 @@ void fclSpriteStartEntrance(u8 *arg0, FclVec2 p1, u4 arg2, u4 arg3, u8 arg4, u8 
    pair with the mask in both arms.  Hand-expanding either (an s32 copy with
    an explicit sign test, `(u8)(s32)tf` with a threshold branch) left 131
    edits of register colouring and moves; the plain casts match. */
+// Intent: advances the five tween channels of one sprite record (position, alpha, colour, scale, colour pulse) by a frame. Each channel waits out its delay (+0x34, +0x60, +0x7E, +0xA0, +0xC8), eases with func_002b2aa0 and steps its timer with func_002b2cb0. Returns the record.
 // FUN_002B89A0
-s32 func_002b89a0(u8 *arg0) {
+s32 fclSpriteUpdateTweens(u8 *arg0) {
     if (((*(s16 *)arg0 & 2) >> 1) == 1) {
         if (*(s16 *)(arg0 + 0x34) == 0) {
             if (*(s8 *)(arg0 + 0x37) == 0) {
@@ -1643,8 +1648,9 @@ void fclSpriteBuildCornerQuads(u8 *arg0, u8 *arg1) {
    the entry pointer after the compares is the (u32)i * 0x220 spelling, which mwcc
    does not CSE with the s32 form above. Declaration order q,p,i,r colours s0..s3. */
 #pragma opt_propagation off
+// Intent: updates the list's entries (count at +0x6600). An active entry advances its tweens and queues fclSpriteBuildCornerQuads while visible; an idle one clears its active bit.
 // FUN_002B9E10
-s32 func_002b9e10(u8 *arg0) {
+s32 fclSpriteListUpdate(u8 *arg0) {
     u8 *q;
     u8 *p;
     s32 i;
@@ -1658,7 +1664,7 @@ s32 func_002b9e10(u8 *arg0) {
         q = p + i * 0x220;
         r = (s16 *)(q + 0x104);
         if ((*(s16 *)(q + 0x104) & 1) == 1) {
-            memcpy((void *)r, func_002b89a0((u8 *)r), 0xF0);
+            memcpy((void *)r, fclSpriteUpdateTweens((u8 *)r), 0xF0);
             a = *(f32 *)(q + 0x194);
             g = fGpffff8504;
             if (!(a <= g) && !(*(f32 *)(q + 0x1A0) <= g) && (q[0x162] > 0)) {
@@ -1694,7 +1700,7 @@ s32 fclSpriteListCreateChild(s32 arg0, s16 arg1, s32 arg2) {
     s32 i;
     chkmemAllocSiteTag(&D_0063F178, 0x693);
     p = D_008873F4[0](1, 0x6610, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1E0), 0xF, 0, 0, func_002b9e10, fclSpriteDestroyListTask, (u8 *)(p));
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1E0), 0xF, 0, 0, fclSpriteListUpdate, fclSpriteDestroyListTask, (u8 *)(p));
     for (i = 0; i < 0x30; i++) {
         *(s16 *)(p + i * 0x220 + 0x104) = 0;
         *(u32 *)(p + i * 0x220 + 0x214) = arg2;

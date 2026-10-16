@@ -4418,7 +4418,7 @@ s32 btlXpBaseAward(u8 *arg0)
 }
 extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 datPersonaGetLevel(int persona);
-extern u32 datPersonaGetNextExp(int persona);
+extern u32 datPersonaGetExp(int persona);
 extern u16 *datPersonaGetSkills(int persona);
 extern u16 datItemValue(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
@@ -4531,7 +4531,7 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
             }
         }
         if (id < 99) {
-            v3 = datPersonaGetNextExp((s32)entry2);
+            v3 = datPersonaGetExp((s32)entry2);
             v4 = (s32)datPersonaGetExpForLevel(entry2, (u16)(id + 1));
             if (v4 <= v3 + level) {
                 *(u32 *)arg0 |= 8;
@@ -4557,7 +4557,7 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
                 level2 += (s32)(0.5f * (f32)lv2);
             }
             if (v5 < 99) {
-                v3 = datPersonaGetNextExp((s32)entry3);
+                v3 = datPersonaGetExp((s32)entry3);
                 v4 = (s32)datPersonaGetExpForLevel(entry3, (u16)(v5 + 1));
                 if (v4 <= v3 + level2) {
                     *(u32 *)arg0 |= 0x10;
@@ -4581,7 +4581,7 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
             level2 += (s32)(0.5f * (f32)lv3);
         }
         if (v5 < 99) {
-            v3 = datPersonaGetNextExp((s32)entry3);
+            v3 = datPersonaGetExp((s32)entry3);
             v4 = (s32)datPersonaGetExpForLevel(entry3, (u16)(v5 + 1));
             if (v4 <= v3 + level2) {
                 *(u32 *)arg0 |= 0x10;

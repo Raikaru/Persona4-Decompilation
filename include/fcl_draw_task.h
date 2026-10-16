@@ -12,7 +12,7 @@ s32 fclSpriteCreatePanelChild(s32 parent);
 s32 fclSpriteListCreateChild(s32 parent, s16 count, s32 resource);
 
 void fclSpriteSetCornerColors(u8 *task, FclDrawColor color);
-u8 *func_002b5da0(u8 *task);
+u8 *fclSpriteWorkAlt(u8 *task);
 
 /* Integer and floating arguments keep their separate EE register order. */
 void fclSpriteStartRevealScaleAt(s16 resource, f32 scale0, f32 scale1, f32 scale2, f32 scale3,

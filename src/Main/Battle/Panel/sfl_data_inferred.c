@@ -28,7 +28,7 @@ extern s32 func_00105a50(s16 pcId);
 extern u8 *datPersonaGetRow(u16 personaId);
 extern u8 datPersonaGetArcana(u16 personaId);
 extern u8 datPersonaGetLevel(s32 persona);
-extern u32 datPersonaGetNextExp(s32 persona);
+extern u32 datPersonaGetExp(s32 persona);
 extern u32 datPersonaGetExpToNextLevel(PersonaWork *persona);
 extern u16 *datPersonaGetRecord(u16 pcId);
 
@@ -581,7 +581,7 @@ void sflDataLoadPersonaState(void *work, s16 pcId)
         PersonaWork *other = (PersonaWork *)datPersonaGetRecord((u16)pcId);
         u32 next = datPersonaGetExpToNextLevel(other);
         // Retail subtracts in 32 bits, then applies a signed lower clamp.
-        remaining = (s32)(next - datPersonaGetNextExp((s32)other));
+        remaining = (s32)(next - datPersonaGetExp((s32)other));
         if (remaining < 0)
             remaining = 0;
         *(s32 *)(state + 12) = remaining;

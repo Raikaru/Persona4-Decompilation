@@ -26,7 +26,7 @@ extern char D_0063F2A0[];
 extern char D_007488E8[];
 
 
-extern u32 func_00106a90(s16 arg0);
+extern u32 datItemPrice(s16 arg0);
 extern u8 *D_00882F40[];
 extern s32 D_0063F2B0[];
 extern u8 D_00793E80[];
@@ -540,8 +540,8 @@ s32 func_002b3230(const void *arg0, const void *arg1) {
     u32 y;
 
     b = *(const s16 *)arg1;
-    x = func_00106a90(*(const s16 *)arg0);
-    y = func_00106a90(b);
+    x = datItemPrice(*(const s16 *)arg0);
+    y = datItemPrice(b);
     if (x < y) {
         return 1;
     }

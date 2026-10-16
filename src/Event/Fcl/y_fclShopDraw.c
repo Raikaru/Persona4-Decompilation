@@ -190,7 +190,7 @@ void chkmemAllocSiteTag(const void *, u32);
 
 s32 fclShopItemPanelUpdate(u8 *task);
 void memcpy(void *, s32, s32);
-s32 func_002b89a0(void *);
+s32 fclSpriteUpdateTweens(void *);
 void *PrimAllocQueueNode(void);
 void func_00460ac0(void *, void *);
 /* measured: the second parameter is u8 - a u8 lvalue passed to a u8 parameter is a
@@ -269,7 +269,7 @@ void func_002e0970(void *, FclDrawColor, FclDrawColor, s32, s32, s32);
 void func_002e09b0(void *, f32, s16);
 void func_002e0be0(s32, Vec2f, f32, s32, u8, s32, u8 *);
 u32 func_002e7a60(void);
-u32 func_00106a90(s16);
+u32 datItemPrice(s16);
 s8 yListKind(void);
 f32 func_002b2aa0(s32, f32, f32, f32, f32);
 s32 func_002e2700(void *);
@@ -1313,7 +1313,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                     yListAuxValueAtFor((*(void * *)(work + 0xF18)), (s32) var_16_17);
                     temp_20 = (s16) (temp_18_32);
                     func_002b2cb0(clndGetMoonPhase(temp_20) & 0xFF, func_00106600(temp_18_32) & 0xFF, 0xFF, 0, 1);
-                    temp_4_5 = (*(s32 *)(work + 0xC20)) + ((func_00106a90(temp_20) / 5U) * (func_00106600(temp_18_32) & 0xFF));
+                    temp_4_5 = (*(s32 *)(work + 0xC20)) + ((datItemPrice(temp_20) / 5U) * (func_00106600(temp_18_32) & 0xFF));
                     (*(s32 *)(work + 0xC20)) = temp_4_5;
                     (*(s32 *)(work + 0xC20)) = func_002b2cb0(temp_4_5, 0, 0x98967F, 0, 1);
                 }
@@ -1640,11 +1640,11 @@ s32 fclShopStateUpdate(u8 *arg0)
         break;
     case 0x1B:                                      /* switch 1 */
         func_002cb6c0(arg0, 0);
-        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         break;
     case 0x1C:                                      /* switch 1 */
         func_002cb6c0(arg0, 1);
-        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         for (var_21_3 = 0; var_21_3 < 2; var_21_3++) {
             temp_19_6 = func_002e04e0((*(void * *)(work + 0xDC8)));
             temp_18_43 = func_002e04e0((*(void * *)(work + 0xDD0)));
@@ -1686,14 +1686,14 @@ s32 fclShopStateUpdate(u8 *arg0)
         break;
     case 0x1D:                                      /* switch 1 */
         fclShopDrawStats(arg0);
-        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         fclShopDrawItemText(arg0, (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), func_002b2970(51.0f, 48.0f), (void *) func_002b2a30(0xFFU, 0xFFU, 0xFFU, 0xFFU));
         if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
             sdkSndStartStream(0, 0, 0, 6);
             func_002bb550((*(s8 *)(work + 0x10)));
-            func_002e7a80(func_002e7a60() - func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
+            func_002e7a80(func_002e7a60() - datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
             sp698.v0 = yListValueAt((*(s16 *)(work + 2)));
             sp698.v1 = 0;
             (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 4, &sp698, 1);
@@ -1709,7 +1709,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     case 0x1E:                                      /* switch 1 */
         fclShopDrawStats(arg0);
         fclShopDrawItemText(arg0, (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), func_002b2970(51.0f, 48.0f), (void *) func_002b2a30(0xFFU, 0xFFU, 0xFFU, 0xFFU));
-        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else {
@@ -1737,12 +1737,12 @@ s32 fclShopStateUpdate(u8 *arg0)
     case 0x1F:                                      /* switch 1 */
         fclShopDrawStats(arg0);
         func_002cb6c0(arg0, 1);
-        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else {
             if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
-                func_002e7a80(func_002e7a60() + (func_00106a90(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) >> 2));
+                func_002e7a80(func_002e7a60() + (datItemPrice(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) >> 2));
                 sdkSndStartStream(0, 0, 0, 6);
             } else {
                 func_00106620(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7))), ((func_00106600(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) & 0xFF) + 1) & 0xFF);
@@ -1754,7 +1754,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         break;
     case 0x20:                                      /* switch 1 */
         func_002cb6c0(arg0, 1);
-        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         if ((((s8) (func_002e0570((*(void * *)(work + 0xDC8)), 9))) == 0) && (((s8) (func_002e0570((*(void * *)(work + 0xDD0)), 9))) == 0)) {
             func_002e0940((*(void * *)(work + 0xD6C)), -14.0f, 110.0f, 0, 4, 0);
             tbl = (f32 *) D_0063F7D0;
@@ -1927,7 +1927,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                 sdkSndStartStream(0, 1, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
                 if (yListCount() > 0) {
-                    if ((func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) <= func_002e7a60()) && ((func_00106600((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) < 0x63)) {
+                    if ((datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) <= func_002e7a60()) && ((func_00106600((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) < 0x63)) {
                         sp688.v0 = yListValueAt((*(s16 *)(work + 2)));
                         sp688.v1 = 0;
                         (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 1, &sp688, 1);
@@ -1946,7 +1946,7 @@ block_368:
         }
         break;
     case 0x22:                                      /* switch 1 */
-        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
+        func_002cacd0(func_002b2970((f32) 0x24E, 61.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x11, 5, datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))), 0x70, 0x7A, (s32) resourceFindByName((char *)(&D_0063FAA0)), (s32) resourceFindByName((char *)(&D_0063FAA0)), 0xAA);
         func_002cb6c0(arg0, 0);
         if ((((s8) (func_002e05a0((*(void * *)(work + 0xD70))))) == 0) && (((s8) (func_002e05a0((*(void * *)(work + 0xD7C))))) == 0) && (((s8) (func_002e05a0((*(void * *)(work + 0xC8C))))) == 0) && (((s8) (func_002e05a0((*(void * *)(work + 0xC90))))) == 0)) {
             (*(s8 *)(work + 0)) = 0x1B;
@@ -1968,7 +1968,7 @@ block_368:
             sp680.v1 = 0;
             (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 4, &sp680, 1);
             func_002d6190(arg0);
-            func_002e7a80(func_002e7a60() - func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
+            func_002e7a80(func_002e7a60() - datItemPrice((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
             (*(s8 *)(work + 0)) = 0x1E;
         } else {
             func_002bb550((*(s8 *)(work + 0x10)));
@@ -2017,7 +2017,7 @@ block_368:
                 var_19_4 = 0;
                 for (var_18_5 = 1; var_18_5 < yListCountFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18))); var_18_5++) {
                     temp_2_85 = yListValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_18_5);
-                    var_19_4 += (func_00106a90(temp_2_85) / 5U) * (func_00106600(temp_2_85) & 0xFF);
+                    var_19_4 += (datItemPrice(temp_2_85) / 5U) * (func_00106600(temp_2_85) & 0xFF);
                 }
                 sprintf(spD0, iGpffffa880, func_002b2cb0(var_19_4, 0, 0x98967F, 0, 1));
                 (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 6, spD0, 1);
@@ -2203,7 +2203,7 @@ block_368:
                         }
                     }
                 }
-                temp_16_77 = func_00106a90((s32) temp_19_7) / 5U;
+                temp_16_77 = datItemPrice((s32) temp_19_7) / 5U;
                 temp_2_yen = func_002e7a60();
                 func_002e7a80(temp_2_yen + ((*(s16 *)(work + 0x12)) * temp_16_77));
                 func_00106620(temp_19_7, ((func_00106600(temp_19_7) & 0xFF) - (*(s16 *)(work + 0x12))) & 0xFF);
@@ -2217,7 +2217,7 @@ block_368:
                         yListAuxValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_19_5);
                         temp_16_79 = (s16) (temp_21_5);
                         func_002b2cb0((clndGetMoonPhase(temp_16_79) & 0xFF), func_00106600(temp_21_5) & 0xFF, 0xFF, 0, 1);
-                        temp_4_12 = (*(s32 *)(work + 0xC20)) + ((func_00106a90(temp_16_79) / 5U) * (func_00106600(temp_21_5) & 0xFF));
+                        temp_4_12 = (*(s32 *)(work + 0xC20)) + ((datItemPrice(temp_16_79) / 5U) * (func_00106600(temp_21_5) & 0xFF));
                         (*(s32 *)(work + 0xC20)) = temp_4_12;
                         (*(s32 *)(work + 0xC20)) = func_002b2cb0(temp_4_12, 0, 0x98967F, 0, 1);
                     }
@@ -2278,7 +2278,7 @@ block_368:
                     temp_19_8 = yListValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_18_6);
                     yListAuxValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_18_6);
                     datSetStateTableEntry(temp_19_8, func_002b2cb0((clndGetMoonPhase(temp_19_8) & 0xFF), func_00106600(temp_19_8) & 0xFF, 0xFF, 0, 1) & 0xFF);
-                    temp_16_85 = (func_00106a90(temp_19_8) / 5U) * (func_00106600(temp_19_8) & 0xFF);
+                    temp_16_85 = (datItemPrice(temp_19_8) / 5U) * (func_00106600(temp_19_8) & 0xFF);
                     temp_2_yen = func_002e7a60();
                     func_002e7a80(temp_2_yen + temp_16_85);
                     func_00106620(temp_19_8, 0);
@@ -3198,7 +3198,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
             textColor = func_002b2a30(0xFF, 0xAE, 0, ((u8 *)func_002e04e0(work->fC8C))[0x62]);
             iconColor = func_002b2a30(0, 0xFF, 0xAE, 0);
             rowColor = func_002b2a60(0xFF, 0xAE, 0, ((u8 *)func_002e04e0(work->fC8C))[0x62]);
-            stock = func_00106a90((s16)yListValueAt(cur));
+            stock = datItemPrice((s16)yListValueAt(cur));
             if (stock > func_002e7a60() || (func_00106600((s16)yListValueAt(cur)) & 0xFF) == 0x63) {
                 textColor = func_002b2a30(0xA6, 0x7F, 0x2B, ((u8 *)func_002e04e0(work->fC8C))[0x62]);
                 iconColor = func_002b2a30(0, 0xA6, 0x7F, 0x2B);
@@ -3233,7 +3233,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
             pos = *(Vec2f *)&sp1C8;
             frFontExDrawTextDeferredWithCharWidth(pos.x, pos.y, 70.0f, textColor, 0, 1, ((void *)datGetItemNameId((s16)yListValueAt(cur))), 0, 0, D_00795E30, -1);
             sp1C0 = func_002b2970(498.0f, 142.0f + (f32)rowY);
-            func_002cacd0(sp1C0, 70.0f, rowColor, 0x10, 5, func_00106a90((s16)yListValueAt(cur)), 9, 0x7B,
+            func_002cacd0(sp1C0, 70.0f, rowColor, 0x10, 5, datItemPrice((s16)yListValueAt(cur)), 9, 0x7B,
                           (s32)resourceFindByName((char *)(D_0063FB50)), (s32)work->fF28, 0xA9);
         }
     }
@@ -3336,7 +3336,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
         fclShopSlideIndicator(arg0, 1);
     } else if (D_008C024E[0] & 0x40) {
         if (yListCount() > 0) {
-            stock = func_00106a90((s16)yListValueAt(work->f2));
+            stock = datItemPrice((s16)yListValueAt(work->f2));
             if (stock <= func_002e7a60() && (func_00106600((s16)yListValueAt(work->f2)) & 0xFF) < 0x63) {
                 sdkSndStartStream(0, 0, 0, 1);
                 work->fF3E = *(FclDrawColor *)((u8 *)func_002e04e0(work->fDC8) + 0x79);
@@ -3800,7 +3800,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
             func_002cacd0(sp1C0, 1.0f, white0, 0x11, 5, work->fC20, 0x70, 0x7A,
                           (s32)resourceFindByName((char *)(D_0063FAA0)), (s32)resourceFindByName((char *)(D_0063FAA0)), 0xAA);
         } else {
-            price = func_00106a90((s16)item) / 5;
+            price = datItemPrice((s16)item) / 5;
             sp1B8 = func_002b2970((f32)0x24E, 61.0f);
             white1 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
             func_002cacd0(sp1B8, 1.0f, white1, 0x11, 5, work->qty * price, 0x70, 0x7A,
@@ -3905,7 +3905,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
                         func_002e0ca0(0x1B, sp1E0, 115.0f, iconColor, 0xFF, 0, D_00795E60);
                     }
                     shopDrawLabel(115.0f, ((void *)datGetItemNameId((s16)yListValueAtFor(work->list[work->sel], cur))), func_002b2970(53.0f + sp1D0.x, 7.0f + sp1D0.y), textColor);
-                    digits = func_00106a90((s16)yListValueAtFor(work->list[work->sel], cur)) / 5;
+                    digits = datItemPrice((s16)yListValueAtFor(work->list[work->sel], cur)) / 5;
                     func_002cacd0(func_002b2970(372.0f + sp1D0.x, 16.0f + sp1D0.y), 115.0f, rowColor, 0x10, 5, digits, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)work->font, 0xA9);
                     func_002e0b20(0x47, func_002b2970(400.0f + sp1D0.x, 18.0f + sp1D0.y), 115.0f, iconColor, 0xFF, 0, D_00795E60);
                     func_002cacd0(func_002b2970((f32)0x1AF + sp1D0.x, 16.0f + sp1D0.y), 115.0f, rowColor, 0x10, 5, func_00106600((s16)yListValueAtFor(work->list[work->sel], cur)) & 0xFF, 9, 0x7B,
@@ -4446,11 +4446,11 @@ s32 fclShopListInputStep(void *arg0)
     fclShopDrawItemText(arg0, work->kind[work->sel], sp238, (void *)func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
     sp230 = func_002b2970((f32)0x24E, 61.0f);
     c2A4 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
-    func_002cacd0(sp230, 1.0f, c2A4, 0x11, 5, func_00106a90((s16)yListValueAt(work->f2)), 0x70, 0x7A,
+    func_002cacd0(sp230, 1.0f, c2A4, 0x11, 5, datItemPrice((s16)yListValueAt(work->f2)), 0x70, 0x7A,
                   (s32)resourceFindByName((char *)(D_0063FAA0)), (s32)resourceFindByName((char *)(D_0063FAA0)), 0xAA);
     if (func_002e05a0(work->fC60) == 0 && func_002e05a0(work->fC80) == 0 && func_002e05a0(work->fC70) == 0 &&
         func_002e05a0(work->fC84) == 0 && func_002e05a0(work->fC74) == 0 && func_002e05a0(work->fC78) == 0) {
-        stock = func_00106a90((s16)yListValueAt(work->f2));
+        stock = datItemPrice((s16)yListValueAt(work->f2));
         if (stock > func_002e7a60() || (func_00106600((s16)yListValueAt(work->f2)) & 0xFF) == 0x63) {
             colA = func_002b2a30(0, 0xA6, 0x7F, 0x2B);
             c2AC = func_002b2a60(0xA6, 0x7F, 0x2B, 0xFF);
@@ -4614,7 +4614,7 @@ s32 fclShopListInputStep(void *arg0)
             func_002e0b20(0x36, sp1B8, 87.0f, func_002b2a30(0xFF, 0xFF, 0x6D, 0x31), ((u8 *)func_002e04e0(work->fC98))[0x62], 0, D_00794EA0);
         }
         sp1B0 = func_002b2970((f32)0x219, 266.0f);
-        func_002cacd0(sp1B0, 70.0f, c2AC, 0x10, 5, func_00106a90((s16)yListValueAt(work->f2)), 9, 0x7B,
+        func_002cacd0(sp1B0, 70.0f, c2AC, 0x10, 5, datItemPrice((s16)yListValueAt(work->f2)), 9, 0x7B,
                       (s32)resourceFindByName((char *)(D_0063FB50)), (s32)work->fF28, 0xA9);
         if (datItemValue(func_00106cd0(work->kind[work->sel], work->f7)) == 0) {
             for (dash2 = 0; dash2 < 0xF; dash2++) {
@@ -6118,7 +6118,7 @@ void func_002d8a60(void *arg0, s8 arg1, f32 x, f32 y) {
                 frFontExDrawTextDeferredWithCharWidth(pos.x, pos.y, 141.0f, textColor, 0, 1,
                               ((void *)datGetItemNameId((s16)yListValueAtFor(work->list[idx], cur))),
                               0, 0, D_00795E30, -1);
-                digits = func_00106a90((s16)yListValueAtFor(work->list[idx], cur)) / 5;
+                digits = datItemPrice((s16)yListValueAtFor(work->list[idx], cur)) / 5;
                 sp150 = func_002b2970(362.0f + fx, 142.0f + (f32)(row * 32));
                 func_002cacd0(sp150, 141.0f, c20C, 0x10, 5, digits, 9, 0x7B,
                               (s32)resourceFindByName((char *)(D_0063FB50)), (s32)work->font, 0xA9);
@@ -6759,7 +6759,7 @@ static inline void shopDrawStatAt(u32 raw, u32 value, Vec2f pos)
    func_001068e0, func_00106940, func_00106970, func_00106600, datItemValue)
    take int, as retail passes the int item id to them unextended, and
    func_00106cd0 returns int; call sites that retail narrows (the
-   func_00106a90 argument here, the func_00106cd0 results in
+   datItemPrice argument here, the func_00106cd0 results in
    func_002d5040/func_002de5a0) carry an explicit (s16).  The slot pointer is
    indexed as ((void **)(work + 0xF18))[kind], which gives retail's
    `addu idx, idx, work`.  The outer dispatch is a switch written 1, 2, 0
@@ -6797,7 +6797,7 @@ void func_002dd3b0(void *arg0) {
     }
     id = yListValueAtFor(((void **)(work + 0xF18))[*(s8 *)(work + 0x11)], *(s16 *)(work + 2));
     shopDrawLabel(70.0f, (const char *)((void *)datGetItemNameId(id)), func_002b2970(129.0f, 134.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
-    count = func_00106a90((s32)id) / 5U;
+    count = datItemPrice((s32)id) / 5U;
     func_002cacd0(func_002b2970(486.0f, 145.0f), 70.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
     func_002e0b20(0x47, func_002b2970((f32)0x202, 147.0f), 70.0f, func_002b2a30(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
     func_002cacd0(func_002b2970((f32)0x221, 145.0f), 70.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, func_00106600(id) & 0xFF, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
@@ -6940,7 +6940,7 @@ void func_002de5a0(void *arg0) {
    right-to-left argument binding gives retail's colour / constructor copy /
    name order.
    arg1 is an s16 item id: it is passed unchanged to datEntryGetFlags and
-   datGetItemNameId, and widened with (s32) for func_00106a90, which retail
+   datGetItemNameId, and widened with (s32) for datItemPrice, which retail
    re-extends. */
 // Draws the item detail block (header, name, count, and the flag icon) for item arg1; arg2 is the draw alpha/mode.
 // FUN_002DF020
@@ -6964,7 +6964,7 @@ void fclShopDrawItemDetail(void *arg0, s16 arg1, s32 arg2) {
         break;
     }
     shopDrawLabel(13.0f, (const char *)((void *)datGetItemNameId(arg1)), func_002b2970(140.0f, 178.0f), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
-    count = func_00106a90((s32)arg1) / 5U;
+    count = datItemPrice((s32)arg1) / 5U;
     func_002cacd0(func_002b2970(448.0f, 185.0f), 13.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
     func_002e0b20(0x47, func_002b2970(476.0f, 187.0f), 13.0f, func_002b2a30(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
     pos = uGpffffa888;
@@ -7149,7 +7149,7 @@ void fclShopDrawItemText(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
 s32 fclShopItemPanelUpdate(u8 *arg0) {
     ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
 
-    memcpy((u8 *)work + 4, func_002b89a0(&work->field_4), 0xF0);
+    memcpy((u8 *)work + 4, fclSpriteUpdateTweens(&work->field_4), 0xF0);
     if (func_002e0570(arg0, 0) == 1) {
         if (func_002e0570(arg0, 0xD) == 1) {
             void *t = PrimAllocQueueNode();

@@ -1068,7 +1068,7 @@ void datEntryDrawRow(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
     f32 temp_1;
     s32 temp_2;
     
-    s32 func_00106a90(s16);
+    s32 datItemPrice(s16);
     void sprintf(void *, void *, s32);
     s32 resourceFindByName(void *);
     void kAssertFail(void *, s32);
@@ -1134,7 +1134,7 @@ void datEntryDrawRow(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
         xy.values[1] = arg0.y;
         temp16 = ((arg1 & 0xFF) * 0xFF) / 255U;
         sprintf(buf, &iGpffff9be8,
-                      func_00106a90(*(s16 *)arg2));
+                      datItemPrice(*(s16 *)arg2));
         frFontExDrawText(
             (f32)(s32)xy.values[0],
             (f32)(s32)xy.values[1],

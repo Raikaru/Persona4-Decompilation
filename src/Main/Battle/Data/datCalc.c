@@ -59,7 +59,7 @@ extern u8 datCalcGetBattleStat(u8 *arg0, s32 arg1);
 extern u16 func_002439c0(u8 *arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern u16 datItemValue(s16 arg0);
-extern u16 func_00106a30(s16 arg0);
+extern u16 datItemElement(s16 arg0);
 extern u32 datItemGrantedSkill(s16 arg0);
 
 extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
@@ -3262,7 +3262,7 @@ s32 datCalcSkillElement(u8 *arg0, u16 arg1)
         if (*(u16 *)arg0 & 4) {
             v = iGpffffb3c4[*(u16 *)(arg0 + 2) * 0x3C + 0x38];
         } else {
-            v = (s16)func_00106a30((s16)((u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
+            v = (s16)datItemElement((s16)((u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
         }
     } else {
         v = (s8)iGpffffb3b4[(arg1 & 0xFFFF) * 2];
@@ -3840,7 +3840,7 @@ s32 arg3;
                 *(u16 *)(arg0 + 2) * 0x3C, (u32)iGpffffb3c4) + 0x38);
             rawElement = (s16)enemyElement;
         } else {
-            rawElement = (s16)func_00106a30(
+            rawElement = (s16)datItemElement(
                 (s16)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 0));
         }
     } else {
@@ -4138,7 +4138,7 @@ s32 arg4;
             lvl = (s16)enemyElement;
         } else {
             element = func_00106cd0(*(s16 *)(arg0 + 2), 0);
-            lvl = (s16)func_00106a30((s16)element);
+            lvl = (s16)datItemElement((s16)element);
         }
     } else {
         idx = (u32)arg2 % 0x10000U;
@@ -4311,7 +4311,7 @@ s32 arg4;
             partyPtr = (u8 *)(partyOffset + (s32)iGpffffb3c4);
             value = (s16)partyPtr[0x38];
         } else {
-            value = (s16)func_00106a30((s16)((u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
+            value = (s16)datItemElement((s16)((u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
         }
     } else {
         value = *(s8 *)(iGpffffb3b4 + (u32)(u16)arg2 * 2);
@@ -4734,7 +4734,7 @@ done2:
         if (*(u16 *)arg0 & 4) {
             value = *(u8 *)((u8 *)PTDatCalcOffsetAdd(*(u16 *)(arg0 + 2) * 0x3C, (u32)iGpffffb3c4) + 0x38);
         } else {
-            value = (s16)func_00106a30((s16)((u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
+            value = (s16)datItemElement((s16)((u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
         }
     } else {
         value = *(s8 *)(iGpffffb3b4 + (u32)(u16)arg1 * 2);

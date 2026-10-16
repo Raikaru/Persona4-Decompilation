@@ -764,7 +764,7 @@ lists a persona's learnable skills in its level range (its comment and
 `datPersonaGetExpForLevel(persona, level)` is the experience curve.
 
 The player's persona stock is save data. Its named accessors are in
-`src/g_data/g_data.c`: `datPersonaGetLevel`, `datPersonaGetNextExp`,
+`src/g_data/g_data.c`: `datPersonaGetLevel`, `datPersonaGetExp`,
 `datPersonaGetSkills`, `datPersonaAddToBonusStatByPcId`, and others.
 
 ### Persona and skill screens (`shd`)

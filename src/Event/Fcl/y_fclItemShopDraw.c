@@ -60,7 +60,7 @@ void chkmemAllocSiteTag(const void *, u32);
 void yListDestroy(void);
 void H_Cdvd_Destroy(void *);
 void sdkSpriteRelease(void *);
-s32 func_00106a90(s64);
+s32 datItemPrice(s64);
 void *sdkSpriteNewNode(void *, s32, ...);
 void yListCreate(s32, s32, s32, s32);
 f32 sdkSpriteScaledWidth(void *);
@@ -86,7 +86,7 @@ extern u32 fclItemShopDiscountedPrice(void *arg0, s32 arg1);
 s32 func_002b2cb0(s32, s32, s32, s32, s8);
 s32 func_002b2d00(s32, s32, s32, s32, s8);
 void memcpy(void *, s32, s32);
-s32 func_002b89a0(void *);
+s32 fclSpriteUpdateTweens(void *);
 void *PrimAllocQueueNode(void);
 void func_00460ac0(void *, void *);
 s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
@@ -1914,9 +1914,9 @@ void fclItemShopDrawList(u8 *arg0)
 // FUN_0033CBC0
 u32 fclItemShopDiscountedPrice(void *arg0, s32 arg1) {
     u8 *work = *(u8 **)((u8 *)arg0 + 0x38);
-    u32 d = (u32)((s32)(*(s8 *)(work + 9) * (s32)func_00106a90((s64)(s16)arg1)) * 0x14) / 100U;
+    u32 d = (u32)((s32)(*(s8 *)(work + 9) * (s32)datItemPrice((s64)(s16)arg1)) * 0x14) / 100U;
 
-    return (u32)func_00106a90((s64)(s16)(s32)arg1) - d;
+    return (u32)datItemPrice((s64)(s16)(s32)arg1) - d;
 }
 
 // Item panel task update callback: runs each frame for the panel's work block.
@@ -1935,7 +1935,7 @@ s32 fclItemShopPanelUpdate(u8 *arg0) {
     u8 *callback_work;
 
     callback_work = *(u8 **)((u8 *)arg0 + 0x38);
-    memcpy(callback_work + 4, func_002b89a0(callback_work + 4), 0xF0);
+    memcpy(callback_work + 4, fclSpriteUpdateTweens(callback_work + 4), 0xF0);
     if (func_0033d390((u8 *)arg0, 0xA) == 1) {
         temp_4 = *(s16 *)(callback_work + 0x38);
         if (temp_4 == 0) {
