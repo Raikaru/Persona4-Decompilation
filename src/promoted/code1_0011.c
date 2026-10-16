@@ -223,8 +223,9 @@ s32 calIsCurrentMonthDay(s32 arg0, s32 arg1, s32 arg2) {
     return 0;
 }
 
+// Intent: Return 1 when day count arg0 lies between the start month-day (arg1, arg2) and the end month-day (arg3, arg4), by summed month lengths [inferred]
 // FUN_001106F0
-s32 func_001106f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+s32 calIsDayInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     s32 temp_6;
     s32 var_11;
@@ -289,8 +290,9 @@ void func_00110810(s32 arg0, u8 arg1)
 
 
 
+// Intent: Return a day-table value for day arg0 and phase arg1: a flag-based result for today's date, else the byte from the day table [inferred]
 // FUN_00110850
-s64 func_00110850(s32 arg0, u32 arg1)
+s64 calGetDayTableValue(s32 arg0, u32 arg1)
 {
     s32 temp_4;
     s32 temp_5;
@@ -523,8 +525,9 @@ void func_00110e70(s32 arg0)
     iGpffffb1b4 = arg0;
 }
 
+// Intent: Capture the current save state into the state buffer and mark it pending [inferred]
 // FUN_00110E80
-void func_00110e80(void) {
+void calCaptureStateImage(void) {
     s32 sp3C;
     u8 *p;
     s32 n;
@@ -539,8 +542,9 @@ void func_00110e80(void) {
 
 /* measured: opt_propagation off is required to preserve retail GP-load argument materialization order. */
 #pragma opt_propagation off
+// Intent: Restore the captured state image when one is pending, then clear the pending flag [inferred]
 // FUN_00110F00
-s32 func_00110f00(void)
+s32 calRestoreStateImage(void)
 {
     s32 temp_16;
     s32 temp_17;
@@ -569,7 +573,7 @@ s32 func_00110f00(void)
     }
     return var_2;
 }
-/* measured: restore opt_propagation after func_00110f00. */
+/* measured: restore opt_propagation after calRestoreStateImage. */
 #pragma opt_propagation on
 // FUN_00110FC0
 void func_00110fc0(void) {
@@ -1576,8 +1580,9 @@ void func_00115830(u8 *arg0) {
 s32 func_0011fcf0(u8 *arg0) {
     return *(s32 *)(*(u8 **)(arg0 + 0x38) + 8) == 8;
 }
+// Intent: Destroy a task and its hierarchy through the kwln task destroy call; same body as shdPersonaDestroyTask [inferred]
 // FUN_0011FD10
-void func_0011fd10(s32 task) {
+void kwlnTaskDestroyHierarchyAlt(s32 task) {
     kwlnTaskDestroyWithHierarchy((KwlnTask *)task);
 }
 // FUN_0011FD30

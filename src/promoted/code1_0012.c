@@ -63,7 +63,7 @@ extern char D_00796340[];
 extern char D_00795F50[];
 extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
-extern s32 func_00110850(s16 arg0, s16 arg1);
+extern s32 calGetDayTableValue(s16 arg0, s16 arg1);
 extern s32 func_0015a160(void);
 extern s32 evtHasTaskHandle(void);
 extern s32 iGpffffb1c8;
@@ -932,7 +932,7 @@ s32 calendarStateTask(u8 *unusedTask)
         calendar->daysSinceApr5 = (s16)datGetDateIndex();
         calendar->period = datGetTimeSlot() & 0xFF;
         calendar->field_08 =
-            (s8)func_00110850(calendar->daysSinceApr5, calendar->period);
+            (s8)calGetDayTableValue(calendar->daysSinceApr5, calendar->period);
         calendarSetMode(0);
         calendar->state = 2;
         break;
@@ -1243,7 +1243,7 @@ void func_00123850(void) {
         t = datGetTimeSlot() & 0xFF;
         p->period = (s16)t;
         first = p->daysSinceApr5;
-        p->field_08 = (s8)func_00110850(first, (s16)t);
+        p->field_08 = (s8)calGetDayTableValue(first, (s16)t);
     }
 }
 /* measured: closes the optimization_level bracket at the file's -O2 baseline (nd 0). */
