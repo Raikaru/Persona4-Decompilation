@@ -59,7 +59,7 @@ extern u8 D_0064A458[];
 extern u8 D_0064A470[];
 extern u8 D_0064A480[];
 extern s32 fclBustupUpdate(u8 *arg0);
-extern void func_0033e4b0(u8 *arg0);
+extern void fclBustupDraw(u8 *arg0);
 extern s32 fclPackRgba(u8, u8, u8, u8);
 extern f32 fclEaseInterpolate(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
@@ -106,54 +106,54 @@ extern u8 D_00645240[];
 extern u8 D_0064A000[];
 
 // FUN_00331560
-s32 func_00331560(void)
+s32 fclCombineGetSpritePool(void)
 {
     return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 4);
 }
 
 // FUN_00331580
-s32 func_00331580(void)
+s32 fclCombineInPreviewState(void)
 {
     return *(s8 *)(*(int *)(iGpffffb598 + 0x38)) == 6;
 }
 // FUN_003315A0
-void func_003315a0(void)
+void fclCombineRequestRefresh(void)
 {
     *(s8 *)(*(int *)(iGpffffb598 + 0x38) + 0x45) = 1;
 }
 
 // FUN_003315C0
-s32 func_003315c0(void)
+s32 fclCombineGetRaster(void)
 {
     return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 0x24);
 }
 
 // FUN_003315E0
-s32 func_003315e0(void)
+s32 fclCombineGetTexture(void)
 {
     return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 0x28);
 }
 
 // FUN_00331600
-s32 func_00331600(void)
+s32 fclCombineGetSpriteList(void)
 {
     return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 0x2C);
 }
 
 // FUN_00331620
-s32 *func_00331620(void)
+s32 *fclCombineGetCardTable(void)
 {
     return *(s32 **)(*(int *)(iGpffffb598 + 0x38) + 0x30);
 }
 
 // FUN_00331640
-s8 func_00331640(void)
+s8 fclCombineGetRowCount(void)
 {
     return *(s8 *)(*(int *)(iGpffffb598 + 0x38) + 0x44);
 }
 
 // FUN_00331660
-s32 func_00331660(void)
+s32 fclCombineGetMesWindow(void)
 {
     return *(s32 *)(*(int *)(*(int *)(iGpffffb598 + 0x38) + 0x20) + 0x110);
 }
@@ -252,12 +252,12 @@ s32 func_00331860(void)
     return 0;
 }
 // FUN_00331980
-s32 func_00331980(void)
+s32 fclScriptFlagIsSet(void)
 {
     return datGetFlag(scrGetParamInt(0)) != 0;
 }
 // FUN_003319C0
-s32 func_003319c0(void) {
+s32 fclScriptSetFlagOnButton(void) {
     s32 r;
 
     if ((D_008C024E[0] & 0x800) != 0) {
@@ -370,8 +370,9 @@ void weaponShopTalkDestroy(u8 *arg0)
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
+// Identical to fclMiscInitRenderStates (fclMisc_inferred_002be1e0.c).
 // FUN_00332A80
-void func_00332a80(void)
+void fclCombineInitRenderStates(void)
 {
     void (**tbl)(s32, s32);
 
@@ -387,7 +388,7 @@ void func_00332a80(void)
     RpSkyRenderStateSet(3, 0x7100D);
 }
 // FUN_00332B60
-void func_00332b60(u8 *arg0, u8 *arg1)
+void fclCombineDrawMoney(u8 *arg0, u8 *arg1)
 {
     shdDrawNumberText(*(Vec2f *)(arg1 + 0x1E0), 1.0f, 0xFF, fclGetMoney());
 }
@@ -470,7 +471,7 @@ void fclBustupObjStartTween(u8 *arg0, f32 fparg0, f32 fparg1, u8 arg1, s32 arg2,
 /* measured: opt_propagation off preserves the per-call field loads and the
    argument materialisation order for fclSpriteStartRevealScale. */
 #pragma opt_propagation off
-void func_0033d550(u8 *arg0)
+void fclBustupStartSlide(u8 *arg0)
 {
     s16 h;
     u8 b1;
@@ -696,10 +697,10 @@ s32 fclBustupUpdate(u8 *arg0)
             *(s16 *)(p + 0x26) = fclAddClamped(
                 *(s16 *)(p + 0x26), 1, *(s16 *)(p + 0x24), 0, 1);
         }
-        func_0033e4b0(arg0);
+        fclBustupDraw(arg0);
         break;
     case 3:
-        func_0033e4b0(arg0);
+        fclBustupDraw(arg0);
         break;
     }
     return 0;
@@ -711,7 +712,7 @@ void fclBustupDestroy(u8 *arg0)
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 // FUN_0033E3F0
-s32 func_0033e3f0(u8 *arg0)
+s32 fclBustupCreate(u8 *arg0)
 {
     s32 result;
     u8 *work;
@@ -724,7 +725,7 @@ s32 func_0033e3f0(u8 *arg0)
     return result;
 }
 // FUN_0033E4B0
-void func_0033e4b0(u8 *arg0)
+void fclBustupDraw(u8 *arg0)
 {
     u8 *work;
     s32 color;
@@ -753,7 +754,7 @@ void func_0033e540(u8 *arg0, F2_0033 arg1, F2_0033 arg2, s16 arg3, s16 arg4)
     *(s8 *)work = 2;
 }
 // FUN_0033E5A0
-s32 func_0033e5a0(u8 *arg0)
+s32 fclBustupIsActive(u8 *arg0)
 {
     return *(s8 *)(*(u8 **)(arg0 + 0x38)) != 0;
 }

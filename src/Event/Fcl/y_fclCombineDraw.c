@@ -102,7 +102,7 @@ extern void yListRetreatCursorScroll(s32, s32, s32, s32, s16 *, s16 *);
 extern f32 iGpffff8360;
 extern f32 iGpffff8504;
 extern void fclCombinePartyRow(u8 *, FclVec2, s32, s32, s16, s16, s8, s8);
-extern s32 func_00331560(void);
+extern s32 fclCombineGetSpritePool(void);
 
 
 extern u8 *fclSpriteWork(u8 *);
@@ -143,7 +143,7 @@ extern void fclCombineSetModel(s32, u16, s32);
 extern s32 fclCombineGetWork(u8 *);
 extern u8 datPersonaGetArcana(u16);
 extern void shdPersonaSetOpacity(u8 *, f32);
-extern s8 func_00331640(void);
+extern s8 fclCombineGetRowCount(void);
 extern void fclCombineDrawResourceAt(s32, FclVec2, f32, s32, u8, s32, f32, f32, void *);
 extern f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
 extern u8 D_00795E60[];
@@ -406,20 +406,20 @@ void fclCombineDrawListRow(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, 
     o2 = order + 2;
     sp120 = fclMakeVec2(arg2.x, arg2.y);
     c15C = fclMakeDrawColor(0, 0, 0x66, 0xFF);
-    fclSpriteStartShowHide(id, sp120, 0x1AC, c15C, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(id, sp120, 0x1AC, c15C, 154.0f, o2, arg5, 3, 3, arg4, fclCombineGetSpritePool());
     id = two + 0x1F5;
     fclSpriteReset(id, 0x1AF);
     sp130 = fclMakeVec2(258.0f + arg2.x, arg2.y);
     c158 = fclMakeDrawColor(0, 0, 0x66, 0xFF);
-    fclSpriteStartShowHide(id, sp130, 0x1AF, c158, 154.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(id, sp130, 0x1AF, c158, 154.0f, o2, arg5, 3, 3, arg4, fclCombineGetSpritePool());
     sp138 = fclMakeVec2(sp130.x - 28.0f, sp130.y);
     id = arg1 + 0x2FB;
     fclSpriteReset(id, 0x131);
     sp130 = fclMakeVec2(266.0f + arg2.x, arg2.y);
     c154 = fclMakeDrawColor(0x25, 0x2F, 0x94, 0xFF);
-    fclSpriteStartShowHide(id, sp138, 0x131, c154, 153.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(id, sp138, 0x131, c154, 153.0f, order + 3, arg5, 3, 3, arg4, fclCombineGetSpritePool());
     fclSpriteSetFlag(id, 0xE, 0);
-    h = sdkSpriteNewNode(func_00331560(), 0x131);
+    h = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x131);
     slot = (u8 **)(t + 0x258) + arg1;
     *(FclVec2 *)fclSpriteWork(*slot) = sp138;
     x = sdkSpriteScaledWidth(h);
@@ -438,22 +438,22 @@ void fclCombineDrawListRow(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 arg4, 
             r = id + 0x174;
             base = r;
             fclSpriteStartShowHide(base, sp118 = fclMakeVec2(6.0f + arg2.x + (f32)(id * 0x67), 4.0f + arg2.y), r,
-                          c150 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, o2, arg5, 3, 3, arg4, func_00331560());
+                          c150 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, o2, arg5, 3, 3, arg4, fclCombineGetSpritePool());
         }
         return;
     }
     if (datGetFlag(0x1305) != 0 && kind == 0x160) {
 
         fclSpriteStartShowHide(0x160, sp110 = fclMakeVec2(6.0f + arg2.x, 4.0f + arg2.y), 0x160,
-                      c14C = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, func_00331560());
+                      c14C = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, fclCombineGetSpritePool());
         fclSpriteReset(0x2EB, 0x16F);
         fclSpriteStartShowHide(0x2EB, sp108 = fclMakeVec2(100.0f + (6.0f + arg2.x), 4.0f + arg2.y), 0x16F,
-                      c148 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, func_00331560());
+                      c148 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF), 152.0f, base + 4, arg5, 3, 3, arg4, fclCombineGetSpritePool());
         return;
     }
     sp100 = fclMakeVec2(6.0f + arg2.x, 4.0f + arg2.y);
     c144 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
-    fclSpriteStartShowHide(arg3, sp100, arg3, c144, 152.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(arg3, sp100, arg3, c144, 152.0f, order + 4, arg5, 3, 3, arg4, fclCombineGetSpritePool());
 }
 #pragma pop
 /* measured: nd 0. Exact recipe: FclVec2 position parameter (spilled to 0xC8)
@@ -492,20 +492,20 @@ void fclCombineDrawListRowPlain(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 a
     o2 = order + 2;
     spF0 = fclMakeVec2(arg2.x, arg2.y);
     c10C = fclMakeDrawColor(0, 0, 0x66, 0xFF);
-    fclSpriteStartShowHide(res, spF0, 0x1AC, c10C, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(res, spF0, 0x1AC, c10C, 151.0f, o2, arg5, 3, 3, arg4, fclCombineGetSpritePool());
     res = two + 0x1F5;
     fclSpriteReset(res, 0x1B3);
     x = 217.0f + arg2.x;
     spE8 = fclMakeVec2(x, arg2.y);
     c108 = fclMakeDrawColor(0, 0, 0x66, 0xFF);
-    fclSpriteStartShowHide(res, spE8, 0x1B3, c108, 151.0f, o2, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(res, spE8, 0x1B3, c108, 151.0f, o2, arg5, 3, 3, arg4, fclCombineGetSpritePool());
     spF8 = fclMakeVec2(x - 28.0f, arg2.y);
     res = arg1 + 0x2FB;
     fclSpriteReset(res, 0x131);
     c104 = fclMakeDrawColor(0x25, 0x2F, 0x94, 0xFF);
-    fclSpriteStartShowHide(res, spF8, 0x131, c104, 150.0f, order + 3, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(res, spF8, 0x131, c104, 150.0f, order + 3, arg5, 3, 3, arg4, fclCombineGetSpritePool());
     fclSpriteSetFlag(res, 0xE, 0);
-    h = sdkSpriteNewNode(func_00331560(), 0x131);
+    h = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x131);
     slot = (u8 **)(t + 0x258) + arg1;
     *(FclVec2 *)fclSpriteWork(*slot) = spF8;
     x = sdkSpriteScaledWidth(h);
@@ -518,7 +518,7 @@ void fclCombineDrawListRowPlain(u8 *arg0, s8 arg1, FclVec2 arg2, s16 arg3, s16 a
     fclSpriteReset(arg3, arg3);
     spE0 = fclMakeVec2(6.0f + arg2.x, 8.0f + arg2.y);
     c100 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
-    fclSpriteStartShowHide(arg3, spE0, arg3, c100, 148.0f, order + 4, arg5, 3, 3, arg4, func_00331560());
+    fclSpriteStartShowHide(arg3, spE0, arg3, c100, 148.0f, order + 4, arg5, 3, 3, arg4, fclCombineGetSpritePool());
 }
 
 /* measured: nd 0, object 740/window 752 (the final 12 retail bytes are zero
@@ -1114,7 +1114,7 @@ void fclCombineDrawEntryCell(u8 *arg0, FclVec2 arg1, FclVec2 arg2, s8 arg3, s16 
         scale = iGpffff8360;
         *(f32 *)(fclSpriteEntry(sprite) + 0xA0) = scale;
         *(f32 *)(fclSpriteEntry(sprite) + 0xAC) = scale;
-        node = sdkSpriteNewNode(func_00331560(), (s16)sprite);
+        node = sdkSpriteNewNode(fclCombineGetSpritePool(), (s16)sprite);
         fclSpriteStartPositionAt(sprite, fclMakeVec2((5.0f + pos.x) - 2.0f * (sdkSpriteScaledWidth(node) / 10.0f), pos.y - 3.0f),
                       fclMakeVec2((5.0f + arg2.x) - 2.0f * (sdkSpriteScaledWidth(node) / 10.0f), arg2.y - 3.0f), 0, 8, arg4);
         sdkSpriteFreeNode(node);
@@ -1228,7 +1228,7 @@ void fclCombineUpdateEntryHighlight(u8 *arg0, s8 arg1, s8 arg2, s16 arg3, s16 ar
         *(f32 *)(fclSpriteEntry(icon) + 0xAC) = scale;
         *(f32 *)(fclSpriteEntry(icon) + 0x14) = 59.0f;
         *(s32 *)(fclSpriteEntry(icon) + 0x8) = 0xAB;
-        h = sdkSpriteNewNode(func_00331560(), icon);
+        h = sdkSpriteNewNode(fclCombineGetSpritePool(), icon);
         *(FclVec2 *)(fclSpriteEntry(icon) + 0x38) = fclMakeVec2((5.0f + pos.x) - 2.0f * (sdkSpriteScaledWidth(h) / 10.0f), pos.y - 3.0f);
         sdkSpriteFreeNode(h);
         c11C = fclMakeDrawColor(0xE0, 0xFF, 0x33, 0xFF);
@@ -1374,7 +1374,7 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
     c = (s8)arg2;
     arg1.y += (f32)(c * 23);
     id = (s16)(c + 0x21C);
-    hA = sdkSpriteNewNode(func_00331560(), 0x193);
+    hA = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x193);
     if ((s8)arg6 == 1) {
         fclSpriteStartAlphaAt(id, *(u8 *)(fclSpriteEntry(id) + 0x6E), 0, 0, 0, arg5 + 3);
         sc = iGpffff8504;
@@ -1402,7 +1402,7 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
     }
     sdkSpriteFreeNode(hA);
     id = (s16)(c + 0x22B);
-    hB = sdkSpriteNewNode(func_00331560(), 0x19A);
+    hB = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x19A);
     if ((s8)arg6 == 1) {
         if (*(s16 *)(t + 0x11E) == c) {
             fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, arg5 + 3);
@@ -1431,7 +1431,7 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
     }
     sdkSpriteFreeNode(hB);
     id = (s16)(c + 0x238);
-    hC = sdkSpriteNewNode(func_00331560(), 0x188);
+    hC = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x188);
     if ((s8)arg6 == 1) {
         fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, arg5 + 3);
         fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
@@ -1458,7 +1458,7 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
     }
     sdkSpriteFreeNode(hC);
     id = (s16)(c + 0x244);
-    hD = sdkSpriteNewNode(func_00331560(), 0x18C);
+    hD = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x18C);
     if ((s8)arg6 == 1) {
         fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, arg5 + 3);
         fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
@@ -1500,7 +1500,7 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
     }
     n = (s8)arg2 + 0x39;
     id = (s16)n;
-    h2 = sdkSpriteNewNode(func_00331560(), n);
+    h2 = sdkSpriteNewNode(fclCombineGetSpritePool(), n);
     if ((s8)arg6 == 1) {
         fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, arg5 + 3);
         fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
@@ -1524,7 +1524,7 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
     sdkSpriteFreeNode(h2);
     if (c < arg7) {
         id = (s16)(c + 0x250);
-        h3 = sdkSpriteNewNode(func_00331560(), (s16)((datPersonaGetArcana(arg3) & 0xFF) + 0x1B));
+        h3 = sdkSpriteNewNode(fclCombineGetSpritePool(), (s16)((datPersonaGetArcana(arg3) & 0xFF) + 0x1B));
         if ((s8)arg6 == 1) {
             fclSpriteStartAlphaAt(id, 0xFF, 0, 0, 0, arg5 + 3);
             fclSpriteStartRevealScaleAt(id, 1.0f, 1.0f, 1.0f, sc, 0, 3, arg5);
@@ -1609,7 +1609,7 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
             sprite = (s16)(rowIndex + 0x270);
             fclSpriteReset(sprite, 0x193);
             fclSpriteCreate(sprite, fclMakeVec2(position.x, rowY), 191.0f, 0x57);
-            resource = sdkSpriteNewNode(func_00331560(), 0x193);
+            resource = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x193);
             if (mode == 1) {
                 fclSpriteStartAlphaAt(sprite, ((FclCombineRowSprite *)fclSpriteEntry(sprite))->alpha, 0, 0, 0, delay + 3);
                 transitionScale = iGpffff8504;
@@ -1626,7 +1626,7 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
             sprite = (s16)(rowIndex + 0x27D);
             fclSpriteReset(sprite, 0x19B);
             fclSpriteCreate(sprite, fclMakeVec2(286.0f + position.x, rowY), 192.0f, 0x57);
-            resource = sdkSpriteNewNode(func_00331560(), 0x19B);
+            resource = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x19B);
             if (mode == 1) {
                 fclSpriteStartAlphaAt(sprite, ((FclCombineRowSprite *)fclSpriteEntry(sprite))->alpha, 0, 0, 0, delay + 3);
                 fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
@@ -1640,7 +1640,7 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
             sdkSpriteFreeNode(resource);
             sprite = (s16)(rowIndex + 0x28B);
             fclSpriteCreate(sprite, fclMakeVec2(position.x, rowY), 163.0f, 0x57);
-            resource = sdkSpriteNewNode(func_00331560(), 0x188);
+            resource = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x188);
             if (mode == 1) {
                 fclSpriteStartAlphaAt(sprite, 0xFF, 0, 0, 0, delay + 3);
                 fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
@@ -1654,7 +1654,7 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
             sdkSpriteFreeNode(resource);
             sprite = (s16)(rowIndex + 0x297);
             fclSpriteCreate(sprite, fclMakeVec2(36.0f + position.x, rowY), 163.0f, 0x57);
-            resource = sdkSpriteNewNode(func_00331560(), 0x18C);
+            resource = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x18C);
             if (mode == 1) {
                 fclSpriteStartAlphaAt(sprite, 0xFF, 0, 0, 0, delay + 3);
                 fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
@@ -1668,7 +1668,7 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
             sdkSpriteFreeNode(resource);
         }
         sprite = (s16)(rowIndex + 0x2A3);
-        resource = sdkSpriteNewNode(func_00331560(), (u16)((datPersonaGetArcana((u16)persona) & 0xFF) + 0x1B));
+        resource = sdkSpriteNewNode(fclCombineGetSpritePool(), (u16)((datPersonaGetArcana((u16)persona) & 0xFF) + 0x1B));
         if (mode == 1) {
             fclSpriteStartAlphaAt(sprite, 0xFF, 0, 0, 0, delay + 3);
             transitionScale = iGpffff8504;
@@ -1693,7 +1693,7 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
             sprite = (s16)(rowIndex + 0x270);
             fclSpriteReset(sprite, 0x193);
             fclSpriteCreate(sprite, fclMakeVec2(position.x, rowY), 191.0f, 0x57);
-            resource = sdkSpriteNewNode(func_00331560(), 0x193);
+            resource = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x193);
             if (mode == 1) {
                 fclSpriteStartAlphaAt(sprite, ((FclCombineRowSprite *)fclSpriteEntry(sprite))->alpha, 0, 0, 0, delay + 3);
                 fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
@@ -1708,7 +1708,7 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
             sprite = (s16)(rowIndex + 0x27D);
             fclSpriteReset(sprite, 0x19B);
             fclSpriteCreate(sprite, fclMakeVec2((f32)0x11D + position.x, rowY), 192.0f, 0x57);
-            resource = sdkSpriteNewNode(func_00331560(), 0x19B);
+            resource = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x19B);
             if (mode == 1) {
                 fclSpriteStartAlphaAt(sprite, ((FclCombineRowSprite *)fclSpriteEntry(sprite))->alpha, 0, 0, 0, delay + 3);
                 fclSpriteStartRevealScaleAt(sprite, 1.0f, 1.0f, 1.0f, transitionScale, 0, 3, delay);
@@ -1721,9 +1721,9 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
             }
             sdkSpriteFreeNode(resource);
             fclSpriteReset(0xCF, 0xCF);
-            fclSpriteStartShowHide(0xCF, fclMakeVec2(position.x - 10.0f, rowY - 12.0f), 0xCF, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, func_00331560());
+            fclSpriteStartShowHide(0xCF, fclMakeVec2(position.x - 10.0f, rowY - 12.0f), 0xCF, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, fclCombineGetSpritePool());
             fclSpriteReset(0xD2, 0xD2);
-            fclSpriteStartShowHide(0xD2, fclMakeVec2(282.0f + position.x, rowY - 12.0f), 0xD2, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, func_00331560());
+            fclSpriteStartShowHide(0xD2, fclMakeVec2(282.0f + position.x, rowY - 12.0f), 0xD2, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0x80), 193.0f, 0x56, mode, 3, 3, delay, fclCombineGetSpritePool());
             if (mode == 0) {
                 work->cursorPosition = fclMakeVec2(position.x - 60.0f, rowY - 8.0f);
                 fclSpriteCreate(0x1C7, fclMakeVec2(position.x - 60.0f, rowY - 8.0f), 190.0f, 0x58);
@@ -2200,7 +2200,7 @@ void fclCombineDrawSlotFields(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg
     if (t6 == 3) {
         pos.x = pos.x + 1.0f;
     }
-    h0 = sdkSpriteNewNode(func_00331560(), 0x193);
+    h0 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x193);
     fclSpriteCreate(id, fclMakeVec2(pos.x, pos.y), 191.0f, 0x57);
     c16C = fclMakeDrawColor(0, 0, 0x99, 0xFF);
     p = fclSpriteEntry(id);
@@ -2257,7 +2257,7 @@ void fclCombineDrawSlotFields(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg
         id = 0x28A;
     }
     fclSpriteReset(id, idB);
-    h1 = sdkSpriteNewNode(func_00331560(), idB);
+    h1 = sdkSpriteNewNode(fclCombineGetSpritePool(), idB);
     fclSpriteCreate(id, fclMakeVec2(pos.x, pos.y), 191.0f, 0x57);
     c168 = fclMakeDrawColor(0, 0, 0x99, 0xFF);
     p = fclSpriteEntry(id);
@@ -2288,7 +2288,7 @@ void fclCombineDrawSlotFields(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg
     if (t6 == 1) {
         pos.x = pos.x + 3.0f;
     }
-    h2 = sdkSpriteNewNode(func_00331560(), 0x51);
+    h2 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x51);
     fclSpriteCreate(id, pos, 176.0f, 0x59);
     c164 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
     p = fclSpriteEntry(id);
@@ -2317,7 +2317,7 @@ void fclCombineDrawSlotFields(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg
     if (t6 == 1) {
         pos.x = pos.x + 3.0f;
     }
-    h3 = sdkSpriteNewNode(func_00331560(), 0x52);
+    h3 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x52);
     fclSpriteCreate(id, pos, 176.0f, 0x59);
     c160 = fclMakeDrawColor(0x33, 0xCD, 0xFF, 0xFF);
     p = fclSpriteEntry(id);
@@ -2347,7 +2347,7 @@ void fclCombineDrawSlotFields(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg
     if (t6 == 1) {
         pos.x = pos.x + 3.0f;
     }
-    h4 = sdkSpriteNewNode(func_00331560(), 0x53);
+    h4 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x53);
     fclSpriteCreate(id, pos, 176.0f, 0x59);
     c15C = fclMakeDrawColor(0x33, 0xCD, 0xFF, 0xFF);
     p = fclSpriteEntry(id);
@@ -2377,7 +2377,7 @@ void fclCombineDrawSlotFields(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3, s32 arg
     if (t6 == 1) {
         pos.x = pos.x + 3.0f;
     }
-    h5 = sdkSpriteNewNode(func_00331560(), 0x73);
+    h5 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x73);
     fclSpriteCreate(id, pos, 175.0f, 0x59);
     c158 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
     p = fclSpriteEntry(id);
@@ -2444,7 +2444,7 @@ void fclCombineDrawSlotLabels(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
     f32 x;
     f32 top;
 
-    node0 = sdkSpriteNewNode(func_00331560(), 0x193);
+    node0 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x193);
     x = arg1.y;
     fclSpriteCreate(0x27C, fclMakeVec2(*(f32 *)&arg1, x), 191.0f, 0x57);
     c13C = fclMakeDrawColor(0, 0, 0x99, 0xFF);
@@ -2458,7 +2458,7 @@ void fclCombineDrawSlotLabels(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
         fclSpriteStartPositionAt(0x27C, fclMakeVec2(arg1.x, x), fclMakeVec2(arg1.x, x + sdkSpriteScaledHeight(node0) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(node0);
-    node1 = sdkSpriteNewNode(func_00331560(), 0x19B);
+    node1 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x19B);
     y = arg1.y;
     x = (f32)0x11D + arg1.x;
     fclSpriteCreate(0x289, fclMakeVec2(x, y), 191.0f, 0x57);
@@ -2474,7 +2474,7 @@ void fclCombineDrawSlotLabels(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
         fclSpriteStartPositionAt(0x289, fclMakeVec2(x, y), fclMakeVec2(x, y + sdkSpriteScaledHeight(node1) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(node1);
-    node2 = sdkSpriteNewNode(func_00331560(), 0x72);
+    node2 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x72);
     top = arg1.y;
     y = 4.0f + top;
     x = 102.0f + arg1.x;
@@ -2493,7 +2493,7 @@ void fclCombineDrawSlotLabels(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
         fclSpriteStartPositionAt(0x72, fclMakeVec2(x, y), fclMakeVec2(x, y + sdkSpriteScaledHeight(node2) / 2.0f), 0, 3, arg2);
     }
     sdkSpriteFreeNode(node2);
-    node3 = sdkSpriteNewNode(func_00331560(), 0x73);
+    node3 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x73);
     top = arg1.y;
     y = 9.0f + top;
     x = 55.0f + arg1.x;
@@ -2631,19 +2631,19 @@ void fclCombineCreateSlotIcons(u8 *arg0, s8 arg1) {
     p = (FclVec2 *)D_00644020;
     sp48 = fclMakeVec2(p->x, p->y);
     sp5C = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
-    fclSpriteStartShowHide(0x56, sp48, 0x56, sp5C, 55.0f, 0xAA, arg1, 6, 6, 0, func_00331560());
+    fclSpriteStartShowHide(0x56, sp48, 0x56, sp5C, 55.0f, 0xAA, arg1, 6, 6, 0, fclCombineGetSpritePool());
     p = (FclVec2 *)D_00644098;
     sp40 = fclMakeVec2(p->x, p->y);
     sp58 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
-    fclSpriteStartShowHide(0x65, sp40, 0x65, sp58, 56.0f, 0xAA, arg1, 6, 6, 0, func_00331560());
+    fclSpriteStartShowHide(0x65, sp40, 0x65, sp58, 56.0f, 0xAA, arg1, 6, 6, 0, fclCombineGetSpritePool());
     p = (FclVec2 *)D_00644AD0;
     sp38 = fclMakeVec2(p->x, p->y);
     sp54 = fclMakeDrawColor(0xE, 0x17, 0x49, 0x80);
-    fclSpriteStartShowHide(0x1AC, sp38, 0x1AC, sp54, 57.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
+    fclSpriteStartShowHide(0x1AC, sp38, 0x1AC, sp54, 57.0f, 0xA9, arg1, 6, 6, 0, fclCombineGetSpritePool());
     p = (FclVec2 *)D_00644B00;
     sp30 = fclMakeVec2(p->x, p->y);
     sp50 = fclMakeDrawColor(0xE, 0x17, 0x49, 0x80);
-    fclSpriteStartShowHide(0x1B2, sp30, 0x1B2, sp50, 58.0f, 0xA9, arg1, 6, 6, 0, func_00331560());
+    fclSpriteStartShowHide(0x1B2, sp30, 0x1B2, sp50, 58.0f, 0xA9, arg1, 6, 6, 0, fclCombineGetSpritePool());
 }
 
 /* The s16 row/column counters preserve retail's unextended Persona lookups.
@@ -2793,7 +2793,7 @@ void fclCombineSetupPairGrid(u8 *task, s8 entryMode) {
         fclCombinePartyRow(task, personaRowPosition, (s8)row, personaId, ((FclCombinePersonaHeader *)yListSlotEntry(0, row))->level, (s16)(row * 2), 0, (listCountByte = *(s8 *)&((FclCombinePersonaListHeader *)yListSlotWork(0))->count));
         {
             s16 columnSprite = rowIndex + 0x25E;
-            u8 *columnResource = (u8 *)sdkSpriteNewNode(func_00331560(), 0x39);
+            u8 *columnResource = (u8 *)sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
             s32 columnSpriteX;
             gridOffset = rowIndex * 23;
             columnSpriteX = gridOffset + 0x14E;
@@ -2964,7 +2964,7 @@ void fclCombineRefreshGridCells(u8 *arg0, s16 arg1) {
                       0xFF, 0xFF, 32.0f, 159.0f, 2, order, 0, 0);
         r = i + 0x25E;
         res = r;
-        h = sdkSpriteNewNode(func_00331560(), 0x39);
+        h = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
         fclSpriteStartAlphaAt(res, 0, 0xFF, 0, 0, order + 3);
         fclSpriteStartRevealScaleAt(res, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, arg1);
         xx = x + 0x14E;
@@ -3125,7 +3125,7 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                 {
                     s16 normalizedRow = ja;
                     s16 resource = (s16)((u32)normalizedRow + 0x25E);
-                    ha = sdkSpriteNewNode(func_00331560(), 0x39);
+                    ha = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
                     fclSpriteStartAlphaAt(resource, 0xFF, 0, 0, 3, 0);
                     fclSpriteStartRevealScaleAt(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                     xa = (u32)normalizedRow * 23 + 0x14E;
@@ -3172,7 +3172,7 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                     {
                         s16 normalizedRow = jb1;
                         s16 resource = (s16)((u32)normalizedRow + 0x25E);
-                        hb1 = sdkSpriteNewNode(func_00331560(), 0x39);
+                        hb1 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
                         fclSpriteStartAlphaAt(resource, 0xFF, 0, 0, 3, 0);
                         fclSpriteStartRevealScaleAt(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                         xb1 = (u32)normalizedRow * 23 + 0x14E;
@@ -3262,7 +3262,7 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
             {
                 s16 normalizedRow = jc;
                 s16 resource = (s16)((u32)normalizedRow + 0x25E);
-                hc = sdkSpriteNewNode(func_00331560(), 0x39);
+                hc = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
                 fclSpriteStartAlphaAt(resource, 0xFF, 0, 0, 3, 0);
                 fclSpriteStartRevealScaleAt(resource, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                 xc = (u32)normalizedRow * 23 + 0x14E;
@@ -3794,86 +3794,86 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
         c118 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
     }
     pt = fclMakeVec2(13.0f + pos.x, pos.y);
-    fclSpriteStartShowHide(0x12E, pt, 0x12E, c12C, 37.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x12E, pt, 0x12E, c12C, 37.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
     pt = fclMakeVec2(573 + pos.x, pos.y);
-    fclSpriteStartShowHide(0x12F, pt, 0x12F, c12C, 38.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x12F, pt, 0x12F, c12C, 38.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
     pt = fclMakeVec2(pos.x - 5.0f, (pos.y - 14.0f));
-    fclSpriteStartShowHide(0x12C, pt, 0x12C, c128, 31.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x12C, pt, 0x12C, c128, 31.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
     pt = fclMakeVec2(559 + pos.x, (pos.y - 14.0f));
-    fclSpriteStartShowHide(0x12A, pt, 0x12A, c128, 32.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x12A, pt, 0x12A, c128, 32.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
     pt = fclMakeVec2((40.0f + pos.x), (13.0f + pos.y));
-    fclSpriteStartShowHide(0x13A, pt, 0x13A, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x13A, pt, 0x13A, c124, 33.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
     pt = fclMakeVec2(24.0f + pos.x, (13.0f + pos.y));
-    fclSpriteStartShowHide(0x13C, pt, 0x13C, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x13C, pt, 0x13C, c124, 33.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
     pt = fclMakeVec2((522 + pos.x), (13.0f + pos.y));
-    fclSpriteStartShowHide(0x13B, pt, 0x13B, c124, 34.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x13B, pt, 0x13B, c124, 34.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
     pt = fclMakeVec2(562 + pos.x, (13.0f + pos.y));
-    fclSpriteStartShowHide(0x13D, pt, 0x13D, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x13D, pt, 0x13D, c124, 33.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
     pt = fclMakeVec2((87.0f + pos.x), (2.0f + pos.y));
-    fclSpriteStartShowHide(0x14F, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x14F, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
     pt = fclMakeVec2((428.0f + (87.0f + pos.x)) - 1.0f, (2.0f + pos.y));
-    fclSpriteStartShowHide(0x2C2, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x2C2, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
     switch ((s8)arg1) {
     case 0:
         fclSpriteReset(0x2DE, 0x126);
         fclSpriteReset(0x2DF, 0x125);
         pt = fclMakeVec2(113.0f + pos.x, (13.0f + pos.y));
-        fclSpriteStartShowHide(0x126, pt, 0x126, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DE, pt, 0x126, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x126, pt, 0x126, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DE, pt, 0x126, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(320.0f + pos.x, (13.0f + pos.y));
-        fclSpriteStartShowHide(0x125, pt, 0x125, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DF, pt, 0x125, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x125, pt, 0x125, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DF, pt, 0x125, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(214.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
-        fclSpriteStartShowHide(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteReset(0x2E0, 0x150);
-        fclSpriteStartShowHide(0x2E0, pt, 0x150, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x150, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         break;
     case 1:
         fclSpriteReset(0x2DE, 0x128);
         fclSpriteReset(0x2DF, 0x127);
         pt = fclMakeVec2((171.0f + pos.x), (12.0f + pos.y));
-        fclSpriteStartShowHide(0x128, pt, 0x128, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x128, pt, 0x128, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((171.0f + pos.x), (12.0f + pos.y));
-        fclSpriteStartShowHide(0x2DE, pt, 0x128, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x128, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((354.0f + pos.x), (14.0f + pos.y));
-        fclSpriteStartShowHide(0x127, pt, 0x127, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x127, pt, 0x127, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((354.0f + pos.x), (14.0f + pos.y));
-        fclSpriteStartShowHide(0x2DF, pt, 0x127, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x127, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(214.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
-        fclSpriteStartShowHide(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteReset(0x2E0, 0x150);
-        fclSpriteStartShowHide(0x2E0, pt, 0x150, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x150, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         break;
     case 2:
         pt = fclMakeVec2((40.0f + pos.x), (13.0f + pos.y));
-        fclSpriteStartShowHide(0x13A, pt, 0x13A, c124, 33.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13A, pt, 0x13A, c124, 33.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((522 + pos.x), (13.0f + pos.y));
-        fclSpriteStartShowHide(0x13B, pt, 0x13B, c124, 34.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13B, pt, 0x13B, c124, 34.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteReset(0x2DE, 0x1D4);
         fclSpriteReset(0x2DF, 0x1D5);
         pt = fclMakeVec2((140.0f + pos.x), (12.0f + pos.y));
-        fclSpriteStartShowHide(0x1D4, pt, 0x1D4, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x1D4, pt, 0x1D4, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((140.0f + pos.x), (12.0f + pos.y));
-        fclSpriteStartShowHide(0x2DE, pt, 0x1D4, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x1D4, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((355 + pos.x), (14.0f + pos.y));
-        fclSpriteStartShowHide(0x1D5, pt, 0x1D5, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x1D5, pt, 0x1D5, c11C, 30.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((355 + pos.x), (14.0f + pos.y));
-        fclSpriteStartShowHide(0x2DF, pt, 0x1D5, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x1D5, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(214.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c128, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         if ((s8)arg2 == 0) {
             *(s8 *)(t + 0x122) = 1;
         }
         pt = fclMakeVec2((216.0f + (87.0f + pos.x)) - (f32)(*(s8 *)(t + 0x122) * 0xD6), 4.0f + pos.y);
-        fclSpriteStartShowHide(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x150, pt, 0x150, c118, 36.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteReset(0x2E0, 0x150);
-        fclSpriteStartShowHide(0x2E0, pt, 0x150, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E0, pt, 0x150, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         break;
     case 3:
@@ -3888,22 +3888,22 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
             *(s8 *)(t + 0x122) = 2;
         }
         pt = fclMakeVec2(138.0f + pos.x, (9.0f + pos.y));
-        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(277 + pos.x, (9.0f + pos.y));
-        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(416.0f + pos.x, (9.0f + pos.y));
-        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x8E), 4.0f + pos.y);
-        fclSpriteStartShowHide(0x151, pt, 0x151, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E0, pt, 0x151, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x151, pt, 0x151, c118, 36.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E0, pt, 0x151, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = fclMakeVec2(142.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(284.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         break;
     case 4:
         fclSpriteReset(0x2DE, 0x13F);
@@ -3919,27 +3919,27 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
             *(s8 *)(t + 0x122) = 3;
         }
         pt = fclMakeVec2(127.0f + pos.x, (9.0f + pos.y));
-        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(229.0f + pos.x, (9.0f + pos.y));
-        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(334.0f + pos.x, (9.0f + pos.y));
-        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(435 + pos.x, (9.0f + pos.y));
-        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x6B), 4.0f + pos.y);
-        fclSpriteStartShowHide(0x152, pt, 0x152, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E0, pt, 0x152, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x152, pt, 0x152, c118, 36.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E0, pt, 0x152, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = fclMakeVec2(107.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(214.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(321 + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         break;
     case 5:
         fclSpriteReset(0x2DE, 0x13F);
@@ -3958,35 +3958,35 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
             *(s8 *)(t + 0x122) = 4;
         }
         pt = fclMakeVec2(114.0f + pos.x, (9.0f + pos.y));
-        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(199.0f + pos.x, (9.0f + pos.y));
-        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(284.0f + pos.x, (9.0f + pos.y));
-        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((369 + pos.x), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(24.0f + (369 + pos.x), 15.0f + (9.0f + pos.y));
-        fclSpriteStartShowHide(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(446.0f + pos.x, (9.0f + pos.y));
-        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(88.0f + pos.x + (f32)(*(s8 *)(t + 0x122) * 0x55), 4.0f + pos.y);
-        fclSpriteStartShowHide(0x153, pt, 0x153, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E0, pt, 0x153, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x153, pt, 0x153, c118, 36.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E0, pt, 0x153, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = fclMakeVec2(85.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(170.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(255.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(340.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         break;
     case 6:
         fclSpriteReset(0x2DE, 0x13F);
@@ -4009,43 +4009,43 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
             *(s8 *)(t + 0x122) = 5;
         }
         pt = fclMakeVec2(20.0f + (87.0f + pos.x), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(15.0f + (71.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(16.0f + (142.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(16.0f + (213.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(24.0f + pt.x, 15.0f + pt.y);
-        fclSpriteStartShowHide(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(15.0f + (284.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x143, pt, 0x143, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E8, pt, 0x143, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x143, pt, 0x143, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E8, pt, 0x143, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(25.0f + pt.x, 15.0f + pt.y);
-        fclSpriteStartShowHide(0x2EA, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2EB, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2EA, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2EB, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(11.0f + (355 + (87.0f + pos.x)), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((87.0f + pos.x) + (f32)(*(s8 *)(t + 0x122) * 0x47), 4.0f + pos.y);
-        fclSpriteStartShowHide(0x154, pt, 0x154, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E0, pt, 0x154, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x154, pt, 0x154, c118, 36.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E0, pt, 0x154, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = fclMakeVec2((71.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((142.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((213.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((284.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((355 + (87.0f + pos.x)), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E9, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E9, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         break;
     case 7:
         fclSpriteReset(0x2DE, 0x13F);
@@ -4072,51 +4072,51 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
             *(s8 *)(t + 0x122) = 6;
         }
         pt = fclMakeVec2(13.0f + (87.0f + pos.x), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x13F, pt, 0x13F, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DE, pt, 0x13F, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(12.0f + (61.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x140, pt, 0x140, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2DF, pt, 0x140, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(10.0f + (122.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x141, pt, 0x141, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E3, pt, 0x141, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(10.0f + (183.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x142, pt, 0x142, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E5, pt, 0x142, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(24.0f + pt.x, 15.0f + pt.y);
-        fclSpriteStartShowHide(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14B, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E7, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(10.0f + (244.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x143, pt, 0x143, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E8, pt, 0x143, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x143, pt, 0x143, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E8, pt, 0x143, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(25.0f + pt.x, 15.0f + pt.y);
-        fclSpriteStartShowHide(0x2EA, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2EB, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2EA, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2EB, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(10.0f + (305 + (87.0f + pos.x)), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x144, pt, 0x144, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2EC, pt, 0x144, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x144, pt, 0x144, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2EC, pt, 0x144, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(25.0f + pt.x, 15.0f + pt.y);
-        fclSpriteStartShowHide(0x2EE, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2EF, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2EE, pt, 0x14B, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2EF, pt, 0x14B, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(6.0f + (366.0f + (87.0f + pos.x)), (9.0f + pos.y));
-        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x14C, pt, 0x14C, c11C, 29.0f, 0xBD, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14C, c120, 25.0f, 0xBF, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((87.0f + pos.x) + (f32)(*(s8 *)(t + 0x122) * 0x3D), 4.0f + pos.y);
-        fclSpriteStartShowHide(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E0, pt, 0x155, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E0, pt, 0x155, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = fclMakeVec2((61.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((122.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((183.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E4, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((244.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E6, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((305 + (87.0f + pos.x)), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E9, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E9, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2((366.0f + (87.0f + pos.x)), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2ED, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2ED, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         break;
     case 8:
         fclSpriteReset(0x2DE, 0x14F);
@@ -4133,21 +4133,21 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
         }
         fclCombineDrawStageTiles(arg0, 6, arg2);
         pt = fclMakeVec2((87.0f + pos.x) + (f32)(*(s16 *)(t + 0x120) * 0x3D), 4.0f + pos.y);
-        fclSpriteStartShowHide(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
-        fclSpriteStartShowHide(0x2E0, pt, 0x155, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x155, pt, 0x155, c118, 36.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
+        fclSpriteStartShowHide(0x2E0, pt, 0x155, fclMakeDrawColor(0x8A, 0xCC, 0xFF, 0), 24.0f, 0xBE, arg2, 6, 3, 0, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E0, 0xD, 0);
         pt = fclMakeVec2(61.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2C1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(122.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2DE, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DE, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(183.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2DF, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2DF, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(244.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E1, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(305 + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E2, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         pt = fclMakeVec2(366.0f + (87.0f + pos.x), (2.0f + pos.y));
-        fclSpriteStartShowHide(0x2E3, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, func_00331560());
+        fclSpriteStartShowHide(0x2E3, pt, 0x14F, c118, 35.0f, 0xBC, arg2, 6, 3, 0, fclCombineGetSpritePool());
         break;
     }
     if ((s8)arg2 == 0) {
@@ -4230,12 +4230,12 @@ void fclCombineDrawStageTiles(u8 *arg0, s16 arg1, s8 arg2) {
         position = fclMakeVec2(baseX + (f32)((s32)savedColumn * 61) + *(f32 *)((u8 *)D_007495C0 + tableOffset), baseY);
         *(FclVec2 *)(fclSpriteEntry(resource) + 0x38) = position;
         white.channels = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
-        fclSpriteStartShowHide(resource, position, resource, white.channels, 29.0f, 0xBD, arg2, arg1, 3, 0, func_00331560());
+        fclSpriteStartShowHide(resource, position, resource, white.channels, 29.0f, 0xBD, arg2, arg1, 3, 0, fclCombineGetSpritePool());
         shadow = (s16)((s16)((s32)savedColumn * 3 + 0xF1) + 0x1F4);
         fclSpriteSetFlag(shadow, 0, 1);
         fclSpriteReset(shadow, resource);
         dark.channels = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-        fclSpriteStartShowHide(shadow, position, resource, dark.channels, 25.0f, 0xBF, arg2, arg1, 3, 0, func_00331560());
+        fclSpriteStartShowHide(shadow, position, resource, dark.channels, 25.0f, 0xBF, arg2, arg1, 3, 0, fclCombineGetSpritePool());
         if (savedIndex >= 3 && index != 12) {
             s32 group;
             s16 secondary;
@@ -4245,11 +4245,11 @@ void fclCombineDrawStageTiles(u8 *arg0, s16 arg1, s8 arg2) {
             secondary = (s16)((s16)(group + 0xF2) + 0x1F4);
             fclSpriteReset(secondary, 0x14B);
             secondaryWhite.channels = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
-            fclSpriteStartShowHide(secondary, position, 0x14B, secondaryWhite.channels, 29.0f, 0xBD, arg2, arg1, 3, 0, func_00331560());
+            fclSpriteStartShowHide(secondary, position, 0x14B, secondaryWhite.channels, 29.0f, 0xBD, arg2, arg1, 3, 0, fclCombineGetSpritePool());
             secondaryShadow = (s16)((s16)(group + 0xF3) + 0x1F4);
             fclSpriteReset(secondaryShadow, 0x14B);
             secondaryDark.channels = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-            fclSpriteStartShowHide(secondaryShadow, position, 0x14B, secondaryDark.channels, 25.0f, 0xBF, arg2, arg1, 3, 0, func_00331560());
+            fclSpriteStartShowHide(secondaryShadow, position, 0x14B, secondaryDark.channels, 25.0f, 0xBF, arg2, arg1, 3, 0, fclCombineGetSpritePool());
         } else {
             s32 group = column * 3;
             fclSpriteSetFlag((s16)((s16)(group + 0xF2) + 0x1F4), 0, 1);
@@ -4416,61 +4416,61 @@ void fclCombineDrawHeaderPanel(u8 *task, s16 delay, s8 mode) {
         FclDrawColor panelColor = fclMakeDrawColor(0, 0, 0x99, 0xFF);
         FclDrawColor textColor = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
         textColor = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-        fclSpriteStartShowHide(0x21C, origin, 0x193, panelColor, 191.0f, 0x41, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x21C, origin, 0x193, panelColor, 191.0f, 0x41, mode, 6, 3, delay, fclCombineGetSpritePool());
         spD8 = fclMakeVec2((f32)0x1DF + origin.x, origin.y);
-        fclSpriteStartShowHide(0x1A3, spD8, 0x1A3, panelColor, 191.0f, 0x41, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x1A3, spD8, 0x1A3, panelColor, 191.0f, 0x41, mode, 6, 3, delay, fclCombineGetSpritePool());
         spD0 = fclMakeVec2(20.0f + origin.x, 3.0f + origin.y);
-        fclSpriteStartShowHide(0x120, spD0, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x120, spD0, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, fclCombineGetSpritePool());
         fclSpriteReset(0x2E8, 0x120);
         spC8 = fclMakeVec2(30.0f + origin.x, 3.0f + origin.y);
-        fclSpriteStartShowHide(0x2E8, spC8, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E8, spC8, 0x120, textColor, 184.0f, 0x56, mode, 6, 3, delay, fclCombineGetSpritePool());
         spC0 = fclMakeVec2(47.0f + origin.x, 2.0f + origin.y);
-        fclSpriteStartShowHide(0x11F, spC0, 0x11F, textColor, 183.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x11F, spC0, 0x11F, textColor, 183.0f, 0x56, mode, 6, 3, delay, fclCombineGetSpritePool());
         origin = fclMakeVec2(314.0f, 97.0f);
         spB8 = fclMakeVec2(214.0f + origin.x, 3.0f + origin.y);
-        fclSpriteStartShowHide(0x121, spB8, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x121, spB8, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, fclCombineGetSpritePool());
         fclSpriteReset(0x2E9, 0x121);
         spB0 = fclMakeVec2(224.0f + origin.x, 3.0f + origin.y);
-        fclSpriteStartShowHide(0x2E9, spB0, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E9, spB0, 0x121, textColor, 185.0f, 0x56, mode, 6, 3, delay, fclCombineGetSpritePool());
         spA8 = fclMakeVec2(97.0f + origin.x, 3.0f + origin.y);
-        fclSpriteStartShowHide(0x11E, spA8, 0x11E, textColor, 182.0f, 0x56, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x11E, spA8, 0x11E, textColor, 182.0f, 0x56, mode, 6, 3, delay, fclCombineGetSpritePool());
         panelColor = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
         origin = fclMakeVec2(79.0f, 97.0f);
         fclSpriteReset(0x2EA, 0x193);
         spA0 = fclMakeVec2(origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        fclSpriteStartShowHide(0x2EA, spA0, 0x193, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2EA, spA0, 0x193, panelColor, 187.0f, 0x41, mode, 6, 3, delay, fclCombineGetSpritePool());
         fclSpriteReset(0x2EB, 0x19C);
         sp98 = fclMakeVec2(220.0f + origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        fclSpriteStartShowHide(0x2EB, sp98, 0x19C, panelColor, 187.0f, 0x41, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2EB, sp98, 0x19C, panelColor, 187.0f, 0x41, mode, 6, 3, delay, fclCombineGetSpritePool());
         origin = fclMakeVec2(79.0f, 97.0f);
         fclSpriteReset(0x2EC, 0x11F);
         sp90 = fclMakeVec2(47.0f + origin.x, 2.0f + origin.y);
-        fclSpriteStartShowHide(0x2EC, sp90, 0x11F, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2EC, sp90, 0x11F, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, fclCombineGetSpritePool());
         fclSpriteReset(0x2E4, 0x120);
         sp88 = fclMakeVec2(20.0f + origin.x, 3.0f + origin.y);
-        fclSpriteStartShowHide(0x2E4, sp88, 0x120, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E4, sp88, 0x120, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, fclCombineGetSpritePool());
         fclSpriteReset(0x2E5, 0x120);
         sp80 = fclMakeVec2(30.0f + origin.x, 3.0f + origin.y);
-        fclSpriteStartShowHide(0x2E5, sp80, 0x120, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E5, sp80, 0x120, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, fclCombineGetSpritePool());
         origin = fclMakeVec2(314.0f, 97.0f);
         fclSpriteReset(0x2E1, 0x11E);
         sp78 = fclMakeVec2(97.0f + origin.x, 3.0f + origin.y);
-        fclSpriteStartShowHide(0x2E1, sp78, 0x11E, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E1, sp78, 0x11E, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, fclCombineGetSpritePool());
         fclSpriteReset(0x2E6, 0x121);
         sp70 = fclMakeVec2(214.0f + origin.x, 3.0f + origin.y);
-        fclSpriteStartShowHide(0x2E6, sp70, 0x121, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E6, sp70, 0x121, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, fclCombineGetSpritePool());
         fclSpriteReset(0x2E7, 0x121);
         sp68 = fclMakeVec2(224.0f + origin.x, 3.0f + origin.y);
-        fclSpriteStartShowHide(0x2E7, sp68, 0x121, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E7, sp68, 0x121, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 181.0f, 0x5A, mode, 6, 3, delay, fclCombineGetSpritePool());
         panelColor = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
         origin = fclMakeVec2(79.0f, 97.0f);
         fclSpriteReset(0x2E2, 0x193);
         sp60 = fclMakeVec2(origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        fclSpriteStartShowHide(0x2E2, sp60, 0x193, fclMakeDrawColor(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E2, sp60, 0x193, fclMakeDrawColor(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E2, 0xD, 0);
         fclSpriteReset(0x2E3, 0x19C);
         sp58 = fclMakeVec2(220.0f + origin.x + (f32)(*(s8 *)(work + 0x123) * 0x101), origin.y);
-        fclSpriteStartShowHide(0x2E3, sp58, 0x19C, fclMakeDrawColor(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, func_00331560());
+        fclSpriteStartShowHide(0x2E3, sp58, 0x19C, fclMakeDrawColor(0xCC, 0xFF, 0x33, 0), 180.0f, 0x59, mode, 6, 3, delay, fclCombineGetSpritePool());
         fclSpriteSetFlag(0x2E3, 0xD, 0);
     }
 }
@@ -4808,21 +4808,21 @@ void fclCombineDrawRosterList(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
     spF8 = fclMakeVec2(390.0f, 127.0f);
     origin = *(FclVec2 *)&spF8;
     c13C = fclMakeDrawColor(0, 0, 0x99, 0xFF);
-    fclSpriteStartShowHide(0x21E, origin, 0x193, c13C, 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x21E, origin, 0x193, c13C, 191.0f, 0x41, arg3, 6, 3, 0, fclCombineGetSpritePool());
     y = origin.y;
     spF0 = fclMakeVec2(151.0f + origin.x, y);
     c138 = fclMakeDrawColor(0, 0, 0x99, 0xFF);
-    fclSpriteStartShowHide(0x19D, spF0, 0x19D, c138, 191.0f, 0x41, arg3, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x19D, spF0, 0x19D, c138, 191.0f, 0x41, arg3, 6, 3, 0, fclCombineGetSpritePool());
     y9 = 9.0f + y;
     spE8 = fclMakeVec2(24.0f + origin.x, y9);
     c134 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
-    fclSpriteStartShowHide(0x2AF, spE8, 0x73, c134, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x2AF, spE8, 0x73, c134, 175.0f, 0x56, arg3, 6, 3, 0, fclCombineGetSpritePool());
     spE0 = fclMakeVec2(65.0f + origin.x, y9);
     c130 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
-    fclSpriteStartShowHide(0x2B0, spE0, 0x73, c130, 175.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x2B0, spE0, 0x73, c130, 175.0f, 0x56, arg3, 6, 3, 0, fclCombineGetSpritePool());
     spD8 = fclMakeVec2(119.0f + origin.x, 5.0f + y);
     c12C = fclMakeDrawColor(0x33, 0xCD, 0xFF, 0xFF);
-    fclSpriteStartShowHide(0x11D, spD8, 0x11D, c12C, 191.0f, 0x56, arg3, 6, 3, 0, func_00331560());
+    fclSpriteStartShowHide(0x11D, spD8, 0x11D, c12C, 191.0f, 0x56, arg3, 6, 3, 0, fclCombineGetSpritePool());
     fclCombineDrawHeaderPanel(arg0, 0, arg3);
     entry = *(s16 *)(t + 0x11E) - *(s16 *)(t + 0x120);
     row = 0;
@@ -4844,9 +4844,9 @@ void fclCombineDrawRosterList(u8 *arg0, s32 arg1, s32 arg2, s8 arg3) {
         if (*(s16 *)(t2 + 0x120) == (s8)row) {
             c128 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
         }
-        fclSpriteStartShowHide((s8)row + 0x21F, cell, 0x193, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
+        fclSpriteStartShowHide((s8)row + 0x21F, cell, 0x193, c128, 191.0f, 0x41, arg3, 6, 3, row * step, fclCombineGetSpritePool());
         spC0 = fclMakeVec2(132.0f + cell.x, cell.y);
-        fclSpriteStartShowHide((s8)row + 0x2C5, spC0, 0x19E, c128, 191.0f, 0x41, arg3, 6, 3, row * step, func_00331560());
+        fclSpriteStartShowHide((s8)row + 0x2C5, spC0, 0x19E, c128, 191.0f, 0x41, arg3, 6, 3, row * step, fclCombineGetSpritePool());
     }
     sp108 = fclMakeVec2(535, 154.0f);
     fclCombineDrawSlotFrames(arg0, sp108, 0, arg3);
@@ -4962,7 +4962,7 @@ void fclCombineDrawSelectedName(u8 *arg0)
     n = (s16)((datPersonaGetArcana(*(u16 *)(yListSlotEntry(0, obj->selection) + 2)) & 0xFF) + 0x1B);
     sp38 = fclMakeVec2(54.0f, 103.0f);
     fclCombineDrawResourceAt(n, sp38, 1.0f, 0xFF000000, 0xFF, 1, 1.0f, 1.0f, D_00796310);
-    n = (s16)func_00331640();
+    n = (s16)fclCombineGetRowCount();
     itfMesWindowQueueEntry(54.0f, 138.0f, 1.0f, -1, 1, 0, 1, n,
         *(u16 *)(yListSlotEntry(0, obj->selection) + 2), D_00796370);
     fclCombineSetModel((s32)obj->model, *(u16 *)(yListSlotEntry(0, obj->selection) + 2), 1);
@@ -5297,7 +5297,7 @@ void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVe
         }
     }
     if (showing == 1) {
-        temp_22 = sdkSpriteNewNode(func_00331560(), 0x80U);
+        temp_22 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x80U);
         upperClipSlot = (u8 **)(work + 0x258) + (s8)(u32)slot * 2;
         sp230 = fclMakeVec2(shownPosition.x - 120.0f, shownPosition.y - 40.0f);
         temp_2_14 = fclSpriteWork(*upperClipSlot);
@@ -5491,7 +5491,7 @@ void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVe
         }
     }
     if (showing == 1) {
-        temp_19 = sdkSpriteNewNode(func_00331560(), 0x80U);
+        temp_19 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x80U);
         lowerClipSlot = (u8 **)(work + 0x25C) + (s8)(u32)slot * 2;
         sp138 = fclMakeVec2(shownPosition.x - 120.0f, 99.0f + (shownPosition.y - 27.0f));
         temp_2_29 = fclSpriteWork(*lowerClipSlot);
@@ -5874,7 +5874,7 @@ void fclCombineDrawGridRows(u8 *arg0) {
         {
             s16 normalizedRow = i;
             s16 resource = (s16)(normalizedRow + 0x25E);
-            h = sdkSpriteNewNode(func_00331560(), 0x39);
+            h = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
             fclSpriteStartAlphaAt(resource, 0xFF, 0, 0, 3, 0);
             {
                 f32 unitScale = 1.0f;
@@ -6128,7 +6128,7 @@ void fclCombineDrawResourceAt(s32 arg0, FclVec2 arg1, f32 fparg0, s32 arg2, u8 a
     FclVec2 *p;
 
     p = &arg1;
-    sdkSpriteDrawQueued(p->x, p->y, fparg0, arg2, arg3, (s16)arg0, (void *)(u32)func_00331560(), arg4, 0, 0, 0.0f, fparg1, fparg2, arg5);
+    sdkSpriteDrawQueued(p->x, p->y, fparg0, arg2, arg3, (s16)arg0, (void *)(u32)fclCombineGetSpritePool(), arg4, 0, 0, 0.0f, fparg1, fparg2, arg5);
 }
 // Fcl combine CDVD task update: polls the disc load for the task and advances its load state.
 // FUN_00330F20

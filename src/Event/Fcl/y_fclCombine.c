@@ -73,7 +73,7 @@ extern void fclCombineFadeLabelSprites(u8 *, s64, s64, s64, s64, s64, s64, s64, 
 extern s32 fclPackRgba(u8, u8, u8, u8);
 extern int frFontExDrawTextDeferredOutB(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
 extern u8 *sdkSpriteNewNode(u32, u32);
-extern s32 func_00331560(void);
+extern s32 fclCombineGetSpritePool(void);
 extern f32 sdkSpriteScaledWidth(u8 *);
 extern f32 sdkSpriteScaledHeight(u8 *);
 extern void sdkSpriteFreeNode(void *);
@@ -165,7 +165,7 @@ extern u32 fclGetMoney(void);
 extern u8 *cmbCardEffCreateTask(u8 *, s8);
 
 extern void cmmDateSelectionRefresh(u8 *task);
-extern s32 func_0033e3f0(u8 *task);
+extern s32 fclBustupCreate(u8 *task);
 
 
 extern void fclSpriteSetCornerColors(u8 *task, FclDrawColor color);
@@ -175,14 +175,14 @@ extern void fclSpriteSetHidden(u8 *task, u8 hidden);
 extern void fclSpriteSetMode(u8 *task, u8 mode);
 extern void fieldSceneUnload(void);
 extern s32 kwlnTaskGetTaskByName(void *);
-extern void func_003315a0(void);
+extern void fclCombineRequestRefresh(void);
 extern void H_Cdvd_Destroy(void *);
 extern void (*jtbl_008873EC[])(void *);
 extern u8 D_00641BC8[];
 extern s8 D_007490F8[];
 extern u16 *datPersonaRosterSlot(s16);
 extern u8 datPersonaGetArcana(u16);
-extern s32 func_00331660(void);
+extern s32 fclCombineGetMesWindow(void);
 extern void nmMesWindowSetSlotString(s8, s32, void *);
 extern s32 func_00110140(void);
 extern void *datGetItemNameId(s16);
@@ -266,11 +266,11 @@ extern void K_View_SetFov(u8 *arg0, f32 arg1);
 extern s32 MT_Scene_GetCameraResFirst(void);
 extern void func_003e9cb0(s32, s32, s32);
 extern void fclCombineCdvdTaskCreate(void);
-extern s32 func_00331580(void);
+extern s32 fclCombineInPreviewState(void);
 extern s32 func_0034a4f0(s32, s32);
 extern u8 *fclSpritePoolCreate(s32, s32);
 extern void fclSpriteReset(s16, s16);
-extern s32 func_00331600(void);
+extern s32 fclCombineGetSpriteList(void);
 extern u8 D_00641B10[];
 extern s32 fclDrawIsActive(s32);
 extern s32 evtGetEventFrame(void);
@@ -339,7 +339,7 @@ s32 fclCombineMenuCreate(u8 *arg0) {
             *(FclDrawColor *)(e + 0x75) = menuColor;
         }
     }
-    *(s32 *)(out + 0x24C) = (s32)fclSpritePoolCreate((s32)arg0, func_00331560());
+    *(s32 *)(out + 0x24C) = (s32)fclSpritePoolCreate((s32)arg0, fclCombineGetSpritePool());
     {
         s32 descriptorId;
         for (descriptorId = 0; descriptorId < 500; descriptorId++) {
@@ -473,8 +473,8 @@ s32 fclCombineMenuCreate(u8 *arg0) {
     fclSpriteSetCornerColors((u8 *)*(s32 *)(out + 0x2B4), fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xE5));
     fclSpriteSetHidden((u8 *)(*(s32 *)(out + 0x2B4)), 1);
     fclSpriteSetMode((u8 *)(*(s32 *)(out + 0x2B4)), 1);
-    *(s32 *)(out + 0x250) = func_0033e3f0((u8 *)(task));
-    *(s32 *)(out + 0x2BC) = fclSpriteListCreateChild(task, 0x30, func_00331600());
+    *(s32 *)(out + 0x250) = fclBustupCreate((u8 *)(task));
+    *(s32 *)(out + 0x2BC) = fclSpriteListCreateChild(task, 0x30, fclCombineGetSpriteList());
     return task;
 }
 
@@ -500,7 +500,7 @@ void fclCombineMenuRoot(u8 *arg0)
 {
     extern u8 D_00641870[];
     extern s32 datGetFlag(s32);
-    extern s32 func_0033e5a0(u8 *);
+    extern s32 fclBustupIsActive(u8 *);
     extern void fclCombineDrawSlotRows(u8 *, s64);
     extern void fclCombineStepSlotSelection(u8 *, s8);
     extern void fclCombineBuildRows(u8 *);
@@ -569,7 +569,7 @@ void fclCombineMenuRoot(u8 *arg0)
     case 0x12:
         p[1] = 0x14;
         if (datGetFlag(0x131D) == 0) {
-            p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+            p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowShowSlotRecord(p[0xD], 0x4C);
             datSetFlag(0x131D, 1);
             p[1] = 0x13;
@@ -596,7 +596,7 @@ void fclCombineMenuRoot(u8 *arg0)
         p[0x13F] = selected;
         if (p[0x13F] != -1) {
             entry = D_00641870 + p[0x13F] * 8;
-            p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+            p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(text, &iGpffffa8a0, *(s8 *)entry);
             nmMesWindowSetSlotString(p[0xD], 0, text);
             if (func_00109190() >= 1.0f) {
@@ -616,7 +616,7 @@ void fclCombineMenuRoot(u8 *arg0)
         }
         nmMesWindowDestroySlot(p[0xD]);
         entry = D_00641870 + p[0x13F] * 8;
-        p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+        p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         msgArgs0[0] = *(s16 *)(entry + 2);
         msgArgs0[1] = 0;
         nmMesWindowSetSlotString(p[0xD], 0, msgArgs0);
@@ -646,7 +646,7 @@ void fclCombineMenuRoot(u8 *arg0)
             break;
         }
         entry = D_00641870 + p[0x13F] * 8;
-        p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+        p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         msgArgs1[0] = *(s16 *)(entry + 2);
         msgArgs1[1] = 0;
         nmMesWindowSetSlotString(p[0xD], 0, msgArgs1);
@@ -654,7 +654,7 @@ void fclCombineMenuRoot(u8 *arg0)
         datItemSetCount(*(s16 *)(entry + 2), (u8)((u8)datItemCount(*(s16 *)(entry + 2)) + 1));
         break;
     case 0x17:
-        if (func_0033e5a0(*(u8 **)(p + 0x250)) == 0) {
+        if (fclBustupIsActive(*(u8 **)(p + 0x250)) == 0) {
             break;
         }
         *(s32 *)(p + 0x148) = fclDrawTaskCreate(arg0);
@@ -743,7 +743,7 @@ void fclCombineMenuRoot(u8 *arg0)
             switch (p[0xB3]) {
             case 0:
                 if (datGetFlag(0x131E) == 0) {
-                    p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+                    p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     nmMesWindowShowSlotRecord(p[0xD], 0x4D);
                     datSetFlag(0x131E, 1);
                     p[1] = 0x22;
@@ -753,7 +753,7 @@ void fclCombineMenuRoot(u8 *arg0)
                 break;
             case 1:
                 if (datGetFlag(0x131B) == 0) {
-                    p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+                    p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     nmMesWindowShowSlotRecord(p[0xD], 0x4F);
                     datSetFlag(0x131B, 1);
                     p[1] = 0x21;
@@ -2652,7 +2652,7 @@ void fclCombineMenuFusionTriple(u8 *arg0) {
             base3A = *(FclVec2f *)&sp3B8;
             temp_f1 = (f32)((datPersonaRosterCapacity() & 0xFFFF) * 0x17) / 2.0f;
             sp3C8 = fclMakeVec2(base3A.x + temp_f1, base3A.y + temp_f1);
-            temp_2_3 = sdkSpriteNewNode(func_00331560(), 0x7E);
+            temp_2_3 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x7E);
             temp_f22 = temp_f20_2 * sdkSpriteScaledWidth(temp_2_3) / 2.0f;
             temp_f21 = temp_f20_2 * sdkSpriteScaledHeight(temp_2_3) / 2.0f;
             sdkSpriteFreeNode(temp_2_3);
@@ -2803,7 +2803,7 @@ block_83:
                         u8 *labelNode;
                         labelRow = (s16)gridRow;
                         labelId = (s16)((labelRow + 0x25E));
-                        labelNode = sdkSpriteNewNode(func_00331560(), 0x39);
+                        labelNode = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
                         fclSpriteStartAlphaAt(labelId, 0U, 0xFF, 0, 3, 0);
                         fclSpriteStartRevealScaleAt(labelId, 1.0f, 1.0f, iGpffff8504, 1.0f, 0, 3, 0);
                         temp_20_5 = (labelRow * 0x17) + 0x14E;
@@ -2858,7 +2858,7 @@ block_83:
                         FCL0F00_GRID_ROW(temp_17, gridRow, 0, 1, sp350, sp378, sp3F0, sp3EC);
                         temp_18_10 = (s16)(gridRow);
                         temp_16_13 = (s16)((temp_18_10 + 0x25E));
-                        temp_21_4 = sdkSpriteNewNode(func_00331560(), 0x39);
+                        temp_21_4 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
                         fclSpriteStartAlphaAt(temp_16_13, 0xFFU, 0, 0, 3, 0);
                         fclSpriteStartRevealScaleAt(temp_16_13, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                         temp_18_11 = (temp_18_10 * 0x17) + 0x14E;
@@ -2894,7 +2894,7 @@ block_83:
                             FCL0F00_GRID_ROW(temp_17, gridRow, 1, 1, sp320, sp318, sp3E8, sp3E4);
                             temp_16_17 = (s16)(gridRow);
                             temp_18_15 = (s16)((temp_16_17 + 0x25E));
-                            temp_21_8 = sdkSpriteNewNode(func_00331560(), 0x39);
+                            temp_21_8 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
                             fclSpriteStartAlphaAt(temp_18_15, 0xFFU, 0, 0, 3, 0);
                             fclSpriteStartRevealScaleAt(temp_18_15, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                             temp_22_4 = (temp_16_17 * 0x17) + 0x14E;
@@ -2935,7 +2935,7 @@ block_83:
                             FCL0F00_GRID_ROW(temp_17, gridColumn, 0, 1, sp2E8, sp378, sp3E0, sp3DC);
                             temp_19_6 = (s16)(gridColumn);
                             temp_16_21 = (s16)((((s8)((temp_19_6 + 0x6A))) + 0x1F4));
-                            temp_18_20 = sdkSpriteNewNode(func_00331560(), 0x39);
+                            temp_18_20 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
                             fclSpriteStartAlphaAt(temp_16_21, 0xFFU, 0, 0, 3, 0);
                             fclSpriteStartRevealScaleAt(temp_16_21, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                             temp_19_7 = (temp_19_6 * 0x17) + 0x14E;
@@ -4780,7 +4780,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         }
         if (p->f0 == 0x10) {
             if (*(s32 *)(yListSlotWork(0) + 8) == 0) {
-                p->fD = nmMesWindowAcquire((void *)func_00331660());
+                p->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                 nmMesWindowShowSlotRecord(p->fD, 0xE);
                 p->f1 = 0x93;
             } else {
@@ -4913,7 +4913,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
         } else if (D_008C024E[0] & 0x80) {
             if (*(s32 *)(yListSlotWork(0) + 8) > 0) {
-                p->fD = nmMesWindowAcquire((void *)func_00331660());
+                p->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                 nmMesWindowSetSlotParam(p->fD, 0);
                 nmMesWindowShowSlotRecord(p->fD, 0xC);
                 nmMesWindowSetSlotFlag(p->fD, 0);
@@ -4954,7 +4954,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 datPersonaCacheRecord(yListSlotEntry(0, p->f11E));
             }
             nmMesWindowDestroySlot(p->fD);
-            p->fD = nmMesWindowAcquire((void *)func_00331660());
+            p->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowShowSlotRecord(p->fD, 0xD);
             p->f1 = 0x91;
             return;
@@ -5001,7 +5001,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 var_19++;
             }
             nmMesWindowDestroySlot(p->fD);
-            p->fD = nmMesWindowAcquire((void *)func_00331660());
+            p->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowShowSlotRecord(p->fD, 0xD);
             p->f1 = 0x92;
             fclCombineDrawRosterRows(arg0, 0, var_16_6, 1);
@@ -5155,7 +5155,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             goto conv8F;
         } else if (D_008C024E[0] & 0x40) {
-            p->fD = nmMesWindowAcquire((void *)func_00331660());
+            p->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(sp2A0, &iGpffffa8a4, ((char *)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11));
             nmMesWindowSetSlotString(p->fD, 0, &sp2A0);
             nmMesWindowSetSlotParam(p->fD, 0);
@@ -5208,7 +5208,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 p->f1 = 0x8B;
                 return;
             }
-            p->fD = nmMesWindowAcquire((void *)func_00331660());
+            p->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowShowSlotRecord(p->fD, 0xE);
             p->f1 = 0x93;
             return;
@@ -5294,7 +5294,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         }
         break;
     case 0x98:
-        fclDrawNumber(fclMakeVec2(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, fclGetMoney(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
+        fclDrawNumber(fclMakeVec2(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, fclGetMoney(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), fclCombineGetSpritePool(), 0x56);
         var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
         if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
@@ -5320,7 +5320,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             tmpu8 = *(u8 *)((u8 *)yListSlotEntry(0, var_19) + 4);
             nmMesWindowSetNumber((u8 *)p->f2BC, sp1B0, tmpu8, fclMakeVec2(74.0f, 151.0f + 23.0f * (f32)var_18), fc_colW7, 46.0f, 0x59);
             total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) + 0x7D0;
-            fclDrawNumber(fclMakeVec2(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0xAA);
+            fclDrawNumber(fclMakeVec2(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)resourceFindByName(&D_00641B30), fclCombineGetSpritePool(), 0xAA);
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
@@ -5474,7 +5474,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             saved = fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2), total);
             fclAddMoney(fclGetMoney() - saved);
             nmMesWindowDestroySlot(p->fD);
-            p->fD = nmMesWindowAcquire((void *)func_00331660());
+            p->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowSetSlotString(p->fD, 0, (void *)(((s32)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11)));
             nmMesWindowShowSlotRecord(p->fD, 0x10);
             p->f1 = 0x9F;
@@ -5644,7 +5644,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, p->f11E), 4) & 0xFF)) + 0x7D0;
             saved = fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2), total);
             if (fclGetMoney() >= saved) {
-                p->fD = nmMesWindowAcquire((void *)func_00331660());
+                p->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                 sprintf(sp2A0, &iGpffffa8a4, ((char *)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11));
                 nmMesWindowSetSlotString(p->fD, 0, &sp2A0);
                 sprintf(sp220, &iGpffffa8a0, saved);
@@ -5705,7 +5705,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         p->f13A = 0;
         return;
     case 0x9B:
-        fclDrawNumber(fclMakeVec2(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, fclGetMoney(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
+        fclDrawNumber(fclMakeVec2(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, fclGetMoney(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), fclCombineGetSpritePool(), 0x56);
         var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
         if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
@@ -5728,7 +5728,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 *(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2)) & 0xFF) + 0x1B);
             }
             total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) + 0x7D0;
-            fclDrawNumber(fclMakeVec2(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW4, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0xAA);
+            fclDrawNumber(fclMakeVec2(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW4, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)resourceFindByName(&D_00641B30), fclCombineGetSpritePool(), 0xAA);
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
@@ -5767,7 +5767,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             var_16_6 = 8;
         }
         caption.firstEntry = p->f11E - p->f120;
-        fclDrawNumber(fclMakeVec2(254.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, fclGetMoney(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
+        fclDrawNumber(fclMakeVec2(254.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, fclGetMoney(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), fclCombineGetSpritePool(), 0x56);
         var_19 = caption.firstEntry;
         var_18 = 0;
         var_22 = (s16)var_16_6 + var_19;
@@ -5783,7 +5783,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, caption.fontColor, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) + 0x7D0;
-            fclDrawNumber(fclMakeVec2(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW2, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0xAA);
+            fclDrawNumber(fclMakeVec2(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW2, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)resourceFindByName(&D_00641B30), fclCombineGetSpritePool(), 0xAA);
             var_19++;
             var_18++;
         }
@@ -5817,7 +5817,7 @@ s32 fclCombineClaimSlot(u8 *arg0) {
     while ((s32)i < 4) {
         if ((datGetFlag((s32)i + 0x1309) == 0) && (func_00110140() >= D_00749100[(s32)i])) {
             *(s8 *)(p + 0x130) = (s8)i;
-            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, datGetItemNameId((s16)(*(s8 *)(p + 0x130) + 0x464)));
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), *(s8 *)(p + 0x130) + 0x17);
             datSetFlag((s32)i + 0x1309, 1);
@@ -5914,7 +5914,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
     case 0x6E:
         fclCombineSlideInSlotSprites(arg0, 0x1E7, 0x96);
         if (datGetFlag(0x131A) == 0) {
-            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x4E);
             datSetFlag(0x131A, 1);
             p[1] = 0x6F;
@@ -5927,7 +5927,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
         fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
     case 0x70:
         cmmDateSelectionRefresh(arg0);
-        *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+        *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         sprintf(buf, (const char *)&iGpffffa8a0, fclCalendarMonth());
         nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, buf);
         sprintf(buf, (const char *)&iGpffffa8a0, (u8)fclCalendarDay());
@@ -5941,7 +5941,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
         } else {
             nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
             p[1] = 0x72;
-            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x4B);
             fclCombineDrawStageBanner(arg0, 2, 0);
             sp240 = fclMakeVec2(57.0f, 72.0f);
@@ -6813,7 +6813,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
     switch (temp_3) {                               /* switch 1 */
     case 0x75:
         if (datGetFlag(0x131C) == 0) {
-            work->fD = nmMesWindowAcquire((void *)func_00331660());
+            work->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowShowSlotRecord(work->fD, 0x50);
             datSetFlag(0x131C, 1);
             work->f1 = 0x76;
@@ -6954,12 +6954,12 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 sp290 = fclMakeVec2(16.0f, 104.0f);
                 fclCombineDrawSlotFields(arg0, sp290, 0, 1, 0, 0, 0);
                 for (gridColumn = 0; gridColumn < (datPersonaRosterCapacity() & 0xFFFF); gridColumn++) {
-                    sp11C = sdkSpriteNewNode(func_00331560(), 0x77);
+                    sp11C = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x77);
                     FCL_COMBINE_GRID_ROW(work, gridColumn, gridRow, 0, sp288, sp250, col2F8, col2F4);
                     sdkSpriteFreeNode(sp11C);
                     temp_19_2 = (s16)(gridColumn);
                     temp_16_4 = (s16)((temp_19_2 + 0x25E));
-                    temp_21_2 = sdkSpriteNewNode(func_00331560(), 0x39);
+                    temp_21_2 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
                     fclSpriteStartAlphaAt(temp_16_4, 0xFFU, 0, 0, 3, 0);
                     fclSpriteStartRevealScaleAt(temp_16_4, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                     temp_19_3 = (temp_19_2 * 0x17) + 0x14E;
@@ -6992,7 +6992,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                         FCL_COMBINE_GRID_ROW(work, gridRow, gridColumn, 1, sp258, sp250, col2F0, col2EC);
                         temp_18_3 = (s16)(gridRow);
                         temp_16_9 = (s16)((temp_18_3 + 0x25E));
-                        temp_21_6 = sdkSpriteNewNode(func_00331560(), 0x39);
+                        temp_21_6 = sdkSpriteNewNode(fclCombineGetSpritePool(), 0x39);
                         fclSpriteStartAlphaAt(temp_16_9, 0xFFU, 0, 0, 3, 0);
                         fclSpriteStartRevealScaleAt(temp_16_9, 1.0f, 1.0f, 1.0f, iGpffff8504, 0, 3, 0);
                         temp_18_4 = (temp_18_3 * 0x17) + 0x14E;
@@ -7601,7 +7601,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     goto block_274;
                 }
                 temp_16_39 = (u16 *)((u8 *)iGpffffb3ec + temp_3_18 * 4);
-                work->fD = nmMesWindowAcquire((void *)func_00331660());
+                work->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                 sprintf(skillName, (const char *)&iGpffffa8a4, (const char *)func_00243840(*temp_16_39));
                 nmMesWindowSetSlotString(work->fD, 0, &skillName);
                 nmMesWindowSetSlotParam(work->fD, 0);
@@ -7654,7 +7654,7 @@ block_274:
             sdkSndStartStream(1, 3, 3, 2);
         }
         if (work->f2D8 >= 0x28) {
-            work->fD = nmMesWindowAcquire((void *)func_00331660());
+            work->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(skillName, (const char *)&iGpffffa8a4, (const char *)func_00243840(temp_16_40->original));
             nmMesWindowSetSlotString(work->fD, 0, &skillName);
             sprintf(skillName, (const char *)&iGpffffa8a4, (const char *)func_00243840(temp_16_40->replacement));
@@ -8109,7 +8109,7 @@ void fclCombineMenuResult(u8 *arg0) {
             }
             if (fclCombineCheckIds(arg0) == 1 && fclCombineHasEntry(arg0, 0xC) == 1) {
                 p[1] = 0xCB;
-                *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+                *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                 nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x2A);
                 *(u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) |= 4;
                 return;
@@ -8118,7 +8118,7 @@ void fclCombineMenuResult(u8 *arg0) {
                 p[1] = 0xCC;
                 return;
             }
-            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
             nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, spA0);
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), iGpffffb3d4[cls * 0xE + 0xD] + 0x71);
@@ -8133,7 +8133,7 @@ void fclCombineMenuResult(u8 *arg0) {
         nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
         if (fclCombineCheckIds(arg0) == 1 && fclCombineHasEntry(arg0, 0xC) == 1) {
             p[1] = 0xCB;
-            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x2A);
             *(u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) |= 4;
             return;
@@ -8142,7 +8142,7 @@ void fclCombineMenuResult(u8 *arg0) {
             p[1] = 0xCC;
             return;
         }
-        *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+        *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
         nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, spA0);
         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), iGpffffb3d4[cls * 0xE + 0xD] + 0x71);
@@ -8178,7 +8178,7 @@ void fclCombineMenuResult(u8 *arg0) {
                 p[1] = 0xCC;
                 return;
             }
-            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
             nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, spA0);
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), iGpffffb3d4[cls * 0xE + 0xD] + 0x71);
@@ -8242,7 +8242,7 @@ void fclCombineMenuResult(u8 *arg0) {
                 }
             }
         } else {
-            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0,
                           iGpffffb44c + datPersonaGetArcana(*(u16 *)((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9),
                                                                              *(s8 *)(p + 0x2FA)) + 1)) * 0x15);
@@ -8262,7 +8262,7 @@ void fclCombineMenuResult(u8 *arg0) {
             v = cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2]);
             *(s32 *)(p + 0x10) = cmmCommunityExpRemaining(v, yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 1);
             if (fclCombineCheckIds(arg0) == 1) {
-                *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+                *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                 sprintf(spA0, (const char *)&iGpffffa8a4, cmmCommunityName(cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2])));
                 frFontExCopyString(spA0, sp80, 0x20);
                 nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, sp80);
@@ -8469,7 +8469,7 @@ void fclCombineMenuMaterialGrid(u8 *arg0)
                                 }
                                 if (D_008C024E[0] & 0x40) {
                                     sdkSndStartStream(0, 0, 0, 1);
-*(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+*(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                                     nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), *(s16 *)(p + 0x11E) + 0x58);
                                     *(p + 1) = 0xC4;
                                 } else if (D_008C024E[0] & 0x20) {
@@ -8637,7 +8637,7 @@ void fclCombineMenuOptionPick(u8 *arg0) {
                 t = D_00882FB0[*(s16 *)(p + 0x11E) * 2];
                 switch (t) {
                 case 0:
-                    *(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+                    *(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     if ((fclCalendarMonth() & 0xFF) == 3 && (fclCalendarDay() & 0xFF) >= 0x14 &&
                         (fclCalendarDay() & 0xFF) < 0x20) {
                         nmMesWindowShowSlotRecord((s8)*(p + 0xD), 0x6F);
@@ -8650,20 +8650,20 @@ void fclCombineMenuOptionPick(u8 *arg0) {
                 case 1:
                     sidx = (s8)(10.0f * func_00109190());
                     te = D_006417E0 + ((fclCalendarMonth() & 0xFF) - 1) * 0xB;
-                    *(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+                    *(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), *(s8 *)(te + sidx) + 2);
                     break;
                 case 2:
-                    *(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+                    *(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x61);
                     break;
                 case 3:
-                    *(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+                    *(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x62);
                     break;
                 case 11:
                     datSetFlag(0x1308, 1);
-                    *(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+                    *(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x63);
                     if (*(s8 *)(p + 0x138) == 0) {
                         fclCombineDrawDetailFrame(arg0, 1);
@@ -9001,7 +9001,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 *(s32 *)(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += *(s32 *)(p + 0x10);
             }
             *(u8 **)(p + 0x2A4) = shdPersonaLevelUpCreate((s32)arg0, (s32)fclDrawGetResource(*(u8 **)(p + 0x148)), p + 0x28,
-                                                func_00331660(), 0, (s32 *)D_00641AD0);
+                                                fclCombineGetMesWindow(), 0, (s32 *)D_00641AD0);
             p[1] = 0xA3;
         }
         break;
@@ -9071,7 +9071,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         /* This retail state retains a counter-only traversal. */
         for (i1 = 0; i1 < 5; i1++) {
         }
-        p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+        p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         for (i2 = 0; i2 < 0x20; i2++) {
             text[i2] = 0;
         }
@@ -9088,7 +9088,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             for (i3 = 0; i3 < 5; i3++) {
                 list[i3] = 0;
             }
-            p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+            p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             for (i4 = 0; i4 < 0x20; i4++) {
                 name[i4] = 0;
                 text[i4] = 0;
@@ -9141,7 +9141,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             nmMesWindowStepSlotRelease(*(s8 *)(p + 0xD));
         } else {
             nmMesWindowDestroySlot(*(s8 *)(p + 0xD));
-            p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+            p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             for (i8 = 0; i8 < 0x20; i8++) {
                 name[i8] = 0;
                 text[i8] = 0;
@@ -9225,7 +9225,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
     case 0xB3:
         *(s16 *)(p + 0x2D8) = fclAddClamped(*(s16 *)(p + 0x2D8), 1, 0x14, 0, 1);
         if (*(s16 *)(p + 0x2D8) >= 0x14) {
-            p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+            p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
             nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
@@ -9280,14 +9280,14 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 u16 selectedSkill;
                 selectedSkill = *(u16 *)(p + 0x1C);
                 if (datPersonaFindSkillSlot(e, selectedSkill) != -1) {
-                    p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+                    p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
                     nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
                     nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x52);
                     p[1] = 0xB4;
                 } else if ((s32)datPersonaCountSkills(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
                     p[1] = 0xB5;
-                    *(u8 **)(p + 0x2A8) = shdPersonaSkillReplaceCreate((s32)arg0, fclDrawGetResource(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
+                    *(u8 **)(p + 0x2A8) = shdPersonaSkillReplaceCreate((s32)arg0, fclDrawGetResource(*(u8 **)(p + 0x148)), fclCombineGetMesWindow(), D_00641AD0);
                 }
             }
         }
@@ -9382,7 +9382,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         *(s16 *)(p + 0x1C) = fclCombineRollOutcome(arg0, ((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[4], *(s8 *)(p + 0x1F));
         item = *(u16 *)(p + 0x1C);
         if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
-            p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+            p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
             nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
@@ -9392,7 +9392,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             roll = fclAddClamped(*(s8 *)(p + 0x1E), 1, 9, 0, 1);
             item = (u16)fclCombinePickItem(kind, roll);
             if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
-                p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+                p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                 sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                 nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
                 sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
@@ -9403,7 +9403,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 roll = fclSubClamped(*(s8 *)(p + 0x1E), 1, 0, 9, 1);
                 item = (u16)fclCombinePickItem(kind, roll);
                 if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), fclItemHalf(&item)) == -1) {
-                    p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+                    p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                     nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
@@ -9411,7 +9411,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                     *(s16 *)(p + 0x1C) = item;
                 } else {
                     p[0x20] = 1;
-                    p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+                    p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                     nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
@@ -9431,7 +9431,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 for (j8 = 0; j8 < 8; j8++) {
                     if (((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[j8 + 6] != 0 &&
                         *(s16 *)(p + 0x1C) == ((u16 *)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)))[j8 + 6]) {
-                        p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+                        p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                         sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
                         nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
                         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x52);
@@ -9439,7 +9439,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                     }
                 }
                 if (p[1] != 0xAE) {
-                    p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+                    p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
                     nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
@@ -9452,7 +9452,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 *(s16 *)(p + 0x2D8) = 0;
                 if ((s32)datPersonaCountSkills(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA))) >= 8) {
                     p[1] = 0xAF;
-                    *(u8 **)(p + 0x2A8) = shdPersonaSkillReplaceCreate((s32)arg0, fclDrawGetResource(*(u8 **)(p + 0x148)), func_00331660(), D_00641AD0);
+                    *(u8 **)(p + 0x2A8) = shdPersonaSkillReplaceCreate((s32)arg0, fclDrawGetResource(*(u8 **)(p + 0x148)), fclCombineGetMesWindow(), D_00641AD0);
                 }
             }
         }
@@ -9522,7 +9522,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         }
         break;
     case 0xB8:
-        p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+        p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         do {
             count = datPersonaCountSkills(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
             p[0x27] = RpRandom() % count;
@@ -9564,7 +9564,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             sdkSndStartStream(1, 3, 3, 2);
         }
         if (*(s16 *)(p + 0x2D8) >= 0x28) {
-            p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+            p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x24)));
             nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 1, text);
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(*(u16 *)(p + 0x1C)));
@@ -9582,14 +9582,14 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         }
         break;
     case 0xBC:
-        p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+        p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
         nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x47);
         p[1] = 0xBE;
         break;
     case 0xBD:
-        p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+        p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
         nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, text);
         nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x48);
@@ -9738,7 +9738,7 @@ void fclCombineMenuFinish(u8 *arg0) {
         break;
     case 0xD5:
         if (datGetFlag(0x5B) != 0) {
-            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+            *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, iGpffffb440 + cls * 0x11);
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), 0x49);
             *(p + 1) = 0xD6;
@@ -10028,7 +10028,7 @@ void fclCombinePlayCue(u8 *arg0, s32 arg1, s32 arg2)
     s8 t;
 
     p = *(u8 **)(arg0 + 0x38);
-    *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
+    *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
     t = *(s8 *)(p + 0xD);
     nmMesWindowShowSlotRecord(t, (s8)arg1);
     if ((s8)arg2 == 1) {
@@ -10054,7 +10054,7 @@ void fclCombinePlayResultCue(u8 *arg0, u16 arg1) {
     t = D_00641A60 + x * 4;
     s4 = D_00749480[t[0]] * 100 + t[1];
     s3 = D_00749480[t[2]] * 100 + t[3];
-    p[0xD] = nmMesWindowAcquire((void *)func_00331660());
+    p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
     nmMesWindowSetSlotString(p[0xD], 0, iGpffffb44c + (datPersonaGetArcana(arg1) & 0xFF) * 21);
     if (s0 < s4) {
         nmMesWindowShowSlotRecord(p[0xD], 0x2B);
@@ -10167,7 +10167,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
         }
         break;
     case 10:
-        if (func_00331580() != 0) {
+        if (fclCombineInPreviewState() != 0) {
             if ((fclCalendarMonth() & 0xFF) == 3 && (fclCalendarDay() & 0xFF) >= 0x14 && (fclCalendarDay() & 0xFF) < 0x20) {
                 p[0] = 0;
                 p[0] = 3;
@@ -10226,7 +10226,7 @@ void fclCombineTaskDestroy(u8 *arg0)
         fieldSceneUnload();
     }
     if (kwlnTaskGetTaskByName(D_00641BC8) != 0) {
-        func_003315a0();
+        fclCombineRequestRefresh();
     }
     H_Cdvd_Destroy(*(void **)(p + 0x10));
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
