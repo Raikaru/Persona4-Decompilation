@@ -330,9 +330,9 @@ s32 evtFindTask(void) {
 
 
 
-// Marks the event task as started by setting its started flag.
+// Sets the load-request bit (loadFlags 0x1, +0x770); evtStepEventTask state 14 clears it.
 // FUN_00286380
-void evtMarkTaskStarted(s32 task)
+void evtRequestLoad(s32 task)
 {
     u8 *p;
 
@@ -340,9 +340,9 @@ void evtMarkTaskStarted(s32 task)
     *(s32 *)(p + 0x770) = *(s32 *)(p + 0x770) | 0x1;
 }
 
-// Returns 1 when the event task carries the marked flag, else 0 [inferred].
+// Returns 1 when the loader is idle (loadFlags bit 0x2, +0x770), else 0 [inferred].
 // FUN_002863B0
-s32 evtTaskIsMarked(s32 task) {
+s32 evtLoaderIsIdle(s32 task) {
     return (*(s32 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x770) & 2) != 0;
 }
 // Event id: stores the three id words (+0x78C..+0x794) that label the event.
