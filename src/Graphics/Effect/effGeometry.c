@@ -64,6 +64,27 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
+typedef struct RwSphere
+{
+    RwV3d center;
+    f32 radius;
+} RwSphere;
+
+/* RpGeometry and RpMorphTarget views. The true RenderWare types are in include/rw/inc/rpworld.h,
+ * but that header needs system includes this toolchain does not provide, so these views keep only
+ * the offsets this TU reads. RpGeometry starts with an 8-byte RwObject. */
+typedef struct RpMorphTargetView {
+    u8 field_0x00[0x4];
+    RwSphere boundingSphere;         /* +0x4 */
+} RpMorphTargetView;
+
+typedef struct RpGeometryView {
+    u8 field_0x00[0x2C];
+    u8 *triangles;                   /* +0x2C */
+    u8 field_0x30[0x5C - 0x30];
+    RpMorphTargetView *morphTarget;  /* +0x5C */
+} RpGeometryView;
+
 typedef signed __int128 s128;
 
 void GeometryMatrixBuild(RwMatrix *arg0, RwV3d *arg1, void *arg2, f32 fparg0);
@@ -145,7 +166,7 @@ u8 *GeometryCreateStripGrid(u16 arg0, void *arg1, s32 arg2, s32 arg3) {
     spCC = temp_2_2;
     temp_20 = *(u8 **)(*(u8 **)(temp_2_2 + 0x10) + 0x18);
     spB0 = *(s32 *)(temp_2_2 + 0x14);
-    var_19 = *(u8 **)(temp_20 + 0x2C);
+    var_19 = ((RpGeometryView *)temp_20)->triangles;
     var_16 = 0;
     var_18 = 0;
     while (var_18 < temp_22) {
@@ -196,7 +217,7 @@ u8 *GeometryCreateTableGrid(s32 arg0, s32 arg1, s32 arg2, const void *arg3, s32 
     temp_21 = *(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18);
     spB0 = *(s32 *)(temp_2 + 0x14);
     spCC = temp_2;
-    var_20 = *(u8 **)(temp_21 + 0x2C);
+    var_20 = ((RpGeometryView *)temp_21)->triangles;
     var_17 = 0;
     var_19 = 0;
     while (var_19 < temp_16) {
@@ -281,7 +302,7 @@ u8 *GeometryCloneBlock(u8 *arg0) {
             func_003c42b0((void *)(u32)temp_16, temp_5_2);
         }
         RpGeometryLock((RpGeometry *)temp_21, 1);
-        var_20 = *(u8 **)(temp_21 + 0x2C);
+        var_20 = ((RpGeometryView *)temp_21)->triangles;
         var_19 = *(u8 **)(temp_23 + 0x2C);
         var_22 = 0;
         while (var_22 < *(s16 *)(self + 0xA)) {
@@ -518,7 +539,7 @@ u8 *GeometryCreateMultiPart(s32 partCount, s32 verticesPerPart, s32 trianglesPer
     }
     chkmemAllocSiteTag(D_00713448, 461);
     {
-        struct RwSphere { RwV3d center; f32 radius; } sphere;
+        RwSphere sphere;
         RwFrame *frame;
         RpMaterial **materials;
         u8 *effect;
@@ -526,7 +547,7 @@ u8 *GeometryCreateMultiPart(s32 partCount, s32 verticesPerPart, s32 trianglesPer
         RpAtomic *atomic;
         const s32 count = (u16)partCount;
         u16 index;
-        u8 *morphTarget;
+        RpMorphTargetView *morphTarget;
 
         effect = jtbl_008873E8[0](count * 4 + 0x58, 0x40000);
         frame = func_003e9320();
@@ -545,8 +566,8 @@ u8 *GeometryCreateMultiPart(s32 partCount, s32 verticesPerPart, s32 trianglesPer
         sphere.center.y = 0.0f;
         sphere.center.z = 0.0f;
         sphere.radius = fGpffff8078;
-        morphTarget = *(u8 **)((u8 *)geometry + 0x5C);
-        *(struct RwSphere *)(morphTarget + 4) = sphere;
+        morphTarget = ((RpGeometryView *)geometry)->morphTarget;
+        morphTarget->boundingSphere = sphere;
         func_003c0210(atomic, geometry, 0);
         func_003c2a80(geometry);
         *(s16 *)(effect + 0) = 5;
@@ -604,7 +625,7 @@ u8 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32
     spE8 = temp_2;
     temp_21 = *(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18);
     spC0 = *(s32 *)(temp_2 + 0x54);
-    var_20 = *(u8 **)(temp_21 + 0x2C);
+    var_20 = ((RpGeometryView *)temp_21)->triangles;
     var_16 = 0;
     var_17 = 0;
     spB0 = arg0 & 0xFFFF;
@@ -670,7 +691,7 @@ u8 *GeometryCreateStripGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32
     spE8 = temp_2_2;
     temp_20 = *(u8 **)(*(u8 **)(temp_2_2 + 0x10) + 0x18);
     spC0 = *(s32 *)(temp_2_2 + 0x54);
-    var_20 = *(u8 **)(temp_20 + 0x2C);
+    var_20 = ((RpGeometryView *)temp_20)->triangles;
     var_16 = 0;
     var_17 = 0;
     spB0 = arg0 & 0xFFFF;
