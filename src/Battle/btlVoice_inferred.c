@@ -156,7 +156,7 @@ extern s32 btlFormationAllocWork(u32 param_1);
 extern u8 *btlFormationGetRecord(s32 arg0);
 extern void btlFormationCopyRecord(int destination, u32 source);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
-extern void func_001f0a10(u8 *arg0);
+extern void btlTargetClearResultBuffer(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
@@ -1851,7 +1851,7 @@ void btlEncounterStartSequence(u8 *arg0)
             goto after_ef90;
         }
         var_16 = (u8 *)btlActionFindByUnit(temp_2);
-        func_001f0a10((u8 *)payload);
+        btlTargetClearResultBuffer((u8 *)payload);
         payload[2] = 0x100000;
         temp_2_5 = (u8 *)btlTargetCreateDataPacket((s32)(u32)var_16, (s32)(u32)var_16,
                                       (void *)payload, 1, 1);
@@ -2002,9 +2002,9 @@ void btlActionRunPresentation(u8 *action)
     *(u64 *)(packet + 0x60) = *(u64 *)action;
     btlPacketEnqueue(packet, 1);
 
-    func_001f0a10(targetParams.bytes);
+    btlTargetClearResultBuffer(targetParams.bytes);
     targetParams.words[2] = 0x100;
-    func_001f0a10(statusParams.bytes);
+    btlTargetClearResultBuffer(statusParams.bytes);
     statusParams.words[3] = 0x100001;
     delay = 0;
     targetIndex = 0;
@@ -2267,7 +2267,7 @@ void btlActionRunMotionSequence(u8 *arg0)
     packet = btlPacketCreateEffectCounter(*(s32 *)(last + 0x30), count == 1 ? 0xAC : 0xAD);
     *(s64 *)(packet + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(packet, 3);
-    func_001f0a10(params.bytes);
+    btlTargetClearResultBuffer(params.bytes);
     params.words[3] = 0x100;
     btlUnitGetGroupBounds(2, 1, &center, NULL, NULL, 1);
     if (count != 1) {
@@ -2452,7 +2452,7 @@ void btlEncounterResetSlots(u8 *arg0)
         *(s64 *)(temp_2_3 + 0x60) = *(s64 *)arg0;
         btlPacketEnqueue(temp_2_3, 0);
     }
-    func_001f0a10((u8 *)sp.data);
+    btlTargetClearResultBuffer((u8 *)sp.data);
     *(s32 *)(sp.data + 8) = 0x100000;
     {
         u8 *temp_2_4;

@@ -26,9 +26,9 @@ typedef struct BtlPacket {
 extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 extern u32 btlCameraNudgeUnitPair(int* param_1);
 extern u32 btlFormationPlaceUnits(u32 *work);
-extern void func_001d2e00(u32 *work);
+extern void btlFormationEnterTurn(u32 *work);
 extern u32 btlFormationPlaceFromRaw(u8 *param_1);
-extern void func_001d2fe0(u32 *work);
+extern void btlFormationLeaveTurn(u32 *work);
 extern u32 btlFormationUpdatePose(u32 *work);
 extern u32 btlFormationUpdateMovement(u16 *param_1);
 extern u32 btlFormationUpdateDeadPosition(u16 *param_1);
@@ -580,7 +580,7 @@ BtlPacket* btlFormationCreateStepPacket(u32 param_1, u32 param_2, u32 param_3)
 
 
 // FUN_001D2E00
-void func_001d2e00(u32 *work)
+void btlFormationEnterTurn(u32 *work)
 {
     *(u16 *)(work[0] + 0xa0) = *(u16 *)(work[0] + 0xa0) + 1;
 }
@@ -656,7 +656,7 @@ u32 btlFormationPlaceFromRaw(u8 *raw)
 #pragma pop
 
 // FUN_001D2FE0
-void func_001d2fe0(u32 *work)
+void btlFormationLeaveTurn(u32 *work)
 {
     *(u16 *)(work[0] + 0xa0) = *(u16 *)(work[0] + 0xa0) - 1;
 }
@@ -667,9 +667,9 @@ BtlPacket* btlFormationCreateTurnPacket(u32 param_1, u32 param_2, u32 param_3, u
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb02, 0x10);
-    *(code **)(packet + 0x68) = (code *)func_001d2e00;
+    *(code **)(packet + 0x68) = (code *)btlFormationEnterTurn;
     *(code **)(packet + 0x6c) = (code *)btlFormationPlaceFromRaw;
-    *(code **)(packet + 0x70) = (code *)func_001d2fe0;
+    *(code **)(packet + 0x70) = (code *)btlFormationLeaveTurn;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
     work[1] = param_2;
@@ -1319,7 +1319,7 @@ void btlFormationSetSlot(s32 param_1, u32 param_2)
 }
 
 // FUN_001D4E90
-void func_001d4e90(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+void btlFormationClearAttachVector(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     arg3[0] = 0.0f;
     arg3[1] = 0.0f;
     arg3[2] = 0.0f;

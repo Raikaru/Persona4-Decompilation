@@ -71,7 +71,7 @@ extern u8 D_006251F0[];
 
 
 
-extern s32 func_001f3900(u8 **arg0);
+extern s32 btlTargetClearFlaggedBuffs(u8 **arg0);
 
 
 
@@ -112,7 +112,7 @@ extern s32 btlTargetGroupStateMatches(u8 *arg0);
 /* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
 #pragma pop
 // FUN_001F3900
-s32 func_001f3900(u8 **arg0) {
+s32 btlTargetClearFlaggedBuffs(u8 **arg0) {
     datCalcClearFlaggedBuffs(*(s32 *)(*(u8 **)(*arg0 + 0x30) + 0xA64));
     return 1;
 }
