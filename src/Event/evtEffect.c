@@ -18,8 +18,8 @@ extern u8 D_0063C870[];
 extern u8 iGpffffa7b8;
 extern void func_00440b68();
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern u8 *func_00455f70(u8 *arg0, u32 *arg1);
-extern s32 func_00454a60(u8 *arg0, s32 arg1);
+extern u8 *H_Cdvd_LookupRequest(u8 *arg0, u32 *arg1);
+extern s32 H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
 
 // FUN_00290F00
 u8 *func_00290f00(void)
@@ -97,7 +97,7 @@ s32 func_00291080(s32 *arg0)
             if (H_Cdvd_IsFileLoaded(handle) == 1) {
                 offset = index * 11;
                 record = (u8 *)(arg0 + offset + 5);
-                arg0[offset + 13] = (s32)func_00455f70(record, &sp5C);
+                arg0[offset + 13] = (s32)H_Cdvd_LookupRequest(record, &sp5C);
                 func_00440b68(D_0063C870, index, record);
                 arg0[3] = 0;
                 arg0[2] += 1;
@@ -106,7 +106,7 @@ s32 func_00291080(s32 *arg0)
             func_00440b68(&iGpffffa7b8, D_0063C830, 0xB0);
             offset = index * 11;
             record = (u8 *)(arg0 + offset + 5);
-            temp2 = (s32)func_00454a60(record, 0);
+            temp2 = (s32)H_Cdvd_AcquireDirectory(record, 0);
             arg0[offset + 14] = temp2;
             arg0[3] = temp2;
         }

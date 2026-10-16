@@ -11,7 +11,7 @@ extern s32 pscResFindFreePersonaSlot(void);
 extern u32 *pscResFindFreeRequest(void);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void func_00440b68(char *fmt, ...);
-extern s32 func_00454a60(void *msg, s32 kind);
+extern s32 H_Cdvd_AcquireDirectory(void *msg, s32 kind);
 extern char D_00723A78;
 extern char D_0064E4F0[];
 extern char D_0064E510[];
@@ -456,7 +456,7 @@ void pscResAcquireMiscCardW00(void) {
         *(s32 *)((u8 *)q + 0x110) = 2;
         *(s32 *)((u8 *)q + 0x114) = 1;
         func_00440b68(&D_00723A78, D_0064E4E0, 0x21E);
-        *(s32 *)((u8 *)q + 8) = func_00454a60(D_0064E4F0, 0);
+        *(s32 *)((u8 *)q + 8) = H_Cdvd_AcquireDirectory(D_0064E4F0, 0);
         *(s32 *)((u8 *)q + 4) = 1;
         *(u32 *)((u8 *)q + 0) |= 1;
     }
@@ -527,7 +527,7 @@ void pscResAcquireArcanaCard(s32 arg0, s32 arg1) {
         sprintf(buf2, D_0064E530, buf1, v);
     }
     func_00440b68(&D_00723A78, D_0064E4E0, 0x260);
-    *(s32 *)((u8 *)q + 8) = func_00454a60(buf2, 0);
+    *(s32 *)((u8 *)q + 8) = H_Cdvd_AcquireDirectory(buf2, 0);
     *(s32 *)((u8 *)q + 4) = 1;
     *(u32 *)((u8 *)q + 0) |= 1;
 }
@@ -557,7 +557,7 @@ void pscResAcquirePersonaCard(s32 arg0) {
     *(s32 *)((u8 *)q + 0x114) = i;
     sprintf(buf, D_0064E550, arg0 & 0xFFFF);
     func_00440b68(&D_00723A78, D_0064E4E0, 0x285);
-    *(s32 *)((u8 *)q + 8) = func_00454a60(buf, 0);
+    *(s32 *)((u8 *)q + 8) = H_Cdvd_AcquireDirectory(buf, 0);
     *(s32 *)((u8 *)q + 4) = 1;
     *(u32 *)((u8 *)q + 0) |= 1;
 }
@@ -586,7 +586,7 @@ void pscResAcquireMiscCardW01(void) {
         *(s32 *)((u8 *)q + 0x110) = 2;
         *(s32 *)((u8 *)q + 0x114) = 2;
         func_00440b68(&D_00723A78, D_0064E4E0, 0x2A7);
-        *(s32 *)((u8 *)q + 8) = func_00454a60(D_0064E570, 0);
+        *(s32 *)((u8 *)q + 8) = H_Cdvd_AcquireDirectory(D_0064E570, 0);
         *(s32 *)((u8 *)q + 4) = 1;
         *(u32 *)((u8 *)q + 0) |= 1;
     }

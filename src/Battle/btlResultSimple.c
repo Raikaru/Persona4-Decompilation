@@ -33,11 +33,11 @@ extern char D_00629610[];
 extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s32 arg0);
 void func_00440b68(void *msg, const void *file, s32 line);
-extern u8 *func_00454a60(u8 *param, s32 mode);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 void kAssertFail(const void *file, s32 line);
 s32 resourceFindByName(u32 param);
 s32 H_Cdvd_IsFileLoaded(u8 *ptr);
-u8 *func_00455ea0(u8 *param, s32 a, s32 *b);
+u8 *H_Cdvd_GetArchiveEntry(u8 *param, s32 a, s32 *b);
 s32 func_0046a750(s32 param);
 void btlResultSimpleDraw(u8 *arg0, u8 *work);
 void btlResultSimpleTaskDestroy(u8 *task);
@@ -291,7 +291,7 @@ s32 btlResultSimpleLoadAssets(BtlResultWork *work)
             var_18 = 0;
             while (var_18 < 3) {
                 dest = (s32 *)(arg0 + var_18 * 4 + 0x400);
-                *dest = (s32)sdkSpriteAdoptBlob((u32)func_00455ea0(*(u8 **)(arg0 + 0x4BC), var_18, 0));
+                *dest = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_GetArchiveEntry(*(u8 **)(arg0 + 0x4BC), var_18, 0));
                 if (*dest == 0) {
                     kAssertFail(&D_00629610, 0x181);
                 }
@@ -385,7 +385,7 @@ s32 btlResultSimpleStepPhase(u8 *arg0) {
     case 2:
         if ((D_008C024E[0] & 0x40) || (D_008C024C[0] & 0x10)) {
             if (*(s16 *)(sub + 0x6F8) > 0) {
-                nmMesWindowOpenCurrent((u8 *)((s32)func_00455ea0(*(u8 **)(sub + 0x934), 0, 0)));
+                nmMesWindowOpenCurrent((u8 *)((s32)H_Cdvd_GetArchiveEntry(*(u8 **)(sub + 0x934), 0, 0)));
                 nmMesWindowShowCurrentRecord(0x17);
                 *(u32 *)(work + 0x38) = 3;
             } else {
@@ -450,11 +450,11 @@ s32 btlResultSimpleUpdate(u8 *arg0) {
             v = *(s32 *)(work->field570 + 0x60);
             if (v & 2) {
                 work->state = 4;
-                nmMesWindowOpenCurrent((u8 *)((s32)func_00455ea0(*(u8 **)(work->field570 + 0x934), 0, 0)));
+                nmMesWindowOpenCurrent((u8 *)((s32)H_Cdvd_GetArchiveEntry(*(u8 **)(work->field570 + 0x934), 0, 0)));
                 nmMesWindowShowCurrentRecord(2);
             } else if (v & 8) {
                 work->state = 4;
-                nmMesWindowOpenCurrent((u8 *)((s32)func_00455ea0(*(u8 **)(work->field570 + 0x934), 0, 0)));
+                nmMesWindowOpenCurrent((u8 *)((s32)H_Cdvd_GetArchiveEntry(*(u8 **)(work->field570 + 0x934), 0, 0)));
                 nmMesWindowShowCurrentRecord(1);
             } else if (v & 0x10) {
                 work->flags &= 0xFFFE;
@@ -1143,7 +1143,7 @@ void btlResultSimpleSetupEntries(void) {
         i = (0U < r) ^ 1U;
     }
     func_00440b68(&iGpffffa5b8, &D_00629610, 1410);
-    work->field4BC = (s32)func_00454a60(iGpffffa5a0[i], 1);
+    work->field4BC = (s32)H_Cdvd_AcquireDirectory(iGpffffa5a0[i], 1);
     if (work->field4BC == 0) {
         kAssertFail(&D_00629610, 1411);
     }
@@ -1157,7 +1157,7 @@ void btlResultSimpleSetupEntries(void) {
     }
     func_00440b68(&iGpffffa5b8, &D_00629610, 1423);
     ((BtlResultSubWork *)work->field570)->field934 =
-        (s32)func_00454a60((u8 *)iGpffffa5b0, 1);
+        (s32)H_Cdvd_AcquireDirectory((u8 *)iGpffffa5b0, 1);
     if (((BtlResultSubWork *)work->field570)->field934 == 0) {
         kAssertFail(&D_00629610, 1424);
     }

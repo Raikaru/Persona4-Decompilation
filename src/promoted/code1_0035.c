@@ -89,7 +89,7 @@ extern u8 D_0064CCB0[];
 extern u8 D_0064CCD0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_00440b68();
-extern s32 func_00454a60(u8 *arg0, s32 arg1);
+extern s32 H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
 extern s32 H_Cdvd_IsFileLoaded(s32 arg0);
 extern s32 func_004667d0();
 extern s32 func_004669d0(s32 arg0, void *arg1, s32 arg2);
@@ -523,7 +523,7 @@ s32 datTextSlotLoadStep(u8 *arg0) {
             func_00440b68(&D_0064B380);
         } else {
             func_00440b68(&iGpffffa960, &D_0064B310, 0x433);
-            handle = func_00454a60(arg0 + 0x10, 0);
+            handle = H_Cdvd_AcquireDirectory(arg0 + 0x10, 0);
             *(s32 *)(arg0 + 8) = handle;
             if (handle == 0) {
                 kAssertFail(&D_0064B310, 0x434);

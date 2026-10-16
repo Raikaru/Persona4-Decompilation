@@ -1833,7 +1833,7 @@ s32 FldFrame_GetStatus(u8 *arg0)
    (goto body / goto skip; `== 3 || == 4` folds to sltiu). The count guard is
    `> 0x20` for the $at slti form. Locals in stack order: diff, prev, cur, then
    the two 64-byte matrix copies (case 6 at sp+0x70, case 7 at sp+0x30), each a
-   two-word copy loop from kwlnGetCamera()->frame + 0x10; `prev = cur` is the
+   two-word copy loop from func_00457120()->frame + 0x10; `prev = cur` is the
    RwV3d struct copy (ld/sd + lwc1/swc1). */
 void FldCameraAdvanceCurve(u8 *arg0, s32 arg1)
 {

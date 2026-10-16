@@ -12,9 +12,9 @@ extern u32 D_005DC974[];
 
 void func_00440b68();
 void sprintf();
-s32 func_00454a60();
+s32 H_Cdvd_AcquireDirectory();
 s32 H_Cdvd_IsFileLoaded();
-s32 func_00455f70();
+s32 H_Cdvd_LookupRequest();
 u8 *func_004b1130();
 
 void func_004b11d0();
@@ -57,14 +57,14 @@ s32 func_00120bc0(u8 *arg0)
         sprintf(sp120, D_005E4FA0, *(s16 *)(temp_16 + 4),
                       *(s16 *)(temp_16 + 6));
         func_00440b68(&iGpffff9c28, D_005E4FB8, 0x28);
-        *(s32 *)(temp_16 + 0x28) = func_00454a60(sp120, 0);
+        *(s32 *)(temp_16 + 0x28) = H_Cdvd_AcquireDirectory(sp120, 0);
         *(s32 *)temp_16 = 1;
         break;
     case 1:
         if (H_Cdvd_IsFileLoaded(*(s32 *)(temp_16 + 0x28)) != 0) {
             sprintf(sp20, D_005E4FA0, *(s16 *)(temp_16 + 4),
                           *(s16 *)(temp_16 + 6));
-            *(u8 **)(temp_16 + 0x24) = func_004b1130(func_00455f70(sp20, 0));
+            *(u8 **)(temp_16 + 0x24) = func_004b1130(H_Cdvd_LookupRequest(sp20, 0));
             *(s32 *)temp_16 = 2;
         }
         break;

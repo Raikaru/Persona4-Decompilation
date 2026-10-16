@@ -22,7 +22,7 @@ extern void func_00466e80(u8 *);
 extern u8 D_008E4B50[];
 extern s32 func_0042ba20(void);
 extern s32 func_0042ba70(void);
-extern u8 *func_00454a60(u8 *path, s32 flags);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 extern void func_00421710(s32 threadId);
 extern u8 D_00712990[];
 extern s32 D_00724BC8;
@@ -50,7 +50,7 @@ void func_00466c60(void)
                         lock = func_0042ba20();
                         func_00440b68(iGpffffb010, D_00712978, 0x233);
                         *(u8 **)(work + 0x1B0) =
-                            func_00454a60(work + 0xA4, *(s32 *)(work + 0x1A8));
+                            H_Cdvd_AcquireDirectory(work + 0xA4, *(s32 *)(work + 0x1A8));
                         if (lock != 0) {
                             func_0042ba70();
                         }

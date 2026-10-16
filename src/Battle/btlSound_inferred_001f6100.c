@@ -289,7 +289,7 @@ s32 btlSoundLoadPlaybackFile(u8 *arg0)
 {
     extern void func_002bd240(u32 arg0);
     extern void func_00440b68();
-    extern s32 func_00454a60();
+    extern s32 H_Cdvd_AcquireDirectory();
     extern u8 iGpffffa4e8;
     extern u8 iGpffffa4e0;
     extern u8 D_0060ABE8[];
@@ -309,7 +309,7 @@ s32 btlSoundLoadPlaybackFile(u8 *arg0)
     case 1:
         func_00440b68(&iGpffffa4e8, D_0060ABE8, 0x713);
         *(s32 *)(iGpffffb3ac + 0xA54) =
-            func_00454a60(
+            H_Cdvd_AcquireDirectory(
                 *(u8 **)((u8 *)&iGpffffa4e0 +
                          (*(u16 *)(arg0 + 4) * 4)),
                 0);

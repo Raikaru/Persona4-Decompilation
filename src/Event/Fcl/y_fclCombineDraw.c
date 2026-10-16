@@ -149,7 +149,7 @@ extern f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
 extern u8 D_00795E60[];
 
 extern void func_00440b68();
-extern u8 *func_00454a60(u8 *param, s32 mode);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 extern void fclCombineCdvdTaskDestroy(u8 *);
 extern char D_00644D70[];
 extern char D_00644D90[];
@@ -6201,7 +6201,7 @@ s32 fclCombineCdvdTaskUpdate(u8 *arg0) {
         break;
     case 5:
         if (H_Cdvd_IsFileLoaded(*(u32 *)(t + 0x1C)) != 0 && H_Cdvd_IsFileLoaded(*(u32 *)(t + 0x20)) != 0) {
-            *(s8 *)(t + 0x44) = itfMesWindowInstall(func_00455f70(D_00644E30, 0));
+            *(s8 *)(t + 0x44) = itfMesWindowInstall(H_Cdvd_LookupRequest(D_00644E30, 0));
             *(s8 *)(t + 0) = (s8)(*(s8 *)(t + 0) + 1);
         }
         break;
@@ -6243,16 +6243,16 @@ void fclCombineCdvdTaskCreate(void) {
     *(s8 *)(p + 0) = 0;
     *(s8 *)(p + 0x45) = 0;
     func_00440b68(&iGpffffa910, D_00644D30, 0x16B2);
-    *(s32 *)(p + 0xC) = (s32)func_00454a60((u8 *)D_00644DB0, 0);
+    *(s32 *)(p + 0xC) = (s32)H_Cdvd_AcquireDirectory((u8 *)D_00644DB0, 0);
     func_00440b68(&iGpffffa910, D_00644D30, 0x16B3);
-    *(s32 *)(p + 0x10) = (s32)func_00454a60((u8 *)D_00644DD0, 0);
+    *(s32 *)(p + 0x10) = (s32)H_Cdvd_AcquireDirectory((u8 *)D_00644DD0, 0);
     func_00440b68(&iGpffffa910, D_00644D30, 0x16B4);
-    *(s32 *)(p + 0x14) = (s32)func_00454a60((u8 *)D_00644DF0, 0);
+    *(s32 *)(p + 0x14) = (s32)H_Cdvd_AcquireDirectory((u8 *)D_00644DF0, 0);
     func_00440b68(&iGpffffa910, D_00644D30, 0x16B5);
-    *(s32 *)(p + 0x18) = (s32)func_00454a60((u8 *)D_00644E10, 0);
+    *(s32 *)(p + 0x18) = (s32)H_Cdvd_AcquireDirectory((u8 *)D_00644E10, 0);
     func_00440b68(&iGpffffa910, D_00644D30, 0x16B7);
-    *(s32 *)(p + 0x1C) = (s32)func_00454a60((u8 *)D_00644E30, 0);
+    *(s32 *)(p + 0x1C) = (s32)H_Cdvd_AcquireDirectory((u8 *)D_00644E30, 0);
     *(s8 *)(p + 0x44) = -1;
     func_00440b68(&iGpffffa910, D_00644D30, 0x16B9);
-    *(s32 *)(p + 0x20) = (s32)func_00454a60((u8 *)D_00644E60, 0);
+    *(s32 *)(p + 0x20) = (s32)H_Cdvd_AcquireDirectory((u8 *)D_00644E60, 0);
 }

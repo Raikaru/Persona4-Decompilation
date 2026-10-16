@@ -68,13 +68,13 @@ s32 K_FldFoodCourt_Update(u8 *arg0) {
         func_00144ed0((s64)(s16)FldEnvStateFromCalendar(9, 1));
         if (clndIsDateInRange(4, 1, 7, 0x1F) == 1) {
             func_00440b68(&iGpffff9f90, D_005F5450, 0x58);
-            *(u8 **)(temp_16 + 8) = (u8 *)func_00454a60(D_005F5470, 0);
+            *(u8 **)(temp_16 + 8) = (u8 *)H_Cdvd_AcquireDirectory(D_005F5470, 0);
         } else if (clndIsDateInRange(8, 1, 0xB, 0x1E) == 1) {
             func_00440b68(&iGpffff9f90, D_005F5450, 0x5C);
-            *(u8 **)(temp_16 + 8) = (u8 *)func_00454a60(D_005F5490, 0);
+            *(u8 **)(temp_16 + 8) = (u8 *)H_Cdvd_AcquireDirectory(D_005F5490, 0);
         } else {
             func_00440b68(&iGpffff9f90, D_005F5450, 0x60);
-            *(u8 **)(temp_16 + 8) = (u8 *)func_00454a60(D_005F54B0, 0);
+            *(u8 **)(temp_16 + 8) = (u8 *)H_Cdvd_AcquireDirectory(D_005F54B0, 0);
         }
         *(s32 *)temp_16 += 1;
     case 1:

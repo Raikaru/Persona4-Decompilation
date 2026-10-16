@@ -2286,7 +2286,7 @@ s32 func_00257820(s32 arg0, void *arg1) {
 
 extern u8 *func_003ec3d0(void *raster, s32 lockMode);
 extern void *func_003ec2e0(void *raster);
-extern s32 func_00455f70(s32 name, s32 *size);
+extern s32 H_Cdvd_LookupRequest(s32 name, s32 *size);
 
 #pragma push
 #pragma always_inline on
@@ -2491,40 +2491,40 @@ s32 func_00257900(u8 *task) {
         }
         temp_f20 = (f32) *(s32 *)(context + 0x48) / 45.0f;
         if (*(s32 *)(context + 8) == 0) {
-            temp_20 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_20 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_2 = func_0025ff60(temp_20);
             func_004b12e0(temp_20_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_2), position);
         }
         if (*(s32 *)(context + 8) == 0) {
-            temp_20_3 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636650, &resourceSize), 0x64, &D_005DC974));
+            temp_20_3 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636650, &resourceSize), 0x64, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_20_4 = func_0025ff60(temp_20_3);
             func_004b12e0(temp_20_4, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_4), position);
         }
         if (*(s32 *)(context + 8) == 0x78) {
-            temp_20_5 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636670, &resourceSize), 0x96, &D_005DC974));
+            temp_20_5 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636670, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_20_6 = func_0025ff60(temp_20_5);
             func_004b12e0(temp_20_6, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_6), position);
         }
         if (*(s32 *)(context + 8) == 0x23A) {
-            temp_20_7 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_20_7 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_8 = func_0025ff60(temp_20_7);
             func_004b12e0(temp_20_8, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_8), position);
         }
         if ((*(s32 *)(context + 8) == 0x258) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
-            temp_20_9 = (s32)(func_0025ff60(func_0025fe50((s32)(task), func_00455f70((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
+            temp_20_9 = (s32)(func_0025ff60(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
             func_004b12e0(temp_20_9, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_9), position);
         }
         if ((*(s32 *)(context + 8) == 0x280) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
-            func_004b1250((void *)(func_0025ff60(func_0025fe50((s32)(task), func_00455f70((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974))), position);
+            func_004b1250((void *)(func_0025ff60(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974))), position);
         }
         mode0Frame = (s32)(*(s32 *)(context + 8));
         if (mode0Frame >= 0xA) {
@@ -2699,7 +2699,7 @@ s32 func_00257900(u8 *task) {
         }
         temp_f20_2 = (f32) *(s32 *)(context + 0x48) / 45.0f;
         if (*(s32 *)(context + 8) == 0) {
-            temp_20_10 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_20_10 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_11 = func_0025ff60(temp_20_10);
             func_004b12e0(temp_20_11, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
@@ -2710,7 +2710,7 @@ s32 func_00257900(u8 *task) {
         }
         temp_3_4 = (s32)(*(s32 *)(context + 8));
         if (((temp_3_4 % 10) == 0) && (temp_3_4 < 0x1CD)) {
-            temp_20_12 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_006366F0, &resourceSize), 0x32, &D_005DC974));
+            temp_20_12 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_006366F0, &resourceSize), 0x32, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_13 = func_0025ff60(temp_20_12);
             func_004b12e0(temp_20_13, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
@@ -2720,19 +2720,19 @@ s32 func_00257900(u8 *task) {
             func_004b13f0((void *)temp_20_13, &drawColorValue.packed);
         }
         if (*(s32 *)(context + 8) == 0x21C) {
-            temp_20_14 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_20_14 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_15 = func_0025ff60(temp_20_14);
             func_004b12e0(temp_20_15, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_15), position);
         }
         if ((*(s32 *)(context + 8) == 0x23A) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
-            temp_20_16 = (s32)(func_0025ff60(func_0025fe50((s32)(task), func_00455f70((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
+            temp_20_16 = (s32)(func_0025ff60(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
             func_004b12e0(temp_20_16, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_16), position);
         }
         if ((*(s32 *)(context + 8) == 0x262) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
-            temp_19_2 = (s32)(func_0025ff60(func_0025fe50((s32)(task), func_00455f70((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974)));
+            temp_19_2 = (s32)(func_0025ff60(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974)));
             func_004b12e0(temp_19_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_19_2), position);
         }
@@ -2901,14 +2901,14 @@ s32 func_00257900(u8 *task) {
     case 11:
         spriteTexture = (s32)(**(s32 **)(context + 0x54));
         if (*(s32 *)(context + 8) == 0) {
-            temp_21 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_21 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_21_2 = func_0025ff60(temp_21);
             func_004b12e0(temp_21_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_21_2), position);
         }
         if (*(s32 *)(context + 8) == 0xBE) {
-            temp_19_4 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_19_4 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_19_5 = func_0025ff60(temp_19_4);
             func_004b12e0(temp_19_5, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
@@ -2978,14 +2978,14 @@ s32 func_00257900(u8 *task) {
         break;
     case 12:
         if (*(s32 *)(context + 8) == 0) {
-            temp_17_4 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_17_4 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_17_5 = func_0025ff60(temp_17_4);
             func_004b12e0(temp_17_5, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_17_5), position);
         }
         if (*(s32 *)(context + 8) == 0x9B) {
-            temp_17_6 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636710, &resourceSize), 0x96, &D_005DC974));
+            temp_17_6 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636710, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_17_7 = func_0025ff60(temp_17_6);
             func_004b12e0(temp_17_7, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
@@ -3208,7 +3208,7 @@ extern char cGpffffa680;
 extern char cGpffffa688;
 extern u8 *datPortraitTaskCreate(s32 parent, s64 id, s32 flags);
 extern void func_00440b68();
-extern u8 *func_00454a60();
+extern u8 *H_Cdvd_AcquireDirectory();
 extern s32 H_Cdvd_IsFileLoaded();
 extern u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName, s32 resultKind, s32 memoryKind);
 extern void *memcpy(void *destination, const void *source, u32 size);
@@ -3304,7 +3304,7 @@ s32 func_0025b240(u8 *arg0) {
         *(s32 *)(ctx + 0x2C) = (s32)datPortraitTaskCreate((s32)argb, cmmCommunityArcana(*(u16 *)(ctx + 0x18)), 0);
         *(s32 *)(ctx + 0x30) = (s32)datPortraitTaskCreate((s32)argb, -1, 0);
         func_00440b68(&cGpffffa680, D_00635CF8, 0xADB);
-        *(u8 **)(ctx + 0x34) = func_00454a60(D_00636760, 1);
+        *(u8 **)(ctx + 0x34) = H_Cdvd_AcquireDirectory(D_00636760, 1);
         goto tail;
     case 1:
         *(s32 *)(ctx + 4) = 2;
@@ -3339,7 +3339,7 @@ s32 func_0025b240(u8 *arg0) {
             goto tail;
         }
         *(s32 *)(ctx + 4) = 4;
-        *(s32 *)(ctx + 0x38) = func_00455f70((s32)D_00636780, &st18c);
+        *(s32 *)(ctx + 0x38) = H_Cdvd_LookupRequest((s32)D_00636780, &st18c);
         *(u8 **)(ctx + 0x50) = func_004667d0(0, (const char *)D_006367A0, 0, 0, 0, 0, 0, 0, 0, 0);
         {
         u8 *palette;

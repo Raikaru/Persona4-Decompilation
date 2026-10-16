@@ -126,7 +126,7 @@ extern void btlTargetSetDefeatState(u8 *arg0, s32 arg1);
 extern void btlSoundStopBgmIfEnabled(void);
 
 
-u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
+u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2);
 
 
 
@@ -1089,7 +1089,7 @@ u8 *btlEncounterGetRecord(s32 arg0)
 // FUN_0022CED0
 u8 *btlFormationGetRecord(s32 arg0)
 {
-    return func_00455ea0(*(u8 **)(DAT_0076449c + 0xB90), arg0 & 0xFFFF, 0);
+    return H_Cdvd_GetArchiveEntry(*(u8 **)(DAT_0076449c + 0xB90), arg0 & 0xFFFF, 0);
 }
 
 // Intent: Return the action anchor height for a unit. [inferred]

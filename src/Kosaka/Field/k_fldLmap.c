@@ -17,10 +17,10 @@ extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void kAssertFail(u8 *file, s32 line);
 extern void func_00440b68();
 extern void sprintf(u8 *dst, u8 *src);
-extern u8 *func_00454a60(u8 *param, s32 mode);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 extern void H_Cdvd_Destroy(u8 *ptr);
 extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
-extern s32 func_00455f70(u8 *param, s32 *out);
+extern s32 H_Cdvd_LookupRequest(u8 *param, s32 *out);
 extern s32 func_0046a750(s32 param);
 extern void sdkSpriteRelease(void *ptr);
 
@@ -169,16 +169,16 @@ s32 FldLmapLoadUpdate(u8 *arg0)
             }
         }
         func_00440b68(&iGpffff9f68, D_005F1EF8, 0xC8);
-        *(u8 **)(temp_16 + 4) = func_00454a60(sp40, 1);
+        *(u8 **)(temp_16 + 4) = H_Cdvd_AcquireDirectory(sp40, 1);
         *(s32 *)temp_16 = *(s32 *)temp_16 + 1;
         /* fallthrough */
     case 1:
         if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_16 + 4)) != 0) {
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x38) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F10, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x3C) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F30, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x40) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F50, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x44) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F70, &sp8C));
-            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x48) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F1F90, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x38) = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F1F10, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x3C) = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F1F30, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x40) = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F1F50, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x44) = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F1F70, &sp8C));
+            *(s32 *)(*(u8 **)(temp_16 + 8) + 0x48) = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F1F90, &sp8C));
             *(s32 *)temp_16 = *(s32 *)temp_16 + 1;
         }
         break;
@@ -435,9 +435,9 @@ s32 FldLmapUpdate(u8 *arg0)
         fieldSceneLoad(1, 1);
         func_00144ed0((s16)FldEnvStateFromCalendar(1, 1));
         func_00440b68(&iGpffff9f68, D_005F1EF8, 0x211);
-        *(u8 **)(st + 0x1C) = func_00454a60(D_005F1FD0, 1);
+        *(u8 **)(st + 0x1C) = H_Cdvd_AcquireDirectory(D_005F1FD0, 1);
         func_00440b68(&iGpffff9f68, D_005F1EF8, 0x212);
-        *(u8 **)(st + 0x20) = func_00454a60(D_005F1FF0, 0);
+        *(u8 **)(st + 0x20) = H_Cdvd_AcquireDirectory(D_005F1FF0, 0);
         *(s32 *)st = *(s32 *)st + 1;
     /* fallthrough */
     case 2: {
@@ -459,11 +459,11 @@ s32 FldLmapUpdate(u8 *arg0)
             u8 *tmp2 = kwlnGetCamera();
             func_003e9cb0(*(s32 *)(tmp2 + 4), *(u8 **)(st + 0x18), 0);
         }
-        *(s32 *)(st + 0x24) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2010, &out));
-        *(s32 *)(st + 0x2C) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2030, &out));
-        *(s32 *)(st + 0x30) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2050, &out));
-        *(s32 *)(st + 0x28) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2070, &out));
-        *(s32 *)(st + 0x34) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2090, &out));
+        *(s32 *)(st + 0x24) = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F2010, &out));
+        *(s32 *)(st + 0x2C) = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F2030, &out));
+        *(s32 *)(st + 0x30) = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F2050, &out));
+        *(s32 *)(st + 0x28) = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F2070, &out));
+        *(s32 *)(st + 0x34) = (s32)sdkSpriteAdoptBlob((u32)H_Cdvd_LookupRequest(D_005F2090, &out));
         *(u8 **)(st + 0x160) = (u8 *)scrStartProcedureChecked(15, *(s32 *)(*(u8 **)(st + 0x20) + 0x110), *(s32 *)(*(u8 **)(st + 0x20) + 0x118), 0);
         *(s32 *)st = *(s32 *)st + 1;
     }

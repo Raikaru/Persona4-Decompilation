@@ -22,9 +22,9 @@ struct BtlBed
 void btlFormationCopyRecord(BtlBedWork* work, u32 param);
 void btlFormationSetState(BtlBedWork* work);
 void func_00440b68();
-extern u8* func_00454a60(u8* param, s32 mode);
+extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
 void H_Cdvd_Destroy(u8* ptr);
-s32 func_00455f70(u8* param, s32* out);
+s32 H_Cdvd_LookupRequest(u8* param, s32* out);
 s32 H_Cdvd_IsFileLoaded(u8* ptr);
 extern void (*jtbl_008873EC[])(void* ptr);
 extern char iGpffffa288;
@@ -41,7 +41,7 @@ void btlBedCopyRecord(BtlBed* bed)
     }
     if (!(bed->field0C & 1)) {
         func_00440b68(&iGpffffa288, D_00609538, 0x499);
-        bed->field04 = (s32)func_00454a60(bed->field08, 0);
+        bed->field04 = (s32)H_Cdvd_AcquireDirectory(bed->field08, 0);
     } else {
         bed->field04 = 0;
     }
@@ -56,10 +56,10 @@ s32 btlBedLoad(BtlBed* bed)
 
     if (bed->field04 == 0) {
         func_00440b68(&iGpffffa288, D_00609538, 0x4B1);
-        bed->field04 = (s32)func_00454a60(bed->field08, 0);
+        bed->field04 = (s32)H_Cdvd_AcquireDirectory(bed->field08, 0);
     }
     if (H_Cdvd_IsFileLoaded((u8*)bed->field04) != 0) {
-        btlFormationCopyRecord(work, func_00455f70(bed->field08, &sp3C));
+        btlFormationCopyRecord(work, H_Cdvd_LookupRequest(bed->field08, &sp3C));
         H_Cdvd_Destroy((u8*)bed->field04);
         work->flags &= 0xFFFE;
         work->flags |= 2;

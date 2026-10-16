@@ -95,7 +95,7 @@ extern u8 D_008C0349[];
 extern void H_Cdvd_BuildPathUppercase(s32 arg0, void *arg1);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void strcat(void *arg0, void *arg1);
-extern void func_00456400(u8 *arg0, u8 *arg1, s32 arg2, void *arg3);
+extern void H_Cdvd_RegisterArchiveEntry(u8 *arg0, u8 *arg1, s32 arg2, void *arg3);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern u8 D_00711720[];
@@ -294,7 +294,7 @@ next_entry:
                 }
             }
         }
-        func_00456400(archive, archive + dataOffset, recordLength, entryPath);
+        H_Cdvd_RegisterArchiveEntry(archive, archive + dataOffset, recordLength, entryPath);
         biasedLength = (s32)((u32)recordLength + 0x3FU);
         blocks = biasedLength / 64;
         alignedLength = blocks * 64;

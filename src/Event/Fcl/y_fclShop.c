@@ -19,9 +19,9 @@ s32 func_00106b50(s16);
 void chkmemAllocSiteTag(const void *, u32);
 void sdkSndFadeOutChannelFrames(s16, s32, s32);
 void func_00440b68();
-s32 func_00454a60();
+s32 H_Cdvd_AcquireDirectory();
 void H_Cdvd_ReadSync();
-s32 func_00455f70();
+s32 H_Cdvd_LookupRequest();
 void nmMesWindowInstallHandle();
 void datLoadEntryTable();
 s32 fclShopMainUpdate(u8 *task);
@@ -114,9 +114,9 @@ void func_002bdf20(void)
         dst++;
     } while (count > 0);
     func_00440b68(&iGpffffa870, D_0063F3C8, 0x179);
-    H_Cdvd_ReadSync(func_00454a60(D_0063F550, 1));
+    H_Cdvd_ReadSync(H_Cdvd_AcquireDirectory(D_0063F550, 1));
     for (i = 0; i < 9; i++) {
-        nmMesWindowInstallHandle(i, func_00455f70(items[i], &out));
+        nmMesWindowInstallHandle(i, H_Cdvd_LookupRequest(items[i], &out));
     }
     datLoadEntryTable();
 }

@@ -36,7 +36,7 @@ extern void func_003e2e40(s32 a, s32 b);
 extern s32 func_003e6a90(s32 a);
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 func_004288d8(void *a, void *b);
-extern u8 *func_00454a60(void *path, s32 flags);
+extern u8 *H_Cdvd_AcquireDirectory(void *path, s32 flags);
 extern void H_Cdvd_ReadSync(void *handle);
 extern void H_Cdvd_Destroy(void *handle);
 extern char *strcat(char *dst, const char *src);
@@ -416,7 +416,7 @@ s32 K_TexStripBuildUpdate(u8 *task)
             if (work[work[0x397] + 0x96] != 0) {
                 sprintf(modelPath, D_005F6350, ((s16 *)((s32 *)work[0x93]))[2], work[work[0x397] + 0x96]);
                 func_00440b68(&D_00763150, D_005F6168, 0x263);
-                p = (char *)func_00454a60(modelPath, 0);
+                p = (char *)H_Cdvd_AcquireDirectory(modelPath, 0);
                 work[0x398] = (s32)p;
                 H_Cdvd_ReadSync(p);
                 work[0] = 6;
@@ -453,7 +453,7 @@ s32 K_TexStripBuildUpdate(u8 *task)
         u8 *resource;
         u32 cleanupIndex;
         func_00440b68(&D_00763150, D_005F6168, 0x2A0);
-        resource = func_00454a60((void *)&work[0x53], 0);
+        resource = H_Cdvd_AcquireDirectory((void *)&work[0x53], 0);
         work[0x94] = (s32)resource;
         H_Cdvd_ReadSync(resource);
         strcpy(resourcePath, D_005F63B0);
@@ -593,7 +593,7 @@ s32 K_TexStripLoadUpdate(u8 *arg0)
         {
             sprintf((char *)&work[0x53], D_005F6430, work[0x39B], work[0x39C]);
             func_00440b68(&D_00763150, D_005F6168, 0x36E);
-            temp1 = (u8 *)func_00454a60(&work[0x53], 0);
+            temp1 = (u8 *)H_Cdvd_AcquireDirectory(&work[0x53], 0);
             work[0x94] = (s32)temp1;
             H_Cdvd_ReadSync(temp1);
             work[0] = 2;
@@ -622,7 +622,7 @@ s32 K_TexStripLoadUpdate(u8 *arg0)
     case 3:
         sprintf((char *)&work[0x53], D_005F6470, work[0x39B]);
         func_00440b68(&D_00763150, D_005F6168, 0x39B);
-        temp2 = (u8 *)func_00454a60(&work[0x53], 0);
+        temp2 = (u8 *)H_Cdvd_AcquireDirectory(&work[0x53], 0);
         work[0x94] = (s32)temp2;
         H_Cdvd_ReadSync(temp2);
         sprintf(buf40, D_005F6450);

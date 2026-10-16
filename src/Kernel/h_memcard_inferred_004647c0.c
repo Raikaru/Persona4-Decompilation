@@ -24,7 +24,7 @@ extern s32 func_004326b8(s32 socket, void *data);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void memset(void *dst, s32 value, s32 size);
 extern void strcat(void *dst, void *src);
-extern s32 func_00455f70(s32 arg0, s32 *arg1);
+extern s32 H_Cdvd_LookupRequest(s32 arg0, s32 *arg1);
 extern char D_007127B0[];
 extern char D_007127D0[];
 extern char D_00712800[];
@@ -64,7 +64,7 @@ extern char D_008E4594[];
 /* Memory-card operation states retain retail's poll/response dispatch.
  * The write API consumes unsigned 32-bit byte offsets and lengths.
  * Retail does not check whether the loaded icon archive contains icon.ico:
- * after func_00455f70 it passes the returned pointer and reads `out` from
+ * after H_Cdvd_LookupRequest it passes the returned pointer and reads `out` from
  * 0x10($sp) at 0x0046514C even when the lookup did not write it. This body
  * keeps that uninitialised read, as retail does.
  * See docs/probe_archive/Memcard_004647c0_recovery_20260929.md. */
@@ -379,7 +379,7 @@ s32 H_Memcard_PrepareSaveFileStep(void)
             break;
         case 1:
             sprintf(D_008E4A20, D_00712840, D_00764BB8);
-            data = (void *)func_00455f70((s32)D_00712880, &out);
+            data = (void *)H_Cdvd_LookupRequest((s32)D_00712880, &out);
             func_00432288(D_00764BA4, D_008E4A20, data, 0, out);
             break;
         case 2:

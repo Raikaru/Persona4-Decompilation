@@ -19,7 +19,7 @@ void memset(void *dst, s32 value, u32 size);
 
 void func_00440b68();
 void cmpMainSetDefaultTableIndex(void);
-u8 *func_00454a60(u8 *param, s32 mode);
+u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 void H_Cdvd_Destroy(u8 *ptr);
 s32 sdkSpriteCreateFromName(u32 param);
@@ -503,7 +503,7 @@ s32 cmpAssetLoaderStep(u8 *arg0) {
 
 state0:
     func_00440b68(&iGpffff9cc0, D_005E5890, 0x2F8);
-    *(u8 **)(p + 0x34) = func_00454a60(D_005E58A0, 1);
+    *(u8 **)(p + 0x34) = H_Cdvd_AcquireDirectory(D_005E58A0, 1);
     if (*(u8 **)(p + 0x34) == NULL) {
         kAssertFail(D_005E5890, 0x2F9);
     }
