@@ -702,8 +702,8 @@ void datInitDefaultGameState(void)
     void datSetCategoryValueById(s16, s16, s16);
     void datCalcInitUnitById(s16);
     void func_00105690(s16, u8);
-    void func_001056e0(s16, s16);
-    void func_00105730(s16, s16);
+    void datSetUnitHp(s16, s16);
+    void datSetUnitSp(s16, s16);
     void datSetHeroExp(s16, u32);
     void func_00105c90(s16, s16);
     void datCalcSetBadStatusById(s16, s16);
@@ -746,8 +746,8 @@ loop_1:
         func_00105690((s16)i, 1);
         datSetHeroExp((s16)i, 0);
     }
-    func_001056e0((s16)i, 1);
-    func_00105730((s16)i, 1);
+    datSetUnitHp((s16)i, 1);
+    datSetUnitSp((s16)i, 1);
     j = 0;
     goto loop_2_check;
 loop_2:
@@ -765,8 +765,8 @@ loop_2_check:
     datPersonaResetRosterMode((s16)i);
     q = (u8 *)D_005E4630 + i * 2;
     datPersonaPlaceRosterMember(i & 0xFFFF, *(u16 *)(q - 2));
-    func_001056e0((s16)i, (s16)datCalcMaxHpById((s16)i));
-    func_00105730((s16)i, (s16)datCalcMaxSpById((s16)i));
+    datSetUnitHp((s16)i, (s16)datCalcMaxHpById((s16)i));
+    datSetUnitSp((s16)i, (s16)datCalcMaxSpById((s16)i));
     i++;
 loop_1_check:
     if (i < 11) {

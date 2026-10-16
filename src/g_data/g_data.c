@@ -634,8 +634,9 @@ void func_00105690(s16 arg0, u8 arg1)
     }
 }
 
+// Intent: stores a unit's current HP (hero slot D_007973CC, party slots at +0x88 stride). The slot is the one datClampUnitHpSp writes.
 // FUN_001056E0
-void func_001056e0(s16 arg0, s16 arg1)
+void datSetUnitHp(s16 arg0, s16 arg1)
 {
     if (arg0 == 1)
     {
@@ -647,8 +648,9 @@ void func_001056e0(s16 arg0, s16 arg1)
     }
 }
 
+// Intent: stores a unit's current SP (hero slot D_007973CE, party slots at +0x88 stride). The slot is the one datClampUnitHpSp writes.
 // FUN_00105730
-void func_00105730(s16 arg0, s16 arg1)
+void datSetUnitSp(s16 arg0, s16 arg1)
 {
     if (arg0 == 1)
     {
@@ -660,8 +662,9 @@ void func_00105730(s16 arg0, s16 arg1)
     }
 }
 
+// Intent: clamps a unit's current HP and SP to its max HP and max SP (datCalcMaxHp / datCalcMaxSp). Writes the max back when the current value is larger.
 // FUN_00105780
-void func_00105780(s16 arg0)
+void datClampUnitHpSp(s16 arg0)
 {
     u32 r;
     u16 v1;

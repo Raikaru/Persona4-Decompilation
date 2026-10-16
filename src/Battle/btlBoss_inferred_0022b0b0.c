@@ -191,8 +191,8 @@ extern void btlUnitInitChild(u8 *unit, u16 action);
 extern void func_00106d40(s16 character, s16 slot, s16 value);
 extern u16 datCalcMaxHpById(s16 character);
 extern u16 datCalcMaxSpById(s16 character);
-extern void func_001056e0(s16 character, s16 value);
-extern void func_00105730(s16 character, s16 value);
+extern void datSetUnitHp(s16 character, s16 value);
+extern void datSetUnitSp(s16 character, s16 value);
 extern void datCalcClearBadStatusById(s16 character, u32 mask);
 extern s32 btlActionQueuePush(u8 *target);
 
@@ -1760,8 +1760,8 @@ s32 btlUnitApplyEncounterRoster(u8 *arg0)
             datPersonaAddRosterMember(0xE1);
             datPersonaSelectRosterMemberById(0xE1);
             btlUnitInitChild(unit, 0xE1);
-            func_001056e0(1, (s16)datCalcMaxHpById(1));
-            func_00105730(1, (s16)datCalcMaxSpById(1));
+            datSetUnitHp(1, (s16)datCalcMaxHpById(1));
+            datSetUnitSp(1, (s16)datCalcMaxSpById(1));
             datCalcClearBadStatusById(1, -1);
             *(u16 *)(arg0 + 0x18) |= 0x40;
             break;
