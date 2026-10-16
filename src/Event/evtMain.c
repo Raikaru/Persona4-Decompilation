@@ -34,11 +34,11 @@ extern u8 D_0063C5F0[];
 extern u8 D_0063C610[];
 extern s32 (**D_00882204[])(s32, s32, s32, u8 *, u8 *);
 extern u8 D_0063C420[];
-void func_0028f4f0(void);
+void evtTintTaskKill(void);
 void K_View_SetFov(void *arg0, f32 arg1);
 void mtMiscDestroyIconResources(void);
 static void evtNodeUnlink(int param_1, int param_2);
-void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2);
+void evtCreateTintTask(s32 arg0, s32 *arg1, s32 arg2);
 s32 func_0028d390();
 s32 func_0028dc30(s32 parent, s32 type, u8 *parameters);
 u32 MT_Scene_SetResColorParamById(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
@@ -73,8 +73,8 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern u8 D_0063C5C0[];
 void sprintf();
-s32 func_0028f770(s32 arg0);
-void func_0028f800();
+s32 evtStartScriptLoad(s32 arg0); /* lint: allow H011 -- caller stores the returned v0 (retail keeps it); definition is void */
+void evtScriptLoadRequest(); /* lint: allow H011 -- unprototyped: arg2 is a char array (sp30) at the call, and the definition declares it s32; the return value is discarded */
 void MT_Scene_StopShake(void);
 void MT_Scene_StartShake(s32 arg0, s32 arg1);
 extern u32 DAT_00764B38;
@@ -88,7 +88,7 @@ extern void datEntryDrawGatedByFlag39(s16 a, s16 b, s16 c, s16 d);
 void datStopPadRumble(void);
 extern void MT_Scene_SetResActiveById(u16, int);
 extern f32 fGpffff815c;
-extern void func_0028d110(s32 *arg0);
+extern void evtBlurFilterEnsureBlock(s32 *arg0);
 extern s32 DAT_007645DC;
 extern char D_0063C3F0[];
 extern char D_0063C400[];
@@ -269,7 +269,7 @@ u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
         if (*(s8 *)(temp_17 + 0x10) != 0) {
             break;
         }
-        func_0028d110((s32 *)temp_17);
+        evtBlurFilterEnsureBlock((s32 *)temp_17);
         break;
     case 0x34:
         *(u8 *)(temp_17 + 0x12) = 0x10 * *(u32 *)(arg0 + 4);
@@ -1147,7 +1147,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
     extern s32 MT_Scene_SetResActiveById(u32, s32);
     extern s32 MT_Scene_CheckResSlot(u32, u32);
     extern s32 MT_Scene_SetResShadowCasterById(u32, s32);
-    extern void func_0028d1b0(u8 *, u8 *, s32);
+    extern void evtBlurFilterCopyPoints(u8 *, u8 *, s32);
     extern s32 mtMiscAttachSlotModel(u8 *, u8 *, s32, s32, s32);
     extern void mtMiscDetachSlotModel(u8 *, s32);
     extern void evtModelDestroy(void);
@@ -1267,7 +1267,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                     break;
                 }
                 case 1: {
-                    func_0028d1b0(*(u8 **)(command + 0x40), (u8 *)&path, 0);
+                    evtBlurFilterCopyPoints(*(u8 **)(command + 0x40), (u8 *)&path, 0);
                     if (*(s8 *)(command + 0x15) == 0) {
                         f32 f = evtCommandParamF32(*(s16 *)(command + 0x16));
                         s32 a = (*(s8 *)(command + 0x24) != 0);
@@ -1929,12 +1929,12 @@ s32 evtCmdLabelText(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             t41 = *(s16 *)(arg4 + 0x14) + 0x41;
             sprintf(sp30, D_0063C5C0, *(u32 *)(arg2 + 0x78C), *(u32 *)(arg2 + 0x790), t41);
             if (*(u32 *)(arg2 + 0x760) == 0) {
-                *(u32 *)(arg2 + 0x760) = func_0028f770(evtFindTask());
+                *(u32 *)(arg2 + 0x760) = evtStartScriptLoad(evtFindTask());
             }
             if (*(u32 *)(arg2 + 0x760) == 0) {
                 kAssertFail(D_0063C3B0, 0xCE7);
             }
-            func_0028f800(*(u32 *)(arg2 + 0x760), 0xF, sp30, *(s16 *)(arg4 + 0x16));
+            evtScriptLoadRequest(*(u32 *)(arg2 + 0x760), 0xF, sp30, *(s16 *)(arg4 + 0x16));
             return 1;
         }
     default:
@@ -2054,7 +2054,7 @@ s32 evtCmdEnvSlot(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
         *(u32 *)(sp60 + 8) = (*(u8 *)(arg4 + 0x18) << 16) | (*(u8 *)(arg4 + 0x19) << 8) | *(u8 *)(arg4 + 0x1A);
         *(f32 *)(sp60 + 0xC) = *(f32 *)(arg4 + 0x1C);
         *(f32 *)(sp60 + 0x10) = *(f32 *)(arg4 + 0x20);
-        func_0028f3a0(t, (s32 *)sp60, *(u16 *)(arg4 + 2));
+        evtCreateTintTask(t, (s32 *)sp60, *(u16 *)(arg4 + 2));
         return 1;
     default:
     ret:
@@ -2574,7 +2574,7 @@ void func_0028ad90(u8 *arg0, s32 arg1) {
     s32 *temp_16;
     u8 *child;
 
-    func_0028f4f0();
+    evtTintTaskKill();
     evtModelDestroy();
     var_16 = 0;
     goto loop_6_test;
