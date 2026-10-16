@@ -67,7 +67,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
-extern void func_0019de70(BtlUnitStateWork *work, u16 value);
+extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
 extern s32 btlCameraUnitAnimFinished(u8 *arg0, u8 *arg1);
 extern void btlCameraFrameStatus(u8 *arg0, s32 arg1);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
@@ -257,7 +257,7 @@ void btlCameraFrameRandomOrbit(u8 *camera, s32 unused)
     if (btlCameraIsTargetPrioritized((s32)camera) != 0 || btlCameraIsTargetEligible(camera) != 0) {
         resource = *(u8 **)(unit + 0xA0C);
         if (resource != 0) {
-            func_0019de70((BtlUnitStateWork *)resource, 0);
+            btlUnitSetChildValue((BtlUnitStateWork *)resource, 0);
             *(u8 **)(camera + 0x12C) = *(u8 **)(unit + 0xA0C);
             *(s16 *)(camera + 0x130) = 1;
         }
@@ -288,7 +288,7 @@ void btlCameraFrameRandomOrbit(u8 *camera, s32 unused)
     } else {
         resource = *(u8 **)(unit + 0xA0C);
         if (resource != 0) {
-            func_0019de70((BtlUnitStateWork *)resource, 0);
+            btlUnitSetChildValue((BtlUnitStateWork *)resource, 0);
             *(u8 **)(camera + 0x12C) = *(u8 **)(unit + 0xA0C);
             *(s16 *)(camera + 0x130) = 1;
         }
@@ -448,9 +448,9 @@ void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused)
     if (useOrbit == 0) {
         animation = (u16 *)btlCameraRandomTableEntry(*(u16 *)(target + 0xA4), 1);
         if ((*(u16 *)(iGpffffb3e0 + *(u16 *)(target + 0xA4) * 0x58) & 1) == 0) {
-            func_0019de70((BtlUnitStateWork *)target, 0);
+            btlUnitSetChildValue((BtlUnitStateWork *)target, 0);
         } else {
-            func_0019de70((BtlUnitStateWork *)target, 1);
+            btlUnitSetChildValue((BtlUnitStateWork *)target, 1);
         }
         RtQuatTransformVectors((RwV3d *)&animationPosition, (const RwV3d *)((u8 *)animation + 4), 1, (const RtQuat *)(unit + 0x1C));
         RtQuatTransformVectors((RwV3d *)&focus, (const RwV3d *)((u8 *)animation + 0x1C), 1, (const RtQuat *)(unit + 0x1C));
@@ -605,9 +605,9 @@ void btlCameraEnterRandomFrame(u8 *arg0)
         temp_16 = (u16 *)btlCameraRandomTableEntry(*(u16 *)(temp_18 + 0xA4), 0);
         if ((*(u16 *)(iGpffffb3e0 +
                       *(u16 *)(temp_18 + 0xA4) * 0x58) & 1) == 0) {
-            func_0019de70((BtlUnitStateWork *)temp_18, 0);
+            btlUnitSetChildValue((BtlUnitStateWork *)temp_18, 0);
         } else {
-            func_0019de70((BtlUnitStateWork *)temp_18, 1);
+            btlUnitSetChildValue((BtlUnitStateWork *)temp_18, 1);
         }
         RtQuatTransformVectors((RwV3d *)&frame.valueA0,
                       (const RwV3d *)((u8 *)temp_16 + 4),
@@ -757,7 +757,7 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
         f32 sideRadius;
         f32 targetHeightProduct;
         f32 tilt;
-        func_0019de70((BtlUnitStateWork *)resource, 1);
+        btlUnitSetChildValue((BtlUnitStateWork *)resource, 1);
         *(u8 **)(camera + 0x12C) = resource;
         *(u16 *)(camera + 0x130) = 0;
         unit = target;
@@ -841,9 +841,9 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
         f32 targetExtent;
         f32 sideDot;
         if ((*(u16 *)(iGpffffb3e0 + *(u16 *)(resource + 0xA4) * 0x58) & 1) == 0) {
-            func_0019de70((BtlUnitStateWork *)resource, 0);
+            btlUnitSetChildValue((BtlUnitStateWork *)resource, 0);
         } else {
-            func_0019de70((BtlUnitStateWork *)resource, 1);
+            btlUnitSetChildValue((BtlUnitStateWork *)resource, 1);
         }
         *(u8 **)(camera + 0x12C) = resource;
         *(u16 *)(camera + 0x130) = 1;
@@ -961,7 +961,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern RwV3d *RtQuatTransformVectors(RwV3d *camera, const RwV3d *notify, s32 distinctPoses, const RtQuat *arg3);
     extern void btlCameraLookAtQuat(void *camera, const void *notify, const void *distinctPoses, const void *arg3);
-    extern void func_0019de70(BtlUnitStateWork *work, u16 value);
+    extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
     extern void func_001bcd40(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
     extern u32 btlCameraClampOffsetToLimit(f32 *camera, f32 *notify);
     extern void btlMainCurveSetPoses(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);
@@ -1049,7 +1049,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
         chooseSide = 0;
     }
     if ((forceSide != 0) || ((chooseSide == 1) && (btlCameraIsTargetEligible(camera) != 0) && (specialMode == 0))) {
-        func_0019de70((BtlUnitStateWork *)target, 1);
+        btlUnitSetChildValue((BtlUnitStateWork *)target, 1);
         *(u8 **)(camera + 0x12C) = target;
         *(u16 *)(camera + 0x130) = 0;
         if (!(sideDot < 0.0f)) {
@@ -1135,7 +1135,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
         frames[0].pos.z = savedFocus.z + direction.z;
         distance = fGpffff8148;
     } else {
-        func_0019de70((BtlUnitStateWork *)target, 0);
+        btlUnitSetChildValue((BtlUnitStateWork *)target, 0);
         *(u8 **)(camera + 0x12C) = target;
         *(u16 *)(camera + 0x130) = 1;
         secondEye = groupCenter;
@@ -1314,7 +1314,7 @@ void btlCameraWaitForAnimFrame(u8 *arg0, s32 arg1)
             }
         }
         if (btlCameraUnitAnimFinished(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
-            func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
+            btlUnitSetChildValue(*(BtlUnitStateWork **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
         }
     }
 }
@@ -1330,7 +1330,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
     extern void btlCameraLookAtQuat(void *camera, const void *notify, const void *distinctPoses, const void *arg3);
     extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
     extern f32 tanf(f32 angle);
-    extern void func_0019de70(BtlUnitStateWork *action, u16 value);
+    extern void btlUnitSetChildValue(BtlUnitStateWork *action, u16 value);
     extern void func_001bcd40(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
     extern void btlMainCurveSetPoses(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);
     extern void btlCameraSetDuration(u8 *camera, f32 notify);
@@ -1458,7 +1458,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
         f32 cameraDistance;
         f32 side;
         f32 tprod;
-        func_0019de70((BtlUnitStateWork *)resourceUnit, 1);
+        btlUnitSetChildValue((BtlUnitStateWork *)resourceUnit, 1);
         *(u8 **)(camera + 0x12C) = resourceUnit;
         *(u16 *)(camera + 0x130) = 0;
         selectedUnit = targetUnit;
@@ -1615,7 +1615,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
         f32 cameraDistance;
         f32 side;
         f32 minimumSide;
-        func_0019de70((BtlUnitStateWork *)resourceUnit, 0);
+        btlUnitSetChildValue((BtlUnitStateWork *)resourceUnit, 0);
         *(u8 **)(camera + 0x12C) = resourceUnit;
         *(u16 *)(camera + 0x130) = 1;
         snapshotCenter = targetCenter;
@@ -1774,7 +1774,7 @@ void btlCameraUpdateWaitMode(u8 *arg0)
         if ((*(u8 **)(arg0 + 0xE0) != NULL) &&
             ((*(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x1A) & 1) != 0) &&
             (btlCameraUnitAnimFinished(arg0, *(u8 **)(arg0 + 0x12C)) != 0)) {
-            func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
+            btlUnitSetChildValue(*(BtlUnitStateWork **)(arg0 + 0x12C),
                           *(u16 *)(arg0 + 0x130));
             return;
         }
@@ -1787,7 +1787,7 @@ void btlCameraUpdateWaitMode(u8 *arg0)
                               NULL, NULL, 0.0f, 3);
             }
             if (btlCameraUnitAnimFinished(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
-                func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
+                btlUnitSetChildValue(*(BtlUnitStateWork **)(arg0 + 0x12C),
                               *(u16 *)(arg0 + 0x130));
                 return;
             }
@@ -1801,7 +1801,7 @@ void btlCameraUpdateWaitMode(u8 *arg0)
                  *(s32 *)(*(u8 **)(arg0 + 0xE0) + 0x38)) &&
                 ((*(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x1A) & 1) != 0)) {
                 if (btlCameraUnitAnimFinished(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
-                    func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
+                    btlUnitSetChildValue(*(BtlUnitStateWork **)(arg0 + 0x12C),
                                   *(u16 *)(arg0 + 0x130));
                 }
                 func_001bcd40(*(u8 **)(arg0 + 0xE0),
@@ -1812,7 +1812,7 @@ void btlCameraUpdateWaitMode(u8 *arg0)
             if ((*(u8 **)(arg0 + 0xE0) != NULL) &&
                 ((*(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x1A) & 1) != 0) &&
                 (btlCameraUnitAnimFinished(arg0, *(u8 **)(arg0 + 0x12C)) != 0)) {
-                func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
+                btlUnitSetChildValue(*(BtlUnitStateWork **)(arg0 + 0x12C),
                               *(u16 *)(arg0 + 0x130));
             }
         }
@@ -1824,7 +1824,7 @@ void btlCameraUpdateWaitMode(u8 *arg0)
         if ((*(u8 **)(arg0 + 0xE0) != NULL) &&
             ((*(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x1A) & 1) != 0) &&
             (btlCameraUnitAnimFinished(arg0, *(u8 **)(arg0 + 0x12C)) != 0)) {
-            func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
+            btlUnitSetChildValue(*(BtlUnitStateWork **)(arg0 + 0x12C),
                           *(u16 *)(arg0 + 0x130));
         }
         break;

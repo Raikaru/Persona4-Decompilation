@@ -99,7 +99,7 @@ extern f32 btlUnitGetGroupBounds(u32, u32, void*, f32*, void*, u32);
 extern void btlUnitGetGridSphereCenter(BtlUnit*, RwV3d*);
 extern f32 tanf(f32 x);
 extern void btlUnitGetSphereWorldCenter(void *unit, void *center);
-extern void func_0019de70(BtlUnitStateWork *work, u16 value);
+extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
 extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *arg0, RwV3d *arg1);
 extern RwV3d* RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count,
                           const RtQuat *quat);
@@ -176,7 +176,7 @@ extern f32 fGpffff80e8;
 extern f32 fGpffff8180;
 extern f32 fGpffff8170;
 extern void btlMainApplyUnitBaseColors();
-extern u8 *func_001b1560(void);
+extern u8 *btlActionGetQueueSecond(void);
 extern u32 btlCameraBuildFramePair(u8 *, s32, s32, P4CameraFrame *, P4CameraFrame *);
 
 typedef struct BtlCameraKeyFrame
@@ -904,7 +904,7 @@ void btlCameraUpdateFrameForState(u8 *arg0)
         if ((temp3_2 != NULL) &&
             ((*(u16 *)(temp3_2 + 0x1A) & 1) != 0) &&
             (btlCameraUnitAnimFinished((BtlCamera *)arg0, *(u32 *)(arg0 + 0x12C)) != 0)) {
-            func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C),
+            btlUnitSetChildValue(*(BtlUnitStateWork **)(arg0 + 0x12C),
                           *(u16 *)(arg0 + 0x130));
         }
         break;
@@ -2125,7 +2125,7 @@ void btlAct_CONDITION(u8 *camera)
     f32 f4;
 
     btlCameraCopyPose((f32 *)&work.currentPosition, (f32 *)(camera + 0x9c));
-    unit = *(u8 **)(func_001b1560() + 0x30);
+    unit = *(u8 **)(btlActionGetQueueSecond() + 0x30);
     btlUnitGetSphereWorldCenter(unit, work.unitPosition);
     work.unitPosition[1] = work.unitPosition[1] + 0.0f +
                            0.25f * (*(f32 *)(unit + 0x8c) *
