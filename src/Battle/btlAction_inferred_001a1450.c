@@ -10,6 +10,7 @@
 #include "btl_target_state_packet_internal.h"
 #include "btl_action_internal.h"
 #include "datPersona_internal.h"
+#include "datUnit_internal.h"
 typedef struct BtlPacket BtlPacket;
 extern BtlPacket *btlFormationCreateNamedPacket(u32 formation, const char *text, u16 mode);
 u32 datCalcRandomBelow(u32 bound);
@@ -5555,7 +5556,6 @@ void btlActionSummonUpdate(s64 *arg0)
     extern BtlPacket *btlMainCreateFadePacket(s32 arg0, s16 arg1);
     extern BtlPacket *btlMainCreateColorFadePacket(s32 arg0);
     extern s32 btlSoundCanReceiveStatus(u8 *arg0);
-    extern DatUnit *datUnitAddEncounterUnit(DatUnitEc *encounter, u16 id);
     extern u8 *iGpffffb3bc;
     typedef struct UnitView {
         u8 unknown00[4];
