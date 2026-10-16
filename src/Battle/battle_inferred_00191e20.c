@@ -164,8 +164,12 @@ extern u8 D_00794150[];
 /* Source unit: src/promoted/code1_0019.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 00191e20-00191e20 */
 
+/* RpClumpForAllAtomics callback (registered by K_Clump_ReadChunks). func_003E8120 and
+ * func_003E8110 are RwCameraBeginUpdate and RwCameraEndUpdate, called through the
+ * camera's beginUpdate/endUpdate slots (+0x18/+0x1C, include/rw/core/bacamera.h:277-278).
+ * func_003C1BD0 renders the atomic through its renderCallBack (+0x48). */
 // FUN_00191E20
-void *func_00191e20(void *arg0, void *data) {
+void *K_Clump_RenderAtomicCallBack(void *arg0, void *data) {
     if (func_003e8120(func_00457120()) != 0) {
         func_003c1bd0((s32)(uintptr_t)arg0);
     }
