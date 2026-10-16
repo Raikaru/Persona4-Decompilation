@@ -37,7 +37,6 @@ extern s32 yListCompareByWeightedKeyDesc(const void *arg0, const void *arg1);
 extern u8 *datPersonaCachedRecord(s32 arg0);
 extern s32 datPersonaFindRosterSlotById(s32 arg0);
 
-extern s32 datPersonaRosterSlotActive(s16 arg0);
 extern void datPersonaInitAllRecords(void);
 extern s32 yListRecordsDiffer(u8 *arg0, u8 *arg1);
 extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);

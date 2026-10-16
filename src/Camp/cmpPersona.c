@@ -13,7 +13,6 @@ struct CmpHead {
     s16 f22;   // 0x22
 };
 
-s32 datPersonaRosterSlotActive(s16 arg0);
 s32 nLineIsIdle(void);
 void radarAnimateValue(void* arg0, s32 arg1, s32 arg2);
 void datCommunityEntryStep(void* arg0);
