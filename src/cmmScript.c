@@ -47,7 +47,7 @@ extern s16 cmmTopPersonaOfArcana(s16 arg0);
 extern u8* cmmMsgStreamEntry(s32 arg0, u16 arg1);
 extern s32 cmmDateTableFindNthMatch(s32 arg0, s32 arg1, s32 arg2);
 extern s32 scrGetCmdTimer(void);
-extern void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void cmmSpawnCdvdLoad(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0025c310(void);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 D_00635A78[];
@@ -774,7 +774,7 @@ s32 func_0024b380(void)
     param1 = scrGetParamInt(1);
     param2 = scrGetParamInt(2);
     if (scrGetCmdTimer() == 0) {
-        func_0025c230(0, param0, param1, param2);
+        cmmSpawnCdvdLoad(0, param0, param1, param2);
         goto block_4;
     }
     if (func_0025c310() == 0) {
