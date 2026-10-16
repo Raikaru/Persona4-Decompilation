@@ -80,7 +80,7 @@ extern u8 D_005F2030[];
 extern u8 D_005F2050[];
 extern u8 D_005F2070[];
 extern u8 D_005F2090[];
-extern s32 func_00186ac0(u8 *arg0);
+extern s32 FldLmapScrollUpdate(u8 *arg0);
 extern s32 func_00188be0(u8 *arg0);
 extern s32 func_001891d0(u8 *arg0);
 extern u8 D_005F2180[];
@@ -122,13 +122,13 @@ void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0);
 /* Source unit: src/promoted/k_fldLmap.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldLmap.c; members 001866d0-00189550 */
 
-extern s32 func_00186eb0(u8 *arg0);
+extern s32 FldLmapUpdate(u8 *arg0);
 typedef struct FldLmapMatrix {
     s32 words[16];
 } FldLmapMatrix;
 static inline f32 mulFp(f32 left, f32 right) { return left * right; }
 // FUN_001866D0
-s32 func_001866d0(u8 *arg0)
+s32 FldLmapLoadUpdate(u8 *arg0)
 {
     s32 sp8C;
     u8 sp40[0x4C];
@@ -196,7 +196,7 @@ s32 func_001866d0(u8 *arg0)
 }
 
 // FUN_00186A60
-void func_00186a60(u8 *arg0)
+void FldLmapLoadDestroy(u8 *arg0)
 {
     u8 *temp_4;
 
@@ -211,7 +211,7 @@ void func_00186a60(u8 *arg0)
    sw $0 and leaves the candidate 8 bytes short of the retail window. Best
    candidate: normalized_diff 103, object 456/464; discarded. */
 // FUN_00186AC0
-s32 func_00186ac0(u8 *arg0)
+s32 FldLmapScrollUpdate(u8 *arg0)
 {
     s32 *temp_3_2;
     s32 *temp_3_3;
@@ -266,13 +266,13 @@ block_19:
 }
 
 // FUN_00186C90
-void func_00186c90(u8 *arg0)
+void FldLmapScrollTaskDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
 // FUN_00186CC0
-u8 *func_00186cc0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, u8 *arg2, u8 *arg3, s32 arg4, s32 arg5)
+u8 *FldLmapScrollTaskCreate(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, u8 *arg2, u8 *arg3, s32 arg4, s32 arg5)
 {
     u8 *temp_2_2;
     u8 *temp_2;
@@ -284,7 +284,7 @@ u8 *func_00186cc0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, u8 *arg2, u8 *arg3
     if (temp_2_2 == NULL) {
         return NULL;
     }
-    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1FB8), 0xF, 0, 0, func_00186ac0, func_00186c90, (u8 *)(temp_2_2));
+    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1FB8), 0xF, 0, 0, FldLmapScrollUpdate, FldLmapScrollTaskDestroy, (u8 *)(temp_2_2));
     temp_3 = temp_2_2 + 4;
     *(u8 **)(temp_2_2 + 4) = arg1;
     *(f32 *)(temp_2_2 + 0xC) = fparg0;
@@ -306,9 +306,9 @@ u8 *func_00186cc0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, u8 *arg2, u8 *arg3
 /* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
  * constant 1 (addiu $a1, $zero, 1) inside the loop body at both store sites;
  * retail hoists it to the preheader. The pragma restores the hoist (nd 35 -> 0). */
-/* measured: func_00186e10 MATCH -> MISMATCH without this pragma. */
+/* measured: FldLmapSetSlotFlags MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-static void func_00186e10(u8 *arg0)
+static void FldLmapSetSlotFlags(u8 *arg0)
 {
     s32 var_7;
     u8 *var_6;
@@ -342,12 +342,12 @@ static void func_00186e10(u8 *arg0)
 /* measured: byte-exact (953/953 instructions, 0 differing words).  The camera
    matrix copy is a 64-byte struct assignment (retail's 8 x two-word loop), the
    pad globals are arrays (absolute %hi/%lo, not gp), the local zeroing loop
-   counts an unsigned n (bnez, not bgtz), and func_00186e10 is static so the
+   counts an unsigned n (bnez, not bgtz), and FldLmapSetSlotFlags is static so the
    caller keeps $a0 across it.  The two scroll updates address the panel slot
    as `off + (s32)st` so the index is the first addu operand, as retail has it.
    opt_loop_invariants hoists the case-0 constants. */
 // FUN_00186EB0
-s32 func_00186eb0(u8 *arg0)
+s32 FldLmapUpdate(u8 *arg0)
 {
     u8 *arg_save;
     u8 *st;
@@ -371,7 +371,7 @@ s32 func_00186eb0(u8 *arg0)
                 } while (n != 0);
             }
         }
-        func_00186e10(st);
+        FldLmapSetSlotFlags(st);
         *(f32 *)(st + 0x98) = 700.0f;
         func_00188200(st, st + 0x90);
         *(f32 *)(buf + 8) = (f32)590;
@@ -497,7 +497,7 @@ s32 func_00186eb0(u8 *arg0)
             if (mem == NULL) {
                 h = 0;
             } else {
-                h = (s32)kwlnTaskCreateChild((void *)(arg_save), (const void *)(D_005F1FA8), 15, 0, 0, func_001866d0, func_00186a60, (u8 *)(mem));
+                h = (s32)kwlnTaskCreateChild((void *)(arg_save), (const void *)(D_005F1FA8), 15, 0, 0, FldLmapLoadUpdate, FldLmapLoadDestroy, (u8 *)(mem));
                 *(u8 **)(mem + 8) = st;
             }
             *(s32 *)(st + 0x15C) = h;
@@ -522,23 +522,23 @@ s32 func_00186eb0(u8 *arg0)
         if (fadeStatus() == 0) {
             break;
         }
-        *(u8 **)(st + 0x158) = func_00186cc0(arg_save, st + 0x90, -230.0f, 0.0f, NULL, NULL, 10, 0);
+        *(u8 **)(st + 0x158) = FldLmapScrollTaskCreate(arg_save, st + 0x90, -230.0f, 0.0f, NULL, NULL, 10, 0);
         *(s32 *)st = *(s32 *)st + 1;
     /* fallthrough */
     case 5:
         if (kwlnTaskIsLinked(*(u8 **)(st + 0x158)) == 1) {
             break;
         }
-        func_00186cc0(arg_save, st + 0x9C, -200.0f, 0.0f, NULL, NULL, 8, 0);
-        func_00186cc0(arg_save, st + 0xA8, -200.0f, 0.0f, NULL, NULL, 8, 2);
-        func_00186cc0(arg_save, st + 0xB4, -200.0f, 0.0f, NULL, NULL, 8, 4);
-        func_00186cc0(arg_save, st + 0xC0, -200.0f, 0.0f, NULL, NULL, 8, 6);
-        func_00186cc0(arg_save, st + 0xCC, -200.0f, 0.0f, NULL, NULL, 8, 8);
-        func_00186cc0(arg_save, st + 0xD8, -200.0f, 0.0f, NULL, NULL, 8, 0);
-        func_00186cc0(arg_save, st + 0xE4, -200.0f, 0.0f, NULL, NULL, 8, 2);
-        func_00186cc0(arg_save, st + 0xF0, -200.0f, 0.0f, NULL, NULL, 8, 4);
-        func_00186cc0(arg_save, st + 0xFC, -200.0f, 0.0f, NULL, NULL, 8, 6);
-        *(u8 **)(st + 0x158) = func_00186cc0(arg_save, st + 0x108, -200.0f, 0.0f, NULL, NULL, 8, 8);
+        FldLmapScrollTaskCreate(arg_save, st + 0x9C, -200.0f, 0.0f, NULL, NULL, 8, 0);
+        FldLmapScrollTaskCreate(arg_save, st + 0xA8, -200.0f, 0.0f, NULL, NULL, 8, 2);
+        FldLmapScrollTaskCreate(arg_save, st + 0xB4, -200.0f, 0.0f, NULL, NULL, 8, 4);
+        FldLmapScrollTaskCreate(arg_save, st + 0xC0, -200.0f, 0.0f, NULL, NULL, 8, 6);
+        FldLmapScrollTaskCreate(arg_save, st + 0xCC, -200.0f, 0.0f, NULL, NULL, 8, 8);
+        FldLmapScrollTaskCreate(arg_save, st + 0xD8, -200.0f, 0.0f, NULL, NULL, 8, 0);
+        FldLmapScrollTaskCreate(arg_save, st + 0xE4, -200.0f, 0.0f, NULL, NULL, 8, 2);
+        FldLmapScrollTaskCreate(arg_save, st + 0xF0, -200.0f, 0.0f, NULL, NULL, 8, 4);
+        FldLmapScrollTaskCreate(arg_save, st + 0xFC, -200.0f, 0.0f, NULL, NULL, 8, 6);
+        *(u8 **)(st + 0x158) = FldLmapScrollTaskCreate(arg_save, st + 0x108, -200.0f, 0.0f, NULL, NULL, 8, 8);
         *(s32 *)st = *(s32 *)st + 1;
     /* fallthrough */
     case 6:
@@ -558,9 +558,9 @@ s32 func_00186eb0(u8 *arg0)
             s32 k;
             for (k = 0; k < 5; k++) {
                 if (*(s32 *)(st + 0xC) == k) {
-                    func_00186cc0(arg_save, st + k * 12 + 0xD8, 0.0f, -300.0f, NULL, NULL, 10, 6);
+                    FldLmapScrollTaskCreate(arg_save, st + k * 12 + 0xD8, 0.0f, -300.0f, NULL, NULL, 10, 6);
                 } else {
-                    *(u8 **)(st + 0x158) = func_00186cc0(arg_save, st + k * 12 + 0x9C, 0.0f, -230.0f, NULL, NULL, 10, 0);
+                    *(u8 **)(st + 0x158) = FldLmapScrollTaskCreate(arg_save, st + k * 12 + 0x9C, 0.0f, -230.0f, NULL, NULL, 10, 0);
                 }
             }
             *(s32 *)(st + 0x78) = 0;
@@ -592,7 +592,7 @@ s32 func_00186eb0(u8 *arg0)
                 {
                     s32 cur = *(s32 *)(st + 0x7C);
                     s32 nxt = !cur;
-                    func_00186cc0(arg_save, st + cur * 12 + 0x114, -230.0f, 0.0f, st + nxt * 12 + 0x114, st + 0x170, 8, 0);
+                    FldLmapScrollTaskCreate(arg_save, st + cur * 12 + 0x114, -230.0f, 0.0f, st + nxt * 12 + 0x114, st + 0x170, 8, 0);
                 }
                 ((f32 *)(st + 0x88))[*(s32 *)(st + 0x7C)] = -330.0f;
                 *(s32 *)(st + 0x7C) = !(*(s32 *)(st + 0x7C));
@@ -648,9 +648,9 @@ s32 func_00186eb0(u8 *arg0)
         if (kwlnTaskIsLinked(*(u8 **)(st + 0x158)) == 1) {
             break;
         }
-        func_00186cc0(arg_save, st + 0x90, 0.0f, -230.0f, NULL, NULL, 10, 0);
-        func_00186cc0(arg_save, st + 0x114, 0.0f, -230.0f, NULL, NULL, 10, 0);
-        func_00186cc0(arg_save, st + 0x120, 0.0f, -230.0f, NULL, NULL, 10, 0);
+        FldLmapScrollTaskCreate(arg_save, st + 0x90, 0.0f, -230.0f, NULL, NULL, 10, 0);
+        FldLmapScrollTaskCreate(arg_save, st + 0x114, 0.0f, -230.0f, NULL, NULL, 10, 0);
+        FldLmapScrollTaskCreate(arg_save, st + 0x120, 0.0f, -230.0f, NULL, NULL, 10, 0);
         func_00122520(1, 0);
         *(s32 *)st = *(s32 *)st + 1;
         break;
@@ -676,7 +676,7 @@ s32 func_00186eb0(u8 *arg0)
 
 #pragma pop
 // FUN_00187DA0
-void func_00187da0(u8 *arg0)
+void FldLmapDestroy(u8 *arg0)
 {
     u8 *temp_16;
 
@@ -708,7 +708,7 @@ u8 *FldLmapCreate(u8 *arg0, s32 arg1, s32 arg2)
     if (temp_2_2 == NULL) {
         return NULL;
     }
-    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9f70), 0xF, 0, 0, func_00186eb0, func_00187da0, (u8 *)(temp_2_2));
+    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9f70), 0xF, 0, 0, FldLmapUpdate, FldLmapDestroy, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 0xC) = arg1;
     *(s32 *)(temp_2_2 + 0x10) = -1;
     *(s32 *)(temp_2_2 + 8) = arg2;
