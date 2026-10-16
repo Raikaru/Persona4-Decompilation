@@ -381,7 +381,7 @@ u16 datCalcMaxSpById(s16 arg0)
 }
 
 // FUN_00104EA0
-s16 func_00104ea0(s16 arg0, s16 arg1)
+s16 datGetCategoryValueById(s16 arg0, s16 arg1)
 {
     if (arg0 == 1)
     {
