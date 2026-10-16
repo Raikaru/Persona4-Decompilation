@@ -20,21 +20,22 @@ extern void func_00492d10(void *ptr);
 extern s32 TnSlotObject(u16 param);
 extern void func_00492df0(void *arg0, void *arg1);
 extern void func_00492db0(void *arg0, void *arg1);
-extern void func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7);
+extern void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7);
 extern void func_004bceb0(void);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern f32 fGpffff8080;
 extern f32 fGpffff8098;
 extern f32 fGpffff809c;
 extern s32 iGpffff81f4; /* 0x007612E4 */
-void func_004afc80(u8 *arg0, u8 *arg1);
-void func_004afb10(u8 *arg0, u32 arg1, u8 *arg2);
-void func_004afa60(u8 *arg0, s32 arg1);
-void func_004afaa0(u8 *arg0, u8 *arg1);
+void DistortParticleSeedRecord(u8 *arg0, u8 *arg1);
+void DistortParticleRebuildRecords(u8 *arg0, u32 arg1, u8 *arg2);
+void DistortParticleUploadTexture(u8 *arg0, s32 arg1);
+void DistortParticleShareTexture(u8 *arg0, u8 *arg1);
 extern s32 TnUploadStreamTagged();
 
+// Allocates a zeroed 0x9C-byte record; stores arg0 at +0, -1 at +4, 1.0f at +8 and points +0x88 at itself.
 // FUN_004AF680
-u8 *func_004af680(u32 arg0) {
+u8 *DistortParticleAlloc(u32 arg0) {
     u8 *temp;
 
     chkmemAllocSiteTag(D_00714538, 0x171);
@@ -53,8 +54,9 @@ u8 *func_004af680(u32 arg0) {
     return temp;
 }
 
+// Creates a distortion particle from an effect source: sizes the record buffer from the source's count (capped at 100) and copies its 0x48-byte header; rebuilds the records and uploads the texture when the kind at +0x1C is 1 and the lookup returns one.
 // FUN_004AF740
-void *func_004af740(void *opaqueSource) {
+void *DistortParticleCreateFromSource(void *opaqueSource) {
     u8 *arg0 = opaqueSource;
     s32 temp_3;
     u32 var_4;
@@ -75,12 +77,12 @@ void *func_004af740(void *opaqueSource) {
     if (var_4 > 0x64) {
         var_4 = 0x64;
     }
-    temp_2 = func_004af680(var_4);
+    temp_2 = DistortParticleAlloc(var_4);
     if (temp_2 == NULL) {
         kAssertFail(D_00714550, 0x6B);
     }
     memcpy(temp_2 + 0xC, temp_2_2, 0x48);
-    func_004afb10(temp_2, *(u16 *)(arg0 + 0xC), temp_2_2 + 0x48);
+    DistortParticleRebuildRecords(temp_2, *(u16 *)(arg0 + 0xC), temp_2_2 + 0x48);
     if (*(s32 *)(*(u8 **)(temp_2 + 0x5C) + 8) == 0) {
         return temp_2;
     }
@@ -88,7 +90,7 @@ void *func_004af740(void *opaqueSource) {
     if (temp_2_3 != 0) {
         switch (*(u16 *)(arg0 + 0x1C)) {
         case 1:
-            func_004afa60(temp_2, temp_2_3);
+            DistortParticleUploadTexture(temp_2, temp_2_3);
             break;
         default:
             kAssertFail(D_00714550, 0x80);
@@ -98,8 +100,9 @@ void *func_004af740(void *opaqueSource) {
     return temp_2;
 }
 
+// Releases the particle's source block, texture reference, record table and the particle itself.
 // FUN_004AF8A0
-void func_004af8a0(u8 *arg0) {
+void DistortParticleFree(u8 *arg0) {
     u8 *temp;
 
     temp = *(u8 **)(arg0 + 0x60);
@@ -117,8 +120,9 @@ void func_004af8a0(u8 *arg0) {
     (*jtbl_008873EC)(arg0);
 }
 
+// Creates a distortion particle from a parent record: sizes the record buffer from the parent's block and shares its texture; asserts the parent block exists.
 // FUN_004AF920
-void *func_004af920(void *opaqueSource) {
+void *DistortParticleCreateFromParent(void *opaqueSource) {
     u8 *arg0 = opaqueSource;
     s32 temp_3;
     u32 var_4;
@@ -141,26 +145,28 @@ void *func_004af920(void *opaqueSource) {
     if (var_4 > 0x64) {
         var_4 = 0x64;
     }
-    temp_2 = func_004af680(var_4);
+    temp_2 = DistortParticleAlloc(var_4);
     if (temp_2 == NULL) {
         kAssertFail(D_00714550, 0xB7);
     }
     memcpy(temp_2 + 0xC, arg0 + 0xC, 0x48);
-    func_004afb10(temp_2, *(u16 *)(*(u8 **)(arg0 + 0x5C) + 0), temp_16);
+    DistortParticleRebuildRecords(temp_2, *(u16 *)(*(u8 **)(arg0 + 0x5C) + 0), temp_16);
     if (*(s32 *)(*(u8 **)(temp_2 + 0x5C) + 8) == 0) {
         return temp_2;
     }
-    func_004afaa0(temp_2, arg0);
+    DistortParticleShareTexture(temp_2, arg0);
     return temp_2;
 }
 
+// Uploads the tagged texture for slot arg1 through TnUploadStreamTagged and stores that call's result at +0x60.
 // FUN_004AFA60
-void func_004afa60(u8 *arg0, s32 arg1) {
+void DistortParticleUploadTexture(u8 *arg0, s32 arg1) {
     *(s32 *)(arg0 + 0x60) = TnUploadStreamTagged(arg1);
 }
 
+// Shares the texture object of arg1 with arg0 and bumps its reference count at +0x54; asserts that arg1 holds one.
 // FUN_004AFAA0
-void func_004afaa0(u8 *arg0, u8 *arg1) {
+void DistortParticleShareTexture(u8 *arg0, u8 *arg1) {
     u8 *temp;
 
     if (*(u32 *)(arg1 + 0x60) == 0) {
@@ -171,8 +177,9 @@ void func_004afaa0(u8 *arg0, u8 *arg1) {
     *(s32 *)(temp + 0x54) += 1;
 }
 
+// Rebuilds the source block for id arg1 with parameters arg2, then re-allocates the record table and seeds every record.
 // FUN_004AFB10
-void func_004afb10(u8 *arg0, u32 arg1, u8 *arg2) {
+void DistortParticleRebuildRecords(u8 *arg0, u32 arg1, u8 *arg2) {
     u32 temp_16;
     u8 *var_19;
     u32 var_18;
@@ -199,14 +206,15 @@ void func_004afb10(u8 *arg0, u32 arg1, u8 *arg2) {
     *(u8 **)(arg0 + 0x64) = var_19;
     var_18 = 0;
     while (var_18 < temp_16) {
-        func_004afc80(arg0, var_19);
+        DistortParticleSeedRecord(arg0, var_19);
         var_18 += 1;
         var_19 += 0x1C;
     }
 }
 
+// Releases the source block at +0x5C through func_00492d00 when one is set.
 // FUN_004AFC50
-void func_004afc50(u8 *arg0)
+void DistortParticleReleaseSource(u8 *arg0)
 {
     u32 temp_4;
 
@@ -216,8 +224,9 @@ void func_004afc50(u8 *arg0)
     }
 }
 
+// Seeds one 0x1C-byte record from the particle's parameters: random offsets, sizes, scale and the fade value at +0x24.
 // FUN_004AFC80
-void func_004afc80(u8 *arg0, u8 *arg1) {
+void DistortParticleSeedRecord(u8 *arg0, u8 *arg1) {
     f32 temp_f20;
     f32 temp_f20_2;
     f32 temp_f20_3;
@@ -234,7 +243,7 @@ void func_004afc80(u8 *arg0, u8 *arg1) {
     *(f32 *)(arg1 + 0x18) = (1.0f - temp_f20_3) + temp_f20_3 * effMiscRandFloat(0);
 }
 
-/* func_004afe20, MATCH 2026-10-07. Rewritten from retail asm on the matched
+/* DistortParticleDrawSky, MATCH 2026-10-07. Rewritten from retail asm on the matched
    effParticle sibling's pattern (ParticleDrawBillboards): one 64-byte sky vertex quad,
    per-channel unsigned colour conversions, and the projected-depth formula.
    The colour unpack asm names $2 and the COP2 pack stores the packed word to
@@ -264,8 +273,9 @@ typedef union DistortColor {
 typedef struct DistortVec3 {
     f32 x, y, z;
 } DistortVec3;
+// Draws one sky-quad record: builds the 64-byte vertex quad from the particle's sizes and colour tables, then sets the sky render states through RpSkyRenderStateSet.
 // FUN_004AFE20
-void func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7)
+void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7)
 {
     extern void func_003f6690(s32 param, void *out);
     extern void RpSkyRenderStateSet(s32 param, s32 value);
@@ -504,8 +514,9 @@ void func_004afe20(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void 
     RpSkyRenderStateSet(3, st3);
 }
 
+// Advances the record table: re-seeds each record whose source-side word at +0x10 is zero, then steps the live records by their +4 and +0x10 deltas.
 // FUN_004B0A80
-void func_004b0a80(u8 *arg0) {
+void DistortParticleUpdateRecords(u8 *arg0) {
     f32 temp_f20;
     f32 temp_f20_2;
     f32 temp_f20_3;
@@ -548,8 +559,9 @@ void func_004b0a80(u8 *arg0) {
     }
 }
 
+// Projects the live records: when bit 0 of the source word at +0xC is clear each record is drawn directly; when set, the matrix from TnSlotObject(0x15) is applied to each record first.
 // FUN_004B0CE0
-void func_004b0ce0(u8 *arg0, s32 arg1) {
+void DistortParticleProjectRecords(u8 *arg0, s32 arg1) {
     s32 spFC;
     s32 *pt;
     f32 spF0[2];
@@ -603,7 +615,7 @@ void func_004b0ce0(u8 *arg0, s32 arg1) {
             var_21 = 0;
             while (var_21 < temp_16) {
                 if (*(s32 *)(var_18 + 0x10) >= 0) {
-                    func_004afe20(arg0, var_17, var_18, var_18, spE0, spF0, arg1, effMiscRand(0) & 3);
+                    DistortParticleDrawSky(arg0, var_17, var_18, var_18, spE0, spF0, arg1, effMiscRand(0) & 3);
                 }
                 var_21 += 1;
                 var_18 += 0x20;
@@ -640,7 +652,7 @@ void func_004b0ce0(u8 *arg0, s32 arg1) {
                         : "r"(sp70), "r"(var_18)
                         : "$vf28", "$vf29", "$vf30", "$vf31", "$vf10", "ACC", "memory");
                     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(spD0) : "$vf10", "memory");
-                    func_004afe20(arg0, var_17, var_18, spD0, spE0, spF0, arg1, effMiscRand(0) & 3);
+                    DistortParticleDrawSky(arg0, var_17, var_18, spD0, spE0, spF0, arg1, effMiscRand(0) & 3);
                 }
                 var_21_2 += 1;
                 var_18 += 0x20;

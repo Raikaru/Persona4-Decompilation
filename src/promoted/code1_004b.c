@@ -23,7 +23,7 @@ extern void func_004860f0();
 extern void func_00486180();
 
 
-extern void func_004b0ce0();
+extern void DistortParticleProjectRecords();
 extern s32 iGpffffbb98;
 extern s32 iGpffffbb94;
 extern s32 D_00922DA0[];
@@ -108,16 +108,16 @@ extern void (*jtbl_008873EC[])(void *);
 
 // FUN_004B0F70
 void func_004b0f70(void *object) {
-    func_004b0ce0(object, 0);
+    DistortParticleProjectRecords(object, 0);
 }
 
 
-extern void func_004b0ce0();
+extern void DistortParticleProjectRecords();
 
 
 // FUN_004B0FA0
 void func_004b0fa0(void *object) {
-    func_004b0ce0(object, 1);
+    DistortParticleProjectRecords(object, 1);
 }
 
 
@@ -145,7 +145,7 @@ void func_004b1030(u8 *arg0)
     u8 *node;
     u8 *inner;
 
-    func_004b0a80();
+    DistortParticleUpdateRecords();
     node = *(u8 **)(arg0 + 0x5C);
     if (node != NULL) {
         inner = *(u8 **)(node + 0x20);
