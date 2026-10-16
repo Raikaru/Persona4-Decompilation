@@ -62,9 +62,9 @@ extern u16 frFontSetFlagBits(s16 arg0);
 extern u16 frFontClearFlagBits(u16 arg0);
 
 extern u32 func_001d8bc0(void *arg0);
-extern void func_0011b360(u8 *arg0);
+extern void shdPersonaFinishPhase(u8 *arg0);
 extern s32 shdPersonaIsTransitioning(u8 *arg0);
-extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
+extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
 extern void shdPersonaStartSlideIn(u8 *arg0);
 extern void shdPersonaBeginClose(u8 *arg0);
 extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
@@ -743,7 +743,7 @@ void btlPanelReset(s32 task) {
     *(s32 *)(b + 4) &= ~2;
     btlListFlush(b + 0x2C);
     if (*(s32 *)(b + 0x5A8) != 0) {
-        func_0011b360(*(u8 **)(b + 0x5A8));
+        shdPersonaFinishPhase(*(u8 **)(b + 0x5A8));
         *(s32 *)(b + 0x5A8) = 0;
         *(s16 *)(b + 0x5AC) = -1;
     }
@@ -3443,7 +3443,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
             temp_2 = datPersonaRosterSlot(temp_16);
             *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 5;
             *(u16 *)(*(u8 **)(arg1 + 0x178) + 0x74) = *(u16 *)((u8 *)temp_2 + 2);
-            func_0011b360(*(u8 **)(arg1 + 0x5A8));
+            shdPersonaFinishPhase(*(u8 **)(arg1 + 0x5A8));
             *(u8 **)(arg1 + 0x5A8) = NULL;
             *(s16 *)(arg1 + 0x5AC) = -1;
             *(s32 *)(iGpffffb3ac + 0xC) |= 0x2000;
@@ -3464,7 +3464,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
                 *(s32 *)(iGpffffb3ac + 0xC) &= ~0x20000;
                 stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
                 task = *(u8 **)(arg1 + 0x5A8);
-                func_0011b480(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
+                shdPersonaSetDisplayState(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
                 shdPersonaStartSlideIn(*(u8 **)(arg1 + 0x5A8));
                 btlEncounterEntryClearActive(*(u8 **)(arg1 + 0x5B0));
                 memset(sp48, 0, 8);
@@ -3485,7 +3485,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
 
     case 1:
         if (*(s16 *)(arg1 + 0x5AC) == -1) {
-            func_0011b360(*(u8 **)(arg1 + 0x5A8));
+            shdPersonaFinishPhase(*(u8 **)(arg1 + 0x5A8));
             *(u8 **)(arg1 + 0x5A8) = NULL;
             *(s16 *)(arg1 + 0x5AC) = -1;
             func_0045af60(0, 0, 0, 4);

@@ -58,7 +58,7 @@ extern void func_003142f0(u8 *arg0);
 extern s32 datGetFlag(s32);
 extern s32 kwlnTaskIsLinked(void *);
 extern void shdPersonaSetOrigin(u8 *arg0, f32 *arg1);
-extern void func_0011b480(u8 *, s32, u32, s8);
+extern void shdPersonaSetDisplayState(u8 *, s32, u32, s8);
 extern void shdPersonaBeginClose(u8 *arg0);
 extern void func_0011c180(u8 *, s32, s32, s8);
 extern void shdPersonaBeginDisplay(u8 *, s32, s32, s8);
@@ -142,7 +142,7 @@ extern int frFontExDrawTextDeferredOutB(f32, f32, f32, int, s8, int, const char 
 extern void func_0034a640(s32, u16, s32);
 extern s32 func_0034a630(u8 *);
 extern u8 datPersonaGetArcana(u16);
-extern void func_0011d1d0(u8 *, f32);
+extern void shdPersonaSetOpacity(u8 *, f32);
 extern s8 func_00331640(void);
 extern void fclCombineDrawResourceAt(s32, FclVec2, f32, s32, u8, s32, f32, f32, void *);
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
@@ -297,7 +297,7 @@ void fclDrawSetSlotMode(u8 *arg0, s32 arg1, s8 arg2)
     obj = *(u8 **)(arg0 + 0x38);
     *(s32 *)(obj + 8) = arg1;
     *(s8 *)(obj + 0xC) = arg2;
-    func_0011b480(*(u8 **)(obj + 4), 0, *(u32 *)(obj + 8), *(s8 *)(obj + 0xC));
+    shdPersonaSetDisplayState(*(u8 **)(obj + 4), 0, *(u32 *)(obj + 8), *(s8 *)(obj + 0xC));
 }
 
 
@@ -4967,7 +4967,7 @@ void fclCombineDrawSelectedName(u8 *arg0)
         *(u16 *)(yListSlotEntry(0, obj->selection) + 2), D_00796370);
     func_0034a640((s32)obj->model, *(u16 *)(yListSlotEntry(0, obj->selection) + 2), 1);
     *(u8 *)(func_0034a630(obj->model) + 1) = 0;
-    func_0011d1d0(cdfPersona(obj->draw), 64000.0f);
+    shdPersonaSetOpacity(cdfPersona(obj->draw), 64000.0f);
 }
 
 /* The two panel columns retain constructor-backed positions and native

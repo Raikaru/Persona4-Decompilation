@@ -33,8 +33,8 @@ extern s32 func_0013c6d0(s16 arg0);
 extern s32 func_0010f540(s32 arg0);
 extern void shdPersonaSetFlags(u8 *arg0, s32 arg1);
 extern void shdPersonaClearFlags(u8 *arg0, s32 arg1);
-extern void func_0011d0d0(u8 *arg0, void *arg1);
-extern void func_0011d170(u8 *arg0, s32 arg1, s32 arg2);
+extern void shdPersonaRefreshDispCtlPosition(u8 *arg0, void *arg1);
+extern void shdPersonaSetChildDispCtlHandleAndColor(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00453670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00453760(void *arg0, s32 arg1);
 extern void func_004538e0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -1927,15 +1927,15 @@ void func_0013d7d0(u8 *arg0, s32 arg1) {
         sp0.first = 0x43030000;
         sp0.second = 0xC26C0000;
         shdPersonaSetFlags(*(u8 **)(arg0 + 0x1CB4), 0x400E0);
-        func_0011d0d0(*(u8 **)(arg0 + 0x1CB4), &sp0);
-        func_0011d170(*(u8 **)(arg0 + 0x1CB4), -1, -0x7F00);
+        shdPersonaRefreshDispCtlPosition(*(u8 **)(arg0 + 0x1CB4), &sp0);
+        shdPersonaSetChildDispCtlHandleAndColor(*(u8 **)(arg0 + 0x1CB4), -1, -0x7F00);
         return;
     case 1:
         sp1.first = 0x43030000;
         sp1.second = 0xC2600000;
         shdPersonaClearFlags(*(u8 **)(arg0 + 0x1CB4), 0x400E0);
-        func_0011d0d0(*(u8 **)(arg0 + 0x1CB4), &sp1);
-        func_0011d170(*(u8 **)(arg0 + 0x1CB4), -1, 0xFFE92C00);
+        shdPersonaRefreshDispCtlPosition(*(u8 **)(arg0 + 0x1CB4), &sp1);
+        shdPersonaSetChildDispCtlHandleAndColor(*(u8 **)(arg0 + 0x1CB4), -1, 0xFFE92C00);
         return;
     }
 }
@@ -1958,7 +1958,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void func_001371a0(u8 *arg0, s32 arg1);
     extern void func_00355190(u8 *arg0, s32 arg1);
     extern void func_00137e50(u8 *arg0, s32 a, s32 b, s32 c);
-    extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
+    extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
     extern void func_001374d0(u8 *arg0);
     extern void func_00137570(u8 *arg0);
     extern void func_001370e0(u8 *arg0);
@@ -2006,7 +2006,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_00353fe0();
             func_00355190(*(u8 **)(arg2 + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24));
             func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 1, 0);
-            func_0011b480(*(u8 **)(arg2 + 0x1CB4), 0U, 0, 0);
+            shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 0U, 0, 0);
         }
         break;
     case 4:
@@ -2028,9 +2028,9 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_001370e0(arg2);
                     func_0034bb20(0xF);
                     func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
-                    func_0011b480(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
+                    shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                     func_0013d7d0(arg2, 1);
-                    func_0011d0d0(*(u8 **)(arg2 + 0x1CB4), NULL);
+                    shdPersonaRefreshDispCtlPosition(*(u8 **)(arg2 + 0x1CB4), NULL);
                     shdPersonaSetFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
                     func_0045af60(0, 0, 0, 1);
                 } else {
@@ -2040,7 +2040,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_0034bb20(0x11);
                     func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
                     func_0013d7d0(arg2, 0);
-                    func_0011b480(*(u8 **)(arg2 + 0x1CB4), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24), (u32)datPersonaGetRecord(*(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24)), 0);
+                    shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24), (u32)datPersonaGetRecord(*(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24)), 0);
                     shdPersonaStartSlideIn(*(u8 **)(arg2 + 0x1CB4));
                     shdPersonaClearFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
                 }
@@ -2107,7 +2107,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             if (func_00453960(buf) != 0) {
                 func_00136fa0(arg2, 1, *(s32 *)(buf + 0x24));
                 func_00137570(arg2);
-                func_0011b480(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
+                shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                 func_0045af60(0, 1, 0, 0);
             }
         }
@@ -2141,7 +2141,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             } else if (D_008C024E[0] & 0x10) {
                 datPersonaRemoveSelectedRosterMember();
                 *(s32 *)(arg2 + 0x10) = func_00354030();
-                func_0011b360(*(u8 **)(arg2 + 0x1CB4));
+                shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
                 shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
                 *arg0 = 0x10;
             } else {
@@ -2165,7 +2165,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
         } else if (D_008C024E[0] & 0x10) {
             datPersonaRemoveSelectedRosterMember();
             *(s32 *)(arg2 + 0x10) = func_00354030();
-            func_0011b360(*(u8 **)(arg2 + 0x1CB4));
+            shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
             shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
         } else {
@@ -2191,7 +2191,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             *arg0 = 0xC;
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
-            func_0011b360(*(u8 **)(arg2 + 0x1CB4));
+            shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
             shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
         } else {
@@ -2204,7 +2204,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             *arg0 = 0xB;
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
-            func_0011b360(*(u8 **)(arg2 + 0x1CB4));
+            shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
             shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
         } else if (func_0013e8e0(arg2, arg0) == 0) {
@@ -2239,7 +2239,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                 if (*(s16 *)(arg2 + 0x52) >= temp_3_2) {
                     func_00136fa0(arg2, 1, temp_3_2 - 1);
                 }
-                func_0011b480(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
+                shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                 break;
             case 1:
                 break;
