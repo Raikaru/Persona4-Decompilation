@@ -53,8 +53,8 @@ extern void chkmemAllocSiteTag(const void *arg0, u32 arg1);
 extern void *memset(void *dest, s32 value, s32 size);
 
 extern u8 *shdPersonaTaskCreate(s32, s32, s32, s32, s32);
-extern s32 func_00314010(u8 *task);
-extern void func_003142f0(u8 *arg0);
+extern s32 fclDrawTaskStep(u8 *task);
+extern void fclDrawTaskDestroy(u8 *arg0);
 extern s32 datGetFlag(s32);
 extern s32 kwlnTaskIsLinked(void *);
 extern void shdPersonaSetOrigin(u8 *arg0, f32 *arg1);
@@ -176,7 +176,7 @@ s32 fclDrawTaskCreate(s32 arg0) {
     chkmemAllocSiteTag(D_00644D30, 0x16D);
     p = (u8 *)D_008873F4[0](1, 0x14, 0x40000);
     memset(p, 0, 0x14);
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00644D50), 0xF, 0, 0, func_00314010, func_003142f0, (u8 *)(p));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00644D50), 0xF, 0, 0, fclDrawTaskStep, fclDrawTaskDestroy, (u8 *)(p));
     *(s8 *)p = 7;
     *(s32 *)(p + 4) = (s32)shdPersonaTaskCreate(ret, 0xF, 3, 5, 5);
     *(s8 *)(p + 0xD) = 0;

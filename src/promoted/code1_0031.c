@@ -62,7 +62,7 @@ void func_00311900(s64 arg0)
    Retail review confirms the low u16 community ID, the input-only persona
    pointer, the low-s8 scaling flag and the full s32 result. */
 // FUN_00311930
-s32 func_00311930(s32 arg0, u8 *arg1, s8 arg2)
+s32 cmmCommunityExpRemaining(s32 arg0, u8 *arg1, s8 arg2)
 {
     extern s32 shdPersonaCalcExpRemaining(u8 *arg0, s32 arg1);
     extern f32 D_007494D0[];
@@ -171,7 +171,7 @@ s32 func_00311b90(u16 *arg0, u16 *arg1, s32 arg2, s16 *arg3)
 }
 #pragma pop
 // FUN_00311D00
-s64 func_00311d00(s32 arg0)
+s64 cmmCommunityIsListable(s32 arg0)
 {
     s64 result;
     u16 flags = *(u16 *)(iGpffffb3d4 + ((arg0 & 0xFFFF) * 14));
@@ -189,7 +189,7 @@ exit:
     return (s8)result;
 }
 // FUN_00311D60
-s32 func_00311d60(s32 arg0)
+s32 cmmCommunityPassesFlagGate(s32 arg0)
 {
     s16 flags;
     u32 index;
@@ -236,7 +236,7 @@ done:
 /* measured: loop-invariant absolute table base requires the retail preheader. */
 #pragma opt_loop_invariants on
 // FUN_00311E40
-s32 func_00311e40(s32 arg0)
+s32 cmmCommunityHasFlagGate(s32 arg0)
 {
     u32 i;
 
@@ -490,7 +490,7 @@ void func_00313d20(u8 *task, u8 month, s32 day, s8 mode)
 }
 #pragma pop
 // FUN_00313FB0
-s32 func_00313fb0(u8 *arg0)
+s32 datPersonaExpToNextLevel(u8 *arg0)
 {
     s32 temp;
 
@@ -505,7 +505,7 @@ extern void shdPersonaStartSlideIn(u8 *arg0);
 extern void shdPersonaBeginClose(u8 *arg0);
 extern u8 shdPersonaGetAlpha(u8 *arg0);
 // FUN_00314010
-s32 func_00314010(u8 *arg0) {
+s32 fclDrawTaskStep(u8 *arg0) {
     s32 value;
     s8 state;
     u8 *work;
@@ -599,7 +599,7 @@ block_33:
     }
 }
 // FUN_003142F0
-void func_003142f0(u8 *arg0)
+void fclDrawTaskDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
