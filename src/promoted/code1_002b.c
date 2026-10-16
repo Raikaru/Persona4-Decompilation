@@ -55,7 +55,7 @@ extern s32 itfMesWindowQueueEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, 
 extern u32 datEntryGetFlags(s16 item);
 extern s32 func_002be1e0(s32 arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void func_00145080(void);
+extern void fieldSceneUnload(void);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void itfMesWindowSetState(s32 arg0, s8 arg1);
 extern void itfMesWindowRelease(s32 arg0);
@@ -86,7 +86,7 @@ extern s32 func_002e78a0(void);
 extern s32 func_002e78e0(void);
 extern s32 func_002be100(s32 arg0);
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
-extern s32 func_00144f60(void);
+extern s32 fieldSceneLoadStep(void);
 extern s32 func_0015f660(void);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122640(s32 arg0, s32 arg1);
