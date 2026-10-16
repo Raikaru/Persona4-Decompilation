@@ -270,7 +270,7 @@ void btlFormationAttachRotation(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
     extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
     extern f32 func_0044b950(f32 arg0, f32 arg1);
     extern s32 mdlCopyIndexedMatrix(u8 *arg0, s32 arg1, f32 *arg2);
-    extern void func_0048a980(f32 *arg0);
+    extern void effMiscMatrixToQuatVU(f32 *arg0);
     extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
 
     entry = arg2 + 8;
@@ -322,7 +322,7 @@ case0_done:
             frame.output[13] = frame.input[13];
             frame.output[14] = frame.input[14];
             frame.output[15] = 0.0f;
-            func_0048a980(frame.output);
+            effMiscMatrixToQuatVU(frame.output);
             __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(arg3) : "memory");
         break;
 case1_failure:
@@ -360,7 +360,7 @@ case1_no_flags:
             frame.output[13] = frame.input[13];
             frame.output[14] = frame.input[14];
             frame.output[15] = 0.0f;
-            func_0048a980(frame.output);
+            effMiscMatrixToQuatVU(frame.output);
             __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(arg3) : "memory");
             break;
 case8_failure:

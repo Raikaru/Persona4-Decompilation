@@ -82,7 +82,7 @@ extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
 extern f32 iGpffff836c;
 extern void mdlEffectGetOrientationVec(u8 *arg0, u32 *arg1);
 extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
-extern void func_0048a980(f32 *arg0);
+extern void effMiscMatrixToQuatVU(f32 *arg0);
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
@@ -153,7 +153,7 @@ void func_004b12e0(u8 *arg0, u8 *arg1) {
     work.values[13] = *(f32 *)(arg1 + 0x34);
     work.values[14] = *(f32 *)(arg1 + 0x38);
     work.values[15] = 0.0f;
-    func_0048a980(work.values);
+    effMiscMatrixToQuatVU(work.values);
     __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(work.result) : "memory");
     func_00486330(arg0, work.result);
 }

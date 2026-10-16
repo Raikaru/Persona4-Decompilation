@@ -55,8 +55,8 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 /* Source unit: src/promoted/code1_0048.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0048.c; members 0048cdf0-0048cdf0 */
 
-extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+extern f32 mdlEffectSampleScalarKeys(u8 *arg0, s32 arg1, s32 arg2);
+extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
 extern void func_0048b340(u8 *arg0, u8 *arg1);
 extern void func_0048d8c0(u8 *arg0);
 /* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
@@ -116,7 +116,7 @@ void func_0048cdf0(u8 *arg0)
 {
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
-    extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
@@ -364,7 +364,7 @@ skip_clear:
         __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)nodes) : "r"(nodes) : "$vf10", "memory");
         *(s32 *)(nodes + 16) = (s32)c;
     }
-    func_0048b220(nodes, config, *(s32 *)(nodes + 16), &b220buf);
+    mdlEffectSampleKeyState(nodes, config, *(s32 *)(nodes + 16), &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[13];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[15];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[14];
@@ -411,7 +411,7 @@ else_branch:
     *(f32 *)(nodes + 0) = tmp130[0];
     *(f32 *)(nodes + 4) = tmp130[1];
     *(f32 *)(nodes + 8) = tmp130[2];
-    func_0048b220(nodes, config, node10, &b220buf);
+    mdlEffectSampleKeyState(nodes, config, node10, &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[13];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[15];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[14];

@@ -2823,7 +2823,7 @@ void mdlEffectIncrementCounter(int param_1)
 #pragma opt_loop_invariants off
 void mdlEffectRenderFlares(u8 *arg0)
 {
-    extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
+    extern s32 mdlEffectSamplePackedColor(u8 *a, u8 *b, s32 c, s32 d);
     extern RpGeometry *func_003c22f0(RpGeometry *geometry);
     extern RpMaterial *RpMaterialSetTexture(RpMaterial *material, RwTexture *texture);
     extern s32 TnSlotObject(u16 b);
@@ -2896,7 +2896,7 @@ void mdlEffectRenderFlares(u8 *arg0)
     maxD = sqrtf(152576.0f); /* Squared distance from screen center to its corner. */
     scale = (maxD - dist) / maxD;
     scale = scale * *(f32 *)(arg0 + 0x4C);
-    colA = func_0048abd0(arg0 + 0x18, arg0 + 0x3C, cnt10, cnt50);
+    colA = mdlEffectSamplePackedColor(arg0 + 0x18, arg0 + 0x3C, cnt10, cnt50);
     colorSource = &colA;
     normalization = fGpffff8044;
     __asm__ volatile(

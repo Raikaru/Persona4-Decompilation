@@ -171,7 +171,7 @@ void EffModelDrawCallback(u8 *arg0)
     extern union BasisConst D_007144D8[];
     extern union BasisConst D_007144E8[];
     extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
-    extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
+    extern f32 mdlEffectSampleScalarKeys(u8 *arg0, s32 arg1, s32 arg2);
     extern u8 *func_003e9700(s32 arg0);
     extern u8 *mdlGetMatrix(s32 arg0);
     extern u8 *RwMatrixMultiply(void *arg0, void *arg1, void *arg2);
@@ -199,7 +199,7 @@ void EffModelDrawCallback(u8 *arg0)
     frame_index = (u32)mdlGetLayerWeight(*(s32 *)(arg0 + 0xB4), 0);
     frame_count = *(s32 *)(arg0 + 0x9C);
     if (frame_count >= (s32)frame_index || frame_count == 0) {
-        scale = func_0048aff0(arg0 + 0x44, frame_index, frame_count) / 10.0f;
+        scale = mdlEffectSampleScalarKeys(arg0 + 0x44, frame_index, frame_count) / 10.0f;
         node = ((u8 *)(u32)kwlnGetCamera()) + 0x68;
         camera = ((u8 *)(u32)kwlnGetCamera());
         near_height = *(f32 *)(camera + 0x80);
@@ -264,9 +264,9 @@ void EffModelDrawCallback(u8 *arg0)
 void EffModelDrawableUpdate(s32 arg0, u8 *arg1)
 {
     extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
-    extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+    extern s32 mdlEffectSamplePackedColor(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
     extern void mdlSetColor(void *arg0, s32 *arg1);
-    extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
+    extern f32 mdlEffectSampleScalarKeys(void *arg0, u32 arg1, u32 arg2);
     extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
     extern s32 TnGetTableBase(void);
     extern void mdlSetAttachedOwner(void *arg0, s32 arg1);
@@ -285,7 +285,7 @@ void EffModelDrawableUpdate(s32 arg0, u8 *arg1)
     frame_index = (u32)temp_f0;
     frame_count = *(u32 *)(arg1 + 0x9C);
     if ((frame_count >= frame_index) || (frame_count == 0)) {
-        color = func_0048abd0(arg1 + 0x10, arg1 + 0x34, frame_index, frame_count);
+        color = mdlEffectSamplePackedColor(arg1 + 0x10, arg1 + 0x34, frame_index, frame_count);
         sp58 = *(s32 *)(arg1 + 0xC);
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -326,7 +326,7 @@ void EffModelDrawableUpdate(s32 arg0, u8 *arg1)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp5C = *(s32 *)&sp50;
         mdlSetColor(*(u8 **)(arg1 + 0xB4), &sp5C);
-        func_0048aff0(arg1 + 0x44, frame_index, frame_count);
+        mdlEffectSampleScalarKeys(arg1 + 0x44, frame_index, frame_count);
         *(s32 *)(*(u8 **)(arg1 + 0xB4) + 0xD8) &= ~0x100;
         if ((*(u8 *)(arg1 + 0xA1) != 0) && (*(s32 *)(arg1 + 0xA4) == 0)) {
             *(s32 *)(*(u8 **)(arg1 + 0xB4) + 0xD8) |= 0x18;

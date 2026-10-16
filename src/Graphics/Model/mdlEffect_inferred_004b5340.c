@@ -145,7 +145,7 @@ void *EffBattleCreateFromRecord(void *opaqueSource)
 }
 
 // FUN_004B5530
-void func_004b5530(u8 *arg0) {
+void mdlEffectInstanceStop(u8 *arg0) {
     void (*fn)(u8 *);
 
     if (iGpffffbba4() != 0) {
@@ -163,7 +163,7 @@ void func_004b5530(u8 *arg0) {
    then loads at displacement 0. Folding either step into the expression makes
    b210 sink the offset into the load displacement and flip the addu operands
    (nd 40-54). */
-void func_004b55a0(u8 *arg0) {
+void mdlEffectInstanceAdvance(u8 *arg0) {
     s32 tbl;
     s32 idx;
     void (*fn)(u8 *);
@@ -185,7 +185,7 @@ void func_004b55a0(u8 *arg0) {
    then loads at displacement 0. Folding either step into the expression makes
    b210 sink the offset into the load displacement and flip the addu operands
    (nd 40-54). */
-void func_004b5620(u8 *arg0) {
+void mdlEffectInstanceUpdate(u8 *arg0) {
     s32 tbl;
     s32 idx;
     void (*fn)(u8 *);
@@ -201,7 +201,7 @@ void func_004b5620(u8 *arg0) {
 }
 
 // FUN_004B5690
-void func_004b5690(u8 *arg0)
+void mdlEffectInstanceAdvanceAndUpdate(u8 *arg0)
 {
     s32 tbl1;
     s32 idx1;

@@ -42,7 +42,7 @@ extern void *FlashQuadCopyAlloc(s32, void *);
 extern u8 *(*jtbl_008873E8[])(s32, s32);
 extern void chkmemAllocSiteTag(char *, s32);
 extern void kAssertFail(char *, s32);
-extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
+extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
 extern void GeometryBlockSetFrameMatrixCombined(void *, void *, void *, void *);
 extern void GeometryBlockBindResource(void *, u16);
 
@@ -434,7 +434,7 @@ void FlashRotatingPackColors(u8 *arg0)
     {
         s32 *pt;
 
-        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        temp_3 = mdlEffectSamplePackedColor(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
         scale = fGpffff8044;
@@ -976,7 +976,7 @@ void FlashRadialPackColors(u8 *arg0)
     {
         s32 *pt;
 
-        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        temp_3 = mdlEffectSamplePackedColor(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
         scale = fGpffff8044;
@@ -1471,7 +1471,7 @@ void FlashEvolvingRadialPackColors(u8 *arg0)
     {
         s32 *pt;
 
-        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        temp_3 = mdlEffectSamplePackedColor(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
         scale = fGpffff8044;
@@ -1966,7 +1966,7 @@ void FlashTexturedPackColors(u8 *arg0)
     {
         s32 *pt;
 
-        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        temp_3 = mdlEffectSamplePackedColor(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
         scale = fGpffff8044;
@@ -2451,7 +2451,7 @@ void FlashCenteredStripPackColors(u8 *arg0)
     {
         s32 *pt;
 
-        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        temp_3 = mdlEffectSamplePackedColor(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
         scale = fGpffff8044;
@@ -2958,7 +2958,7 @@ void FlashBoxPackColors(u8 *arg0)
     {
         s32 *pt;
 
-        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        temp_3 = mdlEffectSamplePackedColor(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
         scale = fGpffff8044;
@@ -3403,7 +3403,7 @@ void FlashAgedBoxPackColors(u8 *arg0)
     {
         s32 *pt;
 
-        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        temp_3 = mdlEffectSamplePackedColor(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
         scale = fGpffff8044;
@@ -3925,7 +3925,7 @@ void FlashQuadCopyPackColors(u8 *arg0)
     {
         s32 *pt;
 
-        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        temp_3 = mdlEffectSamplePackedColor(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
         scale = fGpffff8044;

@@ -39,7 +39,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 // FUN_004903C0
 void func_004903c0(u8 *arg0)
 {
-    extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern void effMiscBuildRotationVU(void);
     extern f32 fabsf(f32 arg0);
@@ -242,7 +242,7 @@ skip_clear:
         out[7] = one;
     }
     *(s32 *)(nodes + 16) = 0;
-    func_0048b220(nodes, config, 0, (u_long128 *)nodes);
+    mdlEffectSampleKeyState(nodes, config, 0, (u_long128 *)nodes);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[5];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[7];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[6];
@@ -282,7 +282,7 @@ else_branch:
         ftmp1 = out[4];
         *(f32 *)(nodes + 4) = eD8 + ftmp1 * (*(f32 *)(nodes + 4) - eD8);
     }
-    func_0048b220(nodes, config, node10, &b220buf);
+    mdlEffectSampleKeyState(nodes, config, node10, &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[5];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[7];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[6];
