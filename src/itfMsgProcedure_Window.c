@@ -38,7 +38,7 @@ extern u8 D_00796490[];
 extern void msgWinDrawShape(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2);
 extern void msgWinDrawRing(s32 a0, s32 a1, f32 f0, s32 a2, s32 a3, s32 t0, s32 t1, s16 t2, s16 t3, f32 f1, f32 f2, f32 f3, void *a4);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *a0, void *a1);
 extern void calDrawScreen(u8 *arg);
 extern void msgWinDrawSprite(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t3, void *s0, float f0, float f1, float f2, float f3);
@@ -214,7 +214,7 @@ s32 msgWinEntryStep(MsgProcWindowEntry *arg)
         if (arg == 0) {
             kAssertFail(D_0063BFC0, 0xCC);
         }
-        tmp = func_00460990();
+        tmp = PrimAllocQueueNode();
         *(void **)(tmp + 8) = (void *)calDrawScreen;
         *(MsgProcWindowEntry **)(tmp + 0x10) = arg;
         func_00460ac0(D_00796490, tmp);
@@ -2440,7 +2440,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         s32 task;
         s32 kind;
     } CalendarArgs;
-    extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
+    extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
     extern u8 *resourceFindByName(char *arg0);
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
@@ -2529,7 +2529,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         {
             rect = (CalendarRectangle){0, 0, 640, 480};
 
-            func_0045d6e0((u8 *)&depthColor, (f32 *)&rect, 10.0f, 1);
+            PrimDrawFlatRectangle((u8 *)&depthColor, (f32 *)&rect, 10.0f, 1);
         }
         phase = (s32)frame % 4;
         table = (s32 (**)(s32, void *))(u32)D_00887300;
@@ -2649,7 +2649,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         {
             rect = (CalendarRectangle){0, 0, 640, 480};
 
-            func_0045d6e0((u8 *)&depthColor, (f32 *)&rect, 10.0f, 1);
+            PrimDrawFlatRectangle((u8 *)&depthColor, (f32 *)&rect, 10.0f, 1);
         }
         frame = args.count;
         alpha = (f32)frame / 120.0f;
@@ -2778,7 +2778,7 @@ s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
             D_00882090[0] = (u32)arg0;
             D_00882094[0] = (u32)arg1;
             {
-                u8 *m = func_00460990();
+                u8 *m = PrimAllocQueueNode();
                 *(void **)(m + 8) = (void *)msgCalendarDraw;
                 *(void **)(m + 16) = (void *)D_00882080;
                 func_00460ac0(D_00796490, m);
@@ -2802,7 +2802,7 @@ s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
             D_00882090[0] = (u32)arg0;
             D_00882094[0] = (u32)arg1;
             {
-                u8 *m = func_00460990();
+                u8 *m = PrimAllocQueueNode();
                 *(void **)(m + 8) = (void *)msgCalendarDraw;
                 *(void **)(m + 16) = (void *)D_00882080;
                 func_00460ac0(D_00796490, m);

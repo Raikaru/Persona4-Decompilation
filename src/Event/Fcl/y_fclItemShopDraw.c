@@ -87,7 +87,7 @@ s32 func_002b2cb0(s32, s32, s32, s32, s8);
 s32 func_002b2d00(s32, s32, s32, s32, s8);
 void memcpy(void *, s32, s32);
 s32 func_002b89a0(void *);
-void *func_00460990(void);
+void *PrimAllocQueueNode(void);
 void func_00460ac0(void *, void *);
 s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_00795FE0[];
@@ -194,7 +194,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
     s32 listIndex;
     s32 cardIndex;
 
-    task = func_00460990();
+    task = PrimAllocQueueNode();
     *(void **)((u8 *)task + 8) = (void *)func_00332b60;
     *(void **)((u8 *)task + 0x10) = work;
     func_00460ac0(D_00795FE0, task);
@@ -1994,7 +1994,7 @@ s32 fclItemShopPanelUpdate(u8 *arg0) {
     }
     if (func_0033d390((u8 *)arg0, 0) == 1) {
         if (func_0033d390((u8 *)arg0, 0xD) == 1) {
-            temp_2 = (u8 *)func_00460990();
+            temp_2 = (u8 *)PrimAllocQueueNode();
             *(void **)(temp_2 + 8) = (void *)func_00332a80;
             *(s32 *)(temp_2 + 0x10) = 0;
             func_00460ac0(

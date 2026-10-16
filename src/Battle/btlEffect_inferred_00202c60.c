@@ -109,7 +109,7 @@ extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
 extern void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
-extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
+extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
 typedef struct {
     u8 c0;
     u8 c1;
@@ -1172,7 +1172,7 @@ void btlPanelDrawBackdrop(u8 *arg0, f32 fparg0, f32 fparg1)
     work.value0 = 0;
     work.value1 = 0x280;
     work.value2 = 0x1C0;
-    func_0045d6e0((u8 *)&work.colors, (f32 *)(void *)&work.value3, 0.0f, 0);
+    PrimDrawFlatRectangle((u8 *)&work.colors, (f32 *)(void *)&work.value3, 0.0f, 0);
     work.colors.c0 = 0xFF;
     work.colors.c1 = 0xFF;
     work.colors.c2 = 0xFF;
@@ -1873,9 +1873,9 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
         clip.rectangle.coordinates[2] = 0x1E0;
         clip.rectangle.coordinates[3] = 0x46;
         clip.rectangle.coordinates[1] = (s32)(8.0f + (upperEdgeY - 70.0f));
-        func_0045d6e0((u8 *)&clip.colors, clip.rectangle.words, 0.0f, 0);
+        PrimDrawFlatRectangle((u8 *)&clip.colors, clip.rectangle.words, 0.0f, 0);
         clip.rectangle.coordinates[1] = (s32)(3.0f + verticalWork);
-        func_0045d6e0((u8 *)&clip.colors, clip.rectangle.words, 0.0f, 0);
+        PrimDrawFlatRectangle((u8 *)&clip.colors, clip.rectangle.words, 0.0f, 0);
         clipRenderer->setState(8, 0);
     }
     {
@@ -2080,7 +2080,7 @@ void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
         rect[1] = 0x14D;
         rect[2] = 0x17C;
         rect[3] = 0x25;
-        func_0045d6e0((u8 *)&color, (f32 *)rect, 0.0f, 0);
+        PrimDrawFlatRectangle((u8 *)&color, (f32 *)rect, 0.0f, 0);
     }
 
     btlUiSetAlpha(glyphs, 170.0f);
@@ -2607,7 +2607,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
     }
 }
 
-/* measured: the float argument to func_0045d6e0 is 0.0f - retail only ever clears
+/* measured: the float argument to PrimDrawFlatRectangle is 0.0f - retail only ever clears
    $f12, and that hoisted zero is also the `<= 0.0f` compare operand and the
    accumulator seed of the adda.s/madd.s (the old archive passed temp_f4, nd10). */
 // Intent: draw the selection's progress bar, scaled by the eased progress. [inferred]
@@ -2643,7 +2643,7 @@ void btlSelectionDrawBar(u8 *unused, u8 *arg1, f32 *arg2)
     values[1] = (s32)temp_f4;
     values[2] = 0x294;
     values[3] = (s32)(temp_f3 * 22.0f);
-    func_0045d6e0((u8 *)&color, (f32 *)values, 0.0f, 0);
+    PrimDrawFlatRectangle((u8 *)&color, (f32 *)values, 0.0f, 0);
 }
 
 // Intent: save the selected row and page to the cursor record when the flag is set. [inferred]
@@ -3341,7 +3341,7 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
         }
         rect[2] = 0x1A4;
         rect[3] = 0x28;
-        func_0045d6e0((u8 *)&color, (f32 *)rect, 0.0f, 0);
+        PrimDrawFlatRectangle((u8 *)&color, (f32 *)rect, 0.0f, 0);
         renderer->setState(8, 0);
     }
     renderer = (BattleRenderDispatch *)D_00887300;

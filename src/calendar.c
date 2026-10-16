@@ -37,7 +37,7 @@ extern void datSetTimeSlot(s32 a);
 extern s32 calGetWeekdayOfDay(s32 arg0);
 extern s32 calGetWeekOfYear(s32 arg0);
 extern s32 calDayOfYearFromMonthDay(s32 arg0, s32 arg1);
-extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 fparg0, s32 arg2);
 extern s32 iGpffff9c54;
 extern const char *D_005E5010[];
 extern u8 D_005E5028[];
@@ -198,7 +198,7 @@ s32 calendarDraw(u8 *unusedTask)
     if (*(s32 *)(work + 4) == 0) return 0;
     color[0] = 0x40; color[1] = 0x40; color[2] = 0x40; color[3] = 0xff;
     dim[0] = 100; dim[1] = 100; dim[2] = 250; dim[3] = 100;
-    func_0045d6e0(color, dim, 0.0f, 1);
+    PrimDrawFlatRectangle(color, dim, 0.0f, 1);
     calSplitDayOfYear(*(s32 *)(work + 8), &month, &day);
     weekday = calGetWeekdayOfDay(calDayOfYearFromMonthDay(month, 1));
     current = calGetWeekdayOfDay(*(s32 *)(work + 8));
@@ -206,7 +206,7 @@ s32 calendarDraw(u8 *unusedTask)
     offset = offset + (calGetWeekOfYear(*(s32 *)(work + 8)) - 1) * 12;
     color[0] = 0x40; color[1] = 0x80; color[2] = 0x80; color[3] = 0xff;
     dim[0] = current * 36 + 100; dim[1] = offset + 124; dim[2] = 36; dim[3] = 12;
-    func_0045d6e0(color, dim, 0.0f, 1);
+    PrimDrawFlatRectangle(color, dim, 0.0f, 1);
     pos.xy.x = 100.0f; pos.xy.y = 100.0f;
     func_00450dd0(pos, 0.0f, D_005E5028, month, D_005E5010[datGetTimeSlot()]);
     pos.xy.x = 0.0f + 100.0f + 36.0f * (f32)weekday;

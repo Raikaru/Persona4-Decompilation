@@ -10,7 +10,7 @@ extern u8 D_006376C0[];
 extern u8 D_006376D0[];
 extern u8 D_00638EF0[];
 extern u8 *kwlnTaskGetWork();
-extern u8 *func_00460990();
+extern u8 *PrimAllocQueueNode();
 extern void func_00460ac0(void *, void *);
 extern u8 *kwlnTaskGetWork();
 extern void sdkSpriteRelease(void *);
@@ -47,7 +47,7 @@ u8 *sdkSpriteRequestLoad(const char *name);
 s32 func_0046a750(s32 param);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern u8 D_006376F0[];
-void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
+void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
 
 
 /* Creates the day-change display task with its update and destroy callbacks. */
@@ -633,7 +633,7 @@ void cldDayChangeDrawMonthOutline(s32 x, s32 y, f32 depth, s32 opacity, s32 mont
     rectangle.coordinates[1] = y;
     rectangle.coordinates[2] = 0x100;
     rectangle.coordinates[3] = 0xF5;
-    func_0045d6e0(shade, rectangle.transport, 0.0f, 1);
+    PrimDrawFlatRectangle(shade, rectangle.transport, 0.0f, 1);
 }
 
 /* The day renderer's depth is 0.0f. Retail also uses this register as
@@ -691,7 +691,7 @@ void cldDayChangeDrawFrame(s32 arg0, s32 arg1)
 void cldDayChangeAddRenderTask(s32 arg0, u8 *arg1) {
     u8 *p;
 
-    p = func_00460990();
+    p = PrimAllocQueueNode();
     *(void **)(p + 0x8) = (void *)cldDayChangeDrawFrame;
     *(s32 *)(p + 0x10) = arg0;
     func_00460ac0(arg1, p);

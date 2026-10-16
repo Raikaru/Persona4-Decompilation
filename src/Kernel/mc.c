@@ -8,9 +8,9 @@
 
 /* The SDK getter requires the callback task and returns a packed address. */
 extern u32 kwlnTaskGetWork(void *task);
-extern void *func_00460990(void);
+extern void *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *, void *);
-extern void func_0045d6e0(void *, void *, f32, s32);
+extern void PrimDrawFlatRectangle(void *, void *, f32, s32);
 extern void sdkSpritePackDestroy(u32 param_1);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void func_002a6650(void *, void *);
@@ -89,7 +89,7 @@ extern void func_00364c50(void);
 extern void func_00364c70(void);
 extern void PrimDrawPoints(void *, void *, f32, s32, s32, s32);
 extern void mcDrawCircleFan(f32, f32, f32, s32, s32, f32, f32, s32);
-extern void func_0045ed60(void *, void *, s32, f32);
+extern void PrimDrawFlatTriangle(void *, void *, s32, f32);
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef struct { s32 x, y, width, height; } McRect;
 extern f32 iGpffffa818;
@@ -1194,7 +1194,7 @@ s32 mcAnimateTransition(s32 task) {
     first.y = (s32)(178.0f * (1.0f - eased));
     first.height = (s32)(448.0f * eased);
     rectangle = first;
-    func_0045d6e0(&outputColor.value, &rectangle, 0.0f, 1);
+    PrimDrawFlatRectangle(&outputColor.value, &rectangle, 0.0f, 1);
     frame = *(s32 *)(work + 0x568);
     if (frame > 5) {
         frame -= 5;
@@ -1206,7 +1206,7 @@ s32 mcAnimateTransition(s32 task) {
         second.y = (s32)(178.0f - (94.0f * eased) / 2.0f);
         second.height = (s32)(94.0f * eased);
         rectangle = second;
-        func_0045d6e0(&outputColor.value, &rectangle, 0.0f, 1);
+        PrimDrawFlatRectangle(&outputColor.value, &rectangle, 0.0f, 1);
     }
     frame = ++*(s32 *)(work + 0x568);
     if (frame >= 20) {
@@ -1635,7 +1635,7 @@ s32 mcDrawDispatch(s32 arg0) {
 
 // FUN_002A6680
 void mcQueueDrawJob(s32 arg0) {
-    u8 *work = func_00460990();
+    u8 *work = PrimAllocQueueNode();
     *(void **)(work + 8) = func_002a6650;
     *(void **)(work + 0x10) = (void *)arg0;
     func_00460ac0(&D_00796370, work);
@@ -1750,7 +1750,7 @@ void mcSetSkyRenderState(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0) {
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&sp5C, &sp40, fparg0, 0);
+    PrimDrawFlatRectangle(&sp5C, &sp40, fparg0, 0);
     mdlEffectEmitTagPair();
 }
 
@@ -1760,7 +1760,7 @@ s32 mcCurrentSlotValue(u8 *arg0) {
     return *(s32 *)(idx + (s32)arg0 + 0x14);
 }
 
-// Intent: sets the colour with alpha arg2 and draws it through func_0045d6e0 only when alpha is nonzero.
+// Intent: sets the colour with alpha arg2 and draws it through PrimDrawFlatRectangle only when alpha is nonzero.
 // FUN_002A6B10
 void mcDrawFadedColor(s32 arg0, s32 arg1, s32 arg2, void *arg3) {
     typedef union { f32 f; u8 b[4]; } U4;
@@ -1772,7 +1772,7 @@ void mcDrawFadedColor(s32 arg0, s32 arg1, s32 arg2, void *arg3) {
     pu->b[3] = (u8)arg2;
     q = D_0063ED70;
     if (arg2 != 0) {
-        func_0045d6e0(pu, &q, 0.0f, 1);
+        PrimDrawFlatRectangle(pu, &q, 0.0f, 1);
     }
 }
 
@@ -1899,7 +1899,7 @@ void mcDrawCardStatusPulse(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     spAC[1] = 0xF2;
     spAC[2] = 0x3D;
     spAC[3] = (u8)arg2;
-    func_0045ed60(spAC, sp70, 1, 0.0f);
+    PrimDrawFlatTriangle(spAC, sp70, 1, 0.0f);
     f1 = 1.0f - f21;
     f20 = 70.0f * f1;
     f21 = 30.0f * f1;
@@ -1916,7 +1916,7 @@ void mcDrawCardStatusPulse(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     spAC[1] = 0xF2;
     spAC[2] = 0x3D;
     spAC[3] = (u8)arg2;
-    func_0045ed60(spAC, &sp70[6], 1, 0.0f);
+    PrimDrawFlatTriangle(spAC, &sp70[6], 1, 0.0f);
 }
 
 // FUN_002A7330
@@ -2443,7 +2443,7 @@ void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 
     color.g = (s8) (col >> 0x10);
     color.b = (u8)a;
     color.a = (u8) col;
-    func_0045d6e0(&color, &spD, fparg2, 0);
+    PrimDrawFlatRectangle(&color, &spD, fparg2, 0);
 }
 
 #pragma pop
@@ -2744,7 +2744,7 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&singleCopy, &rectCopy, 0.0f, 0);
+    PrimDrawFlatRectangle(&singleCopy, &rectCopy, 0.0f, 0);
     mdlEffectEmitTagPair();
     mdlEffectEmitMaskedTagPair();
     tmpY2 = fparg1 + 48.0f;

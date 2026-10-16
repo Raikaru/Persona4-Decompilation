@@ -39,7 +39,7 @@ extern s32 func_00348be0(u8 *);
 extern s32 func_00348c10(u8 *);
 extern u8 *func_001102f0(u8 *, s32, s32, f32);
 extern s32 func_00285b30(void);
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *, void *);
 extern s16 func_002b2cb0(s32, s32, s32, s32, s32);
 extern void mdlQueueModelForDraw(void *, u8 *);
@@ -498,7 +498,7 @@ s32 func_00349c50(u8 *arg0)
             *(s32 *)(obj + 0xE8) = 0xB3;
         }
         {
-            void *tmp1 = func_00460990();
+            void *tmp1 = PrimAllocQueueNode();
             *(void **)((u8 *)tmp1 + 8) = (void *)func_00349440;
             *(u8 **)((u8 *)tmp1 + 0x10) = obj;
             func_00460ac0(&D_00793E80[(*(s32 *)(obj + 0xE8) - 1) * 0x30], tmp1);
@@ -516,7 +516,7 @@ s32 func_00349c50(u8 *arg0)
                 }
             }
             {
-                void *tmp2 = func_00460990();
+                void *tmp2 = PrimAllocQueueNode();
                 *(void **)((u8 *)tmp2 + 8) = (void *)func_00349b90;
                 *(u8 **)((u8 *)tmp2 + 0x10) = obj;
                 func_00460ac0(&D_00793E80[(*(s32 *)(obj + 0xE8) + 1) * 0x30], tmp2);

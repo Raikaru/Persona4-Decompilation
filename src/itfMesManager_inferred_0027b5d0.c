@@ -23,7 +23,7 @@ extern u8 *D_008817EC[];
 extern void itfMesWindowQueueCallback(s32 arg0);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 
 /* Source unit: src/promoted/code1_0027.c */
@@ -45,7 +45,7 @@ void itfMesWindowQueueCallback(s32 arg0)
 {
     u8 *temp_2;
 
-    temp_2 = func_00460990();
+    temp_2 = PrimAllocQueueNode();
     *(void (**)(s32))(temp_2 + 8) = func_0027b5a0;
     *(s32 *)(temp_2 + 0x10) = arg0;
     func_00460ac0(D_007964C0, temp_2);

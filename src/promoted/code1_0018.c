@@ -778,7 +778,7 @@ s32 func_00183b80(u8 *arg0)
     extern u32 RpRandom(void);
     extern RwTexDictionary *func_003ef6d0(void);
     extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
-    extern u8 *func_00460990(void);
+    extern u8 *PrimAllocQueueNode(void);
     extern void func_00460ac0(u8 *, u8 *);
     extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
     extern void func_001839e0(u8 *arg0, u8 *arg1);
@@ -1021,7 +1021,7 @@ s32 func_00183b80(u8 *arg0)
     }
     case 1:
     {
-    pkt = func_00460990();
+    pkt = PrimAllocQueueNode();
     *(void (**)(u8 *, u8 *))(pkt + 8) = func_001839e0;
     *(u8 **)(pkt + 0x10) = ctx;
     func_00460ac0(D_00794930, pkt);
@@ -1355,7 +1355,7 @@ s32 func_00185850(u8 *task)
     extern s32 func_00401b80(void);
     extern f32 cosf(f32 angle);
     extern f32 sinf(f32 angle);
-    extern u8 *func_00460990(void);
+    extern u8 *PrimAllocQueueNode(void);
     extern void func_00460ac0(u8 *, u8 *);
     extern u8 *func_00461390(void *task, s32 arg1, void *arg2, s32 arg3);
     extern void func_001853e0(u8 *task, u8 *arg1);
@@ -1637,7 +1637,7 @@ s32 func_00185850(u8 *task)
         node = func_00461390(D_00794930,4,work->overlay,4);
         *(void (**)(u8 *, u8 *))(node + 8) = func_00185620;
         *(GridDrawWork **)(node + 0x10) = work;
-        callbackNode = (u8 *)func_00460990();
+        callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(void))(callbackNode + 8) = func_00185600;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
         func_00460ac0(D_00794930,callbackNode);
@@ -1649,7 +1649,7 @@ s32 func_00185850(u8 *task)
         *(GridDrawWork **)(node + 0x10) = work;
         *(void (**)(void))(node + 0xc) = func_00185830;
         *(GridDrawWork **)(node + 0x14) = work;
-        callbackNode = (u8 *)func_00460990();
+        callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(u8 *, u8 *))(callbackNode + 8) = func_001854f0;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
         func_00460ac0(D_00794930,callbackNode);
@@ -1658,7 +1658,7 @@ s32 func_00185850(u8 *task)
                 func_00461390(D_00794930,4,work->bands[index][column],4);
             }
         }
-        callbackNode = (u8 *)func_00460990();
+        callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(void))(callbackNode + 8) = func_00185600;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
         func_00460ac0(D_00794930,callbackNode);
@@ -1666,7 +1666,7 @@ s32 func_00185850(u8 *task)
         *(void (**)(void))(node + 0xc) = func_00185830;
         *(GridDrawWork **)(node + 0x14) = work;
         uGpffffb314 = uGpffffb314 != 0 ^ 1;
-        callbackNode = (u8 *)func_00460990();
+        callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(u8 *, u8 *))(callbackNode + 8) = func_001853e0;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
         func_00460ac0(D_00794930,callbackNode);

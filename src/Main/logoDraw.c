@@ -14,7 +14,7 @@ extern s32 H_Cdvd_IsFileLoaded(void *handle);
 extern s32 kwlnTaskIsLinked(s32);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
-extern void *func_00460990(void);
+extern void *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *, void *);
 extern void func_00122520(s32, s32);
 extern void func_00122640(s32, s32);
@@ -158,7 +158,7 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
         }
         break;
     }
-    temp_2_7 = func_00460990();
+    temp_2_7 = PrimAllocQueueNode();
     *(s32 *)((u8 *)temp_2_7 + 8) = (s32)func_0012b9a0;
     *(s32 **)((u8 *)temp_2_7 + 0x10) = (s32 *)arg0;
     func_00460ac0(&D_00795E60, temp_2_7);

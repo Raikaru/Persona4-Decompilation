@@ -23,7 +23,7 @@ extern u16 D_008C0276[];
 
 extern s32 func_0025e170(u8 *task);
 extern void func_0025e4a0(s32, s32);
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *, void *);
 extern u8 *frFontBuildTextSimple(u32, u32, u32, u32, u32, u32, u32, u32);
 extern s32 frFontCountRuns(u8 *);
@@ -286,7 +286,7 @@ s32 func_0025e170(u8 *sdkTaskBytes)
         goto block_37;
     }
 block_37:
-    temp_2_3 = (u8 *)func_00460990();
+    temp_2_3 = (u8 *)PrimAllocQueueNode();
     *(void (**)(s32, s32))(temp_2_3 + 8) = func_0025e4a0;
     *(s32 *)(temp_2_3 + 0x10) = arg0;
     func_00460ac0(&D_00796670, temp_2_3);

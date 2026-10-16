@@ -55,7 +55,7 @@ extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern void func_002a2650(s32 arg0);
 extern s32 func_002a2710(void);
 extern void func_002a2740(void);
-extern void func_00460a50(s32 arg0);
+extern void PrimFreeBatchNode(s32 arg0);
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 
 extern s32 iGpffff85b8;
@@ -156,7 +156,7 @@ extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern void func_00458fa0(void);
 extern void func_0045a730(s32 arg0, s32 arg1);
 extern void func_0045b430(void);
-extern void func_00460910(s32 arg0, s32 arg1);
+extern void PrimCreatePools(s32 arg0, s32 arg1);
 extern void func_00463520(void);
 extern void func_00466680(void);
 extern void func_0046d6b0(s32 arg0);
@@ -291,7 +291,7 @@ void func_00103600(void)
 }
 // FUN_001036D0
 s32 func_001036d0(u8 *arg0) {
-    extern u8 *func_004609f0(void);
+    extern u8 *PrimAllocBatchNode(void);
     extern void func_00460ac0(void *list, void *node);
     extern u8 D_005DD5D0[];
     extern u8 D_00793E80[];
@@ -385,7 +385,7 @@ loop2_check:
             index = 0;
             while (index < 2) {
                 slot = state + (index << 2) + 4;
-                *(u8 **)slot = func_004609f0();
+                *(u8 **)slot = PrimAllocBatchNode();
                 *(s16 *)(*(u8 **)slot + 0x18) = 11;
                 *(s32 *)(*(u8 **)slot + 0x1C) = 4;
                 *(u8 **)(*(u8 **)slot + 0x20) =
@@ -417,8 +417,8 @@ void func_00103980(u8 *arg0) {
     u8 *state;
 
     state = *(u8 **)(arg0 + 0x38);
-    func_00460a50(*(s32 *)(state + 4));
-    func_00460a50(*(s32 *)(state + 8));
+    PrimFreeBatchNode(*(s32 *)(state + 4));
+    PrimFreeBatchNode(*(s32 *)(state + 8));
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 // FUN_001039E0

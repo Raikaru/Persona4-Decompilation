@@ -26,7 +26,7 @@ extern void brpParamSetCurrent(u8 *arg0);
 extern void func_0038dd90(u8 *arg0);
 
 /* Window / effect / scripting helpers. */
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *param, void *work);
 extern s32 datGetFlag(s32 id);
 extern s32 fadeStatus(void);
@@ -163,7 +163,7 @@ s32 func_0038f1c0(u8 *arg0) {
     s32 v;
 
     v = *(s32 *)(arg0 + 0x38);
-    work = func_00460990();
+    work = PrimAllocQueueNode();
     *(s32 *)(work + 0x8) = (s32)func_0038f0b0;
     *(s32 *)(work + 0x10) = v;
     func_00460ac0(&D_007964C0, work);

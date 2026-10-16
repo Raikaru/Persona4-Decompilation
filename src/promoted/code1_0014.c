@@ -247,7 +247,7 @@ extern s32 D_007642F0;
 
 
 
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *arg0, u8 *arg1);
 extern void func_0014d290(u8 *arg0, u8 *arg1);
 

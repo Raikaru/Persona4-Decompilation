@@ -49,7 +49,7 @@ extern void func_00364c50(void);
 extern void func_00364c70(void);
 extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
                            s32 arg2, s32 arg3, s32 arg4);
-extern void func_0045ee00(s32 arg0, s32 arg1, void *arg2, s32 arg3,
+extern void PrimDrawRadialTriangle(s32 arg0, s32 arg1, void *arg2, s32 arg3,
                            f32 farg0, f32 farg1, s32 arg4);
 
 
@@ -390,7 +390,7 @@ loop_test:
     local.spB0[2] = 0xDC;
     local.spB0[3] = 0xFF;
     temp_f0 = 180.0f;
-    func_0045ee00((s32)farg0, (s32)farg1, local.spB0, 8, temp_f0, farg2, 1);
+    PrimDrawRadialTriangle((s32)farg0, (s32)farg1, local.spB0, 8, temp_f0, farg2, 1);
     func_00364c70();
 }
 

@@ -28,7 +28,7 @@ extern void func_00485630(u8 *arg0);
 extern void func_001d53e0(s32 arg0);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(char *arg0, u8 *arg1);
 extern char D_005DC824[];
 extern char D_00794AE0[];
@@ -643,7 +643,7 @@ void func_001d5b20(u8 *arg0)
     }
     old_state = TnGetTableBase();
     TnSetTableBase((s32)D_005DC824);
-    task = func_00460990();
+    task = PrimAllocQueueNode();
     *(s32 *)(task + 0) = 0;
     *(s32 *)(task + 4) = 0;
     *(void (**)(void))(task + 8) = func_001d5990;
@@ -659,7 +659,7 @@ void func_001d5b20(u8 *arg0)
         entries++;
     }
     TnSetTableBase(old_state);
-    task = func_00460990();
+    task = PrimAllocQueueNode();
     *(s32 *)(task + 0) = 0;
     *(s32 *)(task + 4) = 0;
     *(void (**)(void))(task + 8) = func_001d5ac0;

@@ -426,15 +426,17 @@ void primCylinderLine3D(f32 *position, f32 radius, f32 height, u8 *color, s32 se
     }
 }
 
+// Creates the queue pool (tag 0x41002) and the batch pool (tag 0x41003) of 0x30-byte nodes; stores the handles in iGpffffba98 and iGpffffba9c.
 // FUN_00460910
-void func_00460910(s32 arg0, s32 arg1)
+void PrimCreatePools(s32 arg0, s32 arg1)
 {
     iGpffffba98 = func_003e1220(0x30, arg0, 4, 1, D_008E43C0, 0x41002);
     iGpffffba9c = func_003e1220(0x30, arg1, 4, 1, D_008E43E4, 0x41003);
 }
 
+// Takes one zeroed 0x30-byte node from the queue pool (D_00724B88, tag 0x41002).
 // FUN_00460990
-u8 *func_00460990(void)
+u8 *PrimAllocQueueNode(void)
 {
     u8 *block = D_008873F8[0](D_00724B88, 0x41002);
 
@@ -442,8 +444,9 @@ u8 *func_00460990(void)
     return block;
 }
 
+// Takes one zeroed 0x30-byte node from the batch pool (D_00724B8C, tag 0x41003).
 // FUN_004609F0
-u8 *func_004609f0(void)
+u8 *PrimAllocBatchNode(void)
 {
     u8 *block = D_008873F8[0](D_00724B8C, 0x41003);
 
@@ -451,14 +454,16 @@ u8 *func_004609f0(void)
     return block;
 }
 
+// Returns one node to the batch pool (D_00724B8C) through its free routine.
 // FUN_00460A50
-void func_00460a50(s32 arg0)
+void PrimFreeBatchNode(s32 arg0)
 {
     jtbl_008873FC[0](D_00724B8C, arg0);
 }
 
+// Zeroes arg1 consecutive 0x30-byte nodes at arg0, then calls func_00452730 on the queue pool handle (D_00724B88).
 // FUN_00460A80
-void func_00460a80(s32 arg0, s32 arg1)
+void PrimClearNodes(s32 arg0, s32 arg1)
 {
     memset((void *)arg0, 0, arg1 * 0x30);
     func_00452730(D_00724B88);
