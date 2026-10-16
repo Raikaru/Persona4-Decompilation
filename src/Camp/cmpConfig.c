@@ -37,13 +37,13 @@ void func_0045c870(void* arg0, s32 arg1);
 void mdlEffectEmitTagPair(void);
 void RpSkyRenderStateSet(s32 a, s32 b);
 void datCommunityOverlayDestroy(u8* arg0);
-s32 func_0035e720(u8* arg0);
-s32 func_0035ce10(u8* arg0, s32 mode);
-s32 func_0035cc80(u8* arg0, s32 arg1, s32 arg2);
-void func_0035d000(u8* arg0, u8* arg1);
-void func_0035ddf0(u8* arg0);
-void func_0035d0a0(u8 *arg0);
-void func_0035dfb0(u8* arg0, s32 arg1, s32 arg2);
+s32 cmpConfigUpdate(u8* arg0);
+s32 cmpConfigSetMode(u8* arg0, s32 mode);
+s32 cmpConfigSetOption(u8* arg0, s32 arg1, s32 arg2);
+void cmpConfigUpdateFrame(u8* arg0, u8* arg1);
+void cmpConfigAnimateGraph(u8* arg0);
+void cmpConfigDraw(u8 *arg0);
+void cmpConfigDrawArrows(u8* arg0, s32 arg1, s32 arg2);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(u32, u32);
 extern u8 D_0064D3C8[];
@@ -65,8 +65,9 @@ extern u8 D_0064CD90[];
 extern u8 D_0064CF00[];
 extern u8 D_0064D070[];
 
+// Creates the config overlay task under the parent: allocates its 0x4B0-byte work block, installs the detail step and destroy callbacks, and for mode 1 also runs func_0034c260(1) [inferred].
 // FUN_0035C690
-s32 func_0035c690(void* arg0, s32 arg1) {
+s32 cmpConfigCreate(void* arg0, s32 arg1) {
     s32 r;
     u8* work;
 
@@ -75,9 +76,9 @@ s32 func_0035c690(void* arg0, s32 arg1) {
     if (work == NULL) {
         kAssertFail(D_0064D3C8, 0xC6);
     }
-    r = (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0064D3D8), 0xC7, 0, 0, func_0035e720, datCommunityOverlayDestroy, (u8 *)(work));
+    r = (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0064D3D8), 0xC7, 0, 0, cmpConfigUpdate, datCommunityOverlayDestroy, (u8 *)(work));
     memset(work + 0x47C, 0, 0x30);
-    *(s32 *)(work + 0x484) = (s32)func_0035d000;
+    *(s32 *)(work + 0x484) = (s32)cmpConfigUpdateFrame;
     *(u8 **)(work + 0x48C) = work;
     *(u16 *)(work + 0x4AC) = 0xB1;
     *(s32 *)(work + 0x1C) = arg1;
@@ -94,23 +95,27 @@ s32 func_0035c690(void* arg0, s32 arg1) {
     return r;
 }
 
+// Returns whether the config detail step has finished (menu state bit 0x1).
 // FUN_0035C7D0
-s32 func_0035c7d0(u8 *arg0) {
+s32 cmpConfigIsStepDone(u8 *arg0) {
     return (s32)((*(u8 **)((s8 *)arg0 + 0x38))[4] & 1) != 0;
 }
 
+// Returns whether the detail step ended with its second result (menu state bit 0x4) [inferred: cancelled].
 // FUN_0035C7F0
-s32 func_0035c7f0(u8 *arg0) {
+s32 cmpConfigIsStepCancelled(u8 *arg0) {
     return (s32)((*(u8 **)((s8 *)arg0 + 0x38))[4] & 4) != 0;
 }
 
+// Returns whether the config flags have been synced (menu state bit 0x2, set by cmpConfigSyncFlags).
 // FUN_0035C810
-s32 func_0035c810(u8 *arg0) {
+s32 cmpConfigIsFlagsSynced(u8 *arg0) {
     return (s32)((*(u8 **)((s8 *)arg0 + 0x38))[4] & 2) != 0;
 }
 
+// Resets the config menu state: clears the option values and cursor, then selects table mode 0 through cmpConfigSetMode.
 // FUN_0035C830
-void func_0035c830(u8* arg0) {
+void cmpConfigInitState(u8* arg0) {
     s32 resource;
     s16 i;
     s16 j;
@@ -123,7 +128,7 @@ void func_0035c830(u8* arg0) {
     s32 result;
 
     *(s32 *)(arg0 + 0x20) = -1;
-    func_0035ce10(arg0, 0);
+    cmpConfigSetMode(arg0, 0);
     *(s32 *)(arg0 + 0x08) = 0;
     *(s32 *)(arg0 + 0x0C) = 0;
     *(u8 *)(arg0 + 0x00) = 0xFF;
@@ -169,8 +174,9 @@ void func_0035c830(u8* arg0) {
 }
 
 
+// Records a new value for slot idx and keeps the previous one; slot 0 sets the display offset from whether val is 6.
 // FUN_0035CAB0
-s32 func_0035cab0(u8 *arg0, s32 idx, s32 val) {
+s32 cmpConfigSetValue(u8 *arg0, s32 idx, s32 val) {
     s32 scaled = idx * 4;
     u8 *p = (u8 *)(scaled + (int)arg0);
 
@@ -186,8 +192,9 @@ s32 func_0035cab0(u8 *arg0, s32 idx, s32 val) {
     return 1;
 }
 
+// Toggles option idx between its on and off states and applies its side effects through cmpConfigSetOption; returns 0 when refused [inferred].
 // FUN_0035CB00
-s32 func_0035cb00(u8* arg0, s32 idx) {
+s32 cmpConfigToggleOption(u8* arg0, s32 idx) {
     s32 scaled;
     s32 scaled2;
     s32* state_ptr;
@@ -202,7 +209,7 @@ s32 func_0035cb00(u8* arg0, s32 idx) {
     state_zero = ((u32)*state_ptr != 0) ^ 1;
     if (idx == 1) {
         if ((state_zero == 0) && (*(s32 *)(arg0 + 0x50) != 0)) {
-            func_0035cc80(arg0, 2, 0);
+            cmpConfigSetOption(arg0, 2, 0);
         }
     } else if ((idx == 2) && (*(s32 *)(arg0 + 0x4C) == 0)) {
         sdkSndStartStream(0, 0, 0, 8);
@@ -231,8 +238,9 @@ apply:
 
 
 
+// Sets option arg1 to arg2 and keeps the old value; slot 1 turning off also clears slot 2, and slot 0 replays the flag draw [inferred].
 // FUN_0035CC80
-s32 func_0035cc80(u8 *arg0, s32 arg1, s32 arg2)
+s32 cmpConfigSetOption(u8 *arg0, s32 arg1, s32 arg2)
 {
     typedef struct {
         u8 pad[0x48];
@@ -248,7 +256,7 @@ s32 func_0035cc80(u8 *arg0, s32 arg1, s32 arg2)
     }
     if (arg1 == 1) {
         if ((arg2 == 0) && (*(s32 *)(arg0 + 0x50) != 0)) {
-            func_0035cc80(arg0, 2, 0);
+            cmpConfigSetOption(arg0, 2, 0);
         }
         goto block_9;
     }
@@ -276,8 +284,9 @@ block_9:
 }
 
 
+// Switches the config table to mode 0, 1 or 2 and loads its 18-row layout; unknown modes assert.
 // FUN_0035CE10
-s32 func_0035ce10(u8* arg0, s32 mode) {
+s32 cmpConfigSetMode(u8* arg0, s32 mode) {
     u8* tab = 0;
     s32 i;
     s32 j;
@@ -322,8 +331,9 @@ s32 func_0035ce10(u8* arg0, s32 mode) {
     return 1;
 }
 
+// Advances the config phase from 0 to 1; returns 1 in phases 0 and 1, else 0 [inferred].
 // FUN_0035CFB0
-s32 func_0035cfb0(u8 *arg0) {
+s32 cmpConfigAdvancePhase(u8 *arg0) {
     s32 v = *(s32 *)(arg0 + 0x18);
 
     switch (v) {
@@ -338,8 +348,9 @@ s32 func_0035cfb0(u8 *arg0) {
     }
 }
 
+// Per-frame update: advances the frame counter (capped at 100), animates the 18 rows, runs the graph animation and draws the screen.
 // FUN_0035D000
-void func_0035d000(u8* arg0, u8* arg1) {
+void cmpConfigUpdateFrame(u8* arg0, u8* arg1) {
     s32 i;
 
     if (*(s16 *)(arg1 + 0x28) < 0x64) {
@@ -350,8 +361,8 @@ void func_0035d000(u8* arg0, u8* arg1) {
 
         radarAnimateValue(arg1 + i * 48 + 0x78, v, 0);
     }
-    func_0035ddf0(arg1);
-    func_0035d0a0(arg1);
+    cmpConfigAnimateGraph(arg1);
+    cmpConfigDraw(arg1);
 }
 
 /* The menu owns 18 consecutive 48-byte animation records. */
@@ -417,13 +428,14 @@ static inline u32 config_gray_text(u8 alpha, u8 shade)
    measured: 3092 matching code bytes plus 12 retail zero bytes. The scoped
    settings retain the source snapshots, constant lifetimes and loop roles;
    see docs/probe_archive/cmpConfig_0035d0a0_20260930.md. */
+// Draws the config screen: live graph, option rows, reset button and help text.
 // FUN_0035D0A0
 #pragma push
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
 #pragma opt_lifetimes on
 
-void func_0035d0a0(u8 *work) {
+void cmpConfigDraw(u8 *work) {
     extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
                              int charWidth);
     extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
@@ -564,11 +576,11 @@ void func_0035d0a0(u8 *work) {
             if (index != 6) {
                 u16 *timer = &menu->timers[index];
                 if (*timer >= 5) {
-                    func_0035dfb0(work, index, 0);
+                    cmpConfigDrawArrows(work, index, 0);
                 } else {
                     if (pendingOption != -1) {
-                        func_0035dfb0(work, pendingOption, 1);
-                        func_0035dfb0(work, pendingOption, 2);
+                        cmpConfigDrawArrows(work, pendingOption, 1);
+                        cmpConfigDrawArrows(work, pendingOption, 2);
                     }
                     pendingOption = index;
                     *timer = *timer + 1;
@@ -603,8 +615,8 @@ void func_0035d0a0(u8 *work) {
             }
         }
         if (pendingOption != -1) {
-            func_0035dfb0(work, pendingOption, 1);
-            func_0035dfb0(work, pendingOption, 2);
+            cmpConfigDrawArrows(work, pendingOption, 1);
+            cmpConfigDrawArrows(work, pendingOption, 2);
         }
         pos.x = (f32)0x26B + (baseX + menu->motion[15].position.x);
         pos.y = (f32)0x15B + (baseY + menu->motion[15].position.y);
@@ -620,8 +632,9 @@ void func_0035d0a0(u8 *work) {
 
 #pragma pop
 
+// Returns whether every row value has reached its threshold and the shared check passes.
 // FUN_0035DCC0
-s32 func_0035dcc0(u8 *arg0) {
+s32 cmpConfigAllRowsMet(u8 *arg0) {
     s32 flag = 1;
     s32 i = 0;
     s32 v = *(s16 *)(arg0 + 0x28);
@@ -635,8 +648,9 @@ s32 func_0035dcc0(u8 *arg0) {
     return flag & func_0034c210();
 }
 
+// Marks the flags synced (menu state bit 0x2) and writes each of the six config data flags from its option value.
 // FUN_0035DD40
-void func_0035dd40(u8* arg0) {
+void cmpConfigSyncFlags(u8* arg0) {
     s32 i;
 
     *(u8*)(arg0 + 4) |= 2;
@@ -649,8 +663,9 @@ void func_0035dd40(u8* arg0) {
     }
 }
 
+// Advances the graph phase counters and sets each of the 11 graph bars from its distance to the top and bottom targets [inferred].
 // FUN_0035DDF0
-void func_0035ddf0(u8 *arg0)
+void cmpConfigAnimateGraph(u8 *arg0)
 {
     s32 top; s32 bottom; s32 i; s32 d1; s32 d2; s64 score; s16 tmp1; s16 tmp2; u8 *p;
     *(s16 *)(arg0 + 0x2A) = *(s16 *)(arg0 + 0x2A) + 1;
@@ -685,8 +700,9 @@ void func_0035ddf0(u8 *arg0)
  * Member-first array bases preserve the four retail ADDU operand orders.
  * The second arrow reloads its counter/selection, but keeps the first
  * sprite/coordinate snapshot; both text draws reload their field data. */
+// Draws the option arrows and their text for the selected row, with the selection's fade and offset [inferred].
 // FUN_0035DFB0
-void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
+void cmpConfigDrawArrows(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 color[4];
     f32 opacity;
@@ -793,8 +809,9 @@ void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
     }
 }
 
+// Frees the 11 sprite nodes of the config menu and clears the sprite count.
 // FUN_0035E6A0
-void func_0035e6a0(u8* arg0) {
+void cmpConfigFreeSprites(u8* arg0) {
     s32 i;
 
     for (i = 0; i < 0xB; i++) {
@@ -809,8 +826,9 @@ void func_0035e6a0(u8* arg0) {
     *(s32*)(arg0 + 0x24) = 0;
 }
 
+// Overlay task update: runs the detail step, sets the done bit (0x1) when it returns 1, and the cancel bit (0x4) on its second result [inferred].
 // FUN_0035E720
-s32 func_0035e720(u8* arg0) {
+s32 cmpConfigUpdate(u8* arg0) {
     u8* p = *(u8**)(arg0 + 0x38);
     s32 local;
 

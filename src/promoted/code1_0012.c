@@ -3882,9 +3882,9 @@ s32 func_0012aa70(u8 *task)
     extern void func_00122520(s32 task, s32 arg1);
     extern void func_00122640(s32 task, s32 arg1);
     extern s32 fadeStatus(void);
-    extern s32 func_0035c690(void *task, s32 arg1);
-    extern s32 func_0035c7d0(u8 *task);
-    extern s32 func_0035c810(u8 *task);
+    extern s32 cmpConfigCreate(void *task, s32 arg1);
+    extern s32 cmpConfigIsStepDone(u8 *task);
+    extern s32 cmpConfigIsFlagsSynced(u8 *task);
     extern u8 *func_00457120(void);
     extern void K_View_SetFov(void *task, f32 arg1);
     extern u8 *func_003e8180(u8 *camera, f32 nearClip);
@@ -4137,10 +4137,10 @@ s32 func_0012aa70(u8 *task)
         break;
     case 14:
         *(s32 *)work = 0xF;
-        *(s32 *)(work + 0x34) = func_0035c690(task, 1);
+        *(s32 *)(work + 0x34) = cmpConfigCreate(task, 1);
     case 15:
-        if (func_0035c7d0(*(u8 **)(work + 0x34)) != 0) {
-            if (func_0035c810(*(u8 **)(work + 0x34)) != 0) {
+        if (cmpConfigIsStepDone(*(u8 **)(work + 0x34)) != 0) {
+            if (cmpConfigIsFlagsSynced(*(u8 **)(work + 0x34)) != 0) {
                 calCaptureDayFlagMask();
             }
             kwlnTaskDestroyWithHierarchy(*(u8 **)(work + 0x34));
