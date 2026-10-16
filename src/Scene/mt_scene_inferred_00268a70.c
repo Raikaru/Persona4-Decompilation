@@ -118,8 +118,9 @@ extern f32 D_007612C4;
 /* measured: opens optimization_level 1 to preserve retail's FPU term and accumulator order (nd 0). */
 /* measured: closes the optimization_level bracket (nd 0). */
 /* Copy complete table objects; renderer callbacks may change the item index. */
+// Intent: Scene icon task update, the callback created by MT_Scene_SpawnIconTask [inferred]
 // FUN_00268A70
-s32 func_00268a70(u8 *arg0)
+s32 MT_Scene_IconTaskUpdate(u8 *arg0)
 {
     s32 temp_2;
     u8 *temp_16;
@@ -135,8 +136,9 @@ s32 func_00268a70(u8 *arg0)
     return 0;
 }
 
+// Intent: Scene icon task destroy: releases the icon resource and the task work block [inferred]
 // FUN_00268AD0
-void func_00268ad0(u8 *arg0)
+void MT_Scene_IconTaskDestroy(u8 *arg0)
 {
     u8 *temp_16;
     u8 *temp_4;
