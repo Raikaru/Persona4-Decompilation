@@ -2,10 +2,9 @@
 #include "type.h"
 #include "scene_event_internal.h"
 #include "include_asm.h"
+#include "fcl_bank_internal.h"
 
 
-/* Retail manager pointer at gp-0x4A78 (0x00764678). */
-extern u8 *iGpffffb588;
 
 extern char iGpffffa890[8];
 extern int iGpffffa898;
@@ -48,19 +47,19 @@ void fclBankLogf(u8 *fmt, ...)
 void fclBankCancelPending(void)
 {
     s32 i;
-    s16 *p = (s16 *)(*(int *)(iGpffffb588 + 0x24) + 4);
+    FclBankSlot *slot = fclBankWork()->record->slots;
     s32 *node;
 
     i = 0;
     while (i < 2) {
-        s16 v = *p;
+        s16 v = slot->flags;
         if ((v & 1) && !(v & 0x1000)) {
-            *p = (s16)(v | 0x400);
+            slot->flags = (s16)(v | 0x400);
         }
-        p += 0xA;
+        slot++;
         i++;
     }
-    node = *(s32 **)(iGpffffb588 + 4);
+    node = (s32 *)fclBankWork()->pendingTail;
     while (node != NULL) {
         s32 *next = *(s32 **)((u8 *)node + 0x10);
         func_002e2240((NmlistList *)iGpffffb588, (NmlistList *)(iGpffffb588 + 4), node);
@@ -74,53 +73,46 @@ void fclBankCancelPending(void)
 void fclBankMarkSettled(void)
 {
     s32 i;
-    s16 *p = (s16 *)(*(int *)(iGpffffb588 + 0x24) + 4);
+    FclBankSlot *slot = fclBankWork()->record->slots;
 
     i = 0;
     while (i < 2) {
-        s16 v = *p;
+        s16 v = slot->flags;
         if ((v & 1) && ((v & 8) || (v & 2))) {
-            *p = (s16)((s64)v | 0x400);
+            slot->flags = (s16)((s64)v | 0x400);
         }
-        p += 0xA;
+        slot++;
         i++;
     }
 }
 // FUN_002E0F90
 void fclBankSetReadyFlag(void)
 {
-    *(s32 *)(*(int *)(iGpffffb588 + 0x24) + 0x2C) |= 1;
+    fclBankWork()->record->readyFlags |= 1;
 }
 
 // FUN_002E0FB0
 s32 func_002e0fb0(void)
 {
     s32 i;
-    s16 *q = (s16 *)(*(int *)(iGpffffb588 + 0x24) + 4);
+    FclBankSlot *slot = fclBankWork()->record->slots;
 
-    if (*(int *)(iGpffffb588 + 4) != 0) {
+    if (fclBankWork()->pendingTail != NULL) {
         return 1;
     }
-    for (i = 0; i < 2; q += 0xA, i++) {
-        s16 w = *q;
+    for (i = 0; i < 2; slot++, i++) {
+        s16 w = slot->flags;
         if ((w & 1) && (w & 2)) {
             return 1;
         }
     }
     return 0;
 }
-typedef struct FclBankSlot {
-    s16 flags;
-    s16 unk02;
-    u32 descriptor;
-    s16 index;
-    u8 unk0a[10];
-} FclBankSlot;
 
-static inline s16 findUnusedBank(u8 *banks)
+static inline s16 findUnusedBank(FclBankRecord *banks)
 {
     s32 i;
-    FclBankSlot *slot = (FclBankSlot *)(banks + 4);
+    FclBankSlot *slot = banks->slots;
     for (i = 0; i < 2; i++) {
         if ((slot->flags & 1) == 0)
             return i;
@@ -129,10 +121,10 @@ static inline s16 findUnusedBank(u8 *banks)
     return -1;
 }
 
-static inline s16 findReusableBank(u8 *banks)
+static inline s16 findReusableBank(FclBankRecord *banks)
 {
     s32 i;
-    FclBankSlot *slot = (FclBankSlot *)(banks + 4);
+    FclBankSlot *slot = banks->slots;
     for (i = 0; i < 2; i++) {
         s16 value = slot->flags;
         if ((value & 1) && !(value & 2) && !(value & 8))
@@ -151,17 +143,17 @@ s64 fclBankAcquire(int *node)
 {
     FclBankSlot *slot;
     s64 selected;
-    u8 *banks;
+    FclBankRecord *banks;
     u8 *payload;
 
-    banks = *(u8 **)(iGpffffb588 + 0x24);
+    banks = fclBankWork()->record;
     selected = findUnusedBank(banks);
     if (selected == -1)
         selected = findReusableBank(banks);
     if ((s16)selected == -1)
         return -1;
     payload = *(u8 **)((u8 *)node + 0x14);
-    slot = (FclBankSlot *)(banks + 4 + (s16)selected * 20);
+    slot = (FclBankSlot *)((u8 *)banks + 4 + (s16)selected * 20);
     slot->descriptor = *(u32 *)(payload + 4);
     slot->flags = *(s16 *)payload;
     slot->index = (u16)selected;
@@ -180,16 +172,16 @@ s64 fclBankAcquire(int *node)
 void fclBankQueueRequest(s32 arg0, s64 arg1)
 {
     s32 i;
-    s16 *p;
+    FclBankSlot *slot;
     u8 *q;
 
-    p = (s16 *)(*(int *)(iGpffffb588 + 0x24) + 4);
+    slot = fclBankWork()->record->slots;
     i = 0;
     while (i < 2) {
-        if ((*p & 1) && (*(s32 *)((u8 *)p + 4) == arg0)) {
+        if ((slot->flags & 1) && ((s32)slot->descriptor == arg0)) {
             break;
         }
-        p += 0xA;
+        slot++;
         i++;
     }
     q = *(u8 **)(func_002e2170((void *)iGpffffb588, 0, 0x14) + 0x14);
@@ -211,32 +203,32 @@ void fclBankQueueRequest(s32 arg0, s64 arg1)
 // FUN_002E12E0
 /* measured: retail keeps the invariant key mask in the loop preheader. */
 #pragma opt_loop_invariants on
-s32 fclBankScanOthers(s16 *arg0)
+s32 fclBankScanOthers(FclBankSlot *arg0)
 {
-    s16 *p;
+    FclBankSlot *p;
     s32 i;
     s32 result;
 
     result = 1;
-    p = (s16 *)(*(int *)(iGpffffb588 + 0x24) + 4);
+    p = fclBankWork()->record->slots;
     i = 0;
     for (; i < 2; i++) {
         if (p != arg0) {
-            s16 flags = *p;
+            s16 flags = p->flags;
             if ((flags & 1) && (flags & 8) &&
-                ((flags & 0x100) == (*arg0 & 0x100)) &&
+                ((flags & 0x100) == (arg0->flags & 0x100)) &&
                 ((flags & 0x1000) == 0)) {
-                *p = (s16)(flags | 0x400);
-                if (((*(u32 *)(p + 2) & 0xFFFF0000) >> 16) ==
-                    ((*(u32 *)(arg0 + 2) & 0xFFFF0000) >> 16)) {
-                    *p = (s16)(*p | 0x40);
+                p->flags = (s16)(flags | 0x400);
+                if (((p->descriptor & 0xFFFF0000) >> 16) ==
+                    ((arg0->descriptor & 0xFFFF0000) >> 16)) {
+                    p->flags = (s16)(p->flags | 0x40);
                 }
-                if ((*p & 4) == 0) {
+                if ((p->flags & 4) == 0) {
                     result = 0;
                 }
             }
         }
-        p += 0xA;
+        p++;
     }
     return result;
 }
@@ -253,75 +245,75 @@ void fclBankUpdateFades(void)
     extern u8 *fclBankGetPositionPtr(s64 bank);
     extern void fclBankSetAlpha(s64 bank, u8 alpha);
     extern void fclBankResume(s64 bank);
-    s16 *slot;
+    FclBankSlot *slot;
     s32 i;
     s32 fadeTicks;
     s32 ticks;
     s32 x;
     f32 ratio;
 
-    slot = (s16 *)(*(u8 **)(iGpffffb588 + 0x24) + 4);
-    for (i = 0; i < 2; slot += 10, i++) {
-        if (slot[0] & 1) {
-            switch ((u16)slot[1]) {
+    slot = fclBankWork()->record->slots;
+    for (i = 0; i < 2; slot++, i++) {
+        if (slot->flags & 1) {
+            switch ((u16)slot->state) {
             case 0:
                 break;
             case 1:
-                slot[1] = 2;
-                slot[0] |= 8;
-                slot[0] |= 16;
-                slot[0] &= ~4;
-                slot[8] = 0;
+                slot->state = 2;
+                slot->flags |= 8;
+                slot->flags |= 16;
+                slot->flags &= ~4;
+                slot->fadeTicks = 0;
                 /* fallthrough */
             case 2:
-                slot[8]++;
-                if (slot[0] & 0x20) {
-                    ticks = slot[8];
-                    if (slot[0] & 0x100) x = -126;
+                slot->fadeTicks++;
+                if (slot->flags & 0x20) {
+                    ticks = slot->fadeTicks;
+                    if (slot->flags & 0x100) x = -126;
                     else x = 280;
-                } else if (slot[0] & 0x100) {
-                    ticks = slot[8];
+                } else if (slot->flags & 0x100) {
+                    ticks = slot->fadeTicks;
                     x = (s32)((f32)(ticks * 32) / 5.0f + -158.0f);
                 } else {
-                    ticks = slot[8];
+                    ticks = slot->fadeTicks;
                     x = (s32)((1.0f - (f32)ticks / 5.0f) * 32.0f + 280.0f);
                 }
                 ratio = (f32)ticks / 5.0f;
-                *(f32 *)fclBankGetPositionPtr(slot[4]) = (f32)x;
-                *(f32 *)(fclBankGetPositionPtr(slot[4]) + 4) = 91.0f;
-                fclBankSetAlpha(slot[4], (u8)(ratio * 255.0f));
-                fclBankResume(slot[4]);
-                if (slot[8] >= 5) {
-                    slot[8] = 0;
-                    slot[0] |= 4;
-                    slot[0] &= ~16;
-                    slot[1] = 3;
+                *(f32 *)fclBankGetPositionPtr(slot->index) = (f32)x;
+                *(f32 *)(fclBankGetPositionPtr(slot->index) + 4) = 91.0f;
+                fclBankSetAlpha(slot->index, (u8)(ratio * 255.0f));
+                fclBankResume(slot->index);
+                if (slot->fadeTicks >= 5) {
+                    slot->fadeTicks = 0;
+                    slot->flags |= 4;
+                    slot->flags &= ~16;
+                    slot->state = 3;
                 }
                 break;
             case 3:
-                fclBankResume(slot[4]);
+                fclBankResume(slot->index);
                 break;
             case 4:
-                slot[1] = 5;
-                slot[0] |= 16;
-                slot[0] &= ~4;
-                slot[8] = 0;
+                slot->state = 5;
+                slot->flags |= 16;
+                slot->flags &= ~4;
+                slot->fadeTicks = 0;
                 /* fallthrough */
             case 5:
-                slot[8]++;
-                if (slot[0] & 0x40) {
-                    fadeTicks = slot[8] - 4;
+                slot->fadeTicks++;
+                if (slot->flags & 0x40) {
+                    fadeTicks = slot->fadeTicks - 4;
                     if (fadeTicks < 0) fadeTicks = 0;
-                } else fadeTicks = slot[8];
-                fclBankSetAlpha(slot[4], (u8)(255.0f - ((f32)(s32)fadeTicks * 255.0f) / 5.0f));
-                fclBankResume(slot[4]);
+                } else fadeTicks = slot->fadeTicks;
+                fclBankSetAlpha(slot->index, (u8)(255.0f - ((f32)(s32)fadeTicks * 255.0f) / 5.0f));
+                fclBankResume(slot->index);
                 if (fadeTicks >= 5) {
-                    slot[8] = 0;
-                    slot[0] &= ~0x40;
-                    slot[0] &= ~8;
-                    slot[0] |= 4;
-                    slot[0] &= ~16;
-                    slot[1] = 0;
+                    slot->fadeTicks = 0;
+                    slot->flags &= ~0x40;
+                    slot->flags &= ~8;
+                    slot->flags |= 4;
+                    slot->flags &= ~16;
+                    slot->state = 0;
                 }
                 break;
             }
@@ -333,24 +325,24 @@ void fclBankUpdateFades(void)
 /* measured: 1236/1248B, 54 resolved relocations, zero executable differences,
    twelve zero tail bytes. Keep the inlined peer mask in its loop preheader. */
 #pragma opt_loop_invariants on
-static inline s32 bankSlotHasMatchingVisiblePeer(s16 *slot)
+static inline s32 bankSlotHasMatchingVisiblePeer(FclBankSlot *slot)
 {
-    s16 *peer;
+    FclBankSlot *peer;
     s32 i;
 
-    peer = (s16 *)(*(u8 **)(iGpffffb588 + 0x24) + 4);
+    peer = fclBankWork()->record->slots;
     i = 0;
     for (; i < 2; i++) {
         if (peer != slot) {
-            s16 flags = *peer;
+            s16 flags = peer->flags;
             if ((flags & 1) && (flags & 8) &&
-                ((flags & 0x100) == (*slot & 0x100)) &&
-                (((*(u32 *)(peer + 2) & 0xFFFF0000) >> 16) ==
-                 ((*(u32 *)(slot + 2) & 0xFFFF0000) >> 16))) {
+                ((flags & 0x100) == (slot->flags & 0x100)) &&
+                (((peer->descriptor & 0xFFFF0000) >> 16) ==
+                 ((slot->descriptor & 0xFFFF0000) >> 16))) {
                 return 1;
             }
         }
-        peer += 10;
+        peer++;
     }
     return 0;
 }
@@ -366,17 +358,17 @@ s32 fclBankManagerUpdate(u8 *sdkTaskBytes)
     extern void fclBankMarkDone(s64);
     extern u8 D_0063FBD8[], D_0063FBE8[], D_0063FBF8[];
     extern u8 D_0063FC08[], D_0063FC18[], D_0063FC28[];
-    u8 *banks;
+    FclBankRecord *banks;
     s32 *node;
     s32 *next;
-    s16 *slot;
+    FclBankSlot *slot;
     s32 i;
 
     if (iGpffffb588 == NULL) {
         kAssertFail(D_0063FBB0, 681);
     }
-    banks = *(u8 **)(iGpffffb588 + 0x24);
-    node = *(s32 **)(iGpffffb588 + 4);
+    banks = fclBankWork()->record;
+    node = (s32 *)fclBankWork()->pendingTail;
     while (node != NULL) {
         next = *(s32 **)((u8 *)node + 0x10);
         if ((s16)fclBankAcquire(node) == -1) {
@@ -386,70 +378,70 @@ s32 fclBankManagerUpdate(u8 *sdkTaskBytes)
         }
         node = next;
     }
-    slot = (s16 *)(banks + 4);
+    slot = banks->slots;
     i = 0;
     for (; i < 2; i++) {
-        s32 flags = *slot;
+        s32 flags = slot->flags;
         if (flags & 1) {
             if (flags & 2) {
                 if (fclBankIsWaiting((s16)i)) {
-                    *slot &= ~2;
-                    *slot |= 4;
-                    if (*slot & 0x400) {
-                        *slot &= ~0x200;
-                        *slot &= ~0x400;
+                    slot->flags &= ~2;
+                    slot->flags |= 4;
+                    if (slot->flags & 0x400) {
+                        slot->flags &= ~0x200;
+                        slot->flags &= ~0x400;
                     }
                 }
             } else if (!(flags & 2) && (flags & 4)) {
-                if ((flags & 0x200) && !(*(u32 *)(banks + 0x2C) & 1)) {
+                if ((flags & 0x200) && !(banks->readyFlags & 1)) {
                     if (flags & 8) {
-                        *slot &= ~0x200;
+                        slot->flags &= ~0x200;
                         func_00440b68(iGpffffa890, D_0063FBB0, 721);
-                        fclBankLogf(D_0063FBE8, slot[4]);
+                        fclBankLogf(D_0063FBE8, slot->index);
                     } else if (fclBankScanOthers(slot)) {
                         func_00440b68(iGpffffa890, D_0063FBB0, 725);
-                        fclBankLogf(D_0063FBF8, slot[4]);
-                        *slot &= ~0x200;
-                        *slot &= ~4;
-                        slot[1] = 1;
+                        fclBankLogf(D_0063FBF8, slot->index);
+                        slot->flags &= ~0x200;
+                        slot->flags &= ~4;
+                        slot->state = 1;
                         if (bankSlotHasMatchingVisiblePeer(slot)) {
-                            *slot |= 0x20;
+                            slot->flags |= 0x20;
                         }
                     }
                 } else if (flags & 0x400) {
                     func_00440b68(iGpffffa890, D_0063FBB0, 736);
-                    fclBankLogf(D_0063FC08, slot[4]);
-                    *slot &= ~0x400;
-                    if (*slot & 8) {
-                        *slot &= ~4;
-                        slot[1] = 4;
+                    fclBankLogf(D_0063FC08, slot->index);
+                    slot->flags &= ~0x400;
+                    if (slot->flags & 8) {
+                        slot->flags &= ~4;
+                        slot->state = 4;
                     }
-                    *slot |= 0x1000;
+                    slot->flags |= 0x1000;
                 } else if (flags & 0x800) {
                     if (flags & 8) {
-                        *slot = (s16)flags | 0x400;
+                        slot->flags = (s16)flags | 0x400;
                     } else {
                         func_00440b68(iGpffffa890, D_0063FBB0, 753);
-                        fclBankLogf(D_0063FC18, slot[4]);
-                        *slot &= ~0x800;
-                        *slot &= ~4;
-                        *slot &= ~1;
-                        fclBankMarkDone(slot[4]);
+                        fclBankLogf(D_0063FC18, slot->index);
+                        slot->flags &= ~0x800;
+                        slot->flags &= ~4;
+                        slot->flags &= ~1;
+                        fclBankMarkDone(slot->index);
                     }
                 } else if (flags & 0x1000) {
                     func_00440b68(iGpffffa890, D_0063FBB0, 763);
-                    fclBankLogf(D_0063FC28, slot[4]);
-                    *slot &= ~0x1000;
-                    *slot &= ~4;
-                    *slot &= ~1;
-                    fclBankMarkDone(slot[4]);
+                    fclBankLogf(D_0063FC28, slot->index);
+                    slot->flags &= ~0x1000;
+                    slot->flags &= ~4;
+                    slot->flags &= ~1;
+                    fclBankMarkDone(slot->index);
                 }
             }
         }
-        slot += 10;
+        slot++;
     }
     fclBankUpdateFades();
-    *(u32 *)(banks + 0x2C) &= ~1;
+    banks->readyFlags &= ~1;
     return 0;
 }
 
