@@ -27,7 +27,7 @@ extern void func_00190600(void);
 extern s32 func_001838d0(f32 f0, u8 *arg0, s32 arg1, f32 f1, f32 f2, f32 f3,
                           s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_0017d070(u8 *arg0);
-extern s32 func_001924d0(s32 arg0);
+extern s32 K_Clump_CreateLoadTask(s32 arg0);
 extern s32 func_00191610(s32 arg0);
 extern s32 func_00191bc0(s32 arg0);
 extern s32 func_00191d90(s32 arg0);
@@ -78,7 +78,7 @@ s32 K_TestMenu_Update(u8 *arg0)
                 *(s32 *)(p + 8) = func_0017d070(arg0);
                 break;
             case 6:
-                *(s32 *)(p + 8) = func_001924d0(0);
+                *(s32 *)(p + 8) = K_Clump_CreateLoadTask(0);
                 break;
             case 7:
                 *(s32 *)(p + 8) = func_00191610(0);

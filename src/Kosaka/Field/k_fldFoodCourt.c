@@ -13,8 +13,8 @@ extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005F5450[];
 extern u8 D_005F54C8[];
-extern s32 func_0018d950(u8 *arg0);
-extern void func_0018dcd0(u8 *arg0);
+extern s32 K_FldFoodCourt_Update(u8 *arg0);
+extern void K_FldFoodCourt_Destroy(u8 *arg0);
 extern u8 D_005F5470[];
 extern u8 D_005F5490[];
 extern u8 D_005F54B0[];
@@ -44,7 +44,7 @@ extern s32 func_00122720(void);
 
 
 // FUN_0018D950
-s32 func_0018d950(u8 *arg0) {
+s32 K_FldFoodCourt_Update(u8 *arg0) {
     s32 temp_3;
     s32 temp_3_2;
     s32 var_4;
@@ -152,7 +152,7 @@ done:
 }
 
 // FUN_0018DCD0
-void func_0018dcd0(u8 *arg0)
+void K_FldFoodCourt_Destroy(u8 *arg0)
 {
     u8 *work;
 
@@ -164,7 +164,7 @@ void func_0018dcd0(u8 *arg0)
 }
 
 // FUN_0018DD40
-s32 func_0018dd40(u8 *arg0)
+s32 K_FldFoodCourt_Create(u8 *arg0)
 {
     u8 *mem;
 
@@ -173,6 +173,6 @@ s32 func_0018dd40(u8 *arg0)
     if (mem == NULL) {
         return 0;
     }
-    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F54C8), 0xF, 0, 0, func_0018d950, func_0018dcd0, (u8 *)(mem));
+    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F54C8), 0xF, 0, 0, K_FldFoodCourt_Update, K_FldFoodCourt_Destroy, (u8 *)(mem));
 }
 
