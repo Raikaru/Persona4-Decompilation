@@ -396,15 +396,15 @@ void ObjectParticleDraw(u8 *arg0)
     f32 one;
     f32 gscale;
     s32 i;
-    u8 *self;
+    ObjectParticleInstance *self;
     u8 *list;
     s32 count;
     u8 *p18;
     u8 *p17;
     u8 *clump;
 
-    self = arg0;
-    colorWord = *(u32 *)(self + 4);
+    self = (ObjectParticleInstance *)arg0;
+    colorWord = self->packedColour;
     {
         const u32 *word = &colorWord;
 
@@ -412,14 +412,14 @@ void ObjectParticleDraw(u8 *arg0)
         effectVuUnpackColor10V0(word, cscale);
     }
     effectVuStore10(&colorBase);
-    list = *(u8 **)(self + 0x58);
+    list = self->list;
     count = *(s32 *)(list + 8);
     if (count != 0 && *(s32 *)(list + 0x10) != 0) {
     p18 = *(u8 **)(list + 0x18);
-    p17 = *(u8 **)(self + 0x5C);
-    clump = *(u8 **)(self + 0x54);
+    p17 = self->entries;
+    clump = self->clump;
     {
-        f32 v = *(f32 *)(self + 8);
+        f32 v = self->field_0x08;
 
         if (v != 0.0f) {
             one = 1.0f;
@@ -429,7 +429,7 @@ void ObjectParticleDraw(u8 *arg0)
             inv = one;
         }
     }
-    switch (*(u16 *)(self + 0xC)) {
+    switch (self->kind) {
     case 3:
         if ((*(s32 *)(list + 0xC) & 1) == 0) {
             mdlEffectLoadQuadB((int)list, (u32 *)&snapA);
@@ -463,7 +463,7 @@ void ObjectParticleDraw(u8 *arg0)
                     effectVuLoad11(&colorBase);
                     __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
                     if (*(s8 *)(p17 + 0x14) >= 0) {
-                        func_004ae2f0(self, p17, life);
+                        func_004ae2f0((u8 *)self, p17, life);
                     }
                     __asm__ volatile(
                         "lui $2, 0x437F\n"
@@ -480,7 +480,7 @@ void ObjectParticleDraw(u8 *arg0)
                         f32 age = (f32)*(s32 *)(p18 + 0x10);
 
                         f = *(f32 *)(p17 + 0x10) * age;
-                        f = f + 0.5f * (age * (*(f32 *)(self + 0x2C) * age));
+                        f = f + 0.5f * (age * (self->ageFactor * age));
                     }
                     if (f < 0.0f) {
                         matA.right[0] = matA.up[1] = matA.at[2] = 1.0f;
@@ -495,7 +495,7 @@ void ObjectParticleDraw(u8 *arg0)
                         RwMatrixRotate(&matA, axisA, fGpffff8048 * (f + *(f32 *)(p17 + 0xC)), 0);
                     }
                     RwMatrixMultiply(&matB, &matA, &base);
-                    if (*(u16 *)(self + 0x30) == 0) {
+                    if (self->field_0x30 == 0) {
                         vec[0] = D_00713D20[0] * *(f32 *)(p18 + 0x18);
                         vec[1] = D_00713D24[0] * *(f32 *)(p18 + 0x18);
                         vec[2] = D_00713D28[0] * *(f32 *)(p18 + 0x18);
@@ -519,7 +519,7 @@ void ObjectParticleDraw(u8 *arg0)
             u32 mask;
 
             mdlEffectLoadQuadB((int)list, (u32 *)&snapA);
-            mdlEffectLoadQuadA(*(int *)(self + 0x58), (u32 *)&snapB);
+            mdlEffectLoadQuadA((int)self->list, (u32 *)&snapB);
             effectVuLoad10(&snapA);
             effMiscBuildRotationVU();
             __asm__ volatile("lqc2 $vf31, 0(%0)" : : "r"(&snapB), "m"(snapB) : "$vf31");
@@ -558,7 +558,7 @@ void ObjectParticleDraw(u8 *arg0)
                     effectVuLoad11(&colorBase);
                     __asm__ volatile("vmul.xyzw $vf10, $vf10, $vf11" : : : "$vf10");
                     if (*(s8 *)(p17 + 0x14) >= 0) {
-                        func_004ae2f0(self, p17, *(s32 *)(p18 + 0x10));
+                        func_004ae2f0((u8 *)self, p17, *(s32 *)(p18 + 0x10));
                     }
                     effectVuScale10(full);
                     __asm__ volatile(
@@ -573,7 +573,7 @@ void ObjectParticleDraw(u8 *arg0)
                         f32 age = (f32)*(s32 *)(p18 + 0x10);
 
                         f = *(f32 *)(p17 + 0x10) * age;
-                        f = f + half * (age * (*(f32 *)(self + 0x2C) * age));
+                        f = f + half * (age * (self->ageFactor * age));
                     }
                     if (f < zero) {
                         matB.right[0] = matB.up[1] = matB.at[2] = one;
@@ -588,7 +588,7 @@ void ObjectParticleDraw(u8 *arg0)
                         RwMatrixRotate(&matB, axisB, gscale * (f + *(f32 *)(p17 + 0xC)), 0);
                     }
                     effectVuLoad10(&D_00713CE0);
-                    if (*(u16 *)(self + 0x30) == 0) {
+                    if (self->field_0x30 == 0) {
                         vec[0] = D_00713D20[0] * *(f32 *)(p18 + 0x18);
                         vec[1] = D_00713D24[0] * *(f32 *)(p18 + 0x18);
                         vec[2] = D_00713D28[0] * *(f32 *)(p18 + 0x18);
