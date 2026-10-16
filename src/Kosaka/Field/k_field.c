@@ -463,7 +463,7 @@ extern s32 func_00155360(u8 *arg0);
 /* measured: opt_propagation off keeps the scalar-pair copy's two loads ahead
    of its two stores. */
 #pragma opt_propagation off
-s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s32 arg6, u8 arg7,
+s32 FldRootCreate(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s32 arg6, u8 arg7,
                   s64 arg8, s64 arg9, s64 arg10, s64 arg11, s64 arg12, s64 arg13)
 {
     f32 matrix[4];

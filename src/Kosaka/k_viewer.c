@@ -28,7 +28,7 @@ extern s32 func_0018efe0(u8 *arg0);
 extern void func_0018f390(u8 *arg0);
 
 // FUN_0018F3C0
-s32 func_0018f3c0(s32 arg0)
+s32 FldViewerCreate(s32 arg0)
 {
     s32 *buf;
     s32 ret;

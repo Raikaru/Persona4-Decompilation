@@ -2099,12 +2099,12 @@ loop_5_test:
    the switch; `default:` is the last label so the out-of-range jump lands there
    too). The two record-address forms differ: the flag read is `base = ...;
    (u8 *)(idx * 0x10) + (s32)base` (base loaded first, addu idx,base) and `rec`
-   is the same cast form inline (idx loaded first). func_00155e10's 4th parameter
+   is the same cast form inline (idx loaded first). FldRootCreate's 4th parameter
    is s32 at block scope so the u16 load is a conversion materialised before $a0.
    Zeroing loop: u32 counter for bnez. */
 s32 FldStepTaskUpdate(u8 *arg0)
 {
-    extern s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, s32 arg3, s16 arg4, s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9, s64 arg10, s64 arg11, s64 arg12, s64 arg13);
+    extern s32 FldRootCreate(u8 *arg0, u16 arg1, u16 arg2, s32 arg3, s16 arg4, s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9, s64 arg10, s64 arg11, s64 arg12, s64 arg13);
     extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
     extern s32 func_003641a0(s32 arg0);
     extern void func_0015bae0(void);
@@ -2146,7 +2146,7 @@ s32 FldStepTaskUpdate(u8 *arg0)
                     base = *(u8 **)(work + 0x20);
                     *(s32 *)(work + 0x24) = *((u16 *)((u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)base) + 5) | 0x80000000;
                     rec = (u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)*(u8 **)(work + 0x20);
-                    *(s32 *)(work + 0x18) = func_00155e10(arg0, *(u16 *)rec, *(u16 *)(rec + 2), *(u16 *)(work + 8), 0, 0,
+                    *(s32 *)(work + 0x18) = FldRootCreate(arg0, *(u16 *)rec, *(u16 *)(rec + 2), *(u16 *)(work + 8), 0, 0,
                                                           *(s32 *)(work + 0x24), *(u8 *)(rec + 8), *(u8 *)(rec + 9),
                                                           *(s32 *)(rec + 4), -1, -1, -1, -1);
                     *(s32 *)(work + 0x24) = 0;
@@ -2181,7 +2181,7 @@ s32 FldStepTaskUpdate(u8 *arg0)
             base = *(u8 **)(work + 0x20);
             *(s32 *)(work + 0x24) |= *((u16 *)((u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)base) + 5);
             rec = (u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)*(u8 **)(work + 0x20);
-            *(s32 *)(work + 0x18) = func_00155e10(arg0, *(u16 *)rec, *(u16 *)(rec + 2), *(u16 *)(work + 8), 0, 0,
+            *(s32 *)(work + 0x18) = FldRootCreate(arg0, *(u16 *)rec, *(u16 *)(rec + 2), *(u16 *)(work + 8), 0, 0,
                                                   *(s32 *)(work + 0x24), *(u8 *)(rec + 8), *(u8 *)(rec + 9),
                                                   *(s32 *)(rec + 4), -1, -1, -1, -1);
             *(s32 *)(work + 0x24) = 0;

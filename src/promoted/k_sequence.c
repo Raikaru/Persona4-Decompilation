@@ -6,17 +6,17 @@ extern s32 FldStepTaskCreate(s32 arg0, s32 arg1, s32 arg2);
 extern s32 D_00764334;
 
 extern u8 *MT_Scene_GetFrameState(void);
-extern s32 func_00155e10(s32 arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4,
+extern s32 FldRootCreate(s32 arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4,
                          s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9,
                          s64 arg10, s64 arg11, s64 arg12, s64 arg13);
 extern void kAssertFail(const char *file, s32 line);
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 kwlnTaskIsLinked(s32 buf);
-extern void func_00187e80(s32 arg0, s32 arg1, s32 arg2);
-extern void func_0018f3c0(s32 arg0);
+extern void FldLmapCreate(s32 arg0, s32 arg1, s32 arg2);
+extern void FldViewerCreate(s32 arg0);
 extern void K_Viewer_Create(s32 arg0);
-extern void func_00190130(s32 arg0);
+extern void K_MapEdit_Create(s32 arg0);
 extern void K_FldFoodCourt_Create(s32 arg0);
 
 extern char D_005F16F8[];
