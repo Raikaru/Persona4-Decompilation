@@ -194,9 +194,9 @@ extern f32 D_0076144C;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001a.c; members 001a1450-001adb80 */
 
 extern s32 func_001a0140(u8 *arg0);
-extern void func_001a0290(BtlAction *action, u16 arg1, u8 *arg2);
+extern void btlActionGetEffectIndices(BtlAction *action, u16 arg1, u8 *arg2);
 extern void btlActionFinishPresentation(BtlAction *action);
-extern s32 func_001a05f0(BtlAction *action);
+extern s32 btlActionLinkedUnitIsActive(BtlAction *action);
 static inline void actionCopySelectedTarget(u8 *action, const u16 *index)
 {
     u8 *slot = action + *index * 4;
@@ -1621,7 +1621,7 @@ void btlActionPursuitMesInit(BtlAction *action)
     iter = *(u8 **)(D_0076449C + 0x174);
     goto loop_test;
 loop_body:
-    if (func_001a05f0((BtlAction *)iter) != 0) {
+    if (btlActionLinkedUnitIsActive((BtlAction *)iter) != 0) {
         temp = (u8 *)btlUnitCreateModelReleasePacket(*(BtlUnit **)(*(u8 **)(iter + 0x30) + 0xA0C));
         *(s64 *)(temp + 0x60) = *(s64 *)iter;
         btlPacketEnqueue(temp, 1);
@@ -2804,7 +2804,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
     counterPending = 0;
     setEffectFlags = 0;
     btlPacketEnqueue((u8 *)btlEffectCreateSpriteFramePacket((u32)battleUnit, (*(u16 *)(arg0 + (0x6E)))), 3);
-    func_001a0290((BtlAction *)arg0, (*(u16 *)(arg0 + (0x6E))), (u8 *)effectIndices);
+    btlActionGetEffectIndices((BtlAction *)arg0, (*(u16 *)(arg0 + (0x6E))), (u8 *)effectIndices);
     if ((*(u16 *)(arg0 + (0x6A))) == 1) {
         rotatePacket = (u8 *)(btlUnitCreateRotateTowardUnitPacket((*(u8 **)(arg0 + (0x30))), (*(u8 **)((u8 *)((*(u8 **)(arg0 + (0x38)))) + (0x30))), 0));
         (*(s64 *)((u8 *)(rotatePacket) + (0x60))) = actionUid;
@@ -5923,7 +5923,7 @@ void btlActionEventInit(void) {
     u8 *o;
 
     while (p != NULL) {
-        if (func_001a05f0((BtlAction *)p) != 0) {
+        if (btlActionLinkedUnitIsActive((BtlAction *)p) != 0) {
             o = (u8 *)btlUnitCreateModelReleasePacket(*(BtlUnit **)(*(u8 **)(p + 0x30) + 0xA0C));
             *(s64 *)(o + 0x60) = *(s64 *)p;
             btlPacketEnqueue(o, 1);
