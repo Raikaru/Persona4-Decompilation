@@ -1,3 +1,4 @@
+#include "fcl_object_internal.h"
 /* measured: this unit declared the colour packer with u8 parameters (see fcl_color.h). */
 #include "list_item_internal.h"
 #include "fcl_scale_transition.h"
@@ -2877,7 +2878,7 @@ void fclShopSlideInFromLeft(void *arg0) {
     ((u8 *)fclObjectGetWork(*(void **)(work + 0xEEC)))[0x62] = 0xCC;
     c0 = fclMakeDrawColor(0, 0, 0, 0xFF);
     t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEEC));
-    *(FclDrawColor *)(t + 0x79) = c0;
+    ((FclObject *)t)->color = c0;
 
     base = (Vec2f *)D_0063F5F0;
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xEF4), 0x41, 109.0f);
@@ -2887,7 +2888,7 @@ void fclShopSlideInFromLeft(void *arg0) {
     ((u8 *)fclObjectGetWork(*(void **)(work + 0xEF4)))[0x62] = 0xCC;
     c1 = fclMakeDrawColor(0, 0, 0, 0xFF);
     t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEF4));
-    *(FclDrawColor *)(t + 0x79) = c1;
+    ((FclObject *)t)->color = c1;
 
     base = (Vec2f *)D_0063F5D0;
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xEF8), 0x41, 111.0f);
@@ -2897,7 +2898,7 @@ void fclShopSlideInFromLeft(void *arg0) {
     ((u8 *)fclObjectGetWork(*(void **)(work + 0xEF8)))[0x62] = 0xCC;
     c2 = fclMakeDrawColor(0, 0, 0, 0xFF);
     t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEF8));
-    *(FclDrawColor *)(t + 0x79) = c2;
+    ((FclObject *)t)->color = c2;
 
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xEF0), 0x41, 109.0f);
     spE0 = fclMakeVec2(86.0f, 242.0f);
@@ -2905,7 +2906,7 @@ void fclShopSlideInFromLeft(void *arg0) {
     fclObjStartPosition(*(void **)(work + 0xEF0), spE0, spD8, 0, 4, 0);
     c3 = fclMakeDrawColor(0xFF, 0xCB, 0x35, 0xFF);
     t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEF0));
-    *(FclDrawColor *)(t + 0x79) = c3;
+    ((FclObject *)t)->color = c3;
 
     base = (Vec2f *)D_0063F5F8;
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xEFC), 0x41, 112.0f);
@@ -2914,7 +2915,7 @@ void fclShopSlideInFromLeft(void *arg0) {
     fclObjStartPosition(*(void **)(work + 0xEFC), spD0, spC8, 0, 4, 0);
     c4 = fclMakeDrawColor(0xFF, 0xCB, 0x35, 0xFF);
     t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEFC));
-    *(FclDrawColor *)(t + 0x79) = c4;
+    ((FclObject *)t)->color = c4;
 
     base = (Vec2f *)D_0063F5D8;
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xF00), 0x41, 113.0f);
@@ -3403,7 +3404,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
         fclObjStartAlpha(work->fC58, 0, 0xCC, 0, 2, 0);
         c218 = fclMakeDrawColor(0, 0, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(work->fC58);
-        *(FclDrawColor *)(t + 0x79) = c218;
+        ((FclObject *)t)->color = c218;
         b = (Vec2f *)D_0063F5A8;
         fclObjSetAnchorPosition(work->fC5C, 0x40, 163.0f);
         sp198 = fclMakeVec2(b->x, b->y - 450.0f);
@@ -3412,7 +3413,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
         fclObjStartAlpha(work->fC5C, 0, 0xCC, 0, 2, 0);
         c214 = fclMakeDrawColor(0, 0, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(work->fC5C);
-        *(FclDrawColor *)(t + 0x79) = c214;
+        ((FclObject *)t)->color = c214;
         for (i = 0; i < work->count; i++) {
             work->timer[i] = 0;
             work->wait[i] = 6;
@@ -3440,7 +3441,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
         fclObjStartTween(work->fD60, -5.0f, fGpffff852c, 2, 2, 2);
         c210 = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(work->fD60);
-        *(FclDrawColor *)(t + 0x79) = c210;
+        ((FclObject *)t)->color = c210;
         b = (Vec2f *)D_0063F7B8;
         fclObjSetAnchorPosition(work->fD64, 0x41, 78.0f);
         sp168 = fclMakeVec2(b->x, b->y - (f32)0x226);
@@ -3468,7 +3469,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
             fclObjStartPosition(work->fD48, sp158, sp150, 2, 5, 0);
             c20C = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fD48);
-            *(FclDrawColor *)(t + 0x79) = c20C;
+            ((FclObject *)t)->color = c20C;
             ((ShopWork *)fclObjectGetWork(work->fD48))->field_100 = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
             ((ShopWork *)fclObjectGetWork(work->fD48))->field_102 = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
             fclObjSetHoldTimer(work->fD48, (f32)D_0063FA44[0], D_0063FA46[0]);
@@ -3486,7 +3487,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
             fclObjStartPosition(work->fD44, sp148, sp140, 2, 5, 3);
             c208 = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fD44);
-            *(FclDrawColor *)(t + 0x79) = c208;
+            ((FclObject *)t)->color = c208;
             ((ShopWork *)fclObjectGetWork(work->fD44))->field_100 = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
             ((ShopWork *)fclObjectGetWork(work->fD44))->field_102 = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
             fclObjSetHoldTimer(work->fD44, (f32)fa->speed, fa->frames);
@@ -3504,7 +3505,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
             fclObjStartPosition(work->fD4C, sp138, sp130, 2, 5, 1);
             c204 = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fD4C);
-            *(FclDrawColor *)(t + 0x79) = c204;
+            ((FclObject *)t)->color = c204;
             ((ShopWork *)fclObjectGetWork(work->fD4C))->field_100 = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
             ((ShopWork *)fclObjectGetWork(work->fD4C))->field_102 = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
             fclObjSetHoldTimer(work->fD4C, (f32)fa->speed, fa->frames);
@@ -3522,7 +3523,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
             fclObjStartPosition(work->fD50, sp128, sp120, 2, 5, 4);
             c200 = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fD50);
-            *(FclDrawColor *)(t + 0x79) = c200;
+            ((FclObject *)t)->color = c200;
             ((ShopWork *)fclObjectGetWork(work->fD50))->field_100 = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
             ((ShopWork *)fclObjectGetWork(work->fD50))->field_102 = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
             ((ShopWork *)fclObjectGetWork(work->fD50))->field_C4 = 0.0f;
@@ -3541,7 +3542,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
             fclObjStartPosition(work->fD54, sp118, sp110, 2, 5, 2);
             c1FC = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fD54);
-            *(FclDrawColor *)(t + 0x79) = c1FC;
+            ((FclObject *)t)->color = c1FC;
             ((ShopWork *)fclObjectGetWork(work->fD54))->field_100 = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
             ((ShopWork *)fclObjectGetWork(work->fD54))->field_102 = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
             ((ShopWork *)fclObjectGetWork(work->fD54))->field_C4 = 0.0f;
@@ -3560,7 +3561,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
             fclObjStartPosition(work->fD58, sp108, sp100, 2, 5, 5);
             c1F8 = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fD58);
-            *(FclDrawColor *)(t + 0x79) = c1F8;
+            ((FclObject *)t)->color = c1F8;
             ((ShopWork *)fclObjectGetWork(work->fD58))->field_100 = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
             ((ShopWork *)fclObjectGetWork(work->fD58))->field_102 = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
             ((ShopWork *)fclObjectGetWork(work->fD58))->field_C4 = 0.0f;
@@ -3577,7 +3578,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
         fclObjStartTween(work->fD60, -5.0f, fGpffff852c, 2, 2, 2);
         c1F4 = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(work->fD60);
-        *(FclDrawColor *)(t + 0x79) = c1F4;
+        ((FclObject *)t)->color = c1F4;
         b = (Vec2f *)D_0063F7B8;
         fclObjSetAnchorPosition(work->fD64, 0x41, 78.0f);
         spE8 = fclMakeVec2(b->x, b->y - (f32)0x226);
@@ -3768,15 +3769,15 @@ void fclShopDrawBuyList(void *arg0, s8 arg1) {
         fclObjSetAnchorPosition(work->O(0xE68), 0x57, 117.0f);
         bar0 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
         t = (u8 *)fclObjectGetWork(work->O(0xE68));
-        *(FclDrawColor *)(t + 0x79) = bar0;
+        ((FclObject *)t)->color = bar0;
         fclObjSetAnchorPosition(work->O(0xE6C), 0x56, 118.0f);
         bar1 = fclMakeDrawColor(0x6B, 0x6B, 0x6B, 0xFF);
         t = (u8 *)fclObjectGetWork(work->O(0xE6C));
-        *(FclDrawColor *)(t + 0x79) = bar1;
+        ((FclObject *)t)->color = bar1;
         fclObjSetAnchorPosition(work->O(0xE70), 0x56, 119.0f);
         bar2 = fclMakeDrawColor(0x6B, 0x6B, 0x6B, 0xFF);
         t = (u8 *)fclObjectGetWork(work->O(0xE70));
-        *(FclDrawColor *)(t + 0x79) = bar2;
+        ((FclObject *)t)->color = bar2;
         fclObjChangeFlagBit(work->O(0xDCC), 0, 1);
         fclObjChangeFlagBit(work->O(0xDD0), 0, 1);
         fclObjChangeFlagBit(work->O(0xC8C), 0, 1);
@@ -3843,29 +3844,29 @@ void fclShopDrawBuyList(void *arg0, s8 arg1) {
                         fclObjSetAnchorPosition(work->O(0xE44), 0x56, 121.0f);
                         c204 = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF);
                         t = (u8 *)fclObjectGetWork(work->O(0xE44));
-                        *(FclDrawColor *)(t + 0x79) = c204;
+                        ((FclObject *)t)->color = c204;
                         if (cur == work->cursor) {
                             c200 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                             t = (u8 *)fclObjectGetWork(work->O(0xE44));
-                            *(FclDrawColor *)(t + 0x79) = c200;
+                            ((FclObject *)t)->color = c200;
                         }
                         fclObjSetAnchorPosition(work->O(0xE48), 0x56, 122.0f);
                         c1FC = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF);
                         t = (u8 *)fclObjectGetWork(work->O(0xE48));
-                        *(FclDrawColor *)(t + 0x79) = c1FC;
+                        ((FclObject *)t)->color = c1FC;
                         if (cur == work->cursor) {
                             c1F8 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                             t = (u8 *)fclObjectGetWork(work->O(0xE48));
-                            *(FclDrawColor *)(t + 0x79) = c1F8;
+                            ((FclObject *)t)->color = c1F8;
                         }
                         fclObjSetAnchorPosition(work->O(0xE40), 0x57, 120.0f);
                         c1F4 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                         t = (u8 *)fclObjectGetWork(work->O(0xE40));
-                        *(FclDrawColor *)(t + 0x79) = c1F4;
+                        ((FclObject *)t)->color = c1F4;
                         if (cur == work->cursor) {
                             c1F0 = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF);
                             t = (u8 *)fclObjectGetWork(work->O(0xE40));
-                            *(FclDrawColor *)(t + 0x79) = c1F0;
+                            ((FclObject *)t)->color = c1F0;
                         }
                     }
                 } else {
@@ -4232,7 +4233,7 @@ void fclShopDrawBuyList(void *arg0, s8 arg1) {
                         if (cursor.ordinal > 0) {
                             c1EC = fclMakeDrawColor(0xED, 0x80, 0, 0xFF);
                             t = (u8 *)fclObjectGetWork(work->obj[cursor.ordinal + 0x3A]);
-                            *(FclDrawColor *)(t + 0x79) = c1EC;
+                            ((FclObject *)t)->color = c1EC;
                         }
                         fclObjStartPosition(work->obj[cursor.ordinal + 0x3A], fclMakeVec2(80.0f + b->x, b->y), fclMakeVec2(b->x, b->y), 0, 3, cursor.ordinal);
                         fclObjStartAlpha(work->obj[cursor.ordinal + 0x3A], 0, 0xFF, 0, 3, cursor.ordinal);
@@ -4240,7 +4241,7 @@ void fclShopDrawBuyList(void *arg0, s8 arg1) {
                 }
                 c1E8 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                 t = (u8 *)fclObjectGetWork(work->obj[work->f7 + 0x3B]);
-                *(FclDrawColor *)(t + 0x79) = c1E8;
+                ((FclObject *)t)->color = c1E8;
                 fclObjStartAlpha(work->O(0xC44), 0, 0xFF, 0, 0, work->f7);
                 fclObjStartAlpha(work->O(0xC48), 0, 0xFF, 0, 0, work->f7);
                 {
@@ -4475,11 +4476,11 @@ s32 fclShopListInputStep(void *arg0)
             fclObjSetAnchorPosition(work->fCA0, 0x57, 83.0f);
             c2A0 = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fCA0);
-            *(FclDrawColor *)(t + 0x79) = c2A0;
+            ((FclObject *)t)->color = c2A0;
             fclObjSetAnchorPosition(work->fCA8, 0x57, 82.0f);
             c29C = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fCA8);
-            *(FclDrawColor *)(t + 0x79) = c29C;
+            ((FclObject *)t)->color = c29C;
             sp210 = fclMakeVec2((f32)0x206, 324.0f);
             sp128 = *(Vec2f *)&sp210;
             uA = func_001068b0((s16)yListValueAt(work->f2));
@@ -4518,11 +4519,11 @@ s32 fclShopListInputStep(void *arg0)
             fclObjSetAnchorPosition(work->fC9C, 0x57, 81.0f);
             c298 = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fC9C);
-            *(FclDrawColor *)(t + 0x79) = c298;
+            ((FclObject *)t)->color = c298;
             fclObjSetAnchorPosition(work->fCA4, 0x57, 80.0f);
             c294 = fclMakeDrawColor(0xFE, 0xEF, 0x80, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fCA4);
-            *(FclDrawColor *)(t + 0x79) = c294;
+            ((FclObject *)t)->color = c294;
             sp1F8 = fclMakeVec2((f32)0x206, 324.0f);
             spF8 = *(Vec2f *)&sp1F8;
             uA = func_00106940((s16)yListValueAt(work->f2));
@@ -4586,16 +4587,16 @@ s32 fclShopListInputStep(void *arg0)
             fclObjSetAnchorPosition(*(void **)((u8 *)work + mark * 4 + 0xDBC), 0x41, 95.0f);
             c290 = fclMakeDrawColor(0xFF, 0xEF, 0x80, 0xFF);
             t = (u8 *)fclObjectGetWork(*(void **)((u8 *)work + mark * 4 + 0xDBC));
-            *(FclDrawColor *)(t + 0x79) = c290;
+            ((FclObject *)t)->color = c290;
         }
         fclObjSetAnchorPosition(work->fCAC, 0x56, 91.0f);
         c28C = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF);
         t = (u8 *)fclObjectGetWork(work->fCAC);
-        *(FclDrawColor *)(t + 0x79) = c28C;
+        ((FclObject *)t)->color = c28C;
         fclObjSetAnchorPosition(work->fE84, 0x56, 91.0f);
         c288 = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF);
         t = (u8 *)fclObjectGetWork(work->fE84);
-        *(FclDrawColor *)(t + 0x79) = c288;
+        ((FclObject *)t)->color = c288;
         sp1C0 = fclMakeVec2(468.0f, 338.0f);
         t = (u8 *)fclObjectGetWork(work->fE84);
         *(Vec2f *)(t + 0x2C) = sp1C0;
@@ -4603,12 +4604,12 @@ s32 fclShopListInputStep(void *arg0)
             fclObjSetAnchorPosition(work->fC94, 0x41, 88.0f);
             c284 = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fC94);
-            *(FclDrawColor *)(t + 0x79) = c284;
+            ((FclObject *)t)->color = c284;
             b = (Vec2f *)D_0063F620;
             fclObjSetAnchorPosition(work->fC98, 0x41, 89.0f);
             c280 = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fC98);
-            *(FclDrawColor *)(t + 0x79) = c280;
+            ((FclObject *)t)->color = c280;
             work->fC = 91.0f / (f32)(yListCount() - 1);
             sp1B8 = fclMakeVec2(b->x - 1.0f, 264.0f + work->fC * (f32)work->f2);
             fclDrawEquipSprite(0x36, sp1B8, 87.0f, fclPackRgba(0xFF, 0xFF, 0x6D, 0x31), ((u8 *)fclObjectGetWork(work->fC98))[0x62], 0, D_00794EA0);
@@ -4637,7 +4638,7 @@ s32 fclShopListInputStep(void *arg0)
             fclObjSetAnchorPosition(work->fE98, 0x57, 83.0f);
             c27C = fclMakeDrawColor(0xE7, 0xE5, 0xE6, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fE98);
-            *(FclDrawColor *)(t + 0x79) = c27C;
+            ((FclObject *)t)->color = c27C;
             sp190 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(work->fE98);
             *(Vec2f *)(t + 0x2C) = sp190;
@@ -4645,7 +4646,7 @@ s32 fclShopListInputStep(void *arg0)
             fclObjSetAnchorPosition(work->fEA0, 0x57, 82.0f);
             c278 = fclMakeDrawColor(0xE7, 0xE5, 0xE6, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fEA0);
-            *(FclDrawColor *)(t + 0x79) = c278;
+            ((FclObject *)t)->color = c278;
             sp188 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(work->fEA0);
             *(Vec2f *)(t + 0x2C) = sp188;
@@ -4670,7 +4671,7 @@ s32 fclShopListInputStep(void *arg0)
             fclObjSetAnchorPosition(work->fE94, 0x57, 81.0f);
             c274 = fclMakeDrawColor(0xE7, 0xE5, 0xE6, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fE94);
-            *(FclDrawColor *)(t + 0x79) = c274;
+            ((FclObject *)t)->color = c274;
             sp170 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(work->fE94);
             *(Vec2f *)(t + 0x2C) = sp170;
@@ -4678,7 +4679,7 @@ s32 fclShopListInputStep(void *arg0)
             fclObjSetAnchorPosition(work->fE9C, 0x57, 80.0f);
             c270 = fclMakeDrawColor(0xE7, 0xE5, 0xE6, 0xFF);
             t = (u8 *)fclObjectGetWork(work->fE9C);
-            *(FclDrawColor *)(t + 0x79) = c270;
+            ((FclObject *)t)->color = c270;
             sp168 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(work->fE9C);
             *(Vec2f *)(t + 0x2C) = sp168;
@@ -4712,7 +4713,7 @@ s32 fclShopListInputStep(void *arg0)
             fclObjSetAnchorPosition(*(void **)((u8 *)work + slot * 4 + 0xE88), 0x41, 95.0f);
             c26C = fclMakeDrawColor(0xE7, 0xE5, 0xE7, 0xFF);
             t = (u8 *)fclObjectGetWork(*(void **)((u8 *)work + slot * 4 + 0xE88));
-            *(FclDrawColor *)(t + 0x79) = c26C;
+            ((FclObject *)t)->color = c26C;
             sp148 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(*(void **)((u8 *)work + slot * 4 + 0xE88));
             *(Vec2f *)(t + 0x2C) = sp148;
@@ -4721,14 +4722,14 @@ s32 fclShopListInputStep(void *arg0)
         fclObjSetAnchorPosition(work->fEA4, 0x56, 91.0f);
         c268 = fclMakeDrawColor(0xB0, 0xAE, 0xAF, 0xFF);
         t = (u8 *)fclObjectGetWork(work->fEA4);
-        *(FclDrawColor *)(t + 0x79) = c268;
+        ((FclObject *)t)->color = c268;
         sp140 = fclMakeVec2(b->x, b->y - 166.0f);
         t = (u8 *)fclObjectGetWork(work->fEA4);
         *(Vec2f *)(t + 0x2C) = sp140;
         fclObjSetAnchorPosition(work->fEA8, 0x56, 91.0f);
         c264 = fclMakeDrawColor(0xB0, 0xAE, 0xAF, 0xFF);
         t = (u8 *)fclObjectGetWork(work->fEA8);
-        *(FclDrawColor *)(t + 0x79) = c264;
+        ((FclObject *)t)->color = c264;
         sp138 = fclMakeVec2(468.0f, 172.0f);
         t = (u8 *)fclObjectGetWork(work->fEA8);
         *(Vec2f *)(t + 0x2C) = sp138;
@@ -5291,14 +5292,14 @@ void fclShopStartHeaderBars(void *arg0) {
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xCE4), 0x56, 35.0f);
     sp1FC = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFFU);
     t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xCE4)));
-    *(FclDrawColor *)(t + 0x79) = sp1FC;
+    ((FclObject *)t)->color = sp1FC;
     sp1A8 = fclMakeVec2((f32) -0x212, 208.0f);
     sp1A0 = fclMakeVec2(70.0f, 208.0f);
     fclObjStartPosition(*(void **)(work + 0xCE4), sp1A8, sp1A0, 0, 8, 0);
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xCE8), 0x56, 35.0f);
     sp1F8 = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFFU);
     t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xCE8)));
-    *(FclDrawColor *)(t + 0x79) = sp1F8;
+    ((FclObject *)t)->color = sp1F8;
     sp198 = fclMakeVec2(-37.0f, 208.0f);
     sp190 = fclMakeVec2((f32) 0x233, 208.0f);
     fclObjStartPosition(*(void **)(work + 0xCE8), sp198, sp190, 0, 8, 0);
@@ -5306,7 +5307,7 @@ void fclShopStartHeaderBars(void *arg0) {
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xCB4), 0x57, 33.0f);
     sp1F4 = fclMakeDrawColor(0xF7, 0x94, 0x1D, 0xFFU);
     t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xCB4)));
-    *(FclDrawColor *)(t + 0x79) = sp1F4;
+    ((FclObject *)t)->color = sp1F4;
     sp188 = fclMakeVec2(base->x - 600.0f, base->y);
     sp180 = fclMakeVec2(base->x, base->y);
     fclObjStartPosition(*(void **)(work + 0xCB4), sp188, sp180, 0, 8, 0);
@@ -5314,14 +5315,14 @@ void fclShopStartHeaderBars(void *arg0) {
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xCAC), 0x57, 30.0f);
         sp1F0 = fclMakeDrawColor(0xFF, 0xEF, 0x81, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xCAC)));
-        *(FclDrawColor *)(t + 0x79) = sp1F0;
+        ((FclObject *)t)->color = sp1F0;
         sp178 = fclMakeVec2(-232.0f, 227.0f);
         sp170 = fclMakeVec2(368.0f, 227.0f);
         fclObjStartPosition(*(void **)(work + 0xCAC), sp178, sp170, 0, 8, 0);
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xE84), 0x57, 30.0f);
         sp1EC = fclMakeDrawColor(0xFF, 0xEF, 0x81, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xE84)));
-        *(FclDrawColor *)(t + 0x79) = sp1EC;
+        ((FclObject *)t)->color = sp1EC;
         sp168 = fclMakeVec2(468.0f, 338.0f);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xE84)));
         *(Vec2f *)(t + 0x2C) = *(Vec2f *)&sp168;
@@ -5332,14 +5333,14 @@ void fclShopStartHeaderBars(void *arg0) {
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xEDC), 0x56, 35.0f);
     sp1E8 = fclMakeDrawColor(0xE7, 0xE6, 0xE6, 0xFFU);
     t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xEDC)));
-    *(FclDrawColor *)(t + 0x79) = sp1E8;
+    ((FclObject *)t)->color = sp1E8;
     sp150 = fclMakeVec2((f32) 0x29E, 94.0f);
     sp148 = fclMakeVec2(70.0f, 94.0f);
     fclObjStartPosition(*(void **)(work + 0xEDC), sp150, sp148, 0, 8, 0);
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xEE0), 0x56, 35.0f);
     sp1E4 = fclMakeDrawColor(0xE7, 0xE6, 0xE6, 0xFFU);
     t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xEE0)));
-    *(FclDrawColor *)(t + 0x79) = sp1E4;
+    ((FclObject *)t)->color = sp1E4;
     sp140 = fclMakeVec2((f32) 0x48B, 94.0f);
     sp138 = fclMakeVec2((f32) 0x233, 94.0f);
     fclObjStartPosition(*(void **)(work + 0xEE0), sp140, sp138, 0, 8, 0);
@@ -5347,14 +5348,14 @@ void fclShopStartHeaderBars(void *arg0) {
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xCB0), 0x57, 34.0f);
     sp1E0 = fclMakeDrawColor(0xB0, 0xAF, 0xAF, 0xFFU);
     t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xCB0)));
-    *(FclDrawColor *)(t + 0x79) = sp1E0;
+    ((FclObject *)t)->color = sp1E0;
     sp130 = fclMakeVec2(600.0f + base->x, base->y);
     sp128 = fclMakeVec2(base->x, base->y);
     fclObjStartPosition(*(void **)(work + 0xCB0), sp130, sp128, 0, 8, 0);
     fclObjSetAnchorAlphaFull(*(void **)(work + 0xCD0), 0x57, 32.0f);
     sp1DC = fclMakeDrawColor(0xE7, 0xE6, 0xE6, 0xFFU);
     t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xCD0)));
-    *(FclDrawColor *)(t + 0x79) = sp1DC;
+    ((FclObject *)t)->color = sp1DC;
     sp120 = fclMakeVec2((f32) 0x395, 178.0f);
     sp118 = fclMakeVec2((f32) 0x13D, 178.0f);
     fclObjStartPosition(*(void **)(work + 0xCD0), sp120, sp118, 0, 8, 0);
@@ -5362,14 +5363,14 @@ void fclShopStartHeaderBars(void *arg0) {
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xEA4), 0x57, 30.0f);
         sp1D8 = fclMakeDrawColor(0xB0, 0xAF, 0xAF, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xEA4)));
-        *(FclDrawColor *)(t + 0x79) = sp1D8;
+        ((FclObject *)t)->color = sp1D8;
         sp110 = fclMakeVec2(968.0f, 113.0f);
         sp108 = fclMakeVec2(368.0f, 113.0f);
         fclObjStartPosition(*(void **)(work + 0xEA4), sp110, sp108, 0, 8, 0);
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xEA8), 0x57, 30.0f);
         sp1D4 = fclMakeDrawColor(0xB0, 0xAF, 0xAF, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xEA8)));
-        *(FclDrawColor *)(t + 0x79) = sp1D4;
+        ((FclObject *)t)->color = sp1D4;
         sp100 = fclMakeVec2(468.0f, 338.0f);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xEA8)));
         *(Vec2f *)(t + 0x2C) = *(Vec2f *)&sp100;
@@ -5383,28 +5384,28 @@ void fclShopStartHeaderBars(void *arg0) {
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xCA0), 0x58, 27.0f);
         sp1D0 = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xCA0)));
-        *(FclDrawColor *)(t + 0x79) = sp1D0;
+        ((FclObject *)t)->color = sp1D0;
         spE8 = fclMakeVec2(-230.0f, 234.0f);
         spE0 = fclMakeVec2(370.0f, 234.0f);
         fclObjStartPosition(*(void **)(work + 0xCA0), spE8, spE0, 0, 8, 0);
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xCA8), 0x58, 26.0f);
         sp1CC = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xCA8)));
-        *(FclDrawColor *)(t + 0x79) = sp1CC;
+        ((FclObject *)t)->color = sp1CC;
         spD8 = fclMakeVec2(-143.0f, 234.0f);
         spD0 = fclMakeVec2((f32) 0x1C9, 234.0f);
         fclObjStartPosition(*(void **)(work + 0xCA8), spD8, spD0, 0, 8, 0);
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xE98), 0x58, 27.0f);
         sp1C8 = fclMakeDrawColor(0xE7, 0xE6, 0xE6, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xE98)));
-        *(FclDrawColor *)(t + 0x79) = sp1C8;
+        ((FclObject *)t)->color = sp1C8;
         spC8 = fclMakeVec2((f32) 0x3CA, 121.0f);
         spC0 = fclMakeVec2(370.0f, 121.0f);
         fclObjStartPosition(*(void **)(work + 0xE98), spC8, spC0, 0, 8, 0);
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xEA0), 0x58, 26.0f);
         sp1C4 = fclMakeDrawColor(0xE7, 0xE6, 0xE6, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xEA0)));
-        *(FclDrawColor *)(t + 0x79) = sp1C4;
+        ((FclObject *)t)->color = sp1C4;
         spB8 = fclMakeVec2((f32) 0x421, 121.0f);
         spB0 = fclMakeVec2((f32) 0x1C9, 121.0f);
         fclObjStartPosition(*(void **)(work + 0xEA0), spB8, spB0, 0, 8, 0);
@@ -5413,28 +5414,28 @@ void fclShopStartHeaderBars(void *arg0) {
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xC9C), 0x58, 25.0f);
         sp1C0 = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xC9C)));
-        *(FclDrawColor *)(t + 0x79) = sp1C0;
+        ((FclObject *)t)->color = sp1C0;
         spA8 = fclMakeVec2(-230.0f, 234.0f);
         spA0 = fclMakeVec2(370.0f, 234.0f);
         fclObjStartPosition(*(void **)(work + 0xC9C), spA8, spA0, 0, 8, 0);
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xCA4), 0x58, 24.0f);
         sp1BC = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xCA4)));
-        *(FclDrawColor *)(t + 0x79) = sp1BC;
+        ((FclObject *)t)->color = sp1BC;
         sp98 = fclMakeVec2(-143.0f, 234.0f);
         sp90 = fclMakeVec2((f32) 0x1C9, 234.0f);
         fclObjStartPosition(*(void **)(work + 0xCA4), sp98, sp90, 0, 8, 0);
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xE94), 0x58, 25.0f);
         sp1B8 = fclMakeDrawColor(0xE7, 0xE6, 0xE6, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xE94)));
-        *(FclDrawColor *)(t + 0x79) = sp1B8;
+        ((FclObject *)t)->color = sp1B8;
         sp88 = fclMakeVec2((f32) 0x3CA, 121.0f);
         sp80 = fclMakeVec2(370.0f, 121.0f);
         fclObjStartPosition(*(void **)(work + 0xE94), sp88, sp80, 0, 8, 0);
         fclObjSetAnchorAlphaFull(*(void **)(work + 0xE9C), 0x58, 24.0f);
         sp1B4 = fclMakeDrawColor(0xE7, 0xE6, 0xE6, 0xFFU);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xE9C)));
-        *(FclDrawColor *)(t + 0x79) = sp1B4;
+        ((FclObject *)t)->color = sp1B4;
         sp78 = fclMakeVec2((f32) 0x421, 122.0f);
         sp70 = fclMakeVec2((f32) 0x1C9, 120.0f);
         fclObjStartPosition(*(void **)(work + 0xE9C), sp78, sp70, 0, 8, 0);
@@ -5923,21 +5924,21 @@ void fclShopDrawItemRows(void *arg0, s8 arg1, f32 x, f32 y) {
             fclObjSetAnchorPosition(work->bar0[0], 0x57, 117.0f);
             c208 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
             t = (u8 *)fclObjectGetWork(work->bar0[0]);
-            *(FclDrawColor *)(t + 0x79) = c208;
+            ((FclObject *)t)->color = c208;
             ((ShopWork *)fclObjectGetWork(work->bar0[0]))->field_30 = base->y;
             ((ShopWork *)fclObjectGetWork(work->bar0[0]))->field_2C = 86.0f + fx;
             base = (Vec2f *)D_0063F9C8;
             fclObjSetAnchorPosition(work->bar0[1], 0x56, 118.0f);
             c204 = fclMakeDrawColor(0x6B, 0x6B, 0x6B, 0xFF);
             t = (u8 *)fclObjectGetWork(work->bar0[1]);
-            *(FclDrawColor *)(t + 0x79) = c204;
+            ((FclObject *)t)->color = c204;
             ((ShopWork *)fclObjectGetWork(work->bar0[1]))->field_30 = base->y;
             ((ShopWork *)fclObjectGetWork(work->bar0[1]))->field_2C = fx - 10.0f;
             base = (Vec2f *)D_0063F9D0;
             fclObjSetAnchorPosition(work->bar0[2], 0x56, 119.0f);
             c200 = fclMakeDrawColor(0x6B, 0x6B, 0x6B, 0xFF);
             t = (u8 *)fclObjectGetWork(work->bar0[2]);
-            *(FclDrawColor *)(t + 0x79) = c200;
+            ((FclObject *)t)->color = c200;
             ((ShopWork *)fclObjectGetWork(work->bar0[2]))->field_30 = base->y;
             ((ShopWork *)fclObjectGetWork(work->bar0[2]))->field_2C = 440.0f + fx;
             fclObjChangeFlagBit(work->mark0, 0, 1);
@@ -5949,21 +5950,21 @@ void fclShopDrawItemRows(void *arg0, s8 arg1, f32 x, f32 y) {
             fclObjSetAnchorPosition(work->bar1[0], 0x57, 117.0f);
             c1FC = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
             t = (u8 *)fclObjectGetWork(work->bar1[0]);
-            *(FclDrawColor *)(t + 0x79) = c1FC;
+            ((FclObject *)t)->color = c1FC;
             ((ShopWork *)fclObjectGetWork(work->bar1[0]))->field_30 = base->y;
             ((ShopWork *)fclObjectGetWork(work->bar1[0]))->field_2C = 86.0f + fx;
             base = (Vec2f *)D_0063F9C8;
             fclObjSetAnchorPosition(work->bar1[1], 0x56, 118.0f);
             c1F8 = fclMakeDrawColor(0x6B, 0x6B, 0x6B, 0xFF);
             t = (u8 *)fclObjectGetWork(work->bar1[1]);
-            *(FclDrawColor *)(t + 0x79) = c1F8;
+            ((FclObject *)t)->color = c1F8;
             ((ShopWork *)fclObjectGetWork(work->bar1[1]))->field_30 = base->y;
             ((ShopWork *)fclObjectGetWork(work->bar1[1]))->field_2C = fx - 10.0f;
             base = (Vec2f *)D_0063F9D0;
             fclObjSetAnchorPosition(work->bar1[2], 0x56, 119.0f);
             c1F4 = fclMakeDrawColor(0x6B, 0x6B, 0x6B, 0xFF);
             t = (u8 *)fclObjectGetWork(work->bar1[2]);
-            *(FclDrawColor *)(t + 0x79) = c1F4;
+            ((FclObject *)t)->color = c1F4;
             ((ShopWork *)fclObjectGetWork(work->bar1[2]))->field_30 = base->y;
             ((ShopWork *)fclObjectGetWork(work->bar1[2]))->field_2C = 440.0f + fx;
             fclObjChangeFlagBit(work->mark2, 0, 1);
@@ -5992,14 +5993,14 @@ void fclShopDrawItemRows(void *arg0, s8 arg1, f32 x, f32 y) {
                 fclObjSetAnchorPosition(work->mark0, 0x41, 143.0f);
                 c1F0 = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
                 t = (u8 *)fclObjectGetWork(work->mark0);
-                *(FclDrawColor *)(t + 0x79) = c1F0;
+                ((FclObject *)t)->color = c1F0;
                 ((ShopWork *)fclObjectGetWork(work->mark0))->field_62 = 0xFF;
                 ((ShopWork *)fclObjectGetWork(work->mark0))->field_30 = base->y + (f32)(work->scroll[arg1] << 5);
                 ((ShopWork *)fclObjectGetWork(work->mark0))->field_2C = fx - 10.0f;
                 fclObjSetAnchorPosition(work->mark1, 0x41, 143.0f);
                 c1EC = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
                 t = (u8 *)fclObjectGetWork(work->mark1);
-                *(FclDrawColor *)(t + 0x79) = c1EC;
+                ((FclObject *)t)->color = c1EC;
                 ((ShopWork *)fclObjectGetWork(work->mark1))->field_62 = 0xFF;
                 ((ShopWork *)fclObjectGetWork(work->mark1))->field_30 = base->y + (f32)(work->scroll[arg1] << 5);
                 ((ShopWork *)fclObjectGetWork(work->mark1))->field_2C = 444.0f + fx;
@@ -6011,14 +6012,14 @@ void fclShopDrawItemRows(void *arg0, s8 arg1, f32 x, f32 y) {
                 fclObjSetAnchorPosition(work->mark2, 0x41, 143.0f);
                 c1E8 = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
                 t = (u8 *)fclObjectGetWork(work->mark2);
-                *(FclDrawColor *)(t + 0x79) = c1E8;
+                ((FclObject *)t)->color = c1E8;
                 ((ShopWork *)fclObjectGetWork(work->mark2))->field_62 = 0xFF;
                 ((ShopWork *)fclObjectGetWork(work->mark2))->field_30 = base->y + (f32)(work->scroll[arg1] << 5);
                 ((ShopWork *)fclObjectGetWork(work->mark2))->field_2C = fx - 10.0f;
                 fclObjSetAnchorPosition(work->mark3, 0x41, 143.0f);
                 c1E4 = fclMakeDrawColor(0xFE, 0xC6, 0x31, 0xFF);
                 t = (u8 *)fclObjectGetWork(work->mark3);
-                *(FclDrawColor *)(t + 0x79) = c1E4;
+                ((FclObject *)t)->color = c1E4;
                 ((ShopWork *)fclObjectGetWork(work->mark3))->field_62 = 0xFF;
                 ((ShopWork *)fclObjectGetWork(work->mark3))->field_30 = base->y + (f32)(work->scroll[arg1] << 5);
                 ((ShopWork *)fclObjectGetWork(work->mark3))->field_2C = 444.0f + fx;
@@ -6049,31 +6050,31 @@ void fclShopDrawItemRows(void *arg0, s8 arg1, f32 x, f32 y) {
                     fclObjSetAnchorPosition(work->frame1, 0x56, 142.0f);
                     c1E0 = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF);
                     t = (u8 *)fclObjectGetWork(work->frame1);
-                    *(FclDrawColor *)(t + 0x79) = c1E0;
+                    ((FclObject *)t)->color = c1E0;
                     if (cur == work->cursor) {
                         c1DC = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                         t = (u8 *)fclObjectGetWork(work->frame1);
-                        *(FclDrawColor *)(t + 0x79) = c1DC;
+                        ((FclObject *)t)->color = c1DC;
                     }
                     ((ShopWork *)fclObjectGetWork(work->frame1))->field_2C = 128.0f + fx;
                     fclObjSetAnchorPosition(work->frame2, 0x56, 142.0f);
                     c1D8 = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF);
                     t = (u8 *)fclObjectGetWork(work->frame2);
-                    *(FclDrawColor *)(t + 0x79) = c1D8;
+                    ((FclObject *)t)->color = c1D8;
                     if (cur == work->cursor) {
                         c1D4 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                         t = (u8 *)fclObjectGetWork(work->frame2);
-                        *(FclDrawColor *)(t + 0x79) = c1D4;
+                        ((FclObject *)t)->color = c1D4;
                     }
                     ((ShopWork *)fclObjectGetWork(work->frame2))->field_2C = (f32)0x133 + fx;
                     fclObjSetAnchorPosition(work->frame0, 0x57, 141.0f);
                     c1D0 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                     t = (u8 *)fclObjectGetWork(work->frame0);
-                    *(FclDrawColor *)(t + 0x79) = c1D0;
+                    ((FclObject *)t)->color = c1D0;
                     if (cur == work->cursor) {
                         c1CC = fclMakeDrawColor(0xFE, 0xC7, 0x31, 0xFF);
                         t = (u8 *)fclObjectGetWork(work->frame0);
-                        *(FclDrawColor *)(t + 0x79) = c1CC;
+                        ((FclObject *)t)->color = c1CC;
                     }
                     ((ShopWork *)fclObjectGetWork(work->frame0))->field_2C = 144.0f + fx;
                 }
@@ -6424,7 +6425,7 @@ void fclShopStartRevealSprites(void *arg0) {
     fclObjStartAlpha(*(void **)(work + 0xC64), 0U, 0xCCU, 0U, 7, 0);
     c0 = fclMakeDrawColor(0, 0, 0, 0xFF);
     t = (u8 *)fclObjectGetWork(*(void **)(work + 0xC64));
-    *(FclDrawColor *)(t + 0x79) = c0;
+    ((FclObject *)t)->color = c0;
     fclObjStartTween(*(void **)(work + 0xC64), 0.0f, -4.0f, 0, 0, 0);
     *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xC64)) + 0x100) = (s16)(320.0f - base->x);
     *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xC64)) + 0x102) = (s16)(base->y - 83.0f);
@@ -6438,7 +6439,7 @@ void fclShopStartRevealSprites(void *arg0) {
         fclObjStartPosition(*(void **)(work + 0xD48), sp188, sp180, 2, 5, 5);
         c1 = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xD48));
-        *(FclDrawColor *)(t + 0x79) = c1;
+        ((FclObject *)t)->color = c1;
         *(f32 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD48)) + 0xC4) = 0.0f;
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD48)) + 0x100) = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD48)) + 0x102) = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
@@ -6455,7 +6456,7 @@ void fclShopStartRevealSprites(void *arg0) {
         fclObjStartPosition(*(void **)(work + 0xD44), sp178, sp170, 2, 5, 2);
         c2 = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xD44));
-        *(FclDrawColor *)(t + 0x79) = c2;
+        ((FclObject *)t)->color = c2;
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD44)) + 0x100) = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD44)) + 0x102) = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
         fclObjSetHoldTimer(*(void **)(work + 0xD44), (f32) fa->speed, fa->frames);
@@ -6471,7 +6472,7 @@ void fclShopStartRevealSprites(void *arg0) {
         fclObjStartPosition(*(void **)(work + 0xD4C), sp168, sp160, 2, 5, 4);
         c3 = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xD4C));
-        *(FclDrawColor *)(t + 0x79) = c3;
+        ((FclObject *)t)->color = c3;
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD4C)) + 0x100) = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD4C)) + 0x102) = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
         fclObjSetHoldTimer(*(void **)(work + 0xD4C), (f32) fa->speed, fa->frames);
@@ -6487,7 +6488,7 @@ void fclShopStartRevealSprites(void *arg0) {
         fclObjStartPosition(*(void **)(work + 0xD50), sp158, sp150, 2, 5, 1);
         c4 = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xD50));
-        *(FclDrawColor *)(t + 0x79) = c4;
+        ((FclObject *)t)->color = c4;
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD50)) + 0x100) = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD50)) + 0x102) = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
         fclObjSetHoldTimer(*(void **)(work + 0xD50), (f32) fa->speed, fa->frames);
@@ -6503,7 +6504,7 @@ void fclShopStartRevealSprites(void *arg0) {
         fclObjStartPosition(*(void **)(work + 0xD54), sp148, sp140, 2, 5, 3);
         c5 = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xD54));
-        *(FclDrawColor *)(t + 0x79) = c5;
+        ((FclObject *)t)->color = c5;
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD54)) + 0x100) = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD54)) + 0x102) = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
         fclObjSetHoldTimer(*(void **)(work + 0xD54), (f32) fa->speed, fa->frames);
@@ -6519,7 +6520,7 @@ void fclShopStartRevealSprites(void *arg0) {
         fclObjStartPosition(*(void **)(work + 0xD58), sp138, sp130, 2, 5, 0);
         c6 = fclMakeDrawColor(0xE4, 0xFF, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xD58));
-        *(FclDrawColor *)(t + 0x79) = c6;
+        ((FclObject *)t)->color = c6;
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD58)) + 0x100) = (s16)(sdkSpriteScaledWidth(r) / 2.0f);
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xD58)) + 0x102) = (s16)(sdkSpriteScaledHeight(r) / 2.0f);
         fclObjSetHoldTimer(*(void **)(work + 0xD58), (f32) fa->speed, fa->frames);
@@ -6537,12 +6538,12 @@ void fclShopStartRevealSprites(void *arg0) {
     fclObjStartAlpha(*(void **)(work + 0xC8C), 0U, 0xFFU, 0U, 6, 7);
     c7 = fclMakeDrawColor(0xCE, 0x71, 2, 0xFF);
     t = (u8 *)fclObjectGetWork(*(void **)(work + 0xC8C));
-    *(FclDrawColor *)(t + 0x79) = c7;
+    ((FclObject *)t)->color = c7;
     fclObjSetAnchorPosition(*(void **)(work + 0xC90), 0x41, 140.0f);
     fclObjStartAlpha(*(void **)(work + 0xC90), 0U, 0xFFU, 0U, 6, 7);
     c8 = fclMakeDrawColor(0xCE, 0x71, 2, 0xFF);
     t = (u8 *)fclObjectGetWork(*(void **)(work + 0xC90));
-    *(FclDrawColor *)(t + 0x79) = c8;
+    ((FclObject *)t)->color = c8;
     {
         void *r = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(3));
         fclObjSetAnchorPosition(*(void **)(work + 0xEC4), 0x56, 131.0f);
@@ -6555,7 +6556,7 @@ void fclShopStartRevealSprites(void *arg0) {
         fclObjStartTween(*(void **)(work + 0xEC4), -3.0f, -3.0f, 0, 0, 0);
         c9 = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEC4));
-        *(FclDrawColor *)(t + 0x79) = c9;
+        ((FclObject *)t)->color = c9;
         sdkSpriteFreeNode(r);
     }
     {
@@ -6570,7 +6571,7 @@ void fclShopStartRevealSprites(void *arg0) {
         fclObjStartTween(*(void **)(work + 0xEC8), -3.0f, -3.0f, 0, 0, 0);
         c10 = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEC8));
-        *(FclDrawColor *)(t + 0x79) = c10;
+        ((FclObject *)t)->color = c10;
         sdkSpriteFreeNode(r);
     }
     fclObjSetAnchorPosition(*(void **)(work + 0xE38), 0x57, 130.0f);
@@ -6581,17 +6582,17 @@ void fclShopStartRevealSprites(void *arg0) {
     *(u8 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xE38)) + 0x62) = 0xFF;
     c11 = fclMakeDrawColor(0xFF, 0xF2, 0x95, 0xFF);
     t = (u8 *)fclObjectGetWork(*(void **)(work + 0xE38));
-    *(FclDrawColor *)(t + 0x79) = c11;
+    ((FclObject *)t)->color = c11;
     if (yListCountFor(*(void **)(work + 0xF18)) <= D_00748908[0]) {
         c12 = fclMakeDrawColor(0x9C, 0x9C, 0x9C, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEC4));
-        *(FclDrawColor *)(t + 0x79) = c12;
+        ((FclObject *)t)->color = c12;
         c13 = fclMakeDrawColor(0x9C, 0x9C, 0x9C, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEC8));
-        *(FclDrawColor *)(t + 0x79) = c13;
+        ((FclObject *)t)->color = c13;
         c14 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xE38));
-        *(FclDrawColor *)(t + 0x79) = c14;
+        ((FclObject *)t)->color = c14;
     }
     {
         void *r = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(3));
@@ -6604,7 +6605,7 @@ void fclShopStartRevealSprites(void *arg0) {
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEB4)) + 0x102) = 0x17;
         c15 = fclMakeDrawColor(0xBD, 0x68, 3, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEB4));
-        *(FclDrawColor *)(t + 0x79) = c15;
+        ((FclObject *)t)->color = c15;
         sdkSpriteFreeNode(r);
     }
     {
@@ -6618,7 +6619,7 @@ void fclShopStartRevealSprites(void *arg0) {
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEB8)) + 0x102) = 0x17;
         c16 = fclMakeDrawColor(0xBD, 0x68, 3, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEB8));
-        *(FclDrawColor *)(t + 0x79) = c16;
+        ((FclObject *)t)->color = c16;
         sdkSpriteFreeNode(r);
     }
     fclObjSetAnchorPosition(*(void **)(work + 0xCC4), 0x56, 136.0f);
@@ -6628,17 +6629,17 @@ void fclShopStartRevealSprites(void *arg0) {
     *(u8 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCC4)) + 0x62) = 0xFF;
     c17 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
     t = (u8 *)fclObjectGetWork(*(void **)(work + 0xCC4));
-    *(FclDrawColor *)(t + 0x79) = c17;
+    ((FclObject *)t)->color = c17;
     if (yListCountFor(*(void **)(work + 0xF1C)) <= D_00748908[1]) {
         c18 = fclMakeDrawColor(0, 0, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEB4));
-        *(FclDrawColor *)(t + 0x79) = c18;
+        ((FclObject *)t)->color = c18;
         c19 = fclMakeDrawColor(0, 0, 0, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEB8));
-        *(FclDrawColor *)(t + 0x79) = c19;
+        ((FclObject *)t)->color = c19;
         c20 = fclMakeDrawColor(0x6F, 0x6F, 0x6F, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xCC4));
-        *(FclDrawColor *)(t + 0x79) = c20;
+        ((FclObject *)t)->color = c20;
     }
     {
         void *r = sdkSpriteNewNode((u32)(*(void **)(work + 0xF28)), (u32)(3));
@@ -6651,7 +6652,7 @@ void fclShopStartRevealSprites(void *arg0) {
         *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEBC)) + 0x102) = 0x17;
         c21 = fclMakeDrawColor(0x90, 0x4F, 1, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEBC));
-        *(FclDrawColor *)(t + 0x79) = c21;
+        ((FclObject *)t)->color = c21;
         sdkSpriteFreeNode(r);
     }
     {
@@ -6665,7 +6666,7 @@ void fclShopStartRevealSprites(void *arg0) {
         *(u8 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xEC0)) + 0x62) = 0xFF;
         c22 = fclMakeDrawColor(0x90, 0x4F, 1, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEC0));
-        *(FclDrawColor *)(t + 0x79) = c22;
+        ((FclObject *)t)->color = c22;
         sdkSpriteFreeNode(r);
     }
     fclObjSetAnchorPosition(*(void **)(work + 0xCC0), 0x57, 133.0f);
@@ -6676,17 +6677,17 @@ void fclShopStartRevealSprites(void *arg0) {
     *(s16 *)((u8 *)fclObjectGetWork(*(void **)(work + 0xCC0)) + 0x100) = 0x23;
     c23 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
     t = (u8 *)fclObjectGetWork(*(void **)(work + 0xCC0));
-    *(FclDrawColor *)(t + 0x79) = c23;
+    ((FclObject *)t)->color = c23;
     if (yListCountFor(*(void **)(work + 0xF20)) <= D_00748908[2]) {
         c24 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEBC));
-        *(FclDrawColor *)(t + 0x79) = c24;
+        ((FclObject *)t)->color = c24;
         c25 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xEC0));
-        *(FclDrawColor *)(t + 0x79) = c25;
+        ((FclObject *)t)->color = c25;
         c26 = fclMakeDrawColor(0x6F, 0x6F, 0x6F, 0xFF);
         t = (u8 *)fclObjectGetWork(*(void **)(work + 0xCC0));
-        *(FclDrawColor *)(t + 0x79) = c26;
+        ((FclObject *)t)->color = c26;
     }
     fclObjSetAnchorPosition(*(void **)(work + 0xDDC), 0x57, 49.0f);
     fclObjStartAlpha(*(void **)(work + 0xDDC), 0U, 0xFFU, 0U, 0xA, 0);
