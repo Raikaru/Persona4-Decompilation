@@ -17,7 +17,7 @@ typedef struct FldFrame {
     u8 *noiseTask;         /* 0x2C: FldNoiseTaskCreate result */
     u8 *panelTask;         /* 0x30: FldPanel2dSetState target */
     u8 unk34[0x1820];
-    u8 *auxBuffer;         /* 0x1854: buffer passed to scrStartProcedureChecked, released by func_00160440 */
+    u8 *auxBuffer;         /* 0x1854: buffer passed to scrStartProcedureChecked, released by FldAuxBufferRelease */
     u32 auxSize;           /* 0x1858: byte size of auxBuffer */
     u8 unk185C[0x7C];
     u32 eventCount;        /* 0x18D8: entry count of eventTable; checked against the event index */
