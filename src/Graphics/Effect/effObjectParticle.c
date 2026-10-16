@@ -193,30 +193,31 @@ void ObjectParticleShareClump(u8 *arg0, u8 *arg1)
 // FUN_004AE930
 void ObjectParticleRebuildRecords(u8 *arg0, u32 arg1, u8 *arg2)
 {
+    ObjectParticleInstance *inst = (ObjectParticleInstance *)arg0;
     u32 temp_16;
     u8 *var_19;
     u32 var_18;
     u8 *temp_4;
 
-    temp_4 = *(u8 **)(arg0 + 0x58);
+    temp_4 = inst->list;
     if (temp_4 != 0) {
         func_00492cd0(temp_4);
     }
     if (*(u32 *)(arg2 + 0xC0) != 0) {
         kAssertFail(D_00714520, 0x18B);
     }
-    *(u8 **)(arg0 + 0x58) = func_00492b20(arg1 & 0xFFFF, *(u32 *)(arg0 + 0), arg2);
-    if (*(u32 *)(arg0 + 0x60) != 0) {
-        jtbl_008873EC[0]((void *)*(u32 *)(arg0 + 0x60));
+    inst->list = func_00492b20(arg1 & 0xFFFF, inst->recordCount, arg2);
+    if (inst->recordTable != 0) {
+        jtbl_008873EC[0](inst->recordTable);
     }
-    temp_16 = *(u32 *)(*(u8 **)(arg0 + 0x58) + 8);
+    temp_16 = *(u32 *)(inst->list + 8);
     chkmemAllocSiteTag(D_00714520, 0x195);
-    *(u8 **)(arg0 + 0x60) = (u8 *)jtbl_008873E8[0](temp_16 * 0x18, 0x40000);
-    if (*(u8 **)(arg0 + 0x60) == 0) {
+    inst->recordTable = (u8 *)jtbl_008873E8[0](temp_16 * 0x18, 0x40000);
+    if (inst->recordTable == 0) {
         kAssertFail(D_00714520, 0x196);
     }
-    var_19 = *(u8 **)(arg0 + 0x60);
-    *(u8 **)(arg0 + 0x5C) = var_19;
+    var_19 = inst->recordTable;
+    inst->entries = var_19;
     var_18 = 0;
     while (var_18 < temp_16) {
         func_004ae0a0(arg0, var_19);
