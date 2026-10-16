@@ -75,7 +75,7 @@ extern void btlCameraLookAtQuat(void *arg0, const void *arg1, const void *arg2, 
 extern f32 tanf(f32 arg0);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
+extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
 extern f32 fGpffff803c;
@@ -177,7 +177,7 @@ void btlAct_PURSUIT(u8 *arg0)
     }
     btlMainCurveSetPoses((u16 *)arg0, (f32 *)&poses.firstPosition, (f32 *)&poses.secondPosition, 1);
     btlCameraSetDuration(arg0, 5.0f);
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), (u8 *)&firstCenter, (f32 *)&secondCenter,
+    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), (u8 *)&firstCenter, (f32 *)&secondCenter,
                   50.0f, 9);
 }
 

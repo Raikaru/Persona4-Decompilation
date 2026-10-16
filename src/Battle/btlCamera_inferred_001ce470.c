@@ -73,7 +73,7 @@ extern f32 fGpffff8114;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
+extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
 extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
@@ -269,7 +269,7 @@ void btlCameraFrameRandomShift(u8 *arg0) {
     }
     *(f32 *)(arg0 + 0x100) = value;
     *(s32 *)(arg0 + 0x120) = 1;
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x100);
+    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x100);
 }
 
 /* measured probe: close optimization_level 1 for 001CE7F0. */
@@ -359,7 +359,7 @@ void btlCameraSetUnitFlags(u8 *arg0)
 
     *(s32 *)(arg0 + 0x100) = 0xC1900000;
     *(s32 *)(arg0 + 0x120) = 1;
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x100);
+    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x100);
     if (*(u16 *)(arg0 + 0xD0) == 7) {
         current = *(u8 **)(iGpffffb3ac + 0x174);
         while (current != NULL) {
@@ -465,7 +465,7 @@ void btlCameraFrameRandomHold(u8 *arg0) {
     }
     *(f32 *)(arg0 + 0x100) = value;
     *(s32 *)(arg0 + 0x120) = 1;
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x100);
+    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x100);
 }
 
 /* measured: closes optimization_level 1 for 001CEF20. */
@@ -536,7 +536,7 @@ void btlCameraFrameRandomHoldAlt(u8 *arg0) {
         value += value;
     }
     *(f32 *)(arg0 + 0x100) = value;
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x100);
+    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x100);
 }
 
 /* measured: closes optimization_level 1 for 001CF160. */
@@ -573,7 +573,7 @@ void btlCameraFrameMatrixOffset(u8 *arg0)
         frame.vec60[1] = 25.0f;
     }
     *(f32 *)(arg0 + 0x100) = *(f32 *)(arg0 + 0x100) + 0.25f;
-    func_001bcd40(NULL, NULL, NULL, 0.0f, 4);
+    btlCameraSetupActionGeometry(NULL, NULL, NULL, 0.0f, 4);
     btlMainCurveReset((u16 *)(arg0), (f32 *)&frame.vec60[0]);
 }
 
@@ -697,7 +697,7 @@ void btlCameraFrameClampedRotate(u8 *arg0)
     frame.sp40 = frame.spE0 + temp_f2;
     frame.sp44 = frame.spE4 + temp_f3;
     frame.sp48 = frame.spE8 + temp_f4;
-    func_001bcd40(NULL, NULL, NULL, 0.0f, 0x100);
+    btlCameraSetupActionGeometry(NULL, NULL, NULL, 0.0f, 0x100);
     btlCameraClampOffsetToLimit(&frame.sp40, &frame.sp40);
     btlCameraClampOffsetToLimit(&frame.sp5C, &frame.sp5C);
     btlMainCurveSetPoses((u16 *)arg0, &frame.sp40, &frame.sp5C, 1);
@@ -822,7 +822,7 @@ void btlAct_ALL(u8 *arg0)
     frame.sp40 = frame.spE0 + temp_f2;
     frame.sp44 = frame.spE4 + temp_f3;
     frame.sp48 = frame.spE8 + temp_f4;
-    func_001bcd40(NULL, NULL, NULL, 0.0f, 0x100);
+    btlCameraSetupActionGeometry(NULL, NULL, NULL, 0.0f, 0x100);
     btlMainCurveSetPoses((u16 *)arg0, &frame.sp40, &frame.sp5C, 1);
     btlCameraSetDuration(arg0, 3.5f);
 }

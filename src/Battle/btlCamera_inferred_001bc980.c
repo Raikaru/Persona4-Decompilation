@@ -49,7 +49,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *arg0);
 extern u32 iGpffffa0b8;
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
+extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
@@ -73,7 +73,7 @@ extern f32 fGpffff8430;
 extern s32 func_00457120(void);
 extern f32 fGpffff8048;
 extern u8 D_005F74C0[];
-extern void func_001bd390(void);
+extern void btlCameraUpdateUnitInRangeFlags(void);
 extern u8 D_005F72B0[];
 extern f32 fGpffff8314;
 extern f32 fGpffff8318;
@@ -128,7 +128,7 @@ struct RwV3d;
 #pragma push
 #pragma pop
 // FUN_001BC980
-s32 func_001bc980(u8 *arg0)
+s32 btlCameraPlayPoseSequence(u8 *arg0)
 {
     struct C980Vec3 {
         f32 x;
@@ -183,7 +183,7 @@ s32 func_001bc980(u8 *arg0)
 }
 
 // FUN_001BCB50
-u8 *func_001bcb50(s32 arg0, u8 *arg1, u8 *arg2, f32 fparg0,
+u8 *btlCameraCreatePoseSequencePacket(s32 arg0, u8 *arg1, u8 *arg2, f32 fparg0,
                   u8 *arg3, u8 *arg4, f32 fparg1, f32 fparg2)
 {
     struct Bcb50Vec3 {
@@ -196,7 +196,7 @@ u8 *func_001bcb50(s32 arg0, u8 *arg1, u8 *arg2, f32 fparg0,
 
     temp_2 = (u8 *)(btlPacketAlloc(0x201, 0x44));
     *(s32 (**)(u8 *))(temp_2 + 0x6C) =
-        (s32 (*)(u8 *))((s32 (**)(u8 *))(func_001bc980));
+        (s32 (*)(u8 *))((s32 (**)(u8 *))(btlCameraPlayPoseSequence));
     temp_4 = *(u8 **)(temp_2 + 0x78);
     *(s32 *)(temp_4 + 0) = arg0;
     *(f32 *)(temp_4 + 0x3C) = fparg2;
@@ -219,19 +219,19 @@ u8 *func_001bcb50(s32 arg0, u8 *arg1, u8 *arg2, f32 fparg0,
 }
 
 // FUN_001BCC80
-s32 func_001bcc80(u8 *arg0) {
+s32 btlCameraRunPacketCommand(u8 *arg0) {
     func_004b1680(*(s32 *)(arg0 + 0), *(s16 *)(arg0 + 4), *(s32 *)(arg0 + 8),
                   *(s32 *)(arg0 + 0xC));
     return 1;
 }
 
 // FUN_001BCCC0
-u8 *func_001bccc0(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
+u8 *btlCameraCreatePacketCommand(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
     u8 *temp_2;
     u8 *temp_3;
 
     temp_2 = (u8 *)(btlPacketAlloc(0x202, 0x10));
-    *(s32 (**)(u8 *))(temp_2 + 0x6C) = (s32 (*)(u8 *))((s32 (**)(u8 *))(func_001bcc80));
+    *(s32 (**)(u8 *))(temp_2 + 0x6C) = (s32 (*)(u8 *))((s32 (**)(u8 *))(btlCameraRunPacketCommand));
     temp_3 = (u8 *)(*(u8 **)(temp_2 + 0x78));
     *(s32 *)(temp_3 + 0) = arg0;
     *(s16 *)(temp_3 + 4) = arg1;
@@ -241,10 +241,10 @@ u8 *func_001bccc0(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
 }
 
 #pragma push
-/* measured: func_001bcd40 MATCH -> MISMATCH without this pragma. */
+/* measured: btlCameraSetupActionGeometry MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001BCD40
-void func_001bcd40(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode)
+void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode)
 {
     extern void btlUnitSetFlags(BtlUnit *unit, u16 flags);
     extern void btlUnitClearFlags(BtlUnit *unit, u16 flags);
@@ -386,10 +386,10 @@ void func_001bcd40(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode)
    materialisation after the preheader branch. */
 /* measured: disabling common-subexpression folding preserves retail's second
    masked loop-counter use. */
-/* measured: func_001bd300 MATCH -> MISMATCH without this pragma. */
+/* measured: btlCameraClearAllUnitFlags MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
 // FUN_001BD300
-void func_001bd300(void)
+void btlCameraClearAllUnitFlags(void)
 {
     s32 var_16;
     s32 index;
@@ -415,7 +415,7 @@ outer_check:
 /* measured: closes opt_propagation for the following translation-unit code. */
 /* measured: opt_common_subs off preserves the retail per-use masked index. */
 // FUN_001BD390
-void func_001bd390(void)
+void btlCameraUpdateUnitInRangeFlags(void)
 {
     extern void btlUnitSetFlags();
     extern s32 func_00243d80(u8 *arg0);
@@ -459,17 +459,17 @@ outer_check:
     if ((counter & 0xFFFF) < 2) goto outer_body;
 }
 
-/* measured: restore common-subexpression optimization after func_001bd390. */
-/* measured: func_001bd4f0 MATCH -> MISMATCH without this pragma. */
+/* measured: restore common-subexpression optimization after btlCameraUpdateUnitInRangeFlags. */
+/* measured: btlCameraMarkUnitFramed MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs on
 // FUN_001BD4F0
-void func_001bd4f0(u8 *arg0) {
+void btlCameraMarkUnitFramed(u8 *arg0) {
     btlUnitSetFlags(arg0, 0xA);
     btlUnitClearFlags(arg0, 4);
 }
 
 // FUN_001BD530
-void func_001bd530(u32 arg0) {
+void btlCameraClearUnitFramed(u32 arg0) {
     btlUnitClearFlags((u8 *)arg0, 0xA);
 }
 

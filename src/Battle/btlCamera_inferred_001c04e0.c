@@ -59,7 +59,7 @@ extern f32 fGpffff8114;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
+extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
 extern void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *second);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
@@ -134,7 +134,7 @@ void btlCameraFrameActionSide(u8 *camera)
     extern f32 tanf(f32);
     extern void btlCameraCopyPoseSnapshot(f32 *, f32 *);
     extern void btlMainCurveReset(u16 *, f32 *);
-    extern void func_001bcd40(u8 *, u8 *, f32 *, f32, u16);
+    extern void btlCameraSetupActionGeometry(u8 *, u8 *, f32 *, f32, u16);
     extern f32 fGpffff8030;
     RwV3d center1;
     RwV3d center2;
@@ -243,10 +243,10 @@ void btlCameraFrameActionSide(u8 *camera)
     btlCameraCopyPoseSnapshot((f32 *)(camera + 0x9C), (f32 *)&frame);
     btlCameraBuildPosePair(camera, &frame, &adjusted);
     btlMainCurveReset((u16 *)camera, (f32 *)&adjusted);
-    func_001bcd40(*(u8 **)(camera + 0xE0), camera + 0x9C, (f32 *)(camera + 0x100), 0.5f * (radius2 + (length + radius1)),
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), camera + 0x9C, (f32 *)(camera + 0x100), 0.5f * (radius2 + (length + radius1)),
                   3);
     radius1 = cameraSideRadius(radius1, radius2);
-    func_001bcd40(*(u8 **)(camera + 0xE0), (u8 *)&center1, (f32 *)&center2, radius1, 3);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), (u8 *)&center1, (f32 *)&center2, radius1, 3);
 }
 
 // FUN_001C09A0
