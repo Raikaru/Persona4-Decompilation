@@ -473,7 +473,7 @@ void func_00362630(u8 *arg0)
    path is a label after the switch, so every arm that does no work jumps
    straight to `return 0`. */
 // FUN_003627B0
-s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
+s32 cmpSystemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2)
 {
     u8 query[0x30];
     s32 resultFlag = 1;
