@@ -277,9 +277,9 @@ void scrPoolFree(void *arg0, void *arg1)
     }
     node = (u8 *)arg1 - 8;
     if (*(s32 *)((u8 *)arg1 - 4) == 0) {
-        *(u8 **)(node + 4) = *(u8 **)((u8 *)arg0 + 0xC);
-        *(u8 **)((u8 *)arg0 + 0xC) = node;
-        *(s32 *)((u8 *)arg0 + 8) = *(s32 *)((u8 *)arg0 + 8) - 1;
+        ((ScrPoolElem *)node)->next = ((ScrPool *)arg0)->freeList;
+        ((ScrPool *)arg0)->freeList = node;
+        ((ScrPool *)arg0)->freeCount = ((ScrPool *)arg0)->freeCount - 1;
         call2 = *(u32 *)arg0;
         call0 = arg1;
         memset(call0, 0, call2);
