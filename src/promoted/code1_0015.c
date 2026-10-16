@@ -126,7 +126,7 @@ extern void func_0016eb00(s32 arg0);
 extern s32 FldFrameTask_GetTileX(s32 arg0);
 extern s32 FldFrameTask_GetTileZ(s32 arg0);
 extern f32 KDraw_MatrixYawDeg(u8 *arg0);
-extern void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3,
+extern void FldCellFloodFillDirected(s32 arg0, s32 arg1, u8 arg2, u8 arg3,
                           s32 arg4, s32 arg5, u8 arg6, s32 *arg7);
 extern s32 D_0076430C;
 extern u8 D_007E8C00[];
@@ -147,7 +147,7 @@ extern u32 D_00764324;
 extern u32 D_00764328;
 extern u32 RpRandom(void);
 extern void FldTileRotateAttributes(void *arg0, u32 arg1);
-extern s32 func_00156cf0(void *arg0, u32 *arg1, u32 *arg2);
+extern s32 FldCellFindPlacement(void *arg0, u32 *arg1, u32 *arg2);
 extern void FldCellPlaceShape(u8 *arg0, u16 arg1, u16 arg2, s16 arg3);
 extern void FldCellFloodFill(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 *arg5, s32 *arg6);
@@ -807,8 +807,9 @@ void FldTileRotateAttributes(void *templateData, u32 directionMask)
    counter (a shared one with the scan costs 72 words); and each loop's
    induction variable is zeroed before the invariants beside it, which is
    the comma-initialiser in the three `for` headers. */
+// Intent: Search the board for a free placement of the shape that matches its rule, returning 1 with its origin in the out-params when one exists [inferred]
 // FUN_00156CF0
-s32 func_00156cf0(void *arg0, u32 *arg1, u32 *arg2)
+s32 FldCellFindPlacement(void *arg0, u32 *arg1, u32 *arg2)
 {
     u8 *shape;
     u8 *row;
@@ -1077,8 +1078,9 @@ void FldCellFloodFill(s32 x, s32 y, s32 incoming, s32 depth,
 }
 /* measured: opt_propagation off keeps the special-call $a3 load before the coordinate masks (nd 9 -> 0). */
 #pragma opt_propagation off
+// Intent: Spread a tile template from a field cell into a neighbouring cell, choosing a direction at random and copying its attributes [inferred]
 // FUN_001579B0
-void func_001579b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+void FldCellSpreadToNeighbour(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     u8 tile[0x56];
     u8 *work;
@@ -1290,7 +1292,7 @@ copy_candidate:
     FldTileRotateAttributes(tile, 1U << direction);
     temp_x = arg0;
     temp_y = arg1;
-    if (func_00156cf0(tile, &temp_x, &temp_y) == 1) {
+    if (FldCellFindPlacement(tile, &temp_x, &temp_y) == 1) {
         FldCellPlaceShape(tile, (u16)temp_x, (u16)temp_y, (s16)direction);
         found = 1;
         arg0 = temp_x;
@@ -1342,16 +1344,16 @@ edge_body:
          (1U << (edge + 4))) != 0) {
         switch (edge) {
         case 0:
-            func_001579b0(x, previous_y, x, y);
+            FldCellSpreadToNeighbour(x, previous_y, x, y);
             break;
         case 1:
-            func_001579b0(previous_x, y, x, y);
+            FldCellSpreadToNeighbour(previous_x, y, x, y);
             break;
         case 2:
-            func_001579b0(x, next_y, x, y);
+            FldCellSpreadToNeighbour(x, next_y, x, y);
             break;
         case 3:
-            func_001579b0(next_x, y, x, y);
+            FldCellSpreadToNeighbour(next_x, y, x, y);
             break;
         }
     }
@@ -1371,7 +1373,7 @@ y_test:
         goto y_body;
     }
 }
-/* measured: closes the opt_propagation bracket for func_001579b0. */
+/* measured: closes the opt_propagation bracket for FldCellSpreadToNeighbour. */
 #pragma opt_propagation on
 /* Configured b210 -O2: 1240 exact code bytes and eight zero-tail bytes.
  * The room list supplies its own count and following start-template ID.
@@ -1381,8 +1383,9 @@ y_test:
  * snapshots and the fresh area-count reads in the retry checks. */
 #pragma push
 #pragma opt_propagation off
+// Intent: Generate the field board: reseed the RNG and fill the board walls and tile states by the given mode [inferred]
 // FUN_001582F0
-void func_001582f0(s32 arg0, s32 arg1, s32 arg2)
+void FldBoardGenerate(s32 arg0, s32 arg1, s32 arg2)
 {
     extern void RpRandomSeed(s32 seed);
     extern s32 func_0043c6a0(s32 value);
@@ -1501,7 +1504,7 @@ border_rows_test:
             } while (n > 0);
             t = (u8 *)MT_Scene_GetFrameState();
             FldTileRotateAttributes(buf, 1U << *(t + 0x49));
-        } while (func_00156cf0(buf, &u4, &u8v) == 0);
+        } while (FldCellFindPlacement(buf, &u4, &u8v) == 0);
         b0 = (u8)u4;
         t = (u8 *)MT_Scene_GetFrameState();
         *(t + 0x46) = b0;
@@ -1511,7 +1514,7 @@ border_rows_test:
         t = (u8 *)MT_Scene_GetFrameState();
         startX = *(t + 0x46);
         t = (u8 *)MT_Scene_GetFrameState();
-        func_001579b0(startX, *(t + 0x47), 0, 0);
+        FldCellSpreadToNeighbour(startX, *(t + 0x47), 0, 0);
         maxv = 0;
         for (j = 0; j < 0x18; j = j + 1) {
             for (i = 0; i < 0x10; i = i + 1) {
@@ -2978,8 +2981,9 @@ body:
  * Preserve this original omission; no default depth or unreachable-path
  * claim is introduced. This is configured-native reconstruction, not a
  * claim of portable defined behavior on the omitted-assignment path. */
+// Intent: Flood-fill the cells reachable from a field cell in each direction up to the per-direction limits, setting the visibility of their resources [inferred]
 // FUN_0015B3E0
-void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 arg6, s32 *arg7)
+void FldCellFloodFillDirected(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 arg6, s32 *arg7)
 {
     extern void SceneDraw_SetResVisible(u16 resTypeId, u32 visible);
     s32 depth_low;
@@ -3012,7 +3016,7 @@ void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 
                 } else {
                     next_depth = (u8)(depth_low + 1);
                 }
-                func_0015b3e0(arg0, arg1 - 1, 4, 0, arg4, next_depth, north_limit, arg7);
+                FldCellFloodFillDirected(arg0, arg1 - 1, 4, 0, arg4, next_depth, north_limit, arg7);
             }
             if (exits & 2) {
                 west_limit = (arg3 & 2) ? 3 : limit_low;
@@ -3025,7 +3029,7 @@ void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 
                 } else {
                     next_depth = (u8)(depth_low + 1);
                 }
-                func_0015b3e0(arg0 - 1, arg1, 8, 0, arg4, next_depth, west_limit, arg7);
+                FldCellFloodFillDirected(arg0 - 1, arg1, 8, 0, arg4, next_depth, west_limit, arg7);
             }
             if (exits & 4) {
                 south_limit = (arg3 & 4) ? 3 : limit_low;
@@ -3039,7 +3043,7 @@ void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 
                 } else {
                     next_depth = (u8)(depth_low + 1);
                 }
-                func_0015b3e0(arg0, arg1 + 1, 1, 0, arg4, next_depth, south_limit, arg7);
+                FldCellFloodFillDirected(arg0, arg1 + 1, 1, 0, arg4, next_depth, south_limit, arg7);
             }
             if (exits & 8) {
                 east_tmp = arg3 & 8;
@@ -3057,7 +3061,7 @@ void func_0015b3e0(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s32 arg5, u8 
                 }
                 arg6 = (u8)limit_low;
                 arg0 = arg0 + 1;
-                func_0015b3e0(arg0, arg1, 2, 0, arg4, next_depth, arg6, arg7);
+                FldCellFloodFillDirected(arg0, arg1, 2, 0, arg4, next_depth, arg6, arg7);
             }
         }
     }
@@ -3113,45 +3117,45 @@ set_test:
         D_0076430C = 0;
         if ((angle <= 45.0f) && !(angle < -45.0f)) {
             if ((angle <= 25.0f) && !(angle < -25.0f)) {
-                func_0015b3e0(var_16, var_15, 0, 0xB, 4, 0, 4,
+                FldCellFloodFillDirected(var_16, var_15, 0, 0xB, 4, 0, 4,
                               &D_0076430C);
             } else if (!(angle < 25.0f)) {
-                func_0015b3e0(var_16, var_15, 0, 3, 4, 0, 4,
+                FldCellFloodFillDirected(var_16, var_15, 0, 3, 4, 0, 4,
                               &D_0076430C);
             } else if (angle <= -25.0f) {
-                func_0015b3e0(var_16, var_15, 0, 9, 4, 0, 4,
+                FldCellFloodFillDirected(var_16, var_15, 0, 9, 4, 0, 4,
                               &D_0076430C);
             }
         } else if ((angle <= 135.0f) && !(angle <= 45.0f)) {
             if ((angle <= 115.0f) && !(angle < 65.0f)) {
-                func_0015b3e0(var_16, var_15, 0, 7, 8, 0, 4,
+                FldCellFloodFillDirected(var_16, var_15, 0, 7, 8, 0, 4,
                               &D_0076430C);
             } else if (!(angle < 115.0f)) {
-                func_0015b3e0(var_16, var_15, 0, 6, 8, 0, 4,
+                FldCellFloodFillDirected(var_16, var_15, 0, 6, 8, 0, 4,
                               &D_0076430C);
             } else if (angle <= 65.0f) {
-                func_0015b3e0(var_16, var_15, 0, 3, 8, 0, 4,
+                FldCellFloodFillDirected(var_16, var_15, 0, 3, 8, 0, 4,
                               &D_0076430C);
             }
         } else if ((angle <= -45.0f) && !(angle < -135.0f)) {
             if ((angle <= -65.0f) && !(angle < -115.0f)) {
-                func_0015b3e0(var_16, var_15, 0, 0xD, 2, 0, 4,
+                FldCellFloodFillDirected(var_16, var_15, 0, 0xD, 2, 0, 4,
                               &D_0076430C);
             } else if (!(angle < -65.0f)) {
-                func_0015b3e0(var_16, var_15, 0, 9, 2, 0, 4,
+                FldCellFloodFillDirected(var_16, var_15, 0, 9, 2, 0, 4,
                               &D_0076430C);
             } else if (angle <= -115.0f) {
-                func_0015b3e0(var_16, var_15, 0, 0xC, 2, 0, 4,
+                FldCellFloodFillDirected(var_16, var_15, 0, 0xC, 2, 0, 4,
                               &D_0076430C);
             }
         } else if ((angle <= -155.0f) || !(angle < 155.0f)) {
-            func_0015b3e0(var_16, var_15, 0, 0xE, 1, 0, 4,
+            FldCellFloodFillDirected(var_16, var_15, 0, 0xE, 1, 0, 4,
                           &D_0076430C);
         } else if (!(angle < -155.0f) && (angle < 0.0f)) {
-            func_0015b3e0(var_16, var_15, 0, 0xC, 1, 0, 4,
+            FldCellFloodFillDirected(var_16, var_15, 0, 0xC, 1, 0, 4,
                           &D_0076430C);
         } else if ((angle <= 155.0f) && !(angle <= 0.0f)) {
-            func_0015b3e0(var_16, var_15, 0, 6, 1, 0, 4,
+            FldCellFloodFillDirected(var_16, var_15, 0, 6, 1, 0, 4,
                           &D_0076430C);
         }
 
