@@ -43,8 +43,8 @@ typedef struct RuntimeResetWork
     u32 reserved;
     void* work;
 } RuntimeResetWork;
-extern void func_004bc4d0(u8 *arg0, f32 arg1);
-extern void func_004bc500(void* work);
+extern void effMiscProgressStart(u8 *arg0, f32 arg1);
+extern void effMiscProgressReset(void* work);
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void kAssertFail(u8 *file, s32 line);
@@ -63,7 +63,7 @@ struct RpMaterial;
 extern const struct RpGeometry *func_003c2130(const struct RpGeometry *, struct RpTriangle *, u16, u16, u16);
 extern struct RpGeometry *func_003c2150(struct RpGeometry *, struct RpTriangle *, struct RpMaterial *);
 extern struct RpGeometry *func_003c2630(s32 nVtx, s32 nIdx, u32 flags);
-extern void func_004bc540(u8 *work, s32 side, f32 t, u8 *out);
+extern void effMiscProgressBlendColor(u8 *work, s32 side, f32 t, u8 *out);
 
 /* Finds the section containing `distance` along the path and the fraction of that section it reaches. */
 // FUN_004B7460
@@ -596,18 +596,18 @@ u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
                 } else {
                     t = ((f32)attributeIndex - 0.5f) / (f32)(*(s32 *)(*(u8 **)arg0 + 0xC) - 1);
                 }
-                func_004bc540(arg0, 0, t, col);
+                effMiscProgressBlendColor(arg0, 0, t, col);
                 attributeIndex++;
                 col += 8;
             }
-            func_004bc540(arg0, 0, 1.0f, col);
+            effMiscProgressBlendColor(arg0, 0, 1.0f, col);
             {
                 s32 rightIndex;
                 u8 *rightColor;
                 rightColor = *(u8 **)(obj + 0x30) + 4;
                 for (rightIndex = 0; rightIndex < *(s32 *)(*(u8 **)arg0 + 0xC);) {
                     t = (f32)rightIndex / (f32)(*(s32 *)(*(u8 **)arg0 + 0xC) - 1);
-                    func_004bc540(arg0, 1, t, rightColor);
+                    effMiscProgressBlendColor(arg0, 1, t, rightColor);
                     rightIndex++;
                     rightColor += 8;
                 }
@@ -935,18 +935,18 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
         else {
           fraction = ((f32)i - 0.5f) / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
         }
-        func_004bc540(work,0,fraction,col);
+        effMiscProgressBlendColor(work,0,fraction,col);
         i++;
         col += 8;
       }
-      func_004bc540(work,0,1.0f,col);
+      effMiscProgressBlendColor(work,0,1.0f,col);
       col = *(u8 **)(*(u8 **)pp + 0x30) + 4;
       for (i = 0; i < *(s32 *)(*(u8 **)work + 0xC);) {
         if (*(s32 *)(*(u8 **)work + 0xC) - 1 < 1) {
           kAssertFail(D_007146E0,0x3dc);
         }
         fraction = (f32)i / (f32)(*(s32 *)(*(u8 **)work + 0xC) - 1);
-        func_004bc540(work,1,fraction,col);
+        effMiscProgressBlendColor(work,1,fraction,col);
         i++;
         col += 8;
       }
@@ -955,15 +955,15 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     case 1:
     {
       pbVar12 = *(u8 **)(*(u8 **)pp + 0x30);
-      func_004bc540(work,0,0.0f,pbVar12);
-      func_004bc540(work,1,0.0f,pbVar12 + 4);
+      effMiscProgressBlendColor(work,0,0.0f,pbVar12);
+      effMiscProgressBlendColor(work,1,0.0f,pbVar12 + 4);
       pbVar12[8] = (u8)((s32)((u32)pbVar12[0] + (u32)pbVar12[4]) >> 1);
       pbVar12[9] = (u8)((s32)((u32)pbVar12[1] + (u32)pbVar12[5]) >> 1);
       pbVar12[10] = (u8)((s32)((u32)pbVar12[2] + (u32)pbVar12[6]) >> 1);
       pbVar12[0xb] = (u8)((s32)((u32)pbVar12[3] + (u32)pbVar12[7]) >> 1);
       temp_v1 = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
-      func_004bc540(work,0,1.0f,pbVar12 + (temp_v1 - 3) * 4);
-      func_004bc540(work,1,1.0f,pbVar12 + (temp_v1 - 2) * 4);
+      effMiscProgressBlendColor(work,0,1.0f,pbVar12 + (temp_v1 - 3) * 4);
+      effMiscProgressBlendColor(work,1,1.0f,pbVar12 + (temp_v1 - 2) * 4);
       pbVar2 = effAfterWorkFieldPtr(temp_v1 * 4, pbVar12);
       pbVar2[-4] = (u8)((s32)((u32)pbVar2[-0xc] + (u32)pbVar2[-8]) >> 1);
       pbVar2[-3] = (u8)((s32)((u32)pbVar2[-0xb] + (u32)pbVar2[-7]) >> 1);
@@ -974,8 +974,8 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       puVar10 = (u32 *)(pbVar12 + 0xc);
       temp_v9 = 0.5f / temp_v7;
       for (temp_v5 = 0; temp_v5 < *(s32 *)(*(u8 **)work + 0xC);) {
-        func_004bc540(work,0,temp_v9,(u8 *)puVar10++);
-        func_004bc540(work,1,temp_v9,(u8 *)puVar10++);
+        effMiscProgressBlendColor(work,0,temp_v9,(u8 *)puVar10++);
+        effMiscProgressBlendColor(work,1,temp_v9,(u8 *)puVar10++);
         puVar10++;
         temp_v5++;
         temp_v9 += temp_v10;
@@ -1009,29 +1009,29 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
       f32 t;
 
       col = *(u8 **)(*(u8 **)pp + 0x30);
-      func_004bc540(work,1,0.0f,col);
-      func_004bc540(work,1,0.0f,col + 4);
+      effMiscProgressBlendColor(work,1,0.0f,col);
+      effMiscProgressBlendColor(work,1,0.0f,col + 4);
       lim = *(s32 *)(*(u8 **)work + 0xC) * 3 + 6;
-      func_004bc540(work,1,1.0f,col + (lim - 3) * 4);
-      func_004bc540(work,1,1.0f,col + (lim - 2) * 4);
+      effMiscProgressBlendColor(work,1,1.0f,col + (lim - 3) * 4);
+      effMiscProgressBlendColor(work,1,1.0f,col + (lim - 2) * 4);
       den = 0.5f + (f32)*(s32 *)(*(u8 **)work + 0xC);
       step = 1.0f / den;
       cur = (u32 *)(col + 0xc);
       t = 0.5f / den;
       for (i = 0; i < *(s32 *)(*(u8 **)work + 0xC);) {
-        func_004bc540(work,1,t,(u8 *)cur++);
-        func_004bc540(work,1,t,(u8 *)cur++);
+        effMiscProgressBlendColor(work,1,t,(u8 *)cur++);
+        effMiscProgressBlendColor(work,1,t,(u8 *)cur++);
         cur++;
         i++;
         t += step;
       }
-      func_004bc540(work,0,0.0f,col + 8);
-      func_004bc540(work,0,1.0f,col + (lim - 1) * 4);
+      effMiscProgressBlendColor(work,0,0.0f,col + 8);
+      effMiscProgressBlendColor(work,0,1.0f,col + (lim - 1) * 4);
       step = 1.0f / (f32)den;
       t = step;
       col += 0x14;
       for (k = 0; k < *(s32 *)(*(u8 **)work + 0xC);) {
-        func_004bc540(work,0,t,col);
+        effMiscProgressBlendColor(work,0,t,col);
         k++;
         t += step;
         col += 0xc;
@@ -1573,7 +1573,7 @@ void effAfterResetCommand(RuntimeResetWork* work)
 {
     work->value = work->completedFlags;
     work->flags = 0;
-    func_004bc500(work->work);
+    effMiscProgressReset(work->work);
 }
 // Runs the command stream at work->cursor until opcode 0; opcode 1 reads a 32-bit duration from two halfwords.
 // FUN_004BAED0
@@ -1652,7 +1652,7 @@ void effAfterRunCommands(RuntimeCommandWork* work, u32* unused)
             case 0:
                 if (work->duration != 0)
                 {
-                    func_004bc4d0((u8 *)work->target, (f32)work->duration / 30.0f);
+                    effMiscProgressStart((u8 *)work->target, (f32)work->duration / 30.0f);
                 }
                 break;
             }

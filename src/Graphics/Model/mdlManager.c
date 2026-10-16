@@ -525,7 +525,7 @@ s32 mdlUpdateHierarchyPose(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
     extern float func_0044b950(float, float);
     extern int func_003d5e40(unsigned char *, float);
     extern int func_003d5e90(unsigned char *, unsigned char *, unsigned char *, float);
-    extern float func_004bd4a0(unsigned char *, unsigned char *);
+    extern float effMiscQuatAngle(unsigned char *, unsigned char *);
     extern void func_003954b0(void *matrix, void *keyFrame);
     extern s32 func_00397c40(void* hierarchy);
     extern void func_003d5840(RtAnimInterpolator *, RtAnimAnimation *);
@@ -946,13 +946,13 @@ s32 mdlUpdateHierarchyPose(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               {
                 f32 dot;
 
-                dot = func_004bd4a0((unsigned char *)(controller + 8),(unsigned char *)&rotation.value[0]);
+                dot = effMiscQuatAngle((unsigned char *)(controller + 8),(unsigned char *)&rotation.value[0]);
                 if (dot < 0.0f) {
                   afStack_350.value[3] = -rotation.value[3];
                   afStack_350.value[0] = -rotation.value[0];
                   afStack_350.value[1] = -rotation.value[1];
                   afStack_350.value[2] = -rotation.value[2];
-                  dot = func_004bd4a0((unsigned char *)(controller + 8),(unsigned char *)afStack_350.value);
+                  dot = effMiscQuatAngle((unsigned char *)(controller + 8),(unsigned char *)afStack_350.value);
                 }
                 temp_v21 = func_0044b920(dot);
               }
@@ -1012,13 +1012,13 @@ s32 mdlUpdateHierarchyPose(u8 *param_1, u8 *param_2, u8 *param_3, void *param_4)
               {
                 f32 dot;
 
-                dot = func_004bd4a0((unsigned char *)&fallbackRotation.bits[0],(unsigned char *)&blendedRotation.value[0]);
+                dot = effMiscQuatAngle((unsigned char *)&fallbackRotation.bits[0],(unsigned char *)&blendedRotation.value[0]);
                 if (dot < 0.0f) {
                   afStack_350.value[3] = -blendedRotation.value[3];
                   afStack_350.value[0] = -blendedRotation.value[0];
                   afStack_350.value[1] = -blendedRotation.value[1];
                   afStack_350.value[2] = -blendedRotation.value[2];
-                  dot = func_004bd4a0((unsigned char *)&fallbackRotation.bits[0],(unsigned char *)afStack_350.value);
+                  dot = effMiscQuatAngle((unsigned char *)&fallbackRotation.bits[0],(unsigned char *)afStack_350.value);
                 }
                 temp_v21 = func_0044b920(dot);
               }

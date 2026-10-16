@@ -81,7 +81,7 @@ extern void func_003e42a0(void* destination, const void* source,
                           RuntimeMatrix* matrix);
 extern void effAfterQueuePush(u8* data, const RuntimeVec3* position,
                           const RuntimeVec3* normal);
-extern void func_004bc520(u8* data, f32* value);
+extern void effMiscProgressAdvance(u8* data, f32* value);
 extern void effAfterRebuildTrailMesh(u8* data, u32* value);
 extern void effAfterRunCommands(RuntimeCommandWork* work, u32* unused);
 extern f32 iGpffff8040;
@@ -323,7 +323,7 @@ void Vpad_UpdateRenderEntries(u8* workData)
             entry[6] = d3;
             entry[7] = d0;
         }
-        func_004bc520(work->renderData + i * 0x3C, &locals.delta);
+        effMiscProgressAdvance(work->renderData + i * 0x3C, &locals.delta);
         locals.value = *(u32*)(*(u8**)(work->entries + i * 8) + 0x18);
         effAfterRebuildTrailMesh(work->renderData + i * 0x3C, &locals.value);
         i++;
