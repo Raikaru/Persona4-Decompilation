@@ -178,8 +178,9 @@ void cmpEquipBuildItemList(s16 *arg0) {
         kAssertFail(D_005E9FA0, 0x299);
     }
 }
+// Advances the menu state from 0 to 1; returns 1 for states 0 and 1, 0 otherwise [inferred].
 // FUN_001318C0
-s32 func_001318c0(u8 *arg0) {
+s32 cmpEquipStateStep(u8 *arg0) {
     s32 v = *(s32 *)(arg0 + 0x14);
 
     switch (v) {

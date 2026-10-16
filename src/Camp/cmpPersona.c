@@ -190,8 +190,9 @@ void cmpPersonaBuildRosterList(u8* arg0) {
     *(s16*)((u8*)arg0 + 0x4E) = i;
 }
 
+// Advances the menu state from 0 to 1 and reports done; always returns 1 [inferred].
 // FUN_00135CB0
-s32 func_00135cb0(u8 *arg0) {
+s32 cmpPersonaStateStep(u8 *arg0) {
     s32 v = *(s32 *)(arg0 + 0x14);
 
     switch (v) {

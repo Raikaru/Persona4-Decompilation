@@ -1594,7 +1594,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     default:
         break;
     case 1:
-        temp_16 = (s32)(func_001318c0(arg2));
+        temp_16 = (s32)(cmpEquipStateStep(arg2));
         if (temp_16 & nLineIsIdle()) {
             *arg0 = 4;
             nLineSelectSet(3);
@@ -1986,7 +1986,7 @@ void radarSetPersonaHighlight(u8 *arg0, s32 arg1) {
 s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void radarBeginRecipientPick(u8 *arg0, s32 *arg1);
     extern void cmpPersonaMenuInit(u8 *arg0);
-    extern s32 func_00135cb0(u8 *arg0);
+    extern s32 cmpPersonaStateStep(u8 *arg0);
     extern s32 cmpPersonaRowsSettled(u8 *arg0);
     extern void cmpPersonaMenuRelease(u8 *arg0);
     extern void cmpPersonaSetMode(u8 *arg0, s32 arg1);
@@ -2019,7 +2019,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         *arg1 = 0;
         break;
     case 1:
-        temp_16 = (s32)(func_00135cb0(arg2));
+        temp_16 = (s32)(cmpPersonaStateStep(arg2));
         if (temp_16 & nLineIsIdle()) {
             *arg0 = 3;
             nLineSelectSet(0xE);
@@ -2365,7 +2365,7 @@ s32 radarBeginCharacterPick(u8 *arg0, s32 *arg1) {
 s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void cmpSkillMenuInit(u8 *arg0);
     extern u32 datCalcIsDeadById(s16 character);
-    extern s32 func_00138ad0(u8 *arg0);
+    extern s32 cmpSkillStateStep(u8 *arg0);
     extern s32 cmpSkillRowsSettled(u8 *arg0);
     extern void cmpSkillFreeSprites(u8 *arg0);
     extern void cmpSkillSetPartyCursorMotion(u8 *arg0);
@@ -2407,7 +2407,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             *arg0 = 1;
             break;
         case 1:
-            ready = (func_00138ad0(arg2));
+            ready = (cmpSkillStateStep(arg2));
             if (ready & nLineIsIdle()) {
                 *arg0 = 3;
                 nLineSelectSet(8);

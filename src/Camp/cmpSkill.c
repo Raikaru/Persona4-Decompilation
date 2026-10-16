@@ -411,8 +411,9 @@ void cmpSkillBuildAbilityList(void *arg0)
 }
 #pragma pop
 
+// Advances the menu state from 0 to 1; returns 1 for states 0 and 1, 0 otherwise [inferred].
 // FUN_00138AD0
-s32 func_00138ad0(u8 *arg0) {
+s32 cmpSkillStateStep(u8 *arg0) {
     s32 v = *(s32 *)(arg0 + 0x14);
 
     switch (v) {
