@@ -80,7 +80,7 @@ extern u8 D_005F2030[];
 extern u8 D_005F2050[];
 extern u8 D_005F2070[];
 extern u8 D_005F2090[];
-extern s32 func_00186ac0(u8 *arg0);
+extern s32 FldLmapScrollUpdate(u8 *arg0);
 extern s32 func_00188be0(u8 *arg0);
 extern s32 func_001891d0(u8 *arg0);
 extern u8 D_005F2180[];
@@ -128,7 +128,7 @@ void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0);
 /* measured: see annotation above. */
 #pragma opt_loop_invariants off
 
-extern s32 func_00186eb0(u8 *arg0);
+extern s32 FldLmapUpdate(u8 *arg0);
 
 typedef struct FldLmapMatrix {
     s32 words[16];
