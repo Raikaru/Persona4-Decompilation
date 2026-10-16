@@ -223,7 +223,7 @@ add_base_00196bd0:
 }
 
 // FUN_00196CE0
-void func_00196ce0(u8 *arg0)
+void btlUnitHoldPendingMove(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
@@ -232,7 +232,7 @@ void func_00196ce0(u8 *arg0)
    Separate vector/pair objects retain their natural stack lifetimes. Native
    proof: 1736 executable bytes, ten resolved calls, 150 unchanged siblings. */
 // FUN_00196D00
-u32 func_00196d00(void *workData)
+u32 btlUnitMovePacketUpdate(void *workData)
 {
     union MovementVector {
         P4_95730_Vec3 vector;
@@ -429,7 +429,7 @@ done:
 }
 
 // FUN_001973D0
-void func_001973d0(u8 *arg0)
+void btlUnitReleasePendingMove(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
