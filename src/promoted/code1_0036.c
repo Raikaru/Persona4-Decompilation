@@ -37,7 +37,7 @@ extern void func_003642e0(u8 *arg0, void *arg1);
 extern void memset(void *dst, s32 value, s32 size);
 
 extern void pscResInit(u8 *arg0);
-extern void func_0036aa20(void);
+extern void pscBuildGridIndexTable(void);
 extern void func_0036d8b0(void);
 
 extern void pscResUpdate(void);
@@ -743,7 +743,7 @@ struct PanelTransform;
 void func_0036d860(u8 *arg0, s32 arg1)
 {
     pscResInit(arg0);
-    func_0036aa20();
+    pscBuildGridIndexTable();
     if (arg1 != 0) {
         func_0036d8b0();
     }
