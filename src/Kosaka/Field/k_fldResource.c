@@ -7,6 +7,7 @@
 #include "scene_event_internal.h"
 #include "model_matrix_internal.h"
 #include "rw/ps2/ostypes.h"
+#include "field_frame_internal.h"
 #include "rw/plcore/barenderstate.h"
 
 typedef struct RwMatrixTolerance {
@@ -224,7 +225,7 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
             var17 = (u16)((u16)arg0 - 0x14);
             *(s32 *)(iGpffff9db0 + 0x88) |= 0x80000000;
             var16 = (s32)FldStepLoadFilePair(arg0, arg1);
-            *(s32 *)(((u8 *)MT_Scene_GetFrameState()) + 0x1864) = var16;
+            ((FldFrame *)MT_Scene_GetFrameState())->hbnHandle = (u8 *)var16;
             var16 = D_005F0591[D_005F0590[(u16)var17] * 12];
         } else {
             var17 = (u16)arg0;
@@ -775,7 +776,7 @@ prepareGrid:
             *( s32 * )(iGpffff9db0 + 0x94) = 7;
 readGrid:
             var_16_3 = 0;
-            if (FldStepLoadHandleIsDone((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864))) == 0) {
+            if (FldStepLoadHandleIsDone(((FldFrame *)MT_Scene_GetFrameState())->hbnHandle) == 0) {
                 var_16_3 += 1;
             }
             if (var_16_3 != 0) {
@@ -791,9 +792,9 @@ readGrid:
                 var_17_2 += 1;
             }
             if (FldMap_IsCurrentInBandB() != 0) {
-                temp_16_3 = (s32)(*( s32 * )(*( u8 ** )(((u8 *)MT_Scene_GetFrameState()) + 0x1864) + 0x110));
-                memcpy(((u8 *)MT_Scene_GetFrameState()) + 0x54,(const void *)((u8 *)temp_16_3 + 4), 0x1800);
-                FldStepLoadHandleDestroy((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864)));
+                temp_16_3 = (s32)(*(s32 *)(((FldFrame *)MT_Scene_GetFrameState())->hbnHandle + 0x110));
+                memcpy(((FldFrame *)MT_Scene_GetFrameState())->cellGrid,(const void *)((u8 *)temp_16_3 + 4), 0x1800);
+                FldStepLoadHandleDestroy(((FldFrame *)MT_Scene_GetFrameState())->hbnHandle);
                 for (var_18 = 0; var_18 < 0x18; var_18++) {
                     var_19 = 0;
                     temp_17 = var_18 << 8;
@@ -822,7 +823,7 @@ found_loop_88:
 found_loop_99:
                 temp_2_3 = (u8 *)(iGpffff9db0);
                 temp_16_6 = (s32)(FldHbnOpenData(*( u16 * )(temp_2_3 + 0), *( u16 * )(temp_2_3 + 4)));
-                *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864) = temp_16_6;
+                ((FldFrame *)MT_Scene_GetFrameState())->hbnHandle = (u8 *)temp_16_6;
             }
             *( s32 * )(iGpffff9db0 + 0x94) = 8;
 readHbnResources:
@@ -844,13 +845,13 @@ readHbnResources:
                     FldHbnSpawnLights((u8 *)(*( s8 ** )(*( u8 ** )((temp_17_3 + (var_16_5 * 4)) + 0x28) + 0xA40)), 0);
                     var_16_5 += 1;
                 }
-                if (FldHbnReadData((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864)),&hbnData, *( u16 * )(temp_17_3 + 0), *( u16 * )(temp_17_3 + 4)) == 0) {
+                if (FldHbnReadData(((FldFrame *)MT_Scene_GetFrameState())->hbnHandle,&hbnData, *( u16 * )(temp_17_3 + 0), *( u16 * )(temp_17_3 + 4)) == 0) {
                     return 0;
                 }
                 if ((hbnEntry = (u8 *)hbnData) != NULL) {
                     FldHbnSpawnLights(hbnEntry, 1);
                     jtbl_008873EC[0](hbnData);
-                    *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864) = 0;
+                    ((FldFrame *)MT_Scene_GetFrameState())->hbnHandle = 0;
                 }
                 goto block_123;
             }
@@ -885,7 +886,7 @@ block_123:
                     var_9 += 1;
                 }
                 if (func_0015ac60(FldStepIndex()) == 0) {
-                    FldBoardGenerate(*( s32 * )(iGpffff9db0 + 0) - 0x28, *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x4C), 1);
+                    FldBoardGenerate(*( s32 * )(iGpffff9db0 + 0) - 0x28, ((FldFrame *)MT_Scene_GetFrameState())->boardParam, 1);
                     func_0015a7c0(FldStepIndex());
                 }
                 FldCellCreateGrid();
