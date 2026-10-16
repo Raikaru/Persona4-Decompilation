@@ -82,7 +82,7 @@ s32 func_00349340(u8 *unusedTask)
     return 0;
 }
 // FUN_00349380
-void func_00349380(u8 *arg0) {
+void debugModelDrawDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
