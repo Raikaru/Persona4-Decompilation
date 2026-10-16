@@ -102,9 +102,9 @@ extern s32 func_0046a750(s32);
 extern s32 H_Cdvd_IsFileLoaded(void *);
 extern u8 *fclItemShopPanelCreate(void *, s32, s32);
 extern s32 fadeStatus(void);
-extern s32 func_002bb680(s8 arg0);
-extern void func_002bbcf0(s32 arg0);
-extern void func_002bb550(s8 arg0);
+extern s32 nmMesWindowSlotStatus(s8 arg0);
+extern void nmMesWindowStepSlotRelease(s32 arg0);
+extern void nmMesWindowDestroySlot(s8 arg0);
 extern s8 nmMesWindowAcquire(s32 arg0);
 extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
 extern u8 func_002e78a0(void);
@@ -139,7 +139,7 @@ extern s16 func_002b2d50(s16, s16, s16, s16, s16);
 extern void func_002b2e70(s32, s32, s32, s32, void *, void *);
 extern void func_002b2f90(s32, s32, s32, s32, void *, void *);
 extern void sprintf(void *dst, void *fmt, s32 val);
-extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
+extern void nmMesWindowSetSlotString(s8 arg0, s32 arg1, void *arg2);
 extern void nmMesWindowSetSlotParam(s8 arg0, s32 arg1);
 extern void nmMesWindowSetSlotFlag(s8 arg0, s32 arg1);
 extern void nmMesWindowRequestRefresh(void);
@@ -583,11 +583,11 @@ s32 fclItemShopUpdate(u8 *arg0) {
         }
         break;
     case 6:
-        if (func_002bb680(*(s8 *)(work + 8)) != 0) {
-            func_002bbcf0(*(s8 *)(work + 8));
+        if (nmMesWindowSlotStatus(*(s8 *)(work + 8)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(work + 8));
             break;
         }
-        func_002bb550(*(s8 *)(work + 8));
+        nmMesWindowDestroySlot(*(s8 *)(work + 8));
         *(s8 *)(work + 0) = 5;
         if (*(s8 *)(work + 9) == 1) {
             *(s8 *)(work + 8) = nmMesWindowAcquire(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
@@ -596,11 +596,11 @@ s32 fclItemShopUpdate(u8 *arg0) {
         }
         break;
     case 7:
-        if (func_002bb680(*(s8 *)(work + 8)) != 0) {
-            func_002bbcf0(*(s8 *)(work + 8));
+        if (nmMesWindowSlotStatus(*(s8 *)(work + 8)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(work + 8));
             break;
         }
-        func_002bb550(*(s8 *)(work + 8));
+        nmMesWindowDestroySlot(*(s8 *)(work + 8));
         *(s8 *)(work + 0) = 5;
         break;
     case 5:
@@ -1369,9 +1369,9 @@ s32 fclItemShopUpdate(u8 *arg0) {
             sdkSndStartStream(0, 0, 0, 1);
             *(s8 *)(work + 8) = nmMesWindowAcquire(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
             sprintf(buf, "%d", *(s8 *)(work + 3));
-            func_002bbd80(*(s8 *)(work + 8), 1, buf);
+            nmMesWindowSetSlotString(*(s8 *)(work + 8), 1, buf);
             sprintf(buf, "%d", *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))));
-            func_002bbd80(*(s8 *)(work + 8), 2, buf);
+            nmMesWindowSetSlotString(*(s8 *)(work + 8), 2, buf);
             nmMesWindowShowSlotRecord(*(s8 *)(work + 8), 1);
             nmMesWindowSetSlotParam(*(s8 *)(work + 8), 0);
             nmMesWindowSetSlotFlag(*(s8 *)(work + 8), 0);
@@ -1453,8 +1453,8 @@ s32 fclItemShopUpdate(u8 *arg0) {
         fclItemShopDrawList(arg0);
         frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
                       datGetItemNameId((s16)yListValueAt(*(s16 *)(work + 4))), 0, 0, D_00795E60);
-        if (func_002bb680(*(s8 *)(work + 8)) != 0) {
-            func_002bbcf0(*(s8 *)(work + 8));
+        if (nmMesWindowSlotStatus(*(s8 *)(work + 8)) != 0) {
+            nmMesWindowStepSlotRelease(*(s8 *)(work + 8));
             break;
         }
         *(s8 *)(work + 0) = 0xC;
@@ -1491,7 +1491,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             func_0033d320(*(void **)(work + 0xA0), 0, 1);
             sdkSndStartStream(0, 0, 0, 6);
         }
-        func_002bb550(*(s8 *)(work + 8));
+        nmMesWindowDestroySlot(*(s8 *)(work + 8));
         break;
     case 14:
         for (i35 = 0; i35 < 0x24; i35++) {

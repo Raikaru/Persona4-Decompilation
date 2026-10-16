@@ -25,9 +25,9 @@ void fclSpriteStartEntrance(u8 *draw, FclVec2 position, FclDrawColor color0,
 
 /* Digit row and value are signed halfwords. Retail first consumes the row
    through signed-low16 conversion; its incoming high bits are never used.
-   Depth precedes the integer layer, as in func_002ba5d0: the callee copies
+   Depth precedes the integer layer, as in nmMesWindowSetNumber: the callee copies
    $f12 before $t3 in its prologue. */
-void func_002ba080(u8 *task, s16 row, s16 value, FclVec2 position,
+void nmMesWindowShowNumber(u8 *task, s16 row, s16 value, FclVec2 position,
                    FclDrawColor color, s32 duration, s32 delay, f32 depth,
                    s32 layer, s8 mode);
 

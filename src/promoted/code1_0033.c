@@ -96,9 +96,9 @@ extern u16 cmmCommunityRecordValue(s32 arg0);
 extern s8 nmMesWindowAcquire(void *arg0);
 extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
 extern s32 func_00106600(s16 arg0);
-extern s32 func_002bb680(s8 arg0);
-extern void func_002bbcf0(s32 arg0);
-extern void func_002bb550(s8 arg0);
+extern s32 nmMesWindowSlotStatus(s8 arg0);
+extern void nmMesWindowStepSlotRelease(s32 arg0);
+extern void nmMesWindowDestroySlot(s8 arg0);
 extern void func_003329e0(u8 *arg0);
 extern u8 D_00644ED0[];
 extern u8 D_00645090[];
@@ -349,11 +349,11 @@ s32 func_00331a20(u8 *arg0)
         } while (*(s16 *)entry != -1);
         return -1;
     case 1:
-        if (func_002bb680(work[1]) != 0) {
-            func_002bbcf0(work[1]);
+        if (nmMesWindowSlotStatus(work[1]) != 0) {
+            nmMesWindowStepSlotRelease(work[1]);
             break;
         }
-        func_002bb550(work[1]);
+        nmMesWindowDestroySlot(work[1]);
         return -1;
     case 2:
         if (kwlnTaskGetTaskByName((s8 *)D_0064A000) == 0) {

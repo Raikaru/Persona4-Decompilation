@@ -84,11 +84,11 @@ extern void btlUnitGetAnchorPose(u8 *unit, u8 *position, f32 *rotation, f32 *dir
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *direction, u32 flags);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void btlActionSetState(BtlAction *arg0, u16 arg1);
-extern void func_002bbcc0(void);
+extern void nmMesWindowStepCurrentRelease(void);
 extern s32 nmMesWindowCurrentOpenState(void);
 extern s32 nmMesWindowCurrentAnimFlag(void);
 extern void nmMesWindowReleaseCurrent(void);
-extern void func_002bb4e0(void);
+extern void nmMesWindowResetCurrent(void);
 
 extern u8 *D_0076449C;
 extern s32 func_0022bd20(void);
@@ -1547,17 +1547,17 @@ void btlMainRevivalMesInit(void) {
 // FUN_001B3FB0
 s32 btlMainRevivalMesUpdate(void)
 {
-    func_002bbcc0();
+    nmMesWindowStepCurrentRelease();
     if (nmMesWindowCurrentOpenState() == 0) {
         if (nmMesWindowCurrentAnimFlag() == 0) {
             btlEncounterEntryClearRetracted(*(s32 *)(iGpffffb3ac + 0xDD4));
             nmMesWindowReleaseCurrent();
-            func_002bb4e0();
+            nmMesWindowResetCurrent();
             return 10;
         }
         *(s32 *)(iGpffffb3ac + 0xC) &= 0xFF7FFFFF;
         nmMesWindowReleaseCurrent();
-        func_002bb4e0();
+        nmMesWindowResetCurrent();
         return 8;
     }
     return 0;

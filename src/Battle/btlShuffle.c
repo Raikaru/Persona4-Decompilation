@@ -144,13 +144,13 @@ extern u8 nmMesWindowOpenCurrent(u8 *message);
 
 extern void nmMesWindowShowCurrentRecord(s32 arg0);
 
-extern void func_002bb7c0(s32 arg0);
+extern void nmMesWindowStepCurrent(s32 arg0);
 
 extern s32 nmMesWindowCurrentOpenState(void);
 
 extern void nmMesWindowCloseCurrent(s32 arg0);
 
-extern void func_002bb4e0(void);
+extern void nmMesWindowResetCurrent(void);
 
 extern void btlShuffleSeqClearA(u8 *arg0, s32 arg1);
 
@@ -262,7 +262,7 @@ case2_body:
         *(s32 *)(work + 8) = 8;
         /* fallthrough */
     case 8:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             {
@@ -271,7 +271,7 @@ case2_body:
                 if (t < 4) {
                     nmMesWindowShowCurrentRecord(*(s32 *)(work + 4));
                 } else {
-                    func_002bb4e0();
+                    nmMesWindowResetCurrent();
                     btlShuffleSeqClearA(work + 0x70, 0);
                     *(s32 *)(work + 8) = 9;
                 }

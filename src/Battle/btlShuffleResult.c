@@ -6,9 +6,9 @@
 #include "sdk_snd_internal.h"
 
 s32 btlShuffleResultMain(u8 *arg0);
-extern s32 func_002bb4e0(void);
+extern s32 nmMesWindowResetCurrent(void);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void func_002bb7c0(s32 a);
+extern void nmMesWindowStepCurrent(s32 a);
 extern s32 nmMesWindowCurrentOpenState(void);
 extern u32 nmMesWindowCloseCurrent(int param_1);
 extern s32 nmMesWindowShowCurrentRecord(s32 arg0);
@@ -166,7 +166,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
         *(s32 *)(state + 0x14) = 1;
         /* fallthrough */
     case 1:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             *(s32 *)state = 2;
@@ -310,7 +310,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
         }
         break;
     case 5:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             switch (nmMesWindowCurrentAnimFlag()) {
             case 0:
@@ -340,7 +340,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
         }
         break;
     case 6:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             return 1;
@@ -363,7 +363,7 @@ s32 btlShuffleResultInit(u8 *arg0) {
         *(s32 *)p = 1;
         /* fallthrough */
     case 1:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             if (*(u16 *)(arg0 + 4) & 2) {
@@ -376,7 +376,7 @@ s32 btlShuffleResultInit(u8 *arg0) {
         }
         break;
     case 2:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             if (*(u16 *)(arg0 + 4) & 1) {
@@ -421,7 +421,7 @@ s32 btlShuffleResultLayout(u8 *arg0)
                 sdkSndStartStream(1, 1, 5, 0xC);
             }
         }
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             if (*(u16 *)(arg0 + 4) & 2) {
@@ -445,7 +445,7 @@ s32 btlShuffleResultLayout(u8 *arg0)
         }
         break;
     case 2:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             btlShuffleResetSlot((u8 *)func_0036e900(*(void **)(*(u8 **)arg0 + 0x1F2A8)));
@@ -610,7 +610,7 @@ s32 btlShuffleResultRun(u8 *arg0)
     view.state = (ShuffleResultState *)(arg0 + 0x18);
     switch (view.state->phase) {
     case 0:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             view.state->phase = 1;
@@ -638,7 +638,7 @@ s32 btlShuffleResultRun(u8 *arg0)
             *(u16 *)(view.context + 0x1F2F4) = (u16)(*(u16 *)(view.context + 0x1F2F4) & 0xFFFB);
             result = datGetFlag(0x1434);
             if (result == 0) {
-                func_002bb4e0();
+                nmMesWindowResetCurrent();
                 btlShuffleSeqClearA(view.context, 4);
                 view.state->phase = 0x13;
             } else {
@@ -655,7 +655,7 @@ s32 btlShuffleResultRun(u8 *arg0)
         view.state->phase = 5;
         break;
     case 5:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             result = nmMesWindowCurrentAnimFlag();
@@ -700,7 +700,7 @@ s32 btlShuffleResultRun(u8 *arg0)
         }
         break;
     case 6:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             nmMesWindowShowCurrentRecord(0xC);
@@ -792,7 +792,7 @@ s32 btlShuffleResultRun(u8 *arg0)
         }
         break;
     case 13:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             override = shuffleResultReverse(arg0);
@@ -809,7 +809,7 @@ s32 btlShuffleResultRun(u8 *arg0)
         }
         break;
     case 14:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             result = view.state->secondaryResult;
@@ -822,14 +822,14 @@ s32 btlShuffleResultRun(u8 *arg0)
         }
         break;
     case 15:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             return 1;
         }
         break;
     case 16:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             if (view.state->uprightOverride == 1) {
@@ -842,7 +842,7 @@ s32 btlShuffleResultRun(u8 *arg0)
         }
         break;
     case 17:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             return 1;
@@ -906,7 +906,7 @@ s32 btlShuffleResultMenu(u8 *arg0) {
             nmMesWindowShowCurrentRecord(0x12);
             *(s32 *)phaseState = 2;
         case 2:
-            func_002bb7c0(1);
+            nmMesWindowStepCurrent(1);
             if (nmMesWindowCurrentOpenState() == 0) {
                 nmMesWindowCloseCurrent(1);
                 *(s32 *)phaseState = 3;
@@ -1083,7 +1083,7 @@ s32 btlShuffleResultMain(u8 *arg0) {
                 sdkSndStartStream(1, 1, 5, 0xA);
             }
         }
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             *(s32 *)(arg0 + 8) = func_00380d80(arg0, *(u16 *)(arg0 + 0x10));
@@ -1102,7 +1102,7 @@ s32 btlShuffleResultMain(u8 *arg0) {
         if (btlShuffleResultMenu(arg0) != 0) return *(s32 *)(arg0 + 0x20);
         goto block_39;
     case 5:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             flag5 = 1;
@@ -1120,7 +1120,7 @@ s32 btlShuffleResultMain(u8 *arg0) {
         }
         goto block_39;
     case 6:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             flag6 = 1;
@@ -1149,7 +1149,7 @@ s32 btlShuffleResultMain(u8 *arg0) {
         }
         goto block_39;
     case 8:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
             flag8 = 1;
@@ -1184,7 +1184,7 @@ s32 btlShuffleResultEnd(u8 *arg0) {
 void btlShuffleResultFree(u8 *arg0) {
     u8 *work = *(u8 **)(arg0 + 0x38);
 
-    func_002bb4e0();
+    nmMesWindowResetCurrent();
     jtbl_008873EC[0](work);
 }
 

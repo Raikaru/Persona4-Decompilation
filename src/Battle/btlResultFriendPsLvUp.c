@@ -27,7 +27,7 @@ extern void btlSoundStopBank3(void);
 extern void func_001f9a50(s32 arg0, s32 arg1);
 extern void func_001f9a90(void);
 extern void btlSoundPlayIndexed(s32 arg0);
-extern s32 func_002bb4e0(void);
+extern s32 nmMesWindowResetCurrent(void);
 extern u32 shdPersonaLevelUpIsDone(u8 *task);
 extern s32 shdPersonaDestroyTask(u8 *task);
 extern s32 btlShuffleOverlayIdle(void);
@@ -197,7 +197,7 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
         } else {
             *(u16 *)r = *(u16 *)r & 0xFFFE;
             *(u32 *)(r + 4) = 7;
-            func_002bb4e0();
+            nmMesWindowResetCurrent();
         }
         break;
     case 2:

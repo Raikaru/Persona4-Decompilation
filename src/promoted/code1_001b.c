@@ -97,11 +97,11 @@ extern void btlUnitGetAnchorPose(u8 *unit, u8 *position, f32 *rotation, f32 *dir
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *direction, u32 flags);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void btlActionSetState(BtlAction *arg0, u16 arg1);
-extern void func_002bbcc0(void);
+extern void nmMesWindowStepCurrentRelease(void);
 extern s32 nmMesWindowCurrentOpenState(void);
 extern s32 nmMesWindowCurrentAnimFlag(void);
 extern void nmMesWindowReleaseCurrent(void);
-extern void func_002bb4e0(void);
+extern void nmMesWindowResetCurrent(void);
 
 extern u8 *D_0076449C;
 extern s32 func_0022bd20(void);

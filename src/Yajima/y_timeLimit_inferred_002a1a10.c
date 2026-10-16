@@ -36,7 +36,7 @@ extern void nmMesWindowShowCurrentRecord(s32 arg0);
 extern void nmMesWindowSetCurrentParam(s32 arg0);
 extern void nmMesWindowSetCurrentFlag(s32 arg0);
 extern s32 nmMesWindowCurrentAnim(void);
-extern void func_002bb4e0(void);
+extern void nmMesWindowResetCurrent(void);
 extern s32 nmMesWindowCurrentOpenState(void);
 typedef struct P4_002aabf0_Work {
     f32 values[4];
@@ -46,7 +46,7 @@ typedef struct P4_002aabf0_Work {
     u8 colors[4];
 } P4_002aabf0_Work;
 extern s32 nmMesWindowLatchAnimAux(void);
-extern void func_002bbcc0(void);
+extern void nmMesWindowStepCurrentRelease(void);
 extern s32 iGpffffb52c;
 extern u8 D_0063E630[];
 extern u8 D_0063EEA0[];
@@ -110,7 +110,7 @@ s32 func_002a1a10(u8 *arg0) {
     switch (temp_3) {
     case 0:
         iGpffffb52c = 0;
-        func_002bb4e0();
+        nmMesWindowResetCurrent();
         nmMesWindowOpenCurrent((u8 *)(D_0063E630));
         nmMesWindowShowCurrentRecord(1);
         nmMesWindowSetCurrentParam(0);
@@ -119,7 +119,7 @@ s32 func_002a1a10(u8 *arg0) {
         goto done;
     case 1:
         if (nmMesWindowCurrentOpenState() != 0) {
-            func_002bbcc0();
+            nmMesWindowStepCurrentRelease();
             if (nmMesWindowLatchAnimAux() == 0) {
                 iGpffffb52c = nmMesWindowCurrentAnim();
             }
@@ -128,7 +128,7 @@ s32 func_002a1a10(u8 *arg0) {
         }
         goto done;
     case 2:
-        func_002bb4e0();
+        nmMesWindowResetCurrent();
         *(s32 *)(temp_16 + 0x10) = 0;
         return iGpffffb52c;
     default:
