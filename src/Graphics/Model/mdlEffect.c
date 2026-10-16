@@ -1,3 +1,4 @@
+#include "rw_types_internal.h"
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
 /* Source unit: src/Graphics/Model/mdlFile_0047d2d0.c (1 function markers) */
@@ -66,7 +67,6 @@ extern MdlCol iGpffffbb64;
 
 extern void effMiscNormalizeVU(void);
 extern void effMiscBuildRotationVU(void);
-typedef struct RwV3d { f32 x, y, z; } RwV3d;
 typedef struct RwMatrixTag {
     RwV3d right;
     u32 flags;
