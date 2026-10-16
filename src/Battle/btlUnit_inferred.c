@@ -172,8 +172,8 @@ extern void btlUnitSetMotion(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 00198380-00198380 */
 
 extern s32 btlUnitGetMotionState(u8 *arg0);
-extern u32 func_00198840(u8 *arg0);
-extern u32 func_001988b0(u8 *arg0);
+extern u32 btlUnitIsAtRestMotion(u8 *arg0);
+extern u32 btlUnitIsWalkingMotion(u8 *arg0);
 extern s64 btlUnitModelAnimFrame(u8 *arg0);
 static inline u32 p4_add_index_base(u32 offset, u32 base)
 {
@@ -212,7 +212,7 @@ void func_00198380(u8 *arg0) {
         if (!(*(u16 *)(arg0 + 0x9D8) & 8)) {
             temp_3_2 = (u16)(*(u16 *)(arg0 + 0xC8));
             if ((temp_3_2 & 1) && !(temp_3_2 & 4)) {
-                if (func_001988b0(arg0) == 0) {
+                if (btlUnitIsWalkingMotion(arg0) == 0) {
                     if (*(s32 *)(arg0 + 0xC4) & 4) {
                         var_f12 = 2.0f;
                     } else {
@@ -220,7 +220,7 @@ void func_00198380(u8 *arg0) {
                     }
                     btlUnitSetMotion(arg0, 1, 4U, var_f12, 1);
                 }
-            } else if ((func_001988b0(arg0) != 0) && (func_00198840(arg0) == 0)) {
+            } else if ((btlUnitIsWalkingMotion(arg0) != 0) && (btlUnitIsAtRestMotion(arg0) == 0)) {
                 btlUnitSetMotion(arg0, *(s16 *)(arg0 + 0x9EC), 6U, *(f32 *)(arg0 + 0x9F0), *(s8 *)(arg0 + 0x9F4));
             }
         }

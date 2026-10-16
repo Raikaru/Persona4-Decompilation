@@ -153,7 +153,7 @@ extern s32 btlMessageGetResultAlt2(s32 task);
 u8 *func_001faa60(void);
 extern void btlMessageRelease(s32 task);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
-s32 func_0019ff60(u8 *arg0);
+s32 btlActionCanFollowUpAfterEnemiesDown(u8 *arg0);
 s64 *btlActionGetQueueFront(void);
 s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
@@ -1473,7 +1473,7 @@ void btlActionCooperateInit(register BtlAction *actionState)
         sourceAnimation = 29;
         targetAnimation = 2;
         targetFrame = (u16)btlUnitMotionFrames(*(u8 **)(action + 0x30), 29, 1.0f);
-        distance = 50.0f + func_00196bd0(*(u8 **)(action + 0x30),
+        distance = 50.0f + btlUnitGetMotionDistance(*(u8 **)(action + 0x30),
                                         *(u8 **)(target + 0x30), 29);
         displayMode = 15;
         selectedEffect.slot = 40;
@@ -1634,7 +1634,7 @@ loop_test:
     status = 1;
     current = btlActionGetQueueFront();
     if ((*(u16 *)((u8 *)current + 0x18) & 8) != 0 &&
-        func_0019ff60((u8 *)current) != 0) {
+        btlActionCanFollowUpAfterEnemiesDown((u8 *)current) != 0) {
         status = 0;
     }
     if (status == 1) {
@@ -2214,7 +2214,7 @@ range_ineligible:
                 } else {
                     motion = (u16)(btlActionAnyTargetHitRowFlagged((u8 *)action) != 0 ? 0xC : 4);
                 }
-                distance = func_00196bd0((u8 *)action->unit, (u8 *)action->target->unit, motion);
+                distance = btlUnitGetMotionDistance((u8 *)action->unit, (u8 *)action->target->unit, motion);
             }
 range_done:
             ;
@@ -2272,7 +2272,7 @@ range_done:
             {
                 u16 motion;
                 motion = (u16)(btlActionAnyTargetHitRowFlagged((u8 *)action) != 0 ? 0xC : 4);
-                distance = func_00196bd0((u8 *)action->unit, (u8 *)action->target->unit, motion);
+                distance = btlUnitGetMotionDistance((u8 *)action->unit, (u8 *)action->target->unit, motion);
             }
             break;
         }
@@ -4242,7 +4242,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             skillFramesKey = (s16)btlUnitOpeningMotionMode(*(s32 *)(actUnit5_5 + 0xA0C), actUnit5_5, skill, rotateFirst);
             skillFrames = (s32)(btlUnitMotionFrames((*( u8 ** )((u8 *)(act->unit) + (0xA0C))), (u16)skillFramesKey, 1.0f));
             damageFrames = (s32) skillFrames;
-            windupFrames = (u16)(func_001996d0(act->unit, 0x10));
+            windupFrames = (u16)(btlUnitGetMotionTableFrames(act->unit, 0x10));
             chainTime = animChainPkt->endTime;
             skillEndFrame = skillFrames + 0x12;
             if (baseDelay < skillEndFrame) {

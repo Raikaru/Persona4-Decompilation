@@ -159,7 +159,7 @@ extern s32 btlMessageGetResultAlt2(s32 task);
 u8 *func_001faa60(void);
 extern void btlMessageRelease(s32 task);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
-s32 func_0019ff60(u8 *arg0);
+s32 btlActionCanFollowUpAfterEnemiesDown(u8 *arg0);
 s64 *btlActionGetQueueFront(void);
 s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));

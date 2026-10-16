@@ -455,8 +455,10 @@ s32 btlUnitGetDataRow(u8 *arg0)
     return result;
 }
 
+/* Identical body to btlUnitGetDataRow (its type-0 callee func_0010D6D0 has the same
+ * body as func_0010D740); a separate retail function at its own address. */
 // FUN_0019F0F0
-s32 func_0019f0f0(u8 *arg0)
+s32 btlUnitGetDataRowAlt(u8 *arg0)
 {
     u16 id;
     u8 type;
@@ -728,7 +730,7 @@ s32 btlUnitIdleAnimTick(u8 *arg0)
     }
     temp_2 = *(s32 *)(arg0 + 0x24);
     if (temp_2 == 0) {
-        if (func_00198840(*(u8 **)(arg0 + 0x30)) == 0) {
+        if (btlUnitIsAtRestMotion(*(u8 **)(arg0 + 0x30)) == 0) {
             return 0;
         }
         if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
@@ -802,7 +804,7 @@ void btlUnitRequestLookAtOthers(u8 *arg0)
         if ((*(u16 *)(var_17 + 0x1A) & 1) != 0) {
             temp_16 = *(u8 **)(var_17 + 0x30);
             if ((*(s32 *)(temp_16 + 0x9C) & 8) != 0 &&
-                func_00198840(temp_16) != 0 &&
+                btlUnitIsAtRestMotion(temp_16) != 0 &&
                 btlUnitIsMoving(temp_16) == 0 &&
                 datCalcChkBadStatus(*(s32 *)(temp_16 + 0xA64), 0x100000) == 0 &&
                 datCalcChkBadStatus(*(s32 *)(temp_16 + 0xA64), 0xFFFFF) == 0 &&
@@ -963,7 +965,7 @@ s32 btlUnitIsUnavailable(u8 *arg0, s32 arg1, s32 arg2)
 /* measured: func_0019ff60 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_0019FF60
-s32 func_0019ff60(u8 *arg0)
+s32 btlActionCanFollowUpAfterEnemiesDown(u8 *arg0)
 {
     u8 *state;
     u8 *current;

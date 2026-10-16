@@ -573,7 +573,7 @@ struct FrFontNode;
 
 
 extern u16 func_0010f8c0(s32 arg0);
-extern s32 func_0019f0f0(u8 *arg0);
+extern s32 btlUnitGetDataRowAlt(u8 *arg0);
 extern void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1);
 extern void btlPanelReleaseText(s32 task);
 extern void btlPanelMarkEntryTimed(s32 task);

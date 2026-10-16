@@ -348,7 +348,7 @@ finish:
 }
 
 // FUN_001996D0
-s16 func_001996d0(u8 *arg0, u16 arg1)
+s16 btlUnitGetMotionTableFrames(u8 *arg0, u16 arg1)
 {
     u8 *table;
     s32 offset;

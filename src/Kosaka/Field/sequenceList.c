@@ -3,12 +3,12 @@
 #include "type.h"
 
 extern void btlTaskCreate(void);
-extern void func_00193730(void);
+extern void btlSetFreeUnitsOnTeardown(void);
 
 extern s32 func_00103590(void);
 extern s32 func_001039e0(void);
 extern void func_0012c460(s32);
-extern s32 func_00193700(void);
+extern s32 btlIsRunning(void);
 extern void func_002853b0(void);
 extern s32 func_002853c0(void);
 extern void func_0029e8d0(void *);
@@ -126,19 +126,19 @@ void SeqSample_End(void)
 void K_Fldrc_DestroyArchives(void)
 {
     btlTaskCreate();
-    func_00193730();
+    btlSetFreeUnitsOnTeardown();
 }
 
 // FUN_00102EA0
 s32 SeqBattle_IsRunning(void)
 {
-    return (s32)(func_00193700() != 0);
+    return (s32)(btlIsRunning() != 0);
 }
 
 // FUN_00102ED0
 void SeqBattle_End(void)
 {
-    s32 handle = func_00193700();
+    s32 handle = btlIsRunning();
 
     if (handle != 0) {
         kwlnTaskDestroyWithHierarchy(handle);
