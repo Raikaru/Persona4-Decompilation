@@ -7,12 +7,13 @@
  * and return the allocated instance, or NULL for an unsupported primitive. */
 typedef void *(*EffectInstanceConstructor)(void *source);
 
-/* Object particle instance (effObjectParticle.c). Only fields read by the update and
- * draw paths are named; gaps are kept as fields so offsets stay exact. */
+/* Object particle instance (effObjectParticle.c). Its allocation is 0x94 bytes. Only fields
+ * read or written by the create, update, draw and release paths are named; gaps are kept as
+ * fields so offsets stay exact. */
 typedef struct ObjectParticleInstance {
-    u32 field_0x00;
-    u32 packedColour;        /* +0x04: packed colour word read by the draw path */
-    f32 field_0x08;
+    u32 recordCount;         /* +0x00: record count written at create (source count times multiplier, capped at 100) */
+    u32 packedColour;        /* +0x04: packed colour word read by the draw path; create stores -1 */
+    f32 field_0x08;          /* create stores the bit pattern 0x3F800000 (1.0f) */
     u16 kind;                /* +0x0C: record kind compared by the update and draw switches */
     u8 field_0x0E[0x2C - 0x0E];
     f32 ageFactor;           /* +0x2C: multiplies the age in the draw path's trail step */
@@ -22,7 +23,34 @@ typedef struct ObjectParticleInstance {
     u8 *list;                /* +0x58: record list; count at +0x8, entries at +0x18 */
     u8 *entries;             /* +0x5C: per-entry table walked by the update and draw paths */
     u8 *recordTable;         /* +0x60: owned allocation with 0x18 bytes per record; ObjectParticleFree releases it */
+    u8 field_0x64[0x7C - 0x64];
+    u16 recordStride;        /* +0x7C: 0x18 at create, the per-record size of recordTable */
+    u8 field_0x7E[0x80 - 0x7E];
+    struct ObjectParticleInstance *self;  /* +0x80: self back-pointer written at create */
+    u8 field_0x84[0x94 - 0x84];
 } ObjectParticleInstance;
+
+/* Source block resolved from a source descriptor by mdlEffectResolveRelPtrA. Its first 0x44
+ * bytes are the object particle header copied into the instance at +0x10. */
+typedef struct EffSourceBlock {
+    u8 header[0x44];
+    u8 field_0x44[0x64 - 0x44];  /* +0x44: record sub-block passed to ObjectParticleRebuildRecords */
+    s32 recordCount;             /* +0x64: zero selects fallbackCount */
+    u32 recordMultiplier;        /* +0x68: record count is recordCount (or fallbackCount) times this */
+    u8 field_0x6C[0xFC - 0x6C];
+    u32 fallbackCount;           /* +0xFC */
+} EffSourceBlock;
+
+/* Source descriptor received by ObjectParticleCreateFromSource. Only the fields read by the
+ * create path are named. */
+typedef struct EffSourceDescriptor {
+    u8 field_0x00[0x0C];
+    u16 id;                  /* +0x0C: source id, masked to 16 bits when the records are rebuilt */
+    u8 field_0x0E[0x1C - 0x0E];
+    u16 kind;                /* +0x1C: 3 loads the clump through the resource walk */
+    u8 field_0x1E[0x24 - 0x1E];
+    u32 clumpInput;          /* +0x24: passed through as the second input of the resource walk */
+} EffSourceDescriptor;
 
 /* Distortion particle instance (effDistortParticle.c). Its layout differs from
  * ObjectParticleInstance: +0x5C is the record list, +0x60 the texture object and +0x68 the

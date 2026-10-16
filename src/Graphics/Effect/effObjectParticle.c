@@ -40,58 +40,58 @@ void ObjectParticleRebuildRecords(u8 *arg0, u32 arg1, u8 *arg2);
 // FUN_004AE460
 void *ObjectParticleCreateFromSource(void *opaqueSource)
 {
-    u8 *arg0 = opaqueSource;
+    EffSourceDescriptor *desc = (EffSourceDescriptor *)opaqueSource;
+    EffSourceBlock *src;
+    ObjectParticleInstance *inst;
     s32 temp_2_3;
     s32 temp_3;
     u32 var_19;
-    u8 *temp_2_2;
-    u8 *temp_2;
 
-    temp_2_2 = mdlEffectResolveRelPtrA(arg0);
-    if (temp_2_2 == 0) {
+    src = (EffSourceBlock *)mdlEffectResolveRelPtrA(opaqueSource);
+    if (src == NULL) {
         kAssertFail(D_00714520, 0xFD);
     }
-    temp_3 = *(s32 *)(temp_2_2 + 0x64);
+    temp_3 = src->recordCount;
     if (temp_3 == 0) {
-        var_19 = *(u32 *)(temp_2_2 + 0xFC) * *(u32 *)(temp_2_2 + 0x68);
+        var_19 = src->fallbackCount * src->recordMultiplier;
     } else {
-        var_19 = temp_3 * *(u32 *)(temp_2_2 + 0x68);
+        var_19 = temp_3 * src->recordMultiplier;
     }
     if (var_19 > 0x64) {
         var_19 = 0x64;
     }
     chkmemAllocSiteTag(D_00714508, 0x171);
-    temp_2 = (u8 *)jtbl_008873E8[0](0x94, 0x40000);
-    memset(temp_2, 0, 0x94);
-    if (temp_2 == 0) {
+    inst = (ObjectParticleInstance *)jtbl_008873E8[0](0x94, 0x40000);
+    memset(inst, 0, 0x94);
+    if (inst == NULL) {
         kAssertFail(D_00714520, 0xC5);
     }
-    *(u32 *)(temp_2 + 0) = var_19;
-    *(u32 *)(temp_2 + 4) = -1;
-    *(u32 *)(temp_2 + 8) = 0x3F800000;
-    *(u16 *)(temp_2 + 0x7C) = 0x18;
-    *(u8 **)(temp_2 + 0x80) = temp_2;
-    if (temp_2 == 0) {
+    inst->recordCount = var_19;
+    inst->packedColour = -1;
+    *(u32 *)&inst->field_0x08 = 0x3F800000;
+    inst->recordStride = 0x18;
+    inst->self = inst;
+    if (inst == NULL) {
         kAssertFail(D_00714520, 0xFF);
     }
-    memcpy(temp_2 + 0x10, temp_2_2, 0x44);
-    ObjectParticleRebuildRecords(temp_2, *(u16 *)(arg0 + 0xC), temp_2_2 + 0x44);
-    if (*(u32 *)(*(u8 **)(temp_2 + 0x58) + 8) == 0) {
-        return temp_2;
+    memcpy((u8 *)inst + 0x10, src, 0x44);
+    ObjectParticleRebuildRecords((u8 *)inst, desc->id, (u8 *)src + 0x44);
+    if (*(u32 *)(inst->list + 8) == 0) {
+        return inst;
     }
-    temp_2_3 = (s32)mdlEffectResolveRelPtrB(arg0);
+    temp_2_3 = (s32)mdlEffectResolveRelPtrB(opaqueSource);
     if (temp_2_3 != 0) {
-        switch (*(u16 *)(arg0 + 0x1C)) {
+        switch (desc->kind) {
         case 3:
-            ObjectParticleLoadClump(temp_2, temp_2_3, *(u32 *)(arg0 + 0x24));
+            ObjectParticleLoadClump((u8 *)inst, temp_2_3, desc->clumpInput);
             break;
         default:
             kAssertFail(D_00714520, 0x114);
             break;
         }
-        *(u16 *)(temp_2 + 0xC) = *(u16 *)(arg0 + 0x1C);
+        inst->kind = desc->kind;
     }
-    return temp_2;
+    return inst;
 }
 
 // Releases the particle's source block, clump, record table and the particle itself.
