@@ -90,7 +90,7 @@ extern u32 D_008873ec[];
 extern void func_004244c8(const char* message, ...);
 extern s32 func_00440b68(const char* message, ...);
 extern s32 strcmp(const char* left, const char* right);
-extern void func_00454640(void);
+extern void H_Cdvd_UpdateRequests(void);
 extern void H_Cdvd_BuildPathUppercase(const char* source, char* destination);
 extern void H_Cdvd_SplitPath(const char* path, char* fileName, char* directory);
 extern void H_Cdvd_NormalizePath(const char* source, char* destination);

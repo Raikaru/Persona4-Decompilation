@@ -22,7 +22,7 @@ extern void *func_003ef6d0(void);
 extern void *func_003ef650(void *arg0, const void *arg1);
 extern void func_003ef3a0(void *arg0);
 extern void func_00440b68(void *arg0, const void *arg1, s32 arg2);
-extern void *func_00454a60(void *arg0, s32 arg1);
+extern void *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern s32 H_Cdvd_IsFileLoaded(void *arg0);
 extern s32 func_004667d0(s32, const void *, s32, s32, s32, s32, s32, s32, s32, s32);
 extern void *func_003ec590(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -58,15 +58,15 @@ s32 FldMipmapLoadUpdate(u8 *arg0)
             func_003ef3a0(tmp);
         }
         func_00440b68(&iGpffff9f88, D_005F5370, 0x54);
-        *(u8 **)(work + 0x4) = func_00454a60(D_005F5380, 0);
+        *(u8 **)(work + 0x4) = H_Cdvd_AcquireDirectory(D_005F5380, 0);
         func_00440b68(&iGpffff9f88, D_005F5370, 0x55);
-        *(u8 **)(work + 0x8) = func_00454a60(D_005F53A0, 0);
+        *(u8 **)(work + 0x8) = H_Cdvd_AcquireDirectory(D_005F53A0, 0);
         func_00440b68(&iGpffff9f88, D_005F5370, 0x56);
-        *(u8 **)(work + 0xC) = func_00454a60(D_005F53C0, 0);
+        *(u8 **)(work + 0xC) = H_Cdvd_AcquireDirectory(D_005F53C0, 0);
         func_00440b68(&iGpffff9f88, D_005F5370, 0x57);
-        *(u8 **)(work + 0x10) = func_00454a60(D_005F53E0, 0);
+        *(u8 **)(work + 0x10) = H_Cdvd_AcquireDirectory(D_005F53E0, 0);
         func_00440b68(&iGpffff9f88, D_005F5370, 0x58);
-        *(u8 **)(work + 0x14) = func_00454a60(D_005F5400, 0);
+        *(u8 **)(work + 0x14) = H_Cdvd_AcquireDirectory(D_005F5400, 0);
         *(s32 *)work += 1;
         break;
     case 1:

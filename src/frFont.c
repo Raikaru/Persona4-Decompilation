@@ -92,9 +92,9 @@ extern u32 DAT_008816D0_abs[];
 extern u32 DAT_008817B0_abs[];
 extern char D_0063BB00[];
 extern char D_0063BC10[];
-extern s32 func_00454a60(const void *arg0, s32 arg1);
+extern s32 H_Cdvd_AcquireDirectory(const void *arg0, s32 arg1);
 extern void H_Cdvd_ReadSync(s32 arg0);
-extern u8 *func_00455f70(void *arg0, void *arg1);
+extern u8 *H_Cdvd_LookupRequest(void *arg0, void *arg1);
 extern void func_0026e170(int param_1);
 extern void frFontRasterDestroyCache(void);
 extern void frFontReleaseSlots(void);
@@ -489,10 +489,10 @@ void frFontLoadTables(void)
     }
     if (DAT_008817B0_abs[0] == 0) {
         func_00440b68(&D_00763830, D_0063BAE8, 0x265);
-        temp_2 = func_00454a60(D_0063BC10, 0);
+        temp_2 = H_Cdvd_AcquireDirectory(D_0063BC10, 0);
         DAT_008817B0_abs[0] = temp_2;
         H_Cdvd_ReadSync(temp_2);
-        frFontSlotLoad(0, NULL, func_00455f70(D_0063BC10, &sp1C));
+        frFontSlotLoad(0, NULL, H_Cdvd_LookupRequest(D_0063BC10, &sp1C));
     }
     var_7 = (u8 *)gFrFontManagerData_abs;
     var_6 = (u8 *)DAT_00881650_abs;

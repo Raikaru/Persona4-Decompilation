@@ -29,7 +29,7 @@ extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s16 value);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void func_00440b68(char *fmt, ...);
-extern s32 func_00454a60(void *msg, s32 kind);
+extern s32 H_Cdvd_AcquireDirectory(void *msg, s32 kind);
 extern void H_Cdvd_ReadSync(s32 handle);
 extern s32 btlBossResolveModelName(u32 type, u16 id, char *name);
 extern s32 mdlFileIsTypePac(u32 type, u16 id);
@@ -73,7 +73,7 @@ s32 mdlAppBindObjectRecord(MdlAppObj *obj)
         else
             sprintf(buf, D_00635860, &D_007636e0, subId & 0xFFFF);
         func_00440b68(&D_007636e8, D_00635878, 0x10F);
-        *(s32 *)((u8 *)*bcp + 0x14) = func_00454a60(buf, 0);
+        *(s32 *)((u8 *)*bcp + 0x14) = H_Cdvd_AcquireDirectory(buf, 0);
         *(u16 *)((u8 *)*bcp + 0x12) |= 2;
         break;
     case 2:
@@ -83,7 +83,7 @@ s32 mdlAppBindObjectRecord(MdlAppObj *obj)
         *(s32 *)((u8 *)*bcp + 0x04) = mdlSeAcquireSlot(id, subId);
         sprintf(buf, D_00635890, D_00635678, subId & 0xFFFF);
         func_00440b68(&D_007636e8, D_00635878, 0x12F);
-        *(s32 *)((u8 *)*bcp + 0x14) = func_00454a60(buf, 1);
+        *(s32 *)((u8 *)*bcp + 0x14) = H_Cdvd_AcquireDirectory(buf, 1);
         *(u16 *)((u8 *)*bcp + 0x12) |= 2;
         break;
     default:
@@ -132,7 +132,7 @@ void mdlAppBindSecondaryText(MdlAppObj *obj)
         case 0x112:
             sprintf(buf, D_006358B0, D_00635678, subId & 0xFFFF);
             func_00440b68(&D_007636e8, D_00635878, 0x16E);
-            *(s32 *)((u8 *)*bcp + 0x18) = func_00454a60(buf, 0);
+            *(s32 *)((u8 *)*bcp + 0x18) = H_Cdvd_AcquireDirectory(buf, 0);
             break;
         default:
             *(s32 *)((u8 *)*bcp + 0x18) = 0;
@@ -157,5 +157,5 @@ void mdlAppRegisterModelCallbacks(void)
 void mdlAppPreloadResource(void)
 {
     func_00440b68(&D_007636e8, D_00635878, 0x1A2);
-    H_Cdvd_ReadSync(func_00454a60(D_006358D0, 0));
+    H_Cdvd_ReadSync(H_Cdvd_AcquireDirectory(D_006358D0, 0));
 }

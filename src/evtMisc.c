@@ -20,8 +20,8 @@ s32 strcmp(s32 *arg0, s32 arg1);
 s32 strcpy(s32 *arg0, s32 arg1);
 s32 evtMemAccount(s32 arg0, s32 arg1);
 void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
-s32 func_00454a60(void *arg0, s32 arg1);
-u8 *func_00455f70(void *arg0, u32 *arg1);
+s32 H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
+u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
 s32 scrStartProcedureIndex(s32 arg0, u8 *arg1, s32 arg2);
 u8 *kwlnGetColorRgb(void);
 void *kwlnGetCamera(void);
@@ -1035,7 +1035,7 @@ s32 func_0028f540(u8 *arg0) {
             p[0x43] = 0;
         }
         func_00440b68(&D_007638A0, D_0063C638, 0x1344);
-        p[0x43] = func_00454a60(&p[3], 0);
+        p[0x43] = H_Cdvd_AcquireDirectory(&p[3], 0);
         p[0] = 1;
     case 1:
         if (H_Cdvd_IsFileLoaded(p[0x43]) != 0) {
@@ -1043,7 +1043,7 @@ s32 func_0028f540(u8 *arg0) {
         }
         break;
     case 2:
-        s1 = func_00455f70(&p[3], &local_3C);
+        s1 = H_Cdvd_LookupRequest(&p[3], &local_3C);
         if (p[0x44] != 0) {
             kAssertFail(D_0063C638, 0x134E);
         }

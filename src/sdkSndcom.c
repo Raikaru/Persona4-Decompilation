@@ -92,11 +92,11 @@ extern s32 func_0043c180(s32 command, ...);
 extern s32 func_0043c230(s32 command, ...);
 extern s32 func_0043c3b0(s32 command, ...);
 extern void memcpy(void *destination, const void *source, u32 size);
-extern HCdvd *func_00454a60(u8 *path, s32 mode);
+extern HCdvd *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
 extern u32 H_Cdvd_Destroy(HCdvd *request);
 extern u32 H_Cdvd_IsFileLoaded(const HCdvd *request);
 /* The existing file-cache API encodes both paths/sentinels and returned EE addresses as s32. */
-extern s32 func_00455f70(s32 pathOrMode, s32 *size);
+extern s32 H_Cdvd_LookupRequest(s32 pathOrMode, s32 *size);
 
 s32 func_0045b650(s32 handle, void *data, s32 size);
 void func_0045c3d0(s16 index);
@@ -173,7 +173,7 @@ void func_0045b7c0(void)
             slot = &sSfdDecodeSlots_abs[i];
             fileIndex = slot->fileIndex;
             fileEntry = &D_00712390[fileIndex];
-            slot->request = func_00454a60(fileEntry->path[0], 0);
+            slot->request = H_Cdvd_AcquireDirectory(fileEntry->path[0], 0);
             slot->state = 3;
             break;
         case 3:
@@ -184,7 +184,7 @@ void func_0045b7c0(void)
 
                 fileIndex = slot->fileIndex;
                 fileEntry = &D_00712390[fileIndex];
-                source = (u8 *)func_00455f70((s32)fileEntry->path[0], &size);
+                source = (u8 *)H_Cdvd_LookupRequest((s32)fileEntry->path[0], &size);
                 address = func_00429d10(0, size, 0);
                 if (!address) {
                     kAssertFail(D_00712408, 0x129);
@@ -205,7 +205,7 @@ void func_0045b7c0(void)
             slot = &sSfdDecodeSlots_abs[i];
             fileIndex = slot->fileIndex;
             fileEntry = &D_00712390[fileIndex];
-            slot->request = func_00454a60(fileEntry->path[1], 0);
+            slot->request = H_Cdvd_AcquireDirectory(fileEntry->path[1], 0);
             slot->state = 5;
             break;
         case 5:
@@ -219,7 +219,7 @@ void func_0045b7c0(void)
 
                 fileIndex = slot->fileIndex;
                 fileEntry = &D_00712390[fileIndex];
-                source = (u8 *)func_00455f70((s32)fileEntry->path[1], &size);
+                source = (u8 *)H_Cdvd_LookupRequest((s32)fileEntry->path[1], &size);
                 address = func_00429d10(0, 0x1000, 0);
                 if (!address) {
                     kAssertFail(D_00712408, 0x140);
@@ -255,7 +255,7 @@ void func_0045b7c0(void)
             slot = &sSfdDecodeSlots_abs[i];
             fileIndex = slot->fileIndex;
             fileEntry = &D_00712390[fileIndex];
-            slot->request = func_00454a60(fileEntry->path[2], 0);
+            slot->request = H_Cdvd_AcquireDirectory(fileEntry->path[2], 0);
             slot->state = 7;
             break;
         case 7:
@@ -271,7 +271,7 @@ void func_0045b7c0(void)
 
                 fileIndex = slot->fileIndex;
                 fileEntry = &D_00712390[fileIndex];
-                source = (u8 *)func_00455f70((s32)fileEntry->path[2], &size);
+                source = (u8 *)H_Cdvd_LookupRequest((s32)fileEntry->path[2], &size);
                 address = func_00429d10(0, size, 0);
                 if (!address) {
                     kAssertFail(D_00712408, 0x165);

@@ -177,7 +177,7 @@ extern void H_Cdvd_Destroy(void *handle);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern void kwlnTaskAddChild(void *parent, void *child);
 extern void H_Cdvd_StreamOpenHandle(void*, const char*);
-extern void func_00456250();
+extern void H_Cdvd_StartStreamLoad();
 extern void H_Cdvd_StreamOpenByPath(void*, const char*);
 extern s32 func_004c7ef8(s32);
 extern void func_004ccb50(void);
@@ -1116,11 +1116,11 @@ s32 sdkSndStreamTaskUpdate(u8 *arg0)
         callback = *(u8 **)(work + 0x110);
         if (callback == NULL)
         {
-            func_00456250(*(s32 *)(work + 4), work + 0x10, 0, &D_008D1F10);
+            H_Cdvd_StartStreamLoad(*(s32 *)(work + 4), work + 0x10, 0, &D_008D1F10);
         }
         else
         {
-            func_00456250(*(s32 *)(work + 4), work + 0x10, 0, callback);
+            H_Cdvd_StartStreamLoad(*(s32 *)(work + 4), work + 0x10, 0, callback);
         }
         *(s32 *)work = 1;
         break;

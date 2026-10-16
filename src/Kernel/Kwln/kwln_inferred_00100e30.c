@@ -51,7 +51,7 @@ extern s32 iGpffff85b8;
 extern s32 iGpffffb194;
 extern s32 iGpffffb1a0;
 extern s32 iGpffffb19c;
-extern void func_00454640(void);
+extern void H_Cdvd_UpdateRequests(void);
 extern void resourceLoadSprites(void);
 extern void func_0045b7c0(void);
 extern void sdkSndUpdate(void);
@@ -102,7 +102,7 @@ extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void func_0044f570(s32 arg0);
 extern void kwlnTaskInitPool(s32 arg0);
 extern void H_Cdvd_ResetStreamState(void);
-extern void func_004559b0(void);
+extern void H_Cdvd_InitDevices(void);
 extern s32 kwlnGetCamera(void);
 extern u8 D_005DD680[];
 /* RenderWare keeps its engine instance in the `ourGlobals` array
@@ -231,7 +231,7 @@ void func_00100e60(void)
     kwlnTaskInitPool(0x190);
     PrimCreatePools(0x7D0, 0x64);
     H_Cdvd_ResetStreamState();
-    func_004559b0();
+    H_Cdvd_InitDevices();
     func_0010d7b0();
     func_0045b430();
     sdkSndInit();
@@ -329,7 +329,7 @@ s32 func_00101270(void)
         goto block_5;
     }
     iGpffffb194 = *(u32 *)0x10000000;
-    func_00454640();
+    H_Cdvd_UpdateRequests();
     resourceLoadSprites();
     func_0045b7c0();
     sdkSndUpdate();

@@ -3817,7 +3817,7 @@ s32 shdPersonaGetChildTask(u8 *arg0)
 
 s32 kwlnTaskGetTaskByName(void *arg0);
 s32 H_Cdvd_IsFileLoaded(s32 arg0);
-s32 func_00454a60(u8 *arg0, s32 arg1);
+s32 H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
 s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern char D_005E4E60[];
 extern char D_005E4E90[];
@@ -3841,7 +3841,7 @@ s32 shdPersonaLoadModelStep(u8 *arg0)
             } else {
                 sprintf(work + 0x54, D_005E4E90, *(s32 *)(work + 4));
                 func_00440b68(&iGpffff9c18, D_005E4868, 0x1046);
-                temp_2 = func_00454a60(work + 0x54, 0);
+                temp_2 = H_Cdvd_AcquireDirectory(work + 0x54, 0);
                 *(s32 *)(work + 0x4C) = temp_2;
                 if (temp_2 == 0) {
                     kAssertFail(D_005E4868, 0x1047);

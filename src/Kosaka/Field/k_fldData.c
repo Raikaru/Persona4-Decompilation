@@ -59,7 +59,7 @@ extern char D_005F1010[];
 extern char D_005F1030[];
 extern u8 D_005F1050[];
 
-extern u8 *func_00454a60(u8 *path, s32 mode);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
 extern void H_Cdvd_ReadSync(HCdvd *file);
 extern void *mdlCreateModelObjectFromMemory(u32 kind, u16 id, void *memory, u32 size, u32 flags);
 extern s32 sprintf(char *buf, const char *fmt, ...);
@@ -168,37 +168,37 @@ s32 FldStartupDataUpdate(u8 *task)
     switch (state) {
     case 0:
         func_00440b68(&D_00762FC8, D_005F0A88, 0xE6);
-        baseModelFile = (HCdvd *)func_00454a60((u8 *)D_005F0AF8, 0);
+        baseModelFile = (HCdvd *)H_Cdvd_AcquireDirectory((u8 *)D_005F0AF8, 0);
         H_Cdvd_ReadSync(baseModelFile);
         D_00764364 = (s32)mdlCreateModelObjectFromMemory(4, 0x7D0,
                                       baseModelFile->fileMemory, baseModelFile->fileSize, 0);
         sprintf(mapPath, D_005F0A70);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x6B);
-        work->mapFile = (HCdvd *)func_00454a60((u8 *)mapPath, 1);
+        work->mapFile = (HCdvd *)H_Cdvd_AcquireDirectory((u8 *)mapPath, 1);
         sprintf(scriptPath, D_005F0AA0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x89);
-        work->fieldScript = (HCdvd *)func_00454a60((u8 *)scriptPath, 0);
+        work->fieldScript = (HCdvd *)H_Cdvd_AcquireDirectory((u8 *)scriptPath, 0);
         sprintf(dungeonPath, D_005F0AC0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0xA9);
-        work->dungeonTable = (HCdvd *)func_00454a60((u8 *)dungeonPath, 0);
+        work->dungeonTable = (HCdvd *)H_Cdvd_AcquireDirectory((u8 *)dungeonPath, 0);
         work->npcTable = (HCdvd *)NpcTable_RequestFixedTable();
         work->unitTable = (HCdvd *)FldEnemyOpenTable();
         func_00440b68(&D_00762FC8, D_005F0A88, 0x124);
-        work->rainModels[0] = (HCdvd *)func_00454a60((u8 *)D_005F0B10, 0);
+        work->rainModels[0] = (HCdvd *)H_Cdvd_AcquireDirectory((u8 *)D_005F0B10, 0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x125);
-        work->rainModels[1] = (HCdvd *)func_00454a60((u8 *)D_005F0B30, 0);
+        work->rainModels[1] = (HCdvd *)H_Cdvd_AcquireDirectory((u8 *)D_005F0B30, 0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x128);
-        work->televisionModels[0] = (HCdvd *)func_00454a60((u8 *)D_005F0B50, 0);
+        work->televisionModels[0] = (HCdvd *)H_Cdvd_AcquireDirectory((u8 *)D_005F0B50, 0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x129);
-        work->televisionModels[1] = (HCdvd *)func_00454a60((u8 *)D_005F0B70, 0);
+        work->televisionModels[1] = (HCdvd *)H_Cdvd_AcquireDirectory((u8 *)D_005F0B70, 0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x12A);
-        work->supportScript = (HCdvd *)func_00454a60((u8 *)D_005F0B90, 0);
+        work->supportScript = (HCdvd *)H_Cdvd_AcquireDirectory((u8 *)D_005F0B90, 0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x12B);
-        D_007E3710[0] = (s32)func_00454a60((u8 *)D_005F0BB0, 0);
+        D_007E3710[0] = (s32)H_Cdvd_AcquireDirectory((u8 *)D_005F0BB0, 0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x12C);
-        D_007E3714[0] = (s32)func_00454a60((u8 *)D_005F0BD0, 0);
+        D_007E3714[0] = (s32)H_Cdvd_AcquireDirectory((u8 *)D_005F0BD0, 0);
         func_00440b68(&D_00762FC8, D_005F0A88, 0x12D);
-        D_007E3718[0] = (s32)func_00454a60((u8 *)D_005F0BF0, 0);
+        D_007E3718[0] = (s32)H_Cdvd_AcquireDirectory((u8 *)D_005F0BF0, 0);
         chkmemAllocSiteTag(D_005F0A88, 0xC5);
         soundMemory = (u16 *)D_008873F4[0](1, 0x414, 0x40000);
         uGpffffb270 = soundMemory;

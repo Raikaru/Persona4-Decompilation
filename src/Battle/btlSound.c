@@ -69,10 +69,10 @@ extern u8 sdkSndStartChannel(s16 channelIndex, const char* name);
 extern u8 *D_0076449C;
 
 extern void func_00440b68(const char* fmt, const char* file, s32 line);
-extern void* func_00454a60(const char* path, s32 flags);
+extern void* H_Cdvd_AcquireDirectory(const char* path, s32 flags);
 extern s32 H_Cdvd_IsFileLoaded(void* handle);
 extern void H_Cdvd_Destroy(void* handle);
-extern u8* func_00455ea0(u8* handle, s32 index, s32* out);
+extern u8* H_Cdvd_GetArchiveEntry(u8* handle, s32 index, s32* out);
 extern s32 sdkSndQueueSlotRequest(s32 bank, void* file1, u32 size1, void* file2, u32 size2, void* file3, u32 size3);
 extern s32 hsndSlotIsStarting(s32 bank);
 
@@ -182,7 +182,7 @@ void btlSoundSkillSEInit(void* work)
     {
         sprintf(buffer, D_00624F30, sGpffffa4F8, packet->skillId);
         func_00440b68(sGpffffa4F0, D_00624F20, 0x274);
-        packet->cdvd = func_00454a60(buffer, 0);
+        packet->cdvd = H_Cdvd_AcquireDirectory(buffer, 0);
     }
     else
     {
@@ -210,7 +210,7 @@ u32 btlSoundSkillSEUpdate(void* work)
     {
         sprintf(buffer, D_00624F30, sGpffffa4F8, packet->skillId);
         func_00440b68(sGpffffa4F0, D_00624F20, 0x2AA);
-        packet->cdvd = func_00454a60(buffer, 0);
+        packet->cdvd = H_Cdvd_AcquireDirectory(buffer, 0);
     }
 
     switch (packet->state)
@@ -227,9 +227,9 @@ u32 btlSoundSkillSEUpdate(void* work)
             sdkSndStopStream(2, (s16)i);
         }
 
-        file1 = func_00455ea0(packet->cdvd, 0, (s32*)&file1Size);
-        file2 = func_00455ea0(packet->cdvd, 1, (s32*)&file2Size);
-        file3 = func_00455ea0(packet->cdvd, 2, (s32*)&file3Size);
+        file1 = H_Cdvd_GetArchiveEntry(packet->cdvd, 0, (s32*)&file1Size);
+        file2 = H_Cdvd_GetArchiveEntry(packet->cdvd, 1, (s32*)&file2Size);
+        file3 = H_Cdvd_GetArchiveEntry(packet->cdvd, 2, (s32*)&file3Size);
         sdkSndQueueSlotRequest(2, file1, file1Size, file2, file2Size, file3, file3Size);
         packet->state = 2;
         break;

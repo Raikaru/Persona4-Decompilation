@@ -18,7 +18,7 @@ s32 strlen(const char *text);
 void chkmemAllocSiteTag(const void *msg, s32 id);
 void memcpy(void *dst, const void *src, u32 size);
 void memset(void *dst, s32 value, u32 size);
-s32 func_00455f70(s32 arg0, s32 *arg1);
+s32 H_Cdvd_LookupRequest(s32 arg0, s32 *arg1);
 u8 *sdkSpriteRequestLoad(const char *name);
 u32 func_0046a750(s16 *param);
 f32 sdkSpriteEntryWidth(void *ptr, s32 index);
@@ -103,7 +103,7 @@ u8 *sdkSpritePackCreate(u8 *arg0)
 // FUN_0025F110
 s32 func_0025f110(u8 *arg0)
 {
-    s32 func_00455f70(s32, s32 *);
+    s32 H_Cdvd_LookupRequest(s32, s32 *);
     u8 *sdkSpriteRequestLoad(const char *);
     u32 func_0046a750(s16 *);
     s32 temp;
@@ -122,7 +122,7 @@ s32 func_0025f110(u8 *arg0)
         result = *(u8 **)(arg0 + 8);
         offset = index * 4;
         if (*(u8 **)(result + offset) == NULL) {
-            loaded = func_00455f70(
+            loaded = H_Cdvd_LookupRequest(
                 (s32)*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4)) + index * 4),
                 &temp);
             if (loaded != 0) {

@@ -186,10 +186,10 @@ u32 strlen(void* arg0);
 
 extern s32 scrLoadScriptStep(u8* task);
 s32 H_Cdvd_IsFileLoaded(s32 arg0);
-s32 func_00454a60(void* arg0, s32 arg1);
+s32 H_Cdvd_AcquireDirectory(void* arg0, s32 arg1);
 s32 func_004680f0(u8* task, s8* text);
 void strcpy(void* arg0, void* arg1);
-s32 func_00455f70(s32 arg0, s32 *arg1);
+s32 H_Cdvd_LookupRequest(s32 arg0, s32 *arg1);
 void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
 static inline u8 *scrAddOff(u32 offset, u8 *base)
 {
@@ -819,12 +819,12 @@ s32 scrLoadScriptStep(u8 *sdkTask)
             }
             strcpy(task->text + 0x100, (u8 *)selectionText + strlen(prefix));
             func_00440b68(&iGpffffa7d0, D_0063E3D0, 0x417);
-            task->unk_210 = func_00454a60(task->text + 0x100, 0);
+            task->unk_210 = H_Cdvd_AcquireDirectory(task->text + 0x100, 0);
             task->state = 1;
             break;
         case 1:
             if (H_Cdvd_IsFileLoaded(task->unk_210) != 0) {
-                task->unk_224 = func_00455f70((s32)(task->text + 0x100), &loadedSize);
+                task->unk_224 = H_Cdvd_LookupRequest((s32)(task->text + 0x100), &loadedSize);
                 task->state = 2;
                 task->unk_218 = 0;
                 task->unk_21C = 30.0f;

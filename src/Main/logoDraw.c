@@ -7,7 +7,7 @@
 extern void func_00440b68(...);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void kAssertFail(const void *file, u32 line);
-extern void *func_00454a60(const char *path, s32 flags);
+extern void *H_Cdvd_AcquireDirectory(const char *path, s32 flags);
 extern void H_Cdvd_Destroy(void *handle);
 extern s32 H_Cdvd_IsFileLoaded(void *handle);
 
@@ -78,7 +78,7 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
     case 1:
         temp_2->state = 2;
         func_00440b68(&D_00762D88, &D_005E5730, 0xB5);
-        temp_2->handle = (s32)func_00454a60(D_005E5760, 1);
+        temp_2->handle = (s32)H_Cdvd_AcquireDirectory(D_005E5760, 1);
     case 2:
         if (H_Cdvd_IsFileLoaded((void *)temp_2->handle) != 0) {
             temp_2->state = 3;

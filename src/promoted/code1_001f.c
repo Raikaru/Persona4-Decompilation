@@ -162,7 +162,7 @@ extern s32 iGpffffb464;
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void sprintf(void *dst, void *fmt, ...);
-extern s32 func_00456250(s32 arg0, void *arg1, s32 arg2, void *arg3);
+extern s32 H_Cdvd_StartStreamLoad(s32 arg0, void *arg1, s32 arg2, void *arg3);
 extern s32 func_004c7ef8(s32 arg0);
 extern u8 D_00624F50[];
 extern u8 D_00624F60[];

@@ -62,7 +62,7 @@ extern s32 iGpffff85b8;
 extern s32 iGpffffb194;
 extern s32 iGpffffb1a0;
 extern s32 iGpffffb19c;
-extern void func_00454640(void);
+extern void H_Cdvd_UpdateRequests(void);
 extern void resourceLoadSprites(void);
 extern void func_0045b7c0(void);
 extern void sdkSndUpdate(void);
@@ -115,7 +115,7 @@ extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void func_0044f570(s32 arg0);
 extern void kwlnTaskInitPool(s32 arg0);
 extern void H_Cdvd_ResetStreamState(void);
-extern void func_004559b0(void);
+extern void H_Cdvd_InitDevices(void);
 extern s32 kwlnGetCamera(void);
 extern u8 D_005DD680[];
 /* RenderWare keeps its engine instance in the `ourGlobals` array
@@ -491,7 +491,7 @@ void fclBankSlotLoad(u8 *slot)
                             const char *cacheName, s32 resultKind, s32 memoryKind);
     extern u8 *func_004669d0(u8 *request, s32 *complete, s32 *size);
     extern s32 func_004672c0(s32 request, u8 *archive);
-    extern u8 *func_00454a60(u8 *path, s32 mode);
+    extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
     extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
     extern s32 func_003ef3a0(struct RwTexture *texture);
     extern void fclBankSlotUpdate(u8 *slot);
@@ -578,7 +578,7 @@ void fclBankSlotLoad(u8 *slot)
             *(s16 *)slot = 0;
         } else {
             func_00440b68((u8 *)&iGpffff85d0 + 8, D_005DD670, 0xC5);
-            *(u8 **)(slot + 0x24) = func_00454a60(slot + 0x60, 1);
+            *(u8 **)(slot + 0x24) = H_Cdvd_AcquireDirectory(slot + 0x60, 1);
             *(s16 *)slot = 1;
         }
         break;

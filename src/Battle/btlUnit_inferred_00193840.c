@@ -63,7 +63,7 @@ extern u8 iGpffffa0a0;
 extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
 extern void func_00440b68(void *msg, const void *file, s32 line);
-extern s32 func_00454a60(s32 arg0, s32 arg1);
+extern s32 H_Cdvd_AcquireDirectory(s32 arg0, s32 arg1);
 extern void H_Cdvd_ReadSync(s32 arg0);
 extern s32 H_Cdvd_IsFileLoaded(s32 arg0);
 extern void H_Cdvd_Destroy(s32 arg0);
@@ -262,7 +262,7 @@ s32 btlUnitLoadBlocksFromFile(u8 *arg0, s32 arg1)
 
     if (iGpffffb434 == 0) {
         func_00440b68(&iGpffffa0a0, D_005F6BE0, 0x4B1);
-        iGpffffb434 = func_00454a60(*(s32 *)arg0, 0);
+        iGpffffb434 = H_Cdvd_AcquireDirectory(*(s32 *)arg0, 0);
     }
     if (arg1 != 0) {
         H_Cdvd_ReadSync(iGpffffb434);

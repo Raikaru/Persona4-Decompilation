@@ -30,7 +30,7 @@ extern void func_00440b68(char *fmt, ...);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern s32 kwlnTaskIsLinked(void *task);
 extern u32 kwlnTaskGetWork(void *task);
-extern u8 *func_00454a60(u8 *path, s32 kind);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 kind);
 extern void H_Cdvd_Destroy(void *handle);
 extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 extern char D_006372C0[];
@@ -110,7 +110,7 @@ s32 func_00260020(u8 *task)
             D_007637A0 = day;
             sprintf(buf90, D_006372C0, day);
             func_00440b68(D_007637A8, D_006372B0, 0x57);
-            D_00764578 = (s32)func_00454a60((u8 *)buf90, 0);
+            D_00764578 = (s32)H_Cdvd_AcquireDirectory((u8 *)buf90, 0);
             sched->state = 1;
         }
         else

@@ -118,7 +118,7 @@ extern u8 *K_ClumpMatColorScale(u8 *arg0, u8 *arg1);
 extern void H_Cdvd_BuildPathUppercase(s32 arg0, void *arg1);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void strcat(void *arg0, void *arg1);
-extern void func_00456400(u8 *arg0, u8 *arg1, s32 arg2, void *arg3);
+extern void H_Cdvd_RegisterArchiveEntry(u8 *arg0, u8 *arg1, s32 arg2, void *arg3);
 extern void *FldRc_ScaleGeometryColors(void *arg0, void *arg1);
 extern u8 *K_ClumpMatPropScale(u8 *material, u8 *data);
 extern void *FldRc_SetGeometryVector(void *arg0, void *arg1);

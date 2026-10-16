@@ -337,7 +337,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern void func_002be4a0(void);
     extern s32 sdkSpriteRequestLoad(void *);
     extern void func_00440b68(const void *, const void *, s32);
-    extern void *func_00454a60(const void *, s32);
+    extern void *H_Cdvd_AcquireDirectory(const void *, s32);
     extern s32 H_Cdvd_IsFileLoaded(void *);
     extern s32 datGetFlag(s32);
     extern void datSetFlag(s32, s32);
@@ -864,7 +864,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     case 0x9:                                       /* switch 1 */
         (*(s32 *)(work + 0xF28)) = sdkSpriteRequestLoad(&D_0063FAA0);
         func_00440b68(iGpffffa878, D_0063FAC0, 0x147);
-        (*(void * *)(work + 0xF2C)) = func_00454a60(D_0063FAD0, 0);
+        (*(void * *)(work + 0xF2C)) = H_Cdvd_AcquireDirectory(D_0063FAD0, 0);
         (*(s8 *)(work + 0)) = 0xA;
         /* fallthrough */
     case 0xA:                                       /* switch 1 */

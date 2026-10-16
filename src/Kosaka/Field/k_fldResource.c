@@ -32,7 +32,7 @@ typedef struct { f32 x; f32 y; f32 z; f32 w; } Vec4;
 
 extern s32 sprintf(char *dst, const char *format, ...);
 extern s32 func_00440b68(const char *format, ...);
-extern s32 func_00454a60(char *path, s32 mode);
+extern s32 H_Cdvd_AcquireDirectory(char *path, s32 mode);
 extern s32 H_Cdvd_IsFileLoaded(s32 handle);
 extern u8 *func_00460f80(u8 *list, s32 arg1);
 extern u8 *func_00461080(u8 *list, s32 arg1);
@@ -71,7 +71,7 @@ extern RwMatrix *func_003e9700(RwFrame *frame);
 extern void K_Clump_FreeTextureNameList(void *arg0);
 extern s32 func_004b1130(s32 a0);
 extern void *memset(void *dst, s32 value, u32 size);
-extern s32 func_00455f70(void *arg0, s32 *arg1);
+extern s32 H_Cdvd_LookupRequest(void *arg0, s32 *arg1);
 extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
 extern s32 func_003df3c0(s32 arg0, s32 *arg1);
 extern void func_003e2ce0(s32 arg0, u32 arg1);
@@ -161,7 +161,7 @@ void FldResource_OpenPrimaryFile(s32 arg0, s32 arg1)
     if (iGpffffb200 == 0) {
         sprintf(path, D_005EFC60, (u16)arg0, (u16)arg1);
         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x9E);
-        iGpffffb200 = func_00454a60(path, 1);
+        iGpffffb200 = H_Cdvd_AcquireDirectory(path, 1);
     }
 }
 
@@ -235,7 +235,7 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
             if (iGpffffb204 == 0) {
                 sprintf(sp90, D_005EFC90, (s16)arg0, (s16)arg1);
                 func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0xC9);
-                iGpffffb204 = func_00454a60(sp90, 1);
+                iGpffffb204 = H_Cdvd_AcquireDirectory(sp90, 1);
             }
             {
                 s32 i;
@@ -268,7 +268,7 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
         if (iGpffffb204 == 0) {
             sprintf(sp50, D_005EFC90, (s16)arg0, (s16)arg1);
             func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0xC9);
-            iGpffffb204 = func_00454a60(sp50, 1);
+            iGpffffb204 = H_Cdvd_AcquireDirectory(sp50, 1);
         }
         work = iGpffff9db0;
         *(s16 *)(fldResourceWorkOffset(*(s32 *)(work + 0x98) * 4, work) + 0x9C) = (s16)arg0;
@@ -1263,7 +1263,7 @@ u8 *FldResource_Create(char *arg0)
     if (iGpffffb204 == 0) {
         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x4A5);
         *(s32 *)(*(u8 **)(resource + 0xA44) + 0x80) =
-            func_00454a60(*(char **)(resource + 0xA44), 0);
+            H_Cdvd_AcquireDirectory(*(char **)(resource + 0xA44), 0);
     } else {
         *(s32 *)(*(u8 **)(resource + 0xA44) + 0x80) = 1;
     }
@@ -1302,7 +1302,7 @@ void FldResource_ParseChunks(u8 *resource)
     s32 child;
     u8 *destination;
 
-    data = func_00455f70(*(u8 **)(resource + 0xA44), &size);
+    data = H_Cdvd_LookupRequest(*(u8 **)(resource + 0xA44), &size);
     memory[0] = data;
     memory[1] = size;
     if (data != 0) {
@@ -1586,7 +1586,7 @@ void FldResource_RequestEntryLoads(u8 *arg0)
                         strcat(sp1A0, sp160);
                         sprintf(sp160, D_005EFDA8, sp1F8.value);
                         strcat(sp1A0, sp160);
-                        r = func_00455f70(sp1A0, (s32 *)&sp20C);
+                        r = H_Cdvd_LookupRequest(sp1A0, (s32 *)&sp20C);
                         *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x12C) = (s32)mdlCreateModelObjectFromMemory(4, (u16)sp1F8.value, (void *)r, sp20C, 0);
                     }
                 } else if (sp200.value == 1) {
@@ -1597,7 +1597,7 @@ void FldResource_RequestEntryLoads(u8 *arg0)
                         sprintf(spE0, D_005EFDD8, sp1F8.value);
                         strcat(sp120, spE0);
                         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x6A1);
-                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) = func_00454a60(sp120, 0);
+                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) = H_Cdvd_AcquireDirectory(sp120, 0);
                         if (*(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) == 0) {
                             kAssertFail((const char *)D_005EFC80, 0x6A2);
                         }
@@ -1607,7 +1607,7 @@ void FldResource_RequestEntryLoads(u8 *arg0)
                         strcat(sp120, spE0);
                         sprintf(spE0, D_005EFDD8, sp1F8.value);
                         strcat(sp120, spE0);
-                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) = func_00455f70(sp120, &sp208);
+                        *(s32 *)(arg0 + *(u32 *)(arg0 + 0x11C) * 0x18 + 0x134) = H_Cdvd_LookupRequest(sp120, &sp208);
                     }
                 } else if (sp200.value == 2) {
                     strcpy(spA0, D_005EFE00);

@@ -17,9 +17,9 @@ extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void func_0038f8d0(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
 extern s32 H_Cdvd_IsFileLoaded(u8 *ptr);
-extern u8 *func_00455ea0(u8 *resource, s32 index, s32 *size);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *resource, s32 index, s32 *size);
 extern void H_Cdvd_Destroy(u8 *ptr);
-extern u8 *func_00454a60(u8 *param, s32 mode);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern void frFontSlotLoadData(s32 slot, u8 *data);
 extern void frFontSlotFree(s32 slot);
@@ -51,7 +51,7 @@ void func_0038f680(void)
     work = sOpTailC;
     if ((work[0] & 1) != 0 && H_Cdvd_IsFileLoaded((u8 *)(uintptr_t)work[2]) != 0) {
         for (i = 0; i < 2; i++) {
-            data = func_00455ea0((u8 *)(uintptr_t)work[2], i, &size);
+            data = H_Cdvd_GetArchiveEntry((u8 *)(uintptr_t)work[2], i, &size);
             switch (i) {
             case 0:
                 work[3] = (u32)func_0038f400((const u32 *)data);
@@ -82,7 +82,7 @@ void func_0038f7f0(void)
     if ((~work[0] & 1) == 0) {
         kAssertFail(D_0064F250, 0x68);
     }
-    work[2] = (u32)func_00454a60((u8 *)D_0064F260, 1);
+    work[2] = (u32)H_Cdvd_AcquireDirectory((u8 *)D_0064F260, 1);
     work[0] |= 1;
 }
 

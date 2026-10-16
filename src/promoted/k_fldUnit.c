@@ -154,7 +154,7 @@ void FldUnit_UpdateSlot(s32 arg0);
 void FldUnit_SetSlotModel(u8 *arg0, s32 arg1);
 s32 mdlPrepareModel(u8 *arg0);
 s32 func_00440b68(const char *fmt, ...);
-u8 *func_00454a60(u8 *arg0, s32 arg1);
+u8 *H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
 s32 FldMap_IsCurrentInBandA(void);
 s32 FldMap_IsCurrentInBandB(void);
 s32 FldUnit_SetupEncounter(u8 *arg0);

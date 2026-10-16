@@ -3,7 +3,7 @@
 /* Original translation unit mt_sceneIcon.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-extern s32 func_00455f70(s32 arg0, void *arg1);
+extern s32 H_Cdvd_LookupRequest(s32 arg0, void *arg1);
 extern u8 *func_004b1130(s32 arg0);
 extern void MT_Scene_SpawnIconTask(s32 arg0);
 extern s32 D_0063B4F0[];
@@ -26,7 +26,7 @@ extern s32 func_0026d890(u8 *arg0);
 extern u8 D_0063B558[];
 extern u8 D_0063B568[];
 extern void func_00440b68(u8 *fmt, u8 *file, s32 line);
-extern u8 *func_00454a60(u8 *path, s32 mode);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
 extern void H_Cdvd_ReadSync(u8 *handle);
 
 
@@ -40,7 +40,7 @@ extern void H_Cdvd_ReadSync(u8 *handle);
 void func_0026d840(void)
 {
     func_00440b68(&iGpffffa6f8, D_0063B558, 0x38);
-    H_Cdvd_ReadSync(func_00454a60(D_0063B568, 1));
+    H_Cdvd_ReadSync(H_Cdvd_AcquireDirectory(D_0063B568, 1));
 }
 
 // FUN_0026D890
@@ -65,7 +65,7 @@ s32 func_0026d890(u8 *arg0)
         } else if (D_0063B4F0[idx] == 0) {
             res = 0;
         } else {
-            res = func_00455f70(D_0063B4F0[idx], &sp3C[0]);
+            res = H_Cdvd_LookupRequest(D_0063B4F0[idx], &sp3C[0]);
         }
         *(s32 *)(w + 0xC) = res;
         *(u32 *)w = 1;

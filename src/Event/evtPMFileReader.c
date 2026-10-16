@@ -9,9 +9,9 @@ extern u8 D_0063C970[];
 extern u8 D_0063C990[];
 extern char iGpffffa7c0;
 extern void func_00290710(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5);
-extern u8 *func_00454a60(u8 *arg0, s32 arg1);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern s32 func_00455f70(u8 *arg0, s32 *arg1);
+extern s32 H_Cdvd_LookupRequest(u8 *arg0, s32 *arg1);
 extern s32 *func_002904f0(s32 **arg0);
 extern s32 *func_002905a0(s32 **arg0);
 extern s32 *func_00290660(s32 **arg0);
@@ -78,24 +78,24 @@ s32 func_002938c0(u8 *task) {
             *(s32 *)(temp_2 + 0x38) = 0;
             *(s32 *)(temp_2 + 0x3C) = 0;
             func_00440b68(&iGpffffa7c0, D_0063C970, 0x3F);
-            *(s32 *)(temp_2 + 0x1C) = (s32)func_00454a60(sp20, 1);
+            *(s32 *)(temp_2 + 0x1C) = (s32)H_Cdvd_AcquireDirectory(sp20, 1);
             *(u8 **)temp_2 = (u8 *)1;
             break;
         case 1:
             if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x1C)) == 1) {
-                temp_2_2 = func_00455f70(spE0, &sp12C);
+                temp_2_2 = H_Cdvd_LookupRequest(spE0, &sp12C);
                 *(s32 *)(temp_2 + 0x34) = temp_2_2;
                 if (temp_2_2 == 0) {
                     *(s32 *)(temp_2 + 0x28) = (s32)func_002904f0((s32 **)(temp_2 + 0x34));
                 }
                 evtMemAccount(4, sp12C);
-                temp_2_3 = func_00455f70(spA0, &sp12C);
+                temp_2_3 = H_Cdvd_LookupRequest(spA0, &sp12C);
                 *(s32 *)(temp_2 + 0x38) = temp_2_3;
                 if (temp_2_3 == 0) {
                     *(s32 *)(temp_2 + 0x2C) = (s32)func_002905a0((s32 **)(temp_2 + 0x38));
                 }
                 evtMemAccount(5, sp12C);
-                temp_2_4 = func_00455f70(sp60, &sp12C);
+                temp_2_4 = H_Cdvd_LookupRequest(sp60, &sp12C);
                 *(s32 *)(temp_2 + 0x3C) = temp_2_4;
                 if (temp_2_4 == 0) {
                     *(s32 *)(temp_2 + 0x30) = (s32)func_00290660((s32 **)(temp_2 + 0x3C));
@@ -112,13 +112,13 @@ s32 func_002938c0(u8 *task) {
         switch ((s32)temp_3) {
         case 0:
             func_00440b68(&iGpffffa7c0, D_0063C970, 0x6C);
-            *(s32 *)(temp_2 + 0x1C) = (s32)func_00454a60(spE0, 0);
+            *(s32 *)(temp_2 + 0x1C) = (s32)H_Cdvd_AcquireDirectory(spE0, 0);
             *(u8 **)temp_2 = (u8 *)1;
             break;
         case 1:
             if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x1C)) == 1) {
                 *(s32 *)(temp_2 + 0x28) = 0;
-                *(s32 *)(temp_2 + 0x34) = func_00455f70(spE0, &sp12C);
+                *(s32 *)(temp_2 + 0x34) = H_Cdvd_LookupRequest(spE0, &sp12C);
                 evtMemAccount(4, sp12C);
                 *(u8 **)temp_2 = (u8 *)2;
             }
@@ -133,7 +133,7 @@ s32 func_002938c0(u8 *task) {
                 *(u8 **)temp_2 = (u8 *)4;
             } else {
                 func_00440b68(&iGpffffa7c0, D_0063C970, 0x8C);
-                *(s32 *)(temp_2 + 0x20) = (s32)func_00454a60(spA0, 0);
+                *(s32 *)(temp_2 + 0x20) = (s32)H_Cdvd_AcquireDirectory(spA0, 0);
                 *(u8 **)temp_2 = (u8 *)3;
             }
             break;
@@ -141,7 +141,7 @@ s32 func_002938c0(u8 *task) {
             if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x20)) == 1) {
                 *(u8 **)temp_2 = (u8 *)4;
                 *(s32 *)(temp_2 + 0x2C) = 0;
-                *(s32 *)(temp_2 + 0x38) = func_00455f70(spA0, &sp12C);
+                *(s32 *)(temp_2 + 0x38) = H_Cdvd_LookupRequest(spA0, &sp12C);
                 evtMemAccount(5, sp12C);
             }
             break;
@@ -155,7 +155,7 @@ s32 func_002938c0(u8 *task) {
                 *(u8 **)temp_2 = (u8 *)6;
             } else {
                 func_00440b68(&iGpffffa7c0, D_0063C970, 0xA8);
-                *(s32 *)(temp_2 + 0x24) = (s32)func_00454a60(sp60, 0);
+                *(s32 *)(temp_2 + 0x24) = (s32)H_Cdvd_AcquireDirectory(sp60, 0);
                 *(u8 **)temp_2 = (u8 *)5;
             }
             break;
@@ -163,7 +163,7 @@ s32 func_002938c0(u8 *task) {
             if (H_Cdvd_IsFileLoaded(*(u8 **)(temp_2 + 0x24)) == 1) {
                 *(u8 **)temp_2 = (u8 *)6;
                 *(s32 *)(temp_2 + 0x30) = 0;
-                *(s32 *)(temp_2 + 0x3C) = func_00455f70(sp60, &sp12C);
+                *(s32 *)(temp_2 + 0x3C) = H_Cdvd_LookupRequest(sp60, &sp12C);
                 evtMemAccount(6, sp12C);
             }
             break;

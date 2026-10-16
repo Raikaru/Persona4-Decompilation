@@ -8,8 +8,8 @@ void chkmemAllocSiteTag(void *arg0, s32 arg1);
 void strcpy(void *arg0, const char *arg1);
 void func_00440b68(char *arg0, const char *arg1, s32 arg2);
 void memcpy(void *arg0, void *arg1, s32 arg2);
-u8 *func_00455f70(void *arg0, u32 *arg1);
-u8 *func_00454a60(void *arg0, s32 arg1);
+u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
+u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 void func_003ec330(void *ptr);
 s32 func_004667d0(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
 s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
@@ -228,7 +228,7 @@ void sdkSpriteLoadStep(u8 *arg0)
     switch (state) {
     case 0:
         func_00440b68(&iGpffffb038, D_007130C8, 0xB3);
-        *(u32 *)(arg0 + 0x208) = (u32)func_00454a60(arg0 + 2, 0);
+        *(u32 *)(arg0 + 0x208) = (u32)H_Cdvd_AcquireDirectory(arg0 + 2, 0);
         *(s16 *)arg0 = 1;
         break;
     case 1:
@@ -368,7 +368,7 @@ u8 *sdkSpriteCreateFromName(const char *name)
     node = D_008873F4[0](1, 0x240, 0x40000);
     *(s16 *)node = 1;
     strcpy(node + 2, name);
-    *(u32 *)(node + 0x20C) = (u32)func_00455f70((void *)name, &out);
+    *(u32 *)(node + 0x20C) = (u32)H_Cdvd_LookupRequest((void *)name, &out);
     if (iGpffffbb18 == NULL) {
         iGpffffbb18 = node;
     } else {

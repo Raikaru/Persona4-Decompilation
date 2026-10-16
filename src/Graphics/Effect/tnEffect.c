@@ -45,7 +45,7 @@ void *K_Clump_GetLightC(void);
 void func_003c38b0(void *arg0, void *arg1);
 void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
-u8 *func_00454a60(const void *arg0, s32 arg1);
+u8 *H_Cdvd_AcquireDirectory(const void *arg0, s32 arg1);
 void H_Cdvd_Destroy(void *arg0);
 void H_Cdvd_ReadSync(void *arg0);
 void sprintf(void *arg0, const void *arg1, s32 arg2);
@@ -321,7 +321,7 @@ void TnInitModule(s32 arg0)
     color0 = D_007132D0;
     color1 = D_007132E0;
     func_00440b68(sStr_7641E8, D_00713270, 0x35);
-    handle = func_00454a60(D_00713280, 1);
+    handle = H_Cdvd_AcquireDirectory(D_00713280, 1);
     H_Cdvd_ReadSync(handle);
     index = 0;
     while (index < 0x16)

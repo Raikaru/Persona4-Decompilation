@@ -13,7 +13,7 @@ struct BtlPanel
 };
 
 void func_00440b68();
-extern u8* func_00454a60(u8* param, s32 mode);
+extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
 void H_Cdvd_Destroy(u8* ptr);
 s32 H_Cdvd_IsFileLoaded(u8* ptr);
 s32 datGetFlag(s32 id);
@@ -60,10 +60,10 @@ s32 btlPanelIsEnabled(void* param)
         if (rec == NULL) {
             if (datGetFlag(0x1438) == 0) {
                 func_00440b68(&iGpffffa578, D_00626780, 0x532);
-                panel->records = func_00454a60(D_00626790, 1);
+                panel->records = H_Cdvd_AcquireDirectory(D_00626790, 1);
             } else {
                 func_00440b68(&iGpffffa578, D_00626780, 0x534);
-                panel->records = func_00454a60(D_006267B0, 1);
+                panel->records = H_Cdvd_AcquireDirectory(D_006267B0, 1);
             }
             goto check;
         }
@@ -135,7 +135,7 @@ void btlPanelLoadSync(void)
     u8* t;
 
     func_00440b68(&iGpffffa578, D_00626780, 0x5FB);
-    t = func_00454a60(D_006267D0, 0);
+    t = H_Cdvd_AcquireDirectory(D_006267D0, 0);
     H_Cdvd_ReadSync(t);
     iGpffffb470 = TnUploadStream(*(s32*)(t + 0x110));
     H_Cdvd_Destroy(t);

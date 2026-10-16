@@ -60,9 +60,9 @@ extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 extern void sdkSpriteRelease(u8* arg0);
 extern void H_Cdvd_Destroy(u8* arg0);
-extern u8* func_00454a60(void* arg0, s32 arg1);
+extern u8* H_Cdvd_AcquireDirectory(void* arg0, s32 arg1);
 extern s32 H_Cdvd_IsFileLoaded(u8* arg0);
-extern s32 func_00455f70(void* arg0, u32* arg1);
+extern s32 H_Cdvd_LookupRequest(void* arg0, u32* arg1);
 extern s32 func_0046a750(s32 arg0);
 extern void func_00440b68(void* arg0, void* arg1, u32 arg2);
 extern u8* cmmItemInfoRecord(s32 arg0);
@@ -928,7 +928,7 @@ s32 cmmScriptLoadStep(u8 *task)
     case 1:
         t->state = 2;
         func_00440b68(&iGpffffa658, D_006359F0, 0x35D);
-        t->cdvdHandle = (s32)func_00454a60(D_00635A40, 1);
+        t->cdvdHandle = (s32)H_Cdvd_AcquireDirectory(D_00635A40, 1);
     case 2:
         if (H_Cdvd_IsFileLoaded((u8*)t->cdvdHandle) != 0) {
             t->state = 3;
@@ -937,7 +937,7 @@ s32 cmmScriptLoadStep(u8 *task)
         break;
     case 3:
         t->state = 4;
-        loadId = func_00455f70(D_00635A60, (u32*)&sp2c);
+        loadId = H_Cdvd_LookupRequest(D_00635A60, (u32*)&sp2c);
         if (loadId != 0) {
             t->data = (s32)sdkSpriteAdoptBlob((u32)loadId);
         }
@@ -1002,7 +1002,7 @@ void cmmScriptTaskDestroyHandle(s32 arg0)
 #pragma optimization_level 1
 s32 cmmScriptSpawnHandle(s32 arg0) {
     extern s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask* task);
-    extern s32 func_00455f70(s32 arg0, s32* arg1);
+    extern s32 H_Cdvd_LookupRequest(s32 arg0, s32* arg1);
     extern s32 func_0025ff60(s32 arg0);
     s64 pos;
     f32 sp48;
@@ -1047,29 +1047,29 @@ s32 cmmScriptSpawnHandle(s32 arg0) {
     }
     switch (arg0) {
     case 0:
-        temp_2_3 = func_0025fe50(task, func_00455f70((s32)(uintptr_t)&D_00635AA0, &sp4C), 0, &D_005DC7D0);
+        temp_2_3 = func_0025fe50(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AA0, &sp4C), 0, &D_005DC7D0);
         func_004b1250((void *)(u32)(func_0025ff60(temp_2_3)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_3;
         break;
     case 1:
-        temp_2_4 = func_0025fe50(task, func_00455f70((s32)(uintptr_t)&D_00635AC0, &sp4C), 0, &D_005DC7D0);
+        temp_2_4 = func_0025fe50(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AC0, &sp4C), 0, &D_005DC7D0);
         func_004b1250((void *)(u32)(func_0025ff60(temp_2_4)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_4;
         break;
     case 2:
-        temp_2_5 = func_0025fe50(task, func_00455f70((s32)(uintptr_t)&D_00635AE0, &sp4C), 0, &D_005DC7D0);
+        temp_2_5 = func_0025fe50(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635AE0, &sp4C), 0, &D_005DC7D0);
         func_004b1250((void *)(u32)(func_0025ff60(temp_2_5)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_5;
         break;
     case 3:
-        temp_2_6 = func_0025fe50(task, func_00455f70((s32)(uintptr_t)&D_00635B00, &sp4C), 0, &D_005DC7D0);
+        temp_2_6 = func_0025fe50(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635B00, &sp4C), 0, &D_005DC7D0);
         temp_2_7 = func_0025ff60(temp_2_6);
         (*(f32*)((u8*)&pos + 4)) -= 10.0f;
         func_004b1250((void *)(u32)(temp_2_7), (f32 *)((void*)&pos));
         *temp_16 = temp_2_6;
         break;
     case 4:
-        temp_2_8 = func_0025fe50(task, func_00455f70((s32)(uintptr_t)&D_00635B20, &sp4C), 0, &D_005DC7D0);
+        temp_2_8 = func_0025fe50(task, H_Cdvd_LookupRequest((s32)(uintptr_t)&D_00635B20, &sp4C), 0, &D_005DC7D0);
         func_004b1250((void *)(u32)(func_0025ff60(temp_2_8)), (f32 *)((void*)&pos));
         *temp_16 = temp_2_8;
         break;

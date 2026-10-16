@@ -22,7 +22,7 @@ extern s32 func_00106cd0(s32 arg0, s32 arg1);
 extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
-extern u8 *func_00455f70(void *arg0, u32 *arg1);
+extern u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
 extern char D_007636e0;
 extern char D_006358D0[];
 extern char D_006358F0[];

@@ -59,7 +59,7 @@ extern char D_005F1010[];
 extern char D_005F1030[];
 extern u8 D_005F1050[];
 
-extern u8 *func_00454a60(u8 *path, s32 mode);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
 extern void H_Cdvd_ReadSync(HCdvd *file);
 extern void *mdlCreateModelObjectFromMemory(u32 kind, u16 id, void *memory, u32 size, u32 flags);
 extern s32 sprintf(char *buf, const char *fmt, ...);

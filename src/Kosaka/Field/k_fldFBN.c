@@ -89,11 +89,11 @@ extern char *strcpy(char *destination, const char *source);
 extern s32 func_00440b68(const char *format, ...);
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern u32 H_Cdvd_FileExists(const char *path);
-extern u8 *func_00454a60(void *arg0, s32 arg1);
+extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern u32 H_Cdvd_Destroy(void *arg0);
 typedef struct HCdvd HCdvd;
 extern u32 H_Cdvd_IsFileLoaded(HCdvd *arg0);
-extern u8 *func_00455f70(void *arg0, u32 *arg1);
+extern u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
 extern void kAssertFailMsg(const char *file, s32 line, const char *message, ...);
 extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
 extern s32 mdlPrepareModel(u8 *arg0);
@@ -138,7 +138,7 @@ u8 *FldFbnOpenData(s32 arg0, s32 arg1, s16 arg2)
             return NULL;
         }
         func_00440b68(&D_00762FD0, D_005F1068, 0xD4);
-        return func_00454a60(&sp40, 0);
+        return H_Cdvd_AcquireDirectory(&sp40, 0);
     }
     return (u8 *)1;
 }
@@ -177,7 +177,7 @@ s32 FldFbnReadTable(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
         fbn = *(u8 **)(arg0 + 0x110);
     } else {
         sprintf(path, D_005F10B0, arg2 & 0xFFFF, arg3 & 0xFFFF, (s16)arg4);
-        fbn = func_00455f70(path, &size);
+        fbn = H_Cdvd_LookupRequest(path, &size);
         if (fbn == NULL) {
             return 1;
         }

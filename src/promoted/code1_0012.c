@@ -88,7 +88,7 @@ extern s32 sdkListStateHandleInput(void *arg0);
 extern s32 sdkListStateGetCursor(void *arg0);
 extern u16 D_008C024E[];
 extern void sprintf(void *arg0, const char *arg1, ...);
-extern s32 func_00455f70(void *arg0, s32 *arg1);
+extern s32 H_Cdvd_LookupRequest(void *arg0, s32 *arg1);
 extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
 extern s32 mdlPrepareModel(void *arg0);
 extern u8 D_005E5560[];
@@ -1743,7 +1743,7 @@ loop_18:
         } else {
             sprintf(sp50, (const char *)D_005E5570, var_16 - 7);
         }
-        var_17 = func_00455f70(sp50, (s32 *)&sp7C);
+        var_17 = H_Cdvd_LookupRequest(sp50, (s32 *)&sp7C);
         if (var_17 == 0) {
             kAssertFail(D_005E5548, 0xFE);
         }
@@ -2531,7 +2531,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern s32 func_0043c6a0(s32);
     extern f32 sinf(f32);
     extern u32 kwlnTaskGetWork(void *task);
-    extern s32 func_00455f70();
+    extern s32 H_Cdvd_LookupRequest();
     extern s32 func_0045ad50();
     extern void func_0045c870(u8 *colors, s32 enabled);
     extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
@@ -3211,7 +3211,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 func_0025f3f0(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f20_4)), 0, 0, taskView->sprites, 0);
             }
             if (temp_16 == 0x55) {
-                func_0045ad50(2, func_00455f70(&D_005E56D0, &sp6B8), sp6B8);
+                func_0045ad50(2, H_Cdvd_LookupRequest(&D_005E56D0, &sp6B8), sp6B8);
             }
             if (temp_16 > 0x5a) {
                 if (temp_16 < 0x65) {
@@ -3868,7 +3868,7 @@ s32 func_0012aa70(u8 *task)
     extern char D_00795E60[];
     extern f32 fGpffff813c;
     extern s32 func_00440b68(const char *, ...);
-    extern u8 *func_00454a60(u8 *task, s32 arg1);
+    extern u8 *H_Cdvd_AcquireDirectory(u8 *task, s32 arg1);
     extern s32 H_Cdvd_IsFileLoaded(void *task);
     extern u8 *sdkSpritePackCreate(u8 *task);
     extern s32 func_0025f110(u8 *task);
@@ -3927,7 +3927,7 @@ s32 func_0012aa70(u8 *task)
     case 1:
         *(s32 *)work = 2;
         func_00440b68((const char *)&iGpffff9c90, D_005E5548, 0x5D0);
-        *(u8 **)(work + 0x38) = func_00454a60(D_005E5710, 1);
+        *(u8 **)(work + 0x38) = H_Cdvd_AcquireDirectory(D_005E5710, 1);
     case 2:
         if (H_Cdvd_IsFileLoaded(*(u8 **)(work + 0x38)) != 0) {
             *(s32 *)work = 3;

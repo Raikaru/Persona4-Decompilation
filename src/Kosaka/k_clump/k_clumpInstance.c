@@ -47,7 +47,7 @@ extern s32 func_00428780(s32 arg0, void *arg1);
 extern s32 atoi(const char *arg0);
 extern void strcat(void *arg0, const char *arg1);
 extern void func_00440b68(char *arg0, const char *arg1, s32 arg2);
-extern u8 *func_00454a60(void *arg0, s32 arg1);
+extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern void H_Cdvd_ReadSync(void *arg0);
 extern void H_Cdvd_Destroy(void *arg0);
 extern void func_003c0700(void *arg0);
@@ -202,7 +202,7 @@ s32 K_Clump_LoadDirUpdate(u8 *arg0)
         break;
     case 2:
         func_00440b68(&iGpffffa080, D_005F6500, 0xEB);
-        work->field_450 = func_00454a60(work->path, 0);
+        work->field_450 = H_Cdvd_AcquireDirectory(work->path, 0);
         H_Cdvd_ReadSync(work->field_450);
         strcpy(local.buffer, D_005F6570);
         path_cursor = work->path;

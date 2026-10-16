@@ -178,7 +178,7 @@ extern f32 DAT_00761130;
 extern u8 D_00713138[];
 extern u8 D_007241d0;
 extern void func_00440b68(void* a, void* b, int c);
-extern u8* func_00454a60(u8* a, s32 b);
+extern u8* H_Cdvd_AcquireDirectory(u8* a, s32 b);
 extern void chkmemAllocSiteTag(const void* file, s32 line);
 extern void* memset(void* destination, int value, size_t count);
 extern void* DAT_008873e8[];
@@ -4304,11 +4304,11 @@ void* mdlCreateModelObjectFromMemory(u32 type, u16 id, void* memory, u32 size, u
    shape and distinct pair structs reproduce the retail stack layout and
    return path; the previous nd-74/nd-9 layouts are retained here only as
    historical probe context. */
-/* Creates a model object for type and id from resource arg2, using func_00455ea0's pair (or an existing object's pair when mdlQueryModelType matches), and prepares it. */
+/* Creates a model object for type and id from resource arg2, using H_Cdvd_GetArchiveEntry's pair (or an existing object's pair when mdlQueryModelType matches), and prepares it. */
 // FUN_00477FB0
 void* mdlCreateModelObjectFromResource(u32 arg0, u16 arg1, void* arg2, u32 arg3)
 {
-    extern u8* func_00455ea0(u8*, s32, s32*);
+    extern u8* H_Cdvd_GetArchiveEntry(u8*, s32, s32*);
     extern void mdlSeRequestLoad(void**, u32, u16, s32, u32);
     void* obj;
     void* result;
@@ -4340,7 +4340,7 @@ void* mdlCreateModelObjectFromResource(u32 arg0, u16 arg1, void* arg2, u32 arg3)
         mdlPrepareModel(arg2);
         return arg2;
     }
-    retA = (u32)func_00455ea0(arg2, 0, (s32*)&stack9c);
+    retA = (u32)H_Cdvd_GetArchiveEntry(arg2, 0, (s32*)&stack9c);
     retVal = stack9c;
     obj = mdlAllocModelObject(arg0, arg1);
     if ((arg3 & 1) != 0) {
@@ -4351,7 +4351,7 @@ void* mdlCreateModelObjectFromResource(u32 arg0, u16 arg1, void* arg2, u32 arg3)
     pair1.b = retVal;
     mdlSetAuxPair(obj, &pair1);
     mdlPrepareModel(obj);
-    retB = (u32)func_00455ea0(arg2, 1, (s32*)&stack9c);
+    retB = (u32)H_Cdvd_GetArchiveEntry(arg2, 1, (s32*)&stack9c);
     mdlSeRequestLoad((void**)((u8*)obj + 0x2D0), arg0, arg1, (s32)retB, stack9c);
     result = obj;
 done:
@@ -6093,13 +6093,13 @@ void mdlSetAuxPair(void* param_1, void* param_2)
     *(u32*)((u8*)obj + 0x30) = *(u32*)((u8*)param_2 + 4);
 }
 
-/* Stores func_00454a60(param_2, 0) at +0x38 of the auxiliary block and clears its first word. */
+/* Stores H_Cdvd_AcquireDirectory(param_2, 0) at +0x38 of the auxiliary block and clears its first word. */
 // FUN_0047AFF0
 void mdlSetAuxResource(void* param_1, void* param_2)
 {
     void* obj = *(void**)((u8*)param_1 + 0x30C);
     func_00440b68(&D_007241d0, D_00713138, 0x1786);
-    *(u32*)((u8*)obj + 0x38) = (u32)func_00454a60((u8*)param_2, 0);
+    *(u32*)((u8*)obj + 0x38) = (u32)H_Cdvd_AcquireDirectory((u8*)param_2, 0);
     *(u32*)((u8*)obj + 0x0) = 0;
 }
 

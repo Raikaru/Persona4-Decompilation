@@ -24,7 +24,7 @@ extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern s32 sdkSpritePackCreate(const void *);
 extern s32 func_0025f110(s32);
-extern s32 func_00454a60(const char *path, s32 flags);
+extern s32 H_Cdvd_AcquireDirectory(const char *path, s32 flags);
 extern void func_00440b68(const void *, ...);
 extern void H_Memcard_SetRecordTable(void *);
 extern void func_0025e8b0(s32);
@@ -1114,7 +1114,7 @@ s32 mcIconTaskUpdate(u8 *sdkTaskBytes) {
         *(s16 *)(w + 0) = 4;
         *(u32 *)(w + 0x398) = sdkSpritePackCreate(D_0063EB20);
         func_00440b68(&D_00763900, &D_007638F8, 0x47E);
-        *(u32 *)(w + 0x3A4) = func_00454a60(D_0063ED38, 1);
+        *(u32 *)(w + 0x3A4) = H_Cdvd_AcquireDirectory(D_0063ED38, 1);
         *(u32 *)(w + 0x568) = 0;
         *(u32 *)(w + 4) |= 0x400;
         /* fallthrough */

@@ -71,7 +71,7 @@ extern f32 iGpffffb28c;
 extern s32 iGpffffb288;
 extern f32 iGpffff8218;
 extern f32 iGpffff830c;
-extern s32 func_00454a60(void *arg0, s32 arg1);
+extern s32 H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern u8 D_005EFF60[];
 extern void FldColorCrossfadeStep(void);
 extern s32 D_007D2510[];
@@ -3251,7 +3251,7 @@ void FldStepPreloadBegin(void) {
         return;
     }
     func_00440b68(&iGpffff9e28, D_005F05E8, 0xB48);
-    iGpffffb218 = func_00454a60(D_005F06C0, 1);
+    iGpffffb218 = H_Cdvd_AcquireDirectory(D_005F06C0, 1);
 }
 
 // Intent: Once the preload file is loaded, create its two file-load tasks; returns 1 when nothing is left to wait for [inferred]
@@ -3319,7 +3319,7 @@ s32 FldStepOpenDataFile(void)
     }
     if (*(u32 *)(*(u8 **)(p + 0x38) + 0x2C) == 0) {
         func_00440b68(&iGpffff9e28, D_005F05E8, 0xC19);
-        r = func_00454a60(D_005F0720, 0);
+        r = H_Cdvd_AcquireDirectory(D_005F0720, 0);
     }
     return r;
 }
@@ -3366,7 +3366,7 @@ void FldStepLoadNumberedFile(s32 arg0) {
 
     sprintf(sp10, (const char *)D_005F0740, arg0);
     func_00440b68(&iGpffff9e28, D_005F05E8, 0xC49);
-    func_00454a60(sp10, 0);
+    H_Cdvd_AcquireDirectory(sp10, 0);
 }
 
 // Intent: Return 1 when the id is zero or its file is loaded [inferred]
@@ -3396,7 +3396,7 @@ u8 *FldStepLoadFilePair(s32 arg0, s32 arg1) {
         return NULL;
     }
     func_00440b68(&iGpffff9e28, D_005F05E8, 0xC9E);
-    return (u8 *)func_00454a60(sp30, 0);
+    return (u8 *)H_Cdvd_AcquireDirectory(sp30, 0);
 }
 // Intent: Return 1 for a null handle or when its file is loaded [inferred]
 // FUN_0015C6F0

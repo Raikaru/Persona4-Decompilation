@@ -36,7 +36,7 @@ extern void func_003e2e40(s32 a, s32 b);
 extern s32 func_003e6a90(s32 a);
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 func_004288d8(void *a, void *b);
-extern u8 *func_00454a60(void *path, s32 flags);
+extern u8 *H_Cdvd_AcquireDirectory(void *path, s32 flags);
 extern void H_Cdvd_ReadSync(void *handle);
 extern void H_Cdvd_Destroy(void *handle);
 extern char *strcat(char *dst, const char *src);

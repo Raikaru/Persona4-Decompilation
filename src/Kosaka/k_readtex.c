@@ -24,7 +24,7 @@ extern void func_003ef3a0(void *handle);
 extern s32 func_003ef6d0(void);
 extern void *func_003ef650(s32 owner, const void *name);
 extern void func_00440b68(const void *file, const void *message, s32 line);
-extern void *func_00454a60(const char *path, s32 flags);
+extern void *H_Cdvd_AcquireDirectory(const char *path, s32 flags);
 extern void H_Cdvd_Destroy(void *handle);
 extern s32 func_004667d0(s32, const void *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern void func_004669d0(s32 task, s32 *result, s32 flags);
@@ -69,13 +69,13 @@ s32 K_ReadTexUpdate(u8 *arg0)
             func_003ef3a0(handle);
         }
         func_00440b68(&iGpffffa030, D_005F60B8, 0x54);
-        state->handles[0] = func_00454a60((const char *)D_005F60D0, 0);
+        state->handles[0] = H_Cdvd_AcquireDirectory((const char *)D_005F60D0, 0);
         func_00440b68(&iGpffffa030, D_005F60B8, 0x55);
-        state->handles[1] = func_00454a60((const char *)D_005F60F0, 0);
+        state->handles[1] = H_Cdvd_AcquireDirectory((const char *)D_005F60F0, 0);
         func_00440b68(&iGpffffa030, D_005F60B8, 0x56);
-        state->handles[2] = func_00454a60((const char *)D_005F6110, 0);
+        state->handles[2] = H_Cdvd_AcquireDirectory((const char *)D_005F6110, 0);
         func_00440b68(&iGpffffa030, D_005F60B8, 0x57);
-        state->handles[3] = func_00454a60((const char *)D_005F6130, 0);
+        state->handles[3] = H_Cdvd_AcquireDirectory((const char *)D_005F6130, 0);
         state->state += 1;
         /* fall through */
     case 1:

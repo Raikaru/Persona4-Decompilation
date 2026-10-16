@@ -14,7 +14,7 @@ extern void kAssertFail(const void *file, u32 line);
 extern s32 func_0025f110(void *arg);
 extern void sdkSpritePackDestroy(u32 arg);
 extern void func_0046a750(void *arg);
-extern s32 func_00455f70(char *str, void *out);
+extern s32 H_Cdvd_LookupRequest(char *str, void *out);
 
 extern s32 sdkSpritePackCreate(char *str);
 extern s32 mtSceneBuildSpriteTable(void);
@@ -281,13 +281,13 @@ void msgWinStart(void *arg0)
     s32 local;
     s32 tmp;
 
-    tmp = func_00455f70(D_0063BFE0, &local);
+    tmp = H_Cdvd_LookupRequest(D_0063BFE0, &local);
     if (tmp != 0) {
         D_007245C8 = (s32)sdkSpriteAdoptBlob((u32)tmp);
     } else {
         D_007245C8 = 0;
     }
-    tmp = func_00455f70(D_0063C000, &local);
+    tmp = H_Cdvd_LookupRequest(D_0063C000, &local);
     if (tmp != 0) {
         D_007245CC = (s32)sdkSpriteAdoptBlob((u32)tmp);
     } else {

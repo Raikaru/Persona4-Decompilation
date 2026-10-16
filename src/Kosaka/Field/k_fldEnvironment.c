@@ -25,7 +25,7 @@ extern void strcpy(void *arg0, const char *arg1);
 extern void sprintf();
 extern s32 H_Cdvd_FileExists(void *arg0);
 extern void func_00440b68(char *arg0, const char *arg1, s32 arg2);
-extern u8 *func_00454a60(void *arg0, s32 arg1);
+extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern char D_005EFE78[];
 extern char D_005EFED0[];
 extern char D_005EFE90[];
@@ -34,7 +34,7 @@ extern u8 *iGpffff9db0;
 extern char iGpffff9e18;
 extern char iGpffff9e20;
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern u8 *func_00455f70(void *arg0, void *arg1);
+extern u8 *H_Cdvd_LookupRequest(void *arg0, void *arg1);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern void memset(void *arg0, s32 arg1, u32 arg2);
 extern u8 *kwlnGetCamera(void);
@@ -151,7 +151,7 @@ s32 FldEnvOpenFile(s32 arg0) {
             return 0;
         }
         func_00440b68(&iGpffff9e18, D_005EFE50, 0x1A1);
-        return (s32)func_00454a60(&sp20, 0);
+        return (s32)H_Cdvd_AcquireDirectory(&sp20, 0);
     }
     return 1;
 }
@@ -221,7 +221,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
                 sprintf(&sp60, D_005EFEB0, g - 0x1E, 0);
             }
         }
-        data = func_00455f70(&sp60, &spAC);
+        data = H_Cdvd_LookupRequest(&sp60, &spAC);
         if (data == NULL) {
             return 1;
         }
@@ -600,7 +600,7 @@ s32 FldCamOpenFile(void) {
             return 0;
         }
         func_00440b68(&iGpffff9e18, D_005EFE50, 0x571);
-        return (s32)func_00454a60(&sp10, 0);
+        return (s32)H_Cdvd_AcquireDirectory(&sp10, 0);
     }
     return 1;
 }
@@ -624,7 +624,7 @@ s32 FldCamReadRecord(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
     } else {
         sprintf(&spA0, D_005EFEF0,
                       *(s32 *)iGpffff9db0, *(s32 *)(iGpffff9db0 + 4));
-        data = func_00455f70(&spA0, &spEC);
+        data = H_Cdvd_LookupRequest(&spA0, &spEC);
         if (data == 0) {
             return 1;
         }

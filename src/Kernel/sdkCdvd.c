@@ -64,10 +64,11 @@ extern char D_00710910[];
  * Typed cache indexing gives the retail request/base hoist order; an explicit
  * base initializer leaves three words different. The compound refCount -=
  * preserves the RHS-first loads and store before the signed comparison. */
+// Intent: per-frame step of the CD request list. Advances each node's read state (open, read blocks, parse the archive) and destroys nodes whose reference count drops to zero.
 // FUN_00454640
 #pragma push
 #pragma opt_loop_invariants on
-void func_00454640(void)
+void H_Cdvd_UpdateRequests(void)
 {
     extern void func_00468a50(void);
     extern void movieLoadStep(void);
@@ -226,8 +227,9 @@ tail:
 }
 #pragma pop
 
+// Intent: returns the directory node for `arg0`, creating it when needed, and takes a reference on it.
 // FUN_00454A60
-u8* func_00454a60(u8* arg0, s32 arg1) {
+u8* H_Cdvd_AcquireDirectory(u8* arg0, s32 arg1) {
     u8 buf[0x100];
     u8* node;
     u8* newnode;
@@ -265,15 +267,17 @@ u8* func_00454a60(u8* arg0, s32 arg1) {
     return newnode;
 }
 
+// Intent: stream close callback. Nothing to release.
 // FUN_00455510
-void func_00455510(void) {
+void H_Cdvd_StreamCloseNoop(void) {
 }
 
 /* measured: long128 local with s64 position; reload the just-stored s32
    fileOffset into out.position so the compiler's lw sign-extend feeds the
    sd/lq/sq without a separate dsll32/dsrl32 pair. u32 arithmetic for sltu. */
+// Intent: stream seek by mode. Modes 1 and 2 move forward from the current offset; mode 3 seeks from the end. Writes the new position to `resultData`.
 // FUN_004555D0
-void func_004555d0(void* resultData, void* slotData, s32 amount, s32 mode)
+void H_Cdvd_StreamSeek(void* resultData, void* slotData, s32 amount, s32 mode)
 {
     typedef signed __int128 long128;
     struct HCdvdStreamData
@@ -357,13 +361,14 @@ extern u8 iGpffffad78;
 extern u8 iGpffffad80;
 extern s32 iGpffffbaa0;
 
+// Intent: creates a stream device with `arg0` entries of `arg2` bytes each, starting at `arg1`, and registers its callbacks. Returns the device record.
 // FUN_004557E0
 /* measured: D_008873F4 is a function-pointer table; retail hoists the TABLE
    ADDRESS into $s0 (lui/addiu) and loads the function pointer per call
    (lw $v0,($s0); jalr $v0). Achieved with an integer-cast base local
    (u32 base = (u32)D_008873F4), and arg3/arg4 declared s32 (not u8*) — the
    pointer arg types mis-coloured obj/arg4 ($s1/$s2 swap, nd 8). */
-u8* func_004557e0(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) {
+u8* H_Cdvd_CreateStreamDevice(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) {
     u8* obj;
     u32 base;
     u8* sub;
@@ -378,10 +383,10 @@ u8* func_004557e0(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) {
     *(void**)(obj + 0x14) = &H_Cdvd_StreamGetSlot;
     *(void**)(obj + 0x18) = &H_Cdvd_StreamContextFree;
     *(void**)(obj + 0x28) = &H_Cdvd_StreamAttachCacheEntry;
-    *(void**)(obj + 0x2C) = &func_00455510;
+    *(void**)(obj + 0x2C) = &H_Cdvd_StreamCloseNoop;
     *(void**)(obj + 0x30) = &H_Cdvd_StreamReadChunk;
     *(void**)(obj + 0x44) = &H_Cdvd_StreamAtEnd;
-    *(void**)(obj + 0x38) = &func_004555d0;
+    *(void**)(obj + 0x38) = &H_Cdvd_StreamSeek;
     *(void**)(obj + 0x4C) = &H_Cdvd_IsCached;
     chkmemAllocSiteTag(D_00710870, 0x430);
     sub = ((u8* (*)(s32, s32, s32))*(u32*)base)(arg0, 0x110, 0x40000);
@@ -405,8 +410,9 @@ u8* func_004557e0(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) {
    with u8* 4th/5th parameters makes the call materialise a0,a1,a2,a3,t0
    left-to-right, while the function still sees the address bits as s32. */
 #pragma opt_propagation off
+// Intent: initialises the CD devices (the file device, the stream device and the sound slots), then sets the ready flag.
 // FUN_004559B0
-void func_004559b0(void) {
+void H_Cdvd_InitDevices(void) {
     void (**base)(void*, void*);
     u8* tmp1;
     u8* tmp2;
@@ -426,8 +432,8 @@ void func_004559b0(void) {
     base[0](&iGpffffba40, &iGpffffad58);
     base[0](&iGpffffba38, &iGpffffad70);
     {
-        extern u8* func_004557e0(s32, u8*, s32, u8*, u8*);
-        tmp2 = func_004557e0(5, D_008C3780, 0x800, &iGpffffba40, &iGpffffba38);
+        extern u8* H_Cdvd_CreateStreamDevice(s32, u8*, s32, u8*, u8*);
+        tmp2 = H_Cdvd_CreateStreamDevice(5, D_008C3780, 0x800, &iGpffffba40, &iGpffffba38);
     }
     if (func_003dd830(tmp2) == 0) {
         func_00440b68(D_00711690);
@@ -452,8 +458,9 @@ extern char D_007116F0[];
 extern char D_00710870[];
 void kAssertFailAt(const void* file, const void* file2, u32 line);
 
+// Intent: stores a request record (three words and a 0x80-byte name) in the first free request slot. Asserts when the table is full.
 // FUN_00455D70
-void func_00455d70(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
+void H_Cdvd_RegisterRequest(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
     s32 i;
 
     for (i = 0; i < 0x100; i++) {
@@ -476,8 +483,9 @@ void func_00455d70(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
    fix-up), and it must be a SECOND `+=` after `entry += 0x100`: one combined
    expression colours the base into $v1 and the fix-up into $v0, the split
    keeps entry+0x100 in $a0 and size+0x3f in $v1 as retail. */
+// Intent: returns the data of archive entry `arg1` and writes its length to `arg2`, or to a local when `arg2` is null.
 // FUN_00455EA0
-u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2) {
+u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2) {
     u8 header[0x100];
     s32 out_local;
     s32 i;
@@ -496,8 +504,9 @@ u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2) {
     *arg2 = *(s32 *)(header + 0xFC);
     return entry + 0x100;
 }
+// Intent: finds the registered request whose normalised path matches `arg0`. Writes its slot to `arg1` and returns its value, or 0 when none matches.
 // FUN_00455F70
-s32 func_00455f70(s32 arg0, s32* arg1) {
+s32 H_Cdvd_LookupRequest(s32 arg0, s32* arg1) {
     u8 buf1[0x100];
     u8 buf2[0x100];
     u8 buf3[0x100];
@@ -524,16 +533,18 @@ s32 func_00455f70(s32 arg0, s32* arg1) {
     return 0;
 }
 
+// Intent: starts a stream load of path `arg1` on channel `arg0`, reporting completion through `arg3`. Returns 0.
 // FUN_00456250
-s32 func_00456250(s32 arg0, void* arg1, s32 arg2, void* arg3) {
+s32 H_Cdvd_StartStreamLoad(s32 arg0, void* arg1, s32 arg2, void* arg3) {
     H_Cdvd_BuildPathUppercase(arg1, D_008C0680);
     H_Cdvd_SplitPath(D_008C0680, D_008C0780, D_008C0880);
     func_004c74f8((void*)arg0, D_008C0780, D_005BC790, arg3);
     return 0;
 }
 
+// Intent: stores an archive entry record (three words and a 0x80-byte name) in the first free request slot. Asserts when the table is full.
 // FUN_00456400
-void func_00456400(s32 arg0, s32 arg1, s32 arg2, u8* arg3) {
+void H_Cdvd_RegisterArchiveEntry(s32 arg0, s32 arg1, s32 arg2, u8* arg3) {
     s32 i;
 
     for (i = 0; i < 0x100; i++) {

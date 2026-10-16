@@ -154,7 +154,7 @@ void FldUnit_UpdateSlot(s32 arg0);
 void FldUnit_SetSlotModel(u8 *arg0, s32 arg1);
 s32 mdlPrepareModel(u8 *arg0);
 s32 func_00440b68(const char *fmt, ...);
-u8 *func_00454a60(u8 *arg0, s32 arg1);
+u8 *H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
 s32 FldMap_IsCurrentInBandA(void);
 s32 FldMap_IsCurrentInBandB(void);
 s32 FldUnit_SetupEncounter(u8 *arg0);
@@ -1106,7 +1106,7 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
                     } else {
                         func_00440b68((const char *)D_00763008, D_005F1500, 0x1DD);
                         *(u8 **)(unit + 0x730) =
-                            func_00454a60(((u8 (*)[32])D_005F13C0)[pcId], 0);
+                            H_Cdvd_AcquireDirectory(((u8 (*)[32])D_005F13C0)[pcId], 0);
                     }
                     *(u16 *)(unit + 0x58) = entryId;
                 }
@@ -1763,7 +1763,7 @@ loop:
             D_007643C8[count] = (s32)mdlFindOrCreateModelObject(9, code, 0);
             func_00440b68((const char *)D_00763008, D_005F1500, 0x91C);
             D_007643C0[count] =
-                (s32)func_00454a60(D_005F13C0 + value * 0x20, 0);
+                (s32)H_Cdvd_AcquireDirectory(D_005F13C0 + value * 0x20, 0);
             *(s32 *)(D_007E8BE0 + j * 16) = 1;
             *(u16 *)(D_007E8BE0 + j * 16 + 4) = 9;
             *(u16 *)(D_007E8BE0 + j * 16 + 6) = code;
@@ -1784,7 +1784,7 @@ void FldUnit_RequestUnitResource(void)
         if (*(s32 *)p != 0) {
             D_007643C8[j] = (s32)mdlFindOrCreateModelObject(*(u16 *)(p + 4), *(u16 *)(p + 6), 0);
             func_00440b68((const char *)D_00763008, D_005F1500, 0x939);
-            D_007643C0[j] = (s32)func_00454a60(D_005F13C0 + (*(s32 *)(p + 0xC) << 5), 0);
+            D_007643C0[j] = (s32)H_Cdvd_AcquireDirectory(D_005F13C0 + (*(s32 *)(p + 0xC) << 5), 0);
             j++;
         }
     }

@@ -97,7 +97,7 @@ extern u8 D_00763A18[];
 extern void func_00332b60(u8 *, u8 *);
 extern s32 sdkSpriteRequestLoad(void *);
 extern void func_00440b68(void *, void *, s32);
-extern void *func_00454a60(void *, s32);
+extern void *H_Cdvd_AcquireDirectory(void *, s32);
 extern s32 func_0046a750(s32);
 extern s32 H_Cdvd_IsFileLoaded(void *);
 extern u8 *fclItemShopPanelCreate(void *, s32, s32);
@@ -202,7 +202,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
     case 0:
         *(s32 *)(work + 0xC) = sdkSpriteRequestLoad(D_0064A360);
         func_00440b68("%s %d", D_0064A380, 0x17B);
-        *(void **)(work + 0x428) = func_00454a60(D_0064A3A0, 0);
+        *(void **)(work + 0x428) = H_Cdvd_AcquireDirectory(D_0064A3A0, 0);
         *(s8 *)(work + 0) = 1;
         /* fallthrough */
     case 1:

@@ -13,7 +13,7 @@ extern void strcpy(void *arg0, const char *arg1);
 extern void sprintf();
 extern s32 H_Cdvd_FileExists(void *arg0);
 extern void func_00440b68(char *arg0, const char *arg1, s32 arg2);
-extern u8 *func_00454a60(void *arg0, s32 arg1);
+extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern char D_005F1108[];
 extern char D_005F1118[];
 extern char D_005F1130[];
@@ -25,7 +25,7 @@ extern char D_005F11D0[];
 extern u8 *iGpffff9db0;
 extern char iGpffff9ef0;
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern u8 *func_00455f70(void *arg0, u32 *arg1);
+extern u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern void H_Cdvd_Destroy(void *arg0);
@@ -49,7 +49,7 @@ u8 *FldHbnOpenData(s32 arg0, s32 arg1)
             return NULL;
         }
         func_00440b68(&iGpffff9ef0, D_005F1108, 0x17D);
-        return func_00454a60(&sp30, 0);
+        return H_Cdvd_AcquireDirectory(&sp30, 0);
     }
     return (u8 *)1;
 }
@@ -78,7 +78,7 @@ s32 FldHbnReadData(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
     else
     {
         sprintf(&sp50, D_005F1150, arg2 & 0xFFFF, arg3 & 0xFFFF);
-        data = func_00455f70(&sp50, &sp9C);
+        data = H_Cdvd_LookupRequest(&sp50, &sp9C);
     }
     if (data != NULL)
     {
@@ -212,7 +212,7 @@ u8 *FldHbnOpenTable(s32 arg0, s32 arg1)
             return NULL;
         }
         func_00440b68(&iGpffff9ef0, D_005F1108, 0x27D);
-        return func_00454a60(&sp30, 0);
+        return H_Cdvd_AcquireDirectory(&sp30, 0);
     }
     return (u8 *)1;
 }
@@ -242,7 +242,7 @@ s32 FldHbnLoadEntryTable(u8 *arg0)
     {
         temp_2 = (u8 *)iGpffff9db0;
         sprintf(&sp40, D_005F1190, *(s32 *)(temp_2 + 0), *(s32 *)(temp_2 + 4));
-        data = func_00455f70(&sp40, &sp8C);
+        data = H_Cdvd_LookupRequest(&sp40, &sp8C);
     }
     if (data != NULL)
     {
@@ -285,7 +285,7 @@ u8 *FldHbnOpenScript(s32 arg0)
             return NULL;
         }
         func_00440b68(&iGpffff9ef0, D_005F1108, 0x2E0);
-        return func_00454a60(&sp20, 0);
+        return H_Cdvd_AcquireDirectory(&sp20, 0);
     }
     return (u8 *)1;
 }
@@ -318,7 +318,7 @@ s32 FldHbnLoadScriptBuffer(u8 *arg0, s32 arg1)
     else
     {
         sprintf(&sp30, D_005F11D0, arg1 & 0xFFFF);
-        data = func_00455f70(&sp30, &sp7C);
+        data = H_Cdvd_LookupRequest(&sp30, &sp7C);
         if (data != NULL)
         {
             chkmemAllocSiteTag(D_005F1108, 0x30C);

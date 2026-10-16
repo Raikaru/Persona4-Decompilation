@@ -35,7 +35,7 @@ extern u8 *iGpffffb414;
 void btlFormationAllocEncounterSlots(void);
 void func_00440b68();
 void sprintf();
-extern u8* func_00454a60(u8* param, s32 mode);
+extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
 s32 H_Cdvd_IsFileLoaded(u8* ptr);
 extern char iGpffffa5e8;
 extern char D_00635620[];
@@ -414,7 +414,7 @@ u32 btlBossLoadPakInit(void* work)
 
     sprintf(buf, D_00635620, btlCurrentUnitId());
     func_00440b68(&iGpffffa5e8, D_00635638, 0x997);
-    *(u32*)(DAT_0076449c + 0xB90) = (u32)func_00454a60(buf, 1);
+    *(u32*)(DAT_0076449c + 0xB90) = (u32)H_Cdvd_AcquireDirectory(buf, 1);
 }
 
 
@@ -466,7 +466,7 @@ u32 btlBossLoadEndBgmStep(BtlBossEndBgmWork* work)
     {
         sprintf(buf, D_00635650, D_00635668, work->encountId);
         func_00440b68(&iGpffffa5e8, D_00635638, 0x9C6);
-        *(u32*)(DAT_0076449c + 0xB94) = (u32)func_00454a60(buf, 0);
+        *(u32*)(DAT_0076449c + 0xB94) = (u32)H_Cdvd_AcquireDirectory(buf, 0);
         work->loaded = 1;
         goto done;
     }
