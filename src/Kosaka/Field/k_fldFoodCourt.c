@@ -39,7 +39,7 @@ extern s32 kwlnTaskIsLinked(s32 arg0);
 extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);
 extern void func_00122640(s32 arg0, s32 arg1);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 
 
 
@@ -136,7 +136,7 @@ s32 K_FldFoodCourt_Update(u8 *arg0) {
             goto done;
         }
     case 3:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             temp_2_3 = *(u8 **)(temp_16 + 8);
             *(s32 *)(temp_16 + 0xC) =
                 func_0029db50(0xF, *(s32 *)(temp_2_3 + 0x110), *(s32 *)(temp_2_3 + 0x118), 1);

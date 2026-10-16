@@ -50,7 +50,7 @@ extern f32 MT_Scene_GetCameraFov();
 extern s32 sndRequestAreaTrack();
 extern void sndPlayAreaCue();
 extern void func_00122640(s32 a, s32 b);
-extern s32 func_00122720();
+extern s32 fadeStatus();
 extern void func_00122520(s32 a, s32 b);
 extern s32 kwlnTaskIsLinked(u8 *param);
 extern u8 *func_0029db50(s32 a, s32 b, s32 c, s32 d);
@@ -518,7 +518,7 @@ s32 func_00186eb0(u8 *arg0)
         *(s32 *)st = *(s32 *)st + 1;
     /* fallthrough */
     case 4:
-        if (func_00122720() == 0) {
+        if (fadeStatus() == 0) {
             break;
         }
         *(u8 **)(st + 0x158) = func_00186cc0(arg_save, st + 0x90, -230.0f, 0.0f, NULL, NULL, 10, 0);
@@ -654,7 +654,7 @@ s32 func_00186eb0(u8 *arg0)
         *(s32 *)st = *(s32 *)st + 1;
         break;
     case 9:
-        if (func_00122720() == 0) {
+        if (fadeStatus() == 0) {
             break;
         }
         if (*(s32 *)(st + 4) == 0) {

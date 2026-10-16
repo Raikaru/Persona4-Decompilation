@@ -57,8 +57,8 @@ extern void func_00103a60(void);
 extern s32 func_00121af0(u8 *task);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(char *name, u8 *task);
-extern void func_001221a0(void *arg0, u8 *arg1);
-extern void func_00122a40(void *unusedNode, void *work);
+extern void fadeUpdateCallback(void *arg0, u8 *arg1);
+extern void calendarDrawBackdrop(void *unusedNode, void *work);
 extern char D_00796340[];
 extern char D_00795F50[];
 extern s64 datGetDateIndex(void);
@@ -77,7 +77,7 @@ extern s32 calHasDayEntry();
 extern void func_00260450(void);
 extern s16 clndGetPeriod(void);
 extern s16 clndGetDaysSinceApr5(void);
-extern void func_00123850(void);
+extern void calendarSyncFromDate(void);
 extern s32 func_00268990(s32 arg0);
 extern void func_00103b00(void);
 extern void func_0046a340(s32 arg0);
@@ -209,7 +209,7 @@ typedef struct {
     u8 b[4];
 } PanelRgba;
 
-void func_00120ae0(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 sprites);
+void drawNumberSprites(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 sprites);
 
 // FUN_001203A0
 /* measured: b210 -O2 emits all 1856 retail bytes. Lifetime splitting
@@ -218,7 +218,7 @@ void func_00120ae0(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 s
    Full owner proof: build/cos20335-continuation/field-ui/review-001203a0-final. */
 #pragma push
 #pragma opt_lifetimes on
-void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 fullName)
+void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 fullName)
 {
     extern u8 *func_0046a770(char *filename);
     extern void kAssertFail(const void *file, s32 line);
@@ -312,7 +312,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     hpNumber = datCalcGetHpById(unit) & 0xFFFF;
     point.x = 30.0f + origin.x;
     point.y = 27.0f + origin.y;
-    func_00120ae0(point, depth, numberColor, hpNumber, panelSprites);
+    drawNumberSprites(point, depth, numberColor, hpNumber, panelSprites);
     if (showMaximum != 0) {
         hpMarkerX = 52.0f + origin.x;
         point.x = hpMarkerX;
@@ -327,7 +327,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
         hpMaxColor.b[1] = 0xA2;
         hpMaxColor.b[2] = 0;
         hpMaxColor.b[3] = (u8)opacity;
-        func_00120ae0(point, depth, hpMaxColor, maxHpNumber, panelSprites);
+        drawNumberSprites(point, depth, hpMaxColor, maxHpNumber, panelSprites);
         point.x = 123.0f + origin.x;
         point.y = 31.0f + origin.y;
     } else {
@@ -352,7 +352,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
     spNumber = datCalcGetSpById(unit) & 0xFFFF;
     point.x = 30.0f + origin.x;
     point.y = 43.0f + origin.y;
-    func_00120ae0(point, depth, numberColor, spNumber, panelSprites);
+    drawNumberSprites(point, depth, numberColor, spNumber, panelSprites);
     if (showMaximum != 0) {
         spMarkerX = 52.0f + origin.x;
         point.x = spMarkerX;
@@ -367,7 +367,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
         spMaxColor.b[1] = 0xA2;
         spMaxColor.b[2] = 0;
         spMaxColor.b[3] = (u8)opacity;
-        func_00120ae0(point, depth, spMaxColor, maxSpNumber, panelSprites);
+        drawNumberSprites(point, depth, spMaxColor, maxSpNumber, panelSprites);
         point.x = 123.0f + origin.x;
         point.y = 42.0f + origin.y;
     } else {
@@ -395,7 +395,7 @@ void func_001203a0(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaxi
 
 #pragma pop
 // FUN_00120AE0
-void func_00120ae0(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 sprites)
+void drawNumberSprites(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 sprites)
 {
     s32 alpha;
     u32 remaining;
@@ -443,7 +443,7 @@ void taskRecordSetPosition(u8 *arg0, s64 arg1)
     *(SVec2_0012 *)(temp_3 + 0x1C) = sp8;
 }
 // FUN_00120F70
-s32 func_00120f70(u8 *arg0) {
+s32 calendarStepTimeSlot(u8 *arg0) {
     s32 *temp_16;
     s32 temp_3;
 
@@ -518,7 +518,7 @@ s32 fadeTaskStep(u8 *unusedTask) {
     extern s32 calendarStartTimeChange(s32 arg0, s32 arg1);
     extern s32 clndGetPeriod(void);
     extern s32 clndGetDaysSinceApr5(void);
-    extern void func_00123850(void);
+    extern void calendarSyncFromDate(void);
     s32 temp_17;
     s32 temp_18;
     s32 temp_19;
@@ -577,7 +577,7 @@ s32 fadeTaskStep(u8 *unusedTask) {
     case 6:
         temp_17 = clndGetDaysSinceApr5();
         temp_18 = clndGetPeriod();
-        func_00123850();
+        calendarSyncFromDate();
         temp_19 = clndGetDaysSinceApr5();
         temp_2_4 = clndGetPeriod();
         if (temp_17 != temp_19) {
@@ -618,7 +618,7 @@ typedef struct {
     u8 c1f;
 } Frame00121DE0;
 // FUN_00121DE0
-void func_00121de0(void)
+void fadeDrawWipe(void)
 {
     extern f32 sinf(void *arg0, f32 arg1);
     Frame00121DE0 sp;
@@ -657,7 +657,7 @@ void func_00121de0(void)
     }
 }
 // FUN_00121F20
-void func_00121f20(void)
+void fadeDrawMesh(void)
 {
     typedef struct {
         f32 p0;
@@ -732,7 +732,7 @@ void func_00121f20(void)
 /* measured: opt_propagation off preserves the single hoisted D_00887300 base
    used by retail across this callback's state setup sequence. */
 #pragma opt_propagation off
-void func_001221a0(void *arg0, u8 *arg1)
+void fadeUpdateCallback(void *arg0, u8 *arg1)
 {
     typedef struct {
         s32 s0;
@@ -796,15 +796,15 @@ void func_001221a0(void *arg0, u8 *arg1)
         }
         goto done;
     state2:
-        func_00121de0();
+        fadeDrawWipe();
         goto done;
     state3:
-        func_00121f20();
+        fadeDrawMesh();
     done:
         base[0](0xE, result);
     }
 }
-/* measured: closes the opt_propagation bracket for func_001221a0. */
+/* measured: closes the opt_propagation bracket for fadeUpdateCallback. */
 #pragma opt_propagation on
 // FUN_001223D0
 s32 fadeQueueCallback(u8 *unusedTask) {
@@ -816,7 +816,7 @@ s32 fadeQueueCallback(u8 *unusedTask) {
     if (x == 0) {
         return 0;
     }
-    *(void **)(p + 8) = (void *)func_001221a0;
+    *(void **)(p + 8) = (void *)fadeUpdateCallback;
     *(s32 *)(p + 0x10) = x;
     func_00460ac0(D_00796340, p);
     return 0;
@@ -828,7 +828,7 @@ s32 fadeQueueCallback(u8 *unusedTask) {
    0, entry 3 returns 2, and anything >= 6 falls through to the default 1.
    The labels are declared in that object order because b210 lays case bodies
    out in declaration order. */
-s32 func_00122720(void) {
+s32 fadeStatus(void) {
     s32 *state;
 
     state = (s32 *)iGpffffb1cc;
@@ -959,7 +959,7 @@ void calendarStateTaskDestroy(u8 *arg0)
 #pragma push
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
-void func_00122a40(void *unusedNode, void *work)
+void calendarDrawBackdrop(void *unusedNode, void *work)
 {
     extern s32 (*D_00887304[])(RwRenderState state, void *value);
     extern s32 (*D_00887300[])(RwRenderState state, void *value);
@@ -1176,7 +1176,7 @@ s32 calendarQueueResult(u8 *unusedTask) {
 
     p = func_00460990();
     q = iGpffffb1dc;
-    *(void **)(p + 8) = (void *)func_00122a40;
+    *(void **)(p + 8) = (void *)calendarDrawBackdrop;
     *(u8 **)(p + 0x10) = q;
     func_00460ac0(D_00795F50, p);
     return 0;
@@ -1232,7 +1232,7 @@ s16 clndGetDaysSinceApr5(void)
 // FUN_00123850
 /* measured: opens optimization_level 1 to keep the +6 store and +4 load before the call conversion (nd 0). */
 #pragma optimization_level 1
-void func_00123850(void) {
+void calendarSyncFromDate(void) {
     CalendarState *p;
     s32 t;
     s16 first;
@@ -1536,7 +1536,7 @@ s32 clndSceneUpdate(u8 *arg0)
     temp_16 = *(u8 **)(arg0 + 0x38);
     switch (*(u32 *)temp_16) {
     case 0:
-        temp_2 = func_00122720();
+        temp_2 = fadeStatus();
         if (temp_2 == 0)
             break;
         switch (temp_2) {
@@ -1550,7 +1550,7 @@ s32 clndSceneUpdate(u8 *arg0)
         }
         break;
     case 1:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             *(u32 *)temp_16 = 2;
         }
         break;
@@ -1604,13 +1604,13 @@ s32 clndSceneUpdate(u8 *arg0)
     state2:
         func_001113b0();
         calRestoreDayFlagMask();
-        func_00123850();
+        calendarSyncFromDate();
         calendarSetMode(1);
         func_001029a0(0x19, 0, 0, 0);
         return -1;
     state3:
         iGpffffb1f0 = 1;
-        func_00123850();
+        calendarSyncFromDate();
         calendarSetMode(1);
         temp_3 = (s16)func_001060d0();
         if ((temp_3 == 9) && ((u8)func_001060e0() == 5)) {
@@ -1804,7 +1804,7 @@ s32 func_00124830(u8 *arg0)
     return -1;
 }
 // FUN_00124970
-void func_00124970(s32 arg0, u32 arg1, s32 arg2, u32 *arg3)
+void taskPrepareSlotModel(s32 arg0, u32 arg1, s32 arg2, u32 *arg3)
 {
     u8 spAC[4];
     u8 sp60[0x4C];
@@ -1995,9 +1995,9 @@ void func_00124bb0(s32 arg0,
         if (!(arg3 & 0x10000)) {
             mdlAdvanceModelFromFlags(var_16);
         }
-        func_00124970(arg0, arg2, arg3 | 2, arg4);
+        taskPrepareSlotModel(arg0, arg2, arg3 | 2, arg4);
         func_002ab550(var_16, color);
-        func_00124970(arg0, arg2, arg3 | 1, arg4);
+        taskPrepareSlotModel(arg0, arg2, arg3 | 1, arg4);
     }
 }
 #pragma opt_propagation on
@@ -2243,7 +2243,7 @@ extern s8 D_005E5610[];
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 
 // FUN_00125E80
-void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
+void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
 {
     u8 spCC[4];
     PrimPointRow sp90[6];
@@ -2358,7 +2358,7 @@ static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *
 /* The caller passes 0.0f in $f12-$f14 ahead of the colour and task
    (retail func_001265a0); the three floats are unused here. */
 // FUN_00126090
-void func_00126090(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
+void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
 {
     TitleColor fillColor;
     TitleColor black;
@@ -2514,7 +2514,7 @@ typedef s32 M2C_UNK;
  * Only the task reaches the word-returning work accessor; the first payload
  * is a real, unused callback input. See Title_entry_contract_001265a0_20261003. */
 // FUN_001265A0
-void func_001265a0(void *unusedDrawData, void *task) {
+void titleDrawTaskView(void *unusedDrawData, void *task) {
     f32 temp_f21;
     u32 *temp_20;
     TitleTaskView *taskView;
@@ -2947,7 +2947,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 sp4A0 = D_005E55A0;
                 func_0045d6e0((u8 *)&layerColor, titleCopyRect((u8 *)&sp4C0, (const u8 *)&sp4A0), 0.0f, 1);
             }
-            func_00126090(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)temp_20);
+            titleDrawShadeBars(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)temp_20);
             if (temp_16 >= 0xCD) {
                 /* Retail sp+0x67C is cleared bytewise before its independent value copy. */
                 overlayClearByte = firstOverlaySource.bytes;
@@ -2985,7 +2985,7 @@ void func_001265a0(void *unusedDrawData, void *task) {
                 if (temp_2_2 >= 0x168) {
                     taskView->f10 = 0;
                 }
-                func_00125e80(200.0f - 700.0f * (1.0f - (1.0f + sinf((((iGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0xB2, (u8 *)temp_20);
+                titleBuildPointRows(200.0f - 700.0f * (1.0f - (1.0f + sinf((((iGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0xB2, (u8 *)temp_20);
             }
             if (temp_16 > 0x3d) {
                 if (temp_16 < 0x11A) {
@@ -3369,7 +3369,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp2C0 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp600, titleCopyRect((u8 *)&sp2E0, (const u8 *)&sp2C0), 0.0f, 0);
                 func_0048a000();
-                func_00125e80(200.0f, 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
+                titleBuildPointRows(200.0f, 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
             } else if (temp_16 < 0xCE) {
                 var_3_20 = sp64C.bytes;
                 var_2_17 = 4;
@@ -3401,7 +3401,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp290 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp290), 0.0f, 0);
                 func_0048a000();
-                func_00125e80(200.0f - 700.0f * sinf(((((1.5707964f * (f32) (temp_16 - 0x55)) / 120.0f)))), 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
+                titleBuildPointRows(200.0f - 700.0f * sinf(((((1.5707964f * (f32) (temp_16 - 0x55)) / 120.0f)))), 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
             }
             if (temp_16 < 0xE2) {
                 var_3_22 = sp644.bytes;
@@ -3554,7 +3554,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4E0), 0.0f, 1);
         sp4D0 = *(TitleRect *)&D_005E56A0;
         func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4D0), 0.0f, 1);
-        func_00126090(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)temp_20);
+        titleDrawShadeBars(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)temp_20);
         var_3_31 = sp62C.bytes;
         var_2_26 = 4;
         if (var_3_31 != NULL) {
@@ -3590,7 +3590,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         if (temp_2_19 >= 0x168) {
             taskView->f10 = 0;
         }
-        func_00125e80(200.0f - 700.0f * (1.0f - (1.0f + sinf((((iGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0x99, (u8 *)temp_20);
+        titleBuildPointRows(200.0f - 700.0f * (1.0f - (1.0f + sinf((((iGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0x99, (u8 *)temp_20);
         var_3_33 = sp690.bytes;
         var_2_28 = 4;
         if (var_3_33 != NULL) {
@@ -3881,7 +3881,7 @@ s32 func_0012aa70(u8 *task)
     extern void func_001113b0(void);
     extern void func_00122520(s32 task, s32 arg1);
     extern void func_00122640(s32 task, s32 arg1);
-    extern s32 func_00122720(void);
+    extern s32 fadeStatus(void);
     extern s32 func_0035c690(void *task, s32 arg1);
     extern s32 func_0035c7d0(u8 *task);
     extern s32 func_0035c810(u8 *task);
@@ -3897,7 +3897,7 @@ s32 func_0012aa70(u8 *task)
     extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
     /* The persistent copy destination is a complete 0x5D0-byte buffer. */
     extern struct MenuSavedState { u8 bytes[0x5D0]; } iGpffff9c90 __attribute__((section(".sdata")));
-    extern void func_001265a0(void *unusedDrawData, void *task);
+    extern void titleDrawTaskView(void *unusedDrawData, void *task);
 
     Code12FrameVectorTransfer translation;
     Code12FrameVectorTransfer initialTranslation;
@@ -4130,7 +4130,7 @@ s32 func_0012aa70(u8 *task)
         *(s32 *)work = 0xD;
         func_00122520(1, 0xA);
     case 13:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             *(s32 *)(work + 0x1C) = 2;
             *(s32 *)work = 0x10;
         }
@@ -4149,14 +4149,14 @@ s32 func_0012aa70(u8 *task)
         }
         break;
     case 16:
-        if ((func_00122720() != 0) && (*(s32 *)(work + 0x2C) == 0)) {
+        if ((fadeStatus() != 0) && (*(s32 *)(work + 0x2C) == 0)) {
             *(s32 *)(work + 0x18) = *(s32 *)(work + 0x1C);
         }
         break;
     }
     {
         u8 *drawTask = func_00460990();
-        *(void (**)(void *, void *))(drawTask + 8) = func_001265a0;
+        *(void (**)(void *, void *))(drawTask + 8) = titleDrawTaskView;
         *(u8 **)(drawTask + 0x10) = task;
         func_00460ac0(D_00795E60, drawTask);
     }

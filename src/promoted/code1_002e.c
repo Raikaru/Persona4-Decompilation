@@ -403,7 +403,7 @@ s32 func_002e72c0(u8 *arg0)
     void fieldSceneLoad(s32 arg0, s32 arg1);
     s32 func_00122520(s32 arg0, s32 arg1);
     s32 func_00122640(s32 arg0, s32 arg1);
-    s32 func_00122720(void);
+    s32 fadeStatus(void);
     s32 fieldSceneLoadStep(void);
     void fieldSceneUnload(void);
     s32 MT_Scene_GetCameraResFirst(void);
@@ -442,7 +442,7 @@ s32 func_002e72c0(u8 *arg0)
         *(s8 *)work = 4;
         /* fallthrough */
     case 4:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             if (*(s32 *)(work + 4) != 0) {
                 *(s32 *)(work + 4) = 0;
             }
@@ -455,7 +455,7 @@ s32 func_002e72c0(u8 *arg0)
         *(s8 *)work = 6;
         /* fallthrough */
     case 6:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             fieldSceneUnload();
             *(s8 *)work = 0x23;
         }

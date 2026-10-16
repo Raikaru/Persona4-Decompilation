@@ -13,7 +13,7 @@ void func_00113800(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3);
 void ShdSkill_DrawDescriptor(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3);
 void ShdSkill_DrawEntryName(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg3);
 void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
-void func_001203a0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3, s32 arg4_2);
+void drawUnitStatusPanel(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3, s32 arg4_2);
 extern s32 iGpffffb1b4;
 extern u8 iGpffff9bb8[8]; /* Default surname at gp - 0x6448. */
 extern u8 iGpffff9bc0[8]; /* Default given name at gp - 0x6440. */
@@ -1601,13 +1601,13 @@ void func_0011fd50(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
         func_0011fdf0(arg0, arg4, arg1, arg2, temp_7);
         return;
     case 1:
-        func_001203a0(arg0, arg4, arg1, arg2, 0, arg3);
+        drawUnitStatusPanel(arg0, arg4, arg1, arg2, 0, arg3);
         return;
     case 2:
-        func_001203a0(arg0, arg4, arg1, arg2, 0, arg3);
+        drawUnitStatusPanel(arg0, arg4, arg1, arg2, 0, arg3);
         return;
     case 3:
-        func_001203a0(arg0, arg4, arg1, arg2, 1, arg3);
+        drawUnitStatusPanel(arg0, arg4, arg1, arg2, 1, arg3);
         return;
     }
 }

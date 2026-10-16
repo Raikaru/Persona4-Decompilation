@@ -27,7 +27,7 @@ extern void func_0028c3f0(s32 *);
 extern void func_00290bc0(s32 *);
 void func_002854e0(u8 *arg0);
 extern s32 taskRecordIsDone(s32);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern s32 func_0028f8e0(s32);
 extern void func_00287310(u8 *);
 extern void func_00440b68(void *);
@@ -74,7 +74,7 @@ void func_002854e0(u8 *arg0)
         if ((*(s32 *)(arg0 + 0) & 0x800) && ((temp_4_3 = *(s32 *)(arg0 + 0x6CC), temp_4_3 != 0) || (taskRecordIsDone(temp_4_3) != 0))) {
             *(s32 *)(arg0 + 0) &= ~0x800;
         }
-        if ((*(s32 *)(arg0 + 0) & 0x2000) && (func_00122720() != 1)) {
+        if ((*(s32 *)(arg0 + 0) & 0x2000) && (fadeStatus() != 1)) {
             *(s32 *)(arg0 + 0) &= ~0x2000;
         }
         if ((*(s32 *)(arg0 + 0) & 0x4000) && (kwlnTaskIsLinked(*(s32 *)(arg0 + 0x75C)) == 0)) {

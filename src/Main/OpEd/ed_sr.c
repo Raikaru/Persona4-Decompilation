@@ -29,7 +29,7 @@ extern void func_0038dd90(u8 *arg0);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
 extern s32 datGetFlag(s32 id);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern s32 fadeState(void);
 extern void func_00122520(s32 a, s32 b);
 extern s32 kwlnTaskGetTaskByName(void *path);
@@ -93,7 +93,7 @@ void func_0038ee40(void) {
             }
             break;
         case 3:
-            if (func_00122720() != 0) {
+            if (fadeStatus() != 0) {
                 *(s32 *)p &= ~1;
             }
             break;

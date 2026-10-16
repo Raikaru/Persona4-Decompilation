@@ -118,7 +118,7 @@ extern void sdkSndStopChannel(s32 arg0);
 extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00122520(s32 arg0, s32 arg1);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern u16 D_008C024E[];
 typedef struct {
     f32 x;
@@ -627,7 +627,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         }
         goto block_64;
     case 11:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             func_001029a0(0x1B, 0, 0, 0xA);
         }
         goto block_64;

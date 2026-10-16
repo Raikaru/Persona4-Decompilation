@@ -127,7 +127,7 @@ extern void sndPlayAreaCue(void);
 extern void func_00189ec0(void);
 extern s32 FldUnit_IsSettled(s32);
 extern void func_00122640(s32, s32);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern s32 func_0029db50(s32, u8 *, s32, s32);
 extern void H_Cdvd_Destroy(u8 *);
 extern void func_001552a0(u16, u16);
@@ -297,7 +297,7 @@ s32 func_00155360(u8 *task)
         work->state++;
         /* fallthrough */
     case 11:
-        if (func_00122720() == 0) break;
+        if (fadeStatus() == 0) break;
         iGpffffb210 = 3;
         if (FldMap_IsCurrentInBandA() == 1) {
             work->scriptTask = func_0029db50(15, *(u8 **)(work->roomData + 0x110),
@@ -333,7 +333,7 @@ s32 func_00155360(u8 *task)
         }
         break;
     case 17:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             func_001029a0(9, work->transition, 0x1C, 0);
             work->state++;
         }

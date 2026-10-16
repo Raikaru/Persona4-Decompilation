@@ -202,7 +202,7 @@ extern u16 D_008C024E[];
 extern s32 btlShuffleIsCanceled(s32 task);
 extern s32 btlEncounterIsInactive(s32 arg0);
 extern s32 btlShuffleIsBusy(s32 task);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern void btlUnitUnlinkAndFree(u8 *arg0);

@@ -81,7 +81,7 @@ extern void K_View_SetFov(u8 *arg0, f32 arg1);
 extern f32 MT_Scene_GetCameraFov(void);
 extern s32 MT_Scene_GetCameraResFirst(void);
 extern void func_003e9cb0(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern s32 func_0033de90(u8 *arg0, s32 arg1);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_007955C0[];
@@ -643,7 +643,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
          func_00122640(1, 0xA);
          *(s8 *)work = *(s8 *)work + 1;
      case 8:
-         if (func_00122720() != 0) {
+         if (fadeStatus() != 0) {
              return -1;
          }
          goto out;

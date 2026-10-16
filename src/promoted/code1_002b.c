@@ -90,7 +90,7 @@ extern s32 fieldSceneLoadStep(void);
 extern s32 func_0015f660(void);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122640(s32 arg0, s32 arg1);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern s32 func_002cb6a0(s32 arg0);
 extern void func_002caa00(s32 arg0, s32 arg1);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);

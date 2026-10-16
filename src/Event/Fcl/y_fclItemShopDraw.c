@@ -101,7 +101,7 @@ extern void *func_00454a60(void *, s32);
 extern s32 func_0046a750(s32);
 extern s32 H_Cdvd_IsFileLoaded(void *);
 extern u8 *func_0033d130(void *, s32, s32);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern s32 func_002bb680(s8 arg0);
 extern void func_002bbcf0(s32 arg0);
 extern void func_002bb550(s8 arg0);
@@ -1558,7 +1558,7 @@ s32 func_00332bb0(u8 *arg0) {
         }
         break;
     case 15:
-        if (func_00122720() == 0) {
+        if (fadeStatus() == 0) {
             break;
         }
         return -1;
@@ -1641,7 +1641,7 @@ s32 func_00332bb0(u8 *arg0) {
         *(s8 *)(work + 0) = 0x12;
         break;
     case 18:
-        if (func_00122720() == 0) {
+        if (fadeStatus() == 0) {
             break;
         }
         return -1;

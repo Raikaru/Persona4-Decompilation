@@ -60,7 +60,7 @@ extern s32 btlShuffleTaskCreate(s32 arg0, void *arg1);
 extern s32 btlResultSimpleCreateTask(s32 arg0);
 extern void func_00460ac0(void *arg0, void *arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern u8 D_00796340[];
 extern s32 func_0046a750(s32 arg0);
 extern s32 btlShuffleUpdateTask(u8 *task);
@@ -4287,7 +4287,7 @@ s32 btlShuffleTickFrame(u8 *sdkTaskBytes)
     if (value <= 0xC) {
         goto exit;
     }
-    if (func_00122720() != 0) {
+    if (fadeStatus() != 0) {
         return -1;
     }
 exit:
