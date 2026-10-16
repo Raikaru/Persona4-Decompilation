@@ -70,6 +70,19 @@ struct MtMiscSceneSource
     s32 countAC;              /* 0xAC. Count when the header kind is below 6 */
 };
 
+/* Scene node written by mtMiscBuildSceneNodes (src/Event/mt_misc_inferred_00294280.c).
+   Two vectors at +0x38 and +0x44 and four bytes at +0x50; names follow the offsets. */
+typedef struct MtMiscSceneNode MtMiscSceneNode;
+struct MtMiscSceneNode
+{
+    u8 unk_00[0x08];
+    s32 unk_08;               /* 0x08. Set to -1 when the node is created */
+    u8 unk_0c[0x2C];
+    SVec3 unk_38;             /* 0x38 */
+    SVec3 unk_44;             /* 0x44 */
+    u8 unk_50[4];             /* 0x50 */
+};
+
 /* Transform pointers address three consecutive floats; NULL leaves that
    transform unchanged. Resource IDs contain the packed 16-bit type/index. */
 void MT_Scene_SetResPlacement(u16 resourceId, u8 *position, u8 *angles);
