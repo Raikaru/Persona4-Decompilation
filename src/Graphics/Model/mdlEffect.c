@@ -2743,15 +2743,17 @@ u_long128 EffSpriteSetSecondQuad(u8 *arg0, u8 *arg1) {
 }
 
 
+// Stores the packed colour word at +0x24. The record dispatch calls the kind 9 +0x30 slot with the packed colour.
 // FUN_004A6BE0
-void func_004a6be0(u8 *arg0, s32 arg1)
+void mdlEffectInstanceSetPackedColor(u8 *arg0, s32 arg1)
 {
     *(s32 *)(arg0 + 0x24) = arg1;
 }
 
 
+// Stores the float at +0x20. Called through the kind 9 +0x28 slot.
 // FUN_004A6BF0
-void func_004a6bf0(u8 *arg0, f32 arg1) {
+void mdlEffectInstanceSetScale(u8 *arg0, f32 arg1) {
     *(f32 *)(arg0 + 0x20) = arg1;
 }
 
@@ -3905,31 +3907,35 @@ void func_004b50e0(u8 *arg0, s32 arg1)
 }
 
 
+// Copies the 16-byte vector at arg1 to +0x0. Called through the kind 33 +0x20 position slot.
 // FUN_004B5750
-s128 func_004b5750(s128 *arg0, s128 *arg1) {
+s128 EffBattleStorePosition(s128 *arg0, s128 *arg1) {
     s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
     *arg0 = temp;
     return temp;
 }
 
 
+// Copies the 16-byte vector at arg1 to +0x10. Called through the kind 33 +0x24 rotation slot.
 // FUN_004B5760
-s128 func_004b5760(u8 *arg0, s128 *arg1) {
+s128 EffBattleStoreRotation(u8 *arg0, s128 *arg1) {
     s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
     *(s128 *)(arg0 + 0x10) = temp;
     return temp;
 }
 
 
+// Stores the packed colour word at +0x24. The record dispatch calls the kind 33 +0x30 slot with the packed colour.
 // FUN_004B5770
-void func_004b5770(u8 *arg0, s32 arg1)
+void EffBattleSetPackedColor(u8 *arg0, s32 arg1)
 {
     *(s32 *)(arg0 + 0x24) = arg1;
 }
 
 
+// Stores the float at +0x20. Called through the kind 33 +0x28 slot.
 // FUN_004B5780
-void func_004b5780(u8 *arg0, f32 arg1)
+void EffBattleSetScale(u8 *arg0, f32 arg1)
 {
     *(f32 *)(arg0 + 0x20) = arg1;
 }
