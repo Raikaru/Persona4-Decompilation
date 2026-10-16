@@ -1127,7 +1127,7 @@ void radarDrawEdge(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_00355370(arg0, NULL);
 }
 
-/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and func_0013d8b0 - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses `p4_00141cf0_add` for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; radarPushValue third param is s32 (word `lw`, low 16 stored) and func_00355190 second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
+/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and radarPersonaMenuUpdate - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses `p4_00141cf0_add` for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; radarPushValue third param is s32 (word `lw`, low 16 stored) and func_00355190 second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
 // FUN_00142F20
 s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
 {
