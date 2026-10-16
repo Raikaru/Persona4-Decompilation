@@ -190,7 +190,7 @@ s32 func_00331680(void)
     return 0;
 }
 // FUN_00331770
-s32 func_00331770(void)
+s32 fclShopRunSystemScreen(void)
 {
     switch (iGpffffb59c) {
     case 0:
@@ -221,7 +221,7 @@ s32 func_00331770(void)
     return 0;
 }
 // FUN_00331860
-s32 func_00331860(void)
+s32 fclCombineRunTitleScreen(void)
 {
     switch (iGpffffb59c) {
     case 0:
@@ -454,9 +454,9 @@ void fclBustupObjStartAlpha(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s64 a
 {
     fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, (s16)arg5);
 }
-
+// Identical to fclObjStartUniformRevealScale (code1_002e.c).
 // FUN_0033D4E0
-void func_0033d4e0(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg3)
+void fclBustupObjStartUniformRevealScale(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg3)
 {
     fclSpriteStartRevealScale(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
 }

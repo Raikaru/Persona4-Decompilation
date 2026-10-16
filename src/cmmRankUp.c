@@ -85,7 +85,7 @@ extern struct RwMatrixTag *RwMatrixRotate(struct RwMatrixTag *matrix,
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern u8 *func_00251570(s32 arg0, s32 arg1);
 extern void func_00251850(u8 *arg0);
-extern s32 func_0025f360(s32 arg0, s32 arg1, u8 *arg2);
+extern s32 shdSpriteSlotHandle(s32 arg0, s32 arg1, u8 *arg2);
 extern s32 datPortraitValue(s32 arg0);
 extern u32 RpRandom(void);
 extern u8 *RwMatrixMultiply(u8 *arg0, u8 *arg1, u8 *arg2);
@@ -499,7 +499,7 @@ s32 cmmRankUpStepSprite(s32 unused, u8 *work, u8 *context)
         *(s32 *)(destinationBytes + 4) = secondWord;
         destinationBytes += 8;
     } while (pairs > 0);
-    texture = func_0025f360(0x18, 0, *(u8 **)(context + 0x10));
+    texture = shdSpriteSlotHandle(0x18, 0, *(u8 **)(context + 0x10));
     RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
     if (*(s32 *)(work + 0xC) == 1) {
         work = (u8 *)D_00887300;
@@ -631,7 +631,7 @@ s32 cmmRankUpStepEffect(s32 root, u8 *work, u8 *context)
     textureB = datPortraitValue(*(s32 *)(context + 0x18));
     if (*(s32 *)(work + 4) >= 25) {
         f32 factor;
-        overlay = func_0025f360(25, 0, *(u8 **)(context + 0x10));
+        overlay = shdSpriteSlotHandle(25, 0, *(u8 **)(context + 0x10));
         if (*(s32 *)(work + 4) < 31) {
             factor = (f32)(*(s32 *)(work + 4) - 25) / 5.0f;
         } else {
@@ -770,8 +770,8 @@ extern u8 D_00636290[];
 extern u8 D_00635CC0[];
 extern u8 D_00635CE0[];
 extern f32 D_00761174, D_0076118C, D_00761308, D_0076132C, D_0076139C;
-s32 func_0025f3f0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5);
-s32 func_0025f430(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5);
+s32 shdSpriteDrawNow(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5);
+s32 shdSpriteDrawNowEx(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5);
 void PrimDrawPoints(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4);
 u8 *resourceFindByName(char *a0);
 f32 sdkSpriteEntryWidth(void *a0, s32 a1);
@@ -830,32 +830,32 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, u8 *context)
                 if (!(elapsed < i)) {
                     if (elapsed - i < 9) {
                         f32 value = sinf(D_00761174 * (f32)(elapsed - i) / 8.0f);
-                        func_0025f3f0(
+                        shdSpriteDrawNow(
                             positions[i].v[0], (0.0f + positions[i].v[1]) - 40.0f * value, 0.0f, 0xFFFFFF, 255,
                             i + 13, 0, *(u8 **)(context + 0x10), 1);
                     } else {
-                        func_0025f3f0(
+                        shdSpriteDrawNow(
                             positions[i].v[0], positions[i].v[1], 0.0f, 0xFFFFFF, 255, i + 13, 0,
                             *(u8 **)(context + 0x10), 1);
                     }
                 }
             }
         } else {
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 356.0f, 340.0f, 0.0f, 0xFFFFFF, 255, 13, 0, *(u8 **)(context + 0x10), 1);
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 396.0f, 350.0f, 0.0f, 0xFFFFFF, 255, 14, 0, *(u8 **)(context + 0x10), 1);
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 430.0f, 350.0f, 0.0f, 0xFFFFFF, 255, 15, 0, *(u8 **)(context + 0x10), 1);
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 467.0f, 338.0f, 0.0f, 0xFFFFFF, 255, 16, 0, *(u8 **)(context + 0x10), 1);
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 515.0f, 349.0f, 0.0f, 0xFFFFFF, 255, 17, 0, *(u8 **)(context + 0x10), 1);
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 550.0f, 347.0f, 0.0f, 0xFFFFFF, 255, 18, 0, *(u8 **)(context + 0x10), 1);
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 588.0f, 340.0f, 0.0f, 0xFFFFFF, 255, 19, 0, *(u8 **)(context + 0x10), 1);
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 603.0f, 340.0f, 0.0f, 0xFFFFFF, 255, 19, 0, *(u8 **)(context + 0x10), 1);
         }
     }
@@ -863,22 +863,22 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, u8 *context)
         f32 value = sinf(D_00761184 * (f32)*(s32 *)(work + 4) / 15.0f);
         white = 0xFFFFFF;
         bannerY = 375.0f;
-        func_0025f3f0(
+        shdSpriteDrawNow(
             -(640.0f * (1.0f - value)), bannerY, 0.0f, white, 255, 41, 0, *(u8 **)(context + 0x10), 1);
     } else {
         white = 0xFFFFFF;
         bannerY = 375.0f;
-        func_0025f3f0(
+        shdSpriteDrawNow(
             0.0f, bannerY, 0.0f, white, 255, 41, 0, *(u8 **)(context + 0x10), 1);
     }
     if (*(s32 *)(work + 4) > 7) {
         if (*(s32 *)(work + 4) < 16) {
             f32 value = sinf(D_00761184 * ((f32)*(s32 *)(work + 4) - 7.0f) / 8.0f);
-            func_0025f430(
+            shdSpriteDrawNowEx(
                 0.0f, (0.0f + 380.0f) + 10.0f * (1.0f - value), 0.0f, white, 255, special + 42, 0,
                 *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, value);
         } else {
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 0.0f, 380.0f, 0.0f, white, 255, special + 42, 0, *(u8 **)(context + 0x10), 1);
         }
     }
@@ -905,14 +905,14 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, u8 *context)
                 distance = 450.0f;
                 distance *= displacement;
                 displacement = distance;
-                func_0025f3f0(
+                shdSpriteDrawNow(
                     188.0f + displacement, bannerY, 0.0f, white, 255, 1, 0, *(u8 **)(context + 0x10), 1);
             } else {
                 displacement = 1.0f - value;
                 distance = 450.0f;
                 distance *= displacement;
                 displacement = distance;
-                func_0025f3f0(
+                shdSpriteDrawNow(
                     184.0f + displacement, 336.0f, 0.0f, white, 255, 26, 0, *(u8 **)(context + 0x10), 1);
             }
             source = D_00635CC0;
@@ -949,7 +949,7 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, u8 *context)
             sdkSpriteDrawNowUnscaled(
                 (f32)((offset + 299) - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255,
                 ((u8 *)cmmKindRecord((u32)relation & 0xFFFF))[8] + 0x20, font, 1);
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 (f32)(offset + 355), 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
             frFontExDrawText((f32)(offset + 392), 403.0f, 0.0f,
                 -1, 0, 1, (const char *)cmmNameRecord((u16)relation), 0, 0);
@@ -965,10 +965,10 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, u8 *context)
             u8 *font;
             s32 width;
             if (special == 0) {
-                func_0025f3f0(
+                shdSpriteDrawNow(
                     188.0f, bannerY, 0.0f, white, 255, 1, 0, *(u8 **)(context + 0x10), 1);
             } else {
-                func_0025f3f0(
+                shdSpriteDrawNow(
                     184.0f, 336.0f, 0.0f, white, 255, 26, 0, *(u8 **)(context + 0x10), 1);
             }
             source = D_00635CC0;
@@ -1002,7 +1002,7 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, u8 *context)
             sdkSpriteDrawNowUnscaled(
                 (f32)(299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255,
                 ((u8 *)cmmKindRecord((u32)relation & 0xFFFF))[8] + 0x20, font, 1);
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 355.0f, 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
             frFontExDrawText(392.0f, 403.0f, 0.0f, -1, 0, 1, (const char *)cmmNameRecord((u16)relation), 0, 0);
         }
@@ -1011,12 +1011,12 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, u8 *context)
         if (*(s32 *)(work + 4) < 39) {
             f32 value = sinf(D_00761174 * (f32)(*(s32 *)(work + 4) - 30) / 8.0f);
             if (special == 0) {
-                func_0025f3f0(
+                shdSpriteDrawNow(
                     277.0f, (0.0f + 350.0f) - 17.0f * value, 0.0f, white, 255, *(s32 *)(context + 8) + 1, 0,
                     *(u8 **)(context + 0x10), 1);
             }
         } else if (special == 0) {
-            func_0025f3f0(
+            shdSpriteDrawNow(
                 277.0f, 350.0f, 0.0f, white, 255, *(s32 *)(context + 8) + 1, 0, *(u8 **)(context + 0x10), 1);
         }
     }
@@ -1036,11 +1036,11 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, u8 *context)
                     value = (f32)(elapsed - i);
                     if (value < 5.0f) {
                         value = sinf(D_00761184 * value / 5.0f);
-                        func_0025f3f0(
+                        shdSpriteDrawNow(
                             (0.0f + (f32)(i * 23 + 354)) + 400.0f * (1.0f - value), 381.0f, 0.0f, color, 255,
                             21, 0, *(u8 **)(context + 0x10), 1);
                     } else {
-                        func_0025f3f0(
+                        shdSpriteDrawNow(
                             (f32)(i * 23 + 354), 381.0f, 0.0f, color, 255, 21, 0, *(u8 **)(context + 0x10), 1);
                     }
                 }
@@ -1053,7 +1053,7 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, u8 *context)
                 } else {
                     color = white;
                 }
-                func_0025f3f0(
+                shdSpriteDrawNow(
                     (f32)(i * 23 + 354), 381.0f, 0.0f, color, 255, 21, 0, *(u8 **)(context + 0x10), 1);
             }
         }
@@ -1070,7 +1070,7 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, u8 *context)
         progress = 1.0f;
         if (*(s32 *)(work + 4) < 61) {
             progress = (f32)(*(s32 *)(work + 4) - 30) / 30.0f;
-            func_0025f430(
+            shdSpriteDrawNowEx(
                 (f32)(index * 23 + 357) - 58.0f * progress, 385.0f - 62.0f * progress, 0.0f, white,
                 (u8)(255.0f * (1.0f - progress)), 27, 0, *(u8 **)(context + 0x10), 1,
                 (s16)(s32)(58.0f * progress), (s16)(s32)(62.0f * progress), 90.0f * progress, progress,
@@ -1082,7 +1082,7 @@ s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, u8 *context)
         scaleX = 1.0f;
         scaleX += scaleY;
         scaleY = scaleX;
-        func_0025f430(
+        shdSpriteDrawNowEx(
             (0.0f + (f32)(index * 23 + 350)) - D_0076139C * pulse, (0.0f + 377.0f) - D_0076132C * pulse, 0.0f,
             color, (u8)(255.0f * pulse), 28, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, scaleX, scaleY);
     }
@@ -1103,8 +1103,8 @@ typedef union {
 } RankUpExitRect;
 extern u8 D_006362D0[], D_00635CC0[], D_00635CE0[];
 extern f32 D_0076118C;
-s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
-s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
+s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
 void PrimDrawPoints(void *, void *, f32, s32, s32, s32);
 u8 *resourceFindByName(char *);
 f32 sdkSpriteEntryWidth(void *, s32);
@@ -1210,10 +1210,10 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, u8 *context)
             if (!(elapsed < i)) {
                 if (elapsed - i < 9) {
                     value = sinf(D_00761184 * (f32)(elapsed - i) / 8.0f);
-                    func_0025f3f0(positions[i].v[0], (0.0f + positions[i].v[1]) + 50.0f * value, 10.0f, 0xFFFFFF, 255, i + 13, 0, *(u8 **)(context + 0x10), 1);
+                    shdSpriteDrawNow(positions[i].v[0], (0.0f + positions[i].v[1]) + 50.0f * value, 10.0f, 0xFFFFFF, 255, i + 13, 0, *(u8 **)(context + 0x10), 1);
                 }
             } else {
-                func_0025f3f0(positions[i].v[0], positions[i].v[1], 10.0f, 0xFFFFFF, 255, i + 13, 0, *(u8 **)(context + 0x10), 1);
+                shdSpriteDrawNow(positions[i].v[0], positions[i].v[1], 10.0f, 0xFFFFFF, 255, i + 13, 0, *(u8 **)(context + 0x10), 1);
             }
         }
         {
@@ -1261,28 +1261,28 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, u8 *context)
         mdlEffectEmitTagPair();
     }
     if (elapsed < 25) {
-        func_0025f3f0(0.0f, 375.0f, 0.0f, 0xFFFFFF, 255, 41, 0, *(u8 **)(context + 0x10), 1);
+        shdSpriteDrawNow(0.0f, 375.0f, 0.0f, 0xFFFFFF, 255, 41, 0, *(u8 **)(context + 0x10), 1);
     } else if (elapsed < 36) {
         value = sinf(D_00761184 * (f32)(elapsed - 25) / 10.0f);
-        func_0025f3f0(640.0f * value, 375.0f, 0.0f, 0xFFFFFF, 255, 41, 0, *(u8 **)(context + 0x10), 1);
+        shdSpriteDrawNow(640.0f * value, 375.0f, 0.0f, 0xFFFFFF, 255, 41, 0, *(u8 **)(context + 0x10), 1);
     }
     if (elapsed < 30) {
-        func_0025f3f0(0.0f, 380.0f, 0.0f, 0xFFFFFF, 255, special + 42, 0, *(u8 **)(context + 0x10), 1);
+        shdSpriteDrawNow(0.0f, 380.0f, 0.0f, 0xFFFFFF, 255, special + 42, 0, *(u8 **)(context + 0x10), 1);
     } else if (elapsed < 36) {
         value = sinf(D_00761184 * (f32)(elapsed - 30) / 5.0f);
-        func_0025f430(0.0f, (0.0f + 380.0f) + 10.0f * value, 0.0f, 0xFFFFFF, 255, special + 42, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, 1.0f - value);
+        shdSpriteDrawNowEx(0.0f, (0.0f + 380.0f) + 10.0f * value, 0.0f, 0xFFFFFF, 255, special + 42, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, 1.0f - value);
     }
     if (elapsed < 20) {
         s32 color;
         if (special == 0) {
             color = 0xFFFFFF;
-            func_0025f3f0(188.0f, 375.0f, 0.0f, color, 255, 1, 0, *(u8 **)(context + 0x10), 1);
+            shdSpriteDrawNow(188.0f, 375.0f, 0.0f, color, 255, 1, 0, *(u8 **)(context + 0x10), 1);
         } else {
             color = 0xFFFFFF;
-            func_0025f3f0(184.0f, 336.0f, 0.0f, color, 255, 26, 0, *(u8 **)(context + 0x10), 1);
+            shdSpriteDrawNow(184.0f, 336.0f, 0.0f, color, 255, 26, 0, *(u8 **)(context + 0x10), 1);
         }
         if (special == 0) {
-            func_0025f3f0(277.0f, 350.0f, 0.0f, color, 255, *(s32 *)(context + 8) + 1, 0, *(u8 **)(context + 0x10), 1);
+            shdSpriteDrawNow(277.0f, 350.0f, 0.0f, color, 255, *(s32 *)(context + 8) + 1, 0, *(u8 **)(context + 0x10), 1);
         }
     } else if (elapsed < 26) {
         s32 color;
@@ -1290,14 +1290,14 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, u8 *context)
         if (special == 0) {
             scale = 1.0f - value;
             color = 0xFFFFFF;
-            func_0025f430(188.0f, (0.0f + 375.0f) + 28.0f * value, 0.0f, color, 255, 1, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, scale);
+            shdSpriteDrawNowEx(188.0f, (0.0f + 375.0f) + 28.0f * value, 0.0f, color, 255, 1, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, scale);
         } else {
             scale = 1.0f - value;
             color = 0xFFFFFF;
-            func_0025f430(184.0f, (0.0f + 336.0f) + 62.0f * value, 0.0f, color, 255, 26, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, scale);
+            shdSpriteDrawNowEx(184.0f, (0.0f + 336.0f) + 62.0f * value, 0.0f, color, 255, 26, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, scale);
         }
         if (special == 0) {
-            func_0025f430(277.0f, (0.0f + 350.0f) + 50.0f * value, 0.0f, color, 255, *(s32 *)(context + 8) + 1, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, scale);
+            shdSpriteDrawNowEx(277.0f, (0.0f + 350.0f) + 50.0f * value, 0.0f, color, 255, *(s32 *)(context + 8) + 1, 0, *(u8 **)(context + 0x10), 1, 0, 0, 0.0f, 1.0f, scale);
         }
     }
     if (elapsed < 5) {
@@ -1344,7 +1344,7 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, u8 *context)
            masks respectively; this preserves both retail narrowing points. */
         width = (s32)sdkSpriteEntryWidth(font, ((u8 *)cmmKindRecord(relation & 0xFFFF))[8] + 32);
         sdkSpriteDrawNowUnscaled((f32)(299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255, ((u8 *)cmmKindRecord((u32)relation & 0xFFFF))[8] + 32, font, 1);
-        func_0025f3f0(355.0f, 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
+        shdSpriteDrawNow(355.0f, 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
         frFontExDrawText(392.0f, 403.0f, 0.0f, -1, 0, 1,
             (const char *)cmmNameRecord((u16)relation), 0, 0);
         for (i = 0; i < 10; i++) {
@@ -1353,7 +1353,7 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, u8 *context)
             } else {
                 color = 0xFFFFFF;
             }
-            func_0025f3f0((f32)(i * 23 + 354), 381.0f, 0.0f, color, 255, 21, 0, *(u8 **)(context + 0x10), 1);
+            shdSpriteDrawNow((f32)(i * 23 + 354), 381.0f, 0.0f, color, 255, 21, 0, *(u8 **)(context + 0x10), 1);
         }
         *(s16 *)(context + 0x3E) += 1;
         if (*(s16 *)(context + 0x3E) >= 45) {
@@ -1362,7 +1362,7 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, u8 *context)
         value = sinf(D_007612CC + D_007612D0 * (f32)*(s16 *)(context + 0x3E) / 45.0f);
         value = (0.0f + D_00761288) + D_0076118C * ((1.0f + value) / 2.0f);
         value *= 1.0f - (f32)elapsed / 5.0f;
-        func_0025f3f0((f32)((*(s32 *)(context + 8) - 1) * 23 + 349), 376.0f, 0.0f, color, (u8)(255.0f * value), 28, 0, *(u8 **)(context + 0x10), 1);
+        shdSpriteDrawNow((f32)((*(s32 *)(context + 8) - 1) * 23 + 349), 376.0f, 0.0f, color, (u8)(255.0f * value), 28, 0, *(u8 **)(context + 0x10), 1);
     } else if (elapsed < 21) {
         s32 i;
         const u8 *source;
@@ -1417,11 +1417,11 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, u8 *context)
         value = origin;
         offset = (s32)value;
         sdkSpriteDrawNowUnscaled((f32)(offset + 299 - (width >> 1)), 407.0f, 0.0f, 0xFFFFFF, 255, ((u8 *)cmmKindRecord((u32)relation & 0xFFFF))[8] + 32, font, 1);
-        func_0025f3f0((f32)(offset + 355), 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
+        shdSpriteDrawNow((f32)(offset + 355), 411.0f, 0.0f, 0xFFFFFF, 255, 22, 0, sprites, 1);
         frFontExDrawText((f32)(offset + 392), 403.0f, 0.0f, -1, 0, 1,
             (const char *)cmmNameRecord((u16)relation), 0, 0);
         for (i = 0; i < 10; i++) {
-            func_0025f3f0(value + (f32)(i * 23 + 354), 381.0f, 0.0f, *(s32 *)(context + 8) <= i ? 0xDE7201 : 0xFFFFFF, 255, 21, 0, *(u8 **)(context + 0x10), 1);
+            shdSpriteDrawNow(value + (f32)(i * 23 + 354), 381.0f, 0.0f, *(s32 *)(context + 8) <= i ? 0xDE7201 : 0xFFFFFF, 255, 21, 0, *(u8 **)(context + 0x10), 1);
         }
     }
     return 0;
@@ -3193,7 +3193,7 @@ void cmmRankUpDrawSprite(s32 arg0, u8 *arg1) {
     }
 }
 #pragma pop
-/* measured: banked (2026-09-18): de-noised romwright+m2c switch (17 cases 0-0x10, jtbl_00747EC0 numeric order) + m2c frame (sp80 0xD8 at 0x80, sp160 0x20 at 0x160, arr58[7] at 0x58 covering copy dest 0x60, st188/18c). GUARDED_SCORE 654 (reloc-masked via probe_variants); fnalign retail 944 vs object 944 (+0, within 3% gate 916-972) with 276 edits +40 reloc-only, frame both 0x190. Free pragmas: common_off 758 worse, peephole_off 865 worse, loopinv/unroll/sched/dead 676 ties (baseline 676). Subscript: ((s32 *)ctx)[i] 766 worse (+90), raw arr 676 tie, indexed copy for(n<5)arr[n+2]=src[n] 656 best (-20). Fresh counters N/A (single call-free copy loop, n fresh). Address materialisation (p4/p8 split) 656 tie. Colouring: tmp-order swap 656 tie, arr-first decl 654 best (-2). Residuals: s64 second-arg dsll/dsra vs move (0035adc0 x2, 00255ed0 x2), branch polarity beq/bne, saved-GPR/FPR rotation, dropped move $s2,$zero, D_008873F4 rematerialization. No RankUpLocals needed (separate buffers give exact frame); no func_0025f360 calls so *(s32*)->*(u8**) fix N/A (as in 00254a70 note). Production stays ASM via guard. */
+/* measured: banked (2026-09-18): de-noised romwright+m2c switch (17 cases 0-0x10, jtbl_00747EC0 numeric order) + m2c frame (sp80 0xD8 at 0x80, sp160 0x20 at 0x160, arr58[7] at 0x58 covering copy dest 0x60, st188/18c). GUARDED_SCORE 654 (reloc-masked via probe_variants); fnalign retail 944 vs object 944 (+0, within 3% gate 916-972) with 276 edits +40 reloc-only, frame both 0x190. Free pragmas: common_off 758 worse, peephole_off 865 worse, loopinv/unroll/sched/dead 676 ties (baseline 676). Subscript: ((s32 *)ctx)[i] 766 worse (+90), raw arr 676 tie, indexed copy for(n<5)arr[n+2]=src[n] 656 best (-20). Fresh counters N/A (single call-free copy loop, n fresh). Address materialisation (p4/p8 split) 656 tie. Colouring: tmp-order swap 656 tie, arr-first decl 654 best (-2). Residuals: s64 second-arg dsll/dsra vs move (0035adc0 x2, 00255ed0 x2), branch polarity beq/bne, saved-GPR/FPR rotation, dropped move $s2,$zero, D_008873F4 rematerialization. No RankUpLocals needed (separate buffers give exact frame); no shdSpriteSlotHandle calls so *(s32*)->*(u8**) fix N/A (as in 00254a70 note). Production stays ASM via guard. */
 /* measured 0025b240 (owner, 2026-09-19): fnalign edits **276 -> 226** by writing the
    `if (c == c) ... else if` chain as a `switch (c)` with the cases sorted ascending.
    MWCC lowers a switch as descending comparisons with the arm bodies laid out in

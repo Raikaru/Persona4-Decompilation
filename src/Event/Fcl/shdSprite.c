@@ -27,9 +27,9 @@ void kAssertFail(const void *file, s32 line);
 
 s32 sdkSpriteDrawNow(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
 s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
-s32 func_0025f540(s32, u8, s32, s32, u8 *, s32, s16, s16, void *, f32, f32, f32, f32, f32, f32);
-u32 func_0025f6b0(f32, f32, f32, s32, u8, s32, s32, s16 *, shd_cb, u8 *);
+s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+s32 shdSpriteDrawQueuedEx(s32, u8, s32, s32, u8 *, s32, s16, s16, void *, f32, f32, f32, f32, f32, f32);
+u32 shdSpriteDrawNumberString(f32, f32, f32, s32, u8, s32, s32, s16 *, shd_cb, u8 *);
 
 /* Allocator slot at 0x008873F4 (absolute, outside gp window). */
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -101,7 +101,7 @@ u8 *sdkSpritePackCreate(u8 *arg0)
 /* Measured exact: object 288B / window 288B / normalized_diff 0.
    A typed s32 *table preserves retail's table/index materialization order. */
 // FUN_0025F110
-s32 func_0025f110(u8 *arg0)
+s32 shdSpriteEnsureLoaded(u8 *arg0)
 {
     s32 H_Cdvd_LookupRequest(s32, s32 *);
     u8 *sdkSpriteRequestLoad(const char *);
@@ -165,7 +165,7 @@ void sdkSpritePackDestroy(u32 param_1)
 }
 
 // FUN_0025F2C0
-s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2)
+s32 shdSpriteEntryWidth(s32 arg0, s32 arg1, u8 *arg2)
 {
     s32 temp_3;
     u8 *temp_7;
@@ -184,7 +184,7 @@ s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2)
 /* Integer handle returned by sdkSpr, not a floating-point result.
  * Measured: 136/144 bytes, nd0, two relocations, eight zero-tail bytes. */
 // FUN_0025F360
-s32 func_0025f360(s32 arg0, s32 arg1, u8 *arg2)
+s32 shdSpriteSlotHandle(s32 arg0, s32 arg1, u8 *arg2)
 {
     s32 temp_3;
     u8 *temp_7;
@@ -201,14 +201,14 @@ s32 func_0025f360(s32 arg0, s32 arg1, u8 *arg2)
 }
 
 // FUN_0025F3F0
-s32 func_0025f3f0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 * a4, s32 a5)
+s32 shdSpriteDrawNow(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 * a4, s32 a5)
 {
-    func_0025f430(f0, f1, f2, a0, a1, a2, a3, a4, a5, 0, 0, 0.0f, 1.0f, 1.0f);
+    shdSpriteDrawNowEx(f0, f1, f2, a0, a1, a2, a3, a4, a5, 0, 0, 0.0f, 1.0f, 1.0f);
     return 0;
 }
 
 // FUN_0025F430
-s32 func_0025f430(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 * a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5)
+s32 shdSpriteDrawNowEx(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 * a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5)
 {
     s32 temp_3;
     u8 *temp_6;
@@ -227,14 +227,14 @@ s32 func_0025f430(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 * a4
 }
 
 // FUN_0025F500
-s32 func_0025f500(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, void *a6, f32 f0, f32 f1, f32 f2)
+s32 shdSpriteDrawQueued(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, void *a6, f32 f0, f32 f1, f32 f2)
 {
-    func_0025f540(a0, a1, a2, a3, a4, a5, 0, 0, a6, f0, f1, f2, 0.0f, 1.0f, 1.0f);
+    shdSpriteDrawQueuedEx(a0, a1, a2, a3, a4, a5, 0, 0, a6, f0, f1, f2, 0.0f, 1.0f, 1.0f);
     return 0;
 }
 
 // FUN_0025F540
-s32 func_0025f540(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7, void *a8, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5)
+s32 shdSpriteDrawQueuedEx(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7, void *a8, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5)
 {
     s32 temp_3;
     u8 *temp_6;
@@ -253,7 +253,7 @@ s32 func_0025f540(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7,
 }
 
 // FUN_0025F620
-void func_0025f620(s32 a0, u8 a1, s32 a2, s32 a3, s16 a4, s16 a5, shd_cb cb, u8 *a7, f32 f0, f32 f1, f32 f2)
+void shdSpriteDrawUniformNumber(s32 a0, u8 a1, s32 a2, s32 a3, s16 a4, s16 a5, shd_cb cb, u8 *a7, f32 f0, f32 f1, f32 f2)
 {
     s16 buf[0xC];
     u8 *p;
@@ -280,11 +280,11 @@ void func_0025f620(s32 a0, u8 a1, s32 a2, s32 a3, s16 a4, s16 a5, shd_cb cb, u8 
     buf[9] = a4;
     buf[10] = a5;
     buf[11] = a4;
-    func_0025f6b0(f0, f1, f2, a0, a1, a2, a3, (s16 *)buf, cb, a7);
+    shdSpriteDrawNumberString(f0, f1, f2, a0, a1, a2, a3, (s16 *)buf, cb, a7);
 }
 
 // FUN_0025F6B0
-u32 func_0025f6b0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, s16 *a4, shd_cb cb, u8 *a6)
+u32 shdSpriteDrawNumberString(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, s16 *a4, shd_cb cb, u8 *a6)
 {
     s8 buf[0x20];
     s32 j;

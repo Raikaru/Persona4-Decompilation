@@ -24,7 +24,7 @@ extern u16 cmmCommunityRecordValue(u16 arg0);
 extern u8 D_006432B0[];
 extern u8 fclCalendarMonth(void);
 extern s32 fclCalendarDay(void);
-extern void func_002e7920(s32 *month, s32 *day);
+extern void fclCalGetNextDate(s32 *month, s32 *day);
 extern void cmmDateSelectionSelect(u8 *arg0, u8 month, s32 day, s8 mode);
 
 static inline s8 findDateEntry(u8 month, u8 day)
@@ -398,7 +398,7 @@ void cmmDateSelectionRefresh(u8 *arg0)
     cmmDateSelectionSelect(arg0, fclCalendarMonth(), fclCalendarDay(), 0);
     month = fclCalendarMonth();
     day = (u8)fclCalendarDay() + 1;
-    func_002e7920(&month, &day);
+    fclCalGetNextDate(&month, &day);
     *(s8 *)(work + 0x2D5) = findDateEntry((u8)month, (u8)day);
     cmmDateSelectionSelect(arg0, (u8)month, (u8)day, 1);
     *(u8 *)(work + 0x2D2) = month;
