@@ -785,7 +785,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     extern f32 iGpffffba6c;
     void mdlSetLayerTime(void *, s32, f32);
     f32 mdlGetLayerWeight(s32, s32);
-    s32 func_0045af60(s16, s16, s16, s16);
+    s32 sdkSndStartStream(s16, s16, s16, s16);
     u8 *FldEvent_FindNearestVisibleActor(u8 *, f32, f32);
     u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *, const struct RwV3d *, f32);
     u32 K_FldEvent_IsPosWithinFov(const struct RwMatrix *, const struct RwV3d *, f32);
@@ -907,7 +907,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             {
                 u32 cur = (u32)mdlGetLayerWeight((s32)D_007EFA00[0], 0);
                 if (work->frameCounter == 3) {
-                    func_0045af60(1, 0xC, 1, 2);
+                    sdkSndStartStream(1, 0xC, 1, 2);
                 }
                 work->frameCounter = work->frameCounter + 1;
                 {
@@ -1133,7 +1133,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     }
                     FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 1);
                     hFadeTaskStart(0);
-                    func_0045af60(0, 0xA, 3, 0);
+                    sdkSndStartStream(0, 0xA, 3, 0);
                     datEntryDrawGatedByFlag39(3, 0xFF, 3, 0);
                     work->state = 5;
                 }
@@ -1178,14 +1178,14 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 }
                 FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 1);
                 hFadeTaskStart(0);
-                func_0045af60(0, 0xA, 3, 0);
+                sdkSndStartStream(0, 0xA, 3, 0);
                 work->state = 5;
             }
             goto running;
         case 4:
             if (FldRc_GetPositionSlotCount((u8 *)(FldStepFileTask(0)), -1) >= 5) {
                 hFadeTaskStart(0);
-                func_0045af60(0, 0xA, 3, 0);
+                sdkSndStartStream(0, 0xA, 3, 0);
                 work->state = 5;
             }
             goto running;

@@ -73,7 +73,7 @@ s32 itfMesWindowPollSelection(u8 *arg0)
         u32 bits;
         s32 i;
 
-        func_0045af60(0, 0, 0, 1);
+        sdkSndStartStream(0, 0, 0, 1);
         bits = *(u32 *)(state + 8);
         remaining = *(s16 *)(state + 0xE);
         i = 0;
@@ -98,7 +98,7 @@ s32 itfMesWindowPollSelection(u8 *arg0)
 
         selected = itfMesWindowFindPressedEntry(state);
         if (selected >= 0) {
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
             bits = *(u32 *)(state + 8);
             remaining = selected;
             count = 0;

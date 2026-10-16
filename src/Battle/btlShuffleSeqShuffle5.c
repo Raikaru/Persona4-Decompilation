@@ -41,7 +41,7 @@ extern void func_00389090(u8 *a, s32 b);
 extern s32 btlShuffleDrawTableLookup(s32 a, s32 b);
 extern s32 btlShuffleSeqPick(u8 *ctx, s32 n);
 extern s32 btlShuffleSeqCountA(u8 *ctx, s32 n);
-extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
+extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
 extern s32 btlShuffleSeqLoadRecord(u8 *ctx);
 extern s32 btlShuffleSeqStep(u8 *ctx);
 extern void func_0038d060(u8 *a);
@@ -357,8 +357,8 @@ s32 btlShuffleSeq5Run(u8 *work)
                 btlShuffleCardScaleVec(work + i * 0xFB0, screen, 84.0f, origin);
                 btlShuffleDrawMoveCard(work, i, (u16)i, (u16)(i + 8), NULL, origin);
             }
-            func_0045af60(0, 4, 0, 1);
-            func_0045af60(1, 0, 5, 4);
+            sdkSndStartStream(0, 4, 0, 1);
+            sdkSndStartStream(1, 0, 5, 4);
         } else if (input & 0x20) {
             btlShuffleSeqReset(work);
             *(u32 *)(work + 0x1F2F8) = 16;
@@ -439,7 +439,7 @@ s32 btlShuffleSeq5Run(u8 *work)
         if (D_008C024E[0] & 0x40) {
             mask = shuffle5RowMask(*(u16 *)(state + 4));
             *(u16 *)state &= (u16)~mask;
-            func_0045af60(1, 2, 5, 5);
+            sdkSndStartStream(1, 2, 5, 5);
             if (++*(u16 *)(state + 4) == 3) {
                 func_003890f0(*(u8 **)(work + 0x1F294));
                 func_0038d0a0(*(u8 **)(work + 0x1F298));
@@ -495,7 +495,7 @@ s32 btlShuffleSeq5Run(u8 *work)
         }
         btlShuffleSeqMoveB(work, *(s32 *)(state + 0xC));
         *(u16 *)state |= 0x80;
-        func_0045af60(1, 0, 5, 1);
+        sdkSndStartStream(1, 0, 5, 1);
         *(u32 *)(work + 0x1F2F8) = 13;
     case 13:
         if (btlShuffleDrawStateA(work + *(s32 *)(state + 0xC) * 0xE8 + 0x1D6A0) != 0) {

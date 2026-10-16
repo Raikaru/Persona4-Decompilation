@@ -849,7 +849,7 @@ s32 FldRc_TransitionStep(u8 *task)
                 position.y += direction.y;
                 position.z += direction.z;
                 FldRc_RequestPositionSlot(*(u8 **)(work + 0xC), &position.x);
-                func_0045af60(1, 0xB, 3, 4);
+                sdkSndStartStream(1, 0xB, 3, 4);
                 *(s32 *)(work + 8) = 0;
                 ++*(s32 *)work;
             }

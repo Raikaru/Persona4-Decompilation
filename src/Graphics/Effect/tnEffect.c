@@ -38,7 +38,7 @@ s32 func_004b0f70(void *arg0);
 s32 func_004b0fa0(void *arg0);
 void ObjectParticleDraw(void *arg0);
 void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-void func_004b1600(void);
+void mdlEffectSeqStep(void);
 void func_004a7830(void);
 void *K_Clump_GetLightA(void);
 void *K_Clump_GetLightC(void);
@@ -275,7 +275,7 @@ void TnDispatchPairedDraw(void *arg0) {
 // Task callback passed to kwlnTaskCreate: when the dirty flag is set, re-applies the tint colours and the matrix, then clears the flag.
 // FUN_00481980
 s32 TnTaskUpdate(u8 *unusedTask) {
-    func_004b1600();
+    mdlEffectSeqStep();
     func_004a7830();
     if (D_00922CC0[0] != 0) {
         func_003c38b0(K_Clump_GetLightA(), (void *)D_00922CA0);

@@ -2236,10 +2236,10 @@ s32 func_0028a2a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
         if (*(u16 *)arg4 == arg1) {
             switch (*(s8 *)(arg4 + 0x10)) {
             case 0:
-                func_0045af60(1, *(s8 *)(arg4 + 0x11), *(s8 *)(arg4 + 0x12), *(s8 *)(arg4 + 0x13));
+                sdkSndStartStream(1, *(s8 *)(arg4 + 0x11), *(s8 *)(arg4 + 0x12), *(s8 *)(arg4 + 0x13));
                 break;
             case 1:
-                func_0045af60(0, *(s8 *)(arg4 + 0x11), *(s8 *)(arg4 + 0x12), *(s8 *)(arg4 + 0x13));
+                sdkSndStartStream(0, *(s8 *)(arg4 + 0x11), *(s8 *)(arg4 + 0x12), *(s8 *)(arg4 + 0x13));
                 break;
             }
             return 1;

@@ -9,7 +9,7 @@
 /* Original translation unit y_fclShopDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "fr_font_internal.h"
-s32 func_0045af60(s16, s16, s16, s16);
+s32 sdkSndStartStream(s16, s16, s16, s16);
 
 typedef FclVec2 Vec2f;
 typedef struct { u8 r, g, b, a; } RGBA;
@@ -316,7 +316,7 @@ s32 func_002be530(u8 *arg0)
     extern void func_002d8a60(void *, s8, f32, f32);
     extern void func_002dd3b0(void *);
     extern s8 func_002e05a0(void *);
-    extern s32 func_0045af60(s16, s16, s16, s16);
+    extern s32 sdkSndStartStream(s16, s16, s16, s16);
     extern s32 func_0046a750(s32);
     extern u8 D_0063FAA0[];
     extern u8 D_0063FAD0[];
@@ -1125,7 +1125,7 @@ s32 func_002be530(u8 *arg0)
                 *(FclDrawColor *)((u8 *)func_002e04e0((*(void * *)((u8 *)((work + (var_16_6 * 4))) + 0xD24))) + 0x79) = func_002b2a60(0xED, 0x80, 0, 0xFF);
             }
             *(FclDrawColor *)((u8 *)func_002e04e0((((void * *)(work + 0xD24))[(*(s8 *)(work + 7))])) + 0x79) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         } else if (D_008C027A[0] & 0x1000) {
             (*(s8 *)(work + 7)) = func_002b2d00((s32) (*(s8 *)(work + 7)), 1, 0, 5, 2);
             func_002d7f90(arg0);
@@ -1144,7 +1144,7 @@ s32 func_002be530(u8 *arg0)
                 *(FclDrawColor *)((u8 *)func_002e04e0((*(void * *)((u8 *)((work + (var_16_7 * 4))) + 0xD24))) + 0x79) = func_002b2a60(0xED, 0x80, 0, 0xFF);
             }
             *(FclDrawColor *)((u8 *)func_002e04e0((((void * *)(work + 0xD24))[(*(s8 *)(work + 7))])) + 0x79) = func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF);
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         } else if (D_008C024E[0] & 0x40) {
             func_002e0940((*(void * *)(work + 0xC44)), (*(f32 *)((u8 *)(func_002e04e0((*(void * *)(work + 0xC44)))) + 0xC4)), 0.0f, 0, 2, 0);
             func_002e0940((*(void * *)(work + 0xC48)), (*(f32 *)((u8 *)(func_002e04e0((*(void * *)(work + 0xC48)))) + 0xC4)), 0.0f, 0, 2, 0);
@@ -1155,7 +1155,7 @@ s32 func_002be530(u8 *arg0)
             }
             (*(s16 *)(work + 0xF3C)) = 0;
             (*(s8 *)(work + 0)) = 0x12;
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x20) {
             for (var_16_8 = 0; var_16_8 < 7; var_16_8++) {
                 func_002e0660((*(void * *)((u8 *)((work + (var_16_8 * 4))) + 0xD20)), 0xFFU, 0U, 0U, 5, (s16) ((var_16_8 * 2)));
@@ -1191,7 +1191,7 @@ s32 func_002be530(u8 *arg0)
             }
             (*(s8 *)(work + 7)) = 5;
             (*(s8 *)(work + 0)) = 0x13;
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         }
         break;
     case 0x11:                                      /* switch 1 */
@@ -1385,7 +1385,7 @@ s32 func_002be530(u8 *arg0)
                     (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED4)))) + 0x30)) = temp_f20_14;
                     func_002e0620((void *) (*(s32 *)(work + 0xED4)), func_002b2970((*(f32 *)((u8 *)func_002e04e0((void *) (*(s32 *)(work + 0xED4))) + 0x2C)), (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED4)))) + 0x30)) - 4.0f), func_002b2970((*(f32 *)((u8 *)func_002e04e0((void *) (*(s32 *)(work + 0xED4))) + 0x2C)), (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED4)))) + 0x30))), 1, 2, 0);
                     func_002e0620((void *) (*(s32 *)(work + 0xED8)), func_002b2970((*(f32 *)((u8 *)func_002e04e0((void *) (*(s32 *)(work + 0xED8))) + 0x2C)), (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED8)))) + 0x30)) - 4.0f), func_002b2970((*(f32 *)((u8 *)func_002e04e0((void *) (*(s32 *)(work + 0xED8))) + 0x2C)), (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED8)))) + 0x30))), 1, 2, 0);
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                 } else if (D_008C027A[0] & 0x1000) {
                     (*(s8 *)(work + 8)) = func_002b2d00((s32) (*(s8 *)(work + 8)), 1, 0, (*(s8 *)(work + 9)) - 1, 2);
                     fclShopDrawSwingCursor(arg0);
@@ -1394,9 +1394,9 @@ s32 func_002be530(u8 *arg0)
                     (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED4)))) + 0x30)) = temp_f20_15;
                     func_002e0620((void *) (*(s32 *)(work + 0xED4)), func_002b2970((*(f32 *)((u8 *)func_002e04e0((void *) (*(s32 *)(work + 0xED4))) + 0x2C)), (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED4)))) + 0x30)) - 4.0f), func_002b2970((*(f32 *)((u8 *)func_002e04e0((void *) (*(s32 *)(work + 0xED4))) + 0x2C)), (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED4)))) + 0x30))), 1, 2, 0);
                     func_002e0620((void *) (*(s32 *)(work + 0xED8)), func_002b2970((*(f32 *)((u8 *)func_002e04e0((void *) (*(s32 *)(work + 0xED8))) + 0x2C)), (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED8)))) + 0x30)) - 4.0f), func_002b2970((*(f32 *)((u8 *)func_002e04e0((void *) (*(s32 *)(work + 0xED8))) + 0x2C)), (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED8)))) + 0x30))), 1, 2, 0);
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                 } else if (D_008C024E[0] & 0x20) {
-                    func_0045af60(0, 0, 0, 2);
+                    sdkSndStartStream(0, 0, 0, 2);
                     tbl = (f32 *) D_0063F5A0;
                     func_002e0620((*(void * *)(work + 0xC58)), func_002b2970(tbl[0], tbl[1]), func_002b2970(tbl[0], 500.0f + tbl[1]), 0, 4, 0);
                     func_002e0660((*(void * *)(work + 0xC58)), 0xCCU, 0U, 0U, 2, 0);
@@ -1483,7 +1483,7 @@ s32 func_002be530(u8 *arg0)
                     }
                     (*(s16 *)(work + 0xF3C)) = 0;
                     (*(s8 *)(work + 0)) = 0x16;
-                    func_0045af60(0, 0, 0, 1);
+                    sdkSndStartStream(0, 0, 0, 1);
                 }
             }
         }
@@ -1691,7 +1691,7 @@ s32 func_002be530(u8 *arg0)
         if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
-            func_0045af60(0, 0, 0, 6);
+            sdkSndStartStream(0, 0, 0, 6);
             func_002bb550((*(s8 *)(work + 0x10)));
             func_002e7a80(func_002e7a60() - func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
             sp698.v0 = yListValueAt((*(s16 *)(work + 2)));
@@ -1714,7 +1714,7 @@ s32 func_002be530(u8 *arg0)
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else {
             if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
-                func_0045af60(0, 0, 0, 7);
+                sdkSndStartStream(0, 0, 0, 7);
                 func_002bb550((*(s8 *)(work + 0x10)));
                 sp690.v0 = (s32) ((s16) (func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))));
                 sp690.v1 = 0;
@@ -1743,7 +1743,7 @@ s32 func_002be530(u8 *arg0)
         } else {
             if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
                 func_002e7a80(func_002e7a60() + (func_00106a90(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) >> 2));
-                func_0045af60(0, 0, 0, 6);
+                sdkSndStartStream(0, 0, 0, 6);
             } else {
                 func_00106620(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7))), ((func_00106600(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))) & 0xFF) + 1) & 0xFF);
             }
@@ -1809,7 +1809,7 @@ s32 func_002be530(u8 *arg0)
     case 0x21:                                      /* switch 1 */
         if (func_002d1590(arg0) == 1) {
             if ((D_008C0276[0] & 0x1000) && ((*(s8 *)(work + 0x14)) == 0)) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 if ((*(s16 *)(work + 2)) == 0) {
                     temp_2_76 = func_002e26a0();
                     (*(s16 *)(work + 2)) = temp_2_76;
@@ -1824,7 +1824,7 @@ s32 func_002be530(u8 *arg0)
             if (D_008C027A[0] & 0x1000) {
                 if (yListCount() > 0) {
                     if ((*(s16 *)(work + 2)) != 0) {
-                        func_0045af60(0, 0, 0, 0);
+                        sdkSndStartStream(0, 0, 0, 0);
                     }
                     (*(s16 *)(work + 2)) = func_002b2d00((s32) (*(s16 *)(work + 2)), 1, 0, 0, 1);
                     (*(s16 *)(work + 4)) = func_002b2d50((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListCount())), 5, -1);
@@ -1834,7 +1834,7 @@ s32 func_002be530(u8 *arg0)
                 goto block_368;
             }
             if ((D_008C0276[0] & 0x4000) && ((*(s8 *)(work + 0x14)) == 0)) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 temp_2_77 = func_002b2cb0((s32) (*(s16 *)(work + 2)), 1, func_002e26a0(), 0, 2);
                 (*(s16 *)(work + 2)) = temp_2_77;
                 if (((s16) ((s64) temp_2_77)) == 0) {
@@ -1851,7 +1851,7 @@ s32 func_002be530(u8 *arg0)
                 if (yListCount() > 0) {
                     temp_16_58 = (*(s16 *)(work + 2));
                     if (temp_16_58 != func_002e26a0()) {
-                        func_0045af60(0, 0, 0, 0);
+                        sdkSndStartStream(0, 0, 0, 0);
                     }
                     (*(s16 *)(work + 2)) = func_002b2cb0((s32) (*(s16 *)(work + 2)), 1, func_002e26a0(), 0, 1);
                     if (func_002e26a0() >= 5) {
@@ -1867,12 +1867,12 @@ s32 func_002be530(u8 *arg0)
             if ((D_008C027A[0] & 2) || (D_008C027A[0] & 0x2000)) {
                 temp_16_60 = (*(s16 *)(work + 2));
                 if (temp_16_60 != func_002e26a0()) {
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                 }
                 func_002b2e70((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), yListCount(), 5, (s16 *)(work + 2), (s16 *)(work + 4));
             } else if ((D_008C027A[0] & 1) || (D_008C027A[0] & 0x8000)) {
                 if ((*(s16 *)(work + 2)) != 0) {
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                 }
                 func_002b2f90((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), yListCount(), 5, (s16 *)(work + 2), (s16 *)(work + 4));
             } else if (D_008C027A[0] & 8) {
@@ -1893,7 +1893,7 @@ s32 func_002be530(u8 *arg0)
                 }
                 func_002caef0(arg0);
                 func_002d8200(arg0, 0);
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
             } else if (D_008C027A[0] & 4) {
                 (*(s16 *)(work + 2)) = 0;
                 (*(s16 *)(work + 4)) = 0;
@@ -1912,19 +1912,19 @@ s32 func_002be530(u8 *arg0)
                 }
                 func_002caef0(arg0);
                 func_002d8200(arg0, 0);
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
             } else if (D_008C024E[0] & 0x20) {
                 func_002d3ee0(arg0);
                 (*(s8 *)(work + 0)) = 0x22;
                 func_002e0940((*(void * *)(work + 0xE2C)), (*(f32 *)((u8 *)(func_002e04e0((*(void * *)(work + 0xE2C)))) + 0xC4)), 0.0f, 0, 2, 0);
                 func_002e0940((*(void * *)(work + 0xE30)), (*(f32 *)((u8 *)(func_002e04e0((*(void * *)(work + 0xE30)))) + 0xC4)), 0.0f, 0, 2, 0);
-                func_0045af60(0, 1, 0, 4);
+                sdkSndStartStream(0, 1, 0, 4);
             } else if (D_008C024E[0] & 0x80) {
                 func_002d3ee0(arg0);
                 (*(s8 *)(work + 0)) = 0x22;
                 func_002e0940((*(void * *)(work + 0xE2C)), (*(f32 *)((u8 *)(func_002e04e0((*(void * *)(work + 0xE2C)))) + 0xC4)), 0.0f, 0, 2, 0);
                 func_002e0940((*(void * *)(work + 0xE30)), (*(f32 *)((u8 *)(func_002e04e0((*(void * *)(work + 0xE30)))) + 0xC4)), 0.0f, 0, 2, 0);
-                func_0045af60(0, 1, 0, 4);
+                sdkSndStartStream(0, 1, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
                 if (yListCount() > 0) {
                     if ((func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) <= func_002e7a60()) && ((func_00106600((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) < 0x63)) {
@@ -1932,12 +1932,12 @@ s32 func_002be530(u8 *arg0)
                         sp688.v1 = 0;
                         (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 1, &sp688, 1);
                         (*(s8 *)(work + 0)) = 0x23;
-                        func_0045af60(0, 0, 0, 1);
+                        sdkSndStartStream(0, 0, 0, 1);
                     } else {
-                        func_0045af60(0, 0, 0, 8);
+                        sdkSndStartStream(0, 0, 0, 8);
                     }
                 } else {
-                    func_0045af60(0, 0, 0, 8);
+                    sdkSndStartStream(0, 0, 0, 8);
                 }
             }
 block_368:
@@ -1957,7 +1957,7 @@ block_368:
         if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
-            func_0045af60(0, 0, 0, 6);
+            sdkSndStartStream(0, 0, 0, 6);
             func_002bb550((*(s8 *)(work + 0x10)));
             func_002d3ee0(arg0);
             func_002e04f0((*(void * *)(work + 0xDC8)), 0, 1);
@@ -2122,7 +2122,7 @@ block_368:
         if (D_008C027A[0] & 0x1000) {
             temp_18_52 = (*(s16 *)(work + 0x12));
             if (temp_18_52 != (func_00106600(temp_16_74) & 0xFF)) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             (*(s16 *)(work + 0x12)) = func_002b2cb0((s32) (*(s16 *)(work + 0x12)), 1, func_00106600(temp_16_74) & 0xFF, 1, 1);
             tbl = (f32 *) D_0063F688;
@@ -2131,7 +2131,7 @@ block_368:
         } else if (D_008C027A[0] & 0x2000) {
             temp_18_53 = (*(s16 *)(work + 0x12));
             if (temp_18_53 != (func_00106600(temp_16_74) & 0xFF)) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             (*(s16 *)(work + 0x12)) = func_002b2cb0((s32) (*(s16 *)(work + 0x12)), 0xA, func_00106600(temp_16_74) & 0xFF, 1, 1);
             tbl = (f32 *) D_0063F688;
@@ -2139,7 +2139,7 @@ block_368:
             (*(s8 *)((u8 *)(func_002e04e0((*(void * *)(work + 0xCCC)))) + 0x85)) = 1;
         } else if (D_008C027A[0] & 0x4000) {
             if ((*(s16 *)(work + 0x12)) != 1) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             (*(s16 *)(work + 0x12)) = func_002b2d00((s32) (*(s16 *)(work + 0x12)), 1, 1, func_00106600(temp_16_74) & 0xFF, 1);
             tbl = (f32 *) D_0063F690;
@@ -2147,7 +2147,7 @@ block_368:
             (*(s8 *)((u8 *)(func_002e04e0((*(void * *)(work + 0xCD0)))) + 0x85)) = 1;
         } else if (D_008C027A[0] & 0x8000) {
             if ((*(s16 *)(work + 0x12)) != 1) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             (*(s16 *)(work + 0x12)) = func_002b2d00((s32) (*(s16 *)(work + 0x12)), 0xA, 1, func_00106600(temp_16_74) & 0xFF, 1);
             tbl = (f32 *) D_0063F690;
@@ -2159,9 +2159,9 @@ block_368:
             sprintf(spC0, iGpffffa880, (*(s16 *)(work + 0x12)));
             (*(s8 *)(work + 0x10)) = func_002dff90(arg0, 2, &sp678, spC0, 1);
             (*(s8 *)(work + 0)) = 0x28;
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x20) {
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
             func_002df4c0(arg0);
             func_002e0660((*(void * *)(work + 0xCCC)), 0xFFU, 0U, 0U, 5, 0);
             func_002e0660((*(void * *)(work + 0xCD0)), 0xFFU, 0U, 0U, 5, 0);
@@ -2188,7 +2188,7 @@ block_368:
             (*(s16 *)(work + 0xC16)) = 0;
             (*(s16 *)(work + 0xC18)) = 0;
             if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
-                func_0045af60(0, 0, 0, 6);
+                sdkSndStartStream(0, 0, 0, 6);
                 if (func_00106850(temp_19_7) == 5) {
                     temp_16_76 = (s16) (temp_19_7);
                     datSetStateTableEntry(temp_16_76, func_002b2cb0(clndGetMoonPhase(temp_16_76) & 0xFF, (s32) (*(s16 *)(work + 0x12)), 0xFF, 0, 1) & 0xFF);
@@ -2273,7 +2273,7 @@ block_368:
             (*(s16 *)(work + 0xC18)) = 0;
             if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
                 func_002bb550((*(s8 *)(work + 0x10)));
-                func_0045af60(0, 0, 0, 6);
+                sdkSndStartStream(0, 0, 0, 6);
                 for (var_18_6 = 1; var_18_6 < yListCountFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18))); var_18_6++) {
                     temp_19_8 = yListValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_18_6);
                     yListAuxValueAtFor((*(void * *)((u8 *)((work + ((*(s8 *)(work + 0x11)) * 4))) + 0xF18)), (s32) var_18_6);
@@ -2509,7 +2509,7 @@ block_368:
         func_002cdf80(arg0, 1);
         func_002dd3b0(arg0);
         if ((((s8) (func_002e0570((*(void * *)(work + 0xE38)), 1))) == 0) && (((s8) (func_002e0570((*(void * *)(work + 0xCC4)), 1))) == 0) && (((s8) (func_002e0570((*(void * *)(work + 0xCC0)), 1))) == 0) && ((D_008C0276[0] & 0x80) || (D_008C0276[0] & 0x20))) {
-            func_0045af60(0, 1, 0, 4);
+            sdkSndStartStream(0, 1, 0, 4);
             func_002d8600(arg0);
             func_002e04f0((*(void * *)(work + 0xDE4)), 0, 0);
             func_002e04f0((*(void * *)(work + 0xDE0)), 0, 1);
@@ -3082,7 +3082,7 @@ typedef struct {
 #pragma opt_loop_invariants on
 // FUN_002CB6C0
 void func_002cb6c0(void *arg0, s8 arg1) {
-    s32 func_0045af60(s16, s16, s16, s16);
+    s32 sdkSndStartStream(s16, s16, s16, s16);
     FclDrawColor rowColor;
     FclDrawColor glow0a;
     FclDrawColor glow0b;
@@ -3241,7 +3241,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
         return;
     }
     if ((D_008C0276[0] & 0x1000) && work->f14 == 0) {
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
         if (work->f2 == 0) {
             work->f2 = func_002e26a0();
             work->f4 = func_002b2cb0(0, work->f2, 4, 0, 1);
@@ -3255,7 +3255,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
     if (D_008C027A[0] & 0x1000) {
         if (yListCount() > 0) {
             if (work->f2 != 0) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             work->f2 = func_002b2d00(work->f2, 1, 0, 0, 1);
             work->f4 = func_002b2d50(work->f2, work->f4, yListCount(), 5, -1);
@@ -3263,7 +3263,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
             return;
         }
     } else if ((D_008C0276[0] & 0x4000) && work->f14 == 0) {
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
         work->f2 = func_002b2cb0(work->f2, 1, func_002e26a0(), 0, 2);
         if (work->f2 == 0) {
             work->f4 = 0;
@@ -3277,7 +3277,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
     } else if (D_008C027A[0] & 0x4000) {
         if (yListCount() > 0) {
             if (work->f2 != func_002e26a0()) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             work->f2 = func_002b2cb0(work->f2, 1, func_002e26a0(), 0, 1);
             if (func_002e26a0() >= 5) {
@@ -3290,16 +3290,16 @@ void func_002cb6c0(void *arg0, s8 arg1) {
         }
     } else if ((D_008C027A[0] & 2) || (D_008C027A[0] & 0x2000)) {
         if (work->f2 != func_002e26a0()) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         }
         func_002b2e70(work->f2, work->f4, yListCount(), 5, &work->f2, &work->f4);
     } else if ((D_008C027A[0] & 1) || (D_008C027A[0] & 0x8000)) {
         if (work->f2 != 0) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         }
         func_002b2f90(work->f2, work->f4, yListCount(), 5, &work->f2, &work->f4);
     } else if (D_008C027A[0] & 8) {
-        func_0045af60(0, 0, 0, 5);
+        sdkSndStartStream(0, 0, 0, 5);
         work->f2 = 0;
         work->f4 = 0;
         work->sel = func_002b2cb0(work->sel, 1, work->count - 1, 0, 2);
@@ -3317,7 +3317,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
         }
         func_002d8200(arg0, 0);
     } else if (D_008C027A[0] & 4) {
-        func_0045af60(0, 0, 0, 5);
+        sdkSndStartStream(0, 0, 0, 5);
         work->f2 = 0;
         work->f4 = 0;
         work->sel = func_002b2d00(work->sel, 1, 0, work->count - 1, 2);
@@ -3338,20 +3338,20 @@ void func_002cb6c0(void *arg0, s8 arg1) {
         if (yListCount() > 0) {
             stock = func_00106a90((s16)yListValueAt(work->f2));
             if (stock <= func_002e7a60() && (func_00106600((s16)yListValueAt(work->f2)) & 0xFF) < 0x63) {
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
                 work->fF3E = *(FclDrawColor *)((u8 *)func_002e04e0(work->fDC8) + 0x79);
                 work->fF42 = *(FclDrawColor *)((u8 *)func_002e04e0(work->fDD0) + 0x79);
                 work->fF3C = 0;
                 work->state = 0x1C;
             } else {
-                func_0045af60(0, 0, 0, 8);
+                sdkSndStartStream(0, 0, 0, 8);
             }
         } else {
-            func_0045af60(0, 0, 0, 8);
+            sdkSndStartStream(0, 0, 0, 8);
         }
     } else if (D_008C024E[0] & 0x80) {
         if (yListCount() > 0) {
-            func_0045af60(0, 1, 0, 3);
+            sdkSndStartStream(0, 1, 0, 3);
             glow0a = func_002b2a60(0xFE, 0xC6, 0x31, 0xFF);
             glow0b = func_002b2a60(0xFF, 0xE2, 0x91, 0xFF);
             func_002e0970(work->fDC8, glow0a, glow0b, 1, 4, 0);
@@ -3376,7 +3376,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
             work->state = 0x20;
         }
     } else if (D_008C024E[0] & 0x20) {
-        func_0045af60(0, 0, 0, 2);
+        sdkSndStartStream(0, 0, 0, 2);
         func_002e0940(work->fD6C, -14.0f, 110.0f, 0, 0xA, 0);
         func_002e0660(work->fE2C, ((u8 *)func_002e04e0(work->fE2C))[0x62], 0, 0, 5, 0);
         func_002e0660(work->fE30, ((u8 *)func_002e04e0(work->fE30))[0x62], 0, 0, 5, 0);
@@ -3921,16 +3921,16 @@ void func_002cdf80(void *arg0, s8 arg1) {
         if ((D_008C0276[0] & 0x1000) && work->busy == 0) {
             if (yListCountFor(work->list[work->sel]) > D_00748908[work->sel]) {
                 if (arg1 == 1 && work->sel == 0 && work->cursor == 1) {
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                     work->cursor = func_002b2d00(work->cursor, 1, 0, (s16)yListCountFor(work->list[work->sel]), 2);
                     work->scroll = func_002b2d50(work->cursor, work->scroll, yListCountFor(work->list[work->sel]), 5, -1);
                 }
                 if (work->cursor == 0) {
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                     work->cursor = top;
                     work->scroll = func_002b2cb0(0, top, 4, 0, 1);
                 } else {
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                     work->cursor = func_002b2d00(work->cursor, 1, 0, (s16)yListCountFor(work->list[work->sel]), 2);
                     work->scroll = func_002b2d50(work->cursor, work->scroll, yListCountFor(work->list[work->sel]), 5, -1);
                 }
@@ -3940,7 +3940,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
             if (yListCountFor(work->list[work->sel]) > D_00748908[work->sel] && (arg1 != 1 || work->sel != 0 || work->cursor != 1)) {
                 if (yListCountFor(work->list[work->sel]) > 0) {
                     if (work->cursor != 0) {
-                        func_0045af60(0, 0, 0, 0);
+                        sdkSndStartStream(0, 0, 0, 0);
                     }
                     work->cursor = func_002b2d00(work->cursor, 1, 0, 0, 1);
                     work->scroll = func_002b2d50(work->cursor, work->scroll, yListCountFor(work->list[work->sel]), 5, -1);
@@ -3949,7 +3949,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
             }
         } else if ((D_008C0276[0] & 0x4000) && work->busy == 0) {
             if (yListCountFor(work->list[work->sel]) > D_00748908[work->sel]) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 work->cursor = func_002b2cb0(work->cursor, 1, top, 0, 2);
                 if (work->cursor == 0) {
                     work->scroll = 0;
@@ -3968,7 +3968,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
             if (yListCountFor(work->list[work->sel]) > D_00748908[work->sel]) {
                 if (yListCountFor(work->list[work->sel]) > 0) {
                     if (work->cursor != top) {
-                        func_0045af60(0, 0, 0, 0);
+                        sdkSndStartStream(0, 0, 0, 0);
                     }
                     work->cursor = func_002b2cb0(work->cursor, 1, top, 0, 1);
                     if (top >= 5) {
@@ -3983,7 +3983,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
         } else if ((D_008C027A[0] & 2) || (D_008C027A[0] & 0x2000)) {
             if (yListCountFor(work->list[work->sel]) > D_00748908[work->sel]) {
                 if (work->cursor != top) {
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                 }
                 func_002b2e70(work->cursor, work->scroll, yListCountFor(work->list[work->sel]), 5, &work->cursor, &work->scroll);
                 goto clear;
@@ -3993,12 +3993,12 @@ void func_002cdf80(void *arg0, s8 arg1) {
             if (n < yListCountFor(work->list[work->sel])) {
                 if (work->fC24 == 0) {
                     if (work->cursor != 0) {
-                        func_0045af60(0, 0, 0, 0);
+                        sdkSndStartStream(0, 0, 0, 0);
                     }
                     func_002b2f90(work->cursor, work->scroll, yListCountFor(work->list[work->sel]), 5, &work->cursor, &work->scroll);
                 } else {
                     if (work->cursor != n) {
-                        func_0045af60(0, 0, 0, 0);
+                        sdkSndStartStream(0, 0, 0, 0);
                     }
                     if (work->sel == 0) {
                         func_002b3050(work->cursor, work->scroll, yListCountFor(work->list[work->sel]), 5, 1, &work->cursor, &work->scroll);
@@ -4057,7 +4057,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
                     break;
                 }
                 work->state = 0x33;
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
                 goto clear;
             }
         } else if (D_008C027A[0] & 4) {
@@ -4109,17 +4109,17 @@ void func_002cdf80(void *arg0, s8 arg1) {
                     break;
                 }
                 work->state = 0x34;
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
                 goto clear;
             }
         } else if (D_008C024E[0] & 0x40) {
             if (yListCountFor(work->list[work->sel]) <= D_00748908[work->sel]) {
-                func_0045af60(0, 0, 0, 8);
+                sdkSndStartStream(0, 0, 0, 8);
                 return;
             }
             work->qty = 1;
             if (work->sel == 0 && work->cursor - work->scroll == 0 && yListCountFor(work->list[work->sel]) < 2) {
-                func_0045af60(0, 0, 0, 8);
+                sdkSndStartStream(0, 0, 0, 8);
                 return;
             }
             if (yListCountFor(work->list[work->sel]) > 0) {
@@ -4131,7 +4131,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
                 work->fF42[2] = ((u8 *)func_002e04e0(work->O(0xDD0)))[0x7B];
                 work->fF3C = 0;
                 work->state = 0x25;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             }
             goto clear;
         } else if (D_008C024E[0] & 0x80) {
@@ -4161,13 +4161,13 @@ void func_002cdf80(void *arg0, s8 arg1) {
                     func_002e04f0(work->O(0xDE4), 0, 1);
                     func_002e04f0(work->O(0xDE0), 0, 0);
                     work->state = 0x2F;
-                    func_0045af60(0, 1, 0, 3);
+                    sdkSndStartStream(0, 1, 0, 3);
                 }
                 goto clear;
             }
         } else if (D_008C024E[0] & 0x20) {
             if (arg1 != 1) {
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 b = (Vec2f *)D_0063F5B8;
                 func_002e0620(work->O(0xC64), func_002b2970(b->x, b->y), func_002b2970(b->x, 300.0f + b->y), 0, 0xA, 0);
                 func_002e0660(work->O(0xC64), ((u8 *)func_002e04e0(work->O(0xC64)))[0x62], 0, 0, 0xA, 0);

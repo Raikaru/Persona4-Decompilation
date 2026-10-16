@@ -252,23 +252,23 @@ s32 func_0025e170(u8 *sdkTaskBytes)
         case 1:
             if ((D_008C024E[0] & 0x40) || (D_008C024E[0] & 0x20)) {
                 *(s32 *)(p + 4) = *(s32 *)(p + 4) | 4;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             }
             break;
         case 2:
             if (D_008C0276[0] & 0x8000) {
                 if (*(s32 *)(p + 0x14) != 0) {
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                 }
                 *(s32 *)(p + 0x14) = 0;
             } else if (D_008C0276[0] & 0x2000) {
                 if (*(s32 *)(p + 0x14) != 1) {
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                 }
                 *(s32 *)(p + 0x14) = 1;
             } else if (D_008C024E[0] & 0x40) {
                 *(s32 *)(p + 4) = *(s32 *)(p + 4) | 4;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             }
             break;
         }

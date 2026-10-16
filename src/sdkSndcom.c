@@ -466,7 +466,7 @@ void func_0045c3d0(s16 index)
 }
 
 // FUN_0045C510
-void func_0045c510(s16 index, s16 stream)
+void sdkSndStopStreamSlot(s16 index, s16 stream)
 {
     s32 off;
     s32 *p;
@@ -499,7 +499,7 @@ void func_0045c510(s16 index, s16 stream)
 #pragma opt_common_subs off
 #pragma opt_propagation off
 // FUN_0045C640
-void func_0045c640(s16 index, s16 stream, s16 arg2, s16 arg3)
+void sdkSndStartStreamSlot(s16 index, s16 stream, s16 arg2, s16 arg3)
 {
     s32 slotOffset;
     s32 state;

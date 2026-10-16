@@ -1763,7 +1763,7 @@ void shdPersonaDrawAcquisition(u8 *work)
             *(u16 *)animation = *(u16 *)animation | 1;
         }
         if (*(u16 *)(animation + 2) == 8) {
-            func_0045af60(1, 3, 3, 2);
+            sdkSndStartStream(1, 3, 3, 2);
         }
         frame = *(u16 *)(animation + 2);
         if ((s32)frame < 0) {
@@ -2852,7 +2852,7 @@ void shdPersonaBeginOpen(u8 *arg0)
     case 0:
     case 1:
     case 2:
-        func_0045af60(0, 1, 0, 3);
+        sdkSndStartStream(0, 1, 0, 3);
         return;
     default:
         kAssertFail(D_005E4868, 0xC8F);
@@ -2927,7 +2927,7 @@ void shdPersonaBeginClose(u8 *arg0)
         state = *(s32 *)(work + 0x52C);
         switch (state) {
         case 0:
-            func_0045af60(0, 1, 0, 4);
+            sdkSndStartStream(0, 1, 0, 4);
             break;
         case 1:
         case 3:
@@ -3103,7 +3103,7 @@ void shdPersonaEnterCloseState(u8 *arg0)
         if (new_var2)
       {
       }
-        func_0045af60(0, 1, t2 & 0xFFFFFFFFFFFFFFFF, 4);
+        sdkSndStartStream(0, 1, t2 & 0xFFFFFFFFFFFFFFFF, 4);
         break;
 
       case 1:
@@ -3234,7 +3234,7 @@ void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3
     } while (n > 0);
     shdPersonaEndSelection(arg0, 0);
     shdPersonaSetDisplayState(arg0, arg1, arg2, arg3);
-    func_0045af60(0, 2, 0, 5);
+    sdkSndStartStream(0, 2, 0, 5);
 }
 
 
@@ -3280,7 +3280,7 @@ void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
         dst++;
     } while (n > 0);
     shdPersonaSetDisplayState(arg0, arg1, arg2, arg3);
-    func_0045af60(0, 2, 0, 5);
+    sdkSndStartStream(0, 2, 0, 5);
 }
 
 
@@ -3402,7 +3402,7 @@ void shdPersonaBeginSelection(u8 *arg0)
         *(s32 *)(b + 0x534) |= 0x1000;
         *(s32 *)(b + 0x534) |= 0x800;
         *(s32 *)(b + 0x534) &= ~0x2000;
-        func_0045af60(0, 1, 0, 3);
+        sdkSndStartStream(0, 1, 0, 3);
     }
 }
 
@@ -3422,7 +3422,7 @@ void shdPersonaEndSelection(u8 *arg0, s32 arg1)
         *(s32 *)(b + 0x534) |= 0x2000;
         *(s32 *)(b + 0x534) &= ~0x1000;
         if (arg1 != 0) {
-            func_0045af60(0, 1, 0, 4);
+            sdkSndStartStream(0, 1, 0, 4);
         }
     }
 }
@@ -3553,7 +3553,7 @@ void shdPersonaStepSelectionCursor(u8 *arg0)
     }
     bit100000 = (flags & 0x100000) != 0;
     if (ShdSkill_MoveCursor(work + 0x84, bit100000) != 0) {
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
     }
 }
 // Intent: Add a skill to the persona's skill list and return the add result [inferred]
@@ -4666,7 +4666,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             u16 n;
             n = ++*(u16 *)(work + 2);
             if ((n & 0xFFFF) == 0xF) {
-                func_0045af60(1, 3, 3, 1);
+                sdkSndStartStream(1, 3, 3, 1);
             }
         }
         func_002bb7c0(1);
@@ -4706,7 +4706,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
                     kAssertFail(D_005E4868, 0xEB1);
                 }
             }
-            func_0045af60(1, 3, 3, 2);
+            sdkSndStartStream(1, 3, 3, 2);
             *(s32 *)(work + 0x14) = 5;
             *(u16 *)(work + 4) = 0;
         }
@@ -4857,7 +4857,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
                     kAssertFail(D_005E4868, 0xEB1);
                 }
             }
-            func_0045af60(1, 3, 3, 3);
+            sdkSndStartStream(1, 3, 3, 3);
             *(s32 *)(work + 0x14) = 0xA;
             *(u16 *)(work + 4) = 0;
         }
@@ -5059,7 +5059,7 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
         if (b800 != 0) {
             if (*(s8 *)(base + 0x88) != -1) {
                 if (ShdSkill_MoveCursor(base + 0x84, (fl & 0x100000) != 0) != 0) {
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                 }
             }
         }
@@ -5081,7 +5081,7 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
             func_002baf40(*(s32 *)(work + 0x18));
             func_002bb050(1);
             func_002bbf60();
-            func_0045af60(0, 1, 0, 1);
+            sdkSndStartStream(0, 1, 0, 1);
         }
         break;
     }
@@ -5185,7 +5185,7 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
                     kAssertFail(D_005E4868, 0xEB1);
                 }
             }
-            func_0045af60(1, 3, 3, 2);
+            sdkSndStartStream(1, 3, 3, 2);
             *(s32 *)(work + 8) = 5;
             *(u16 *)(work + 2) = 0;
         }

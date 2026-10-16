@@ -109,7 +109,7 @@ s32 func_0012c510(u8 *unusedTask) {
         *(u8 *)(p + 0x18) = 0xFF;
         *(s32 *)(p + 0x28) = 0;
         *(s32 *)p = 1;
-        func_0045af60(0, 2, 0, 3);
+        sdkSndStartStream(0, 2, 0, 3);
         break;
     case 1:
         *(s32 *)(p + 0x10) = 1;
@@ -155,14 +155,14 @@ s32 func_0012c510(u8 *unusedTask) {
                 }
                 titleSlotSetMode(p + 0x18, 3);
                 func_0034bb20(2);
-                func_0045af60(0, 2, 0, 3);
+                sdkSndStartStream(0, 2, 0, 3);
             } else if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x10)) {
                 titleSlotSetMode(p + 0x18, 3);
                 *(s32 *)p = 3;
                 *(s32 *)(p + 8) = 0xD;
                 *(s32 *)(p + 0x14) = 0;
                 func_0034bb20(2);
-                func_0045af60(0, 2, 0, 4);
+                sdkSndStartStream(0, 2, 0, 4);
             } else {
                 func_00453670(&sp20, *(s32 *)(p + 0x50), *(s32 *)(p + 0x50),
                               *(s32 *)(p + 0x28), 0);

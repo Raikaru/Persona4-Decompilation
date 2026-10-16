@@ -524,7 +524,7 @@ s32 func_00379f90(u8 *arg0) {
     extern void func_00388f40(u8 *arg0);
     extern void func_00389110(u8 *arg0);
     extern s32 func_00389160(u8 *arg0);
-    extern s32 func_0045af60(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
+    extern s32 sdkSndStartStream(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
     extern void kAssertFail(const void *file, u32 line);
     extern char D_0064EAC0[];
     extern u16 D_008C024E[];
@@ -644,7 +644,7 @@ s32 func_00379f90(u8 *arg0) {
                 m = (u16)mod * i;
                 btlShuffleDrawSetTiming(arg0, i, (u16)m, (u16)(m + 0x14), &work.base.x);
             }
-            func_0045af60(0, 4, 0, 1);
+            sdkSndStartStream(0, 4, 0, 1);
         } else if ((D_008C024E[0] & 0x20) != 0) {
             btlShuffleSeqReset(arg0);
             *(u32 *)(arg0 + 0x1F2F8) = 0xE;
@@ -707,7 +707,7 @@ s32 func_00379f90(u8 *arg0) {
         *(s32 *)(sbase + 0xC) = btlShuffleDrawCheck(arg0, (u8 *)0);
         func_00388f40(*(u8 **)(arg0 + 0x1F294));
         func_0038d0a0(*(u8 **)(arg0 + 0x1F298));
-        func_0045af60(1, 2, 2, 0xD);
+        sdkSndStartStream(1, 2, 2, 0xD);
         *(u32 *)(arg0 + 0x1F2F8) = 0xA;
         break;
     case 10:
@@ -720,7 +720,7 @@ s32 func_00379f90(u8 *arg0) {
                 btlShuffleDrawSetFrames(arg0, j, 0xF, 0xFF, 0);
             }
         }
-        func_0045af60(1, 0, 5, 1);
+        sdkSndStartStream(1, 0, 5, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 0xB;
     case 11:
         if (btlShuffleDrawStateA(arg0 + (*(s32 *)(sbase + 0xC) * 0xE8) + 0x1D6A0) == 0) {
@@ -847,7 +847,7 @@ extern s32 btlShuffleDrawCheck(u8 *arg0, u8 *arg1);
 extern void func_00388f40(u8 *arg0);
 extern void func_00389110(u8 *arg0);
 extern s32 func_00389160(u8 *arg0);
-extern s32 func_0045af60(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
+extern s32 sdkSndStartStream(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
 extern void kAssertFail(const void *file, u32 line);
 extern char D_0064EAE0[];
 extern char D_0064EB00[];
@@ -977,7 +977,7 @@ s32 func_0037ad10(u8 *arg0) {
                 m = (u16)mod * i;
                 btlShuffleDrawSetTiming(arg0, i, (u16)m, (u16)(m + 0x14), &work.base.x);
             }
-            func_0045af60(0, 4, 0, 1);
+            sdkSndStartStream(0, 4, 0, 1);
         } else if ((D_008C024E[0] & 0x20) != 0) {
             btlShuffleSeqReset(arg0);
             *(u32 *)(arg0 + 0x1F2F8) = 0xE;
@@ -1040,7 +1040,7 @@ s32 func_0037ad10(u8 *arg0) {
         *(s32 *)(sbase + 0xC) = btlShuffleDrawCheck(arg0, (u8 *)0);
         func_00388f40(*(u8 **)(arg0 + 0x1F294));
         func_0038d0a0(*(u8 **)(arg0 + 0x1F298));
-        func_0045af60(1, 2, 2, 0xD);
+        sdkSndStartStream(1, 2, 2, 0xD);
         *(u32 *)(arg0 + 0x1F2F8) = 0xA;
         break;
     case 10:
@@ -1053,7 +1053,7 @@ s32 func_0037ad10(u8 *arg0) {
                 btlShuffleDrawSetFrames(arg0, j, 0xF, 0xFF, 0);
             }
         }
-        func_0045af60(1, 0, 5, 1);
+        sdkSndStartStream(1, 0, 5, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 0xB;
     case 11:
         if (btlShuffleDrawStateA(arg0 + (*(s32 *)(sbase + 0xC) * 0xE8) + 0x1D6A0) == 0) {
@@ -1303,7 +1303,7 @@ s32 func_0037bc80(u8 *arg0) {
                 m = (u16)mod * i;
                 func_0037bac0(arg0, i, (u16)m, (u16)(m + 0x14));
             }
-            func_0045af60(0, 4, 0, 1);
+            sdkSndStartStream(0, 4, 0, 1);
         } else if ((D_008C024E[0] & 0x20) != 0) {
             btlShuffleSeqReset(arg0);
             *(u32 *)(arg0 + 0x1F2F8) = 0xE;
@@ -1367,7 +1367,7 @@ s32 func_0037bc80(u8 *arg0) {
         *(s32 *)(sbase + 0xC) = btlShuffleDrawCheck(arg0, (u8 *)0);
         func_00388f40(*(u8 **)(arg0 + 0x1F294));
         func_0038d0a0(*(u8 **)(arg0 + 0x1F298));
-        func_0045af60(1, 2, 2, 0xD);
+        sdkSndStartStream(1, 2, 2, 0xD);
         *(u32 *)(arg0 + 0x1F2F8) = 0xA;
         break;
     case 10:
@@ -1380,7 +1380,7 @@ s32 func_0037bc80(u8 *arg0) {
                 btlShuffleDrawSetFrames(arg0, j, 0xF, 0xFF, 0);
             }
         }
-        func_0045af60(1, 0, 5, 1);
+        sdkSndStartStream(1, 0, 5, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 0xB;
     case 11:
         if (btlShuffleDrawStateA(arg0 + (*(s32 *)(sbase + 0xC) * 0xE8) + 0x1D6A0) == 0) {

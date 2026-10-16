@@ -287,7 +287,7 @@ void btlSoundRefreshSlotChannel(u8 *arg0)
     temp_6 = (u8 *)(offset + (u32)iGpffffb3ac);
     if ((*(s16 *)(temp_6 + 0xACC) != *(u16 *)(arg0 + 2)) ||
         (*(s16 *)(temp_6 + 0xACE) != *(u16 *)(arg0 + 4))) {
-        func_0045aa90(1, (s16)temp_7);
+        sdkSndStopStream(1, (s16)temp_7);
     }
 }
 
@@ -305,7 +305,7 @@ s32 btlSoundSetSlotChannel(u8 *arg0)
     temp_3 = (u8 *)(offset + (u32)iGpffffb3ac);
     if ((*(s16 *)(temp_3 + 0xACC) != temp_6) ||
         (*(s16 *)(temp_3 + 0xACE) != *(u16 *)(arg0 + 4))) {
-        func_0045af60(1, (s16)temp_4, (s16)temp_6,
+        sdkSndStartStream(1, (s16)temp_4, (s16)temp_6,
                       (s16)*(u16 *)(arg0 + 4));
         temp_6 = *(u16 *)(arg0 + 2);
         temp_3 = iGpffffb3ac;

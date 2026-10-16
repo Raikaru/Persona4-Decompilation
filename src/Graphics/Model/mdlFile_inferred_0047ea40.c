@@ -217,7 +217,7 @@ void mdlTickMotionState(u8 *arg0)
                 call_a0 = *(s16 *)(arg0 + 0x1E);
                 call_a2 = *(s16 *)(arg0 + 0x20);
                 scratch = *(s16 *)(arg0 + 0x22);
-                func_0045af60(*(s16 *)(arg0 + 0x1C), call_a0, call_a2,
+                sdkSndStartStream(*(s16 *)(arg0 + 0x1C), call_a0, call_a2,
                               scratch);
                 *(s16 *)(arg0 + 0x26) = *(s16 *)(arg0 + 0x1C);
                 *(s16 *)(arg0 + 0x24) = -1;
@@ -228,7 +228,7 @@ void mdlTickMotionState(u8 *arg0)
         } else if (pendingTicks == -2) {
             pendingSlot = *(s16 *)(arg0 + 0x26);
             if (pendingSlot >= 0) {
-                func_0045aa90(pendingSlot, *(s16 *)(arg0 + 0x1E));
+                sdkSndStopStream(pendingSlot, *(s16 *)(arg0 + 0x1E));
                 *(s16 *)(arg0 + 0x26) = -1;
             }
             *(s16 *)(arg0 + 0x24) = -1;

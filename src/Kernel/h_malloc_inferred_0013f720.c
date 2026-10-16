@@ -221,11 +221,11 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
     temp_3_3 = (s8)var_19;
     switch (temp_3_3) {
     case 0:
-        func_0045af60(0, 0, 0, 8);
+        sdkSndStartStream(0, 0, 0, 8);
         break;
     case 1:
     case 2:
-        func_0045af60(1, 3, 2, 0x16);
+        sdkSndStartStream(1, 3, 2, 0x16);
         break;
     case 3:
         break;

@@ -72,6 +72,6 @@ loop_test:
     }
 loop_exit:
     *(s16 *)(arg0 + 0x10) = (s16)var_3;
-    func_0045af60(0, 0, 0, 0);
+    sdkSndStartStream(0, 0, 0, 0);
 }
 

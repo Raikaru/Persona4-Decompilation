@@ -504,7 +504,7 @@ void btlActionCommandUpdate(u8 *arg0)
         if (bVar != 0) {
             sVar2 = func_001fb170(f);
             if (sVar2 != 0) {
-                func_0045af60(0, 15, 0, 8);
+                sdkSndStartStream(0, 15, 0, 8);
                 btlUiSelectEffect(*(s32 *)(arg0 + 0x30), sVar2);
                 *(u16 *)(arg0 + 0x41C) = 6;
                 *(s32 *)(arg0 + 0x420) = 1;
@@ -754,7 +754,7 @@ select_action:
         }
         messageId = (s16)func_001fb170(condition);
         if (messageId != 0) {
-            func_0045af60(0, 0xF, 0, 8);
+            sdkSndStartStream(0, 0xF, 0, 8);
             btlUiSelectEffect(*(s32 *)(action + 0x30), (u32)messageId);
             btlSelectionClearTargetMark((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             return;
@@ -811,7 +811,7 @@ void btlActionAnalyzeInit(BtlAction *action)
 void btlActionAnalyzeUpdate(u8 *action)
 {
     extern u16 D_008C024C[];
-    extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
+    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
 
     if (btlCountUnitRecordsById(0x800) != 0) {
         return;
@@ -940,13 +940,13 @@ void btlActionAnalyzeUpdate(u8 *action)
                 }
             }
             if ((u16)previous != selectedIndex) {
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
                 *(u8 **)(action + 0x38) = *(u8 **)((u8 *)func_001a_add_offset(selectedIndex * 4, (s32)action) + 0x98);
                 *(u16 *)(action + 0xD2) = cursor;
                 btlMessageSetPendingValue(*(u8 **)(D_0076449C + 0xDD4), *(s32 *)(action + 0x38));
             }
         } else if ((input & 0x40) || (input & 0x20)) {
-            func_0045af60(0, 0, 0, 4);
+            sdkSndStartStream(0, 0, 0, 4);
             if (func_001eb860() == 1) {
                 *(s32 *)(D_0076449C + 0xC) |= 0x2000;
                 btlDamageSetSource(*(u8 **)(D_0076449C + 0xDD4), 1);

@@ -8,7 +8,7 @@ typedef char *va_list;
 #define va_start(ap, last) (ap = (va_list)__builtin_args_info(2))
 #define va_end(ap) ((void)0)
 extern u8 *iGpffffb510;
-extern void func_004b15d0();
+extern void mdlEffectSeqStop();
 extern s32 iGpffffa7c8;
 extern s32 scrGetParamString(s32 arg0);
 extern void scrDiscardArgs(void *arg0, ...);
@@ -37,7 +37,7 @@ extern char D_0063D050[];
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
-void func_004b1590(s32 arg0, s16 arg1);
+void mdlEffectSeqStart(s32 arg0, s16 arg1);
 s32 sdkSndPlayCue(s16 arg0, s32 arg1);
 s32 func_00459880(void);
 s32 sdkSndStopChannel(s16 arg0);
@@ -347,7 +347,7 @@ void func_0029ecb0(u8 *arg0)
         *(s32 *)(state + 0x34) = *(s32 *)(state + 0x28);
         *(s32 *)(state + 0x38) = *(s32 *)(state + 0x2C);
         *(s32 *)(state + 0x3C) = *(s32 *)(state + 0x30);
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
     }
 }
 #pragma pop
@@ -444,7 +444,7 @@ void func_0029f070(u8 *arg0)
     if ((D_008C024E[0] & 0x800) && (var_16 > 0)) {
         *(s32 *)(temp_18 + 0x14) = 3;
         *(s32 *)(temp_18 + 0x1C64) = 1;
-        func_0045af60(0, 0, 0, 1);
+        sdkSndStartStream(0, 0, 0, 1);
         return;
     }
     temp_3 = temp_18 + 0x1C38;
@@ -548,7 +548,7 @@ void func_0029f070(u8 *arg0)
         }
         if (var_16 > 0) {
             *(s32 *)(temp_18 + 0x1C50) = 1;
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
             return;
         }
     }
@@ -567,7 +567,7 @@ void func_0029f070(u8 *arg0)
                       2);
         func_0029ef90(arg0, sp7C);
         *(s32 *)(temp_18 + 0x1C54) = 1;
-        func_0045af60(0, 0, 0, 1);
+        sdkSndStartStream(0, 0, 0, 1);
         return;
     }
     temp_3 = temp_18 + 0x1C40;
@@ -585,7 +585,7 @@ void func_0029f070(u8 *arg0)
             func_0029ebf0(arg0, 2);
         }
         *(s32 *)(temp_18 + 0x1C58) = 1;
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
     }
     temp_3 = temp_18 + 0x1C48;
     *(s16 *)temp_3 = 0;
@@ -602,7 +602,7 @@ void func_0029f070(u8 *arg0)
             func_0029ebf0(arg0, 1);
         }
         *(s32 *)(temp_18 + 0x1C60) = 1;
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
     }
     func_0029ecb0(arg0);
 }

@@ -79,7 +79,7 @@ s32 func_00120bc0(u8 *arg0)
                 *(s32 *)(temp_16 + 0xC) = 0;
             }
             if (*(s32 *)(temp_16 + 0x18) == 0) {
-                func_0045af60(0, 0, 5, 0);
+                sdkSndStartStream(0, 0, 5, 0);
                 *(s32 *)(temp_16 + 0x18) = 1;
             }
             func_004b1250(*(s32 *)(temp_16 + 0x24), &sp220);

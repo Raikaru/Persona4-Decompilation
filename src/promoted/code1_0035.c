@@ -282,7 +282,7 @@ s32 func_00354010(void)
 // FUN_00354030
 s32 func_00354030(void)
 {
-    func_0045af60(0, 2, 0, 4);
+    sdkSndStartStream(0, 2, 0, 4);
     func_0034c260(0);
     resrcMngSetRenderSuppressed(0);
     return func_0034bb10();
@@ -291,11 +291,11 @@ s32 func_00354030(void)
 void func_00354080(s32 arg0)
 {
     if ((u32)(arg0 - 1) < 2U) {
-        func_0045af60(0, 1, 0, 0);
+        sdkSndStartStream(0, 1, 0, 0);
         return;
     }
     if ((u32)(arg0 - 3) < 2U) {
-        func_0045af60(0, 1, 0, 5);
+        sdkSndStartStream(0, 1, 0, 5);
     }
 }
 // FUN_003540F0
@@ -3626,7 +3626,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
             func_00353fb0();
             func_0034bb20(0x1B);
             func_0035ac60((u8 *)*(s32 *)(arg2 + 0x1308), 0, 0, 1);
-            func_0045af60(0, 2, 0, 4);
+            sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x40) {
             if (*(s16 *)(arg2 + 0x134) > 0) {
                 func_00359400(arg2, 2);
@@ -3638,7 +3638,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
                 func_0035ef80(arg2);
                 func_003597f0(arg2);
                 func_0035f020(arg2);
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             }
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
@@ -3669,7 +3669,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
                 *arg0 = 3;
                 func_0034bd60(0x19);
                 func_0035c480(*(s32 *)(arg2 + 0x1310), 0, 0);
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
             } else if (D_008C024E[0] & 0x10) {
                 *(s32 *)(arg2 + 0x10) = func_00354030();
                 *arg0 = 7;
@@ -3685,14 +3685,14 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
                     func_003599a0(arg2);
                     func_003597f0(arg2);
                     func_0035f020(arg2);
-                    func_0045af60(0, 1, 0, 5);
+                    sdkSndStartStream(0, 1, 0, 5);
                 } else if (*(s32 *)(arg2 + 0x148) > 1) {
                     func_00453670(buf, 8, *(s32 *)(arg2 + 0x148), *(s16 *)(arg2 + 0x28), 0);
                     func_004538e0(buf, 0x4000, 0x1000, 0, 0);
                     if (func_00453960(buf) != 0) {
                         func_003593e0((s32)arg2, 2, *(s32 *)(buf + 0x24));
                         func_0035f020(arg2);
-                        func_0045af60(0, 1, 0, 0);
+                        sdkSndStartStream(0, 1, 0, 0);
                     }
                 }
             }
@@ -3839,9 +3839,9 @@ s32 func_0035f0c0(u32 *arg0, s32 *arg1, u8 *arg2)
                 case 1:
                     break;
                 }
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             } else if (func_0035cb00(arg2, kind) != 0) {
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             }
         } else if (D_008C024E[0] & 0x20) {
             func_0035ce10(arg2, 1);
@@ -3854,7 +3854,7 @@ s32 func_0035f0c0(u32 *arg0, s32 *arg1, u8 *arg2)
             case 1:
                 break;
             }
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x10) {
             if (*(s32 *)(arg2 + 0x1C) == 0) {
                 *(s32 *)(arg2 + 0x14) = func_00354030();
@@ -3865,7 +3865,7 @@ s32 func_0035f0c0(u32 *arg0, s32 *arg1, u8 *arg2)
             func_004538e0(query, 0x4000, 0x1000, 0, 0);
             if (func_00453960(query) != 0) {
                 func_0035cab0(arg2, 0, *(s32 *)(query + 0x24));
-                func_0045af60(0, 1, 0, 0);
+                sdkSndStartStream(0, 1, 0, 0);
             } else {
                 kind = *(s32 *)(arg2 + 0x30);
                 if (kind != 6) {
@@ -3876,7 +3876,7 @@ s32 func_0035f0c0(u32 *arg0, s32 *arg1, u8 *arg2)
                         hit = func_0035cc80(arg2, kind, 0);
                     }
                     if (hit != 0) {
-                        func_0045af60(0, 0, 0, 1);
+                        sdkSndStartStream(0, 0, 0, 1);
                     }
                 }
             }

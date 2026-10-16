@@ -551,7 +551,7 @@ s32 btlShuffleSeqStep(u8 *arg0) {
         if (func_00389280(*(s32 *)(arg0 + 0x1F294)) == 0) {
             goto done;
         }
-        func_0045af60(1, 5, 2, 0);
+        sdkSndStartStream(1, 5, 2, 0);
         i1 = 0;
         while (i1 < seq[9]) {
             u8 *entry1;
@@ -608,7 +608,7 @@ s32 btlShuffleSeqStep(u8 *arg0) {
         if (func_00389280(*(s32 *)(arg0 + 0x1F294)) == 0) {
             goto done;
         }
-        func_0045af60(1, 5, 2, 1);
+        sdkSndStartStream(1, 5, 2, 1);
         i4 = 0;
         while (i4 < seq[9]) {
             entry4 = (u8 *)(seq + i4 + 1);
@@ -681,7 +681,7 @@ void btlShuffleSeqReset(u8 *arg0) {
     func_002bb050(0);
     func_002bbf60();
     func_002bad10(0x13);
-    func_0045af60(0, 4, 0, 2);
+    sdkSndStartStream(0, 4, 0, 2);
 }
 
 // FUN_00379A70

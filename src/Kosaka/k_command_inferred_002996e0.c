@@ -10,7 +10,7 @@ typedef char *va_list;
 #define va_start(ap, last) (ap = (va_list)__builtin_args_info(2))
 #define va_end(ap) ((void)0)
 extern u8 *iGpffffb510;
-extern void func_004b15d0();
+extern void mdlEffectSeqStop();
 extern s32 iGpffffa7c8;
 extern s32 scrGetParamString(s32 arg0);
 extern void scrDiscardArgs(void *arg0, ...);
@@ -30,7 +30,7 @@ extern char D_0063CB30[];
 extern char D_0063D050[];
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
-void func_004b1590(s32 arg0, s16 arg1);
+void mdlEffectSeqStart(s32 arg0, s16 arg1);
 s32 sdkSndPlayCue(s16 arg0, s32 arg1);
 s32 func_00459880(void);
 s32 sdkSndStopChannel(s16 arg0);
@@ -89,52 +89,52 @@ extern void scrDiscardArgs(void *arg0, ...);
 #pragma push
 #pragma pop
 // FUN_002996E0
-s32 func_002996e0(void) {
+s32 K_Cmd_MDL_EFFECT_SEQ_START(void) {
     s32 temp_16;
 
     temp_16 = scrGetParamInt(0);
-    func_004b1590(temp_16, scrGetParamInt(1));
+    mdlEffectSeqStart(temp_16, scrGetParamInt(1));
     return 1;
 }
 
 // FUN_00299740
-s32 func_00299740(void)
+s32 K_Cmd_MDL_EFFECT_SEQ_STOP(void)
 {
-    func_004b15d0();
+    mdlEffectSeqStop();
     return 1;
 }
 
 // FUN_00299770
-s32 func_00299770(void) {
+s32 K_Cmd_SND_STREAM_START_CH0(void) {
     s32 a;
     s32 b;
 
     a = scrGetParamInt(0);
     b = scrGetParamInt(1);
-    func_0045af60(0, 0, (s16)a, (s16)b);
+    sdkSndStartStream(0, 0, (s16)a, (s16)b);
     return 1;
 }
 
 // FUN_002997D0
-s32 func_002997d0(void) {
-    func_0045aa90(0, 0);
+s32 K_Cmd_SND_STREAM_STOP_CH0(void) {
+    sdkSndStopStream(0, 0);
     return 1;
 }
 
 // FUN_00299800
-s32 func_00299800(void) {
+s32 K_Cmd_SND_STREAM_START_CH1(void) {
     s32 a;
     s32 b;
 
     a = scrGetParamInt(0);
     b = scrGetParamInt(1);
-    func_0045af60(1, 0, (s16)a, (s16)b);
+    sdkSndStartStream(1, 0, (s16)a, (s16)b);
     return 1;
 }
 
 // FUN_00299860
-s32 func_00299860(void) {
-    func_0045aa90(1, 0);
+s32 K_Cmd_SND_STREAM_STOP_CH1(void) {
+    sdkSndStopStream(1, 0);
     return 1;
 }
 

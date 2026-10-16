@@ -235,7 +235,7 @@ s32 func_001fa7a0(s32 *arg0)
     }
     if (func_004b1520(temp_4_3) == 0) {
         if (*arg0 == 0) {
-            func_0045af60(1, 0xE, 2, 0x10);
+            sdkSndStartStream(1, 0xE, 2, 0x10);
         }
         temp_17 = (void *)TnGetTableBase();
         TnSetTableBase(&D_005DC8CC);

@@ -34,7 +34,7 @@ extern void func_002bb550(s8 arg0);
 extern void func_002bbcf0(s32 arg0);
 extern s32 func_0025c790(u8 *task);
 extern u32 kwlnTaskGetWork(void *task);
-extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
+extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
 extern s32 scrGetCmdTimer(void);
 extern s32 scrGetParamInt(s32 which);
 extern void scrSetReturnInt(s32 arg0);
@@ -73,7 +73,7 @@ s32 func_0025c790(u8 *task)
             MT_Scene_CheckResSlot(0x400, 6);
         else
             MT_Scene_CheckResSlot(0xC01, 6);
-        func_0045af60(0, 0, 4, 3);
+        sdkSndStartStream(0, 0, 4, 3);
         work->slot = (s8)func_002bab80(D_00636850);
         if (work->slot != -1) {
             strcpy(name, D_00636820[work->index]);
@@ -102,7 +102,7 @@ s32 func_0025c790(u8 *task)
             datSetCategoryValueById(1, (s16)index, (s16)value);
             if (previous_rank != datCategoryRank((s16)index)) {
                 new_rank = datCategoryRank((s16)work->index);
-                func_0045af60(1, 0, 3, 0);
+                sdkSndStartStream(1, 0, 3, 0);
                 strcpy(name, D_00636820[work->index]);
                 func_002bbd80((s8)work->slot, 0, name);
                 frFontExCopyString((char *)(u32)cmmRankStringAt((s16)work->index, (s16)old_rank), (char *)old_name, 32);

@@ -87,7 +87,7 @@ extern void shdPersonaStepSelectionCursor(u8 *);
 extern void shdPersonaBeginSelection(u8 *);
 extern void fclDrawSetFlag(u8 *, s8);
 extern u8 *fclDrawGetResource(u8 *);
-extern s32 func_0045af60(s16, s16, s16, s16);
+extern s32 sdkSndStartStream(s16, s16, s16, s16);
 extern void fclDrawSetStateByte(u8 *, s8);
 extern void fclCombineFadePanelSprite(u8 *, s64, f32);
 extern s8 fclDrawGetState(u8 *);
@@ -734,7 +734,7 @@ void fclCombineMenuRoot(u8 *arg0)
         }
         buttons = D_008C024E[0];
         if (buttons & 0x40) {
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
             for (n = 0; n < 3; n++) {
                 off = n * 2;
                 pos9 = func_002b2970(26.0f, (f32)(n * 34 + 87));
@@ -800,7 +800,7 @@ void fclCombineMenuRoot(u8 *arg0)
                 fclCombineDrawListRow(arg0, n, pos12, *(s16 *)(p + n * 2 + 0xB8), 0, 1);
             }
             p[1] = 0x19;
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         }
         break;
     case 0x22:
@@ -855,14 +855,14 @@ void fclCombineMenuRoot(u8 *arg0)
         if (buttons & 0x8000) {
             p[0xB4] = func_002b2d00(p[0xB4], 1, 0, p[0xB5] - 1, 2);
             fclCombineMarkRow(((FclCombineRow *)(p + 0xC4))[p[0xB4]].id);
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             for (n = 0; n < p[0xB5]; n++) {
                 fclCombineUpdateEntryHighlight(arg0, n, *(s16 *)(p + n * 10 + 0xC8), *(s16 *)(p + n * 10 + 0xCA), *(s16 *)(p + n * 10 + 0xCC));
             }
         } else if (buttons & 0x2000) {
             p[0xB4] = func_002b2cb0(p[0xB4], 1, p[0xB5] - 1, 0, 2);
             fclCombineMarkRow(((FclCombineRow *)(p + 0xC4))[p[0xB4]].id);
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             for (n = 0; n < p[0xB5]; n++) {
                 fclCombineUpdateEntryHighlight(arg0, n, *(s16 *)(p + n * 10 + 0xC8), *(s16 *)(p + n * 10 + 0xCA), *(s16 *)(p + n * 10 + 0xCC));
             }
@@ -870,7 +870,7 @@ void fclCombineMenuRoot(u8 *arg0)
             buttons = D_008C024E[0];
             if (buttons & 0x40) {
                 fclSpriteSetFlag(0x2F2, 0, 1);
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
                 if (((FclCombineRow *)(p + 0xC4))[p[0xB4]].id == 8) {
                     if (fclCombineClaimSlot(arg0) == 0) {
                         p[1] = 0x18;
@@ -888,7 +888,7 @@ void fclCombineMenuRoot(u8 *arg0)
                     p[1] = 0x18;
                 }
                 fclCombineLayoutTransition(arg0, 1);
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 fclCombineDrawSlotRows(arg0, 0);
                 fclCombineSlideInSlotSprites(arg0, 0x92, 0x96);
                 fclSpriteStartAlphaAt(0x1C6, fclSpriteEntry(0x1C6)[0x6E], 0, 0, 0xA, 0);
@@ -906,7 +906,7 @@ void fclCombineMenuRoot(u8 *arg0)
         }
         buttons = D_008C027A[0];
         if (buttons & 0x1000) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             menu = fclCombineMapSlotKind(p[0xB6]);
             color3 = func_002b2a60(0, 0, 0x66, 0xFF);
             color4 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
@@ -925,7 +925,7 @@ void fclCombineMenuRoot(u8 *arg0)
             break;
         }
         if (buttons & 0x4000) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             menu = fclCombineMapSlotKind(p[0xB6]);
             color9 = func_002b2a60(0, 0, 0x66, 0xFF);
             color10 = func_002b2a60(0xCC, 0xFF, 0xFF, 0xFF);
@@ -945,7 +945,7 @@ void fclCombineMenuRoot(u8 *arg0)
         }
         buttons = D_008C024E[0];
         if (buttons & 0x40) {
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
             if (p[0xB6] == p[0xB7] - 1) {
                 for (j = 0; j < p[0xB7]; j++) {
                     slotPos0 = *(FclVec2 *)(fclSpriteEntry((j + 4) * 2 + 0x1F4) + 0x38);
@@ -1016,7 +1016,7 @@ void fclCombineMenuRoot(u8 *arg0)
             if (fclCombineClaimSlot(arg0) == 0) {
                 p[1] = 0x18;
             }
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         }
         break;
     case 0x20:
@@ -1705,7 +1705,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     if ((s8)fclDrawGetState(temp_18->f148) != 5) {
                         break;
                     }
-                    func_0045af60(0, 1, 0, 4);
+                    sdkSndStartStream(0, 1, 0, 4);
                     fclDrawSetStateByte(temp_18->f148, 3);
                     if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1E4) + 0x10), 0) == 1) {
                         fclSpriteStartAlphaAt(0x1E4, *(u8 *)(fclSpriteEntry(0x1E4) + 0x6E), 0, 0, 0xA, 0);
@@ -1809,13 +1809,13 @@ void fclCombineMenuFusion(u8 *arg0) {
             }
             if (D_008C027A[0] & 0x1000) {
                 temp_18->f11E = (s8)func_002b2d00(temp_18->f11E, 1, 0, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 2);
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             } else if (D_008C027A[0] & 0x4000) {
                 temp_18->f11E = (s8)func_002b2cb0(temp_18->f11E, 1, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 0, 2);
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             } else if (D_008C024E[0] & 0x40) {
                 if (temp_18->f128 != temp_18->f11E && *(s8 *)(yListSlotWork(0) + temp_18->f128 * 0xC + temp_18->f11E + 0x14) > 0) {
-                    func_0045af60(0, 0, 0, 1);
+                    sdkSndStartStream(0, 0, 0, 1);
                     for (var_17_2 = 0; var_17_2 < (datPersonaRosterCapacity() & 0xFFFF); var_17_2++) {
                         sp218.position = func_002b2970((f32)0x149, 128.0f);
                         temp_16_6 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_2))[1];
@@ -1835,11 +1835,11 @@ void fclCombineMenuFusion(u8 *arg0) {
                     func_002b6140(temp_18->f290, 1);
                     temp_18->f1 = 0x2E;
                 } else {
-                    func_0045af60(0, 0, 0, 8);
+                    sdkSndStartStream(0, 0, 0, 8);
                 }
             } else if (D_008C024C[0] & 0x80) {
                 if (temp_18->f11E < *(s32 *)(yListSlotWork(0) + 8)) {
-                    func_0045af60(0, 1, 0, 3);
+                    sdkSndStartStream(0, 1, 0, 3);
                     for (var_17_3 = 0; var_17_3 < (datPersonaRosterCapacity() & 0xFFFF); var_17_3++) {
                         sp1F8.position = func_002b2970((f32)0x149, 128.0f);
                         temp_16_9 = ((u16 *)yListSlotEntry(temp_18->f128 + 1, var_17_3))[1];
@@ -1863,7 +1863,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                 fclCombineApplySlotState(arg0, (s8)temp_18->f11E, 0, 0xFF);
                 temp_18->f11E = temp_18->f128;
                 fclCombineApplySlotState(arg0, temp_18->f11E, 1, 0xFF);
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 fclCombineSlideInSlotSprites(arg0, 0x93, 0x94);
                 basePos = (FclVec2f *)D_00640C10;
                 sp1D8.position = func_002b2970(basePos->x, basePos->y);
@@ -1920,7 +1920,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                     if ((s8)fclDrawGetState(temp_18->f148) != 5) {
                         break;
                     }
-                    func_0045af60(0, 1, 0, 4);
+                    sdkSndStartStream(0, 1, 0, 4);
                     fclDrawSetStateByte(temp_18->f148, 3);
                     if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1E4) + 0x10), 0) == 1) {
                         fclSpriteStartAlphaAt(0x1E4, *(u8 *)(fclSpriteEntry(0x1E4) + 0x6E), 0, 0, 0xA, 0);
@@ -1983,7 +1983,7 @@ void fclCombineMenuFusion(u8 *arg0) {
             }
             if (D_008C024E[0] & 0x40) {
                 temp_18->f1 = 0x2FU;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
                 return;
             }
             if (D_008C024E[0] & 0x80) {
@@ -2006,12 +2006,12 @@ void fclCombineMenuFusion(u8 *arg0) {
                 fclDrawSetStateByte(temp_18->f148, 0xB);
                 fclCombineDrawStageBanner(arg0, 3, 1);
                 fclCombineFadePanelSprite(arg0, 1, 0.0f);
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 return;
             }
             if (D_008C024E[0] & 8) {
                 if (temp_18->f122 != 2) {
-                    func_0045af60(0, 2, 0, 5);
+                    sdkSndStartStream(0, 2, 0, 5);
                 }
                 temp_18->f122 = (s8)((s8)(func_002b2cb0(temp_18->f122, 1, 2, 0, 1)));
                 ps = fclSpriteEntry(0x151);
@@ -2050,7 +2050,7 @@ void fclCombineMenuFusion(u8 *arg0) {
                 }
             } else if (D_008C024E[0] & 4) {
                 if (temp_18->f122 != 0) {
-                    func_0045af60(0, 2, 0, 5);
+                    sdkSndStartStream(0, 2, 0, 5);
                 }
                 temp_18->f122 = (s8)((s8)(func_002b2d00(temp_18->f122, 1, 0, 2, 1)));
                 ps = fclSpriteEntry(0x151);
@@ -2773,7 +2773,7 @@ void fclCombineMenuFusionTriple(u8 *arg0) {
                     goto block_83;
                 }
                 if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(5)) {
-                    func_0045af60(0, 1, 0, 4);
+                    sdkSndStartStream(0, 1, 0, 4);
                     fclDrawSetStateByte((u8 *)(temp_17->f148),  3);
                     if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
                         fclSpriteStartAlphaAt(0x1E4, (*((u8 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x6E)))), 0, 0, 0xA, 0);
@@ -2834,18 +2834,18 @@ block_83:
         if ((s8)fclDrawGetState((u8 *)temp_17->f148) < 0 || (s8)fclDrawGetState((u8 *)temp_17->f148) > 5) {
             if (D_008C027A[0] & 0x1000) {
                 temp_17->f11E = (s16)((s16)(func_002b2d00(temp_17->f11E, 1, 0, (s16)(((*((s32 *)((u8 *)(yListSlotWork(0)) + (8)))) - 1)), 2)));
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 return;
             }
             if (D_008C027A[0] & 0x4000) {
                 temp_17->f11E = (s16)((s16)(func_002b2cb0(temp_17->f11E, 1, (s16)(((*((s32 *)((u8 *)(yListSlotWork(0)) + (8)))) - 1)), 0, 2)));
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 return;
             }
             if (D_008C024E[0] & 0x80) {
                 temp_16_10 = (s16)((s16)((s16)(temp_17->f11E)));
                 if (temp_16_10 < (*((s32 *)((u8 *)(yListSlotWork(0)) + (8))))) {
-                    func_0045af60(0, 1, 0, 3);
+                    sdkSndStartStream(0, 1, 0, 3);
                     for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                         sp360 = func_002b2970(16.0f, 128.0f);
 
@@ -2877,7 +2877,7 @@ block_83:
                 if (D_008C024E[0] & 0x40) {
                     temp_5 = (s16)((s16)((s16)(temp_17->f11E)));
                     if ((temp_17->f128 != temp_5) && ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_5))) + (2)))) != 0)) {
-                        func_0045af60(0, 0, 0, 1);
+                        sdkSndStartStream(0, 0, 0, 1);
                         temp_17->f129 = (s8)((s8)((s8) temp_17->f11E));
                         basePos = (FclVec2f *)D_00640C18;
                         sp338 = func_002b2970(-380.0f, 81.0f);
@@ -2917,13 +2917,13 @@ block_83:
                         temp_17->f1 = 0x43U;
                         return;
                     }
-                    func_0045af60(0, 0, 0, 8);
+                    sdkSndStartStream(0, 0, 0, 8);
                     return;
                 }
                 if (D_008C024C[0] & 0x80) {
                     temp_16_19 = (s16)((s16)((s16)(temp_17->f11E)));
                     if (temp_16_19 < (*((s32 *)((u8 *)(yListSlotWork(0)) + (8))))) {
-                        func_0045af60(0, 1, 0, 3);
+                        sdkSndStartStream(0, 1, 0, 3);
                         for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                             sp2F8 = func_002b2970(16.0f, 128.0f);
 
@@ -2951,7 +2951,7 @@ block_83:
                     fclCombineApplySlotState(arg0, (s8) temp_17->f11E, 0, 0xFF);
                     temp_17->f11E = temp_17->f128;
                     fclCombineApplySlotState(arg0, (s8)temp_17->f11E, 1, 0xFF);
-                    func_0045af60(0, 0, 0, 2);
+                    sdkSndStartStream(0, 0, 0, 2);
                     fclCombineSlideInSlotSprites(arg0, 0x93, 0x94);
                     basePos = (FclVec2f *)D_00640C10;
                     sp2D0 = func_002b2970(basePos->x, basePos->y);
@@ -3020,7 +3020,7 @@ block_83:
                     goto block_166;
                 }
                 if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(5)) {
-                    func_0045af60(0, 1, 0, 4);
+                    sdkSndStartStream(0, 1, 0, 4);
                     fclDrawSetStateByte((u8 *)(temp_17->f148),  3);
                     if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
                         fclSpriteStartAlphaAt(0x1E4, (*((u8 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x6E)))), 0, 0, 0xA, 0);
@@ -3070,18 +3070,18 @@ block_166:
             }
             if (D_008C027A[0] & 0x1000) {
                 temp_17->f11E = (s16)((s16)(func_002b2d00(temp_17->f11E, 1, 0, (s16)(((*((s32 *)((u8 *)(yListSlotWork(0)) + (8)))) - 1)), 2)));
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 return;
             }
             if (D_008C027A[0] & 0x4000) {
                 temp_17->f11E = (s16)((s16)(func_002b2cb0(temp_17->f11E, 1, (s16)(((*((s32 *)((u8 *)(yListSlotWork(0)) + (8)))) - 1)), 0, 2)));
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 return;
             }
             if (D_008C024E[0] & 0x80) {
                 temp_16_29 = (s16)((s16)((s16)(temp_17->f11E)));
                 if (temp_16_29 < (*((s32 *)((u8 *)(yListSlotWork(0)) + (8))))) {
-                    func_0045af60(0, 1, 0, 3);
+                    sdkSndStartStream(0, 1, 0, 3);
                     for (resultRow = 0; resultRow < (datPersonaRosterCapacity() & 0xFFFF); resultRow++) {
                         sp2A8 = func_002b2970((f32) 0x149, 128.0f);
 
@@ -3108,7 +3108,7 @@ block_166:
                     if (temp_17->f128 != temp_3_4) {
                         temp_2_10 = (s8)((s8)((s8)(temp_17->f129)));
                         if ((temp_2_10 != temp_3_4) && ((*((s8 *)((u8 *)((yListSlotWork((s8) ((s8)((temp_2_10 + 1)))) + (temp_17->f129 * 0xC) + temp_17->f11E)) + (0x14)))) > 0)) {
-                            func_0045af60(0, 0, 0, 1);
+                            sdkSndStartStream(0, 0, 0, 1);
                             for (resultRow = 0; resultRow < (datPersonaRosterCapacity() & 0xFFFF); resultRow++) {
                                 sp288 = func_002b2970((f32) 0x149, 128.0f);
 
@@ -3130,14 +3130,14 @@ block_166:
                             return;
                         }
                     }
-                    func_0045af60(0, 0, 0, 8);
+                    sdkSndStartStream(0, 0, 0, 8);
                     return;
                 }
                 if (D_008C024E[0] & 0x20) {
                     fclCombineApplySlotState(arg0, (s8) temp_17->f11E, 0, 0xFF);
                     temp_17->f11E = temp_17->f129;
                     fclCombineApplySlotState(arg0, (s8)temp_17->f11E, 1, 0xFF);
-                    func_0045af60(0, 0, 0, 2);
+                    sdkSndStartStream(0, 0, 0, 2);
                     basePos = (FclVec2f *)D_00640C18;
                     sp268 = func_002b2970(basePos->x, basePos->y);
                     sp260 = func_002b2970(-380.0f, 81.0f);
@@ -3207,7 +3207,7 @@ block_166:
                     goto block_215;
                 }
                 if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(5)) {
-                    func_0045af60(0, 1, 0, 4);
+                    sdkSndStartStream(0, 1, 0, 4);
                     fclDrawSetStateByte((u8 *)(temp_17->f148),  3);
                     if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x10)))), 0))))) == (s32)((s32)(1))) {
                         fclSpriteStartAlphaAt(0x1E4, (*((u8 *)((u8 *)(fclSpriteEntry(0x1E4)) + (0x6E)))), 0, 0, 0xA, 0);
@@ -3297,7 +3297,7 @@ block_215:
             }
             if (D_008C024E[0] & 0x40) {
                 temp_17->f1 = 0x48U;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
                 return;
             }
             if (D_008C024E[0] & 0x80) {
@@ -3316,7 +3316,7 @@ block_215:
                     fclDrawSetFlag((u8 *)(temp_17->f148),  1);
                     return;
                 }
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 temp_17->f1 = 0x4EU;
                 fclDrawSetStateByte((u8 *)(temp_17->f148),  0xB);
                 fclCombineFadePanelSprite(arg0, 1, 0);
@@ -3325,7 +3325,7 @@ block_215:
             }
             if (D_008C024E[0] & 8) {
                 if (temp_17->f122 != 3) {
-                    func_0045af60(0, 2, 0, 5);
+                    sdkSndStartStream(0, 2, 0, 5);
                 }
                 temp_17->f122 = (s8)((s8)(func_002b2cb0(temp_17->f122, 1, 3, 0, 1)));
                 s0 = fclSpriteEntry(0x152);
@@ -3368,7 +3368,7 @@ block_215:
                 }
             } else if (D_008C024E[0] & 4) {
                 if (temp_17->f122 != 0) {
-                    func_0045af60(0, 2, 0, 5);
+                    sdkSndStartStream(0, 2, 0, 5);
                 }
                 temp_17->f122 = (s8)((s8)(func_002b2d00(temp_17->f122, 1, 0, 3, 1)));
                 s0 = fclSpriteEntry(0x152);
@@ -3844,19 +3844,19 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         }
         buttons = D_008C027A[0];
         if (buttons & 0x1000) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             *(s16 *)(p + 0x11E) = func_002b2d00(*(s16 *)(p + 0x11E), 1, 0, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 2);
             break;
         }
         if (buttons & 0x4000) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             *(s16 *)(p + 0x11E) = func_002b2cb0(*(s16 *)(p + 0x11E), 1, (s16)(*(s32 *)(yListSlotWork(0) + 8) - 1), 0, 2);
             break;
         }
         buttons = D_008C024E[0];
         if (buttons & 0x40) {
             if (func_003139d0(p[0x1A], (s8)*(s16 *)(p + 0x11E)) == 1) {
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
                 p[0x2FA] = *(s16 *)(p + 0x11E);
                 *(s16 *)(p + 0x11E) = -1;
                 fclCombineDrawSidePanels(arg0, 0, 1);
@@ -3867,10 +3867,10 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                 func_002b6140(*(u8 **)(p + 0x28C), 1);
                 func_002b6140(*(u8 **)(p + 0x290), 1);
             } else {
-                func_0045af60(0, 0, 0, 8);
+                sdkSndStartStream(0, 0, 0, 8);
             }
         } else if (buttons & 0x20) {
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
             p[0x2FA] = *(s16 *)(p + 0x11E);
             *(s16 *)(p + 0x11E) = -1;
             fclCombineDrawSidePanels(arg0, 0, 1);
@@ -3880,7 +3880,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
             fclCombineSlideInSlotSprites(arg0, 0x96, 0x98);
             p[1] = 0x56;
         } else if (buttons & 0x80) {
-            func_0045af60(0, 1, 0, 3);
+            sdkSndStartStream(0, 1, 0, 3);
             p[0x2FA] = *(s16 *)(p + 0x11E);
             *(s16 *)(p + 0x11E) = -1;
             fclCombineDrawSidePanels(arg0, 0, 1);
@@ -3927,7 +3927,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                     if (fclDrawGetState(*(u8 **)(p + 0x148)) != 5) {
                         break;
                     }
-                    func_0045af60(0, 1, 0, 4);
+                    sdkSndStartStream(0, 1, 0, 4);
                     fclDrawSetStateByte(*(u8 **)(p + 0x148), 3);
                     if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1E4) + 0x10), 0) == 1) {
                         fclSpriteStartAlphaAt(0x1E4, fclSpriteEntry(0x1E4)[0x6E], 0, 0, 0xA, 0);
@@ -4020,7 +4020,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         buttons = D_008C024E[0];
         if (buttons & 0x40) {
             p[1] = 0x59;
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
         } else if (buttons & 0x20) {
             if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
                 shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
@@ -4031,7 +4031,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                 fclCombineDrawStageBanner(arg0, (s8)(p[0x1A] + 1), 1);
                 fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
                 fclCombineFadePanelSprite(arg0, 1, 0.0f);
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
             }
         } else if (buttons & 0x80) {
             if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 0) {
@@ -4043,7 +4043,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
             }
         } else if (buttons & 8) {
             if (p[0x122] != *(s32 *)(yListSlotWork(*(s16 *)(p + 0x11E) + 1) + 8)) {
-                func_0045af60(0, 2, 0, 5);
+                sdkSndStartStream(0, 2, 0, 5);
             }
             p[0x122] = func_002b2cb0(p[0x122], 1, *(s32 *)(yListSlotWork(*(s16 *)(p + 0x11E) + 1) + 8), 0, 1);
             switch (p[0x1A] + 1) {
@@ -4080,7 +4080,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
             }
         } else if (buttons & 4) {
             if (p[0x122] != 0) {
-                func_0045af60(0, 2, 0, 5);
+                sdkSndStartStream(0, 2, 0, 5);
             }
             p[0x122] = func_002b2d00(p[0x122], 1, 0, *(s32 *)(yListSlotWork(*(s16 *)(p + 0x11E) + 1) + 8), 1);
             switch (p[0x1A] + 1) {
@@ -4414,7 +4414,7 @@ void fclCombineMenuPreview(u8 *arg0) {
             buttons = D_008C024E[0];
             if (buttons & 0x40) {
                 if (p[0x20] == 0) {
-                    func_0045af60(0, 0, 0, 1);
+                    sdkSndStartStream(0, 0, 0, 1);
                     p[0x2F9] = 1;
                     p[0x2FA] = 0;
                     fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, func_00311930(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
@@ -4429,7 +4429,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                     fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                     fclCombineFadePanelSprite(arg0, 0, 0.0f);
                 } else {
-                    func_0045af60(0, 0, 0, 8);
+                    sdkSndStartStream(0, 0, 0, 8);
                 }
             } else if (buttons & 0x80) {
                 fclCombineDrawPairLayout(arg0, 0, 1);
@@ -4440,7 +4440,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                 }
                 fclCombineFadePanelSprite(arg0, 0, 60.0f);
                 p[1] = 0x66;
-                func_0045af60(0, 1, 0, 3);
+                sdkSndStartStream(0, 1, 0, 3);
             } else if (buttons & 0x20) {
                 fclCombineDrawPairLayout(arg0, 0, 1);
                 if (p[0x20] == 0) {
@@ -4449,7 +4449,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                     fclCombineFadeLabelSprites(arg0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                 }
                 p[1] = 0x68;
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
             }
         }
         break;
@@ -4488,7 +4488,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                     if (fclDrawGetState(*(u8 **)(p + 0x148)) != 5) {
                         break;
                     }
-                    func_0045af60(0, 1, 0, 4);
+                    sdkSndStartStream(0, 1, 0, 4);
                     fclDrawSetStateByte(*(u8 **)(p + 0x148), 3);
                     if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x1E4) + 0x10), 0) == 1) {
                         fclSpriteStartAlphaAt(0x1E4, fclSpriteEntry(0x1E4)[0x6E], 0, 0, 0xA, 0);
@@ -4545,7 +4545,7 @@ void fclCombineMenuPreview(u8 *arg0) {
         buttons = D_008C024E[0];
         if (buttons & 0x40) {
             yListSlotEntry(p[0x2F9], p[0x2FA]);
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
             if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                 fclCombinePlayCue(arg0, 0x26, 0);
                 p[1] = 0x6B;
@@ -4576,11 +4576,11 @@ void fclCombineMenuPreview(u8 *arg0) {
                 }
                 fclCombineFadePanelSprite(arg0, 1, 0.0f);
                 p[1] = 0x65;
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
             }
         } else if (D_008C024E[2] & 8) {
             if (p[0x122] != 0xC) {
-                func_0045af60(0, 2, 0, 5);
+                sdkSndStartStream(0, 2, 0, 5);
             }
             p[0x122] = func_002b2cb0(p[0x122], 1, 0xC, 0, 1);
             *(s16 *)(p + 0x120) = func_002b2d50(p[0x122], *(s16 *)(p + 0x120), 0xC, 7, 1);
@@ -4604,7 +4604,7 @@ void fclCombineMenuPreview(u8 *arg0) {
             }
         } else if (D_008C024E[2] & 4) {
             if (p[0x122] != 0) {
-                func_0045af60(0, 2, 0, 5);
+                sdkSndStartStream(0, 2, 0, 5);
             }
             p[0x122] = func_002b2d00(p[0x122], 1, 0, 0, 1);
             *(s16 *)(p + 0x120) = func_002b2d50(p[0x122], *(s16 *)(p + 0x120), 0xC, 7, -1);
@@ -4851,12 +4851,12 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 break;
             }
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             fclCombineMoveRosterCursor(arg0, 5);
             return;
         } else if (D_008C027A[0] & 0x1000) {
             if (p->f11E != 0) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 break;
@@ -4867,7 +4867,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 break;
             }
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             fclCombineMoveRosterCursor(arg0, 4);
             return;
         } else if (D_008C027A[0] & 0x4000) {
@@ -4875,7 +4875,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 break;
             }
             if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             fclCombineMoveRosterCursor(arg0, 0);
             return;
@@ -4884,7 +4884,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 break;
             }
             if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             fclCombineMoveRosterCursor(arg0, 2);
             return;
@@ -4893,7 +4893,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 break;
             }
             if (p->f11E != 0) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             fclCombineMoveRosterCursor(arg0, 3);
             return;
@@ -4909,7 +4909,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 }
                 fclCombineDrawRosterRows(arg0, 0, var_16_6, 1);
                 p->f1 = 0x8E;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             }
         } else if (D_008C024E[0] & 0x80) {
             if (*(s32 *)(yListSlotWork(0) + 8) > 0) {
@@ -4919,7 +4919,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 func_002bb0a0(p->fD, 0);
                 func_002bbf60();
                 p->f1 = 0x96;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             }
         } else if (D_008C024E[0] & 0x20) {
             var_19 = p->f11E - p->f120;
@@ -4934,7 +4934,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             fclCombineDrawSlotFrames(arg0, func_002b2970(472.0f, 112.0f), 0, 1);
             fclCombineSlideInHeaderSprites((f32)0x1A1, 220.0f, arg0, 0, 1);
             p->f1 = 0x94;
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         }
         p->f13A = 0;
         break;
@@ -5034,7 +5034,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                     goto conv8F;
                 }
-                func_0045af60(0, 2, 0, 5);
+                sdkSndStartStream(0, 2, 0, 5);
                 fclCombineMoveRosterCursor(arg0, 5);
                 if (p->f122 == 0) {
                     fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
@@ -5051,7 +5051,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                     goto conv8F;
                 }
                 if (p->f11E != 0) {
-                    func_0045af60(0, 2, 0, 5);
+                    sdkSndStartStream(0, 2, 0, 5);
                 }
                 fclCombineMoveRosterCursor(arg0, 1);
                 if (p->f122 == 0) {
@@ -5067,7 +5067,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 goto conv8F;
             }
-            func_0045af60(0, 2, 0, 5);
+            sdkSndStartStream(0, 2, 0, 5);
             fclCombineMoveRosterCursor(arg0, 5);
             if (p->f122 == 0) {
                 fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
@@ -5082,7 +5082,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                     goto conv8F;
                 }
-                func_0045af60(0, 2, 0, 5);
+                sdkSndStartStream(0, 2, 0, 5);
                 fclCombineMoveRosterCursor(arg0, 4);
                 if (p->f122 == 0) {
                     fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
@@ -5099,7 +5099,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                     goto conv8F;
                 }
                 if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
-                    func_0045af60(0, 2, 0, 5);
+                    sdkSndStartStream(0, 2, 0, 5);
                 }
                 fclCombineMoveRosterCursor(arg0, 0);
                 if (p->f122 == 0) {
@@ -5115,7 +5115,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                 goto conv8F;
             }
-            func_0045af60(0, 2, 0, 5);
+            sdkSndStartStream(0, 2, 0, 5);
             fclCombineMoveRosterCursor(arg0, 4);
             if (p->f122 == 0) {
                 fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
@@ -5140,7 +5140,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 ps = fclSpriteEntry(0x2E0);
                 fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
                 fclDrawSetSlot(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
-                func_0045af60(0, 2, 0, 5);
+                sdkSndStartStream(0, 2, 0, 5);
             }
             goto conv8F;
         } else if (D_008C024E[0] & 4) {
@@ -5151,7 +5151,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 ps = fclSpriteEntry(0x2E0);
                 fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
                 fclDrawSetSlot(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 0);
-                func_0045af60(0, 2, 0, 5);
+                sdkSndStartStream(0, 2, 0, 5);
             }
             goto conv8F;
         } else if (D_008C024E[0] & 0x40) {
@@ -5163,7 +5163,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             func_002bb0a0(p->fD, 0);
             func_002bbf60();
             p->f1 = 0x95;
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
             goto conv8F;
         } else if (D_008C024E[0] & 0x20) {
             if (shdPersonaIsTransitioning(fclDrawGetResource(p->f148)) == 1) {
@@ -5176,7 +5176,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclDrawSetStateByte(p->f148, 3);
                 fclCombineDrawStageBanner(arg0, 0, 1);
                 p->f1 = 0x90;
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
             }
         } else if (D_008C024E[0] & 0x80) {
             if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) == 0) {
@@ -5351,34 +5351,34 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             return;
         }
         if ((D_008C0276[0] & 0x1000) && (p->f13A == 0)) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             fclCombineMoveRosterCursor(arg0, 5);
             return;
         } else if (D_008C027A[0] & 0x1000) {
             if (p->f11E != 0) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             fclCombineMoveRosterCursor(arg0, 1);
             return;
         } else if ((D_008C0276[0] & 0x4000) && (p->f13A == 0)) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             fclCombineMoveRosterCursor(arg0, 4);
             return;
         } else if (D_008C027A[0] & 0x4000) {
             if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             fclCombineMoveRosterCursor(arg0, 0);
             return;
         } else if (D_008C027A[0] & 0x2000) {
             if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             fclCombineMoveRosterCursor(arg0, 2);
             return;
         } else if (D_008C027A[0] & 0x8000) {
             if (p->f11E != 0) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             fclCombineMoveRosterCursor(arg0, 3);
             return;
@@ -5396,7 +5396,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclSpriteStartPositionAt(0x2E2, rowOrigin, func_002b2970(336.0f, rowOrigin.y), 1, 8, 0);
                 rowOrigin = *(FclVec2f *)(fclSpriteEntry(0x2E3) + 0x38);
                 fclSpriteStartPositionAt(0x2E3, rowOrigin, func_002b2970(556.0f, rowOrigin.y), 1, 8, 0);
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
             }
             goto conv98;
         } else if (D_008C0276[0] & 4) {
@@ -5413,7 +5413,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclSpriteStartPositionAt(0x2E2, rowOrigin, func_002b2970(79.0f, rowOrigin.y), 1, 8, 0);
                 rowOrigin = *(FclVec2f *)(fclSpriteEntry(0x2E3) + 0x38);
                 fclSpriteStartPositionAt(0x2E3, rowOrigin, func_002b2970((f32)0x12B, rowOrigin.y), 1, 8, 0);
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
             }
             goto conv98;
         } else if (D_008C024E[0] & 0x40) {
@@ -5427,7 +5427,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             fclCombineDrawRosterList(arg0, 0, var_16_6, 1);
             p->f1 = 0x99;
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x20) {
             var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
             if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
@@ -5438,7 +5438,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             fclCombineDrawRosterList(arg0, 0, var_16_6, 1);
             p->f1 = 0x9C;
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         }
     conv98:
         p->f13A = 0;
@@ -5478,7 +5478,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             func_002bbd80(p->fD, 0, (void *)(((s32)iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + (2))) * 0x11)));
             func_002badc0(p->fD, 0x10);
             p->f1 = 0x9F;
-            func_0045af60(1, 0, 2, 6);
+            sdkSndStartStream(1, 0, 2, 6);
             if (p->f2B8 != 0) {
                 p->f2B8 = 0;
             }
@@ -5540,7 +5540,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) != 0) {
                 return;
             }
-            func_0045af60(0, 2, 0, 5);
+            sdkSndStartStream(0, 2, 0, 5);
             fclCombineMoveRosterCursor(arg0, 5);
             fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
@@ -5549,13 +5549,13 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 return;
             }
             if (p->f11E != 0) {
-                func_0045af60(0, 2, 0, 5);
+                sdkSndStartStream(0, 2, 0, 5);
             }
             fclCombineMoveRosterCursor(arg0, 1);
             fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C0252[0] & 1) {
-            func_0045af60(0, 2, 0, 5);
+            sdkSndStartStream(0, 2, 0, 5);
             fclCombineMoveRosterCursor(arg0, 5);
             fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
@@ -5563,7 +5563,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) != 0) {
                 return;
             }
-            func_0045af60(0, 2, 0, 5);
+            sdkSndStartStream(0, 2, 0, 5);
             fclCombineMoveRosterCursor(arg0, 4);
             fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
@@ -5572,13 +5572,13 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 return;
             }
             if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
-                func_0045af60(0, 2, 0, 5);
+                sdkSndStartStream(0, 2, 0, 5);
             }
             fclCombineMoveRosterCursor(arg0, 0);
             fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C0252[0] & 2) {
-            func_0045af60(0, 2, 0, 5);
+            sdkSndStartStream(0, 2, 0, 5);
             fclCombineMoveRosterCursor(arg0, 4);
             fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             goto conv9A;
@@ -5609,7 +5609,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclSpriteStartFade((u8 *)p->f2B4, 0xE5, 0, 5);
                 fclCombineFadeCursorArrow(arg0, 0, 0.0f);
                 fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
             }
             goto conv9A;
         } else if (D_008C024E[0] & 4) {
@@ -5621,7 +5621,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970(107.0f, 16.0f), 1, 4, 0);
                 fclDrawSetVisible(p->f148, 1);
                 fclCombineDrawPanelBorder(arg0, 0);
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
                 fclSpriteStartMove((u8 *)p->f2AC, func_002b2970(0.0f, -10.0f), func_002b2970(0.0f, 0.0f), 4);
                 fclSpriteStartMove((u8 *)p->f2B0, func_002b2970(0.0f, 480.0f), func_002b2970(0.0f, 432.0f), 6);
                 fclSpriteStartBoundsMove((u8 *)p->f2B4, func_002b2970(0.0f, 93.0f), func_002b2970(0.0f, 69.0f), func_002b29e0(640.0f, 294.0f), func_002b29e0(640.0f, (f32)0x157), 5);
@@ -5630,7 +5630,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             goto conv9A;
         } else if (D_008C024E[0] & 0x40) {
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
             if (datPersonaFindRosterRecordById(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)) != 0) {
                 fclCombinePlayCue(arg0, 0x12, 0);
                 p->f1 = 0x9D;
@@ -5668,7 +5668,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 shdPersonaEndSelection(fclDrawGetResource(p->f148), 1);
                 fclDrawSetFlag(p->f148, 1);
             } else {
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 fclDrawSetStateByte(p->f148, 3);
                 fclCombineDrawStageBanner(arg0, 1, 1);
                 if (p->f122 == 1) {
@@ -5986,7 +5986,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
                 if (*(s8 *)(p + 0x122) != 1) {
                     break;
                 }
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
                 q = fclSpriteEntry(0x150);
                 sp200 = func_002b2970((f32)321, 16.0f);
                 fclSpriteStartPositionAt(0x150, *(FclVec2f *)(q + 0x38), sp200, 1, 4, 0);
@@ -6004,7 +6004,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
                 if (*(s8 *)(p + 0x122) != 0) {
                     break;
                 }
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
                 q = fclSpriteEntry(0x150);
                 sp1D0 = func_002b2970(107.0f, 16.0f);
                 fclSpriteStartPositionAt(0x150, *(FclVec2f *)(q + 0x38), sp1D0, 1, 4, 0);
@@ -6020,7 +6020,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
                 *(s8 *)(p + 0x122) = 1;
             } else if ((D_008C024E[0] & 0x20) && p[1] == 0x73) {
                 func_002bb550(*(s8 *)(p + 0xD));
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 fclCombineDrawStageBanner(arg0, 2, 1);
                 if (*(s8 *)(p + 0x122) == 1) {
                     sp1A0 = func_002b2970(57.0f, 72.0f);
@@ -6937,16 +6937,16 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         if ((((s8)(fclDrawGetState((u8 *)work->f148))) < 0) || (((s8)(fclDrawGetState((u8 *)work->f148))) > 5)) {
             if (D_008C027A[0] & 0x1000) {
                 work->f11E = func_002b2d00(work->f11E, 1, 0, (datPersonaRosterCapacity() & 0xFFFF) - 1, 2);
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 return;
             }
             if (D_008C027A[0] & 0x4000) {
                 work->f11E = func_002b2cb0(work->f11E, 1, (datPersonaRosterCapacity() & 0xFFFF) - 1, 0, 2);
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 return;
             }
             if (D_008C024E[0] & 0x80) {
-                func_0045af60(0, 1, 0, 3);
+                sdkSndStartStream(0, 1, 0, 3);
                 for (var_16_3 = 0; var_16_3 < (datPersonaRosterCapacity() & 0xFFFF); var_16_3++) {
                     sp298 = func_002b2970(16.0f, 128.0f);
                     fclCombinePartyRow(arg0, sp298, (s8)var_16_3, ((u16 *)yListSlotEntry(0, var_16_3))[1], *(u8 *)((u8 *)yListSlotEntry(0, var_16_3) + 4), 0, 1, (s8)*(s32 *)(yListSlotWork(0) + 8));
@@ -6977,7 +6977,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             if (D_008C024E[0] & 0x40) {
                 temp_16_5 = (s16)(work->f11E);
                 if (temp_16_5 < (*(s32 *)((u8 *)(yListSlotWork(0))+(8)))) {
-                    func_0045af60(0, 0, 0, 1);
+                    sdkSndStartStream(0, 0, 0, 1);
                     work->f128 = (s8) work->f11E;
                     work->f129 = -1;
                     basePos = (FclVec2f *)D_00640C10;
@@ -7009,7 +7009,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     return;
                 }
             } else if (D_008C024E[0] & 0x20) {
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 fclCombineDrawGridRows(arg0);
                 fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                 fclCombineLayoutFrame(arg0, 1, 1);
@@ -7120,17 +7120,17 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         if ((((s8)(fclDrawGetState((u8 *)work->f148))) < 0) || (((s8)(fclDrawGetState((u8 *)work->f148))) > 5)) {
             if (D_008C027A[0] & 0x1000) {
                 work->f11E = func_002b2d00(work->f11E, 1, 0, (*(s32 *)((u8 *)(yListSlotWork(0))+(8))) - 1, 2);
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 return;
             }
             if (D_008C027A[0] & 0x4000) {
                 work->f11E = func_002b2cb0(work->f11E, 1, (*(s32 *)((u8 *)(yListSlotWork(0))+(8))) - 1, 0, 2);
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 return;
             }
             if (D_008C024E[0] & 0x40) {
                 if ((work->f128 != work->f11E) && ((*(s8 *)((u8 *)((yListSlotWork(0) + (work->f128 * 0xC) + work->f11E))+(0x14))) > 0)) {
-                    func_0045af60(0, 0, 0, 1);
+                    sdkSndStartStream(0, 0, 0, 1);
                     for (var_18_5 = 0; var_18_5 < (datPersonaRosterCapacity() & 0xFFFF); var_18_5++) {
                         sp220 = func_002b2970((f32) 0x149, 128.0f);
                         temp_16_15 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_5))+(2))));
@@ -7201,7 +7201,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 }
             } else {
                 if (D_008C024C[0] & 0x80) {
-                    func_0045af60(0, 1, 0, 3);
+                    sdkSndStartStream(0, 1, 0, 3);
                     for (var_18_6 = 0; var_18_6 < (datPersonaRosterCapacity() & 0xFFFF); var_18_6++) {
                         sp200 = func_002b2970((f32) 0x149, 128.0f);
                         temp_16_17 = (u16)((*(u16 *)((u8 *)(yListSlotEntry((s8)((work->f128 + 1)), var_18_6))+(2))));
@@ -7225,7 +7225,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     fclCombineApplySlotState(arg0, (s8) work->f11E, 0, 0xFF);
                     work->f11E = work->f128;
                     fclCombineApplySlotState(arg0, work->f11E, 1, 0xFF);
-                    func_0045af60(0, 0, 0, 2);
+                    sdkSndStartStream(0, 0, 0, 2);
                     fclCombineSlideInSlotSprites(arg0, 0x93, 0x94);
                     basePos = (FclVec2f *)D_00640C10;
                     sp1E0 = func_002b2970(basePos->x, basePos->y);
@@ -7321,7 +7321,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             if (D_008C024E[0] & 0x40) {
                 fclCombinePlayCue(arg0, 0x1B, 1);
                 work->f1 = 0x83U;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
                 return;
             }
             if (D_008C024E[0] & 0x20) {
@@ -7330,7 +7330,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     fclDrawSetFlag((u8 *)work->f148, 1);
                     return;
                 }
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 work->f1 = 0x82U;
                 fclDrawSetStateByte((u8 *)work->f148, 0xB);
                 fclCombineDrawStageBanner(arg0, 3, 1);
@@ -7385,7 +7385,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             } else {
                 if (D_008C024E[0] & 8) {
                     if (work->f122 != 2) {
-                        func_0045af60(0, 2, 0, 5);
+                        sdkSndStartStream(0, 2, 0, 5);
                     }
                     work->f122 = func_002b2cb0(work->f122, 1, 2, 0, 1);
                     ps = fclSpriteEntry(0x151);
@@ -7416,7 +7416,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 }
                 if (D_008C024E[0] & 4) {
                     if (work->f122 != 0) {
-                        func_0045af60(0, 2, 0, 5);
+                        sdkSndStartStream(0, 2, 0, 5);
                     }
                     work->f122 = func_002b2d00(work->f122, 1, 0, 2, 1);
                     ps = fclSpriteEntry(0x151);
@@ -7651,7 +7651,7 @@ block_274:
         if (work->f2D8 == 0x14) {
             shdPersonaReplaceSkill(fclDrawGetResource((u8 *)work->f148), temp_16_40->original, temp_16_40->replacement);
             datPersonaReplaceSkill((u8 *)datStagedRecord(), (s16)temp_16_40->original, temp_16_40->replacement);
-            func_0045af60(1, 3, 3, 2);
+            sdkSndStartStream(1, 3, 3, 2);
         }
         if (work->f2D8 >= 0x28) {
             work->fD = func_002bab80((void *)func_00331660());
@@ -8365,7 +8365,7 @@ void fclCombineMenuResult(u8 *arg0) {
     case 0xD1:
         *(s16 *)(p + 0x2D8) = func_002b2cb0(*(s16 *)(p + 0x2D8), 1, 0x32, 0, 1);
         if (*(s16 *)(p + 0x2D8) == 0x14) {
-            func_0045af60(1, 0, 4, 5);
+            sdkSndStartStream(1, 0, 4, 5);
         }
         if (*(s8 *)(((s8 *)func_0034a630(*(u8 **)(p + 0x254))) + 4) == 4 && *(s16 *)(p + 0x2D8) >= 0x14) {
             *(s8 *)p = 0xC;
@@ -8468,12 +8468,12 @@ void fclCombineMenuMaterialGrid(u8 *arg0)
                                     return;
                                 }
                                 if (D_008C024E[0] & 0x40) {
-                                    func_0045af60(0, 0, 0, 1);
+                                    sdkSndStartStream(0, 0, 0, 1);
 *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
                                     func_002badc0(*(s8 *)(p + 0xD), *(s16 *)(p + 0x11E) + 0x58);
                                     *(p + 1) = 0xC4;
                                 } else if (D_008C024E[0] & 0x20) {
-                                    func_0045af60(0, 0, 0, 2);
+                                    sdkSndStartStream(0, 0, 0, 2);
                                     fclCombineSlideInSlotSprites(arg0, 0x96, 0x97);
                                     base = (FclVec2f *)D_00640D78;
                                     v2 = func_002b2970(base->x, base->y);
@@ -8633,7 +8633,7 @@ void fclCombineMenuOptionPick(u8 *arg0) {
                 return;
             }
             if (D_008C024E[0] & 0x40) {
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
                 t = D_00882FB0[*(s16 *)(p + 0x11E) * 2];
                 switch (t) {
                 case 0:
@@ -8672,7 +8672,7 @@ void fclCombineMenuOptionPick(u8 *arg0) {
                 }
                 *(p + 1) = 0xC4;
             } else if (D_008C024E[0] & 0x20) {
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 for (i = 0; i < *(s8 *)(p + 0x139); i++) {
                     te = &D_00882FB0[i * 2];
                     v5 = func_002b2970(26.0f, (f32)(i * 0x22 + 0x57));
@@ -8770,7 +8770,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
     extern s32 datGetFlag(s32);
     extern u32 shdPersonaLevelUpIsDone(u8 *);
     extern void fclDrawSetHandleValue(u8 *, u32);
-    extern s32 func_0045aa90(s16, s16);
+    extern s32 sdkSndStopStream(s16, s16);
     extern u8 *shdPersonaLevelUpCreate(s32, s32, u8 *, s32, s32, s32 *);
     extern u8 *shdPersonaSkillReplaceCreate(s32, u8 *, s32, u8 *);
     extern s32 datBlockStageIsEight(u8 *);
@@ -8922,7 +8922,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             *(s16 *)(p + 0x2D8) = 1;
             (*(s8 *)(p + 0xB1))--;
             p[1] = 0xA4;
-            func_0045af60(0, 0, 0, 0xA);
+            sdkSndStartStream(0, 0, 0, 0xA);
         } else {
             p[1] = 0xBF;
             if (fclCombineCheckIds(arg0) == 1) {
@@ -8995,7 +8995,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 *(s16 *)(p + 0x2D8) = 0x37;
             }
         } else {
-            func_0045aa90(0, 0);
+            sdkSndStopStream(0, 0);
             *(s32 *)(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += func_00313fb0(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)));
             if (*(s8 *)(p + 0xB1) == 0) {
                 *(s32 *)(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)) + 8) += *(s32 *)(p + 0x10);
@@ -9135,7 +9135,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
     case 0xAA:
         *(s8 *)(p + 0xB0) = func_002b2cb0(*(s8 *)(p + 0xB0), 1, 0x14, 0, 1);
         if (*(s8 *)(p + 0xB0) == 0xF) {
-            func_0045af60(1, 3, 3, 1);
+            sdkSndStartStream(1, 3, 3, 1);
         }
         if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
             func_002bbcf0(*(s8 *)(p + 0xD));
@@ -9163,7 +9163,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
     case 0xAB:
         *(s8 *)(p + 0xB0) = func_002b2cb0(*(s8 *)(p + 0xB0), 1, 0x14, 0, 1);
         if (*(s8 *)(p + 0xB0) == 0xF) {
-            func_0045af60(1, 3, 3, 1);
+            sdkSndStartStream(1, 3, 3, 1);
         }
         if (func_002bb680(*(s8 *)(p + 0xD)) != 0) {
             func_002bbcf0(*(s8 *)(p + 0xD));
@@ -9338,7 +9338,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 shdPersonaAddSkill(personaTask, skill);
             }
             shdPersonaArmSkillReveal(fclDrawGetResource(*(u8 **)(p + 0x148)));
-            func_0045af60(1, 3, 3, 2);
+            sdkSndStartStream(1, 3, 3, 2);
         } else if (*(s16 *)(p + 0x2D8) >= 0x28) {
             p[1] = 0xBF;
             for (j7 = 0; j7 < 6; j7++) {
@@ -9491,7 +9491,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 skill = *(u16 *)(p + 0x1C);
                 shdPersonaAddSkill(personaTask, skill);
             }
-            func_0045af60(1, 3, 3, 2);
+            sdkSndStartStream(1, 3, 3, 2);
         }
         if (*(s16 *)(p + 0x2D8) >= 0x28) {
             shdPersonaArmSkillReveal(fclDrawGetResource(*(u8 **)(p + 0x148)));
@@ -9561,7 +9561,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 shdPersonaReplaceSkill(personaTask, originalSkill, *(u16 *)(p + 0x24));
             }
             datPersonaReplaceSkill(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), *(s16 *)(p + 0x1C), *(u16 *)(p + 0x24));
-            func_0045af60(1, 3, 3, 2);
+            sdkSndStartStream(1, 3, 3, 2);
         }
         if (*(s16 *)(p + 0x2D8) >= 0x28) {
             p[0xD] = func_002bab80((void *)func_00331660());

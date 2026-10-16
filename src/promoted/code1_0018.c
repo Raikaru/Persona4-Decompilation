@@ -249,11 +249,11 @@ typedef struct {
    variation counter.  Inlined into every trigger arm of func_001823d0. */
 static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
 {
-    extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
+    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
     extern s32 D_007F1760[];
     s32 *slot = &D_007F1760[id & 0x3FF];
 
-    func_0045af60(0, (id & 0x3FF) + 4, bank, base + *slot);
+    sdkSndStartStream(0, (id & 0x3FF) + 4, bank, base + *slot);
     if (++*slot >= 4) {
         *slot = 0;
     }

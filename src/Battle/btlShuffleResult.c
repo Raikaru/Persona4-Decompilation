@@ -192,8 +192,8 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 func_002bb050(1);
                 func_002bbf60();
                 *(s32 *)state = 5;
-                func_0045af60(0, 4, 0, 1);
-                func_0045af60(0, 4, 0, 1);
+                sdkSndStartStream(0, 4, 0, 1);
+                sdkSndStartStream(0, 4, 0, 1);
             } else if (D_008C024E[0] & 0x80) {
                 {
                     u8 **selected = (u8 **)(state + 0x4C) + sum;
@@ -209,7 +209,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 if (func_00453960(buf) != 0) {
                     *(s32 *)(state + 4) = *(s32 *)(buf + 0x24);
                     *(s32 *)(state + 8) = *(s32 *)(buf + 0x28);
-                    func_0045af60(0, 4, 0, 0);
+                    sdkSndStartStream(0, 4, 0, 0);
                 }
             }
         }
@@ -226,12 +226,12 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 func_002bb050(1);
                 func_002bbf60();
                 *(s32 *)state = 5;
-                func_0045af60(0, 4, 0, 1);
+                sdkSndStartStream(0, 4, 0, 1);
             }
         } else if (D_008C024E[0] & 0x20) {
             shdPersonaBeginClose((u8 *)(*(s32 *)(state + 0x18)));
             *(s32 *)state = 2;
-            func_0045af60(0, 4, 0, 4);
+            sdkSndStartStream(0, 4, 0, 4);
         } else if (D_008C024E[0] & 0x80) {
             shdPersonaBeginSelection((u8 *)(*(s32 *)(state + 0x18)));
             *(s32 *)state = 4;
@@ -277,7 +277,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 func_002bb050(1);
                 func_002bbf60();
                 *(s32 *)state = 5;
-                func_0045af60(0, 4, 0, 1);
+                sdkSndStartStream(0, 4, 0, 1);
             }
         } else {
             func_00453670((u8 *)(buf), 0xC, *(s32 *)(state + 0x0C), row, scroll);
@@ -418,7 +418,7 @@ s32 btlShuffleResultLayout(u8 *arg0)
                masks first. */
             bumped = (*(u16 *)(arg0 + 6) += 1);
             if ((bumped & 0xFFFF) == 0xA) {
-                func_0045af60(1, 1, 5, 0xC);
+                sdkSndStartStream(1, 1, 5, 0xC);
             }
         }
         func_002bb7c0(1);
@@ -741,9 +741,9 @@ s32 btlShuffleResultRun(u8 *arg0)
                 *(u16 *)(view.context + 0x1F2F2) = 0;
             }
             if (view.state->isUpright != 0) {
-                func_0045af60(1, 3, 2, 1);
+                sdkSndStartStream(1, 3, 2, 1);
             } else {
-                func_0045af60(1, 3, 2, 2);
+                sdkSndStartStream(1, 3, 2, 2);
             }
             shuffleResultDescribe(arg0);
             view.state->phase = 0xD;
@@ -781,9 +781,9 @@ s32 btlShuffleResultRun(u8 *arg0)
                 *(s32 *)(view.context + 0x1F2A0) = 0;
             }
             if (view.state->isUpright != 0) {
-                func_0045af60(1, 3, 2, 1);
+                sdkSndStartStream(1, 3, 2, 1);
             } else {
-                func_0045af60(1, 3, 2, 2);
+                sdkSndStartStream(1, 3, 2, 2);
             }
             result = (view.state->isUpright != 0 ? 1 : 2) + 0x15;
             func_002bbd20(0, datCalcGetSlotRecord(view.state->resultCard));
@@ -1080,7 +1080,7 @@ s32 btlShuffleResultMain(u8 *arg0) {
         count = *(u16 *)(arg0 + 6);
         if ((s32)count < 0xA) {
             if (((*(u16 *)(arg0 + 6) += 1) & 0xFFFF) == 0xA) {
-                func_0045af60(1, 1, 5, 0xA);
+                sdkSndStartStream(1, 1, 5, 0xA);
             }
         }
         func_002bb7c0(1);

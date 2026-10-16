@@ -237,7 +237,7 @@ void func_001eb7f0(void) {
     if (temp_4 & 0x1000) {
         *(s32 *)temp_5 = temp_4 & ~0x1000;
         btlDamageEndPhase(*(s32 *)(iGpffffb3ac + 0xDD4));
-        func_0045af60(1, 0xF, 2, 0x13);
+        sdkSndStartStream(1, 0xF, 2, 0x13);
     }
 }
 
@@ -294,12 +294,12 @@ void func_001eb8d0(void) {
                 (temp_5 != 0)) {
                 *(s32 *)temp_6 = *(s32 *)temp_6 & ~0x1000;
                 btlDamageEndPhase(*(s32 *)(iGpffffb3ac + 0xDD4));
-                func_0045af60(1, 0xF, 2, 0x13);
+                sdkSndStartStream(1, 0xF, 2, 0x13);
             }
         } else if ((D_008C024E[0] & 0x10) && (temp_5 == 0)) {
             *(s32 *)temp_6 = flags | 0x1000;
             btlDamageBeginPhase(*(s32 *)(iGpffffb3ac + 0xDD4));
-            func_0045af60(1, 0xF, 2, 0x12);
+            sdkSndStartStream(1, 0xF, 2, 0x12);
         }
     }
 }
