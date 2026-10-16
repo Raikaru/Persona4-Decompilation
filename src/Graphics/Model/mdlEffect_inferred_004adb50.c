@@ -106,7 +106,7 @@ extern void func_004adfa0(u8 *arg0);
 // FUN_004ADB50
 /* measured: object 816B/window 816B, nd 0. K&R definition so the unprototyped
    caller func_004adfa0 stays byte-exact. The VU0 colour-pack island and the
-   `color = *(s32 *)&sp134` read are the effModel.c func_004ac300 idiom - reading
+   `color = *(s32 *)&sp134` read are the effModel.c EffModelUpdate idiom - reading
    the packed word through its address is what makes b210 reload it into $s5
    right after the island and, with it, rank the saved registers as retail does
    (n $s4, arg0 $s3, objs $s2, count $s1, total $s0; a plain `color = sp134`
