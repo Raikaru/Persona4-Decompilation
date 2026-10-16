@@ -51,12 +51,12 @@ extern void kAssertFail(u8 *file, s32 line);
 extern f32 RwV3dLength(void *a0);
 extern void RwV3dNormalize(f32 *a, f32 *b);
 extern f32 Vpad_GetSegmentLength(void *arg0, s32 arg1);
-extern s32 func_004b7800(const RuntimeWork *work, s32 index);
-extern f32 func_004bc310(u8 *arg0, s32 arg1);
-extern f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_004bb1d0(struct EffAfterQueue *queue, s32 section);
-extern void func_004b7dc0(u8 *arg0, s32 arg1, EffAfterVec *arg2);
-extern void func_004b7830(u8 *arg0, s32 arg1, s32 arg2, EffAfterVec *arg3);
+extern s32 effAfterHistoryIndex(const RuntimeWork *work, s32 index);
+extern f32 effAfterSectionTurnFactor(u8 *arg0, s32 arg1);
+extern f32 effAfterSideSegmentLength(u8 *arg0, s32 arg1, s32 arg2);
+extern void effAfterQueueSectionOffsets(struct EffAfterQueue *queue, s32 section);
+extern void effAfterFrameNormal(u8 *arg0, s32 arg1, EffAfterVec *arg2);
+extern void effAfterSideAxis(u8 *arg0, s32 arg1, s32 arg2, EffAfterVec *arg3);
 struct RpGeometry;
 struct RpTriangle { u16 vertIndex[3]; u16 matIndex; };
 struct RpMaterial;
@@ -102,8 +102,8 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
     while (currentSection < *(s32 *)(data + 8) - 1) {
         cumulative = 0.0f;
         for (leadingIndex = 0; leadingIndex < currentSection + 1; leadingIndex++) {
-            firstIndex = func_004b7800((const RuntimeWork *)data, leadingIndex);
-            nextIndex = func_004b7800((const RuntimeWork *)data, leadingIndex + 1);
+            firstIndex = effAfterHistoryIndex((const RuntimeWork *)data, leadingIndex);
+            nextIndex = effAfterHistoryIndex((const RuntimeWork *)data, leadingIndex + 1);
             sectionLength = 0.0f;
             vectorBase = (u8 *)*(s32 *)(data + 0x10);
             firstOffset = firstIndex * 0xC;
@@ -137,8 +137,8 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
     } else {
         previous = 0.0f;
         for (trailingIndex = 0; trailingIndex < currentSection; trailingIndex++) {
-            firstIndex = func_004b7800((const RuntimeWork *)data, trailingIndex);
-            nextIndex = func_004b7800((const RuntimeWork *)data, trailingIndex + 1);
+            firstIndex = effAfterHistoryIndex((const RuntimeWork *)data, trailingIndex);
+            nextIndex = effAfterHistoryIndex((const RuntimeWork *)data, trailingIndex + 1);
             sectionLength = 0.0f;
             vectorBase = (u8 *)*(s32 *)(data + 0x10);
             firstOffset = firstIndex * 0xC;
@@ -170,8 +170,9 @@ void effAfterSectionFraction(u8 *data, f32 distance, u32 *section, f32 *fraction
     }
     *fraction = (targetDistance - previous) / sectionLength;
 }
+// Returns the ring index that is index steps behind the newest sample, wrapped by completedFlags when it goes negative.
 // FUN_004B7800
-s32 func_004b7800(const RuntimeWork* work, s32 index)
+s32 effAfterHistoryIndex(const RuntimeWork* work, s32 index)
 {
     s32 result;
 
@@ -182,8 +183,9 @@ s32 func_004b7800(const RuntimeWork* work, s32 index)
     }
     return result;
 }
+// Side axis of one section: normalised cross products of the side and forward edges, projected onto the section frame normal.
 // FUN_004B7830
-void func_004b7830(u8 *work, s32 section, s32 side, EffAfterVec *output) {
+void effAfterSideAxis(u8 *work, s32 section, s32 side, EffAfterVec *output) {
     typedef struct {
         u8 *config;
         u32 state;
@@ -218,7 +220,7 @@ void func_004b7830(u8 *work, s32 section, s32 side, EffAfterVec *output) {
         if (firstIndex < 0) {
             firstIndex += data->count;
         }
-        func_004b7dc0(work, section, (EffAfterVec *)&frameNormal.c[0]);
+        effAfterFrameNormal(work, section, (EffAfterVec *)&frameNormal.c[0]);
         points[0][0] = &data->vectors[(other = side & 1)][secondIndex];
         selected = (side + 1) & 1;
         points[0][1] = &data->vectors[selected][secondIndex];
@@ -268,7 +270,7 @@ void func_004b7830(u8 *work, s32 section, s32 side, EffAfterVec *output) {
         if (firstIndex < 0) {
             firstIndex += data->count;
         }
-        func_004b7dc0(work, section, (EffAfterVec *)&frameNormal.c[0]);
+        effAfterFrameNormal(work, section, (EffAfterVec *)&frameNormal.c[0]);
         points[0][0] = &data->vectors[(other = side & 1)][secondIndex];
         selected = (side + 1) & 1;
         points[0][1] = &data->vectors[selected][secondIndex];
@@ -311,8 +313,9 @@ void func_004b7830(u8 *work, s32 section, s32 side, EffAfterVec *output) {
     }
 }
 
+// Frame normal of one section, derived from its edge vectors in both rings.
 // FUN_004B7DC0
-void func_004b7dc0(u8 *work, s32 section, EffAfterVec *output) {
+void effAfterFrameNormal(u8 *work, s32 section, EffAfterVec *output) {
     typedef struct {
         u8 *config;
         u32 state;
@@ -430,10 +433,11 @@ void func_004b7dc0(u8 *work, s32 section, EffAfterVec *output) {
 typedef struct RwTexCoords { f32 u, v; } AfterTexCoord;
 typedef struct RwV3d { f32 x, y, z; } AfterVector3;
 
+// Builds the ribbon geometry object for one material: vertex and index counts follow the config mode, and the bounding sphere is stored on the morph target.
 // FUN_004B8350
 #pragma push
 #pragma opt_loop_invariants on
-u8 *func_004b8350(u8 *arg0, struct RpMaterial *arg1)
+u8 *effAfterCreateRibbon(u8 *arg0, struct RpMaterial *arg1)
 {
     typedef struct RwSphere {
         AfterVector3 center;
@@ -832,7 +836,7 @@ void effAfterFreeVectorBuffers(void *arg0) {
 }
 
 /* measured: 7728B mesh-builder. Retail asm has 63 mula/madda/madd/msub FPU
-   sequences (the same multiply-accumulate family as func_004b7dc0/004b7830,
+   sequences (the same multiply-accumulate family as effAfterFrameNormal/effAfterSideAxis,
    which floor on the v5 index register and fp-save set) plus 21 lq/sq quadword
    ops and 3 large switch statements. M2C_ERROR in the m2c draft at every FPU
    sequence; the mula/madda/madd dot-product folds cannot be reproduced in plain
@@ -870,8 +874,9 @@ typedef struct {
     f32 radius;
 } EffAfterSphere;
 
+// Rebuilds the trail mesh from the two vector rings for the current work; the notes above record the measured floor.
 // FUN_004B8F40
-void func_004b8f40(u8 *work, void **pp)
+void effAfterRebuildTrailMesh(u8 *work, void **pp)
 
 {
 /* irregular: 5 native warning(s); review required */
@@ -1532,8 +1537,9 @@ typedef struct EffAfterQueue {
     EffAfterVec *normalOffsets[2];
 } EffAfterQueue;
 
+// Pushes one position and normal into the sample ring, overwriting the oldest when full, then refreshes section 0 (and section 1 once three samples are queued).
 // FUN_004BAD70
-void func_004bad70(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
+void effAfterQueuePush(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
     EffAfterQueue *queue;
     s32 index;
 
@@ -1553,27 +1559,25 @@ void func_004bad70(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
     case 1:
         break;
     case 2:
-        func_004bb1d0(queue, 0);
+        effAfterQueueSectionOffsets(queue, 0);
         break;
     default:
-        func_004bb1d0(queue, 1);
-        func_004bb1d0(queue, 0);
+        effAfterQueueSectionOffsets(queue, 1);
+        effAfterQueueSectionOffsets(queue, 0);
         break;
     }
 }
-/* Builds the scaled offset vectors for one ribbon section and the section
- * after it, for both the position and the normal strip. Each vector blends
- * the sample's own direction with the directions to the neighbouring samples
- * in the ring buffer, then is normalised and scaled by the section width. */
+// Resets the work's value to its completedFlags, clears its flags and calls func_004bc500 on the work block.
 // FUN_004BAEA0
-void func_004baea0(RuntimeResetWork* work)
+void effAfterResetCommand(RuntimeResetWork* work)
 {
     work->value = work->completedFlags;
     work->flags = 0;
     func_004bc500(work->work);
 }
+// Runs the command stream at work->cursor until opcode 0; opcode 1 reads a 32-bit duration from two halfwords.
 // FUN_004BAED0
-void func_004baed0(RuntimeCommandWork* work, u32* unused)
+void effAfterRunCommands(RuntimeCommandWork* work, u32* unused)
 {
     u16* cursor;
     u32 duration;
@@ -1680,8 +1684,12 @@ void func_004baed0(RuntimeCommandWork* work, u32* unused)
     } while ((u32)(stop != 0) ^ 1);
     work->cursor = cursor;
 }
+/* Builds the scaled offset vectors for one ribbon section and the section
+ * after it, for both the position and the normal strip. Each vector blends
+ * the sample's own direction with the directions to the neighbouring samples
+ * in the ring buffer, then is normalised and scaled by the section width. */
 // FUN_004BB1D0
-void func_004bb1d0(EffAfterQueue *queue, s32 section)
+void effAfterQueueSectionOffsets(EffAfterQueue *queue, s32 section)
 {
     EffAfterVec acc;
     EffAfterVec dir;
@@ -1708,7 +1716,7 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     alphas[0] = queue->config->param->alpha[0];
     widths[1] = queue->config->param->width[1];
     alphas[1] = queue->config->param->alpha[1];
-    sel = !(func_004bc1e0((u8 *)queue, section, 0) > func_004bc1e0((u8 *)queue, section, 1));
+    sel = !(effAfterSideSegmentLength((u8 *)queue, section, 0) > effAfterSideSegmentLength((u8 *)queue, section, 1));
     if (queue->count == 2) {
         mid0 = queue->config->param->headMid;
         next0 = queue->config->param->headNext;
@@ -1729,12 +1737,12 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[2] = 0.0f;
     pw = &widths[sel & 1];
     w0 = *pw;
-    scale = w0 * func_004bc1e0((u8 *)queue, section, 0);
+    scale = w0 * effAfterSideSegmentLength((u8 *)queue, section, 0);
     pw = &alphas[sel & 1];
     a0 = *pw;
-    term = a0 * func_004bc310((u8 *)queue, section);
+    term = a0 * effAfterSectionTurnFactor((u8 *)queue, section);
     scale = scale + term;
-    func_004b7830((u8 *)queue, section, 0, &dir);
+    effAfterSideAxis((u8 *)queue, section, 0, &dir);
     dir.c[0] *= mid0;
     dir.c[1] *= mid0;
     dir.c[2] *= mid0;
@@ -1820,12 +1828,12 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[2] = 0.0f;
     pw = &widths[(sel + 1) & 1];
     w1 = *pw;
-    scale = w1 * func_004bc1e0((u8 *)queue, section, 1);
+    scale = w1 * effAfterSideSegmentLength((u8 *)queue, section, 1);
     pw = &alphas[(sel + 1) & 1];
     a1 = *pw;
-    term = a1 * func_004bc310((u8 *)queue, section);
+    term = a1 * effAfterSectionTurnFactor((u8 *)queue, section);
     scale = scale + term;
-    func_004b7830((u8 *)queue, section, 1, &dir);
+    effAfterSideAxis((u8 *)queue, section, 1, &dir);
     dir.c[0] *= mid0;
     dir.c[1] *= mid0;
     dir.c[2] *= mid0;
@@ -1920,10 +1928,10 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[1] = 0.0f;
     acc.c[2] = 0.0f;
     following = section + 1;
-    w0 *= func_004bc1e0((u8 *)queue, section, 0);
-    term = a0 * func_004bc310((u8 *)queue, section);
+    w0 *= effAfterSideSegmentLength((u8 *)queue, section, 0);
+    term = a0 * effAfterSectionTurnFactor((u8 *)queue, section);
     scale2 = w0 + term;
-    func_004b7830((u8 *)queue, following, 0, &dir);
+    effAfterSideAxis((u8 *)queue, following, 0, &dir);
     dir.c[0] *= mid1;
     dir.c[1] *= mid1;
     dir.c[2] *= mid1;
@@ -2008,10 +2016,10 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
     acc.c[1] = 0.0f;
     acc.c[2] = 0.0f;
     following = section + 1;
-    scale2 = w1 * func_004bc1e0((u8 *)queue, section, 1);
-    term = a1 * func_004bc310((u8 *)queue, section);
+    scale2 = w1 * effAfterSideSegmentLength((u8 *)queue, section, 1);
+    term = a1 * effAfterSectionTurnFactor((u8 *)queue, section);
     scale2 = scale2 + term;
-    func_004b7830((u8 *)queue, following, 1, &dir);
+    effAfterSideAxis((u8 *)queue, following, 1, &dir);
     dir.c[0] *= mid1;
     dir.c[1] *= mid1;
     dir.c[2] *= mid1;
@@ -2115,8 +2123,9 @@ void func_004bb1d0(EffAfterQueue *queue, s32 section)
 // Archived C body: build/WBHygiene_func_004bc1e0_archive.txt; no current park body remains.
 /* measured: optimization_level 1 probe for eff_after target. */
 #pragma optimization_level 1
+// Length of the segment between two adjacent samples of ring arg2 at section arg1, read through effAfterWorkFieldPtr.
 // FUN_004BC1E0
-f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
+f32 effAfterSideSegmentLength(u8 *arg0, s32 arg1, s32 arg2)
 {
     f32 v[3];
     s32 i;
@@ -2157,8 +2166,9 @@ f32 func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
 }
 #pragma optimization_level 2
 
+// Turn factor of a section: (1 - dot) / 2 of the normalised edge vectors at the section's two ends; 0 for a straight run, 1 for a reversal.
 // FUN_004BC310
-f32 func_004bc310(u8 *arg0, s32 arg1) {
+f32 effAfterSectionTurnFactor(u8 *arg0, s32 arg1) {
     EffAfterVec v1;
     EffAfterVec v2;
     EffAfterVec *q;

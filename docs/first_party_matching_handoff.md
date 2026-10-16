@@ -673,7 +673,7 @@ the `--loop-weights` mode (mwccps2-debugger `5ea1631`). Reading of
   - The callee is `func_004bc540(work, side, f32 t, u8 *out)`: retail
     evaluates the float before the colour pointer at every call. Register
     assignment is identical either way, so only argument order reveals it;
-    `func_004b8350` and the definition still match with the new order.
+    `effAfterCreateRibbon` (was `func_004b8350`) and the definition still match with the new order.
   - `#pragma opt_pulloutconstants off` puts `3.0f` after the first partial
     product, as retail does.
   - Bezier `P0*s*s*s + 3*P1*t*s*s + 3*P2*t*t*s + P3*t*t*t`; dot products
@@ -2460,7 +2460,7 @@ ownership is not a safe substitute for per-file ownership.
 
 ### 7bh. Aggregates drop callee-saved floats; address-taken scalars do not
 
-`func_004b8f40`'s deficit was `lwc1 +76 / swc1 +33` with two 349-instruction
+`effAfterRebuildTrailMesh` (was `func_004b8f40`)'s deficit was `lwc1 +76 / swc1 +33` with two 349-instruction
 retail-only runs, and the diagnosis - correct as far as it went - was a
 **spill gap**: retail spills per use at frame 0x220 while the object kept
 `$f25`-`$f31` callee-saved at frame 0x1A0.  That reads like allocator
