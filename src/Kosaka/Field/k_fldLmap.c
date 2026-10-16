@@ -57,8 +57,8 @@ extern u8 *func_0029db50(s32 a, s32 b, s32 c, s32 d);
 extern void func_003e9cb0(s32 param, u8 *src, s32 mode);
 extern void K_View_SetFov(u8 *param, f32 value);
 extern void func_00189600(u8 *param, s32 a, s32 b, f32 value);
-void func_00187f50(void);
-void func_00188030(void);
+void FldLmapSkyState71009(void);
+void FldLmapSkyState7100D(void);
 extern u8 D_005F1EF8[];
 extern u8 D_005F1FB8[];
 extern u8 D_005F1FA8[];
@@ -81,8 +81,8 @@ extern u8 D_005F2050[];
 extern u8 D_005F2070[];
 extern u8 D_005F2090[];
 extern s32 FldLmapScrollUpdate(u8 *arg0);
-extern s32 func_00188be0(u8 *arg0);
-extern s32 func_001891d0(u8 *arg0);
+extern s32 FldLmapMarkerUpdate(u8 *arg0);
+extern s32 FldLmapPathUpdate(u8 *arg0);
 extern u8 D_005F2180[];
 extern f32 D_005F20B0[];
 extern f32 D_005F20B4[];
@@ -108,15 +108,15 @@ extern char iGpffff9f68;
 extern char iGpffff9f70;
 extern f32 iGpffff84a4;
 extern f32 iGpffff8538;
-void func_00188200(u8 *arg0, u8 *arg1);
-void func_00188320(u8 *arg0, u8 *arg1);
-void func_00188590(u8 *arg0, u8 *arg1, s32 arg2);
-void func_00188690(u8 *arg0, u8 *arg1, s32 arg2);
-void func_001887f0(u8 *arg0, u8 *arg1, s32 arg2);
-void func_00188940(u8 *arg0, u8 *arg1, s32 arg2);
-u8 *func_00188f20(u8 *arg0, s32 arg1, u8 *arg2);
-void func_00189060(u8 *arg0, s32 arg1, f32 fparg0);
-u8 *func_00189550(u8 *arg0);
+void FldLmapDrawCornerMarks(u8 *arg0, u8 *arg1);
+void FldLmapDrawSlotRow(u8 *arg0, u8 *arg1);
+void FldLmapDrawSlotMarker(u8 *arg0, u8 *arg1, s32 arg2);
+void FldLmapDrawSlotPair(u8 *arg0, u8 *arg1, s32 arg2);
+void FldLmapDrawSlotIcon(u8 *arg0, u8 *arg1, s32 arg2);
+void FldLmapDrawPanel(u8 *arg0, u8 *arg1, s32 arg2);
+u8 *FldLmapMarkerTaskCreate(u8 *arg0, s32 arg1, u8 *arg2);
+void FldLmapMarkerSetTarget(u8 *arg0, s32 arg1, f32 fparg0);
+u8 *FldLmapPathTaskCreate(u8 *arg0);
 void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0);
 
 /* Source unit: src/promoted/k_fldLmap.c */
@@ -373,28 +373,28 @@ s32 FldLmapUpdate(u8 *arg0)
         }
         FldLmapSetSlotFlags(st);
         *(f32 *)(st + 0x98) = 700.0f;
-        func_00188200(st, st + 0x90);
+        FldLmapDrawCornerMarks(st, st + 0x90);
         *(f32 *)(buf + 8) = (f32)590;
         for (i = 0; i < 5; i++) {
             if (*(s32 *)(st + i * 4 + 0x4C) != 0) {
-                func_00188590(st, buf, i);
-                func_00188690(st, st + i * 12 + 0x9C, i);
+                FldLmapDrawSlotMarker(st, buf, i);
+                FldLmapDrawSlotPair(st, st + i * 12 + 0x9C, i);
             }
         }
         for (i = 0; i < 5; i++) {
             if (*(s32 *)(st + i * 4 + 0x60) != 0) {
-                func_001887f0(st, st + i * 12 + 0xD8, i);
+                FldLmapDrawSlotIcon(st, st + i * 12 + 0xD8, i);
             }
         }
         *(f32 *)(st + 0x98) = 500.0f;
-        func_00188320(st, st + 0x90);
+        FldLmapDrawSlotRow(st, st + 0x90);
         if ((*(s32 *)(st + 4) != 0) && (*(s32 *)(st + 0x74) != 0)) {
             if (*(f32 *)(st + 0x11C) >= *(f32 *)(st + 0x128)) {
-                func_00188940(st, st + 0x114, *(s32 *)(st + 0x80));
-                func_00188940(st, st + 0x120, *(s32 *)(st + 0x84));
+                FldLmapDrawPanel(st, st + 0x114, *(s32 *)(st + 0x80));
+                FldLmapDrawPanel(st, st + 0x120, *(s32 *)(st + 0x84));
             } else {
-                func_00188940(st, st + 0x120, *(s32 *)(st + 0x84));
-                func_00188940(st, st + 0x114, *(s32 *)(st + 0x80));
+                FldLmapDrawPanel(st, st + 0x120, *(s32 *)(st + 0x84));
+                FldLmapDrawPanel(st, st + 0x114, *(s32 *)(st + 0x80));
             }
         }
     }
@@ -508,9 +508,9 @@ s32 FldLmapUpdate(u8 *arg0)
         *(s32 *)(st + 0x14C) = (s32)MT_Scene_GetRes(0x2808);
         *(s32 *)(st + 0x150) = (s32)MT_Scene_GetRes(0x2807);
         *(s32 *)(st + 0x154) = (s32)MT_Scene_GetRes(0x2805);
-        *(u8 **)(st + 0x164) = func_00188f20(arg_save, *(s32 *)(st + 0x140), st + 0x144);
-        func_00189060(*(u8 **)(st + 0x164), *(s32 *)(st + 0xC), 0.0f);
-        *(u8 **)(st + 0x168) = func_00189550(arg_save);
+        *(u8 **)(st + 0x164) = FldLmapMarkerTaskCreate(arg_save, *(s32 *)(st + 0x140), st + 0x144);
+        FldLmapMarkerSetTarget(*(u8 **)(st + 0x164), *(s32 *)(st + 0xC), 0.0f);
+        *(u8 **)(st + 0x168) = FldLmapPathTaskCreate(arg_save);
         func_00189600(*(u8 **)(st + 0x168), *(s32 *)(st + 0xC), *(s32 *)(st + 0xC), 0.0f);
         if (sndRequestAreaTrack() == 0) {
             sndPlayAreaCue();
@@ -586,7 +586,7 @@ s32 FldLmapUpdate(u8 *arg0)
             if (*(s32 *)(st + 0x10) != *(s32 *)(st + 0xC)) {
                 *(s32 *)(st + 0x14) = *(s32 *)(st + 0x14) + 1;
             }
-            func_00189060(*(u8 **)(st + 0x164), *(s32 *)(st + 0xC), 0.0f);
+            FldLmapMarkerSetTarget(*(u8 **)(st + 0x164), *(s32 *)(st + 0xC), 0.0f);
             if (*(s32 *)(st + 0x14) > 5) {
                 ((s32 *)(st + 0x80))[*(s32 *)(st + 0x7C)] = *(s32 *)(st + 0xC);
                 {
@@ -716,7 +716,7 @@ u8 *FldLmapCreate(u8 *arg0, s32 arg1, s32 arg2)
 }
 
 // FUN_00187F50
-void func_00187f50(void)
+void FldLmapSkyState71009(void)
 {
     void (**tbl)(s32, s32);
 
@@ -733,7 +733,7 @@ void func_00187f50(void)
 }
 
 // FUN_00188030
-void func_00188030(void)
+void FldLmapSkyState7100D(void)
 {
     void (**tbl)(s32, s32);
 
@@ -750,7 +750,7 @@ void func_00188030(void)
 }
 
 // FUN_00188110
-void func_00188110(void)
+void FldLmapSkyState72001(void)
 {
     void (**tbl)(s32, s32);
 
@@ -772,7 +772,7 @@ void func_00188110(void)
    constant-before-load and cross-chain float scheduling. Best candidate:
    normalized_diff 154, object 288/288; discarded. */
 // FUN_00188200
-void func_00188200(u8 *arg0, u8 *arg1)
+void FldLmapDrawCornerMarks(u8 *arg0, u8 *arg1)
 {
     f32 x;
     f32 y;
@@ -790,7 +790,7 @@ void func_00188200(u8 *arg0, u8 *arg1)
 /* Exact under MWCC b210/O2: preserve the float input view and associate the
    column offset before adding the caller's x coordinate. */
 // FUN_00188320
-void func_00188320(u8 *arg0, u8 *arg1)
+void FldLmapDrawSlotRow(u8 *arg0, u8 *arg1)
 {
     s32 temp_17;
     s32 temp_16;
@@ -802,7 +802,7 @@ void func_00188320(u8 *arg0, u8 *arg1)
 
     p = (const f32 *)arg1;
     temp_2 = PrimAllocQueueNode();
-    *(void (**)(void))(temp_2 + 8) = func_00187f50;
+    *(void (**)(void))(temp_2 + 8) = FldLmapSkyState71009;
     *(s32 *)(temp_2 + 0x10) = 0;
     func_00460ac0(D_00795E60, temp_2);
     temp_f0 = -44.0f;
@@ -870,13 +870,13 @@ void func_00188320(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00188590
-void func_00188590(u8 *arg0, u8 *arg1, s32 arg2)
+void FldLmapDrawSlotMarker(u8 *arg0, u8 *arg1, s32 arg2)
 {
     s32 temp_3;
     u8 *temp_2;
     f32 temp_f14;
     temp_2 = PrimAllocQueueNode();
-    *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00188030;
+    *(void (**)(void))(temp_2 + 8) = (void (*)(void))FldLmapSkyState7100D;
     *(s32 *)(temp_2 + 0x10) = 0;
     func_00460ac0(D_00795E60, temp_2);
     temp_3 = arg2 * 0x18;
@@ -889,7 +889,7 @@ void func_00188590(u8 *arg0, u8 *arg1, s32 arg2)
    arguments and does not interleave the f13 chain. Best candidate:
    normalized_diff 82, object 344/352; discarded. */
 // FUN_00188690
-void func_00188690(u8 *arg0, u8 *arg1, s32 arg2)
+void FldLmapDrawSlotPair(u8 *arg0, u8 *arg1, s32 arg2)
 {
     s32 temp_16;
     f32 temp_f1;
@@ -908,7 +908,7 @@ void func_00188690(u8 *arg0, u8 *arg1, s32 arg2)
    sinks the f14 load below the integer arguments and serialises the f13
    chain. Best candidate: normalized_diff 79, object 336/336; discarded. */
 // FUN_001887F0
-void func_001887f0(u8 *arg0, u8 *arg1, s32 arg2)
+void FldLmapDrawSlotIcon(u8 *arg0, u8 *arg1, s32 arg2)
 {
     s32 temp_16;
     f32 temp_f1;
@@ -924,7 +924,7 @@ void func_001887f0(u8 *arg0, u8 *arg1, s32 arg2)
 }
 
 // FUN_00188940
-void func_00188940(u8 *arg0, u8 *arg1, s32 arg2)
+void FldLmapDrawPanel(u8 *arg0, u8 *arg1, s32 arg2)
 {
     f32 temp_f0;
     f32 temp_f0_2;
@@ -934,7 +934,7 @@ void func_00188940(u8 *arg0, u8 *arg1, s32 arg2)
     s32 temp_16;
 
     temp_2 = PrimAllocQueueNode();
-    *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00187f50;
+    *(void (**)(void))(temp_2 + 8) = (void (*)(void))FldLmapSkyState71009;
     *(s32 *)(temp_2 + 0x10) = 0;
     func_00460ac0(D_00795E60, temp_2);
     temp_f0 = -45.0f;
@@ -946,7 +946,7 @@ void func_00188940(u8 *arg0, u8 *arg1, s32 arg2)
     temp_f1 = 224.0f + *(f32 *)(arg1 + 4);
     sdkSpriteDrawQueued((f32)(s32)temp_f0, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8) - 10.0f, 0xFF0000, 0xFF, 1, *(void **)(arg0 + 0x2C), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
     temp_2_2 = PrimAllocQueueNode();
-    *(void (**)(void))(temp_2_2 + 8) = (void (*)(void))func_00188110;
+    *(void (**)(void))(temp_2_2 + 8) = (void (*)(void))FldLmapSkyState72001;
     *(s32 *)(temp_2_2 + 0x10) = 0;
     func_00460ac0(D_00795E60, temp_2_2);
     temp_f0 = 185.0f;
@@ -970,7 +970,7 @@ void func_00188940(u8 *arg0, u8 *arg1, s32 arg2)
 /* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
  * ~2 mask (addiu $v1, $zero, -3) inside the loop body; retail hoists it to the
  * preheader. The pragma restores the hoist. */
-s32 func_00188be0(u8 *arg0)
+s32 FldLmapMarkerUpdate(u8 *arg0)
 {
     Vec3 sp30;
     Vec3 sp20;
@@ -1061,13 +1061,13 @@ s32 func_00188be0(u8 *arg0)
 
 /* measured: see annotation above. */
 // FUN_00188EF0
-void func_00188ef0(u8 *arg0)
+void FldLmapMarkerTaskDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
 // FUN_00188F20
-u8 *func_00188f20(u8 *arg0, s32 arg1, u8 *arg2)
+u8 *FldLmapMarkerTaskCreate(u8 *arg0, s32 arg1, u8 *arg2)
 {
     u8 *temp_18;
     u8 *temp_2;
@@ -1080,7 +1080,7 @@ u8 *func_00188f20(u8 *arg0, s32 arg1, u8 *arg2)
     if (temp_2 == NULL) {
         return NULL;
     }
-    temp_18 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, func_00188be0, func_00188ef0, (u8 *)(temp_2));
+    temp_18 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, FldLmapMarkerUpdate, FldLmapMarkerTaskDestroy, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = arg1;
     *(u8 **)(temp_2 + 8) = arg2;
     *(s32 *)(temp_2 + 0x58) = -1;
@@ -1096,7 +1096,7 @@ u8 *func_00188f20(u8 *arg0, s32 arg1, u8 *arg2)
 }
 
 // FUN_00189060
-void func_00189060(u8 *arg0, s32 arg1, f32 fparg0)
+void FldLmapMarkerSetTarget(u8 *arg0, s32 arg1, f32 fparg0)
 {
     f32 *temp_4_2;
     s32 temp_4;
@@ -1123,7 +1123,7 @@ void func_00189060(u8 *arg0, s32 arg1, f32 fparg0)
 }
 
 // FUN_001891D0
-s32 func_001891d0(u8 *arg0)
+s32 FldLmapPathUpdate(u8 *arg0)
 {
     f32 sp40[3];
     f32 temp_f20;
@@ -1194,13 +1194,13 @@ s32 func_001891d0(u8 *arg0)
 }
 
 // FUN_00189520
-void func_00189520(u8 *arg0)
+void FldLmapPathTaskDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
 // FUN_00189550
-u8 *func_00189550(u8 *arg0)
+u8 *FldLmapPathTaskCreate(u8 *arg0)
 {
     u8 *temp_2_2;
     u8 *temp_2;
@@ -1210,7 +1210,7 @@ u8 *func_00189550(u8 *arg0)
     if (temp_2_2 == NULL) {
         return NULL;
     }
-    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, func_001891d0, func_00189520, (u8 *)(temp_2_2));
+    temp_2 = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F2180), 0xF, 0, 0, FldLmapPathUpdate, FldLmapPathTaskDestroy, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 0x30) = -1;
     return temp_2;
 }
