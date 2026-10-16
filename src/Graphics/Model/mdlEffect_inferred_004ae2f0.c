@@ -78,7 +78,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 /* Source unit: src/promoted/code1_004a.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004a.c; members 004ae2f0-004ae2f0 */
 
-extern s32 func_004a7e30(u8 *arg0, u8 *arg1);
+extern s32 mdlEffectProjectBillboardQuad(u8 *arg0, u8 *arg1);
 extern void func_004a8250(u8 *arg0, u8 *arg1);
 extern void func_004a8440(u8 *arg0, u8 *arg1);
 extern void func_004a86c0(u8 *arg0, u8 *arg1);
