@@ -8,7 +8,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void *memset(void *dst, s32 value, s32 size);
 extern u8 D_0063E8E0[];
 extern u8 D_0063E918[];
-extern void func_002a2340(void);
+extern void yTimeLimitReset(void);
 extern void hsndQueueSound(s32 arg0, s32 arg1);
 extern s32 sdkSpriteRequestLoad(u8 *name);
 extern s32 func_0046a750(s32 handle);
@@ -35,7 +35,7 @@ s32 func_002a2420(u8 *arg0) {
     st = *(u8 **)(arg0 + 0x38);
     switch ((u32)*(s32 *)st) {
     case 0:
-        func_002a2340();
+        yTimeLimitReset();
         *(s32 *)st = 1;
         hsndQueueSound(0x14, 0x1E);
         break;
