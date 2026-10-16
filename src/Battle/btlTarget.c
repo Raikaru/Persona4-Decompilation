@@ -769,11 +769,11 @@ s32 btlTargetApplyHpSpChange(u8* arg0)
     temp_21 = datCalcIsLowHp(*(u8**)(temp_18 + 0xa64));
     temp_22 = datCalcChkBadStatus((s32)*(u8**)(temp_18 + 0xa64), 1);
     temp_16 = datCalcChkBadStatus((s32)*(u8**)(temp_18 + 0xa64), 0x100000);
-    if (*(u16*)(arg0 + 0x2a) & BTL_HIT_RESULT_LANDED) {
-        *(u16*)(temp_19 + 0x18) = *(u16*)(temp_19 + 0x18) | BTL_ACTION_FLAG_HIT_LANDED;
-    }
     if (*(u16*)(arg0 + 0x2a) & BTL_HIT_RESULT_CRITICAL) {
         *(u16*)(temp_19 + 0x18) = *(u16*)(temp_19 + 0x18) | BTL_ACTION_FLAG_HIT_CRITICAL;
+    }
+    if (*(u16*)(arg0 + 0x2a) & BTL_HIT_RESULT_WEAK) {
+        *(u16*)(temp_19 + 0x18) = *(u16*)(temp_19 + 0x18) | BTL_ACTION_FLAG_HIT_WEAK;
     }
     if (*(s32*)(arg0 + 0x10) & 0x100000) {
         *(u16*)(temp_19 + 0x18) = *(u16*)(temp_19 + 0x18) | BTL_ACTION_FLAG_DOWN;
