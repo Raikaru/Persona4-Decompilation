@@ -315,7 +315,7 @@ void func_00135dc0(u8* work)
     extern void shdPersonaDrawSmoothBar(u8 *work);
     extern void shdPersonaDispCtlSetMode(u8 *work, u8 arg1);
     extern void shdPersonaDispCtlGetPosition(u8 *work, u8 *arg1);
-    extern s32 func_0011e460(u8 *work);
+    extern s32 shdPersonaDispCtlGetLoadedValue(u8 *work);
     extern f32 cosf(f32 angle);
     extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sourceX, f32 sourceY, f32 width, f32 height,
                               u8 *texture, s32 mode, s32 flag);
@@ -489,7 +489,7 @@ void func_00135dc0(u8* work)
             shdPersonaDrawSineQuad(portraitTask);
             if ((menu->visible & 0x1000) != 0) {
                 s32 textureHandle;
-                if ((textureHandle = func_0011e460(portraitTask)) != 0) {
+                if ((textureHandle = shdPersonaDispCtlGetLoadedValue(portraitTask)) != 0) {
                     s32 pulseFrame;
                     u8 pulseOpacity;
                     s32 pulseColor;

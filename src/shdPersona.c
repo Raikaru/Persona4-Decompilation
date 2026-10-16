@@ -1853,7 +1853,7 @@ void shdPersonaTweenChannelsOpen(u8 *);
 void shdPersonaTweenChannelsClose(u8 *);
 void shdPersonaTweenSelectionOpen(u8 *);
 void shdPersonaTweenSelectionClose(u8 *);
-void func_0011c3e0(u8 *);
+void shdPersonaTweenComparison(u8 *);
 void shdPersonaUpdateSkillPulse(u8 *);
 void shdPersonaUpdateReveal(u8 *);
 void func_0011b110(u8 *);
@@ -1862,7 +1862,7 @@ void shdPersonaDrawSmoothBar(u8 *);
 void shdPersonaDrawSlidingPanels(u8 *);
 void shdPersonaDrawSineQuad(u8 *);
 void shdPersonaDispCtlGetPosition(u8 *, u8 *);
-s32 func_0011e460(u8 *);
+s32 shdPersonaDispCtlGetLoadedValue(u8 *);
 u16 shdPersonaGetSelectedSkillId(u8 *);
 void ShdSkill_DrawSelectionFrame(Vec2f, f32, u8, u16);
 void shdPersonaDrawBackdrop(u8 *);
@@ -1991,7 +1991,7 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
         if (counter < 0x64) {
             work->comparisonFrame = counter + 1;
         }
-        func_0011c3e0((u8 *)work);
+        shdPersonaTweenComparison((u8 *)work);
     }
     if ((work->flags & 0x8000) != 0) {
         counter = work->skillFrame;
@@ -2048,7 +2048,7 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
                 sx = modelPosition.x;
                 t = 204.0f * (1.0f - phase);
                 packed = ((u8)t & 0xFF) | 0xFF8C3200;
-                func_00364680(0.0f, packed, sx, sy, sx, sy, 512.0f, 512.0f, func_0011e460(model), 0, 1);
+                func_00364680(0.0f, packed, sx, sy, sx, sy, 512.0f, 512.0f, shdPersonaDispCtlGetLoadedValue(model), 0, 1);
                 RpSkyRenderStateSet(3, (void *)0x717FB);
                 RpSkyRenderStateSet(2, (void *)0x44);
             }
@@ -3193,8 +3193,9 @@ do { case 3: case 2: case 4: break; default: arg0++; arg0--; kAssertFail(D_005E4
 }
 
 
+// Intent: Set up two channels and the start position once, snapshot the 15-word parameter block at 0xC into 0x48, end the selection, then start the display transition [inferred]
 // FUN_0011C180
-void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
+void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
 {
     s32 *src;
     s32 *dst;
@@ -3287,8 +3288,9 @@ void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
    loop-invariant motion preserves the accumulator/FMA instruction pairs. */
 #pragma push
 #pragma opt_loop_invariants on
+// Intent: Tween the comparison display from its start values toward its targets over the comparison window [inferred]
 // FUN_0011C3E0
-void func_0011c3e0(u8 *arg0)
+void shdPersonaTweenComparison(u8 *arg0)
 {
     f32 diff;
     f32 f_abs;
@@ -3323,7 +3325,7 @@ void func_0011c3e0(u8 *arg0)
              - plain plus `opt_loop_invariants off`, 449 differing words
            Retail's per-iteration reload is therefore real, but no legal C
            spelling found so far reproduces both the reload AND the
-           instruction order.  func_0011c3e0 is a DEMOTION CANDIDATE. */
+           instruction order.  shdPersonaTweenComparison is a DEMOTION CANDIDATE. */
         raw = *(volatile s16 *)(arg0 + 0x516);
         lo = *(f32 *)(arg0 + i * 36 + 0x2E8);
         ratio = (f32)raw;
@@ -4393,8 +4395,9 @@ void shdPersonaDispCtlGetPosition(u8 *arg0, u8 *arg1)
 
 
 
+// Intent: Return the loaded value at offset 0x50 once the display control has reached state 3, else 0 [inferred]
 // FUN_0011E460
-s32 func_0011e460(u8 *arg0)
+s32 shdPersonaDispCtlGetLoadedValue(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)b != 3) {
