@@ -71,7 +71,7 @@ static inline f32 p4_002aa450_mul(f32 left, f32 right) {
     return left * right;
 }
 struct RwMatrixTag;
-extern void func_00366960(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
+extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
                           const struct RwMatrixTag *matrix, void *queue);
 extern f32 fGpffff855c;

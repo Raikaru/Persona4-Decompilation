@@ -308,8 +308,9 @@ if (arg9 != 0) {
 #pragma push
 /* measured: func_00366960, func_00366c70 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+// Intent: Queues a four-point colour quad of the given width and height, with packed RGBA and a transform matrix [inferred]
 // FUN_00366960
-void func_00366960(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
+void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                    s32 alpha, s32 mode, s32 centerX, s16 centerY,
                    const struct RwMatrixTag *matrix, void *queue)
 {
