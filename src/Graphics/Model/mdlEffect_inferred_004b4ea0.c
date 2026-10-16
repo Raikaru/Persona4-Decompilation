@@ -73,8 +73,9 @@ void func_004b4ea0(u8 *arg0)
     jtbl_008873EC[0](temp_16);
 }
 
+// Creates a LineNova instance from a record: kind at +0x18 and parameters at +0x24.
 // FUN_004B4F10
-void *func_004b4f10(void *opaqueSource)
+void *LineNovaCreateInstanceForRecord(void *opaqueSource)
 {
     u8 *arg0 = opaqueSource;
     return LineNovaCreateKindInstance(*(u16 *)(arg0 + 0x18), *(u8 **)(arg0 + 0x24));

@@ -69,8 +69,9 @@ void func_004b0fa0(void *object) {
     DistortParticleProjectRecords(object, 1);
 }
 
+// Clears the node at +0x6C of the record at +0x5C and appends it to the table that TnGetOffset1C selects from the inner kind at +0x54.
 // FUN_004B0FD0
-void func_004b0fd0(u8 *arg0)
+void DistortParticleAppendNode(u8 *arg0)
 {
     u8 *node;
     u8 *inner;
@@ -84,8 +85,9 @@ void func_004b0fd0(u8 *arg0)
     }
 }
 
+// Runs DistortParticleUpdateRecords, then clears and appends the node at +0x6C of the record at +0x5C, as DistortParticleAppendNode does.
 // FUN_004B1030
-void func_004b1030(u8 *arg0)
+void DistortParticleUpdateAndAppendNode(u8 *arg0)
 {
     u8 *node;
     u8 *inner;
