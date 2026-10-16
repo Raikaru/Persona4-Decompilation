@@ -29,7 +29,7 @@ extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
 extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
 extern void func_00492e30(u16 *emitter, f32 scale);
 extern s32 TnGetOffset38(u16 arg0);
-extern void func_004ad030();
+extern void EffModelDrawableUpdate();
 extern void func_004adb50();
 extern void func_004ade80(u8 *arg0);
 extern void func_00460ac0();
