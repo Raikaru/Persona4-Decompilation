@@ -6,7 +6,7 @@ extern void btlTaskCreate(void);
 extern void btlSetFreeUnitsOnTeardown(void);
 
 extern s32 func_00103590(void);
-extern s32 func_001039e0(void);
+extern s32 fclBankTaskCreate(void);
 extern void titleStartSoundTask(s32);
 extern s32 btlIsRunning(void);
 extern void func_002853b0(void);
@@ -100,7 +100,7 @@ void SeqDebugMenu_End(void)
 // FUN_00102DC0
 void SeqSample_Start(void)
 {
-    func_001039e0();
+    fclBankTaskCreate();
 }
 
 // FUN_00102DE0

@@ -75,7 +75,7 @@ s32 scrCommonCallNameEntry(void) {
         func_001029a0(0x1C, 0, 0, 0);
         goto block_4;
     }
-    if (func_002a2710() == 0) {
+    if (timeLimitTaskExists() == 0) {
         return 1;
     }
 block_4:

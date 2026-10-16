@@ -92,8 +92,9 @@ void func_002a2600(u8 *arg0)
     jtbl_008873EC[0](b);
 }
 
+// Intent: Create the time limit task as a child of the given parent, with its update and destroy callbacks [inferred]
 // FUN_002A2650
-s32 func_002a2650(u8 *arg0)
+s32 timeLimitTaskCreate(u8 *arg0)
 {
     u8 *mem;
 

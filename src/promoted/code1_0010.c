@@ -52,9 +52,9 @@ extern u8 D_00796758[];
 extern u8 D_0079675C[];
 extern s32 initBootChainStart(void);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
-extern void func_002a2650(s32 arg0);
-extern s32 func_002a2710(void);
-extern void func_002a2740(void);
+extern void timeLimitTaskCreate(s32 arg0);
+extern s32 timeLimitTaskExists(void);
+extern void timeLimitTaskDestroy(void);
 extern void PrimFreeBatchNode(s32 arg0);
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 
@@ -82,8 +82,8 @@ extern void func_00100670(void);
 extern void func_00100e60(void);
 extern void RpRandomSeed(s32 arg0);
 extern void RpRandomSeedMT(s32 arg0);
-extern s32 func_001036d0(u8 *arg0);
-extern void func_00103980(u8 *arg0);
+extern s32 fclBankTaskUpdate(u8 *arg0);
+extern void fclBankTaskDestroy(u8 *arg0);
 extern s32 func_00100e30(void);
 extern void mainDrawStartClearOt(void);
 extern void mainDrawStartFrame(void);
@@ -254,28 +254,33 @@ s32 func_00102980(void)
     return *(s32 *)(*(u8 **)((u8 *)D_00764298 + 0x38) + 4);
 }
 
+// Intent: Start the time limit task under the root with no parent [inferred]
 // FUN_00103510
-void func_00103510(void) {
-    func_002a2650(0);
+void timeLimitStart(void) {
+    timeLimitTaskCreate(0);
 }
+// Intent: Report whether the time limit task is running [inferred]
 // FUN_00103540
-s32 func_00103540(void) {
-    return func_002a2710() != 0;
+s32 timeLimitIsActive(void) {
+    return timeLimitTaskExists() != 0;
 }
+// Intent: Stop the time limit task and its hierarchy [inferred]
 // FUN_00103570
-void func_00103570(void) {
-    func_002a2740();
+void timeLimitStop(void) {
+    timeLimitTaskDestroy();
 }
 // FUN_00103590
 void func_00103590(void) {}
+// Intent: Apply the base render states for a bank slot's sky layer [inferred]
 // FUN_001035A0
-void func_001035a0(void) {
+void fclBankRenderStateBase(void) {
     D_00887300[0](1, 0);
     RpSkyRenderStateSet(2, 0x44);
     RpSkyRenderStateSet(3, 0x717FB);
 }
+// Intent: Apply the full render states for a bank slot's sky layer, including the interpolation mode [inferred]
 // FUN_00103600
-void func_00103600(void)
+void fclBankRenderStateFull(void)
 {
     u8 *fnTable;
 
@@ -289,8 +294,9 @@ void func_00103600(void)
     RpSkyRenderStateSet(2, 0x44);
     RpSkyRenderStateSet(3, 0x717FB);
 }
+// Intent: Bank task update: run the state machine for the slot's current state [inferred]
 // FUN_001036D0
-s32 func_001036d0(u8 *arg0) {
+s32 fclBankTaskUpdate(u8 *arg0) {
     extern u8 *PrimAllocBatchNode(void);
     extern void func_00460ac0(void *list, void *node);
     extern u8 D_005DD5D0[];
@@ -393,9 +399,9 @@ loop2_check:
                 *(s32 *)(*(u8 **)slot + 0x24) = 4;
                 index++;
             }
-            *(void **)(*(u8 **)(state + 4) + 8) = (void *)func_001035a0;
+            *(void **)(*(u8 **)(state + 4) + 8) = (void *)fclBankRenderStateBase;
             *(s32 *)(*(u8 **)(state + 4) + 0x10) = 0;
-            *(void **)(*(u8 **)(state + 8) + 8) = (void *)func_00103600;
+            *(void **)(*(u8 **)(state + 8) + 8) = (void *)fclBankRenderStateFull;
             *(s32 *)(*(u8 **)(state + 8) + 0x10) = 0;
             *(s32 *)state = *(s32 *)state + 1;
             break;
@@ -412,8 +418,9 @@ loop2_check:
     }
     return 0;
 }
+// Intent: Bank task destroy: free the slot's batch nodes and release its task memory [inferred]
 // FUN_00103980
-void func_00103980(u8 *arg0) {
+void fclBankTaskDestroy(u8 *arg0) {
     u8 *state;
 
     state = *(u8 **)(arg0 + 0x38);
@@ -421,13 +428,15 @@ void func_00103980(u8 *arg0) {
     PrimFreeBatchNode(*(s32 *)(state + 8));
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
+// Intent: Create the bank task with its update and destroy callbacks [inferred]
 // FUN_001039E0
-void func_001039e0(void) {
+void fclBankTaskCreate(void) {
     chkmemAllocSiteTag(D_005DD600, 0xBD);
-    (s32)kwlnTaskCreate((const void *)(&iGpffff85d0), 0xF, 0, 0, func_001036d0, func_00103980, (u8 *)(D_008873F4[0](1, 0x210, 0x40000)));
+    (s32)kwlnTaskCreate((const void *)(&iGpffff85d0), 0xF, 0, 0, fclBankTaskUpdate, fclBankTaskDestroy, (u8 *)(D_008873F4[0](1, 0x210, 0x40000)));
 }
+// Intent: Reset the bank slot table's per-slot flags and counters [inferred]
 // FUN_00103A60
-void func_00103a60(void)
+void fclBankTableReset(void)
 {
     s16 i;
     s16 j;
@@ -440,11 +449,12 @@ void func_00103a60(void)
         }
     }
 }
+// Intent: Register the bank resource tables and load each of the two bank slots [inferred]
 // FUN_00103B00
-void func_00103b00(void) {
+void fclBankTableInit(void) {
     extern u8 D_00796460[];
     extern u8 D_00796700[];
-    extern void func_00103c40(u8 *arg0);
+    extern void fclBankSlotLoad(u8 *arg0);
     s16 index;
 
     func_00460b60(D_00796460, 6, 1);
@@ -458,7 +468,7 @@ void func_00103b00(void) {
 
     index = 0;
     while (index < 2) {
-        func_00103c40(D_00796700 + (index * 0x370));
+        fclBankSlotLoad(D_00796700 + (index * 0x370));
         index++;
     }
 }
@@ -467,8 +477,9 @@ struct RwTexture;
 /* Measured: 700/704 bytes, 23 resolved code relocations and seven resolved
    jump-table entries; four zero alignment bytes. State 3 is inert, and the
    drawing callback receives the current slot. */
+// Intent: Load a bank slot's resources from its archive entries and register them [inferred]
 // FUN_00103C40
-void func_00103c40(u8 *slot)
+void fclBankSlotLoad(u8 *slot)
 {
     extern u8 D_005DD630[];
     extern u8 D_005DD640[];
@@ -483,7 +494,7 @@ void func_00103c40(u8 *slot)
     extern u8 *func_00454a60(u8 *path, s32 mode);
     extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
     extern s32 func_003ef3a0(struct RwTexture *texture);
-    extern void func_00103f00(u8 *slot);
+    extern void fclBankSlotUpdate(u8 *slot);
     extern s32 sprintf(u8 *destination, const u8 *format, ...);
     s32 complete;
     s16 state;
@@ -537,7 +548,7 @@ void func_00103c40(u8 *slot)
         }
         break;
     case 4:
-        func_00103f00(slot);
+        fclBankSlotUpdate(slot);
         break;
     case 5:
     case 6:
@@ -587,8 +598,9 @@ void func_00103c40(u8 *slot)
    y coordinate is read into its own local before the add so the load
    precedes the constant.  RwIm2DGetNearScreenZ() is the retail near-Z read
    in the loop; an array element there hoists the whole load. */
+// Intent: Advance a bank slot's loading and display state each step [inferred]
 // FUN_00103F00
-void func_00103f00(u8 *arg0)
+void fclBankSlotUpdate(u8 *arg0)
 {
     s32 table[6];
     f32 pos[2];
@@ -753,12 +765,14 @@ void func_00103f00(u8 *arg0)
         }
     }
 }
+// Intent: Mark a bank slot as finished (state 5) [inferred]
 // FUN_001044D0
-void func_001044d0(s64 arg0) {
+void fclBankMarkDone(s64 arg0) {
     *(s16 *)(D_00796700 + ((s16)arg0 * 0x370)) = 5;
 }
+// Intent: Configure a bank slot from a three-id descriptor, looking up its table entry; default 0x3E when not found [inferred]
 // FUN_00104510
-void func_00104510(s16 arg0, s16 arg1, s16 arg2, s16 arg3)
+void fclBankSlotConfigure(s16 arg0, s16 arg1, s16 arg2, s16 arg3)
 {
     u8 buf[0x100];
     s32 offset;
@@ -805,12 +819,14 @@ void func_00104510(s16 arg0, s16 arg1, s16 arg2, s16 arg3)
     if (found)
         *(s32 *)(D_00796A60 + offset) = 0x3e;
 }
+// Intent: Set the alpha byte of a bank slot [inferred]
 // FUN_00104770
-void func_00104770(s64 arg0, u8 arg1) {
+void fclBankSetAlpha(s64 arg0, u8 arg1) {
     *(u8 *)(D_0079671F + (((s16)arg0) * 0x370)) = arg1;
 }
+// Intent: Set a bank slot's active flag; when set, reset its phase and timers [inferred]
 // FUN_001047B0
-void func_001047b0(s64 arg0, s32 arg1) {
+void fclBankSetActive(s64 arg0, s32 arg1) {
     s32 offset;
 
     offset = (s16)arg0 * 0x370;
@@ -821,8 +837,9 @@ void func_001047b0(s64 arg0, s32 arg1) {
         *(s32 *)(D_00796758 + offset) = 2;
     }
 }
+// Intent: Resume a waiting bank slot (state 3 to 4) [inferred]
 // FUN_00104830
-void func_00104830(s64 arg0) {
+void fclBankResume(s64 arg0) {
     s16 *entry;
 
     entry = (s16 *)(D_00796700 + ((s16)arg0 * 0x370));
@@ -830,11 +847,13 @@ void func_00104830(s64 arg0) {
         *entry = 4;
     }
 }
+// Intent: Return a pointer to the bank slot's position fields [inferred]
 // FUN_00104880
-u8 *func_00104880(s64 arg0) {
+u8 *fclBankGetPositionPtr(s64 arg0) {
     return D_00796700 + ((s16)arg0 * 0x370) + 0xC;
 }
+// Intent: Report whether a bank slot is waiting (state 3) [inferred]
 // FUN_001048C0
-s32 func_001048c0(s64 arg0) {
+s32 fclBankIsWaiting(s64 arg0) {
     return *(s16 *)(D_00796700 + ((s16)arg0 * 0x370)) == 3;
 }
