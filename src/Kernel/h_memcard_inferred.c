@@ -222,7 +222,7 @@ typedef struct FilerDirent {
 } FilerDirent;
 
 
-extern void func_004673c0(u8 *work);
+extern void sdkFilerScanDirectory(u8 *work);
 extern void func_00467880(u8 *arg0);
 
 /* Source unit: src/promoted/code1_0046.c */
@@ -347,7 +347,7 @@ s32 sdkFilerTaskUpdate(u8 *task)
         work->state = 1;
         break;
     case 1:
-        func_004673c0((u8 *)work);
+        sdkFilerScanDirectory((u8 *)work);
         work->page = 0;
         work->row = 0;
         work->state = 2;

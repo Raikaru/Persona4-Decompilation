@@ -252,8 +252,8 @@ extern void PrimAppendNode(void *arg0, u8 *arg1);
 extern void FldEventDrawMarker(u8 *arg0, u8 *arg1);
 
 extern s32 nLineIsIdle(void);
-extern void func_0013fb50(u8 *arg0);
-extern s32 func_0013ff80(u8 *arg0);
+extern void radarInitState(u8 *arg0);
+extern s32 radarAdvanceStage(u8 *arg0);
 extern s32 radarEntriesReady(u8 *arg0);
 extern void radarDestroy(u8 *arg0);
 extern void radarLoadSlotCoords(u8 *arg0);

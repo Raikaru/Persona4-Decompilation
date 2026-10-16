@@ -262,12 +262,13 @@ typedef struct MovieNativeWork {
 } MovieNativeWork;
 /* 512/512 bytes; ten fully resolved relocations.
  * A real interrupt-state local retains the retail spill under register pressure. */
+// Intent: reads a directory into the filer table (up to 2000 entries), sorts them by type and name. Called from sdkFilerTaskUpdate.
 // FUN_004673C0
 /* measured: MWCCPS2 b210 -O2, 1204B/window 1216B, 12 resolved relocations,
  * 12 zero alignment bytes. Ghidra and IDA agree on the 2000-entry cap,
  * type/name ordering, and 264-byte record copies; both split the local
  * directory entry, whose complete 324-byte backend layout supplies the frame. */
-void func_004673c0(u8 *work)
+void sdkFilerScanDirectory(u8 *work)
 {
     extern s32 func_00428550(u8 *path);
     extern s32 func_00428780(s32 handle, void *out);

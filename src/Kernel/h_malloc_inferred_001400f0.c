@@ -185,8 +185,8 @@ extern s32 D_007642F0;
 
 
 extern s32 nLineIsIdle(void);
-extern void func_0013fb50(u8 *arg0);
-extern s32 func_0013ff80(u8 *arg0);
+extern void radarInitState(u8 *arg0);
+extern s32 radarAdvanceStage(u8 *arg0);
 extern s32 radarEntriesReady(u8 *arg0);
 extern void radarDestroy(u8 *arg0);
 extern void radarLoadSlotCoords(u8 *arg0);
@@ -1139,12 +1139,12 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
     *arg1 = (resultFlag = 1);
     switch (*arg0) {
     case 0:
-        func_0013fb50(arg2);
+        radarInitState(arg2);
         *arg0 = 1;
         *arg1 = 0;
         break;
     case 1:
-        if ((func_0013ff80(arg2) & nLineIsIdle()) != 0) {
+        if ((radarAdvanceStage(arg2) & nLineIsIdle()) != 0) {
             *arg0 = 3;
             nLineSelectSet(0x15);
         } else {
