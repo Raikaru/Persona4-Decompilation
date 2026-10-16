@@ -1068,44 +1068,44 @@ void evtSyncResManagerNodes(s32 arg0, u8 *arg1) {
     u8 *var_18_2;
     u8 *var_3;
     u8 *var_4;
-    u8 *var_6;
-    u8 *var_6_2;
+    EvtNode *var_6;
+    EvtNode *var_6_2;
 
     temp_2 = (u8 *)MT_Scene_GetResManager();
     if (temp_2 != NULL) {
         var_18 = *(u8 **)(temp_2 + 4);
         while (var_18 != NULL) {
             var_3 = NULL;
-            var_6 = *(u8 **)(arg1 + 0x4C);
+            var_6 = ((EvtEventWork *)arg1)->nodeList;
             while (var_6 != NULL) {
-                if (*(s32 *)(var_6 + 0x34) == (s32) var_18) {
-                    var_3 = var_6;
+                if ((s32)var_6->res == (s32)var_18) {
+                    var_3 = (u8 *)var_6;
                     break;
                 }
-                var_6 = *(u8 **)(var_6 + 0x90);
+                var_6 = var_6->next;
             }
             if (var_3 == NULL) {
                 var_18 = *(u8 **)(var_18 + 0x138);
             } else {
-                evtStepLayerByChoice(arg0, var_18, (s32) var_6, arg1, 0);
+                evtStepLayerByChoice(arg0, var_18, (s32)var_6, arg1, 0);
                 var_18 = *(u8 **)(var_18 + 0x138);
             }
         }
         var_18_2 = (u8 *)MT_Scene_GetResListHead(3);
         while (var_18_2 != NULL) {
             var_4 = NULL;
-            var_6_2 = *(u8 **)(arg1 + 0x4C);
+            var_6_2 = ((EvtEventWork *)arg1)->nodeList;
             while (var_6_2 != NULL) {
-                if (*(s32 *)(var_6_2 + 0x34) == (s32) var_18_2) {
-                    var_4 = var_6_2;
+                if ((s32)var_6_2->res == (s32)var_18_2) {
+                    var_4 = (u8 *)var_6_2;
                     break;
                 }
-                var_6_2 = *(u8 **)(var_6_2 + 0x90);
+                var_6_2 = var_6_2->next;
             }
             if (var_4 == NULL) {
                 var_18_2 = *(u8 **)(var_18_2 + 0x138);
             } else {
-                evtStepLayerByChoice(arg0, var_18_2, (s32) var_6_2, arg1, 0);
+                evtStepLayerByChoice(arg0, var_18_2, (s32)var_6_2, arg1, 0);
                 var_18_2 = *(u8 **)(var_18_2 + 0x138);
             }
         }
