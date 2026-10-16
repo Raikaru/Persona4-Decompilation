@@ -62,7 +62,7 @@ static inline s32 func_001a_fix_var(s32 value)
     }
     return value;
 }
-void func_001f6cd0(void);
+void btlSoundBumpStatusCounters(void);
 
 void func_001f14f0(u8 *arg0);
 void func_001eb3b0(u8 *arg0);
@@ -79,12 +79,12 @@ s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
 extern void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status);
-extern s32 func_001f6930(u8 *arg0);
-extern s32 func_001f6bf0(u8 *arg0);
-extern s32 func_001f6f60(u8 *arg0);
-extern s32 func_001f7140(u8 *arg0);
-extern void func_001f62b0(void);
-extern s32 func_001f62f0(u8 *arg0);
+extern s32 btlSoundSelectCureableStatuses(u8 *arg0);
+extern s32 btlSoundIsStatusCounterHigh(u8 *arg0);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
+extern void btlSoundCancelPlayback(void);
+extern s32 btlSoundPickResistVoice(u8 *arg0);
 extern void btlSoundStopBank3(void);
 extern void func_001f9a50(s32 arg0, s32 arg1);
 extern void func_001f9a90(void);
@@ -178,7 +178,7 @@ s16 func_001d15a0(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 s64 datCalcFindStrongBuff(u8 *arg0);
-s32 func_001f6770(u8 *arg0);
+s32 btlSoundRollStatusCure(u8 *arg0);
 s32 btlActionGetCounter420(BtlAction *action);
 
 u8 *btlPacketCreateSpriteTable(u32 arg0, u16 arg1);
@@ -868,7 +868,7 @@ void btlActionAnalyzeUpdate(u8 *action)
             *(s64 *)(cameraPacket + 0x60) = *(s64 *)action;
             btlPacketEnqueue(cameraPacket, 0);
         }
-        func_001f62b0();
+        btlSoundCancelPlayback();
         btlSoundStopBank3();
         if (func_001eb860() == 1) {
             *(s32 *)(D_0076449C + 0xC) &= ~0x2000;
@@ -881,7 +881,7 @@ void btlActionAnalyzeUpdate(u8 *action)
         if (btlMessageIsIdle(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
             u8 *unit = *(u8 **)(*(u8 **)(action + 0x38) + 0x30);
             if (unit != NULL) {
-                s32 resource = func_001f62f0(unit);
+                s32 resource = btlSoundPickResistVoice(unit);
                 if (resource >= 0) {
                     func_001f9a50((u16)resource, 1);
                 }
@@ -1212,7 +1212,7 @@ void btlActionSupportUpdate(u8 *arg0) {
             btlPacketEnqueue(packet, 3);
         } else {
 fallback:
-            if (func_001f6770((u8 *)arg0) != 0) {
+            if (btlSoundRollStatusCure((u8 *)arg0) != 0) {
                 btlActionSetState((u8 *)arg0, 11);
             } else {
                 btlActionSetState((u8 *)arg0, 3);
@@ -1225,7 +1225,7 @@ fallback:
 // FUN_001A31A0
 void btlActionBadInit(u8 *arg0)
 {
-    func_001f6cd0();
+    btlSoundBumpStatusCounters();
     *(s32 *)(arg0 + 0x41C) = 1;
     *(s32 *)(arg0 + 0x420) = 0;
 }
@@ -1256,7 +1256,7 @@ void btlActionBadUpdate(BtlAction *actionState)
             *(s32 *)(action + 0x420) == 0) {
             allowRecovery = 1;
             if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 1) != 0 &&
-                func_001f6bf0(action) == 0) {
+                btlSoundIsStatusCounterHigh(action) == 0) {
                 allowRecovery = 0;
             }
             if (allowRecovery != 0) {
@@ -1353,7 +1353,7 @@ void btlActionBadUpdate(BtlAction *actionState)
             *(s32 *)(action + 0x420) = 1;
             return;
         }
-        resultFlags = func_001f6930(action);
+        resultFlags = btlSoundSelectCureableStatuses(action);
         if (resultFlags != 0) {
             s32 message;
             {
@@ -1368,7 +1368,7 @@ void btlActionBadUpdate(BtlAction *actionState)
                 *(u16 *)(packet + 0x48) = 0x12;
                 btlPacketEnqueue(packet, 1);
             }
-            message = func_001f7140(action);
+            message = btlSoundPickStatusTalkVoiceB(action);
             if (message > 0) {
                 u8 *packet = (u8 *)btlPacketCreateEffectCounter(*(s32 *)(action + 0x30), message);
                 *(s64 *)(packet + 0x60) = *(s64 *)action;
@@ -1381,7 +1381,7 @@ void btlActionBadUpdate(BtlAction *actionState)
                 s32 message;
                 func_001eb4a0(action, action + 0x38, badStatus);
                 *(u16 *)(action + 0x18) |= 2;
-                message = func_001f6f60(action);
+                message = btlSoundPickStatusTalkVoiceA(action);
                 if (message > 0) {
                     {
                         u8 *packet = (u8 *)btlCameraCreateSetStatePacket(actionState, 10);
@@ -1408,7 +1408,7 @@ void btlActionBadUpdate(BtlAction *actionState)
         }
         func_001eb3b0(action + 0x38);
         *(u16 *)(action + 0x18) &= 0xFFF7;
-        if (func_001f68e0(action) != 0) {
+        if (btlSoundCanReceiveStatus(action) != 0) {
             btlActionSetState(actionState, 27);
             return;
         }
@@ -1928,7 +1928,7 @@ void btlActionReadyUpdate(u8 *arg0)
     extern s32 datPersonaFindSkillSlot(u8 *persona, u16 skillId);
     extern s32 btlActionSkillReachesTargets(u8 *action);
     extern void btlActionRollGroupRatio(s32 state);
-    extern s32 func_001f68e0(u8 *action);
+    extern s32 btlSoundCanReceiveStatus(u8 *action);
     extern void btlUnitApplyPacketFlags(u8 *action);
     s32 loopIndex;
     s32 delayFlag;
@@ -2005,7 +2005,7 @@ donecheck:
                         btlPacketEnqueue(actionTargetPacketBytes(arg0, 3, 0, 0, 2), 1);
                         btlPacketEnqueue(btlTargetCreateActionPacket(arg0, 0U), 1);
                         btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 1), 0);
-                        if ((s32)(func_001f68e0(arg0)) != (s32)(0)) {
+                        if ((s32)(btlSoundCanReceiveStatus(arg0)) != (s32)(0)) {
                             actionSetDelayBytes(arg0, 0x1B, 0xC);
                         } else {
                             actionSetDelayBytes(arg0, 0x20, 0xC);
@@ -2603,7 +2603,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
     extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     extern u8 *btlTargetCreateRecordPacket();
     extern u8 *btlTargetCreateTargetPacket();
-    extern s32 func_001f68e0();
+    extern s32 btlSoundCanReceiveStatus();
     extern void func_001f7830(u8 *unit, s32 hit, s32 paired, s16 *cue, s16 *variant);
     extern void func_001f7910(u8 *unit, u32 hit, s32 paired, s16 *cue, s16 *variant);
     extern BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
@@ -3440,7 +3440,7 @@ createReaction:
         cutin.unitId = (u16)((*(u16 *)((u8 *)((*(u8 **)((u8 *)(cutinUnit) + (0x30)))) + (0xA4))));
         btlPacketEnqueue(func_001fa720(&cutin), 1);
     }
-    if (func_001f68e0((s64 *)arg0) != 0) {
+    if (btlSoundCanReceiveStatus((s64 *)arg0) != 0) {
         btlActionSetState((BtlAction *)arg0, 0x1BU);
         return;
     }
@@ -3533,7 +3533,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern u8 * btlTargetCreateRecordPacket(u8 *arg0);
     extern u8 * btlTargetCreateHitPacket(u8 *arg0);
     extern s32 btlTargetCreateTargetPacket();
-    extern s32 func_001f68e0(u8 *arg0);
+    extern s32 btlSoundCanReceiveStatus(u8 *arg0);
     extern BtlPacket* btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
     extern BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags);
     extern u8 *btlSoundCreateMarkReadyPacket(u32 value);
@@ -5498,7 +5498,7 @@ reactionPacket:
         cutin.unitId = *(u16 *)(*(u8 **)(partner + 0x30) + 0xA4);
         btlPacketEnqueue((u8 *)(func_001fa720((u8 *)&cutin)), 1);
     }
-    if ((s32)(func_001f68e0(arg0)) != (s32)(0)) {
+    if ((s32)(btlSoundCanReceiveStatus(arg0)) != (s32)(0)) {
         btlActionSetState((BtlAction *)arg0, 0x1B);
         return;
     }
@@ -5557,7 +5557,7 @@ void btlActionSummonUpdate(s64 *arg0)
     extern BtlPacket *btlCreateTimingPacket(u32 arg0);
     extern BtlPacket *btlMainCreateFadePacket(s32 arg0, s16 arg1);
     extern BtlPacket *btlMainCreateColorFadePacket(s32 arg0);
-    extern s32 func_001f68e0(u8 *arg0);
+    extern s32 btlSoundCanReceiveStatus(u8 *arg0);
     extern DatUnit *datUnitAddEncounterUnit(DatUnitEc *encounter, u16 id);
     extern u8 *iGpffffb3bc;
     typedef struct UnitView {
@@ -5872,7 +5872,7 @@ void btlActionSummonUpdate(s64 *arg0)
         btlPacketEnqueue(pkt, 0);
     }
     btlFormationSetPlacement(handle);
-    if (func_001f68e0((u8 *)action) != 0) {
+    if (btlSoundCanReceiveStatus((u8 *)action) != 0) {
         btlActionSetState((BtlAction *)action, 0x1B);
     } else {
         u16 nextState;
@@ -6085,7 +6085,7 @@ void btlActionErrorUpdate(u8 *action) {
         *(s64 *)(packet + 0x60) = packetIdentity;
         btlPacketEnqueue(packet, 0);
     }
-    if (func_001f68e0(action) != 0) {
+    if (btlSoundCanReceiveStatus(action) != 0) {
         btlActionSetState((BtlAction *)action, 0x1B);
         return;
     }
@@ -6269,7 +6269,7 @@ s32 btlUnitGetMotionState(u8 *arg0);
 
 void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-s32 func_001f68e0(u8 *arg0);
+s32 btlSoundCanReceiveStatus(u8 *arg0);
 
 void btlActionWaitUpdate(u8 *arg0) {
     struct {
@@ -6343,7 +6343,7 @@ void btlActionWaitUpdate(u8 *arg0) {
         break;
     }
     btlPacketEnqueue(btlTargetCreateActionPacket(arg0, 0), 1);
-    if ((func_001f68e0(arg0) != 0) && (*(u16 *)(arg0 + 0x6C) != 8)) {
+    if ((btlSoundCanReceiveStatus(arg0) != 0) && (*(u16 *)(arg0 + 0x6C) != 8)) {
         btlActionSetState((BtlAction *)arg0, 0x1B);
         return;
     }

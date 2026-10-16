@@ -108,12 +108,12 @@ extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 extern void btlTargetResetRadiusState(void);
 extern void func_00194660(void);
 extern void btlCameraInitSystem(void);
-extern void func_001f7260(void);
+extern void btlSoundResetSlotQueue(void);
 extern void btlVoiceResetPlaybackState(void);
 extern void func_001d6a60(void);
 extern void btlActionResetQueueState(void);
 extern void btlMainReset(void);
-extern void func_001f6100(void);
+extern void btlSoundResetPlaybackState(void);
 extern s32 itfMesWindowInstall(u8 *arg0);
 
 extern void memset(void *arg0, s32 arg1, s32 arg2);
@@ -352,12 +352,12 @@ void btlInit(void)
     btlTargetResetRadiusState();
     func_00194660();
     btlCameraInitSystem();
-    func_001f7260();
+    btlSoundResetSlotQueue();
     btlVoiceResetPlaybackState();
     func_001d6a60();
     btlActionResetQueueState();
     btlMainReset();
-    func_001f6100();
+    btlSoundResetPlaybackState();
     *(s32 *)(iGpffffb3ac + 0xC) |= 0x1480877C;
 }
 
@@ -375,7 +375,7 @@ s32 btlRelease(void)
     btlVoiceFreePlaybackBuffers();
     func_001f73c0();
     btlCameraResetWorkList();
-    func_001f61b0();
+    btlSoundStopAndReleaseHandle();
     btlFormationClearSlots();
     btlPacketFlushAll();
     itfMesWindowReleaseIfActive(*(s32 *)(iGpffffb3ac + 0xC60));

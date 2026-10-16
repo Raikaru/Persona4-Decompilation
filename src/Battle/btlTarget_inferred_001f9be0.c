@@ -97,10 +97,10 @@ extern u8 D_00624FA0[];
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001f.c; members 001f9be0-001f9ce0 */
 
 extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 func_001f6770(u8 *arg0);
-extern s32 func_001f6f60(u8 *arg0);
-extern s32 func_001f7140(u8 *arg0);
-extern void func_001f72e0(void);
+extern s32 btlSoundRollStatusCure(u8 *arg0);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
+extern void btlSoundAdvanceSlotQueue(void);
 extern s32 btlSoundPickPartnerCallVoice(u8 *arg0, s32 arg1);
 extern s32 btlSoundPickPartnerReplyVoice(u8 *arg0, s32 arg1);
 extern s32 btlSoundPickPartnerAssistVoice(u8 *arg0, s32 arg1);
@@ -113,7 +113,7 @@ extern s32 btlVoiceIdPacketUpdate(u8 *arg0);
 #pragma push
 #pragma pop
 /* measured: opt_loop_invariants on hoists the loop's one constant before the entry test. */
-/* measured: close opt_loop_invariants after func_001f6770. */
+/* measured: close opt_loop_invariants after btlSoundRollStatusCure. */
 /* measured: every instruction matches and the object is exactly the 80-byte
    window; the only residual is that retail materialises the shift constant
    (`addiu $v1,$zero,1`) BEFORE the branch into the loop test while b210 puts
@@ -128,13 +128,13 @@ extern s32 btlVoiceIdPacketUpdate(u8 *arg0);
    -O2 rematerialises it in the body (nd 9 -> byte-exact with the hoist). */
 /* measured: closes the hoist bracket opened above and restores the -O2
    baseline for the rest of the file. */
-/* measured: opt_rebuildconditionals off probe for func_001f6f60 final branch. */
-/* measured: close opt_rebuildconditionals after func_001f6f60 probe. */
-/* measured: opt_rebuildconditionals off preserves func_001f7140's positive flag branch. */
-/* measured: close opt_rebuildconditionals after func_001f7140. */
-/* measured: optimization_level 1 required for exact func_001f72e0 codegen. */
-/* measured: opt_loop_invariants off baseline for func_001f72e0. */
-/* measured: restore optimization_level 2 after func_001f72e0. */
+/* measured: opt_rebuildconditionals off probe for btlSoundPickStatusTalkVoiceA final branch. */
+/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceA probe. */
+/* measured: opt_rebuildconditionals off preserves btlSoundPickStatusTalkVoiceB's positive flag branch. */
+/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceB. */
+/* measured: optimization_level 1 required for exact btlSoundAdvanceSlotQueue codegen. */
+/* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
+/* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
 /* measured: opt_propagation off preserves btlSoundPickPartnerCallVoice's loop constants. */
 /* measured: close opt_propagation after btlSoundPickPartnerCallVoice probe. */
 /* measured: opt_propagation off preserves btlSoundPickPartnerReplyVoice's loop constants. */
