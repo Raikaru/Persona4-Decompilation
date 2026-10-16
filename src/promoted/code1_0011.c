@@ -823,7 +823,7 @@ void func_00111bc0(void)
     s32 func_00106600(s16);
     s32 datGetFlag(s32);
     void func_00106390(s32, s32);
-    s16 func_00104ea0(s16, s16);
+    s16 datGetCategoryValueById(s16, s16);
     u32 datGetMoney(void);
     void datSetMoney(u32);
     void datSetCategoryValueById(s16, s16, s16);
@@ -959,7 +959,7 @@ loop2_done:
     i = 0;
     goto loop3_check;
 loop3:
-    ((s16 *)buf)[680 + i] = func_00104ea0(1, (s16)i);
+    ((s16 *)buf)[680 + i] = datGetCategoryValueById(1, (s16)i);
     i++;
 loop3_check:
     if (i < 5) {

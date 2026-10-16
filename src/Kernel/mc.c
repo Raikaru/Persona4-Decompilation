@@ -78,7 +78,7 @@ extern void mcScreenStep(f32, f32, f32, s32, u8 *, s32, s32, u8 *);
 extern void func_002a6b10(s32, s32, s32, void *);
 extern void func_002a7710(s32, u8 *);
 extern void mcDrawGlyph(s32, s32, s32, u8 *);
-extern void func_002a6c30(s32, s32, s32, u8 *);
+extern void mcAdvanceMeter(s32, s32, s32, u8 *);
 extern void mcSetSkyRenderState(s32, s32, s32, s32, f32);
 extern void func_002a6e30(s32, s32, s32, u8 *);
 extern s32 D_0063ED80[];
@@ -1255,7 +1255,7 @@ s32 func_002a4f20(s32 arg0)
     }
     alpha = (s32)(255.0f * ramp);
     mcDrawGlyph(0, 0, alpha, p);
-    func_002a6c30(0, 0, alpha, p);
+    mcAdvanceMeter(0, 0, alpha, p);
     wave = sinf((D_00761184 * (f32)*(s32 *)(p + 0x568)) / 30.0f);
     target = (s32)((u32)*(s32 *)(p + 0x3AC) << 16);
     if (*(s32 *)(p + 0x3B4) != target) {
@@ -1412,7 +1412,7 @@ s32 func_002a5630(s32 arg0)
     }
     fade = (s32)(255.0f * (1.0f - ramp3));
     mcDrawGlyph(0, 0, fade, p);
-    func_002a6c30(0, 0, fade, p);
+    mcAdvanceMeter(0, 0, fade, p);
     frame = *(s32 *)(p + 0x568);
     if (frame < 10) {
         ramp = (f32)frame / 10.0f;
@@ -1535,7 +1535,7 @@ s32 func_002a5f00(s32 arg0)
     func_002a6b10(0, 0, 255, p);
     func_002a7710(255, p);
     mcDrawGlyph(0, 0, 255, p);
-    func_002a6c30(0, 0, 255, p);
+    mcAdvanceMeter(0, 0, 255, p);
     target = (s32)((u32)*(s32 *)(p + 0x3AC) << 16);
     if (*(s32 *)(p + 0x3B4) != target) {
         diff = target - *(s32 *)(p + 0x3B4);
@@ -1784,7 +1784,7 @@ void mcDrawGlyph(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
 }
 
 // FUN_002A6C30
-void func_002a6c30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
+void mcAdvanceMeter(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     s32 v;
     f32 f;
 

@@ -26,7 +26,7 @@ extern s32 func_002badc0(s8 arg0, s32 arg1);
 extern s32 func_002bb680(s8 arg0);
 extern void func_002bb420(s8 arg0);
 extern s16 datCategoryRank(s16 arg0);
-extern s16 func_00104ea0(s16 arg0, s16 arg1);
+extern s16 datGetCategoryValueById(s16 arg0, s16 arg1);
 extern void datSetCategoryValueById(s16 arg0, s16 arg1, s16 arg2);
 extern s32 cmmRankStringAt(s16 arg0, s16 arg1);
 extern void frFontExCopyString(char *src, char *dst, s32 maxlen);
@@ -96,7 +96,7 @@ s32 func_0025c790(u8 *task)
             if (index >= 5)
                 kAssertFail(D_00636838, 0x90);
             previous_rank = datCategoryRank((s16)index);
-            value = (s32)((u32)increment + (u32)(s32)func_00104ea0(1, (s16)index));
+            value = (s32)((u32)increment + (u32)(s32)datGetCategoryValueById(1, (s16)index));
             if (value > 999)
                 value = 999;
             datSetCategoryValueById(1, (s16)index, (s16)value);
