@@ -174,8 +174,8 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     extern void MT_Scene_SetResVector(u8 *arg0, u8 *arg1);
     extern s32 FldRainTaskCreate(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, s32 arg2, s32 arg3, s32 arg4);
     extern s32 FldFogTaskCreate(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s32 arg6, u8 *arg7);
-    extern void func_0018c700(f32 arg0);
-    extern void func_0018c750(f32 arg0);
+    extern void FldMipmapSetFloatParam(f32 arg0);
+    extern void FldMipmapSetFixedParam(f32 arg0);
     extern u8 *func_003e8180(u8 *arg0, f32 arg1);
     extern u8 *func_003e81c0(u8 *arg0, f32 arg1);
     extern void kwlnTaskDestroyWithHierarchy(void *arg0);
@@ -432,8 +432,8 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
         }
     }
     if ((u32)*(s32 *)(data + 4) > 0x10007U) {
-        func_0018c700(*(f32 *)(data + 0x374));
-        func_0018c750(*(f32 *)(data + 0x378));
+        FldMipmapSetFloatParam(*(f32 *)(data + 0x374));
+        FldMipmapSetFixedParam(*(f32 *)(data + 0x378));
     }
     if (FldRc_GetLoadSource() == 0) {
         H_Cdvd_Destroy(arg0);

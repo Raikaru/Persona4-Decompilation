@@ -26,7 +26,7 @@ extern u8 *K_ClumpMatColorScale(u8 *arg0, u8 *arg1);
 extern u8 *K_ClumpMatPropScale(u8 *material, u8 *data);
 struct RpGeometry;
 struct RpMaterial;
-extern struct RpMaterial *func_0018c610(struct RpMaterial *material, void *data);
+extern struct RpMaterial *FldRcMaterialSetMipmapTex(struct RpMaterial *material, void *data);
 extern u8 *iGpffffb590;
 extern void *RpClumpForAllAtomics(void *object, KClumpCallback callback, void *data);
 
@@ -57,7 +57,7 @@ void* FldRc_CreateResource(s16 majorId, s16 minorId)
 void *FldRc_ReplaceGeometryTextures(void *object, void *data)
 {
     u8 *arg0 = object;
-    func_003c21e0(*(struct RpGeometry **)(arg0 + 0x18), func_0018c610, data);
+    func_003c21e0(*(struct RpGeometry **)(arg0 + 0x18), FldRcMaterialSetMipmapTex, data);
     return object;
 }
 // FUN_002E7870
