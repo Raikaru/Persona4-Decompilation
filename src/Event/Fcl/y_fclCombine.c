@@ -153,7 +153,7 @@ extern s32 fclCombinePersonaInRoster(u16);
 extern s32 fclCombineFindRandomSkillIndex(u8 *);
 extern s32 datPersonaReplaceSkill(u8 *, s16, u16);
 extern u16 datPersonaCountValidMembers(void);
-extern u8 *func_001102e0(void);
+extern u8 *datStagedRecord(void);
 extern void func_002ba970(u8 *, s16, FclDrawColor);
 extern s64 func_002bab80(void *);
 extern s32 func_002badc0(s8, s32);
@@ -290,10 +290,10 @@ extern u8 D_00640790[];
 extern u8 D_0064079C[];
 extern u8 D_006407A8[];
 extern u8 D_006407C0[];
-extern u16 func_001102d0(void);
+extern u16 datStagedId(void);
 extern u16 datPersonaRosterSlotFlags(u16);
-extern void func_00110270(u8 *, u16);
-extern void func_001102c0(u16);
+extern void datStageRecord(u8 *, u16);
+extern void datStageSetId(u16);
 extern u8 D_00749350[];
 extern u16 fclCombineOtherHeroId(void);
 
@@ -6836,10 +6836,10 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             func_0011c6e0(fclDrawGetResource((u8 *)work->f148), 1);
             temp_16 = (s32)fclDrawGetResource((u8 *)work->f148);
             func_0011d140((u8 *)temp_16, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-            fclDrawSetSlotMode((u8 *)work->f148, (s32)func_001102e0(), 0);
+            fclDrawSetSlotMode((u8 *)work->f148, (s32)datStagedRecord(), 0);
             fclDrawSetStateByte((u8 *)work->f148, 1);
             if (datGetFlag(0x1307) == 0) {
-                temp_3_2 = func_001102d0() & 0xFFFF;
+                temp_3_2 = datStagedId() & 0xFFFF;
                 var_5 = temp_3_2 & 0xF;
                 temp_4 = (temp_3_2 >> 0xC) & 0xF;
                 for (var_6 = 0; var_6 < 5; var_6++) {
@@ -6885,7 +6885,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 work->f1 = 0x85;
                 break;
             }
-            temp_2_2 = (s8)(((func_001102d0() & 0xFFFF) >> 0xC) & 0xF);
+            temp_2_2 = (s8)(((datStagedId() & 0xFFFF) >> 0xC) & 0xF);
             if (temp_2_2 < 4) {
                 fclCombinePlayCue(arg0, 0x1F, 0);
             } else if (temp_2_2 < 7) {
@@ -7541,7 +7541,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             }
             temp_18_17 = (s8)(fclCombineRollTier(arg0));
             temp_16_37 = (s8)(fclCombineFindMatchIndex(arg0));
-            func_00110270((u8 *)fclCombineFindMatchPtr(arg0), ((((s8)(temp_18_17)) << 8) | (((s8)(temp_16_37)) | 0x30)) & 0xFFFF);
+            datStageRecord((u8 *)fclCombineFindMatchPtr(arg0), ((((s8)(temp_18_17)) << 8) | (((s8)(temp_16_37)) | 0x30)) & 0xFFFF);
             datPersonaRemoveRosterMemberById((*(u16 *)((u8 *)(yListSlotEntry(0, work->f128))+(2))));
             datPersonaRemoveRosterMemberById((*(u16 *)((u8 *)(yListSlotEntry(0, work->f129))+(2))));
             fclCombineSlideInSlotSprites(arg0, 0x96, 0x94);
@@ -7576,7 +7576,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             work->f1 = 0x87U;
             return;
         }
-        if (fclCombinePersonaInRoster((*(u16 *)((u8 *)(func_001102e0())+(2)))) == 1) {
+        if (fclCombinePersonaInRoster((*(u16 *)((u8 *)(datStagedRecord())+(2)))) == 1) {
             fclCombinePlayCue(arg0, 0x27, 0);
             work->f1 = 0x87U;
             return;
@@ -7589,12 +7589,12 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             return;
         }
         if (func_002bb1c0(work->fD) == 0) {
-            temp_4_3 = func_001102d0() & 0xFFFF;
+            temp_4_3 = datStagedId() & 0xFFFF;
             if ((((s8)(((temp_4_3 >> 0xC) & 0xF))) >= ((s8)(((temp_4_3 >> 4) & 0xF)))) && (datGetFlag(0x1307) == 0)) {
                 work->f1C = fclCombineFindRandomSkillIndex(arg0);
                 temp_3_18 = work->f1C;
                 if (temp_3_18 == -1) {
-                    datPersonaInsertRosterRecord((u8 *)func_001102e0());
+                    datPersonaInsertRosterRecord((u8 *)datStagedRecord());
                     func_00106390(0x1306, 0);
                     func_00106390(0x1307, 0);
                     work->fBC = 0x16B;
@@ -7611,7 +7611,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 work->f1 = 0x88U;
                 return;
             }
-            datPersonaInsertRosterRecord((u8 *)func_001102e0());
+            datPersonaInsertRosterRecord((u8 *)datStagedRecord());
             func_00106390(0x1306, 0);
             func_00106390(0x1307, 0);
             work->fBC = 0x16B;
@@ -7640,7 +7640,7 @@ block_274:
         func_002bb550(work->fD);
         fclDrawSetStateByte((u8 *)work->f148, 0xB);
         work->f1 = 0x84U;
-        datPersonaInsertRosterRecord((u8 *)func_001102e0());
+        datPersonaInsertRosterRecord((u8 *)datStagedRecord());
         func_00106390(0x1306, 0);
         func_00106390(0x1307, 0);
         work->fBC = 0x16B;
@@ -7650,7 +7650,7 @@ block_274:
         work->f2D8 = func_002b2cb0(work->f2D8, 1, 0x28, 0, 1);
         if (work->f2D8 == 0x14) {
             func_0011cc00(fclDrawGetResource((u8 *)work->f148), temp_16_40->original, temp_16_40->replacement);
-            datPersonaReplaceSkill((u8 *)func_001102e0(), (s16)temp_16_40->original, temp_16_40->replacement);
+            datPersonaReplaceSkill((u8 *)datStagedRecord(), (s16)temp_16_40->original, temp_16_40->replacement);
             func_0045af60(1, 3, 3, 2);
         }
         if (work->f2D8 >= 0x28) {
@@ -7661,7 +7661,7 @@ block_274:
             func_002bbd80(work->fD, 1, &skillName);
             func_002badc0(work->fD, 0x57);
             work->f1 = 0x87U;
-            datPersonaInsertRosterRecord((u8 *)func_001102e0());
+            datPersonaInsertRosterRecord((u8 *)datStagedRecord());
             func_00106390(0x1306, 0);
             func_00106390(0x1307, 0);
             work->fBC = 0x16B;
@@ -7772,10 +7772,10 @@ s32 fclCombineFindMatchIndex(u8 *arg0) {
    extracted in n1, n2, n0, n3 order; the flag walk counter is s32 against a
    (u16) count; total is s16; packed is u16 built n0-first with no nibble
    masks; the switch is on n0, not n2.  fclCombineOtherHeroId returns u16 and
-   func_001102c0 takes u16 (no mask / sign-extension at either call site).
-   The byte sum reads ((u8 *)&func_001102e0()[0x13])[j] (addu, lbu 0x26)
+   datStageSetId takes u16 (no mask / sign-extension at either call site).
+   The byte sum reads ((u8 *)&datStagedRecord()[0x13])[j] (addu, lbu 0x26)
    and packed is declared before j (register rotation). */
-// Fcl combine packed result: applies the packed four-nibble result word (func_001102d0) to the roster flags (cycling the 0x20/0x40/0x80 bits of members with bit 4) and, when flag 0x1306 is set and 0x1307 is not, either hands the working record to the other hero (when the nibble or total rule fires) or raises the two stat bytes chosen by n0 by D_00749350[n3], capped at 0x63.
+// Fcl combine packed result: applies the packed four-nibble result word (datStagedId) to the roster flags (cycling the 0x20/0x40/0x80 bits of members with bit 4) and, when flag 0x1306 is set and 0x1307 is not, either hands the working record to the other hero (when the nibble or total rule fires) or raises the two stat bytes chosen by n0 by D_00749350[n3], capped at 0x63.
 // FUN_00308F40
 void fclCombineApplyPackedResult(void) {
     u16 raw;
@@ -7789,7 +7789,7 @@ void fclCombineApplyPackedResult(void) {
     s32 j;
     u8 *p;
 
-    raw = func_001102d0();
+    raw = datStagedId();
     n1 = (raw >> 4) & 0xF;
     n2 = (raw >> 8) & 0xF;
     n0 = raw & 0xF;
@@ -7815,69 +7815,69 @@ void fclCombineApplyPackedResult(void) {
         n3 = func_002b2cb0(n3, 1, 6, 0, 1);
         packed = n0 | (n1 << 4) | (n2 << 8) | (n3 << 12);
         for (j = 0; j < 5; j++) {
-            total += ((u8 *)&((u16 *)func_001102e0())[0x13])[j];
+            total += ((u8 *)&((u16 *)datStagedRecord())[0x13])[j];
         }
         if (n3 >= n2 || n3 == 6) {
-            p = (u8 *)func_001102e0();
+            p = (u8 *)datStagedRecord();
             datPersonaInitRecord(p, fclCombineOtherHeroId());
-            func_00110270((u8 *)func_001102e0(), packed);
+            datStageRecord((u8 *)datStagedRecord(), packed);
             func_00106390(0x1307, 1);
             return;
         }
         if (total >= 0x1E) {
-            p = (u8 *)func_001102e0();
+            p = (u8 *)datStagedRecord();
             datPersonaInitRecord(p, fclCombineOtherHeroId());
-            func_00110270((u8 *)func_001102e0(), packed);
+            datStageRecord((u8 *)datStagedRecord(), packed);
             func_00106390(0x1307, 1);
             return;
         }
-        func_001102c0(packed);
+        datStageSetId(packed);
         switch (n0) {
         case 0:
-            if (((u8 *)func_001102e0())[0x1C] != 0x63) {
-                ((u8 *)func_001102e0())[0x26] =
-                    func_002b2cb0(((u8 *)func_001102e0())[0x26],
+            if (((u8 *)datStagedRecord())[0x1C] != 0x63) {
+                ((u8 *)datStagedRecord())[0x26] =
+                    func_002b2cb0(((u8 *)datStagedRecord())[0x26],
                                  D_00749350[n3], 0x63, 0, 1);
             }
-            if (((u8 *)func_001102e0())[0x1D] != 0x63) {
-                ((u8 *)func_001102e0())[0x27] =
-                    func_002b2cb0(((u8 *)func_001102e0())[0x27],
+            if (((u8 *)datStagedRecord())[0x1D] != 0x63) {
+                ((u8 *)datStagedRecord())[0x27] =
+                    func_002b2cb0(((u8 *)datStagedRecord())[0x27],
                                  D_00749350[n3], 0x63, 0, 1);
             }
             break;
         case 1:
-            if (((u8 *)func_001102e0())[0x1E] != 0x63) {
-                ((u8 *)func_001102e0())[0x28] =
-                    func_002b2cb0(((u8 *)func_001102e0())[0x28],
+            if (((u8 *)datStagedRecord())[0x1E] != 0x63) {
+                ((u8 *)datStagedRecord())[0x28] =
+                    func_002b2cb0(((u8 *)datStagedRecord())[0x28],
                                  D_00749350[n3], 0x63, 0, 1);
             }
-            if (((u8 *)func_001102e0())[0x1F] != 0x63) {
-                ((u8 *)func_001102e0())[0x29] =
-                    func_002b2cb0(((u8 *)func_001102e0())[0x29],
+            if (((u8 *)datStagedRecord())[0x1F] != 0x63) {
+                ((u8 *)datStagedRecord())[0x29] =
+                    func_002b2cb0(((u8 *)datStagedRecord())[0x29],
                                  D_00749350[n3], 0x63, 0, 1);
             }
             break;
         case 2:
-            if (((u8 *)func_001102e0())[0x20] != 0x63) {
-                ((u8 *)func_001102e0())[0x2A] =
-                    func_002b2cb0(((u8 *)func_001102e0())[0x2A],
+            if (((u8 *)datStagedRecord())[0x20] != 0x63) {
+                ((u8 *)datStagedRecord())[0x2A] =
+                    func_002b2cb0(((u8 *)datStagedRecord())[0x2A],
                                  D_00749350[n3], 0x63, 0, 1);
             }
-            if (((u8 *)func_001102e0())[0x1C] != 0x63) {
-                ((u8 *)func_001102e0())[0x26] =
-                    func_002b2cb0(((u8 *)func_001102e0())[0x26],
+            if (((u8 *)datStagedRecord())[0x1C] != 0x63) {
+                ((u8 *)datStagedRecord())[0x26] =
+                    func_002b2cb0(((u8 *)datStagedRecord())[0x26],
                                  D_00749350[n3], 0x63, 0, 1);
             }
             break;
         case 3:
-            if (((u8 *)func_001102e0())[0x1D] != 0x63) {
-                ((u8 *)func_001102e0())[0x27] =
-                    func_002b2cb0(((u8 *)func_001102e0())[0x27],
+            if (((u8 *)datStagedRecord())[0x1D] != 0x63) {
+                ((u8 *)datStagedRecord())[0x27] =
+                    func_002b2cb0(((u8 *)datStagedRecord())[0x27],
                                  D_00749350[n3], 0x63, 0, 1);
             }
-            if (((u8 *)func_001102e0())[0x1E] != 0x63) {
-                ((u8 *)func_001102e0())[0x28] =
-                    func_002b2cb0(((u8 *)func_001102e0())[0x28],
+            if (((u8 *)datStagedRecord())[0x1E] != 0x63) {
+                ((u8 *)datStagedRecord())[0x28] =
+                    func_002b2cb0(((u8 *)datStagedRecord())[0x28],
                                  D_00749350[n3], 0x63, 0, 1);
             }
             break;
@@ -7889,7 +7889,7 @@ void fclCombineApplyPackedResult(void) {
 // FUN_003095F0
 u16 fclCombineOtherHeroId(void)
 {
-    if (((u16 *)func_001102e0())[1] == 0xB3) {
+    if (((u16 *)datStagedRecord())[1] == 0xB3) {
         return 0xBA;
     }
     return 0xB3;
@@ -7926,12 +7926,12 @@ s32 fclCombineFindRandomSkillIndex(u8 *task)
     var_19 = 0;
     var_20 = 0;
     while ((s16)var_20 < 4) {
-        temp_16 = datPersonaCountSkills(func_001102e0());
+        temp_16 = datPersonaCountSkills(datStagedRecord());
         temp_18 = (s16)(RpRandom() % temp_16);
     loop_2:
         temp_17 = &iGpffffb3ec[(s16)var_19 * 2];
         temp_16_2 = temp_17[0];
-        if (temp_16_2 == datPersonaGetSkillAt(func_001102e0(), temp_18)) {
+        if (temp_16_2 == datPersonaGetSkillAt(datStagedRecord(), temp_18)) {
             return var_19;
         }
         var_19 = (s16)(var_19 + 1);

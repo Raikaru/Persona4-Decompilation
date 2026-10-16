@@ -2762,26 +2762,26 @@ s32 func_00110140(void)
 }
 
 // FUN_00110270
-void func_00110270(u8* src, u16 arg1)
+void datStageRecord(u8* src, u16 arg1)
 {
     memcpy(D_0079B6A8, src, 0x30);
     D_0079B6A4[0] = arg1;
 }
 
 // FUN_001102C0
-void func_001102c0(s16 arg0)
+void datStageSetId(s16 arg0)
 {
     D_0079B6A4[0] = arg0;
 }
 
 // FUN_001102D0
-u16 func_001102d0(void)
+u16 datStagedId(void)
 {
     return D_0079B6A4[0];
 }
 
 // FUN_001102E0
-u8* func_001102e0(void)
+u8* datStagedRecord(void)
 {
     return D_0079B6A8;
 }
