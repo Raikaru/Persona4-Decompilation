@@ -66,7 +66,7 @@ extern void memcpy(void *dst, void *src, u32 size);
 extern void H_Cdvd_Destroy(void *arg0);
 extern u8 *func_00457120();
 extern void func_003e9d50(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
-extern void func_00457630(u8 *arg0, void *arg1, void *arg2, s32 arg3);
+extern void K_ClumpLookAtBasis(u8 *arg0, void *arg1, void *arg2, s32 arg3);
 extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
 extern void func_003e0e20(void *arg0, void *arg1, s32 arg2);
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);

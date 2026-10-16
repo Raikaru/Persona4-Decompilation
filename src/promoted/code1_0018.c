@@ -145,7 +145,7 @@ extern f32 fGpffff8218;
 extern s16 mdlGetLayerAnimation(s32 arg0, s32 arg1);
 extern u8 *mdlGetMatrix(u32 arg0);
 extern f32 RwV3dNormalize(RainVector *dst, const RainVector *src);
-extern u8 *func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3);
+extern u8 *K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3);
 extern f32 D_005F2190[];
 extern f32 D_005F2194[];
 extern f32 D_005F2198[];
@@ -1777,7 +1777,7 @@ void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)
         *(struct Vec3 *)(temp_17 + 4) = *(struct Vec3 *)temp_18;
         temp_16_2 = (u8 *)D_005F219C + temp_3;
         *(struct Vec3 *)(temp_17 + 0x10) = *(struct Vec3 *)temp_16_2;
-        func_00457630(((u8 *)(uintptr_t)func_00457120()), temp_18, temp_16_2, 0);
+        K_ClumpLookAtBasis(((u8 *)(uintptr_t)func_00457120()), temp_18, temp_16_2, 0);
     }
 }
 /* measured: retail hoists the D_00887300 base across seven indirect calls;

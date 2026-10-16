@@ -93,7 +93,7 @@ extern u8 D_008C0346[];
 extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
-extern u8 *func_004587d0(u8 *arg0, u8 *arg1);
+extern u8 *K_ClumpMatColorScale(u8 *arg0, u8 *arg1);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern u8 D_00711720[];
@@ -241,18 +241,18 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Source unit: src/promoted/code1_0045.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 004587d0-004587d0 */
 
-extern void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 /* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: close propagation-off probe for func_00457630. */
+/* measured: close propagation-off probe for K_ClumpLookAtBasis. */
 // FUN_004587D0
 /* Measured: 1136/1136 bytes, 23 resolved relocations, no alignment tail.
    Separate userdata lifetimes and index-before-color declarations preserve
    register allocation; unsigned >255 clamps retain the retail branch form. */
-u8 *func_004587d0(u8 *material, u8 *data)
+u8 *K_ClumpMatColorScale(u8 *material, u8 *data)
 {
     f32 *scale = (f32 *)data;
     s32 i;

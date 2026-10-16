@@ -3919,7 +3919,7 @@ void *mdlSetFrameColorIfNamed(void *arg0, void *arg1)
     extern s32 strlen(s32 value);
     extern s32 strncmp(s32 a, s32 b, s32 c);
     extern u32 K_Clump_MatUsrDataGetInt(void* object, void* name);
-    extern void func_004586f0(void* object, void* data);
+    extern void K_ClumpMatColorStore(void* object, void* data);
     u8 buf[4];
     u8 *pArg1;
     u32 value;
@@ -3941,7 +3941,7 @@ void *mdlSetFrameColorIfNamed(void *arg0, void *arg1)
             buf[1] = (u8)(value >> 8);
             buf[0] = (u8)(value >> 16);
             buf[3] = *(u8 *)(pArg1 + 0);
-            func_004586f0(temp_19, buf);
+            K_ClumpMatColorStore(temp_19, buf);
         }
         var_18 += 1;
     }

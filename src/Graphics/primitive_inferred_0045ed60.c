@@ -240,14 +240,14 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Source unit: src/promoted/code1_0045.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 0045ed60-0045ee00 */
 
-extern void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 extern void func_0045b430(void);
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 /* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: close propagation-off probe for func_00457630. */
+/* measured: close propagation-off probe for K_ClumpLookAtBasis. */
 /* measured: opt_scalarize off keeps the prop triple in stack spill slots with direct sp-relative accesses. */
 #pragma push
 #pragma pop

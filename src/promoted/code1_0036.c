@@ -56,7 +56,7 @@ extern void func_00369440(void);
 extern u8 *func_00457120(void);
 extern void func_003e8180(void *arg0, f32 arg1);
 extern void K_View_SetFov(void *arg0, f32 arg1);
-extern void func_00457630(void *arg0, void *arg1, void *arg2, s32 arg3);
+extern void K_ClumpLookAtBasis(void *arg0, void *arg1, void *arg2, s32 arg3);
 extern void datPanelResetCursor(u8 *arg0);
 extern void datPanelDrawByKind(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 extern void sdkSpriteFreeNode(void *node);
@@ -774,7 +774,7 @@ void func_0036d8b0(void)
     local.f24 = 0;
     local.f28 = 0x43480000;
     K_View_SetFov((void *)view, 100.0f);
-    func_00457630((void *)view, &local.f30, &local.f20, 0);
+    K_ClumpLookAtBasis((void *)view, &local.f30, &local.f20, 0);
 }
 // FUN_0036D940
 void func_0036d940(void *arg0)
