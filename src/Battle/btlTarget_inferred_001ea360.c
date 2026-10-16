@@ -84,7 +84,7 @@ extern f32 D_00881410[];
 extern f32 D_00881414[];
 extern f32 D_00881418[];
 extern f32 fGpffffb454;
-extern u8 *func_001bcb50(s32 arg0, f32 *arg1, f32 *arg2, f32 arg3, f32 *arg4, f32 *arg5, f32 arg6, f32 arg7);
+extern u8 *btlCameraCreatePoseSequencePacket(s32 arg0, f32 *arg1, f32 *arg2, f32 arg3, f32 *arg4, f32 *arg5, f32 arg6, f32 arg7);
 extern u8 D_00609E40[];
 extern s32 btlUnitFindInSideById(s32 arg0, s32 arg1);
 extern s32 btlActionFindByUnit(s32 arg0);
@@ -216,7 +216,7 @@ s32 btlEffectScriptFinishWithCameraMove(void)
     value = scrGetParamFloat(6);
     first_copy = first;
     second_copy = second;
-    btlPacketEnqueue(func_001bcb50(
+    btlPacketEnqueue(btlCameraCreatePoseSequencePacket(
         *(s32 *)(iGpffffb3ac + 0x170),
         (f32 *)&first,
         (f32 *)&second,
@@ -259,7 +259,7 @@ s32 btlEffectScriptStoreCameraVectorsB(void) {
 s32 btlEffectScriptFinishWithStoredCameraMove(void) {
     btlActionFinishPresentation(*(s32 *)(iGpffffb3ac + 0x170));
     btlPacketEnqueue((u8 *)btlFormationCreateSlotPacket(3, 0xFFF), 0);
-    btlPacketEnqueue(func_001bcb50(
+    btlPacketEnqueue(btlCameraCreatePoseSequencePacket(
         *(s32 *)(iGpffffb3ac + 0x170),
         &D_00881420[0],
         &D_00881400[0],

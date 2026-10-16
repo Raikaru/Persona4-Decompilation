@@ -145,7 +145,7 @@ extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern u8 *btlPacketCreateEffectCounter(s32 arg0, s32 arg1);
 extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
+extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern u8 D_00632240[];
 extern u8 *btlUnitFindInSideById(s32 arg0, s32 arg1);
 extern void btlUnitHideModel(u8 *arg0);
@@ -313,7 +313,7 @@ void btlCameraFrameActionCutscene(u8 *camera)
     case 10:
         if (*(s32 *)(iGpffffb3ac + 0xC04) == *(s32 *)(action + 8)) {
             if (*(s32 *)(iGpffffb3ac + 0xC08) != 0 && datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100) == 0) {
-                func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
+                btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
             }
             return;
         }
@@ -370,7 +370,7 @@ void btlCameraFrameActionCutscene(u8 *camera)
                 scale = (f32)frames / 30.0f;
                 btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24), (f32 *)&rec718.first, (f32 *)&rec718.second, 1);
                 btlCameraSetDuration(iGpffffb3ac + 0x24, scale);
-                func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+                btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
             } else {
                 record = *(u8 **)(iGpffffb3ac + 0xB98) + 0x618;
                 btlCameraLookAtQuat(&rec618.firstRotation, record + 4, record + 0x10, D_0060A0E0);
@@ -381,7 +381,7 @@ void btlCameraFrameActionCutscene(u8 *camera)
                 scale = (f32)frames / 30.0f;
                 btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24), (f32 *)&rec618.first, (f32 *)&rec618.second, 1);
                 btlCameraSetDuration(iGpffffb3ac + 0x24, scale);
-                func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+                btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
             }
             return;
         }
@@ -402,10 +402,10 @@ void btlCameraFrameActionCutscene(u8 *camera)
             btlAct_ENEMY_ALL(camera);
         }
         if (datCalcChkBadStatus(*(s32 *)(unit + 0xA64), 0x100) == 0) {
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
+            btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
+            btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
         } else {
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+            btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         }
         *(s32 *)(iGpffffb3ac + 0xC08) = 1;
         return;
@@ -567,7 +567,7 @@ void btlCameraFrameActorTarget(u8 *camera, f32 heightScale, f32 scale, f32 dista
     }
     btlCameraClampOffsetToLimit((f32 *)&poses.first, (f32 *)&poses.first);
     btlCameraClampOffsetToLimit((f32 *)&poses.second, (f32 *)&poses.second);
-    func_001bcd40(*(u8 **)(camera + 0xE0), actor + 4, (f32 *)(target + 4), 50.0f, 3);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), actor + 4, (f32 *)(target + 4), 50.0f, 3);
     btlMainCurveSetPoses((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
     btlCameraSetDuration(camera, duration);
 }
@@ -648,7 +648,7 @@ void btlCameraTickModeState(u8 *camera)
         if (*(u8 *)(*(u8 **)(target + 0x30) + 0xA2) != 0) {
             break;
         }
-        func_001bcd40(action, NULL, NULL, 0.0f, 8);
+        btlCameraSetupActionGeometry(action, NULL, NULL, 0.0f, 8);
         break;
     case 3:
     case 5:
@@ -680,7 +680,7 @@ void btlCameraTickModeState(u8 *camera)
         btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24),
                       (f32 *)&selected.first, (f32 *)&selected.second, 1);
         btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+        btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     case 6:
         action = *(u8 **)(camera + 0xE0);
@@ -711,7 +711,7 @@ void btlCameraTickModeState(u8 *camera)
                           (f32 *)&other.first, (f32 *)&other.second, 1);
             btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         }
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+        btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     default:
         break;
@@ -784,7 +784,7 @@ void btlCameraApplyMode(u8 *camera)
             btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&selected.first, (f32 *)&selected.second, 1);
             btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+            btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
             break;
         }
     case 6:
@@ -816,7 +816,7 @@ void btlCameraApplyMode(u8 *camera)
                           (f32 *)&other.first, (f32 *)&other.second, 1);
             btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         }
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+        btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     default:
         break;
@@ -914,7 +914,7 @@ void btlCameraApplyPartyPose(u8 *camera)
         if (*(u8 *)(*(u8 **)(target + 0x30) + 0xA2) != 0) {
             break;
         }
-        func_001bcd40(action, NULL, NULL, 0.0f, 8);
+        btlCameraSetupActionGeometry(action, NULL, NULL, 0.0f, 8);
         break;
     case 2:
     case 4:
@@ -924,7 +924,7 @@ void btlCameraApplyPartyPose(u8 *camera)
             (target = *(u8 **)(action + 0x38), action != target) &&
             *(u8 *)(*(u8 **)(target + 0x30) + 0xA2) == 0) {
             btlCameraUpdateMode(camera);
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
+            btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 8);
             break;
         }
     case 3:
@@ -957,7 +957,7 @@ void btlCameraApplyPartyPose(u8 *camera)
         btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24),
                       (f32 *)&selected.first, (f32 *)&selected.second, 1);
         btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+        btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     case 6:
         action = *(u8 **)(camera + 0xE0);
@@ -988,7 +988,7 @@ void btlCameraApplyPartyPose(u8 *camera)
                           (f32 *)&other.first, (f32 *)&other.second, 1);
             btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         }
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+        btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     default:
         break;
@@ -1055,7 +1055,7 @@ void btlCameraApplyEncounterMode(u8 *camera)
             btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24),
                           (f32 *)&selected.first, (f32 *)&selected.second, 1);
             btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
-            func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+            btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
             break;
         }
         /* Fall through: absent genus-1 targets use the state-6 camera. */
@@ -1088,7 +1088,7 @@ void btlCameraApplyEncounterMode(u8 *camera)
                           (f32 *)&other.first, (f32 *)&other.second, 1);
             btlCameraSetDuration(iGpffffb3ac + 0x24, duration);
         }
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+        btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         break;
     default:
         break;
@@ -1144,7 +1144,7 @@ void btlCameraSetRandomSkillPose(u8 *arg0)
         btlMainCurveSetPoses((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                       (f32 *)&work.second, 1);
         btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 1);
+        btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 1);
         return;
     }
     func_001bf5e0(arg0);
@@ -1341,7 +1341,7 @@ void btlCameraStartRandomEffect(u8 *arg0)
     index_offset = (temp_16 & 0xFFFF) * 0x1E8;
     target = (u8 *)&D_00632240 + index_offset;
     btlCameraStartEffect(arg0, target + flag_offset, 8);
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 3);
+    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 3);
 }
 
 // Intent: Tick the camera effect list. [inferred]
@@ -1386,7 +1386,7 @@ void btlCameraSetRandomPartyPose(u8 *arg0)
         flag_offset = (effMiscRand(0) & 1) * 0xF4;
         index_offset = ((temp_16 & 0xFFFF) - 2) * 0x1E8;
         btlCameraStartEffect(arg0, (u8 *)&D_00633740 + index_offset + flag_offset, 8);
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 3);
+        btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 3);
         return;
     }
     temp_5 = datCalcRandomBelow(2) & 0xFFFF;
@@ -1432,7 +1432,7 @@ loop_7_done:
     btlMainCurveSetPoses((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                   (f32 *)&work.second, 1);
     btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
+    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
 }
 
 // Intent: Tick the effect list when the unit is active. [inferred]
@@ -1516,7 +1516,7 @@ loop_7_done:
     btlMainCurveSetPoses((u16 *)(DAT_0076449c + 0x24), (f32 *)&work.first,
                   (f32 *)&work.second, 1);
     btlCameraSetDuration(DAT_0076449c + 0x24, var_f1);
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
+    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0, 0x100);
 }
 
 // Intent: Set the camera pose from the snapshot table or the frame. [inferred]

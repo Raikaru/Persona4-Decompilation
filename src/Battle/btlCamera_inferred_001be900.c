@@ -47,7 +47,7 @@ extern void (*D_005F6E20[])(u8 *arg0);
 extern u32 datCalcRandomBelow(u32 arg0);
 extern u32 iGpffffa0b8;
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
+extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern void btlMainApplyUnitBaseColors(u8 *arg0);
 extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
 extern s32 func_001be990(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -71,7 +71,7 @@ extern f32 fGpffff80c8;
 extern f32 fGpffff8430;
 extern f32 fGpffff8048;
 extern u8 D_005F74C0[];
-extern void func_001bd390(void);
+extern void btlCameraUpdateUnitInRangeFlags(void);
 extern u8 D_005F72B0[];
 extern f32 fGpffff8314;
 extern f32 fGpffff8318;
@@ -100,8 +100,8 @@ extern void func_003dcc70(f32 *arg0, f32 *arg1, f32 *arg2);
 /* Source unit: src/promoted/code1_001b.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001b.c; members 001be900-001c04d0 */
 
-extern void func_001bcd40(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
-extern void func_001bd390(void);
+extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
+extern void btlCameraUpdateUnitInRangeFlags(void);
 struct RwV3d;
 typedef struct P4Vec4_001EC2B0 { f32 x, y, z, w; } P4Vec4_001EC2B0;
 typedef struct P4Vec4Holder_001EC2B0 { P4Vec4_001EC2B0 quat; } P4Vec4Holder_001EC2B0;
@@ -135,7 +135,7 @@ extern void btlMainCurveSetPoses(u16 *, f32 *, f32 *, u16);
 /* measured: closes opt_common_subs for the following translation-unit code. */
 /* measured: closes opt_propagation for the following translation-unit code. */
 /* measured: opt_common_subs off preserves the retail per-use masked index. */
-/* measured: restore common-subexpression optimization after func_001bd390. */
+/* measured: restore common-subexpression optimization after btlCameraUpdateUnitInRangeFlags. */
 // FUN_001BE900
 void func_001be900(u8 *arg0)
 {
@@ -150,7 +150,7 @@ void func_001be900(u8 *arg0)
     if ((temp4 != NULL) && ((*(u16 *)(temp4 + 0x1A) & 1) != 0)) {
         temp16 = *(u8 **)(temp4 + 0x30);
         btlUnitGetSphereWorldCenter(temp16, &local.value);
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0.5f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)),
+        btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0.5f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)),
                       0xC1);
     }
 }
@@ -422,7 +422,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
     btlCameraLookAtQuat(&frames[1].rot, &frames[1].pos, &center,
                  &D_0060A0E0);
     btlMainApplyUnitBaseColors(unit);
-    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
     if (frames[0].pos.y < 25.0f)
     {
         frames[0].pos.y = 25.0f;
@@ -469,7 +469,7 @@ first_done:
                                            ((temp_16 & 0xFFFF) * 0x1E8))),
                   2);
     btlMainApplyUnitBaseColors(temp_17);
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 1);
+    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 1);
     *(s32 *)(arg0 + 0x144) = 1;
     goto finish;
 second_random:
@@ -500,7 +500,7 @@ process:
     if ((temp4 != NULL) && ((*(u16 *)(temp4 + 0x1A) & 1) != 0)) {
         temp16 = *(u8 **)(temp4 + 0x30);
         btlUnitGetSphereWorldCenter(temp16, &local.value);
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0.25f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)),
+        btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0.25f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)),
                       0xC1);
     }
 done:
@@ -681,7 +681,7 @@ void func_001bfb70(u8 *arg0)
     if ((temp4 != NULL) && ((*(u16 *)(temp4 + 0x1A) & 1) != 0)) {
         temp16 = *(u8 **)(temp4 + 0x30);
         btlUnitGetSphereWorldCenter(temp16, &local.value);
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0.25f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)),
+        btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, &local.value, 0.25f * (*(f32 *)(temp16 + 0x90) * *(f32 *)(temp16 + 0x2C)),
                       0xC3);
     }
 }

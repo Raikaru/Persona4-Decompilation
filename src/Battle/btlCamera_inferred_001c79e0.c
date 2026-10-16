@@ -66,14 +66,14 @@ extern f32 fGpffff8114;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
+extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
 extern s32 btlEffectCollectGenusMask(u8 *arg0);
 extern u32 func_001d8bc0(void *formation);
 extern void btlCameraFrameStatus(u8 *arg0, s32 arg1);
 extern void btlCameraFrameSideView(u8 *arg0, s32 arg1);
 extern void btlCameraUpdateOcclusion(u8 *arg0);
-extern void func_001bd4f0(u8 *arg0);
-extern void func_001bd530(u8 *arg0);
+extern void btlCameraMarkUnitFramed(u8 *arg0);
+extern void btlCameraClearUnitFramed(u8 *arg0);
 extern u8 *func_00457120(void);
 extern void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *second);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
@@ -326,7 +326,7 @@ void btlCameraFrameStatus(u8 *arg0, s32 arg1)
         frame.outC0[2] = frame.pos138[2] + frame.dir128[2] * var_f20;
         frame.outC0[1] = positionY + var_f24 * var_f22;
         btlCameraLookAtQuat((void *)frame.quatCC, (void *)frame.outC0, (void *)frame.pos138, (void *)D_0060A0E0);
-        func_001bcd40(var17, (u8 *)0, (f32 *)0, 0.0f, 1);
+        btlCameraSetupActionGeometry(var17, (u8 *)0, (f32 *)0, 0.0f, 1);
         btlMainCurveReset((u16 *)(saved_arg0), (f32 *)frame.outC0);
     }
 }
@@ -503,7 +503,7 @@ void btlCameraFrameSideView(u8 *camera, s32 immediate)
     }
     if (frames[0].pos.y < 25.0f) frames[0].pos.y = 25.0f;
     if (frames[1].pos.y < 25.0f) frames[1].pos.y = 25.0f;
-    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0xE0);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0xE0);
     if (immediate != 0) {
         btlMainCurveReset((u16 *)camera, (f32 *)&frames[1]);
         return;
@@ -602,7 +602,7 @@ void btlCameraUpdateOcclusion(u8 *arg0)
         temp19 = *(u8 **)((u8 *)func_001d8bc0(*(u8 **)(arg0 + 0xE0) + 0x98) + 0x30);
         temp16 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
         if (btlCameraFindOccluder(temp19, &frame.value60, &frame.value88, temp18) != 0) {
-            func_001bd530(temp19);
+            btlCameraClearUnitFramed(temp19);
             var17 = 0;
             goto outer_test;
 outer_body:
@@ -613,9 +613,9 @@ inner_body:
                 (temp19 != var20) &&
                 (temp16 != var20)) {
                 if (btlCameraFindOccluder(var20, &frame.value70, &frame.value8C, temp18) == 0) {
-                    func_001bd530(temp19);
+                    btlCameraClearUnitFramed(temp19);
                 } else if (!(frame.value8C <= frame.value88)) {
-                    func_001bd530(temp19);
+                    btlCameraClearUnitFramed(temp19);
                 } else {
                     if (frame.value60 > frame.value70 + frame.value78) {
                         goto range_reject;
@@ -629,10 +629,10 @@ inner_body:
                     if (frame.value74 > frame.value64 + frame.value6C) {
                         goto range_reject;
                     }
-                    func_001bd4f0(var20);
+                    btlCameraMarkUnitFramed(var20);
                     goto range_done;
 range_reject:
-                    func_001bd530(temp19);
+                    btlCameraClearUnitFramed(temp19);
 range_done:
                     ;
                 }
@@ -943,7 +943,7 @@ void btlCameraFrameAim(u8 *arg0)
         (*(s32 *)(arg0 + 0x124) == *(s32 *)(temp_4 + 0x38)) &&
         ((*(u16 *)(temp_4 + 0x1A) & 1) != 0)) {
         value = *(f32 *)(arg0 + 0x10C);
-        func_001bcd40(temp_4, arg0 + 0x9C, (f32 *)(arg0 + 0x100), value, 0xC3);
+        btlCameraSetupActionGeometry(temp_4, arg0 + 0x9C, (f32 *)(arg0 + 0x100), value, 0xC3);
     }
 }
 
@@ -1186,12 +1186,12 @@ void btlCameraSetLimitFrame(u8 *camera, f32 suppliedLimit, s32 reverse, s32 pres
             btlCameraSetDuration(camera, fGpffff8168);
         }
         actorRadius = actorRadius > targetRadius ? actorRadius : targetRadius;
-        func_001bcd40(*(u8 **)(camera + 0xE0), otherUnit + 4, (f32 *)&frames[1], actorRadius, 3);
+        btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), otherUnit + 4, (f32 *)&frames[1], actorRadius, 3);
         return;
     }
 limitedTransition:
     actorRadius = actorRadius > targetRadius ? actorRadius : targetRadius;
-    func_001bcd40(*(u8 **)(camera + 0xE0), otherUnit + 4, (f32 *)&frames[1], actorRadius, 0xC3);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), otherUnit + 4, (f32 *)&frames[1], actorRadius, 0xC3);
     if (frames[0].pos.y < 25.0f) frames[0].pos.y = 25.0f;
     if (frames[1].pos.y < 25.0f) frames[1].pos.y = 25.0f;
     difference = btlTargetQuatAngle(&frames[0].rot, &frames[1].rot);

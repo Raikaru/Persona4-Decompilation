@@ -94,7 +94,7 @@ extern void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
 extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern void btlCameraSetState(s32 state, BtlAction *action, u32 param_3);
-extern void func_001bcd40(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
+extern void btlCameraSetupActionGeometry(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
 extern u8 *btlActionFindByUnit(s32 arg0);
 extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
@@ -136,7 +136,7 @@ void btlUiUpdateModelCurve(u8 *arg0)
         u8 spE0[0x40];
         Vec3 sp120;
     } Frame;
-    extern void func_001bcd40(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
+    extern void btlCameraSetupActionGeometry(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
     extern u16 btlCameraGetState(void);
     extern void func_0048a150(void *arg0, void *arg1);
     extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
@@ -163,7 +163,7 @@ void btlUiUpdateModelCurve(u8 *arg0)
         if (temp_4 == 0) {
             if (*(u16 *)(temp_16 + 0x38) == 0) {
                 btlCameraSetState(1, NULL, 1);
-                func_001bcd40(NULL, NULL, NULL, 0.0f, 0x100);
+                btlCameraSetupActionGeometry(NULL, NULL, NULL, 0.0f, 0x100);
             } else {
                 btlCameraSetState(1, NULL, 0);
             }
@@ -245,7 +245,7 @@ void btlUiRefreshUnitPositions(u8 *arg0)
         goto done;
     }
     btlCameraSetState(1, NULL, 1);
-    func_001bcd40(NULL, NULL, NULL, 0.0f, 0x100);
+    btlCameraSetupActionGeometry(NULL, NULL, NULL, 0.0f, 0x100);
     temp_4 = *(s32 *)(temp_16 + 0);
     switch (temp_4) {
     case 0:
