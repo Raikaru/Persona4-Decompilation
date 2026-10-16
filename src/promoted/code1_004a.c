@@ -27,7 +27,7 @@ extern u8 *WindAllocKindEntry(u16 arg0, u8 *arg1);
 extern u8 D_0071413C[];
 extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
 extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
-extern void func_00492e30(u16 *emitter, f32 scale);
+extern void EffEmitterApplyScale(u16 *emitter, f32 scale);
 extern s32 TnGetOffset38(u16 arg0);
 extern void EffModelDrawableUpdate();
 extern void func_004adb50();

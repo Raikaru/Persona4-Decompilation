@@ -11,7 +11,7 @@ extern void func_00492cd0(u8 *arg0);
 extern void func_00492d00(int arg0);
 extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
 extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
-extern void func_00492e30(u16 *emitter, f32 scale);
+extern void EffEmitterApplyScale(u16 *emitter, f32 scale);
 extern void func_00489f40(void *arg0, u32 color);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -642,7 +642,7 @@ void TrackSetColor(u8 *arg0, u32 arg1)
 void TrackSetScale(u8 *arg0, f32 fparg0)
 {
     *(f32 *)(arg0 + 8) = fparg0;
-    func_00492e30((u16 *)*(u32 *)(arg0 + 0x30), fparg0);
+    EffEmitterApplyScale((u16 *)*(u32 *)(arg0 + 0x30), fparg0);
 }
 
 /* Measured: 620/624 bytes, 40 resolved relocations and 4 zero alignment bytes. */
