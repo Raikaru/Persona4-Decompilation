@@ -104,7 +104,7 @@ extern u8 D_007E3720[];
 extern u8 D_007966D0[];
 extern s64 iGpffff9fd0;
 extern s32 iGpffffb240;
-extern void func_001582f0(s32 mode, s32 value, s32 arg2);
+extern void FldBoardGenerate(s32 mode, s32 value, s32 arg2);
 extern void func_0017d1f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
                            f32 arg5, f32 arg6, f32 arg7, s32 arg4);
 extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
@@ -3491,7 +3491,7 @@ s32 func_0018e810(u8 *arg0)
     extern PanelColor iGpffff9fd8;
     extern char iGpffff9fdc[3];
     extern s32 iGpffffb240;
-    extern void func_001582f0(s32 mode, s32 value, s32 arg2);
+    extern void FldBoardGenerate(s32 mode, s32 value, s32 arg2);
     PanelColor color;
     u8 *state;
     s32 v0;
@@ -3519,7 +3519,7 @@ s32 func_0018e810(u8 *arg0)
                       *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 2;
                 v0 = *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 0);
-                func_001582f0(*(s32 *)(state + 4), v0, 0);
+                FldBoardGenerate(*(s32 *)(state + 4), v0, 0);
                 kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
@@ -3532,7 +3532,7 @@ s32 func_0018e810(u8 *arg0)
                       *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 0;
                 v0 = *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 1);
-                func_001582f0(*(s32 *)(state + 4), v0, 0);
+                FldBoardGenerate(*(s32 *)(state + 4), v0, 0);
                 kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
@@ -3545,7 +3545,7 @@ s32 func_0018e810(u8 *arg0)
                       *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 3) * 0x10 + 9);
                 *(s32 *)(state + 4) = 1;
                 v0 = *sdkLboxGetValuePtr(*(KwlnTask **)(state + 0x1B438), 2);
-                func_001582f0(*(s32 *)(state + 4), v0, 0);
+                FldBoardGenerate(*(s32 *)(state + 4), v0, 0);
                 kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(state + 0x1B438));
                 *(s32 *)state += 1;
                 break;
@@ -3571,7 +3571,7 @@ s32 func_0018e810(u8 *arg0)
             *(s32 *)(state + 0x1B430) = 0;
         }
         if (D_008C0240[0].trigger & 0x40) {
-            func_001582f0(*(s32 *)(state + 4), 0, 0);
+            FldBoardGenerate(*(s32 *)(state + 4), 0, 0);
         }
         func_00450340(iGpffff9fd0, iGpffff9fdc, iGpffffb240);
         {

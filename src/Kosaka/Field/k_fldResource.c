@@ -504,7 +504,7 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     extern s32 func_0015a7c0(s32 arg0);
     extern void FldCellCreateGrid(void);
     extern void FldStepRefreshBandResVisibility(void);
-    extern void func_001582f0(s32 arg0, s32 arg1, s32 arg2);
+    extern void FldBoardGenerate(s32 arg0, s32 arg1, s32 arg2);
     extern void *mdlGetClump(void *arg0);
     extern s32 func_0018c6c0(u8 *arg0, s32 arg1);
     extern s32 func_003ef6d0(void);
@@ -885,7 +885,7 @@ block_123:
                     var_9 += 1;
                 }
                 if (func_0015ac60(FldStepIndex()) == 0) {
-                    func_001582f0(*( s32 * )(iGpffff9db0 + 0) - 0x28, *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x4C), 1);
+                    FldBoardGenerate(*( s32 * )(iGpffff9db0 + 0) - 0x28, *( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x4C), 1);
                     func_0015a7c0(FldStepIndex());
                 }
                 FldCellCreateGrid();
