@@ -141,7 +141,7 @@ extern s16 D_0063EB30[];
 extern char iGpffffa824;
 extern void func_002a2e10(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 extern void mcDrawLocationText(f32, f32, f32, s32, s32, u8 *, s32, u8 *);
-extern void func_002a95c0(f32, f32, f32, s32, s32, s32, u8 *, u8 *);
+extern void mcDrawDateAndLocation(f32, f32, f32, s32, s32, s32, u8 *, u8 *);
 extern u32 RpRandom(void);
 extern s32 D_0063EDB0[];
 extern s32 D_0063EDD0[];
@@ -2587,8 +2587,9 @@ static inline const char *mcLocationName(s32 area, s32 room)
 /* 2448/2448 bytes. Keep the date record, weekday texture, and packed
  * color as distinct objects. The color accessor preserves the detail RGB
  * lifetime; opt_lifetimes retains the retail allocation across draw calls. */
+// Intent: draws the date (month and day, formatted with sprintf) and the current location name in the header.
 // FUN_002A95C0
-void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4)
+void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4)
 {
     u8 tmp128[8];
     s16 tmp110[12];
@@ -2772,14 +2773,14 @@ void func_002a95c0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
    declaration orders, single-expr vs split p, if/else vs ternary color, all
    nd 162-181). Scheduler residuals ride along: the `color >>= 8` lands at
    the call site instead of right after the OR, `add.s` operands are
-   transposed for `fparg0 + const`, and the func_002a95c0 call materializes
+   transposed for `fparg0 + const`, and the mcDrawDateAndLocation call materializes
    int args before float args. The float-param-first signature DID fix the
    FP move order (mov.s f22/f21/f20 before the int moves). Saved-register
    rotation floor. */
-/* Wave-14 re-test: fresh m2c-sourced body with the func_002a95c0 call arg
+/* Wave-14 re-test: fresh m2c-sourced body with the mcDrawDateAndLocation call arg
    order corrected; the m2c had scrambled the 8-arg call (missing the 4th arg).
    Retail leaves $7 live as arg3 at 0xA0C0, so the call is
-   func_002a95c0(arg0,arg1,arg2,(u8*)arg3,arg4,f0,f1,f2); nd 190 (recorded
+   mcDrawDateAndLocation(arg0,arg1,arg2,(u8*)arg3,arg4,f0,f1,f2); nd 190 (recorded
    162-181). The call site now matches (the jal relocation aligns) but the
    prologue register rotation (retail's FP store order vs int) dominates.
    Rotation floor persists. */
@@ -2811,7 +2812,7 @@ void mcScreenStep(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 ar
                           temp_17, arg0, (u8 *)arg1, arg2, arg4);
             return;
         }
-        func_002a95c0(fparg0, fparg1, fparg2, arg0, (s32)arg1, arg2, (u8 *)arg3, arg4);
+        mcDrawDateAndLocation(fparg0, fparg1, fparg2, arg0, (s32)arg1, arg2, (u8 *)arg3, arg4);
         return;
     }
     if (temp_3 == 2) {
