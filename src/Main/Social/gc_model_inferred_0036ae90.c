@@ -106,7 +106,7 @@ struct PanelTransform;
 void func_0036ae90(u8 *arg0, u8 *arg1) {
     extern u8 *func_003e9700(u8 *frame);
     extern struct RwMatrixTag *func_003e0f80(void);
-    extern void func_0036abd0(struct PanelMatrix *output,
+    extern void pscBuildModelMatrix(struct PanelMatrix *output,
                               const struct PanelTransform *transform);
     extern RwV3d *func_003e42a0(RwV3d *out, const RwV3d *in,
                                 const struct RwMatrixTag *matrix);
@@ -156,7 +156,7 @@ void func_0036ae90(u8 *arg0, u8 *arg1) {
     stackC0 = D_0064E4B0;
     stackB0 = D_0064E4C0;
     cam = func_003e0f80();
-    func_0036abd0((struct PanelMatrix *)cam,
+    pscBuildModelMatrix((struct PanelMatrix *)cam,
                   (const struct PanelTransform *)arg1);
     func_003e4320(&stackD0, &stackD0, cam);
     stackE0 = *(RwV3d *)(arg0 + 0x994);
