@@ -233,7 +233,7 @@ void func_0019c0d0(void)
     extern void *mdlTranslateMatrix(void *arg0, void *arg1, s32 arg2);
     extern void mdlAdvanceModelFromFlags(void *arg0);
     extern s32 func_001ee490(u8 *arg0);
-    extern u32 func_0019d130(u8 *arg0);
+    extern u32 btlUnitIsModelVisible(u8 *arg0);
     extern s32 func_001d72e0(s32 arg0);
     extern s16 func_001d7130(s32 arg0);
     extern void func_001d7400(s32 arg0, u8 *arg1);
@@ -402,7 +402,7 @@ void func_0019c0d0(void)
                         mdlAdvanceModelFromFlags(obj2);
                     }
                 }
-                if (*(s32 *)(entry + 0xA04) != 0 && func_0019d130(entry) != 0) {
+                if (*(s32 *)(entry + 0xA04) != 0 && btlUnitIsModelVisible(entry) != 0) {
                     u8 *p = *(u8 **)(entry + 0xA64);
 
                     if (p != NULL) {
