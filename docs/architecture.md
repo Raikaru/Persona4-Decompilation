@@ -437,7 +437,7 @@ field's state machine:
 | 18 | Returns −1. The task ends and `FldRootDestroy` tears the field down. |
 
 The teardown, `FldRootDestroy`, also checks `func_00102980()`. When the next
-sequence is not 9, 10 or 11, it releases more state (`func_001622d0`).
+sequence is not 9, 10 or 11, it releases more state (`FldSlotTablesReset`).
 
 ### NPCs, units and events
 

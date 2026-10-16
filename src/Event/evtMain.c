@@ -65,7 +65,7 @@ u32 MT_Scene_GetResManager(void);
 u8 *MT_Scene_GetResListHead(s32 arg0);
 void MT_Scene_SetResEnabledById();
 void func_00161460(u8, u8, u8);
-void func_00161500(u8);
+void FldFilterSetIndex(u8);
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern char D_00748340[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -2075,7 +2075,7 @@ s32 evtCmdScreenColor(int param_1, int param_2, int param_3, int param_4, u16 *p
             goto ret;
         }
         func_00161460(((u8 *)param_5)[0x10], ((u8 *)param_5)[0x11], ((u8 *)param_5)[0x13]);
-        func_00161500(((u8 *)param_5)[0x12]);
+        FldFilterSetIndex(((u8 *)param_5)[0x12]);
         return 1;
     default:
     ret:

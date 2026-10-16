@@ -80,7 +80,7 @@ extern void func_0010d7b0(void);
 extern void tickerStartTask(void);
 extern void func_00122430(s32 arg0);
 extern u8 *resrcMngSpawnRenderTask(u8 *parent);
-extern void func_001605a0(void);
+extern void FldFilterLoadFile(void);
 extern void btlUnitLoadSyncedAssets(void);
 extern void mdlAppRegisterModelCallbacks(void);
 extern void mdlAppPreloadResource(void);
@@ -305,7 +305,7 @@ void func_00100e60(void)
     mainDrawStartFrame();
     func_00463520();
     func_001028c0();
-    func_001605a0();
+    FldFilterLoadFile();
     func_002aaa10();
     func_001029a0(0x1E, 0, 0, 0);
     resrcMngSpawnRenderTask(NULL);

@@ -64,13 +64,13 @@ extern void H_Cdvd_ReadSync(HCdvd *file);
 extern void *mdlCreateModelObjectFromMemory(u32 kind, u16 id, void *memory, u32 size, u32 flags);
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 NpcTable_RequestFixedTable(void);
-extern s32 func_00161510(void);
+extern s32 FldEnemyOpenTable(void);
 extern s32 mdlPrepareModel(u8 *model);
 
 extern void *memcpy(void *destination, const void *source, u32 size);
 extern u32 H_Cdvd_Destroy(HCdvd *file);
 extern s32 NpcTable_InstallFixedTable(u8 *arg0);
-extern s32 func_001615a0(u8 *file);
+extern s32 FldEnemyLoadTable(u8 *file);
 extern s32 sdkSndCreateStreamTask(void *parent, s32 kind, s32 buffer, void *name);
 extern s32 sdkSndStreamTaskReap(void *request);
 extern u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 size, const char *cacheName, s32 resultKind, s32 memoryKind);
