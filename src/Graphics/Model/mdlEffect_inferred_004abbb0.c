@@ -105,7 +105,7 @@ extern void func_004a86c0(u8 *arg0, u8 *arg1);
 /* measured: loop-invariant conversion preloads for func_004a86c0. */
 /* measured: close loop-invariant conversion scope for func_004a86c0. */
 // FUN_004ABBB0
-void func_004abbb0(u8 *arg0)
+void EffModelInit(u8 *arg0)
 {
     mdlInitIdentityMatrix(arg0);
     if (mdlLayerIsPresent(arg0, 0) != 0) {
