@@ -56,7 +56,7 @@ extern s32 kwlnTaskIsLinked(u8 *param);
 extern s32 scrStartProcedureChecked(s32 a, s32 b, s32 c, s32 d);
 extern void func_003e9cb0(s32 param, u8 *src, s32 mode);
 extern void K_View_SetFov(u8 *param, f32 value);
-extern void func_00189600(u8 *param, s32 a, s32 b, f32 value);
+extern void FldLmapCameraMoveTo(u8 *param, s32 a, s32 b, f32 value);
 void FldLmapSkyState71009(void);
 void FldLmapSkyState7100D(void);
 extern u8 D_005F1EF8[];
@@ -117,7 +117,7 @@ void FldLmapDrawPanel(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *FldLmapMarkerTaskCreate(u8 *arg0, s32 arg1, u8 *arg2);
 void FldLmapMarkerSetTarget(u8 *arg0, s32 arg1, f32 fparg0);
 u8 *FldLmapPathTaskCreate(u8 *arg0);
-void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0);
+void FldLmapCameraMoveTo(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0);
 
 
 

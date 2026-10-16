@@ -56,7 +56,7 @@ extern s32 kwlnTaskIsLinked(u8 *param);
 extern s32 scrStartProcedureChecked(s32 a, s32 b, s32 c, s32 d);
 extern void func_003e9cb0(s32 param, u8 *src, s32 mode);
 extern void K_View_SetFov(u8 *param, f32 value);
-extern void func_00189600(u8 *param, s32 a, s32 b, f32 value);
+extern void FldLmapCameraMoveTo(u8 *param, s32 a, s32 b, f32 value);
 void FldLmapSkyState71009(void);
 void FldLmapSkyState7100D(void);
 extern u8 D_005F1EF8[];
@@ -117,7 +117,7 @@ void FldLmapDrawPanel(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *FldLmapMarkerTaskCreate(u8 *arg0, s32 arg1, u8 *arg2);
 void FldLmapMarkerSetTarget(u8 *arg0, s32 arg1, f32 fparg0);
 u8 *FldLmapPathTaskCreate(u8 *arg0);
-void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0);
+void FldLmapCameraMoveTo(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0);
 
 /* Source unit: src/promoted/k_fldLmap.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldLmap.c; members 001866d0-00189550 */
@@ -511,7 +511,7 @@ s32 FldLmapUpdate(u8 *arg0)
         *(u8 **)(st + 0x164) = FldLmapMarkerTaskCreate(arg_save, *(s32 *)(st + 0x140), st + 0x144);
         FldLmapMarkerSetTarget(*(u8 **)(st + 0x164), *(s32 *)(st + 0xC), 0.0f);
         *(u8 **)(st + 0x168) = FldLmapPathTaskCreate(arg_save);
-        func_00189600(*(u8 **)(st + 0x168), *(s32 *)(st + 0xC), *(s32 *)(st + 0xC), 0.0f);
+        FldLmapCameraMoveTo(*(u8 **)(st + 0x168), *(s32 *)(st + 0xC), *(s32 *)(st + 0xC), 0.0f);
         if (sndRequestAreaTrack() == 0) {
             sndPlayAreaCue();
         }
@@ -596,7 +596,7 @@ s32 FldLmapUpdate(u8 *arg0)
                 }
                 ((f32 *)(st + 0x88))[*(s32 *)(st + 0x7C)] = -330.0f;
                 *(s32 *)(st + 0x7C) = !(*(s32 *)(st + 0x7C));
-                func_00189600(*(u8 **)(st + 0x168), *(s32 *)(st + 0x10), *(s32 *)(st + 0xC), 3.0f);
+                FldLmapCameraMoveTo(*(u8 **)(st + 0x168), *(s32 *)(st + 0x10), *(s32 *)(st + 0xC), 3.0f);
                 *(s32 *)(st + 0x10) = *(s32 *)(st + 0xC);
                 *(s32 *)(st + 0x14) = 0;
                 *(f32 *)(st + 0x12C) = 0.0f;
