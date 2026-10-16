@@ -201,14 +201,6 @@ extern s32 func_002a1c80(u8 *arg0);
 
 
 
-// FUN_002A2740
-void func_002a2740(void) {
-    s32 temp_2;
-
-    if ((temp_2 = kwlnTaskGetTaskByName(D_0063E918)) != 0) {
-        kwlnTaskDestroyWithHierarchy(temp_2);
-    }
-}
 
 
 

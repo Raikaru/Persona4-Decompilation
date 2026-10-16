@@ -2,6 +2,10 @@
 #include "btl_skill_target_internal.h"
 #include "type.h"
 #include "include_asm.h"
+extern s32 btlCond_MYNOMAL(u8 *formation, s32 index);
+extern s32 btlCond_MYWEAK(u8 *arg0, s16 arg1);
+extern u16 btlSkillClassifyTargets(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3);
+extern void scrSetReturnInt(s32 value);
 
 
 typedef struct BtlFormationWork {
@@ -175,6 +179,52 @@ u32 btlEffectFreeEntry(int param_1, u16 *entry)
 
 
 
+void func_001d6ee0(void** units);
+void func_001d7100(u8* packet, s16 value);
+void func_001d72c0(void* packet, u32 value);
+u32 func_001d8bc0(void* formation);
+s16 func_001d7130(s32 param_1);
+void func_001d8be0(s32 param_1, u64* param_2);
+void func_001d8bf0(s32 param_1, s32 param_2);
+u32 btlCond_MORE(s32 param_1);
+extern void (*jtbl_008873EC[])(void* ptr);
+// FUN_001D6EE0
+void func_001d6ee0(void** units)
+{
+    u32 index;
+
+    for (index = 0; index < 0x30; index++)
+    {
+        *(u16*)units[index] &= ~0x200;
+    }
+}
+
+
+// FUN_001D7100
+void func_001d7100(u8* packet, s16 value)
+{
+    if (*(s16*)(packet + 0x10) != value)
+    {
+        *packet |= 1;
+        *(s16*)(packet + 0x10) = value;
+    }
+}
+
+
+// FUN_001D7130
+s16 func_001d7130(s32 param_1)
+{
+    return *(s16*)(param_1 + 0x10);
+}
+
+
+// FUN_001D72C0
+void func_001d72c0(void* packet, u32 value)
+{
+    *(u32*)((u8*)packet + 0x14) = (value & 0xFF000000) | 0xFFFFFF;
+}
+
+
 // FUN_001D7760
 u32 btlEffectLoadTable(void)
 {
@@ -280,6 +330,44 @@ BtlPacket* btlEffectCreateMessagePacket(u8 *param_1,u16 param_2)
 }
 
 
+extern void btlFormationDispatchArgs(void);
+// FUN_001D7BF0
+u8 *func_001d7bf0(u32 param_1, u32 param_2, u32 param_3)
+{
+    u32 *work;
+    u8 *packet;
+
+    packet = (u8 *)btlPacketAlloc(0x309, 0xc);
+    *(code **)(packet + 0x6c) = (code *)btlFormationDispatchArgs;
+    work = *(u32 **)(packet + 0x78);
+    work[0] = param_1;
+    work[1] = param_2;
+    work[2] = param_3;
+    return packet;
+}
+
+
+// FUN_001D8BC0
+u32 func_001d8bc0(void* formation)
+{
+    return *(u32*)((u8*)formation + (*(u16*)((u8*)formation + 0x3A) * 4));
+}
+
+
+// FUN_001D8BE0
+void func_001d8be0(s32 param_1, u64* param_2)
+{
+    *(u64*)(param_1 + 0x30) = *param_2;
+}
+
+
+// FUN_001D8BF0
+void func_001d8bf0(s32 param_1, s32 param_2)
+{
+    *(u64*)(param_1 + 0x30) = *(u64*)(param_2 + 0x30);
+}
+
+
 /* Ported from P3FES FUN_002c09f0 (verified MATCH there), which is compiled
  * inside the donor's opt_loop_invariants on region. Removing it here measured
  * MATCH nd0 -> MISMATCH nd50 (object 100/96), matching the donor's own
@@ -317,6 +405,222 @@ u32 btlEffectCollectGenusMask(int param_1)
 
 
 
+// FUN_001DA9F0
+u32 btlCond_MORE(s32 param_1)
+{
+    return *(u8*)(param_1 + 0x28) > 0;
+}
+
+
+extern u8 *btlActionFindById();
+extern void *D_00609850[];
+extern s64 scrGetParamInt();
+extern s32 scrGetParamIntS32(s32 index);
+static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
+{
+    return (u8 *)((u32)offset + (u32)base);
+}
+extern u8 *scrGetAiState();
+extern s32 btlAICommandSelectCandidates();
+extern u32 datCalcRandomBelow(u32 arg0);
+extern s32 btlAICommandCollectSkillCandidates();
+extern s32 btlAICommandCollectCommandsOfType();
+extern u32 datCalcRandomBelow(u32 arg0);
+extern void btlUnitInitChild(u8 *arg0, u64 arg1);
+extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
+extern void *D_00609CE0[];
+// FUN_001E6B90
+s32 func_001e6b90(void) {
+    u32 a = scrGetParamIntS32(0);
+    u32 b = scrGetParamIntS32(1);
+    u8 *p = btlActionFindById(a & 0xFFFFFFF);
+    u32 v = (b & 0xFFFFFF) | 0x48000000;
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = (b | 0x48000000) & 0xFFFFFF;
+    s32 x;
+
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    scrSetReturnInt(x != 0);
+    return 1;
+}
+
+
+// FUN_001E6C60
+s32 func_001e6c60(void) {
+    u8 *temp_2;
+    u32 index;
+
+    temp_2 = scrGetAiState();
+    if ((btlSkillClassifyTargets(temp_2, 0, *(u16 *)(temp_2 + 0x6E), 0) & 0xFFFF) == 0) {
+        index = scrGetParamIntS32(0);
+        *(u8 **)(temp_2 + 0x38) = btlActionFindById(index & 0xFFFFFFF);
+        *(s16 *)(temp_2 + 0x6A) = 1;
+    } else if (((s32 (*)(u8 *, s32))D_00609CE0[0])(temp_2, 0) == 0) {
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(temp_2, 0);
+    }
+    return 1;
+}
+
+
+// FUN_001E6FA0
+s32 func_001e6fa0(void) {
+    u16 count;
+    u8 *work;
+
+    work = scrGetAiState();
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2E, 0, &btlCond_MYWEAK) == 1) {
+        count = *(u16 *)(work + 0x6A);
+        if (count == 1) {
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+        } else {
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
+        }
+    } else {
+        scrSetReturnInt(-1);
+    }
+    return 1;
+}
+
+
+// FUN_001E7080
+s32 func_001e7080(void) {
+    u16 count;
+    u8 *work;
+
+    work = scrGetAiState();
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2F, 0, &btlCond_MYWEAK) == 1) {
+        count = *(u16 *)(work + 0x6A);
+        if (count == 1) {
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+        } else {
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
+        }
+    } else {
+        scrSetReturnInt(-1);
+    }
+    return 1;
+}
+
+
+// FUN_001E7160
+s32 func_001e7160(void) {
+    u16 count;
+    u8 *work;
+
+    work = scrGetAiState();
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+        count = *(u16 *)(work + 0x6A);
+        if (count == 1) {
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+        } else {
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
+        }
+    } else {
+        scrSetReturnInt(-1);
+    }
+    return 1;
+}
+
+
+// FUN_001E7240
+s32 func_001e7240(void) {
+    u16 count;
+    u8 *work;
+
+    work = scrGetAiState();
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
+        count = *(u16 *)(work + 0x6A);
+        if (count == 1) {
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+        } else {
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
+        }
+    } else {
+        scrSetReturnInt(-1);
+    }
+    return 1;
+}
+
+
+// FUN_001E7320
+s32 func_001e7320(void)
+{
+    int count;
+    u8 *work;
+    work = scrGetAiState();
+    if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1)
+    {
+        count = *(u16 *)(work + 0x6A);
+        if (count == 1)
+        {
+            scrSetReturnInt(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
+        }
+        else
+        {
+            scrSetReturnInt(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)datCalcRandomBelow(count) * 4, work) + 0x38) + 8) | 0x80000000);
+        }
+    }
+    else
+    {
+        scrSetReturnInt(-1);
+    }
+    return 1;
+}
+
+
+#pragma push
+#pragma opt_rebuildconditionals off
+#pragma pop
+// FUN_001E8BB0
+s32 func_001e8bb0(void) {
+    u64 temp_16;
+    u64 temp_17;
+    u8 *temp_19;
+    u64 temp_18;
+
+    temp_19 = scrGetAiState();
+    temp_17 = scrGetParamInt(0);
+    temp_16 = scrGetParamInt(1);
+    temp_18 = scrGetParamInt(2);
+    scrSetReturnInt(btlAICommandCollectCommandsOfType(temp_19, btlActionFindById((u64)(temp_17 << 0x24) >> 0x24), (s16)temp_16, temp_18));
+    return 1;
+}
+
+
+// FUN_001E8CD0
+s32 func_001e8cd0(void) {
+    u64 temp_16;
+    u8 *temp_19;
+    u64 temp_18;
+    u64 temp_17;
+
+    temp_19 = scrGetAiState();
+    temp_16 = scrGetParamInt(0);
+    temp_18 = scrGetParamInt(1);
+    temp_17 = scrGetParamInt(2);
+    scrSetReturnInt(btlAICommandCollectSkillCandidates(temp_19, btlActionFindById((u64)(temp_16 << 0x24) >> 0x24), temp_18, temp_17));
+    return 1;
+}
+
+
+// FUN_001EA2D0
+s32 func_001ea2d0(void) {
+    u64 temp_16;
+    u8 *temp_18;
+    u64 temp_17;
+
+    temp_18 = scrGetAiState();
+    temp_17 = scrGetParamInt(0);
+    temp_16 = scrGetParamInt(1);
+    btlUnitInitChild(*(u8 **)(temp_18 + 0x30), temp_17);
+    btlAICommandSetActionCode(temp_18, temp_18 + 0x38, temp_16 & 0xFFFF);
+    return 1;
+}
+
+
 // FUN_00202010
 BtlPacket* btlEffectCreateSpriteFramePacket(u32 param_1, u16 param_2)
 {
@@ -331,3 +635,124 @@ BtlPacket* btlEffectCreateSpriteFramePacket(u32 param_1, u16 param_2)
   puVar1[2] = 0;
   return (BtlPacket*)iVar2;
 }
+extern void btlPacketIncUnitCounter(u8 *arg0);
+extern s32 btlPacketUpdateHpRatio(u8 *arg0);
+extern void btlPacketDecUnitCounter(u8 *arg0);
+extern s32 btlPacketStepEffectCounter(u8 *arg0);
+extern s32 btlPacketStepSpriteFrameLookup(u8 *arg0);
+extern s32 btlPacketStepSpriteTable(u8 *arg0);
+extern s32 btlPacketSetHpRatio(u8 **arg0);
+extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
+extern void btlPacketIncUnitCounterAlt(u8 *arg0);
+extern void btlPacketDecUnitCounterAlt(u8 *arg0);
+#pragma opt_propagation off
+#pragma opt_propagation on
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+#pragma opt_rebuildconditionals off
+/* measured: restore conditional rebuilding after callback completion. */
+#pragma opt_rebuildconditionals on
+// Intent: allocate the sprite-step packet (type 0x505). [inferred]
+// FUN_00202120
+BtlPacket *btlPacketCreateSpriteStep(u32 param_1, u16 param_2)
+{
+  u32 *puVar1;
+  int iVar2 = 0;
+
+  iVar2 = (int)btlPacketAlloc(0x505, 0xc);
+  *(void **)(iVar2 + 0x6c) = (void *)btlPacketStepSpriteFrameLookup;
+  puVar1 = *(u32 **)(iVar2 + 0x78);
+  *puVar1 = param_1;
+  *(u16 *)(puVar1 + 1) = param_2;
+  puVar1[2] = 0;
+  return (BtlPacket *)iVar2;
+}
+
+
+// Intent: allocate the sprite-table packet (type 0x507). [inferred]
+// FUN_002022E0
+u8 *btlPacketCreateSpriteTable(u32 param_1, u16 param_2)
+{
+  u32 *puVar1;
+  int iVar2 = 0;
+
+  iVar2 = (int)btlPacketAlloc(0x507, 0xc);
+  *(void **)(iVar2 + 0x6c) = (void *)btlPacketStepSpriteTable;
+  puVar1 = *(u32 **)(iVar2 + 0x78);
+  *puVar1 = param_1;
+  *(u16 *)(puVar1 + 1) = param_2;
+  puVar1[2] = 0;
+  return (u8 *)iVar2;
+}
+
+
+// Intent: allocate the effect-counter packet (type 0x506). [inferred]
+// FUN_00202400
+BtlPacket *btlPacketCreateEffectCounter(s32 arg0, s32 arg1)
+{
+    u8 *temp_2;
+    u8 *temp_3;
+
+    temp_2 = (u8 *)btlPacketAlloc(0x506, 0xC);
+    *(void **)(temp_2 + 0x6C) = (void *)btlPacketStepEffectCounter;
+    temp_3 = *(u8 **)(temp_2 + 0x78);
+    *(s32 *)(temp_3 + 0) = arg0;
+    *(s32 *)(temp_3 + 4) = arg1;
+    *(s32 *)(temp_3 + 8) = 0;
+    return (BtlPacket *)temp_2;
+}
+
+
+// Intent: allocate the unit-counter packet (type 0x500) with inc, update and dec callbacks. [inferred]
+// FUN_00202590
+u8 *btlPacketCreateUnitCounter(s32 arg0, s8 arg1, s16 arg2)
+{
+    u8 *packet;
+    u8 *temp;
+
+    packet = (u8 *)btlPacketAlloc(0x500, 8);
+    *(u8 *)(packet + 0x47) &= 0xEF;
+    *(void **)(packet + 0x68) = (void *)btlPacketIncUnitCounter;
+    *(void **)(packet + 0x6C) = (void *)btlPacketUpdateHpRatio;
+    *(void **)(packet + 0x70) = (void *)btlPacketDecUnitCounter;
+    temp = *(u8 **)(packet + 0x78);
+    *(s32 *)(temp + 0) = arg0;
+    *(s8 *)(temp + 4) = arg1;
+    *(s16 *)(temp + 6) = arg2;
+    return packet;
+}
+
+
+// Intent: allocate the HP-ratio packet (type 0x501) for a unit. [inferred]
+// FUN_00202740
+u8 *btlPacketCreateHpRatio(u8 *unit)
+{
+    u8 *packet;
+    packet = (u8 *)btlPacketAlloc(0x501, 4);
+    *(u8 *)(packet + 71) &= ~(1 << 4);
+    *(void **)(packet + 0x68) = (void *)btlPacketIncUnitCounterAlt;
+    *(void **)(packet + 0x6C) = (void *)btlPacketSetHpRatio;
+    *(void **)(packet + 0x70) = (void *)btlPacketDecUnitCounterAlt;
+    *(u8 **)*(u8 **)(packet + 0x78) = unit;
+
+    return packet;
+}
+
+
+s32 kwlnTaskGetTaskByName(void *arg0);
+extern u8 D_0063E918[];
+void kwlnTaskDestroyWithHierarchy(s32 arg0);
+// FUN_002A2740
+void func_002a2740(void) {
+    s32 temp_2;
+
+    if ((temp_2 = kwlnTaskGetTaskByName(D_0063E918)) != 0) {
+        kwlnTaskDestroyWithHierarchy(temp_2);
+    }
+}
+
+

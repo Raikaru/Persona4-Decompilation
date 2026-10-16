@@ -1889,20 +1889,6 @@ static inline u16 btlUnitRosterIndex(u8 *unit)
     return index;
 }
 
-// Intent: Wait until the presentation is idle, then clear its flag. [inferred]
-// FUN_0022B040
-s32 btlEncounterWaitIdle(s64 *arg0)
-{
-    u8 *temp_4;
-
-    if (btlUnitRecordFindByActionUID(*arg0,
-                      ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
-        temp_4 = DAT_0076449c;
-        *(s32 *)(temp_4 + 0xC) &= 0xFFF7FFFF;
-        return 0;
-    }
-    return 1;
-}
 
  
 #pragma opt_loop_invariants on

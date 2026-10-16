@@ -616,18 +616,6 @@ typedef struct { Vec3_00178590 right; u32 flags; Vec3_00178590 up; u32 pad1; Vec
 
 
 
-// FUN_00176880
-s32 func_00176880(void)
-{
-    scrSetReturnInt(FldStepIndex());
-    return 1;
-}
-// FUN_001768B0
-s32 func_001768b0(void)
-{
-    scrSetReturnInt(FldSceneLoadReady());
-    return 1;
-}
 
 
 
@@ -651,13 +639,6 @@ s32 func_001768b0(void)
 
 
 
-// FUN_001789D0
-s32 func_001789d0(void)
-{
-    func_002bd410();
-    func_002bd3c0();
-    return 1;
-}
 
 
 
