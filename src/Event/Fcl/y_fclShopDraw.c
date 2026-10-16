@@ -181,7 +181,7 @@ extern u8 D_00794EA0[];
 extern u8 D_00794ED0[];
 extern u8 D_0063FB50[];
 
-s32 func_002be530(u8 *arg0);
+s32 fclShopStateUpdate(u8 *arg0);
 void func_002be3c0(void);
 s32 func_0010d6d0(s16);
 void datClampUnitHpSp(s32);
@@ -237,10 +237,10 @@ u32 datGetItemNameId(s16);
 
 s16 func_00106cd0(s16, s16);
 /* measured: the item getters take s16, as defined in g_data.c (each callee
-   re-extends $a0). A value already typed s16 passes raw; func_002be530's int
+   re-extends $a0). A value already typed s16 passes raw; fclShopStateUpdate's int
    ids are extended at every call, and an explicit (s32) widening before an s16
    parameter reproduces the single extension retail emits (func_002df020,
-   func_002dd3b0, func_002de5a0, func_002d5040, func_002d1590). */
+   func_002dd3b0, func_002de5a0, func_002d5040, fclShopListInputStep). */
 u32 datEntryGetFlags(s16);
 u16 func_001068b0(s16);
 u16 func_001068e0(s16);
@@ -310,7 +310,7 @@ extern f32 fGpffff852c;
    one Vec2f[3] declared ahead of the sprintf buffers. Declaration order of the
    saved-register locals follows the retail registers. */
 // FUN_002BE530
-s32 func_002be530(u8 *arg0)
+s32 fclShopStateUpdate(u8 *arg0)
 {
     typedef struct { s32 v0; s32 v1; } ShopArgPair;
     extern void func_002d8a60(void *, s8, f32, f32);
@@ -365,10 +365,10 @@ s32 func_002be530(u8 *arg0)
     extern void func_002caef0(void *arg0);
     extern void func_002cb6c0(void *arg0, s8 arg1);
     extern void func_002cdf80(void *arg0, s8 arg1);
-    extern s32 func_002d1590(void *arg0);
+    extern s32 fclShopListInputStep(void *arg0);
     extern void func_002d3ee0(void *arg0);
     extern s8 func_002d4760(void *arg0, s8 arg1);
-    extern s32 func_002d4f30(s16 arg0);
+    extern s32 fclShopStatusFlagToCode(s16 arg0);
     extern void fclShopDrawStats(void *arg0);
     extern void func_002d6190(void *arg0);
     extern void func_002d7300(void *arg0);
@@ -922,36 +922,36 @@ s32 func_002be530(u8 *arg0)
             (*(f32 *)(work + 0xF34)) = (f32) (temp_f1 + ((temp_f21 - temp_f1) / 2.0f));
             (*(f32 *)(work + 0xF38)) = (f32) (65.0f + ((temp_f20 - 65.0f) / 2.0f));
             (*(s8 *)(work + 0xF73)) = 1;
-            (*(s8 *)(work + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0(1, 0)))));
+            (*(s8 *)(work + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0(1, 0)))));
             (*(s8 *)(work + 9)) = 1;
             if (datGetFlag(0x30) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 2;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x31) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 3;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x32) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 4;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x33) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 6;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x35) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 8;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             if (datGetFlag(0x36) != 0) {
                 (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)) = 7;
-                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = func_002d4f30((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
+                (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF7C)) = fclShopStatusFlagToCode((s16) ((s16) (datEntryGetFlags(func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 9)) + (u32)work)) + 0xF73)), 0)))));
                 (*(s8 *)(work + 9)) = (s8) ((*(s8 *)(work + 9)) + 1);
             }
             for (var_5 = 0; var_5 < 9; var_5++) {
@@ -1807,7 +1807,7 @@ s32 func_002be530(u8 *arg0)
         }
         break;
     case 0x21:                                      /* switch 1 */
-        if (func_002d1590(arg0) == 1) {
+        if (fclShopListInputStep(arg0) == 1) {
             if ((D_008C0276[0] & 0x1000) && ((*(s8 *)(work + 0x14)) == 0)) {
                 sdkSndStartStream(0, 0, 0, 0);
                 if ((*(s16 *)(work + 2)) == 0) {
@@ -1953,7 +1953,7 @@ block_368:
         }
         break;
     case 0x23:                                      /* switch 1 */
-        func_002d1590(arg0);
+        fclShopListInputStep(arg0);
         if (func_002bb680((*(s8 *)(work + 0x10))) != 0) {
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else if (func_002bb1c0((*(s8 *)(work + 0x10))) == 0) {
@@ -2684,7 +2684,7 @@ s32 fclShopDrawCreate(s32 arg0) {
 
     chkmemAllocSiteTag(&D_0063FAC0, 0xC47);
     temp_2 = D_008873F4[0](1, 0x1174, 0x40000);
-    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((char *)&D_0063FB30), 0xF, 0, 0, func_002be530, fclShopDrawDestroy, (u8 *)(temp_2));
+    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((char *)&D_0063FB30), 0xF, 0, 0, fclShopStateUpdate, fclShopDrawDestroy, (u8 *)(temp_2));
     *(s8 *)(temp_2 + 0) = 9;
     sp48 = func_002b2970(240.0f, 20.0f);
     *(void **)(temp_2 + 0xC28) = (void *)fclSpriteSpawnChild(temp_17, sp48);
@@ -4313,7 +4313,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
 #pragma pop
 #undef O
 
-/* MATCHED func_002d1590: written over the shared ShopMenuWork overlay with
+/* MATCHED fclShopListInputStep: written over the shared ShopMenuWork overlay with
    one named slot per retail stack address (27 FclDrawColor, 57 Vec2f, the
    0x130/0x128/0x110/... label positions copied via *(Vec2f *)&); both
    work[7] dispatches as 0/1/2 switches; each loop gets its own s16 counter;
@@ -4323,7 +4323,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
    retail re-extends only there; the E60 handle loaded before the shared
    fGpffff8530 argument. */
 // FUN_002D1590
-s32 func_002d1590(void *arg0)
+s32 fclShopListInputStep(void *arg0)
 {
     extern s8 func_002e05a0(void *);
     extern f32 fGpffff8530;
@@ -5091,7 +5091,7 @@ s8 func_002d4760(void *arg0, s8 arg1) {
 }
 
 // FUN_002D4F30
-s32 func_002d4f30(s16 arg0) {
+s32 fclShopStatusFlagToCode(s16 arg0) {
     if (arg0 & 0x81) return 0x14;
     if (arg0 & 0x102) return 0x15;
     if (arg0 & 0x204) return 0x16;
@@ -5146,7 +5146,7 @@ void fclShopDrawStats(void *arg0) {
     f32 x;
 
     work = *(u8 **)((u8 *)arg0 + 0x38);
-    func_002e0b20(func_002d4f30((s16)datEntryGetFlags((s32)yListValueAt(*(s16 *)(work + 2)))) & 0xFFFF, func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30)), 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+    func_002e0b20(fclShopStatusFlagToCode((s16)datEntryGetFlags((s32)yListValueAt(*(s16 *)(work + 2)))) & 0xFFFF, func_002b2970(37.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 35.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30)), 31.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
     shopDrawLabel(31.0f, (const char *)((void *)datGetItemNameId((s32)yListValueAt(*(s16 *)(work + 2)))), func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xCE4)) + 0x30)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     shopDrawLabel(31.0f, (const char *)((void *)datGetItemNameId((s32)func_00106cd0(*(s8 *)((u8 *)(*(s8 *)(work + 8) + (u32)work) + 0xF73), *(s8 *)(work + 7)))), func_002b2970(79.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x2C), 34.0f + *(f32 *)((u8 *)func_002e04e0(*(void **)(work + 0xEDC)) + 0x30)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF));
     switch (*(s8 *)(work + 7)) {
@@ -6810,8 +6810,8 @@ void func_002dd3b0(void *arg0) {
     }
     switch (*(s8 *)(work + 0x11)) {
     case 1:
-        func_002e0b20(func_002d4f30((s16)datEntryGetFlags(id)) & 0xFFFF, func_002b2970(86.0f, 135.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-        switch ((s16)func_002d4f30((s16)datEntryGetFlags(id))) {
+        func_002e0b20(fclShopStatusFlagToCode((s16)datEntryGetFlags(id)) & 0xFFFF, func_002b2970(86.0f, 135.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        switch ((s16)fclShopStatusFlagToCode((s16)datEntryGetFlags(id))) {
         case 20:
         case 21:
         case 22:
@@ -6957,7 +6957,7 @@ void fclShopDrawItemDetail(void *arg0, s16 arg1, s32 arg2) {
         func_002e0ca0(0x1A, func_002b2970(97.0f, 178.0f), 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         break;
     case 1:
-        func_002e0b20(func_002d4f30((s16)datEntryGetFlags(arg1)) & 0xFFFF, func_002b2970(97.0f, 178.0f), 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
+        func_002e0b20(fclShopStatusFlagToCode((s16)datEntryGetFlags(arg1)) & 0xFFFF, func_002b2970(97.0f, 178.0f), 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
         break;
     case 2:
         func_002e0ca0(0x1B, func_002b2970(97.0f, 178.0f), 13.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
