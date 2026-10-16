@@ -26,7 +26,7 @@ s32 sdkSpriteCreateFromName(u32 param);
 s32 func_0046a750(s32 param);
 
 /* Camp-family helpers declared locally; the retail TUs are separate objects. */
-void func_0012d410(u8 *arg0);
+void titleSlotTableInit(u8 *arg0);
 s32 func_0012e250(u8 *arg0);
 void titleSlotSetMode(u8 *arg0, s32 arg1);
 s32 func_0012e1d0(u8 *arg0);
@@ -114,7 +114,7 @@ s32 func_0012c510(u8 *unusedTask) {
     case 1:
         *(s32 *)(p + 0x10) = 1;
         *(s32 *)p = 2;
-        func_0012d410(p + 0x18);
+        titleSlotTableInit(p + 0x18);
         func_0034bb20(1);
         break;
     case 2:
