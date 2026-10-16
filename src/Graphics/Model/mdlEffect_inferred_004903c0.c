@@ -26,7 +26,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 /* Source unit: src/promoted/code1_0049.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0049.c; members 004903c0-004903c0 */
 
-/* Sway emitter update, ported from the matched EffConeEmitterUpdate: the same
+/* Ported from the Cone emitter (EffConeEmitterUpdate): the same
  * owner identity, loop constants, clear-loop and snapshot shapes. The scale
  * locals are declared in retail FPR order (variation, E8, E4, F4, D8). The
  * live-particle height is read from VF10 through $v0 (qmfc2/prot3w), and
