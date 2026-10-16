@@ -172,7 +172,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     extern u8 *resrcMngGetColorTarget(void);
     extern u8 *resrcMngGetTransform(void);
     extern void MT_Scene_SetResVector(u8 *arg0, u8 *arg1);
-    extern s32 func_001838d0(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, s32 arg2, s32 arg3, s32 arg4);
+    extern s32 FldRainTaskCreate(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, s32 arg2, s32 arg3, s32 arg4);
     extern s32 func_00185150(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s32 arg6, u8 *arg7);
     extern void func_0018c700(f32 arg0);
     extern void func_0018c750(f32 arg0);
@@ -411,7 +411,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
             {
                 u8 *p = data + i * 0x24;
                 if (*(s32 *)(p + 0x204) != 0) {
-                    ((s32 *)iGpffff9db0)[i + 26] = func_001838d0(0, *(s32 *)(p + 0x208), *(f32 *)(p + 0x20C), *(f32 *)(p + 0x210), *(f32 *)(p + 0x214), *(f32 *)(p + 0x218), *(s32 *)(p + 0x21C), *(s32 *)(p + 0x220), *(s32 *)(p + 0x224));
+                    ((s32 *)iGpffff9db0)[i + 26] = FldRainTaskCreate(0, *(s32 *)(p + 0x208), *(f32 *)(p + 0x20C), *(f32 *)(p + 0x210), *(f32 *)(p + 0x214), *(f32 *)(p + 0x218), *(s32 *)(p + 0x21C), *(s32 *)(p + 0x220), *(s32 *)(p + 0x224));
                 }
             }
         }

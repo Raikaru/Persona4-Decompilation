@@ -46,7 +46,7 @@ extern u32 H_Cdvd_Destroy(HCdvd *arg0);
 extern void *memcpy(void *arg0, const void *arg1, u32 arg2);
 extern s32 Encount_GetEntryRateOrOverride(u16 arg0, u16 arg1, u16 arg2);
 extern s32 Encount_GetEntryFlags(u16 arg0, u16 arg1, u16 arg2);
-extern void func_00182310(s32 arg0);
+extern void FldSlotBroadcastState(s32 arg0);
 extern s32 FldUnit_SpawnEncounter(u32 arg0, s32 arg1);
 typedef struct DatUnitEc DatUnitEc;
 extern DatUnitEc *datUnitCreateEncounterGroup(u16 encountId);
@@ -2287,7 +2287,7 @@ s32 FldUnit_SetupEncounter(u8 *arg0)
         var_2_2 = 1;
     out2:
         if (var_2_2 != 0) {
-            func_00182310(0);
+            FldSlotBroadcastState(0);
             *(s32 *)temp_16 += 1;
         }
         break;

@@ -59,7 +59,7 @@ extern s32 FldStepIndex(void);
    (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
    loads (nd4). Sole caller in this unit. */
 extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
-extern void func_00182310(s32 arg0);
+extern void FldSlotBroadcastState(s32 arg0);
 extern void func_0018e030(s32 arg0, s32 arg1);
 extern s32 func_0029da90(s32 arg0, s32 arg1, s32 arg2);
 extern s32 kwlnTaskIsLinked(s32 arg0);
@@ -254,7 +254,7 @@ s32 func_001709c0(u8 *arg0)
     state = *(s32 *)(temp_16 + 4);
     switch (state) {
     case 0:
-        func_00182310(1);
+        FldSlotBroadcastState(1);
         func_002bd410();
         func_002bd3c0();
         temp_2 = (u8 *)MT_Scene_GetFrameState();
@@ -268,7 +268,7 @@ s32 func_001709c0(u8 *arg0)
         break;
     case 1:
         if (D_008C024E[0] & 0x820) {
-            func_00182310(0);
+            FldSlotBroadcastState(0);
             temp_2 = (u8 *)MT_Scene_GetFrameState();
             func_0018e030(*(s32 *)(temp_2 + 0x1C), 0);
             temp_2 = (u8 *)MT_Scene_GetFrameState();
@@ -323,7 +323,7 @@ s32 func_00170bc0(u8 *arg0)
         *(s32 *)(temp_16 + 0x10) = cmpMainTaskCreate((s32)arg0, 1);
         if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0)
             smapSetPhase(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18), 1);
-        func_00182310(1);
+        FldSlotBroadcastState(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
@@ -339,7 +339,7 @@ s32 func_00170bc0(u8 *arg0)
             } else {
                 if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0)
                     smapSetPhase(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18), 0);
-                func_00182310(0);
+                FldSlotBroadcastState(0);
                 func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 0);
                 *(s32 *)(temp_16 + 0x10) = 0;
                 *(s32 *)(temp_16 + 4) += 1;
@@ -385,7 +385,7 @@ s32 func_00170e50(u8 *arg0)
         temp_2 = (u8 *)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(temp_2 + 0x1C), 1);
         *(s32 *)(temp_16 + 0x10) = func_0029da90(0xF, iGpffffb284, 1);
-        func_00182310(1);
+        FldSlotBroadcastState(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
@@ -393,7 +393,7 @@ s32 func_00170e50(u8 *arg0)
             break;
         temp_2 = (u8 *)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(temp_2 + 0x1C), 0);
-        func_00182310(0);
+        FldSlotBroadcastState(0);
         *(s32 *)(temp_16 + 4) += 1;
     case 2:
         return 0;
@@ -524,13 +524,13 @@ s32 func_00171280(u8 *arg0)
         temp_17 = func_0015a100();
         *(s32 *)(temp_16 + 0x10) =
             func_0029db50(0xF, temp_17, func_0015a130(), 0);
-        func_00182310(1);
+        FldSlotBroadcastState(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
             func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 0);
-            func_00182310(0);
+            FldSlotBroadcastState(0);
             *(s32 *)(temp_16 + 4) += 1;
         }
         break;
@@ -585,13 +585,13 @@ s32 func_001714b0(u8 *arg0)
         temp_17 = func_0015a100();
         *(s32 *)(temp_16 + 0x10) =
             func_0029db50(0xF, temp_17, func_0015a130(), 1);
-        func_00182310(1);
+        FldSlotBroadcastState(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
             func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 0);
-            func_00182310(0);
+            FldSlotBroadcastState(0);
             *(s32 *)(temp_16 + 0x10) = 0;
             *(s32 *)(temp_16 + 4) += 1;
         }

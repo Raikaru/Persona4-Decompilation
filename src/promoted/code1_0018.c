@@ -172,7 +172,7 @@ extern s32 func_0018dde0(u8 *arg0);
 extern u8 D_005F1D80[];
 extern u8 D_005F1D90[];
 extern s32 iGpffff9f60;
-extern s32 func_00182bc0(u8 *task);
+extern s32 FldRainUpdate(u8 *task);
 
 extern s32 func_00185850(u8 *task);
 extern void func_00186610(u8 *arg0);
@@ -202,7 +202,7 @@ extern s32 iGpffffb884;
    the 0x750 slot scan. */
 #pragma opt_loop_invariants on
 // FUN_00182310
-void func_00182310(s32 arg0)
+void FldSlotBroadcastState(s32 arg0)
 {
     s32 i;
     s32 one;
@@ -233,12 +233,12 @@ void func_00182310(s32 arg0)
 /* measured: close loop-invariant hoisting around the slot scan. */
 #pragma opt_loop_invariants off
 // FUN_00182390
-void func_00182390(void)
+void FldAmbientFlagClear(void)
 {
     memset(&iGpffffb310, 0, 4);
 }
 // FUN_001823C0
-u8 *func_001823c0(void)
+u8 *FldAmbientFlagPtr(void)
 {
     return &iGpffffb310;
 }
@@ -246,7 +246,7 @@ typedef struct {
     f32 x, y, z;
 } FldAreaNormal;
 /* Plays the ambient cue for slot `id` and advances that slot's four-step
-   variation counter.  Inlined into every trigger arm of func_001823d0. */
+   variation counter.  Inlined into every trigger arm of FldAmbientTrigger. */
 static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
 {
     extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
@@ -259,7 +259,7 @@ static inline void func_001823d0_play(u16 id, s16 bank, s32 base)
     }
 }
 // FUN_001823D0
-void func_001823d0(s32 arg0, u16 mode, u16 id)
+void FldAmbientTrigger(s32 arg0, u16 mode, u16 id)
 {
     extern u8 *MT_Scene_GetResListHead(s32 arg0);
     extern s32 K_FldFrame_IsPointInTriangle(f32 *point, f32 **vertices, f32 *normal);
@@ -358,7 +358,7 @@ void func_001823d0(s32 arg0, u16 mode, u16 id)
 /* measured probe: opt_propagation off tests caching the repeated render callback base. */
 #pragma opt_propagation off
 // FUN_00182B40
-void func_00182b40(void)
+void FldRainRenderStateSet(void)
 {
     void (**fn)(s32, s32);
 
@@ -368,7 +368,7 @@ void func_00182b40(void)
     fn[0](8, 0);
     fn[0](0xC, 1);
 }
-/* measured probe: restore opt_propagation after func_00182b40. */
+/* measured probe: restore opt_propagation after FldRainRenderStateSet. */
 #pragma opt_propagation on
 /* Rain stores real PTank locks, vectors and matrices. Pool indexing and the
  * shared trail/reset counter preserve the observed callback lifetimes.
@@ -376,7 +376,7 @@ void func_00182b40(void)
 // FUN_00182BC0
 #pragma push
 #pragma opt_loop_invariants on
-s32 func_00182bc0(u8 *task)
+s32 FldRainUpdate(u8 *task)
 {
     extern s32 func_00457120(void);
     extern RainMatrix *func_003e9700(struct RwFrame *frame);
@@ -398,7 +398,7 @@ s32 func_00182bc0(u8 *task)
     extern s32 func_003a2770(struct RpAtomic *atomic, RainLock *lock, u32 dataFlags, enum RpPTankLockFlags lockFlags);
     extern struct RpAtomic *func_003a2920(struct RpAtomic *atomic);
     extern u8 *func_00460d80(u8 *list, s32 payload);
-    extern void func_00182b40(void);
+    extern void FldRainRenderStateSet(void);
     extern void *(*D_008873F4[])(size_t, size_t, u32);
     extern u8 D_005F1D80[];
     extern u8 D_005F1D10[];
@@ -657,7 +657,7 @@ s32 func_00182bc0(u8 *task)
         {
             u8 *res;
             res = func_00460d80(D_00794420, *(s32 *)(work + 8));
-            *(void (**)(void))(res + 8) = func_00182b40;
+            *(void (**)(void))(res + 8) = FldRainRenderStateSet;
             *(s32 *)(res + 0x10) = 0;
         }
         break;
@@ -674,7 +674,7 @@ s32 func_00182bc0(u8 *task)
    the post-loop callback sequence. */
 // FUN_001837F0
 #pragma opt_propagation off
-void func_001837f0(u8 *arg0)
+void FldRainDestroy(u8 *arg0)
 {
     u8 *temp_16;
     s32 var_17;
@@ -699,14 +699,14 @@ void func_001837f0(u8 *arg0)
 /* measured: closing the single-function callback-base bracket. */
 #pragma opt_propagation on
 // FUN_001838D0
-void func_001838d0(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
+void FldRainTaskCreate(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
                    f32 fparg2, f32 fparg3, s32 arg2, s32 arg3, s32 arg4)
 {
     u8 *temp_2;
 
     chkmemAllocSiteTag(&D_005F1D80, 0x17B);
     temp_2 = D_008873F4[0](1, 0x78, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9f60), 0xF, 0, 0, func_00182bc0, func_001837f0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9f60), 0xF, 0, 0, FldRainUpdate, FldRainDestroy, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 0x28) = arg1;
     *(f32 *)(temp_2 + 0x18) = fparg0;
     *(f32 *)(temp_2 + 0x14) = fparg1;
@@ -717,7 +717,7 @@ void func_001838d0(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
     *(s32 *)(temp_2 + 0x30) = arg4;
 }
 // FUN_001839E0
-void func_001839e0(u8 *arg0, u8 *arg1)
+void FldRainRenderStateReset(u8 *arg0, u8 *arg1)
 {
     u8 *callback;
     s32 state;
@@ -781,7 +781,7 @@ s32 func_00183b80(u8 *arg0)
     extern u8 *PrimAllocQueueNode(void);
     extern void func_00460ac0(u8 *, u8 *);
     extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
-    extern void func_001839e0(u8 *arg0, u8 *arg1);
+    extern void FldRainRenderStateReset(u8 *arg0, u8 *arg1);
     extern u8 D_005F1D10[];
     extern u8 D_00794930[];
     u8 *ctx;
@@ -1022,7 +1022,7 @@ s32 func_00183b80(u8 *arg0)
     case 1:
     {
     pkt = PrimAllocQueueNode();
-    *(void (**)(u8 *, u8 *))(pkt + 8) = func_001839e0;
+    *(void (**)(u8 *, u8 *))(pkt + 8) = FldRainRenderStateReset;
     *(u8 **)(pkt + 0x10) = ctx;
     func_00460ac0(D_00794930, pkt);
     for (m = 0; m < 2; m++) {

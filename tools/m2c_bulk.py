@@ -3635,8 +3635,8 @@ def normalize_compile_error_repair(
     elif address == 0x00172E00:
         body = re.sub(
             r"\}\s*else if \(\(s32\)\(\(\(M2C_UNK \(\*\)\(\)\)\(\*\(u8 \*\)\)\)"
-            r"\(\(u8 \*\)\(func_001823c0\(\)\)\)\) != \(s32\)\(NULL\)\) \{",
-            "} else if (func_001823c0() != NULL) {",
+            r"\(\(u8 \*\)\(FldAmbientFlagPtr\(\)\)\)\) != \(s32\)\(NULL\)\) \{",
+            "} else if (FldAmbientFlagPtr() != NULL) {",
             body,
         )
     elif address == 0x001ECA10:
@@ -4859,16 +4859,16 @@ def normalize_compile_error_repair(
         )
     elif address == 0x00172CB0:
         body = re.sub(
-            r"(?m)^\s*if .*func_001823c0.*$",
+            r"(?m)^\s*if .*FldAmbientFlagPtr.*$",
             "    if ((FldMap_IsCurrentInEitherBand() == 1) && "
-            "(*func_001823c0() != NULL)) {",
+            "(*FldAmbientFlagPtr() != NULL)) {",
             body,
             count=1,
         )
     elif address == 0x00172E00:
         body = re.sub(
-            r"(?m)^\s*\}\s*else if .*func_001823c0.*$",
-            "        } else if (*func_001823c0() != NULL) {",
+            r"(?m)^\s*\}\s*else if .*FldAmbientFlagPtr.*$",
+            "        } else if (*FldAmbientFlagPtr() != NULL) {",
             body,
             count=1,
         )
