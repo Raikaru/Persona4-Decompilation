@@ -125,7 +125,7 @@ void func_001fad10(void);
 /* Source unit: src/promoted/code1_001a.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001a.c; members 001ade90-001afb50 */
 
-extern s32 func_001a05f0(BtlAction *action);
+extern s32 btlActionLinkedUnitIsActive(BtlAction *action);
 extern void btlActionSkillUpdate(u8 *arg0);
 u8 func_0023e1f0(u8 *unitData);
 static inline s16 btlCameraField_001a59a0(u16 unitId, s16 *firstField)
@@ -491,7 +491,7 @@ void btlActionRoundupMesInit(u8 *action)
 
     currentAction = *(u8 **)(iGpffffb3ac + 372);
     while (currentAction != NULL) {
-        if (func_001a05f0((BtlAction *)currentAction) != 0) {
+        if (btlActionLinkedUnitIsActive((BtlAction *)currentAction) != 0) {
             packet = (u8 *)btlUnitCreateModelReleasePacket(*(BtlUnit **)(*(u8 **)(currentAction + 48) + 2572));
             *(s64 *)(packet + 96) = *(s64 *)currentAction;
             btlPacketEnqueue(packet, 1);
