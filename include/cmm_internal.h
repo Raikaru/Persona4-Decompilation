@@ -36,8 +36,26 @@ struct CmmKindRecord
     u8 unk_00[0x04];         /* 0x00 */
     u32 flags;               /* 0x04. Kind flag bits (0x10, 0x20 tested by callers) */
     s8 arcana;               /* 0x08. Arcana byte (cmmCommunityArcana) */
-    u8 unk_09[0x07];         /* 0x09 */
+    u8 unk_09[0x03];         /* 0x09 */
+    u16 tierBits;            /* 0x0C. Bit (tier - 1) tested by cmmCommunityHasTierBit */
+    u16 category;            /* 0x0E. Category id (cmmCommunityCategory) */
     u16 rankThreshold[0x2A]; /* 0x10. Threshold by rank level (indexed by rank * 2) */
+};
+
+/* Chunk 24 of cmm.bin: 72-byte item record (cmmItemInfoRecord). Only the scalar
+   fields read by cmmItemInfoShow and cmmRecordGetField are typed; the inline text
+   strings at +0x0C and +0x22 and the text-slot ids at +0x10, +0x12 and +0x20 are
+   still reached by address. */
+typedef struct CmmItemInfoRecord CmmItemInfoRecord;
+struct CmmItemInfoRecord
+{
+    u8 unk_00[0x04];         /* 0x00 */
+    s32 value;               /* 0x04. Shown as a formatted value by cmmItemInfoShow */
+    s8 tableIndexA;          /* 0x08. Index into the first name table, -1 for none */
+    s8 valueB;               /* 0x09. Shown as a formatted value */
+    s8 tableIndexB;          /* 0x0A. Index into the second name table, -1 for none */
+    s8 valueC;               /* 0x0B. Shown as a formatted value */
+    u8 unk_0c[0x3C];         /* 0x0C */
 };
 
 #endif
