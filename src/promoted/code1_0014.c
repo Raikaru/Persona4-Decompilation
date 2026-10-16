@@ -123,7 +123,7 @@ extern void kwlnTaskDumpAll(void);
 extern void FldResource_OpenPrimaryFile(s32 arg0, s32 arg1);
 extern void FldResource_QueueFieldResources(s32 arg0, s32 arg1);
 extern s32 FldResource_StepPartLoad(s32 arg0, s32 arg1);
-extern s32 func_0026df80(void);
+extern s32 MT_SceneManager_Create(void);
 extern u8 *resrcMngCreateRes(s32 arg0, s32 arg1);
 extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
 extern void Vpad_BuildRotatedQuad(u8 *arg0, const u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);

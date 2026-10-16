@@ -10,7 +10,7 @@ extern s32 iGpffffa730;
 
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
-extern s32 func_0026db60(u8 *task);
+extern s32 MT_SceneManager_TaskUpdate(u8 *task);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
 extern f32 fGpffff842c;
@@ -72,7 +72,7 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern u8 D_00638F90[];
 extern char D_00637348[];
-extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
+extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
                            s32 arg5, s32 arg6, s32 arg7,
                            s32 arg_sp0);
@@ -90,7 +90,7 @@ extern s32 func_0026e360(s64 arg0);
 /* Source unit: src/promoted/code1_0026.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0026.c; members 0026fd90-0026fff0 */
 
-extern s32 func_0026db60(u8 *unusedTask);
+extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
 extern s32 func_0026dc50(u8 **arg0, u8 **arg1);
 extern f32 D_007612C4;
 /* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are

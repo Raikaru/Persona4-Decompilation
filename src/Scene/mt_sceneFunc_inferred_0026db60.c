@@ -11,12 +11,12 @@ extern void MT_Scene_StopShake();
 
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
-extern s32 func_0026db60(u8 *task);
+extern s32 MT_SceneManager_TaskUpdate(u8 *task);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
 extern f32 fGpffff842c;
 extern void func_0026dc30(u8 *task);
-extern s32 func_0026dee0(u8 *task);
+extern s32 MT_SceneManager_DrawUpdate(u8 *task);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern void func_0026dd60(u8 *arg0);
 extern void MT_Scene_UpdateShake(void);
@@ -83,7 +83,7 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern u8 D_00638F90[];
 extern char D_00637348[];
-extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
+extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
                            s32 arg5, s32 arg6, s32 arg7,
                            s32 arg_sp0);
@@ -144,8 +144,9 @@ extern f32 D_007612C4;
 /* measured: func_0026db60 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 /* measured: opt_propagation off probe for func_0026db60 loop test ordering. */
+// Intent: Update step of the SceneManager task, which holds the scene resource lists (retail task name "SceneManager Task") [inferred]
 // FUN_0026DB60
-s32 func_0026db60(u8 *unusedTask)
+s32 MT_SceneManager_TaskUpdate(u8 *unusedTask)
 {
     s32 var_17;
     u8 *var_16;
@@ -325,8 +326,9 @@ loop_19_test:
     }
 }
 
+// Intent: Draw step of the SceneManager task (retail task name "SceneManager Draw"), walking the resource list [inferred]
 // FUN_0026DEE0
-s32 func_0026dee0(u8 *unusedTask)
+s32 MT_SceneManager_DrawUpdate(u8 *unusedTask)
 {
     s32 temp_5;
     s8 temp_3;
@@ -357,13 +359,14 @@ loop_test:
     return 0;
 }
 
+// Intent: Creates the SceneManager task pair (retail names "SceneManager Task" and "SceneManager Draw") and returns the parent task [inferred]
 // FUN_0026DF80
-s32 func_0026df80(void)
+s32 MT_SceneManager_Create(void)
 {
     s32 temp_2;
 
-    temp_2 = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063B5A0), 0x10, 0, 0, func_0026db60, func_0026dc30, (u8 *)(0));
-    (s32)kwlnTaskCreateChild((void *)(temp_2), (const void *)(D_0063B5C0), 0x10, 0, 0, func_0026dee0, 0, (u8 *)(0));
+    temp_2 = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_0063B5A0), 0x10, 0, 0, MT_SceneManager_TaskUpdate, func_0026dc30, (u8 *)(0));
+    (s32)kwlnTaskCreateChild((void *)(temp_2), (const void *)(D_0063B5C0), 0x10, 0, 0, MT_SceneManager_DrawUpdate, 0, (u8 *)(0));
     return temp_2;
 }
 

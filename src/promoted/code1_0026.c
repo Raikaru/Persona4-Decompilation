@@ -13,7 +13,7 @@ extern void MT_Scene_StopShake();
 
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
-extern s32 func_0026db60(u8 *task);
+extern s32 MT_SceneManager_TaskUpdate(u8 *task);
 extern void MT_Scene_EvalCubicBezier(f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5, f32 *arg6);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
@@ -21,7 +21,7 @@ extern f32 fGpffff842c;
 extern void MT_Scene_GetDirectionYaw(f32 *arg0, f32 *arg1);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern void func_0026dc30(u8 *task);
-extern s32 func_0026dee0(u8 *task);
+extern s32 MT_SceneManager_DrawUpdate(u8 *task);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern void func_0026dd60(u8 *arg0);
 extern void MT_Scene_UpdateShake(void);
@@ -122,7 +122,7 @@ extern s32 func_00110c50(s32 arg0, s32 arg1);
 extern s32 func_0043c6a0(s32 arg0);
 extern f32 sinf(f32 fparg0);
 extern void calDrawDateCell(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
-extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
+extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
                            s32 arg5, s32 arg6, s32 arg7,
                            s32 arg_sp0);
@@ -432,10 +432,11 @@ void func_00260e60(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 variant, s32
 }
 #pragma pop
 /* Render the current weather and its transition using complete clip/color records. */
+// Intent: Renders the weather icon for a calendar day, cross-fading old and new weather during a transition [inferred]
 // FUN_00261560
 #pragma push
 #pragma opt_lifetimes on
-void func_00261560(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highlight, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipWidth, s32 font, s32 forcedHighlight)
+void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highlight, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipWidth, s32 font, s32 forcedHighlight)
 {
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     typedef signed __int128 s128;
@@ -1228,28 +1229,28 @@ void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade,
             calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, oldOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
             oldFont = *(s32 *)(work + 4);
             weather = (u16)func_00110c50(date - 1 + column, date);
-            func_00261560(x + column * 0x5E, y + 295, depth, oldOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, oldFont, 0);
+            calDrawWeather(x + column * 0x5E, y + 295, depth, oldOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, oldFont, 0);
             newOpacity = (u8)((f32)(func_0043c6a0(x) * (u8)opacity) / 94.0f);
             calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, newOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
             newFont = *(s32 *)(work + 4);
             weather = (u16)func_00110c50(date - 1 + column, date + 1);
-            func_00261560(x + column * 0x5E, y + 295, depth, newOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, newFont, 0);
+            calDrawWeather(x + column * 0x5E, y + 295, depth, newOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, newFont, 0);
         } else {
             calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
             rowFont = *(s32 *)(work + 4);
             weather = (u16)func_00110c50(date - 1 + column, date);
-            func_00261560(x + column * 0x5E, y + 295, depth, opacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, rowFont, 0);
+            calDrawWeather(x + column * 0x5E, y + 295, depth, opacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, rowFont, 0);
         }
         if (column == 1) {
             calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(work + 4), 0);
             selectedFont = *(s32 *)(work + 4);
             weather = (u16)func_00110c50(date - 1 + column, date);
-            func_00261560(x + column * 0x5E, y + 295, depth, opacity, weather, 1, 1.0f, 1.0f, 0, 0x58, selectedFont, 0);
+            calDrawWeather(x + column * 0x5E, y + 295, depth, opacity, weather, 1, 1.0f, 1.0f, 0, 0x58, selectedFont, 0);
         } else if (column == 2) {
             calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 1, 1.0f, 1.0f, 0xB2, 0x5E, *(s32 *)(work + 4), 0);
             selectedFont = *(s32 *)(work + 4);
             weather = (u16)func_00110c50(date - 1 + column, date);
-            func_00261560(x + column * 0x5E, y + 295, depth, opacity, weather, 1, 1.0f, 1.0f, 0xB2, 0x5E, selectedFont, 0);
+            calDrawWeather(x + column * 0x5E, y + 295, depth, opacity, weather, 1, 1.0f, 1.0f, 0xB2, 0x5E, selectedFont, 0);
         }
     }
 }
@@ -1436,13 +1437,13 @@ void func_00263cb0(s32 arg0, u8 *arg1)
                 if ((temp_20 >= 0) && (var_21 != 1)) {
                     calDrawDateCell(var_21 * 0x5E + 0xF, 0xF5, 0.0f, temp_21, (s32)temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
                     temp_17 = *(s32 *)(temp_2 + 4);
-                    func_00261560(var_21 * 0x5E, 0x127, 0.0f, temp_21, func_00110c50((s32)temp_20, temp_3) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
+                    calDrawWeather(var_21 * 0x5E, 0x127, 0.0f, temp_21, func_00110c50((s32)temp_20, temp_3) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
                 }
                 var_21 += 1;
             }
             calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
             temp_16_2 = *(s32 *)(temp_2 + 4);
-            func_00261560(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
+            calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
         } else if (temp_3_3 < 0x19) {
             func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             var_3 = &spE8;
@@ -1487,7 +1488,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
             func_0048a000();
             calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
             temp_16_2 = *(s32 *)(temp_2 + 4);
-            func_00261560(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
+            calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
         } else if (temp_3_3 < 0x1E) {
             temp_f20 = (f32)(temp_3_3 - 0x19) / 5.0f;
             temp_f0_2 = 1.0f - temp_f20;
@@ -1537,7 +1538,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
             func_0048a000();
             calDrawDateCell(0x6D, 0xF5, 0.0f, temp_17_9, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
             temp_16 = *(s32 *)(temp_2 + 4);
-            func_00261560(0x5E, 0x127, 0.0f, temp_17_9, func_00110c50(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
+            calDrawWeather(0x5E, 0x127, 0.0f, temp_17_9, func_00110c50(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
         }
         break;
     case 5:
@@ -1577,24 +1578,24 @@ void func_00263cb0(s32 arg0, u8 *arg1)
                         var_2 = temp_17_3 * 0x5E;
                         calDrawDateCell(var_2 + 0xF, 0xF5, 0.0f, 0xFF, temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
                         temp_17 = *(s32 *)(temp_2 + 4);
-                        func_00261560(var_2, 0x127, 0.0f, 0xFF, func_00110c50(temp_20, temp_17_9) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
+                        calDrawWeather(var_2, 0x127, 0.0f, 0xFF, func_00110c50(temp_20, temp_17_9) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
                     }
                     temp_17_3 += 1;
                 }
                 calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_17_9 + 1, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
                 temp_16 = *(s32 *)(temp_2 + 4);
-                func_00261560(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_9 + 1, temp_17_9) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
+                calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_9 + 1, temp_17_9) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
                 temp_3_2 = *(s32 *)(temp_2 + 0x20);
                 if (temp_3_2 < 5) {
                     temp_f21 = (f32)temp_3_2 / 5.0f;
                     calDrawDateCell(0x187, 0xF5, 0.0f, 0xFF, temp_17_9 + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
                     temp_18_6 = *(s32 *)(temp_2 + 4);
-                    func_00261560(0x178, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_9 + 4, temp_17_9) & 0xFFFF, 0, 1.0f - temp_f21, 1.0f, 0, 0x58, temp_18_6, 0);
+                    calDrawWeather(0x178, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_9 + 4, temp_17_9) & 0xFFFF, 0, 1.0f - temp_f21, 1.0f, 0, 0x58, temp_18_6, 0);
                 } else {
                     temp_f21 = ((f32)temp_3_2 - 5.0f) / 5.0f;
                     calDrawDateCell(0x187, 0xF5, 0.0f, 0xFF, temp_17_9 + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
                     temp_18_7 = *(s32 *)(temp_2 + 4);
-                    func_00261560(0x178, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_9 + 4, temp_17_9 + 1) & 0xFFFF, 0, temp_f21, 1.0f, 0, 0x58, temp_18_7, 0);
+                    calDrawWeather(0x178, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_9 + 4, temp_17_9 + 1) & 0xFFFF, 0, temp_f21, 1.0f, 0, 0x58, temp_18_7, 0);
                 }
             }
         } else {
