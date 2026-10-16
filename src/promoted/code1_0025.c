@@ -43,7 +43,7 @@ void datSetPendingDateIndex(s64 arg0);
 void datSetPendingTimeSlot(s32 arg0);
 void datSetPendingFlag(s32 arg0);
 s32 calIsDayInRange(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
+extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
 u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 
 s32 scrGetCmdTimer(void);

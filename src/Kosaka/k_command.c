@@ -32,7 +32,7 @@ extern void kAssertFail(const char* file, s32 line);
 extern s32 kwlnGetCamera(void);
 extern void* FldEvent_GetNearestEntry(void);
 extern void* FldEvent_GetTriggerEntry(void);
-extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
+extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
 extern s32 datCalcGetLevelById(s32 value);
 extern void scrSetReturnInt(s32 value);
 extern u8* MT_Scene_GetResListHead(s32 arg0);
@@ -954,7 +954,7 @@ u32 Cmd_SetResourceValueByte(void)
     rawResourceId = scrGetParamInt(0);
     value = scrGetParamInt(1);
     resourceId = (u16)(rawResourceId & 0x3ff) | 0x400;
-    MT_Scene_CheckResSlot(resourceId, (u8)value);
+    MT_Scene_SpawnResIconTask(resourceId, (u8)value);
     return 1;
 }
 

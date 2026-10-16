@@ -13,7 +13,7 @@ extern void kAssertFail(const void *file, u32 line);
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern s64 cmmCommunityArcana(s32 arg0);
 extern s32 cmmFindCommunityOfCategory(s32 arg0);
-extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
+extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
 extern s32 cmmCommunityHasRecord(s32 arg0);
 extern u16 cmmCommunityRecordValue(s32 arg0);
 extern s32 cmmCommunityTestReversed(s32 arg0);
@@ -989,7 +989,7 @@ ret:
 /* measured: opt_loop_invariants on hoists the u16->int widening of the earned value into both
    predecessors of the threshold loop (retail `move v1,zero` / `andi v1,v1` before the join). */
 #pragma opt_loop_invariants on
-// Add points: adds arg1 scaled by cmmCommunityEarnScale to arg0's point counter at +8, plays the threshold effect (sdkSndStartStream) and the resource check (MT_Scene_CheckResSlot) when arg2 is not -1, and returns the new counter. A zero arg0 uses the current community.
+// Add points: adds arg1 scaled by cmmCommunityEarnScale to arg0's point counter at +8, plays the threshold effect (sdkSndStartStream) and the resource check (MT_Scene_SpawnResIconTask) when arg2 is not -1, and returns the new counter. A zero arg0 uses the current community.
 // FUN_00108590
 u16 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2) {
     extern void kAssertFail(void *file, s32 line);
@@ -1044,7 +1044,7 @@ u16 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2) {
     temp_16 = var_4 * 4;
     sdkSndStartStream(0, 0, 4, *(u16 *)((u8 *)vals.durations + temp_16));
     if (arg2 != -1) {
-        MT_Scene_CheckResSlot(((arg2 & 0x3FF) | 0xC00) & 0xFFFF,
+        MT_Scene_SpawnResIconTask(((arg2 & 0x3FF) | 0xC00) & 0xFFFF,
                       *(u8 *)((u8 *)vals.bytes + temp_16));
     }
     temp_2 = (s32 *)cmmCommunityFindRecord(arg0);

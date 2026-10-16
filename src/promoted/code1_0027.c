@@ -28,7 +28,7 @@ extern u8 *cmmNameRecord(s32 arg0);
 static inline u32 add_retail_ptr(u32 offset, u32 base) {
     return offset + base;
 }
-extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
+extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
 extern s32 calGetDayWindowFlags(s32 arg0);
 extern s64 fclBankTryQueueRequest(s64 arg0, s32 arg1, s64 arg2);
 extern void fclBankSetReadyFlag(void);
