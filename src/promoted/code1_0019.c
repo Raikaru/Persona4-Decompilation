@@ -457,7 +457,7 @@ typedef struct {
     u8 *head;
     u8 *tail;
 } PacketList;
-extern s32 func_00193d90(u8 *arg0, s32 arg1);
+extern s32 btlPacketWaitConditionMet(u8 *arg0, s32 arg1);
 
 
 /* measured: opt_propagation off is scoped to func_001949d0. */

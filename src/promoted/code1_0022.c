@@ -175,7 +175,7 @@ extern void btlCameraUpdateMode(u8 *camera);
 extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
 extern void btlCameraSelectEncounterPreset(u8 *camera);
 
-extern u8 *func_00193bf0(u64 uid, u64 mask);
+extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(void *target);
 extern u8 *func_001b0c80(s32 arg0);
@@ -1893,7 +1893,7 @@ s32 btlEncounterWaitIdle(s64 *arg0)
 {
     u8 *temp_4;
 
-    if (func_00193bf0(*arg0,
+    if (btlUnitRecordFindByActionUID(*arg0,
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
         temp_4 = DAT_0076449c;
         *(s32 *)(temp_4 + 0xC) &= 0xFFF7FFFF;

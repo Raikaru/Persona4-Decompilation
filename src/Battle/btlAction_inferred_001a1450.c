@@ -50,7 +50,7 @@ extern u8 *iGpffffb3cc;
 extern f32 D_005F6D20[];
 
 void btlActionSetState(BtlAction *action, u16 state);
-u8 *func_00193bf0(u64 arg0, u64 arg1);
+u8 *btlUnitRecordFindByActionUID(u64 arg0, u64 arg1);
 static inline s32 func_001a_add_offset(s32 offset, s32 base)
 {
     return offset + base;
@@ -1596,7 +1596,7 @@ void btlActionCooperateInit(register BtlAction *actionState)
 // FUN_001A3D50
 void btlActionCooperateUpdate(BtlAction *action)
 {
-    if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
+    if (btlUnitRecordFindByActionUID(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
         *(s16 *)((u8 *)action + 0x448) = -1;
         *(s32 *)(D_0076449C + 0xC) |= 0x400000;
         *(u16 *)(D_0076449C + 0x18) |= 7;
@@ -6398,7 +6398,7 @@ void btlActionEscapeMesUpdate(u8 *arg0)
     if (*(s32 *)(arg0 + 0x41C) != 0) {
         goto common;
     }
-    if (func_00193bf0(*(s64 *)arg0, 0x3FFFFFFFFFFFFFFFLL) != 0) {
+    if (btlUnitRecordFindByActionUID(*(s64 *)arg0, 0x3FFFFFFFFFFFFFFFLL) != 0) {
         goto done;
     }
     btlMessageInstallWindow(*(s32 *)(D_0076449C + 0xDD4), arg0);
