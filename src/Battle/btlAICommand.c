@@ -5,6 +5,7 @@
 #include "type.h"
 #include "include_asm.h"
 #include "btl_cond_internal.h"
+#include "btl_action_internal.h"
 
 typedef u8 bool;
 typedef int (*code)();
@@ -4549,7 +4550,7 @@ u32 btlAICommandSideSwitchIdQueryMyWeak(void)
 
 /* AI script command 0x20ba (p4flow AI.json AI_FUNCTION_00BA). */
 // FUN_001E3F10
-s32 func_001e3f10(void) {
+s32 btlScriptIsSideUnitHitFlagged(void) {
     u32 a = scrGetParamInt(0) & 0xFFFF;
     u32 b = scrGetParamInt(1) & 0xFFFF;
     u32 *r = 0;
@@ -4565,7 +4566,7 @@ s32 func_001e3f10(void) {
         break;
     }
     if (r != 0)
-        x = (*(u16 *)((u8 *)r + 0x18) & 0x1800) != 0;
+        x = (*(u16 *)((u8 *)r + 0x18) & (BTL_ACTION_FLAG_HIT_LANDED | BTL_ACTION_FLAG_HIT_CRITICAL)) != 0;
     else
         x = 0;
     scrSetReturnInt(x != 0);
@@ -4574,7 +4575,7 @@ s32 func_001e3f10(void) {
 
 /* AI script command 0x20d6 (p4flow AI.json AI_FUNCTION_00D6). */
 // FUN_001E3FD0
-s32 func_001e3fd0(void) {
+s32 btlScriptIsSideUnitLandedFlagged(void) {
     u32 a = scrGetParamInt(0) & 0xFFFF;
     u32 b = scrGetParamInt(1) & 0xFFFF;
     u32 *r = 0;
@@ -4590,7 +4591,7 @@ s32 func_001e3fd0(void) {
         break;
     }
     if (r != 0)
-        x = (*(u16 *)((u8 *)r + 0x18) & 0x1000) != 0;
+        x = (*(u16 *)((u8 *)r + 0x18) & BTL_ACTION_FLAG_HIT_LANDED) != 0;
     else
         x = 0;
     scrSetReturnInt(x != 0);
@@ -4599,7 +4600,7 @@ s32 func_001e3fd0(void) {
 
 /* AI script command 0x20d7 (p4flow AI.json AI_FUNCTION_00D7). */
 // FUN_001E4090
-s32 func_001e4090(void) {
+s32 btlScriptIsSideUnitCriticalFlagged(void) {
     u32 a = scrGetParamInt(0) & 0xFFFF;
     u32 b = scrGetParamInt(1) & 0xFFFF;
     u32 *r = 0;
@@ -4615,7 +4616,7 @@ s32 func_001e4090(void) {
         break;
     }
     if (r != 0)
-        x = (*(u16 *)((u8 *)r + 0x18) & 0x800) != 0;
+        x = (*(u16 *)((u8 *)r + 0x18) & BTL_ACTION_FLAG_HIT_CRITICAL) != 0;
     else
         x = 0;
     scrSetReturnInt(x != 0);
@@ -4640,7 +4641,7 @@ s32 btlScriptIsSideUnitDownFlagged(void) {
         break;
     }
     if (r != 0)
-        x = (*(u16 *)((u8 *)r + 0x18) & 0x2000) != 0;
+        x = (*(u16 *)((u8 *)r + 0x18) & BTL_ACTION_FLAG_DOWN) != 0;
     else
         x = 0;
     scrSetReturnInt(x != 0);
