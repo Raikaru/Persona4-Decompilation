@@ -74,7 +74,7 @@ static inline s32 fldEnvironmentEventState(s32 state)
     return state;
 }
 // FUN_00153A60
-s32 func_00153a60(s32 arg0) {
+s32 FldFilterCreate(s32 arg0) {
     u8 *p;
     s32 result;
 
@@ -90,7 +90,7 @@ s32 func_00153a60(s32 arg0) {
 }
 
 // FUN_00153B20
-void func_00153b20(u8 *arg0, s32 arg1) {
+void FldFilterSetPrimary(u8 *arg0, s32 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     *(s32 *)(p + 0x4) = arg1;
@@ -98,7 +98,7 @@ void func_00153b20(u8 *arg0, s32 arg1) {
 }
 
 // FUN_00153B60
-void func_00153b60(u8 *arg0, s32 arg1)
+void FldFilterSetSecondary(u8 *arg0, s32 arg1)
 {
     u8 *work;
 
@@ -108,7 +108,7 @@ void func_00153b60(u8 *arg0, s32 arg1)
 }
 
 // FUN_00153B90
-void func_00153b90(u8 *arg0, s32 arg1)
+void FldFilterSetTertiary(u8 *arg0, s32 arg1)
 {
     u8 *work;
 
@@ -118,7 +118,7 @@ void func_00153b90(u8 *arg0, s32 arg1)
 }
 
 // FUN_00153BD0
-void func_00153bd0(u8 *arg0, s32 arg1)
+void FldFilterSetIntensity(u8 *arg0, s32 arg1)
 {
     u8 *work;
 
@@ -128,7 +128,7 @@ void func_00153bd0(u8 *arg0, s32 arg1)
 }
 
 // FUN_00153C00
-s32 func_00153c00(s32 arg0) {
+s32 FldEnvOpenFile(s32 arg0) {
     char spA0[0x80];
     char sp20[0x80];
     s32 g;
