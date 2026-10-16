@@ -240,7 +240,7 @@ void btlUnitUpdateAll(void)
     /* Retail passes the sign-extended word from (s16)btlEffectFlagToSlotIndex() in $a1
      * without narrowing; the s16 definition's prototype adds a re-extension. */
     extern void btlPacketSetValue(u8 *arg0, s32 arg1);
-    extern void func_001d72c0(void *arg0, u32 arg1);
+    extern void btlPacketSetTag(void *arg0, u32 arg1);
     extern void btlEffectRefreshPlacementState(u8 *arg0);
     u8 *entry;
     u32 i;
@@ -416,7 +416,7 @@ void btlUnitUpdateAll(void)
                             btlPacketSetValue(*(u8 **)(entry + 0xA04), chk);
                         }
                     }
-                    func_001d72c0(*(u8 **)(entry + 0xA04), *(u32 *)(entry + 0x4E));
+                    btlPacketSetTag(*(u8 **)(entry + 0xA04), *(u32 *)(entry + 0x4E));
                     btlEffectRefreshPlacementState(*(u8 **)(entry + 0xA04));
                 }
             }
