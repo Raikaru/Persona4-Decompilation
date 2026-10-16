@@ -22,7 +22,6 @@ typedef struct PersonaWork PersonaWork;
 extern s16 datCategoryRank(s16 index);
 extern u16 func_00105290(s16 pcId);
 extern s32 func_00105a50(s16 pcId);
-extern u8 datPersonaGetArcana(u16 personaId);
 extern u8 datPersonaGetLevel(s32 persona);
 extern u32 datPersonaGetExp(s32 persona);
 extern u32 datPersonaGetExpToNextLevel(PersonaWork *persona);

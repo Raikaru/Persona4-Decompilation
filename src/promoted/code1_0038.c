@@ -1244,7 +1244,6 @@ void func_00387750(u8 *arg0)
 void func_00387e70(u8 *arg0)
 {
     extern u8 *resourceFindByName(char *name);
-    extern u8 datPersonaGetArcana(u16 personaId);
     extern u8 datPersonaGetLevel(int persona);
     extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                              const char *str, int flags, int charWidth);
