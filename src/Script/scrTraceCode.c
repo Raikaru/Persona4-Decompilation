@@ -503,8 +503,9 @@ u32 scrOpJumpLabel(ScrData* scr)
     return CODEFUNC_NEXTINSTR;
 }
 
+// Shared binary operator: pops the two operands, promotes them to int or float by their stack types, and pushes the result for operation type (add, sub, mul, div, comparisons, and/or).
 // FUN_0029B1B0
-void func_0029b1b0(ScrData* scr, u32 type)
+void scrBinaryOp(ScrData* scr, u32 type)
 {
     s32 sp;
 
@@ -752,7 +753,7 @@ void func_0029b1b0(ScrData* scr, u32 type)
 // FUN_0029BEB0
 u32 CodeFunc_Add(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_ADD);
+    scrBinaryOp(scr, SCR_OPERATION_ADD);
     scr->pc++;
 
     return 1;
@@ -763,7 +764,7 @@ u32 CodeFunc_Add(ScrData* scr)
 // FUN_0029BEF0
 u32 CodeFunc_Sub(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_SUB);
+    scrBinaryOp(scr, SCR_OPERATION_SUB);
     scr->pc++;
 
     return 1;
@@ -771,10 +772,11 @@ u32 CodeFunc_Sub(ScrData* scr)
 
 
 
+// Multiplies the top two stack values (CodeFunc_Mul).
 // FUN_0029BF30
-u32 func_0029BF30(ScrData* scr)
+u32 CodeFunc_Mul(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_MUL);
+    scrBinaryOp(scr, SCR_OPERATION_MUL);
     scr->pc++;
 
     return 1;
@@ -785,14 +787,15 @@ u32 func_0029BF30(ScrData* scr)
 // FUN_0029BF70
 u32 CodeFunc_Div(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_DIV);
+    scrBinaryOp(scr, SCR_OPERATION_DIV);
     scr->pc++;
 
     return 1;
 }
 
+// Negates the top stack value in place, by its type (int, float, or the global int/float tables) (CodeFunc_Neg).
 // FUN_0029BFB0
-u32 func_0029bfb0(ScrData* scr)
+u32 CodeFunc_Neg(ScrData* scr)
 {
     s32 sp;
     f32* f;
@@ -832,8 +835,9 @@ u32 func_0029bfb0(ScrData* scr)
     return CODEFUNC_NEXTINSTR;
 }
 
+// Replaces the top stack value with 1 when it is zero, else 0 (CodeFunc_Not).
 // FUN_0029C130
-u32 func_0029c130(ScrData* scr)
+u32 CodeFunc_Not(ScrData* scr)
 {
     u32 res;
 
@@ -872,7 +876,7 @@ u32 func_0029c130(ScrData* scr)
 // FUN_0029C550
 u32 CodeFunc_Or(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_OR);
+    scrBinaryOp(scr, SCR_OPERATION_OR);
     scr->pc++;
 
     return 1;
@@ -883,7 +887,7 @@ u32 CodeFunc_Or(ScrData* scr)
 // FUN_0029C590
 u32 CodeFunc_And(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_AND);
+    scrBinaryOp(scr, SCR_OPERATION_AND);
     scr->pc++;
 
     return 1;
@@ -894,7 +898,7 @@ u32 CodeFunc_And(ScrData* scr)
 // FUN_0029C5D0
 u32 CodeFunc_Eq(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_EQ);
+    scrBinaryOp(scr, SCR_OPERATION_EQ);
     scr->pc++;
 
     return 1;
@@ -905,7 +909,7 @@ u32 CodeFunc_Eq(ScrData* scr)
 // FUN_0029C610
 u32 CodeFunc_Neq(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_NEQ);
+    scrBinaryOp(scr, SCR_OPERATION_NEQ);
     scr->pc++;
 
     return 1;
@@ -916,7 +920,7 @@ u32 CodeFunc_Neq(ScrData* scr)
 // FUN_0029C650
 u32 CodeFunc_S(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_S);
+    scrBinaryOp(scr, SCR_OPERATION_S);
     scr->pc++;
 
     return 1;
@@ -927,7 +931,7 @@ u32 CodeFunc_S(ScrData* scr)
 // FUN_0029C690
 u32 CodeFunc_L(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_L);
+    scrBinaryOp(scr, SCR_OPERATION_L);
     scr->pc++;
 
     return 1;
@@ -938,7 +942,7 @@ u32 CodeFunc_L(ScrData* scr)
 // FUN_0029C6D0
 u32 CodeFunc_SE(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_SE);
+    scrBinaryOp(scr, SCR_OPERATION_SE);
     scr->pc++;
 
     return 1;
@@ -949,14 +953,15 @@ u32 CodeFunc_SE(ScrData* scr)
 // FUN_0029C710
 u32 CodeFunc_LE(ScrData* scr)
 {
-    func_0029b1b0(scr, SCR_OPERATION_LE);
+    scrBinaryOp(scr, SCR_OPERATION_LE);
     scr->pc++;
 
     return 1;
 }
 
+// Pops the top value; when it is zero, jumps to the label named by the instruction operand, else falls through (CodeFunc_JumpIfFalse) [inferred].
 // FUN_0029C750
-u32 func_0029c750(ScrData* scr)
+u32 CodeFunc_JumpIfFalse(ScrData* scr)
 {
     u32 res;
 
@@ -1003,8 +1008,9 @@ u32 func_0029c750(ScrData* scr)
     return CODEFUNC_NEXTINSTR;
 }
 
+// Interpreter loop: runs codefuncs from the current pc until they stop, yield or advance the instruction (scrRunCodeLoop).
 // FUN_0029CB00
-u32 func_0029cb00(ScrData* scr)
+u32 scrRunCodeLoop(ScrData* scr)
 {
     s16 opCode;
     u32 codeFuncRet;

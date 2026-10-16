@@ -169,7 +169,7 @@ void func_0046a2d0(char* file, s32 line);
 u8* poolAlloc(s32 size);
 void poolFree(void* ptr);
 u32 kwlnTaskGetWork(void* task);
-s32 func_0029cb00(void* arg0, ...);
+s32 scrRunCodeLoop(void* arg0, ...);
 s32 func_0029e970(void);
 void func_0029e960(s32 arg0);
 void func_00440b68(char* fmt, ...);
@@ -495,7 +495,7 @@ s32 func_0029d870(u8 *task)
 {
     s32 code;
 
-    code = func_0029cb00((void*)kwlnTaskGetWork(task));
+    code = scrRunCodeLoop((void*)kwlnTaskGetWork(task));
     switch (code)
     {
     case 0:  // SCRTRACE_ERROR
@@ -919,7 +919,7 @@ s32 func_0029e040(u8 *sdkTask)
             {
                 s32 ret;
 
-                ret = func_0029cb00((void *)task->unk_214);
+                ret = scrRunCodeLoop((void *)task->unk_214);
                 switch (ret) {
                 case 0:
                     kAssertFailAt(D_0063E520, D_0063E3D0, 0x457);
