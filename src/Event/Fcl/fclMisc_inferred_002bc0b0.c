@@ -45,7 +45,7 @@ extern u32 datEntryGetFlags(s16 item);
 extern u8 *func_002e2170(u8 *arg0, s32 arg1, s32 arg2);
 extern void sprintf();
 extern s64 datGetDateIndex(void);
-extern s32 func_00110d60(s16 arg0);
+extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 sdkSpriteRequestLoad(void *arg0);
 extern s32 func_0046a750(s32 arg0);
 extern void sdkSpriteRelease(void *arg0);
@@ -393,7 +393,7 @@ s32 func_002bc9e0(u8 *arg0)
         if (temp_4 == 0) {
             if (*(s32 *)(temp_17 + 4) == 0) {
                 sprintf(sp40, &D_0063F340);
-            } else if ((func_00110d60((s16)datGetDateIndex()) & 1) != 0) {
+            } else if ((calGetDayWindowFlags((s16)datGetDateIndex()) & 1) != 0) {
                 sprintf(sp40, &D_0063F360, *(s32 *)(temp_17 + 4));
             } else {
                 sprintf(sp40, &D_0063F380, *(s32 *)(temp_17 + 4));

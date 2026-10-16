@@ -18,7 +18,7 @@ extern s32 btlCurrentUnitId(void);
 extern s64 datGetDateIndex(void);
 extern s32 datGetFlag(s32 arg0);
 extern s32 func_00106cd0(s32 arg0, s32 arg1);
-extern s32 func_00110d60(s16 arg0);
+extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
 extern char D_007636e0;
@@ -184,7 +184,7 @@ s32 btlBossResolveModelName(u32 arg0, u16 arg1, char *arg2)
         {
             if (datGetFlag(0x1438) != 0 && temp_16 == 1)
                 sprintf(arg2, D_00635690, &D_007636e0, temp_16);
-            else if (func_00110d60((s16)datGetDateIndex()) & 1)
+            else if (calGetDayWindowFlags((s16)datGetDateIndex()) & 1)
                 sprintf(arg2, D_006356B0, &D_007636e0, temp_16);
             else
                 sprintf(arg2, D_006356D0, &D_007636e0, temp_16);
@@ -194,12 +194,12 @@ s32 btlBossResolveModelName(u32 arg0, u16 arg1, char *arg2)
             temp_18 = func_00106cd0(3, 0) & 0xFFFF;
             if (temp_18 >= 0x70 && temp_18 < 0x96)
             {
-                if (func_00110d60((s16)datGetDateIndex()) & 1)
+                if (calGetDayWindowFlags((s16)datGetDateIndex()) & 1)
                     sprintf(arg2, D_006356F0, &D_007636e0, temp_18);
                 else
                     sprintf(arg2, D_00635710, &D_007636e0, temp_18);
             }
-            else if (func_00110d60((s16)datGetDateIndex()) & 1)
+            else if (calGetDayWindowFlags((s16)datGetDateIndex()) & 1)
                 sprintf(arg2, D_006356B0, &D_007636e0, temp_16);
             else
                 sprintf(arg2, D_006356D0, &D_007636e0, temp_16);

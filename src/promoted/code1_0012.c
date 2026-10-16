@@ -1498,7 +1498,7 @@ s32 clndPromptFinished(void)
 s32 clndSceneUpdate(u8 *arg0)
 {
     extern s32 func_00122520(s32 arg0, s32 arg1);
-    extern void func_00111050(s32 arg0);
+    extern void calSetDefaultDayFlags(s32 arg0);
     extern void func_00459880(void);
     extern void sdkSndFadeOutChannel(s32 arg0, s32 arg1);
     extern s32 logoTaskStart(void);
@@ -1555,7 +1555,7 @@ s32 clndSceneUpdate(u8 *arg0)
         }
         break;
     case 2:
-        func_00111050(1);
+        calSetDefaultDayFlags(1);
         func_00459880();
         sdkSndFadeOutChannel(3, 0);
         *(s32 *)(temp_16 + 0xC) = logoTaskStart();
@@ -1603,7 +1603,7 @@ s32 clndSceneUpdate(u8 *arg0)
         goto state_done;
     state2:
         func_001113b0();
-        func_00111290();
+        calRestoreDayFlagMask();
         func_00123850();
         func_001238c0(1);
         func_001029a0(0x19, 0, 0, 0);
@@ -3875,9 +3875,9 @@ s32 func_0012aa70(u8 *task)
     extern s32 func_001246d0(u8 *task);
     extern s32 func_00124830(u8 *task);
     extern s32 func_00124350(u8 *unusedWork);
-    extern s32 func_001110e0(void);
-    extern void func_00111160(s32 task);
-    extern s32 func_00111200(void);
+    extern s32 calReadDayFlagMask(void);
+    extern void calWriteDayFlagMask(s32 task);
+    extern s32 calCaptureDayFlagMask(void);
     extern void func_001113b0(void);
     extern void func_00122520(s32 task, s32 arg1);
     extern void func_00122640(s32 task, s32 arg1);
@@ -4108,7 +4108,7 @@ s32 func_0012aa70(u8 *task)
         }
         break;
     case 10:
-        *(s32 *)(work + 0x8C) = func_001110e0();
+        *(s32 *)(work + 0x8C) = calReadDayFlagMask();
         func_001113b0();
         *(s32 *)work = 0xB;
         *(s32 *)(work + 0x34) = mcIconTaskCreate(task, 0);
@@ -4122,7 +4122,7 @@ s32 func_0012aa70(u8 *task)
             break;
         case 2:
             *(s32 *)work = 8;
-            func_00111160(*(s32 *)(work + 0x8C));
+            calWriteDayFlagMask(*(s32 *)(work + 0x8C));
             break;
         }
         break;
@@ -4141,7 +4141,7 @@ s32 func_0012aa70(u8 *task)
     case 15:
         if (func_0035c7d0(*(u8 **)(work + 0x34)) != 0) {
             if (func_0035c810(*(u8 **)(work + 0x34)) != 0) {
-                func_00111200();
+                calCaptureDayFlagMask();
             }
             kwlnTaskDestroyWithHierarchy(*(u8 **)(work + 0x34));
             *(s32 *)(work + 0x34) = 0;

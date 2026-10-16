@@ -178,7 +178,7 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *FldUnit_FindNearestSlot(u8 *arg0, u32 *arg1, s32 arg2);
 extern s64 datGetDateIndex(void);
 extern s32 func_001064f0(s32 arg0);
-extern s32 func_00110d60(s16 arg0);
+extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 D_007E8BF8[];
 void *memset(void *arg0, s32 arg1, u32 arg2);
 s32 Encount_GetEntryRate(u16 arg0, u16 arg1, u16 arg2);
@@ -1807,7 +1807,7 @@ loop:
             s32 parity;
             s32 base;
             base = 10;
-            state = func_00110d60((s16)datGetDateIndex());
+            state = calGetDayWindowFlags((s16)datGetDateIndex());
             parity = state & 1;
             if (state < 0 && parity != 0) {
                 parity -= 2;
