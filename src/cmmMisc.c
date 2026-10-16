@@ -1435,8 +1435,9 @@ s32 cmmTableLookupFlagged(s32 arg0, s32 arg1, s32 arg2) {
     }
     return -1;
 }
+// Returns 0 when arg1 is at or below the first threshold of date-table entry arg0, 1 when it is at or below the second, else 2 [inferred].
 // FUN_00248F20
-s32 func_00248f20(s32 arg0, s32 arg1) {
+s32 cmmDateTableRangeKind(s32 arg0, s32 arg1) {
     u8 *temp_19 = (u8 *)(D_008814CC[0] + 8);
     s16 temp_17 = (s16)arg0;
     s32 temp_16;

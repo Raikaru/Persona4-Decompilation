@@ -20,7 +20,7 @@ extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 extern s64 nmMesWindowAcquire(void *arg0);
 extern void strcpy(u8 *arg0, u8 *arg1);
 extern void nmMesWindowSetSlotString(s8 arg0, s32 arg1, void *arg2);
-extern s32 func_00248f20(s32 arg0, s32 arg1);
+extern s32 cmmDateTableRangeKind(s32 arg0, s32 arg1);
 extern void kAssertFail(u8 *arg0, s32 arg1);
 extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
 extern s32 nmMesWindowSlotStatus(s8 arg0);
@@ -78,7 +78,7 @@ s32 func_0025c790(u8 *task)
         if (work->slot != -1) {
             strcpy(name, D_00636820[work->index]);
             nmMesWindowSetSlotString((s8)work->slot, 0, name);
-            message = func_00248f20((s16)work->index, work->value);
+            message = cmmDateTableRangeKind((s16)work->index, work->value);
             if (message < 0 || message > 2)
                 kAssertFail(D_00636838, 0xD1);
             nmMesWindowShowSlotRecord((s8)work->slot, message);

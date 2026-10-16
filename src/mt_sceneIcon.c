@@ -22,7 +22,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 *MT_Scene_GetRes();
 extern void func_004b1170(s32 a);
 /* measured: returns 0 / -1 in $v0; the task dispatcher discards it, so the callback site casts. */
-extern s32 func_0026d890(u8 *arg0);
+extern s32 mtSceneIconTaskUpdate(u8 *arg0);
 extern u8 D_0063B558[];
 extern u8 D_0063B568[];
 extern void func_00440b68(u8 *fmt, u8 *file, s32 line);
@@ -36,15 +36,17 @@ extern void H_Cdvd_ReadSync(u8 *handle);
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
+// Loads the scene icon directory: logs its debug name and syncs the directory read [inferred].
 // FUN_0026D840
-void func_0026d840(void)
+void mtSceneIconLoadDirectory(void)
 {
     func_00440b68(&iGpffffa6f8, D_0063B558, 0x38);
     H_Cdvd_ReadSync(H_Cdvd_AcquireDirectory(D_0063B568, 1));
 }
 
+// Scene icon task update: state 0 starts the icon lookup request; state 1 attaches the loaded handle to the icon resource and spawns any previous handle [inferred].
 // FUN_0026D890
-s32 func_0026d890(u8 *arg0)
+s32 mtSceneIconTaskUpdate(u8 *arg0)
 {
     u8 sp3C[4];
     u8 *handle;
@@ -93,8 +95,9 @@ s32 func_0026d890(u8 *arg0)
     }
     return 0;
 }
+// Scene icon task destroy: calls the release callback on the task's work block [inferred].
 // FUN_0026D9F0
-void func_0026d9f0(u8 *unusedTask)
+void mtSceneIconTaskDestroy(u8 *unusedTask)
 {
     int iVar1;
 
@@ -102,8 +105,9 @@ void func_0026d9f0(u8 *unusedTask)
     DAT_008873ec_abs[0](iVar1);
 }
 
+// Releases the scene icon handle for kind 1 or 3 when it is set, returning 0 once released [inferred].
 // FUN_0026DA30
-s32 func_0026da30(s32 arg0, s32 arg1)
+s32 mtSceneIconReleaseRes(s32 arg0, s32 arg1)
 {
     u8 *icon;
     u8 *mem;
@@ -134,6 +138,6 @@ s32 func_0026da30(s32 arg0, s32 arg1)
     mem = D_008873F4[0](1, 0x10, 0x40000);
     *(s16 *)(mem + 4) = arg0;
     *(s32 *)(mem + 8) = arg1;
-    return (s32)kwlnTaskCreate((const void *)(&iGpffffa700), 0xF, 0, 0, func_0026d890, func_0026d9f0, (u8 *)(mem));
+    return (s32)kwlnTaskCreate((const void *)(&iGpffffa700), 0xF, 0, 0, mtSceneIconTaskUpdate, mtSceneIconTaskDestroy, (u8 *)(mem));
 }
 
