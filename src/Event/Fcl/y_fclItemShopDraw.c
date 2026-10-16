@@ -73,7 +73,7 @@ s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 frFontExDrawTextDeferred(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, void *arg9);
 extern u32 datGetItemNameId(s16 arg0);
 extern s32 func_00106600(s16 arg0);
-extern void func_002caa10(F2_0033 position, f32 depth, FclDrawColor color, u32 number, s16 glyphBase, void *sprite,
+extern void fclShopDrawNumber(F2_0033 position, f32 depth, FclDrawColor color, u32 number, s16 glyphBase, void *sprite,
                           s32 style);
 extern void func_002bc7f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
 extern s32 yListCount(void);
@@ -965,7 +965,7 @@ s32 func_00332bb0(u8 *arg0) {
         *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
         *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
         if (func_0033d390(*(void **)(work + 0xCC), 1) == 0) {
-            func_002caa10(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
+            fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
                           func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35, *(void **)(work + 0xC), 0xAB);
             func_0033c490(arg0);
             tbl = (F2_0033 *)D_0064A218;
@@ -1328,7 +1328,7 @@ s32 func_00332bb0(u8 *arg0) {
         *(f32 *)(work + 0x2A8) = func_002b2aa0(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
         *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
         *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
-        func_002caa10(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
+        fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
                       *(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
                       *(void **)(work + 0xC), 0xAB);
         func_0033c490(arg0);
@@ -1446,7 +1446,7 @@ s32 func_00332bb0(u8 *arg0) {
         *(f32 *)(work + 0x2A8) = func_002b2aa0(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
         *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
         *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
-        func_002caa10(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
+        fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
                       *(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
                       *(void **)(work + 0xC), 0xAB);
         func_0033c490(arg0);
@@ -1838,7 +1838,7 @@ void func_0033c490(u8 *arg0)
         frFontExDrawTextDeferred(78.0f, 77.0f, 62.0f, color, 0, 1, value, 0, 0, D_00795E60);
         pos1 = func_002b2970(406.0f, 84.0f);
         col1 = func_002b2a60(0x26, 0x26, 0x26, 0xFF);
-        func_002caa10(pos1, 62.0f, col1,
+        fclShopDrawNumber(pos1, 62.0f, col1,
                       func_0033cbc0(arg0, yListValueAt(*(s16 *)(p + 4))), 0x19,
                       *(void **)(p + 0xC), 0xAB);
         func_002bc7f0((s16)func_00106b80((s16)yListValueAt(*(s16 *)(p + 4))), -1, 1, 0, 4, 0xAA,
@@ -1902,7 +1902,7 @@ void func_0033c490(u8 *arg0)
         fclShopDrawItemName(i, (f32)top, red, green, blue);
         pos2 = func_002b2970(406.0f, (f32)(y + 0x54));
         col2 = func_002b2a60(red, green, blue, 0xFF);
-        func_002caa10(pos2, 62.0f, col2, func_0033cbc0(arg0, yListValueAt(i)),
+        fclShopDrawNumber(pos2, 62.0f, col2, func_0033cbc0(arg0, yListValueAt(i)),
                       0x19, *(void **)(p + 0xC), 0xAB);
     }
 }

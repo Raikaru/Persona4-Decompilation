@@ -188,7 +188,7 @@ void func_00105780(s32);
 s32 func_00106b20(s16);
 void chkmemAllocSiteTag(const void *, u32);
 
-s32 func_002e0100(u8 *task);
+s32 fclShopItemPanelUpdate(u8 *task);
 void memcpy(void *, s32, s32);
 s32 func_002b89a0(void *);
 void *func_00460990(void);
@@ -223,7 +223,7 @@ void func_002bafc0(s32, s32);
 void func_002bb0a0(s32, s32);
 void func_002bbf60(void);
 
-s32 func_002dfec0(void *, s32, void *, s8);
+s32 fclShopPlaySound(void *, s32, void *, s8);
 s32 func_002dff90(void *, s32, void *, void *, s8);
 u32 RpRandom(void);
 void memset(void *, s32, s32);
@@ -257,7 +257,7 @@ void func_002e0ca0(s32, Vec2f, f32, s32, u8, s32, u8 *);
 void func_002e0a60(void *, s32, f32);
 void func_002e0080(void *, s8, Vec2f, void *);
 void func_002d8200(void *, s8);
-void func_002d83c0(void *);
+void fclShopDrawSwingCursor(void *);
 s32 yListCount(void);
 s32 func_002e26a0(void);
 s32 func_002b2cb0(s32, s32, s32, s32, s8);
@@ -360,8 +360,8 @@ s32 func_002be530(u8 *arg0)
     extern s32 kwlnTaskGetTaskByName(void *);
     extern u8 sdkSndStartChannel(s16, const char *);
     extern void func_002dfe00(void *arg0);
-    extern s32 func_002dfd00(u16 arg0);
-    extern void func_002e02d0(u8 *task);
+    extern s32 fclShopIsSpecialItem(u16 arg0);
+    extern void fclShopItemPanelDestroy(u8 *task);
     extern void func_002caef0(void *arg0);
     extern void func_002cb6c0(void *arg0, s8 arg1);
     extern void func_002cdf80(void *arg0, s8 arg1);
@@ -380,7 +380,7 @@ s32 func_002be530(u8 *arg0)
     extern void func_002de5a0(void *arg0);
     extern void func_002df020(void *arg0, s16 arg1, s32 arg2);
     extern void func_002df4c0(void *arg0);
-    extern s32 func_002e0300(s32 arg0, s16 arg1, u32 arg2);
+    extern s32 fclShopItemPanelCreate(s32 arg0, s16 arg1, u32 arg2);
     ShopArgPair sp6A0;
     ShopArgPair sp698;
     ShopArgPair sp690;
@@ -872,46 +872,46 @@ s32 func_002be530(u8 *arg0)
             (*(s8 *)(work + 0)) = 0xB;
             (*(s8 *)(work + 0xF30)) = 1;
             for (var_16 = 0; var_16 < 0x91; var_16++) {
-                (*(s32 *)((u8 *)((work + (var_16 * 4))) + 0xC38)) = func_002e0300((s32) arg0, var_16, (*(u32 *)(work + 0xF28)));
+                (*(s32 *)((u8 *)((work + (var_16 * 4))) + 0xC38)) = fclShopItemPanelCreate((s32) arg0, var_16, (*(u32 *)(work + 0xF28)));
             }
-            (*(s32 *)(work + 0xE7C)) = func_002e0300((s32) arg0, 6, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xE80)) = func_002e0300((s32) arg0, 0xA, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xE84)) = func_002e0300((s32) arg0, 0x1D, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xE7C)) = fclShopItemPanelCreate((s32) arg0, 6, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xE80)) = fclShopItemPanelCreate((s32) arg0, 0xA, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xE84)) = fclShopItemPanelCreate((s32) arg0, 0x1D, (*(u32 *)(work + 0xF28)));
             for (var_16_2 = 0; var_16_2 < 3; var_16_2++) {
-                (*(s32 *)((u8 *)((work + (var_16_2 * 4))) + 0xE88)) = func_002e0300((s32) arg0, (s16) ((s16) ((var_16_2 + 0x61))), (*(u32 *)(work + 0xF28)));
+                (*(s32 *)((u8 *)((work + (var_16_2 * 4))) + 0xE88)) = fclShopItemPanelCreate((s32) arg0, (s16) ((s16) ((var_16_2 + 0x61))), (*(u32 *)(work + 0xF28)));
             }
             for (var_16_3 = 0; var_16_3 < 4; var_16_3++) {
-                (*(s32 *)((u8 *)((work + (var_16_3 * 4))) + 0xE94)) = func_002e0300((s32) arg0, (s16) ((s16) ((var_16_3 + 0x19))), (*(u32 *)(work + 0xF28)));
+                (*(s32 *)((u8 *)((work + (var_16_3 * 4))) + 0xE94)) = fclShopItemPanelCreate((s32) arg0, (s16) ((s16) ((var_16_3 + 0x19))), (*(u32 *)(work + 0xF28)));
             }
-            (*(s32 *)(work + 0xEA4)) = func_002e0300((s32) arg0, 0x1D, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEA8)) = func_002e0300((s32) arg0, 0x1D, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEAC)) = func_002e0300((s32) arg0, 0x20, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEB0)) = func_002e0300((s32) arg0, 0x21, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEB4)) = func_002e0300((s32) arg0, 3, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEB8)) = func_002e0300((s32) arg0, 4, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEBC)) = func_002e0300((s32) arg0, 3, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEC0)) = func_002e0300((s32) arg0, 4, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEC4)) = func_002e0300((s32) arg0, 3, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEC8)) = func_002e0300((s32) arg0, 4, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xED4)) = func_002e0300((s32) arg0, 3, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xED8)) = func_002e0300((s32) arg0, 4, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xECC)) = func_002e0300((s32) arg0, 5, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEDC)) = func_002e0300((s32) arg0, 0x2B, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEE0)) = func_002e0300((s32) arg0, 0x2C, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xED0)) = func_002e0300((s32) arg0, 0x5F, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF14)) = func_002e0300((s32) arg0, 0x5F, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEE4)) = func_002e0300((s32) arg0, 0x65, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEE8)) = func_002e0300((s32) arg0, 0x66, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEEC)) = func_002e0300((s32) arg0, 0xA, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEF0)) = func_002e0300((s32) arg0, 0xA, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEF4)) = func_002e0300((s32) arg0, 0x12, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEF8)) = func_002e0300((s32) arg0, 0xE, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xEFC)) = func_002e0300((s32) arg0, 0x13, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF00)) = func_002e0300((s32) arg0, 0xF, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF04)) = func_002e0300((s32) arg0, 0x10, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF08)) = func_002e0300((s32) arg0, 0x8C, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF0C)) = func_002e0300((s32) arg0, 0x8D, (*(u32 *)(work + 0xF28)));
-            (*(s32 *)(work + 0xF10)) = func_002e0300((s32) arg0, 0x8E, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEA4)) = fclShopItemPanelCreate((s32) arg0, 0x1D, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEA8)) = fclShopItemPanelCreate((s32) arg0, 0x1D, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEAC)) = fclShopItemPanelCreate((s32) arg0, 0x20, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEB0)) = fclShopItemPanelCreate((s32) arg0, 0x21, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEB4)) = fclShopItemPanelCreate((s32) arg0, 3, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEB8)) = fclShopItemPanelCreate((s32) arg0, 4, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEBC)) = fclShopItemPanelCreate((s32) arg0, 3, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEC0)) = fclShopItemPanelCreate((s32) arg0, 4, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEC4)) = fclShopItemPanelCreate((s32) arg0, 3, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEC8)) = fclShopItemPanelCreate((s32) arg0, 4, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xED4)) = fclShopItemPanelCreate((s32) arg0, 3, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xED8)) = fclShopItemPanelCreate((s32) arg0, 4, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xECC)) = fclShopItemPanelCreate((s32) arg0, 5, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEDC)) = fclShopItemPanelCreate((s32) arg0, 0x2B, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEE0)) = fclShopItemPanelCreate((s32) arg0, 0x2C, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xED0)) = fclShopItemPanelCreate((s32) arg0, 0x5F, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xF14)) = fclShopItemPanelCreate((s32) arg0, 0x5F, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEE4)) = fclShopItemPanelCreate((s32) arg0, 0x65, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEE8)) = fclShopItemPanelCreate((s32) arg0, 0x66, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEEC)) = fclShopItemPanelCreate((s32) arg0, 0xA, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEF0)) = fclShopItemPanelCreate((s32) arg0, 0xA, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEF4)) = fclShopItemPanelCreate((s32) arg0, 0x12, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEF8)) = fclShopItemPanelCreate((s32) arg0, 0xE, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xEFC)) = fclShopItemPanelCreate((s32) arg0, 0x13, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xF00)) = fclShopItemPanelCreate((s32) arg0, 0xF, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xF04)) = fclShopItemPanelCreate((s32) arg0, 0x10, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xF08)) = fclShopItemPanelCreate((s32) arg0, 0x8C, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xF0C)) = fclShopItemPanelCreate((s32) arg0, 0x8D, (*(u32 *)(work + 0xF28)));
+            (*(s32 *)(work + 0xF10)) = fclShopItemPanelCreate((s32) arg0, 0x8E, (*(u32 *)(work + 0xF28)));
             temp_2_3 = sdkSpriteNewNode((u32)((void *) (*(s32 *)(work + 0xF28))), (u32)(0x48));
             temp_f21 = 632.0f + sdkSpriteScaledWidth(temp_2_3);
             sdkSpriteFreeNode(temp_2_3);
@@ -981,12 +981,12 @@ s32 func_002be530(u8 *arg0)
         if (((s8) (calGetDayEntryForMonthDay((func_002e78a0() & 0xFF), (u8)func_002e78e0() & 0xFF))) == 1) {
             temp_3_2 = (s16) ((((u8)func_002e78e0() & 0xFF) + ((func_002e78a0() & 0xFF) * 0x64)));
             if ((temp_3_2 >= 0x190) && (temp_3_2 < 0x207)) {
-                (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 0xC, (*(void * *)((u8 *)((*(void * *)(work + 0xF2C))) + 0x110)), 0);
+                (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 0xC, (*(void * *)((u8 *)((*(void * *)(work + 0xF2C))) + 0x110)), 0);
             } else {
-                (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 0xD, (*(void * *)((u8 *)((*(void * *)(work + 0xF2C))) + 0x110)), 0);
+                (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 0xD, (*(void * *)((u8 *)((*(void * *)(work + 0xF2C))) + 0x110)), 0);
             }
         } else {
-            (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 0xC, (*(void * *)((u8 *)((*(void * *)(work + 0xF2C))) + 0x110)), 0);
+            (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 0xC, (*(void * *)((u8 *)((*(void * *)(work + 0xF2C))) + 0x110)), 0);
         }
         (*(s8 *)(work + 0)) = 0xF;
         break;
@@ -1379,7 +1379,7 @@ s32 func_002be530(u8 *arg0)
             if (((s16) (var_19)) == 0) {
                 if (D_008C027A[0] & 0x4000) {
                     (*(s8 *)(work + 8)) = func_002b2cb0((s32) (*(s8 *)(work + 8)), 1, (*(s8 *)(work + 9)) - 1, 0, 2);
-                    func_002d83c0(arg0);
+                    fclShopDrawSwingCursor(arg0);
                     temp_f20_14 =  78.0f + 35.0f * (f32) (*(s8 *)(work + 8));
                     (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED8)))) + 0x30)) = temp_f20_14;
                     (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED4)))) + 0x30)) = temp_f20_14;
@@ -1388,7 +1388,7 @@ s32 func_002be530(u8 *arg0)
                     func_0045af60(0, 0, 0, 0);
                 } else if (D_008C027A[0] & 0x1000) {
                     (*(s8 *)(work + 8)) = func_002b2d00((s32) (*(s8 *)(work + 8)), 1, 0, (*(s8 *)(work + 9)) - 1, 2);
-                    func_002d83c0(arg0);
+                    fclShopDrawSwingCursor(arg0);
                     temp_f20_15 =  78.0f + 35.0f * (f32) (*(s8 *)(work + 8));
                     (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED8)))) + 0x30)) = temp_f20_15;
                     (*(f32 *)((u8 *)(func_002e04e0((void *) (*(s32 *)(work + 0xED4)))) + 0x30)) = temp_f20_15;
@@ -1675,7 +1675,7 @@ s32 func_002be530(u8 *arg0)
             *(FclDrawColor *)((u8 *)func_002e04e0((*(void * *)(work + 0xDD0))) + 0x79) = *(FclDrawColor *)(work + 0xF42);
             sp6A0.v0 = yListValueAt((*(s16 *)(work + 2)));
             sp6A0.v1 = 0;
-            (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 1, &sp6A0, 1);
+            (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 1, &sp6A0, 1);
             (*(s8 *)(work + 0)) = 0x1D;
             func_002d6190(arg0);
             func_002e04f0((*(void * *)(work + 0xDC8)), 0, 1);
@@ -1696,7 +1696,7 @@ s32 func_002be530(u8 *arg0)
             func_002e7a80(func_002e7a60() - func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
             sp698.v0 = yListValueAt((*(s16 *)(work + 2)));
             sp698.v1 = 0;
-            (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 4, &sp698, 1);
+            (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 4, &sp698, 1);
             (*(s8 *)(work + 0)) = 0x1E;
         } else {
             func_002d7300(arg0);
@@ -1718,7 +1718,7 @@ s32 func_002be530(u8 *arg0)
                 func_002bb550((*(s8 *)(work + 0x10)));
                 sp690.v0 = (s32) ((s16) (func_00106cd0((s16) (*(s8 *)((u8 *)(((*(s8 *)(work + 8)) + (u32)work)) + 0xF73)), (s16) (*(s8 *)(work + 7)))));
                 sp690.v1 = 0;
-                (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 5, &sp690, 1);
+                (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 5, &sp690, 1);
                 (*(s8 *)(work + 0)) = 0x1F;
             } else {
                 func_002bb550((*(s8 *)(work + 0x10)));
@@ -1930,7 +1930,7 @@ s32 func_002be530(u8 *arg0)
                     if ((func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) <= func_002e7a60()) && ((func_00106600((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))) & 0xFF) < 0x63)) {
                         sp688.v0 = yListValueAt((*(s16 *)(work + 2)));
                         sp688.v1 = 0;
-                        (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 1, &sp688, 1);
+                        (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 1, &sp688, 1);
                         (*(s8 *)(work + 0)) = 0x23;
                         func_0045af60(0, 0, 0, 1);
                     } else {
@@ -1966,7 +1966,7 @@ block_368:
             func_002e04f0((*(void * *)(work + 0xC90)), 0, 1);
             sp680.v0 = yListValueAt((*(s16 *)(work + 2)));
             sp680.v1 = 0;
-            (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 4, &sp680, 1);
+            (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 4, &sp680, 1);
             func_002d6190(arg0);
             func_002e7a80(func_002e7a60() - func_00106a90((s16) ((s16) (yListValueAt((*(s16 *)(work + 2)))))));
             (*(s8 *)(work + 0)) = 0x1E;
@@ -2020,7 +2020,7 @@ block_368:
                     var_19_4 += (func_00106a90(temp_2_85) / 5U) * (func_00106600(temp_2_85) & 0xFF);
                 }
                 sprintf(spD0, iGpffffa880, func_002b2cb0(var_19_4, 0, 0x98967F, 0, 1));
-                (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 6, spD0, 1);
+                (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 6, spD0, 1);
                 (*(s8 *)(work + 0)) = 0x2E;
             } else if (yListCountFor((((void**)(work + 0xF18))[temp_3_18])) > 0) {
                 func_002e0660((*(void * *)(work + 0xDCC)), 0xFFU, 0U, 0U, 5, 0);
@@ -2339,7 +2339,7 @@ block_368:
         func_002dd3b0(arg0);
         (*(s8 *)(work + 0xC1A)) = func_002b2cb0((s32) (*(s8 *)(work + 0xC1A)), 1, 0x3C, 0, 1);
         if ((*(s8 *)(work + 0xC1A)) >= 0x3C) {
-            (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 0xA, NULL, 0);
+            (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 0xA, NULL, 0);
             (*(s8 *)(work + 0)) = 0x2B;
             (*(s8 *)(work + 0xC1A)) = 0;
         }
@@ -2353,7 +2353,7 @@ block_368:
             func_002bb550((*(s8 *)(work + 0x10)));
             sp670.v0 = (s32) (((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]);
             sp670.v1 = 0;
-            (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 3, &sp670, 0);
+            (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 3, &sp670, 0);
             (*(s8 *)(work + 0)) = 0x2D;
         }
         break;
@@ -2362,7 +2362,7 @@ block_368:
         func_002dd3b0(arg0);
         sp668.v0 = (s32) (((s16 *)(work + 0x16))[(*(s16 *)(work + 0xC18))]);
         sp668.v1 = 0;
-        (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 3, &sp668, 0);
+        (*(s8 *)(work + 0x10)) = fclShopPlaySound(arg0, 3, &sp668, 0);
         (*(s8 *)(work + 0)) = 0x2D;
         break;
     case 0x2D:                                      /* switch 1 */
@@ -2652,8 +2652,9 @@ block_368:
     return 0;
 }
 
+// Destroys the shop draw task: releases the glyph sprites, the sprite and CDVD handles, and the list, then frees the work block.
 // FUN_002CA770
-void func_002ca770(u8 *arg0) {
+void fclShopDrawDestroy(u8 *arg0) {
     s16 i;
     void *work = *(void **)((u8 *)arg0 + 0x38);
 
@@ -2671,8 +2672,9 @@ void func_002ca770(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((s32)arg0 + 0x38));
 }
 
+// Creates the shop draw task under arg0: allocates the work block, creates the four value sprites and three list children, and clears the sprite and state fields.
 // FUN_002CA830
-s32 func_002ca830(s32 arg0) {
+s32 fclShopDrawCreate(s32 arg0) {
     FclVec2 sp48;
     FclVec2 sp40;
     FclVec2 sp38;
@@ -2682,7 +2684,7 @@ s32 func_002ca830(s32 arg0) {
 
     chkmemAllocSiteTag(&D_0063FAC0, 0xC47);
     temp_2 = D_008873F4[0](1, 0x1174, 0x40000);
-    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((char *)&D_0063FB30), 0xF, 0, 0, func_002be530, func_002ca770, (u8 *)(temp_2));
+    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((char *)&D_0063FB30), 0xF, 0, 0, func_002be530, fclShopDrawDestroy, (u8 *)(temp_2));
     *(s8 *)(temp_2 + 0) = 9;
     sp48 = func_002b2970(240.0f, 20.0f);
     *(void **)(temp_2 + 0xC28) = (void *)fclSpriteSpawnChild(temp_17, sp48);
@@ -2701,8 +2703,9 @@ s32 func_002ca830(s32 arg0) {
     return temp_17;
 }
 
+// Sets the shop draw work's mode byte (the first byte of the work block) to arg1.
 // FUN_002CAA00
-void func_002caa00(void *arg0, s8 arg1) {
+void fclShopDrawSetMode(void *arg0, s8 arg1) {
     *(s8 *)(*(u32 *)((u8 *)arg0 + 0x38)) = arg1;
 }
 
@@ -2713,7 +2716,7 @@ void func_002caa00(void *arg0, s8 arg1) {
 #pragma opt_loop_invariants off
 #pragma opt_common_subs off
 // FUN_002CAA10
-void func_002caa10(Vec2f position, f32 depth, RGBA color, u32 number_, s16 glyphBase, void *sprite_, s32 style)
+void fclShopDrawNumber(Vec2f position, f32 depth, RGBA color, u32 number_, s16 glyphBase, void *sprite_, s32 style)
 {
     char text[16];
     f32 x;
@@ -2954,8 +2957,9 @@ void func_002caef0(void *arg0) {
     func_002e0620(*(void **)(work + 0xC78), sp40, sp38, 0, 4, 6);
 }
 
+// Returns 1 when the shop draw work's state byte (+0xF30) is 1, meaning the shop draw is ready.
 // FUN_002CB6A0
-s32 func_002cb6a0(void *arg0) {
+s32 fclShopDrawIsReady(void *arg0) {
     return *(s8 *)(*(u32 *)((u8 *)arg0 + 0x38) + 0xF30) == 1;
 }
 
@@ -3424,7 +3428,7 @@ void func_002cb6c0(void *arg0, s8 arg1) {
         sp180 = func_002b2970(126.0f, 78.0f + 35.0f * (f32)work->sel);
         t = (u8 *)func_002e04e0(work->fED8);
         *(Vec2f *)(t + 0x2C) = sp180;
-        func_002d83c0(arg0);
+        fclShopDrawSwingCursor(arg0);
         func_002e09e0(work->fD3C, 0x41, 128.0f);
         func_002e0660(work->fD3C, 0, 0xFF, 0, 0xA, 0);
         b = (Vec2f *)D_0063F7B0;
@@ -3706,7 +3710,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
     s8 yListKindFor(void *);
     void func_002b3050(s32, s32, s32, s64, s32, s16 *, s16 *);
     s8 func_002d4760(void *, s8);
-    void func_002d7c10(void *, s16);
+    void fclShopDrawSelectRow(void *, s16);
     void func_002dd230(void *);
     ShopBuyWork *work;
     s32 item;
@@ -4028,7 +4032,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
                 }
                 work->sel = func_002b2cb0(work->sel, 1, 2, 0, 2);
                 func_002d4760(arg0, (s32)work->sel);
-                func_002d7c10(arg0, work->sel);
+                fclShopDrawSelectRow(arg0, work->sel);
                 work->cursor = 0;
                 work->scroll = 0;
                 work->select[work->sel] = 0;
@@ -4080,7 +4084,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
                 }
                 work->sel = func_002b2d00(work->sel, 1, 0, 2, 2);
                 func_002d4760(arg0, (s32)work->sel);
-                func_002d7c10(arg0, work->sel);
+                fclShopDrawSelectRow(arg0, work->sel);
                 work->cursor = 0;
                 work->scroll = 0;
                 work->select[work->sel] = 0;
@@ -5612,8 +5616,9 @@ void func_002d7300(void *arg0) {
 
 
 
+// Draws the shop row for selection index arg1: resets the row's scaled-sprite positions, then moves the chosen row's sprites down by 3.
 // FUN_002D7C10
-void func_002d7c10(void *arg0, s16 arg1) {
+void fclShopDrawSelectRow(void *arg0, s16 arg1) {
     ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
     s32 r;
 
@@ -5710,7 +5715,7 @@ void func_002d8200(void *arg0, s8 arg1) {
 }
 
 
-/* func_002d83c0's body; func_002da0a0 inlines it (retail re-reads the work
+/* fclShopDrawSwingCursor's body; func_002da0a0 inlines it (retail re-reads the work
    pointer from the kept arg0 there). */
 static inline void shopSwingCursor(void *arg0) {
     ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
@@ -5741,8 +5746,9 @@ static inline void shopSwingCursor(void *arg0) {
     sdkSpriteFreeNode((u8 *)r);
 }
 
+// Entry point for the cursor swing: runs the cursor animation step for this shop work.
 // FUN_002D83C0
-void func_002d83c0(void *arg0) {
+void fclShopDrawSwingCursor(void *arg0) {
     shopSwingCursor(arg0);
 }
 
@@ -7048,8 +7054,9 @@ void func_002df4c0(void *arg0) {
     }
 }
 
+// Returns 1 when item id arg0 is one of the shop's special items (18 fixed ids); else 0.
 // FUN_002DFD00
-s32 func_002dfd00(u16 arg0) {
+s32 fclShopIsSpecialItem(u16 arg0) {
     if (arg0 == 0x540 || arg0 == 0x503 || arg0 == 0x596 || arg0 == 0x517 ||
         arg0 == 0x52C || arg0 == 0x555 || arg0 == 0x54D || arg0 == 0x54B ||
         arg0 == 0x56A || arg0 == 0x519 || arg0 == 0x598 || arg0 == 0x582 ||
@@ -7073,15 +7080,16 @@ void func_002dfe00(void *arg0) {
     v = (u16)((r & 0xFFF00) >> 8);
     t[0] = v;
     t[1] = 0;
-    if (func_002dfd00(v) == 0) {
-        *(s8 *)((u8 *)work + 0x10) = func_002dfec0(arg0, 7, t, 0);
+    if (fclShopIsSpecialItem(v) == 0) {
+        *(s8 *)((u8 *)work + 0x10) = fclShopPlaySound(arg0, 7, t, 0);
     } else {
-        *(s8 *)((u8 *)work + 0x10) = func_002dfec0(arg0, 8, t, 0);
+        *(s8 *)((u8 *)work + 0x10) = fclShopPlaySound(arg0, 8, t, 0);
     }
 }
 
+// Plays a sound through a fresh handle: sets its cue (arg1), optional parameters (arg2), and when arg3 is 1 stops it at once; returns the handle.
 // FUN_002DFEC0
-s32 func_002dfec0(void *arg0, s32 arg1, void *arg2, s8 arg3) {
+s32 fclShopPlaySound(void *arg0, s32 arg1, void *arg2, s8 arg3) {
     s8 handle;
     s32 v;
     void *t;
@@ -7127,11 +7135,12 @@ void func_002e0080(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
                   (const char *)func_0010d6d0(arg1), 8, 0, D_00795E60);
 }
 
+// Item panel task update: copies the 0xF0-byte item block into the work, then draws the panel's sprite pair depending on the two state checks.
 /* measured: 452B/464B, only three zero-tail words. Canonical byte color and
    opacity parameters preserve constant-first loads and the float-first draw
    argument sequence. Distinct p+4 spellings preserve both retail addresses. */
 // FUN_002E0100
-s32 func_002e0100(u8 *arg0) {
+s32 fclShopItemPanelUpdate(u8 *arg0) {
     ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
 
     memcpy((u8 *)work + 4, func_002b89a0(&work->field_4), 0xF0);
@@ -7172,16 +7181,18 @@ s32 func_002e0100(u8 *arg0) {
     }
     return 0;
 }
+// Item panel task destroy: calls the shop work's destroy jump-table entry.
 // FUN_002E02D0
-void func_002e02d0(u8 *arg0) {
+void fclShopItemPanelDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
+// Creates the item panel task under arg0 (allocates the 0x104-byte work, registers its update and destroy callbacks, and loads the resource entries for index arg1).
 /* The promoted resource index supplies both the table lookup and SDK sprite lookup. */
 // FUN_002E0300
 /* measured: retail hoists the loop-invariant 0xFF and 1.0f into the preheader. */
 #pragma opt_loop_invariants on
-s32 func_002e0300(s32 arg0, s16 arg1, u32 arg2) {
+s32 fclShopItemPanelCreate(s32 arg0, s16 arg1, u32 arg2) {
     s32 r;
     s32 resourceIndex;
     u8 *w;
@@ -7190,7 +7201,7 @@ s32 func_002e0300(s32 arg0, s16 arg1, u32 arg2) {
     void *h;
     chkmemAllocSiteTag(&D_0063FAC0, 0x1D6A);
     w = D_008873F4[0](1, 0x104, 0x40000);
-    r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((char *)&D_0063FB70), 0xF, 0, 0, func_002e0100, func_002e02d0, (u8 *)(w));
+    r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((char *)&D_0063FB70), 0xF, 0, 0, fclShopItemPanelUpdate, fclShopItemPanelDestroy, (u8 *)(w));
     w[0] = 0;
     *(s16 *)(w + 0xF8) = arg1;
     *(u32 *)(w + 0xF4) = arg2;

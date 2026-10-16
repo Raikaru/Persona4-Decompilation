@@ -49,8 +49,8 @@ extern s32 func_0015f660(void);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 extern s32 fadeStatus(void);
-extern s32 func_002cb6a0(s32 arg0);
-extern void func_002caa00(s32 arg0, s32 arg1);
+extern s32 fclShopDrawIsReady(s32 arg0);
+extern void fclShopDrawSetMode(s32 arg0, s32 arg1);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
 extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
@@ -173,7 +173,7 @@ s32 func_002bd8e0(u8 *arg0)
         *(s8 *)(temp_16 + 0) = 2;
     case 2:
         if ((fieldSceneLoadStep() != 0) && (func_0015f660() != 0)) {
-            if (func_002cb6a0(*(s32 *)(temp_16 + 4)) == 0) {
+            if (fclShopDrawIsReady(*(s32 *)(temp_16 + 4)) == 0) {
                 return 0;
             }
             sdkSndPlayCue(0x15, 1);
@@ -189,7 +189,7 @@ s32 func_002bd8e0(u8 *arg0)
         *(s8 *)(temp_16 + 0) = 4;
     case 4:
         if (fadeStatus() != 0) {
-            func_002caa00(*(s32 *)(temp_16 + 4), 0xD);
+            fclShopDrawSetMode(*(s32 *)(temp_16 + 4), 0xD);
             *(s8 *)(temp_16 + 0) = 7;
         }
         goto block_26;
