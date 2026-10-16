@@ -14,14 +14,14 @@ extern void H_Cdvd_Destroy(u8 *ptr);
 extern void func_0045ac90(s32 arg0, s32 arg1, s32 arg2);
 extern s32 btlBossLoadEndBgmStep(u8 *work);
 
-extern void func_00231380(s32 *arg0, s32 arg1);
+extern void btlBuildNpcModelName(s32 *arg0, s32 arg1);
 extern s32 btlCurrentUnitId(void);
 extern s64 datGetDateIndex(void);
 extern s32 datGetFlag(s32 arg0);
 extern s32 func_00106cd0(s32 arg0, s32 arg1);
 extern s32 func_00110d60(s16 arg0);
 extern s32 sprintf(char *buf, char *fmt, ...);
-extern void func_00231550(s32 arg0, u16 arg1);
+extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern char D_007636e0;
 extern char D_006358D0[];
@@ -56,8 +56,9 @@ extern char D_00635800[];
 
 // measured: opt_loop_invariants on hoists the two delimiter constants before the scan loop and preserves the retail register schedule.
 #pragma opt_loop_invariants on
+// Intent: Model path callback: writes the .pac pack path for a model id, rewriting the name's extension to "pac" under the pack directory (non-type-2 units use model/) [inferred]
 // FUN_00230C00
-s32 func_00230c00(u32 arg0, u16 arg1, char *arg2)
+s32 mdlResolvePacPath(u32 arg0, u16 arg1, char *arg2)
 {
     char sp40[0x100];
     s32 var_2;
@@ -88,8 +89,9 @@ s32 func_00230c00(u32 arg0, u16 arg1, char *arg2)
 // measured: optimization level 1 preserves the retail direct field loads and
 // saved-register colouring for this function.
 #pragma optimization_level 1
+// Intent: Model setup callback: for type-2 units attaches the weapon R and L models (ids 0x1F4 and 0x1F5 in slots 0 and 1) and sets their slot values; other kinds attach slot 0 only [inferred]
 // FUN_00230D30
-s32 func_00230d30(void *arg0)
+s32 mdlAttachWeaponModelSlots(void *arg0)
 {
     extern s32 func_00106cd0(s16 arg0, s16 arg1);
     extern void mdlSetAttachedSlotValue(u8 *arg0, u16 arg1, s32 arg2);

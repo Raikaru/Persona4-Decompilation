@@ -33,8 +33,8 @@ extern s32 func_00454a60(void *msg, s32 kind);
 extern void H_Cdvd_ReadSync(s32 handle);
 extern s32 btlBossResolveModelName(u32 type, u16 id, char *name);
 extern s32 mdlFileIsTypePac(u32 type, u16 id);
-extern s32 func_00230c00(u32 type, u16 id, char *path);
-extern s32 func_00230d30(void *model);
+extern s32 mdlResolvePacPath(u32 type, u16 id, char *path);
+extern s32 mdlAttachWeaponModelSlots(void *model);
 extern void func_002311a0(MdlAppObj *obj);
 
 extern char D_00635820[];
@@ -145,8 +145,8 @@ void func_002311a0(MdlAppObj *obj)
 // FUN_002312E0
 void func_002312e0(void)
 {
-    mdlSetModelCallbacks(btlBossResolveModelName, mdlFileIsTypePac, func_00230c00,
-                  func_00230d30, func_00230f20);
+    mdlSetModelCallbacks(btlBossResolveModelName, mdlFileIsTypePac, mdlResolvePacPath,
+                  mdlAttachWeaponModelSlots, func_00230f20);
 }
 
 // FUN_00231330
