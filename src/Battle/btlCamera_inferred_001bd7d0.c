@@ -65,7 +65,7 @@ extern void btlCameraInitWork(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 extern void btlCameraUpdateEffectList(u8 *arg0);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
-extern void func_001bdd60(void);
+extern void btlCameraSuppressEncounterCallback(void);
 extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
@@ -410,7 +410,7 @@ void btlCameraResetWorkList(void)
 }
 
 // FUN_001BDD60
-void func_001bdd60(void) {
+void btlCameraSuppressEncounterCallback(void) {
     *(u32 *)(D_0076449C + 0xF8) |= 1;
 }
 
