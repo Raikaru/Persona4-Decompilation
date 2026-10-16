@@ -42,7 +42,7 @@ extern s32 func_00110600(s32 a, s32 b);
 extern s32 func_00110d30(s32 idx);
 extern s32 cmmDateTableFindIndex();
 extern u16 func_002489c0(s32 arg0);
-extern s32 func_00248a60(s32 arg0);
+extern s32 cmmReversedAtRank(s32 arg0);
 extern void func_00113480(s32 a, s32 b, s32 c, s32 d);
 extern void chkmemAllocSiteTag(void *, s32);
 
@@ -989,13 +989,14 @@ block_13:
    kAssertFail(void *,s32), cmmCommunitySetReversed(s32), and
    cmmCommunityHasRecord(s32); active seed measured 552B vs 544B retail window,
    normalized_diff 109 (oversized reconstruction); archived without further probes. */
+// Advance reverse progress: for each rank-10 community (other than arg0) with a record and no flag band 3, adds its paired value from the D_00881494 pair table to its progress counter (+0xA). When the progress reaches the kind record's threshold (+0x12), sets REVERSED through cmmCommunitySetReversed.
 // FUN_002483C0
 #pragma push
 /* measured: opt_propagation off + saved regs $s6=temp_20, $s5=var_20 counter(1),
    $s4=temp_17, $s3=temp_18 mask, $s2=temp_19 masked arg, $s1=temp_2, $s0=temp_16;
    per-use u16 call_idx=(u16)var_20 conversions preserve andi immediates and remove $s7 constant. */
 #pragma opt_propagation off
-void func_002483c0(u16 arg0) {
+void cmmAdvanceReverseProgress(u16 arg0) {
     s32 temp_20;
     s32 var_20;
     s32 temp_17;
@@ -1020,7 +1021,7 @@ void func_002483c0(u16 arg0) {
             goto block_15;
         }
         call_idx = (u16)var_20;
-        if (func_00248a60(call_idx) == 0) {
+        if (cmmReversedAtRank(call_idx) == 0) {
             goto block_15;
         }
         call_idx = (u16)var_20;
@@ -1227,10 +1228,11 @@ u16 func_002489c0(s32 arg0) {
    and re-masks into $v1 for the 100-multiply; mwcc b210 CSEs the mask into
    one register (best nd 37) in every spelling tried ((u16) vs & 0xFFFF vs
    temp_17 = arg0). Mask-CSE floor (same family as FUN_00247DD0). */
+// Reversed at rank: returns 1 when community arg0 has a record, the REVERSED bit in its kind record (chunk 0), and a level byte at or above its rank from func_00107ac0; else 0.
 // FUN_00248A60
 /* measured: opt_common_subs off preserves the raw parameter call and per-use table masks. */
 #pragma opt_common_subs off
-s32 func_00248a60(s32 arg0) {
+s32 cmmReversedAtRank(s32 arg0) {
     s32 temp_16;
     u32 temp_17;
     u8 temp_16_2;
@@ -1268,10 +1270,11 @@ s32 func_00248a60(s32 arg0) {
    emits move $a0,$s0 per call (nd 75; tried & 0xFFFF / (u16) mixes at all
    sites, temp_21 u32 vs s32). Mask-CSE floor (same family as
    FUN_002474F0/FUN_002483C0/FUN_00248A60). */
+// Top reversed community: returns the id with the highest rank among communities that are reversed and whose level meets their rank (see cmmReversedAtRank), or 0 when none qualifies.
 // FUN_00248B80
 /* measured: opt_common_subs off restores retail per-use masks while preserving both table bases. */
 #pragma opt_common_subs off
-s32 func_00248b80(void) {
+s32 cmmTopReversedCommunity(void) {
     s32 temp_20;
     s32 temp_2;
     s32 var_18;
