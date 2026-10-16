@@ -40,7 +40,7 @@ extern void func_004824a0(int *param_1, u8 *param_2, float *param_3);
 extern void ParticleProjectVertices(u8 *particle, f32 scale);
 extern void func_00487fb0_evt(float param_1);
 
-extern void func_00492e30(u16 *emitter, f32 scale);
+extern void EffEmitterApplyScale(u16 *emitter, f32 scale);
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern void func_003f3eb0(s32 arg0, s32 arg1);
@@ -1012,12 +1012,12 @@ void func_00489f10(u8 *instance, u32 *rotation)
 }
 
 
-// Stores param_1 at +0x08 of the record param_2, then calls func_00492e30 with the record emitter at +0x4C and the same scale.
+// Stores param_1 at +0x08 of the record param_2, then calls EffEmitterApplyScale with the record emitter at +0x4C and the same scale.
 // FUN_00489F50
 void mdlEffectSetScaleAndNotify(f32 param_1, int param_2)
 {
   *(f32 *)(param_2 + 8) = param_1;
-  func_00492e30((u16 *)*(u32 *)(param_2 + 0x4c), param_1);
+  EffEmitterApplyScale((u16 *)*(u32 *)(param_2 + 0x4c), param_1);
   return;
 }
 
@@ -1579,8 +1579,9 @@ void mdlEffectCatmullRomVU(float param_1, u8 (*param_2)[16])
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 #pragma pop
+/* Scale applier for emitter kind 1 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048C440
-void func_0048c440(u8 *arg0, f32 fparg0) {
+void EffEmitterScaleKind1(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1613,8 +1614,9 @@ loop_0048c440_check:
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 #pragma pop
+/* Scale applier for emitter kind 2 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048CD60
-void func_0048cd60(u8 *arg0, f32 fparg0) {
+void EffEmitterScaleKind2(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1646,8 +1648,9 @@ loop_0048cd60_check:
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
+/* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048D820
-void func_0048d820(u8 *arg0, f32 fparg0) {
+void EffEmitterScaleKind3(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1680,8 +1683,9 @@ loop_0048d820_check:
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
+/* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048E270
-void func_0048e270(u8 *arg0, f32 fparg0) {
+void EffEmitterScaleKind4(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1712,8 +1716,9 @@ loop_0048e270_check:
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 #pragma pop
+/* Scale applier for emitter kind 5 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048EBC0
-void func_0048ebc0(u8 *arg0, f32 fparg0) {
+void EffEmitterScaleKind5(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1745,8 +1750,9 @@ loop_0048ebc0_check:
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 #pragma pop
+/* Scale applier for emitter kind 6 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048F560
-void func_0048f560(u8 *arg0, f32 fparg0) {
+void EffEmitterScaleKind6(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1789,8 +1795,9 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
     return left * right;
 }
 extern void func_00484280(u8 *object, s32 resource);
+/* Scale applier for emitter kind 7 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00490360
-void func_00490360(u8 *arg0, f32 fparg0) {
+void EffEmitterScaleKind7(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1818,8 +1825,9 @@ loop_00490360_check:
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 #pragma pop
+/* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00490BB0
-void func_00490bb0(u8 *arg0, f32 fparg0) {
+void EffEmitterScaleKind8(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1852,8 +1860,9 @@ loop_00490bb0_check:
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma pop
+/* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00491660
-void func_00491660(u8 *arg0, f32 fparg0) {
+void EffEmitterScaleKind9(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1885,8 +1894,9 @@ loop_00491660_check:
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
+/* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00492080
-void func_00492080(u8 *arg0, f32 fparg0) {
+void EffEmitterScaleKind10(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1917,8 +1927,9 @@ loop_00492080_check:
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 #pragma pop
+/* Scale applier for emitter kind 11 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00492A80
-void func_00492a80(u8 *arg0, f32 fparg0) {
+void EffEmitterScaleKind11(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -2051,8 +2062,9 @@ u_long128 mdlEffectStoreQuadB(int param_1, u32 *param_2)
 
 /* measured: closes opt_loop_invariants at its prior file baseline. */
 #pragma opt_loop_invariants off
+/* Applies a scale to an emitter record: dispatches on the emitter kind (u16 at +0) through the scale table D_00713D54. */
 // FUN_00492E30
-void func_00492e30(u16 *arg0, f32 scale) {
+void EffEmitterApplyScale(u16 *arg0, f32 scale) {
     D_00713D54[*arg0 * 4]((u8 *)arg0, scale);
 }
 
@@ -3530,7 +3542,7 @@ void func_004af640(u8 *arg0, s32 arg1) {
 // FUN_004AF650
 void func_004af650(u8 *arg0, f32 arg1) {
     *(f32 *)(arg0 + 0x8) = arg1;
-    func_00492e30(*(u16 **)(arg0 + 0x58), arg1);
+    EffEmitterApplyScale(*(u16 **)(arg0 + 0x58), arg1);
 }
 
 
@@ -3588,7 +3600,7 @@ void func_004b10f0(u8 *arg0, s32 arg1)
 void func_004b1100(u8 *arg0, f32 arg1)
 {
     *(f32 *)(arg0 + 8) = arg1;
-    func_00492e30(*(u16 **)(arg0 + 0x5c), arg1);
+    EffEmitterApplyScale(*(u16 **)(arg0 + 0x5c), arg1);
 }
 
 

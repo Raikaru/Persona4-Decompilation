@@ -34,7 +34,7 @@ extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
 extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
 extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
-extern void func_00492e30(u16 *emitter, f32 scale);
+extern void EffEmitterApplyScale(u16 *emitter, f32 scale);
 extern void TnSetTableBase(void *arg0);
 extern void func_00485870(void *arg0);
 extern void func_00485ae0(void *arg0);
