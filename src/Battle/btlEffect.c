@@ -25,7 +25,7 @@ typedef struct BtlFormationWork {
 } BtlFormationWork;
 
 extern void btlFormationResetState(BtlFormationWork* param_1);
-extern void func_00485b20(u32 param_1);
+extern void mdlEffectDestroyWithNodes(u32 param_1);
 extern void mdlDestroyModelObject(u32 param_1);
 
 typedef int (*code)();
@@ -86,7 +86,7 @@ void btlEffectResetEntry(u16 *param_1)
     *(u32 *)(param_1 + 8) = 0;
   }
   if (*(int *)(param_1 + 10) != 0) {
-    func_00485b20(*(int *)(param_1 + 10));
+    mdlEffectDestroyWithNodes(*(int *)(param_1 + 10));
     *(u32 *)(param_1 + 10) = 0;
   }
   if (*(int *)(param_1 + 0xc) != 0) {
@@ -119,7 +119,7 @@ u16 *btlEffectAllocEntry(int param_1)
         *(u32 *)(entry + 8) = 0;
       }
       if (*(int *)(entry + 10) != 0) {
-        func_00485b20(*(int *)(entry + 10));
+        mdlEffectDestroyWithNodes(*(int *)(entry + 10));
         *(u32 *)(entry + 10) = 0;
       }
       if (*(int *)(entry + 0xc) != 0) {
@@ -156,7 +156,7 @@ u32 btlEffectFreeEntry(int param_1, u16 *entry)
         *(u32 *)(entry + 8) = 0;
       }
       if (*(int *)(entry + 10) != 0) {
-        func_00485b20(*(int *)(entry + 10));
+        mdlEffectDestroyWithNodes(*(int *)(entry + 10));
         *(u32 *)(entry + 10) = 0;
       }
       if (*(int *)(entry + 0xc) != 0) {

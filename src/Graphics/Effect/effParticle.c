@@ -37,7 +37,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern u8 *func_00484570(u8 *arg0);
 extern void func_004846d0(u8 *arg0);
 extern u8 *func_00484830(u8 *arg0);
-extern void func_00485b20(void *arg0);
+extern void mdlEffectDestroyWithNodes(void *arg0);
 extern u8 *GeometryCloneBlock(void *arg0);
 void ParticleAllocRecords(u8 *arg0, s32 arg1, void *arg2);
 void ParticleCopyModeFromSource(u8 *arg0, u8 *arg1);
@@ -186,7 +186,7 @@ void ParticleFree(u8 *arg0)
             count = *(s32 *)(arg0 + 0);
         }
         for (i = 0; i < count; i++) {
-            func_00485b20(*(u8 **)(*(u8 **)(arg0 + 0x3C) + i * 4));
+            mdlEffectDestroyWithNodes(*(u8 **)(*(u8 **)(arg0 + 0x3C) + i * 4));
         }
         jtbl_008873EC[0](*(void **)(arg0 + 0x40));
     }
@@ -335,7 +335,7 @@ void ParticleCopyModeFromSource(u8 *arg0, u8 *arg1)
         }
         if (*(s32 *)(arg0 + 0x40) != 0) {
             for (i6 = 0; i6 < count6; i6++) {
-                func_00485b20(*(u8 **)(*(u8 **)(arg0 + 0x3C) + i6 * 4));
+                mdlEffectDestroyWithNodes(*(u8 **)(*(u8 **)(arg0 + 0x3C) + i6 * 4));
             }
             jtbl_008873EC[0](*(void **)(arg0 + 0x40));
             *(u8 **)(arg0 + 0x3C) = NULL;
@@ -352,7 +352,7 @@ void ParticleCopyModeFromSource(u8 *arg0, u8 *arg1)
         *(u8 **)(arg0 + 0x3C) = *(u8 **)(arg0 + 0x40);
         for (i6 = 0; i6 < count6; i6++) {
             *(u8 **)(*(u8 **)(arg0 + 0x3C) + i6 * 4) =
-                func_00485c80(*(u8 **)(*(u8 **)(arg1 + 0x3C)));
+                mdlEffectCloneWithNodes(*(u8 **)(*(u8 **)(arg1 + 0x3C)));
         }
         break;
     }
@@ -510,7 +510,7 @@ void ParticleRebuildSubtypeChainAlt(u8 *arg0, void *arg1)
     }
     if (*(s32 *)(arg0 + 0x40) != 0) {
         for (i = 0; i < count; i++) {
-            func_00485b20(*(u8 **)(*(u8 **)(arg0 + 0x3C) + i * 4));
+            mdlEffectDestroyWithNodes(*(u8 **)(*(u8 **)(arg0 + 0x3C) + i * 4));
         }
         jtbl_008873EC[0](*(void **)(arg0 + 0x40));
         *(u8 **)(arg0 + 0x3C) = NULL;
@@ -525,7 +525,7 @@ void ParticleRebuildSubtypeChainAlt(u8 *arg0, void *arg1)
         *(u8 **)(arg0 + 0x3C) = *(u8 **)(arg0 + 0x40);
         *(u8 **)(*(u8 **)(arg0 + 0x3C)) = func_00484bb0((u8 *)arg1);
         for (i = 1; i < count; i++) {
-            *(u8 **)(*(u8 **)(arg0 + 0x3C) + i * 4) = func_00485c80(*(u8 **)(*(u8 **)(arg0 + 0x3C)));
+            *(u8 **)(*(u8 **)(arg0 + 0x3C) + i * 4) = mdlEffectCloneWithNodes(*(u8 **)(*(u8 **)(arg0 + 0x3C)));
         }
     }
 }

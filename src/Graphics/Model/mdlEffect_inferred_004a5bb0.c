@@ -93,8 +93,9 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
    load-all/store-all byte copy. Separate loop locals keep the saved-register
    allocation exact. */
 /* measured: restores the file's O2 loop-invariant baseline. */
+// Allocates and zero-initialises a 0xD4-byte instance with -1 at +0x24 and 1.0 at +0x20. A NULL source returns that blank instance; otherwise it builds a geometry table, copies the 0x98-byte record from the resolved source, and dispatches on the kind at +0x1C.
 // FUN_004A5BB0
-void *func_004a5bb0(void *source)
+void *mdlEffectCreateInstance(void *source)
 {
     u8 *arg0 = (u8 *)source;
     u16 *temp_2_4;

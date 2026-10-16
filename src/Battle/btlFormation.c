@@ -64,7 +64,7 @@ extern void (*DAT_008873EC[])(void *);
 
 extern u64 memcpy();
 
-extern u64 func_00485b20(u32 param_1);
+extern u64 mdlEffectDestroyWithNodes(u32 param_1);
 
 extern void btlFormationCopyRecord(int destination, u32 source);
 
@@ -1134,7 +1134,7 @@ void btlFormationCopyRecord(int destination, u32 source)
                     packed = *(u32 *)(entry + 4);
                     referencedEntry = (u8 *)(destination + (packed >> 5) * 0x314 +
                                              (packed & 0x1f) * 0x18 + 0x1c);
-                    resource = (u32)func_00485c80(*(u8 **)(referencedEntry + 4));
+                    resource = (u32)mdlEffectCloneWithNodes(*(u8 **)(referencedEntry + 4));
                     entry[0] = referencedEntry[0];
                 } else {
                     resource = (u32)func_00484bb0((u8 *)(source + *(u32 *)(entry + 4)));
@@ -1168,7 +1168,7 @@ void btlFormationSetState(int state)
         index = 0;
         while (index < count) {
             if (*entry != 0xfe && *entry != 0xfd) {
-                func_00485b20(*(u32 *)(entry + 4));
+                mdlEffectDestroyWithNodes(*(u32 *)(entry + 4));
             }
             entry += 0x18;
             index++;
@@ -1242,7 +1242,7 @@ void btlFormationResetState(BtlFormationWork *work)
     index = 0;
     while (index < count) {
         if (*items != 0) {
-            func_00485b20(*items);
+            mdlEffectDestroyWithNodes(*items);
         }
         items++;
         index++;

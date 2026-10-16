@@ -14,7 +14,7 @@ extern s32 iGpffffbb9c;
 extern u8 *iGpffffbba0;
 /* gp - 0x445C = 0x00764c94: enable predicate, called through the pointer */
 extern s32 (*iGpffffbba4)(void);
-extern void func_00485b20(u8 *model);
+extern void mdlEffectDestroyWithNodes(u8 *model);
 extern void func_00485fe0();
 extern void func_00485630(u8 *object);
 extern void func_00486400();

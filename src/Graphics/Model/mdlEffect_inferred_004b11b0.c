@@ -61,6 +61,6 @@ extern void (*jtbl_008873EC[])(void *);
 // FUN_004B11B0
 u8 *func_004b11b0(u8 *arg0)
 {
-    return func_00485c80(arg0);
+    return mdlEffectCloneWithNodes(arg0);
 }
 

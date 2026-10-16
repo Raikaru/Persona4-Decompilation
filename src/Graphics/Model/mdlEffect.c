@@ -7,7 +7,7 @@
 extern void *func_004b1950(void *source);
 extern f32 effMiscRandFloat(EffRandState *state);
 extern void *WindCreateKindEntryAlt(void *source);
-extern void *func_004a5e50(void *source);
+extern void *mdlEffectCloneInstance(void *source);
 extern void *func_004a6d90(void *source);
 extern void *func_004a6e10(void *source);
 extern u8 *RingCreateKindInstance(u16 kind, u8 *parameters);
@@ -2387,7 +2387,7 @@ void RingSetVec3(u8 *arg0, f32 *arg1) {
 }
 
 
-extern void func_004a5ef0(u8 *arg0, u8 *arg1);
+extern void mdlEffectCopyReferences(u8 *arg0, u8 *arg1);
 extern void func_004ade80(u8 *arg0);
 extern void EffSpriteUpdate(u8 *arg0);
 extern u8 *func_004a6c00(u8 *arg0);
@@ -2416,11 +2416,11 @@ extern u8 *func_003e9c10(u8 *arg0, const f32 *translation, s32 combineOp);
 extern void func_004a7c00(u8 *arg0, s32 arg1);
 extern void mdlSetLayerTime(u8 *arg0, s32 arg1, f32 arg2);
 extern f32 fGpffff80f4;
-extern void func_004a5ef0(u8 *arg0, u8 *arg1);
+extern void mdlEffectCopyReferences(u8 *arg0, u8 *arg1);
 extern u8 *GeometryCloneBlock(s32 arg0);
 extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
 extern void func_00485fe0(s32 arg0);
-extern void *func_004a5bb0(void *source);
+extern void *mdlEffectCreateInstance(void *source);
 
 
 /* Calls kind destroy slot +0x08 on the child at +0x3C, then frees arg0 through the allocator free table. */
@@ -2633,8 +2633,9 @@ extern void primAxisLine3D(f32 *arg0, s32 arg1, f32 arg2);
 extern s32 func_00481e30(s32 arg0);
 extern void TlpRelease(s32 arg0);
 extern s32 TlpAddRef(s32 arg0);
+// Destroys an instance: releases its +0xCC table handle and +0xD0 record reference, destroys its geometry block, and frees the instance.
 // FUN_004A5DE0
-void func_004a5de0(u8 *arg0) {
+void mdlEffectDestroyInstance(u8 *arg0) {
     s32 temp_4;
     s32 temp_4_2;
 
@@ -2651,15 +2652,16 @@ void func_004a5de0(u8 *arg0) {
 }
 
 
+// Clones an instance: a blank instance from mdlEffectCreateInstance takes a clone of the geometry block, a copy of the 0x98-byte record, and the source's references.
 // FUN_004A5E50
-void *func_004a5e50(void *source)
+void *mdlEffectCloneInstance(void *source)
 {
     u8 *arg0 = (u8 *)source;
     u8 *temp_16;
     u8 *temp_2;
     u8 *temp_3;
 
-    temp_16 = func_004a5bb0(NULL);
+    temp_16 = mdlEffectCreateInstance(NULL);
     temp_2 = GeometryCloneBlock(*(s32 *)(arg0 + 0xC8));
     *(u8 **)(temp_16 + 0xC8) = temp_2;
     temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18) + 0x30);
@@ -2668,13 +2670,14 @@ void *func_004a5e50(void *source)
     *(s32 *)(temp_3 + 8) = -1;
     *(s32 *)(temp_3 + 0xC) = -1;
     memcpy(temp_16 + 0x30, arg0 + 0x30, 0x98);
-    func_004a5ef0(temp_16, arg0);
+    mdlEffectCopyReferences(temp_16, arg0);
     return temp_16;
 }
 
 
+// Takes new references from the source: when its +0xD0 record reference is set, releases the destination's +0xD0 and stores a fresh reference from it; otherwise, when +0xCC is set, releases the destination's +0xCC and takes a new TlpAddRef on it.
 // FUN_004A5EF0
-void func_004a5ef0(u8 *arg0, u8 *arg1)
+void mdlEffectCopyReferences(u8 *arg0, u8 *arg1)
 {
     s32 temp_4;
     s32 temp_4_2;

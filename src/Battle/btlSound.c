@@ -409,7 +409,7 @@ extern u8 *iGpffffb3b8;
 extern s32 btlSoundLoadPoll(s32 *arg0);
 extern s32 btlSoundStopStep(void);
 extern s32 btlSoundReleaseStep(void);
-extern void func_00485b20(s32 arg0);
+extern void mdlEffectDestroyWithNodes(s32 arg0);
 extern void func_00486180(s32 arg0);
 extern void func_00120f20(s32 arg0);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
@@ -507,7 +507,7 @@ s32 btlSoundLoadPoll(s32 *arg0)
     extern void TnSetTableBase(void *arg0);
     extern void func_00485630(s32 arg0);
     extern void func_00485870(u8 *arg0);
-    extern void func_00485b20(s32 arg0);
+    extern void mdlEffectDestroyWithNodes(s32 arg0);
     extern u8 D_005DC8CC[];
     void *temp_17;
     s32 temp_4_2;
@@ -541,7 +541,7 @@ s32 btlSoundLoadPoll(s32 *arg0)
         *arg0 += 1;
         goto block_12;
     }
-    func_00485b20(*(s32 *)((u8 *)iGpffffb3ac + 0xB80));
+    mdlEffectDestroyWithNodes(*(s32 *)((u8 *)iGpffffb3ac + 0xB80));
     *(s32 *)((u8 *)iGpffffb3ac + 0xB80) = 0;
     return 1;
 block_12:
@@ -572,7 +572,7 @@ s32 btlSoundStopStep(void) {
     } else {
         temp_4 = *(s32 *)(temp_3 + 0xB80);
         if (temp_4 != 0) {
-            func_00485b20(temp_4);
+            mdlEffectDestroyWithNodes(temp_4);
             *(s32 *)(D_0076449C + 0xB80) = 0;
         }
     }
