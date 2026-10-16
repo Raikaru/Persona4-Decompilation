@@ -32,8 +32,8 @@ extern void func_003f6690(s32 arg0, s32 *arg1);
 extern void func_00364c50(void);
 extern void func_00364c70(void);
 extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 arg2, s32 arg3);
-extern void func_00489f80(void);
-extern void func_0048a000(void);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void mdlEffectEmitTagPair(void);
 extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *arg0, void *arg1);
@@ -488,11 +488,11 @@ void func_002aabf0(void *arg0, u8 *arg1) {
     }
     temp_16 = temp_19 & 0x10;
     if (temp_16 != 0) {
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
     }
     func_0045d6e0(work.colors, work.values, temp_f20, 0);
     if (temp_16 != 0) {
-        func_0048a000();
+        mdlEffectEmitTagPair();
     }
     if (temp_17_2 != 0) {
         func_00364c70();

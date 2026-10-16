@@ -18,7 +18,7 @@ extern void func_003c02e0();
 extern void func_003e9390();
 extern void func_003c4220();
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void func_0048a150();
+extern void mdlEffectBuildBasisRows();
 extern void RwMatrixScale(void *arg0, f32 *arg1, s32 arg2);
 extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
 extern void RwMatrixMultiply(void *arg0, void *arg1, void *arg2);
@@ -396,7 +396,7 @@ void GeometryMatrixBuild(RwMatrix *arg0, RwV3d *arg1, void *arg2, f32 fparg0) {
     f32 v[3];
 
     if (arg2 != 0) {
-        func_0048a150(arg0, arg2);
+        mdlEffectBuildBasisRows(arg0, arg2);
     } else {
         arg0->at.z = 1.0f;
         arg0->up.y = 1.0f;
@@ -454,7 +454,7 @@ void GeometryMatrixBuildCombined(RwMatrix *arg0, RwV3d *arg1, void *arg2, RwV3d 
         m.flags |= 0x20003;
     }
     if (arg2 != 0) {
-        func_0048a150(&out, arg2);
+        mdlEffectBuildBasisRows(&out, arg2);
         RwMatrixMultiply(arg0, &m, &out);
     } else {
         s32 *sp = (s32 *)&m;

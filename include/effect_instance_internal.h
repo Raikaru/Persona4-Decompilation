@@ -14,8 +14,8 @@ f32 effMiscRandFloat(EffRandState *state);
 void effMiscRandInit(EffRandState *state, u32 seed);
 
 /* Resolve either a linked pointer or an offset within the source descriptor. */
-void *func_00484490(void *source);
-void *func_004844d0(void *source);
+void *mdlEffectResolveRelPtrA(void *source);
+void *mdlEffectResolveRelPtrB(void *source);
 
 u8 *func_00484bb0(u8 *resource);
 u8 *func_00485c80(u8 *resource);

@@ -75,7 +75,7 @@ typedef struct TrackVertex
  * as distinct lifetimes; all vector transfers declare their memory operands. */
 // FUN_00494740
 void func_00494740(u8 *track, u16 trackIndex, u8 *point, f32 width) {
-    extern void func_0048a340(f32 angle);
+    extern void mdlEffectAxisAngleBasisVU(f32 angle);
     extern u_long128 D_00713D00;
     extern f32 D_00713D10[4];
     extern f32 D_00713D14[];
@@ -191,7 +191,7 @@ shift_check:
         "vmulq.xyz $vf10, $vf10, $Q \n"
         : : : "$vf2", "$vf10", "ACC", "Q", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(headTangent) : "r"(&headTangent) : "memory");
-    func_0048a340(rotation);
+    mdlEffectAxisAngleBasisVU(rotation);
     __asm__ volatile(
         "vmove.xyzw $vf10, $vf24 \n"
         "vmulax.xyzw $ACC, $vf28, $vf10x \n"
@@ -244,7 +244,7 @@ ribbon_row:
         "vwaitq \n"
         "vmulq.xyz $vf10, $vf10, $Q \n"
         : : : "$vf2", "$vf10", "ACC", "Q", "memory");
-    func_0048a340(rotation);
+    mdlEffectAxisAngleBasisVU(rotation);
     __asm__ volatile(
         "vmove.xyzw $vf10, $vf24 \n"
         "vmulax.xyzw $ACC, $vf28, $vf10x \n"

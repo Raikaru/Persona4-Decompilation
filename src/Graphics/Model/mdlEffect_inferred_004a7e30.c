@@ -58,10 +58,10 @@ extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void (*D_00887314[])(s32, void *, s32, void *, s32);
 extern u8 D_00714368[];
-extern void func_0048a070(s64 arg);
-extern void func_0048a0e0(void);
-extern void func_00489f80(void);
-extern void func_0048a000(void);
+extern void mdlEffectEmitValuePacket(s64 arg);
+extern void mdlEffectEmitSlotPacket(void);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void mdlEffectEmitTagPair(void);
 extern f32 D_008872F8[];
  
 extern f32 fGpffff80f4;
@@ -433,20 +433,20 @@ void func_004a8890(u8 *arg0, s32 *arg1) {
     func_003f6690(3, &sp248);
     setState = (void (**)(u32, u32))D_00887300;
     (*setState)((u32)1, *(u32 *)temp_16);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     RpSkyRenderStateSet(2, 0x44);
     RpSkyRenderStateSet(3, 0x31001);
     func_004a8250(arg0 + 4, sp140);
     sendPacket = (void (**)(s32, void *, s32, void *, s32))D_00887314;
     (*sendPacket)(3, sp140, 4, D_00714368, 6);
-    func_0048a000();
+    mdlEffectEmitTagPair();
     RpSkyRenderStateSet(2, sp24C | 0x10);
     if (func_004a7e30(arg0 + 4, sp40) != 0) {
         (*setState)(1, D_00922D90[0]);
         RpSkyRenderStateSet(3, 0x31001);
-        func_0048a070(0x9FC00A | ((s64)0x6FC << 0x20));
+        mdlEffectEmitValuePacket(0x9FC00A | ((s64)0x6FC << 0x20));
         (*sendPacket)(3, sp40, 4, D_00714368, 6);
-        func_0048a0e0();
+        mdlEffectEmitSlotPacket();
     }
     (*setState)(1, 0);
     RpSkyRenderStateSet(3, sp248);

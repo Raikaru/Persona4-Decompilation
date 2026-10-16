@@ -2236,8 +2236,8 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
 extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
 extern void func_002aaac0(void);
 extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void func_00489f80(void);
-extern void func_0048a000(void);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void mdlEffectEmitTagPair(void);
 extern s32 D_005E55E0[];
 extern s8 D_005E5610[];
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
@@ -2303,9 +2303,9 @@ void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
         } while (n != 0);
     }
 
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     func_0025f3f0(0.0f, 0.0f, fparg2, 0xFFFFFF, arg0 & 0xFF, 0x1000D, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 1);
-    func_0048a000();
+    mdlEffectEmitTagPair();
 
     i = 0;
     x = -100.0f + fparg0;
@@ -2331,8 +2331,8 @@ extern s32 func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32
 
 extern void func_002aaac0(void);
 extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void func_00489f80(void);
-extern void func_0048a000(void);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void mdlEffectEmitTagPair(void);
 typedef struct { u8 c0, c1, c2, c3; } __attribute__((aligned(4))) TitleColor;
 typedef struct { s128 bits; } TitleRect;
 extern TitleRect D_005E5590;
@@ -2384,10 +2384,10 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
     }
     fillColor = black;
     titleRectangle((u8 *)&fillColor, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, NULL);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     func_0025f3f0(0.0f, 0.0f, 0.0f, 0xFFFFFF, arg0 & 0xFF, 0x1000C, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 1);
-    func_0048a000();
-    func_00489f80();
+    mdlEffectEmitTagPair();
+    mdlEffectEmitMaskedTagPair();
     p = (u8 *)&clear;
     n = 4;
     if (p != NULL) {
@@ -2405,7 +2405,7 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
     lower.bits = D_005E55A0.bits;
     rect = lower;
     func_0045d6e0(&shade, &rect, 0.0f, 0);
-    func_0048a000();
+    mdlEffectEmitTagPair();
     frame = *(s32 *)(arg1 + 0x80) + 1;
     *(s32 *)(arg1 + 0x80) = frame;
     if (frame >= 200) {
@@ -2539,8 +2539,8 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern s32 mdlPrepareModel();
     extern void mdlAdvanceModelFromFlags(u8 *);
     extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
-    extern void func_00489f80(void);
-    extern void func_0048a000(void);
+    extern void mdlEffectEmitMaskedTagPair(void);
+    extern void mdlEffectEmitTagPair(void);
     extern u8 D_005E5230[];
     extern u8 D_005E523C[];
     extern u8 D_005E5240[];
@@ -2963,7 +2963,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 titleRectangle((u8 *)&firstOverlayColor, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
-                func_00489f80();
+                mdlEffectEmitMaskedTagPair();
                 var_3_3 = sp624.bytes;
                 var_2_3 = 4;
                 if ((u8 *)(var_3_3) != NULL) {
@@ -2979,7 +2979,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 func_0045d6e0((u8 *)&sp628, titleCopyRect((u8 *)&sp490, (const u8 *)&sp480), 0.0f, 0);
                 sp470 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp628, titleCopyRect((u8 *)&sp490, (const u8 *)&sp470), 0.0f, 0);
-                func_0048a000();
+                mdlEffectEmitTagPair();
                 temp_2_2 = (s32)(taskView->f10 + 1);
                 taskView->f10 = temp_2_2;
                 if (temp_2_2 >= 0x168) {
@@ -3187,7 +3187,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 func_002aaac0();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
-                func_00489f80();
+                mdlEffectEmitMaskedTagPair();
                 var_3_11 = sp61C.bytes;
                 var_2_8 = 4;
                 if ((u8 *)(var_3_11) != NULL) {
@@ -3203,7 +3203,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 func_0045d6e0((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp390), 0.0f, 0);
                 sp380 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp380), 0.0f, 0);
-                func_0048a000();
+                mdlEffectEmitTagPair();
                 func_002aaac0();
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
@@ -3241,7 +3241,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleRectangle((u8 *)&sp670, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
-                func_00489f80();
+                mdlEffectEmitMaskedTagPair();
                 var_3_13 = sp614.bytes;
                 var_2_10 = 4;
                 if ((u8 *)(var_3_13) != NULL) {
@@ -3257,7 +3257,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0045d6e0((u8 *)&sp618, titleCopyRect((u8 *)&sp370, (const u8 *)&sp360), 0.0f, 0);
                 sp350 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp618, titleCopyRect((u8 *)&sp370, (const u8 *)&sp350), 0.0f, 0);
-                func_0048a000();
+                mdlEffectEmitTagPair();
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
             } else {
                 func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
@@ -3277,7 +3277,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_002aaac0();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
-                func_00489f80();
+                mdlEffectEmitMaskedTagPair();
                 var_3_15 = sp60C.bytes;
                 var_2_12 = 4;
                 if ((u8 *)(var_3_15) != NULL) {
@@ -3293,7 +3293,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0045d6e0((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp330), 0.0f, 0);
                 sp320 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp320), 0.0f, 0);
-                func_0048a000();
+                mdlEffectEmitTagPair();
                 func_002aaac0();
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
@@ -3314,7 +3314,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_002aaac0();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
-                func_00489f80();
+                mdlEffectEmitMaskedTagPair();
                 var_3_17 = sp604.bytes;
                 var_2_14 = 4;
                 if ((u8 *)(var_3_17) != NULL) {
@@ -3330,7 +3330,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0045d6e0((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp300), 0.0f, 0);
                 sp2F0 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp2F0), 0.0f, 0);
-                func_0048a000();
+                mdlEffectEmitTagPair();
                 temp_f22 = sinf(((((1.5707964f * (f32) (temp_16 - 0x55)) / 60.0f))));
                 func_002aaac0();
                 fnTable[0](6, 1);
@@ -3352,7 +3352,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleRectangle((u8 *)&sp658, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
-                func_00489f80();
+                mdlEffectEmitMaskedTagPair();
                 var_3_19 = sp5FC.bytes;
                 var_2_16 = 4;
                 if ((u8 *)(var_3_19) != NULL) {
@@ -3368,7 +3368,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0045d6e0((u8 *)&sp600, titleCopyRect((u8 *)&sp2E0, (const u8 *)&sp2D0), 0.0f, 0);
                 sp2C0 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp600, titleCopyRect((u8 *)&sp2E0, (const u8 *)&sp2C0), 0.0f, 0);
-                func_0048a000();
+                mdlEffectEmitTagPair();
                 titleBuildPointRows(200.0f, 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
             } else if (temp_16 < 0xCE) {
                 var_3_20 = sp64C.bytes;
@@ -3384,7 +3384,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleRectangle((u8 *)&sp650, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
-                func_00489f80();
+                mdlEffectEmitMaskedTagPair();
                 var_3_21 = sp5F4.bytes;
                 var_2_18 = 4;
                 if ((u8 *)(var_3_21) != NULL) {
@@ -3400,7 +3400,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0045d6e0((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp2A0), 0.0f, 0);
                 sp290 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp290), 0.0f, 0);
-                func_0048a000();
+                mdlEffectEmitTagPair();
                 titleBuildPointRows(200.0f - 700.0f * sinf(((((1.5707964f * (f32) (temp_16 - 0x55)) / 120.0f)))), 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
             }
             if (temp_16 < 0xE2) {
@@ -3417,7 +3417,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 titleRectangle((u8 *)&sp648, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 func_002aaac0();
                 D_00887300[0](8, 1);
-                func_00489f80();
+                mdlEffectEmitMaskedTagPair();
                 var_3_23 = sp5EC.bytes;
                 var_2_20 = 4;
                 if ((u8 *)(var_3_23) != NULL) {
@@ -3433,7 +3433,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_0045d6e0((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp270), 0.0f, 0);
                 sp260 = D_005E55A0;
                 func_0045d6e0((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp260), 0.0f, 0);
-                func_0048a000();
+                mdlEffectEmitTagPair();
                 temp_f20_5 = sinf((1.5707964f * (f32) temp_16) / 225.0f);
                 if (temp_16 > 0x87) {
                     var_2_21 = temp_16 - 0x87;
@@ -3470,7 +3470,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             titleRectangle((u8 *)&sp640, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
             func_002aaac0();
             D_00887300[0](8, 1);
-            func_00489f80();
+            mdlEffectEmitMaskedTagPair();
             var_3_25 = sp5E4.bytes;
             var_2_23 = 4;
             if ((u8 *)(var_3_25) != NULL) {
@@ -3486,7 +3486,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             func_0045d6e0((u8 *)&sp5E8, titleCopyRect((u8 *)&sp250, (const u8 *)&sp240), 0.0f, 0);
             sp230 = D_005E55A0;
             func_0045d6e0((u8 *)&sp5E8, titleCopyRect((u8 *)&sp250, (const u8 *)&sp230), 0.0f, 0);
-            func_0048a000();
+            mdlEffectEmitTagPair();
             sp69C.value = fGpffff9c80;
             temp_f1_11 = 255.0f;
             var_3_26 = (u8)temp_f1_11;
@@ -3508,7 +3508,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             titleRectangle((u8 *)&sp638, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
             func_002aaac0();
             D_00887300[0](8, 1);
-            func_00489f80();
+            mdlEffectEmitMaskedTagPair();
             var_3_28 = sp5DC.bytes;
             var_2_25 = 4;
             if ((u8 *)(var_3_28) != NULL) {
@@ -3524,7 +3524,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             func_0045d6e0((u8 *)&sp5E0, titleCopyRect((u8 *)&sp220, (const u8 *)&sp210), 0.0f, 0);
             sp200 = D_005E55A0;
             func_0045d6e0((u8 *)&sp5E0, titleCopyRect((u8 *)&sp220, (const u8 *)&sp200), 0.0f, 0);
-            func_0048a000();
+            mdlEffectEmitTagPair();
             temp_f2_3 = 1.5707964f;
             temp_f0_5 = sinf((((temp_f2_3 + ((temp_f2_3 * (f32) (temp_16 - 0x19)) / 60.0f)))));
             sp698.value = fGpffff9c84;
@@ -3568,7 +3568,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         titleRectangle((u8 *)&sp630, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
         func_002aaac0();
         D_00887300[0](8, 1);
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
         var_3_32 = sp5D4.bytes;
         var_2_27 = 4;
         if ((u8 *)(var_3_32) != NULL) {
@@ -3584,7 +3584,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         func_0045d6e0((u8 *)&sp5D8, titleCopyRect((u8 *)&sp1F0, (const u8 *)&sp1E0), 0.0f, 0);
         sp1D0 = D_005E55A0;
         func_0045d6e0((u8 *)&sp5D8, titleCopyRect((u8 *)&sp1F0, (const u8 *)&sp1D0), 0.0f, 0);
-        func_0048a000();
+        mdlEffectEmitTagPair();
         temp_2_19 = (s32)(taskView->f10 + 1);
         taskView->f10 = temp_2_19;
         if (temp_2_19 >= 0x168) {

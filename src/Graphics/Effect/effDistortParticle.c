@@ -18,8 +18,8 @@ extern void func_00492cd0(void *ptr);
 extern u8 *func_00492b20(u32 arg0, s32 arg1, u8 *arg2);
 extern void func_00492d10(void *ptr);
 extern s32 TnSlotObject(u16 param);
-extern void func_00492df0(void *arg0, void *arg1);
-extern void func_00492db0(void *arg0, void *arg1);
+extern void mdlEffectLoadQuadB(void *arg0, void *arg1);
+extern void mdlEffectLoadQuadA(void *arg0, void *arg1);
 extern void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7);
 extern void effMiscBuildRotationVU(void);
 extern void (*D_00887300[])(u32 state, u32 value);
@@ -64,7 +64,7 @@ void *DistortParticleCreateFromSource(void *opaqueSource) {
     u8 *temp_2;
     s32 temp_2_3;
 
-    temp_2_2 = func_00484490(arg0);
+    temp_2_2 = mdlEffectResolveRelPtrA(arg0);
     if (temp_2_2 == NULL) {
         kAssertFail(D_00714550, 0x69);
     }
@@ -86,7 +86,7 @@ void *DistortParticleCreateFromSource(void *opaqueSource) {
     if (*(s32 *)(*(u8 **)(temp_2 + 0x5C) + 8) == 0) {
         return temp_2;
     }
-    temp_2_3 = (s32)func_004844d0(arg0);
+    temp_2_3 = (s32)mdlEffectResolveRelPtrB(arg0);
     if (temp_2_3 != 0) {
         switch (*(u16 *)(arg0 + 0x1C)) {
         case 1:
@@ -283,9 +283,9 @@ void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *ar
     extern f32 sinf(f32 param);
     extern s32 func_00457120(void);
     extern void func_003e42a0(DistortVec3 *out, DistortVec3 *in, void *matrix);
-    extern void func_00489f80(void);
-    extern void func_0048a000(void);
-    extern void func_0048a0e0(void);
+    extern void mdlEffectEmitMaskedTagPair(void);
+    extern void mdlEffectEmitTagPair(void);
+    extern void mdlEffectEmitSlotPacket(void);
     extern s32 (*D_00887310[])(s32, DistortVertex *, s32);
     extern f32 D_008872F8[];
     extern f32 D_008872FC[];
@@ -484,12 +484,12 @@ void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *ar
         u32 primitiveTable;
 
         ((void (**)(u32, u32))setStateTable)[0](1, *texture);
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x31001);
         primitiveTable = (u32)D_00887310;
         ((s32 (**)(s32, DistortVertex *, s32))primitiveTable)[0](4, qb, 4);
-        func_0048a000();
+        mdlEffectEmitTagPair();
         ((void (**)(u32, u32))setStateTable)[0](1, **(u32 **)(arg0 + 0x60));
         RpSkyRenderStateSet(2, st2 | 0x10);
         uv = (arg7 & 0xFF) << 5;
@@ -502,7 +502,7 @@ void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *ar
         qb[3].u = *(f32 *)((u8 *)D_00714588 + uv);
         qb[3].v = *(f32 *)((u8 *)D_0071458C + uv);
         ((s32 (**)(s32, DistortVertex *, s32))primitiveTable)[0](4, qb, 4);
-        func_0048a0e0();
+        mdlEffectEmitSlotPacket();
         break;
     }
     case 1:
@@ -622,8 +622,8 @@ void DistortParticleProjectRecords(u8 *arg0, s32 arg1) {
                 var_17 += 0x1C;
             }
         } else {
-            func_00492df0(temp_4, spB0);
-            func_00492db0(*(u8 **)(arg0 + 0x5C), spC0);
+            mdlEffectLoadQuadB(temp_4, spB0);
+            mdlEffectLoadQuadA(*(u8 **)(arg0 + 0x5C), spC0);
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(spB0) : "$vf10", "memory");
             effMiscBuildRotationVU();
             __asm__ volatile("lqc2 $vf31, 0(%0)" : : "r"(spC0) : "$vf31", "memory");

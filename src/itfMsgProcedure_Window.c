@@ -20,8 +20,8 @@ extern s32 func_0025ef20(char *str);
 extern s32 func_00266b70(void);
 extern s32 memset(void *a0, s32 a1, s32 a2);
 
-extern void func_00489f80(void);
-extern void func_0048a000(void);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void mdlEffectEmitTagPair(void);
 extern float sinf(float angle);
 extern float cosf(float angle);
 extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
@@ -396,9 +396,9 @@ void msgWinDrawRect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4
     func_00460b60(arg4, 0x8, 0x1);
     func_00460c70(arg4, 0x3, 0x31003);
     func_00460c70(arg4, 0x2, 0x44);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     func_0045da40(&color, &q2, f0, 0, arg4);
-    func_0048a000();
+    mdlEffectEmitTagPair();
 }
 
 /* 364/368 bytes; three resolved relocations; four zero alignment bytes.

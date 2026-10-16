@@ -23,7 +23,7 @@ typedef struct {
 
 
 
-extern void func_0048a000(void);
+extern void mdlEffectEmitTagPair(void);
 
 extern void (*jtbl_008873EC[])(void *ptr);
 
@@ -71,7 +71,7 @@ extern u8 D_0063F1D0[];
 extern u8 D_0063F1E0[];
 void func_002b60f0(u8 *arg0, u8 arg1, u8 arg2, u32 arg3);
 
-extern void func_00489f80(void);
+extern void mdlEffectEmitMaskedTagPair(void);
 extern u8 *func_00457120(void);
 extern void memcpy(void *, s32, s32);
 extern void *func_00460990(void);
@@ -646,12 +646,12 @@ void func_002b6da0(void) {
     tbl[0](1, 0);
     RpSkyRenderStateSet(3, 0x717FB);
     RpSkyRenderStateSet(2, 0x44);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
 }
 
 // FUN_002B6EA0
 void func_002b6ea0(void) {
-    func_0048a000();
+    mdlEffectEmitTagPair();
 }
 
 /* Advance every active draw entry: refresh its animation, run the colour

@@ -102,9 +102,9 @@ extern u8 iGpffffa734;
 
 extern s32 calHasDayEntry(s32 arg0);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
-extern void func_00489f80(void);
+extern void mdlEffectEmitMaskedTagPair(void);
 extern void func_0045d6e0(void *arg0, void *arg1, f32 arg2, s32 arg3);
-extern void func_0048a000(void);
+extern void mdlEffectEmitTagPair(void);
 extern s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2);
 
 /* Source unit: src/promoted/code1_0026.c */
@@ -662,9 +662,9 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     tbl[0]((RwRenderState)(8), (void *)(1));
     RpSkyRenderStateSet(3, (void *)(0x31003));
     RpSkyRenderStateSet(2, (void *)(0x44));
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     func_0045d6e0(&backdrop.transfer, &clip.packet, 10.0f, 0);
-    func_0048a000();
+    mdlEffectEmitTagPair();
     countA = *contourOutlineCount(counts.value, arg3);
     ptrA = *contourOutlinePoints(sources.value, arg3);
     iA = 0;
@@ -691,9 +691,9 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     tbl[0]((RwRenderState)(8), (void *)(1));
     RpSkyRenderStateSet(3, (void *)(0x30003));
     RpSkyRenderStateSet(2, (void *)(0x44));
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     func_0045e6a0(colors, points, fparg2, countA, 5, 0, arg4, arg5, fparg3, fparg4, fparg5);
-    func_0048a000();
+    mdlEffectEmitTagPair();
     func_00364c70();
     countB = counts.value[arg3 * 2];
     ptrB = sources.value[arg3 * 2];

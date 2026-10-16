@@ -138,7 +138,7 @@ void btlUiUpdateModelCurve(u8 *arg0)
     } Frame;
     extern void btlCameraSetupActionGeometry(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
     extern u16 btlCameraGetState(void);
-    extern void func_0048a150(void *arg0, void *arg1);
+    extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
     extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
     extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
@@ -169,7 +169,7 @@ void btlUiUpdateModelCurve(u8 *arg0)
             }
         }
         if (((btlCameraGetState() & 0xFFFF) == 1) && (*(s32 *)temp_17 != 0)) {
-            func_0048a150(frame.spE0, arg0 + 0x10);
+            mdlEffectBuildBasisRows(frame.spE0, arg0 + 0x10);
             mdlApplyModelMatrix(*(u8 **)temp_17, frame.spE0, 0);
             temp_f0 = *(f32 *)(arg0 + 0x20) * *(f32 *)(temp_16 + 0x34);
             frame.sp120.z = temp_f0;

@@ -116,7 +116,7 @@ extern void func_004adfa0(u8 *arg0);
 void func_004adb50(arg0)
 u8 *arg0;
 {
-    extern void func_0048a150(void *arg0, void *arg1);
+    extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
     extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
     extern void mdlScale(void *arg0, void *arg1, s32 arg2);
     extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
@@ -156,7 +156,7 @@ u8 *arg0;
     n = *(u32 *)(arg0 + 0x28);
     objs = *(s32 **)(arg0 + 0x98);
     if (count < total || total == 0) {
-        func_0048a150(frame, arg0 + 0x10);
+        mdlEffectBuildBasisRows(frame, arg0 + 0x10);
         mdlApplyModelMatrix(*(void **)(arg0 + 0xA0), frame, 0);
         temp_f0 = *(f32 *)(arg0 + 0x20);
         vec[2] = temp_f0;

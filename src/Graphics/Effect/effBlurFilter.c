@@ -29,10 +29,10 @@ extern void (*D_00887300[])(u32 state, u32 value);
 extern void (*D_00887314[])(s32, void *, s32, void *, s32);
 extern u32 D_00922D90[];
 extern u8 D_00714368[];
-extern void func_0048a070(s64 arg);
-extern void func_0048a0e0(void);
-extern void func_00489f80(void);
-extern void func_0048a000(void);
+extern void mdlEffectEmitValuePacket(s64 arg);
+extern void mdlEffectEmitSlotPacket(void);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void mdlEffectEmitTagPair(void);
 extern s32 func_004a7e30(u8 *arg0, void *arg1);
 extern void func_004a8250(u8 *arg0, void *arg1);
 extern void func_004a8440(u8 *arg0, void *arg1);
@@ -76,7 +76,7 @@ extern s64 fGpffff8020;
 
 extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
 extern f32 func_0048aff0(u8 *a, s32 b, s32 c);
-extern f32 func_0048a650(f32 a);
+extern f32 mdlEffectAnchorScreenScale(f32 a);
 extern f32 fGpffff8044;
 extern f32 fGpffff80f0;
 extern void effBlurFilterTickSlotsA(u8 *a, u8 *b);
@@ -427,9 +427,9 @@ void effBlurFilterDrawSlotPass(u8 *arg0) {
         if (func_004a7e30(base, sp20) != 0) {
             D_00887300[0](1, D_00922D90[0]);
             RpSkyRenderStateSet(3, 0x31001);
-            func_0048a070(0x9FC00A | ((s64)0x6FC << 0x20));
+            mdlEffectEmitValuePacket(0x9FC00A | ((s64)0x6FC << 0x20));
             D_00887314[0](3, sp20, 4, D_00714368, 6);
-            func_0048a0e0();
+            mdlEffectEmitSlotPacket();
         }
         RpSkyRenderStateSet(3, sp12C);
         D_00887300[0](1, 0);
@@ -474,7 +474,7 @@ void effBlurFilterUpdateRectFromScale(u8 *arg0) {
         } else {
             prod = f * *(f32 *)(arg0 + 0x14);
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
-            g = func_0048a650(prod);
+            g = mdlEffectAnchorScreenScale(prod);
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
             *(f32 *)(base + 0x14) = vec[0];
             *(f32 *)(base + 0x18) = vec[1];
@@ -567,20 +567,20 @@ void effBlurFilterDrawRefPass(u8 *arg0) {
         func_003f6690(3, &sp248);
         setState = (void (**)(u32, u32))D_00887300;
         (*setState)((u32)1, *(u32 *)temp_16);
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x31001);
         func_004a8250(temp_18 + 4, sp140);
         sendPacket = (void (**)(s32, void *, s32, void *, s32))D_00887314;
         (*sendPacket)(3, sp140, 4, D_00714368, 6);
-        func_0048a000();
+        mdlEffectEmitTagPair();
         RpSkyRenderStateSet(2, sp24C | 0x10);
         if (func_004a7e30(temp_18 + 4, sp40) != 0) {
             (*setState)(1, D_00922D90[0]);
             RpSkyRenderStateSet(3, 0x31001);
-            func_0048a070(0x9FC00A | ((s64)0x6FC << 0x20));
+            mdlEffectEmitValuePacket(0x9FC00A | ((s64)0x6FC << 0x20));
             (*sendPacket)(3, sp40, 4, D_00714368, 6);
-            func_0048a0e0();
+            mdlEffectEmitSlotPacket();
         }
         (*setState)(1, 0);
         RpSkyRenderStateSet(3, sp248);
@@ -653,7 +653,7 @@ void effBlurFilterStepSlotsA(u8 *arg0) {
         } else {
             prod = f * *(f32 *)(arg0 + 0x14);
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
-            *(f32 *)(base + 0x24) = func_0048a650(prod);
+            *(f32 *)(base + 0x24) = mdlEffectAnchorScreenScale(prod);
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
             *(f32 *)(base + 0x1C) = vec[0];
             *(f32 *)(base + 0x20) = vec[1];
@@ -805,7 +805,7 @@ void effBlurFilterStepSlotsC(u8 *arg0) {
         } else {
             prod = f * *(f32 *)(arg0 + 0x14);
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
-            *(s32 *)(base + 0x28) = (s32)func_0048a650(prod);
+            *(s32 *)(base + 0x28) = (s32)mdlEffectAnchorScreenScale(prod);
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
             *(f32 *)(base + 0x20) = vec[0];
             *(f32 *)(base + 0x24) = vec[1];
@@ -986,9 +986,9 @@ void effBlurFilterDrawOverlay(u8 *arg0) {
         setState = (void *)D_00887300;
         (*(void (**)(u32, u32))setState)(1, D_00922D90[0]);
         RpSkyRenderStateSet(3, 0x31001);
-        func_0048a070(0x9FC00A | ((s64)0x6FC << 0x20));
+        mdlEffectEmitValuePacket(0x9FC00A | ((s64)0x6FC << 0x20));
         D_00887314[0](3, sp20, 4, D_00714368, 6);
-        func_0048a0e0();
+        mdlEffectEmitSlotPacket();
         (*(void (**)(u32, u32))setState)(1, 0);
         RpSkyRenderStateSet(3, sp12C);
     }
@@ -1058,7 +1058,7 @@ void effBlurFilterStepSlotsB(u8 *arg0) {
         } else {
             prod = f * *(f32 *)(arg0 + 0x14);
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
-            *(f32 *)(base + 0x24) = func_0048a650(prod);
+            *(f32 *)(base + 0x24) = mdlEffectAnchorScreenScale(prod);
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
             *(f32 *)(base + 0x1C) = vec[0];
             *(f32 *)(base + 0x20) = vec[1];
@@ -1277,7 +1277,7 @@ void effBlurFilterUpdateRectFromScaleAux(u8 *arg0) {
         } else {
             prod = f * *(f32 *)(arg0 + 0x14);
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
-            g = func_0048a650(prod);
+            g = mdlEffectAnchorScreenScale(prod);
             __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
             *(f32 *)(base + 4) = vec[0];
             *(f32 *)(base + 8) = vec[1];
@@ -1355,7 +1355,7 @@ void effBlurFilterDrawPassB(u8 *arg0) {
         func_003f6690(3, &sp248);
         setState = (void *)D_00887300;
         (*(void (**)(u32, u32))setState)((u32)1, *(u32 *)temp_16);
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x31001);
         func_004a86c0(temp_18 + 0xC, sp140);
@@ -1369,7 +1369,7 @@ void effBlurFilterDrawPassB(u8 *arg0) {
         *(s32 *)(sp140 + 0xD4) = 0;
         temp_16 = (u8 *)D_00887314;
         (*(void (**)(s32, void *, s32, void *, s32))temp_16)(3, sp140, 4, D_00714368, 6);
-        func_0048a000();
+        mdlEffectEmitTagPair();
         RpSkyRenderStateSet(2, sp24C | 0x10);
         func_004a86c0(temp_18 + 0xC, sp40);
         (*((void (**)(u32, u32))setState))(1, 0);
@@ -1438,7 +1438,7 @@ void *effBlurFilterCopiedInstantiate(void *arg0) {
     s32 temp_2_3;
     u8 *temp_2;
 
-    temp_2_2 = (s32)func_00484490(arg0);
+    temp_2_2 = (s32)mdlEffectResolveRelPtrA(arg0);
     if (temp_2_2 == 0) {
         kAssertFail(D_00714380, 0x660);
     }
@@ -1446,7 +1446,7 @@ void *effBlurFilterCopiedInstantiate(void *arg0) {
     if (temp_2 == 0) {
         kAssertFail(D_00714380, 0x662);
     }
-    temp_2_3 = (s32)func_004844d0(arg0);
+    temp_2_3 = (s32)mdlEffectResolveRelPtrB(arg0);
     if ((temp_2_3 != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(temp_2 + 0x18) * 24) != 0)) {
         *(s32 *)(temp_2 + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)temp_2_3, *(u16 *)((u8 *)arg0 + 0x1C));
     }
@@ -1459,7 +1459,7 @@ void *effBlurFilterDirectInstantiate(void *param_1) {
     u8 *tmp;
     u16 *tex;
 
-    tmp = (u8 *)func_00484490(param_1);
+    tmp = (u8 *)mdlEffectResolveRelPtrA(param_1);
     if (tmp == 0) {
         kAssertFail(D_00714380, 0x72B);
     }
@@ -1467,7 +1467,7 @@ void *effBlurFilterDirectInstantiate(void *param_1) {
     if (tmp == 0) {
         kAssertFail(D_00714380, 0x72D);
     }
-    tex = func_004844d0(param_1);
+    tex = mdlEffectResolveRelPtrB(param_1);
     if ((tex != 0) && (*(s8 *)(D_00714470 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
         *(s32 *)(tmp + 0x28) = (s32)effBlurFilterCreateRefObj(tex, *(u16 *)((char *)param_1 + 0x1C));
     }

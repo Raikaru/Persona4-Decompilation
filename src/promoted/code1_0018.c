@@ -66,10 +66,10 @@ static inline s32 code1_0018_add2(s32 first, s32 second)
 {
     return first + second;
 }
-extern void func_0048a000();
+extern void mdlEffectEmitTagPair();
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void func_00489f80(void);
+extern void mdlEffectEmitMaskedTagPair(void);
 extern void func_001852f0(void);
 extern void func_003a2760(s32 arg0);
 extern void func_003e9390(s32 arg0);
@@ -1296,14 +1296,14 @@ void func_00185730(void)
     RpSkyRenderStateSet(3, 0x717FB);
     RpSkyRenderStateSet(2, 0x44);
     base[0](1, 0);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
 }
 /* measured: closing the single-function address-hoist bracket. */
 #pragma opt_propagation on
 // FUN_00185830
 void func_00185830(void)
 {
-    func_0048a000();
+    mdlEffectEmitTagPair();
 }
 
 /* Sky2's complete 0x40-byte vertex record, with its native quadword
