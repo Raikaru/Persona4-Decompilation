@@ -74,7 +74,6 @@ extern void evtRestartTaskDraw(s32 arg0, s32 arg1);
 // Intent: NPC model task update: waits for the model, replaces the NPC shadow resource, and copies its colour into the event node; returns -1 when done [inferred]
 // FUN_00298370
 s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
-    typedef struct { u8 b0; u8 b1; u8 b2; u8 b3; } EvtColor;
     s32 temp_2_2;
     u8 *temp_18;
     s32 temp_17;
@@ -103,7 +102,7 @@ s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
         }
         evtNodeSetRes(temp_2, temp_17, (u16 *)temp_18);
         temp_2_4 = mdlGetColor(*(s32 *)(temp_18 + 0x164));
-        *(EvtColor *)(temp_2 + 0x50) = *(EvtColor *)temp_2_4;
+        ((EvtNode *)temp_2)->color = *(EvtColor *)temp_2_4;
         return -1;
     }
     return 0;
@@ -179,7 +178,7 @@ s32 evtCmdSetEventSlot(void) {
         return 1;
     }
     p = (u8 *)kwlnTaskGetWork(kind);
-    if (evtMessageWindowIsOpen((u32 *)(p + 0x678)) == 0) {
+    if (evtMessageWindowIsOpen((u32 *)((EvtEventWork *)p)->messageWindow) == 0) {
         return 1;
     }
     *(s32 *)((u8 *)evtSlot(slot * 4, (u32)p) + 0x698) = value;
