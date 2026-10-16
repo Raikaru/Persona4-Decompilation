@@ -34,7 +34,8 @@ extern void TrackRebindPathData(u8 *arg0, u16 arg1, u8 *arg2);
 extern void TrackApplyMode(u8 *arg0, u16 arg1, s32 *arg2);
 extern void mdlEffectLoadQuadB(void *arg0, u32 *arg1);
 extern void mdlEffectLoadQuadA(void *arg0, u32 *arg1);
-extern void func_00484350(void *arg0, void *arg1, void *arg2, f32 arg3);
+/* lint-allow: arity kept at four arguments. The definition in mdlEffect.c takes one; a one-argument call here moved the codegen of both TrackRefresh call pairs (verify MISMATCH 2). */
+extern void mdlEffectApplyGeometryMatrix(void *arg0, void *arg1, void *arg2, f32 arg3);
 extern void ParticleProjectVertices(void *arg0, f32 arg1);
 extern void func_00495090(void *arg0, u32 arg1);
 extern void func_00492d10(void *arg0);
@@ -570,8 +571,8 @@ void TrackApplyWidth(u8 *arg0)
 
                 mdlEffectLoadQuadB(*(u8 **)(arg0 + 0x30), sp40);
                 mdlEffectLoadQuadA(*(u8 **)(arg0 + 0x30), sp50);
-                func_00484350((void *)*(u32 *)(t17 + 0x10), sp50, sp40, 1.0f);
-                func_00484350((void *)*(u32 *)(t17 + 0x14), sp50, sp40, 1.0f);
+                mdlEffectApplyGeometryMatrix((void *)*(u32 *)(t17 + 0x10), sp50, sp40, 1.0f);
+                mdlEffectApplyGeometryMatrix((void *)*(u32 *)(t17 + 0x14), sp50, sp40, 1.0f);
             }
             if (*(u32 *)(arg0 + 0x2C) != 0) {
                 ParticleProjectVertices(*(u8 **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
@@ -599,8 +600,8 @@ void TrackRefresh(u8 *arg0)
 
                 mdlEffectLoadQuadB(*(u8 **)(arg0 + 0x30), sp40);
                 mdlEffectLoadQuadA(*(u8 **)(arg0 + 0x30), sp50);
-                func_00484350((void *)*(u32 *)(t17 + 0x10), sp50, sp40, 1.0f);
-                func_00484350((void *)*(u32 *)(t17 + 0x14), sp50, sp40, 1.0f);
+                mdlEffectApplyGeometryMatrix((void *)*(u32 *)(t17 + 0x10), sp50, sp40, 1.0f);
+                mdlEffectApplyGeometryMatrix((void *)*(u32 *)(t17 + 0x14), sp50, sp40, 1.0f);
             }
             if (*(u32 *)(arg0 + 0x2C) != 0) {
                 ParticleProjectVertices(*(u8 **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);

@@ -748,8 +748,9 @@ void mdlEffectWrapTrackFrames(int param_1, u32 param_2)
 #pragma opt_propagation off
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
+// Builds a matrix with GeometryMatrixBuild and passes it, with the pointer at +0xC of arg0, to func_003e9cb0.
 // FUN_00484350
-void func_00484350(u8 *arg0)
+void mdlEffectApplyGeometryMatrix(u8 *arg0)
 {
     RwMatrix matrix;
 
@@ -758,8 +759,9 @@ void func_00484350(u8 *arg0)
 }
 
 
+// Same as mdlEffectApplyGeometryMatrix, but builds the matrix with GeometryMatrixBuildCombined.
 // FUN_004843A0
-void func_004843a0(u8 *arg0)
+void mdlEffectApplyCombinedGeometryMatrix(u8 *arg0)
 {
     RwMatrix matrix;
 

@@ -36,7 +36,8 @@ extern u_long128 D_00713CE0;
 
 extern void kAssertFail(void *, s32);
 extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
-extern void func_004843a0();
+/* lint-allow: declared with no parameters and called with four. The definition in mdlEffect.c takes one; the one-argument form moved the codegen of all three call sites (verify MISMATCH 3). */
+extern void mdlEffectApplyCombinedGeometryMatrix();
 extern void func_00484280();
 extern void memset(void *, s32, s32);
 extern void effMiscRotateXVU(f32);
@@ -520,7 +521,7 @@ void FunnelWindPackColors(u8 *arg0)
             var_17 += 1;
             var_19 += 0xC;
         }
-        func_004843a0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        mdlEffectApplyCombinedGeometryMatrix(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_18 + 0xB9) != 0) {
             *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
         } else {
@@ -1145,7 +1146,7 @@ void FallingFunnelWindPackColors(u8 *arg0)
             var_17 += 1;
             var_19 += 0xC;
         }
-        func_004843a0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        mdlEffectApplyCombinedGeometryMatrix(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_18 + 0xB9) != 0) {
             *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
         } else {
@@ -1757,7 +1758,7 @@ void SpiralWindPackColors(u8 *arg0)
             var_17 += 1;
             var_19 += 0xB;
         }
-        func_004843a0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        mdlEffectApplyCombinedGeometryMatrix(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_18 + 0xB9) != 0) {
             *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
         } else {
