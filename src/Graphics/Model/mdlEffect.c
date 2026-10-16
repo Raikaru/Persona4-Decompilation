@@ -1797,7 +1797,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 extern void func_00484280(u8 *object, s32 resource);
 /* Scale applier for emitter kind 7 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00490360
-void func_00490360(u8 *arg0, f32 fparg0) {
+void EffBezierApplyScale(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -3577,15 +3577,18 @@ typedef signed __int128 s128;
 extern void *func_004b16c0(void *opaqueSource);
 typedef signed __int128 s128;
 typedef signed __int128 s128;
+/* Distort particle setter: stores the position quad into the emitter at instance+0x5C.
+ * effDistortParticle.c creates that emitter in the same slot (func_00492b20 with the
+ * instance's kind), so the setter belongs to the distort instance. */
 // FUN_004B1090
-void func_004b1090(u8 *instance, u32 *position)
+void DistortParticleStorePosition(u8 *instance, u32 *position)
 {
     mdlEffectStoreQuadA(*(s32 *)(instance + 0x5c), position);
 }
 
 
 // FUN_004B10C0
-void func_004b10c0(u8 *instance, u32 *rotation)
+void DistortParticleStoreRotation(u8 *instance, u32 *rotation)
 {
     mdlEffectStoreQuadB(*(s32 *)(instance + 0x5c), rotation);
 }
@@ -3599,7 +3602,7 @@ void func_004b10f0(u8 *arg0, s32 arg1)
 
 
 // FUN_004B1100
-void func_004b1100(u8 *arg0, f32 arg1)
+void DistortParticleSetScale(u8 *arg0, f32 arg1)
 {
     *(f32 *)(arg0 + 8) = arg1;
     EffEmitterApplyScale(*(u16 **)(arg0 + 0x5c), arg1);

@@ -135,12 +135,12 @@ extern void EffConeAngleEmitterUpdate(u8 *arg0);
  * term formed before the half-weighted square, and the else-branch elapsed
  * declared before the clamped distance. */
 #pragma push
-/* measured: func_0048f5f0 MATCH -> MISMATCH without this pragma. */
+/* measured: EffBezierEmitterUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-/* measured: func_0048f5f0 MATCH -> MISMATCH without this pragma. */
+/* measured: EffBezierEmitterUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_0048F5F0
-void func_0048f5f0(u8 *arg0)
+void EffBezierEmitterUpdate(u8 *arg0)
 {
     typedef struct BezierParticleWork {
         f32 control0[3];

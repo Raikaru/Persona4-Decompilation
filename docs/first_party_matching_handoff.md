@@ -4127,7 +4127,7 @@ disagreement in the note rather than copying the claim.
 The second failure mode is worse because it is silent: **a worker can report
 banking a floor and leave the tree untouched.**  It happened three times on
 2026-09-18 - `func_00122a40` and `func_0031fa20` reported "banked" with the
-body only in `/var/tmp`, and `func_0048f5f0` reported "banked as guarded floor
+body only in `/var/tmp`, and `EffBezierEmitterUpdate` (was `func_0048f5f0`) reported "banked as guarded floor
 at 790" with the owner still holding a bare `INCLUDE_ASM`.  All three were
 recoverable because the candidate was still on disk, but the work would have
 been lost on the next reboot.
