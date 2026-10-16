@@ -17,7 +17,7 @@ extern void datPersonaInitRecord(u8 *arg0, u16 arg1);
 extern u8 *iGpffffb3d4;
 extern char D_00642F30[];
 extern s32 fclFuseRecipeLookup(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3);
-extern u8 func_00311ea0(u8 *arg0, u8 *arg1, u8 *arg2);
+extern u8 fclFuseTripleArcana(u8 *arg0, u8 *arg1, u8 *arg2);
 extern s32 func_003130e0(u32 arg0, s32 arg1, u16 *arg2);
 extern s32 datGetFlag(s32 id);
 extern u8 D_006420A0[];
@@ -46,7 +46,7 @@ static inline u8 fclTriangleUpperArcana(s32 first, s32 second)
 #pragma opt_common_subs off
 #pragma opt_propagation off
 // FUN_00311EA0
-u8 func_00311ea0(u8 *arg0, u8 *arg1, u8 *arg2)
+u8 fclFuseTripleArcana(u8 *arg0, u8 *arg1, u8 *arg2)
 {
     s8 pairs[3][2];
     u8 *personas[4];
@@ -300,7 +300,7 @@ s32 fclFuseTriple(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     if (fclFuseRecipeLookup(arg0, 1, sp78, 3) & 0xFF) {
         return 2;
     }
-    t = func_00311ea0(arg1, arg2, arg3) & 0xFF;
+    t = fclFuseTripleArcana(arg1, arg2, arg3) & 0xFF;
     if (t == 0) {
         memset(arg0, 0, 0x30);
         return 0;
@@ -319,7 +319,7 @@ s32 fclFuseTriple(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
 }
 
 // FUN_003129B0
-s32 func_003129b0(u8 *arg0, s32 arg1, s32 arg2) {
+s32 fclFuseSpecialPartner(u8 *arg0, s32 arg1, s32 arg2) {
     s16 tbl[4];
     s16 i;
     s16 j;
