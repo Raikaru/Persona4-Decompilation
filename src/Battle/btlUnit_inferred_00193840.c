@@ -866,7 +866,7 @@ outer_check:
 }
 
 // FUN_00194B50
-s32 func_00194b50(void)
+s32 btlPacketConditionAlwaysMet(void)
 {
     return 1;
 }
@@ -875,7 +875,7 @@ s32 func_00194b50(void)
 /* measured: func_00194b60 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 // FUN_00194B60
-u8 *func_00194b60(void)
+u8 *btlPacketCreateImmediate(void)
 {
     u8 *temp_16;
     s32 j;
@@ -910,7 +910,7 @@ second_check:
     }
     *(u8 *)(temp_16 + 0x47) =
         (u8)(*(u8 *)(temp_16 + 0x47) | 0x31);
-    *(s32 *)(temp_16 + 0x6C) = (s32)func_00194b50;
+    *(s32 *)(temp_16 + 0x6C) = (s32)btlPacketConditionAlwaysMet;
     return temp_16;
 }
 

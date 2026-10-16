@@ -155,7 +155,7 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
     return left * right;
 }
 extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
-extern u8 *func_00194b60(void);
+extern u8 *btlPacketCreateImmediate(void);
 extern BtlPacket *btlTargetCreateEmptyPacket(void);
 extern void func_001f86d0(void);
 extern void btlDamageStartFlash(s32 arg0);
@@ -2075,7 +2075,7 @@ void btlMainLoseInit(void)
         btlPacketEnqueue(work, 2);
         return;
     }
-    work = func_00194b60();
+    work = btlPacketCreateImmediate();
     *(s64 *)(work + 0x60) = *(s64 *)(*(u8 **)(iGpffffb3ac + 0x170));
     *(u16 *)(work + 0x48) = 0x2A;
     btlPacketEnqueue(work, 1);

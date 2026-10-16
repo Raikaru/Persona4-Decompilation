@@ -137,7 +137,7 @@ extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlPacketCreateHpRatio(u8 *arg0);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
-u8 *func_00194b60(void);
+u8 *btlPacketCreateImmediate(void);
 extern BtlPacket *btlFormationCreateReturnPacket(u16 arg0);
 BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
 BtlPacket *btlEffectCreateReleasePacket(u16 mode);
@@ -1508,7 +1508,7 @@ void btlActionCooperateInit(register BtlAction *actionState)
         *(s64 *)(movementPacket + 0x60) = *(s64 *)action;
         btlPacketEnqueue(movementPacket, 0);
     } else {
-        movementPacket = func_00194b60();
+        movementPacket = btlPacketCreateImmediate();
         *(s64 *)(movementPacket + 0x60) = *(s64 *)action;
         btlPacketEnqueue(movementPacket, 0);
     }
@@ -3476,7 +3476,7 @@ void btlActionSkillUpdate(u8 *arg0) {
 
     extern s32 btlCreateSetFlagsPacket(u32);
     extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
-    extern u8 *func_00194b60(void);
+    extern u8 *btlPacketCreateImmediate(void);
     extern u8 *btlPacketAllocZeroed(void *arg0, void *arg1);
     extern s32 func_00195530(u8 *arg0);
     extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
@@ -4135,7 +4135,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 btlPacketEnqueue((u8 *)(func_001f83b0((u32)act->unit)), 0);
             }
             if (sp2B0 != 0) {
-                waitPkt2 = (BtlPacketTiming *)(func_00194b60());
+                waitPkt2 = (BtlPacketTiming *)(btlPacketCreateImmediate());
             } else {
                 waitPkt2 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 0xD, (u16)blendFrames, 1.0f, 4));
             }
@@ -4149,7 +4149,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 recoveryFrames = 0;
             }
             if (sp2B0 != 0) {
-                anchorPkt = (BtlPacketTiming *)(func_00194b60());
+                anchorPkt = (BtlPacketTiming *)(btlPacketCreateImmediate());
             } else {
                 if (side == 0) {
                     cameraStateB = 0x14;
@@ -4221,12 +4221,12 @@ void btlActionSkillUpdate(u8 *arg0) {
                 animChainPkt->ownerId = actionId;
                 btlPacketEnqueue((u8 *)animChainPkt, 1);
             } else {
-                waitPkt22 = (u8 *)(func_00194b60());
+                waitPkt22 = (u8 *)(btlPacketCreateImmediate());
                 animChainPkt = (BtlPacketTiming *)(waitPkt22);
                 *(s16 *)(waitPkt22 + 0x48) = recoveryFrames;
                 btlPacketEnqueue((u8 *)animChainPkt, 0);
             }
-            waitPkt23 = (BtlPacketTiming *)(func_00194b60());
+            waitPkt23 = (BtlPacketTiming *)(btlPacketCreateImmediate());
             waitPkt23->queue = 4;
             waitPkt23->startTime = animChainPkt->endTime;
             waitPkt23->delay = 0xC;
@@ -4427,7 +4427,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 animPkt45->ownerId = actionId;
                 btlPacketEnqueue((u8 *)animPacket, 0);
             } else {
-                waitPkt46 = (BtlPacketTiming *)(func_00194b60());
+                waitPkt46 = (BtlPacketTiming *)(btlPacketCreateImmediate());
                 animPacket = (BtlPacketTiming *)(waitPkt46);
                 waitPkt46->ownerId = actionId;
                 btlPacketEnqueue((u8 *)animPacket, 0);
@@ -4440,7 +4440,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 btlPacketEnqueue((u8 *)cameraPkt47, 0);
             }
         } else {
-            waitPkt48 = (BtlPacketTiming *)(func_00194b60());
+            waitPkt48 = (BtlPacketTiming *)(btlPacketCreateImmediate());
             animPacket = (BtlPacketTiming *)(waitPkt48);
             waitPkt48->ownerId = actionId;
             btlPacketEnqueue((u8 *)animPacket, 0);
@@ -4627,7 +4627,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     }
     btlFormationFormatName(skillKey, formation);
     if (hasCutin != 0) {
-        waitPkt75 = (BtlPacketTiming *)(func_00194b60());
+        waitPkt75 = (BtlPacketTiming *)(btlPacketCreateImmediate());
         waitPkt75->queue = 4;
         waitPkt75->startTime = chainTime;
         waitPkt75->delay = timingFrames;
@@ -4635,7 +4635,7 @@ void btlActionSkillUpdate(u8 *arg0) {
         if (actionFlag4000 == 0) {
             formationNamePkt = (BtlPacketTiming *)(btlFormationCreateNamedPacket(formationHandle, formation, 1));
         } else {
-            formationNamePkt = (BtlPacketTiming *)(func_00194b60());
+            formationNamePkt = (BtlPacketTiming *)(btlPacketCreateImmediate());
         }
         formationNamePkt->queue = 5;
         formationNamePkt->startTime = cutinEndTime;
@@ -4646,7 +4646,7 @@ void btlActionSkillUpdate(u8 *arg0) {
         if (actionFlag4000 == 0) {
             skillSePkt = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(skillKey, 1));
         } else {
-            skillSePkt = (BtlPacketTiming *)(func_00194b60());
+            skillSePkt = (BtlPacketTiming *)(btlPacketCreateImmediate());
         }
         skillSePkt->queue = 5;
         skillSePkt->startTime = cutinEndTime;
@@ -4655,7 +4655,7 @@ void btlActionSkillUpdate(u8 *arg0) {
         if (actionFlag4000 == 0) {
             formationNamePkt = (BtlPacketTiming *)(btlFormationCreateNamedPacket(formationHandle, formation, 0));
         } else {
-            formationNamePkt = (BtlPacketTiming *)(func_00194b60());
+            formationNamePkt = (BtlPacketTiming *)(btlPacketCreateImmediate());
         }
         formationNamePkt->queue = 4;
         formationNamePkt->startTime = chainTime;
@@ -4665,7 +4665,7 @@ void btlActionSkillUpdate(u8 *arg0) {
         if (actionFlag4000 == 0) {
             skillSePkt = (BtlPacketTiming *)(btlSoundCreateSkillSEPacket(skillKey, 0));
         } else {
-            skillSePkt = (BtlPacketTiming *)(func_00194b60());
+            skillSePkt = (BtlPacketTiming *)(btlPacketCreateImmediate());
         }
         skillSePkt->queue = 4;
         skillSePkt->startTime = formationNamePkt->endTime;
@@ -5346,7 +5346,7 @@ reactionPacket:
         }
         actUnit20_420 = (u8 *)(act->unit);
         if (*(s32 *)(actUnit20_420 + 0x9C) & 0x20) {
-            waitPkt135 = (BtlPacketTiming *)(func_00194b60());
+            waitPkt135 = (BtlPacketTiming *)(btlPacketCreateImmediate());
             waitPkt135->queue = 4;
             waitPkt135->startTime = (s64)((s64) pkt4->endTime);
             waitPkt135->duration = 0x3C;
@@ -5549,7 +5549,7 @@ void btlActionSummonUpdate(s64 *arg0)
     extern BtlPacket *btlMainCreateColorWorkPacket(s32 first, s32 second, s32 third, u32 frames, u16 mode);
     extern BtlPacket *btlMainCreateTintPacket(u32 arg0, u32 arg1);
     extern BtlPacket *btlSoundCreateSkillSEPacket(u16 arg0, u16 arg1);
-    extern u8 *func_00194b60(void);
+    extern u8 *btlPacketCreateImmediate(void);
     extern u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2);
     extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
@@ -5706,7 +5706,7 @@ void btlActionSummonUpdate(s64 *arg0)
         btlPacketEnqueue(next, 1);
     }
     seqId = *(s64 *)(seqPkt + 0x58);
-    tailPkt = func_00194b60();
+    tailPkt = btlPacketCreateImmediate();
     *tailPkt = 4;
     *(s64 *)(tailPkt + 8) = seqId;
     *(s16 *)(tailPkt + 0x48) = 0x18;
@@ -6153,7 +6153,7 @@ void btlActionEndureUpdate(u8 *arg0) {
 
     s32 func_00106600(s16 id);
     u8 *btlCreateRemoveFlagsPacket(s32 arg0);
-    u8 *func_00194b60(void);
+    u8 *btlPacketCreateImmediate(void);
     void func_001f0a10(u8 *arg0);
     extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
@@ -6209,7 +6209,7 @@ void btlActionEndureUpdate(u8 *arg0) {
         *(s64 *)(messagePacket + 0x60) = *(s64 *)arg0;
         btlPacketEnqueue(messagePacket, 3);
         firstPacketTag = *(s64 *)(messagePacket + 0x58);
-        messagePacket = func_00194b60();
+        messagePacket = btlPacketCreateImmediate();
         *(s16 *)(messagePacket + 0x48) = 8;
         *(s64 *)(messagePacket + 0x60) = *(s64 *)arg0;
         btlPacketEnqueue(messagePacket, 0);
@@ -6264,7 +6264,7 @@ void btlActionWaitInit(void)
 }
 
 // FUN_001ACF50
-u8 *func_00194b60(void);
+u8 *btlPacketCreateImmediate(void);
 s32 func_00198810(u8 *arg0);
 
 void func_001f0a10(u8 *arg0);
@@ -6316,7 +6316,7 @@ void btlActionWaitUpdate(u8 *arg0) {
                 *(s64 *)(recoveryPacket + 0x60) = *(s64 *)arg0;
                 btlPacketEnqueue(recoveryPacket, 0);
             } else {
-                recoveryPacket = func_00194b60();
+                recoveryPacket = btlPacketCreateImmediate();
                 *(s64 *)(recoveryPacket + 0x60) = *(s64 *)arg0;
                 btlPacketEnqueue(recoveryPacket, 0);
             }
