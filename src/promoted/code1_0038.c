@@ -6,6 +6,7 @@
 #include "shd_misc_internal.h"
 #include "sdk_snd_internal.h"
 #include "ed_staff_internal.h"
+#include "datPersona_internal.h"
 extern void (*jtbl_008873EC[])(void *);
 
 extern void (*D_008873ec[])(s32);
@@ -17,10 +18,7 @@ s32 datGetFlag(u32 arg0);
 extern u8 *D_007246AC;
 void func_00389180(u8 *arg0);
 extern void memset(void *dst, s32 value, u32 size);
-extern s32 datPersonaCountValidMembers(void);
 extern s32 datPersonaRosterCapacity(void);
-extern struct DatPersonaRecord *datPersonaFindRosterRecordById(u16 arg0);
-extern u8 *datPersonaGetRow(u16 arg0);
 extern void nmMesWindowShowCurrentRecord(s32 arg0);
 extern void nmMesWindowSetCurrentString(s32 arg0, void *arg1);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
@@ -92,7 +90,6 @@ s32 btlShuffleShowRosterMessage(u8 *arg0)
         u16 value2;
     } Result;
     extern s32 btlShuffleBuildRoster(s32 arg0, s32 *arg1);
-    extern u8 *datPersonaGetRow(u16 arg0);
     extern u8 *datCalcGetIdRecord(s32 arg0);
     extern s32 nmMesWindowShowCurrentRecord(s32 arg0);
     extern void nmMesWindowSetCurrentString(s32 arg0, void *arg1);
@@ -213,7 +210,7 @@ s32 btlShuffleAddRosterMember(u8 *arg0, s32 arg1)
 
     count1 = datPersonaCountValidMembers();
     count2 = datPersonaRosterCapacity();
-    if (datPersonaFindRosterRecordById(arg1) != 0) {
+    if (datPersonaFindRosterRecordById((u16)arg1) != 0) {
         nmMesWindowShowCurrentRecord(2);
         return 6;
     }
@@ -1250,7 +1247,6 @@ void func_00387e70(u8 *arg0)
     extern u8 *resourceFindByName(char *name);
     extern s32 datPersonaRosterCapacity(void);
     extern u8 datPersonaGetArcana(u16 personaId);
-    extern u8 *datPersonaGetRow(u16 personaId);
     extern u8 datPersonaGetLevel(int persona);
     extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                              const char *str, int flags, int charWidth);

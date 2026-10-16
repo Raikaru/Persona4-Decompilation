@@ -6,6 +6,7 @@
 #include "include_asm.h"
 #include "fr_font_internal.h"
 #include "cmm_internal.h"
+#include "datPersona_internal.h"
 extern u8 *PrimAllocQueueNode();
 extern void cmmRankUpRunQueue();
 extern u8 D_007963D0[];
@@ -138,7 +139,6 @@ extern u8 D_005DC974[];
 extern s64 cmmCommunityArcana(s32 arg0);
 extern u8 *func_002438b0();
 extern u8 *cmmPersonaRecord();
-extern u8 *datPersonaGetRow(u16 personaId);
 
 /* Old-style: the two callbacks passed here (cmmRankUpEnqueueTask takes one s32,
  * cmmRankUpDestroy takes none) do not share a signature, and a typed prototype
@@ -3255,7 +3255,6 @@ extern u8 *func_002438b0();
 extern u8 *cmmNameRecord(u32);
 extern u8 *cmmTextRecord();
 extern u8 *cmmPersonaRecord();
-extern u8 *datPersonaGetRow(u16 personaId);
 extern char *strcpy(char *destination, const char *source);
 extern void frFontExCopyString(char *source, char *destination, s32 capacity);
 extern void nmMesWindowSetSlotString(s8 handle, s32 variable, void *text);
