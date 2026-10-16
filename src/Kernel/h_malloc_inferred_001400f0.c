@@ -103,10 +103,10 @@ extern u8 D_005EF548[];
 extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
 extern void datScreenWipeSetTarget(u8 *arg0, u8 *arg1);
-extern void func_003550d0(u8 *arg0, Float2_0014 *arg1, Float2_0014 *arg2);
-extern void func_003552d0(u8 *arg0, Float2_0014 arg1);
-extern void func_00355300(u8 *arg0, s32 arg1);
-extern void func_00355370(u8 *arg0, u8 *arg1);
+extern void datScreenWipeInit(u8 *arg0, Float2_0014 *arg1, Float2_0014 *arg2);
+extern void datScreenWipeSetOffset(u8 *arg0, Float2_0014 arg1);
+extern void datScreenWipeSetColor(u8 *arg0, s32 arg1);
+extern void datScreenWipeSetScale(u8 *arg0, u8 *arg1);
 
 
 
@@ -194,8 +194,8 @@ extern s32 func_0034bb20(s32 arg0);
 extern void func_0034bd60(s32 arg0);
 extern void resrcMngUnsuppressRender(void);
 extern void resrcMngSuppressRender(void);
-extern s32 func_00354030(void);
-extern void func_00355190(u8 *arg0, s32 arg1);
+extern s32 datCommunityRequestExit(void);
+extern void datScreenWipeSetTextureId(u8 *arg0, s32 arg1);
 extern void sflDataResetPersonaState(void *arg0);
 extern void sflDataLoadPersonaState(void *arg0, s16 pcId);
 extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -214,7 +214,7 @@ extern u8 D_005EFAA0[];
 extern u8 D_007E80A0[];
 extern u8 D_007E8C00[];
 extern u16 D_007D24B0[];
-extern void func_0034f5d0(u8 *arg0);
+extern void datCommunityEntryStep(u8 *arg0);
 extern u8 D_005EFC18[];
 extern u8 D_005EFC28[];
 extern u8 iGpffff9de0;
@@ -270,13 +270,13 @@ extern u8 D_005EF6A0[];
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
-extern void func_0034f1e0(void);
+extern void sdkRenderStateSetDefault(void);
 extern void func_0034c270(Float2_0014 work, s32 arg1, s32 arg2, f32 fparg0);
-extern f32 func_0034f720(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2);
+extern f32 cmpGridCellFade(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2);
 extern void sdkSpriteDrawAt(void *work, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 extern void sdkSpriteDrawSized(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-extern void func_0034f9d0(Float2_0014 work, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
-extern void func_00355410(u8 *work, u8 arg1);
+extern void sdkSpriteDrawFooter(Float2_0014 work, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
+extern void datScreenWipeSetAlpha(u8 *work, u8 arg1);
 extern void datScreenWipeDraw(void *work);
 extern void sflDataDrawEntry(CampDisplayWords position, f32 depth, s32 alpha, s16 *label);
 extern s32 datCalcGetLevelById(s32 work);
@@ -310,7 +310,7 @@ void radarDrawFrame(u8 *work)
     s32 idx;
     u8 alpha;
 
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     originX = *(f32 *)(work + 4);
     originY = *(f32 *)(work + 8);
     opacity = (f32)(u32)work[0] / 255.0f;
@@ -345,7 +345,7 @@ void radarDrawFrame(u8 *work)
                 f32 ft;
                 px = position.xy.x + (f32)((s32)*(s32 *)(row + 0xFA4) * 0x2C);
                 py = gridY + (f32)((s32)*(s32 *)(row + 0xFA8) * 0x25);
-                ft = func_0034f720(e, 0.5f, 0.5f, 1.0f);
+                ft = cmpGridCellFade(e, 0.5f, 0.5f, 1.0f);
                 palette = (CampDisplayRgba *)D_005EF520 + *(s16 *)e;
                 color.rgba = *palette;
                 sdkSpriteDrawAt(gridSprite, px, py, color.bytes[0], color.bytes[1], color.bytes[2],
@@ -354,7 +354,7 @@ void radarDrawFrame(u8 *work)
         }
     }
     if ((*(s32 *)(work + 0x1C) & 0x800) != 0) {
-        func_00355410(*(u8 **)(work + 0x3C), (u8)(255.0f * opacity));
+        datScreenWipeSetAlpha(*(u8 **)(work + 0x3C), (u8)(255.0f * opacity));
         datScreenWipeDraw(*(void **)(work + 0x3C));
     }
     if ((*(s32 *)(work + 0x1C) & 0x8) != 0) {
@@ -594,7 +594,7 @@ void radarDrawFrame(u8 *work)
         position.xy.x = (640.0f + (originX + *(f32 *)(work + 0x350)));
         position.xy.y = (400.0f + (originY + *(f32 *)(work + 0x354)));
         alpha = (u8)((f32)(u32)work[0x35A] * opacity);
-        func_0034f9d0(position.xy, 0.0f, alpha, *(s16 *)(work + 0x38), *(s32 *)(work + 0x1874));
+        sdkSpriteDrawFooter(position.xy, 0.0f, alpha, *(s16 *)(work + 0x38), *(s32 *)(work + 0x1874));
     }
 }
 
@@ -614,7 +614,7 @@ void radarResetEntries(u8 *arg0) {
     s32 i;
 
     for (i = 0; i < 0x6C; i++) {
-        func_0034f5d0(arg0 + i * 0x14 + 0xFA0);
+        datCommunityEntryStep(arg0 + i * 0x14 + 0xFA0);
     }
 }
 
@@ -1112,22 +1112,22 @@ void radarDrawEdge(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     pair = *(Float2_0014 *)temp_2;
     temp_19 = *(s32 *)(D_005EF548 + (arg1 * 0x1C));
     if (arg2 != 0) {
-        func_003550d0(arg0, (Float2_0014 *)var_5, (Float2_0014 *)var_6);
+        datScreenWipeInit(arg0, (Float2_0014 *)var_5, (Float2_0014 *)var_6);
     } else {
         datScreenWipeSetTarget(arg0, var_6);
     }
-    func_003552d0(arg0, pair);
-    func_00355300(arg0, temp_19);
+    datScreenWipeSetOffset(arg0, pair);
+    datScreenWipeSetColor(arg0, temp_19);
     if (arg1 == 2) {
         pair2.x = fGpffff8110;
         pair2.y = pair2.x;
-        func_00355370(arg0, (u8 *)&pair2);
+        datScreenWipeSetScale(arg0, (u8 *)&pair2);
         return;
     }
-    func_00355370(arg0, NULL);
+    datScreenWipeSetScale(arg0, NULL);
 }
 
-/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and radarPersonaMenuUpdate - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses `p4_00141cf0_add` for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; radarPushValue third param is s32 (word `lw`, low 16 stored) and func_00355190 second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
+/* MATCHED: same menu state machine as func_003627b0, func_0035e8b0, func_0035f0c0 and radarPersonaMenuUpdate - `*arg1 = (resultFlag = 1);`, switch on u32 `*arg0` (sltiu) breaking to shared `return 0`, fade returning 2. Party-slot address uses `p4_00141cf0_add` for retail's index-then-base `addu`; 7-word copy uses temp-split `tmp = *src++; n--; *dst++ = tmp;` for retail's load-decrement-store schedule; radarPushValue third param is s32 (word `lw`, low 16 stored) and datScreenWipeSetTextureId second is s32 (hoisted `lhu` before `lw`), both value-preserving and precedent-backed. */
 // FUN_00142F20
 s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
 {
@@ -1197,14 +1197,14 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 1, 0, 0);
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 9;
         } else {
             func_00453670(query, *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x34), 0);
             func_004538e0(query, 0x4000, 0x1000, 0, 0);
             if (func_00453960(query) != 0) {
                 radarPushValue(arg2, 0, *(s32 *)(query + 0x24));
-                func_00355190(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
+                datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
                 sdkSndStartStream(0, 1, 0, 0);
             }
         }
@@ -1224,7 +1224,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 9;
         } else if (D_008C024E[0] & 0x80) {
             if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22) == 1) {
@@ -1268,7 +1268,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
                 } else {
                     *(s16 *)(arg2 + 0x38) = 5;
                 }
-                func_00355190(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
+                datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
                 sdkSndStartStream(0, 1, 0, 5);
             }
         }
@@ -1290,7 +1290,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 9;
         } else if (D_008C024E[0] & 0x20) {
             radarSetMode(arg2, 3);

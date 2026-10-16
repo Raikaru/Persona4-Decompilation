@@ -93,13 +93,13 @@ extern f32 fGpffff8390;
 extern f32 fGpffff8394;
 extern void func_00362630(u8 *arg0);
 extern void func_0035f5b0(u8 *arg0);
-extern s32 func_0035fc40(u8 *arg0);
+extern s32 datCommunityPanelOpenStepAlt(u8 *arg0);
 extern s32 func_0035fa20(u8 *arg0, u32 arg1);
 extern void func_0034bb20(s32 arg0);
-extern void func_00353fb0(void);
-extern void func_00353fe0(void);
-extern s32 func_00354030(void);
-extern void func_00354080(s32 arg0);
+extern void resrcMngUnsuppressRender(void);
+extern void resrcMngSuppressRender(void);
+extern s32 datCommunityRequestExit(void);
+extern void datCommunityCursorFeedback(s32 arg0);
 extern s32 func_0035c690(void *arg0, s32 arg1);
 extern s32 func_0035c7d0(u8 *arg0);
 extern s32 func_0035c7f0(u8 *arg0);
@@ -273,7 +273,7 @@ void func_00361d20(s32 arg0, u8 *arg1)
     typedef struct MenuRowStride { u8 bytes[0x30]; } MenuRowStride;
     extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     extern int sprintf(char *dst, const char *fmt, ...);
-    extern u32 func_00354490(s32 arg0);
+    extern u32 datMemberNameLabel(s32 arg0);
     extern u8 D_0064B2E0[];
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E4[];
@@ -424,7 +424,7 @@ void func_00361d20(s32 arg0, u8 *arg1)
         u32 str;
         color = colorBase;
         color |= finalAlpha & 0xFF;
-        str = func_00354490(idx);
+        str = datMemberNameLabel(idx);
         frFontExDrawTextOutA(fx, fy - 3.0f, 0.0f, color, mode, 1, (const char *)str, 0, 0x77, -1);
     } else {
         drawNode = *(void **)(arg1 + 0x69C);
@@ -492,7 +492,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         *arg1 = 0;
         goto block_64;
     case 1:
-        if ((func_0035fc40(arg2) != 0) && (func_0034c210() != 0)) {
+        if ((datCommunityPanelOpenStepAlt(arg2) != 0) && (func_0034c210() != 0)) {
             *arg0 = 3;
             func_0034bb20(0x1D);
         } else {
@@ -540,7 +540,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             }
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 0xC;
         } else {
             func_00453670(query, 3, 3, *(s16 *)(arg2 + 0x28), 0);
@@ -564,7 +564,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         if (func_003619b0(arg2) != 0) {
             func_0035fa20(arg2, 4);
             *arg0 = 7;
-            func_00353fe0();
+            resrcMngSuppressRender();
         }
         goto block_64;
     case 7:
@@ -572,10 +572,10 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             func_0035fa20(arg2, 5);
             *arg0 = 1;
             func_0034bb20(0x20);
-            func_00353fb0();
+            resrcMngUnsuppressRender();
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = func_00354030();
+            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 0xC;
         } else {
             func_00453670(query, 6, *(s32 *)(arg2 + 0x38),
@@ -589,7 +589,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
                 if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x32)) {
                     func_00361970(arg2);
                 }
-                func_00354080(queryResult);
+                datCommunityCursorFeedback(queryResult);
             }
         }
         goto block_64;

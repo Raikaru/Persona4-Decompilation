@@ -37,7 +37,7 @@ extern u8 func_002baac0(u8 *message);
 void func_002bad10(s32 param);
 void func_002bb4e0(void);
 void func_002bbd20(s32 param, void* text);
-s32 func_00353f50(s32 param);
+s32 datMemberNoticeTryBegin(s32 param);
 void sprintf(void* dst, void* fmt, s32 value);
 u8* func_00455ea0(u8* param, s32 a, s32* b);
 s32 datCalcGetLevelById(s32 param);
@@ -156,7 +156,7 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
         }
         break;
     case 1:
-        if (func_00353f50(1) == 0) {
+        if (datMemberNoticeTryBegin(1) == 0) {
             if (btlLogoUnlockStage((u8*)work_p) != 0) {
                 func_002bad10(4);
                 work_p->state40 = 2;
@@ -166,7 +166,7 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
         }
         break;
     case 2:
-        if (func_00353f50(1) == 0) {
+        if (datMemberNoticeTryBegin(1) == 0) {
             sdkSndStartStream(1, 0, 3, 0);
             sprintf(sp20, &iGpffffa5C8, work->field44);
             func_002bbd20(0, sp20);
@@ -175,7 +175,7 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
         }
         break;
     case 3:
-        if (func_00353f50(1) == 0) {
+        if (datMemberNoticeTryBegin(1) == 0) {
             work->state40 = 4;
         }
         break;
@@ -247,7 +247,7 @@ s32 btlResultHeroLvUpRun(u8* arg0)
         }
         break;
     case 3:
-        if (func_00353f50(1) == 0) {
+        if (datMemberNoticeTryBegin(1) == 0) {
             func_002bb4e0();
             work->flags &= 0xFFFE;
             work->state = 6;
