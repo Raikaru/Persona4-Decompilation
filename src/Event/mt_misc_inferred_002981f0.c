@@ -14,8 +14,8 @@ s32 mtMiscResourceValue(s32 arg0);
 
 s32 sdkSndFadeOutChannel(s64 arg0, s32 arg1);
 
-extern void func_0018c7e0(void);
-extern s32 func_0018ced0();
+extern void sndPlayAreaCue(void);
+extern s32 sndRequestAreaTrack();
 extern s32 iGpffffb538;
 extern u8 D_00882ED0[];
 extern u8 D_00882EF0[];
@@ -85,8 +85,8 @@ s32 func_00298220(s64 arg0) {
 }
 
 // Looks up key (arg0 << 16 | arg1) in the 0x86-entry table D_0063CB50 and runs
-// the action in the entry's second word: 1 and 2 call func_0018ced0 (then
-// func_0018c7e0 when it returns 0), 3 calls sdkSndFadeOutChannel(3, 0) and
+// the action in the entry's second word: 1 and 2 call sndRequestAreaTrack (then
+// sndPlayAreaCue when it returns 0), 3 calls sdkSndFadeOutChannel(3, 0) and
 // sdkSndStopChannel(0x1E). Absent keys act as 3. Returns the action code.
 // FUN_00298250
 s32 mtMiscDispatchKeyAction(s32 arg0, s32 arg1)
@@ -127,8 +127,8 @@ found_98250:
         break;
     case 1:
     case 2:
-        if (func_0018ced0() == 0) {
-            func_0018c7e0();
+        if (sndRequestAreaTrack() == 0) {
+            sndPlayAreaCue();
         }
         break;
     case 3:

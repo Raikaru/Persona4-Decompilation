@@ -47,8 +47,8 @@ extern void func_00144ed0(s64 param);
 extern s32 fieldSceneLoadStep();
 extern u8 *MT_Scene_GetCameraResFirst();
 extern f32 MT_Scene_GetCameraFov();
-extern s32 func_0018ced0();
-extern void func_0018c7e0();
+extern s32 sndRequestAreaTrack();
+extern void sndPlayAreaCue();
 extern void func_00122640(s32 a, s32 b);
 extern s32 func_00122720();
 extern void func_00122520(s32 a, s32 b);
@@ -511,8 +511,8 @@ s32 func_00186eb0(u8 *arg0)
         func_00189060(*(u8 **)(st + 0x164), *(s32 *)(st + 0xC), 0.0f);
         *(u8 **)(st + 0x168) = func_00189550(arg_save);
         func_00189600(*(u8 **)(st + 0x168), *(s32 *)(st + 0xC), *(s32 *)(st + 0xC), 0.0f);
-        if (func_0018ced0() == 0) {
-            func_0018c7e0();
+        if (sndRequestAreaTrack() == 0) {
+            sndPlayAreaCue();
         }
         func_00122640(1, 0);
         *(s32 *)st = *(s32 *)st + 1;

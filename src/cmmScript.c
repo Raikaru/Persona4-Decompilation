@@ -56,7 +56,7 @@ extern s32 D_00635A20[];
 extern s32 D_00635A00[];
 extern s16 D_00635BB8[];
 extern s32 D_00635B38[];
-extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
+extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 extern void sdkSpriteRelease(u8* arg0);
 extern void H_Cdvd_Destroy(u8* arg0);
@@ -2323,7 +2323,7 @@ s32 func_002507c0(void)
     if (func_0029d020() < 30) {
         goto ret0;
     }
-    func_0045aac0(2, 0, 0x1E);
+    sdkSndFadeOutChannelFrames(2, 0, 0x1E);
     return 1;
 ret0:
     return 0;

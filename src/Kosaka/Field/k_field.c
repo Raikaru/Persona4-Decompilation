@@ -122,8 +122,8 @@ extern s32 FldUnit_SpawnEncounterTask(u8 *, s32);
 extern s32 func_0014a270(void);
 extern s32 smapCreateSymbols(u8 *);
 extern void func_002b2950(s32);
-extern s32 func_0018ced0(void);
-extern void func_0018c7e0(void);
+extern s32 sndRequestAreaTrack(void);
+extern void sndPlayAreaCue(void);
 extern void func_00189ec0(void);
 extern s32 FldUnit_IsSettled(s32);
 extern void func_00122640(s32, s32);
@@ -284,8 +284,8 @@ s32 func_00155360(u8 *task)
         if (func_0015a160() != 0) {
             D_007D253C[0] = func_00186640(task);
         }
-        if (func_0018ced0() == 0) {
-            func_0018c7e0();
+        if (sndRequestAreaTrack() == 0) {
+            sndPlayAreaCue();
         }
         func_00189ec0();
         work->state++;

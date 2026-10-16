@@ -35,7 +35,7 @@ extern void chkmemAllocSiteTag(const void *arg0, u32 arg1);
 
 
 
-extern void func_0045aac0(s16 arg0, s32 arg1, s32 arg2);
+extern void sdkSndFadeOutChannelFrames(s16 arg0, s32 arg1, s32 arg2);
 extern s32 func_00106b20(s16 arg0);
 extern s32 func_00106b50(s16 arg0);
 
@@ -414,7 +414,7 @@ s32 func_002e72c0(u8 *arg0)
     s32 kwlnTaskGetTaskByName(s8 *arg0);
     u8 *func_00457120(void);
     void K_View_SetFov(void *arg0, f32 arg1);
-    s32 func_0045a3e0(s16 arg0, ...);
+    s32 sdkSndPlayCue(s16 arg0, ...);
     extern s8 D_0063FC68[];
     s8 state;
     u8 *work;
@@ -434,7 +434,7 @@ s32 func_002e72c0(u8 *arg0)
             view = func_00457120();
             func_003e9cb0(*(u8 **)(view + 4), MT_Scene_GetCameraResFirst(), 0);
             *(s8 *)work = 3;
-            func_0045a3e0((s16)0x15, 1);
+            sdkSndPlayCue((s16)0x15, 1);
         }
         goto block_24;
     case 3:
@@ -494,7 +494,7 @@ s32 func_002e7510(s32 arg0)
     func_002b5db0(iGpffffb590, func_002b2970(0, 0), func_002b29e0(640.0f, 448.0f));
     func_002b5e30(iGpffffb590, func_002b2a60(0, 0, 0, 0xFF));
     *work = 1;
-    func_0045aac0(3, 0, 0x1E);
+    sdkSndFadeOutChannelFrames(3, 0, 0x1E);
 
     for (i = 0; i < 0x2FF; i++) {
         if (((func_00106b20((s16)i) & 0xFFF00) >> 8) == 0 &&

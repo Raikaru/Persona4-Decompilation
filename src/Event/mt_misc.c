@@ -13,9 +13,9 @@ extern void MT_Scene_SetResActiveById(u16, int);
 extern char DAT_0063c8a0[];
 extern char DAT_0063c8c0[];
 
-extern int func_0045a3e0();
+extern int sdkSndPlayCue();
 
-extern int func_0045aac0();
+extern int sdkSndFadeOutChannelFrames();
 extern int func_0045a9a0();
 
 
@@ -153,7 +153,7 @@ void func_00291470(int param_1)
 // FUN_00298100
 u64 func_00298100(s16 param_1)
 {
-    func_0045a3e0(param_1, 1);
+    sdkSndPlayCue(param_1, 1);
 
     return 0;
 }
@@ -167,7 +167,7 @@ u64 func_00298190(s16 param_1, int param_2)
 
     iVar1 = param_2;
     if (iVar1 != 0) {
-        func_0045aac0(param_1, 0, param_2);
+        sdkSndFadeOutChannelFrames(param_1, 0, param_2);
     }
     else {
         func_0045a9a0(param_1, 0, param_2);

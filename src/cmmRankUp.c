@@ -3206,7 +3206,7 @@ extern u8 *func_004669d0(u8 *request, s32 *complete, s32 *result);
 extern s32 func_00459760();
 extern s32 func_0045b400();
 extern s32 func_00459a60();
-extern void func_0045aac0();
+extern void sdkSndFadeOutChannelFrames();
 extern void func_0025fd70(u8 *arg0, s32 arg1, u8 arg2);
 extern void func_0025fbb0(u8 *dst, u8 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 farg0, f32 farg1);
 extern void func_0025fd00(u8 *dst, s32 arg1, s32 arg2, f32 farg0, f32 farg1);
@@ -3358,7 +3358,7 @@ s32 func_0025b240(u8 *arg0) {
         iGpffffa664 = func_00459760();
         iGpffffa668 = func_0045b400();
         func_00459a60();
-        func_0045aac0(3, 0, 10);
+        sdkSndFadeOutChannelFrames(3, 0, 10);
         *(s32 *)(ctx + 4) = 6;
         *(s32 *)(ctx + 8) = 0;
         memset(sp80, 0, 0xD8);
@@ -3414,7 +3414,7 @@ s32 func_0025b240(u8 *arg0) {
         *(s32 *)(ctx + 0x44) = 0;
         *(s32 *)ctx |= 2;
         tmp4 = *(s32 *)(ctx + 0x1C);
-        func_0045aac0(3, 0, 10);
+        sdkSndFadeOutChannelFrames(3, 0, 10);
         if (tmp4 >= 1 && tmp4 <= 9) {
             goto case10tail;
         }

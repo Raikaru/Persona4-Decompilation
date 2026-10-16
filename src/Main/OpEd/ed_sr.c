@@ -35,7 +35,7 @@ extern void func_00122520(s32 a, s32 b);
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern s32 kwlnTaskIsLinked(s32 handle);
 extern void kwlnTaskAddChild(void *a, void *b);
-extern s32 func_0045a3e0(s32 a, s32 b);
+extern s32 sdkSndPlayCue(s32 a, s32 b);
 extern void sdkSndStopChannel(s32 fadeDuration);
 extern s32 func_0046a1f0(s32 a, s64 b, void *c);
 extern s32 func_0046a2c0(void);
@@ -82,7 +82,7 @@ void func_0038ee40(void) {
                 }
             } else if (*(s32 *)(p + 0x1254) == 1) {
                 func_0038de90();
-                func_0045a3e0(0x23, 1);
+                sdkSndPlayCue(0x23, 1);
             }
             if ((func_0038df10() == 0) && (kwlnTaskIsLinked(*(s32 *)(p + 0x1250)) == 0)) {
                 func_00122520(func_001227a0(), 0xA);

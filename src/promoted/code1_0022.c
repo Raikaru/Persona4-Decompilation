@@ -190,7 +190,7 @@ u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void func_0011b360(u8 *arg0);
 extern void btlSoundFadeOutBgm(s16 fadeDuration);
-extern void func_0045a3e0(s32 arg0, s32 arg1);
+extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
 extern void btlMainCurveReset(u16 *param_1, f32 *param_2);
 extern void btlCameraCopyPoseSnapshot(f32 *arg0, f32 *arg1);

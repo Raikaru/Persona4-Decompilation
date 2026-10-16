@@ -75,7 +75,7 @@ extern void btlUnitClearFlags(u8 *arg0, s32 arg1);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *arg0);
 extern u32 kwlnTaskGetWork(s32 arg0);
 extern s32 func_00459760(s32 arg0);
-extern void func_0045a3e0(s32 arg0, s32 arg1);
+extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern void btlEncounterSetFinish(s32 task);
 extern u32 datCalcIsDead(s32 arg0, s32 arg1);
 extern u8 *btlUnitRecordFindByActionUID(u64 arg0, u64 arg1);

@@ -22,7 +22,7 @@ typedef struct HsndSlotWork
 extern void func_0045c130(s16 param1, s16 param2);
 extern s32 func_0045c390(s16 param1);
 
-extern u8 func_0045a3e0(s16 id, s32 unused);
+extern u8 sdkSndPlayCue(s16 id, s32 unused);
 
 #define HSND_SLOT_COUNT 6
 
@@ -78,7 +78,7 @@ void hsndSlotUpdate(HsndSlotWork* slot)
 // FUN_004599A0
 u8 hsndQueueSound(s16 id, s16 unused)
 {
-    func_0045a3e0(id, 1);
+    sdkSndPlayCue(id, 1);
     return 1;
 }
 

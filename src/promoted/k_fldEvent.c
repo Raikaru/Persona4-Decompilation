@@ -837,7 +837,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 FldEvent_SpawnMover(s32, s32, s32);
     u8 *smapCreateSymbols(u8 *);
     void func_002b2950(s32);
-    s32 func_0018c7e0(void);
+    s32 sndPlayAreaCue(void);
     void FldUnit_UpdateSlots(s32);
     void FldUnit_UpdateSlotModels(void);
     void FldUnit_UpdateAllEnemySlots(void);
@@ -1404,7 +1404,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 t12 = (s32)smapCreateSymbols((u8 *)(*(s32 *)(u8 *)func_00155280()));
                 *(s32 *)((u8 *)func_00155280() + 0x18) = t12;
                 func_002b2950(1);
-                func_0018c7e0();
+                sndPlayAreaCue();
                 if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
                     t13 = FldUnit_SpawnEncounterTask((u8 *)(*(s32 *)(u8 *)func_00155280()), work->unitState);
                     *(s32 *)((u8 *)func_00155280() + 0x20) = t13;

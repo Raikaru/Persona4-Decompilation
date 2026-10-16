@@ -29,9 +29,9 @@ extern void sdkSndStartChannel(s16 arg0, char *buf);
 extern char D_0063CB30[];
 extern char D_0063D050[];
 extern void func_0045a9a0(s32 arg0, s32 arg1);
-extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
+extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 void func_004b1590(s32 arg0, s16 arg1);
-s32 func_0045a3e0(s16 arg0, s32 arg1);
+s32 sdkSndPlayCue(s16 arg0, s32 arg1);
 s32 func_00459880(void);
 s32 sdkSndStopChannel(s16 arg0);
 
@@ -140,7 +140,7 @@ s32 func_00299860(void) {
 
 // FUN_00299890
 s32 func_00299890(void) {
-    func_0045a3e0(scrGetParamInt(0), 1);
+    sdkSndPlayCue(scrGetParamInt(0), 1);
     return 1;
 }
 
@@ -176,7 +176,7 @@ s32 func_00299970(void) {
     if (v == 0) {
         func_0045a9a0(2, 0);
     } else {
-        func_0045aac0(2, 0, v);
+        sdkSndFadeOutChannelFrames(2, 0, v);
     }
     return 1;
 }

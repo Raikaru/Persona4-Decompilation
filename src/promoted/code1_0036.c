@@ -115,7 +115,7 @@ extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00453960(void *arg0);
 extern void sdkSndStopChannel(s32 arg0);
-extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
+extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);
@@ -616,7 +616,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             case 0:
                 func_00122520(1, 0x1E);
                 sdkSndStopChannel(0x1E);
-                func_0045aac0(3, 0, 0x1E);
+                sdkSndFadeOutChannelFrames(3, 0, 0x1E);
                 *arg0 = 0xB;
                 break;
             case 1:

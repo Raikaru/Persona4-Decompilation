@@ -24,10 +24,10 @@ extern u8 D_0063C3C0[];
 extern u8 D_0063C3E0[];
 s32 mtMiscPlayFormattedCue();
 s32 func_00459880();
-void func_0045a3e0();
+void sdkSndPlayCue();
 void hsndQueueSound();
 void sdkSndStopChannel();
-void func_0045aac0();
+void sdkSndFadeOutChannelFrames();
 s32 func_002981f0();
 s32 func_00298220();
 extern u8 D_0063C5F0[];
@@ -2192,7 +2192,7 @@ s32 func_0028a100(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             return 0;
         }
         if ((*(u32 *)arg2 & 0x80000000) && (arg4 == NULL) && (arg1 == 0)) {
-            func_0045aac0(3, 0, 0);
+            sdkSndFadeOutChannelFrames(3, 0, 0);
         }
         return 1;
     case 1:
@@ -2273,7 +2273,7 @@ s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             temp_3_2 = *(s16 *)(arg4 + 0x10);
             switch (temp_3_2) {
             case 0:
-                func_0045a3e0(*(s16 *)(arg4 + 0x12), 1);
+                sdkSndPlayCue(*(s16 *)(arg4 + 0x12), 1);
                 break;
             case 1:
                 hsndQueueSound(*(s16 *)(arg2 + 0x78C), *(s16 *)(arg4 + 0x12));

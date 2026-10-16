@@ -52,7 +52,7 @@ extern s32 func_00122720(void);
 extern s32 func_002cb6a0(s32 arg0);
 extern void func_002caa00(s32 arg0, s32 arg1);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
-extern void func_0045a3e0(s32 arg0, s32 arg1);
+extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 *func_00457120(void);
 extern s32 MT_Scene_GetCameraResFirst(void);
@@ -176,7 +176,7 @@ s32 func_002bd8e0(u8 *arg0)
             if (func_002cb6a0(*(s32 *)(temp_16 + 4)) == 0) {
                 return 0;
             }
-            func_0045a3e0(0x15, 1);
+            sdkSndPlayCue(0x15, 1);
             temp_17 = func_00457120();
             K_View_SetFov(temp_17, MT_Scene_GetCameraFov());
             temp_17_2 = func_00457120();
