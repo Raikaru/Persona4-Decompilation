@@ -8,8 +8,8 @@ extern u32 kwlnTaskGetWork(void *task);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u8 *shdPersonaTaskCreate(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4);
-extern void func_0011d100(u8 *task, f32 *position);
-extern void func_0011bb90(u8 *task);
+extern void shdPersonaSetOrigin(u8 *task, f32 *position);
+extern void shdPersonaStartSlideIn(u8 *task);
 extern void shdPersonaSetPersonaId(u8 *task, s32 a1);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern u32 datGetFlag(s32 arg0);
@@ -123,8 +123,8 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
             }
             zw[0] = 0.0f;
             zw[1] = 19.0f;
-            func_0011d100(*(u8 **)(r + 68), zw);
-            func_0011bb90(*(u8 **)(r + 68));
+            shdPersonaSetOrigin(*(u8 **)(r + 68), zw);
+            shdPersonaStartSlideIn(*(u8 **)(r + 68));
         }
         shdPersonaSetPersonaId(*(u8 **)(r + 68), 174);
         *(u32 *)(r + 4) = 2;

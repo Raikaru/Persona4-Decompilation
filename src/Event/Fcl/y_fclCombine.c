@@ -45,7 +45,7 @@ extern u8 D_00641B30[];
 extern void fclCombineMoveRosterCursor(u8 *, s64);
 extern void fclCombineDrawSlotFrames(u8 *, FclVec2, s32, s8);
 extern void fclCombineSlideInHeaderSprites(f32, f32, u8 *, s64, s8);
-extern s32 func_0011ba00(u8 *);
+extern s32 shdPersonaIsTransitioning(u8 *);
 extern char iGpffffa8a4;
 extern u16 D_008C0252[];
 extern void fclCombineDrawPanelBorder(u8 *, s8);
@@ -80,11 +80,11 @@ extern void sdkSpriteFreeNode(void *);
 extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
 extern void fclSpriteStartPositionAt(s16, FclVec2f, FclVec2f, u32, u32, s16);
 extern void fclDrawSetPlacement(u8 *, s32, u8, s32);
-extern void func_0011c6e0(u8 *, s32);
+extern void shdPersonaEndSelection(u8 *, s32);
 extern void func_0011d140(u8 *, s32);
-extern u32 func_0011c610(u8 *);
-extern void func_0011caf0(u8 *);
-extern void func_0011c630(u8 *);
+extern u32 shdPersonaIsSelectionActive(u8 *);
+extern void shdPersonaStepSelectionCursor(u8 *);
+extern void shdPersonaBeginSelection(u8 *);
 extern void fclDrawSetFlag(u8 *, s8);
 extern u8 *fclDrawGetResource(u8 *);
 extern s32 func_0045af60(s16, s16, s16, s16);
@@ -140,7 +140,7 @@ extern void fclCombineFuseSourceRecords(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 
 extern void fclCombinePlayCue(u8 *, s32, s32);
 extern void fclCombinePlayResultCue(u8 *, u16);
 extern void func_0011b8f0(u8 *, u8 *);
-extern s32 func_0011cc00(u8 *, u16, u16);
+extern s32 shdPersonaReplaceSkill(u8 *, u16, u16);
 extern u8 *func_00243840(s32);
 extern int frFontExDrawTextDeferred(f32, f32, f32, int, s8, int, const char *, int, int, void *);
 extern s32 func_002bb1c0(s8);
@@ -1677,7 +1677,7 @@ void fclCombineMenuFusion(u8 *arg0) {
     case 0x28:                                      /* switch 1 */
         if ((s32)((s32)(((s16)(fclSpriteFlagBit((*(s16 *)((u8 *)(fclSpriteEntry(0x21C))+(0x10))), 1))))) != (s32)((s32)(1))) {
             fclDrawSetPlacement(temp_18->f148, (s32)(((u16 *)yListSlotEntry(0, temp_18->f11E))), 0, 0);
-            func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
+            shdPersonaEndSelection(fclDrawGetResource(temp_18->f148), 1);
             temp_16_2 = (s32)((s32)((s32)(fclDrawGetResource(temp_18->f148))));
             func_0011d140((u8 *)temp_16_2, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
             temp_18->f1 = 0x29U;
@@ -1686,20 +1686,20 @@ void fclCombineMenuFusion(u8 *arg0) {
         break;
     case 0x29:
         if ((s8)fclDrawGetState(temp_18->f148) == 5) {
-            if (func_0011c610(fclDrawGetResource(temp_18->f148)) == 1) {
-                func_0011caf0(fclDrawGetResource(temp_18->f148));
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(temp_18->f148)) == 1) {
+                shdPersonaStepSelectionCursor(fclDrawGetResource(temp_18->f148));
             }
             if (D_008C024E[0] & 0x80) {
-                if (func_0011c610(fclDrawGetResource(temp_18->f148)) == 0) {
-                    func_0011c630(fclDrawGetResource(temp_18->f148));
+                if (shdPersonaIsSelectionActive(fclDrawGetResource(temp_18->f148)) == 0) {
+                    shdPersonaBeginSelection(fclDrawGetResource(temp_18->f148));
                     fclDrawSetFlag(temp_18->f148, 0);
                 } else {
-                    func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
+                    shdPersonaEndSelection(fclDrawGetResource(temp_18->f148), 1);
                     fclDrawSetFlag(temp_18->f148, 1);
                 }
             } else if (D_008C024E[0] & 0x20) {
-                if (func_0011c610(fclDrawGetResource(temp_18->f148)) == 1) {
-                    func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
+                if (shdPersonaIsSelectionActive(fclDrawGetResource(temp_18->f148)) == 1) {
+                    shdPersonaEndSelection(fclDrawGetResource(temp_18->f148), 1);
                     fclDrawSetFlag(temp_18->f148, 1);
                 } else {
                     if ((s8)fclDrawGetState(temp_18->f148) != 5) {
@@ -1889,7 +1889,7 @@ void fclCombineMenuFusion(u8 *arg0) {
         frFontExDrawTextDeferredOutB(111.0f + sp150.x, sp150.y, 43.0f, temp_16_12, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x21C) + 0x10), 1) != 1) {
             fclDrawSetPlacement(temp_18->f148, (s32)(((u16 *)yListSlotEntry(0, temp_18->f11E))), 0, 0);
-            func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
+            shdPersonaEndSelection(fclDrawGetResource(temp_18->f148), 1);
             temp_16_13 = (s32)fclDrawGetResource(temp_18->f148);
             func_0011d140((u8 *)temp_16_13, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             temp_18->f1 = 0x2C;
@@ -1901,20 +1901,20 @@ void fclCombineMenuFusion(u8 *arg0) {
         temp_16_14 = func_002b2a30(0xCC, 0xFF, 0xFF, 0xFF);
         frFontExDrawTextDeferredOutB(111.0f + sp148.x, sp148.y, 43.0f, temp_16_14, 0, 2, (const char *)(iGpffffb440 + ((u16 *)yListSlotEntry(0, temp_18->f128))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         if ((s8)fclDrawGetState(temp_18->f148) == 5) {
-            if (func_0011c610(fclDrawGetResource(temp_18->f148)) == 1) {
-                func_0011caf0(fclDrawGetResource(temp_18->f148));
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(temp_18->f148)) == 1) {
+                shdPersonaStepSelectionCursor(fclDrawGetResource(temp_18->f148));
             }
             if (D_008C024E[0] & 0x80) {
-                if (func_0011c610(fclDrawGetResource(temp_18->f148)) == 0) {
-                    func_0011c630(fclDrawGetResource(temp_18->f148));
+                if (shdPersonaIsSelectionActive(fclDrawGetResource(temp_18->f148)) == 0) {
+                    shdPersonaBeginSelection(fclDrawGetResource(temp_18->f148));
                     fclDrawSetFlag(temp_18->f148, 0);
                 } else {
-                    func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
+                    shdPersonaEndSelection(fclDrawGetResource(temp_18->f148), 1);
                     fclDrawSetFlag(temp_18->f148, 1);
                 }
             } else if (D_008C024E[0] & 0x20) {
-                if (func_0011c610(fclDrawGetResource(temp_18->f148)) == 1) {
-                    func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
+                if (shdPersonaIsSelectionActive(fclDrawGetResource(temp_18->f148)) == 1) {
+                    shdPersonaEndSelection(fclDrawGetResource(temp_18->f148), 1);
                     fclDrawSetFlag(temp_18->f148, 1);
                 } else {
                     if ((s8)fclDrawGetState(temp_18->f148) != 5) {
@@ -1971,15 +1971,15 @@ void fclCombineMenuFusion(u8 *arg0) {
                 temp_16_23 = (s32)fclDrawGetResource(temp_18->f148);
                 func_0011d140((u8 *)temp_16_23, func_002b2a30(0x14, 0x14, 0x14, 0xFF));
             }
-            func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
+            shdPersonaEndSelection(fclDrawGetResource(temp_18->f148), 1);
             fclCombineDrawStageBanner(arg0, 3, 0);
             temp_18->f1 = 0x2D;
         }
         break;
     case 0x2D:                                      /* switch 1 */
         if ((s32)((s32)(((s8)(fclDrawGetState(temp_18->f148))))) == (s32)((s32)(0xD))) {
-            if ((s32)((s32)(func_0011c610(fclDrawGetResource(temp_18->f148)))) == (s32)((s32)(1))) {
-                func_0011caf0(fclDrawGetResource(temp_18->f148));
+            if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource(temp_18->f148)))) == (s32)((s32)(1))) {
+                shdPersonaStepSelectionCursor(fclDrawGetResource(temp_18->f148));
             }
             if (D_008C024E[0] & 0x40) {
                 temp_18->f1 = 0x2FU;
@@ -1987,18 +1987,18 @@ void fclCombineMenuFusion(u8 *arg0) {
                 return;
             }
             if (D_008C024E[0] & 0x80) {
-                if ((s32)((s32)(func_0011c610(fclDrawGetResource(temp_18->f148)))) == (s32)((s32)(0))) {
-                    func_0011c630(fclDrawGetResource(temp_18->f148));
+                if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource(temp_18->f148)))) == (s32)((s32)(0))) {
+                    shdPersonaBeginSelection(fclDrawGetResource(temp_18->f148));
                     fclDrawSetFlag(temp_18->f148, 0);
                     return;
                 }
-                func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
+                shdPersonaEndSelection(fclDrawGetResource(temp_18->f148), 1);
                 fclDrawSetFlag(temp_18->f148, 1);
                 return;
             }
             if (D_008C024E[0] & 0x20) {
-                if ((s32)((s32)(func_0011c610(fclDrawGetResource(temp_18->f148)))) == (s32)((s32)(1))) {
-                    func_0011c6e0(fclDrawGetResource(temp_18->f148), 1);
+                if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource(temp_18->f148)))) == (s32)((s32)(1))) {
+                    shdPersonaEndSelection(fclDrawGetResource(temp_18->f148), 1);
                     fclDrawSetFlag(temp_18->f148, 1);
                     return;
                 }
@@ -2744,7 +2744,7 @@ void fclCombineMenuFusionTriple(u8 *arg0) {
     case 0x3E:                                      /* switch 1 */
         if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)yListSlotEntry(0, temp_17->f11E)), 0, 0);
-            func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+            shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
             temp_16_3 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
             func_0011d140((u8 *)temp_16_3,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
             temp_17->f1 = 0x3FU;
@@ -2753,22 +2753,22 @@ void fclCombineMenuFusionTriple(u8 *arg0) {
         break;
     case 0x3F:                                      /* switch 1 */
         if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(5)) {
-            if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
-                func_0011caf0(fclDrawGetResource((u8 *)(temp_17->f148)));
+            if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
+                shdPersonaStepSelectionCursor(fclDrawGetResource((u8 *)(temp_17->f148)));
             }
             if (D_008C024E[0] & 0x80) {
-                if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(0))) {
-                    func_0011c630(fclDrawGetResource((u8 *)(temp_17->f148)));
+                if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(0))) {
+                    shdPersonaBeginSelection(fclDrawGetResource((u8 *)(temp_17->f148)));
                     fclDrawSetFlag((u8 *)(temp_17->f148),  0);
                 } else {
-                    func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+                    shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
                     fclDrawSetFlag((u8 *)(temp_17->f148),  1);
                 }
                 goto block_83;
             }
             if (D_008C024E[0] & 0x20) {
-                if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
-                    func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+                if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
+                    shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
                     fclDrawSetFlag((u8 *)(temp_17->f148),  1);
                     goto block_83;
                 }
@@ -2987,7 +2987,7 @@ block_83:
         frFontExDrawTextDeferredOutB(111.0f + sp1E0.x, sp1E0.y, 43.0f, temp_16_22, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)yListSlotEntry(0, temp_17->f11E)), 0, 0);
-            func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+            shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
             temp_16_23 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
             func_0011d140((u8 *)temp_16_23,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
             temp_17->f1 = 0x42U;
@@ -3000,22 +3000,22 @@ block_83:
         temp_16_24 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
         frFontExDrawTextDeferredOutB(111.0f + sp1D8.x, sp1D8.y, 43.0f, temp_16_24, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_17->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(5)) {
-            if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
-                func_0011caf0(fclDrawGetResource((u8 *)(temp_17->f148)));
+            if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
+                shdPersonaStepSelectionCursor(fclDrawGetResource((u8 *)(temp_17->f148)));
             }
             if (D_008C024E[0] & 0x80) {
-                if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(0))) {
-                    func_0011c630(fclDrawGetResource((u8 *)(temp_17->f148)));
+                if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(0))) {
+                    shdPersonaBeginSelection(fclDrawGetResource((u8 *)(temp_17->f148)));
                     fclDrawSetFlag((u8 *)(temp_17->f148),  0);
                 } else {
-                    func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+                    shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
                     fclDrawSetFlag((u8 *)(temp_17->f148),  1);
                 }
                 goto block_166;
             }
             if (D_008C024E[0] & 0x20) {
-                if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
-                    func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+                if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
+                    shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
                     fclDrawSetFlag((u8 *)(temp_17->f148),  1);
                     goto block_166;
                 }
@@ -3169,7 +3169,7 @@ block_166:
         frFontExDrawTextDeferredOutB(111.0f + sp1B8.x, sp1B8.y, 43.0f, temp_16_36, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_25->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             fclDrawSetPlacement((u8 *)(temp_17->f148), (s32)((u16 *)yListSlotEntry(0, temp_17->f11E)), 0, 0);
-            func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+            shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
             temp_16_37 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
             func_0011d140((u8 *)temp_16_37,  func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
             temp_17->f1 = 0x45U;
@@ -3187,22 +3187,22 @@ block_166:
         temp_16_39 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, 0xFFU)));
         frFontExDrawTextDeferredOutB(111.0f + sp1A8.x, sp1A8.y, 43.0f, temp_16_39, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_26->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if (fclDrawGetState((u8 *)(temp_17->f148)) == (s32)(5)) {
-            if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
-                func_0011caf0(fclDrawGetResource((u8 *)(temp_17->f148)));
+            if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
+                shdPersonaStepSelectionCursor(fclDrawGetResource((u8 *)(temp_17->f148)));
             }
             if (D_008C024E[0] & 0x80) {
-                if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(0))) {
-                    func_0011c630(fclDrawGetResource((u8 *)(temp_17->f148)));
+                if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(0))) {
+                    shdPersonaBeginSelection(fclDrawGetResource((u8 *)(temp_17->f148)));
                     fclDrawSetFlag((u8 *)(temp_17->f148),  0);
                 } else {
-                    func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+                    shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
                     fclDrawSetFlag((u8 *)(temp_17->f148),  1);
                 }
                 goto block_215;
             }
             if (D_008C024E[0] & 0x20) {
-                if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
-                    func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+                if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
+                    shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
                     fclDrawSetFlag((u8 *)(temp_17->f148),  1);
                     goto block_215;
                 }
@@ -3272,7 +3272,7 @@ block_215:
                 temp_16_50 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(temp_17->f148)))));
                 func_0011d140((u8 *)temp_16_50,  func_002b2a30(0x14, 0x14, 0x14, 0xFFU));
             }
-            func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+            shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
             fclCombineDrawStageBanner(arg0, 4, 0);
             temp_17->f1 = 0x46U;
             return;
@@ -3292,8 +3292,8 @@ block_215:
         temp_16_54 = (s32)((s32)(func_002b2a30(0xCC, 0xFF, 0xFF, temp_16_53)));
         frFontExDrawTextDeferredOutB(111.0f + sp188.x, sp188.y, 43.0f, temp_16_54, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, temp_18_33->f129))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         if ((s32)((s8)fclDrawGetState((u8 *)(temp_17->f148))) == (s32)(0xD)) {
-            if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
-                func_0011caf0(fclDrawGetResource((u8 *)(temp_17->f148)));
+            if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
+                shdPersonaStepSelectionCursor(fclDrawGetResource((u8 *)(temp_17->f148)));
             }
             if (D_008C024E[0] & 0x40) {
                 temp_17->f1 = 0x48U;
@@ -3301,18 +3301,18 @@ block_215:
                 return;
             }
             if (D_008C024E[0] & 0x80) {
-                if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(0))) {
-                    func_0011c630(fclDrawGetResource((u8 *)(temp_17->f148)));
+                if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(0))) {
+                    shdPersonaBeginSelection(fclDrawGetResource((u8 *)(temp_17->f148)));
                     fclDrawSetFlag((u8 *)(temp_17->f148), 0);
                     return;
                 }
-                func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+                shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
                 fclDrawSetFlag((u8 *)(temp_17->f148), 1);
                 return;
             }
             if (D_008C024E[0] & 0x20) {
-                if ((s32)((s32)(func_0011c610(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
-                    func_0011c6e0(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
+                if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(temp_17->f148))))) == (s32)((s32)(1))) {
+                    shdPersonaEndSelection(fclDrawGetResource((u8 *)(temp_17->f148)), 1);
                     fclDrawSetFlag((u8 *)(temp_17->f148),  1);
                     return;
                 }
@@ -3898,7 +3898,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         id = ((u16 *)yListSlotEntry(0, p[0x2FA]))[1];
         datPersonaInitRecord((u8 *)yListSlotEntry(0, p[0x2FA]), id);
         fclDrawSetPlacement(*(u8 **)(p + 0x148), (s32)yListSlotEntry(0, p[0x2FA]), 0, 0);
-        func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+        shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
         func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
         if (((u8 *)yListSlotEntry(0, p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
             func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
@@ -3907,21 +3907,21 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         break;
     case 0x55:
         if (fclDrawGetState(*(u8 **)(p + 0x148)) == 5) {
-            if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
-                func_0011caf0(fclDrawGetResource(*(u8 **)(p + 0x148)));
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
+                shdPersonaStepSelectionCursor(fclDrawGetResource(*(u8 **)(p + 0x148)));
             }
             buttons = D_008C024E[0];
             if (buttons & 0x80) {
-                if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 0) {
-                    func_0011c630(fclDrawGetResource(*(u8 **)(p + 0x148)));
+                if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 0) {
+                    shdPersonaBeginSelection(fclDrawGetResource(*(u8 **)(p + 0x148)));
                     fclDrawSetFlag(*(u8 **)(p + 0x148), 0);
                 } else {
-                    func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+                    shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
                     fclDrawSetFlag(*(u8 **)(p + 0x148), 1);
                 }
             } else if (buttons & 0x20) {
-                if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
-                    func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+                if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
+                    shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
                     fclDrawSetFlag(*(u8 **)(p + 0x148), 1);
                 } else {
                     if (fclDrawGetState(*(u8 **)(p + 0x148)) != 5) {
@@ -4006,7 +4006,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
             func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
         }
-        func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+        shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
         fclCombineDrawStageBanner(arg0, (s8)(p[0x1A] + 1), 0);
         p[1] = 0x57;
         break;
@@ -4014,16 +4014,16 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         if (fclDrawGetState(*(u8 **)(p + 0x148)) != 0xD) {
             break;
         }
-        if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
-            func_0011caf0(fclDrawGetResource(*(u8 **)(p + 0x148)));
+        if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
+            shdPersonaStepSelectionCursor(fclDrawGetResource(*(u8 **)(p + 0x148)));
         }
         buttons = D_008C024E[0];
         if (buttons & 0x40) {
             p[1] = 0x59;
             func_0045af60(0, 0, 0, 1);
         } else if (buttons & 0x20) {
-            if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
-                func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
+                shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
                 fclDrawSetFlag(*(u8 **)(p + 0x148), 1);
             } else {
                 p[1] = 0x5F;
@@ -4034,11 +4034,11 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                 func_0045af60(0, 0, 0, 2);
             }
         } else if (buttons & 0x80) {
-            if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 0) {
-                func_0011c630(fclDrawGetResource(*(u8 **)(p + 0x148)));
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 0) {
+                shdPersonaBeginSelection(fclDrawGetResource(*(u8 **)(p + 0x148)));
                 fclDrawSetFlag(*(u8 **)(p + 0x148), 0);
             } else {
-                func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+                shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
                 fclDrawSetFlag(*(u8 **)(p + 0x148), 1);
             }
         } else if (buttons & 8) {
@@ -4423,7 +4423,7 @@ void fclCombineMenuPreview(u8 *arg0) {
                     if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
                         func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0x14, 0x14, 0x14, 0xFF));
                     }
-                    func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+                    shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
                     fclCombineDrawStageBanner(arg0, 8, 0);
                     fclCombineDrawPairLayout(arg0, 0, 1);
                     fclCombineFadeLabelSprites(arg0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
@@ -4458,7 +4458,7 @@ void fclCombineMenuPreview(u8 *arg0) {
             break;
         }
         fclDrawSetPlacement(*(u8 **)(p + 0x148), (s32)yListSlotEntry(1, 0), 0, 0);
-        func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+        shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
         if (p[0x20] == 0) {
             func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
         } else {
@@ -4468,21 +4468,21 @@ void fclCombineMenuPreview(u8 *arg0) {
         break;
     case 0x67:
         if (fclDrawGetState(*(u8 **)(p + 0x148)) == 5) {
-            if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
-                func_0011caf0(fclDrawGetResource(*(u8 **)(p + 0x148)));
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
+                shdPersonaStepSelectionCursor(fclDrawGetResource(*(u8 **)(p + 0x148)));
             }
             buttons = D_008C024E[0];
             if (buttons & 0x80) {
-                if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 0) {
-                    func_0011c630(fclDrawGetResource(*(u8 **)(p + 0x148)));
+                if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 0) {
+                    shdPersonaBeginSelection(fclDrawGetResource(*(u8 **)(p + 0x148)));
                     fclDrawSetFlag(*(u8 **)(p + 0x148), 0);
                 } else {
-                    func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+                    shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
                     fclDrawSetFlag(*(u8 **)(p + 0x148), 1);
                 }
             } else if (buttons & 0x20) {
-                if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
-                    func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+                if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
+                    shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
                     fclDrawSetFlag(*(u8 **)(p + 0x148), 1);
                 } else {
                     if (fclDrawGetState(*(u8 **)(p + 0x148)) != 5) {
@@ -4539,8 +4539,8 @@ void fclCombineMenuPreview(u8 *arg0) {
         if (fclDrawGetState(*(u8 **)(p + 0x148)) != 0xD) {
             break;
         }
-        if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
-            func_0011caf0(fclDrawGetResource(*(u8 **)(p + 0x148)));
+        if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
+            shdPersonaStepSelectionCursor(fclDrawGetResource(*(u8 **)(p + 0x148)));
         }
         buttons = D_008C024E[0];
         if (buttons & 0x40) {
@@ -4554,16 +4554,16 @@ void fclCombineMenuPreview(u8 *arg0) {
                 p[1] = 0x6A;
             }
         } else if (buttons & 0x80) {
-            if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 0) {
-                func_0011c630(fclDrawGetResource(*(u8 **)(p + 0x148)));
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 0) {
+                shdPersonaBeginSelection(fclDrawGetResource(*(u8 **)(p + 0x148)));
                 fclDrawSetFlag(*(u8 **)(p + 0x148), 0);
             } else {
-                func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+                shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
                 fclDrawSetFlag(*(u8 **)(p + 0x148), 1);
             }
         } else if (buttons & 0x20) {
-            if (func_0011c610(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
-                func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(*(u8 **)(p + 0x148))) == 1) {
+                shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
                 fclDrawSetFlag(*(u8 **)(p + 0x148), 1);
             } else {
                 fclDrawSetStateByte(*(u8 **)(p + 0x148), 0xB);
@@ -5015,7 +5015,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             func_002b6140((u8 *)(p->f28C), 1);
             func_002b6140((u8 *)(p->f290), 1);
             fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
-            func_0011c6e0(fclDrawGetResource(p->f148), 1);
+            shdPersonaEndSelection(fclDrawGetResource(p->f148), 1);
             func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             fclCombineDrawStageBanner(arg0, 0, 0);
             p->f1 = 0x8F;
@@ -5026,11 +5026,11 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         if ((s8)fclDrawGetState(p->f148) != 5) {
             break;
         }
-        if (func_0011c610(fclDrawGetResource(p->f148)) == 1) {
-            func_0011caf0(fclDrawGetResource(p->f148));
+        if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) == 1) {
+            shdPersonaStepSelectionCursor(fclDrawGetResource(p->f148));
         }
         if ((D_008C0276[0] & 0x1000) && (p->f13A == 0)) {
-            if (func_0011c610(fclDrawGetResource(p->f148)) == 0) {
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) == 0) {
                 if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                     goto conv8F;
                 }
@@ -5046,7 +5046,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 goto conv8F;
             }
         } else if (D_008C027A[0] & 0x1000) {
-            if (func_0011c610(fclDrawGetResource(p->f148)) == 0) {
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) == 0) {
                 if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                     goto conv8F;
                 }
@@ -5078,7 +5078,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             goto conv8F;
         } else if ((D_008C0276[0] & 0x4000) && (p->f13A == 0)) {
-            if (func_0011c610(fclDrawGetResource(p->f148)) == 0) {
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) == 0) {
                 if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                     goto conv8F;
                 }
@@ -5094,7 +5094,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 goto conv8F;
             }
         } else if (D_008C027A[0] & 0x4000) {
-            if (func_0011c610(fclDrawGetResource(p->f148)) == 0) {
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) == 0) {
                 if (*(s32 *)(yListSlotWork(0) + 8) <= 1) {
                     goto conv8F;
                 }
@@ -5166,11 +5166,11 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             func_0045af60(0, 0, 0, 1);
             goto conv8F;
         } else if (D_008C024E[0] & 0x20) {
-            if (func_0011ba00(fclDrawGetResource(p->f148)) == 1) {
+            if (shdPersonaIsTransitioning(fclDrawGetResource(p->f148)) == 1) {
                 break;
             }
-            if (func_0011c610(fclDrawGetResource(p->f148)) == 1) {
-                func_0011c6e0(fclDrawGetResource(p->f148), 1);
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) == 1) {
+                shdPersonaEndSelection(fclDrawGetResource(p->f148), 1);
                 fclDrawSetFlag(p->f148, 1);
             } else {
                 fclDrawSetStateByte(p->f148, 3);
@@ -5179,11 +5179,11 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 func_0045af60(0, 0, 0, 2);
             }
         } else if (D_008C024E[0] & 0x80) {
-            if (func_0011c610(fclDrawGetResource(p->f148)) == 0) {
-                func_0011c630(fclDrawGetResource(p->f148));
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) == 0) {
+                shdPersonaBeginSelection(fclDrawGetResource(p->f148));
                 fclDrawSetFlag(p->f148, 0);
             } else {
-                func_0011c6e0(fclDrawGetResource(p->f148), 1);
+                shdPersonaEndSelection(fclDrawGetResource(p->f148), 1);
                 fclDrawSetFlag(p->f148, 1);
             }
         }
@@ -5506,7 +5506,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(0x270) + 0x10), 1) != 1) {
             fclDrawSetVisible(p->f148, 0);
             fclDrawSetPlacement(p->f148, (s32)yListSlotEntry(0, p->f11E), 0, 1);
-            func_0011c6e0(fclDrawGetResource(p->f148), 1);
+            shdPersonaEndSelection(fclDrawGetResource(p->f148), 1);
             func_0011d140(fclDrawGetResource(p->f148), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             fclCombineDrawStageBanner(arg0, 1, 0);
             p->f1 = 0x9A;
@@ -5533,11 +5533,11 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         if ((s8)fclDrawGetState(p->f148) != 5) {
             return;
         }
-        if (func_0011c610(fclDrawGetResource(p->f148)) == 1) {
-            func_0011caf0(fclDrawGetResource(p->f148));
+        if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) == 1) {
+            shdPersonaStepSelectionCursor(fclDrawGetResource(p->f148));
         }
         if ((D_008C0276[0] & 0x1000) && (p->f13A == 0)) {
-            if (func_0011c610(fclDrawGetResource(p->f148)) != 0) {
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) != 0) {
                 return;
             }
             func_0045af60(0, 2, 0, 5);
@@ -5545,7 +5545,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C027A[0] & 0x1000) {
-            if (func_0011c610(fclDrawGetResource(p->f148)) != 0) {
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) != 0) {
                 return;
             }
             if (p->f11E != 0) {
@@ -5560,7 +5560,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if ((D_008C0276[0] & 0x4000) && (p->f13A == 0)) {
-            if (func_0011c610(fclDrawGetResource(p->f148)) != 0) {
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) != 0) {
                 return;
             }
             func_0045af60(0, 2, 0, 5);
@@ -5568,7 +5568,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
             return;
         } else if (D_008C027A[0] & 0x4000) {
-            if (func_0011c610(fclDrawGetResource(p->f148)) != 0) {
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) != 0) {
                 return;
             }
             if (p->f11E != (s16)((*(s32 *)(yListSlotWork(0) + 8) - 1))) {
@@ -5586,11 +5586,11 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (p->f122 == 1) {
                 return;
             }
-            if (func_0011c610(fclDrawGetResource(p->f148)) == 0) {
-                func_0011c630(fclDrawGetResource(p->f148));
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) == 0) {
+                shdPersonaBeginSelection(fclDrawGetResource(p->f148));
                 fclDrawSetFlag(p->f148, 0);
             } else {
-                func_0011c6e0(fclDrawGetResource(p->f148), 1);
+                shdPersonaEndSelection(fclDrawGetResource(p->f148), 1);
                 fclDrawSetFlag(p->f148, 1);
             }
             goto conv9A;
@@ -5661,11 +5661,11 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 goto conv9A;
             }
         } else if (D_008C024E[0] & 0x20) {
-            if (func_0011ba00(fclDrawGetResource(p->f148)) == 1) {
+            if (shdPersonaIsTransitioning(fclDrawGetResource(p->f148)) == 1) {
                 return;
             }
-            if (func_0011c610(fclDrawGetResource(p->f148)) == 1 && p->f122 == 0) {
-                func_0011c6e0(fclDrawGetResource(p->f148), 1);
+            if (shdPersonaIsSelectionActive(fclDrawGetResource(p->f148)) == 1 && p->f122 == 0) {
+                shdPersonaEndSelection(fclDrawGetResource(p->f148), 1);
                 fclDrawSetFlag(p->f148, 1);
             } else {
                 func_0045af60(0, 0, 0, 2);
@@ -6833,7 +6833,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
         fclCombineLayoutDetailSprites(arg0, 1);
         if (datGetFlag(0x1306) != 0) {
             fclDrawSetFlag((u8 *)work->f148, 1);
-            func_0011c6e0(fclDrawGetResource((u8 *)work->f148), 1);
+            shdPersonaEndSelection(fclDrawGetResource((u8 *)work->f148), 1);
             temp_16 = (s32)fclDrawGetResource((u8 *)work->f148);
             func_0011d140((u8 *)temp_16, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
             fclDrawSetSlotMode((u8 *)work->f148, (s32)datStagedRecord(), 0);
@@ -7024,7 +7024,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             fclDrawSetPlacement((u8 *)work->f148, (s32)yListSlotEntry(0, work->f11E), 0, 0);
             temp_16_10 = (s32)(fclDrawGetResource((u8 *)work->f148));
             func_0011d140((u8 *)temp_16_10, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-            func_0011c6e0(fclDrawGetResource((u8 *)work->f148), 1);
+            shdPersonaEndSelection(fclDrawGetResource((u8 *)work->f148), 1);
             work->f1 = 0x7DU;
             return;
         }
@@ -7181,7 +7181,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     fclDrawSetPlacementEx((u8 *)work->f148, (s32)yListSlotEntry(work->f2F9, work->f2FA), 0, 0, 1);
                     temp_16_16 = (s32)(fclDrawGetResource((u8 *)work->f148));
                     func_0011d140((u8 *)temp_16_16, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-                    func_0011c6e0(fclDrawGetResource((u8 *)work->f148), 1);
+                    shdPersonaEndSelection(fclDrawGetResource((u8 *)work->f148), 1);
                     work->f1 = 0x81U;
                     for (var_16_5 = 0; var_16_5 < (datPersonaRosterCapacity() & 0xFFFF); var_16_5++) {
                         sp218 = func_002b2970(16.0f, 128.0f);
@@ -7257,7 +7257,7 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             fclDrawSetPlacement((u8 *)work->f148, (s32)yListSlotEntry(0, work->f11E), 0, 0);
             temp_16_22 = (s32)(fclDrawGetResource((u8 *)work->f148));
             func_0011d140((u8 *)temp_16_22, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFFU));
-            func_0011c6e0(fclDrawGetResource((u8 *)work->f148), 1);
+            shdPersonaEndSelection(fclDrawGetResource((u8 *)work->f148), 1);
             work->f1 = 0x80U;
             return;
         }
@@ -7315,8 +7315,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
             func_0011b8f0(fclDrawGetResource((u8 *)work->f148), work->f30C);
         }
         if (((s8)(fclDrawGetState((u8 *)work->f148))) == 0xD) {
-            if (func_0011c610(fclDrawGetResource((u8 *)work->f148)) == 1) {
-                func_0011caf0(fclDrawGetResource((u8 *)work->f148));
+            if (shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)work->f148)) == 1) {
+                shdPersonaStepSelectionCursor(fclDrawGetResource((u8 *)work->f148));
             }
             if (D_008C024E[0] & 0x40) {
                 fclCombinePlayCue(arg0, 0x1B, 1);
@@ -7325,8 +7325,8 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                 return;
             }
             if (D_008C024E[0] & 0x20) {
-                if (func_0011c610(fclDrawGetResource((u8 *)work->f148)) == 1) {
-                    func_0011c6e0(fclDrawGetResource((u8 *)work->f148), 1);
+                if (shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)work->f148)) == 1) {
+                    shdPersonaEndSelection(fclDrawGetResource((u8 *)work->f148), 1);
                     fclDrawSetFlag((u8 *)work->f148, 1);
                     return;
                 }
@@ -7446,12 +7446,12 @@ void fclCombineMenuRosterFusion(u8 *arg0) {
                     return;
                 }
                 if (D_008C024E[0] & 0x80) {
-                    if (func_0011c610(fclDrawGetResource((u8 *)work->f148)) == 0) {
-                        func_0011c630(fclDrawGetResource((u8 *)work->f148));
+                    if (shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)work->f148)) == 0) {
+                        shdPersonaBeginSelection(fclDrawGetResource((u8 *)work->f148));
                         fclDrawSetFlag((u8 *)work->f148, 0);
                         return;
                     }
-                    func_0011c6e0(fclDrawGetResource((u8 *)work->f148), 1);
+                    shdPersonaEndSelection(fclDrawGetResource((u8 *)work->f148), 1);
                     fclDrawSetFlag((u8 *)work->f148, 1);
                     return;
                 }
@@ -7649,7 +7649,7 @@ block_274:
         temp_16_40 = (FclSkillPair *)iGpffffb3ec + work->f1C;
         work->f2D8 = func_002b2cb0(work->f2D8, 1, 0x28, 0, 1);
         if (work->f2D8 == 0x14) {
-            func_0011cc00(fclDrawGetResource((u8 *)work->f148), temp_16_40->original, temp_16_40->replacement);
+            shdPersonaReplaceSkill(fclDrawGetResource((u8 *)work->f148), temp_16_40->original, temp_16_40->replacement);
             datPersonaReplaceSkill((u8 *)datStagedRecord(), (s16)temp_16_40->original, temp_16_40->replacement);
             func_0045af60(1, 3, 3, 2);
         }
@@ -8775,9 +8775,9 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
     extern u8 *func_0011fbc0(s32, u8 *, s32, u8 *);
     extern s32 func_0011fcf0(u8 *);
     extern void frFontExCopyString(void *, void *, s32);
-    extern void func_0011cdd0(u8 *, s32);
+    extern void shdPersonaSetPendingSkill(u8 *, s32);
     extern void func_0011ce30(u8 *);
-    extern s32 func_0011cb70(u8 *, u16);
+    extern s32 shdPersonaAddSkill(u8 *, u16);
     extern void yListSlotCopyEntry(u8 *, s8, s16);
     extern void fclDrawSetState(u8 *, s8);
     extern s32 D_00641B90[];
@@ -8849,7 +8849,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             *((s8 *)func_0034a630(*(u8 **)(p + 0x254))) = 4;
             fclDrawSetPlacementEx(*(u8 **)(p + 0x148), (s32)yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 0, 0, 0);
             func_0011d140(fclDrawGetResource(*(u8 **)(p + 0x148)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF));
-            func_0011c6e0(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
+            shdPersonaEndSelection(fclDrawGetResource(*(u8 **)(p + 0x148)), 1);
             p[1] = 0xA1;
         }
         break;
@@ -9218,7 +9218,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 }
             }
         }
-        func_0011cdd0(fclDrawGetResource(*(u8 **)(p + 0x148)), *(u16 *)(p + 0x1C));
+        shdPersonaSetPendingSkill(fclDrawGetResource(*(u8 **)(p + 0x148)), *(u16 *)(p + 0x1C));
         *(s16 *)(p + 0x2D8) = 0;
         p[1] = 0xB3;
         break;
@@ -9335,7 +9335,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 u16 skill;
                 personaTask = fclDrawGetResource(*(u8 **)(p + 0x148));
                 skill = *(u16 *)(p + 0x1C);
-                func_0011cb70(personaTask, skill);
+                shdPersonaAddSkill(personaTask, skill);
             }
             func_0011ce30(fclDrawGetResource(*(u8 **)(p + 0x148)));
             func_0045af60(1, 3, 3, 2);
@@ -9419,7 +9419,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 }
             }
         }
-        func_0011cdd0(fclDrawGetResource(*(u8 **)(p + 0x148)), *(u16 *)(p + 0x1C));
+        shdPersonaSetPendingSkill(fclDrawGetResource(*(u8 **)(p + 0x148)), *(u16 *)(p + 0x1C));
         p[1] = 0xB0;
         break;
     case 0xAD:
@@ -9489,7 +9489,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 u16 skill;
                 personaTask = fclDrawGetResource(*(u8 **)(p + 0x148));
                 skill = *(u16 *)(p + 0x1C);
-                func_0011cb70(personaTask, skill);
+                shdPersonaAddSkill(personaTask, skill);
             }
             func_0045af60(1, 3, 3, 2);
         }
@@ -9558,7 +9558,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 u16 originalSkill;
                 personaTask = fclDrawGetResource(*(u8 **)(p + 0x148));
                 originalSkill = *(u16 *)(p + 0x1C);
-                func_0011cc00(personaTask, originalSkill, *(u16 *)(p + 0x24));
+                shdPersonaReplaceSkill(personaTask, originalSkill, *(u16 *)(p + 0x24));
             }
             datPersonaReplaceSkill(yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), *(s16 *)(p + 0x1C), *(u16 *)(p + 0x24));
             func_0045af60(1, 3, 3, 2);

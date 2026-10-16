@@ -507,10 +507,10 @@ s32 func_00313fb0(u8 *arg0)
  
 /* measured: corrected all six callee declarations from the verified definitions. */
 extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
-extern s32 func_0011ba00(u8 *arg0);
-extern void func_0011bb90(u8 *arg0);
-extern void func_0011bc70(u8 *arg0);
-extern u8 func_0011d0c0(u8 *arg0);
+extern s32 shdPersonaIsTransitioning(u8 *arg0);
+extern void shdPersonaStartSlideIn(u8 *arg0);
+extern void shdPersonaBeginClose(u8 *arg0);
+extern u8 shdPersonaGetAlpha(u8 *arg0);
 // FUN_00314010
 s32 func_00314010(u8 *arg0) {
     s32 value;
@@ -534,28 +534,28 @@ s32 func_00314010(u8 *arg0) {
         *(s8 *)(work + 0) = 1;
         /* fallthrough */
     case 1:
-        if ((func_0011d0c0(*(u8 **)(work + 4)) & 0xFF) == 0xFF) {
+        if ((shdPersonaGetAlpha(*(u8 **)(work + 4)) & 0xFF) == 0xFF) {
             *(s8 *)(work + 0) = 5;
-        } else if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
-            func_0011bb90(*(u8 **)(work + 4));
+        } else if (shdPersonaIsTransitioning(*(u8 **)(work + 4)) != 1) {
+            shdPersonaStartSlideIn(*(u8 **)(work + 4));
         } else {
             *(s8 *)(work + 0) = 2;
         }
         goto block_33;
     case 2:
-        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+        if (shdPersonaIsTransitioning(*(u8 **)(work + 4)) != 1) {
             *(s8 *)(work + 0) = 5;
         }
         goto block_33;
     case 3:
-        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
-            func_0011bc70(*(u8 **)(work + 4));
+        if (shdPersonaIsTransitioning(*(u8 **)(work + 4)) != 1) {
+            shdPersonaBeginClose(*(u8 **)(work + 4));
         } else {
             *(s8 *)(work + 0) = 4;
         }
         goto block_33;
     case 4:
-        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+        if (shdPersonaIsTransitioning(*(u8 **)(work + 4)) != 1) {
             *(s8 *)(work + 0) = 6;
         }
         goto block_33;
@@ -568,33 +568,33 @@ s32 func_00314010(u8 *arg0) {
         *(s8 *)(work + 0) = 9;
         /* fallthrough */
     case 9:
-        if ((func_0011d0c0(*(u8 **)(work + 4)) & 0xFF) == 0xFF) {
+        if ((shdPersonaGetAlpha(*(u8 **)(work + 4)) & 0xFF) == 0xFF) {
             *(s8 *)(work + 0) = 0xD;
-        } else if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
-            func_0011bb90(*(u8 **)(work + 4));
+        } else if (shdPersonaIsTransitioning(*(u8 **)(work + 4)) != 1) {
+            shdPersonaStartSlideIn(*(u8 **)(work + 4));
         } else {
             *(s8 *)(work + 0) = 0xA;
         }
         goto block_33;
     case 10:
-        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+        if (shdPersonaIsTransitioning(*(u8 **)(work + 4)) != 1) {
             *(s8 *)(work + 0) = 0xD;
         }
         goto block_33;
     case 11:
-        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
-            func_0011bc70(*(u8 **)(work + 4));
+        if (shdPersonaIsTransitioning(*(u8 **)(work + 4)) != 1) {
+            shdPersonaBeginClose(*(u8 **)(work + 4));
         } else {
             *(s8 *)(work + 0) = 0xC;
         }
         goto block_33;
     case 12:
-        if (func_0011ba00(*(u8 **)(work + 4)) != 1) {
+        if (shdPersonaIsTransitioning(*(u8 **)(work + 4)) != 1) {
             *(s8 *)(work + 0) = 0xE;
         }
         goto block_33;
     case 15:
-        if (func_0011ba00((u8 *)*(s32 *)(work + 4)) != 1) {
+        if (shdPersonaIsTransitioning((u8 *)*(s32 *)(work + 4)) != 1) {
             return -1;
         }
         goto block_33;

@@ -63,16 +63,16 @@ extern u16 frFontClearFlagBits(u16 arg0);
 
 extern u32 func_001d8bc0(void *arg0);
 extern void func_0011b360(u8 *arg0);
-extern s32 func_0011ba00(u8 *arg0);
+extern s32 shdPersonaIsTransitioning(u8 *arg0);
 extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
-extern void func_0011bb90(u8 *arg0);
-extern void func_0011bc70(u8 *arg0);
+extern void shdPersonaStartSlideIn(u8 *arg0);
+extern void shdPersonaBeginClose(u8 *arg0);
 extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
-extern u32 func_0011c610(u8 *arg0);
-extern void func_0011c630(u8 *arg0);
-extern void func_0011c6e0(u8 *arg0, s32 arg1);
-extern void func_0011caf0(u8 *arg0);
+extern u32 shdPersonaIsSelectionActive(u8 *arg0);
+extern void shdPersonaBeginSelection(u8 *arg0);
+extern void shdPersonaEndSelection(u8 *arg0, s32 arg1);
+extern void shdPersonaStepSelectionCursor(u8 *arg0);
 extern void btlUiDrawSpriteEntry(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1);
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
@@ -3458,14 +3458,14 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
 
     case 3:
         if (*(s16 *)(arg1 + 0x5AC) == -1) {
-            if (func_0011ba00(*(u8 **)(arg1 + 0x5A8)) == 0) {
+            if (shdPersonaIsTransitioning(*(u8 **)(arg1 + 0x5A8)) == 0) {
                 temp_2 = datPersonaRosterSlot(*(s16 *)(arg0 + 4));
                 *(s32 *)(iGpffffb3ac + 0xC) &= ~0x2000;
                 *(s32 *)(iGpffffb3ac + 0xC) &= ~0x20000;
                 stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
                 task = *(u8 **)(arg1 + 0x5A8);
                 func_0011b480(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
-                func_0011bb90(*(u8 **)(arg1 + 0x5A8));
+                shdPersonaStartSlideIn(*(u8 **)(arg1 + 0x5A8));
                 btlEncounterEntryClearActive(*(u8 **)(arg1 + 0x5B0));
                 memset(sp48, 0, 8);
                 sp48[0] = 4;
@@ -3476,10 +3476,10 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
                 *(u16 *)arg0 &= ~8;
                 *(s16 *)(arg1 + 0x5AC) = *(s16 *)(arg0 + 4);
             }
-        } else if (func_0011c610(*(u8 **)(arg1 + 0x5A8)) == 0) {
-            func_0011c630(*(u8 **)(arg1 + 0x5A8));
+        } else if (shdPersonaIsSelectionActive(*(u8 **)(arg1 + 0x5A8)) == 0) {
+            shdPersonaBeginSelection(*(u8 **)(arg1 + 0x5A8));
         } else {
-            func_0011c6e0(*(u8 **)(arg1 + 0x5A8), 1);
+            shdPersonaEndSelection(*(u8 **)(arg1 + 0x5A8), 1);
         }
         break;
 
@@ -3490,10 +3490,10 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
             *(s16 *)(arg1 + 0x5AC) = -1;
             func_0045af60(0, 0, 0, 4);
             var_16 = 2;
-        } else if (func_0011c610(*(u8 **)(arg1 + 0x5A8)) == 0) {
+        } else if (shdPersonaIsSelectionActive(*(u8 **)(arg1 + 0x5A8)) == 0) {
             *(s32 *)(iGpffffb3ac + 0xC) |= 0x2000;
             *(s32 *)(iGpffffb3ac + 0xC) |= 0x20000;
-            func_0011bc70(*(u8 **)(arg1 + 0x5A8));
+            shdPersonaBeginClose(*(u8 **)(arg1 + 0x5A8));
             *(s16 *)(arg1 + 0x5AC) = -1;
             btlSelectionSetRepeat(arg0, NULL);
             btlEncounterEntrySetActive(*(u8 **)(arg1 + 0x5B0));
@@ -3503,7 +3503,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
             func_0045af60(0, 0, 0, 4);
             var_16 = 1;
         } else {
-            func_0011c6e0(*(u8 **)(arg1 + 0x5A8), 1);
+            shdPersonaEndSelection(*(u8 **)(arg1 + 0x5A8), 1);
         }
         break;
 
@@ -3521,8 +3521,8 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
                     func_0011c2c0(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
                 }
                 *(s16 *)(arg1 + 0x5AC) = *(s16 *)(arg0 + 4);
-            } else if (func_0011c610(*(u8 **)(arg1 + 0x5A8)) != 0) {
-                func_0011caf0(*(u8 **)(arg1 + 0x5A8));
+            } else if (shdPersonaIsSelectionActive(*(u8 **)(arg1 + 0x5A8)) != 0) {
+                shdPersonaStepSelectionCursor(*(u8 **)(arg1 + 0x5A8));
             }
         }
         var_16 = 1;

@@ -31,8 +31,8 @@ extern s32 func_0012ff60(u8 *arg0, u32 arg1);
 extern s32 func_0034bb20(s32 arg0);
 extern s32 func_0013c6d0(s16 arg0);
 extern s32 func_0010f540(s32 arg0);
-extern void func_0011d080(u8 *arg0, s32 arg1);
-extern void func_0011d0a0(u8 *arg0, s32 arg1);
+extern void shdPersonaSetFlags(u8 *arg0, s32 arg1);
+extern void shdPersonaClearFlags(u8 *arg0, s32 arg1);
 extern void func_0011d0d0(u8 *arg0, void *arg1);
 extern void func_0011d170(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00453670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -1926,14 +1926,14 @@ void func_0013d7d0(u8 *arg0, s32 arg1) {
     case 0:
         sp0.first = 0x43030000;
         sp0.second = 0xC26C0000;
-        func_0011d080(*(u8 **)(arg0 + 0x1CB4), 0x400E0);
+        shdPersonaSetFlags(*(u8 **)(arg0 + 0x1CB4), 0x400E0);
         func_0011d0d0(*(u8 **)(arg0 + 0x1CB4), &sp0);
         func_0011d170(*(u8 **)(arg0 + 0x1CB4), -1, -0x7F00);
         return;
     case 1:
         sp1.first = 0x43030000;
         sp1.second = 0xC2600000;
-        func_0011d0a0(*(u8 **)(arg0 + 0x1CB4), 0x400E0);
+        shdPersonaClearFlags(*(u8 **)(arg0 + 0x1CB4), 0x400E0);
         func_0011d0d0(*(u8 **)(arg0 + 0x1CB4), &sp1);
         func_0011d170(*(u8 **)(arg0 + 0x1CB4), -1, 0xFFE92C00);
         return;
@@ -1962,7 +1962,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void func_001374d0(u8 *arg0);
     extern void func_00137570(u8 *arg0);
     extern void func_001370e0(u8 *arg0);
-    extern void func_0011bb90(u8 *arg0);
+    extern void shdPersonaStartSlideIn(u8 *arg0);
     extern void func_0013d7d0(u8 *arg0, s32 arg1);
     extern s32 datPersonaRosterSlot(s32 arg0);
     extern u16 *datPersonaGetRecord(u16 arg0);
@@ -2031,7 +2031,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_0011b480(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                     func_0013d7d0(arg2, 1);
                     func_0011d0d0(*(u8 **)(arg2 + 0x1CB4), NULL);
-                    func_0011d080(*(u8 **)(arg2 + 0x1CB4), 0x40000);
+                    shdPersonaSetFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
                     func_0045af60(0, 0, 0, 1);
                 } else {
                     func_001371a0(arg2, 8);
@@ -2041,8 +2041,8 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
                     func_0013d7d0(arg2, 0);
                     func_0011b480(*(u8 **)(arg2 + 0x1CB4), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24), (u32)datPersonaGetRecord(*(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24)), 0);
-                    func_0011bb90(*(u8 **)(arg2 + 0x1CB4));
-                    func_0011d0a0(*(u8 **)(arg2 + 0x1CB4), 0x40000);
+                    shdPersonaStartSlideIn(*(u8 **)(arg2 + 0x1CB4));
+                    shdPersonaClearFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
                 }
             } else if (D_008C024E[0] & 0x10) {
                 *(s32 *)(arg2 + 0x10) = func_00354030();
@@ -2079,7 +2079,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_001375f0(arg2);
         } else if (D_008C024E[0] & 0x80) {
             func_0013d7d0(arg2, 0);
-            func_0011bb90(*(u8 **)(arg2 + 0x1CB4));
+            shdPersonaStartSlideIn(*(u8 **)(arg2 + 0x1CB4));
             func_001371a0(arg2, 6);
             func_00137740(arg2);
             *arg0 = 7;
@@ -2125,7 +2125,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *arg0 = 5;
                 func_00137570(arg2);
                 func_0034bd60(0xF);
-                func_0011bc70(*(u8 **)(arg2 + 0x1CB4));
+                shdPersonaBeginClose(*(u8 **)(arg2 + 0x1CB4));
                 func_0013d7d0(arg2, 1);
             } else if (D_008C024E[0] & 0x40) {
                 func_001371a0(arg2, 0xA);
@@ -2136,7 +2136,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *arg0 = 0xD;
                 func_0045af60(0, 0, 0, 1);
             } else if (D_008C024E[0] & 0x80) {
-                func_0011c630(*(u8 **)(arg2 + 0x1CB4));
+                shdPersonaBeginSelection(*(u8 **)(arg2 + 0x1CB4));
                 *arg0 = 9;
             } else if (D_008C024E[0] & 0x10) {
                 datPersonaRemoveSelectedRosterMember();
@@ -2151,11 +2151,11 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 9:
         if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
-            func_0011c6e0(*(u8 **)(arg2 + 0x1CB4), 1);
+            shdPersonaEndSelection(*(u8 **)(arg2 + 0x1CB4), 1);
             *arg0 = 8;
         } else if (D_008C024E[0] & 0x40) {
             func_001371a0(arg2, 0xA);
-            func_0011c6e0(*(u8 **)(arg2 + 0x1CB4), 0);
+            shdPersonaEndSelection(*(u8 **)(arg2 + 0x1CB4), 0);
             func_002bad10(3);
             func_002baf40(0);
             func_002bb050(0);
@@ -2169,7 +2169,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
         } else {
-            func_0011caf0(*(u8 **)(arg2 + 0x1CB4));
+            shdPersonaStepSelectionCursor(*(u8 **)(arg2 + 0x1CB4));
             func_0013e7c0(arg2, (s32 *)arg0);
         }
         break;
@@ -2185,9 +2185,9 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_001371a0(arg2, 2);
             *arg0 = 3;
             func_0034bd60(0xE);
-            func_0011bc70(*(u8 **)(arg2 + 0x1CB4));
+            shdPersonaBeginClose(*(u8 **)(arg2 + 0x1CB4));
         } else if (D_008C024E[0] & 0x80) {
-            func_0011c630(*(u8 **)(arg2 + 0x1CB4));
+            shdPersonaBeginSelection(*(u8 **)(arg2 + 0x1CB4));
             *arg0 = 0xC;
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
@@ -2200,7 +2200,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 12:
         if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
-            func_0011c6e0(*(u8 **)(arg2 + 0x1CB4), 1);
+            shdPersonaEndSelection(*(u8 **)(arg2 + 0x1CB4), 1);
             *arg0 = 0xB;
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
@@ -2208,7 +2208,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
         } else if (func_0013e8e0(arg2, arg0) == 0) {
-            func_0011caf0(*(u8 **)(arg2 + 0x1CB4));
+            shdPersonaStepSelectionCursor(*(u8 **)(arg2 + 0x1CB4));
         }
         break;
     case 13:

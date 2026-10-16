@@ -310,9 +310,9 @@ void func_00135dc0(u8* work)
     extern u32 func_0010d6d0(s16 character);
     extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 font, int id, const char *text, int flags,
                              int extra);
-    extern s32 func_0011d1e0(u8 *work);
-    extern void func_0011dc50(u8 *work);
-    extern void func_0011dd50(u8 *work);
+    extern s32 shdPersonaGetChildTask(u8 *work);
+    extern void shdPersonaDrawSineQuad(u8 *work);
+    extern void shdPersonaDrawSmoothBar(u8 *work);
     extern void func_0011de40(u8 *work, u8 arg1);
     extern void func_0011e400(u8 *work, u8 *arg1);
     extern s32 func_0011e460(u8 *work);
@@ -483,10 +483,10 @@ void func_00135dc0(u8* work)
             kAssertFail(D_005EB580, 0x2AD);
         }
         {
-            u8 *portraitTask = (u8 *)func_0011d1e0(menu->portrait);
+            u8 *portraitTask = (u8 *)shdPersonaGetChildTask(menu->portrait);
             func_0011de40(portraitTask, 0xFF);
-            func_0011dd50(portraitTask);
-            func_0011dc50(portraitTask);
+            shdPersonaDrawSmoothBar(portraitTask);
+            shdPersonaDrawSineQuad(portraitTask);
             if ((menu->visible & 0x1000) != 0) {
                 s32 textureHandle;
                 if ((textureHandle = func_0011e460(portraitTask)) != 0) {

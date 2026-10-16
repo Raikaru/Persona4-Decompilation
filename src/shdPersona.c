@@ -19,11 +19,11 @@ void func_0011e240();
 void sdkSpriteDrawOnceTinted(s32, s32, s32, f32, f32, u8, u8, u8, u8, f32, s32);
 void func_0011e2b0(u8 *arg0, Vec2f *arg1, Vec2f *arg2);
 void shdPersonaSetupChannels();
-void func_0011ba40();
+void shdPersonaBeginOpen();
 void func_0011e3c0(s32, s32);
 void func_0011fd10(s32);
 s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
-void func_0011bc70();
+void shdPersonaBeginClose();
 s32 ShdSkill_MoveCursor(u8 *state, s32 force);
 u16 ShdSkill_GetSlotSkillId(u8 *);
 void shdPersonaDrawRowNumber(Vec2f, f32, u8, s16 *);
@@ -69,9 +69,9 @@ extern char D_005E4F10[];
 void shdPersonaTaskInit(u8 *, s32, s32, s32);
 s32 shdPersonaTaskUpdate(u8 *);
 void func_0011b2d0(u8 *);
-s32 func_0011d1f0(u8 *);
-void func_0011d3c0(u8 *);
-u8 *func_0011d460(s32, s32, f32, s32, s32);
+s32 shdPersonaLoadModelStep(u8 *);
+void shdPersonaModelDestroy(u8 *);
+u8 *shdPersonaModelCreate(s32, s32, f32, s32, s32);
 void func_0011e390(u8 *, Vec2f);
 void func_00364680(f32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
 s32 RpSkyRenderStateSet(s32, void *);
@@ -94,9 +94,9 @@ void func_002bb050(u8 a);
 void func_002bbf60(void);
 u8 *func_00243840(s32 skillId);
 s32 func_0011e490(u8 *);
-void func_0011c6e0(u8 *, s32);
+void shdPersonaEndSelection(u8 *, s32);
 void func_0011b480(u8 *, s32, u32, s8);
-void func_0011d5b0(f32, s32, s32, f32, f32, s32, s32, s32);
+void shdPersonaDrawQuadStrips(f32, s32, s32, f32, f32, s32, s32, s32);
 u32 func_0011e3e0(u8 *);
 f32 sinf(f32 arg0);
 f32 cosf(f32 arg0);
@@ -747,7 +747,7 @@ void shdPersonaDrawGaugeBar(Vec2f position, f32 depth, u8 alpha, u8 filled, u8 a
    (nd 15, all pure instruction-order swaps, no semantics). Tried 6 source
    orderings/type shapes incl. s64 5-arg, Vec2f, s32 5-arg, u8 vs s32 byte
    locals, statement permutations — all nd >= 15. Scheduling/materialisation
-   order floor, same family as func_0011ded0. */
+   order floor, same family as shdPersonaDispCtlUpdate. */
 static inline u8 shdPackedLow(s32 *value)
 {
     return *((u8 *)value);
@@ -918,7 +918,7 @@ void shdPersonaTaskInit(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     *(void (**)(u8 *))(b + 0x548) = (void (*)(u8 *))shdPersonaDrawPanels;
     *(u8 **)(b + 0x550) = b;
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x570) = 0xB1;
-    *(u8 **)(b + 0x4F8) = func_0011d460((s32)arg0, 0xF, 0, 0, -0x100);
+    *(u8 **)(b + 0x4F8) = shdPersonaModelCreate((s32)arg0, 0xF, 0, 0, -0x100);
     func_0011b6d0(arg0, arg1);
     *(s32 *)(b + 0x2B8) = (s32)func_0046a770(D_005E5810);
     *(s32 *)(b + 0x2BC) = (s32)func_0046a770(D_005E5830);
@@ -1851,19 +1851,19 @@ void shdPersonaDrawAcquisition(u8 *work)
 }
 void shdPersonaTweenChannelsOpen(u8 *);
 void shdPersonaTweenChannelsClose(u8 *);
-void func_0011c780(u8 *);
-void func_0011c930(u8 *);
+void shdPersonaTweenSelectionOpen(u8 *);
+void shdPersonaTweenSelectionClose(u8 *);
 void func_0011c3e0(u8 *);
-void func_0011cd20(u8 *);
-void func_0011ce50(u8 *);
+void shdPersonaUpdateSkillPulse(u8 *);
+void shdPersonaUpdateReveal(u8 *);
 void func_0011b110(u8 *);
 void func_0011de40(u8 *, u8);
-void func_0011dd50(u8 *);
+void shdPersonaDrawSmoothBar(u8 *);
 void shdPersonaDrawSlidingPanels(u8 *);
-void func_0011dc50(u8 *);
+void shdPersonaDrawSineQuad(u8 *);
 void func_0011e400(u8 *, u8 *);
 s32 func_0011e460(u8 *);
-u16 func_0011ccb0(u8 *);
+u16 shdPersonaGetSelectedSkillId(u8 *);
 void ShdSkill_DrawSelectionFrame(Vec2f, f32, u8, u16);
 void shdPersonaDrawBackdrop(u8 *);
 void shdPersonaDrawAcquisition(u8 *);
@@ -1981,9 +1981,9 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
         }
         flags = work->flags;
         if ((flags & 0x1000) != 0) {
-            func_0011c780((u8 *)work);
+            shdPersonaTweenSelectionOpen((u8 *)work);
         } else if ((flags & 0x2000) != 0) {
-            func_0011c930((u8 *)work);
+            shdPersonaTweenSelectionClose((u8 *)work);
         }
     }
     if ((work->flags & 0x4000) != 0) {
@@ -1998,14 +1998,14 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
         if (counter < 0x64) {
             work->skillFrame = counter + 1;
         }
-        func_0011cd20((u8 *)work);
+        shdPersonaUpdateSkillPulse((u8 *)work);
     }
     if ((work->flags & 0x200) != 0) {
         counter = work->revealFrame;
         if (counter < 0x64) {
             work->revealFrame = counter + 1;
         }
-        func_0011ce50((u8 *)work);
+        shdPersonaUpdateReveal((u8 *)work);
     }
     renderStateAddress = (u32)D_00887300;
     ((s32 (**)(s32, void *))renderStateAddress)[0](6, (void *)0);
@@ -2025,13 +2025,13 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
     if ((work->flags & 0x400000) == 0) {
         func_0011de40(work->model, work->alpha);
         if ((work->flags & 0x800000) != 0) {
-            func_0011dd50(work->model);
+            shdPersonaDrawSmoothBar(work->model);
         }
         if ((work->flags & 0x200) != 0) {
             shdPersonaDrawSlidingPanels((u8 *)work);
         }
         if ((work->flags & 0x200000) != 0) {
-            func_0011dc50(work->model);
+            shdPersonaDrawSineQuad(work->model);
         }
         if ((work->flags & 0x200) != 0) {
             u8 *model;
@@ -2195,7 +2195,7 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
             position.xy.x = px;
             py = 194.0f + work->selectionPosition.y;
             position.xy.y = py;
-            ShdSkill_DrawSelectionFrame(position.xy, 0.0f, work->alpha, func_0011ccb0((u8 *)work));
+            ShdSkill_DrawSelectionFrame(position.xy, 0.0f, work->alpha, shdPersonaGetSelectedSkillId((u8 *)work));
         }
         if ((work->flags & 0x20) != 0) {
             f32 px;
@@ -2546,7 +2546,7 @@ void func_0011b360(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if ((*(s32 *)(b + 0x534) & 1) != 0 && *(s32 *)(b + 0x538) == 2) {
-        func_0011bc70(arg0);
+        shdPersonaBeginClose(arg0);
     } else {
         *(s32 *)(b + 0x534) &= ~1;
     }
@@ -2638,7 +2638,7 @@ void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
         memset(work + 0x458, 0, 0x68);
     }
     func_0011e0c0(*(u8 **)(work + 0x4F8), *(u16 *)((u8 *)arg2 + 2), t17);
-    func_0011c6e0(arg0, 0);
+    shdPersonaEndSelection(arg0, 0);
     func_0011cee0(arg0);
 }
 
@@ -2790,8 +2790,9 @@ void func_0011b9f0(int task, u32 value)
 {
     *(u32 *)(*(int *)(task + 0x38) + 0x4c4) = value;
 }
+// Intent: Return whether a persona transition (open 0x2 or close 0x4) is in progress [inferred]
 // FUN_0011BA00
-s32 func_0011ba00(u8 *arg0)
+s32 shdPersonaIsTransitioning(u8 *arg0)
 {
     s32 flags = *(s32 *)(((SdkTask *)arg0)->work + 0x534);
     if ((flags & 2) || (flags & 4)) {
@@ -2802,8 +2803,9 @@ s32 func_0011ba00(u8 *arg0)
 
 
 
+// Intent: Begin the persona open transition: set the open and active flags and clear the close and selection flags [inferred]
 // FUN_0011BA40
-void func_0011ba40(u8 *arg0)
+void shdPersonaBeginOpen(u8 *arg0)
 {
     s32 t1;
     s32 t2;
@@ -2854,8 +2856,9 @@ void func_0011ba40(u8 *arg0)
 
 
 
+// Intent: Start the persona panel slide-in with its tween and sound [inferred]
 // FUN_0011BB90
-void func_0011bb90(u8 *arg0)
+void shdPersonaStartSlideIn(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (!(*(s32 *)(b + 0x534) & 2) && *(u8 *)(b + 0x505) != 0xFF) {
@@ -2863,7 +2866,7 @@ void func_0011bb90(u8 *arg0)
         f32 u;
         Vec2f src;
         Vec2f dst;
-        func_0011ba40(b);
+        shdPersonaBeginOpen(b);
         *(u16 *)(b + 0x508) = 0;
         *(u8 *)(b + 0x504) = *(u8 *)(b + 0x505);
         *(u8 *)(b + 0x506) = 0xFF;
@@ -2881,8 +2884,9 @@ void func_0011bb90(u8 *arg0)
 
 
 
+// Intent: Begin the persona close transition: set the close flag and clear the open and selection flags [inferred]
 // FUN_0011BC70
-void func_0011bc70(u8 *arg0)
+void shdPersonaBeginClose(u8 *arg0)
 {
     u8 *work;
     s32 flags;
@@ -2935,7 +2939,7 @@ void func_0011bc70(u8 *arg0)
 
 
 
-f32 func_0011de80(u8 *, Vec2f *);
+f32 shdPersonaGetBarProgress(u8 *, Vec2f *);
 void func_0011e370(u8 *);
 /* measured: fully decompiled, nd 19 (obj 336B / window 336B). The only
    residual is a six-word FP scheduling/allocation permutation at offsets
@@ -2949,8 +2953,9 @@ void func_0011e370(u8 *);
    integer versus 771.0f spellings, split expressions, address-domain forms,
    and all thirteen pragma wrappers did not change nd. Function-wide FP
    liveness/scheduling floor. Committed at nd 19. */
+// Intent: Start the persona panel slide-out, handing off to the close tween [inferred]
 // FUN_0011BDC0
-void func_0011bdc0(u8 *arg0)
+void shdPersonaStartSlideOut(u8 *arg0)
 {
   u8 *baseWork;
   f32 *xField;
@@ -2961,14 +2966,14 @@ void func_0011bdc0(u8 *arg0)
     baseWork = (*((SdkTask *) arg0)).work;
   if (!((*((s32 *) (baseWork + 0x534))) & 2))
   {
-    func_0011ba40(baseWork);
+    shdPersonaBeginOpen(baseWork);
     *((u16 *) (baseWork + 0x508)) = 0;
     *((u8 *) (baseWork + 0x504)) = *((u8 *) (baseWork + 0x505));
     *((u8 *) (baseWork + 0x506)) = 0xFF;
     shdPersonaSetupChannels(baseWork, 4);
     v.x = 131.0f + (*((f32 *) (baseWork + 0x4FC)));
     v.y = (-59.f) + (*((f32 *) (baseWork + 0x500)));
-    result = func_0011de80(*((u8 **) (baseWork + 0x4F8)), &v2);
+    result = shdPersonaGetBarProgress(*((u8 **) (baseWork + 0x4F8)), &v2);
     isZero = result == 0.0f;
     if (isZero || (result == 1.0f))
     {
@@ -2993,7 +2998,7 @@ void func_0011bdc0(u8 *arg0)
 
 /* measured: fully decompiled, nd 19 (obj 620B / window 624B). Offsets 292,
    296, 300, 304, 308, and 312 have the same six-word FP permutation as
-   func_0011bdc0: retail emits addiu/mtc1/nop/cvt.s.w for integer 0x303 into
+   shdPersonaStartSlideOut: retail emits addiu/mtc1/nop/cvt.s.w for integer 0x303 into
    $f1, then lwc1 0x4FC into $f0, then add.s $f0,$f1,$f0; MWCC emits lwc1
    into $f1, addiu/mtc1/nop/cvt.s.w into $f0, then add.s $f0,$f0,$f1.
    Nothing is missing or extra in those six words; the opposite FP
@@ -3121,7 +3126,7 @@ do { case 3: case 2: case 4: break; default: arg0++; arg0--; kAssertFail(D_005E4
     ;
     v.y = (new_var9 = -59.0f) + (*((f32 *) (new_var2 + 0x500)));
     new_var = 2;
-    ret = func_0011de80(*((u8 **) (new_var2 + 0x4F8)), &v2);
+    ret = shdPersonaGetBarProgress(*((u8 **) (new_var2 + 0x4F8)), &v2);
     new_var11 = ret == 0.f;
     if (new_var11 || (1.0f == ret))
     {
@@ -3216,7 +3221,7 @@ void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
         *dst = temp;
         dst++;
     } while (n > 0);
-    func_0011c6e0(arg0, 0);
+    shdPersonaEndSelection(arg0, 0);
     func_0011b480(arg0, arg1, arg2, arg3);
     func_0045af60(0, 2, 0, 5);
 }
@@ -3360,16 +3365,18 @@ void func_0011c3e0(u8 *arg0)
 #pragma pop
 
 
+// Intent: Return whether the persona selection flag 0x800 is set [inferred]
 // FUN_0011C610
-u32 func_0011c610(u8 *arg0)
+u32 shdPersonaIsSelectionActive(u8 *arg0)
 {
     return (*(s32 *)(((SdkTask *)arg0)->work + 0x534) & 0x800) != 0;
 }
 
 
 
+// Intent: Begin persona selection: set the selection and selection-active flags [inferred]
 // FUN_0011C630
-void func_0011c630(u8 *arg0)
+void shdPersonaBeginSelection(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     s32 v = *(s32 *)(b + 0x534);
@@ -3388,8 +3395,9 @@ void func_0011c630(u8 *arg0)
 
 
 
+// Intent: End persona selection and set the selection-end flag 0x2000; arg1 selects the end mode [inferred]
 // FUN_0011C6E0
-void func_0011c6e0(u8 *arg0, s32 arg1)
+void shdPersonaEndSelection(u8 *arg0, s32 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     s32 v = *(s32 *)(b + 0x534);
@@ -3435,8 +3443,9 @@ void func_0011c6e0(u8 *arg0, s32 arg1)
 /* measured: opt_propagation off reproduces the retail lh/lwc1 prologue order;
    the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
 #pragma opt_propagation off
+// Intent: Tween the persona selection panel open and clear its opening flag when done [inferred]
 // FUN_0011C780
-void func_0011c780(u8 *arg0)
+void shdPersonaTweenSelectionOpen(u8 *arg0)
 {
     f32 diff;
     f32 f_abs;
@@ -3501,8 +3510,9 @@ void func_0011c780(u8 *arg0)
 /* measured: opt_propagation off reproduces the retail lh/lwc1 prologue order;
    the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
 #pragma opt_propagation off
+// Intent: Tween the persona selection panel closed, clearing the selection flags and resetting the selected index [inferred]
 // FUN_0011C930
-void func_0011c930(u8 *arg0)
+void shdPersonaTweenSelectionClose(u8 *arg0)
 { s32 a; s32 b; s16 raw; f32 diff; f32 f_abs; f32 acc; f32 ratio; f32 lo; f32 hi; f32 base; f32 delta;
     raw = *(s16 *)(arg0 + 0x514); lo = *(f32 *)(arg0 + 0x450); ratio = (f32)raw;
     if (ratio < lo) ratio = 0.0f; else { hi = *(f32 *)(arg0 + 0x454); if (ratio > hi) ratio = 1.0f; else ratio = sinf(iGpffff8094 * ((ratio - lo) / (hi - lo))); }
@@ -3513,8 +3523,9 @@ void func_0011c930(u8 *arg0)
     if (!((f32)(s16)*(s16 *)(arg0 + 0x514) <= 5.0f)) { *(s32 *)(arg0 + 0x534) &= ~0x800; *(s32 *)(arg0 + 0x534) &= ~0x2000; *(s8 *)(arg0 + 0x88) = -1; }
 }
 #pragma pop
+// Intent: Advance the persona selection cursor by one step [inferred]
 // FUN_0011CAF0
-void func_0011caf0(u8 *arg0)
+void shdPersonaStepSelectionCursor(u8 *arg0)
 {
     s32 flags;
     u8 *work;
@@ -3532,8 +3543,9 @@ void func_0011caf0(u8 *arg0)
         func_0045af60(0, 0, 0, 0);
     }
 }
+// Intent: Add a skill to the persona's skill list and return the add result [inferred]
 // FUN_0011CB70
-s32 func_0011cb70(u8 *arg0, u16 arg1)
+s32 shdPersonaAddSkill(u8 *arg0, u16 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)b == 0) {
@@ -3548,8 +3560,9 @@ s32 func_0011cb70(u8 *arg0, u16 arg1)
 
 
 
+// Intent: Replace one skill in the persona's skill list with another and return the result [inferred]
 // FUN_0011CC00
-s32 func_0011cc00(u8 *arg0, u16 arg1, u16 arg2)
+s32 shdPersonaReplaceSkill(u8 *arg0, u16 arg1, u16 arg2)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)b == 0) {
@@ -3564,8 +3577,9 @@ s32 func_0011cc00(u8 *arg0, u16 arg1, u16 arg2)
 
 
 
+// Intent: Return the skill id in the selected slot, or the queued skill id when the queue flag 0x100000 is set [inferred]
 // FUN_0011CCB0
-u16 func_0011ccb0(u8 *arg0)
+u16 shdPersonaGetSelectedSkillId(u8 *arg0)
 {
     s32 v = *(s32 *)(arg0 + 0x534);
     if (v & 0x2000) {
@@ -3579,8 +3593,9 @@ u16 func_0011ccb0(u8 *arg0)
 
 
 
+// Intent: Advance the skill-pulse phase and clear the pulse flag 0x8000 when the cycle ends [inferred]
 // FUN_0011CD20
-void func_0011cd20(u8 *arg0)
+void shdPersonaUpdateSkillPulse(u8 *arg0)
 {
     f32 f1 = (f32)*(s16 *)(arg0 + 0x518);
     if (f1 > 25.0f) {
@@ -3593,8 +3608,9 @@ void func_0011cd20(u8 *arg0)
 
 
 
+// Intent: Set the pending skill id and mark the queue flag 0x100000 [inferred]
 // FUN_0011CDD0
-void func_0011cdd0(u8 *arg0, s32 arg1)
+void shdPersonaSetPendingSkill(u8 *arg0, s32 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     *(s32 *)(b + 0x534) |= 0x100000;
@@ -3614,8 +3630,9 @@ void func_0011ce30(u8 *arg0)
 
 
 
+// Intent: Advance the skill-reveal frame and play the reveal sound at the cue frame [inferred]
 // FUN_0011CE50
-void func_0011ce50(u8 *arg0)
+void shdPersonaUpdateReveal(u8 *arg0)
 {
     s32 v = *(s32 *)(arg0 + 0x534);
     if ((v & 0x10000) != 0) {
@@ -3687,8 +3704,9 @@ void func_0011cee0(u8 *arg0)
 
 
 
+// Intent: Set bits in the persona flag word at offset 0x534 [inferred]
 // FUN_0011D080
-void func_0011d080(u8 *arg0, s32 arg1)
+void shdPersonaSetFlags(u8 *arg0, s32 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     *(s32 *)(b + 0x534) |= arg1;
@@ -3696,8 +3714,9 @@ void func_0011d080(u8 *arg0, s32 arg1)
 
 
 
+// Intent: Clear bits in the persona flag word at offset 0x534 [inferred]
 // FUN_0011D0A0
-void func_0011d0a0(u8 *arg0, s32 arg1)
+void shdPersonaClearFlags(u8 *arg0, s32 arg1)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     *(s32 *)(b + 0x534) &= ~arg1;
@@ -3705,8 +3724,9 @@ void func_0011d0a0(u8 *arg0, s32 arg1)
 
 
 
+// Intent: Return the persona panel alpha at offset 0x505 [inferred]
 // FUN_0011D0C0
-u8 func_0011d0c0(u8 *arg0)
+u8 shdPersonaGetAlpha(u8 *arg0)
 {
     return *(u8 *)(((SdkTask *)arg0)->work + 0x505);
 }
@@ -3719,8 +3739,9 @@ void func_0011d0d0(u8 *arg0)
     func_0011e240(*(s32 *)(((SdkTask *)arg0)->work + 0x4F8));
 }
 
+// Intent: Store a two-float origin position at offsets 0x4FC and 0x500 of the persona block [inferred]
 // FUN_0011D100
-void func_0011d100(u8 *arg0, f32 *arg1)
+void shdPersonaSetOrigin(u8 *arg0, f32 *arg1)
 {
     u8 *temp_3;
 
@@ -3766,8 +3787,9 @@ void func_0011d1d0(u8 *arg0, f32 arg1)
 
 
 
+// Intent: Return the persona panel's child task pointer at offset 0x4F8 [inferred]
 // FUN_0011D1E0
-s32 func_0011d1e0(u8 *arg0)
+s32 shdPersonaGetChildTask(u8 *arg0)
 {
     return *(s32 *)(((SdkTask *)arg0)->work + 0x4F8);
 }
@@ -3781,8 +3803,9 @@ s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern char D_005E4E60[];
 extern char D_005E4E90[];
 extern char iGpffff9c18;
+// Intent: Advance the persona model-load state machine one step and return its status [inferred]
 // FUN_0011D1F0
-s32 func_0011d1f0(u8 *arg0)
+s32 shdPersonaLoadModelStep(u8 *arg0)
 {
     u8 *work;
     s32 state;
@@ -3834,8 +3857,9 @@ s32 func_0011d1f0(u8 *arg0)
 
 
 
+// Intent: Destroy a persona model-load task, freeing its child and its work block [inferred]
 // FUN_0011D3C0
-void func_0011d3c0(u8 *arg0)
+void shdPersonaModelDestroy(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)(b + 0x48) != 0) {
@@ -3858,8 +3882,9 @@ void func_0011d3c0(u8 *arg0)
 
 
 
+// Intent: Create a persona model-load child task that loads the 166.ADX stream and its model [inferred]
 // FUN_0011D460
-u8 *func_0011d460(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
+u8 *shdPersonaModelCreate(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
 {
     Vec2f v;
     u8 *r;
@@ -3870,7 +3895,7 @@ u8 *func_0011d460(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
     if (w == NULL) {
         return NULL;
     }
-    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4EB0), arg1, 0, 0, func_0011d1f0, func_0011d3c0, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4EB0), arg1, 0, 0, shdPersonaLoadModelStep, shdPersonaModelDestroy, (u8 *)(w));
     if (r == NULL) {
         return NULL;
     }
@@ -3899,11 +3924,12 @@ extern s32 (*D_00887310[])(s32, void *, s32);
  * propagation off retains the near-plane address before its float load.
  * measured: native b210, 1688B/1696B, nine resolved relocations and eight
  * retail zero-tail bytes. Proof: build/first-party-focus-20260921/persona-w4. */
+// Intent: Draw two adjacent quad strips with a 64-byte vertex layout from depth, colour and edge arguments [inferred]
 // FUN_0011D5B0
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
-void func_0011d5b0(f32 depth, s32 color, s32 edgeAlpha, f32 x, f32 y, s32 width, s32 height, s32 raster)
+void shdPersonaDrawQuadStrips(f32 depth, s32 color, s32 edgeAlpha, f32 x, f32 y, s32 width, s32 height, s32 raster)
 {
     union { f32 scalar[2][64]; s32 words[2][64]; } vertices;
     f32 positions[16];
@@ -4028,8 +4054,9 @@ void func_0011d5b0(f32 depth, s32 color, s32 edgeAlpha, f32 x, f32 y, s32 width,
 #pragma pop
 
 
+// Intent: Draw a quad whose vertex offset eases from the start value at 0x20 to the end value at 0x30 by a sine lerp [inferred]
 // FUN_0011DC50
-void func_0011dc50(u8 *arg0)
+void shdPersonaDrawSineQuad(u8 *arg0)
 {
     u8 *work;
     f32 f20;
@@ -4050,7 +4077,7 @@ void func_0011dc50(u8 *arg0)
             *(f32 *)(work + 0x28) = *(f32 *)(work + 0x30);
         }
         a = *(s32 *)(work + 8);
-        func_0011d5b0(*(f32 *)(work + 0x18), a, a,
+        shdPersonaDrawQuadStrips(*(f32 *)(work + 0x18), a, a,
                       *(f32 *)(work + 0x28), *(f32 *)(work + 0x2C),
                       0x200, 0x200, *(s32 *)(work + 0x50));
     }
@@ -4064,9 +4091,10 @@ void func_0011dc50(u8 *arg0)
    instruction with $t0 vs $a1). Tried: declaration order both ways, SdkTask
    typed form vs raw deref (per assignment note), s32 vs u8 byte locals —
    identical. Register-colouring floor. */
-/* measured: full body decompiled (guard chain, two float lerps, func_00364680 + two func_003f6440 calls all reproduce). every remaining row is the work-pointer base register: retail keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12 loads/stores; mwcc b210 always colours it $t0. Tried declaration order both ways, SdkTask typed form vs raw deref, s32 vs u8 byte locals, half as 3.0f literal vs local — identical $t0. Register-colouring floor (same family as func_0011dc50 note). Committed at nd 53. */
+/* measured: full body decompiled (guard chain, two float lerps, func_00364680 + two func_003f6440 calls all reproduce). every remaining row is the work-pointer base register: retail keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12 loads/stores; mwcc b210 always colours it $t0. Tried declaration order both ways, SdkTask typed form vs raw deref, s32 vs u8 byte locals, half as 3.0f literal vs local — identical $t0. Register-colouring floor (same family as shdPersonaDrawSineQuad note). Committed at nd 53. */
+// Intent: Draw the state-3 gauge bar: two lerped spans scaled by one third of the total [inferred]
 // FUN_0011DD50
-void func_0011dd50(u8 *arg0)
+void shdPersonaDrawSmoothBar(u8 *arg0)
 {
     u8 *work;
     s32 first;
@@ -4102,8 +4130,9 @@ void func_0011de40(u8 *arg0, u8 arg1)
     *(s32 *)(b + 0xC) = (*(s32 *)(b + 0xC) & ~0xFF) | v;
 }
 
+// Intent: Return the progress fraction at offset 0x10 divided by 10.0, and write the value at 0x28 to arg1 [inferred]
 // FUN_0011DE80
-f32 func_0011de80(u8 *arg0, Vec2f *arg1)
+f32 shdPersonaGetBarProgress(u8 *arg0, Vec2f *arg1)
 {
     u8 *temp_2;
 
@@ -4124,8 +4153,9 @@ s32 func_0011dec0(u8 *arg0)
 
 
 
+// Intent: Poll the display-control model load and free its resources when the load completes [inferred]
 // FUN_0011DED0
-s32 func_0011ded0(u8 *arg0)
+s32 shdPersonaDispCtlUpdate(u8 *arg0)
 {
     u8 *w;
     s32 out;
@@ -4173,7 +4203,7 @@ s32 func_0011dfc0(s32 arg0, s32 arg1, char *arg2)
     if (buf == NULL) {
         return 0;
     }
-    r = (s32)kwlnTaskCreate((const void *)(arg2), 0xF, 0, 0, func_0011ded0, func_0011df90, (u8 *)(buf));
+    r = (s32)kwlnTaskCreate((const void *)(arg2), 0xF, 0, 0, shdPersonaDispCtlUpdate, func_0011df90, (u8 *)(buf));
     if (r == 0) {
         return 0;
     }
@@ -4187,7 +4217,7 @@ s32 func_0011dfc0(s32 arg0, s32 arg1, char *arg2)
 
 
 
-s32 func_0011ded0(u8 *arg0);
+s32 shdPersonaDispCtlUpdate(u8 *arg0);
 // FUN_0011E0C0
 void func_0011e0c0(u8 *arg0, s32 arg1, s32 arg2)
 {
@@ -4202,7 +4232,7 @@ void func_0011e0c0(u8 *arg0, s32 arg1, s32 arg2)
             p4c = *(s32 *)(w + 0x4C);
             chkmemAllocSiteTag(D_005E4868, 0x11B2);
             r = D_008873F4[0](1, 8, 0x40000);
-            if (r != 0 && (s32)kwlnTaskCreate((const void *)(D_005E4E40), 0xF, 0, 0, func_0011ded0, func_0011df90, (u8 *)(r)) != 0) {
+            if (r != 0 && (s32)kwlnTaskCreate((const void *)(D_005E4E40), 0xF, 0, 0, shdPersonaDispCtlUpdate, func_0011df90, (u8 *)(r)) != 0) {
                 if (p4c != 0) {
                     func_00440b68((s32)D_005E4F10, (s32)(p4c + 0x10));
                 }
@@ -4940,13 +4970,13 @@ s32 func_002bb4e0(void);
 s32 func_002bb600(void);
 u32 func_002bb1e0(s32 arg0);
 s32 func_002bb140(void);
-u16 func_0011ccb0(u8 *arg0);
+u16 shdPersonaGetSelectedSkillId(u8 *arg0);
 void ShdSkill_PopPoolEntry(u8 *arg0);
 u16 datPersonaRecordId(u32 arg0);
 s16 ShdSkill_FindSlot(u8 *, s32);
 extern u16 D_008C024E[];
 extern u16 D_008C024C[];
-void func_0011c630(u8 *arg0);
+void shdPersonaBeginSelection(u8 *arg0);
 /* The replacement and highlight states share the pending halfword. Promote
  * it to a word before refreshing the parent work for the highlight lookup.
  * Each state assigns pendingSkill before reading it.
@@ -4980,7 +5010,7 @@ s32 func_0011f5a0(u8 *arg0)
         if (func_002bb600() == 0) {
             func_002bb1e0(1);
             *(s32 *)(work + 8) = 2;
-            func_0011c630(*(u8 **)(work + 0xC));
+            shdPersonaBeginSelection(*(u8 **)(work + 0xC));
         }
         break;
     case 2: {
@@ -5027,7 +5057,7 @@ s32 func_0011f5a0(u8 *arg0)
                     u8 *bb = *(u8 **)(pp + 0x38);
                     u8 *current;
                     u16 queuedSkill;
-                    u16 previousSkill = func_0011ccb0(bb) & 0xFFFF;
+                    u16 previousSkill = shdPersonaGetSelectedSkillId(bb) & 0xFFFF;
                     s32 ok;
                     s32 ok2;
                     if (*(s32 *)(bb + 0x534) & 0x100000) {
