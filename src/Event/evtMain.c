@@ -101,10 +101,10 @@ s32 func_00122640(s32 arg0, s32 arg1);
 s32 func_001227a0(void);
 void H_Fade_SetCustomColor(u8 arg0, u8 arg1, u8 arg2);
 s32 func_00120e20(s32 arg0, s32 arg1);
-s32 func_00120ee0(void *arg0);
+s32 taskRecordIsDone(void *arg0);
 void func_00120f00(void *arg0);
 void func_00120f20(void *arg0);
-void func_00120f40(u8 *arg0, s64 arg1);
+void taskRecordSetPosition(u8 *arg0, s64 arg1);
 
 
 /* measured: retail dispatches the 20-case switch (arg0->{0} 0..0x39) via a
@@ -775,7 +775,7 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 if (*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4) != NULL) {
                     if (kwlnTaskIsLinked(*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4)) != 0) {
                         func_00120f20(*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4));
-                        if (func_00120ee0(*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4)) != 0) {
+                        if (taskRecordIsDone(*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4)) != 0) {
                             kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(u8 **)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4));
                         }
                     }
@@ -805,12 +805,12 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                     }
                     cutinPosition.vector.x = (f32)*(s16 *)(arg2 + 0x1C);
                     cutinPosition.vector.y = (f32)*(s16 *)(arg2 + 0x1E);
-                    func_00120f40((u8 *)*(s32 *)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4), cutinPosition.packed);
+                    taskRecordSetPosition((u8 *)*(s32 *)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4), cutinPosition.packed);
                     break;
                 }
                 case 1:
                     if (*(s32 *)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4) != 0) {
-                        if (func_00120ee0((void *)*(s32 *)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4)) == 0) {
+                        if (taskRecordIsDone((void *)*(s32 *)(evtCutinAddress(*(u32 *)(arg0 + 4), arg4) + 0x6C4)) == 0) {
                             temp_3_4 = *(s32 *)(arg0 + 4);
                             switch (temp_3_4) {
                             case 0:

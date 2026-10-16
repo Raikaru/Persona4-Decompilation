@@ -27,9 +27,9 @@ extern char D_00635C60[];
 extern u32 datGetMoney(void);
 extern void datSetMoney(s32 arg0);
 extern s32 func_00120e20(s32 arg0, s32 arg1);
-extern s32 func_00120ee0(s32 arg0);
+extern s32 taskRecordIsDone(s32 arg0);
 extern void func_00120f00(s32 arg0);
-extern void func_00120f40(s32 arg0, s64 arg1);
+extern void taskRecordSetPosition(s32 arg0, s64 arg1);
 extern s32 iGpffffb480;
 
 s16 datGetDateIndex(void);

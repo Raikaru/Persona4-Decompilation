@@ -19,7 +19,7 @@ extern s32 D_007D2510[];
 #define KFIELD_D_007D2510 (D_007D2510)
 #define KFIELD_JTBL_008873EC (*(void (**)(s32))((u8 *)0x00880000 + 0x73EC))
 
-extern void func_00123ac0(void);
+extern void calendarPopValue(void);
 extern void FldUnit_ClearFlagBlock(void);
 extern void func_002bd410(void);
 extern void func_002bd3e0(void);
@@ -364,7 +364,7 @@ void func_00155bf0(u8 *arg0)
 
     temp_17 = *(u8 **)(arg0 + 0x38);
     if (iGpffffb20c == 1) {
-        func_00123ac0();
+        calendarPopValue();
     }
     FldUnit_ClearFlagBlock();
     func_002bd410();

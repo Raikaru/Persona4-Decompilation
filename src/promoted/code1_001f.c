@@ -114,7 +114,7 @@ extern s32 func_001fa7a0(s32 *arg0);
 extern s32 func_001fa940(void);
 extern s32 func_001faa00(void);
 extern s32 btlTaskSlotIsSet(void);
-extern s32 func_00120ee0(s32 arg0);
+extern s32 taskRecordIsDone(s32 arg0);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern void datCalcClearStatusBlocked(s32 arg0);
 extern void datCalcSetHp(s32 arg0, s32 arg1);

@@ -11,7 +11,7 @@ extern s32 H_Cdvd_IsFileLoaded(void *handle);
 
 extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void func_00104c50(void);
-extern s32 func_00123730(s32);
+extern s32 calendarStartTasks(s32);
 extern void func_002aaa80(void);
 extern void func_002aaaa0(void);
 extern s32 kwlnTaskGetState(s32);
@@ -129,7 +129,7 @@ s32 initBootChainStep(u8 *arg0)
     case 1:
         if (callbacks[*(s32 *)(temp_16 + 4)] == NULL) {
             func_002aaaa0();
-            func_00123730(0);
+            calendarStartTasks(0);
             return -1;
         }
         *(s32 *)(temp_16 + 8) = (s32)callbacks[*(s32 *)(temp_16 + 4)]();
