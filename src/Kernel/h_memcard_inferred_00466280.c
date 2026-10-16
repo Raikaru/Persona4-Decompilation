@@ -233,8 +233,9 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
+// Intent: memory-card probe step. Polls card info (sceMc2), reads the free-block count, and returns 100 when the card is ready or a negative error code.
 // FUN_00466280
-s32 func_00466280(void)
+s32 H_Memcard_ProbeCardStep(void)
 {
     s32 sp1c;
     s32 sp18;
