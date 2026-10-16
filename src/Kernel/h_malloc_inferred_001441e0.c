@@ -215,8 +215,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 iGpffff9da8;
 extern u8 D_005EF7B0[];
-extern s32 func_001441e0(u8 *arg0);
-extern void func_00144ac0(u8 *arg0);
+extern s32 calendarTaskUpdate(u8 *arg0);
+extern void calendarTaskDestroy(u8 *arg0);
 extern void strcpy(void *arg0, const char *arg1);
 extern void sprintf(void *arg0, const char *arg1, ...);
 extern void strcat(void *arg0, const void *arg1);
@@ -291,10 +291,11 @@ extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
  * query is combined with the day index before the fourth call.
  * measured: 2268 executable bytes and four zero-tail bytes, all exact. */
 #pragma push
-/* measured: func_001441e0 MATCH -> MISMATCH without this pragma. */
+/* measured: calendarTaskUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
+// Intent: Calendar task update: kind 0 fills a 7-row day table from the date queries; kind 1 draws the rows and skips while input bit 0x800 is held [inferred]
 // FUN_001441E0
-s32 func_001441e0(u8 *arg0) {
+s32 calendarTaskUpdate(u8 *arg0) {
     extern s16 datGetDateIndex(void);
     extern s64 calGetDayTableValue(s32 arg0, u32 arg1);
     extern s32 calGetPackedDayEntry(s32 arg0, s32 arg1);
@@ -528,14 +529,16 @@ s32 func_001441e0(u8 *arg0) {
 }
 
 #pragma pop
+// Intent: Free the calendar work block through the free callback [inferred]
 // FUN_00144AC0
-void func_00144ac0(u8 *arg0)
+void calendarTaskDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
+// Intent: Allocate a calendar work block and create its task with the update and destroy callbacks [inferred]
 // FUN_00144AF0
-s32 func_00144af0(void)
+s32 calendarTaskCreate(void)
 {
     s32 temp_2;
 
@@ -544,15 +547,16 @@ s32 func_00144af0(void)
     if (temp_2 == 0) {
         return 0;
     }
-    return (s32)kwlnTaskCreate((const void *)(&D_005EF7B0), 0x100, 0, 0, func_001441e0, func_00144ac0, (u8 *)((void *)(u32)temp_2));
+    return (s32)kwlnTaskCreate((const void *)(&D_005EF7B0), 0x100, 0, 0, calendarTaskUpdate, calendarTaskDestroy, (u8 *)((void *)(u32)temp_2));
 }
 
 /* Return zero for a missing path; otherwise retain retail's short-circuited
    predicate calls and always-one result. Distinct equivalent low-16 forms
    prevent caching masks across calls without changing the predicate ABI.
    measured: object 264B/window 272B; exact instructions and 8B zero tail. */
+// Intent: Return 1 when the room file for the field and room exists on disc, 0 otherwise [inferred]
 // FUN_00144B80
-s32 func_00144b80(s32 arg0, s32 arg1)
+s32 fieldRoomFileExists(s32 arg0, s32 arg1)
 {
     char path[128];
     char part[128];
@@ -619,8 +623,9 @@ loop_5_test:
     func_00440b68(&D_005EF800);
 }
 
+// Intent: Request a room change: when the scene is loaded and the room differs, record it, set state bit 2, the timer and open the primary file; otherwise mark the resource lists dirty [inferred]
 // FUN_00144E10
-void func_00144e10(s64 arg0) {
+void fieldSceneRequestRoom(s64 arg0) {
     s32 temp_5;
     u8 *flags;
     u8 *temp_2;
@@ -649,8 +654,9 @@ void func_00144e10(s64 arg0) {
     *(s16 *)(temp_7 + 0x10) = arg0;
 }
 
+// Intent: Request the secondary room slot (field +0x12): when the scene is loaded and the room differs, record it, set state bit 4 and open the primary file [inferred]
 // FUN_00144ED0
-void func_00144ed0(s64 arg0) {
+void fieldSceneRequestSecondaryRoom(s64 arg0) {
     s32 temp_6;
     u8 *flags;
     u8 *temp_2;

@@ -426,8 +426,8 @@ s32 FldLoadTaskUpdate(u8 *task)
     extern s32 scrStartProcedureChecked(s32 priority, s32 memory, s32 bytes, s32 procedure);
     extern s32 kwlnTaskIsLinked(void *task);
     extern void fieldSceneLoad(s32 fieldId, s32 roomId);
-    extern void func_00144e10(s64 mapState);
-    extern void func_00144ed0(s64 environmentState);
+    extern void fieldSceneRequestRoom(s64 mapState);
+    extern void fieldSceneRequestSecondaryRoom(s64 environmentState);
     extern s32 FldHbnLoadEntryTable(u8 *file);
     extern s32 fieldSceneLoadStep(void);
     extern s32 FldMap_IsInEitherBand(s32 fieldId, s32 roomId);
@@ -495,9 +495,9 @@ s32 FldLoadTaskUpdate(u8 *task)
         fieldId = work->fieldId;
         work->file = FldHbnOpenTable(fieldId, work->roomId);
         fieldSceneLoad(work->fieldId, work->roomId);
-        func_00144e10(work->mapState);
+        fieldSceneRequestRoom(work->mapState);
         if (work->environmentState != 0) {
-            func_00144ed0(work->environmentState);
+            fieldSceneRequestSecondaryRoom(work->environmentState);
         } else {
             selection = -1;
             selectedEnvironment = 0;
@@ -523,7 +523,7 @@ s32 FldLoadTaskUpdate(u8 *task)
             } else {
                 work->environmentState = selectedEnvironment;
             }
-            func_00144ed0(work->environmentState);
+            fieldSceneRequestSecondaryRoom(work->environmentState);
         }
         work->state++;
     case 3:

@@ -254,7 +254,7 @@ extern s32 kwlnTaskIsLinked(s32 arg0);
 extern void func_00122640(s32, s32);
 extern s32 H_Cdvd_IsFileLoaded(void *arg0);
 extern void fieldSceneLoad(s32, s32);
-extern void func_00144e10(s32);
+extern void fieldSceneRequestRoom(s32);
 extern s16 datCategoryRank(s16);
 extern s32 fclCombineEventSceneCreate(u8 *arg0, s32, s32);
 extern void cmmCommunityAllocRecord(s32);
@@ -10121,7 +10121,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
             if ((fclCalendarMonth() & 0xFF) == 3 && (fclCalendarDay() & 0xFF) >= 0x14 && (fclCalendarDay() & 0xFF) < 0x20) {
                 if (datGetFlag(0x1459) == 0) {
                     fieldSceneLoad(8, 3);
-                    func_00144e10(1);
+                    fieldSceneRequestRoom(1);
                 }
                 p[0] = 9;
                 return 0;
@@ -10141,7 +10141,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
             }
             if (datGetFlag(0x1459) == 0) {
                 fieldSceneLoad(8, 3);
-                func_00144e10(1);
+                fieldSceneRequestRoom(1);
             }
             p[0] = 9;
         }

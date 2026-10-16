@@ -542,7 +542,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
     extern f32 iGpffff81ec;
     extern s32 func_002e0fb0(void);
     extern void func_002e0f90(void);
-    extern s32 func_0026e350(void);
+    extern s32 frFontGetPendingFlag(void);
     extern void PrimQueueBatch(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
     typedef struct { MsgProcWindowRGBA colors[10]; u8 gap[24]; MsgProcWindowF2 points[10]; } Work10;
     typedef struct { MsgProcWindowRGBA colors[16]; MsgProcWindowF2 points[16]; } Work16;
@@ -998,7 +998,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
         }
         break;
     case 18:
-        if (func_0026e350() == 1) {
+        if (frFontGetPendingFlag() == 1) {
             ret = 1;
         } else if (func_0027bec0((s32)arg0) != 0) {
             if (msgWinReady() != 0) {

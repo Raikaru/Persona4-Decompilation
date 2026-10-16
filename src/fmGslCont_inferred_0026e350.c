@@ -153,14 +153,16 @@ extern f32 D_007612C4;
 /* measured: closes optimization_level 1 register-coloring probe for func_0026db60. */
 /* measured: opt_propagation off probe for mtSceneUnitDepthCompare float load scheduling. */
 /* measured: closes opt_propagation off probe for mtSceneUnitDepthCompare. */
+// Intent: Return the pending-layout flag; frFontBeginDeferredLayout sets it and frFontResetPendingState clears it [inferred]
 // FUN_0026E350
-s32 func_0026e350(void)
+s32 frFontGetPendingFlag(void)
 {
     return iGpffffb4bc;
 }
 
+// Intent: Map a data entry's flag bits to a glyph class index from 0 to 14 (default 13) [inferred]
 // FUN_0026E360
-s32 func_0026e360(s64 arg0) {
+s32 frFontDataEntryClass(s64 arg0) {
     s32 temp_2 = datEntryGetFlags((s16) arg0);
 
     if (temp_2 & 1) {
@@ -403,7 +405,7 @@ success:
 }
 
 /* measured: closing opt_common_subs off for func_0026e7f0. */
-/* measured: func_0026e910, func_0026e940, func_0026ea50, func_0026eba0, func_0026ebe0, func_0026ed00, func_0026ee00 MATCH -> MISMATCH without this pragma. */
+/* measured: func_0026e910, func_0026e940, frFontBeginDeferredLayout, func_0026eba0, func_0026ebe0, func_0026ed00, func_0026ee00 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs on
 /* measured: closing opt_propagation off for func_0026e7f0. */
 // FUN_0026E910
@@ -457,9 +459,10 @@ s32 func_0026e940(s32 arg0, u8 *arg1)
 }
 
 /* measured: closing opt_propagation off for func_0026e940. */
-/* measured: opt_propagation off preserves decode and state-store order for func_0026ea50. */
+/* measured: opt_propagation off preserves decode and state-store order for frFontBeginDeferredLayout. */
+// Intent: Start a deferred layout when data flag 0x3B is set: store the operand, set the pending flag and state bit 0x10 [inferred]
 // FUN_0026EA50
-s32 func_0026ea50(s32 arg0, u8 *arg1)
+s32 frFontBeginDeferredLayout(s32 arg0, u8 *arg1)
 {
     s32 temp_3_3;
     s32 temp_3_5;
@@ -511,7 +514,7 @@ after_store:
     return 0;
 }
 
-/* measured: closing opt_propagation off for func_0026ea50. */
+/* measured: closing opt_propagation off for frFontBeginDeferredLayout. */
 // FUN_0026EBA0
 s32 func_0026eba0(void)
 {
@@ -654,8 +657,9 @@ s32 func_0026ee00(s32 arg0, u8 *arg1)
 }
 
 /* measured: closing opt_propagation off for func_0026ee00. */
+// Intent: Reset the pending-layout flag and set the default values at +0xF and +0x1E [inferred]
 // FUN_0026EF00
-s32 func_0026ef00(s32 arg0, u8 *arg1)
+s32 frFontResetPendingState(s32 arg0, u8 *arg1)
 {
     if (frFontGetMode() != 0) {
         return 0;
@@ -741,10 +745,11 @@ s32 func_0026ef60(s32 arg0, u8 *arg1)
 
 /* measured: closing opt_propagation off for func_0026ef60. */
 /* measured: closing opt_common_subs off for func_0026ef60. */
-/* measured: opt_common_subs off reconstructs the retail packed-index sequence for func_0026f0a0. */
-/* measured: opt_propagation off reconstructs the retail field-load and byte-code sequence for func_0026f0a0. */
+/* measured: opt_common_subs off reconstructs the retail packed-index sequence for frFontClearDataFlagTable. */
+/* measured: opt_propagation off reconstructs the retail field-load and byte-code sequence for frFontClearDataFlagTable. */
+// Intent: Clear a data flag at the base plus the table entry picked by the first operand [inferred]
 // FUN_0026F0A0
-s32 func_0026f0a0(s32 arg0, u8 *arg1)
+s32 frFontClearDataFlagTable(s32 arg0, u8 *arg1)
 {
     s32 temp_17;
     s32 temp_q1;
@@ -812,14 +817,15 @@ s32 func_0026f0a0(s32 arg0, u8 *arg1)
     return 0;
 }
 
-/* measured: closing opt_propagation off for func_0026f0a0. */
-/* measured: func_0026f1e0 MATCH -> MISMATCH without this pragma. */
+/* measured: closing opt_propagation off for frFontClearDataFlagTable. */
+/* measured: frFontLayoutSlotIfBound MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
-/* measured: closing opt_common_subs off for func_0026f0a0. */
-/* measured: func_0026f1e0 MATCH -> MISMATCH without this pragma. */
+/* measured: closing opt_common_subs off for frFontClearDataFlagTable. */
+/* measured: frFontLayoutSlotIfBound MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs on
+// Intent: When the slot for the decoded index is bound, update the text work and lay out that slot [inferred]
 // FUN_0026F1E0
-s32 func_0026f1e0(s32 arg0, u32 arg1, s32 arg2)
+s32 frFontLayoutSlotIfBound(s32 arg0, u32 arg1, s32 arg2)
 {
     s32 temp_16;
     s32 temp_4;
@@ -854,17 +860,18 @@ s32 func_0026f1e0(s32 arg0, u32 arg1, s32 arg2)
     return 0;
 }
 
+// Intent: Decode three operands; for a bound slot, lay out a glyph from the second operand, or the item name for the third [inferred]
 // FUN_0026F2C0
 /* measured: MWCCPS2 b210 -O2, 724B/window 736B, 16 relocations,
  * 12 zero alignment bytes. Ghidra/IDA and retail agree on the three-byte
  * glyph at sp+0x68: align the real buffer to eight, without enlarging it.
  * The scoped options preserve operand reloads and decode scheduling. */
 #pragma push
-/* measured: func_0026f2c0 MATCH -> MISMATCH without this pragma. */
+/* measured: frFontLayoutSlotCommand MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-/* measured: func_0026f2c0 MATCH -> MISMATCH without this pragma. */
+/* measured: frFontLayoutSlotCommand MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-s32 func_0026f2c0(s32 arg0, u8 *arg1)
+s32 frFontLayoutSlotCommand(s32 arg0, u8 *arg1)
 {
     s32 first;
     s32 second;
@@ -941,7 +948,7 @@ s32 func_0026f2c0(s32 arg0, u8 *arg1)
             arg1[0xD] = previous_character;
         } else {
             third = *(s32 *)*slot;
-            switch (func_0026e360(third)) {
+            switch (frFontDataEntryClass(third)) {
             case 0:
             case 1:
             case 2:
@@ -961,7 +968,7 @@ s32 func_0026f2c0(s32 arg0, u8 *arg1)
                 arg1[0xD] = 4;
             }
             glyph[0] = -0x7D;
-            glyph[1] = func_0026e360(third) + 0xC7;
+            glyph[1] = frFontDataEntryClass(third) + 0xC7;
             glyph[2] = 0;
             frFontUpdateTextWork(arg1);
             frFontLayoutText((u8 *)glyph, arg1);
@@ -987,15 +994,16 @@ s32 func_0026f5a0(void)
 }
 
 /* measured: closes optimization_level 0 around func_0026f5a0. */
-/* measured: func_0026f5e0, func_0026f860 MATCH -> MISMATCH without this pragma. */
+/* measured: frFontRunCommunityCommand, frFontRunAudioCommand MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
-/* measured: opt_common_subs off preserves the per-decode pointer recompute for func_0026f5e0. */
-/* measured: opt_propagation off preserves the byte-decode temporary liveness for func_0026f5e0. */
+/* measured: opt_common_subs off preserves the per-decode pointer recompute for frFontRunCommunityCommand. */
+/* measured: opt_propagation off preserves the byte-decode temporary liveness for frFontRunCommunityCommand. */
 #pragma push
-/* measured: func_0026f5e0 MATCH -> MISMATCH without this pragma. */
+/* measured: frFontRunCommunityCommand MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
+// Intent: Run a community command in mode 3: set or clear the reversed flag, or add scaled points, for the current community [inferred]
 // FUN_0026F5E0
-s32 func_0026f5e0(s32 arg0, u8 *arg1)
+s32 frFontRunCommunityCommand(s32 arg0, u8 *arg1)
 {
     s32 first;
     s32 second;
@@ -1100,21 +1108,22 @@ s32 func_0026f5e0(s32 arg0, u8 *arg1)
     return 0;
 }
 
-/* measured: closing opt_common_subs off for func_0026f5e0. */
-/* measured: closing opt_propagation off for func_0026f5e0. */
+/* measured: closing opt_common_subs off for frFontRunCommunityCommand. */
+/* measured: closing opt_propagation off for frFontRunCommunityCommand. */
 #pragma pop
 /* measured: MWCCPS2 b210 -O2, 832B/window 832B, 16 relocations.
  * Ghidra gives the descending dispatch; IDA gives the 64-byte path buffer.
  * Named action/channel values survive their comparisons into case one.
  * The final switch preserves retail's explicit zero/default branches.
  * The sound provider narrows the fourth operand at its halfword store. */
+// Intent: Run an audio command in mode 1 when flag 0x3A is set: start a sound channel with formatted text or send the operands to the audio handler [inferred]
 // FUN_0026F860
 #pragma push
-/* measured: func_0026f860 MATCH -> MISMATCH without this pragma. */
+/* measured: frFontRunAudioCommand MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-/* measured: func_0026f860 MATCH -> MISMATCH without this pragma. */
+/* measured: frFontRunAudioCommand MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-s32 func_0026f860(s32 arg0, u8 *arg1)
+s32 frFontRunAudioCommand(s32 arg0, u8 *arg1)
 {
     s32 first;
     s32 second;

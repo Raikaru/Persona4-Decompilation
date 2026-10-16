@@ -43,7 +43,7 @@ extern s64 calGetDayEntryByPhase(s64 param, s32 param2);
 extern s32 datGetFlag(s32 id);
 extern u8 *func_003e0f80();
 extern void fieldSceneLoad(s32 a, s32 b);
-extern void func_00144ed0(s64 param);
+extern void fieldSceneRequestSecondaryRoom(s64 param);
 extern s32 fieldSceneLoadStep();
 extern u8 *MT_Scene_GetCameraResFirst();
 extern f32 MT_Scene_GetCameraFov();
@@ -433,7 +433,7 @@ s32 FldLmapUpdate(u8 *arg0)
     case 1:
         *(u8 **)(st + 0x18) = func_003e0f80();
         fieldSceneLoad(1, 1);
-        func_00144ed0((s16)FldEnvStateFromCalendar(1, 1));
+        fieldSceneRequestSecondaryRoom((s16)FldEnvStateFromCalendar(1, 1));
         func_00440b68(&iGpffff9f68, D_005F1EF8, 0x211);
         *(u8 **)(st + 0x1C) = H_Cdvd_AcquireDirectory(D_005F1FD0, 1);
         func_00440b68(&iGpffff9f68, D_005F1EF8, 0x212);

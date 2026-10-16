@@ -33,10 +33,10 @@ extern f32 D_00882238[];
 extern f32 D_0088223C[];
 extern f32 D_00882240[];
 extern f32 D_00882244[];
-extern s32 func_00144b80(s32 arg0, s32 arg1);
+extern s32 fieldRoomFileExists(s32 arg0, s32 arg1);
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
-extern void func_00144e10(s64 arg0);
-extern void func_00144ed0(s16 arg0);
+extern void fieldSceneRequestRoom(s64 arg0);
+extern void fieldSceneRequestSecondaryRoom(s16 arg0);
 extern s32 fieldSceneLoadStep(void);
 extern void func_00440b68();
 extern u8 D_0063C310[];
@@ -131,15 +131,15 @@ s32 func_00285cc0(u8 *arg0) {
     if ((temp_17 == 0) && (temp_16 == 0)) {
         return 0;
     }
-    if (func_00144b80(temp_17, temp_16) == 0) {
+    if (fieldRoomFileExists(temp_17, temp_16) == 0) {
         return 0;
     }
     fieldSceneLoad(temp_17, temp_16);
-    func_00144e10(temp_19);
+    fieldSceneRequestRoom(temp_19);
     if (temp_18 != 0) {
-        func_00144ed0(temp_18);
+        fieldSceneRequestSecondaryRoom(temp_18);
     } else {
-        func_00144ed0((s16)FldEnvStateFromCalendar(temp_17 & 0xFFFF, temp_16 & 0xFFFF));
+        fieldSceneRequestSecondaryRoom((s16)FldEnvStateFromCalendar(temp_17 & 0xFFFF, temp_16 & 0xFFFF));
     }
     func_00440b68(D_0063C310, temp_17, temp_16);
     return 1;

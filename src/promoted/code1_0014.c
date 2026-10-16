@@ -304,8 +304,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 iGpffff9da8;
 extern u8 D_005EF7B0[];
-extern s32 func_001441e0(u8 *arg0);
-extern void func_00144ac0(u8 *arg0);
+extern s32 calendarTaskUpdate(u8 *arg0);
+extern void calendarTaskDestroy(u8 *arg0);
 extern void strcpy(void *arg0, const char *arg1);
 extern void sprintf(void *arg0, const char *arg1, ...);
 extern void strcat(void *arg0, const void *arg1);
