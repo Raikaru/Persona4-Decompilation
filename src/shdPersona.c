@@ -4507,8 +4507,9 @@ s32 shdPersonaPickRandomSkillPair(u8 *arg0)
 
 
 
+// Intent: Advance the skill-list stage: show the next unlocked skill name and level; otherwise move to the next stage, picking a random skill pair when one is needed [inferred]
 // FUN_0011E740
-void func_0011e740(u8 *arg0)
+void shdPersonaAdvanceSkillList(u8 *arg0)
 {
     u8 *base;
     u8 buf[0x80];
@@ -4655,7 +4656,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         func_002bb7c0(1);
         if (func_002bb600() == 0) {
             func_002bb1e0(1);
-            func_0011e740(work);
+            shdPersonaAdvanceSkillList(work);
         }
         break;
     case 3: {
@@ -4672,7 +4673,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         if (func_002bb600() == 0) {
             func_002bb1e0(1);
             *(s32 *)(work + 0xC) = *(s32 *)(work + 0xC) + 1;
-            func_0011e740(work);
+            shdPersonaAdvanceSkillList(work);
         }
         break;
     }
@@ -4802,7 +4803,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
                     ShdSkill_AddActiveSkill(vv2, bb + 0x8C);
                 }
                 *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
-                func_0011e740(work);
+                shdPersonaAdvanceSkillList(work);
             }
         }
         break;
@@ -4813,7 +4814,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             *(u8 **)(work + 0x18) = NULL;
             *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
             func_002baac0((u8 *)(*(s32 *)(work + 0x24)));
-            func_0011e740(work);
+            shdPersonaAdvanceSkillList(work);
         }
         break;
     case 8:
@@ -4927,7 +4928,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             func_002bb1e0(1);
             func_002bb4e0();
             func_002baac0((u8 *)(*(s32 *)(work + 0x24)));
-            func_0011e740(work);
+            shdPersonaAdvanceSkillList(work);
         }
         break;
     default:
