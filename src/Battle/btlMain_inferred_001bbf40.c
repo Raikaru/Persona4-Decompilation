@@ -81,7 +81,7 @@ extern f32 fGpffff805c;
 extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
-s32 func_001f2f90(u8 *arg0);
+s32 btlTargetIsSlotAlive(u8 *arg0);
 
 
 
@@ -254,7 +254,7 @@ s32 btlCameraIsOrbitAction(u8 *arg0) {
     if (ptr == NULL) {
         return 0;
     }
-    if (func_001f2f90(ptr) == 0) {
+    if (btlTargetIsSlotAlive(ptr) == 0) {
         return 1;
     }
     return *(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x6C) == 3;

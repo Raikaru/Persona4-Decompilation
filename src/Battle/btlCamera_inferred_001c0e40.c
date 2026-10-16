@@ -81,9 +81,9 @@ extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
 extern s32 btlCameraIsActionBlocked(u8 *arg0);
 extern s32 btlTargetGetUnitIndex(u8 *arg0);
-extern s32 func_001f1030(u8 *arg0);
-extern s32 func_001f11e0(s16 arg0);
-extern s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2);
+extern s32 btlTargetGroupStateMatches(u8 *arg0);
+extern s32 btlTargetIsEntryActive(s16 arg0);
+extern s32 btlTargetCanSelectEntry(u8 *arg0, s16 arg1, s32 arg2);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 btlUnitSkillBlocked(u8 *arg0, u8 *arg1);
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
@@ -174,12 +174,12 @@ s32 btlCameraSelectMode(u8 *arg0) {
         if (btlCameraIsActionBlocked(arg0) != 0) {
             return 2;
         }
-        if (func_001f11e0(mode) == 0) {
+        if (btlTargetIsEntryActive(mode) == 0) {
             return 2;
         }
         other = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
         if ((*(u8 *)(other + 0xA2) == 0) &&
-            (func_001f1210(*(u8 **)(other + 0xA0C), mode, 1) == 0)) {
+            (btlTargetCanSelectEntry(*(u8 **)(other + 0xA0C), mode, 1) == 0)) {
             return 2;
         }
         return 4;
@@ -193,21 +193,21 @@ s32 btlCameraSelectMode(u8 *arg0) {
     }
     work = *(u8 **)(arg0 + 0xE0);
     if ((*(u8 *)(*(u8 **)(work + 0x30) + 0xA2) == 0) && ((state & 1) != 0)) {
-        if (func_001f1030(work) != 0) {
+        if (btlTargetGroupStateMatches(work) != 0) {
             return 6;
         }
         data = *(u8 **)(arg0 + 0xE0);
         if (*(s32 *)(data + 0x38) == (s32)data) {
             return 1;
         }
-        if (func_001f11e0(mode) != 0) {
+        if (btlTargetIsEntryActive(mode) != 0) {
             result = 4;
         } else {
             result = 2;
         }
         return result;
     }
-    if (func_001f11e0(mode) == 0) {
+    if (btlTargetIsEntryActive(mode) == 0) {
         return 3;
     }
     return 5;

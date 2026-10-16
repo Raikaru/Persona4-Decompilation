@@ -611,7 +611,7 @@ s32 btlUnitOpeningMotionMode(s32 unused, u8 *arg1, s16 arg2, s32 arg3)
     temp_16 = (s64)(s16)arg2;
     if (temp_16 == -1 || temp_16 >= 0x1B8)
         return 1;
-    if (func_001f11e0(arg2) != 0) {
+    if (btlTargetIsEntryActive(arg2) != 0) {
         offset = (u32)temp_16 << 2;
         temp_3 = *(u16 *)((u32)iGpffffb3bc + 2U + offset);
         if ((temp_3 & 0x200) == 0) {

@@ -204,7 +204,7 @@ void btlActionDeadInit(u8 *arg0)
         datCalcClearAllBuffs(*(u8 **)(p + 0xA64));
         return;
     case 1:
-        func_001f2cc0(arg0);
+        btlTargetRecordDefeatReward(arg0);
         flags = *(s32 *)(p + 0x9C);
         if ((flags & 0x20) == 0 && (flags & 0x100) == 0) {
             work = (u8 *)func_0019bbe0((BtlUnit *)p, 0xFFFFFF, 6, 0, 4, 0);

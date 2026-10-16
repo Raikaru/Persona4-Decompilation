@@ -59,7 +59,7 @@ static inline s32 func_001a_fix_var(s32 value)
     return value;
 }
 
-void func_001f14f0(u8 *arg0);
+void btlTargetResolveSelectedSkill(u8 *arg0);
 void func_001eb3b0(u8 *arg0);
 
 
@@ -732,7 +732,7 @@ loop_2_test:
     *(u16 *)(arg0 + 0x6A) = unitCount;
     *(s16 *)(arg0 + 0x6C) = 2;
     *(s16 *)(arg0 + 0x6E) = 0x100;
-    func_001f14f0(arg0);
+    btlTargetResolveSelectedSkill(arg0);
     activeCount = 0;
     slotIndex = 0;
     slotCount = *(u16 *)(arg0 + 0x6A);
@@ -1205,7 +1205,7 @@ void btlActionEndUpdate(u8 *action)
     void btlOrderSetCurrentAction(u8 *action);
     void btlActionCheckStepTrigger(s32 advance);
     void datCalcAdvanceSecondaryBuffs(u8 *unit);
-    void func_001f2cc0(u8 *action);
+    void btlTargetRecordDefeatReward(u8 *action);
     void datCalcSetHp(s32 unit, u16 hp);
     u32 datCalcSetBadStatus(s32 unit, u32 badStatus);
 
@@ -1343,7 +1343,7 @@ void btlActionEndUpdate(u8 *action)
             return;
         }
         if (datCalcIsDead(*(s32 *)(*(u8 **)(action + 0x30) + 0xA64), 0) != 0) {
-            func_001f2cc0(action);
+            btlTargetRecordDefeatReward(action);
             btlActionSetState((BtlAction *)action, 1);
         }
         return;

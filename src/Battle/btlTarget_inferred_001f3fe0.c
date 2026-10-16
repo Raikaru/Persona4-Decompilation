@@ -89,7 +89,7 @@ extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
 extern s32 func_001f0d30(u8 *arg0);
 extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
 extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 func_001f1030(u8 *arg0);
+extern s32 btlTargetGroupStateMatches(u8 *arg0);
 extern s32 btlActionIsPendingBit(s32 arg0);
 #pragma push
 #pragma pop
@@ -106,7 +106,7 @@ extern s32 btlActionIsPendingBit(s32 arg0);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 /* measured: opt_loop_invariants on preserves target loop preheaders and state materialisation. */
-/* measured: close opt_loop_invariants after func_001f1030 probe. */
+/* measured: close opt_loop_invariants after btlTargetGroupStateMatches probe. */
 #pragma push
 /* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
 #pragma pop

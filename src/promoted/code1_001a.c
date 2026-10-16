@@ -64,7 +64,7 @@ static inline s32 func_001a_fix_var(s32 value)
 }
 void btlSoundBumpStatusCounters(void);
 
-void func_001f14f0(u8 *arg0);
+void btlTargetResolveSelectedSkill(u8 *arg0);
 void func_001eb3b0(u8 *arg0);
 extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 void btlEffectSelectNearestEntry(void *arg0, void *arg1);

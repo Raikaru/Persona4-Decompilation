@@ -179,7 +179,7 @@ extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(void *target);
 extern u8 *btlActionFindByUnit(s32 arg0);
-extern void func_001f2eb0(u8 *arg0, s32 arg1);
+extern void btlTargetSetDefeatState(u8 *arg0, s32 arg1);
 extern void btlSoundStopBgmIfEnabled(void);
 
 
@@ -217,7 +217,7 @@ extern void btlUnitSetPos(u8 *arg0, s32 *arg1);
 extern void btlTargetPositionToCell(s16 *outX, s16 *outZ, f32 *position);
 extern u8 *iGpffffb3e0;
 extern s32 btlActionHasNoTargetClass(u32 action);
-extern s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2);
+extern s32 btlTargetCanSelectEntry(u8 *arg0, s16 arg1, s32 arg2);
 extern s32 btlBossTargetBlocked(u8 *arg0);
 extern s32 btlBossSkillResultBlocked(u8 *arg0);
 

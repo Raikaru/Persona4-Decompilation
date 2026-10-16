@@ -131,10 +131,10 @@ static inline s32 btlAnyUnitE4_001f14f0(u8 *arg0, s32 n)
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 /* measured: opt_loop_invariants on preserves target loop preheaders and state materialisation. */
-/* measured: func_001f1030 MATCH -> MISMATCH without this pragma. */
+/* measured: btlTargetGroupStateMatches MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001F1030
-s32 func_001f1030(u8 *arg0)
+s32 btlTargetGroupStateMatches(u8 *arg0)
 {
     u8 *value;
     s32 i;
@@ -202,9 +202,9 @@ many_test:
     return 1;
 }
 
-/* measured: close opt_loop_invariants after func_001f1030 probe. */
+/* measured: close opt_loop_invariants after btlTargetGroupStateMatches probe. */
 // FUN_001F11E0
-s32 func_001f11e0(s16 arg0) {
+s32 btlTargetIsEntryActive(s16 arg0) {
     u8 *base;
 
     base = iGpffffb3b8;
@@ -213,7 +213,7 @@ s32 func_001f11e0(s16 arg0) {
 
 /* Matched with direct-index and global-address helper spellings. */
 // FUN_001F1210
-s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2)
+s32 btlTargetCanSelectEntry(u8 *arg0, s16 arg1, s32 arg2)
 {
     s32 index;
 
@@ -234,7 +234,7 @@ s32 func_001f1210(u8 *arg0, s16 arg1, s32 arg2)
 }
 
 // FUN_001F12B0
-s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
+s8 btlTargetClassifyTargetResult(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     s32 temp_3;
     s32 temp_4;
@@ -306,14 +306,14 @@ s8 func_001f12b0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 
 #pragma push
 /* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
-/* measured: func_001f14f0 MATCH -> MISMATCH without this pragma. */
+/* measured: btlTargetResolveSelectedSkill MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-/* measured: func_001f14f0 MATCH -> MISMATCH without this pragma. */
+/* measured: btlTargetResolveSelectedSkill MATCH -> MISMATCH without this pragma. */
 #pragma opt_pulloutconstants off
 /* Resolve the selected skill, recording damage, reactions and party follow-ups.
  * Byte/halfword snapshots separate the calculation and record-copy phases. */
 // FUN_001F14F0
-void func_001f14f0(u8 *arg0)
+void btlTargetResolveSelectedSkill(u8 *arg0)
 {
     extern s32 datCalcSkillAmount(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
     /* H011: datCalc.c declares the C89-promoted s32 call interface before its K&R definition. */
@@ -705,11 +705,11 @@ void func_001f14f0(u8 *arg0)
                     *(u16 *)(actor + 0x3F4) = (s16)v;
                     slot = unit + (u32)j * sizeof(LargeBattleHitResult);
                     *resultFlags |= 0x10;
-                    slot[0x10C] = func_001f12b0(actor, vals, res, sub, 0);
+                    slot[0x10C] = btlTargetClassifyTargetResult(actor, vals, res, sub, 0);
                 } else {
                     u8 *reactionBase = unit + (u32)j * sizeof(LargeBattleHitResult);
 
-                    reactionBase[0x10C] = func_001f12b0(actor, vals, res, sub, 1);
+                    reactionBase[0x10C] = btlTargetClassifyTargetResult(actor, vals, res, sub, 1);
                     *(s32 *)(unit + 0xE0) = 1;
                     if (arg0 == actor) {
                         *pa = 0;
@@ -721,7 +721,7 @@ void func_001f14f0(u8 *arg0)
             {
                 u8 *reactionBase = unit + (u32)j * sizeof(LargeBattleHitResult);
 
-                reactionBase[0x10C] = func_001f12b0(actor, vals, res, sub, 0);
+                reactionBase[0x10C] = btlTargetClassifyTargetResult(actor, vals, res, sub, 0);
             }
             j++;
         }
@@ -942,7 +942,7 @@ finished:
    (CSE'd with the test, retail's $a0); the counter store address is offset-first
    integer arithmetic `temp_6_2 + (u32)D_0076449C`. */
 // FUN_001F2CC0
-void func_001f2cc0(u8 *arg0)
+void btlTargetRecordDefeatReward(u8 *arg0)
 {
     s32 sp3C;
     u8 *base;
@@ -1019,7 +1019,7 @@ void func_001f2cc0(u8 *arg0)
 }
 
 // FUN_001F2EB0
-void func_001f2eb0(u8 *arg0, s32 arg1)
+void btlTargetSetDefeatState(u8 *arg0, s32 arg1)
 {
     s32 value;
     u8 *work;
@@ -1043,7 +1043,7 @@ void func_001f2eb0(u8 *arg0, s32 arg1)
 }
 
 // FUN_001F2F90
-s32 func_001f2f90(u8 *arg0) {
+s32 btlTargetIsSlotAlive(u8 *arg0) {
     u8 *p;
 
     p = iGpffffb3b8 + *(s16 *)(arg0 + 0x6E) * 40;

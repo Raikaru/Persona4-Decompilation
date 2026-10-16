@@ -4084,7 +4084,7 @@ finish:
  * native conversions and conversion-before-bonus order preserve retail behavior.
  * opt_loop_invariants on scopes the searches; opt_common_subs on scopes the main
  * body. All 79 siblings and allocated data are unchanged.
- * The fifth argument is passed by func_001f14f0 and unused by retail.
+ * The fifth argument is passed by btlTargetResolveSelectedSkill and unused by retail.
  * See docs/probe_archive/DC_worker3_20260920_recoveries.md. */
 #pragma push
 #pragma opt_loop_invariants on

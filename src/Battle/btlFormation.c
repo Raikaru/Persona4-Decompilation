@@ -171,7 +171,7 @@ u32 btlFormationPlaceUnits(u32 *work)
     extern void btlUnitGetGridSphereCenter(struct BtlUnit *, struct RwV3d *);
     extern f32 btlUnitGetGroupBounds(u32, u32, struct RwV3d *, f32 *, f32 *, u32);
     extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
-    extern s32 func_001f1210(u8 *unit, s16 action, s32 paired);
+    extern s32 btlTargetCanSelectEntry(u8 *unit, s16 action, s32 paired);
     extern void func_001951f0(u8 *unit, u8 *target, u8 *partner, s32 category,
                             f32 *position, f32 *rotation, s32 options);
     extern u16 btlTargetGetUnitIndex(struct BtlTarget *);
@@ -181,7 +181,7 @@ u32 btlFormationPlaceUnits(u32 *work)
     extern f32 RwV3dLength(f32 *vector);
     extern f32 RwV2dLength(f32 *vector);
     extern s32 btlActionHasNoTargetClass(u32 action);
-    extern s32 func_001f11e0(s16 action);
+    extern s32 btlTargetIsEntryActive(s16 action);
     extern s32 btlBossUnitsSameGenus(struct BtlUnit *, struct BtlUnit *);
     extern s32 btlBossTargetBlocked(u8 *);
     extern u32 btlBossFlagPairOk(s32, s32);
@@ -249,7 +249,7 @@ u32 btlFormationPlaceUnits(u32 *work)
     kind = *(u8 *)(*(u8 **)(base + 0x30) + 0xA2);
     switch (kind) {
     case 0:
-        func_001f11e0((s16)h6E);
+        btlTargetIsEntryActive((s16)h6E);
         if (btlActionHasNoTargetClass((u32)base) == 1) {
             unitA = *(u8 **)(base + 0x38);
             if (base == unitA) {
@@ -309,7 +309,7 @@ u32 btlFormationPlaceUnits(u32 *work)
                 /* The null-companion path supplies no isClose value in
                  * retail; only the later distance clamp may set it. */
                 if (entry != NULL) {
-                    isClose = func_001f1210(entry, (s16)h6E, 1);
+                    isClose = btlTargetCanSelectEntry(entry, (s16)h6E, 1);
                     sel = (s16)btlUnitOpeningMotionMode((s32)((s32)entry), unitB, (s16)h6E, 1);
                     len = (0.0f + len) - *(f32 *)(unitB + 0x90) * *(f32 *)(unitB + 0x2C);
                     if (isClose == 0) {
@@ -591,7 +591,7 @@ void func_001d2e00(u32 *work)
 #pragma push
 #pragma opt_propagation off
 extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
-extern s32 func_001f1210(u8 *, s16, s32);
+extern s32 btlTargetCanSelectEntry(u8 *, s16, s32);
 extern void func_001951f0(u8 *, u8 *, u8 *, s32, f32 *, f32 *, s32);
 
 typedef struct BtlFormationPlacementWork
@@ -618,7 +618,7 @@ static inline u32 placeFormation(BtlFormationPlacementWork *work, u8 *node, u8 *
     paired = work->partnerAction != NULL;
     mode = (s16)actionBits;
     category = (s16)btlUnitOpeningMotionMode((s32)node, unit, mode, paired);
-    if (func_001f1210(node, mode, paired) == 0) {
+    if (btlTargetCanSelectEntry(node, mode, paired) == 0) {
         kind = (s16)btlUnitOpeningMotionMode((s32)node, unit, mode, paired);
         switch (kind) {
         case 0:
