@@ -29,6 +29,15 @@ extern u8 D_0063CFA0[];
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
+/* Element addresses for the scene source tables. The helpers keep the
+   base + index * stride arithmetic of the original reads: indexing the
+   typed array instead reorders the table-base load against the shift. */
+static inline MtMiscSceneRecord16 *mtMiscSceneRecord16At(MtMiscSceneSource *source, s32 index) {
+    return (MtMiscSceneRecord16 *)((u8 *)source->records94 + index * 0x10);
+}
+static inline MtMiscSceneRecord60 *mtMiscSceneRecord60At(MtMiscSceneSource *source, s32 index) {
+    return (MtMiscSceneRecord60 *)((u8 *)source->records98 + index * 0x3C);
+}
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, f32 farg0, s32 arg5, s32 arg6,
@@ -72,7 +81,7 @@ extern void mtMiscBuildSceneNodes(u8 *arg0);
 // unless the readiness check at +0x678 passes and evtMessageWindowRecordCount reports a
 // positive count.
 // FUN_002962F0
-void mtMiscCollectType4Records(u8 *arg0, u8 *arg1)
+void mtMiscCollectType4Records(MtMiscSceneSource *arg0, u8 *arg1)
 {
   extern s32 evtMessageWindowRecordCount(s32 *arg0); /* lint: allow H011 -- the caller compares the count as signed (<= 0); the definition returns the same bits as u32 */
   extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
@@ -98,25 +107,25 @@ void mtMiscCollectType4Records(u8 *arg0, u8 *arg1)
   var_16 = 0;
   goto loop_test;
 loop_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+  if (arg0->header->kind == 4)
   {
-    var_3 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10));
+    var_3 = mtMiscSceneRecord16At(arg0, var_16)->type;
   }
   else
   {
-    var_3 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_16 * 0x3C));
+    var_3 = mtMiscSceneRecord60At(arg0, var_16)->type;
   }
   if ((var_3 & 0xFFFF) != 4)
   {
     goto loop_increment;
   }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+  if (arg0->header->kind == 4)
   {
-    var_2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 2));
+    var_2 = mtMiscSceneRecord16At(arg0, var_16)->id;
   }
   else
   {
-    var_2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_16 * 0x3C + 2));
+    var_2 = mtMiscSceneRecord60At(arg0, var_16)->id;
   }
   {
     Pos4_962f0 tmp;
@@ -128,69 +137,69 @@ loop_body:
     u8 *p16;
     temp_2 = evtNodeCreate(temp_17, var_2 & 0xFFFF, arg1);
     temp_3 = var_16 * 0x3C;
-    temp_7 = *((u8 **)(arg0 + 0x98)) + temp_3;
+    temp_7 = (u8 *)arg0->records98 + temp_3;
     tmp = *((Pos4_962f0 *)(temp_7 + 0xC));
     pos = tmp;
     *((Pos4_962f0 *)(temp_2 + 8)) = pos;
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      var_4 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 4));
+      var_4 = mtMiscSceneRecord16At(arg0, var_16)->unk_04;
     }
     else
     {
-      var_4 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 4));
+      var_4 = *((u16 *)((u8 *)arg0->records98 + temp_3 + 4));
     }
     *((u16 *)(temp_2 + 2)) = var_4;
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      p10 = (s16 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 8);
+      p10 = &mtMiscSceneRecord16At(arg0, var_16)->unk_08;
     }
     else
     {
-      p10 = (s16 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 0x14);
+      p10 = (s16 *)((u8 *)arg0->records98 + temp_3 + 0x14);
     }
     *((s16 *)(temp_2 + 0x10)) = *p10;
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      p12 = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 8);
+      p12 = (u8 *)&mtMiscSceneRecord16At(arg0, var_16)->unk_08;
     }
     else
     {
-      p12 = (u8 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 0x14);
+      p12 = (u8 *)((u8 *)arg0->records98 + temp_3 + 0x14);
     }
     *((s16 *)(temp_2 + 0x12)) = *((s16 *)(p12 + 2));
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      p14 = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 8);
+      p14 = (u8 *)&mtMiscSceneRecord16At(arg0, var_16)->unk_08;
     }
     else
     {
-      p14 = (u8 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 0x14);
+      p14 = (u8 *)((u8 *)arg0->records98 + temp_3 + 0x14);
     }
     *((s8 *)(temp_2 + 0x14)) = *((s8 *)(p14 + 4));
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      p15 = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 8);
+      p15 = (u8 *)&mtMiscSceneRecord16At(arg0, var_16)->unk_08;
     }
     else
     {
-      p15 = (u8 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 0x14);
+      p15 = (u8 *)((u8 *)arg0->records98 + temp_3 + 0x14);
     }
     *((s8 *)(temp_2 + 0x15)) = *((s8 *)(p15 + 5));
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      p16 = (u8 *)(*((u8 **)(arg0 + 0x94)) + var_16 * 0x10 + 8);
+      p16 = (u8 *)&mtMiscSceneRecord16At(arg0, var_16)->unk_08;
     }
     else
     {
-      p16 = (u8 *)(*((u8 **)(arg0 + 0x98)) + temp_3 + 0x14);
+      p16 = (u8 *)((u8 *)arg0->records98 + temp_3 + 0x14);
     }
     *((s8 *)(temp_2 + 0x16)) = *((s8 *)(p16 + 6));
   }
 loop_increment:
   var_16 += 1;
 loop_test:
-  if (var_16 < *((s32 *)(arg0 + 0xAC)))
+  if (var_16 < arg0->countAC)
   {
     goto loop_body;
   }
@@ -200,7 +209,7 @@ loop_test:
 // Collects type-5 records (0x3C-byte entries from the list at +0xA4). The count
 // comes from +0xAC when the list kind is below 6, else from +0xA8.
 // FUN_00296600
-void mtMiscCollectType5Records(u8 *arg0, u8 *arg1)
+void mtMiscCollectType5Records(MtMiscSceneSource *arg0, u8 *arg1)
 {
   extern u8 *evtNodeCreate();
   extern u8 *evtNodeAlloc(s32 arg0);
@@ -219,18 +228,18 @@ void mtMiscCollectType5Records(u8 *arg0, u8 *arg1)
   u8 *temp_3;
   u8 *temp_5;
   temp_19 = evtNodeAlloc(5);
-  if ((*((s32 *) ((*((u8 **) (arg0 + 0x80))) + 0x14))) < 6)
+  if ((arg0->header->kind) < 6)
   {
-    var_17 = *((s32 *) (arg0 + 0xAC));
+    var_17 = arg0->countAC;
   }
   else
   {
-    var_17 = *((s32 *) (arg0 + 0xA8));
+    var_17 = arg0->countA8;
   }
   var_18 = 0;
   goto loop_7_test;
   loop_7_body:
-  temp_5 = *((u8 **) (arg0 + 0xA4));
+  temp_5 = (u8 *)arg0->recordsA4;
 
   temp_16 = var_18 * 0x3C;
   temp_5 += temp_16;
@@ -239,7 +248,7 @@ void mtMiscCollectType5Records(u8 *arg0, u8 *arg1)
     goto loop_7_increment;
   }
   temp_2 = evtNodeCreate((temp_6 = *((u16 *) (temp_5 + 2)), temp_19), temp_6, arg1);
-  temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
+  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
   field_c = *((s16 *) (temp_3 + 0xC));
   field_e = *((s16 *) (temp_3 + 0xE));
   field_10 = *((s16 *) (temp_3 + 0x10));
@@ -250,9 +259,9 @@ void mtMiscCollectType5Records(u8 *arg0, u8 *arg1)
   *((s16 *) (new_var3 + 0xC)) = field_10;
   *((s16 *) (((0, new_var3)) + 0xE)) = field_12;
   new_var = new_var3;
-  temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
+  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
   *((s16 *) (new_var + 0x10)) = *((s16 *) (temp_3 + 0x14));
-  temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
+  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
   *((s8 *) (new_var + 0x12)) = *((s8 *) (temp_3 + 0x16));
   loop_7_increment:
   var_18 += 1;
@@ -269,7 +278,7 @@ void mtMiscCollectType5Records(u8 *arg0, u8 *arg1)
 // Type-19 counterpart of mtMiscCollectType5Records: same loop and count choice,
 // matching record type 0x13 and copying the settings halfwords at +0x14 to +0x18.
 // FUN_00296720
-void mtMiscCollectType19Records(u8 *arg0, u8 *arg1)
+void mtMiscCollectType19Records(MtMiscSceneSource *arg0, u8 *arg1)
 {
   extern u8 *evtNodeCreate();
   extern u8 *evtNodeAlloc(s32 arg0);
@@ -291,18 +300,18 @@ void mtMiscCollectType19Records(u8 *arg0, u8 *arg1)
   u8 *temp_3;
   u8 *temp_5;
   temp_19 = evtNodeAlloc(0x13);
-  if ((*((s32 *) ((*((u8 **) (arg0 + 0x80))) + 0x14))) < 6)
+  if ((arg0->header->kind) < 6)
   {
-    var_17 = *((s32 *) (arg0 + 0xAC));
+    var_17 = arg0->countAC;
   }
   else
   {
-    var_17 = *((s32 *) (arg0 + 0xA8));
+    var_17 = arg0->countA8;
   }
   var_18 = 0;
   goto loop_7_test;
   loop_7_body:
-  temp_5 = *((u8 **) (arg0 + 0xA4));
+  temp_5 = (u8 *)arg0->recordsA4;
   temp_16 = var_18 * 0x3C;
   temp_5 += temp_16;
   if ((*((u16 *) temp_5)) != 0x13)
@@ -311,7 +320,7 @@ void mtMiscCollectType19Records(u8 *arg0, u8 *arg1)
   }
   temp_2 = evtNodeCreate((temp_6 = *((u16 *) (temp_5 + 2)), temp_19),
                           temp_6, arg1);
-  temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
+  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
   field_c = *((s16 *) (temp_3 + 0xC));
   field_e = *((s16 *) (temp_3 + 0xE));
   field_10 = *((s16 *) (temp_3 + 0x10));
@@ -322,13 +331,13 @@ void mtMiscCollectType19Records(u8 *arg0, u8 *arg1)
   *((s16 *) (new_var3 + 0xC)) = field_10;
   *((s16 *) (((0, new_var3)) + 0xE)) = field_12;
   new_var = new_var3;
-  temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
+  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
   field_14 = *((s16 *) (temp_3 + 0x14));
   *((s16 *) (new_var + 0x10)) = field_14;
-  temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
+  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
   field_16 = *((s16 *) (temp_3 + 0x16));
   *((s16 *) (new_var + 0x12)) = field_16;
-  temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
+  temp_3 = ((u8 *)arg0->recordsA4) + temp_16;
   field_18 = *((s16 *) (temp_3 + 0x18));
   *((s16 *) (new_var + 0x14)) = field_18;
   loop_7_increment:
@@ -351,7 +360,7 @@ void mtMiscCollectType19Records(u8 *arg0, u8 *arg1)
 #pragma opt_lifetimes on
 // Builds the mt_misc scene for arg1 from the source record arg0: scene nodes, the type 1, 2, 4, 5, and 19 record sets, the header words copied from arg0+0x90, and the per-entry nodes counted at arg0+0x58.
 // FUN_00296850
-s32 mtMiscBuildScene(u8 *arg0, u8 *arg1)
+s32 mtMiscBuildScene(MtMiscSceneSource *arg0, u8 *arg1)
 {
   extern void mtMiscBuildSceneNodes(u8 *arg0);
   extern void mtMiscCollectType1Records(u8 *arg0);
@@ -363,9 +372,9 @@ s32 mtMiscBuildScene(u8 *arg0, u8 *arg1)
   extern void evtNodeLoadRecords30(u8 *arg0, u8 *arg1);
   extern void evtNodeLoadRecords34(u8 *arg0, u8 *arg1);
   extern void evtNodeLoadRecords0A(u8 *arg0, u8 *arg1);
-  extern void mtMiscCollectType4Records(u8 *arg0, u8 *arg1);
-  extern void mtMiscCollectType5Records(u8 *arg0, u8 *arg1);
-  extern void mtMiscCollectType19Records(u8 *arg0, u8 *arg1);
+  extern void mtMiscCollectType4Records(MtMiscSceneSource *arg0, u8 *arg1);
+  extern void mtMiscCollectType5Records(MtMiscSceneSource *arg0, u8 *arg1);
+  extern void mtMiscCollectType19Records(MtMiscSceneSource *arg0, u8 *arg1);
   extern void evtRefreshNodeResources(u8 *arg0);
   extern void evtResultSet(s32 arg0, s32 arg1);
   extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
@@ -399,16 +408,16 @@ loop18_body:
   evtNodeAlloc(0x18, arg1);
   var_18 += 1;
 loop18_test:
-  if (var_18 < *((s32 *)(arg0 + 0x58))) {
+  if (var_18 < arg0->count58) {
     goto loop18_body;
   }
   func_00440b68(D_0063CB18);
-  if (*((s32 *)(arg0 + 0x90)) != 0) {
-    *((s32 *)(arg1 + 8)) = *((s32 *)(*((u8 **)(arg0 + 0x90)) + 8));
-    *((s32 *)(arg1 + 0xC)) = *((s32 *)(*((u8 **)(arg0 + 0x90)) + 0));
-    *((s32 *)(arg1 + 0x10)) = *((s32 *)(*((u8 **)(arg0 + 0x90)) + 4));
-    *((s32 *)(arg1 + 0xD0)) = *((s32 *)(*((u8 **)(arg0 + 0x90)) + 0xC));
-    srcw = *((s32 **)(arg0 + 0x90));
+  if (arg0->headerWords != NULL) {
+    *((s32 *)(arg1 + 8)) = arg0->headerWords[2];
+    *((s32 *)(arg1 + 0xC)) = arg0->headerWords[0];
+    *((s32 *)(arg1 + 0x10)) = arg0->headerWords[1];
+    *((s32 *)(arg1 + 0xD0)) = arg0->headerWords[3];
+    srcw = arg0->headerWords;
     dstw = (s32 *)(arg1 + 0x24);
     ncopy = 9;
 do_copy:
@@ -433,13 +442,13 @@ do_copy:
   node = *((u8 **)(arg1 + 0x4C));
   goto ll_test;
 ll_body:
-  evtNodeLoadRecordsByCount(arg0, arg1, node, *((u16 *)(node + 0xC)));
+  evtNodeLoadRecordsByCount((u8 *)arg0, arg1, node, *((u16 *)(node + 0xC)));
   node = *((u8 **)(node + 0x90));
 ll_test:
   if (node != NULL) {
     goto ll_body;
   }
-  evtNodeLoadRecords2F(arg0, arg1);
+  evtNodeLoadRecords2F((u8 *)arg0, arg1);
   {
     u8 *resource_31;
     s32 index_31;
@@ -447,95 +456,95 @@ ll_test:
     index_31 = 0;
     goto loop31_test;
   loop31_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_31 * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_31)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_31 * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_31)->type;
     }
     if ((id & 0xFFFF) != 0x31)
     {
       goto loop31_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_31 * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_31)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_31 * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_31)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_31, id2 & 0xFFFF, arg1);
       off = index_31 * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_31 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_31)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       *((s32 *)(dest + 0x10)) = *((s32 *)q);
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_31 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_31)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       *((s32 *)(dest + 0x14)) = *((s32 *)(q + 4));
     }
   loop31_inc:
     index_31 += 1;
   loop31_test:
-    if (index_31 < *((s32 *)(arg0 + 0xAC)))
+    if (index_31 < arg0->countAC)
     {
       goto loop31_body;
     }
   }
-  evtNodeLoadCameraRecords(arg0, arg1);
+  evtNodeLoadCameraRecords((u8 *)arg0, arg1);
   temp_18 = evtNodeAlloc(0x22, arg1);
   *((s32 *)(temp_18 + 8)) = -1;
   *((s32 *)(temp_18 + 0x34)) = 0;
   var_19 = 0;
   goto loop22_test;
 loop22_body:
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+  if (arg0->header->kind == 4)
   {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_19 * 0x10));
+    id = mtMiscSceneRecord16At(arg0, var_19)->type;
   }
   else
   {
-    id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_19 * 0x3C));
+    id = mtMiscSceneRecord60At(arg0, var_19)->type;
   }
   if ((id & 0xFFFF) != 0x22)
   {
     goto loop22_inc;
   }
-  if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+  if (arg0->header->kind == 4)
   {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + var_19 * 0x10 + 2));
+    id2 = mtMiscSceneRecord16At(arg0, var_19)->id;
   }
   else
   {
-    id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + var_19 * 0x3C + 2));
+    id2 = mtMiscSceneRecord60At(arg0, var_19)->id;
   }
   {
     Pos4 tmp;
     Pos4 pos;
     dest = evtNodeCreate(temp_18, id2 & 0xFFFF, arg1);
     off = var_19 * 0x3C;
-    q = *((u8 **)(arg0 + 0x98)) + off;
+    q = (u8 *)arg0->records98 + off;
     tmp = *((Pos4 *)(q + 0xC));
     pos = tmp;
     *((Pos4 *)(dest + 8)) = pos;
@@ -543,11 +552,11 @@ loop22_body:
 loop22_inc:
   var_19 += 1;
 loop22_test:
-  if (var_19 < *((s32 *)(arg0 + 0xAC)))
+  if (var_19 < arg0->countAC)
   {
     goto loop22_body;
   }
-  evtNodeLoadRecords24(arg0, arg1);
+  evtNodeLoadRecords24((u8 *)arg0, arg1);
   if (*((s32 *)(*((u8 **)(arg1 + 0x5D0)) + 4)) > 0) {
     {
       u8 *resource_25;
@@ -556,49 +565,49 @@ loop22_test:
       index_25 = 0;
       goto loop25_test;
   loop25_body:
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_25 * 0x10));
+        id = mtMiscSceneRecord16At(arg0, index_25)->type;
       }
       else
       {
-        id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_25 * 0x3C));
+        id = mtMiscSceneRecord60At(arg0, index_25)->type;
       }
       if ((id & 0xFFFF) != 0x25)
       {
         goto loop25_inc;
       }
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_25 * 0x10 + 2));
+        id2 = mtMiscSceneRecord16At(arg0, index_25)->id;
       }
       else
       {
-        id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_25 * 0x3C + 2));
+        id2 = mtMiscSceneRecord60At(arg0, index_25)->id;
       }
       {
         Pos4 tmp;
         Pos4 pos;
         dest = evtNodeCreate(resource_25, id2 & 0xFFFF, arg1);
         off = index_25 * 0x3C;
-        q = *((u8 **)(arg0 + 0x98)) + off;
+        q = (u8 *)arg0->records98 + off;
         tmp = *((Pos4 *)(q + 0xC));
         pos = tmp;
         *((Pos4 *)(dest + 8)) = pos;
-        if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+        if (arg0->header->kind == 4)
         {
-          q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_25 * 0x10 + 8);
+          q = (u8 *)&mtMiscSceneRecord16At(arg0, index_25)->unk_08;
         }
         else
         {
-          q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+          q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
         }
         memcpy(dest + 0x10, q, 0x28);
       }
   loop25_inc:
       index_25 += 1;
   loop25_test:
-      if (index_25 < *((s32 *)(arg0 + 0xAC)))
+      if (index_25 < arg0->countAC)
       {
         goto loop25_body;
       }
@@ -611,63 +620,63 @@ loop22_test:
     index_26 = 0;
     goto loop26_test;
   loop26_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_26 * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_26)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_26 * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_26)->type;
     }
     if ((id & 0xFFFF) != 0x26)
     {
       goto loop26_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_26 * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_26)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_26 * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_26)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_26, id2 & 0xFFFF, arg1);
       off = index_26 * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_26 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_26)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       *((s32 *)(dest + 0x10)) = *((s32 *)q);
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_26 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_26)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       *((f32 *)(dest + 0x14)) = *((f32 *)(q + 4));
     }
   loop26_inc:
     index_26 += 1;
   loop26_test:
-    if (index_26 < *((s32 *)(arg0 + 0xAC)))
+    if (index_26 < arg0->countAC)
     {
       goto loop26_body;
     }
   }
-  evtNodeLoadRecords30(arg0, arg1);
+  evtNodeLoadRecords30((u8 *)arg0, arg1);
   {
     u8 *resource_32;
     s32 index_32;
@@ -675,49 +684,49 @@ loop22_test:
     index_32 = 0;
     goto loop32_test;
   loop32_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_32 * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_32)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_32 * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_32)->type;
     }
     if ((id & 0xFFFF) != 0x32)
     {
       goto loop32_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_32 * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_32)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_32 * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_32)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_32, id2 & 0xFFFF, arg1);
       off = index_32 * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_32 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_32)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       *((s32 *)(dest + 0x10)) = *((s32 *)q);
     }
   loop32_inc:
     index_32 += 1;
   loop32_test:
-    if (index_32 < *((s32 *)(arg0 + 0xAC)))
+    if (index_32 < arg0->countAC)
     {
       goto loop32_body;
     }
@@ -729,54 +738,54 @@ loop22_test:
     index_33 = 0;
     goto loop33_test;
   loop33_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_33 * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_33)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_33 * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_33)->type;
     }
     if ((id & 0xFFFF) != 0x33)
     {
       goto loop33_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_33 * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_33)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_33 * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_33)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_33, id2 & 0xFFFF, arg1);
       off = index_33 * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_33 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_33)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       memcpy(dest + 0x10, q, 0x28);
     }
   loop33_inc:
     index_33 += 1;
   loop33_test:
-    if (index_33 < *((s32 *)(arg0 + 0xAC)))
+    if (index_33 < arg0->countAC)
     {
       goto loop33_body;
     }
   }
-  evtNodeLoadRecords34(arg0, arg1);
+  evtNodeLoadRecords34((u8 *)arg0, arg1);
   {
     u8 *resource_35;
     s32 index_35;
@@ -784,58 +793,58 @@ loop22_test:
     index_35 = 0;
     goto loop35_test;
   loop35_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_35 * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_35)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_35 * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_35)->type;
     }
     if ((id & 0xFFFF) != 0x35)
     {
       goto loop35_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_35 * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_35)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_35 * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_35)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_35, id2 & 0xFFFF, arg1);
       off = index_35 * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_35 * 0x10 + 4));
+        var_4h = mtMiscSceneRecord16At(arg0, index_35)->unk_04;
       }
       else
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
       }
       *((u16 *)(dest + 2)) = var_4h;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_35 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_35)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       memcpy(dest + 0x10, q, 0x28);
     }
   loop35_inc:
     index_35 += 1;
   loop35_test:
-    if (index_35 < *((s32 *)(arg0 + 0xAC)))
+    if (index_35 < arg0->countAC)
     {
       goto loop35_body;
     }
@@ -847,58 +856,58 @@ loop22_test:
     index_37 = 0;
     goto loop37_test;
   loop37_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_37 * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_37)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_37 * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_37)->type;
     }
     if ((id & 0xFFFF) != 0x37)
     {
       goto loop37_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_37 * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_37)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_37 * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_37)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_37, id2 & 0xFFFF, arg1);
       off = index_37 * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_37 * 0x10 + 4));
+        var_4h = mtMiscSceneRecord16At(arg0, index_37)->unk_04;
       }
       else
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
       }
       *((u16 *)(dest + 2)) = var_4h;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_37 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_37)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       memcpy(dest + 0x10, q, 0x28);
     }
   loop37_inc:
     index_37 += 1;
   loop37_test:
-    if (index_37 < *((s32 *)(arg0 + 0xAC)))
+    if (index_37 < arg0->countAC)
     {
       goto loop37_body;
     }
@@ -910,58 +919,58 @@ loop22_test:
     index_38 = 0;
     goto loop38_test;
   loop38_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_38 * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_38)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_38 * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_38)->type;
     }
     if ((id & 0xFFFF) != 0x38)
     {
       goto loop38_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_38 * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_38)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_38 * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_38)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_38, id2 & 0xFFFF, arg1);
       off = index_38 * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_38 * 0x10 + 4));
+        var_4h = mtMiscSceneRecord16At(arg0, index_38)->unk_04;
       }
       else
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
       }
       *((u16 *)(dest + 2)) = var_4h;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_38 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_38)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       memcpy(dest + 0x10, q, 0x28);
     }
   loop38_inc:
     index_38 += 1;
   loop38_test:
-    if (index_38 < *((s32 *)(arg0 + 0xAC)))
+    if (index_38 < arg0->countAC)
     {
       goto loop38_body;
     }
@@ -973,63 +982,63 @@ loop22_test:
     index_39 = 0;
     goto loop39_test;
   loop39_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_39 * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_39)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_39 * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_39)->type;
     }
     if ((id & 0xFFFF) != 0x39)
     {
       goto loop39_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_39 * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_39)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_39 * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_39)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_39, id2 & 0xFFFF, arg1);
       off = index_39 * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_39 * 0x10 + 4));
+        var_4h = mtMiscSceneRecord16At(arg0, index_39)->unk_04;
       }
       else
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
       }
       *((u16 *)(dest + 2)) = var_4h;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_39 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_39)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       memcpy(dest + 0x10, q, 0x28);
     }
   loop39_inc:
     index_39 += 1;
   loop39_test:
-    if (index_39 < *((s32 *)(arg0 + 0xAC)))
+    if (index_39 < arg0->countAC)
     {
       goto loop39_body;
     }
   }
-  evtNodeLoadRecords0A(arg0, arg1);
+  evtNodeLoadRecords0A((u8 *)arg0, arg1);
   mtMiscCollectType4Records(arg0, arg1);
   mtMiscCollectType5Records(arg0, arg1);
   {
@@ -1039,49 +1048,49 @@ loop22_test:
     index_36 = 0;
     goto loop36_test;
   loop36_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_36 * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_36)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_36 * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_36)->type;
     }
     if ((id & 0xFFFF) != 0x36)
     {
       goto loop36_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_36 * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_36)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_36 * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_36)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_36, id2 & 0xFFFF, arg1);
       off = index_36 * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_36 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_36)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       memcpy(dest + 0x10, q, 0x28);
     }
   loop36_inc:
     index_36 += 1;
   loop36_test:
-    if (index_36 < *((s32 *)(arg0 + 0xAC)))
+    if (index_36 < arg0->countAC)
     {
       goto loop36_body;
     }
@@ -1094,51 +1103,51 @@ loop22_test:
     index_06 = 0;
     goto loop06_test;
   loop06_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_06 * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_06)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_06 * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_06)->type;
     }
     if ((id & 0xFFFF) != 6)
     {
       goto loop06_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_06 * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_06)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_06 * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_06)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_06, id2 & 0xFFFF, arg1);
       off = index_06 * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_06 * 0x10 + 4));
+        var_4h = mtMiscSceneRecord16At(arg0, index_06)->unk_04;
       }
       else
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
       }
       *((u16 *)(dest + 2)) = var_4h;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_06 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_06)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       memcpy(dest + 0x10, q, 0x28);
       if (*((s16 *)(dest + 0x12)) == -1) {
@@ -1148,7 +1157,7 @@ loop22_test:
   loop06_inc:
     index_06 += 1;
   loop06_test:
-    if (index_06 < *((s32 *)(arg0 + 0xAC)))
+    if (index_06 < arg0->countAC)
     {
       goto loop06_body;
     }
@@ -1160,58 +1169,58 @@ loop22_test:
     index_07 = 0;
     goto loop07_test;
   loop07_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_07 * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_07)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_07 * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_07)->type;
     }
     if ((id & 0xFFFF) != 7)
     {
       goto loop07_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_07 * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_07)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_07 * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_07)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_07, id2 & 0xFFFF, arg1);
       off = index_07 * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_07 * 0x10 + 4));
+        var_4h = mtMiscSceneRecord16At(arg0, index_07)->unk_04;
       }
       else
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
       }
       *((u16 *)(dest + 2)) = var_4h;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_07 * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_07)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       *((s16 *)(dest + 0x10)) = *((s16 *)q);
     }
   loop07_inc:
     index_07 += 1;
   loop07_test:
-    if (index_07 < *((s32 *)(arg0 + 0xAC)))
+    if (index_07 < arg0->countAC)
     {
       goto loop07_body;
     }
@@ -1223,76 +1232,76 @@ loop22_test:
     index_1C = 0;
     goto loop1C_test;
   loop1C_body:
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10));
+      id = mtMiscSceneRecord16At(arg0, index_1C)->type;
     }
     else
     {
-      id = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_1C * 0x3C));
+      id = mtMiscSceneRecord60At(arg0, index_1C)->type;
     }
     if ((id & 0xFFFF) != 0x1C)
     {
       goto loop1C_inc;
     }
-    if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+    if (arg0->header->kind == 4)
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10 + 2));
+      id2 = mtMiscSceneRecord16At(arg0, index_1C)->id;
     }
     else
     {
-      id2 = *((u16 *)(*((u8 **)(arg0 + 0x98)) + index_1C * 0x3C + 2));
+      id2 = mtMiscSceneRecord60At(arg0, index_1C)->id;
     }
     {
       Pos4 tmp;
       Pos4 pos;
       dest = evtNodeCreate(resource_1C, id2 & 0xFFFF, arg1);
       off = index_1C * 0x3C;
-      q = *((u8 **)(arg0 + 0x98)) + off;
+      q = (u8 *)arg0->records98 + off;
       tmp = *((Pos4 *)(q + 0xC));
       pos = tmp;
       *((Pos4 *)(dest + 8)) = pos;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10 + 4));
+        var_4h = mtMiscSceneRecord16At(arg0, index_1C)->unk_04;
       }
       else
       {
-        var_4h = *((u16 *)(*((u8 **)(arg0 + 0x98)) + off + 4));
+        var_4h = *((u16 *)((u8 *)arg0->records98 + off + 4));
       }
       *((u16 *)(dest + 2)) = var_4h;
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_1C)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       *((s32 *)(dest + 0x10)) = *((s32 *)q);
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_1C)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       *((s32 *)(dest + 0x14)) = *((s32 *)(q + 4));
-      if (*((s32 *)(*((u8 **)(arg0 + 0x80)) + 0x14)) == 4)
+      if (arg0->header->kind == 4)
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x94)) + index_1C * 0x10 + 8);
+        q = (u8 *)&mtMiscSceneRecord16At(arg0, index_1C)->unk_08;
       }
       else
       {
-        q = (u8 *)(*((u8 **)(arg0 + 0x98)) + off + 0x14);
+        q = (u8 *)((u8 *)arg0->records98 + off + 0x14);
       }
       *((s32 *)(dest + 0x18)) = *((s32 *)(q + 8));
     }
   loop1C_inc:
     index_1C += 1;
   loop1C_test:
-    if (index_1C < *((s32 *)(arg0 + 0xAC)))
+    if (index_1C < arg0->countAC)
     {
       goto loop1C_body;
     }
