@@ -78,8 +78,8 @@ extern void datGridEffectDraw(u8 *arg0, u8 *arg1);
 extern void datPortraitSetValue(u8 *arg0, s8 arg1, s32 arg2);
 extern void datPortraitSetLabel(s32 arg0, u16 arg1, s32 arg2);
 extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
-extern void func_00361ae0(u8 *arg0);
-extern void func_00361ca0(u8 *arg0);
+extern void radarStepBarWave(u8 *arg0);
+extern void radarStepValueAnimation(u8 *arg0);
 extern void datCommunityMenuDraw(u8 *arg0);
 extern s32 datPortraitUpdate(u8 *arg0);
 extern void datPortraitDestroy(u8 *arg0);
@@ -4017,8 +4017,8 @@ loop_test:
     if (index < 0x1D) {
         goto loop_body;
     }
-    func_00361ae0(arg0);
-    func_00361ca0(arg0);
+    radarStepBarWave(arg0);
+    radarStepValueAnimation(arg0);
     datCommunityMenuDraw(arg0);
     return allIdle;
 }
