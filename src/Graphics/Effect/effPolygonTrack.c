@@ -40,7 +40,7 @@ extern void func_00495090(void *arg0, u32 arg1);
 extern void func_00492d10(void *arg0);
 extern void func_00494740(void *arg0, u16 arg1, void *arg2, f32 arg3);
 extern void func_004940d0(void *arg0, u16 arg1, void *arg2);
-extern void func_00494f90(void *arg0);
+extern void mdlEffectCopyOriginAndLockGeometry(void *arg0);
 extern void func_00494ff0(void *arg0);
 extern u8 *GeometryCreateStripGridMultiPart(u16 arg0, u16 arg1, void *arg2, s32 arg3, s32 arg4);
 extern u8 *GeometryCreateTableGridMultiPart(u16 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
@@ -472,7 +472,7 @@ void TrackUpdateSlots(u8 *arg0)
     entry = *(u8 **)(track + 0x18);
     count = *(s32 *)arg0;
     owner = *(u8 **)(arg0 + 0x28);
-    func_00494f90(owner);
+    mdlEffectCopyOriginAndLockGeometry(owner);
     for (i = 0; i < count; i++, entry += 0x20) {
         if (mdlEffectSlotIsFree(owner, i) != 0) {
             continue;
