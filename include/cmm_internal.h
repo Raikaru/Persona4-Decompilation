@@ -39,7 +39,7 @@ struct CmmKindRecord
     u8 unk_09[0x03];         /* 0x09 */
     u16 tierBits;            /* 0x0C. Bit (tier - 1) tested by cmmCommunityHasTierBit */
     u16 category;            /* 0x0E. Category id (cmmCommunityCategory) */
-    u16 rankThreshold[0x2A]; /* 0x10. Threshold by rank level (indexed by rank * 2) */
+    u16 rankThreshold[0x2A]; /* 0x10. Points needed for each rank level; indexed by level as an element (u16), not a byte offset */
 };
 
 /* Chunk 24 of cmm.bin: 72-byte item record (cmmItemInfoRecord). Only the scalar
@@ -84,13 +84,40 @@ struct CmmRankUpWork
     u8 unk_780[0x260];       /* 0x780 */
     u8 *callerArg;           /* 0x9E0. Argument passed to every entry step */
 };
-/* Rank-up presentation state (cmmRankUp.c). The step callbacks and the renderer
-   read the same block: cmmRankUpCreate stores the caller's block at
-   CmmRankUpWork.callerArg, and cmmRankUpRender reads its work block. [inferred]
-   Offsets are from the cmmRankUpRender and step-function reads. Slots that the
-   code reads at more than one width are unions over the same bytes. */
-typedef struct CmmRankUpContext CmmRankUpContext;
-struct CmmRankUpContext
+/* Card-task work block (0x40 bytes, cmmRankUp.c). cmmRankUpCardTaskUpdate
+   (comuTimerSequence_inferred_002519e0.c) allocates it; cmmRankUpCreate stores
+   it as CmmRankUpWork.callerArg and the step and draw callbacks read it. Only
+   the offsets below are read by those callbacks. [inferred] */
+typedef struct CmmRankUpCardTask CmmRankUpCardTask;
+struct CmmRankUpCardTask
+{
+    u32 flags;               /* 0x00 */
+    s32 relation;            /* 0x04. Relation id for the panel */
+    s32 mode;                /* 0x08. Display mode; 0xA is the maximum-rank panel */
+    s32 unk_0c;              /* 0x0C */
+    union {
+        u8 *sprites;         /* 0x10. Sprite pack (sdkSpritePackCreate); freed by the card-task destroy */
+        s32 counter;         /* renderer frame counter */
+    } slot10;                /* 0x10 */
+    s32 unk_14;              /* 0x14. Portrait-related value (datPortraitValue input) */
+    union {
+        u16 communityId;     /* 0x18. Community id (cmmCommunityArcana) */
+        s32 word;            /* 0x18. Portrait task handle is also stored here by cmmRankUpCardTaskUpdate [inferred] */
+    } slot18;                /* 0x18 */
+    u8 unk_1c[0x20];         /* 0x1C. Rank-up work handle (cmmRankUpCreate) at 0x1C */
+    union {
+        s16 ticks;           /* 0x3C. Frame timer that wraps at 120 */
+        s8 low;              /* 0x3C. Low byte, passed as a label argument */
+    } pulse120;              /* 0x3C */
+    s16 pulse45;             /* 0x3E. Frame timer that wraps at 45 */
+};
+
+/* Rank-up sequence work block (0x5C bytes, cmmRankUp.c). cmmRankUpSequenceStart
+   allocates it and cmmRankUpRender and cmmRankUpSequenceUpdate read it. The
+   0x00-0x3F prefix matches CmmRankUpCardTask; the renderer also reads the
+   sequence-only fields below. [inferred] */
+typedef struct CmmRankUpSequence CmmRankUpSequence;
+struct CmmRankUpSequence
 {
     u32 flags;               /* 0x00. Bit 0x10 tested by the renderer */
     s32 relation;            /* 0x04. Relation id for the panel */
@@ -105,9 +132,9 @@ struct CmmRankUpContext
         u16 communityId;     /* 0x18. Community id (cmmCommunityArcana) */
         s32 word;
     } slot18;                /* 0x18 */
-    s32 animationMode;       /* 0x1C. Selects the renderer branch */
+    s32 animationMode;       /* 0x1C. Rank; selects the renderer branch */
     s32 unk_20;              /* 0x20. Resource id for cmmRankUpAttachResMatrix */
-    u8 unk_24[0x08];         /* 0x24 */
+    u8 unk_24[0x08];         /* 0x24. Card-task handle and blur task (cmmRankUpSequenceStart) */
     s32 portraitIdFirst;     /* 0x2C. Portrait id for the first texture */
     s32 portraitIdSecond;    /* 0x30. Portrait id for the second texture */
     u8 unk_34[0x08];         /* 0x34 */
@@ -117,7 +144,7 @@ struct CmmRankUpContext
     } pulse120;              /* 0x3C */
     s16 pulse45;             /* 0x3E. Frame timer that wraps at 45 */
     s32 unk_40;              /* 0x40 */
-    s32 unk_44;              /* 0x44 */
+    s32 unk_44;              /* 0x44. Complete flag */
     s32 frame45;             /* 0x48. Frame counter that wraps at 45 */
     u8 unk_4c[0x08];         /* 0x4C */
     s32 *unk_54;             /* 0x54. Pointer to the portrait value word (renderer reads through it) */
