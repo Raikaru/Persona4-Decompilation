@@ -85,7 +85,7 @@ extern s32 fadeStatus(void);
 extern s32 func_0033de90(u8 *arg0, s32 arg1);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_007955C0[];
-extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s16, s16,
+extern void PrimQueueBatchAlpha(void *, void *, f32, s32, s32, s32, s16, s16,
                          f32, f32, f32, void *);
 extern u8 D_00794A80[];
 extern u8 D_00794AB0[];
@@ -547,7 +547,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
     baseColor = func_002b2a60(0x7E, 0, 8, alpha);
     colors[0] = colors[1] = colors[2] = colors[3] = colors[4] = baseColor;
 
-    func_0045eb20(colors, points, 70.0f, 5, 4, 1, 0, 0, rotation, 1.0f, 1.0f, D_00794AB0);
+    PrimQueueBatchAlpha(colors, points, 70.0f, 5, 4, 1, 0, 0, rotation, 1.0f, 1.0f, D_00794AB0);
 
     if ((s8)highlight == 1) {
         points[0].x = points[4].x = originX;
@@ -565,7 +565,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
         highlightColor = func_002b2a60(0xFF, 0xFF, 0xFF, alpha);
         colors[0] = colors[1] = colors[2] = colors[3] = colors[4] = highlightColor;
 
-        func_0045eb20(colors, points, 69.0f, 5, 4, 1, 0, 0, 5.0f + rotation, 1.0f, 1.0f, D_00794A80);
+        PrimQueueBatchAlpha(colors, points, 69.0f, 5, 4, 1, 0, 0, 5.0f + rotation, 1.0f, 1.0f, D_00794A80);
     }
 
     result = (f32)angleStep + angleOffset;

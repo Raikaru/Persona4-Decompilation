@@ -1015,7 +1015,7 @@ extern f32 D_005E4D88;
 extern u8 D_005E4D90[];
 extern s16 D_005E4D58[];
 u32 RpRandom(void);
-void func_0045dfd0(u8 *, u8 *, f32, s32, s32, s32);
+void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
 void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                    u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
@@ -1200,7 +1200,7 @@ void shdPersonaDrawEffect(u8 *arg0)
     triangleColors[9] = 0x1D;
     triangleColors[10] = 0xFF;
     triangleColors[11] = 0;
-    func_0045dfd0((u8 *)triangleColors, (u8 *)trianglePoints, 0.0f, 3, 5, 0);
+    PrimDrawPoints((u8 *)triangleColors, (u8 *)trianglePoints, 0.0f, 3, 5, 0);
     particle = 0;
     while (particle < 0x18) {
         Vec2f *extent;
@@ -1357,7 +1357,7 @@ void shdPersonaDrawPanelSprites(u8 *work, PersonaPanelPosition position, u8 opac
 
 
 void shdPersonaDrawPanelSprites(u8 *, PersonaPanelPosition, u8, s64, f32);
-void func_0045dfd0(u8 *, u8 *, f32, s32, s32, s32);
+void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
 extern f32 iGpffff8364;
 extern f32 iGpffff8094;
 /* Native b210 O2: 1744/1744 bytes, 18 resolved relocations. The
@@ -1490,7 +1490,7 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
         }
     }
     func_00364c50();
-    func_0045dfd0((u8 *)sp80, (u8 *)sp60, 0.0f, 3, 5, 0);
+    PrimDrawPoints((u8 *)sp80, (u8 *)sp60, 0.0f, 3, 5, 0);
     func_00364c70();
     x2 = -21.0f - 131.0f * f24;
     sp90.values[2] = x2;
@@ -1512,7 +1512,7 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
         }
     }
     func_00364c50();
-    func_0045dfd0((u8 *)sp80, (u8 *)sp60, 0.0f, 3, 5, 0);
+    PrimDrawPoints((u8 *)sp80, (u8 *)sp60, 0.0f, 3, 5, 0);
     func_00364c70();
     t90 = 552.0f + 461.0f * f23 - 15.0f;
     t94 = 10.0f + 413.0f * f23;
@@ -1547,7 +1547,7 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
 
 
 
-void func_0045dfd0(u8 *, u8 *, f32, s32, s32, s32);
+void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
 /* measured: rule 2 applied — the madd.s operand order IS source-driven:
    retail `madd.s $f0,$f4,$f2` (2.0f first) needs `arg0[0] + 2.0f * x` with
    the CONSTANT first; the old probe batch only transposed the ADD operands
@@ -1590,7 +1590,7 @@ void shdPersonaDrawParticleQuads(f32 *arg0, u8 arg1)
             dstb[3] = 0;
         }
     }
-    func_0045dfd0((u8 *)sp10, (u8 *)sp30, 0.0f, 6, 4, 0);
+    PrimDrawPoints((u8 *)sp10, (u8 *)sp30, 0.0f, 6, 4, 0);
 }
 /* Closes the measured opt_loop_invariants scope opened for shdPersonaDrawParticleQuads above.
    It must stay scoped: leaving it on regresses the neighbouring functions. */
@@ -1668,7 +1668,7 @@ void shdPersonaDrawBackdrop(u8 *work)
     colors[3].rgba[1] = 0;
     colors[3].rgba[2] = 0x96;
     colors[3].rgba[3] = (u8)(f32)(u32)alphaWord;
-    func_0045dfd0((u8 *)colors, (u8 *)positions, 0.0f, 4, 4, 0);
+    PrimDrawPoints((u8 *)colors, (u8 *)positions, 0.0f, 4, 4, 0);
     {
         s32 index;
         index = 0;

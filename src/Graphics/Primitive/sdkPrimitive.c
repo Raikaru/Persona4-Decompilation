@@ -25,7 +25,7 @@ extern s64 iGpffffabe8;
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
 extern void func_0045d370(void *out, void *a1, void *a2, f32 f0, s32 a3, s32 a4, f32 f1, f32 f2, f32 f3);
-extern void func_0045dd30(PrimVertex *out, const u8 *colors, const void *positions,
+extern void PrimBuildTransformedVertices(PrimVertex *out, const u8 *colors, const void *positions,
                           f32 depth, u32 count, s32 offsetX, s32 offsetY,
                           f32 rotation, f32 scaleX, f32 scaleY);
 extern void RpSkyRenderStateSet(s32 param, s32 value);
@@ -44,13 +44,14 @@ extern f32 D_008872F8[];
 extern f32 iGpffff81d0;
 
 
+/* Queues one flat rectangle: packs the colour, rectangle, depth and save-state flag into a 0x1C-byte packet, builds a queue node with it, and submits the node to the sdk queue. */
 // FUN_0045DA40
 /* Parameter order taken from the MATCHed caller func_0027d660 in
    src/promoted/itfMsgProcedure_Window.c: b210 emits call-argument setup in
    source order, and that caller only matches with the float third.  The EABI
    keeps integer and float arguments in separate register files, so this
    spelling is the same ABI and leaves this body byte-exact. */
-void func_0045da40(const PrimitiveRectangleColor *arg0, const PrimitiveRectangleWords *arg1, f32 fparg0, s32 arg2, void *arg3) {
+void PrimQueueRectangle(const PrimitiveRectangleColor *arg0, const PrimitiveRectangleWords *arg1, f32 fparg0, s32 arg2, void *arg3) {
     PrimitiveRectangleWords pos;
     PrimitiveRectanglePacket packet;
     u8 *temp_2;
@@ -71,8 +72,9 @@ void func_0045da40(const PrimitiveRectangleColor *arg0, const PrimitiveRectangle
 }
 
 
+/* Draws one rectangle from its four float bounds; when the save-state flag is set, the six Pri state slots are saved and the sky render states are set before the draw and restored after. */
 // FUN_0045DB40
-void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, f32 fparg3) {
+void PrimDrawRectangle(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, f32 fparg3) {
     struct { s32 saved[6]; u8 pad1[8]; f32 out; u8 pad2[0xFC]; PrimRectangleFloats pos; } work;
     u32 i;
     u32 j;
@@ -99,11 +101,12 @@ void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4,
 }
 
 
+/* Builds count transformed PrimVertex rows from float positions and packed colour bytes, scaling each point about the base position, rotating and offsetting it in 2D, then converting its colour bytes to float. */
 /* Measured: 664/672 bytes, six resolved relocations and eight zero alignment bytes.
  * Keep both coordinate subtractions before the in-place scale multiplications;
  * the base position and unsigned color channels retain their actual layouts. */
 // FUN_0045DD30
-void func_0045dd30(PrimVertex *out, const u8 *colors, const void *positions,
+void PrimBuildTransformedVertices(PrimVertex *out, const u8 *colors, const void *positions,
                   f32 depth, u32 count, s32 offsetX, s32 offsetY,
                   f32 rotation, f32 scaleX, f32 scaleY) {
     PrimPoint base;
@@ -152,9 +155,10 @@ void func_0045dd30(PrimVertex *out, const u8 *colors, const void *positions,
 }
 
 
+/* Draws count points from raw float positions and packed colour bytes: fills PrimVertex rows with the camera-derived inverse term and submits them as primitive arg3, optionally saving render state when arg4 is nonzero. */
 // FUN_0045DFD0
 
-void func_0045dfd0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4) {
+void PrimDrawPoints(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4) {
     s32 saved[6];
     s32 *p;
     PrimVertex *out;
@@ -216,8 +220,9 @@ typedef struct {
     s32 primType;
 } PrimBatch;
 
+/* Batch callback run by the sdk queue: applies saved render state when enabled, builds PrimVertex rows from the batch's positions and colours, sets the alpha flag when alpha is 1, submits, then releases the vertex buffer and the batch. */
 // FUN_0045E310
-void func_0045e310(void *unused, PrimBatch *work) {
+void PrimBatchExecute(void *unused, PrimBatch *work) {
     s32 saved[6];
     s32 *p;
     PrimVertex *out;
@@ -288,8 +293,9 @@ void func_0045e310(void *unused, PrimBatch *work) {
 }
 
 
+/* Draws a transformed batch of arg2 points: allocates a vertex buffer, builds transformed vertices with PrimBuildTransformedVertices, submits them as primitive arg3, and frees the buffer; saves render state when arg4 is nonzero. */
 // FUN_0045E6A0
-void func_0045e6a0(const void *arg0, const void *arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3) {
+void PrimDrawTransformed(const void *arg0, const void *arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3) {
     s32 saved[6];
     s32 *p;
     s32 *out;
@@ -307,7 +313,7 @@ void func_0045e6a0(const void *arg0, const void *arg1, f32 fparg0, u32 arg2, s32
     }
     chkmemAllocSiteTag(D_007124C0, 0x355);
     out = (s32 *)jtbl_008873E8[0](arg2 << 6, 0x40000);
-    func_0045dd30((PrimVertex *)out, (const u8 *)arg0, arg1,
+    PrimBuildTransformedVertices((PrimVertex *)out, (const u8 *)arg0, arg1,
                   fparg0, arg2, arg5, arg6, fparg1, fparg2, fparg3);
     D_00887310[0](arg3, out, arg2);
     if (arg4 != 0) {
@@ -325,8 +331,9 @@ void func_0045e6a0(const void *arg0, const void *arg1, f32 fparg0, u32 arg2, s32
 /* Native b210 O2: 564/576 bytes, 14 resolved relocations, 12 zero tail bytes.
  * Keep the raw allocation lifetime separate from its packed-color header view.
  * See docs/probe_archive/Primitive_batch_pair_20260923.md. */
+/* Queues a batch of count points: copies the positions and packed colours into one PrimBatch allocation, applies the rotation, offset and scale to the positions, and queues PrimBatchExecute on queue. */
 // FUN_0045E8E0
-void func_0045e8e0(void *colors, void *positions, f32 depth, s32 count,
+void PrimQueueBatch(void *colors, void *positions, f32 depth, s32 count,
                   s32 primitiveType, s32 preserveState, s32 offsetX, s16 offsetY,
                   f32 rotation, f32 scaleX, f32 scaleY, void *queue) {
     s32 positionBytes;
@@ -379,18 +386,19 @@ void func_0045e8e0(void *colors, void *positions, f32 depth, s32 count,
         i++;
     }
     callback = func_00460990();
-    *(void (**)(void *, PrimBatch *))(callback + 8) = func_0045e310;
+    *(void (**)(void *, PrimBatch *))(callback + 8) = PrimBatchExecute;
     *(void **)(callback + 0x10) = work;
     func_00460ac0(queue, callback);
 }
 
 
-/* Alpha-enabled twin of func_0045e8e0. */
+/* Alpha-enabled twin of PrimQueueBatch. */
 /* Native b210 O2: 572/576 bytes, 14 resolved relocations, 4 zero tail bytes.
  * Keep the raw allocation lifetime separate from its packed-color header view.
  * See docs/probe_archive/Primitive_batch_pair_20260923.md. */
+/* Queues the same batch as PrimQueueBatch with the alpha flag set, so PrimBatchExecute sets the alpha bit around its submit. */
 // FUN_0045EB20
-void func_0045eb20(void *colors, void *positions, f32 depth, s32 count,
+void PrimQueueBatchAlpha(void *colors, void *positions, f32 depth, s32 count,
                   s32 primitiveType, s32 preserveState, s16 offsetX, s16 offsetY,
                   f32 rotation, f32 scaleX, f32 scaleY, void *queue) {
     s32 positionBytes;
@@ -444,7 +452,7 @@ void func_0045eb20(void *colors, void *positions, f32 depth, s32 count,
     }
     work->alpha = 1;
     callback = func_00460990();
-    *(void (**)(void *, PrimBatch *))(callback + 8) = func_0045e310;
+    *(void (**)(void *, PrimBatch *))(callback + 8) = PrimBatchExecute;
     *(void **)(callback + 0x10) = work;
     func_00460ac0(queue, callback);
 }
