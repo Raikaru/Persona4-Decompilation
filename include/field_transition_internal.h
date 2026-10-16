@@ -5,9 +5,9 @@
 /* Getters widen the stored unsigned-halfword values to the word return ABI.
  * Environment selection takes words; its provider explicitly narrows field
  * and room values before looking up the environment state. */
-s32 func_00156170(u8 *task);
-s32 func_00156180(u8 *task);
-s32 func_00156190(u8 *task);
+s32 FldLoadTaskFieldId(u8 *task);
+s32 FldLoadTaskRoomId(u8 *task);
+s32 FldLoadTaskMapState(u8 *task);
 s32 func_001546a0(s32 field, s32 room);
 s32 func_00154720(s32 field, s32 room, s32 condition);
 

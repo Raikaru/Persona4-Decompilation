@@ -31,7 +31,7 @@ extern void func_001622d0(void);
 extern void FldUnit_ReleaseGroupSlots(void);
 extern void FldUnit_ReleaseAllSlots(void);
 extern void memset(void *, s32, s32);
-extern void func_00156750(u8 *);
+extern void FldLoadTaskUnloadScene(u8 *);
 extern u8 *func_00457120(void);
 extern void func_003e9df0(s32);
 
@@ -89,7 +89,7 @@ extern void func_00162200(s32);
 extern void fadeBegin(void);
 extern void FldUnit_SpawnAtEntry(u16, u16, u16);
 extern void resrcMngSetRenderSuppressed(s32);
-extern s32 func_00156640(u8 *, u16, u16, s16, s16, s32, s32, s32);
+extern s32 FldLoadTaskCreate(u8 *, u16, u16, s16, s16, s32, s32, s32);
 extern s32 FldUnit_UpdateTable(void);
 extern s32 kwlnTaskIsLinked(s32);
 extern s32 func_001614d0(void);
@@ -192,7 +192,7 @@ s32 func_00155360(u8 *task)
         }
         resrcMngSetRenderSuppressed(1);
         eventMode = work->eventReader != 0;
-        work->loadTask = func_00156640(task, work->field, work->room, work->spawn,
+        work->loadTask = FldLoadTaskCreate(task, work->field, work->room, work->spawn,
             work->direction, eventMode, work->eventId, work->eventMajor);
         work->state++;
         /* fallthrough */
@@ -412,7 +412,7 @@ field_done:
     FldUnit_ReleaseAllSlots();
     memset(KFIELD_D_007E80A0, 0, 0xB40);
     iGpffffb2e4 = 0;
-    func_00156750(arg0);
+    FldLoadTaskUnloadScene(arg0);
     temp_16 = 0;
     while (temp_16 < 3) {
         temp_2 = (s32 *)KFIELD_D_007D2510 + temp_16;
