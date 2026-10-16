@@ -21,8 +21,8 @@ extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern s32 mdlComputeIndexedAttachMatrix();
 extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
 extern void func_00485870(s32 arg0);
-extern s32 func_00481450(void);
-extern void func_00481440(s32 arg0);
+extern s32 TnGetTableBase(void);
+extern void TnSetTableBase(s32 arg0);
 extern void func_004865c0(u8 *arg0, s32 arg1);
 extern void func_00485630(u8 *arg0);
 extern void func_001d53e0(s32 arg0);
@@ -641,8 +641,8 @@ void func_001d5b20(u8 *arg0)
         }
         return;
     }
-    old_state = func_00481450();
-    func_00481440((s32)D_005DC824);
+    old_state = TnGetTableBase();
+    TnSetTableBase((s32)D_005DC824);
     task = func_00460990();
     *(s32 *)(task + 0) = 0;
     *(s32 *)(task + 4) = 0;
@@ -658,7 +658,7 @@ void func_001d5b20(u8 *arg0)
         index = (index + 1) & 0xFFFF;
         entries++;
     }
-    func_00481440(old_state);
+    TnSetTableBase(old_state);
     task = func_00460990();
     *(s32 *)(task + 0) = 0;
     *(s32 *)(task + 4) = 0;

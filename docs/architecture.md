@@ -390,8 +390,8 @@ full family pattern by name: `effBlurFilterDirectCreate`, `...Instantiate`,
 `src/Graphics/Model/mdlEffect.c` keeps effect instances attached to models
 in linked lists (`mdlEffectListCreate`, `mdlEffectListInvokeEach`,
 `mdlEffectRenderFlares`). `src/Graphics/Effect/tnEffect.c` holds the
-effect-side render-state wrappers (`func_004815b0`..`func_004818c0`) and
-`func_00481a20`, an unnamed setup function that boot (`func_00100e60`) calls
+effect-side render-state wrappers (`TnDispatchObjectCallback` (was `func_004815b0`)..`TnDispatchPairedDraw` (was `func_004818c0`)) and
+`TnInitModule` (was `func_00481a20`), the setup function that boot (`func_00100e60`) calls
 with `0xC7`.
 
 **[inferred]** `effect/effpack.bin` is the effect pack. The string is in the

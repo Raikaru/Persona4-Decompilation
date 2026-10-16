@@ -31,7 +31,7 @@ extern u32 D_00626720[];
 extern u8* btlPacketAlloc(u32 type, u32 workSize);
 void memset(void* dst, s32 value, u32 size);
 void H_Cdvd_ReadSync(u8* ptr);
-s32 func_00481360(s32 param);
+s32 TnUploadStream(s32 param);
 extern s32 iGpffffb470;
 extern u8 D_006267D0[];
 
@@ -137,6 +137,6 @@ void btlPanelLoadSync(void)
     func_00440b68(&iGpffffa578, D_00626780, 0x5FB);
     t = func_00454a60(D_006267D0, 0);
     H_Cdvd_ReadSync(t);
-    iGpffffb470 = func_00481360(*(s32*)(t + 0x110));
+    iGpffffb470 = TnUploadStream(*(s32*)(t + 0x110));
     H_Cdvd_Destroy(t);
 }

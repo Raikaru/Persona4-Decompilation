@@ -35,7 +35,7 @@ extern s32 D_00922DAC[];
 extern u_long128 func_00492dd0(s32 emitter, u32 *position);
 extern u_long128 func_00492e10(s32 emitter, u32 *rotation);
 extern void func_00492e30(u16 *emitter, f32 scale);
-extern void func_00481440(void *arg0);
+extern void TnSetTableBase(void *arg0);
 extern void func_00485870(void *arg0);
 extern void func_00485ae0(void *arg0);
 extern void func_004861f0(void *arg0, f32 *arg1);
@@ -91,7 +91,7 @@ extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
 extern s32 func_00481d80(u16 *arg0);
-extern s32 func_00481300(u16 arg0);
+extern s32 TnSlotObject(u16 arg0);
 extern void func_003c42b0(s32 arg0, s32 arg1);
 extern s32 func_00482800(u16 *arg0);
 extern void func_003e8110(u8 *arg0);
@@ -135,7 +135,7 @@ void func_004b0fd0(u8 *arg0)
         inner = *(u8 **)(node + 0x20);
         *(s32 *)(arg0 + 0x6C) = 0;
         *(s32 *)(arg0 + 0x70) = 0;
-        func_00460ac0(func_00481460(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
+        func_00460ac0(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
     }
 }
 
@@ -151,7 +151,7 @@ void func_004b1030(u8 *arg0)
         inner = *(u8 **)(node + 0x20);
         *(s32 *)(arg0 + 0x6C) = 0;
         *(s32 *)(arg0 + 0x70) = 0;
-        func_00460ac0(func_00481460(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
+        func_00460ac0(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
     }
 }
 
@@ -210,7 +210,7 @@ u8 *func_004b11b0(u8 *arg0)
 void func_004b11d0(void *arg0, void *arg1)
 {
     if (arg0 != NULL) {
-        func_00481440(arg0);
+        TnSetTableBase(arg0);
     }
     func_00485870(arg1);
 }
@@ -218,7 +218,7 @@ void func_004b11d0(void *arg0, void *arg1)
 void func_004b1210(void *arg0, void *arg1)
 {
     if (arg0 != NULL) {
-        func_00481440(arg0);
+        TnSetTableBase(arg0);
     }
     func_00485ae0(arg1);
 }
@@ -436,7 +436,7 @@ void *func_004b16c0(void *opaqueSource) {
             break;
         case 4:
             func_003c42b0(*(s32 *)(*(u8 **)(temp_2 + 0xA4) + 0x14),
-                          func_00481300(*temp_2_4));
+                          TnSlotObject(*temp_2_4));
             break;
         case 7:
             *(s32 *)(temp_2 + 0xA8) = func_00482800(temp_2_4);
@@ -553,7 +553,7 @@ void func_004b1ad0(u8 *arg0)
     extern void func_003c42b0(void *arg0, s32 arg1);
     extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
     extern void func_00460ac0(void *arg0, void *arg1);
-    extern s32 func_004814d0(u16 arg0);
+    extern s32 TnGetOffset38(u16 arg0);
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
     extern f32 D_00761134;
@@ -791,7 +791,7 @@ f32 *camera;
     }
     *(u16 *)sprite &= 0xFFFE;
     {
-        s32 light = func_004814d0(*(u16 *)(arg0 + 0x34));
+        s32 light = TnGetOffset38(*(u16 *)(arg0 + 0x34));
 
         *(u32 *)(sprite + 0x18) = 0;
         *(u32 *)(sprite + 0x1C) = 0;

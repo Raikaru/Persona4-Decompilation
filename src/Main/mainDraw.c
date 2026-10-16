@@ -6,7 +6,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(u32, u32);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void func_00481430(void *arg0);
+extern void TnSetCallback(void *arg0);
 extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
 extern void RwCameraClear(s32 arg0, s32 arg1, s32 arg2);
@@ -258,7 +258,7 @@ void func_001015c0(void) {
     base[0](3, 1);
     base[0](4, 1);
     base[0](1, 0);
-    func_00481430(func_001015c0);
+    TnSetCallback(func_001015c0);
 }
 /* measured: func_001015c0 remains MATCH after restoring opt_propagation on. */
 #pragma opt_propagation on
@@ -282,7 +282,7 @@ void func_001016f0(void) {
     base[0](3, 1);
     base[0](4, 1);
     base[0](1, 0);
-    func_00481430(func_001016f0);
+    TnSetCallback(func_001016f0);
 }
 /* measured: func_001016f0 remains MATCH after restoring opt_propagation on. */
 #pragma opt_propagation on
@@ -306,7 +306,7 @@ void func_00101820(void) {
     base[0](3, 1);
     base[0](4, 1);
     base[0](1, 0);
-    func_00481430(func_00101820);
+    TnSetCallback(func_00101820);
 }
 /* measured: func_00101820 remains MATCH after restoring opt_propagation on. */
 #pragma opt_propagation on
@@ -330,7 +330,7 @@ void func_00101950(void) {
     base[0](3, 1);
     base[0](4, 1);
     base[0](1, 0);
-    func_00481430(func_00101950);
+    TnSetCallback(func_00101950);
 }
 /* measured: func_00101950 remains MATCH after restoring opt_propagation on. */
 #pragma opt_propagation on
@@ -354,7 +354,7 @@ void func_00101a80(void) {
     base[0](3, 1);
     base[0](4, 1);
     base[0](1, 0);
-    func_00481430(func_00101a80);
+    TnSetCallback(func_00101a80);
 }
 /* measured: func_00101a80 remains MATCH after restoring opt_propagation on. */
 #pragma opt_propagation on

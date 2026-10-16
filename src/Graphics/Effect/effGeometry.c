@@ -8,9 +8,9 @@ typedef struct RwFrame RwFrame __attribute__((aligned(16)));
 typedef struct RpAtomic RpAtomic;
 typedef struct RpGeometry RpGeometry;
 typedef struct RpMaterial RpMaterial;
-extern s32 func_00481460();
+extern s32 TnGetOffset1C();
 extern void func_00460ac0();
-extern s32 func_00481390();
+extern s32 TnUploadStreamTagged();
 extern u8 *func_003c42b0(void *arg0, s32 arg1);
 extern void func_003ef3a0();
 extern void func_003a2760();
@@ -323,7 +323,7 @@ void GeometryBlockDestroy(void *arg0) {
 // Clears the binding words at +0x18/+0x1C and binds resource arg1 through the resource table.
 // FUN_00483490
 void GeometryBlockBindResource(u8 *arg0, s32 arg1) {
-    s32 h = func_00481460(arg1);
+    s32 h = TnGetOffset1C(arg1);
 
     *(s32 *)(arg0 + 0x18) = 0;
     *(s32 *)(arg0 + 0x1C) = 0;
@@ -483,7 +483,7 @@ void GeometryMatrixBuildCombined(RwMatrix *arg0, RwV3d *arg1, void *arg2, RwV3d 
 // Applies the texture resolved from arg1 to the block's material, then releases the handle.
 // FUN_00483970
 void GeometryBlockSetTextureFromHandle(u8 *arg0, u8 *arg1) {
-    s32 ret = func_00481390(arg1);
+    s32 ret = TnUploadStreamTagged(arg1);
 
     func_003c42b0(*(s32 **)(arg0 + 0x14), ret);
     func_003ef3a0(ret);
