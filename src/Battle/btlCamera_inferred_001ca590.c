@@ -45,7 +45,7 @@ struct RwMatrixTag {
 };
 
 extern void btlCameraUpdateEffectList();
-extern void func_001b73f0(u8 *arg0);
+extern void btlMainApplyUnitBaseColors(u8 *arg0);
 extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);
 extern f32 fGpffff809c;
@@ -525,7 +525,7 @@ void btlCameraSpawnEffectB(u8 *arg0)
 
     temp = *(u8 **)(arg0 + 0xE0);
     value = *(u16 *)(*(u8 **)(temp + 0x30) + 0xA4);
-    func_001b73f0(*(u8 **)(temp + 0x30));
+    btlMainApplyUnitBaseColors(*(u8 **)(temp + 0x30));
     flag_offset = (effMiscRand(0) & 1) * 0xF4;
     index_offset = ((value & 0xFFFF) - 2) * 0x1E8;
     target = (u8 *)&D_005F91A0 + index_offset;

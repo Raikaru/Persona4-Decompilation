@@ -927,7 +927,7 @@ s32 btlResultSummaryExists(void)
  */
 extern s32 func_00243d80(u8 *unitData);
 extern s32 datCalcIsStatusBlocked(u16 *unitData);
-extern void func_001b73f0(u8 *unit);
+extern void btlMainApplyUnitBaseColors(u8 *unit);
 extern f32 fGpffff80e8;
 extern u8 D_00634870[];
 extern f32 D_00634874[];
@@ -1041,7 +1041,7 @@ void btlCameraSelectEncounterPreset(u8 *camera)
         poses.second.z = z;
     }
     if (reset != 0) {
-        func_001b73f0(NULL);
+        btlMainApplyUnitBaseColors(NULL);
         func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         btlMainCurveReset((u16 *)camera, (f32 *)&poses.second);
     } else {

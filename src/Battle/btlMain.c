@@ -28,7 +28,7 @@ typedef struct BtlPacket {
 
 BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 
-extern u32 func_001b7520(void* work);
+extern u32 btlMainFieldColorFadePacketUpdate(void* work);
 extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
 
 u32 btlMainUpdateCameraLerp(void* work);
@@ -178,7 +178,7 @@ BtlPacket* btlMainCreateColorLerpPacket(u32 param_1, u32 param_2, u32 param_3)
     union { u32 value; u8 bytes[4]; } packed;
 
     packet = btlPacketAlloc(0x600, 0x68);
-    packet->updateFunc = func_001b7520;
+    packet->updateFunc = btlMainFieldColorFadePacketUpdate;
     color = packet->workData;
     packed.value = param_1;
     color[0] = fGpffff81f4 * (float)packed.bytes[0];
