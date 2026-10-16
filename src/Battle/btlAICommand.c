@@ -5244,7 +5244,7 @@ s32 btlAICommandScriptGetSelfId2(void) {
 
 /* AI script command 0x20ab (p4flow AI.json AI_FUNCTION_00AB). */
 // FUN_001E5FD0
-s32 func_001e5fd0(void) {
+s32 btlScriptGetSameSideUnitValue(void) {
     u8 *p = scrGetAiState();
     u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     scrSetReturnInt(r != 0 ? *(u32 *)((u8 *)r + 0x20) : 0);
@@ -5256,7 +5256,7 @@ s32 func_001e5fd0(void) {
 
 /* AI script command 0x20ac (p4flow AI.json AI_FUNCTION_00AC). */
 // FUN_001E6050
-s32 func_001e6050(void) {
+s32 btlScriptGetOppositeSideUnitValue(void) {
     u32 shift;
     u32 *r;
     {
