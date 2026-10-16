@@ -95,7 +95,7 @@ extern u8 datCalcGetUnitStat(u8 *arg0, s32 arg1);
 extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
-extern u32 datCalcSkillCost(u8 *arg0, s32 arg1);
+extern u32 datCalcSkillCost(DatUnit *arg0, s32 arg1);
 extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 extern s8 datCalcGetBuffLevel(u8 *arg0, s32 arg1);
 extern u16 func_001068b0(s16 arg0);
@@ -120,15 +120,15 @@ u32 datCalcRandomBelow(u32 arg0)
 
 // Intent: zeroes the 0x30-byte unit record arg0 and sets its id to arg1, with level 1 and HP/SP 1.
 // FUN_00231DC0
-void datCalcInitUnit(u8 *arg0, s16 arg1)
+void datCalcInitUnit(DatUnit *unit, s16 id)
 {
-    memset(arg0, 0, 0x30);
-    *(s16 *)(arg0 + 2) = arg1;
-    *(s8 *)(arg0 + 6) = 1;
-    *(s16 *)(arg0 + 8) = 1;
-    *(s16 *)(arg0 + 0xA) = 1;
-    *(s16 *)(arg0 + 4) = arg1;
-    *(s8 *)(arg0 + 0x10) = 0;
+    memset(unit, 0, sizeof(DatUnit));
+    unit->id = id;
+    unit->level = 1;
+    unit->hp = 1;
+    unit->sp = 1;
+    unit->id2 = id;
+    unit->aiTactic = 0;
 }
 
 
@@ -137,14 +137,14 @@ void datCalcInitUnit(u8 *arg0, s16 arg1)
 
 // Intent: level of unit arg0: its stored level for flag-4 units or id 1, otherwise its persona record's level; fatal when zero.
 // FUN_00231E20
-s32 datCalcGetLevel(u8 *arg0)
+s32 datCalcGetLevel(DatUnit *unit)
 {
     s32 level;
 
-    if (*(u16 *)arg0 & 4 || *(u16 *)(arg0 + 2) == 1) {
-        level = *(u8 *)(arg0 + 6);
+    if (unit->flags & 4 || unit->id == 1) {
+        level = unit->level;
     } else {
-        level = (s32)datPersonaGetRecord(*(u16 *)(arg0 + 2));
+        level = (s32)datPersonaGetRecord(unit->id);
         if (level == 0) {
             kAssertFail(D_00635938, 0x58);
         }
@@ -170,13 +170,13 @@ u16 datCalcGetSp(DatUnit *unit)
 
 // Intent: stores level arg1 in unit arg0, clamped to 99 unless flag 4.
 // FUN_00231EF0
-void datCalcSetLevel(u8 *arg0, u8 arg1)
+void datCalcSetLevel(DatUnit *unit, u8 level)
 {
-    if (arg1 > 99 && !(*(u16 *)arg0 & 4))
+    if (level > 99 && !(unit->flags & 4))
     {
-        arg1 = 0x63;
+        level = 0x63;
     }
-    arg0[6] = arg1;
+    unit->level = level;
 }
 
 // FUN_00231F20
@@ -3280,7 +3280,7 @@ s32 datCalcSkillElement(u8 *arg0, u16 arg1)
 #pragma opt_common_subs off
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
-u32 datCalcSkillCost(u8 *arg0, s32 arg1)
+u32 datCalcSkillCost(DatUnit *arg0, s32 arg1)
 {
     s32 offset;
     u32 result;
@@ -3303,19 +3303,19 @@ u32 datCalcSkillCost(u8 *arg0, s32 arg1)
     offset = (u16)arg1 * 0x28;
     switch (*(u8 *)(offset + (u32)iGpffffb3b8 + 3)) {
     case 1:
-        if (*(u16 *)arg0 & 4) {
-            if (*(u16 *)(arg0 + 2) >= 0x150) {
+        if (arg0->flags & 4) {
+            if (arg0->id >= 0x150) {
                 kAssertFail(D_00635938, 0xEBE);
             }
             return 0;
         }
-        maximum = datCalcMaxHp((DatUnit *)arg0);
+        maximum = datCalcMaxHp(arg0);
         field_offset = (u16)arg1 * 0x28;
         table = (u8 *)(field_offset + (u32)iGpffffb3b8);
         product = (s32)((u32)maximum * *(u16 *)(table + 4));
         result = product / 100 + *(u16 *)(table + 6);
-        count = (u16)datCalcGetTableLength(arg0);
-        table = datCalcSkillList(arg0);
+        count = (u16)datCalcGetTableLength((u8 *)arg0);
+        table = datCalcSkillList((u8 *)arg0);
         index = 0;
         limit = count;
         reduction = 0x20B;
@@ -3327,8 +3327,8 @@ u32 datCalcSkillCost(u8 *arg0, s32 arg1)
             }
             index++;
         }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            equipment = (u16)func_00106cd0(*(s16 *)(arg0 + 2), 2);
+        if ((arg0->flags & 4) == 0) {
+            equipment = (u16)func_00106cd0((s16)arg0->id, 2);
             if (equipment >= 0) {
                 if (datItemGrantedSkill((s16)equipment) == 0x20B) {
                     hit = 1;
@@ -3342,11 +3342,11 @@ u32 datCalcSkillCost(u8 *arg0, s32 arg1)
         if (result == 0) result = 1;
         break;
     case 2:
-        if (*(u16 *)arg0 & 4) {
-            if (*(u16 *)(arg0 + 2) >= 0x150) {
+        if (arg0->flags & 4) {
+            if (arg0->id >= 0x150) {
                 kAssertFail(D_00635938, 0xED7);
             }
-            if (*(u16 *)(iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C) & 2) {
+            if (*(u16 *)(iGpffffb3c4 + arg0->id * 0x3C) & 2) {
                 return 0;
             }
         }
@@ -3356,15 +3356,15 @@ u32 datCalcSkillCost(u8 *arg0, s32 arg1)
             table = (u8 *)(field_offset + (u32)table);
             result = *(u16 *)(table + 4) + *(u16 *)(table + 6);
         } else {
-            maximum = datCalcMaxSp((DatUnit *)arg0);
+            maximum = datCalcMaxSp(arg0);
             field_offset = (u16)arg1 * 0x28;
             table = (u8 *)(field_offset + (u32)iGpffffb3b8);
             product = (s32)((u32)maximum * *(u16 *)(table + 4));
             result = product / 100 + *(u16 *)(table + 6);
         }
         if (result == 0) break;
-        count = (u16)datCalcGetTableLength(arg0);
-        table = datCalcSkillList(arg0);
+        count = (u16)datCalcGetTableLength((u8 *)arg0);
+        table = datCalcSkillList((u8 *)arg0);
         index = 0;
         limit = count;
         reduction = 0x20A;
@@ -3376,8 +3376,8 @@ u32 datCalcSkillCost(u8 *arg0, s32 arg1)
             }
             index++;
         }
-        if ((*(u16 *)arg0 & 4) == 0) {
-            equipment = (u16)func_00106cd0(*(s16 *)(arg0 + 2), 2);
+        if ((arg0->flags & 4) == 0) {
+            equipment = (u16)func_00106cd0((s16)arg0->id, 2);
             if (equipment >= 0) {
                 if (datItemGrantedSkill((s16)equipment) == 0x20A) {
                     hit = 1;
@@ -3424,7 +3424,7 @@ s32 datCalcThresholdTrigger(u8 *arg0, s32 arg1)
     if ((s32)((*(s32 *)(arg0 + 0xC) & 8) != 0) != 0) {
         return 4;
     }
-    v = datCalcSkillCost(arg0, arg1);
+    v = datCalcSkillCost((DatUnit *)arg0, arg1);
     switch (iGpffffb3b8[idx + 3]) {
     case 1:
         if (!(iGpffffb3b8[idx] & 1)) {
@@ -3561,17 +3561,17 @@ u8 *datCalcSkillList(u8 *arg0)
 }
 
 // FUN_0023E1F0
-u8 func_0023e1f0(u8 *arg0)
+u8 func_0023e1f0(DatUnit *unit)
 {
     u8 *base;
-    if (*(u16 *)(arg0 + 0) & 4) {
+    if (unit->flags & 4) {
         return 0;
     }
-    if (*(u16 *)(arg0 + 2) >= 0xB) {
+    if (unit->id >= 0xB) {
         kAssertFail(D_00635938, 0xFBB);
     }
     base = iGpffffb3c0 + 0x14A;
-    return *(u8 *)(base + *(u16 *)(arg0 + 2) * 0x14C);
+    return *(u8 *)(base + unit->id * 0x14C);
 }
 
 
@@ -3579,15 +3579,15 @@ u8 func_0023e1f0(u8 *arg0)
 
 // Intent: first persona id of unit arg0 (0 for flag-4 units); [inferred].
 // FUN_0023E270
-u16 datCalcPrimaryPersonaId(u8 *arg0)
+u16 datCalcPrimaryPersonaId(DatUnit *unit)
 {
-    if (*(u16 *)arg0 & 4) {
+    if (unit->flags & 4) {
         return 0;
     }
-    if (*(u16 *)(arg0 + 2) >= 0xB) {
+    if (unit->id >= 0xB) {
         kAssertFail(D_00635938, 0xFCE);
     }
-    return (u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF;
+    return (u16)func_00106cd0((s16)unit->id, 0) & 0xFFFF;
 }
 
 // Intent: base skill value for unit arg0 at slot arg1 (flag-4 units from the monster row +0x1A; others from the persona row +0x18 when arg1 has bits 6, else 1); the roll in datCalcRollSkillValue adds to it; [inferred].
@@ -4638,7 +4638,7 @@ u32 datCalcIsLowHp(DatUnit *unit)
 // Intent: effective skill id for unit arg0 given base skill arg1: a replacement id found in the unit's slots (0x20F-0x231 families, some by random roll), or -1 when none applies; [inferred].
 // FUN_00242990
 #pragma opt_loop_invariants on
-s32 datCalcResolveSkillId(u8 *arg0, s32 arg1)
+s32 datCalcResolveSkillId(DatUnit *arg0, s32 arg1)
 {
     s32 temp_16;
     s32 temp_2;
@@ -4661,16 +4661,16 @@ s32 datCalcResolveSkillId(u8 *arg0, s32 arg1)
     if ((temp_16 < 0x1B8) && (iGpffffb3b8[temp_16 * 0x28 + 0x24] == 0xD)) {
         return -1;
     }
-    if (!(*(u16 *)arg0 & 4)) {
-        if (*(u16 *)(arg0 + 2) >= 0xB) {
+    if (!(arg0->flags & 4)) {
+        if (arg0->id >= 0xB) {
             kAssertFail(D_00635938, 0xFA5);
         }
-        var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
+        var_2 = datPersonaGetSkillsByPcId(arg0->id);
     } else {
-        if (*(u16 *)(arg0 + 2) >= 0x150) {
+        if (arg0->id >= 0x150) {
             kAssertFail(D_00635938, 0xFA8);
         }
-        var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+        var_2 = arg0->id * 0x3C + iGpffffb3c4 + 0xE;
     }
     var_5_2 = 0;
     while ((var_5_2 & 0xFFFF) < 8) {
@@ -4680,8 +4680,8 @@ s32 datCalcResolveSkillId(u8 *arg0, s32 arg1)
         }
         var_5_2 = (var_5_2 + 1) & 0xFFFF;
     }
-    if (!(*(u16 *)arg0 & 4)) {
-        temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+    if (!(arg0->flags & 4)) {
+        temp_2 = (s32)((u32)(u16)func_00106cd0((s16)arg0->id, 2) & 0xFFFF);
         if (temp_2 >= 0) {
             if (datItemGrantedSkill((s16)temp_2) == 0x231) {
                 found = 1;
@@ -4694,16 +4694,16 @@ done1:
     if (found != 0) {
         return 0x231;
     }
-    if (!(*(u16 *)arg0 & 4)) {
-        if (*(u16 *)(arg0 + 2) >= 0xB) {
+    if (!(arg0->flags & 4)) {
+        if (arg0->id >= 0xB) {
             kAssertFail(D_00635938, 0xFA5);
         }
-        var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
+        var_2 = datPersonaGetSkillsByPcId(arg0->id);
     } else {
-        if (*(u16 *)(arg0 + 2) >= 0x150) {
+        if (arg0->id >= 0x150) {
             kAssertFail(D_00635938, 0xFA8);
         }
-        var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+        var_2 = arg0->id * 0x3C + iGpffffb3c4 + 0xE;
     }
     var_5_3 = 0;
     while ((var_5_3 & 0xFFFF) < 8) {
@@ -4713,8 +4713,8 @@ done1:
         }
         var_5_3 = (var_5_3 + 1) & 0xFFFF;
     }
-    if (!(*(u16 *)arg0 & 4)) {
-        temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+    if (!(arg0->flags & 4)) {
+        temp_2 = (s32)((u32)(u16)func_00106cd0((s16)arg0->id, 2) & 0xFFFF);
         if (temp_2 >= 0) {
             if (datItemGrantedSkill((s16)temp_2) == 0x232) {
                 found = 1;
@@ -4727,20 +4727,20 @@ done2:
     if (found != 0) {
         return 0x232;
     }
-    if (*(u16 *)arg0 & 0x20) {
+    if (arg0->flags & 0x20) {
         return 0;
     }
     if ((arg0 != 0) && (temp_16 < 0x1B8) && ((iGpffffb3b8[(u16)arg1 * 0x28] & 2) != 0)) {
-        if (*(u16 *)arg0 & 4) {
-            value = *(u8 *)((u8 *)PTDatCalcOffsetAdd(*(u16 *)(arg0 + 2) * 0x3C, (u32)iGpffffb3c4) + 0x38);
+        if (arg0->flags & 4) {
+            value = *(u8 *)((u8 *)PTDatCalcOffsetAdd(arg0->id * 0x3C, (u32)iGpffffb3c4) + 0x38);
         } else {
-            value = (s16)datItemElement((s16)((u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
+            value = (s16)datItemElement((s16)((u16)func_00106cd0((s16)arg0->id, 0) & 0xFFFF));
         }
     } else {
         value = *(s8 *)(iGpffffb3b4 + (u32)(u16)arg1 * 2);
     }
     if ((s16)value == 6) {
-        if (*(u16 *)arg0 & 4) {
+        if (arg0->flags & 4) {
             tmp = 0;
         } else {
             tmp = (datItemCount(0x340) & 0xFF) > 0;
@@ -4748,16 +4748,16 @@ done2:
         if (tmp != 0) {
             var_17 = 0x154;
         }
-        if (!(*(u16 *)arg0 & 4)) {
-            if (*(u16 *)(arg0 + 2) >= 0xB) {
+        if (!(arg0->flags & 4)) {
+            if (arg0->id >= 0xB) {
                 kAssertFail(D_00635938, 0xFA5);
             }
-            var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
+            var_2 = datPersonaGetSkillsByPcId(arg0->id);
         } else {
-            if (*(u16 *)(arg0 + 2) >= 0x150) {
+            if (arg0->id >= 0x150) {
                 kAssertFail(D_00635938, 0xFA8);
             }
-            var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+            var_2 = arg0->id * 0x3C + iGpffffb3c4 + 0xE;
         }
         var_5_4 = 0;
         while ((var_5_4 & 0xFFFF) < 8) {
@@ -4767,8 +4767,8 @@ done2:
             }
             var_5_4 = (var_5_4 + 1) & 0xFFFF;
         }
-        if (!(*(u16 *)arg0 & 4)) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (!(arg0->flags & 4)) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0((s16)arg0->id, 2) & 0xFFFF);
             if (temp_2 >= 0) {
                 if (datItemGrantedSkill((s16)temp_2) == 0x211) {
                     found = 1;
@@ -4781,16 +4781,16 @@ done3:
         if ((found != 0) && ((s32)(RpRandom() % 100U) < 0x32)) {
             var_17 = 0x211;
         }
-        if (!(*(u16 *)arg0 & 4)) {
-            if (*(u16 *)(arg0 + 2) >= 0xB) {
+        if (!(arg0->flags & 4)) {
+            if (arg0->id >= 0xB) {
                 kAssertFail(D_00635938, 0xFA5);
             }
-            var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
+            var_2 = datPersonaGetSkillsByPcId(arg0->id);
         } else {
-            if (*(u16 *)(arg0 + 2) >= 0x150) {
+            if (arg0->id >= 0x150) {
                 kAssertFail(D_00635938, 0xFA8);
             }
-            var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+            var_2 = arg0->id * 0x3C + iGpffffb3c4 + 0xE;
         }
         var_5_5 = 0;
         while ((var_5_5 & 0xFFFF) < 8) {
@@ -4800,8 +4800,8 @@ done3:
             }
             var_5_5 = (var_5_5 + 1) & 0xFFFF;
         }
-        if (!(*(u16 *)arg0 & 4)) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (!(arg0->flags & 4)) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0((s16)arg0->id, 2) & 0xFFFF);
             if (temp_2 >= 0) {
                 if (datItemGrantedSkill((s16)temp_2) == 0x221) {
                     found = 1;
@@ -4815,7 +4815,7 @@ done4:
             var_17 = 0x221;
         }
     } else if ((s16)value == 7) {
-        if (*(u16 *)arg0 & 4) {
+        if (arg0->flags & 4) {
             tmp = 0;
         } else {
             tmp = (datItemCount(0x340) & 0xFF) > 0;
@@ -4823,16 +4823,16 @@ done4:
         if (tmp != 0) {
             var_17 = 0x154;
         }
-        if (!(*(u16 *)arg0 & 4)) {
-            if (*(u16 *)(arg0 + 2) >= 0xB) {
+        if (!(arg0->flags & 4)) {
+            if (arg0->id >= 0xB) {
                 kAssertFail(D_00635938, 0xFA5);
             }
-            var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
+            var_2 = datPersonaGetSkillsByPcId(arg0->id);
         } else {
-            if (*(u16 *)(arg0 + 2) >= 0x150) {
+            if (arg0->id >= 0x150) {
                 kAssertFail(D_00635938, 0xFA8);
             }
-            var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+            var_2 = arg0->id * 0x3C + iGpffffb3c4 + 0xE;
         }
         var_5_6 = 0;
         while ((var_5_6 & 0xFFFF) < 8) {
@@ -4842,8 +4842,8 @@ done4:
             }
             var_5_6 = (var_5_6 + 1) & 0xFFFF;
         }
-        if (!(*(u16 *)arg0 & 4)) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (!(arg0->flags & 4)) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0((s16)arg0->id, 2) & 0xFFFF);
             if (temp_2 >= 0) {
                 if (datItemGrantedSkill((s16)temp_2) == 0x212) {
                     found = 1;
@@ -4856,16 +4856,16 @@ done5:
         if ((found != 0) && ((s32)(RpRandom() % 100U) < 0x32)) {
             var_17 = 0x212;
         }
-        if (!(*(u16 *)arg0 & 4)) {
-            if (*(u16 *)(arg0 + 2) >= 0xB) {
+        if (!(arg0->flags & 4)) {
+            if (arg0->id >= 0xB) {
                 kAssertFail(D_00635938, 0xFA5);
             }
-            var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
+            var_2 = datPersonaGetSkillsByPcId(arg0->id);
         } else {
-            if (*(u16 *)(arg0 + 2) >= 0x150) {
+            if (arg0->id >= 0x150) {
                 kAssertFail(D_00635938, 0xFA8);
             }
-            var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+            var_2 = arg0->id * 0x3C + iGpffffb3c4 + 0xE;
         }
         var_5_7 = 0;
         while ((var_5_7 & 0xFFFF) < 8) {
@@ -4875,8 +4875,8 @@ done5:
             }
             var_5_7 = (var_5_7 + 1) & 0xFFFF;
         }
-        if (!(*(u16 *)arg0 & 4)) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (!(arg0->flags & 4)) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0((s16)arg0->id, 2) & 0xFFFF);
             if (temp_2 >= 0) {
                 if (datItemGrantedSkill((s16)temp_2) == 0x222) {
                     found = 1;
@@ -4893,17 +4893,17 @@ done6:
     if ((s16)var_17 != -1) {
         goto tail;
     }
-    if (!(*(u16 *)arg0 & 0x800)) {
-        if (!(*(u16 *)arg0 & 4)) {
-            if (*(u16 *)(arg0 + 2) >= 0xB) {
+    if (!(arg0->flags & 0x800)) {
+        if (!(arg0->flags & 4)) {
+            if (arg0->id >= 0xB) {
                 kAssertFail(D_00635938, 0xFA5);
             }
-            var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
+            var_2 = datPersonaGetSkillsByPcId(arg0->id);
         } else {
-            if (*(u16 *)(arg0 + 2) >= 0x150) {
+            if (arg0->id >= 0x150) {
                 kAssertFail(D_00635938, 0xFA8);
             }
-            var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+            var_2 = arg0->id * 0x3C + iGpffffb3c4 + 0xE;
         }
         var_5_8 = 0;
         while ((var_5_8 & 0xFFFF) < 8) {
@@ -4913,8 +4913,8 @@ done6:
             }
             var_5_8 = (var_5_8 + 1) & 0xFFFF;
         }
-        if (!(*(u16 *)arg0 & 4)) {
-            temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (!(arg0->flags & 4)) {
+            temp_2 = (s32)((u32)(u16)func_00106cd0((s16)arg0->id, 2) & 0xFFFF);
             if (temp_2 >= 0) {
                 if (datItemGrantedSkill((s16)temp_2) == 0x210) {
                     found = 1;
@@ -4929,19 +4929,19 @@ done7:
             goto tail;
         }
     }
-    if (*(u16 *)arg0 & 0x400) {
+    if (arg0->flags & 0x400) {
         goto tail;
     }
-    if (!(*(u16 *)arg0 & 4)) {
-        if (*(u16 *)(arg0 + 2) >= 0xB) {
+    if (!(arg0->flags & 4)) {
+        if (arg0->id >= 0xB) {
             kAssertFail(D_00635938, 0xFA5);
         }
-        var_2 = datPersonaGetSkillsByPcId(*(u16 *)(arg0 + 2));
+        var_2 = datPersonaGetSkillsByPcId(arg0->id);
     } else {
-        if (*(u16 *)(arg0 + 2) >= 0x150) {
+        if (arg0->id >= 0x150) {
             kAssertFail(D_00635938, 0xFA8);
         }
-        var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+        var_2 = arg0->id * 0x3C + iGpffffb3c4 + 0xE;
     }
     var_5_9 = 0;
     while ((var_5_9 & 0xFFFF) < 8) {
@@ -4951,8 +4951,8 @@ done7:
         }
         var_5_9 = (var_5_9 + 1) & 0xFFFF;
     }
-    if (!(*(u16 *)arg0 & 4)) {
-        temp_2 = (s32)((u32)(u16)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+    if (!(arg0->flags & 4)) {
+        temp_2 = (s32)((u32)(u16)func_00106cd0((s16)arg0->id, 2) & 0xFFFF);
         if (temp_2 >= 0) {
             if (datItemGrantedSkill((s16)temp_2) == 0x20F) {
                 found = 1;
@@ -4966,8 +4966,8 @@ done8:
         var_17 = 0x20F;
     }
 tail:
-    if (((s16)var_17 == -1) && (!(*(u16 *)arg0 & 4)) && (*(u16 *)(arg0 + 2) != 1) && (!(*(u16 *)arg0 & 0x400))) {
-        if ((s32)(cmmCommunityRecordValue((u16)(cmmCommunityForArcana((s16)*(u16 *)(arg0 + 2)) & 0xFFFF)) & 0xFFFF) >= 9) {
+    if (((s16)var_17 == -1) && (!(arg0->flags & 4)) && (arg0->id != 1) && (!(arg0->flags & 0x400))) {
+        if ((s32)(cmmCommunityRecordValue((u16)(cmmCommunityForArcana((s16)arg0->id) & 0xFFFF)) & 0xFFFF) >= 9) {
             var_17 = 0x20F;
         }
     }

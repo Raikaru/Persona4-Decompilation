@@ -15,6 +15,12 @@ u32 datCalcGetBadStatusNoDown(DatUnit *unit);
 u32 datCalcGetBadStatus(DatUnit *unit);
 u32 datCalcClearBadStatus(DatUnit *unit, u32 badStatus);
 u32 datCalcChkBadStatus(DatUnit *unit, u32 badStatus);
+/* Zeroes the unit record, sets its id, level 1, HP/SP 1 (datCalc.c). */
+void datCalcInitUnit(DatUnit *unit, s16 id);
+/* Level of the unit: its stored level for flag-4 units or id 1, otherwise its persona record's level. */
+s32 datCalcGetLevel(DatUnit *unit);
+/* Stores the level, clamped to 99 unless flag 4 (datCalc.c). */
+void datCalcSetLevel(DatUnit *unit, u8 level);
 /* Clears the word at byte offset 0x18 of an object block. */
 void datCalcClearField18(int object);
 u32 datCalcIsSpecialItem(u16 itemId);
