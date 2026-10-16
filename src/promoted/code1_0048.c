@@ -52,7 +52,7 @@ extern void func_00460ac0(s32 arg0, void *arg1);
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 *func_003c22f0(u8 *arg0);
-extern u8 *func_00483a00(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern u8 *GeometryCreateMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00481390(s32 arg0);
 extern void func_003ef3a0(void *arg0);
 extern void kAssertFail(void *file, s32 line);
@@ -63,7 +63,7 @@ extern void func_00485870(u8 *arg0);
 extern void func_00492d10(void *object);
 extern void ParticleUpdateScaled(u8 *arg0, f32 arg1);
 extern void ParticleProjectVertices(u8 *arg0, f32 arg1);
-void func_00483810();
+void GeometryMatrixBuildCombined();
 extern u8 D_00713488[];
 extern u8 D_0071348C[];
 extern u8 D_00713480[];
@@ -454,7 +454,7 @@ u8 *func_00484010(u8 *arg0)
     u8 *temp_6;
     s32 var_16;
 
-    temp_23 = func_00483a00(
+    temp_23 = GeometryCreateMultiPart(
         *(u16 *)(arg0 + 0x48),
         *(u16 *)(arg0 + 8),
         *(u16 *)(arg0 + 0xA),
@@ -568,7 +568,7 @@ void func_00484350(u8 *arg0)
 {
     RwMatrix matrix;
 
-    func_00483700(&matrix);
+    GeometryMatrixBuild(&matrix);
     func_003e9cb0(*(void **)(arg0 + 0xC), &matrix, 0);
 }
 
@@ -577,7 +577,7 @@ void func_004843a0(u8 *arg0)
 {
     RwMatrix matrix;
 
-    func_00483810(&matrix);
+    GeometryMatrixBuildCombined(&matrix);
     func_003e9cb0(*(void **)(arg0 + 0xC), &matrix, 0);
 }
 
