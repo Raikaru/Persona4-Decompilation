@@ -569,7 +569,7 @@ s32 func_002abf70(u8 *arg0) {
             }
             *(s8 *)(temp_16 + 0) = *(s8 *)(temp_16 + 0) + 1;
         } else if (D_008C024E[0] & 0x80) {
-            func_0045af60(0, 0, 0, 0xA);
+            sdkSndStartStream(0, 0, 0, 0xA);
         }
         break;
     case 5:

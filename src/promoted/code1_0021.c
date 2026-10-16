@@ -682,7 +682,7 @@ void btlDamageStart(u8 *arg0, u8 *arg1)
     } else {
         *(u16 *)(sub + 8) &= 0xFFFB;
     }
-    func_0045af60(1, 0xF, 2, 0xD);
+    sdkSndStartStream(1, 0xF, 2, 0xD);
     *(u16 *)(sub + 8) |= 2;
 }
 // Intent: start the damage flash when the popup is idle. [inferred]
@@ -692,7 +692,7 @@ void btlDamageStartFlash(s32 arg0) {
 
     temp_16 = (u8 *)kwlnTaskGetWork((void *)arg0) + 0x75C;
     if (btlDamageIsIdle(arg0) != 0) {
-        func_0045af60(1, 0xE, 2, 2);
+        sdkSndStartStream(1, 0xE, 2, 2);
         *(s16 *)(temp_16 + 0xE) = 0;
         *(u16 *)(temp_16 + 8) |= 8;
     }
@@ -1194,7 +1194,7 @@ s32 btlEncounterUpdateTask(u8 *sdkTaskBytes)
         goto block_14;
     case 2:
         if (*(s32 *)(temp_2 + 0x40) != 0) {
-            func_0045af60(1, 0, 5, 0);
+            sdkSndStartStream(1, 0, 5, 0);
             *(s16 *)(temp_2 + 0) = 3;
         case 3:
             temp_2_3 = *(s32 *)(temp_2 + 0x38);
@@ -3143,7 +3143,7 @@ void btlMessageSetup(u8 *arg0, u8 *arg1)
          0x4000) != 0) {
         *(u16 *)sub |= 8;
     }
-    func_0045af60(1, 0xE, 2, 0xE);
+    sdkSndStartStream(1, 0xE, 2, 0xE);
     *(u16 *)sub &= 0xFFEF;
     *(u8 **)(sub + 8) = arg1;
     *(s16 *)(sub + 2) = 1;
@@ -3936,7 +3936,7 @@ void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
         if (*(u16 *)(work + 2) < 48) {
             if (*(u16 *)(iGpffffb3ac + 0x1A) == 1) {
                 if (*(u16 *)(work + 2) == 4) {
-                    func_0045af60(1, 14, 2, 0);
+                    sdkSndStartStream(1, 14, 2, 0);
                 }
                 color.bytes[0] = 0x2D;
                 color.bytes[1] = 0x9F;
@@ -3972,7 +3972,7 @@ void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
 
             } else {
                 if (*(u16 *)(work + 2) == 4) {
-                    func_0045af60(1, 14, 2, 1);
+                    sdkSndStartStream(1, 14, 2, 1);
                 }
                 color.bytes[0] = 0xFF;
                 color.bytes[1] = 0x24;

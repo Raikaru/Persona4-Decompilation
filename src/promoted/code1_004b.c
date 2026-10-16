@@ -239,7 +239,7 @@ typedef signed __int128 s128;
 
 
 // FUN_004B1590
-void func_004b1590(s32 arg0, s16 arg1)
+void mdlEffectSeqStart(s32 arg0, s16 arg1)
 {
     D_00922DA0[0] = arg0;
     D_00922DA4[0] = arg1;
@@ -249,7 +249,7 @@ void func_004b1590(s32 arg0, s16 arg1)
     iGpffffbb98 = 1;
 }
 // FUN_004B1600
-void func_004b1600(void)
+void mdlEffectSeqStep(void)
 {
     s32 temp_5;
     s32 limit;

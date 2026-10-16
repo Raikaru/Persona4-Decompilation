@@ -259,7 +259,7 @@ s32 func_001709c0(u8 *arg0)
         func_002bd3c0();
         temp_2 = (u8 *)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(temp_2 + 0x1C), 1);
-        func_0045af60(0, 0, 0, 3);
+        sdkSndStartStream(0, 0, 0, 3);
         temp_2 = (u8 *)MT_Scene_GetFrameState();
         func_0018a000(*(s32 *)(temp_2 + 0x30), 1);
         temp_2 = (u8 *)MT_Scene_GetFrameState();
@@ -275,7 +275,7 @@ s32 func_001709c0(u8 *arg0)
             func_0018a000(*(s32 *)(temp_2 + 0x30), 0);
             temp_2 = (u8 *)MT_Scene_GetFrameState();
             smapRefreshCells(*(u8 **)(temp_2 + 0x18), 0);
-            func_0045af60(0, 0, 0, 4);
+            sdkSndStartStream(0, 0, 0, 4);
             *(s32 *)(temp_16 + 0x10) = 0;
             *(s32 *)(temp_16 + 4) += 1;
         }

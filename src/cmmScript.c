@@ -9,7 +9,7 @@ extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u32 kwlnTaskGetWork(void *task);
 extern void func_004b1250(void *model, f32 *position);
 extern s32 sdkSndStartChannel(s16 channel, const char *name);
-extern s32 func_0045af60(s16 channel, s16 stream, s16 arg2, s16 arg3);
+extern s32 sdkSndStartStream(s16 channel, s16 stream, s16 arg2, s16 arg3);
 extern void kAssertFail(void *file, s32 line);
 
 u16 cmmTopReversedCommunity();
@@ -2024,7 +2024,7 @@ s32 cmmScriptStepFishingAim(u8 *work)
             break;
         }
         if (directionPressed != 0) {
-            func_0045af60(0, 0, 4, 3);
+            sdkSndStartStream(0, 0, 4, 3);
             task = kwlnTaskGetTaskByName((s8 *)D_00635B38);
             if (task == 0) {
                 kAssertFail(D_006359F0, 0x6A2);

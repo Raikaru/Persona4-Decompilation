@@ -997,16 +997,16 @@ s32 btlShuffleCalcLoadTable(u8 *arg0)
         case 0:
             break;
         case 1:
-            func_0045af60(1, arg0[0], 5, 1);
+            sdkSndStartStream(1, arg0[0], 5, 1);
             break;
         case 2:
-            func_0045af60(1, arg0[0], 5, 2);
+            sdkSndStartStream(1, arg0[0], 5, 2);
             break;
         case 3:
-            func_0045af60(1, arg0[0], 5, 3);
+            sdkSndStartStream(1, arg0[0], 5, 3);
             break;
         case 4:
-            func_0045af60(1, arg0[0], 5, 4);
+            sdkSndStartStream(1, arg0[0], 5, 4);
             break;
         default:
             kAssertFail(D_0064E9C0, 0x379);

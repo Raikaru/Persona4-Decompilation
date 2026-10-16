@@ -417,7 +417,7 @@ loop_test:
         goto loop_body;
     }
     if (*(s32 *)(arg0 + 0x1F30C) != 0) {
-        func_0045af60(1, 0, 5, 4);
+        sdkSndStartStream(1, 0, 5, 4);
     }
 }
 

@@ -205,7 +205,7 @@ s32 func_0035cb00(u8* arg0, s32 idx) {
             func_0035cc80(arg0, 2, 0);
         }
     } else if ((idx == 2) && (*(s32 *)(arg0 + 0x4C) == 0)) {
-        func_0045af60(0, 0, 0, 8);
+        sdkSndStartStream(0, 0, 0, 8);
         allowed = 0;
         goto done;
     }
@@ -253,7 +253,7 @@ s32 func_0035cc80(u8 *arg0, s32 arg1, s32 arg2)
         goto block_9;
     }
     if ((arg1 == 2) && (*(s32 *)(arg0 + 0x4C) == 0)) {
-        func_0045af60(0, 0, 0, 8);
+        sdkSndStartStream(0, 0, 0, 8);
         var_2 = 0;
     } else {
 block_9:

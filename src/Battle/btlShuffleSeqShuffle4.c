@@ -343,7 +343,7 @@ void btlShuffleSeq4Step(u8 *arg0) {
         ret = (u16)(btlShuffleSeq4Dist(arg0, *(s64 *)sp48, sp40) & 0xFFFF);
         if (ret != (cur & 0xFFFF)) {
             *(u16 *)(base + 4) = ret;
-            func_0045af60(0, 4, 0, 0);
+            sdkSndStartStream(0, 4, 0, 0);
         }
     }
 }
@@ -577,8 +577,8 @@ s32 btlShuffleSeq4Run(u8 *arg0)
                 btlShuffleDrawSetPose(arg0, i, (u16)i, (u16)i + 10);
                 *(u16 *)(arg0 + 0x1F1D6) ^= (u16)(1 << i);
             }
-            func_0045af60(0, 4, 0, 1);
-            func_0045af60(1, 0, 5, 1);
+            sdkSndStartStream(0, 4, 0, 1);
+            sdkSndStartStream(1, 0, 5, 1);
         } else if ((D_008C024E[0] & 0x20) != 0) {
             btlShuffleSeqReset(arg0);
             *(u32 *)(arg0 + 0x1F2F8) = 0x14;
@@ -596,7 +596,7 @@ s32 btlShuffleSeq4Run(u8 *arg0)
         for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
             btlShuffleDrawMoveCardB(arg0, i, NULL, vec, (u16)i, (u16)(i + 10));
         }
-        func_0045af60(1, 0, 5, 2);
+        sdkSndStartStream(1, 0, 5, 2);
     case 6:
         if (btlShuffleSeqCountA(arg0, *(s32 *)(arg0 + 0x1F304)) == 0) {
             break;
@@ -622,7 +622,7 @@ s32 btlShuffleSeq4Run(u8 *arg0)
             btlShuffleDrawMoveCardB(arg0, i, NULL, vec, (u16)t, (u16)(5.0f + t));
             btlShuffleDrawClearFlags(arg0, i);
         }
-        func_0045af60(1, 0, 5, 2);
+        sdkSndStartStream(1, 0, 5, 2);
     case 5:
         if (btlShuffleSeqCountA(arg0, total) == 0) {
             break;
@@ -640,7 +640,7 @@ s32 btlShuffleSeq4Run(u8 *arg0)
                 *(u16 *)(sbase + k * 2 + 0xC) = shuffle4PickFree(arg0);
                 btlShuffleSeq4Move(arg0, *(u16 *)(sbase + k * 2 + 0xC), 0, *(u16 *)(sbase + 2));
             }
-            func_0045af60(1, 0, 5, 1);
+            sdkSndStartStream(1, 0, 5, 1);
             *(u16 *)(arg0 + 0x1F2F0) = 0;
             *(u32 *)(arg0 + 0x1F2F8) = 7;
         } else {
@@ -674,7 +674,7 @@ s32 btlShuffleSeq4Run(u8 *arg0)
             card = *(u16 *)(sbase + j * 2 + 0xC);
             shuffle4Release(arg0, card, speed);
         }
-        func_0045af60(1, 0, 5, 1);
+        sdkSndStartStream(1, 0, 5, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 8;
         *(u16 *)(arg0 + 0x1F2F0) = 0;
     case 8:
@@ -703,7 +703,7 @@ s32 btlShuffleSeq4Run(u8 *arg0)
             }
             btlShuffleSeq4Move(arg0, *(u16 *)(sbase + 4), 0, 0xA);
             *(u32 *)(arg0 + 0x1F2F8) = 0xC;
-            func_0045af60(1, 0, 5, 1);
+            sdkSndStartStream(1, 0, 5, 1);
         } else {
             btlShuffleSeq4Step(arg0);
         }
@@ -733,7 +733,7 @@ s32 btlShuffleSeq4Run(u8 *arg0)
         }
         shuffle4Release(arg0, *(s32 *)(sbase + 0x34), 0xA);
         shuffle4Release(arg0, *(s32 *)(sbase + 0x30), 0xA);
-        func_0045af60(1, 0, 5, 1);
+        sdkSndStartStream(1, 0, 5, 1);
         if (++*(u16 *)(sbase + 8) >= *(u16 *)(sbase + 0xA)) {
             func_0038d0a0(*(u8 **)(arg0 + 0x1F298));
             func_0038d1d0(*(u8 **)(arg0 + 0x1F298));
@@ -770,7 +770,7 @@ s32 btlShuffleSeq4Run(u8 *arg0)
         *(u16 *)((u8 *)(*(s32 *)(sbase + 0x34) * 0xE8) + (u32)arg0 + 0x1D6A0) &= 0xFFFD;
         btlShuffleSeqMoveB(arg0, *(s32 *)(sbase + 0x30));
         *(u16 *)sbase |= 8;
-        func_0045af60(1, 0, 5, 1);
+        sdkSndStartStream(1, 0, 5, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 0x11;
     case 17:
         if (btlShuffleDrawStateA(arg0 + *(s32 *)(sbase + 0x30) * 0xE8 + 0x1D6A0) != 0) {

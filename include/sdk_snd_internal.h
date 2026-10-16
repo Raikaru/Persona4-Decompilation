@@ -5,9 +5,9 @@
 
 void func_0045c210(s16 index, s16 fileIndex, void *data0, u32 data0Size,
                    void *data1, u32 data1Size, void *data2, u32 data2Size);
-void func_0045c510(s16 index, s16 stream);
-void func_0045c640(s16 index, s16 stream, s16 arg2, s16 arg3);
-s32 func_0045aa90(s16 index, s16 stream);
-s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
+void sdkSndStopStreamSlot(s16 index, s16 stream);
+void sdkSndStartStreamSlot(s16 index, s16 stream, s16 arg2, s16 arg3);
+s32 sdkSndStopStream(s16 index, s16 stream);
+s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
 
 #endif

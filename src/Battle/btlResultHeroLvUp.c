@@ -167,7 +167,7 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
         break;
     case 2:
         if (func_00353f50(1) == 0) {
-            func_0045af60(1, 0, 3, 0);
+            sdkSndStartStream(1, 0, 3, 0);
             sprintf(sp20, &iGpffffa5C8, work->field44);
             func_002bbd20(0, sp20);
             func_002bad10(5);

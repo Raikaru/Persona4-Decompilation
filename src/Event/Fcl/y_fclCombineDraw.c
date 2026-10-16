@@ -1011,7 +1011,7 @@ void fclCombineStepSlotSelection(u8 *arg0, s8 arg1) {
     sp5C = func_002b2a60(0x25, 0x2F, 0x94, 0xFF);
     p = fclSpriteEntry((s16)(*(s8 *)(t + 0xB3) + 0x2FB));
     *(FclByte4 *)(p + 0x85) = sp5C;
-    func_0045af60(0, 0, 0, 0);
+    sdkSndStartStream(0, 0, 0, 0);
     switch (arg1) {
     case 0:
         *(s8 *)(t + 0xB3) = (s8)func_002b2cb0(*(s8 *)(t + 0xB3), 1, 2, 0, 2);
@@ -3033,7 +3033,7 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
     extern f32 D_00644150[];
     extern void fclCombineFuseSourceRecords(u16 *, u8 *, u8 *, u8 *, u8 *, u8 *, u8 *, s32, s8, s8);
     extern void yListBuildAvailability(s32, s32);
-    extern s32 func_0045af60(s16, s16, s16, s16);
+    extern s32 sdkSndStartStream(s16, s16, s16, s16);
     FclByte4 c21C;
     u8 *t;
     FclVec2 *v;
@@ -3085,17 +3085,17 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
     }
     if (D_008C027A[0] & 0x1000) {
         *(s16 *)(t + 0x11E) = func_002b2d00(*(s16 *)(t + 0x11E), 1, 0, (u16)datPersonaRosterCapacity() - 1, 2);
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
         return;
     }
     if (D_008C027A[0] & 0x4000) {
         *(s16 *)(t + 0x11E) = func_002b2cb0(*(s16 *)(t + 0x11E), 1, (u16)datPersonaRosterCapacity() - 1, 0, 2);
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
         return;
     }
     if (D_008C024E[0] & 0x80) {
         if (*(s16 *)(t + 0x11E) < *(s32 *)(yListSlotWork(0) + 8)) {
-            func_0045af60(0, 1, 0, 3);
+            sdkSndStartStream(0, 1, 0, 3);
             ia = 0;
             while ((s16)ia < (u16)datPersonaRosterCapacity()) {
                 fclCombinePartyRow(arg0, func_002b2970(16.0f, 128.0f), (s8)ia, *(u16 *)(yListSlotEntry(0, ia) + 2), *(u8 *)(yListSlotEntry(0, ia) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
@@ -3144,7 +3144,7 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
         }
     } else if (D_008C024C[0] & 0x40) {
         if (*(s16 *)(t + 0x11E) < *(s32 *)(yListSlotWork(0) + 8)) {
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
             *(s8 *)(t + 0x128) = *(s16 *)(t + 0x11E);
             v = (FclVec2 *)D_00644150;
             fclCombineDrawPersonaCard(arg0, *(s16 *)(t + 0x11E), func_002b2970(-380.0f, v->y), func_002b2970(v->x, v->y));
@@ -3238,7 +3238,7 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
             *(u8 *)(t + 1) = arg2;
         }
     } else if (D_008C024E[0] & 0x20) {
-        func_0045af60(0, 0, 0, 2);
+        sdkSndStartStream(0, 0, 0, 2);
         datPersonaRosterCapacity();
         fclCombineDrawSlotFields(arg0, func_002b2970(16.0f, 104.0f), 0, 1, 0, 0, 0);
         jc = 0;
@@ -5932,32 +5932,32 @@ void fclCombineMoveGridCursor(u8 *arg0, s32 arg1) {
     switch ((s8)arg1) {
     case 0:
         if (*(s16 *)(t + 0x11E) != 7) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         }
         *(s16 *)(t + 0x11E) = (s16)func_002b2cb0(*(s16 *)(t + 0x11E), 1, 7, 0, 1);
         *(s16 *)(t + 0x120) = func_002b2d50(*(s16 *)(t + 0x11E), *(s16 *)(t + 0x120), 7, 6, 1);
         break;
     case 1:
         if (*(s16 *)(t + 0x11E) != 0) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         }
         *(s16 *)(t + 0x11E) = (s16)func_002b2d00(*(s16 *)(t + 0x11E), 1, 0, 0, 1);
         *(s16 *)(t + 0x120) = func_002b2d50(*(s16 *)(t + 0x11E), *(s16 *)(t + 0x120), 7, 6, -1);
         break;
     case 2:
         if (*(s16 *)(t + 0x11E) != 7) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         }
         func_002b2e70(*(s16 *)(t + 0x11E), *(s16 *)(t + 0x120), 8, 6, (s16 *)(t + 0x11E), (s16 *)(t + 0x120));
         break;
     case 3:
         if (*(s16 *)(t + 0x11E) != 0) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         }
         func_002b2f90(*(s16 *)(t + 0x11E), *(s16 *)(t + 0x120), 8, 6, (s16 *)(t + 0x11E), (s16 *)(t + 0x120));
         break;
     case 4:
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
         *(s16 *)(t + 0x11E) = (s16)func_002b2cb0(*(s16 *)(t + 0x11E), 1, 7, 0, 2);
         if (*(s16 *)(t + 0x11E) == 0) {
             *(s16 *)(t + 0x120) = 0;
@@ -5966,7 +5966,7 @@ void fclCombineMoveGridCursor(u8 *arg0, s32 arg1) {
         }
         break;
     case 5:
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
         if (*(s16 *)(t + 0x11E) == 0) {
             *(s16 *)(t + 0x11E) = (s16)func_002b2d00(*(s16 *)(t + 0x11E), 1, 0, 7, 2);
             *(s16 *)(t + 0x120) = 5;
@@ -6082,14 +6082,14 @@ void fclCombineMoveChoiceCursor(u8 *arg0, s64 arg1, s32 arg2) {
     case 0: {
         s32 t16 = (s16)((s16)t17 - 1);
         if (*(s16 *)(obj + 0x11E) != t16) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         }
         *(s16 *)(obj + 0x11E) = (s16)func_002b2cb0(*(s16 *)(obj + 0x11E), 1, t16, 0, 1);
         break;
     }
     case 1:
         if (*(s16 *)(obj + 0x11E) != 0) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         }
         *(s16 *)(obj + 0x11E) = (s16)func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, (s16)((s16)t17 - 1), 1);
         break;
@@ -6097,11 +6097,11 @@ void fclCombineMoveChoiceCursor(u8 *arg0, s64 arg1, s32 arg2) {
     case 3:
         break;
     case 4:
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
         *(s16 *)(obj + 0x11E) = (s16)func_002b2cb0(*(s16 *)(obj + 0x11E), 1, (s16)((s16)t17 - 1), 0, 2);
         break;
     case 5:
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
         *(s16 *)(obj + 0x11E) = (s16)func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, (s16)((s16)t17 - 1), 2);
         break;
     }

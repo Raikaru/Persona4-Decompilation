@@ -884,9 +884,9 @@ s32 func_0045a9a0(s16 arg0)
 /* ================================================================== */
 
 // FUN_0045AA90
-s32 func_0045aa90(s16 index, s16 stream)
+s32 sdkSndStopStream(s16 index, s16 stream)
 {
-    func_0045c510(index, stream);
+    sdkSndStopStreamSlot(index, stream);
     return 1;
 }
 
@@ -1052,9 +1052,9 @@ s32 sdkSndStartChannel(s16 arg0, const char * arg1)
 /* ================================================================== */
 
 // FUN_0045AF60
-s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3)
+s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3)
 {
-    func_0045c640(index, stream, arg2, arg3);
+    sdkSndStartStreamSlot(index, stream, arg2, arg3);
     return 1;
 }
 

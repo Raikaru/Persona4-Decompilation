@@ -49,11 +49,11 @@ extern u8 D_00881530[];
 extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
-static inline u32 *mtScenePayloadAt(s32 offset, u32 *base)
+static inline u32 *rbRingNextNode(s32 offset, u32 *base)
 {
     return (u32 *)((u8 *)base + offset + 8);
 }
-static inline u8 *mtSceneByteOffset(u8 *base, u32 index)
+static inline u8 *mtSceneBytePairAt(u8 *base, u32 index)
 {
     return base + index;
 }

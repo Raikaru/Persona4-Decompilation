@@ -119,7 +119,7 @@ extern f32 iGpffff851c;
 extern f32 iGpffff84cc;
 extern f32 D_0064A210[];
 extern f32 D_0064A218[];
-extern void func_0045af60(s32, s32, s32, s32);
+extern void sdkSndStartStream(s32, s32, s32, s32);
 extern s32 func_002bb1c0(s8 arg0);
 extern void func_002e7a80(s32 arg0);
 void func_0033c490(u8 *arg0);
@@ -608,15 +608,15 @@ s32 func_00332bb0(u8 *arg0) {
             for (j = 0; j < 6; j++) {
                 func_0033d320(*(void **)(work + j * 4 + 0x40), 0, 1);
             }
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         } else if (D_008C027A[0] & 0x1000) {
             *(s8 *)(work + 1) = func_002b2d00(*(s8 *)(work + 1), 1, 0, 2, 2);
             for (j = 0; j < 6; j++) {
                 func_0033d320(*(void **)(work + j * 4 + 0x40), 0, 1);
             }
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
         } else if (D_008C024E[0] & 0x40) {
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
             switch (*(s8 *)(work + 1)) {
             case 0:
                 {
@@ -695,7 +695,7 @@ s32 func_00332bb0(u8 *arg0) {
             }
         } else if (D_008C024E[0] & 0x20) {
             func_0033bf90(arg0);
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         }
         tbl = (F2_0033 *)D_0064A2A0;
         func_0033d3e0(*(void **)(work + 0x118), func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
@@ -994,7 +994,7 @@ s32 func_00332bb0(u8 *arg0) {
             break;
         }
         if ((D_008C0276[0] & 0x1000) && *(s8 *)(work + 0x425) == 0) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             if (*(s16 *)(work + 4) == 0) {
                 *(s16 *)(work + 4) = func_002e26a0();
                 *(s16 *)(work + 6) = func_002b2cb0(0, *(s16 *)(work + 4), 4, 0, 1);
@@ -1006,13 +1006,13 @@ s32 func_00332bb0(u8 *arg0) {
             *(s8 *)(work + 0x425) = 1;
         } else if (D_008C027A[0] & 0x1000) {
             if (*(s16 *)(work + 4) != 0) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             *(s16 *)(work + 4) = func_002b2d00(*(s16 *)(work + 4), 1, 0, 0, 1);
             *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)yListCount(), 5, -1);
             *(s8 *)(work + 0x425) = 1;
         } else if ((D_008C0276[0] & 0x4000) && *(s8 *)(work + 0x425) == 0) {
-            func_0045af60(0, 0, 0, 0);
+            sdkSndStartStream(0, 0, 0, 0);
             *(s16 *)(work + 4) = func_002b2cb0(*(s16 *)(work + 4), 1, func_002e26a0(), 0, 2);
             if (*(s16 *)(work + 4) == 0) {
                 *(s16 *)(work + 6) = 0;
@@ -1025,7 +1025,7 @@ s32 func_00332bb0(u8 *arg0) {
             *(s8 *)(work + 0x425) = 1;
         } else if (D_008C027A[0] & 0x4000) {
             if (*(s16 *)(work + 4) != func_002e26a0()) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             *(s16 *)(work + 4) = func_002b2cb0(*(s16 *)(work + 4), 1, func_002e26a0(), 0, 1);
             if (func_002e26a0() >= 5) {
@@ -1038,12 +1038,12 @@ s32 func_00332bb0(u8 *arg0) {
         } else {
             if ((D_008C027A[0] & 8) || (D_008C027A[0] & 0x2000)) {
                 if (*(s16 *)(work + 4) != func_002e26a0()) {
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                 }
                 func_002b2e70(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);
             } else if ((D_008C027A[0] & 4) || (D_008C027A[0] & 0x8000)) {
                 if (*(s16 *)(work + 4) != 0) {
-                    func_0045af60(0, 0, 0, 0);
+                    sdkSndStartStream(0, 0, 0, 0);
                 }
                 func_002b2f90(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);
             } else if (D_008C024E[0] & 0x40) {
@@ -1077,24 +1077,24 @@ s32 func_00332bb0(u8 *arg0) {
                     *(s8 *)(func_0033d310(*(void **)(work + 0x160)) + 0x3B) = 1;
                     *(s8 *)(work + 0) = 0xC;
                     *(s8 *)(work + 3) = 1;
-                    func_0045af60(0, 0, 0, 1);
+                    sdkSndStartStream(0, 0, 0, 1);
                 } else {
-                    func_0045af60(0, 0, 0, 8);
+                    sdkSndStartStream(0, 0, 0, 8);
                 }
             } else if (D_008C024E[0] & 0x80) {
                 if (*(s8 *)(work + 2) == 0) {
-                    func_0045af60(0, 1, 0, 3);
+                    sdkSndStartStream(0, 1, 0, 3);
                 }
                 if (*(s8 *)(work + 2) == 1) {
-                    func_0045af60(0, 1, 0, 4);
+                    sdkSndStartStream(0, 1, 0, 4);
                 }
                 *(s8 *)(work + 2) ^= 1;
             } else if (D_008C024E[0] & 0x20) {
                 if (*(s8 *)(work + 2) == 1) {
                     *(s8 *)(work + 2) = 0;
-                    func_0045af60(0, 1, 0, 4);
+                    sdkSndStartStream(0, 1, 0, 4);
                 } else {
-                    func_0045af60(0, 0, 0, 2);
+                    sdkSndStartStream(0, 0, 0, 2);
                     tbl = (F2_0033 *)D_0064A320;
                     func_0033d320(*(void **)(work + 0x158), 0, 0);
                     func_0033d4b0(*(void **)(work + 0x158), 0xFF, 0, 0, 5, 0);
@@ -1365,7 +1365,7 @@ s32 func_00332bb0(u8 *arg0) {
         frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
                       datGetItemNameId((s16)yListValueAt(*(s16 *)(work + 4))), 0, 0, D_007950B0);
         if (D_008C024E[0] & 0x40) {
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
             *(s8 *)(work + 8) = func_002bab80(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
             sprintf(buf, "%d", *(s8 *)(work + 3));
             func_002bbd80(*(s8 *)(work + 8), 1, buf);
@@ -1378,7 +1378,7 @@ s32 func_00332bb0(u8 *arg0) {
             *(s8 *)(work + 0) = 0xD;
         } else if (D_008C027A[0] & 0x1000) {
             if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))))) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             *(s8 *)(work + 3) = func_002b2cb0(*(s8 *)(work + 3), 1,
                                               (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
@@ -1390,7 +1390,7 @@ s32 func_00332bb0(u8 *arg0) {
                           0xA, 0);
         } else if (D_008C027A[0] & 0x4000) {
             if (*(s8 *)(work + 3) != 1) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             *(s8 *)(work + 3) = func_002b2d00(*(s8 *)(work + 3), 1, 1, 0x63, 1);
             tbl = (F2_0033 *)D_0064A330;
@@ -1398,7 +1398,7 @@ s32 func_00332bb0(u8 *arg0) {
                           0xA, 0);
         } else if (D_008C027A[0] & 0x2000) {
             if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))))) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             *(s8 *)(work + 3) = func_002b2cb0(*(s8 *)(work + 3), 0xA,
                                               (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
@@ -1410,14 +1410,14 @@ s32 func_00332bb0(u8 *arg0) {
                           0xA, 0);
         } else if (D_008C027A[0] & 0x8000) {
             if (*(s8 *)(work + 3) != 1) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             }
             *(s8 *)(work + 3) = func_002b2d00(*(s8 *)(work + 3), 0xA, 1, 0x63, 1);
             tbl = (F2_0033 *)D_0064A330;
             func_0033d3e0(*(void **)(work + 0x160), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, 7.0f + tbl->y), 1,
                           0xA, 0);
         } else if (D_008C024E[0] & 0x20) {
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
             tbl = (F2_0033 *)D_0064A210;
             func_0033d3e0(*(void **)(work + 0xD0),
                           func_002b2970(*(f32 *)(func_0033d310(*(void **)(work + 0xD0)) + 0x2C), tbl->y),
@@ -1488,7 +1488,7 @@ s32 func_00332bb0(u8 *arg0) {
             func_0033d320(*(void **)(work + 0x1A0), 0, 1);
             func_0033d320(*(void **)(work + 0x1A4), 0, 1);
             func_0033d320(*(void **)(work + 0xA0), 0, 1);
-            func_0045af60(0, 0, 0, 6);
+            sdkSndStartStream(0, 0, 0, 6);
         }
         func_002bb550(*(s8 *)(work + 8));
         break;
@@ -1520,7 +1520,7 @@ s32 func_00332bb0(u8 *arg0) {
             func_0033d390(*(void **)(work + 0x54), 2) == 0 && func_0033d390(*(void **)(work + 0x60), 2) == 0) {
             *(s8 *)(work + 0) = 5;
         } else if (func_0033d390(*(void **)(work + 0x10), 1) != 0 && (D_008C024E[0] & 0x20)) {
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
             *(f32 *)(work + 0x1D0) = 580.0f - 21.0f * (f32)func_002b3170(func_002e7a60()) + 0.0f;
             *(f32 *)(work + 0x1D4) = 15.0f;
             *(f32 *)(work + 0x1D8) = 0x28A;

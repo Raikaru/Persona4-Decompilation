@@ -1007,7 +1007,7 @@ extern void FldFrameTask_StartMove(unsigned char *, float);
 extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 extern float FldEvent_GetMoveStep(void);
 extern int kwlnTaskDestroyWithHierarchy(void *);
-extern int func_0045af60(short, short, short, short);
+extern int sdkSndStartStream(short, short, short, short);
 extern void mdlSetAlphaBlend(unsigned char *);
 extern void mdlClearAlphaBlend(unsigned char *);
 extern void func_004b13f0(void *, int *);
@@ -1337,7 +1337,7 @@ else {
                     ((float (*)[4])D_005F1CC0)[*(unsigned char *)(piVar1[3] + 0x1ca)][*(unsigned char *)(piVar1[3] + 0x1cb)];
         pbVar7 = (unsigned char *)FldStepFileTask(1);
         FldRc_RequestPositionSlot(pbVar7,&vec70[0]);
-        func_0045af60(1,0xb,3,5);
+        sdkSndStartStream(1,0xb,3,5);
         piVar1[0x23] = *(int *)(piVar1[5] + 0x30);
         *piVar1 = 6;
       }
@@ -1354,7 +1354,7 @@ else {
                       ((float (*)[4])D_005F1CC0)[*(unsigned char *)(piVar1[3] + 0x1ca)][*(unsigned char *)(piVar1[3] + 0x1cb)];
           pbVar7 = (unsigned char *)FldStepFileTask(1);
           FldRc_RequestPositionSlot(pbVar7,&vec80[0]);
-          func_0045af60(1,0xb,3,5);
+          sdkSndStartStream(1,0xb,3,5);
           piVar1[0x23] = *(int *)(piVar1[5] + 0x30);
           *piVar1 = 6;
         }

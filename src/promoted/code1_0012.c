@@ -1794,11 +1794,11 @@ s32 func_00124830(u8 *arg0)
         *(s32 *)(arg0 + 0x28) = temp_18 << 16;
     }
     if (D_008C024E[0] & 0x40) {
-        func_0045af60(0, 0, 0, 1);
+        sdkSndStartStream(0, 0, 0, 1);
         return *(s32 *)(arg0 + 0x20) + 1;
     }
     if (var_16 != 0) {
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
         return 0;
     }
     return -1;
@@ -3954,7 +3954,7 @@ s32 func_0012aa70(u8 *task)
     case 5:
         *(s32 *)(work + 0x14) = *(s32 *)(work + 0x14) + 1;
         if ((D_008C024E[0] & 0x10) || (D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80) || (D_008C024E[0] & 0x40) || (D_008C024E[0] & 4) || (D_008C024E[0] & 1) || (D_008C024E[0] & 8) || (D_008C024E[0] & 2) || (D_008C024E[0] & 0x800) || (D_008C024E[0] & 0x100)) {
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
             pressed = D_008C024E[0];
         } else {
             pressed = 0;
@@ -4056,7 +4056,7 @@ s32 func_0012aa70(u8 *task)
             func_00122520(1, 0xA);
         } else {
             if ((D_008C024E[0] & 0x10) || (D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80) || (D_008C024E[0] & 0x40) || (D_008C024E[0] & 4) || (D_008C024E[0] & 1) || (D_008C024E[0] & 8) || (D_008C024E[0] & 2) || (D_008C024E[0] & 0x800) || (D_008C024E[0] & 0x100)) {
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
                 pressed = D_008C024E[0];
             } else {
                 pressed = 0;
@@ -4727,7 +4727,7 @@ s32 func_0012d630(u8 *menu)
 s32 func_0012db80(u8 *arg0, s32 arg1)
 {
     if (arg1 != *(s32 *)(arg0 + 0x10)) {
-        func_0045af60(0, 1, 0, 0);
+        sdkSndStartStream(0, 1, 0, 0);
         *(s32 *)(arg0 + 0x14) = *(s32 *)(arg0 + 0x10);
         *(s32 *)(arg0 + 0x10) = arg1;
         *(s32 *)(arg0 + 0x18) = -1;
