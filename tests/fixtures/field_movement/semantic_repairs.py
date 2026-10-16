@@ -19,7 +19,8 @@ def fixture_from_source(source):
     clear1=raw[s.index('    {\n        u8 *p = (u8 *)&move;'):s.index('    {\n        u8 *p = (u8 *)&camera;')]
     clear2=raw[s.index('    {\n        u8 *p = (u8 *)&camera;'):s.index('    f20 = 0.0f;')]
     copy1_match=re.search(r'        cameraMatrix = .*?;',s)
-    copy1=raw[copy1_match.start():copy1_match.end()].replace('*(u8 **)(func_00457120() + 4)', 'cameraFrame')
+    copy1=raw[copy1_match.start():copy1_match.end()].replace('*(u8 **)(kwlnGetCamera() + 4)', 'cameraFrame')
+    assert 'cameraFrame' in copy1, 'camera-frame expression changed in k_fldEvent.c; update this fixture'
     copy2_match=re.search(r'        modelMatrix = .*?;',s)
     copy2=raw[copy2_match.start():copy2_match.end()]
     assert copy2 == '        modelMatrix = *(MovementMatrix *)((u8 *)mdlGetClumpFrame(*(void **)(*(s32 *)(h + 0x18) + 0x164)) + 0x10);'
