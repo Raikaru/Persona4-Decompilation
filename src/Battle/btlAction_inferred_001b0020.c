@@ -67,7 +67,7 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
 extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
-extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
+extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void func_001b08f0(void *arg0);
@@ -207,7 +207,7 @@ void btlActionDeadInit(u8 *arg0)
         btlTargetRecordDefeatReward(arg0);
         flags = *(s32 *)(p + 0x9C);
         if ((flags & 0x20) == 0 && (flags & 0x100) == 0) {
-            work = (u8 *)func_0019bbe0((BtlUnit *)p, 0xFFFFFF, 6, 0, 4, 0);
+            work = (u8 *)btlUnitCreateColorPacket((BtlUnit *)p, 0xFFFFFF, 6, 0, 4, 0);
             *(s64 *)(work + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(work, 1);
             work = (u8 *)btlFormationCreatePacket((u32)*(s32 *)(iGpffffb3ac + 0xD48), (u32)p, (u32)p, 0, 0);

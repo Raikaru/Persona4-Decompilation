@@ -155,7 +155,7 @@ extern void btlActionFinishPresentation(s64 *arg0);
 extern s32 btlFormationAllocWork(u32 param_1);
 extern u8 *btlFormationGetRecord(s32 arg0);
 extern void btlFormationCopyRecord(int destination, u32 source);
-extern BtlPacket *func_0019bbe0(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
+extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
 extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
@@ -1836,7 +1836,7 @@ void btlEncounterStartSequence(u8 *arg0)
     }
     {
         u8 *temp_2;
-        temp_2 = (u8 *)func_0019bbe0((BtlUnit *)(*(u8 **)(saved_arg0 + 0x30)),
+        temp_2 = (u8 *)btlUnitCreateColorPacket((BtlUnit *)(*(u8 **)(saved_arg0 + 0x30)),
                               0xFFFFFF, 0x50, 0, 4, 0);
         *(s64 *)(temp_2 + 0x60) = *(s64 *)saved_arg0;
         btlPacketEnqueue(temp_2, 1);

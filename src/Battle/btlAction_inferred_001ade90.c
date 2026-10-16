@@ -68,7 +68,7 @@ s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 
 extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
-extern u8 *func_0019bbe0(u8 *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
+extern u8 *btlUnitCreateColorPacket(u8 *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 
@@ -932,7 +932,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     for (unit17 = *(u8 **)(iGpffffb3ac + 0x178); unit17 != NULL; unit17 = *(u8 **)(unit17 + 0xA6C)) {
         if (datCalcChkBadStatus(*(s32 *)(unit17 + 0xA64), 0x100117) != 0 || datCalcIsDead(*(s32 *)(unit17 + 0xA64), 0) != 0) {
             u8 *pk;
-            pk = func_0019bbe0(unit17, 0xFFFFFF, 0, 0, 4, 0);
+            pk = btlUnitCreateColorPacket(unit17, 0xFFFFFF, 0, 0, 4, 0);
             *pk = 4;
             *(s64 *)(pk + 8) = *(s64 *)(pkt12C + 0x58);
             *(s64 *)(pk + 0x60) = uid;
@@ -1095,7 +1095,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     for (unit17 = *(u8 **)(iGpffffb3ac + 0x178); unit17 != NULL; unit17 = *(u8 **)(unit17 + 0xA6C)) {
         if (datCalcChkBadStatus(*(s32 *)(unit17 + 0xA64), 0x100117) != 0 || datCalcIsDead(*(s32 *)(unit17 + 0xA64), 0) != 0) {
             u8 *pk;
-            pk = func_0019bbe0(unit17, -1, 0xC, 0, 3, 0);
+            pk = btlUnitCreateColorPacket(unit17, -1, 0xC, 0, 3, 0);
             *pk = 0xB;
             *(s64 *)(pk + 8) = *(s64 *)(chain + 0x58);
             *(s16 *)(pk + 0x48) = 6;

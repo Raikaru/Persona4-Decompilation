@@ -61,7 +61,7 @@ extern u8 D_00626500[];
 extern u8 D_006265B0[];
 
 extern s32 btlPacketBuildHitFlags(u8 *arg0);
-extern void func_00201db0(void *arg0);
+extern void btlUnitRotateTowardUnitPacketDestroy(void *arg0);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern u8 D_00625240[];
 extern f32 fGpffff8184;
@@ -146,7 +146,7 @@ u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 ta
     spAC = temp_2;
     *(void **)(temp_2 + 0x68) = (void *)btlPacketHitStatusCheck;
     *(void **)(temp_2 + 0x6C) = (void *)btlPacketBuildHitFlags;
-    *(void **)(temp_2 + 0x70) = (void *)func_00201db0;
+    *(void **)(temp_2 + 0x70) = (void *)btlUnitRotateTowardUnitPacketDestroy;
     temp_16 = *(u8 **)(temp_2 + 0x78);
     memcpy(temp_16 + 8, result, 0x20);
     *(s32 *)(temp_16 + 0) = source;

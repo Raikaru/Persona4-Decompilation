@@ -203,7 +203,7 @@ extern s32 btlShuffleIsCanceled(s32 task);
 extern s32 btlEncounterIsInactive(s32 arg0);
 extern s32 btlShuffleIsBusy(s32 task);
 extern s32 func_00122720(void);
-extern BtlPacket *func_0019bbe0(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
+extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
 extern BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern void func_001b08f0(void *arg0);
