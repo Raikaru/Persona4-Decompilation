@@ -412,8 +412,3 @@ static inline s32 fclDigitIsZero(const s16 *value)
 
 
 
-// FUN_002BE1B0
-s32 func_002be1b0(s16 item)
-{
-    return func_002be1e0(datEntryGetFlags(item));
-}
