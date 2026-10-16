@@ -148,7 +148,7 @@ extern u8 *datPersonaGetRow(u16 personaId);
 s32 func_00253850(u8 *root, u8 *work, u8 *context);
 s32 func_00254a70(u8 *root, u8 *work, u8 *context);
 s32 func_0025b240(u8 *task);
-void func_0025c100(u8 *task);
+void cmmCdvdLoadDestroy(u8 *task);
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
@@ -3627,8 +3627,9 @@ tail:
  * local (nd 34 with late assignment, nd 69 with early assignment, nd 28
  * direct). Loop and all other calls match byte-for-byte. Same floor as the
  * confirmed D_00887300 vtable calls. */
+// Releases a CDVD load task: disables and clears the scene resources in its list, frees the list and work blocks, and destroys the CDVD handle.
 // FUN_0025C100
-void func_0025c100(u8 *unusedTask) {
+void cmmCdvdLoadDestroy(u8 *unusedTask) {
     void (**fp)(void *);
     u8 *p;
     u8 *list;
@@ -3661,8 +3662,9 @@ void func_0025c100(u8 *unusedTask) {
     H_Cdvd_Destroy(*(u32 *)(p + 0x34));
     (*fp)(p);
 }
+// Spawns a CDVD load task under arg0 for resource arg1 (must be nonzero), storing arg2 and arg3 as its load parameters; the task is destroyed by cmmCdvdLoadDestroy.
 // FUN_0025C230
-void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void cmmSpawnCdvdLoad(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *p;
 
     if (arg1 == 0) {
@@ -3674,5 +3676,5 @@ void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(s32 *)(p + 0x1C) = arg2;
     *(s32 *)(p + 0x20) = arg3;
     *(s32 *)(p + 0x4) = 0;
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006367C0), 0xF, 0, 0, func_0025b240, func_0025c100, (u8 *)(p));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006367C0), 0xF, 0, 0, func_0025b240, cmmCdvdLoadDestroy, (u8 *)(p));
 }
