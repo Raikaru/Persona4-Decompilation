@@ -2068,8 +2068,9 @@ loop_004950e0_check:
 }
 
 
+/* Calls kind slot +0x08 with the object itself, then frees it through the allocator free table; the kind index is at +0x2C. */
 // FUN_00498AC0
-void func_00498ac0(u8 *arg0) {
+void ThunderInstanceDestroy(u8 *arg0) {
     D_00713E78[*(s32 *)(arg0 + 0x2C) * 6](arg0);
     jtbl_008873EC[0](arg0);
 }
@@ -2083,36 +2084,41 @@ void *func_00498b20(void *source) {
 }
 
 
+/* Calls kind slot +0x00 with the object, then clears the counter at +0x28. */
 // FUN_00498B50
-void func_00498b50(u8 *arg0) {
+void ThunderInstanceStop(u8 *arg0) {
     D_00713E70[*(s32 *)(arg0 + 0x2C) * 6](arg0);
     *(s32 *)(arg0 + 0x28) = 0;
 }
 
 
+/* Calls kind slot +0x0C with the object, then increments the counter at +0x28. */
 // FUN_00498BA0
-void func_00498ba0(u8 *arg0) {
+void ThunderInstanceAdvance(u8 *arg0) {
     D_00713E7C[*(s32 *)(arg0 + 0x2C) * 6](arg0);
     *(s32 *)(arg0 + 0x28) = *(s32 *)(arg0 + 0x28) + 1;
 }
 
 
+/* Calls kind slot +0x10 with the object when the counter at +0x28 is positive. */
 // FUN_00498C00
-void func_00498c00(u8 *arg0) {
+void ThunderInstanceUpdateIfActive(u8 *arg0) {
     if (*(s32 *)(arg0 + 0x28) > 0) {
         D_00713E80[*(s32 *)(arg0 + 0x2C) * 6](arg0);
     }
 }
 
 
+/* Copies the 16-byte quad at arg1 to the object base and returns it. */
 // FUN_00498CE0
-u_long128 func_00498ce0(u_long128 *arg0, u_long128 *arg1) {
+u_long128 ThunderSetFirstQuad(u_long128 *arg0, u_long128 *arg1) {
     return *arg0 = *arg1;
 }
 
 
+/* Copies the 16-byte quad at arg1 to +0x10 of the object and returns it. */
 // FUN_00498CF0
-u_long128 func_00498cf0(u_long128 *arg0, u_long128 *arg1) {
+u_long128 ThunderSetSecondQuad(u_long128 *arg0, u_long128 *arg1) {
     return arg0[1] = *arg1;
 }
 
@@ -2129,8 +2135,9 @@ void func_00498d10(u8 *arg0, f32 fparg0) {
 }
 
 
+/* Calls kind slot +0x08 on the child at +0x3C, then frees the object; the kind index is at +0x38. */
 // FUN_0049A570
-void func_0049a570(u8 *arg0) {
+void RingInstanceDestroy(u8 *arg0) {
     D_00713F18[*(s32 *)(arg0 + 0x38) * 6](*(void **)(arg0 + 0x3C));
     jtbl_008873EC[0](arg0);
 }
@@ -2144,36 +2151,41 @@ void *func_0049a5e0(void *source) {
 }
 
 
+/* Calls kind slot +0x00 with the object, then clears the counter at +0x34. */
 // FUN_0049A610
-void func_0049a610(u8 *arg0) {
+void RingInstanceStop(u8 *arg0) {
     D_00713F10[*(s32 *)(arg0 + 0x38) * 6](arg0);
     *(s32 *)(arg0 + 0x34) = 0;
 }
 
 
+/* Calls kind slot +0x0C with the object, then increments the counter at +0x34. */
 // FUN_0049A660
-void func_0049a660(u8 *arg0) {
+void RingInstanceAdvance(u8 *arg0) {
     D_00713F1C[*(s32 *)(arg0 + 0x38) * 6](arg0);
     *(s32 *)(arg0 + 0x34) = *(s32 *)(arg0 + 0x34) + 1;
 }
 
 
+/* Calls kind slot +0x10 with the object when the counter at +0x34 is positive. */
 // FUN_0049A6C0
-void func_0049a6c0(u8 *arg0) {
+void RingInstanceUpdateIfActive(u8 *arg0) {
     if (*(s32 *)(arg0 + 0x34) > 0) {
         D_00713F20[*(s32 *)(arg0 + 0x38) * 6](arg0);
     }
 }
 
 
+/* Copies the 16-byte quad at arg1 to the object base and returns it. */
 // FUN_0049A7A0
-u_long128 func_0049a7a0(u_long128 *arg0, u_long128 *arg1) {
+u_long128 RingSetFirstQuad(u_long128 *arg0, u_long128 *arg1) {
     return *arg0 = *arg1;
 }
 
 
+/* Copies the 16-byte quad at arg1 to +0x10 of the object and returns it. */
 // FUN_0049A7B0
-u_long128 func_0049a7b0(u_long128 *arg0, u_long128 *arg1) {
+u_long128 RingSetSecondQuad(u_long128 *arg0, u_long128 *arg1) {
     return arg0[1] = *arg1;
 }
 
@@ -2184,16 +2196,18 @@ void func_0049a7c0(u8 *arg0, s32 arg1) {
 }
 
 
+/* Writes the same float to +0x20, +0x24 and +0x28, giving a uniform scale. */
 // FUN_0049A7D0
-void func_0049a7d0(u8 *arg0, f32 fparg0) {
+void RingSetUniformScale(u8 *arg0, f32 fparg0) {
     *(f32 *)(arg0 + 0x20) = fparg0;
     *(f32 *)(arg0 + 0x24) = fparg0;
     *(f32 *)(arg0 + 0x28) = fparg0;
 }
 
 
+/* Copies the three floats of arg1 into +0x20, +0x24 and +0x28. */
 // FUN_0049A7F0
-void func_0049a7f0(u8 *arg0, f32 *arg1) {
+void RingSetVec3(u8 *arg0, f32 *arg1) {
     *(f32 *)(arg0 + 0x20) = arg1[0];
     *(f32 *)(arg0 + 0x24) = arg1[1];
     *(f32 *)(arg0 + 0x28) = arg1[2];
@@ -3489,23 +3503,26 @@ void func_004b2e00(u8 *object) {
 }
 
 
+/* Calls kind slot +0x00 with the object, then clears the counter at +0x14. The kind index is at +0x18. */
 // FUN_004B4F40
-void func_004b4f40(u8 *arg0)
+void LineNovaInstanceStop(u8 *arg0)
 {
     ((void (*)(void *))(*(u32 *)(D_00714650 + (*(s32 *)(arg0 + 0x18) * 24))))(arg0);
     *(s32 *)(arg0 + 0x14) = 0;
 }
 
 
+/* Calls kind slot +0x0C with the object, then increments the counter at +0x14. */
 // FUN_004B4F90
-void func_004b4f90(void *param_1) {
+void LineNovaInstanceAdvance(void *param_1) {
     ((void (*)(void *))(*(u32 *)(D_0071465C + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
     *(s32 *)((char *)param_1 + 0x14) += 1;
 }
 
 
+/* Calls kind slot +0x10 with the object when the counter at +0x14 is positive. */
 // FUN_004B4FF0
-void func_004b4ff0(u8 *arg0)
+void LineNovaInstanceUpdateIfActive(u8 *arg0)
 {
     if (*(s32 *)(arg0 + 0x14) > 0) {
         ((void (*)(void *))(*(u32 *)(D_00714660 + (*(s32 *)(arg0 + 0x18) * 24))))(arg0);
@@ -3513,8 +3530,9 @@ void func_004b4ff0(u8 *arg0)
 }
 
 
+/* Calls kind slot +0x0C, increments the counter at +0x14, then calls kind slot +0x10 when the counter is positive. The kind index is at +0x18. */
 // FUN_004B5040
-void func_004b5040(void *param_1) {
+void LineNovaInstanceAdvanceAndUpdate(void *param_1) {
     u8 *object;
 
     object = param_1;
