@@ -559,8 +559,9 @@ u32 cmmScriptFindReverseCandidate(void)
     return 1;
 }
 
+// Marks the community named by arg 0, or the current community when arg 0 is 0.
 // FUN_0024AC50
-s32 func_0024ac50(void)
+s32 cmmScriptSetMarkedCommunity(void)
 {
     s32 id;
 
@@ -571,8 +572,9 @@ s32 func_0024ac50(void)
     cmmCommunitySetMarked(id & 0xFFFF);
     return 1;
 }
+// Returns the counterpart id of the community named by arg 0.
 // FUN_0024ACA0
-s32 func_0024aca0(void)
+s32 cmmScriptResolveCounterpart(void)
 {
     scrSetReturnInt(cmmResolveCounterpart((s16)(scrGetParamInt(0) & 0xFFFF)));
     return 1;
@@ -633,8 +635,9 @@ s32 cmmScriptGetEntryIndex(void)
 
 
 
+// Returns the index of the current date in the date table.
 // FUN_0024AE40
-s32 func_0024ae40(void)
+s32 cmmScriptDateTableIndex(void)
 {
     scrSetReturnInt(cmmDateTableFindIndex(datGetDateIndex()));
     return 1;
@@ -642,8 +645,9 @@ s32 func_0024ae40(void)
 
 
 
+// Returns whether the current date has an entry in the date table.
 // FUN_0024AE80
-s32 func_0024ae80(void)
+s32 cmmScriptDateTableHasEntry(void)
 {
     scrSetReturnInt(cmmDateTableHasEntry(datGetDateIndex()) != 0);
     return 1;
@@ -651,8 +655,9 @@ s32 func_0024ae80(void)
 
 
 
+// Returns whether the current date has a special record in the date table.
 // FUN_0024AEC0
-s32 func_0024aec0(void)
+s32 cmmScriptDateTableHasSpecialRecord(void)
 {
     scrSetReturnInt(cmmDateTableHasSpecialRecord(datGetDateIndex()) != 0);
     return 1;
@@ -660,8 +665,9 @@ s32 func_0024aec0(void)
 
 
 
+// Reads a date-table column for the current date: arg 0 picks table 0 or 1, arg 1 picks the field (0 or 1); other values return 0.
 // FUN_0024AF00
-s32 func_0024af00(void)
+s32 cmmScriptDateTableReadColumn(void)
 {
     s32 param0;
     s32 param1;
@@ -682,8 +688,9 @@ s32 func_0024af00(void)
 
 
 
+// Applies the column delta for arg 0 (0 or 1) to the current date's date-table entry.
 // FUN_0024AFE0
-s32 func_0024afe0(void)
+s32 cmmScriptDateTableApplyColumnDelta(void)
 {
     s32 param0;
 
@@ -776,8 +783,9 @@ s32 func_0024b380(void)
 block_4:
     return 0;
 }
+// Adds arg 1 to the date-table count selected by arg 0.
 // FUN_0024B430
-s32 func_0024b430(void)
+s32 cmmScriptDateTableAddCount(void)
 {
     s32 param0;
     s32 param1;
@@ -847,8 +855,9 @@ s32 cmmRecordInfoShow(void)
     return 1;
 }
 #pragma optimization_level 2
+// Returns the index of the Nth matching date-table entry (arg 2) for args 0 and 1.
 // FUN_0024B6A0
-s32 func_0024b6a0(void)
+s32 cmmScriptDateTableFindNthMatch(void)
 {
     s32 param0;
     s32 param1;
