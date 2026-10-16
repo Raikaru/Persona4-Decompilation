@@ -102,14 +102,14 @@ extern void func_004a5ef0(u8 *arg0, u8 *arg1);
 extern u8 *GeometryCloneBlock(s32 arg0);
 extern s32 TnSlotObject(u16 arg0);
 extern s32 func_00481d80(u16 *arg0);
-extern s32 func_00482800(u16 *arg0);
+extern s32 TlpCreate(u16 *arg0);
 extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern s32 func_00481e30(s32 arg0);
 extern void func_00481ee0(s32 arg0);
-extern void func_004829c0(s32 arg0);
-extern s32 func_00482a70(s32 arg0);
+extern void TlpRelease(s32 arg0);
+extern s32 TlpAddRef(s32 arg0);
 extern void mdlInitIdentityMatrix(void *arg0);
 extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
 extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
@@ -299,7 +299,7 @@ void func_004a5de0(u8 *arg0) {
 
     temp_4 = (s32)(*(s32 *)((u8 *)(arg0) + 0xCC));
     if (temp_4 != 0) {
-        func_004829c0(temp_4);
+        TlpRelease(temp_4);
     }
     temp_4_2 = (s32)(*(s32 *)((u8 *)(arg0) + 0xD0));
     if (temp_4_2 != 0) {
@@ -346,9 +346,9 @@ void func_004a5ef0(u8 *arg0, u8 *arg1)
     if (*(s32 *)(arg1 + 0xCC) != 0) {
         temp_4_2 = *(s32 *)(arg0 + 0xCC);
         if (temp_4_2 != 0) {
-            func_004829c0(temp_4_2);
+            TlpRelease(temp_4_2);
         }
-        *(s32 *)(arg0 + 0xCC) = func_00482a70(*(s32 *)(arg1 + 0xCC));
+        *(s32 *)(arg0 + 0xCC) = TlpAddRef(*(s32 *)(arg1 + 0xCC));
     }
 }
 // FUN_004A5F90

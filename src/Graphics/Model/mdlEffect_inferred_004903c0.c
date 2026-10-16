@@ -41,7 +41,7 @@ void func_004903c0(u8 *arg0)
 {
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
-    extern void func_004bceb0(void);
+    extern void effMiscBuildRotationVU(void);
     extern f32 fabsf(f32 arg0);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
@@ -102,7 +102,7 @@ void func_004903c0(u8 *arg0)
     eD8 = *(f32 *)(config + 216);
     vec120.lane[3] = 0.0f;
     effectVuLoad10((const EffectVuVector *)(config + 16));
-    func_004bceb0();
+    effMiscBuildRotationVU();
     if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v15 = 0;
         goto post_init;

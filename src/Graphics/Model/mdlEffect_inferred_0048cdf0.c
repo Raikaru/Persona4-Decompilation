@@ -27,7 +27,7 @@ typedef struct RwMatrix
 } RwMatrix;
 
 extern f32 fabsf(f32 value);
-extern void func_004bceb0(void);
+extern void effMiscBuildRotationVU(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
@@ -310,7 +310,7 @@ skip_clear:
         out[5] = ((f32 *)&cfg10)[2];
         out[6] = ((f32 *)&cfg10)[3];
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&cfg10), "m"(cfg10) : "$vf10", "memory");
-        func_004bceb0();
+        effMiscBuildRotationVU();
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
         __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&cfg0), "m"(cfg0) : "$vf11", "memory");
@@ -353,7 +353,7 @@ skip_clear:
         tmp130[2] = out[8] * sinf(out[10]);
         if ((flags & 1) == 0) {
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&cfg10), "m"(cfg10) : "$vf10", "memory");
-            func_004bceb0();
+            effMiscBuildRotationVU();
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
             __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
             __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(&cfg0), "m"(cfg0) : "$vf11", "memory");
@@ -400,7 +400,7 @@ else_branch:
         tmp150[2] = out[5];
         tmp150[3] = out[6];
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp150), "m"(*(u_long128 *)tmp150) : "$vf10", "memory");
-        func_004bceb0();
+        effMiscBuildRotationVU();
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(tmp130), "m"(*(u_long128 *)tmp130) : "$vf10", "memory");
         __asm__ volatile("vmulax.xyzw $ACC, $vf28, $vf10x \n" "vmadday.xyzw $ACC, $vf29, $vf10y \n" "vmaddz.xyzw $vf10, $vf30, $vf10z \n" : : : "$vf10", "ACC", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp130) : "r"(tmp130) : "$vf10", "memory");

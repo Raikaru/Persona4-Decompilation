@@ -29,7 +29,7 @@ extern void effMiscQuatMultiplyVU(void);
 extern void func_0048a2b0(u8 *arg0, u8 *arg1);
 extern f32 func_0044b920(f32 arg0);
 extern f32 func_0044b950(f32 arg0, f32 arg1);
-extern void func_004bcf20(f32 arg0, f32 arg1, f32 arg2);
+extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];
@@ -250,7 +250,7 @@ u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2)
     } else {
         var_f20 = -func_0044b920(-*(f32 *)((u8 *)&sp40 + 4));
     }
-    func_004bcf20(var_f20,
+    effMiscEulerToQuatVU(var_f20,
                   func_0044b950(*(f32 *)((u8 *)&sp40 + 0),
                                 *(f32 *)((u8 *)&sp40 + 8)),
                   0.0f);

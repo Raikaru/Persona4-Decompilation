@@ -27,7 +27,7 @@ typedef struct RwMatrix
 } RwMatrix;
 
 extern f32 fabsf(f32 value);
-extern void func_004bceb0(void);
+extern void effMiscBuildRotationVU(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
@@ -157,7 +157,7 @@ void func_0048f5f0(u8 *arg0)
     } BezierParticleWork;
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
-    extern void func_004bd380(void *arg0, f32 arg1);
+    extern void effMiscAxisAngleVU(void *arg0, f32 arg1);
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void memcpy(void *dst, void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
@@ -249,7 +249,7 @@ void func_0048f5f0(u8 *arg0)
     stack1A0[1] = *(f32 *)(config + 256);
     stack1A0[2] = *(f32 *)(config + 260);
     __asm__ volatile("lqc2 $vf10, 0x10(%0)" : : "r"(config), "m"(*(u_long128 *)(config + 16)) : "$vf10", "memory");
-    func_004bceb0();
+    effMiscBuildRotationVU();
     if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;
@@ -389,7 +389,7 @@ skip_clear:
         c = two * (b - half);
         fE0 = (f32)*(s16 *)(config + 224) * c;
         ftmp1 = half * fE0;
-        func_004bd380(tmp1C0, stackDC * ftmp1);
+        effMiscAxisAngleVU(tmp1C0, stackDC * ftmp1);
     }
     {
         angle = *(f32 *)(config + 208);
@@ -523,7 +523,7 @@ skip_clear:
         __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(quad130), "m"(*(u_long128 *)quad130) : "$vf10", "memory");
         if (zero != ftmp3) {
             __asm__ volatile("sqc2 $vf10, 0(%0)" : "=m"(*(u_long128 *)tmp170) : "r"(tmp170) : "$vf10", "memory");
-            func_004bd380(tmp1C0, ftmp3);
+            effMiscAxisAngleVU(tmp1C0, ftmp3);
             __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(tmp1C0), "m"(*(u_long128 *)tmp1C0) : "$vf11", "memory");
             __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(out->length.value * angle) : "$vf2", "memory");
             __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x \n" : : : "$vf11", "$vf2", "memory");
@@ -622,7 +622,7 @@ else_branch:
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(vecA), "m"(*(u_long128 *)vecA) : "$vf11", "memory");
         __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11 \n vmul.xyz $vf2, $vf10, $vf10 \n vmulax.w $ACC, $vf0, $vf2x \n vmadday.w $ACC, $vf0, $vf2y \n vmaddz.w $vf2, $vf0, $vf2z \n vrsqrt $Q, $vf0w, $vf2w \n vwaitq \n vmulq.xyz $vf10, $vf10, $Q \n" : : : "$vf2", "$vf10", "$vf11", "ACC", "Q", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(tmp1C0) : "memory");
-        func_004bd380(tmp1C0, f12B);
+        effMiscAxisAngleVU(tmp1C0, f12B);
         __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(tmp1C0), "m"(*(u_long128 *)tmp1C0) : "$vf11", "memory");
         __asm__ volatile("qmtc2.ni %0, $vf2" : : "r"(out->length.value * angle) : "$vf2", "memory");
         __asm__ volatile("vmulx.xyzw $vf11, $vf11, $vf2x \n" : : : "$vf11", "$vf2", "memory");

@@ -27,7 +27,7 @@ typedef struct RwMatrix
 } RwMatrix;
 
 extern f32 fabsf(f32 value);
-extern void func_004bceb0(void);
+extern void effMiscBuildRotationVU(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
@@ -204,7 +204,7 @@ void func_0048ec50(u8 *arg0)
     e0val = *(f32 *)(config + 224);
     vec130.lane[3] = 0.0f;
     effectVuLoad10((const EffectVuVector *)(config + 16));
-    func_004bceb0();
+    effMiscBuildRotationVU();
     if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
         v14 = 0;
         v15 = 0;
