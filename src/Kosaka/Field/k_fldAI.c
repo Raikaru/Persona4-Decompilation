@@ -31,7 +31,7 @@ typedef struct { f32 x, y, z, w; } FldAIVec4;
 extern u8 D_005F1B40[];
 extern u8 D_005F1B4C[];
 
-extern s32 *func_00155280(void);
+extern s32 *MT_Scene_GetFrameState(void);
 
 /* Field follower update. Readiness is a byte predicate; model-slot and
  * history addresses keep their storage boundaries. Position providers write
@@ -244,13 +244,13 @@ discoveryAvailabilityDone:
         {
             s32 rowOffset = tileZ * 0x100;
             s32 columnOffset = tileX * 0x10;
-            if (*(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 2 ||
-                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 9 ||
-                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 10 ||
-                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 11 ||
-                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 12 ||
-                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 13 ||
-                *(u8 *)((u8 *)func_00155280() + rowOffset + columnOffset + 0x58) == 14) {
+            if (*(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 2 ||
+                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 9 ||
+                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 10 ||
+                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 11 ||
+                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 12 ||
+                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 13 ||
+                *(u8 *)((u8 *)MT_Scene_GetFrameState() + rowOffset + columnOffset + 0x58) == 14) {
                 *(s32 *)(work + 0x58) = 0;
                 *(s32 *)(work + 0x5C) = 0;
                 *(s32 *)(work + 0x4C) = -1;
@@ -724,7 +724,7 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
             f32 centeredX = 600.0f + line[0].x;
             cellX = (s32)(centeredX / 1200.0f);
             cellZ = (s32)((600.0f + line[0].z) / 1200.0f);
-            sourceCell = ((u8 *)func_00155280()) + (cellZ * 0x100) + (cellX * 0x10);
+            sourceCell = ((u8 *)MT_Scene_GetFrameState()) + (cellZ * 0x100) + (cellX * 0x10);
             cell = *(FldAIVec4 *)(sourceCell + 0x54);
             cachedStep = *(s32 *)(work + 0x4C);
             direction = cachedStep & 3;
@@ -777,7 +777,7 @@ s32 FldAI_AdvanceBoundsSample(u8 *work)
             f32 centeredX = 600.0f + endpointX;
             s32 endpointCellX = (s32)(centeredX / 1200.0f);
             s32 endpointCellZ = (s32)((600.0f + endpointZ) / 1200.0f);
-            u8 *cellB = ((u8 *)func_00155280()) + (endpointCellZ * 0x100) + (endpointCellX * 0x10);
+            u8 *cellB = ((u8 *)MT_Scene_GetFrameState()) + (endpointCellZ * 0x100) + (endpointCellX * 0x10);
             if (*(u8 *)(cellB + 0x54) == 1) {
                 axis = 0;
                 if (FldFrame_RaycastField(line, &hit) == 1) {

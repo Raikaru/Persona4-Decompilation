@@ -14,7 +14,7 @@ extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern s32 FldMap_IsCurrentInEitherBand(void);
 extern s32 FldMap_IsCurrentInBandA(void);
 extern s32 FldMap_IsCurrentInBandB(void);
-extern s32* func_00155280(void);
+extern s32* MT_Scene_GetFrameState(void);
 extern s32 FldFrameTask_GetTileX(s32 arg0);
 extern s32 FldFrameTask_GetTileZ(s32 arg0);
 extern s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin,
@@ -993,7 +993,7 @@ s32 FldFrame_RaycastFieldWorlds(f32* origin, f32* vector, f32 fraction, s32 fiel
         }
         {
             u32 key;
-            key = *(u16*)((u8*)func_00155280() + (fieldY << 8) +
+            key = *(u16*)((u8*)MT_Scene_GetFrameState() + (fieldY << 8) +
                           (fieldX << 4) + 0x56);
             while (entry != NULL)
             {
@@ -1030,7 +1030,7 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
     extern s32 FldMap_IsCurrentInBandB(void);
     extern s32 func_00457120(void);
     extern RwMatrix* func_003e9700(RwFrame* frame);
-    extern s32* func_00155280(void);
+    extern s32* MT_Scene_GetFrameState(void);
     extern void* mdlGetClump(void* model);
     extern f32 RwV3dNormalize(f32* dst, const f32* src);
     extern f32 D_007615DC;
@@ -1106,14 +1106,14 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
             s32* offsets = &D_005F1650[2 * j];
             s32* zOffset = offsets + 1;
             void* table;
-            table = func_00155280();
+            table = MT_Scene_GetFrameState();
             if (*(u8*)((u8*)table + ((z + *zOffset) * 256) + 16 * (x + offsets[0]) + 84) == 1)
             {
                 u16 id;
                 void* target;
                 u8* node;
                 offsets = &D_005F1650[2U * j];
-                table = func_00155280();
+                table = MT_Scene_GetFrameState();
                 id = *(u16*)((u8*)table + ((z + *zOffset) * 256) + 16 * (x + offsets[0]) + 86);
                 target = 0;
                 node = MT_Scene_GetResListHead(12);
@@ -1245,7 +1245,7 @@ s32 FldFrame_CollideSphereSelected(const RwV3d* point, f32 radius, RwV3d* normal
             map = ((u8*)func_003e9700((RwFrame*)(*(u8**)(((u8*)(uintptr_t)func_00457120()) + 4))));
             fieldX = (s32)((((const RwV3d*)(map + 0x30))->x + 600.0f) / 1200.0f);
             fieldZ = (s32)((((const RwV3d*)(map + 0x30))->z + 600.0f) / 1200.0f);
-            key = *(u16*)((u8*)func_00155280() + (fieldZ * 256) +
+            key = *(u16*)((u8*)MT_Scene_GetFrameState() + (fieldZ * 256) +
                          (fieldX * 16) + 0x56);
             for (node = (FldSelectionNode*)MT_Scene_GetResListHead(12); node != NULL;
                  node = node->next)
@@ -1466,7 +1466,7 @@ u32 FldFrame_RaycastSelectedWorld(const RwV3d* line, RwV3d* hitPointDst)
             u8* entry;
             u32 key;
             entry = MT_Scene_GetResListHead(0xc);
-            key = *(u16*)((u8*)func_00155280() +
+            key = *(u16*)((u8*)MT_Scene_GetFrameState() +
                          (s32)((600.0f + lineCopy.point[0].z) / 1200.0f) * 0x100 +
                          (s32)((600.0f + lineCopy.point[0].x) / 1200.0f) * 0x10 + 0x56);
             while (entry != NULL)

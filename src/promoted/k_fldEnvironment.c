@@ -18,7 +18,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern char D_005EFE50[];
 extern char D_005EFE68[];
 extern s32 func_00153a00(u8 *task);
-extern void func_00153a30(u8 *task);
+extern void MT_Scene_CallTaskHook(u8 *task);
 
 
 extern s32 FldRc_GetLoadSource(void);
@@ -41,7 +41,7 @@ extern void memset(void *arg0, s32 arg1, u32 arg2);
 extern u8 *func_00457120(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
-extern s32 *func_00155280(void);
+extern s32 *MT_Scene_GetFrameState(void);
 extern void func_0016e590();
 extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
 extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
@@ -71,7 +71,7 @@ s32 func_00153a60(s32 arg0) {
     if (p == NULL) {
         return 0;
     }
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005EFE68[0]), 0xF, 0, 0, func_00153a00, func_00153a30, (u8 *)(p));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005EFE68[0]), 0xF, 0, 0, func_00153a00, MT_Scene_CallTaskHook, (u8 *)(p));
     *(s32 *)(p + 0x8) = 1;
     *(s32 *)(p + 0xC) = 0xC8;
     return result;
@@ -159,7 +159,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     extern u8 *resrcMngGetColorValue(void);
     extern u8 *resrcMngGetColorTarget(void);
     extern u8 *resrcMngGetTransform(void);
-    extern void func_001537c0(u8 *arg0, u8 *arg1);
+    extern void MT_Scene_SetResVector(u8 *arg0, u8 *arg1);
     extern s32 func_001838d0(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, s32 arg2, s32 arg3, s32 arg4);
     extern s32 func_00185150(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s32 arg6, u8 *arg7);
     extern void func_0018c700(f32 arg0);
@@ -327,7 +327,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
         s32 i;
         for (i = 0; i < *(s32 *)(iGpffff9db0 + 0x24); i++) {
             *(CmrVec3 *)(((u8 **)iGpffff9db0)[i + 10] + 0xA24) = *(CmrVec3 *)(data + 0x130);
-            func_001537c0(((u8 **)iGpffff9db0)[i + 10], ((u8 **)iGpffff9db0)[i + 10] + 0xA24);
+            MT_Scene_SetResVector(((u8 **)iGpffff9db0)[i + 10], ((u8 **)iGpffff9db0)[i + 10] + 0xA24);
         }
     }
     if (((u32)*(s32 *)(data + 4) > 0x10001U) && (tmp4 != NULL)) {
@@ -715,16 +715,16 @@ s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
         K_View_SetFov(func_00457120(), *(f32 *)(data + 8));
         func_003e9cb0((void *)*(s32 *)(func_00457120() + 4),
                       data + 0x10, 0);
-        func_0016e590(func_00155280()[1], *(u16 *)(data + 0x50));
-        FldFrame_SetViewOffset(func_00155280()[1], data + 0x54);
-        FldFrame_SetViewDistance(func_00155280()[1], *(f32 *)(data + 0x60));
-        func_0016ea30(func_00155280()[1], *(f32 *)(data + 0x64));
+        func_0016e590(MT_Scene_GetFrameState()[1], *(u16 *)(data + 0x50));
+        FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], data + 0x54);
+        FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], *(f32 *)(data + 0x60));
+        func_0016ea30(MT_Scene_GetFrameState()[1], *(f32 *)(data + 0x64));
         for (i = 0; i < 0x20; i++) {
             id = *(s8 *)(data + 0x68 + i);
             if (id <= -1) {
                 goto CMR_loop_skip;
             }
-            FldFrame_SetSlotVector(func_00155280()[1], id,
+            FldFrame_SetSlotVector(MT_Scene_GetFrameState()[1], id,
                           data + i * 0xC + 0x88);
 CMR_loop_skip:
             ;
@@ -744,7 +744,7 @@ CMR_loop_skip:
             *(f32 *)(arg2 + 0x30) = 0.0f;
             *(s32 *)(arg2 + 0xC) |= 0x20003;
         }
-        dst = FldFrame_GetSlotBuffer(func_00155280()[1]);
+        dst = FldFrame_GetSlotBuffer(MT_Scene_GetFrameState()[1]);
         src = (s32 *)(data + 0x210);
         count = 8;
         do {
@@ -756,7 +756,7 @@ CMR_loop_skip:
             *(s32 *)(dst + 4) = second;
             dst += 8;
         } while (count > 0);
-        func_0016eb00(func_00155280()[1]);
+        func_0016eb00(MT_Scene_GetFrameState()[1]);
     }
     if (FldRc_GetLoadSource() == 0) {
         H_Cdvd_Destroy(arg0);

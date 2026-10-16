@@ -79,7 +79,7 @@ typedef struct YRGBA { u8 a, b, c, d; } YRGBA;
 /* func_002afbc0 callees */
 extern s32 func_002b2a30(u8, u8, u8, u8);
 extern void func_002b2bd0(f32 *, s64, f32, f32, f32, f32);
-extern u8 *func_00155280(void);
+extern u8 *MT_Scene_GetFrameState(void);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern void smapDrawQuad(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5);
 extern u8 D_00794DB0[];
@@ -271,11 +271,11 @@ typedef struct SMapGridCell {
 /* Do not cache the map provider: every retail field access calls it again. */
 #define SMAP_GRID_MAP_VIEW(address) ((SMapGridCell *)((address) + 0x50))
 #define SMAP_GRID_SCAN_AT(rowOffset, columnOffset) \
-    SMAP_GRID_MAP_VIEW((u8 *)((rowOffset) + (u32)func_00155280()) + (columnOffset))
+    SMAP_GRID_MAP_VIEW((u8 *)((rowOffset) + (u32)MT_Scene_GetFrameState()) + (columnOffset))
 #define SMAP_GRID_OFFSET_AT(offset) \
-    SMAP_GRID_MAP_VIEW((offset) + (u32)func_00155280())
+    SMAP_GRID_MAP_VIEW((offset) + (u32)MT_Scene_GetFrameState())
 #define SMAP_GRID_CELL_AT(rowOffset, columnOffset) \
-    ((SMapGridCell *)(func_00155280() + (rowOffset) + (columnOffset) + 0x50))
+    ((SMapGridCell *)(MT_Scene_GetFrameState() + (rowOffset) + (columnOffset) + 0x50))
 #define SMAP_GRID_NEIGHBOR_AT(rowOffset, columnOffset, cellOffset) \
     (SMAP_GRID_CELL_AT(rowOffset, columnOffset) + (cellOffset))
 
@@ -830,7 +830,7 @@ void smapSetStateValue(u8 *arg0, u8 *arg1) {
  * byte coordinates use unsigned offsets. Both stay in the same byte domain.
  */
 #define SMAP_FIELD(row, column, offset) \
-    (*((u8 *)func_00155280() + (row) * 0x100 + (column) * 0x10 + (offset)))
+    (*((u8 *)MT_Scene_GetFrameState() + (row) * 0x100 + (column) * 0x10 + (offset)))
 
 // FUN_002ADD90
 s32 smapUpdateEntities(u8 *arg0)
@@ -1001,7 +1001,7 @@ void smapFreeSprites(u8 *arg0) {
  * tables contain signed byte pairs for each orientation.
  */
 #define SMAP_SCAN_FIELD(rowOffset, column, field) \
-    (*((u8 *)((rowOffset) + (u32)func_00155280()) + (u32)(column) * 0x10 + (field)))
+    (*((u8 *)((rowOffset) + (u32)MT_Scene_GetFrameState()) + (u32)(column) * 0x10 + (field)))
 #define SMAP_NEIGHBOR_OFFSET(table, direction, field) \
     (*(s8 *)((u32)(table) + (direction) * 2 + (field)))
 
@@ -1433,8 +1433,8 @@ s32 smapDrawCell(u8 *arg0) {
         cell->position.x = 7.0f + 18.0f * (f32)(u32)cell->column + origin[1].x - (f32)(D_00764660 * 18) + 15.0f + cell->offset.x - 10.0f;
         cell->position.y = 227.0f + 18.0f * (f32)(u32)cell->row + origin[1].y - (f32)(D_0076465C * 18) + 15.0f + cell->offset.y + 16.0f;
         if (cell->hasIcon == 1) {
-            visibilityRow = ((*(u8 *)(func_00155280() + 0x47) + cell->visibilityRowOffset) & 0xFF);
-            visibilityColumn = ((*(u8 *)(func_00155280() + 0x46) + cell->visibilityColumnOffset) & 0xFF);
+            visibilityRow = ((*(u8 *)(MT_Scene_GetFrameState() + 0x47) + cell->visibilityRowOffset) & 0xFF);
+            visibilityColumn = ((*(u8 *)(MT_Scene_GetFrameState() + 0x46) + cell->visibilityColumnOffset) & 0xFF);
             if (datGetFlag(0x1416) == 0) {
                 showIcon = (s8)(((1 << (visibilityColumn & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[visibilityRow & 0xFF]) >> (visibilityColumn & 0xFF));
             } else {
@@ -1455,8 +1455,8 @@ s32 smapDrawCell(u8 *arg0) {
         cell->position.x = 172.0f + 18.0f * (f32)(u32)cell->column;
         cell->position.y = 9.0f + 18.0f * (f32)(u32)cell->row;
         if (cell->hasIcon == 1) {
-            visibilityRow = ((*(u8 *)(func_00155280() + 0x47) + cell->visibilityRowOffset) & 0xFF);
-            visibilityColumn = ((*(u8 *)(func_00155280() + 0x46) + cell->visibilityColumnOffset) & 0xFF);
+            visibilityRow = ((*(u8 *)(MT_Scene_GetFrameState() + 0x47) + cell->visibilityRowOffset) & 0xFF);
+            visibilityColumn = ((*(u8 *)(MT_Scene_GetFrameState() + 0x46) + cell->visibilityColumnOffset) & 0xFF);
             if (datGetFlag(0x1416) == 0) {
                 showIcon = (s8)(((1 << (visibilityColumn & 0xFF)) & 0xFFFF & ((u16 *)D_00764658)[visibilityRow & 0xFF]) >> (visibilityColumn & 0xFF));
             } else {
@@ -1609,12 +1609,12 @@ u8 *smapBuildTiles(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg
         *(f32 *)(blk + 0x2C) = 19.0f;
     }
     *(blk + 0x14C) = 0;
-    if (arg4 == 2 && arg6 == *(u8 *)(func_00155280() + 0x46) && arg7 == *(u8 *)(func_00155280() + 0x47)) {
+    if (arg4 == 2 && arg6 == *(u8 *)(MT_Scene_GetFrameState() + 0x46) && arg7 == *(u8 *)(MT_Scene_GetFrameState() + 0x47)) {
         for (i = 0; i < 2; i++) {
             j = 0;
             rowOfs = (arg7 + i) << 8;
             for (; j < 2; j++) {
-                q = func_00155280();
+                q = MT_Scene_GetFrameState();
                 kind = *(u8 *)(rowOfs + (u32)q + (arg6 + j) * 0x10 + 0x55) >> 4;
                 if (kind == 2) {
                     *(f32 *)(blk + 0x150) = 9.0f;

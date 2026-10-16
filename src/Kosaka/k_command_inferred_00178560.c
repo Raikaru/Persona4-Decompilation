@@ -40,7 +40,7 @@ typedef struct
     u8 alpha;
 } FieldColor_0017;
 extern void FldEvent_StepGridCell();
-extern s32 *func_00155280(void);
+extern s32 *MT_Scene_GetFrameState(void);
 extern s32 func_0015a160(void);
 /* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
    before the two lhu loads and $a3 (a) after them, which is the default-
@@ -214,7 +214,7 @@ s32 K_Cmd_CALL_BATTLE(void)
 
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
-    temp_2 = FldEvent_BeginEncounter(*(s32 *)((u8 *)func_00155280() + 8), temp_17 & 0xFFFF,
+    temp_2 = FldEvent_BeginEncounter(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 8), temp_17 & 0xFFFF,
                            temp_16 & 0xFFFF);
     if (temp_2 & 1) {
         return 0;

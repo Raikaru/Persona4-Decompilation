@@ -16,7 +16,7 @@ extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_0016e590();
 extern s32 iGpffff9f08;
 
-extern s32* func_00155280(void);
+extern s32* MT_Scene_GetFrameState(void);
 extern void (*DAT_008873EC[])(void *);
 extern u8 D_007EF9B0[];
 extern u8 D_007F16F0[];
@@ -268,7 +268,7 @@ s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
     } FldRayContext;
     extern u8 *MT_Scene_GetResListHead(s32 arg0);
     extern s32 FldMap_IsCurrentInEitherBand(void);
-    extern s32* func_00155280(void);
+    extern s32* MT_Scene_GetFrameState(void);
     extern void *FldFrame_RaycastWorldLocal(void *collisionWorld, void *ray);
     extern void *RpClumpForAllAtomics(void *collisionWorld, void *(*cb)(void *, void *), void *ray);
     extern void *mdlGetClump(void *model);
@@ -315,12 +315,12 @@ s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
             s32 *offsets = &D_005F1670[2 * neighbor];
             s32 *zOffset = offsets + 1;
             void *table;
-            table = ((u8*)func_00155280());
+            table = ((u8*)MT_Scene_GetFrameState());
             if (*(u8 *)((u8 *)table + ((fieldZ + *zOffset) * 256) + 16 * (fieldX + offsets[0]) + 0x54) != 1) {
                 goto next_cell;
             }
             offsets = &D_005F1670[2U * neighbor];
-            table = ((u8*)func_00155280());
+            table = ((u8*)MT_Scene_GetFrameState());
             storedKey = *(u16 *)((u8 *)table + ((fieldZ + *zOffset) * 256) + 16 * (fieldX + offsets[0]) + 0x56);
             modelNode = MT_Scene_GetResListHead(0xA);
             key = storedKey;
@@ -1150,7 +1150,7 @@ s32 func_0016bdd0(u8 *param_1)
                 temp_v9 = temp_v9 + remaining;
               }
             }
-            temp_v8_c = (int)func_00155280();
+            temp_v8_c = (int)MT_Scene_GetFrameState();
             func_0016e8e0(*(unsigned char **)(temp_v8_c + 4),temp_v9);
             *(float *)((u8 *)(u32)piVar1 + 0x2ac) = (*(float *)((u8 *)(u32)piVar1 + 0x2ac) - temp_v9);
             {
@@ -2073,7 +2073,7 @@ void func_0016eb00(u8 *arg0)
     case 0:
     case 5:
     case 6:
-        temp_2 = ((u8*)func_00155280());
+        temp_2 = ((u8*)MT_Scene_GetFrameState());
         if ((*(s32 *)(*(u8 **)(*(u8 **)(temp_2 + 4) + 0x38) + 8) == 0) ||
             (*(s32 *)(*(u8 **)(*(u8 **)(temp_2 + 4) + 0x38) + 8) == 6) ||
             (*(s32 *)(*(u8 **)(*(u8 **)(temp_2 + 4) + 0x38) + 8) == 7)) {
@@ -2203,7 +2203,7 @@ s32 func_0016ee00(u8 *arg0)
     switch (temp_3) {
     case 0:
         temp_f20 = *(f32 *)(temp_16 + 0xC);
-        temp_3_2 = *(s32 *)(*(u8 **)(*(u8 **)(((u8*)func_00155280()) + 4) + 0x38) + 8);
+        temp_3_2 = *(s32 *)(*(u8 **)(*(u8 **)(((u8*)MT_Scene_GetFrameState()) + 4) + 0x38) + 8);
         if (temp_3_2 == 0)
             goto process0;
         if (temp_3_2 == 6)
@@ -2241,10 +2241,10 @@ skip_process0:
             temp_f21 = sinf((iGpffff8094 *
                                       (f32)*(s32 *)(temp_16 + 8)) /
                                      (f32)*(s32 *)(temp_16 + 4));
-            if (*(s32 *)(((u8*)func_00155280()) + 4) != 0) {
+            if (*(s32 *)(((u8*)MT_Scene_GetFrameState()) + 4) != 0) {
                 temp_f20_2 = *(f32 *)(temp_16 + 0x10) *
                              (temp_f21 - *(f32 *)(temp_16 + 0x14));
-                temp_3_4 = *(s32 *)(*(u8 **)(*(u8 **)(((u8*)func_00155280()) + 4) +
+                temp_3_4 = *(s32 *)(*(u8 **)(*(u8 **)(((u8*)MT_Scene_GetFrameState()) + 4) +
                                              0x38) + 8);
                 if (temp_3_4 == 0)
                     goto process1;
@@ -2514,7 +2514,7 @@ void func_0016f750(u8 *arg0, u8 *arg1)
     case 0:
     case 5:
     case 6:
-        func_0016e8e0(*(u8 **)(((u8*)func_00155280()) + 4), 0.0f);
+        func_0016e8e0(*(u8 **)(((u8*)MT_Scene_GetFrameState()) + 4), 0.0f);
         return;
     case 2:
     {

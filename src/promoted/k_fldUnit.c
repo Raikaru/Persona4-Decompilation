@@ -89,7 +89,7 @@ extern u8 *func_00162680(u16 arg0, u16 arg1, s32 arg2);
 extern u8 datPersonaGetLevelByPcId(u16 arg0);
 extern s16 datGetPartyId(s32 arg0);
 extern s32 datCalcGetLevelById(s32 arg0);
-extern s32 *func_00155280(void);
+extern s32 *MT_Scene_GetFrameState(void);
 extern void SceneDraw_SetResVisible(u16 arg0, s32 arg1);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern s32 func_0018bb20(s32 arg0, s32 arg1);
@@ -558,16 +558,16 @@ void FldUnit_UpdateFacing(void)
 
                 /* Keep the separate grid queries and unsigned byte-to-float casts. */
                 spawnPosition.x = 1200.0f *
-                    (f32)(u32)((FieldUnitGridView *)func_00155280())->spawnColumn;
+                    (f32)(u32)((FieldUnitGridView *)MT_Scene_GetFrameState())->spawnColumn;
                 spawnPosition.y = 2.0f;
                 spawnPosition.z = 1200.0f *
-                    (f32)(u32)((FieldUnitGridView *)func_00155280())->spawnRow;
+                    (f32)(u32)((FieldUnitGridView *)MT_Scene_GetFrameState())->spawnRow;
                 unitForSetup = fieldUnitSlotAt(&partyIndex);
-                gridRow = (FieldUnitGridView *)((u8 *)func_00155280() +
-                    (((FieldUnitGridView *)func_00155280())->spawnRow << 8));
+                gridRow = (FieldUnitGridView *)((u8 *)MT_Scene_GetFrameState() +
+                    (((FieldUnitGridView *)MT_Scene_GetFrameState())->spawnRow << 8));
                 FldFrameTask_Rotate((*sceneResource)->movementTask, D_00756510,
                     90.0f * (f32)((((FieldUnitGridView *)(u32)gridRow)->cells[
-                        ((FieldUnitGridView *)func_00155280())->spawnColumn].direction + 2) % 4));
+                        ((FieldUnitGridView *)MT_Scene_GetFrameState())->spawnColumn].direction + 2) % 4));
                 mdlDispatchAnimIfPresent((u8 *)*characterModel, 0,
                               func_0016fd00(unitForSetup->characterId), 0, 1);
                 *formationMatrix = *(FieldUnitMatrix *)mdlGetMatrix(
@@ -2099,7 +2099,7 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
         mdlAdvanceModelFromFlags(temp_4_2);
         temp_17_2 = (s32)((600.0f + *(f32 *)(arg1 + 0x140)) / 1200.0f);
         temp_18 = (s32)((600.0f + *(f32 *)(arg1 + 0x148)) / 1200.0f);
-        *(u8 **)(temp_2 + 0x140) = (u8 *)MT_Scene_GetRes(*(u16 *)((u8 *)func_00155280() + (temp_18 << 8) + (temp_17_2 * 0x10) + 0x56));
+        *(u8 **)(temp_2 + 0x140) = (u8 *)MT_Scene_GetRes(*(u16 *)((u8 *)MT_Scene_GetFrameState() + (temp_18 << 8) + (temp_17_2 * 0x10) + 0x56));
         SceneDraw_SetResVisible(*(u16 *)(arg0 + 0xC), 1);
         iGpffffb2e4 += 1;
     }
@@ -2789,7 +2789,7 @@ void FldUnit_UpdateFieldState(void)
                     (u8 *)mdlGetMatrix(*modelSlot) + 0x30)) / 1200.0f);
                 unitCellZ = (s32)((600.0f + *(f32 *)(
                     (u8 *)mdlGetMatrix(*modelSlot) + 0x38)) / 1200.0f);
-                selected = (u8 *)MT_Scene_GetRes(*(u16 *)((u8 *)func_00155280() +
+                selected = (u8 *)MT_Scene_GetRes(*(u16 *)((u8 *)MT_Scene_GetFrameState() +
                     (unitCellZ << 8) + (unitCellX << 4) + 0x56));
                 if (!(unitCellX < playerCellX - 3 || unitCellX > playerCellX + 3 ||
                       unitCellZ < playerCellZ - 3 || unitCellZ > playerCellZ + 3 ||
@@ -2824,7 +2824,7 @@ void FldUnit_UpdateFieldState(void)
                 gridSize = 1200.0f;
                 objectCellX = (s32)(shiftedX / gridSize);
                 objectCellZ = (s32)((center + *(f32 *)(object + 0x158)) / gridSize);
-                objectResource = (u8 *)MT_Scene_GetRes(*(u16 *)((u8 *)func_00155280() +
+                objectResource = (u8 *)MT_Scene_GetRes(*(u16 *)((u8 *)MT_Scene_GetFrameState() +
                     (objectCellZ << 8) + (objectCellX << 4) + 0x56));
                 if (!(objectCellX < playerCellX - 2 || objectCellX > playerCellX + 2 ||
                       objectCellZ < playerCellZ - 2 || objectCellZ > playerCellZ + 2 ||

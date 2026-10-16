@@ -47,7 +47,7 @@ extern void fieldSceneUnload(void);
 extern void sdlSchedulerEnable(void);
 extern void *memset(void *dst, s32 value, s32 size);
 extern s32 calCaptureStateImage(void);
-extern s32 *func_00155280(void);
+extern s32 *MT_Scene_GetFrameState(void);
 extern s32 datGetFlag(s32 arg0);
 extern s32 func_0016fd00(void);
 extern s32 func_00162510(u16 arg0, u16 arg1);
@@ -236,7 +236,7 @@ s32 func_00170960(u8 *arg0)
     u8 *temp;
 
     temp = *(u8 **)(arg0 + 0x38);
-    if ((*(s32 *)((u8 *)func_00155280() + 0x18) != 0) && (D_008C024E[0] & 0x800)) {
+    if ((*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0) && (D_008C024E[0] & 0x800)) {
         *(s32 *)(temp + 4) = 0;
         return 1;
     }
@@ -257,23 +257,23 @@ s32 func_001709c0(u8 *arg0)
         func_00182310(1);
         func_002bd410();
         func_002bd3c0();
-        temp_2 = (u8 *)func_00155280();
+        temp_2 = (u8 *)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(temp_2 + 0x1C), 1);
         func_0045af60(0, 0, 0, 3);
-        temp_2 = (u8 *)func_00155280();
+        temp_2 = (u8 *)MT_Scene_GetFrameState();
         func_0018a000(*(s32 *)(temp_2 + 0x30), 1);
-        temp_2 = (u8 *)func_00155280();
+        temp_2 = (u8 *)MT_Scene_GetFrameState();
         smapRefreshCells(*(u8 **)(temp_2 + 0x18), 1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
         if (D_008C024E[0] & 0x820) {
             func_00182310(0);
-            temp_2 = (u8 *)func_00155280();
+            temp_2 = (u8 *)MT_Scene_GetFrameState();
             func_0018e030(*(s32 *)(temp_2 + 0x1C), 0);
-            temp_2 = (u8 *)func_00155280();
+            temp_2 = (u8 *)MT_Scene_GetFrameState();
             func_0018a000(*(s32 *)(temp_2 + 0x30), 0);
-            temp_2 = (u8 *)func_00155280();
+            temp_2 = (u8 *)MT_Scene_GetFrameState();
             smapRefreshCells(*(u8 **)(temp_2 + 0x18), 0);
             func_0045af60(0, 0, 0, 4);
             *(s32 *)(temp_16 + 0x10) = 0;
@@ -315,21 +315,21 @@ s32 func_00170bc0(u8 *arg0)
     state = *(s32 *)(temp_16 + 4);
     switch (state) {
     case 0:
-        if (*(s32 *)((u8 *)func_00155280() + 0x30) != 0)
-            func_0018a000(*(s32 *)((u8 *)func_00155280() + 0x30), 1);
+        if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0)
+            func_0018a000(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30), 1);
         func_002bd410();
         func_002bd3c0();
-        func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 1);
+        func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
         *(s32 *)(temp_16 + 0x10) = func_0012d000((s32)arg0, 1);
-        if (*(s32 *)((u8 *)func_00155280() + 0x18) != 0)
-            smapSetPhase(*(s32 *)((u8 *)func_00155280() + 0x18), 1);
+        if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0)
+            smapSetPhase(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18), 1);
         func_00182310(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
-            if (*(s32 *)((u8 *)func_00155280() + 0x30) != 0)
-                func_0018a000(*(s32 *)((u8 *)func_00155280() + 0x30), 0);
+            if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0)
+                func_0018a000(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30), 0);
             if (datGetFlag(0x1401) != 0) {
                 func_0015a7c0(func_0015a160());
                 datSetFlag(0x1401, 0);
@@ -337,10 +337,10 @@ s32 func_00170bc0(u8 *arg0)
                 func_0029db50(0xF, temp_17, func_0015a130(), 5);
                 *(s32 *)(temp_16 + 4) = 3;
             } else {
-                if (*(s32 *)((u8 *)func_00155280() + 0x18) != 0)
-                    smapSetPhase(*(s32 *)((u8 *)func_00155280() + 0x18), 0);
+                if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0)
+                    smapSetPhase(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18), 0);
                 func_00182310(0);
-                func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 0);
+                func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 0);
                 *(s32 *)(temp_16 + 0x10) = 0;
                 *(s32 *)(temp_16 + 4) += 1;
             }
@@ -382,7 +382,7 @@ s32 func_00170e50(u8 *arg0)
     case 0:
         func_002bd410();
         func_002bd3c0();
-        temp_2 = (u8 *)func_00155280();
+        temp_2 = (u8 *)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(temp_2 + 0x1C), 1);
         *(s32 *)(temp_16 + 0x10) = func_0029da90(0xF, iGpffffb284, 1);
         func_00182310(1);
@@ -391,7 +391,7 @@ s32 func_00170e50(u8 *arg0)
     case 1:
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) == 1)
             break;
-        temp_2 = (u8 *)func_00155280();
+        temp_2 = (u8 *)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(temp_2 + 0x1C), 0);
         func_00182310(0);
         *(s32 *)(temp_16 + 4) += 1;
@@ -520,7 +520,7 @@ s32 func_00171280(u8 *arg0)
             func_0015a7c0(func_0015a160());
         func_002bd410();
         func_002bd3c0();
-        func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 1);
+        func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
         temp_17 = func_0015a100();
         *(s32 *)(temp_16 + 0x10) =
             func_0029db50(0xF, temp_17, func_0015a130(), 0);
@@ -529,7 +529,7 @@ s32 func_00171280(u8 *arg0)
         break;
     case 1:
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
-            func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 0);
+            func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 0);
             func_00182310(0);
             *(s32 *)(temp_16 + 4) += 1;
         }
@@ -581,7 +581,7 @@ s32 func_001714b0(u8 *arg0)
             func_0015a7c0(func_0015a160());
         func_002bd410();
         func_002bd3c0();
-        func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 1);
+        func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
         temp_17 = func_0015a100();
         *(s32 *)(temp_16 + 0x10) =
             func_0029db50(0xF, temp_17, func_0015a130(), 1);
@@ -590,7 +590,7 @@ s32 func_001714b0(u8 *arg0)
         break;
     case 1:
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
-            func_0018e030(*(s32 *)((u8 *)func_00155280() + 0x1C), 0);
+            func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 0);
             func_00182310(0);
             *(s32 *)(temp_16 + 0x10) = 0;
             *(s32 *)(temp_16 + 4) += 1;
