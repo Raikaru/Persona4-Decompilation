@@ -37,7 +37,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 radarTransferMenuUpdate(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 radarPersonaMenuUpdate(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2);
-s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2);
+s32 cmpSystemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 datCommunityMenuStep(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0012d630(u8 *arg0);
 s32 radarStepSlotAnimA(u8 *arg0);
@@ -274,7 +274,7 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
         }
         break;
     case 10:
-        r = func_003627b0((u32 *)(p + 4), &sp58, p + 0x9000);
+        r = cmpSystemMenuUpdate((u32 *)(p + 4), &sp58, p + 0x9000);
         switch (r) {
         case 0:
             if (sp58 != 0) {
