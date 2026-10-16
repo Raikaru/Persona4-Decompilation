@@ -41,7 +41,7 @@ static inline f32 mtSceneMulF32(f32 left, f32 right)
 {
     return left * right;
 }
-extern void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2,
+extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 arg5,
                           f32 fparg3, f32 fparg4, f32 fparg5);
@@ -71,7 +71,7 @@ extern u8 D_00637420[];
 
 extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
-extern void func_00266cc0(s32 arg0, s32 arg1);
+extern void cldTimeChangeDraw(s32 arg0, s32 arg1);
 
 extern void sdkSpritePackDestroy(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
@@ -79,13 +79,13 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern void kAssertFail(void *arg0, s32 arg1);
-extern s32 func_00266ba0(u8 *arg0);
+extern s32 cldTimeChangeUpdate(u8 *arg0);
 extern s32 sdkSndFadeOutChannel(s32 arg0, s32 arg1);
 extern s32 sdkSndStopChannel(s32 arg0);
 extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
 extern s32 func_0025f110(u8 *arg0);
 extern u8 D_00638F90[];
-extern void func_002674b0(s32 arg0, u8 *arg1);
+extern void cldTimeChangeQueueDraw(s32 arg0, u8 *arg1);
 extern char D_00637348[];
 extern s32 cldDayChangeRequest(u32 arg0, s32 arg1);
 extern void cldDayChangeMarkDone(u8 *arg0);
@@ -224,7 +224,7 @@ void mtSceneBuildSpriteTable(void) {
 }
 
 // FUN_00266BA0
-s32 func_00266ba0(u8 *arg0)
+s32 cldTimeChangeUpdate(u8 *arg0)
 {
     s32 sp3C;
     s32 sp38;
@@ -259,12 +259,12 @@ s32 func_00266ba0(u8 *arg0)
     default:
         break;
     }
-    func_002674b0((s32)arg0, (u8 *)*(s32 *)(work + 8));
+    cldTimeChangeQueueDraw((s32)arg0, (u8 *)*(s32 *)(work + 8));
     return 0;
 }
 
 // FUN_00266CC0
-void func_00266cc0(s32 arg0, s32 arg1)
+void cldTimeChangeDraw(s32 arg0, s32 arg1)
 {
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern f32 sinf(f32);
@@ -342,11 +342,11 @@ void func_00266cc0(s32 arg0, s32 arg1)
 }
 
 // FUN_002674B0
-void func_002674b0(s32 arg0, u8 *arg1) {
+void cldTimeChangeQueueDraw(s32 arg0, u8 *arg1) {
     u8 *p;
 
     p = PrimAllocQueueNode();
-    *(void **)(p + 0x8) = (void *)func_00266cc0;
+    *(void **)(p + 0x8) = (void *)cldTimeChangeDraw;
     *(s32 *)(p + 0x10) = arg0;
     func_00460ac0(arg1, p);
 }
@@ -380,14 +380,14 @@ s32 cldTimeChangeCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     *(s32 *)(work + 8) = arg3;
     *(s32 *)(work + 0xC) = arg1;
     *(s32 *)(work + 0x10) = arg2;
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00638FB0), 0xF, 0, 0, func_00266ba0, mtSceneSpriteTableTaskDestroy, (u8 *)((s32)work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00638FB0), 0xF, 0, 0, cldTimeChangeUpdate, mtSceneSpriteTableTaskDestroy, (u8 *)((s32)work));
     sdkSndFadeOutChannel(3, 0);
     sdkSndStopChannel(0xA);
     return result;
 }
 
 // FUN_00267670
-void func_00267670(u8 **arg0)
+void cldShapeListDraw(u8 **arg0)
 {
     u8 *base;
     u8 *var_18;
@@ -401,7 +401,7 @@ void func_00267670(u8 **arg0)
     extern f32 D_00761658;
     extern f32 D_0076165C;
     extern f32 D_00761260;
-    extern s32 func_00267800(u8 **arg0, u8 *arg1);
+    extern s32 cldShapeDraw(u8 **arg0, u8 *arg1);
     extern f32 MT_Scene_CubicBezier(f32 arg0, f32 arg1, f32 arg2, f32 arg3,
                               f32 arg4);
 
@@ -411,7 +411,7 @@ void func_00267670(u8 **arg0)
     goto loop_test;
 loop_body:
     temp_17 = *(u8 **)(var_18 + 0xC);
-    if (func_00267800(arg0, *(u8 **)(var_18 + 0x14)) != 0) {
+    if (cldShapeDraw(arg0, *(u8 **)(var_18 + 0x14)) != 0) {
         temp_4 = *(u8 **)base;
         func_002e2240(temp_4, temp_4 + 4, var_18);
     }
@@ -457,10 +457,10 @@ f32 MT_Scene_CubicBezier(f32 p0, f32 p1, f32 p2, f32 p3, f32 t) {
 
 /* measured: closes the optimization_level bracket (nd 0). */
 /* Copy complete table objects; renderer callbacks may change the item index. */
-/* measured: func_00267800 MATCH -> MISMATCH without this pragma. */
+/* measured: cldShapeDraw MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
 // FUN_00267800
-s32 func_00267800(u8 **arg0, u8 *arg1)
+s32 cldShapeDraw(u8 **arg0, u8 *arg1)
 {
     f32 position[4];
     Code1_00267800ShapeTable shapes;
@@ -507,17 +507,17 @@ s32 func_00267800(u8 **arg0, u8 *arg1)
     if (shape != 9) {
         if (!(scale <= mtSceneThresholdValue())) {
             renderScale = position[3];
-            func_00267b20(position[0], position[1], 0.0f, 0x76BF48, alpha, 1, shape, 0, 0,
+            PrimDrawContour(position[0], position[1], 0.0f, 0x76BF48, alpha, 1, shape, 0, 0,
                            4.0f + position[2], renderScale, renderScale);
             renderScale = position[3];
-            func_00267b20(position[0], position[1], 0.0f, 0x4883BF, alpha, 1, shapes.value[*(s32 *)(arg1 + 4)], 0, 0,
+            PrimDrawContour(position[0], position[1], 0.0f, 0x4883BF, alpha, 1, shapes.value[*(s32 *)(arg1 + 4)], 0, 0,
                            2.0f + position[2], renderScale, renderScale);
             renderScale = position[3];
-            func_00267b20(position[0], position[1], 0.0f, 0xBF4848, alpha, 1, shapes.value[*(s32 *)(arg1 + 4)], 0, 0,
+            PrimDrawContour(position[0], position[1], 0.0f, 0xBF4848, alpha, 1, shapes.value[*(s32 *)(arg1 + 4)], 0, 0,
                            position[2] - 2.0f, renderScale, renderScale);
         }
         renderScale = position[3];
-        func_00267b20(position[0], position[1], 0.0f, 0x292929, alpha, 1, shapes.value[*(s32 *)(arg1 + 4)], 0, 0,
+        PrimDrawContour(position[0], position[1], 0.0f, 0x292929, alpha, 1, shapes.value[*(s32 *)(arg1 + 4)], 0, 0,
                            position[2], renderScale, renderScale);
     }
     if (!(position[3] < 7.0f)) {
@@ -526,12 +526,12 @@ s32 func_00267800(u8 **arg0, u8 *arg1)
     return 0;
 }
 
-/* measured: func_00267b20 MATCH -> MISMATCH without this pragma. */
+/* measured: PrimDrawContour MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_00267B20
-/* measured: func_00267b20 MATCH -> MISMATCH without this pragma. */
+/* measured: PrimDrawContour MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
+void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
                    f32 fparg3, f32 fparg4, f32 fparg5)
 {
     typedef signed __int128 ContourPacket;

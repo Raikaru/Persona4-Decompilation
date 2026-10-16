@@ -46,7 +46,7 @@ static inline f32 mtSceneMulF32(f32 left, f32 right)
 {
     return left * right;
 }
-extern void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2,
+extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 arg5,
                           f32 fparg3, f32 fparg4, f32 fparg5);
@@ -104,7 +104,7 @@ extern u8 iGpffffa734;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0026.c; members 0026e350-0026f860 */
 
 extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
-extern s32 func_0026dc50(u8 **arg0, u8 **arg1);
+extern s32 mtSceneUnitDepthCompare(u8 **arg0, u8 **arg1);
 extern f32 D_007612C4;
 /* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are
  * struct copies; each loop's i = 0 precedes the invariant scale products,
@@ -151,8 +151,8 @@ extern f32 D_007612C4;
 /* measured: opt_propagation off probe for func_0026db60 loop test ordering. */
 /* measured: closes opt_propagation off probe for func_0026db60. */
 /* measured: closes optimization_level 1 register-coloring probe for func_0026db60. */
-/* measured: opt_propagation off probe for func_0026dc50 float load scheduling. */
-/* measured: closes opt_propagation off probe for func_0026dc50. */
+/* measured: opt_propagation off probe for mtSceneUnitDepthCompare float load scheduling. */
+/* measured: closes opt_propagation off probe for mtSceneUnitDepthCompare. */
 // FUN_0026E350
 s32 func_0026e350(void)
 {
