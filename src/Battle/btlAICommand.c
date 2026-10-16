@@ -4565,7 +4565,7 @@ s32 btlScriptIsSideUnitHitFlagged(void) {
         break;
     }
     if (r != 0)
-        x = (*(u16 *)((u8 *)r + 0x18) & (BTL_ACTION_FLAG_HIT_LANDED | BTL_ACTION_FLAG_HIT_CRITICAL)) != 0;
+        x = (*(u16 *)((u8 *)r + 0x18) & (BTL_ACTION_FLAG_HIT_CRITICAL | BTL_ACTION_FLAG_HIT_WEAK)) != 0;
     else
         x = 0;
     scrSetReturnInt(x != 0);
@@ -4574,31 +4574,6 @@ s32 btlScriptIsSideUnitHitFlagged(void) {
 
 /* AI script command 0x20d6 (p4flow AI.json AI_FUNCTION_00D6). */
 // FUN_001E3FD0
-s32 btlScriptIsSideUnitLandedFlagged(void) {
-    u32 a = scrGetParamInt(0) & 0xFFFF;
-    u32 b = scrGetParamInt(1) & 0xFFFF;
-    u32 *r = 0;
-    s32 x;
-    switch (a & 0xFFFF) {
-    case 0:
-        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
-        break;
-    case 1:
-        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
-        break;
-    default:
-        break;
-    }
-    if (r != 0)
-        x = (*(u16 *)((u8 *)r + 0x18) & BTL_ACTION_FLAG_HIT_LANDED) != 0;
-    else
-        x = 0;
-    scrSetReturnInt(x != 0);
-    return 1;
-}
-
-/* AI script command 0x20d7 (p4flow AI.json AI_FUNCTION_00D7). */
-// FUN_001E4090
 s32 btlScriptIsSideUnitCriticalFlagged(void) {
     u32 a = scrGetParamInt(0) & 0xFFFF;
     u32 b = scrGetParamInt(1) & 0xFFFF;
@@ -4616,6 +4591,31 @@ s32 btlScriptIsSideUnitCriticalFlagged(void) {
     }
     if (r != 0)
         x = (*(u16 *)((u8 *)r + 0x18) & BTL_ACTION_FLAG_HIT_CRITICAL) != 0;
+    else
+        x = 0;
+    scrSetReturnInt(x != 0);
+    return 1;
+}
+
+/* AI script command 0x20d7 (p4flow AI.json AI_FUNCTION_00D7). */
+// FUN_001E4090
+s32 btlScriptIsSideUnitWeakFlagged(void) {
+    u32 a = scrGetParamInt(0) & 0xFFFF;
+    u32 b = scrGetParamInt(1) & 0xFFFF;
+    u32 *r = 0;
+    s32 x;
+    switch (a & 0xFFFF) {
+    case 0:
+        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
+        break;
+    case 1:
+        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
+        break;
+    default:
+        break;
+    }
+    if (r != 0)
+        x = (*(u16 *)((u8 *)r + 0x18) & BTL_ACTION_FLAG_HIT_WEAK) != 0;
     else
         x = 0;
     scrSetReturnInt(x != 0);

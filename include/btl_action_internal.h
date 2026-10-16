@@ -73,14 +73,16 @@ struct BtlAction
    btlTargetApplyHpSpChange sets the HIT/DOWN bits from the target-state work word
    (+0x2A, the packet's targetFlags) and the target status word (BTL_STATUS_DOWN). */
 #define BTL_ACTION_FLAG_CALLBACK_PENDING 0x1
-#define BTL_ACTION_FLAG_HIT_CRITICAL 0x800
-#define BTL_ACTION_FLAG_HIT_LANDED 0x1000
+#define BTL_ACTION_FLAG_HIT_WEAK 0x800
+#define BTL_ACTION_FLAG_HIT_CRITICAL 0x1000
 #define BTL_ACTION_FLAG_DOWN 0x2000
 
 /* Hit result values from datCalcHitResult (sub, action +0xDE); the bits are packed
-   into targetFlags. 4 = critical, 2 = roll lands, 1 = neither (datCalc.c comment). */
-#define BTL_HIT_RESULT_LANDED 0x2
-#define BTL_HIT_RESULT_CRITICAL 0x4
+   into targetFlags. 2 = critical (datCalcSkillAmount applies its attack multiplier when
+   sub == 2), 4 = weakness hit (datCalcHitResult returns 4 when the affinity has
+   AFF_WEAK), 1 = plain hit. */
+#define BTL_HIT_RESULT_CRITICAL 0x2
+#define BTL_HIT_RESULT_WEAK 0x4
 
 /* Retail action state table at 0x005F6E20, indexed by BtlAction.currState:
  * 38 entries from NON (0) through TEST (37), decoded from SLUS_217.82. Each
