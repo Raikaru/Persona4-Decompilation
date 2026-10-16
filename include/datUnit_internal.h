@@ -3,10 +3,14 @@
 
 #include "type.h"
 
-/* DatUnit.bad: bits 0-19 are ailments, bits 20-31 the position half (kept
-   separately by datCalcSetBadStatus). KO is bit 19: datCalcIsDead returns
+/* DatUnit.bad: bits 0-19 are ailments, bits 20-31 the high half (kept
+   separately by datCalcSetBadStatus; bit 20 is DOWN). KO is bit 19: datCalcIsDead returns
    1 when bad & 0x80000 (datCalc.c), kills set it and btlTarget.c:837 clears it on revive. */
 #define BTL_STATUS_KO 0x80000
+/* DatUnit.bad bit 20, named UNIT_BADSTATUS_DOWN in P3FES datUnit.h. It sits in the
+   high half that datCalcSetBadStatus keeps apart; btlCond_MYBAD tests it, and the
+   0x180000 pickers (btlCond_MYWEAK, btlCond_MYNOMAL) pair it with KO. */
+#define BTL_STATUS_DOWN 0x100000
 /* DatUnit.flags bit 0x8: btlCond_DOWN (btlAICommand.c) returns 0 while it is set. */
 #define DAT_UNIT_FLAG_DOWN 0x8
 

@@ -1103,83 +1103,83 @@ s32 btlCond_APPOINT(u8 *param_1, u32 param_2)
 }
 
 // FUN_001DCB50
-void func_001dcb50(u64 formation)
+void btlAICommandPickMyDown(u64 formation)
 {
-    btlAICommandSelectCandidates(formation, 0x100000, 0, 0, 0, btlCond_MYBAD);
+    btlAICommandSelectCandidates(formation, BTL_STATUS_DOWN, 0, 0, 0, btlCond_MYBAD);
 }
 
 
 
 // FUN_001DCB90
-void func_001dcb90(u64 formation)
+void btlAICommandPickNotMyDown(u64 formation)
 {
-    btlAICommandSelectCandidates(formation, 0x100000, 0, 0, 1, btlCond_MYBAD);
+    btlAICommandSelectCandidates(formation, BTL_STATUS_DOWN, 0, 0, 1, btlCond_MYBAD);
 }
 
 
 
 // FUN_001DCBD0
-void func_001dcbd0(u64 formation, u32 flags) {
+void btlAICommandPickMyHansyaExcludingDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 1048576, 0, 0, btlCond_MYHANSYA);
 }
 
 // FUN_001DCC10
-void func_001dcc10(u64 formation, u32 flags) {
+void btlAICommandPickMyKyusyuExcludingDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 1048576, 0, 0, btlCond_MYKYUSYU);
 }
 
 // FUN_001DCC50
-void func_001dcc50(u64 formation, u32 flags) {
+void btlAICommandPickMyMukouExcludingDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 1048576, 0, 0, btlCond_MYMUKOU);
 }
 
 // FUN_001DCC90
-void func_001dcc90(u64 formation, u32 flags) {
+void btlAICommandPickMyWeakExcludingDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 1048576, 0, 0, btlCond_MYWEAK);
 }
 
 // FUN_001DCCD0
-void func_001dccd0(u64 formation, u32 flags) {
+void btlAICommandPickNotMyHansyaExcludingDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 1048576, 0, 1, btlCond_MYHANSYA);
 }
 
 // FUN_001DCD10
-void func_001dcd10(u64 formation, u32 flags) {
+void btlAICommandPickNotMyKyusyuExcludingDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 1048576, 0, 1, btlCond_MYKYUSYU);
 }
 
 // FUN_001DCD50
-void func_001dcd50(u64 formation, u32 flags) {
+void btlAICommandPickNotMyMukouExcludingDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 1048576, 0, 1, btlCond_MYMUKOU);
 }
 
 // FUN_001DCD90
-void func_001dcd90(u64 formation, u32 flags) {
+void btlAICommandPickNotMyWeakExcludingDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 1048576, 0, 1, btlCond_MYWEAK);
 }
 
 // FUN_001DCDD0
-void func_001dcdd0(u64 formation, u32 flags) {
+void btlAICommandPickMyHansyaRequireDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 1, 0, btlCond_MYHANSYA);
 }
 
 // FUN_001DCE10
-void func_001dce10(u64 formation, u32 flags) {
+void btlAICommandPickMyKyusyuRequireDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 1, 0, btlCond_MYKYUSYU);
 }
 
 // FUN_001DCE50
-void func_001dce50(u64 formation, u32 flags) {
+void btlAICommandPickMyMukouRequireDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 1, 0, btlCond_MYMUKOU);
 }
 
 // FUN_001DCE90
-void func_001dce90(u64 formation, u32 flags) {
+void btlAICommandPickMyWeakRequireDown(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 1, 0, btlCond_MYWEAK);
 }
 
 // FUN_001DCED0
-void func_001dced0(u64 formation, u32 flags) {
+void btlAICommandPickNotMyId(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 0, 1, btlCond_MYID);
 }
 
@@ -1210,22 +1210,22 @@ u32 btlCond_RND(u32 param_1)
 
 
 // FUN_001DCFD0
-void func_001dcfd0(u64 formation, u32 flags) {
+void btlAICommandPickMyHojo(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 0, 0, (FormationCallback)btlCond_MYHOJO);
 }
 
 // FUN_001DD010
-void func_001dd010(u64 formation, u32 flags) {
+void btlAICommandPickNotMyHojo(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 0, 1, (FormationCallback)btlCond_MYHOJO);
 }
 
 // FUN_001DD050
-void func_001dd050(u64 formation, u32 flags) {
+void btlAICommandPickMyNotNomal(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 0, 0, btlCond_MYNOTNOMAL);
 }
 
 // FUN_001DD090
-void func_001dd090(u64 formation, u32 flags) {
+void btlAICommandPickMyNomal(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 0, 0, (FormationCallback)btlCond_MYNOMAL);
 }
 
