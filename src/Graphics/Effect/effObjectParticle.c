@@ -288,14 +288,15 @@ void ObjectParticleUpdateRecords(u8 *arg0)
     u8 *var_18;
     u8 *var_17;
     u8 *temp_4;
+    ObjectParticleInstance *inst = (ObjectParticleInstance *)arg0;
 
-    func_00492d10((void *)*(u32 *)(arg0 + 0x58));
-    temp_4 = *(u8 **)(arg0 + 0x58);
+    func_00492d10((void *)inst->list);
+    temp_4 = inst->list;
     temp_16 = *(s32 *)(temp_4 + 8);
     if ((temp_16 != 0) && (*(s32 *)(temp_4 + 0x10) != 0)) {
         var_18 = *(u8 **)(temp_4 + 0x18);
-        var_17 = *(u8 **)(arg0 + 0x5C);
-        switch (*(u16 *)(arg0 + 0xC)) {
+        var_17 = inst->entries;
+        switch (inst->kind) {
         case 3:
             var_20 = 0;
             while (var_20 < temp_16) {
