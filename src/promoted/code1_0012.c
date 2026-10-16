@@ -99,7 +99,7 @@ extern void func_0025e8b0(s32 arg0);
 extern s32 func_0025e8f0(s32 arg0);
 extern s32 mcIconTaskCreate(u8 *arg0, s32 arg1);
 extern s32 func_002aa3f0(void);
-extern s32 func_0012dea0(u8 *arg0, s32 arg1);
+extern s32 titleSlotSetMode(u8 *arg0, s32 arg1);
 extern void sdkSpriteFreeNode(void *node);
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
@@ -4537,7 +4537,7 @@ void func_0012d410(u8 *arg0)
         var_17++;
     }
     *(s32 *)(arg0 + 0x38) = var_18_2;
-    func_0012dea0(arg0, 0);
+    titleSlotSetMode(arg0, 0);
 }
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
@@ -4611,7 +4611,7 @@ s32 func_0012d630(u8 *menu)
     switch (*(s32 *)(bytes + 0x18)) {
     case 0:
         if (func_0012e1d0(bytes) != 0) {
-            func_0012dea0(bytes, 1);
+            titleSlotSetMode(bytes, 1);
             break;
         }
         if (*(s16 *)(bytes + 0xC) < 100) {
@@ -4639,7 +4639,7 @@ s32 func_0012d630(u8 *menu)
         break;
     case 2:
         if (func_0012e1d0(bytes) != 0) {
-            func_0012dea0(bytes, 1);
+            titleSlotSetMode(bytes, 1);
             break;
         }
         if (*(s16 *)(bytes + 0xC) < 100) {
@@ -4731,7 +4731,7 @@ s32 func_0012db80(u8 *arg0, s32 arg1)
         *(s32 *)(arg0 + 0x14) = *(s32 *)(arg0 + 0x10);
         *(s32 *)(arg0 + 0x10) = arg1;
         *(s32 *)(arg0 + 0x18) = -1;
-        func_0012dea0(arg0, 2);
+        titleSlotSetMode(arg0, 2);
     }
     return 1;
 }
@@ -4893,7 +4893,7 @@ extern void func_0012dc00(u8 *arg0);
 /* measured: opt_loop_invariants on is load-bearing: removing it yields MISMATCH nd 383 (obj 684B/window 688B); on yields MATCH nd 0 (obj 680B/window 688B) by hoisting the case-zero constants. */
 #pragma opt_loop_invariants on
 // FUN_0012DEA0
-s32 func_0012dea0(u8 *arg0, s32 arg1)
+s32 titleSlotSetMode(u8 *arg0, s32 arg1)
 {
     s32 i;
     s32 i0;
@@ -4987,11 +4987,11 @@ s32 func_0012dea0(u8 *arg0, s32 arg1)
     }
     return 1;
 }
-/* measured: closes the opt_loop_invariants bracket for func_0012dea0. */
+/* measured: closes the opt_loop_invariants bracket for titleSlotSetMode. */
 #pragma opt_loop_invariants off
 #pragma pop
 // FUN_0012E150
-void func_0012e150(s32 arg0)
+void titleFreeSpriteNodes(s32 arg0)
 {
     s32 temp_4;
     s32 var_17;

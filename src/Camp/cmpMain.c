@@ -28,9 +28,9 @@ s32 func_0046a750(s32 param);
 /* Camp-family helpers declared locally; the retail TUs are separate objects. */
 void func_0012d410(u8 *arg0);
 s32 func_0012e250(u8 *arg0);
-void func_0012dea0(u8 *arg0, s32 arg1);
+void titleSlotSetMode(u8 *arg0, s32 arg1);
 s32 func_0012e1d0(u8 *arg0);
-void func_0012e150(u8 *arg0);
+void titleFreeSpriteNodes(u8 *arg0);
 void func_0012db80(u8 *arg0, s32 arg1);
 s32 radarItemMenuUpdate(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2);
@@ -153,11 +153,11 @@ s32 func_0012c510(u8 *unusedTask) {
                     kAssertFail(D_005E5890, 0xFD);
                     break;
                 }
-                func_0012dea0(p + 0x18, 3);
+                titleSlotSetMode(p + 0x18, 3);
                 func_0034bb20(2);
                 func_0045af60(0, 2, 0, 3);
             } else if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x10)) {
-                func_0012dea0(p + 0x18, 3);
+                titleSlotSetMode(p + 0x18, 3);
                 *(s32 *)p = 3;
                 *(s32 *)(p + 8) = 0xD;
                 *(s32 *)(p + 0x14) = 0;
@@ -184,7 +184,7 @@ s32 func_0012c510(u8 *unusedTask) {
             kAssertFail(D_005E5890, 0x133);
         }
         if (func_0012e1d0(p + 0x18) != 0) {
-            func_0012e150(p + 0x18);
+            titleFreeSpriteNodes(p + 0x18);
             *(s32 *)p = *(s32 *)(p + 8);
         }
         break;
@@ -324,7 +324,7 @@ void func_0012cc50(u8 *arg0) {
     case 0:
     case 1:
     case 2:
-        func_0012e150(p + 0x18);
+        titleFreeSpriteNodes(p + 0x18);
         break;
     case 4:
         radarFreeSpriteNodes(p + 0x2BC);

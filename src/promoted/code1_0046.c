@@ -87,7 +87,7 @@ extern s32 D_00724130;
 
 extern s32 func_004633f0(u8 *task);
 struct MovieNativeWork;
-extern void func_00468ff0(void *arg0, struct MovieNativeWork *work);
+extern void movieNativeTaskUpdate(void *arg0, struct MovieNativeWork *work);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void func_00460ac0(char *name, u8 *task);
 extern u8 D_00712670[];
@@ -301,8 +301,10 @@ extern void func_00467880(u8 *arg0);
 
 
 
+// Note: h_cdvd and code1_0045 declare movieResetSlotFlags with an s32 argument;
+// this definition takes void. Extern types left as they are; verify decides.
 // FUN_00468A10
-void func_00468a10(void)
+void movieResetSlotFlags(void)
 {
     D_00922984[0] = 0;
     D_00922980[0] = 0;
@@ -315,7 +317,7 @@ void func_00468a10(void)
  * Request handles and resource tables are reloaded after their callbacks. */
 #pragma opt_loop_invariants on
 // FUN_00468D10
-void func_00468d10(void)
+void movieLoadStep(void)
 {
     extern s32 func_00468bf0(u8 *node, s32 slot);
     extern s32 func_004c9820(ADXF request);
@@ -412,7 +414,7 @@ s32 mwPlayerUpdate(u8 *arg0) {
 
     ctx = *(u8 **)(arg0 + 0x38);
     task = func_00460990();
-    *(void **)(task + 8) = (void *)func_00468ff0;
+    *(void **)(task + 8) = (void *)movieNativeTaskUpdate;
     *(u8 **)(task + 0x10) = ctx;
     func_00460ac0(*(char **)(ctx + 0x218), task);
     return 0;
@@ -522,7 +524,7 @@ typedef char MovieEnginePrefixSize[(sizeof(MovieEnginePrefix) == 0x28) ? 1 : -1]
 #pragma opt_common_subs on
 #pragma opt_loop_invariants on
 // FUN_00468FF0
-void func_00468ff0(void *arg0, MovieNativeWork *work) {
+void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
     extern s32 func_003d5fb0(u8 *arg0);
     extern s32 func_003d6010(u8 *arg0);
     extern s32 func_003df860(const struct RwSList *arg0);

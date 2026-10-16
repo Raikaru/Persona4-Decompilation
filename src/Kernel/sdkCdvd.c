@@ -70,7 +70,7 @@ extern char D_00710910[];
 void func_00454640(void)
 {
     extern void func_00468a50(void);
-    extern void func_00468d10(void);
+    extern void movieLoadStep(void);
     extern void H_Cdvd_SelectDirectory(void *arg0);
     extern void H_Cdvd_ParseArchive(void *arg0);
     extern ADXF func_004c85a0(void *name, s32 mode);
@@ -100,7 +100,7 @@ void func_00454640(void)
     s16 i;
 
     func_00468a50();
-    func_00468d10();
+    movieLoadStep();
     node = (HCdvd *)D_008D1B84[0];
     if (node == NULL) {
         return;
