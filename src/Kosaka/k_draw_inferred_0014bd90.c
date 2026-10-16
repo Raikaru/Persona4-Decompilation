@@ -288,7 +288,7 @@ extern f32 D_008872F8[];
 /* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
 /* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
 // FUN_0014BD90
-s32 func_0014bd90(u8 *arg0) {
+s32 KDraw_IsEffectDone(u8 *arg0) {
     return *(s32 *)(*(u8 **)(arg0 + 0x38)) == 1;
 }
 

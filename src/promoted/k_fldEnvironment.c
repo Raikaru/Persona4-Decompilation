@@ -47,7 +47,7 @@ extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
 extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
 extern void func_0016ea30(s32 arg0, f32 arg1);
 extern void FldFrame_SetSlotVector(s32 arg0, s32 arg1, void *arg2);
-extern u8 *func_0016eaf0(s32 arg0);
+extern u8 *FldFrame_GetSlotBuffer(s32 arg0);
 extern void func_0016eb00(s32 arg0);
 extern void func_0046d700(const char *arg0, s32 arg1, void *arg2, void *arg3);
 extern void H_Cdvd_Destroy(u8 *arg0);
@@ -744,7 +744,7 @@ CMR_loop_skip:
             *(f32 *)(arg2 + 0x30) = 0.0f;
             *(s32 *)(arg2 + 0xC) |= 0x20003;
         }
-        dst = func_0016eaf0(func_00155280()[1]);
+        dst = FldFrame_GetSlotBuffer(func_00155280()[1]);
         src = (s32 *)(data + 0x210);
         count = 8;
         do {
