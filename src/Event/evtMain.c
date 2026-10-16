@@ -22,7 +22,7 @@ s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *handle);
 s32 kwlnTaskIsLinked(void *handle);
 extern u8 D_0063C3C0[];
 extern u8 D_0063C3E0[];
-s32 func_00298130();
+s32 mtMiscPlayFormattedCue();
 s32 func_00459880();
 void func_0045a3e0();
 void hsndQueueSound();
@@ -36,7 +36,7 @@ extern s32 (**D_00882204[])(s32, s32, s32, u8 *, u8 *);
 extern u8 D_0063C420[];
 void func_0028f4f0(void);
 void K_View_SetFov(void *arg0, f32 arg1);
-void func_002919e0(void);
+void mtMiscDestroyIconResources(void);
 static void evtNodeUnlink(int param_1, int param_2);
 void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2);
 s32 func_0028d390();
@@ -1139,8 +1139,8 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
     extern s32 MT_Scene_CheckResSlot(u32, u32);
     extern s32 MT_Scene_SetResShadowCasterById(u32, s32);
     extern void func_0028d1b0(u8 *, u8 *, s32);
-    extern s32 func_002915f0(u8 *, u8 *, s32, s32, s32);
-    extern void func_00291790(u8 *, s32);
+    extern s32 mtMiscAttachSlotModel(u8 *, u8 *, s32, s32, s32);
+    extern void mtMiscDetachSlotModel(u8 *, s32);
     extern void func_00293270(void);
     extern void func_002932b0(s32);
     extern void mdlSetBlendWeight(void *, f32);
@@ -1426,10 +1426,10 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                 }
                 if (*(s8 *)(command + 0x14) == 0) {
                     if (modelData != NULL) {
-                        func_002915f0(event, modelData, *(s8 *)(command + 0x15), *(s8 *)(command + 0x16), *(s32 *)(command + 0x18));
+                        mtMiscAttachSlotModel(event, modelData, *(s8 *)(command + 0x15), *(s8 *)(command + 0x16), *(s32 *)(command + 0x18));
                     }
                 } else if ((*(s8 *)(command + 0x14) == 1) && (modelData != NULL)) {
-                    func_00291790(modelData, *(s8 *)(command + 0x15));
+                    mtMiscDetachSlotModel(modelData, *(s8 *)(command + 0x15));
                 }
                 break;
             }
@@ -2167,7 +2167,7 @@ s32 func_00289fb0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             temp_3 = *(s8 *)(arg4 + 0x12);
             switch (temp_3) {
             case 0:
-                func_00298130(*(u32 *)(arg2 + 0x78C), *(s16 *)(arg4 + 0x10), 2);
+                mtMiscPlayFormattedCue(*(u32 *)(arg2 + 0x78C), *(s16 *)(arg4 + 0x10), 2);
                 func_00440b68((char *)D_0063C3E0, *(s16 *)(arg4 + 0x10));
                 break;
             case 1:
@@ -2614,7 +2614,7 @@ loop_6_test:
         kAssertFail(D_0063C3B0, 0xF4);
     }
     func_00291900();
-    func_002919e0();
+    mtMiscDestroyIconResources();
     func_00290fa0(*(u8 **)(arg0 + 0x5D0));
     *(s32 *)(arg0 + 0x5D0) = 0;
     goto loop_27_test;

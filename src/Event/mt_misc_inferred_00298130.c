@@ -10,7 +10,7 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern s32 iGpffffa7c8;
 
-s32 func_00291a60(s32 arg0);
+s32 mtMiscResourceValue(s32 arg0);
 
 
 extern s32 iGpffffb538;
@@ -50,8 +50,8 @@ extern s32 D_0063E830[];
 /* Source unit: src/promoted/code1_0029.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 00298130-00298130 */
 
-extern void func_00291530(u8 *arg0);
-extern void func_00291810(u8 *arg0);
+extern void mtMiscCollectType1Records(u8 *arg0);
+extern void mtMiscCollectType2Records(u8 *arg0);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
 /* measured: opt_propagation off keeps `weapon` materialised between the index
@@ -69,8 +69,11 @@ extern void func_00291810(u8 *arg0);
  * function window ends in eight zero alignment bytes. */
 #pragma push
 #pragma pop
+// Formats arg1 into a short string with D_0063CB30 and passes it, with arg2, to
+// func_0045aeb0. Always returns 0. The callee is still unnamed, so the name
+// describes the call shape, not a confirmed cue.
 // FUN_00298130
-s32 func_00298130(s32 arg0, s32 arg1, s32 arg2) {
+s32 mtMiscPlayFormattedCue(s32 arg0, s32 arg1, s32 arg2) {
     char sp20[0x20];
 
     sprintf(sp20, D_0063CB30, arg1);

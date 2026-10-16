@@ -15,7 +15,7 @@ extern s32 iGpffffa7c8;
 extern s32 scrGetParamString(s32 arg0);
 extern void func_0029e9b0(void *arg0, ...);
 
-s32 func_00291a60(s32 arg0);
+s32 mtMiscResourceValue(s32 arg0);
 
 s32 func_0045a8d0(s64 arg0, s32 arg1);
 
@@ -66,8 +66,8 @@ extern s32 D_0063E830[];
 /* Source unit: src/promoted/code1_0029.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 002996e0-00299c20 */
 
-extern void func_00291530(u8 *arg0);
-extern void func_00291810(u8 *arg0);
+extern void mtMiscCollectType1Records(u8 *arg0);
+extern void mtMiscCollectType2Records(u8 *arg0);
 extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern void func_0029e9b0(void *arg0, ...);

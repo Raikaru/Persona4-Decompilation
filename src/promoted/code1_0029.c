@@ -13,7 +13,7 @@ extern s32 iGpffffa7c8;
 extern s32 scrGetParamString(s32 arg0);
 extern void func_0029e9b0(void *arg0, ...);
 
-s32 func_00291a60(s32 arg0);
+s32 mtMiscResourceValue(s32 arg0);
 
 s32 func_0045a8d0(s64 arg0, s32 arg1);
 
@@ -101,7 +101,7 @@ extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, 
 
 
 
-extern void func_00291530(u8 *arg0);
+extern void mtMiscCollectType1Records(u8 *arg0);
 #pragma opt_propagation off
 /* measured probe: close opt_propagation bracket after func_00291530. */
 #pragma opt_propagation on

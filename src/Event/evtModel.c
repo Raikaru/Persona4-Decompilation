@@ -50,7 +50,7 @@ extern f32 fGpffff8510; /* gp -0x7af0 */
 extern f32 fGpffff8514; /* gp -0x7aec */
 extern f32 D_00761260;  /* gp -0x7e90 */
 
-extern s32 func_00291a60(u32 id);
+extern s32 mtMiscResourceValue(u32 id);
 // lint: allow H011 -- measured: u16 prototype regresses func_00292ef0 (andi on wide id args)
 extern void *MT_Scene_GetRes(u32 id);
 
@@ -91,7 +91,7 @@ s32 func_00291b60(s32 arg0, u8 *arg1) {
     s32 temp_3;
 
     temp_f21 = rec->speed;
-    model = func_00291a60(rec->id);
+    model = mtMiscResourceValue(rec->id);
     if (model == 0) {
         return 1;
     }
@@ -119,7 +119,7 @@ state_ready:
         goto common;
     }
     if (state == 1) {
-        temp_f20 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
+        temp_f20 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -150,7 +150,7 @@ state1_counter:
         goto common;
     }
     if (state == 2) {
-        temp_f20 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
+        temp_f20 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -229,7 +229,7 @@ s32 func_00291fa0(s32 arg0, u8 *arg1) {
     s32 state;
 
     temp_f20 = rec->speed;
-    model = func_00291a60(rec->id);
+    model = mtMiscResourceValue(rec->id);
     if (model == 0) {
         return 1;
     }
@@ -257,7 +257,7 @@ state_ready:
         goto common;
     }
     if (state == 1) {
-        temp_f21 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
+        temp_f21 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f21 < -1.0f) || !(temp_f21 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -300,7 +300,7 @@ block_21:
             var_f12_3 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_3);
-        temp_f0_3 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
+        temp_f0_3 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f0_3 < -1.0f) || !(temp_f0_3 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -343,7 +343,7 @@ block_42:
             var_f12_5 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_5);
-        temp_f0_5 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
+        temp_f0_5 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f0_5 < -1.0f) || !(temp_f0_5 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -385,7 +385,7 @@ block_63:
             var_f12_7 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_7);
-        temp_f0_6 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
+        temp_f0_6 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f0_6 < -1.0f) || !(temp_f0_6 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -428,7 +428,7 @@ block_84:
             var_f12_9 = 0.0f;
         }
         mdlSetBlendWeight(model, var_f12_9);
-        temp_f0_8 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
+        temp_f0_8 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f0_8 < -1.0f) || !(temp_f0_8 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -459,7 +459,7 @@ block_105:
         goto common;
     }
     if (state == 6) {
-        temp_f0_9 = func_004bd4a0(mdlGetLookAtSubobject(func_00291a60(rec->id)), rec->dst);
+        temp_f0_9 = func_004bd4a0(mdlGetLookAtSubobject(mtMiscResourceValue(rec->id)), rec->dst);
         if ((temp_f0_9 < -1.0f) || !(temp_f0_9 <= 1.0f)) {
             kAssertFail(&D_0063C948, 0x176);
         }
@@ -516,8 +516,8 @@ s32 func_00292bb0(s32 arg0, u8 *arg1) {
     u8 *temp_2_5;
 
     temp_f20 = rec->speed;
-    handle1 = func_00291a60(rec->id);
-    handle2 = func_00291a60(rec->id2);
+    handle1 = mtMiscResourceValue(rec->id);
+    handle2 = mtMiscResourceValue(rec->id2);
     if (handle1 == 0) {
         return 1;
     }
@@ -590,7 +590,7 @@ s32 func_00292ef0(s32 arg0, u8 *arg1) {
     s32 var_3;
 
     id = rec->id;
-    handle = func_00291a60(id);
+    handle = mtMiscResourceValue(id);
     if (handle == 0) {
         return 1;
     }
@@ -669,7 +669,7 @@ void func_002931a0(u8 *unusedTask) {
         node = (u8 *)((u8 **)head)[1];
         while (node != NULL) {
             next = (u8 *)((u8 **)node)[4];
-            handle = func_00291a60(*(u16 *)((u8 **)node)[5]);
+            handle = mtMiscResourceValue(*(u16 *)((u8 **)node)[5]);
             if (handle != 0) {
                 mdlSetBlendWeight(handle, fGpffff8218);
                 mdlSetLookAtRequested(handle);
@@ -710,7 +710,7 @@ void func_002932b0(s32 arg0) {
             while (node != NULL) {
                 next = (u8 *)((u8 **)node)[4];
                 if (*(u16 *)((u8 **)node)[5] == masked) {
-                    handle = func_00291a60(*(u16 *)((u8 **)node)[5]);
+                    handle = mtMiscResourceValue(*(u16 *)((u8 **)node)[5]);
                     if (handle != 0) {
                         mdlSetBlendWeight(handle, fGpffff8218);
                         mdlSetLookAtRequested(handle);

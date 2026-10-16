@@ -10,7 +10,7 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern s32 iGpffffa7c8;
 
-s32 func_00291a60(s32 arg0);
+s32 mtMiscResourceValue(s32 arg0);
 
 s32 func_0045a8d0(s64 arg0, s32 arg1);
 
@@ -53,8 +53,8 @@ extern s32 D_0063E830[];
 /* Source unit: src/promoted/code1_0029.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 002981f0-00298250 */
 
-extern void func_00291530(u8 *arg0);
-extern void func_00291810(u8 *arg0);
+extern void mtMiscCollectType1Records(u8 *arg0);
+extern void mtMiscCollectType2Records(u8 *arg0);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
 /* measured: opt_propagation off keeps `weapon` materialised between the index
@@ -84,8 +84,12 @@ s32 func_00298220(s64 arg0) {
     return 0;
 }
 
+// Looks up key (arg0 << 16 | arg1) in the 0x86-entry table D_0063CB50 and runs
+// the action in the entry's second word: 1 and 2 call func_0018ced0 (then
+// func_0018c7e0 when it returns 0), 3 calls func_0045a8d0 and func_004598e0(0x1E).
+// Absent keys act as 3. Returns the action code.
 // FUN_00298250
-s32 func_00298250(s32 arg0, s32 arg1)
+s32 mtMiscDispatchKeyAction(s32 arg0, s32 arg1)
 {
     s32 key;
     s32 *temp_5;

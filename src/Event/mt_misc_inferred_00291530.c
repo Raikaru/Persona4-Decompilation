@@ -11,7 +11,7 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern s32 iGpffffa7c8;
 
-s32 func_00291a60(s32 arg0);
+s32 mtMiscResourceValue(s32 arg0);
 
 
 extern s32 iGpffffb538;
@@ -51,11 +51,13 @@ extern s32 D_0063E830[];
 /* Source unit: src/promoted/code1_0029.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 00291530-00291810 */
 
+// Collects up to 10 type-1 entries of the current scene into the slot block:
+// ids from 0x7530, fields copied in order, count kept at +0x5D8.
 // FUN_00291530
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured: func_00291530 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void func_00291530(u8 *arg0)
+void mtMiscCollectType1Records(u8 *arg0)
 {
     s32 var_6;
     s32 var_9;
@@ -99,13 +101,15 @@ done_91530:
 }
 
 /* measured probe: close opt_propagation bracket after func_00291530. */
+// Attaches the model for slot arg2 from the table entry at index arg3. Returns 0
+// when the index is out of range or the matrix copy fails, 1 once attached.
 // FUN_002915F0
 /* measured: opt_propagation off keeps `weapon` materialised between the index
    shift and the base add (retail sll/andi/addu); with propagation on the CSE'd
    address is finished before any argument. The index/five locals must stay
    literal under this pragma or they take a sixth saved register. Attachment
    helpers retain block-scoped u16 parameters for per-call masks. */
-s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
+s32 mtMiscAttachSlotModel(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     extern void mdlDetachSlotModel(u8 *arg0, s32 arg1);
     extern s32 mdlCopyIndexedMatrix(u8 *arg0, s32 arg1, u8 *arg2);
@@ -155,8 +159,10 @@ s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 }
 
 /* measured: restore propagation for the rest of the unit. */
+// Detaches slot arg1 when its attached flag and value are both set; out-of-range
+// slots and a null owner are ignored.
 // FUN_00291790
-void func_00291790(u8 *arg0, s32 arg1)
+void mtMiscDetachSlotModel(u8 *arg0, s32 arg1)
 {
     s32 var_7;
     u8 *temp_6;
@@ -174,9 +180,11 @@ void func_00291790(u8 *arg0, s32 arg1)
     }
 }
 
+// Type-2 counterpart of mtMiscCollectType1Records: up to 5 entries, ids from
+// 0x7918, collected into the block at +0x640, count reported by a debug print.
 // FUN_00291810
 /* measured probe: preserve the retail type constant and close bracket below. */
-void func_00291810(u8 *arg0)
+void mtMiscCollectType2Records(u8 *arg0)
 {
     s32 *temp_16;
     s32 var_6;
