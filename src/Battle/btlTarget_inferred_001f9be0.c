@@ -151,14 +151,14 @@ void func_001f9be0(void)
 }
 
 // FUN_001F9BF0
-void func_001f9bf0(void) {
+void btlVoiceResetPlaybackState(void) {
     memset(iGpffffb3ac + 0xB2C, 0, 0x14);
     *(s16 *)(iGpffffb3ac + 0xB30) = 3;
     *(s16 *)(iGpffffb3ac + 0xB3A) = 0;
 }
 
 // FUN_001F9C40
-void func_001f9c40(void)
+void btlVoiceFreePlaybackBuffers(void)
 {
     if (*(s32 *)(iGpffffb3ac + 0xB34) != 0) {
         jtbl_008873EC[0](*(void **)(iGpffffb3ac + 0xB34));

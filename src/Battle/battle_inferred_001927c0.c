@@ -109,7 +109,7 @@ extern void func_001ee1c0(void);
 extern void func_00194660(void);
 extern void btlCameraInitSystem(void);
 extern void func_001f7260(void);
-extern void func_001f9bf0(void);
+extern void btlVoiceResetPlaybackState(void);
 extern void func_001d6a60(void);
 extern void btlActionResetQueueState(void);
 extern void btlMainReset(void);
@@ -353,7 +353,7 @@ void btlInit(void)
     func_00194660();
     btlCameraInitSystem();
     func_001f7260();
-    func_001f9bf0();
+    btlVoiceResetPlaybackState();
     func_001d6a60();
     btlActionResetQueueState();
     btlMainReset();
@@ -372,7 +372,7 @@ s32 btlRelease(void)
     btlMainSaveFieldSnapshotAndUnload();
     func_001b6110();
     btlEffectFreeAllNodes();
-    func_001f9c40();
+    btlVoiceFreePlaybackBuffers();
     func_001f73c0();
     btlCameraResetWorkList();
     func_001f61b0();
