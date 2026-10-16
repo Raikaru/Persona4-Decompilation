@@ -21,7 +21,7 @@ extern s32 kwlnTaskGetTaskByName(void *);
 extern void kwlnTaskDestroyWithHierarchy(s32);
 extern void kAssertFail(const void *, u32);
 extern s32 func_0046a110(s32, s16, void *);
-extern void *func_0046a1e0(void);
+extern void *mwPlayerGetTaskName(void);
 
 extern char D_005DCB58[];
 extern char D_005DCB68[];
@@ -319,13 +319,13 @@ void SeqMovie_Start(s16 *arg0)
 // FUN_00103480
 s32 SeqMovie_IsRunning(void)
 {
-    return (s32)(kwlnTaskGetTaskByName(func_0046a1e0()) != 0);
+    return (s32)(kwlnTaskGetTaskByName(mwPlayerGetTaskName()) != 0);
 }
 
 // FUN_001034B0
 void SeqMovie_End(void)
 {
-    s32 handle = kwlnTaskGetTaskByName(func_0046a1e0());
+    s32 handle = kwlnTaskGetTaskByName(mwPlayerGetTaskName());
 
     if (handle == 0) {
         kAssertFail(D_005DCB68, 0x20F);

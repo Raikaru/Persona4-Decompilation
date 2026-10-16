@@ -47,7 +47,7 @@ void itfMesWindowFreeAll(u8 *task);
 extern char D_0063BF10[];
 extern char D_0063BF20[];
 void itfMesWindowFreeSlots();
-void func_0046a340();
+void poolFree();
 void func_0046a2d0();
 void *func_0046a430();
 void memset();
@@ -1305,7 +1305,7 @@ void itfMesObjectFree(u8 *arg0)
         *(s32 *)arg0 = v & 0xFFFBFFFF;
         itfMesWindowFreeSlots(arg0 + 0x94);
         *(s32 *)arg0 = 0;
-        func_0046a340(arg0);
+        poolFree(arg0);
     }
 }
 // FUN_00278C60
@@ -1735,7 +1735,7 @@ void itfMesObjectSetString(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     base = (s32)arg0 + 0x94;
     slot = (s32 *)(base + arg1 * 4);
     if (*slot != 0) {
-        func_0046a340(*slot);
+        poolFree(*slot);
         *slot = 0;
     }
     if (arg3 <= 0) {
@@ -1782,7 +1782,7 @@ void itfMesObjectSetNumber(u8 *arg0, s32 arg1, s32 arg2) {
     slot = (s32 *)(base + arg1 * 4);
     v = *(u8 **)slot;
     if (v != NULL) {
-        func_0046a340((s32)v);
+        poolFree((s32)v);
         *(u8 **)slot = NULL;
     }
     func_0046a2d0(D_0063BE10, 0xD55);
