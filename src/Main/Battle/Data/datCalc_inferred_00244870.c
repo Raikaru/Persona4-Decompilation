@@ -27,8 +27,9 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 /* Source unit: src/promoted/code1_0024.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00244870-00244870 */
 
+// Intent: Compute a hit rate from attacker and defender AGI (200 + AGI ratio), scaled by the skill accuracy and a guard term when the target carries flag 4 [inferred]
 // FUN_00244870
-void func_00244870(void)
+void datScriptCalcHitRate(void)
 {
     extern f32 fGpffff824c;
     f32 temp_f21;
