@@ -89,9 +89,12 @@ struct BtlUnit
     s8 restOption;                /* 0x9F4 */
     u8 unk_9f5[0x09F8 - 0x09F5];
     BtlMotionRate *motionRates;   /* 0x9F8 */
-    u8 unk_9fc[0x0A00 - 0x09FC];
+    u8 unk_9fc[0x09FE - 0x09FC];
+    u16 sceneDrawId;              /* 0x9FE. Scene draw id from MT_Scene_CreateModelCharRes, passed to SceneDraw_SetDirectionalOnly */
     u8 *layerHandle;              /* 0xA00. Model object passed to the mdl layer helpers */
-    u8 unk_a04[0x0A64 - 0x0A04];
+    u8 unk_a04[0x0A0C - 0x0A04];
+    BtlUnit *childUnit;           /* 0xA0C. Child unit allocated by btlUnitCreate(2) in btlUnitInitChild */
+    u8 unk_a10[0x0A64 - 0x0A10];
     DatUnit *datUnit;             /* 0xA64. Passed to datCalc accessors */
     BtlUnit *prevUnit;            /* 0xA68. Previous unit in the battle unit list */
     BtlUnit *nextUnit;            /* 0xA6C. Next unit in the battle unit list */
