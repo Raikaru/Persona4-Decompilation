@@ -15,6 +15,7 @@ void func_003e8180(void *, float);
 void func_003e81c0(void *, float);
 extern u8 D_0063C3B0[];
 void memset(void *dst, s32 c, s32 n);
+// Scratch record for evtDispatchNode: 0x28 bytes, cleared with memset before each dispatch. Word 0 selects the dispatch pass; evtResetEventScene writes 1 for its first node loop and 2 for its second [inferred].
 extern s32 D_008821E0[];
 void MT_Scene_ClearExclusiveRes(void);
 struct KwlnTask;
@@ -113,7 +114,7 @@ void taskRecordSetPosition(u8 *arg0, s64 arg1);
    and r=$s1 where mwcc rotates to arg0=$s0/arg1=$s1/arg2=$s4, var_16=$s3,
    r=$s2. Tried the complete m2c switch body + 1 declaration order; nd 324
    (obj 1424B vs window 1248B). Jump-table-density + saved-register floor. */
-// Creates the event node for type 10: allocates its 0x30-byte record, counts it against the event memory, and fills its geometry through evtInterpolateNodeMatrices; other types create nothing [inferred].
+// Creates a 0x54-byte child node for the node at arg0 and appends it to that node's list; kind 10 also allocates a 0x30-byte record filled by evtInterpolateNodeMatrices, and kinds 0x18/0x19 add nothing else [inferred].
 // FUN_00286780
 u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
     EvtNode *parent = (EvtNode *)arg0;
@@ -1168,7 +1169,6 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
     extern void mdlSetLookAtRequested(void *);
     extern s32 mdlHasActiveMode(void *);
     extern void func_00440b68(char *, ...);
-    extern s32 D_008821E0[];
     extern char D_0063C510[];
     extern char D_0063C530[];
     extern f32 fGpffff809c;

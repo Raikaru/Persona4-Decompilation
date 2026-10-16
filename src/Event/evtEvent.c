@@ -215,6 +215,7 @@ s32 evtCreateEventTask(s32 arg0, s32 arg1)
     temp_16 = D_008873F4[0](1, 0x60, 0x40000);
     evtMemAccount(0, 0x60);
     memset(temp_16, 0, 0x60);
+    // Task name at D_0063C2F8 is "evtEvent", priority 0xF, with evtNodeTaskUpdate and evtNodeTaskDestroy [inferred from docs/architecture.md].
     temp_17 = (s32)kwlnTaskCreate((const void *)(&D_0063C2F8), 0xF, 0, 0, evtNodeTaskUpdate, evtNodeTaskDestroy, (u8 *)(temp_16));
     temp_2 = evtStart(0, 0);
     temp_16->eventTask = temp_2;
