@@ -104,7 +104,6 @@ extern void btlShuffleSeqClearA(u8 *a, s32 b);
 extern s32 btlShuffleSeqFlag(u8 *a);
 extern s32 btlShuffleShowRosterMessage(u8 *a);
 extern struct DatPersonaRecord *datPersonaFindRosterRecordById(s32 a);
-extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern char *datCalcGetSlotRecord(s32 a);
 extern char *strcpy(char *dst, const char *source);
 struct KwlnTask;
