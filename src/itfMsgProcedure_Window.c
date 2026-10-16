@@ -2441,7 +2441,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         s32 kind;
     } CalendarArgs;
     extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
-    extern u8 *func_0046a770(char *arg0);
+    extern u8 *resourceFindByName(char *arg0);
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
@@ -2540,7 +2540,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         for (tile = 0; tile < 24; tile++) {
             x = (tile % 6) * 126;
             i = (tile / 6) * 126;
-            sdkSpriteDrawNow(x, i, 10.0f, 0xFFFFFF, alpha, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
+            sdkSpriteDrawNow(x, i, 10.0f, 0xFFFFFF, alpha, phase, resourceFindByName(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
             phase = (phase + 1) % 4;
         }
         angle = iGpffff8094 * (f32)frame;
@@ -2662,7 +2662,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         for (tile = 0; tile < 24; tile++) {
             x = (tile % 6) * 126;
             y = (tile / 6) * 126;
-            sdkSpriteDrawNow(x, y, 10.0f, 0xFFFFFF, 0x4C, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
+            sdkSpriteDrawNow(x, y, 10.0f, 0xFFFFFF, 0x4C, phase, resourceFindByName(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
             phase = (phase + 1) % 4;
         }
         if (handle == NULL) {

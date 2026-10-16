@@ -51,7 +51,7 @@ extern void func_0013aa90(u8 *arg0);
 extern void *memset(void *arg0, s32 arg1, u32 arg2);
 extern s16 func_00353c10(s16 *arg0);
 extern u8 *func_00354a50(s32 arg0, u16 arg1);
-extern u8 *func_0046a770(char *arg0);
+extern u8 *resourceFindByName(char *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 extern void kAssertFail(void *arg0, s32 arg1);
 extern s32 radarSetMode(u8 *arg0, s32 arg1);
@@ -296,19 +296,19 @@ void func_0013fb50(u8 *arg0) {
     }
 
     *(s16 *)(arg0 + 0x32) = func_00353c10((s16 *)(arg0 + 0x22));
-    resource0 = func_0046a770((char *)D_005E5830);
+    resource0 = resourceFindByName((char *)D_005E5830);
     if (resource0 == 0) {
         kAssertFail(D_005EF6C8, 0x1EB);
     }
-    resource1 = func_0046a770((char *)D_005E5850);
+    resource1 = resourceFindByName((char *)D_005E5850);
     if (resource1 == 0) {
         kAssertFail(D_005EF6C8, 0x1ED);
     }
-    *(u8 **)(arg0 + 0x1874) = resource2 = func_0046a770((char *)D_005E57F0);
+    *(u8 **)(arg0 + 0x1874) = resource2 = resourceFindByName((char *)D_005E57F0);
     if (resource2 == 0) {
         kAssertFail(D_005EF6C8, 0x1EF);
     }
-    if (func_0046a770((char *)D_005E5810) == 0) {
+    if (resourceFindByName((char *)D_005E5810) == 0) {
         kAssertFail(D_005EF6C8, 0x1F1);
     }
 

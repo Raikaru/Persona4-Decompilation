@@ -40,7 +40,7 @@ extern u8 datPersonaGetBuffedStat(u8 *, s32);
 extern s32 fclCombineApplyDiscount(u16, s32);
 extern void func_002e7a80(s32);
 extern void func_002cacd0(FclVec2, f32, FclDrawColor, s32, s16, u32, s32, s32, s32, s32, s32);
-extern void *func_0046a770(void *);
+extern void *resourceFindByName(void *);
 extern u8 D_00641B30[];
 extern void fclCombineMoveRosterCursor(u8 *, s64);
 extern void fclCombineDrawSlotFrames(u8 *, FclVec2, s32, s8);
@@ -5294,7 +5294,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         }
         break;
     case 0x98:
-        func_002cacd0(func_002b2970(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0x56);
+        func_002cacd0(func_002b2970(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
         var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
         if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
@@ -5320,7 +5320,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             tmpu8 = *(u8 *)((u8 *)yListSlotEntry(0, var_19) + 4);
             func_002ba5d0((u8 *)p->f2BC, sp1B0, tmpu8, func_002b2970(74.0f, 151.0f + 23.0f * (f32)var_18), fc_colW7, 46.0f, 0x59);
             total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) + 0x7D0;
-            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
+            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW7, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0xAA);
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
@@ -5705,7 +5705,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
         p->f13A = 0;
         return;
     case 0x9B:
-        func_002cacd0(func_002b2970(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0x56);
+        func_002cacd0(func_002b2970(250.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
         var_16_6 = *(s16 *)(yListSlotWork(0) + 8);
         if (*(s32 *)(yListSlotWork(0) + 8) > 8) {
             var_16_6 = 8;
@@ -5728,7 +5728,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 *(s16 *)(fclSpriteEntry(((var_18 + 0x2A3))) + 4) = (s16)((datPersonaGetArcana(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2)) & 0xFF) + 0x1B);
             }
             total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) + 0x7D0;
-            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW4, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
+            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW4, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0xAA);
             if (fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x10), 1) == 0) {
                 if ((s16)var_19 == p->f11E) {
                     *(u8 *)(fclSpriteEntry(((var_18 + 0x270))) + 0x6E) = *(u8 *)(fclSpriteEntry(((var_18 + 0x27D))) + 0x6E) = 0xFF;
@@ -5767,7 +5767,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             var_16_6 = 8;
         }
         caption.firstEntry = p->f11E - p->f120;
-        func_002cacd0(func_002b2970(254.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0x56);
+        func_002cacd0(func_002b2970(254.0f + *(f32 *)(fclSpriteEntry(0x69) + 0x38), 46.0f), 47.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF), 0x10, 5, func_002e7a60(), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0x56);
         var_19 = caption.firstEntry;
         var_18 = 0;
         var_22 = (s16)var_16_6 + var_19;
@@ -5783,7 +5783,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             }
             frFontExDrawTextDeferredOutB(172.0f, (f32)(s32)((var_18 * 0x17) + 0x96), 43.0f, caption.fontColor, 0, 2, (const char *)((iGpffffb440) + ((*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + (2))) * 0x11)), 0, 0, D_00795E60, 0x15);
             total = ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) * ((datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 0) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 1) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 2) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 3) & 0xFF) + (datPersonaGetBuffedStat((u8 *)yListSlotEntry(0, var_19), 4) & 0xFF)) + 0x7D0;
-            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW2, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)func_0046a770(&D_00641B30), func_00331560(), 0xAA);
+            func_002cacd0(func_002b2970(510.0f, (f32)(s32)((var_18 * 0x17) + 0x9E)), 47.0f, fc_colW2, 0x10, 5, fclCombineApplyDiscount(*(u16 *)((u8 *)(yListSlotEntry(0, var_19)) + 2), total), 9, 0x37, (s32)resourceFindByName(&D_00641B30), func_00331560(), 0xAA);
             var_19++;
             var_18++;
         }

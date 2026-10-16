@@ -19,7 +19,7 @@ extern char D_0064E270[];
 s8 func_002bab80(void *);
 s32 func_003544f0(void);
 void memset(void *, s32, s32);
-void *func_0046a770(char *);
+void *resourceFindByName(char *);
 s32 sdkSpriteNewNode(void *, u8);
 void kAssertFail(char *, s32);
 s32 func_0035fa20(u8 *, u32);
@@ -74,19 +74,19 @@ void func_0035f5b0(u8 *arg0)
         *(s32 *)(p + 0x5E0) = 0;
         *(s32 *)(p + 0x5E4) = 3;
     }
-    spr2 = func_0046a770(D_005E5830);
+    spr2 = resourceFindByName(D_005E5830);
     if (spr2 == NULL) {
         kAssertFail(D_0064E270, 0x15B);
     }
-    spr1 = func_0046a770(D_005E5850);
+    spr1 = resourceFindByName(D_005E5850);
     if (spr1 == NULL) {
         kAssertFail(D_0064E270, 0x15D);
     }
-    *(s32 *)(arg0 + 0x700) = (s32)(spr3 = func_0046a770(D_005E57F0));
+    *(s32 *)(arg0 + 0x700) = (s32)(spr3 = resourceFindByName(D_005E57F0));
     if (spr3 == NULL) {
         kAssertFail(D_0064E270, 0x15F);
     }
-    spr4 = func_0046a770(D_005E5810);
+    spr4 = resourceFindByName(D_005E5810);
     if (spr4 == NULL) {
         kAssertFail(D_0064E270, 0x161);
     }

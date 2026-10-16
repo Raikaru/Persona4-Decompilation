@@ -35,7 +35,7 @@ extern s32 calGetDayWindowFlags(s32 arg0);
 void func_00440b68(void *msg, const void *file, s32 line);
 extern u8 *func_00454a60(u8 *param, s32 mode);
 void kAssertFail(const void *file, s32 line);
-s32 func_0046a770(u32 param);
+s32 resourceFindByName(u32 param);
 s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 u8 *func_00455ea0(u8 *param, s32 a, s32 *b);
 s32 func_0046a750(s32 param);
@@ -1150,7 +1150,7 @@ void btlResultSimpleSetupEntries(void) {
     i = 3;
     for (; i < 5; i++) {
         dst = (s32 *)((u8 *)work + i * 4 + 0x400);
-        *dst = func_0046a770(*(s32 *)((u8 *)iGpffffa5a8 + i * 4 - 12));
+        *dst = resourceFindByName(*(s32 *)((u8 *)iGpffffa5a8 + i * 4 - 12));
         if (*dst == 0) {
             kAssertFail(&D_00629610, 1419);
         }

@@ -27,7 +27,7 @@ void sdkSpriteDrawOnceTinted(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u
 extern char D_005E5830[];
 extern char D_005E5850[];
 void func_002bc860(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
-u8 *func_0046a770(char *file);
+u8 *resourceFindByName(char *file);
 void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode);
 void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 texture);
 
@@ -63,11 +63,11 @@ void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descript
     s32 secondCost;
     s32 index;
 
-    texture = func_0046a770(D_005E5830);
+    texture = resourceFindByName(D_005E5830);
     if (texture == 0) {
         kAssertFail(D_005E4800, 0xE4);
     }
-    helpTexture = func_0046a770(D_005E5850);
+    helpTexture = resourceFindByName(D_005E5850);
     if (helpTexture == 0) {
         kAssertFail(D_005E4800, 0xE6);
     }
@@ -250,7 +250,7 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
     if (selected < 0 || selected >= 8) {
         kAssertFail(D_005E4800, 0x1E1);
     }
-    texture = func_0046a770(D_005E5830);
+    texture = resourceFindByName(D_005E5830);
     if (texture == 0) {
         kAssertFail(D_005E4800, 0x1E4);
     }
@@ -357,16 +357,16 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
     s32 index;
 
     baseY = base.y;
-    panelTexture = func_0046a770(D_005E5830);
+    panelTexture = resourceFindByName(D_005E5830);
     if (panelTexture == 0) {
         kAssertFail(D_005E4800, 0x243);
     }
     descriptor.style = 2;
-    frameTexture = func_0046a770(D_005E5810);
+    frameTexture = resourceFindByName(D_005E5810);
     if (frameTexture == 0) {
         kAssertFail(D_005E4800, 0x247);
     }
-    helpTexture = func_0046a770(D_005E5850);
+    helpTexture = resourceFindByName(D_005E5850);
     if (helpTexture == 0) {
         kAssertFail(D_005E4800, 0x249);
     }
@@ -571,7 +571,7 @@ void ShdSkill_DrawSelectionFrame(Vec2f arg0, f32 fparg0, u8 arg1, u16 arg2) {
     f32 y;
     s32 temp_7;
 
-    temp_2 = (s32)func_0046a770(D_005E5850);
+    temp_2 = (s32)resourceFindByName(D_005E5850);
     if (temp_2 == 0) {
         kAssertFail(D_005E4800, 0x353);
     }

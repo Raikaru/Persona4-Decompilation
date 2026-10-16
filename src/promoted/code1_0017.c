@@ -104,7 +104,7 @@ extern f32 sinf(f32 arg0);
 extern f32 cosf(f32 arg0);
 extern f32 iGpffff8304;
 extern struct RpGeometry *func_003c22f0(struct RpGeometry *geometry);
-extern u8 *func_0046a770(char *arg0);
+extern u8 *resourceFindByName(char *arg0);
 extern char D_005E5850[];
 extern f32 iGpffff82fc;
 extern u8 D_00794E70[];
@@ -768,7 +768,7 @@ s32 func_0017cd60(u8 *arg0)
     }
     switch (*(s32 *)work) {
     case 0:
-        *(s32 *)(work + 8) = (s32)func_0046a770(D_005E5850);
+        *(s32 *)(work + 8) = (s32)resourceFindByName(D_005E5850);
         *(u16 *)(work + 0xC) = 320;
         *(u16 *)(work + 0xE) = 240;
         *(s32 *)work = *(s32 *)work + 1;

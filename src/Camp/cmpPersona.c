@@ -56,7 +56,7 @@ void func_001356d0(u8* arg0) {
  extern void func_00135c10(u8* arg0);
  extern s16 func_00353c10(s16* arg0);
  extern void* memset(void* dst, s32 value, u32 size);
- extern u8* func_0046a770(char* arg0);
+ extern u8* resourceFindByName(char* arg0);
  extern u8* sdkSpriteNewNode(u32 arg0, u32 arg1);
  extern u8 func_002baac0(u8* arg0);
  extern u8* func_00354a50(s32 arg0, u16 arg1);
@@ -136,15 +136,15 @@ void func_001356d0(u8* arg0) {
   }
  }
  *(s16*)(arg0 + 0x34) = func_00353c10((s16*)(arg0 + 0x24));
- resource0 = func_0046a770((char*)D_005E5830);
+ resource0 = resourceFindByName((char*)D_005E5830);
  if (resource0 == 0) {
   kAssertFail(&D_005EB580[0], 0x199);
  }
- resource1 = func_0046a770((char*)D_005E5850);
+ resource1 = resourceFindByName((char*)D_005E5850);
  if (resource1 == 0) {
   kAssertFail(&D_005EB580[0], 0x19B);
  }
- *(u8**)(arg0 + 0x1CB0) = resource2 = func_0046a770((char*)D_005E57F0);
+ *(u8**)(arg0 + 0x1CB0) = resource2 = resourceFindByName((char*)D_005E57F0);
  if (resource2 == 0) {
   kAssertFail(&D_005EB580[0], 0x19D);
  }

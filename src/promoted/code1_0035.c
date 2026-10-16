@@ -1369,7 +1369,7 @@ void func_00356250(u8 *arg0)
     extern u16 func_00107ac0(s32 arg0);
     extern s32 cmmCommunityTestBroken(s32 arg0);
     extern s32 cmmCommunityTestReversed(s32 arg0);
-    extern u8 *func_0046a770(char *arg0);
+    extern u8 *resourceFindByName(char *arg0);
     extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
     extern void kAssertFail(const void *arg0, u32 arg1);
     extern s32 cmmAuxTable(void);
@@ -1448,19 +1448,19 @@ void func_00356250(u8 *arg0)
     if (n > 0x15) {
         kAssertFail(D_0064CC98, 0x1E2);
     }
-    h0 = func_0046a770(D_005E5830);
+    h0 = resourceFindByName(D_005E5830);
     if (h0 == NULL) {
         kAssertFail(D_0064CC98, 0x1E6);
     }
-    h1 = func_0046a770(D_005E5850);
+    h1 = resourceFindByName(D_005E5850);
     if (h1 == NULL) {
         kAssertFail(D_0064CC98, 0x1E8);
     }
-    h2 = func_0046a770(D_005E5810);
+    h2 = resourceFindByName(D_005E5810);
     if (h2 == NULL) {
         kAssertFail(D_0064CC98, 0x1EA);
     }
-    *(u8 **)(arg0 + 0x1304) = h3 = func_0046a770(D_005E57F0);
+    *(u8 **)(arg0 + 0x1304) = h3 = resourceFindByName(D_005E57F0);
     if (h3 == NULL) {
         kAssertFail(D_0064CC98, 0x1EC);
     }
