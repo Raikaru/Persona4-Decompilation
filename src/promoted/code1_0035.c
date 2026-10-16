@@ -11,7 +11,7 @@ extern void (*D_008873EC[])(void *);
 
 extern void func_003549d0();
 extern s32 datGetDateIndex(void);
-extern s32 func_00110d60(s64 arg0);
+extern s32 calGetDayWindowFlags(s64 arg0);
 extern s32 func_00353dc0(s64 arg0);
 extern s32 datGetFlag(s32 arg0);
 extern u8 *kwlnTaskGetTaskByName(const void *arg0);
@@ -775,7 +775,7 @@ void func_00355190(u8 *arg0, u16 arg1)
     work = *(u8 **)(arg0 + 0x38);
     id = arg1 & 0xFFFF;
     if (*(u16 *)(work + 8) != id) {
-        if (func_00110d60((s64)(s16)datGetDateIndex()) & 1) {
+        if (calGetDayWindowFlags((s64)(s16)datGetDateIndex()) & 1) {
             suffix = 0x61;
         } else {
             suffix = 0x62;
@@ -3509,7 +3509,7 @@ nonzero_case:
         case 26:
         case 27:
         case 29:
-            if (func_00110d60((s64)(s16)datGetDateIndex()) & 1) {
+            if (calGetDayWindowFlags((s64)(s16)datGetDateIndex()) & 1) {
                 sprintf(sp168, &iGpffffa968);
             } else {
                 sprintf(sp168, &iGpffffa96c);

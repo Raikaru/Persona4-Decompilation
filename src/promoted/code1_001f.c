@@ -81,7 +81,7 @@ extern void kAssertFail(void *arg0, s32 arg1);
 extern u8 D_0060AB08[];
 extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern s16 datGetDateIndex(void);
-extern s32 func_00110d60(s32 arg0);
+extern s32 calGetDayWindowFlags(s32 arg0);
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
 extern u8 D_0061F000[];

@@ -11,7 +11,7 @@ extern u8 *iGpffffa5f0;
 
 extern void btlBuildNpcModelName(s32 *arg0, s32 arg1);
 extern s64 datGetDateIndex(void);
-extern s32 func_00110d60(s16 arg0);
+extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
@@ -80,7 +80,7 @@ void btlBuildNpcModelName(s32 *arg0, s32 arg1)
     temp_17 = (s64)var_17;
     if (temp_17 > 0)
     {
-        temp_3_2 = (s64)(s16)func_00110d60((s16)datGetDateIndex());
+        temp_3_2 = (s64)(s16)calGetDayWindowFlags((s16)datGetDateIndex());
         if (!(temp_3_2 & 1))
         {
             if (temp_17 & 3)

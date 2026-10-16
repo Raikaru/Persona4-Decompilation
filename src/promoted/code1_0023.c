@@ -19,7 +19,7 @@ extern s32 btlCurrentUnitId(void);
 extern s64 datGetDateIndex(void);
 extern s32 datGetFlag(s32 arg0);
 extern s32 func_00106cd0(s32 arg0, s32 arg1);
-extern s32 func_00110d60(s16 arg0);
+extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
