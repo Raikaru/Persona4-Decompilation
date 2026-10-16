@@ -7,8 +7,8 @@
 void chkmemAllocSiteTag(void *file, s32 line);
 void kAssertFail(void *arg0, s32 arg1);
 void func_00460ac0(void *param, void *work);
-s32 func_0034bb20(s32 arg0);
-void func_0034c260(s32 arg0);
+s32 nLineSelectSet(s32 arg0);
+void nLineSetActive(s32 arg0);
 void resrcMngUnsuppressRender(void);
 void datGridEffectCreate(s32 a, u8 *b, s32 c, s32 d, s32 e, s32 f, s32 g, s32 h);
 void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -115,7 +115,7 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
         *(s32 *)(p + 0x10) = 1;
         *(s32 *)p = 2;
         titleSlotTableInit(p + 0x18);
-        func_0034bb20(1);
+        nLineSelectSet(1);
         break;
     case 2:
         *(s32 *)(p + 0x10) = 1;
@@ -154,14 +154,14 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
                     break;
                 }
                 titleSlotSetMode(p + 0x18, 3);
-                func_0034bb20(2);
+                nLineSelectSet(2);
                 sdkSndStartStream(0, 2, 0, 3);
             } else if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x10)) {
                 titleSlotSetMode(p + 0x18, 3);
                 *(s32 *)p = 3;
                 *(s32 *)(p + 8) = 0xD;
                 *(s32 *)(p + 0x14) = 0;
-                func_0034bb20(2);
+                nLineSelectSet(2);
                 sdkSndStartStream(0, 2, 0, 4);
             } else {
                 sdkListStateConfigure(&sp20, *(s32 *)(p + 0x50), *(s32 *)(p + 0x50),
@@ -317,8 +317,8 @@ void cmpMainTaskDestroy(u8 *arg0) {
     u32 state;
 
     p = *(u8 **)(arg0 + 0x38);
-    func_0034bb20(0);
-    func_0034c260(0);
+    nLineSelectSet(0);
+    nLineSetActive(0);
     state = *(u32 *)p;
     switch (state) {
     case 0:
@@ -457,8 +457,8 @@ s32 cmpMainTaskCreate(s32 arg0, s16 arg1) {
     }
     *(u16 *)(p + 0xC) = arg1;
     r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&iGpffff9cb8), 0xC7, 0, 0, cmpMainTaskStep, cmpMainTaskDestroy, (u8 *)(p));
-    func_0034bb20(0);
-    func_0034c260(1);
+    nLineSelectSet(0);
+    nLineSetActive(1);
     memset(p + 0x970C, 0, 0x30);
     *(s32 *)(p + 0x9714) = (s32)cmpMainUpdateMenus;
     *(s32 *)(p + 0x971C) = 0;

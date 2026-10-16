@@ -12,11 +12,11 @@ void sdkSpriteFreeNode(void *node);
 void func_00460ac0(void* param, void* work);
 void datSetFlag(s32 a, s32 b);
 s32 datCommunityDetailStep(u32* arg0, s32* arg1, u8* arg2);
-s32 func_0034c210(void);
+s32 nLineIsIdle(void);
 void chkmemAllocSiteTag(void* file, s32 line);
 void memset(void* dest, s32 value, s32 size);
 
-void func_0034c260(s32 arg0);
+void nLineSetActive(s32 arg0);
 void* resourceFindByName(char* arg0);
 s32 sdkSpriteNewNode();
 s32 datGetFlag(s32 arg0);
@@ -24,7 +24,7 @@ void datEntryDrawGatedByFlag39(s32 a, s32 b, s32 c, s32 d);
 void radarAnimateValue(void* arg0, s32 arg1, s32 arg2);
 void func_0034f8f0(void* arg0);
 void sdkRenderStateSetDefault(void);
-void func_0034c270(Vec2f position, s32 alpha, s32 mode, f32 depth);
+void nLineDrawSet(Vec2f position, s32 alpha, s32 mode, f32 depth);
 void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg1, u8 arg2, u8 arg3, u8 arg4,
@@ -86,7 +86,7 @@ s32 cmpConfigCreate(void* arg0, s32 arg1) {
     case 0:
         break;
     case 1:
-        func_0034c260(1);
+        nLineSetActive(1);
         break;
     default:
         kAssertFail(D_0064D3C8, 0xE6);
@@ -473,7 +473,7 @@ void cmpConfigDraw(u8 *work) {
         pos.x = baseX;
         pos.y = baseY;
         alpha = (u8)(255.0f * fade);
-        func_0034c270(pos, alpha, backdropMode, 0.0f);
+        nLineDrawSet(pos, alpha, backdropMode, 0.0f);
     }
     if ((menu->visible & 1) != 0) {
         pos.x = 26.0f + (baseX + menu->motion[0].position.x);
@@ -645,7 +645,7 @@ s32 cmpConfigAllRowsMet(u8 *arg0) {
         }
         i++;
     }
-    return flag & func_0034c210();
+    return flag & nLineIsIdle();
 }
 
 // Marks the flags synced (menu state bit 0x2) and writes each of the six config data flags from its option value.

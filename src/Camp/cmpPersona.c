@@ -13,7 +13,7 @@ struct CmpHead {
 };
 
 s32 datPersonaRosterSlotActive(s16 arg0);
-s32 func_0034c210(void);
+s32 nLineIsIdle(void);
 void radarAnimateValue(void* arg0, s32 arg1, s32 arg2);
 void datCommunityEntryStep(void* arg0);
 u32 RpRandom(void);
@@ -296,7 +296,7 @@ typedef struct {
 void cmpPersonaMenuDraw(u8* work)
 {
     extern void sdkRenderStateSetDefault(void);
-    extern void func_0034c270(Vec2f position, s32 alpha, s32 background, f32 depth);
+    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 background, f32 depth);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
     extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 width,
                               u16 height, s16 angle, f32 scale, s16 mode);
@@ -352,7 +352,7 @@ void cmpPersonaMenuDraw(u8* work)
         position.y = originY;
         value = 255.0f * opacity;
         drawOpacity = (u8)value;
-        func_0034c270(position, drawOpacity, menu->background, 0.0f);
+        nLineDrawSet(position, drawOpacity, menu->background, 0.0f);
     }
     if ((menu->visible & 0x40) != 0) {
         s32 gridIndex;
@@ -1056,7 +1056,7 @@ s32 cmpPersonaRowsSettled(u8* arg0) {
             result = 0;
         }
     }
-    return result & func_0034c210();
+    return result & nLineIsIdle();
 }
 
 // FUN_00137E50

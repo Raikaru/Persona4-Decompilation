@@ -510,7 +510,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
     typedef union { Vec2fLocal draw; DescriptorPair descriptor; } OriginPair;
     extern void btlLogoDrawTitle(u8 *work, u32 alpha);
     extern void sdkRenderStateSetDefault(void);
-    extern void func_0034c270(Vec2fLocal arg0, s32 arg1, s32 arg2, f32 arg3);
+    extern void nLineDrawSet(Vec2fLocal arg0, s32 arg1, s32 arg2, f32 arg3);
     extern void datScreenWipeDraw(u8 *arg0);
     extern s32 datScreenWipeTexture(u8 *arg0);
     extern void datScreenWipeGetPositions(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
@@ -549,7 +549,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
         sdkRenderStateSetDefault();
         origin.draw.x = 0.0f;
         origin.draw.y = 0.0f;
-        func_0034c270(origin.draw, alpha, 0x16, 0.0f);
+        nLineDrawSet(origin.draw, alpha, 0x16, 0.0f);
         btlLogoDrawTitle(work, alpha);
         datScreenWipeDraw(*(u8 **)(work + 0x4C));
         origin.draw.x = 0.0f;

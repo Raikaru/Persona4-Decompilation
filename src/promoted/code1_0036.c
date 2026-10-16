@@ -44,7 +44,7 @@ extern void pscResUpdate(void);
 extern s32 pscResAnySlotInUse(void);
 extern void radarAnimateValue(u8 *arg0, s16 arg1, s32 arg2);
 
-extern s32 func_0034c210(void);
+extern s32 nLineIsIdle(void);
 extern u32 datGetFlag(s32 arg0);
 extern s32 cmpSystemSetSelection(u8 *arg0, s32 arg1, s16 arg2);
 extern void func_0034f8f0(void *arg0);
@@ -95,7 +95,7 @@ extern void func_00362630(u8 *arg0);
 extern void cmpSystemMenuInit(u8 *arg0);
 extern s32 datCommunityPanelOpenStepAlt(u8 *arg0);
 extern s32 cmpSystemSetMode(u8 *arg0, u32 arg1);
-extern void func_0034bb20(s32 arg0);
+extern void nLineSelectSet(s32 arg0);
 extern void resrcMngUnsuppressRender(void);
 extern void resrcMngSuppressRender(void);
 extern s32 datCommunityRequestExit(void);
@@ -177,7 +177,7 @@ s32 func_003619b0(u8 *arg0) {
         }
         i++;
     }
-    return flag & func_0034c210();
+    return flag & nLineIsIdle();
 }
 
 // FUN_00361A30
@@ -492,9 +492,9 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         *arg1 = 0;
         goto block_64;
     case 1:
-        if ((datCommunityPanelOpenStepAlt(arg2) != 0) && (func_0034c210() != 0)) {
+        if ((datCommunityPanelOpenStepAlt(arg2) != 0) && (nLineIsIdle() != 0)) {
             *arg0 = 3;
-            func_0034bb20(0x1D);
+            nLineSelectSet(0x1D);
         } else {
             *arg1 = 0;
         }
@@ -515,7 +515,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         if (D_008C024E[0] & 0x20) {
             cmpSystemSetMode(arg2, resultFlag);
             *arg0 = 2;
-            func_0034bb20(0x1E);
+            nLineSelectSet(0x1E);
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x40) {
             soundType = *(s16 *)(arg2 + 0x28);
@@ -523,12 +523,12 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             case 0:
                 cmpSystemSetMode(arg2, resultFlag);
                 *arg0 = 5;
-                func_0034bb20(0x1E);
+                nLineSelectSet(0x1E);
                 break;
             case 1:
                 cmpSystemSetMode(arg2, resultFlag);
                 *arg0 = 8;
-                func_0034bb20(0x1E);
+                nLineSelectSet(0x1E);
                 break;
             case 2:
                 nmMesWindowShowSlotRecord(*(s8 *)(arg2 + 0x3C), 4);
@@ -557,7 +557,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             func_00362630(arg2);
             cmpSystemSetMode(arg2, 3);
             *arg0 = 6;
-            func_0034bb20(0x1F);
+            nLineSelectSet(0x1F);
         }
         goto block_64;
     case 6:
@@ -571,7 +571,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         if (D_008C024E[0] & 0x20) {
             cmpSystemSetMode(arg2, 5);
             *arg0 = 1;
-            func_0034bb20(0x20);
+            nLineSelectSet(0x20);
             resrcMngUnsuppressRender();
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x10) {
@@ -594,7 +594,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         }
         goto block_64;
     case 8:
-        if (func_0034c210() != 0) {
+        if (nLineIsIdle() != 0) {
             *(s32 *)(arg2 + 0x704) = cmpConfigCreate(0, 0);
             *arg0 = 9;
         }

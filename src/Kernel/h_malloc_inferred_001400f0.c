@@ -184,14 +184,14 @@ extern s32 D_007642F0;
 
 
 
-extern s32 func_0034c210(void);
+extern s32 nLineIsIdle(void);
 extern void func_0013fb50(u8 *arg0);
 extern s32 func_0013ff80(u8 *arg0);
 extern s32 radarEntriesReady(u8 *arg0);
 extern void radarDestroy(u8 *arg0);
 extern void radarLoadSlotCoords(u8 *arg0);
-extern s32 func_0034bb20(s32 arg0);
-extern void func_0034bd60(s32 arg0);
+extern s32 nLineSelectSet(s32 arg0);
+extern void nLineSelectSetImmediate(s32 arg0);
 extern void resrcMngUnsuppressRender(void);
 extern void resrcMngSuppressRender(void);
 extern s32 datCommunityRequestExit(void);
@@ -271,7 +271,7 @@ extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
 extern void sdkRenderStateSetDefault(void);
-extern void func_0034c270(Float2_0014 work, s32 arg1, s32 arg2, f32 fparg0);
+extern void nLineDrawSet(Float2_0014 work, s32 arg1, s32 arg2, f32 fparg0);
 extern f32 cmpGridCellFade(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2);
 extern void sdkSpriteDrawAt(void *work, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 extern void sdkSpriteDrawSized(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
@@ -321,7 +321,7 @@ void radarDrawFrame(u8 *work)
         position.xy.x = originX;
         position.xy.y = originY;
         alpha = (u8)(255.0f * opacity);
-        func_0034c270(position.xy, alpha, background, 0.0f);
+        nLineDrawSet(position.xy, alpha, background, 0.0f);
     }
     if ((*(s32 *)(work + 0x1C) & 0x40) != 0) {
         u32 outer;
@@ -848,7 +848,7 @@ s32 radarEntriesReady(u8 *arg0) {
         }
         i++;
     }
-    return flag & func_0034c210();
+    return flag & nLineIsIdle();
 }
 
 /* measured: opt_propagation off probe for radarDrawNumber. */
@@ -1144,9 +1144,9 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
         *arg1 = 0;
         break;
     case 1:
-        if ((func_0013ff80(arg2) & func_0034c210()) != 0) {
+        if ((func_0013ff80(arg2) & nLineIsIdle()) != 0) {
             *arg0 = 3;
-            func_0034bb20(0x15);
+            nLineSelectSet(0x15);
         } else {
             *arg1 = 0;
         }
@@ -1170,7 +1170,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             radarSetMode(arg2, 1);
             *arg0 = 2;
             resrcMngUnsuppressRender();
-            func_0034bb20(0x17);
+            nLineSelectSet(0x17);
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 0, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x40) {
@@ -1182,7 +1182,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             radarSetMode(arg2, 3);
             radarLayoutSlots(arg2);
             *arg0 = 5;
-            func_0034bb20(0x16);
+            nLineSelectSet(0x16);
             base4 = arg2 + 0x1878;
             sflDataResetPersonaState(base4);
             sflDataLoadPersonaState(base4, *(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
@@ -1220,7 +1220,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
         if (D_008C024E[0] & 0x20) {
             radarSetMode(arg2, 2);
             *arg0 = 3;
-            func_0034bd60(0x15);
+            nLineSelectSetImmediate(0x15);
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x10) {
@@ -1231,7 +1231,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
                 radarSetMode(arg2, 5);
                 radarLoadSlotCoords(arg2);
                 *arg0 = 7;
-                func_0034bb20(0x18);
+                nLineSelectSet(0x18);
                 radarDrawEdge(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
                 sdkSndStartStream(0, 2, 0, 3);
             }
@@ -1286,7 +1286,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
         if (D_008C024E[0] & 0x80) {
             radarSetMode(arg2, 3);
             *arg0 = 5;
-            func_0034bd60(0x16);
+            nLineSelectSetImmediate(0x16);
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x10) {
@@ -1295,7 +1295,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
         } else if (D_008C024E[0] & 0x20) {
             radarSetMode(arg2, 3);
             *arg0 = 5;
-            func_0034bd60(0x16);
+            nLineSelectSetImmediate(0x16);
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);
         }

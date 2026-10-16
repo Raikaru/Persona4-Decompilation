@@ -65,7 +65,7 @@ static inline u32 add_offset_first(u32 offset, u32 base)
     return offset + base;
 }
 
-extern s32 func_0034c210(void);
+extern s32 nLineIsIdle(void);
 
 extern u32 D_0064B1E0[];
 
@@ -121,8 +121,8 @@ extern s32 func_002bd840(s32 arg0);
 extern u8 D_0064A790[];
 extern void resrcMngSetRenderSuppressed(s32 arg0);
 extern s32 FldStepNotAtBoundary(void);
-extern void func_0034c260(s32 arg0);
-extern s32 func_0034bb10(void);
+extern void nLineSetActive(s32 arg0);
+extern s32 nLineGetCurrentSet(void);
 extern s64 datGetPartyId(s32 arg0);
 // Intent: Build the list of party member ids from the first three party slots, with the count in the first entry [inferred]
 // FUN_00353B50
@@ -292,9 +292,9 @@ s32 FldStepNotAtBoundaryQuery(void)
 s32 datCommunityRequestExit(void)
 {
     sdkSndStartStream(0, 2, 0, 4);
-    func_0034c260(0);
+    nLineSetActive(0);
     resrcMngSetRenderSuppressed(0);
-    return func_0034bb10();
+    return nLineGetCurrentSet();
 }
 // Intent: Queue the cursor sound for a community menu move: indices 1 and 2 use one cue, 3 and 4 use another [inferred]
 // FUN_00354080
@@ -1761,7 +1761,7 @@ void datCommunityListDraw(u8 *work) {
     CommunityMenuView *menu;
     extern void sdkRenderStateSetDefault(void);
     extern s32 frFontExDrawTextOutB(f32, f32, f32, s32, s8, s32, const char *, s32, s32, s32);
-    extern void func_0034c270(Vec2f, s32, s32, f32);
+    extern void nLineDrawSet(Vec2f, s32, s32, f32);
     extern void PrimDrawFlatRectangle(u8 *, f32 *, f32, s32);
     extern void datPartyHudDraw(s32, u8 *);
     extern void datScreenWipeSetAlpha(u8 *, u8);
@@ -1945,7 +1945,7 @@ void datCommunityListDraw(u8 *work) {
         position.y = originY;
         backgroundOpacityProduct = 255.0f * globalOpacity;
         backgroundOpacity = (u8)backgroundOpacityProduct;
-        func_0034c270(position, backgroundOpacity & 0xFF, menu->background, 0);
+        nLineDrawSet(position, backgroundOpacity & 0xFF, menu->background, 0);
     }
     if (menu->flags & 1) {
         for (separatorIndex = 0; separatorIndex < 6; separatorIndex++) {
@@ -2445,7 +2445,7 @@ s32 datCommunityIsReady(u8 *arg0) {
         }
         i++;
     }
-    return flag & func_0034c210();
+    return flag & nLineIsIdle();
 }
 
 // Intent: Release the community menu: free its sprite nodes, destroy its wipe and helper tasks, and reset its count [inferred]
@@ -3670,9 +3670,9 @@ s32 datCommunityMenuStep(u32 *arg0, s32 *arg1, u8 *arg2)
         *arg1 = 0;
         break;
     case 1:
-        if ((datCommunityPanelOpenStep(arg2) & func_0034c210()) != 0) {
+        if ((datCommunityPanelOpenStep(arg2) & nLineIsIdle()) != 0) {
             *arg0 = 3;
-            func_0034bb20(0x19);
+            nLineSelectSet(0x19);
         } else {
             *arg1 = 0;
         }
@@ -3696,7 +3696,7 @@ s32 datCommunityMenuStep(u32 *arg0, s32 *arg1, u8 *arg2)
             datCommunitySetTableMode(arg2, 1);
             *arg0 = 2;
             resrcMngUnsuppressRender();
-            func_0034bb20(0x1B);
+            nLineSelectSet(0x1B);
             datScreenWipeSetupSlot((u8 *)*(s32 *)(arg2 + 0x1308), 0, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x40) {
@@ -3705,7 +3705,7 @@ s32 datCommunityMenuStep(u32 *arg0, s32 *arg1, u8 *arg2)
                 datCommunitySetSlotLayout(arg2);
                 *arg0 = 5;
                 datCommunityPushValue((s32)arg2, 2, 0);
-                func_0034bb20(0x1A);
+                nLineSelectSet(0x1A);
                 datScreenWipeSetupSlot((u8 *)*(s32 *)(arg2 + 0x1308), 1, 0, 0);
                 datCommunityPortraitSetRecord(arg2);
                 datCommunityFillVisibleRecords(arg2);
@@ -3729,7 +3729,7 @@ s32 datCommunityMenuStep(u32 *arg0, s32 *arg1, u8 *arg2)
         if (datCommunityIsReady(arg2) != 0) {
             datCommunitySetTableMode(arg2, 3);
             *arg0 = 6;
-            func_0034bb20(0x1C);
+            nLineSelectSet(0x1C);
             datCommunityResetOffset(arg2);
             datScreenWipeSetTextureId((u8 *)*(s32 *)(arg2 + 0x1308), 0);
         }
@@ -3739,7 +3739,7 @@ s32 datCommunityMenuStep(u32 *arg0, s32 *arg1, u8 *arg2)
             if (D_008C024E[0] & 0x20) {
                 datCommunitySetTableMode(arg2, 4);
                 *arg0 = 3;
-                func_0034bd60(0x19);
+                nLineSelectSetImmediate(0x19);
                 datPortraitSetLabel(*(s32 *)(arg2 + 0x1310), 0, 0);
                 sdkSndStartStream(0, 0, 0, 2);
             } else if (D_008C024E[0] & 0x10) {
@@ -3871,9 +3871,9 @@ s32 datCommunityDetailStep(u32 *arg0, s32 *arg1, u8 *arg2)
         *arg1 = 0;
         break;
     case 1:
-        if (cmpConfigAdvancePhase(arg2) & func_0034c210()) {
+        if (cmpConfigAdvancePhase(arg2) & nLineIsIdle()) {
             *arg0 = 3;
-            func_0034bb20(0x21);
+            nLineSelectSet(0x21);
         } else {
             *arg1 = 0;
         }
@@ -3906,7 +3906,7 @@ s32 datCommunityDetailStep(u32 *arg0, s32 *arg1, u8 *arg2)
                 cmpConfigSyncFlags(arg2);
                 cmpConfigSetMode(arg2, 1);
                 *arg0 = 2;
-                func_0034bb20(0x22);
+                nLineSelectSet(0x22);
                 switch (*(s32 *)(arg2 + 0x1C)) {
                 case 0:
                     resrcMngUnsuppressRender();
@@ -3921,7 +3921,7 @@ s32 datCommunityDetailStep(u32 *arg0, s32 *arg1, u8 *arg2)
         } else if (D_008C024E[0] & 0x20) {
             cmpConfigSetMode(arg2, 1);
             *arg0 = 2;
-            func_0034bb20(0x22);
+            nLineSelectSet(0x22);
             switch (*(s32 *)(arg2 + 0x1C)) {
             case 0:
                 resrcMngUnsuppressRender();
@@ -4037,7 +4037,7 @@ loop_test:
 void datCommunityMenuDraw(u8 *work)
 {
     extern void sdkRenderStateSetDefault(void);
-    extern void func_0034c270(Vec2f position, s32 alpha, s32 background, f32 depth);
+    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 background, f32 depth);
     extern void sdkSpriteDrawAt(void *ptr, f32 x, f32 y, u8 r, u8 g, u8 b, u8 a);
     extern void sdkSpriteDrawFooter(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 resource);
     extern void frFontExCopyString(void *src, void *dst, s32 n);
@@ -4096,7 +4096,7 @@ void datCommunityMenuDraw(u8 *work)
         position.x = originX;
         position.y = originY;
         gridAlpha = (u8)(255.0f * opacityScale);
-        func_0034c270(position, (u8)gridAlpha, background, 0.0f);
+        nLineDrawSet(position, (u8)gridAlpha, background, 0.0f);
     }
     if (*(s32 *)(work + 0x1C) & 1) {
         position.x = originX + *(f32 *)(work + 0x178) + 90.0f;
