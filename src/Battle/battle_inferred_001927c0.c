@@ -70,8 +70,8 @@ extern void memcpy(void *dst, void *src, s32 size);
 extern s32 btlUiCreateTask(s32 arg0);
 extern s32 datGetFlag(s32 arg0);
 extern void btlMainSetPhase(s32 arg0);
-extern s32 func_00192610(u8 *task);
-extern s32 func_001926c0(u8 *task);
+extern s32 btlUpdateTask(u8 *task);
+extern s32 btlUpdateDraw3DTask(u8 *task);
 extern s32 btlUpdateDraw2DTask(u8 *task);
 extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
 extern s32 btlUnitReactToDeath(void);
@@ -423,8 +423,8 @@ s32 btlTaskCreate(s32 arg0)
 
     btlInit();
     *(s32 *)(iGpffffb3ac + 0xDC8) =
-        (s32)kwlnTaskCreate((const void *)(&iGpffffa088), 0x10, arg0 == 0, 0, func_00192610, btlReleaseTask, (u8 *)(0));
-    (s32)kwlnTaskCreateChild((void *)(*(u8 **)(iGpffffb3ac + 0xDC8)), (const void *)(D_005F65B0), 0x11, arg0 == 0, 0, func_001926c0, 0, (u8 *)(NULL));
+        (s32)kwlnTaskCreate((const void *)(&iGpffffa088), 0x10, arg0 == 0, 0, btlUpdateTask, btlReleaseTask, (u8 *)(0));
+    (s32)kwlnTaskCreateChild((void *)(*(u8 **)(iGpffffb3ac + 0xDC8)), (const void *)(D_005F65B0), 0x11, arg0 == 0, 0, btlUpdateDraw3DTask, 0, (u8 *)(NULL));
     (s32)kwlnTaskCreateChild((void *)(*(u8 **)(iGpffffb3ac + 0xDC8)), (const void *)(D_005F65C0), 0x11, arg0 == 0, 0, btlUpdateDraw2DTask, 0, (u8 *)(NULL));
     *(void **)(iGpffffb3ac + 0xE20) = (void *)btlRenderStateSetup;
     temp_2 = iGpffffb3ac;
