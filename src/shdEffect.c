@@ -37,8 +37,8 @@ extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern u32 kwlnTaskGetWork(void *task);
 extern void func_004b1210(void *a, void *b);
 extern u32 func_004b1580(s32 a);
-extern void func_004b1150(s32 a);
-extern s32 func_004b1130(s32 a);
+extern void func_004b1150(u8 *a);
+extern u8 *func_004b1130(s32 a);
 extern void kAssertFail(void *file, s32 line);
 extern s32 func_0025f960(u8 *task);
 extern void func_0025fa30(u8 *task);
@@ -171,7 +171,7 @@ void func_0025fe00(u8 *task)
     void *t;
 
     t = (void *)kwlnTaskGetWork(task);
-    func_004b1150(*(s32 *)t);
+    func_004b1150((u8 *)*(s32 *)t);
     (*jtbl_008873EC)(t);
 }
 
@@ -190,7 +190,7 @@ s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3)
     }
     chkmemAllocSiteTag(D_00637290, 0xD9);
     buf = D_008873F4[0](1, 0xC, 0x40000);
-    *(s32 *)buf = func_004b1130(arg1);
+    *(s32 *)buf = (s32)func_004b1130(arg1);
     *(void **)(buf + 4) = arg3;
     *(s32 *)(buf + 8) = arg2;
     return (s32)kwlnTaskCreateChild((void *)(u32)arg0, &D_00763798,

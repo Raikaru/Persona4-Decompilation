@@ -42,7 +42,7 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2);
 s32 func_0028d390();
 s32 func_0028dc30(s32 parent, s32 type, u8 *parameters);
 u32 MT_Scene_SetResColorParamById(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
-void func_004b13d0(s32 arg0, f32 arg1);
+void func_004b13d0(u8 *arg0, f32 arg1);
 extern u8 D_0063C558[];
 extern u8 D_0063C568[];
 extern s32 D_008821E4[];
@@ -1791,7 +1791,7 @@ s32 evtCmdResPlace(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 case 4:
                     p = MT_Scene_GetRes(func_00291360(*(u32 *)(arg2 + 0x5D0), v16));
                     if (p != NULL) {
-                        func_004b13d0(*(u32 *)(p + 0x144), (f32)*(s16 *)(arg4 + 0x34) / 100.0f);
+                        func_004b13d0(*(u8 **)(p + 0x144), (f32)*(s16 *)(arg4 + 0x34) / 100.0f);
                     }
                     break;
                 }
