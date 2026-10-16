@@ -64,7 +64,7 @@ static inline s32 func_001a_fix_var(s32 value)
 }
 void btlSoundBumpStatusCounters(void);
 
-void func_001f14f0(u8 *arg0);
+void btlTargetResolveSelectedSkill(u8 *arg0);
 void func_001eb3b0(u8 *arg0);
 extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 void btlEffectSelectNearestEntry(void *arg0, void *arg1);
@@ -1971,7 +1971,7 @@ donecheck:
                 delayFlag = 1;
                 /* fallthrough */
             case 9:
-                func_001f14f0(arg0);
+                btlTargetResolveSelectedSkill(arg0);
                 if ((*( u8*)((u8 *)(func_001a_add_offset(*(u16 *)(arg0 + 0x6E) * 0x28, (s32)iGpffffb3b8)) + 0x24)) == 5) {
                     btlActionSetState((BtlAction *)arg0, 0x20U);
                 } else if ((*( s32*)((u8 *)(arg0) + 0xE8)) == 1) {
@@ -2233,7 +2233,7 @@ range_done:
                 subunit = *(u8 **)((u8 *)unit + 0xA0C);
                 paired = btlActionHasNoTargetClass((u32)action);
                 openingMotion = btlUnitOpeningMotionMode((s32)subunit, (u8 *)unit, (s16)skill, paired) & 0xFFFF;
-                canPosition = func_001f1210(subunit, (s16)skill, paired);
+                canPosition = btlTargetCanSelectEntry(subunit, (s16)skill, paired);
                 btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
                 btlUnitGetGridSphereCenterTowardTarget((BtlUnit *)targetUnit, (BtlUnit *)unit, &targetCenter);
                 speed = btlTargetVectorDistance(&unitCenter, &targetCenter);
@@ -3527,8 +3527,8 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
     extern u32 func_001f0f70(u8 *arg0);
     extern s32 btlActionHasNoTargetClass();
-    extern s32 func_001f1030(u8 *arg0);
-    extern s32 func_001f2f90(u8 *arg0);
+    extern s32 btlTargetGroupStateMatches(u8 *arg0);
+    extern s32 btlTargetIsSlotAlive(u8 *arg0);
     extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     extern u8 * btlTargetCreateRecordPacket(u8 *arg0);
     extern u8 * btlTargetCreateHitPacket(u8 *arg0);
@@ -3958,14 +3958,14 @@ void btlActionSkillUpdate(u8 *arg0) {
     sp2C0 = 0;
     sp2B0 = 0;
     hasFollowAction = (s32)(s32)(act->followAction) != (s32)(0);
-    noOverride = (s32)(func_001f2f90(arg0)) == (s32)(0);
+    noOverride = (s32)(btlTargetIsSlotAlive(arg0)) == (s32)(0);
     windupFrames = 6;
     skillIndex = skill;
     skillFlag2 = (s32)(s32)((*(iGpffffb3b8 + skillIndex * 0x28) & 2)) != (s32)(0);
     altCamera = ((act->flags1A & 0x10) != 0) && skillFlag2 == 0;
     isKind3 = (s32)(s32)(act->kind == 3);
     rotateFirst = (s32)(btlActionHasNoTargetClass(arg0));
-    skillSpecial = (s32)(func_001f11e0(skill));
+    skillSpecial = (s32)(btlTargetIsEntryActive(skill));
     hasCutinPartner = (s32)(s32)(act->cutinPartner) != (s32)(0);
     formationFxPkt = 0;
     actionId = *(s64 *)(arg0 + 0);
@@ -4092,7 +4092,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 effectHandles[1] = (*(s32 *)((u8 *)btlState3_33 + 0xD34));
                 effectHandles[2] = (*(s32 *)((u8 *)btlState3_33 + 0xD38));
             }
-            if (((s32)(func_001f11e0(skill)) == (s32)(0)) && ((s32)(btlActionAnyTargetSpecialHit(arg0)) == (s32)(0))) {
+            if (((s32)(btlTargetIsEntryActive(skill)) == (s32)(0)) && ((s32)(btlActionAnyTargetSpecialHit(arg0)) == (s32)(0))) {
                 targetGroup = (s32)((u16)btlTargetGetUnitIndex((BtlTarget *)(arg0 + 0x38)));
                 if ((side == 0) && (((u16)targetGroup) == 2)) {
                     randomFlag = (s32)((effMiscRand(0) & 1)) != (s32)(0);
@@ -4107,7 +4107,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 randomFlag = 1;
                 baseDelay = 2;
             }
-            if ((side == 0) && (func_001f1030(arg0) != 0) && (skillIndex != 0xF4)) {
+            if ((side == 0) && (btlTargetGroupStateMatches(arg0) != 0) && (skillIndex != 0xF4)) {
                 sp2D0 = 1;
                 randomFlag = 1;
                 hasCutin = 0;
@@ -4328,7 +4328,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             }
             animEndTime = animPacket->endTime;
         } else if ((isKind3 == 1) || (noOverride == 1)) {
-            if ((side == 0) && (func_001f1030(arg0) != 0) && (skillIndex != 0xF4)) {
+            if ((side == 0) && (btlTargetGroupStateMatches(arg0) != 0) && (skillIndex != 0xF4)) {
                 sp2D0 = 1;
                 randomFlag = 1;
                 lookAtPkt38 = (u8 *)(btlUnitCreateLookAtDeactivatePacket(0, 3));
@@ -4398,7 +4398,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             btlState9_39 = (u8 *)(iGpffffb3ac);
             *(u16 *)(btlState9_39 + 0x18) = (u16) (*(u16 *)(btlState9_39 + 0x18) | 0x47);
         }
-        if ((skillFlag2 == 1) || ((s32)(func_001f11e0(skill)) != (s32)(0))) {
+        if ((skillFlag2 == 1) || ((s32)(btlTargetIsEntryActive(skill)) != (s32)(0))) {
             animMotion = 4;
             animBlend = 2;
         } else {
@@ -5996,7 +5996,7 @@ void btlActionErrorUpdate(u8 *action) {
                                selection.animation, 1.0f);
         speed = 1.0f;
     } else {
-        if (func_001f11e0(*(s16 *)(action + 0x6E)) != 0) {
+        if (btlTargetIsEntryActive(*(s16 *)(action + 0x6E)) != 0) {
             animationChoice = 4;
         } else {
             animationChoice = 8;
