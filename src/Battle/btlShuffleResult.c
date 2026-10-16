@@ -55,7 +55,7 @@ extern s32 func_002baf40(s32 arg0);
 extern void func_002bb050(u8 param_1);
 extern void func_002bbf60(void);
 extern s32 func_002bb140(void);
-extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
+extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
 extern void shdPersonaStartSlideIn(u8 *arg0);
 extern void shdPersonaBeginClose(u8 *arg0);
 extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
@@ -63,7 +63,7 @@ extern void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern void shdPersonaBeginSelection(u8 *arg0);
 extern void shdPersonaEndSelection(u8 *arg0, s32 arg1);
 extern void shdPersonaStepSelectionCursor(u8 *arg0);
-extern void func_0011b360(u8 *arg0);
+extern void shdPersonaFinishPhase(u8 *arg0);
 extern void func_00453670(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_004538e0(u8 *buf, s32 a, s32 b, s32 c, s32 d);
 extern void func_00453860(u8 *buf, s32 a, s32 b, s32 c, s32 d);
@@ -199,7 +199,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                     u8 **selected = (u8 **)(state + 0x4C) + sum;
                     u8 *display = *(u8 **)(state + 0x18);
                     s32 displayMode = 1;
-                    func_0011b480(display, displayMode, (u32)*selected, 0);
+                    shdPersonaSetDisplayState(display, displayMode, (u32)*selected, 0);
                 }
                 shdPersonaStartSlideIn((u8 *)(*(s32 *)(state + 0x18)));
                 *(s32 *)state = 3;
@@ -314,7 +314,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
         if (func_002bb600() == 0) {
             switch (func_002bb140()) {
             case 0:
-                func_0011b360((u8 *)(*(s32 *)(state + 0x18)));
+                shdPersonaFinishPhase((u8 *)(*(s32 *)(state + 0x18)));
                 *(s32 *)(state + 0x18) = 0;
                 func_0038d0a0((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F298)));
                 func_00388d40((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F294)));
