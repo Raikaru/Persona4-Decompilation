@@ -685,7 +685,7 @@ extern void func_00492d10(void *object);
 extern void ParticleUpdateScaled(u8 *arg0, f32 arg1);
 void GeometryMatrixBuildCombined();
 extern char D_00713CE0[];
-static inline f32 code1_0048_mul(f32 left, f32 right) {
+static inline f32 MulF32(f32 left, f32 right) {
     return left * right;
 }
 typedef struct Code48InitialState {
@@ -1602,7 +1602,7 @@ void EffWaveApplyScale(u8 *arg0, f32 fparg0) {
 loop_0048c440_body:
     temp_4 = var_7 * 8;
     *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+        MulF32(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
     var_7 += 1;
 loop_0048c440_check:
     if (var_7 < 3U) {
@@ -1637,7 +1637,7 @@ void EffMotionApplyScale(u8 *arg0, f32 fparg0) {
 loop_0048cd60_body:
     temp_4 = var_7 * 8;
     *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+        MulF32(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
     var_7 += 1;
 loop_0048cd60_check:
     if (var_7 < 3U) {
@@ -1654,9 +1654,9 @@ loop_0048cd60_check:
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Multiplies with code1_0048_mul; kinds 8, 9 and 10 multiply with code1_0049_mul, and the bodies are otherwise identical. */
+/* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
 // FUN_0048D820
-void EffEmitterKind3ApplyScaleMul48(u8 *arg0, f32 fparg0) {
+void EffEmitterKind3ApplyScale(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1671,7 +1671,7 @@ void EffEmitterKind3ApplyScaleMul48(u8 *arg0, f32 fparg0) {
 loop_0048d820_body:
     temp_4 = var_7 * 8;
     *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+        MulF32(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
     var_7 += 1;
 loop_0048d820_check:
     if (var_7 < 3U) {
@@ -1689,9 +1689,9 @@ loop_0048d820_check:
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Multiplies with code1_0048_mul; kinds 8, 9 and 10 multiply with code1_0049_mul, and the bodies are otherwise identical. */
+/* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
 // FUN_0048E270
-void EffEmitterKind4ApplyScaleMul48(u8 *arg0, f32 fparg0) {
+void EffEmitterKind4ApplyScale(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1706,7 +1706,7 @@ void EffEmitterKind4ApplyScaleMul48(u8 *arg0, f32 fparg0) {
 loop_0048e270_body:
     temp_4 = var_7 * 8;
     *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+        MulF32(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
     var_7 += 1;
 loop_0048e270_check:
     if (var_7 < 3U) {
@@ -1739,7 +1739,7 @@ void EffConeApplyScale(u8 *arg0, f32 fparg0) {
 loop_0048ebc0_body:
     temp_4 = var_7 * 8;
     *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+        MulF32(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
     var_7 += 1;
 loop_0048ebc0_check:
     if (var_7 < 3U) {
@@ -1773,7 +1773,7 @@ void EffConeAngleApplyScale(u8 *arg0, f32 fparg0) {
 loop_0048f560_body:
     temp_4 = var_7 * 8;
     *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+        MulF32(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
     var_7 += 1;
 loop_0048f560_check:
     if (var_7 < 3U) {
@@ -1797,9 +1797,6 @@ extern void (*D_00713F20[])(u8 *object);
 extern void (*D_00713D54[])(u8 *emitter, f32 scale);
 typedef struct EffRandState EffRandState;
 extern u32 effMiscRand(EffRandState *state);
-static inline f32 code1_0049_mul(f32 left, f32 right) {
-    return left * right;
-}
 extern void func_00484280(u8 *object, s32 resource);
 /* Scale applier for emitter kind 7 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00490360
@@ -1818,7 +1815,7 @@ void EffBezierApplyScale(u8 *arg0, f32 fparg0) {
 loop_00490360_body:
     temp_4 = var_7 * 8;
     *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+        MulF32(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
     var_7 += 1;
 loop_00490360_check:
     if (var_7 < 3U) {
@@ -1831,9 +1828,9 @@ loop_00490360_check:
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 #pragma pop
-/* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Multiplies with code1_0049_mul; kinds 3 and 4 multiply with code1_0048_mul, and the bodies are otherwise identical. */
+/* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
 // FUN_00490BB0
-void EffEmitterKind8ApplyScaleMul49(u8 *arg0, f32 fparg0) {
+void EffEmitterKind8ApplyScale(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1848,7 +1845,7 @@ void EffEmitterKind8ApplyScaleMul49(u8 *arg0, f32 fparg0) {
 loop_00490bb0_body:
     temp_4 = var_7 * 8;
     *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+        MulF32(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
     var_7 += 1;
 loop_00490bb0_check:
     if (var_7 < 3U) {
@@ -1866,9 +1863,9 @@ loop_00490bb0_check:
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Multiplies with code1_0049_mul; kinds 3 and 4 multiply with code1_0048_mul, and the bodies are otherwise identical. */
+/* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
 // FUN_00491660
-void EffEmitterKind9ApplyScaleMul49(u8 *arg0, f32 fparg0) {
+void EffEmitterKind9ApplyScale(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1883,7 +1880,7 @@ void EffEmitterKind9ApplyScaleMul49(u8 *arg0, f32 fparg0) {
 loop_00491660_body:
     temp_4 = var_7 * 8;
     *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+        MulF32(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
     var_7 += 1;
 loop_00491660_check:
     if (var_7 < 3U) {
@@ -1900,9 +1897,9 @@ loop_00491660_check:
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Multiplies with code1_0049_mul; kinds 3 and 4 multiply with code1_0048_mul, and the bodies are otherwise identical. */
+/* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through MulF32. */
 // FUN_00492080
-void EffEmitterKind10ApplyScaleMul49(u8 *arg0, f32 fparg0) {
+void EffEmitterKind10ApplyScale(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1917,7 +1914,7 @@ void EffEmitterKind10ApplyScaleMul49(u8 *arg0, f32 fparg0) {
 loop_00492080_body:
     temp_4 = var_7 * 8;
     *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+        MulF32(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
     var_7 += 1;
 loop_00492080_check:
     if (var_7 < 3U) {
@@ -1950,7 +1947,7 @@ void EffSwayParticleApplyScale(u8 *arg0, f32 fparg0) {
 loop_00492a80_body:
     temp_4 = var_7 * 8;
     *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+        MulF32(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
     var_7 += 1;
 loop_00492a80_check:
     if (var_7 < 3U) {
