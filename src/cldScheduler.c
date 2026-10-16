@@ -22,7 +22,7 @@ extern s16 func_001060b0(void);
 extern u8 datGetTimeSlot(void);
 extern void func_001104d0(s32 date, s32 *month, s32 *day);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
-extern void func_00248240(void);
+extern void cmmTickReverseProgress(void);
 extern s32 func_0029da90(s32 kind, u8 *script, s32 index);
 extern s32 scrFindPrcdIdxByName(s32 a, void *b);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
@@ -187,7 +187,7 @@ s32 func_00260020(u8 *task)
         sched->state = 3;
         if (D_00764574 != (s16)func_001060b0())
         {
-            func_00248240();
+            cmmTickReverseProgress();
         }
         D_00764574 = (s16)func_001060b0();
         /* fallthrough */
