@@ -530,7 +530,7 @@ s32 func_00314010(u8 *arg0) {
         task_int = 0;
         task = *(u8 **)(work + 4);
         func_0011b480(task, task_int, arg2, arg3);
-        func_0011b9f0((int)*(u8 **)(work + 4), 0);
+        shdPersonaSetExtraValue((int)*(u8 **)(work + 4), 0);
         *(s8 *)(work + 0) = 1;
         /* fallthrough */
     case 1:
@@ -563,7 +563,7 @@ s32 func_00314010(u8 *arg0) {
         func_0011b480(*(u8 **)(work + 4), 0, *(u32 *)(work + 8), *(s8 *)(work + 0xC));
         value = *(s32 *)(work + 0x10);
         if (value != 0) {
-            func_0011b9f0((int)*(u8 **)(work + 4), value);
+            shdPersonaSetExtraValue((int)*(u8 **)(work + 4), value);
         }
         *(s8 *)(work + 0) = 9;
         /* fallthrough */

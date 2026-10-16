@@ -1016,7 +1016,7 @@ extern u8 D_005E4D90[];
 extern s16 D_005E4D58[];
 u32 RpRandom(void);
 void func_0045dfd0(u8 *, u8 *, f32, s32, s32, s32);
-void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
+void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                    u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 /* Measured: 3632B, matching retail. Keep complete draw-position, triangle
@@ -1275,16 +1275,16 @@ void shdPersonaDrawEffect(u8 *arg0)
     *(s16 *)(effect + 0x6) = (s16)(((s32)(*(u16 *)(effect + 0x6) + 1)) % 100);
     drawPosition.x = 523.0f;
     drawPosition.y = 91.0f - panelScale * 30.0f;
-    func_0034f4a0(*(s32 *)(b + 0x2C0), 0xB4, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(panelScale * 4096.0f), 0.0f, 0, 0);
+    sdkSpriteDrawOnceScaled(*(s32 *)(b + 0x2C0), 0xB4, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(panelScale * 4096.0f), 0.0f, 0, 0);
     pulseScale = panelScale * personaPulseEnvelope(*(u16 *)(effect + 0x6));
     drawPosition.x = 542.0f;
     drawPosition.y = (1.0f - pulseScale) * 20.0f + 76.0f;
-    func_0034f4a0(*(s32 *)(b + 0x2C0), 0xB5, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(pulseScale * 4096.0f), 0.0f, 0, 0);
+    sdkSpriteDrawOnceScaled(*(s32 *)(b + 0x2C0), 0xB5, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(pulseScale * 4096.0f), 0.0f, 0, 0);
 }
 #pragma pop
 
 
-void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
+void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                    u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 /* Complete views of one eight-byte incoming panel coordinate value. */
@@ -1326,28 +1326,28 @@ void shdPersonaDrawPanelSprites(u8 *work, PersonaPanelPosition position, u8 opac
     originY = offsetY + baseY;
     {
         f32 y = baseY;
-        func_0034f4a0(*(s32 *)(work + 0x2C4), 0x1D, originX, originY, 0.0f,
+        sdkSpriteDrawOnceScaled(*(s32 *)(work + 0x2C4), 0x1D, originX, originY, 0.0f,
                       0xBD, 0x29, 0, opacity, 0x1000, 0x1000, angle,
                       (s16)(baseX - originX), (s16)(y - originY));
     }
     x = 207.0f + originX;
     {
         f32 y = baseY;
-        func_0034f4a0(resource, 0xB2, x, originY, 0.0f,
+        sdkSpriteDrawOnceScaled(resource, 0xB2, x, originY, 0.0f,
                       0xBD, 0x29, 0, opacity, 0x1000, 0x1000, angle,
                       (s16)(basePosition.xy.x - x), (s16)(y - originY));
     }
     x = 300.0f + originX;
     {
         f32 y = baseY;
-        func_0034f4a0(resource, 0xB3, x, originY, 0.0f,
+        sdkSpriteDrawOnceScaled(resource, 0xB3, x, originY, 0.0f,
                       0xBD, 0x29, 0, opacity, 0x1000, 0x1000, angle,
                       (s16)(basePosition.xy.x - x), (s16)(y - originY));
     }
     x = 314.0f + originX;
     {
         f32 y = baseY;
-        func_0034f4a0(resource, 0xB3, x, originY, 0.0f,
+        sdkSpriteDrawOnceScaled(resource, 0xB3, x, originY, 0.0f,
                       0xBD, 0x29, 0, opacity, 0x1000, 0x1000, angle,
                       (s16)(basePosition.xy.x - x), (s16)(y - originY));
     }
@@ -1807,7 +1807,7 @@ void shdPersonaDrawAcquisition(u8 *work)
     }
     color = *(u8 *)(work + 0x505);
     angle = 90.0f * rotationProgress;
-    func_0034f4a0(*(s32 *)(work + 0x2C8), 0xB, (f32)0x19B, 296.0f, 0.0f,
+    sdkSpriteDrawOnceScaled(*(s32 *)(work + 0x2C8), 0xB, (f32)0x19B, 296.0f, 0.0f,
                    0xFF, 0xFF, 0xFF, color, 0x1000, 0x1000, angle, (s16)0x12E, (s16)0x21);
     if (glowProgress > 0.0f && glowProgress < maximum) {
         s32 alpha;
@@ -1820,7 +1820,7 @@ void shdPersonaDrawAcquisition(u8 *work)
         glowAlpha = (u8)glowOpacity;
         RpSkyRenderStateSet(3, (void *)0x71801);
         RpSkyRenderStateSet(2, (void *)0x48);
-        func_0034f4a0(*(s32 *)(work + 0x2C8), 0xB, (f32)0x19B, 296.0f, 0.0f,
+        sdkSpriteDrawOnceScaled(*(s32 *)(work + 0x2C8), 0xB, (f32)0x19B, 296.0f, 0.0f,
                    0xFF, 0xFF, 0xFF, glowAlpha, 0x1000, 0x1000, angle, (s16)0x12E, (s16)0x21);
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
@@ -2780,13 +2780,15 @@ void func_0011b8f0(u8 *arg0, u8 *arg1)
 
 
 
+// Intent: Store a handle value at offset 0x44 of the persona block owned by the task [inferred]
 // FUN_0011B9E0
-void func_0011b9e0(int task, u32 value)
+void shdPersonaSetHandleValue(int task, u32 value)
 {
     *(u32 *)(*(int *)(task + 0x38) + 0x44) = value;
 }
+// Intent: Store an extra value at offset 0x4C4 of the persona block owned by the task; no in-tree caller [inferred]
 // FUN_0011B9F0
-void func_0011b9f0(int task, u32 value)
+void shdPersonaSetExtraValue(int task, u32 value)
 {
     *(u32 *)(*(int *)(task + 0x38) + 0x4c4) = value;
 }
@@ -3008,8 +3010,9 @@ void shdPersonaStartSlideOut(u8 *arg0)
    field/constant locals, integer versus 771.0f spellings, split expressions,
    address-domain forms, and all thirteen pragma wrappers did not change nd.
    Function-wide FP liveness/scheduling floor. Committed at nd 19. */
+// Intent: Enter the persona close state once (flag 0x1 set, 0x4 clear): set 0x4, clear the open, selection and reveal flags, reset the slot to -1, set up five channels and reposition the display control from the bar progress; the body is a raw Ghidra dump and needs a rewrite [inferred]
 // FUN_0011BF10
-void func_0011bf10(u8 *arg0)
+void shdPersonaEnterCloseState(u8 *arg0)
 {
   u8 *w;
   int new_var27;
@@ -3228,8 +3231,9 @@ void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
 
 
 
+// Intent: Snapshot the 15-word parameter block at 0xC into 0x48, set up three channels once, then start the display transition with the given target, index and flag [inferred]
 // FUN_0011C2C0
-void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
+void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
 {
     s32 *src;
     s32 *dst;
