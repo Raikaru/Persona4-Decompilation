@@ -30,6 +30,16 @@ struct RwRGBA
     u8 alpha;
 };
 
+/* One motion-table row: playback rate in percent at +0x2 (btlUnitSetMotion, btlUnit.c). */
+typedef struct BtlMotionRate
+{
+    s16 unk0;
+    s16 rate;
+    s16 unk4;
+    s16 unk6;
+    s16 unk8;
+} BtlMotionRate;
+
 /* Typed prefix of the retail BtlUnit. Offsets through 0xC8 agree with the
    P4 battle TUs; later fields are still reached through raw offsets. */
 typedef struct BtlUnit BtlUnit;
@@ -66,7 +76,22 @@ struct BtlUnit
     RwV3d lookAtTargetPos;   /* 0xB8 */
     u32 stateFlags;          /* 0xC4 */
     u16 movementFlags;       /* 0xC8 */
-    u8 unk_ca[0x0A64 - 0x00CA]; /* 0xCA. Not yet named */
+    u8 unk_ca[0x09D8 - 0x00CA];   /* 0xCA. Not yet named */
+    u16 unk_9d8;                  /* 0x9D8. Motion-mode bits: 0x10 adds 0x100 to the packet flags, 0x20 zeroes the frame, 0x40 forces motion 27 */
+    s16 currentMotion;            /* 0x9DA. Valid while flags2 bit 1 (0x2) is set; written by btlUnitSetMotion */
+    s16 motionOption;             /* 0x9DC. Option argument of btlUnitSetMotion */
+    f32 motionRate;               /* 0x9E0. Playback rate, scaled by the motion table's rate */
+    u16 motionCount;              /* 0x9E4. Entries in motionRates */
+    u8 unk_9e6[0x09EC - 0x09E6];
+    s16 restMotion;               /* 0x9EC. Motion for the at-rest state */
+    u8 unk_9ee[0x09F0 - 0x09EE];
+    f32 restRate;                 /* 0x9F0 */
+    s8 restOption;                /* 0x9F4 */
+    u8 unk_9f5[0x09F8 - 0x09F5];
+    BtlMotionRate *motionRates;   /* 0x9F8 */
+    u8 unk_9fc[0x0A00 - 0x09FC];
+    u8 *layerHandle;              /* 0xA00. Model object passed to the mdl layer helpers */
+    u8 unk_a04[0x0A64 - 0x0A04];
     DatUnit *datUnit;             /* 0xA64. Passed to datCalc accessors */
     BtlUnit *prevUnit;            /* 0xA68. Previous unit in the battle unit list */
     BtlUnit *nextUnit;            /* 0xA6C. Next unit in the battle unit list */
