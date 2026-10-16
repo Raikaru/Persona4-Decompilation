@@ -2,6 +2,7 @@
 #include "type.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
+#include "btl_shuffle_draw_internal.h"
 
 
 extern void btlShuffleDrawTaskUpdate(u8 *arg0);
@@ -351,11 +352,11 @@ s32 btlShuffleTaskCreate(u8 *arg0, u8 *arg1)
 }
 
 // FUN_0036E7E0
-void btlShuffleTaskSetFlag1(void)
+void btlShuffleTaskSetBusy(void)
 {
     u16 *work = kwlnTaskGetWork();
 
-    *work |= 1;
+    *work |= BTL_SHUFFLE_FLAG_BUSY;
 }
 
 // FUN_0036E810
@@ -368,23 +369,23 @@ void btlShuffleTaskResetPhase(void)
 }
 
 // FUN_0036E840
-u32 btlShuffleTaskHasFlag1(void)
+u32 btlShuffleTaskIsBusy(void)
 {
-    return kwlnTaskGetWork()[0] & 1;
+    return kwlnTaskGetWork()[0] & BTL_SHUFFLE_FLAG_BUSY;
 }
 
 // FUN_0036E870
-void btlShuffleTaskSetFlag4(void)
+void btlShuffleTaskRequestCancel(void)
 {
     u16 *work = kwlnTaskGetWork();
 
-    *work |= 4;
+    *work |= BTL_SHUFFLE_FLAG_CANCEL_REQUESTED;
 }
 
 // FUN_0036E8A0
-u32 btlShuffleTaskHasFlag4(void)
+u32 btlShuffleTaskIsCancelRequested(void)
 {
-    return (kwlnTaskGetWork()[0] & 4) != 0;
+    return (kwlnTaskGetWork()[0] & BTL_SHUFFLE_FLAG_CANCEL_REQUESTED) != 0;
 }
 
 // FUN_0036E8D0

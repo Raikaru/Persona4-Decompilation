@@ -79,4 +79,12 @@ void btlShuffleCalcSetCurveSample(u8 *state, u16 timing0, u16 timing1,
 void btlShuffleDrawSetCurve(u8 *context, s32 cardIndex, u16 timing0, u16 timing1,
                   const BtlShuffleVec3 *axis, f32 start, f32 end);
 
+/* Bits in a shuffle child task's flag word (work[0]), set by btlShuffleTask* helpers. */
+typedef enum BtlShuffleTaskFlag {
+    /* Set when the child task is started; cleared by the child when it finishes. */
+    BTL_SHUFFLE_FLAG_BUSY = 1,
+    /* Set by btlShuffleCancel to request cancellation; the parent waits while it is set. */
+    BTL_SHUFFLE_FLAG_CANCEL_REQUESTED = 4,
+} BtlShuffleTaskFlag;
+
 #endif
