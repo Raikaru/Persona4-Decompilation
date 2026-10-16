@@ -23,10 +23,10 @@ extern void sdkLboxRecalcLayout(u8 *arg0);
 struct MdlFlags78ec0;
 
 
-extern void func_00453ce0(u8 *arg0, s32 arg1);
-extern s32 func_00453e10(u8 *arg0);
-extern s32 func_00453d70(u8 *arg0);
-extern s32 func_00453dc0(u8 *arg0);
+extern void sdkListStateSetCount(u8 *arg0, s32 arg1);
+extern s32 sdkListStateGetCount(u8 *arg0);
+extern s32 sdkListStateGetScroll(u8 *arg0);
+extern s32 sdkListStateGetCursor(u8 *arg0);
 /* measured: sdkLboxGetSelectedId's final `index*0xA4 + base` add emitted
  * addu $v0,$s0,$v0 where retail has addu $v0,$v0,$s0; both plain C operand
  * orders compile identically (nd 2). Routing the add through this
@@ -133,10 +133,10 @@ void sdkLboxClear(u8 *arg0)
     *(s32 *)(work + 0x140) = 0;
     *(s32 *)(work + 0x134) = 0;
     *(s32 *)(work + 0x138) = 0;
-    func_00453ce0(work + 0x164, 0);
-    *(s32 *)(work + 0x140) = func_00453e10(work + 0x164);
-    *(s32 *)(work + 0x138) = func_00453d70(work + 0x164);
-    *(s32 *)(work + 0x134) = func_00453dc0(work + 0x164);
+    sdkListStateSetCount(work + 0x164, 0);
+    *(s32 *)(work + 0x140) = sdkListStateGetCount(work + 0x164);
+    *(s32 *)(work + 0x138) = sdkListStateGetScroll(work + 0x164);
+    *(s32 *)(work + 0x134) = sdkListStateGetCursor(work + 0x164);
 }
 
 // FUN_00470E20

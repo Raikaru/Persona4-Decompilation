@@ -64,11 +64,11 @@ extern void shdPersonaBeginSelection(u8 *arg0);
 extern void shdPersonaEndSelection(u8 *arg0, s32 arg1);
 extern void shdPersonaStepSelectionCursor(u8 *arg0);
 extern void shdPersonaFinishPhase(u8 *arg0);
-extern void func_00453670(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_004538e0(u8 *buf, s32 a, s32 b, s32 c, s32 d);
-extern void func_00453860(u8 *buf, s32 a, s32 b, s32 c, s32 d);
-extern void func_00453760(u8 *buf, s32 a);
-extern s32 func_00453960(u8 *buf);
+extern void sdkListStateConfigure(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void sdkListStateSetSecondaryMasks(u8 *buf, s32 a, s32 b, s32 c, s32 d);
+extern void sdkListStateSetPrimaryMasks(u8 *buf, s32 a, s32 b, s32 c, s32 d);
+extern void sdkListStateSetActive(u8 *buf, s32 a);
+extern s32 sdkListStateHandleInput(u8 *buf);
 extern void btlShuffleDrawCardActivate(u8 *arg0);
 extern void func_0038d0d0(u8 *arg0, s32 arg1);
 extern void func_0038d0a0(u8 *arg0);
@@ -204,9 +204,9 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 shdPersonaStartSlideIn((u8 *)(*(s32 *)(state + 0x18)));
                 *(s32 *)state = 3;
             } else {
-                func_00453670((u8 *)(buf), 0xC, *(s32 *)(state + 0x0C), row, scroll);
-                func_004538e0(buf, 0x4000, 0x1000, 0, 0);
-                if (func_00453960(buf) != 0) {
+                sdkListStateConfigure((u8 *)(buf), 0xC, *(s32 *)(state + 0x0C), row, scroll);
+                sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
+                if (sdkListStateHandleInput(buf) != 0) {
                     *(s32 *)(state + 4) = *(s32 *)(buf + 0x24);
                     *(s32 *)(state + 8) = *(s32 *)(buf + 0x28);
                     sdkSndStartStream(0, 4, 0, 0);
@@ -236,10 +236,10 @@ s32 btlShuffleResultOpen(u8 *arg0)
             shdPersonaBeginSelection((u8 *)(*(s32 *)(state + 0x18)));
             *(s32 *)state = 4;
         } else {
-            func_00453670((u8 *)(buf), 0xC, *(s32 *)(state + 0x0C), row, scroll);
-            func_00453860(buf, 8, 4, 0, 0);
-            func_00453760(buf, 0);
-            res = func_00453960(buf);
+            sdkListStateConfigure((u8 *)(buf), 0xC, *(s32 *)(state + 0x0C), row, scroll);
+            sdkListStateSetPrimaryMasks(buf, 8, 4, 0, 0);
+            sdkListStateSetActive(buf, 0);
+            res = sdkListStateHandleInput(buf);
             if (res > 0) {
                 *(s32 *)(state + 4) = *(s32 *)(buf + 0x24);
                 *(s32 *)(state + 8) = *(s32 *)(buf + 0x28);
@@ -280,10 +280,10 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 sdkSndStartStream(0, 4, 0, 1);
             }
         } else {
-            func_00453670((u8 *)(buf), 0xC, *(s32 *)(state + 0x0C), row, scroll);
-            func_00453860(buf, 8, 4, 0, 0);
-            func_00453760(buf, 0);
-            res = func_00453960(buf);
+            sdkListStateConfigure((u8 *)(buf), 0xC, *(s32 *)(state + 0x0C), row, scroll);
+            sdkListStateSetPrimaryMasks(buf, 8, 4, 0, 0);
+            sdkListStateSetActive(buf, 0);
+            res = sdkListStateHandleInput(buf);
             if (res > 0) {
                 *(s32 *)(state + 4) = *(s32 *)(buf + 0x24);
                 *(s32 *)(state + 8) = *(s32 *)(buf + 0x28);
