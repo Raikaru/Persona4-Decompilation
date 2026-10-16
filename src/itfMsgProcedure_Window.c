@@ -2451,7 +2451,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
     extern s32 func_00110c50(s32 arg0, s32 arg1);
     extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
     extern s16 func_001060b0(void);
-    extern void func_00262de0(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite);
+    extern void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite);
     extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
     extern f32 fGpffff803c;
     extern f32 fGpffff811c;
@@ -2614,7 +2614,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
             py = 113.0f + t;
             px = i * 0x53;
             func_00366380(px + 0x5C, py, 0.0f, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, fade);
-            func_00262de0(px + 0x6B, py, 0.0f, 0xFF, today + i + 1, 1, 1.0f, fade, 0, 0, (s32)font, 0);
+            calDrawDateCell(px + 0x6B, py, 0.0f, 0xFF, today + i + 1, 1, 1.0f, fade, 0, 0, (s32)font, 0);
             py = 163.0f - 5.0f * alpha;
             func_00261560(px + 0x5D, py, 0.0f, 0xFF, func_00110c50(today + i + 1, today) & 0xFFFF, 1, 1.0f, fade * fade, 0, 0, (s32)font, mode);
         }
@@ -2698,7 +2698,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
             }
             px = i * 0x53;
             func_00366380(px + 0x5C, 0x71, 0.0f, 0x50, 0x7F, phase, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
-            func_00262de0(px + 0x6B, 0x71, 0.0f, 0xFF, today + i + 1, 1, 1.0f, 1.0f, 0, 0, (s32)font, 0);
+            calDrawDateCell(px + 0x6B, 0x71, 0.0f, 0xFF, today + i + 1, 1, 1.0f, 1.0f, 0, 0, (s32)font, 0);
             func_00261560(px + 0x5D, 0xA3, 0.0f, 0xFF, func_00110c50(today + i + 1, today) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0, (s32)font, mode);
         }
         break;

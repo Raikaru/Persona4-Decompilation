@@ -21,8 +21,8 @@ s32 func_0045a8d0();
 s32 func_004598e0();
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
-s32 func_00263460(u8 *task);
-void func_00264d10(u8 *task);
+s32 cldDayChangeTaskUpdate(u8 *task);
+void cldDayChangeStopTask(u8 *task);
 void cldDayChangeDrawFrame(s32 arg0, s32 arg1);
 s32 cldDayChangeUpdateState(u8 *arg0);
 void cldDayChangeAddRenderTask(s32 arg0, u8 *arg1);
@@ -65,7 +65,7 @@ void cldDayChangeStartTask(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(s32 *)(p + 0xC) = arg1;
     *(s32 *)(p + 0x10) = arg2;
     *(s32 *)(p + 0x18) = arg1;
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006376C0), 0x10, 0, 0, func_00263460, func_00264d10, (u8 *)(p));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006376C0), 0x10, 0, 0, cldDayChangeTaskUpdate, cldDayChangeStopTask, (u8 *)(p));
 }
 
 /* Reads the day-change data file into memory synchronously. */

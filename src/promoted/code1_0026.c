@@ -121,7 +121,7 @@ extern void func_00264cb0(s32 arg0, s32 arg1);
 extern s32 func_00110c50(s32 arg0, s32 arg1);
 extern s32 func_0043c6a0(s32 arg0);
 extern f32 sinf(f32 fparg0);
-extern void func_00262de0(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
+extern void calDrawDateCell(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
 extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
                            s32 arg5, s32 arg6, s32 arg7,
@@ -953,8 +953,9 @@ static inline void calendarZeroBytes(void *memory, s32 count)
         } while (remaining != 0);
     }
 }
+// Intent: Draws one calendar date cell: day number, weekday colour, opacity and clip state [inferred]
 // FUN_00262DE0
-void func_00262de0(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite)
+void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite)
 {
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     struct CalendarGlyphContext {
@@ -1085,8 +1086,9 @@ block_8:
 }
 /* measured: closes optimization-level probe for 00263220 */
 #pragma optimization_level 2
+// Intent: Day-change task update: loads the day-change resource, then drives the day-change state task [inferred]
 // FUN_00263460
-s32 func_00263460(u8 *sdkTaskBytes)
+s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
 {
     s32 arg0 = (s32)sdkTaskBytes;
     s32 sp3C;
@@ -1223,28 +1225,28 @@ void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade,
         }
         if (crossfade != 0 && (oldWeather = (u16)func_00110c50(date - 1 + column, date)) != (u16)func_00110c50(date - 1 + column, date + 1)) {
             oldOpacity = (u8)(255.0f - (f32)(func_0043c6a0(x) * (u8)opacity) / 94.0f);
-            func_00262de0(x + column * 0x5E + 15, y + 245, depth, oldOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, oldOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
             oldFont = *(s32 *)(work + 4);
             weather = (u16)func_00110c50(date - 1 + column, date);
             func_00261560(x + column * 0x5E, y + 295, depth, oldOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, oldFont, 0);
             newOpacity = (u8)((f32)(func_0043c6a0(x) * (u8)opacity) / 94.0f);
-            func_00262de0(x + column * 0x5E + 15, y + 245, depth, newOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, newOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
             newFont = *(s32 *)(work + 4);
             weather = (u16)func_00110c50(date - 1 + column, date + 1);
             func_00261560(x + column * 0x5E, y + 295, depth, newOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, newFont, 0);
         } else {
-            func_00262de0(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
             rowFont = *(s32 *)(work + 4);
             weather = (u16)func_00110c50(date - 1 + column, date);
             func_00261560(x + column * 0x5E, y + 295, depth, opacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, rowFont, 0);
         }
         if (column == 1) {
-            func_00262de0(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(work + 4), 0);
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(work + 4), 0);
             selectedFont = *(s32 *)(work + 4);
             weather = (u16)func_00110c50(date - 1 + column, date);
             func_00261560(x + column * 0x5E, y + 295, depth, opacity, weather, 1, 1.0f, 1.0f, 0, 0x58, selectedFont, 0);
         } else if (column == 2) {
-            func_00262de0(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 1, 1.0f, 1.0f, 0xB2, 0x5E, *(s32 *)(work + 4), 0);
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 1, 1.0f, 1.0f, 0xB2, 0x5E, *(s32 *)(work + 4), 0);
             selectedFont = *(s32 *)(work + 4);
             weather = (u16)func_00110c50(date - 1 + column, date);
             func_00261560(x + column * 0x5E, y + 295, depth, opacity, weather, 1, 1.0f, 1.0f, 0xB2, 0x5E, selectedFont, 0);
@@ -1432,13 +1434,13 @@ void func_00263cb0(s32 arg0, u8 *arg1)
             while (var_21 < 7) {
                 temp_20 = temp_3 - 1 + var_21;
                 if ((temp_20 >= 0) && (var_21 != 1)) {
-                    func_00262de0(var_21 * 0x5E + 0xF, 0xF5, 0.0f, temp_21, (s32)temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
+                    calDrawDateCell(var_21 * 0x5E + 0xF, 0xF5, 0.0f, temp_21, (s32)temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
                     temp_17 = *(s32 *)(temp_2 + 4);
                     func_00261560(var_21 * 0x5E, 0x127, 0.0f, temp_21, func_00110c50((s32)temp_20, temp_3) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
                 }
                 var_21 += 1;
             }
-            func_00262de0(0x6D, 0xF5, 0.0f, 0xFF, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+            calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
             temp_16_2 = *(s32 *)(temp_2 + 4);
             func_00261560(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
         } else if (temp_3_3 < 0x19) {
@@ -1483,7 +1485,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
             func_00489f80();
             func_0045d6e0(&spEC, &spD0, 10.0f, 0);
             func_0048a000();
-            func_00262de0(0x6D, 0xF5, 0.0f, 0xFF, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+            calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
             temp_16_2 = *(s32 *)(temp_2 + 4);
             func_00261560(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
         } else if (temp_3_3 < 0x1E) {
@@ -1533,7 +1535,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
             func_00489f80();
             func_0045d6e0(&spE4, &spB0, 10.0f, 0);
             func_0048a000();
-            func_00262de0(0x6D, 0xF5, 0.0f, temp_17_9, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+            calDrawDateCell(0x6D, 0xF5, 0.0f, temp_17_9, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
             temp_16 = *(s32 *)(temp_2 + 4);
             func_00261560(0x5E, 0x127, 0.0f, temp_17_9, func_00110c50(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
         }
@@ -1573,24 +1575,24 @@ void func_00263cb0(s32 arg0, u8 *arg1)
                     if ((temp_17_3 != 1) && (temp_17_3 != 4)) {
                         temp_20 = temp_17_9 + temp_17_3;
                         var_2 = temp_17_3 * 0x5E;
-                        func_00262de0(var_2 + 0xF, 0xF5, 0.0f, 0xFF, temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
+                        calDrawDateCell(var_2 + 0xF, 0xF5, 0.0f, 0xFF, temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
                         temp_17 = *(s32 *)(temp_2 + 4);
                         func_00261560(var_2, 0x127, 0.0f, 0xFF, func_00110c50(temp_20, temp_17_9) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
                     }
                     temp_17_3 += 1;
                 }
-                func_00262de0(0x6D, 0xF5, 0.0f, 0xFF, temp_17_9 + 1, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+                calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_17_9 + 1, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
                 temp_16 = *(s32 *)(temp_2 + 4);
                 func_00261560(0x5E, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_9 + 1, temp_17_9) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
                 temp_3_2 = *(s32 *)(temp_2 + 0x20);
                 if (temp_3_2 < 5) {
                     temp_f21 = (f32)temp_3_2 / 5.0f;
-                    func_00262de0(0x187, 0xF5, 0.0f, 0xFF, temp_17_9 + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+                    calDrawDateCell(0x187, 0xF5, 0.0f, 0xFF, temp_17_9 + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
                     temp_18_6 = *(s32 *)(temp_2 + 4);
                     func_00261560(0x178, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_9 + 4, temp_17_9) & 0xFFFF, 0, 1.0f - temp_f21, 1.0f, 0, 0x58, temp_18_6, 0);
                 } else {
                     temp_f21 = ((f32)temp_3_2 - 5.0f) / 5.0f;
-                    func_00262de0(0x187, 0xF5, 0.0f, 0xFF, temp_17_9 + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+                    calDrawDateCell(0x187, 0xF5, 0.0f, 0xFF, temp_17_9 + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
                     temp_18_7 = *(s32 *)(temp_2 + 4);
                     func_00261560(0x178, 0x127, 0.0f, 0xFF, func_00110c50(temp_17_9 + 4, temp_17_9 + 1) & 0xFFFF, 0, temp_f21, 1.0f, 0, 0x58, temp_18_7, 0);
                 }
@@ -1621,8 +1623,9 @@ void func_00264cb0(s32 arg0, s32 arg1)
     *(s32 *)(temp_2 + 0x10) = arg0;
     func_00460ac0((u8 *)arg1, temp_2);
 }
+// Intent: Day-change task destroy: destroys the child task hierarchy, frees the day-change resource and releases the task work block [inferred]
 // FUN_00264D10
-void func_00264d10(u8 *unusedTask)
+void cldDayChangeStopTask(u8 *unusedTask)
 {
     s32 temp_4;
     u8 *temp_2;
@@ -1708,6 +1711,7 @@ static inline const s32 *contourOutlineCount(const s32 *words, s32 shape)
 
 #pragma push
 #pragma opt_loop_invariants on
+
 #pragma pop
 #pragma optimization_level 1
 #pragma opt_propagation off

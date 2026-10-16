@@ -136,8 +136,8 @@ extern u8 D_0063B100[];
 extern u8 D_0063B108[];
 extern s64 D_0063B0B8[];
 extern f32 D_0063B0C0[];
-extern s32 func_00268a70(u8 *task);
-extern void func_00268ad0(u8 *arg0);
+extern s32 MT_Scene_IconTaskUpdate(u8 *task);
+extern void MT_Scene_IconTaskDestroy(u8 *arg0);
 extern u8 D_0063B160_abs[];
 extern u8 D_0063B170_abs[];
 extern u8 D_0063B180_abs[];
@@ -151,7 +151,7 @@ void MT_Scene_SpawnIconTask(u32 arg0)
 
     chkmemAllocSiteTag(D_0063B090, 0x31);
     p = D_008873F4[0](1, 8, 0x40000);
-    if ((s32)kwlnTaskCreateChild((void *)(0), (const void *)((char *)D_0063B0A0), 0, 1, 1, func_00268a70, func_00268ad0, (u8 *)(p)) != 0) {
+    if ((s32)kwlnTaskCreateChild((void *)(0), (const void *)((char *)D_0063B0A0), 0, 1, 1, MT_Scene_IconTaskUpdate, MT_Scene_IconTaskDestroy, (u8 *)(p)) != 0) {
         *(u32 *)(p + 0) = 2;
         *(u32 *)(p + 4) = arg0;
     }
@@ -1062,7 +1062,7 @@ static inline void sceneUpdatePath(SceneUpdateResource *resource,
     f32 total = resource->moveDuration.distance;
     f32 elapsed = resource->moveElapsed.distance;
     s8 *path = resource->path;
-    func_0026cef0(path, elapsed, total, &position->x, &rotation->x);
+    MT_Scene_SamplePath(path, elapsed, total, &position->x, &rotation->x);
 }
 
 static inline s32 sceneFootstepBankIndex(s32 sequence, s32 firstSound)
