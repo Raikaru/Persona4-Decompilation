@@ -107,7 +107,7 @@ s32 cmmCommunityExpRemaining(s32 arg0, u8 *arg1, s8 arg2)
 #pragma push
 #pragma opt_loop_invariants on
 // FUN_00311B90
-s32 func_00311b90(u16 *arg0, u16 *arg1, s32 arg2, s16 *arg3)
+s32 fclCombineRecipeMatchMask(u16 *arg0, u16 *arg1, s32 arg2, s16 *arg3)
 {
     typedef struct {
         s16 value : 10;
@@ -251,7 +251,7 @@ s32 cmmCommunityHasFlagGate(s32 arg0)
 }
 #pragma opt_loop_invariants off
 // FUN_003136B0
-s32 func_003136b0(u16 arg0)
+s32 fclCombineMaterialAvailable(u16 arg0)
 {
     s32 value;
     s32 result;
@@ -310,7 +310,7 @@ void fclCombineMaterialListBuild(s8 arg0)
     table = (u8 *)D_00642F00 + arg0 * 8;
     for (; row < 6; row++) {
         entry = *(u8 **)(table - 0x10) + row * 0x20;
-        if (*(u16 *)entry != 0 && func_003136b0(*(u16 *)entry) == 1) {
+        if (*(u16 *)entry != 0 && fclCombineMaterialAvailable(*(u16 *)entry) == 1) {
             yListSlotAppend(0, *(s16 *)entry, 0);
             items = entry + 4;
             yListSlotWork(0)[0x14 + selected] = 1;
