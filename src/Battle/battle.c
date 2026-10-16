@@ -9,11 +9,11 @@ static u64 iGpffffa090 = 1;
 static u16 iGpffffa098 = 0x100;
 
 extern void btlPacketStepSide(u32 layer);
-extern void func_001b6ab0(void);
+extern void btlMainDrawSkyOverlay(void);
 extern void btlMainUpdate(void);
 extern void func_001b0a60(void);
 extern void btlActionUpdateQueue(void);
-extern void func_001b6a20(void);
+extern void btlMainSyncSceneDrawColors(void);
 extern void btlCameraApplyView(void);
 extern void func_0019c0d0(void);
 extern void func_001f6190(void);
@@ -103,7 +103,7 @@ s32 func_00192610(u8 *unusedTask)
         btlMainUpdate();
         func_001b0a60();
         btlActionUpdateQueue();
-        func_001b6a20();
+        btlMainSyncSceneDrawColors();
         btlCameraApplyView();
         func_0019c0d0();
         func_001f6190();
@@ -140,7 +140,7 @@ s32 func_001926c0(u8 *unusedTask)
 s32 btlUpdateDraw2DTask(u8 *task)
 {
     btlPacketStepSide(3);
-    func_001b6ab0();
+    btlMainDrawSkyOverlay();
 
     return 0;
 }

@@ -123,7 +123,7 @@ extern void func_001b1020(s32 arg0);
 extern void func_001b1280(s32 arg0);
 extern u32 iGpffffa0b8;
 extern void func_0014a2e0(u32 arg0);
-extern void func_001b6120(void);
+extern void btlMainSetupCameraAndEffects(void);
 extern u32 datGetFlag(s32 arg0);
 extern BtlPacket *btlVoiceCreateIdPacket(u16 arg0);
 extern u8 *btlSoundCreateWaitPacket(void);
@@ -463,7 +463,7 @@ s32 btlMainSceneSetUpdate(void)
     extern s32 func_001b6a00(void);
     extern u32 btlCountUnitRecords(void);
     extern void func_0014a2e0(u32 arg0);
-    extern void func_001b6120(void);
+    extern void btlMainSetupCameraAndEffects(void);
     extern u32 datGetFlag(s32 arg0);
     extern BtlPacket *btlVoiceCreateIdPacket(u16 arg0);
     extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
@@ -487,7 +487,7 @@ s32 btlMainSceneSetUpdate(void)
         goto done;
     }
     func_0014a2e0(1);
-    func_001b6120();
+    btlMainSetupCameraAndEffects();
     if (datGetFlag(0x38) == 0) {
         goto set_zero;
     }
