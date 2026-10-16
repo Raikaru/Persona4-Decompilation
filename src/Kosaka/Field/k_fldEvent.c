@@ -1394,7 +1394,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 s32 t13;
                 u8 *res;
                 FldStepSetPresentFlag(1);
-                t10 = func_00186640(*(u8 **)(u8 *)MT_Scene_GetFrameState());
+                t10 = FldNoiseTaskCreate(*(u8 **)(u8 *)MT_Scene_GetFrameState());
                 *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x2C) = t10;
                 if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0) {
                     func_0018a000((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30)), 0);

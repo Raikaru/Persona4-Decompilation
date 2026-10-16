@@ -70,7 +70,7 @@ extern void mdlEffectEmitTagPair();
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);
-extern void func_001852f0(void);
+extern void FldNoiseEmitTagged(void);
 extern void func_003a2760(s32 arg0);
 extern void func_003e9390(s32 arg0);
 struct RpGeometry;
@@ -174,8 +174,8 @@ extern u8 D_005F1D90[];
 extern s32 iGpffff9f60;
 extern s32 FldRainUpdate(u8 *task);
 
-extern s32 func_00185850(u8 *task);
-extern void func_00186610(u8 *arg0);
+extern s32 FldNoiseUpdate(u8 *task);
+extern void FldNoiseDestroy(u8 *arg0);
 extern s32 func_0018e810(u8 *arg0);
 extern void func_0018ef20(u8 *arg0);
 extern u8 D_005F1DF8[];
@@ -1141,7 +1141,7 @@ s32 func_00185150(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
 /* measured: O1 preserves the target's packet construction order. */
 #pragma optimization_level 1
 // FUN_001852F0
-void func_001852f0(void)
+void FldNoiseEmitTagged(void)
 {
     u_long128 *packet;
     u_long128 packed;
@@ -1179,7 +1179,7 @@ void func_001852f0(void)
    retail s17/s16 frame layout under opt_propagation off. */
 // FUN_001853E0
 #pragma opt_propagation off
-void func_001853e0(u8 *arg0, u8 *arg1)
+void FldNoiseRenderStateA(u8 *arg0, u8 *arg1)
 {
     s32 *value;
     void (**base)(s32, s32);
@@ -1203,7 +1203,7 @@ void func_001853e0(u8 *arg0, u8 *arg1)
    retail s17/s16 frame layout under opt_propagation off. */
 // FUN_001854F0
 #pragma opt_propagation off
-void func_001854f0(u8 *arg0, u8 *arg1)
+void FldNoiseRenderStateB(u8 *arg0, u8 *arg1)
 {
     s32 *value;
     void (**base)(s32, s32);
@@ -1220,12 +1220,12 @@ void func_001854f0(u8 *arg0, u8 *arg1)
     RpSkyRenderStateSet(2, 0x54);
     value = *(s32 **)(arg1 + 0x88C4);
     base[0](1, *value);
-    func_001852f0();
+    FldNoiseEmitTagged();
 }
 /* measured: closing the single-function address-hoist bracket. */
 #pragma opt_propagation on
 // FUN_00185600
-void func_00185600(void)
+void FldNoiseFlush(void)
 {
     func_00185370();
 }
@@ -1234,7 +1234,7 @@ void func_00185600(void)
    retail s17/s16 frame layout under opt_propagation off. */
 // FUN_00185620
 #pragma opt_propagation off
-void func_00185620(u8 *arg0, u8 *arg1)
+void FldNoiseOverlayDraw(u8 *arg0, u8 *arg1)
 {
     void (**base)(s32, s32);
 
@@ -1249,7 +1249,7 @@ void func_00185620(u8 *arg0, u8 *arg1)
     RpSkyRenderStateSet(3, 0x717FB);
     RpSkyRenderStateSet(2, 0x54);
     base[0](1, *(s32 *)(arg1 + 0x88C8));
-    func_001852f0();
+    FldNoiseEmitTagged();
 }
 /* measured: closing the single-function address-hoist bracket. */
 #pragma opt_propagation on
@@ -1257,7 +1257,7 @@ void func_00185620(u8 *arg0, u8 *arg1)
    opt_propagation off preserves the saved-register address materialization. */
 // FUN_00185730
 #pragma opt_propagation off
-void func_00185730(void)
+void FldNoiseRenderStateSetup(void)
 {
     void (**base)(s32, s32);
 
@@ -1277,7 +1277,7 @@ void func_00185730(void)
 /* measured: closing the single-function address-hoist bracket. */
 #pragma opt_propagation on
 // FUN_00185830
-void func_00185830(void)
+void FldNoiseEmitRings(void)
 {
     mdlEffectEmitTagPair();
 }
@@ -1314,7 +1314,7 @@ typedef struct {
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-s32 func_00185850(u8 *task)
+s32 FldNoiseUpdate(u8 *task)
 {
     extern u8 D_00794930[];
     extern u8 D_005F1DA0[];
@@ -1334,12 +1334,12 @@ s32 func_00185850(u8 *task)
     extern u8 *PrimAllocQueueNode(void);
     extern void PrimAppendNode(u8 *, u8 *);
     extern u8 *PrimQueueDrawPrimitive(void *task, s32 arg1, void *arg2, s32 arg3);
-    extern void func_001853e0(u8 *task, u8 *arg1);
-    extern void func_001854f0(u8 *task, u8 *arg1);
-    extern void func_00185600(void);
-    extern void func_00185620(u8 *task, u8 *arg1);
-    extern void func_00185730(void);
-    extern void func_00185830(void);
+    extern void FldNoiseRenderStateA(u8 *task, u8 *arg1);
+    extern void FldNoiseRenderStateB(u8 *task, u8 *arg1);
+    extern void FldNoiseFlush(void);
+    extern void FldNoiseOverlayDraw(u8 *task, u8 *arg1);
+    extern void FldNoiseRenderStateSetup(void);
+    extern void FldNoiseEmitRings(void);
     u8 *node;
 
     GridDrawWork *work;
@@ -1603,30 +1603,30 @@ s32 func_00185850(u8 *task)
         break;
     case 1:
         node = PrimQueueDrawPrimitive(D_00794930,4,work->cover,4);
-        *(void (**)(void))(node + 8) = func_00185730;
+        *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
         *(GridDrawWork **)(node + 0x10) = work;
         node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[2],0x42);
-        *(void (**)(void))(node + 8) = func_00185730;
+        *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
         *(GridDrawWork **)(node + 0x10) = work;
-        *(void (**)(void))(node + 0xc) = func_00185830;
+        *(void (**)(void))(node + 0xc) = FldNoiseEmitRings;
         *(GridDrawWork **)(node + 0x14) = work;
         node = PrimQueueDrawPrimitive(D_00794930,4,work->overlay,4);
-        *(void (**)(u8 *, u8 *))(node + 8) = func_00185620;
+        *(void (**)(u8 *, u8 *))(node + 8) = FldNoiseOverlayDraw;
         *(GridDrawWork **)(node + 0x10) = work;
         callbackNode = (u8 *)PrimAllocQueueNode();
-        *(void (**)(void))(callbackNode + 8) = func_00185600;
+        *(void (**)(void))(callbackNode + 8) = FldNoiseFlush;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
         PrimAppendNode(D_00794930,callbackNode);
         node = PrimQueueDrawPrimitive(D_00794930,4,work->cover,4);
-        *(void (**)(void))(node + 8) = func_00185730;
+        *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
         *(GridDrawWork **)(node + 0x10) = work;
         node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[1],0x42);
-        *(void (**)(void))(node + 8) = func_00185730;
+        *(void (**)(void))(node + 8) = FldNoiseRenderStateSetup;
         *(GridDrawWork **)(node + 0x10) = work;
-        *(void (**)(void))(node + 0xc) = func_00185830;
+        *(void (**)(void))(node + 0xc) = FldNoiseEmitRings;
         *(GridDrawWork **)(node + 0x14) = work;
         callbackNode = (u8 *)PrimAllocQueueNode();
-        *(void (**)(u8 *, u8 *))(callbackNode + 8) = func_001854f0;
+        *(void (**)(u8 *, u8 *))(callbackNode + 8) = FldNoiseRenderStateB;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
         PrimAppendNode(D_00794930,callbackNode);
         for (index = 0; index < 0xe; index = index + 1) {
@@ -1635,15 +1635,15 @@ s32 func_00185850(u8 *task)
             }
         }
         callbackNode = (u8 *)PrimAllocQueueNode();
-        *(void (**)(void))(callbackNode + 8) = func_00185600;
+        *(void (**)(void))(callbackNode + 8) = FldNoiseFlush;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
         PrimAppendNode(D_00794930,callbackNode);
         node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[0],0x42);
-        *(void (**)(void))(node + 0xc) = func_00185830;
+        *(void (**)(void))(node + 0xc) = FldNoiseEmitRings;
         *(GridDrawWork **)(node + 0x14) = work;
         uGpffffb314 = uGpffffb314 != 0 ^ 1;
         callbackNode = (u8 *)PrimAllocQueueNode();
-        *(void (**)(u8 *, u8 *))(callbackNode + 8) = func_001853e0;
+        *(void (**)(u8 *, u8 *))(callbackNode + 8) = FldNoiseRenderStateA;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
         PrimAppendNode(D_00794930,callbackNode);
         for (index = 0; index < 7; index = index + 1) {
@@ -1680,7 +1680,7 @@ s32 func_00185850(u8 *task)
 #pragma pop
 
 // FUN_00186610
-void func_00186610(u8 *arg0)
+void FldNoiseDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
@@ -1688,10 +1688,10 @@ void func_00186610(u8 *arg0)
 
 
 // FUN_00186640
-s32 func_00186640(u8 *arg0)
+s32 FldNoiseTaskCreate(u8 *arg0)
 {
     chkmemAllocSiteTag(&D_005F1DF8, 0x299);
-    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005F1E08), 0xF, 0, 0, func_00185850, func_00186610, (u8 *)(D_008873F4[0](1, 0x88D0, 0x40000)));
+    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005F1E08), 0xF, 0, 0, FldNoiseUpdate, FldNoiseDestroy, (u8 *)(D_008873F4[0](1, 0x88D0, 0x40000)));
 }
 // FUN_00189600
 void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)

@@ -72,7 +72,7 @@ s32 K_TestMenu_Update(u8 *arg0)
                                                   0xA);
                 break;
             case 4:
-                *(s32 *)(p + 8) = func_00186640(arg0);
+                *(s32 *)(p + 8) = FldNoiseTaskCreate(arg0);
                 break;
             case 5:
                 *(s32 *)(p + 8) = FldPlayerIconTaskCreate(arg0);
