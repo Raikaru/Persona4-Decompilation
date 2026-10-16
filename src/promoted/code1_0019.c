@@ -266,7 +266,7 @@ extern s32 datPersonaGetRosterSlot(s32 arg0);
 extern void btlActionSetState(u8 *arg0, u32 arg1);
 extern void func_001b08d0(void *arg0);
 extern void btlActionSetUnit(u8 *arg0, u8 *arg1);
-extern u8 *func_001b0930(void);
+extern u8 *btlActionCreate(void);
 extern s32 btlActionQueuePush(u8 *arg0);
 extern s32 btlUnitApplyEncounterRoster(u8 *arg0);
 extern s32 func_00243d80(u8 *arg0);

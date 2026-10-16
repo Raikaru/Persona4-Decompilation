@@ -26,7 +26,7 @@ typedef struct P4RouteSlerp_001EF110 {
 } P4RouteSlerp_001EF110;
 extern void btlCameraLookAtQuat(void *out, const void *first,
                           const void *second, const void *up);
-extern u8 *func_001b0cc0();
+extern u8 *btlActionFindById();
 extern void *D_00609850[];
 extern s32 datCalcMaxHp();
 extern s64 scrGetParamInt();
@@ -298,7 +298,7 @@ s32 btlEffectScriptFindAilmentSkillElement(void) {
 
     work = func_0029d050();
     command = scrGetParamInt(0);
-    result = func_001b0cc0((u64)(command << 0x24) >> 0x24);
+    result = btlActionFindById((u64)(command << 0x24) >> 0x24);
     entry = *(u8 **)(work + 0x30);
     element = (s16)datCalcSkillElement(*(u8 **)(entry + 0xA64), 0);
     if (datCalcAilmentChance(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
@@ -494,7 +494,7 @@ s32 btlEffectScriptChooseBestSkill(void) {
     extern u16 datCalcThresholdKind(u8 *arg0, s32 arg1);
     extern s32 btlAICommandNomalCheck(u8 *arg0, s32 arg1, s32 arg2);
     extern s32 datCalcSkillAmount(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
-    extern u8 *func_001b0cc0(s32 arg0);
+    extern u8 *btlActionFindById(s32 arg0);
     extern s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1);
     u8 *work;
     u8 *unit;
@@ -659,7 +659,7 @@ outer_test:
             btlAICommandSetActionCode(work, work + 0x38, bestSkill & 0xFFFF);
         }
         if (bestTarget != 0) {
-            *(u8 **)(work + 0x38) = func_001b0cc0(bestTarget);
+            *(u8 **)(work + 0x38) = btlActionFindById(bestTarget);
             *(u16 *)(work + 0x6A) = 1;
         } else {
             btlAICommandPickAiTarget(work, 0);

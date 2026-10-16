@@ -26,7 +26,7 @@ typedef struct P4RouteSlerp_001EF110 {
 } P4RouteSlerp_001EF110;
 extern void btlCameraLookAtQuat(void *out, const void *first,
                           const void *second, const void *up);
-extern u8 *func_001b0cc0();
+extern u8 *btlActionFindById();
 extern void *D_00609850[];
 extern s64 scrGetParamInt();
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
@@ -95,7 +95,7 @@ s32 func_001e8c60(void) {
     temp_16 = scrGetParamInt(0);
     scrGetParamInt(1);
     scrGetParamInt(2);
-    func_001b0cc0((u64) (temp_16 << 0x24) >> 0x24);
+    btlActionFindById((u64) (temp_16 << 0x24) >> 0x24);
     scrSetReturnInt(-1);
     return 1;
 }

@@ -184,7 +184,7 @@ extern void btlSelectionSaveCursor();
 extern void btlSelectionDrawBar(u8 *unused, u8 *arg1, f32 *arg2);
 extern void btlCameraSetState(s32 state, BtlAction *action, u32 param_3);
 extern void func_001bcd40(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
-extern u8 *func_001b0c80(s32 arg0);
+extern u8 *btlActionFindByUnit(s32 arg0);
 extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void btlUnitSetPos(void *arg0, void *arg1);

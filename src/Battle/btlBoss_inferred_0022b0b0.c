@@ -121,7 +121,7 @@ extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
 extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(void *target);
-extern u8 *func_001b0c80(s32 arg0);
+extern u8 *btlActionFindByUnit(s32 arg0);
 extern void func_001f2eb0(u8 *arg0, s32 arg1);
 extern void btlSoundStopBgmIfEnabled(void);
 
@@ -545,7 +545,7 @@ check:
     }
 found:
     if (p != NULL) {
-        p = (u8 *)func_001b0c80((s32)p);
+        p = (u8 *)btlActionFindByUnit((s32)p);
         if (p != NULL) {
             func_001f2eb0(p, 0);
             btlSoundStopBgmIfEnabled();
@@ -1369,7 +1369,7 @@ void btlUnitUpdateHpGauge(void *source, u8 *packet, s32 *hpDelta)
         if (packet == NULL)
             break;
         datCalcAddHp(*(DatUnit **)(packet + 0xA64), *hpDelta);
-        packet = func_001b0c80((s32)packet);
+        packet = btlActionFindByUnit((s32)packet);
         /* The paired unit has an active packet; retail deliberately falls through. */
     case 0x10F:
         if (*(s16 *)(iGpffffb3ac + 0xC34) == 0)
@@ -1934,7 +1934,7 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
             mdlSetFrameColorByName(model, (s32)D_007636D0, 255);
             *(s16 *)(DAT_0076449c + 0xC34) = 1;
             **(u16 **)(unit + 0xA64) |= 0x20;
-            target = func_001b0c80((s32)other);
+            target = btlActionFindByUnit((s32)other);
             *(u16 *)(target + 0x1A) &= ~0x400;
             datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
             func_00198920(other, 0, 0, 1.0f, 1);
@@ -1949,7 +1949,7 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
             mdlSetFrameColorByName(model, (s32)D_007636D0, 255);
             *(s16 *)(DAT_0076449c + 0xC34) = 2;
             **(u16 **)(unit + 0xA64) |= 0x20;
-            target = func_001b0c80((s32)other);
+            target = btlActionFindByUnit((s32)other);
             *(u16 *)(target + 0x1A) &= ~0x400;
             datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
             func_00198920(other, 0, 0, 1.0f, 1);
@@ -1970,7 +1970,7 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
             btlUnitUpdateStatusMotion(other, 0);
             func_00198920(other, 0, 0, 1.0f, 1);
             *(u8 **)(DAT_0076449c + 0xB98) = D_0062E070;
-            target = func_001b0c80((s32)other);
+            target = btlActionFindByUnit((s32)other);
             *(u16 *)(packet + 0x1A) &= ~8;
             *(u32 *)(unit + 0x9C) &= ~8;
             *(u16 *)(target + 0x1A) |= 8;

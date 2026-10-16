@@ -95,7 +95,7 @@ extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern void btlCameraSetState(s32 state, BtlAction *action, u32 param_3);
 extern void func_001bcd40(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
-extern u8 *func_001b0c80(s32 arg0);
+extern u8 *btlActionFindByUnit(s32 arg0);
 extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void btlUnitSetPos(void *arg0, void *arg1);
@@ -255,10 +255,10 @@ void btlUiRefreshUnitPositions(u8 *arg0)
         btlCameraSetState(0x2D, NULL, 1);
         break;
     case 2:
-        btlCameraSetState(0x2E, (BtlAction *)func_001b0c80(D_00881444_abs[0]), 1);
+        btlCameraSetState(0x2E, (BtlAction *)btlActionFindByUnit(D_00881444_abs[0]), 1);
         break;
     case 3:
-        btlCameraSetState(6, (BtlAction *)func_001b0c80(D_00881444_abs[0]), 1);
+        btlCameraSetState(6, (BtlAction *)btlActionFindByUnit(D_00881444_abs[0]), 1);
         break;
     }
     if (*(u8 *)(temp_16 + 4) == 0) {

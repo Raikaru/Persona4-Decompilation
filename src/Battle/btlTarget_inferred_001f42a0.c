@@ -101,7 +101,7 @@ extern s32 func_001f1030(u8 *arg0);
 extern s32 btlSoundRequestPlayback(s16 arg0, s32 arg1);
 extern void btlSoundCancelPlayback(void);
 extern u32 datCalcIsLowHp(s32 unit);
-extern u8 *func_001b0c80(s32 arg0);
+extern u8 *btlActionFindByUnit(s32 arg0);
 #pragma push
 #pragma pop
 /* measured: invariant mask materialisation needs opt_loop_invariants on to
@@ -630,7 +630,7 @@ s64 btlActionPickRandomStatusMsg(u8 *arg0) {
     unit = *(u8 **)(battle + 0x178);
     while (unit != NULL) {
         if (datCalcIsDead((s32)(*(u8 **)(unit + 0xA64)), 0) == 0) {
-            u8 *unitWork = (u8 *)func_001b0c80((s32)unit);
+            u8 *unitWork = (u8 *)btlActionFindByUnit((s32)unit);
             if ((unitWork == NULL) || !(*(u16 *)(unitWork + 0x18) & 0x20)) {
                 if (datCalcIsLowHp((s32)((void *)*(u8 **)(unit + 0xA64))) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];

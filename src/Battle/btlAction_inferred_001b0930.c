@@ -95,7 +95,7 @@ extern f32 fGpffff8108;
 #pragma push
 #pragma pop
 // FUN_001B0930
-u8 *func_001b0930(void)
+u8 *btlActionCreate(void)
 {
     u32 temp_3;
     u8 *temp_2;
@@ -134,7 +134,7 @@ u8 *func_001b0930(void)
 
 /* measured: compound field decrement preserves retail addiu/sh/andi order; normalized_diff 0 in the 400-byte retail window. */
 // FUN_001B0A60
-void func_001b0a60(void)
+void btlActionListUpdate(void)
 {
     u8 *var_18;
     u16 temp_3;
@@ -196,7 +196,7 @@ loop_check:
 }
 
 // FUN_001B0BF0
-void func_001b0bf0(void)
+void btlActionListDestroyAll(void)
 {
     u8 *temp_16;
     u8 *temp_3;
@@ -225,7 +225,7 @@ loop_check:
    bne/branch-to-tail layout; the C object is 60B/64B with nd 0 and only the
    retail alignment nop remains. */
 // FUN_001B0C80
-u8 *func_001b0c80(s32 arg0)
+u8 *btlActionFindByUnit(s32 arg0)
 {
     u8 *p;
 
@@ -244,7 +244,7 @@ check:
 /* measured: 0cc0 shares the pointer-chain branch shape above; only its
    compare-field displacement changes, with nd 0 in a 60B/64B object. */
 // FUN_001B0CC0
-u8 *func_001b0cc0(s32 arg0)
+u8 *btlActionFindById(s32 arg0)
 {
     u8 *p;
 

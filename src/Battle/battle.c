@@ -11,7 +11,7 @@ static u16 iGpffffa098 = 0x100;
 extern void btlPacketStepSide(u32 layer);
 extern void btlMainDrawSkyOverlay(void);
 extern void btlMainUpdate(void);
-extern void func_001b0a60(void);
+extern void btlActionListUpdate(void);
 extern void btlActionUpdateQueue(void);
 extern void btlMainSyncSceneDrawColors(void);
 extern void btlCameraApplyView(void);
@@ -101,7 +101,7 @@ s32 func_00192610(u8 *unusedTask)
     if (iGpffffb3ac->flags & 1) {
         btlPacketStepSide(0);
         btlMainUpdate();
-        func_001b0a60();
+        btlActionListUpdate();
         btlActionUpdateQueue();
         btlMainSyncSceneDrawColors();
         btlCameraApplyView();
