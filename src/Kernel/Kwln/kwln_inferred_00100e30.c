@@ -77,7 +77,7 @@ extern void mainDrawStartFrame(void);
 extern void func_001028c0(void);
 extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_0010d7b0(void);
-extern void func_00121b20(void);
+extern void tickerStartTask(void);
 extern void func_00122430(s32 arg0);
 extern u8 *resrcMngSpawnRenderTask(u8 *parent);
 extern void func_001605a0(void);
@@ -309,7 +309,7 @@ void func_00100e60(void)
     func_002aaa10();
     func_001029a0(0x1E, 0, 0, 0);
     resrcMngSpawnRenderTask(NULL);
-    func_00121b20();
+    tickerStartTask();
     func_00122430(0);
     func_0034b970();
 }
