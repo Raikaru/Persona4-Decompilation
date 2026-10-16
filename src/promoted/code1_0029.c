@@ -305,7 +305,7 @@ void func_0029ecb0(u8 *arg0)
 }
 #pragma pop
 // FUN_0029EF90
-void func_0029ef90(u8 *arg0, u8 *arg1)
+void yTimeLimitRecordInput(u8 *arg0, u8 *arg1)
 {
     s32 temp_3;
     s32 temp_4;
@@ -518,7 +518,7 @@ void func_0029f070(u8 *arg0)
                                (*(s32 *)(temp_18 + 0x20) * 4)) +
                           (*(s32 *)(temp_18 + 0x1C) * 2),
                       2);
-        func_0029ef90(arg0, sp7C);
+        yTimeLimitRecordInput(arg0, sp7C);
         *(s32 *)(temp_18 + 0x1C54) = 1;
         sdkSndStartStream(0, 0, 0, 1);
         return;
