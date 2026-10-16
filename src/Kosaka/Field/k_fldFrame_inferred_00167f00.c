@@ -100,7 +100,7 @@ typedef struct F8060Frame
     RwV3d sp90;
 } F8060Frame;
 
-extern s32 func_0014a200(void);
+extern s32 FldMap_IsCurrentInBandA(void);
 extern s32 FldFrame_RaycastFieldWorlds(RwV3d *arg0, RwV3d *arg1, f32 fparg0,
                          u16 arg2);
 extern void func_001823d0(s32 arg0, u16 arg1, u16 arg2);
@@ -269,7 +269,7 @@ s32 FldFrameTask_Update(u8 *arg0)
             ((*(u32 *)(work + 4) & 0x10000000) == 0)) {
             stack.sp5c = stack.sp70;
             stack.sp50 = stack.sp5c;
-            if (func_0014a200() != 0) {
+            if (FldMap_IsCurrentInBandA() != 0) {
                 stack.sp50.y += 600.0f;
             } else {
                 stack.sp50.y += 200.0f;

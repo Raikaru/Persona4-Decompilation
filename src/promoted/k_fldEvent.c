@@ -40,7 +40,7 @@ s32 datPersonaFindSkillSlot(u8 *, u16);
 s16 datGetPartyId(s32);
 s16 func_00106cd0(s16, s32);
 s32 FldEvent_TriggerUpdate(u8 *);
-s32 func_0014a160(void);
+s32 FldMap_IsCurrentInEitherBand(void);
 s32 func_0015a160(void);
 s32 FldEvent_FindFirstRegionActor(f32, f32, void *);
 u8 *func_001823c0(void);
@@ -107,8 +107,8 @@ extern u32 D_007EFA04[];
 extern u8 *mdlGetClump(s32);
 extern s32 K_Clump_ClumpHasMatUsrData(u8 *, char *);
 extern u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *, const struct RwV3d *, f32);
-extern s32 func_0014a200(void);
-extern s32 func_0014a270(void);
+extern s32 FldMap_IsCurrentInBandA(void);
+extern s32 FldMap_IsCurrentInBandB(void);
 
 // FUN_00171610
 s32 FldEvent_ScanNearbyEntries(u8 *arg0)
@@ -133,7 +133,7 @@ s32 FldEvent_ScanNearbyEntries(u8 *arg0)
 
     h = *(s32 **)(arg0 + 0x38);
     p = (u8 *)MT_Scene_GetResListHead(0xA);
-    if (func_0014a200() == 0 && func_0014a270() == 0) {
+    if (FldMap_IsCurrentInBandA() == 0 && FldMap_IsCurrentInBandB() == 0) {
         return 0;
     }
     t = D_007EF9F8[0].x != 0;
@@ -719,7 +719,7 @@ s32 FldEvent_SetCameraFocus(u8 *arg0)
     s32 r;
 
     h = *(s32 **)(arg0 + 0x38);
-    if (func_0014a160() == 1) {
+    if (FldMap_IsCurrentInEitherBand() == 1) {
         r = *(s32 *)func_001823c0();
         if (r != 0) {
             t = (u8 *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
@@ -740,7 +740,7 @@ s32 FldEvent_WaitForFieldIdle(u8 *arg0)
     s32 *h;
 
     h = *(s32 **)(arg0 + 0x38);
-    if (func_0014a160() == 1) {
+    if (FldMap_IsCurrentInEitherBand() == 1) {
         if (func_0015a160() != 0x9F) {
             if ((D_008C024E[0] & 0x40) != 0) {
                 h[0xD] = 0;
@@ -804,8 +804,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 func_0015a160(void);
     s32 func_0015a7c0(s32);
     void FldResource_Destroy(u8 *);
-    s32 func_0014a200(void);
-    s32 func_0014a270(void);
+    s32 FldMap_IsCurrentInBandA(void);
+    s32 FldMap_IsCurrentInBandB(void);
     void fieldSceneUnload(void);
     s32 fieldSceneLoadStep(void);
     void func_00160440(void);
@@ -1231,7 +1231,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     func_00160440();
                     FldUnit_SetPartySlotModel(1);
                     FldUnit_SetFieldSlotModel(1);
-                    if (func_0014a200() == 1 || func_0014a270() == 1) {
+                    if (FldMap_IsCurrentInBandA() == 1 || FldMap_IsCurrentInBandB() == 1) {
                         u32 i = 0;
                         for (i = 0; i < 0x10; i++) {
                             s32 v = D_007E8060[i];

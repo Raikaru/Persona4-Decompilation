@@ -349,7 +349,7 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
  * structure identical (fnalign 64 -> 40): the dispatch is an if-chain in retail's descending order whose compare against 1 uses a local `one`; the first readiness check returns that `one` for a NULL file, so the switch's constant 1 in $v0 is reused as retail does; the last test is a one-case switch with default (retail beqz/b).
  * measured 2026-10-12: fnalign 40 -> 14; separate preset-index and copied-resource locals in each publication loop preserve their roles and free the retail table-base register.
  * 2026-10-12: the 14 edits are the $v0/$v1 swap of the state base and its
- * +0x28 resource in the two func_0014a270()==1 part reads. Backend copy
+ * +0x28 resource in the two FldMap_IsCurrentInBandB()==1 part reads. Backend copy
  * propagation folds the base (memory uses only) into its late gp-load temp,
  * while the resource keeps its low variable number through the +0xA4C addiu;
  * whatif: base numbered below the resource gives retail. Block/struct/helper/
@@ -462,8 +462,8 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     extern f32 KDraw_MatrixPitchDeg(u8 *arg0);
     extern f32 KDraw_MatrixYawDeg(u8 *arg0);
     extern f32 KDraw_MatrixRollDeg(u8 *arg0);
-    extern s32 func_0014a270(void);
-    extern s32 func_0014a200(void);
+    extern s32 FldMap_IsCurrentInBandB(void);
+    extern s32 FldMap_IsCurrentInBandA(void);
     extern void resrcMngResetRenderSlots(void);
     extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
     extern s32 func_00153c00(s32 arg0);
@@ -790,7 +790,7 @@ readGrid:
                 }
                 var_17_2 += 1;
             }
-            if (func_0014a270() != 0) {
+            if (FldMap_IsCurrentInBandB() != 0) {
                 temp_16_3 = (s32)(*( s32 * )(*( u8 ** )(((u8 *)func_00155280()) + 0x1864) + 0x110));
                 memcpy(((u8 *)func_00155280()) + 0x54,(const void *)((u8 *)temp_16_3 + 4), 0x1800);
                 func_0015c730((u8 *)(*( s32 * )(((u8 *)func_00155280()) + 0x1864)));
@@ -826,7 +826,7 @@ found_loop_99:
             }
             *( s32 * )(iGpffff9db0 + 0x94) = 8;
 readHbnResources:
-            if (func_0014a270() != 0) {
+            if (FldMap_IsCurrentInBandB() != 0) {
                 hbnData = NULL;
                 var_16_4 = 0;
                 while (var_16_4 < *( s32 * )(iGpffff9db0 + 0x24)) {
@@ -871,7 +871,7 @@ readHbnResources:
                 var_16_7 += 1;
             }
 block_123:
-            if (func_0014a200() == 1) {
+            if (FldMap_IsCurrentInBandA() == 1) {
                 var_9 = 0;
                 temp_8 = (u8 *)(iGpffff9db0);
                 a_dst = (u8 *)D_007E8060;
@@ -890,7 +890,7 @@ block_123:
                 }
                 func_001599d0();
                 func_0015b240();
-            } else if (func_0014a270() != 0) {
+            } else if (FldMap_IsCurrentInBandB() != 0) {
                 var_9_2 = 0;
                 temp_8_2 = (u8 *)(iGpffff9db0);
                 b_dst = (u8 *)D_007E8060;
@@ -1008,7 +1008,7 @@ readCamera:
             }
             return 0;
 loadParts:
-        if (func_0014a270() == 1) {
+        if (FldMap_IsCurrentInBandB() == 1) {
             temp_2_11 = (u8 *)(iGpffff9db0);
             *( s32 * )(*( u8 ** )(iGpffff9db0 + 0x28) + 0xA48) = (s32)func_0015e870(*( u16 * )(temp_2_11 + 0), *( u16 * )(temp_2_11 + 4), *( s16 * )(temp_2_11 + 0x10));
         } else {
@@ -1025,7 +1025,7 @@ loadParts:
         /* fallthrough */
 readParts:
         var_16_9 = 0;
-        initialPrimary = func_0014a270();
+        initialPrimary = FldMap_IsCurrentInBandB();
         if (initialPrimary == 1) {
             initialPartWork = (FldPartReadWork *)iGpffff9db0;
             initialPrimary = (uintptr_t)initialPartWork->primaryResource;
@@ -1084,7 +1084,7 @@ reloadParts:
                 MT_Scene_DestroyRes(*( u16 * )(var_17_7 + 0));
                 var_17_7 = (u8 *)(temp_16_11);
             }
-            if (func_0014a270() == 1) {
+            if (FldMap_IsCurrentInBandB() == 1) {
                 temp_2_16 = (u8 *)(iGpffff9db0);
                 *( s32 * )(*( u8 ** )(iGpffff9db0 + 0x28) + 0xA48) = (s32)func_0015e870(*( u16 * )(temp_2_16 + 0), *( u16 * )(temp_2_16 + 4), *( s16 * )(temp_2_16 + 0x10));
             } else {
@@ -1100,7 +1100,7 @@ reloadParts:
             *( s32 * )(iGpffff9db0 + 0x94) = 0x1F;
 readReloadedParts:
             var_16_11 = 0;
-            reloadedPrimary = func_0014a270();
+            reloadedPrimary = FldMap_IsCurrentInBandB();
             if (reloadedPrimary == 1) {
                 reloadedPartWork = (FldPartReadWork *)iGpffff9db0;
                 reloadedPrimary = (uintptr_t)reloadedPartWork->primaryResource;
@@ -1128,7 +1128,7 @@ readReloadedParts:
             *( s32 * )(iGpffff9db0 + 0x94) = 0x20;
 waitReloadedParts:
             var_17_9 = 0;
-            if (func_0014a270() == 1) {
+            if (FldMap_IsCurrentInBandB() == 1) {
                 temp_2_20 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
                 if (func_0015f000((u8 *)(*( s32 * )(temp_2_20 + 0xA48)),(u8 *)(*( s32 * )(temp_2_20 + 0xA4C))) == 0) {
                     var_17_9 += 1;

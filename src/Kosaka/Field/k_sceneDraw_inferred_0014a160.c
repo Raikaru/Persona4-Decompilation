@@ -287,30 +287,30 @@ extern f32 D_008872F8[];
 /* measured: loop-invariant constants probe for resrcMngSetDrawEnabled. */
 /* measured: closes loop-invariant constants probe for resrcMngSetDrawEnabled. */
 /* measured: closes opt_rebuildconditionals for resrcMngSetDrawEnabled. */
-/* measured: opt_rebuildconditionals off is scoped to func_0014a160. */
+/* measured: opt_rebuildconditionals off is scoped to FldMap_IsCurrentInEitherBand. */
 // FUN_0014A160
-s32 func_0014a160(void) {
+s32 FldMap_IsCurrentInEitherBand(void) {
     u8 *temp_2;
 
     temp_2 = iGpffff9db0;
-    return func_0014a190(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
+    return FldMap_IsInEitherBand(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
 }
 
-/* measured: closes opt_rebuildconditionals for func_0014a160. */
-/* measured: opt_rebuildconditionals off is scoped to func_0014a190. */
-/* measured: func_0014a190 MATCH -> MISMATCH without this pragma. */
+/* measured: closes opt_rebuildconditionals for FldMap_IsCurrentInEitherBand. */
+/* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
+/* measured: FldMap_IsInEitherBand MATCH -> MISMATCH without this pragma. */
 #pragma opt_rebuildconditionals off
 // FUN_0014A190
-s32 func_0014a190(s32 arg0, s32 arg1) {
+s32 FldMap_IsInEitherBand(s32 arg0, s32 arg1) {
     if (FldMap_IsInBandA(arg0, arg1) == 1) {
         return 1;
     }
     return FldMap_IsInBandB(arg0, arg1) == 1;
 }
 
-/* measured: closes opt_rebuildconditionals for func_0014a190. */
+/* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
 // FUN_0014A200
-s32 func_0014a200(void) {
+s32 FldMap_IsCurrentInBandA(void) {
     u8 *temp_2;
 
     temp_2 = iGpffff9db0;
@@ -340,7 +340,7 @@ done_0014a230:
 }
 
 // FUN_0014A270
-s32 func_0014a270(void) {
+s32 FldMap_IsCurrentInBandB(void) {
     u8 *temp_2;
 
     temp_2 = iGpffff9db0;

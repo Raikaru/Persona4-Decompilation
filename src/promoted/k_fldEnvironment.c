@@ -11,7 +11,7 @@ extern u8 datGetTimeSlot(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
 extern u32 datGetFlag(s32 arg0);
 extern s32 func_0015a0c0(void);
-extern s32 func_0014a160(void);
+extern s32 FldMap_IsCurrentInEitherBand(void);
 
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -478,7 +478,7 @@ s32 func_00154720(s32 fieldKind, s32 baseState, s32 condition)
     if (kind >= 0x14 && kind < 0x28) {
         return state;
     }
-    if ((kind < 0x14 || kind >= 0x28) && func_0014a160() == 1) {
+    if ((kind < 0x14 || kind >= 0x28) && FldMap_IsCurrentInEitherBand() == 1) {
         return fldEnvironmentEventState(state);
     }
     /* Only kind 6 clamps the base state; default preserves it. */

@@ -42,7 +42,7 @@ extern s32 D_007616AC;
 extern s32 D_00764294;
 
 // FUN_001026F0
-s32 func_001026f0(void)
+s32 FldShadow_InstallIntcHandler(void)
 {
     s32 handle;
 

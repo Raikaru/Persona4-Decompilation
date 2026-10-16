@@ -95,7 +95,7 @@ extern s32 kwlnTaskIsLinked(s32);
 extern s32 func_001614d0(void);
 extern void FldUnit_UpdateFacing(void);
 extern void FldUnit_RequestSceneResource(void);
-extern s32 func_0014a160(void);
+extern s32 FldMap_IsCurrentInEitherBand(void);
 extern s32 sprintf(char *, const void *, ...);
 extern void *mdlCreateModelObjectFromData(u32, u16, void *, u32);
 extern s32 FldUnit_InstallResources(void);
@@ -110,7 +110,7 @@ extern void SceneDraw_SetResVisible(u16, s32);
 extern void func_0015a350(f32 *);
 extern void mdlTranslateMatrix(s32, f32 *, s32);
 extern s32 func_0029da90(s32, u8 *, s32);
-extern s32 func_0014a200(void);
+extern s32 FldMap_IsCurrentInBandA(void);
 extern u8 *func_0015a0c0(void);
 extern u8 *func_0015c590(u8);
 extern s32 func_0015c5f0(u8 *);
@@ -119,7 +119,7 @@ extern s32 func_0015a6b0(s32);
 extern void FldUnit_UpdateAllEnemySlots(void);
 extern void FldUnit_UpdateEnemySlot(void);
 extern s32 FldUnit_SpawnEncounterTask(u8 *, s32);
-extern s32 func_0014a270(void);
+extern s32 FldMap_IsCurrentInBandB(void);
 extern s32 smapCreateSymbols(u8 *);
 extern void func_002b2950(s32);
 extern s32 sndRequestAreaTrack(void);
@@ -208,7 +208,7 @@ s32 func_00155360(u8 *task)
         FldUnit_UpdateFacing();
         if (work->eventReader == 0) {
             FldUnit_RequestSceneResource();
-            if (func_0014a160() == 1) {
+            if (FldMap_IsCurrentInEitherBand() == 1) {
                 modelField = work->field;
                 if (modelField == 0x2C || modelField == 0x2E || modelField == 0x2F ||
                     modelField == 0x30 || modelField == 0x40 || modelField == 0x42 ||
@@ -254,7 +254,7 @@ s32 func_00155360(u8 *task)
                 if (D_007D3D64[0] != NULL && iGpffffb268 == 0) {
                     work->scriptTask = func_0029da90(15, D_007D3D64[0], work->room - 1);
                 }
-                if (func_0014a200() == 1) {
+                if (FldMap_IsCurrentInBandA() == 1) {
                     work->roomData = func_0015c590(*(u8 *)(func_0015a0c0() + 0xC));
                 }
             }
@@ -276,7 +276,7 @@ s32 func_00155360(u8 *task)
             FldUnit_UpdateEnemySlot();
         }
         D_007D2530[0] = FldUnit_SpawnEncounterTask(task, -1);
-        if ((func_0014a200() == 1 || func_0014a270() == 1) &&
+        if ((FldMap_IsCurrentInBandA() == 1 || FldMap_IsCurrentInBandB() == 1) &&
             (*(s32 *)(iGpffff9db0 + 0) != 0x44 || *(s32 *)(iGpffff9db0 + 4) != 1)) {
             D_007D2528[0] = smapCreateSymbols(task);
             func_002b2950(1);
@@ -299,7 +299,7 @@ s32 func_00155360(u8 *task)
     case 11:
         if (func_00122720() == 0) break;
         iGpffffb210 = 3;
-        if (func_0014a200() == 1) {
+        if (FldMap_IsCurrentInBandA() == 1) {
             work->scriptTask = func_0029db50(15, *(u8 **)(work->roomData + 0x110),
                 *(s32 *)(work->roomData + 0x118), 0);
         } else if (D_007D3D64[0] != NULL && iGpffffb268 == 0) {

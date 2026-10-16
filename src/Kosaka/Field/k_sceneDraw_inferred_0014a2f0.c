@@ -285,10 +285,10 @@ extern f32 D_008872F8[];
 /* measured: loop-invariant constants probe for resrcMngSetDrawEnabled. */
 /* measured: closes loop-invariant constants probe for resrcMngSetDrawEnabled. */
 /* measured: closes opt_rebuildconditionals for resrcMngSetDrawEnabled. */
-/* measured: opt_rebuildconditionals off is scoped to func_0014a160. */
-/* measured: closes opt_rebuildconditionals for func_0014a160. */
-/* measured: opt_rebuildconditionals off is scoped to func_0014a190. */
-/* measured: closes opt_rebuildconditionals for func_0014a190. */
+/* measured: opt_rebuildconditionals off is scoped to FldMap_IsCurrentInEitherBand. */
+/* measured: closes opt_rebuildconditionals for FldMap_IsCurrentInEitherBand. */
+/* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
+/* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
 // FUN_0014A2F0
 void FldState_SetEventViewMode(s32 arg0)
 {
