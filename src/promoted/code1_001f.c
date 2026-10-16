@@ -121,7 +121,7 @@ extern void datCalcSetHp(s32 arg0, s32 arg1);
 extern void datCalcClearBadStatus(s32 arg0, s32 arg1);
 extern void datCalcSetBadStatus(s32 arg0, s32 arg1);
 
-extern void func_00485b20(s32 arg0);
+extern void mdlEffectDestroyWithNodes(s32 arg0);
 extern void func_00486180(s32 arg0);
 extern void func_00120f20(s32 arg0);
 extern s32 func_00122520(s32 arg0, s32 arg1);

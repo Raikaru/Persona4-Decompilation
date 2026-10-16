@@ -11,7 +11,7 @@ void *memset(void *dst, s32 value, s32 size);
 u8 *func_004abc50(u8 *base, s32 size);
 s32 mdlLayerIsPresent(s32 res, s32 arg1);
 u32 mdlCountIntUserData(s32 res);
-void func_00485b20(u32 arg);
+void mdlEffectDestroyWithNodes(u32 arg);
 void func_004abd60(s32 res);
 void *mdlFindOrCreateModelObject(u32 a, u16 b, u32 c);
 void func_004abbb0(s32 res);
@@ -112,7 +112,7 @@ void *EffHelperCreate(void *arg0)
         work->list = work->listAlloc;
         work->list[0] = (u32)func_00484bb0((u8 *)v);
         for (i = 1; i < work->count; i++) {
-            work->list[i] = (u32)func_00485c80((u8 *)work->list[0]);
+            work->list[i] = (u32)mdlEffectCloneWithNodes((u8 *)work->list[0]);
         }
     }
     return work;
@@ -129,7 +129,7 @@ void EffHelperFree(EffHlpWork *work)
     }
     if (work->listAlloc != NULL) {
         for (i = 0; i < work->count; i++) {
-            func_00485b20(work->list[i]);
+            mdlEffectDestroyWithNodes(work->list[i]);
         }
         (*jtbl_008873EC)(work->listAlloc);
     }
@@ -177,7 +177,7 @@ void EffHelperRebindModel(EffHlpWork *work, EffHlpWork *src)
     if (src->listAlloc != NULL) {
         if (work->listAlloc != NULL) {
             for (i = 0; i < work->count; i++) {
-                func_00485b20(work->list[i]);
+                mdlEffectDestroyWithNodes(work->list[i]);
             }
             (*jtbl_008873EC)(work->listAlloc);
         }
@@ -191,7 +191,7 @@ void EffHelperRebindModel(EffHlpWork *work, EffHlpWork *src)
         }
         work->list = work->listAlloc;
         for (i = 0; i < work->count; i++) {
-            work->list[i] = (u32)func_00485c80((u8 *)src->list[0]);
+            work->list[i] = (u32)mdlEffectCloneWithNodes((u8 *)src->list[0]);
         }
     }
 }
