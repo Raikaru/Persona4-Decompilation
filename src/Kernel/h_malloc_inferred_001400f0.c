@@ -102,7 +102,7 @@ extern u8 D_005EF540[];
 extern u8 D_005EF548[];
 extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
-extern void func_00355070(u8 *arg0, u8 *arg1);
+extern void datScreenWipeSetTarget(u8 *arg0, u8 *arg1);
 extern void func_003550d0(u8 *arg0, Float2_0014 *arg1, Float2_0014 *arg2);
 extern void func_003552d0(u8 *arg0, Float2_0014 arg1);
 extern void func_00355300(u8 *arg0, s32 arg1);
@@ -277,7 +277,7 @@ extern void sdkSpriteDrawAt(void *work, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2
 extern void sdkSpriteDrawSized(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void func_0034f9d0(Float2_0014 work, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 extern void func_00355410(u8 *work, u8 arg1);
-extern void func_00354ba0(void *work);
+extern void datScreenWipeDraw(void *work);
 extern void sflDataDrawEntry(CampDisplayWords position, f32 depth, s32 alpha, s16 *label);
 extern s32 datCalcGetLevelById(s32 work);
 extern u32 func_0010d6d0(s16 work);
@@ -355,7 +355,7 @@ void radarDrawFrame(u8 *work)
     }
     if ((*(s32 *)(work + 0x1C) & 0x800) != 0) {
         func_00355410(*(u8 **)(work + 0x3C), (u8)(255.0f * opacity));
-        func_00354ba0(*(void **)(work + 0x3C));
+        datScreenWipeDraw(*(void **)(work + 0x3C));
     }
     if ((*(s32 *)(work + 0x1C) & 0x8) != 0) {
         for (i = 0; i < *(s16 *)(work + 0x32); i++) {
@@ -1114,7 +1114,7 @@ void radarDrawEdge(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (arg2 != 0) {
         func_003550d0(arg0, (Float2_0014 *)var_5, (Float2_0014 *)var_6);
     } else {
-        func_00355070(arg0, var_6);
+        datScreenWipeSetTarget(arg0, var_6);
     }
     func_003552d0(arg0, pair);
     func_00355300(arg0, temp_19);

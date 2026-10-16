@@ -21,7 +21,7 @@ void sdkSpriteFreeNode(void *node);
 void kwlnTaskDestroyWithHierarchy(s32 arg0);
 void func_002bb4e0(void);
 void func_003550d0(s32 arg0, void* arg1, void* arg2);
-void func_00355070(s32 arg0, void* arg1, void* arg2);
+void datScreenWipeSetTarget(s32 arg0, void* arg1, void* arg2);
 void func_00355300(s32 arg0, s32 arg1);
 void kAssertFail(void* arg0, s32 arg1);
 void func_00136fc0(u8* arg0);
@@ -59,7 +59,7 @@ void func_001356d0(u8* arg0) {
  extern u8* resourceFindByName(char* arg0);
  extern u8* sdkSpriteNewNode(u32 arg0, u32 arg1);
  extern u8 func_002baac0(u8* arg0);
- extern u8* func_00354a50(s32 arg0, u16 arg1);
+ extern u8* datScreenWipeTaskCreate(s32 arg0, u16 arg1);
  extern u8* shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
  extern void shdPersonaSetPersonaId(u8* arg0, s32 arg1);
  extern s32 func_001371a0(u8* arg0, s32 arg1);
@@ -168,7 +168,7 @@ void func_001356d0(u8* arg0) {
  }
  func_002baac0(D_0064A790);
  func_00135c10(arg0);
- *(s32*)(arg0 + 0x1CB8) = (s32)func_00354a50(0, 1);
+ *(s32*)(arg0 + 0x1CB8) = (s32)datScreenWipeTaskCreate(0, 1);
  *(s32*)(arg0 + 0x1CB4) = (s32)shdPersonaTaskCreate(0, 0xC7, 0, 8, 3);
  shdPersonaSetPersonaId(*(u8**)(arg0 + 0x1CB4), 0xB0);
  func_001371a0(arg0, 0);
@@ -304,7 +304,7 @@ void func_00135dc0(u8* work)
     extern void func_0034f9d0(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 texture);
     extern void RpSkyRenderStateSet(s32 state, s32 value);
     extern void func_00355410(u8 *task, u8 alpha);
-    extern void func_00354ba0(void *task);
+    extern void datScreenWipeDraw(void *task);
     extern void func_00137890(u8 *work, s32 index);
     extern s32 datPersonaRosterCapacity(void);
     extern u32 func_0010d6d0(s16 character);
@@ -443,7 +443,7 @@ void func_00135dc0(u8* work)
     if ((menu->visible & 0x800) != 0) {
         value = 255.0f * opacity;
         func_00355410(menu->model, (u8)value);
-        func_00354ba0(menu->model);
+        datScreenWipeDraw(menu->model);
     }
     if ((menu->visible & 0x2) != 0) {
         s32 rowColor;
@@ -1082,7 +1082,7 @@ void func_00137e50(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (arg2 != 0) {
         func_003550d0(arg0, var_5, var_6);
     } else {
-        func_00355070(arg0, var_6, var_6);
+        datScreenWipeSetTarget(arg0, var_6, var_6);
     }
     func_003552d0(arg0, pair);
     func_00355300(arg0, arg1);

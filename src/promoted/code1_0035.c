@@ -9,7 +9,7 @@ extern void func_0034f5d0(u8 *arg0);
 extern void func_002bb550(s8 arg0);
 extern void (*D_008873EC[])(void *);
 
-extern void func_003549d0();
+extern void datTextSlotRelease();
 extern s32 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s64 arg0);
 extern s32 datMemberIsUnlocked(s64 arg0);
@@ -427,8 +427,9 @@ s32 func_003544f0(void)
     return 50;
 }
 
+// Intent: Script command: open the member notice for the slot argument, or close it and return 1 once its state reaches 3 [inferred]
 // FUN_00354500
-s32 func_00354500(void) {
+s32 datMemberNoticeScriptOpen(void) {
     s32 slot;
     s32 state;
     u8 *task;
@@ -458,8 +459,9 @@ s32 func_00354500(void) {
 block_10:
     return 0;
 }
+// Intent: Script command: as datMemberNoticeScriptOpen, but the notice is set up in the second mode [inferred]
 // FUN_00354660
-s32 func_00354660(void) {
+s32 datMemberNoticeScriptOpenAlt(void) {
     s32 slot;
     s32 state;
     u8 *task;
@@ -489,10 +491,11 @@ s32 func_00354660(void) {
 block_10_2:
     return 0;
 }
+// Intent: Reset the text slot and copy the string argument into it; a null string sets the slot to its empty state [inferred]
 // FUN_003547C0
-void func_003547c0(s32 *arg0, u8 *arg1)
+void datTextSlotSetString(s32 *arg0, u8 *arg1)
 {
-    func_003549d0();
+    datTextSlotRelease();
     if (arg1 == NULL) {
         *arg0 = 3;
         return;
@@ -501,8 +504,9 @@ void func_003547c0(s32 *arg0, u8 *arg1)
     *arg0 = 0;
 }
 
+// Intent: Text slot loading state machine: request the file named in the slot, wait for it, then create its resource and wait for the resource to finish [inferred]
 // FUN_00354830
-s32 func_00354830(u8 *arg0) {
+s32 datTextSlotLoadStep(u8 *arg0) {
     s32 sp3C;
     s32 handle;
     s32 state;
@@ -547,8 +551,9 @@ s32 func_00354830(u8 *arg0) {
 block_15:
     return 0;
 }
+// Intent: Release the text slot's file handle and resource [inferred]
 // FUN_003549D0
-void func_003549d0(u8 *arg0)
+void datTextSlotRelease(u8 *arg0)
 {
     s32 handle;
 
@@ -570,8 +575,9 @@ void func_003549d0(u8 *arg0)
     }
 }
 
+// Intent: Create the screen wipe task with its update and destroy callbacks, set its positions and attach the target range [inferred]
 // FUN_00354A50
-u8 *func_00354a50(s32 arg0, u16 arg1) {
+u8 *datScreenWipeTaskCreate(s32 arg0, u16 arg1) {
     Float2 sp48;
     u8 *task;
     u8 *work;
@@ -615,8 +621,9 @@ u8 *func_00354a50(s32 arg0, u16 arg1) {
    spellings are the same ABI.  The alpha divisor also has to stay inside the
    colour expression: hoisting it to a local costs the scheduler the slot
    retail fills with `mtc1 $zero, $f12`. */
+// Intent: Draw one step of the screen wipe: advance its blend toward the target, then draw its quad with the render state table [inferred]
 // FUN_00354BA0
-void func_00354ba0(u8 *arg0) {
+void datScreenWipeDraw(u8 *arg0) {
     extern u8 *func_00457120(void);
     extern f32 D_008872F8[];
     extern f32 D_00761470;
@@ -731,8 +738,9 @@ void func_00354ba0(u8 *arg0) {
     ((void (*)(u32, u32))*(u32 *)base)(1, *(*(u32 **)(p + 0x150)));
     D_00887310[0](4, &qs[0], 4);
 }
+// Intent: Set the screen wipe's target range from the argument, or return it to the current position when the argument is null [inferred]
 // FUN_00355070
-void func_00355070(u8 *arg0, u8 *arg1) {
+void datScreenWipeSetTarget(u8 *arg0, u8 *arg1) {
     u8 *work;
 
     work = (u8 *)(*(u8 **)(arg0 + 0x38));
@@ -790,11 +798,11 @@ void func_00355190(u8 *arg0, u16 arg1)
             suffix = 0x62;
         }
         if (id == 0) {
-            func_003549d0(work + 0x144);
+            datTextSlotRelease(work + 0x144);
             *(s32 *)(work + 0x144) = 3;
         } else {
             sprintf(sp50, &D_0064B3F0, id, suffix);
-            func_003549d0(work + 0x144);
+            datTextSlotRelease(work + 0x144);
             if ((u8 *)sp50 == NULL) {
                 *(s32 *)(work + 0x144) = 3;
             } else {
@@ -910,7 +918,7 @@ s32 func_00355460(u8 *arg0)
 
     p = *(u8 **)(arg0 + 0x38);
     if ((((s32 *)p)[16] == 0) && (*(u16 *)(p + 8) != 0)) {
-        *(s32 *)(p + 0x40) = func_00354830(p + 0x144);
+        *(s32 *)(p + 0x40) = datTextSlotLoadStep(p + 0x144);
     }
     return 0;
 }
@@ -1493,7 +1501,7 @@ void func_00356250(u8 *arg0)
     }
     func_00359400(arg0, 0);
     func_002bc010(0xB, (u8 *)cmmAuxTable());
-    *(u8 **)(arg0 + 0x1308) = func_00354a50(0, 1);
+    *(u8 **)(arg0 + 0x1308) = datScreenWipeTaskCreate(0, 1);
     *(u8 **)(arg0 + 0x130C) = func_0035adc0(0, 0, 0);
     *(u8 **)(arg0 + 0x1310) = func_0035bf10(0, 0, 0);
 }
@@ -1730,7 +1738,7 @@ void func_00356a10(u8 *work) {
     extern void func_0045d6e0(u8 *, f32 *, f32, s32);
     extern void func_003599c0(s32, u8 *);
     extern void func_00355410(u8 *, u8);
-    extern void func_00354ba0(u8 *);
+    extern void datScreenWipeDraw(u8 *);
     extern void sdkSpriteDrawAt(void *, f32, f32, u8, u8, u8, u8);
     extern void sdkSpriteDrawSized(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
     extern f32 sdkSpriteScaledWidth(u8 *);
@@ -1939,7 +1947,7 @@ void func_00356a10(u8 *work) {
 
 
         func_00355410(menu->resource1308, (u8)menuOpacityProduct);
-        func_00354ba0(menu->resource1308);
+        datScreenWipeDraw(menu->resource1308);
         position.x = (f32) 0x25F + (originX + menu->scrollOffset.x);
         position.y = (f32) 0x107 + (originY + menu->scrollOffset.y);
         scrollAlpha = (u8)(menu->scrollOpacity);
@@ -2818,7 +2826,7 @@ void func_0035ac60(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     if (arg2 != 0) {
         func_003550d0(arg0, (Float2 *)posA, (Float2 *)posB);
     } else {
-        func_00355070(arg0, posB);
+        datScreenWipeSetTarget(arg0, posB);
     }
     func_003552d0(arg0, pair);
     func_00355300(arg0, value);
@@ -2851,7 +2859,7 @@ s32 func_0035aec0(u8 *arg0)
 
     p = *(u8 **)(arg0 + 0x38);
     if ((((s32 *)p)[11] == 0) && (*(s8 *)(p + 0x20) != 0)) {
-        *(s32 *)(p + 0x2C) = func_00354830(p + 0x30);
+        *(s32 *)(p + 0x2C) = datTextSlotLoadStep(p + 0x30);
     }
     return 0;
 }
@@ -2862,7 +2870,7 @@ void func_0035af10(u8 *arg0)
     u8 *work;
 
     work = *(u8 **)(arg0 + 0x38);
-    func_003549d0(work + 0x30);
+    datTextSlotRelease(work + 0x30);
     (*D_008873EC)(work);
 }
 
@@ -3244,14 +3252,14 @@ void func_0035bc10(u8 *arg0, s8 arg1, s32 arg2)
     }
 minus_one_case:
     sprintf(buf, D_0064CCF0);
-    func_003547c0((s32 *)(base + 0x30), buf);
+    datTextSlotSetString((s32 *)(base + 0x30), buf);
     goto done;
 zero_case:
-    func_003547c0((s32 *)(base + 0x30), NULL);
+    datTextSlotSetString((s32 *)(base + 0x30), NULL);
     goto done;
 other_case:
     sprintf(buf, D_0064CD10, (s32)arg1 - 1);
-    func_003547c0((s32 *)(base + 0x30), buf);
+    datTextSlotSetString((s32 *)(base + 0x30), buf);
 done:
     *(s8 *)(base + 0x20) = arg1;
     *(s32 *)(base + 0x28) = arg2;
@@ -3292,7 +3300,7 @@ s32 func_0035be70(u8 *arg0)
 
     p = *(u8 **)(arg0 + 0x38);
     if ((((s32 *)p)[11] == 0) && (*(u16 *)(p + 0x20) != 0)) {
-        *(s32 *)(p + 0x2C) = func_00354830(p + 0x30);
+        *(s32 *)(p + 0x2C) = datTextSlotLoadStep(p + 0x30);
     }
     return 0;
 }
@@ -3303,7 +3311,7 @@ void func_0035bec0(u8 *arg0)
     u8 *work;
 
     work = *(u8 **)(arg0 + 0x38);
-    func_003549d0(work + 0x30);
+    datTextSlotRelease(work + 0x30);
     (*D_008873EC)(work);
 }
 
@@ -3491,7 +3499,7 @@ void func_0035c480(s32 arg0, u16 arg1, s32 arg2)
             goto nonzero_case;
         }
 zero_case:
-        func_003547c0((s32 *)(work + 0x30), NULL);
+        datTextSlotSetString((s32 *)(work + 0x30), NULL);
         goto done;
 nonzero_case:
         if (arg2 & 1) {
@@ -3541,7 +3549,7 @@ nonzero_case:
             break;
         }
         sprintf(sp60, D_0064CD60, id, (s8)suffix, sp168);
-        func_003547c0((s32 *)(work + 0x30), sp60);
+        datTextSlotSetString((s32 *)(work + 0x30), sp60);
         goto done;
 done:
         *(u16 *)(work + 0x20) = arg1;

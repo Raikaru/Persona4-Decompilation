@@ -50,7 +50,7 @@ extern s32 FldStepNotAtBoundaryQuery(void);
 extern void func_0013aa90(u8 *arg0);
 extern void *memset(void *arg0, s32 arg1, u32 arg2);
 extern s16 datBuildMemberIdList(s16 *arg0);
-extern u8 *func_00354a50(s32 arg0, u16 arg1);
+extern u8 *datScreenWipeTaskCreate(s32 arg0, u16 arg1);
 extern u8 *resourceFindByName(char *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 extern void kAssertFail(void *arg0, s32 arg1);
@@ -332,7 +332,7 @@ void func_0013fb50(u8 *arg0) {
             k++;
         }
     }
-    *(u8 **)(arg0 + 0x3C) = func_00354a50(0, 1);
+    *(u8 **)(arg0 + 0x3C) = datScreenWipeTaskCreate(0, 1);
     radarSetMode(arg0, 0);
 }
 

@@ -511,7 +511,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
     extern void btlLogoDrawTitle(u8 *work, u32 alpha);
     extern void func_0034f1e0(void);
     extern void func_0034c270(Vec2fLocal arg0, s32 arg1, s32 arg2, f32 arg3);
-    extern void func_00354ba0(u8 *arg0);
+    extern void datScreenWipeDraw(u8 *arg0);
     extern s32 func_00355430(u8 *arg0);
     extern void func_00355310(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
     extern void func_003553b0(u8 *arg0, f32 *arg1);
@@ -551,7 +551,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
         origin.draw.y = 0.0f;
         func_0034c270(origin.draw, alpha, 0x16, 0.0f);
         btlLogoDrawTitle(work, alpha);
-        func_00354ba0(*(u8 **)(work + 0x4C));
+        datScreenWipeDraw(*(u8 **)(work + 0x4C));
         origin.draw.x = 0.0f;
         origin.draw.y = 0.0f;
         texture = func_00355430(*(u8 **)(work + 0x4C));
