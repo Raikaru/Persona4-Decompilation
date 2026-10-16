@@ -2121,15 +2121,15 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         } else if (D_008C024E[0] & 0x10) {
             temp_17 = (s16)(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
             if (temp_17 == func_00105330(1)) {
-                func_002bad10(2);
+                nmMesWindowShowCurrentRecord(2);
                 func_001371a0(arg2, 0xC);
                 *arg0 = 0xF;
                 sdkSndStartStream(0, 0, 0, 8);
             } else {
-                func_002bad10(1);
-                func_002baf40(0);
-                func_002bb050(1);
-                func_002bbf60();
+                nmMesWindowShowCurrentRecord(1);
+                nmMesWindowSetCurrentParam(0);
+                nmMesWindowSetCurrentFlag(1);
+                nmMesWindowRequestRefresh();
                 func_001371a0(arg2, 0xB);
                 *arg0 = 0xE;
                 sdkSndStartStream(0, 0, 0, 1);
@@ -2163,10 +2163,10 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 radarSetPersonaHighlight(arg2, 1);
             } else if (D_008C024E[0] & 0x40) {
                 func_001371a0(arg2, 0xA);
-                func_002bad10(3);
-                func_002baf40(0);
-                func_002bb050(0);
-                func_002bbf60();
+                nmMesWindowShowCurrentRecord(3);
+                nmMesWindowSetCurrentParam(0);
+                nmMesWindowSetCurrentFlag(0);
+                nmMesWindowRequestRefresh();
                 *arg0 = 0xD;
                 sdkSndStartStream(0, 0, 0, 1);
             } else if (D_008C024E[0] & 0x80) {
@@ -2190,10 +2190,10 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         } else if (D_008C024E[0] & 0x40) {
             func_001371a0(arg2, 0xA);
             shdPersonaEndSelection(*(u8 **)(arg2 + 0x1CB4), 0);
-            func_002bad10(3);
-            func_002baf40(0);
-            func_002bb050(0);
-            func_002bbf60();
+            nmMesWindowShowCurrentRecord(3);
+            nmMesWindowSetCurrentParam(0);
+            nmMesWindowSetCurrentFlag(0);
+            nmMesWindowRequestRefresh();
             *arg0 = 0xD;
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
@@ -2247,7 +2247,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 13:
         if ((func_00137dd0(arg2) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
-            temp_2 = func_002bb140();
+            temp_2 = nmMesWindowCurrentAnimFlag();
             switch (temp_2) {
             case 0:
                 datPersonaSetLeadSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
@@ -2264,7 +2264,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 14:
         if ((func_00137dd0(arg2) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
-            temp_2_2 = func_002bb140();
+            temp_2_2 = nmMesWindowCurrentAnimFlag();
             switch (temp_2_2) {
             case 0:
                 datPersonaRemoveRosterSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));

@@ -17,7 +17,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 }
 extern void (*jtbl_008873EC[])(void *);
 extern void func_002baa50(void);
-extern void func_002baa90(s32 *arg0);
+extern void nmMesWindowInitRecord(s32 *arg0);
 extern void func_002bb7c0(s32 arg0);
 extern void func_002bd440(void);
 
@@ -46,10 +46,10 @@ extern s8 iGpffffb580;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
-extern s8 func_002bacb0(void);
+extern s8 nmMesWindowFindFreeSlot(void);
 extern s32 iGpffffb57c;
-extern s32 *func_002bbf70();
-extern s32 func_002bb0e0(void);
+extern s32 *nmMesWindowCurrent();
+extern s32 nmMesWindowCurrentAnim(void);
 extern void itfMesWindowDrawEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern s32 itfMesWindowQueueEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6);
 extern u32 datEntryGetFlags(s16 item);
@@ -65,8 +65,8 @@ extern s32 itfMesWindowGetAnim(s32 arg0);
 extern void itfMesWindowLayout(s32 arg0, s32 arg1);
 extern void itfMesWindowSetCursor(s32 arg0, s32 arg1);
 extern u32 itfMesWindowSetParam(s32 arg0, s32 arg1, s32 arg2);
-extern void func_002bbdd0(s32 arg0);
-extern void func_002bbe90(s64 arg0, s32 arg1);
+extern void nmMesWindowSetCurrentRunning(s32 arg0);
+extern void nmMesWindowSetSlotRunning(s64 arg0, s32 arg1);
 extern u32 func_002e7a60(void);
 extern u8 *func_002e2170(u8 *arg0, s32 arg1, s32 arg2);
 extern void sprintf();

@@ -216,12 +216,12 @@ void sdkSpriteFreeNode(void *);
 void sdkSpriteRelease(void *);
 void H_Cdvd_Destroy(void *);
 void yListDestroy(void);
-s64 func_002bab80(void *);
+s64 nmMesWindowAcquire(void *);
 void func_002bbd80(s8, s32, void *);
-s32 func_002badc0(s8, s32);
-void func_002bafc0(s32, s32);
-void func_002bb0a0(s32, s32);
-void func_002bbf60(void);
+s32 nmMesWindowShowSlotRecord(s8, s32);
+void nmMesWindowSetSlotParam(s32, s32);
+void nmMesWindowSetSlotFlag(s32, s32);
+void nmMesWindowRequestRefresh(void);
 
 s32 fclShopPlaySound(void *, s32, void *, s8);
 s32 fclShopPlaySoundParams(void *, s32, void *, void *, s8);
@@ -345,7 +345,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern void func_00106d40(s16, s16, s16);
     extern s64 calGetDayEntryForMonthDay(s32, s32);
     extern s32 func_002b32a0(s32, s32, s32, s32);
-    extern s32 func_002bae80(s64, s32);
+    extern s32 nmMesWindowShowSlotRecordStyle1(s64, s32);
     extern s32 func_002bb1c0(s8);
     extern void func_002bb550(s8);
     extern s32 func_002bb680(s8);
@@ -973,8 +973,8 @@ s32 fclShopStateUpdate(u8 *arg0)
         break;
     case 0xD:                                       /* switch 1 */
         if ((yListCountFor((*(void * *)(work + 0xF18))) > D_00748908[0]) && (datGetFlag(0x1324) == 0)) {
-            (*(s8 *)(work + 0x10)) = func_002bab80((*(void * *)((u8 *)((*(void * *)(work + 0xF2C))) + 0x110)));
-            func_002bae80((*(s8 *)(work + 0x10)), 0xB);
+            (*(s8 *)(work + 0x10)) = nmMesWindowAcquire((*(void * *)((u8 *)((*(void * *)(work + 0xF2C))) + 0x110)));
+            nmMesWindowShowSlotRecordStyle1((*(s8 *)(work + 0x10)), 0xB);
             (*(s8 *)(work + 0)) = 0xC;
             return 0;
         }
@@ -7099,16 +7099,16 @@ s32 fclShopPlaySound(void *arg0, s32 arg1, void *arg2, s8 arg3) {
     void *t;
 
     t = *(void **)((u8 *)*(void **)((u8 *)arg0 + 0x38) + 0xF2C);
-    handle = (s8)func_002bab80(*(void **)((u8 *)t + 0x110));
+    handle = (s8)nmMesWindowAcquire(*(void **)((u8 *)t + 0x110));
     v = handle;
     if (arg2 != 0) {
         func_002bbd80(handle, 0, arg2);
     }
-    func_002badc0(handle, (s16)arg1);
+    nmMesWindowShowSlotRecord(handle, (s16)arg1);
     if (arg3 == 1) {
-        func_002bafc0(v, 0);
-        func_002bb0a0(v, 0);
-        func_002bbf60();
+        nmMesWindowSetSlotParam(v, 0);
+        nmMesWindowSetSlotFlag(v, 0);
+        nmMesWindowRequestRefresh();
     }
     return v;
 }
@@ -7121,15 +7121,15 @@ s32 fclShopPlaySoundParams(void *arg0, s32 arg1, void *arg2, void *arg3, s8 arg4
     void *t;
 
     t = *(void **)((u8 *)*(void **)((u8 *)arg0 + 0x38) + 0xF2C);
-    handle = (s8)func_002bab80(*(void **)((u8 *)t + 0x110));
+    handle = (s8)nmMesWindowAcquire(*(void **)((u8 *)t + 0x110));
     v = handle;
     func_002bbd80(handle, 0, arg2);
     func_002bbd80(handle, 1, arg3);
-    func_002badc0(handle, (s16)arg1);
+    nmMesWindowShowSlotRecord(handle, (s16)arg1);
     if (arg4 == 1) {
-        func_002bafc0(v, 0);
-        func_002bb0a0(v, 0);
-        func_002bbf60();
+        nmMesWindowSetSlotParam(v, 0);
+        nmMesWindowSetSlotFlag(v, 0);
+        nmMesWindowRequestRefresh();
     }
     return v;
 }

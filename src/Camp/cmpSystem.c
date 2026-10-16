@@ -16,7 +16,7 @@ extern u8 D_0064DFF0[];
 extern u8 D_0064E240[];
 extern char D_0064E270[];
 
-s8 func_002bab80(void *);
+s8 nmMesWindowAcquire(void *);
 s32 func_003544f0(void);
 void memset(void *, s32, s32);
 void *resourceFindByName(char *);
@@ -112,7 +112,7 @@ void func_0035f5b0(u8 *arg0)
             kAssertFail(D_0064E270, 0x171);
         }
     }
-    *(u8 *)(arg0 + 0x3C) = func_002bab80(&D_0064A790[0]);
+    *(u8 *)(arg0 + 0x3C) = nmMesWindowAcquire(&D_0064A790[0]);
     for (i5 = 0; i5 < 0xB; i5++) {
         p = arg0 + (s32)(s64)i5 * 0xA;
         *(s16 *)(p + 0x5E8) = 1;

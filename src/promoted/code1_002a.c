@@ -54,13 +54,13 @@ extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, 
 extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
-extern u8 func_002baac0(u8 *message);
-extern void func_002bad10(s32 arg0);
-extern void func_002baf40(s32 arg0);
-extern void func_002bb050(s32 arg0);
-extern s32 func_002bb0e0(void);
+extern u8 nmMesWindowOpenCurrent(u8 *message);
+extern void nmMesWindowShowCurrentRecord(s32 arg0);
+extern void nmMesWindowSetCurrentParam(s32 arg0);
+extern void nmMesWindowSetCurrentFlag(s32 arg0);
+extern s32 nmMesWindowCurrentAnim(void);
 extern void func_002bb4e0(void);
-extern s32 func_002bb600(void);
+extern s32 nmMesWindowCurrentOpenState(void);
 typedef struct P4_002aabf0_Work {
     f32 values[4];
     s32 pad80;
@@ -68,7 +68,7 @@ typedef struct P4_002aabf0_Work {
     s32 sp88;
     u8 colors[4];
 } P4_002aabf0_Work;
-extern s32 func_002bb700(void);
+extern s32 nmMesWindowLatchAnimAux(void);
 extern void func_002bbcc0(void);
 extern s32 iGpffffb52c;
 extern u8 D_0063E630[];

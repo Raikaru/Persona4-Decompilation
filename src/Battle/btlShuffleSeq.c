@@ -54,19 +54,19 @@ extern void func_0038d020(s32 a);
 extern void func_002bd7b0(s32 a);
 extern void func_002bd840(s32 a);
 extern void func_002bb7c0(s32 a);
-extern s32 func_002bb600(void);
-extern void func_002bb1e0(s32 a);
+extern s32 nmMesWindowCurrentOpenState(void);
+extern void nmMesWindowCloseCurrent(s32 a);
 extern void func_002bb4e0(void);
-extern s32 func_002bb140(void);
+extern s32 nmMesWindowCurrentAnimFlag(void);
 extern void memset(void *dst, s32 c, s32 n);
-extern u8 func_002baac0(u8 *message);
-extern void func_002baf40(s32 a);
-extern void func_002bb050(s32 a);
-extern void func_002bbf60(void);
-extern void func_002bad10(s32 a);
+extern u8 nmMesWindowOpenCurrent(u8 *message);
+extern void nmMesWindowSetCurrentParam(s32 a);
+extern void nmMesWindowSetCurrentFlag(s32 a);
+extern void nmMesWindowRequestRefresh(void);
+extern void nmMesWindowShowCurrentRecord(s32 a);
 extern void strcpy(char *dst, s32 value);
 extern char *datCalcGetSlotRecord(s32 a);
-extern void func_002bbd20(s32 a, void *b);
+extern void nmMesWindowSetCurrentString(s32 a, void *b);
 extern void func_00389200(s32 a, s32 b, s32 c, s32 d);
 extern s32 func_00389280(s32 a);
 extern s32 func_003891e0(s32 a);
@@ -486,21 +486,21 @@ s32 btlShuffleSeqLoadRecord(u8 *arg0) {
     if (*(s32 *)(base + 0x24) > 0) {
         if (datGetFlag(0x142A) != 0) {
             strcpy(sp30, D_00763AD0);
-            func_002baac0((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
+            nmMesWindowOpenCurrent((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
             text = datCalcGetSlotRecord(0x14);
-            func_002bbd20(0, text);
-            func_002bbd20(1, sp30);
-            func_002bad10(0xF);
+            nmMesWindowSetCurrentString(0, text);
+            nmMesWindowSetCurrentString(1, sp30);
+            nmMesWindowShowCurrentRecord(0xF);
             *(s32 *)base = 0;
             return 1;
         }
         if (datGetFlag(0x142B) != 0) {
             strcpy(sp30, D_00763AD4);
-            func_002baac0((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
+            nmMesWindowOpenCurrent((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
             text = datCalcGetSlotRecord(0x14);
-            func_002bbd20(0, text);
-            func_002bbd20(1, sp30);
-            func_002bad10(0xF);
+            nmMesWindowSetCurrentString(0, text);
+            nmMesWindowSetCurrentString(1, sp30);
+            nmMesWindowShowCurrentRecord(0xF);
             *(s32 *)base = 3;
             return 1;
         }
@@ -540,7 +540,7 @@ s32 btlShuffleSeqStep(u8 *arg0) {
     switch (*seq) {
     case 0:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
+        if (nmMesWindowCurrentOpenState() == 0) {
             func_00389200(*(s32 *)(arg0 + 0x1F294), 0xFF, 0xFF, 0xFF);
             *seq = 1;
             func_002bb4e0();
@@ -597,7 +597,7 @@ s32 btlShuffleSeqStep(u8 *arg0) {
 
     case 3:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
+        if (nmMesWindowCurrentOpenState() == 0) {
             func_00389200(*(s32 *)(arg0 + 0x1F294), 0xFF, 0, 0);
             *seq = 4;
             func_002bb4e0();
@@ -659,8 +659,8 @@ s32 btlShuffleSeqFlag(u8 *arg0) {
         /* fallthrough */
     case 1:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             *(s32 *)base = 2;
             func_002bb4e0();
         }
@@ -676,11 +676,11 @@ s32 btlShuffleSeqFlag(u8 *arg0) {
 // FUN_003799D0
 void btlShuffleSeqReset(u8 *arg0) {
     memset(arg0 + 0x1F244, 0, 8);
-    func_002baac0((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
-    func_002baf40(0x14);
-    func_002bb050(0);
-    func_002bbf60();
-    func_002bad10(0x13);
+    nmMesWindowOpenCurrent((u8 *)(*(s32 *)(arg0 + 0x1F2DC)));
+    nmMesWindowSetCurrentParam(0x14);
+    nmMesWindowSetCurrentFlag(0);
+    nmMesWindowRequestRefresh();
+    nmMesWindowShowCurrentRecord(0x13);
     sdkSndStartStream(0, 4, 0, 2);
 }
 
@@ -694,8 +694,8 @@ s32 btlShuffleSeqStateCheck(u8 *arg0) {
         /* fallthrough */
     case 1:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            s32 r = func_002bb140();
+        if (nmMesWindowCurrentOpenState() == 0) {
+            s32 r = nmMesWindowCurrentAnimFlag();
             switch (r) {
             case 0:
                 *(s32 *)(base + 4) = 1;
@@ -707,7 +707,7 @@ s32 btlShuffleSeqStateCheck(u8 *arg0) {
                 kAssertFail(D_0064EAA0, 0x22F);
                 break;
             }
-            func_002bb1e0(1);
+            nmMesWindowCloseCurrent(1);
             *(s32 *)base = 2;
             func_002bb4e0();
         }

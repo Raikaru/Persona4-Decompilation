@@ -76,8 +76,8 @@ struct BtlResultWork
 
 s32 btlResultSimpleLoadAssets(BtlResultWork *work);
 void btlResultSimpleCreateSprites(BtlResultWork *work);
-extern u8 func_002baac0(u8 *message);
-void func_002bad10(s32 param);
+extern u8 nmMesWindowOpenCurrent(u8 *message);
+void nmMesWindowShowCurrentRecord(s32 param);
 void func_002bb4e0(void);
 s32 datMemberNoticeTryBegin(s32 param);
 extern s32 btlResultSimpleUpdate(u8 *arg0);
@@ -385,8 +385,8 @@ s32 btlResultSimpleStepPhase(u8 *arg0) {
     case 2:
         if ((D_008C024E[0] & 0x40) || (D_008C024C[0] & 0x10)) {
             if (*(s16 *)(sub + 0x6F8) > 0) {
-                func_002baac0((u8 *)((s32)func_00455ea0(*(u8 **)(sub + 0x934), 0, 0)));
-                func_002bad10(0x17);
+                nmMesWindowOpenCurrent((u8 *)((s32)func_00455ea0(*(u8 **)(sub + 0x934), 0, 0)));
+                nmMesWindowShowCurrentRecord(0x17);
                 *(u32 *)(work + 0x38) = 3;
             } else {
                 *(u32 *)(work + 0x38) = 5;
@@ -450,12 +450,12 @@ s32 btlResultSimpleUpdate(u8 *arg0) {
             v = *(s32 *)(work->field570 + 0x60);
             if (v & 2) {
                 work->state = 4;
-                func_002baac0((u8 *)((s32)func_00455ea0(*(u8 **)(work->field570 + 0x934), 0, 0)));
-                func_002bad10(2);
+                nmMesWindowOpenCurrent((u8 *)((s32)func_00455ea0(*(u8 **)(work->field570 + 0x934), 0, 0)));
+                nmMesWindowShowCurrentRecord(2);
             } else if (v & 8) {
                 work->state = 4;
-                func_002baac0((u8 *)((s32)func_00455ea0(*(u8 **)(work->field570 + 0x934), 0, 0)));
-                func_002bad10(1);
+                nmMesWindowOpenCurrent((u8 *)((s32)func_00455ea0(*(u8 **)(work->field570 + 0x934), 0, 0)));
+                nmMesWindowShowCurrentRecord(1);
             } else if (v & 0x10) {
                 work->flags &= 0xFFFE;
                 work->state = 7;

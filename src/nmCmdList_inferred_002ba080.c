@@ -17,7 +17,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
     return right * left;
 }
 extern void func_002baa50(void);
-extern void func_002baa90(s32 *arg0);
+extern void nmMesWindowInitRecord(s32 *arg0);
 
 
 
@@ -406,7 +406,7 @@ void func_002ba970(u8 *arg0, s16 arg1, FclDrawColor color)
 // FUN_002BAA20
 void func_002baa20(void)
 {
-    func_002baa90(D_00882F60);
+    nmMesWindowInitRecord(D_00882F60);
     func_002baa50();
 }
 

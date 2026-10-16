@@ -175,7 +175,7 @@ u8 *cmmDetailRecord(s16 arg0) {
     return (u8 *)(cmmMiscAddOff(mul, base) + 8);
 }
 #pragma opt_propagation on
-// Aux table: returns the chunk 9 table header (D_008814A4) with no record stride. Callers pass it to func_002bc010.
+// Aux table: returns the chunk 9 table header (D_008814A4) with no record stride. Callers pass it as the message to nmMesWindowInstallHandle.
 // FUN_00246970
 s32 cmmAuxTable(void) {
     return D_008814A4[0];

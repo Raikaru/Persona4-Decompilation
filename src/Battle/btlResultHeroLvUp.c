@@ -33,10 +33,10 @@ extern u32 datCalcRandomBelow(u32 max);
 void kAssertFail(const char* file, s32 line);
 extern char D_00629660[];
 s32 btlLogoUnlockStage(u8* work);
-extern u8 func_002baac0(u8 *message);
-void func_002bad10(s32 param);
+extern u8 nmMesWindowOpenCurrent(u8 *message);
+void nmMesWindowShowCurrentRecord(s32 param);
 void func_002bb4e0(void);
-void func_002bbd20(s32 param, void* text);
+void nmMesWindowSetCurrentString(s32 param, void* text);
 s32 datMemberNoticeTryBegin(s32 param);
 void sprintf(void* dst, void* fmt, s32 value);
 u8* func_00455ea0(u8* param, s32 a, s32* b);
@@ -148,17 +148,17 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
     case 0:
         if ((work->flags & 8) || (D_008C024E[0] & 0x50) ||
             ((D_008C024C[0] & 0x10) && ((work->count = work_p->count + 1) > 4))) {
-            func_002baac0((u8 *)((s32)func_00455ea0(*(u8**)(work_p->field3C + 0x934), 0, 0)));
+            nmMesWindowOpenCurrent((u8 *)((s32)func_00455ea0(*(u8**)(work_p->field3C + 0x934), 0, 0)));
             sprintf(sp30, &iGpffffa5C8, datCalcGetLevelById(1) & 0xFF);
-            func_002bbd20(0, sp30);
-            func_002bad10(3);
+            nmMesWindowSetCurrentString(0, sp30);
+            nmMesWindowShowCurrentRecord(3);
             work->state40 = 1;
         }
         break;
     case 1:
         if (datMemberNoticeTryBegin(1) == 0) {
             if (btlLogoUnlockStage((u8*)work_p) != 0) {
-                func_002bad10(4);
+                nmMesWindowShowCurrentRecord(4);
                 work_p->state40 = 2;
             } else {
                 work->state40 = 4;
@@ -169,8 +169,8 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
         if (datMemberNoticeTryBegin(1) == 0) {
             sdkSndStartStream(1, 0, 3, 0);
             sprintf(sp20, &iGpffffa5C8, work->field44);
-            func_002bbd20(0, sp20);
-            func_002bad10(5);
+            nmMesWindowSetCurrentString(0, sp20);
+            nmMesWindowShowCurrentRecord(5);
             work->state40 = 3;
         }
         break;
@@ -234,8 +234,8 @@ s32 btlResultHeroLvUpRun(u8* arg0)
 
             if (f & 8) {
                 work->state = 3;
-                func_002baac0((u8 *)((s32)func_00455ea0(*(u8**)(work->field3C + 0x934), 0, 0)));
-                func_002bad10(1);
+                nmMesWindowOpenCurrent((u8 *)((s32)func_00455ea0(*(u8**)(work->field3C + 0x934), 0, 0)));
+                nmMesWindowShowCurrentRecord(1);
             } else if (f & 0x10) {
                 work->flags &= 0xFFFE;
                 work->state = 6;

@@ -36,10 +36,10 @@ extern s8 iGpffffb580;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
-extern s8 func_002bacb0(void);
+extern s8 nmMesWindowFindFreeSlot(void);
 extern s32 iGpffffb57c;
-extern s32 *func_002bbf70();
-extern s32 func_002bb0e0(void);
+extern s32 *nmMesWindowCurrent();
+extern s32 nmMesWindowCurrentAnim(void);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
@@ -112,7 +112,7 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 /* Preserve the RGBA snapshot and later alpha reload across byte stores.
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
 // FUN_002BAB80
-s64 func_002bab80(void *arg0)
+s64 nmMesWindowAcquire(void *arg0)
 {
     s32 **temp_18;
     s32 *temp_2;
@@ -120,10 +120,10 @@ s64 func_002bab80(void *arg0)
     s32 temp_4;
     s64 var_2;
     extern s32 itfMesWindowInstall(s32 arg0);
-    extern s32 func_002bbf80(s32 *arg0, s32 arg1);
+    extern s32 nmMesWindowApplyStyle(s32 *arg0, s32 arg1);
     extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 
-    temp_16 = func_002bacb0();
+    temp_16 = nmMesWindowFindFreeSlot();
     if (temp_16 == -1) {
         return -1;
     }
@@ -148,7 +148,7 @@ s64 func_002bab80(void *arg0)
         if (**temp_5 < 0) {
             temp_18 = (s32 **)&D_00882F40[(s8)temp_4];
             **temp_18 = itfMesWindowInstall((s32)arg0);
-            func_002bbf80(*temp_18, 0);
+            nmMesWindowApplyStyle(*temp_18, 0);
             var_2 = temp_16;
         }
     }
@@ -156,7 +156,7 @@ s64 func_002bab80(void *arg0)
 }
 
 // FUN_002BACB0
-s8 func_002bacb0(void) {
+s8 nmMesWindowFindFreeSlot(void) {
     s32 i = 0;
     u8 **t = D_00882F40;
 
@@ -170,12 +170,12 @@ s8 func_002bacb0(void) {
 }
 
 // FUN_002BAD10
-s32 func_002bad10(s32 arg0)
+s32 nmMesWindowShowCurrentRecord(s32 arg0)
 {
     s32 *temp_2;
     s32 temp_4;
 
-    temp_2 = func_002bbf70();
+    temp_2 = nmMesWindowCurrent();
     if (temp_2 == NULL) {
         return 0;
     }
@@ -192,7 +192,7 @@ s32 func_002bad10(s32 arg0)
 }
 
 // FUN_002BADC0
-s32 func_002badc0(s8 arg0, s32 arg1)
+s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1)
 {
     s32 temp_4;
     u8 **temp_17;
@@ -211,7 +211,7 @@ s32 func_002badc0(s8 arg0, s32 arg1)
 }
 
 // FUN_002BAE80
-s32 func_002bae80(s64 arg0, s32 arg1)
+s32 nmMesWindowShowSlotRecordStyle1(s64 arg0, s32 arg1)
 {
     s32 temp_4;
     u8 **temp_17;
@@ -230,10 +230,10 @@ s32 func_002bae80(s64 arg0, s32 arg1)
 }
 
 // FUN_002BAF40
-s32 func_002baf40(s32 arg0) {
+s32 nmMesWindowSetCurrentParam(s32 arg0) {
     s32 *p;
 
-    p = func_002bbf70();
+    p = nmMesWindowCurrent();
     if (p == NULL) {
         return 0;
     }
@@ -241,13 +241,13 @@ s32 func_002baf40(s32 arg0) {
         return 0;
     }
     p[2] = arg0;
-    *((s8 *)p + 0xD) = func_002bb0e0();
+    *((s8 *)p + 0xD) = nmMesWindowCurrentAnim();
     iGpffffb578 = 0;
     return 1;
 }
 
 // FUN_002BAFC0
-s32 func_002bafc0(s64 arg0, s32 arg1)
+s32 nmMesWindowSetSlotParam(s64 arg0, s32 arg1)
 {
     u8 **temp_16;
     u8 *temp_3;
@@ -261,7 +261,7 @@ s32 func_002bafc0(s64 arg0, s32 arg1)
         return 0;
     }
     *(s32 *)(temp_3 + 8) = arg1;
-    *(s8 *)(*temp_16 + 0xD) = func_002bb0e0();
+    *(s8 *)(*temp_16 + 0xD) = nmMesWindowCurrentAnim();
     iGpffffb578 = 0;
     return 1;
 }

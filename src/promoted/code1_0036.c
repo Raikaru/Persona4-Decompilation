@@ -103,12 +103,12 @@ extern void datCommunityCursorFeedback(s32 arg0);
 extern s32 func_0035c690(void *arg0, s32 arg1);
 extern s32 func_0035c7d0(u8 *arg0);
 extern s32 func_0035c7f0(u8 *arg0);
-extern s32 func_002badc0(s8 arg0, s32 arg1);
-extern void func_002bafc0(s8 arg0, s32 arg1);
-extern void func_002bb0a0(s8 arg0, s32 arg1);
-extern void func_002bbf60(void);
+extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
+extern void nmMesWindowSetSlotParam(s8 arg0, s32 arg1);
+extern void nmMesWindowSetSlotFlag(s8 arg0, s32 arg1);
+extern void nmMesWindowRequestRefresh(void);
 extern s32 func_002bb180(s8 arg0);
-extern void func_002bb290(s8 arg0, s32 arg1);
+extern void nmMesWindowCloseSlot(s8 arg0, s32 arg1);
 extern s32 func_002bb680(s8 arg0);
 extern void func_002bb9e0(s32 arg0, s32 arg1);
 extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -531,10 +531,10 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
                 func_0034bb20(0x1E);
                 break;
             case 2:
-                func_002badc0(*(s8 *)(arg2 + 0x3C), 4);
-                func_002bafc0(*(s8 *)(arg2 + 0x3C), 0);
-                func_002bbf60();
-                func_002bb0a0(*(s8 *)(arg2 + 0x3C), 1);
+                nmMesWindowShowSlotRecord(*(s8 *)(arg2 + 0x3C), 4);
+                nmMesWindowSetSlotParam(*(s8 *)(arg2 + 0x3C), 0);
+                nmMesWindowRequestRefresh();
+                nmMesWindowSetSlotFlag(*(s8 *)(arg2 + 0x3C), 1);
                 *arg0 = 0xA;
                 break;
             }
@@ -623,7 +623,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
                 *arg0 = 4;
                 break;
             }
-            func_002bb290((s8)*(s8 *)(arg2 + 0x3C), 1);
+            nmMesWindowCloseSlot((s8)*(s8 *)(arg2 + 0x3C), 1);
         }
         goto block_64;
     case 11:

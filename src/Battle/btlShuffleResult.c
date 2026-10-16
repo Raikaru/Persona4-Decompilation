@@ -9,9 +9,9 @@ s32 btlShuffleResultMain(u8 *arg0);
 extern s32 func_002bb4e0(void);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_002bb7c0(s32 a);
-extern s32 func_002bb600(void);
-extern u32 func_002bb1e0(int param_1);
-extern s32 func_002bad10(s32 arg0);
+extern s32 nmMesWindowCurrentOpenState(void);
+extern u32 nmMesWindowCloseCurrent(int param_1);
+extern s32 nmMesWindowShowCurrentRecord(s32 arg0);
 extern void *memset(void *dst, s32 value, size_t size);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void kAssertFail(void *file, s32 line);
@@ -50,11 +50,11 @@ extern s32 datPersonaRosterCapacity(void);
 extern u16 datPersonaLeadPersonaId(void);
 extern u8 *shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern u8 *datPersonaGetRow(u16 id);
-extern void func_002bbd20(s32 a, void *text);
-extern s32 func_002baf40(s32 arg0);
-extern void func_002bb050(u8 param_1);
-extern void func_002bbf60(void);
-extern s32 func_002bb140(void);
+extern void nmMesWindowSetCurrentString(s32 a, void *text);
+extern s32 nmMesWindowSetCurrentParam(s32 arg0);
+extern void nmMesWindowSetCurrentFlag(u8 param_1);
+extern void nmMesWindowRequestRefresh(void);
+extern s32 nmMesWindowCurrentAnimFlag(void);
 extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
 extern void shdPersonaStartSlideIn(u8 *arg0);
 extern void shdPersonaBeginClose(u8 *arg0);
@@ -80,7 +80,7 @@ extern u16 D_008C024E[];
 extern s32 datGetFlag(s32 a);
 extern s32 cmmCommunityValueForArcana(s32 a);
 extern s32 FldStepBandFlagSet(void);
-extern u8 func_002baac0(u8 *message);
+extern u8 nmMesWindowOpenCurrent(u8 *message);
 extern void *func_0036e910(void *a);
 extern s32 btlShuffleDrawSpawn(u8 *parent, s32 cardIndex);
 extern void func_0038d2a0(u8 *a);
@@ -167,8 +167,8 @@ s32 btlShuffleResultOpen(u8 *arg0)
         /* fallthrough */
     case 1:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             *(s32 *)state = 2;
             {
                 s32 v;
@@ -186,11 +186,11 @@ s32 btlShuffleResultOpen(u8 *arg0)
             if (D_008C024E[0] & 0x40) {
                 u8 *txt;
                 txt = datPersonaGetRow(*(u16 *)(((u8 **)(state + 0x4C))[sum] + 2));
-                func_002bbd20(0, txt);
-                func_002bad10(4);
-                func_002baf40(5);
-                func_002bb050(1);
-                func_002bbf60();
+                nmMesWindowSetCurrentString(0, txt);
+                nmMesWindowShowCurrentRecord(4);
+                nmMesWindowSetCurrentParam(5);
+                nmMesWindowSetCurrentFlag(1);
+                nmMesWindowRequestRefresh();
                 *(s32 *)state = 5;
                 sdkSndStartStream(0, 4, 0, 1);
                 sdkSndStartStream(0, 4, 0, 1);
@@ -220,11 +220,11 @@ s32 btlShuffleResultOpen(u8 *arg0)
             {
                 u8 *txt;
                 txt = datPersonaGetRow(*(u16 *)(((u8 **)(state + 0x4C))[*(s32 *)(state + 4) + *(s32 *)(state + 8)] + 2));
-                func_002bbd20(0, txt);
-                func_002bad10(4);
-                func_002baf40(5);
-                func_002bb050(1);
-                func_002bbf60();
+                nmMesWindowSetCurrentString(0, txt);
+                nmMesWindowShowCurrentRecord(4);
+                nmMesWindowSetCurrentParam(5);
+                nmMesWindowSetCurrentFlag(1);
+                nmMesWindowRequestRefresh();
                 *(s32 *)state = 5;
                 sdkSndStartStream(0, 4, 0, 1);
             }
@@ -271,11 +271,11 @@ s32 btlShuffleResultOpen(u8 *arg0)
             {
                 u8 *txt;
                 txt = datPersonaGetRow(*(u16 *)(((u8 **)(state + 0x4C))[*(s32 *)(state + 4) + *(s32 *)(state + 8)] + 2));
-                func_002bbd20(0, txt);
-                func_002bad10(4);
-                func_002baf40(5);
-                func_002bb050(1);
-                func_002bbf60();
+                nmMesWindowSetCurrentString(0, txt);
+                nmMesWindowShowCurrentRecord(4);
+                nmMesWindowSetCurrentParam(5);
+                nmMesWindowSetCurrentFlag(1);
+                nmMesWindowRequestRefresh();
                 *(s32 *)state = 5;
                 sdkSndStartStream(0, 4, 0, 1);
             }
@@ -311,8 +311,8 @@ s32 btlShuffleResultOpen(u8 *arg0)
         break;
     case 5:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            switch (func_002bb140()) {
+        if (nmMesWindowCurrentOpenState() == 0) {
+            switch (nmMesWindowCurrentAnimFlag()) {
             case 0:
                 shdPersonaFinishPhase((u8 *)(*(s32 *)(state + 0x18)));
                 *(s32 *)(state + 0x18) = 0;
@@ -323,8 +323,8 @@ s32 btlShuffleResultOpen(u8 *arg0)
                     u8 *txt;
                     slot = &((u8 **)(state + 0x4C))[sum];
                     txt = datPersonaGetRow(*(u16 *)(*slot + 2));
-                    func_002bbd20(0, txt);
-                    func_002bad10(6);
+                    nmMesWindowSetCurrentString(0, txt);
+                    nmMesWindowShowCurrentRecord(6);
                     *(s32 *)state = 6;
                     if (sum != 0) {
                         datPersonaRemoveRosterMemberById(*(u16 *)(*slot + 2));
@@ -333,7 +333,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 }
                 break;
             case 1:
-                func_002bb1e0(1);
+                nmMesWindowCloseCurrent(1);
                 *(s32 *)state = 2;
                 break;
             }
@@ -341,8 +341,8 @@ s32 btlShuffleResultOpen(u8 *arg0)
         break;
     case 6:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             return 1;
         }
         break;
@@ -364,25 +364,25 @@ s32 btlShuffleResultInit(u8 *arg0) {
         /* fallthrough */
     case 1:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             if (*(u16 *)(arg0 + 4) & 2) {
                 memset(arg0 + 0x18, 0, 0xC);
                 *(s32 *)(arg0 + 8) = 4;
             } else {
-                func_002bad10(8);
+                nmMesWindowShowCurrentRecord(8);
                 *(s32 *)p = 2;
             }
         }
         break;
     case 2:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             if (*(u16 *)(arg0 + 4) & 1) {
                 memset(p, 0, 0x1C);
                 *(s32 *)(arg0 + 8) = 1;
-                func_002bad10(0xB);
+                nmMesWindowShowCurrentRecord(0xB);
             } else {
                 return 1;
             }
@@ -422,8 +422,8 @@ s32 btlShuffleResultLayout(u8 *arg0)
             }
         }
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             if (*(u16 *)(arg0 + 4) & 2) {
                 memset(arg0 + 0x18, 0, 0xC);
                 *(s32 *)(arg0 + 8) = 4;
@@ -439,15 +439,15 @@ s32 btlShuffleResultLayout(u8 *arg0)
                         btlShuffleCardUpdateState(base + (i * 0xFB0));
                     }
                 }
-                func_002bad10(0xA);
+                nmMesWindowShowCurrentRecord(0xA);
                 *state = 2;
             }
         }
         break;
     case 2:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             btlShuffleResetSlot((u8 *)func_0036e900(*(void **)(*(u8 **)arg0 + 0x1F2A8)));
             return 1;
         }
@@ -525,9 +525,9 @@ static inline void shuffleResultDescribe(u8 *work)
     } else {
         strcpy((char *)text, iGpffffa9E4);
     }
-    func_002bbd20(0, datCalcGetSlotRecord(kind));
-    func_002bbd20(1, text);
-    func_002bad10(0xE);
+    nmMesWindowSetCurrentString(0, datCalcGetSlotRecord(kind));
+    nmMesWindowSetCurrentString(1, text);
+    nmMesWindowShowCurrentRecord(0xE);
 
 }
 
@@ -538,9 +538,9 @@ static inline s32 shuffleResultReverse(u8 *work)
     if (datGetFlag(0x1403) != 0 && datGetFlag(0x140E) != 0 && state->isUpright == 0) {
         state->isUpright = 1;
         strcpy((char *)text, iGpffffa9E0);
-        func_002bbd20(0, datCalcGetSlotRecord(6));
-        func_002bbd20(1, text);
-        func_002bad10(0xF);
+        nmMesWindowSetCurrentString(0, datCalcGetSlotRecord(6));
+        nmMesWindowSetCurrentString(1, text);
+        nmMesWindowShowCurrentRecord(0xF);
         return 1;
     }
     return 0;
@@ -554,9 +554,9 @@ static inline void shuffleResultDescribePacked(s32 packed)
     } else {
         strcpy((char *)text, iGpffffa9E4);
     }
-    func_002bbd20(0, datCalcGetSlotRecord(((packed & 0xFFFF0000) >> 16) & 0xFF));
-    func_002bbd20(1, text);
-    func_002bad10(0x10);
+    nmMesWindowSetCurrentString(0, datCalcGetSlotRecord(((packed & 0xFFFF0000) >> 16) & 0xFF));
+    nmMesWindowSetCurrentString(1, text);
+    nmMesWindowShowCurrentRecord(0x10);
 
 }
 
@@ -571,18 +571,18 @@ static inline s32 shuffleResultPersonaState(u8 *work)
     count = (u16)datPersonaRosterCapacity();
     result = (s32)datPersonaFindRosterRecordById((u16)persona);
     if (result != 0) {
-        func_002bad10(2);
+        nmMesWindowShowCurrentRecord(2);
         result = 6;
     } else {
         if (capacity == count) {
             memset(work + 0x18, 0, 0x7C);
-            func_002bbd20(0, datPersonaGetRow((u16)persona));
-            func_002bad10(3);
+            nmMesWindowSetCurrentString(0, datPersonaGetRow((u16)persona));
+            nmMesWindowShowCurrentRecord(3);
             result = 7;
         } else {
             datPersonaAddRosterMember((u16)persona);
-            func_002bbd20(0, datPersonaGetRow((u16)persona));
-            func_002bad10(1);
+            nmMesWindowSetCurrentString(0, datPersonaGetRow((u16)persona));
+            nmMesWindowShowCurrentRecord(1);
             result = 5;
         }
     }
@@ -611,8 +611,8 @@ s32 btlShuffleResultRun(u8 *arg0)
     switch (view.state->phase) {
     case 0:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             view.state->phase = 1;
         }
         break;
@@ -647,18 +647,18 @@ s32 btlShuffleResultRun(u8 *arg0)
         }
         break;
     case 4:
-        func_002bbd20(0, datCalcGetSlotRecord(*(u8 *)(arg0 + 0x12)));
-        func_002bad10(0xC);
-        func_002baf40(0xD);
-        func_002bb050(0);
-        func_002bbf60();
+        nmMesWindowSetCurrentString(0, datCalcGetSlotRecord(*(u8 *)(arg0 + 0x12)));
+        nmMesWindowShowCurrentRecord(0xC);
+        nmMesWindowSetCurrentParam(0xD);
+        nmMesWindowSetCurrentFlag(0);
+        nmMesWindowRequestRefresh();
         view.state->phase = 5;
         break;
     case 5:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
-            result = func_002bb140();
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
+            result = nmMesWindowCurrentAnimFlag();
             switch (result) {
             case 0:
                 view.state->timer = 0;
@@ -693,7 +693,7 @@ s32 btlShuffleResultRun(u8 *arg0)
             case 1:
                 return 1;
             case 2:
-                func_002bad10((*(u8 *)(arg0 + 0x12) - 1) * 4 + 0x15);
+                nmMesWindowShowCurrentRecord((*(u8 *)(arg0 + 0x12) - 1) * 4 + 0x15);
                 view.state->phase = 6;
                 break;
             }
@@ -701,10 +701,10 @@ s32 btlShuffleResultRun(u8 *arg0)
         break;
     case 6:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
-            func_002bad10(0xC);
-            func_002baf40(0xD);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
+            nmMesWindowShowCurrentRecord(0xC);
+            nmMesWindowSetCurrentParam(0xD);
             view.state->phase = 5;
         }
         break;
@@ -786,15 +786,15 @@ s32 btlShuffleResultRun(u8 *arg0)
                 sdkSndStartStream(1, 3, 2, 2);
             }
             result = (view.state->isUpright != 0 ? 1 : 2) + 0x15;
-            func_002bbd20(0, datCalcGetSlotRecord(view.state->resultCard));
-            func_002bad10(result);
+            nmMesWindowSetCurrentString(0, datCalcGetSlotRecord(view.state->resultCard));
+            nmMesWindowShowCurrentRecord(result);
             view.state->phase = 0xD;
         }
         break;
     case 13:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             override = shuffleResultReverse(arg0);
             view.state->uprightOverride = override;
             if (override != 0) {
@@ -810,8 +810,8 @@ s32 btlShuffleResultRun(u8 *arg0)
         break;
     case 14:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             result = view.state->secondaryResult;
             if (result != 0) {
                 shuffleResultDescribePacked(result);
@@ -823,17 +823,17 @@ s32 btlShuffleResultRun(u8 *arg0)
         break;
     case 15:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             return 1;
         }
         break;
     case 16:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             if (view.state->uprightOverride == 1) {
-                func_002bad10(0x11);
+                nmMesWindowShowCurrentRecord(0x11);
                 view.state->phase = 0x11;
             } else {
                 func_00380980(arg0);
@@ -843,8 +843,8 @@ s32 btlShuffleResultRun(u8 *arg0)
         break;
     case 17:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             return 1;
         }
         break;
@@ -864,7 +864,7 @@ s32 btlShuffleResultRun(u8 *arg0)
         result = btlShuffleSeqFlag(view.context);
         if (result != 0) {
             datSetFlag(0x1434, 1);
-            func_002baac0((u8 *)(*(s32 *)(view.context + 0x1F2DC)));
+            nmMesWindowOpenCurrent((u8 *)(*(s32 *)(view.context + 0x1F2DC)));
             view.state->phase = 4;
         }
         break;
@@ -903,12 +903,12 @@ s32 btlShuffleResultMenu(u8 *arg0) {
         *(s32 *)phaseState = 1;
     case 1:
         if (((*(u16 *)(phaseState + 4) += 1) & 0xFFFF) >= 0xA && func_00388de0(*(u8 **)(work + 0x1F294)) != 0) {
-            func_002bad10(0x12);
+            nmMesWindowShowCurrentRecord(0x12);
             *(s32 *)phaseState = 2;
         case 2:
             func_002bb7c0(1);
-            if (func_002bb600() == 0) {
-                func_002bb1e0(1);
+            if (nmMesWindowCurrentOpenState() == 0) {
+                nmMesWindowCloseCurrent(1);
                 *(s32 *)phaseState = 3;
                 btlShuffleSeqUpdateMode(work, *(s32 *)(work + 0x1F308), 0xA, 1);
                 func_00388e00(*(u8 **)(work + 0x1F294));
@@ -1003,10 +1003,10 @@ s32 btlShuffleResultBonus(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
     *(u8 **)work = unit;
     *(s32 *)(work + 0xC) = arg1;
     *(u16 *)(work + 0x10) = arg2;
-    func_002baac0((u8 *)(*(s32 *)(unit + 0x1F2DC)));
+    nmMesWindowOpenCurrent((u8 *)(*(s32 *)(unit + 0x1F2DC)));
     switch (*(s32 *)(work + 0xC)) {
     case -1:
-        func_002bad10(8);
+        nmMesWindowShowCurrentRecord(8);
         *(s32 *)(work + 8) = 8;
         return 0;
     case 0:
@@ -1016,8 +1016,8 @@ s32 btlShuffleResultBonus(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
             *(s32 *)(unit + 0x1F2A0) = btlShuffleDrawSpawn(*(u8 **)(unit + 0x1F2A8), (u8)(*(u8 *)(work + 0x12) - 1));
         }
         *(u16 *)(work + 6) = 0;
-        func_002bbd20(0, datPersonaGetRow(arg2));
-        func_002bad10(0);
+        nmMesWindowSetCurrentString(0, datPersonaGetRow(arg2));
+        nmMesWindowShowCurrentRecord(0);
         func_0038d2a0(*(u8 **)(unit + 0x1F298));
         *(s32 *)(work + 8) = 0;
         break;
@@ -1029,7 +1029,7 @@ s32 btlShuffleResultBonus(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
         } else if (func_00380bd0(work) != 0) {
             *(u16 *)(work + 4) |= 2;
         }
-        func_002bad10(7);
+        nmMesWindowShowCurrentRecord(7);
         func_0038d2a0(*(u8 **)(unit + 0x1F298));
         *(s32 *)(work + 8) = 2;
         break;
@@ -1038,7 +1038,7 @@ s32 btlShuffleResultBonus(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
             *(u16 *)(work + 4) |= 2;
         }
         *(u16 *)(work + 6) = 0;
-        func_002bad10(9);
+        nmMesWindowShowCurrentRecord(9);
         func_0038d2a0(*(u8 **)(unit + 0x1F298));
         *(s32 *)(work + 8) = 3;
         break;
@@ -1084,8 +1084,8 @@ s32 btlShuffleResultMain(u8 *arg0) {
             }
         }
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             *(s32 *)(arg0 + 8) = func_00380d80(arg0, *(u16 *)(arg0 + 0x10));
         }
         goto block_39;
@@ -1103,8 +1103,8 @@ s32 btlShuffleResultMain(u8 *arg0) {
         goto block_39;
     case 5:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             flag5 = 1;
         } else {
             flag5 = 0;
@@ -1113,7 +1113,7 @@ s32 btlShuffleResultMain(u8 *arg0) {
             if (*(u16 *)(arg0 + 4) & 1) {
                 memset(arg0 + 0x18, 0, 0x1C);
                 *(s32 *)(arg0 + 8) = 1;
-                func_002bad10(0xB);
+                nmMesWindowShowCurrentRecord(0xB);
                 goto block_39;
             }
             return 1;
@@ -1121,8 +1121,8 @@ s32 btlShuffleResultMain(u8 *arg0) {
         goto block_39;
     case 6:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             flag6 = 1;
         } else {
             flag6 = 0;
@@ -1131,7 +1131,7 @@ s32 btlShuffleResultMain(u8 *arg0) {
             if (*(u16 *)(arg0 + 4) & 1) {
                 memset(arg0 + 0x18, 0, 0x1C);
                 *(s32 *)(arg0 + 8) = 1;
-                func_002bad10(0xB);
+                nmMesWindowShowCurrentRecord(0xB);
                 goto block_39;
             }
             return 1;
@@ -1142,7 +1142,7 @@ s32 btlShuffleResultMain(u8 *arg0) {
             if (*(u16 *)(arg0 + 4) & 1) {
                 memset(arg0 + 0x18, 0, 0x1C);
                 *(s32 *)(arg0 + 8) = 1;
-                func_002bad10(0xB);
+                nmMesWindowShowCurrentRecord(0xB);
                 goto block_39;
             }
             return 1;
@@ -1150,8 +1150,8 @@ s32 btlShuffleResultMain(u8 *arg0) {
         goto block_39;
     case 8:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             flag8 = 1;
         } else {
             flag8 = 0;

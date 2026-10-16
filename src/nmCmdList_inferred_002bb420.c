@@ -37,12 +37,12 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
-extern s32 *func_002bbf70();
+extern s32 *nmMesWindowCurrent();
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void itfMesWindowSetState(s32 arg0, s8 arg1);
 extern void itfMesWindowRelease(s32 arg0);
 extern void itfMesWindowClear(s32 arg0, s32 arg1);
-extern void func_002bbe90(s64 arg0, s32 arg1);
+extern void nmMesWindowSetSlotRunning(s64 arg0, s32 arg1);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
@@ -133,7 +133,7 @@ s32 func_002bb420(s64 arg0)
     itfMesWindowSetState(temp_4, 0);
     itfMesWindowRelease(*(s32 *)*temp_17);
     itfMesWindowClear(*(s32 *)*temp_17, 0);
-    func_002bbe90(arg0, 1);
+    nmMesWindowSetSlotRunning(arg0, 1);
     *(s8 *)(*temp_17 + 4) = 0;
     return 1;
 }
@@ -143,7 +143,7 @@ s32 func_002bb4e0(void) {
     s32 *temp_2;
     s32 temp_4;
 
-    temp_2 = (s32 *)(func_002bbf70());
+    temp_2 = (s32 *)(nmMesWindowCurrent());
     if (temp_2 == NULL) {
         return 0;
     }
