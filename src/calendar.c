@@ -18,7 +18,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 
 
-extern s32 func_00120f70(u8 *task);
+extern s32 calendarStepTimeSlot(u8 *task);
 extern void func_00121170(u8 *task);
 extern s32 func_001211a0(u8 *task);
 extern s32 calendarDraw(u8 *task);
@@ -30,7 +30,7 @@ extern u16 D_008C027A[];
 extern void func_00122520(s32 a, s32 b);
 extern void func_00106100(s32 a);
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
-extern void func_00123850(void);
+extern void calendarSyncFromDate(void);
 extern s32 func_00144af0(s32 a);
 extern s32 kwlnTaskGetState(s32 a);
 extern void datSetTimeSlot(s32 a);
@@ -55,7 +55,7 @@ void calendarOpenFlagClear(void)
     chkmemAllocSiteTag(D_005E4FD8, 0x79);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work != NULL) {
-        handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, func_00120f70, func_00121170, (u8 *)(work));
+        handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, calendarStepTimeSlot, func_00121170, (u8 *)(work));
         D_007242B0 = (s32)work;
         (s32)kwlnTaskCreateChild((void *)(handle), (const void *)(D_005E4FF8), 0x101, 0, 0, func_001211a0, 0, (u8 *)(NULL));
     }
@@ -107,7 +107,7 @@ s32 calendarInputUpdate(u8 *arg0)
         }
         if (D_008C0276[0] & 0x800) {
             func_00106100((s16)*(s32 *)(work + 8));
-            func_00123850();
+            calendarSyncFromDate();
             *(s32 *)(work + 0xC) = func_00144af0((s32)arg0);
             *(s32 *)(work + 0) = 4;
         } else if (D_008C027A[0] & 0x1000) {
@@ -254,7 +254,7 @@ void calendarOpenFlagSet(void)
     chkmemAllocSiteTag(D_005E4FD8, 0x79);
     work = D_008873F4[0](1, 0x10, 0x40000);
     if (work != NULL) {
-        handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, func_00120f70, func_00121170, (u8 *)(work));
+        handle = (s32)kwlnTaskCreate((const void *)(D_005E4FE8), 0x100, 0, 0, calendarStepTimeSlot, func_00121170, (u8 *)(work));
         D_007242B0 = (s32)work;
         (s32)kwlnTaskCreateChild((void *)(handle), (const void *)(D_005E4FF8), 0x101, 0, 0, func_001211a0, 0, (u8 *)(NULL));
     }

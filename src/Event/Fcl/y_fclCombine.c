@@ -119,7 +119,7 @@ extern s32 datPersonaFindSkillSlot(u8 *, u16);
 extern s32 datPersonaCountSkills(u8 *);
 extern s32 datPersonaAddSkill(u8 *, u16);
 extern s32 func_002bb680(s32);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern s32 func_00122520(s32, s32);
 extern s16 cmmTopCommunityOfArcana(s32);
 extern s32 fclRollRareChance(s8);
@@ -2158,7 +2158,7 @@ void fclCombineMenuFusion(u8 *arg0) {
         temp_18->f1 = 0x2DU;
         return;
     case 0x33:                                      /* switch 1 */
-        if ((s32)((s32)(func_00122720())) != (s32)((s32)(0))) {
+        if ((s32)((s32)(fadeStatus())) != (s32)((s32)(0))) {
             fclDrawSetStateByte(temp_18->f148, 0xB);
             fclDrawResetScale(temp_18->f148);
             fclCombineDrawStageBanner(arg0, 3, 1);
@@ -3490,7 +3490,7 @@ block_215:
         temp_17->f1 = 0x46U;
         return;
     case 0x4C:                                      /* switch 1 */
-        if ((s32)((s32)(func_00122720())) != (s32)((s32)(0))) {
+        if ((s32)((s32)(fadeStatus())) != (s32)((s32)(0))) {
             fclDrawSetStateByte((u8 *)(temp_17->f148),  0xB);
             fclDrawResetScale((u8 *)(temp_17->f148));
             fclCombineDrawStageBanner(arg0, 4, 1);
@@ -4169,7 +4169,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         p[1] = 0x57;
         break;
     case 0x5D:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             fclDrawSetStateByte(*(u8 **)(p + 0x148), 0xB);
             fclDrawResetScale(*(u8 **)(p + 0x148));
             fclCombineDrawStageBanner(arg0, (s8)(p[0x1A] + 1), 1);
@@ -4650,7 +4650,7 @@ void fclCombineMenuPreview(u8 *arg0) {
         p[1] = 0x69;
         break;
     case 0x6C:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             fclDrawSetStateByte(*(u8 **)(p + 0x148), 0xB);
             fclDrawResetScale(*(u8 **)(p + 0x148));
             fclCombineDrawStageBanner(arg0, 8, 1);
@@ -10095,7 +10095,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
         p[0] = 4;
         /* fallthrough */
     case 4:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             p[0] = 1;
         }
         break;
@@ -10104,7 +10104,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
         p[0] = 6;
         /* fallthrough */
     case 6:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             return -1;
         }
         break;
@@ -10189,7 +10189,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
         }
         break;
     case 12:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             return -1;
         }
         break;

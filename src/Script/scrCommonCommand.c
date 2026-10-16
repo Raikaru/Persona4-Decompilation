@@ -25,7 +25,7 @@ extern float sqrtf(float x);
 extern char* scrGetParamString(s32 paramIdx);
 extern void func_00122640(s32 arg0, s32 arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern s32 func_00102980(void);
 extern s32 scrGetLabelAddr(s32 index);
 extern void scrSetCurrentLabel(s32 addr);
@@ -184,7 +184,7 @@ u32 func_002990e0(void)
 // FUN_00299140
 u32 func_00299140(void)
 {
-    return func_00122720() != 0;
+    return fadeStatus() != 0;
 }
 
 // FUN_00299170

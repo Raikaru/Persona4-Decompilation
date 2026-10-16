@@ -18,7 +18,7 @@ extern void *func_00460990(void);
 extern void func_00460ac0(void *, void *);
 extern void func_00122520(s32, s32);
 extern void func_00122640(s32, s32);
-extern s32 func_00122720(void);
+extern s32 fadeStatus(void);
 extern s32 func_0012b890(u8 *task);
 extern void func_0012b940(u8 *task);
 extern void func_0012b9a0(void);
@@ -133,7 +133,7 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
         }
         break;
     case 6:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             temp_2->state = 7;
         case 7:
             temp_2->state = 8;
@@ -149,10 +149,10 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
         }
         break;
     case 9:
-        if (func_00122720() != 0) {
+        if (fadeStatus() != 0) {
             temp_2->state = 0xA;
         case 10:
-            if (func_00122720() != 0) {
+            if (fadeStatus() != 0) {
                 temp_2->index = 1;
             }
         }
