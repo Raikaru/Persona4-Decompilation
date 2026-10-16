@@ -16,7 +16,7 @@ extern char DAT_0063c8c0[];
 extern int sdkSndPlayCue();
 
 extern int sdkSndFadeOutChannelFrames();
-extern int func_0045a9a0();
+extern int sdkSndResetChannel();
 
 
 /* opt_loop_invariants on: measured nd 124 -> 0, object 292/304 -> 292/304. */
@@ -170,7 +170,7 @@ u64 func_00298190(s16 param_1, int param_2)
         sdkSndFadeOutChannelFrames(param_1, 0, param_2);
     }
     else {
-        func_0045a9a0(param_1, 0, param_2);
+        sdkSndResetChannel(param_1, 0, param_2);
     }
 
     return 0;

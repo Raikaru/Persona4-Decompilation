@@ -3205,7 +3205,7 @@ extern void *memset(void *destination, s32 value, u32 size);
 extern u8 *func_004669d0(u8 *request, s32 *complete, s32 *result);
 extern s32 func_00459760();
 extern s32 func_0045b400();
-extern s32 func_00459a60();
+extern s32 sdkSndFadeMainChannel();
 extern void sdkSndFadeOutChannelFrames();
 extern void func_0025fd70(u8 *arg0, s32 arg1, u8 arg2);
 extern void func_0025fbb0(u8 *dst, u8 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 farg0, f32 farg1);
@@ -3240,8 +3240,8 @@ extern void datSetFlag();
 extern u16 *datPersonaGetRecord(u16 character);
 extern s32 datPersonaAddSkill(u8 *character, u16 skill);
 extern void hsndQueueSound();
-extern void func_00459950();
-extern void func_00459880();
+extern void sdkSndSetMainChannelData();
+extern void sdkSndStopMainChannel();
 extern void sdkSndStopChannel();
 extern void sdkSndFadeOutChannel();
 extern void sdkSndRequestTrack();
@@ -3307,9 +3307,9 @@ s32 func_0025b240(u8 *arg0) {
         }
         if (iGpffffa664 != -1) {
             hsndQueueSound((s16)iGpffffa664, 10);
-            func_00459950(-0x3C);
+            sdkSndSetMainChannelData(-0x3C);
         } else {
-            func_00459880();
+            sdkSndStopMainChannel();
         }
         if (iGpffffa668 != -1) {
             sdkSndRequestTrack(iGpffffa668);
@@ -3357,7 +3357,7 @@ s32 func_0025b240(u8 *arg0) {
     case 5:
         iGpffffa664 = func_00459760();
         iGpffffa668 = func_0045b400();
-        func_00459a60();
+        sdkSndFadeMainChannel();
         sdkSndFadeOutChannelFrames(3, 0, 10);
         *(s32 *)(ctx + 4) = 6;
         *(s32 *)(ctx + 8) = 0;
@@ -3466,9 +3466,9 @@ s32 func_0025b240(u8 *arg0) {
         } else {
             if (iGpffffa664 != -1) {
                 hsndQueueSound((s16)iGpffffa664, 10);
-                func_00459950(-0xB4);
+                sdkSndSetMainChannelData(-0xB4);
             } else {
-                func_00459880();
+                sdkSndStopMainChannel();
             }
             if (iGpffffa668 != -1) {
                 sdkSndRequestTrack(iGpffffa668);

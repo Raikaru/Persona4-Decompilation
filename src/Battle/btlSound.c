@@ -12,7 +12,7 @@ struct Battle
 };
 
 extern Battle* iGpffffb3ac;
-extern void func_00459880(void);
+extern void sdkSndStopMainChannel(void);
 extern void sdkSndStopChannel(s32 fadeDuration);
 
 extern void sdkSndFadeOutChannelFrames(s16 channel, s32 unused, s32 fadeFrames);
@@ -69,7 +69,7 @@ extern void* func_00454a60(const char* path, s32 flags);
 extern s32 H_Cdvd_IsFileLoaded(void* handle);
 extern void H_Cdvd_Destroy(void* handle);
 extern u8* func_00455ea0(u8* handle, s32 index, s32* out);
-extern s32 func_0045a570(s32 bank, void* file1, u32 size1, void* file2, u32 size2, void* file3, u32 size3);
+extern s32 sdkSndQueueSlotRequest(s32 bank, void* file1, u32 size1, void* file2, u32 size2, void* file3, u32 size3);
 extern s32 hsndSlotIsStarting(s32 bank);
 
 extern u32 strlen(const char* text);
@@ -86,7 +86,7 @@ void btlSoundStopBgmIfEnabled(void)
 {
     if ((iGpffffb3ac->flags & 0x40) != 0)
     {
-        func_00459880();
+        sdkSndStopMainChannel();
     }
 }
 
@@ -226,7 +226,7 @@ u32 btlSoundSkillSEUpdate(void* work)
         file1 = func_00455ea0(packet->cdvd, 0, (s32*)&file1Size);
         file2 = func_00455ea0(packet->cdvd, 1, (s32*)&file2Size);
         file3 = func_00455ea0(packet->cdvd, 2, (s32*)&file3Size);
-        func_0045a570(2, file1, file1Size, file2, file2Size, file3, file3Size);
+        sdkSndQueueSlotRequest(2, file1, file1Size, file2, file2Size, file3, file3Size);
         packet->state = 2;
         break;
     case 2:

@@ -117,7 +117,7 @@ extern void btlFadeStart(s32 arg0);
 extern s32 func_001faaa0(u8 *arg0);
 extern s32 btlBossIsAllowedAction(void);
 extern s32 func_001fae10(void);
-extern void func_0045a9a0(s32 arg0, s32 arg1);
+extern void sdkSndResetChannel(s32 arg0, s32 arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
 extern s32 mcIconTaskPoll(void);

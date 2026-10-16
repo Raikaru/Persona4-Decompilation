@@ -33,7 +33,7 @@ extern u32 DAT_0088179C_abs[];
 extern u32 frFontListRelease(int param_1);
 extern u32 frFontFadeNodes(int param_1);
 extern void *memset(void *dst, s32 value, u32 size);
-extern int func_0045af90(int param_1);
+extern int sdkSndIsChannelPlaying(int param_1);
 extern void func_002baa20(void);
 extern int func_002e0d60(void);
 extern void func_002bcd20(void);
@@ -1409,7 +1409,7 @@ u8 *frFontReadyNode(u8 *arg0)
     case 0xF226:
         temp = *(s32 *)(arg0 + 0x3C);
         if (temp == -1) {
-            if (func_0045af90(1) != 0) {
+            if (sdkSndIsChannelPlaying(1) != 0) {
                 return arg0;
             }
         } else if (temp > 0) {
@@ -1485,7 +1485,7 @@ s32 frFontStepNodeIntensity(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3)
             case 0xf223:
             case 0xf226:
                 if (*(s32 *)(temp_18 + 0x3c) == -1) {
-                    func_0045af90(1);
+                    sdkSndIsChannelPlaying(1);
                 } else {
                     *(s32 *)(temp_18 + 0x3c) =
                         *(s32 *)(temp_18 + 0x3c) - 1;
@@ -1650,7 +1650,7 @@ s32 frFontDrawList(void *arg0, u32 arg1, u32 arg2)
                 case 0xF223:
                 case 0xF226:
                     if (*(s32 *)(node + 0x3C) == -1) {
-                        func_0045af90(1);
+                        sdkSndIsChannelPlaying(1);
                     } else {
                         *(s32 *)(node + 0x3C) -= 1;
                     }
@@ -1717,7 +1717,7 @@ s32 frFontMeasureList(u8 *arg0)
             case 0xF226:
                 temp_3_3 = *(s32 *)(arg0 + 0x3C);
                 if (temp_3_3 == -1) {
-                    if (func_0045af90(1) != 0) {
+                    if (sdkSndIsChannelPlaying(1) != 0) {
                         temp_3_4 = arg0;
                         goto result_check;
                     }
