@@ -16,7 +16,7 @@ extern void memset(void *arg0, s32 arg1, s32 arg2);
 
 
 extern u32 func_001053b0(s16 arg0);
-extern s32 datCalcHasSkill(u8 *arg0, s32 arg1);
+extern s32 datCalcHasSkill(DatUnit *arg0, s32 arg1);
 
 extern s32 datScriptTargetLacksFlag4(void);
 extern f32 datScriptCalcFloat(u32 arg0, s32 arg1);
@@ -64,12 +64,12 @@ extern u32 datItemGrantedSkill(s16 arg0);
 
 extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
-extern s32 datCalcInflictStatus(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
+extern s32 datCalcInflictStatus(s32 arg0, DatUnit *arg1, DatUnit *arg2, s32 arg3);
 extern s32 datCalcSkillAmount(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
-extern u32 datCalcStatusEffectResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
+extern u32 datCalcStatusEffectResult(s32 arg0, DatUnit *arg1, DatUnit *arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u32 datGetFlag(s32 arg0);
 extern s32 datPersonaGetStatById(s32 arg0, s32 arg1);
-extern s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2);
+extern s64 datCalcAddBuffLevel(DatUnit *arg0, s32 arg1, s64 arg2);
 /* datCalcSkillAllowedForMode passes a 5th arg (arg4) that datCalcSkillAppliesToTarget ignores. */
 extern s32 datCalcSkillAppliesToTarget(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 datScriptRunCalc(u32 arg0, u16 *arg1, u16 *arg2, u16 arg3, s32 arg4);
@@ -88,15 +88,15 @@ extern u8 *iGpffffb448;
 extern u8 *iGpffffb44c;
 extern u8 *iGpffffb3cc;
 
-extern void datCalcSetBuffLevel(u8 *arg0, u8 arg1, s32 arg2);
-extern void datCalcSetSecondaryBuffLevel(u8 *arg0, u8 arg1, s8 arg2);
+extern void datCalcSetBuffLevel(DatUnit *arg0, u8 arg1, s32 arg2);
+extern void datCalcSetSecondaryBuffLevel(DatUnit *arg0, u8 arg1, s8 arg2);
 
 extern u8 datCalcGetUnitStat(DatUnit *arg0, s32 arg1);
 extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
 extern u32 datCalcSkillCost(DatUnit *arg0, s32 arg1);
-extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
+extern s32 datCalcSkillElement(DatUnit *arg0, u16 arg1);
 extern s8 datCalcGetBuffLevel(u8 *arg0, s32 arg1);
 extern u16 func_001068b0(s16 arg0);
 extern u16 func_001068e0(s16 arg0);
@@ -230,22 +230,22 @@ u16 datCalcMaxHp(DatUnit *unit)
         var_2 = (u16)func_001053b0((s16)temp_16);
     }
     temp_16 = var_2 & 0xFFFF;
-    if (datCalcHasSkill((u8 *)unit, 0x1F0) != 0) {
+    if (datCalcHasSkill(unit, 0x1F0) != 0) {
         var_18 += (temp_16 * 0xA) / 100;
     }
-    if (datCalcHasSkill((u8 *)unit, 0x1F1) != 0) {
+    if (datCalcHasSkill(unit, 0x1F1) != 0) {
         var_18 += (temp_16 * 0x14) / 100;
     }
-    if (datCalcHasSkill((u8 *)unit, 0x1F2) != 0) {
+    if (datCalcHasSkill(unit, 0x1F2) != 0) {
         var_18 += (temp_16 * 0x1E) / 100;
     }
-    if (datCalcHasSkill((u8 *)unit, 0x22D) != 0) {
+    if (datCalcHasSkill(unit, 0x22D) != 0) {
         var_18 += (temp_16 * 0x32) / 100;
     }
-    if (datCalcHasSkill((u8 *)unit, 0x20C) != 0) {
+    if (datCalcHasSkill(unit, 0x20C) != 0) {
         var_18 += temp_16;
     }
-    if (datCalcHasSkill((u8 *)unit, 0x20D) != 0) {
+    if (datCalcHasSkill(unit, 0x20D) != 0) {
         var_18 -= (temp_16 * 0x32) / 100;
     }
     var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x1A) & 0xFFFF) * 0xA;
@@ -298,22 +298,22 @@ u16 datCalcMaxSp(DatUnit *unit)
         var_2 = (u16)func_00105460((s16)temp_16);
     }
     temp_16 = var_2 & 0xFFFF;
-    if (datCalcHasSkill((u8 *)unit, 0x1F3) != 0) {
+    if (datCalcHasSkill(unit, 0x1F3) != 0) {
         var_18 += (temp_16 * 0xA) / 100;
     }
-    if (datCalcHasSkill((u8 *)unit, 0x1F4) != 0) {
+    if (datCalcHasSkill(unit, 0x1F4) != 0) {
         var_18 += (temp_16 * 0x14) / 100;
     }
-    if (datCalcHasSkill((u8 *)unit, 0x1F5) != 0) {
+    if (datCalcHasSkill(unit, 0x1F5) != 0) {
         var_18 += (temp_16 * 0x1E) / 100;
     }
-    if (datCalcHasSkill((u8 *)unit, 0x22E) != 0) {
+    if (datCalcHasSkill(unit, 0x22E) != 0) {
         var_18 += (temp_16 * 0x32) / 100;
     }
-    if (datCalcHasSkill((u8 *)unit, 0x20C) != 0) {
+    if (datCalcHasSkill(unit, 0x20C) != 0) {
         var_18 -= (temp_16 * 0x32) / 100;
     }
-    if (datCalcHasSkill((u8 *)unit, 0x20D) != 0) {
+    if (datCalcHasSkill(unit, 0x20D) != 0) {
         var_18 += temp_16;
     }
     var_18 += (datCalcCountSlotsWithValue((u8 *)unit, 0x1F) & 0xFFFF) * 0xA;
@@ -378,7 +378,7 @@ s32 datCalcAddSp(DatUnit* unit, s32 spDelta)
 
 
 /* Shared skill search, including the equipment fallback. */
-static inline s32 PTDatCalcHasSkill(u8 *unit, s32 requestedSkill)
+static inline s32 PTDatCalcHasSkill(DatUnit *unit, s32 requestedSkill)
 {
     s32 skill;
     s32 count;
@@ -387,8 +387,8 @@ static inline s32 PTDatCalcHasSkill(u8 *unit, s32 requestedSkill)
     s32 result;
     s32 limit;
 
-    count = datCalcGetTableLength(unit) & 0xFFFF;
-    base = datCalcSkillList(unit);
+    count = datCalcGetTableLength((u8 *)unit) & 0xFFFF;
+    base = datCalcSkillList((u8 *)unit);
     index = 0;
     skill = requestedSkill & 0xFFFF;
     limit = count & 0xFFFF;
@@ -399,7 +399,7 @@ static inline s32 PTDatCalcHasSkill(u8 *unit, s32 requestedSkill)
         index = (index + 1) & 0xFFFF;
     }
     if (!(*(u16 *)unit & 4)) {
-        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)(unit + 2), 2) & 0xFFFF);
+        result = (s32)((u32)(u16)func_00106cd0(*(s16 *)((u8 *)unit + 2), 2) & 0xFFFF);
         if (result >= 0) {
             if (skill == datItemGrantedSkill((s16)result)) {
                 return 1;
@@ -447,7 +447,7 @@ u32 datCalcChkBadStatus(DatUnit *unit, u32 badStatus)
 
 // Intent: whether unit arg0 has skill arg1; wrapper over PTDatCalcHasSkill.
 // FUN_00232730
-s32 datCalcHasSkill(u8 *arg0, s32 arg1)
+s32 datCalcHasSkill(DatUnit *arg0, s32 arg1)
 {
     return PTDatCalcHasSkill(arg0, arg1);
 }
@@ -505,7 +505,7 @@ s32 datCalcCountSlotsWithValue(u8 *arg0, s32 arg1)
     if (*(u16 *)arg0 & 4) {
         return 0;
     }
-    id16 = *(u16 *)(arg0 + 2);
+    id16 = *(u16 *)((u8 *)arg0 + 2);
     if (id16 >= 0xB) {
         kAssertFail(D_00635938, 0x263);
     }
@@ -694,7 +694,7 @@ done_value:
 /* measured: 1304B/1312B, eight zero-tail bytes and 24 resolved relocations;
    loop-invariant hoisting preserves the retail six-search preheaders. */
 #pragma opt_loop_invariants on
-s32 datCalcGetSkillMask(u8 *arg0)
+s32 datCalcGetSkillMask(DatUnit *arg0)
 {
     s32 result;
     result = 0;
@@ -747,7 +747,7 @@ s8 datCalcGetBuffLevel(u8 *arg0, s32 arg1)
 
 // Intent: stores signed 4-bit buff level arg2 (-7..7) for index arg1 (0..23); [inferred].
 // FUN_00233370
-void datCalcSetBuffLevel(u8 *arg0, u8 arg1, s32 arg2)
+void datCalcSetBuffLevel(DatUnit *arg0, u8 arg1, s32 arg2)
 {
     s32 temp_16;
     s32 temp_4;
@@ -780,7 +780,7 @@ void datCalcSetBuffLevel(u8 *arg0, u8 arg1, s32 arg2)
 
 // Intent: stores signed 4-bit buff level arg2 in the secondary nibble table for index arg1; [inferred].
 // FUN_00233490
-void datCalcSetSecondaryBuffLevel(u8 *arg0, u8 arg1, s8 arg2)
+void datCalcSetSecondaryBuffLevel(DatUnit *arg0, u8 arg1, s8 arg2)
 {
     u8 *b;
     u16 idx;
@@ -793,7 +793,7 @@ void datCalcSetSecondaryBuffLevel(u8 *arg0, u8 arg1, s8 arg2)
         kAssertFail(D_00635938, 0x45F);
     }
     idx = ((s32)arg1 >> 1) & 0xFFFF;
-    b = arg0;
+    b = (u8 *)arg0;
     if (arg1 & 1) {
         old = b[idx + 0x24];
         b[idx + 0x24] = (u8)((old & 0xF) | ((arg2 & 0xF) << 4));
@@ -808,7 +808,7 @@ void datCalcSetSecondaryBuffLevel(u8 *arg0, u8 arg1, s8 arg2)
    it preserves retail scratch-register lifetimes before the signed decode. */
 // Intent: adds signed delta arg2 to buff level arg1, clamped to -1..1, setting its flag bit when nonzero; returns the new level; [inferred].
 // FUN_00233570
-s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2)
+s64 datCalcAddBuffLevel(DatUnit *arg0, s32 arg1, s64 arg2)
 {
     s32 index;
     u8 byteIndex;
@@ -874,9 +874,9 @@ s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2)
             ptr[28] = (ptr[28] & 240) | (packed & 15);
         }
         if (result == 0) {
-            *(s32 *)(arg0 + 20) &= ~(1 << index);
+            *(s32 *)((u8 *)arg0 + 20) &= ~(1 << index);
         } else {
-            *(s32 *)(arg0 + 20) |= 1 << index;
+            *(s32 *)((u8 *)arg0 + 20) |= 1 << index;
         }
         if (index >= 24) {
             kAssertFail(D_00635938, 1118);
@@ -890,14 +890,14 @@ s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2)
             ptr[36] &= 240;
         }
     } else {
-        *(s32 *)(arg0 + 20) |= 1 << index;
+        *(s32 *)((u8 *)arg0 + 20) |= 1 << index;
     }
     return (s8)result;
 }
 
 // Intent: clears buff level arg1 (0..23) and its flag bit in unit arg0; [inferred].
 // FUN_00233880
-void datCalcClearBuffLevel(u8 *arg0, s32 arg1)
+void datCalcClearBuffLevel(DatUnit *arg0, s32 arg1)
 {
     s32 temp_16;
     s32 temp_17;
@@ -936,12 +936,12 @@ void datCalcClearBuffLevel(u8 *arg0, s32 arg1)
             ptr[0x24] = (u8)(ptr[0x24] & 0xF0);
         }
     }
-    *(s32 *)(arg0 + 0x14) = *(s32 *)(arg0 + 0x14) & ~(1 << temp_18);
+    *(s32 *)((u8 *)arg0 + 0x14) = *(s32 *)((u8 *)arg0 + 0x14) & ~(1 << temp_18);
 }
 
 // Intent: clears all 24 buff levels of unit arg0 (flag word and both nibble tables); [inferred].
 // FUN_002339D0
-void datCalcClearAllBuffs(u8 *arg0)
+void datCalcClearAllBuffs(DatUnit *arg0)
 {
     u32 i;
     s32 i8;
@@ -955,13 +955,13 @@ void datCalcClearAllBuffs(u8 *arg0)
             datCalcSetBuffLevel(arg0, i, 0);
             datCalcSetSecondaryBuffLevel(arg0, i, 0);
         }
-        *(s32 *)(arg0 + 0x14) &= ~(1 << i8);
+        *(s32 *)((u8 *)arg0 + 0x14) &= ~(1 << i8);
     }
 }
 
 // Intent: buff level (signed) for index arg1 below 16, or the flag bit for indices 16..23, of unit arg0.
 // FUN_00233A90
-s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1)
+s8 datCalcGetBuffStatus(DatUnit *arg0, s32 arg1)
 {
     s8 nibble;
     u8 result;
@@ -990,7 +990,7 @@ s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1)
         }
         return nibble;
     }
-    result = (*(u32 *)(arg0 + 0x14) & 1 << uVar3) != 0;
+    result = (*(u32 *)((u8 *)arg0 + 0x14) & 1 << uVar3) != 0;
     return result;
 }
 
@@ -1282,7 +1282,7 @@ check_01000000:
 
 // Intent: applies signed buff delta arg2 to the stats selected by mask arg1 (bit pairs for up and down on stats 0..4); [inferred].
 // FUN_00234830
-void datCalcApplyBuffMask(u8 *arg0, s32 arg1, s64 arg2)
+void datCalcApplyBuffMask(DatUnit *arg0, s32 arg1, s64 arg2)
 {
     if (arg1 != 0) {
         if (arg1 & 1) {
@@ -1322,57 +1322,57 @@ void datCalcApplyBuffMask(u8 *arg0, s32 arg1, s64 arg2)
             datCalcAddBuffLevel(arg0, 0x13, arg2);
         }
         if (arg1 & 0x1000) {
-            if ((s8)datCalcGetBuffLevel(arg0, 0) > 0) {
+            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 0) > 0) {
                 datCalcSetBuffLevel(arg0, 0, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 0, 0);
-                *(s32 *)(arg0 + 0x14) &= ~1;
+                *(s32 *)((u8 *)arg0 + 0x14) &= ~1;
             }
-            if ((s8)datCalcGetBuffLevel(arg0, 1) > 0) {
+            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 1) > 0) {
                 datCalcSetBuffLevel(arg0, 1, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 1, 0);
-                *(s32 *)(arg0 + 0x14) &= ~2;
+                *(s32 *)((u8 *)arg0 + 0x14) &= ~2;
             }
-            if ((s8)datCalcGetBuffLevel(arg0, 2) > 0) {
+            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 2) > 0) {
                 datCalcSetBuffLevel(arg0, 2, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 2, 0);
-                *(s32 *)(arg0 + 0x14) &= ~4;
+                *(s32 *)((u8 *)arg0 + 0x14) &= ~4;
             }
-            if ((s8)datCalcGetBuffLevel(arg0, 3) > 0) {
+            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 3) > 0) {
                 datCalcSetBuffLevel(arg0, 3, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 3, 0);
-                *(s32 *)(arg0 + 0x14) &= ~8;
+                *(s32 *)((u8 *)arg0 + 0x14) &= ~8;
             }
-            if ((s8)datCalcGetBuffLevel(arg0, 4) > 0) {
+            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 4) > 0) {
                 datCalcSetBuffLevel(arg0, 4, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 4, 0);
-                *(s32 *)(arg0 + 0x14) &= ~0x10;
+                *(s32 *)((u8 *)arg0 + 0x14) &= ~0x10;
             }
         }
         if (arg1 & 0x2000) {
-            if ((s8)datCalcGetBuffLevel(arg0, 0) < 0) {
+            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 0) < 0) {
                 datCalcSetBuffLevel(arg0, 0, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 0, 0);
-                *(s32 *)(arg0 + 0x14) &= ~1;
+                *(s32 *)((u8 *)arg0 + 0x14) &= ~1;
             }
-            if ((s8)datCalcGetBuffLevel(arg0, 1) < 0) {
+            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 1) < 0) {
                 datCalcSetBuffLevel(arg0, 1, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 1, 0);
-                *(s32 *)(arg0 + 0x14) &= ~2;
+                *(s32 *)((u8 *)arg0 + 0x14) &= ~2;
             }
-            if ((s8)datCalcGetBuffLevel(arg0, 2) < 0) {
+            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 2) < 0) {
                 datCalcSetBuffLevel(arg0, 2, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 2, 0);
-                *(s32 *)(arg0 + 0x14) &= ~4;
+                *(s32 *)((u8 *)arg0 + 0x14) &= ~4;
             }
-            if ((s8)datCalcGetBuffLevel(arg0, 3) < 0) {
+            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 3) < 0) {
                 datCalcSetBuffLevel(arg0, 3, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 3, 0);
-                *(s32 *)(arg0 + 0x14) &= ~8;
+                *(s32 *)((u8 *)arg0 + 0x14) &= ~8;
             }
-            if ((s8)datCalcGetBuffLevel(arg0, 4) < 0) {
+            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 4) < 0) {
                 datCalcSetBuffLevel(arg0, 4, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 4, 0);
-                *(s32 *)(arg0 + 0x14) &= ~0x10;
+                *(s32 *)((u8 *)arg0 + 0x14) &= ~0x10;
             }
         }
         if (arg1 & 0x4000) {
@@ -1421,10 +1421,10 @@ void datCalcApplyBuffMask(u8 *arg0, s32 arg1, s64 arg2)
             datCalcAddBuffLevel(arg0, 0xF, arg2);
         }
         if (arg1 & 0x01000000) {
-            *(s32 *)(arg0 + 0x14) &= 0xFFFEFFFF;
+            *(s32 *)((u8 *)arg0 + 0x14) &= 0xFFFEFFFF;
         }
         if (arg1 & 0x02000000) {
-            *(s32 *)(arg0 + 0x14) &= 0xFFFDFFFF;
+            *(s32 *)((u8 *)arg0 + 0x14) &= 0xFFFDFFFF;
         }
     }
 }
@@ -1446,8 +1446,8 @@ void datCalcClearFlaggedBuffs(u8 *arg0)
                     kAssertFail(D_00635938, 0x4A2);
                 }
                 if (i8 < 0x10) {
-                    datCalcSetBuffLevel(arg0, i, 0);
-                    datCalcSetSecondaryBuffLevel(arg0, i, 0);
+                    datCalcSetBuffLevel((DatUnit *)arg0, i, 0);
+                    datCalcSetSecondaryBuffLevel((DatUnit *)arg0, i, 0);
                 }
                 *(s32 *)(arg0 + 0x14) &= ~(1 << i8);
             }
@@ -1456,7 +1456,7 @@ void datCalcClearFlaggedBuffs(u8 *arg0)
     }
 }
 
-static inline s8 P4CalcLevel(u8 *unit, u8 index)
+static inline s8 P4CalcLevel(DatUnit *unit, u8 index)
 {
     u16 offset;
     /* Preserve the signed-byte getter conversion at the branch merge. */
@@ -1465,13 +1465,13 @@ static inline s8 P4CalcLevel(u8 *unit, u8 index)
         kAssertFail(D_00635938, 0x42A);
     offset = index >> 1;
     if (index & 1)
-        level = (s8)(*(u8 *)(unit + offset + 0x24) >> 4);
+        level = (s8)(*(u8 *)((u8 *)unit + offset + 0x24) >> 4);
     else
-        level = (s8)(*(u8 *)(unit + offset + 0x24) & 15);
+        level = (s8)(*(u8 *)((u8 *)unit + offset + 0x24) & 15);
     return (s8)level;
 }
 
-static inline void P4CalcSetLevel(u8 *unit, u8 index, s8 level)
+static inline void P4CalcSetLevel(DatUnit *unit, u8 index, s8 level)
 {
     u16 offset;
     u8 *ptr;
@@ -1481,10 +1481,10 @@ static inline void P4CalcSetLevel(u8 *unit, u8 index, s8 level)
         kAssertFail(D_00635938, 0x45F);
     offset = index >> 1;
     if (index & 1) {
-        ptr = unit + offset;
+        ptr = (u8 *)unit + offset;
         ptr[0x24] = (ptr[0x24] & 15) | ((level & 15) << 4);
     } else {
-        ptr = unit + offset;
+        ptr = (u8 *)unit + offset;
         ptr[0x24] = (ptr[0x24] & 240) | (level & 15);
     }
 }
@@ -1493,7 +1493,7 @@ static inline void P4CalcSetLevel(u8 *unit, u8 index, s8 level)
    per-branch setter addresses preserve the saved offset and retail merges. */
 // Intent: raises the secondary level (cap 15) of every active buff in 0..15 by one; [inferred].
 // FUN_00235110
-void datCalcAdvanceSecondaryBuffs(u8 *unit)
+void datCalcAdvanceSecondaryBuffs(DatUnit *unit)
 {
     s32 checked;
     u32 index;
@@ -1504,9 +1504,9 @@ void datCalcAdvanceSecondaryBuffs(u8 *unit)
         if (checked >= 24)
             kAssertFail(D_00635938, 0x4C1);
         if (checked < 16)
-            active = datCalcGetBuffLevel(unit, index % 256U);
+            active = datCalcGetBuffLevel((u8 *)unit, index % 256U);
         else {
-            u8 result = (*(u32 *)(unit + 0x14) & (1U << checked)) != 0;
+            u8 result = (*(u32 *)((u8 *)unit + 0x14) & (1U << checked)) != 0;
             active = result;
         }
         level = P4CalcLevel(unit, index);
@@ -1546,7 +1546,7 @@ s64 datCalcFindStrongBuff(u8 *unit)
             u8 result = (*(u32 *)(unit + 0x14) & (1 << checked)) != 0;
             active = result;
         }
-        level = P4CalcLevel(unit, index);
+        level = P4CalcLevel((DatUnit *)unit, index);
         if (active != 0 && level >= threshold)
             return (s8)index;
     }
@@ -1584,20 +1584,20 @@ static inline s32 DC411HasEquipmentProperty(u8 *unit, s32 property)
 
 #pragma push
 #pragma opt_loop_invariants on
-static inline u16 DCDamageAccessoryProperty(u8 *unit)
+static inline u16 DCDamageAccessoryProperty(DatUnit *unit)
 {
     s16 character;
     if (*(u16 *)unit & 4) {
         return 0;
     }
-    character = *(s16 *)(unit + 2);
+    character = *(s16 *)((u8 *)unit + 2);
     if (character >= 11) {
         kAssertFail(D_00635938, 0x291);
     }
     return datItemValue(func_00106cd0(character, 2)) & 0xFFFF;
 }
 
-static inline f32 DCDamageAccessoryFraction(u8 *unit)
+static inline f32 DCDamageAccessoryFraction(DatUnit *unit)
 {
     extern u16 datItemAccessoryPercent(s16 item);
     s16 character;
@@ -1605,7 +1605,7 @@ static inline f32 DCDamageAccessoryFraction(u8 *unit)
     if (*(u16 *)unit & 4) {
         return 0.0f;
     }
-    character = *(s16 *)(unit + 2);
+    character = *(s16 *)((u8 *)unit + 2);
     if (character >= 11) {
         kAssertFail(D_00635938, 0x2A7);
     }
@@ -1839,7 +1839,7 @@ u8 arg7;
         break;
     }
     if (fixed == 0 && damage > 0 && !(arg6 & 1)) {
-        rawElement = (s16)datCalcSkillElement(arg1, arg0);
+        rawElement = (s16)datCalcSkillElement((DatUnit *)arg1, arg0);
         elementMask = datCalcElementBit(rawElement);
         offset = ((u32)arg0 % 0x10000U) * 0x28;
         switch (iGpffffb3b8[offset + 2]) {
@@ -1869,13 +1869,13 @@ u8 arg7;
         switch (element) {
         case 1:
             elemental = 1.0f;
-            if ((DCDamageAccessoryProperty(arg1) & 0xFFFF) == 0xBD) {
-                elemental *= 1.0f + DCDamageAccessoryFraction(arg1);
+            if ((DCDamageAccessoryProperty((DatUnit *)arg1) & 0xFFFF) == 0xBD) {
+                elemental *= 1.0f + DCDamageAccessoryFraction((DatUnit *)arg1);
             }
-            if (PTDatCalcHasSkill(arg1, 0x1E7) || (DCHitEquipmentCount(arg1, 0x44) & 0xFFFF)) {
+            if (PTDatCalcHasSkill((DatUnit *)arg1, 0x1E7) || (DCHitEquipmentCount(arg1, 0x44) & 0xFFFF)) {
                 elemental *= 1.25f;
             }
-            if (PTDatCalcHasSkill(arg1, 0x1E8)) {
+            if (PTDatCalcHasSkill((DatUnit *)arg1, 0x1E8)) {
                 elemental *= 1.5f;
             }
             if (elemental > 1.875f) {
@@ -1892,13 +1892,13 @@ u8 arg7;
             break;
         case 2:
             elemental = 1.0f;
-            if ((DCDamageAccessoryProperty(arg1) & 0xFFFF) == 0xBE) {
-                elemental *= 1.0f + DCDamageAccessoryFraction(arg1);
+            if ((DCDamageAccessoryProperty((DatUnit *)arg1) & 0xFFFF) == 0xBE) {
+                elemental *= 1.0f + DCDamageAccessoryFraction((DatUnit *)arg1);
             }
-            if (PTDatCalcHasSkill(arg1, 0x1E9) || (DCHitEquipmentCount(arg1, 0x45) & 0xFFFF)) {
+            if (PTDatCalcHasSkill((DatUnit *)arg1, 0x1E9) || (DCHitEquipmentCount(arg1, 0x45) & 0xFFFF)) {
                 elemental *= 1.25f;
             }
-            if (PTDatCalcHasSkill(arg1, 0x1EA)) {
+            if (PTDatCalcHasSkill((DatUnit *)arg1, 0x1EA)) {
                 elemental *= 1.5f;
             }
             if (elemental > 1.875f) {
@@ -1915,13 +1915,13 @@ u8 arg7;
             break;
         case 3:
             elemental = 1.0f;
-            if ((DCDamageAccessoryProperty(arg1) & 0xFFFF) == 0xC0) {
-                elemental *= 1.0f + DCDamageAccessoryFraction(arg1);
+            if ((DCDamageAccessoryProperty((DatUnit *)arg1) & 0xFFFF) == 0xC0) {
+                elemental *= 1.0f + DCDamageAccessoryFraction((DatUnit *)arg1);
             }
-            if (PTDatCalcHasSkill(arg1, 0x1EB) || (DCHitEquipmentCount(arg1, 0x46) & 0xFFFF)) {
+            if (PTDatCalcHasSkill((DatUnit *)arg1, 0x1EB) || (DCHitEquipmentCount(arg1, 0x46) & 0xFFFF)) {
                 elemental *= 1.25f;
             }
-            if (PTDatCalcHasSkill(arg1, 0x1EC)) {
+            if (PTDatCalcHasSkill((DatUnit *)arg1, 0x1EC)) {
                 elemental *= 1.5f;
             }
             if (elemental > 1.875f) {
@@ -1938,13 +1938,13 @@ u8 arg7;
             break;
         case 4:
             elemental = 1.0f;
-            if ((DCDamageAccessoryProperty(arg1) & 0xFFFF) == 0xBF) {
-                elemental *= 1.0f + DCDamageAccessoryFraction(arg1);
+            if ((DCDamageAccessoryProperty((DatUnit *)arg1) & 0xFFFF) == 0xBF) {
+                elemental *= 1.0f + DCDamageAccessoryFraction((DatUnit *)arg1);
             }
-            if (PTDatCalcHasSkill(arg1, 0x1ED) || (DCHitEquipmentCount(arg1, 0x47) & 0xFFFF)) {
+            if (PTDatCalcHasSkill((DatUnit *)arg1, 0x1ED) || (DCHitEquipmentCount(arg1, 0x47) & 0xFFFF)) {
                 elemental *= 1.25f;
             }
-            if (PTDatCalcHasSkill(arg1, 0x1EE)) {
+            if (PTDatCalcHasSkill((DatUnit *)arg1, 0x1EE)) {
                 elemental *= 1.5f;
             }
             if (elemental > 1.875f) {
@@ -1960,7 +1960,7 @@ u8 arg7;
             }
             break;
         }
-        if (PTDatCalcHasSkill(arg2, 0x209)) {
+        if (PTDatCalcHasSkill((DatUnit *)arg2, 0x209)) {
             passive *= 0.5f;
         }
         if (datGetFlag(0x1011)) {
@@ -2042,8 +2042,8 @@ u8 arg7;
             }
             switch (element) {
             case 1:
-                if ((DCDamageAccessoryProperty(arg2) & 0xFFFF) == 0xC1) {
-                    attack *= 1.0f - DCDamageAccessoryFraction(arg2);
+                if ((DCDamageAccessoryProperty((DatUnit *)arg2) & 0xFFFF) == 0xC1) {
+                    attack *= 1.0f - DCDamageAccessoryFraction((DatUnit *)arg2);
                 }
                 if (DC411HasEquipmentProperty(arg2, 0x62)) {
                     attack *= fGpffff82c0;
@@ -2056,8 +2056,8 @@ u8 arg7;
                 }
                 break;
             case 2:
-                if ((DCDamageAccessoryProperty(arg2) & 0xFFFF) == 0xC2) {
-                    attack *= 1.0f - DCDamageAccessoryFraction(arg2);
+                if ((DCDamageAccessoryProperty((DatUnit *)arg2) & 0xFFFF) == 0xC2) {
+                    attack *= 1.0f - DCDamageAccessoryFraction((DatUnit *)arg2);
                 }
                 if (DC411HasEquipmentProperty(arg2, 0x65)) {
                     attack *= fGpffff82c0;
@@ -2070,8 +2070,8 @@ u8 arg7;
                 }
                 break;
             case 3:
-                if ((DCDamageAccessoryProperty(arg2) & 0xFFFF) == 0xC4) {
-                    attack *= 1.0f - DCDamageAccessoryFraction(arg2);
+                if ((DCDamageAccessoryProperty((DatUnit *)arg2) & 0xFFFF) == 0xC4) {
+                    attack *= 1.0f - DCDamageAccessoryFraction((DatUnit *)arg2);
                 }
                 if (DC411HasEquipmentProperty(arg2, 0x6B)) {
                     attack *= fGpffff82c0;
@@ -2084,8 +2084,8 @@ u8 arg7;
                 }
                 break;
             case 4:
-                if ((DCDamageAccessoryProperty(arg2) & 0xFFFF) == 0xC3) {
-                    attack *= 1.0f - DCDamageAccessoryFraction(arg2);
+                if ((DCDamageAccessoryProperty((DatUnit *)arg2) & 0xFFFF) == 0xC3) {
+                    attack *= 1.0f - DCDamageAccessoryFraction((DatUnit *)arg2);
                 }
                 if (DC411HasEquipmentProperty(arg2, 0x68)) {
                     attack *= fGpffff82c0;
@@ -2115,7 +2115,7 @@ u8 arg7;
         }
     }
     if (fixed == 0 && healing > 0 && !(arg6 & 1)) {
-        if (PTDatCalcHasSkill(arg1, 0x20E)) {
+        if (PTDatCalcHasSkill((DatUnit *)arg1, 0x20E)) {
             passive *= 1.5f;
         }
         work = (s32)(passive * (status * (defense * ((f32)healing * attack))));
@@ -2151,7 +2151,7 @@ u8 arg7;
 
 // Intent: signed per-unit roll for kind-6 skill arg0 on unit arg1 (0 unless the table kind is 6): level and battle-stat base times a random 90-110% factor, positive on the monster side; the only caller stores it per slot; [inferred].
 // FUN_002384B0
-s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
+s32 datCalcSkillRoll(s32 arg0, DatUnit *arg1, s32 arg2)
 {
     /* measured: retail compiled this caller against the s32-returning
        prototype other units use (see datScript.c), so the u8 return of
@@ -2185,15 +2185,15 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
     if (iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x24] != 6) {
         return 0;
     }
-    if (arg1 != (u8 *)arg2) {
+    if (arg1 != (DatUnit *)arg2) {
         kAssertFail(D_00635938, 0x9F9);
     }
     if (!(*(u16 *)arg1 & 4)) {
         temp_2 = datGetMoney();
         var_f1 = (f32)temp_2;
         var_f21 = var_f1 / 20.0f;
-        if ((*(u16 *)arg1 & 4) || (temp_4 = *(u16 *)(arg1 + 2), temp_4 == 1)) {
-            var_16 = *(u8 *)(arg1 + 6);
+        if ((*(u16 *)arg1 & 4) || (temp_4 = *(u16 *)((u8 *)arg1 + 2), temp_4 == 1)) {
+            var_16 = *(u8 *)((u8 *)arg1 + 6);
         } else {
             temp_2_2 = (s32)datPersonaGetRecord(temp_4);
             if (temp_2_2 == 0) {
@@ -2206,7 +2206,7 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
         }
         var_f1_2 = (f32)var_16;
         var_f20 = 4.0f + (var_f1_2 / 5.0f);
-        temp_2_3 = datCalcGetBattleStat((DatUnit *)arg1, 4);
+        temp_2_3 = datCalcGetBattleStat(arg1, 4);
         var_f0 = (f32)temp_2_3;
         var_f20 = var_f21 / (var_f0 / var_f20);
     } else {
@@ -2228,7 +2228,7 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
         temp_2_6 = datCalcGetBattleStat((DatUnit *)temp_2_4, 4);
         var_f0_2 = (f32)temp_2_6;
         var_f20 = var_f0_2 / var_f20;
-        var_f0_3 = (f32)func_002439c0(arg1);
+        var_f0_3 = (f32)func_002439c0((u8 *)arg1);
         var_f20 = var_f20 * var_f0_3;
     }
     temp_hi = RpRandom() % 21U;
@@ -2255,8 +2255,8 @@ s32 datCalcSkillRoll(s32 arg0, u8 *arg1, s32 arg2)
 #pragma opt_loop_invariants on
 s32 datCalcInflictStatus(skillId, source, target, options)
 u16 skillId;
-u8 *source;
-u8 *target;
+DatUnit *source;
+DatUnit *target;
 s32 options;
 {
     u16 choices[24];
@@ -2313,7 +2313,7 @@ s32 options;
         ((entry = iGpffffb3b8, mode = *(u8 *)PTDatCalcOffsetAdd((u32)entry + 0x18U, (u32)offset), mode == 1) || mode == 3)) {
         switch (entry[offset + 0x24]) {
         case 14: {
-            if ((u8)(target[0xC] != 0)) {
+            if ((u8)(((u8 *)target)[0xC] != 0)) {
                 goto return_status_0;
             }
             goto return_zero_0;
@@ -2331,7 +2331,7 @@ return_zero_0:
         kind = iGpffffb3b8[offset + 0x24];
         switch (kind) {
         case 1:
-            if ((u8)((*(u32 *)(target + 0xC) & 4) != 0)) {
+            if ((u8)((*(u32 *)((u8 *)target + 0xC) & 4) != 0)) {
                 return (s32)statuses;
             }
             break;
@@ -2350,7 +2350,7 @@ return_zero_0:
             }
             return (s32)statuses;
         case 9:
-            if ((u8)((*(u32 *)(target + 0xC) & 1) != 0)) {
+            if ((u8)((*(u32 *)((u8 *)target + 0xC) & 1) != 0)) {
                 goto return_status_1;
             }
             goto return_zero_1;
@@ -2361,12 +2361,12 @@ return_zero_1:
         default:
             break;
         }
-        resistance = datCalcStatusResistance(target, (s16)datCalcStatusElement((s16)skillId, (s32)statuses));
+        resistance = datCalcStatusResistance((u8 *)target, (s16)datCalcStatusElement((s16)skillId, (s32)statuses));
         if (resistance & 0x27000000) {
             return 0;
         }
         if (statuses & 0x100000) {
-            if ((u8)((*(u32 *)(target + 0xC) & 0x100000) != 0)) {
+            if ((u8)((*(u32 *)((u8 *)target + 0xC) & 0x100000) != 0)) {
                 return 0;
             }
             if (*(u16 *)target & 8) {
@@ -2378,7 +2378,7 @@ return_zero_1:
         multiplier = multiplier * (percent / 100.0f);
         if (!(options & 1)) {
             death = statuses & 0x80000;
-            if (death == 0 && datCalcGetBuffLevel(target, 7) > 0) {
+            if (death == 0 && datCalcGetBuffLevel((u8 *)target, 7) > 0) {
                 multiplier *= 2.0f;
             }
             element = (s16)datCalcSkillElement(source, skillId);
@@ -2435,15 +2435,15 @@ return_zero_1:
         }
     }
     if (success != 0 && (statuses & 0x80000) != 0 &&
-        (s8)(active = (*(u32 *)(target + 0x14) & 0x800000) != 0) > 0) {
+        (s8)(active = (*(u32 *)((u8 *)target + 0x14) & 0x800000) != 0) > 0) {
         statuses &= ~0x80000U;
         if (*(u16 *)target & 4) {
             message = 0x79;
         } else {
             message = 0x78;
         }
-        *(s16 *)(target + 0x2C) = message;
-        *(u32 *)(target + 0x18) |= 0x800000;
+        *(s16 *)((u8 *)target + 0x2C) = message;
+        *(u32 *)((u8 *)target + 0x18) |= 0x800000;
     }
     switch (success) {
     case 0:
@@ -2457,7 +2457,7 @@ return_zero_1:
 #pragma pop
 // Intent: status-effect result for skill arg0 from actor arg1 on target arg2: 0x80000 for the special kind, a hit-formula result for ailment-type skills, else 0; [inferred].
 // FUN_002397D0
-u32 datCalcStatusEffectResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5)
+u32 datCalcStatusEffectResult(s32 arg0, DatUnit *arg1, DatUnit *arg2, s32 arg3, s32 arg4, s32 arg5)
 {
     s16 temp_17;
     s32 temp_2;
@@ -2481,11 +2481,11 @@ u32 datCalcStatusEffectResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, 
     temp_3 = temp_4[0x18];
     if ((temp_3 != 1) && (temp_3 != 3)) {
         if ((func_0023df70(arg0) != 0) &&
-            (((u64)((s64)(*(s32 *)(arg2 + 0xC)) << 0x2C) >> 0x2C) == 0)) {
+            (((u64)((s64)(*(s32 *)((u8 *)arg2 + 0xC)) << 0x2C) >> 0x2C) == 0)) {
             if (*(u16 *)arg1 & 4) {
                 var_2_2 = 0;
             } else {
-                temp_17 = *(s16 *)(arg1 + 2);
+                temp_17 = *(s16 *)((u8 *)arg1 + 2);
                 if (temp_17 >= 0xB) {
                     kAssertFail(D_00635938, 0x291);
                 }
@@ -2554,7 +2554,7 @@ zero:
         var_2 = 0;
     } else {
         var_2 = datCalcInflictStatus(arg0, arg1, arg2, arg5);
-        if ((((u64)((s64)(*(s32 *)(arg2 + 0xC)) << 0x2C) >> 0x2C) != 0) && !(var_2 & 0x180000)) {
+        if ((((u64)((s64)(*(s32 *)((u8 *)arg2 + 0xC)) << 0x2C) >> 0x2C) != 0) && !(var_2 & 0x180000)) {
             var_2 = 0;
         }
     }
@@ -2563,7 +2563,7 @@ zero:
 
 // Intent: hit-formula result for skill arg0 when its table kind is 2 and its guard byte is 100 (a sure hit); 0 otherwise; [inferred].
 // FUN_00239E40
-s32 datCalcSureHitResult(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5)
+s32 datCalcSureHitResult(s32 arg0, DatUnit *arg1, DatUnit *arg2, s32 arg3, s32 arg4, s32 arg5)
 {
     u8 *temp_4;
     s32 off;
@@ -2596,7 +2596,7 @@ s32 datCalcApplySkillEffect(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
     if (arg1 != NULL && arg2 != NULL) {
         temp_17 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
         arg3 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
-        temp_21 = datCalcStatusEffectResult(arg0, arg1, arg2, 1, 1, 0);
+        temp_21 = datCalcStatusEffectResult(arg0, (DatUnit *)arg1, (DatUnit *)arg2, 1, 1, 0);
         if ((u16)arg0 >= 0x1B8) {
             kAssertFail(D_00635938, 0xB94);
         }
@@ -2606,7 +2606,7 @@ s32 datCalcApplySkillEffect(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
             if ((s32)iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x19] < 0x64) {
                 kAssertFail(D_00635938, 0xB9F);
             }
-            result = datCalcInflictStatus(arg0, arg1, arg2, 0);
+            result = datCalcInflictStatus(arg0, (DatUnit *)arg1, (DatUnit *)arg2, 0);
         }
         if (temp_17 == 0 && arg3 == 0 && temp_21 == 0 && result == 0) {
             return 0;
@@ -2651,7 +2651,7 @@ s32 datCalcApplySkillEffect(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
 
 // Intent: effect flag mask (1 HP, 2 SP, 4 status) for skill arg0 from actor arg1 on target arg2; 0 when the hit misses, 0xFFFF for a full effect; [inferred].
 // FUN_0023A1E0
-s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
+s32 datCalcSkillEffectFlags(s32 arg0, DatUnit *arg1, DatUnit *arg2, s32 arg3)
 {
     s32 temp_21;
     s32 temp_19;
@@ -2666,8 +2666,8 @@ s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
 
     flags = 0;
     if (arg1 != NULL && arg2 != NULL) {
-        temp_21 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
-        temp_19 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
+        temp_21 = datCalcSkillAmount(arg0, (u8 *)arg1, (u8 *)arg2, 1, 1, 1, arg3, 1);
+        temp_19 = datCalcSkillAmount(arg0, (u8 *)arg1, (u8 *)arg2, 1, 1, 1, arg3, 2);
         temp_22 = datCalcStatusEffectResult(arg0, arg1, arg2, 1, 1, 0);
         if ((u16)arg0 >= 0x1B8) {
             kAssertFail(D_00635938, 0xB94);
@@ -2680,9 +2680,9 @@ s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
             }
             result = datCalcInflictStatus(arg0, arg1, arg2, 0);
         }
-        *(s32 *)(arg1 + 0x18) = 0;
-        *(s32 *)(arg2 + 0x18) = 0;
-        status = *(s32 *)(arg2 + 0xC);
+        *(s32 *)((u8 *)arg1 + 0x18) = 0;
+        *(s32 *)((u8 *)arg2 + 0x18) = 0;
+        status = *(s32 *)((u8 *)arg2 + 0xC);
         high = ((status & 0x80000) != 0);
         if (temp_21 == 0 && temp_19 == 0 && temp_22 == 0 && result == 0) {
             flags |= 0xFFFF;
@@ -2711,8 +2711,8 @@ return_flags_status:
 check_status:
         if (high == 0) {
             if (temp_19 > 0) {
-                temp_17 = *(u16 *)(arg2 + 0xA);
-                if ((s32)(datCalcMaxSp((DatUnit *)arg2) & 0xFFFF) > (s32)temp_17) {
+                temp_17 = *(u16 *)((u8 *)arg2 + 0xA);
+                if ((s32)(datCalcMaxSp(arg2) & 0xFFFF) > (s32)temp_17) {
                     goto return_zero_sp;
                 }
                 flags |= 2;
@@ -2722,8 +2722,8 @@ return_zero_sp:
             }
 check_hp:
             if (temp_21 > 0) {
-                temp_17_2 = *(u16 *)(arg2 + 0x8);
-                if ((s32)(datCalcMaxHp((DatUnit *)arg2) & 0xFFFF) > (s32)temp_17_2) {
+                temp_17_2 = *(u16 *)((u8 *)arg2 + 0x8);
+                if ((s32)(datCalcMaxHp(arg2) & 0xFFFF) > (s32)temp_17_2) {
                     goto return_zero_hp;
                 }
                 flags |= 1;
@@ -2741,16 +2741,16 @@ done:
 
 // Intent: fills HP amount (*arg4), SP amount (*arg5) and infliction outcome (*arg6) for skill arg0 from source arg1 to target arg2, and clears their +0x18 fields; returns 0 if either unit is null; [inferred].
 // FUN_0023A490
-s32 datCalcSkillOutcome(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 *arg4, s32 *arg5, s32 *arg6)
+s32 datCalcSkillOutcome(s32 arg0, DatUnit *arg1, DatUnit *arg2, s32 arg3, s32 *arg4, s32 *arg5, s32 *arg6)
 {
     s32 var_2;
 
     if (arg1 != NULL && arg2 != NULL) {
         if (arg4 != NULL) {
-            *arg4 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
+            *arg4 = datCalcSkillAmount(arg0, (u8 *)arg1, (u8 *)arg2, 1, 1, 1, arg3, 1);
         }
         if (arg5 != NULL) {
-            *arg5 = datCalcSkillAmount(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
+            *arg5 = datCalcSkillAmount(arg0, (u8 *)arg1, (u8 *)arg2, 1, 1, 1, arg3, 2);
         }
         if (arg6 != NULL) {
             if ((u16)arg0 >= 0x1B8) {
@@ -2766,8 +2766,8 @@ s32 datCalcSkillOutcome(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 *arg4, s32 *
             }
             *arg6 = var_2;
         }
-        *(s32 *)(arg1 + 0x18) = 0;
-        *(s32 *)(arg2 + 0x18) = 0;
+        *(s32 *)((u8 *)arg1 + 0x18) = 0;
+        *(s32 *)((u8 *)arg2 + 0x18) = 0;
         return 1;
     }
     return 0;
@@ -2856,19 +2856,19 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
     }
     switch (temp_16) {
     case 0:
-        found = PTDatCalcHasSkill(arg0, 0x1B8);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1B8);
         if (found != 0) {
             acc |= 0x10000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1B9);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1B9);
         if (found != 0) {
             acc |= 0x1000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1BA);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1BA);
         if (found != 0) {
             acc |= 0x2000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1BB);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1BB);
         if (found != 0) {
             acc |= 0x4000000;
         }
@@ -2876,19 +2876,19 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
     }
     switch (temp_16) {
     case 1:
-        found = PTDatCalcHasSkill(arg0, 0x1BC);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1BC);
         if (found != 0) {
             acc |= 0x10000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1BD);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1BD);
         if (found != 0) {
             acc |= 0x1000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1BE);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1BE);
         if (found != 0) {
             acc |= 0x2000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1BF);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1BF);
         if (found != 0) {
             acc |= 0x4000000;
         }
@@ -2900,19 +2900,19 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
         }
         break;
     case 2:
-        found = PTDatCalcHasSkill(arg0, 0x1C0);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1C0);
         if (found != 0) {
             acc |= 0x10000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1C1);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1C1);
         if (found != 0) {
             acc |= 0x1000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1C2);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1C2);
         if (found != 0) {
             acc |= 0x2000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1C3);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1C3);
         if (found != 0) {
             acc |= 0x4000000;
         }
@@ -2924,19 +2924,19 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
         }
         break;
     case 3:
-        found = PTDatCalcHasSkill(arg0, 0x1C4);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1C4);
         if (found != 0) {
             acc |= 0x10000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1C5);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1C5);
         if (found != 0) {
             acc |= 0x1000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1C6);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1C6);
         if (found != 0) {
             acc |= 0x2000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1C7);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1C7);
         if (found != 0) {
             acc |= 0x4000000;
         }
@@ -2948,19 +2948,19 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
         }
         break;
     case 4:
-        found = PTDatCalcHasSkill(arg0, 0x1C8);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1C8);
         if (found != 0) {
             acc |= 0x10000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1C9);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1C9);
         if (found != 0) {
             acc |= 0x1000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1CA);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1CA);
         if (found != 0) {
             acc |= 0x2000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1CB);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1CB);
         if (found != 0) {
             acc |= 0x4000000;
         }
@@ -2972,35 +2972,35 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
         }
         break;
     case 6:
-        found = PTDatCalcHasSkill(arg0, 0x1CC);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1CC);
         if (found != 0) {
             acc |= 0x10000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1CD);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1CD);
         if (found != 0) {
             acc |= 0x1000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1CE);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1CE);
         if (found != 0) {
             acc |= 0x2000000;
         }
         break;
     case 7:
-        found = PTDatCalcHasSkill(arg0, 0x1CF);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1CF);
         if (found != 0) {
             acc |= 0x10000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1D0);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1D0);
         if (found != 0) {
             acc |= 0x1000000;
         }
-        found = PTDatCalcHasSkill(arg0, 0x1D1);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1D1);
         if (found != 0) {
             acc |= 0x2000000;
         }
         break;
     case 9:
-        found = PTDatCalcHasSkill(arg0, 0x225);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x225);
         if (found != 0) {
             goto acc_9_b;
         }
@@ -3011,13 +3011,13 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
 acc_9_b:
         acc |= 0x10000000;
 skp_9_b:
-        found = PTDatCalcHasSkill(arg0, 0x1D7);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1D7);
         if (found != 0) {
             acc |= 0x1000000;
         }
         break;
     case 8:
-        found = PTDatCalcHasSkill(arg0, 0x226);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x226);
         if (found != 0) {
             goto acc_8_b;
         }
@@ -3028,13 +3028,13 @@ skp_9_b:
 acc_8_b:
         acc |= 0x10000000;
 skp_8_b:
-        found = PTDatCalcHasSkill(arg0, 0x1D2);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1D2);
         if (found != 0) {
             acc |= 0x1000000;
         }
         break;
     case 10:
-        found = PTDatCalcHasSkill(arg0, 0x227);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x227);
         if (found != 0) {
             goto acc_10_b;
         }
@@ -3045,13 +3045,13 @@ skp_8_b:
 acc_10_b:
         acc |= 0x10000000;
 skp_10_b:
-        found = PTDatCalcHasSkill(arg0, 0x1D5);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1D5);
         if (found != 0) {
             acc |= 0x1000000;
         }
         break;
     case 13:
-        found = PTDatCalcHasSkill(arg0, 0x228);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x228);
         if (found != 0) {
             goto acc_13_b;
         }
@@ -3062,13 +3062,13 @@ skp_10_b:
 acc_13_b:
         acc |= 0x10000000;
 skp_13_b:
-        found = PTDatCalcHasSkill(arg0, 0x1D3);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1D3);
         if (found != 0) {
             acc |= 0x1000000;
         }
         break;
     case 15:
-        found = PTDatCalcHasSkill(arg0, 0x22C);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x22C);
         if (found != 0) {
             goto acc_15_b;
         }
@@ -3079,13 +3079,13 @@ skp_13_b:
 acc_15_b:
         acc |= 0x10000000;
 skp_15_b:
-        found = PTDatCalcHasSkill(arg0, 0x1D4);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1D4);
         if (found != 0) {
             acc |= 0x1000000;
         }
         break;
     case 11:
-        found = PTDatCalcHasSkill(arg0, 0x22A);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x22A);
         if (found != 0) {
             goto acc_11_b;
         }
@@ -3096,13 +3096,13 @@ skp_15_b:
 acc_11_b:
         acc |= 0x10000000;
 skp_11_b:
-        found = PTDatCalcHasSkill(arg0, 0x1D6);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1D6);
         if (found != 0) {
             acc |= 0x1000000;
         }
         break;
     case 14:
-        found = PTDatCalcHasSkill(arg0, 0x229);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x229);
         if (found != 0) {
             goto acc_14_b;
         }
@@ -3113,13 +3113,13 @@ skp_11_b:
 acc_14_b:
         acc |= 0x10000000;
 skp_14_b:
-        found = PTDatCalcHasSkill(arg0, 0x1D9);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1D9);
         if (found != 0) {
             acc |= 0x1000000;
         }
         break;
     case 12:
-        found = PTDatCalcHasSkill(arg0, 0x22B);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x22B);
         if (found != 0) {
             goto acc_12_b;
         }
@@ -3130,7 +3130,7 @@ skp_14_b:
 acc_12_b:
         acc |= 0x10000000;
 skp_12_b:
-        found = PTDatCalcHasSkill(arg0, 0x1D8);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1D8);
         if (found != 0) {
             acc |= 0x1000000;
         }
@@ -3146,14 +3146,14 @@ skp_12_b:
     case 0xF:
     case 0xB:
     case 0xE:
-        found = PTDatCalcHasSkill(arg0, 0x1DA);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1DA);
         if (found != 0) {
             acc |= 0x1000000;
         }
         break;
     }
     if (temp_16 != 5) {
-        found = PTDatCalcHasSkill(arg0, 0x1DB);
+        found = PTDatCalcHasSkill((DatUnit *)arg0, 0x1DB);
         if (found != 0) {
             acc |= 0x1000000;
         }
@@ -3253,16 +3253,16 @@ s32 datCalcStatusElement(s32 arg0, s32 arg1)
 
 // Intent: element index of skill arg1 on unit arg0: the monster row's byte, or the persona stat, or the skill-table byte for non-unit skills; callers pass it to datCalcElementBit; [inferred].
 // FUN_0023D8E0
-s32 datCalcSkillElement(u8 *arg0, u16 arg1)
+s32 datCalcSkillElement(DatUnit *arg0, u16 arg1)
 {
     s32 v;
 
     if (arg0 != 0 && (arg1 & 0xFFFF) < 0x1B8 &&
         (((DatSkillEntry *)(iGpffffb3b8 + ((arg1 & 0xFFFF)) * 0x28))->flags00 & 2)) {
         if (*(u16 *)arg0 & 4) {
-            v = iGpffffb3c4[*(u16 *)(arg0 + 2) * 0x3C + 0x38];
+            v = iGpffffb3c4[*(u16 *)((u8 *)arg0 + 2) * 0x3C + 0x38];
         } else {
-            v = (s16)datItemElement((s16)((u16)func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
+            v = (s16)datItemElement((s16)((u16)func_00106cd0(*(s16 *)((u8 *)arg0 + 2), 0) & 0xFFFF));
         }
     } else {
         v = (s8)iGpffffb3b4[(arg1 & 0xFFFF) * 2];
@@ -3396,7 +3396,7 @@ u32 datCalcSkillCost(DatUnit *arg0, s32 arg1)
 #pragma pop
 // Intent: threshold kind byte of skill arg1 from the skill table (1 = HP, 2 = SP); [inferred].
 // FUN_0023DD90
-u16 datCalcThresholdKind(u8 *arg0, s32 arg1)
+u16 datCalcThresholdKind(DatUnit *arg0, s32 arg1)
 {
     u8 *base = iGpffffb3b8 + 3;
     return *(u8 *)(base + (arg1 & 0xFFFF) * 0x28);
@@ -3407,7 +3407,7 @@ u16 datCalcThresholdKind(u8 *arg0, s32 arg1)
 
 // Intent: threshold trigger for skill arg1 on unit arg0: 0 for none, 4 when unit flag 8 is set, 1 when the HP threshold is crossed, 2 for the SP threshold; [inferred].
 // FUN_0023DDC0
-s32 datCalcThresholdTrigger(u8 *arg0, s32 arg1)
+s32 datCalcThresholdTrigger(DatUnit *arg0, s32 arg1)
 {
     s32 var_17;
     s32 idx;
@@ -3421,25 +3421,25 @@ s32 datCalcThresholdTrigger(u8 *arg0, s32 arg1)
     if (iGpffffb3b8[idx + 0x11] == 0x10) {
         return 0;
     }
-    if ((s32)((*(s32 *)(arg0 + 0xC) & 8) != 0) != 0) {
+    if ((s32)((*(s32 *)((u8 *)arg0 + 0xC) & 8) != 0) != 0) {
         return 4;
     }
-    v = datCalcSkillCost((DatUnit *)arg0, arg1);
+    v = datCalcSkillCost(arg0, arg1);
     switch (iGpffffb3b8[idx + 3]) {
     case 1:
         if (!(iGpffffb3b8[idx] & 1)) {
-            if (*(u16 *)(arg0 + 8) > v) {
+            if (*(u16 *)((u8 *)arg0 + 8) > v) {
             } else {
                 var_17 = 1;
             }
         } else {
-            if (*(u16 *)(arg0 + 8) < v) {
+            if (*(u16 *)((u8 *)arg0 + 8) < v) {
                 var_17 = 1;
             }
         }
         break;
     case 2:
-        if (*(u16 *)(arg0 + 0xA) < v) {
+        if (*(u16 *)((u8 *)arg0 + 0xA) < v) {
             var_17 = 2;
         }
         break;
@@ -3482,7 +3482,7 @@ s32 func_0023df70(s32 arg0)
 
 // Intent: default skill id for unit arg0. A stub in retail: it always returns 0, so callers use 0 as "no skill"; [inferred].
 // FUN_0023DFE0
-s32 datCalcDefaultSkillId(u8 *unit)
+s32 datCalcDefaultSkillId(DatUnit *unit)
 {
     return 0;
 }
@@ -3494,7 +3494,7 @@ s32 datCalcDefaultSkillId(u8 *unit)
    through CSE; hoisting and selected-before-index match retail registers. */
 #pragma opt_loop_invariants on
 #pragma opt_common_subs on
-s32 datCalcPickSpecialItem(u8 *arg0)
+s32 datCalcPickSpecialItem(DatUnit *arg0)
 {
     u16 choices[16];
     s32 count;
@@ -3505,8 +3505,8 @@ s32 datCalcPickSpecialItem(u8 *arg0)
     u16 value;
     u32 n;
 
-    count = datCalcGetTableLength(arg0) & 0xFFFF;
-    table = (u16 *)datCalcSkillList(arg0);
+    count = datCalcGetTableLength((u8 *)arg0) & 0xFFFF;
+    table = (u16 *)datCalcSkillList((u8 *)arg0);
     selected = 0;
     index = 0;
     while ((index & 0xFFFF) < (s32)((u32)count % 0x10000U) &&
@@ -3673,7 +3673,7 @@ zero:
 /* measured: close opt_propagation scope after func_0023e3e0. */
 #pragma opt_propagation on
 // FUN_0023E5B0
-s32 func_0023e5b0(u8 *arg0, s32 arg1)
+s32 func_0023e5b0(DatUnit *arg0, s32 arg1)
 {
     s32 temp_3;
     u16 id;
@@ -3691,7 +3691,7 @@ s32 func_0023e5b0(u8 *arg0, s32 arg1)
             goto ret0;
         }
     } else {
-        id = *(u16 *)(arg0 + 2);
+        id = *(u16 *)((u8 *)arg0 + 2);
         if ((s32)id >= 0xB) {
             kAssertFail(D_00635938, 0x103D);
         }
@@ -4329,14 +4329,14 @@ one:
 #pragma pop
 // Intent: true when datCalcSkillAppliesToTarget holds and the skill's category is 9 or 10, or mode arg4 is 2 or 4; [inferred].
 // FUN_00241DE0
-s32 datCalcSkillAllowedForMode(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
+s32 datCalcSkillAllowedForMode(DatUnit *arg0, DatUnit *arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     u8 *entry;
     u32 offset;
     if (!((arg2 & 0xFFFF) < 0x1B8)) {
         kAssertFail(D_00635938, 0x1333);
     }
-    if (datCalcSkillAppliesToTarget(arg0, arg1, arg2, arg3, arg4) == 0) {
+    if (datCalcSkillAppliesToTarget((u8 *)arg0, (u8 *)arg1, arg2, arg3, arg4) == 0) {
         return 0;
     }
     entry = (u8 *)iGpffffb3b8;
@@ -5224,19 +5224,19 @@ void datCalcClearStatusBlocked(u16 *arg0)
 
 // Intent: class of unit arg0: 4 for the main character (id 1), else the record byte at +0x10; callers compare against 4; [inferred].
 // FUN_00243E90
-s32 datCalcUnitClass(u8 *arg0)
+s32 datCalcUnitClass(DatUnit *arg0)
 {
-    if (*(u16 *)(arg0 + 2) == 1) {
+    if (*(u16 *)((u8 *)arg0 + 2) == 1) {
         return 4;
     }
-    return *(s8 *)(arg0 + 0x10);
+    return *(s8 *)((u8 *)arg0 + 0x10);
 }
 
 // Intent: store class byte arg1 in the unit record at +0x10; [inferred].
 // FUN_00243EC0
-void datCalcSetUnitClass(u8 *arg0, s8 arg1)
+void datCalcSetUnitClass(DatUnit *arg0, s8 arg1)
 {
-    arg0[0x10] = (u8)arg1;
+    ((u8 *)arg0)[0x10] = (u8)arg1;
 }
 
 // FUN_00243ED0
