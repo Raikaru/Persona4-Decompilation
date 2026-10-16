@@ -139,7 +139,7 @@ s32 func_00285cc0(u8 *arg0) {
     if (temp_18 != 0) {
         func_00144ed0(temp_18);
     } else {
-        func_00144ed0((s16)func_001546a0(temp_17 & 0xFFFF, temp_16 & 0xFFFF));
+        func_00144ed0((s16)FldEnvStateFromCalendar(temp_17 & 0xFFFF, temp_16 & 0xFFFF));
     }
     func_00440b68(D_0063C310, temp_17, temp_16);
     return 1;

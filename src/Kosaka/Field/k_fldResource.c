@@ -468,8 +468,8 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
     extern s32 FldEnvOpenFile(s32 arg0);
     extern s32 func_00153d60(u8 *arg0, s32 arg1);
-    extern s32 func_00154b10(void);
-    extern s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4, u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8);
+    extern s32 FldCamOpenFile(void);
+    extern s32 FldCamReadRecord(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4, u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8);
     /* lint: allow H011 -- retail passes an already-u16-masked ID as a word;
      * the provider consumes that same u16 ID. */
     extern void MT_Scene_SetResPlacement(s32 id, u8 *position, u8 *angles);
@@ -976,7 +976,7 @@ block_123:
             }
             temp_3_15 = (u8 *)(iGpffff9db0);
             if (*( s32 * )(temp_3_15 + 0xDC) == 0) {
-                *( s32 * )(iGpffff9db0 + 0xDC) = func_00154b10();
+                *( s32 * )(iGpffff9db0 + 0xDC) = FldCamOpenFile();
                 temp_3_16 = (u8 *)(iGpffff9db0);
                 if (*( s32 * )(temp_3_16 + 0xDC) != 0) {
                     *( s32 * )(temp_3_16 + 0x94) = 0xA;
@@ -989,7 +989,7 @@ block_123:
 waitEnvironment:
             temp_2_9 = (u8 *)(iGpffff9db0);
             if (func_00153d60((u8 *)(*( s32 * )(temp_2_9 + 0xDC)), *( s16 * )(temp_2_9 + 0x12)) != 0) {
-                *( s32 * )(iGpffff9db0 + 0xDC) = func_00154b10();
+                *( s32 * )(iGpffff9db0 + 0xDC) = FldCamOpenFile();
                 temp_3_17 = (u8 *)(iGpffff9db0);
                 if (*( s32 * )(temp_3_17 + 0xDC) != 0) {
                     *( s32 * )(temp_3_17 + 0x94) = 0xA;
@@ -1001,7 +1001,7 @@ waitEnvironment:
                 return 0;
             }
 readCamera:
-            if (func_00154be0((u8 *)(*( s32 * )(iGpffff9db0 + 0xDC)), (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, &fieldOfView, &cameraKind, (u8 *)&cameraPosition, &cameraValue60, &cameraValue64, (s32 *)cameraEntries, (s32 *)cameraEntryPositions) != 0) {
+            if (FldCamReadRecord((u8 *)(*( s32 * )(iGpffff9db0 + 0xDC)), (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, &fieldOfView, &cameraKind, (u8 *)&cameraPosition, &cameraValue60, &cameraValue64, (s32 *)cameraEntries, (s32 *)cameraEntryPositions) != 0) {
                 MT_Scene_CreateCameraRes(0, cameraKind, fieldOfView, (u8 *)&cameraMatrix, (u8 *)&secondaryCameraMatrix, (u8 *)&cameraPosition, cameraValue60, cameraValue64, cameraEntries, cameraEntryPositions);
                 *( s32 * )(iGpffff9db0 + 0x94) = 0xB;
                 goto block_259;
