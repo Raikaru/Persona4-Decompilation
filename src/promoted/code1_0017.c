@@ -121,7 +121,7 @@ extern s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2);
 extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);
 extern s32 FldStepAdvance(s32 arg0);
-extern s32 func_00155290(void);
+extern s32 FldSceneLoadReady(void);
 extern s32 FldRc_CreateTransitionTask(s32 arg0, s32 arg1);
 extern s32 scrGetAiState(void);
 extern void func_0029dfe0(s32 arg0, s32 arg1);
@@ -625,7 +625,7 @@ s32 func_00176880(void)
 // FUN_001768B0
 s32 func_001768b0(void)
 {
-    scrSetReturnInt(func_00155290());
+    scrSetReturnInt(FldSceneLoadReady());
     return 1;
 }
 

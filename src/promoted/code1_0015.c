@@ -301,8 +301,9 @@ s32 *MT_Scene_GetFrameState(void)
 {
     return D_007D2510;
 }
+// Intent: Return the scene-load ready flag: 0 while a field load is in progress, 1 once the scene has loaded [inferred]
 // FUN_00155290
-s32 func_00155290(void)
+s32 FldSceneLoadReady(void)
 {
     return iGpffffb210;
 }
@@ -2683,8 +2684,9 @@ slot_test:
 
 /* measured: opt_rebuildconditionals off preserves the retail threshold loop branch shape in func_0015ab20. */
 #pragma opt_rebuildconditionals off
+// Intent: Copy one table entry from the frame state's work block into the step table, if the table marks the band as active [inferred]
 // FUN_0015AB20
-s32 func_0015ab20(s32 arg0, s32 arg1, s32 arg2) {
+s32 FldStepCopyTableEntry(s32 arg0, s32 arg1, s32 arg2) {
     s16 temp_2;
     s32 temp_16;
     s32 temp_5;
@@ -3611,8 +3613,9 @@ loop_test:
     }
     return (u8 *)recordAddress;
 }
+// Intent: Return 1 when every resource in list 3 has its flag 0x10000000 set, otherwise 0 [inferred]
 // FUN_0015F600
-s32 func_0015f600(void)
+s32 MT_Scene_AllResFlagSet(void)
 {
     u8 *work;
     s32 result;
