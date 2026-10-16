@@ -60,8 +60,9 @@ extern void func_0049a660(u8 *arg0);
 
 
 
+// Creates a ring handle: a 4-byte handle plus geometry copies with per-vertex colour rows (minimum three segments).
 // FUN_00498DA0
-u8 *func_00498da0(u8 *arg0) {
+u8 *RingCreateHandle(u8 *arg0) {
     u8 *alloc;
     u8 *p2;
     s32 count;
@@ -97,8 +98,9 @@ u8 *func_00498da0(u8 *arg0) {
     }
     return alloc;
 }
+// Frees a ring handle: its geometry handle, then the handle block.
 // FUN_00498EC0
-void func_00498ec0(void **arg0)
+void RingDestroyHandle(void **arg0)
 {
     func_004833f0(*arg0);
     jtbl_008873EC[0](arg0);
@@ -111,8 +113,9 @@ void func_00498ec0(void **arg0)
    the unsigned segment-count conversion. */
 #pragma push
 #pragma opt_propagation off
+// Rebuilds a ring circle: locks the geometry, samples cos and sin around the fade radius, writes the vertex rows, then unlocks.
 // FUN_00498F10
-void func_00498f10(u8 *arg0)
+void RingRebuildCircle(u8 *arg0)
 {
     u_long128 pair;
     u_long128 slot80;
@@ -261,12 +264,13 @@ void func_00498f10(u8 *arg0)
 }
 #pragma pop
 
-/* Ported from P3FES mdlEffect.c 0x00338360 (twin of func_0049a1a0).
+/* Ported from P3FES mdlEffect.c 0x00338360 (twin of RingUpdateRowColourAlt).
    The VU0 colour-modulate block is genuine hardware asm (Category B) ported
    as inline asm with the pointer passed via a "r" constraint, not a bare
    addiu block. MATCH. */
+// Samples the ring colour fade and writes it to the row; when the row's flag is set, updates the geometry and visible flag.
 // FUN_004992A0
-void func_004992a0(u8 *param_1)
+void RingUpdateRowColour(u8 *param_1)
 {
   u8 *iVar5;
   u8 *iVar1;
@@ -349,8 +353,9 @@ void func_004992a0(u8 *param_1)
     }
   }
 }
+// Writes the line colour into its row; alpha 0xFF is reserved as the marker value, so 0xFE is written in its place.
 // FUN_00499470
-void func_00499470(u8 *arg0) {
+void RingWriteLineColour(u8 *arg0) {
     u8 *p8;
     u8 *p3;
     u8 *dst;
@@ -369,8 +374,9 @@ void func_00499470(u8 *arg0) {
     func_0049a610(*(void **)(p8 + 4));
 }
 
+// Creates a ring with a per-vertex random scale and a texture from the kind table.
 // FUN_00499510
-u8 *func_00499510(u8 *arg0) {
+u8 *RingCreateRandomScaled(u8 *arg0) {
     u8 *work;
     u8 *p;
     u32 count;
@@ -397,7 +403,7 @@ u8 *func_00499510(u8 *arg0) {
     *(u32 *)(work + 0) = (u32)p;
     *(u32 *)(work + 0xC) = (u32)p;
     memcpy(arg0 + 0x5C, arg0, 0x5C);
-    *(u32 *)(work + 4) = (u32)func_0049a370(1, arg0 + 0x5C);
+    *(u32 *)(work + 4) = (u32)RingCreateKindInstance(1, arg0 + 0x5C);
     *(u32 *)(work + 8) = (u32)func_00482f70(count & 0xFFFF, 2, 4, D_00713390, 0x48);
     dst = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(work + 8) + 0x10) + 0x18) + 0x30);
     v44 = *(s32 *)(arg0 + 0x44);
@@ -418,8 +424,9 @@ u8 *func_00499510(u8 *arg0) {
     }
     return work;
 }
+// Frees a ring block: its geometry handle, its second handle, then the block itself.
 // FUN_004996E0
-void func_004996e0(u8 *arg0)
+void RingDestroyBlock(u8 *arg0)
 {
     func_004833f0(*(void **)(arg0 + 8));
     func_0049a570(*(void **)(arg0 + 4));
@@ -433,8 +440,9 @@ void func_004996e0(u8 *arg0)
    FPU-to-VU bridge, which declares its actual scratch output. */
 #pragma push
 #pragma opt_loop_invariants on
+// Rebuilds the ring strip vertices from the two geometry handles, locking and unlocking each geometry around the vertex loop.
 // FUN_00499730
-void func_00499730(u8 *arg0)
+void RingRebuildStrip(u8 *arg0)
 {
     u8 *temp_3;
     u8 *temp_5;
@@ -575,8 +583,9 @@ void func_00499730(u8 *arg0)
 }
 #pragma pop
 
+// Updates a line-nova segment from the source's state block when the row is live.
 // FUN_00499A30
-void func_00499a30(u8 *arg0)
+void RingUpdateLineSegment(u8 *arg0)
 {
     u8 *temp_16;
     u8 *temp_18;
@@ -669,8 +678,9 @@ void func_00499a30(u8 *arg0)
     }
 }
 
+// Writes the line colour into its row; alpha 0xFF is reserved as the marker value, so 0xFE is written in its place.
 // FUN_00499C50
-void func_00499c50(u8 *arg0) {
+void RingWriteLineColourAlt(u8 *arg0) {
     u8 *p4;
     u8 *dst;
 
@@ -686,8 +696,9 @@ void func_00499c50(u8 *arg0) {
     }
 }
 
+// Creates a ring handle with geometry copies and per-vertex colour rows. Same body as RingCreateHandle.
 // FUN_00499CD0
-u8 *func_00499cd0(u8 *arg0) {
+u8 *RingCreateHandleAlt(u8 *arg0) {
     u8 *alloc;
     u8 *p2;
     s32 count;
@@ -723,8 +734,9 @@ u8 *func_00499cd0(u8 *arg0) {
     }
     return alloc;
 }
+// Frees a ring handle: its geometry, then the handle block. Same body as RingDestroyHandle.
 // FUN_00499DF0
-void func_00499df0(void **arg0)
+void RingDestroyHandleAlt(void **arg0)
 {
     func_004833f0(*arg0);
     jtbl_008873EC[0](arg0);
@@ -735,8 +747,9 @@ void func_00499df0(void **arg0)
    store until the independent outer-vector multiply completes. */
 #pragma push
 #pragma opt_propagation off
+// Rebuilds a scaled ring circle: samples cos and sin around the fade radius and writes the vertex and colour rows.
 // FUN_00499E40
-void func_00499e40(u8 *arg0)
+void RingRebuildCircleScaled(u8 *arg0)
 {
     u8 *temp_18;
     u8 *temp_17;
@@ -865,10 +878,11 @@ void func_00499e40(u8 *arg0)
 }
 #pragma pop
 
-/* Ported from P3FES mdlEffect.c 0x00338360 (twin of func_004992a0).
+/* Ported from P3FES mdlEffect.c 0x00338360 (twin of RingUpdateRowColour).
    Same VU0 inline-asm + constraint-pointer shape as its twin. MATCH. */
+// Updates a ring row colour and geometry: the second caller's copy of RingUpdateRowColour.
 // FUN_0049A1A0
-void func_0049a1a0(u8 *param_1)
+void RingUpdateRowColourAlt(u8 *param_1)
 {
   u8 *iVar5;
   u8 *iVar1;
@@ -951,11 +965,12 @@ void func_0049a1a0(u8 *param_1)
     }
   }
 }
+// Creates a kind instance (kind below four): allocates the instance block, copies the kind's parameters and runs its init callback.
 // FUN_0049A370
 /* measured: opt_propagation off keeps the named D_00713CE0 pointer's
    lui/addiu/lq sequence instead of folding the low half into lq. */
 #pragma opt_propagation off
-u8 *func_0049a370(u16 arg0, u8 *arg1)
+u8 *RingCreateKindInstance(u16 arg0, u8 *arg1)
 {
     u8 *p;
     u_long128 *quadSrc;
@@ -989,15 +1004,16 @@ u8 *func_0049a370(u16 arg0, u8 *arg1)
     return p;
 }
 #pragma opt_propagation on
+// Creates a kind instance for an object: resolves the object's record, then builds the instance for its kind (asserts on a missing record).
 // FUN_0049A4E0
-void *func_0049a4e0(void *arg0) {
+void *RingCreateKindInstanceFromObject(void *arg0) {
     u8 *p;
 
     p = func_00484490(arg0);
     if (p == NULL) {
         kAssertFail(D_00713EF0, 0x2E5);
     }
-    p = func_0049a370(*(u16 *)((u8 *)arg0 + 0xC), p);
+    p = RingCreateKindInstance(*(u16 *)((u8 *)arg0 + 0xC), p);
     if (p == NULL) {
         kAssertFail(D_00713EF0, 0x2E7);
     }

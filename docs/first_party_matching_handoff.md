@@ -4244,7 +4244,7 @@ re-probed with the full eight-variant procedure on 2026-09-18:
 `func_0024be40` (8), `func_001b11c0` (5), `func_0025dd30` (6),
 `func_00268230` (12), `func_0012d630` (13), `func_00365f00` (13),
 `func_0048a460` (15), plus `func_00224450` (32), `func_00331a20` (24),
-`func_00498f10` (34) and `func_0048a980` (5).  **Every one of them tied at its
+`RingRebuildCircle` (was `func_00498f10`) (34) and `func_0048a980` (5).  **Every one of them tied at its
 old score.**  So 7o is a real lever but not a general solvent for the class.
 
 Two things came out of those 88 measurements that are worth knowing:
