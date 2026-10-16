@@ -79,7 +79,7 @@ extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_00626C80[];
 extern void btlGaugeSetActive();
 extern s32 func_00221940(KwlnTask *task);
-extern void btlShuffleTaskSetFlag4(s32 arg0);
+extern void btlShuffleTaskRequestCancel(s32 arg0);
 extern void func_00221770(s32 arg0);
 extern u8 D_006290E0[];
 
@@ -4029,12 +4029,12 @@ s32 btlShuffleIsIdle(s32 task)
 s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
 {
     s32 arg0 = (s32)sdkTaskBytes;
-    extern s32 btlShuffleTaskHasFlag4(s32 arg0);
+    extern s32 btlShuffleTaskIsCancelRequested(s32 arg0);
     extern s32 func_002218e0(KwlnTask *task);
-    extern void btlShuffleTaskSetFlag1(s32 arg0);
+    extern void btlShuffleTaskSetBusy(s32 arg0);
     extern void btlXpPrepareAwards(u8 *arg0, u8 *arg1);
     extern s32 btlResultSimpleSetDoneFlag(s32 arg0);
-    extern s32 btlShuffleTaskHasFlag1(s32 arg0);
+    extern s32 btlShuffleTaskIsBusy(s32 arg0);
     extern void btlShuffleTaskResetPhase(s32 arg0);
     extern s32 btlResultSimpleIsDone(s32 arg0);
     extern void btlResultSimpleOnConfirm(s32 arg0);
@@ -4067,7 +4067,7 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
             if ((flags & 2) != 0) {
                 ready = 1;
                 if ((*(s32 *)(work + 0x60) & 1) != 0 &&
-                    btlShuffleTaskHasFlag4(*(s32 *)(work + 0x938)) != 0) {
+                    btlShuffleTaskIsCancelRequested(*(s32 *)(work + 0x938)) != 0) {
                     ready = 0;
                 }
                 if (func_002218e0(*(KwlnTask **)(work + 0x93C)) != 0) {
@@ -4086,7 +4086,7 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
     case 3:
         flags = *(s32 *)(work + 0x60);
         if ((flags & 1) != 0) {
-            btlShuffleTaskSetFlag1(*(s32 *)(work + 0x938));
+            btlShuffleTaskSetBusy(*(s32 *)(work + 0x938));
             *(s32 *)(work + 4) = 4;
         } else {
             btlXpPrepareAwards(work + 0x60, work + 8);
@@ -4095,7 +4095,7 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
         }
         break;
     case 4:
-        if (btlShuffleTaskHasFlag1(*(s32 *)(work + 0x938)) == 0) {
+        if (btlShuffleTaskIsBusy(*(s32 *)(work + 0x938)) == 0) {
             btlShuffleTaskResetPhase(*(s32 *)(work + 0x938));
             *(s32 *)(work + 0x938) = 0;
             btlXpPrepareAwards(work + 0x60, work + 8);
@@ -4226,7 +4226,7 @@ void btlShuffleCancel(s32 task)
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     if ((*(s32 *)(p + 0x60) & 1) != 0) {
-        btlShuffleTaskSetFlag4(*(s32 *)(p + 0x938));
+        btlShuffleTaskRequestCancel(*(s32 *)(p + 0x938));
     }
     func_00221770(*(s32 *)(p + 0x93C));
     *(s32 *)p |= 2;
