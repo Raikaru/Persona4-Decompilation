@@ -18,7 +18,7 @@ extern void btlShuffleEffInitTrail(u8 *arg0, s32 arg1);
 extern u8 *func_004b1130();
 extern void func_004b1150(u8 *a);
 extern void func_004b1170(s32 a);
-extern void func_004b1250(s32 a, void *b);
+extern void func_004b1250(void *a, void *b);
 extern void func_004b1290(u8 *a, f32 b, f32 c, f32 d);
 extern void func_004b13d0(u8 *a, f32 b);
 /* The callee's real signature is (f32 *, f32 *, f32); this caller-side prototype keeps the
@@ -40,7 +40,7 @@ void btlShuffleEffFree(u8 *arg0) {
     u8 *tbl;
     s32 i;
     u8 *e;
-    s32 *eff;
+    u8 **eff;
 
     tbl = *(u8 **)(arg0 + 0x38);
     for (i = 0; i < 9; i++) {
@@ -48,9 +48,9 @@ void btlShuffleEffFree(u8 *arg0) {
             kAssertFail(&D_0064F210[0], 0x55);
         }
         e = tbl + i * 8;
-        eff = (s32 *)(e + 0xC);
+        eff = (u8 **)(e + 0xC);
         if (*eff != 0) {
-            func_004b1150((u8 *)*eff);
+            func_004b1150(*eff);
             *eff = 0;
         }
         *(u16 *)(tbl + 4) &= ~(1 << i);
@@ -81,7 +81,7 @@ void btlShuffleEffRelease(u8 *arg0) {
     s32 i;
     u8 *tbl;
     u8 *e;
-    s32 *eff;
+    u8 **eff;
 
     tbl = *(u8 **)(arg0 + 0x38);
     for (i = 0; i < 9; i++) {
@@ -90,9 +90,9 @@ void btlShuffleEffRelease(u8 *arg0) {
                 kAssertFail(&D_0064F210[0], 0x55);
             }
             e = tbl + i * 8;
-            eff = (s32 *)(e + 0xC);
+            eff = (u8 **)(e + 0xC);
             if (*eff != 0) {
-                func_004b1150((u8 *)*eff);
+                func_004b1150(*eff);
                 *eff = 0;
             }
             *(u16 *)(tbl + 4) &= ~(1 << i);
@@ -132,9 +132,9 @@ void btlShuffleEffUpdate(u8 *arg0) {
             sp68[1] = src[1];
             btlShuffleCalcStepPose(&sp68[0], src[2], &sp58[0]);
             btlShuffleCalcLookAt(sp58, sp58);
-            func_004b1250(*(s32 *)(e + 4), sp58);
-            func_004b1290((u8 *)*(s32 *)(e + 4), src[3], src[4], src[5]);
-            func_004b13d0((u8 *)*(s32 *)(e + 4), src[6]);
+            func_004b1250(*(u8 **)(e + 4), sp58);
+            func_004b1290(*(u8 **)(e + 4), src[3], src[4], src[5]);
+            func_004b13d0(*(u8 **)(e + 4), src[6]);
         }
     }
 }
@@ -143,7 +143,7 @@ void btlShuffleEffUpdate(u8 *arg0) {
 void btlShuffleEffInitTrail(u8 *arg0, s32 arg1) {
     u8 *tbl;
     u8 *e;
-    s32 *eff;
+    u8 **eff;
     s32 base;
     s32 off;
     s32 mask;
@@ -163,11 +163,11 @@ void btlShuffleEffInitTrail(u8 *arg0, s32 arg1) {
         if (!(*(u16 *)(tbl + 4) & (u16)mask)) {
             eoff = arg1 * 8;
             e = (u8 *)(eoff + (s32)tbl);
-            eff = (s32 *)(e + 0xC);
+            eff = (u8 **)(e + 0xC);
             if (*eff != 0) {
                 kAssertFail(&D_0064F210[0], 0x42);
             }
-            *eff = (s32)func_004b1130(((s32 *)(off + *(s32 *)tbl))[0x7CAE]);
+            *eff = func_004b1130(((s32 *)(off + *(s32 *)tbl))[0x7CAE]);
             *(u16 *)(tbl + 4) |= (u16)mask;
         }
         eoff = arg1 * 8;
@@ -203,17 +203,17 @@ void btlShuffleEffInitTrail(u8 *arg0, s32 arg1) {
 void btlShuffleEffSetup(u8 *arg0, s32 arg1)
 {
     u8 *eff;
-    s32 *slot;
-    s32 held;
+    u8 **slot;
+    u8 *held;
 
     eff = *(u8 **)(arg0 + 0x38);
     if (arg1 < 0 || arg1 >= 9) {
         kAssertFail(&D_0064F210[0], 0x55);
     }
-    slot = (s32 *)(bseSlot(arg1 * 8, (u32)eff) + 0xC);
-    held = *(s32 *)(bseSlot(arg1 * 8, (u32)eff) + 0xC);
+    slot = (u8 **)(bseSlot(arg1 * 8, (u32)eff) + 0xC);
+    held = *(u8 **)(bseSlot(arg1 * 8, (u32)eff) + 0xC);
     if (held != 0) {
-        func_004b1150((u8 *)held);
+        func_004b1150(held);
         *slot = 0;
     }
     /* measured: the compound assignment evaluates the mask before loading the
