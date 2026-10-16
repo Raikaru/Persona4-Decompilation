@@ -55,7 +55,7 @@ extern f32 smapPlayerOffsetX(u8 *arg0, f32 arg1);
 extern f32 smapPlayerOffsetZ(u8 *arg0, f32 arg1);
 extern f32 smapPositionOffsetX(f32 arg1, YVec3f *arg0);
 extern f32 smapPositionOffsetZ(f32 arg1, YVec3f *arg0);
-extern s32 func_002b2960(void);
+extern s32 ySymbolIsEnabled(void);
 extern s32 fclPackRgba(u8, u8, u8, u8);
 extern void fclAnchorOffset(f32 *arg0, s64 arg1, f32 arg2, f32 arg3, f32 arg4,
                           f32 arg5);
@@ -159,7 +159,7 @@ s32 mapSymbolPointUpdate(u8 *arg0)
     fclAnchorOffset((f32 *)&temp, 0, 136.0f, 136.0f, 21.0f, 22.0f);
     *(f32 *)(base + 0) = (tx = temp.x, ty = temp.y, tx);
     *(f32 *)(base + 4) = ty;
-    if (func_002b2960() == 0) {
+    if (ySymbolIsEnabled() == 0) {
         return 0;
     }
     if (*(s8 *)p == 0) {
@@ -264,7 +264,7 @@ s32 mapSymbolEntityUpdate(u8 *arg0)
     fclAnchorOffset((f32 *)&temp, 0, 136.0f, 136.0f, 21.0f, 22.0f);
     *(f32 *)(base + 0) = (tx = temp.x, ty = temp.y, tx);
     *(f32 *)(base + 4) = ty;
-    if (func_002b2960() == 0) {
+    if (ySymbolIsEnabled() == 0) {
         return 0;
     }
     if (*p == 0) {
@@ -417,7 +417,7 @@ s32 mapSymbolTargetUpdate(u8 *arg0)
     fclAnchorOffset((f32 *)&temp, 0, 136.0f, 136.0f, 21.0f, 22.0f);
     *(f32 *)(base.bytes + 0) = (tx = temp.x, ty = temp.y, tx);
     *(f32 *)(base.bytes + 4) = ty;
-    if (func_002b2960() == 0) {
+    if (ySymbolIsEnabled() == 0) {
         return 0;
     }
     if (*(s32 *)((u8 *)&D_007E80A8 + p[0xB] * 0x168) == 1) {
