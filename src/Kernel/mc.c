@@ -87,7 +87,7 @@ extern f32 sinf(f32);
 extern f32 iGpffff81e0;
 extern void func_00364c50(void);
 extern void func_00364c70(void);
-extern void func_0045dfd0(void *, void *, f32, s32, s32, s32);
+extern void PrimDrawPoints(void *, void *, f32, s32, s32, s32);
 extern void mcDrawCircleFan(f32, f32, f32, s32, s32, f32, f32, s32);
 extern void func_0045ed60(void *, void *, s32, f32);
 typedef struct { s32 a, b, c, d; } Quad4;
@@ -1694,9 +1694,9 @@ void mcDrawCircleFan(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
         func_00364c50();
     }
     if (!(arg2 & 4)) {
-        func_0045dfd0(&colors[0][0], &arr[0].a, fparg2, 0x29, 5, arg2 & 1);
+        PrimDrawPoints(&colors[0][0], &arr[0].a, fparg2, 0x29, 5, arg2 & 1);
     } else {
-        func_0045dfd0(&colors[1][0], &arr[1].a, fparg2, 0x28, 2, arg2 & 1);
+        PrimDrawPoints(&colors[1][0], &arr[1].a, fparg2, 0x28, 2, arg2 & 1);
     }
     if (arg1 == 0xFF && !(arg2 & 2)) {
         func_00364c70();

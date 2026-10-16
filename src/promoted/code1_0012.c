@@ -19,7 +19,7 @@ extern u8 iGpffffb1d4;
 extern u8 iGpffffb1d0;
 extern f32 sinf();
 extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-extern void func_0045dfd0(void *arg0, void *arg1, f32 fparg0, s32 arg2,
+extern void PrimDrawPoints(void *arg0, void *arg1, f32 fparg0, s32 arg2,
                           s32 arg3, s32 arg4);
 extern f32 fGpffff8478;
 extern f32 cosf(f32 fparg0);
@@ -723,7 +723,7 @@ void fadeDrawMesh(void)
             quad[1] = *(Code1Point2 *)((u8 *)point + 8);
             quad[2] = *(Code1Point2 *)(point + 1);
             quad[3] = *(Code1Point2 *)((u8 *)(point + 1) + 8);
-            func_0045dfd0(color, quad, 0.0f, 4, 4, 1);
+            PrimDrawPoints(color, quad, 0.0f, 4, 4, 1);
             i++;
         }
     }
@@ -2322,7 +2322,7 @@ void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     D_00887300[0](6, 1);
     RpSkyRenderStateSet(3, 0x5000D);
     RpSkyRenderStateSet(2, 0x58);
-    func_0045e6a0(sp70, sp40, fparg2, 6, 4, 0, 0, 0,
+    PrimDrawTransformed(sp70, sp40, fparg2, 6, 4, 0, 0, 0,
                   -20.0f, 1.0f, 1.0f);
 }
 extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);

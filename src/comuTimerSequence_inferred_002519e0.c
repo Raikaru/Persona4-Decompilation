@@ -37,7 +37,7 @@ extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
 extern f32 fGpffff8200;
-extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0,
+extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
                            s32 arg2, s32 arg3, s32 arg4);
 extern void func_0045ee00(s32 arg0, s32 arg1, void *arg2, s32 arg3,
                            f32 farg0, f32 farg1, s32 arg4);

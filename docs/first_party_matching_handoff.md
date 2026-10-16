@@ -2100,7 +2100,7 @@ candidate.
 **When a caller and a callee disagree, the caller decides.** Reordering a
 callee's own parameter list is ABI-neutral and leaves its body byte-exact, so a
 MATCHed definition proves nothing about the order; a MATCHed *caller* does,
-because its argument setup is emitted in that order. `func_0045da40` in
+because its argument setup is emitted in that order. `PrimQueueRectangle` (was `func_0045da40`) in
 `src/sdkPrimitive.c` was declared floats-last and its MATCHed caller
 `func_0027d660` in `src/promoted/itfMsgProcedure_Window.c` passes the float
 third; rewriting the caller to the definition's order turned it into a
@@ -3403,7 +3403,7 @@ the body emits retail's instructions against registers shifted by one, most
 often `$s0`/`$s1`/`$s2` for integer anchors or `$f0`/`$f1`/`$f2` for a
 float triple.  Examples measured 2026-09-19: `func_003c0050` (36/36 exact, 26
 words) holds the list end in the wrong saved register and tests `bne` where
-retail tests `beq`; `func_0045e8e0` and `func_0045eb20` in `sdkPrimitive.c`
+retail tests `beq`; `PrimQueueBatch` (was `func_0045e8e0`) and `PrimQueueBatchAlpha` (was `func_0045eb20`) in `sdkPrimitive.c`
 both keep the work pointer in `$s0` where retail uses `$s2`, repeated at eight
 sites each; `mdlEffectProjectAnchorDepth` (was `func_0048a460`) rotates a float triple, `$f0`/`$f1`/`$f2` against
 `$f2`/`$f0`/`$f1`, through two divisions.

@@ -320,7 +320,7 @@ void func_00100670(void)
     extern s32 func_003f6780(s32 arg0);
     extern s32 func_003e8a10(s32 arg0);
     extern s32 func_003e22c0(s32 arg0);
-    extern u32 func_00481250(void);
+    extern u32 PrimInterpRegister(void);
     extern s32 func_003f4f90(s32 arg0, s32 arg1, s32 arg2);
     extern s32 func_003e8a50(void);
     extern s32 FldShadow_InstallIntcHandler(void);
@@ -585,7 +585,7 @@ void func_00100670(void)
     func_003f6780(0);
     func_003e8a10(0x52);
     func_003e22c0(0x380000);
-    func_00481250();
+    PrimInterpRegister();
     func_003f4f90(0x280000, 0x400, 0);
     func_003e8a50();
     FldShadow_InstallIntcHandler();

@@ -93,7 +93,7 @@ extern f32 cosf(f32 fparg0);
 extern f32 sinf(f32 fparg0);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
-extern void func_0045db40(u8 *color, u8 *rectangle, f32 depth,
+extern void PrimDrawRectangle(u8 *color, u8 *rectangle, f32 depth,
                           s32 saveState, s32 centerX, s32 centerY,
                           f32 rotation, f32 scaleX, f32 scaleY);
 
@@ -763,7 +763,7 @@ extern u8 D_00635CE0[];
 extern f32 D_00761174, D_0076118C, D_00761308, D_0076132C, D_0076139C;
 s32 func_0025f3f0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5);
 s32 func_0025f430(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5);
-void func_0045dfd0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4);
+void PrimDrawPoints(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4);
 u8 *resourceFindByName(char *a0);
 f32 sdkSpriteEntryWidth(void *a0, s32 a1);
 void sdkSpriteDrawNowUnscaled(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, void *a3, s32 a4);
@@ -925,7 +925,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
                 movingColors[vertex].b = 0;
                 movingColors[vertex].a = 0x99;
             }
-            func_0045dfd0(movingColors, movingPoints, 0.0f, 4, 4, 1);
+            PrimDrawPoints(movingColors, movingPoints, 0.0f, 4, 4, 1);
             relation = *(s32 *)(context + 4);
             sprites = *(u8 **)(context + 0x10);
             font = resourceFindByName((char *)D_00635CE0);
@@ -981,7 +981,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
                 fixedColors[vertex].b = 0;
                 fixedColors[vertex].a = 0x99;
             }
-            func_0045dfd0(fixedColors, fixedPoints, 0.0f, 4, 4, 1);
+            PrimDrawPoints(fixedColors, fixedPoints, 0.0f, 4, 4, 1);
             relation = *(s32 *)(context + 4);
             sprites = *(u8 **)(context + 0x10);
             font = resourceFindByName((char *)D_00635CE0);
@@ -1095,7 +1095,7 @@ extern u8 D_006362D0[], D_00635CC0[], D_00635CE0[];
 extern f32 D_0076118C;
 s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
-void func_0045dfd0(void *, void *, f32, s32, s32, s32);
+void PrimDrawPoints(void *, void *, f32, s32, s32, s32);
 u8 *resourceFindByName(char *);
 f32 sdkSpriteEntryWidth(void *, s32);
 void sdkSpriteDrawNowUnscaled(f32, f32, f32, s32, u8, s32, void *, s32);
@@ -1322,7 +1322,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
             fixedColors[vertex].b = 0;
             fixedColors[vertex].a = 153;
         }
-        func_0045dfd0(fixedColors, fixedPoints, 0.0f, 4, 4, 1);
+        PrimDrawPoints(fixedColors, fixedPoints, 0.0f, 4, 4, 1);
         relation = *(s32 *)(context + 4);
         sprites = *(u8 **)(context + 0x10);
         font = resourceFindByName((char *)D_00635CE0);
@@ -1391,7 +1391,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
             movingColors[vertex].b = 0;
             movingColors[vertex].a = 153;
         }
-        func_0045dfd0(movingColors, movingPoints, 0.0f, 4, 4, 1);
+        PrimDrawPoints(movingColors, movingPoints, 0.0f, 4, 4, 1);
         relation = *(s32 *)(context + 4);
         sprites = *(u8 **)(context + 0x10);
         font = resourceFindByName((char *)D_00635CE0);
@@ -1626,7 +1626,7 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
        `srl` (R36/R38/R40/R42), the s32 spelling emitted `sra`.
    (b) the packed3/packed4 component masks are gone: retail masks only the `packed` and
        `packed2` sets (`andi` at R22/R24/R26/R27 and R41/R43/R45/R46) because b1 is passed to
-       func_0045e6a0, and leaves the other two unmasked (R53-R55, R61-R63) since `sb` truncates.
+       PrimDrawTransformed, and leaves the other two unmasked (R53-R55, R61-R63) since `sb` truncates.
    (c) the `one = 1` dummy local is deleted - `i == 1` measures identically (154 both ways), and
        retail's `addiu $s0, $zero, 1` at R47 is the allocator hoisting the constant by itself.
    Remaining wall is register pressure, not structure: retail saves $s0-$s5 (frame 0x140, ra at
@@ -1753,7 +1753,7 @@ void func_002561f0(f32 translateX, f32 translateY, f32 depth,
     }
     offsetX = (s16)offsetX;
     offsetY = (s16)offsetY;
-    func_0045e6a0(colors, &positions,
+    PrimDrawTransformed(colors, &positions,
                   depth, 16U, 4, saveState, offsetX, offsetY,
                   0.0f, scaleX, scaleY);
 }
@@ -1861,7 +1861,7 @@ void func_00256460(f32 translateX, f32 translateY, f32 depth,
     }
     offsetX = (s16)offsetX;
     offsetY = (s16)offsetY;
-    func_0045e6a0(colors, &positions,
+    PrimDrawTransformed(colors, &positions,
                   depth, 16U, 4, saveState, offsetX, offsetY,
                   0.0f, scaleX, scaleY);
 }
@@ -2183,7 +2183,7 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
     (*(void (**)(u32, u32))renderState)(8, 1);
     RpSkyRenderStateSet(3, 0x71003);
     RpSkyRenderStateSet(2, 0x44);
-    func_0045db40((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 0,
+    PrimDrawRectangle((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 0,
                   45.0f, 1.0f, 1.0f);
     func_00366c70((s32)(state.f4 + deltaX), (s32)(state.f8 + deltaY), 5.0f,
                   state.f20, state.f22, (u32)state.f18 >> 8,
@@ -2234,7 +2234,7 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
     (*(void (**)(u32, u32))renderState)(8, 1);
     RpSkyRenderStateSet(3, 0x71003);
     RpSkyRenderStateSet(2, 0x44);
-    func_0045db40((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 200,
+    PrimDrawRectangle((u8 *)&wipeColor, (u8 *)&rectangle, 0.0f, 0, 200, 200,
                   45.0f, 1.0f, 1.0f);
     func_00366c70((s32)(state.f4 - deltaX), (s32)(state.f8 - deltaY), 5.0f,
                   state.f20, state.f22, (u32)state.f18 >> 8,

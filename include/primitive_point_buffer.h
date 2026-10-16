@@ -11,7 +11,7 @@ typedef union {
 } PrimPointRow;
 
 /* Immediate input buffers: four color bytes and a two-float point per vertex. */
-void func_0045e6a0(const void *colors, const void *positions,
+void PrimDrawTransformed(const void *colors, const void *positions,
                   f32 depth, u32 count, s32 primitive, s32 saveState,
                   s32 offsetX, s32 offsetY, f32 rotation, f32 scaleX, f32 scaleY);
 
