@@ -434,9 +434,9 @@ s32 btlSelectionReadInput(u8 *arg0)
         }
         if (moved != 0 && (selection->flags & 8) != 0) {
             if (page == 0) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             } else {
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
             }
         }
         return (u16)(single != 0 ? 5 : 7);
@@ -498,9 +498,9 @@ s32 btlSelectionReadInput(u8 *arg0)
         }
         if (moved != 0 && (selection->flags & 8) != 0) {
             if (page == 0) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
             } else {
-                func_0045af60(0, 0, 0, 5);
+                sdkSndStartStream(0, 0, 0, 5);
             }
         }
         return (u16)(single != 0 ? 6 : 8);
@@ -2213,7 +2213,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     input = btlSelectionReadInput(selection) & 0xFFFF;
     if (input == 1) {
     if (*(s16 *)(selection + 4) != 3) {
-        func_0045af60(0, 0, 0, 2);
+        sdkSndStartStream(0, 0, 0, 2);
     }
     *(s16 *)(selection + 4) = 3;
     *(s16 *)(selection + 2) = 0;
@@ -2221,7 +2221,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     if (func_001f0620(*(u8 **)(work + 0x178), 0xA) == 0) {
         return 1;
     }
-    func_0045af60(0, 0, 0, 3);
+    sdkSndStartStream(0, 0, 0, 3);
     *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 0xA;
     if (datGetFlag(0x38) != 0) {
         subAction = 0x10B;
@@ -2238,7 +2238,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     switch (*(s16 *)(selection + 4)) {
     case 3:
         if (func_001f0620(*(u8 **)(work + 0x178), 1) == 0) {
-            func_0045af60(0, 0xF, 0, 8);
+            sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
         *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 1;
@@ -2250,7 +2250,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
             if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA64), 8) != 0) {
                 btlUiSelectEffect((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x90);
             }
-            func_0045af60(0, 0xF, 0, 8);
+            sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
         datPersonaGetRecord(*(u16 *)(*(u8 **)(*(u8 **)(work + 0x178) + 0x30) + 0xA4));
@@ -2267,7 +2267,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
             if (*(s16 *)(work + 0x5A6) == 0) {
                 btlUiSelectEffect((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x92);
             }
-            func_0045af60(0, 0xF, 0, 8);
+            sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
         btlSelectionInit(work + 0xA8, 4, *(s16 *)(work + 0x5A6), btlSelectionResetPageState, btlSelectionHandleItemInput,
@@ -2283,7 +2283,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
             if ((s32)(func_001ef720(1, 0) & 0xFFFF) < 2) {
                 btlUiSelectEffect((s32)(u32)*(u8 **)(*(u8 **)(work + 0x178) + 0x30), 0x93);
             }
-            func_0045af60(0, 0xF, 0, 8);
+            sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
         partyCount = 0;
@@ -2312,7 +2312,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
                     btlUiSelectEffect((s32)(u32)*(u8 **)(action + 0x30), 0x95);
                 }
             }
-            func_0045af60(0, 0xF, 0, 8);
+            sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
         *(u8 **)(work + 0x5A8) = shdPersonaTaskCreate(*(s32 *)(work + 0x5B0), 0xF, 1, 8, 8);
@@ -2328,7 +2328,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     case 7:
         if (func_001f0620(*(u8 **)(work + 0x178), 6) == 0) {
             btlActionRunTargetCallback((s32)(u32)*(u8 **)(work + 0x178), 5, 0, 0, 2);
-            func_0045af60(0, 0xF, 0, 8);
+            sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
         *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 6;
@@ -2336,7 +2336,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         break;
     case 2:
         if (func_001f0620(*(u8 **)(work + 0x178), 7) == 0) {
-            func_0045af60(0, 0xF, 0, 8);
+            sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
         *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 7;
@@ -2344,10 +2344,10 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
         break;
     case 0:
         if (func_001f0620(*(u8 **)(work + 0x178), 0xA) == 0) {
-            func_0045af60(0, 0xF, 0, 8);
+            sdkSndStartStream(0, 0xF, 0, 8);
             return 1;
         }
-        func_0045af60(0, 0, 0, 3);
+        sdkSndStartStream(0, 0, 0, 3);
         *(s16 *)(*(u8 **)(work + 0x178) + 0x6C) = 0xA;
         if (datGetFlag(0x38) != 0) {
             subAction = 0x10B;
@@ -2669,7 +2669,7 @@ void btlSelectionResetState(u8 *arg0, u8 *arg1)
 {
     u8 *p;
 
-    func_0045af60(0, 0, 0, 3);
+    sdkSndStartStream(0, 0, 0, 3);
     if (datGetFlag(0x3C) != 0) {
         p = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x3F0);
         if (p != NULL) {
@@ -2715,7 +2715,7 @@ u16 btlSelectionHandleSkillInput(u8 *arg0, u8 *arg1)
             *(s16 *)(arg1 + 0x1A) = 0;
             var_16 = 4;
         } else {
-            func_0045af60(0, 15, 0, 8);
+            sdkSndStartStream(0, 15, 0, 8);
             var_16 = 1;
         }
         break;
@@ -2723,18 +2723,18 @@ u16 btlSelectionHandleSkillInput(u8 *arg0, u8 *arg1)
         temp_2 = *(s32 *)(arg1 + 4) ^ 4;
         *(s32 *)(arg1 + 4) = temp_2;
         if ((temp_2 & 4) != 0) {
-            func_0045af60(1, 13, 2, 23);
+            sdkSndStartStream(1, 13, 2, 23);
         } else {
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         }
         break;
     case 1:
         if ((*(s32 *)(arg1 + 4) & 4) != 0) {
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
             *(s32 *)(arg1 + 4) &= ~4;
             var_16 = 1;
         } else {
-            func_0045af60(0, 0, 0, 4);
+            sdkSndStartStream(0, 0, 0, 4);
             var_16 = 2;
         }
         break;
@@ -2849,7 +2849,7 @@ void btlSelectionResetPageState(u8 *arg0, u8 *arg1)
 {
     u8 *p;
 
-    func_0045af60(0, 0, 0, 3);
+    sdkSndStartStream(0, 0, 0, 3);
     if (datGetFlag(0x3C) != 0) {
         p = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x3F0);
         if (p != NULL) {
@@ -2887,18 +2887,18 @@ u16 btlSelectionHandleItemInput(u8 *arg0, u8 *arg1)
         temp_2 = *(s32 *)(arg1 + 4) ^ 4;
         *(s32 *)(arg1 + 4) = temp_2;
         if ((temp_2 & 4) != 0) {
-            func_0045af60(1, 0xD, 2, 0x17);
+            sdkSndStartStream(1, 0xD, 2, 0x17);
         } else {
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         }
         break;
     case 1:
         if ((*(s32 *)(arg1 + 4) & 4) != 0) {
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
             *(s32 *)(arg1 + 4) &= ~4;
             value = 1;
         } else {
-            func_0045af60(0, 0, 0, 4);
+            sdkSndStartStream(0, 0, 0, 4);
             value = 2;
         }
         break;
@@ -3023,7 +3023,7 @@ void btlSelectionResetSubListState(u8 *arg0, u8 *arg1)
     *(u16 *)arg0 |= 1;
     *(u16 *)arg0 |= 2;
     if (*(s32 *)(arg1 + 0x3C) != (s32)(arg1 + 0x110)) {
-        func_0045af60(0, 0, 0, 3);
+        sdkSndStartStream(0, 0, 0, 3);
         *(s16 *)(arg1 + 0x20) = 0;
         *(s16 *)(arg1 + 0x22) = 0;
         *(s16 *)(arg1 + 0x16) = 0;
@@ -3066,7 +3066,7 @@ u16 btlSelectionOpenSubList(u8 *arg0, s32 arg1, u8 **arg2)
         *(s32 *)(base + 4) &= ~4;
         return 3;
     case 1:
-        func_0045af60(0, 0, 0, 4);
+        sdkSndStartStream(0, 0, 0, 4);
         result = 2;
         goto done;
     default:
@@ -3167,7 +3167,7 @@ void btlSelectionSaveCursorFourth(u8 *arg0, u8 *arg1)
 // FUN_00209D40
 void btlSelectionResetSubList(u8 *arg0, u8 *arg1)
 {
-    func_0045af60(0, 0, 0, 3);
+    sdkSndStartStream(0, 0, 0, 3);
     btlSelectionUpdateWindow(arg0, 0, 0);
     *(u16 *)arg0 |= 1;
     *(u16 *)arg0 |= 2;
@@ -3208,7 +3208,7 @@ u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1)
         *(s32 *)(arg1 + 4) &= ~4;
         *(s16 *)(arg1 + 0x16) = 0;
         *(s16 *)(arg1 + 0x18) = 0;
-        func_0045af60(0, 15, 0, 1);
+        sdkSndStartStream(0, 15, 0, 1);
         var_16 = 2;
         break;
     case 1:
@@ -3217,7 +3217,7 @@ u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1)
             *(s32 *)(arg1 + 4) = temp_3 & ~4;
             var_16 = 1 & 0xFFFF;
         } else {
-            func_0045af60(0, 0, 0, 4);
+            sdkSndStartStream(0, 0, 0, 4);
             var_16 = 2;
         }
         break;
@@ -3225,9 +3225,9 @@ u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1)
         temp_2_2 = *(s32 *)(arg1 + 4) ^ 4;
         *(s32 *)(arg1 + 4) = temp_2_2;
         if ((temp_2_2 & 4) != 0) {
-            func_0045af60(1, 13, 2, 23);
+            sdkSndStartStream(1, 13, 2, 23);
         } else {
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         }
         break;
     default:
@@ -3412,7 +3412,7 @@ void func_0020a5c0(void)
 // Intent: reset the selection flags and window fields for the cursor state. [inferred]
 // FUN_0020A5D0
 void btlSelectionResetCursorState(u16 *arg0, u8 *arg1) {
-    func_0045af60(0, 0, 0, 3);
+    sdkSndStartStream(0, 0, 0, 3);
     *arg0 |= 1;
     *arg0 |= 2;
     *(s16 *)(arg1 + 0x20) = 0;
@@ -3451,7 +3451,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
             btlEncounterEntrySetActive(*(u8 **)(arg1 + 0x5B0));
             var_16 = 4;
         } else {
-            func_0045af60(0, 15, 0, 8);
+            sdkSndStartStream(0, 15, 0, 8);
             var_16 = 1;
         }
         break;
@@ -3488,7 +3488,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
             shdPersonaFinishPhase(*(u8 **)(arg1 + 0x5A8));
             *(u8 **)(arg1 + 0x5A8) = NULL;
             *(s16 *)(arg1 + 0x5AC) = -1;
-            func_0045af60(0, 0, 0, 4);
+            sdkSndStartStream(0, 0, 0, 4);
             var_16 = 2;
         } else if (shdPersonaIsSelectionActive(*(u8 **)(arg1 + 0x5A8)) == 0) {
             *(s32 *)(iGpffffb3ac + 0xC) |= 0x2000;
@@ -3500,7 +3500,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
             *(u16 *)arg0 |= 2;
             *(u16 *)arg0 |= 1;
             *(u16 *)arg0 |= 8;
-            func_0045af60(0, 0, 0, 4);
+            sdkSndStartStream(0, 0, 0, 4);
             var_16 = 1;
         } else {
             shdPersonaEndSelection(*(u8 **)(arg1 + 0x5A8), 1);
@@ -3640,7 +3640,7 @@ void btlPanelUpdate(void *arg0)
         *(s16 *)(state + 0x10) = 0;
     }
     if (*(u16 *)state == 1 && *(s16 *)(state + 8) == 8) {
-        func_0045af60(1, 15, 2, 26);
+        sdkSndStartStream(1, 15, 2, 26);
     }
     if (*(u8 **)(state + 0x38) == state + 0x40) {
         if (*(u16 *)state == 1) {
@@ -4025,7 +4025,7 @@ void btlSelectionUpdateTransition(u8 *arg0)
             if (*(u16 *)(arg0 + 4) > 0) {
                 --*(u16 *)(arg0 + 4);
             } else if (D_008C024E[0] & 0x20) {
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 btlPanelReleaseText(*(s32 *)(arg0 + 0x18));
                 *(u16 *)(arg0 + 2) = 2;
             } else if (D_008C024E[0] & 0x40) {
@@ -4043,7 +4043,7 @@ void btlSelectionUpdateTransition(u8 *arg0)
                         if (*(u8 **)(arg0 + 0xC) == NULL) {
                             btlSelectionSetRowIdle(*(u8 **)(selected + 0x30) + 0xA48);
                         } else if (*(u8 **)(arg0 + 0xC) != selected) {
-                            func_0045af60(0, 0, 0, 0);
+                            sdkSndStartStream(0, 0, 0, 0);
                             btlSelectionSwapRowState(*(u8 **)(*(u8 **)(arg0 + 0xC) + 0x30) + 0xA48, *(u8 **)(selected + 0x30) + 0xA48);
                         }
                         *(u8 **)(arg0 + 0xC) = selected;

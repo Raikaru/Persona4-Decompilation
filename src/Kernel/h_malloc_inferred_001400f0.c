@@ -1172,7 +1172,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             func_00353fb0();
             func_0034bb20(0x17);
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 0, 0, 1);
-            func_0045af60(0, 2, 0, 4);
+            sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x40) {
             u8 *base4;
             s32 *lsrc4;
@@ -1195,7 +1195,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
                 *ldst4++ = tmp4;
             } while (n4 > 0);
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 1, 0, 0);
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 9;
@@ -1205,7 +1205,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             if (func_00453960(query) != 0) {
                 radarPushValue(arg2, 0, *(s32 *)(query + 0x24));
                 func_00355190(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
-                func_0045af60(0, 1, 0, 0);
+                sdkSndStartStream(0, 1, 0, 0);
             }
         }
         break;
@@ -1222,7 +1222,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             *arg0 = 3;
             func_0034bd60(0x15);
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 9;
@@ -1233,7 +1233,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
                 *arg0 = 7;
                 func_0034bb20(0x18);
                 radarDrawEdge(*(u8 **)(arg2 + 0x3C), 2, 0, 1);
-                func_0045af60(0, 2, 0, 3);
+                sdkSndStartStream(0, 2, 0, 3);
             }
         } else {
             s32 *lsrc6;
@@ -1269,7 +1269,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
                     *(s16 *)(arg2 + 0x38) = 5;
                 }
                 func_00355190(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
-                func_0045af60(0, 1, 0, 5);
+                sdkSndStartStream(0, 1, 0, 5);
             }
         }
         break;
@@ -1288,7 +1288,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             *arg0 = 5;
             func_0034bd60(0x16);
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
-            func_0045af60(0, 2, 0, 4);
+            sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 9;
@@ -1297,7 +1297,7 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             *arg0 = 5;
             func_0034bd60(0x16);
             radarDrawEdge(*(u8 **)(arg2 + 0x3C), 3, 0, 1);
-            func_0045af60(0, 2, 0, 4);
+            sdkSndStartStream(0, 2, 0, 4);
         }
         break;
     case 9:

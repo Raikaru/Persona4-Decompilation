@@ -1392,7 +1392,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             *arg0 = 2;
             func_00353fb0();
             func_0034bb20(0xD);
-            func_0045af60(0, 2, 0, 4);
+            sdkSndStartStream(0, 2, 0, 4);
         } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
             radarHandleEntrySelect((s32 *)arg0, arg2);
             *(s32 *)(arg2 + 0xC44) = 0;
@@ -1400,12 +1400,12 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_0012ff60(arg2, 8);
             *arg0 = 5;
             *(s32 *)(arg2 + 0xC44) = 1;
-            func_0045af60(0, 2, 0, 3);
+            sdkSndStartStream(0, 2, 0, 3);
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 0xB;
         } else if (radarAdvanceGroupSelection(arg2) != 0) {
-            func_0045af60(0, 1, 0, 5);
+            sdkSndStartStream(0, 1, 0, 5);
         } else {
             func_00453670(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
             func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
@@ -1431,7 +1431,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_0012ff60(arg2, 2);
             *arg0 = 3;
             func_0034bd60(0xB);
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
             if (radarApplyItemStep(1, *(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x26) * 2) + (u32)arg2) + 0x34), arg2) == 2) {
                 func_0012ff60(arg2, 2);
@@ -1447,7 +1447,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             if (func_00453960(buf) != 0) {
                 radarPushHistoryValue((s32)arg2, 2, *(s32 *)(buf + 0x24));
                 radarPushSlotState(arg2);
-                func_0045af60(0, 1, 0, 0);
+                sdkSndStartStream(0, 1, 0, 0);
             }
         }
         break;
@@ -1462,7 +1462,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_0012ff60(arg2, 2);
             *arg0 = 3;
             func_0034bd60(0xB);
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
             {
                 s32 inner = radarApplyItemStep(1, -1, arg2);
@@ -1493,14 +1493,14 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
             func_0012ff60(arg2, 2);
             *arg0 = 3;
-            func_0045af60(0, 2, 0, 4);
+            sdkSndStartStream(0, 2, 0, 4);
         } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
             radarHandleEntrySelect((s32 *)arg0, arg2);
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 0xB;
         } else if (radarAdvanceGroupSelection(arg2) != 0) {
-            func_0045af60(0, 1, 0, 5);
+            sdkSndStartStream(0, 1, 0, 5);
         } else {
             func_00453670(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
             func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
@@ -1541,7 +1541,7 @@ void radarHandleEntrySelect(s32 *arg0, u8 *arg1) {
     entry = code13AddOff((*(s16 *)(arg1 + 0x24) + *(s16 *)(arg1 + 0x22)) * 4,
                          arg1) + 0x3E;
     if (radarEntryTypeIsActive(*(s16 *)entry) == 0) {
-        func_0045af60(0, 0, 0, 8);
+        sdkSndStartStream(0, 0, 0, 8);
         return;
     }
     type = (s16)func_0010f8c0(*(u16 *)((u8 *)datEntryAt(*(s16 *)entry) + 0x24));
@@ -1556,7 +1556,7 @@ void radarHandleEntrySelect(s32 *arg0, u8 *arg1) {
         }
     }
     func_0034bb20(0xC);
-    func_0045af60(0, 0, 0, 1);
+    sdkSndStartStream(0, 0, 0, 1);
 }
 // Intent: Return whether the type of the entry's item is active [inferred]
 // FUN_0013C6D0
@@ -1629,12 +1629,12 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             if (D_008C024E[0] & 0x20) {
                 *arg0 = 2;
                 radarCollectPartyChanges(arg2);
-                func_0045af60(0, 2, 0, 4);
+                sdkSndStartStream(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
                 func_00134560(arg2, 3);
                 *arg0 = 7;
                 func_0034bb20(4);
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             } else if (D_008C024E[0] & 0x10) {
                 radarCollectPartyChanges(arg2);
                 *(s32 *)(arg2 + 0x10) = func_00354030();
@@ -1644,7 +1644,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_004538e0(buf, 0x4000, 0x1000, 0, 0);
                 if (func_00453960(buf) != 0) {
                     func_001344b0(arg2, 0, *(s32 *)(buf + 0x24));
-                    func_0045af60(0, 1, 0, 0);
+                    sdkSndStartStream(0, 1, 0, 0);
                 }
             }
         }
@@ -1661,12 +1661,12 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_00134560(arg2, 2);
             *arg0 = 5;
             func_0034bd60(3);
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
             func_00134560(arg2, 5);
             *arg0 = 8;
             func_0034bb20(5);
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
             radarCollectPartyChanges(arg2);
             *(s32 *)(arg2 + 0x10) = func_00354030();
@@ -1676,7 +1676,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_004538e0(buf, 0x4000, 0x1000, 0, 0);
             if (func_00453960(buf) != 0) {
                 func_001344b0(arg2, 1, *(s32 *)(buf + 0x24));
-                func_0045af60(0, 1, 0, 0);
+                sdkSndStartStream(0, 1, 0, 0);
             }
         }
         break;
@@ -1705,7 +1705,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_00134560(arg2, 4);
                 *arg0 = 6;
                 func_0034bd60(4);
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
             } else if (D_008C024E[0] & 0x10) {
                 radarCollectPartyChanges(arg2);
                 *(s32 *)(arg2 + 0x10) = func_00354030();
@@ -1714,7 +1714,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 if (*(s16 *)(arg2 + 0xC46) != 0) {
                     func_00134560(arg2, 8);
                     *arg0 = 0xB;
-                    func_0045af60(0, 2, 0, 3);
+                    sdkSndStartStream(0, 2, 0, 3);
                 }
             } else if (radarBeginPickList(arg2, arg0) == 0) {
                 func_00453670(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
@@ -1744,7 +1744,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         } else if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
             func_00134560(arg2, 7);
             *arg0 = 9;
-            func_0045af60(0, 2, 0, 4);
+            sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x10) {
             radarCollectPartyChanges(arg2);
             *(s32 *)(arg2 + 0x10) = func_00354030();
@@ -1852,11 +1852,11 @@ s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2)
     }
     switch (state) {
     case 0:
-        func_0045af60(0, 0, 0, 8);
+        sdkSndStartStream(0, 0, 0, 8);
         break;
     case 1:
     case 2:
-        func_0045af60(1, 3, 2, 22);
+        sdkSndStartStream(1, 3, 2, 22);
         break;
     case 3:
         break;
@@ -1898,7 +1898,7 @@ s32 radarBeginPickList(u8 *arg0, s32 *arg1) {
         } else if (temp_2 == 2) {
             radarBeginSlideIn(arg0);
         }
-        func_0045af60(0, 1, 0, 5);
+        sdkSndStartStream(0, 1, 0, 5);
         return 1;
     }
     return 0;
@@ -1922,7 +1922,7 @@ s32 radarTransferSelectedUnit(u8 *arg0) {
     temp_16.value = *(s16 *)(arg0 + 0x2A);
     temp_17 = (s16)func_00106cd0(temp_18, temp_16.value);
     if (temp_19 == temp_17) {
-        func_0045af60(0, 0, 0, 8);
+        sdkSndStartStream(0, 0, 0, 8);
         return 0;
     }
     func_00134560(arg0, 7);
@@ -1946,7 +1946,7 @@ s32 radarTransferSelectedUnit(u8 *arg0) {
             func_001344b0(arg0, 2, temp_6_2);
         }
     }
-    func_0045af60(0, 3, 0, 7);
+    sdkSndStartStream(0, 3, 0, 7);
     return 1;
 }
 // Intent: Set or clear the persona highlight flags and position for arg1 0 (set) or 1 (clear) [inferred]
@@ -2051,7 +2051,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_00353fb0();
                 func_0034bb20(0x14);
                 func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
-                func_0045af60(0, 2, 0, 4);
+                sdkSndStartStream(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
                 if (*(s16 *)(arg2 + 0x50) == 0) {
                     func_001371a0(arg2, 3);
@@ -2066,7 +2066,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     radarSetPersonaHighlight(arg2, 1);
                     shdPersonaRefreshDispCtlPosition(*(u8 **)(arg2 + 0x1CB4), NULL);
                     shdPersonaSetFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
-                    func_0045af60(0, 0, 0, 1);
+                    sdkSndStartStream(0, 0, 0, 1);
                 } else {
                     func_001371a0(arg2, 8);
                     *arg0 = 0xA;
@@ -2087,7 +2087,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 if (func_00453960(buf) != 0) {
                     func_00136fa0(arg2, 0, *(s32 *)(buf + 0x24));
                     func_00355190(*(u8 **)(arg2 + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24));
-                    func_0045af60(0, 1, 0, 0);
+                    sdkSndStartStream(0, 1, 0, 0);
                 }
             }
         }
@@ -2106,10 +2106,10 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             *arg0 = 3;
             func_0034bd60(0xE);
             datPersonaRemoveSelectedRosterMember();
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
             datPersonaSetLeadSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
-            func_0045af60(1, 3, 2, 6);
+            sdkSndStartStream(1, 3, 2, 6);
             func_001375f0(arg2);
         } else if (D_008C024E[0] & 0x80) {
             radarSetPersonaHighlight(arg2, 0);
@@ -2124,7 +2124,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_002bad10(2);
                 func_001371a0(arg2, 0xC);
                 *arg0 = 0xF;
-                func_0045af60(0, 0, 0, 8);
+                sdkSndStartStream(0, 0, 0, 8);
             } else {
                 func_002bad10(1);
                 func_002baf40(0);
@@ -2132,7 +2132,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_002bbf60();
                 func_001371a0(arg2, 0xB);
                 *arg0 = 0xE;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             }
             func_00137570(arg2);
         } else {
@@ -2142,7 +2142,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_00136fa0(arg2, 1, *(s32 *)(buf + 0x24));
                 func_00137570(arg2);
                 shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
-                func_0045af60(0, 1, 0, 0);
+                sdkSndStartStream(0, 1, 0, 0);
             }
         }
         break;
@@ -2168,7 +2168,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_002bb050(0);
                 func_002bbf60();
                 *arg0 = 0xD;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             } else if (D_008C024E[0] & 0x80) {
                 shdPersonaBeginSelection(*(u8 **)(arg2 + 0x1CB4));
                 *arg0 = 9;
@@ -2195,7 +2195,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_002bb050(0);
             func_002bbf60();
             *arg0 = 0xD;
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
             datPersonaRemoveSelectedRosterMember();
             *(s32 *)(arg2 + 0x10) = func_00354030();
@@ -2251,7 +2251,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             switch (temp_2) {
             case 0:
                 datPersonaSetLeadSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
-                func_0045af60(1, 3, 2, 6);
+                sdkSndStartStream(1, 3, 2, 6);
                 break;
             case 1:
                 break;
@@ -2436,14 +2436,14 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *arg0 = 2;
                 func_00353fb0();
                 func_0034bb20(0xA);
-                func_0045af60(0, 2, 0, 4);
+                sdkSndStartStream(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
                 if ((s32)(datCalcIsDeadById(character)) != (s32)(0)) {
-                    func_0045af60(0, 0, 0, 8);
+                    sdkSndStartStream(0, 0, 0, 8);
                 } else {
                     func_0013a530(arg2, 3U);
                     *arg0 = 5;
-                    func_0045af60(0, 0, 0, 1);
+                    sdkSndStartStream(0, 0, 0, 1);
                 }
             } else if (D_008C024E[0] & 0x10) {
                 *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
@@ -2455,7 +2455,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_0013a040((s16 *)arg2, 0, *(s32 *)(query + 0x24));
                     func_00138490(arg2);
                     func_0013a8a0(arg2);
-                    func_0045af60(0, 1, 0, 0);
+                    sdkSndStartStream(0, 1, 0, 0);
                 }
             }
             break;
@@ -2470,7 +2470,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *arg0 = 3;
                 func_0013a530(arg2, 2);
                 func_0013a8a0(arg2);
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
             } else {
                 confirm = D_008C024E[0] & 0x40;
                 if (confirm != 0) {
@@ -2478,7 +2478,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 } else if (D_008C024E[0] & 0x80) {
                     func_0013a530(arg2, 9);
                     *arg0 = 0xB;
-                    func_0045af60(0, 2, 0, 3);
+                    sdkSndStartStream(0, 2, 0, 3);
                 } else if (D_008C024E[0] & 0x10) {
                     *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
                     *arg0 = 0xD;
@@ -2508,7 +2508,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_0013a530(arg2, 3U);
                 *arg0 = 5;
                 func_0034bd60(8);
-                func_0045af60(0, 0, 0, 2);
+                sdkSndStartStream(0, 0, 0, 2);
                 break;
             }
             if (D_008C024E[0] & 0x40) {
@@ -2535,7 +2535,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     if ((s32)(func_00453960(query)) != (s32)(0)) {
                         func_0013a040((s16 *)arg2, 3, *(s32 *)(query + 0x24));
                         func_0013aa00(arg2);
-                        func_0045af60(0, 1, 0, 0);
+                        sdkSndStartStream(0, 1, 0, 0);
                     }
                 }
                 break;
@@ -2553,7 +2553,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_0013a530(arg2, 3U);
                     *arg0 = 5;
                     func_0034bd60(8);
-                    func_0045af60(0, 0, 0, 2);
+                    sdkSndStartStream(0, 0, 0, 2);
                     break;
                 }
                 if (D_008C024E[0] & 0x40) {
@@ -2591,7 +2591,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
                 func_0013a530(arg2, 3);
                 *arg0 = 5;
-                func_0045af60(0, 2, 0, 4);
+                sdkSndStartStream(0, 2, 0, 4);
             } else {
                 alternateConfirm = D_008C024E[0] & 0x40;
                 if (alternateConfirm != 0) {
@@ -2639,7 +2639,7 @@ void radarHandleEntryAction(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
 
     temp_18 = *(s16 *)(arg3 + 0x60) + *(s16 *)(arg3 + 0x5E);
     if (radarEntryIsAllowed(arg1, temp_18, arg3) == 0) {
-        func_0045af60(0, 0, 0, 8);
+        sdkSndStartStream(0, 0, 0, 8);
         return;
     }
     temp_3 = func_0010f8c0(*(u16 *)(code13AddOff(temp_18 * 0xC, arg3) + 0x102)) & 0xFFFF;
@@ -2659,7 +2659,7 @@ void radarHandleEntryAction(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
         }
     }
     func_0034bb20(9);
-    func_0045af60(0, 0, 0, 1);
+    sdkSndStartStream(0, 0, 0, 1);
 }
 // Intent: Return 1 when the entry's type is valid and the threshold check does not block it [inferred]
 // FUN_0013F620

@@ -516,7 +516,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             func_0035fa20(arg2, resultFlag);
             *arg0 = 2;
             func_0034bb20(0x1E);
-            func_0045af60(0, 2, 0, 4);
+            sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x40) {
             soundType = *(s16 *)(arg2 + 0x28);
             switch (soundType) {
@@ -538,7 +538,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
                 *arg0 = 0xA;
                 break;
             }
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 0xC;
@@ -548,7 +548,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             if (func_00453960(query) != 0) {
                 soundType = *(s16 *)(query + 0x24);
                 func_0035fa00(arg2, 0, soundType);
-                func_0045af60(0, 1, 0, 0);
+                sdkSndStartStream(0, 1, 0, 0);
             }
         }
         goto block_64;
@@ -573,7 +573,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
             *arg0 = 1;
             func_0034bb20(0x20);
             func_00353fb0();
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 0xC;

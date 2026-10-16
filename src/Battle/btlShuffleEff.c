@@ -178,12 +178,12 @@ void btlShuffleEffInitTrail(u8 *arg0, s32 arg1) {
         case 0:
         case 1:
         case 2:
-            func_0045af60(1, 5, 5, 9);
+            sdkSndStartStream(1, 5, 5, 9);
             break;
         case 3:
         case 4:
         case 5:
-            func_0045af60(1, 5, 5, 0xB);
+            sdkSndStartStream(1, 5, 5, 0xB);
             break;
         case 6:
         case 7:

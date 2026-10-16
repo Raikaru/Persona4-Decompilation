@@ -77,13 +77,13 @@ extern f32 D_007614c0;
 extern float MT_Scene_GetCurveSegmentLength(float param_1, float param_2, float *param_3, float *param_4, float *param_5, float *param_6, float *param_7);
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bcc80 (verified MATCH
-// there). 007ce658 -> D_00764580, 003500e0 -> func_004b15d0.
+// there). 007ce658 -> D_00764580, 003500e0 -> mdlEffectSeqStop.
 
 extern u16 D_00764580;
 extern u32 D_00764584;
 extern u32 D_00764588;
 extern u32 D_0076458C;
-extern void func_004b15d0(void);
+extern void mdlEffectSeqStop(void);
 
 extern void MT_Scene_WrapObjectAngles(s32 object);
 extern float MT_Scene_GetCurveLength(char *param_1);
@@ -1000,7 +1000,7 @@ extern void mdlClearAlphaBlend(void *model);
 extern void func_004b13f0(void *effect, s32 *color);
 /* The companion forwarding provider requires this same object parameter. */
 
-extern s32 func_0045af60(s16 index, s16 stream, s16 bank, s16 sound);
+extern s32 sdkSndStartStream(s16 index, s16 stream, s16 bank, s16 sound);
 
 static inline f32 sceneUpdateBlend(f32 start, f32 delta, f32 amount)
 {
@@ -1083,14 +1083,14 @@ static inline void sceneUpdateFootstep(SceneUpdateResource *resource)
             note += terrain * 4;
             sound = note;
             stream = foot->sound;
-            func_0045af60(0, stream, 1, sound);
+            sdkSndStartStream(0, stream, 1, sound);
         }
         break;
     case 1:
         {
             s32 sound = sceneFootstepBankIndex(foot->sequence, 0x18);
             s16 stream = foot->sound;
-            func_0045af60(0, stream, 2, (s16)sound);
+            sdkSndStartStream(0, stream, 2, (s16)sound);
         }
         break;
     }
@@ -2461,13 +2461,13 @@ void MT_Scene_StartShake(s32 first, s32 second)
         }
         *(u16*)&D_0076458C = second * 10;
         *(u16*)&D_00764588 = (*(u16*)&D_0076458C << 2) / 10;
-        func_004b1590(first, (s16)second);
+        mdlEffectSeqStart(first, (s16)second);
     }
 }
 // FUN_0026D810
 void MT_Scene_StopShake(void)
 {
     *(u16 *)&D_00764580 = 0;
-    func_004b15d0();
+    mdlEffectSeqStop();
     return;
 }

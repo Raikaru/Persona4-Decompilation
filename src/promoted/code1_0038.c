@@ -1547,7 +1547,7 @@ void func_00388d60(u8 *arg0) {
     memset(p + 4, 0, 6);
     *(u16 *)(p + 0x4C) |= 2;
     func_00389180(arg0);
-    func_0045af60(1, 3, 5, 0xD);
+    sdkSndStartStream(1, 3, 5, 0xD);
 }
 
 // FUN_00388DE0
@@ -1573,7 +1573,7 @@ void func_00388e40(u8 *arg0) {
     memset(p + 4, 0, 0x18);
     *(u16 *)(p + 0x4C) |= 1;
     func_00389180(arg0);
-    func_0045af60(1, 3, 5, 0xD);
+    sdkSndStartStream(1, 3, 5, 0xD);
 }
 
 // FUN_00388EC0
@@ -1674,7 +1674,7 @@ void func_00389110(u8 *arg0) {
     work = (u8 *)(*(u8 **)(arg0 + 0x38));
     *(s16 *)(work + 0x1E) = 0;
     *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | 8);
-    func_0045af60(1, 5, 5, 0);
+    sdkSndStartStream(1, 5, 5, 0);
 }
 
 // FUN_00389160

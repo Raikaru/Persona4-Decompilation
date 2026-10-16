@@ -353,7 +353,7 @@ s32 func_00186eb0(u8 *arg0)
     s32 i;
     u8 buf[12];
     s32 out;
-    extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
+    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
 
     arg_save = arg0;
     st = *(u8 **)(arg0 + 0x38);
@@ -564,15 +564,15 @@ s32 func_00186eb0(u8 *arg0)
             }
             *(s32 *)(st + 0x78) = 0;
             *(s32 *)st = 8;
-            func_0045af60(0, 0, 0, 1);
+            sdkSndStartStream(0, 0, 0, 1);
             break;
         } else {
             if ((D_008C0252[0] & 0x1000) != 0) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 *(s32 *)(st + 0xC) = *(s32 *)(st + 0xC) - 1;
                 *(s32 *)(st + 0x14) = 0;
             } else if ((D_008C0252[0] & 0x4000) != 0) {
-                func_0045af60(0, 0, 0, 0);
+                sdkSndStartStream(0, 0, 0, 0);
                 *(s32 *)(st + 0xC) = *(s32 *)(st + 0xC) + 1;
                 *(s32 *)(st + 0x14) = 0;
             }

@@ -132,7 +132,7 @@ BtlPacket* btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant)
 // FUN_001F7CA0
 void btlSoundStopChannel(u16* work)
 {
-    func_0045aa90(0, (s16)*work);
+    sdkSndStopStream(0, (s16)*work);
 }
 
 
@@ -142,7 +142,7 @@ u32 btlSoundPlayCue(s16* work)
 {
     u16* values = (u16*)work;
 
-    func_0045af60(0, values[0], values[1], values[2]);
+    sdkSndStartStream(0, values[0], values[1], values[2]);
     return 1;
 }
 
@@ -217,10 +217,10 @@ u32 btlSoundSkillSEUpdate(void* work)
             return 0;
         }
 
-        func_0045aa90(2, 4);
+        sdkSndStopStream(2, 4);
         for (i = 5; i <= 9; i++)
         {
-            func_0045aa90(2, (s16)i);
+            sdkSndStopStream(2, (s16)i);
         }
 
         file1 = func_00455ea0(packet->cdvd, 0, (s32*)&file1Size);
@@ -271,14 +271,14 @@ u32 btlSoundRunCueQueue(u16* work)
     switch (state)
     {
     case 0:
-        func_0045af60(2, 4, 0, (s16)state);
+        sdkSndStartStream(2, 4, 0, (s16)state);
         break;
     case 1:
         global = D_0076449C;
         if (*(s8*)(global + 0xaca) == -1)
         {
             channel = *(u16*)(global + 0xac8);
-            func_0045af60(2, channel, 0, (s16)state);
+            sdkSndStartStream(2, channel, 0, (s16)state);
             D_0076449C[0xaca] = 0;
             if ((*(u16*)(D_0076449C + 0xac8) += 1) >= 9)
             {

@@ -855,13 +855,13 @@ s32 mcUpdateCardStatus(s32 arg0) {
     case 3:
         w->flags |= 0x2000;
         w->f3B8 = 0xA;
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
         break;
     case 2:
     case 4:
         w->flags |= 0x1000;
         w->f3B8 = 0xA;
-        func_0045af60(0, 0, 0, 0);
+        sdkSndStartStream(0, 0, 0, 0);
         break;
     default:
         func_00453760(buf, 0);
@@ -959,16 +959,16 @@ s32 mcStepState(u8 *work) {
         if (D_008C024E[0] & 0x40) {
             if (*(u32 *)(work + 4) & 2) {
                 *(s16 *)(work + 2) = 7;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             } else if (mcCurrentSlotValue(work) == 1) {
                 *(s16 *)(work + 2) = 0xC;
-                func_0045af60(0, 0, 0, 1);
+                sdkSndStartStream(0, 0, 0, 1);
             } else {
-                func_0045af60(0, 0, 0, 8);
+                sdkSndStartStream(0, 0, 0, 8);
             }
         } else if (D_008C024E[0] & 0x20) {
             *(s16 *)(work + 2) = 1;
-            func_0045af60(0, 0, 0, 2);
+            sdkSndStartStream(0, 0, 0, 2);
             goto return_zero;
         }
         value = H_Memcard_CheckCard();

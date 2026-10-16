@@ -989,7 +989,7 @@ ret:
 /* measured: opt_loop_invariants on hoists the u16->int widening of the earned value into both
    predecessors of the threshold loop (retail `move v1,zero` / `andi v1,v1` before the join). */
 #pragma opt_loop_invariants on
-// Add points: adds arg1 scaled by cmmCommunityEarnScale to arg0's point counter at +8, plays the threshold effect (func_0045af60) and the resource check (MT_Scene_CheckResSlot) when arg2 is not -1, and returns the new counter. A zero arg0 uses the current community.
+// Add points: adds arg1 scaled by cmmCommunityEarnScale to arg0's point counter at +8, plays the threshold effect (sdkSndStartStream) and the resource check (MT_Scene_CheckResSlot) when arg2 is not -1, and returns the new counter. A zero arg0 uses the current community.
 // FUN_00108590
 u16 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2) {
     extern void kAssertFail(void *file, s32 line);
@@ -1042,7 +1042,7 @@ u16 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2) {
         break;
     }
     temp_16 = var_4 * 4;
-    func_0045af60(0, 0, 4, *(u16 *)((u8 *)vals.durations + temp_16));
+    sdkSndStartStream(0, 0, 4, *(u16 *)((u8 *)vals.durations + temp_16));
     if (arg2 != -1) {
         MT_Scene_CheckResSlot(((arg2 & 0x3FF) | 0xC00) & 0xFFFF,
                       *(u8 *)((u8 *)vals.bytes + temp_16));
