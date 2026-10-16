@@ -130,10 +130,10 @@ static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 
 {
     btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
 }
-extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
 {
-    func_0029db50(arg0, arg1, arg2, arg3);
+    scrStartProcedureChecked(arg0, arg1, arg2, arg3);
 }
 extern void mdlSetLayerWeight(u8 *arg0, s32 arg1, f32 arg2);
 extern u8 iGpffffa4d8;

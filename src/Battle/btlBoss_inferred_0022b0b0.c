@@ -175,7 +175,7 @@ extern void btlFormationSetPlacement(u32 arg0);
 extern u8 D_006354B0[];
 extern u8 *iGpffffb444;
 extern u8 *iGpffffb3ac;
-extern u8 *func_0029da90(s32 arg0, u8 *arg1, s32 arg2);
+extern u8 *scrStartProcedureIndex(s32 arg0, u8 *arg1, s32 arg2);
 extern void func_0029dfe0(u8 *arg0, u8 *arg1);
 extern u8 *func_0010d740(s16 arg0);
 extern void itfMesWindowSetString(u8 *arg0, s32 arg1, u8 *arg2);
@@ -587,7 +587,7 @@ changed:
         target = arg0;
     }
     temp = btlFormationGetRecord(0);
-    handle = func_0029da90(
+    handle = scrStartProcedureIndex(
         *(s32 *)(*(u8 **)(iGpffffb3ac + 0xDC8) + 0x20) - 1,
         temp, arg1);
     func_0029dfe0(handle, target);

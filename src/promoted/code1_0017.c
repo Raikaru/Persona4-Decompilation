@@ -61,7 +61,7 @@ extern s32 FldStepIndex(void);
 extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
 extern void FldSlotBroadcastState(s32 arg0);
 extern void func_0018e030(s32 arg0, s32 arg1);
-extern s32 func_0029da90(s32 arg0, s32 arg1, s32 arg2);
+extern s32 scrStartProcedureIndex(s32 arg0, u8 *arg1, s32 arg2);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 extern s32 iGpffffb284;
 extern s32 iGpffffb300;
@@ -78,7 +78,7 @@ extern s32 FldMap_IsCurrentInEitherBand(void);
 extern s32 func_0015a100(void);
 extern s32 func_0015a130(void);
 extern void func_0015a7c0(s32 arg0);
-extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 D_005F18C0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005F1910[];
@@ -334,7 +334,7 @@ s32 func_00170bc0(u8 *arg0)
                 func_0015a7c0(FldStepIndex());
                 datSetFlag(0x1401, 0);
                 temp_17 = func_0015a100();
-                func_0029db50(0xF, temp_17, func_0015a130(), 5);
+                scrStartProcedureChecked(0xF, temp_17, func_0015a130(), 5);
                 *(s32 *)(temp_16 + 4) = 3;
             } else {
                 if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0)
@@ -384,7 +384,7 @@ s32 func_00170e50(u8 *arg0)
         func_002bd3c0();
         temp_2 = (u8 *)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(temp_2 + 0x1C), 1);
-        *(s32 *)(temp_16 + 0x10) = func_0029da90(0xF, iGpffffb284, 1);
+        *(s32 *)(temp_16 + 0x10) = scrStartProcedureIndex(0xF, (u8 *)iGpffffb284, 1);
         FldSlotBroadcastState(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
@@ -523,7 +523,7 @@ s32 func_00171280(u8 *arg0)
         func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
         temp_17 = func_0015a100();
         *(s32 *)(temp_16 + 0x10) =
-            func_0029db50(0xF, temp_17, func_0015a130(), 0);
+            scrStartProcedureChecked(0xF, temp_17, func_0015a130(), 0);
         FldSlotBroadcastState(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
@@ -584,7 +584,7 @@ s32 func_001714b0(u8 *arg0)
         func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
         temp_17 = func_0015a100();
         *(s32 *)(temp_16 + 0x10) =
-            func_0029db50(0xF, temp_17, func_0015a130(), 1);
+            scrStartProcedureChecked(0xF, temp_17, func_0015a130(), 1);
         FldSlotBroadcastState(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;

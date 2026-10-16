@@ -34,7 +34,7 @@ extern u8 *kwlnGetCamera(void);
 extern f32 MT_Scene_GetCameraFov(void);
 extern void K_View_SetFov(u8 *arg0, f32 arg1);
 extern void func_003e9cb0(s32 arg0, u8 *arg1, s32 arg2);
-extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);
@@ -119,7 +119,7 @@ s32 K_FldFoodCourt_Update(u8 *arg0) {
             func_003e9cb0(*(s32 *)(temp_17_2 + 4), *(u8 **)(temp_16 + 4), 0);
             temp_2_2 = *(u8 **)(temp_16 + 8);
             *(s32 *)(temp_16 + 0xC) =
-                func_0029db50(0xF, *(s32 *)(temp_2_2 + 0x110), *(s32 *)(temp_2_2 + 0x118), 0);
+                scrStartProcedureChecked(0xF, *(s32 *)(temp_2_2 + 0x110), *(s32 *)(temp_2_2 + 0x118), 0);
             *(s32 *)temp_16 += 1;
         } else {
             goto done;
@@ -139,7 +139,7 @@ s32 K_FldFoodCourt_Update(u8 *arg0) {
         if (fadeStatus() != 0) {
             temp_2_3 = *(u8 **)(temp_16 + 8);
             *(s32 *)(temp_16 + 0xC) =
-                func_0029db50(0xF, *(s32 *)(temp_2_3 + 0x110), *(s32 *)(temp_2_3 + 0x118), 1);
+                scrStartProcedureChecked(0xF, *(s32 *)(temp_2_3 + 0x110), *(s32 *)(temp_2_3 + 0x118), 1);
             *(s32 *)temp_16 += 1;
         }
     case 4:

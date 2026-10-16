@@ -184,7 +184,7 @@ s32 sprintf(char* dst, const char* format, ...);
 u32 strlen(void* arg0);
 
 
-extern s32 func_0029e040(u8* task);
+extern s32 scrLoadScriptStep(u8* task);
 s32 H_Cdvd_IsFileLoaded(s32 arg0);
 s32 func_00454a60(void* arg0, s32 arg1);
 s32 func_004680f0(u8* task, s8* text);
@@ -316,8 +316,9 @@ s32 func_0029d2e0(void)
     return D_00764604;
 }
 
+// Allocates a script work block for a header, its content entries and the procedure at index; the work is bound to those inputs [inferred].
 // FUN_0029D2F0
-ScrScriptWork* func_0029d2f0(ScrHeader* header, ScrContentEntry* entries, u8* procedure, u8* arg3, u8* arg4, u8* arg5, u8* arg6, s32 index)
+ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* procedure, u8* arg3, u8* arg4, u8* arg5, u8* arg6, s32 index)
 {
     ScrScriptWork* work;
     u8* src;
@@ -422,10 +423,11 @@ ScrScriptWork* func_0029d2f0(ScrHeader* header, ScrContentEntry* entries, u8* pr
     return work;
 }
 
+// Creates the procedure work for the header at index, from the header's entry table.
 // FUN_0029D660
 /* Removing the pragma loses this match (19 differing words without, 2 tail-padding with) - measured. */
 #pragma opt_loop_invariants on
-ScrScriptWork* func_0029d660(ScrHeader* header, s32 index)
+ScrScriptWork* scrCreateProcedureWork(ScrHeader* header, s32 index)
 {
     ScrScriptWork* work;
     ScrLblPrcd* prcd;
@@ -484,7 +486,7 @@ ScrScriptWork* func_0029d660(ScrHeader* header, s32 index)
             return NULL;
         }
     }
-    work = func_0029d2f0((ScrHeader*)header, entries, (u8*)prcd, (u8*)labels, instr, msgs, strings, index);
+    work = scrCreateWork((ScrHeader*)header, entries, (u8*)prcd, (u8*)labels, instr, msgs, strings, index);
     return work;
 }
 /* measured: see annotation above (func_0029d660). */
@@ -536,13 +538,14 @@ void func_0029d950(void)
     }
 }
 
+// Starts procedure prcdIdx under a task priority: creates its work from the header and entries [inferred].
 // FUN_0029D9B0
-s32 func_0029d9b0(s32 arg0, u8* arg1, u8* arg2, u8* arg3, u8* arg4, u8* arg5, u8* arg6, u8* arg7, s32 arg8)
+s32 scrStartProcedureWork(s32 arg0, u8* arg1, u8* arg2, u8* arg3, u8* arg4, u8* arg5, u8* arg6, u8* arg7, s32 arg8)
 {
     ScrScriptWork* work;
     s32 task;
 
-    work = func_0029d2f0((ScrHeader*)arg1, (ScrContentEntry*)arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    work = scrCreateWork((ScrHeader*)arg1, (ScrContentEntry*)arg2, arg3, arg4, arg5, arg6, arg7, arg8);
     if (work == NULL)
     {
         kAssertFail(D_0063E3D0, 0x23D);
@@ -556,13 +559,14 @@ s32 func_0029d9b0(s32 arg0, u8* arg1, u8* arg2, u8* arg3, u8* arg4, u8* arg5, u8
     return task;
 }
 
+// Starts the procedure at index in header (no range check).
 // FUN_0029DA90
-s32 func_0029da90(s32 arg0, u8* arg1, s32 arg2)
+s32 scrStartProcedureIndex(s32 arg0, u8* arg1, s32 arg2)
 {
     ScrScriptWork* work;
     s32 task;
 
-    work = func_0029d660((ScrHeader*)arg1, arg2);
+    work = scrCreateProcedureWork((ScrHeader*)arg1, arg2);
     if (work == NULL)
     {
         kAssertFail(D_0063E3D0, 0x259);
@@ -576,8 +580,9 @@ s32 func_0029da90(s32 arg0, u8* arg1, s32 arg2)
     return task;
 }
 
+// Starts the procedure at index in header after a range check that asserts on failure.
 // FUN_0029DB50
-s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     ScrScriptWork* work;
     u8* text;
@@ -587,7 +592,7 @@ s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     text = poolAlloc(arg2);
     memset(text, 0, arg2);
     memcpy(text, (void*)arg1, arg2);
-    work = func_0029d660((ScrHeader*)text, arg3);
+    work = scrCreateProcedureWork((ScrHeader*)text, arg3);
     if (work == NULL)
     {
         kAssertFail(D_0063E3D0, 0x27C);
@@ -783,8 +788,9 @@ static inline ScrPreviewRectangle scrPreviewRectangleValue(const ScrPreviewRecta
 /* Native b210 O2: 1284/1296 bytes, 41 resolved relocations and
  * twelve zero alignment bytes. See
  * docs/probe_archive/Script_selection_0029e040_20260924.md. */
+// Task step that loads the script file named by the task's text, then creates the procedure work once the file is ready [inferred].
 // FUN_0029E040
-s32 func_0029e040(u8 *sdkTask)
+s32 scrLoadScriptStep(u8 *sdkTask)
 {
     ScrTaskData *task;
     u8 *scriptBytes;
@@ -908,7 +914,7 @@ s32 func_0029e040(u8 *sdkTask)
             PrimDrawFlatRectangle((u8 *)&color, drawRectangle.transport, 0.0f, 1);
             break;
         case 3:
-            task->unk_214 = func_0029d660((ScrHeader *)(void *)task->unk_224, task->unk_218);
+            task->unk_214 = scrCreateProcedureWork((ScrHeader *)(void *)task->unk_224, task->unk_218);
             if (task->unk_214 == NULL) {
                 kAssertFail(D_0063E3D0, 0x44C);
             }
@@ -940,8 +946,9 @@ s32 func_0029e040(u8 *sdkTask)
 /* Measured: all 608 bytes and 35 resolved relocations match retail.
  * Loop invariants hoist the slash constant. */
 #pragma opt_loop_invariants on
+// Starts a script task from its text: creates the task node, then runs the load step [inferred].
 // FUN_0029E550
-s32 func_0029e550(u8 *arg0)
+s32 scrStartScriptTask(u8 *arg0)
 {
     ScrTaskData *task;
     ScrScriptWork *child;
@@ -967,7 +974,7 @@ s32 func_0029e550(u8 *arg0)
         task->state = 0;
         break;
     case 1:
-        ret = func_0029e040(arg0);
+        ret = scrLoadScriptStep(arg0);
         switch (ret) {
         case 1:
             task->unk_0C = 3;
@@ -1059,5 +1066,5 @@ void func_0029e8d0(u8* arg0)
 
     chkmemAllocSiteTag(D_0063E3D0, 0x4AB);
     buf = D_008873F4[0](1, 0x228, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063E618), 0xC9, 0, 0, func_0029e550, func_0029e7b0, (u8 *)(buf));
+    (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063E618), 0xC9, 0, 0, scrStartScriptTask, func_0029e7b0, (u8 *)(buf));
 }

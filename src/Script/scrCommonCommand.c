@@ -33,7 +33,7 @@ extern void datEntryDrawGatedByFlag39(s16 a, s16 b, s16 c, s16 d);
 extern void datStopPadRumble(void);
 extern s32 func_001064f0(s32 index);
 extern void* scrGetContext(void);
-extern void* func_0029d9b0(s32 priority, void* scrHeader, void* entries, void* proc, void* labels, void* instr, void* msg, void* strings, s32 prcdIdx);
+extern void* scrStartProcedureWork(s32 priority, void* scrHeader, void* entries, void* proc, void* labels, void* instr, void* msg, void* strings, s32 prcdIdx);
 
 extern char D_0063CFB0[];
 extern char D_0063CFC8[];
@@ -327,7 +327,7 @@ u32 scrStartProcedureTask(void)
         return 1;
     }
     priority = ((ScrTask450 *)scr->task)->priority + scrGetParamInt(1);
-    scrSetReturnInt((s32)func_0029d9b0(
+    scrSetReturnInt((s32)scrStartProcedureWork(
         priority,
         scr->scrHeader,
         entries,

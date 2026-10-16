@@ -22,7 +22,7 @@ s32 evtMemAccount(s32 arg0, s32 arg1);
 void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
 s32 func_00454a60(void *arg0, s32 arg1);
 u8 *func_00455f70(void *arg0, u32 *arg1);
-s32 func_0029da90(s32 arg0, u8 *arg1, s32 arg2);
+s32 scrStartProcedureIndex(s32 arg0, u8 *arg1, s32 arg2);
 u8 *kwlnGetColorRgb(void);
 void *kwlnGetCamera(void);
 
@@ -1047,7 +1047,7 @@ s32 func_0028f540(u8 *arg0) {
         if (p[0x44] != 0) {
             kAssertFail(D_0063C638, 0x134E);
         }
-        p[0x44] = func_0029da90(p[2], s1, p[1]);
+        p[0x44] = scrStartProcedureIndex(p[2], s1, p[1]);
         if (p[0x44] == 0) {
             kAssertFail(D_0063C638, 0x1350);
         }

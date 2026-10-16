@@ -55,7 +55,7 @@ void func_002bd410(void);
 void func_002bd3c0(void);
 s32 func_0015a100(void);
 s32 func_0015a130(void);
-s32 func_0029db50(s32, s32, s32, s32);
+s32 scrStartProcedureChecked(s32, s32, s32, s32);
 s32 kwlnTaskIsLinked(void *);
 s32 *FldObjFindFree(void);
 s32 datUnitCreateEncounterGroup(s32);
@@ -248,7 +248,7 @@ s32 FldEvent_RunTriggerAndReset(s32 arg0)
         func_002bd3c0();
         r = (s32)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(r + 0x1C), 1);
-        h[4] = func_0029db50(0xF, func_0015a100(), func_0015a130(), 3);
+        h[4] = scrStartProcedureChecked(0xF, func_0015a100(), func_0015a130(), 3);
         FldSlotBroadcastState(1);
         h[1]++;
         break;
@@ -309,7 +309,7 @@ s32 FldEvent_RunTriggerHold(s32 arg0)
         func_002bd3c0();
         r = (s32)MT_Scene_GetFrameState();
         func_0018e030(*(s32 *)(r + 0x1C), 1);
-        h[4] = func_0029db50(0xF, func_0015a100(), func_0015a130(), 2);
+        h[4] = scrStartProcedureChecked(0xF, func_0015a100(), func_0015a130(), 2);
         FldSlotBroadcastState(1);
         h[1]++;
         break;
@@ -447,7 +447,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                 if (t != -1) {
                     tmp = (u8 *)(s32)MT_Scene_GetFrameState();
                     t2 = *(s32 *)((s32)MT_Scene_GetFrameState() + 0x18E4);
-                    *(s32 *)(h + 0x10) = func_0029db50(
+                    *(s32 *)(h + 0x10) = scrStartProcedureChecked(
                         0xF, *(s32 *)(tmp + 0x18E0), t2, t);
                 } else {
                     kAssertFail(D_005F1798, 0x3F6);
@@ -456,7 +456,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                 t = *(s32 *)(*(u8 **)(s2 + 0x284) + 0x74);
                 if (t != -1) {
                     t2 = *(s32 *)(s2 + 0x28C);
-                    *(s32 *)(h + 0x10) = func_0029db50(
+                    *(s32 *)(h + 0x10) = scrStartProcedureChecked(
                         0xF, *(s32 *)(s2 + 0x288), t2, t);
                 } else {
                     kAssertFail(D_005F1798, 0x407);
@@ -467,7 +467,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                     func_002bd3c0();
                     func_0018e030(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 1);
                     t2 = *(s32 *)(*(u8 **)(h + 0x20) + 0x28C);
-                    *(s32 *)(h + 0x10) = func_0029db50(
+                    *(s32 *)(h + 0x10) = scrStartProcedureChecked(
                         0xF, *(s32 *)(*(u8 **)(h + 0x20) + 0x288), t2, 1);
                 } else {
                     kAssertFail(D_005F1798, 0x41D);
@@ -671,7 +671,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
             func_002bd410();
             func_002bd3c0();
             func_0018e030(*(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1C), 1);
-            *(s32 *)(h + 0x10) = func_0029db50(0xF, *(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1854),
+            *(s32 *)(h + 0x10) = scrStartProcedureChecked(0xF, *(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1854),
                                                *(u32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1858), FLD_EVT_ENTRY(h)->unk10);
             *(s32 *)(h + 4) = 3;
         }
@@ -838,7 +838,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void FldUnit_ReleaseSlot(u8 *);
     void FldAmbientFlagClear(void);
     u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);
-    s32 func_0029da90(s32, u8 *, s32);
+    s32 scrStartProcedureIndex(s32, u8 *, s32);
 
     void fieldSceneLoad(s32, s32);
     void func_00144e10(s64);
@@ -862,7 +862,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 fadeStatus(void);
     s32 func_0015a100(void);
     s32 func_0015a130(void);
-    s32 func_0029db50(s32, s32, s32, s32);
+    s32 scrStartProcedureChecked(s32, s32, s32, s32);
     s32 kwlnTaskIsLinked(void *);
     void datSetFlag(s32, s32);
     s32 btlTaskCreate(s32);
@@ -1300,7 +1300,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 work->nearby[0] = NULL;
                 work->nearby[1] = NULL;
                 if (datUnitGroupIsDefeated((struct DatUnitGenusBase *)(D_007EF9F8[0].x)) == 1) {
-                    func_0029da90(0xF, (u8 *)(iGpffffb284), 0);
+                    scrStartProcedureIndex(0xF, (u8 *)(iGpffffb284), 0);
                     work->state = 0x63;
                     if (work->returnMode == 1) {
                         work->mode = 2;
@@ -1459,7 +1459,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
         case 17:
             if (fadeStatus() != 0) {
                 s32 a = func_0015a100();
-                work->scriptTask = func_0029db50(0xF, a, func_0015a130(), 6);
+                work->scriptTask = scrStartProcedureChecked(0xF, a, func_0015a130(), 6);
                 work->state = work->state + 1;
             }
             goto running;

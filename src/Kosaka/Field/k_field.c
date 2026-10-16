@@ -109,7 +109,7 @@ extern s32 MT_Scene_CreateModelFldRes(u16, s32);
 extern void SceneDraw_SetResVisible(u16, s32);
 extern void func_0015a350(f32 *);
 extern void mdlTranslateMatrix(s32, f32 *, s32);
-extern s32 func_0029da90(s32, u8 *, s32);
+extern s32 scrStartProcedureIndex(s32, u8 *, s32);
 extern s32 FldMap_IsCurrentInBandA(void);
 extern u8 *FldStepEntry(void);
 extern u8 *FldStepLoadNumberedFile(u8);
@@ -128,7 +128,7 @@ extern void func_00189ec0(void);
 extern s32 FldUnit_IsSettled(s32);
 extern void func_00122640(s32, s32);
 extern s32 fadeStatus(void);
-extern s32 func_0029db50(s32, u8 *, s32, s32);
+extern s32 scrStartProcedureChecked(s32, u8 *, s32, s32);
 extern void H_Cdvd_Destroy(u8 *);
 extern void MT_Scene_SetFadeForState(u16, u16);
 extern s32 func_0018df60(u8 *);
@@ -252,7 +252,7 @@ s32 FldRootUpdate(u8 *task)
             iGpffffb210 = 2;
             if (work->eventReader == 0) {
                 if (D_007D3D64[0] != NULL && iGpffffb268 == 0) {
-                    work->scriptTask = func_0029da90(15, D_007D3D64[0], work->room - 1);
+                    work->scriptTask = scrStartProcedureIndex(15, D_007D3D64[0], work->room - 1);
                 }
                 if (FldMap_IsCurrentInBandA() == 1) {
                     work->roomData = FldStepLoadNumberedFile(*(u8 *)(FldStepEntry() + 0xC));
@@ -300,11 +300,11 @@ s32 FldRootUpdate(u8 *task)
         if (fadeStatus() == 0) break;
         iGpffffb210 = 3;
         if (FldMap_IsCurrentInBandA() == 1) {
-            work->scriptTask = func_0029db50(15, *(u8 **)(work->roomData + 0x110),
+            work->scriptTask = scrStartProcedureChecked(15, *(u8 **)(work->roomData + 0x110),
                 *(s32 *)(work->roomData + 0x118), 0);
         } else if (D_007D3D64[0] != NULL && iGpffffb268 == 0) {
             scriptSize = D_007D3D68[0];
-            work->scriptTask = func_0029db50(15, D_007D3D64[0], scriptSize, work->room - 1);
+            work->scriptTask = scrStartProcedureChecked(15, D_007D3D64[0], scriptSize, work->room - 1);
         }
         work->state++;
         /* fallthrough */

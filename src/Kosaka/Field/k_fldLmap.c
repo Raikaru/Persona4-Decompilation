@@ -53,7 +53,7 @@ extern void func_00122640(s32 a, s32 b);
 extern s32 fadeStatus();
 extern void func_00122520(s32 a, s32 b);
 extern s32 kwlnTaskIsLinked(u8 *param);
-extern u8 *func_0029db50(s32 a, s32 b, s32 c, s32 d);
+extern s32 scrStartProcedureChecked(s32 a, s32 b, s32 c, s32 d);
 extern void func_003e9cb0(s32 param, u8 *src, s32 mode);
 extern void K_View_SetFov(u8 *param, f32 value);
 extern void func_00189600(u8 *param, s32 a, s32 b, f32 value);
@@ -464,7 +464,7 @@ s32 FldLmapUpdate(u8 *arg0)
         *(s32 *)(st + 0x30) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2050, &out));
         *(s32 *)(st + 0x28) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2070, &out));
         *(s32 *)(st + 0x34) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2090, &out));
-        *(u8 **)(st + 0x160) = func_0029db50(15, *(s32 *)(*(u8 **)(st + 0x20) + 0x110), *(s32 *)(*(u8 **)(st + 0x20) + 0x118), 0);
+        *(u8 **)(st + 0x160) = (u8 *)scrStartProcedureChecked(15, *(s32 *)(*(u8 **)(st + 0x20) + 0x110), *(s32 *)(*(u8 **)(st + 0x20) + 0x118), 0);
         *(s32 *)st = *(s32 *)st + 1;
     }
     /* fallthrough */
@@ -662,7 +662,7 @@ s32 FldLmapUpdate(u8 *arg0)
             break;
         }
         if (*(s32 *)(st + 8) == 0) {
-            func_0029db50(15, *(s32 *)(*(u8 **)(st + 0x20) + 0x110), *(s32 *)(*(u8 **)(st + 0x20) + 0x118), *(s32 *)(st + 0xC) + 1);
+            scrStartProcedureChecked(15, *(s32 *)(*(u8 **)(st + 0x20) + 0x110), *(s32 *)(*(u8 **)(st + 0x20) + 0x118), *(s32 *)(st + 0xC) + 1);
         }
         *(s32 *)st = *(s32 *)st + 1;
         break;
