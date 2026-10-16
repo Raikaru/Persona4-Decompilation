@@ -102,7 +102,7 @@ void func_004b1680(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
 /* Source unit: src/promoted/code1_001b.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001b.c; members 001bc980-001bd530 */
 
-extern s32 func_001b1560(void);
+extern s32 btlActionGetQueueSecond(void);
 extern void func_001ba790(f32 *arg0, f32 *arg1, f32 *arg2, f32 fparg0);
 static inline u8 *cameraVisibilityTarget(u8 *action, u16 index)
 {
@@ -324,7 +324,7 @@ void func_001bcd40(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode)
                 if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;
                 continue;
             }
-            if ((mode & 0x800) != 0 && current == (u8 *)(uintptr_t)func_001b1560()) {
+            if ((mode & 0x800) != 0 && current == (u8 *)(uintptr_t)btlActionGetQueueSecond()) {
                 btlUnitClearFlags((BtlUnit *)unit, 2);
                 btlUnitSetFlags((BtlUnit *)unit, 4);
                 if ((mode & 0x40) == 0) *(u8 *)(unit + 0x37) = 0xFF;

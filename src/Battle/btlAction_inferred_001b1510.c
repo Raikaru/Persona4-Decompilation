@@ -285,7 +285,7 @@ s32 btlActionGetActive(void)
 }
 
 // FUN_001B1560
-s32 func_001b1560(void)
+s32 btlActionGetQueueSecond(void)
 {
     return *(s32 *)(iGpffffb3ac + 0x2A0);
 }

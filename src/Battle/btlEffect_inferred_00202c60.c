@@ -4069,7 +4069,7 @@ void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1)
     } Frame;
     extern u32 kwlnTaskGetWork(void *arg0);
     extern void btlUiSetRenderStates(void);
-    extern u8 *func_001b1560(void);
+    extern u8 *btlActionGetQueueSecond(void);
     extern void btlUnitGetAttachedSphereCenter(u8 *arg0, f32 *arg1);
     extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
     extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
@@ -4104,7 +4104,7 @@ void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1)
                 }
             }
         } else {
-            temp_2_2 = func_001b1560();
+            temp_2_2 = btlActionGetQueueSecond();
             if (temp_2_2 != NULL) {
                 btlUnitGetAttachedSphereCenter(*(u8 **)(temp_2_2 + 0x30), frame.sp50);
                 if (btlTargetFindInRange(frame.sp50, frame.sp48) != 0) {

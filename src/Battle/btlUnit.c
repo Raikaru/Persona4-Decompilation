@@ -36,6 +36,9 @@ extern f32 D_007614c0;
 #define BTLUNIT_FLAG2_DIRTY (1 << 2)
 #define BTLUNIT_FLAG3_NOROT (1 << 13)
 #define BTLUNIT_FLAG3_MODEL_HIDDEN (1 << 12)
+/* Unit kind stored at +0xA2 and passed to btlUnitCreate: 0 party, 1 enemy,
+ * 2 child unit created by btlUnitInitChild. */
+#define BTLUNIT_KIND_CHILD 2
 
 extern RwV3d D_0060A0F0;
 
@@ -1454,9 +1457,9 @@ u32 btlUnitIsModelVisible(BtlUnit* unit)
 }
 
 // FUN_0019DE70
-void func_0019de70(BtlUnitStateWork* work, u16 value)
+void btlUnitSetChildValue(BtlUnitStateWork* work, u16 value)
 {
-    if (work != NULL && work->state == 2)
+    if (work != NULL && work->state == BTLUNIT_KIND_CHILD)
     {
         work->value = (u8)value;
     }

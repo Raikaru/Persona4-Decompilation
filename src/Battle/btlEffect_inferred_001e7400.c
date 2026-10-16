@@ -64,7 +64,7 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-extern u8 *func_001b1560(void);
+extern u8 *btlActionGetQueueSecond(void);
 extern u32 datCalcRandomBelow(u32 arg0);
 
 
@@ -456,7 +456,7 @@ s32 btlEffectScriptGetHp(void) {
 s32 btlEffectScriptGetSlotUnit(void) {
     u8 *temp;
 
-    temp = func_001b1560();
+    temp = btlActionGetQueueSecond();
     scrSetReturnInt(*(s32 *)(temp + 8) | 0x80000000);
     return 1;
 }

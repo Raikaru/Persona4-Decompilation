@@ -98,7 +98,7 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-extern u8 *func_001b1560(void);
+extern u8 *btlActionGetQueueSecond(void);
 extern void func_001eb410(u8 *arg0);
 extern u32 datCalcRandomBelow(u32 arg0);
 

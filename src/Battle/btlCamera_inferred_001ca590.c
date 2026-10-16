@@ -67,7 +67,7 @@ extern f32 fGpffff811c;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
 extern void btlCameraFrameSweep(u8 *arg0, f32 arg1, f32 arg2);
 extern void btlCameraFrameFourPoseCurve(u8 *arg0, f32 arg1, f32 arg2);
-extern void func_0019de70(BtlUnitStateWork *work, u16 value);
+extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
 extern s32 btlCameraUnitAnimFinished(u8 *arg0, u8 *arg1);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
@@ -579,7 +579,7 @@ void btlCameraFrameAnimWait(u8 *arg0)
         func_001bcd40(temp, NULL, NULL, 0.0f, 0x11);
     }
     if (btlCameraUnitAnimFinished(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
-        func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
+        btlUnitSetChildValue(*(BtlUnitStateWork **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
     }
 done:
     ;
