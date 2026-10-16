@@ -20,9 +20,9 @@ u32 RpRandom(void);
 void sdkSpriteFreeNode(void *node);
 void kwlnTaskDestroyWithHierarchy(s32 arg0);
 void func_002bb4e0(void);
-void func_003550d0(s32 arg0, void* arg1, void* arg2);
+void datScreenWipeInit(s32 arg0, void* arg1, void* arg2);
 void datScreenWipeSetTarget(s32 arg0, void* arg1, void* arg2);
-void func_00355300(s32 arg0, s32 arg1);
+void datScreenWipeSetColor(s32 arg0, s32 arg1);
 void kAssertFail(void* arg0, s32 arg1);
 void func_00136fc0(u8* arg0);
 void func_00135dc0(u8* arg0);
@@ -44,7 +44,7 @@ struct CmpPair {
     f32 x;
     f32 y;
 };
-void func_003552d0(s32 arg0, CmpPair arg1);
+void datScreenWipeSetOffset(s32 arg0, CmpPair arg1);
 
 /* measured: b210 -O2 with loop-invariant optimization. Independent initialization
    counters and per-resource sprite slots retain the retail loop scopes. The
@@ -303,7 +303,7 @@ void func_00135dc0(u8* work)
     extern f32 func_0034f720(u8 *cell, f32 xEdge, f32 yEdge, f32 ceiling);
     extern void func_0034f9d0(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 texture);
     extern void RpSkyRenderStateSet(s32 state, s32 value);
-    extern void func_00355410(u8 *task, u8 alpha);
+    extern void datScreenWipeSetAlpha(u8 *task, u8 alpha);
     extern void datScreenWipeDraw(void *task);
     extern void func_00137890(u8 *work, s32 index);
     extern s32 datPersonaRosterCapacity(void);
@@ -442,7 +442,7 @@ void func_00135dc0(u8* work)
     }
     if ((menu->visible & 0x800) != 0) {
         value = 255.0f * opacity;
-        func_00355410(menu->model, (u8)value);
+        datScreenWipeSetAlpha(menu->model, (u8)value);
         datScreenWipeDraw(menu->model);
     }
     if ((menu->visible & 0x2) != 0) {
@@ -1080,10 +1080,10 @@ void func_00137e50(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     pair = *(CmpPair*)&D_005EB570[arg1 * 0x1C];
     arg1 = *(s32*)&D_005EB578[arg1 * 0x1C];
     if (arg2 != 0) {
-        func_003550d0(arg0, var_5, var_6);
+        datScreenWipeInit(arg0, var_5, var_6);
     } else {
         datScreenWipeSetTarget(arg0, var_6, var_6);
     }
-    func_003552d0(arg0, pair);
-    func_00355300(arg0, arg1);
+    datScreenWipeSetOffset(arg0, pair);
+    datScreenWipeSetColor(arg0, arg1);
 }

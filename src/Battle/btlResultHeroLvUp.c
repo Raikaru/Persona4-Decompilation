@@ -48,7 +48,7 @@ void sflDataResetPersonaState(void* work);
 void sflDataLoadPersonaState(void* work, s16 pcId);
 s32 datScreenWipeTaskCreate(u8* param, s32 mode);
 void radarDrawEdge(s32 param, s32 a, s32 b, s32 c);
-void func_00355300(s32 param, s32 mode);
+void datScreenWipeSetColor(s32 param, s32 mode);
 s32 btlShuffleOverlayIdle(void);
 extern u8* kwlnTaskGetWork(u32 param);
 void func_00460ac0(void* param, void* work);
@@ -212,7 +212,7 @@ s32 btlResultHeroLvUpRun(u8* arg0)
         sflDataLoadPersonaState(&work->field58, 1);
         work->field4C = datScreenWipeTaskCreate(arg0, 1);
         radarDrawEdge(work->field4C, 2, 1, 0);
-        func_00355300(work->field4C, 0);
+        datScreenWipeSetColor(work->field4C, 0);
         work->flags |= 2;
         work->state = 1;
         /* fallthrough */

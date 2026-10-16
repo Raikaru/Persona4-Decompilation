@@ -20,8 +20,8 @@ extern u8 D_0064B320[];
 extern void datMemberNoticeSetup(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_0064B3B0[];
 extern u8 D_0064B3D0[];
-extern s32 func_00355460(u8 *arg0);
-extern void func_003554b0(u8 *arg0);
+extern s32 datScreenWipeUpdate(u8 *arg0);
+extern void datScreenWipeDestroy(u8 *arg0);
 extern void strncpy(void *dst, const void *src, u32 size);
 extern f32 RwV3dNormalize(void *out, const void *in);
 
@@ -46,9 +46,9 @@ typedef struct Float2
     f32 x;
     f32 y;
 } Float2;
-extern void func_003550d0(u8 *arg0, Float2 *arg1, Float2 *arg2);
-extern void func_00355370(u8 *arg0, u8 *arg1);
-extern void func_00355190(u8 *arg0, u16 arg1);
+extern void datScreenWipeInit(u8 *arg0, Float2 *arg1, Float2 *arg2);
+extern void datScreenWipeSetScale(u8 *arg0, u8 *arg1);
+extern void datScreenWipeSetTextureId(u8 *arg0, u16 arg1);
 
 typedef struct S64u
 {
@@ -587,7 +587,7 @@ u8 *datScreenWipeTaskCreate(s32 arg0, u16 arg1) {
     if (work == NULL) {
         return NULL;
     }
-    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064B3D0), 0xC7, 0, 0, func_00355460, func_003554b0, (u8 *)(work));
+    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064B3D0), 0xC7, 0, 0, datScreenWipeUpdate, datScreenWipeDestroy, (u8 *)(work));
     if (task == NULL) {
         return NULL;
     }
@@ -597,13 +597,13 @@ u8 *datScreenWipeTaskCreate(s32 arg0, u16 arg1) {
         *(u8 *)(work + 0xA) | 0x2D2D2D00;
     sp48.x = 640.0f;
     sp48.y = 640.0f;
-    func_003550d0(task, &sp48, &sp48);
-    func_00355370(task, NULL);
+    datScreenWipeInit(task, &sp48, &sp48);
+    datScreenWipeSetScale(task, NULL);
     *(s32 *)(work + 0x150) = 0;
     *(s32 *)(work + 0x148) = 0;
     *(s32 *)(work + 0x14C) = 0;
     *(void **)(work + 0x254) = (void *)&D_0064B3B0;
-    func_00355190(task, arg1);
+    datScreenWipeSetTextureId(task, arg1);
     return task;
 }
 /* measured: live body obj 1224B/window 1232B (-8B, -0.65%); verify nd 58; probe_variants 16 differing words; fnalign 306/306 instrs, 6 edits (+7 reloc-only). Reconstructed from retail asm + P4_UNIT_00354BA0 draft (160 lines, noise 5: two adda/madd lerps); frame locals as 4x Q40 quads at sp+0x40/0x80/0xC0/0x100 (x,y,z,q,a floats; u,v,r,g,b s32); each jal checked (00457120 no-arg+0x80, 0044b7b0 f12, 00364680 s32,s32*,s32,s32+7 floats sx/sy in f17/f18, 003f6440 s32,s32, D_00887300 u32-cast hoist into $s0, D_00887310 s32,ptr,s32 daddu). File-scope decls differ here so body carries function-local externs. Tried || vs two-ifs (|| matches bnez+b), u32-cast hoist vs opt_propagation off (u32 avoids extra f22). Residuals are call-arg-setup-order + scheduling floors. */
@@ -758,8 +758,9 @@ void datScreenWipeSetTarget(u8 *arg0, u8 *arg1) {
     *(s32 *)(work + 4) = 0;
 }
 
+// Intent: Initialise the screen wipe: set its current, start and end positions and reset its step counter [inferred]
 // FUN_003550D0
-void func_003550d0(u8 *arg0, Float2 *arg1, Float2 *arg2)
+void datScreenWipeInit(u8 *arg0, Float2 *arg1, Float2 *arg2)
 {
     u8 *work;
 
@@ -780,8 +781,9 @@ void func_003550d0(u8 *arg0, Float2 *arg1, Float2 *arg2)
     *(f32 *)(work + 0x34) = arg1->y;
     *(s32 *)(work + 4) = 0;
 }
+// Intent: Set the screen wipe's texture from the member id and the day suffix, releasing the old text slot when the id changes [inferred]
 // FUN_00355190
-void func_00355190(u8 *arg0, u16 arg1)
+void datScreenWipeSetTextureId(u8 *arg0, u16 arg1)
 {
     u8 sp50[0x100];
     s32 id;
@@ -820,22 +822,25 @@ void func_00355190(u8 *arg0, u16 arg1)
         *(s32 *)(reloadedWork + 4) = 0;
     }
 }
+// Intent: Set the screen wipe's offset from the argument point [inferred]
 // FUN_003552D0
-void func_003552d0(u8 *arg0, Float2 arg1)
+void datScreenWipeSetOffset(u8 *arg0, Float2 arg1)
 {
     f32 *b = *(f32 **)(arg0 + 0x38);
 
     b[0xA] = arg1.x;
     b[0xB] = arg1.y;
 }
+// Intent: Set the screen wipe's colour word [inferred]
 // FUN_00355300
-void func_00355300(u8 *arg0, s32 arg1)
+void datScreenWipeSetColor(u8 *arg0, s32 arg1)
 {
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xC) = arg1;
 }
 
+// Intent: Copy the screen wipe's start, current and end positions to the output points when they are non-null [inferred]
 // FUN_00355310
-void func_00355310(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
+void datScreenWipeGetPositions(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     u8 *work;
 
     work = (u8 *)(*(u8 **)(arg0 + 0x38));
@@ -853,8 +858,9 @@ void func_00355310(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     }
 }
 
+// Intent: Set the screen wipe's scale from the argument, or reset it to 1.0 when the argument is null [inferred]
 // FUN_00355370
-void func_00355370(u8 *arg0, u8 *arg1)
+void datScreenWipeSetScale(u8 *arg0, u8 *arg1)
 {
     u8 *work;
 
@@ -868,8 +874,9 @@ void func_00355370(u8 *arg0, u8 *arg1)
     }
 }
 
+// Intent: Copy the screen wipe's scale to the output pair [inferred]
 // FUN_003553B0
-void func_003553b0(u8 *arg0, f32 *arg1)
+void datScreenWipeGetScale(u8 *arg0, f32 *arg1)
 {
     u8 *work;
 
@@ -889,9 +896,10 @@ void func_003553b0(u8 *arg0, f32 *arg1)
    cast-and-offset breaks the CSE and the function matches exactly. Same shape
    in func_0035aec0 and func_0035be70. */
 
+// Intent: Set the screen wipe's alpha byte [inferred]
 // FUN_00355410
 /* The opacity component is a byte, as stored by the state and passed by every caller. */
-void func_00355410(u8 *arg0, u8 arg1)
+void datScreenWipeSetAlpha(u8 *arg0, u8 arg1)
 {
     u8 *work;
 
@@ -900,8 +908,9 @@ void func_00355410(u8 *arg0, u8 arg1)
     *(s32 *)(work + 0xC) = ((s32 *)work)[3];
 }
 
+// Intent: Return the screen wipe's texture when its texture load has finished, otherwise 0 [inferred]
 // FUN_00355430
-s32 func_00355430(u8 *arg0)
+s32 datScreenWipeTexture(u8 *arg0)
 {
     u8 *work;
 
@@ -911,8 +920,9 @@ s32 func_00355430(u8 *arg0)
     }
     return 0;
 }
+// Intent: Screen wipe task update: start the texture load when the id is set and the wipe is not loaded yet [inferred]
 // FUN_00355460
-s32 func_00355460(u8 *arg0)
+s32 datScreenWipeUpdate(u8 *arg0)
 {
     u8 *p;
 
@@ -923,8 +933,9 @@ s32 func_00355460(u8 *arg0)
     return 0;
 }
 
+// Intent: Screen wipe task destroy: release the wipe's texture handles and the work block [inferred]
 // FUN_003554B0
-void func_003554b0(u8 *arg0)
+void datScreenWipeDestroy(u8 *arg0)
 {
     s32 handle;
     s32 cdvdHandle;
@@ -1737,7 +1748,7 @@ void func_00356a10(u8 *work) {
     extern void func_0034c270(Vec2f, s32, s32, f32);
     extern void func_0045d6e0(u8 *, f32 *, f32, s32);
     extern void func_003599c0(s32, u8 *);
-    extern void func_00355410(u8 *, u8);
+    extern void datScreenWipeSetAlpha(u8 *, u8);
     extern void datScreenWipeDraw(u8 *);
     extern void sdkSpriteDrawAt(void *, f32, f32, u8, u8, u8, u8);
     extern void sdkSpriteDrawSized(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
@@ -1946,7 +1957,7 @@ void func_00356a10(u8 *work) {
         menuOpacityProduct = 255.0f * globalOpacity;
 
 
-        func_00355410(menu->resource1308, (u8)menuOpacityProduct);
+        datScreenWipeSetAlpha(menu->resource1308, (u8)menuOpacityProduct);
         datScreenWipeDraw(menu->resource1308);
         position.x = (f32) 0x25F + (originX + menu->scrollOffset.x);
         position.y = (f32) 0x107 + (originY + menu->scrollOffset.y);
@@ -2824,12 +2835,12 @@ void func_0035ac60(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     pair = *(Float2 *)pairSrc;
     value = *(s32 *)(D_0064CC78 + (arg1 * 0x1C));
     if (arg2 != 0) {
-        func_003550d0(arg0, (Float2 *)posA, (Float2 *)posB);
+        datScreenWipeInit(arg0, (Float2 *)posA, (Float2 *)posB);
     } else {
         datScreenWipeSetTarget(arg0, posB);
     }
-    func_003552d0(arg0, pair);
-    func_00355300(arg0, value);
+    datScreenWipeSetOffset(arg0, pair);
+    datScreenWipeSetColor(arg0, value);
 }
 // FUN_0035ADC0
 u8 *func_0035adc0(s32 arg0, s64 arg1, s32 arg2)
@@ -3631,7 +3642,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
     case 3:
         if (func_003596a0(arg2) != 0) {
             resrcMngSuppressRender();
-            func_00355190((u8 *)*(s32 *)(arg2 + 0x1308), 1);
+            datScreenWipeSetTextureId((u8 *)*(s32 *)(arg2 + 0x1308), 1);
             func_0035ac60((u8 *)*(s32 *)(arg2 + 0x1308), 0, 1, 0);
             *arg0 = 4;
         }
@@ -3676,7 +3687,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
             *arg0 = 6;
             func_0034bb20(0x1C);
             func_003599a0(arg2);
-            func_00355190((u8 *)*(s32 *)(arg2 + 0x1308), 0);
+            datScreenWipeSetTextureId((u8 *)*(s32 *)(arg2 + 0x1308), 0);
         }
         break;
     case 6:
