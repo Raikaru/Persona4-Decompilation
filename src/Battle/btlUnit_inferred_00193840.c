@@ -345,8 +345,11 @@ void btlUnitStartLoad(u8 *ctx) {
     (s32)kwlnTaskCreateChild((void *)(ctx), (const void *)(D_005F6BF0), 0x10, 0, 0, btlUnitLoadStep, 0, (u8 *)(NULL));
 }
 
+/* Resets the ten 20-byte unit-record slots of save chunk 40 (D_0079BE2C,
+   src/g_data/g_data.c). Called from func_0010f4c0 in src/g_data/g_data.c,
+   which owns the chunk's save/load copy. */
 // FUN_00193AD0
-void func_00193ad0(u8 *arg0)
+void btlUnitRecordResetSaveTable(u8 *arg0)
 {
     s16 i;
     s64 index;
@@ -458,8 +461,13 @@ u32 btlCountUnitRecordsById(u32 id)
     return total;
 }
 
+/* Unit-record flag byte at packet +0x47. Battle end promotes each pending
+   record to committed (see btlUnitRecordCommitPending). */
+#define BTLUNIT_RECORD_FLAG_PENDING   0x01
+#define BTLUNIT_RECORD_FLAG_COMMITTED 0x04
+
 // FUN_00193D30
-void func_00193d30(void)
+void btlUnitRecordCommitPending(void)
 {
     u8 *packet;
     u32 i;
@@ -470,8 +478,8 @@ void func_00193d30(void)
         packet = *(u8 **)(iGpffffb3ac + i * 8 + 0x19C);
         while (packet != NULL) {
             flags = *(u8 *)(packet + 0x47);
-            if ((flags & 1) != 0) {
-                *(u8 *)(packet + 0x47) = flags | 4;
+            if ((flags & BTLUNIT_RECORD_FLAG_PENDING) != 0) {
+                *(u8 *)(packet + 0x47) = flags | BTLUNIT_RECORD_FLAG_COMMITTED;
             }
             packet = *(u8 **)(packet + 0x80);
         }

@@ -37,7 +37,7 @@ extern void memset(void *dst, s32 value, s32 size);
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern void btlMainLoadBattleFieldScene();
-extern void func_00193d30(void);
+extern void btlUnitRecordCommitPending(void);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 extern s32 btlFormationAllocWork(s32 arg0);
 extern BtlPacket *btlFormationCreateNamedPacket(u32 arg0, const char *arg1, u16 arg2);
@@ -2269,7 +2269,7 @@ loop_30:
     var_16_3 = *(u8 **)(var_16_3 + 0x450);
 loop_30_check:
     if (var_16_3 != NULL) goto loop_30;
-    func_00193d30();
+    btlUnitRecordCommitPending();
     temp_5 = D_0076449C;
     if ((*(s32 *)(temp_5 + 0x10) & 0x20000000) &&
         datCalcIsDead(*(s32 *)(*(u8 **)(*(u8 **)(temp_5 + 0x170) + 0x30) + 0xA64), 0) != 0) {
@@ -2324,6 +2324,6 @@ s32 btlMainResultUpdate(void)
 // FUN_001B5E40
 void btlMainExitInit(void)
 {
-    func_00193d30();
+    btlUnitRecordCommitPending();
 }
 
