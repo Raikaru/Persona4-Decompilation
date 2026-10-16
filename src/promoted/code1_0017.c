@@ -87,7 +87,7 @@ extern u8 D_005F1950[];
 extern u8 D_005F1A60[];
 extern u8 D_005F1A64[];
 extern u16 D_008C024E[];
-extern void func_0018a000(s32 arg0, s32 arg1);
+extern void FldPanel2dSetState(s32 arg0, s32 arg1);
 extern void smapRefreshCells(u8 *arg0, s8 arg1);
 extern void smapSetPhase(s32 arg0, s32 arg1);
 extern s32 cmpMainTaskCreate(s32 arg0, s32 arg1);
@@ -261,7 +261,7 @@ s32 func_001709c0(u8 *arg0)
         func_0018e030(*(s32 *)(temp_2 + 0x1C), 1);
         sdkSndStartStream(0, 0, 0, 3);
         temp_2 = (u8 *)MT_Scene_GetFrameState();
-        func_0018a000(*(s32 *)(temp_2 + 0x30), 1);
+        FldPanel2dSetState(*(s32 *)(temp_2 + 0x30), 1);
         temp_2 = (u8 *)MT_Scene_GetFrameState();
         smapRefreshCells(*(u8 **)(temp_2 + 0x18), 1);
         *(s32 *)(temp_16 + 4) += 1;
@@ -272,7 +272,7 @@ s32 func_001709c0(u8 *arg0)
             temp_2 = (u8 *)MT_Scene_GetFrameState();
             func_0018e030(*(s32 *)(temp_2 + 0x1C), 0);
             temp_2 = (u8 *)MT_Scene_GetFrameState();
-            func_0018a000(*(s32 *)(temp_2 + 0x30), 0);
+            FldPanel2dSetState(*(s32 *)(temp_2 + 0x30), 0);
             temp_2 = (u8 *)MT_Scene_GetFrameState();
             smapRefreshCells(*(u8 **)(temp_2 + 0x18), 0);
             sdkSndStartStream(0, 0, 0, 4);
@@ -316,7 +316,7 @@ s32 func_00170bc0(u8 *arg0)
     switch (state) {
     case 0:
         if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0)
-            func_0018a000(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30), 1);
+            FldPanel2dSetState(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30), 1);
         func_002bd410();
         func_002bd3c0();
         func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
@@ -329,7 +329,7 @@ s32 func_00170bc0(u8 *arg0)
     case 1:
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
             if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0)
-                func_0018a000(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30), 0);
+                FldPanel2dSetState(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30), 0);
             if (datGetFlag(0x1401) != 0) {
                 func_0015a7c0(FldStepIndex());
                 datSetFlag(0x1401, 0);
