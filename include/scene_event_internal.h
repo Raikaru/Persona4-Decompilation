@@ -19,29 +19,83 @@ typedef struct EvtColor {
     u8 b3;
 } EvtColor;
 
-/* Event node (src/Event/evtMain.c, evtEvent.c). Only offsets the matched
-   code reads are named; the rest is padding. */
+typedef struct EvtChildNode EvtChildNode;
+
+/* Child node (0x54 bytes), created by evtNodeCreate from its parent's kind.
+   The payload at +0x10 is typed per parent kind (union below). Only the
+   offsets the matched code writes are named; unk_ fields have no proven role. */
+typedef struct EvtPayloadByte { u8 unk00; } EvtPayloadByte;
+typedef struct EvtPayloadKind01 { u8 unk00; u8 pad01[5]; u8 unk06; u8 unk07; } EvtPayloadKind01;
+typedef struct EvtPayloadKind02 { f32 unk00; } EvtPayloadKind02;
+typedef struct EvtPayloadKind03 { s8 unk00; u8 pad01; s16 unk02; s8 unk04; s8 unk05; s16 unk06; s16 unk08; } EvtPayloadKind03;
+typedef struct EvtPayloadKind06 { u16 unk00; s16 unk02; } EvtPayloadKind06;
+typedef struct EvtPayloadKind09 { s16 unk00; s16 unk02; } EvtPayloadKind09;
+typedef struct EvtPayloadKind0A { f32 unk00; f32 unk04; s16 unk08; } EvtPayloadKind0A;
+typedef struct EvtPayloadKind0C { s16 unk00; s16 unk02; u32 unk04; } EvtPayloadKind0C;
+typedef struct EvtPayloadKind14 { s8 unk00; s8 unk01; s16 unk02; s8 unk04; s8 unk05; s8 unk06; s8 unk07; s16 unk08; } EvtPayloadKind14;
+typedef struct EvtPayloadKind16 { s16 unk00; } EvtPayloadKind16;
+typedef struct EvtPayloadKind21 { s16 unk00; u8 pad02[6]; u32 unk08; u32 unk0C; u32 unk10; u32 unk14; u32 unk18; u32 unk1C; } EvtPayloadKind21;
+typedef struct EvtPayloadKind23 { u8 pad00; u8 unk01; u8 pad02[2]; u16 unk04; } EvtPayloadKind23;
+typedef struct EvtPayloadKind24 { u8 pad00; u8 unk01; } EvtPayloadKind24;
+typedef struct EvtPayloadKind34 { u8 pad00[2]; u8 unk02; } EvtPayloadKind34;
+/* Kind 0x35: the environment slot (evtEnvSlotSave stores the light and camera state). */
+typedef struct EvtEnvSlotPayload { u8 unk00; u8 pad01[3]; u8 unk04; u8 unk05; u8 unk06; u8 pad07; u8 unk08; u8 unk09; u8 unk0A; u8 pad0B; f32 unk0C; f32 unk10; } EvtEnvSlotPayload;
+
+typedef union EvtChildPayload {
+    EvtPayloadKind01 kind01;
+    EvtPayloadKind02 kind02;
+    EvtPayloadKind03 kind03;
+    EvtPayloadKind03 kind1A;
+    EvtPayloadKind06 kind06;
+    EvtPayloadKind09 kind09;
+    EvtPayloadKind0A kind0A;
+    EvtPayloadKind0C kind0C;
+    EvtPayloadKind14 kind14;
+    EvtPayloadKind16 kind16;
+    EvtPayloadKind21 kind21;
+    EvtPayloadKind23 kind23;
+    EvtPayloadKind24 kind24;
+    EvtPayloadByte kind27;
+    EvtPayloadByte kind29;
+    EvtPayloadByte kind30;
+    EvtPayloadKind34 kind34;
+    EvtEnvSlotPayload envSlot;
+} EvtChildPayload;
+
+struct EvtChildNode {
+    u16 start;                /* +0x00: sort key, compared by evtAppendNodeToList and evtFindBestChoice */
+    u16 unk02;                /* +0x02: cleared by kind 0x35 */
+    s32 unk04;                /* +0x04: -1 on create, 0 for kind 0x0A */
+    u8 unk08[0x08];
+    EvtChildPayload payload;  /* +0x10..+0x2F: payload typed by the parent kind */
+    u8 unk30;                 /* +0x30: kind 0x30 stores the parent's param04 here */
+    u8 unk31[0x07];
+    u32 kind;                 /* +0x38: the parent's kind */
+    u8 unk3C[0x04];
+    u32 ownedBlock40;         /* +0x40: heap block freed with the child */
+    u8 unk44[0x04];
+    u32 ownedBlock48;         /* +0x48: heap block, freed unless the owner kind is 0x12 */
+    EvtChildNode *childNext;  /* +0x4C: next sibling in the parent's child list */
+    EvtChildNode *childPrev;  /* +0x50: previous sibling */
+};
+
+/* Top-level event node (0x98 bytes), in EvtEventWork.nodeList. Only offsets the
+   matched code reads are named; the rest is padding. */
 struct EvtNode {
     u32 kind;                 /* +0x00: switched on by evtResetEventScene */
-    u8 unk04[0x08];
+    s32 param04;              /* +0x04: per-kind argument read by evtNodeCreate */
+    u8 unk08[0x04];
     u16 flags;                /* +0x0C: resource id in the low 10 bits */
     u8 unk0E[0x26];
     void *res;                /* +0x34: scene resource (evtNodeSetRes) */
-    u8 unk38[0x08];
-    u32 ownedBlock40;         /* +0x40: heap block freed with the node */
-    u8 unk44[0x04];
-    u32 ownedBlock48;         /* +0x48: heap block, freed unless the owner kind is 0x12 */
-    EvtNode *childNext;       /* +0x4C: next sibling in the parent's child list */
-    union {
-        EvtColor color;       /* +0x50: top-level nodes (evtNpcModelTaskUpdate) */
-        EvtNode *childPrev;   /* +0x50: child nodes, previous sibling */
-    };
+    u8 unk38[0x18];
+    EvtColor color;           /* +0x50: colour copied in by evtNpcModelTaskUpdate */
     u32 resData;              /* +0x54: data offset read from the resource */
     u8 unk58[0x08];
     s32 timedFlag;            /* +0x60: 1 when the node is flagged for a duration */
     s32 childCount;           /* +0x64 */
-    EvtNode *childHead;       /* +0x68 */
-    EvtNode *childTail;       /* +0x6C */
+    EvtChildNode *childHead;  /* +0x68 */
+    EvtChildNode *childTail;  /* +0x6C */
     u8 unk70[0x20];
     EvtNode *next;            /* +0x90: next node in the event's list */
     EvtNode *prev;            /* +0x94: previous node in the event's list */

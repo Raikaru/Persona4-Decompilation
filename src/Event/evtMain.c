@@ -336,7 +336,7 @@ u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
 // FUN_00286C60
 void evtNodeRemoveFree(u8 *arg0, u8 *arg1) {
     EvtNode *owner = (EvtNode *)arg0;
-    EvtNode *node = (EvtNode *)arg1;
+    EvtChildNode *node = (EvtChildNode *)arg1;
     u32 t48;
     u32 t40;
 
@@ -902,7 +902,7 @@ void evtUpdateWaitState(int param_1, int param_2) {
 void evtSelectRangeChoice(s32 arg0, u8 *arg1) {
     EvtEventWork *work = (EvtEventWork *)arg1;
     EvtNode *var_17;
-    EvtNode *var_16;
+    EvtChildNode *var_16;
     u16 temp_4;
 
     var_17 = work->nodeList;
@@ -928,7 +928,7 @@ void evtSelectRangeChoice(s32 arg0, u8 *arg1) {
 // Returns the type-2 choice node with the largest start not above arg2 that matches kind arg3 and passes its condition, or NULL.
 // FUN_00287CC0
 u8 *evtFindBestChoice(u32 arg0, u8 *arg1, s32 arg2, s32 arg3) {
-    EvtNode *node;
+    EvtChildNode *node;
     u8 *found;
     s32 best;
 
@@ -2463,7 +2463,7 @@ s32 func_0028a8e0(s32 param_1) {
 s32 evtDispatchNode(s32 arg0, s32 arg1, u8 *arg2) {
     u32 n;
     s32 t;
-    EvtNode *node;
+    EvtChildNode *node;
     EvtNode *owner = (EvtNode *)arg2;
 
     if (arg2 == NULL) {
@@ -2508,9 +2508,9 @@ void evtResetEventScene(s32 arg0, u8 *arg1) {
     s32 var_2;
     EvtNode *var_18;
     EvtNode *var_18_2;
-    EvtNode *var_18_3;
+    EvtChildNode *var_18_3;
     EvtNode *var_20;
-    EvtNode *var_19;
+    EvtChildNode *var_19;
 
     temp_3 = work->waitFlags & ~2;
     work->waitFlags = temp_3;
