@@ -115,7 +115,7 @@ void fclCombineSetModel(u8 *arg0, u16 arg1, s64 arg2)
     extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
     extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
     extern void kwlnTaskDestroyWithHierarchy(void *arg0);
-    extern u8 *func_003488d0(void *arg0, void *arg1, s32 arg2);
+    extern u8 *cmbCardEffCreateSprite(void *arg0, void *arg1, s32 arg2);
     extern u8 D_0064A700[];
     extern u8 D_0064A720[];
     extern s32 iGpffffb5a0;
@@ -160,12 +160,12 @@ void fclCombineSetModel(u8 *arg0, u16 arg1, s64 arg2)
                 kwlnTaskDestroyWithHierarchy(*(u8 **)(obj + 0xEC));
                 *(u8 **)(obj + 0xEC) = NULL;
             }
-            *(u8 **)(obj + 0xEC) = func_003488d0(arg0, D_0064A700, 0);
+            *(u8 **)(obj + 0xEC) = cmbCardEffCreateSprite(arg0, D_0064A700, 0);
             if (*(u8 **)(obj + 0xF0) != NULL) {
                 kwlnTaskDestroyWithHierarchy(*(u8 **)(obj + 0xF0));
                 *(u8 **)(obj + 0xF0) = NULL;
             }
-            *(u8 **)(obj + 0xF0) = func_003488d0(arg0, D_0064A720, 7);
+            *(u8 **)(obj + 0xF0) = cmbCardEffCreateSprite(arg0, D_0064A720, 7);
         }
     }
 }
