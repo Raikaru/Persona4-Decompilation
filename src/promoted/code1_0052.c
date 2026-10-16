@@ -272,11 +272,3 @@ typedef struct {
     s64 max;
     s32 count;
 } StatAccum52;
-// FUN_0052D9A0
-void func_0052d9a0(StatAccum52 *acc, s64 value)
-{
-    acc->total += value;
-    acc->min = (value < acc->min) ? value : acc->min;
-    acc->max = (acc->max < value) ? value : acc->max;
-    acc->count++;
-}
