@@ -10,7 +10,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_005F5370[];
 extern u8 D_005F5420[];
-extern s32 func_0018bfb0(u8 *arg0);
+extern s32 FldMipmapLoadUpdate(u8 *arg0);
 extern u8 iGpffff9f88;
 extern u8 D_005F5360[];
 extern u8 D_005F5380[];
@@ -40,7 +40,7 @@ extern void func_003ea370(void *arg0);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldMipmap.c; members 0018bfb0-0018c580 */
 
 // FUN_0018BFB0
-s32 func_0018bfb0(u8 *arg0)
+s32 FldMipmapLoadUpdate(u8 *arg0)
 {
     u8 *work;
     s32 state;
@@ -148,13 +148,13 @@ s32 func_0018bfb0(u8 *arg0)
 }
 
 // FUN_0018C550
-void func_0018c550(u8 *arg0)
+void FldMipmapLoadDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
 // FUN_0018C580
-s32 func_0018c580(u8 *parent)
+s32 FldMipmapLoadTaskCreate(u8 *parent)
 {
     u8 *mem;
 
@@ -163,6 +163,6 @@ s32 func_0018c580(u8 *parent)
     if (mem == NULL) {
         return 0;
     }
-    return (s32)kwlnTaskCreate((const void *)(D_005F5420), 0xF, 0, 0, func_0018bfb0, func_0018c550, (u8 *)(mem));
+    return (s32)kwlnTaskCreate((const void *)(D_005F5420), 0xF, 0, 0, FldMipmapLoadUpdate, FldMipmapLoadDestroy, (u8 *)(mem));
 }
 

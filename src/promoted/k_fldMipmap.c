@@ -10,7 +10,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_005F5370[];
 extern u8 D_005F5420[];
-extern s32 func_0018bfb0(u8 *arg0);
+extern s32 FldMipmapLoadUpdate(u8 *arg0);
 extern u8 iGpffff9f88;
 extern u8 D_005F5360[];
 extern u8 D_005F5380[];

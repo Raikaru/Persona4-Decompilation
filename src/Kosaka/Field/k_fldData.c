@@ -75,7 +75,7 @@ extern s32 func_0045b1c0(void *parent, s32 kind, s32 buffer, void *name);
 extern s32 func_0045b170(void *request);
 extern u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 size, const char *cacheName, s32 resultKind, s32 memoryKind);
 extern u8 *func_004669d0(u8 *request, s32 *ready, s32 *source);
-extern s32 func_0018c580(u8 *arg0);
+extern s32 FldMipmapLoadTaskCreate(u8 *arg0);
 extern s32 kwlnTaskIsLinked(void *task);
 extern void kAssertFail(const void *msg, s32 id);
 extern s32 D_007E3710[];
@@ -400,7 +400,7 @@ television_texture_test:
         H_Cdvd_Destroy(work->televisionModels[0]);
         H_Cdvd_Destroy(work->televisionModels[1]);
         H_Cdvd_Destroy(work->supportScript);
-        work->mipmapTask = func_0018c580(task);
+        work->mipmapTask = FldMipmapLoadTaskCreate(task);
         work->state = work->state + 1;
         break;
     default:

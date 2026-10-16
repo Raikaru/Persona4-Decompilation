@@ -18,8 +18,8 @@ extern u8 D_005F60F0[];
 extern u8 D_005F6110[];
 extern u8 D_005F6130[];
 extern u8 D_005F6150[];
-extern s32 func_001901d0(u8 *arg0);
-extern void func_001905d0(u8 *arg0);
+extern s32 K_ReadTexUpdate(u8 *arg0);
+extern void K_ReadTexDestroy(u8 *arg0);
 extern void func_003ef3a0(void *handle);
 extern s32 func_003ef6d0(void);
 extern void *func_003ef650(s32 owner, const void *name);
@@ -34,7 +34,7 @@ extern s32 iGpffffa030;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_readtex.c; members 001901d0-00190600 */
 
 // FUN_001901D0
-s32 func_001901d0(u8 *arg0)
+s32 K_ReadTexUpdate(u8 *arg0)
 {
     typedef struct {
         s32 state;
@@ -120,19 +120,19 @@ s32 func_001901d0(u8 *arg0)
 }
 
 // FUN_001905D0
-void func_001905d0(u8 *arg0) {
+void K_ReadTexDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
 // FUN_00190600
-void func_00190600(void)
+void K_ReadTexTaskCreate(void)
 {
     u8 *mem;
 
     chkmemAllocSiteTag(D_005F60B8, 0x91);
     mem = D_008873F4[0](1, 0x24, 0x40000);
     if (mem != NULL) {
-        (s32)kwlnTaskCreate((const void *)(D_005F6150), 0xF, 0, 0, func_001901d0, func_001905d0, (u8 *)(mem));
+        (s32)kwlnTaskCreate((const void *)(D_005F6150), 0xF, 0, 0, K_ReadTexUpdate, K_ReadTexDestroy, (u8 *)(mem));
     }
 }
 
