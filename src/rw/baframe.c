@@ -260,6 +260,10 @@ extern u8 *func_003e9af0(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2); /* P4: por
 #pragma no_branch_likely off
 /* measured: retail uses plain beqz in func_003e9c10's flag test. */
 #pragma no_branch_likely on
+/* Duplicate of RwFrameTranslate (src/renderware/core/baframe.c, 0x003E9D50):
+ * the same instructions with RwFrameUpdateObjects inlined and the RWASSERTs
+ * compiled out. It keeps its address name so the two copies do not become
+ * two RenderWare definitions. */
 // FUN_003E9C10
 u8 *func_003e9c10(u8 *arg0, const f32 *translation, s32 combineOp)
 {
