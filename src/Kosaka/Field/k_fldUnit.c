@@ -69,7 +69,7 @@ extern f32 FldFrameTask_GetHeight(s32 arg0);
 extern void mdlAdvanceModelFromFlags(u8 *arg0);
 extern s32 FldAI_SpawnPatrol(s32 arg0, u8 *arg1, s32 arg2);
 extern s32 datUnitGroupIsDefeated(s32 arg0);
-extern s32 func_0016fd00(s32 arg0);
+extern s32 FldCharacterAnimSelect(s32 arg0);
 extern s32 FldAI_SpawnChaser(s32 arg0, u8 *arg1, u8 *arg2);
 extern void FldAI_ChaserEnable(s32 arg0);
 extern s32 FldPlayerIconTaskCreate(u8 *arg0);
@@ -588,7 +588,7 @@ void FldUnit_UpdateFacing(void)
                     }
                 }
                 mdlDispatchAnimIfPresent((u8 *)*characterModel, 0,
-                              func_0016fd00(fieldUnitSlotAt(&partyIndex)->characterId), 0, 1);
+                              FldCharacterAnimSelect(fieldUnitSlotAt(&partyIndex)->characterId), 0, 1);
             }
         } else {
             FldFrameTask_SetHeight((*sceneResource)->movementTask, 35.0f);
@@ -623,7 +623,7 @@ void FldUnit_UpdateFacing(void)
                     90.0f * (f32)((((FieldUnitGridView *)(u32)gridRow)->cells[
                         ((FieldUnitGridView *)MT_Scene_GetFrameState())->spawnColumn].direction + 2) % 4));
                 mdlDispatchAnimIfPresent((u8 *)*characterModel, 0,
-                              func_0016fd00(unitForSetup->characterId), 0, 1);
+                              FldCharacterAnimSelect(unitForSetup->characterId), 0, 1);
                 *formationMatrix = *(FieldUnitMatrix *)mdlGetMatrix(
                     (*(FieldUnitSceneResource **)D_007EFA04)->model);
                 if (partyIndex == 0 && FldMap_IsCurrentInEitherBand() != 0) {
@@ -1500,7 +1500,7 @@ void FldUnit_UpdateSlot(s32 arg0)
         mdlScale((Model *)(*(u8 **)(*temp_20_2 + 0x228)), (const RwV3d *)(&sp70[0]), 2);
         mdlAdvanceModelFromFlags(*(u8 **)(*temp_20_2 + 0x228));
         if (datUnitGroupIsDefeated(*temp_21) == 0) {
-            mdlDispatchAnimIfPresent(*temp_16, 0, (s16)func_0016fd00(*(u16 *)(D_007F00D8 + (arg0 * 0x750))), 0, 1);
+            mdlDispatchAnimIfPresent(*temp_16, 0, (s16)FldCharacterAnimSelect(*(u16 *)(D_007F00D8 + (arg0 * 0x750))), 0, 1);
         }
         if (arg0 != 0) {
             stride = 0x750;

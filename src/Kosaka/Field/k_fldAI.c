@@ -4,7 +4,7 @@
 #include "type.h"
 #include "Kosaka/k_fldFrame_internal.h"
 extern u8 D_00756510[];
-extern s32 func_0016fd00();
+extern s32 FldCharacterAnimSelect();
 extern void func_003e0f40();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -81,8 +81,8 @@ s32 FldAI_ChaserUpdate(u8 *task)
     extern void FldFrameTask_SetPosition(u8 *, u8 *);
     extern void FldFrameTask_StartMove(u8 *, f32);
     extern void FldFrameTask_Rotate(u8 *, const void *, f32);
-    extern s32 func_0016fd00(s32);
-    extern s32 func_0016ffd0(s32);
+    extern s32 FldCharacterAnimSelect(s32);
+    extern s32 FldMoveAnimSecondary(s32);
     extern s32 FldAI_ChaserGetState(u8 *);
     extern u32 RpRandom(void);
     extern void *memset(void *, int, size_t);
@@ -234,9 +234,9 @@ discoveryAvailabilityDone:
             *(s32 *)(work + 0xC) = 1;
         if (*(s32 *)(work + 0xC) == 0) {
             currentAnimation = (s16)mdlGetLayerAnimation(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
-            desiredAnimation = func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+            desiredAnimation = FldCharacterAnimSelect(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
             if (currentAnimation != desiredAnimation) {
-                desiredAnimation = (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+                desiredAnimation = (s16)FldCharacterAnimSelect(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
                 mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 0, 1);
             }
             break;
@@ -518,18 +518,18 @@ moveFollower:
                 if (*(s32 *)(work + 0x60) < 30) *(s32 *)(work + 0x60) += 1;
                 else {
                     currentAnimation = (s16)mdlGetLayerAnimation(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
-                    desiredAnimation = func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+                    desiredAnimation = FldCharacterAnimSelect(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
                     if (currentAnimation != desiredAnimation) {
-                        desiredAnimation = (s16)func_0016fd00(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+                        desiredAnimation = (s16)FldCharacterAnimSelect(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
                         mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 16, 1);
                     }
                     *(s32 *)(work + 0x60) = 0;
                 }
             } else {
                 currentAnimation = (s16)mdlGetLayerAnimation(*(s32 *)(*(u8 **)(work + 0x10) + 0x50), 0);
-                desiredAnimation = func_0016ffd0(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+                desiredAnimation = FldMoveAnimSecondary(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
                 if (currentAnimation != desiredAnimation) {
-                    desiredAnimation = (s16)func_0016ffd0(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
+                    desiredAnimation = (s16)FldMoveAnimSecondary(*(u16 *)(*(u8 **)(work + 0x10) + 0x728));
                     mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(work + 0x10) + 0x50), 0, (s16)desiredAnimation, 8, 1);
                     *(s32 *)(work + 0x60) = 0;
                 }
@@ -591,7 +591,7 @@ void FldAI_ChaserDisable(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     mdlDispatchAnimIfPresent(*(u8 **)(*(u8 **)(p + 0x10) + 0x50), 0,
-                  (s16)func_0016fd00(*(u16 *)(*(u8 **)(p + 0x10) + 0x728)), 0, 1);
+                  (s16)FldCharacterAnimSelect(*(u16 *)(*(u8 **)(p + 0x10) + 0x728)), 0, 1);
     *(s32 *)(p + 0xC) = 0;
 }
 

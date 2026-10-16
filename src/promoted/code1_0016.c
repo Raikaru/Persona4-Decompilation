@@ -212,7 +212,7 @@ static inline f32 code1_0016_cvt(s32 value) {
     return (f32)value;
 }
 
-extern void func_0016f630(FldEventSnapshot *arg0, u8 *arg1);
+extern void FldEventSnapshotCapture(FldEventSnapshot *arg0, u8 *arg1);
 // FUN_00160440
 void func_00160440(void)
 {
@@ -1154,7 +1154,7 @@ static inline void fldRaySelectWorld(const FldRaySelectionResource *selected, vo
 #pragma opt_loop_invariants off
 #pragma pop
 #pragma optimization_level 1
-/* measured: restore baseline optimization level after func_0016f630. */
+/* measured: restore baseline optimization level after FldEventSnapshotCapture. */
 #pragma optimization_level 2
 
 extern u16 D_008C024C[];

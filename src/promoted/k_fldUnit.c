@@ -69,7 +69,7 @@ extern f32 FldFrameTask_GetHeight(s32 arg0);
 extern void mdlAdvanceModelFromFlags(u8 *arg0);
 extern s32 FldAI_SpawnPatrol(s32 arg0, u8 *arg1, s32 arg2);
 extern s32 datUnitGroupIsDefeated(s32 arg0);
-extern s32 func_0016fd00(s32 arg0);
+extern s32 FldCharacterAnimSelect(s32 arg0);
 extern s32 FldAI_SpawnChaser(s32 arg0, u8 *arg1, u8 *arg2);
 extern void FldAI_ChaserEnable(s32 arg0);
 extern s32 FldPlayerIconTaskCreate(u8 *arg0);

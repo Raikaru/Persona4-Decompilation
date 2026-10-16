@@ -2052,9 +2052,9 @@ s32 FldFrame_GetSlotBuffer(u8 *arg0)
     return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x2BC);
 }
 
-/* measured: opt_propagation off preserves global initialization ordering in func_0016eb00. */
+/* measured: opt_propagation off preserves global initialization ordering in FldCameraUpdateLookAt. */
 // FUN_0016EB00
-void func_0016eb00(u8 *arg0)
+void FldCameraUpdateLookAt(u8 *arg0)
 {
     E8E0Frame sp;
     u8 *temp_16;
@@ -2112,7 +2112,7 @@ void func_0016eb00(u8 *arg0)
     }
 }
 
-/* measured: restore opt_propagation after func_0016eb00. */
+/* measured: restore opt_propagation after FldCameraUpdateLookAt. */
 // FUN_0016EC90
 void FldCameraUpdateOrbit(u8 *arg0)
 {
@@ -2291,7 +2291,7 @@ done:
 }
 
 /* measured: closing opt_propagation off probe for FldFrame_RotateTaskUpdate. */
-/* measured: FldFrame_RotateTaskCreate, func_0016f3b0 MATCH -> MISMATCH without this pragma. */
+/* measured: FldFrame_RotateTaskCreate, FldFrameRotateTaskCreate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_0016F100
 void FldFrame_RotateTaskDestroy(u8 *arg0)
@@ -2360,11 +2360,11 @@ u8 *FldFrame_RotateTaskCreate(u8 *arg0, s32 arg1, s32 arg2)
 }
 
 /* measured: close opt_loop_invariants scope after FldFrame_RotateTaskCreate. */
-/* measured: opt_loop_invariants on reproduces func_0016f3b0's loop schedule
+/* measured: opt_loop_invariants on reproduces FldFrameRotateTaskCreate's loop schedule
    and FPU register allocation. */
 #pragma push
 // FUN_0016F3B0
-u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
+u8 *FldFrameRotateTaskCreate(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 *result;
     u8 *temp_2;
@@ -2417,13 +2417,13 @@ u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
 }
 
 #pragma pop
-/* measured: func_0016f630 compiles to object 276B against the 288B retail
+/* measured: FldEventSnapshotCapture compiles to object 276B against the 288B retail
    window (normalized_diff 0; trailing zero padding is normalized). */
 // FUN_0016F630
-/* measured: optimization_level 1 reproduces func_0016f630 register allocation. */
-/* measured: func_0016f630 MATCH -> MISMATCH without this pragma. */
+/* measured: optimization_level 1 reproduces FldEventSnapshotCapture register allocation. */
+/* measured: FldEventSnapshotCapture MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
-void func_0016f630(FldEventSnapshot *arg0, u8 *arg1)
+void FldEventSnapshotCapture(FldEventSnapshot *arg0, u8 *arg1)
 {
     F630Frame sp;
     s128 *var_17;
@@ -2485,8 +2485,8 @@ void func_0016f630(FldEventSnapshot *arg0, u8 *arg1)
     } while (var_4 > 0);
 }
 
-/* measured: restore baseline optimization level after func_0016f630. */
-/* measured: FldCameraApplyRecord, FldEvent_GetStickHeading, func_0016fd00, func_0016fe80, func_0016ffd0 MATCH -> MISMATCH without this pragma. */
+/* measured: restore baseline optimization level after FldEventSnapshotCapture. */
+/* measured: FldCameraApplyRecord, FldEvent_GetStickHeading, FldCharacterAnimSelect, FldMoveAnimPrimary, FldMoveAnimSecondary MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 /* measured: FldCameraApplyRecord compiles to object 348B against the 352B retail
    window (normalized_diff 0; pointer-typed hoist fixes final-call setup). */
@@ -2617,7 +2617,7 @@ f32 FldEvent_GetStickHeading(s32 arg0, s32 arg1)
 }
 
 // FUN_0016FD00
-s32 func_0016fd00(s32 arg0)
+s32 FldCharacterAnimSelect(s32 arg0)
 {
     u8 *temp_2;
     u8 *temp_4;
@@ -2673,7 +2673,7 @@ ret1_c:
 }
 
 // FUN_0016FE80
-s32 func_0016fe80(s32 arg0)
+s32 FldMoveAnimPrimary(s32 arg0)
 {
     s32 result;
     u8 *temp;
@@ -2716,7 +2716,7 @@ s32 func_0016fe80(s32 arg0)
 }
 
 // FUN_0016FFD0
-s32 func_0016ffd0(s32 arg0)
+s32 FldMoveAnimSecondary(s32 arg0)
 {
     s32 result;
     u8 *temp;
