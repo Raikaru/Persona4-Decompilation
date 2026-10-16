@@ -231,7 +231,7 @@ typedef struct MovieNativeWork {
     u32 field21c;
 } MovieNativeWork;
 // FUN_004614B0
-void func_004614b0(void) {
+void movieNativeSkyStateEnter(void) {
     WindowRenderStateSet *tbl = (WindowRenderStateSet *)(u32)D_00887300;
     tbl[0]((RwRenderState)(6), (void *)(1));
     tbl[0]((RwRenderState)(8), (void *)(1));

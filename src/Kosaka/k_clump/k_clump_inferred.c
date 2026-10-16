@@ -93,9 +93,9 @@ extern s32 iGpffffaf60;
 extern void mdlClumpSetEnvMapValue(s32 arg0, s32 arg1);
 extern void mdlDrawSkyPass(u8 *arg0);
 extern void mdlDrawVisibleAtomics(s32 arg0);
-extern void func_00461560(u8 *arg0);
-extern void func_00461a40(u8 *arg0);
-extern void func_00461be0(u8 *arg0);
+extern void movieNativeDrawPass1(u8 *arg0);
+extern void movieNativeDrawPass2(u8 *arg0);
+extern void movieNativeDrawPass3(u8 *arg0);
 
 extern u32 iGpffffbb14;
 extern u32 iGpffffbb10;
@@ -237,11 +237,11 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-// measured: opt_propagation off preserves the callback table pointer across jal calls while probing func_00462230.
-/* measured: func_00462230 MATCH -> MISMATCH without this pragma. */
+// measured: opt_propagation off preserves the callback table pointer across jal calls while probing movieNativeSkyDraw.
+/* measured: movieNativeSkyDraw MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_00462230
-void func_00462230(u8 *arg0)
+void movieNativeSkyDraw(u8 *arg0)
 {
     u8 *self;
     u8 *work;
@@ -267,16 +267,16 @@ void func_00462230(u8 *arg0)
         table[0]((RwRenderState)(8), (void *)(0));
         *(u16 *)(self + 0x1A) |= 2;
         *(s32 *)(self + 0x1C) = *(s32 *)(work + 0xE0);
-        func_00461560(self);
-        func_00461a40(self);
-        func_00461be0(self);
+        movieNativeDrawPass1(self);
+        movieNativeDrawPass2(self);
+        movieNativeDrawPass3(self);
     }
     if ((*(s32 *)(work + 0xD8) & 0x400) != 0) {
         mdlClumpSetEnvMapValue(*(s32 *)(work + 0xDC), 0);
     }
 }
 
-// measured: closes opt_propagation around func_00462230.
+// measured: closes opt_propagation around movieNativeSkyDraw.
 /* Walks the ordering-table bucket list, calling each node's start callback and then the callback tables D_00887308..D_00887314 for each entry. */
 // FUN_004623A0
 void sdkOtFlushBuckets(u8 *arg0)
@@ -343,18 +343,18 @@ void sdkOtFlushBuckets(u8 *arg0)
             }
             break;
         case 5:
-            func_00461560(p);
-            func_00461a40(p);
-            func_00461be0(p);
+            movieNativeDrawPass1(p);
+            movieNativeDrawPass2(p);
+            movieNativeDrawPass3(p);
             break;
         case 6:
-            func_00461560(p);
+            movieNativeDrawPass1(p);
             break;
         case 7:
-            func_00461a40(p);
+            movieNativeDrawPass2(p);
             break;
         case 8:
-            func_00461be0(p);
+            movieNativeDrawPass3(p);
             break;
         case 9:
             RpClumpForAllAtomics(*(void **)(p + 0x1C), K_Clump_RenderAtomicIfVisibleCb, NULL);
@@ -411,7 +411,7 @@ void sdkOtFlushBuckets(u8 *arg0)
             TnDispatchPairedDraw(*(void **)(p + 0x1C));
             break;
         case 27:
-            func_00462230(p);
+            movieNativeSkyDraw(p);
             break;
         case 28:
             mdlUpdateDrawState(*(void **)(p + 0x1C));

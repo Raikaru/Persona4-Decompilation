@@ -8,7 +8,7 @@ extern u8 *iGpffffba98;   /* gp - 0x4568 = 0x00764b88 */
 extern u8 *(*D_008873F8[])(u8 *, s32);
 extern void memset(void *, s32, s32);
 extern u8 iGpffffaf70;   /* gp - 0x5090 = 0x00764060 */
-extern void func_004614b0(void);
+extern void movieNativeSkyStateEnter(void);
 
 
 // FUN_00460AC0
@@ -248,7 +248,7 @@ u8 *func_00461180(u8 *list, s32 arg1)
     }
     *(u16 *)(node + 0x18) = 9;
     *(u32 *)(node + 0x1C) = arg1;
-    *(u32 *)(node + 0x8) = (u32)func_004614b0;
+    *(u32 *)(node + 0x8) = (u32)movieNativeSkyStateEnter;
     *(u32 *)(node + 0x10) = 0;
     tail = list;
     if (list == 0) {
