@@ -105,8 +105,8 @@ extern s32 fadeStatus(void);
 extern s32 func_002bb680(s8 arg0);
 extern void func_002bbcf0(s32 arg0);
 extern void func_002bb550(s8 arg0);
-extern s8 func_002bab80(s32 arg0);
-extern s32 func_002badc0(s8 arg0, s32 arg1);
+extern s8 nmMesWindowAcquire(s32 arg0);
+extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
 extern u8 func_002e78a0(void);
 extern s32 func_002e78e0(void);
 extern s32 calGetDayEntryForMonthDay(s32 arg0, s32 arg1);
@@ -140,9 +140,9 @@ extern void func_002b2e70(s32, s32, s32, s32, void *, void *);
 extern void func_002b2f90(s32, s32, s32, s32, void *, void *);
 extern void sprintf(void *dst, void *fmt, s32 val);
 extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
-extern void func_002bafc0(s8 arg0, s32 arg1);
-extern void func_002bb0a0(s8 arg0, s32 arg1);
-extern void func_002bbf60(void);
+extern void nmMesWindowSetSlotParam(s8 arg0, s32 arg1);
+extern void nmMesWindowSetSlotFlag(s8 arg0, s32 arg1);
+extern void nmMesWindowRequestRefresh(void);
 
 // Item shop task update callback: on state 0 requests the shop sprite load and advances the state; each frame it draws the shop screen.
 /* The shared SDK update signature accepts fclItemShopUpdate directly at the
@@ -569,16 +569,16 @@ s32 fclItemShopUpdate(u8 *arg0) {
         *(s32 *)(work + 0x2AC) = 0;
         *(s8 *)(work + 0) = 5;
         if (*(s8 *)(work + 0x424) == 1) {
-            *(s8 *)(work + 8) = func_002bab80(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
-            func_002badc0(*(s8 *)(work + 8), 2);
+            *(s8 *)(work + 8) = nmMesWindowAcquire(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
+            nmMesWindowShowSlotRecord(*(s8 *)(work + 8), 2);
             *(s8 *)(work + 0) = 6;
         } else if (*(s8 *)(work + 9) == 1) {
-            *(s8 *)(work + 8) = func_002bab80(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
-            func_002badc0(*(s8 *)(work + 8), 3);
+            *(s8 *)(work + 8) = nmMesWindowAcquire(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
+            nmMesWindowShowSlotRecord(*(s8 *)(work + 8), 3);
             *(s8 *)(work + 0) = 7;
         } else {
-            *(s8 *)(work + 8) = func_002bab80(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
-            func_002badc0(*(s8 *)(work + 8), 4);
+            *(s8 *)(work + 8) = nmMesWindowAcquire(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
+            nmMesWindowShowSlotRecord(*(s8 *)(work + 8), 4);
             *(s8 *)(work + 0) = 7;
         }
         break;
@@ -590,8 +590,8 @@ s32 fclItemShopUpdate(u8 *arg0) {
         func_002bb550(*(s8 *)(work + 8));
         *(s8 *)(work + 0) = 5;
         if (*(s8 *)(work + 9) == 1) {
-            *(s8 *)(work + 8) = func_002bab80(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
-            func_002badc0(*(s8 *)(work + 8), 3);
+            *(s8 *)(work + 8) = nmMesWindowAcquire(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
+            nmMesWindowShowSlotRecord(*(s8 *)(work + 8), 3);
             *(s8 *)(work + 0) = 7;
         }
         break;
@@ -1367,15 +1367,15 @@ s32 fclItemShopUpdate(u8 *arg0) {
                       datGetItemNameId((s16)yListValueAt(*(s16 *)(work + 4))), 0, 0, D_007950B0);
         if (D_008C024E[0] & 0x40) {
             sdkSndStartStream(0, 0, 0, 1);
-            *(s8 *)(work + 8) = func_002bab80(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
+            *(s8 *)(work + 8) = nmMesWindowAcquire(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
             sprintf(buf, "%d", *(s8 *)(work + 3));
             func_002bbd80(*(s8 *)(work + 8), 1, buf);
             sprintf(buf, "%d", *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))));
             func_002bbd80(*(s8 *)(work + 8), 2, buf);
-            func_002badc0(*(s8 *)(work + 8), 1);
-            func_002bafc0(*(s8 *)(work + 8), 0);
-            func_002bb0a0(*(s8 *)(work + 8), 0);
-            func_002bbf60();
+            nmMesWindowShowSlotRecord(*(s8 *)(work + 8), 1);
+            nmMesWindowSetSlotParam(*(s8 *)(work + 8), 0);
+            nmMesWindowSetSlotFlag(*(s8 *)(work + 8), 0);
+            nmMesWindowRequestRefresh();
             *(s8 *)(work + 0) = 0xD;
         } else if (D_008C027A[0] & 0x1000) {
             if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))))) {

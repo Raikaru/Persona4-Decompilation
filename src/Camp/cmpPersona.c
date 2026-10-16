@@ -58,7 +58,7 @@ void func_001356d0(u8* arg0) {
  extern void* memset(void* dst, s32 value, u32 size);
  extern u8* resourceFindByName(char* arg0);
  extern u8* sdkSpriteNewNode(u32 arg0, u32 arg1);
- extern u8 func_002baac0(u8* arg0);
+ extern u8 nmMesWindowOpenCurrent(u8* arg0);
  extern u8* datScreenWipeTaskCreate(s32 arg0, u16 arg1);
  extern u8* shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
  extern void shdPersonaSetPersonaId(u8* arg0, s32 arg1);
@@ -166,7 +166,7 @@ void func_001356d0(u8* arg0) {
    }
   }
  }
- func_002baac0(D_0064A790);
+ nmMesWindowOpenCurrent(D_0064A790);
  func_00135c10(arg0);
  *(s32*)(arg0 + 0x1CB8) = (s32)datScreenWipeTaskCreate(0, 1);
  *(s32*)(arg0 + 0x1CB4) = (s32)shdPersonaTaskCreate(0, 0xC7, 0, 8, 3);

@@ -27,7 +27,7 @@ extern f32 RwV3dNormalize(void *out, const void *in);
 
 extern void sdkSpriteFreeNode(void *node);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
-extern void func_002bc060(s32 arg0);
+extern void nmMesWindowReleaseHandle(s32 arg0);
 extern s32 cmmKindRecord(u16 arg0);
 extern void kAssertFail(const void *module, u32 line);
 extern void sprintf(void *dst, const void *fmt, ...);
@@ -110,11 +110,11 @@ extern f32 iGpffff8544;
 extern f32 sinf(f32 arg0);
 extern f32 fGpffff84a4;
 extern void func_002bb7c0(s32 arg0);
-extern s32 func_002bb600(void);
-extern void func_002bb1e0(s32 arg0);
+extern s32 nmMesWindowCurrentOpenState(void);
+extern void nmMesWindowCloseCurrent(s32 arg0);
 extern void func_002bb9e0(s32 arg0, s32 arg1);
 extern s32 func_002bb680(s8 arg0);
-extern void func_002bb290(s8 arg0, s32 arg1);
+extern void nmMesWindowCloseSlot(s8 arg0, s32 arg1);
 extern s32 func_002bb4e0(void);
 extern s32 func_002bd7b0(const void *arg0);
 extern s32 func_002bd840(s32 arg0);
@@ -263,8 +263,8 @@ s32 datMemberIsUnlocked(s64 arg0)
 s32 datMemberNoticeTryBegin(s32 arg0)
 {
     func_002bb7c0(arg0);
-    if (func_002bb600() == 0) {
-        func_002bb1e0(arg0);
+    if (nmMesWindowCurrentOpenState() == 0) {
+        nmMesWindowCloseCurrent(arg0);
         return 0;
     }
     return 1;
@@ -324,7 +324,7 @@ s32 datMemberNoticeStep(u8 *arg0)
     case 1:
         func_002bb9e0(*(s8 *)(work + 8), 1);
         if (func_002bb680(*(s8 *)(work + 8)) == 0) {
-            func_002bb290(*(s8 *)(work + 8), 1);
+            nmMesWindowCloseSlot(*(s8 *)(work + 8), 1);
             if ((*(u16 *)work & 1) != 0) {
                 func_002bd7b0(D_0064A790);
                 func_002bd840(7);
@@ -336,8 +336,8 @@ s32 datMemberNoticeStep(u8 *arg0)
         break;
     case 2:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             func_002bb4e0();
             *(s32 *)(work + 4) = 3;
         }
@@ -371,17 +371,17 @@ void datMemberNoticeSetup(u8 *arg0, s32 arg1, s32 arg2)
     s32 i;
     s32 msgId;
     s32 flagId;
-    extern s8 func_002bab80(void *arg0);
+    extern s8 nmMesWindowAcquire(void *arg0);
     extern void datSetFlag(s32 arg0, s32 arg1);
     extern void frFontExCopyString(void *src, void *dst, s32 maxlen);
-    extern s32 func_002badc0(s8 arg0, s32 arg1);
+    extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
     extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
     extern u8 sdkSndStartChannel(s16 channelIndex, const char *name);
     extern u8 D_0064B340[];
     extern char iGpffffa958;
     extern u32 datMemberNameLabel(s32 arg0);
 
-    *(s8 *)(arg0 + 8) = func_002bab80(D_0064A790);
+    *(s8 *)(arg0 + 8) = nmMesWindowAcquire(D_0064A790);
     if (arg2 == 0) {
         flagId = arg1 + 0x100;
         if (datGetFlag(flagId) != 0)
@@ -414,7 +414,7 @@ void datMemberNoticeSetup(u8 *arg0, s32 arg1, s32 arg2)
     sprintf(subLabel, &iGpffffa958, arg1 + 1);
     frFontExCopyString(subLabel, label, 0x40);
     func_002bbd80(*(s8 *)(arg0 + 8), 1, label);
-    func_002badc0(*(s8 *)(arg0 + 8), mode);
+    nmMesWindowShowSlotRecord(*(s8 *)(arg0 + 8), mode);
 }
 // Intent: Return the name label for a member id from the label table [inferred]
 // FUN_00354490
@@ -1414,7 +1414,7 @@ void datCommunityMenuInit(u8 *arg0)
     extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
     extern void kAssertFail(const void *arg0, u32 arg1);
     extern s32 cmmAuxTable(void);
-    extern void func_002bc010(s32 arg0, u8 *arg1);
+    extern void nmMesWindowInstallHandle(s32 arg0, u8 *arg1);
     extern u8 *datPortraitTaskCreate(s32 arg0, s64 arg1, s32 arg2);
     extern u8 *datPortraitTextTaskCreate(s32 arg0, u16 arg1, s32 arg2);
     s16 i;
@@ -1524,7 +1524,7 @@ void datCommunityMenuInit(u8 *arg0)
         }
     }
     datCommunitySetTableMode(arg0, 0);
-    func_002bc010(0xB, (u8 *)cmmAuxTable());
+    nmMesWindowInstallHandle(0xB, (u8 *)cmmAuxTable());
     *(u8 **)(arg0 + 0x1308) = datScreenWipeTaskCreate(0, 1);
     *(u8 **)(arg0 + 0x130C) = datPortraitTaskCreate(0, 0, 0);
     *(u8 **)(arg0 + 0x1310) = datPortraitTextTaskCreate(0, 0, 0);
@@ -2489,7 +2489,7 @@ loop_test:
         *(s32 *)(arg0 + 0x1310) = 0;
     }
     *(s32 *)(arg0 + 0x1C) = 0;
-    func_002bc060(0xB);
+    nmMesWindowReleaseHandle(0xB);
 }
 // Intent: Fill the community menu's visible record list from the kind table, keeping entries with a value and a passing flag [inferred]
 // FUN_003597F0

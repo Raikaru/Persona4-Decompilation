@@ -140,15 +140,15 @@ extern s32 btlEncounterIsActive(void);
 
 extern s32 btlShuffleSeqCardTask(u8 *arg0);
 
-extern u8 func_002baac0(u8 *message);
+extern u8 nmMesWindowOpenCurrent(u8 *message);
 
-extern void func_002bad10(s32 arg0);
+extern void nmMesWindowShowCurrentRecord(s32 arg0);
 
 extern void func_002bb7c0(s32 arg0);
 
-extern s32 func_002bb600(void);
+extern s32 nmMesWindowCurrentOpenState(void);
 
-extern void func_002bb1e0(s32 arg0);
+extern void nmMesWindowCloseCurrent(s32 arg0);
 
 extern void func_002bb4e0(void);
 
@@ -257,19 +257,19 @@ case2_body:
             break;
         }
         *(u16 *)(work + 2) = 0;
-        func_002baac0((u8 *)(*(s32 *)(work + 0x1F354)));
-        func_002bad10(0);
+        nmMesWindowOpenCurrent((u8 *)(*(s32 *)(work + 0x1F354)));
+        nmMesWindowShowCurrentRecord(0);
         *(s32 *)(work + 8) = 8;
         /* fallthrough */
     case 8:
         func_002bb7c0(1);
-        if (func_002bb600() == 0) {
-            func_002bb1e0(1);
+        if (nmMesWindowCurrentOpenState() == 0) {
+            nmMesWindowCloseCurrent(1);
             {
                 s32 t = *(s32 *)(work + 4) + 1;
                 *(s32 *)(work + 4) = t;
                 if (t < 4) {
-                    func_002bad10(*(s32 *)(work + 4));
+                    nmMesWindowShowCurrentRecord(*(s32 *)(work + 4));
                 } else {
                     func_002bb4e0();
                     btlShuffleSeqClearA(work + 0x70, 0);

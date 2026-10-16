@@ -85,9 +85,9 @@ extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *directio
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void btlActionSetState(BtlAction *arg0, u16 arg1);
 extern void func_002bbcc0(void);
-extern s32 func_002bb600(void);
-extern s32 func_002bb140(void);
-extern void func_002bb380(void);
+extern s32 nmMesWindowCurrentOpenState(void);
+extern s32 nmMesWindowCurrentAnimFlag(void);
+extern void nmMesWindowReleaseCurrent(void);
 extern void func_002bb4e0(void);
 
 extern u8 *D_0076449C;
@@ -141,10 +141,10 @@ extern s32 func_001fab40(u8 *arg0);
 extern s32 func_001fab90(void);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
-extern u8 func_002baac0(u8 *message);
-void func_002bad10(u32 arg0);
-void func_002bb050(u32 arg0);
-void func_002baf40(u32 arg0);
+extern u8 nmMesWindowOpenCurrent(u8 *message);
+void nmMesWindowShowCurrentRecord(u32 arg0);
+void nmMesWindowSetCurrentFlag(u32 arg0);
+void nmMesWindowSetCurrentParam(u32 arg0);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
@@ -1534,10 +1534,10 @@ void btlMainRevivalMesInit(void) {
     s64 *p = *(s64 **)(D_0076449C + 0x170);
     u8 *t;
 
-    func_002baac0((u8 *)(&D_005F7000));
-    func_002bad10(1);
-    func_002bb050(0);
-    func_002baf40(0);
+    nmMesWindowOpenCurrent((u8 *)(&D_005F7000));
+    nmMesWindowShowCurrentRecord(1);
+    nmMesWindowSetCurrentFlag(0);
+    nmMesWindowSetCurrentParam(0);
     t = (u8 *)btlFormationCreateSlotPacket(3, 0xFFF);
     *(s64 *)(t + 0x60) = *p;
     btlPacketEnqueue(t, 0);
@@ -1548,15 +1548,15 @@ void btlMainRevivalMesInit(void) {
 s32 btlMainRevivalMesUpdate(void)
 {
     func_002bbcc0();
-    if (func_002bb600() == 0) {
-        if (func_002bb140() == 0) {
+    if (nmMesWindowCurrentOpenState() == 0) {
+        if (nmMesWindowCurrentAnimFlag() == 0) {
             btlEncounterEntryClearRetracted(*(s32 *)(iGpffffb3ac + 0xDD4));
-            func_002bb380();
+            nmMesWindowReleaseCurrent();
             func_002bb4e0();
             return 10;
         }
         *(s32 *)(iGpffffb3ac + 0xC) &= 0xFF7FFFFF;
-        func_002bb380();
+        nmMesWindowReleaseCurrent();
         func_002bb4e0();
         return 8;
     }
