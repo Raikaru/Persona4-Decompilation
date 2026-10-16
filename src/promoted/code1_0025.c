@@ -72,10 +72,10 @@ extern void sdkSpriteFreeNode(void *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
-extern void func_0025ec10(s32 arg0, u8 *arg1);
-extern void func_0025ec50(s32 arg0, u8 *arg1);
-extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
+extern void sdkSpriteDrawAndFreeFlag1(s32 arg0, u8 *arg1);
+extern void sdkSpriteDrawAndFreeFlag0(s32 arg0, u8 *arg1);
+extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 extern s64 cmmCommunityArcana(s32 arg0);
 extern s32 func_0025ef20(u8 *arg0);
 extern s32 func_0025f110(s32 arg0);
@@ -121,8 +121,9 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 
 
 
+// Intent: Script command: returns the current time slot (datGetTimeSlot) as the script return value [inferred]
 // FUN_0025C420
-s32 func_0025c420(void) {
+s32 scrGetTimeSlot(void) {
     scrSetReturnInt(datGetTimeSlot() & 0xFF);
     return 1;
 }
@@ -164,13 +165,15 @@ s32 func_0025c420(void) {
 
 
 
+// Intent: Draws a sprite node at unit scale with no size offset (wrapper of sdkSpriteDrawNow) [inferred]
 // FUN_0025E9E0
-void func_0025e9e0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4) {
-    func_0025ea20(farg0, farg1, farg2, arg0, arg1, arg2, arg3, arg4, 0, 0, 0.0f, 1.0f, 1.0f);
+void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4) {
+    sdkSpriteDrawNow(farg0, farg1, farg2, arg0, arg1, arg2, arg3, arg4, 0, 0, 0.0f, 1.0f, 1.0f);
 }
 /* measured: plain `(u16)(4096.0f * farg4)` and `(u16)(4096.0f * farg5)` casts reproduce both compiler-generated float-to-unsigned conversion paths; MATCH object 484B/window 496B. Each retail site begins `lui 0x4580; mtc1; mul.s; lui 0x4F00; mtc1; c.ole.s`, then uses low `cvt.w.s; mfc1; andi` or high `sub.s; cvt.w.s; mfc1; lui 0x8000; or; andi` before `sh`. The `or` is after `mfc1`, and the 4096.0f `mul.s` is genuine scaling. */
+// Intent: Creates a sprite node at a position with alpha, colour, texture and scale, and draws it when both scales are nonzero [inferred]
 // FUN_0025EA20
-s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5) {
+s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5) {
     u8 *temp_2;
 
     temp_2 = sdkSpriteNewNode((u32)arg3, arg2);
@@ -194,8 +197,9 @@ s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, 
     return 0;
 }
 /* measured: plain `(u16)(4096.0f * farg4)` and `(u16)(4096.0f * farg5)` casts reproduce both compiler-generated float-to-unsigned conversion paths; MATCH object 588B/window 592B. Each retail site begins `lui 0x4580; mtc1; mul.s; lui 0x4F00; mtc1; c.ole.s`, then uses low `cvt.w.s; mfc1; andi` or high `sub.s; cvt.w.s; mfc1; lui 0x8000; or; andi` before `sh`. The `or` is after `mfc1`, and the 4096.0f `mul.s` is genuine scaling. */
+// Intent: Creates a sprite node like sdkSpriteDrawNow but queues its draw as a task callback; arg4 == 1 selects the flag-1 callback [inferred]
 // FUN_0025ECD0
-s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
+s32 sdkSpriteDrawQueued(f32 farg0, f32 farg1, f32 farg2,
                   s32 arg0, u8 arg1, s32 arg2, void *arg3,
                   s32 arg4, s16 arg5, s16 arg6,
                   f32 farg3, f32 farg4, f32 farg5, void *arg7) {
@@ -225,11 +229,11 @@ s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
     if (arg4 != 1) {
         goto callback_2;
     }
-    *(void **)(temp_16 + 8) = (void *)func_0025ec10;
+    *(void **)(temp_16 + 8) = (void *)sdkSpriteDrawAndFreeFlag1;
     *(u8 **)(temp_16 + 0x10) = temp_2;
     goto callback_call;
 callback_2:
-    *(void **)(temp_16 + 8) = (void *)func_0025ec50;
+    *(void **)(temp_16 + 8) = (void *)sdkSpriteDrawAndFreeFlag0;
     *(u8 **)(temp_16 + 0x10) = temp_2;
 callback_call:
     func_00460ac0(arg7, temp_16);
@@ -239,24 +243,28 @@ cleanup:
 done:
     return 0;
 }
+// Intent: Queued draw callback: draws the sprite node with flag 1, then frees it [inferred]
 // FUN_0025EC10
-void func_0025ec10(s32 arg0, u8 *arg1) {
+void sdkSpriteDrawAndFreeFlag1(s32 arg0, u8 *arg1) {
     sdkSpriteDraw(arg1, 1);
     sdkSpriteFreeNode(arg1);
 }
+// Intent: Queued draw callback: draws the sprite node with flag 0, then frees it [inferred]
 // FUN_0025EC50
-void func_0025ec50(s32 arg0, u8 *arg1) {
+void sdkSpriteDrawAndFreeFlag0(s32 arg0, u8 *arg1) {
     sdkSpriteDraw(arg1, 0);
     sdkSpriteFreeNode(arg1);
 }
+// Intent: Queued unit-scale sprite draw (wrapper of sdkSpriteDrawQueued) [inferred]
 // FUN_0025EC90
-void func_0025ec90(f32 farg0, f32 farg1, f32 farg2,
+void sdkSpriteDrawQueuedUnscaled(f32 farg0, f32 farg1, f32 farg2,
                    s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4, void *arg5) {
-    func_0025ecd0(farg0, farg1, farg2, arg0, arg1, arg2, arg3, arg4,
+    sdkSpriteDrawQueued(farg0, farg1, farg2, arg0, arg1, arg2, arg3, arg4,
                   0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
+// Intent: Task update for a blur filter task: advances the direct or copied blur filter and syncs it [inferred]
 // FUN_0025F960
-s32 func_0025f960(u8 *task) {
+s32 effBlurFilterTaskUpdate(u8 *task) {
     s32 var_17;
     s32 *p;
     s32 temp_3;
@@ -282,8 +290,9 @@ s32 func_0025f960(u8 *task) {
     }
     return 0;
 }
+// Intent: Task destroy for a blur filter task: destroys the direct or copied blur filter, then frees the work block [inferred]
 // FUN_0025FA30
-void func_0025fa30(u8 *task)
+void effBlurFilterTaskDestroy(u8 *task)
 {
     s32 *temp_2;
     s32 temp_3;

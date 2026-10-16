@@ -83,7 +83,7 @@ extern s32 MT_Scene_GetCameraResFirst(void);
 extern void func_003e9cb0(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00122720(void);
 extern s32 func_0033de90(u8 *arg0, s32 arg1);
-extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_007955C0[];
 extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s16, s16,
                          f32, f32, f32, void *);
@@ -736,7 +736,7 @@ void func_0033e4b0(u8 *arg0)
     color = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
     x = *(f32 *)(work + 0x1C);
     y = *(f32 *)(work + 0x20);
-    func_0025ecd0(x, y, 104.0f, color, 0xFF, 1, *(void **)(work + 4),
+    sdkSpriteDrawQueued(x, y, 104.0f, color, 0xFF, 1, *(void **)(work + 4),
                   1, 0, 0, 0.0f, 1.0f, 1.0f, D_007955C0);
 }
 // FUN_0033E540

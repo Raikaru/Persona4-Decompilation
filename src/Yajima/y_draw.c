@@ -41,7 +41,7 @@ extern void RpSkyRenderStateSet(s32, s32);
 extern void (*D_00887300[])(u32 state, u32 value);
 
 extern s32 func_002b2a30(u8, u8, u8, u8);
-extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 sdkSpriteScaledWidth(u8 *arg0);
 extern f32 sdkSpriteScaledHeight(u8 *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
@@ -285,13 +285,13 @@ s32 func_002b6340(u8 *arg0) {
             *(s32 *)(q + 0x10) = 0;
             func_00460ac0(D_00793E80 + *(s32 *)(p + 8) * 0x30, q);
             color = func_002b2a30(255, p[0x85], p[0x86], p[0x87]);
-            func_0025ecd0(*(f32 *)(p + 0x38), *(f32 *)(p + 0x3C), *(f32 *)(p + 0x14),
+            sdkSpriteDrawQueued(*(f32 *)(p + 0x38), *(f32 *)(p + 0x3C), *(f32 *)(p + 0x14),
                 color, p[0x6E], *(s16 *)(p + 4), *(void **)(p + 0), 0,
                 *(s16 *)(p + 0xC), *(s16 *)(p + 0xE), *(f32 *)(p + 0xD0),
                 *(f32 *)(p + 0xA0), *(f32 *)(p + 0xAC), D_00793E80 + *(s32 *)(p + 8) * 0x30);
         } else {
             color = func_002b2a30(255, p[0x85], p[0x86], p[0x87]);
-            func_0025ecd0(*(f32 *)(p + 0x38), *(f32 *)(p + 0x3C), *(f32 *)(p + 0x14),
+            sdkSpriteDrawQueued(*(f32 *)(p + 0x38), *(f32 *)(p + 0x3C), *(f32 *)(p + 0x14),
                 color, p[0x6E], *(s16 *)(p + 4), *(void **)(p + 0), 1,
                 *(s16 *)(p + 0xC), *(s16 *)(p + 0xE), *(f32 *)(p + 0xD0),
                 *(f32 *)(p + 0xA0), *(f32 *)(p + 0xAC), D_00793E80 + *(s32 *)(p + 8) * 0x30);
@@ -724,7 +724,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
                     color = func_002b2a30(0xFF, (b2 + rowOffset)[0x89], (b2 + rowOffset)[0x8A], (b2 + rowOffset)[0x8B]);
                     d = b2;
                     d += (s32)(u32)rowOffset;
-                    func_0025ecd0(
+                    sdkSpriteDrawQueued(
                         *(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18),
                         color, d[0x72], *(s16 *)(d + 8),
                         *(void **)(((u8 *)queue) + 0), 0, *(s16 *)(d + 0x10),
@@ -749,7 +749,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
                     color = func_002b2a30(0xFF, (b2 + rowOffset)[0x89], (b2 + rowOffset)[0x8A], (b2 + rowOffset)[0x8B]);
                     d = b2;
                     d += (s32)(u32)rowOffset;
-                    func_0025ecd0(
+                    sdkSpriteDrawQueued(
                         *(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18),
                         color, d[0x72], *(s16 *)(d + 8),
                         *(void **)(((u8 *)queue) + 0), 0, *(s16 *)(d + 0x10),
@@ -768,7 +768,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
                 color = func_002b2a30(0xFF, (base + entryOffset)[0x89], (base + entryOffset)[0x8A], (base + entryOffset)[0x8B]);
                 d = base;
                 d += (s32)(u32)entryOffset;
-                func_0025ecd0(
+                sdkSpriteDrawQueued(
                     *(f32 *)(d + 0x3C), *(f32 *)(d + 0x40), *(f32 *)(d + 0x18),
                     color, d[0x72], *(s16 *)(d + 8),
                     *(void **)(((u8 *)queue) + 0), 1, *(s16 *)(d + 0x10),
