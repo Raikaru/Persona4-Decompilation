@@ -1737,7 +1737,7 @@ void func_00356a10(u8 *work) {
     extern f32 func_0035c040(u8 *, u8);
     extern void func_0035c670(u8 *, Vec2f *);
     extern u16 func_00107ac0(s32);
-    extern u32 func_0010d620(s16);
+    extern u32 datPersonaDisplayName(s16);
     extern void func_0034f9d0(Vec2f, f32, u8, s32, s32);
     extern s32 (*D_00887300[])(s32, void *);
     extern u8 D_0064B2E0[];
@@ -2176,7 +2176,7 @@ void func_00356a10(u8 *work) {
             func_0034f2e0(sprite, position.x, position.y, palette->r, palette->g, palette->b, rowOpacity);
             sprite = menu->resource1260;
             func_0034f2e0(sprite, 172.0f + position.x, position.y, palette->r, palette->g, palette->b, rowOpacity);
-            frFontExDrawTextOutB(91.0f + position.x, position.y, 0.0f, rowColor, rowFontMode, 2, (const char *)func_0010d620(*(s16 *)(work + detailIndex * 2 + 0x136)), 8, 0x18, -1);
+            frFontExDrawTextOutB(91.0f + position.x, position.y, 0.0f, rowColor, rowFontMode, 2, (const char *)datPersonaDisplayName(*(s16 *)(work + detailIndex * 2 + 0x136)), 8, 0x18, -1);
         }
         detailOpacity = (u8)(menu->detailOpacity);
         if (detailOpacity > 0) {
