@@ -12,6 +12,7 @@
 #include "sdk_snd_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
+#include "datPersona_internal.h"
 /* Force the offset operand into the first addu slot. */
 static inline u32 addOffsetFirst(u32 offset, u32 base) {
     return offset + base;
@@ -140,7 +141,6 @@ extern s32 hFadeTaskUpdate(u8 *arg0);
 
 extern void btlTargetAdvanceWorkPtr(u8 **arg0);
 extern u16 datPersonaGetRecordId(u16 arg0);
-extern struct DatPersonaRecord *datPersonaGetRecord(u16 character);
 extern s32 datPersonaFindSkillSlot(u8 *persona, u16 skill);
 extern s32 btlTargetClearFlaggedBuffs(u8 **arg0);
 extern void btlTargetAdvanceWorkCount(void);

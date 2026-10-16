@@ -7,6 +7,7 @@
 #include "shd_misc_internal.h"
 #include "btl_panel_internal.h"
 #include "btl_shuffle_draw_internal.h"
+#include "datPersona_internal.h"
 
 typedef struct KwlnTask KwlnTask;
 typedef struct PersonaWork PersonaWork;
@@ -87,10 +88,8 @@ extern void btlShuffleDrawSweep(s32 arg0, s32 *arg1);
 extern void func_0021dd60(u8 *task);
 extern struct DatPersonaRecord *datPersonaRosterSlot(s16 arg0);
 extern u16 datPersonaCountValidMembers(void);
-extern void datPersonaAddExp(u8 *arg0, s32 arg1);
 extern s32 datPersonaCanLevelUp(PersonaWork *arg0);
 extern void datPersonaApplyLevelUp(u8 *arg0, u8 *arg1);
-extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 extern void btlUiSetScale(void *arg0, f32 arg1, f32 arg2);
 extern void btlUiSetRect(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
 extern void btlUiSetTileOffset(u8 *arg0, s16 arg1, s32 arg2, f32 arg3);
@@ -4663,7 +4662,7 @@ void btlXpAddRosterExp(u8 *arg0)
         value = *(s32 *)(arg0 + (i * 4) + 8);
         if (value != 0) {
             persona = (u8 *)datPersonaRosterSlot((s16)i);
-            datPersonaAddExp(persona, value);
+            datPersonaAddExp((DatPersonaRecord *)persona, value);
             if (datPersonaCanLevelUp((PersonaWork *)persona) != 0) {
                 datPersonaApplyLevelUp(persona, arg0 + (i * 0x88) + 0x38);
             }
@@ -4685,7 +4684,7 @@ loop_body:
     temp_19 = *(s32 *)((u8 *)arg0 + (var_16 * 4) + 0x6A4);
     if (temp_19 != 0) {
         temp_2 = (s32)datPersonaGetRecord(*(u16 *)((u8 *)arg0 + (var_16 * 2) + 0x69A));
-        datPersonaAddExp((u8 *)temp_2, temp_19);
+        datPersonaAddExp((DatPersonaRecord *)temp_2, temp_19);
         if (datPersonaCanLevelUp((PersonaWork *)temp_2) != 0) {
             datPersonaApplyLevelUp((u8 *)temp_2,
                           (u8 *)arg0 + (var_16 * 0x88) + 0x6B4);
