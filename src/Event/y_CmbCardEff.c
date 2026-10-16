@@ -36,7 +36,7 @@ void *cmbCardEffState(u8 *arg0);
 void cmbCardEffSetParams(u8 *arg0, u8 arg1, u8 arg2, u16 arg3);
 void cmbCardEffSetPosition(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3);
 void cmbCardEffSetTween(u8 *arg0, CmbVec3f src1, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f src2, f32 f4, f32 f5, f32 f6, f32 f7, CmbRGBA arg6);
-s32 *func_00331620(void);
+s32 *fclCombineGetCardTable(void);
 void RpSkyRenderStateSet(u32 arg0, u32 arg1);
 struct RtQuat;
 struct RwV3d;
@@ -1492,23 +1492,23 @@ void cmbCardClearSlots(u8 *arg0) {
     }
     switch (*(s8 *)(obj + 0x63E)) {
     case 6:
-        *(u32 *)(obj + 0x670) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
-        *(u32 *)(obj + 0x674) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
-        *(u32 *)(obj + 0x678) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
-        *(u32 *)(obj + 0x67C) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
-        *(u32 *)(obj + 0x680) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
-        *(u32 *)(obj + 0x684) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x670) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
+        *(u32 *)(obj + 0x674) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
+        *(u32 *)(obj + 0x678) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
+        *(u32 *)(obj + 0x67C) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
+        *(u32 *)(obj + 0x680) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
+        *(u32 *)(obj + 0x684) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
     case 5:
-        *(u32 *)(obj + 0x66C) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x66C) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
     case 4:
-        *(u32 *)(obj + 0x668) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x668) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
     case 3:
-        *(u32 *)(obj + 0x664) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x664) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
     case 2:
-        *(u32 *)(obj + 0x660) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x660) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
     case 1:
-        *(u32 *)(obj + 0x658) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
-        *(u32 *)(obj + 0x65C) = (u32)cmbCardEffTaskCreate(arg0, func_00331620());
+        *(u32 *)(obj + 0x658) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
+        *(u32 *)(obj + 0x65C) = (u32)cmbCardEffTaskCreate(arg0, fclCombineGetCardTable());
         break;
     }
 }
@@ -1536,7 +1536,7 @@ void cmbCardEffDrawStep(u8 *arg0, u8 *arg1) {
     *(u32 *)(arg1 + 0xA4) = 0x3F800000;
     *(u32 *)(arg1 + 0xE0) = 0x3F800000;
     *(u32 *)(arg1 + 0xE4) = 0x3F800000;
-    ((void (*)(s32, s32))*(u32 *)base)(1, *func_00331620());
+    ((void (*)(s32, s32))*(u32 *)base)(1, *fclCombineGetCardTable());
 }
 
 /* Update the enabled card quad, queue its draw packet, then advance position
