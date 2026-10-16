@@ -165,7 +165,7 @@ extern void func_004f34b0(s32 arg0);
 extern void func_004f5bf0(s32 arg0, s32 arg1, s32 arg2);
 extern void func_00100dd0(void);
 extern void func_00100e00(void);
-extern void func_00111010(void);
+extern void scrReleaseActiveHandle(void);
 extern u8 D_00559840[];
 extern u8 D_005C4EC0[];
 extern u8 D_005C6350[];
@@ -227,7 +227,7 @@ s32 func_00100e30(void)
 void func_00100e60(void)
 {
     s32 one;
-    func_0046d6b0((s32)&func_00111010);
+    func_0046d6b0((s32)&scrReleaseActiveHandle);
     kwlnTaskInitPool(0x190);
     func_00460910(0x7D0, 0x64);
     func_004544b0();

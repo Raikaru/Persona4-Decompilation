@@ -116,7 +116,7 @@ extern s32 calRestoreStateImage(void);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern s32 K_FldFrame_IsPointInTriangle(void *arg0, void *arg1, void *arg2);
 extern void scrSetReturnInt(s32 arg0);
-extern s32 func_00110fc0(void);
+extern s32 sdlSchedulerTeardown(void);
 extern s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2);
 extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);

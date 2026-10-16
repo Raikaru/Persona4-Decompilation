@@ -179,7 +179,7 @@ extern void func_004f34b0(s32 arg0);
 extern void func_004f5bf0(s32 arg0, s32 arg1, s32 arg2);
 extern void func_00100dd0(void);
 extern void func_00100e00(void);
-extern void func_00111010(void);
+extern void scrReleaseActiveHandle(void);
 extern u8 D_00559840[];
 extern u8 D_005C4EC0[];
 extern u8 D_005C6350[];
