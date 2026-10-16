@@ -4416,7 +4416,6 @@ s32 btlXpBaseAward(u8 *arg0)
 extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 datPersonaGetLevel(int persona);
 extern u32 datPersonaGetExp(int persona);
-extern u16 *datPersonaGetSkills(struct DatPersonaRecord *persona);
 extern u16 datItemValue(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
