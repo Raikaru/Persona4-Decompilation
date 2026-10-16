@@ -59,8 +59,8 @@ extern void (*jtbl_008873EC[])(void *);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b1130-004b1130 */
 
 // FUN_004B1130
-u8 *func_004b1130(s32 resource)
+u8 *mdlEffectCreateFromResource(s32 resource)
 {
-    return func_00484bb0((u8 *)(u32)resource);
+    return mdlEffectBuildFromResource((u8 *)(u32)resource);
 }
 

@@ -148,7 +148,7 @@ extern void kAssertFail(const void *arg0, s32 arg1);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
-extern void func_004b1150(s32 arg0);
+extern void mdlEffectDestroy(s32 arg0);
 extern s32 mdlPrepareModel(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
 extern s32 datCalcGetLevelById(s32 arg0);
@@ -210,9 +210,9 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
 
-extern s32 func_004b1130(s32 arg0);
+extern s32 mdlEffectCreateFromResource(s32 arg0);
 extern void mdlEffectStart(s32 arg0);
-extern s32 func_004b11b0(s32 arg0);
+extern s32 mdlEffectClone(s32 arg0);
 extern void func_004b1250(void *object, f32 *position);
 extern s32 FldFrameTask_Spawn(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
 extern void mdlEffectSetUniformScale(s32 arg0, f32 arg1);

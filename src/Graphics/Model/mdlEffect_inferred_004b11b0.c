@@ -59,7 +59,7 @@ extern void (*jtbl_008873EC[])(void *);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b11b0-004b11b0 */
 
 // FUN_004B11B0
-u8 *func_004b11b0(u8 *arg0)
+u8 *mdlEffectClone(u8 *arg0)
 {
     return mdlEffectCloneWithNodes(arg0);
 }

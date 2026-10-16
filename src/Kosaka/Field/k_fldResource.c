@@ -47,7 +47,7 @@ extern void func_003c9d40(void *arg0);
 extern void func_003c0700(void *arg0);
 extern void func_00462bf0(void *arg0);
 extern void mdlDestroyModelObject(s32 arg0);
-extern void func_004b1150(s32 arg0);
+extern void mdlEffectDestroy(s32 arg0);
 extern void func_003bbb60(void *arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *func_00460e80(u8 *list, s32 arg1);
@@ -70,7 +70,7 @@ extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
 extern RwMatrix *func_003e9700(RwFrame *frame);
 extern void K_Clump_FreeTextureNameList(void *arg0);
-extern s32 func_004b1130(s32 a0);
+extern s32 mdlEffectCreateFromResource(s32 a0);
 extern void *memset(void *dst, s32 value, u32 size);
 extern s32 H_Cdvd_LookupRequest(void *arg0, s32 *arg1);
 extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
@@ -122,7 +122,7 @@ extern s8 D_00754D88[];
 extern s32 chkmemGetBytes(void);
 extern s32 func_003c0520(s32 arg0);
 extern s32 mdlCloneModelObject(s32 arg0);
-extern s32 func_004b11b0(s32 arg0);
+extern s32 mdlEffectClone(s32 arg0);
 extern void func_004b1250(void *effect, f32 *position);
 extern RwBool RwEngineGetMatrixTolerances(RwMatrixTolerance *tolerance);
 extern RwMatrix *RwMatrixOptimize(RwMatrix *matrix, const RwMatrixTolerance *tolerance);
@@ -1658,13 +1658,13 @@ s32 FldResource_TryInstallEntries(u8 *arg0)
         } else if (*(u16 *)(arg0 + j * 0x18 + 0x120) == 1) {
             if (iGpffffb204 == 0) {
                 if (*(u8 **)(arg0 + j * 0x18 + 0x134) != NULL) {
-                    *(s32 *)(arg0 + j * 0x18 + 0x130) = func_004b1130(*(u32 *)(*(u8 **)(arg0 + j * 0x18 + 0x134) + 0x110));
+                    *(s32 *)(arg0 + j * 0x18 + 0x130) = mdlEffectCreateFromResource(*(u32 *)(*(u8 **)(arg0 + j * 0x18 + 0x134) + 0x110));
                     func_004b1250(*(void **)(arg0 + j * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)) + 0x30));
                     H_Cdvd_Destroy(*(u8 **)(arg0 + j * 0x18 + 0x134));
                     *(u8 **)(arg0 + j * 0x18 + 0x134) = NULL;
                 }
             } else if (*(u8 **)(arg0 + j * 0x18 + 0x134) != NULL) {
-                *(s32 *)(arg0 + j * 0x18 + 0x130) = func_004b1130((s32)*(u8 **)(arg0 + j * 0x18 + 0x134));
+                *(s32 *)(arg0 + j * 0x18 + 0x130) = mdlEffectCreateFromResource((s32)*(u8 **)(arg0 + j * 0x18 + 0x134));
                 func_004b1250(*(void **)(arg0 + j * 0x18 + 0x130), (f32 *)((u8 *)func_003e9700(*(RwFrame **)(arg0 + j * 0x18 + 0x128)) + 0x30));
                 *(u8 **)(arg0 + j * 0x18 + 0x134) = NULL;
             }
@@ -1729,7 +1729,7 @@ void FldResource_Destroy(u8 *arg0)
         if (*(u16 *)(temp_4_8 + 0x120) == 0 || *(u16 *)(temp_4_8 + 0x120) == 2) {
             mdlDestroyModelObject(*(s32 *)(temp_4_8 + 0x12C));
         } else if (*(u16 *)(temp_4_8 + 0x120) == 1) {
-            func_004b1150(*(s32 *)(temp_4_8 + 0x130));
+            mdlEffectDestroy(*(s32 *)(temp_4_8 + 0x130));
         }
     }
     if (*(s32 *)(arg0 + 0xA20) != 0) {
@@ -2355,7 +2355,7 @@ k_fldResource *FldResource_CloneRotated(k_fldResource *src, void *arg1, u32 arg2
                 *(u16 *)(p_dst + 290) |= 2;
             }
         } else if (a3->type == 1) {
-            *(s32 *)(p_dst + 304) = func_004b11b0(*(s32 *)(src_base + 304));
+            *(s32 *)(p_dst + 304) = mdlEffectClone(*(s32 *)(src_base + 304));
         }
     }
     dst->scale = src->scale;

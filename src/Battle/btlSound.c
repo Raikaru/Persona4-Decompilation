@@ -4,7 +4,7 @@
 #include "sdk_snd_internal.h"
 #include "btl_packet_create_internal.h"
 #include "datCalc_unit_internal.h"
-extern u8 *func_00484bb0(u8 *resource);
+extern u8 *mdlEffectBuildFromResource(u8 *resource);
 extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
 extern s32 btlCond_ESCAPE(u8 *arg0, s32 arg1);
 
@@ -470,7 +470,7 @@ s32 btlCdvdLoadPoll(void)
         if ((flags & 2) == 0) {
             work = *(u8 **)(base + 0xB84);
             *(u8 **)((u8 *)iGpffffb3ac + 0xB80) =
-                func_00484bb0(*(u8 **)(work + 0x110));
+                mdlEffectBuildFromResource(*(u8 **)(work + 0x110));
         } else {
             *(s32 *)flag_ptr = flags & ~2;
         }

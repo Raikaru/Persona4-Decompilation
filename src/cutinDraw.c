@@ -15,7 +15,7 @@ void sprintf();
 s32 H_Cdvd_AcquireDirectory();
 s32 H_Cdvd_IsFileLoaded();
 s32 H_Cdvd_LookupRequest();
-u8 *func_004b1130();
+u8 *mdlEffectCreateFromResource();
 
 void func_004b11d0();
 void func_004b1250();
@@ -25,7 +25,7 @@ void mdlEffectUpdate();
 
 extern void (*jtbl_008873EC[])(void *ptr);
 
-void func_004b1150();
+void mdlEffectDestroy();
 void H_Cdvd_Destroy();
 extern char D_005E4FC8[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -64,7 +64,7 @@ s32 func_00120bc0(u8 *arg0)
         if (H_Cdvd_IsFileLoaded(*(s32 *)(temp_16 + 0x28)) != 0) {
             sprintf(sp20, D_005E4FA0, *(s16 *)(temp_16 + 4),
                           *(s16 *)(temp_16 + 6));
-            *(u8 **)(temp_16 + 0x24) = func_004b1130(H_Cdvd_LookupRequest(sp20, 0));
+            *(u8 **)(temp_16 + 0x24) = mdlEffectCreateFromResource(H_Cdvd_LookupRequest(sp20, 0));
             *(s32 *)temp_16 = 2;
         }
         break;
@@ -106,7 +106,7 @@ void func_00120db0(u8 *arg0)
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     if (*(s32 *)(temp_16 + 0x24) != 0) {
-        func_004b1150(*(s32 *)(temp_16 + 0x24));
+        mdlEffectDestroy(*(s32 *)(temp_16 + 0x24));
     }
     if (*(s32 *)(temp_16 + 0x28) != 0) {
         H_Cdvd_Destroy(*(s32 *)(temp_16 + 0x28));

@@ -98,7 +98,7 @@ typedef struct Code48InitialState {
 #pragma opt_lifetimes on
 /* measured: func_00484bb0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-u8 *func_00484bb0(u8 *arg0)
+u8 *mdlEffectBuildFromResource(u8 *arg0)
 {
     extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);
     extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);

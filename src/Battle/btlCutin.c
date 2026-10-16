@@ -104,7 +104,7 @@ s32 btlCutinLoadStatus(void) {
             if (H_Cdvd_IsFileLoaded(temp_4) != 0) {
                 if (!(*(s32 *)(iGpffffb3ac + 0xB4C) & 1)) {
                     temp_16 = var_18 * 4;
-                    *(u8 **)(iGpffffb3ac + temp_16 + 0xB5C) = func_00484bb0(*(u8 **)(*(u8 **)(iGpffffb3ac + temp_16 + 0xB6C) + 0x110));
+                    *(u8 **)(iGpffffb3ac + temp_16 + 0xB5C) = mdlEffectBuildFromResource(*(u8 **)(*(u8 **)(iGpffffb3ac + temp_16 + 0xB6C) + 0x110));
                 }
                 temp_16 = var_18 * 4;
                 H_Cdvd_Destroy(*(u8 **)(iGpffffb3ac + temp_16 + 0xB6C));
@@ -117,7 +117,7 @@ s32 btlCutinLoadStatus(void) {
     if (var_17 != 0 && H_Cdvd_IsFileLoaded(*(u8 **)(iGpffffb3ac + 0xB58)) != 0) {
         s32 temp_3_2 = *(s32 *)(iGpffffb3ac + 0xB4C);
         if (!(temp_3_2 & 1)) {
-            *(u8 **)(iGpffffb3ac + 0xB54) = func_00484bb0(*(u8 **)(*(u8 **)(iGpffffb3ac + 0xB58) + 0x110));
+            *(u8 **)(iGpffffb3ac + 0xB54) = mdlEffectBuildFromResource(*(u8 **)(*(u8 **)(iGpffffb3ac + 0xB58) + 0x110));
         } else {
             *(s32 *)(iGpffffb3ac + 0xB4C) = temp_3_2 & ~1;
         }

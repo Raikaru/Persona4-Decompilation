@@ -3144,7 +3144,7 @@ void func_0038d310(u8 *arg0)
 // FUN_0038D330
 void func_0038d330(s32 *raw_arg0)
 {
-    extern void func_004b1150(s32 arg0, u8 *arg1);
+    extern void mdlEffectDestroy(s32 arg0, u8 *arg1);
     extern void func_004b1210(void *arg0, s32 arg1);
     extern u8 D_005DC824[];
     extern u8 D_005DC974[];
@@ -3159,7 +3159,7 @@ void func_0038d330(s32 *raw_arg0)
         if (++*(u16 *)(arg0 + 8) >= 0x5A) {
             handle = *(s32 *)(arg0 + 0xC);
             if (handle != 0) {
-                func_004b1150(handle, timer);
+                mdlEffectDestroy(handle, timer);
                 *(s32 *)(arg0 + 0xC) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFE;
@@ -3172,7 +3172,7 @@ void func_0038d330(s32 *raw_arg0)
         if (++*(u16 *)(arg0 + 0x10) >= 0x5A) {
             handle = *(s32 *)(arg0 + 0x14);
             if (handle != 0) {
-                func_004b1150(handle, timer);
+                mdlEffectDestroy(handle, timer);
                 *(s32 *)(arg0 + 0x14) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFD;
@@ -3185,7 +3185,7 @@ void func_0038d330(s32 *raw_arg0)
         if (++*(u16 *)(arg0 + 0x18) >= 0x5A) {
             handle = *(s32 *)(arg0 + 0x1C);
             if (handle != 0) {
-                func_004b1150(handle, timer);
+                mdlEffectDestroy(handle, timer);
                 *(s32 *)(arg0 + 0x1C) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFB;
@@ -3198,7 +3198,7 @@ void func_0038d330(s32 *raw_arg0)
         if (++*(u16 *)(arg0 + 0x20) >= 0x5A) {
             handle = *(s32 *)(arg0 + 0x24);
             if (handle != 0) {
-                func_004b1150(handle, timer);
+                mdlEffectDestroy(handle, timer);
                 *(s32 *)(arg0 + 0x24) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFF7;
@@ -3211,7 +3211,7 @@ void func_0038d330(s32 *raw_arg0)
         if (++*(u16 *)(arg0 + 0x28) >= 0x5A) {
             handle = *(s32 *)(arg0 + 0x2C);
             if (handle != 0) {
-                func_004b1150(handle, timer);
+                mdlEffectDestroy(handle, timer);
                 *(s32 *)(arg0 + 0x2C) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFEF;
@@ -3224,7 +3224,7 @@ void func_0038d330(s32 *raw_arg0)
         if (++*(u16 *)(arg0 + 0x30) >= 0x5A) {
             handle = *(s32 *)(arg0 + 0x34);
             if (handle != 0) {
-                func_004b1150(handle, timer);
+                mdlEffectDestroy(handle, timer);
                 *(s32 *)(arg0 + 0x34) = 0;
             }
             *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFDF;

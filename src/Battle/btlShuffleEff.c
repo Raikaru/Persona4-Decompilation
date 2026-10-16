@@ -15,8 +15,8 @@ extern s32 btlShuffleEffStep(u8 *arg0);
 extern void btlShuffleEffRelease(u8 *arg0);
 extern void btlShuffleEffInitTrail(u8 *arg0, s32 arg1);
 
-extern u8 *func_004b1130();
-extern void func_004b1150(u8 *a);
+extern u8 *mdlEffectCreateFromResource();
+extern void mdlEffectDestroy(u8 *a);
 extern void mdlEffectStart(s32 a);
 extern void func_004b1250(void *a, void *b);
 extern void mdlEffectSetEulerRotation(u8 *a, f32 b, f32 c, f32 d);
@@ -50,7 +50,7 @@ void btlShuffleEffFree(u8 *arg0) {
         e = tbl + i * 8;
         eff = (u8 **)(e + 0xC);
         if (*eff != 0) {
-            func_004b1150(*eff);
+            mdlEffectDestroy(*eff);
             *eff = 0;
         }
         *(u16 *)(tbl + 4) &= ~(1 << i);
@@ -92,7 +92,7 @@ void btlShuffleEffRelease(u8 *arg0) {
             e = tbl + i * 8;
             eff = (u8 **)(e + 0xC);
             if (*eff != 0) {
-                func_004b1150(*eff);
+                mdlEffectDestroy(*eff);
                 *eff = 0;
             }
             *(u16 *)(tbl + 4) &= ~(1 << i);
@@ -167,7 +167,7 @@ void btlShuffleEffInitTrail(u8 *arg0, s32 arg1) {
             if (*eff != 0) {
                 kAssertFail(&D_0064F210[0], 0x42);
             }
-            *eff = func_004b1130(((s32 *)(off + *(s32 *)tbl))[0x7CAE]);
+            *eff = mdlEffectCreateFromResource(((s32 *)(off + *(s32 *)tbl))[0x7CAE]);
             *(u16 *)(tbl + 4) |= (u16)mask;
         }
         eoff = arg1 * 8;
@@ -213,7 +213,7 @@ void btlShuffleEffSetup(u8 *arg0, s32 arg1)
     slot = (u8 **)(bseSlot(arg1 * 8, (u32)eff) + 0xC);
     held = *(u8 **)(bseSlot(arg1 * 8, (u32)eff) + 0xC);
     if (held != 0) {
-        func_004b1150(held);
+        mdlEffectDestroy(held);
         *slot = 0;
     }
     /* measured: the compound assignment evaluates the mask before loading the

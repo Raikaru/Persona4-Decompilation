@@ -23,7 +23,7 @@ u8 *H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
 s32 cmbCardEffSpriteTaskUpdate(u8 *arg0);
 s32 cmbFiveSpriteTask(u8 *arg0);
 u32 H_Cdvd_IsFileLoaded(struct HCdvd *ptr);
-void func_004b1150(u8 *arg0);
+void mdlEffectDestroy(u8 *arg0);
 u32 H_Cdvd_Destroy(struct HCdvd *ptr);
 void pscResTeardown(void *arg0);
 void pscResInitScene(u8 *arg0, s32 arg1);
@@ -60,8 +60,8 @@ s32 sdkSndStartChannel(s16 channelIndex, u8 *name);
 s32 kwlnTaskIsLinked(void *target);
 extern u8 D_0064A5B0[];
 s32 fclSubClamped(s32, s32, s32, s32, s8);
-u8 *func_004b1130(s32);
-u8 *func_004b11b0(u8 *);
+u8 *mdlEffectCreateFromResource(s32);
+u8 *mdlEffectClone(u8 *);
 
 void func_004b11d0(void *, void *);
 void func_004b1250(void *, u8 *);
@@ -1737,19 +1737,19 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *arg0) {
         {
             u8 *h = *(u8 **)(obj + 8);
             if (h != 0) {
-                func_004b1150(h);
+                mdlEffectDestroy(h);
                 *(u8 **)(obj + 8) = 0;
             }
         }
         {
-            u8 *nv = func_004b1130(*(s32 *)(*(u8 **)(obj + 0) + 0x110));
+            u8 *nv = mdlEffectCreateFromResource(*(s32 *)(*(u8 **)(obj + 0) + 0x110));
             *(u8 **)(obj + 8) = nv;
             func_004b1250(nv, obj + 0x18);
             mdlEffectSetEulerRotation(*(u8 **)(obj + 8), *(f32 *)(obj + 0x24), *(f32 *)(obj + 0x28), *(f32 *)(obj + 0x2C));
             mdlEffectSetUniformScale(*(u8 **)(obj + 8), *(f32 *)(obj + 0x30));
             mdlEffectSetPackedColor(*(u8 **)(obj + 8), obj + 0x34);
             if (*(u8 *)(obj + 0x48) == 1) {
-                u8 *nv2 = func_004b11b0(*(u8 **)(obj + 8));
+                u8 *nv2 = mdlEffectClone(*(u8 **)(obj + 8));
                 *(u8 **)(obj + 0x44) = nv2;
                 func_004b1250(nv2, obj + 0x4C);
                 mdlEffectSetEulerRotation(*(u8 **)(obj + 0x44), *(f32 *)(obj + 0x58), *(f32 *)(obj + 0x5C), *(f32 *)(obj + 0x60));
@@ -1832,13 +1832,13 @@ void cmbCardEffFreeHandle(u8 *arg0) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
     u8 *p = *(u8 **)(obj + 8);
     if (p != 0) {
-        func_004b1150(p);
+        mdlEffectDestroy(p);
         *(u8 **)(obj + 8) = 0;
     }
     if (*(u8 *)(obj + 0x48) == 1) {
         u8 *q = *(u8 **)(obj + 0x44);
         if (q != 0) {
-            func_004b1150(q);
+            mdlEffectDestroy(q);
             *(u8 **)(obj + 0x44) = 0;
         }
     }

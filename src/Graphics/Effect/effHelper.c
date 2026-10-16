@@ -110,7 +110,7 @@ void *EffHelperCreate(void *arg0)
             kAssertFail(D_007144F8, 0x58);
         }
         work->list = work->listAlloc;
-        work->list[0] = (u32)func_00484bb0((u8 *)v);
+        work->list[0] = (u32)mdlEffectBuildFromResource((u8 *)v);
         for (i = 1; i < work->count; i++) {
             work->list[i] = (u32)mdlEffectCloneWithNodes((u8 *)work->list[0]);
         }
