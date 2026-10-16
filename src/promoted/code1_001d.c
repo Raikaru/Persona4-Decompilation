@@ -34,7 +34,7 @@ extern void btlEffectResetEntry(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void btlFormationSetPlacement(s32 arg0);
 extern void func_001d6910(u8 *arg0);
-extern void func_001d75d0(u8 *arg0);
+extern void btlEffectReleaseAllPlacements(u8 *arg0);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern u32 iGpffffb3b8;
 extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);

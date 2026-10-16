@@ -234,10 +234,10 @@ void func_0019c0d0(void)
     extern void mdlAdvanceModelFromFlags(void *arg0);
     extern s32 func_001ee490(u8 *arg0);
     extern u32 btlUnitIsModelVisible(u8 *arg0);
-    extern s32 func_001d72e0(s32 arg0);
+    extern s32 btlEffectFlagToSlotIndex(s32 arg0);
     extern s16 func_001d7130(s32 arg0);
-    extern void func_001d7400(s32 arg0, u8 *arg1);
-    /* Retail passes the sign-extended word from (s16)func_001d72e0() in $a1
+    extern void btlEffectFlagToColor(s32 arg0, u8 *arg1);
+    /* Retail passes the sign-extended word from (s16)btlEffectFlagToSlotIndex() in $a1
      * without narrowing; the s16 definition's prototype adds a re-extension. */
     extern void func_001d7100(u8 *arg0, s32 arg1);
     extern void func_001d72c0(void *arg0, u32 arg1);
@@ -407,10 +407,10 @@ void func_0019c0d0(void)
 
                     if (p != NULL) {
                         v41 = *(u32 *)(p + 0xC) & 0xFFFFF;
-                        chk = (s16)func_001d72e0(v41);
+                        chk = (s16)btlEffectFlagToSlotIndex(v41);
 
                         if (chk != (s16)func_001d7130(*(s32 *)(entry + 0xA04))) {
-                            func_001d7400(v41, entry + 0x48);
+                            btlEffectFlagToColor(v41, entry + 0x48);
                             *(Col4_0019 *)(entry + 0x44) = *(Col4_0019 *)(entry + 0x40);
                             *(u16 *)(entry + 0x4C) = 8;
                             func_001d7100(*(u8 **)(entry + 0xA04), chk);

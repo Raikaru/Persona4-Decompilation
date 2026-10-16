@@ -17,7 +17,7 @@ extern s32 btlEffectStepFormationPlacement(u8 *arg0);
 extern void btlEffectResetEntry(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void func_001d6910(u8 *arg0);
-extern void func_001d75d0(u8 *arg0);
+extern void btlEffectReleaseAllPlacements(u8 *arg0);
 extern u32 iGpffffb3b8;
 
 extern u8 D_005DC7D0[];
@@ -108,7 +108,7 @@ void btlEffectFreeAllNodes(void)
         func_001d6910(var_4);
         var_4 = temp_16;
     }
-    func_001d75d0(var_4);
+    btlEffectReleaseAllPlacements(var_4);
 }
 
 // FUN_001D6AD0
