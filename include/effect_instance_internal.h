@@ -21,6 +21,7 @@ typedef struct ObjectParticleInstance {
     u8 *clump;               /* +0x54 */
     u8 *list;                /* +0x58: record list; count at +0x8, entries at +0x18 */
     u8 *entries;             /* +0x5C: per-entry table walked by the update and draw paths */
+    u8 *recordTable;         /* +0x60: owned allocation with 0x18 bytes per record; ObjectParticleFree releases it */
 } ObjectParticleInstance;
 
 /* Effect RNG state (effMisc.c). A NULL state selects the global generator. */

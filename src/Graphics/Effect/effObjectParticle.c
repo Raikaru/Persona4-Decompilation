@@ -101,16 +101,17 @@ void ObjectParticleFree(u8 *arg0)
     u32 temp_4;
     u32 temp_4_2;
     u8 *temp_4_3;
+    ObjectParticleInstance *inst = (ObjectParticleInstance *)arg0;
 
-    temp_4 = *(u32 *)(arg0 + 0x58);
+    temp_4 = (u32)inst->list;
     if (temp_4 != 0) {
         func_00492cd0((void *)temp_4);
     }
-    temp_4_2 = *(u32 *)(arg0 + 0x60);
+    temp_4_2 = (u32)inst->recordTable;
     if (temp_4_2 != 0) {
         jtbl_008873EC[0]((void *)temp_4_2);
     }
-    temp_4_3 = *(u8 **)(arg0 + 0x54);
+    temp_4_3 = inst->clump;
     if (temp_4_3 != 0) {
         func_003c0700(temp_4_3);
     }
@@ -169,21 +170,23 @@ void *ObjectParticleCreateFromParent(void *opaqueSource)
 void ObjectParticleShareClump(u8 *arg0, u8 *arg1)
 {
     u8 *temp_2;
+    ObjectParticleInstance *dst = (ObjectParticleInstance *)arg0;
+    ObjectParticleInstance *src = (ObjectParticleInstance *)arg1;
 
-    switch (*(u16 *)(arg1 + 0xC)) {
+    switch (src->kind) {
     case 3:
-        if (*(u32 *)(arg0 + 0x54) != 0) {
-            func_003c0700((void *)*(u32 *)(arg0 + 0x54));
+        if (dst->clump != 0) {
+            func_003c0700(dst->clump);
         }
-        temp_2 = func_003c0520((void *)*(u32 *)(arg1 + 0x54));
-        *(u8 **)(arg0 + 0x54) = temp_2;
+        temp_2 = func_003c0520(src->clump);
+        dst->clump = temp_2;
         RpClumpForAllAtomics(temp_2, mdlEffectSetFlag40, 0);
         break;
     default:
         kAssertFail(D_00714520, 0x172);
         break;
     }
-    *(u16 *)(arg0 + 0xC) = *(u16 *)(arg1 + 0xC);
+    dst->kind = src->kind;
 }
 
 // Rebuilds the source block for id arg1 with parameters arg2, then re-allocates the 0x18-byte record table and seeds each record through func_004ae0a0.
@@ -272,8 +275,9 @@ void ObjectParticleLoadClump(u8 *arg0, s32 arg1, s32 arg2) {
 void ObjectParticleReleaseSource(u8 *arg0)
 {
     u32 temp_4;
+    ObjectParticleInstance *inst = (ObjectParticleInstance *)arg0;
 
-    temp_4 = *(u32 *)(arg0 + 0x58);
+    temp_4 = (u32)inst->list;
     if (temp_4 != 0) {
         func_00492d00(temp_4);
     }
