@@ -2,6 +2,7 @@
 /* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
+#include "datPersona_internal.h"
 typedef struct BtlAction BtlAction;
 extern s32 iGpffffb3ac;
 extern u8 *D_0076449C;
@@ -214,7 +215,7 @@ void btlActionQueueSortByRank(s32 arg0)
             break;
         }
         if (arg0 != 0 && (*(u8 *)(*(u8 **)((u8 *)curr + 0x30) + 0xA2)) == 1) {
-            u32 r19 = datCalcGetBattleStat(*(u8 **)(*(u8 **)((u8 *)curr + 0x30) + 0xA64), 3) & 0xFF;
+            u32 r19 = datCalcGetBattleStat(*(u8 **)(*(u8 **)((u8 *)curr + 0x30) + 0xA64), PERSONA_STAT_AGI) & 0xFF;
             u32 bonus = datCalcRandomBelow(0x15) + 0x5A;
             u32 score = (r19 * bonus) / 100U;
             if (score == 0) {
@@ -224,7 +225,7 @@ void btlActionQueueSortByRank(s32 arg0)
             }
             ranks[i] = (u8)score;
         } else {
-            ranks[i] = datCalcGetBattleStat(*(u8 **)(*(u8 **)((u8 *)curr + 0x30) + 0xA64), 3);
+            ranks[i] = datCalcGetBattleStat(*(u8 **)(*(u8 **)((u8 *)curr + 0x30) + 0xA64), PERSONA_STAT_AGI);
         }
         scan++;
     }

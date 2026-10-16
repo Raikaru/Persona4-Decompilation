@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "datScript_internal.h"
+#include "datPersona_internal.h"
 /* Ported from Persona 3 FES datScript.c (FUN_0030fc40/FUN_0030fdf0/
    FUN_003111f0/FUN_00311250 counterparts), adapted to the P4 build. */
 
@@ -244,7 +245,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         break;
     case 25:
         K_ASSERT(D_00881460[0] != 0, 0x173);
-        tier = (s16)((s16)(datCalcGetBattleStat(D_00881460[0], 1) & 0xFF) / 10);
+        tier = (s16)((s16)(datCalcGetBattleStat(D_00881460[0], PERSONA_STAT_MAG) & 0xFF) / 10);
         if (tier > 9) {
             tier = 9;
         }
@@ -252,7 +253,7 @@ f32 datScriptCalcFloat(u32 arg0, s32 arg1)
         break;
     case 26:
         K_ASSERT(D_00881460[0] != 0, 0x17B);
-        tier = (s16)((s16)(datCalcGetBattleStat(D_00881460[0], 1) & 0xFF) / 5);
+        tier = (s16)((s16)(datCalcGetBattleStat(D_00881460[0], PERSONA_STAT_MAG) & 0xFF) / 5);
         if (tier > 0x14) {
             tier = 0x14;
         }
