@@ -139,8 +139,8 @@ extern u8 D_00796310[];
 extern u8 D_00796370[];
 extern s32 itfMesWindowQueueEntry(f32, f32, f32, s32, s32, s32, s32, s32, s32, u8 *);
 extern int frFontExDrawTextDeferredOutB(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
-extern void func_0034a640(s32, u16, s32);
-extern s32 func_0034a630(u8 *);
+extern void fclCombineSetModel(s32, u16, s32);
+extern s32 fclCombineGetWork(u8 *);
 extern u8 datPersonaGetArcana(u16);
 extern void shdPersonaSetOpacity(u8 *, f32);
 extern s8 func_00331640(void);
@@ -1319,8 +1319,8 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
     extern u8 *fclCombineSlotRecord(u8 *, s32);
     extern u8 datPersonaGetArcana(u16);
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
-    extern void func_0034b820(u8 *, FclVec2, s16, FclDrawColor, f32);
-    extern void func_0034b880(u8 *, u8, u8, u8, s16, s16);
+    extern void fclCombineSetSprite(u8 *, FclVec2, s16, FclDrawColor, f32);
+    extern void fclCombineSetTint(u8 *, u8, u8, u8, s16, s16);
     FclByte4 c29C;
     FclByte4 c298;
     FclByte4 c294;
@@ -1560,15 +1560,15 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
         return;
     }
     if ((s8)arg6 == 1) {
-        func_0034b880(((u8 **)(t + 0x21C))[c], 0xFF, 0, 0, 3, arg5);
+        fclCombineSetTint(((u8 **)(t + 0x21C))[c], 0xFF, 0, 0, 3, arg5);
     } else {
         c2 = (s8)arg2;
         pp = (u8 **)(t + 0x21C) + c2;
-        func_0034b820(*pp, func_002b2970(30.0f + arg1.x, 7.0f + y), 0x59, func_002b2a60(0, 0, 0x66, 0xFF), 157.0f);
-        func_0034b880(*pp, 0, 0xFF, 0, 3, arg5);
-        *(s8 *)(func_0034b810(*pp) + 0xF00) = 0;
+        fclCombineSetSprite(*pp, func_002b2970(30.0f + arg1.x, 7.0f + y), 0x59, func_002b2a60(0, 0, 0x66, 0xFF), 157.0f);
+        fclCombineSetTint(*pp, 0, 0xFF, 0, 3, arg5);
+        *(s8 *)(fclCombineGetWorkAlt(*pp) + 0xF00) = 0;
         if (*(s16 *)(t + 0x11E) == c2) {
-            *(s8 *)(func_0034b810(*pp) + 0xF00) = 1;
+            *(s8 *)(fclCombineGetWorkAlt(*pp) + 0xF00) = 1;
         }
     }
     fclSpriteSetFlag((s16)(c + 0x250), 0, 1);
@@ -1937,7 +1937,7 @@ void fclCombineSelectSlotEntry(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
     }
     if (*(s16 *)(t + 0x11E) == v) {
         ret = fclCombineApplySlotState(arg0, arg1, 1, 0xFF);
-        *(s8 *)((u8 *)func_0034b810(((u8 **)(t + 0x21C))[(s32)v]) + 0xF00) = 1;
+        *(s8 *)((u8 *)fclCombineGetWorkAlt(((u8 **)(t + 0x21C))[(s32)v]) + 0xF00) = 1;
         if ((s8)arg4 == 0) {
             s16 i = 0;
             s8 row = arg1;
@@ -1967,7 +1967,7 @@ void fclCombineSelectSlotEntry(u8 *arg0, s8 arg1, s8 arg2, s64 arg3, s64 arg4) {
             *(FclByte4 *)(p + 0x85) = cD4;
             q = fclSpriteEntry((s16)(overflowSlot + 0x238));
             *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
-            *(s8 *)((u8 *)func_0034b810(((u8 **)(t + 0x21C))[overflowSlot]) + 0xF00) = 0;
+            *(s8 *)((u8 *)fclCombineGetWorkAlt(((u8 **)(t + 0x21C))[overflowSlot]) + 0xF00) = 0;
         }
         if ((s8)arg2 == v || (s8)arg3 == v) {
             s32 slot = (s8)arg1;
@@ -4965,8 +4965,8 @@ void fclCombineDrawSelectedName(u8 *arg0)
     n = (s16)func_00331640();
     itfMesWindowQueueEntry(54.0f, 138.0f, 1.0f, -1, 1, 0, 1, n,
         *(u16 *)(yListSlotEntry(0, obj->selection) + 2), D_00796370);
-    func_0034a640((s32)obj->model, *(u16 *)(yListSlotEntry(0, obj->selection) + 2), 1);
-    *(u8 *)(func_0034a630(obj->model) + 1) = 0;
+    fclCombineSetModel((s32)obj->model, *(u16 *)(yListSlotEntry(0, obj->selection) + 2), 1);
+    *(u8 *)(fclCombineGetWork(obj->model) + 1) = 0;
     shdPersonaSetOpacity(cdfPersona(obj->draw), 64000.0f);
 }
 

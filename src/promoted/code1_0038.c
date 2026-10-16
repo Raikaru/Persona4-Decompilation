@@ -46,7 +46,7 @@ extern u8 D_00795EF0[];
 extern u8 D_0064EEB0[];
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void kAssertFail(void *arg0, s32 arg1);
-extern void func_0034f1e0(void);
+extern void sdkRenderStateSetDefault(void);
 extern void func_0038acd0(u8 *arg0);
 extern void func_0038bab0(u8 *arg0);
 extern void func_0038c100(u8 *arg0);
@@ -71,7 +71,7 @@ extern void func_00389640();
 extern void func_00389e10();
 extern void func_0038a940();
 extern void func_0038b1c0();
-extern void func_0034f460(s32 resource, s32 slot, f32 x, f32 y,
+extern void sdkSpriteDrawOnceAt(s32 resource, s32 slot, f32 x, f32 y,
                           u8 r, u8 g, u8 b, u8 alpha);
 extern void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                           f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5,
@@ -587,9 +587,9 @@ void func_00384cc0(u8 *work)
             entry = D_0064ECC0 + i;
             point.x = entry->x;
             point.y = entry->y;
-            func_0034f460(texture, 55, point.x, point.y, 0xFF, 0xFF, 0xFF, iconAlpha);
+            sdkSpriteDrawOnceAt(texture, 55, point.x, point.y, 0xFF, 0xFF, 0xFF, iconAlpha);
             if (drawOverlay != 0) {
-                func_0034f460(texture, 55, point.x, point.y, 0xFF, 0xFF, 0xFF, overlayAlpha);
+                sdkSpriteDrawOnceAt(texture, 55, point.x, point.y, 0xFF, 0xFF, 0xFF, overlayAlpha);
             }
         }
     }
@@ -1060,7 +1060,7 @@ void func_003874c0(s32 arg0, u8 *arg1)
     u8 alpha;
     s32 i;
 
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     if ((*(u16 *)(arg1 + 0x4C) & 0x200) != 0) {
         base = *(u8 **)arg1;
         entry = arg1 + 0x46;
@@ -1330,8 +1330,8 @@ void func_00387e70(u8 *arg0)
             break;
         }
         y = 178.5f * fade;
-        func_0034f460(resource, slot, x, 43.0f, 0xEA, 0x7C, 0, y);
-        func_0034f460(resource, 0x1A, pos.x, pos.y, 0xEA, 0x7C, 0, y);
+        sdkSpriteDrawOnceAt(resource, slot, x, 43.0f, 0xEA, 0x7C, 0, y);
+        sdkSpriteDrawOnceAt(resource, 0x1A, pos.x, pos.y, 0xEA, 0x7C, 0, y);
     } else {
         fade = 0.0f;
     }
@@ -1353,15 +1353,15 @@ void func_00387e70(u8 *arg0)
             b = 0x20;
         }
         if (idx == 0) {
-            func_0034f460(resource, 0x17, 154.0f, 49.0f + y, 0xFF, 0, 0, 0xFF);
-            func_0034f460(resource, 0x18, 526, 49.0f + y, 0xFF, 0, 0, 0xFF);
+            sdkSpriteDrawOnceAt(resource, 0x17, 154.0f, 49.0f + y, 0xFF, 0, 0, 0xFF);
+            sdkSpriteDrawOnceAt(resource, 0x18, 526, 49.0f + y, 0xFF, 0, 0, 0xFF);
             r = 0xFF;
             g = 0xFF;
             b = 0xFF;
         }
         if (idx != 0 || (selected == 0 && state[5] == 0)) {
-            func_0034f460(resource, 0x15, 154.0f, 49.0f + y, barA, barA, barB, 0xFF);
-            func_0034f460(resource, 0x16, 526, 49.0f + y, barA, barA, barB, 0xFF);
+            sdkSpriteDrawOnceAt(resource, 0x15, 154.0f, 49.0f + y, barA, barA, barB, 0xFF);
+            sdkSpriteDrawOnceAt(resource, 0x16, 526, 49.0f + y, barA, barA, barB, 0xFF);
         }
         if (idx != 0) {
             f32 in;
@@ -1391,7 +1391,7 @@ void func_00387e70(u8 *arg0)
             if (icon <= 0 || icon >= 0x20) {
                 kAssertFail(D_0064EEB0, 0x588);
             }
-            func_0034f460(fonts[0], (u16)((u16)icon - 1) + 0x21, 168.0f, 55.0f + y, r, g, b, alpha);
+            sdkSpriteDrawOnceAt(fonts[0], (u16)((u16)icon - 1) + 0x21, 168.0f, 55.0f + y, r, g, b, alpha);
             frFontExDrawTextWithCharWidth(269, 55.0f + y - 3.0f, 0.0f,
                           (r << 24) | (g << 16) | (b << 8) | alpha, 0, 1,
                           (const char *)datPersonaGetRow(id), 0, -1);
@@ -1400,9 +1400,9 @@ void func_00387e70(u8 *arg0)
                 value = 99;
             }
             if (value >= 10) {
-                func_0034f460(fonts[1], value / 10 + 0x1D, 471, 58.0f + y, r, g, b, alpha);
+                sdkSpriteDrawOnceAt(fonts[1], value / 10 + 0x1D, 471, 58.0f + y, r, g, b, alpha);
             }
-            func_0034f460(fonts[1], value % 10 + 0x1D, 493, 58.0f + y, r, g, b, alpha);
+            sdkSpriteDrawOnceAt(fonts[1], value % 10 + 0x1D, 493, 58.0f + y, r, g, b, alpha);
         }
         pos.y -= 28.0f;
         idx--;
@@ -1437,7 +1437,7 @@ void func_00387e70(u8 *arg0)
     t = 1.0f - (2.0f * t - t * t);
     pos.x = 0.0f + 109.0f + 170.0f * t;
     pos.y = 0.0f + 19.0f - 90.0f * t;
-    func_0034f460(resource, 0x1B, pos.x, pos.y, 0xFF, 0xFF, 0xFF, 0xFF);
+    sdkSpriteDrawOnceAt(resource, 0x1B, pos.x, pos.y, 0xFF, 0xFF, 0xFF, 0xFF);
     if (state[5] != 0 || fade < 1.0f) {
         state[4]++;
     }
@@ -1455,7 +1455,7 @@ void func_003889b0(s32 arg0, u8 *arg1)
     u16 *counter;
     u16 ticks;
 
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     if ((*(u16 *)(arg1 + 0x4C) & 0x400) != 0) {
         func_00387750(arg1);
     }
@@ -2456,7 +2456,7 @@ void func_0038b1c0(u8 *arg0)
             scaled = 255.0f * alpha;
             alpha_byte = (u8)scaled;
         }
-        func_0034f460(
+        sdkSpriteDrawOnceAt(
             palette,
             *(s32 *)((u8 *)D_0064EFB0 + i * 0x14 + 0x10),
             30.0f * (1.0f - alpha) +
@@ -2473,11 +2473,11 @@ void func_0038b1c0(u8 *arg0)
 void func_0038b490(s32 arg0, u8 **arg1)
 {
     s32 resource;
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     func_00389370(arg1);
     func_00389640(arg1);
     resource = *(s32 *)(*arg1 + 0x1F2B4);
-    func_0034f460(resource, 0, 0.0f, 0.0f, 0xDA, 0x8C, 0x17, 0xC0);
+    sdkSpriteDrawOnceAt(resource, 0, 0.0f, 0.0f, 0xDA, 0x8C, 0x17, 0xC0);
     func_00389e10(arg1);
     func_0038a940(arg1);
     func_0038b1c0((u8 *)arg1);
@@ -2494,13 +2494,13 @@ void func_0038b530(u8 *arg0, s32 arg1, const Vec2f *arg2)
     handle = *(s32 *)(*(u8 **)arg0 + 0x1F2AC);
     switch (arg1) {
     case 1:
-        func_0034f460(handle, 0x40, 492.0f + arg2->x,
+        sdkSpriteDrawOnceAt(handle, 0x40, 492.0f + arg2->x,
                       407.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 507.0f + arg2->x;
         y = 403.0f + arg2->y;
         sdkSpriteDrawOnceScaled(handle, 0x41, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
-        func_0034f460(handle, 6, 528.0f + arg2->x,
+        sdkSpriteDrawOnceAt(handle, 6, 528.0f + arg2->x,
                       416.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 541.0f + arg2->x;
         y = 414.0f + arg2->y;
@@ -2508,7 +2508,7 @@ void func_0038b530(u8 *arg0, s32 arg1, const Vec2f *arg2)
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 2:
-        func_0034f460(handle, 6, 528.0f + arg2->x,
+        sdkSpriteDrawOnceAt(handle, 6, 528.0f + arg2->x,
                       417.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 541.0f + arg2->x;
         y = 414.0f + arg2->y;
@@ -2516,13 +2516,13 @@ void func_0038b530(u8 *arg0, s32 arg1, const Vec2f *arg2)
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 3:
-        func_0034f460(handle, 7, 493.0f + arg2->x,
+        sdkSpriteDrawOnceAt(handle, 7, 493.0f + arg2->x,
                       361.0f + arg2->y, 0xB4, 0xB4, 0xB4, 0xFF);
         x = 504.0f + arg2->x;
         y = 358.0f + arg2->y;
         sdkSpriteDrawOnceScaled(handle, 4, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
-        func_0034f460(handle, 6, 479.0f + arg2->x,
+        sdkSpriteDrawOnceAt(handle, 6, 479.0f + arg2->x,
                       397.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 492.0f + arg2->x;
         y = 394.0f + arg2->y;
@@ -2530,13 +2530,13 @@ void func_0038b530(u8 *arg0, s32 arg1, const Vec2f *arg2)
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
         break;
     case 4:
-        func_0034f460(handle, 0x14, 483.0f + arg2->x,
+        sdkSpriteDrawOnceAt(handle, 0x14, 483.0f + arg2->x,
                       413.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 498.0f + arg2->x;
         y = 410.0f + arg2->y;
         sdkSpriteDrawOnceScaled(handle, 0x1D, x, y, 0.0f, 0xFF, 0xDB, 0x76,
                       0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
-        func_0034f460(handle, 6, 528.0f + arg2->x,
+        sdkSpriteDrawOnceAt(handle, 6, 528.0f + arg2->x,
                       414.0f + arg2->y, 0xFF, 0xFF, 0xFF, 0xFF);
         x = 542.0f + arg2->x;
         y = 414.0f + arg2->y;
@@ -2740,9 +2740,9 @@ void func_0038c100(u8 *arg0)
             *(u16 *)(state + 2) = flags | 4;
         }
     }
-    func_0034f460(handle, 0x2B, (f32)578, (f32)417, 0x8E, 0x31, 0, alpha);
-    func_0034f460(handle, 0x2A, (f32)543, 408.0f, 0x8E, 0x31, 0, alpha);
-    func_0034f460(handle, *(u16 *)(info + 0xA) + 0x1F, (f32)559, 414.0f, 0x8E, 0x31, 0, alpha);
+    sdkSpriteDrawOnceAt(handle, 0x2B, (f32)578, (f32)417, 0x8E, 0x31, 0, alpha);
+    sdkSpriteDrawOnceAt(handle, 0x2A, (f32)543, 408.0f, 0x8E, 0x31, 0, alpha);
+    sdkSpriteDrawOnceAt(handle, *(u16 *)(info + 0xA) + 0x1F, (f32)559, 414.0f, 0x8E, 0x31, 0, alpha);
     remainderX = 1.0f - scale;
     extentX = 29.0f;
     drawX = (f32)515 + (remainderX * extentX) / 2.0f;
@@ -2943,7 +2943,7 @@ void func_0038cd70(u8 *arg0, u8 *arg1)
     u8 *p;
 
     p = arg1;
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     if (*(u16 *)(p + 4) & 0x20) {
         func_0038acd0(p);
     }

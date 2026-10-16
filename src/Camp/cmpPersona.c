@@ -15,7 +15,7 @@ struct CmpHead {
 s32 datPersonaRosterSlotActive(s16 arg0);
 s32 func_0034c210(void);
 void radarAnimateValue(void* arg0, s32 arg1, s32 arg2);
-void func_0034f5d0(void* arg0);
+void datCommunityEntryStep(void* arg0);
 u32 RpRandom(void);
 void sdkSpriteFreeNode(void *node);
 void kwlnTaskDestroyWithHierarchy(s32 arg0);
@@ -232,7 +232,7 @@ s32 func_00135cf0(u8* arg0) {
 #pragma opt_common_subs on
 
 /* Both 0x14-byte grids have a signed palette index, integer coordinates,
-   and dimensions consumed by func_0034f720. The initializer writes their
+   and dimensions consumed by cmpGridCellFade. The initializer writes their
    10x12 and 7x12 shapes; inactive cells have a negative kind. */
 typedef struct {
     s16 kind;
@@ -295,13 +295,13 @@ typedef struct {
 #pragma opt_propagation off
 void func_00135dc0(u8* work)
 {
-    extern void func_0034f1e0(void);
+    extern void sdkRenderStateSetDefault(void);
     extern void func_0034c270(Vec2f position, s32 alpha, s32 background, f32 depth);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
     extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 width,
                               u16 height, s16 angle, f32 scale, s16 mode);
-    extern f32 func_0034f720(u8 *cell, f32 xEdge, f32 yEdge, f32 ceiling);
-    extern void func_0034f9d0(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 texture);
+    extern f32 cmpGridCellFade(u8 *cell, f32 xEdge, f32 yEdge, f32 ceiling);
+    extern void sdkSpriteDrawFooter(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 texture);
     extern void RpSkyRenderStateSet(s32 state, s32 value);
     extern void datScreenWipeSetAlpha(u8 *task, u8 alpha);
     extern void datScreenWipeDraw(void *task);
@@ -343,7 +343,7 @@ void func_00135dc0(u8* work)
     f32 opaqueOpacity;
 
     menu = (PersonaMenuView *)work;
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     originX = menu->x;
     originY = menu->y;
     opacity = (f32)menu->alpha / 255.0f;
@@ -374,7 +374,7 @@ void func_00135dc0(u8* work)
             if (gridCell->kind >= 0) {
                 cellX = position.x + (f32)(*(s32*)(rowBase + 0x68) * 44);
                 cellY = position.y + (f32)(*(s32*)(rowBase + 0x6C) * 37);
-                cellFade = func_0034f720((u8 *)gridCell, 0.6f, 0.75f, 1.0f);
+                cellFade = cmpGridCellFade((u8 *)gridCell, 0.6f, 0.75f, 1.0f);
                 cellColor = D_005EB540 + gridCell->kind;
                 tint = cellColor[4];
                 value = (f32)gridAlpha * cellFade;
@@ -430,7 +430,7 @@ void func_00135dc0(u8* work)
                     value = opaqueOpacity;
                     cellAlpha = (u8)value;
                 } else {
-                    cellFade = func_0034f720((u8 *)node, 0.3f, 0.3f, 0.6f);
+                    cellFade = cmpGridCellFade((u8 *)node, 0.3f, 0.3f, 0.6f);
                     value = (f32)nodeBaseAlpha * cellFade;
                     cellAlpha = (u8)value;
                 }
@@ -548,7 +548,7 @@ void func_00135dc0(u8* work)
     position.y = 400.0f + (originY + menu->motion[24].y);
     value = (f32)menu->motion[24].alpha * opacity;
     drawOpacity = (u8)value;
-    func_0034f9d0(position, 0.0f, drawOpacity, menu->footerMode, menu->footer.handle);
+    sdkSpriteDrawFooter(position, 0.0f, drawOpacity, menu->footerMode, menu->footer.handle);
 }
 #pragma pop
 
@@ -577,10 +577,10 @@ void func_00136fc0(u8* arg0) {
         radarAnimateValue(arg0 + i * 0x30 + 0x1594, *(s16*)(arg0 + 0x22), 0);
     }
     for (i = 0; i < 0x78; i++) {
-        func_0034f5d0(arg0 + i * 0x14 + 0x64);
+        datCommunityEntryStep(arg0 + i * 0x14 + 0x64);
     }
     for (i = 0; i < 0x54; i++) {
-        func_0034f5d0(arg0 + i * 0x14 + 0x9C4);
+        datCommunityEntryStep(arg0 + i * 0x14 + 0x9C4);
     }
 }
 
