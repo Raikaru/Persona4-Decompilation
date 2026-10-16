@@ -89,13 +89,13 @@ u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
 s16 btlCameraSelectFormationIndex(void);
 void func_001eb7f0(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
-s32 func_001fabe0(u8 *arg0);
+s32 btlStatusWindowShowSlot2(u8 *arg0);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 s32 datCalcGetSkillMask(u8 *arg0);
 s64 datCalcFindStrongBuff(u8 *arg0);
 s32 datCalcIsStatusBlocked(u16 *arg0);
 s32 btlSoundRollStatusCure(u8 *arg0);
-s32 func_001fac30(void);
+s32 btlTaskSlotLinkedSlot2(void);
 
 BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
@@ -152,8 +152,8 @@ void btlActionStartInit(BtlAction *action) {
         return;
     }
     btlTargetClearWork(&action->targetBlock);
-    if (func_001fabe0((u8 *)action) != 0) {
-        action->unk_440 = (void *)&func_001fac30;
+    if (btlStatusWindowShowSlot2((u8 *)action) != 0) {
+        action->unk_440 = (void *)&btlTaskSlotLinkedSlot2;
         action->unk_43c = 2;
         btlActionSetState(action, 0x16);
         return;
