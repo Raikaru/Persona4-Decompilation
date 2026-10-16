@@ -30,8 +30,8 @@ extern void func_002a2980(u8 *arg0);
 extern s32 func_002a2c70(u8 *arg0);
 extern f32 func_002a2cd0(u8 *arg0);
 extern s32 func_002a2c10(u8 *arg0, f32 *arg1);
-extern void func_0025e9e0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
-extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
+extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
+extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
 typedef struct P4_002aabf0_Work {
@@ -150,16 +150,16 @@ void func_002a03b0(u8 *arg0) {
     s32 tex;
 
     temp_19 = *(u8 **)(arg0 + 0x38);
-    func_0025e9e0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xA4, iGpffffb540, 1);
+    sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xA4, iGpffffb540, 1);
     temp_2 = *(s32 *)(temp_19 + 0x1C68) + 1;
     *(s32 *)(temp_19 + 0x1C68) = temp_2;
     if (temp_2 > 0x5A0) {
         *(s32 *)(temp_19 + 0x1C68) = 0;
     }
-    func_0025ea20(-78.0f, -82.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
-    func_0025ea20(540.0f, 347.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
-    func_0025e9e0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAF, iGpffffb540, 1);
-    func_0025e9e0(0.0f, 346.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAE, iGpffffb540, 1);
+    sdkSpriteDrawNow(-78.0f, -82.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
+    sdkSpriteDrawNow(540.0f, 347.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
+    sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAF, iGpffffb540, 1);
+    sdkSpriteDrawNowUnscaled(0.0f, 346.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAE, iGpffffb540, 1);
     func_002a2980(temp_19 + 0x2A8);
     var_16 = (u8)(255.0f * func_002a2cd0(temp_19 + 0x2A8));
     func_002a2c10(temp_19 + 0x2A8, pos);
@@ -178,19 +178,19 @@ void func_002a03b0(u8 *arg0) {
         var_20 = var_16 & 0xFF;
         var_18 = ((0xFF - var_20) >> 2) & 0xFF;
     }
-    func_0025e9e0(px, py, 0.0f, 0xFFFFFF, var_20, 0x13, iGpffffb540, 1);
+    sdkSpriteDrawNowUnscaled(px, py, 0.0f, 0xFFFFFF, var_20, 0x13, iGpffffb540, 1);
     temp_f20 = 105.0f + px;
-    func_0025e9e0(temp_f20, py, 0.0f, 0xFFFFFF, var_20, 0x11, iGpffffb540, 1);
+    sdkSpriteDrawNowUnscaled(temp_f20, py, 0.0f, 0xFFFFFF, var_20, 0x11, iGpffffb540, 1);
     py = py + 3.0f;
-    func_0025e9e0(px, py, 0.0f, 0xFFFFFF, var_18, 0x13, iGpffffb540, 1);
-    func_0025e9e0(temp_f20, py, 0.0f, 0xFFFFFF, var_18, 0x12, iGpffffb540, 1);
+    sdkSpriteDrawNowUnscaled(px, py, 0.0f, 0xFFFFFF, var_18, 0x13, iGpffffb540, 1);
+    sdkSpriteDrawNowUnscaled(temp_f20, py, 0.0f, 0xFFFFFF, var_18, 0x12, iGpffffb540, 1);
     func_002a02f0(arg0, 0);
     if (*(s32 *)(temp_19 + 0x1C34) != 0) {
         var_16 = 0xFF;
     }
     temp_18 = *(u8 **)(arg0 + 0x38);
-    func_0025e9e0(229.0f, 150.0f, 0.0f, 0x4972FF, var_16, 0x17, iGpffffb540, 1);
-    func_0025e9e0(229.0f, 182.0f, 0.0f, 0x4972FF, var_16, 0x17, iGpffffb540, 1);
+    sdkSpriteDrawNowUnscaled(229.0f, 150.0f, 0.0f, 0x4972FF, var_16, 0x17, iGpffffb540, 1);
+    sdkSpriteDrawNowUnscaled(229.0f, 182.0f, 0.0f, 0x4972FF, var_16, 0x17, iGpffffb540, 1);
     if (*(s32 *)(temp_18 + 0x14) != 3) {
         temp_3_2 = iGpffffb538;
         if (temp_3_2 < 8) {
@@ -200,7 +200,7 @@ void func_002a03b0(u8 *arg0) {
             var_3_2 = ((temp_3_2 - 8) * 0x1C) + 0xE3;
             var_2 = 0xB7;
         }
-        func_0025e9e0((f32)var_3_2, (f32)var_2, 0.0f, 0xCCFF33, var_16, 0x18, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled((f32)var_3_2, (f32)var_2, 0.0f, 0xCCFF33, var_16, 0x18, iGpffffb540, 1);
     }
     func_002a2cd0(temp_19 + 0x210);
     func_002a2c10(temp_19 + 0x210, pos);
@@ -211,18 +211,18 @@ void func_002a03b0(u8 *arg0) {
     while (var_16_2 < 0x18) {
         temp_f21_2 = (f32)(((var_16_2 / 6) * 0x94) + 0x19);
         temp_f20_2 = (f32)(((var_16_2 % 6) * 0x19) + 0xE3);
-        func_0025e9e0(temp_f21_2, temp_f20_2, 0.0f, 0x4972FF, 0xFF, 1, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled(temp_f21_2, temp_f20_2, 0.0f, 0x4972FF, 0xFF, 1, iGpffffb540, 1);
         if (var_16_2 == 0) {
-            func_0025e9e0(18.0f, 219.0f, 0.0f, 0x4972FF, 0xFF, 0x1B, iGpffffb540, 1);
+            sdkSpriteDrawNowUnscaled(18.0f, 219.0f, 0.0f, 0x4972FF, 0xFF, 0x1B, iGpffffb540, 1);
         }
         if (var_16_2 == 5) {
-            func_0025e9e0(18.0f, 366.0f, 0.0f, 0x4972FF, 0xFF, 0x1C, iGpffffb540, 1);
+            sdkSpriteDrawNowUnscaled(18.0f, 366.0f, 0.0f, 0x4972FF, 0xFF, 0x1C, iGpffffb540, 1);
         }
         if (var_16_2 == 0x12) {
-            func_0025e9e0((f32)0x24A, 219.0f, 0.0f, 0x4972FF, 0xFF, 0x1D, iGpffffb540, 1);
+            sdkSpriteDrawNowUnscaled((f32)0x24A, 219.0f, 0.0f, 0x4972FF, 0xFF, 0x1D, iGpffffb540, 1);
         }
         if (var_16_2 == 0x17) {
-            func_0025e9e0((f32)0x24A, 366.0f, 0.0f, 0x4972FF, 0xFF, 0x1E, iGpffffb540, 1);
+            sdkSpriteDrawNowUnscaled((f32)0x24A, 366.0f, 0.0f, 0x4972FF, 0xFF, 0x1E, iGpffffb540, 1);
         }
         if (*(s32 *)(temp_19 + 0x14) != 3) {
             if ((temp_18_2 != temp_21) && (var_16_2 == temp_22)) {
@@ -234,34 +234,34 @@ void func_002a03b0(u8 *arg0) {
             temp_20_2 = temp_19 + (var_16_2 * 0x98) + 0x340;
             func_002a2980(temp_20_2);
             if (var_16_2 == temp_18_2) {
-                func_0025e9e0(temp_f21_2, temp_f20_2, 0.0f, 0x49AFFD, 0xFF, 1, iGpffffb540, 1);
+                sdkSpriteDrawNowUnscaled(temp_f21_2, temp_f20_2, 0.0f, 0x49AFFD, 0xFF, 1, iGpffffb540, 1);
                 if (var_16_2 == 0) {
-                    func_0025e9e0(18.0f, pos[1], 0.0f, 0x49AFFD, 0xFF, 0x1B, iGpffffb540, 1);
+                    sdkSpriteDrawNowUnscaled(18.0f, pos[1], 0.0f, 0x49AFFD, 0xFF, 0x1B, iGpffffb540, 1);
                 }
                 if (var_16_2 == 5) {
-                    func_0025e9e0(18.0f, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, 0xFF, 0x1C, iGpffffb540, 1);
+                    sdkSpriteDrawNowUnscaled(18.0f, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, 0xFF, 0x1C, iGpffffb540, 1);
                 }
                 if (var_16_2 == 0x12) {
-                    func_0025e9e0((f32)0x24A, pos[1], 0.0f, 0x49AFFD, 0xFF, 0x1D, iGpffffb540, 1);
+                    sdkSpriteDrawNowUnscaled((f32)0x24A, pos[1], 0.0f, 0x49AFFD, 0xFF, 0x1D, iGpffffb540, 1);
                 }
                 if (var_16_2 == 0x17) {
-                    func_0025e9e0((f32)0x24A, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, 0xFF, 0x1E, iGpffffb540, 1);
+                    sdkSpriteDrawNowUnscaled((f32)0x24A, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, 0xFF, 0x1E, iGpffffb540, 1);
                 }
             } else if (func_002a2c70(temp_20_2) != 0) {
                 tt = func_002a2cd0(temp_20_2);
                 temp_20_3 = (u8)(255.0f * (1.0f - tt));
-                func_0025e9e0(temp_f21_2, temp_f20_2, 0.0f, 0x49AFFD, temp_20_3, 1, iGpffffb540, 1);
+                sdkSpriteDrawNowUnscaled(temp_f21_2, temp_f20_2, 0.0f, 0x49AFFD, temp_20_3, 1, iGpffffb540, 1);
                 if (var_16_2 == 0) {
-                    func_0025e9e0(18.0f, pos[1], 0.0f, 0x49AFFD, temp_20_3, 0x1B, iGpffffb540, 1);
+                    sdkSpriteDrawNowUnscaled(18.0f, pos[1], 0.0f, 0x49AFFD, temp_20_3, 0x1B, iGpffffb540, 1);
                 }
                 if (var_16_2 == 5) {
-                    func_0025e9e0(18.0f, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, temp_20_3, 0x1C, iGpffffb540, 1);
+                    sdkSpriteDrawNowUnscaled(18.0f, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, temp_20_3, 0x1C, iGpffffb540, 1);
                 }
                 if (var_16_2 == 0x12) {
-                    func_0025e9e0((f32)0x24A, pos[1], 0.0f, 0x49AFFD, temp_20_3, 0x1D, iGpffffb540, 1);
+                    sdkSpriteDrawNowUnscaled((f32)0x24A, pos[1], 0.0f, 0x49AFFD, temp_20_3, 0x1D, iGpffffb540, 1);
                 }
                 if (var_16_2 == 0x17) {
-                    func_0025e9e0((f32)0x24A, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, temp_20_3, 0x1E, iGpffffb540, 1);
+                    sdkSpriteDrawNowUnscaled((f32)0x24A, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, temp_20_3, 0x1E, iGpffffb540, 1);
                 }
             }
         }
@@ -290,7 +290,7 @@ void func_002a03b0(u8 *arg0) {
         yv = (f32)((temp_6 * 0x19) + 0xE5);
         var_f2 += cursorOfs;
         yv += cursorOfs;
-        func_0025e9e0(var_f2, yv, 0.0f, 0xCCFF33, 0xFF, 0xF, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled(var_f2, yv, 0.0f, 0xCCFF33, 0xFF, 0xF, iGpffffb540, 1);
     }
     for (var_20_2 = 0; var_20_2 < 6; var_20_2++) {
         var_18_2 = 0;
@@ -316,13 +316,13 @@ void func_002a03b0(u8 *arg0) {
                     var_f12 += 474.0f;
                     break;
                 }
-                func_0025e9e0(var_f12, (f32)yBase, 0.0f, 0x2D2D2D, 0xFF, tex, iGpffffb540, 1);
+                sdkSpriteDrawNowUnscaled(var_f12, (f32)yBase, 0.0f, 0x2D2D2D, 0xFF, tex, iGpffffb540, 1);
             }
         }
     }
     if ((*(s32 *)(temp_19 + 0x14) == 3) &&
         (*(s32 *)(temp_19 + 8) == 0)) {
-        func_0025e9e0(0.0f, 102.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAC, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled(0.0f, 102.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAC, iGpffffb540, 1);
     }
     if ((strlen(D_00882EF0) >> 1) != 0) {
         temp_16 = (u32)(strlen(D_00882EF0) >> 1);

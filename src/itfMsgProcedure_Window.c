@@ -37,7 +37,7 @@ extern u8 D_00796430[];
 extern u8 D_00796490[];
 extern void msgWinDrawShape(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2);
 extern void msgWinDrawRing(s32 a0, s32 a1, f32 f0, s32 a2, s32 a3, s32 t0, s32 t1, s16 t2, s16 t3, f32 f1, f32 f2, f32 f3, void *a4);
-extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *a0, void *a1);
 extern void calDrawScreen(u8 *arg);
@@ -68,7 +68,7 @@ extern u32 D_00882060[];
 extern s16 D_00882064[];
 extern s16 D_00882066[];
 extern f32 iGpffff81d8;
-extern void func_0025ec90(f32, f32, f32, s32, u8, s32, void *, s32, void *);
+extern void sdkSpriteDrawQueuedUnscaled(f32, f32, f32, s32, u8, s32, void *, s32, void *);
 extern s32 frFontNodeWidth(void *arg0);
 extern void frFontSetGlyphColor(void *arg0, s32 arg1);
 extern void func_0027a490(void *a0, s32 a1, s32 a2, s32 a3);
@@ -203,7 +203,7 @@ s32 msgWinEntryStep(MsgProcWindowEntry *arg)
             break;
         }
         f = sinf(iGpffff8094 * (float)arg->field10 / 5.0f);
-        func_0025ecd0(0.0f, (float)v0 * f + 123.0f, 0.0f, 0xFFFFFF, 0xD8, v1, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, 1.0f - f, D_00796490);
+        sdkSpriteDrawQueued(0.0f, (float)v0 * f + 123.0f, 0.0f, 0xFFFFFF, 0xD8, v1, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, 1.0f - f, D_00796490);
         if (arg->field10 < 5) {
             break;
         }
@@ -242,7 +242,7 @@ s32 msgWinEntryStep(MsgProcWindowEntry *arg)
     case 6:
         f = sinf(iGpffff8094 * (float)arg->field10 / 10.0f);
         g = (1.0f - f) * 255.0f;
-        func_0025ecd0(592.0f, 394.0f, 0.0f, 0xFFA107, (u8)g, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 360.0f + 180.0f, 1.0f, 1.0f, D_00796490);
+        sdkSpriteDrawQueued(592.0f, 394.0f, 0.0f, 0xFFA107, (u8)g, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 360.0f + 180.0f, 1.0f, 1.0f, D_00796490);
         if (arg->field10 < 10) {
             break;
         }
@@ -847,8 +847,8 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                 func_0045e8e0(&w6.colors[0], &w6.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
                 v1 = (5 - b) * 0x1E + 0x8A;
                 v1 = (float)v1 + 30.0f * (float)a;
-                func_0025ec90(23.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
-                func_0025ec90(407.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
+                sdkSpriteDrawQueuedUnscaled(23.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
+                sdkSpriteDrawQueuedUnscaled(407.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
                 if ((tmp = itfMesWindowGetFontList((void *)arg0)) != 0) {
                     frFontSetGlyphAux((void *)tmp, 0);
                     frFontSetGlyphColor((void *)tmp, -1);
@@ -934,8 +934,8 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                 v0 = (5 - b2) * 0x1E + 0x8A;
                 v0 = (float)v0 + 30.0f * (float)a2;
                 if (D_00882006[0] < need32 - 5) {
-                    func_0025ec90(23.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
-                    func_0025ec90(407.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
+                    sdkSpriteDrawQueuedUnscaled(23.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
+                    sdkSpriteDrawQueuedUnscaled(407.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
                 } else {
                     f1 = (float)(D_00882006[0] - (need32 - 5)) / 5.0f;
                     if (f1 > 1.0f) {
@@ -944,8 +944,8 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                     f2 = 1.0f - f1;
                     ftmp = f1 * 16.0f;
                     f3 = (float)v0 + ftmp;
-                    func_0025ecd0(23.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
-                    func_0025ecd0(407.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
+                    sdkSpriteDrawQueued(23.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
+                    sdkSpriteDrawQueued(407.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
                 }
                 if ((tmp = itfMesWindowGetFontList((void *)arg0)) != 0 && D_00882006[0] >= need32 - 5) {
                     f1 = (float)(D_00882006[0] - (need32 - 5)) / 5.0f;
@@ -977,8 +977,8 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                 }
                 cur++;
                 f = sinf(iGpffff8094 * (float)cur / 5.0f);
-                func_0025ecd0(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 180.0f, 1.0f, 1.0f, D_00796490);
-                func_0025ec90(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 3, (void *)iGpffffb4d8, 1, D_00796490);
+                sdkSpriteDrawQueued(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 180.0f, 1.0f, 1.0f, D_00796490);
+                sdkSpriteDrawQueuedUnscaled(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 3, (void *)iGpffffb4d8, 1, D_00796490);
                 if (cur >= 5) {
                     D_00882000[0] &= ~0x20;
                     cur = 0;
@@ -992,8 +992,8 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
     case 17:
         if (func_0027bec0((s32)arg0) != 0) {
             if (msgWinReady() != 0) {
-                func_0025ecd0(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, 180.0f, 1.0f, 1.0f, D_00796490);
-                func_0025ec90(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 3, (void *)iGpffffb4d8, 1, D_00796490);
+                sdkSpriteDrawQueued(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, 180.0f, 1.0f, 1.0f, D_00796490);
+                sdkSpriteDrawQueuedUnscaled(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 3, (void *)iGpffffb4d8, 1, D_00796490);
             }
         }
         break;
@@ -1256,18 +1256,18 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             prodA = 300.0f - (300.0f * f);
             chainC = 0.2f + (iGpffff811c * f);
             chainD = 0.2f - (iGpffff8118 * f);
-            func_0025ecd0(prodA, chainA, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
+            sdkSpriteDrawQueued(prodA, chainA, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
         } else if (D_00882024[0] < 0x10) {
             f = sinf((iGpffff8094 * (float)(D_00882024[0] - 10)) / 5.0f);
             chainA = (float)windowX4 * (1.0f - f) + 123.0f;
             chainC = iGpffff80d4 * f + iGpffff81e4;
-            func_0025ecd0(0.0f, chainA, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC, (void *)D_00796490);
+            sdkSpriteDrawQueued(0.0f, chainA, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC, (void *)D_00796490);
         } else if (D_00882024[0] < 0x15) {
-            func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, (void *)D_00796490);
+            sdkSpriteDrawQueuedUnscaled(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, (void *)D_00796490);
             f = sinf((iGpffff8094 * (float)(D_00882024[0] - 15)) / 5.0f);
             if (D_0088202A[0] == 0) {
                 chainA = 36.0f - ((1.0f - f) * 100.0f);
-                func_0025ec90(chainA, 143.0f, 0.0f, 0xFFE92C, 0xFF, 0, (void *)iGpffffb4dc, 1, (void *)D_00796490);
+                sdkSpriteDrawQueuedUnscaled(chainA, 143.0f, 0.0f, 0xFFE92C, 0xFF, 0, (void *)iGpffffb4dc, 1, (void *)D_00796490);
             } else {
                 switch (D_0088202A[0]) {
                 case 1:
@@ -1451,17 +1451,17 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
         }
         switch (D_0088202C[0]) {
         case 0:
-            func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, 0xD, (void *)iGpffffb4dc, 1, (void *)D_00796490);
+            sdkSpriteDrawQueuedUnscaled(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, 0xD, (void *)iGpffffb4dc, 1, (void *)D_00796490);
             break;
         case 1:
-            func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, 0xC, (void *)iGpffffb4dc, 1, (void *)D_00796490);
+            sdkSpriteDrawQueuedUnscaled(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, 0xC, (void *)iGpffffb4dc, 1, (void *)D_00796490);
             break;
         case 2:
-            func_0025ec90(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, 0xB, (void *)iGpffffb4dc, 1, (void *)D_00796490);
+            sdkSpriteDrawQueuedUnscaled(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, 0xB, (void *)iGpffffb4dc, 1, (void *)D_00796490);
             break;
         }
         if (D_0088202A[0] == 0) {
-            func_0025ec90(36.0f, 143.0f, 0.0f, 0xFFE92C, 0xFF, 0, (void *)iGpffffb4dc, 1, (void *)D_00796490);
+            sdkSpriteDrawQueuedUnscaled(36.0f, 143.0f, 0.0f, 0xFFE92C, 0xFF, 0, (void *)iGpffffb4dc, 1, (void *)D_00796490);
         } else {
             switch (D_0088202A[0]) {
             case 1:
@@ -1768,8 +1768,8 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                 prodA = (float)windowX16;
                 prodB = (float)windowY16;
                 g = f * 180.0f;
-                func_0025ecd0(prodA, prodB, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, g, 1.0f, 1.0f, (void *)D_00796490);
-                func_0025ec90((float)windowX16, (float)windowY16, 0.0f, 0xFAFF20, 0xFF, 3, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                sdkSpriteDrawQueued(prodA, prodB, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, g, 1.0f, 1.0f, (void *)D_00796490);
+                sdkSpriteDrawQueuedUnscaled((float)windowX16, (float)windowY16, 0.0f, 0xFAFF20, 0xFF, 3, (void *)iGpffffb4d8, 1, (void *)D_00796490);
                 if (cntB32 >= 5) {
                     D_00882020[0] &= ~0x20u;
                     cntB = 0;
@@ -1801,8 +1801,8 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                     windowY17 = 0x142;
                     break;
                 }
-                func_0025ecd0((float)windowX17, (float)windowY17, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, 180.0f, 1.0f, 1.0f, (void *)D_00796490);
-                func_0025ec90((float)windowX17, (float)windowY17, 0.0f, 0xFAFF1F, 0xFF, 3, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                sdkSpriteDrawQueued((float)windowX17, (float)windowY17, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, 180.0f, 1.0f, 1.0f, (void *)D_00796490);
+                sdkSpriteDrawQueuedUnscaled((float)windowX17, (float)windowY17, 0.0f, 0xFAFF1F, 0xFF, 3, (void *)iGpffffb4d8, 1, (void *)D_00796490);
             }
         }
         break;
@@ -1836,7 +1836,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                 cntB++;
                 cntB32 = (s32)cntB;
                 f = sinf((iGpffff8094 * (float)cntB32) / 10.0f);
-                func_0025ecd0((float)windowX18, (float)windowY18, 0.0f, 0xFFFFFF, (u8)((1.0f - f) * 255.0f), 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 360.0f + 180.0f, 1.0f, 1.0f, (void *)D_00796490);
+                sdkSpriteDrawQueued((float)windowX18, (float)windowY18, 0.0f, 0xFFFFFF, (u8)((1.0f - f) * 255.0f), 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 360.0f + 180.0f, 1.0f, 1.0f, (void *)D_00796490);
                 if (cntB32 >= 10) {
                     D_00882020[0] &= ~0x80u;
                     cntB = 0;
@@ -1926,7 +1926,7 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
                 tex = func_0027BE60((s32)arg0);
                 if (tex != NULL) {
                     f = sinf(iGpffff8094 * (f32)(D_00882044[0] - 3) / 7.0f);
-                    func_0025ecd0(9.0f - 60.0f * (1.0f - f), 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)func_002bd1e0(*tex), 1,
+                    sdkSpriteDrawQueued(9.0f - 60.0f * (1.0f - f), 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)func_002bd1e0(*tex), 1,
                                   0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
                 }
             }
@@ -1942,7 +1942,7 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
             func_00366380(0x46, 0x1B, 0.0f, 0x194, 0x37, 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
             msgWinDrawRing(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
             if ((tex = func_0027BE60((s32)arg0)) != NULL) {
-                func_0025ecd0(9.0f, 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)func_002bd1e0(*tex), 1, 0, 0, 0.0f, 1.0f, 1.0f,
+                sdkSpriteDrawQueued(9.0f, 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)func_002bd1e0(*tex), 1, 0, 0, 0.0f, 1.0f, 1.0f,
                               D_00796490);
             }
         }
@@ -2173,8 +2173,8 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
                 func_00366380(-5, backgroundY, 0.0f, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
                 baseline = i1 + 0xD5;
                 i2 = (s32)((float)v77070 * 30.0f + (float)baseline + 0.0f);
-                func_0025ec90(23.0f, (float)i2, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, (void *)D_00796490);
-                func_0025ec90(407.0f, (float)i2, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                sdkSpriteDrawQueuedUnscaled(23.0f, (float)i2, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                sdkSpriteDrawQueuedUnscaled(407.0f, (float)i2, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, (void *)D_00796490);
                 if ((pv = (void *)itfMesWindowGetFontList(arg0)) != NULL) {
                     frFontSetGlyphAux(pv, 0);
                     frFontSetGlyphColor(pv, -1);
@@ -2255,8 +2255,8 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
                 baseline = (4 - i3) * 0x1E + 0xD5;
                 i5 = (s32)((float)v77070 * 30.0f + (float)baseline + 0.0f);
                 if ((s32)D_00882066[0] < need - 5) {
-                    func_0025ec90(23.0f, (float)i5, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, (void *)D_00796490);
-                    func_0025ec90(407.0f, (float)i5, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                    sdkSpriteDrawQueuedUnscaled(23.0f, (float)i5, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                    sdkSpriteDrawQueuedUnscaled(407.0f, (float)i5, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, (void *)D_00796490);
                 } else {
                     float ratio;
                     float opacity;
@@ -2270,8 +2270,8 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
                     advance = 16.0f;
                     advance *= ratio;
                     arrowY = (float)i5 + advance;
-                    func_0025ecd0(23.0f, arrowY, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, opacity, (void *)D_00796490);
-                    func_0025ecd0(407.0f, arrowY, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, opacity, (void *)D_00796490);
+                    sdkSpriteDrawQueued(23.0f, arrowY, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, opacity, (void *)D_00796490);
+                    sdkSpriteDrawQueued(407.0f, arrowY, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, opacity, (void *)D_00796490);
                 }
                 if ((selection = (void *)itfMesWindowGetFontList(arg0)) != NULL) {
                     s32 frame;
@@ -2444,8 +2444,8 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
     extern u8 *func_0046a770(char *arg0);
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
-    extern void func_0025e9e0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4);
+    extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
+    extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4);
     extern s32 func_00110580(s32 arg0);
     extern s32 func_00110d30(s32 arg0);
     extern s32 func_00110c50(s32 arg0, s32 arg1);
@@ -2540,7 +2540,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         for (tile = 0; tile < 24; tile++) {
             x = (tile % 6) * 126;
             i = (tile / 6) * 126;
-            func_0025ea20(x, i, 10.0f, 0xFFFFFF, alpha, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
+            sdkSpriteDrawNow(x, i, 10.0f, 0xFFFFFF, alpha, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
             phase = (phase + 1) % 4;
         }
         angle = iGpffff8094 * (f32)frame;
@@ -2552,7 +2552,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
             f32 back = 1.0f - t;
             f32 slide = 140.0f * back;
 
-            func_0025ea20(-59.0f - slide, -103.0f - slide, 10.0f, 0xFFFFFF, 255.0f * t, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, -90.0f * back, 1.0f, 1.0f);
+            sdkSpriteDrawNow(-59.0f - slide, -103.0f - slide, 10.0f, 0xFFFFFF, 255.0f * t, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, -90.0f * back, 1.0f, 1.0f);
         }
         if ((s32)frame < 5) {
             fade = sinf(angle / 5.0f);
@@ -2563,13 +2563,13 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
                 kAssertFail(D_007482F0, 0x59);
             }
             alpha = 1.0f - fade;
-            func_0025ea20(165.0f, 254.0f + 95.0f * alpha - 10.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, fade);
+            sdkSpriteDrawNow(165.0f, 254.0f + 95.0f * alpha - 10.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, fade);
             func_00366380(0xB0, 281 + 64.0f * alpha - 10.0f, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c + fGpffff811c * fade);
         } else {
             if (handle == NULL) {
                 kAssertFail(D_007482F0, 0x59);
             }
-            func_0025e9e0(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
+            sdkSpriteDrawNowUnscaled(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
             func_00366380(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
         }
         font = msgCalendarResource(1);
@@ -2607,7 +2607,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
                 if ((u8 *)(u32)handle == NULL) {
                     kAssertFail(D_007482F0, 0x59);
                 }
-                func_0025ea20(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, **(void ***)((u8 *)(u32)handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+                sdkSpriteDrawNow(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, **(void ***)((u8 *)(u32)handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }
             alpha = 1.0f - fade;
             t = 64.0f * alpha;
@@ -2662,17 +2662,17 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         for (tile = 0; tile < 24; tile++) {
             x = (tile % 6) * 126;
             y = (tile / 6) * 126;
-            func_0025ea20(x, y, 10.0f, 0xFFFFFF, 0x4C, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
+            sdkSpriteDrawNow(x, y, 10.0f, 0xFFFFFF, 0x4C, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
             phase = (phase + 1) % 4;
         }
         if (handle == NULL) {
             kAssertFail(D_007482F0, 0x59);
         }
-        func_0025ea20(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 0xFF, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, 360.0f * alpha, 1.0f, 1.0f);
+        sdkSpriteDrawNow(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 0xFF, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, 360.0f * alpha, 1.0f, 1.0f);
         if (handle == NULL) {
             kAssertFail(D_007482F0, 0x59);
         }
-        func_0025e9e0(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
+        sdkSpriteDrawNowUnscaled(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
         func_00366380(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
         font = msgCalendarResource(1);
         today = (s16)func_001060b0();
@@ -2694,7 +2694,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
                 if (handle == NULL) {
                     kAssertFail(D_007482F0, 0x59);
                 }
-                func_0025e9e0(i * 0x53 + 0x4B, 69.0f, 0.0f, phase, 0xFF, month + 4, **(void ***)(handle + 8), 1);
+                sdkSpriteDrawNowUnscaled(i * 0x53 + 0x4B, 69.0f, 0.0f, phase, 0xFF, month + 4, **(void ***)(handle + 8), 1);
             }
             px = i * 0x53;
             func_00366380(px + 0x5C, 0x71, 0.0f, 0x50, 0x7F, phase, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);

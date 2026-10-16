@@ -40,8 +40,8 @@ extern u32 func_004b1580(s32 a);
 extern void func_004b1150(u8 *a);
 extern u8 *func_004b1130(s32 a);
 extern void kAssertFail(void *file, s32 line);
-extern s32 func_0025f960(u8 *task);
-extern void func_0025fa30(u8 *task);
+extern s32 effBlurFilterTaskUpdate(u8 *task);
+extern void effBlurFilterTaskDestroy(u8 *task);
 extern s32 func_0025fd80(u8 *task);
 extern void func_0025fe00(u8 *task);
 
@@ -69,7 +69,7 @@ s32 func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext)
     }
     *(s32 *)(buf + 0xC) = *(s32 *)(arg3 + 0xB8);
     *(void **)(buf + 0x10) = renderContext;
-    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((u8 *)D_006372A0), 0xF, 0, 0, func_0025f960, func_0025fa30, (u8 *)(buf));
+    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((u8 *)D_006372A0), 0xF, 0, 0, effBlurFilterTaskUpdate, effBlurFilterTaskDestroy, (u8 *)(buf));
 }
 
 // FUN_0025FBB0

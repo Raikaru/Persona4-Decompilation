@@ -130,7 +130,7 @@ extern CmmFishingOrigin D_00635B78;
 extern f32 iGpffff8084;
 extern f32 iGpffff8094;
 extern u8 D_00794E70[];
-extern s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
+extern s32 sdkSpriteDrawQueued(f32 farg0, f32 farg1, f32 farg2,
                          s32 arg0, u8 arg1, s32 arg2, void* arg3,
                          s32 arg4, s16 arg5, s16 arg6,
                          f32 farg3, f32 farg4, f32 farg5, void* arg7);
@@ -1190,7 +1190,7 @@ block_1:
         } else {
             wave = 1.0f;
         }
-        func_0025ecd0(512.0f,
+        sdkSpriteDrawQueued(512.0f,
                       418.0f + 200.0f * (1.0f - wave), 0.0f,
                       0xFFFFFF, 0xFF, 0, (void *)(uintptr_t)data, 1, 0, 0,
                       -30.0f, 1.0f, 1.0f, D_00794E70);
@@ -1211,7 +1211,7 @@ block_1:
         } else {
             wave = 1.0f;
         }
-        func_0025ecd0(512.0f, 418.0f, 0.0f,
+        sdkSpriteDrawQueued(512.0f, 418.0f, 0.0f,
                       0xFFFFFF,
                       (u8)(255.0f * (1.0f - wave)),
                       0, (void *)(uintptr_t)data, 1, 0, 0,
@@ -1224,7 +1224,7 @@ block_1:
             return 1;
         }
     } else {
-        func_0025ecd0(512.0f, 418.0f, 0.0f,
+        sdkSpriteDrawQueued(512.0f, 418.0f, 0.0f,
                       0xFFFFFF, 0xFF, 0, (void *)(uintptr_t)data, 1, 0, 0,
                       -30.0f, 1.0f, 1.0f, D_00794E70);
     }
@@ -1270,21 +1270,21 @@ s32 func_0024c460(u8 *arg0, u8 *work)
         }
         alpha = (s32)(255.0f * sine);
         scale = 1.0f + (0.5f * (f32)*(s32 *)(work + 8)) / 5.0f;
-        func_0025ecd0(433.0f, 163.0f, 0.0f, 0xFFFFFF, alpha, 1, atlas,
+        sdkSpriteDrawQueued(433.0f, 163.0f, 0.0f, 0xFFFFFF, alpha, 1, atlas,
                        1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(433.0f, 139.0f - 5.0f * sine, 0.0f, 0xFFFFFF, alpha, 2, atlas,
+        sdkSpriteDrawQueued(433.0f, 139.0f - 5.0f * sine, 0.0f, 0xFFFFFF, alpha, 2, atlas,
                        1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         y = 24.0f * scale;
         y = 177.0f - y;
-        func_0025ecd0(443.0f - 60.0f * scale, y, 0.0f, 0xF27400, alpha, 0xC, atlas,
+        sdkSpriteDrawQueued(443.0f - 60.0f * scale, y, 0.0f, 0xF27400, alpha, 0xC, atlas,
                        1, 0, 0, 0.0f, scale, scale, D_00794E70);
-        func_0025ecd0(453.0f, y, 0.0f, 0xF27400, alpha, 0xD, atlas,
+        sdkSpriteDrawQueued(453.0f, y, 0.0f, 0xF27400, alpha, 0xD, atlas,
                        1, 0, 0, 0.0f, scale, scale, D_00794E70);
         y = 28.0f * scale;
         y = 177.0f - y;
-        func_0025ecd0(443.0f - 51.0f * scale, y, 0.0f, 0xECF54D, alpha, 0xA, atlas,
+        sdkSpriteDrawQueued(443.0f - 51.0f * scale, y, 0.0f, 0xECF54D, alpha, 0xA, atlas,
                        1, 0, 0, 0.0f, scale, scale, D_00794E70);
-        func_0025ecd0(453.0f, y, 0.0f, 0xECF54D, alpha, 0xB, atlas,
+        sdkSpriteDrawQueued(453.0f, y, 0.0f, 0xECF54D, alpha, 0xB, atlas,
                        1, 0, 0, 0.0f, scale, scale, D_00794E70);
         frame = *(s32 *)(work + 8) + 1;
         *(s32 *)(work + 8) = frame;
@@ -1303,21 +1303,21 @@ s32 func_0024c460(u8 *arg0, u8 *work)
         }
         alpha = (s32)(255.0f * (1.0f - sine));
         scale = 1.0f + (0.5f * (f32)*(s32 *)(work + 8)) / 5.0f;
-        func_0025ecd0(433.0f, 163.0f, 0.0f, 0xFFFFFF, alpha, 1, atlas,
+        sdkSpriteDrawQueued(433.0f, 163.0f, 0.0f, 0xFFFFFF, alpha, 1, atlas,
                        1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(433.0f, 139.0f - 5.0f * sine, 0.0f, 0xFFFFFF, alpha, 2, atlas,
+        sdkSpriteDrawQueued(433.0f, 139.0f - 5.0f * sine, 0.0f, 0xFFFFFF, alpha, 2, atlas,
                        1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         y = 24.0f * scale;
         y = 177.0f - y;
-        func_0025ecd0(443.0f - 60.0f * scale, y, 0.0f, 0xF27400, alpha, 0xC, atlas,
+        sdkSpriteDrawQueued(443.0f - 60.0f * scale, y, 0.0f, 0xF27400, alpha, 0xC, atlas,
                        1, 0, 0, 0.0f, scale, scale, D_00794E70);
-        func_0025ecd0(453.0f, y, 0.0f, 0xF27400, alpha, 0xD, atlas,
+        sdkSpriteDrawQueued(453.0f, y, 0.0f, 0xF27400, alpha, 0xD, atlas,
                        1, 0, 0, 0.0f, scale, scale, D_00794E70);
         y = 28.0f * scale;
         y = 177.0f - y;
-        func_0025ecd0(443.0f - 51.0f * scale, y, 0.0f, 0xECF54D, alpha, 0xA, atlas,
+        sdkSpriteDrawQueued(443.0f - 51.0f * scale, y, 0.0f, 0xECF54D, alpha, 0xA, atlas,
                        1, 0, 0, 0.0f, scale, scale, D_00794E70);
-        func_0025ecd0(453.0f, y, 0.0f, 0xECF54D, alpha, 0xB, atlas,
+        sdkSpriteDrawQueued(453.0f, y, 0.0f, 0xECF54D, alpha, 0xB, atlas,
                        1, 0, 0, 0.0f, scale, scale, D_00794E70);
         frame = *(s32 *)(work + 8) + 1;
         *(s32 *)(work + 8) = frame;
@@ -1340,21 +1340,21 @@ s32 func_0024c460(u8 *arg0, u8 *work)
         }
         alpha = 255;
         steadyScale = 1.0f + (0.5f * (f32)*(s32 *)(work + 8)) / 5.0f;
-        func_0025ecd0(433.0f, 163.0f, 0.0f, 0xFFFFFF, alpha, 1, atlas,
+        sdkSpriteDrawQueued(433.0f, 163.0f, 0.0f, 0xFFFFFF, alpha, 1, atlas,
                        1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(433.0f, 139.0f - 5.0f * steadySine, 0.0f, 0xFFFFFF, alpha, 2, atlas,
+        sdkSpriteDrawQueued(433.0f, 139.0f - 5.0f * steadySine, 0.0f, 0xFFFFFF, alpha, 2, atlas,
                        1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         steadyY = 24.0f * steadyScale;
         steadyY = 177.0f - steadyY;
-        func_0025ecd0(443.0f - 60.0f * steadyScale, steadyY, 0.0f, 0xF27400, alpha, 0xC, atlas,
+        sdkSpriteDrawQueued(443.0f - 60.0f * steadyScale, steadyY, 0.0f, 0xF27400, alpha, 0xC, atlas,
                        1, 0, 0, 0.0f, steadyScale, steadyScale, D_00794E70);
-        func_0025ecd0(453.0f, steadyY, 0.0f, 0xF27400, alpha, 0xD, atlas,
+        sdkSpriteDrawQueued(453.0f, steadyY, 0.0f, 0xF27400, alpha, 0xD, atlas,
                        1, 0, 0, 0.0f, steadyScale, steadyScale, D_00794E70);
         steadyY = 28.0f * steadyScale;
         steadyY = 177.0f - steadyY;
-        func_0025ecd0(443.0f - 51.0f * steadyScale, steadyY, 0.0f, 0xECF54D, alpha, 0xA, atlas,
+        sdkSpriteDrawQueued(443.0f - 51.0f * steadyScale, steadyY, 0.0f, 0xECF54D, alpha, 0xA, atlas,
                        1, 0, 0, 0.0f, steadyScale, steadyScale, D_00794E70);
-        func_0025ecd0(453.0f, steadyY, 0.0f, 0xECF54D, alpha, 0xB, atlas,
+        sdkSpriteDrawQueued(453.0f, steadyY, 0.0f, 0xECF54D, alpha, 0xB, atlas,
                        1, 0, 0, 0.0f, steadyScale, steadyScale, D_00794E70);
         frame = *(s32 *)(work + 8) + 1;
         *(s32 *)(work + 8) = frame;
@@ -1376,7 +1376,7 @@ s32 func_0024c460(u8 *arg0, u8 *work)
             alpha = (s32)(255.0f * sine);
         }
         sprite = *(s32 *)(work + 0x10) + 0xD;
-        func_0025ecd0(416.0f, 148.0f, 0.0f, 0xFFFFFF, alpha, sprite, atlas,
+        sdkSpriteDrawQueued(416.0f, 148.0f, 0.0f, 0xFFFFFF, alpha, sprite, atlas,
                        1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         if ((*(s32 *)work & 0x10) != 0) {
             f32 pulseScale;
@@ -1385,7 +1385,7 @@ s32 func_0024c460(u8 *arg0, u8 *work)
             sprite = *(s32 *)(work + 0x10) + 0x10;
             sine = sinf(iGpffff8094 + (iGpffff8094 * (f32)pulse) / 10.0f);
             alpha = (s32)(127.5f * sine);
-            func_0025ecd0(448.0f - 32.0f * pulseScale, 177.0f - 29.0f * pulseScale, 0.0f,
+            sdkSpriteDrawQueued(448.0f - 32.0f * pulseScale, 177.0f - 29.0f * pulseScale, 0.0f,
                            0xFFFFFF, alpha, sprite, atlas, 1, 0, 0, 0.0f, pulseScale, pulseScale, D_00794E70);
             *(s16 *)(work + 0xE) += 1;
             if (*(s16 *)(work + 0xE) >= 10) {
@@ -1490,7 +1490,7 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 60.0f, 50.0f);
-        func_0025ecd0(44.0f, bounceHeight + 10.0f, 0.0f, 0x6EB3, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(44.0f, bounceHeight + 10.0f, 0.0f, 0x6EB3, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         if (frame < 5) {
             phaseFrame = 0;
@@ -1503,14 +1503,14 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 20.0f, 10.0f);
-        func_0025ecd0(26.0f, bounceHeight + 135.0f, 0.0f, 0x50B6, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(26.0f, bounceHeight + 135.0f, 0.0f, 0x50B6, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         frame = cmmScoreClamp(frame, 0, 10);
         fadePhase = sinf((iGpffff8094 * (f32)frame) / 10.0f);
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 30.0f, 20.0f);
-        func_0025ecd0(15.0f, bounceHeight + 199.0f, 0.0f, 0x63B3, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(15.0f, bounceHeight + 199.0f, 0.0f, 0x63B3, fade, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         if (frame < 5) {
             phaseFrame = 0;
@@ -1523,16 +1523,16 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 20.0f, 10.0f);
-        func_0025ecd0(132.0f, bounceHeight + 12.0f, 0.0f, 0x6CB3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(91.0f, bounceHeight + 32.0f, 0.0f, 0x57B3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(34.0f, bounceHeight + 161.0f, 0.0f, 0x2BB3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(132.0f, bounceHeight + 12.0f, 0.0f, 0x6CB3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(91.0f, bounceHeight + 32.0f, 0.0f, 0x57B3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(34.0f, bounceHeight + 161.0f, 0.0f, 0x2BB3, fade, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         frame = cmmScoreClamp(frame, 0, 0x14);
         fadePhase = sinf((iGpffff8094 * (f32)frame) / 20.0f);
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 30.0f, 20.0f);
-        func_0025ecd0(11.0f, bounceHeight + 27.0f, 0.0f, 0x6AB3, fade, 7, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(11.0f, bounceHeight + 27.0f, 0.0f, 0x6AB3, fade, 7, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         if (frame < 5) {
             phaseFrame = 0;
@@ -1545,21 +1545,21 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 30.0f, 20.0f);
-        func_0025ecd0(67.0f, bounceHeight + 11.0f, 0.0f, 0x2078, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(67.0f, bounceHeight + 11.0f, 0.0f, 0x2078, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         frame = cmmScoreClamp(frame, 0, 0xF);
         fadePhase = sinf((iGpffff8094 * (f32)frame) / 15.0f);
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 20.0f, 10.0f);
-        func_0025ecd0(8.0f, bounceHeight + 52.0f, 0.0f, 0x2346, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(8.0f, bounceHeight + 52.0f, 0.0f, 0x2346, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         frame = cmmScoreClamp(frame, 3, 0x11);
         fadePhase = sinf((iGpffff8094 * (f32)frame) / 17.0f);
         fade = (s32)(fadePhase * 255.0f);
         bounceHeight = sinf(iGpffff8084 * fadePhase + iGpffff8094);
         bounceHeight = cmmScoreBounce(bounceHeight, 40.0f, 30.0f);
-        func_0025ecd0(59.0f, bounceHeight + 121.0f, 0.0f, 0xC52, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(59.0f, bounceHeight + 121.0f, 0.0f, 0xC52, fade, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         if (frame < 10) {
             fadePhase = 0.0f;
@@ -1568,7 +1568,7 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         } else {
             fadePhase = 1.0f;
         }
-        func_0025ecd0(30.0f, (1.0f - fadePhase) * 27.5f + 66.0f, 0.0f, 0x7AFEFF, 0xFF, 5, atlas, 1, 0, 0, 0.0f, 1.0f, fadePhase, D_00794E70);
+        sdkSpriteDrawQueued(30.0f, (1.0f - fadePhase) * 27.5f + 66.0f, 0.0f, 0x7AFEFF, 0xFF, 5, atlas, 1, 0, 0, 0.0f, 1.0f, fadePhase, D_00794E70);
         frame = *(u32 *)(work + 8);
         if (frame < 10) {
             fadePhase = 0.0f;
@@ -1578,12 +1578,12 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         fade = (s32)(fadePhase * 255.0f);
         score = func_00106600(0x3F8) & 0xFF;
         if (score < 10) {
-            func_0025ecd0(47.0f, 83.0f, 0.0f, 0, fade, score + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            sdkSpriteDrawQueued(47.0f, 83.0f, 0.0f, 0, fade, score + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         } else {
-            func_0025ecd0(37.0f, 83.0f, 0.0f, 0, fade, score / 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-            func_0025ecd0(59.0f, 83.0f, 0.0f, 0, fade, score % 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            sdkSpriteDrawQueued(37.0f, 83.0f, 0.0f, 0, fade, score / 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            sdkSpriteDrawQueued(59.0f, 83.0f, 0.0f, 0, fade, score % 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         }
-        func_0025ecd0(70.0f, 55.0f, 0.0f, 0x7AFEFF, fade, 4, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(70.0f, 55.0f, 0.0f, 0x7AFEFF, fade, 4, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         frame = cmmScoreClamp(frame, 0, 0x14);
         {
@@ -1600,7 +1600,7 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
                     result = -4.0f - bounceHeight * 4.0f;
                 }
             }
-            func_0025ecd0(13.0f, result - 2.0f, 0.0f, 0, 0xFF, 3, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            sdkSpriteDrawQueued(13.0f, result - 2.0f, 0.0f, 0, 0xFF, 3, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         }
         frame = *(u32 *)(work + 8) + 1;
         *(u32 *)(work + 8) = frame;
@@ -1616,16 +1616,16 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
             fadePhase = 1.0f;
         }
         fade = (s32)((1.0f - fadePhase) * 255.0f);
-        func_0025ecd0(30.0f, 66.0f, 0.0f, 0x7AFEFF, fade, 5, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(30.0f, 66.0f, 0.0f, 0x7AFEFF, fade, 5, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         score = func_00106600(0x3F8) & 0xFF;
         if (score < 10) {
-            func_0025ecd0(47.0f, 83.0f, 0.0f, 0, fade, score + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            sdkSpriteDrawQueued(47.0f, 83.0f, 0.0f, 0, fade, score + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         } else {
-            func_0025ecd0(37.0f, 83.0f, 0.0f, 0, fade, score / 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-            func_0025ecd0(59.0f, 83.0f, 0.0f, 0, fade, score % 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            sdkSpriteDrawQueued(37.0f, 83.0f, 0.0f, 0, fade, score / 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            sdkSpriteDrawQueued(59.0f, 83.0f, 0.0f, 0, fade, score % 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         }
-        func_0025ecd0(70.0f, 55.0f, 0.0f, 0x7AFEFF, fade, 4, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(13.0f, -2.0f, 0.0f, 0, fade, 3, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(70.0f, 55.0f, 0.0f, 0x7AFEFF, fade, 4, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(13.0f, -2.0f, 0.0f, 0, fade, 3, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8) + 1;
         *(u32 *)(work + 8) = frame;
         if (frame >= 10) {
@@ -1637,34 +1637,34 @@ s32 func_0024d1f0(u8 *parent, u8 *work)
         f32 phase;
         phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 60)) / 60.0f);
         phase = (phase + 1.0f) / 2.0f;
-        func_0025ecd0(44.0f, 10.0f + cmmScoreDisplacement(phase, 2.0f, 5.0f), 0.0f, 0x6EB3, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(26.0f, 135.0f + cmmScoreProduct(phase, 5.0f), 0.0f, 0x50B6, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(15.0f, 199.0f + cmmScoreDisplacement(phase, 6.0f, 3.0f), 0.0f, 0x63B3, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(44.0f, 10.0f + cmmScoreDisplacement(phase, 2.0f, 5.0f), 0.0f, 0x6EB3, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(26.0f, 135.0f + cmmScoreProduct(phase, 5.0f), 0.0f, 0x50B6, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(15.0f, 199.0f + cmmScoreDisplacement(phase, 6.0f, 3.0f), 0.0f, 0x63B3, 0xFF, 9, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 80)) / 80.0f);
         phase = (phase + 1.0f) / 2.0f;
-        func_0025ecd0(132.0f, 12.0f + cmmScoreDisplacement(phase, 5.0f, 3.0f), 0.0f, 0x6CB3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(91.0f, 32.0f + cmmScoreDisplacement(phase, 2.0f, 5.0f), 0.0f, 0x57B3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(34.0f, 161.0f + cmmScoreDisplacement(phase, 4.0f, 2.0f), 0.0f, 0x2BB3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(132.0f, 12.0f + cmmScoreDisplacement(phase, 5.0f, 3.0f), 0.0f, 0x6CB3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(91.0f, 32.0f + cmmScoreDisplacement(phase, 2.0f, 5.0f), 0.0f, 0x57B3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(34.0f, 161.0f + cmmScoreDisplacement(phase, 4.0f, 2.0f), 0.0f, 0x2BB3, 0xFF, 8, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 100)) / 100.0f);
         phase = (phase + 1.0f) / 2.0f;
-        func_0025ecd0(11.0f, 27.0f + cmmScoreDisplacement(phase, 4.0f, 10.0f), 0.0f, 0x6AB3, 0xFF, 7, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(11.0f, 27.0f + cmmScoreDisplacement(phase, 4.0f, 10.0f), 0.0f, 0x6AB3, 0xFF, 7, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 100)) / 100.0f);
         phase = (phase + 1.0f) / 2.0f;
-        func_0025ecd0(67.0f, 11.0f + cmmScoreDisplacement(phase, 10.0f, 4.0f), 0.0f, 0x2078, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(67.0f, 11.0f + cmmScoreDisplacement(phase, 10.0f, 4.0f), 0.0f, 0x2078, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         phase = sinf(iGpffff81dc + (iGpffff81e0 * (f32)(*(s32 *)(work + 8) % 120)) / 100.0f);
         phase = (phase + 1.0f) / 2.0f;
-        func_0025ecd0(8.0f, 52.0f + cmmScoreDisplacement(phase, 8.0f, 2.0f), 0.0f, 0x2346, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(59.0f, 121.0f + cmmScoreDisplacement(phase, 10.0f, 6.0f), 0.0f, 0xC52, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(30.0f, 66.0f, 0.0f, 0x7AFEFF, 0xFF, 5, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(8.0f, 52.0f + cmmScoreDisplacement(phase, 8.0f, 2.0f), 0.0f, 0x2346, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(59.0f, 121.0f + cmmScoreDisplacement(phase, 10.0f, 6.0f), 0.0f, 0xC52, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(30.0f, 66.0f, 0.0f, 0x7AFEFF, 0xFF, 5, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         score = func_00106600(0x3F8) & 0xFF;
         if (score < 10) {
-            func_0025ecd0(47.0f, 83.0f, 0.0f, 0, 0xFF, score + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            sdkSpriteDrawQueued(47.0f, 83.0f, 0.0f, 0, 0xFF, score + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         } else {
-            func_0025ecd0(37.0f, 83.0f, 0.0f, 0, 0xFF, score / 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-            func_0025ecd0(59.0f, 83.0f, 0.0f, 0, 0xFF, score % 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            sdkSpriteDrawQueued(37.0f, 83.0f, 0.0f, 0, 0xFF, score / 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+            sdkSpriteDrawQueued(59.0f, 83.0f, 0.0f, 0, 0xFF, score % 10 + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         }
-        func_0025ecd0(70.0f, 55.0f, 0.0f, 0x7AFEFF, 0xFF, 4, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0(13.0f, -2.0f, 0.0f, 0, 0xFF, 3, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(70.0f, 55.0f, 0.0f, 0x7AFEFF, 0xFF, 4, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
+        sdkSpriteDrawQueued(13.0f, -2.0f, 0.0f, 0, 0xFF, 3, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         frame = *(u32 *)(work + 8);
         *(u32 *)(work + 8) = frame + 1;
         if ((s32)(frame + 1) >= 0x7FFFFFFF) {

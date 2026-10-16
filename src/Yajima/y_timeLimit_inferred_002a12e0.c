@@ -28,8 +28,8 @@ extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
 extern s32 func_002a2ca0(u8 *arg0);
 extern f32 func_002a2cd0(u8 *arg0);
 extern s32 func_002a2c10(u8 *arg0, f32 *arg1);
-extern void func_0025e9e0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
-extern s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
+extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
+extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
 typedef struct P4_002aabf0_Work {
@@ -147,18 +147,18 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
     if ((arg1 >= 0) && (func_002a2ca0((u8 *)&work->background) == 0)) {
         u8 alpha;
         alpha = (u8)(255.0f * func_002a2cd0((u8 *)&work->background));
-        func_0025e9e0(0.0f, 0.0f, 0.0f, 0xFFFFFF, alpha, 0xA4, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, alpha, 0xA4, iGpffffb540, 1);
         cnt = work->backgroundFrame + 1;
         work->backgroundFrame = cnt;
         if (cnt > 0x5A0) {
             work->backgroundFrame = 0;
         }
-        func_0025ea20(-78.0f, -82.0f, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B,
+        sdkSpriteDrawNow(-78.0f, -82.0f, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B,
             (f32)(work->backgroundFrame * -0x168) / 1440.0f, 1.0f, 1.0f);
-        func_0025ea20(540.0f, (f32)0x15B, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B,
+        sdkSpriteDrawNow(540.0f, (f32)0x15B, 0.0f, 0x4972FF, alpha, 0xB1, iGpffffb540, 1, 0x5B, 0x5B,
             (f32)(work->backgroundFrame * -0x168) / 1440.0f, 1.0f, 1.0f);
-        func_0025e9e0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAF, iGpffffb540, 1);
-        func_0025e9e0(0.0f, 346.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAE, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAF, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled(0.0f, 346.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAE, iGpffffb540, 1);
     }
     if (arg1 > 0) {
         func_002a02f0(arg0, 1);
@@ -177,19 +177,19 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
                 cellRowY = (f32)((i % 6) * 0x19 + 0xE3);
                 cellY = cellRowY;
                 alpha2 = (u8)(255.0f * cellProgress);
-                func_0025e9e0((f32)((i / 6) * 0x94 + 0x19), cellY, 0.0f, 0x4972FF, alpha2, 1, iGpffffb540, 1);
+                sdkSpriteDrawNowUnscaled((f32)((i / 6) * 0x94 + 0x19), cellY, 0.0f, 0x4972FF, alpha2, 1, iGpffffb540, 1);
                 if (i == 0) {
-                    func_0025e9e0(18.0f, stack[1], 0.0f, 0x4972FF, alpha2, 0x1B, iGpffffb540, 1);
+                    sdkSpriteDrawNowUnscaled(18.0f, stack[1], 0.0f, 0x4972FF, alpha2, 0x1B, iGpffffb540, 1);
                 }
                 if (i == 5) {
-                    func_0025e9e0(18.0f, (171.0f + stack[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1C, iGpffffb540,
+                    sdkSpriteDrawNowUnscaled(18.0f, (171.0f + stack[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1C, iGpffffb540,
                         1);
                 }
                 if (i == 0x12) {
-                    func_0025e9e0((f32)0x24A, stack[1], 0.0f, 0x4972FF, alpha2, 0x1D, iGpffffb540, 1);
+                    sdkSpriteDrawNowUnscaled((f32)0x24A, stack[1], 0.0f, 0x4972FF, alpha2, 0x1D, iGpffffb540, 1);
                 }
                 if (i == 0x17) {
-                    func_0025e9e0((f32)0x24A, (171.0f + stack[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1E,
+                    sdkSpriteDrawNowUnscaled((f32)0x24A, (171.0f + stack[1]) - 24.0f, 0.0f, 0x4972FF, alpha2, 0x1E,
                         iGpffffb540, 1);
                 }
             }
@@ -229,7 +229,7 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
                             glyphY = rowY;
                             func_002a2cd0((u8 *)&work->rows[j]);
                             func_002a2c10((u8 *)&work->rows[j], stack);
-                            func_0025e9e0(glyphX, glyphY + (f32)(s32)stack[1], 0.0f, 0x2D2D2D, 0xFF, tex,
+                            sdkSpriteDrawNowUnscaled(glyphX, glyphY + (f32)(s32)stack[1], 0.0f, 0x2D2D2D, 0xFF, tex,
                                 iGpffffb540, 1);
                         }
                     }

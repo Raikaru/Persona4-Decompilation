@@ -99,7 +99,7 @@ void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
 extern s32 func_0017cd60(u8 *arg0);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 
-extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
+extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 sinf(f32 arg0);
 extern f32 cosf(f32 arg0);
 extern f32 iGpffff8304;
@@ -778,7 +778,7 @@ s32 func_0017cd60(u8 *arg0)
         frame = (f32)(u16)counter;
         easing = sinf((iGpffff82fc * frame) / 15.0f);
         inverse = 1.0f - easing;
-        func_0025ecd0((f32)(*(u16 *)(work + 0xC) + 10),
+        sdkSpriteDrawQueued((f32)(*(u16 *)(work + 0xC) + 10),
                       (f32)(*(u16 *)(work + 0xE) + 25), 1000.0f,
                       0xFFFFFF, 0xFF, 0xC4, (void *)(*(u32 *)(work + 8)),
                       1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
@@ -786,10 +786,10 @@ s32 func_0017cd60(u8 *arg0)
         x = (f32)(*(u16 *)(work + 0xC) + 0x6E);
         y = (f32)(*(u16 *)(work + 0xE) + 0x22);
         opacity = (0xFF < opacity) ? 0xFF : opacity;
-        func_0025ecd0(x, y, 1000.0f,
+        sdkSpriteDrawQueued(x, y, 1000.0f,
                       0xFFFFFF, opacity & 0xFF, 0xC6, (void *)(*(u32 *)(work + 8)),
                       1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        func_0025ecd0((f32)(*(u16 *)(work + 0xC) + 0x6E),
+        sdkSpriteDrawQueued((f32)(*(u16 *)(work + 0xC) + 0x6E),
                       (f32)(*(u16 *)(work + 0xE) + 0xF +
                             (s32)(3.0f * inverse)), 1000.0f,
                       0xFFFFFF, 0xFF, 0xC5, (void *)(*(u32 *)(work + 8)),
