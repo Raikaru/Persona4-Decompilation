@@ -48,7 +48,7 @@ extern void btlCameraUpdateEffectList();
 extern void btlCameraFrameRotated(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void btlCameraFrameRotatedWide(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void btlMainApplyUnitBaseColors(u8 *arg0);
-extern void func_004b3110(s32 arg0);
+extern void CrossfadeRequest(s32 arg0);
 extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
 extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);
@@ -479,7 +479,7 @@ void btlCameraFrameRotatedFar(u8 *arg0) {
 // FUN_001CEFF0
 void btlCameraFrameEnd(void) {
     btlMainApplyUnitBaseColors(NULL);
-    func_004b3110(5);
+    CrossfadeRequest(5);
 }
 
 // FUN_001CF020
@@ -507,7 +507,7 @@ void btlCameraFrameSpawn(u8 *arg0, u8 *arg1)
         break;
     }
     btlCameraStartEffect(arg0, target, 2);
-    func_004b3110(5);
+    CrossfadeRequest(5);
 }
 
 // FUN_001CF140

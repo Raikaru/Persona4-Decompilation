@@ -184,7 +184,7 @@ extern u8 D_006354C0[], D_006354D0[], D_00635500[];
 extern BtlPacket *btlFormationCreateSlotPacket(u16 group, u16 mask);
 extern f32 fGpffff80e4;
 extern f32 btlTargetQuatAngle(void *first, void *second);
-extern s32 func_004b3110(s16 frames);
+extern s32 CrossfadeRequest(s16 frames);
 
 /* Source unit: src/promoted/code1_0022.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0022.c; members 00225e50-0022ae00 */
@@ -1779,7 +1779,7 @@ allow_cut:
             if (geometry.poses.first.y < 25.0f) {
                 geometry.poses.first.y = 25.0f;
             }
-            func_004b3110(5);
+            CrossfadeRequest(5);
         }
     }
     btlMainCurveSetPoses((u16 *)camera, (f32 *)&geometry.poses.first, (f32 *)&geometry.poses.second, 1);

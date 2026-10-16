@@ -13,9 +13,9 @@ void func_00481ee0(s32 arg0);
 s32 func_00481d80(s32 *arg0);
 extern s32 func_00481e30(s32 arg0);
 
-void func_004829c0(s32 arg0);
-s32 func_00482800(s32 *arg0);
-extern s32 func_00482a70(s32 arg0);
+void TlpRelease(s32 arg0);
+s32 TlpCreate(s32 *arg0);
+extern s32 TlpAddRef(s32 arg0);
 
 extern void func_00492d00(int param_1);
 extern void func_00492cd0(u8 *arg0);
@@ -58,7 +58,7 @@ extern void func_004861f0(u8 *arg0, f32 *arg1);
 extern void func_00485630(u8 *arg0);
 extern ParticleSnapshot func_00492df0(s32 arg0, u32 *arg1);
 extern ParticleSnapshot func_00492db0(s32 arg0, u32 *arg1);
-extern void func_004bceb0(void);
+extern void effMiscBuildRotationVU(void);
 
 // Allocates a 0x60-byte particle block with the given count, unit scale and no links.
 // FUN_00486A50
@@ -194,7 +194,7 @@ void ParticleFree(u8 *arg0)
         func_00481ee0(*(s32 *)(arg0 + 0x44));
     }
     if (*(s32 *)(arg0 + 0x48) != 0) {
-        func_004829c0(*(s32 *)(arg0 + 0x48));
+        TlpRelease(*(s32 *)(arg0 + 0x48));
     }
     if (*(u8 *)(arg0 + 0xE) & 1) {
         func_00492cd0((u8 *)*(s32 *)(arg0 + 0x4C));
@@ -363,9 +363,9 @@ void ParticleCopyModeFromSource(u8 *arg0, u8 *arg1)
             kAssertFail(D_00713CD0, 0x156);
         }
         if (*(s32 *)(arg0 + 0x48) != 0) {
-            func_004829c0(*(s32 *)(arg0 + 0x48));
+            TlpRelease(*(s32 *)(arg0 + 0x48));
         }
-        *(s32 *)(arg0 + 0x48) = func_00482a70(*(s32 *)(arg1 + 0x48));
+        *(s32 *)(arg0 + 0x48) = TlpAddRef(*(s32 *)(arg1 + 0x48));
         if (*(s32 *)(arg0 + 0x5C) != 0) {
             kAssertFail(D_00713CD0, 0x15F);
         }
@@ -540,9 +540,9 @@ void ParticleSetAuxResource(u8 *arg0, s32 *arg1)
     s32 temp_4 = *(s32 *)(arg0 + 0x48);
 
     if (temp_4 != 0) {
-        func_004829c0(temp_4);
+        TlpRelease(temp_4);
     }
-    *(s32 *)(arg0 + 0x48) = func_00482800(arg1);
+    *(s32 *)(arg0 + 0x48) = TlpCreate(arg1);
 }
 
 
@@ -629,7 +629,7 @@ void ParticleUpdateScaled(u8* particle, f32 scale)
                              : "r"(rotationSnapshot)
                              : "$vf10", "memory");
             /* VU0 quaternion input is VF10; the helper produces VF28..VF31. */
-            func_004bceb0();
+            effMiscBuildRotationVU();
             __asm__ volatile(".set noreorder       \n"
                              "lqc2 $vf31, 0(%0)    \n"
                              ".set reorder         \n"
@@ -722,7 +722,7 @@ void ParticleUpdateScaled(u8* particle, f32 scale)
                              : "r"(rotationSnapshot)
                              : "$vf10", "memory");
             /* VU0 quaternion input is VF10; the helper produces VF28..VF31. */
-            func_004bceb0();
+            effMiscBuildRotationVU();
             __asm__ volatile(".set noreorder       \n"
                              "lqc2 $vf31, 0(%0)    \n"
                              ".set reorder         \n"
@@ -1026,7 +1026,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                              :
                              : "r"(rotationSnapshot), "m"(rotationSnapshot)
                              : "$vf10", "memory");
-            func_004bceb0();
+            effMiscBuildRotationVU();
             __asm__ volatile("lqc2 $vf31, 0(%0)\n"
                              :
                              : "r"(translationSnapshot), "m"(translationSnapshot)
@@ -1243,7 +1243,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                                  :
                                  : "r"(rotationSnapshot), "m"(rotationSnapshot)
                                  : "$vf10", "memory");
-                func_004bceb0();
+                effMiscBuildRotationVU();
                 __asm__ volatile("lqc2 $vf31, 0(%0)\n"
                                  :
                                  : "r"(translationSnapshot), "m"(translationSnapshot)
@@ -1529,8 +1529,8 @@ static inline u32 particleProjectedFrameIndex(const u8 *record)
 void ParticleDrawBillboards(u8 *arg0)
 {
     extern s32 func_00457120(void);
-    extern void func_004bceb0(void);
-    extern void func_00482ad0(TLP *a, u32 b, TlpSel *c);
+    extern void effMiscBuildRotationVU(void);
+    extern void TlpSelectFrame(TLP *a, u32 b, TlpSel *c);
     extern BtlShuffleRenderStateSet D_00887300[];
     extern BtlShuffleRenderPrimitive D_00887310[];
     extern f32 cosf(f32);
@@ -1636,7 +1636,7 @@ void ParticleDrawBillboards(u8 *arg0)
                 if (packed.bytes.alpha != 0) {
                     f32 f29;
                     f32 f28;
-                    func_00482ad0(*(TLP **)(arg0 + 0x48), (u32)*(s32 *)(var_18 + 0x10), &outA0);
+                    TlpSelectFrame(*(TLP **)(arg0 + 0x48), (u32)*(s32 *)(var_18 + 0x10), &outA0);
                     D_00887300[0](rwRENDERSTATETEXTURERASTER, *(void **)outA0.tex);
                     f29 = *(f32 *)(var_18 + 0x18) * ((outA0.w / 32.0f) * outA0.a);
                     f28 = *(f32 *)(var_18 + 0x18) * ((outA0.h / 32.0f) * outA0.b);
@@ -1727,7 +1727,7 @@ void ParticleDrawBillboards(u8 *arg0)
         func_00492df0((s32)temp_19, snapA);
         func_00492db0((s32)temp_19, snapB);
         __asm__ volatile("lqc2 $vf10, 0(%0)\n" : : "r"(snapA) : "$vf10", "memory");
-        func_004bceb0();
+        effMiscBuildRotationVU();
         __asm__ volatile("lqc2 $vf31, 0(%0)\n" : : "r"(snapB) : "$vf31", "memory");
         __asm__ volatile("sqc2 $vf28, 0(%0)\nsqc2 $vf29, 16(%0)\nsqc2 $vf30, 32(%0)\nsqc2 $vf31, 48(%0)\n" : : "r"(base) : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
         i = 0;
@@ -1786,7 +1786,7 @@ void ParticleDrawBillboards(u8 *arg0)
                         u32 frameIndex;
 
                         frameIndex = particleProjectedFrameIndex(var_18);
-                        func_00482ad0(*(TLP **)(arg0 + 0x48), frameIndex, &outA0);
+                        TlpSelectFrame(*(TLP **)(arg0 + 0x48), frameIndex, &outA0);
                         D_00887300[0](rwRENDERSTATETEXTURERASTER, *(void **)outA0.tex);
                         {
                             f32 particleScale = *(f32 *)(var_18 + 0x18);

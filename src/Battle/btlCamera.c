@@ -537,7 +537,7 @@ void btlCameraFrameActionDegrees(u8 *camera, f32 nearDegrees, f32 farDegrees)
     extern f32 tanf(f32);
     extern u32 btlCameraClampOffsetToLimit(f32 *, f32 *);
     extern void btlAct_ENEMY_ALL(u8 *);
-    extern s32 func_004b3110(s16);
+    extern s32 CrossfadeRequest(s16);
     extern RwV3d D_0060A100;
     extern f32 fGpffff807c, fGpffff8110, fGpffff8118;
     extern f32 fGpffff8128, fGpffff8140, fGpffff816c, fGpffff8180;
@@ -617,7 +617,7 @@ void btlCameraFrameActionDegrees(u8 *camera, f32 nearDegrees, f32 farDegrees)
             u16 mode = *(u16 *)(camera + 0xE4);
             if (mode != 2 && mode != 0x29 && mode != 0x24 && mode != 0x22 && mode != 0x21) {
                 btlAct_ENEMY_ALL(camera);
-                func_004b3110(5);
+                CrossfadeRequest(5);
                 return;
             }
         }

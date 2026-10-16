@@ -179,11 +179,11 @@ void ThunderGeometryDestroy(u8 *arg0)
 
 /* Thunder bolt update. A live bolt rebuilds its strip: the first row is the
  * bolt cross-section from the forward/up cross products, and each further
- * row follows a sine-wave heading, rotated by func_004bd380 and pushed along
+ * row follows a sine-wave heading, rotated by effMiscAxisAngleVU and pushed along
  * the transformed forward axis with per-column drift. The two
  * 5-column loops use separate counters, as retail's $t2/$v0 show. FPR
  * declarations follow the order a regalloc_whatif.py replay derived.
- * func_004bd380 is declared angle-first here: retail sets $f12 before $a0,
+ * effMiscAxisAngleVU is declared angle-first here: retail sets $f12 before $a0,
  * and b210 emits argument setup in declaration order (handoff 7a-bis). */
 static inline f32 thunderAdd(f32 first, f32 second) { return first + second; }
 #pragma push
@@ -193,12 +193,12 @@ static inline f32 thunderAdd(f32 first, f32 second) { return first + second; }
 void ThunderBoltUpdateStrip(u8 *arg0)
 {
     extern void func_0048a1f0(f32 *arg0);
-    extern void func_004bceb0(void);
+    extern void effMiscBuildRotationVU(void);
     extern f32 sinf(f32 arg0);
     extern f32 cosf(f32 arg0);
     extern f32 sqrtf(f32 arg0);
     extern f32 func_0044b938(f32 arg0);
-    extern void func_004bd380(f32 angle, f32 *axis);
+    extern void effMiscAxisAngleVU(f32 angle, f32 *axis);
     extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff8084;
     extern f32 iGpffff8084;
@@ -276,7 +276,7 @@ void ThunderBoltUpdateStrip(u8 *arg0)
     }
     func_0048a1f0(up.lane);
     effectVuLoad10((EffectVuVector *)(arg0 + 0x10));
-    func_004bceb0();
+    effMiscBuildRotationVU();
     effectVuLoad10(&D_00713D00);
     __asm__ volatile(
         "vmulax.xyzw $ACC, $vf28, $vf10x\n"
@@ -421,7 +421,7 @@ void ThunderBoltUpdateStrip(u8 *arg0)
                 hypot = sqrtf(rise * rise + segmentLength * segmentLength);
                 nextAngle = thunderAdd(thunderAdd(func_0044b938(rise / hypot), shift + offset), base);
             }
-            func_004bd380(angle, axis.lane);
+            effMiscAxisAngleVU(angle, axis.lane);
             effectVuLoad10(&forward);
             __asm__ volatile(
                 "vmulax.xyzw $ACC, $vf28, $vf10x\n"
@@ -792,7 +792,7 @@ void ThunderPaddedGeometryDestroy(u8 *arg0)
  * direction and steps each further row along the rotated travel vector,
  * whose length comes from VU0 vsqrt. The two 5-column loops use separate
  * counters. The spilled locals are declared in retail's spill-slot order.
- * func_004bd380 is declared angle-first, as for ThunderBoltUpdateStrip. */
+ * effMiscAxisAngleVU is declared angle-first, as for ThunderBoltUpdateStrip. */
 #pragma push
 #pragma opt_loop_invariants on
 // Updates the orbiting thunder bolt: a spawn-state bolt picks an orbit through the VU0 matrix, a live bolt advances the orbit and rebuilds its strip.
@@ -805,10 +805,10 @@ void ThunderOrbitBoltUpdateStrip(u8 *arg0)
     extern f32 sqrtf(f32 arg0);
     extern f32 func_0044b938(f32 arg0);
     extern f32 func_0044b340(f32 arg0);
-    extern void func_004bd1a0(f32 arg0);
-    extern void func_004bd3c0(f32 arg0);
-    extern void func_004bd450(void);
-    extern void func_004bd380(f32 angle, f32 *axis);
+    extern void effMiscRotateXVU(f32 arg0);
+    extern void effMiscRotateYVU(f32 arg0);
+    extern void effMiscCombineRotationVU(void);
+    extern void effMiscAxisAngleVU(f32 angle, f32 *axis);
     extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff804c;
     extern f32 fGpffff8084;
@@ -937,9 +937,9 @@ void ThunderOrbitBoltUpdateStrip(u8 *arg0)
                 *(f32 *)(bolt + 0x2C) = *(f32 *)(config + 0x9C) * effMiscRandFloat(0);
             }
             *(f32 *)(bolt + 0x20) = twoPi * (two * (effMiscRandFloat(0) - half));
-            func_004bd1a0(*(f32 *)(bolt + 0x1C));
-            func_004bd3c0(*(f32 *)(bolt + 0x20));
-            func_004bd450();
+            effMiscRotateXVU(*(f32 *)(bolt + 0x1C));
+            effMiscRotateYVU(*(f32 *)(bolt + 0x20));
+            effMiscCombineRotationVU();
             angle = *(f32 *)(bolt + 0x28);
             point.lane[0] = radius * cosf(angle);
             point.lane[1] = zero;
@@ -994,9 +994,9 @@ void ThunderOrbitBoltUpdateStrip(u8 *arg0)
             orbit = t * (*(f32 *)(bolt + 0x24) + half * (spin * t));
             orbit += *(f32 *)(bolt + 0x28);
         }
-        func_004bd1a0(*(f32 *)(bolt + 0x1C));
-        func_004bd3c0(*(f32 *)(bolt + 0x20));
-        func_004bd450();
+        effMiscRotateXVU(*(f32 *)(bolt + 0x1C));
+        effMiscRotateYVU(*(f32 *)(bolt + 0x20));
+        effMiscCombineRotationVU();
         point.lane[0] = radius * cosf(orbit);
         point.lane[1] = zero;
         point.lane[2] = radius * sinf(orbit);
@@ -1111,14 +1111,14 @@ void ThunderOrbitBoltUpdateStrip(u8 *arg0)
 
                 nextAngle = thunderAdd(func_0044b938(rise / sqrtf(rise * rise + segmentLength * segmentLength)), shift);
             }
-            func_004bd380(angle, heading.lane);
+            effMiscAxisAngleVU(angle, heading.lane);
             effectVuLoad10(&delta);
             __asm__ volatile(
                 "vmulax.xyzw $ACC, $vf28, $vf10x\n"
                 "vmadday.xyzw $ACC, $vf29, $vf10y\n"
                 "vmaddz.xyzw $vf10, $vf30, $vf10z\n" : : : "$vf10");
             effectVuStore10(&step);
-            func_004bd380(drop, side.lane);
+            effMiscAxisAngleVU(drop, side.lane);
             effectVuLoad10(&delta);
             __asm__ volatile(
                 "vmulax.xyzw $ACC, $vf28, $vf10x\n"
@@ -1496,9 +1496,9 @@ void ThunderPairedGeometryDestroy(u8 *arg0)
 void ThunderPairedUpdateStrip(u8 *arg0)
 {
     extern void func_0048a1f0(f32 *arg0);
-    extern void func_004bceb0(void);
+    extern void effMiscBuildRotationVU(void);
     extern f32 sinf(f32 arg0);
-    extern void func_004bd380(f32 angle, f32 *axis);
+    extern void effMiscAxisAngleVU(f32 angle, f32 *axis);
     extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff8084;
     extern f32 fGpffff80d0;
@@ -1573,7 +1573,7 @@ void ThunderPairedUpdateStrip(u8 *arg0)
     __asm__ volatile("vsub.xyz $vf10, $vf0, $vf10" : : : "$vf10");
     effectVuStore10(&outerFlip);
     effectVuLoad10((EffectVuVector *)(arg0 + 0x10));
-    func_004bceb0();
+    effMiscBuildRotationVU();
     effectVuLoad10(&D_00713D00);
     __asm__ volatile(
         "vmulax.xyzw $ACC, $vf28, $vf10x\n"
@@ -1824,7 +1824,7 @@ void ThunderPairedUpdateStrip(u8 *arg0)
             }
             __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf12" : : : "$vf10");
             effectVuStore10(&step);
-            func_004bd380(swing * (two * (effMiscRandFloat(0) - half)), up.lane);
+            effMiscAxisAngleVU(swing * (two * (effMiscRandFloat(0) - half)), up.lane);
             effectVuLoad10(&step);
             __asm__ volatile(
                 "vmulax.xyzw $ACC, $vf28, $vf10x\n"

@@ -271,7 +271,7 @@ void func_001d5130(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
     extern f32 func_0044b950(f32 arg0, f32 arg1);
     extern s32 mdlCopyIndexedMatrix(u8 *arg0, s32 arg1, f32 *arg2);
     extern void func_0048a980(f32 *arg0);
-    extern void func_004bcf20(f32 arg0, f32 arg1, f32 arg2);
+    extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
 
     entry = arg2 + 8;
     type = *(u8 *)(arg2 + 8);
@@ -283,7 +283,7 @@ void func_001d5130(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
         if (frame.vector[2] == 0.0f)
             goto case0_zero;
 case0_nonzero:
-        func_004bcf20(0.0f,
+        effMiscEulerToQuatVU(0.0f,
                       func_0044b950(frame.vector[0], frame.vector[2]),
                       0.0f);
         __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(arg3) : "memory");

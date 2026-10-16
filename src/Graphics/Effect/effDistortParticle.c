@@ -21,7 +21,7 @@ extern s32 TnSlotObject(u16 param);
 extern void func_00492df0(void *arg0, void *arg1);
 extern void func_00492db0(void *arg0, void *arg1);
 extern void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, s32 arg6, s32 arg7);
-extern void func_004bceb0(void);
+extern void effMiscBuildRotationVU(void);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern f32 fGpffff8080;
 extern f32 fGpffff8098;
@@ -625,7 +625,7 @@ void DistortParticleProjectRecords(u8 *arg0, s32 arg1) {
             func_00492df0(temp_4, spB0);
             func_00492db0(*(u8 **)(arg0 + 0x5C), spC0);
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(spB0) : "$vf10", "memory");
-            func_004bceb0();
+            effMiscBuildRotationVU();
             __asm__ volatile("lqc2 $vf31, 0(%0)" : : "r"(spC0) : "$vf31", "memory");
             __asm__ volatile(
                 "sqc2 $vf28, 0(%0)     \n"

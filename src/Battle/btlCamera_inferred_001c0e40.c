@@ -44,7 +44,7 @@ struct RwMatrixTag {
     u32 pad3;
 };
 
-extern void func_004b3110(s32 arg0);
+extern void CrossfadeRequest(s32 arg0);
 extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);
 extern f32 fGpffff809c;
@@ -385,7 +385,7 @@ void btlCameraFrameRandomOrbit(u8 *camera, s32 unused)
     frames[0].pos.y = focus.y + y;
     frames[0].pos.z = focus.z + z;
     btlCameraLookAtQuat(&frames[0].rot, (f32 *)&frames[0], &focus, D_0060A0E0);
-    func_004b3110(8);
+    CrossfadeRequest(8);
     btlCameraClampOffsetToLimit((f32 *)&frames[0], (f32 *)&frames[0]);
     btlCameraClampOffsetToLimit((f32 *)&frames[1], (f32 *)&frames[1]);
     if (frames[0].pos.y < 25.0f) frames[0].pos.y = 25.0f;
@@ -559,7 +559,7 @@ void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused)
     btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24), (f32 *)&transition.frames[0].pos, (f32 *)&transition.frames[1].pos, 1);
     btlCameraSetDuration(iGpffffb3ac + 0x24, (f32)frameCount / 30.0f);
     if (notify != 0) {
-        func_004b3110(8);
+        CrossfadeRequest(8);
     }
 }
 
@@ -929,7 +929,7 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
     btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0].pos, (f32 *)&frames[1].pos, 1);
     btlCameraSetDuration(camera, extentScale);
     if (notify != 0) {
-        func_004b3110(8);
+        CrossfadeRequest(8);
     }
 }
 
@@ -966,7 +966,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
     extern u32 btlCameraClampOffsetToLimit(f32 *camera, f32 *notify);
     extern void btlMainCurveSetPoses(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);
     extern void btlCameraSetDuration(u8 *camera, f32 notify);
-    extern void func_004b3110(s32 camera);
+    extern void CrossfadeRequest(s32 camera);
     f32 top;
     RwV3d direction;
     RwV3d delta;
@@ -1295,7 +1295,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
         btlCameraSetTransitionDuration(camera, distance);
     }
     if (notify != 0) {
-        func_004b3110(8);
+        CrossfadeRequest(8);
     }
 }
 
@@ -1334,7 +1334,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
     extern void btlCameraSetupActionGeometry(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
     extern void btlMainCurveSetPoses(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);
     extern void btlCameraSetDuration(u8 *camera, f32 notify);
-    extern void func_004b3110(s32 camera);
+    extern void CrossfadeRequest(s32 camera);
     extern f32 fGpffff8030;
     extern f32 fGpffff803c;
     extern f32 fGpffff80f0;
@@ -1707,7 +1707,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
     btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(camera, duration);
     if (notify != 0) {
-        func_004b3110(8);
+        CrossfadeRequest(8);
     }
 }
 
@@ -2016,7 +2016,7 @@ void btlCameraFrameTargetPose(u8 *arg0, s32 arg1)
         poses.second.pos.z += direction.z;
         command = 3;
         if (*(s32 *)(*(u8 **)(arg0 + 0xE0) + 0x88) == 0) {
-            func_004b3110(8);
+            CrossfadeRequest(8);
         }
         duration = 1.5f;
     } else {
@@ -2228,7 +2228,7 @@ void btlCameraFrameFlagged(u8 *arg0, s32 arg1)
         frames[0].pos.y = focus.y + direction.y;
         frames[0].pos.z = focus.z + direction.z;
         btlCameraLookAtQuat(&frames[0].rot, &frames[0].pos, &focus, D_0060A0E0);
-        func_004b3110(8);
+        CrossfadeRequest(8);
         duration = 8.0f;
     } else {
         frames[0].pos = frames[1].pos;
@@ -2260,7 +2260,7 @@ void btlCameraFrameFlagged(u8 *arg0, s32 arg1)
             break;
         }
         btlCameraLookAtQuat(&frames[0].rot, &frames[0].pos, &focus, D_0060A0E0);
-        func_004b3110(8);
+        CrossfadeRequest(8);
     }
     btlCameraClampOffsetToLimit((f32 *)&frames[0], (f32 *)&frames[0]);
     btlCameraClampOffsetToLimit((f32 *)&frames[1], (f32 *)&frames[1]);
