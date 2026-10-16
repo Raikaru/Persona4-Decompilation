@@ -1907,7 +1907,7 @@ void btlMainWinInit(u8 *arg0) {
             rotation = *(struct CameraRotation *)D_0060A110;
         }
         func_003dc740((struct RtQuat *)&rotation, (const struct RwV3d *)D_0060A0E0, 180.0f, 2);
-        pkt = func_001ba710((f32 *)&rotation, 0);
+        pkt = btlQuatMatrixPacketCreate((f32 *)&rotation, 0);
         *(s16 *)(pkt + 0x48) = work->delay + 1;
         *(s64 *)(pkt + 0x60) = *(s64 *)base;
         btlPacketEnqueue(pkt, 1);
