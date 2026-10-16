@@ -407,7 +407,7 @@ u8 *btlUnitFindInSideById(s32 arg0, s32 arg1)
 /* measured: func_0019f050, func_0019f0f0, func_0019f5f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_0019EFE0
-u8 *func_0019efe0(s32 arg0)
+u8 *btlUnitFindById(s32 arg0)
 {
     u8 *packet;
     u8 *btl;
