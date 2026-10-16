@@ -36,7 +36,7 @@ extern u8 D_00713CD0[];
 extern void (*jtbl_008873EC[])(void *);
 extern u8 *func_00484570(u8 *arg0);
 extern void func_004846d0(u8 *arg0);
-extern u8 *func_00484830(u8 *arg0);
+extern u8 *mdlEffectCreateChildRecord(u8 *arg0);
 extern void mdlEffectDestroyWithNodes(void *arg0);
 extern u8 *GeometryCloneBlock(void *arg0);
 void ParticleAllocRecords(u8 *arg0, s32 arg1, void *arg2);
@@ -48,13 +48,13 @@ void ParticleSetTextureById(u8 *arg0, s32 arg1);
 void ParticleRebuildSubtypeChain(u8 *arg0, void *arg1);
 void ParticleRebuildSubtypeChainAlt(u8 *arg0, void *arg1);
 void ParticleSetAuxResource(u8 *arg0, s32 *arg1);
-extern void func_00484970(u8 *arg0);
-extern void func_00484a90(u8 *arg0, f32 arg1);
-extern void func_00484a40(u8 *arg0, void *arg1);
-extern void func_004849c0(u8 *arg0);
-extern void func_00485fe0(u8 *arg0);
-extern void func_00486400(u8 *arg0, f32 arg1);
-extern void func_004861f0(u8 *arg0, f32 *arg1);
+extern void mdlEffectStartChild(u8 *arg0);
+extern void mdlEffectScaleChild(u8 *arg0, f32 arg1);
+extern void mdlEffectUpdateChildData(u8 *arg0, void *arg1);
+extern void mdlEffectCommitChild(u8 *arg0);
+extern void mdlEffectStartChildren(u8 *arg0);
+extern void mdlEffectSetChildScales(u8 *arg0, f32 arg1);
+extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);
 extern void func_00485630(u8 *arg0);
 extern ParticleSnapshot mdlEffectLoadQuadB(s32 arg0, u32 *arg1);
 extern ParticleSnapshot mdlEffectLoadQuadA(s32 arg0, u32 *arg1);
@@ -315,7 +315,7 @@ void ParticleCopyModeFromSource(u8 *arg0, u8 *arg1)
         *(u8 **)(arg0 + 0x34) = *(u8 **)(arg0 + 0x38);
         for (i5 = 0; i5 < count5; i5++) {
             *(u8 **)(*(u8 **)(arg0 + 0x34) + i5 * 4) =
-                func_00484830(*(u8 **)(*(u8 **)(arg1 + 0x34)));
+                mdlEffectCreateChildRecord(*(u8 **)(*(u8 **)(arg1 + 0x34)));
         }
         break;
     }
@@ -492,7 +492,7 @@ void ParticleRebuildSubtypeChain(u8 *arg0, void *arg1)
         *(u8 **)(arg0 + 0x34) = *(u8 **)(arg0 + 0x38);
         *(u8 **)(*(u8 **)(arg0 + 0x34)) = func_00484570((u8 *)arg1);
         for (i = 1; i < count; i++) {
-            *(u8 **)(*(u8 **)(arg0 + 0x34) + i * 4) = func_00484830(*(u8 **)(*(u8 **)(arg0 + 0x34)));
+            *(u8 **)(*(u8 **)(arg0 + 0x34) + i * 4) = mdlEffectCreateChildRecord(*(u8 **)(*(u8 **)(arg0 + 0x34)));
         }
     }
 }
@@ -605,13 +605,13 @@ void ParticleUpdateScaled(u8* particle, f32 scale)
                     {
                         if (record->age == 0)
                         {
-                            func_00484970(*objects);
+                            mdlEffectStartChild(*objects);
                         }
                         if (record->age >= 0)
                         {
-                            func_00484a90(*objects, record->scale * scale);
-                            func_00484a40(*objects, record);
-                            func_004849c0(*objects);
+                            mdlEffectScaleChild(*objects, record->scale * scale);
+                            mdlEffectUpdateChildData(*objects, record);
+                            mdlEffectCommitChild(*objects);
                         }
                         index++;
                         record++;
@@ -672,9 +672,9 @@ void ParticleUpdateScaled(u8* particle, f32 scale)
                                          :
                                          : "r"(transformedPosition)
                                          : "$vf10", "memory");
-                        func_00484a90(*objects, record->scale * scale);
-                        func_00484a40(*objects, transformedPosition);
-                        func_004849c0(*objects);
+                        mdlEffectScaleChild(*objects, record->scale * scale);
+                        mdlEffectUpdateChildData(*objects, transformedPosition);
+                        mdlEffectCommitChild(*objects);
                     }
                     index++;
                     record++;
@@ -698,12 +698,12 @@ void ParticleUpdateScaled(u8* particle, f32 scale)
                     {
                         if (record->age == 0)
                         {
-                            func_00485fe0(*objects);
+                            mdlEffectStartChildren(*objects);
                         }
                         if (record->age >= 0)
                         {
-                            func_00486400(*objects, record->scale * scale);
-                            func_004861f0(*objects, (f32*)record);
+                            mdlEffectSetChildScales(*objects, record->scale * scale);
+                            mdlEffectSetChildPositions(*objects, (f32*)record);
                             func_00485630(*objects);
                         }
                         index++;
@@ -745,7 +745,7 @@ void ParticleUpdateScaled(u8* particle, f32 scale)
                 {
                     if (record->age == 0)
                     {
-                        func_00485fe0(*objects);
+                        mdlEffectStartChildren(*objects);
                     }
                     if (record->age >= 0)
                     {
@@ -769,8 +769,8 @@ void ParticleUpdateScaled(u8* particle, f32 scale)
                                          :
                                          : "r"(transformedPosition)
                                          : "$vf10", "memory");
-                        func_00486400(*objects, record->scale * scale);
-                        func_004861f0(*objects, (f32*)transformedPosition);
+                        mdlEffectSetChildScales(*objects, record->scale * scale);
+                        mdlEffectSetChildPositions(*objects, (f32*)transformedPosition);
                         func_00485630(*objects);
                     }
                     index++;
@@ -875,8 +875,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
     extern s32 func_00482790(u8 * *a, u32 b);
     extern void GeometryBlockSetPartState(u8 * a, s32 b);
     extern void GeometryBlockBindResource(u8 * a, s32 b);
-    extern void func_00484ae0(u8 * a, s32 b);
-    extern void func_00484a00(u8 * a);
+    extern void mdlEffectSetChildColor(u8 * a, s32 b);
+    extern void mdlEffectFlushChild(u8 * a);
     extern void mdlEffectApplyPackedColor(u8 * a, s32 b);
     extern void func_00485870(s32 a);
     extern s32 TnGetOffset1C(u16 a);
@@ -1414,8 +1414,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                                  : "+r"(colorWord), "=m"(packedColor)
                                  :
                                  : "$vf2", "$vf10", "memory");
-                func_00484ae0((u8*)*(s32*)emitterOrObjects, packedColor);
-                func_00484a00((u8*)*(s32*)emitterOrObjects);
+                mdlEffectSetChildColor((u8*)*(s32*)emitterOrObjects, packedColor);
+                mdlEffectFlushChild((u8*)*(s32*)emitterOrObjects);
             }
             effectIndex++;
             record += 0x20;

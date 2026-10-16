@@ -56,7 +56,7 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0048.c; members 00484830-00484ae0 */
 
 // FUN_00484830
-u8 *func_00484830(u8 *arg0)
+u8 *mdlEffectCreateChildRecord(u8 *arg0)
 {
     u32 temp_3;
     u16 temp_18;
@@ -89,7 +89,7 @@ code1_0048_after_check:
 }
 
 // FUN_00484970
-void func_00484970(u8 *arg0) {
+void mdlEffectStartChild(u8 *arg0) {
     void (*fn)(s32) = *(void (**)(s32))(D_0071349C + (*(u16 *)(arg0 + 4) << 6));
 
     if (fn != NULL) {
@@ -98,21 +98,21 @@ void func_00484970(u8 *arg0) {
 }
 
 // FUN_004849C0
-void func_004849c0(u8 *arg0)
+void mdlEffectCommitChild(u8 *arg0)
 {
     void (*fn)(s32) = *(void (**)(s32))(D_00713488 + (*(u16 *)(arg0 + 4) << 6));
     fn(*(s32 *)(arg0 + 8));
 }
 
 // FUN_00484A00
-void func_00484a00(u8 *arg0)
+void mdlEffectFlushChild(u8 *arg0)
 {
     void (*fn)(s32) = *(void (**)(s32))(D_0071348C + (*(u16 *)(arg0 + 4) << 6));
     fn(*(s32 *)(arg0 + 8));
 }
 
 // FUN_00484A40
-void func_00484a40(u8 *arg0, void *arg1) {
+void mdlEffectUpdateChildData(u8 *arg0, void *arg1) {
     void (*fn)(s32, void *) = *(void (**)(s32, void *))(D_007134A0 + (*(u16 *)(arg0 + 4) << 6));
     if (fn != NULL) {
         fn(*(s32 *)(arg0 + 8), arg1);
@@ -120,7 +120,7 @@ void func_00484a40(u8 *arg0, void *arg1) {
 }
 
 // FUN_00484A90
-void func_00484a90(u8 *arg0, f32 scale) {
+void mdlEffectScaleChild(u8 *arg0, f32 scale) {
     void (*fn)(s32, f32) = *(void (**)(s32, f32))(D_007134A8 + (*(u16 *)(arg0 + 4) << 6));
 
     if (fn != NULL) {
@@ -129,7 +129,7 @@ void func_00484a90(u8 *arg0, f32 scale) {
 }
 
 // FUN_00484AE0
-void func_00484ae0(u8 *arg0, s32 arg1) {
+void mdlEffectSetChildColor(u8 *arg0, s32 arg1) {
     void (*fn)(s32, s32) = *(void (**)(s32, s32))(D_007134B0 + (*(u16 *)(arg0 + 4) << 6));
     if (fn != NULL) {
         fn(*(s32 *)(arg0 + 8), arg1);

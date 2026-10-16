@@ -25,10 +25,10 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void func_004861f0(u8 *arg0, f32 *arg1);
+extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);
 extern void effMiscQuatMultiplyVU(void);
 extern void effMiscBuildRotationVU(void);
-extern void func_00486400(u8 *arg0, f32 arg1);
+extern void mdlEffectSetChildScales(u8 *arg0, f32 arg1);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
@@ -60,7 +60,7 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0048.c; members 00485b20-004865c0 */
 
 extern u_long128 func_00484b30(u8 *arg0);
-extern void func_00486330(u8 *arg0, u8 *arg1);
+extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
 extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 static inline void model_normalize_packed_color(const u32 *source, f32 scale)
 {
@@ -227,16 +227,16 @@ u8 *mdlEffectCloneWithNodes(u8 *arg0)
         *(s32 *)(clone + 0x80) += 1;
     }
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(&sp80) : "memory");
-    func_004861f0(clone, (f32 *)&sp80);
-    func_00486330(clone, (u8 *)&sp80);
-    func_00486400(clone, 1.0f);
+    mdlEffectSetChildPositions(clone, (f32 *)&sp80);
+    mdlEffectSetChildRotations(clone, (u8 *)&sp80);
+    mdlEffectSetChildScales(clone, 1.0f);
     mdlEffectApplyPackedColor(clone, -1);
     return clone;
 }
 
 /* measured: closes the propagation bracket; the file default is on. */
 // FUN_00485FE0
-void func_00485fe0(u8 *arg0) {
+void mdlEffectStartChildren(u8 *arg0) {
     u8 *n = *(u8 **)(arg0 + 0x8C);
     u8 *o;
     void (*fn)(s32);
@@ -253,7 +253,7 @@ void func_00485fe0(u8 *arg0) {
 }
 
 // FUN_00486060
-s32 func_00486060(u8 *arg0) {
+s32 mdlEffectChildrenAllDone(u8 *arg0) {
     s32 (*temp_2)(s32);
     s32 var_2;
     u8 *temp_4;
@@ -282,7 +282,7 @@ loop_00486060_check:
 }
 
 // FUN_004860F0
-s32 func_004860f0(u8 *arg0) {
+s32 mdlEffectAnyChildActive(u8 *arg0) {
     s32 (*temp_2)(s32);
     s32 var_2;
     u8 *temp_4;
@@ -311,7 +311,7 @@ loop_004860f0_check:
 }
 
 // FUN_00486180
-void func_00486180(u8 *arg0)
+void mdlEffectUpdateChildren(u8 *arg0)
 {
     u8 *var_16 = *(u8 **)(arg0 + 0x8C);
 
@@ -328,7 +328,7 @@ void func_00486180(u8 *arg0)
 }
 
 // FUN_004861F0
-void func_004861f0(u8 *arg0, f32 *arg1)
+void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1)
 {
     u_long128 sp50[4];
     u_long128 sp40;
@@ -412,7 +412,7 @@ loop_004861f0_check:
 }
 
 // FUN_00486330
-void func_00486330(u8 *arg0, u8 *arg1)
+void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1)
 {
     u_long128 scratch[2];
     u8 *temp_4;
@@ -449,11 +449,11 @@ loop_00486330_check:
     if (var_16 != NULL) {
         goto loop_00486330_body;
     }
-    func_004861f0(arg0, (f32 *)(arg0 + 0x40));
+    mdlEffectSetChildPositions(arg0, (f32 *)(arg0 + 0x40));
 }
 
 // FUN_00486400
-void func_00486400(u8 *arg0, f32 arg1)
+void mdlEffectSetChildScales(u8 *arg0, f32 arg1)
 {
     u_long128 sp50;
     u_long128 sp40;
