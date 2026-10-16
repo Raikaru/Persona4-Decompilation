@@ -100,7 +100,7 @@ extern s32 cldTimeChangeUpdate(u8 *arg0);
 extern s32 sdkSndFadeOutChannel(s32 arg0, s32 arg1);
 extern s32 sdkSndStopChannel(s32 arg0);
 extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
-extern s32 func_0025f110(u8 *arg0);
+extern s32 shdSpriteEnsureLoaded(u8 *arg0);
 extern u8 D_00638F90[];
 extern void cldTimeChangeQueueDraw(s32 arg0, u8 *arg1);
 extern char D_00637348[];
@@ -151,8 +151,8 @@ extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void mdlEffectEmitTagPair(void);
-extern s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2);
-extern void func_0025f620(f32, f32, f32, s32, u8, const char *, s32, s16, s16, Code1_0026Callback, u8 *);
+extern s32 shdSpriteEntryWidth(s32 arg0, s32 arg1, u8 *arg2);
+extern void shdSpriteDrawUniformNumber(f32, f32, f32, s32, u8, const char *, s32, s16, s16, Code1_0026Callback, u8 *);
 extern s32 frFontDataEntryClass(s64 arg0);
 // Intent: Sets the enable flag on the sdlScheduler task when it exists [inferred]
 // FUN_00260510
@@ -178,19 +178,19 @@ void sdlSchedulerDestroy(void)
         kwlnTaskDestroyWithHierarchy(temp_2);
     }
 }
-/* measured: declaring func_0025f430's halfword parameters as s16 reproduces
+/* measured: declaring shdSpriteDrawNowEx's halfword parameters as s16 reproduces
    retail's zero/pointer/constant/halfword setup order; object 88B, retail
    window 96B with zero tail, normalized_diff 0. */
-// Intent: Draws one character of a day number as a glyph (callback for the func_0025f620 text drawer; skips newline codes) [inferred]
+// Intent: Draws one character of a day number as a glyph (callback for the shdSpriteDrawUniformNumber text drawer; skips newline codes) [inferred]
 // FUN_002605A0
 void calDrawDayNumberGlyph(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * arg2, s32 arg3, s32 arg4, u8 * arg5)
 {
-    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     s8 temp_7;
 
     temp_7 = *(s8 *)(arg2 + arg3);
     if (temp_7 != 0xA) {
-        func_0025f430(fparg0, fparg1, fparg2, arg0, arg1, 0, temp_7, *(u8 **)(arg5 + 0x10), 1, *(s16 *)(arg5 + 0), *(s16 *)(arg5 + 2), *(f32 *)(arg5 + 4), *(f32 *)(arg5 + 8), *(f32 *)(arg5 + 0xC));
+        shdSpriteDrawNowEx(fparg0, fparg1, fparg2, arg0, arg1, 0, temp_7, *(u8 **)(arg5 + 0x10), 1, *(s16 *)(arg5 + 0), *(s16 *)(arg5 + 2), *(f32 *)(arg5 + 4), *(f32 *)(arg5 + 8), *(f32 *)(arg5 + 0xC));
     }
 }
 
@@ -198,7 +198,7 @@ void calDrawDayNumberGlyph(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1
  * struct copies; each loop's i = 0 precedes the invariant scale products,
  * which opt_loop_invariants hoists while the (s16) conversion of the second
  * product stays in the loop as in retail. The closing call's position
- * arguments are computed before its D_007612C4 products. func_0025f430's
+ * arguments are computed before its D_007612C4 products. shdSpriteDrawNowEx's
  * colour parameter is declared u32 here (H011): retail converts arg2 for each
  * call and keeps the per-case colour copies in $fp/$s7. */
 #pragma push
@@ -210,7 +210,7 @@ typedef struct { u32 w[48]; } TrailTable_00260600;
 // FUN_00260600
 void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6)
 {
-    extern s32 func_0025f430(f32, f32, f32, u32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, u32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern f32 cosf(f32);
     extern f32 sinf(f32);
     extern u8 D_00637440[];
@@ -251,11 +251,11 @@ void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s3
             fx = cosS + (47.0f + p[0]);
             fy = sinS + (52.0f + p[1]);
             entry3 = p[3];
-            func_0025f430((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
+            shdSpriteDrawNowEx((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
                           (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
                           entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
         }
-        func_0025f430((float)biasA + 34.0f * fparg1, (float)biasB + 36.0f * fparg2, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, fparg1, fparg2);
+        shdSpriteDrawNowEx((float)biasA + 34.0f * fparg1, (float)biasB + 36.0f * fparg2, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, fparg1, fparg2);
         break;
     case 1:
         biasA = (int)((float)arg0 - 41.0f * fparg1);
@@ -273,13 +273,13 @@ void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s3
             fx = cosS + (57.0f + p[0]);
             fy = sinS + (48.0f + p[1]);
             entry3 = p[3];
-            func_0025f430((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
+            shdSpriteDrawNowEx((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
                           (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
                           entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
         }
         fx = (float)biasA + 52.0f * fparg1;
         fy = (float)biasB + 38.0f * fparg2;
-        func_0025f430(fx, fy, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+        shdSpriteDrawNowEx(fx, fy, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
         break;
     case 2:
         biasA = (int)((float)arg0 - 12.0f * fparg1);
@@ -297,13 +297,13 @@ void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s3
             fx = cosS + (57.0f + p[0]);
             fy = sinS + (48.0f + p[1]);
             entry3 = p[3];
-            func_0025f430((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
+            shdSpriteDrawNowEx((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
                           (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
                           entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
         }
         fx = (float)biasA + 52.0f * fparg1;
         fy = (float)biasB + 38.0f * fparg2;
-        func_0025f430(fx, fy, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+        shdSpriteDrawNowEx(fx, fy, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
         break;
     }
 }
@@ -323,7 +323,7 @@ extern void calDrawHighlightTrail(s32 x, s32 y, f32 depth, s32 color, u8 alpha, 
 // FUN_00260E60
 void calDrawWeatherHighlight(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 variant, s32 highlight, f32 scaleX, f32 scaleY, s32 font, s32 setupStates)
 {
-    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     CalendarSparkleTable sparkle;
     CalendarSparkle *spot;
     s32 (**states)(RwRenderState state, void *value);
@@ -380,17 +380,17 @@ void calDrawWeatherHighlight(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 va
         }
         switch (variant) {
         case 0:
-            func_0025f430((f32)x, (f32)y, depth, color, alpha, 8, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            shdSpriteDrawNowEx((f32)x, (f32)y, depth, color, alpha, 8, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
             break;
         case 1:
             posX = ((f32)x + 0.0f) - 3.0f * scaleX;
             posY = (f32)(y - 4);
-            func_0025f430(posX, posY, depth, color, alpha, 7, 0, (u8 *)font, 0, 0, 0, 0.0f, 0.707f * scaleX, 0.707f * scaleY);
+            shdSpriteDrawNowEx(posX, posY, depth, color, alpha, 7, 0, (u8 *)font, 0, 0, 0, 0.0f, 0.707f * scaleX, 0.707f * scaleY);
             break;
         case 2:
             posX = ((f32)x + 0.0f) + 23.0f * scaleX;
             posY = (f32)(y + 27);
-            func_0025f430(posX, posY, depth, color, alpha, 7, 0, (u8 *)font, 0, 0, 0, 0.0f, 0.707f * scaleX, 0.707f * scaleY);
+            shdSpriteDrawNowEx(posX, posY, depth, color, alpha, 7, 0, (u8 *)font, 0, 0, 0, 0.0f, 0.707f * scaleX, 0.707f * scaleY);
             break;
         }
         break;
@@ -400,13 +400,13 @@ void calDrawWeatherHighlight(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 va
         }
         switch (variant) {
         case 0:
-            func_0025f430((f32)x, (f32)y, depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            shdSpriteDrawNowEx((f32)x, (f32)y, depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
             break;
         case 1:
-            func_0025f430((f32)x, (f32)y, depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            shdSpriteDrawNowEx((f32)x, (f32)y, depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
             break;
         case 2:
-            func_0025f430((f32)(x - 5), (f32)(y + 25), depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            shdSpriteDrawNowEx((f32)(x - 5), (f32)(y + 25), depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
             break;
         }
         break;
@@ -419,10 +419,10 @@ void calDrawWeatherHighlight(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 va
         switch (variant) {
         case 0:
             sparkle = *(CalendarSparkleTable *)D_006375C0;
-            func_0025f430((f32)x, (f32)y, depth, color, alpha, 10, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            shdSpriteDrawNowEx((f32)x, (f32)y, depth, color, alpha, 10, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
             for (i = 0; i < 30; i++) {
                 spot = &sparkle.offset[i];
-                func_0025f430((f32)(x - 10 + spot->x), (f32)(y - 12 + spot->y), depth, color, alpha, 9, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+                shdSpriteDrawNowEx((f32)(x - 10 + spot->x), (f32)(y - 12 + spot->y), depth, color, alpha, 9, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
             }
             break;
         case 1:
@@ -441,7 +441,7 @@ void calDrawWeatherHighlight(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 va
 #pragma opt_lifetimes on
 void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highlight, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipWidth, s32 font, s32 forcedHighlight)
 {
-    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     typedef signed __int128 s128;
     typedef union {
         struct { s32 x, y, width, height; } fields;
@@ -584,12 +584,12 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
         (*(void (**)(u32, u32))renderStates)(6, 1);
         (*(void (**)(u32, u32))renderStates)(7, 2);
         RpSkyRenderStateSet(3, (void *)(0x7000D));
-        func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
-        func_0025f430((f32)x + (9.0f * scaleX), (f32) (y + 4), 10.0f, backgroundColor, opacity, 0xD, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        shdSpriteDrawNowEx((f32)x + (9.0f * scaleX), (f32) (y + 4), 10.0f, backgroundColor, opacity, 0xD, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
         if (!(scaleX < 1.0f)) {
-            func_0025f430(((float)x + 70.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+            shdSpriteDrawNowEx(((float)x + 70.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
         } else {
-            func_0025f430(((float)x + 69.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+            shdSpriteDrawNowEx(((float)x + 69.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
         }
         cursor = (u8 *)(&sameOverlayColorScratch);
         remaining = 4;
@@ -621,12 +621,12 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
         (*(void (**)(u32, u32))renderStates)(7, 2);
         RpSkyRenderStateSet(3, (void *)(0x7000D));
         mdlEffectEmitMaskedTagPair();
-        func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
-        func_0025f430((f32)x + (9.0f * scaleX), (f32) (y + 4), 10.0f, backgroundColor, opacity, 0xD, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        shdSpriteDrawNowEx((f32)x + (9.0f * scaleX), (f32) (y + 4), 10.0f, backgroundColor, opacity, 0xD, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
         if (!(scaleX < 1.0f)) {
-            func_0025f430(((float)x + 70.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+            shdSpriteDrawNowEx(((float)x + 70.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
         } else {
-            func_0025f430(((float)x + 69.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+            shdSpriteDrawNowEx(((float)x + 69.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
         }
         mdlEffectEmitTagPair();
         cursor = (u8 *)(&sameFinishColorScratch);
@@ -736,7 +736,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     (*(void (**)(u32, u32))renderStates)(6, 1);
     (*(void (**)(u32, u32))renderStates)(7, 2);
     RpSkyRenderStateSet(3, (void *)(0x3000D));
-    func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 0xF, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+    shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 0xF, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
     cursor = (u8 *)(&currentOverlayColorScratch);
     remaining = 4;
     if (cursor != NULL) {
@@ -766,7 +766,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     (*(void (**)(u32, u32))renderStates)(7, 2);
     RpSkyRenderStateSet(3, (void *)(0x7000D));
     mdlEffectEmitMaskedTagPair();
-    func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 0xF, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+    shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 0xF, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
     mdlEffectEmitTagPair();
     cursor = (u8 *)(&currentFinishColorScratch);
     remaining = 4;
@@ -870,7 +870,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     (*(void (**)(u32, u32))renderStates)(6, 1);
     (*(void (**)(u32, u32))renderStates)(7, 2);
     RpSkyRenderStateSet(3, (void *)(0x3000D));
-    func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 1, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+    shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 1, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
     cursor = (u8 *)(&previousOverlayColorScratch);
     remaining = 4;
     if (cursor != NULL) {
@@ -900,7 +900,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     (*(void (**)(u32, u32))renderStates)(7, 2);
     RpSkyRenderStateSet(3, (void *)(0x7000D));
     mdlEffectEmitMaskedTagPair();
-    func_0025f430((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 1, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+    shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 1, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
     mdlEffectEmitTagPair();
     cursor = (u8 *)(&previousFinishColorScratch);
     remaining = 4;
@@ -961,7 +961,7 @@ static inline void calendarZeroBytes(void *memory, s32 count)
 // FUN_00262DE0
 void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite)
 {
-    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     struct CalendarGlyphContext {
         s16 offsetX, offsetY;
         f32 depthOffset, scaleX, scaleY;
@@ -1015,9 +1015,9 @@ void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f
     mdlEffectEmitMaskedTagPair();
     PrimDrawFlatRectangle(&depthValue, &clip, depth, 0);
     mdlEffectEmitTagPair();
-    glyphWidth = func_0025f2c0(1, 0, (u8 *)fontWord);
+    glyphWidth = shdSpriteEntryWidth(1, 0, (u8 *)fontWord);
     drawDepth = 1.0f + depth;
-    func_0025f430(((f32)x + 0.0f) + ((f32)glyphWidth / 2.0f) * (1.0f - scaleX), (f32)y, drawDepth, color, alpha, 1, weekday, (u8 *)fontWord, 1, 0, 0, 0.0f, scaleX, scaleY);
+    shdSpriteDrawNowEx(((f32)x + 0.0f) + ((f32)glyphWidth / 2.0f) * (1.0f - scaleX), (f32)y, drawDepth, color, alpha, 1, weekday, (u8 *)fontWord, 1, 0, 0, 0.0f, scaleX, scaleY);
     sprintf(number, &iGpffffa6c4, day);
     glyphContext.offsetX = 0;
     glyphContext.offsetY = 0;
@@ -1025,7 +1025,7 @@ void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f
     glyphContext.scaleX = scaleX;
     glyphContext.scaleY = scaleY;
     glyphContext.font = (u8 *)fontWord;
-    func_0025f620((f32)(x + 20), ((f32)y + 0.0f) + 19.0f * scaleY, drawDepth,
+    shdSpriteDrawUniformNumber((f32)(x + 20), ((f32)y + 0.0f) + 19.0f * scaleY, drawDepth,
                   color, alpha, number, 2, 31, 0, calDrawDayNumberGlyph, (u8 *)&glyphContext);
 }
 #pragma opt_propagation on
@@ -1114,7 +1114,7 @@ s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
         *(u32 *)temp_2 = 1;
         goto block_25;
     case 1:
-        if (func_0025f110((u8 *)*(s32 *)(temp_2 + 4)) != 0) {
+        if (shdSpriteEnsureLoaded((u8 *)*(s32 *)(temp_2 + 4)) != 0) {
             *(u32 *)temp_2 = 2;
             *(s32 *)(temp_2 + 0x14) =
                 cldDayChangeStartStateTask(arg0, *(s32 *)(temp_2 + 4),
@@ -1266,13 +1266,13 @@ void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfad
 /* banked 2026-09-18 B2: emitted 1028 vs retail 1021 (+0.7%, gate 991-1052), 915wd reloc-masked, fnalign 1091 edits +2 reloc-only, jal 63 vs 61. Restored missing case 7 (retail 0x164850-0x164B5C; loop skips 1 and 4, const-0xFF color, quotient staging in temp_f21 across calls); shared else48 via default-label goto (retail .L00264C10 shared by case 5 and 7; also fixes case-5-else arg4 0 to 1); call-idiom fix fparg0 0.0f and arg5 0 at 8 case-8 sites per retail f12 0 and the in-file 00263730 idiom; temp_20 s64 to s32 per retail addu. Baseline was archive262 at 914wd 695ed 808in. Recipe log: /var/tmp/cold263cb0b/NOTE_263cb0_round2.md. */
 /* 2026-09-18 opcode census: 915 -> 908.  The census showed `sd +42`, which
    is not a wide local - it is fourteen stack arguments stored 64 bits wide
-   because `func_0025f430` had no visible prototype here.  Every other caller
+   because `shdSpriteDrawNowEx` had no visible prototype here.  Every other caller
    in this file declares it at block scope; this body did not, so the
    arguments went through the default promotion.  Declaring
-   `extern s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32,
+   `extern s32 shdSpriteDrawNowEx(s32, s32, s32, s32, u8 *, s32, s32, s32, f32,
    f32, f32, f32, f32, f32)` - the signature `src/Event/Fcl/shdSprite.c`
    defines - is worth seven words.  Adding prototypes for `func_00263730`
-   and `func_0025f2c0` alongside does not compile; their block-scope
+   and `shdSpriteEntryWidth` alongside does not compile; their block-scope
    declarations elsewhere in this file disagree, which is its own finding. */
 /* 2026-09-19 hole/lump (fnalign without --quiet, opclass.py handoff 7t): before retail 1021 vs object 1000
    (inside 991-1052), fnalign 1014 edits +2 reloc-only, score 908wd (obj 4000B/window 4096B),
@@ -1281,7 +1281,7 @@ void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfad
    hole wants mtc1 5, mov.s 3, jal 2. Opclass before 38: mtc1 -22, lui +10, move +10,
    addiu -9, mov.s -7, dsll32 +6, sw -6, sd +6. Characterised as sign/zero-extension cascade
    from a too-wide local (f32 args promoted to f64: sd/dsll32/lui where retail wants mtc1/mov.s/sw),
-   not a switch chain, table-arithmetic, or struct copy. Fix: block-scope extern s32 func_0025f3f0
+   not a switch chain, table-arithmetic, or struct copy. Fix: block-scope extern s32 shdSpriteDrawNow
    (s32x6+f32x3) per src/Event/Fcl/shdSprite.c and extern void func_00263730(s32x5+u8*+f32) with u8*
    (not u32*) to match call sites without casts; prior note on non-compiling prototypes was file-scope,
    block-scope here does not conflict. After: same 1021 vs 1000, 999 edits +2 (-15), score 908 unchanged,
@@ -1332,8 +1332,8 @@ void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfad
 void calDrawDayStripCallback(s32 arg0, u8 *arg1)
 {
     typedef signed __int128 s128;
-    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
-    extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern void calDrawDayStrip(s32, s32, f32, u8, s32, s32, u8 *);
     u8 *temp_2;
     s32 temp_3;
@@ -1397,12 +1397,12 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
         temp_2_2 = *(s32 *)(temp_2 + 0x20);
         if (temp_2_2 < 5) {
             temp_f20 = sinf(fGpffff84a4 * ((f32)temp_2_2 / 5.0f));
-            temp_f0 = (f32)func_0025f2c0(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
+            temp_f0 = (f32)shdSpriteEntryWidth(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
             temp_f13 = 1.0f - temp_f20;
             temp_f13_2 = 88.0f + temp_f0 * temp_f13;
-            func_0025f430(temp_f13_2, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f20, 1.0f);
+            shdSpriteDrawNowEx(temp_f13_2, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f20, 1.0f);
         } else {
-            func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         }
         temp_3_2 = *(s32 *)(temp_2 + 0x20);
         if (temp_3_2 > 1) {
@@ -1415,18 +1415,18 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
     case 4:
     case 9:
         temp_17_2 = *(s32 *)(temp_2 + 0x18);
-        func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
         calDrawDayStrip(0, 0, 0.0f, 0xFF, temp_17_2, 0, temp_2);
         break;
     case 6:
         temp_17_5 = *(s32 *)(temp_2 + 0xC);
         if (*(s32 *)(temp_2 + 0x10) - temp_17_5 == 1) {
-            func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             calDrawDayStrip(-0x5E, 0, 0.0f, 0xFF, temp_17_5, 0, temp_2);
         } else {
             temp_17_6 = *(s32 *)(temp_2 + 0x18);
             temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
-            func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
             calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_17_6, 0, temp_2);
         }
         break;
@@ -1436,7 +1436,7 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
         if (temp_3_3 < 0xA) {
             temp_f0 = (f32)temp_3_3 / 10.0f;
             temp_21 = (s32)(255.0f * (1.0f - temp_f0));
-            func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             var_21 = 0;
             while (var_21 < 7) {
                 temp_20 = temp_3 - 1 + var_21;
@@ -1451,7 +1451,7 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
             temp_16_2 = *(s32 *)(temp_2 + 4);
             calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
         } else if (temp_3_3 < 0x19) {
-            func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             var_3 = &spE8;
             var_2 = 4;
             if (var_3 != NULL) {
@@ -1499,9 +1499,9 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
             temp_f20 = (f32)(temp_3_3 - 0x19) / 5.0f;
             temp_f0_2 = 1.0f - temp_f20;
             temp_17_9 = (s32)(255.0f * temp_f0_2);
-            temp_f0 = (f32)func_0025f2c0(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
+            temp_f0 = (f32)shdSpriteEntryWidth(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
             temp_f13 = 88.0f + temp_f0 * temp_f20;
-            func_0025f430(temp_f13, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f0_2, 1.0f);
+            shdSpriteDrawNowEx(temp_f13, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f0_2, 1.0f);
             var_3_3 = &spE0;
             var_2_3 = 4;
             if (var_3_3 != NULL) {
@@ -1556,12 +1556,12 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
             } else {
                 var_18 = -*(s32 *)(temp_2 + 0x1C);
             }
-            func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             calDrawDayStrip(var_18, 0, 0.0f, 0xFF, temp_17_3, 0, temp_2);
         } else {
             temp_16_2 = *(s32 *)(temp_2 + 0x18);
             temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
-            func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_16_2, 1, temp_2);
         }
         break;
@@ -1572,11 +1572,11 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
             temp_18_5 = calGetPackedDayEntry(temp_17_7 + 3, temp_17_7 + 1) & 0xFFFF;
             if (temp_18_4 == temp_18_5) {
                 temp_17_8 = *(s32 *)(temp_2 + 0x18);
-                func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+                shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
                 calDrawDayStrip(0, 0, 0.0f, 0xFF, temp_17_8, 0, temp_2);
             } else {
                 temp_17_9 = *(s32 *)(temp_2 + 0xC);
-                func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+                shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
                 temp_17_3 = 0;
                 while (temp_17_3 < 7) {
                     if ((temp_17_3 != 1) && (temp_17_3 != 4)) {
@@ -1607,7 +1607,7 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
         } else {
             temp_16_2 = *(s32 *)(temp_2 + 0x18);
             temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
-            func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
             calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_16_2, 1, temp_2);
         }
         break;

@@ -34,7 +34,7 @@ extern void shdDisableBlendFlag(void);
 extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 arg2, s32 arg3);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
-extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
+extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *arg0, void *arg1);
 extern u8 D_00795E60[];

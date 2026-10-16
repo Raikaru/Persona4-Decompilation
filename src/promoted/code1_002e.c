@@ -110,7 +110,7 @@ void fclObjStartAlpha(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5)
    happens when the two floats are arguments 2 and 3.  The EABI assigns integer
    and float arguments to their own register files, so this order compiles to
    the same object as the ints-first spelling (measured: identical bytes). */
-void func_002e0690(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg3)
+void fclObjStartUniformRevealScale(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg3)
 {
     fclSpriteStartRevealScale(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
 }
@@ -126,7 +126,7 @@ void fclObjStartRevealScale(u8 *arg0, f32 scale0, f32 scale1, f32 scale2, f32 sc
 #pragma push
 #pragma opt_propagation off
 // FUN_002E0700
-void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
+void fclObjStartSlideFade(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
                    s32 arg2, s32 arg3, s64 arg4)
 {
     f2 pos;
@@ -276,7 +276,7 @@ s32 fclBankManagerCreate(void)
     return *(s32 *)(temp + 0x24);
 }
 // FUN_002E0DA0
-s64 func_002e0da0(void)
+s64 fclBankTryQueueRequest(void)
 {
     return (s64)(fclBankQueueRequest() != 0) << 0x30 >> 0x30;
 }
@@ -316,7 +316,7 @@ s32 fclListAddUnique(u8 *arg0, s32 arg1) {
 /* measured: loop-invariant sentinel loads are hoisted to retail preheaders */
 #pragma opt_loop_invariants on
 // FUN_002E7010
-s32 func_002e7010(u8 *arg0, s16 arg1)
+s32 fclListRemoveId(u8 *arg0, s16 arg1)
 {
     u8 v2;
     s16 i;
@@ -543,7 +543,7 @@ s32 fclCalendarDay(void)
 
 
 // FUN_002E7920
-void func_002e7920(s32 *arg0, s32 *arg1)
+void fclCalGetNextDate(s32 *arg0, s32 *arg1)
 {
     s32 calGetMonthLength(s32 arg0);
     s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);

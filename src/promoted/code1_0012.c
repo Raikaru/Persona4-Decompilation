@@ -2062,7 +2062,7 @@ static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOff
 void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 drawMode, u8 *sceneContext)
 {
     extern void func_002aaf20(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
-    extern s32 func_0025f3f0(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha,
+    extern s32 shdSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha,
         s32 spriteIndex, s32 frame, u8 *sprites, s32 flags);
     extern void titleSkyApplyBasePreset(void);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
@@ -2189,7 +2189,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
     {
         u32 c = brightness & 0xFF;
         u32 rep = (c << 24) | (c << 16) | (c << 8) | 0xFF;
-        func_0025f3f0(-1.0f, -1.0f, 0.0f, rep >> 8, 0xFF, 0, 0, (u8 *)(*(s32 *)(sceneContext + 0x3C)), 0);
+        shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, rep >> 8, 0xFF, 0, 0, (u8 *)(*(s32 *)(sceneContext + 0x3C)), 0);
     }
     /* Preserve sequential byte stores while applying RGB brightness. */
     shadePalette = D_005E5530;
@@ -2233,7 +2233,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
     func_002aaf20(0.0f, 0.0f, 1.0f, (u8 *)color.bytes, 640.0f, 448.0f, 1, NULL);
 }
 #pragma pop
-extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
+extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
 extern void titleSkyApplyBasePreset(void);
 extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);
@@ -2304,7 +2304,7 @@ void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     }
 
     mdlEffectEmitMaskedTagPair();
-    func_0025f3f0(0.0f, 0.0f, fparg2, 0xFFFFFF, arg0 & 0xFF, 0x1000D, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 1);
+    shdSpriteDrawNow(0.0f, 0.0f, fparg2, 0xFFFFFF, arg0 & 0xFF, 0x1000D, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 1);
     mdlEffectEmitTagPair();
 
     i = 0;
@@ -2325,8 +2325,8 @@ void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
     PrimDrawTransformed(sp70, sp40, fparg2, 6, 4, 0, 0, 0,
                   -20.0f, 1.0f, 1.0f);
 }
-extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
-extern s32 func_0025f430(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5,
+extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
+extern s32 shdSpriteDrawNowEx(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5,
                          s16 arg6, s16 arg7, f32 farg3, f32 farg5, f32 farg4);
 
 extern void titleSkyApplyBasePreset(void);
@@ -2342,7 +2342,7 @@ static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *
 {
     f32 size = 64.0f * scale;
 
-    func_0025f430(x - size, y - size, 0.0f, color, 0x80, 0x1000F, 0, texture, 0, (s16)size, (s16)size, angle,
+    shdSpriteDrawNowEx(x - size, y - size, 0.0f, color, 0x80, 0x1000F, 0, texture, 0, (s16)size, (s16)size, angle,
                   scale, scale);
 }
 
@@ -2385,7 +2385,7 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
     fillColor = black;
     titleRectangle((u8 *)&fillColor, 0.0f, 0.0f, 0.0f, 640.0f, 480.0f, 0x12, NULL);
     mdlEffectEmitMaskedTagPair();
-    func_0025f3f0(0.0f, 0.0f, 0.0f, 0xFFFFFF, arg0 & 0xFF, 0x1000C, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 1);
+    shdSpriteDrawNow(0.0f, 0.0f, 0.0f, 0xFFFFFF, arg0 & 0xFF, 0x1000C, 0, (u8 *)(*(s32 *)(arg1 + 0x3C)), 1);
     mdlEffectEmitTagPair();
     mdlEffectEmitMaskedTagPair();
     p = (u8 *)&clear;
@@ -2433,7 +2433,7 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
    same defect as its 0x12A794 neighbour - retail's 0.25f normalization
    ((f32)(0x20<<16)+0.25f*(f32)((0x20-0x24)<<16)-(f32)0x28), (s32) compare, recomputed $3
    ((f32)$2+$f1), and 32.0f*((f32)$3/65535.0f)+327.0f madd for the first 0x10006
-   func_0025f3f0 call, which m2c had left as an empty if plus blend/0.0f args.  The 46
+   shdSpriteDrawNow call, which m2c had left as an empty if plus blend/0.0f args.  The 46
    dissolves into small register-color replaces; deficit_scan now reports only CROSS runs
    (2350 at 0x127930, 142 at 0x129E18, 48 at 0x12A6F8) with mtc1 +207/lui +108/sb +40.
    Prior stamp described 4348/4400 -1.2% deficit 52 (15 color channels + quantized factor;
@@ -2521,8 +2521,8 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern u8 D_005E5234[];
     extern u8 D_005E5238[];
     typedef union TitleRectangleWords { s128 bits; s32 words[4]; } TitleRectangleWords;
-    extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
-    extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern void titleSkyApplyBasePreset(void);
     extern void func_002ab380(f32 x, f32 y, f32 z, s32 color, s32 alpha, s32 mode, void *texture, s32 kind, void *extra);
     extern void func_002abb30(f32 x, f32 y, f32 z, s32 color, s32 alpha, f32 scale, s32 mode, u8 *object, void *extra);
@@ -2911,21 +2911,21 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
         taskView->timer = temp_16;
         if (temp_16 > 0x19) {
             if (temp_16 < 0x74) {
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x4C, 0, 0, taskView->sprites, 0);
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x4C, 0, 0, taskView->sprites, 0);
             } else if (temp_16 < 0xA1) {
                 temp_f20_2 = sinf((1.5707964f * (f32) (temp_16 - 0x73)) / 45.0f);
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (fGpffff822c + fGpffff8228 * (1.0f - temp_f20_2))), 0, 0, taskView->sprites, 0);
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (fGpffff822c + fGpffff8228 * (1.0f - temp_f20_2))), 0, 0, taskView->sprites, 0);
             } else {
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, taskView->sprites, 0);
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, taskView->sprites, 0);
             }
             /* Retail colors at sp+0x684 and sp+0x688 are distinct four-byte objects. */
             layerClearByte = layerColorSource.bytes;
@@ -3208,7 +3208,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f20_4)), 0, 0, taskView->sprites, 0);
+                shdSpriteDrawNow(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f20_4)), 0, 0, taskView->sprites, 0);
             }
             if (temp_16 == 0x55) {
                 func_0045ad50(2, H_Cdvd_LookupRequest(&D_005E56D0, &sp6B8), sp6B8);
@@ -3218,14 +3218,14 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
 temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
     /* ACC seed */;
                     temp_f14 = 0.0f;
-                    func_0025f430(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, 0xFFFFFFU, (u8)(255.0f * temp_f2), 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14, 1.0f, 1.0f);
+                    shdSpriteDrawNowEx(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, 0xFFFFFFU, (u8)(255.0f * temp_f2), 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14, 1.0f, 1.0f);
                 } else {
-                    func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
+                    shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
                 }
             }
             if ((temp_16 > 0xbb) && (temp_16 < 0xDF)) {
                 temp_f2_2 = 1.5707964f;
-                func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))))), 0x10009, 0, taskView->sprites, 1);
+                shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))))), 0x10009, 0, taskView->sprites, 1);
             }
             if (temp_16 < 0x74) {
                 var_3_12 = sp66C.bytes;
@@ -3258,9 +3258,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp350 = D_005E55A0;
                 PrimDrawFlatRectangle((u8 *)&sp618, titleCopyRect((u8 *)&sp370, (const u8 *)&sp350), 0.0f, 0);
                 mdlEffectEmitTagPair();
-                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
+                shdSpriteDrawNow(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
             } else {
-                func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
+                shdSpriteDrawNow(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
             }
             if (temp_16 < 0x56) {
                 var_3_14 = sp664.bytes;
@@ -3298,7 +3298,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x1000A, 0, taskView->sprites, 0);
+                shdSpriteDrawNow(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x1000A, 0, taskView->sprites, 0);
             } else if (temp_16 < 0x92) {
                 var_3_16 = sp65C.bytes;
                 var_2_13 = 4;
@@ -3336,7 +3336,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f22)), 0x1000A, 0, taskView->sprites, 0);
+                shdSpriteDrawNow(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f22)), 0x1000A, 0, taskView->sprites, 0);
             }
             if (temp_16 < 0x56) {
                 var_3_18 = sp654.bytes;
@@ -3449,11 +3449,11 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
 
                     temp_f2 = 1.0f - temp_f21_2;
                     temp_f21_2 = 255.0f * temp_f2;
-                    func_0025f430(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, (s16)size, (s16)size, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
+                    shdSpriteDrawNowEx(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, (s16)size, (s16)size, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
                 }
     /* ACC seed */;
                 temp_f16_2 = 1.3f;
-                func_0025f430(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, 0x6B, 0xE6, -51.0f + 60.0f * temp_f20_5, temp_f16_2, temp_f16_2);
+                shdSpriteDrawNowEx(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, 0x6B, 0xE6, -51.0f + 60.0f * temp_f20_5, temp_f16_2, temp_f16_2);
             }
         }
         if (temp_16 < 0x19) {
@@ -3544,10 +3544,10 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             var_3_30 = 0x14;
         }
         fadeT = (f32) var_3_30 / 20.0f;
-        func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
+        shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
         RpSkyRenderStateSet(3, (void *)0x50003);
         RpSkyRenderStateSet(2, 0x48);
-        func_0025f3f0(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, taskView->sprites, 0);
+        shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, taskView->sprites, 0);
         sp694.value = fGpffff9c88;
         sp6BC = sp694;
         sp4E0 = *(TitleRect *)&D_005E5690;
@@ -3620,9 +3620,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             }
         }
         titleDrawScene(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
-        func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
-        func_0025f430(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, (u8)(255.0f * fadeT), 0x10007, 0, taskView->sprites, 1, 0, 0, 0.0f, 1.0f, 1.0f);
-        func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
+        shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
+        shdSpriteDrawNowEx(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, (u8)(255.0f * fadeT), 0x10007, 0, taskView->sprites, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        shdSpriteDrawNow(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
         break;
     case 8:
     case 9:
@@ -3718,7 +3718,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             var_2_30 = 5;
         }
         fadeT = (f32) var_2_30 / 5.0f;
-        func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - fadeT)), 0x10001, 0, taskView->sprites, 1);
+        shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - fadeT)), 0x10001, 0, taskView->sprites, 1);
         var_2_31 = (s32)(taskView->timer - 2);
         if (var_2_31 > 0) {
             if (var_2_31 > 2) {
@@ -3727,7 +3727,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             temp_f1_17 = (f32) var_2_31 / 5.0f;
             temp_f14_2 = 0.0f;
             temp_f16_3 = 0.87f;
-            func_0025f430(52.0f + 246.0f * (1.0f - temp_f1_17), 81.0f, temp_f14_2, 0xFFFFFFU, (u8)(255.0f * temp_f1_17), 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
+            shdSpriteDrawNowEx(52.0f + 246.0f * (1.0f - temp_f1_17), 81.0f, temp_f14_2, 0xFFFFFFU, (u8)(255.0f * temp_f1_17), 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
         }
         if (taskView->f28 != (taskView->f20 << 0x10)) {
     /* ACC seed */;
@@ -3755,10 +3755,10 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             temp_28 = (s32)((f32)temp_i28 + temp_f1_28);
         }
         temp_f13_28 = 32.0f * ((f32)temp_28 / 65535.0f) + 327.0f;
-        func_0025f3f0((f32) 0x18B, temp_f13_28, 0.0f, 0xFFFFFFU, 0xFF, 0x10006, 0, taskView->sprites, 1);
-        func_0025f3f0(414.0f, 330.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10003, 0, taskView->sprites, 1);
-        func_0025f3f0(444.0f, 362.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10004, 0, taskView->sprites, 1);
-        func_0025f3f0((f32) 0x193, 394.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10005, 0, taskView->sprites, 1);
+        shdSpriteDrawNow((f32) 0x18B, temp_f13_28, 0.0f, 0xFFFFFFU, 0xFF, 0x10006, 0, taskView->sprites, 1);
+        shdSpriteDrawNow(414.0f, 330.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10003, 0, taskView->sprites, 1);
+        shdSpriteDrawNow(444.0f, 362.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10004, 0, taskView->sprites, 1);
+        shdSpriteDrawNow((f32) 0x193, 394.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10005, 0, taskView->sprites, 1);
         break;
     case 10:
     case 11:
@@ -3871,7 +3871,7 @@ s32 func_0012aa70(u8 *task)
     extern u8 *H_Cdvd_AcquireDirectory(u8 *task, s32 arg1);
     extern s32 H_Cdvd_IsFileLoaded(void *task);
     extern u8 *sdkSpritePackCreate(u8 *task);
-    extern s32 func_0025f110(u8 *task);
+    extern s32 shdSpriteEnsureLoaded(u8 *task);
     extern s32 taskLoadSlotModels(u8 *task);
     extern s32 titleMusicStreamStep(u8 *task);
     extern s32 func_00124350(u8 *unusedWork);
@@ -3935,7 +3935,7 @@ s32 func_0012aa70(u8 *task)
         }
         break;
     case 3:
-        if ((func_0025f110(*(u8 **)(work + 0x3C)) != 0) && (taskLoadSlotModels(work) != 0)) {
+        if ((shdSpriteEnsureLoaded(*(u8 **)(work + 0x3C)) != 0) && (taskLoadSlotModels(work) != 0)) {
             *(s32 *)work = 4;
             hsndQueueSound(0x13, 0x1E);
         }
