@@ -437,7 +437,7 @@ void fclBustupObjStartPosition(u8 *arg0, F2_0033 p1, F2_0033 p2,
     fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
 }
 // FUN_0033D420
-void func_0033d420(u8 *arg0, F2_0033 p1, F2_0033 p2,
+void fclBustupObjStartPositionMode(u8 *arg0, F2_0033 p1, F2_0033 p2,
                    u32 arg3, s8 arg4, u32 arg5, s16 arg6)
 {
     u8 *p;
@@ -515,7 +515,7 @@ void fclBustupStartSlide(u8 *arg0)
  * Keep the input-Y snapshot and the real color/point object lifetimes.
  */
 // FUN_0033D630
-f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 highlight)
+f32 fclBustupDrawRotatingBand(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 highlight)
 {
     Color_0033 baseColor;
     Color_0033 highlightColor;
@@ -740,7 +740,7 @@ void fclBustupDraw(u8 *arg0)
                   1, 0, 0, 0.0f, 1.0f, 1.0f, D_007955C0);
 }
 // FUN_0033E540
-void func_0033e540(u8 *arg0, F2_0033 arg1, F2_0033 arg2, s16 arg3, s16 arg4)
+void fclCombineStartMove(u8 *arg0, F2_0033 arg1, F2_0033 arg2, s16 arg3, s16 arg4)
 {
     u8 *work;
 
