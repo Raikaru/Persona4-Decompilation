@@ -319,7 +319,7 @@ room_test:
 room_done:
     return found;
 }
-s32 func_0014cfd0(u8 *position);
+s32 FldEvent_IsCellOccupied(u8 *position);
 static inline u8 *fldChooseRandomSpawn(V3 *delta)
 {
     u32 count;
@@ -396,7 +396,7 @@ checked_party:
         s32 result;
         s32 yes;
 
-        result = func_0014cfd0(choice + 0x140);
+        result = FldEvent_IsCellOccupied(choice + 0x140);
         yes = 1;
         if (result == yes || rejected == yes) {
             goto retry;
@@ -1298,7 +1298,7 @@ primary_party_checked:
                 if (FldUnit_GetActiveCount() == 0) {
                     return fldChooseRandomSpawn(&primaryDelta);
                 }
-                if (func_0014cfd0(candidate + 0x140) == 1) {
+                if (FldEvent_IsCellOccupied(candidate + 0x140) == 1) {
                     candidate = *(u8 **)(candidate + 0x138);
                     continue;
                 }

@@ -249,7 +249,7 @@ extern s32 D_007642F0;
 
 extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *arg0, u8 *arg1);
-extern void func_0014d290(u8 *arg0, u8 *arg1);
+extern void FldEventDrawMarker(u8 *arg0, u8 *arg1);
 
 extern s32 func_0034c210(void);
 extern void func_0013fb50(u8 *arg0);
