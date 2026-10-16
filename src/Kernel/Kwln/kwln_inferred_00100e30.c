@@ -8,7 +8,7 @@ typedef struct RwImage RwImage;
 
 extern u8 *D_00764298;
 extern void func_004ccb38(s32 arg0);
-extern void func_00101350(void);
+extern void kwlnMainLoop(void);
 extern u8 D_00559810[];
 extern u8 D_00559820[];
 
@@ -68,10 +68,10 @@ extern f32 iGpffffba6c;
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void func_00100350(void);
 extern void func_00100670(void);
-extern void func_00100e60(void);
+extern void kwlnInitSubsystems(void);
 extern void RpRandomSeed(s32 arg0);
 extern void RpRandomSeedMT(s32 arg0);
-extern s32 func_00100e30(void);
+extern s32 kwlnEnableInterrupts(void);
 extern void mainDrawStartClearOt(void);
 extern void mainDrawStartFrame(void);
 extern void func_001028c0(void);
@@ -199,9 +199,10 @@ extern u8 iGpffff85d0;
 #pragma tailcall on
 /* measured: close tailcall bracket around func_00100218. */
 #pragma tailcall off
+// Intent: callback that calls func_004ccb38(0), then the sync and ei instructions to re-enable interrupts. Registered through func_00418b18.
 // FUN_00100E30
 /* measured: hardware barrier probe uses the required sync/ei instructions. */
-s32 func_00100e30(void)
+s32 kwlnEnableInterrupts(void)
 {
     func_004ccb38(0);
     __asm__ volatile (
@@ -223,8 +224,9 @@ s32 func_00100e30(void)
 /* measured: opt_common_subs off keeps each GP-anchor address materialized at its retail call site. */
 /* measured: func_00100e60 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
+// Intent: initialises the kwln subsystems: the active handle, the task and primitive pools, the CD streams and devices, the sound system and the table of active handles.
 // FUN_00100E60
-void func_00100e60(void)
+void kwlnInitSubsystems(void)
 {
     s32 one;
     sdkSetActiveHandle((s32)&scrReleaseActiveHandle);
@@ -245,7 +247,7 @@ void func_00100e60(void)
     func_004ca720();
     func_004d8c78();
     func_004cc200((s32)&func_00100e00, 0);
-    func_00418b18((s32)&func_00100e30);
+    func_00418b18((s32)&kwlnEnableInterrupts);
     D_00764D00[0] = 6;
     D_00764D04[0] = 4;
     D_00764D08[0] = 0x3D2;
@@ -316,8 +318,9 @@ void func_00100e60(void)
 
 /* measured: func_00101270 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs on
+// Intent: runs one frame of the kwln loop: updates CD requests, sprites, sound and pad, runs the task frame, then advances the frame counters. Returns 0 when the task frame is not ready.
 // FUN_00101270
-s32 func_00101270(void)
+s32 kwlnRunFrame(void)
 {
     s32 counter0;
     s32 counter1;
@@ -351,16 +354,17 @@ block_5:
     return 1;
 }
 
+// Intent: kwln main loop. Runs the init steps, seeds the random number generators from the boot seed, then runs frames forever.
 // FUN_00101350
-void func_00101350(void)
+void kwlnMainLoop(void)
 {
     func_00100350();
     func_00100670();
-    func_00100e60();
+    kwlnInitSubsystems();
     RpRandomSeed(*(u32 *)0x10000000);
     RpRandomSeedMT(*(u32 *)0x10000000);
 loop_1:
-    func_00101270();
+    kwlnRunFrame();
     goto loop_1;
 }
 
