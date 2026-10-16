@@ -7993,7 +7993,7 @@ void fclCombineMenuResult(u8 *arg0) {
     extern s32 fclCombineEventTaskCreate(u8 *, s8);
     extern void frFontExCopyString(void *, void *, s32);
     extern void fclCombineClearState(s32);
-    extern s32 func_00311900(s32);
+    extern s32 cmmCommunityName(s32);
     extern void fclDrawSetState(u8 *, s8);
     extern void fclCombineRollOutcomeList(u8 *);
     extern u8 D_00641B50[];
@@ -8263,7 +8263,7 @@ void fclCombineMenuResult(u8 *arg0) {
             *(s32 *)(p + 0x10) = cmmCommunityExpRemaining(v, yListSlotEntry(*(s8 *)(p + 0x2F9), *(s8 *)(p + 0x2FA)), 1);
             if (fclCombineCheckIds(arg0) == 1) {
                 *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
-                sprintf(spA0, (const char *)&iGpffffa8a4, func_00311900(cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2])));
+                sprintf(spA0, (const char *)&iGpffffa8a4, cmmCommunityName(cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2])));
                 frFontExCopyString(spA0, sp80, 0x20);
                 nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, sp80);
                 sprintf(spA0, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
