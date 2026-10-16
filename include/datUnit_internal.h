@@ -57,13 +57,31 @@ typedef struct DatCharRecord
     u8 unknown30[0x18]; // 0x30
 } DatCharRecord;
 
+/* One persona record (0x30 stride) of the roster and party slots. Roster flags at +0 (bit 0 active,
+   bit 4 lead boost), persona id at +2. Layout pinned by the datPersona.c accessors. */
+typedef struct DatPersonaRecord
+{
+    u16 flags;               // 0x00. Bit 0 active. A roster rebuild keeps bits 2 and 3 (0xC) and sets bit 0.
+    u16 id;                  // 0x02
+    u8 level;                // 0x04. Also the ranking key of roster slot arg0.
+    u8 unknown05;            // 0x05. Set from the level-table row at load [inferred: growth index].
+    u8 unknown06[2];         // 0x06..0x07
+    s32 exp;                 // 0x08. Experience, added to by datPersonaAddExp.
+    u16 skills[8];           // 0x0C..0x1B. Skill slots, 0 when empty.
+    u8 stats[5];             // 0x1C..0x20. Battle stats in DatPersonaStat order.
+    s8 statBonusA[5];        // 0x21..0x25. Per-stat bonus summed into the totals.
+    s8 statBonusB[5];        // 0x26..0x2A. Second per-stat bonus summed into the totals.
+    u8 unknown2B;            // 0x2B
+    s32 unknown2C;           // 0x2C
+} DatPersonaRecord;
+
 /* One party slot (0x88 stride) of D_00796E50. Index arg0 - 2 for party id arg0 (2..10). */
 typedef struct DatPartySlot
 {
     u8 unknown00[4];         // 0x00
     DatCharRecord character; // 0x04. Saved to the save file as 0x48 bytes.
     u8 unknown4C[8];         // 0x4C
-    DatUnit personaRecord;   // 0x54. datPersonaGetRecord returns it as a u16 record (flags, id at +2).
+    DatPersonaRecord personaRecord; // 0x54. datPersonaGetRecord returns it as a u16 record (flags, id at +2).
     u8 unknown84[4];         // 0x84
 } DatPartySlot;
 
