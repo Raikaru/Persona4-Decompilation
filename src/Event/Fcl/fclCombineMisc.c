@@ -16,7 +16,7 @@ extern void *memset(void *dst, s32 value, u32 size);
 extern void datPersonaInitRecord(u8 *arg0, u16 arg1);
 extern u8 *iGpffffb3d4;
 extern char D_00642F30[];
-extern s32 func_00312220(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3);
+extern s32 fclFuseRecipeLookup(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3);
 extern u8 func_00311ea0(u8 *arg0, u8 *arg1, u8 *arg2);
 extern s32 func_003130e0(u32 arg0, s32 arg1, u16 *arg2);
 extern s32 datGetFlag(s32 id);
@@ -146,7 +146,7 @@ u8 func_00311ea0(u8 *arg0, u8 *arg1, u8 *arg2)
  * Ordinary s32 counters produce the quadword spill; persona/skill inputs
  * use the same halfword contracts as their providers and other callers. */
 // FUN_00312220
-s32 func_00312220(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3) {
+s32 fclFuseRecipeLookup(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3) {
     s32 count;
     s16 matched;
     s32 row;
@@ -251,7 +251,7 @@ s32 fclFusePair(u16 *output, u16 first, u16 second)
     pair[1] = second;
     if (output == NULL || first == 0 || second == 0)
         kAssertFail(D_00642F30, 0x1A1);
-    if (func_00312220(output, 0, pair, 2) & 0xFF)
+    if (fclFuseRecipeLookup(output, 0, pair, 2) & 0xFF)
         return 2;
     secondIndex = second * 14;
     arcana = iGpffffb3d4 + 2;
@@ -297,7 +297,7 @@ s32 fclFuseTriple(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     if (arg0 == NULL || arg1 == NULL || arg2 == NULL || arg3 == NULL) {
         kAssertFail(D_00642F30, 0x1CC);
     }
-    if (func_00312220(arg0, 1, sp78, 3) & 0xFF) {
+    if (fclFuseRecipeLookup(arg0, 1, sp78, 3) & 0xFF) {
         return 2;
     }
     t = func_00311ea0(arg1, arg2, arg3) & 0xFF;
@@ -465,7 +465,7 @@ static inline s32 fclSkillWeight(u16 *arg0, s32 id)
 #pragma push
 #pragma opt_loop_invariants on
 // FUN_00312C60
-s8 func_00312c60(u16 *arg0, u8 *arg1, s32 arg2)
+s8 fclFuseRollPersona(u16 *arg0, u8 *arg1, s32 arg2)
 {
     u8 *pool;
     s32 *weights;
