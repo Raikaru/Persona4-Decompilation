@@ -56,13 +56,13 @@ extern void func_002bb050(u8 param_1);
 extern void func_002bbf60(void);
 extern s32 func_002bb140(void);
 extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
-extern void func_0011bb90(u8 *arg0);
-extern void func_0011bc70(u8 *arg0);
+extern void shdPersonaStartSlideIn(u8 *arg0);
+extern void shdPersonaBeginClose(u8 *arg0);
 extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
-extern void func_0011c630(u8 *arg0);
-extern void func_0011c6e0(u8 *arg0, s32 arg1);
-extern void func_0011caf0(u8 *arg0);
+extern void shdPersonaBeginSelection(u8 *arg0);
+extern void shdPersonaEndSelection(u8 *arg0, s32 arg1);
+extern void shdPersonaStepSelectionCursor(u8 *arg0);
 extern void func_0011b360(u8 *arg0);
 extern void func_00453670(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_004538e0(u8 *buf, s32 a, s32 b, s32 c, s32 d);
@@ -201,7 +201,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                     s32 displayMode = 1;
                     func_0011b480(display, displayMode, (u32)*selected, 0);
                 }
-                func_0011bb90((u8 *)(*(s32 *)(state + 0x18)));
+                shdPersonaStartSlideIn((u8 *)(*(s32 *)(state + 0x18)));
                 *(s32 *)state = 3;
             } else {
                 func_00453670((u8 *)(buf), 0xC, *(s32 *)(state + 0x0C), row, scroll);
@@ -216,7 +216,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
         break;
     case 3:
         if (D_008C024E[0] & 0x40) {
-            func_0011bc70((u8 *)(*(s32 *)(state + 0x18)));
+            shdPersonaBeginClose((u8 *)(*(s32 *)(state + 0x18)));
             {
                 u8 *txt;
                 txt = datPersonaGetRow(*(u16 *)(((u8 **)(state + 0x4C))[*(s32 *)(state + 4) + *(s32 *)(state + 8)] + 2));
@@ -229,11 +229,11 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 func_0045af60(0, 4, 0, 1);
             }
         } else if (D_008C024E[0] & 0x20) {
-            func_0011bc70((u8 *)(*(s32 *)(state + 0x18)));
+            shdPersonaBeginClose((u8 *)(*(s32 *)(state + 0x18)));
             *(s32 *)state = 2;
             func_0045af60(0, 4, 0, 4);
         } else if (D_008C024E[0] & 0x80) {
-            func_0011c630((u8 *)(*(s32 *)(state + 0x18)));
+            shdPersonaBeginSelection((u8 *)(*(s32 *)(state + 0x18)));
             *(s32 *)state = 4;
         } else {
             func_00453670((u8 *)(buf), 0xC, *(s32 *)(state + 0x0C), row, scroll);
@@ -264,10 +264,10 @@ s32 btlShuffleResultOpen(u8 *arg0)
         break;
     case 4:
         if ((D_008C024E[0] & 0x80) || (D_008C024E[0] & 0x20)) {
-            func_0011c6e0((u8 *)(*(s32 *)(state + 0x18)), 1);
+            shdPersonaEndSelection((u8 *)(*(s32 *)(state + 0x18)), 1);
             *(s32 *)state = 3;
         } else if (D_008C024E[0] & 0x40) {
-            func_0011bc70((u8 *)(*(s32 *)(state + 0x18)));
+            shdPersonaBeginClose((u8 *)(*(s32 *)(state + 0x18)));
             {
                 u8 *txt;
                 txt = datPersonaGetRow(*(u16 *)(((u8 **)(state + 0x4C))[*(s32 *)(state + 4) + *(s32 *)(state + 8)] + 2));
@@ -305,7 +305,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 }
                 *(s32 *)state = 3;
             } else {
-                func_0011caf0((u8 *)(*(s32 *)(state + 0x18)));
+                shdPersonaStepSelectionCursor((u8 *)(*(s32 *)(state + 0x18)));
             }
         }
         break;

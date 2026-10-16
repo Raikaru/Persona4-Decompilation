@@ -57,12 +57,12 @@ extern s32 func_00314010(u8 *task);
 extern void func_003142f0(u8 *arg0);
 extern s32 datGetFlag(s32);
 extern s32 kwlnTaskIsLinked(void *);
-extern void func_0011d100(u8 *arg0, f32 *arg1);
+extern void shdPersonaSetOrigin(u8 *arg0, f32 *arg1);
 extern void func_0011b480(u8 *, s32, u32, s8);
-extern void func_0011bc70(u8 *arg0);
+extern void shdPersonaBeginClose(u8 *arg0);
 extern void func_0011c180(u8 *, s32, s32, s8);
 extern void func_0011c2c0(u8 *, s32, s32, s8);
-extern void func_0011bdc0(u8 *arg0);
+extern void shdPersonaStartSlideOut(u8 *arg0);
 extern void func_0011bf10(u8 *arg0);
 extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
 extern u8 *fclSpriteEntry(s16);
@@ -192,7 +192,7 @@ void fclDrawSetState(u8 *arg0, s8 arg1) {
     *(s8 *)(t + 0) = 0x10;
     if (arg1 == 1) {
         *(s8 *)(t + 0) = 0xF;
-        func_0011bc70((u8 *)*(u32 *)(t + 4));
+        shdPersonaBeginClose((u8 *)*(u32 *)(t + 4));
     }
 }
 
@@ -207,7 +207,7 @@ void fclDrawSetPlacement(u8 *arg0, s32 arg1, u8 arg2, s32 arg3) {
     *(s32 *)((u32)t + 8) = arg1;
     *(u8 *)((u32)t + 0xC) = arg2;
     *(u8 *)((u32)t + 0) = 0;
-    func_0011d100((u8 *)*(u32 *)((u32)t + 4), sp18);
+    shdPersonaSetOrigin((u8 *)*(u32 *)((u32)t + 4), sp18);
 }
 
 // Fcl draw placement (ex): as fclDrawSetPlacement with mode 8 and an extra value.
@@ -222,7 +222,7 @@ void fclDrawSetPlacementEx(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, s32 arg4) {
     *(s8 *)((u32)t + 0xC) = arg2;
     *(u8 *)((u32)t + 0) = 8;
     *(s32 *)((u32)t + 0x10) = arg3;
-    func_0011d100((u8 *)*(u32 *)((u32)t + 4), sp18);
+    shdPersonaSetOrigin((u8 *)*(u32 *)((u32)t + 4), sp18);
 }
 
 // Fcl draw slot: stores the value and mode, then sets the slot on the object (arg3 picks the variant).
@@ -276,7 +276,7 @@ void fclDrawResetScale(u8 *arg0) {
     u8 *t;
 
     t = *(u8 **)(arg0 + 0x38);
-    func_0011d100((u8 *)*(u32 *)(t + 4),
+    shdPersonaSetOrigin((u8 *)*(u32 *)(t + 4),
                   (p = (f32 *)&sp18, (sp18 = iGpffffa900, p)));
 }
 // Fcl draw handle value: sets the value on the object handle.
@@ -330,10 +330,10 @@ void fclDrawSetVisible(u8 *arg0, s8 arg1) {
     f32 *p;
 
     t = *(u8 **)(arg0 + 0x38);
-    func_0011d100((u8 *)*(u32 *)(t + 4),
+    shdPersonaSetOrigin((u8 *)*(u32 *)(t + 4),
                   (p = (f32 *)&sp38, (sp38 = iGpffffa908, p)));
     if (arg1 == 0) {
-        func_0011bdc0((u8 *)*(u32 *)(t + 4));
+        shdPersonaStartSlideOut((u8 *)*(u32 *)(t + 4));
     } else {
         func_0011bf10((u8 *)*(u32 *)(t + 4));
     }
