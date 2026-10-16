@@ -73,8 +73,9 @@ extern void func_004104d0(void);
 
 
 
+// Intent: Builds a panel's model matrix: aspect-corrected scale, a rotation from its quaternion, the translation, and the optional model transform [inferred]
 // FUN_0036ABD0
-void func_0036abd0(PanelMatrix* output, const PanelTransform* transform)
+void pscBuildModelMatrix(PanelMatrix* output, const PanelTransform* transform)
 {
     const PanelVec3* cameraScale;
     PanelMatrix* rotation;
@@ -153,8 +154,9 @@ void func_0036abd0(PanelMatrix* output, const PanelTransform* transform)
 
 
 
+// Intent: Copies a colour into the panel and sets its dirty flag (bit 2) so the colours are rewritten on the next draw [inferred]
 // FUN_0036ADC0
-void func_0036adc0(void* work, const u8* color)
+void pscPanelSetColor(void* work, const u8* color)
 {
     struct Color {
         u8 red;
@@ -174,8 +176,9 @@ void func_0036adc0(void* work, const u8* color)
     panel->flags |= 4;
 }
 
+// Intent: Writes one RGBA colour into the panel's four vertex colour blocks [inferred]
 // FUN_0036AE00
-void func_0036ae00(void* work, const u8* color)
+void pscPanelWriteVertexColors(void* work, const u8* color)
 {
     u8* panel = (u8*)work;
 
@@ -197,8 +200,9 @@ void func_0036ae00(void* work, const u8* color)
     panel[0x7b] = color[3];
 }
 
+// Intent: Draws a panel's grid: copies the eight corner vertices (rotating them 180 degrees when flag bit 0 is set), then draws the 0x138-index triangle list [inferred]
 // FUN_0036B470
-void func_0036b470(u32* work, const f32* vertices)
+void pscPanelDrawGrid(u32* work, const f32* vertices)
 {
     RwV3d axis;
     RwMatrix* matrix;

@@ -60,8 +60,8 @@ typedef struct
 
 extern void *func_003e0f80(void);
 extern void func_003e0f40(void *matrix);
-extern void func_0036abd0(void *output, void *transform);
-extern void func_0036ae00(void *work, const u8 *color);
+extern void pscBuildModelMatrix(void *output, void *transform);
+extern void pscPanelWriteVertexColors(void *work, const u8 *color);
 extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void func_00410420(void *vertices, u32 count, void *matrix, u32 stride);
 extern void func_00410520(u32 primitive, void *indices, u32 count);
@@ -75,7 +75,7 @@ extern s32 pscResGetMiscCardW00Raster(void);
 extern s32 pscResGetMiscCardW01Raster(void);
 extern s32 pscResGetMiscCardW00Texture(s32 arg0);
 extern s32 pscResGetMiscCardW00SubTexture(s32 arg0);
-extern void func_0036b470(void *work, void *vertices);
+extern void pscPanelDrawGrid(void *work, void *vertices);
 
 /* Floor: 759 differing words, 1099 emitted instructions against retail's
    1142 (4396 bytes in a 4576-byte window), frame -0x90 exact.  The 116
@@ -145,47 +145,47 @@ void pscModelDraw(PscModel *model)
         break;
     }
     mtx = func_003e0f80();
-    func_0036abd0(mtx, model);
+    pscBuildModelMatrix(mtx, model);
     if (model->flags & 4) {
-        func_0036ae00(e0work, model->color);
+        pscPanelWriteVertexColors(e0work, model->color);
         switch (model->mode) {
         case 0:
-            func_0036ae00(m0->u.m01.b0, model->color);
-            func_0036ae00(m0->u.m01.b1, model->color);
+            pscPanelWriteVertexColors(m0->u.m01.b0, model->color);
+            pscPanelWriteVertexColors(m0->u.m01.b1, model->color);
             *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
             alpha = model->color[3];
             alphaf = (f32)alpha;
             f = (30.0f * alphaf) / 100.0f;
             tmp[3] = (u8)f;
-            func_0036ae00(m0->u.m01.b2, tmp);
-            func_0036ae00(m0->u.m01.b3, tmp);
+            pscPanelWriteVertexColors(m0->u.m01.b2, tmp);
+            pscPanelWriteVertexColors(m0->u.m01.b3, tmp);
             *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
             f = 255.0f * m0->u.m01.b8[0].dir.y;
             tmp[3] = (u8)f;
-            func_0036ae00(m0->u.m01.b4, tmp);
+            pscPanelWriteVertexColors(m0->u.m01.b4, tmp);
             if (m0->u.m01.unk170 & 1) {
             *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
             tmp[0] = 0;
             tmp[1] = 0;
             tmp[2] = 0;
-            func_0036ae00(m0->u.m01.b5, tmp);
+            pscPanelWriteVertexColors(m0->u.m01.b5, tmp);
             } else {
-            func_0036ae00(m0->u.m01.b5, model->color);
+            pscPanelWriteVertexColors(m0->u.m01.b5, model->color);
             }
             if (m0->u.m01.unk170 & 1) {
             *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
             tmp[3] = 0;
-            func_0036ae00(m0->u.m01.b6, tmp);
+            pscPanelWriteVertexColors(m0->u.m01.b6, tmp);
             } else {
             *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
             f = 255.0f * m0->u.m01.b8[0].dir.x;
             tmp[3] = (u8)f;
-            func_0036ae00(m0->u.m01.b6, tmp);
+            pscPanelWriteVertexColors(m0->u.m01.b6, tmp);
             }
             break;
         case 1:
-            func_0036ae00(m1->u.m01.b1, model->color);
-            func_0036ae00(m1->u.m01.b0, model->color);
+            pscPanelWriteVertexColors(m1->u.m01.b1, model->color);
+            pscPanelWriteVertexColors(m1->u.m01.b0, model->color);
             *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
             tmp[0] = 0;
             tmp[1] = 0;
@@ -194,13 +194,13 @@ void pscModelDraw(PscModel *model)
             alphaf = (f32)alpha;
             f = m1->u.m01.b3[0].dir.y * (alphaf * m1->u.m01.b3[0].dir.x);
             tmp[3] = (u8)f;
-            func_0036ae00(m1->u.m01.b2, tmp);
+            pscPanelWriteVertexColors(m1->u.m01.b2, tmp);
             break;
         case 2:
-            func_0036ae00(m2->u.w170, model->color);
+            pscPanelWriteVertexColors(m2->u.w170, model->color);
             break;
         case 3:
-            func_0036ae00(m3->u.w170, model->color);
+            pscPanelWriteVertexColors(m3->u.w170, model->color);
             break;
         }
         model->flags &= ~4;
@@ -210,7 +210,7 @@ void pscModelDraw(PscModel *model)
         *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
         f = ((255.0f * m0->u.m01.b8[0].dir.y * (f32)(u32)model->color[3]) / 255.0f);
         tmp[3] = (u8)f;
-        func_0036ae00(m0->u.m01.b4, tmp);
+        pscPanelWriteVertexColors(m0->u.m01.b4, tmp);
         *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
         if (m0->u.m01.unk170 & 1) {
         tmp[3] = 0;
@@ -218,7 +218,7 @@ void pscModelDraw(PscModel *model)
         f = ((255.0f * m0->u.m01.b8[0].dir.x * (f32)(u32)model->color[3]) / 255.0f);
         tmp[3] = (u8)f;
         }
-        func_0036ae00(m0->u.m01.b6, tmp);
+        pscPanelWriteVertexColors(m0->u.m01.b6, tmp);
         break;
     }
     tbl = (void (**)(u32, u32))D_00887300;
@@ -385,7 +385,7 @@ void pscModelDraw(PscModel *model)
             RpSkyRenderStateSet(3, 0x71801);
             RpSkyRenderStateSet(2, 0x48);
         }
-        func_0036b470(model->unkDC, mtx);
+        pscPanelDrawGrid(model->unkDC, mtx);
     }
     func_003e0f40(mtx);
 }
