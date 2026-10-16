@@ -48,10 +48,10 @@ typedef struct {
 
 
 extern void evtDestroy(s32 arg0, s32 arg1);
-extern u8 *func_0028afe0(void);
+extern u8 *evtCreateEventState(void);
 extern s32 func_00285dd0(u8 *task);
 
-extern void func_0028ad90(u8 *arg0, s32 arg1);
+extern void evtDestroyEventScene(u8 *arg0, s32 arg1);
 extern void func_002865e0(UnkStruct_002865E0 *arg0);
 extern u8 *kwlnGetCamera(void);
 extern f32 K_View_GetFov(u8 *arg0);
@@ -172,7 +172,7 @@ s32 func_00285dd0(u8 *sdkTaskBytes) {
     case 2:
         *(s32 *)(data + 0x76C) = 3;
         if (*(s32 *)(data + 0x77C) == 0) {
-            func_0028ad90(data, (*(u32 *)data & 0x80000000) != 0);
+            evtDestroyEventScene(data, (*(u32 *)data & 0x80000000) != 0);
             func_002865e0((UnkStruct_002865E0 *)data);
             *(u32 *)data |= 1;
             *(f32 *)(data + 0x750) = K_View_GetFov(kwlnGetCamera());
@@ -308,7 +308,7 @@ s32 evtStart(s32 arg0, s32 arg1) {
     s32 *p;
     s32 task;
 
-    p = (s32 *)func_0028afe0();
+    p = (s32 *)evtCreateEventState();
     p[0x76C / 4] = 0;
     p[0x77C / 4] = arg0;
     if (arg0 != 0) {
