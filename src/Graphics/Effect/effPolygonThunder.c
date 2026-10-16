@@ -43,8 +43,9 @@ extern void func_00483490(void *a, u16 b);
  * 0 zero alignment bytes. Recompute each sample fade and
  * copy complete four-byte colors into the five-color row.
  * See docs/probe_archive/Thunder_constructors_20260924.md. */
+// Creates a thunder bolt geometry: recalculates opacity per sample and writes five-colour rows.
 // FUN_00495160
-u8 *func_00495160(u8 *parameters)
+u8 *ThunderGeometryCreate(u8 *parameters)
 {
     u32 rgb0;
     u32 rgb1;
@@ -153,8 +154,9 @@ u8 *func_00495160(u8 *parameters)
 #pragma pop
 
 
+// Frees each thunder geometry copy, then the block.
 // FUN_00495620
-void func_00495620(u8 *arg0)
+void ThunderGeometryDestroy(u8 *arg0)
 {
     u8 *obj;
     u8 **p;
@@ -186,8 +188,9 @@ void func_00495620(u8 *arg0)
 static inline f32 thunderAdd(f32 first, f32 second) { return first + second; }
 #pragma push
 #pragma opt_loop_invariants on
+// Rebuilds a live thunder bolt's strip: the first row across the travel direction, each further row along a sine-wave heading.
 // FUN_004956B0
-void func_004956b0(u8 *arg0)
+void ThunderBoltUpdateStrip(u8 *arg0)
 {
     extern void func_0048a1f0(f32 *arg0);
     extern void func_004bceb0(void);
@@ -463,8 +466,9 @@ advance:
 #pragma pop
 
 
+// Writes the thunder bolt colour rows from the bolt state (union colour pack).
 // FUN_00495F80
-void func_00495f80(u8 *arg0)
+void ThunderBoltWriteRows(u8 *arg0)
 {
     u8 *obj;
     u8 *ctrl;
@@ -600,8 +604,9 @@ void func_00495f80(u8 *arg0)
 
 
 
+// Seeds a thunder bolt's fade start and per-sample step, then gives each row a random counter.
 // FUN_004961F0
-void func_004961f0(u8 *arg0)
+void ThunderBoltInitFade(u8 *arg0)
 {
     u8 *obj0;
     u8 *obj1;
@@ -647,8 +652,9 @@ void func_004961f0(u8 *arg0)
  * 8 zero alignment bytes. Recompute each sample fade and
  * copy complete four-byte colors into the five-color row.
  * See docs/probe_archive/Thunder_constructors_20260924.md. */
+// Creates a padded thunder geometry: recalculates opacity per sample and emits eight zero alignment bytes.
 // FUN_00496340
-u8 *func_00496340(u8 *parameters)
+u8 *ThunderGeometryCreatePadded(u8 *parameters)
 {
     u32 rgb0;
     u32 rgb1;
@@ -757,8 +763,9 @@ u8 *func_00496340(u8 *parameters)
 #pragma pop
 
 
+// Frees each padded thunder geometry copy, then the block.
 // FUN_00496810
-void func_00496810(u8 *arg0)
+void ThunderPaddedGeometryDestroy(u8 *arg0)
 {
     u8 *obj;
     u8 **p;
@@ -779,17 +786,18 @@ void func_00496810(u8 *arg0)
 }
 
 
-/* Orbiting thunder bolt update, the func_004956b0 sibling. A bolt in its
+/* Orbiting thunder bolt update, the ThunderBoltUpdateStrip sibling. A bolt in its
  * spawn state picks an orbit and places its anchor through the VU0 matrix;
  * a live bolt advances the orbit, builds its first row across the travel
  * direction and steps each further row along the rotated travel vector,
  * whose length comes from VU0 vsqrt. The two 5-column loops use separate
  * counters. The spilled locals are declared in retail's spill-slot order.
- * func_004bd380 is declared angle-first, as for func_004956b0. */
+ * func_004bd380 is declared angle-first, as for ThunderBoltUpdateStrip. */
 #pragma push
 #pragma opt_loop_invariants on
+// Updates the orbiting thunder bolt: a spawn-state bolt picks an orbit through the VU0 matrix, a live bolt advances the orbit and rebuilds its strip.
 // FUN_004968A0
-void func_004968a0(u8 *arg0)
+void ThunderOrbitBoltUpdateStrip(u8 *arg0)
 {
     extern void func_0048a1f0(f32 *arg0);
     extern f32 sinf(f32 arg0);
@@ -1170,8 +1178,9 @@ advance:
 #pragma pop
 
 
+// Writes the orbiting thunder bolt colour rows from the bolt state (union colour pack).
 // FUN_00497460
-void func_00497460(u8 *arg0)
+void ThunderOrbitBoltWriteRows(u8 *arg0)
 {
     u8 *obj;
     u8 *ctrl;
@@ -1307,8 +1316,9 @@ void func_00497460(u8 *arg0)
 
 
 
+// Initialises each paired thunder state word to a random negative value from -1 to -4.
 // FUN_004976D0
-void func_004976d0(u8 *arg0)
+void ThunderPairedInitStates(u8 *arg0)
 {
     u32 *p;
     u32 count;
@@ -1333,8 +1343,9 @@ void func_004976d0(u8 *arg0)
  * Sample zero and odd samples calculate a new fade; the following even
  * sample reuses it. The five packed colors form one twenty-byte row.
  * See docs/probe_archive/Thunder_constructor_00497750_20260924.md. */
+// Creates a paired thunder geometry: makes the segment count odd, allocates the geometry copies and writes five-colour rows.
 // FUN_00497750
-u8 *func_00497750(u8 *parameters)
+u8 *ThunderPairedGeometryCreate(u8 *parameters)
 {
     u32 rgb0;
     u32 rgb1;
@@ -1449,8 +1460,9 @@ u8 *func_00497750(u8 *parameters)
 #pragma pop
 
 
+// Frees each paired thunder geometry copy, then the block.
 // FUN_00497C50
-void func_00497c50(u8 *arg0)
+void ThunderPairedGeometryDestroy(u8 *arg0)
 {
     u8 *obj;
     u8 **p;
@@ -1479,8 +1491,9 @@ void func_00497c50(u8 *arg0)
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
+// Updates the paired thunder strip: a row loop carries the tangent and position vectors and rebuilds each row.
 // FUN_00497CE0
-void func_00497ce0(u8 *arg0)
+void ThunderPairedUpdateStrip(u8 *arg0)
 {
     extern void func_0048a1f0(f32 *arg0);
     extern void func_004bceb0(void);
@@ -1895,8 +1908,9 @@ advance:
 #pragma pop
 
 
+// Writes the paired thunder colour rows from the strip state (union colour pack).
 // FUN_00498650
-void func_00498650(u8 *arg0)
+void ThunderPairedWriteRows(u8 *arg0)
 {
     u8 *obj;
     u8 *ctrl;
@@ -2032,8 +2046,9 @@ void func_00498650(u8 *arg0)
 
 
 
+// Returns the thunder texture for an index below five (asserts otherwise).
 // FUN_004988C0
-u8 *func_004988c0(u16 arg0, u8 *arg1)
+u8 *ThunderTextureForIndex(u16 arg0, u8 *arg1)
 {
     u8 *p;
     s32 size;
@@ -2065,8 +2080,9 @@ u8 *func_004988c0(u16 arg0, u8 *arg1)
 }
 
 
+// Resolves a thunder texture from an object: looks up the object's texture, then picks the entry by index.
 // FUN_00498A30
-void *func_00498a30(void *arg0)
+void *ThunderTextureForObject(void *arg0)
 {
     u8 *tex;
 
@@ -2075,7 +2091,7 @@ void *func_00498a30(void *arg0)
     {
         kAssertFail(D_00713E50, 0x6C9);
     }
-    tex = func_004988c0(*(u16 *)((u8 *)arg0 + 0xC), tex);
+    tex = ThunderTextureForIndex(*(u16 *)((u8 *)arg0 + 0xC), tex);
     if (tex == NULL)
     {
         kAssertFail(D_00713E50, 0x6CB);

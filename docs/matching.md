@@ -915,7 +915,7 @@ below are the codegen consequences.
     needs the product in a separately named local.
 
   **Lever: copy a quadword through `$2` when retail does (`func_00485630`,
-  `func_00485870`, `func_0048d8c0`, `func_0048cdf0`, `func_00497ce0`, MATCH
+  `func_00485870`, `func_0048d8c0`, `func_0048cdf0`, `ThunderPairedUpdateStrip` (was `func_00497ce0`), MATCH
   2026-10-09; user-approved).** b210 keeps `$v0` live from every call to the
   end of an `int` or `void` function (`.end gpr:r2`), so a C quadword copy
   after a call never uses `$v0`. Micro-tests of plain, struct, union and
@@ -925,7 +925,7 @@ below are the codegen consequences.
   `__asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(src) : "$2", "memory");`
   with a `/* lint: allow H009 -- ... */` waiver naming the retail address.
   The `$2` clobber also moves every value live across the copy up one
-  register, which is how it fixed `func_00497ce0`'s pointer temporaries, and
+  register, which is how it fixed `ThunderPairedUpdateStrip` (was `func_00497ce0`)'s pointer temporaries, and
   frees `$v0` before it for spill stores (`func_0048d8c0`). Memory of Alessa
   (Silent Hill 2, also MWCC) keeps the same copies as `vec_copy` helpers.
 
@@ -943,7 +943,7 @@ below are the codegen consequences.
   declaration does nothing (`func_00490c40`).
 
   **Lever: name a hoisted integer constant to order the preheader
-  (`func_00497ce0`).** With `opt_loop_invariants on`, a literal used in the
+  (`ThunderPairedUpdateStrip` (was `func_00497ce0`)).** With `opt_loop_invariants on`, a literal used in the
   loop is hoisted after the explicitly assigned constants. Retail
   materialised `-1` first, so the store uses a local `invalid` assigned
   before the float constants.

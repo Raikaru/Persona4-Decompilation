@@ -2835,7 +2835,7 @@ scratch (MIXED, 75).  Reordering blocks is finished as a strategy here.
 
 The RECOLOUR floors are the cheapest of the categories because the fix is
 named: `func_003694d0` (0.859), `func_001ed700` (0.827), `func_00207b00`
-(0.908), `func_0036ee60` (0.896), `func_00497ce0` (0.889), `FlashBoxEmitQuads` (was `func_0049fbf0`)
+(0.908), `func_0036ee60` (0.896), `ThunderPairedUpdateStrip` (was `func_00497ce0`) (0.889), `FlashBoxEmitQuads` (was `func_0049fbf0`)
 (0.862) and `FlashRotatingEmitQuads` (was `func_0049aa30`) (0.877).  (The list names seven functions against
 the table's six; the source records do not say which is extra.)
 
@@ -4883,7 +4883,7 @@ inner pragma winning.
 **Write `(f32)(u32)x` and let the compiler emit the conversion.** Retail's
 `bltz` / `srl 1` / `andi 1` / `or` / `mtc1` / `cvt.s.w` / `add.s` block is
 b210's unsigned-to-float idiom.  Hand-writing the halving and doubling
-produces ten extra copies of it: `func_00495160`'s `opclass` read
+produces ten extra copies of it: `ThunderGeometryCreate` (was `func_00495160`)'s `opclass` read
 `mtc1 +12, cvt +10, srl +10, andi +10, or +10, add.s +10, b +10, bltz +10`
 until the manual sequence was replaced by the cast.
 
