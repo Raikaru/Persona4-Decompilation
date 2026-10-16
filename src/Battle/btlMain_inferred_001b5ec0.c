@@ -498,9 +498,9 @@ void btlMainUnloadFieldScene(void)
 }
 
 // FUN_001B6A00
-void btlMainStepFieldSceneLoad(void)
+s32 btlMainStepFieldSceneLoad(void)
 {
-    fieldSceneLoadStep();
+    return fieldSceneLoadStep();
 }
 
 // FUN_001B6A20
