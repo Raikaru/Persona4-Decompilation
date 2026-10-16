@@ -158,7 +158,7 @@ extern f32 DAT_0076112c;
 
 extern void btlUnitClearModelState(u8 *arg0, s32 arg1);
 extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
-extern u8 *func_001f7650(u8 *arg0);
+extern u8 *btlSoundGetCharacterBank(u8 *arg0);
 
 
 
@@ -309,7 +309,7 @@ void btlUnitApplyModelState(u8 *arg0, s32 arg1)
             return;
         case 4:
             *(s32 *)(*(u8 **)(arg0 + 0xA00) + 0x2DC) =
-                (s32)func_001f7650(arg0);
+                (s32)btlSoundGetCharacterBank(arg0);
             temp_4_2 = *(u8 **)(arg0 + 0xA00);
             *(u16 *)(temp_4_2 + 0x2E0) |= 0x10;
             break;

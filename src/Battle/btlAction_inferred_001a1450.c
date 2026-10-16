@@ -2604,8 +2604,8 @@ void btlActionAttackUpdate(s64 *arg0_) {
     extern u8 *btlTargetCreateRecordPacket();
     extern u8 *btlTargetCreateTargetPacket();
     extern s32 btlSoundCanReceiveStatus();
-    extern void func_001f7830(u8 *unit, s32 hit, s32 paired, s16 *cue, s16 *variant);
-    extern void func_001f7910(u8 *unit, u32 hit, s32 paired, s16 *cue, s16 *variant);
+    extern void btlSoundGetPrimaryVoiceSlots(u8 *unit, s32 hit, s32 paired, s16 *cue, s16 *variant);
+    extern void btlSoundGetSecondaryVoiceSlots(u8 *unit, u32 hit, s32 paired, s16 *cue, s16 *variant);
     extern BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
     extern u8 *func_001f99c0(u8 *action, u16 voice, s32 option, s32 argument, s32 flags);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
@@ -3147,7 +3147,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
                     (*(s64 *)((u8 *)(cuePacketD) + (8))) = hitPacketUid;
                     btlPacketEnqueue(cuePacketD, 1);
                 }
-                func_001f7830(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
+                btlSoundGetPrimaryVoiceSlots(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
                 if ((hitCue >= 0) && (hitVariant >= 0)) {
                     cuePacketE = (u8 *)(btlSoundCreateChannelCuePacket(0xD, hitCue, hitVariant));
                     (*(s8 *)((u8 *)(cuePacketE) + (0))) = 5;
@@ -3188,7 +3188,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
                         btlPacketEnqueue(effectPacketF, 2);
                     }
                     if (actionFlagSaved == 0) {
-                        func_001f7910(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
+                        btlSoundGetSecondaryVoiceSlots(battleUnit, hitIndex, hasTargetFlags6, &hitCue, &hitVariant);
                         if ((hitCue >= 0) && (hitVariant >= 0)) {
                             cuePacketG = (u8 *)(btlSoundCreateChannelCuePacket(0xA, hitCue, hitVariant));
                             (*(s8 *)((u8 *)(cuePacketG) + (0))) = 5;
