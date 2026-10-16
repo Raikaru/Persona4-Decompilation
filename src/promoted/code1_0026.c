@@ -1778,6 +1778,7 @@ static inline const s32 *contourOutlineCount(const s32 *words, s32 shape)
 #pragma opt_common_subs off
 #pragma opt_propagation off
 #pragma pop
+// Left func_: three text setters that format DAT words (DAT_00796de0, DAT_00796e00) through func_0010d660/func_0010d6d0 with argument 1. No caller here names them, and the meaning of those words is not established.
 // FUN_0026FBA0
 s32 func_0026fba0(s32 arg0, u8 *arg1)
 {
