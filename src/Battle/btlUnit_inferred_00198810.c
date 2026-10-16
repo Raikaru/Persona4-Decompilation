@@ -8,11 +8,8 @@
 #include "btl_packet_create_internal.h"
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
-typedef struct RwV3d {
-    f32 x;
-    f32 y;
-    f32 z;
-} P4_95730_Vec3;
+#include "btl_unit_internal.h"
+typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
     f32 x;
     f32 y;
@@ -25,7 +22,6 @@ typedef struct P4_95730_Bytes4 {
     u8 z;
     u8 w;
 } P4_95730_Bytes4;
-typedef struct DatUnit DatUnit;
 
 extern f32 fGpffff8474;
 extern u8 D_005F6CA0[];
@@ -59,7 +55,6 @@ extern s32 iGpffffb280;
 extern u8 iGpffffa0a0;
 extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
-typedef struct RwV3d RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
@@ -183,9 +178,9 @@ extern u8 D_00794150[];
 /* measured: opt_propagation off preserves the COP1 chain's intermediate colouring. */
 /* measured: restore opt_propagation after func_00197a80 FPR temporary colouring probe. */
 // FUN_00198810
-s32 btlUnitGetMotionState(u8 *arg0) {
-    if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
-        return *(s16 *)(arg0 + 0x9DA);
+s32 btlUnitGetMotionState(BtlUnit *arg0) {
+    if ((arg0->flags2 & 2) != 0) {
+        return arg0->currentMotion;
     }
     return 0;
 }
@@ -193,19 +188,19 @@ s32 btlUnitGetMotionState(u8 *arg0) {
 // FUN_00198840
 /* Ported from P3FES btlUnit00282c60: the P4 genus/flag/value fields retain
    the donor layout at 0xA2/0x98/0x9DA, with the result comparing unk_9EC. */
-u32 btlUnitIsAtRestMotion(u8 *unit)
+u32 btlUnitIsAtRestMotion(BtlUnit *unit)
 {
     s16 val;
 
-    switch (*(u8 *)(unit + 0xA2)) {
+    switch (unit->genus) {
     case 0:
     case 1:
-        if ((*(s32 *)(unit + 0x98) & 2) != 0) {
-            val = *(s16 *)(unit + 0x9DA);
+        if ((unit->flags2 & 2) != 0) {
+            val = unit->currentMotion;
         } else {
             val = 0;
         }
-        return *(s16 *)(unit + 0x9EC) == val;
+        return unit->restMotion == val;
     }
 
     return 0;
@@ -214,15 +209,15 @@ u32 btlUnitIsAtRestMotion(u8 *unit)
 // FUN_001988B0
 /* Ported from P3FES btlUnit00282cd0: the P4 genus/flag/value fields retain
    the donor layout at 0xA2/0x98/0x9DA, with the result testing val == 1. */
-u32 btlUnitIsWalkingMotion(u8 *unit)
+u32 btlUnitIsWalkingMotion(BtlUnit *unit)
 {
     s16 val;
 
-    switch (*(u8 *)(unit + 0xA2)) {
+    switch (unit->genus) {
     case 0:
     case 1:
-        if ((*(s32 *)(unit + 0x98) & 2) != 0) {
-            val = *(s16 *)(unit + 0x9DA);
+        if ((unit->flags2 & 2) != 0) {
+            val = unit->currentMotion;
         } else {
             val = 0;
         }
