@@ -2599,7 +2599,7 @@ Blanket-sorting a switch that is ALREADY in the body is a loser, which is
 the other half of the same rule.  Seventy-two first-party floors carried a
 switch whose cases are not ascending; sorting the arms of the biggest ones
 (safe only where no arm falls through) measures `func_0027f6f0` 2392 ->
-2514, `func_002142b0` 809 -> 1135 and `func_00487fb0` 733 -> 733 - two
+2514, `func_002142b0` 809 -> 1135 and `ParticleProjectVertices` (was `func_00487fb0`) 733 -> 733 - two
 clear regressions and a tie, no wins.  Ascending order is what a *chain*
 should be converted into, not a property every switch should have.
 
@@ -2639,7 +2639,7 @@ one side only).  Run over all 34 floors under 60 edits:
 
 - 14 floors are pure rotation with **no** structural hunk - `func_001b11c0`,
   `func_0048a980`, `func_0034ddf0`, `func_0024be40`, `func_0048a460`,
-  `func_004b2a00`, `func_00331a20`, `func_00487c30`, `func_001b05d0`,
+  `func_004b2a00`, `func_00331a20`, `ParticleUpdateScaled` (was `func_00487c30`), `func_001b05d0`,
   `func_001dd920`, `func_0036d3e0` among them.  Those are banked; no source
   change reaches them.
 - 20 carry structure.  Ranked by structural hunks: `func_001c09b0` 14,
@@ -2743,7 +2743,7 @@ two, so most of that function's remaining distance is more of the same:
 
 On 2026-09-19, **18 first-party floors** in the worst 120 showed missing
 float saves, led by `func_0048ec50` (8 missing), `FunnelWindUpdateStrip` (was `func_004a2310`) (4),
-`func_004916f0` (4), `func_0048b9e0` (3), `func_0049d360` (3) and
+`func_004916f0` (4), `func_0048b9e0` (3), `FlashEvolvingRadialEmitDirectionalQuads` (was `func_0049d360`) (3) and
 `func_0048d8c0` (3).
 
 One caution, from the same function.  Folding two re-reads of `config + 212`
@@ -2781,7 +2781,7 @@ held in `$f30` across the `E4` call) from the reused `c` (retail keeps `D8` in
 `$f30`, the later `2*(b-0.5f)` vec value is a temporary). **392 -> 391 edits**
 (565 -> 572 words, object 606 -> 610 vs retail 606 -> 608, +0.3% inside
 590-626, frame 0x150 vs 0x140).
-- `func_0049d360` (3 missing `$f25-$f27` -> 2 `$f26-$f27`): fix `piVar16[2] =
+- `FlashEvolvingRadialEmitDirectionalQuads` (was `func_0049d360`) (3 missing `$f25-$f27` -> 2 `$f26-$f27`): fix `piVar16[2] =
 (s32)(scale*rand)` to `(s32)(f80d0*rand)` with `f80d0 = fGpffff80d0` hoisted
 (retail's `lwc1 $f25,-0x7F30($gp)` at R118, the body read the wrong gp slot),
 hoist `negOne = -1.0f` for the `*negOne` sign flip, and split `f78/f6c2/f64`
@@ -3059,7 +3059,7 @@ just a difference.
 and zero filled delay slots.**  Not a few, none.  The same held (2026-09-19)
 for every function that still had a floor: `func_00475cd0` has 179 branches
 and 179 empty slots, `func_004b1ad0` 76 and 76, `func_004a5fc0` 75 and 75,
-`func_0021a7b0` 49 and 49, `func_0049e150` 40 and 40, `func_00308f40` 97 and
+`func_0021a7b0` 49 and 49, `FlashTexturedEmitDirectionalQuads` (was `func_0049e150`) 40 and 40, `func_00308f40` 97 and
 97, `func_003599c0` 112 and 112.
 
 So `#pragma schedule on` cannot reproduce retail codegen in first-party code.
@@ -3073,7 +3073,7 @@ genuine instruction surplus:
 | `func_004b1ad0` | 802/796 "inside" | 909/796, **+14.2%** |
 | `func_004a5fc0` | 762/756 "inside" | 851/756, **+12.6%** |
 | `func_0021a7b0` | 418/427 "inside" | 460/428, **+7.5%** |
-| `func_0049e150` | 489/499 "inside" | 531/500, **+6.2%** |
+| `FlashTexturedEmitDirectionalQuads` (was `func_0049e150`) | 489/499 "inside" | 531/500, **+6.2%** |
 
 All five were inside the 3% gate only because of the pragma.  They were
 re-recorded as the out-of-gate floors they are, and the surplus has to be
@@ -3283,7 +3283,7 @@ scheduler floors.**  Not one was a source defect.
 The families, with representative functions:
 
 * **Saved-register exchange** - the same instructions against a swapped pair.
-  `func_00487c30` (49 edits, all `$s0`/`$s1`), `func_0024be40` (8 edits, all
+  `ParticleUpdateScaled` (was `func_00487c30`) (49 edits, all `$s0`/`$s1`), `func_0024be40` (8 edits, all
   `$s0`/`$s2`), `func_001b05d0`, `func_0036d3e0`, `func_004b2a00` (five `or`
   destinations `$v0`/`$v1`).  Declaration order, statement order, operand
   order, loop shape, `register`, and every pragma have been measured against
@@ -5629,7 +5629,7 @@ Known exact-looking candidates that remain rejected unless a defined, truthful s
 - `func_00458ce0`: exact candidate reads `current` when the loop may execute zero times.
 - `func_001d8cb0`: exact operand order compares an uninitialized best distance before the first-entry flag.
 - `func_00452870`: retail passes six bytes after initializing only two; the consumer reads all six.
-- `func_00486b00`: stored exact proof was invalidated by a current recompilation that produced a different 768-byte object.
+- `ParticleCreateFromSource` (was `func_00486b00`): stored exact proof was invalidated by a current recompilation that produced a different 768-byte object.
 
 The hardware-bound `func_0048a460`, `func_0048a980`, and `func_004ad030`
 floors are documented in the VU/COP2 section above. Do not return them to the

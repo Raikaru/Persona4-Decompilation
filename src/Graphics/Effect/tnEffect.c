@@ -33,7 +33,7 @@ typedef struct {
 s32 tmxUploadStream(u8 *arg0, s32 arg1);
 u8 *func_003ef2e0(u8 *arg0);
 void kAssertFail(const char *file, s32 line);
-void func_00488d70(u8 *arg0);
+void ParticleDrawBillboards(u8 *arg0);
 s32 func_004b0f70(void *arg0);
 s32 func_004b0fa0(void *arg0);
 void func_004aed70(void *arg0);
@@ -236,7 +236,7 @@ void func_00481740(void *arg0) {
 
 // FUN_004818A0
 void func_004818a0(void *arg0) {
-    func_00488d70((u8 *)arg0);
+    ParticleDrawBillboards((u8 *)arg0);
 }
 
 // FUN_004818C0

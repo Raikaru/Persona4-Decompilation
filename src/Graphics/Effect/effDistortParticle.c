@@ -235,7 +235,7 @@ void func_004afc80(u8 *arg0, u8 *arg1) {
 }
 
 /* func_004afe20, MATCH 2026-10-07. Rewritten from retail asm on the matched
-   effParticle sibling's pattern (func_00488d70): one 64-byte sky vertex quad,
+   effParticle sibling's pattern (ParticleDrawBillboards): one 64-byte sky vertex quad,
    per-channel unsigned colour conversions, and the projected-depth formula.
    The colour unpack asm names $2 and the COP2 pack stores the packed word to
    its frame slot (both user-approved VU0 forms). Retail returns nothing, so
