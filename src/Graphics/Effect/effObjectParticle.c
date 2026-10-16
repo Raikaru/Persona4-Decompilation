@@ -31,13 +31,14 @@ extern u8 *func_003c0f20(s32 arg0);
 extern void func_003e2ce0(s32 arg0, u32 arg1);
 extern void K_Clump_FreeTextureNameList(void *arg0);
 
-void func_004aea70(u8 *arg0, s32 arg1, s32 arg2);
+void ObjectParticleLoadClump(u8 *arg0, s32 arg1, s32 arg2);
 
-void func_004ae880(u8 *arg0, u8 *arg1);
-void func_004ae930(u8 *arg0, u32 arg1, u8 *arg2);
+void ObjectParticleShareClump(u8 *arg0, u8 *arg1);
+void ObjectParticleRebuildRecords(u8 *arg0, u32 arg1, u8 *arg2);
 
+// Creates an object particle from an effect source: sizes the record buffer from the source's count (capped at 100), copies its 0x44-byte header, rebuilds the records and loads the clump when the kind at +0x1C is 3 and the lookup returns one.
 // FUN_004AE460
-void *func_004ae460(void *opaqueSource)
+void *ObjectParticleCreateFromSource(void *opaqueSource)
 {
     u8 *arg0 = opaqueSource;
     s32 temp_2_3;
@@ -74,7 +75,7 @@ void *func_004ae460(void *opaqueSource)
         kAssertFail(D_00714520, 0xFF);
     }
     memcpy(temp_2 + 0x10, temp_2_2, 0x44);
-    func_004ae930(temp_2, *(u16 *)(arg0 + 0xC), temp_2_2 + 0x44);
+    ObjectParticleRebuildRecords(temp_2, *(u16 *)(arg0 + 0xC), temp_2_2 + 0x44);
     if (*(u32 *)(*(u8 **)(temp_2 + 0x58) + 8) == 0) {
         return temp_2;
     }
@@ -82,7 +83,7 @@ void *func_004ae460(void *opaqueSource)
     if (temp_2_3 != 0) {
         switch (*(u16 *)(arg0 + 0x1C)) {
         case 3:
-            func_004aea70(temp_2, temp_2_3, *(u32 *)(arg0 + 0x24));
+            ObjectParticleLoadClump(temp_2, temp_2_3, *(u32 *)(arg0 + 0x24));
             break;
         default:
             kAssertFail(D_00714520, 0x114);
@@ -93,8 +94,9 @@ void *func_004ae460(void *opaqueSource)
     return temp_2;
 }
 
+// Releases the particle's source block, clump, record table and the particle itself.
 // FUN_004AE650
-void func_004ae650(u8 *arg0)
+void ObjectParticleFree(u8 *arg0)
 {
     u32 temp_4;
     u32 temp_4_2;
@@ -115,8 +117,9 @@ void func_004ae650(u8 *arg0)
     jtbl_008873EC[0](arg0);
 }
 
+// Creates an object particle from a parent record: sizes the record buffer from the parent's block and shares its clump; asserts the parent block exists.
 // FUN_004AE6D0
-void *func_004ae6d0(void *opaqueSource)
+void *ObjectParticleCreateFromParent(void *opaqueSource)
 {
     u8 *arg0 = opaqueSource;
     u32 temp_3;
@@ -154,15 +157,16 @@ void *func_004ae6d0(void *opaqueSource)
         kAssertFail(D_00714520, 0x14C);
     }
     memcpy(temp_2 + 0x10, arg0 + 0x10, 0x44);
-    func_004ae930(temp_2, *(u16 *)(*(u8 **)(arg0 + 0x58) + 0), temp_17);
+    ObjectParticleRebuildRecords(temp_2, *(u16 *)(*(u8 **)(arg0 + 0x58) + 0), temp_17);
     if (*(u32 *)(*(u8 **)(temp_2 + 0x58) + 8) == 0) {
         return temp_2;
     }
-    func_004ae880(temp_2, arg0);
+    ObjectParticleShareClump(temp_2, arg0);
     return temp_2;
 }
+// Shares the clump of arg1 with arg0 after releasing arg0's own clump; asserts that the kind at +0xC of arg1 is 3.
 // FUN_004AE880
-void func_004ae880(u8 *arg0, u8 *arg1)
+void ObjectParticleShareClump(u8 *arg0, u8 *arg1)
 {
     u8 *temp_2;
 
@@ -182,8 +186,9 @@ void func_004ae880(u8 *arg0, u8 *arg1)
     *(u16 *)(arg0 + 0xC) = *(u16 *)(arg1 + 0xC);
 }
 
+// Rebuilds the source block for id arg1 with parameters arg2, then re-allocates the 0x18-byte record table and seeds each record through func_004ae0a0.
 // FUN_004AE930
-void func_004ae930(u8 *arg0, u32 arg1, u8 *arg2)
+void ObjectParticleRebuildRecords(u8 *arg0, u32 arg1, u8 *arg2)
 {
     u32 temp_16;
     u8 *var_19;
@@ -227,8 +232,9 @@ void func_004ae930(u8 *arg0, u32 arg1, u8 *arg2)
    472), no-op/cast argument expressions, named argument assignments,
    optimization_level 1, opt_propagation off, opt_common_subs off, and
    schedule on. */
+// Walks the resource records of the source until opcode 0: opcode 22 gathers the texture-name list, opcode 16 fetches the clump; the clump is stored at +0x54 with its atomic callback set.
 // FUN_004AEA70
-void func_004aea70(u8 *arg0, s32 arg1, s32 arg2) {
+void ObjectParticleLoadClump(u8 *arg0, s32 arg1, s32 arg2) {
     struct AeaWork { s32 code; u32 value; u8 pad8[0x18]; s32 in1; s32 in2; s32 outpad; s32 out; } work;
     s32 temp18; u8 *var17; u8 *var16;
     var17 = NULL; var16 = NULL; work.out = 0;
@@ -261,8 +267,9 @@ void func_004aea70(u8 *arg0, s32 arg1, s32 arg2) {
 
 
 
+// Releases the source block at +0x58 through func_00492d00 when one is set.
 // FUN_004AEC50
-void func_004aec50(u8 *arg0)
+void ObjectParticleReleaseSource(u8 *arg0)
 {
     u32 temp_4;
 
@@ -272,8 +279,9 @@ void func_004aec50(u8 *arg0)
     }
 }
 
+// Advances the record table: refreshes it through func_00492d10, then re-seeds each record whose source-side word at +0x10 is zero through func_004ae0a0.
 // FUN_004AEC80
-void func_004aec80(u8 *arg0)
+void ObjectParticleUpdateRecords(u8 *arg0)
 {
     s32 temp_16;
     s32 var_20;
@@ -337,8 +345,9 @@ typedef struct EffObjectMatrix {
  * aggregate store, which stops its CSE from folding the particle life reload
  * for func_004ae2f0 into the loop test, while keeping retail's lwc1/swc1
  * interleave. */
+// Draws the object particle's live records through RwMatrix transforms and the VU0 colour pack path, draws the clump atomics, and invokes TnInvokeCallback; colours are set through mdlEffectSetAllColors.
 // FUN_004AED70
-void func_004aed70(u8 *arg0)
+void ObjectParticleDraw(u8 *arg0)
 {
     extern u_long128 func_00492df0(int param_1, u32 *param_2);
     extern u_long128 func_00492db0(int param_1, u32 *param_2);

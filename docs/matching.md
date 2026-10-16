@@ -863,7 +863,7 @@ below are the codegen consequences.
   of the remaining guarded bodies found no other gain from it alone.
 
   **Lever: copy through one-element arrays to keep a reload
-  (`func_004aed70`, MATCH 2026-10-09; 8 edits → 0).** Retail copied the VU
+  (`ObjectParticleDraw` (was `func_004aed70`), MATCH 2026-10-09; 8 edits → 0).** Retail copied the VU
   result `D_00713D10/14/18` into `pos[3]` as three `lwc1`/`swc1` pairs and then
   *reloaded* the particle life word for `func_004ae2f0`. Plain element
   assignments let b210's CSE fold that reload into the loop test's load. A
