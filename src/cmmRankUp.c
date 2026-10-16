@@ -3222,9 +3222,9 @@ extern s32 func_002bb680();
 extern void func_002bb420();
 extern void func_002bb550();
 extern void func_002bbcf0(s32);
-extern s8 func_002bab80();
-extern s32 func_002badc0(s8 slot, s32 message);
-extern void func_002bae80();
+extern s8 nmMesWindowAcquire();
+extern s32 nmMesWindowShowSlotRecord(s8 slot, s32 message);
+extern void nmMesWindowShowSlotRecordStyle1();
 extern s32 func_00255ed0();
 extern s64 cmmCommunityArcana(s32 arg0);
 extern u8 *func_002438b0();
@@ -3441,14 +3441,14 @@ s32 func_0025b240(u8 *arg0) {
         goto tail;
     case 13:
         *(s32 *)(ctx + 4) = 0xE;
-        *(s8 *)(ctx + 0x3C) = func_002bab80(*(void **)(ctx + 0x38));
+        *(s8 *)(ctx + 0x3C) = nmMesWindowAcquire(*(void **)(ctx + 0x38));
         tmp4 = *(s32 *)(ctx + 0x1C);
         if (tmp4 == 0) {
             func_002bbd80(*(s8 *)(ctx + 0x3C), 0, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
             if (*(s32 *)(ctx + 0x18) == 7) {
-                func_002badc0(*(s8 *)(ctx + 0x3C), 0xC);
+                nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 0xC);
             } else {
-                func_002badc0(*(s8 *)(ctx + 0x3C), 2);
+                nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 2);
             }
         } else if (tmp4 == 10) {
             frFontExCopyString((char *)cmmNameRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
@@ -3458,11 +3458,11 @@ s32 func_0025b240(u8 *arg0) {
             func_002bbd80(*(s8 *)(ctx + 0x3C), 2, sp160);
             strcpy((char *)sp160, (char *)datPersonaGetRow(*(u16 *)(cmmPersonaRecord((s8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))) + 0x40)));
             func_002bbd80(*(s8 *)(ctx + 0x3C), 3, sp160);
-            func_002badc0(*(s8 *)(ctx + 0x3C), 4);
+            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 4);
         } else if (tmp4 == 11) {
-            func_002badc0(*(s8 *)(ctx + 0x3C), 5);
+            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 5);
         } else if (tmp4 == 12) {
-            func_002badc0(*(s8 *)(ctx + 0x3C), 6);
+            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 6);
         } else {
             if (iGpffffa664 != -1) {
                 hsndQueueSound((s16)iGpffffa664, 10);
@@ -3480,7 +3480,7 @@ s32 func_0025b240(u8 *arg0) {
             sprintf(sp160, &cGpffffa688, *(s32 *)(ctx + 0x1C));
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, sp160);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 2, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
-            func_002badc0(*(s8 *)(ctx + 0x3C), 3);
+            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 3);
         }
     case 14:
         if (func_002bb680(*(s8 *)(ctx + 0x3C)) == 0) {
@@ -3513,19 +3513,19 @@ s32 func_0025b240(u8 *arg0) {
             datSetFlag(unlockFlags.values[c - 2], 1);
             switch (c) {
             case 2:
-                func_002bae80(*(s8 *)(ctx + 0x3C), 0xD);
+                nmMesWindowShowSlotRecordStyle1(*(s8 *)(ctx + 0x3C), 0xD);
                 break;
             case 3:
-                func_002bae80(*(s8 *)(ctx + 0x3C), 0xE);
+                nmMesWindowShowSlotRecordStyle1(*(s8 *)(ctx + 0x3C), 0xE);
                 break;
             case 4:
-                func_002bae80(*(s8 *)(ctx + 0x3C), 0xF);
+                nmMesWindowShowSlotRecordStyle1(*(s8 *)(ctx + 0x3C), 0xF);
                 break;
             case 5:
-                func_002bae80(*(s8 *)(ctx + 0x3C), 0x10);
+                nmMesWindowShowSlotRecordStyle1(*(s8 *)(ctx + 0x3C), 0x10);
                 break;
             case 6:
-                func_002bae80(*(s8 *)(ctx + 0x3C), 0x11);
+                nmMesWindowShowSlotRecordStyle1(*(s8 *)(ctx + 0x3C), 0x11);
                 break;
             }
             *(s32 *)ctx &= ~0x20;
@@ -3538,30 +3538,30 @@ s32 func_0025b240(u8 *arg0) {
         func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
         switch (c) {
         case 2:
-            func_002badc0(*(s8 *)(ctx + 0x3C), 7);
+            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 7);
             break;
         case 3:
-            func_002badc0(*(s8 *)(ctx + 0x3C), 8);
+            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 8);
             break;
         case 4:
-            func_002badc0(*(s8 *)(ctx + 0x3C), 9);
+            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 9);
             break;
         case 5:
-            func_002badc0(*(s8 *)(ctx + 0x3C), 10);
+            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 10);
             break;
         case 6:
-            func_002badc0(*(s8 *)(ctx + 0x3C), 11);
+            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 11);
             break;
         case 7:
             skill = 0x113;
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1469));
-            func_002badc0(*(s8 *)(ctx + 0x3C), 0x12);
+            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 0x12);
             datPersonaAddSkill((u8 *)datPersonaGetRecord(5), 0x113);
             break;
         case 8:
             skill = 0x112;
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (void *)(iGpffffb448 + 0x1456));
-            func_002badc0(*(s8 *)(ctx + 0x3C), 0x13);
+            nmMesWindowShowSlotRecord(*(s8 *)(ctx + 0x3C), 0x13);
             datPersonaAddSkill((u8 *)datPersonaGetRecord(5), 0x112);
             break;
         case 9:

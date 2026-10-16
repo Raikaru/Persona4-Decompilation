@@ -93,8 +93,8 @@ extern u8 func_002e78a0(void);
 extern s32 func_002e78e0(void);
 extern s32 func_002be100(u8 arg0);
 extern u16 cmmCommunityRecordValue(s32 arg0);
-extern s8 func_002bab80(void *arg0);
-extern s32 func_002badc0(s8 arg0, s32 arg1);
+extern s8 nmMesWindowAcquire(void *arg0);
+extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
 extern s32 func_00106600(s16 arg0);
 extern s32 func_002bb680(s8 arg0);
 extern void func_002bbcf0(s32 arg0);
@@ -294,8 +294,8 @@ s32 func_00331a20(u8 *arg0)
     switch (*work) {
     case 0:
         if (datGetFlag(0x1C0) == 0) {
-            work[1] = func_002bab80(D_00645240);
-            func_002badc0(work[1], 0);
+            work[1] = nmMesWindowAcquire(D_00645240);
+            nmMesWindowShowSlotRecord(work[1], 0);
             (*work)++;
             datSetFlag(0x1C0, 1);
             return 0;
@@ -303,8 +303,8 @@ s32 func_00331a20(u8 *arg0)
         if ((cmmCommunityRecordValue(0x13) & 0xFFFF) == 6 || (cmmCommunityRecordValue(0x13) & 0xFFFF) == 7) {
             e = D_00645090 + ((cmmCommunityRecordValue(0x13) & 0xFFFF) - 6) * 0x10;
             if (datGetFlag(*(s32 *)(e + 12)) != 0 || *(s32 *)(e + 12) == 0) {
-                work[1] = func_002bab80(D_00645240);
-                func_002badc0(work[1], *(s16 *)e);
+                work[1] = nmMesWindowAcquire(D_00645240);
+                nmMesWindowShowSlotRecord(work[1], *(s16 *)e);
                 func_00106620(*(s16 *)(e + 2), ((func_00106600(*(s16 *)(e + 2)) & 0xFF) + 1) & 0xFF);
                 datSetFlag(*(s32 *)(e + 4), 1);
                 datSetFlag(*(s32 *)(e + 8), 0);
@@ -320,8 +320,8 @@ s32 func_00331a20(u8 *arg0)
             if (*(s16 *)entry != -1 && datGetFlag(*(s32 *)(entry + 12)) == 0 &&
                 (datGetFlag(*(s32 *)(entry + 4)) != 0 || *(s32 *)(entry + 4) == 0) && !(min > level_value) &&
                 !(max < level_value)) {
-                work[1] = func_002bab80(D_00645240);
-                func_002badc0(work[1], *(s16 *)entry);
+                work[1] = nmMesWindowAcquire(D_00645240);
+                nmMesWindowShowSlotRecord(work[1], *(s16 *)entry);
                 datSetFlag(*(s32 *)(entry + 12), 1);
                 (*work)++;
                 return 0;
@@ -340,8 +340,8 @@ s32 func_00331a20(u8 *arg0)
             max = (s16)(entry[11] + 100 * (func_002be100(entry[10]) & 0xFF));
             if (*(s16 *)entry != -1 && (datGetFlag(*(s32 *)(entry + 4)) != 0 || *(s32 *)(entry + 4) == 0) &&
                 !(min > level_value) && !(max < level_value)) {
-                work[1] = func_002bab80(D_00645240);
-                func_002badc0(work[1], *(s16 *)entry);
+                work[1] = nmMesWindowAcquire(D_00645240);
+                nmMesWindowShowSlotRecord(work[1], *(s16 *)entry);
                 (*work)++;
                 return 0;
             }

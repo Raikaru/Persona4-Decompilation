@@ -98,9 +98,9 @@ extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *directio
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void btlActionSetState(BtlAction *arg0, u16 arg1);
 extern void func_002bbcc0(void);
-extern s32 func_002bb600(void);
-extern s32 func_002bb140(void);
-extern void func_002bb380(void);
+extern s32 nmMesWindowCurrentOpenState(void);
+extern s32 nmMesWindowCurrentAnimFlag(void);
+extern void nmMesWindowReleaseCurrent(void);
 extern void func_002bb4e0(void);
 
 extern u8 *D_0076449C;
@@ -165,10 +165,10 @@ extern s32 func_001fab40(u8 *arg0);
 extern s32 func_001fab90(void);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
-extern u8 func_002baac0(u8 *message);
-void func_002bad10(u32 arg0);
-void func_002bb050(u32 arg0);
-void func_002baf40(u32 arg0);
+extern u8 nmMesWindowOpenCurrent(u8 *message);
+void nmMesWindowShowCurrentRecord(u32 arg0);
+void nmMesWindowSetCurrentFlag(u32 arg0);
+void nmMesWindowSetCurrentParam(u32 arg0);
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern void btlMainApplyUnitBaseColors(u8 *arg0);

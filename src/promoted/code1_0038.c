@@ -21,8 +21,8 @@ extern s32 datPersonaCountValidMembers(void);
 extern s32 datPersonaRosterCapacity(void);
 extern s32 datPersonaFindRosterRecordById(u16 arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
-extern void func_002bad10(s32 arg0);
-extern void func_002bbd20(s32 arg0, void *arg1);
+extern void nmMesWindowShowCurrentRecord(s32 arg0);
+extern void nmMesWindowSetCurrentString(s32 arg0, void *arg1);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern s32 btlShuffleDrawCheck(u8 *arg0, u8 *arg1);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
@@ -94,8 +94,8 @@ s32 func_00380980(u8 *arg0)
     extern s32 btlShuffleBuildRoster(s32 arg0, s32 *arg1);
     extern u8 *datPersonaGetRow(u16 arg0);
     extern u8 *datCalcGetIdRecord(s32 arg0);
-    extern s32 func_002bad10(s32 arg0);
-    extern void func_002bbd20(s32 arg0, void *arg1);
+    extern s32 nmMesWindowShowCurrentRecord(s32 arg0);
+    extern void nmMesWindowSetCurrentString(s32 arg0, void *arg1);
     extern void btlShuffleEffInitTrail(u8 *arg0, s32 arg1);
     extern void sprintf(void *arg0, const void *arg1, s32 arg2);
     extern s32 D_0064EB80[];
@@ -138,33 +138,33 @@ s32 func_00380980(u8 *arg0)
     if (output.active != 0) {
         flags = (s16 *)(D_0064EC30 + index * 2);
         if ((*flags & 1) != 0) {
-            func_002bbd20(0, datPersonaGetRow(output.value0));
+            nmMesWindowSetCurrentString(0, datPersonaGetRow(output.value0));
         }
         if ((*flags & 2) != 0) {
-            func_002bbd20(1, datCalcGetIdRecord(output.value1));
-            func_002bbd20(4, datCalcGetIdRecord(output.value2));
+            nmMesWindowSetCurrentString(1, datCalcGetIdRecord(output.value1));
+            nmMesWindowSetCurrentString(4, datCalcGetIdRecord(output.value2));
         }
         if ((*flags & 4) != 0) {
             sprintf(text, &iGpffffa9E8, (s16)output.value2);
-            func_002bbd20(2, text);
+            nmMesWindowSetCurrentString(2, text);
         }
         if ((*flags & 8) != 0) {
-            func_002bbd20(3, datPersonaGetRow(output.value2));
+            nmMesWindowSetCurrentString(3, datPersonaGetRow(output.value2));
         }
     } else {
-        func_002bad10(channel + 3);
+        nmMesWindowShowCurrentRecord(channel + 3);
         return 1;
     }
     if (*(s32 *)(state + 0x10) != 0) {
         entry = D_0064EB80 + index * 2;
         resource = *(u8 **)(base + 0x1F29C);
         btlShuffleEffInitTrail(resource, *entry);
-        func_002bad10(channel + 1);
+        nmMesWindowShowCurrentRecord(channel + 1);
     } else {
         entry = D_0064EB84 + index * 2;
         resource = *(u8 **)(base + 0x1F29C);
         btlShuffleEffInitTrail(resource, *entry);
-        func_002bad10(channel + 2);
+        nmMesWindowShowCurrentRecord(channel + 2);
     }
     return 1;
 }
@@ -214,18 +214,18 @@ s32 func_00380d80(u8 *arg0, s32 arg1)
     count1 = datPersonaCountValidMembers();
     count2 = datPersonaRosterCapacity();
     if (datPersonaFindRosterRecordById(arg1) != 0) {
-        func_002bad10(2);
+        nmMesWindowShowCurrentRecord(2);
         return 6;
     }
     if (count1 == count2) {
         memset(arg0 + 0x18, 0, 0x7C);
-        func_002bbd20(0, datPersonaGetRow(arg1));
-        func_002bad10(3);
+        nmMesWindowSetCurrentString(0, datPersonaGetRow(arg1));
+        nmMesWindowShowCurrentRecord(3);
         return 7;
     }
     datPersonaAddRosterMember((u16)arg1);
-    func_002bbd20(0, datPersonaGetRow(arg1));
-    func_002bad10(1);
+    nmMesWindowSetCurrentString(0, datPersonaGetRow(arg1));
+    nmMesWindowShowCurrentRecord(1);
     return 5;
 }
 // FUN_00383C00

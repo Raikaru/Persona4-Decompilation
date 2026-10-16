@@ -10,9 +10,9 @@ extern u32 DAT_00882F68_abs[];
 extern u8 DAT_00882F6C_abs[];
 extern u8 DAT_00882F6D_abs[];
 extern u8 *D_00882F40[];
-extern u8 *func_002bbf70(void);
-extern s32 func_002bbf80(s32* param_1, s32 param_2);
-extern void func_002bbdd0(int param_1);
+extern u8 *nmMesWindowCurrent(void);
+extern s32 nmMesWindowApplyStyle(s32* param_1, s32 param_2);
+extern void nmMesWindowSetCurrentRunning(int param_1);
 extern s32 itfMesWindowSetStyle(s32 arg0, s16 arg1);
 extern int itfMesWindowGetAnim(int param_1);
 
@@ -25,7 +25,7 @@ extern s8 iGpffffb578;
 
 
 // FUN_002BAA90
-void func_002baa90(int param_1)
+void nmMesWindowInitRecord(int param_1)
 
 {
 
@@ -62,7 +62,7 @@ void func_002baa90(int param_1)
 
 
 // FUN_002BAAC0
-u8 func_002baac0(u8* message)
+u8 nmMesWindowOpenCurrent(u8* message)
 {
     extern s32 itfMesWindowInstall(u8* message);
     s32* command;
@@ -77,11 +77,11 @@ u8 func_002baac0(u8* message)
         DAT_00882F6D_abs[0] = 1;
     }
 
-    command = (s32*)func_002bbf70();
+    command = (s32*)nmMesWindowCurrent();
     if (*command < 0)
     {
         *command = itfMesWindowInstall(message);
-        func_002bbf80(command, 0);
+        nmMesWindowApplyStyle(command, 0);
         return 1;
     }
 
@@ -95,7 +95,7 @@ u8 func_002baac0(u8* message)
 
 
 // FUN_002BB050
-void func_002bb050(u8 param_1)
+void nmMesWindowSetCurrentFlag(u8 param_1)
 
 {
 
@@ -103,7 +103,7 @@ void func_002bb050(u8 param_1)
 
   
 
-  lVar1 = func_002bbf70();
+  lVar1 = nmMesWindowCurrent();
 
   if (lVar1 == 0)
     return;
@@ -124,7 +124,7 @@ void func_002bb050(u8 param_1)
 
 
 // FUN_002BB0A0
-void func_002bb0a0(s64 arg0, s8 arg1)
+void nmMesWindowSetSlotFlag(s64 arg0, s8 arg1)
 {
     u8 *temp_4;
 
@@ -134,12 +134,12 @@ void func_002bb0a0(s64 arg0, s8 arg1)
     }
 }
 // FUN_002BB0E0
-u32 func_002bb0e0(void)
+u32 nmMesWindowCurrentAnim(void)
 
 {
   int *piVar1;
   u32 uVar2;
-  piVar1 = (int *)func_002bbf70();
+  piVar1 = (int *)nmMesWindowCurrent();
 
   if (piVar1 == 0) {
     uVar2 = 0xffffffffffffffff;
@@ -159,7 +159,7 @@ u32 func_002bb0e0(void)
 
 
 // FUN_002BB140
-s32 func_002bb140(void)
+s32 nmMesWindowCurrentAnimFlag(void)
 {
   s32 uVar1;
 
@@ -167,7 +167,7 @@ s32 func_002bb140(void)
 
   
 
-  lVar2 = func_002bbf70();
+  lVar2 = nmMesWindowCurrent();
 
   if (lVar2 == 0) {
 
@@ -192,7 +192,7 @@ s32 func_002bb140(void)
 
 
 // FUN_002BB1E0
-u32 func_002bb1e0(int param_1)
+u32 nmMesWindowCloseCurrent(int param_1)
 
 {
 
@@ -204,7 +204,7 @@ u32 func_002bb1e0(int param_1)
 
   
 
-  lVar2 = func_002bbf70();
+  lVar2 = nmMesWindowCurrent();
 
   if (lVar2 == 0) {
 
@@ -234,7 +234,7 @@ u32 func_002bb1e0(int param_1)
 
       itfMesWindowClear(*piVar3,0);
 
-      func_002bbdd0(1);
+      nmMesWindowSetCurrentRunning(1);
 
       *(u8 *)(piVar3 + 1) = 0;
 
@@ -257,12 +257,12 @@ u32 func_002bb1e0(int param_1)
 // measured target CSE probe
 #pragma optimization_level 1
 // FUN_002BB290
-s32 func_002bb290(s64 arg0, s32 arg1)
+s32 nmMesWindowCloseSlot(s64 arg0, s32 arg1)
 {
     extern void itfMesWindowSetState(s32 arg0, s8 arg1);
     extern void itfMesWindowRelease(s32 arg0);
     extern void itfMesWindowClear(s32 arg0, s32 arg1);
-    extern void func_002bbe90(s64 arg0, s32 arg1);
+    extern void nmMesWindowSetSlotRunning(s64 arg0, s32 arg1);
     u8 **temp_18;
     u8 *temp_2;
     s32 temp_4;
@@ -283,14 +283,14 @@ s32 func_002bb290(s64 arg0, s32 arg1)
     }
     temp_16 = (s32 **)&D_00882F40[(s8)arg0];
     itfMesWindowClear(**temp_16, 0);
-    func_002bbe90(arg0, 1);
+    nmMesWindowSetSlotRunning(arg0, 1);
     *(s8 *)((u8 *)*temp_16 + 4) = 0;
     return 1;
 }
 // measured target CSE probe
 #pragma optimization_level 2
 // FUN_002BB380
-u32 func_002bb380(void)
+u32 nmMesWindowReleaseCurrent(void)
 
 {
 
@@ -302,7 +302,7 @@ u32 func_002bb380(void)
 
   
 
-  lVar2 = func_002bbf70();
+  lVar2 = nmMesWindowCurrent();
 
   if (lVar2 == 0) {
 
@@ -328,7 +328,7 @@ u32 func_002bb380(void)
 
       itfMesWindowClear(*piVar3,0);
 
-      func_002bbdd0(1);
+      nmMesWindowSetCurrentRunning(1);
 
       *(u8 *)(piVar3 + 1) = 0;
 
@@ -349,13 +349,13 @@ u32 func_002bb380(void)
 
 
 // FUN_002BB600
-s32 func_002bb600(void)
+s32 nmMesWindowCurrentOpenState(void)
 {
   s32 uVar1;
   int *piVar2;
   u8 *lVar3;
 
-  lVar3 = func_002bbf70();
+  lVar3 = nmMesWindowCurrent();
   if (lVar3 == 0) {
     uVar1 = 0;
   }
@@ -389,7 +389,7 @@ done:
 
 
 // FUN_002BB700
-u32 func_002bb700(void)
+u32 nmMesWindowLatchAnimAux(void)
 
 {
 
@@ -403,7 +403,7 @@ u32 func_002bb700(void)
 
   
 
-  lVar3 = func_002bbf70();
+  lVar3 = nmMesWindowCurrent();
 
   if (lVar3 == 0) {
 
@@ -429,7 +429,7 @@ u32 func_002bb700(void)
 
     else {
 
-      p = func_002bbf70();
+      p = nmMesWindowCurrent();
 
       if (p == 0) {
 
@@ -468,7 +468,7 @@ u32 func_002bb700(void)
 
 
 // FUN_002BBD20
-void func_002bbd20(s32 param_1,void *param_2)
+void nmMesWindowSetCurrentString(s32 param_1,void *param_2)
 
 {
 
@@ -476,7 +476,7 @@ void func_002bbd20(s32 param_1,void *param_2)
 
   
 
-  lVar1 = func_002bbf70();
+  lVar1 = nmMesWindowCurrent();
 
   if (lVar1 != 0) {
 
@@ -495,18 +495,18 @@ void func_002bbd20(s32 param_1,void *param_2)
 
 
 // FUN_002BBDD0
-void func_002bbdd0(int param_1)
+void nmMesWindowSetCurrentRunning(int param_1)
 
 {
 
-  extern u8 *func_002bbf70(void);
+  extern u8 *nmMesWindowCurrent(void);
   u32 lVar1;
 
   u32 *puVar2;
 
   
 
-  lVar1 = (u32)func_002bbf70();
+  lVar1 = (u32)nmMesWindowCurrent();
 
   if (lVar1 != 0) {
 
@@ -549,7 +549,7 @@ void func_002bbdd0(int param_1)
 
 
 // FUN_002BBE90
-void func_002bbe90(s64 arg0, s32 arg1)
+void nmMesWindowSetSlotRunning(s64 arg0, s32 arg1)
 {
     u8 **temp_16;
     u8 *temp_3;
@@ -573,17 +573,17 @@ void func_002bbe90(s64 arg0, s32 arg1)
     }
 }
 // FUN_002BBF60
-void func_002bbf60(void)
+void nmMesWindowRequestRefresh(void)
 {
     iGpffffb578 = 1;
 }
 // FUN_002BBF70
-u8 *func_002bbf70(void)
+u8 *nmMesWindowCurrent(void)
 {
     return (u8 *)DAT_00882F60_abs;
 }
 // FUN_002BBF80
-s32 func_002bbf80(s32 *arg0, s32 arg1)
+s32 nmMesWindowApplyStyle(s32 *arg0, s32 arg1)
 {
     switch (arg1) {
     case 0:
@@ -599,7 +599,7 @@ s32 func_002bbf80(s32 *arg0, s32 arg1)
     return 0;
 }
 // FUN_002BC010
-void func_002bc010(int param_1,u8 *param_2)
+void nmMesWindowInstallHandle(int param_1,u8 *param_2)
 
 {
 
@@ -622,7 +622,7 @@ void func_002bc010(int param_1,u8 *param_2)
 
 
 // FUN_002BC060
-void func_002bc060(int param_1)
+void nmMesWindowReleaseHandle(int param_1)
 {
   s32 value;
 

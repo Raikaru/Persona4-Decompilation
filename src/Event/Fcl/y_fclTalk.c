@@ -12,8 +12,8 @@ extern char D_0064A030[];
 extern char D_0064A050[];
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 
-extern s8 func_002bab80(void *);
-extern s32 func_002badc0(s8, s32);
+extern s8 nmMesWindowAcquire(void *);
+extern s32 nmMesWindowShowSlotRecord(s8, s32);
 extern void func_002bbd80(s8, s32, void *);
 extern void *datGetItemNameId(s16);
 extern void frFontExCopyString(void *, void *, s32);
@@ -92,8 +92,8 @@ state_zero:
                 goto scan_next;
             }
             if (max >= level) {
-                work[1] = func_002bab80(D_00647EE0);
-                func_002badc0(work[1], *(s16 *)entry);
+                work[1] = nmMesWindowAcquire(D_00647EE0);
+                nmMesWindowShowSlotRecord(work[1], *(s16 *)entry);
                 (*work)++;
                 return 0;
             }
@@ -140,12 +140,12 @@ void func_00332370(u8 *arg0, s32 arg1, s32 arg2) {
     work = *(u8 **)(arg0 + 0x38);
     t = (s16)((arg2 & 0xFFF00) >> 8);
     if (arg2 == 0) {
-        *(work + 1) = func_002bab80(D_00645240);
+        *(work + 1) = nmMesWindowAcquire(D_00645240);
         func_002bbd80(*(work + 1), 0, datGetItemNameId(t));
-        func_002badc0(*(work + 1), 0x1E);
+        nmMesWindowShowSlotRecord(*(work + 1), 0x1E);
         return;
     }
-    *(work + 1) = func_002bab80(D_00645240);
+    *(work + 1) = nmMesWindowAcquire(D_00645240);
     func_002bbd80(*(work + 1), 0, datGetItemNameId(t));
     temp_2 = func_002be1b0((s16)arg1);
     if (temp_2 == 0xE) {
@@ -158,7 +158,7 @@ void func_00332370(u8 *arg0, s32 arg1, s32 arg2) {
         frFontExCopyString((void *)D_0064A078[0], sp40, 0x20);
         func_002bbd80(*(work + 1), 1, sp40);
     }
-    func_002badc0(*(work + 1), 0x1F);
+    nmMesWindowShowSlotRecord(*(work + 1), 0x1F);
 }
 
 // FUN_00332520
@@ -241,8 +241,8 @@ state_one_32520:
 
 state_two_32520:
     if (*(s32 *)(work + 0x1804) == 0) {
-        work[1] = func_002bab80(D_00645240);
-        func_002badc0(work[1], 0x1D);
+        work[1] = nmMesWindowAcquire(D_00645240);
+        nmMesWindowShowSlotRecord(work[1], 0x1D);
     } else {
         offset = (RpRandom() % *(s32 *)(work + 0x1804)) * 4;
         selected = *(s32 *)(offset + (u32)work + 4);

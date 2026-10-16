@@ -31,13 +31,13 @@ extern s32 func_002a2c70(u8 *arg0);
 extern s32 func_002a2ca0(u8 *arg0);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
-extern u8 func_002baac0(u8 *message);
-extern void func_002bad10(s32 arg0);
-extern void func_002baf40(s32 arg0);
-extern void func_002bb050(s32 arg0);
-extern s32 func_002bb0e0(void);
+extern u8 nmMesWindowOpenCurrent(u8 *message);
+extern void nmMesWindowShowCurrentRecord(s32 arg0);
+extern void nmMesWindowSetCurrentParam(s32 arg0);
+extern void nmMesWindowSetCurrentFlag(s32 arg0);
+extern s32 nmMesWindowCurrentAnim(void);
 extern void func_002bb4e0(void);
-extern s32 func_002bb600(void);
+extern s32 nmMesWindowCurrentOpenState(void);
 typedef struct P4_002aabf0_Work {
     f32 values[4];
     s32 pad80;
@@ -45,7 +45,7 @@ typedef struct P4_002aabf0_Work {
     s32 sp88;
     u8 colors[4];
 } P4_002aabf0_Work;
-extern s32 func_002bb700(void);
+extern s32 nmMesWindowLatchAnimAux(void);
 extern void func_002bbcc0(void);
 extern s32 iGpffffb52c;
 extern u8 D_0063E630[];
@@ -111,17 +111,17 @@ s32 func_002a1a10(u8 *arg0) {
     case 0:
         iGpffffb52c = 0;
         func_002bb4e0();
-        func_002baac0((u8 *)(D_0063E630));
-        func_002bad10(1);
-        func_002baf40(0);
-        func_002bb050(0);
+        nmMesWindowOpenCurrent((u8 *)(D_0063E630));
+        nmMesWindowShowCurrentRecord(1);
+        nmMesWindowSetCurrentParam(0);
+        nmMesWindowSetCurrentFlag(0);
         *(s32 *)(temp_16 + 0x10) = 1;
         goto done;
     case 1:
-        if (func_002bb600() != 0) {
+        if (nmMesWindowCurrentOpenState() != 0) {
             func_002bbcc0();
-            if (func_002bb700() == 0) {
-                iGpffffb52c = func_002bb0e0();
+            if (nmMesWindowLatchAnimAux() == 0) {
+                iGpffffb52c = nmMesWindowCurrentAnim();
             }
         } else {
             *(s32 *)(temp_16 + 0x10) = 2;

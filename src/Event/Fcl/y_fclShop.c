@@ -22,7 +22,7 @@ void func_00440b68();
 s32 func_00454a60();
 void H_Cdvd_ReadSync();
 s32 func_00455f70();
-void func_002bc010();
+void nmMesWindowInstallHandle();
 void datLoadEntryTable();
 s32 fclShopMainUpdate(u8 *task);
 void fclShopMainDestroy(u8 *);
@@ -116,7 +116,7 @@ void func_002bdf20(void)
     func_00440b68(&iGpffffa870, D_0063F3C8, 0x179);
     H_Cdvd_ReadSync(func_00454a60(D_0063F550, 1));
     for (i = 0; i < 9; i++) {
-        func_002bc010(i, func_00455f70(items[i], &out));
+        nmMesWindowInstallHandle(i, func_00455f70(items[i], &out));
     }
     datLoadEntryTable();
 }
