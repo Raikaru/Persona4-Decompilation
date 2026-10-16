@@ -78,7 +78,7 @@ typedef struct RpMaterial *(*MaterialCallback)(struct RpMaterial *, void *);
 extern struct RpGeometry *func_003c21e0(struct RpGeometry *geometry, MaterialCallback callback, void *data);
 extern void mdlDestroyModelObject(s32 arg0);
 extern void func_003f3eb0(s32 arg0, s32 arg1);
-extern void func_00185370();
+extern void FldNoiseEmitPlain();
 extern s32 FldFogUpdate(u8 *task);
 
 extern void (*jtbl_008873EC[])(void *);
@@ -1227,7 +1227,7 @@ void FldNoiseRenderStateB(u8 *arg0, u8 *arg1)
 // FUN_00185600
 void FldNoiseFlush(void)
 {
-    func_00185370();
+    FldNoiseEmitPlain();
 }
 
 /* measured: the saved callback argument and D_00887300 base reproduce the

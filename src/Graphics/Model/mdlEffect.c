@@ -108,7 +108,7 @@ extern void datEntryDrawGatedByFlag39(s32 a0, s32 a1, s32 a2, s32 a3);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_004abd60(s32 arg0);
 extern void func_00182b40(void);
-extern void func_00185370();
+extern void FldNoiseEmitPlain();
 /* measured: loop-invariant hoisting keeps the retail stride/base preheader for
    the 0x750 slot scan. */
 #pragma opt_loop_invariants on
@@ -153,7 +153,7 @@ extern void func_00185370();
    at -O2 the packet stores are reordered and the pcpyld pairs are folded. */
 #pragma optimization_level 1
 // FUN_00185370
-void func_00185370(void)
+void FldNoiseEmitPlain(void)
 {
     u_long128 *packet;
     u_long128 packed;
