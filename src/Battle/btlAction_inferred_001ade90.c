@@ -119,8 +119,8 @@ u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
-s32 func_001fac80(u8 *arg0);
-void func_001fad10(void);
+s32 btlStatusWindowShowSlot3Callback(u8 *arg0);
+void btlTaskSlotLinkedSlot3Callback(void);
 
 /* Source unit: src/promoted/code1_001a.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001a.c; members 001ade90-001afb50 */
@@ -1181,8 +1181,8 @@ void btlActionEndInit(u8 *arg0)
         *(u16 *)(D_0076449C + 0x18) |= 0x20;
         *(u16 *)(arg0 + 0x18) &= 0xFDFF;
     }
-    if (func_001fac80(arg0) != 0) {
-        *(void (**)(void))(arg0 + 0x440) = func_001fad10;
+    if (btlStatusWindowShowSlot3Callback(arg0) != 0) {
+        *(void (**)(void))(arg0 + 0x440) = btlTaskSlotLinkedSlot3Callback;
         *(s16 *)(arg0 + 0x43C) = 0x21;
         btlActionSetState((BtlAction *)arg0, 0x16);
         return;

@@ -187,13 +187,13 @@ extern void btlMessageReset(s32 task);
 s16 btlCameraSelectFormationIndex(void);
 void func_001eb7f0(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
-s32 func_001fabe0(u8 *arg0);
+s32 btlStatusWindowShowSlot2(u8 *arg0);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 s32 datCalcGetSkillMask(u8 *arg0);
 s64 datCalcFindStrongBuff(u8 *arg0);
 s32 datCalcIsStatusBlocked(u16 *arg0);
 s32 btlSoundRollStatusCure(u8 *arg0);
-s32 func_001fac30(void);
+s32 btlTaskSlotLinkedSlot2(void);
 s32 btlActionGetCounter420(BtlAction *action);
 
 u8 *btlPacketCreateSpriteTable(u32 arg0, u16 arg1);
@@ -204,8 +204,8 @@ extern s32 datGetFlag(s32 arg0);
 BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
-s32 func_001fac80(u8 *arg0);
-void func_001fad10(void);
+s32 btlStatusWindowShowSlot3Callback(u8 *arg0);
+void btlTaskSlotLinkedSlot3Callback(void);
 
 
 

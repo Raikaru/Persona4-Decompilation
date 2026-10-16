@@ -400,13 +400,13 @@ void btlSoundCreateWaitPacket(void)
     work[0] = 0;
     work[1] = 0;
 }
-extern s32 func_001fa660(void);
-extern s32 func_001fa7a0(s32 *arg0);
+extern s32 btlCdvdLoadPoll(void);
+extern s32 btlSoundLoadPoll(s32 *arg0);
 static inline u32 addOffsetFirst(u32 offset, u32 base) {
     return offset + base;
 }
 extern u8 *iGpffffb3b8;
-extern s32 func_001fa7a0(s32 *arg0);
+extern s32 btlSoundLoadPoll(s32 *arg0);
 extern s32 func_001fa940(void);
 extern s32 func_001faa00(void);
 extern void func_00485b20(s32 arg0);
@@ -414,7 +414,7 @@ extern void func_00486180(s32 arg0);
 extern void func_00120f20(s32 arg0);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern void func_001fa490(void);
-extern s32 func_001fa660(void);
+extern s32 btlCdvdLoadPoll(void);
 extern s32 btlUnitStatusWindowShow(u8 *arg0, s16 arg1);
 extern s32 btlTaskSlotIsLinked(s32 arg0);
 extern s32 btlTaskSlotIsSet(void);
@@ -450,8 +450,9 @@ extern s32 btlVoiceIdPacketUpdate(u8 *arg0);
 /* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
 /* measured: opt_propagation off preserves 9ac0's explicit boolean branch. */
 /* measured: close opt_propagation after btlVoiceIdPacketUpdate probe. */
+/* Polls the CDVD file load for the battle state at +0xB84. Returns the state-5 task result when the state is 5; once the file is loaded it caches the node at +0x110 into +0xB80 (unless flag 2 is set in +0xB4C), destroys the handle and returns 1. */
 // FUN_001FA660
-s32 func_001fa660(void)
+s32 btlCdvdLoadPoll(void)
 {
     s32 flags;
     u8 *base;
@@ -490,14 +491,15 @@ u8 *func_001fa720(const void *arg0) {
     temp_2 = (u8 *)btlPacketAlloc(0xC04, 0xA);
     temp_2[0x47] &= 0xEE;
     *(void **)(temp_2 + 0x68) = (void *)func_001fa490;
-    *(void **)(temp_2 + 0x6C) = (void *)func_001fa660;
+    *(void **)(temp_2 + 0x6C) = (void *)btlCdvdLoadPoll;
     memcpy(*(s32 **)(temp_2 + 0x78), (void *)arg0, 0xA);
     return temp_2;
 }
 
 
+/* Steps the sound load at +0xB80 with the progress counter arg0. While the load runs it starts the stream on the first step and loads the table at D_005DC8CC, returning 0. When the load finishes it releases the resource and returns 1. */
 // FUN_001FA7A0
-s32 func_001fa7a0(s32 *arg0)
+s32 btlSoundLoadPoll(s32 *arg0)
 {
     extern void func_00120f00(s32 arg0);
     extern s32 func_004b1520(s32 arg0);
@@ -553,7 +555,7 @@ void func_001fa8f0(void) {
 
     temp_2 = (u8 *)btlPacketAlloc(0xC05, 4);
     temp_2[0x47] &= 0xEE;
-    *(void **)(temp_2 + 0x6C) = (void *)func_001fa7a0;
+    *(void **)(temp_2 + 0x6C) = (void *)btlSoundLoadPoll;
     *(s32 **)(*(u8 **)(temp_2 + 0x78)) = NULL;
 }
 
@@ -621,8 +623,9 @@ void func_001faa60(void) {
 }
 
 
+/* Shows the battle status window for slot 0 when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAAA0
-s32 func_001faaa0(u8 *arg0) {
+s32 btlStatusWindowShowSlot0(u8 *arg0) {
     if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
         return btlUnitStatusWindowShow(arg0, 0);
     }
@@ -630,8 +633,9 @@ s32 func_001faaa0(u8 *arg0) {
 }
 
 
+/* Returns whether task slot 0 is linked when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAAF0
-s32 func_001faaf0(void) {
+s32 btlTaskSlotLinkedSlot0(void) {
     if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
         return btlTaskSlotIsLinked(0);
     }
@@ -639,8 +643,9 @@ s32 func_001faaf0(void) {
 }
 
 
+/* Shows the battle status window for slot 1 when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAB40
-s32 func_001fab40(u8 *arg0) {
+s32 btlStatusWindowShowSlot1(u8 *arg0) {
     if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
         return btlUnitStatusWindowShow(arg0, 1);
     }
@@ -648,8 +653,9 @@ s32 func_001fab40(u8 *arg0) {
 }
 
 
+/* Returns whether task slot 1 is linked when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAB90
-s32 func_001fab90(void) {
+s32 btlTaskSlotLinkedSlot1(void) {
     if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
         return btlTaskSlotIsLinked(1);
     }
@@ -657,8 +663,9 @@ s32 func_001fab90(void) {
 }
 
 
+/* Shows the battle status window for slot 2 when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FABE0
-s32 func_001fabe0(u8 *arg0) {
+s32 btlStatusWindowShowSlot2(u8 *arg0) {
     if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
         return btlUnitStatusWindowShow(arg0, 2);
     }
@@ -666,8 +673,9 @@ s32 func_001fabe0(u8 *arg0) {
 }
 
 
+/* Returns whether task slot 2 is linked when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAC30
-s32 func_001fac30(void) {
+s32 btlTaskSlotLinkedSlot2(void) {
     if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
         return btlTaskSlotIsLinked(2);
     }
@@ -675,8 +683,9 @@ s32 func_001fac30(void) {
 }
 
 
+/* Slot 3 status window: when the flag is set and no task slot is set, runs the callback at +0xB40 once and returns 1; otherwise shows the window for slot 3. */
 // FUN_001FAC80
-s32 func_001fac80(u8 *arg0)
+s32 btlStatusWindowShowSlot3Callback(u8 *arg0)
 {
     u8 *base;
 
@@ -698,8 +707,9 @@ return_zero:
 }
 
 
+/* Slot 3 linked check: when the flag is set and no task slot is set, runs the callback at +0xB44 with +0xB48 and clears the three callback fields when it returns 0; then returns whether task slot 3 is linked. */
 // FUN_001FAD10
-s32 func_001fad10(void)
+s32 btlTaskSlotLinkedSlot3Callback(void)
 {
     s32 (*callback)(s32);
     s32 result;
@@ -727,8 +737,9 @@ s32 func_001fad10(void)
 }
 
 
+/* Shows the battle status window for slot 4 when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FADC0
-s32 func_001fadc0(u8 *arg0) {
+s32 btlStatusWindowShowSlot4(u8 *arg0) {
     if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
         return btlUnitStatusWindowShow(arg0, 4);
     }
@@ -736,8 +747,9 @@ s32 func_001fadc0(u8 *arg0) {
 }
 
 
+/* Returns whether task slot 4 is linked when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAE10
-s32 func_001fae10(void) {
+s32 btlTaskSlotLinkedSlot4(void) {
     if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
         return btlTaskSlotIsLinked(4);
     }

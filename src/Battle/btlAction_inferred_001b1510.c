@@ -93,7 +93,7 @@ extern void nmMesWindowResetCurrent(void);
 extern u8 *D_0076449C;
 extern s32 func_0022bd20(void);
 extern void btlEncounterInitGlobals(void);
-extern s32 func_001fadc0(u8 *arg0);
+extern s32 btlStatusWindowShowSlot4(u8 *arg0);
 extern u32 btlCountUnitRecords(void);
 extern BtlPacket *btlTargetCreateTargetPacket(u32 arg0, u16 arg1, u32 arg2, u32 arg3, u32 arg4);
 extern void btlUnitShowModel(u8 *arg0);
@@ -101,9 +101,9 @@ extern void btlUnitHideModel(u8 *arg0);
 extern s32 btlCurrentUnitId(void);
 extern void loadingSpinnerRequestHide(void);
 extern void btlFadeStart(s32 arg0);
-extern s32 func_001faaa0(u8 *arg0);
+extern s32 btlStatusWindowShowSlot0(u8 *arg0);
 extern s32 btlBossIsAllowedAction(void);
-extern s32 func_001fae10(void);
+extern s32 btlTaskSlotLinkedSlot4(void);
 extern void sdkSndResetChannel(s32 arg0, s32 arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
@@ -136,9 +136,9 @@ s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern s32 btlShuffleIsIdle(s32 task);
 extern void func_001eb7f0(void);
 extern s32 func_001eb860(void);
-extern s32 func_001faaf0(void);
-extern s32 func_001fab40(u8 *arg0);
-extern s32 func_001fab90(void);
+extern s32 btlTaskSlotLinkedSlot0(void);
+extern s32 btlStatusWindowShowSlot1(u8 *arg0);
+extern s32 btlTaskSlotLinkedSlot1(void);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
 extern u8 nmMesWindowOpenCurrent(u8 *message);
@@ -1332,7 +1332,7 @@ void btlMainStartInit(void)
         break;
     }
     btlFadeStart(3);
-    if (func_001faaa0((u8 *)*(s32 *)(D_0076449C + 0x170)) == 0) {
+    if (btlStatusWindowShowSlot0((u8 *)*(s32 *)(D_0076449C + 0x170)) == 0) {
         goto done;
     }
     if (btlBossIsAllowedAction() == 0) {
@@ -1365,9 +1365,9 @@ s32 btlMainStartUpdate(void)
 
     if (btlShuffleIsIdle(*(s32 *)(D_0076449C + 0xDD4)) != 1) goto done;
     if (btlCountUnitRecords() != 0) goto done;
-    if (func_001faaf0() != 0) goto done;
-    if (func_001fab90() != 0) goto done;
-    if (func_001fab40(*(u8 **)(D_0076449C + 0x170)) != 0) {
+    if (btlTaskSlotLinkedSlot0() != 0) goto done;
+    if (btlTaskSlotLinkedSlot1() != 0) goto done;
+    if (btlStatusWindowShowSlot1(*(u8 **)(D_0076449C + 0x170)) != 0) {
         return 0;
     }
     if (btlBossIsAllowedAction() != 0) {
@@ -1734,7 +1734,7 @@ s32 btlMainRevivalUpdate(void)
 // FUN_001B4760
 void btlMainEnemyDeadInit(void)
 {
-    func_001fadc0((u8 *)*(s32 *)(D_0076449C + 0x170));
+    btlStatusWindowShowSlot4((u8 *)*(s32 *)(D_0076449C + 0x170));
     *(s32 *)(D_0076449C + 0xC) |= 0x80000;
 }
 
@@ -1744,7 +1744,7 @@ s32 btlMainEnemyDeadUpdate(void)
     s32 var2;
     u8 *temp4;
 
-    if (func_001fae10() == 0) {
+    if (btlTaskSlotLinkedSlot4() == 0) {
         temp4 = D_0076449C;
         *(s32 *)(temp4 + 0xC) = *(s32 *)(temp4 + 0xC) & 0xFFF7FFFF;
         sdkSndResetChannel(2, 0);
