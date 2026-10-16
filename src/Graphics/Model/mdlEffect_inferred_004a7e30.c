@@ -102,7 +102,7 @@ extern void (*jtbl_008873EC[])(void *);
 /* measured: func_004a7e30 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_004A7E30
-s32 func_004a7e30(u8 *arg0, u8 *arg1)
+s32 mdlEffectProjectBillboardQuad(u8 *arg0, u8 *arg1)
 {
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
@@ -441,7 +441,7 @@ void func_004a8890(u8 *arg0, s32 *arg1) {
     (*sendPacket)(3, sp140, 4, D_00714368, 6);
     mdlEffectEmitTagPair();
     RpSkyRenderStateSet(2, sp24C | 0x10);
-    if (func_004a7e30(arg0 + 4, sp40) != 0) {
+    if (mdlEffectProjectBillboardQuad(arg0 + 4, sp40) != 0) {
         (*setState)(1, D_00922D90[0]);
         RpSkyRenderStateSet(3, 0x31001);
         mdlEffectEmitValuePacket(0x9FC00A | ((s64)0x6FC << 0x20));

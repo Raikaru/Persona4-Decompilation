@@ -103,7 +103,7 @@ extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
 /* measured: restore the enclosing options; owner verification is 92/92 MATCH. */
 #pragma pop
 // FUN_004A7A90
-void *func_004a7a90(void *source)
+void *mdlEffectCreateRecordFromRelPtrA(void *source)
 {
     u8 *src;
     void *dst;

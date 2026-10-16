@@ -33,7 +33,7 @@ extern void mdlEffectEmitValuePacket(s64 arg);
 extern void mdlEffectEmitSlotPacket(void);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
-extern s32 func_004a7e30(u8 *arg0, void *arg1);
+extern s32 mdlEffectProjectBillboardQuad(u8 *arg0, void *arg1);
 extern void func_004a8250(u8 *arg0, void *arg1);
 extern void func_004a8440(u8 *arg0, void *arg1);
 extern void func_004a86c0(u8 *arg0, void *arg1);
@@ -424,7 +424,7 @@ void effBlurFilterDrawSlotPass(u8 *arg0) {
     base = *(u8 **)(arg0 + 0x24) + 0xC0;
     if (*(u8 *)(*(u8 **)(arg0 + 0x24) + 0xC3) > 0) {
         func_003f6690(3, &sp12C);
-        if (func_004a7e30(base, sp20) != 0) {
+        if (mdlEffectProjectBillboardQuad(base, sp20) != 0) {
             D_00887300[0](1, D_00922D90[0]);
             RpSkyRenderStateSet(3, 0x31001);
             mdlEffectEmitValuePacket(0x9FC00A | ((s64)0x6FC << 0x20));
@@ -575,7 +575,7 @@ void effBlurFilterDrawRefPass(u8 *arg0) {
         (*sendPacket)(3, sp140, 4, D_00714368, 6);
         mdlEffectEmitTagPair();
         RpSkyRenderStateSet(2, sp24C | 0x10);
-        if (func_004a7e30(temp_18 + 4, sp40) != 0) {
+        if (mdlEffectProjectBillboardQuad(temp_18 + 4, sp40) != 0) {
             (*setState)(1, D_00922D90[0]);
             RpSkyRenderStateSet(3, 0x31001);
             mdlEffectEmitValuePacket(0x9FC00A | ((s64)0x6FC << 0x20));
