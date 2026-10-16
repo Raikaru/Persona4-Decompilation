@@ -3832,7 +3832,6 @@ void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1)
 // Intent: mark the targets for the selected skill, setting each unit's skill element and buff or ailment flags. [inferred]
 // FUN_0020B6D0
 extern u32 btlEffectCollectGenusMask(u8 *arg0);
-extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 extern s32 datCalcElementBit(s16 arg0);

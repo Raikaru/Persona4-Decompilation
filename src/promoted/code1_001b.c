@@ -210,7 +210,6 @@ extern void btlCameraReleaseActionRefs(u8 *arg0);
 extern void datUnitRemoveEncounterUnit(DatUnitEc *arg0, DatUnit *arg1);
 extern void btlCameraSuppressEncounterCallback(void);
 extern u8 *datUnitGetRecord(s16 arg0);
-extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 extern void btlPanelReset(s32 arg0);
 extern void datCalcSetHp(s32 arg0, u16 arg1);
 extern void datCalcSetSp(s32 arg0, u16 arg1);
