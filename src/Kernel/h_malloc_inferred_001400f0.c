@@ -886,7 +886,7 @@ void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     extern f32 D_005EF6E0[];
     extern f32 D_005EF6E4[];
     extern void kAssertFail(const void *file, s32 line);
-    extern void func_00356170(s64 arg0, f32 f0, f32 f1, s32 arg1, f32 f2, s32 arg2, s32 arg3);
+    extern void datGridEffectDrawStrip(s64 arg0, f32 f0, f32 f1, s32 arg1, f32 f2, s32 arg2, s32 arg3);
     extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     extern s32 cmmRankStringAt(s16 arg0, s16 arg1);
     extern s32 frFontExDrawTextOutA(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 out, s32 charWidth);
@@ -909,7 +909,7 @@ void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     pos2.position.y = 59.0f + pos_y;
     color.bytes[3] = (u8)((*arg2 * 255) / 255);
 
-    func_00356170(pos2.bits, saved_fparg0, 59.0f, color.bits, 0.0f, 0x30, 1);
+    datGridEffectDrawStrip(pos2.bits, saved_fparg0, 59.0f, color.bits, 0.0f, 0x30, 1);
 
     kind = iGpffff9cd8[arg3];
     switch (kind) {
