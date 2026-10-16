@@ -156,12 +156,12 @@ s32 FldEnvOpenFile(s32 arg0) {
     return 1;
 }
 
-/* measured: MATCH 0 via tools/probe_variants.py src/promoted/k_fldEnvironment.c func_00153d60 (fnalign retail 592/object 592 exact, 0 edits; probe 21->7 via opt_loop_invariants on, 7->4 via P-index 0x10001 loop ((u8 **)P)[i+10] for lw-before-sll, 4->0 via P-index 0x68/0x78 loops ((s32 *)P)[i+26/30]; five follow-up rounds R1 index ties except hoisted-row 257 fail, R2 decl-orders tie plus hoisted-count/P 535 fail, R3 pragmas loop_invariants 7 win vs unroll/schedule tie, R4 index-under-pragma 4 win, R5 68/78 P-index 0 MATCH). De-noised m2c 347 plus rw 363 plus types 3-vs-2 into file idiom. Production live. */
+/* measured: MATCH 0 via tools/probe_variants.py src/promoted/k_fldEnvironment.c FldEnvironmentLoad (fnalign retail 592/object 592 exact, 0 edits; probe 21->7 via opt_loop_invariants on, 7->4 via P-index 0x10001 loop ((u8 **)P)[i+10] for lw-before-sll, 4->0 via P-index 0x68/0x78 loops ((s32 *)P)[i+26/30]; five follow-up rounds R1 index ties except hoisted-row 257 fail, R2 decl-orders tie plus hoisted-count/P 535 fail, R3 pragmas loop_invariants 7 win vs unroll/schedule tie, R4 index-under-pragma 4 win, R5 68/78 P-index 0 MATCH). De-noised m2c 347 plus rw 363 plus types 3-vs-2 into file idiom. Production live. */
 // FUN_00153D60
 #pragma push
-/* measured: func_00153d60 MATCH -> MISMATCH without this pragma. */
+/* measured: FldEnvironmentLoad MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 func_00153d60(u8 *arg0, s32 arg1)
+s32 FldEnvironmentLoad(u8 *arg0, s32 arg1)
 {
     extern u8 *MT_Scene_GetResListHead(s32 arg0);
     extern void resrcMngSetEnvPrimary(s32 arg0);
