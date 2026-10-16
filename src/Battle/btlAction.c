@@ -206,7 +206,7 @@ void btlActionSetStateWithDelay(BtlAction* action, u16 state, u16 delay)
 
 
 // FUN_001B08D0
-void func_001b08d0(void* action)
+void btlActionSetCallbackPending(void* action)
 {
     *(u16*)((u8*)action + 0x18) |= 1;
 }
@@ -214,7 +214,7 @@ void func_001b08d0(void* action)
 
 
 // FUN_001B08F0
-void func_001b08f0(void* action)
+void btlActionClearCallbackPending(void* action)
 {
     *(u16*)((u8*)action + 0x18) &= ~1;
 }
