@@ -1182,7 +1182,7 @@ unit_done:
 void btlMainUnitLoadInit(void)
 {
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
-    extern u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
+    extern u8 *btlEffectCreateFormationPacket(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
     extern u8 *btlEffectCreateLoadPacket(void);
     extern u8 *func_00202b60(s32 arg0);
     extern u8 *func_001f6710(s32 arg0);
@@ -1223,7 +1223,7 @@ void btlMainUnitLoadInit(void)
         btlPacketEnqueue(unit_packet, 1);
         previous_unit_uid = *(s64 *)(unit_packet + 0x58);
         if (!(*(s32 *)(D_0076449C + 0x10) & 1)) {
-            motion_packet = func_001d65d0(iGpffffb450, (s32)unit, 0, 0, 0);
+            motion_packet = btlEffectCreateFormationPacket(iGpffffb450, (s32)unit, 0, 0, 0);
             motion_mode = 4;
             *(s8 *)(motion_packet + 0) = 4;
             *(s64 *)(motion_packet + 8) = *(s64 *)(unit_packet + 0x58);
@@ -1781,7 +1781,7 @@ void btlMainWinInit(u8 *arg0) {
     extern void func_001eb3b0(u8 *arg0);
     extern u8 *btlUnitCreateResourceFreePacket(u8 *arg0);
     extern u8 *func_00194c90(void *arg0, void *arg1);
-    extern u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
+    extern u8 *btlEffectCreateFormationPacket(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
     extern struct RtQuat *func_003dc740(struct RtQuat *rotation, const struct RwV3d *axis, f32 angle, s32 mode);
     extern s8 *func_00457160(void);
     extern BtlPacket *func_001f99c0(BtlAction *action, u16 voice, s32 option, s32 argument, s32 flags);
@@ -1884,7 +1884,7 @@ void btlMainWinInit(u8 *arg0) {
         u8 *const callbackPacket = func_00194c90(func_001b4860, arg0);
         btlPacketEnqueue(callbackPacket, 1);
         {
-            u8 *const transitionPacket = func_001d65d0(*(s32 *)(iGpffffb3ac + 0xDC0), *(s32 *)(base + 0x30), 0, *(s64 *)(callbackPacket + 0x58), 0x34100);
+            u8 *const transitionPacket = btlEffectCreateFormationPacket(*(s32 *)(iGpffffb3ac + 0xDC0), *(s32 *)(base + 0x30), 0, *(s64 *)(callbackPacket + 0x58), 0x34100);
             s32 transitionDelay;
             if (work->delay > 2) {
                 transitionDelay = work->delay - 2;

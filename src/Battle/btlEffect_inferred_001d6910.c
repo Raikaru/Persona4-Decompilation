@@ -13,7 +13,7 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 func_001d6360(u8 *arg0);
+extern s32 btlEffectStepFormationPlacement(u8 *arg0);
 extern void btlFormationResetState(s32 arg0);
 extern void func_00485b20(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
@@ -86,9 +86,9 @@ extern f32 fGpffff8110;
 #pragma pop
 /* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
 /* measured: restore optimization_level 2 after func_001d5990. */
-/* measured: opt_propagation off probe for func_001d6360 argument setup and register coloring. */
+/* measured: opt_propagation off probe for btlEffectStepFormationPlacement argument setup and register coloring. */
 #pragma push
-/* measured: restore pragma state after func_001d6360. */
+/* measured: restore pragma state after btlEffectStepFormationPlacement. */
 #pragma pop
 // FUN_001D6910
 void func_001d6910(u8 *arg0)

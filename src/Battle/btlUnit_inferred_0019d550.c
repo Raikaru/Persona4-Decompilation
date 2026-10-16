@@ -138,7 +138,7 @@ extern u8 iGpffffa4d8;
 extern void func_001d1540(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_001ee430(u8 *arg0);
 extern void func_001d7040(s32 arg0);
-extern void func_001d6c10(s32 arg0);
+extern void btlEffectFreeNodePool(s32 arg0);
 extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -223,7 +223,7 @@ void btlUnitUnlinkAndFree(u8 *arg0)
     }
     temp_4_3 = *(s32 *)(temp_17 + 0xA08);
     if (temp_4_3 != 0) {
-        func_001d6c10(temp_4_3);
+        btlEffectFreeNodePool(temp_4_3);
         *(s32 *)(temp_17 + 0xA08) = 0;
     }
     func_001ee430(temp_17);

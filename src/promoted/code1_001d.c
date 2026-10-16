@@ -26,7 +26,7 @@ extern u32 datCalcChkBadStatus(int unit, u32 badStatus);
 extern u16 datCalcGetHp(u8 *arg0);
 extern u16 datCalcGetSp(u8 *arg0);
 extern void btlEffectFreeEntry(s32 arg0, s32 arg1);
-extern s32 func_001d6360(u8 *arg0);
+extern s32 btlEffectStepFormationPlacement(u8 *arg0);
 extern void btlFormationResetState(s32 arg0);
 extern void func_00485b20(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
