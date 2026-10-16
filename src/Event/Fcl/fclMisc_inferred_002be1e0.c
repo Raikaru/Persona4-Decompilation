@@ -40,7 +40,7 @@ extern s32 iGpffffb57c;
 extern s32 func_002be1e0(s32 arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern u32 func_002e7a60(void);
+extern u32 fclGetMoney(void);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
@@ -191,8 +191,8 @@ void func_002be4a0(void)
     Vec2f sp18;
 
     sp18 = fclMakeVec2(
-                  580.0f - 21.0f * (f32)fclDecimalDigitCount(func_002e7a60()),
+                  580.0f - 21.0f * (f32)fclDecimalDigitCount(fclGetMoney()),
                   15.0f);
-    func_00364320(sp18, 1.0f, 0xFF, func_002e7a60());
+    func_00364320(sp18, 1.0f, 0xFF, fclGetMoney());
 }
 

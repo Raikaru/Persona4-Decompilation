@@ -41,8 +41,8 @@ extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
 extern f32 iGpffff82fc;
-extern s32 func_002e78a0(void);
-extern s32 func_002e78e0(void);
+extern s32 fclCalendarMonth(void);
+extern s32 fclCalendarDay(void);
 extern s32 func_002be100(s32 arg0);
 extern u8 D_0063F3B0[];
 
@@ -113,15 +113,15 @@ s32 func_002bdff0(s16 arg0)
         goto false_result;
     }
     temp_16 = func_002be100((u8)func_00106ac0(arg0)) & 0xFF;
-    if (temp_16 < (func_002be100(func_002e78a0()) & 0xFF)) {
+    if (temp_16 < (func_002be100(fclCalendarMonth()) & 0xFF)) {
         return 1;
     }
     temp_16_2 = func_002be100((u8)func_00106ac0(arg0)) & 0xFF;
-    if (temp_16_2 != (func_002be100(func_002e78a0()) & 0xFF)) {
+    if (temp_16_2 != (func_002be100(fclCalendarMonth()) & 0xFF)) {
         goto false_result;
     }
     temp_16_3 = (s8)func_00106af0(arg0);
-    if (temp_16_3 <= (func_002e78e0() & 0xFF)) {
+    if (temp_16_3 <= (fclCalendarDay() & 0xFF)) {
         return 1;
     }
 false_result:
@@ -144,7 +144,7 @@ s32 func_002be100(s32 arg0) {
 }
 
 // FUN_002BE160
-s32 func_002be160(s32 arg0, s32 arg1) {
+s32 fclMoonPhaseAtLeast(s32 arg0, s32 arg1) {
     s32 n = arg1 & 0xFFFF;
     if (n == 0) {
         return 1;

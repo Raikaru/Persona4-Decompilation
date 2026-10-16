@@ -18,8 +18,8 @@ extern void nmMesWindowSetSlotString(s8, s32, void *);
 extern void *datGetItemNameId(s16);
 extern void frFontExCopyString(void *, void *, s32);
 extern s32 datGetFlag(s32);
-extern u8 func_002e78a0(void);
-extern s32 func_002e78e0(void);
+extern u8 fclCalendarMonth(void);
+extern s32 fclCalendarDay(void);
 extern s32 func_002be100(u8);
 extern s32 nmMesWindowSlotStatus(s8);
 extern void nmMesWindowStepSlotRelease(s32);
@@ -67,8 +67,8 @@ s32 itemShopTalkUpdate(u8 *arg0) {
 
     work = *(s8 **)(arg0 + 0x38);
     i = 0;
-    level_value = (s16)(100 * (func_002be100(func_002e78a0()) & 0xFF) +
-                        (func_002e78e0() & 0xFF));
+    level_value = (s16)(100 * (func_002be100(fclCalendarMonth()) & 0xFF) +
+                        (fclCalendarDay() & 0xFF));
     switch (*work) {
     case 0:
         goto state_zero;
@@ -176,8 +176,8 @@ s32 wshopMaterialTalkUpdate(u8 *arg0) {
     s16 max;
 
     work = *(s8 **)(arg0 + 0x38);
-    level_value = (s16)(100 * (func_002be100(func_002e78a0()) & 0xFF) +
-                        (func_002e78e0() & 0xFF));
+    level_value = (s16)(100 * (func_002be100(fclCalendarMonth()) & 0xFF) +
+                        (fclCalendarDay() & 0xFF));
     index = 0;
     switch (*work) {
     case 0:
@@ -222,10 +222,10 @@ state_one_32520:
             if (work[0x1808] == func_00106ac0((s16)i)) {
                 if (fclShopIsSpecialItem(
                         (u16)((func_00106b20((s16)i) & 0xFFF00) >> 8)) == 0) {
-                    if (func_002be160(
+                    if (fclMoonPhaseAtLeast(
                             (func_00106b20((s16)i) & 0xFFF00) >> 8,
                             func_00106b20((s16)i) & 0xFF) == 0 ||
-                        func_002be160(
+                        fclMoonPhaseAtLeast(
                             (func_00106b50((s16)i) & 0xFFF00) >> 8,
                             func_00106b50((s16)i) & 0xFF) == 0) {
                         *(s32 *)(work + (*(s32 *)(work + 0x1804) * 4) + 4) = i;

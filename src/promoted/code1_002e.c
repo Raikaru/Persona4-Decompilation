@@ -360,7 +360,7 @@ s32 func_002e7010(u8 *arg0, s16 arg1)
 /* measured: scoped loop-invariant optimization for func_002e7010 */
 #pragma opt_loop_invariants off
 // FUN_002E7190
-void func_002e7190(u8 *arg0) {
+void fclFreeWorkBlock(u8 *arg0) {
     jtbl_008873EC[0](arg0);
 }
 // FUN_002E71C0
@@ -480,7 +480,7 @@ void shopSystemDestroy(u8 *arg0)
 }
 
 // FUN_002E7510
-s32 func_002e7510(s32 arg0)
+s32 shopSystemCreate(s32 arg0)
 {
     s32 result;
     u8 *work;
@@ -518,7 +518,7 @@ s32 func_002e7510(s32 arg0)
     return result;
 }
 // FUN_002E78A0
-u8 func_002e78a0(void)
+u8 fclCalendarMonth(void)
 {
     s32 sp1C;
     s32 sp18;
@@ -531,7 +531,7 @@ u8 func_002e78a0(void)
 
 /* Retail returns the low day byte with lbu, defining the full result. */
 // FUN_002E78E0
-s32 func_002e78e0(void)
+s32 fclCalendarDay(void)
 {
     s32 sp1C;
     s32 sp18;
@@ -580,13 +580,13 @@ void func_002e7920(s32 *arg0, s32 *arg1)
     *out1 = *(u8 *)&sp4C + 1;
 }
 // FUN_002E7A60
-u32 func_002e7a60(void)
+u32 fclGetMoney(void)
 {
     return datGetMoney();
 }
 
 // FUN_002E7A80
-void func_002e7a80(s32 arg0)
+void fclAddMoney(s32 arg0)
 {
     datSetMoney(fclAddClamped(arg0, 0, 0x98967F, 0, 1));
 }
