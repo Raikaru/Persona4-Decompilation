@@ -38,7 +38,7 @@ u32 MT_Scene_SetResMotion(u16 *resource, s32 layer, s32 animation, s32 frame,
                   s32 flags, s32 blend, f32 speed);
 
 /* Path sampling keeps elapsed and total distances together before outputs. */
-f32 func_0026cef0(s8 *path, f32 distance, f32 total,
+f32 MT_Scene_SamplePath(s8 *path, f32 distance, f32 total,
                   f32 *position, f32 *rotation);
 
 extern s32 D_00882170[];
