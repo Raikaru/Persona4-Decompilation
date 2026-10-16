@@ -854,7 +854,7 @@ void sdkWindowSetRect(u8 *arg0, u8 *arg1)
    the parameter `const void *` and dropping the casts restores retail's
    order.  Same lever as func_00196040's out-parameters in code1_001c.c. */
 // FUN_0046EC70
-void func_0046ec70(u8 *arg0) {
+void sdkLboxDrawEntries(u8 *arg0) {
     extern char *strcpy(char *dst, const char *src);
     extern s32 strlen(const void *str);
     extern s32 func_0044dcd8(f32 value);
@@ -1011,7 +1011,7 @@ s32 sdkLboxUpdate(u8 *task)
     extern s32 func_00453dc0(void *task);
     extern s32 sdkWindowIsOpen(u8 *task);
     extern void sdkWindowSetRect(u8 *task, u8 *arg1);
-    extern void func_0046ec70(u8 *task);
+    extern void sdkLboxDrawEntries(u8 *task);
     extern void sdkLboxSetOrigin(u8 *task, s32 arg1, s32 arg2);
     extern u8 *sdkLboxFindEntry(u8 *task, s32 arg1);
     extern s32 sdkLboxGetSelectedId(u8 *task);
@@ -1196,7 +1196,7 @@ s32 sdkLboxUpdate(u8 *task)
                 func_003e8110((u32)func_00457120());
             }
             func_003e8120((u32)func_00457120());
-            func_0046ec70(task);
+            sdkLboxDrawEntries(task);
             func_003e8110((u32)func_00457120());
             if (work->flags & 4) {
                 clearByte = (u8 *)&joystick;
