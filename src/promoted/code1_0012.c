@@ -2356,7 +2356,7 @@ static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *
    sources, which is what fixes retail's frame slots (0x7C/0x60 above
    0x78/0x74/0x70 and 0x50/0x40). */
 /* The caller passes 0.0f in $f12-$f14 ahead of the colour and task
-   (retail func_001265a0); the three floats are unused here. */
+   (retail titleDrawTaskView); the three floats are unused here. */
 // FUN_00126090
 void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
 {
