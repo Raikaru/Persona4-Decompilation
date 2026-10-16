@@ -41,7 +41,7 @@ extern u8 *func_00457120(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern s32 *MT_Scene_GetFrameState(void);
-extern void func_0016e590();
+extern void FldCameraAdvanceCurve();
 extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
 extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
 extern void func_0016ea30(s32 arg0, f32 arg1);
@@ -700,7 +700,7 @@ s32 FldCamReadRecord(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
         K_View_SetFov(func_00457120(), *(f32 *)(data + 8));
         func_003e9cb0((void *)*(s32 *)(func_00457120() + 4),
                       data + 0x10, 0);
-        func_0016e590(MT_Scene_GetFrameState()[1], *(u16 *)(data + 0x50));
+        FldCameraAdvanceCurve(MT_Scene_GetFrameState()[1], *(u16 *)(data + 0x50));
         FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], data + 0x54);
         FldFrame_SetViewDistance(MT_Scene_GetFrameState()[1], *(f32 *)(data + 0x60));
         func_0016ea30(MT_Scene_GetFrameState()[1], *(f32 *)(data + 0x64));

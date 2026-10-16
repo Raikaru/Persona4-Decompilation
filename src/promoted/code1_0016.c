@@ -13,7 +13,7 @@ typedef struct RwMatrix RwMatrix;
 extern s32 iGpffff9ef8;
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern void K_View_SetFov(void *arg0, f32 arg1);
-extern void func_0016e590();
+extern void FldCameraAdvanceCurve();
 extern s32 iGpffff9f08;
 
 extern s32* MT_Scene_GetFrameState(void);

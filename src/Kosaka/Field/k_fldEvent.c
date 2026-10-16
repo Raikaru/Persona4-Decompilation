@@ -832,7 +832,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void func_002bd410(void);
     void func_002bd3c0(void);
     void func_0016f630(FldEventSnapshot *, u8 *);
-    void func_0016f750(u8 *, u8 *);
+    void FldCameraApplyRecord(u8 *, u8 *);
     void FldFrame_BindTypedRes(u8 *, u16);
 
     void FldUnit_ReleaseSlot(u8 *);
@@ -1406,7 +1406,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 0);
                 t11 = FldCameraTaskCreate(*(s32 *)(u8 *)MT_Scene_GetFrameState());
                 *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4) = t11;
-                func_0016f750((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4)), (u8 *)(&work->snapshot));
+                FldCameraApplyRecord((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4)), (u8 *)(&work->snapshot));
                 {
                     s32 *field = MT_Scene_GetFrameState();
                     u32 _pA04 = D_007EFA04[0];

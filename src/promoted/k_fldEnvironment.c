@@ -42,7 +42,7 @@ extern u8 *func_00457120(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern s32 *MT_Scene_GetFrameState(void);
-extern void func_0016e590();
+extern void FldCameraAdvanceCurve();
 extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
 extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
 extern void func_0016ea30(s32 arg0, f32 arg1);
