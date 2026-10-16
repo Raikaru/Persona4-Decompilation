@@ -1417,7 +1417,7 @@ typedef struct {
 // Fcl combine menu fusion (state 1): the fusion core. Shows the partner grid (0x2A) for the selected source, confirms with cues and money and duplicate checks (0x2D-0x31), rolls the rare chance (0x34), builds the result list with inherited skills (0x36-0x37), then hands to the result handler (state 0x0D, sub-state 0xC5).
 // FUN_002ED430
 void fclCombineMenuFusion(u8 *arg0) {
-    extern void func_00313800(s8);
+    extern void fclCombineMaterialListBuild(s8);
     extern f32 D_00640E70[];
     s16 var_19_3;
     u8 *ps;
@@ -3638,11 +3638,11 @@ block_215:
 #pragma push
 #pragma opt_lifetimes on
 void fclCombineMenuMaterialPick(u8 *arg0) {
-    extern void func_00313800(s8);
+    extern void fclCombineMaterialListBuild(s8);
     extern void fclCombineDrawSidePanels(u8 *, s32, s8);
-    extern s32 func_003139d0(s8, s8);
-    extern s8 func_00313ae0(s8, u16);
-    extern s32 func_00313a80(s8, s8);
+    extern s32 fclCombineMaterialsHeld(s8, s8);
+    extern s8 fclCombineItemSlot(s8, u16);
+    extern s32 fclCombineSlotOwned(s8, s8);
     extern f32 D_00640E70[];
     FclDrawColor color0;
     FclDrawColor color1;
@@ -3731,7 +3731,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
             color0 = fclMakeDrawColor(0, 0, 0x99, 0xFF);
             *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x188), i) + 0x75) = color0;
         }
-        func_00313800(p[0x1A]);
+        fclCombineMaterialListBuild(p[0x1A]);
         fclCombineDrawSidePanels(arg0, 2, 0);
         base = (FclVec2 *)D_00640E70;
         pos0.position = fclMakeVec2(base->x, base->y);
@@ -3790,7 +3790,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
             if (*(s16 *)(p + 0x11E) == k) {
                 color7 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, alpha2);
                 nmMesWindowSetNumberColor((u8 *)*(u8 **)(p + 0x2BC), (s8)(k + 0xC), *(FclDrawColor *)&color7);
-            } else if (func_003139d0(p[0x1A], (s8)k) == 1) {
+            } else if (fclCombineMaterialsHeld(p[0x1A], (s8)k) == 1) {
                 color8 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, alpha2);
                 nmMesWindowSetNumberColor((u8 *)*(u8 **)(p + 0x2BC), (s8)(k + 0xC), *(FclDrawColor *)&color8);
             } else {
@@ -3855,7 +3855,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
         }
         buttons = D_008C024E[0];
         if (buttons & 0x40) {
-            if (func_003139d0(p[0x1A], (s8)*(s16 *)(p + 0x11E)) == 1) {
+            if (fclCombineMaterialsHeld(p[0x1A], (s8)*(s16 *)(p + 0x11E)) == 1) {
                 sdkSndStartStream(0, 0, 0, 1);
                 p[0x2FA] = *(s16 *)(p + 0x11E);
                 *(s16 *)(p + 0x11E) = -1;
@@ -3959,7 +3959,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
                           0, 0, D_00795E60, 0x15);
         }
         for (k = 0; k < *(s32 *)(yListSlotWork(0) + 8); k++) {
-            if (func_003139d0(p[0x1A], (s8)k) == 1) {
+            if (fclCombineMaterialsHeld(p[0x1A], (s8)k) == 1) {
                 alpha3 = (u8)fclEaseInterpolate(0, 255.0f, 0.0f, *(s16 *)(fclSpriteEntry(k + 0x270) + 0x42),
                                            *(s16 *)(fclSpriteEntry(k + 0x270) + 0x40));
             } else {
@@ -3993,7 +3993,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
             break;
         }
         p[0x2F9] = 0;
-        if (func_003139d0(p[0x1A], p[0x2FA]) == 1) {
+        if (fclCombineMaterialsHeld(p[0x1A], p[0x2FA]) == 1) {
             slot = p[0x2FA];
             fclCombineFuseSourceRecords((u16 *)yListSlotEntry(0, slot), (u8 *)yListSlotEntry(p[0x2FA] + 1, 0),
                                         (u8 *)yListSlotEntry(p[0x2FA] + 1, 1), (u8 *)yListSlotEntry(p[0x2FA] + 1, 2),
@@ -4135,7 +4135,7 @@ void fclCombineMenuMaterialPick(u8 *arg0) {
             p[1] = 0x5B;
             break;
         }
-        if (func_00313a80(p[0x1A], func_00313ae0(p[0x1A], item)) == 1) {
+        if (fclCombineSlotOwned(p[0x1A], fclCombineItemSlot(p[0x1A], item)) == 1) {
             fclCombinePlayCue(arg0, 0x27, 0);
             p[1] = 0x5B;
             break;
