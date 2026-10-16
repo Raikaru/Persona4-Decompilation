@@ -3380,8 +3380,9 @@ void func_004adfa0(u8 *arg0) {
 }
 
 
+// Copies the 16-byte vector at arg1 to +0x00. Called through the kind table's +0x20 position slot.
 // FUN_004ADFE0
-u_long128 func_004adfe0(u8 *arg0, u8 *arg1) {
+u_long128 EffModelDrawableStorePosition(u8 *arg0, u8 *arg1) {
     u_long128 value;
     value = *(u_long128 *)arg1;
     *(u_long128 *)arg0 = value;
@@ -3389,8 +3390,9 @@ u_long128 func_004adfe0(u8 *arg0, u8 *arg1) {
 }
 
 
+// Copies the 16-byte vector at arg1 to +0x10. Called through the kind table's +0x24 rotation slot.
 // FUN_004ADFF0
-u_long128 func_004adff0(u8 *arg0, u8 *arg1) {
+u_long128 EffModelDrawableStoreRotation(u8 *arg0, u8 *arg1) {
     u_long128 value;
     value = *(u_long128 *)arg1;
     *(u_long128 *)(arg0 + 0x10) = value;
@@ -3398,14 +3400,16 @@ u_long128 func_004adff0(u8 *arg0, u8 *arg1) {
 }
 
 
+// Stores the packed colour word at +0x24. Called through the kind table's +0x30 slot with the packed colour.
 // FUN_004AE000
-void func_004ae000(u8 *arg0, s32 arg1) {
+void EffModelDrawableSetPackedColor(u8 *arg0, s32 arg1) {
     *(s32 *)(arg0 + 0x24) = arg1;
 }
 
 
+// Stores the float at +0x20. Called through the kind table's +0x28 slot.
 // FUN_004AE010
-void func_004ae010(u8 *arg0, f32 arg1) {
+void EffModelDrawableSetScale(u8 *arg0, f32 arg1) {
     *(f32 *)(arg0 + 0x20) = arg1;
 }
 
@@ -3551,8 +3555,9 @@ void ObjectParticleStoreRotation(u8 *instance, u32 *rotation)
 }
 
 
+// Stores the packed colour word at +0x4. The record dispatch calls it through the kind table's +0x30 slot with the packed colour; this is the object-particle kind's entry.
 // FUN_004AF640
-void func_004af640(u8 *arg0, s32 arg1) {
+void ObjectParticleSetPackedColor(u8 *arg0, s32 arg1) {
     *(s32 *)(arg0 + 0x4) = arg1;
 }
 
@@ -3611,8 +3616,9 @@ void DistortParticleStoreRotation(u8 *instance, u32 *rotation)
 }
 
 
+// Stores the packed colour word at +0x4. The record dispatch calls it through the kind table's +0x30 slot with the packed colour; this is the distort kind's entry.
 // FUN_004B10F0
-void func_004b10f0(u8 *arg0, s32 arg1)
+void DistortParticleSetPackedColor(u8 *arg0, s32 arg1)
 {
     *(s32 *)(arg0 + 0x4) = arg1;
 }
