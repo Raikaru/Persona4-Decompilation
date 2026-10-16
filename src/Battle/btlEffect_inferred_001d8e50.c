@@ -399,7 +399,7 @@ int btlEffectFindUnitMatchingCallback(int param_1, int param_2, int param_3, int
     extern s32 datCalcElementBit(s16 arg0);
     extern s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1);
     extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
-    extern s32 func_0010f420(u16 arg0, u16 arg1);
+    extern s32 datTestBitmapBit(u16 arg0, u16 arg1);
 
     (void)param_1;
     unit = *(u8 **)(iGpffffb3ac + 0x174);
@@ -439,7 +439,7 @@ loop:
             if (option_four_eight != 0 &&
                 *(u8 *)(work + 0xA2) == 1 &&
                 func_001f9ce0(unit, (s16)param_2) == 0 &&
-                func_0010f420(*(u16 *)(work + 0xA4), (u16)param_2) == 0) {
+                datTestBitmapBit(*(u16 *)(work + 0xA4), (u16)param_2) == 0) {
                 if (option_four_value != 0)
                     goto next;
                 return 1;

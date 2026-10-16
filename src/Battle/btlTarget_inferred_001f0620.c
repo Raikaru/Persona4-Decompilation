@@ -39,7 +39,7 @@ extern f32 D_007613E4;
 extern f32 D_008872FC_abs[];
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern u8 *iGpffffb3c4;
-extern s32 func_0010f420(s32 arg0, s32 arg1);
+extern s32 datTestBitmapBit(s32 arg0, s32 arg1);
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
@@ -184,7 +184,7 @@ s32 func_001f0950(s32 arg0, s32 arg1)
             return 0;
         }
     }
-    return func_0010f420(arg0, arg1);
+    return datTestBitmapBit(arg0, arg1);
 }
 
 // FUN_001F0A10

@@ -109,7 +109,7 @@ void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
 {
     extern void mdlDestroyModelObject(void *arg0);
     extern void datFreeBlock(void *arg0);
-    extern u8 *func_00104900(s8 arg0);
+    extern u8 *datCloneEntryBlock(s8 arg0);
     extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
     extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
     extern void kwlnTaskDestroyWithHierarchy(void *arg0);
@@ -148,7 +148,7 @@ void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
         *(s8 *)(obj + 0) = 1;
         *(s8 *)(obj + 0x28) = arg2;
         *(s8 *)(obj + 6) = 0;
-        *(u8 **)(obj + 0x14) = func_00104900(*(s8 *)(obj + 0x28));
+        *(u8 **)(obj + 0x14) = datCloneEntryBlock(*(s8 *)(obj + 0x28));
         *(s32 *)(obj + 0x10) = *(s32 *)(*(u8 **)(obj + 0x14) + 8);
         RwMatrixRotate(obj + 0x30, &sp60, 0, 180.0f);
         RwMatrixTranslate(obj + 0x30, &sp50, 2);
