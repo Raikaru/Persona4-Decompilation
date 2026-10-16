@@ -66,14 +66,17 @@ extern void mtMiscCollectType2Records(u8 *arg0);
 /* measured: O1 float-local register mapping probe for func_00293710. */
 /* measured: func_00293710 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
+// Queues motion for resource arg0 with a position (positionX/Y/Z) and angle. When
+// the settings pointer is set, its four floats are stored and flag 0x2 is added.
+// Creates the manager task on first use.
 // FUN_00293710
-void func_00293710(u16 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+void evtModelQueueMotionAt(u16 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                    f32 fparg2, f32 fparg3, s32 arg2, u8 *arg3)
 {
     extern u8 *func_002e1db0();
     extern u8 *func_002e2170();
-extern s32 func_002930e0(u8 *task);
-extern void func_002931a0(u8 *task);
+extern s32 evtModelUpdateTask(u8 *task);
+extern void evtModelTaskDestroy(u8 *task);
 
     extern s32 kwlnTaskGetTaskByName(void *arg0);
     extern u8 **kwlnTaskGetWork(s32 arg0);
@@ -111,7 +114,7 @@ extern void func_002931a0(u8 *task);
         work = func_002e1db0(4, 0, 0, 0);
         work_link = *(u8 ***)(work + 0x24);
         *work_link = work;
-        result = (s32)kwlnTaskCreate((const void *)(D_0063C958), 15, 0, 0, func_002930e0, func_002931a0, (u8 *)(work_link));
+        result = (s32)kwlnTaskCreate((const void *)(D_0063C958), 15, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(work_link));
     }
     manager = (u8 *)kwlnTaskGetWork(result);
     memset(&data, 0, 0x2C);

@@ -626,8 +626,11 @@ done:
 }
 #pragma pop
 
+// Task update: runs each queued node's callback (stored at +0x2C of its entry);
+// a node whose callback returns nonzero is removed. Returns -1 when the queue
+// count at +0x10 is zero, else 0.
 // FUN_002930E0
-s32 func_002930e0(u8 *unusedTask) {
+s32 evtModelUpdateTask(u8 *unusedTask) {
     u8 **list;
     u8 *head;
     u8 *node;
@@ -655,8 +658,10 @@ ret0:
     return 0;
 }
 
+// Task destroy: resets each queued node's resource (blend weight and look-at
+// request) and frees the queue.
 // FUN_002931A0
-void func_002931a0(u8 *unusedTask) {
+void evtModelTaskDestroy(u8 *unusedTask) {
     u8 **list;
     u8 *head;
     u8 *node;
@@ -681,8 +686,9 @@ void func_002931a0(u8 *unusedTask) {
     func_002e1ef0(*list);
 }
 
+// Destroys the event-model manager task by name, with its child tasks.
 // FUN_00293270
-void func_00293270(void) {
+void evtModelDestroy(void) {
     s32 handle = kwlnTaskGetTaskByName(D_0063C958);
 
     if (handle != 0) {
@@ -690,8 +696,10 @@ void func_00293270(void) {
     }
 }
 
+// Resets the blend weight and look-at request on resource arg0 and removes its
+// nodes from the queue.
 // FUN_002932B0
-void func_002932b0(s32 arg0) {
+void evtModelFlushResource(s32 arg0) {
     u8 **list;
     u8 *head;
     u8 *node;
@@ -723,8 +731,10 @@ void func_002932b0(s32 arg0) {
     }
 }
 
+// Queues motion `motion` at `speed` for resource arg0. Creates the manager task
+// on first use.
 // FUN_002933A0
-void func_002933a0(u16 arg0, s32 arg1, f32 fparg0) {
+void evtModelQueueMotion(u16 arg0, s32 arg1, f32 fparg0) {
     u8 sp[0x2C];
     u32 var_2;
     u8 **temp_10;
@@ -743,7 +753,7 @@ void func_002933a0(u16 arg0, s32 arg1, f32 fparg0) {
         temp_2 = (u8 *)func_002e1db0(4, 0, 0, 0);
         temp_10 = *(u8 ***)(temp_2 + 0x24);
         *temp_10 = temp_2;
-        var_2 = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
+        var_2 = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(temp_10));
     }
     temp_17 = (u8 **)kwlnTaskGetWork(var_2);
     memset(sp, 0, 0x2C);
@@ -792,7 +802,7 @@ void func_00293550(u16 arg0, u16 arg1, s32 arg2, f32 fparg0) {
         temp_2 = (u8 *)func_002e1db0(4, 0, 0, 0);
         temp_10 = *(u8 ***)(temp_2 + 0x24);
         *temp_10 = temp_2;
-        var_2 = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, func_002930e0, func_002931a0, (u8 *)(temp_10));
+        var_2 = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(temp_10));
     }
     temp_17 = (u8 **)kwlnTaskGetWork(var_2);
     memset(sp, 0, 0x2C);
