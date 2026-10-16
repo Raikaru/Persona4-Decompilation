@@ -2713,8 +2713,9 @@ void EffSpriteAdvanceFrame(u8 *arg0) {
 }
 
 
+/* Identical body to WindSetFirstQuad. Slot 0 of the 16-byte table at 0x00713660, which has no decompiled reader yet, so the sprite owner is inferred from the adjacent sprite functions. */
 // FUN_004A6BC0
-u_long128 func_004a6bc0(u8 *arg0, u8 *arg1) {
+u_long128 EffSpriteSetFirstQuad(u8 *arg0, u8 *arg1) {
     u_long128 value;
     value = *(u_long128 *)arg1;
     *(u_long128 *)arg0 = value;
@@ -2722,8 +2723,9 @@ u_long128 func_004a6bc0(u8 *arg0, u8 *arg1) {
 }
 
 
+/* Identical body to WindSetSecondQuad. Slot 1 of the 16-byte table at 0x00713660, which has no decompiled reader yet, so the sprite owner is inferred from the adjacent sprite functions. */
 // FUN_004A6BD0
-u_long128 func_004a6bd0(u8 *arg0, u8 *arg1) {
+u_long128 EffSpriteSetSecondQuad(u8 *arg0, u8 *arg1) {
     u_long128 value;
     value = *(u_long128 *)arg1;
     *(u_long128 *)(arg0 + 0x10) = value;
