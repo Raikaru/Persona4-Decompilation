@@ -4070,7 +4070,7 @@ void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1)
     extern u32 kwlnTaskGetWork(void *arg0);
     extern void btlUiSetRenderStates(void);
     extern u8 *func_001b1560(void);
-    extern void func_00195d50(u8 *arg0, f32 *arg1);
+    extern void btlUnitGetAttachedSphereCenter(u8 *arg0, f32 *arg1);
     extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
     extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
     extern void btlUiDrawSpriteFaded(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
@@ -4106,7 +4106,7 @@ void btlSelectionDrawTargetFrame(u8 *arg0, u8 *arg1)
         } else {
             temp_2_2 = func_001b1560();
             if (temp_2_2 != NULL) {
-                func_00195d50(*(u8 **)(temp_2_2 + 0x30), frame.sp50);
+                btlUnitGetAttachedSphereCenter(*(u8 **)(temp_2_2 + 0x30), frame.sp50);
                 if (btlTargetFindInRange(frame.sp50, frame.sp48) != 0) {
                     btlUiSetOrigin(temp_2, frame.sp48[0] - 46.0f,
                                   frame.sp48[1] - 17.0f);

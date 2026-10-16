@@ -585,7 +585,7 @@ extern u16 D_008C024E[];
 // FUN_0020E010
 void btlSelectionDispatchTargetMode(s32 arg0, u8 *arg1, u8 *arg2)
 {
-    extern void func_00195d50(u8 *arg0, f32 *arg1);
+    extern void btlUnitGetAttachedSphereCenter(u8 *arg0, f32 *arg1);
     extern s32 btlTargetFindInRange(f32 *arg0, f32 *arg1);
     extern void btlUiSetOrigin(u8 *arg0, f32 fparg0, f32 fparg1);
     extern void btlPanelCursorDrawA(s32 arg0, u8 *arg1, u8 *arg2, f32 *arg3);
@@ -626,7 +626,7 @@ flag_set:
 flag_clear:
     *(s32 *)(arg2 + 0xA10) &= ~0x200;
 flags_done:
-    func_00195d50(arg2, (f32 *)work.vector);
+    btlUnitGetAttachedSphereCenter(arg2, (f32 *)work.vector);
     if (btlTargetFindInRange((f32 *)work.vector, (f32 *)work.value) != 0) {
         btlUiSetOrigin(temp_16, 0.0f, 0.0f);
         temp_4 = *(u16 *)(arg1 + 0);

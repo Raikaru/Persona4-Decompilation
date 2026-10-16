@@ -172,7 +172,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
     extern u16 btlTargetGetUnitIndex(struct BtlTarget *);
     extern s32 btlActionHasNoTargetClass(u32);
     extern void btlTargetBlendVectors(u8 *,u8 *,u8 *);
-    extern f32 func_00196040(u32,u32,RwV3d *,f32 *,f32 *,u32);
+    extern f32 btlUnitGetGroupBounds(u32,u32,RwV3d *,f32 *,f32 *,u32);
     extern f32 RwV3dNormalize(RwV3d *, const RwV3d *);
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, RwV3d *);
     extern RwMatrix *RwMatrixRotate(RwMatrix *,const RwV3d *,f32,RwOpCombineType);
@@ -224,7 +224,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
         candidate.y = sphereCenter.y + scaled.y;
         candidate.z = sphereCenter.z + scaled.z;
         candidate.y += 0.25f * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
-        func_00196040(3, 0, 0, &maxY, 0, 1);
+        btlUnitGetGroupBounds(3, 0, 0, &maxY, 0, 1);
         scaled = frames[0].pos;
         if (maxY < scaled.y)
         {
@@ -362,7 +362,7 @@ s32 func_001be990(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
         }
         else
         {
-            func_00196040((s32)btlTargetGetUnitIndex((struct BtlTarget *)(*(u8 **)(camera + 0xE0) + 0x38)) & 0xffff,
+            btlUnitGetGroupBounds((s32)btlTargetGetUnitIndex((struct BtlTarget *)(*(u8 **)(camera + 0xE0) + 0x38)) & 0xffff,
                          1, &targetCenter, 0, 0, 1);
         }
         btlTargetBlendVectors((u8 *)&quaternion, (u8 *)&candidate, (u8 *)&targetCenter);

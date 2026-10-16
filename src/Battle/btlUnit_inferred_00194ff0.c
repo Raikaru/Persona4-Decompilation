@@ -61,7 +61,7 @@ extern u8 iGpffffa0a0;
 extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
 typedef struct RwV3d RwV3d;
-extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
+extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
 extern void btlUnitGetGridSphereCenter(void *arg0, void *arg1);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
@@ -215,7 +215,7 @@ void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
         switch (temp_5) {
         case 0:
             if (datCalcChkBadStatus(*(s32 *)(arg0 + 0xA64), 0x100) == 0) {
-                func_00196040(2, 1, (RwV3d *)frame.vec, NULL, NULL, 1);
+                btlUnitGetGroupBounds(2, 1, (RwV3d *)frame.vec, NULL, NULL, 1);
             } else {
                 btlUnitGetGridSphereCenter(
                     *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),

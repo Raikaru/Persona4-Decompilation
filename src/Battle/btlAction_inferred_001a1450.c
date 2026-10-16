@@ -2583,7 +2583,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
     u8 *arg0 = (u8 *)arg0_;
     u8 *battleUnit;
     extern s64 btlPacketEnqueue(u8 *packet, u32 mode);
-    extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
+    extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *btlUnitCreateArcMovePacket();
     extern u8 *btlUnitCreateRotateTowardUnitPacket();
     extern u8 *btlCameraCreateSetStatePacket();
@@ -2810,7 +2810,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
         (*(s64 *)((u8 *)(rotatePacket) + (0x60))) = actionUid;
         btlPacketEnqueue(rotatePacket, 0);
     } else {
-        func_00196040(btlTargetGetUnitIndex((BtlTarget *)(arg0 + 0x38)) & 0xFFFF, 1, &targetPosition, 0, 0, 1);
+        btlUnitGetGroupBounds(btlTargetGetUnitIndex((BtlTarget *)(arg0 + 0x38)) & 0xFFFF, 1, &targetPosition, 0, 0, 1);
         rotateToPointPacket = (u8 *)(btlUnitCreateRotatePacket((*(BtlUnit **)(arg0 + (0x30))), &targetPosition, 0));
         (*(s64 *)((u8 *)(rotateToPointPacket) + (0x60))) = actionUid;
         btlPacketEnqueue(rotateToPointPacket, 0);
@@ -3480,7 +3480,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern u8 *btlPacketAllocZeroed(void *arg0, void *arg1);
     extern s32 func_00195530(u8 *arg0);
     extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
-    extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
+    extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *btlUnitCreateArcMovePacket(s32 unit, s16 skill, s16 delay);
     extern s32 btlUnitCreateRotateTowardUnitPacket();
     extern s32 func_00198810(u8 *arg0);
@@ -4018,7 +4018,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             rotatePkt4->ownerId = actionId;
             btlPacketEnqueue((u8 *)rotatePkt4, 0);
         } else if (side == 0) {
-            func_00196040((u16)btlTargetGetUnitIndex((BtlTarget *)(arg0 + 0x38)), 1, &targetPosition, 0, 0, 1);
+            btlUnitGetGroupBounds((u16)btlTargetGetUnitIndex((BtlTarget *)(arg0 + 0x38)), 1, &targetPosition, 0, 0, 1);
             pkt5 = (BtlPacketTiming *)(btlUnitCreateRotatePacket(*(BtlUnit **)(arg0 + 0x30), &targetPosition, rotateFlags));
             pkt5->ownerId = actionId;
             btlPacketEnqueue((u8 *)pkt5, 0);
@@ -4830,7 +4830,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             } else if ((targetPos == 0) && (side == 0)) {
                 targetGroup2 = (s32)((u16)btlTargetGetUnitIndex((BtlTarget *)(arg0 + 0x38)));
                 if (targetGroup2 == 2) {
-                    func_00196040(targetGroup2, 1, &targetPosition, 0, 0, 1);
+                    btlUnitGetGroupBounds(targetGroup2, 1, &targetPosition, 0, 0, 1);
                     pkt87 = (BtlPacketTiming *)(btlUnitCreateLookAtPacket(0, &targetPosition, 1));
                     pkt87->queue = 5;
                     pkt87->startTime = formationPkt6->endTime;

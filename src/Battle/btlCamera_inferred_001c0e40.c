@@ -56,7 +56,7 @@ extern f32 RwV3dNormalize(RwV3d *arg0, const RwV3d *arg1);
 extern f32 RwV3dLength(f32 *arg0);
 extern void btlCameraCopyPose();
 extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *out);
-extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
+extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
 extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
 extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
 extern u32 btlCameraClampOffsetToLimit(f32 *arg0, f32 *arg1);
@@ -253,7 +253,7 @@ void btlCameraFrameRandomOrbit(u8 *camera, s32 unused)
     btlCameraCopyPose((f32 *)&frames[0], (f32 *)(camera + 0x9C));
     unit = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
     btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
-    groupRadius = func_00196040(3, 1, &groupCenter, &top, 0, 0);
+    groupRadius = btlUnitGetGroupBounds(3, 1, &groupCenter, &top, 0, 0);
     if (btlCameraIsTargetPrioritized((s32)camera) != 0 || btlCameraIsTargetEligible(camera) != 0) {
         resource = *(u8 **)(unit + 0xA0C);
         if (resource != 0) {
@@ -957,7 +957,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
     extern f32 fGpffff8144;
     extern f32 fGpffff8148;
     extern f32 fGpffff814c;
-    extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
+    extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
     extern RwV3d *RtQuatTransformVectors(RwV3d *camera, const RwV3d *notify, s32 distinctPoses, const RtQuat *arg3);
     extern void btlCameraLookAtQuat(void *camera, const void *notify, const void *distinctPoses, const void *arg3);
@@ -1020,7 +1020,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
         distance = (f32)0x113;
         actorCenter.y = fGpffff8144;
     }
-    groupRadius = func_00196040(2, 0, (RwV3d *)((f32 *)&groupCenter), &top, NULL, 1);
+    groupRadius = btlUnitGetGroupBounds(2, 0, (RwV3d *)((f32 *)&groupCenter), &top, NULL, 1);
     RtQuatTransformVectors((RwV3d *)&direction, (const RwV3d *)D_0060A0D0, 1, (const RtQuat *)(actor + 0x1C));
     groupCenter.y = 0.5f * top;
     delta.x = actorCenter.x - groupCenter.x;
@@ -2094,13 +2094,13 @@ void btlCameraFrameFlagged(u8 *arg0, s32 arg1)
         group = 3;
     }
     group = group & 0xFFFF;
-    groupRadius = func_00196040(group, 1, &groupCenter, &top, NULL, 0);
+    groupRadius = btlUnitGetGroupBounds(group, 1, &groupCenter, &top, NULL, 0);
     groupCenter.y = 0.75f * top;
     cameraDistance = groupRadius / tanf(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
     if (cameraDistance < 1000.0f) {
         cameraDistance = 1000.0f;
     }
-    func_00196040(group, 1, &optionCenter, NULL, NULL, 1);
+    btlUnitGetGroupBounds(group, 1, &optionCenter, NULL, NULL, 1);
     maxLen = 0.0f;
     for (i = 0; i < *(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x6A); i++) {
         work = *(u8 **)(arg0 + 0xE0);

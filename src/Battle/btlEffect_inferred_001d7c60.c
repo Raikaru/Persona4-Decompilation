@@ -27,7 +27,7 @@ extern char D_005DC824[];
 extern char D_00794AE0[];
 extern char D_00794C00[];
 struct RwV3d;
-extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
+extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void memset(u8 *arg0, s32 arg1, s32 arg2);
@@ -388,7 +388,7 @@ void func_001d8010(u8 *arg0, u8 *arg1) {
     case 0:
     case 1: {
         btlUnitGetSphereWorldCenter(*(u8 **)(arg0 + 0x30), POS);
-        func_00196040(btlEffectCollectGenusMask(arg1) & 0xFFFF, 0, (RwV3d *)CENTER, 0, 0, 1);
+        btlUnitGetGroupBounds(btlEffectCollectGenusMask(arg1) & 0xFFFF, 0, (RwV3d *)CENTER, 0, 0, 1);
         BASEXZ[0] = POS[0];
         BASEXZ[1] = POS[2];
         CENTERXZ[0] = CENTER[0];

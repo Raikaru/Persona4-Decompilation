@@ -156,7 +156,7 @@ u32 btlUnitMoveToUnitPacketUpdate(BtlUnitPacketMoveToUnit* work);
 void btlUnitReleasePendingPacket(BtlUnitPacketCountRef* work);
 
 // FUN_00195B60
-void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2)
+void btlUnitGetAnimBoundsWorldCenterTowardUnit(u8 *arg0, s32 arg1, u8 *arg2)
 {
     struct Btl95Work {
         RwV3d rotation;
@@ -189,7 +189,7 @@ void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2)
    instruction; the object is 324B against the 336B window, with three retail
    trailing nop words left as window padding. */
 // FUN_00195D50
-void func_00195d50(u8 *arg0, u8 *arg1)
+void btlUnitGetAttachedSphereCenter(u8 *arg0, u8 *arg1)
 {
     struct Btl95DWork {
         RwV3d secondOut;
@@ -230,7 +230,7 @@ void func_00195d50(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00196040
-f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
+f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                   f32 *outTop, f32 *outBottom, u32 options)
 {
     RwV3d center;

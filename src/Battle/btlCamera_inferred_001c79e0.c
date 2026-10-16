@@ -56,7 +56,7 @@ extern f32 fGpffff8100;
 extern f32 RwV3dNormalize(RwV3d *arg0, const RwV3d *arg1);
 extern void btlCameraCopyPose();
 extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *out);
-extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
+extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
 extern RwMatrix *RwMatrixRotate(RwMatrix *arg0, const RwV3d *arg1, f32 arg2, s32 arg3);
 extern RwV3d *func_003e4320(RwV3d *arg0, const RwV3d *arg1, const RwMatrix *arg2);
 extern u32 btlCameraClampOffsetToLimit(f32 *arg0, f32 *arg1);
@@ -204,7 +204,7 @@ void btlCameraFrameStatus(u8 *arg0, s32 arg1)
     extern f32 fGpffff8138;
     extern f32 fGpffff813c;
     extern f32 fGpffff8030;
-    extern void func_00195d50(u8 *arg0, f32 *arg1);
+    extern void btlUnitGetAttachedSphereCenter(u8 *arg0, f32 *arg1);
     extern s32 datCalcIsDead(s32 arg0, s32 arg1);
     extern s32 datCalcIsStatusBlocked(s32 arg0);
     extern s32 datCalcIsLowHp(s32 arg0);
@@ -225,8 +225,8 @@ void btlCameraFrameStatus(u8 *arg0, s32 arg1)
     if (*(u16 *)(saved_arg0 + 0x106) != 0) {
         btlCameraCopyPose(frame.poseA0, (f32 *)(saved_arg0 + 0x9C));
         var16 = *(u8 **)(*(u8 **)(saved_arg0 + 0xE0) + 0x30);
-        var_f20 = func_00196040(3, 0, (RwV3d *)(frame.target118), 0, 0, 1);
-        func_00196040(1, 0, NULL, &frame.max14C, &frame.min148, 1);
+        var_f20 = btlUnitGetGroupBounds(3, 0, (RwV3d *)(frame.target118), 0, 0, 1);
+        btlUnitGetGroupBounds(1, 0, NULL, &frame.max14C, &frame.min148, 1);
         frame.target118[1] = frame.min148 + 0.5f * (frame.max14C - frame.min148);
         var_f20 = (0.75f * var_f20) / tanf(fGpffff8110 * (0.5f * *(f32 *)(saved_arg0 + 0xB8)));
         btlUnitGetGridSphereCenter((BtlUnit *)(var16), (RwV3d *)(frame.actorE8));
@@ -275,7 +275,7 @@ void btlCameraFrameStatus(u8 *arg0, s32 arg1)
         var_f20 = *(f32 *)(var16 + 0x90) * *(f32 *)(var16 + 0x2C);
         var_f24 = 0.5f * (*(f32 *)(var16 + 0x8C) * *(f32 *)(var16 + 0x2C));
         if (datCalcIsDead(*(s32 *)(var16 + 0xA64), 0) != 0) {
-            func_00195d50(var16, frame.pos138);
+            btlUnitGetAttachedSphereCenter(var16, frame.pos138);
             var_f23 = 1.5f;
             var_f22 = 3.5f;
             var_f21 = 25.0f;
@@ -381,7 +381,7 @@ void btlCameraFrameSideView(u8 *camera, s32 immediate)
     doubledRadius = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
     doubledRadius *= 2.0f;
     actorPosition.y = 0.0f + actorPosition.y + fGpffff8118 * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C));
-    distance = func_00196040(2, 0, &center, &top, NULL, 1);
+    distance = btlUnitGetGroupBounds(2, 0, &center, &top, NULL, 1);
     top *= fGpffff8100;
     center.y = top;
     btlTargetBlendVectors((u8 *)&heading, (u8 *)&actorPosition, (u8 *)&center);
