@@ -2217,7 +2217,7 @@ void func_0049a570(u8 *arg0) {
 void *func_0049a5e0(void *source) {
     u8 *arg0 = source;
 
-    return func_0049a370(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
+    return RingCreateKindInstance(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
 }
 // FUN_0049A610
 void func_0049a610(u8 *arg0) {
