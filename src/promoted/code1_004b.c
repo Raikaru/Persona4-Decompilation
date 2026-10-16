@@ -106,54 +106,17 @@ extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
 
-// FUN_004B0F70
-void func_004b0f70(void *object) {
-    DistortParticleProjectRecords(object, 0);
-}
 
 
 extern void DistortParticleProjectRecords();
 
 
-// FUN_004B0FA0
-void func_004b0fa0(void *object) {
-    DistortParticleProjectRecords(object, 1);
-}
 
 
 extern void func_004865c0(u8 *arg0, s32 arg1);
 
 
-// FUN_004B0FD0
-void func_004b0fd0(u8 *arg0)
-{
-    u8 *node;
-    u8 *inner;
 
-    node = *(u8 **)(arg0 + 0x5C);
-    if (node != NULL) {
-        inner = *(u8 **)(node + 0x20);
-        *(s32 *)(arg0 + 0x6C) = 0;
-        *(s32 *)(arg0 + 0x70) = 0;
-        func_00460ac0(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
-    }
-}
-
-// FUN_004B1030
-void func_004b1030(u8 *arg0)
-{
-    u8 *node;
-    u8 *inner;
-
-    DistortParticleUpdateRecords();
-    node = *(u8 **)(arg0 + 0x5C);
-    if (node != NULL) {
-        inner = *(u8 **)(node + 0x20);
-        *(s32 *)(arg0 + 0x6C) = 0;
-        *(s32 *)(arg0 + 0x70) = 0;
-        func_00460ac0(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
-    }
-}
 
 // FUN_004B1090
 void func_004b1090(u8 *instance, u32 *position)
@@ -176,29 +139,9 @@ void func_004b1100(u8 *arg0, f32 arg1)
     *(f32 *)(arg0 + 8) = arg1;
     func_00492e30(*(u16 **)(arg0 + 0x5c), arg1);
 }
-// FUN_004B1130
-u8 *func_004b1130(s32 resource)
-{
-    return func_00484bb0((u8 *)(u32)resource);
-}
 
-// FUN_004B1150
-void func_004b1150(u8 *model)
-{
-    func_00485b20(model);
-}
 
-// FUN_004B1170
-void func_004b1170(void)
-{
-    func_00485fe0();
-}
 
-// FUN_004B1190
-void func_004b1190(u8 *object)
-{
-    func_00485630(object);
-}
 
 // FUN_004B11B0
 u8 *func_004b11b0(u8 *arg0)
