@@ -250,7 +250,7 @@ typedef struct {
     u8 *head;
     u8 *tail;
 } PacketList;
-extern s32 func_00193d90(u8 *arg0, s32 arg1);
+extern s32 btlPacketWaitConditionMet(u8 *arg0, s32 arg1);
 // FUN_00193840
 s32 btlUnitLoadBlocksFromFile(u8 *arg0, s32 arg1)
 {
@@ -297,7 +297,7 @@ loop_8_check:
 }
 
 // FUN_001939A0
-void func_001939a0(void) {
+void btlUnitLoadSyncedAssets(void) {
     btlEffectLoadFilesSync();
     btlUiRegisterAvailability();
     func_001f8480();
@@ -366,7 +366,7 @@ void func_00193ad0(u8 *arg0)
 }
 
 // FUN_00193B70
-u8 *func_00193b70(u64 uid, u64 mask)
+u8 *btlUnitRecordFindByUID(u64 uid, u64 mask)
 {
     u8 *packet;
     u8 *btl;
@@ -389,9 +389,9 @@ u8 *func_00193b70(u64 uid, u64 mask)
 }
 
 // FUN_00193BF0
-/* Same packet-list walk as func_00193b70; this P4 packet stores the UID at
-   offset 0x60 instead of 0x58. */
-u8 *func_00193bf0(u64 uid, u64 mask)
+/* Same packet-list walk as btlUnitRecordFindByUID; this P4 packet stores the
+ * UID at offset 0x60 instead of 0x58. */
+u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask)
 {
     u8 *packet;
     u8 *btl;
@@ -481,7 +481,7 @@ void func_00193d30(void)
 /* measured: func_00193d90 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_00193D90
-s32 func_00193d90(u8 *arg0, s32 arg1)
+s32 btlPacketWaitConditionMet(u8 *arg0, s32 arg1)
 {
     s32 result;
     u64 uid;
@@ -726,7 +726,7 @@ void btlPacketStep(u8 *arg0)
         switch (*(u8 *)(arg0 + 0x45)) {
         case 0:
             for (i = 0; (i & 0xFFFF) < 2; i = (i + 1) & 0xFFFF) {
-                if (func_00193d90(arg0 + (((u16)i) << 4), count) == 0) {
+                if (btlPacketWaitConditionMet(arg0 + (((u16)i) << 4), count) == 0) {
                     ok = 0;
                     goto state0_done;
                 }
@@ -753,7 +753,7 @@ void btlPacketStep(u8 *arg0)
             }
         case 3:
             for (i = 0; (i & 0xFFFF) < 2; i = (i + 1) & 0xFFFF) {
-                if (func_00193d90((u8 *)((((u16)i) << 4) + (u32)arg0) + 0x20, count) == 0) {
+                if (btlPacketWaitConditionMet((u8 *)((((u16)i) << 4) + (u32)arg0) + 0x20, count) == 0) {
                     ok = 0;
                     goto state3_done;
                 }

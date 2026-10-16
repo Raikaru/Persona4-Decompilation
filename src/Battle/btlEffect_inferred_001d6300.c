@@ -111,7 +111,7 @@ void btlEffectPrepareFormationStep(u8 *arg0) {
 // FUN_001D6360
 s32 btlEffectStepFormationPlacement(u8 *arg0)
 {
-    extern s32 func_00193b70(s64 arg0, s64 arg1);
+    extern s32 btlUnitRecordFindByUID(s64 arg0, s64 arg1);
     extern u32 btlFormationGetCount(void *arg0);
     extern s32 btlFormationGetIndex(s32 arg0, s32 arg1);
     extern s32 btlFormationAllocEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -140,7 +140,7 @@ s32 btlEffectStepFormationPlacement(u8 *arg0)
         count = *(s32 *)(arg0 + 8);
         if ((count != 0 && *(s32 *)(arg0 + 0x1C) >= count * 2 - 13) ||
             ((key = *(s64 *)(arg0 + 0x10)) != 0 &&
-             func_00193b70(key, (s64)0x3FFFFFFFFFFFFFFF) == 0) ||
+             btlUnitRecordFindByUID(key, (s64)0x3FFFFFFFFFFFFFFF) == 0) ||
             (index != 0 && *(s32 *)(arg0 + 0x1C) >= index)) {
             if ((*(s32 *)(arg0 + 0x20) & 0x2000) != 0)
                 *(s8 *)(*(u8 **)(arg0 + 0x18) + 8) = 7;

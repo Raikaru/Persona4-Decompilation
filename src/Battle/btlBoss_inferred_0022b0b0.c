@@ -118,7 +118,7 @@ extern u8 D_00629700[];
 extern u8 *DAT_0076449c;
 extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
 
-extern u8 *func_00193bf0(u64 uid, u64 mask);
+extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(void *target);
 extern u8 *func_001b0c80(s32 arg0);
@@ -482,7 +482,7 @@ s32 btlEncounterFinishSetup(u8 *arg0)
     s32 fill;
     u8 *temp;
 
-    if (func_00193bf0(*(u64 *)arg0,
+    if (btlUnitRecordFindByActionUID(*(u64 *)arg0,
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
         *(s32 *)(DAT_0076449c + 0xC) &= 0xFFF7FFFF;
         btlUnitInitFromRecord(*(u8 **)(arg0 + 0x30), 0x10E);

@@ -46,7 +46,7 @@ extern u8 *iGpffffb3cc;
 extern f32 D_005F6D20[];
 
 void btlActionSetState(BtlAction *action, u16 state);
-u8 *func_00193bf0(u64 arg0, u64 arg1);
+u8 *btlUnitRecordFindByActionUID(u64 arg0, u64 arg1);
 static inline s32 func_001a_add_offset(s32 offset, s32 base)
 {
     return offset + base;
@@ -647,7 +647,7 @@ void btlActionRoundupMesUpdate(u8 *arg0)
         }
     }
 
-    if (func_00193bf0(*(u64 *)arg0,
+    if (btlUnitRecordFindByActionUID(*(u64 *)arg0,
                       0x3FFFFFFFFFFFFFFFULL) != 0) {
         return;
     }
@@ -1162,7 +1162,7 @@ void btlActionPacketInit(void)
 // FUN_001AF9E0
 void btlActionPacketUpdate(BtlAction *action)
 {
-    if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
+    if (btlUnitRecordFindByActionUID(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
         btlActionSetState(action, 0x21U);
     }
 }
