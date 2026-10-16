@@ -41,7 +41,7 @@ extern s32 datCalcGetHp();
 extern s32 datCalcSkillElement(u8 *unit, u16 skill);
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
 extern s32 datCalcDefaultSkillId(u8 *unit);
-extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
+extern s32 datCalcGetElementAffinity(u8 *arg0, s32 arg1);
 extern u8 *scrGetAiState();
 
 extern u8 *iGpffffb3ac;
@@ -300,7 +300,7 @@ s32 btlEffectScriptFindAilmentSkillElement(void) {
     result = btlActionFindById((u64)(command << 0x24) >> 0x24);
     entry = *(u8 **)(work + 0x30);
     element = (s16)datCalcSkillElement(*(u8 **)(entry + 0xA64), 0);
-    if (datCalcAilmentChance(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
+    if (datCalcGetElementAffinity(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
         scrSetReturnInt((s16)element);
         return 1;
     }
@@ -311,7 +311,7 @@ s32 btlEffectScriptFindAilmentSkillElement(void) {
         skill = *(u16 *)(base + index * 2);
         if (skill != 0 && skill < 0x1B8) {
             element = (s16)datCalcSkillElement(*(u8 **)(entry + 0xA64), skill);
-            if (datCalcAilmentChance(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
+            if (datCalcGetElementAffinity(*(u8 **)(*(u8 **)(result + 0x30) + 0xA64), element) & 0x08000000) {
                 scrSetReturnInt((s16)element);
                 return 1;
             }
@@ -608,7 +608,7 @@ outer_body:
         for (; ((s32)idxB & 0xFFFF) < (s32)(tgt.count & 0xFFFF); idxB = ((s32)idxB + 1) & 0xFFFF) {
             entryB = tgt.entries[(idxB & 0xFFFF)];
             if (btlAICommandNomalCheck(entryB, paramB, 1) == 0) {
-                if ((datCalcAilmentChance(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), kind) & 0x1000000) == 0) {
+                if ((datCalcGetElementAffinity(*(u8 **)(*(u8 **)(entryB + 0x30) + 0xA64), kind) & 0x1000000) == 0) {
                     curScore = 0.0f;
                     goto scored;
                 }

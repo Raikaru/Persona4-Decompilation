@@ -135,7 +135,7 @@ s32 func_001f3b80(s32 arg0) {
 s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     extern s32 datCalcGetLevel(u8 *arg0);
-    extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
+    extern s32 datCalcGetElementAffinity(u8 *arg0, s32 arg1);
     typedef struct ResistanceScanNode {
         u8 reserved000[0xA4];
         u16 id;
@@ -196,7 +196,7 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         {
             for (; firstNode != NULL; firstNode = firstNode->next) {
                 for (scanPosition = 0; (s32)scanPosition < 8; scanPosition++) {
-                    if ((datCalcAilmentChance(firstNode->data, (s16)scanPosition) & 0x07000000) != 0) {
+                    if ((datCalcGetElementAffinity(firstNode->data, (s16)scanPosition) & 0x07000000) != 0) {
                         switch (scanPosition) {
                         case 0:
                             primaryMessage = 0x17;
@@ -232,7 +232,7 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
                  scanPosition != 0;
                  scanPosition = (uintptr_t)((ResistanceScanNode *)scanPosition)->next) {
                 for (secondElement = 0; secondElement < 8; secondElement++) {
-                    if ((datCalcAilmentChance(((ResistanceScanNode *)scanPosition)->data, (s16)secondElement) & 0x08000000) != 0) {
+                    if ((datCalcGetElementAffinity(((ResistanceScanNode *)scanPosition)->data, (s16)secondElement) & 0x08000000) != 0) {
                         switch (secondElement) {
                         case 0:
                             secondaryMessage = 0x1E;
