@@ -136,7 +136,7 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 
@@ -207,7 +207,7 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
  * it without another mask, while the matched definitions in this file keep
  * s32 because their own bodies use the full word.
  * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the func_0034f320
+ * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
  * call, so the label pointer is loaded before the stack argument. */
 #pragma push
 typedef struct { s32 lo, hi; } CampDisplayWords;

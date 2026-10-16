@@ -271,7 +271,7 @@ void func_00361d20(s32 arg0, u8 *arg1)
 {
     typedef struct MenuPaletteColor { u8 r, g, b, a; } MenuPaletteColor;
     typedef struct MenuRowStride { u8 bytes[0x30]; } MenuRowStride;
-    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+    extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     extern int sprintf(char *dst, const char *fmt, ...);
     extern u32 func_00354490(s32 arg0);
     extern u8 D_0064B2E0[];
@@ -386,23 +386,23 @@ void func_00361d20(s32 arg0, u8 *arg1)
     y = -13.0f + (rowOffsetY + (113.0f + (baseY + *rowY)));
     rowAlpha = (u8 *)((MenuRowStride *)(arg1 + 0x1E2) + arg0);
     alpha = (u8)((f32)*rowAlpha * scale);
-    func_0034f2e0((void *)ptrA, x, y, rgb1r, rgb1g, rgb1b, alpha);
+    sdkSpriteDrawAt((void *)ptrA, x, y, rgb1r, rgb1g, rgb1b, alpha);
     if (probe180 != 0) {
         MenuPaletteColor *pal;
         f32 x2 = 15.0f + (baseX + *(f32 *)((MenuRowStride *)(arg1 + 0x418) + arg0));
         f32 y2 = -13.0f + (rowOffsetY + (117.0f + (baseY + *(f32 *)((MenuRowStride *)(arg1 + 0x41C) + arg0))));
         u8 a2 = (u8)((f32)*(u8 *)(arg1 + 0x422 + arg0 * 0x30) * scale);
         pal = (MenuPaletteColor *)D_0064B2EC;
-        func_0034f2e0(*(void **)(arg1 + 0x6A4), x2, y2, 0x8C, 0x85, 0xFF, a2);
+        sdkSpriteDrawAt(*(void **)(arg1 + 0x6A4), x2, y2, 0x8C, 0x85, 0xFF, a2);
         drawNode = *(void **)(arg1 + 0x6A8);
-        func_0034f2e0(drawNode, x2 + 60.0f, y2, 0x8C, 0x85, 0xFF, a2);
+        sdkSpriteDrawAt(drawNode, x2 + 60.0f, y2, 0x8C, 0x85, 0xFF, a2);
         drawNode = *(void **)(arg1 + 0x6A0);
-        func_0034f2e0(drawNode, x2 + 10.0f, y2 + 3.0f, pal->r, pal->g, pal->b, a2);
+        sdkSpriteDrawAt(drawNode, x2 + 10.0f, y2 + 3.0f, pal->r, pal->g, pal->b, a2);
     } else if (probe140 != 0) {
         x = 62.0f + (baseX + *(f32 *)((MenuRowStride *)(arg1 + 0x418) + arg0));
         y = -13.0f + (rowOffsetY + (117.0f + (baseY + *(f32 *)((MenuRowStride *)(arg1 + 0x41C) + arg0))));
         alpha = (u8)((f32)*(u8 *)(arg1 + 0x422 + arg0 * 0x30) * scale);
-        func_0034f2e0(*(void **)(arg1 + 0x6F8), x, y, 0xFF, 0xFF, 0xFF, alpha);
+        sdkSpriteDrawAt(*(void **)(arg1 + 0x6F8), x, y, 0xFF, 0xFF, 0xFF, alpha);
     }
     sprintf((char *)buf, (const char *)&iGpffffa980, idx + 1);
     lx = 89.0f + (baseX + *rowX);
@@ -412,7 +412,7 @@ void func_00361d20(s32 arg0, u8 *arg1)
         s32 i;
         for (i = 0; i < 2; i++) {
             s32 tbl = *(s32 *)(arg1 + (s32)buf[i] * 4 + 0x5EC);
-            func_0034f2e0((void *)tbl, lx, ly, rgb2r, rgb2g, rgb2b, alphaLoop);
+            sdkSpriteDrawAt((void *)tbl, lx, ly, rgb2r, rgb2g, rgb2b, alphaLoop);
             lx += 22.0f;
         }
     }
@@ -428,7 +428,7 @@ void func_00361d20(s32 arg0, u8 *arg1)
         frFontExDrawTextOutA(fx, fy - 3.0f, 0.0f, color, mode, 1, (const char *)str, 0, 0x77, -1);
     } else {
         drawNode = *(void **)(arg1 + 0x69C);
-        func_0034f2e0(drawNode, fx + 2.0f, fy + 1.0f, rgb2r, rgb2g, rgb2b, finalAlpha);
+        sdkSpriteDrawAt(drawNode, fx + 2.0f, fy + 1.0f, rgb2r, rgb2g, rgb2b, finalAlpha);
     }
 }
 // FUN_00362630

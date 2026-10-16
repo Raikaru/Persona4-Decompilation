@@ -23,13 +23,13 @@ extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_0010f540(s32 arg0);
 extern void func_0010b3b0(s16 arg0);
 extern s32 datCalcThresholdTriggerById(s16 arg0, u32 arg1);
-extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
+extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern f32 fGpffff82cc; /* gp -0x7d34 */
-extern void func_002bc860(f32 x, f32 y, f32 depth,
+extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u16 D_008C024E[];
 extern u16 D_008C0252[];

@@ -297,8 +297,8 @@ void func_00135dc0(u8* work)
 {
     extern void func_0034f1e0(void);
     extern void func_0034c270(Vec2f position, s32 alpha, s32 background, f32 depth);
-    extern void func_0034f2e0(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
-    extern void func_0034f320(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 width,
+    extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
+    extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 width,
                               u16 height, s16 angle, f32 scale, s16 mode);
     extern f32 func_0034f720(u8 *cell, f32 xEdge, f32 yEdge, f32 ceiling);
     extern void func_0034f9d0(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 texture);
@@ -378,7 +378,7 @@ void func_00135dc0(u8* work)
                 cellColor = D_005EB540 + gridCell->kind;
                 tint = cellColor[4];
                 value = (f32)gridAlpha * cellFade;
-                func_0034f2e0(gridSprite, cellX, cellY, tint.red, tint.green, tint.blue, (u8)value);
+                sdkSpriteDrawAt(gridSprite, cellX, cellY, tint.red, tint.green, tint.blue, (u8)value);
             }
         }
     }
@@ -406,7 +406,7 @@ void func_00135dc0(u8* work)
             backdropGreen = tint.green;
             for (; backgroundIndex < 0x24; backgroundIndex++) {
                 rowBase = work + backgroundIndex * 0x30;
-                func_0034f2e0(nodeSprite, position.x + *(f32*)(rowBase + 0x15A4),
+                sdkSpriteDrawAt(nodeSprite, position.x + *(f32*)(rowBase + 0x15A4),
                               position.y + *(f32*)(rowBase + 0x15A8), tint.red, backdropGreen, backdropBlue,
                               backdropOpacity);
             }
@@ -436,7 +436,7 @@ void func_00135dc0(u8* work)
                 }
                 cellColor = D_005EB540 + node->kind;
                 tint = *cellColor;
-                func_0034f2e0(nodeSprite, cellX, cellY, tint.red, tint.green, tint.blue, cellAlpha);
+                sdkSpriteDrawAt(nodeSprite, cellX, cellY, tint.red, tint.green, tint.blue, cellAlpha);
             }
         }
     }
@@ -469,10 +469,10 @@ void func_00135dc0(u8* work)
                 rowStyle = 6;
             }
             rowSprite = menu->sprites[0];
-            func_0034f320(rowSprite, position.x, position.y, 0.0f, rowPalette[0], rowPalette[1], rowPalette[2],
+            sdkSpriteDrawSized(rowSprite, position.x, position.y, 0.0f, rowPalette[0], rowPalette[1], rowPalette[2],
                           rowAlpha, width, height, 0, 0.0f, 0);
             rowSprite = menu->sprites[1];
-            func_0034f320(rowSprite, 202.0f + position.x, position.y, 0.0f, rowPalette[0], rowPalette[1],
+            sdkSpriteDrawSized(rowSprite, 202.0f + position.x, position.y, 0.0f, rowPalette[0], rowPalette[1],
                           rowPalette[2], rowAlpha, width, height, 0, 0.0f, 0);
             frFontExDrawText(105.0f + position.x, position.y, 0.0f, rowColor, rowStyle, 1,
                           (const char*)func_0010d6d0(*(s16*)(work + rowIndex * 2 + 0x24)), 8, 0);
@@ -518,21 +518,21 @@ void func_00135dc0(u8* work)
         position.y = 402.0f + (originY + menu->motion[27].y);
         value = (f32)menu->motion[27].alpha * opacity;
         drawOpacity = (u8)value;
-        func_0034f2e0(menu->sprites[6], position.x, position.y, 0xFF, 0xFF, 0xFF, drawOpacity);
+        sdkSpriteDrawAt(menu->sprites[6], position.x, position.y, 0xFF, 0xFF, 0xFF, drawOpacity);
     }
     if ((menu->visible & 0x200) != 0) {
         position.x = 20.0f + (originX + menu->motion[25].x);
         position.y = 379.0f + (originY + menu->motion[25].y);
         value = (f32)menu->motion[25].alpha * opacity;
         drawOpacity = (u8)value;
-        func_0034f2e0(menu->sprites[20], position.x, position.y, 0xFF, 0xFF, 0xFF, drawOpacity);
+        sdkSpriteDrawAt(menu->sprites[20], position.x, position.y, 0xFF, 0xFF, 0xFF, drawOpacity);
     }
     if ((menu->visible & 0x400) != 0) {
         position.x = 20.0f + (originX + menu->motion[26].x);
         position.y = 379.0f + (originY + menu->motion[26].y);
         value = (f32)menu->motion[26].alpha * opacity;
         drawOpacity = (u8)value;
-        func_0034f2e0(menu->sprites[9], position.x, position.y, 0xFF, 0xFF, 0xFF, drawOpacity);
+        sdkSpriteDrawAt(menu->sprites[9], position.x, position.y, 0xFF, 0xFF, 0xFF, drawOpacity);
     }
     if ((menu->visible & 0x4) != 0) {
         s32 personaIndex;
@@ -933,7 +933,7 @@ void func_00137890(u8 *arg0, s32 arg1)
     extern u16 *datPersonaRosterSlot(s16 slot);
     extern void datPanelReset(u8 *panel);
     extern void shdPersonaFillStatusBlock(u8 *persona, u8 *record, s32 mode);
-    extern void func_0034f2e0(void *sprite, f32 x, f32 y,
+    extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y,
                             u8 red, u8 green, u8 blue, u8 alpha);
     extern s32 func_00105330(s32 character);
     extern void shdPersonaDrawByMode(Vec2f position, u8 alpha, s16 *panel, f32 depth);
@@ -978,11 +978,11 @@ void func_00137890(u8 *arg0, s32 arg1)
     if (arg1 >= *(s16 *)(arg0 + 0x4E)) {
         position.x = x - 40.0f;
         position.y = y + 21.0f;
-        func_0034f2e0(*(void **)(arg0 + 0x1C64), position.x, position.y,
+        sdkSpriteDrawAt(*(void **)(arg0 + 0x1C64), position.x, position.y,
                       0xFF, 0xE9, 0x2C, spriteOpacity);
         position.x = x + 89.0f;
         position.y = y + 21.0f;
-        func_0034f2e0(*(void **)(arg0 + 0x1C68), position.x, position.y,
+        sdkSpriteDrawAt(*(void **)(arg0 + 0x1C68), position.x, position.y,
                       0xFF, 0xE9, 0x2C, spriteOpacity);
     } else {
         datPanelReset(panel.bytes);
@@ -1012,18 +1012,18 @@ void func_00137890(u8 *arg0, s32 arg1)
                       panel.bytes + 8, 2);
         position.x = x - 40.0f;
         position.y = y + 21.0f;
-        func_0034f2e0(*(void **)(arg0 + 0x1C5C), position.x, position.y,
+        sdkSpriteDrawAt(*(void **)(arg0 + 0x1C5C), position.x, position.y,
                       red, green, blue, sprite_alpha);
         position.x = x + 89.0f;
         position.y = y + 21.0f;
-        func_0034f2e0(*(void **)(arg0 + 0x1C60), position.x, position.y,
+        sdkSpriteDrawAt(*(void **)(arg0 + 0x1C60), position.x, position.y,
                       red, green, blue, sprite_alpha);
         level = panel.bytes[12];
         position.x = x + 72.0f;
         row_y = y + 26.0f;
         position.y = row_y;
         do {
-            func_0034f2e0(*(void **)(arg0 + (level % 10) * 4 + 0x1C7C),
+            sdkSpriteDrawAt(*(void **)(arg0 + (level % 10) * 4 + 0x1C7C),
                           position.x, position.y,
                           digit_red, digit_green, digit_blue, sprite_alpha);
             position.x -= 22.0f;
@@ -1032,13 +1032,13 @@ void func_00137890(u8 *arg0, s32 arg1)
         if (selected != 0) {
             position.x = x + 24.0f;
             position.y = y + 33.0f;
-            func_0034f2e0(*(void **)(arg0 + 0x1CA8), position.x, position.y,
+            sdkSpriteDrawAt(*(void **)(arg0 + 0x1CA8), position.x, position.y,
                           digit_red, digit_green, digit_blue, sprite_alpha);
         }
         if (arg1 == func_00105330(1) && (*(u32 *)(arg0 + 0x1C) & 0x20)) {
             position.x = 22.0f;
             position.y = row_y;
-            func_0034f2e0(*(void **)(arg0 + 0x1CAC), position.x, position.y,
+            sdkSpriteDrawAt(*(void **)(arg0 + 0x1CAC), position.x, position.y,
                           0xFF, 0x85, 0x1F, sprite_alpha);
         }
         position.x = x + 99.0f;
