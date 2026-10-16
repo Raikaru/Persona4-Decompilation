@@ -1,3 +1,4 @@
+#include "rw_types_internal.h"
 #include "btl_skill_target_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
@@ -12,7 +13,6 @@ typedef struct BtlCamera BtlCamera;
 typedef struct BtlUnitStateWork BtlUnitStateWork;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;
-typedef struct RwV3d RwV3d;
 typedef struct DatUnit DatUnit;
 typedef struct KwlnTask KwlnTask;
 typedef struct Model Model;
@@ -32,23 +32,6 @@ typedef struct BtlAction BtlAction;
 extern void btlActionSetState(BtlAction *action, u16 state);
 extern void btlActionRunPresentation(u8 *packet);
 extern void btlActionRunMotionSequence(u8 *packet);
-struct RwV3d {
-    f32 x;
-    f32 y;
-    f32 z;
-};
-typedef struct RtQuat {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} RtQuat;
-typedef struct RwRGBA {
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
-} RwRGBA;
 extern RwRGBA iGpffffb45c;
 extern char D_007636C0[8];
 extern char D_007636C8[8];
