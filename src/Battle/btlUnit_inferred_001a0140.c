@@ -85,11 +85,14 @@ extern f32 D_0076144C;
 /* Source unit: src/promoted/code1_001a.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001a.c; members 001a0140-001a05f0 */
 
+/* Returns 1 when a target row of the action's target list carries a flag: kind 0
+   scans row +0xF8 for BTL_STATUS_DOWN (0x100000); kind 1 scans row +0x10E for 0x4
+   (the 0x4 setter is not identified; the damage calc writes 0x8/0x20/0x40 there). */
 // FUN_001A0140
 /* measured: loop-invariant probe for 001A0140 preheader materialization. */
 /* measured: func_001a0140 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 func_001a0140(u8 *arg0)
+s32 btlActionAnyTargetDownOrHitFlagged(u8 *arg0)
 {
     s32 i0;
     u8 unitKind;

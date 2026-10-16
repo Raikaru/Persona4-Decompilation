@@ -193,7 +193,7 @@ extern f32 D_0076144C;
 /* Source unit: src/promoted/code1_001a.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001a.c; members 001a1450-001adb80 */
 
-extern s32 func_001a0140(u8 *arg0);
+extern s32 btlActionAnyTargetDownOrHitFlagged(u8 *arg0);
 extern void btlActionGetEffectIndices(BtlAction *action, u16 arg1, u8 *arg2);
 extern void btlActionFinishPresentation(BtlAction *action);
 extern s32 btlActionLinkedUnitIsActive(BtlAction *action);
@@ -2025,7 +2025,7 @@ donecheck:
                 btlActionSetState((BtlAction *)arg0, 7U);
                 break;
             }
-            if ((delayFlag != 0) && ((s32)(func_001a0140(arg0)) != (s32)(0))) {
+            if ((delayFlag != 0) && ((s32)(btlActionAnyTargetDownOrHitFlagged(arg0)) != (s32)(0))) {
                 (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) | 8));
             } else {
                 (*( u16*)((u8 *)(arg0) + 0x18)) = (u16)((u16) ((*( u16*)((u8 *)(arg0) + 0x18)) & 0xFFF7));
