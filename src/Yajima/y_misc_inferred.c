@@ -99,14 +99,16 @@ u8 *fclGetWorkPointer(u8 *arg0)
     return *(u8 **)(arg0 + 0x38);
 }
 
+// Intent: sets the symbol system's enabled flag (global iGpffffb55c). The field code sets it to 1 right after smapCreateSymbols, when the map is in band A or B.
 // FUN_002B2950
-void func_002b2950(s32 arg0)
+void ySymbolSetEnabled(s32 arg0)
 {
     iGpffffb55c = arg0;
 }
 
+// Intent: returns the symbol system's enabled flag (global iGpffffb55c); the symbol update paths return early while it is 0.
 // FUN_002B2960
-s32 func_002b2960(void)
+s32 ySymbolIsEnabled(void)
 {
     return iGpffffb55c;
 }
@@ -724,7 +726,7 @@ s32 mapSymbolTaskUpdate(u8 *arg0)
     p = *(u8 **)(arg0 + 0x38);
     fclAnchorOffset(&work.x, 0, 136.0f, 136.0f, 21.0f, 22.0f);
     out = *(FclVec2 *)&work;
-    if (func_002b2960() == 0) {
+    if (ySymbolIsEnabled() == 0) {
         return 0;
     }
     if (*(s8 *)(p + 0x21) == 1) {

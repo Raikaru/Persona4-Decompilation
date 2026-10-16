@@ -121,7 +121,7 @@ extern void FldUnit_UpdateEnemySlot(void);
 extern s32 FldUnit_SpawnEncounterTask(u8 *, s32);
 extern s32 FldMap_IsCurrentInBandB(void);
 extern s32 smapCreateSymbols(u8 *);
-extern void func_002b2950(s32);
+extern void ySymbolSetEnabled(s32);
 extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);
 extern void FldPanel2dTaskCreate(void);
@@ -279,7 +279,7 @@ s32 FldRootUpdate(u8 *task)
         if ((FldMap_IsCurrentInBandA() == 1 || FldMap_IsCurrentInBandB() == 1) &&
             (*(s32 *)(iGpffff9db0 + 0) != 0x44 || *(s32 *)(iGpffff9db0 + 4) != 1)) {
             D_007D2528[0] = smapCreateSymbols(task);
-            func_002b2950(1);
+            ySymbolSetEnabled(1);
         }
         if (FldStepIndex() != 0) {
             D_007D253C[0] = FldNoiseTaskCreate(task);

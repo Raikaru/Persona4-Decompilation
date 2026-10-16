@@ -850,7 +850,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     struct RwMatrixTag *mdlTranslateMatrix(struct RwMatrixTag *, const struct RwV3d *, s32);
     s32 FldEvent_SpawnMover(s32, s32, s32);
     u8 *smapCreateSymbols(u8 *);
-    void func_002b2950(s32);
+    void ySymbolSetEnabled(s32);
     s32 sndPlayAreaCue(void);
     void FldUnit_UpdateSlots(s32);
     void FldUnit_UpdateSlotModels(void);
@@ -1417,7 +1417,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 work->fieldEffect = FldEvent_SpawnMover(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x8), *(s32 *)(res + 0x220), *(s32 *)(res + 0x164));
                 t12 = (s32)smapCreateSymbols((u8 *)(*(s32 *)(u8 *)MT_Scene_GetFrameState()));
                 *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) = t12;
-                func_002b2950(1);
+                ySymbolSetEnabled(1);
                 sndPlayAreaCue();
                 if (datGetFlag(0x1410) != 0 || datGetFlag(0x1411) != 0) {
                     t13 = FldUnit_SpawnEncounterTask((u8 *)(*(s32 *)(u8 *)MT_Scene_GetFrameState()), work->unitState);

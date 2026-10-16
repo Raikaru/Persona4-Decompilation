@@ -1857,7 +1857,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
 void msgWinStoreSlot(s32 arg0, s32 arg1) {
     s32 *temp_2;
 
-    temp_2 = func_0027BE60(arg0);
+    temp_2 = itfMesWindowSubTablePtr(arg0);
     if (temp_2 != NULL) {
         *temp_2 = arg1;
     }
@@ -1890,13 +1890,13 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
             kAssertFail(D_0063BFC0, 0x18F);
         }
         memset(D_00882040, 0, 0x18);
-        if (func_0027BE60((s32)arg0) == NULL) {
+        if (itfMesWindowSubTablePtr((s32)arg0) == NULL) {
             chkmemAllocSiteTag(D_0063BFC0, 0x5C0);
             fclMesWindowSetUserData((s32)arg0, D_008873F4[0](1, 8, 0x40000));
         }
         break;
     case 1:
-        if ((tex = func_0027BE60((s32)arg0)) != NULL) {
+        if ((tex = itfMesWindowSubTablePtr((s32)arg0)) != NULL) {
             jtbl_008873EC[0](tex);
             fclMesWindowSetUserData((s32)arg0, NULL);
         }
@@ -1923,7 +1923,7 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
                 msgWinDrawRing(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
             }
             if (D_00882044[0] > 3 && D_00882044[0] < 11) {
-                tex = func_0027BE60((s32)arg0);
+                tex = itfMesWindowSubTablePtr((s32)arg0);
                 if (tex != NULL) {
                     f = sinf(iGpffff8094 * (f32)(D_00882044[0] - 3) / 7.0f);
                     sdkSpriteDrawQueued(9.0f - 60.0f * (1.0f - f), 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)fclMiscSlotValue(*tex), 1,
@@ -1941,7 +1941,7 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
         if (func_0027bec0((s32)arg0) != 0) {
             func_00366380(0x46, 0x1B, 0.0f, 0x194, 0x37, 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
             msgWinDrawRing(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
-            if ((tex = func_0027BE60((s32)arg0)) != NULL) {
+            if ((tex = itfMesWindowSubTablePtr((s32)arg0)) != NULL) {
                 sdkSpriteDrawQueued(9.0f, 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)fclMiscSlotValue(*tex), 1, 0, 0, 0.0f, 1.0f, 1.0f,
                               D_00796490);
             }

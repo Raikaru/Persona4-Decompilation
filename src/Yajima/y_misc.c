@@ -7,8 +7,9 @@
 #pragma push
 
 
+// Intent: returns the sub-table pointer (+0x18) of a message window's sub-table entry.
 // FUN_0027BE60
-void *func_0027BE60(s32 handle)
+void *itfMesWindowSubTablePtr(s32 handle)
 
 {
 
