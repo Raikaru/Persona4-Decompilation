@@ -1529,13 +1529,13 @@ void func_00388d10(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = 0;
 }
 // FUN_00388D20
-void func_00388d20(u8 *arg0)
+void btlShuffleDrawViewSetActive(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) | 0x4;
 }
 
 // FUN_00388D40
-void func_00388d40(u8 *arg0)
+void btlShuffleDrawViewClearActive(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0xFFFB;
 }
