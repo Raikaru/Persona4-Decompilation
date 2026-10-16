@@ -81,10 +81,10 @@ extern BtlPacket *btlEffectCreateMessagePacket(u8 *values, u16 duration);
 extern BtlPacket *func_001d7b60(u16 duration);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 extern u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 id, s16 animation);
-extern BtlPacket *func_002305c0(s32 id);
-extern BtlPacket *func_00230650(void);
-extern BtlPacket *func_002306d0(void);
-extern BtlPacket *func_00230750(void);
+extern BtlPacket *btlBossCreateLoadEndBgmPacket(s32 id);
+extern BtlPacket *btlBossCreateReleaseEndBgmPacket(void);
+extern BtlPacket *btlBossCreateStepEndBgmPacket(void);
+extern BtlPacket *btlBossCreateStopEndBgmPacket(void);
 extern BtlPacket *btlCreateTimingPacket(u32 duration);
 extern BtlPacket *btlMainCreateFadePacket(s32 duration, s16 mode);
 extern BtlPacket *btlMainCreateColorFadePacket(s32 duration);
@@ -306,7 +306,7 @@ void btlActionRunFormationSequence(u8 *action)
     *(u64 *)(packet + 0x60) = *(u64 *)action;
     btlPacketEnqueue(packet, 0);
 
-    packet = (u8 *)func_002306d0();
+    packet = (u8 *)btlBossCreateStepEndBgmPacket();
     packet[0] = 4;
     *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
     *(u16 *)(packet + 0x48) = 0x33;
@@ -351,7 +351,7 @@ void btlActionRunFormationSequence(u8 *action)
     *(u64 *)(anchor + 0x60) = *(u64 *)action;
     btlPacketEnqueue(anchor, 1);
 
-    packet = (u8 *)func_00230750();
+    packet = (u8 *)btlBossCreateStopEndBgmPacket();
     packet[0] = 4;
     *(u64 *)(packet + 8) = *(u64 *)(wait1 + 0x58);
     packet[0x10] = 4;
@@ -359,7 +359,7 @@ void btlActionRunFormationSequence(u8 *action)
     *(u64 *)(packet + 0x60) = *(u64 *)action;
     btlPacketEnqueue(packet, 1);
 
-    cleanup = (u8 *)func_00230650();
+    cleanup = (u8 *)btlBossCreateReleaseEndBgmPacket();
     cleanup[0] = 4;
     *(u64 *)(cleanup + 8) = *(u64 *)(wait1 + 0x58);
     cleanup[0x10] = 4;
@@ -390,7 +390,7 @@ void btlActionRunFormationSequence(u8 *action)
     *(u64 *)(packet + 0x60) = *(u64 *)action;
     btlPacketEnqueue(packet, 1);
 
-    packet = (u8 *)func_002305c0(0x10E);
+    packet = (u8 *)btlBossCreateLoadEndBgmPacket(0x10E);
     packet[0] = 4;
     *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
     packet[0x10] = 4;

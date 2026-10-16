@@ -128,8 +128,8 @@ extern u32 datGetFlag(s32 arg0);
 extern BtlPacket *btlVoiceCreateIdPacket(u16 arg0);
 extern u8 *btlSoundCreateWaitPacket(void);
 extern u8 *btlBossCreateLoadPakPacket(void);
-extern s32 func_00230790(void);
-extern BtlPacket *func_002305c0(s32 arg0);
+extern s32 btlBossMapUnitIdToEntryId(void);
+extern BtlPacket *btlBossCreateLoadEndBgmPacket(s32 arg0);
 extern void func_002aaa80(void);
 extern void hFadeSetCustomWhite(void);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
@@ -470,7 +470,7 @@ s32 btlMainSceneSetUpdate(void)
     extern u8 *btlSoundCreateWaitPacket(void);
     extern s32 func_0022bd20(void);
     extern u8 *btlBossCreateLoadPakPacket(void);
-    extern s32 func_00230790(void);
+    extern s32 btlBossMapUnitIdToEntryId(void);
     extern s32 btlCurrentUnitId(void);
     extern void func_002aaa80(void);
     extern void hFadeSetCustomWhite(void);
@@ -504,9 +504,9 @@ got_var:
     btlPacketEnqueue(temp_2_2, 1);
     if (func_0022bd20() != 0) {
         btlPacketEnqueue(btlBossCreateLoadPakPacket(), 1);
-        temp_2_3 = func_00230790();
+        temp_2_3 = btlBossMapUnitIdToEntryId();
         if (temp_2_3 != -1) {
-            btlPacketEnqueue((u8 *)func_002305c0(temp_2_3), 1);
+            btlPacketEnqueue((u8 *)btlBossCreateLoadEndBgmPacket(temp_2_3), 1);
         }
     }
     temp_2_4 = btlCurrentUnitId();

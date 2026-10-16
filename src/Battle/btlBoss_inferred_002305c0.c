@@ -49,7 +49,7 @@ extern char D_00635800[];
 
 extern void func_00231550(s32 arg0, u16 arg1);
 // FUN_002305C0
-BtlPacket *func_002305c0(s32 arg0)
+BtlPacket *btlBossCreateLoadEndBgmPacket(s32 arg0)
 {
     u8 *p;
     u8 *work;
@@ -63,7 +63,7 @@ BtlPacket *func_002305c0(s32 arg0)
 }
 
 // FUN_00230610
-s32 func_00230610(void)
+s32 btlBossReleaseEndBgmHandle(void)
 {
     u8 *p;
 
@@ -76,18 +76,18 @@ s32 func_00230610(void)
 }
 
 // FUN_00230650
-BtlPacket *func_00230650(void)
+BtlPacket *btlBossCreateReleaseEndBgmPacket(void)
 {
     u8 *p;
 
     p = btlPacketAlloc(0xE02, 0);
     p[0x47] &= 0xFE;
-    *(void **)(p + 0x6C) = (void *)func_00230610;
+    *(void **)(p + 0x6C) = (void *)btlBossReleaseEndBgmHandle;
     return (BtlPacket *)p;
 }
 
 // FUN_00230690
-s32 func_00230690(void)
+s32 btlBossStepEndBgmHandle(void)
 {
     u8 *p;
 
@@ -99,18 +99,18 @@ s32 func_00230690(void)
 }
 
 // FUN_002306D0
-BtlPacket *func_002306d0(void)
+BtlPacket *btlBossCreateStepEndBgmPacket(void)
 {
     u8 *p;
 
     p = btlPacketAlloc(0xE03, 0);
     p[0x47] &= 0xFE;
-    *(void **)(p + 0x6C) = (void *)func_00230690;
+    *(void **)(p + 0x6C) = (void *)btlBossStepEndBgmHandle;
     return (BtlPacket *)p;
 }
 
 // FUN_00230710
-s32 func_00230710(void)
+s32 btlBossStopEndBgm(void)
 {
     if (*(s32 *)(iGpffffb3ac + 0xB94) != 0) {
         func_0045a9a0(2, 0);
@@ -119,18 +119,18 @@ s32 func_00230710(void)
 }
 
 // FUN_00230750
-BtlPacket *func_00230750(void)
+BtlPacket *btlBossCreateStopEndBgmPacket(void)
 {
     u8 *p;
 
     p = btlPacketAlloc(0xE04, 0);
     p[0x47] &= 0xFE;
-    *(void **)(p + 0x6C) = (void *)func_00230710;
+    *(void **)(p + 0x6C) = (void *)btlBossStopEndBgm;
     return (BtlPacket *)p;
 }
 
 // FUN_00230790
-s32 func_00230790(void)
+s32 btlBossMapUnitIdToEntryId(void)
 {
     switch (btlCurrentUnitId()) {
     case 0x200:
@@ -171,7 +171,7 @@ s32 func_00230790(void)
 }
 
 // FUN_002308A0
-s32 func_002308a0(u32 arg0, u16 arg1, char *arg2)
+s32 btlBossResolveModelName(u32 arg0, u16 arg1, char *arg2)
 {
     s32 temp_16;
     s32 temp_18;
