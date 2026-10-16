@@ -48,7 +48,7 @@ extern u16 *datPersonaRosterSlot(s16 a);
 extern void datPersonaInitRecord(u8 *dst, u16 id);
 extern s32 datPersonaRosterCapacity(void);
 extern u16 datPersonaLeadPersonaId(void);
-extern u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern u8 *shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern u8 *datPersonaGetRow(u16 id);
 extern void func_002bbd20(s32 a, void *text);
 extern s32 func_002baf40(s32 arg0);
@@ -158,7 +158,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 j++;
             }
         }
-        res = (s32)func_00117780(*(s32 *)(*(u8 **)arg0 + 0x1F290), 0x12, 2, 5, 5);
+        res = (s32)shdPersonaTaskCreate(*(s32 *)(*(u8 **)arg0 + 0x1F290), 0x12, 2, 5, 5);
         *(s32 *)(state + 0x18) = res;
         *(s32 *)(state + 0x0C) = j;
         *(s32 *)state = 1;
