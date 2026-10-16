@@ -410,19 +410,22 @@ void evtListInsertSorted(u32 *param_1, u32 *param_2) {
 // Event list: unlinks 'node' from its sibling links (does not free).
 // FUN_00286E90
 static void evtNodeUnlink(int param_1, int param_2) {
-    if (*(u32 *)(param_1 + 0x94) == 0) {
-        *(u32 *)(param_2 + 0x4C) = *(u32 *)(param_1 + 0x90);
+    EvtNode *node = (EvtNode *)param_1;
+    EvtEventWork *owner = (EvtEventWork *)param_2;
+
+    if (node->prev == NULL) {
+        owner->nodeList = node->next;
     } else {
-        *(u32 *)(*(u32 *)(param_1 + 0x94) + 0x90) = *(u32 *)(param_1 + 0x90);
+        node->prev->next = node->next;
     }
-    if (*(u32 *)(param_1 + 0x90) == 0) {
-        *(u32 *)(param_2 + 0x50) = *(u32 *)(param_1 + 0x94);
+    if (node->next == NULL) {
+        owner->nodeTail = node->prev;
     } else {
-        *(u32 *)(*(u32 *)(param_1 + 0x90) + 0x94) = *(u32 *)(param_1 + 0x94);
+        node->next->prev = node->prev;
     }
-    *(u32 *)(param_1 + 0x94) = 0;
-    *(u32 *)(param_1 + 0x90) = 0;
-    *(u32 *)(param_2 + 0x48) -= 1;
+    node->prev = NULL;
+    node->next = NULL;
+    owner->nodeCount -= 1;
 }
 
 // Event node: allocates a 0x98-byte node of 'type' and inserts it into 'parent'.
@@ -452,16 +455,18 @@ void *evtNodeAlloc(int param_1, int param_2) {
 // Event node: attaches scene resource 'resId' to 'node' and stores its data offset.
 // FUN_00286FF0
 void evtNodeSetRes(int param_1, int param_2, int param_3) {
+    EvtNode *node = (EvtNode *)param_1;
     u8 *r;
+
     if (param_1 != 0) {
-        *(u16 *)(param_1 + 0xC) = param_2;
-        r = MT_Scene_GetRes(*(u16 *)(param_1 + 0xC));
+        node->flags = param_2;
+        r = MT_Scene_GetRes(node->flags);
         if (r != 0) {
-            *(u32 *)(param_1 + 0x54) = *(u32 *)(r + 0x28);
+            node->resData = *(u32 *)(r + 0x28);
         } else {
-            *(u32 *)(param_1 + 0x54) = 0;
+            node->resData = 0;
         }
-        *(u32 *)(param_1 + 0x34) = param_3;
+        node->res = (void *)param_3;
     }
 }
 

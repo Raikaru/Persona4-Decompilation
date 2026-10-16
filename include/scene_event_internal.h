@@ -25,10 +25,14 @@ struct EvtNode {
     s32 kind;                 /* +0x00: switched on by evtResetEventScene */
     u8 unk04[0x08];
     u16 flags;                /* +0x0C: resource id in the low 10 bits */
-    u8 unk0E[0x42];
+    u8 unk0E[0x26];
+    void *res;                /* +0x34: scene resource (evtNodeSetRes) */
+    u8 unk38[0x18];
     EvtColor color;           /* +0x50: colour copied in by evtNpcModelTaskUpdate */
-    u8 unk54[0x3C];
+    u32 resData;              /* +0x54: data offset read from the resource */
+    u8 unk58[0x38];
     EvtNode *next;            /* +0x90: next node in the event's list */
+    EvtNode *prev;            /* +0x94: previous node in the event's list */
 };
 
 /* Event task work block (0x60 bytes), stored by evtCreateEventTask. */
@@ -52,7 +56,8 @@ struct EvtEventWork {
     u8 unk24[0x24];
     s32 nodeCount;            /* +0x48 */
     EvtNode *nodeList;        /* +0x4C */
-    u8 unk50[0x584];
+    EvtNode *nodeTail;        /* +0x50 */
+    u8 unk54[0x580];
     s32 busy;                 /* +0x5D4: nonzero while the event is busy */
     u8 unk5D8[0xA0];
     u8 messageWindow[0x4C];   /* +0x678: message window, runs to at least +0x6C4 */
