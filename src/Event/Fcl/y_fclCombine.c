@@ -232,7 +232,7 @@ extern s8 D_00641A60[];
 extern s8 D_00749480[];
 extern u8 *iGpffffb44c;
 extern s8 iGpffffa8a8;
-extern u16 func_00107ac0(s32 arg0);
+extern u16 cmmCommunityRecordValue(s32 arg0);
 extern u16 *datPersonaFindRosterRecordById(s32 arg0);
 extern s32 func_00106600(s16 id);
 extern u8 D_00641880[];
@@ -8644,7 +8644,7 @@ void fclCombineMenuOptionPick(u8 *arg0) {
                     } else if ((s16)datCategoryRank(1) >= 3 && datGetFlag(0x96F) == 0) {
                         func_002badc0((s8)*(p + 0xD), 0x70);
                     } else {
-                        func_002badc0((s8)*(p + 0xD), (func_00107ac0(0x14) & 0xFFFF) + 0x64);
+                        func_002badc0((s8)*(p + 0xD), (cmmCommunityRecordValue(0x14) & 0xFFFF) + 0x64);
                     }
                     break;
                 case 1:
@@ -9917,13 +9917,13 @@ s32 fclCombineRecipeUnlocked(void) {
     s16 i;
     s8 *e;
 
-    if (!(func_00107ac0(0x14) & 0xFFFF)) {
+    if (!(cmmCommunityRecordValue(0x14) & 0xFFFF)) {
         return 0;
     }
-    if ((func_00107ac0(0x14) & 0xFFFF) == 0xA) {
+    if ((cmmCommunityRecordValue(0x14) & 0xFFFF) == 0xA) {
         return 0;
     }
-    base = (s8 *)D_00641880 + ((func_00107ac0(0x14) & 0xFFFF) - 1) * 48;
+    base = (s8 *)D_00641880 + ((cmmCommunityRecordValue(0x14) & 0xFFFF) - 1) * 48;
     for (i = 0; i < 4; i++) {
         e = base + i * 12;
         switch (e[0]) {
@@ -9942,7 +9942,7 @@ s32 fclCombineRecipeUnlocked(void) {
             }
             break;
         case 2:
-            if ((func_00107ac0(*(u16 *)(base + i * 12 + 4)) & 0xFFFF) > *(s16 *)(base + i * 12 + 8)) {
+            if ((cmmCommunityRecordValue(*(u16 *)(base + i * 12 + 4)) & 0xFFFF) > *(s16 *)(base + i * 12 + 8)) {
                 return 0;
             }
             break;
@@ -10132,7 +10132,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
                 }
                 *(u32 *)(p + 0x1C) = func_0033e120(arg0, 0x294, 0xA);
                 func_00106390(0x413, 1);
-                if (!(func_00107ac0(0x14) & 0xFFFF)) {
+                if (!(cmmCommunityRecordValue(0x14) & 0xFFFF)) {
                     cmmCommunityAllocRecord(0x14);
                 }
                 p[0] = 0xB;
@@ -10196,7 +10196,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
     case 14:
         if (kwlnTaskIsLinked(*(u32 *)(p + 0x1C)) == 0) {
             p[0xD] = func_002bab80((void *)*(u32 *)(*(u8 **)(p + 0x10) + 0x110));
-            func_002badc0(p[0xD], (func_00107ac0(0x14) & 0xFFFF) - 2);
+            func_002badc0(p[0xD], (cmmCommunityRecordValue(0x14) & 0xFFFF) - 2);
             p[0] = 0xF;
         }
         break;
@@ -10205,7 +10205,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
             func_002bbcf0(p[0xD]);
         } else {
             func_002bb550(p[0xD]);
-            if ((func_00107ac0(0x14) & 0xFFFF) == 0xA) {
+            if ((cmmCommunityRecordValue(0x14) & 0xFFFF) == 0xA) {
                 func_00106620(0x4A2, ((func_00106600(0x4A2) & 0xFF) + 1) & 0xFF);
             }
             p[0] = 0;

@@ -150,7 +150,7 @@ extern u8 *btlFormationGetRecord(s32 arg0);
 extern s32 scrFindPrcdIdxByName(s32 arg0, s32 arg1);
 extern s32 btlTargetSpawnActionProc(u8 *arg0);
 extern u8 *iGpffffb428;
-extern u16 func_00107ac0(s32 arg0);
+extern u16 cmmCommunityRecordValue(s32 arg0);
 extern void func_00106550(s32 arg0, s32 arg1);
 extern s32 datCalcIsStatusBlocked(u16 *arg0);
 extern u16 cmmCommunityForArcana(s64 arg0);

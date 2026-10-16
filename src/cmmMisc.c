@@ -28,7 +28,7 @@ extern s32 calGetWeekdayOfDay(s32 a);
 extern s32 calIsCurrentMonthDay(s32 a, s32 b, s32 c);
 extern s32 calIsDayInRange(s32 a, s32 b, s32 c, s32 d, s32 e);
 extern s32 cmmCommunityCounterpart(s64 idx); /* lint: allow H011 -- measured: s64 parameter keeps the retail key move; see cmmCommunityCounterpart note at the call site */
-extern s32 func_00107ac0(s32 idx);
+extern s32 cmmCommunityRecordValue(s32 idx);
 extern s32 cmmCommunityTestRecordFlags(s32 idx, s32 arg1);
 extern u16 cmmCommunityGetTableHead(void);
 extern s32 datPersonaRosterSlotRank(s32 idx);
@@ -423,9 +423,9 @@ s32 cmmFindFreshReverseCandidate(void) {
                 kAssertFail(D_006359D0, 0x1B3);
             }
             if (datGetFlag(temp_18 + 0x5BF) != 0) {
-                if ((temp_18 == 0xA) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
+                if ((temp_18 == 0xA) && ((cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
                     var_2 = 0;
-                } else if ((temp_18 == 3) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 6) && (datGetFlag(0x615) == 0)) {
+                } else if ((temp_18 == 3) && ((cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFFFF) == 6) && (datGetFlag(0x615) == 0)) {
                     var_2 = 0;
                 } else {
                     var_2 = 1;
@@ -433,7 +433,7 @@ s32 cmmFindFreshReverseCandidate(void) {
             } else {
                 var_2 = 0;
             }
-            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (cmmCommunityHasTierBit(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) == 0)) {
+            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (cmmCommunityHasTierBit(var_19 & 0xFFFF, cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFF) == 0)) {
                 temp_17 = (u32 *)D_00881480[0];
                 if ((u32)temp_18 >= temp_17[1]) {
                     kAssertFail(D_006359D0, 0x4C);
@@ -485,9 +485,9 @@ s32 cmmFindReverseCandidate(void) {
                 kAssertFail(D_006359D0, 0x1B3);
             }
             if (datGetFlag(temp_18 + 0x5BF) != 0) {
-                if ((temp_18 == 0xA) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
+                if ((temp_18 == 0xA) && ((cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFFFF) == 9) && (datGetFlag(0x34) == 0)) {
                     var_2 = 0;
-                } else if ((temp_18 == 3) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 6) && (datGetFlag(0x615) == 0)) {
+                } else if ((temp_18 == 3) && ((cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFFFF) == 6) && (datGetFlag(0x615) == 0)) {
                     var_2 = 0;
                 } else {
                     var_2 = 1;
@@ -495,7 +495,7 @@ s32 cmmFindReverseCandidate(void) {
             } else {
                 var_2 = 0;
             }
-            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (cmmCommunityHasTierBit(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) != 0)) {
+            if ((var_2 != 0) && (cmmCommunityTestReversed(var_19 & 0xFFFF) == 0) && (cmmCommunityTestBroken(var_19 & 0xFFFF) == 0) && (cmmCommunityHasTierBit(var_19 & 0xFFFF, cmmCommunityRecordValue(var_19 & 0xFFFF) & 0xFF) != 0)) {
                 temp_17 = (u32 *)D_00881480[0];
                 if ((u32)temp_18 >= temp_17[1]) {
                     kAssertFail(D_006359D0, 0x4C);
@@ -542,7 +542,7 @@ s16 cmmTopCommunityOfArcana(s32 arg0) {
     target = (s16)arg0;
     for (; i < 0x1F; i++) {
         if (target == (s8)cmmCommunityArcana(i & 0xFFFF)) {
-            s32 v = func_00107ac0(i & 0xFFFF) & 0xFFFF;
+            s32 v = cmmCommunityRecordValue(i & 0xFFFF) & 0xFFFF;
             if (largest < v) {
                 largest = v;
                 result = i;
@@ -632,7 +632,7 @@ s32 cmmArcanaCandidateAt(s32 arg0, s32 arg1, s32 arg2) {
             if (!(flags & 0x10) && !(flags & 8)) {
                 blocked = 0;
             }
-            if (blocked == 0 && (!(flags & 0x40) || ((func_00107ac0(arg0) & 0xFFFF) == 10))) {
+            if (blocked == 0 && (!(flags & 0x40) || ((cmmCommunityRecordValue(arg0) & 0xFFFF) == 10))) {
                 level = *(u8 *)((u32)iGpffffb3d4 + offset + 3);
                 if (level <= threshold) {
                     if (list != 0) {
@@ -901,10 +901,10 @@ u16 cmmNthEligibleCommunity(s32 arg0, s32 arg1, s32 arg2) {
     goto loop_15;
 body_15:
     if ((var_18[0] == arg1) && (var_18[1] == arg2)) {
-        temp_3 = (s32)(func_00107ac0(*(u16 *)(var_18 + 2)) & 0xFFFF);
+        temp_3 = (s32)(cmmCommunityRecordValue(*(u16 *)(var_18 + 2)) & 0xFFFF);
         if ((temp_3 >= (s32)*(u16 *)(var_18 + 4)) &&
             (temp_3 <= (s32)*(u16 *)(var_18 + 6)) &&
-            ((func_00107ac0(*(u16 *)(var_18 + 2)) & 0xFFFF) != 0xA) &&
+            ((cmmCommunityRecordValue(*(u16 *)(var_18 + 2)) & 0xFFFF) != 0xA) &&
             (cmmCommunityTestRecordFlags(*(u16 *)(var_18 + 2), 3) == 0) &&
             ((temp_23 = *(u16 *)(var_18 + 2)), (temp_23 != (cmmCommunityGetTableHead() & 0xFFFF)))) {
             var_2 = 1;
@@ -1031,7 +1031,7 @@ void cmmAdvanceReverseProgress(u16 arg0) {
             goto block_15;
         }
         call_idx = (u16)var_20;
-        if (((u16)func_00107ac0(call_idx)) != 0xA) {
+        if (((u16)cmmCommunityRecordValue(call_idx)) != 0xA) {
             goto block_15;
         }
         call_idx = (u16)var_20;
@@ -1130,7 +1130,7 @@ u8 *cmmMsgStreamEntry(s32 arg0, s32 arg1) {
         if (cmmCommunityHasRecord(arg1) == 0) {
             var_2 = 3;
         } else if (cmmCommunityCanRankUp(arg1) != 0) {
-            if ((func_00107ac0(arg1) & 0xFFFF) == 9) {
+            if ((cmmCommunityRecordValue(arg1) & 0xFFFF) == 9) {
                 var_2 = 6;
             } else {
                 var_2 = 2;
@@ -1144,7 +1144,7 @@ u8 *cmmMsgStreamEntry(s32 arg0, s32 arg1) {
     temp_18 = *(u32 *)(D_0088148C[0] + 4);
     var_20 = 0;
     while (var_20 < temp_18) {
-        if ((*(u16 *)var_19 == (arg1 & 0xFFFF)) && (*(u8 *)(var_19 + 2) == (var_4 & 0xFFFF)) && ((temp_16 = *(u8 *)(var_19 + 3), temp_16 == 0) || ((temp_16 != 0) && (temp_16 == (func_00107ac0(arg1) & 0xFFFF)))) && ((temp_4 = *(u32 *)(var_19 + 0xC), temp_4 == 0) || (datGetFlag(temp_4) != 0))) {
+        if ((*(u16 *)var_19 == (arg1 & 0xFFFF)) && (*(u8 *)(var_19 + 2) == (var_4 & 0xFFFF)) && ((temp_16 = *(u8 *)(var_19 + 3), temp_16 == 0) || ((temp_16 != 0) && (temp_16 == (cmmCommunityRecordValue(arg1) & 0xFFFF)))) && ((temp_4 = *(u32 *)(var_19 + 0xC), temp_4 == 0) || (datGetFlag(temp_4) != 0))) {
             return var_19;
         }
         var_19 += 0x10;
@@ -1246,7 +1246,7 @@ u16 cmmCommunityCategory(s32 arg0) {
    and re-masks into $v1 for the 100-multiply; mwcc b210 CSEs the mask into
    one register (best nd 37) in every spelling tried ((u16) vs & 0xFFFF vs
    temp_17 = arg0). Mask-CSE floor (same family as FUN_00247DD0). */
-// Reversed at rank: returns 1 when community arg0 has a record, the REVERSED bit in its kind record (chunk 0), and a level byte at or above its rank from func_00107ac0; else 0.
+// Reversed at rank: returns 1 when community arg0 has a record, the REVERSED bit in its kind record (chunk 0), and a level byte at or above its rank from cmmCommunityRecordValue; else 0.
 // FUN_00248A60
 /* measured: opt_common_subs off preserves the raw parameter call and per-use table masks. */
 #pragma opt_common_subs off
@@ -1274,7 +1274,7 @@ s32 cmmReversedAtRank(s32 arg0) {
             kAssertFail(D_006359D0, 0x4C);
         }
         temp_16_2 = *(u8 *)((u32)temp_16 + (u32)temp_18_2 + 0x11);
-        if ((s32)temp_16_2 >= (func_00107ac0(arg0) & 0xFFFF)) {
+        if ((s32)temp_16_2 >= (cmmCommunityRecordValue(arg0) & 0xFFFF)) {
             return 1;
         }
     }
@@ -1323,7 +1323,7 @@ s32 cmmTopReversedCommunity(void) {
                     kAssertFail(D_006359D0, 0x4C);
                 }
                 temp_19_3 = *(u8 *)((u32)temp_20 + (u32)temp_19_2 + 0x11);
-                if ((s32)temp_19_3 >= (func_00107ac0(var_18 & 0xFFFF) & 0xFFFF)) {
+                if ((s32)temp_19_3 >= (cmmCommunityRecordValue(var_18 & 0xFFFF) & 0xFFFF)) {
                     var_2 = 1;
                 } else {
                     goto block_10;
@@ -1334,7 +1334,7 @@ block_10:
             }
         }
         if (var_2 != 0) {
-            temp_2 = func_00107ac0(var_18 & 0xFFFF) & 0xFFFF;
+            temp_2 = cmmCommunityRecordValue(var_18 & 0xFFFF) & 0xFFFF;
             if (var_17 < temp_2) {
                 var_17 = temp_2;
                 var_16 = var_18;

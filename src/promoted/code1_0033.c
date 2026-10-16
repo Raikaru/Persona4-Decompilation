@@ -92,7 +92,7 @@ extern u8 D_00794AB0[];
 extern u8 func_002e78a0(void);
 extern s32 func_002e78e0(void);
 extern s32 func_002be100(u8 arg0);
-extern u16 func_00107ac0(s32 arg0);
+extern u16 cmmCommunityRecordValue(s32 arg0);
 extern s8 func_002bab80(void *arg0);
 extern s32 func_002badc0(s8 arg0, s32 arg1);
 extern s32 func_00106600(s16 arg0);
@@ -307,8 +307,8 @@ s32 func_00331a20(u8 *arg0)
             func_00106390(0x1C0, 1);
             return 0;
         }
-        if ((func_00107ac0(0x13) & 0xFFFF) == 6 || (func_00107ac0(0x13) & 0xFFFF) == 7) {
-            e = D_00645090 + ((func_00107ac0(0x13) & 0xFFFF) - 6) * 0x10;
+        if ((cmmCommunityRecordValue(0x13) & 0xFFFF) == 6 || (cmmCommunityRecordValue(0x13) & 0xFFFF) == 7) {
+            e = D_00645090 + ((cmmCommunityRecordValue(0x13) & 0xFFFF) - 6) * 0x10;
             if (datGetFlag(*(s32 *)(e + 12)) != 0 || *(s32 *)(e + 12) == 0) {
                 work[1] = func_002bab80(D_00645240);
                 func_002badc0(work[1], *(s16 *)e);

@@ -78,7 +78,7 @@ extern s32 datPersonaRemoveRosterMemberById(s32 arg0);
 extern u8 *datPersonaTryAddRosterMember(u16 personaId);
 extern u16 D_008C024E[];
 extern s32 datGetFlag(s32 a);
-extern s32 func_00107890(s32 a);
+extern s32 cmmCommunityValueForArcana(s32 a);
 extern s32 func_0015a190(void);
 extern u8 func_002baac0(u8 *message);
 extern void *func_0036e910(void *a);
@@ -959,7 +959,7 @@ static inline s32 shuffleBonusRoll(u8 *work, s32 rate)
     if (*(u8 *)(work + 0x12) == 0) {
         thresh = (u8)(D_0064E6E0[0][flag] + iGpffffa9B8[rate]);
     } else {
-        thresh = (u8)(D_0064E6E0[(u8)func_00107890(*(u8 *)(work + 0x12))][flag] + iGpffffa9B8[rate]);
+        thresh = (u8)(D_0064E6E0[(u8)cmmCommunityValueForArcana(*(u8 *)(work + 0x12))][flag] + iGpffffa9B8[rate]);
     }
     chance = (u8)(100.0f * ((f32)(RpRandom() & 0xFFF) / 4096.0f));
     if ((u8)chance < (u8)thresh) {

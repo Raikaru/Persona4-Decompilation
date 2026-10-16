@@ -18,7 +18,7 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
 extern s32 cmmCommunityForArcana(s16 arg0);
-extern u16 func_00107ac0(s32 arg0);
+extern u16 cmmCommunityRecordValue(s32 arg0);
 extern void btlSelectionResetSubList(u8 *arg0, u8 *arg1);
 extern u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1);
 extern void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState);

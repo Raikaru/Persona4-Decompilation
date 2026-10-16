@@ -12,7 +12,7 @@ extern u8 D_006359C0[];
 extern void cmmCommunityAllocRecord(s32 arg0);
 extern s32 cmmCommunityHasRecord(s32 arg0);
 extern s32 cmmCommunityGetCurrentId(void);
-extern s32 func_00107ac0(s32 arg0);
+extern s32 cmmCommunityRecordValue(s32 arg0);
 extern s32 cmmCommunityTryRankUp(s32 arg0);
 extern s32 cmmCommunityCanRankUp(s32 arg0);
 extern s32 cmmCommunityTestReversed(s32 arg0);
@@ -89,7 +89,7 @@ s32 cmmGetLevel(void)
     if (var_2 == 0) {
         var_2 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    scrSetReturnInt(func_00107ac0(var_2 & 0xFFFF) & 0xFFFF);
+    scrSetReturnInt(cmmCommunityRecordValue(var_2 & 0xFFFF) & 0xFFFF);
     return 1;
 }
 
