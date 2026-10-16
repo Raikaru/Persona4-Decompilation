@@ -3556,8 +3556,9 @@ void func_004af640(u8 *arg0, s32 arg1) {
 }
 
 
+// Stores the scale at +0x08 and applies it to the emitter at +0x58, the object-particle twin of DistortParticleSetScale (emitter at +0x5c).
 // FUN_004AF650
-void func_004af650(u8 *arg0, f32 arg1) {
+void ObjectParticleSetScale(u8 *arg0, f32 arg1) {
     *(f32 *)(arg0 + 0x8) = arg1;
     EffEmitterApplyScale(*(u16 **)(arg0 + 0x58), arg1);
 }
