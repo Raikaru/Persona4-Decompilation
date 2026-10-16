@@ -1,3 +1,4 @@
+#include "fcl_object_internal.h"
 #include "list_item_internal.h"
 #include "fcl_scale_transition.h"
 #include "fcl_animation_internal.h"
@@ -397,18 +398,18 @@ void fclCombineDrawMoney(u8 *arg0, u8 *arg1)
 // FUN_0033D310
 u8 *fclBustupObjGetWork(u8 *arg0)
 {
-    return *(u8 **)(arg0 + 0x38);
+    return (u8 *)fclObjWork(arg0);
 }
 
 // Identical to fclObjChangeFlagBit (code1_002e.c).
 // FUN_0033D320
 void fclBustupObjChangeFlagBit(u8 *arg0, s32 arg1, s8 arg2) {
-    u8 *p = *(u8 **)(arg0 + 0x38);
+    FclObject *p = fclObjWork(arg0);
 
     if (arg2 == 0) {
-        *(s16 *)(p + 4) |= (s16)((1 << arg1) & 0xFFFF);
+        p->spriteFlags |= (s16)((1 << arg1) & 0xFFFF);
     } else if (arg2 == 1) {
-        *(s16 *)(p + 4) &= (s16)((1 << arg1) ^ 0xFFFF);
+        p->spriteFlags &= (s16)((1 << arg1) ^ 0xFFFF);
     }
 }
 
@@ -421,12 +422,12 @@ s32 fclBustupObjTestFlagBit(u8 *arg0, s32 arg1)
 // FUN_0033D3C0
 void func_0033d3c0(u8 *arg0, f32 arg1)
 {
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = arg1;
+    fclObjWork(arg0)->anchorValue = arg1;
 }
 // FUN_0033D3D0
 void func_0033d3d0(u8 *arg0, s32 arg1)
 {
-    *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
+    fclObjWork(arg0)->anchorMode = arg1;
 }
 
 // Identical to fclObjStartPosition (code1_002e.c).
@@ -434,37 +435,37 @@ void func_0033d3d0(u8 *arg0, s32 arg1)
 void fclBustupObjStartPosition(u8 *arg0, F2_0033 p1, F2_0033 p2,
                    u32 arg3, u32 arg4, s16 arg5)
 {
-    fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
+    fclSpriteStartPosition(fclObjSprite(arg0), p1, p2, arg3, arg4, arg5);
 }
 // FUN_0033D420
 void fclBustupObjStartPositionMode(u8 *arg0, F2_0033 p1, F2_0033 p2,
                    u32 arg3, s8 arg4, u32 arg5, s16 arg6)
 {
-    u8 *p;
+    FclObject *p;
 
-    p = *(u8 **)(arg0 + 0x38);
-    fclSpriteStartPosition(p + 4, p1, p2, arg3, arg5, arg6);
-    *(s8 *)(p + 0x3B) = arg4;
-    *(s16 *)(*(u8 **)(arg0 + 0x38) + 4) |= 0x400;
-    *(s16 *)(*(u8 **)(arg0 + 0x38) + 4) &= (s16)~2;
+    p = fclObjWork(arg0);
+    fclSpriteStartPosition((u8 *)p + 4, p1, p2, arg3, arg5, arg6);
+    p->mode = arg4;
+    fclObjWork(arg0)->spriteFlags |= 0x400;
+    fclObjWork(arg0)->spriteFlags &= (s16)~2;
 }
 // Identical to fclObjStartAlpha (code1_002e.c).
 // FUN_0033D4B0
 void fclBustupObjStartAlpha(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s64 arg5)
 {
-    fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, (s16)arg5);
+    fclSpriteStartAlpha(fclObjSprite(arg0), arg1, arg2, arg3, arg4, (s16)arg5);
 }
 // Identical to fclObjStartUniformRevealScale (code1_002e.c).
 // FUN_0033D4E0
 void fclBustupObjStartUniformRevealScale(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg3)
 {
-    fclSpriteStartRevealScale(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
+    fclSpriteStartRevealScale(fclObjSprite(arg0), fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
 }
 // Identical to fclObjStartTween (code1_002e.c).
 // FUN_0033D520
 void fclBustupObjStartTween(u8 *arg0, f32 fparg0, f32 fparg1, u8 arg1, s32 arg2, s64 arg3)
 {
-    fclSpriteStartTween(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, fparg0, fparg1);
+    fclSpriteStartTween(fclObjSprite(arg0), arg1, arg2, arg3, fparg0, fparg1);
 }
 
 // FUN_0033D550
