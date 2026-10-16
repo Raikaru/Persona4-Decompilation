@@ -278,7 +278,7 @@ block_4:
 }
 
 // FUN_0025D760
-s32 func_0025d760(void) {
+s32 K_Cmd_TASK_DESTROY(void) {
     s32 temp_16;
 
     temp_16 = scrGetParamInt(0);

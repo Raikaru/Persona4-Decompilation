@@ -78,7 +78,7 @@ s32 scrCommonGetDay(void) {
 }
 
 // FUN_0025C3E0
-s32 func_0025c3e0(void) {
+s32 K_Cmd_DATE_GET(void) {
     scrSetReturnInt(calGetWeekdayOfDay(datGetDateIndex()));
     return 1;
 }

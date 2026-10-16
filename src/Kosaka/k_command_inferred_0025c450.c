@@ -99,7 +99,7 @@ s32 func_0025c560(void) {
 }
 
 // FUN_0025C600
-s32 func_0025c600(void) {
+s32 K_Cmd_DATE_CHECK(void) {
     s32 temp_19;
     s32 temp_18;
     s32 temp_17;
