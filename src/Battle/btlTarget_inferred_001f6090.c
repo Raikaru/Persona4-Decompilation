@@ -117,7 +117,7 @@ extern void btlSoundCancelPlayback(void);
 #pragma push
 #pragma pop
 // FUN_001F6090
-s32 func_001f6090(void)
+s32 btlTargetCancelPlayback(void)
 {
     btlSoundCancelPlayback();
     return 1;

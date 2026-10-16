@@ -45,7 +45,7 @@ extern u8 *btlSoundCreateSkillSEPacket(s32 arg0, s32 arg1);
 extern u8 *btlMainCreateColorLerpPacket(s32 arg0, s32 arg1, s32 arg2);
 extern BtlPacket *btlMainCreateColorWorkPacket(s32 first, s32 second, s32 third, u32 frames, u16 mode);
 extern u8 *btlMainCreateTintPacket(s32 arg0, s32 arg1);
-extern void func_001f0a10(u8 *arg0);
+extern void btlTargetClearResultBuffer(u8 *arg0);
 extern u8 *btlPacketCreateHpRatio(u8 *arg0);
 extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
 extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrameCount, f32 speed, u16 mode);
@@ -1627,7 +1627,7 @@ void btlMainRevivalInit(void)
     btlPacketEnqueue(next, 1);
     for (unit = *(u8 **)(iGpffffb3ac + 0x178); unit != NULL; unit = *(u8 **)(unit + 0xA6C)) {
         unitAction = btlActionFindByUnit((s32)unit);
-        func_001f0a10(result.bytes);
+        btlTargetClearResultBuffer(result.bytes);
         maxHp = datCalcMaxHp(*(DatUnit **)(unit + 0xA64));
         maxSp = datCalcMaxSp(*(DatUnit **)(unit + 0xA64));
         result.words[0] = maxHp - datCalcGetHp(*(s32 *)(unit + 0xA64));

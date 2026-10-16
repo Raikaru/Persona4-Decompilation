@@ -188,7 +188,7 @@ s32 func_001f0950(s32 arg0, s32 arg1)
 }
 
 // FUN_001F0A10
-void func_001f0a10(u8 *arg0) {
+void btlTargetClearResultBuffer(u8 *arg0) {
     memset(arg0, 0, 0x20);
 }
 

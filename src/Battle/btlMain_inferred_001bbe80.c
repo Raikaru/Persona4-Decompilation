@@ -34,7 +34,7 @@ extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
 
 extern u8 *D_0076449C;
-extern void func_001ec5e0(u8 *arg0, f32 fp);
+extern void btlTargetInitSpring(u8 *arg0, f32 fp);
 extern u8 D_005F7180[];
 extern u8 D_005F7184[];
 extern u8 D_005F7000[];
@@ -106,7 +106,7 @@ extern f32 fGpffff8108;
 #pragma pop
 // FUN_001BBE80
 void func_001bbe80(u8 *arg0, f32 fp) {
-    func_001ec5e0(arg0 + 0x84, 60.0f * fp / 2.0f);
+    btlTargetInitSpring(arg0 + 0x84, 60.0f * fp / 2.0f);
     *(u16 *)arg0 &= 0xFFF3;
     *(u16 *)arg0 |= 2;
 }

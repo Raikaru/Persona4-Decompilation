@@ -99,7 +99,7 @@ extern f32 D_00761438;
 
 
 extern u8 *btlActionGetQueueSecond(void);
-extern void func_001eb410(u8 *arg0);
+extern void btlTargetResetRecordCounter(u8 *arg0);
 extern u32 datCalcRandomBelow(u32 arg0);
 
 

@@ -83,7 +83,7 @@ extern u8 *iGpffffb42c;
 
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
-extern void func_001ec5e0(u8 *arg0, f32 arg1);
+extern void btlTargetInitSpring(u8 *arg0, f32 arg1);
 extern int func_001ed060(float *param_1, float *param_2);
 typedef struct P4NeighborNode {
     s32 unknown0;
@@ -146,7 +146,7 @@ typedef struct RouteNode {
 /* measured: closes opt_propagation probe for btlAiSetGlobal. */
 /* 1468/1472 bytes; all four call relocations resolve exactly. */
 /* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
-/* measured: closes opt_propagation probe for func_001ec5e0. */
+/* measured: closes opt_propagation probe for btlTargetInitSpring. */
 // FUN_001ED3A0
 /* 852/864 bytes; all eighteen relocations resolve exactly.
    Array types preserve halfword indexing; local order preserves lifetimes. */

@@ -169,7 +169,7 @@ BtlAttachPositionCallback btlFormationApplyModelMatrixAlt;
 BtlAttachPositionCallback btlFormationOffsetTransformA;
 BtlAttachPositionCallback btlFormationOffsetTransformB;
 BtlAttachPositionCallback btlFormationOffsetTransformC;
-BtlAttachPositionCallback func_001d4e90;
+BtlAttachPositionCallback btlFormationClearAttachVector;
 BtlAttachPositionCallback func_001d4eb0;
 
 /* Retail keeps {unit,entry,handles,frame,w} in $s0-$s4 and the loop index in

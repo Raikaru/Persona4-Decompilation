@@ -76,7 +76,7 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 }
 extern f32 fGpffff811c;
 extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
-extern void func_001f0a10(u8 *arg0);
+extern void btlTargetClearResultBuffer(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlPacketCreateHpRatio(u8 *arg0);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
@@ -225,7 +225,7 @@ void btlActionStartInit(BtlAction *action) {
 // FUN_001A0B00
 #pragma push
 void btlActionStartUpdate(s64 *arg0) {
-    extern void func_001f0a10(u8 *arg0);
+    extern void btlTargetClearResultBuffer(u8 *arg0);
     extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
     extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
     extern u8 *btlPacketCreateHpRatio(u8 *arg0);
@@ -273,7 +273,7 @@ void btlActionStartUpdate(s64 *arg0) {
         btlCountUnitRecordsById(0x506) == 0 && btlCountUnitRecordsById(0x301) == 0 &&
         btlCountUnitRecordsById(0x104) == 0) {
         btlActionFinishPresentation((BtlAction *)arg0);
-        func_001f0a10((u8 *)&result);
+        btlTargetClearResultBuffer((u8 *)&result);
         if (datCalcIsStatusBlocked((u16 *)action->unit->data) != 0) {
             result.flags |= 0x80;
         }

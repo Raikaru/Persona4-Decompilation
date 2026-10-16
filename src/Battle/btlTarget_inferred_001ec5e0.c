@@ -99,10 +99,10 @@ extern s32 btlAiSetGlobal(void);
 /* measured: closes opt_propagation probe for btlAiSetGlobal. */
 /* 1468/1472 bytes; all four call relocations resolve exactly. */
 /* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
-/* measured: func_001ec5e0 MATCH -> MISMATCH without this pragma. */
+/* measured: btlTargetInitSpring MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001EC5E0
-void func_001ec5e0(u8 *arg0, f32 arg1)
+void btlTargetInitSpring(u8 *arg0, f32 arg1)
 {
     f32 zero;
 

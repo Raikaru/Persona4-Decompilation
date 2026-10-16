@@ -82,7 +82,7 @@ extern f32 fGpffff811c;
 extern u32 datCalcGetBadStatus(s32 arg0);
 extern s16 btlSoundCalcStatusHpSpDelta(u8 *arg0);
 extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
-extern void func_001f0a10(u8 *arg0);
+extern void btlTargetClearResultBuffer(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
 extern u8 *btlPacketCreateHpRatio(u8 *arg0);
 extern u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 targetFlags, u16 hitIndex, u16 hitCount, const void *result, u16 flags);
@@ -336,7 +336,7 @@ void btlActionBadDamageUpdate(u8 *action)
         switch (statusKind) {
         case 0x20:
             {
-                func_001f0a10((u8 *)&result);
+                btlTargetClearResultBuffer((u8 *)&result);
                 result.flags = result.flags | 0x100;
                 delta = (s16)btlSoundCalcStatusHpSpDelta(action);
                 result.hpDelta = delta;
@@ -390,7 +390,7 @@ void btlActionBadDamageUpdate(u8 *action)
             break;
         case 0x40:
             {
-                func_001f0a10((u8 *)&result);
+                btlTargetClearResultBuffer((u8 *)&result);
                 result.flags = result.flags | 0x100;
                 delta = (s16)btlSoundCalcStatusHpSpDelta(action);
                 result.spDelta = delta;
@@ -1059,7 +1059,7 @@ void btlActionRoundupUpdate(u8 *arg0)
             flags = (u16 *)(rec + 0x10E);
             if ((*flags & 1) != 0) {
                 u8 *pk;
-                func_001f0a10(tmpBuf.bytes);
+                btlTargetClearResultBuffer(tmpBuf.bytes);
                 tmpBuf.words[3] = 0x100001;
                 pk = (u8 *)btlTargetCreateDataPacket((s32)unit17, (s32)unit17, tmpBuf.bytes, 1, 1);
                 *pk = 4;
