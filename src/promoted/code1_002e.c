@@ -228,28 +228,28 @@ void fclObjSetAnchorPosition(u8 *arg0, s32 arg1, f32 fparg0) {
 // FUN_002E0A60
 void fclObjSetAnchorAlphaFull(u8 *arg0, s32 arg1, f32 fparg0)
 {
-    u8 *work;
+    FclObject *work;
     u8 *entry;
     f2 out;
 
-    work = *(u8 **)(arg0 + 0x38);
-    entry = D_0063F560 + *(s16 *)(work + 0xF8) * 8;
-    *(s16 *)(work + 4) |= 1;
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = fparg0;
-    *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
-    work = *(u8 **)(arg0 + 0x38);
+    work = fclObjWork(arg0);
+    entry = D_0063F560 + work->anchorIndex * 8;
+    work->spriteFlags |= 1;
+    fclObjWork(arg0)->anchorValue = fparg0;
+    fclObjWork(arg0)->anchorMode = arg1;
+    work = fclObjWork(arg0);
     out = fclMakeVec2(*(f32 *)entry, *(f32 *)(entry + 4));
-    *(f2 *)(work + 0x2C) = out;
-    work = *(u8 **)(arg0 + 0x38);
-    *(u8 *)(work + 0x62) = 0xFF;
-    work = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(work + 0xA0) = 0x3F800000;
-    *(s32 *)(work + 0x94) = 0x3F800000;
-    work = *(u8 **)(arg0 + 0x38);
-    *(s8 *)(work + 0xCF) = 0;
-    *(s8 *)(work + 0xA7) = 0;
-    *(s8 *)(work + 0x67) = 0;
-    *(s8 *)(work + 0x3B) = 0;
+    work->anchorPosition = out;
+    work = fclObjWork(arg0);
+    work->alpha = 0xFF;
+    work = fclObjWork(arg0);
+    *(s32 *)&work->scale = 0x3F800000;
+    *(s32 *)((u8 *)work + 0x94) = 0x3F800000;
+    work = fclObjWork(arg0);
+    *(s8 *)((u8 *)work + 0xCF) = 0;
+    *(s8 *)((u8 *)work + 0xA7) = 0;
+    *(s8 *)((u8 *)work + 0x67) = 0;
+    work->mode = 0;
 }
 // FUN_002E0B20
 void fclDrawEquipSprite(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
