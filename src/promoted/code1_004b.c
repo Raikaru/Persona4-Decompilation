@@ -118,52 +118,11 @@ extern void func_004865c0(u8 *arg0, s32 arg1);
 
 
 
-// FUN_004B1090
-void func_004b1090(u8 *instance, u32 *position)
-{
-    mdlEffectStoreQuadA(*(s32 *)(instance + 0x5c), position);
-}
-// FUN_004B10C0
-void func_004b10c0(u8 *instance, u32 *rotation)
-{
-    mdlEffectStoreQuadB(*(s32 *)(instance + 0x5c), rotation);
-}
-// FUN_004B10F0
-void func_004b10f0(u8 *arg0, s32 arg1)
-{
-    *(s32 *)(arg0 + 0x4) = arg1;
-}
-// FUN_004B1100
-void func_004b1100(u8 *arg0, f32 arg1)
-{
-    *(f32 *)(arg0 + 8) = arg1;
-    func_00492e30(*(u16 **)(arg0 + 0x5c), arg1);
-}
 
 
 
 
 
-// FUN_004B1250
-void func_004b1250(void *arg0, f32 *arg1)
-{
-    f32 work[4];
-
-    work[0] = arg1[0];
-    work[1] = arg1[1];
-    work[2] = arg1[2];
-    work[3] = 0.0f;
-    func_004861f0(arg0, work);
-}
-// FUN_004B1290
-void func_004b1290(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
-{
-    u8 scratch[16];
-
-    effMiscEulerToQuatVU(iGpffff836c * arg1, iGpffff836c * arg2, iGpffff836c * arg3);
-    __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(scratch) : "memory");
-    func_00486330(arg0, scratch);
-}
 
 // FUN_004B12E0
 void func_004b12e0(u8 *arg0, u8 *arg1) {
@@ -199,37 +158,13 @@ void func_004b12e0(u8 *arg0, u8 *arg1) {
     func_00486330(arg0, work.result);
 }
 
-// FUN_004B13F0
-void func_004b13f0(void *object, s32 *arg1) {
-    func_004865c0(object, *arg1);
-}
 
 
 extern u32 func_00486700(void *object);
 
 
 
-// FUN_004B1470
-void func_004b1470(u8 *arg0, u8 *arg1)
-{
-    struct {
-        f32 projected[3];
-        u32 alignment;
-        u8 vector[16];
-    } scratch;
 
-    func_004866f0(arg0, (u32 *)scratch.vector);
-    mdlEffectBuildBasisRows(arg1, scratch.vector);
-    func_004866e0(arg0, (u32 *)scratch.projected);
-    *(f32 *)(arg1 + 0x30) = scratch.projected[0];
-    *(f32 *)(arg1 + 0x34) = scratch.projected[1];
-    *(f32 *)(arg1 + 0x38) = scratch.projected[2];
-}
-
-// FUN_004B14F0
-void func_004b14f0(void *object, s32 *arg1) {
-    *arg1 = func_00486700(object);
-}
 
 
 typedef signed __int128 s128;
@@ -238,34 +173,6 @@ typedef signed __int128 s128;
 
 
 
-// FUN_004B1590
-void mdlEffectSeqStart(s32 arg0, s16 arg1)
-{
-    D_00922DA0[0] = arg0;
-    D_00922DA4[0] = arg1;
-    D_00922DA8[0] = 0;
-    D_00922DAC[0] = 0;
-    iGpffffbb94 = 0;
-    iGpffffbb98 = 1;
-}
-// FUN_004B1600
-void mdlEffectSeqStep(void)
-{
-    s32 temp_5;
-    s32 limit;
-
-    if (iGpffffbb98 != 0) {
-        limit = D_00922DA0[0];
-        if ((iGpffffbb94 < limit) || (limit == 0)) {
-            temp_5 = iGpffffbb94;
-            func_004a7c00((u8 *)&D_00922DA0[0], temp_5);
-        } else {
-            func_004a7a50();
-            iGpffffbb98 = 0;
-        }
-        iGpffffbb94 = iGpffffbb94 + 1;
-    }
-}
 extern void *func_004b16c0(void *opaqueSource);
 // FUN_004B18E0
 void func_004b18e0(u8 *arg0)
@@ -284,30 +191,6 @@ void func_004b18e0(u8 *arg0)
     (*jtbl_008873EC)(arg0);
 }
 
-// FUN_004B1950
-void *func_004b1950(void *opaqueSource) {
-    u8 *arg0 = opaqueSource;
-    s32 temp_4;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_3;
-
-    temp_2 = func_004b16c0(NULL);
-    *(s32 *)(temp_2 + 4) = *(s32 *)(arg0 + 4);
-    memcpy(temp_2 + 0xC, arg0 + 0xC, 0x98);
-    temp_4 = *(s32 *)(arg0 + 0xA4);
-    if (temp_4 != 0) {
-        temp_2_2 = GeometryCloneBlock(temp_4);
-        *(u8 **)(temp_2 + 0xA4) = temp_2_2;
-        temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2_2 + 0x10) + 0x18) + 0x30);
-        *(s32 *)(temp_3 + 0) = -1;
-        *(s32 *)(temp_3 + 4) = -1;
-        *(s32 *)(temp_3 + 8) = -1;
-        *(s32 *)(temp_3 + 0xC) = -1;
-    }
-    func_004b1a00(temp_2, arg0);
-    return temp_2;
-}
 // FUN_004B1A00
 void func_004b1a00(u8 *arg0, u8 *arg1) {
     s32 temp_4;
@@ -329,17 +212,7 @@ void func_004b1a00(u8 *arg0, u8 *arg1) {
         *(s32 *)(arg0 + 0xA8) = TlpAddRef(*(s32 *)(arg1 + 0xA8));
     }
 }
-// FUN_004B1AA0
-void func_004b1aa0(u8 *arg0)
-{
-    *(s32 *)(arg0 + 0x8) = 0;
-}
 
-// FUN_004B1AB0
-void func_004b1ab0(u8 *arg0)
-{
-    *(s32 *)(arg0 + 8) = *(s32 *)(arg0 + 8) + 1;
-}
 /* Screen-space sprite update, the func_004a5fc0 sibling. It shares the COP2
  * colour pack (the asm writes the packed frame slot, retail reloads it) and
  * the frame-info struct, then projects the four corners through the camera's
@@ -360,12 +233,6 @@ typedef struct EffScreenSpriteRGBA {
 #pragma push
 #pragma opt_loop_invariants on
 #pragma pop
-// FUN_004B2740
-void func_004b2740(u8 *arg0)
-{
-    *(s32 *)(arg0 + 8) = *(s32 *)(arg0 + 8) + 1;
-    func_004b1ad0(arg0);
-}
 /* measured: opt_propagation off retains the cached D_00887300 base and retail frame. */
 // FUN_004B2780
 #pragma opt_propagation off
@@ -452,120 +319,26 @@ s32 func_004b2780(u8 *arg0) {
 #pragma opt_propagation on
 #pragma opt_common_subs on
 #pragma pop
-// FUN_004B2E00
-void func_004b2e00(u8 *object) {
-    u8 *base;
-    u8 *temp_2;
-    u8 *temp_3;
-    u8 *temp_4;
-    s32 *slot_1;
-    s32 *slot_2;
-    s32 temp_17;
-    s32 temp_4_2;
-    s32 temp_4_3;
-
-    base = object;
-    temp_4 = *(u8 **)(base + 0xC);
-    if (temp_4 != NULL) {
-        temp_17 = *(s32 *)(temp_4 + 4);
-        if (temp_17 != 0) {
-            func_003efd20(temp_4, 0);
-            func_003e9390(temp_17);
-        }
-        temp_3 = *(u8 **)(base + 0xC);
-        slot_1 = (s32 *)(temp_3 + 0x64);
-        temp_4_2 = *(s32 *)(temp_3 + 0x64);
-        if (temp_4_2 != 0) {
-            *slot_1 = 0;
-            func_003ec330(temp_4_2);
-        }
-        temp_2 = *(u8 **)(base + 0xC);
-        slot_2 = (s32 *)(temp_2 + 0x60);
-        if (*(s32 *)(temp_2 + 0x60) != 0) {
-            *slot_2 = 0;
-        }
-        func_003e8440(*(u8 **)(base + 0xC));
-        *(u8 **)(base + 0xC) = NULL;
-    }
-    temp_4_3 = *(s32 *)(base + 8);
-    if (temp_4_3 != 0) {
-        func_0040fcd0(temp_4_3, 0);
-        func_003ec330(*(s32 *)(base + 8));
-        *(s32 *)(base + 8) = 0;
-    }
-}
 
 
-// FUN_004B4F40
-void func_004b4f40(u8 *arg0)
-{
-    ((void (*)(void *))(*(u32 *)(D_00714650 + (*(s32 *)(arg0 + 0x18) * 24))))(arg0);
-    *(s32 *)(arg0 + 0x14) = 0;
-}
 
-// FUN_004B4F90
-void func_004b4f90(void *param_1) {
-    ((void (*)(void *))(*(u32 *)(D_0071465C + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
-    *(s32 *)((char *)param_1 + 0x14) += 1;
-}
 
-// FUN_004B4FF0
-void func_004b4ff0(u8 *arg0)
-{
-    if (*(s32 *)(arg0 + 0x14) > 0) {
-        ((void (*)(void *))(*(u32 *)(D_00714660 + (*(s32 *)(arg0 + 0x18) * 24))))(arg0);
-    }
-}
 
-// FUN_004B5040
-void func_004b5040(void *param_1) {
-    u8 *object;
-
-    object = param_1;
-    ((void (*)(void *))(*(u32 *)(D_0071465C + *(s32 *)(object + 0x18) * 24)))(object);
-    *(s32 *)(object + 0x14) += 1;
-    if (*(s32 *)(object + 0x14) > 0) {
-        ((void (*)(void *))(*(u32 *)(D_00714660 + *(s32 *)(object + 0x18) * 24)))(object);
-    }
-}
-// FUN_004B50D0
-s128 func_004b50d0(s128 *arg0, s128 *arg1) {
-    s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
-    *arg0 = temp;
-    return temp;
-}
 
 
 typedef signed __int128 s128;
 
 
-// FUN_004B50E0
-void func_004b50e0(u8 *arg0, s32 arg1)
-{
-    *(s32 *)(arg0 + 0x10) = arg1;
-}
 
 
 
 
 
-// FUN_004B5750
-s128 func_004b5750(s128 *arg0, s128 *arg1) {
-    s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
-    *arg0 = temp;
-    return temp;
-}
 
 
 typedef signed __int128 s128;
 
 
-// FUN_004B5760
-s128 func_004b5760(u8 *arg0, s128 *arg1) {
-    s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
-    *(s128 *)(arg0 + 0x10) = temp;
-    return temp;
-}
 
 
 extern u8 *AfPackBindResource();
@@ -574,17 +347,7 @@ extern void AfPackStartSections();
 extern void AfPackListAppend();
 
 
-// FUN_004B5770
-void func_004b5770(u8 *arg0, s32 arg1)
-{
-    *(s32 *)(arg0 + 0x24) = arg1;
-}
 
-// FUN_004B5780
-void func_004b5780(u8 *arg0, f32 arg1)
-{
-    *(f32 *)(arg0 + 0x20) = arg1;
-}
 
 
 #pragma opt_propagation off

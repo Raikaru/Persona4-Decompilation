@@ -240,32 +240,7 @@ extern u8 D_006253B0[];
 
 
 
-// Intent: release the UI handle stored at *arg0, then free its block. [inferred]
-// FUN_00200720
-void btlUiReleaseHandle(s32 *arg0) {
-    s32 temp_4;
 
-    temp_4 = *arg0;
-    if (temp_4 != 0) {
-        func_004abd60(temp_4);
-    }
-    jtbl_008873EC[0](arg0);
-}
-
-// Intent: set the window rectangle from the four 16-bit fields of the state block. [inferred]
-// FUN_00200C70
-void btlUiSetWindowRect(u8 *arg0)
-{
-    u8 *temp_7;
-
-    temp_7 = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(arg0 + 0x28) == 0) {
-        datEntryDrawGatedByFlag39(*(s16 *)(temp_7 + 0),
-                      *(s16 *)(temp_7 + 4),
-                      *(s16 *)(temp_7 + 8),
-                      *(s16 *)(temp_7 + 0xC));
-    }
-}
 
 
 

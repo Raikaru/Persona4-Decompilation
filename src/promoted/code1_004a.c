@@ -136,168 +136,19 @@ extern void (*jtbl_008873EC[])(void *);
 
 
 
-/* Calls kind destroy slot +0x08 on the child at +0x3C, then frees arg0 through the allocator free table. */
-// FUN_004A18E0
-void FlashQuadDestroy(u8 *arg0) {
-    (*(void (**)(u8 *))(D_00714018 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(*(u8 **)(arg0 + 0x3C));
-    jtbl_008873EC[0](arg0);
-}
-/* Calls kind slot +0x00 with no argument, then clears the counter at +0x34. */
-// FUN_004A1AA0
-void FlashQuadStop(u8 *arg0) {
-    (*(void (**)(void))(D_00714010 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
-    *(s32 *)(arg0 + 0x34) = 0;
-}
-/* Calls kind slot +0x10 with no argument, then increments the counter at +0x34. */
-// FUN_004A1AF0
-void FlashQuadAdvance(u8 *arg0) {
-    (*(void (**)(void))(D_00714020 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
-    (*(s32 *)(arg0 + 0x34))++;
-}
-/* Calls kind slot +0x14 with no argument when the counter at +0x34 is positive. */
-// FUN_004A1B50
-void FlashQuadUpdateIfActive(u8 *arg0) {
-    if (*(s32 *)(arg0 + 0x34) > 0) {
-        (*(void (**)(void))(D_00714024 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
-    }
-}
-/* Calls kind slot +0x10, increments the counter at +0x34, then calls kind slot +0x14 with arg0 when the counter is positive. */
-// FUN_004A1BA0
-void FlashQuadAdvanceAndUpdate(u8 *arg0) {
-    (*(void (**)(void))(D_00714020 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
-    (*(s32 *)(arg0 + 0x34))++;
-    if (*(s32 *)(arg0 + 0x34) > 0) {
-        (*(void (**)(u8 *))(D_00714024 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
-    }
-}
-/* Copies the 16-byte quad at arg1 to +0x00 and returns it. */
-// FUN_004A1C30
-u_long128 FlashQuadSetFirstQuad(u8 *arg0, u8 *arg1) {
-    u_long128 value;
-    value = *(u_long128 *)arg1;
-    *(u_long128 *)arg0 = value;
-    return value;
-}
-/* Copies the 16-byte quad at arg1 to +0x10 and returns it. */
-// FUN_004A1C40
-u_long128 FlashQuadSetSecondQuad(u8 *arg0, u8 *arg1) {
-    u_long128 value;
-    value = *(u_long128 *)arg1;
-    *(u_long128 *)(arg0 + 0x10) = value;
-    return value;
-}
-// FUN_004A1C50
-void func_004a1c50(u8 *arg0, s32 arg1) {
-    *(s32 *)(arg0 + 0x30) = arg1;
-}
-/* Writes the same float to +0x20, +0x24 and +0x28, giving a uniform scale. */
-// FUN_004A1C60
-void FlashQuadSetUniformScale(u8 *arg0, f32 arg1) {
-    *(f32 *)(arg0 + 0x20) = arg1;
-    *(f32 *)(arg0 + 0x24) = arg1;
-    *(f32 *)(arg0 + 0x28) = arg1;
-}
-/* Copies the three floats of arg1 into +0x20, +0x24 and +0x28. */
-// FUN_004A1C80
-void FlashQuadSetVec3(u8 *arg0, f32 *arg1) {
-    *(f32 *)(arg0 + 0x20) = arg1[0];
-    *(f32 *)(arg0 + 0x24) = arg1[1];
-    *(f32 *)(arg0 + 0x28) = arg1[2];
-}
 #pragma opt_loop_invariants on
 #pragma opt_loop_invariants off
 #pragma opt_loop_invariants on
-/* measured: restores the file's O2 loop-invariant baseline. */
 #pragma opt_loop_invariants off
-// FUN_004A58B0
-void func_004a58b0(u8 *arg0)
-{
-    (*(void (**)(u8 *))(D_00714138 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
-    jtbl_008873EC[0](arg0);
-}
 
-// FUN_004A5910
-void *func_004a5910(void *source)
-{
-    u8 *arg0 = (u8 *)source;
-    u8 *temp_16;
 
-    temp_16 = WindAllocKindEntry(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
-    *(s32 *)(temp_16 + 0x3C) =
-        (*(s32 (**)(u8 *))(D_0071413C + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
-    (*(void (**)(u8 *))(D_00714130 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(temp_16);
-    return temp_16;
-}
-// FUN_004A59B0
-void func_004a59b0(u8 *arg0)
-{
-    (*(void (**)(void))(D_00714130 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
-    *(s32 *)(arg0 + 0x34) = 0;
-}
 
-// FUN_004A5A00
-void func_004a5a00(u8 *arg0)
-{
-    (*(void (**)(void))(D_00714140 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
-    *(s32 *)(arg0 + 0x34) = *(s32 *)(arg0 + 0x34) + 1;
-}
 
-// FUN_004A5A60
-void func_004a5a60(u8 *arg0)
-{
-    if (*(s32 *)(arg0 + 0x34) > 0) {
-        (*(void (**)(void))(D_00714144 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
-    }
-}
-
-// FUN_004A5AB0
-void func_004a5ab0(u8 *arg0)
-{
-    s32 temp_3;
-
-    (*(void (**)(void))(D_00714140 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
-    temp_3 = *(s32 *)(arg0 + 0x34) + 1;
-    *(s32 *)(arg0 + 0x34) = temp_3;
-    if (temp_3 > 0) {
-        (*(void (**)(u8 *))(D_00714144 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
-    }
-}
-// FUN_004A5B40
-u_long128 func_004a5b40(u8 *arg0, u8 *arg1) {
-    u_long128 value;
-    value = *(u_long128 *)arg1;
-    *(u_long128 *)arg0 = value;
-    return value;
-}
-// FUN_004A5B50
-u_long128 func_004a5b50(u8 *arg0, u8 *arg1) {
-    u_long128 value;
-    value = *(u_long128 *)arg1;
-    *(u_long128 *)(arg0 + 0x10) = value;
-    return value;
-}
-// FUN_004A5B60
-void func_004a5b60(u8 *arg0, s32 arg1)
-{
-    *(s32 *)(arg0 + 0x30) = arg1;
-}
 
 /* measured: the jump table must be called through the pointer -- `jtbl_x(a)` is
    an implicit function call to the table SYMBOL, which links and runs wrong. */
 
-// FUN_004A5B70
-void func_004a5b70(u8 *arg0, f32 arg1) {
-    *(f32 *)(arg0 + 0x20) = arg1;
-    *(f32 *)(arg0 + 0x24) = arg1;
-    *(f32 *)(arg0 + 0x28) = arg1;
-}
 
-// FUN_004A5B90
-void func_004a5b90(u8 *arg0, f32 *arg1) {
-    *(f32 *)(arg0 + 0x20) = arg1[0];
-    *(f32 *)(arg0 + 0x24) = arg1[1];
-    *(f32 *)(arg0 + 0x28) = arg1[2];
-}
 
 extern void *func_004a5bb0(void *source);
 
@@ -318,26 +169,6 @@ void func_004a5de0(u8 *arg0) {
     (*jtbl_008873EC)(arg0);
 }
 
-// FUN_004A5E50
-void *func_004a5e50(void *source)
-{
-    u8 *arg0 = (u8 *)source;
-    u8 *temp_16;
-    u8 *temp_2;
-    u8 *temp_3;
-
-    temp_16 = func_004a5bb0(NULL);
-    temp_2 = GeometryCloneBlock(*(s32 *)(arg0 + 0xC8));
-    *(u8 **)(temp_16 + 0xC8) = temp_2;
-    temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18) + 0x30);
-    *(s32 *)(temp_3 + 0) = -1;
-    *(s32 *)(temp_3 + 4) = -1;
-    *(s32 *)(temp_3 + 8) = -1;
-    *(s32 *)(temp_3 + 0xC) = -1;
-    memcpy(temp_16 + 0x30, arg0 + 0x30, 0x98);
-    func_004a5ef0(temp_16, arg0);
-    return temp_16;
-}
 // FUN_004A5EF0
 void func_004a5ef0(u8 *arg0, u8 *arg1)
 {
@@ -360,16 +191,7 @@ void func_004a5ef0(u8 *arg0, u8 *arg1)
         *(s32 *)(arg0 + 0xCC) = TlpAddRef(*(s32 *)(arg1 + 0xCC));
     }
 }
-// FUN_004A5F90
-void func_004a5f90(u8 *arg0)
-{
-    *(s32 *)(arg0 + 0x2C) = 0;
-}
 
-// FUN_004A5FA0
-void func_004a5fa0(u8 *arg0) {
-    (*(s32 *)(arg0 + 0x2C))++;
-}
 /* Billboard sprite update. The particle colour is the base colour times the
  * animated tint, packed by the COP2 block. Its store to the packed slot is
  * part of that asm; b210 forwards any compiler-side store, and retail reloads
@@ -392,44 +214,9 @@ typedef struct EffSpriteRGBA {
     u8 alpha;
 } EffSpriteRGBA;
 
-// FUN_004A6B90
-void func_004a6b90(u8 *arg0) {
-    (*(s32 *)(arg0 + 0x2C))++;
-    func_004a5fc0(arg0);
-}
-// FUN_004A6BC0
-u_long128 func_004a6bc0(u8 *arg0, u8 *arg1) {
-    u_long128 value;
-    value = *(u_long128 *)arg1;
-    *(u_long128 *)arg0 = value;
-    return value;
-}
-// FUN_004A6BD0
-u_long128 func_004a6bd0(u8 *arg0, u8 *arg1) {
-    u_long128 value;
-    value = *(u_long128 *)arg1;
-    *(u_long128 *)(arg0 + 0x10) = value;
-    return value;
-}
-// FUN_004A6BE0
-void func_004a6be0(u8 *arg0, s32 arg1)
-{
-    *(s32 *)(arg0 + 0x24) = arg1;
-}
 
-// FUN_004A6BF0
-void func_004a6bf0(u8 *arg0, f32 arg1) {
-    *(f32 *)(arg0 + 0x20) = arg1;
-}
 #pragma opt_loop_invariants on
-/* measured: close loop-invariant hoisting after func_004a6c00. */
 #pragma opt_loop_invariants off
-// FUN_004A6D90
-void *func_004a6d90(void *source) {
-    u8 *temp;
-    temp = mdlEffectResolveRelPtrA(source);
-    return func_004a6c00(temp);
-}
 // FUN_004A6DC0
 void func_004a6dc0(u8 *arg0)
 {
@@ -437,16 +224,6 @@ void func_004a6dc0(u8 *arg0)
     jtbl_008873EC[0](arg0);
 }
 
-// FUN_004A6E10
-void *func_004a6e10(void *source) {
-    u8 *arg0 = (u8 *)source;
-    return func_004a6c00(arg0 + 0x18);
-}
-// FUN_004A6E40
-void func_004a6e40(u8 *arg0)
-{
-    *(s32 *)(arg0 + 0x10) = 0;
-}
 
 
 #pragma push
@@ -457,44 +234,22 @@ void func_004a6e40(u8 *arg0)
 #pragma tailcall off
 #pragma opt_common_subs off
 #pragma opt_propagation off
-/* measured: restore the enclosing options; owner verification is 92/92 MATCH. */
 #pragma pop
-// FUN_004A7A50
-void func_004a7a50(void) {
-    func_003e9c10((u8 *)D_00724C70, D_00922D80, 0);
-    D_00724C58 = 0;
-}
-
-
-
-
-// FUN_004A7B10
-void func_004a7b10(s32 arg0) {
-    func_003e9c10((u8 *)D_00724C70, D_00922D80, 0);
-    D_00724C58 = 0;
-    D_008873ec[0]((void *)arg0);
-}
-
-
-
-
-
-// FUN_004A7DA0
-void func_004a7da0(s32 *arg0) {
-    func_004a7c00((u8 *)arg0 + 4, *arg0);
-    *arg0 += 1;
-}
 
 
 
 
 
 
-// FUN_004A7DF0
-void func_004a7df0(s32 *arg0) {
-    func_004a7c00((u8 *)arg0 + 4, *arg0);
-    *arg0 += 1;
-}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -506,74 +261,12 @@ void func_004a7df0(s32 *arg0) {
 #pragma opt_loop_invariants off
 #pragma opt_loop_invariants on
 #pragma opt_loop_invariants off
-// FUN_004A8A50
-void func_004a8a50(u8 *arg0, u8 *arg1)
-{
-    f32 temp_f1;
-    f32 temp_f21;
-    f32 temp_f20;
-    f32 temp_f22;
-    u8 *temp_16;
-
-    *(u32 *)arg1 = effMiscRand(0) % (u32)(*(s32 *)(arg0 + 4) + 1);
-    *(f32 *)(arg1 + 4) = fGpffff80f4;
-    temp_16 = arg1 + 8;
-    *(s32 *)(arg1 + 0x10) = *(s32 *)(arg0 + 0x10);
-    *(f32 *)(arg1 + 0x14) = *(f32 *)(arg0 + 0x14);
-    *(s32 *)(arg1 + 0xC) = *(s32 *)(arg0 + 0xC);
-    temp_f20 = 0.5f * (f32)*(s32 *)(arg0 + 0x28);
-    temp_f21 = *(f32 *)(arg0 + 0x24);
-    temp_f22 = *(f32 *)(arg0 + 0x1C) +
-               temp_f21 * (2.0f * (effMiscRandFloat(0) - 0.5f));
-    temp_f1 = *(f32 *)(arg0 + 0x20) +
-              temp_f21 * (2.0f * (effMiscRandFloat(0) - 0.5f));
-    *(f32 *)(temp_16 + 0x14) = temp_f22;
-    *(f32 *)(temp_16 + 0x18) = temp_f1;
-    *(f32 *)(temp_16 + 0x1C) = temp_f22 - temp_f20;
-    *(f32 *)(temp_16 + 0x20) = temp_f1 - temp_f20;
-    *(f32 *)(temp_16 + 0x24) = temp_f22 + temp_f20;
-    *(f32 *)(temp_16 + 0x28) = temp_f1 + temp_f20;
-}
-// FUN_004ABB60
-void func_004abb60(void)
-{
-    u8 *temp_2;
-
-    temp_2 = func_00401b80();
-    *(u8 **)&D_00922D90[0] = temp_2;
-    D_00922D94[0] = (f32)*(s32 *)(temp_2 + 0xC);
-    D_00922D98[0] = (f32)*(s32 *)(temp_2 + 0x10);
-}
 
 #pragma push
 #pragma opt_propagation off
 #pragma pop
 
 
-// FUN_004ADAB0
-void func_004adab0(u8 *arg0)
-{
-    s32 *var_18;
-    u32 temp_16;
-    u32 var_17;
-
-    if (*(s32 *)(arg0 + 0x9C) != 0) {
-        temp_16 = *(u32 *)(arg0 + 0x28);
-        var_18 = *(s32 **)(arg0 + 0x98);
-        var_17 = 0;
-        goto loop_004adab0_check;
-loop_004adab0_body:
-        func_00485fe0(*var_18);
-        var_18++;
-        var_17 += 1;
-loop_004adab0_check:
-        if (var_17 < temp_16) {
-            goto loop_004adab0_body;
-        }
-    }
-    mdlSetLayerTime((u8 *)*(s32 *)(arg0 + 0xA0), 0, 0.0f);
-    *(s32 *)(arg0 + 0x2C) = 0;
-}
 // FUN_004ADE80
 void func_004ade80(u8 *arg0)
 {
@@ -619,120 +312,4 @@ loop_004ade80_b_check:
         }
     }
 }
-// FUN_004ADFA0
-void func_004adfa0(u8 *arg0) {
-    func_004adb50();
-    func_004ade80(arg0);
-}
-// FUN_004ADFE0
-u_long128 func_004adfe0(u8 *arg0, u8 *arg1) {
-    u_long128 value;
-    value = *(u_long128 *)arg1;
-    *(u_long128 *)arg0 = value;
-    return value;
-}
-// FUN_004ADFF0
-u_long128 func_004adff0(u8 *arg0, u8 *arg1) {
-    u_long128 value;
-    value = *(u_long128 *)arg1;
-    *(u_long128 *)(arg0 + 0x10) = value;
-    return value;
-}
-// FUN_004AE000
-void func_004ae000(u8 *arg0, s32 arg1) {
-    *(s32 *)(arg0 + 0x24) = arg1;
-}
-// FUN_004AE010
-void func_004ae010(u8 *arg0, f32 arg1) {
-    *(f32 *)(arg0 + 0x20) = arg1;
-}
-// FUN_004AE0A0
-void func_004ae0a0(u8 *arg0, u8 *arg1)
-{
-    f32 sp40[4];
-    f32 temp_f0;
-    s32 temp_4;
 
-    if (*(u8 *)(arg0 + 0x10) == 0) {
-        sp40[0] = *(f32 *)(arg0 + 0x14);
-        sp40[1] = *(f32 *)(arg0 + 0x18);
-        sp40[2] = *(f32 *)(arg0 + 0x1C);
-    } else {
-        sp40[0] = 2.0f * (effMiscRandFloat(0) - 0.5f);
-        sp40[1] = 2.0f * (effMiscRandFloat(0) - 0.5f);
-        sp40[2] = 2.0f * (effMiscRandFloat(0) - 0.5f);
-    }
-    __asm__ volatile(
-        "lqc2 $vf10, 0(%1) \n"
-        "vmul.xyz $vf2, $vf10, $vf10 \n"
-        "vaddy.x $vf2, $vf2, $vf2y \n"
-        "vaddz.x $vf2, $vf2, $vf2z \n"
-        ".word 0x4A0203BD \n"
-        "vwaitq \n"
-        "cfc2.ni $2, $vi22 \n"
-        "mtc1 $2, %0 \n"
-        : "=f"(temp_f0)
-        : "r"(sp40)
-        : "$2", "$vf2", "$vf10", "Q", "memory");
-    if (temp_f0 == 0.0f) {
-        goto normalized_zero;
-    }
-    __asm__ volatile(
-        "vmul.xyz $vf2, $vf10, $vf10 \n"
-        "vmulax.w $ACC, $vf0, $vf2x \n"
-        "vmadday.w $ACC, $vf0, $vf2y \n"
-        "vmaddz.w $vf2, $vf0, $vf2z \n"
-        "vrsqrt $Q, $vf0w, $vf2w \n"
-        "vwaitq \n"
-        "vmulq.xyz $vf10, $vf10, $Q \n"
-        "sqc2 $vf10, 0(%0) \n"
-        :
-        : "r"(sp40)
-        : "$vf0", "$vf2", "$vf10", "ACC", "Q", "memory");
-    *(f32 *)(arg1 + 0) = sp40[0];
-    *(f32 *)(arg1 + 4) = sp40[1];
-    *(f32 *)(arg1 + 8) = sp40[2];
-    goto normalized_done;
-normalized_zero:
-    *(f32 *)(arg1 + 0) = 0.0f;
-    *(f32 *)(arg1 + 4) = 1.0f;
-    *(f32 *)(arg1 + 8) = 0.0f;
-normalized_done:
-    temp_f0 = *(f32 *)(arg0 + 0x28);
-    temp_f0 = (1.0f - temp_f0) + temp_f0 * effMiscRandFloat(0);
-    *(f32 *)(arg1 + 0x10) = *(f32 *)(arg0 + 0x24) * temp_f0;
-    *(f32 *)(arg1 + 0x0C) = iGpffff8080 * effMiscRandFloat(0);
-    temp_4 = *(s32 *)(arg0 + 0x34);
-    switch (temp_4) {
-    case 1:
-        *(u8 *)(arg1 + 0x14) = (u8)(effMiscRand(0) % 6);
-        break;
-    case 2:
-        *(u8 *)(arg1 + 0x14) =
-            (u8)(((u32)((u8 *)arg1 - *(u8 **)(arg0 + 0x5C)) / 0x18) % 6);
-        break;
-    default:
-        *(s8 *)(arg1 + 0x14) = -1;
-        break;
-    }
-}
-
-// FUN_004AF5E0
-void func_004af5e0(u8 *instance, u32 *position)
-{
-    mdlEffectStoreQuadA(*(s32 *)(instance + 0x58), position);
-}
-// FUN_004AF610
-void func_004af610(u8 *instance, u32 *rotation)
-{
-    mdlEffectStoreQuadB(*(s32 *)(instance + 0x58), rotation);
-}
-// FUN_004AF640
-void func_004af640(u8 *arg0, s32 arg1) {
-    *(s32 *)(arg0 + 0x4) = arg1;
-}
-// FUN_004AF650
-void func_004af650(u8 *arg0, f32 arg1) {
-    *(f32 *)(arg0 + 0x8) = arg1;
-    func_00492e30(*(u16 **)(arg0 + 0x58), arg1);
-}
