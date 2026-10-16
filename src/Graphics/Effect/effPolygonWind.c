@@ -26,8 +26,8 @@ extern s32 func_00481300(s32);
 extern void func_004842d0(void *, s32);
 extern void func_004843f0(void *, s32);
 extern void func_004a1d70(void *, void *);
-extern void func_004a30e0(u8 *, u8 *);
-extern void func_004a4450(u8 *, u8 *);
+extern void FallingFunnelWindInitEntries(u8 *, u8 *);
+extern void SpiralWindInitEntries(u8 *, u8 *);
 extern u8 *func_00484010(u8 *);
 extern void *memcpy(void *, const void *, u32);
 extern char D_00713330[];
@@ -51,13 +51,14 @@ extern f32 D_00713D18[4];
 extern f32 iGpffff8084; /* 0x00761174 */
 extern f32 fGpffff8044; /* 0x00761134 */
 extern f32 iGpffff8080; /* 0x00761170 */
-extern void *func_004a5630(s32, void *);
+extern void *WindAllocKindEntry(s32, void *);
 extern char D_00714134[];
 extern char D_00714130[];
 extern char D_00714110[];
 
+// Allocates a funnel wind block: count * 48 entry bytes plus a 12-byte header.
 // FUN_004A20B0
-u8 *func_004a20b0(u8 *arg0, s32 arg1)
+u8 *FunnelWindAllocBlock(u8 *arg0, s32 arg1)
 {
     u8 *work;
     s32 size;
@@ -83,8 +84,9 @@ u8 *func_004a20b0(u8 *arg0, s32 arg1)
     return work;
 }
 
+// Allocates a funnel wind block that inherits its entry layout from a parent block.
 // FUN_004A21E0
-u8 *func_004a21e0(u8 *arg0)
+u8 *FunnelWindAllocFromParent(u8 *arg0)
 {
     u8 *p16;
     u8 *p17;
@@ -109,8 +111,9 @@ u8 *func_004a21e0(u8 *arg0)
     return work;
 }
 
+// Frees a funnel wind block: its geometry handle, then the block itself.
 // FUN_004A22C0
-void func_004a22c0(u8 *arg0) {
+void FunnelWindFreeBlock(u8 *arg0) {
     u8 *temp_16;
 
     temp_16 = *(u8 **)(arg0 + 0x3C);
@@ -118,7 +121,7 @@ void func_004a22c0(u8 *arg0) {
     D_008873ec[0](*(void **)(temp_16 + 8));
 }
 
-/* Funnel wind strip update, the func_004a4a10 sibling without the VU0 matrix:
+/* Funnel wind strip update, the SpiralWindUpdateStrip sibling without the VU0 matrix:
  * each sample sits on a ring of radius base + swell * (s - centre)^2 at a
  * rising height, and the strip is widened along the normalised ring offset.
  * One float local carries the spawn start, every spawn interpolation weight
@@ -126,8 +129,9 @@ void func_004a22c0(u8 *arg0) {
  * retail's shared $f20/$f23 show. FPR declarations follow the order a
  * regalloc_whatif.py replay of the captured colouring derived; the spilled
  * locals are declared in retail's spill-slot order. */
+// Updates the funnel wind strip: the ring point gives a direction that is widened along the normalised ring offset.
 // FUN_004A2310
-void func_004a2310(u8 *arg0)
+void FunnelWindUpdateStrip(u8 *arg0)
 {
     EffectVuVector point;
     EffectVuVector normal;
@@ -366,8 +370,9 @@ skip:
     }
 }
 
+// Packs the funnel wind vertex colours from the inner and outer colour words.
 // FUN_004A2C90
-void func_004a2c90(u8 *arg0)
+void FunnelWindPackColors(u8 *arg0)
 {
     union {
         s32 w;
@@ -529,9 +534,10 @@ void func_004a2c90(u8 *arg0)
  * 0xFF/0xFE/-1 constants inside the loop instead of hoisting them to the
  * preheader (and hoists the p11 load that retail re-issues per iteration);
  * with it the loop matches retail exactly. */
+// Updates the funnel entries in a per-entry loop (0x30 stride).
 // FUN_004A3010
 #pragma opt_loop_invariants on
-void func_004a3010(u8 *arg0)
+void FunnelWindUpdateEntries(u8 *arg0)
 {
     u8 *p5;
     u8 *p7;
@@ -562,12 +568,13 @@ void func_004a3010(u8 *arg0)
 }
 #pragma opt_loop_invariants off
 
+// Initialises the falling funnel entries from the config (0x30 stride).
 // FUN_004A30E0
 /* Reusing arg1 as the replica index after its last dereference preserves the
  * retail saved-register allocation for the replication loop. */
 #pragma push
 #pragma opt_loop_invariants on
-void func_004a30e0(u8 *arg0, u8 *arg1)
+void FallingFunnelWindInitEntries(u8 *arg0, u8 *arg1)
 {
     u8 *var_19;
     u8 *temp_18;
@@ -652,8 +659,9 @@ void func_004a30e0(u8 *arg0, u8 *arg1)
 }
 #pragma pop
 
+// Allocates a falling funnel wind block: count * 48 entry bytes plus a 12-byte header.
 // FUN_004A33E0
-u8 *func_004a33e0(u8 *arg0, s32 arg1)
+u8 *FallingFunnelWindAllocBlock(u8 *arg0, s32 arg1)
 {
     u8 *work;
     s32 size;
@@ -675,12 +683,13 @@ u8 *func_004a33e0(u8 *arg0, s32 arg1)
     } else {
         func_004843f0(*(void **)(work + 4), arg1);
     }
-    func_004a30e0(work, arg0);
+    FallingFunnelWindInitEntries(work, arg0);
     return work;
 }
 
+// Allocates a falling funnel wind block that inherits its entry layout from a parent block.
 // FUN_004A3510
-u8 *func_004a3510(u8 *arg0)
+u8 *FallingFunnelWindAllocFromParent(u8 *arg0)
 {
     u8 *p16;
     u8 *p17;
@@ -701,12 +710,13 @@ u8 *func_004a3510(u8 *arg0)
         *(u32 *)(p17 + 0x8C) = 3U;
     }
     *(u8 **)(work + 4) = func_00484010(*(u8 **)(p16 + 4));
-    func_004a30e0(work, p17);
+    FallingFunnelWindInitEntries(work, p17);
     return work;
 }
 
+// Frees a falling funnel wind block: its geometry handle, then the block itself.
 // FUN_004A35F0
-void func_004a35f0(u8 *arg0) {
+void FallingFunnelWindFreeBlock(u8 *arg0) {
     u8 *temp_16;
 
     temp_16 = *(u8 **)(arg0 + 0x3C);
@@ -714,7 +724,7 @@ void func_004a35f0(u8 *arg0) {
     D_008873ec[0](*(void **)(temp_16 + 8));
 }
 
-/* Falling funnel wind strip, the func_004a2310 sibling with a call-free inner
+/* Falling funnel wind strip, the FunnelWindUpdateStrip sibling with a call-free inner
  * loop: the ring point for the current and the next state gives a normalised
  * direction, crossed with the radial axis and scaled to the strip width; the
  * loop then steps the centre along that direction. Loop invariants hoist the
@@ -725,8 +735,9 @@ void func_004a35f0(u8 *arg0) {
 static inline f32 windAdd(f32 first, f32 second) { return first + second; }
 #pragma push
 #pragma opt_loop_invariants on
+// Updates the falling funnel wind strip: a call-free inner loop steps the centre along the normalised direction.
 // FUN_004A3640
-void func_004a3640(u8 *arg0)
+void FallingFunnelWindUpdateStrip(u8 *arg0)
 {
     EffectVuVector point;
     EffectVuVector direction;
@@ -984,8 +995,9 @@ check:
     }
 }
 #pragma pop
+// Packs the falling funnel vertex colours from the inner and outer colour words.
 // FUN_004A4000
-void func_004a4000(u8 *arg0)
+void FallingFunnelWindPackColors(u8 *arg0)
 {
     union {
         s32 w;
@@ -1143,13 +1155,14 @@ void func_004a4000(u8 *arg0)
     }
 }
 
-/* measured: same loop-shape as func_004a3010; without #pragma
+/* measured: same loop-shape as FunnelWindUpdateEntries; without #pragma
  * opt_loop_invariants on, mwcc rematerializes the 0xFF/0xFE/-1 constants
  * inside the loop instead of hoisting them to the preheader; with it the
  * loop matches retail exactly (0x2C stride variant). */
+// Updates the falling funnel entries in a per-entry loop (0x2C stride variant).
 // FUN_004A4380
 #pragma opt_loop_invariants on
-void func_004a4380(u8 *arg0)
+void FallingFunnelWindUpdateEntries(u8 *arg0)
 {
     u8 *p5;
     u8 *p7;
@@ -1206,8 +1219,9 @@ void func_004a4380(u8 *arg0)
    See docs/probe_archive/Wind_004a4450_shared_initializer.md. */
 #pragma push
 #pragma opt_loop_invariants on
+// Initialises the spiral wind entries from the config (0x2C stride).
 // FUN_004A4450
-void func_004a4450(u8 *arg0, u8 *arg1)
+void SpiralWindInitEntries(u8 *arg0, u8 *arg1)
 {
     u32 meshCount;
     u8 *geometry;
@@ -1284,8 +1298,9 @@ void func_004a4450(u8 *arg0, u8 *arg1)
 }
 #pragma pop
 
+// Allocates a spiral wind block: count * 44 entry bytes plus a 12-byte header.
 // FUN_004A4790
-u8 *func_004a4790(u8 *arg0, s32 arg1)
+u8 *SpiralWindAllocBlock(u8 *arg0, s32 arg1)
 {
     u8 *work;
     s32 size;
@@ -1307,12 +1322,13 @@ u8 *func_004a4790(u8 *arg0, s32 arg1)
     } else {
         func_004843f0(*(void **)(work + 4), arg1);
     }
-    func_004a4450(work, arg0);
+    SpiralWindInitEntries(work, arg0);
     return work;
 }
 
+// Allocates a spiral wind block that inherits its entry layout from a parent block.
 // FUN_004A48D0
-u8 *func_004a48d0(u8 *arg0)
+u8 *SpiralWindAllocFromParent(u8 *arg0)
 {
     u8 *p16;
     u8 *p17;
@@ -1333,12 +1349,13 @@ u8 *func_004a48d0(u8 *arg0)
         *(u32 *)(p17 + 0x8C) = 3U;
     }
     *(u8 **)(work + 4) = func_00484010(*(u8 **)(p16 + 4));
-    func_004a4450(work, p17);
+    SpiralWindInitEntries(work, p17);
     return work;
 }
 
+// Frees a spiral wind block: its geometry handle, then the block itself.
 // FUN_004A49C0
-void func_004a49c0(u8 *arg0) {
+void SpiralWindFreeBlock(u8 *arg0) {
     u8 *temp_16;
 
     temp_16 = *(u8 **)(arg0 + 0x3C);
@@ -1353,8 +1370,9 @@ void func_004a49c0(u8 *arg0) {
  * constants are named locals assigned in retail's preheader order, and the
  * FPR locals are declared in the order regalloc_whatif.py derived from the
  * captured colouring (start/end/t, then width..radius). */
+// Updates the spiral wind strip: samples the spiral ring through the VU0 matrix and widens the strip along the normalised cross product.
 // FUN_004A4A10
-void func_004a4a10(u8 *arg0)
+void SpiralWindUpdateStrip(u8 *arg0)
 {
     EffectVuVector point;
     f32 sampleScale;
@@ -1589,8 +1607,9 @@ skip:
     }
 }
 
+// Packs the spiral wind vertex colours from the inner and outer colour words.
 // FUN_004A52B0
-void func_004a52b0(u8 *arg0)
+void SpiralWindPackColors(u8 *arg0)
 {
     union {
         s32 w;
@@ -1748,14 +1767,15 @@ void func_004a52b0(u8 *arg0)
     }
 }
 
-/* measured: same loop-shape as func_004a3010; without #pragma
+/* measured: same loop-shape as FunnelWindUpdateEntries; without #pragma
  * opt_loop_invariants on, mwcc rematerializes the 0xFF/0xFE/-1 constants
  * inside the loop instead of hoisting them to the preheader; with it the
  * loop matches retail exactly (0x2C stride variant). */
 
+// Allocates a wind entry from the kind table (kind below 4), copying the kind's stride-0x1C record.
 // FUN_004A5630
 #pragma opt_propagation off
-void *func_004a5630(s32 arg0, void *arg1)
+void *WindAllocKindEntry(s32 arg0, void *arg1)
 {
     u8 *p18;
     u_long128 *dst128;
@@ -1785,8 +1805,9 @@ void *func_004a5630(s32 arg0, void *arg1)
 }
 #pragma opt_propagation on
 
+// Creates a wind entry by kind: switches on the entry's kind word and allocates through WindAllocKindEntry.
 // FUN_004A5750
-void *func_004a5750(void *arg0)
+void *WindCreateKindEntry(void *arg0)
 {
     u8 *p16;
     u8 *p19;
@@ -1813,7 +1834,7 @@ void *func_004a5750(void *arg0)
         kAssertFail(D_00714110, 0x5E3);
     }
     p16 = (u8 *)(*(u16 *)((u8 *)arg0 + 0xC) & 0xFFFF);
-    p17 = func_004a5630((s32)p16, p19);
+    p17 = WindAllocKindEntry((s32)p16, p19);
     idx = ((u32)p16 & 0xFFFF) * 28;
     *(u32 *)(p17 + 0x3C) = (u32)((void *(*)(void *, void *))(*(void **)(D_00714134 + idx)))(p19, p18);
     ((void (*)(void *))(*(void **)(D_00714130 + idx)))(p17);

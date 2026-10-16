@@ -23,7 +23,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
 extern PolygonWindColor iGpffffbb64;
 extern void func_004a5fc0(u8 *arg0);
 extern u8 *func_004a6c00(u8 *arg0);
-extern u8 *func_004a5630(u16 arg0, u8 *arg1);
+extern u8 *WindAllocKindEntry(u16 arg0, u8 *arg1);
 extern u8 D_0071413C[];
 extern u_long128 func_00492dd0(s32 emitter, u32 *position);
 extern u_long128 func_00492e10(s32 emitter, u32 *rotation);
@@ -349,7 +349,7 @@ void *func_004a5910(void *source)
     u8 *arg0 = (u8 *)source;
     u8 *temp_16;
 
-    temp_16 = func_004a5630(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
+    temp_16 = WindAllocKindEntry(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
     *(s32 *)(temp_16 + 0x3C) =
         (*(s32 (**)(u8 *))(D_0071413C + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
     (*(void (**)(u8 *))(D_00714130 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(temp_16);
