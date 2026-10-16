@@ -7,14 +7,14 @@
 u32 btlFormationGetCount(void* formation);
 u32 btlFormationGetEntry(void* formation, u32 index);
 void func_001d6ee0(void** units);
-void func_001d7100(u8* packet, s16 value);
+void btlPacketSetValue(u8* packet, s16 value);
 void func_001d72c0(void* packet, u32 value);
 u32 func_001d8bc0(void* formation);
 u32 func_001dc680(void* object);
 u32 func_001deeb0(void* object);
 u32 btlFormationGetFlags(s32 param_1);
 void btlFormationSetSlot(s32 param_1, u32 param_2);
-s16 func_001d7130(s32 param_1);
+s16 btlPacketGetValue(s32 param_1);
 void func_001d8be0(s32 param_1, u64* param_2);
 void func_001d8bf0(s32 param_1, s32 param_2);
 u32 btlCond_MORE(s32 param_1);

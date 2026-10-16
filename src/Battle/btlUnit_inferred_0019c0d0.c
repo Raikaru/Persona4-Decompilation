@@ -235,11 +235,11 @@ void btlUnitUpdateAll(void)
     extern s32 btlTargetRefreshRadiusNode(u8 *arg0);
     extern u32 btlUnitIsModelVisible(u8 *arg0);
     extern s32 btlEffectFlagToSlotIndex(s32 arg0);
-    extern s16 func_001d7130(s32 arg0);
+    extern s16 btlPacketGetValue(s32 arg0);
     extern void btlEffectFlagToColor(s32 arg0, u8 *arg1);
     /* Retail passes the sign-extended word from (s16)btlEffectFlagToSlotIndex() in $a1
      * without narrowing; the s16 definition's prototype adds a re-extension. */
-    extern void func_001d7100(u8 *arg0, s32 arg1);
+    extern void btlPacketSetValue(u8 *arg0, s32 arg1);
     extern void func_001d72c0(void *arg0, u32 arg1);
     extern void btlEffectRefreshPlacementState(u8 *arg0);
     u8 *entry;
@@ -409,11 +409,11 @@ void btlUnitUpdateAll(void)
                         v41 = *(u32 *)(p + 0xC) & 0xFFFFF;
                         chk = (s16)btlEffectFlagToSlotIndex(v41);
 
-                        if (chk != (s16)func_001d7130(*(s32 *)(entry + 0xA04))) {
+                        if (chk != (s16)btlPacketGetValue(*(s32 *)(entry + 0xA04))) {
                             btlEffectFlagToColor(v41, entry + 0x48);
                             *(Col4_0019 *)(entry + 0x44) = *(Col4_0019 *)(entry + 0x40);
                             *(u16 *)(entry + 0x4C) = 8;
-                            func_001d7100(*(u8 **)(entry + 0xA04), chk);
+                            btlPacketSetValue(*(u8 **)(entry + 0xA04), chk);
                         }
                     }
                     func_001d72c0(*(u8 **)(entry + 0xA04), *(u32 *)(entry + 0x4E));

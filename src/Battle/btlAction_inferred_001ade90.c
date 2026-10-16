@@ -780,7 +780,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     extern s32 btlFormationAllocWork(u32 arg0);
     extern void btlFormationSetPlacement(u32 arg0);
     extern u32 btlFormationGetFlags(s32 arg0);
-    extern u8 *func_001d7bf0(u32 arg0, u32 arg1, u32 arg2);
+    extern u8 *btlFormationDispatchPacketNew(u32 arg0, u32 arg1, u32 arg2);
     extern u8 *btlTargetCreateRecordPacket(u8 *arg0);
     extern s32 btlUnitSlotValueOrOne(s32 arg0);
     extern void btlBossResetPendingCue(u8 *arg0);
@@ -850,7 +850,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     }
     {
         u8 *pk;
-        pk = func_001d7bf0(sp1D8[0], sp1D8[1], sp1D8[2]);
+        pk = btlFormationDispatchPacketNew(sp1D8[0], sp1D8[1], sp1D8[2]);
         *(s64 *)(pk + 0x60) = uid;
         btlPacketEnqueue(pk, 1);
     }
@@ -1141,7 +1141,7 @@ void btlActionRoundupUpdate(u8 *arg0)
     }
     {
         u8 *pk;
-        pk = func_001d7bf0(0, 0, 0);
+        pk = btlFormationDispatchPacketNew(0, 0, 0);
         *pk = 4;
         *(s64 *)(pk + 8) = *(s64 *)(chain + 0x58);
         *(pk + 0x10) = 4;
