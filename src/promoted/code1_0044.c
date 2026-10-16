@@ -2,7 +2,6 @@
 #include "type.h"
 /* Toolchain-blocked: retail saves callee-saved registers with sd; MWCCPS2 3.0.1 emits sq. See build/ORCH_sd_toolchain_blocked.txt. */
 
-
 s32 func_004447f8();
 s32 func_00444870();
 s32 func_00421da8();
@@ -64,7 +63,6 @@ s32 func_00446108();
 #pragma tailcall on
 #pragma pop
 
-
 s64 func_004470f0(s64 arg0);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
@@ -87,46 +85,10 @@ s64 func_004470f0(s64 arg0);
    down to one), and taking the address of the first member instead of the
    struct. Committed at nd 45. */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // FUN_004420F8
 s32 func_004420f8(void) {
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* measured: strstr.  Object 23 instrs against retail 22 (diff 1, INSIDE the*/
 /* 2-instr slack a 22-instruction function gets under the +-3% gate), 22*/
@@ -200,18 +162,6 @@ done:
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443010);
 #endif
 
-
-
-
-
-
-
-
-
-
-
-
-
 /* measured: 15 differing words, object 17 instrs / retail 17, exact count (third-party unit, so floorboard/opclass skip it). Control shape matches (delay-slot move, shared epilogue); residual is frame/saves and lw/sw register picks. Tried: loc/tag-hoist respelling (16 edits, neutral), all 8 singles + all 28 pragma pairs (all 15; peephole off 17). Retail saves $s0 with sd, b210 emits sq (file-top toolchain note): ~6 save/frame words permanently blocked. */
 // FUN_00444700 NONMATCHING
 #ifdef NON_MATCHING
@@ -232,21 +182,6 @@ s32 __sprint(u8 *arg0, u8 *arg1) {
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444700);
 #endif
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* measured: nd 83 against retail's 112-byte object (object_size 104/112).
    Retail reads the incoming float's bits via `mfc1 $t7,$f12` then `and`s with
    0x7FFFFFFF and does an integer `slt` against 0x3F490FDA (pi/4) to pick the
@@ -263,31 +198,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444700);
    at nd 83.
    Committed at nd 83. */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #pragma pop
-
 
 s32 func_00447b88(s64 arg0);
 
@@ -304,7 +215,6 @@ s32 func_00447b88(s64 arg0);
 #pragma tailcall on
 #pragma pop
 
-
 s32 func_00447d00(s64 arg0, s32 arg1);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
@@ -319,7 +229,6 @@ s32 func_00447d00(s64 arg0, s32 arg1);
 #pragma schedule on
 #pragma tailcall on
 #pragma pop
-
 
 f32 func_00448d10(f32 arg0);
 
@@ -336,7 +245,6 @@ f32 func_00448d10(f32 arg0);
 #pragma tailcall on
 #pragma pop
 
-
 f32 func_00449120(f32 arg0);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
@@ -351,7 +259,6 @@ f32 func_00449120(f32 arg0);
 #pragma schedule on
 #pragma tailcall on
 #pragma pop
-
 
 f32 func_004494b8(f32 arg0, f32 arg1);
 
@@ -368,7 +275,6 @@ f32 func_004494b8(f32 arg0, f32 arg1);
 #pragma tailcall on
 #pragma pop
 
-
 f32 func_00449680(f32 arg0);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
@@ -384,7 +290,6 @@ f32 func_00449680(f32 arg0);
 #pragma tailcall on
 #pragma pop
 
-
 f32 func_00449938(f32 arg0, f32 arg1);
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
@@ -399,7 +304,6 @@ f32 func_00449938(f32 arg0, f32 arg1);
 #pragma schedule on
 #pragma tailcall on
 #pragma pop
-
 
 f32 __ieee754_sqrtf(f32 arg0);
 
@@ -424,13 +328,4 @@ s32 func_0044f4d0(void) {
         return temp;
     }
     return 0;
-}
-// FUN_0044F510
-s32 (**func_0044f510(void))(u32) {
-    D_00763D1C->fn_30 = func_0044f4d0;
-    D_008BE290[0] = chkmemAllocate;
-    D_008BE294[0] = chkmemFree;
-    D_008BE298[0] = chkmemReallocate;
-    D_008BE29C[0] = chkmemAllocZeroed;
-    return D_008BE290;
 }

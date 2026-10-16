@@ -22,7 +22,6 @@ extern s32 func_00486060(u8 *);
 extern void func_004860f0();
 extern void func_00486180();
 
-
 extern void DistortParticleProjectRecords();
 extern s32 iGpffffbb98;
 extern s32 iGpffffbb94;
@@ -65,8 +64,6 @@ extern s32 TlpAddRef(s32 arg0);
    func_004bd628, func_004bd640, func_004bd658, func_004bd670,
    func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
 
-
-
 extern u8 D_0071465C[];
 extern u8 D_00714650[];
 extern u8 D_00714660[];
@@ -106,112 +103,15 @@ extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
 
-
-
 extern void DistortParticleProjectRecords();
-
-
-
 
 extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 
-
-
-
-
-
-
-
-
-
-// FUN_004B12E0
-void func_004b12e0(u8 *arg0, u8 *arg1) {
-    struct {
-        f32 first[4];
-        u8 result[16];
-        f32 values[16];
-    } work;
-
-    work.first[0] = *(f32 *)(arg1 + 0x30);
-    work.first[1] = *(f32 *)(arg1 + 0x34);
-    work.first[2] = *(f32 *)(arg1 + 0x38);
-    work.first[3] = 0.0f;
-    func_004861f0((void *)arg0, work.first);
-    work.values[0] = *(f32 *)(arg1 + 0);
-    work.values[1] = *(f32 *)(arg1 + 4);
-    work.values[2] = *(f32 *)(arg1 + 8);
-    work.values[3] = 0.0f;
-    work.values[4] = *(f32 *)(arg1 + 0x10);
-    work.values[5] = *(f32 *)(arg1 + 0x14);
-    work.values[6] = *(f32 *)(arg1 + 0x18);
-    work.values[7] = 0.0f;
-    work.values[8] = *(f32 *)(arg1 + 0x20);
-    work.values[9] = *(f32 *)(arg1 + 0x24);
-    work.values[10] = *(f32 *)(arg1 + 0x28);
-    work.values[11] = 0.0f;
-    work.values[12] = *(f32 *)(arg1 + 0x30);
-    work.values[13] = *(f32 *)(arg1 + 0x34);
-    work.values[14] = *(f32 *)(arg1 + 0x38);
-    work.values[15] = 0.0f;
-    effMiscMatrixToQuatVU(work.values);
-    __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(work.result) : "memory");
-    func_00486330(arg0, work.result);
-}
-
-
-
 extern u32 mdlEffectGetPackedColorWord(void *object);
-
-
-
-
-
 
 typedef signed __int128 s128;
 
-
-
-
-
 extern void *func_004b16c0(void *opaqueSource);
-// FUN_004B18E0
-void func_004b18e0(u8 *arg0)
-{
-    s32 h;
-
-    h = *(s32 *)(arg0 + 0xA8);
-    if (h != 0) {
-        TlpRelease(h);
-    }
-    h = *(s32 *)(arg0 + 0xAC);
-    if (h != 0) {
-        func_00481ee0(h);
-    }
-    GeometryBlockDestroy(*(s32 *)(arg0 + 0xA4));
-    (*jtbl_008873EC)(arg0);
-}
-
-// FUN_004B1A00
-void func_004b1a00(u8 *arg0, u8 *arg1) {
-    s32 temp_4;
-    s32 temp_4_2;
-
-    if (*(s32 *)(arg1 + 0xAC) != 0) {
-        temp_4 = *(s32 *)(arg0 + 0xAC);
-        if (temp_4 != 0) {
-            func_00481ee0(temp_4);
-        }
-        *(s32 *)(arg0 + 0xAC) = func_00481e30(*(s32 *)(arg1 + 0xAC));
-        return;
-    }
-    if (*(s32 *)(arg1 + 0xA8) != 0) {
-        temp_4_2 = *(s32 *)(arg0 + 0xA8);
-        if (temp_4_2 != 0) {
-            TlpRelease(temp_4_2);
-        }
-        *(s32 *)(arg0 + 0xA8) = TlpAddRef(*(s32 *)(arg1 + 0xA8));
-    }
-}
 
 /* Screen-space sprite update, the EffSpriteUpdate sibling. It shares the COP2
  * colour pack (the asm writes the packed frame slot, retail reloads it) and
@@ -320,35 +220,14 @@ s32 func_004b2780(u8 *arg0) {
 #pragma opt_common_subs on
 #pragma pop
 
-
-
-
-
-
-
 typedef signed __int128 s128;
 
-
-
-
-
-
-
-
-
 typedef signed __int128 s128;
-
-
-
 
 extern u8 *AfPackBindResource();
 extern u8 *AfPackCreateInstance();
 extern void AfPackStartSections();
 extern void AfPackListAppend();
-
-
-
-
 
 #pragma opt_propagation off
 /* measured: restore propagation for the rest of the unit. */

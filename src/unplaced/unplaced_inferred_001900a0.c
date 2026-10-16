@@ -1,0 +1,58 @@
+/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 001900a0-00190130 */
+
+#include "btl_skill_target_internal.h"
+#include "rw_geometry_internal.h"
+#include "model_motion_internal.h"
+#include "btl_motion_internal.h"
+#include "include_asm.h"
+#include "sdk_task_registration.h"
+#include "type.h"
+#include "btl_packet_create_internal.h"
+#include "effect_instance_internal.h"
+#include "btl_skill_internal.h"
+#include "datPersona_internal.h"
+#include "datUnit_internal.h"
+#include "rw_types_internal.h"
+static inline s32 *p4_entries_001900a0(s32 offset, s32 *base)
+{
+    return (s32 *)((s32)base + offset);
+}
+
+extern void func_003ef3a0(s32 arg0);
+extern void (*jtbl_008873EC[])(void *arg0);
+extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
+extern u8 D_005F6010[];
+extern u8 D_005F6020[];
+extern void *(*D_008873F4[])(size_t, size_t, u32);
+extern s32 K_MapEditTask(u8 *task);
+// FUN_001900A0
+void K_MapEdit_Destroy(u8 *arg0)
+{
+    s32 *entries;
+    s32 value;
+    s32 i;
+
+    entries = *(s32 **)(arg0 + 0x38);
+    i = 0;
+    while (i < 9) {
+        value = p4_entries_001900a0(i * 4, entries)[1];
+        if (value != 0) {
+            func_003ef3a0(value);
+        }
+        i++;
+    }
+    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+}
+
+// FUN_00190130
+s32 K_MapEdit_Create(s32 arg0)
+{
+    s32 *work;
+
+    chkmemAllocSiteTag(D_005F6010, 0x184);
+    work = (s32 *)D_008873F4[0](1, 0x1CD20, 0x40000);
+    if (work == NULL) {
+        return 0;
+    }
+    return (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(D_005F6020), 0xF, 0, 0, K_MapEditTask, K_MapEdit_Destroy, (u8 *)(work));
+}
