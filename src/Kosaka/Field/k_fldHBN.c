@@ -6,7 +6,7 @@
 #include "field_transition_internal.h"
 
 extern u8 *MT_Scene_GetFrameState(void);
-extern void func_00160180(void);
+extern void FldHbnFreeEntryTable(void);
 extern void (*DAT_008873EC[])(void *);
 extern s32 FldRc_GetLoadSource(void);
 extern void strcpy(void *arg0, const char *arg1);
@@ -35,7 +35,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldHBN.c; members 0015f8e0-001602a0 */
 
 // FUN_0015F8E0
-u8 *func_0015f8e0(s32 arg0, s32 arg1)
+u8 *FldHbnOpenData(s32 arg0, s32 arg1)
 {
     char spB0[0x80];
     char sp30[0x80];
@@ -55,7 +55,7 @@ u8 *func_0015f8e0(s32 arg0, s32 arg1)
 }
 
 // FUN_0015F9B0
-s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
+s32 FldHbnReadData(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
 {
     u32 sp9C;
     char sp50[0x40];
@@ -99,9 +99,9 @@ s32 func_0015f9b0(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3)
    phases. See docs/probe_archive/HBN_0015fb00_color_value_recovery.md. */
 // FUN_0015FB00
 #pragma push
-/* measured: func_0015fb00 MATCH -> MISMATCH without this pragma. */
+/* measured: FldHbnSpawnLights MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
-void func_0015fb00(u8 *arg0, s32 arg1)
+void FldHbnSpawnLights(u8 *arg0, s32 arg1)
 {
     extern s32 MT_Scene_CreatePointRes14(u16 arg0, f32 *arg1, f32 fparg0);
     extern s32 MT_Scene_CreatePointRes15(u16 arg0, f32 *arg1, f32 fparg0);
@@ -192,7 +192,7 @@ void func_0015fb00(u8 *arg0, s32 arg1)
 
 #pragma pop
 // FUN_0015FF20
-u8 *func_0015ff20(s32 arg0, s32 arg1)
+u8 *FldHbnOpenTable(s32 arg0, s32 arg1)
 {
     char spB0[0x80];
     char sp30[0x80];
@@ -218,7 +218,7 @@ u8 *func_0015ff20(s32 arg0, s32 arg1)
 }
 
 // FUN_00160000
-s32 func_00160000(u8 *arg0)
+s32 FldHbnLoadEntryTable(u8 *arg0)
 {
     u32 sp8C;
     char sp40[0x40];
@@ -246,7 +246,7 @@ s32 func_00160000(u8 *arg0)
     }
     if (data != NULL)
     {
-        func_00160180();
+        FldHbnFreeEntryTable();
         *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18D8) = sp8C / 44;
         chkmemAllocSiteTag(D_005F1108, 0x2AD);
         temp_2 = D_008873F4[0](1, (s32)(sp8C), 0x40000);
@@ -261,7 +261,7 @@ s32 func_00160000(u8 *arg0)
 }
 
 // FUN_00160180
-void func_00160180(void)
+void FldHbnFreeEntryTable(void)
 {
     if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18DC) != 0) {
         *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18D8) = 0;
@@ -271,7 +271,7 @@ void func_00160180(void)
 }
 
 // FUN_001601E0
-u8 *func_001601e0(s32 arg0)
+u8 *FldHbnOpenScript(s32 arg0)
 {
     char spA0[0x80];
     char sp20[0x80];
@@ -291,7 +291,7 @@ u8 *func_001601e0(s32 arg0)
 }
 
 // FUN_001602A0
-s32 func_001602a0(u8 *arg0, s32 arg1)
+s32 FldHbnLoadScriptBuffer(u8 *arg0, s32 arg1)
 {
     u32 sp7C;
     char sp30[0x40];

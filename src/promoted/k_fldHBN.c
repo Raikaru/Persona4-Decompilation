@@ -6,7 +6,7 @@
 #include "field_transition_internal.h"
 
 extern u8 *MT_Scene_GetFrameState(void);
-extern void func_00160180(void);
+extern void FldHbnFreeEntryTable(void);
 extern void (*DAT_008873EC[])(void *);
 extern s32 FldRc_GetLoadSource(void);
 extern void strcpy(void *arg0, const char *arg1);
