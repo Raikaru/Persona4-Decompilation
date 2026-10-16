@@ -32,7 +32,6 @@ typedef struct {
 
 void datPersonaSetLeadSlot(s16);
 s32 datPersonaFillSkillCostRow(s32, struct DatPersonaRecord *, s32, void *);
-u16 *datPersonaGetSkills(struct DatPersonaRecord *);
 void datCalcSkillOutcomeById(s32, s32, u16, s32, s32 *, s32, s32);
 void radarAnimateValue(void *, s32, s32);
 void sdkSpriteFreeNode(void *);
