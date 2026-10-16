@@ -475,7 +475,7 @@ void func_001ed700(f32 radius)
 
 #pragma pop
 // FUN_001EE1C0
-void func_001ee1c0(void) {
+void btlTargetResetRadiusState(void) {
     f32 temp_f0;
     f32 temp_f1;
 
@@ -495,7 +495,7 @@ void func_001ee1c0(void) {
 }
 
 // FUN_001EE250
-void func_001ee250(u8 *arg0, u8 *arg1)
+void btlTargetAddRadiusNode(u8 *arg0, u8 *arg1)
 {
     extern void btlTargetSetRadiusArea(u8 *arg0, s16 arg1, s16 arg2, f32 arg3);
     f32 coords[3];
@@ -548,7 +548,7 @@ ee250_link_done:
 }
 
 // FUN_001EE430
-void func_001ee430(u8 *arg0) {
+void btlTargetRemoveRadiusNode(u8 *arg0) {
     s32 temp_5;
     u8 *temp_5_2;
     u8 *temp_5_3;
@@ -570,7 +570,7 @@ void func_001ee430(u8 *arg0) {
 }
 
 // FUN_001EE490
-s32 func_001ee490(u8 *arg0) {
+s32 btlTargetRefreshRadiusNode(u8 *arg0) {
     extern void btlTargetSetRadiusArea(u8 *arg0, s16 arg1, s16 arg2, f32 arg3);
     extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
     f32 coords[3];

@@ -137,7 +137,7 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
 }
 extern u8 iGpffffa4d8;
 extern void func_001d1540(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_001ee430(u8 *arg0);
+extern void btlTargetRemoveRadiusNode(u8 *arg0);
 extern int mdlHasActiveMode(void *arg0);
 extern void mdlSetLookAtActive(void *arg0);
 extern void mdlSetLookAtRequested(void *arg0);
@@ -230,7 +230,7 @@ void btlUnitFreeRemovedUnits(void)
             next = *(u8 **)(unit + 0xA6C);
             unitType = *(u8 *)(unit + 0xA2);
             btlUnitReleaseAllResources(unit);
-            func_001ee430(unit);
+            btlTargetRemoveRadiusNode(unit);
             status = *(s8 *)(unit + 0x9FC);
             if (status >= 0)
                 func_001d1540(unit, status, 0);

@@ -105,7 +105,7 @@ extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
 extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
-extern void func_001ee1c0(void);
+extern void btlTargetResetRadiusState(void);
 extern void func_00194660(void);
 extern void btlCameraInitSystem(void);
 extern void func_001f7260(void);
@@ -349,7 +349,7 @@ void btlInit(void)
     }
     func_00106390(0x1435, 0);
     func_00106390(0x1438, 0);
-    func_001ee1c0();
+    btlTargetResetRadiusState();
     func_00194660();
     btlCameraInitSystem();
     func_001f7260();

@@ -1137,7 +1137,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
             *(u8 *)(*(u8 **)(t17 + 0xA00) + 0x282) = 0;
         }
         if (*(u16 *)(arg0 + 8) & 0x40) {
-            func_001ee250(t17, 0);
+            btlTargetAddRadiusNode(t17, 0);
         }
         if (*(u16 *)(arg0 + 8) & 0x20) {
             btlUnitUpdateStatusMotion(t17, 0);

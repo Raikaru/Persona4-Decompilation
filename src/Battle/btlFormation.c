@@ -46,7 +46,7 @@ extern s32 btlUnitIsMoving(void *arg0);
 extern void func_00196b70(void *arg0);
 extern void func_00196ba0(void *arg0);
 extern void btlUnitRequestLookAt(void *arg0);
-extern void func_001ee490(void *arg0);
+extern void btlTargetRefreshRadiusNode(void *arg0);
 extern u8 *btlActionGetActiveOrQueueFront(void);
 extern void func_001d1680(s32 arg0, s32 arg1);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
@@ -825,7 +825,7 @@ u32 btlFormationUpdateMovement(u16 *arg0)
                     if (temp_16 != 0) {
                         btlUnitSetPos(var_20, sp80);
                         func_00196b70(var_20);
-                        func_001ee490(var_20);
+                        btlTargetRefreshRadiusNode(var_20);
                     }
                     if (temp_21 != 0) {
                         btlUnitSetRot(var_20, sp70);
