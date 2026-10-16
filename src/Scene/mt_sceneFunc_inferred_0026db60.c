@@ -18,7 +18,7 @@ extern f32 fGpffff842c;
 extern void MT_Scene_ShakeStopTask(u8 *task);
 extern s32 MT_SceneManager_DrawUpdate(u8 *task);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern void func_0026dd60(u8 *arg0);
+extern void mtSceneDrawSortedUnits(u8 *arg0);
 extern void MT_Scene_UpdateShake(void);
 extern void MT_Scene_UpdateResource(u8 *arg0);
 extern void MT_Scene_UpdateCameraResource(u8 *arg0);
@@ -51,7 +51,7 @@ static inline f32 mtSceneMulF32(f32 left, f32 right)
 {
     return left * right;
 }
-extern void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2,
+extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 arg5,
                           f32 fparg3, f32 fparg4, f32 fparg5);
@@ -191,7 +191,7 @@ second_exit:
 
 /* measured: closes opt_propagation off probe for func_0026db60. */
 /* measured: closes optimization_level 1 register-coloring probe for func_0026db60. */
-/* measured: func_0026dc50, rbRingBufCreate MATCH -> MISMATCH without this pragma. */
+/* measured: mtSceneUnitDepthCompare, rbRingBufCreate MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_0026DC30
 void MT_Scene_ShakeStopTask(u8 *unusedTask)
@@ -199,11 +199,11 @@ void MT_Scene_ShakeStopTask(u8 *unusedTask)
     MT_Scene_StopShake();
 }
 
-/* measured: opt_propagation off probe for func_0026dc50 float load scheduling. */
-/* measured: func_0026dc50 MATCH -> MISMATCH without this pragma. */
+/* measured: opt_propagation off probe for mtSceneUnitDepthCompare float load scheduling. */
+/* measured: mtSceneUnitDepthCompare MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0026DC50
-s32 func_0026dc50(u8 **arg0, u8 **arg1)
+s32 mtSceneUnitDepthCompare(u8 **arg0, u8 **arg1)
 {
     struct DC50Frame {
         f32 v40[3];
@@ -258,9 +258,9 @@ s32 func_0026dc50(u8 **arg0, u8 **arg1)
     return (s32)(temp_f20 - RwV3dLength(frame.vD0));
 }
 
-/* measured: closes opt_propagation off probe for func_0026dc50. */
+/* measured: closes opt_propagation off probe for mtSceneUnitDepthCompare. */
 // FUN_0026DD60
-void func_0026dd60(u8 *arg0)
+void mtSceneDrawSortedUnits(u8 *arg0)
 {
     s32 output_index;
     u32 *result;
@@ -311,7 +311,7 @@ loop_16_test:
         if (arg0 != NULL) {
             goto loop_16_body;
         }
-        qsort(result, count, 4, func_0026dc50);
+        qsort(result, count, 4, mtSceneUnitDepthCompare);
         output_index = 0;
         goto loop_19_test;
 loop_19_body:
@@ -335,7 +335,7 @@ s32 MT_SceneManager_DrawUpdate(u8 *unusedTask)
     u8 *var_16;
 
     var_16 = MT_Scene_GetResListHead(6);
-    func_0026dd60(var_16);
+    mtSceneDrawSortedUnits(var_16);
     goto loop_test;
 loop_body:
     if (*(s32 *)(var_16 + 0x28) & 2) {

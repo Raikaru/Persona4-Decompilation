@@ -39,7 +39,7 @@ static inline f32 mtSceneMulF32(f32 left, f32 right)
 {
     return left * right;
 }
-extern void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2,
+extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 arg5,
                           f32 fparg3, f32 fparg4, f32 fparg5);

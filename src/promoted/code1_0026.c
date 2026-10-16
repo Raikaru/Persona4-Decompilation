@@ -23,7 +23,7 @@ extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern void MT_Scene_ShakeStopTask(u8 *task);
 extern s32 MT_SceneManager_DrawUpdate(u8 *task);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern void func_0026dd60(u8 *arg0);
+extern void mtSceneDrawSortedUnits(u8 *arg0);
 extern void MT_Scene_UpdateShake(void);
 extern void MT_Scene_UpdateResource(u8 *arg0);
 extern void MT_Scene_UpdateCameraResource(u8 *arg0);
@@ -57,7 +57,7 @@ static inline f32 mtSceneMulF32(f32 left, f32 right)
 {
     return left * right;
 }
-extern void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2,
+extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 arg5,
                           f32 fparg3, f32 fparg4, f32 fparg5);
@@ -88,7 +88,7 @@ extern s32 datEntryGetFlags(s16 arg0);
 
 extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
-extern void func_00266cc0(s32 arg0, s32 arg1);
+extern void cldTimeChangeDraw(s32 arg0, s32 arg1);
 
 extern void sdkSpritePackDestroy(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
@@ -96,13 +96,13 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern void kAssertFail(void *arg0, s32 arg1);
-extern s32 func_00266ba0(u8 *arg0);
+extern s32 cldTimeChangeUpdate(u8 *arg0);
 extern s32 sdkSndFadeOutChannel(s32 arg0, s32 arg1);
 extern s32 sdkSndStopChannel(s32 arg0);
 extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
 extern s32 func_0025f110(u8 *arg0);
 extern u8 D_00638F90[];
-extern void func_002674b0(s32 arg0, u8 *arg1);
+extern void cldTimeChangeQueueDraw(s32 arg0, u8 *arg1);
 extern char D_00637348[];
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
