@@ -336,7 +336,7 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
  * 2026-10-09: 99 -> 94: the frame record is the list base plus `i * 0x18`, added
  * after the base load.
  * 2026-10-09: 94 -> 90: MT_Scene_CreateCameraRes takes the camera entry arrays as pointers.
- * 2026-10-09: 90 -> 86: func_0015e960's last parameter is s16.
+ * 2026-10-09: 90 -> 86: FldFbnReadTable's last parameter is s16.
  * 2026-10-09: 86 -> 84: the loaded HBN entry is its own local `hbnEntry`.
  * 2026-10-09: 84 -> 83: the first file check assigns `var_2 = 1` in its NULL branch.
  * 2026-10-09: 83 -> 70: temp_18 is declared before temp_19.
@@ -488,11 +488,11 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     extern u8 *FldHbnOpenData(s32 arg0, s32 arg1);
     extern s32 FldHbnReadData(u8 *arg0, u16 **arg1, s32 arg2, s32 arg3);
     extern void FldHbnSpawnLights(u8 *arg0, s32 arg1);
-    extern u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2);
+    extern u8 *FldFbnOpenData(s32 arg0, s32 arg1, s16 arg2);
     /* lint: allow H011 -- retail supplies a signed halfword variant; the
      * provider's only use narrows its s32 parameter to s16 for the filename. */
-    extern s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s16 arg4);
-    extern s32 func_0015f000(u8 *arg0, u8 *arg1);
+    extern s32 FldFbnReadTable(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s16 arg4);
+    extern s32 FldFbnApplyTable(u8 *arg0, u8 *arg1);
     extern s32 FldStepLoadHandleIsDone(u8 *arg0);
     extern void FldStepLoadHandleDestroy(u8 *arg0);
     extern s32 NpcTable_RequestSceneTable(void);
@@ -1010,14 +1010,14 @@ readCamera:
 loadParts:
         if (FldMap_IsCurrentInBandB() == 1) {
             temp_2_11 = (u8 *)(iGpffff9db0);
-            *( s32 * )(*( u8 ** )(iGpffff9db0 + 0x28) + 0xA48) = (s32)func_0015e870(*( u16 * )(temp_2_11 + 0), *( u16 * )(temp_2_11 + 4), *( s16 * )(temp_2_11 + 0x10));
+            *( s32 * )(*( u8 ** )(iGpffff9db0 + 0x28) + 0xA48) = (s32)FldFbnOpenData(*( u16 * )(temp_2_11 + 0), *( u16 * )(temp_2_11 + 4), *( s16 * )(temp_2_11 + 0x10));
         } else {
             var_16_8 = 0;
             while (var_16_8 < *( s32 * )(iGpffff9db0 + 0x24)) {
                 temp_3_18 = (u8 *)(iGpffff9db0);
                 temp_17_6 = var_16_8 * 4;
                 temp_2_12 = (u8 *)(*( u8 ** )((temp_3_18 + temp_17_6) + 0x28));
-                *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_17_6) + 0x28) + 0xA48) = (s32)func_0015e870(*( u16 * )(temp_2_12 + 4), *( u16 * )(temp_2_12 + 6), *( s16 * )(temp_3_18 + 0x10));
+                *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_17_6) + 0x28) + 0xA48) = (s32)FldFbnOpenData(*( u16 * )(temp_2_12 + 4), *( u16 * )(temp_2_12 + 6), *( s16 * )(temp_3_18 + 0x10));
                 var_16_8 += 1;
             }
         }
@@ -1029,7 +1029,7 @@ readParts:
         if (initialPrimary == 1) {
             initialPartWork = (FldPartReadWork *)iGpffff9db0;
             initialPrimary = (uintptr_t)initialPartWork->primaryResource;
-            if (func_0015e960(((FldResourceFbnView *)initialPrimary)->file,
+            if (FldFbnReadTable(((FldResourceFbnView *)initialPrimary)->file,
                              &((FldResourceFbnView *)initialPrimary)->data,
                              (u16)initialPartWork->majorId,
                              (u16)initialPartWork->minorId,
@@ -1041,7 +1041,7 @@ readParts:
             while (var_17_5 < *( s32 * )(iGpffff9db0 + 0x24)) {
                 temp_3_20 = (u8 *)(iGpffff9db0);
                 temp_2_14 = (u8 *)(*( u8 ** )((temp_3_20 + (var_17_5 * 4)) + 0x28));
-                if (func_0015e960((u8 *)(*( s32 * )(temp_2_14 + 0xA48)), (u8 **)(temp_2_14 + 0xA4C), *( u16 * )(temp_2_14 + 4), *( u16 * )(temp_2_14 + 6), *( s16 * )(temp_3_20 + 0x10)) == 0) {
+                if (FldFbnReadTable((u8 *)(*( s32 * )(temp_2_14 + 0xA48)), (u8 **)(temp_2_14 + 0xA4C), *( u16 * )(temp_2_14 + 4), *( u16 * )(temp_2_14 + 6), *( s16 * )(temp_3_20 + 0x10)) == 0) {
                     var_16_9 += 1;
                 }
                 var_17_5 += 1;
@@ -1058,7 +1058,7 @@ waitParts:
             temp_2_15 = (u8 *)iGpffff9db0;
             temp_16_9 = var_18_3 * 4;
             temp_2_15 = (u8 *)(*( u8 ** )((temp_2_15 + temp_16_9) + 0x28));
-            if (func_0015f000((u8 *)(*( s32 * )(temp_2_15 + 0xA48)),(u8 *)(*( s32 * )(temp_2_15 + 0xA4C))) == 0) {
+            if (FldFbnApplyTable((u8 *)(*( s32 * )(temp_2_15 + 0xA48)),(u8 *)(*( s32 * )(temp_2_15 + 0xA4C))) == 0) {
                 var_17_6 += 1;
             } else {
                 *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_16_9) + 0x28) + 0xA48) = 0;
@@ -1086,14 +1086,14 @@ reloadParts:
             }
             if (FldMap_IsCurrentInBandB() == 1) {
                 temp_2_16 = (u8 *)(iGpffff9db0);
-                *( s32 * )(*( u8 ** )(iGpffff9db0 + 0x28) + 0xA48) = (s32)func_0015e870(*( u16 * )(temp_2_16 + 0), *( u16 * )(temp_2_16 + 4), *( s16 * )(temp_2_16 + 0x10));
+                *( s32 * )(*( u8 ** )(iGpffff9db0 + 0x28) + 0xA48) = (s32)FldFbnOpenData(*( u16 * )(temp_2_16 + 0), *( u16 * )(temp_2_16 + 4), *( s16 * )(temp_2_16 + 0x10));
             } else {
                 var_16_10 = 0;
                 while (var_16_10 < *( s32 * )(iGpffff9db0 + 0x24)) {
                     temp_3_22 = (u8 *)(iGpffff9db0);
                     temp_17_7 = var_16_10 * 4;
                     temp_2_17 = (u8 *)(*( u8 ** )((temp_3_22 + temp_17_7) + 0x28));
-                    *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_17_7) + 0x28) + 0xA48) = (s32)func_0015e870(*( u16 * )(temp_2_17 + 4), *( u16 * )(temp_2_17 + 6), *( s16 * )(temp_3_22 + 0x10));
+                    *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_17_7) + 0x28) + 0xA48) = (s32)FldFbnOpenData(*( u16 * )(temp_2_17 + 4), *( u16 * )(temp_2_17 + 6), *( s16 * )(temp_3_22 + 0x10));
                     var_16_10 += 1;
                 }
             }
@@ -1104,7 +1104,7 @@ readReloadedParts:
             if (reloadedPrimary == 1) {
                 reloadedPartWork = (FldPartReadWork *)iGpffff9db0;
                 reloadedPrimary = (uintptr_t)reloadedPartWork->primaryResource;
-                if (func_0015e960(((FldResourceFbnView *)reloadedPrimary)->file,
+                if (FldFbnReadTable(((FldResourceFbnView *)reloadedPrimary)->file,
                                  &((FldResourceFbnView *)reloadedPrimary)->data,
                                  (u16)reloadedPartWork->majorId,
                                  (u16)reloadedPartWork->minorId,
@@ -1116,7 +1116,7 @@ readReloadedParts:
                 while (var_17_8 < *( s32 * )(iGpffff9db0 + 0x24)) {
                     temp_3_24 = (u8 *)(iGpffff9db0);
                     temp_2_19 = (u8 *)(*( u8 ** )((temp_3_24 + (var_17_8 * 4)) + 0x28));
-                    if (func_0015e960((u8 *)(*( s32 * )(temp_2_19 + 0xA48)), (u8 **)(temp_2_19 + 0xA4C), *( u16 * )(temp_2_19 + 4), *( u16 * )(temp_2_19 + 6), *( s16 * )(temp_3_24 + 0x10)) == 0) {
+                    if (FldFbnReadTable((u8 *)(*( s32 * )(temp_2_19 + 0xA48)), (u8 **)(temp_2_19 + 0xA4C), *( u16 * )(temp_2_19 + 4), *( u16 * )(temp_2_19 + 6), *( s16 * )(temp_3_24 + 0x10)) == 0) {
                         var_16_11 += 1;
                     }
                     var_17_8 += 1;
@@ -1130,7 +1130,7 @@ waitReloadedParts:
             var_17_9 = 0;
             if (FldMap_IsCurrentInBandB() == 1) {
                 temp_2_20 = (u8 *)(*( u8 ** )(iGpffff9db0 + 0x28));
-                if (func_0015f000((u8 *)(*( s32 * )(temp_2_20 + 0xA48)),(u8 *)(*( s32 * )(temp_2_20 + 0xA4C))) == 0) {
+                if (FldFbnApplyTable((u8 *)(*( s32 * )(temp_2_20 + 0xA48)),(u8 *)(*( s32 * )(temp_2_20 + 0xA4C))) == 0) {
                     var_17_9 += 1;
                 } else {
                     *( s32 * )(*( u8 ** )(iGpffff9db0 + 0x28) + 0xA48) = 0;
@@ -1141,7 +1141,7 @@ waitReloadedParts:
                     temp_2_21 = (u8 *)iGpffff9db0;
                     temp_16_12 = var_18_5 * 4;
                     temp_2_21 = (u8 *)(*( u8 ** )((temp_2_21 + temp_16_12) + 0x28));
-                    if (func_0015f000((u8 *)(*( s32 * )(temp_2_21 + 0xA48)),(u8 *)(*( s32 * )(temp_2_21 + 0xA4C))) == 0) {
+                    if (FldFbnApplyTable((u8 *)(*( s32 * )(temp_2_21 + 0xA48)),(u8 *)(*( s32 * )(temp_2_21 + 0xA4C))) == 0) {
                         var_17_9 += 1;
                     } else {
                         *( s32 * )(*( u8 ** )((iGpffff9db0 + temp_16_12) + 0x28) + 0xA48) = 0;

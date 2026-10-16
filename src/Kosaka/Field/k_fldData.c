@@ -90,7 +90,7 @@ extern s32 iGpffffb278;
 extern s32 iGpffffb27c;
 extern s32 iGpffffb280;
 extern s32 iGpffffb284;
-extern s32 func_0015d730(u8 *arg0);
+extern s32 FldStartupDataUpdate(u8 *arg0);
 
 
 
@@ -98,7 +98,7 @@ extern s32 func_0015d730(u8 *arg0);
  * followed by twelve zero alignment bytes. Independent allocation/copy size
  * snapshots preserve the resource extent through each native call boundary. */
 #pragma push
-/* measured: func_0015d730 MATCH -> MISMATCH without this pragma. */
+/* measured: FldStartupDataUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 typedef struct FldDataLoadWork {
     s32 state;
@@ -131,7 +131,7 @@ static inline u8 fldDataModelReady(void)
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldData.c; members 0015d730-0015e7d0 */
 
 // FUN_0015D730
-s32 func_0015d730(u8 *task)
+s32 FldStartupDataUpdate(u8 *task)
 {
     s32 textureReady;
     u32 scriptAllocationSize;
@@ -416,13 +416,13 @@ television_texture_test:
 
 #pragma pop
 // FUN_0015E7A0
-void func_0015e7a0(u8 *arg0)
+void FldStartupDataDestroy(u8 *arg0)
 {
     (*DAT_008873EC)(*(u8 **)(arg0 + 0x38));
 }
 
 // FUN_0015E7D0
-s32 func_0015e7d0(void)
+s32 FldStartupDataCreate(void)
 {
     u8 *mem;
     s32 result;
@@ -432,7 +432,7 @@ s32 func_0015e7d0(void)
     if (mem == NULL) {
         return 0;
     }
-    result = (s32)kwlnTaskCreate((const void *)(D_005F1050), 0xF, 0, 0, func_0015d730, func_0015e7a0, (u8 *)(mem));
+    result = (s32)kwlnTaskCreate((const void *)(D_005F1050), 0xF, 0, 0, FldStartupDataUpdate, FldStartupDataDestroy, (u8 *)(mem));
     *(s32 *)(mem + 4) = 0;
     return result;
 }

@@ -121,7 +121,7 @@ extern char D_005F10B0[];
 extern char D_005F10D0[];
 
 // FUN_0015E870
-u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2)
+u8 *FldFbnOpenData(s32 arg0, s32 arg1, s16 arg2)
 {
     char spC0[0x80];
     char sp40[0x80];
@@ -153,7 +153,7 @@ u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2)
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
+s32 FldFbnReadTable(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     u32 size;
     SVec3 angles;
@@ -313,7 +313,7 @@ typedef struct FbnMatrix
  * angles.y exactly as retail does; later iterations see the previous
  * kind-0 store. */
 // FUN_0015F000
-s32 func_0015f000(u8 *arg0, u8 *arg1)
+s32 FldFbnApplyTable(u8 *arg0, u8 *arg1)
 {
     s32 n;
     s32 i;
