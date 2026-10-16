@@ -74,8 +74,9 @@ s32 scrGetCmdTimer(void)
     return *(s32 *)(iGpffffb510 + 0x138);
 }
 
+// Returns the message-window manager index stored in the script context at +0x130.
 // FUN_0029D030
-s32 func_0029d030(void)
+s32 scrGetMessageManager(void)
 {
     return *(s32 *)(iGpffffb510 + 0x130);
 }
