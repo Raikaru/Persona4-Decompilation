@@ -25,7 +25,7 @@ extern s32 btlAICommandSelectCandidates();
 
 extern u64 kwlnTaskIsLinked();
 
-extern u8 *func_001b0cc0();
+extern u8 *btlActionFindById();
 extern s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
 extern u32 scrGetParamInt();
 extern void scrSetReturnInt();
@@ -5397,7 +5397,7 @@ s32 btlAICommandScriptGetSelfHp(void) {
 s32 btlAICommandIdScriptQueryMyHp(void) {
     u32 a = scrGetParamInt(0);
     u32 b = scrGetParamInt(1);
-    u8 *p = func_001b0cc0(a & 0xFFFFFFF);
+    u8 *p = btlActionFindById(a & 0xFFFFFFF);
     u32 v = (b & 0xFFFFFF) | 0x1000000;
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = (b | 0x1000000) & 0xFFFFFF;
@@ -5415,7 +5415,7 @@ s32 btlAICommandIdScriptQueryMyHp(void) {
 s32 btlAICommandIdScriptQueryHasBuff(void) {
     u32 a = scrGetParamInt(0);
     u32 b = scrGetParamInt(1);
-    u8 t = datCalcHasBuffMask(*(u8 **)(*(u8 **)((u8 *)func_001b0cc0(a & 0xFFFFFFF) + 0x30) + 0xA64), b) != 0;
+    u8 t = datCalcHasBuffMask(*(u8 **)(*(u8 **)((u8 *)btlActionFindById(a & 0xFFFFFFF) + 0x30) + 0xA64), b) != 0;
     scrSetReturnInt(t != 0);
     return 1;
 }
@@ -5424,7 +5424,7 @@ s32 btlAICommandIdScriptQueryHasBuff(void) {
 // FUN_001E6740
 s32 btlAICommandScriptWouldBeKilled(void) {
     u8 *p = func_0029d050();
-    u8 *q = func_001b0cc0(scrGetParamInt(0) & 0xFFFFFFF);
+    u8 *q = btlActionFindById(scrGetParamInt(0) & 0xFFFFFFF);
     s32 x = datCalcSkillAmount(0, (u8 *)*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), (u8 *)*(u32 *)(*(u8 **)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1);
     s32 off;
     s32 sum;
@@ -5446,7 +5446,7 @@ s32 btlAICommandScriptHasCommandOfType(void) {
     temp_18 = (u8 *)(func_0029d050());
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
-    scrSetReturnInt(~btlAICommandCollectCommandsOfType(temp_18, func_001b0cc0(temp_17 & 0xFFFFFFF), (s16) temp_16, 0) != 0);
+    scrSetReturnInt(~btlAICommandCollectCommandsOfType(temp_18, btlActionFindById(temp_17 & 0xFFFFFFF), (s16) temp_16, 0) != 0);
     return 1;
 }
 
@@ -5460,7 +5460,7 @@ s32 btlAICommandScriptLookupOnlyFalse(void) {
     func_0029d050();
     temp_16 = scrGetParamInt(0);
     scrGetParamInt(1);
-    func_001b0cc0(temp_16 & 0xFFFFFFF);
+    btlActionFindById(temp_16 & 0xFFFFFFF);
     scrSetReturnInt(0U);
     return 1;
 }
@@ -5472,7 +5472,7 @@ s32 btlAICommandScriptLookupOnlyFalse(void) {
 s32 btlAICommandIdScriptQueryMyNomal(void) {
     u32 a = scrGetParamInt(0);
     u32 b = scrGetParamInt(1);
-    u8 *p = func_001b0cc0(a & 0xFFFFFFF);
+    u8 *p = btlActionFindById(a & 0xFFFFFFF);
     u32 v = (b & 0xFFFFFF) | 0x3F000000;
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = (b | 0x3F000000) & 0xFFFFFF;
@@ -5488,7 +5488,7 @@ s32 btlAICommandIdScriptQueryMyNomal(void) {
 /* AI script command 0x20e3 (p4flow AI.json AI_FUNCTION_00E3). */
 // FUN_001E6A00
 s32 btlAICommandIdScriptQueryOnSideZero(void) {
-    scrSetReturnInt(*(u8 *)(*(u8 **)(func_001b0cc0(scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA2) == 0);
+    scrSetReturnInt(*(u8 *)(*(u8 **)(btlActionFindById(scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA2) == 0);
     return 1;
 }
 /* AI script command 0x20e4 (p4flow AI.json AI_FUNCTION_00E4). */
@@ -5496,7 +5496,7 @@ s32 btlAICommandIdScriptQueryOnSideZero(void) {
 s32 btlAICommandIdScriptQueryCanUseCommand(void) {
     s32 r0 = scrGetParamInt(0);
     s32 r1 = scrGetParamInt(1);
-    u8 *q = func_001b0cc0(r0 & 0xFFFFFFF);
+    u8 *q = btlActionFindById(r0 & 0xFFFFFFF);
     s32 idx = r1 & 0xFFFF;
     s32 x;
     if (idx >= 0x240)

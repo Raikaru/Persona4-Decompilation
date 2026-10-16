@@ -233,7 +233,7 @@ s32 btlActionHasNoTargetClass(u32 arg0)
 
 
 extern u32 datCalcIsLowHp(s32 unit);
-extern u8 *func_001b0c80(s32 arg0);
+extern u8 *btlActionFindByUnit(s32 arg0);
 #pragma push
 #pragma opt_propagation off
 #pragma opt_propagation on

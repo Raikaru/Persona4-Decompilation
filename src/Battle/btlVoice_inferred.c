@@ -109,7 +109,7 @@ extern void btlCameraSelectEncounterPreset(u8 *camera);
 
 extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
 extern void func_00106390(s32 arg0, s32 arg1);
-extern u8 *func_001b0c80(s32 arg0);
+extern u8 *btlActionFindByUnit(s32 arg0);
 
 
 
@@ -1850,7 +1850,7 @@ void btlEncounterStartSequence(u8 *arg0)
         if (temp_2 == 0) {
             goto after_ef90;
         }
-        var_16 = (u8 *)func_001b0c80(temp_2);
+        var_16 = (u8 *)btlActionFindByUnit(temp_2);
         func_001f0a10((u8 *)payload);
         payload[2] = 0x100000;
         temp_2_5 = (u8 *)btlTargetCreateDataPacket((s32)(u32)var_16, (s32)(u32)var_16,
@@ -1906,7 +1906,7 @@ s32 btlEncounterFinishStep(u8 *arg0)
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
         temp_2 = (u8 *)btlUnitFindInSideById(1, 0x106);
         if (temp_2 != NULL) {
-            temp_2_2 = (u8 *)func_001b0c80((s32)temp_2);
+            temp_2_2 = (u8 *)btlActionFindByUnit((s32)temp_2);
             *(u16 *)(temp_2_2 + 0x1A) =
                 (u16)(*(u16 *)(temp_2_2 + 0x1A) | 8);
             *(s32 *)(*(u8 **)(temp_2_2 + 0x30) + 0x9C) |= 8;

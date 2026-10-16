@@ -178,7 +178,7 @@ extern void btlCameraSelectEncounterPreset(u8 *camera);
 extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
 extern void func_00106390(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(void *target);
-extern u8 *func_001b0c80(s32 arg0);
+extern u8 *btlActionFindByUnit(s32 arg0);
 extern void func_001f2eb0(u8 *arg0, s32 arg1);
 extern void btlSoundStopBgmIfEnabled(void);
 

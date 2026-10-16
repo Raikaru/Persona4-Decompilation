@@ -367,7 +367,7 @@ s32 btlRelease(void)
     u32 i;
     s32 temp;
     s32 *base;
-    func_001b0bf0();
+    btlActionListDestroyAll();
     btlUnitFreeRemovedUnits();
     btlMainSaveFieldSnapshotAndUnload();
     func_001b6110();

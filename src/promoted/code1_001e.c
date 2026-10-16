@@ -30,7 +30,7 @@ extern f32 RwV3dLength(f32 *vector);
 extern void func_003dcc70(const void *first, const void *second, void *result);
 extern void *RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rotation);
 extern f32 sqrtf(f32 arg0);
-extern u8 *func_001b0cc0();
+extern u8 *btlActionFindById();
 extern void *D_00609850[];
 extern s32 datCalcMaxHp();
 extern s64 scrGetParamInt();
@@ -139,7 +139,7 @@ extern s32 datCalcGetHp(s32 arg0);
 extern s32 datCalcIsDead(s32 arg0, s32 arg1);
 extern s32 datGetFlag(s32 arg0);
 extern s32 btlUnitFindInSideById(s32 arg0, s32 arg1);
-extern s32 func_001b0c80(s32 arg0);
+extern s32 btlActionFindByUnit(s32 arg0);
 extern void func_001fae60(s32 initialize, s32 update, s32 packet);
 extern void btlActionRunFormationSequence(u8 *action);
 extern s32 btlEncounterFinishSetup(u8 *action);
@@ -160,7 +160,7 @@ extern s32 btlAiSetGlobal(void);
 s32 func_001e6b90(void) {
     u32 a = scrGetParamIntS32(0);
     u32 b = scrGetParamIntS32(1);
-    u8 *p = func_001b0cc0(a & 0xFFFFFFF);
+    u8 *p = btlActionFindById(a & 0xFFFFFFF);
     u32 v = (b & 0xFFFFFF) | 0x48000000;
     u32 cmd = (v & 0xFF000000) >> 24;
     u32 arg = (b | 0x48000000) & 0xFFFFFF;
@@ -181,7 +181,7 @@ s32 func_001e6c60(void) {
     temp_2 = func_0029d050();
     if ((btlSkillClassifyTargets(temp_2, 0, *(u16 *)(temp_2 + 0x6E), 0) & 0xFFFF) == 0) {
         index = scrGetParamIntS32(0);
-        *(u8 **)(temp_2 + 0x38) = func_001b0cc0(index & 0xFFFFFFF);
+        *(u8 **)(temp_2 + 0x38) = btlActionFindById(index & 0xFFFFFFF);
         *(s16 *)(temp_2 + 0x6A) = 1;
     } else if (((s32 (*)(u8 *, s32))D_00609CE0[0])(temp_2, 0) == 0) {
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(temp_2, 0);
@@ -324,7 +324,7 @@ s32 func_001e8bb0(void) {
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
     temp_18 = scrGetParamInt(2);
-    scrSetReturnInt(btlAICommandCollectCommandsOfType(temp_19, func_001b0cc0((u64)(temp_17 << 0x24) >> 0x24), (s16)temp_16, temp_18));
+    scrSetReturnInt(btlAICommandCollectCommandsOfType(temp_19, btlActionFindById((u64)(temp_17 << 0x24) >> 0x24), (s16)temp_16, temp_18));
     return 1;
 }
 
@@ -339,7 +339,7 @@ s32 func_001e8cd0(void) {
     temp_16 = scrGetParamInt(0);
     temp_18 = scrGetParamInt(1);
     temp_17 = scrGetParamInt(2);
-    scrSetReturnInt(btlAICommandCollectSkillCandidates(temp_19, func_001b0cc0((u64)(temp_16 << 0x24) >> 0x24), temp_18, temp_17));
+    scrSetReturnInt(btlAICommandCollectSkillCandidates(temp_19, btlActionFindById((u64)(temp_16 << 0x24) >> 0x24), temp_18, temp_17));
     return 1;
 }
 

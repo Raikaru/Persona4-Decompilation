@@ -272,7 +272,7 @@ void func_004b1680(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
 
 
 
-extern u8 *func_001b0c80(s32 arg0);
+extern u8 *btlActionFindByUnit(s32 arg0);
 #pragma opt_propagation off
 #pragma opt_propagation on
 #pragma push
