@@ -259,7 +259,7 @@ void fclShopDrawItemText(void *, s8, Vec2f, void *);
 void fclShopSlideIndicator(void *, s8);
 void fclShopDrawSwingCursor(void *);
 s32 yListCount(void);
-s32 func_002e26a0(void);
+s32 yListLastIndex(void);
 s32 fclAddClamped(s32, s32, s32, s32, s8);
 s32 fclSubClamped(s32, s32, s32, s32, s8);
 s16 yListStepIndex(s16, s16, s16, s16, s16);
@@ -272,7 +272,7 @@ u32 fclGetMoney(void);
 u32 datItemPrice(s16);
 s8 yListKind(void);
 f32 fclEaseInterpolate(s32, f32, f32, f32, f32);
-s32 func_002e2700(void *);
+s32 yListLastIndexFor(void *);
 extern f32 D_0063F9C0[];
 extern f32 D_0063F9C8[];
 extern f32 D_0063F9D0[];
@@ -1811,7 +1811,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             if ((D_008C0276[0] & 0x1000) && ((*(s8 *)(work + 0x14)) == 0)) {
                 sdkSndStartStream(0, 0, 0, 0);
                 if ((*(s16 *)(work + 2)) == 0) {
-                    temp_2_76 = func_002e26a0();
+                    temp_2_76 = yListLastIndex();
                     (*(s16 *)(work + 2)) = temp_2_76;
                     (*(s16 *)(work + 4)) = fclAddClamped(0, (s32) ((s16) ((s64) temp_2_76)), 4, 0, 1);
                 } else {
@@ -1835,14 +1835,14 @@ s32 fclShopStateUpdate(u8 *arg0)
             }
             if ((D_008C0276[0] & 0x4000) && ((*(s8 *)(work + 0x14)) == 0)) {
                 sdkSndStartStream(0, 0, 0, 0);
-                temp_2_77 = fclAddClamped((s32) (*(s16 *)(work + 2)), 1, func_002e26a0(), 0, 2);
+                temp_2_77 = fclAddClamped((s32) (*(s16 *)(work + 2)), 1, yListLastIndex(), 0, 2);
                 (*(s16 *)(work + 2)) = temp_2_77;
                 if (((s16) ((s64) temp_2_77)) == 0) {
                     (*(s16 *)(work + 4)) = 0;
-                } else if (func_002e26a0() >= 5) {
-                    (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (func_002e26a0())), 5, 1);
+                } else if (yListLastIndex() >= 5) {
+                    (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), 5, 1);
                 } else {
-                    (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (func_002e26a0())), (s32) ((s16) (yListCount())), 1);
+                    (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), (s32) ((s16) (yListCount())), 1);
                 }
                 (*(s8 *)(work + 0x14)) = 1;
                 return 0;
@@ -1850,14 +1850,14 @@ s32 fclShopStateUpdate(u8 *arg0)
             if (D_008C027A[0] & 0x4000) {
                 if (yListCount() > 0) {
                     temp_16_58 = (*(s16 *)(work + 2));
-                    if (temp_16_58 != func_002e26a0()) {
+                    if (temp_16_58 != yListLastIndex()) {
                         sdkSndStartStream(0, 0, 0, 0);
                     }
-                    (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 1, func_002e26a0(), 0, 1);
-                    if (func_002e26a0() >= 5) {
-                        (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (func_002e26a0())), 5, 1);
+                    (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 1, yListLastIndex(), 0, 1);
+                    if (yListLastIndex() >= 5) {
+                        (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), 5, 1);
                     } else {
-                        (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (func_002e26a0())), (s32) ((s16) (yListCount())), 1);
+                        (*(s16 *)(work + 4)) = yListStepIndex((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), (s32) ((s16) (yListLastIndex())), (s32) ((s16) (yListCount())), 1);
                     }
                     (*(s8 *)(work + 0x14)) = 1;
                     return 0;
@@ -1866,7 +1866,7 @@ s32 fclShopStateUpdate(u8 *arg0)
             }
             if ((D_008C027A[0] & 2) || (D_008C027A[0] & 0x2000)) {
                 temp_16_60 = (*(s16 *)(work + 2));
-                if (temp_16_60 != func_002e26a0()) {
+                if (temp_16_60 != yListLastIndex()) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
                 yListAdvanceCursorScroll((s32) (*(s16 *)(work + 2)), (s32) (*(s16 *)(work + 4)), yListCount(), 5, (s16 *)(work + 2), (s16 *)(work + 4));
@@ -2234,11 +2234,11 @@ block_368:
                     if ((temp_4_13 - ((s16) ((s64) temp_30))) > 0) {
                         temp_16_81 = (s16) (fclSubClamped((s32) temp_4_13, 1, 0, 0, 1));
                         (*(s16 *)(work + 2)) = 0;
-                        (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), (s32) ((s16) (temp_16_81)), func_002e2700((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
+                        (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), (s32) ((s16) (temp_16_81)), yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
                     } else {
-                        (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 0, func_002e2700((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
+                        (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 0, yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
                     }
-                    (*(s16 *)(work + 4)) = fclAddClamped((s32) (*(s16 *)(work + 4)), 0, func_002e2700((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
+                    (*(s16 *)(work + 4)) = fclAddClamped((s32) (*(s16 *)(work + 4)), 0, yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
                 }
                 fclShopUpdateTabs(arg0, (s8) (s32) (*(s8 *)(work + 0x11)));
             }
@@ -2296,10 +2296,10 @@ block_368:
                 }
                 yListRebuildFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]), 0x40000, 0, 4, 0);
                 (*(s32 *)(work + 0xC20)) = 0;
-                (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 0, func_002e2700((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
+                (*(s16 *)(work + 2)) = fclAddClamped((s32) (*(s16 *)(work + 2)), 0, yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), 0, 1);
                 temp_18_57 = (*(s16 *)(work + 4));
-                if (func_002b32a0((s32) (*(s16 *)(work + 4)), 5, yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), func_002e2700((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]))) < temp_18_57) {
-                    (*(s16 *)(work + 4)) = func_002b32a0((s32) (*(s16 *)(work + 4)), 5, (s32) ((s16) (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])))), (s32) ((s16) (func_002e2700((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])))));
+                if (func_002b32a0((s32) (*(s16 *)(work + 4)), 5, yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])), yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))]))) < temp_18_57) {
+                    (*(s16 *)(work + 4)) = func_002b32a0((s32) (*(s16 *)(work + 4)), 5, (s32) ((s16) (yListCountFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])))), (s32) ((s16) (yListLastIndexFor((((void**)(work + 0xF18))[(*(s8 *)(work + 0x11))])))));
                 }
                 fclObjChangeFlagBit((*(void * *)(work + 0xE40)), 0, 1);
                 fclObjChangeFlagBit((*(void * *)(work + 0xE44)), 0, 1);
@@ -3243,7 +3243,7 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
     if ((D_008C0276[0] & 0x1000) && work->f14 == 0) {
         sdkSndStartStream(0, 0, 0, 0);
         if (work->f2 == 0) {
-            work->f2 = func_002e26a0();
+            work->f2 = yListLastIndex();
             work->f4 = fclAddClamped(0, work->f2, 4, 0, 1);
         } else {
             work->f2 = fclSubClamped(work->f2, 1, 0, yListCount(), 2);
@@ -3264,32 +3264,32 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
         }
     } else if ((D_008C0276[0] & 0x4000) && work->f14 == 0) {
         sdkSndStartStream(0, 0, 0, 0);
-        work->f2 = fclAddClamped(work->f2, 1, func_002e26a0(), 0, 2);
+        work->f2 = fclAddClamped(work->f2, 1, yListLastIndex(), 0, 2);
         if (work->f2 == 0) {
             work->f4 = 0;
-        } else if (func_002e26a0() >= 5) {
-            work->f4 = yListStepIndex(work->f2, work->f4, func_002e26a0(), 5, 1);
+        } else if (yListLastIndex() >= 5) {
+            work->f4 = yListStepIndex(work->f2, work->f4, yListLastIndex(), 5, 1);
         } else {
-            work->f4 = yListStepIndex(work->f2, work->f4, func_002e26a0(), yListCount(), 1);
+            work->f4 = yListStepIndex(work->f2, work->f4, yListLastIndex(), yListCount(), 1);
         }
         work->f14 = 1;
         return;
     } else if (D_008C027A[0] & 0x4000) {
         if (yListCount() > 0) {
-            if (work->f2 != func_002e26a0()) {
+            if (work->f2 != yListLastIndex()) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            work->f2 = fclAddClamped(work->f2, 1, func_002e26a0(), 0, 1);
-            if (func_002e26a0() >= 5) {
-                work->f4 = yListStepIndex(work->f2, work->f4, func_002e26a0(), 5, 1);
+            work->f2 = fclAddClamped(work->f2, 1, yListLastIndex(), 0, 1);
+            if (yListLastIndex() >= 5) {
+                work->f4 = yListStepIndex(work->f2, work->f4, yListLastIndex(), 5, 1);
             } else {
-                work->f4 = yListStepIndex(work->f2, work->f4, func_002e26a0(), yListCount(), 1);
+                work->f4 = yListStepIndex(work->f2, work->f4, yListLastIndex(), yListCount(), 1);
             }
             work->f14 = 1;
             return;
         }
     } else if ((D_008C027A[0] & 2) || (D_008C027A[0] & 0x2000)) {
-        if (work->f2 != func_002e26a0()) {
+        if (work->f2 != yListLastIndex()) {
             sdkSndStartStream(0, 0, 0, 0);
         }
         yListAdvanceCursorScroll(work->f2, work->f4, yListCount(), 5, &work->f2, &work->f4);
@@ -3756,7 +3756,7 @@ void fclShopDrawBuyList(void *arg0, s8 arg1) {
     s16 top;
 
     work = *(ShopBuyWork **)((u8 *)arg0 + 0x38);
-    top = func_002e2700(work->list[work->sel]);
+    top = yListLastIndexFor(work->list[work->sel]);
     item = yListValueAtFor(work->list[work->sel], work->cursor);
     for (i = 0; i < 3; i++) {
         fclObjChangeFlagBit(work->obj[i + 0x82], 0, 1);
@@ -5914,7 +5914,7 @@ void fclShopDrawItemRows(void *arg0, s8 arg1, f32 x, f32 y) {
     work = *(ShopListWork **)((u8 *)arg0 + 0x38);
     idx = arg1;
     count = yListCountFor(work->list[idx]);
-    func_002e2700(work->list[idx]);
+    yListLastIndexFor(work->list[idx]);
     if (yListCountFor(work->list[idx]) <= D_00748908[idx]) {
         fx = fclEaseInterpolate(0, x, y, (f32)work->slides[arg1][0].timer, (f32)work->slides[arg1][0].duration);
         work->slides[arg1][0].timer = fclAddClamped(work->slides[arg1][0].timer, 1, work->slides[arg1][0].duration, 0, 1);
