@@ -512,9 +512,9 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
     extern void func_0034f1e0(void);
     extern void func_0034c270(Vec2fLocal arg0, s32 arg1, s32 arg2, f32 arg3);
     extern void datScreenWipeDraw(u8 *arg0);
-    extern s32 func_00355430(u8 *arg0);
-    extern void func_00355310(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
-    extern void func_003553b0(u8 *arg0, f32 *arg1);
+    extern s32 datScreenWipeTexture(u8 *arg0);
+    extern void datScreenWipeGetPositions(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    extern void datScreenWipeGetScale(u8 *arg0, f32 *arg1);
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern void func_00364680(f32 depth, f32 x, f32 y, f32 shadowX, f32 shadowY,
                               f32 width, f32 height, s32 color, s32 texture,
@@ -554,7 +554,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
         datScreenWipeDraw(*(u8 **)(work + 0x4C));
         origin.draw.x = 0.0f;
         origin.draw.y = 0.0f;
-        texture = func_00355430(*(u8 **)(work + 0x4C));
+        texture = datScreenWipeTexture(*(u8 **)(work + 0x4C));
         if (texture != 0) {
             if (*(u16 *)(work + 0x46) >= 24) {
                 u32 overlayAlpha;
@@ -563,8 +563,8 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
                 f32 drawY;
                 s32 color;
                 phase = btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 27.0f, 54.0f, 2);
-                func_00355310(*(u8 **)(work + 0x4C), 0, (u8 *)position, 0);
-                func_003553b0(*(u8 **)(work + 0x4C), scale);
+                datScreenWipeGetPositions(*(u8 **)(work + 0x4C), 0, (u8 *)position, 0);
+                datScreenWipeGetScale(*(u8 **)(work + 0x4C), scale);
                 drawY = position[1];
                 drawX = position[0];
                 opacity = fGpffff838c * (f32)alpha;
