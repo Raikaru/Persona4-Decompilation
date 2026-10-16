@@ -27,8 +27,9 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 /* Source unit: src/promoted/code1_0024.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00244110-00244540 */
 
+// Intent: Compute physical damage from attacker STR, defender END, skill base power, status resistance and level factors; the flag-4 target split picks one of two formulas [inferred]
 // FUN_00244110
-void func_00244110(void)
+void datScriptCalcPhysicalDamage(void)
 {
     extern s32 datScriptCmdFlag2Set(void);
     extern f32 sqrtf(f32 arg0);
@@ -115,8 +116,9 @@ void func_00244110(void)
     datScriptSetResult(temp_f20);
 }
 
+// Intent: Compute magic damage from attacker MAG, defender END and skill base power, with the same level and resistance factors as the physical formula [inferred]
 // FUN_00244540
-void func_00244540(void)
+void datScriptCalcMagicDamage(void)
 {
     extern f32 sqrtf(f32 arg0);
     extern f32 fGpffff824c;

@@ -26,8 +26,9 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 /* Source unit: src/promoted/code1_0024.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00244cf0-00244cf0 */
 
+// Intent: Compute physical damage with the STR/END formula, then scale it by the battle hit counter plus one and an extra factor [inferred]
 // FUN_00244CF0
-void func_00244cf0(void)
+void datScriptCalcPhysicalDamageScaled(void)
 {
     extern f32 sqrtf(f32 arg0);
     f32 temp_f20;
