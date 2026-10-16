@@ -73,7 +73,7 @@ extern s32 datCalcThresholdTrigger(u8* arg0, s32 arg1);
 
 extern void datPersonaSetRosterMode(s32 arg0);
 
-extern void func_00193ad0(void* arg0);
+extern void btlUnitRecordResetSaveTable(void* arg0);
 
 extern s16 D_007973F4[];
 
@@ -2385,7 +2385,7 @@ u32 func_0010f460(u16 arg0)
 // FUN_0010F4C0
 void func_0010f4c0(void)
 {
-    func_00193ad0(D_0079BE2C);
+    btlUnitRecordResetSaveTable(D_0079BE2C);
 }
 
 // FUN_0010F4F0
