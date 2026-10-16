@@ -80,7 +80,7 @@ void func_00370290(u8 *arg0, f32 *arg1, f32 fparg0) {
     *(f32 *)(arg0 + 0x20) = *(f32 *)(arg0 + 0x2C) + result[2];
 }
 // FUN_00370410
-void func_00370410(u8 *arg0) {
+void btlShuffleCalcInitMotion(u8 *arg0) {
     struct Vec3 {
         f32 x;
         f32 y;
@@ -247,7 +247,7 @@ void func_00370640(u8 *arg0) {
     *(f32 *)(arg0 + 0x14) += *(f32 *)(arg0 + 0x20);
 }
 // FUN_00370A80
-void func_00370a80(u8 *arg0) {
+void btlShuffleCalcInitRotation(u8 *arg0) {
     struct Vec3 {
         f32 x;
         f32 y;
