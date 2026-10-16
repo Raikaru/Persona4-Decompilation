@@ -70,7 +70,7 @@ extern u8 D_006251F0[];
 
 
 
-extern u16 *datPersonaGetRecord(u16 character);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 character);
 extern s32 datPersonaFindSkillSlot(u8 *persona, u16 skill);
 
 

@@ -71,7 +71,7 @@ extern s32 datPersonaRosterSlotActive(s16 slot);
 
 extern s32 datPersonaFindRosterSlotById();
 
-extern u16 *datPersonaRosterSlot(s16 slot);
+extern struct DatPersonaRecord *datPersonaRosterSlot(s16 slot);
 
 extern s32 datPersonaGetLevel();
 

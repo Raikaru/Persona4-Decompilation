@@ -54,7 +54,7 @@ static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
 extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
-extern u8 *datPersonaRosterSlot(s16 arg0);
+extern struct DatPersonaRecord *datPersonaRosterSlot(s16 arg0);
 extern s32 datPersonaGetLeadSlot(void);
 extern s32 datPersonaGetLevel(u8 *arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
@@ -214,7 +214,7 @@ typedef struct BattleRenderDispatch {
     void (*setState)(u32 state, u32 value);
 } BattleRenderDispatch;
 extern s32 datItemCount(s16 id);
-extern u16 *datPersonaGetRecord(u16 id);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 id);
 extern u16 datPersonaGetSkillAt(u8 *persona, s16 slot);
 extern s32 datCalcIsFlaggedPersonaSkill(s32 id);
 extern u8 *iGpffffb3b8;
@@ -1620,7 +1620,7 @@ void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
     const char *name;
 
     glyphs = (u8 *)kwlnTaskGetWork(*(void **)(work + 0x5B0));
-    persona = datPersonaRosterSlot((s16)slot);
+    persona = (u8 *)datPersonaRosterSlot((s16)slot);
     if (slot == (s16)datPersonaGetLeadSlot()) {
         btlUiDrawSpriteFaded(glyphs, 13, 0x2B, -11.0f + x, 6.0f + y,
                       0xF3, 0, 0xB, opacity);
@@ -2166,7 +2166,7 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
 s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern u16 *datPersonaGetRecord(u16 character);
+    extern struct DatPersonaRecord *datPersonaGetRecord(u16 character);
     extern s32 func_001f0620(u8 *arg0, s64 arg1);
     extern s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern s32 datCalcDefaultSkillId(u8 *unit);
@@ -3440,7 +3440,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
     case 2:
         temp_16 = *(s16 *)(arg0 + 4);
         if (temp_16 != (s16)datPersonaGetLeadSlot()) {
-            temp_2 = datPersonaRosterSlot(temp_16);
+            temp_2 = (u8 *)datPersonaRosterSlot(temp_16);
             *(s16 *)(*(u8 **)(arg1 + 0x178) + 0x6C) = 5;
             *(u16 *)(*(u8 **)(arg1 + 0x178) + 0x74) = *(u16 *)((u8 *)temp_2 + 2);
             shdPersonaFinishPhase(*(u8 **)(arg1 + 0x5A8));
@@ -3459,7 +3459,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
     case 3:
         if (*(s16 *)(arg1 + 0x5AC) == -1) {
             if (shdPersonaIsTransitioning(*(u8 **)(arg1 + 0x5A8)) == 0) {
-                temp_2 = datPersonaRosterSlot(*(s16 *)(arg0 + 4));
+                temp_2 = (u8 *)datPersonaRosterSlot(*(s16 *)(arg0 + 4));
                 *(s32 *)(iGpffffb3ac + 0xC) &= ~0x2000;
                 *(s32 *)(iGpffffb3ac + 0xC) &= ~0x20000;
                 stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
@@ -3510,7 +3510,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
     default:
         if (*(s16 *)(arg1 + 0x5AC) != -1) {
             if (*(s16 *)(arg1 + 0x5AC) != *(s16 *)(arg0 + 4)) {
-                temp_2 = datPersonaRosterSlot(*(s16 *)(arg0 + 4));
+                temp_2 = (u8 *)datPersonaRosterSlot(*(s16 *)(arg0 + 4));
                 if (var_16 == 5) {
                     stats = *(u8 **)(*(u8 **)(arg1 + 0x178) + 0x30);
                     task = *(u8 **)(arg1 + 0x5A8);
@@ -3836,7 +3836,7 @@ void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1)
 // Intent: mark the targets for the selected skill, setting each unit's skill element and buff or ailment flags. [inferred]
 // FUN_0020B6D0
 extern u32 btlEffectCollectGenusMask(u8 *arg0);
-extern u16 *datPersonaGetRecord(u16 arg0);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);

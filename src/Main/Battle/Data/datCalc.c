@@ -50,7 +50,7 @@ extern void datSetUnitSp(s16 character, s16 value);
 extern void datCalcClearBadStatusById(s16 character, u32 mask);
 
 extern u8 *datPersonaGetSkillsByPcId(u16 arg0);
-extern u16 *datPersonaGetRecord(u16 arg0);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaGetLevel(s32 arg0);
 extern u32 datGetMoney(void);
 extern u8 *datUnitGetRecord(s32 arg0);

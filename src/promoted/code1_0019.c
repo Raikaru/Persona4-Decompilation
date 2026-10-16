@@ -261,7 +261,7 @@ extern s32 datCalcIsStatusBlocked(s32 arg0);
 extern void mdlSetLayerHandleFlag(void *arg0);
 extern void mdlClearLayerHandleFlag(void *arg0);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
-extern u16 *datPersonaGetRecord(u16 character);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 character);
 extern s32 datPersonaGetRosterSlot(s32 arg0);
 extern void btlActionSetState(u8 *arg0, u32 arg1);
 extern void func_001b08d0(void *arg0);
