@@ -26,7 +26,7 @@ extern void (*DAT_008873EC[])(void *);
 
 extern s32 func_00102980(void);
 extern void fieldSceneUnload();
-extern void func_00160440(void);
+extern void FldAuxBufferRelease(void);
 
 extern u8 *D_00764334;
 extern s32 D_00764384;
@@ -607,7 +607,7 @@ void FldLoadTaskUnloadScene(u8 *arg0)
     u16 value;
 
     work = *(u8 **)(arg0 + 0x38);
-    func_00160440();
+    FldAuxBufferRelease();
     if ((func_00102980() != 9) && (func_00102980() != 0xB) && (func_00102980() != 0xA)) {
         fieldSceneUnload();
     }

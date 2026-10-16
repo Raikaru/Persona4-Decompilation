@@ -823,7 +823,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 FldMap_IsCurrentInBandB(void);
     void fieldSceneUnload(void);
     s32 fieldSceneLoadStep(void);
-    void func_00160440(void);
+    void FldAuxBufferRelease(void);
     void FldUnit_SetPartySlotModel(s32);
     void FldUnit_SetFieldSlotModel(s32);
     void FldStepSetPresentFlag(s32);
@@ -1243,7 +1243,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(work->fieldEffect));
                         work->fieldEffect = 0;
                     }
-                    func_00160440();
+                    FldAuxBufferRelease();
                     FldUnit_SetPartySlotModel(1);
                     FldUnit_SetFieldSlotModel(1);
                     if (FldMap_IsCurrentInBandA() == 1 || FldMap_IsCurrentInBandB() == 1) {
