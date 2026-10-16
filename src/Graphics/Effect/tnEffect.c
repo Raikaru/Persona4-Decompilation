@@ -36,7 +36,7 @@ void kAssertFail(const char *file, s32 line);
 void ParticleDrawBillboards(u8 *arg0);
 s32 func_004b0f70(void *arg0);
 s32 func_004b0fa0(void *arg0);
-void func_004aed70(void *arg0);
+void ObjectParticleDraw(void *arg0);
 void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 void func_004b1600(void);
 void func_004a7830(void);
@@ -218,7 +218,7 @@ void TnDispatchBlurDirect(void *arg0) {
     (*tbl)(6, 1);
 }
 
-// Draws the sky-state object through func_004aed70 with table entry 0x14 set to 2 then 1; state 8 and the sky render state toggle when the object's word +0x54 is zero.
+// Draws the sky-state object through ObjectParticleDraw with table entry 0x14 set to 2 then 1; state 8 and the sky render state toggle when the object's word +0x54 is zero.
 // FUN_00481740
 void TnDispatchSkyDraw(void *arg0) {
     u8 *obj = *(u8 **)(*(u8 **)((u8 *)arg0 + 0x58) + 0x20);
@@ -237,7 +237,7 @@ void TnDispatchSkyDraw(void *arg0) {
     }
     tbl2 = (TNFunc *)D_00887300_abs;
     (*tbl2)(0x14, 2);
-    func_004aed70(arg0);
+    ObjectParticleDraw(arg0);
     (*tbl2)(0x14, 1);
     if (*(s32 *)(obj + 0x54) == 0) {
         (*tbl)(8, 0);
