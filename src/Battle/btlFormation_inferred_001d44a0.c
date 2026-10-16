@@ -28,7 +28,7 @@ extern char D_00794AE0[];
 extern char D_00794C00[];
 extern void btlFormationVuTransform(f32 arg0, f32 arg1, f32 *arg2, s32 *arg3, u8 *arg4, u8 *arg5);
 struct RwV3d;
-extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
+extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern u8 D_00609498[];
@@ -391,7 +391,7 @@ void btlFormationOffsetTransformA(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
     u8 *temp16;
 
     temp16 = arg2 + 8;
-    base = func_00196040(3, 0, &frame.center, &frame.value4C, 0, 0);
+    base = btlUnitGetGroupBounds(3, 0, &frame.center, &frame.value4C, 0, 0);
     temp = *(u16 *)(temp16 + 4);
     if (temp == 0) {
         value = base;
@@ -427,7 +427,7 @@ void btlFormationOffsetTransformB(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         mode = 2;
     }
     temp16 = arg2 + 8;
-    base = func_00196040(mode & 0xFFFF, 0, &frame.center, &frame.value4C, 0, 0);
+    base = btlUnitGetGroupBounds(mode & 0xFFFF, 0, &frame.center, &frame.value4C, 0, 0);
     temp = *(u16 *)(temp16 + 4);
     if (temp == 0) {
         value = base;
@@ -463,7 +463,7 @@ void btlFormationOffsetTransformC(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
         mode = 1;
     }
     temp16 = arg2 + 8;
-    base = func_00196040(mode & 0xFFFF, 0, &frame.center, &frame.value4C, 0, 0);
+    base = btlUnitGetGroupBounds(mode & 0xFFFF, 0, &frame.center, &frame.value4C, 0, 0);
     temp = *(u16 *)(temp16 + 4);
     if (temp == 0) {
         value = base;

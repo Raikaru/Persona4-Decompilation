@@ -270,7 +270,7 @@ void btlCameraTickAimOnActor(u8 *arg0)
 void btlCameraFrameActionCutscene(u8 *camera)
 {
     extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-    extern f32 func_00196040(u32 arg0, u32 arg1, void *arg2, f32 *arg3, void *arg4, u32 arg5);
+    extern f32 btlUnitGetGroupBounds(u32 arg0, u32 arg1, void *arg2, f32 *arg3, void *arg4, u32 arg5);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
     extern f32 tanf(f32 x);
     extern void btlCameraFrameStatusRoll(u8 *arg0, f32 arg1, f32 arg2);
@@ -323,7 +323,7 @@ void btlCameraFrameActionCutscene(u8 *camera)
     *(s32 *)(iGpffffb3ac + 0xC08) = 0;
     btlCameraCopyPose((f32 *)&poses.first, (f32 *)(camera + 0x9C));
     if (*(u8 *)(unit + 0xA2) == 0) {
-        func_00196040(2, 1, &groupCenter, NULL, NULL, 1);
+        btlUnitGetGroupBounds(2, 1, &groupCenter, NULL, NULL, 1);
         btlUnitGetSphereWorldCenter(unit, (f32 *)&unitCenter);
         unitCenter.y = 0.0f;
         groupCenter.y = 0.0f;
@@ -385,7 +385,7 @@ void btlCameraFrameActionCutscene(u8 *camera)
             }
             return;
         }
-        func_00196040(2, 1, &unitCenter, &top, NULL, 1);
+        btlUnitGetGroupBounds(2, 1, &unitCenter, &top, NULL, 1);
         btlUnitGetSphereWorldCenter(unit, (f32 *)&groupCenter);
         poses.second = poses.first;
         if (poses.second.y < 1.25f * top) {
@@ -2218,7 +2218,7 @@ s32 btlEncounterWaitCleared(s64 *arg0) {
 void btlActionRunMotionSequence(u8 *arg0)
 {
     extern u8 *btlUnitCreateMotionRequestPacket(u8 *arg0, u16 arg1);
-    extern f32 func_00196040(u32 arg0, u32 arg1, RwV3d *arg2, f32 *arg3, f32 *arg4, u32 arg5);
+    extern f32 btlUnitGetGroupBounds(u32 arg0, u32 arg1, RwV3d *arg2, f32 *arg3, f32 *arg4, u32 arg5);
     extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
     extern u8 D_00635530[];
     union {
@@ -2269,7 +2269,7 @@ void btlActionRunMotionSequence(u8 *arg0)
     btlPacketEnqueue(packet, 3);
     func_001f0a10(params.bytes);
     params.words[3] = 0x100;
-    func_00196040(2, 1, &center, NULL, NULL, 1);
+    btlUnitGetGroupBounds(2, 1, &center, NULL, NULL, 1);
     if (count != 1) {
         packet = btlCameraCreateSetStatePacket(arg0, 0x2C);
         *(s64 *)(packet + 0x60) = *(s64 *)arg0;

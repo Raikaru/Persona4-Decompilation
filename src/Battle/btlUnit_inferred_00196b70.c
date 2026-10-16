@@ -61,7 +61,7 @@ extern u8 iGpffffa0a0;
 extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
 typedef struct RwV3d RwV3d;
-extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
+extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
@@ -356,7 +356,7 @@ u32 func_00196d00(void *workData)
             if ((*(s32 *)(arg0 + 0x10) & 0x80) == 0) {
                 btlRouteFindPath(unit + 0xEC, routeStart, routeEnd, 50.0f);
             } else {
-                func_00196040(3, 1, &position.vector, NULL, NULL, 1);
+                btlUnitGetGroupBounds(3, 1, &position.vector, NULL, NULL, 1);
                 routeCenter[0] = position.values[0];
                 routeCenter[1] = position.values[2];
                 btlRouteBuildArc(unit + 0xEC, routeStart, routeEnd, routeCenter);

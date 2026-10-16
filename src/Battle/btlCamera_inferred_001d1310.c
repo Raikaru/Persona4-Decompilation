@@ -27,10 +27,10 @@ extern char D_005DC824[];
 extern char D_00794AE0[];
 extern char D_00794C00[];
 struct RwV3d;
-extern f32 func_00196040(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
+extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
 extern void btlUnitSetPos(u8 *arg0, f32 *arg1);
-extern void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2);
+extern void btlUnitGetAnimBoundsWorldCenterTowardUnit(u8 *arg0, s32 arg1, u8 *arg2);
 extern u8 *btlUnitGetRecordPtr(u8 *arg0, s32 arg1);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
@@ -383,7 +383,7 @@ void func_001d1680(s32 applyPositions, s32 unused)
             enemy = *(u8 **)(enemy + 0xA6C);
         }
 
-        func_00196040(2, 1, &enemyCenter, NULL, NULL, 1);
+        btlUnitGetGroupBounds(2, 1, &enemyCenter, NULL, NULL, 1);
         btlUnitGetSphereWorldCenter(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30), (f32 *)&actorCenter);
         facingUnit = *(u8 **)(iGpffffb3ac + 0x17C);
         while (facingUnit != NULL) {
@@ -432,7 +432,7 @@ s32 func_001d1cc0(u8 *arg0)
 
     temp_17 = *(u8 **)(arg0 + 0);
     temp_16 = *(u8 **)(arg0 + 4);
-    func_00195b60(temp_16, (s32)temp_17, (u8 *)&frame.value40);
+    btlUnitGetAnimBoundsWorldCenterTowardUnit(temp_16, (s32)temp_17, (u8 *)&frame.value40);
     frame.value60 = *(f32 *)(temp_17 + 4) - frame.value40;
     frame.value64 = 0.0f;
     frame.value68 = *(f32 *)(temp_17 + 0xC) - frame.value48;
