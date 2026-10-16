@@ -56,7 +56,7 @@ extern f32 fGpffff84a4;
 /* gp - 0x7DE0 = 0x00761310, GP-relative f32. */
 extern f32 iGpffff8220;
 
-s32 func_0034b8d0(u8 *task);
+s32 nLineRefreshTask(u8 *task);
 void func_0034b950(void);
 void func_0034ba20(void);
 void func_0034ba30(void);
@@ -67,7 +67,7 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2);
 void func_0034cef0(u8 *arg0);
 s16 func_0034e290(u8 *arg0, s32 arg1);
 s32 func_0034e360(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
-void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
+void nLineDrawLayers(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
 u32 RpRandom(void);
 void func_00364c50(void);
 void func_00364c70(void);
@@ -78,7 +78,7 @@ f32 cosf(f32 arg0);
 
 void kAssertFail(void *file, s32 line);
 void memset(void *dest, s32 value, s32 size);
-void func_0034edc0(void);
+void nLineSetRenderStateBase(void);
 
 void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
 void func_0034d040(u8 *arg0);
@@ -97,7 +97,7 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1);
 s32 func_0034b970(void) {
     s32 temp_2;
 
-    temp_2 = (s32)kwlnTaskCreate((const void *)(&iGpffffa948), 0xC7, 0, 0, func_0034b8d0, 0, (u8 *)(0));
+    temp_2 = (s32)kwlnTaskCreate((const void *)(&iGpffffa948), 0xC7, 0, 0, nLineRefreshTask, 0, (u8 *)(0));
     if (temp_2 == 0) {
         kAssertFail(&iGpffffa950, 0x168);
     }
@@ -500,7 +500,7 @@ void func_0034c500(u8 *arg0, Vec2f arg1, s32 arg2) {
     u8 *temp_2;
     u8 *temp_4;
 
-    func_0034edc0();
+    nLineSetRenderStateBase();
     if (*(s16 *)(D_007523CA + (*(s32 *)(arg0 + 0x1680) * 0x10)) != 0) {
         func_0034c860(arg0, arg1, arg2);
         func_0034cef0(arg0 + 0x690);
@@ -557,10 +557,10 @@ void func_0034c6c0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 
 
     z = D_008872F8[0] - D_0088467C[0];
     scale = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
-    func_0034f0d0(arg0, fparg0, fparg1, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
-    func_0034f0d0(arg0 + 0x40, fparg0, fparg1 + fparg3, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
-    func_0034f0d0(arg0 + 0x80, fparg0 + fparg2, fparg1 + fparg3, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
-    func_0034f0d0(arg0 + 0xC0, fparg0 + fparg2, fparg1, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
+    nLineSetLayer(arg0, fparg0, fparg1, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
+    nLineSetLayer(arg0 + 0x40, fparg0, fparg1 + fparg3, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
+    nLineSetLayer(arg0 + 0x80, fparg0 + fparg2, fparg1 + fparg3, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
+    nLineSetLayer(arg0 + 0xC0, fparg0 + fparg2, fparg1, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
 }
 
 
@@ -640,11 +640,11 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
         z1 = D_008872F8[0] - D_0088467C[0];
         q1 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
         alpha1 = arg2 & 0xFF;
-        func_0034f0d0(arg0 + 0x890, arg1.x, y1, z1, q1, 255, 255, 129, alpha1);
-        func_0034f0d0(arg0 + 0x8D0, arg1.x, addF(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
+        nLineSetLayer(arg0 + 0x890, arg1.x, y1, z1, q1, 255, 255, 129, alpha1);
+        nLineSetLayer(arg0 + 0x8D0, arg1.x, addF(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
         x1 = arg1.x + width1;
-        func_0034f0d0(arg0 + 0x910, x1, addF(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
-        func_0034f0d0(arg0 + 0x950, x1, y1, z1, q1, 255, 255, 129, alpha1);
+        nLineSetLayer(arg0 + 0x910, x1, addF(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
+        nLineSetLayer(arg0 + 0x950, x1, y1, z1, q1, 255, 255, 129, alpha1);
         break;
     case 2:
         extent2 = *(f32 *)(arg0 + 0x644);
@@ -654,11 +654,11 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
         z2 = D_008872F8[0] - D_0088467C[0];
         q2 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
         alpha2 = arg2 & 0xFF;
-        func_0034f0d0(arg0 + 0x890, x2, y2, z2, q2, 255, 255, 129, alpha2);
-        func_0034f0d0(arg0 + 0x8D0, x2, addF(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
+        nLineSetLayer(arg0 + 0x890, x2, y2, z2, q2, 255, 255, 129, alpha2);
+        nLineSetLayer(arg0 + 0x8D0, x2, addF(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
         right2 = x2 + width2;
-        func_0034f0d0(arg0 + 0x910, right2, addF(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
-        func_0034f0d0(arg0 + 0x950, right2, y2, z2, q2, 255, 255, 129, alpha2);
+        nLineSetLayer(arg0 + 0x910, right2, addF(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
+        nLineSetLayer(arg0 + 0x950, right2, y2, z2, q2, 255, 255, 129, alpha2);
         break;
     case 3:
         if (*(s32 *)(arg0 + 0x1690) == 0) {
@@ -677,11 +677,11 @@ void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
         z3 = D_008872F8[0] - D_0088467C[0];
         q3 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
         alpha3 = arg2 & 0xFF;
-        func_0034f0d0(arg0 + 0x890, x3, y3, z3, q3, 255, 255, 129, alpha3);
-        func_0034f0d0(arg0 + 0x8D0, x3, addF(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
+        nLineSetLayer(arg0 + 0x890, x3, y3, z3, q3, 255, 255, 129, alpha3);
+        nLineSetLayer(arg0 + 0x8D0, x3, addF(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
         right3 = x3 + (width3 - arg1.x);
-        func_0034f0d0(arg0 + 0x910, right3, addF(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
-        func_0034f0d0(arg0 + 0x950, right3, y3, z3, q3, 255, 255, 129, alpha3);
+        nLineSetLayer(arg0 + 0x910, right3, addF(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
+        nLineSetLayer(arg0 + 0x950, right3, y3, z3, q3, 255, 255, 129, alpha3);
         break;
     case 4: break;
     default: kAssertFail(&iGpffffa950, 0x3DF); break;
@@ -1021,13 +1021,13 @@ void func_0034d890(u8 *arg0, s32 arg1) {
     temp_f23 = D_008872F8[0] - D_0088467C[0];
     temp_f24 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     temp_3 = (u8)temp_16;
-    func_0034f0d0(arg0 + 0x690, temp_f22, temp_f20, temp_f23, temp_f24,
+    nLineSetLayer(arg0 + 0x690, temp_f22, temp_f20, temp_f23, temp_f24,
                   0xFF, 0xE9, 0x2C, temp_3);
-    func_0034f0d0(arg0 + 0x6D0, temp_f22, addF(temp_f20, 448.0f), temp_f23, temp_f24,
+    nLineSetLayer(arg0 + 0x6D0, temp_f22, addF(temp_f20, 448.0f), temp_f23, temp_f24,
                   0xFF, 0xE9, 0x2C, temp_3);
-    func_0034f0d0(arg0 + 0x710, addF(temp_f22, temp_f21), addF(temp_f20, 448.0f),
+    nLineSetLayer(arg0 + 0x710, addF(temp_f22, temp_f21), addF(temp_f20, 448.0f),
                   temp_f23, temp_f24, 0xFF, 0xE9, 0x2C, temp_3);
-    func_0034f0d0(arg0 + 0x750, addF(temp_f22, temp_f21), temp_f20, temp_f23, temp_f24,
+    nLineSetLayer(arg0 + 0x750, addF(temp_f22, temp_f21), temp_f20, temp_f23, temp_f24,
                   0xFF, 0xE9, 0x2C, temp_3);
 }
 /* measured: reconstructed d890 body matches retail byte-for-byte (720-byte window). */
@@ -1073,14 +1073,14 @@ void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1) {
     left = inset_x + *(f32 *)(arg0 + 0x99C);
     depth = D_008872F8[0] - D_0088467C[0];
     reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
-    func_0034f0d0(arg0 + 0x690, left, top, depth, reciprocal, 255, 233, 44, 255);
+    nLineSetLayer(arg0 + 0x690, left, top, depth, reciprocal, 255, 233, 44, 255);
     bottom = addF(top, height);
-    func_0034f0d0(arg0 + 0x6D0, left, bottom, depth, reciprocal, 255, 233, 44, 255);
+    nLineSetLayer(arg0 + 0x6D0, left, bottom, depth, reciprocal, 255, 233, 44, 255);
     right = addF(left, width);
-    func_0034f0d0(arg0 + 0x710, right, bottom, depth, reciprocal, 255, 233, 44, 255);
-    func_0034f0d0(arg0 + 0x750, right, top, depth, reciprocal, 255, 233, 44, 255);
+    nLineSetLayer(arg0 + 0x710, right, bottom, depth, reciprocal, 255, 233, 44, 255);
+    nLineSetLayer(arg0 + 0x750, right, top, depth, reciprocal, 255, 233, 44, 255);
     *(s16 *)(arg0 + 0x1670) = func_0034e360(arg0, inset_x + *(f32 *)(arg0 + 0x99C), inset_y + *(f32 *)(arg0 + 0x9A0), width, height);
-    func_0034ee90(arg0, 0.0f, 0.0f, amount);
+    nLineDrawLayers(arg0, 0.0f, 0.0f, amount);
 }
 /* Measured: the initialized output helper keeps the height lifetime separate
  * from alpha conversion. The body uses common-subexpression elimination;
@@ -1133,11 +1133,11 @@ void func_0034ddf0(u8 *arg0, s32 arg1) {
     projection.depth = D_008872F8[0] - D_0088467C[0];
     projection.reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     temp_3 = (u8)temp_16;
-    func_0034f0d0(arg0 + 0x690, temp_f24, temp_f20, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
+    nLineSetLayer(arg0 + 0x690, temp_f24, temp_f20, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
     temp_f21 = addF(temp_f20, temp_f21);
-    func_0034f0d0(arg0 + 0x6D0, temp_f24, temp_f21, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
-    func_0034f0d0(arg0 + 0x710, addF(temp_f24, 580.0f), temp_f21, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
-    func_0034f0d0(arg0 + 0x750, addF(temp_f24, 580.0f), temp_f20, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
+    nLineSetLayer(arg0 + 0x6D0, temp_f24, temp_f21, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
+    nLineSetLayer(arg0 + 0x710, addF(temp_f24, 580.0f), temp_f21, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
+    nLineSetLayer(arg0 + 0x750, addF(temp_f24, 580.0f), temp_f20, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
 }
 #pragma opt_propagation on
 
@@ -1161,12 +1161,12 @@ void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
     z = D_008872F8[0] - D_0088467C[0];
     scale = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
     byte_alpha = (u8)alpha;
-    func_0034f0d0(arg0 + 0x690, x, y, z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
-    func_0034f0d0(arg0 + 0x6D0, x, addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
-    func_0034f0d0(arg0 + 0x710, addF(x, 640.0f), addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
-    func_0034f0d0(arg0 + 0x750, addF(x, 640.0f), y, z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
+    nLineSetLayer(arg0 + 0x690, x, y, z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
+    nLineSetLayer(arg0 + 0x6D0, x, addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
+    nLineSetLayer(arg0 + 0x710, addF(x, 640.0f), addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
+    nLineSetLayer(arg0 + 0x750, addF(x, 640.0f), y, z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
     *(s16 *)(arg0 + 0x1670) = func_0034e360(arg0, fparg0, fparg1, 640.0f, 448.0f);
-    func_0034ee90(arg0, fparg0, fparg1, fparg2);
+    nLineDrawLayers(arg0, fparg0, fparg1, fparg2);
 }
 
 // FUN_0034E290
@@ -1333,9 +1333,9 @@ s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
                 /* Alpha is fixed for this layer; RGB is reloaded per vertex. */
                 strip_byte_alpha = (u8)strip_alpha;
                 if (strip_i == 0) {
-                    func_0034f0d0(vertices + (strip_n++ << 6), x, y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
-                    func_0034f0d0(vertices + (strip_n++ << 6), peak_offset.x + (center.x + shift_x), peak_offset.y + (center.y + shift_y), depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
-                    func_0034f0d0(vertices + (strip_n++ << 6), start.x, start.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), x, y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), peak_offset.x + (center.x + shift_x), peak_offset.y + (center.y + shift_y), depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), start.x, start.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
                 } else {
                     f32 previous;
                     Vec2f peak;
@@ -1347,26 +1347,26 @@ s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
                     previous_shift_y = (f32)direction.y * previous;
                     shift_x += gap_offset.x;
                     shift_y += gap_offset.y;
-                    func_0034f0d0(vertices + (strip_n++ << 6), x + shift_x, y + shift_y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), x + shift_x, y + shift_y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
                     peak.y = peak_offset.y + (center.y + shift_y);
                     peak.x = peak_offset.x + (center.x + shift_x);
-                    func_0034f0d0(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
                     edge.y = y + previous_shift_y;
                     edge.x = x + previous_shift_x;
-                    func_0034f0d0(vertices + (strip_n++ << 6), edge.x, edge.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
-                    func_0034f0d0(vertices + (strip_n++ << 6), edge.x, edge.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
-                    func_0034f0d0(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), edge.x, edge.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), edge.x, edge.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
                     inner_peak.y = peak_offset.y + (center.y + previous_shift_y);
                     inner_peak.x = peak_offset.x + (center.x + previous_shift_x);
-                    func_0034f0d0(vertices + (strip_n++ << 6), inner_peak.x, inner_peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
-                    func_0034f0d0(vertices + (strip_n++ << 6), inner_peak.x, inner_peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
-                    func_0034f0d0(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), inner_peak.x, inner_peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), inner_peak.x, inner_peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
                     other.y = start.y + previous_shift_y;
                     other.x = start.x + previous_shift_x;
-                    func_0034f0d0(vertices + (strip_n++ << 6), other.x, other.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
-                    func_0034f0d0(vertices + (strip_n++ << 6), other.x, other.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
-                    func_0034f0d0(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
-                    func_0034f0d0(vertices + (strip_n++ << 6), start.x + shift_x, start.y + shift_y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), other.x, other.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), other.x, other.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), peak.x, peak.y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
+                    nLineSetLayer(vertices + (strip_n++ << 6), start.x + shift_x, start.y + shift_y, depth, reciprocal, color[0], color[1], color[2], strip_byte_alpha);
                 }
                 ++strip_i;
             }
@@ -1394,14 +1394,14 @@ s32 func_0034e360(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
             alpha = (u8)((color[3] * arg0[0x994]) / 255);
             top_left.y = start.y - distance;
             width = start.x - distance;
-            func_0034f0d0(vertices + (n++ << 6), width, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            nLineSetLayer(vertices + (n++ << 6), width, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
             bottom_right.x = x + distance;
-            func_0034f0d0(vertices + (n++ << 6), bottom_right.x, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            nLineSetLayer(vertices + (n++ << 6), bottom_right.x, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
             bottom_right.y = y + distance;
-            func_0034f0d0(vertices + (n++ << 6), bottom_right.x, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
-            func_0034f0d0(vertices + (n++ << 6), width, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
-            func_0034f0d0(vertices + (n++ << 6), bottom_right.x, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
-            func_0034f0d0(vertices + (n++ << 6), width, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            nLineSetLayer(vertices + (n++ << 6), bottom_right.x, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            nLineSetLayer(vertices + (n++ << 6), width, top_left.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            nLineSetLayer(vertices + (n++ << 6), bottom_right.x, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
+            nLineSetLayer(vertices + (n++ << 6), width, bottom_right.y, depth, reciprocal, color[0], color[1], color[2], alpha);
             --i;
         }
         if (n > 0x33) {

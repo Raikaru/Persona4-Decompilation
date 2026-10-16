@@ -23,7 +23,7 @@ s32 datGetFlag(s32 arg0);
 void datEntryDrawGatedByFlag39(s32 a, s32 b, s32 c, s32 d);
 void radarAnimateValue(void* arg0, s32 arg1, s32 arg2);
 void func_0034f8f0(void* arg0);
-void func_0034f1e0(void);
+void sdkRenderStateSetDefault(void);
 void func_0034c270(Vec2f position, s32 alpha, s32 mode, f32 depth);
 void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
@@ -31,7 +31,7 @@ void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 f32 sinf(f32 arg0);
 
-void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
+void sdkSpriteDrawFooter(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 void mdlEffectEmitMaskedTagPair(void);
 void func_0045c870(void* arg0, s32 arg1);
 void mdlEffectEmitTagPair(void);
@@ -451,7 +451,7 @@ void func_0035d0a0(u8 *work) {
     f32 filledAlpha;
 
     menu = (ConfigMenuView *)work;
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     baseX = menu->origin.x;
     baseY = menu->origin.y;
     fade = (f32)menu->opacity / 255.0f;
@@ -615,7 +615,7 @@ void func_0035d0a0(u8 *work) {
     pos.x = 640.0f + (baseX + menu->motion[16].position.x);
     pos.y = 400.0f + (baseY + menu->motion[16].position.y);
     alpha = (u8)((f32)menu->motion[16].opacity * fade);
-    func_0034f9d0(pos, 0.0f, alpha, menu->helpStyle, menu->helpTexture);
+    sdkSpriteDrawFooter(pos, 0.0f, alpha, menu->helpStyle, menu->helpTexture);
 }
 
 #pragma pop

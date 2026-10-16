@@ -1868,7 +1868,7 @@ void ShdSkill_DrawSelectionFrame(Vec2f, f32, u8, u16);
 void shdPersonaDrawBackdrop(u8 *);
 void shdPersonaDrawAcquisition(u8 *);
 void shdPersonaDrawEffect(u8 *);
-void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
+void sdkSpriteDrawFooter(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 /* Renderer view of the existing 0x24-byte animated panels and task work.
  * Unnamed byte spans retain fields outside this renderer's proven interface. */
 typedef struct PersonaRenderChannel {
@@ -2231,7 +2231,7 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
         if ((work->flags & 0x40000) != 0) {
             position.xy.x = 0.0f;
             position.xy.y = 0.0f;
-            func_0034f9d0(position.xy, 0.0f, work->alpha, work->overlayId, work->sprites[3]);
+            sdkSpriteDrawFooter(position.xy, 0.0f, work->alpha, work->overlayId, work->sprites[3]);
         }
     }
 }

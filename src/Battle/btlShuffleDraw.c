@@ -18,7 +18,7 @@ extern void K_View_SetFov(struct RwCamera *camera, f32 fov);
 extern s32 func_0038cec0(void *arg0);
 extern s32 func_00388bd0(void *arg0);
 extern s32 btlShuffleEffSpawn(void *arg0);
-extern void func_0034f1e0(void);
+extern void sdkRenderStateSetDefault(void);
 extern void btlShuffleDrawCards(u8 *arg0);
 extern s32 btlShuffleDrawFlagB(u8 *arg0);
 extern s32 btlShuffleDrawFlagC(u8 *arg0);
@@ -683,7 +683,7 @@ void btlShuffleDrawTaskUpdate(u8 *work) {
     s32 effectIndex;
     u32 phaseCounter;
     u8 *card;
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     cardColor[0] = 0xFF;
     cardColor[1] = 0xFF;
     cardColor[2] = 0xFF;
@@ -769,7 +769,7 @@ mode_done:
 
 // FUN_003757F0
 void btlShuffleDrawQueueCardsB(u8 *arg0) {
-    func_0034f1e0();
+    sdkRenderStateSetDefault();
     if (*(u16 *)(arg0 + 0x1F2F4) & 4) {
         btlShuffleCardQueueDraw(arg0 + *(s32 *)(arg0 + 0x1F308) * 0xFB0);
     }
