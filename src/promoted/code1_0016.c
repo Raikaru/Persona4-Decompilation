@@ -125,9 +125,9 @@ extern s32 func_00162510(u16 arg0, u16 arg1);
 extern s16 datGetPartyId(s32 arg0);
 extern s64 datGetDateIndex(void);
 extern s32 func_00110d60(s32 arg0);
-extern s32 func_00110680(s32 arg0, s32 arg1, s32 arg2);
+extern s32 calIsCurrentMonthDay(s32 arg0, s32 arg1, s32 arg2);
 extern s32 datGetTimeSlot(void);
-extern s32 func_00110960(s16 arg0, s32 arg1);
+extern s32 calGetDayEntryByPhase(s16 arg0, s32 arg1);
 extern s32 D_005F1350[];
 extern void mdlSetColor(void *arg0, void *arg1);
 extern void mdlSetLookAtRequested(void *arg0);
@@ -838,7 +838,7 @@ s32 func_001623f0(void)
     u8 *temp_4;
 
     var_17 = 0;
-    if (func_00110680((s16)datGetDateIndex(), 3, 0x14) == 1) {
+    if (calIsCurrentMonthDay((s16)datGetDateIndex(), 3, 0x14) == 1) {
         return 0;
     }
     var_16 = 0;
@@ -848,7 +848,7 @@ loop_body:
     if ((*(s32 *)(temp_5 + 0) == temp_3) &&
         (*(s32 *)(temp_5 + 4) == *(s32 *)(temp_4 + 4))) {
         temp_18 = (s16)datGetDateIndex();
-        temp_3_2 = (s8)func_00110960(temp_18, datGetTimeSlot() & 0xFF);
+        temp_3_2 = (s8)calGetDayEntryByPhase(temp_18, datGetTimeSlot() & 0xFF);
         var_2 = temp_3_2 & 1;
         if ((temp_3_2 < 0) && (var_2 != 0)) {
             var_2 -= 2;

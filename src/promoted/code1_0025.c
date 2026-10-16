@@ -33,12 +33,12 @@ extern void func_00120f40(s32 arg0, s64 arg1);
 extern s32 iGpffffb480;
 
 s16 datGetDateIndex(void);
-void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
+void calSplitDayOfYear(s64 arg0, s32 *arg1, s32 *arg2);
 void scrSetReturnInt(s32 arg0);
-s32 func_00110580(s64 arg0);
+s32 calGetWeekdayOfDay(s64 arg0);
 
 s32 scrGetParamInt(s32 arg0);
-s16 func_00110600(s32 arg0, s32 arg1);
+s16 calDayOfYearFromMonthDay(s32 arg0, s32 arg1);
 void func_00106300(s64 arg0);
 void func_00106310(s32 arg0);
 void func_00106320(s32 arg0);
@@ -51,7 +51,7 @@ void func_001227d0(void);
 s32 func_001227f0(void);
 
 s32 datGetTimeSlot(void);
-s8 func_00110960(s16 arg0, s32 arg1);
+s8 calGetDayEntryByPhase(s16 arg0, s32 arg1);
 float scrGetParamFloat(s32 arg0);
 s16 datCategoryRankProgress(s16 arg0, float arg1);
 s16 datCategoryRank(s16 arg0);

@@ -24,8 +24,8 @@ extern void cmmCommunitySetReversed(s32 idx);
 extern s32 cmmCommunityTestBroken(s32 idx);
 extern s32 cmmCommunityCanRankUp(s32 idx);
 extern s32 cmmCommunityFindRecord(s32 idx);
-extern s32 func_00110580(s32 a);
-extern s32 func_00110680(s32 a, s32 b, s32 c);
+extern s32 calGetWeekdayOfDay(s32 a);
+extern s32 calIsCurrentMonthDay(s32 a, s32 b, s32 c);
 extern s32 func_001106f0(s32 a, s32 b, s32 c, s32 d, s32 e);
 extern s32 cmmCommunityCounterpart(s64 idx); /* lint: allow H011 -- measured: s64 parameter keeps the retail key move; see cmmCommunityCounterpart note at the call site */
 extern s32 func_00107ac0(s32 idx);
@@ -37,9 +37,9 @@ extern s32 cmmCommunityHasRecord(u16 idx);
 extern u8 datPersonaGetArcana(u16 idx);
 extern s32 datPersonaRosterSlotId(s32 idx);
 extern s32 datPersonaCountValidMembers(void);
-extern void func_001104d0(s32 seed, s32 *month, s32 *day);
-extern s32 func_00110600(s32 a, s32 b);
-extern s32 func_00110d30(s32 idx);
+extern void calSplitDayOfYear(s32 seed, s32 *month, s32 *day);
+extern s32 calDayOfYearFromMonthDay(s32 a, s32 b);
+extern s32 calHasDayEntry(s32 idx);
 extern s32 cmmDateTableFindIndex();
 extern u16 cmmCommunityCategory(s32 arg0);
 extern s32 cmmReversedAtRank(s32 arg0);
@@ -337,7 +337,7 @@ u8 *cmmFishingEntryRecord(s32 arg0) {
     off = (u16)arg0 * 14;
     return (u8 *)(off + (u32)temp_16 + 8);
 }
-// Condition check: scans the 8-byte condition table (chunk 13, D_008814B4) and returns 1 when an entry for id arg0 is met. Kind 0 tests func_00110680, kind 1 tests func_00110580.
+// Condition check: scans the 8-byte condition table (chunk 13, D_008814B4) and returns 1 when an entry for id arg0 is met. Kind 0 tests calIsCurrentMonthDay, kind 1 tests calGetWeekdayOfDay.
 // FUN_00246F10
 s32 cmmConditionMet(s32 arg0) {
     u16 temp_2;
@@ -353,12 +353,12 @@ s32 cmmConditionMet(s32 arg0) {
             temp_3 = *(u16 *)(var_19 + 4);
             switch (temp_3) {
             case 0:
-                if (func_00110680((s16)datGetDateIndex(), var_19[6], var_19[7]) != 0) {
+                if (calIsCurrentMonthDay((s16)datGetDateIndex(), var_19[6], var_19[7]) != 0) {
                     return 1;
                 }
                 break;
             case 1:
-                if (*(u16 *)(var_19 + 6) == func_00110580((s16)datGetDateIndex())) {
+                if (*(u16 *)(var_19 + 6) == calGetWeekdayOfDay((s16)datGetDateIndex())) {
                     return 1;
                 }
                 break;
@@ -800,7 +800,7 @@ s32 cmmDateListed(s32 seed) {
     s32 i;
     s32 count;
 
-    func_001104d0(seed, &a, &b);
+    calSplitDayOfYear(seed, &a, &b);
     count = *(s32 *)(D_00881498[0] + 4);
     i = 0;
     a0 = a;
@@ -833,11 +833,11 @@ s32 cmmDateNotListed(s32 arg0) {
     s32 i;
     s32 found;
 
-    if (func_00110d30(arg0) == 0) {
+    if (calHasDayEntry(arg0) == 0) {
         return 0;
     }
     p = D_00881498[0] + 8;
-    func_001104d0(arg0, &key1, &key2);
+    calSplitDayOfYear(arg0, &key1, &key2);
     count = *(s32 *)(D_00881498[0] + 4);
     for (i = 0; i < count; i++) {
         if (p[0] == key1 && p[1] == key2) {
@@ -867,7 +867,7 @@ incr:
     }
     return 0;
 body:
-    if (func_00110d30(var_16) == 0) {
+    if (calHasDayEntry(var_16) == 0) {
         var_2 = 0;
     } else if (cmmDateListed(var_16) != 0) {
         var_2 = 0;
@@ -1458,7 +1458,7 @@ s32 func_00248f20(s32 arg0, s32 arg1) {
     return 2;
 }
 
-// Date table find index: returns the index of the ordinary record whose month and day (func_001104D0 of the seed) match, or -1 when none does.
+// Date table find index: returns the index of the ordinary record whose month and day (calSplitDayOfYear of the seed) match, or -1 when none does.
 // FUN_00249010
 s32 cmmDateTableFindIndex(s32 seed) {
     u8 *base = D_008814D0[0];
@@ -1468,7 +1468,7 @@ s32 cmmDateTableFindIndex(s32 seed) {
     s32 a0, b0;
     s32 i;
 
-    func_001104d0(seed, &a, &b);
+    calSplitDayOfYear(seed, &a, &b);
     i = 0;
     a0 = a;
     b0 = b;
@@ -1501,7 +1501,7 @@ u8 *cmmDateTableFindRecord(s32 seed) {
     temp_17 = D_008814D0[0] + 8;
     p = temp_17;
     count = *(s32 *)(D_008814D0[0] + 4);
-    func_001104d0(seed, &sp4C, &sp48);
+    calSplitDayOfYear(seed, &sp4C, &sp48);
     i = 0;
     a0 = sp4C;
     b0 = sp48;
@@ -1528,10 +1528,10 @@ u8 *cmmDateTableFindSpecialRecord(u32 arg0) {
     s32 sp38;
     u8 *temp_17 = D_008814D0[0] + 8;
 
-    func_001104d0(arg0, &sp3C, &sp38);
+    calSplitDayOfYear(arg0, &sp3C, &sp38);
     if (datGetFlag(0xA61) != 0) {
         temp_17 += func_001064f0(0x6D) * 0x24;
-        if (arg0 >= func_00110600(temp_17[2], temp_17[3])) {
+        if (arg0 >= calDayOfYearFromMonthDay(temp_17[2], temp_17[3])) {
             return temp_17;
         }
     }
@@ -1568,12 +1568,12 @@ s32 cmmDateTableHasSpecialRecord(u32 arg0) {
     u8 *t;
 
     p = D_008814D0[0] + 8;
-    func_001104d0(arg0, &sp3C, &sp38);
+    calSplitDayOfYear(arg0, &sp3C, &sp38);
     if (datGetFlag(0xA61) == 0) {
         goto null_p;
     }
     p += func_001064f0(0x6D) * 0x24;
-    if (arg0 < func_00110600(p[2], p[3])) {
+    if (arg0 < calDayOfYearFromMonthDay(p[2], p[3])) {
         goto null_p;
     }
     t = p;
@@ -1612,10 +1612,10 @@ s32 cmmDateTableReadColumn(s32 special, s32 date, s32 column)
         selected = record;
     } else {
         record = D_008814D0[0] + 8;
-        func_001104d0(date, &month, &day);
+        calSplitDayOfYear(date, &month, &day);
         if (datGetFlag(0xA61) == 0) goto null_record;
         record += func_001064f0(0x6D) * 36;
-        if ((u32)date < func_00110600(record[2], record[3])) goto null_record;
+        if ((u32)date < calDayOfYearFromMonthDay(record[2], record[3])) goto null_record;
         selected = record;
         goto selected_record;
 null_record:
@@ -1651,10 +1651,10 @@ s32 cmmDateTableApplyColumnDelta(s32 date, s32 column)
     u16 id;
 
     base = D_008814D0[0] + 8;
-    func_001104d0(date, &month, &day);
+    calSplitDayOfYear(date, &month, &day);
     if (datGetFlag(0xA61) == 0) goto null_record;
     record = base + func_001064f0(0x6D) * 36;
-    if ((u32)date < (u32)func_00110600(record[2], record[3])) goto null_record;
+    if ((u32)date < (u32)calDayOfYearFromMonthDay(record[2], record[3])) goto null_record;
     selected = record;
     goto selected_record;
 null_record:

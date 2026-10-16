@@ -189,7 +189,7 @@ extern void func_003f68a0(s32 arg0, s32 arg1);
 extern u8 D_007E8C00[];
 extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
-extern s64 func_00110960(s32 arg0, u32 arg1);
+extern s64 calGetDayEntryByPhase(s32 arg0, u32 arg1);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0015a160(void);
 extern void sdkSndStopChannel(s32 arg0);
@@ -3071,7 +3071,7 @@ done:
    lower to `slti ..., $s3, 6`, but only the `<=` form puts the result in
    $at, which is what retail's branch-if-true uses; `< 6`, `6 > dungeon`,
    `!(dungeon >= 6)` and `(dungeon < 6) != 0` all pick $v0.  The declaration
-   of func_00110960 above is also load-bearing - its first argument is a
+   of calGetDayEntryByPhase above is also load-bearing - its first argument is a
    32-bit id and its second an unsigned flag word, not the s64/s32 pair m2c
    printed, and the s64 form costs a dsll32/dsra32 pair at every call site in
    this unit. */
@@ -3089,7 +3089,7 @@ s32 sndPlayAreaCue(void) {
     dungeon = func_0015a160();
     res = 0;
     date = (s16)datGetDateIndex();
-    w1 = (s8)func_00110960(date, datGetTimeSlot() & 0xFF);
+    w1 = (s8)calGetDayEntryByPhase(date, datGetTimeSlot() & 0xFF);
     phase = datGetTimeSlot() & 0xFF;
     if (iGpffffb264 == 1) {
         return 0;
@@ -3124,7 +3124,7 @@ s32 sndPlayAreaCue(void) {
             s32 w2;
             dungeon = (s16)datGetDateIndex();
             t2 = datGetTimeSlot() & 0xFF;
-            w2 = (s8)func_00110960(dungeon, t2);
+            w2 = (s8)calGetDayEntryByPhase(dungeon, t2);
             switch (w2) {
             case 0:
                 res = 0x16;
@@ -3204,7 +3204,7 @@ s32 sndRequestAreaTrack(void)
 
     result = 0;
     mode = func_0015a160();
-    kind = (s8)func_00110960((s16)datGetDateIndex(), datGetTimeSlot() & 0xFF);
+    kind = (s8)calGetDayEntryByPhase((s16)datGetDateIndex(), datGetTimeSlot() & 0xFF);
     sub = (u8)datGetTimeSlot();
     if (datGetFlag(0x3E0) == 1) {
         sdkSndFadeOutChannelFrames(3, 0, 0x1E);

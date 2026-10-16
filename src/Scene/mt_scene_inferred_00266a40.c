@@ -82,7 +82,7 @@ extern void kAssertFail(void *arg0, s32 arg1);
 extern s32 func_00266ba0(u8 *arg0);
 extern s32 sdkSndFadeOutChannel(s32 arg0, s32 arg1);
 extern s32 sdkSndStopChannel(s32 arg0);
-extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
+extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
 extern s32 func_0025f110(u8 *arg0);
 extern u8 D_00638F90[];
 extern void func_002674b0(s32 arg0, u8 *arg1);
@@ -100,7 +100,7 @@ extern char D_0063BA80[];
 extern s32 D_008815B0[];
 extern u8 iGpffffa734;
 
-extern s32 func_00110d30(s32 arg0);
+extern s32 calHasDayEntry(s32 arg0);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void func_00489f80(void);
 extern void func_0045d6e0(void *arg0, void *arg1, f32 arg2, s32 arg3);
@@ -233,7 +233,7 @@ s32 func_00266ba0(u8 *arg0)
     s32 state;
 
     work = kwlnTaskGetWork();
-    func_001104d0(*(s32 *)(work + 0xC), &sp3C, &sp38);
+    calSplitDayOfYear(*(s32 *)(work + 0xC), &sp3C, &sp38);
     state = *(s32 *)(work + 0);
     switch (state) {
     case 0:
@@ -278,7 +278,7 @@ void func_00266cc0(s32 arg0, s32 arg1)
     work = kwlnTaskGetWork(arg1);
     first = *(s32 *)(work + 0xC);
     second = *(s32 *)(work + 0x10);
-    if (func_00110d30(datGetDateIndex()) != 0) {
+    if (calHasDayEntry(datGetDateIndex()) != 0) {
         if (*(s32 *)(work + 0xC) == 3) {
             first = 6;
         }

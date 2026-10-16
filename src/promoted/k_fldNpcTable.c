@@ -31,7 +31,7 @@ extern s32 D_0076438C;
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern s32 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
-extern void func_001104d0(s16 year, s32 *month, s32 *day);
+extern void calSplitDayOfYear(s16 year, s32 *month, s32 *day);
 extern s32 datGetFlag(s32 id);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
@@ -137,7 +137,7 @@ void *NpcTable_FindActiveEntry(void)
     s3 = 3;
     s2 = 0x1F;
     s1 = 5;
-    func_001104d0((s16)datGetDateIndex(), &sp6C, &sp68);
+    calSplitDayOfYear((s16)datGetDateIndex(), &sp6C, &sp68);
     i = 0;
     while (i < *(u32 *)(func_00155280() + 0x18EC)) {
         if (clndIsDateInRange(end[0], end[1], s3, s2) != 1) {

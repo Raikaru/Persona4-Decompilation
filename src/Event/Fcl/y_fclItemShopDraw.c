@@ -109,7 +109,7 @@ extern s8 func_002bab80(s32 arg0);
 extern s32 func_002badc0(s8 arg0, s32 arg1);
 extern u8 func_002e78a0(void);
 extern s32 func_002e78e0(void);
-extern s32 func_00110a60(s32 arg0, s32 arg1);
+extern s32 calGetDayEntryForMonthDay(s32 arg0, s32 arg1);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_0064A3C0[];
 extern f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 highlight);
@@ -242,7 +242,7 @@ s32 func_00332bb0(u8 *arg0) {
             *(f32 *)(work + 0x420) = 108.0f / (f32)(yListCount() - 5);
         }
         *(s8 *)(work + 9) = 0;
-        if ((s8)func_00110a60(func_002e78a0(), (u8)func_002e78e0()) == 1) {
+        if ((s8)calGetDayEntryForMonthDay(func_002e78a0(), (u8)func_002e78e0()) == 1) {
             *(s8 *)(work + 9) = 1;
         }
         break;

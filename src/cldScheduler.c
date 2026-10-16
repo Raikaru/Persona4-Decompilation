@@ -20,7 +20,7 @@ typedef struct SdlSched
 
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
-extern void func_001104d0(s32 date, s32 *month, s32 *day);
+extern void calSplitDayOfYear(s32 date, s32 *month, s32 *day);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 extern void cmmTickReverseProgress(void);
 extern s32 func_0029da90(s32 kind, u8 *script, s32 index);
@@ -87,7 +87,7 @@ s32 func_00260020(u8 *task)
     sched = (SdlSched *)kwlnTaskGetWork(task);
     v1 = 0;
     v2 = 0;
-    func_001104d0((s16)datGetDateIndex(), &v1, &v2);
+    calSplitDayOfYear((s16)datGetDateIndex(), &v1, &v2);
     switch (sched->state)
     {
     case 0:
@@ -119,7 +119,7 @@ s32 func_00260020(u8 *task)
             sched->state = 2;
             v3 = 0;
             v4 = 0;
-            func_001104d0((s16)datGetDateIndex(), &v3, &v4);
+            calSplitDayOfYear((s16)datGetDateIndex(), &v3, &v4);
             period = datGetTimeSlot() & 0xFF;
             {
                 char labels[6][8] = { "AM_A", "AM_B", "PM_A", "PM_B", "PM_C", "PM_D" };

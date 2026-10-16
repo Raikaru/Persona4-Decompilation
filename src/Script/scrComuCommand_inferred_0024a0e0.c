@@ -11,8 +11,8 @@ extern u8 D_006359B0[];
 extern u8 D_006359C0[];
 extern s64 datGetDateIndex(void);
 extern s32 cmmNextUnlistedDate(s32 arg0);
-extern s32 func_00110580(s32 arg0);
-extern s32 func_00110d30(s32 arg0);
+extern s32 calGetWeekdayOfDay(s32 arg0);
+extern s32 calHasDayEntry(s32 arg0);
 extern s32 cmmCommunityGetTableHead(void);
 extern s32 cmmDateNotListed(s32 arg0);
 
@@ -57,9 +57,9 @@ s32 func_0024a140(void)
     var_16 = 0;
     if (temp_17 == ((s16)datGetDateIndex() + 1)) {
         var_16 = 1;
-    } else if (func_00110580(temp_17) == 0) {
+    } else if (calGetWeekdayOfDay(temp_17) == 0) {
         var_16 = 2;
-    } else if (func_00110d30(temp_17) != 0) {
+    } else if (calHasDayEntry(temp_17) != 0) {
         var_16 = 3;
     }
     scrSetReturnInt(var_16);

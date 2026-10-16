@@ -19,9 +19,9 @@ extern char D_00635C60[];
 extern s32 iGpffffb480;
 
 s16 datGetDateIndex(void);
-void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
+void calSplitDayOfYear(s64 arg0, s32 *arg1, s32 *arg2);
 
-s16 func_00110600(s32 arg0, s32 arg1);
+s16 calDayOfYearFromMonthDay(s32 arg0, s32 arg1);
 void func_00106300(s64 arg0);
 void func_00106310(s32 arg0);
 void func_00106320(s32 arg0);
@@ -29,7 +29,7 @@ s32 func_001106f0(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 
 
 s32 datGetTimeSlot(void);
-s8 func_00110960(s16 arg0, s32 arg1);
+s8 calGetDayEntryByPhase(s16 arg0, s32 arg1);
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
@@ -58,7 +58,7 @@ s32 func_0025c450(void) {
     s16 temp_16;
 
     temp_16 = datGetDateIndex();
-    scrSetReturnInt((s32)func_00110960(temp_16, datGetTimeSlot() & 0xFF));
+    scrSetReturnInt((s32)calGetDayEntryByPhase(temp_16, datGetTimeSlot() & 0xFF));
     return 1;
 }
 
@@ -74,7 +74,7 @@ s32 scrCommonChkDays(void) {
     sp38 = 0;
     temp_17 = scrGetParamInt(0);
     temp_16 = scrGetParamInt(1);
-    func_001104d0(datGetDateIndex(), &sp3C, &sp38);
+    calSplitDayOfYear(datGetDateIndex(), &sp3C, &sp38);
     if ((sp3C == temp_17) && (sp38 == temp_16)) {
         scrSetReturnInt(1);
     } else {
@@ -92,7 +92,7 @@ s32 func_0025c560(void) {
     temp_18 = scrGetParamInt(0);
     temp_17 = scrGetParamInt(1);
     temp_16 = scrGetParamInt(2);
-    func_00106300(func_00110600(temp_18, temp_17));
+    func_00106300(calDayOfYearFromMonthDay(temp_18, temp_17));
     func_00106310(temp_16 & 0xFF);
     func_00106320(1);
     return 1;

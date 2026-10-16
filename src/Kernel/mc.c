@@ -122,9 +122,9 @@ extern s32 H_Memcard_SaveStep(void);
 extern void func_0010e710(s32, u8 *, s32);
 extern s32 datSaveVerifyChecksum(s32, u8 *, s32);
 extern u16 D_008C024E[];
-extern s32 func_00110580(s32);
-extern void func_001104d0(s32 seed, s32 *month, s32 *day);
-extern s32 func_00110d30(s32 idx);
+extern s32 calGetWeekdayOfDay(s32);
+extern void calSplitDayOfYear(s32 seed, s32 *month, s32 *day);
+extern s32 calHasDayEntry(s32 idx);
 extern s32 func_0025f2c0(s32, s32, u8 *);
 /* Location keys and text pointer occupy three 32-bit retail words. */
 typedef struct McLocationNameEntry {
@@ -2477,7 +2477,7 @@ void mcDrawLocationText(f32 fparg0, f32 fparg1, f32 fparg2,
     u8 *temp_handle;
 
     temp_17 = (u8 *)(arg2 + (arg3 * 0x34) + 0x40);
-    func_00110580(*(s16 *)temp_17);
+    calGetWeekdayOfDay(*(s16 *)temp_17);
     temp_3 = *(u32 *)(temp_17 + 4);
     temp_23 = temp_3 / 108000U;
     temp_30 = (temp_3 / 1800U) % 60U;
@@ -2632,8 +2632,8 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
     baseSpill = arg1;
     temp_2 = (u8 *)(arg1 + arg2 * 0x34);
     temp_16 = temp_2 + 0x40;
-    func_001104d0(*(s16 *)(temp_2 + 0x40), &month, &day);
-    var_18 = func_00110580(*(s16 *)temp_16);
+    calSplitDayOfYear(*(s16 *)(temp_2 + 0x40), &month, &day);
+    var_18 = calGetWeekdayOfDay(*(s16 *)temp_16);
     if (var_18 < 0) {
         var_18 = 6;
     }
@@ -2687,7 +2687,7 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
     } while (var_4_2 > 0);
     func_0025f6b0((fparg0 + 61.0f + 24.0f) - 2.0f, (fparg1 + 1.0f) - 2.0f, fparg2, temp_17, (u8)arg0, tmp128, 2, tmpF0, func_002a2e10, handle);
     func_0025f3f0(fparg0 + 109.0f, fparg1 - 2.0f, fparg2, temp_17, (u8)arg0, 0x15, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
-    if ((var_18 == 0) || (func_00110d30(*(s16 *)temp_16) != 0)) {
+    if ((var_18 == 0) || (calHasDayEntry(*(s16 *)temp_16) != 0)) {
         weekdayHandle = *(u8 **)(arg4 + 0x398);
         func_0025f3f0((fparg0 + 129.0f) - (f32)func_0025f2c0(0xE, var_18, weekdayHandle) / 2.0f, fparg1 - 2.0f, fparg2, var_30 >> 8, (u8)arg0, 0xE, var_18, weekdayHandle, 1);
     } else if (var_18 == 6) {

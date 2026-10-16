@@ -18,7 +18,7 @@ extern s32 func_0015a740();
 extern s32 func_00106600(s16 id);
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
-extern s64 func_00110960(s32 day, u32 time);
+extern s64 calGetDayEntryByPhase(s32 day, u32 time);
 extern u32 datGetFlag(s32 bit);
 extern u32 RpRandom(void);
 extern void kAssertFail(void *file, s32 line);
@@ -176,7 +176,7 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
         return -1;
     }
     day = (s16)datGetDateIndex();
-    alternate = (s8)func_00110960(day, datGetTimeSlot() & 0xFF) == 1;
+    alternate = (s8)calGetDayEntryByPhase(day, datGetTimeSlot() & 0xFF) == 1;
     if (datGetFlag(0x1411) == 1) {
         multiplier = 100.0f;
     }

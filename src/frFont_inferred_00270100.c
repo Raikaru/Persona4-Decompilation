@@ -33,10 +33,10 @@ extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
 extern s16 datGetDateIndex(void);
-extern void func_001104d0(s32 date, s32 *month, s32 *day);
+extern void calSplitDayOfYear(s32 date, s32 *month, s32 *day);
 extern s32 sprintf(void *arg0, const void *arg1, s32 arg2);
 extern u8 iGpffffa738;
-extern s32 func_001105b0(s32 arg0);
+extern s32 calGetWeekOfYear(s32 arg0);
 extern void frFontExCopyString(void *arg0, void *arg1, s32 arg2);
 extern s8 D_0063BAB0[];
 extern s32 cmmCommunityGetCurrentId(void);
@@ -415,7 +415,7 @@ s32 itfMesSetMonthText(s32 arg0, u8 *arg1)
 
     if (frFontGetMode() != 0)
         return 0;
-    func_001104d0((s16)datGetDateIndex(), &sp2C, &sp28);
+    calSplitDayOfYear((s16)datGetDateIndex(), &sp2C, &sp28);
     sprintf(sp20, &iGpffffa738, sp2C);
     frFontUpdateTextWork(arg1);
     frFontLayoutText(sp20, arg1);
@@ -432,7 +432,7 @@ s32 itfMesSetDayText(s32 arg0, u8 *arg1)
 
     if (frFontGetMode() != 0)
         return 0;
-    func_001104d0((s16)datGetDateIndex(), &sp2C, &sp28);
+    calSplitDayOfYear((s16)datGetDateIndex(), &sp2C, &sp28);
     sprintf(sp20, &iGpffffa738, sp28);
     frFontUpdateTextWork(arg1);
     frFontLayoutText(sp20, arg1);
@@ -469,7 +469,7 @@ s32 itfMesSetWeekdayText(s32 arg0, u8 *arg1)
     } while (count > 0);
     if (frFontGetMode() != 0)
         return 0;
-    frFontExCopyString(work.sp40 + func_001105b0((s16)datGetDateIndex()) * 8,
+    frFontExCopyString(work.sp40 + calGetWeekOfYear((s16)datGetDateIndex()) * 8,
                   work.sp20, 0x20);
     frFontUpdateTextWork(arg1);
     frFontLayoutText(work.sp20, arg1);

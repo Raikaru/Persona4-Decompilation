@@ -73,7 +73,7 @@ extern s32 func_001060f0(void);
 extern void func_00106300();
 extern void func_00106310();
 extern void func_00106320();
-extern s32 func_00110d30();
+extern s32 calHasDayEntry();
 extern void func_00260450(void);
 extern s16 clndGetPeriod(void);
 extern s16 clndGetDaysSinceApr5(void);
@@ -461,7 +461,7 @@ s32 func_00120f70(u8 *arg0) {
         if ((datGetTimeSlot() & 0xFF) == 5) {
             func_00106300((s64)(s16)((s16)datGetDateIndex() + 1));
             func_00106310(0);
-        } else if (func_00110d30(
+        } else if (calHasDayEntry(
                        (s64)(s16)datGetDateIndex()) == 0) {
             func_00106300(datGetDateIndex());
             func_00106310(((datGetTimeSlot() & 0xFF) + 1) & 0xFF);
@@ -966,9 +966,9 @@ void func_00122a40(void *unusedNode, void *work)
     extern void sdkSpriteDrawOnceAux(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 shadowAlpha, u8 alpha, f32 depth, s32 flags);
     extern f32 sdkSpriteScaledHeight(u8 *sprite);
     extern void sdkSpriteDraw(u8 *sprite, s32 flags);
-    extern void func_001104d0(s32 date, s32 *month, s32 *day);
-    extern s32 func_00110580(s32 date);
-    extern s32 func_00110d30(s32 date);
+    extern void calSplitDayOfYear(s32 date, s32 *month, s32 *day);
+    extern s32 calGetWeekdayOfDay(s32 date);
+    extern s32 calHasDayEntry(s32 date);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     s32 (**states)(RwRenderState state, void *value);
     u8 *sprite;
@@ -1061,7 +1061,7 @@ void func_00122a40(void *unusedNode, void *work)
         sdkSpriteFreeNode(sprite);
     }
     if ((calendar->field_0C & 2) != 0) {
-        func_001104d0(calendar->daysSinceApr5, &month, &day);
+        calSplitDayOfYear(calendar->daysSinceApr5, &month, &day);
         value = (s32)calendar->records[2].field_10;
         sdkSpriteDrawOnceTinted(parent, calendar->field_110, 7, (f32)(value + 0x1C2), 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
         sdkSpriteDrawOnceTinted(parent, calendar->field_110, 8, (f32)(value + 0x246), 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x19, 0x19, 0x19, 0.0f, 1);
@@ -1076,16 +1076,16 @@ void func_00122a40(void *unusedNode, void *work)
         xOffset = (f32)0x201;
         xOffset += calendar->records[2].field_10;
         sdkSpriteDrawOnceAux(parent, calendar->field_110, value, 14.0f + xOffset, 17.0f + calendar->records[2].field_14, 0, (0xFF - calendar->records[2].field_1A) & 0xFF, 0.0f, 1);
-        if (func_00110d30(calendar->daysSinceApr5) != 0) {
-            value = func_00110580(calendar->daysSinceApr5);
+        if (calHasDayEntry(calendar->daysSinceApr5) != 0) {
+            value = calGetWeekdayOfDay(calendar->daysSinceApr5);
             xOffset = (f32)0x219;
             sdkSpriteDrawOnceTinted(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0xFF, 0xAC, 0x99, 0.0f, 1);
-        } else if (func_00110580(calendar->daysSinceApr5) == 6) {
-            value = func_00110580(calendar->daysSinceApr5);
+        } else if (calGetWeekdayOfDay(calendar->daysSinceApr5) == 6) {
+            value = calGetWeekdayOfDay(calendar->daysSinceApr5);
             xOffset = (f32)0x219;
             sdkSpriteDrawOnceTinted(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0x99, 0xA4, 0xFF, 0.0f, 1);
         } else {
-            value = func_00110580(calendar->daysSinceApr5);
+            value = calGetWeekdayOfDay(calendar->daysSinceApr5);
             xOffset = (f32)0x219;
             sdkSpriteDrawOnceTinted(parent, calendar->field_110, value, xOffset + calendar->records[2].field_10, 17.0f + calendar->records[2].field_14, (0xFF - calendar->records[2].field_1A) & 0xFF, 0xFF, 0xFF, 0xFF, 0.0f, 1);
         }
@@ -1101,7 +1101,7 @@ void func_00122a40(void *unusedNode, void *work)
             elapsed = duration;
         }
         progress = (elapsed << 0xC) / duration;
-        if (func_00110d30(calendar->daysSinceApr5) != 0) {
+        if (calHasDayEntry(calendar->daysSinceApr5) != 0) {
             value = calendar->period;
             if (value == 3) {
                 spriteIndex = 0x1A;
