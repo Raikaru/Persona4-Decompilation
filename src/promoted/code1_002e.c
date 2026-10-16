@@ -9,6 +9,7 @@
 #include "type.h"
 #include "fr_font_internal.h"
 #include "fcl_object_internal.h"
+#include "datPersona_internal.h"
 extern void (*jtbl_008873EC[])(void *arg0);
 typedef FclVec2 f2;
 typedef struct {
@@ -761,7 +762,6 @@ done:
 // FUN_002E82B0
 void fclCombineMenuDestroy(u8 *arg0)
 {
-    s32 datPersonaRosterCapacity(void);
     s8 yListSlotRelease(s8 arg0);
     s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *arg0);
     s16 i;

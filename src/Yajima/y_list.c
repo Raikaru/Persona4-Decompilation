@@ -39,7 +39,6 @@ extern s32 datPersonaFindRosterSlotById(s32 arg0);
 extern struct DatPersonaRecord *datPersonaFindRosterRecordById(s32 arg0);
 
 extern void datPersonaInitRecord(u8 *dest, u16 id);
-extern s32 datPersonaRosterCapacity(void);
 extern s32 datPersonaRosterSlotActive(s16 arg0);
 extern void datPersonaInitAllRecords(void);
 extern s32 yListRecordsDiffer(u8 *arg0, u8 *arg1);

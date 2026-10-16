@@ -308,7 +308,6 @@ void cmpPersonaMenuDraw(u8* work)
     extern void datScreenWipeSetAlpha(u8 *task, u8 alpha);
     extern void datScreenWipeDraw(void *task);
     extern void cmpPersonaDrawRosterRow(u8 *work, s32 index);
-    extern s32 datPersonaRosterCapacity(void);
     extern u32 datPersonaNamePart1(s16 character);
     extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 font, int id, const char *text, int flags,
                              int extra);
@@ -931,7 +930,6 @@ static inline u32 CmpPersonaOffsetAddress(u32 offset, u32 base)
 // FUN_00137890
 void cmpPersonaDrawRosterRow(u8 *arg0, s32 arg1)
 {
-    extern s32 datPersonaRosterCapacity(void);
     extern void datPanelReset(u8 *panel);
     extern void shdPersonaFillStatusBlock(u8 *persona, u8 *record, s32 mode);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y,

@@ -18,7 +18,6 @@ s32 datGetFlag(u32 arg0);
 extern u8 *D_007246AC;
 void func_00389180(u8 *arg0);
 extern void memset(void *dst, s32 value, u32 size);
-extern s32 datPersonaRosterCapacity(void);
 extern void nmMesWindowShowCurrentRecord(s32 arg0);
 extern void nmMesWindowSetCurrentString(s32 arg0, void *arg1);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
@@ -1245,7 +1244,6 @@ void func_00387750(u8 *arg0)
 void func_00387e70(u8 *arg0)
 {
     extern u8 *resourceFindByName(char *name);
-    extern s32 datPersonaRosterCapacity(void);
     extern u8 datPersonaGetArcana(u16 personaId);
     extern u8 datPersonaGetLevel(int persona);
     extern int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
