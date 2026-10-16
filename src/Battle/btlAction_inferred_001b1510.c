@@ -168,7 +168,7 @@ extern s32 btlEncounterIsInactive(s32 arg0);
 extern s32 btlShuffleIsBusy(s32 task);
 extern s32 func_00122720(void);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *arg0, u32 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5);
-extern void func_001bdd60(void);
+extern void btlCameraSuppressEncounterCallback(void);
 extern u8 *datUnitGetRecord(s16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
@@ -2248,7 +2248,7 @@ loop_16:
 loop_16_check:
         if (var_18 != NULL) goto loop_16;
     }
-    func_001bdd60();
+    btlCameraSuppressEncounterCallback();
     btlPanelReset(*(s32 *)(D_0076449C + 0xDD4));
     var_16 = *(u8 **)(D_0076449C + 0x178);
     goto loop_21_check;
