@@ -2115,7 +2115,7 @@ s32 FldStepTaskUpdate(u8 *arg0)
     extern s32 FldRootCreate(u8 *arg0, u16 arg1, u16 arg2, s32 arg3, s16 arg4, s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9, s64 arg10, s64 arg11, s64 arg12, s64 arg13);
     extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
     extern s32 cmpPartyPanelTaskCreate(s32 arg0);
-    extern void func_0015bae0(void);
+    extern void FldStepUpdateBandRes(void);
     extern void FldStepPreloadBegin(void);
     extern s32 FldStepPreloadCreateTasks(void);
     extern s32 FldStepPreloadFinish(void);
@@ -2131,7 +2131,7 @@ s32 FldStepTaskUpdate(u8 *arg0)
     u8 *base;
 
     work = *(u8 **)(arg0 + 0x38);
-    func_0015bae0();
+    FldStepUpdateBandRes();
     switch (*(s32 *)work) {
     case 0:
         *(s32 *)(work + 0x14) = FldStepOpenDataFile();
@@ -3066,8 +3066,9 @@ void FldCellFloodFillDirected(s32 arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, s3
         }
     }
 }
+// Intent: Update the band's resource lists each step: position the tile and rotate the resources by the frame angle, and show or hide them by band [inferred]
 // FUN_0015BAE0
-void func_0015bae0(void)
+void FldStepUpdateBandRes(void)
 {
     u8 *var_19;
     u8 *temp_s5;
