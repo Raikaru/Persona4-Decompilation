@@ -56,8 +56,8 @@ extern f32 smapPlayerOffsetZ(u8 *arg0, f32 arg1);
 extern f32 smapPositionOffsetX(f32 arg1, YVec3f *arg0);
 extern f32 smapPositionOffsetZ(f32 arg1, YVec3f *arg0);
 extern s32 func_002b2960(void);
-extern s32 func_002b2a30(u8, u8, u8, u8);
-extern void func_002b2bd0(f32 *arg0, s64 arg1, f32 arg2, f32 arg3, f32 arg4,
+extern s32 fclPackRgba(u8, u8, u8, u8);
+extern void fclAnchorOffset(f32 *arg0, s64 arg1, f32 arg2, f32 arg3, f32 arg4,
                           f32 arg5);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 sdkSpriteScaledWidth(u8 *arg0);
@@ -65,7 +65,7 @@ extern f32 sdkSpriteScaledHeight(u8 *arg0);
 extern u8 *sdkSpriteNewNode(s32 arg0, s32 arg1);
 extern void sdkSpriteFreeNode(void *node);
 
-extern s32 func_002b3720(u8 *arg0);
+extern s32 mapSymbolTaskUpdate(u8 *arg0);
 extern void func_002b3960(u8 *arg0);
 extern s32 mapSymbolPointUpdate(u8 *arg0);
 extern s32 mapSymbolEntityUpdate(u8 *arg0);
@@ -80,7 +80,7 @@ s32 mapSymbolMarkerCreate(s32 arg0)
 
     chkmemAllocSiteTag(D_0063F120, 0x98);
     work = D_008873F4[0](1, 0x24, 0x40000);
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F130), 0xF, 0, 0, func_002b3720, func_002b3960, (u8 *)(work));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F130), 0xF, 0, 0, mapSymbolTaskUpdate, func_002b3960, (u8 *)(work));
     *(u32 *)(work + 4) = (u32)MT_Scene_GetRes(0x400);
     *(u32 *)(work + 0) = (u32)work;
     *(u32 *)(work + 8) = 0x3F400000;
@@ -156,7 +156,7 @@ s32 mapSymbolPointUpdate(u8 *arg0)
     s32 dy;
 
     p = *(u8 **)(arg0 + 0x38);
-    func_002b2bd0((f32 *)&temp, 0, 136.0f, 136.0f, 21.0f, 22.0f);
+    fclAnchorOffset((f32 *)&temp, 0, 136.0f, 136.0f, 21.0f, 22.0f);
     *(f32 *)(base + 0) = (tx = temp.x, ty = temp.y, tx);
     *(f32 *)(base + 4) = ty;
     if (func_002b2960() == 0) {
@@ -188,7 +188,7 @@ s32 mapSymbolPointUpdate(u8 *arg0)
             keep -= 10.0f;
             *((f32 *)&out + 1) = keep;
             coord0 = out;
-            sdkSpriteDrawQueued(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA63, func_002b2a30(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
+            sdkSpriteDrawQueued(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA63, fclPackRgba(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
         }
     } else if (*(s8 *)p == 1 &&
                (s8)func_002ac3c0(p[0x18], p[0x19]) == 1) {
@@ -201,7 +201,7 @@ s32 mapSymbolPointUpdate(u8 *arg0)
         keep -= 2.0f;
         *((f32 *)&out + 1) = keep;
         coord1 = out;
-        sdkSpriteDrawQueued(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA63, func_002b2a30(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
+        sdkSpriteDrawQueued(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA63, fclPackRgba(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
     }
     return 0;
 }
@@ -261,7 +261,7 @@ s32 mapSymbolEntityUpdate(u8 *arg0)
     u8 *h;
 
     p = *(s8 **)(arg0 + 0x38);
-    func_002b2bd0((f32 *)&temp, 0, 136.0f, 136.0f, 21.0f, 22.0f);
+    fclAnchorOffset((f32 *)&temp, 0, 136.0f, 136.0f, 21.0f, 22.0f);
     *(f32 *)(base + 0) = (tx = temp.x, ty = temp.y, tx);
     *(f32 *)(base + 4) = ty;
     if (func_002b2960() == 0) {
@@ -313,7 +313,7 @@ vtest2:
                 keep -= 10.0f;
                 *((f32 *)&out + 1) = keep;
                 coord0 = out;
-                sdkSpriteDrawQueued(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA64, func_002b2a30(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
+                sdkSpriteDrawQueued(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA64, fclPackRgba(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
             }
         }
     } else if (*p == 1) {
@@ -356,7 +356,7 @@ vtest4:
                 keep -= 2.0f;
                 *((f32 *)&out + 1) = keep;
                 coord1 = out;
-                sdkSpriteDrawQueued(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA64, func_002b2a30(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
+                sdkSpriteDrawQueued(*(f32 *)&coord1, *((f32 *)&coord1 + 1), (f32)0xEA64, fclPackRgba(255, 255, 255, 255), 0xFF, 0x11, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794CF0);
             }
         }
     }
@@ -414,7 +414,7 @@ s32 mapSymbolTargetUpdate(u8 *arg0)
     Vec2 v;
 
     p = *(u8 **)(arg0 + 0x38);
-    func_002b2bd0((f32 *)&temp, 0, 136.0f, 136.0f, 21.0f, 22.0f);
+    fclAnchorOffset((f32 *)&temp, 0, 136.0f, 136.0f, 21.0f, 22.0f);
     *(f32 *)(base.bytes + 0) = (tx = temp.x, ty = temp.y, tx);
     *(f32 *)(base.bytes + 4) = ty;
     if (func_002b2960() == 0) {
@@ -460,7 +460,7 @@ vtest1:
                 coord.packed = out.packed;
                 sdkSpriteDrawQueued(
                     coord.values[0], coord.values[1], (f32)0xEA65,
-                    func_002b2a30(255, 255, 255, 255), 0xFF, 0x12,
+                    fclPackRgba(255, 255, 255, 255), 0xFF, 0x12,
                     (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f,
                     D_00794DB0);
             }
@@ -483,7 +483,7 @@ vtest2:
             v = *(Vec2 *)p;
             sdkSpriteDrawQueued(
                 v.x, v.y, (f32)0xEA65,
-                func_002b2a30(255, 255, 255, 255), 0xFF, 0x12,
+                fclPackRgba(255, 255, 255, 255), 0xFF, 0x12,
                 (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f,
                 D_00794CF0);
         }

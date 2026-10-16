@@ -45,8 +45,8 @@ struct RtQuat *func_003dc740(struct RtQuat *rotation, const struct RwV3d *axis,
 void btlShuffleCardBindPacket(u8 *arg0, void *arg1);
 void btlShuffleCardApplyScale(u8 *arg0, f32 *arg1, f32 arg2);
 s32 func_00285b30(void);
-f32 func_002b2aa0(s64, f32, f32, f32, f32);
-s32 func_002b2cb0(s32, s32, s32, s32, s8);
+f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
+s32 fclAddClamped(s32, s32, s32, s32, s8);
 s32 func_00457120(void);
 u8 *func_00461390(void *list, s32 primitive, void *vertices, s32 count);
 extern f32 iGpffff8360;
@@ -59,7 +59,7 @@ void datSetFlag(s32, s32);
 s32 sdkSndStartChannel(s16 channelIndex, u8 *name);
 s32 kwlnTaskIsLinked(void *target);
 extern u8 D_0064A5B0[];
-s32 func_002b2d00(s32, s32, s32, s32, s8);
+s32 fclSubClamped(s32, s32, s32, s32, s8);
 u8 *func_004b1130(s32);
 u8 *func_004b11b0(u8 *);
 
@@ -280,10 +280,10 @@ s32 cmbCardPathUpdate(u8 *task) {
         for (setupIndex = 0;
              (loadedCount = ((CmbLoaderState *)*(u8 **)(work->loaderTask + 0x38))->loaded),
              setupIndex < loadedCount; setupIndex++) {
-            initialPosition = func_002b2970(0.0f, 0.0f);
+            initialPosition = fclMakeVec2(0.0f, 0.0f);
             cmbCardSetPosition(task, (s8)setupIndex, initialPosition);
             cmbCardSetAngle(task, (s8)setupIndex, 0.0f);
-            *(CmbRGBA *)initialColorBytes.bytes = func_002b2a60(0xFF, 0xFF, 0xFF, 0);
+            *(CmbRGBA *)initialColorBytes.bytes = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0);
             btlShuffleCardBindSlot(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)setupIndex * 0xFB0 + 0xE398, initialColorBytes.bytes);
             work->cards[setupIndex].scale = 1.0f;
             axis = D_0064A4C8;
@@ -321,22 +321,22 @@ s32 cmbCardPathUpdate(u8 *task) {
         return -1;
     }
     if (work->layout == 9 && func_00285b30() < 490) {
-        secondaryScale = func_002b2aa0(0, work->cards[0].scale, work->cards[0].scale + 0.125f, (f32)work->pulseFrame, 60.0f);
-        opacityValue = func_002b2aa0(1, 0.0f, 168.0f, (f32)work->pulseFrame, 30.0f);
+        secondaryScale = fclEaseInterpolate(0, work->cards[0].scale, work->cards[0].scale + 0.125f, (f32)work->pulseFrame, 60.0f);
+        opacityValue = fclEaseInterpolate(1, 0.0f, 168.0f, (f32)work->pulseFrame, 30.0f);
         secondaryOpacity = (u8)opacityValue;
-        work->pulseFrame = func_002b2cb0(work->pulseFrame, 1, 60, 0, 2);
+        work->pulseFrame = fclAddClamped(work->pulseFrame, 1, 60, 0, 2);
     }
     for (cardIndex = 0; cardIndex < work->activeCount; cardIndex++) {
         if ((work->cards[cardIndex].flags & 1) != 0) {
-            work->cards[cardIndex].position.x = func_002b2aa0(0, work->cards[cardIndex].moveStart.x, work->cards[cardIndex].moveEnd.x, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
-            work->cards[cardIndex].position.y = func_002b2aa0(0, work->cards[cardIndex].moveStart.y, work->cards[cardIndex].moveEnd.y, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
+            work->cards[cardIndex].position.x = fclEaseInterpolate(0, work->cards[cardIndex].moveStart.x, work->cards[cardIndex].moveEnd.x, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
+            work->cards[cardIndex].position.y = fclEaseInterpolate(0, work->cards[cardIndex].moveStart.y, work->cards[cardIndex].moveEnd.y, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
             if (work->cards[cardIndex].moveFrame < work->cards[cardIndex].moveDuration) {
-                work->cards[cardIndex].moveFrame = func_002b2cb0(work->cards[cardIndex].moveFrame, 1, work->cards[cardIndex].moveDuration, 0, 1);
+                work->cards[cardIndex].moveFrame = fclAddClamped(work->cards[cardIndex].moveFrame, 1, work->cards[cardIndex].moveDuration, 0, 1);
             } else if ((work->cards[cardIndex].flags & 8) != 0) {
                 cmbCardStartMove(task, (s8)cardIndex, work->cards[cardIndex].position, work->cards[cardIndex].path[work->cards[cardIndex].pathIndex].position, work->cards[cardIndex].path[work->cards[cardIndex].pathIndex].duration);
-                work->cards[cardIndex].position.x = func_002b2aa0(0, work->cards[cardIndex].moveStart.x, work->cards[cardIndex].moveEnd.x, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
-                work->cards[cardIndex].position.y = func_002b2aa0(0, work->cards[cardIndex].moveStart.y, work->cards[cardIndex].moveEnd.y, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
-                work->cards[cardIndex].moveFrame = func_002b2cb0(work->cards[cardIndex].moveFrame, 1, work->cards[cardIndex].moveDuration, 0, 1);
+                work->cards[cardIndex].position.x = fclEaseInterpolate(0, work->cards[cardIndex].moveStart.x, work->cards[cardIndex].moveEnd.x, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
+                work->cards[cardIndex].position.y = fclEaseInterpolate(0, work->cards[cardIndex].moveStart.y, work->cards[cardIndex].moveEnd.y, (f32)work->cards[cardIndex].moveFrame, (f32)work->cards[cardIndex].moveDuration);
+                work->cards[cardIndex].moveFrame = fclAddClamped(work->cards[cardIndex].moveFrame, 1, work->cards[cardIndex].moveDuration, 0, 1);
                 work->cards[cardIndex].pathIndex += 1;
                 if (work->cards[cardIndex].pathCount <= work->cards[cardIndex].pathIndex) {
                     work->cards[cardIndex].flags ^= 8;
@@ -347,21 +347,21 @@ s32 cmbCardPathUpdate(u8 *task) {
         }
         cmbCardSetPosition(task, (s8)cardIndex, work->cards[cardIndex].position);
         if ((work->cards[cardIndex].flags & 2) != 0) {
-            work->cards[cardIndex].angle = (f32)(s16)(s32)func_002b2aa0(0, work->cards[cardIndex].angleStart, work->cards[cardIndex].angleEnd, (f32)work->cards[cardIndex].angleFrame, (f32)work->cards[cardIndex].angleDuration);
+            work->cards[cardIndex].angle = (f32)(s16)(s32)fclEaseInterpolate(0, work->cards[cardIndex].angleStart, work->cards[cardIndex].angleEnd, (f32)work->cards[cardIndex].angleFrame, (f32)work->cards[cardIndex].angleDuration);
             if (work->cards[cardIndex].angleFrame < work->cards[cardIndex].angleDuration) {
-                work->cards[cardIndex].angleFrame = func_002b2cb0(work->cards[cardIndex].angleFrame, 1, work->cards[cardIndex].angleDuration, 0, 1);
+                work->cards[cardIndex].angleFrame = fclAddClamped(work->cards[cardIndex].angleFrame, 1, work->cards[cardIndex].angleDuration, 0, 1);
             } else {
                 work->cards[cardIndex].flags ^= 2;
             }
             cmbCardSetAngle(task, (s8)cardIndex, work->cards[cardIndex].angle);
         }
         if ((work->cards[cardIndex].flags & 4) != 0) {
-            work->cards[cardIndex].color.c0 = (u8)func_002b2aa0(0, (f32)work->cards[cardIndex].colorStart.c0, (f32)work->cards[cardIndex].colorEnd.c0, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
-            work->cards[cardIndex].color.c1 = (u8)func_002b2aa0(0, (f32)work->cards[cardIndex].colorStart.c1, (f32)work->cards[cardIndex].colorEnd.c1, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
-            work->cards[cardIndex].color.c2 = (u8)func_002b2aa0(0, (f32)work->cards[cardIndex].colorStart.c2, (f32)work->cards[cardIndex].colorEnd.c2, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
-            work->cards[cardIndex].color.c3 = (u8)func_002b2aa0(0, (f32)work->cards[cardIndex].colorStart.c3, (f32)work->cards[cardIndex].colorEnd.c3, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
+            work->cards[cardIndex].color.c0 = (u8)fclEaseInterpolate(0, (f32)work->cards[cardIndex].colorStart.c0, (f32)work->cards[cardIndex].colorEnd.c0, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
+            work->cards[cardIndex].color.c1 = (u8)fclEaseInterpolate(0, (f32)work->cards[cardIndex].colorStart.c1, (f32)work->cards[cardIndex].colorEnd.c1, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
+            work->cards[cardIndex].color.c2 = (u8)fclEaseInterpolate(0, (f32)work->cards[cardIndex].colorStart.c2, (f32)work->cards[cardIndex].colorEnd.c2, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
+            work->cards[cardIndex].color.c3 = (u8)fclEaseInterpolate(0, (f32)work->cards[cardIndex].colorStart.c3, (f32)work->cards[cardIndex].colorEnd.c3, (f32)work->cards[cardIndex].colorFrame, (f32)work->cards[cardIndex].colorDuration);
             if (work->cards[cardIndex].colorFrame < work->cards[cardIndex].colorDuration) {
-                work->cards[cardIndex].colorFrame = func_002b2cb0(work->cards[cardIndex].colorFrame, 1, work->cards[cardIndex].colorDuration, 0, 1);
+                work->cards[cardIndex].colorFrame = fclAddClamped(work->cards[cardIndex].colorFrame, 1, work->cards[cardIndex].colorDuration, 0, 1);
             } else {
                 work->cards[cardIndex].flags ^= 4;
             }
@@ -372,7 +372,7 @@ s32 cmbCardPathUpdate(u8 *task) {
         }
         if (work->layout == 9 && func_00285b30() < 490 && work->hideSecondary == 0) {
             cmbCardApplySlotTransform(task, (s8)cardIndex, work->cards[cardIndex].position, secondaryScale);
-            *(CmbRGBA *)secondaryColorBytes.bytes = func_002b2a60(0xFF, 0xFF, 0xFF, secondaryOpacity);
+            *(CmbRGBA *)secondaryColorBytes.bytes = fclMakeDrawColor(0xFF, 0xFF, 0xFF, secondaryOpacity);
             btlShuffleCardBindSlot(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0xE398, secondaryColorBytes.bytes);
             btlShuffleCardQueueEnqueue(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0xE398, D_00794EA0);
         }
@@ -591,7 +591,7 @@ static inline void cmbAddPath(u8 *arg0, s8 arg1, CmbVec2f pos, s16 n) {
     *(CmbVec2f *)(table + arg1 * 0x84 + 0x2C) = pos;
     *(s16 *)(table + arg1 * 0x84 + 0x34) = n;
     *(s8 *)(slot + arg1 * 0x84 + 0xC) |= 8;
-    *(s8 *)(slot + arg1 * 0x84 + 0x68) = func_002b2cb0(*(s8 *)(slot + arg1 * 0x84 + 0x68), 1, 5, 0, 1);
+    *(s8 *)(slot + arg1 * 0x84 + 0x68) = fclAddClamped(*(s8 *)(slot + arg1 * 0x84 + 0x68), 1, 5, 0, 1);
 }
 // Two-card layout: card-layout state machine for two cards (dispatcher phase 1). States: 0 start the slide at frame 0x50, 6 init slot params at 0x73, 7 spawn the effect, 8 wait for it, 9 converge at 0x1EA, 10 clear colour, 11 cue sound at 0x208-0x347, 12 advance. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_0033FC80
@@ -619,7 +619,7 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 2) {
-            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -634,11 +634,11 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
     switch (state) {
     case 0:
         if (func_00285b30() >= 0x50) {
-            cmbSetMove(arg0, 0, func_002b2970(10.0f, 212.0f), func_002b2970(230.0f, 212.0f), 5);
-            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbSetMove(arg0, 1, func_002b2970(10.0f, 212.0f), func_002b2970(230.0f, 212.0f), 5);
-            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbAddPath(arg0, 1, func_002b2970(0x19F, 212.0f), 5);
+            cmbSetMove(arg0, 0, fclMakeVec2(10.0f, 212.0f), fclMakeVec2(230.0f, 212.0f), 5);
+            cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbSetMove(arg0, 1, fclMakeVec2(10.0f, 212.0f), fclMakeVec2(230.0f, 212.0f), 5);
+            cmbSetColor(arg0, 1, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbAddPath(arg0, 1, fclMakeVec2(0x19F, 212.0f), 5);
             *(s16 *)(obj + 0x63C) = 6;
         }
         break;
@@ -671,9 +671,9 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
         break;
     case 7:
         sdkSndStartChannel(2, D_0064A5B0);
-        func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f),
+        func_003489c0(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f),
                       0.0f, 0.0f, 0.0f, 1.0f,
-                      func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+                      fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
     case 8:
         if (kwlnTaskIsLinked(*(u8 **)(obj + 0x64C)) != 1) {
@@ -691,11 +691,11 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
         if (func_00285b30() >= 0x1EA) {
             i9 = 0;
             while (i9 < 2) {
-                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
+                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(323.0f, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot = table + 0x658;
                 ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
-                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), fclMakeVec2(339.0f, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -704,7 +704,7 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
     case 10:
         i10 = 0;
         while (i10 < 2) {
-            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i10, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -752,7 +752,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 3) {
-            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -767,15 +767,15 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
     switch (state) {
     case 0:
         if (func_00285b30() >= 0x50) {
-            cmbSetMove(arg0, 0, func_002b2970(-86.0f, 297.0f), func_002b2970(185.0f, 297.0f), 5);
-            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbSetMove(arg0, 1, func_002b2970(-86.0f, 297.0f), func_002b2970(185.0f, 297.0f), 5);
-            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbAddPath(arg0, 1, func_002b2970(456.0f, 297.0f), 5);
-            cmbSetMove(arg0, 2, func_002b2970(-86.0f, 297.0f), func_002b2970(185.0f, 297.0f), 5);
-            cmbSetColor(arg0, 2, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbAddPath(arg0, 2, func_002b2970(456.0f, 297.0f), 5);
-            cmbAddPath(arg0, 2, func_002b2970(320.0f, 104.0f), 5);
+            cmbSetMove(arg0, 0, fclMakeVec2(-86.0f, 297.0f), fclMakeVec2(185.0f, 297.0f), 5);
+            cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbSetMove(arg0, 1, fclMakeVec2(-86.0f, 297.0f), fclMakeVec2(185.0f, 297.0f), 5);
+            cmbSetColor(arg0, 1, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbAddPath(arg0, 1, fclMakeVec2(456.0f, 297.0f), 5);
+            cmbSetMove(arg0, 2, fclMakeVec2(-86.0f, 297.0f), fclMakeVec2(185.0f, 297.0f), 5);
+            cmbSetColor(arg0, 2, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbAddPath(arg0, 2, fclMakeVec2(456.0f, 297.0f), 5);
+            cmbAddPath(arg0, 2, fclMakeVec2(320.0f, 104.0f), 5);
             *(s16 *)(obj + 0x63C) = 6;
         }
         break;
@@ -808,7 +808,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
         break;
     case 7:
         sdkSndStartChannel(2, D_0064A5B0);
-        func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, -5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+        func_003489c0(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, -5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
@@ -827,11 +827,11 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
         if (func_00285b30() >= 0x1EA) {
             i9 = 0;
             while (i9 < 3) {
-                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
+                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(323.0f, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot = table + 0x658;
                 ret = (u8 *)cmbCardEffState(*(u8 **)slot);
-                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), fclMakeVec2(339.0f, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -841,7 +841,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i10 = 0;
         while (i10 < 3) {
-            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i10, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -890,7 +890,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 4) {
-            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -905,20 +905,20 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
     switch (state) {
     case 0:
         if (func_00285b30() >= 0x50) {
-            cmbSetMove(arg0, 0, func_002b2970(-82.0f, 217.0f), func_002b2970(188.0f, 217.0f), 5);
-            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbSetMove(arg0, 1, func_002b2970(-82.0f, 217.0f), func_002b2970(188.0f, 217.0f), 5);
-            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbAddPath(arg0, 1, func_002b2970(458.0f, 217.0f), 5);
-            cmbSetMove(arg0, 2, func_002b2970(-82.0f, 217.0f), func_002b2970(188.0f, 217.0f), 5);
-            cmbSetColor(arg0, 2, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbAddPath(arg0, 2, func_002b2970(458.0f, 217.0f), 5);
-            cmbAddPath(arg0, 2, func_002b2970(323.0f, 337.0f), 5);
-            cmbSetMove(arg0, 3, func_002b2970(-82.0f, 217.0f), func_002b2970(188.0f, 217.0f), 5);
-            cmbSetColor(arg0, 3, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbAddPath(arg0, 3, func_002b2970(458.0f, 217.0f), 5);
-            cmbAddPath(arg0, 3, func_002b2970(323.0f, 337.0f), 5);
-            cmbAddPath(arg0, 3, func_002b2970(323.0f, 82.0f), 5);
+            cmbSetMove(arg0, 0, fclMakeVec2(-82.0f, 217.0f), fclMakeVec2(188.0f, 217.0f), 5);
+            cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbSetMove(arg0, 1, fclMakeVec2(-82.0f, 217.0f), fclMakeVec2(188.0f, 217.0f), 5);
+            cmbSetColor(arg0, 1, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbAddPath(arg0, 1, fclMakeVec2(458.0f, 217.0f), 5);
+            cmbSetMove(arg0, 2, fclMakeVec2(-82.0f, 217.0f), fclMakeVec2(188.0f, 217.0f), 5);
+            cmbSetColor(arg0, 2, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbAddPath(arg0, 2, fclMakeVec2(458.0f, 217.0f), 5);
+            cmbAddPath(arg0, 2, fclMakeVec2(323.0f, 337.0f), 5);
+            cmbSetMove(arg0, 3, fclMakeVec2(-82.0f, 217.0f), fclMakeVec2(188.0f, 217.0f), 5);
+            cmbSetColor(arg0, 3, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbAddPath(arg0, 3, fclMakeVec2(458.0f, 217.0f), 5);
+            cmbAddPath(arg0, 3, fclMakeVec2(323.0f, 337.0f), 5);
+            cmbAddPath(arg0, 3, fclMakeVec2(323.0f, 82.0f), 5);
             *(s16 *)(obj + 0x63C) = 6;
         }
         break;
@@ -951,7 +951,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
         break;
     case 7:
         sdkSndStartChannel(2, D_0064A5B0);
-        func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+        func_003489c0(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
@@ -970,11 +970,11 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
         if (func_00285b30() >= 0x1EA) {
             i9 = 0;
             while (i9 < 4) {
-                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
+                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(323.0f, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot = table + 0x658;
                 ret = (u8 *)cmbCardEffState(*(u8 **)slot);
-                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), fclMakeVec2(339.0f, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -984,7 +984,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i10 = 0;
         while (i10 < 4) {
-            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i10, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -1032,7 +1032,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 5) {
-            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -1047,26 +1047,26 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
     switch (state) {
     case 0:
         if (func_00285b30() >= 0x50) {
-            cmbSetMove(arg0, 0, func_002b2970(-95.0f, 182.0f), func_002b2970(185.0f, 182.0f), 5);
-            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbSetMove(arg0, 1, func_002b2970(-95.0f, 182.0f), func_002b2970(185.0f, 182.0f), 5);
-            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbAddPath(arg0, 1, func_002b2970(465.0f, 182.0f), 5);
-            cmbSetMove(arg0, 2, func_002b2970(-95.0f, 182.0f), func_002b2970(185.0f, 182.0f), 5);
-            cmbSetColor(arg0, 2, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbAddPath(arg0, 2, func_002b2970(465.0f, 182.0f), 5);
-            cmbAddPath(arg0, 2, func_002b2970(239.0f, 343.0f), 5);
-            cmbSetMove(arg0, 3, func_002b2970(-95.0f, 182.0f), func_002b2970(185.0f, 182.0f), 5);
-            cmbSetColor(arg0, 3, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbAddPath(arg0, 3, func_002b2970(465.0f, 182.0f), 5);
-            cmbAddPath(arg0, 3, func_002b2970(239.0f, 343.0f), 5);
-            cmbAddPath(arg0, 3, func_002b2970(411.0f, 343.0f), 5);
-            cmbSetMove(arg0, 4, func_002b2970(-95.0f, 182.0f), func_002b2970(185.0f, 182.0f), 5);
-            cmbSetColor(arg0, 4, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 5);
-            cmbAddPath(arg0, 4, func_002b2970(465.0f, 182.0f), 5);
-            cmbAddPath(arg0, 4, func_002b2970(239.0f, 343.0f), 5);
-            cmbAddPath(arg0, 4, func_002b2970(411.0f, 343.0f), 5);
-            cmbAddPath(arg0, 4, func_002b2970(325.0f, 83.0f), 5);
+            cmbSetMove(arg0, 0, fclMakeVec2(-95.0f, 182.0f), fclMakeVec2(185.0f, 182.0f), 5);
+            cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbSetMove(arg0, 1, fclMakeVec2(-95.0f, 182.0f), fclMakeVec2(185.0f, 182.0f), 5);
+            cmbSetColor(arg0, 1, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbAddPath(arg0, 1, fclMakeVec2(465.0f, 182.0f), 5);
+            cmbSetMove(arg0, 2, fclMakeVec2(-95.0f, 182.0f), fclMakeVec2(185.0f, 182.0f), 5);
+            cmbSetColor(arg0, 2, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbAddPath(arg0, 2, fclMakeVec2(465.0f, 182.0f), 5);
+            cmbAddPath(arg0, 2, fclMakeVec2(239.0f, 343.0f), 5);
+            cmbSetMove(arg0, 3, fclMakeVec2(-95.0f, 182.0f), fclMakeVec2(185.0f, 182.0f), 5);
+            cmbSetColor(arg0, 3, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbAddPath(arg0, 3, fclMakeVec2(465.0f, 182.0f), 5);
+            cmbAddPath(arg0, 3, fclMakeVec2(239.0f, 343.0f), 5);
+            cmbAddPath(arg0, 3, fclMakeVec2(411.0f, 343.0f), 5);
+            cmbSetMove(arg0, 4, fclMakeVec2(-95.0f, 182.0f), fclMakeVec2(185.0f, 182.0f), 5);
+            cmbSetColor(arg0, 4, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 5);
+            cmbAddPath(arg0, 4, fclMakeVec2(465.0f, 182.0f), 5);
+            cmbAddPath(arg0, 4, fclMakeVec2(239.0f, 343.0f), 5);
+            cmbAddPath(arg0, 4, fclMakeVec2(411.0f, 343.0f), 5);
+            cmbAddPath(arg0, 4, fclMakeVec2(325.0f, 83.0f), 5);
             *(s16 *)(obj + 0x63C) = 6;
         }
         break;
@@ -1099,7 +1099,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
         break;
     case 7:
         sdkSndStartChannel(2, D_0064A5B0);
-        func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+        func_003489c0(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
@@ -1118,11 +1118,11 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
         if (func_00285b30() >= 0x1EA) {
             i9 = 0;
             while (i9 < 5) {
-                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
+                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(323.0f, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot2 = table + 0x658;
                 ret = (u8 *)cmbCardEffState(*(u8 **)slot2);
-                cmbCardEffSetPosition(*(u8 **)slot2, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                cmbCardEffSetPosition(*(u8 **)slot2, *(CmbVec2f *)(ret + 0x134), fclMakeVec2(339.0f, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -1132,7 +1132,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i10 = 0;
         while (i10 < 5) {
-            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i10, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -1179,7 +1179,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 6) {
-            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -1194,33 +1194,33 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
     switch (state) {
     case 0:
         if (func_00285b30() >= 0x50) {
-            cmbSetMove(arg0, 0, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
-            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
-            cmbSetMove(arg0, 1, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
-            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
-            cmbAddPath(arg0, 1, func_002b2970(186.0f, 143.0f), 4);
-            cmbSetMove(arg0, 2, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
-            cmbSetColor(arg0, 2, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
-            cmbAddPath(arg0, 2, func_002b2970(186.0f, 143.0f), 4);
-            cmbAddPath(arg0, 2, func_002b2970(186.0f, 285.0f), 4);
-            cmbSetMove(arg0, 3, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
-            cmbSetColor(arg0, 3, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
-            cmbAddPath(arg0, 3, func_002b2970(186.0f, 143.0f), 4);
-            cmbAddPath(arg0, 3, func_002b2970(186.0f, 285.0f), 4);
-            cmbAddPath(arg0, 3, func_002b2970(321.0f, 348.0f), 4);
-            cmbSetMove(arg0, 4, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
-            cmbSetColor(arg0, 4, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
-            cmbAddPath(arg0, 4, func_002b2970(186.0f, 143.0f), 4);
-            cmbAddPath(arg0, 4, func_002b2970(186.0f, 285.0f), 4);
-            cmbAddPath(arg0, 4, func_002b2970(321.0f, 348.0f), 4);
-            cmbAddPath(arg0, 4, func_002b2970(456.0f, 285.0f), 4);
-            cmbSetMove(arg0, 5, func_002b2970(421.0f, -43.0f), func_002b2970(321.0f, 70.0f), 4);
-            cmbSetColor(arg0, 5, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 4);
-            cmbAddPath(arg0, 5, func_002b2970(186.0f, 143.0f), 4);
-            cmbAddPath(arg0, 5, func_002b2970(186.0f, 285.0f), 4);
-            cmbAddPath(arg0, 5, func_002b2970(321.0f, 348.0f), 4);
-            cmbAddPath(arg0, 5, func_002b2970(456.0f, 285.0f), 4);
-            cmbAddPath(arg0, 5, func_002b2970(456.0f, 143.0f), 4);
+            cmbSetMove(arg0, 0, fclMakeVec2(421.0f, -43.0f), fclMakeVec2(321.0f, 70.0f), 4);
+            cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 4);
+            cmbSetMove(arg0, 1, fclMakeVec2(421.0f, -43.0f), fclMakeVec2(321.0f, 70.0f), 4);
+            cmbSetColor(arg0, 1, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 4);
+            cmbAddPath(arg0, 1, fclMakeVec2(186.0f, 143.0f), 4);
+            cmbSetMove(arg0, 2, fclMakeVec2(421.0f, -43.0f), fclMakeVec2(321.0f, 70.0f), 4);
+            cmbSetColor(arg0, 2, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 4);
+            cmbAddPath(arg0, 2, fclMakeVec2(186.0f, 143.0f), 4);
+            cmbAddPath(arg0, 2, fclMakeVec2(186.0f, 285.0f), 4);
+            cmbSetMove(arg0, 3, fclMakeVec2(421.0f, -43.0f), fclMakeVec2(321.0f, 70.0f), 4);
+            cmbSetColor(arg0, 3, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 4);
+            cmbAddPath(arg0, 3, fclMakeVec2(186.0f, 143.0f), 4);
+            cmbAddPath(arg0, 3, fclMakeVec2(186.0f, 285.0f), 4);
+            cmbAddPath(arg0, 3, fclMakeVec2(321.0f, 348.0f), 4);
+            cmbSetMove(arg0, 4, fclMakeVec2(421.0f, -43.0f), fclMakeVec2(321.0f, 70.0f), 4);
+            cmbSetColor(arg0, 4, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 4);
+            cmbAddPath(arg0, 4, fclMakeVec2(186.0f, 143.0f), 4);
+            cmbAddPath(arg0, 4, fclMakeVec2(186.0f, 285.0f), 4);
+            cmbAddPath(arg0, 4, fclMakeVec2(321.0f, 348.0f), 4);
+            cmbAddPath(arg0, 4, fclMakeVec2(456.0f, 285.0f), 4);
+            cmbSetMove(arg0, 5, fclMakeVec2(421.0f, -43.0f), fclMakeVec2(321.0f, 70.0f), 4);
+            cmbSetColor(arg0, 5, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 4);
+            cmbAddPath(arg0, 5, fclMakeVec2(186.0f, 143.0f), 4);
+            cmbAddPath(arg0, 5, fclMakeVec2(186.0f, 285.0f), 4);
+            cmbAddPath(arg0, 5, fclMakeVec2(321.0f, 348.0f), 4);
+            cmbAddPath(arg0, 5, fclMakeVec2(456.0f, 285.0f), 4);
+            cmbAddPath(arg0, 5, fclMakeVec2(456.0f, 143.0f), 4);
             *(s16 *)(obj + 0x63C) = 6;
         }
         break;
@@ -1253,7 +1253,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
         break;
     case 7:
         sdkSndStartChannel(2, D_0064A5B0);
-        func_003489c0(*(u8 **)(obj + 0x64C), func_002b29a0(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, 1.5f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+        func_003489c0(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, 1.5f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
@@ -1272,11 +1272,11 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
         if (func_00285b30() >= 0x1EA) {
             i9 = 0;
             while (i9 < 6) {
-                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(323.0f, 217.0f), 3);
+                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(323.0f, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot2 = table + 0x658;
                 ret = (u8 *)cmbCardEffState(*(u8 **)slot2);
-                cmbCardEffSetPosition(*(u8 **)slot2, *(CmbVec2f *)(ret + 0x134), func_002b2970(339.0f, 217.0f), 3);
+                cmbCardEffSetPosition(*(u8 **)slot2, *(CmbVec2f *)(ret + 0x134), fclMakeVec2(339.0f, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -1286,7 +1286,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i10 = 0;
         while (i10 < 6) {
-            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i10, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -1334,7 +1334,7 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i0 = 0;
         while (i0 < 12) {
-            cmbSetColor(arg0, i0, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i0 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -1349,42 +1349,42 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
     switch (state) {
     case 0:
         if (func_00285b30() >= 0x50) {
-            cmbSetMove(arg0, 0, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 70.0f), 8);
-            cmbSetColor(arg0, 0, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbSetMove(arg0, 1, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 70.0f), 8);
-            cmbSetColor(arg0, 1, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbAddPath(arg0, 1, func_002b2970(250.0f, 95.0f), 5);
-            cmbSetMove(arg0, 2, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 70.0f), 8);
-            cmbSetColor(arg0, 2, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbAddPath(arg0, 2, func_002b2970(250.0f, 95.0f), 5);
-            cmbAddPath(arg0, 2, func_002b2970(175.0f, 141.0f), 5);
-            cmbSetMove(arg0, 3, func_002b2970(326.0f, 224.0f), func_002b2970(156.0f, 232.0f), 8);
-            cmbSetColor(arg0, 3, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbSetMove(arg0, 4, func_002b2970(326.0f, 224.0f), func_002b2970(156.0f, 232.0f), 8);
-            cmbSetColor(arg0, 4, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbAddPath(arg0, 4, func_002b2970(180.0f, 322.0f), 5);
-            cmbSetMove(arg0, 5, func_002b2970(326.0f, 224.0f), func_002b2970(156.0f, 232.0f), 8);
-            cmbSetColor(arg0, 5, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbAddPath(arg0, 5, func_002b2970(180.0f, 322.0f), 5);
-            cmbAddPath(arg0, 5, func_002b2970(250.0f, 0x16B), 5);
-            cmbSetMove(arg0, 6, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 388.0f), 8);
-            cmbSetColor(arg0, 6, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbSetMove(arg0, 7, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 388.0f), 8);
-            cmbSetColor(arg0, 7, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbAddPath(arg0, 7, func_002b2970(0x187, 0x16B), 5);
-            cmbSetMove(arg0, 8, func_002b2970(326.0f, 224.0f), func_002b2970(0x141, 388.0f), 8);
-            cmbSetColor(arg0, 8, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbAddPath(arg0, 8, func_002b2970(0x187, 0x16B), 5);
-            cmbAddPath(arg0, 8, func_002b2970(458.0f, 322.0f), 5);
-            cmbSetMove(arg0, 9, func_002b2970(326.0f, 224.0f), func_002b2970(482.0f, 232.0f), 8);
-            cmbSetColor(arg0, 9, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbSetMove(arg0, 10, func_002b2970(326.0f, 224.0f), func_002b2970(482.0f, 232.0f), 8);
-            cmbSetColor(arg0, 10, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbAddPath(arg0, 10, func_002b2970(462.0f, 141.0f), 5);
-            cmbSetMove(arg0, 11, func_002b2970(326.0f, 224.0f), func_002b2970(482.0f, 232.0f), 8);
-            cmbSetColor(arg0, 11, func_002b2a60(0xFF, 0xFF, 0xFF, 0U), func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 8);
-            cmbAddPath(arg0, 11, func_002b2970(462.0f, 141.0f), 5);
-            cmbAddPath(arg0, 11, func_002b2970(0x187, 95.0f), 5);
+            cmbSetMove(arg0, 0, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(0x141, 70.0f), 8);
+            cmbSetColor(arg0, 0, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbSetMove(arg0, 1, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(0x141, 70.0f), 8);
+            cmbSetColor(arg0, 1, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 1, fclMakeVec2(250.0f, 95.0f), 5);
+            cmbSetMove(arg0, 2, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(0x141, 70.0f), 8);
+            cmbSetColor(arg0, 2, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 2, fclMakeVec2(250.0f, 95.0f), 5);
+            cmbAddPath(arg0, 2, fclMakeVec2(175.0f, 141.0f), 5);
+            cmbSetMove(arg0, 3, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(156.0f, 232.0f), 8);
+            cmbSetColor(arg0, 3, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbSetMove(arg0, 4, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(156.0f, 232.0f), 8);
+            cmbSetColor(arg0, 4, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 4, fclMakeVec2(180.0f, 322.0f), 5);
+            cmbSetMove(arg0, 5, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(156.0f, 232.0f), 8);
+            cmbSetColor(arg0, 5, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 5, fclMakeVec2(180.0f, 322.0f), 5);
+            cmbAddPath(arg0, 5, fclMakeVec2(250.0f, 0x16B), 5);
+            cmbSetMove(arg0, 6, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(0x141, 388.0f), 8);
+            cmbSetColor(arg0, 6, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbSetMove(arg0, 7, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(0x141, 388.0f), 8);
+            cmbSetColor(arg0, 7, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 7, fclMakeVec2(0x187, 0x16B), 5);
+            cmbSetMove(arg0, 8, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(0x141, 388.0f), 8);
+            cmbSetColor(arg0, 8, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 8, fclMakeVec2(0x187, 0x16B), 5);
+            cmbAddPath(arg0, 8, fclMakeVec2(458.0f, 322.0f), 5);
+            cmbSetMove(arg0, 9, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(482.0f, 232.0f), 8);
+            cmbSetColor(arg0, 9, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbSetMove(arg0, 10, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(482.0f, 232.0f), 8);
+            cmbSetColor(arg0, 10, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 10, fclMakeVec2(462.0f, 141.0f), 5);
+            cmbSetMove(arg0, 11, fclMakeVec2(326.0f, 224.0f), fclMakeVec2(482.0f, 232.0f), 8);
+            cmbSetColor(arg0, 11, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 8);
+            cmbAddPath(arg0, 11, fclMakeVec2(462.0f, 141.0f), 5);
+            cmbAddPath(arg0, 11, fclMakeVec2(0x187, 95.0f), 5);
             *(s16 *)(obj + 0x63C) = 6;
         }
         break;
@@ -1421,12 +1421,12 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
     case 7:
         sdkSndStartChannel(2, D_0064A5B0);
         cmbCardEffSetTween(*(u8 **)(obj + 0x64C),
-                      func_002b29a0(0.0f, -5.0f, 30.0f),
+                      fclMakeVec3(0.0f, -5.0f, 30.0f),
                       0.0f, 0.0f, 0.0f, iGpffff850c,
-                      func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28,
-                      func_002b29a0(35.0f, 5.0f, 30.0f),
+                      fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28,
+                      fclMakeVec3(35.0f, 5.0f, 30.0f),
                       0.0f, 0.0f, 31.5f, iGpffff850c,
-                      func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU));
+                      fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU));
         *(s16 *)(obj + 0x63C) = 8;
     case 8:
         if (kwlnTaskIsLinked(*(u8 **)(obj + 0x64C)) != 1) {
@@ -1444,11 +1444,11 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
         if (func_00285b30() >= 0x1EA) {
             i9 = 0;
             while (i9 < 12) {
-                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), func_002b2970(0x143, 217.0f), 3);
+                cmbSetMove(arg0, i9, *(CmbVec2f *)(obj + (s32)i9 * 0x84 + 0x20), fclMakeVec2(0x143, 217.0f), 3);
                 table = obj + (s32)i9 * 4;
                 slot = table + 0x658;
                 ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
-                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), func_002b2970(0x153, 217.0f), 3);
+                cmbCardEffSetPosition(*(u8 **)slot, *(CmbVec2f *)(ret + 0x134), fclMakeVec2(0x153, 217.0f), 3);
                 i9++;
             }
             *(s16 *)(obj + 0x63C) = 10;
@@ -1458,7 +1458,7 @@ s32 cmbCardRunFullLayout(u8 *arg0) {
         *(u8 *)(obj + 0x6B8) = 1;
         i10 = 0;
         while (i10 < 12) {
-            cmbSetColor(arg0, i10, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), func_002b2a60(0xFF, 0xFF, 0xFF, 0U), 0);
+            cmbSetColor(arg0, i10, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0U), 0);
             table = obj + (s32)i10 * 4;
             ret = (u8 *)cmbCardEffState(*(u8 **)(table + 0x658));
             *(s32 *)(ret + 0x11C) &= 0xFFFD;
@@ -1603,12 +1603,12 @@ s32 func_00347c70(u8 *task)
         if (((( *(s32 *)(work + 0x11C) & 4) >> 2) == 1)) {
             f32 f14 = (f32)*(s16 *)(work + 0x13E);
             f32 f15 = (f32)*(s16 *)(work + 0x13C);
-            *(f32 *)(work + 0x134) = func_002b2aa0(0, *(f32 *)(work + 0x124), *(f32 *)(work + 0x12C), f14, f15);
+            *(f32 *)(work + 0x134) = fclEaseInterpolate(0, *(f32 *)(work + 0x124), *(f32 *)(work + 0x12C), f14, f15);
             f14 = (f32)*(s16 *)(work + 0x13E);
             f15 = (f32)*(s16 *)(work + 0x13C);
-            *(f32 *)(work + 0x138) = func_002b2aa0(0, *(f32 *)(work + 0x128), *(f32 *)(work + 0x130), f14, f15);
+            *(f32 *)(work + 0x138) = fclEaseInterpolate(0, *(f32 *)(work + 0x128), *(f32 *)(work + 0x130), f14, f15);
             if (*(s16 *)(work + 0x13E) < *(s16 *)(work + 0x13C)) {
-                *(s16 *)(work + 0x13E) = func_002b2cb0(*(s16 *)(work + 0x13E), 1, *(s16 *)(work + 0x13C), 0, 1);
+                *(s16 *)(work + 0x13E) = fclAddClamped(*(s16 *)(work + 0x13E), 1, *(s16 *)(work + 0x13C), 0, 1);
             } else {
                 *(s32 *)(work + 0x11C) &= 0xFFFB;
             }
@@ -1618,10 +1618,10 @@ s32 func_00347c70(u8 *task)
             f32 f13 = (f32)*(u8 *)(work + 0x197);
             f32 f14 = (f32)*(s16 *)(work + 0x19C);
             f32 f15 = (f32)(*(s16 *)(work + 0x19E) / 2);
-            f32 fres = func_002b2aa0(1, f12, f13, f14, f15);
+            f32 fres = fclEaseInterpolate(1, f12, f13, f14, f15);
             *(u8 *)(work + 0x19B) = (u8)fres;
             if (*(s16 *)(work + 0x19C) < *(s16 *)(work + 0x19E)) {
-                *(s16 *)(work + 0x19C) = func_002b2cb0(*(s16 *)(work + 0x19C), 1, *(s16 *)(work + 0x19E), 0, 1);
+                *(s16 *)(work + 0x19C) = fclAddClamped(*(s16 *)(work + 0x19C), 1, *(s16 *)(work + 0x19E), 0, 1);
             } else {
                 *(s16 *)(work + 0x19C) = 0;
             }
@@ -1652,7 +1652,7 @@ u8 *cmbCardEffTaskCreate(u8 *arg0, s32 *arg1) {
     *(s32 **)(blk + 0x118) = arg1;
     *(s32 *)(blk + 0x11C) = 0;
     for (i = 0; i < 3; i++) {
-        color = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
+        color = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
         *(CmbRGBA *)(blk + (s32)i * 4 + 0x190) = color;
     }
     *(u32 *)(blk + 0x1A0) = 0x3F800000;
@@ -1759,16 +1759,16 @@ s32 func_00348330(u8 *arg0) {
     case 2: {
         s16 cnt = *(s16 *)(obj + 0x3E);
         if (cnt > 0) {
-            *(s16 *)(obj + 0x3E) = func_002b2d00(cnt, 1, 0, 0, 1);
+            *(s16 *)(obj + 0x3E) = fclSubClamped(cnt, 1, 0, 0, 1);
             return 0;
         }
         {
             u8 mode = *(u8 *)(obj + 0x39);
             if (mode == 0) {
-                f32 f0 = func_002b2aa0(0, 0.0f, *(f32 *)(obj + 0x40), (f32)*(s16 *)(obj + 0x3C), (f32)*(s16 *)(obj + 0x3A));
+                f32 f0 = fclEaseInterpolate(0, 0.0f, *(f32 *)(obj + 0x40), (f32)*(s16 *)(obj + 0x3C), (f32)*(s16 *)(obj + 0x3A));
                 *(u8 *)(obj + 0x38) = (u8)f0;
             } else if (mode == 1) {
-                f32 f0 = func_002b2aa0(0, *(f32 *)(obj + 0x40), 0.0f, (f32)*(s16 *)(obj + 0x3C), (f32)*(s16 *)(obj + 0x3A));
+                f32 f0 = fclEaseInterpolate(0, *(f32 *)(obj + 0x40), 0.0f, (f32)*(s16 *)(obj + 0x3C), (f32)*(s16 *)(obj + 0x3A));
                 *(u8 *)(obj + 0x38) = (u8)f0;
                 if (*(s16 *)(obj + 0x3C) >= *(s16 *)(obj + 0x3A)) {
                     *(s8 *)(obj + 4) = 3;
@@ -1777,13 +1777,13 @@ s32 func_00348330(u8 *arg0) {
                 s16 h = *(s16 *)(obj + 0x3A);
                 s32 half = h / 2;
                 {
-                    f32 f0 = func_002b2aa0(1, 0.0f, 255.0f, (f32)*(s16 *)(obj + 0x3C), (f32)half);
+                    f32 f0 = fclEaseInterpolate(1, 0.0f, 255.0f, (f32)*(s16 *)(obj + 0x3C), (f32)half);
                     *(u8 *)(obj + 0x38) = (u8)f0;
                 }
             }
         }
         {
-            *(s16 *)(obj + 0x3C) = func_002b2cb0(*(s16 *)(obj + 0x3C), 1, *(s16 *)(obj + 0x3A), 0, 1);
+            *(s16 *)(obj + 0x3C) = fclAddClamped(*(s16 *)(obj + 0x3C), 1, *(s16 *)(obj + 0x3A), 0, 1);
             if (*(s16 *)(obj + 0x3C) < *(s16 *)(obj + 0x3A)) {
                 *(u8 *)(obj + 0x37) = *(u8 *)(obj + 0x38);
                 func_004b13f0(*(u8 **)(obj + 8), obj + 0x34);
@@ -1806,7 +1806,7 @@ s32 func_00348330(u8 *arg0) {
                     *(s8 *)(obj + 4) = 3;
                 }
             } else {
-                *(u16 *)(obj + 0xC) = func_002b2cb0(*(u16 *)(obj + 0xC), 1, lim, 0, 1);
+                *(u16 *)(obj + 0xC) = fclAddClamped(*(u16 *)(obj + 0xC), 1, lim, 0, 1);
                 if (*(u16 *)(obj + 0xC) >= *(s32 *)(obj + 0x10)) {
                     *(s8 *)(obj + 4) = 3;
                 }
@@ -1924,10 +1924,10 @@ static inline FclDrawColor cmbFiveSpriteColor(s32 base)
     u8 red;
     u8 green;
     u8 blue;
-    red = func_002b2cb0(base, 10, 0xFF, 0, 1) & 0xFF;
-    green = func_002b2cb0(base + 0x37, 10, 0xFF, 0, 1) & 0xFF;
-    blue = func_002b2cb0(base + 0xF2, 10, 0xFF, 0, 1) & 0xFF;
-    return func_002b2a60(red, green, blue, 0xFF);
+    red = fclAddClamped(base, 10, 0xFF, 0, 1) & 0xFF;
+    green = fclAddClamped(base + 0x37, 10, 0xFF, 0, 1) & 0xFF;
+    blue = fclAddClamped(base + 0xF2, 10, 0xFF, 0, 1) & 0xFF;
+    return fclMakeDrawColor(red, green, blue, 0xFF);
 }
 
 /* Create five colored sprites and configure their bounds animations. The
@@ -1955,9 +1955,9 @@ s32 cmbFiveSpriteTask(u8 *task) {
         while (index < 5) {
             /* handle create: 465,0 -> 5c90 */
             handleSlot = work + index * 4 + 4;
-            *(s32 *)handleSlot = fclSpriteSpawnChild((s32)task, func_002b2970(0x1D1, 0.0f));
+            *(s32 *)handleSlot = fclSpriteSpawnChild((s32)task, fclMakeVec2(0x1D1, 0.0f));
             /* vec: 9.0,480.0 -> 5db0 */
-            fclSpriteSetPositionBounds((u8 *)*(s32 *)handleSlot, func_002b2970(0x1D1, 0.0f), func_002b29e0(9.0f, 480.0f));
+            fclSpriteSetPositionBounds((u8 *)*(s32 *)handleSlot, fclMakeVec2(0x1D1, 0.0f), fclMakeBoundsPacket(9.0f, 480.0f));
             /* Mode one uses a gradient; other modes use solid blue. */
             if (*(s8 *)work == 1) {
                 gradientColor = cmbFiveSpriteColor((index + 2) * 10);
@@ -1967,7 +1967,7 @@ s32 cmbFiveSpriteTask(u8 *task) {
                     fclSpriteSetCornerColors((u8 *)*(s32 *)handleSlot, lastGradientColor);
                 }
             } else {
-                solidColor = func_002b2a60(0, 0x37, 0xF2, 0xFF);
+                solidColor = fclMakeDrawColor(0, 0x37, 0xF2, 0xFF);
                 fclSpriteSetCornerColors((u8 *)*(s32 *)handleSlot, solidColor);
             }
             /* Recompute the handle slot for flags and draw depth. */
@@ -1978,20 +1978,20 @@ s32 cmbFiveSpriteTask(u8 *task) {
         }
         /* --- five post-loop 5fd0 groups --- */
         /* group offset 4: 465,275 + 8,480 + 380,480, last 0 */
-        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 4), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
-                      func_002b29e0(8.0f, 480.0f), func_002b29e0(380.0f, 480.0f), 0xF, 0);
+        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 4), fclMakeVec2(0x1D1, 0.0f), fclMakeVec2(0x113, 0.0f),
+                      fclMakeBoundsPacket(8.0f, 480.0f), fclMakeBoundsPacket(380.0f, 480.0f), 0xF, 0);
         /* group offset 8: same, last 2 */
-        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 8), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
-                      func_002b29e0(8.0f, 480.0f), func_002b29e0(380.0f, 480.0f), 0xF, 2);
+        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 8), fclMakeVec2(0x1D1, 0.0f), fclMakeVec2(0x113, 0.0f),
+                      fclMakeBoundsPacket(8.0f, 480.0f), fclMakeBoundsPacket(380.0f, 480.0f), 0xF, 2);
         /* group offset C: same, last 9 */
-        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 0xC), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
-                      func_002b29e0(8.0f, 480.0f), func_002b29e0(380.0f, 480.0f), 0xF, 9);
+        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 0xC), fclMakeVec2(0x1D1, 0.0f), fclMakeVec2(0x113, 0.0f),
+                      fclMakeBoundsPacket(8.0f, 480.0f), fclMakeBoundsPacket(380.0f, 480.0f), 0xF, 9);
         /* group offset 0x10: 8,480 + 8,480, last 9 */
-        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 0x10), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
-                      func_002b29e0(8.0f, 480.0f), func_002b29e0(8.0f, 480.0f), 0xF, 9);
+        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 0x10), fclMakeVec2(0x1D1, 0.0f), fclMakeVec2(0x113, 0.0f),
+                      fclMakeBoundsPacket(8.0f, 480.0f), fclMakeBoundsPacket(8.0f, 480.0f), 0xF, 9);
         /* group offset 0x14: 465,655 + 8,480 + 8,480, last 9 */
-        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 0x14), func_002b2970(0x1D1, 0.0f), func_002b2970(0x28F, 0.0f),
-                      func_002b29e0(8.0f, 480.0f), func_002b29e0(8.0f, 480.0f), 0xF, 9);
+        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 0x14), fclMakeVec2(0x1D1, 0.0f), fclMakeVec2(0x28F, 0.0f),
+                      fclMakeBoundsPacket(8.0f, 480.0f), fclMakeBoundsPacket(8.0f, 480.0f), 0xF, 9);
         *(s8 *)(work + 1) = 1;
         break;
     case 1:

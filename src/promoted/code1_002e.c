@@ -47,7 +47,7 @@ extern s32 func_00106b50(s16 arg0);
 s16 datGetDateIndex(void);
 void calSplitDayOfYear(s64 arg0, s32 *arg1, s32 *arg2);
 
-s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void datSetMoney(s32 arg0);
 extern u8 D_0063F560[];
 
@@ -153,7 +153,7 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
     pos.y = pos_y;
     if ((s8)arg4 == 1) {
         handle = sdkSpriteNewNode(*(u32 *)(temp + 0xF4), (s16)arg1);
-        out1 = func_002b2970(pos.x,
+        out1 = fclMakeVec2(pos.x,
                              pos.y - (sdkSpriteScaledHeight(handle) / 2.0f));
         out1_x = out1.x;
         out1_y = out1.y;
@@ -166,7 +166,7 @@ void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
         fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, 0, 0xFF, 0, arg2, arg3);
     } else {
         handle = sdkSpriteNewNode(*(u32 *)(temp + 0xF4), (s16)arg1);
-        out2 = func_002b2970(pos.x,
+        out2 = fclMakeVec2(pos.x,
                              pos.y + (sdkSpriteScaledHeight(handle) / 2.0f));
         out2_x = out2.x;
         out2_y = out2.y;
@@ -220,7 +220,7 @@ void func_002e09e0(u8 *arg0, s32 arg1, f32 fparg0) {
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = fparg0;
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
     work = *(u8 **)(arg0 + 0x38);
-    out = func_002b2970(entry[0], entry[1]);
+    out = fclMakeVec2(entry[0], entry[1]);
     *(f2 *)(work + 0x2C) = out;
 }
 
@@ -237,7 +237,7 @@ void func_002e0a60(u8 *arg0, s32 arg1, f32 fparg0)
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = fparg0;
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
     work = *(u8 **)(arg0 + 0x38);
-    out = func_002b2970(*(f32 *)entry, *(f32 *)(entry + 4));
+    out = fclMakeVec2(*(f32 *)entry, *(f32 *)(entry + 4));
     *(f2 *)(work + 0x2C) = out;
     work = *(u8 **)(arg0 + 0x38);
     *(u8 *)(work + 0x62) = 0xFF;
@@ -490,9 +490,9 @@ s32 func_002e7510(s32 arg0)
     work = D_008873F4[0](1, 0x18, 0x40000);
     result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)((char *)D_0063FC90), 0xF, 0, 0, func_002e72c0, func_002e74e0, (u8 *)(work));
     iGpffffb590 = NULL;
-    iGpffffb590 = (u8 *)fclSpriteSpawnChild(result, func_002b2970(0, 0));
-    fclSpriteSetPositionBounds(iGpffffb590, func_002b2970(0, 0), func_002b29e0(640.0f, 448.0f));
-    fclSpriteSetCornerColors(iGpffffb590, func_002b2a60(0, 0, 0, 0xFF));
+    iGpffffb590 = (u8 *)fclSpriteSpawnChild(result, fclMakeVec2(0, 0));
+    fclSpriteSetPositionBounds(iGpffffb590, fclMakeVec2(0, 0), fclMakeBoundsPacket(640.0f, 448.0f));
+    fclSpriteSetCornerColors(iGpffffb590, fclMakeDrawColor(0, 0, 0, 0xFF));
     *work = 1;
     sdkSndFadeOutChannelFrames(3, 0, 0x1E);
 
@@ -546,7 +546,7 @@ s32 func_002e78e0(void)
 void func_002e7920(s32 *arg0, s32 *arg1)
 {
     s32 calGetMonthLength(s32 arg0);
-    s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
+    s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
     s32 *out0;
     u8 count;
     s32 *out1;
@@ -570,7 +570,7 @@ void func_002e7920(s32 *arg0, s32 *arg1)
     calSplitDayOfYear(datGetDateIndex(), (s32 *)&sp68, (s32 *)&sp6C);
     if (calGetMonthLength(*(u8 *)&sp68) < (count + 1)) {
         calSplitDayOfYear(datGetDateIndex(), &sp58, &sp5C);
-        *out0 = func_002b2cb0(*(u8 *)&sp58, 1, 0xC, 1, 2);
+        *out0 = fclAddClamped(*(u8 *)&sp58, 1, 0xC, 1, 2);
         *out1 = 1;
         return;
     }
@@ -588,14 +588,14 @@ u32 func_002e7a60(void)
 // FUN_002E7A80
 void func_002e7a80(s32 arg0)
 {
-    datSetMoney(func_002b2cb0(arg0, 0, 0x98967F, 0, 1));
+    datSetMoney(fclAddClamped(arg0, 0, 0x98967F, 0, 1));
 }
 
 #define P4_002E7AC0_DRAW() \
     do { \
         if ((s16)fclSpriteFlagBit(*(s16 *)(fclSpriteEntry(105) + 0x10), 0) == 1) { \
             frFontExDrawTextDeferredOutB(*(f32 *)(fclSpriteEntry(105) + 0x38) + 52.0f, 41.0f, 88.0f, \
-                          func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1, \
+                          fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0, 1, \
                           (const char *)func_0010d6d0(1), 0, 0, D_00794E70, 24); \
         } \
     } while (0)
@@ -606,7 +606,7 @@ s32 fclCombineMenuUpdate(u8 *arg0)
     void fclCombineMenuRoot(u8 *arg0);
     u8 *fclSpriteEntry(s16 arg0);
     s16 fclSpriteFlagBit(s16 arg0, s16 arg1);
-    s32 func_002b2a30(u8, u8, u8, u8);
+    s32 fclPackRgba(u8, u8, u8, u8);
     u32 func_0010d6d0(s16 arg0);
     
     void fclDrawSetFlag(u8 *arg0, s8 arg1);

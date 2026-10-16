@@ -8,19 +8,19 @@ typedef struct {
 } FclDrawColor;
 
 /* The EE aggregate return writes the caller's four-byte color object. */
-FclDrawColor func_002b2a60(u8 red, u8 green, u8 blue, u8 alpha);
+FclDrawColor fclMakeDrawColor(u8 red, u8 green, u8 blue, u8 alpha);
 
 static inline void fclConstructColor(FclDrawColor *out, s32 red, s32 green,
                                     s32 blue, s32 alpha)
 {
-    *out = func_002b2a60(red, green, blue, alpha);
+    *out = fclMakeDrawColor(red, green, blue, alpha);
 }
 
 /* Character access also supports packed colors in existing byte buffers. */
 static inline void fclWriteColorBytes(void *out, s32 red, s32 green,
                                      s32 blue, s32 alpha)
 {
-    FclDrawColor color = func_002b2a60(red, green, blue, alpha);
+    FclDrawColor color = fclMakeDrawColor(red, green, blue, alpha);
     u8 *bytes = (u8 *)out;
     bytes[0] = color.c0;
     bytes[1] = color.c1;

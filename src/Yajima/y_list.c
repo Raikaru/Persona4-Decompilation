@@ -17,7 +17,7 @@ extern s32 func_00312b90(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 
-extern s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
+extern s32 fclSubClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 
@@ -44,7 +44,7 @@ extern u16 *datPersonaRosterSlot(s16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern void datPersonaInitAllRecords(void);
 extern s32 yListRecordsDiffer(u8 *arg0, u8 *arg1);
-extern s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
+extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern s64 func_00311d00(s32 id);
 extern s32 func_00311d60(s32 id);
 extern s32 func_00311e40(s32 id);
@@ -104,7 +104,7 @@ s32 func_002e26a0(void) {
     if (g == NULL) {
         return -1;
     }
-    return func_002b2d00(*(s16 *)(*(u8 **)(g + 0x38) + 2), 1, 0, 0, 1);
+    return fclSubClamped(*(s16 *)(*(u8 **)(g + 0x38) + 2), 1, 0, 0, 1);
 }
 
 // FUN_002E26F0
@@ -114,7 +114,7 @@ s16 yListCountFor(void *arg0) {
 
 // FUN_002E2700
 s32 func_002e2700(void *arg0) {
-    return func_002b2d00(*(s16 *)(*(u8 **)((u8 *)arg0 + 0x38) + 2), 1, 0, 0, 1);
+    return fclSubClamped(*(s16 *)(*(u8 **)((u8 *)arg0 + 0x38) + 2), 1, 0, 0, 1);
 }
 
 // FUN_002E2740
@@ -314,7 +314,7 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
                 if ((ok == 1) && !(datEntryCategoryMask(i) & 0x2000)) {
                     p->rows.paired[p->count].id = i;
                     p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
-                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    count = fclAddClamped(p->count, 1, 0, 0, 0);
                     p->count = count;
                 }
             }
@@ -335,27 +335,27 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
                             if (func_002be160(value, func_00106b50(i) & 0xFF) == 1) {
                                 p->rows.paired[i].quantity = 0;
                                 p->rows.paired[p->count].id = i;
-                                count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                                count = fclAddClamped(p->count, 1, 0, 0, 0);
                                 p->count = count;
                             }
                         }
                     } else {
                         p->rows.paired[i].quantity = 0;
                         p->rows.paired[p->count].id = i;
-                        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                        count = fclAddClamped(p->count, 1, 0, 0, 0);
                         p->count = count;
                     }
                 } else if (datGetFlag(0x1462) == 0) {
                     if (func_002bdff0(i) == 1) {
                         p->rows.paired[i].quantity = 0;
                         p->rows.paired[p->count].id = i;
-                        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                        count = fclAddClamped(p->count, 1, 0, 0, 0);
                         p->count = count;
                     }
                 } else {
                     p->rows.paired[i].quantity = 0;
                     p->rows.paired[p->count].id = i;
-                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    count = fclAddClamped(p->count, 1, 0, 0, 0);
                     p->count = count;
                 }
             }
@@ -369,7 +369,7 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
             ok = yListAcceptsItem(iGpffffb58c, i);
             if (ok == 1) {
                 p->rows.ids[p->count] = i;
-                count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                count = fclAddClamped(p->count, 1, 0, 0, 0);
                 p->count = count;
             }
         }
@@ -377,7 +377,7 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
     }
     case 4: {
         s16 i;
-        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+        count = fclAddClamped(p->count, 1, 0, 0, 0);
         p->count = count;
         for (i = 0; i < 0x600; i++) {
             p->rows.paired[i].quantity = 0;
@@ -387,7 +387,7 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
                 if (ok == 1) {
                     p->rows.paired[p->count].id = i;
                     p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
-                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    count = fclAddClamped(p->count, 1, 0, 0, 0);
                     p->count = count;
                 }
             }
@@ -434,7 +434,7 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
         for (collectIndex = 0; collectIndex < p->count; collectIndex++) {
             sortbuf[collectIndex] = p->rows.paired[collectIndex].id;
         }
-        qsort(sortbuf, p->count, 4, func_002b3230);
+        qsort(sortbuf, p->count, 4, datItemPriceCompare);
         for (sortedIndex = 0; sortedIndex < p->count; sortedIndex++) {
             p->rows.paired[sortedIndex].id = (s16)sortbuf[sortedIndex];
             p->rows.paired[sortedIndex].quantity = 0;
@@ -482,7 +482,7 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
                 if ((ok == 1) && !(datEntryCategoryMask(i) & 0x2000)) {
                     p->rows.paired[p->count].id = i;
                     p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
-                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    count = fclAddClamped(p->count, 1, 0, 0, 0);
                     p->count = count;
                 }
             }
@@ -503,27 +503,27 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
                             if (func_002be160(value, func_00106b50(i) & 0xFF) == 1) {
                                 p->rows.paired[i].quantity = 0;
                                 p->rows.paired[p->count].id = i;
-                                count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                                count = fclAddClamped(p->count, 1, 0, 0, 0);
                                 p->count = count;
                             }
                         }
                     } else {
                         p->rows.paired[i].quantity = 0;
                         p->rows.paired[p->count].id = i;
-                        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                        count = fclAddClamped(p->count, 1, 0, 0, 0);
                         p->count = count;
                     }
                 } else if (datGetFlag(0x1462) == 0) {
                     if (func_002bdff0(i) == 1) {
                         p->rows.paired[i].quantity = 0;
                         p->rows.paired[p->count].id = i;
-                        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                        count = fclAddClamped(p->count, 1, 0, 0, 0);
                         p->count = count;
                     }
                 } else {
                     p->rows.paired[i].quantity = 0;
                     p->rows.paired[p->count].id = i;
-                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    count = fclAddClamped(p->count, 1, 0, 0, 0);
                     p->count = count;
                 }
             }
@@ -537,7 +537,7 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
             ok = yListAcceptsItem(arg0, i);
             if (ok == 1) {
                 p->rows.ids[p->count] = i;
-                count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                count = fclAddClamped(p->count, 1, 0, 0, 0);
                 p->count = count;
             }
         }
@@ -545,7 +545,7 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
     }
     case 4: {
         s16 i;
-        count = func_002b2cb0(p->count, 1, 0, 0, 0);
+        count = fclAddClamped(p->count, 1, 0, 0, 0);
         p->count = count;
         for (i = 0; i < 0x600; i++) {
             p->rows.paired[i].quantity = 0;
@@ -555,7 +555,7 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
                 if (ok == 1) {
                     p->rows.paired[p->count].id = i;
                     p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
-                    count = func_002b2cb0(p->count, 1, 0, 0, 0);
+                    count = fclAddClamped(p->count, 1, 0, 0, 0);
                     p->count = count;
                 }
             }
@@ -602,7 +602,7 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
         for (collectIndex = 0; collectIndex < p->count; collectIndex++) {
             sortbuf[collectIndex] = p->rows.paired[collectIndex].id;
         }
-        qsort(sortbuf, p->count, 4, func_002b3230);
+        qsort(sortbuf, p->count, 4, datItemPriceCompare);
         for (sortedIndex = 0; sortedIndex < p->count; sortedIndex++) {
             p->rows.paired[sortedIndex].id = (s16)sortbuf[sortedIndex];
             p->rows.paired[sortedIndex].quantity = 0;
@@ -1303,8 +1303,8 @@ void func_002e5ae0(s8 arg0, u16 *arg1, s8 arg2)
     p = *(u8 **)(*slotp + 0x38);
     yListSlotClear(arg0);
     level = (s8)arg2;
-    lo = (s16)func_002b2d00(level, 10, 1, 0x63, 1);
-    hi = (s16)func_002b2cb0(level, 1, 0x63, 1, 1);
+    lo = (s16)fclSubClamped(level, 10, 1, 0x63, 1);
+    hi = (s16)fclAddClamped(level, 1, 0x63, 1, 1);
     i = 0;
     lowLimit = (s16)lo;
     for (; i < 0xC0; i++) {
@@ -1403,8 +1403,8 @@ initialSearchDone:
     outer = 0;
     do {
         s32 expansion = outer;
-        lo2 = (s16)func_002b2d00(level, expansion * 5 + 10, 1, 0x63, 1);
-        hi2 = (s16)func_002b2cb0(level, expansion + 1, 0x63, 1, 1);
+        lo2 = (s16)fclSubClamped(level, expansion * 5 + 10, 1, 0x63, 1);
+        hi2 = (s16)fclAddClamped(level, expansion + 1, 0x63, 1, 1);
         yListSlotClear(arg0);
         i = 0;
         highLimit2 = (s16)hi2;
@@ -1575,7 +1575,7 @@ void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
     }
     data = *(u8 **)(D_00882F70[list] + 0x38);
     yListSlotClear(list);
-    limit = (s16)func_002b2cb0(level, 3, 99, 1, 1);
+    limit = (s16)fclAddClamped(level, 3, 99, 1, 1);
     for (i = 0; i < 0xC0; i++) {
         if (iGpffffb3d4[i * 0xE + 2] == 1 && (*(u16 *)&iGpffffb3d4[i * 0xE] & 8) == 0) {
             if (func_00311d00((u16)i) != 0 && func_00311d60((u16)i) != 0 && yListExcluded(i, exclude) == 0 &&

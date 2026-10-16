@@ -40,16 +40,16 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void RpSkyRenderStateSet(s32, s32);
 extern void (*D_00887300[])(u32 state, u32 value);
 
-extern s32 func_002b2a30(u8, u8, u8, u8);
+extern s32 fclPackRgba(u8, u8, u8, u8);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 sdkSpriteScaledWidth(u8 *arg0);
 extern f32 sdkSpriteScaledHeight(u8 *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 extern void sdkSpriteFreeNode(void *node);
 extern void fclSpriteUpdateCulling(u8 *, s16, s16);
-extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
-extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
-extern s16 func_002b2d00(s32, s32, s32, s32, s8);
+extern f32 fclEaseInterpolate(s32, f32, f32, f32, f32);
+extern s32 fclAddClamped(s32, s32, s32, s32, s8);
+extern s16 fclSubClamped(s32, s32, s32, s32, s8);
 extern void fclSpriteApplySkyPresetA(void);
 extern void fclSpriteApplySkyPresetB(void);
 extern s32 fclSpriteUpdateAndDrawTask(u8 *arg0);
@@ -295,13 +295,13 @@ s32 fclSpriteUpdateAndDrawTask(u8 *arg0) {
             *(void (**)(void))(q + 8) = fclSpriteApplySkyPresetA;
             *(s32 *)(q + 0x10) = 0;
             func_00460ac0(D_00793E80 + *(s32 *)(p + 8) * 0x30, q);
-            color = func_002b2a30(255, p[0x85], p[0x86], p[0x87]);
+            color = fclPackRgba(255, p[0x85], p[0x86], p[0x87]);
             sdkSpriteDrawQueued(*(f32 *)(p + 0x38), *(f32 *)(p + 0x3C), *(f32 *)(p + 0x14),
                 color, p[0x6E], *(s16 *)(p + 4), *(void **)(p + 0), 0,
                 *(s16 *)(p + 0xC), *(s16 *)(p + 0xE), *(f32 *)(p + 0xD0),
                 *(f32 *)(p + 0xA0), *(f32 *)(p + 0xAC), D_00793E80 + *(s32 *)(p + 8) * 0x30);
         } else {
-            color = func_002b2a30(255, p[0x85], p[0x86], p[0x87]);
+            color = fclPackRgba(255, p[0x85], p[0x86], p[0x87]);
             sdkSpriteDrawQueued(*(f32 *)(p + 0x38), *(f32 *)(p + 0x3C), *(f32 *)(p + 0x14),
                 color, p[0x6E], *(s16 *)(p + 4), *(void **)(p + 0), 1,
                 *(s16 *)(p + 0xC), *(s16 *)(p + 0xE), *(f32 *)(p + 0xD0),
@@ -361,7 +361,7 @@ s32 fclSpriteCreateDrawTask(s32 arg0, s16 arg1, s32 arg2) {
         j = i;
         off = j;
         zero = 0.0f;
-        pos = func_002b2970(zero, zero);
+        pos = fclMakeVec2(zero, zero);
         *(f2 *)((u8 *)((s32)p + off * 8) + 0x28) = pos;
         *(u8 *)((s32)p + off + 0x6C) = ff;
         q = (u8 *)((s32)p + off * 4);
@@ -369,7 +369,7 @@ s32 fclSpriteCreateDrawTask(s32 arg0, s16 arg1, s32 arg2) {
         one = 0x3F800000;
         *(s32 *)(q + 0xA4) = one;
         *(s32 *)(q + 0x98) = one;
-        color = func_002b2a60(ff, ff, ff, ff);
+        color = fclMakeDrawColor(ff, ff, ff, ff);
         c0 = color.c0;
         c1 = color.c1;
         c2 = color.c2;
@@ -739,7 +739,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
                     s32 rowOffset = (s32)(u32)i * 0x100;
                     u8 *d;
 
-                    color = func_002b2a30(0xFF, (b2 + rowOffset)[0x89], (b2 + rowOffset)[0x8A], (b2 + rowOffset)[0x8B]);
+                    color = fclPackRgba(0xFF, (b2 + rowOffset)[0x89], (b2 + rowOffset)[0x8A], (b2 + rowOffset)[0x8B]);
                     d = b2;
                     d += (s32)(u32)rowOffset;
                     sdkSpriteDrawQueued(
@@ -764,7 +764,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
                     s32 rowOffset = (s32)(u32)i * 0x100;
                     u8 *d;
 
-                    color = func_002b2a30(0xFF, (b2 + rowOffset)[0x89], (b2 + rowOffset)[0x8A], (b2 + rowOffset)[0x8B]);
+                    color = fclPackRgba(0xFF, (b2 + rowOffset)[0x89], (b2 + rowOffset)[0x8A], (b2 + rowOffset)[0x8B]);
                     d = b2;
                     d += (s32)(u32)rowOffset;
                     sdkSpriteDrawQueued(
@@ -783,7 +783,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
 
                 entryOffset = (s32)(u32)i * 0x100;
 
-                color = func_002b2a30(0xFF, (base + entryOffset)[0x89], (base + entryOffset)[0x8A], (base + entryOffset)[0x8B]);
+                color = fclPackRgba(0xFF, (base + entryOffset)[0x89], (base + entryOffset)[0x8A], (base + entryOffset)[0x8B]);
                 d = base;
                 d += (s32)(u32)entryOffset;
                 sdkSpriteDrawQueued(
@@ -861,7 +861,7 @@ u8 *fclSpritePoolCreate(s32 arg0, s32 arg1) {
             index = component;
             componentOffset = index;
             zero = 0.0f;
-            position = func_002b2970(zero, zero);
+            position = fclMakeVec2(zero, zero);
             *(f2 *)((u8 *)(entryOffset + (s32)entries) + componentOffset * 8 + 0x2C) = position;
             entry = *(u8 **)(iGpffffb574 + 0x38);
             *(u8 *)((u8 *)(entryOffset + (s32)entry) + componentOffset + 0x70) = alpha;
@@ -874,7 +874,7 @@ u8 *fclSpritePoolCreate(s32 arg0, s32 arg1) {
             *(f32 *)(entry + 0xA8) = unitScale;
             *(f32 *)(entry + 0x9C) = unitScale;
             entries = *(u8 **)(iGpffffb574 + 0x38);
-            color = func_002b2a60(alpha, alpha, alpha, alpha);
+            color = fclMakeDrawColor(alpha, alpha, alpha, alpha);
             *(u4 *)((u8 *)(entryOffset + (s32)entries) + componentOffset + 0x81) = color;
             component++;
         }
@@ -988,7 +988,7 @@ void fclSpriteStartShowHide(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fp
         duration = (s32)arg6;
         fclSpriteStartAlpha(animationRows + off + 0x14, *(animationRows + off + 0x72), 0, 0, 0, (s16)(duration + delay));
         fclSpriteStartRevealScale(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, 1.0f, 1.0f, 1.0f, fGpffff8504, 0, (u32)duration, delay);
-        hideConstructed = func_002b2970(p1.x, p1.y + sdkSpriteScaledHeight(first) / 2.0f);
+        hideConstructed = fclMakeVec2(p1.x, p1.y + sdkSpriteScaledHeight(first) / 2.0f);
         fclCopyTransitionPosition(&hidePosition, &hideConstructed);
         fclSpriteStartPosition(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, p1, hidePosition, 0, duration, delay);
     } else {
@@ -1025,7 +1025,7 @@ void fclSpriteStartShowHide(s16 arg0, f2 p1, s16 arg1, FclDrawColor arg2, f32 fp
         delay = (s32)arg7;
         duration = (s32)arg5;
         fclSpriteStartRevealScale(animationRows + off + 0x14, 1.0f, 1.0f, fGpffff8504, 1.0f, 0, (u32)duration, delay);
-        showConstructed = func_002b2970(p1.x, p1.y + sdkSpriteScaledHeight(first) / 2.0f);
+        showConstructed = fclMakeVec2(p1.x, p1.y + sdkSpriteScaledHeight(first) / 2.0f);
         fclCopyTransitionPosition(&showPosition, &showConstructed);
         fclSpriteStartPosition(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14, showPosition, p1, 0, duration, delay);
     }
@@ -1395,20 +1395,20 @@ void fclSpriteStartEntrance(u8 *arg0, FclVec2 p1, u4 arg2, u4 arg3, u8 arg4, u8 
     if ((s8)arg_sp0 == 0) {
         if (arg_sp8 == 0) {
             fclStartRevealScale(arg0, 0, (s16)arg6, (s16)arg7, 0);
-            fclStartPosition(arg0, func_002b2970(p1.x, p1.y + fparg0 / 2.0f), p1, 0, arg6, arg7);
+            fclStartPosition(arg0, fclMakeVec2(p1.x, p1.y + fparg0 / 2.0f), p1, 0, arg6, arg7);
             fclStartColor(arg0, arg2, arg3, 0, 0, 0);
         } else {
             fclStartRevealScale(arg0, 1, (s16)arg6, (s16)arg7, 0);
-            fclStartPosition(arg0, func_002b2970(p1.x, p1.y + fparg0 / 2.0f), p1, 1, arg6, arg7);
+            fclStartPosition(arg0, fclMakeVec2(p1.x, p1.y + fparg0 / 2.0f), p1, 1, arg6, arg7);
             fclStartColor(arg0, arg2, arg3, 0, 0, arg6 / 2);
         }
     } else if (arg_sp8 == 0) {
         fclStartRevealScale(arg0, 0, (s16)arg6, (s16)arg7, 1);
-        fclStartPosition(arg0, p1, func_002b2970(p1.x, p1.y + fparg0 / 2.0f), 0, arg6, arg7);
+        fclStartPosition(arg0, p1, fclMakeVec2(p1.x, p1.y + fparg0 / 2.0f), 0, arg6, arg7);
         fclStartColor(arg0, arg2, arg3, 0, 0, 0);
     } else {
         fclStartRevealScale(arg0, 1, (s16)arg6, (s16)arg7, 1);
-        fclStartPosition(arg0, p1, func_002b2970(p1.x, p1.y + fparg0 / 2.0f), 1, arg6, arg7);
+        fclStartPosition(arg0, p1, fclMakeVec2(p1.x, p1.y + fparg0 / 2.0f), 1, arg6, arg7);
         fclStartColor(arg0, arg2, arg3, 0, 0, arg6 / 2);
     }
     *(f32 *)(arg0 + 4) = fparg1;
@@ -1421,20 +1421,20 @@ void fclSpriteStartEntrance(u8 *arg0, FclVec2 p1, u4 arg2, u4 arg3, u8 arg4, u8 
    pair with the mask in both arms.  Hand-expanding either (an s32 copy with
    an explicit sign test, `(u8)(s32)tf` with a threshold branch) left 131
    edits of register colouring and moves; the plain casts match. */
-// Intent: advances the five tween channels of one sprite record (position, alpha, colour, scale, colour pulse) by a frame. Each channel waits out its delay (+0x34, +0x60, +0x7E, +0xA0, +0xC8), eases with func_002b2aa0 and steps its timer with func_002b2cb0. Returns the record.
+// Intent: advances the five tween channels of one sprite record (position, alpha, colour, scale, colour pulse) by a frame. Each channel waits out its delay (+0x34, +0x60, +0x7E, +0xA0, +0xC8), eases with fclEaseInterpolate and steps its timer with fclAddClamped. Returns the record.
 // FUN_002B89A0
 s32 fclSpriteUpdateTweens(u8 *arg0) {
     if (((*(s16 *)arg0 & 2) >> 1) == 1) {
         if (*(s16 *)(arg0 + 0x34) == 0) {
             if (*(s8 *)(arg0 + 0x37) == 0) {
-                *(f32 *)(arg0 + 0x28) = func_002b2aa0((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x18), *(f32 *)(arg0 + 0x20), (f32)*(s16 *)(arg0 + 0x32), (f32)*(s16 *)(arg0 + 0x30));
-                *(f32 *)(arg0 + 0x2C) = func_002b2aa0((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x1C), *(f32 *)(arg0 + 0x24), (f32)*(s16 *)(arg0 + 0x32), (f32)*(s16 *)(arg0 + 0x30));
+                *(f32 *)(arg0 + 0x28) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x18), *(f32 *)(arg0 + 0x20), (f32)*(s16 *)(arg0 + 0x32), (f32)*(s16 *)(arg0 + 0x30));
+                *(f32 *)(arg0 + 0x2C) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x1C), *(f32 *)(arg0 + 0x24), (f32)*(s16 *)(arg0 + 0x32), (f32)*(s16 *)(arg0 + 0x30));
             } else {
-                *(f32 *)(arg0 + 0x28) = func_002b2aa0((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x18), *(f32 *)(arg0 + 0x20), (f32)*(s16 *)(arg0 + 0x32), (f32)(*(s16 *)(arg0 + 0x30) / 2));
-                *(f32 *)(arg0 + 0x2C) = func_002b2aa0((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x1C), *(f32 *)(arg0 + 0x24), (f32)*(s16 *)(arg0 + 0x32), (f32)(*(s16 *)(arg0 + 0x30) / 2));
+                *(f32 *)(arg0 + 0x28) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x18), *(f32 *)(arg0 + 0x20), (f32)*(s16 *)(arg0 + 0x32), (f32)(*(s16 *)(arg0 + 0x30) / 2));
+                *(f32 *)(arg0 + 0x2C) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x36), *(f32 *)(arg0 + 0x1C), *(f32 *)(arg0 + 0x24), (f32)*(s16 *)(arg0 + 0x32), (f32)(*(s16 *)(arg0 + 0x30) / 2));
             }
             if (*(s16 *)(arg0 + 0x32) < *(s16 *)(arg0 + 0x30)) {
-                *(s16 *)(arg0 + 0x32) = func_002b2cb0((s32)*(s16 *)(arg0 + 0x32), 1, (s32)*(s16 *)(arg0 + 0x30), 0, 1);
+                *(s16 *)(arg0 + 0x32) = fclAddClamped((s32)*(s16 *)(arg0 + 0x32), 1, (s32)*(s16 *)(arg0 + 0x30), 0, 1);
             } else {
                 *(f32 *)(arg0 + 0x28) = *(f32 *)(arg0 + 0x20);
                 *(f32 *)(arg0 + 0x2C) = *(f32 *)(arg0 + 0x24);
@@ -1449,12 +1449,12 @@ s32 fclSpriteUpdateTweens(u8 *arg0) {
                 }
             }
         } else {
-            *(s16 *)(arg0 + 0x34) = func_002b2d00((s32)*(s16 *)(arg0 + 0x34), 1, 0, 0, 1);
+            *(s16 *)(arg0 + 0x34) = fclSubClamped((s32)*(s16 *)(arg0 + 0x34), 1, 0, 0, 1);
         }
     } else if (((*(s16 *)arg0 & 0x80) >> 7) == 1) {
-        *(f32 *)(arg0 + 0x2C) = func_002b2aa0(1, *(f32 *)(arg0 + 0x24), *(f32 *)(arg0 + 0x24) - *(f32 *)(arg0 + 0xE8), (f32)*(s16 *)(arg0 + 0xEC), (f32)(*(s16 *)(arg0 + 0xEE) / 2));
+        *(f32 *)(arg0 + 0x2C) = fclEaseInterpolate(1, *(f32 *)(arg0 + 0x24), *(f32 *)(arg0 + 0x24) - *(f32 *)(arg0 + 0xE8), (f32)*(s16 *)(arg0 + 0xEC), (f32)(*(s16 *)(arg0 + 0xEE) / 2));
         if (*(s16 *)(arg0 + 0xEC) < *(s16 *)(arg0 + 0xEE)) {
-            *(s16 *)(arg0 + 0xEC) = func_002b2cb0((s32)*(s16 *)(arg0 + 0xEC), 1, (s32)*(s16 *)(arg0 + 0xEE), 0, 1);
+            *(s16 *)(arg0 + 0xEC) = fclAddClamped((s32)*(s16 *)(arg0 + 0xEC), 1, (s32)*(s16 *)(arg0 + 0xEE), 0, 1);
         } else {
             *(f32 *)(arg0 + 0x28) = *(f32 *)(arg0 + 0x20);
             *(f32 *)(arg0 + 0x2C) = *(f32 *)(arg0 + 0x24);
@@ -1464,12 +1464,12 @@ s32 fclSpriteUpdateTweens(u8 *arg0) {
     if (((*(s16 *)arg0 & 4) >> 2) == 1) {
         if (*(s16 *)(arg0 + 0x60) == 0) {
             if (*(s8 *)(arg0 + 0x63) == 0) {
-                arg0[0x5E] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x62), (f32)(u32)arg0[0x5C], (f32)(u32)arg0[0x5D], (f32)*(s16 *)(arg0 + 0x5A), (f32)*(s16 *)(arg0 + 0x58));
+                arg0[0x5E] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x62), (f32)(u32)arg0[0x5C], (f32)(u32)arg0[0x5D], (f32)*(s16 *)(arg0 + 0x5A), (f32)*(s16 *)(arg0 + 0x58));
             } else {
-                arg0[0x5E] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x62), (f32)(u32)arg0[0x5C], (f32)(u32)arg0[0x5D], (f32)*(s16 *)(arg0 + 0x5A), (f32)(*(s16 *)(arg0 + 0x58) / 2));
+                arg0[0x5E] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x62), (f32)(u32)arg0[0x5C], (f32)(u32)arg0[0x5D], (f32)*(s16 *)(arg0 + 0x5A), (f32)(*(s16 *)(arg0 + 0x58) / 2));
             }
             if (*(s16 *)(arg0 + 0x5A) < *(s16 *)(arg0 + 0x58)) {
-                *(s16 *)(arg0 + 0x5A) = func_002b2cb0((s32)*(s16 *)(arg0 + 0x5A), 1, (s32)*(s16 *)(arg0 + 0x58), 0, 1);
+                *(s16 *)(arg0 + 0x5A) = fclAddClamped((s32)*(s16 *)(arg0 + 0x5A), 1, (s32)*(s16 *)(arg0 + 0x58), 0, 1);
             } else {
                 arg0[0x5E] = arg0[0x5D];
                 if (*(s8 *)(arg0 + 0x63) == 1) {
@@ -1482,24 +1482,24 @@ s32 fclSpriteUpdateTweens(u8 *arg0) {
                 }
             }
         } else {
-            *(s16 *)(arg0 + 0x60) = func_002b2d00((s32)*(s16 *)(arg0 + 0x60), 1, 0, 0, 1);
+            *(s16 *)(arg0 + 0x60) = fclSubClamped((s32)*(s16 *)(arg0 + 0x60), 1, 0, 0, 1);
         }
     }
     if (((*(s16 *)arg0 & 0x200) >> 9) == 1) {
         if (*(s16 *)(arg0 + 0x7E) == 0) {
             if (*(s8 *)(arg0 + 0x81) == 0) {
-                arg0[0x75] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6D], (f32)(u32)arg0[0x71], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
-                arg0[0x76] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6E], (f32)(u32)arg0[0x72], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
-                arg0[0x77] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6F], (f32)(u32)arg0[0x73], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
+                arg0[0x75] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6D], (f32)(u32)arg0[0x71], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
+                arg0[0x76] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6E], (f32)(u32)arg0[0x72], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
+                arg0[0x77] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6F], (f32)(u32)arg0[0x73], (f32)*(s16 *)(arg0 + 0x7C), (f32)*(s16 *)(arg0 + 0x7A));
             } else {
-                arg0[0x75] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6D], (f32)(u32)arg0[0x71], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
-                arg0[0x76] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6E], (f32)(u32)arg0[0x72], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
-                arg0[0x77] = (u8)func_002b2aa0((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6F], (f32)(u32)arg0[0x73], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
+                arg0[0x75] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6D], (f32)(u32)arg0[0x71], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
+                arg0[0x76] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6E], (f32)(u32)arg0[0x72], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
+                arg0[0x77] = (u8)fclEaseInterpolate((s32)*(s8 *)(arg0 + 0x80), (f32)(u32)arg0[0x6F], (f32)(u32)arg0[0x73], (f32)*(s16 *)(arg0 + 0x7C), (f32)(*(s16 *)(arg0 + 0x7A) / 2));
             }
             if (((*(s16 *)arg0 & 0x40) >> 6) == 1) {
-                *(s16 *)(arg0 + 0x7C) = func_002b2cb0((s32)*(s16 *)(arg0 + 0x7C), 1, (s32)*(s16 *)(arg0 + 0x7A), 1, 2);
+                *(s16 *)(arg0 + 0x7C) = fclAddClamped((s32)*(s16 *)(arg0 + 0x7C), 1, (s32)*(s16 *)(arg0 + 0x7A), 1, 2);
             } else if (*(s16 *)(arg0 + 0x7C) < *(s16 *)(arg0 + 0x7A)) {
-                *(s16 *)(arg0 + 0x7C) = func_002b2cb0((s32)*(s16 *)(arg0 + 0x7C), 1, (s32)*(s16 *)(arg0 + 0x7A), 0, 1);
+                *(s16 *)(arg0 + 0x7C) = fclAddClamped((s32)*(s16 *)(arg0 + 0x7C), 1, (s32)*(s16 *)(arg0 + 0x7A), 0, 1);
             } else {
                 arg0[0x75] = arg0[0x71];
                 arg0[0x76] = arg0[0x72];
@@ -1512,22 +1512,22 @@ s32 fclSpriteUpdateTweens(u8 *arg0) {
                 *(s16 *)arg0 &= ~0x200;
             }
         } else {
-            *(s16 *)(arg0 + 0x7E) = func_002b2d00((s32)*(s16 *)(arg0 + 0x7E), 1, 0, 0, 1);
+            *(s16 *)(arg0 + 0x7E) = fclSubClamped((s32)*(s16 *)(arg0 + 0x7E), 1, 0, 0, 1);
         }
     }
     if (((*(s16 *)arg0 & 0x10) >> 4) == 1) {
         if (*(s16 *)(arg0 + 0xA0) == 0) {
             if (*(s8 *)(arg0 + 0xA3) == 0) {
-                *(f32 *)(arg0 + 0x90) = func_002b2aa0((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x88), *(f32 *)(arg0 + 0x8C), (f32)*(s16 *)(arg0 + 0x84), (f32)*(s16 *)(arg0 + 0x82));
-                *(f32 *)(arg0 + 0x9C) = func_002b2aa0((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x94), *(f32 *)(arg0 + 0x98), (f32)*(s16 *)(arg0 + 0x84), (f32)*(s16 *)(arg0 + 0x82));
+                *(f32 *)(arg0 + 0x90) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x88), *(f32 *)(arg0 + 0x8C), (f32)*(s16 *)(arg0 + 0x84), (f32)*(s16 *)(arg0 + 0x82));
+                *(f32 *)(arg0 + 0x9C) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x94), *(f32 *)(arg0 + 0x98), (f32)*(s16 *)(arg0 + 0x84), (f32)*(s16 *)(arg0 + 0x82));
             } else {
-                *(f32 *)(arg0 + 0x90) = func_002b2aa0((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x88), *(f32 *)(arg0 + 0x8C), (f32)*(s16 *)(arg0 + 0x84), (f32)(*(s16 *)(arg0 + 0x82) / 2));
-                *(f32 *)(arg0 + 0x9C) = func_002b2aa0((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x94), *(f32 *)(arg0 + 0x98), (f32)*(s16 *)(arg0 + 0x84), (f32)(*(s16 *)(arg0 + 0x82) / 2));
+                *(f32 *)(arg0 + 0x90) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x88), *(f32 *)(arg0 + 0x8C), (f32)*(s16 *)(arg0 + 0x84), (f32)(*(s16 *)(arg0 + 0x82) / 2));
+                *(f32 *)(arg0 + 0x9C) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xA2), *(f32 *)(arg0 + 0x94), *(f32 *)(arg0 + 0x98), (f32)*(s16 *)(arg0 + 0x84), (f32)(*(s16 *)(arg0 + 0x82) / 2));
             }
             if (((*(s16 *)arg0 & 0x40) >> 6) == 1) {
-                *(s16 *)(arg0 + 0x84) = func_002b2cb0((s32)*(s16 *)(arg0 + 0x84), 1, (s32)*(s16 *)(arg0 + 0x82), 1, 2);
+                *(s16 *)(arg0 + 0x84) = fclAddClamped((s32)*(s16 *)(arg0 + 0x84), 1, (s32)*(s16 *)(arg0 + 0x82), 1, 2);
             } else if (*(s16 *)(arg0 + 0x84) < *(s16 *)(arg0 + 0x82)) {
-                *(s16 *)(arg0 + 0x84) = func_002b2cb0((s32)*(s16 *)(arg0 + 0x84), 1, (s32)*(s16 *)(arg0 + 0x82), 0, 1);
+                *(s16 *)(arg0 + 0x84) = fclAddClamped((s32)*(s16 *)(arg0 + 0x84), 1, (s32)*(s16 *)(arg0 + 0x82), 0, 1);
             } else {
                 *(f32 *)(arg0 + 0x90) = *(f32 *)(arg0 + 0x8C);
                 *(f32 *)(arg0 + 0x9C) = *(f32 *)(arg0 + 0x98);
@@ -1538,28 +1538,28 @@ s32 fclSpriteUpdateTweens(u8 *arg0) {
                 *(s16 *)arg0 &= ~0x10;
             }
         } else {
-            *(s16 *)(arg0 + 0xA0) = func_002b2d00((s32)*(s16 *)(arg0 + 0xA0), 1, 0, 0, 1);
+            *(s16 *)(arg0 + 0xA0) = fclSubClamped((s32)*(s16 *)(arg0 + 0xA0), 1, 0, 0, 1);
         }
     }
     if (((*(s16 *)arg0 & 8) >> 3) == 1) {
         if (*(s16 *)(arg0 + 0xC8) == 0) {
             if (*(s8 *)(arg0 + 0xCB) == 0) {
-                *(f32 *)(arg0 + 0xC0) = func_002b2aa0((s32)*(s8 *)(arg0 + 0xCA), *(f32 *)(arg0 + 0xB8), *(f32 *)(arg0 + 0xBC), (f32)*(s16 *)(arg0 + 0xC4), (f32)*(s16 *)(arg0 + 0xC6));
+                *(f32 *)(arg0 + 0xC0) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xCA), *(f32 *)(arg0 + 0xB8), *(f32 *)(arg0 + 0xBC), (f32)*(s16 *)(arg0 + 0xC4), (f32)*(s16 *)(arg0 + 0xC6));
                 if (((*(s16 *)arg0 & 0x100) >> 8) == 1) {
-                    *(f32 *)(arg0 + 0xC0) = *(f32 *)(arg0 + 0xC0) + (func_002b2aa0(1, 0.0f, 50.0f, (f32)*(s16 *)(arg0 + 0xE0), 100.0f) - 25.0f);
-                    *(s16 *)(arg0 + 0xE0) = func_002b2cb0((s32)*(s16 *)(arg0 + 0xE0), 1, 0xC8, 1, 2);
+                    *(f32 *)(arg0 + 0xC0) = *(f32 *)(arg0 + 0xC0) + (fclEaseInterpolate(1, 0.0f, 50.0f, (f32)*(s16 *)(arg0 + 0xE0), 100.0f) - 25.0f);
+                    *(s16 *)(arg0 + 0xE0) = fclAddClamped((s32)*(s16 *)(arg0 + 0xE0), 1, 0xC8, 1, 2);
                 }
             } else {
-                *(f32 *)(arg0 + 0xC0) = func_002b2aa0((s32)*(s8 *)(arg0 + 0xCA), *(f32 *)(arg0 + 0xB8), *(f32 *)(arg0 + 0xBC), (f32)*(s16 *)(arg0 + 0xC4), (f32)(*(s16 *)(arg0 + 0xC6) / 2));
+                *(f32 *)(arg0 + 0xC0) = fclEaseInterpolate((s32)*(s8 *)(arg0 + 0xCA), *(f32 *)(arg0 + 0xB8), *(f32 *)(arg0 + 0xBC), (f32)*(s16 *)(arg0 + 0xC4), (f32)(*(s16 *)(arg0 + 0xC6) / 2));
                 if (((*(s16 *)arg0 & 0x100) >> 8) == 1) {
-                    *(f32 *)(arg0 + 0xC0) = *(f32 *)(arg0 + 0xC0) + (func_002b2aa0(1, 0.0f, 50.0f, (f32)*(s16 *)(arg0 + 0xE0), 100.0f) - 25.0f);
-                    *(s16 *)(arg0 + 0xE0) = func_002b2cb0((s32)*(s16 *)(arg0 + 0xE0), 1, 0xC8, 1, 2);
+                    *(f32 *)(arg0 + 0xC0) = *(f32 *)(arg0 + 0xC0) + (fclEaseInterpolate(1, 0.0f, 50.0f, (f32)*(s16 *)(arg0 + 0xE0), 100.0f) - 25.0f);
+                    *(s16 *)(arg0 + 0xE0) = fclAddClamped((s32)*(s16 *)(arg0 + 0xE0), 1, 0xC8, 1, 2);
                 }
             }
             if (((*(s16 *)arg0 & 0x40) >> 6) == 1) {
-                *(s16 *)(arg0 + 0xC4) = func_002b2cb0((s32)*(s16 *)(arg0 + 0xC4), 1, (s32)*(s16 *)(arg0 + 0xC6), 1, 2);
+                *(s16 *)(arg0 + 0xC4) = fclAddClamped((s32)*(s16 *)(arg0 + 0xC4), 1, (s32)*(s16 *)(arg0 + 0xC6), 1, 2);
             } else if (*(s16 *)(arg0 + 0xC4) < *(s16 *)(arg0 + 0xC6)) {
-                *(s16 *)(arg0 + 0xC4) = func_002b2cb0((s32)*(s16 *)(arg0 + 0xC4), 1, (s32)*(s16 *)(arg0 + 0xC6), 0, 1);
+                *(s16 *)(arg0 + 0xC4) = fclAddClamped((s32)*(s16 *)(arg0 + 0xC4), 1, (s32)*(s16 *)(arg0 + 0xC6), 0, 1);
             } else {
                 *(f32 *)(arg0 + 0xC0) = *(f32 *)(arg0 + 0xBC);
                 if (*(s8 *)(arg0 + 0xCB) == 1) {
@@ -1568,7 +1568,7 @@ s32 fclSpriteUpdateTweens(u8 *arg0) {
                 *(s16 *)arg0 &= ~8;
             }
         } else {
-            *(s16 *)(arg0 + 0xC8) = func_002b2d00((s32)*(s16 *)(arg0 + 0xC8), 1, 0, 0, 1);
+            *(s16 *)(arg0 + 0xC8) = fclSubClamped((s32)*(s16 *)(arg0 + 0xC8), 1, 0, 0, 1);
         }
     }
     return (s32)arg0;

@@ -77,7 +77,7 @@ typedef char FclDigitStoredWordByteAligned[(sizeof(FclDigitStoredWordAlignment) 
 typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : -1];
 #endif
 
-extern FclVec2 func_002b2970(f32 x, f32 y);
+extern FclVec2 fclMakeVec2(f32 x, f32 y);
 
 
 
@@ -85,7 +85,7 @@ extern FclVec2 func_002b2970(f32 x, f32 y);
 
 
 
-extern s32 func_002b3170(s32 arg0);
+extern s32 fclDecimalDigitCount(s32 arg0);
 
 
 /* Source unit: src/promoted/code1_002b.c */
@@ -190,8 +190,8 @@ void func_002be4a0(void)
 {
     Vec2f sp18;
 
-    sp18 = func_002b2970(
-                  580.0f - 21.0f * (f32)func_002b3170(func_002e7a60()),
+    sp18 = fclMakeVec2(
+                  580.0f - 21.0f * (f32)fclDecimalDigitCount(func_002e7a60()),
                   15.0f);
     func_00364320(sp18, 1.0f, 0xFF, func_002e7a60());
 }

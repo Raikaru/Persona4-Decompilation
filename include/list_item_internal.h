@@ -15,7 +15,7 @@ void func_002bc4b0(f32 depth, s16 item, s32 x, s32 y, s32 color, s32 font, s32 m
 s32 func_002bdff0(s16 item);
 s32 func_002be160(s32 index, s32 required);
 s32 func_002be1b0(s16 item);
-s32 func_002b3230(const void *left, const void *right);
+s32 datItemPriceCompare(const void *left, const void *right);
 s32 yListValueAt(s32 row);
 void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order);
 void yListRebuildFor(u8 *owner, s32 filterA, s32 filterB, s8 kind, s32 order);

@@ -60,10 +60,10 @@ extern u8 D_0064A470[];
 extern u8 D_0064A480[];
 extern s32 func_0033e1e0(u8 *arg0);
 extern void func_0033e4b0(u8 *arg0);
-extern s32 func_002b2a30(u8, u8, u8, u8);
-extern f32 func_002b2aa0(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
-extern s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
-extern s16 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
+extern s32 fclPackRgba(u8, u8, u8, u8);
+extern f32 fclEaseInterpolate(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
+extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
+extern s16 fclSubClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern s32 func_0046a750(s32 arg0, s32 arg1);
 extern s32 func_002859e0(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -537,7 +537,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
     points[3].x = originX - 26.0f;
     points[3].y = -400.0f;
 
-    baseColor = func_002b2a60(0x7E, 0, 8, alpha);
+    baseColor = fclMakeDrawColor(0x7E, 0, 8, alpha);
     colors[0] = colors[1] = colors[2] = colors[3] = colors[4] = baseColor;
 
     PrimQueueBatchAlpha(colors, points, 70.0f, 5, 4, 1, 0, 0, rotation, 1.0f, 1.0f, D_00794AB0);
@@ -555,7 +555,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
         points[3].x = (originX - 26.0f) - 7.0f;
         points[3].y = -400.0f;
 
-        highlightColor = func_002b2a60(0xFF, 0xFF, 0xFF, alpha);
+        highlightColor = fclMakeDrawColor(0xFF, 0xFF, 0xFF, alpha);
         colors[0] = colors[1] = colors[2] = colors[3] = colors[4] = highlightColor;
 
         PrimQueueBatchAlpha(colors, points, 69.0f, 5, 4, 1, 0, 0, 5.0f + rotation, 1.0f, 1.0f, D_00794A80);
@@ -677,17 +677,17 @@ s32 func_0033e1e0(u8 *arg0)
             return 0;
         }
     update:
-        *(f32 *)(p + 0x1C) = func_002b2aa0(
+        *(f32 *)(p + 0x1C) = fclEaseInterpolate(
             *(s8 *)(p + 0x2A), *(f32 *)(p + 0x0C), *(f32 *)(p + 0x14),
             (f32)*(s16 *)(p + 0x26), (f32)*(s16 *)(p + 0x24));
-        *(f32 *)(p + 0x20) = func_002b2aa0(
+        *(f32 *)(p + 0x20) = fclEaseInterpolate(
             *(s8 *)(p + 0x2A), *(f32 *)(p + 0x10), *(f32 *)(p + 0x18),
             (f32)*(s16 *)(p + 0x26), (f32)*(s16 *)(p + 0x24));
         value = *(s16 *)(p + 0x28);
         if (value > 0) {
-            *(s16 *)(p + 0x28) = func_002b2d00(value, 1, 0, 0, 1);
+            *(s16 *)(p + 0x28) = fclSubClamped(value, 1, 0, 0, 1);
         } else {
-            *(s16 *)(p + 0x26) = func_002b2cb0(
+            *(s16 *)(p + 0x26) = fclAddClamped(
                 *(s16 *)(p + 0x26), 1, *(s16 *)(p + 0x24), 0, 1);
         }
         func_0033e4b0(arg0);
@@ -726,7 +726,7 @@ void func_0033e4b0(u8 *arg0)
     f32 y;
 
     work = *(u8 **)(arg0 + 0x38);
-    color = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
+    color = fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF);
     x = *(f32 *)(work + 0x1C);
     y = *(f32 *)(work + 0x20);
     sdkSpriteDrawQueued(x, y, 104.0f, color, 0xFF, 1, *(void **)(work + 4),

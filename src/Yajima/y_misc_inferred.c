@@ -62,7 +62,7 @@ extern void strcat(void *arg0, void *arg1);
 extern void strncpy(void *arg0, void *arg1, s32 arg2);
 extern void frFontExCopyString(void *arg0, void *arg1, s32 arg2);
 extern s32 func_00443010(u8 *arg0, u8 *arg1);
-extern s32 func_002b3520(u8 *arg0, s64 arg1);
+extern s32 fclTagTextLength(u8 *arg0, s64 arg1);
 extern u8 *D_0063F110[];
 extern s8 D_007488C0[];
 
@@ -92,8 +92,9 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 /* Source unit: src/promoted/code1_002b.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_002b.c; members 002b2940-002b3960 */
 
+// Intent: Return the work block pointer stored at offset 0x38 of an object [inferred]
 // FUN_002B2940
-u8 *func_002b2940(u8 *arg0)
+u8 *fclGetWorkPointer(u8 *arg0)
 {
     return *(u8 **)(arg0 + 0x38);
 }
@@ -110,8 +111,9 @@ s32 func_002b2960(void)
     return iGpffffb55c;
 }
 
+// Intent: Build a two-component float vector [inferred]
 // FUN_002B2970
-FclVec2 func_002b2970(f32 x, f32 y)
+FclVec2 fclMakeVec2(f32 x, f32 y)
 {
     FclVec2 val;
 
@@ -120,8 +122,9 @@ FclVec2 func_002b2970(f32 x, f32 y)
     return val;
 }
 
+// Intent: Build a three-component float vector [inferred]
 // FUN_002B29A0
-FclVec3 func_002b29a0(f32 x, f32 y, f32 z)
+FclVec3 fclMakeVec3(f32 x, f32 y, f32 z)
 {
     FclVec3 val;
 
@@ -131,8 +134,9 @@ FclVec3 func_002b29a0(f32 x, f32 y, f32 z)
     return val;
 }
 
+// Intent: Build a bounds packet from width and height, truncated to integers [inferred]
 // FUN_002B29E0
-FclBoundsPacket func_002b29e0(f32 width, f32 height)
+FclBoundsPacket fclMakeBoundsPacket(f32 width, f32 height)
 {
     FclBoundsPacket val;
 
@@ -141,8 +145,9 @@ FclBoundsPacket func_002b29e0(f32 width, f32 height)
     return val;
 }
 
+// Intent: Pack four colour bytes into one word, red in the top byte [inferred]
 // FUN_002B2A30
-s32 func_002b2a30(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
+s32 fclPackRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
 {
     s32 result;
 
@@ -154,8 +159,9 @@ s32 func_002b2a30(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
     return result;
 }
 
+// Intent: Build a draw colour from four byte channels [inferred]
 // FUN_002B2A60
-FclDrawColor func_002b2a60(u8 arg1, u8 arg2, u8 arg3, u8 arg4)
+FclDrawColor fclMakeDrawColor(u8 arg1, u8 arg2, u8 arg3, u8 arg4)
 {
     FclDrawColor val;
 
@@ -166,8 +172,9 @@ FclDrawColor func_002b2a60(u8 arg1, u8 arg2, u8 arg3, u8 arg4)
     return val;
 }
 
+// Intent: Interpolate between two values by an easing mode: linear, sine or cosine [inferred]
 // FUN_002B2AA0
-f32 func_002b2aa0(s64 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
+f32 fclEaseInterpolate(s64 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
 {
     f32 temp_f20;
     f32 temp_f21;
@@ -197,8 +204,9 @@ f32 func_002b2aa0(s64 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
     }
 }
 
+// Intent: Compute a 2D anchor offset for a box of size w by h, from anchor mode 0 (centre), 1 or 2 [inferred]
 // FUN_002B2BD0
-void func_002b2bd0(f32 *arg0, s64 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
+void fclAnchorOffset(f32 *arg0, s64 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3)
 {
     FclVec2 sp;
 
@@ -215,8 +223,9 @@ void func_002b2bd0(f32 *arg0, s64 arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 
     *(FclVec2 *)arg0 = sp;
 }
 
+// Intent: Add two values, clamping to a bound chosen by the mode (0 none, 1 maximum, else the second bound) [inferred]
 // FUN_002B2CB0
-s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
+s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
     if (arg4 == 0) {
         return arg0 + arg1;
     }
@@ -231,8 +240,9 @@ s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
     }
 }
 
+// Intent: Subtract two values, clamping to a bound chosen by the mode (0 none, 1 minimum, else the second bound) [inferred]
 // FUN_002B2D00
-s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
+s32 fclSubClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
     if (arg4 == 0) {
         return arg0 - arg1;
     }
@@ -247,8 +257,9 @@ s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
     }
 }
 
+// Intent: Step a list index by a signed delta within a count, wrapping through the window bounds [inferred]
 // FUN_002B2D50
-s16 func_002b2d50(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
+s16 yListStepIndex(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     s32 temp_2_2;
     s32 temp_2;
     s32 temp_3;
@@ -268,7 +279,7 @@ s16 func_002b2d50(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
         return arg3 - 1;
     }
     if (temp_3 > 0) {
-        return (s16)func_002b3110(arg1 + temp_3, arg3 - 2, temp_6);
+        return (s16)fclMinS32(arg1 + temp_3, arg3 - 2, temp_6);
     }
     if (temp_3 < 0) {
         temp_2 = arg1;
@@ -279,14 +290,15 @@ s16 func_002b2d50(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
             }
             return (s16)var_2;
         }
-        return (s16)func_002b3140(temp_2 + temp_3, 1, temp_6);
+        return (s16)fclMaxS32(temp_2 + temp_3, 1, temp_6);
     }
     return arg1;
 }
 
 /* measured: archived body in build/WW15_002b2e70.c (object 276B/window 288B, normalized_diff 5); restored ASM fallback. */
+// Intent: Advance a list cursor and its scroll offset by one step, bounded by the visible window [inferred]
 // FUN_002B2E70
-void func_002b2e70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 *arg4, s16 *arg5)
+void yListAdvanceCursorScroll(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 *arg4, s16 *arg5)
 {
     s32 var_4;
     s32 temp_3;
@@ -343,8 +355,9 @@ loop_17_done: ;
     *arg5 = arg1;
 }
 
+// Intent: Retreat a list cursor and its scroll offset by one step, bounded by the visible window [inferred]
 // FUN_002B2F90
-void func_002b2f90(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 *arg4, s16 *arg5)
+void yListRetreatCursorScroll(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 *arg4, s16 *arg5)
 {
     int condition_value;
     s32 temp_3;
@@ -462,10 +475,11 @@ void func_002b3050(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s16 *arg5, 
 }
 
 /* measured: opt_rebuildconditionals off probe for min/max */
-/* measured: func_002b3110, func_002b3140 MATCH -> MISMATCH without this pragma. */
+/* measured: fclMinS32, fclMaxS32 MATCH -> MISMATCH without this pragma. */
 #pragma opt_rebuildconditionals off
+// Intent: Return the smaller of two signed 32-bit values [inferred]
 // FUN_002B3110
-s32 func_002b3110(s32 arg0, s32 arg1)
+s32 fclMinS32(s32 arg0, s32 arg1)
 {
     s32 result;
 
@@ -479,8 +493,9 @@ done:
     return result;
 }
 
+// Intent: Return the larger of two signed 32-bit values [inferred]
 // FUN_002B3140
-s32 func_002b3140(s32 arg0, s32 arg1)
+s32 fclMaxS32(s32 arg0, s32 arg1)
 {
     s32 result;
 
@@ -496,10 +511,11 @@ done:
 
 /* measured: close opt_rebuildconditionals after min/max */
 /* measured: opt_loop_invariants on adds retail's second divide hazard nop. */
-/* measured: func_002b3170 MATCH -> MISMATCH without this pragma. */
+/* measured: fclDecimalDigitCount MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+// Intent: Count the decimal digits of an integer [inferred]
 // FUN_002B3170
-s32 func_002b3170(s32 arg0)
+s32 fclDecimalDigitCount(s32 arg0)
 {
     s32 result;
 
@@ -512,10 +528,11 @@ s32 func_002b3170(s32 arg0)
 }
 
 /* measured: close opt_loop_invariants after 3170. */
-/* measured: func_002b32d0 MATCH -> MISMATCH without this pragma. */
+/* measured: fclExpandNameTags MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants off
+// Intent: Subtract two 3-component float vectors and store the result [inferred]
 // FUN_002B31A0
-void func_002b31a0(u8 *arg0, u8 *arg1, u8 *arg2)
+void fclVec3Subtract(u8 *arg0, u8 *arg1, u8 *arg2)
 {
     struct Vec3 {
         f32 x;
@@ -533,8 +550,9 @@ void func_002b31a0(u8 *arg0, u8 *arg1, u8 *arg2)
     *(struct Vec3 *)arg0 = result;
 }
 
+// Intent: Compare two list items by price for qsort: ascending, ties equal [inferred]
 // FUN_002B3230
-s32 func_002b3230(const void *arg0, const void *arg1) {
+s32 datItemPriceCompare(const void *arg0, const void *arg1) {
     s16 b;
     u32 x;
     u32 y;
@@ -563,8 +581,9 @@ s32 func_002b32a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     return var;
 }
 
+// Intent: Expand the name tags <P1>, <P2>, <R1>, <R2> in a text buffer by mode [inferred]
 // FUN_002B32D0
-u8 *func_002b32d0(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
+u8 *fclExpandNameTags(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
 {
     u8 sp2b0[0x80];
     u8 sp230[0x80];
@@ -605,7 +624,7 @@ u8 *func_002b32d0(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
                     spf0[(s16)inner] = 0;
                     inner = (s16)(inner + 1);
                 }
-                size = func_002b3520(arg0, (s8)outer);
+                size = fclTagTextLength(arg0, (s8)outer);
                 strncpy(spf0, arg0, size);
                 frFontExCopyString(spf0, spb0, 0x40);
                 strcat(sp70, spb0);
@@ -627,11 +646,12 @@ u8 *func_002b32d0(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
    match exits are `goto found` to a label in front of the single return so
    the last byte compare branches straight to `jr ra`. The s64 second
    parameter (file prototype) is narrowed once into an s32 `mode`. */
+// Intent: Return the length of text before the next name tag of the given mode [inferred]
 // FUN_002B3520
 /* measured: opt_loop_invariants on hoists the tag constants out of the loop. */
-/* measured: func_002b3520 MATCH -> MISMATCH without this pragma. */
+/* measured: fclTagTextLength MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 func_002b3520(u8 *p, s64 arg1)
+s32 fclTagTextLength(u8 *p, s64 arg1)
 {
     s32 count;
     s32 mode;
@@ -691,8 +711,9 @@ found:
 }
 
 /* measured: closes the loop-invariant bracket; the unit default is off. */
+// Intent: Map symbol task update: place the marker at the player's position and draw it [inferred]
 // FUN_002B3720
-s32 func_002b3720(u8 *arg0)
+s32 mapSymbolTaskUpdate(u8 *arg0)
 {
     FclVec2 out;
     FclVec2 work;
@@ -701,7 +722,7 @@ s32 func_002b3720(u8 *arg0)
     s32 color;
 
     p = *(u8 **)(arg0 + 0x38);
-    func_002b2bd0(&work.x, 0, 136.0f, 136.0f, 21.0f, 22.0f);
+    fclAnchorOffset(&work.x, 0, 136.0f, 136.0f, 21.0f, 22.0f);
     out = *(FclVec2 *)&work;
     if (func_002b2960() == 0) {
         return 0;
@@ -729,7 +750,7 @@ s32 func_002b3720(u8 *arg0)
                 smapPlayerOffsetZ(*(s32 *)(*(u8 **)(D_007EFA04) + 0x220),
                               18.0f) - 2.0f;
     }
-    color = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
+    color = fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF);
     mapSymbolMarkerDraw(arg0, *(s64 *)&out, 60002.0f, color);
     return 0;
 }
