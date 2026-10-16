@@ -369,7 +369,7 @@ void btlActionStartHomeInit(BtlAction *action)
         (battleUnit[0xA2] == 0)) {
         *(u16 *)((u8 *)action + 0x14) = 9;
     }
-    if (func_001b0e90(action) != 0) {
+    if (btlActionCanRunNow(action) != 0) {
         btlActionSetState(action, *(u16 *)((u8 *)action + 0x14));
         return;
     }
