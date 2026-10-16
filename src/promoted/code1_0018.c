@@ -79,7 +79,7 @@ extern struct RpGeometry *func_003c21e0(struct RpGeometry *geometry, MaterialCal
 extern void mdlDestroyModelObject(s32 arg0);
 extern void func_003f3eb0(s32 arg0, s32 arg1);
 extern void func_00185370();
-extern s32 func_00183b80(u8 *task);
+extern s32 FldFogUpdate(u8 *task);
 
 extern void (*jtbl_008873EC[])(void *);
 
@@ -770,7 +770,7 @@ void FldRainRenderStateReset(u8 *arg0, u8 *arg1)
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
-s32 func_00183b80(u8 *arg0)
+s32 FldFogUpdate(u8 *arg0)
 {
     extern f32 fabsf(f32 x);
     /* Retail returns zero at 001850F0, 00183BD4. */
@@ -1071,7 +1071,7 @@ s32 func_00183b80(u8 *arg0)
 
 #pragma pop
 // FUN_00185120
-void func_00185120(u8 *arg0)
+void FldFogDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
@@ -1081,7 +1081,7 @@ void func_00185120(u8 *arg0)
 /* measured probe: O1 test for target byte-copy register allocation. */
 #pragma optimization_level 1
 // FUN_00185150
-s32 func_00185150(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+s32 FldFogTaskCreate(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                   f32 fparg2, s16 arg2, s16 arg3, s16 arg4, s16 arg5,
                   s32 arg6, u8 *arg7)
 {
@@ -1102,7 +1102,7 @@ s32 func_00185150(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
     }
     chkmemAllocSiteTag(&D_005F1D80, 0x43A);
     temp_2_2 = D_008873F4[0](1, 0x460, 0x40000);
-    temp_2 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F1D90), 0xF, 0, 0, func_00183b80, func_00185120, (u8 *)(temp_2_2));
+    temp_2 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F1D90), 0xF, 0, 0, FldFogUpdate, FldFogDestroy, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 0x420) = arg1;
     *(f32 *)(temp_2_2 + 0x414) = fparg1;
     *(f32 *)(temp_2_2 + 0x418) = fparg2;
