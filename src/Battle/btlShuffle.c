@@ -351,7 +351,7 @@ s32 btlShuffleTaskCreate(u8 *arg0, u8 *arg1)
 }
 
 // FUN_0036E7E0
-void func_0036e7e0(void)
+void btlShuffleTaskSetFlag1(void)
 {
     u16 *work = kwlnTaskGetWork();
 
@@ -359,7 +359,7 @@ void func_0036e7e0(void)
 }
 
 // FUN_0036E810
-void func_0036e810(void)
+void btlShuffleTaskResetPhase(void)
 {
     u16 *work = kwlnTaskGetWork();
 
@@ -368,13 +368,13 @@ void func_0036e810(void)
 }
 
 // FUN_0036E840
-u32 func_0036e840(void)
+u32 btlShuffleTaskHasFlag1(void)
 {
     return kwlnTaskGetWork()[0] & 1;
 }
 
 // FUN_0036E870
-void func_0036e870(void)
+void btlShuffleTaskSetFlag4(void)
 {
     u16 *work = kwlnTaskGetWork();
 
@@ -382,7 +382,7 @@ void func_0036e870(void)
 }
 
 // FUN_0036E8A0
-u32 func_0036e8a0(void)
+u32 btlShuffleTaskHasFlag4(void)
 {
     return (kwlnTaskGetWork()[0] & 4) != 0;
 }
