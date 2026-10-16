@@ -231,7 +231,6 @@ typedef struct PersonaWork {
 } PersonaWork;
 
 
-extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 
 extern u32 datPersonaGetExp(int persona);
 
