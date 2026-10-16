@@ -1927,7 +1927,7 @@ void btlActionReadyUpdate(u8 *arg0)
     extern u16 *datPersonaGetRecord(u16 personaId);
     extern s32 datPersonaFindSkillSlot(u8 *persona, u16 skillId);
     extern s32 btlActionSkillReachesTargets(u8 *action);
-    extern void func_001f5bd0(s32 state);
+    extern void btlActionRollGroupRatio(s32 state);
     extern s32 func_001f68e0(u8 *action);
     extern void btlUnitApplyPacketFlags(u8 *action);
     s32 loopIndex;
@@ -2001,7 +2001,7 @@ donecheck:
                         btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 8), 0);
                         actionSetDelayBytes(arg0, 0x1D, 0xC);
                     } else {
-                        func_001f5bd0(0);
+                        btlActionRollGroupRatio(0);
                         btlPacketEnqueue(actionTargetPacketBytes(arg0, 3, 0, 0, 2), 1);
                         btlPacketEnqueue(btlTargetCreateActionPacket(arg0, 0U), 1);
                         btlPacketEnqueue((u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 1), 0);
