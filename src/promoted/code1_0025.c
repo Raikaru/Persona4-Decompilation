@@ -48,7 +48,7 @@ u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 
 s32 scrGetCmdTimer(void);
 void func_001227d0(void);
-s32 func_001227f0(void);
+s32 fadeIsIdle(void);
 
 s32 datGetTimeSlot(void);
 s8 calGetDayEntryByPhase(s16 arg0, s32 arg1);

@@ -11,9 +11,9 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void chkmemAllocSiteTag();
 
-s32 func_00121b70(u8 *task);
-void func_00121db0(u8 *task);
-s32 func_001223d0(u8 *task);
+s32 fadeTaskStep(u8 *task);
+void fadeTaskDestroy(u8 *task);
+s32 fadeQueueCallback(u8 *task);
 
 extern char D_005E5090[];
 extern char iGpffffb1d8;
@@ -38,9 +38,9 @@ s32 func_00122430(s32 arg0)
         return 0;
     }
     iGpffffb1cc = temp_2;
-    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E5068), 0x98, 0, 0, func_00121b70, func_00121db0, (u8 *)(temp_2));
+    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E5068), 0x98, 0, 0, fadeTaskStep, fadeTaskDestroy, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 4) = 1;
-    (s32)kwlnTaskCreateChild((void *)(temp_17), (const void *)(D_005E5078), 0x99, 0, 0, func_001223d0, 0, (u8 *)(NULL));
+    (s32)kwlnTaskCreateChild((void *)(temp_17), (const void *)(D_005E5078), 0x99, 0, 0, fadeQueueCallback, 0, (u8 *)(NULL));
     return temp_17;
 }
 

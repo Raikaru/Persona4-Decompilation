@@ -29,7 +29,7 @@ extern s32 iGpffffb480;
 
 s32 scrGetCmdTimer(void);
 void func_001227d0(void);
-s32 func_001227f0(void);
+s32 fadeIsIdle(void);
 
 s16 datGetPartyId(s32 arg0);
 void datSetPartyId(s32 arg0, s32 arg1);
@@ -305,7 +305,7 @@ s32 func_0025d7e0(void) {
         func_001227d0();
         goto block_5;
     }
-    if ((scrGetCmdTimer() > 0xA) && (func_001227f0() != 0)) {
+    if ((scrGetCmdTimer() > 0xA) && (fadeIsIdle() != 0)) {
         return 1;
     }
 block_5:
