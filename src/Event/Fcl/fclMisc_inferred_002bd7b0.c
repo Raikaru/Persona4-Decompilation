@@ -158,7 +158,7 @@ s32 func_002bd840(s32 arg0)
 }
 
 // FUN_002BD8E0
-s32 func_002bd8e0(u8 *arg0)
+s32 fclShopMainUpdate(u8 *arg0)
 {
     s8 temp_3;
     u8 *temp_16;
@@ -217,7 +217,7 @@ s32 func_002bd8e0(u8 *arg0)
 }
 
 // FUN_002BDB10
-void func_002bdb10(u8 *arg0)
+void fclShopMainDestroy(u8 *arg0)
 {
     fieldSceneUnload();
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));

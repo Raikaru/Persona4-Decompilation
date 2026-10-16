@@ -252,7 +252,7 @@ u8 *resourceFindByName(char *);
 s32 yListValueAtFor(u8 *, s32);
 s32 func_00106600(s16 id);
 u16 datItemValue(s16);
-void func_002bc7f0(s32, s32, s32, s32, s32, s32, f32, f32, f32);
+void fclMesWindowDraw(s32, s32, s32, s32, s32, s32, f32, f32, f32);
 void func_002e0ca0(s32, Vec2f, f32, s32, u8, s32, u8 *);
 void func_002e0a60(void *, s32, f32);
 void fclShopDrawItemText(void *, s8, Vec2f, void *);
@@ -4465,11 +4465,11 @@ s32 fclShopListInputStep(void *arg0)
                 func_002e0b20(0x3C, sp220, 86.0f, func_002b2a30(0xFF, 0xFF, 0xC7, 0x31), 0xFF, 0, D_00794ED0);
             }
         } else {
-            func_002bc7f0(datItemValue((s16)yListValueAt(work->f2)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0x57, 109.0f, 290.0f, 70.0f);
+            fclMesWindowDraw(datItemValue((s16)yListValueAt(work->f2)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0x57, 109.0f, 290.0f, 70.0f);
         }
         switch (work->f7) {
         case 0:
-            func_002bc7f0((s16)func_00106b80((s16)yListValueAt(work->f2)), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 0, 0x57, 109.0f, 324.0f, 70.0f);
+            fclMesWindowDraw((s16)func_00106b80((s16)yListValueAt(work->f2)), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 0, 0x57, 109.0f, 324.0f, 70.0f);
             sp218 = func_002b2970(86.0f, 256.0f);
             func_002e0b20(work->icon[work->sel], sp218, 69.0f, colA, 0xFF, 0, D_00794ED0);
             func_002e09e0(work->fCA0, 0x57, 83.0f);
@@ -4512,7 +4512,7 @@ s32 fclShopListInputStep(void *arg0)
             func_002cacd0(spA8, 22.0f, c25C, 0xF, 0, uA, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
             break;
         case 1:
-            func_002bc7f0((s16)func_00106b80((s16)yListValueAt(work->f2)), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 324.0f, 70.0f);
+            fclMesWindowDraw((s16)func_00106b80((s16)yListValueAt(work->f2)), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 324.0f, 70.0f);
             sp200 = func_002b2970(86.0f, 256.0f);
             func_002e0b20(0x1B, sp200, 69.0f, colA, 0xFF, 0, D_00794ED0);
             func_002e09e0(work->fC9C, 0x57, 81.0f);
@@ -4555,7 +4555,7 @@ s32 fclShopListInputStep(void *arg0)
             func_002cacd0(sp98, 22.0f, c254, 0xF, 0, uA, 0x1E, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), (s32)resourceFindByName((char *)(D_0063FB50)), 0xA9);
             break;
         case 2:
-            func_002bc7f0((s16)func_00106b80((s16)yListValueAt(work->f2)), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 324.0f, 70.0f);
+            fclMesWindowDraw((s16)func_00106b80((s16)yListValueAt(work->f2)), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 324.0f, 70.0f);
             sp1E8 = func_002b2970(86.0f, 256.0f);
             func_002e0b20(0x1C, sp1E8, 69.0f, colA, 0xFF, 0, D_00794ED0);
             b = (Vec2f *)D_0063F660;
@@ -4622,7 +4622,7 @@ s32 fclShopListInputStep(void *arg0)
                 func_002e0b20(0x3C, sp1A8, 86.0f, func_002b2a30(0xFF, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00794ED0);
             }
         } else {
-            func_002bc7f0(datItemValue(func_00106cd0(work->kind[work->sel], work->f7)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0xAA, 109.0f, 124.0f, 70.0f);
+            fclMesWindowDraw(datItemValue(func_00106cd0(work->kind[work->sel], work->f7)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0xAA, 109.0f, 124.0f, 70.0f);
         }
         switch (work->f7) {
         case 0:
@@ -4632,7 +4632,7 @@ s32 fclShopListInputStep(void *arg0)
             frFontExDrawTextDeferredWithCharWidth(spC8.x, spC8.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 0))), 0, 0, D_00794ED0, -1);
             sp198 = func_002b2970(86.0f, 90.0f);
             func_002e0b20(work->icon[work->sel], sp198, 69.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
-            func_002bc7f0((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 0)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 0, 0x57, 109.0f, 158.0f, 70.0f);
+            fclMesWindowDraw((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 0)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 0, 0x57, 109.0f, 158.0f, 70.0f);
             b = (Vec2f *)D_0063F630;
             func_002e09e0(work->fE98, 0x57, 83.0f);
             c27C = func_002b2a60(0xE7, 0xE5, 0xE6, 0xFF);
@@ -4665,7 +4665,7 @@ s32 fclShopListInputStep(void *arg0)
             frFontExDrawTextDeferredWithCharWidth(spC0.x, spC0.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 1))), 0, 0, D_00794ED0, -1);
             sp178 = func_002b2970(86.0f, 90.0f);
             func_002e0b20(0x1B, sp178, 69.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
-            func_002bc7f0((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 1)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 1, 0x57, 109.0f, 158.0f, 70.0f);
+            fclMesWindowDraw((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 1)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 1, 0x57, 109.0f, 158.0f, 70.0f);
             b = (Vec2f *)D_0063F628;
             func_002e09e0(work->fE94, 0x57, 81.0f);
             c274 = func_002b2a60(0xE7, 0xE5, 0xE6, 0xFF);
@@ -4698,7 +4698,7 @@ s32 fclShopListInputStep(void *arg0)
             frFontExDrawTextDeferredWithCharWidth(spB8.x, spB8.y, 70.0f, white, 0, 1, ((void *)datGetItemNameId((s32)func_00106cd0(work->kind[work->sel], 2))), 0, 0, D_00794ED0, -1);
             sp158 = func_002b2970(86.0f, 90.0f);
             func_002e0b20(0x1C, sp158, 69.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0xFF, 0, D_00794ED0);
-            func_002bc7f0((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 2)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 2, 0x57, 109.0f, 158.0f, 70.0f);
+            fclMesWindowDraw((s16)func_00106b80(func_00106cd0(work->kind[work->sel], 2)), func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 1, 0, 2, 0x57, 109.0f, 158.0f, 70.0f);
             b = (Vec2f *)D_0063F668;
             func_002e09e0(work->fCBC, 0x57, 85.0f);
             func_002e09e0(work->fEB0, 0x57, 85.0f);
@@ -6806,7 +6806,7 @@ void func_002dd3b0(void *arg0) {
             func_002e0b20(0x3C, func_002b2970((f32)(j * 22 + 111), 178.0f), 86.0f, func_002b2a30(0xFF, 0xFF, 0xC7, 0x31), 0xFF, 0, D_00794ED0);
         }
     } else {
-        func_002bc7f0(datItemValue(id), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0x57, 109.0f, 169.0f, 70.0f);
+        fclMesWindowDraw(datItemValue(id), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0x57, 109.0f, 169.0f, 70.0f);
     }
     switch (*(s8 *)(work + 0x11)) {
     case 1:
@@ -6819,7 +6819,7 @@ void func_002dd3b0(void *arg0) {
         case 24:
         case 25:
         case 26:
-            func_002bc7f0((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 0, 0x57, 109.0f, 201.0f, 70.0f);
+            fclMesWindowDraw((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 0, 0x57, 109.0f, 201.0f, 70.0f);
             func_002e09e0(*(void **)(work + 0xCA0), 0x57, 83.0f);
             *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xCA0)) + 0x79) = func_002b2a60(0xFE, 0xEF, 0x80, 0xFF);
             *(Vec2f *)((u8 *)func_002e04e0(*(void **)(work + 0xCA0)) + 0x2C) = func_002b2970((f32)0x1E1, 174.0f);
@@ -6830,7 +6830,7 @@ void func_002dd3b0(void *arg0) {
             shopDrawStatAt(func_001068e0(id), func_001068e0(id) & 0xFFFF, func_002b2970((f32)0x20E, 252.0f));
             break;
         case 27:
-            func_002bc7f0((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 201.0f, 70.0f);
+            fclMesWindowDraw((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 1, 0x57, 109.0f, 201.0f, 70.0f);
             func_002e09e0(*(void **)(work + 0xC9C), 0x57, 81.0f);
             *(FclDrawColor *)((u8 *)func_002e04e0(*(void **)(work + 0xC9C)) + 0x79) = func_002b2a60(0xFE, 0xEF, 0x80, 0xFF);
             *(Vec2f *)((u8 *)func_002e04e0(*(void **)(work + 0xC9C)) + 0x2C) = func_002b2970((f32)0x1E1, 174.0f);
@@ -6841,7 +6841,7 @@ void func_002dd3b0(void *arg0) {
             shopDrawStatAt(func_00106970(id), func_00106970(id) & 0xFFFF, func_002b2970((f32)0x20E, 252.0f));
             break;
         case 28:
-            func_002bc7f0((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 201.0f, 70.0f);
+            fclMesWindowDraw((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 2, 0x57, 109.0f, 201.0f, 70.0f);
             func_002e09e0(*(void **)(work + 0xCB8), 0x57, 84.0f);
             *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCB8)) + 0x62) = 0x7F;
             *(Vec2f *)((u8 *)func_002e04e0(*(void **)(work + 0xCB8)) + 0x2C) = func_002b2970(478.0f, 166.0f);
@@ -6855,10 +6855,10 @@ void func_002dd3b0(void *arg0) {
     case 0:
         if (*(s8 *)(work + 0x11) == 2) {
             func_002e0ca0(0x1B, func_002b2970(86.0f, 135.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-            func_002bc7f0((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 4, 0x57, 109.0f, 201.0f, 70.0f);
+            fclMesWindowDraw((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 4, 0x57, 109.0f, 201.0f, 70.0f);
         } else {
             func_002e0ca0(0x1A, func_002b2970(86.0f, 135.0f), 69.0f, func_002b2a30(0, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E30);
-            func_002bc7f0((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 7, 0x57, 109.0f, 201.0f, 70.0f);
+            fclMesWindowDraw((s16)func_00106b80(id), func_002b2a30(0xDF, 0x6C, 0, 0xFF), 1, 0, 7, 0x57, 109.0f, 201.0f, 70.0f);
         }
         func_002e09e0(*(void **)(work + 0xCB8), 0x56, 84.0f);
         *(u8 *)((u8 *)func_002e04e0(*(void **)(work + 0xCB8)) + 0x62) = 0x7F;
