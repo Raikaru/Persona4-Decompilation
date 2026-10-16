@@ -3,6 +3,7 @@
 #include "sdk_task_registration.h"
 /* Original translation unit shdScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "scr_internal.h"
 extern s32 kwlnTaskIsLinked();
 extern s32 kwlnTaskGetTaskByName();
 extern u8 D_00636A30[];
@@ -35,9 +36,6 @@ extern void nmMesWindowStepSlotRelease(s32 arg0);
 extern s32 func_0025c790(u8 *task);
 extern u32 kwlnTaskGetWork(void *task);
 extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
-extern s32 scrGetCmdTimer(void);
-extern s32 scrGetParamInt(s32 which);
-extern void scrSetReturnInt(s32 arg0);
 
 typedef struct {
     s32 state;

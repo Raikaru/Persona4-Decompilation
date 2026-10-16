@@ -4,6 +4,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scr_internal.h"
 #include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
 typedef char *va_list;
@@ -12,7 +13,6 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern void mdlEffectSeqStop();
 extern s32 iGpffffa7c8;
-extern s32 scrGetParamString(s32 arg0);
 extern void scrDiscardArgs(void *arg0, ...);
 
 s32 mtMiscResourceValue(s32 arg0);

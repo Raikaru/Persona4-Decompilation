@@ -6,6 +6,7 @@
 #include "evt_internal.h"
 #include "cmm_internal.h"
 #include "datPersona_internal.h"
+#include "scr_internal.h"
 
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u32 kwlnTaskGetWork(void *task);
@@ -15,13 +16,11 @@ extern s32 sdkSndStartStream(s16 channel, s16 stream, s16 arg2, s16 arg3);
 extern void kAssertFail(void *file, s32 line);
 
 u16 cmmTopReversedCommunity();
-extern void scrSetReturnInt(s32 arg0);
 
 u16 cmmFindFreshReverseCandidate();
 
 u16 cmmFindReverseCandidate();
 
-extern s32 scrGetParamInt(s32 arg0);
 extern s32 cmmCommunityFindActiveSlotInGroup(s32 arg0);
 extern s32 cmmCommunityGetCurrentEntryValue(s32 arg0);
 extern void cmmCommunityAddTotal(s32 arg0);
@@ -48,7 +47,6 @@ extern s32 cmmDateTableAddCount(s32 arg0, s32 arg1);
 extern s16 cmmTopPersonaOfArcana(s16 arg0);
 extern u8* cmmMsgStreamEntry(s32 arg0, u16 arg1);
 extern s32 cmmDateTableFindNthMatch(s32 arg0, s32 arg1, s32 arg2);
-extern s32 scrGetCmdTimer(void);
 extern void cmmRankUpSequenceStart(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 K_Cmd_TASK_LOOKUP(void);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
@@ -72,7 +70,6 @@ extern void cmmAdvanceReverseProgress(s32 arg0);
 extern void datPersonaCollectSkills(s32 arg0, void* arg1, s32* arg2);
 extern void func_001029a0(s32 arg0, void* arg1, s32 arg2, s32 arg3);
 extern s32 func_00102980(void);
-extern s32 scrGetMessageManager(void);
 extern s32 datPersonaDisplayName(s16 arg0);
 extern s8 cmmCommunityEventValue(s32 arg0, s32 arg1);
 extern s32 cmmNameRecord(s32 arg0);

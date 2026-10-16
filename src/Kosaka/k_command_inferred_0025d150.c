@@ -4,6 +4,7 @@
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "scr_internal.h"
 #include "effect_instance_internal.h"
 
 static inline f32 p4_0025_mul_add(f32 left, f32 right, f32 base) {
@@ -27,7 +28,6 @@ extern s32 iGpffffb480;
 
 
 
-s32 scrGetCmdTimer(void);
 void fadeBegin(void);
 s32 fadeIsIdle(void);
 

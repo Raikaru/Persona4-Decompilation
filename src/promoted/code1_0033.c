@@ -6,6 +6,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scr_internal.h"
 #include "shd_misc_internal.h"
 #include "fcl_combine_internal.h"
 extern void (*jtbl_008873EC[])(void *);
@@ -14,7 +15,6 @@ extern void (*jtbl_008873EC[])(void *);
 // i.e. absolute 0x007690f0 - 0x4a68 = 0x00764688, GP-relative.
 extern int iGpffffb598;
 extern u16 D_008C024E[];
-extern s32 scrGetParamInt(s32 arg0);
 extern s32 datGetFlag(s32 arg0);
 extern void datSetFlag(s32 arg0, s32 arg1);
 extern u32 fclGetMoney(void);

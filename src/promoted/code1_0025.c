@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "scr_internal.h"
 #include "effect_instance_internal.h"
 #include "datPersona_internal.h"
 
@@ -46,7 +47,6 @@ s32 calIsDayInRange(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
 u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
 
-s32 scrGetCmdTimer(void);
 void fadeBegin(void);
 s32 fadeIsIdle(void);
 
