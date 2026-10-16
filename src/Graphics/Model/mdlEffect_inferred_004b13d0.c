@@ -60,7 +60,7 @@ extern void (*jtbl_008873EC[])(void *);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b13d0-004b13d0 */
 
 // FUN_004B13D0
-void func_004b13d0(u8 *arg0, f32 arg1)
+void mdlEffectSetUniformScale(u8 *arg0, f32 arg1)
 {
     mdlEffectSetChildScales();
 }
