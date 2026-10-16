@@ -35,7 +35,7 @@ struct DatPersonaRecord *datPersonaRosterSlot(s16);
 void datPersonaSetLeadSlot(s16);
 s32 datPersonaFillSkillCostRow(s32, s32, s32, void *);
 struct DatPersonaRecord *datPersonaGetRecord(u16);
-u16 *datPersonaGetSkills(s32);
+u16 *datPersonaGetSkills(struct DatPersonaRecord *);
 void datCalcSkillOutcomeById(s32, s32, u16, s32, s32 *, s32, s32);
 void radarAnimateValue(void *, s32, s32);
 void sdkSpriteFreeNode(void *);
@@ -339,10 +339,10 @@ void cmpSkillBuildAbilityList(void *arg0)
             key = *kp;
             if (cur == key) {
                 if (cur < 0x1B8 && sel != -1) {
-                    res = campSkillListHas(datPersonaGetSkills((s32)datPersonaRosterSlot(*(s16 *)(p + 0x100))), 0x20A);
+                    res = campSkillListHas(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(p + 0x100))), 0x20A);
                     if (res == 0) {
                         qr = (SkillRec *)(q + 0x100);
-                        res = campSkillListHas(datPersonaGetSkills((s32)datPersonaRosterSlot(*(s16 *)(q + 0x100))), 0x20A);
+                        res = campSkillListHas(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(q + 0x100))), 0x20A);
                         if (res != 0) {
                             *(SkillRec *)(p + 0x100) = *qr;
                         } else {

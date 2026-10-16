@@ -84,7 +84,7 @@ extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3f0;
 extern u8 *iGpffffb3e0;
 extern u8 *iGpffffb3ec;
-extern u16 *datPersonaGetSkills(int persona);
+extern u16 *datPersonaGetSkills(struct DatPersonaRecord *persona);
 extern s32 datPersonaReplaceSkill(u8 *arg0, s16 arg1, u16 arg2);
 
 extern s32 D_0064E7B0[];
@@ -917,7 +917,7 @@ s32 btlShufflePickRosterMember(s32 arg0, u8 *arg1)
         return 0;
     }
     p = list[datCalcRandomBelow(n)];
-    skills = datPersonaGetSkills((int)p);
+    skills = datPersonaGetSkills((struct DatPersonaRecord *)p);
     nc = 0;
     m = 0;
     tbl = iGpffffb3ec;

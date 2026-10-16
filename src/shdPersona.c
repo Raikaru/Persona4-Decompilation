@@ -4412,7 +4412,7 @@ s32 shdPersonaDispCtlGetLoadedValue(u8 *arg0)
 
 
 u32 RpRandom(void);
-u16 *datPersonaGetSkills(s32 arg0);
+u16 *datPersonaGetSkills(DatPersonaRecord *arg0);
 extern u16 *iGpffffb3ec;
 /* measured: the explicit `bltz`/negative conversion path for
    `func_003b7060() & 0x1000` is required for retail's COP1 sequence. */
@@ -4456,7 +4456,7 @@ s32 shdPersonaPickRandomSkillPair(u8 *arg0)
     if (!(f < 0.0f)) {
         return 0;
     }
-    work = (u16 *)datPersonaGetSkills((s32)p16);
+    work = (u16 *)datPersonaGetSkills((DatPersonaRecord *)p16);
     i = 0;
     count = 0;
     for (; (first = iGpffffb3ec[2 * i]) != 0; i++) {
