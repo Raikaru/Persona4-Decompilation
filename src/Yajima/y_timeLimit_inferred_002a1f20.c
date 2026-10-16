@@ -25,7 +25,7 @@ extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *arg0, void *arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
-extern void func_002a1ef0(u8 *arg0);
+extern void yTimeLimitDrawCallback(u8 *arg0);
 extern f32 fGpffff8204;
 extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                          s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
@@ -141,13 +141,14 @@ extern s32 func_002a1c80(u8 *arg0);
 /* measured: closes opt_propagation around func_002a1c80. */
 /* measured: closes opt_common_subs around func_002a1c80. */
 /* measured: closes no_branch_likely around func_002a1c80. */
+// Intent: per-frame task update. Queues a draw node (yTimeLimitDrawCallback) while the track is active; returns -1 once the track is done.
 // FUN_002A1F20
-s32 func_002a1f20(u8 *arg0) {
+s32 yTimeLimitTaskUpdate(u8 *arg0) {
     u8 *temp_2;
 
     if (*(s32 *)(*(u8 **)(arg0 + 0x38) + 4) != 3) {
         temp_2 = PrimAllocQueueNode();
-        *(void (**)(u8 *))(temp_2 + 8) = func_002a1ef0;
+        *(void (**)(u8 *))(temp_2 + 8) = yTimeLimitDrawCallback;
         *(u8 **)(temp_2 + 0x10) = arg0;
         PrimAppendNode(D_00795E60, temp_2);
         goto success;
@@ -161,8 +162,9 @@ success:
    preheader, matching retail's li $v1 before the loop-entry branch. */
 /* measured: func_002a1fa0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+// Intent: draws the time-limit overlay for a work item (background rectangle, then the state machine that paints each track).
 // FUN_002A1FA0
-s32 func_002a1fa0(u8 *arg0) {
+s32 yTimeLimitDraw(u8 *arg0) {
 
     u8 colors[4];
     s128 sp40;
@@ -295,8 +297,9 @@ block_39:
 }
 
 /* measured: closes opt_loop_invariants around func_002a1fa0. */
+// Intent: destructor for the time-limit task. Frees its work block through the free table.
 // FUN_002A2310
-void func_002a2310(u8 *arg0) {
+void yTimeLimitTaskDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 

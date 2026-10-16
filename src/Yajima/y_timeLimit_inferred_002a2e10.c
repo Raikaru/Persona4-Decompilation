@@ -126,7 +126,7 @@ extern s32 func_002a1c80(u8 *arg0);
 /* Source unit: src/promoted/code1_002a.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_002a.c; members 002a2e10-002a2e10 */
 
-extern s32 func_002a1fa0(u8 *arg0);
+extern s32 yTimeLimitDraw(u8 *arg0);
 /* measured: closes opt_propagation around func_002a1c80. */
 /* measured: closes opt_common_subs around func_002a1c80. */
 /* measured: closes no_branch_likely around func_002a1c80. */

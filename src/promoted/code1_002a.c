@@ -39,7 +39,7 @@ extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *arg0, void *arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
-extern void func_002a1ef0(u8 *arg0);
+extern void yTimeLimitDrawCallback(u8 *arg0);
 extern f32 fGpffff8204;
 extern u8 yTimeTrackClear(s32 arg0);
 extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,

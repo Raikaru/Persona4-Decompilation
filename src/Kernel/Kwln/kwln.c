@@ -5,7 +5,7 @@ extern void kwlnTaskGetWork(void* a0);
 
 extern void itfMesFlushPending(void* a0);
 
-extern void func_002a1fa0(void* a0);
+extern void yTimeLimitDraw(void* a0);
 
 extern void mcDrawDispatch(void* a0);
 
@@ -31,10 +31,11 @@ void itfMesFlushPendingCallback(void* param_1, void* param_2)
 
 
 
+// Intent: draw-node callback that forwards its work pointer to yTimeLimitDraw. Stored in the draw node's +8 slot.
 // FUN_002A1EF0
-void func_002a1ef0(void* param_1, void* param_2)
+void yTimeLimitDrawCallback(void* param_1, void* param_2)
 {
-    func_002a1fa0(param_2);
+    yTimeLimitDraw(param_2);
 }
 
 
