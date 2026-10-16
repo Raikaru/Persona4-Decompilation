@@ -43,7 +43,7 @@ extern u32 datCalcGetTableLength(u8 *arg0);
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
 extern s32 datCalcDefaultSkillId(u8 *unit);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
-extern u8 *func_0029d050();
+extern u8 *scrGetAiState();
 
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -107,7 +107,7 @@ extern u8 *iGpffffb42c;
 /* AI script command 0x2090 (p4flow AI.json AI_FUNCTION_0090). */
 // FUN_001E8D80
 s32 btlEffectScriptGetSelfElement(void) {
-    scrSetReturnInt((s16) datCalcSkillElement(*(u8 **)(*(u8 **)(func_0029d050() + 0x30) + 0xA64), 0U));
+    scrSetReturnInt((s16) datCalcSkillElement(*(u8 **)(*(u8 **)(scrGetAiState() + 0x30) + 0xA64), 0U));
     return 1;
 }
 
@@ -153,7 +153,7 @@ s32 btlEffectScriptPickLowestHpNormalUnit(void) {
     u32 index;
     u32 min;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
@@ -188,7 +188,7 @@ s32 btlEffectScriptPickLowestHpNormalFilteredUnit(void) {
     u32 index;
     u32 min;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0x100000, 0x2C, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
@@ -223,7 +223,7 @@ s32 btlEffectScriptPickLowestHpNormalAltUnit(void) {
     u32 index;
     u32 min;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     if (btlAICommandSelectCandidates(work, scrGetParamInt(0), 0, 0x2D, 0, &btlCond_MYNOMAL) == 1) {
         if (*(u16 *)(work + 0x6A) == 1) {
             selected = *(u8 **)(work + 0x38);
@@ -259,7 +259,7 @@ s32 btlEffectScriptPickRandomSide1Unit(void) {
     s32 count;
     u8 *stack[12];
 
-    selected = btlEffectFindUnitByKey(func_0029d050() + 0x98);
+    selected = btlEffectFindUnitByKey(scrGetAiState() + 0x98);
     if (selected == NULL || *(u8 *)(*(u8 **)(selected + 0x30) + 0xA2) != 1) {
         count = 0;
         current = *(u8 **)(iGpffffb3ac + 0x174);
@@ -296,7 +296,7 @@ s32 btlEffectScriptFindAilmentSkillElement(void) {
     u8 *work;
     s32 element;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     command = scrGetParamInt(0);
     result = btlActionFindById((u64)(command << 0x24) >> 0x24);
     entry = *(u8 **)(work + 0x30);
@@ -334,7 +334,7 @@ s32 btlEffectScriptPickRandomSide1OtherUnit(void) {
     s32 count;
     u8 *stack[12];
 
-    func_0029d050();
+    scrGetAiState();
     selected = btlEffectFindUnitByKey(*(u8 **)(iGpffffb3ac + 0x170) + 0x98);
     if (selected == NULL || *(u8 *)(*(u8 **)(selected + 0x30) + 0xA2) != 1) {
         count = 0;
@@ -372,7 +372,7 @@ s32 btlEffectScriptPickLowestHpSkillEligibleUnit(void) {
     u8 *entry;
     u32 value;
 
-    work = func_0029d050();
+    work = scrGetAiState();
     best_fallback = NULL;
     min_fallback = 0x0FFFFFFF;
     best_eligible = NULL;
@@ -531,7 +531,7 @@ s32 btlEffectScriptChooseBestSkill(void) {
         u16 selected;
         u8 flags;
     } tgt;
-    work = func_0029d050();
+    work = scrGetAiState();
     mode = scrGetParamInt(0);
     unit = *(u8 **)(work + 0x30);
     bestTarget = 0;
@@ -757,7 +757,7 @@ s32 btlEffectScriptPickRandomSideUnit(void) {
     u8 *sp10[12];
     s32 temp_4;
 
-    temp_4 = (s32)(btlSideSelectUnits(func_0029d050(), 0, 0x80000, 2, 0, &btlAICommandAlwaysTrue, &sp10) & 0xFFFF);
+    temp_4 = (s32)(btlSideSelectUnits(scrGetAiState(), 0, 0x80000, 2, 0, &btlAICommandAlwaysTrue, &sp10) & 0xFFFF);
     if (temp_4 > 0) {
         scrSetReturnInt(*(s32 *)(sp10[datCalcRandomBelow(temp_4)] + 8) | 0x80000000);
     } else {
@@ -771,7 +771,7 @@ s32 btlEffectScriptPickRandomSideUnit(void) {
 s32 btlEffectScriptSetActionParams(void) {
     u8 *temp_16;
 
-    temp_16 = func_0029d050();
+    temp_16 = scrGetAiState();
     *(s16 *)(temp_16 + 0x6E) = scrGetParamInt(0);
     *(s16 *)(temp_16 + 0x6C) = 9;
     *(s16 *)(temp_16 + 0x76) = scrGetParamInt(1);

@@ -36,7 +36,7 @@ static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
     return (u8 *)((u32)offset + (u32)base);
 }
 
-extern u8 *func_0029d050();
+extern u8 *scrGetAiState();
 
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -91,7 +91,7 @@ extern u8 *iGpffffb42c;
 s32 func_001e8c60(void) {
     u64 temp_16;
 
-    func_0029d050();
+    scrGetAiState();
     temp_16 = scrGetParamInt(0);
     scrGetParamInt(1);
     scrGetParamInt(2);

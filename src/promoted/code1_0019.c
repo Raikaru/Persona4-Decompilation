@@ -87,7 +87,7 @@ extern s32 iGpffffb3b0;
 extern s32 iGpffffb284;
 extern s32 iGpffffb280;
 extern s32 func_0029d020(void);
-extern u8 *func_0029d040(void);
+extern u8 *scrGetContext(void);
 extern void datCalcIsDeadById(s16 arg0);
 extern void func_001056e0(s16 arg0, s16 arg1);
 extern void datCalcClearBadStatusById(s16 arg0, s32 arg1);
