@@ -9,8 +9,7 @@
 #include "include_asm.h"
 #include "type.h"
 
-typedef struct RwV3d { f32 x, y, z; } RwV3d;
-typedef struct RtQuat { RwV3d imag; f32 real; } RtQuat;
+#include "rw_types_internal.h"
 #include "btl_skill_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_packet_create_internal.h"
@@ -109,8 +108,7 @@ void btlActionEndHomeInit(u8 *arg0)
 {
     extern s32 btlActionGetActiveOrQueueFront(void);
     extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
-    typedef struct RwV3d { f32 x, y, z; } RwV3d;
-    extern f32 btlTargetVectorDistance(const RwV3d *first, const RwV3d *second);
+        extern f32 btlTargetVectorDistance(const RwV3d *first, const RwV3d *second);
     extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *position, f32 speed, u32 flags);
     extern u8 *iGpffffb3b8;
     extern u8 *iGpffffb3cc;

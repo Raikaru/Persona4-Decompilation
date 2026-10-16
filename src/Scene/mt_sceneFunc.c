@@ -57,12 +57,7 @@ extern float fGpffff8428;
 
 /* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbc90 (verified MATCH there). */
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
+#include "rw_types_internal.h"
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbd40 (verified MATCH
 // there). 003bbc90 -> MT_Scene_EvalCubicBezier.
@@ -978,12 +973,6 @@ typedef struct SceneCameraUpdate {
 } SceneCameraUpdate;
 
 typedef struct Model Model;
-typedef struct RwRGBA {
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
-} RwRGBA;
 
 typedef union SceneEffectColor {
     s32 packed;

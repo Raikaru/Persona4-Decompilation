@@ -6442,7 +6442,7 @@ void btlActionEscapeInit(void)
 #pragma opt_loop_invariants on
 void btlActionEscapeUpdate(s64 *arg0)
 {
-    typedef struct RtQuat { RwV3d imag; f32 real; } RtQuat;
+    #include "rw_types_internal.h"
     extern void btlUnitGetSphereWorldCenter(BtlUnit *arg0, RwV3d *arg1);
     extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *quat);
     extern BtlPacket *btlCreateSetFlagsPacket(u32 arg0);

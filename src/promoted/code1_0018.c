@@ -13,9 +13,8 @@
 #include "field_npc_control_internal.h"
 extern void *FldRc_ReplaceGeometryTextures(void *object, void *data);
 
-typedef struct RwV3d {
-    f32 x, y, z;
-} RainVector;
+#include "rw_types_internal.h"
+typedef RwV3d RainVector;
 typedef struct RwMatrixTag {
     RainVector right;
     u32 flags;

@@ -431,7 +431,8 @@ void effAfterFrameNormal(u8 *work, s32 section, EffAfterVec *output) {
 }
 /* Ribbon vertex attributes and bounding-volume storage. */
 typedef struct RwTexCoords { f32 u, v; } AfterTexCoord;
-typedef struct RwV3d { f32 x, y, z; } AfterVector3;
+#include "rw_types_internal.h"
+typedef RwV3d AfterVector3;
 
 // Builds the ribbon geometry object for one material: vertex and index counts follow the config mode, and the bounding sphere is stored on the morph target.
 // FUN_004B8350

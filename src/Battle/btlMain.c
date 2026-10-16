@@ -80,13 +80,7 @@ u32 btlMainUpdateUnitAlphaFade(void* work);
 
 extern u8 *func_003bb4a0(u8 *spline, s32 index, f32 *position);
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
+#include "rw_types_internal.h"
 
 typedef struct RwV4d RwV4d;
 struct RwV4d

@@ -2,11 +2,10 @@
 #define BTL_SHUFFLE_DRAW_INTERNAL_H
 
 #include "type.h"
+#include "rw_types_internal.h"
 #include "rw/plcore/barenderstate.h"
 
-typedef struct RwV3d {
-    f32 x, y, z;
-} BtlShuffleVec3;
+typedef RwV3d BtlShuffleVec3;
 
 /* The matrix tags and field layout agree with rw/plcore/bamatrix.h. */
 typedef struct RwMatrixTag {
