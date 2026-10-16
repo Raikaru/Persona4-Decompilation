@@ -136,8 +136,8 @@ extern u8 D_005F0590[];
 extern u8 D_007E80A0[];
 extern s32 D_0076432C;
 extern s32 iGpffffb2e4;
-extern void func_002ac360(void);
-extern u8 *func_002ac3b0(void);
+extern void smapClearRevealTable(void);
+extern u8 *smapRevealTablePtr(void);
 extern u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode);
 extern u8 D_005F0080[];
 extern u8 D_005F0591[];
@@ -418,7 +418,7 @@ s32 FldLoadTaskUpdate(u8 *task)
     extern s64 calGetDayEntryByPhase(s32 day, u32 period);
     extern s32 cmmTableLookupFlagged(s32 group, s32 entry, s32 condition);
     extern void calendarPushValue(s16 selection);
-    extern void func_002aaa80(void);
+    extern void loadingSpinnerRequestShow(void);
     extern s32 FldResource_IsPrimaryFileLoaded(void);
     extern s32 FldMap_IsInBandA(s32 fieldId, s32 roomId);
     extern u8 *FldHbnOpenScript(s32 fieldId);
@@ -461,7 +461,7 @@ s32 FldLoadTaskUpdate(u8 *task)
 
     work = (FldLoadWork *)((SdkTask *)task)->work;
     if (work->state > 2 && datGetFlag(0x1470) == 0) {
-        func_002aaa80();
+        loadingSpinnerRequestShow();
     }
     switch (work->state) {
     case 0:
@@ -2663,7 +2663,7 @@ copy_outer_test:
         return 1;
     }
 
-    memcpy(D_007D3E10 + map_index * 0x30 + 0xF014, func_002ac3b0(), 0x30);
+    memcpy(D_007D3E10 + map_index * 0x30 + 0xF014, smapRevealTablePtr(), 0x30);
 
     slot_index = 0;
     goto slot_test;
@@ -2792,7 +2792,7 @@ threshold_done:
     }
     memset(D_007E80A0, 0, 0xB40);
     iGpffffb2e4 = 0;
-    func_002ac360();
+    smapClearRevealTable();
     if (D_007D3E10[map_index] != 1) {
         goto fail;
     }
@@ -2840,7 +2840,7 @@ copy_outer_test:
         goto copy_outer_body;
     }
 
-    memcpy(func_002ac3b0(),
+    memcpy(smapRevealTablePtr(),
                   D_007D3E10 + map_index * 0x30 + 0xF014, 0x30);
 
     scan_outer = 0;

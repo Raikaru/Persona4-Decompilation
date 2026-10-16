@@ -105,7 +105,7 @@ extern void frFontStartup(void);
 extern void itfMesLoadData(void);
 extern void itfMesInitManager(void);
 extern void func_0029d950(void);
-extern void func_002aaa10(void);
+extern void loadingSpinnerTaskCreate(void);
 extern void func_002bdf20(void);
 extern void nLineInit(void);
 extern void func_003f67e0(s32 arg0);

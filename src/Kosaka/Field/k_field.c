@@ -79,8 +79,8 @@ extern s32 D_007D2530[];
 extern s32 D_007D253C[];
 extern u16 *D_007EFA04[];
 extern s32 datGetFlag(s32);
-extern void func_002aaa80(void);
-extern void func_002aaaa0(void);
+extern void loadingSpinnerRequestShow(void);
+extern void loadingSpinnerRequestHide(void);
 extern s32 func_00293fc0(s32);
 extern s32 func_002940a0(s32, s32 *, s32 *, s32 *, s32 *);
 extern void kAssertFail(const void *, s32);
@@ -158,7 +158,7 @@ s32 FldRootUpdate(u8 *task)
 
     work = *(KFieldStateWork **)(task + 0x38);
     if (work->state > 2 && work->state < 11 && datGetFlag(0x1470) == 0) {
-        func_002aaa80();
+        loadingSpinnerRequestShow();
     }
     switch (work->state) {
     case 0:
@@ -227,7 +227,7 @@ s32 FldRootUpdate(u8 *task)
         if (work->eventReader != 0) {
             if (fadeIsIdle() != 0) {
                 resrcMngSetRenderSuppressed(0);
-                func_002aaaa0();
+                loadingSpinnerRequestHide();
                 work->eventTask = func_002859e0(work->eventId, work->eventMajor, work->eventMinor);
                 work->state = 14;
             }
@@ -292,7 +292,7 @@ s32 FldRootUpdate(u8 *task)
         /* fallthrough */
     case 10:
         if (FldUnit_IsSettled(D_007D2530[0]) == 0) break;
-        func_002aaaa0();
+        loadingSpinnerRequestHide();
         func_00122640(1, 0);
         work->state++;
         /* fallthrough */
