@@ -27,7 +27,7 @@ extern char D_007130C8[];
 
 static inline u32 sdkAddOffset(u32 offset, u32 base) { return offset + base; }
 
-/* Sprite-renderer types, shared by the guarded func_0046b380 body. */
+/* Sprite-renderer types, shared by the guarded sdkSpriteDraw body. */
 #include "rw/plcore/barenderstate.h"
 
 typedef struct RwV2d {
@@ -114,7 +114,7 @@ typedef u8 SdkSpriteRecord[0x80];
             *(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord)))
 /* Same address through sdkAddOffset (index term first): the helper's
  * parameter boundary gives retail's index-first addu at the packed-colour
- * reads and the points[2].x extent of func_0046b380. */
+ * reads and the points[2].x extent of sdkSpriteDraw. */
 #define SDK_SPRITE_RECORD_VIA_ADD(sample) \
     ((u8 *)sdkAddOffset((u32)*(u32 *)((sample) + 4) * sizeof(SdkSpriteRecord), \
                         (u32)*(u8 **)(*(u8 **)(sample) + 0x204)))

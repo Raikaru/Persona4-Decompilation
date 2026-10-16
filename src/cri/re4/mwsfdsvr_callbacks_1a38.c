@@ -1,4 +1,4 @@
-/* CRI Sofdec MW stream-server callback dispatch through func_0050b3d0. */
+/* CRI Sofdec MW stream-server callback dispatch through MWSFLIB_GetLibWorkPtr. */
 #include "cri_xpt.h"
 
 extern Uint32 func_0050b3d0();

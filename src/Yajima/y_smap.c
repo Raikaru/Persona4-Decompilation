@@ -76,7 +76,7 @@ typedef struct YVec3f { f32 x, y, z; } YVec3f;
 typedef FclVec2 YVec2f;
 typedef struct YRGBA { u8 a, b, c, d; } YRGBA;
 
-/* func_002afbc0 callees */
+/* smapDrawCell callees */
 extern s32 fclPackRgba(u8, u8, u8, u8);
 extern void fclAnchorOffset(f32 *, s64, f32, f32, f32, f32);
 extern u8 *MT_Scene_GetFrameState(void);
@@ -87,7 +87,7 @@ extern u8 D_00794CF0[];
 extern u8 D_0076465C;   /* gp-relative, -0x4A94 */
 extern u8 D_00764660;   /* gp-relative, -0x4A90 */
 
-/* func_002b1520 callees */
+/* smapDrawPanel callees */
 extern f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
 extern void sdkSpriteDraw(u8 *, s32);
 extern void mapSymbolMarkerSetVariant(u8 *, u8);
@@ -115,7 +115,7 @@ extern void smapSetVisible(u8 *, s8);
 extern void smapClearSelection(u8 *);
 extern int smapWorldToColumn(YVec3f);
 extern int smapWorldToRow(YVec3f);
-/* func_002af3e0 callees */
+/* smapRefreshCells callees */
 extern u8 D_007E80A0[];
 extern s32 D_00764654;
 extern void mapSymbolMarkerSetHighlight(u8 *);

@@ -227,9 +227,9 @@ typedef struct CmmScriptTask
     u32 flags;      // 0x00, bit 0 set once the file is loaded
     s32 state;      // 0x04
     s32 cdvdHandle; // 0x08, H_Cdvd file handle
-    s32 handles[5]; // 0x0C, released with func_00452080
+    s32 handles[5]; // 0x0C, released with kwlnTaskDestroyWithHierarchy
     s32 weatherChoice; // 0x20, category result written by cmmWeatherRoll
-    s32 data;       // 0x24, buffer from func_0046af60, freed on destroy
+    s32 data;       // 0x24, buffer from sdkSpriteAdoptBlob, freed on destroy
 } CmmScriptTask;
 
 // Message stream update: sends the next packet every 10 frames and finishes when the stream ends.

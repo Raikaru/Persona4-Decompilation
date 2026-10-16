@@ -1218,7 +1218,7 @@ void btlShuffleCalcSetBezierTiming(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
 /* Deal state machine for the third shuffle layout.  It is the twin of
    btlShuffleSeq1Run and btlShuffleSeq2Run.  The deal loop hands each card to
    btlShuffleCalcSetBezierTiming, and the fan step also sets the per-card offset
-   through func_00378c80. */
+   through btlShuffleSeqRecord. */
 #pragma push
 // measured: MISMATCH without loop invariants (in-file build); retail hoists (u16)mod out of the loops
 #pragma opt_loop_invariants on

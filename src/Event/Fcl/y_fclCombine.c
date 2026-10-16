@@ -6459,7 +6459,7 @@ s32 fclCombineStageValue(s32 arg0, s8 arg1)
     return -1;
 }
 
-/* A 0x30-byte combination recipe, as copied out by func_002e4960 and
+/* A 0x30-byte combination recipe, as copied out by yListSlotCopyEntry and
    passed by value to fclCombinePickCandidateId.  Its word alignment gives the
    two-word copy loop retail uses for the argument. */
 typedef struct {
