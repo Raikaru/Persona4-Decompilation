@@ -148,9 +148,13 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     btlUnitInitChild(arg0, arg1);
 }
+/* RwCameraGetCurrentCamera (reads curCamera); cf. src/renderware/core/bacamera.c */
 extern u8 *func_00457120(void);
+/* RwCameraBeginUpdate-equivalent, cf. src/renderware/core/bacamera.c */
 extern s32 func_003e8120(u8 *arg0);
+/* RpAtomicRender-equivalent atomic render guard, cf. src/renderware/world/baclump.c */
 extern void func_003c1bd0(s32 arg0);
+/* RwCameraEndUpdate-equivalent, cf. src/renderware/core/bacamera.c */
 extern s32 func_003e8110(u8 *arg0);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
