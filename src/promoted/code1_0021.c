@@ -2776,7 +2776,7 @@ void btlMessageDrawTimed(u8 *arg0, u8 *arg1)
                 btlUiDrawSpriteEntry((u8 *)p, 10, 41, 400.0f, fade);
                 btlUiSetScale((u8 *)p, 1.0f, 1.0f);
                 if ((*(u16 *)(arg1 + 0x10) & 4) && colorBytes[3] > 0) {
-                    u8 *bits;
+                    DatUnit *bits;
                     s32 allAttacks;
                     s8 attackSprite;
                     s8 defenseSprite;
@@ -2791,7 +2791,7 @@ void btlMessageDrawTimed(u8 *arg0, u8 *arg1)
                     u8 speedGreen;
                     u8 speedBlue;
                     btlUiSetOrigin((u8 *)p, 94.0f + statusX, 81.0f);
-                    bits = *(u8 **)(*(s32 *)(arg1 + 0x20) + 0xA64);
+                    bits = *(DatUnit **)(*(s32 *)(arg1 + 0x20) + 0xA64);
                     if (datCalcHasBuffMask(bits, 0x400) || datCalcHasBuffMask(bits, 0x800)) {
                         allAttacks = 1;
                     } else {

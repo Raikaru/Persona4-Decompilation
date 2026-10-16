@@ -23,7 +23,6 @@ extern u16 datCalcMaxHp(u8 *arg0);
 extern u16 datCalcMaxSp(u8 *arg0);
 extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
 extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
-extern u32 datCalcGetTableLength(u8 *arg0);
 extern s32 func_0023df20(s32 arg0);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -347,7 +346,7 @@ s32 btlCond_FRHOJO(u8 *arg0, s32 arg1)
                 temp = *(u8 **)(unit + 0x30);
                 if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == *(u8 *)(temp + 0xA2) &&
                     datCalcChkBadStatus(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
-                    datCalcHasBuffMask(*(u8 **)(temp + 0xA64), arg1) != 0) {
+                    datCalcHasBuffMask(*(DatUnit **)(temp + 0xA64), arg1) != 0) {
                     return 1;
                 }
             }
@@ -383,7 +382,7 @@ done:
             temp = *(u8 **)(unit + 0x30);
             if (*(u8 *)(temp + 0xA2) == mode &&
                 datCalcChkBadStatus(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
-                datCalcHasBuffMask(*(u8 **)(temp + 0xA64), arg1) != 0) {
+                datCalcHasBuffMask(*(DatUnit **)(temp + 0xA64), arg1) != 0) {
                 return 1;
             }
         }
@@ -694,8 +693,8 @@ s32 btlCond_MYHREC(u8 *arg0)
     u16 index;
 
     data = *(s32 *)(arg0 + 0x30);
-    count = (u16)datCalcGetTableLength(*(u8 **)(data + 0xA64));
-    skills = (u16 *)datCalcSkillList(*(u8 **)(data + 0xA64));
+    count = (u16)datCalcGetTableLength(*(DatUnit **)(data + 0xA64));
+    skills = (u16 *)datCalcSkillList(*(DatUnit **)(data + 0xA64));
     index = 0;
     count = (u16)count;
     while (index < count) {

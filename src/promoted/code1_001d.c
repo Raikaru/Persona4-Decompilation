@@ -101,7 +101,6 @@ typedef int (*code)();
 
 
 extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
-extern u32 datCalcGetTableLength(u8 *arg0);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 
 extern void btlFormationDispatchArgs(void);

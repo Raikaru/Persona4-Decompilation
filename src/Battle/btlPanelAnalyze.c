@@ -2,6 +2,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "btl_panel_internal.h"
+#include "datCalc_unit_internal.h"
 extern void memset();
 s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
 void shdEnableBlendFlag(void);
@@ -495,8 +496,6 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
     s32 datCalcGetLevel(void *);
     u16 datCalcMaxHp(void *);
     u16 datCalcMaxSp(void *);
-    u32 datCalcGetTableLength(u8 *);
-    u8 *datCalcSkillList(u8 *);
     u8 *datCalcGetIdRecord(s32);
     s32 func_001f0950(s32, s32);
     u32 kwlnTaskGetWork(u8 *);
@@ -669,8 +668,8 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
                 u32 count;
                 u16 *cmds;
                 u32 skillIndex;
-                n = datCalcGetTableLength(*(u8 **)(unit + 0xA64)) & 0xFFFF;
-                cmds = (u16 *)datCalcSkillList(*(u8 **)(unit + 0xA64));
+                n = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64)) & 0xFFFF;
+                cmds = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
                 skillIndex = 0;
                 count = n & 0xFFFF;
                 while (skillIndex < count) {

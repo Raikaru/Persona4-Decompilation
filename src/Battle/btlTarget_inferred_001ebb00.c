@@ -146,7 +146,7 @@ void func_001ebc00(u8 *action, u8 *command)
     u32 skill;
     u32 available;
 
-    skills = (u16 *)datCalcSkillList(*(u8 **)(*(u8 **)(action + 0x30) + 0xA64));
+    skills = (u16 *)datCalcSkillList(*(DatUnit **)(*(u8 **)(action + 0x30) + 0xA64));
     count = 0;
     index = 0;
     while ((index & 0xFFFF) < 8) {

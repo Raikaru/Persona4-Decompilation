@@ -97,7 +97,7 @@ extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
 extern u32 datCalcSkillCost(DatUnit *arg0, s32 arg1);
 extern s32 datCalcSkillElement(DatUnit *arg0, u16 arg1);
-extern s8 datCalcGetBuffLevel(u8 *arg0, s32 arg1);
+extern s8 datCalcGetBuffLevel(DatUnit *arg0, s32 arg1);
 extern u16 func_001068b0(s16 arg0);
 extern u16 func_001068e0(s16 arg0);
 extern u8 func_00106910(s16 arg0);
@@ -387,8 +387,8 @@ static inline s32 PTDatCalcHasSkill(DatUnit *unit, s32 requestedSkill)
     s32 result;
     s32 limit;
 
-    count = datCalcGetTableLength((u8 *)unit) & 0xFFFF;
-    base = datCalcSkillList((u8 *)unit);
+    count = datCalcGetTableLength(unit) & 0xFFFF;
+    base = datCalcSkillList(unit);
     index = 0;
     skill = requestedSkill & 0xFFFF;
     limit = count & 0xFFFF;
@@ -722,7 +722,7 @@ s32 datCalcGetSkillMask(DatUnit *arg0)
 
 // Intent: signed 4-bit buff level at index arg1 (0..23) of unit arg0; 0..4 follow DatPersonaStat (St/Ma/En/Ag/Lu), read as buff or debuff by datCalcHasBuffMask; [inferred].
 // FUN_002332A0
-s8 datCalcGetBuffLevel(u8 *arg0, s32 arg1)
+s8 datCalcGetBuffLevel(DatUnit *arg0, s32 arg1)
 {
     s8 value;
     u8 index;
@@ -1029,7 +1029,7 @@ f32 datCalcBuffMultiplier(u8 *arg0, s32 arg1, u16 arg2)
     if (index >= 24) {
         kAssertFail(D_00635938, 1217);
     }
-    status = (s8)(index < 16 ? datCalcGetBuffLevel(arg0, arg1) :
+    status = (s8)(index < 16 ? datCalcGetBuffLevel((DatUnit *)arg0, arg1) :
         (s8)(active = (*(u32 *)(arg0 + 20) & (1U << index)) != 0));
     if (status < -1 || status > 1) {
         kAssertFail(D_00635938, 1269);
@@ -1117,7 +1117,7 @@ f32 datCalcBuffMultiplier(u8 *arg0, s32 arg1, u16 arg2)
    explicitly re-booleanized after dsra32 to preserve retail's sltu sequence. */
 // Intent: true when unit arg0 has a buff (>0) or debuff (<0) on any stat selected by mask arg1; [inferred].
 // FUN_002340C0
-s32 datCalcHasBuffMask(u8 *arg0, s32 arg1)
+s32 datCalcHasBuffMask(DatUnit *arg0, s32 arg1)
 {
     s32 temp_3;
     s64 var_2;
@@ -1156,10 +1156,10 @@ s32 datCalcHasBuffMask(u8 *arg0, s32 arg1)
         return datCalcGetBuffLevel(arg0, 4) < 0;
     }
     if (arg1 & 0x400) {
-        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x40000) != 0) << 0x38) >> 0x38) != 0;
+        return (((s64)((*(s32 *)(((u8 *)arg0) + 0x14) & 0x40000) != 0) << 0x38) >> 0x38) != 0;
     }
     if (arg1 & 0x800) {
-        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x80000) != 0) << 0x38) >> 0x38) != 0;
+        return (((s64)((*(s32 *)(((u8 *)arg0) + 0x14) & 0x80000) != 0) << 0x38) >> 0x38) != 0;
     }
     if (arg1 & 0x4000) {
         return datCalcGetBuffLevel(arg0, 5) != 0;
@@ -1171,14 +1171,14 @@ s32 datCalcHasBuffMask(u8 *arg0, s32 arg1)
         goto case_30000;
     }
     if (arg1 & 0x10000) {
-        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x10000) != 0) << 0x38) >> 0x38) != 0;
+        return (((s64)((*(s32 *)(((u8 *)arg0) + 0x14) & 0x10000) != 0) << 0x38) >> 0x38) != 0;
     }
     if (arg1 & 0x20000) {
-        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x20000) != 0) << 0x38) >> 0x38) != 0;
+        return (((s64)((*(s32 *)(((u8 *)arg0) + 0x14) & 0x20000) != 0) << 0x38) >> 0x38) != 0;
     }
     goto rest_30000;
 case_30000:
-    temp_3 = *(s32 *)(arg0 + 0x14);
+    temp_3 = *(s32 *)(((u8 *)arg0) + 0x14);
     var_2 = (s64)((temp_3 & 0x10000) != 0);
     var_2 = (s64)(var_2 << 0x38) >> 0x38;
     var_2 = var_2 != 0;
@@ -1205,10 +1205,10 @@ rest_30000:
         return datCalcGetBuffLevel(arg0, 7) != 0;
     }
     if (arg1 & 0x800000) {
-        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x100000) != 0) << 0x38) >> 0x38) != 0;
+        return (((s64)((*(s32 *)(((u8 *)arg0) + 0x14) & 0x100000) != 0) << 0x38) >> 0x38) != 0;
     }
     if (arg1 & 0x04000000) {
-        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x800000) != 0) << 0x38) >> 0x38) != 0;
+        return (((s64)((*(s32 *)(((u8 *)arg0) + 0x14) & 0x800000) != 0) << 0x38) >> 0x38) != 0;
     }
     if (arg1 & 0x08000000) {
         return datCalcGetBuffLevel(arg0, 0xC) != 0;
@@ -1271,10 +1271,10 @@ return_one_2000:
     return 1;
 check_01000000:
     if (arg1 & 0x01000000) {
-        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x10000) != 0) << 0x38) >> 0x38) == 0;
+        return (((s64)((*(s32 *)(((u8 *)arg0) + 0x14) & 0x10000) != 0) << 0x38) >> 0x38) == 0;
     }
     if (arg1 & 0x02000000) {
-        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x20000) != 0) << 0x38) >> 0x38) == 0;
+        return (((s64)((*(s32 *)(((u8 *)arg0) + 0x14) & 0x20000) != 0) << 0x38) >> 0x38) == 0;
     }
     kAssertFail(D_00635938, 0x5DE);
     return 0;
@@ -1322,54 +1322,54 @@ void datCalcApplyBuffMask(DatUnit *arg0, s32 arg1, s64 arg2)
             datCalcAddBuffLevel(arg0, 0x13, arg2);
         }
         if (arg1 & 0x1000) {
-            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 0) > 0) {
+            if ((s8)datCalcGetBuffLevel(arg0, 0) > 0) {
                 datCalcSetBuffLevel(arg0, 0, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 0, 0);
                 *(s32 *)((u8 *)arg0 + 0x14) &= ~1;
             }
-            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 1) > 0) {
+            if ((s8)datCalcGetBuffLevel(arg0, 1) > 0) {
                 datCalcSetBuffLevel(arg0, 1, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 1, 0);
                 *(s32 *)((u8 *)arg0 + 0x14) &= ~2;
             }
-            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 2) > 0) {
+            if ((s8)datCalcGetBuffLevel(arg0, 2) > 0) {
                 datCalcSetBuffLevel(arg0, 2, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 2, 0);
                 *(s32 *)((u8 *)arg0 + 0x14) &= ~4;
             }
-            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 3) > 0) {
+            if ((s8)datCalcGetBuffLevel(arg0, 3) > 0) {
                 datCalcSetBuffLevel(arg0, 3, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 3, 0);
                 *(s32 *)((u8 *)arg0 + 0x14) &= ~8;
             }
-            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 4) > 0) {
+            if ((s8)datCalcGetBuffLevel(arg0, 4) > 0) {
                 datCalcSetBuffLevel(arg0, 4, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 4, 0);
                 *(s32 *)((u8 *)arg0 + 0x14) &= ~0x10;
             }
         }
         if (arg1 & 0x2000) {
-            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 0) < 0) {
+            if ((s8)datCalcGetBuffLevel(arg0, 0) < 0) {
                 datCalcSetBuffLevel(arg0, 0, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 0, 0);
                 *(s32 *)((u8 *)arg0 + 0x14) &= ~1;
             }
-            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 1) < 0) {
+            if ((s8)datCalcGetBuffLevel(arg0, 1) < 0) {
                 datCalcSetBuffLevel(arg0, 1, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 1, 0);
                 *(s32 *)((u8 *)arg0 + 0x14) &= ~2;
             }
-            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 2) < 0) {
+            if ((s8)datCalcGetBuffLevel(arg0, 2) < 0) {
                 datCalcSetBuffLevel(arg0, 2, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 2, 0);
                 *(s32 *)((u8 *)arg0 + 0x14) &= ~4;
             }
-            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 3) < 0) {
+            if ((s8)datCalcGetBuffLevel(arg0, 3) < 0) {
                 datCalcSetBuffLevel(arg0, 3, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 3, 0);
                 *(s32 *)((u8 *)arg0 + 0x14) &= ~8;
             }
-            if ((s8)datCalcGetBuffLevel((u8 *)arg0, 4) < 0) {
+            if ((s8)datCalcGetBuffLevel(arg0, 4) < 0) {
                 datCalcSetBuffLevel(arg0, 4, 0);
                 datCalcSetSecondaryBuffLevel(arg0, 4, 0);
                 *(s32 *)((u8 *)arg0 + 0x14) &= ~0x10;
@@ -1504,7 +1504,7 @@ void datCalcAdvanceSecondaryBuffs(DatUnit *unit)
         if (checked >= 24)
             kAssertFail(D_00635938, 0x4C1);
         if (checked < 16)
-            active = datCalcGetBuffLevel((u8 *)unit, index % 256U);
+            active = datCalcGetBuffLevel(unit, index % 256U);
         else {
             u8 result = (*(u32 *)((u8 *)unit + 0x14) & (1U << checked)) != 0;
             active = result;
@@ -1541,7 +1541,7 @@ s64 datCalcFindStrongBuff(u8 *unit)
             kAssertFail(D_00635938, 0x4C1);
         if (checked < 16)
             /* Keep the independently narrowed getter argument. */
-            active = datCalcGetBuffLevel(unit, index % 256U);
+            active = datCalcGetBuffLevel((DatUnit *)unit, index % 256U);
         else {
             u8 result = (*(u32 *)(unit + 0x14) & (1 << checked)) != 0;
             active = result;
@@ -2378,7 +2378,7 @@ return_zero_1:
         multiplier = multiplier * (percent / 100.0f);
         if (!(options & 1)) {
             death = statuses & 0x80000;
-            if (death == 0 && datCalcGetBuffLevel((u8 *)target, 7) > 0) {
+            if (death == 0 && datCalcGetBuffLevel(target, 7) > 0) {
                 multiplier *= 2.0f;
             }
             element = (s16)datCalcSkillElement(source, skillId);
@@ -2892,10 +2892,10 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
         if (found != 0) {
             acc |= 0x4000000;
         }
-        if (datCalcGetBuffLevel(arg0, 8) > 0) {
+        if (datCalcGetBuffLevel((DatUnit *)arg0, 8) > 0) {
             b1 = 1;
         }
-        if (datCalcGetBuffLevel(arg0, 0xC) > 0) {
+        if (datCalcGetBuffLevel((DatUnit *)arg0, 0xC) > 0) {
             b4 = 1;
         }
         break;
@@ -2916,10 +2916,10 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
         if (found != 0) {
             acc |= 0x4000000;
         }
-        if (datCalcGetBuffLevel(arg0, 9) > 0) {
+        if (datCalcGetBuffLevel((DatUnit *)arg0, 9) > 0) {
             b1 = 1;
         }
-        if (datCalcGetBuffLevel(arg0, 0xD) > 0) {
+        if (datCalcGetBuffLevel((DatUnit *)arg0, 0xD) > 0) {
             b4 = 1;
         }
         break;
@@ -2940,10 +2940,10 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
         if (found != 0) {
             acc |= 0x4000000;
         }
-        if (datCalcGetBuffLevel(arg0, 11) > 0) {
+        if (datCalcGetBuffLevel((DatUnit *)arg0, 11) > 0) {
             b1 = 1;
         }
-        if (datCalcGetBuffLevel(arg0, 0xE) > 0) {
+        if (datCalcGetBuffLevel((DatUnit *)arg0, 0xE) > 0) {
             b4 = 1;
         }
         break;
@@ -2964,10 +2964,10 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
         if (found != 0) {
             acc |= 0x4000000;
         }
-        if (datCalcGetBuffLevel(arg0, 10) > 0) {
+        if (datCalcGetBuffLevel((DatUnit *)arg0, 10) > 0) {
             b1 = 1;
         }
-        if (datCalcGetBuffLevel(arg0, 0xF) > 0) {
+        if (datCalcGetBuffLevel((DatUnit *)arg0, 0xF) > 0) {
             b4 = 1;
         }
         break;
@@ -3314,8 +3314,8 @@ u32 datCalcSkillCost(DatUnit *arg0, s32 arg1)
         table = (u8 *)(field_offset + (u32)iGpffffb3b8);
         product = (s32)((u32)maximum * *(u16 *)(table + 4));
         result = product / 100 + *(u16 *)(table + 6);
-        count = (u16)datCalcGetTableLength((u8 *)arg0);
-        table = datCalcSkillList((u8 *)arg0);
+        count = (u16)datCalcGetTableLength(arg0);
+        table = datCalcSkillList(arg0);
         index = 0;
         limit = count;
         reduction = 0x20B;
@@ -3363,8 +3363,8 @@ u32 datCalcSkillCost(DatUnit *arg0, s32 arg1)
             result = product / 100 + *(u16 *)(table + 6);
         }
         if (result == 0) break;
-        count = (u16)datCalcGetTableLength((u8 *)arg0);
-        table = datCalcSkillList((u8 *)arg0);
+        count = (u16)datCalcGetTableLength(arg0);
+        table = datCalcSkillList(arg0);
         index = 0;
         limit = count;
         reduction = 0x20A;
@@ -3505,8 +3505,8 @@ s32 datCalcPickSpecialItem(DatUnit *arg0)
     u16 value;
     u32 n;
 
-    count = datCalcGetTableLength((u8 *)arg0) & 0xFFFF;
-    table = (u16 *)datCalcSkillList((u8 *)arg0);
+    count = datCalcGetTableLength(arg0) & 0xFFFF;
+    table = (u16 *)datCalcSkillList(arg0);
     selected = 0;
     index = 0;
     while ((index & 0xFFFF) < (s32)((u32)count % 0x10000U) &&
@@ -3539,15 +3539,17 @@ s32 datCalcPickSpecialItem(DatUnit *arg0)
 /* Retail callers pass the unit pointer even though the count is constant. */
 // FUN_0023E130
 /* Returns the fixed skill-table length (8) used by every unit's table. */
-u32 datCalcGetTableLength(u8 *unused)
+u32 datCalcGetTableLength(DatUnit *unused)
 {
     return 8;
 }
 
 // Intent: pointer to the 8-entry skill-id list for unit arg0 (persona skills by pc id, or the monster row's slots); [inferred].
 // FUN_0023E140
-u8 *datCalcSkillList(u8 *arg0)
+u8 *datCalcSkillList(DatUnit *unit)
 {
+    u8 *arg0 = (u8 *)unit;
+
     if (!(*(u16 *)arg0 & 4)) {
         if (*(u16 *)(arg0 + 2) >= 0xB) {
             kAssertFail(D_00635938, 0xFA5);
@@ -4211,10 +4213,10 @@ s32 arg4;
                 bonus += 15;
             }
         }
-        if (datCalcGetBuffLevel(arg0, 5) > 0) {
+        if (datCalcGetBuffLevel((DatUnit *)arg0, 5) > 0) {
             bonus += 7;
         }
-        if (datCalcGetBuffLevel(arg0, 6) > 0) {
+        if (datCalcGetBuffLevel((DatUnit *)arg0, 6) > 0) {
             bonus += 15;
         }
         total = scaled + bonus;

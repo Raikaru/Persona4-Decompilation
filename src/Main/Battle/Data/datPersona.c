@@ -135,7 +135,7 @@ static inline s32 datPersonaSelectedCount(s32 first, s32 last)
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
-s32 datPersonaCollectLearnableSkills(u8 *persona, void *arg1, void *arg2)
+s32 datPersonaCollectLearnableSkills(DatPersonaRecord *persona, void *arg1, void *arg2)
 {
     u8 *table;
     s32 maximum;
@@ -154,23 +154,23 @@ s32 datPersonaCollectLearnableSkills(u8 *persona, void *arg1, void *arg2)
     s32 skill;
     s32 count;
     s32 visit;
-    u8 *skills;
+    u16 *skills;
 
-    if ((s32)*(u16 *)(persona + 2) >= 0x100)
+    if ((s32)persona->id >= 0x100)
     {
         kAssertFail(D_005E4318, 0x132);
     }
-    if (datPersonaUsesFixedGrowth((DatPersonaRecord *)persona) != 0)
+    if (datPersonaUsesFixedGrowth(persona) != 0)
     {
-        table = (u8 *)iGpffffb3e4 + (*(u16 *)(persona + 2) - 0xC0) * 0x26E + 4;
+        table = (u8 *)iGpffffb3e4 + (persona->id - 0xC0) * 0x26E + 4;
         maximum = 0x20;
         baseLevel = 0;
-        lowerLevel = *(u8 *)(persona + 4);
+        lowerLevel = persona->level;
         remainingLevels = 0x63 - lowerLevel;
     }
     else
     {
-        u16 id = *(u16 *)(persona + 2);
+        u16 id = persona->id;
         u8 *baseRecord;
         u32 recordAddress;
         table = iGpffffb3dc + id * 0x46 + 6;
@@ -179,8 +179,8 @@ s32 datPersonaCollectLearnableSkills(u8 *persona, void *arg1, void *arg2)
         recordAddress = id * 0xE;
         recordAddress += (u32)baseRecord;
         baseLevel = ((u8 *)recordAddress)[3];
-        lowerLevel = *(u8 *)(persona + 4) - baseLevel;
-        remainingLevels = 0x63 - *(u8 *)(persona + 4);
+        lowerLevel = persona->level - baseLevel;
+        remainingLevels = 0x63 - persona->level;
     }
     upperLevel = lowerLevel + remainingLevels;
     first = 0;
@@ -219,7 +219,7 @@ s32 datPersonaCollectLearnableSkills(u8 *persona, void *arg1, void *arg2)
         span = 0;
     }
     table += first * 4;
-    skills = persona + 0xC;
+    skills = persona->skills;
     known = datPersonaCountSkills(persona);
     count = 0;
     visit = 0;
@@ -231,7 +231,7 @@ s32 datPersonaCollectLearnableSkills(u8 *persona, void *arg1, void *arg2)
             skill = 0;
             while (skill < known)
             {
-                if (*(u16 *)(table + 2) == *(u16 *)(skills + skill * 2))
+                if (*(u16 *)(table + 2) == skills[skill])
                 {
                     break;
                 }
@@ -1413,7 +1413,7 @@ void datPersonaPreviewLevelUp(u8 *arg0, u8 *arg1, s32 arg2)
     }
     entry += first * 4;
     skills = arg0 + 0xC;
-    known = datPersonaCountSkills(arg0);
+    known = datPersonaCountSkills((DatPersonaRecord *)arg0);
     added = 0;
     removed = 0;
     collectIndex = 0;
@@ -1725,7 +1725,7 @@ s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1)
 
 // Intent: number of non-empty skill slots in persona record arg0 (8 slots); 8 means full.
 // FUN_0010CEB0
-s32 datPersonaCountSkills(u8 *arg0)
+s32 datPersonaCountSkills(DatPersonaRecord *arg0)
 {
     s32 count = 0;
     s32 i;
@@ -1735,7 +1735,7 @@ s32 datPersonaCountSkills(u8 *arg0)
     }
     i = 0;
     while (i < 8) {
-        if (*(u16 *)(arg0 + i * 2 + 0xC) != 0) {
+        if (*(u16 *)((u8 *)arg0 + i * 2 + 0xC) != 0) {
             count++;
         }
         i++;

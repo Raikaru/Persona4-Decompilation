@@ -40,7 +40,6 @@ extern u32 btlFormationCurrentEntry(u8 *arg0);
 extern s32 datCalcSkillElement(u8 *unit, u16 command);
 extern s32 datCalcElementBit(s16 index);
 extern s8 datCalcGetBuffStatus(u8 *unit, s32 status);
-extern u32 datCalcGetTableLength(u8 *unit);
 extern u32 datCalcUnderlyingSkillId(u32 arg0);
 extern u32 *btlEffectFindUnitByIdAndStatus();
 extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
@@ -227,8 +226,8 @@ s32 btlCond_MYATTRSKIL(u8 *action, s32 value)
         goto scan;
     return 1;
 scan:
-    count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
-    commands = (u16 *)datCalcSkillList(*(u8 **)(unit + 0xA64));
+    count = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64));
+    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
     index = 0;
     limit = count;
     while (index < limit) {
@@ -286,8 +285,8 @@ s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
             if (*(u16 *)*(u8 **)(unit + 0xA64) & 0x100)
                 return 0;
         } else {
-            count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
-            commands = (u16 *)datCalcSkillList(*(u8 **)(unit + 0xA64));
+            count = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64));
+            commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
             i = 0;
             limit = count;
             while (i < limit) {
@@ -471,7 +470,7 @@ next_unit:
 
 // FUN_001DB8D0
 s32 btlCond_MYHOJO(u8 *arg0, s32 arg1) {
-    return (s32)(datCalcHasBuffMask(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), arg1) != 0);
+    return (s32)(datCalcHasBuffMask(*(DatUnit **)(*(u8 **)(arg0 + 0x30) + 0xA64), arg1) != 0);
 }
 
 // FUN_001DB900
@@ -555,7 +554,7 @@ s32 btlCond_MYWALL(u8 *arg0, u32 arg1) {
         mask |= 0x40000000;
     if (mask == 0)
         return 0;
-    return datCalcHasBuffMask(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), mask) != 0;
+    return datCalcHasBuffMask(*(DatUnit **)(*(u8 **)(arg0 + 0x30) + 0xA64), mask) != 0;
 }
 
 // FUN_001DBB90
@@ -674,7 +673,7 @@ code arg5;
                 goto docallback;
             }
         }
-        if (datCalcHasBuffMask(*(u8 **)(temp16 + 0xA64), arg2) != 0) {
+        if (datCalcHasBuffMask(*(DatUnit **)(temp16 + 0xA64), arg2) != 0) {
             continue;
         }
     docallback:
@@ -1402,8 +1401,8 @@ s32 btlAICommandCollectSkillCandidates(u8 *p, u8 *q, s32 arg2, s32 arg3)
         buf[0] = 0;
         n++;
     }
-    limit = (u16)datCalcGetTableLength(*(u8 **)(unit0 + 0xA64));
-    table = (u16 *)datCalcSkillList(*(u8 **)(unit0 + 0xA64));
+    limit = (u16)datCalcGetTableLength(*(DatUnit **)(unit0 + 0xA64));
+    table = (u16 *)datCalcSkillList(*(DatUnit **)(unit0 + 0xA64));
     idx = 0;
     count = limit;
     while (idx < count) {
@@ -1501,8 +1500,8 @@ s32 btlAICommandCollectRecoveryCommands(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
     result = -1;
     n = 0;
     unit = *(u8 **)(arg0 + 0x30);
-    count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
-    commands = (u16 *)datCalcSkillList(*(u8 **)(unit + 0xA64));
+    count = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64));
+    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
     if (datCalcIsDead(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64), 0) != 0) {
         result = 0;
     } else {
@@ -1654,8 +1653,8 @@ s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         table[0] = 0;
         n++;
     }
-    count = datCalcGetTableLength(*(u8 **)(unit + 0xA64));
-    commands = (u16 *)datCalcSkillList(*(u8 **)(unit + 0xA64));
+    count = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64));
+    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
     j = 0;
     limit = count;
     for (; j < limit; j++) {
@@ -3149,7 +3148,7 @@ s32 btlAICommandSideIdQueryHasBuff(void) {
     u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
     s32 x;
     if (r != 0)
-        x = datCalcHasBuffMask(*(u8 **)(*(u8 **)((u8 *)r + 0x30) + 0xA64), scrGetParamInt(1));
+        x = datCalcHasBuffMask(*(DatUnit **)(*(u8 **)((u8 *)r + 0x30) + 0xA64), scrGetParamInt(1));
     else
         x = 0;
     scrSetReturnInt(x != 0);
@@ -3759,7 +3758,7 @@ s32 btlAICommandOppSideIdQueryHasBuff(void) {
     }
     r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
     if (r != 0)
-        x = datCalcHasBuffMask(*(u8 **)(*(u8 **)((u8 *)r + 0x30) + 0xA64), scrGetParamInt(1));
+        x = datCalcHasBuffMask(*(DatUnit **)(*(u8 **)((u8 *)r + 0x30) + 0xA64), scrGetParamInt(1));
     else
         x = 0;
     scrSetReturnInt(x != 0);
@@ -3796,7 +3795,7 @@ s32 btlAICommandSideIdQueryAllHasBuff(void) {
                 if (*(u16 *)(np + 0xA4) == c02) {
                     if (datCalcIsDead(*(u32 *)(np + 0xA64), 0) == 0) {
                         n = (n + 1) & 0xFFFF;
-                        if (datCalcHasBuffMask(*(u8 **)(np + 0xA64), v) != 0) {
+                        if (datCalcHasBuffMask(*(DatUnit **)(np + 0xA64), v) != 0) {
                             k = (k + 1) & 0xFFFF;
                         }
                     }
@@ -3851,7 +3850,7 @@ done:
                 if (*(u16 *)(c0 + 0xa4) == m) {
                     if (datCalcIsDead(*(u32 *)(c0 + 0xa64), 0) == 0) {
                         n = (n + 1) & 0xffff;
-                        if (datCalcHasBuffMask(*(u8 **)(c0 + 0xa64), v) != 0)
+                        if (datCalcHasBuffMask(*(DatUnit **)(c0 + 0xa64), v) != 0)
                             k = (k + 1) & 0xffff;
                     }
                 }
@@ -4715,7 +4714,7 @@ u32 btlAICommandSideIdQueryMyAbleSkil(void)
 // FUN_001E43D0
 s32 btlAICommandScriptSelfHasBuff(void) {
     u8 *p = scrGetAiState();
-    scrSetReturnInt(datCalcHasBuffMask(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64), scrGetParamInt(0)) != 0);
+    scrSetReturnInt(datCalcHasBuffMask(*(DatUnit **)(*(u8 **)(p + 0x30) + 0xA64), scrGetParamInt(0)) != 0);
     return 1;
 }
 
@@ -5416,7 +5415,7 @@ s32 btlAICommandIdScriptQueryMyHp(void) {
 s32 btlAICommandIdScriptQueryHasBuff(void) {
     u32 a = scrGetParamInt(0);
     u32 b = scrGetParamInt(1);
-    u8 t = datCalcHasBuffMask(*(u8 **)(*(u8 **)((u8 *)btlActionFindById(a & 0xFFFFFFF) + 0x30) + 0xA64), b) != 0;
+    u8 t = datCalcHasBuffMask(*(DatUnit **)(*(u8 **)((u8 *)btlActionFindById(a & 0xFFFFFFF) + 0x30) + 0xA64), b) != 0;
     scrSetReturnInt(t != 0);
     return 1;
 }
