@@ -13,7 +13,7 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern s32 func_004abc50(s32 arg0, s32 arg1);
-extern s32 func_004abd80(s32 arg0);
+extern s32 EffModelFindOrCreate(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00625230[];
 
@@ -254,7 +254,7 @@ s32 *btlEplNewIdHandleFromUnit(u8 *arg0) {
     result = (s32 *)(*jtbl_008873E8)(4, 0x40000);
     value = *field;
     if (value != 0) {
-        *result = func_004abd80(value);
+        *result = EffModelFindOrCreate(value);
     } else {
         *result = 0;
     }
@@ -1029,7 +1029,7 @@ s32 *btlEplNewWideIdHandleFromUnit(u8 *arg0) {
     result = (s32 *)(*jtbl_008873E8)(0x24, 0x40000);
     value = *field;
     if (value != 0) {
-        *result = func_004abd80(value);
+        *result = EffModelFindOrCreate(value);
     } else {
         *result = 0;
     }
@@ -1311,7 +1311,7 @@ s32 *btlEplNewZeroedIdHandleFromUnit(u8 *arg0) {
     *result = 0;
     value = *field;
     if (value != 0) {
-        *result = func_004abd80(value);
+        *result = EffModelFindOrCreate(value);
     } else {
         *result = 0;
     }
@@ -1451,7 +1451,7 @@ s32 *btlEplNewPatternWorkFromUnit(u8 *arg0) {
     result->pattern = 0;
     value = *field;
     if (value != 0) {
-        value = func_004abd80(value);
+        value = EffModelFindOrCreate(value);
         result->target = value;
         rnd = mdlCountIntUserData(value);
         if ((rnd >> 1) != 0) {

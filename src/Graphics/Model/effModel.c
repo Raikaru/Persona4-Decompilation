@@ -14,7 +14,7 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern void mdlSetLayerTime(u8 *arg0, s32 arg1, f32 arg2);
 
 extern void TnInvokeCallback(void);
-extern void func_004abe60(void);
+extern void EffModelResetCallback(void);
 extern s32 TnGetOffset1C(s32 arg0);
 extern void *mdlFindOrCreateModelObject(u32 arg0, u16 arg1, u32 arg2);
 extern void kAssertFail(const char *arg0, s32 arg1);
@@ -26,9 +26,9 @@ extern void mdlDestroyModelObject(u32 arg0);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern char D_007144A8[];
-extern void func_004ac170(u8 *arg0, u8 *arg1);
-extern void func_004ac300(s32 arg0, u8 *arg1);
-extern void func_004ac9a0(u8 *arg0, u8 *arg1);
+extern void EffModelRebindModel(u8 *arg0, u8 *arg1);
+extern void EffModelUpdate(s32 arg0, u8 *arg1);
+extern void EffModelRebindDrawable(u8 *arg0, u8 *arg1);
 extern void mdlSetDrawCallback(u8 *arg0, void (*arg1)(u8 *), void *arg2);
 extern void mdlClearAtomicFlags(void *arg0, s32 arg1);
 extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
@@ -40,7 +40,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 
 // FUN_004ABD80
-void *func_004abd80(void *arg0)
+void *EffModelFindOrCreate(void *arg0)
 {
     void *work;
 
@@ -54,12 +54,12 @@ void *func_004abd80(void *arg0)
         mdlSetLayerWeight(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
-    mdlSetResetCallback(work, func_004abe60, work);
+    mdlSetResetCallback(work, EffModelResetCallback, work);
     return work;
 }
 
 // FUN_004ABE60
-void func_004abe60(void) {
+void EffModelResetCallback(void) {
     TnInvokeCallback();
 }
 
@@ -68,7 +68,7 @@ void func_004abe60(void) {
 #pragma push
 #pragma opt_propagation off
 // FUN_004ABE80
-void *func_004abe80(void *arg0) {
+void *EffModelCreate(void *arg0) {
     f32 temp_f20;
     s32 temp_18;
     s32 temp_2_3;
@@ -111,7 +111,7 @@ void *func_004abe80(void *arg0) {
                 mdlSetLayerWeight(temp_2_4, 0, temp_f20);
             }
             *(u32 *)(temp_2_4 + 0xD8) &= ~2U;
-            mdlSetResetCallback(temp_2_4, func_004abe60, temp_2_4);
+            mdlSetResetCallback(temp_2_4, EffModelResetCallback, temp_2_4);
             iGpffffbb90 += 1;
             *(u8 **)(temp_2 + 0x94) = temp_2_4;
         }
@@ -120,7 +120,7 @@ void *func_004abe80(void *arg0) {
 }
 #pragma pop
 // FUN_004AC0B0
-void func_004ac0b0(void *arg0)
+void EffModelFree(void *arg0)
 {
     if (*(void **)((u8 *)arg0 + 0x94) != 0) {
         mdlDestroyModelObject(*(u32 *)((u8 *)arg0 + 0x94));
@@ -129,18 +129,18 @@ void func_004ac0b0(void *arg0)
 }
 
 // FUN_004AC100
-void *func_004ac100(void *arg0)
+void *EffModelClone(void *arg0)
 {
     void *work;
 
-    work = func_004abe80(0);
+    work = EffModelCreate(0);
     memcpy((u8 *)work + 0x2C, (u8 *)arg0 + 0x2C, 0x68);
-    func_004ac170(work, arg0);
+    EffModelRebindModel(work, arg0);
     return work;
 }
 
 // FUN_004AC170
-void func_004ac170(u8 *dst, u8 *src)
+void EffModelRebindModel(u8 *dst, u8 *src)
 {
     void *work;
 
@@ -160,19 +160,19 @@ void func_004ac170(u8 *dst, u8 *src)
         mdlSetLayerWeight(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
-    mdlSetResetCallback(work, func_004abe60, work);
+    mdlSetResetCallback(work, EffModelResetCallback, work);
     *(void **)(dst + 0x94) = work;
 }
 
 // FUN_004AC290
-void func_004ac290(u8 *arg0) {
+void EffModelResetLayerTime(u8 *arg0) {
     mdlSetLayerTime(*(u8 **)(arg0 + 0x94), 0, 0.0f);
 }
 
 
 
 // FUN_004AC2C0
-void func_004ac2c0(u32 *param_1)
+void EffModelRollCycle(u32 *param_1)
 {
   if ((param_1[0x23] >= param_1[0x26]) || (param_1[0x23] == 0)) {
     *(f32 *)(param_1 + 9) = 1.0f;
@@ -198,7 +198,7 @@ extern void mdlQueueModelForDraw(s32 arg0, void *arg1);
 extern f32 D_00761134;
 
 // FUN_004AC300
-void func_004ac300(s32 arg0, u8 *arg1)
+void EffModelUpdate(s32 arg0, u8 *arg1)
 {
     s32 spBC;
     s32 spB8;
@@ -292,39 +292,39 @@ void func_004ac300(s32 arg0, u8 *arg1)
     }
 }
 // FUN_004AC550
-void func_004ac550(void *arg0)
+void EffModelUpdateByOffset(void *arg0)
 {
-    func_004ac300(TnGetOffset1C(*(u16 *)((u8 *)arg0 + 0x54)), arg0);
+    EffModelUpdate(TnGetOffset1C(*(u16 *)((u8 *)arg0 + 0x54)), arg0);
 }
 
 // FUN_004AC590
-void func_004ac590(u32 *param_1)
+void EffModelRollAndUpdate(u32 *param_1)
 {
     if ((param_1[0x23] >= param_1[0x26]) || (param_1[0x23] == 0)) {
         *(f32 *)(param_1 + 9) = 1.0f;
         param_1[0x26] = param_1[0x26] + 1;
     }
-    func_004ac300(TnGetOffset1C(*(u16 *)&param_1[0x15]), (u8 *)param_1);
+    EffModelUpdate(TnGetOffset1C(*(u16 *)&param_1[0x15]), (u8 *)param_1);
 }
 
 // FUN_004AC600
-u_long128 func_004ac600(u_long128 *dst, u_long128 *src) {
+u_long128 EffModelCopyQuad(u_long128 *dst, u_long128 *src) {
     return *dst = *src;
 }
 
 // FUN_004AC610
-u_long128 func_004ac610(u_long128 *dst, u_long128 *src) {
+u_long128 EffModelCopyQuadSecond(u_long128 *dst, u_long128 *src) {
     return dst[1] = *src;
 }
 
 // FUN_004AC630
-void func_004ac630(void *arg0, f32 arg1)
+void EffModelSetScale(void *arg0, f32 arg1)
 {
     *(f32 *)((u8 *)arg0 + 0x20) = arg1;
 }
 
 // FUN_004AC620
-void func_004ac620(int param_1, int param_2)
+void EffModelSetLookupIndex(int param_1, int param_2)
 {
   *(int *)(param_1 + 0x28) = param_2;
 }
@@ -333,7 +333,7 @@ void func_004ac620(int param_1, int param_2)
 #pragma push
 #pragma opt_propagation off
 // FUN_004AC640
-void *func_004ac640(void *arg0) {
+void *EffModelCreateDrawable(void *arg0) {
     s32 temp_18;
     s32 temp_2_3;
     s32 temp_2_5;
@@ -373,7 +373,7 @@ void *func_004ac640(void *arg0) {
                 mdlSetLayerWeight(temp_2_4, 0, 1.0f);
             }
             *(u32 *)(temp_2_4 + 0xD8) &= ~2U;
-            mdlSetResetCallback(temp_2_4, func_004abe60, temp_2_4);
+            mdlSetResetCallback(temp_2_4, EffModelResetCallback, temp_2_4);
             iGpffffbb90 += 1;
             *(u8 **)(temp_2 + 0xB4) = temp_2_4;
             mdlSetDrawCallback(temp_2_4, func_004accc0, temp_2);
@@ -396,7 +396,7 @@ void *func_004ac640(void *arg0) {
 }
 #pragma pop
 // FUN_004AC8E0
-void func_004ac8e0(void *arg0)
+void EffModelFreeDrawable(void *arg0)
 {
     if (*(void **)((u8 *)arg0 + 0xB4) != 0) {
         mdlDestroyModelObject(*(u32 *)((u8 *)arg0 + 0xB4));
@@ -405,18 +405,18 @@ void func_004ac8e0(void *arg0)
 }
 
 // FUN_004AC930
-void *func_004ac930(void *arg0)
+void *EffModelCloneDrawable(void *arg0)
 {
     void *work;
 
-    work = func_004ac640(0);
+    work = EffModelCreateDrawable(0);
     memcpy((u8 *)work + 0x10, (u8 *)arg0 + 0x10, 0xA4);
-    func_004ac9a0(work, arg0);
+    EffModelRebindDrawable(work, arg0);
     return work;
 }
 
 // FUN_004AC9A0
-void func_004ac9a0(u8 *dst, u8 *src)
+void EffModelRebindDrawable(u8 *dst, u8 *src)
 {
     void *work;
 
@@ -436,7 +436,7 @@ void func_004ac9a0(u8 *dst, u8 *src)
         mdlSetLayerWeight(work, 0, 1.0f);
     }
     *(u32 *)((u8 *)work + 0xD8) &= 0xFFFFFFFD;
-    mdlSetResetCallback(work, func_004abe60, work);
+    mdlSetResetCallback(work, EffModelResetCallback, work);
     *(void **)(dst + 0xB4) = work;
     mdlSetDrawCallback(work, func_004accc0, dst);
     if (*(u8 *)(dst + 0xA0) == 0) {

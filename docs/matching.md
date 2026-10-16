@@ -5159,7 +5159,7 @@ as a pointer and uses the clone producer's `u32 *mdlCloneModelObject(u8 *)` (was
 contract. Generated reference drafts are intentionally unchanged.
 
 Four previously matched callers exposed constant/halfword-load scheduling
-changes after the prototype correction: `func_004abe80`, `func_004ac640`,
+changes after the prototype correction: `EffModelCreate` (was `func_004abe80`), `EffModelCreateDrawable` (was `func_004ac640`),
 `func_002915f0`, and `func_004abc50`. A named `u32` lookup type under scoped
 propagation-off preserves retail's constant-first argument materialization.
 The constructors assign that local on each condition evaluation; the existing
