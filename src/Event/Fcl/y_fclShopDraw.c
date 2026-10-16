@@ -20,6 +20,11 @@ static inline s8 *fclShopMesSlot(u8 *work)
 {
     return (s8 *)(work + 0x10);
 }
+/* Loaded-file pointer slot of the shop work (work + 0xF2C), kept as byte offset. */
+static inline void **fclShopLoadedFile(u8 *work)
+{
+    return (void **)(work + 0xF2C);
+}
 static inline f32 shopAdd(f32 left, f32 right) { return left + right; }
 typedef struct {
     u8 pad0a[2];
@@ -870,11 +875,11 @@ s32 fclShopStateUpdate(u8 *arg0)
     case 0x9:                                       /* switch 1 */
         (*(s32 *)(work + 0xF28)) = sdkSpriteRequestLoad(&D_0063FAA0);
         func_00440b68(iGpffffa878, D_0063FAC0, 0x147);
-        (*(void **)(work + 0xF2C)) = H_Cdvd_AcquireDirectory(D_0063FAD0, 0);
+        (*fclShopLoadedFile(work)) = H_Cdvd_AcquireDirectory(D_0063FAD0, 0);
         (*(s8 *)(work + 0)) = 0xA;
         /* fallthrough */
     case 0xA:                                       /* switch 1 */
-        if ((func_0046a750((*(s32 *)(work + 0xF28))) != 0) && (H_Cdvd_IsFileLoaded((*(void **)(work + 0xF2C))) != 0)) {
+        if ((func_0046a750((*(s32 *)(work + 0xF28))) != 0) && (H_Cdvd_IsFileLoaded((*fclShopLoadedFile(work))) != 0)) {
             (*(s8 *)(work + 0)) = 0xB;
             (*(s8 *)(work + 0xF30)) = 1;
             for (var_16 = 0; var_16 < 0x91; var_16++) {
@@ -979,7 +984,7 @@ s32 fclShopStateUpdate(u8 *arg0)
         break;
     case 0xD:                                       /* switch 1 */
         if ((yListCountFor((*(void * *)(work + 0xF18))) > D_00748908[0]) && (datGetFlag(0x1324) == 0)) {
-            (*fclShopMesSlot(work)) = nmMesWindowAcquire((*(void * *)((u8 *)((*(void **)(work + 0xF2C))) + 0x110)));
+            (*fclShopMesSlot(work)) = nmMesWindowAcquire((*(void * *)((u8 *)((*fclShopLoadedFile(work))) + 0x110)));
             nmMesWindowShowSlotRecordStyle1((*fclShopMesSlot(work)), 0xB);
             (*(s8 *)(work + 0)) = 0xC;
             return 0;
@@ -987,12 +992,12 @@ s32 fclShopStateUpdate(u8 *arg0)
         if (((s8) (calGetDayEntryForMonthDay((fclCalendarMonth() & 0xFF), (u8)fclCalendarDay() & 0xFF))) == 1) {
             temp_3_2 = (s16) ((((u8)fclCalendarDay() & 0xFF) + ((fclCalendarMonth() & 0xFF) * 0x64)));
             if ((temp_3_2 >= 0x190) && (temp_3_2 < 0x207)) {
-                (*fclShopMesSlot(work)) = fclShopPlaySound(arg0, 0xC, (*(void * *)((u8 *)((*(void **)(work + 0xF2C))) + 0x110)), 0);
+                (*fclShopMesSlot(work)) = fclShopPlaySound(arg0, 0xC, (*(void * *)((u8 *)((*fclShopLoadedFile(work))) + 0x110)), 0);
             } else {
-                (*fclShopMesSlot(work)) = fclShopPlaySound(arg0, 0xD, (*(void * *)((u8 *)((*(void **)(work + 0xF2C))) + 0x110)), 0);
+                (*fclShopMesSlot(work)) = fclShopPlaySound(arg0, 0xD, (*(void * *)((u8 *)((*fclShopLoadedFile(work))) + 0x110)), 0);
             }
         } else {
-            (*fclShopMesSlot(work)) = fclShopPlaySound(arg0, 0xC, (*(void * *)((u8 *)((*(void **)(work + 0xF2C))) + 0x110)), 0);
+            (*fclShopMesSlot(work)) = fclShopPlaySound(arg0, 0xC, (*(void * *)((u8 *)((*fclShopLoadedFile(work))) + 0x110)), 0);
         }
         (*(s8 *)(work + 0)) = 0xF;
         break;
