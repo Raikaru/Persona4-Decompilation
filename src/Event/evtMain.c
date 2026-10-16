@@ -2680,6 +2680,7 @@ u8 *evtCreateEventState(void) {
     s32 v;
     s32 t;
     u8 *p;
+    EvtEventWork *work;
     u32 *src;
     u32 *dst;
     u32 tmp;
@@ -2690,6 +2691,7 @@ u8 *evtCreateEventState(void) {
     evtMemAccount(0, 0x7B0);
     memset(p, 0, 0x7B0);
     evtResetPendingState((s32)p);
+    work = (EvtEventWork *)p;
     src = (u32 *)(p + 0x76C);
     dst = sp30;
     i = 15;
@@ -2700,7 +2702,7 @@ u8 *evtCreateEventState(void) {
         *dst = tmp;
         dst++;
     } while (i > 0);
-    v = *(u32 *)p;
+    v = work->waitFlags;
     memset(p, 0, 0x7B0);
     src = sp30;
     dst = (u32 *)(p + 0x76C);
@@ -2712,12 +2714,12 @@ u8 *evtCreateEventState(void) {
         *dst = tmp;
         dst++;
     } while (i > 0);
-    *(u32 *)p = v;
+    work->waitFlags = v;
     evtMenuClearSlots();
-    *(u32 *)p |= 1;
+    work->waitFlags |= 1;
     *(u32 *)(p + 8) = 0x21C;
-    *(u32 *)(p + 0x10) = *(u32 *)(p + 8) - 1;
-    if (*(u32 *)p & 0x80000000) {
+    work->frameLimit = *(u32 *)(p + 8) - 1;
+    if (work->waitFlags & 0x80000000) {
         *(u32 *)(p + 0x54) = 1;
     }
     K_View_SetFov(kwlnGetCamera(), 35.0f);
