@@ -9,7 +9,6 @@ extern u8 *iGpffffb3d4;
 extern s16 D_006420A0[];
 extern u32 D_00642EF0[];
 extern u32 D_00642F00[];
-extern struct DatPersonaRecord *datPersonaFindRosterRecordById(s32 arg0);
 extern u8 *yListSlotWork(s8 arg0);
 extern void yListSlotAppend(s8 arg0, s32 arg1, s8 arg2);
 extern u8 *yListSlotEntry();

@@ -36,7 +36,6 @@ extern s32 yListCompareByWeightedKeyDesc(const void *arg0, const void *arg1);
 #include "datPersona_internal.h"
 extern u8 *datPersonaCachedRecord(s32 arg0);
 extern s32 datPersonaFindRosterSlotById(s32 arg0);
-extern struct DatPersonaRecord *datPersonaFindRosterRecordById(s32 arg0);
 
 extern s32 datPersonaRosterSlotActive(s16 arg0);
 extern void datPersonaInitAllRecords(void);
