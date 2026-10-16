@@ -1518,7 +1518,7 @@ void datCommunityMenuInit(u8 *arg0)
             kAssertFail(D_0064CC98, 0x1FC);
         }
     }
-    func_00359400(arg0, 0);
+    datCommunitySetTableMode(arg0, 0);
     func_002bc010(0xB, (u8 *)cmmAuxTable());
     *(u8 **)(arg0 + 0x1308) = datScreenWipeTaskCreate(0, 1);
     *(u8 **)(arg0 + 0x130C) = func_0035adc0(0, 0, 0);
@@ -1551,8 +1551,8 @@ s32 datCommunityPanelUpdate(u8 *arg0)
     s32 result;
     u8 *slot;
     extern void datCommunityListDraw(u8 *arg0);
-    extern void func_00359340(u8 *arg0);
-    extern void func_003593b0(u8 *arg0);
+    extern void datCommunityEntriesStep(u8 *arg0);
+    extern void datCommunityBounceStep(u8 *arg0);
 
     result = 1;
     counter = *(s16 *)(arg0 + 0x20);
@@ -1586,8 +1586,8 @@ loop_test:
     if (*(s16 *)(arg0 + 0x22) > 0x168) {
         *(s16 *)(arg0 + 0x22) = *(s16 *)(arg0 + 0x22) - 0x168;
     }
-    func_00359340(arg0);
-    func_003593b0(arg0);
+    datCommunityEntriesStep(arg0);
+    datCommunityBounceStep(arg0);
     datCommunityListDraw(arg0);
     return result;
 }
@@ -2311,7 +2311,7 @@ void datCommunityListDraw(u8 *work) {
 #pragma pop
 
 // FUN_00359340
-void func_00359340(u8 *arg0) {
+void datCommunityEntriesStep(u8 *arg0) {
     s32 i;
 
     for (i = 0; i < 0x6C; i++) {
@@ -2319,15 +2319,17 @@ void func_00359340(u8 *arg0) {
     }
 }
 
+// Intent: Bounce step: halve the community menu's vertical velocity and reverse its direction [inferred]
 // FUN_003593B0
-void func_003593b0(u8 *arg0)
+void datCommunityBounceStep(u8 *arg0)
 {
     *(f32 *)(arg0 + 0x34) *= 0.5f;
     *(f32 *)(arg0 + 0x30) *= -0.5f;
 }
 
+// Intent: Push a value into a community history slot: move the current value to the previous one and store the new value [inferred]
 // FUN_003593E0
-s32 func_003593e0(s32 arg0, s32 arg1, s16 arg2)
+s32 datCommunityPushValue(s32 arg0, s32 arg1, s16 arg2)
 {
     s32 off = arg1 * 2;
     u8 *p = (u8 *)(off + (s32)arg0);
@@ -2339,8 +2341,9 @@ s32 func_003593e0(s32 arg0, s32 arg1, s16 arg2)
 #pragma push
 /* measured: opt_loop_invariants on hoists conversion constants for target. */
 #pragma opt_loop_invariants on
+// Intent: Select the community table for a mode: fill its 43 entries and the table's count and width; returns 0 when the mode is already set [inferred]
 // FUN_00359400
-s32 func_00359400(u8 *arg0, s32 arg1)
+s32 datCommunitySetTableMode(u8 *arg0, s32 arg1)
 {
     extern u8 D_0064B420[];
     extern u8 D_0064B8E0[];
@@ -3615,7 +3618,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
 {
     extern u16 D_008C024E[];
     extern s32 func_00354030(void);
-    extern s32 func_003593e0(s32, s32, s32);
+    extern s32 datCommunityPushValue(s32, s32, s32);
     extern void func_0035ef80(u8 *);
     extern void func_0035f020(u8 *);
     u8 buf[44];
@@ -3660,7 +3663,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
         break;
     case 4:
         if (D_008C024E[0] & 0x20) {
-            func_00359400(arg2, 1);
+            datCommunitySetTableMode(arg2, 1);
             *arg0 = 2;
             resrcMngUnsuppressRender();
             func_0034bb20(0x1B);
@@ -3668,10 +3671,10 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x40) {
             if (*(s16 *)(arg2 + 0x134) > 0) {
-                func_00359400(arg2, 2);
+                datCommunitySetTableMode(arg2, 2);
                 func_003598d0(arg2);
                 *arg0 = 5;
-                func_003593e0((s32)arg2, 2, 0);
+                datCommunityPushValue((s32)arg2, 2, 0);
                 func_0034bb20(0x1A);
                 func_0035ac60((u8 *)*(s32 *)(arg2 + 0x1308), 1, 0, 0);
                 func_0035ef80(arg2);
@@ -3686,15 +3689,15 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
             func_00453670(buf, 5, *(s16 *)(arg2 + 0x134), *(s16 *)(arg2 + 0x24), *(s16 *)(arg2 + 0x26));
             func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
             if ((result = func_00453960(buf)) > 0) {
-                func_003593e0((s32)arg2, 1, *(s32 *)(buf + 0x28));
-                func_003593e0((s32)arg2, 0, *(s32 *)(buf + 0x24));
+                datCommunityPushValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
+                datCommunityPushValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
                 func_00354080(result);
             }
         }
         break;
     case 5:
         if (func_003596a0(arg2) != 0) {
-            func_00359400(arg2, 3);
+            datCommunitySetTableMode(arg2, 3);
             *arg0 = 6;
             func_0034bb20(0x1C);
             func_003599a0(arg2);
@@ -3704,7 +3707,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
     case 6:
         if (func_003596a0(arg2) != 0) {
             if (D_008C024E[0] & 0x20) {
-                func_00359400(arg2, 4);
+                datCommunitySetTableMode(arg2, 4);
                 *arg0 = 3;
                 func_0034bd60(0x19);
                 func_0035c480(*(s32 *)(arg2 + 0x1310), 0, 0);
@@ -3717,9 +3720,9 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
                 func_00453760(buf, 0);
                 func_004538e0(buf, 8, 4, 0, 0);
                 if (func_00453960(buf) != 0) {
-                    func_003593e0((s32)arg2, 1, *(s32 *)(buf + 0x28));
-                    func_003593e0((s32)arg2, 0, *(s32 *)(buf + 0x24));
-                    func_003593e0((s32)arg2, 2, 0);
+                    datCommunityPushValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
+                    datCommunityPushValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
+                    datCommunityPushValue((s32)arg2, 2, 0);
                     func_0035ef80(arg2);
                     func_003599a0(arg2);
                     func_003597f0(arg2);
@@ -3729,7 +3732,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
                     func_00453670(buf, 8, *(s32 *)(arg2 + 0x148), *(s16 *)(arg2 + 0x28), 0);
                     func_004538e0(buf, 0x4000, 0x1000, 0, 0);
                     if (func_00453960(buf) != 0) {
-                        func_003593e0((s32)arg2, 2, *(s32 *)(buf + 0x24));
+                        datCommunityPushValue((s32)arg2, 2, *(s32 *)(buf + 0x24));
                         func_0035f020(arg2);
                         sdkSndStartStream(0, 1, 0, 0);
                     }
