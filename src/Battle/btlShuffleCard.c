@@ -23,7 +23,7 @@ extern void pscResAcquireMiscCardW01(void);
 extern void func_0036b5a0(u8 *arg0, void *arg1);
 extern void func_0036b5c0(u8 *arg0, void *arg1);
 extern void func_0036b600(u8 *arg0, void *arg1);
-extern void func_0036adc0(u8 *arg0, void *arg1);
+extern void pscPanelSetColor(u8 *arg0, void *arg1);
 extern void pscModelScreenPos(void *arg0, const f32 *arg1, f32 fparg2, void *arg3);
 extern f32 pscModelPanelScale(const f32 *value, f32 scale);
 extern void func_0036a8f0(u8 *arg0, s32 arg1);
@@ -206,7 +206,7 @@ void btlShuffleCardBindPacket(u8 *arg0, void *arg1)
 // FUN_0036DE40
 void btlShuffleCardBindSlot(u8 *arg0, void *arg1)
 {
-    func_0036adc0(arg0, arg1);
+    pscPanelSetColor(arg0, arg1);
 }
 
 
