@@ -21,9 +21,9 @@ typedef struct MdlAppBc
     s32 unk18;       /* 0x18 */
 } MdlAppBc;
 
-extern s32 func_0047e440(u32 id, u16 subId);
-extern void *func_0047dea0(u32 id, u16 subId, s32 kind);
-extern s32 func_0047df40(u32 id, u16 subId);
+extern s32 mdlSeIsLoaded(u32 id, u16 subId);
+extern void *mdlSeCreateRecord(u32 id, u16 subId, s32 kind);
+extern s32 mdlSeAcquireSlot(u32 id, u16 subId);
 extern s32 datGetFlag(s32 id);
 extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s16 value);
@@ -35,7 +35,7 @@ extern s32 btlBossResolveModelName(u32 type, u16 id, char *name);
 extern s32 mdlFileIsTypePac(u32 type, u16 id);
 extern s32 mdlResolvePacPath(u32 type, u16 id, char *path);
 extern s32 mdlAttachWeaponModelSlots(void *model);
-extern void func_002311a0(MdlAppObj *obj);
+extern void mdlAppBindSecondaryText(MdlAppObj *obj);
 
 extern char D_00635820[];
 extern char D_00635840[];
@@ -48,15 +48,16 @@ extern char D_006358D0[];
 extern char D_007636e0;
 extern char D_007636e8;
 
+/* Binds the per-object sound record: kind 1 gets text chosen from the day window, kind 2 gets a slot and text; sets the loaded flag. Returns 0 for other ids. Registered as the model object callback. */
 // FUN_00230F20
-s32 func_00230f20(MdlAppObj *obj)
+s32 mdlAppBindObjectRecord(MdlAppObj *obj)
 {
     char buf[0x100];
     void **bcp = &obj->bc;
     u32 id = obj->id;
     u16 subId = obj->subId;
 
-    if (func_0047e440(id, subId) != 0)
+    if (mdlSeIsLoaded(id, subId) != 0)
         return 1;
     if (*bcp != 0 && (*(u16 *)((u8 *)*bcp + 0x12) & 1))
         return 1;
@@ -64,7 +65,7 @@ s32 func_00230f20(MdlAppObj *obj)
     {
     case 1:
         if (*bcp == 0)
-            *bcp = func_0047dea0(id, subId, 1);
+            *bcp = mdlSeCreateRecord(id, subId, 1);
         if (datGetFlag(0x1438) != 0 && (subId & 0xFFFF) == 1)
             sprintf(buf, D_00635820, &D_007636e0, subId & 0xFFFF);
         else if (calGetDayWindowFlags((s16)datGetDateIndex()) & 1)
@@ -77,9 +78,9 @@ s32 func_00230f20(MdlAppObj *obj)
         break;
     case 2:
         if (*bcp == 0)
-            *bcp = func_0047dea0(id, subId, 2);
-        func_002311a0(obj);
-        *(s32 *)((u8 *)*bcp + 0x04) = func_0047df40(id, subId);
+            *bcp = mdlSeCreateRecord(id, subId, 2);
+        mdlAppBindSecondaryText(obj);
+        *(s32 *)((u8 *)*bcp + 0x04) = mdlSeAcquireSlot(id, subId);
         sprintf(buf, D_00635890, D_00635678, subId & 0xFFFF);
         func_00440b68(&D_007636e8, D_00635878, 0x12F);
         *(s32 *)((u8 *)*bcp + 0x14) = func_00454a60(buf, 1);
@@ -91,8 +92,9 @@ s32 func_00230f20(MdlAppObj *obj)
     return 1;
 }
 
+/* For kind 2 records, binds the secondary text string for the listed sub-ids and clears it otherwise. */
 // FUN_002311A0
-void func_002311a0(MdlAppObj *obj)
+void mdlAppBindSecondaryText(MdlAppObj *obj)
 {
     char buf[0x100];
     void **bcp = &obj->bc;
@@ -100,7 +102,7 @@ void func_002311a0(MdlAppObj *obj)
     u16 subId = obj->subId;
     void *bc;
 
-    if (func_0047e440(id, subId) != 0)
+    if (mdlSeIsLoaded(id, subId) != 0)
         return;
     bc = *bcp;
     if (bc != 0 && (*(u16 *)((u8 *)bc + 0x12) & 1))
@@ -111,7 +113,7 @@ void func_002311a0(MdlAppObj *obj)
         break;
     case 2:
         if (bc == 0)
-            *bcp = func_0047dea0(id, subId, 2);
+            *bcp = mdlSeCreateRecord(id, subId, 2);
         switch (subId & 0xFFFF)
         {
         case 0x100:
@@ -142,15 +144,17 @@ void func_002311a0(MdlAppObj *obj)
     }
 }
 
+/* Registers the model callbacks: boss-name resolver, PAC-file test, PAC path resolver, weapon-slot attach and object record binding. */
 // FUN_002312E0
-void func_002312e0(void)
+void mdlAppRegisterModelCallbacks(void)
 {
     mdlSetModelCallbacks(btlBossResolveModelName, mdlFileIsTypePac, mdlResolvePacPath,
-                  mdlAttachWeaponModelSlots, func_00230f20);
+                  mdlAttachWeaponModelSlots, mdlAppBindObjectRecord);
 }
 
+/* Reads the startup resource: emits the preload message, then synchronously reads the file named by the string at D_006358D0. */
 // FUN_00231330
-void func_00231330(void)
+void mdlAppPreloadResource(void)
 {
     func_00440b68(&D_007636e8, D_00635878, 0x1A2);
     H_Cdvd_ReadSync(func_00454a60(D_006358D0, 0));

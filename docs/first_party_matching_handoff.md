@@ -4724,7 +4724,7 @@ unit build.  (This is a real definition, not an old-style `func()`
 passthrough declaration, which remains fake ABI.)
 
 **"Saved-register rotation" is usually a symptom, not a wall.** A floor on
-`func_0047e0f0` (`mdlSE.c`) carried a careful note describing a full cyclic
+`mdlSeFillEntryState` (was `func_0047e0f0`) (`mdlSE.c`) carried a careful note describing a full cyclic
 shift of six callee-saved assignments and listed six source shapes that did
 not move it.  `#pragma opt_loop_invariants on` took the same body from 166
 differing words to 10 and every saved register snapped onto retail's.  The
@@ -4752,7 +4752,7 @@ before.  With `s8 sb[4]` for retail's `lb` (not `u8`/`lbu`), that closed the
 function to an exact 212/212.
 
 **Re-derive an inherited body before you measure it.**  The archived
-`func_0047e0f0` body contained a fabricated five-argument call to
+`mdlSeFillEntryState` (was `func_0047e0f0`) body contained a fabricated five-argument call to
 `func_003b7060` — the no-argument RNG every other caller in the tree uses,
 against an invented 5-arg extern — an index of `entry[writeIndex]` where
 retail reads `entry[(u16)i]`, and a `default:` arm the switch does not have.

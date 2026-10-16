@@ -29,7 +29,7 @@ extern u8 D_007131A0[];
 extern u8 D_007131C0[];
 extern s32 K_Clump_MatUsrDataHasData(void* a, u8* b);
 extern f32 K_Clump_MatUsrDataGetFloat(const RpMaterial* a, const char* b);
-extern s32 func_0047e6f0(void** owner);
+extern s32 mdlSeUpdateRecord(void** owner);
 
 extern u32 RpHAnimFrameGetHierarchy(s32 object);
 typedef void (*CallbackFn)(void);
@@ -4306,7 +4306,7 @@ void* mdlCreateModelObjectFromMemory(u32 type, u16 id, void* memory, u32 size, u
 void* mdlCreateModelObjectFromResource(u32 arg0, u16 arg1, void* arg2, u32 arg3)
 {
     extern u8* func_00455ea0(u8*, s32, s32*);
-    extern void func_0047e450(void**, u32, u16, s32, u32);
+    extern void mdlSeRequestLoad(void**, u32, u16, s32, u32);
     void* obj;
     void* result;
     u32 stack9c;
@@ -4349,7 +4349,7 @@ void* mdlCreateModelObjectFromResource(u32 arg0, u16 arg1, void* arg2, u32 arg3)
     mdlSetAuxPair(obj, &pair1);
     mdlPrepareModel(obj);
     retB = (u32)func_00455ea0(arg2, 1, (s32*)&stack9c);
-    func_0047e450((void**)((u8*)obj + 0x2D0), arg0, arg1, (s32)retB, stack9c);
+    mdlSeRequestLoad((void**)((u8*)obj + 0x2D0), arg0, arg1, (s32)retB, stack9c);
     result = obj;
 done:
     return result;
@@ -4416,13 +4416,13 @@ s32 mdlPrepareModel(u8* param_1)
         if (mdlAdvanceAuxLoad() == 0) {
             return 0;
         }
-        if (func_0047e6f0((void**)(param_1 + 0x2D0)) == 0) {
+        if (mdlSeUpdateRecord((void**)(param_1 + 0x2D0)) == 0) {
             return 0;
         }
         mdlFreeAuxBlock(param_1);
         mdlSetupPreparedModel(param_1);
     } else {
-        if (func_0047e6f0((void**)(param_1 + 0x2D0)) == 0) {
+        if (mdlSeUpdateRecord((void**)(param_1 + 0x2D0)) == 0) {
             return 0;
         }
         id2 = *(u16*)(param_1 + 0xD6);
