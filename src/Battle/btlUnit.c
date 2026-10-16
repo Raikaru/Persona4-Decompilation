@@ -151,9 +151,9 @@ extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern f32 RwV3dLength(RwV3d *value);
 extern u8 *iGpffffb3ac;
 extern RwV3d D_00881430;
-void func_00196ce0(BtlUnitPacketMove* work);
-u32 func_00196d00(void* work);
-void func_001973d0(BtlUnitPacketMove* work);
+void btlUnitHoldPendingMove(BtlUnitPacketMove* work);
+u32 btlUnitMovePacketUpdate(void* work);
+void btlUnitReleasePendingMove(BtlUnitPacketMove* work);
 void btlUnitHoldPendingPacket(BtlUnitPacketCountRef* work);
 u32 btlUnitMoveToUnitPacketUpdate(BtlUnitPacketMoveToUnit* work);
 void btlUnitReleasePendingPacket(BtlUnitPacketCountRef* work);
@@ -751,7 +751,7 @@ u32 btlUnitMoveToUnitPacketUpdate(BtlUnitPacketMoveToUnit* packet)
         packet->unk_1c = 0.0f;
     }
 finish:
-    func_00196d00(packet);
+    btlUnitMovePacketUpdate(packet);
 }
 // FUN_001979E0
 BtlPacket* btlUnitCreateMoveToUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, f32 param, f32 speed, u32 flags)
@@ -1390,9 +1390,9 @@ BtlPacket* btlUnitCreateMovePacket(BtlUnit* unit, const RwV3d* targetPos, f32 sp
 
     packet = btlPacketAlloc(0x10A, sizeof(BtlUnitPacketMove));
 
-    packet->initFunc = (BtlPacketFunc)func_00196ce0;
-    packet->updateFunc = func_00196d00;
-    packet->destroyFunc = (BtlPacketFunc)func_001973d0;
+    packet->initFunc = (BtlPacketFunc)btlUnitHoldPendingMove;
+    packet->updateFunc = btlUnitMovePacketUpdate;
+    packet->destroyFunc = (BtlPacketFunc)btlUnitReleasePendingMove;
 
     work = (BtlUnitPacketMove*)packet->workData;
 
