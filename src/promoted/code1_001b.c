@@ -112,7 +112,7 @@ extern BtlPacket *btlTargetCreateTargetPacket(u32 arg0, u16 arg1, u32 arg2, u32 
 extern void btlUnitShowModel(u8 *arg0);
 extern void btlUnitHideModel(u8 *arg0);
 extern s32 btlCurrentUnitId(void);
-extern void func_002aaaa0(void);
+extern void loadingSpinnerRequestHide(void);
 extern void btlFadeStart(s32 arg0);
 extern s32 func_001faaa0(u8 *arg0);
 extern s32 btlBossIsAllowedAction(void);
@@ -154,7 +154,7 @@ extern u8 *btlSoundCreateWaitPacket(void);
 extern u8 *btlBossCreateLoadPakPacket(void);
 extern s32 btlBossMapUnitIdToEntryId(void);
 extern BtlPacket *btlBossCreateLoadEndBgmPacket(s32 arg0);
-extern void func_002aaa80(void);
+extern void loadingSpinnerRequestShow(void);
 extern void hFadeSetCustomWhite(void);
 s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern s32 btlShuffleIsIdle(s32 task);

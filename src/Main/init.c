@@ -12,8 +12,8 @@ extern s32 H_Cdvd_IsFileLoaded(void *handle);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void datEntryTableUseBuiltin(void);
 extern s32 calendarStartTasks(s32);
-extern void func_002aaa80(void);
-extern void func_002aaaa0(void);
+extern void loadingSpinnerRequestShow(void);
+extern void loadingSpinnerRequestHide(void);
 extern s32 kwlnTaskGetState(s32);
 extern s32 hsndSlotIsStarting();
 extern void func_001029a0(s32, s32, s32, s32);
@@ -123,12 +123,12 @@ s32 initBootChainStep(u8 *arg0)
         if ((hsndSlotIsStarting(0, var_5, var_6, var_7) != 0) && (hsndSlotIsStarting(1) != 0)) {
             *(s32 *)(temp_16 + 4) = 0;
             *(s32 *)temp_16 = 1;
-            func_002aaa80();
+            loadingSpinnerRequestShow();
         }
         break;
     case 1:
         if (callbacks[*(s32 *)(temp_16 + 4)] == NULL) {
-            func_002aaaa0();
+            loadingSpinnerRequestHide();
             calendarStartTasks(0);
             return -1;
         }

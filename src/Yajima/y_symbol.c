@@ -48,7 +48,7 @@ extern s32 K_FldEvent_ArePosWithinDist(u8 *arg0, u8 *arg1, f32 arg2);
 extern f32 KDraw_MatrixYawDeg(u8 *arg0);
 extern void *mdlGetMatrix(void *arg0);
 extern s32 smapGetSpriteHandle(void);
-extern s64 func_002ac3c0(s32 arg0, s32 arg1);
+extern s64 smapRevealTestBit(s32 arg0, s32 arg1);
 extern s32 smapWorldToColumn(RwV3d arg0);
 extern s32 smapWorldToRow(RwV3d arg0);
 extern f32 smapPlayerOffsetX(u8 *arg0, f32 arg1);
@@ -166,7 +166,7 @@ s32 mapSymbolPointUpdate(u8 *arg0)
         if (K_FldEvent_ArePosWithinDist(p + 0xC,
                           (u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30,
                           4800.0f) == 1 &&
-            (s8)func_002ac3c0(p[0x18], p[0x19]) == 1) {
+            (s8)smapRevealTestBit(p[0x18], p[0x19]) == 1) {
             dx = (s8)(p[0x18] -
                       smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)D_007EFA00[0]) + 0x30)));
             dy = (s8)(p[0x19] -
@@ -191,7 +191,7 @@ s32 mapSymbolPointUpdate(u8 *arg0)
             sdkSpriteDrawQueued(*(f32 *)&coord0, *((f32 *)&coord0 + 1), (f32)0xEA63, fclPackRgba(255, 255, 255, 255), 0xFF, 0xF, (void *)(u32)smapGetSpriteHandle(), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794DB0);
         }
     } else if (*(s8 *)p == 1 &&
-               (s8)func_002ac3c0(p[0x18], p[0x19]) == 1) {
+               (s8)smapRevealTestBit(p[0x18], p[0x19]) == 1) {
         keep = 172.0f + 18.0f * (f32)p[0x18] -
                smapPositionOffsetX(18.0f, (YVec3f *)(p + 0xC));
         keep -= 2.0f;
@@ -287,7 +287,7 @@ vtest1:
             a = smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
             b = smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
             if (datGetFlag(0x1012) == 0) {
-                if ((s8)func_002ac3c0(a, b) == 1) {
+                if ((s8)smapRevealTestBit(a, b) == 1) {
                     var_3 = 1;
                     goto vtest2;
                 }
@@ -336,7 +336,7 @@ vtest3:
             f = smapWorldToColumn(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
             e = smapWorldToRow(*(RwV3d *)((u8 *)mdlGetMatrix((void *)(u32)*(u32 *)((u8 *)&D_007E8C50 + p[1] * 0x750)) + 0x30)) & 0xFF;
             if (datGetFlag(0x1012) == 0) {
-                if ((s8)func_002ac3c0(f, e) == 1) {
+                if ((s8)smapRevealTestBit(f, e) == 1) {
                     var_3 = 1;
                     goto vtest4;
                 }
@@ -428,7 +428,7 @@ s32 mapSymbolTargetUpdate(u8 *arg0)
         b = p[0xA];
         a = p[9];
         if (datGetFlag(0x1013) == 0) {
-            if ((s8)func_002ac3c0(a, b) == 1) {
+            if ((s8)smapRevealTestBit(a, b) == 1) {
                 var_3 = 1;
                 goto vtest1;
             }
@@ -469,7 +469,7 @@ vtest1:
         b = p[0xA];
         a = p[9];
         if (datGetFlag(0x1013) == 0) {
-            if ((s8)func_002ac3c0(a, b) == 1) {
+            if ((s8)smapRevealTestBit(a, b) == 1) {
                 var_3 = 1;
                 goto vtest2;
             }
