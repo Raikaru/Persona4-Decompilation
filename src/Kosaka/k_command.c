@@ -36,7 +36,7 @@ extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 extern s32 datCalcGetLevelById(s32 value);
 extern void scrSetReturnInt(s32 value);
 extern u8* MT_Scene_GetResListHead(s32 arg0);
-extern void func_0016f130(s32 a, s32 b, s32 c);
+extern void FldFrame_RotateTaskCreate(s32 a, s32 b, s32 c);
 extern void func_0016f3b0(s32 a, s32 b, s32 c);
 extern s32 mdlPrepareModel(void* arg0);
 extern void* mdlCloneModelObject(s32 arg0);
@@ -753,20 +753,20 @@ s32 Cmd_SetFieldFloat(void)
 
 
 /* P4 flowscript library (build/p4flow/Field.json, index 0x1017): FLD_CAMERA_ROTATE(degrees, speed).
- * func_0016f130 creates a camera rotation task: yaw delta from the player's yaw plus degrees, at speed. */
+ * FldFrame_RotateTaskCreate creates a camera rotation task: yaw delta from the player's yaw plus degrees, at speed. */
 // FUN_00178070
 s32 K_Cmd_FLD_CAMERA_ROTATE(void)
 {
     s32 a = scrGetParamInt(0);
     s32 b = scrGetParamInt(1);
-    func_0016f130(0, b, a);
+    FldFrame_RotateTaskCreate(0, b, a);
     return 1;
 }
 
 
 
 /* P4 flowscript library (build/p4flow/Field.json, index 0x1018): FLD_CAMERA_ROTATE_BEHIND(degrees, speed).
- * func_0016f3b0 takes an absolute target yaw (wrapped to 360) where func_0016f130 adds
+ * func_0016f3b0 takes an absolute target yaw (wrapped to 360) where FldFrame_RotateTaskCreate adds
  * degrees to the player's yaw. The library name is kept. */
 // FUN_001780D0
 s32 K_Cmd_FLD_CAMERA_ROTATE_BEHIND(void)
