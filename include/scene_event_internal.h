@@ -45,17 +45,17 @@ extern s32 D_00882170[];
 
 /* Event TU prototypes: functions defined in src/Event and the scene-event bucket. */
 void func_00285260(void);
-void func_002871a0();
+void evtSetNodeResourcesEnabled();
 s32 evtFindTask(void);
 void func_0028ad90(u8 *arg0, s32 arg1);
 void evtEnvSlotRestore(int, int);
 void evtCamPosRestore(int);
 u64 func_00298190(s16 param_1, int param_2);
-void func_00287360(u8 *, u8 *, u8 *, s32, u8 *);
+void evtUpdateCutin(u8 *, u8 *, u8 *, s32, u8 *);
 void evtSelectRangeChoice();
 void sceneLightSlotsReset(void);
-void func_00288020();
-void func_00287d90();
+void evtSyncResManagerNodes();
+void evtStepLayerByChoice();
 void evtModelDestroy(void);
 void func_0028be70();
 void evtResetPendingState(int param_1);
