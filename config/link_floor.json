@@ -7,7 +7,7 @@
       "004647b0",
       "004653f0"
     ],
-    "src/Kernel/h_memcard_grouped.c": [
+    "src/Kernel/h_memcard_inferred_004647c0.c": [
       "004647c0"
     ],
     "src/promoted/k_fldEvent.c": [
