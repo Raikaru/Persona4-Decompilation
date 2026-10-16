@@ -36,7 +36,7 @@ extern s32 btlSideSelectUnits();
 extern s32 datCalcSkillAmount(s32 skill, u8 *source, u8 *target, s32 count, s32 hit, s32 relation, s32 options, s32 channel);
 extern void datCalcClearField18(u32 arg0);
 extern s32 btlEffectSelectNearestEntry(u32 arg0, u8 *arg1);
-extern u32 func_001d8bc0(u8 *arg0);
+extern u32 btlFormationCurrentEntry(u8 *arg0);
 extern s32 datCalcSkillElement(u8 *unit, u16 command);
 extern s32 datCalcElementBit(s16 index);
 extern s8 datCalcGetBuffStatus(u8 *unit, s32 status);
@@ -45,7 +45,7 @@ extern u32 datCalcUnderlyingSkillId(u32 arg0);
 extern u32 *btlEffectFindUnitByIdAndStatus();
 extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
 extern u32 datTestBitmapBit(u32 arg0, u32 arg1);
-extern void func_001d8bf0(u8 *arg0, u8 *arg1);
+extern void btlFormationEntryCopySelected(u8 *arg0, u8 *arg1);
 extern u8 *D_0072449C;
 extern void *D_00609850[];
 extern u32 D_00609600[];
@@ -1098,7 +1098,7 @@ s32 btlCond_APPOINT(u8 *param_1, u32 param_2)
     if (btlEffectSelectNearestEntry(0, (u8 *)(param_1 + 0x98)) == 0) {
         return btlAICommandPickAiTarget(param_1, param_2);
     }
-    *(u32 *)(param_1 + 0x38) = func_001d8bc0((u8 *)(param_1 + 0x98));
+    *(u32 *)(param_1 + 0x38) = btlFormationCurrentEntry((u8 *)(param_1 + 0x98));
     *(u16 *)(param_1 + 0x6a) = 1;
     return 1;
 }
@@ -5119,7 +5119,7 @@ s32 btlAICommandScriptAppointCurrent(void) {
     u8 *p = scrGetAiState();
     u32 q = *(u32 *)(D_0072449C + 0x170);
     if (q != 0) {
-        func_001d8bf0(p + 0x98, (u8 *)q + 0x98);
+        btlFormationEntryCopySelected(p + 0x98, (u8 *)q + 0x98);
         if (!((s32 (*)(u8 *, s32))D_00609D70[0])(p, 0))
             ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
     }
