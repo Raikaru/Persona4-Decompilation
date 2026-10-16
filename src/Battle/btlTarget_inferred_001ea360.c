@@ -88,7 +88,7 @@ extern u8 *btlCameraCreatePoseSequencePacket(s32 arg0, f32 *arg1, f32 *arg2, f32
 extern u8 D_00609E40[];
 extern s32 btlUnitFindInSideById(s32 arg0, s32 arg1);
 extern s32 btlActionFindByUnit(s32 arg0);
-extern void func_001fae60(s32 initialize, s32 update, s32 packet);
+extern void btlEncounterSetSequence(s32 initialize, s32 update, s32 packet);
 extern void btlActionRunFormationSequence(u8 *action);
 extern s32 btlEncounterFinishSetup(u8 *action);
 extern u8 *iGpffffb428;
@@ -166,7 +166,7 @@ body:
     temp_2_2 = btlActionFindByUnit(temp_2);
     if (temp_2_2 == 0)
         goto done;
-    func_001fae60((s32)btlActionRunFormationSequence, (s32)btlEncounterFinishSetup, temp_2_2);
+    btlEncounterSetSequence((s32)btlActionRunFormationSequence, (s32)btlEncounterFinishSetup, temp_2_2);
 done:
     return 1;
 }
