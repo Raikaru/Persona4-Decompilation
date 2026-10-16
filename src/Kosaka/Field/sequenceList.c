@@ -20,7 +20,7 @@ extern void func_0034b8c0(void);
 extern s32 kwlnTaskGetTaskByName(void *);
 extern void kwlnTaskDestroyWithHierarchy(s32);
 extern void kAssertFail(const void *, u32);
-extern s32 func_0046a110(s32, s16, void *);
+extern s32 mwPlayerCreate(s32, s16, void *);
 extern void *mwPlayerGetTaskName(void);
 
 extern char D_005DCB58[];
@@ -313,7 +313,7 @@ void SeqCombine_End(void)
 // FUN_00103440
 void SeqMovie_Start(s16 *arg0)
 {
-    func_0046a110(0, *arg0, &D_007963A0);
+    mwPlayerCreate(0, *arg0, &D_007963A0);
 }
 
 // FUN_00103480

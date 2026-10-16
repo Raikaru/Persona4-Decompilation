@@ -1069,7 +1069,7 @@ void mwPlayerTaskDestroy(u8 *arg0)
     poolFree((u32)work);
 }
 // FUN_0046A110
-s32 func_0046a110(s32 arg0, s16 arg1, s32 arg2) {
+s32 mwPlayerCreate(s32 arg0, s16 arg1, s32 arg2) {
     s32 result;
     u8 *work;
 
@@ -1094,7 +1094,7 @@ s32 mwPlayerGetTaskName(void)
 }
 
 // FUN_0046A1F0
-s32 func_0046a1f0(s32 arg0, s16 arg1, s32 arg2) {
+s32 mwPlayerCreateReset(s32 arg0, s16 arg1, s32 arg2) {
     s32 result;
     u8 *work;
 
@@ -1114,7 +1114,7 @@ s32 func_0046a1f0(s32 arg0, s16 arg1, s32 arg2) {
     return result;
 }
 // FUN_0046A2C0
-s32 func_0046a2c0(void)
+s32 mwPlayerGetCurrent(void)
 {
     return iGpffffbaf8;
 }
