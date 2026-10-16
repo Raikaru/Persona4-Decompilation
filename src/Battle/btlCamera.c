@@ -2485,7 +2485,7 @@ s32 btlCameraFrameActionStart(u8 *arg0, u8 *arg1)
     extern RwMatrix *RwMatrixRotate(RwMatrix *matrix, const RwV3d *axis, f32 angle, s32 mode);
     extern RwV3d *func_003e4320(RwV3d *out, const RwV3d *in, const RwMatrix *matrix);
     extern void btlMainCurveSetPoses(u16 *camera, f32 *first, f32 *second, u16 mode);
-    extern void func_001bbe80(u8 *arg0, f32 arg1);
+    extern void btlCameraSetSpringDuration(u8 *arg0, f32 arg1);
     extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
     extern void btlCameraSetTransitionDuration(u8 *arg0, f32 arg1);
     extern RwV3d D_0060A0E0;
@@ -2683,7 +2683,7 @@ next_entry:
         btlCameraSetTransitionDuration(arg0, (f32)*(s16 *)entry / 30.0f);
         break;
     case 1:
-        func_001bbe80(arg0, (f32)*(s16 *)entry / 30.0f);
+        btlCameraSetSpringDuration(arg0, (f32)*(s16 *)entry / 30.0f);
         break;
     case 2:
         btlCameraSetDuration(arg0, (f32)*(s16 *)entry / 30.0f);
