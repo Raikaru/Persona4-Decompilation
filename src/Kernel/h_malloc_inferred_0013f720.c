@@ -239,11 +239,12 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
 /* measured: b210 -O2 with loop-invariant optimization hoists the table and
    conversion constants. Resource pointer contracts, the chained third-resource
    store, and a counter scoped to sprite construction close the saved floor. */
+// Intent: zeroes and initialises the 0x18B0-byte radar state block; called from radarUpdateState.
 // FUN_0013FB50
 #pragma push
 /* measured: func_0013fb50 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_0013fb50(u8 *arg0) {
+void radarInitState(u8 *arg0) {
     s16 i;
     s16 j;
     s16 n;
@@ -337,8 +338,9 @@ void func_0013fb50(u8 *arg0) {
 }
 
 #pragma pop
+// Intent: advances the radar stage from 0 to 1; returns 1 once the stage is 1 or after advancing, 0 otherwise.
 // FUN_0013FF80
-s32 func_0013ff80(u8 *arg0) {
+s32 radarAdvanceStage(u8 *arg0) {
     s32 v = *(s32 *)(arg0 + 0x14);
 
     switch (v) {
@@ -353,8 +355,9 @@ s32 func_0013ff80(u8 *arg0) {
     }
 }
 
+// Intent: animates the radar entries toward the current counter, resets and draws the frame; returns 0 while any entry is still busy.
 // FUN_0013FFD0
-s32 func_0013ffd0(u8 *arg0) {
+s32 radarUpdateFrame(u8 *arg0) {
     s16 temp;
     s32 i;
     s32 result;
