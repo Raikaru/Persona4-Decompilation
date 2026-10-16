@@ -74,7 +74,7 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern u8 D_00638F90[];
 extern char D_00637348[];
-extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
+extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
                            s32 arg5, s32 arg6, s32 arg7,
                            s32 arg_sp0);
