@@ -106,7 +106,7 @@ extern u32 btlEffectCollectGenusMask(s32 formation);
 extern void btlSelectionResetUnitFlags(s32 arg0);
 extern u32 btlSelectionGetFormationEntryAlt(s32 task);
 extern u32 btlSelectionGetFormationEntry(s32 task);
-extern s32 func_001faf70(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 btlActionBuffCondition(u8 *arg0, s32 arg1, s32 arg2);
 extern void btlSelectionClearTargetMark(s32 arg0);
 extern void func_00203880(s32 arg0, s32 arg1);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);

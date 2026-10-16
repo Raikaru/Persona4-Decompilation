@@ -767,7 +767,7 @@ void btlEncounterSetSequence(s32 arg0, s32 arg1, s32 arg2)
 
 
 // FUN_001FAE80
-s32 func_001fae80(u8 *arg0, s32 arg1)
+s32 btlActionEscapeCondition(u8 *arg0, s32 arg1)
 {
     extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3,
                               u32 arg4);
@@ -805,7 +805,7 @@ s32 func_001fae80(u8 *arg0, s32 arg1)
 
 
 // FUN_001FAF70
-s32 func_001faf70(u8 *arg0, s32 arg1, s32 arg2)
+s32 btlActionBuffCondition(u8 *arg0, s32 arg1, s32 arg2)
 {
     extern s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
     s32 temp_18;
@@ -895,6 +895,7 @@ loop_24_exit:
 }
 
 
+// Maps a condition code from btlActionEscapeCondition (0, 2, 6), btlActionBuffCondition or btlBuffMaskCheck* (0, 3, 7) to its battle message id: 2 -> 0x8A, 3 -> 0x8B, 4 -> 0x8C, 5 -> 0x8D, 6 -> 0x8E, 7 -> 0x98, anything else -> 0 (no message).
 // FUN_001FB170
 s32 btlConditionMessageId(s32 arg0) {
     u32 temp_2;
@@ -920,7 +921,7 @@ s32 btlConditionMessageId(s32 arg0) {
 
 
 // FUN_001FB1F0
-s32 func_001fb1f0(u8 *arg0, s32 arg1)
+s32 btlBuffMaskCheckEntries(u8 *arg0, s32 arg1)
 {
     s32 temp_16;
     u32 var_19;
@@ -986,7 +987,7 @@ done:
 
 /* measured: candidate object 284B/window 288B, normalized_diff 1. Committed at nd 1. */
 // FUN_001FB360
-s32 func_001fb360(u8 *arg0, s32 arg1)
+s32 btlBuffMaskCheckUnit(u8 *arg0, s32 arg1)
 {
     s32 temp_16;
     s32 temp_5;

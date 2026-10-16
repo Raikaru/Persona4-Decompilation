@@ -103,7 +103,7 @@ extern u32 btlEffectCollectGenusMask(s32 formation);
 extern void btlSelectionResetUnitFlags(s32 arg0);
 extern u32 btlSelectionGetFormationEntryAlt(s32 task);
 extern u32 btlSelectionGetFormationEntry(s32 task);
-extern s32 func_001faf70(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 btlActionBuffCondition(u8 *arg0, s32 arg1, s32 arg2);
 extern void btlSelectionClearTargetMark(s32 arg0);
 extern void func_00203880(s32 arg0, s32 arg1);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
@@ -485,11 +485,11 @@ void btlActionCommandUpdate(u8 *arg0)
         switch (v10) {
         case 1:
         case 2:
-            f = (u16)func_001fae80(arg0, *(u16 *)(arg0 + 0x6E), 0);
+            f = (u16)btlActionEscapeCondition(arg0, *(u16 *)(arg0 + 0x6E), 0);
             bVar = 1;
             break;
         case 3:
-            f = (u16)func_001fae80(arg0, *(u16 *)(arg0 + 0x6E), 1);
+            f = (u16)btlActionEscapeCondition(arg0, *(u16 *)(arg0 + 0x6E), 1);
             bVar = 1;
             break;
         case 10:
@@ -743,10 +743,10 @@ select_action:
         switch (actionKind) {
         case 1:
         case 2:
-            condition = func_001faf70(action, (s32) (*(u16*)(action + 0x6E)), 0) & 0xFFFF;
+            condition = btlActionBuffCondition(action, (s32) (*(u16*)(action + 0x6E)), 0) & 0xFFFF;
             break;
         case 3:
-            condition = func_001faf70(action, (s32) (*(u16*)(action + 0x6E)), 1) & 0xFFFF;
+            condition = btlActionBuffCondition(action, (s32) (*(u16*)(action + 0x6E)), 1) & 0xFFFF;
             break;
         default:
             condition = 0;
