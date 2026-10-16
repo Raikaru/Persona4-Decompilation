@@ -2691,7 +2691,6 @@ u8* datPersonaResolveRecord(u8* arg0)
 }
 
 // FUN_0010FFA0
-extern void datPersonaInitRecord(u8 *arg0, u16 arg1);
 void datPersonaInitAllRecords(void) {
     u8 buf[0x30];
     u8 *base;
