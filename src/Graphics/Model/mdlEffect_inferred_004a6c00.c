@@ -22,7 +22,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *func_004a6c00(u8 *arg0);
+extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
 
@@ -91,10 +91,11 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
    allocation exact. */
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: testing loop-invariant hoisting for the retail preheader. */
-/* measured: func_004a6c00 MATCH -> MISMATCH without this pragma. */
+/* measured: mdlEffectCreateGridForRecord MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+// Creates a grid-backed object from the 0x40-byte record at arg0, copied to +0x18: allocates the 0x5C object, builds a multi-part grid geometry at +0x58, and sets 0x34 sixteen-byte slots of its table to -1.
 // FUN_004A6C00
-u8 *func_004a6c00(u8 *arg0)
+u8 *mdlEffectCreateGridForRecord(u8 *arg0)
 {
     u16 *temp_18;
     u16 *temp_2_2;

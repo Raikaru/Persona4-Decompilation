@@ -22,7 +22,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *func_004a6c00(u8 *arg0);
+extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
 extern u8 D_0071413C[];
 extern s32 TnGetOffset38(u16 arg0);
 extern void EffModelDrawableUpdate();
@@ -88,7 +88,7 @@ extern void func_004a8250(u8 *arg0, u8 *arg1);
 extern void func_004a8440(u8 *arg0, u8 *arg1);
 extern void func_004a86c0(u8 *arg0, u8 *arg1);
 /* measured: restores the file's O2 loop-invariant baseline. */
-/* measured: close loop-invariant hoisting after func_004a6c00. */
+/* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
 #pragma tailcall off
 /* measured: restore the enclosing options; owner verification is 92/92 MATCH. */
