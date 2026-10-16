@@ -242,7 +242,7 @@ static inline void battleMenuExtendedStrip(BattleRenderDispatch *renderer,
 struct FrFontNode;
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0019f0f0(u8 *arg0);
-extern void func_001d8010(u8 *arg0, u8 *arg1);
+extern void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1);
 extern void btlPanelReleaseText(s32 task);
 extern void func_00216d40(s32 task);
 extern void btlPanelSetTarget(u8 *task, s32 arg1);
@@ -4032,7 +4032,7 @@ void btlSelectionUpdateTransition(u8 *arg0)
                 btlPanelReleaseText(*(s32 *)(arg0 + 0x18));
                 *(u16 *)(arg0 + 2) = 1;
             } else {
-                func_001d8010(*(u8 **)(arg0 + 8), *(u8 **)(arg0 + 0x10));
+                btlEffectSelectNeighbourTarget(*(u8 **)(arg0 + 8), *(u8 **)(arg0 + 0x10));
                 if (*(u8 *)(*(u8 **)(arg0 + 0x10) + 0x3C) & 1) {
                     if ((u16)func_0010f8c0(*(u16 *)(arg0 + 0x14)) == 0) {
                         selected = (u8 *)func_001d8bc0(*(u8 **)(arg0 + 0x10));
