@@ -30,9 +30,7 @@ static inline s32 datPersonaOrFlag(s32 flags, s32 mask)
 }
 
 extern void memcpy(void *dst, void *src, u32 size);
-extern void datPersonaResolveRecord(u8 *arg0);
-
-extern void datPersonaResolveRecord(u8 *arg0);
+extern u8 *datPersonaResolveRecord(u8 *arg0);
 
 extern s32 datPersonaSetLeadSlot(); /* old-style: target call preserves s64 argument */
 
