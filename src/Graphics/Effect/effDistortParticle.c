@@ -104,16 +104,17 @@ void *DistortParticleCreateFromSource(void *opaqueSource) {
 // FUN_004AF8A0
 void DistortParticleFree(u8 *arg0) {
     u8 *temp;
+    DistortParticleInstance *inst = (DistortParticleInstance *)arg0;
 
-    temp = *(u8 **)(arg0 + 0x60);
+    temp = inst->texture;
     if (temp != NULL) {
         func_003ef3a0(temp);
     }
-    temp = *(u8 **)(arg0 + 0x5C);
+    temp = inst->list;
     if (temp != NULL) {
         func_00492cd0(temp);
     }
-    temp = *(u8 **)(arg0 + 0x68);
+    temp = inst->table;
     if (temp != NULL) {
         (*jtbl_008873EC)(temp);
     }
@@ -161,19 +162,21 @@ void *DistortParticleCreateFromParent(void *opaqueSource) {
 // Uploads the tagged texture for slot arg1 through TnUploadStreamTagged and stores that call's result at +0x60.
 // FUN_004AFA60
 void DistortParticleUploadTexture(u8 *arg0, s32 arg1) {
-    *(s32 *)(arg0 + 0x60) = TnUploadStreamTagged(arg1);
+    ((DistortParticleInstance *)arg0)->texture = (u8 *)TnUploadStreamTagged(arg1);
 }
 
 // Shares the texture object of arg1 with arg0 and bumps its reference count at +0x54; asserts that arg1 holds one.
 // FUN_004AFAA0
 void DistortParticleShareTexture(u8 *arg0, u8 *arg1) {
     u8 *temp;
+    DistortParticleInstance *dst = (DistortParticleInstance *)arg0;
+    DistortParticleInstance *src = (DistortParticleInstance *)arg1;
 
-    if (*(u32 *)(arg1 + 0x60) == 0) {
+    if (src->texture == 0) {
         kAssertFail(D_00714550, 0xDA);
     }
-    temp = *(u8 **)(arg1 + 0x60);
-    *(u8 **)(arg0 + 0x60) = temp;
+    temp = src->texture;
+    dst->texture = temp;
     *(s32 *)(temp + 0x54) += 1;
 }
 
@@ -217,8 +220,9 @@ void DistortParticleRebuildRecords(u8 *arg0, u32 arg1, u8 *arg2) {
 void DistortParticleReleaseSource(u8 *arg0)
 {
     u32 temp_4;
+    DistortParticleInstance *inst = (DistortParticleInstance *)arg0;
 
-    temp_4 = *(u32 *)(arg0 + 0x5C);
+    temp_4 = (u32)inst->list;
     if (temp_4 != 0) {
         func_00492d00(temp_4);
     }
