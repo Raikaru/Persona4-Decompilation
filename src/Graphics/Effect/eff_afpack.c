@@ -22,8 +22,8 @@ extern s32 D_00922DB4[];
 extern void func_00460ac0(void* arg0, s32* arg1);
 extern void* D_00764C9C;
 extern RuntimeListNode* D_00764CA0;
-extern void func_004baea0(void* arg0, void* arg1);
-extern void func_004baed0(void* arg0, void* arg1);
+extern void effAfterResetCommand(void* arg0, void* arg1);
+extern void effAfterRunCommands(void* arg0, void* arg1);
 extern void func_00440b68(const void* msg, const void* file, s32 line);
 extern u8* func_00454a60(u8* param, s32 mode);
 extern void H_Cdvd_ReadSync(void* handle);
@@ -53,7 +53,7 @@ extern void effAfterAllocVectorBuffers(void* arg0, void* arg1);
 extern s32 func_003c4140(void);
 extern void func_003c42b0(void* a, void* b);
 struct RpMaterial;
-extern u8* func_004b8350(u8* a, struct RpMaterial* material);
+extern u8* effAfterCreateRibbon(u8* a, struct RpMaterial* material);
 extern s32 func_003c00e0(void);
 extern void func_003c0210(void* a, void* b, s32 c);
 extern s32 func_003e9320(void);
@@ -395,7 +395,7 @@ u8* func_004b6900(u8* arg0)
                 }
             }
             *(Color4*)(*(u8**)(*(u8**)(node + 0xC) + i * 8 + 4) + 4) = color;
-            temp = func_004b8350(*(u8**)(node + 8) + i * 0x3C,
+            temp = effAfterCreateRibbon(*(u8**)(node + 8) + i * 0x3C,
                                  *(struct RpMaterial**)(*(u8**)(node + 0xC) + i * 8 + 4));
             *(s32*)(*(u8**)(node + 0xC) + i * 8) = func_003c00e0();
             func_003c0210(*(u8**)(*(u8**)(node + 0xC) + i * 8), temp, 0);
@@ -427,14 +427,14 @@ void func_004b6bb0(RuntimeListNode* node)
         *(s32*)(out + 8) = *(s32*)(*(s32**)(work + 0x1C) + i);
         off = i * 0x3C;
         *(s32*)(out + 0x10) = (s32)((u8*)node->vertices + off);
-        func_004baea0(out, work);
+        effAfterResetCommand(out, work);
         i++;
     }
     node->flags |= 1;
     i = 0;
     while (i < *(s16*)((u8*)node->work + 4))
     {
-        func_004baed0(*(u8**)((u8*)node + 0x10) + i * 0x20, &sp3C);
+        effAfterRunCommands(*(u8**)((u8*)node + 0x10) + i * 0x20, &sp3C);
         i++;
     }
 }

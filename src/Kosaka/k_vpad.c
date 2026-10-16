@@ -56,7 +56,7 @@ typedef struct RuntimeDistanceWork
     RuntimeVec3* secondVectors;
 } RuntimeDistanceWork;
 
-extern s32 func_004b7800(const RuntimeWork* work, s32 index);
+extern s32 effAfterHistoryIndex(const RuntimeWork* work, s32 index);
 extern f32 RwV3dLength(RuntimeVec3* vector);
 typedef struct RuntimeCommandWork
 {
@@ -79,11 +79,11 @@ extern void func_003e9cb0(void* object, void* matrix, s32 flags);
 extern void func_003e0960(void* matrix, const void* source);
 extern void func_003e42a0(void* destination, const void* source,
                           RuntimeMatrix* matrix);
-extern void func_004bad70(u8* data, const RuntimeVec3* position,
+extern void effAfterQueuePush(u8* data, const RuntimeVec3* position,
                           const RuntimeVec3* normal);
 extern void func_004bc520(u8* data, f32* value);
-extern void func_004b8f40(u8* data, u32* value);
-extern void func_004baed0(RuntimeCommandWork* work, u32* unused);
+extern void effAfterRebuildTrailMesh(u8* data, u32* value);
+extern void effAfterRunCommands(RuntimeCommandWork* work, u32* unused);
 extern f32 iGpffff8040;
 
 typedef struct RuntimeVpadWork
@@ -249,7 +249,7 @@ void Vpad_UpdateRenderEntries(u8* workData)
         if (hasField != 0)
         {
             vectorOffset = i * 0x20;
-            func_004baed0((RuntimeCommandWork*)(work->commands + vectorOffset),
+            effAfterRunCommands((RuntimeCommandWork*)(work->commands + vectorOffset),
                           (u32*)locals.unused);
             if ((~work->flags & 8) != 0)
             {
@@ -259,7 +259,7 @@ void Vpad_UpdateRenderEntries(u8* workData)
                     {
                         vectorOffset = i * 3 * 8;
                         sample = (RuntimeVec3*)(work->vectors + vectorOffset);
-                        func_004bad70(work->renderData + i * 0x3C, sample,
+                        effAfterQueuePush(work->renderData + i * 0x3C, sample,
                                       (RuntimeVec3*)((u8*)sample + 0xC));
                     }
                     else
@@ -283,7 +283,7 @@ void Vpad_UpdateRenderEntries(u8* workData)
                         func_003e42a0(locals.normal,
                                       work->vectors + vectorOffset + 0xC,
                                       matrix);
-                        func_004bad70(work->renderData + i * 0x3C,
+                        effAfterQueuePush(work->renderData + i * 0x3C,
                                       (RuntimeVec3*)locals.position,
                                       (RuntimeVec3*)locals.normal);
                         func_003e0f40(matrix);
@@ -325,7 +325,7 @@ void Vpad_UpdateRenderEntries(u8* workData)
         }
         func_004bc520(work->renderData + i * 0x3C, &locals.delta);
         locals.value = *(u32*)(*(u8**)(work->entries + i * 8) + 0x18);
-        func_004b8f40(work->renderData + i * 0x3C, &locals.value);
+        effAfterRebuildTrailMesh(work->renderData + i * 0x3C, &locals.value);
         i++;
     }
 }
@@ -481,8 +481,8 @@ f32 Vpad_GetSegmentLength(const RuntimeDistanceWork* work, s32 index)
     f32 sum;
     f32 zero;
     f32 result;
-    firstIndex = func_004b7800((const RuntimeWork*)work, index);
-    nextIndex = func_004b7800((const RuntimeWork*)work, index + 1);
+    firstIndex = effAfterHistoryIndex((const RuntimeWork*)work, index);
+    nextIndex = effAfterHistoryIndex((const RuntimeWork*)work, index + 1);
     total = 0.0f;
 
     delta.x = work->firstVectors[nextIndex].x - work->firstVectors[firstIndex].x;

@@ -108,7 +108,7 @@ regression was exactly 594, and it is 595 once the symbol is defined.
 - **`#pragma opt_lifetimes on` is not in `tools/pragma_sweep.py`'s list.** It closed
   `func_002a5630`, made `func_002a4f20`'s saved registers exact, and cut fnalign edits by
   14-28% on five saved-register-rotation floors (`func_002e3560`, `func_002e2a10`,
-  `func_00190c10`, `func_004b8350`, `func_001ed700`; not installed). With it on, declaration
+  `func_00190c10`, `effAfterCreateRibbon` (was `func_004b8350`), `func_001ed700`; not installed). With it on, declaration
   order matters again. Add it to every colouring sweep.
 - **`opt_propagation off` (scoped push/pop around the function) makes statements emit in written
   order**: constants load where written, a named `f32 step = 80.0f;` loads before the int-to-float
