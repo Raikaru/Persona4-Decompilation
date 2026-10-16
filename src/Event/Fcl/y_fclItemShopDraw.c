@@ -52,7 +52,7 @@ extern f32 D_0064A380[];
 extern u8 D_0064A3D8[];
 extern u8 D_0064A3F0[];
 
-s32 func_00332bb0(u8 *arg0);
+s32 fclItemShopUpdate(u8 *arg0);
 extern void func_00332a80(void);
 extern s32 fclItemShopPanelUpdate(u8 *task);
 void chkmemAllocSiteTag(const void *, u32);
@@ -122,7 +122,7 @@ extern f32 D_0064A218[];
 extern void sdkSndStartStream(s32, s32, s32, s32);
 extern s32 func_002bb1c0(s8 arg0);
 extern void func_002e7a80(s32 arg0);
-void func_0033c490(u8 *arg0);
+void fclItemShopDrawList(u8 *arg0);
 extern void func_0033d550(void *arg0);
 extern u16 D_008C024E[];
 extern f32 D_0064A290[];
@@ -144,7 +144,8 @@ extern void func_002bafc0(s8 arg0, s32 arg1);
 extern void func_002bb0a0(s8 arg0, s32 arg1);
 extern void func_002bbf60(void);
 
-/* The shared SDK update signature accepts func_00332bb0 directly at the
+// Item shop task update callback: on state 0 requests the shop sprite load and advances the state; each frame it draws the shop screen.
+/* The shared SDK update signature accepts fclItemShopUpdate directly at the
    fclItemShopCreate registration site. */
 // FUN_00332BB0
 /* Object 37380/window 37392 (retail tail is zero padding). The loops that
@@ -153,7 +154,7 @@ extern void func_002bbf60(void);
    measured: normalized_diff 0; opt_loop_invariants on hoists the 140/340/20/10
    and (s8)1 loop constants into the preheaders as retail does. */
 #pragma opt_loop_invariants on
-s32 func_00332bb0(u8 *arg0) {
+s32 fclItemShopUpdate(u8 *arg0) {
     u8 *work = *(u8 **)(arg0 + 0x38);
     s16 k;
     s16 i;
@@ -967,7 +968,7 @@ s32 func_00332bb0(u8 *arg0) {
         if (func_0033d390(*(void **)(work + 0xCC), 1) == 0) {
             fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
                           fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35, *(void **)(work + 0xC), 0xAB);
-            func_0033c490(arg0);
+            fclItemShopDrawList(arg0);
             tbl = (F2_0033 *)D_0064A218;
             *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30) =
                 (f32)(*(s16 *)(work + 4) - *(s16 *)(work + 6)) * *(f32 *)(work + 0x420) + tbl->y + 0.0f;
@@ -1331,7 +1332,7 @@ s32 func_00332bb0(u8 *arg0) {
         fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
                       *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
                       *(void **)(work + 0xC), 0xAB);
-        func_0033c490(arg0);
+        fclItemShopDrawList(arg0);
         *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
             (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
         func_0033d320(*(void **)(work + 0x19C), 0, 0);
@@ -1449,7 +1450,7 @@ s32 func_00332bb0(u8 *arg0) {
         fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
                       *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
                       *(void **)(work + 0xC), 0xAB);
-        func_0033c490(arg0);
+        fclItemShopDrawList(arg0);
         frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
                       datGetItemNameId((s16)yListValueAt(*(s16 *)(work + 4))), 0, 0, D_00795E60);
         if (func_002bb680(*(s8 *)(work + 8)) != 0) {
@@ -1680,7 +1681,7 @@ u8 *fclItemShopCreate(u8 *arg0) {
 
     chkmemAllocSiteTag(D_0064A380, 0x958);
     temp_2 = (s8 *)D_008873F4[0](1, 0x42C, 0x40000);
-    temp_17 = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A3D8), 0xF, 0, 0, func_00332bb0, fclItemShopDestroy, (u8 *)((u8 *)temp_2));
+    temp_17 = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A3D8), 0xF, 0, 0, fclItemShopUpdate, fclItemShopDestroy, (u8 *)((u8 *)temp_2));
     *(s8 *)(temp_2 + 0) = 0;
     *(s32 *)(temp_2 + 0xC) = 0;
     *(f32 *)(temp_2 + 0x1E0) = (f32)0x28A;
@@ -1809,8 +1810,9 @@ static inline void fclShopDrawItemName(s16 item, f32 y, u8 red, u8 green, u8 blu
                   datGetItemNameId((s16)yListValueAt(item)), 0, 0, D_00795E60);
 }
 
+// Draws the item list rows from index i up to bound: each row shows its item name and price in its highlight colour.
 // FUN_0033C490
-void func_0033c490(u8 *arg0)
+void fclItemShopDrawList(u8 *arg0)
 {
     u8 *p;
     s32 color;
