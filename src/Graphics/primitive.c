@@ -160,7 +160,7 @@ static const PrimRenderState sRenderStates[PRIM_RENDERSTATE_COUNT] =
 // rwGlobals.device fields at their P4 retail addresses
 // (see RwGlobals/RwDevice layout above)
 
-extern RwCamera* func_00457120(void);           // kwlnGetMainCamera
+extern RwCamera* kwlnGetCamera(void);           // kwlnGetMainCamera
 extern RwV3d* func_003e42a0(RwV3d* out, const RwV3d* in, const RwMatrix* matrix); // RwV3dTransformPoint
 extern int RpSkyRenderStateSet(int nState, void* pParam); // RpSkyRenderStateSet
 
@@ -345,11 +345,11 @@ void primQuad3D(const RwV3d* pos, const RwRGBA* col, f32 size, u32 saveAndRestor
     f32 screenX;
     f32 screenY;
 
-    func_003e42a0(&cameraPos, pos, &func_00457120()->viewMatrix);
+    func_003e42a0(&cameraPos, pos, &kwlnGetCamera()->viewMatrix);
     zBufferNear = rwGlobals.device.zBufferNear;
     zBufferFar = rwGlobals.device.zBufferFar;
-    farPlane = func_00457120()->farPlane;
-    nearPlane = func_00457120()->nearPlane;
+    farPlane = kwlnGetCamera()->farPlane;
+    nearPlane = kwlnGetCamera()->nearPlane;
 
     if (cameraPos.z > nearPlane && cameraPos.z < farPlane)
     {

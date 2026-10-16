@@ -167,7 +167,7 @@ extern void H_Cdvd_SlotWrite(void);
 extern void adminiSeqExitTest(void);
 extern void H_Cdvd_SlotSeek(void);
 extern s32 H_Cdvd_ProbeFile(s32 arg0);
-extern u8 *func_00456c30(void);
+extern u8 *H_Cdvd_FileContextPath(void);
 extern u8 *func_003c9eb0(void *arg0);
 extern u8 *func_003c3d20(s32 arg0);
 extern void func_003c38b0(void *arg0, void *arg1);
@@ -426,7 +426,7 @@ s32 func_004535b0(void)
 
 #pragma opt_propagation off
 #pragma opt_propagation on
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 
 
 

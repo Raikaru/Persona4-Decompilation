@@ -33,7 +33,7 @@ extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s1
 extern f32 RwV3dNormalize(f32 *param, f32 *out);
 extern u8 *mdlGetMatrix(s32 param);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern u8 *func_00457120();
+extern u8 *kwlnGetCamera();
 extern void K_ClumpLookAtBasis(u8 *param, u8 *src, u8 *dst, s32 mode);
 extern f32 sinf(f32 param);
 extern f32 cosf(f32 param);

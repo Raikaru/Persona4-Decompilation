@@ -308,7 +308,7 @@ f32 btlTargetAngleBetween(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
 s32 btlTargetFindInRange(s32 arg0, u8 *arg1)
 {
     extern void func_003e42a0();
-    extern u8 *func_00457120(); /* lint: allow H011 -- pointer view of the s32 definition, as in code1_001e */
+    extern u8 *kwlnGetCamera(); /* lint: allow H011 -- pointer view of the s32 definition, as in code1_001e */
     f32 sp40[3];
     f32 temp_f0;
     f32 temp_f1;
@@ -316,10 +316,10 @@ s32 btlTargetFindInRange(s32 arg0, u8 *arg1)
     f32 temp_f2;
     u8 *camera;
 
-    camera = func_00457120() + 0x20;
+    camera = kwlnGetCamera() + 0x20;
     func_003e42a0(sp40, arg0, camera);
-    temp_f20 = *(f32 *)(func_00457120() + 0x80);
-    temp_f0 = *(f32 *)(func_00457120() + 0x84);
+    temp_f20 = *(f32 *)(kwlnGetCamera() + 0x80);
+    temp_f0 = *(f32 *)(kwlnGetCamera() + 0x84);
     if ((sp40[2] <= temp_f20) || !(sp40[2] < temp_f0)) {
         return 0;
     }

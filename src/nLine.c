@@ -72,7 +72,7 @@ u32 RpRandom(void);
 void func_00364c50(void);
 void func_00364c70(void);
 void RpSkyRenderStateSet(s32 arg0, s32 arg1);
-s32 func_00457120(void);
+s32 kwlnGetCamera(void);
 f32 sinf(f32 arg0);
 f32 cosf(f32 arg0);
 
@@ -570,7 +570,7 @@ void nLineEmitQuad(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 
     f32 scale;
 
     z = D_008872F8[0] - D_0088467C[0];
-    scale = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    scale = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     nLineSetLayer(arg0, fparg0, fparg1, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
     nLineSetLayer(arg0 + 0x40, fparg0, fparg1 + fparg3, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
     nLineSetLayer(arg0 + 0x80, fparg0 + fparg2, fparg1 + fparg3, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
@@ -654,7 +654,7 @@ void nLineDrawEffect(u8 *arg0, Vec2f arg1, s32 arg2) {
         width1 = *(f32 *)(arg0 + 8) - arg1.x;
         y1 = arg1.y;
         z1 = D_008872F8[0] - D_0088467C[0];
-        q1 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+        q1 = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
         alpha1 = arg2 & 0xFF;
         nLineSetLayer(arg0 + 0x890, arg1.x, y1, z1, q1, 255, 255, 129, alpha1);
         nLineSetLayer(arg0 + 0x8D0, arg1.x, addF(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
@@ -668,7 +668,7 @@ void nLineDrawEffect(u8 *arg0, Vec2f arg1, s32 arg2) {
         y2 = arg1.y;
         x2 = extent2 + arg1.x;
         z2 = D_008872F8[0] - D_0088467C[0];
-        q2 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+        q2 = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
         alpha2 = arg2 & 0xFF;
         nLineSetLayer(arg0 + 0x890, x2, y2, z2, q2, 255, 255, 129, alpha2);
         nLineSetLayer(arg0 + 0x8D0, x2, addF(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
@@ -691,7 +691,7 @@ void nLineDrawEffect(u8 *arg0, Vec2f arg1, s32 arg2) {
         y3 = arg1.y;
         x3 = arg1.x + (*(f32 *)(arg0 + 8) - width3);
         z3 = D_008872F8[0] - D_0088467C[0];
-        q3 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+        q3 = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
         alpha3 = arg2 & 0xFF;
         nLineSetLayer(arg0 + 0x890, x3, y3, z3, q3, 255, 255, 129, alpha3);
         nLineSetLayer(arg0 + 0x8D0, x3, addF(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
@@ -1042,7 +1042,7 @@ void nLineDrawWaveStrip(u8 *arg0, s32 arg1) {
     temp_f20 = *(f32 *)(arg0 + 0x9A0);
     temp_f22 = (247.0f - 82.0f * temp_f0) + *(f32 *)(arg0 + 0x99C);
     temp_f23 = D_008872F8[0] - D_0088467C[0];
-    temp_f24 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    temp_f24 = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     temp_3 = (u8)temp_16;
     nLineSetLayer(arg0 + 0x690, temp_f22, temp_f20, temp_f23, temp_f24,
                   0xFF, 0xE9, 0x2C, temp_3);
@@ -1096,7 +1096,7 @@ void nLineDrawScaledFrame(u8 *arg0, f32 fparg0, s32 arg1) {
     top = inset_y + *(f32 *)(arg0 + 0x9A0);
     left = inset_x + *(f32 *)(arg0 + 0x99C);
     depth = D_008872F8[0] - D_0088467C[0];
-    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     nLineSetLayer(arg0 + 0x690, left, top, depth, reciprocal, 255, 233, 44, 255);
     bottom = addF(top, height);
     nLineSetLayer(arg0 + 0x6D0, left, bottom, depth, reciprocal, 255, 233, 44, 255);
@@ -1156,7 +1156,7 @@ void nLineDrawBand(u8 *arg0, s32 arg1) {
     temp_f20 = addF(temp_f1, *(f32 *)(arg0 + 0x9A0));
     temp_f24 = 77.0f + *(f32 *)(arg0 + 0x99C);
     projection.depth = D_008872F8[0] - D_0088467C[0];
-    projection.reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    projection.reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     temp_3 = (u8)temp_16;
     nLineSetLayer(arg0 + 0x690, temp_f24, temp_f20, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, temp_3);
     temp_f21 = addF(temp_f20, temp_f21);
@@ -1185,7 +1185,7 @@ void nLineDrawFrameAt(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
     y = fparg1 + *(f32 *)(arg0 + 0x9A0);
     x = fparg0 + *(f32 *)(arg0 + 0x99C);
     z = D_008872F8[0] - D_0088467C[0];
-    scale = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    scale = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     byte_alpha = (u8)alpha;
     nLineSetLayer(arg0 + 0x690, x, y, z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
     nLineSetLayer(arg0 + 0x6D0, x, addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
@@ -1289,7 +1289,7 @@ s32 nLineBuildDecoration(u8 *arg0, f32 x, f32 y, f32 width, f32 height) {
         return 0;
     }
     depth = D_008872F8[0] - D_0088467C[0];
-    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     vertices = arg0 + 0x9B0;
     if (width != 640.0f && height != 448.0f) {
         start.x = x;

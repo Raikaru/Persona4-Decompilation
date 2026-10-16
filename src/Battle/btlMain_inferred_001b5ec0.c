@@ -81,7 +81,7 @@ extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
 extern f32 fGpffff8430;
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern f32 fGpffff8048;
 extern u8 D_005F74C0[];
 extern u8 *func_003e8180(u8 *arg0, f32 arg1);
@@ -378,9 +378,9 @@ void btlMainSetupCameraAndEffects(void)
     *(f32 *)(D_0076449C + 0x264) = fGpffff81f4 * (f32)iGpffffb45c.blue;
     *(f32 *)(D_0076449C + 0x268) = fGpffff81f4 * (f32)iGpffffb45c.alpha;
     if (btlCurrentUnitId() != 0x20B) {
-        func_003e8180(((u8 *)func_00457120()), 35.0f);
+        func_003e8180(((u8 *)kwlnGetCamera()), 35.0f);
     } else {
-        func_003e8180(((u8 *)func_00457120()), 100.0f);
+        func_003e8180(((u8 *)kwlnGetCamera()), 100.0f);
     }
     base = D_0076449C;
     *(u32 *)(base + 0xC) |= 0x2000002;

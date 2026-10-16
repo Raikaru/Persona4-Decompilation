@@ -37,7 +37,7 @@ extern f32 D_00724C7C;
 extern u8 D_00714350[];
 extern void kAssertFail(u8 *arg0, s32 arg1);
 extern s32 func_003e9320(void);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern void func_003e9830(s32 arg0, s32 arg1);
 extern f32 D_00922D80[];
 extern u32 D_00922D90[];
@@ -105,7 +105,7 @@ void func_004a77b0(void) {
     D_00724C78[0] = 0.0f;
     D_00724C7C = 0.0f;
     D_00724C70 = func_003e9320();
-    func_003e9830(D_00724C70, *(s32 *)(((u8 *)(u32)func_00457120()) + 4));
+    func_003e9830(D_00724C70, *(s32 *)(((u8 *)(u32)kwlnGetCamera()) + 4));
 }
 
 /* Matched: 7 -> 2 -> 0 fnalign edits; 532/544 bytes, frame 0x70.
@@ -200,7 +200,7 @@ void func_004a7830(void)
             }
         }
     }
-    temp_2 = *(u8 **)(((u8 *)(u32)func_00457120()) + 4);
+    temp_2 = *(u8 **)(((u8 *)(u32)kwlnGetCamera()) + 4);
     temp_f4 = D_00724C78[0];
     temp_f3 = iGpffffb10c;
     vec[0] = temp_f3 * ((*(f32 *)(temp_2 + 0x10)) * temp_f4);

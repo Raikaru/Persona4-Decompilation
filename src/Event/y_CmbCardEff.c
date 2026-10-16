@@ -47,7 +47,7 @@ void btlShuffleCardApplyScale(u8 *arg0, f32 *arg1, f32 arg2);
 s32 func_00285b30(void);
 f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
 s32 fclAddClamped(s32, s32, s32, s32, s8);
-s32 func_00457120(void);
+s32 kwlnGetCamera(void);
 u8 *func_00461390(void *list, s32 primitive, void *vertices, s32 count);
 extern f32 iGpffff8360;
 extern f32 iGpffff8508;
@@ -1561,7 +1561,7 @@ s32 func_00347c70(u8 *task)
     u8 *camera;
 
     work = *(u8 **)(task + 0x38);
-    camera = (u8 *)(u32)func_00457120();
+    camera = (u8 *)(u32)kwlnGetCamera();
     reciprocalDepth = 1.0f / *(f32 *)(camera + 0x80);
     if (((( *(s32 *)(work + 0x11C) & 2) >> 1) == 1)) {
         for (index = 0; index < 4; index++) {

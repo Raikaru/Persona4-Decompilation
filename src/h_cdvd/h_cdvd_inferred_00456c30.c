@@ -121,7 +121,7 @@ extern void H_Cdvd_SlotWrite(void);
 extern void adminiSeqExitTest(void);
 extern void H_Cdvd_SlotSeek(void);
 extern s32 H_Cdvd_ProbeFile(s32 arg0);
-extern u8 *func_00456c30(void);
+extern u8 *H_Cdvd_FileContextPath(void);
 extern u8 D_00711800[];
 extern u8 D_00711810[];
 extern u8 D_00711820[];
@@ -250,14 +250,15 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Source unit: src/promoted/code1_0045.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 00456c30-00456c60 */
 
-extern s32 func_004566c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
-extern void func_00456840(u8 *arg0);
+extern s32 H_Cdvd_FileOpen(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
+extern void H_Cdvd_FileClose(u8 *arg0);
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
+// Intent: file-context path accessor. Returns the shared path buffer that open and close use.
 // FUN_00456C30
-u8 *func_00456c30(void)
+u8 *H_Cdvd_FileContextPath(void)
 {
     func_004244c8(D_007117B0);
     return (u8 *)&iGpffffad88;
@@ -266,8 +267,9 @@ u8 *func_00456c30(void)
 /* measured probe: opt_propagation off preserves allocator-table liveness for 00456c60. */
 /* measured: func_00456c60 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+// Intent: creates a file device with `arg0` entries of `arg2` bytes each, starting at `arg1`, and registers its callbacks. Returns the device record.
 // FUN_00456C60
-u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
+u8 *H_Cdvd_CreateFileDevice(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 index;
     void *(*(*alloc_table))(size_t, size_t, u32);
     u8 *record;
@@ -282,14 +284,14 @@ u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
     record = (*alloc_table)(1, 0x5C, 0x40000);
     *(void **)(record + 0x14) = (void *)H_Cdvd_FileContextSlot;
     *(void **)(record + 0x18) = (void *)H_Cdvd_FileContextFree;
-    *(void **)(record + 0x28) = (void *)func_004566c0;
-    *(void **)(record + 0x2C) = (void *)func_00456840;
+    *(void **)(record + 0x28) = (void *)H_Cdvd_FileOpen;
+    *(void **)(record + 0x2C) = (void *)H_Cdvd_FileClose;
     *(void **)(record + 0x30) = (void *)H_Cdvd_SlotRead;
     *(void **)(record + 0x34) = (void *)H_Cdvd_SlotWrite;
     *(void **)(record + 0x44) = (void *)adminiSeqExitTest;
     *(void **)(record + 0x38) = (void *)H_Cdvd_SlotSeek;
     *(void **)(record + 0x4C) = (void *)H_Cdvd_ProbeFile;
-    *(void **)(record + 0x1C) = (void *)func_00456c30;
+    *(void **)(record + 0x1C) = (void *)H_Cdvd_FileContextPath;
     chkmemAllocSiteTag(D_007117C8, 0x116);
     entries = (*alloc_table)(arg0, 0x90, 0x40000);
     *(u8 **)(record + 0x58) = entries;

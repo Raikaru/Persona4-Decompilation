@@ -35,7 +35,7 @@ extern s32 (*D_00887310[])(s32, void *, s32);     /* device.fpIm2DRenderPrimitiv
 extern void kAssertFail(const void *file, u32 line);
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern void func_00440b68();
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern void *memset(void *dst, s32 value, u32 size);
 extern void memcpy();
 extern u32 func_003ec590(u32, u32, u32, u32);
@@ -207,7 +207,7 @@ s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
 
     originX = (f32)x / 16.0f;
     originY = (f32)y / 8.0f;
-    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
     opacity = rgba & 0xFF;
     {
         u8 *sourceBytes = D_0063BCC0;

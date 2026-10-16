@@ -129,7 +129,7 @@ extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern f32 fGpffff82e0, fGpffff82e4;
 extern f32 D_008872F8[];
 extern f32 D_00626890[][2];
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
 
 
@@ -789,7 +789,7 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
     sx3 = fGpffff8494 * scaleX;
     sy3 = fGpffff8494 * scaleY;
     base = D_008872F8[0];
-    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
     D_00887300[0](1, 0);
     if ((a & 0xFF) == 0xFF) {
         func_00364c50();
@@ -1092,7 +1092,7 @@ void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color
     scaleX *= fGpffff82e0;
     scaleY *= fGpffff82e4;
     transformedDepth = D_008872F8[0] - depth;
-    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    reciprocal = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
     for (initialize = 0; initialize < 81; initialize++) {
         f32 *out = vertices[initialize];
         out[2] = transformedDepth;
@@ -1288,7 +1288,7 @@ void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, 
         initialState = D_00887300;
         initialState[0](1, 0);
     }
-    reciprocal = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    reciprocal = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     depth = D_008872F8[0] - depth;
     radians = fGpffff836c * angle;
     cosine = cosf(radians);

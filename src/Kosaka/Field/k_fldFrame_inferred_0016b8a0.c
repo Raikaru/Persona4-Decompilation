@@ -53,7 +53,7 @@ extern u8 iGpffffba58;
 extern void (*D_00887300[])(u32, u32);
 extern void chkmemAllocSiteTag(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern u8 *func_00457120();
+extern u8 *kwlnGetCamera();
 extern void func_003e9d50(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void K_ClumpLookAtBasis(u8 *arg0, void *arg1, void *arg2, s32 arg3);
 extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
@@ -685,9 +685,9 @@ s32 FldCameraTaskUpdate(u8 *param_1)
     }
     else {
       piVar1[0xb] = 0;
-      frameMatrix = *(u8 **)(func_00457120() + 4);
+      frameMatrix = *(u8 **)(kwlnGetCamera() + 4);
       func_003e0670((u8 *)piVar1[0xb1],frameMatrix + 0x10);
-      frameMatrix = *(u8 **)(func_00457120() + 4);
+      frameMatrix = *(u8 **)(kwlnGetCamera() + 4);
       *(FldMtx64 *)(frameMatrix + 0x10) = *(FldMtx64 *)(piVar1[0xb1]);
     }
     switch (*piVar1) {
@@ -704,26 +704,26 @@ s32 FldCameraTaskUpdate(u8 *param_1)
         moved_a = 0;
         attachmentMode = piVar1[2];
         if ((attachmentMode == 0) || (attachmentMode == 5)) {
-          temp_v4_a = (int)func_00457120();
+          temp_v4_a = (int)kwlnGetCamera();
           if (*(int *)(*(int *)(temp_v4_a + 4) + 4) == piVar1[4]) {
-            temp_v4_a = (int)func_00457120();
+            temp_v4_a = (int)kwlnGetCamera();
             func_003e99a0((void *)*(unsigned int *)(temp_v4_a + 4));
             func_003e9830(piVar1[4],piVar1[3]);
-            temp_v4_a = (int)func_00457120();
+            temp_v4_a = (int)kwlnGetCamera();
             func_003e9830(piVar1[3],*(int *)(temp_v4_a + 4));
           }
         }
         else {
-          temp_v4_a = (int)func_00457120();
+          temp_v4_a = (int)kwlnGetCamera();
           if (*(int *)(*(int *)(temp_v4_a + 4) + 4) != 0) {
-            temp_v4_a = (int)func_00457120();
+            temp_v4_a = (int)kwlnGetCamera();
             func_003e99a0((void *)*(unsigned int *)(temp_v4_a + 4));
           }
           detachedFrame = (u8 *)piVar1[3];
           if (*(int *)(detachedFrame + 4) != 0) {
             func_003e99a0(detachedFrame);
           }
-          temp_v4_a = (int)func_00457120();
+          temp_v4_a = (int)kwlnGetCamera();
           func_003e9830(piVar1[4],*(int *)(temp_v4_a + 4));
         }
         targetX0 = (sv20.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
@@ -773,9 +773,9 @@ s32 FldCameraTaskUpdate(u8 *param_1)
           moved_a = 1;
         }
         if ((moved_a == 1) && (piVar1[2] == 2)) {
-          temp_v4_a = *(int *)(func_00457120() + 4);
+          temp_v4_a = *(int *)(kwlnGetCamera() + 4);
           *(FldCopyVec *)stk50 = *(FldCopyVec *)(temp_v4_a + 0x40);
-          pbVar9_a = (unsigned char *)func_00457120();
+          pbVar9_a = (unsigned char *)kwlnGetCamera();
           pbVar7 = (unsigned char *)FldCameraGetRecord(param_1);
           K_ClumpLookAtBasis(pbVar9_a,(unsigned char *)((int *)&stk50[0]),pbVar7,0);
         }
@@ -892,7 +892,7 @@ s32 FldCameraTaskUpdate(u8 *param_1)
           int last;
           int keyCount, penultimateKey, nextKey;
 
-          node3_b = *(int *)(func_00457120() + 4);
+          node3_b = *(int *)(kwlnGetCamera() + 4);
           temp_v7 = temp_v4_b;
           while (0 < temp_v7) {
             if (*(char *)((int)piVar1 + temp_v7 + 0xe8) != '\0') {
@@ -995,7 +995,7 @@ s32 FldCameraTaskUpdate(u8 *param_1)
         }
         else if (pathMode34 == 4) {
 
-          node4_b = *(int *)(func_00457120() + 4);
+          node4_b = *(int *)(kwlnGetCamera() + 4);
           *(FldTriVec *)&stkC0[0] = *(FldTriVec *)(node4_b + 0x40);
           {
             u8 *frame = (u8 *)piVar1[3];
@@ -1003,7 +1003,7 @@ s32 FldCameraTaskUpdate(u8 *param_1)
             stkD0[1] = targetY34 - *(float *)(frame + 0x44);
             stkD0[2] = targetZ34 - *(float *)(frame + 0x48);
           }
-          pbVar9_b = (unsigned char *)func_00457120();
+          pbVar9_b = (unsigned char *)kwlnGetCamera();
           K_ClumpLookAtBasis(pbVar9_b,(unsigned char *)((int *)&stkC0[0]),(unsigned char *)&stkD0[0],0);
           *(FldCopyVec *)(node4_b + 0x40) = *(FldCopyVec *)((u8 *)piVar1 + 0xc4);
           RwEngineGetMatrixTolerances(&tolerance4);
@@ -1017,12 +1017,12 @@ s32 FldCameraTaskUpdate(u8 *param_1)
         pfVar8_c = (float *)FldCameraGetRecord(param_1);
         sv100 = *(FldCopyVec *)pfVar8_c;
         temp_v11_s4 = (float)D_008C025E[0] - 128.0f;
-        temp_v4_c = (int)func_00457120();
+        temp_v4_c = (int)kwlnGetCamera();
         if (*(int *)(*(int *)(temp_v4_c + 4) + 4) == piVar1[4]) {
-          temp_v4_c = (int)func_00457120();
+          temp_v4_c = (int)kwlnGetCamera();
           func_003e99a0((void *)*(unsigned int *)(temp_v4_c + 4));
           func_003e9830(piVar1[4],piVar1[3]);
-          temp_v4_c = (int)func_00457120();
+          temp_v4_c = (int)kwlnGetCamera();
           func_003e9830(piVar1[3],*(int *)(temp_v4_c + 4));
         }
         targetX6 = (stkF0.x += ((float *)piVar1)[0x5]);
@@ -1070,7 +1070,7 @@ s32 FldCameraTaskUpdate(u8 *param_1)
           }
           func_003e9c10((u8 *)piVar1[3],&stk110[0],2);
         }
-        followFrame = *(int *)(func_00457120() + 4);
+        followFrame = *(int *)(kwlnGetCamera() + 4);
         temp_v5_c = (unsigned int)func_003e9700(*(unsigned int *)(followFrame + 4));
         moved_c = 0;
         temp_v12_s7 = *(float *)&piVar1[0xa3];
@@ -1371,7 +1371,7 @@ s32 FldCameraTaskUpdate(u8 *param_1)
             RwMatrixTranslate((void *)piVar1[0xb0],&stk120[0],0);
             temp_v8_c = piVar1[0xb0];
             *(FldCopyVec *)stk150 = *(FldCopyVec *)(temp_v8_c + 0x30);
-            pbVar9_s2 = (unsigned char *)func_00457120();
+            pbVar9_s2 = (unsigned char *)kwlnGetCamera();
             K_ClumpLookAtBasis(pbVar9_s2,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
             *(float *)((u8 *)(u32)piVar1 + 0x294) = temp_v12_s7;
           }
@@ -1415,7 +1415,7 @@ s32 FldCameraTaskUpdate(u8 *param_1)
               temp_v8_c = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
               if (temp_v8_c == 0) {
                 *(FldCopyVec *)&*(float *)((u8 *)(u32)piVar1 + 0x2b0) = *(FldCopyVec *)&stk160;
-                pbVar9_s3 = (unsigned char *)func_00457120();
+                pbVar9_s3 = (unsigned char *)kwlnGetCamera();
                 K_ClumpLookAtBasis(pbVar9_s3,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
               }
               else {
@@ -1473,7 +1473,7 @@ s32 FldCameraTaskUpdate(u8 *param_1)
           func_003e0e20((void *)piVar1[0xb0],(void *)temp_v5_c,2);
           temp_v8_c = FldFrame_CollideSphereSelected((const RwV3d *)((u8 *)piVar1[0xb0] + 0x30),55.0f,(RwV3d *)&stk160[0],(RwV3d *)&stk170[0]);
           if (temp_v8_c == 0) {
-            pbVar9_c = (unsigned char *)func_00457120();
+            pbVar9_c = (unsigned char *)kwlnGetCamera();
             K_ClumpLookAtBasis(pbVar9_c,(unsigned char *)((int *)&stk150[0]),D_007F1710,0);
           }
           else {
@@ -1520,12 +1520,12 @@ s32 FldCameraTaskUpdate(u8 *param_1)
         cv0 = *(FldCamVec *)(stk290);
         pfVar8_d = (float *)FldCameraGetRecord(param_1);
         sv200 = *(FldCopyVec *)pfVar8_d;
-        temp_v4_d = (int)func_00457120();
+        temp_v4_d = (int)kwlnGetCamera();
         if (*(int *)(*(int *)(temp_v4_d + 4) + 4) == piVar1[4]) {
-          temp_v4_d = (int)func_00457120();
+          temp_v4_d = (int)kwlnGetCamera();
           func_003e99a0((void *)*(unsigned int *)(temp_v4_d + 4));
           func_003e9830(piVar1[4],piVar1[3]);
-          temp_v4_d = (int)func_00457120();
+          temp_v4_d = (int)kwlnGetCamera();
           func_003e9830(piVar1[3],*(int *)(temp_v4_d + 4));
         }
         targetX7 = (cv0.x += *(float *)((u8 *)(u32)piVar1 + 0x14));
@@ -1572,7 +1572,7 @@ s32 FldCameraTaskUpdate(u8 *param_1)
           }
           func_003e9c10((u8 *)piVar1[3],&stk220[0],2);
         }
-        temp_v4_d = *(int *)(func_00457120() + 4);
+        temp_v4_d = *(int *)(kwlnGetCamera() + 4);
         temp_v5_d = (unsigned int)func_003e9700(*(unsigned int *)(temp_v4_d + 4));
         moved_d = 0;
         temp_v11_d = ((float *)piVar1)[0xa3];
@@ -1630,7 +1630,7 @@ s32 FldCameraTaskUpdate(u8 *param_1)
         }
         if (moved_d == 1) {
           if (temp_v11_d < ((float *)piVar1)[0xa5]) {
-            pbVar9_d = (unsigned char *)func_00457120();
+            pbVar9_d = (unsigned char *)kwlnGetCamera();
             K_ClumpLookAtBasis(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,0);
             *(float *)((u8 *)(u32)piVar1 + 0x294) = temp_v11_d;
           }
@@ -1669,7 +1669,7 @@ s32 FldCameraTaskUpdate(u8 *param_1)
           RwMatrixTranslate((void *)piVar1[0xb0],&stk210.x,0);
           *(FldCopyVec *)stk240 = *(FldCopyVec *)(piVar1[0xb0] + 0x30);
           stk240[1] = ((float *)piVar1)[0xa8];
-          pbVar9_d = (unsigned char *)func_00457120();
+          pbVar9_d = (unsigned char *)kwlnGetCamera();
           K_ClumpLookAtBasis(pbVar9_d,(unsigned char *)((int *)&stk240[0]),D_007F1720,0);
         }
         goto LAB_0016e0c0;
@@ -1724,14 +1724,14 @@ void FldCameraTaskDestroy(u8 *arg0) {
     u8 *temp_16;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(*(u8 **)(func_00457120() + 4) + 4) != 0) {
-        func_003e99a0(*(void **)(func_00457120() + 4));
+    if (*(s32 *)(*(u8 **)(kwlnGetCamera() + 4) + 4) != 0) {
+        func_003e99a0(*(void **)(kwlnGetCamera() + 4));
     }
     if (*(s32 *)(*(u8 **)(temp_16 + 0xC) + 4) != 0) {
         func_003e99a0(*(void **)(temp_16 + 0xC));
     }
     func_003e9390(*(void **)(temp_16 + 0xC));
-    func_003e9830(*(s32 *)(temp_16 + 0x10), *(s32 *)(func_00457120() + 4));
+    func_003e9830(*(s32 *)(temp_16 + 0x10), *(s32 *)(kwlnGetCamera() + 4));
     func_003e0f40(*(s32 *)(temp_16 + 0x2BC));
     func_003e0f40(*(s32 *)(temp_16 + 0x2C0));
     func_003e0f40(*(s32 *)(temp_16 + 0x2C4));
@@ -1770,15 +1770,15 @@ s32 FldCameraTaskCreate(s32 arg0)
     }
     func_003e9df0(temp_2_2);
     temp_16 = temp_2 + 0x10;
-    temp_2_3 = *(u8 **)(*(u8 **)(func_00457120() + 4) + 4);
+    temp_2_3 = *(u8 **)(*(u8 **)(kwlnGetCamera() + 4) + 4);
     *(u8 **)(temp_16 + 0) = temp_2_3;
     if (temp_2_3 != NULL) {
-        func_003e99a0(*(void **)(func_00457120() + 4));
+        func_003e99a0(*(void **)(kwlnGetCamera() + 4));
         temp_17 = temp_2 + 0xC;
         func_003e9830(*(s32 *)(temp_16 + 0),
                       *(s32 *)(temp_17 + 0));
         func_003e9830(*(s32 *)(temp_17 + 0),
-                      *(s32 *)(func_00457120() + 4));
+                      *(s32 *)(kwlnGetCamera() + 4));
     } else {
         kAssertFail(D_005F1698, 0x4F6);
     }
@@ -1833,7 +1833,7 @@ s32 FldFrame_GetStatus(u8 *arg0)
    (goto body / goto skip; `== 3 || == 4` folds to sltiu). The count guard is
    `> 0x20` for the $at slti form. Locals in stack order: diff, prev, cur, then
    the two 64-byte matrix copies (case 6 at sp+0x70, case 7 at sp+0x30), each a
-   two-word copy loop from func_00457120()->frame + 0x10; `prev = cur` is the
+   two-word copy loop from kwlnGetCamera()->frame + 0x10; `prev = cur` is the
    RwV3d struct copy (ld/sd + lwc1/swc1). */
 void FldCameraAdvanceCurve(u8 *arg0, s32 arg1)
 {
@@ -1867,7 +1867,7 @@ void FldCameraAdvanceCurve(u8 *arg0, s32 arg1)
 body:
     {
         if (*(s32 *)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20) != 0) {
-            func_003e9df0(*(void **)(func_00457120() + 4));
+            func_003e9df0(*(void **)(kwlnGetCamera() + 4));
             *(s32 *)(work + 0x34) = func_003bb330(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20));
             if (*(s32 *)(work + 0x34) > 0x20) {
                 kAssertFail(D_005F1698, 0x557);
@@ -1887,18 +1887,18 @@ body:
             *(f32 *)(work + 0xB8) = 0.5f;
             func_003bb5b0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), 0xA, *(f32 *)(work + 0xB8), work + 0xC4, work + 0xD0);
             RwV3dNormalize((RwV3d *)(work + 0xD0), (const RwV3d *)(work + 0xD0));
-            if (*(s32 *)(*(u8 **)(func_00457120() + 4) + 4) != 0) {
-                func_003e99a0(*(void **)(func_00457120() + 4));
+            if (*(s32 *)(*(u8 **)(kwlnGetCamera() + 4) + 4) != 0) {
+                func_003e99a0(*(void **)(kwlnGetCamera() + 4));
             }
             if (*(s32 *)(*(u8 **)(work + 0xC) + 4) != 0) {
                 func_003e99a0(*(void **)(work + 0xC));
             }
-            func_003e9830(*(s32 *)(work + 0x10), *(s32 *)(func_00457120() + 4));
+            func_003e9830(*(s32 *)(work + 0x10), *(s32 *)(kwlnGetCamera() + 4));
         }
     }
 skip:
     if (*(s32 *)(work + 8) == 6) {
-        src = *(u8 **)(func_00457120() + 4) + 0x10;
+        src = *(u8 **)(kwlnGetCamera() + 4) + 0x10;
         dst = mat6;
         n = 8;
         do {
@@ -1915,7 +1915,7 @@ skip:
         *(f32 *)(work + 0x294) = t;
         *(RwV3d *)(work + 0x29C) = *(RwV3d *)(mat6 + 0x30);
     } else if (*(s32 *)(work + 8) == 7) {
-        src = *(u8 **)(func_00457120() + 4) + 0x10;
+        src = *(u8 **)(kwlnGetCamera() + 4) + 0x10;
         dst = mat7;
         n = 8;
         do {
@@ -1933,7 +1933,7 @@ skip:
         *(f32 *)(work + 0x28C) = t;
         *(f32 *)(work + 0x294) = t;
     }
-    *(f32 *)(work + 0x290) = *(f32 *)(func_00457120() + 0x80);
+    *(f32 *)(work + 0x290) = *(f32 *)(kwlnGetCamera() + 0x80);
 }
 
 // FUN_0016E8C0
@@ -1970,7 +1970,7 @@ void FldCameraSetDistance(u8 *arg0, f32 fparg0)
         goto done;
     }
 process:
-    temp_16 = *(u8 **)(func_00457120(temp_4) + 4);
+    temp_16 = *(u8 **)(kwlnGetCamera(temp_4) + 4);
     sp.sp50 = *(RwV3d *)(temp_16 + 0x40);
     var_3 = &sp.sp40[0];
     var_2 = 0xC;
@@ -1989,7 +1989,7 @@ process:
     temp_f1 = fparg0;
     func_003e9d50(temp_16, temp_2, temp_f1, 2);
     sp.sp50 = *(RwV3d *)(temp_16 + 0x40);
-    K_ClumpLookAtBasis(func_00457120(), &sp.sp50, &sp.sp40[0], 0);
+    K_ClumpLookAtBasis(kwlnGetCamera(), &sp.sp50, &sp.sp40[0], 0);
 done:
     ;
 }
@@ -2077,7 +2077,7 @@ void func_0016eb00(u8 *arg0)
         if ((*(s32 *)(*(u8 **)(*(u8 **)(temp_2 + 4) + 0x38) + 8) == 0) ||
             (*(s32 *)(*(u8 **)(*(u8 **)(temp_2 + 4) + 0x38) + 8) == 6) ||
             (*(s32 *)(*(u8 **)(*(u8 **)(temp_2 + 4) + 0x38) + 8) == 7)) {
-            temp_16 = *(u8 **)(func_00457120() + 4);
+            temp_16 = *(u8 **)(kwlnGetCamera() + 4);
             sp.sp50 = *(RwV3d *)(temp_16 + 0x40);
             var_3 = &sp.sp40[0];
             var_2 = 0xC;
@@ -2095,13 +2095,13 @@ void func_0016eb00(u8 *arg0)
             sp.sp38 = temp_f0;
             func_003e9d50(temp_16, temp_2, 0.0f, 2);
             sp.sp50 = *(RwV3d *)(temp_16 + 0x40);
-            K_ClumpLookAtBasis(func_00457120(), &sp.sp50, &sp.sp40[0], 0);
+            K_ClumpLookAtBasis(kwlnGetCamera(), &sp.sp50, &sp.sp40[0], 0);
         }
         break;
     case 2:
-        temp_17 = *(u8 **)(func_00457120() + 4);
+        temp_17 = *(u8 **)(kwlnGetCamera() + 4);
         temp_16_2 = (u8 *)(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0xC) + 0x40);
-        temp_2 = func_00457120();
+        temp_2 = kwlnGetCamera();
         K_ClumpLookAtBasis(temp_2, temp_17 + 0x40, temp_16_2, 0);
         break;
     case 1:
@@ -2137,7 +2137,7 @@ void FldCameraUpdateOrbit(u8 *arg0)
     temp_16 = *(u8 **)(arg0 + 0x38);
     temp_4 = *(s32 *)(temp_16 + 8);
     if (temp_4 == 6) {
-        temp_18 = *(u8 **)(func_00457120() + 4);
+        temp_18 = *(u8 **)(kwlnGetCamera() + 4);
         temp_17 = func_003e9700(*(s32 *)(temp_18 + 4));
         var_6 = temp_18 + 0x10;
         var_5 = *(u8 **)(temp_16 + 0x2C0);
@@ -2169,7 +2169,7 @@ void FldCameraUpdateOrbit(u8 *arg0)
         temp_2_3 = *(u8 **)(temp_16 + 0x2C0);
         *(RwV3d *)&sp50[0] = *(RwV3d *)(temp_2_3 + 0x30);
         func_003e0e20(*(u8 **)(temp_16 + 0x2C0), temp_17, 2);
-        K_ClumpLookAtBasis(func_00457120(), &sp50[0], &D_007F1730[0], 0);
+        K_ClumpLookAtBasis(kwlnGetCamera(), &sp50[0], &D_007F1730[0], 0);
     }
 }
 
@@ -2211,7 +2211,7 @@ s32 FldFrame_RotateTaskUpdate(u8 *arg0)
         if (temp_3_2 != 7)
             goto skip_process0;
 process0:
-        temp_17 = *(u8 **)(func_00457120() + 4);
+        temp_17 = *(u8 **)(kwlnGetCamera() + 4);
         sp.sp90 = *(RwV3d *)(temp_17 + 0x40);
         var_3 = &sp.sp80[0];
         var_2 = 0xC;
@@ -2230,7 +2230,7 @@ process0:
         temp_f1 = temp_f20;
         func_003e9d50(temp_17, temp_2, temp_f1, 2);
         sp.sp90 = *(RwV3d *)(temp_17 + 0x40);
-        K_ClumpLookAtBasis(func_00457120(), &sp.sp90, &sp.sp80[0], 0);
+        K_ClumpLookAtBasis(kwlnGetCamera(), &sp.sp90, &sp.sp80[0], 0);
 skip_process0:
         *(s32 *)(temp_16 + 0) += 1;
         /* fallthrough */
@@ -2253,7 +2253,7 @@ skip_process0:
                 if (temp_3_4 != 7)
                     goto skip_process1;
 process1:
-                temp_17_2 = *(u8 **)(func_00457120() + 4);
+                temp_17_2 = *(u8 **)(kwlnGetCamera() + 4);
                 sp.sp60 = *(RwV3d *)(temp_17_2 + 0x40);
                 var_3_2 = &sp.sp50[0];
                 var_2_2 = 0xC;
@@ -2272,7 +2272,7 @@ process1:
                 temp_f1 = temp_f20_2;
                 func_003e9d50(temp_17_2, temp_2_2, temp_f1, 2);
                 sp.sp60 = *(RwV3d *)(temp_17_2 + 0x40);
-                K_ClumpLookAtBasis(func_00457120(), &sp.sp60,
+                K_ClumpLookAtBasis(kwlnGetCamera(), &sp.sp60,
                               &sp.sp50[0], 0);
 skip_process1:
                 ;
@@ -2328,7 +2328,7 @@ u8 *FldFrame_RotateTaskCreate(u8 *arg0, s32 arg1, s32 arg2)
                 temp_f20 += 360.0f;
             }
             temp_f0 = KDraw_MatrixYawDeg(
-                func_003e9700(*(s32 *)(func_00457120() + 4)));
+                func_003e9700(*(s32 *)(kwlnGetCamera() + 4)));
             if (temp_f0 < 0.0f) {
                 temp_f0 += 360.0f;
             }
@@ -2384,7 +2384,7 @@ u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
         *(s32 *)(temp_2 + 4) = arg1;
         KDraw_MatrixYawDeg(mdlGetMatrix(*(s32 *)D_007EFA00));
         temp_f0 = KDraw_MatrixYawDeg(
-            func_003e9700(*(s32 *)(func_00457120() + 4)));
+            func_003e9700(*(s32 *)(kwlnGetCamera() + 4)));
         if (temp_f0 < 0.0f) {
             temp_f0 += 360.0f;
         }
@@ -2441,9 +2441,9 @@ void func_0016f630(FldEventSnapshot *arg0, u8 *arg1)
 
     var_17 = (s128 *)arg0;
     temp_16 = *(u8 **)(arg1 + 0x38);
-    temp_18 = *(u8 **)(func_00457120() + 4);
+    temp_18 = *(u8 **)(kwlnGetCamera() + 4);
     memset(&sp, 0, sizeof(sp));
-    sp.sp80 = K_View_GetFov(func_00457120());
+    sp.sp80 = K_View_GetFov(kwlnGetCamera());
     var_7 = (u8 *)(temp_18 + 0x10);
     var_6 = &sp.work[0];
     var_5 = 8;
@@ -2499,8 +2499,8 @@ void FldCameraApplyRecord(u8 *arg0, u8 *arg1)
     u16 temp_18;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
-    K_View_SetFov(func_00457120(), *(f32 *)(arg1 + 0x40));
-    func_003e9cb0(*(void **)(func_00457120() + 4), arg1, 0);
+    K_View_SetFov(kwlnGetCamera(), *(f32 *)(arg1 + 0x40));
+    func_003e9cb0(*(void **)(kwlnGetCamera() + 4), arg1, 0);
     temp_18 = *(u16 *)(arg1 + 0x44);
     FldCameraAdvanceCurve(arg0, temp_18);
     temp_3 = *(u8 **)(arg0 + 0x38);
@@ -2521,10 +2521,10 @@ void FldCameraApplyRecord(u8 *arg0, u8 *arg1)
         s32 temp_16_2_case;
         u8 *temp_16_2_arg;
         s32 temp_17_case;
-        temp_16_2_case = *(s32 *)(func_00457120() + 4);
+        temp_16_2_case = *(s32 *)(kwlnGetCamera() + 4);
         temp_17_case = (s32)(*(u8 **)(*(u8 **)(arg0 + 0x38) + 0xC) + 0x40);
         temp_16_2_arg = (u8 *)temp_16_2_case + 0x40;
-        temp_3 = func_00457120();
+        temp_3 = kwlnGetCamera();
         K_ClumpLookAtBasis(temp_3, (void *)temp_16_2_arg,
                       (void *)temp_17_case, 0);
     }

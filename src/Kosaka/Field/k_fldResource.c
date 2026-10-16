@@ -51,7 +51,7 @@ extern void func_003bbb60(void *arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *func_00460e80(u8 *list, s32 arg1);
 extern u8 *func_00461290(u8 *list, s32 arg1);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 K_Clump_GetWorld(void);
 extern u8 *K_Clump_GetLightA(void);
 extern u8 *K_Clump_GetLightB(void);
@@ -969,10 +969,10 @@ block_123:
             }
             *( s32 * )(iGpffff9db0 + 0xDC) = FldEnvOpenFile(*( s16 * )(iGpffff9db0 + 0x12));
             if (*( s32 * )(iGpffff9db0 + 0) >= 0xC8) {
-                func_003e8180((void *)(u32)func_00457120(), 100.0f);
+                func_003e8180((void *)(u32)kwlnGetCamera(), 100.0f);
             }
             if (*( s32 * )(iGpffff9db0 + 0) < 0xC8) {
-                func_003e8180((void *)(u32)func_00457120(), 100.0f);
+                func_003e8180((void *)(u32)kwlnGetCamera(), 100.0f);
             }
             temp_3_15 = (u8 *)(iGpffff9db0);
             if (*( s32 * )(temp_3_15 + 0xDC) == 0) {
@@ -1420,7 +1420,7 @@ s32 FldResource_PollLoads(u8 *arg0)
                     *(s32 *)(arg0 + 0x14) = (s32)temp_19;
                 } else if (*(s32 *)(arg0 + 0xC) == 0) {
                     *(s32 *)(arg0 + 0xC) = (s32)temp_19;
-                    func_003db550(temp_19, (void *)(u32)func_00457120());
+                    func_003db550(temp_19, (void *)(u32)kwlnGetCamera());
                 } else {
                     *(s32 *)(arg0 + 8) = (s32)temp_19;
                 }
@@ -1758,7 +1758,7 @@ void FldResource_BeginDrawState(u8 *arg0, u8 *arg1)
     s32 flags;
     s32 light;
 
-    raster = (void *)(u32)func_00457120();
+    raster = (void *)(u32)kwlnGetCamera();
     gs = (u8 *)D_00887300;
     (*(RwBool (**)(RwRenderState, void *))gs)(0x14, (void *)2);
     func_003e8110((u32)raster);
@@ -1846,7 +1846,7 @@ void FldResource_EndDrawState(u8 *arg0, u8 *arg1)
     u8 *temp_18_2;
     u8 *temp_18_3;
 
-    temp_2 = (void *)(u32)func_00457120();
+    temp_2 = (void *)(u32)kwlnGetCamera();
     func_003e8110((u32)temp_2);
     if (*(u32 *)arg1 & 1) {
         if (*(u32 *)arg1 & 0x80000000) {

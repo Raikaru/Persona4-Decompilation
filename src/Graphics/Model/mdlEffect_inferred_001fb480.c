@@ -39,7 +39,7 @@ extern f32 D_007613E0;
 extern f32 D_007613E4;
 extern f32 D_008872FC_abs[];
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern u8 *iGpffffb3c4;
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
@@ -192,7 +192,7 @@ void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3)
     extern f32 fGpffff82e8;
     extern f32 fGpffff82ec;
 
-    cam = (u8 *)func_00457120();
+    cam = (u8 *)kwlnGetCamera();
     disp = func_00401b80();
     f = (f32)*(s32 *)(disp + 0xC);
     sx = 640.0f / f;

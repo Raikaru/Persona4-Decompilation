@@ -57,7 +57,7 @@ extern f32 D_00761470;
 extern f32 D_008872F8[];
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern s32 (*D_00887310[])(s32, void *, s32);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern f32 cosf(f32 fparg0);
 extern void func_00364c50(void);
 extern void func_00364c70(void);
@@ -385,7 +385,7 @@ void btlShuffleDrawFrameFade(u8 *arg0)
     stride = (groupCount < 6) ? groupCount * 2 : groupCount;
     count = btlShuffleDrawTableLookup(groupCount, *(s32 *)(ctx + 0x1F2FC));
     f22 = D_008872F8[0];
-    f21 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    f21 = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     colors[0] = 0x5F;
     colors[1] = 0x31;
     colors[2] = 0;
@@ -1137,7 +1137,7 @@ void func_00387750(u8 *arg0)
     base = *(u8 **)arg0;
     state = arg0 + 0x46;
     view.depth = D_008872F8[0];
-    view.recipZ = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    view.recipZ = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     *(u16 *)(state + 2) = (*(u16 *)(state + 2) + 1) % 10;
     view.phase = (fGpffff82fc * (f32)*(u16 *)(state + 2)) / 10.0f;
     if ((*(u16 *)(state + 4) & 1) == 0) {
@@ -1983,7 +1983,7 @@ void btlShuffleDrawWave(u8 **arg0)
 
     raw = (u8 *)arg0 + 0xA0;
     z = D_008872F8[0];
-    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     D_00887300[0]((RwRenderState)1, (void *)0);
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
@@ -2180,7 +2180,7 @@ void func_0038a480(u8 *arg0)
     s32 count;
 
     depth = D_008872F8[0];
-    reciprocalZ = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    reciprocalZ = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     axis.x = 0.0f;
     axis.y = 0.0f;
     axis.z = 1.0f;
@@ -2880,7 +2880,7 @@ void func_0038cab0(u8 *arg0)
     state = (State_0038CAB0 *)(arg0 + 0x1A0);
     base = *(u8 **)arg0 + 0x1F1D0;
     zval = D_008872F8[0];
-    inv_scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    inv_scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     mode = *(u16 *)(base + 4);
     mode = (mode < 3) ? mode : 2;
     if (state->counter < 10) {

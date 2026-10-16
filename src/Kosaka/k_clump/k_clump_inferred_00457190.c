@@ -237,7 +237,7 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Source unit: src/promoted/code1_0045.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 00457190-00457190 */
 
-extern u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
+extern u8 *H_Cdvd_CreateFileDevice(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 #pragma push
 #pragma pop
 #pragma push

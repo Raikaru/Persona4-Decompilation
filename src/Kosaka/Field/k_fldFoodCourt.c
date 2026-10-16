@@ -30,7 +30,7 @@ extern s32 datGetTimeSlot(void);
 extern s64 calGetDayEntryByPhase(s64 arg0, s32 arg1);
 extern u8 *MT_Scene_GetCameraResSecond(void);
 extern u8 *MT_Scene_GetCameraResFirst(void);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern f32 MT_Scene_GetCameraFov(void);
 extern void K_View_SetFov(u8 *arg0, f32 arg1);
 extern void func_003e9cb0(s32 arg0, u8 *arg1, s32 arg2);
@@ -113,9 +113,9 @@ s32 K_FldFoodCourt_Update(u8 *arg0) {
                     var_6 += 8;
                 } while (var_5 > 0);
             }
-            temp_17_2 = (u8 *)func_00457120();
+            temp_17_2 = (u8 *)kwlnGetCamera();
             K_View_SetFov(temp_17_2, MT_Scene_GetCameraFov());
-            temp_17_2 = (u8 *)func_00457120();
+            temp_17_2 = (u8 *)kwlnGetCamera();
             func_003e9cb0(*(s32 *)(temp_17_2 + 4), *(u8 **)(temp_16 + 4), 0);
             temp_2_2 = *(u8 **)(temp_16 + 8);
             *(s32 *)(temp_16 + 0xC) =

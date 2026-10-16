@@ -32,7 +32,7 @@ extern void FldUnit_ReleaseGroupSlots(void);
 extern void FldUnit_ReleaseAllSlots(void);
 extern void memset(void *, s32, s32);
 extern void FldLoadTaskUnloadScene(u8 *);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern void func_003e9df0(s32);
 
 /* Fresh reconstruction retained in FFS_00155360_body.c: 2192/2192 bytes,
@@ -423,7 +423,7 @@ field_done:
         }
         temp_16 += 1;
     }
-    func_003e9df0(*(s32 *)(func_00457120() + 4));
+    func_003e9df0(*(s32 *)(kwlnGetCamera() + 4));
     KFIELD_JTBL_008873EC(*(s32 *)(arg0 + 0x38));
 }
 
@@ -511,12 +511,12 @@ s32 FldRootCreate(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
     copy_f32 = D_005EFF40[0];
     *(s64 *)&pos.x = copy_s64;
     pos.z = copy_f32;
-    func_003e9df0(*(s32 *)(func_00457120() + 4));
-    cam = *(u8 **)(func_00457120() + 4);
+    func_003e9df0(*(s32 *)(kwlnGetCamera() + 4));
+    cam = *(u8 **)(kwlnGetCamera() + 4);
     *(KFieldVec3 *)(cam + 0x40) = pos;
     RwEngineGetMatrixTolerances(matrix);
-    RwMatrixOptimize(*(u8 **)(func_00457120() + 4) + 0x10, matrix);
-    func_003e9680(*(u8 **)(func_00457120() + 4));
+    RwMatrixOptimize(*(u8 **)(kwlnGetCamera() + 4) + 0x10, matrix);
+    func_003e9680(*(u8 **)(kwlnGetCamera() + 4));
     return handle;
 }
 

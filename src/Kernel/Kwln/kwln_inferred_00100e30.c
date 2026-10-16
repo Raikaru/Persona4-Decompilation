@@ -101,9 +101,9 @@ extern void func_00418b18(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void func_0044f570(s32 arg0);
 extern void kwlnTaskInitPool(s32 arg0);
-extern void func_004544b0(void);
+extern void H_Cdvd_ResetStreamState(void);
 extern void func_004559b0(void);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern u8 D_005DD680[];
 /* RenderWare keeps its engine instance in the `ourGlobals` array
    (retail 0x008872E0) and reaches device state through
@@ -230,7 +230,7 @@ void func_00100e60(void)
     sdkSetActiveHandle((s32)&scrReleaseActiveHandle);
     kwlnTaskInitPool(0x190);
     PrimCreatePools(0x7D0, 0x64);
-    func_004544b0();
+    H_Cdvd_ResetStreamState();
     func_004559b0();
     func_0010d7b0();
     func_0045b430();
@@ -282,7 +282,7 @@ void func_00100e60(void)
     sdkSndSetSlotTrack(1, 2);
     mdlResetModelTable((s32)&D_005DC878);
     mdlAppRegisterModelCallbacks();
-    func_0044f570(func_00457120());
+    func_0044f570(kwlnGetCamera());
     func_003f67e0(1);
     func_003f67f0(1);
     func_00466680();

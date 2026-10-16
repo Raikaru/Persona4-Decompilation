@@ -3933,7 +3933,7 @@ u8 *shdPersonaModelCreate(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
 
 
 
-s32 func_00457120(void);
+s32 kwlnGetCamera(void);
 extern f32 D_008872F8[];
 extern s32 (*D_00887310[])(s32, void *, s32);
 /* Submit two adjacent four-vertex strips using the renderer's 64-byte
@@ -3967,7 +3967,7 @@ void shdPersonaDrawQuadStrips(f32 depth, s32 color, s32 edgeAlpha, f32 x, f32 y,
     u32 callbackTable;
     f32 *nearPlane;
 
-    reciprocalZ = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
+    reciprocalZ = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
     red = (s32)(((u32)(color & 0xFF000000) >> 24) & 0xFF);
     green = (s32)(((u32)(color & 0xFF0000) >> 16) & 0xFF);
     blue = (s32)(((u32)(color & 0xFF00) >> 8) & 0xFF);

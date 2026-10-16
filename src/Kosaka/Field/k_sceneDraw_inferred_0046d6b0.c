@@ -104,7 +104,7 @@ extern s32 iGpffffb194;
 extern f32 iGpffffbb20;
 extern f32 iGpffffbb1c;
 extern f32 iGpffffbb24;
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 sprintf(char *dst, const char *fmt, ...);
 extern char D_007127D0[];
 extern char D_00712950[];
@@ -423,7 +423,7 @@ s32 sdkWindowUpdate(u8 *arg0) {
     state = *(s32 *)work;
     switch (state) {
     case 0:
-        f2 = *(f32 *)((u8 *)func_00457120() + 0x80) - 400.0f;
+        f2 = *(f32 *)((u8 *)kwlnGetCamera() + 0x80) - 400.0f;
         f1 = 1.0f / f2;
         i = 0;
         goto test0o;
@@ -647,7 +647,7 @@ test7k:
         return -1;
     }
     if (*(s32 *)(work + 4) == 1) {
-        if (func_003e8120((u32)func_00457120()) != 0) {
+        if (func_003e8120((u32)kwlnGetCamera()) != 0) {
             tbl00 = &((WindowEngineStatePrefix *)ourGlobals)->device.setState;
             tbl00[0]((RwRenderState)(6), (void *)(1));
             tbl00[0]((RwRenderState)(8), (void *)(0));
@@ -663,7 +663,7 @@ test7k:
             tbl10[0](4, work + 0x260, 4);
             tbl10[0](4, work + 0x360, 4);
         }
-        func_003e8110((u32)func_00457120());
+        func_003e8110((u32)kwlnGetCamera());
     }
     return 0;
 }
@@ -1002,7 +1002,7 @@ void sdkLboxDrawEntries(u8 *arg0) {
 // FUN_0046F2B0
 s32 sdkLboxUpdate(u8 *task)
 {
-    extern s32 func_00457120(void);
+    extern s32 kwlnGetCamera(void);
     extern u32 func_003e8120(u32 camera);
     extern u32 func_003e8110(u32 camera);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
@@ -1076,7 +1076,7 @@ s32 sdkLboxUpdate(u8 *task)
     default:
         goto update_callback;
     case 1:
-        depth = *(f32 *)((u8 *)func_00457120() + 0x80);
+        depth = *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
         reciprocalDepth = 1.0f / depth;
         theme = work->theme;
         switch (theme) {
@@ -1180,7 +1180,7 @@ s32 sdkLboxUpdate(u8 *task)
                     s32 bottomOffset = (work->rowHeight * (work->selectedRow + 1)) + 2;
                     work->vertices[3].y = (f32)(bottomOffset + work->rectangle.y);
                 }
-                if (func_003e8120((u32)func_00457120()) != 0) {
+                if (func_003e8120((u32)kwlnGetCamera()) != 0) {
                     WindowRenderStateSet *renderStates = &((WindowEngineStatePrefix *)ourGlobals)->device.setState;
                     renderStates[0]((RwRenderState)(0xE), (void *)(0));
                     renderStates[0]((RwRenderState)(0xC), (void *)(1));
@@ -1193,11 +1193,11 @@ s32 sdkLboxUpdate(u8 *task)
                     RpSkyRenderStateSet(3, (void *)(0x717FB));
                     D_00887310[0](4, work->vertices, 4);
                 }
-                func_003e8110((u32)func_00457120());
+                func_003e8110((u32)kwlnGetCamera());
             }
-            func_003e8120((u32)func_00457120());
+            func_003e8120((u32)kwlnGetCamera());
             sdkLboxDrawEntries(task);
-            func_003e8110((u32)func_00457120());
+            func_003e8110((u32)kwlnGetCamera());
             if (work->flags & 4) {
                 clearByte = (u8 *)&joystick;
                 clearCount = 0xC;

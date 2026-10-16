@@ -881,8 +881,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void *mdlCreateModelObjectFromData(u32, u16, void *, u32);
     s32 mdlPrepareModel(u8 *);
     void func_00457140(u8, u8, u8, u8);
-    s8 *func_00457130(void);
-    s32 func_00457120(void);
+    s8 *kwlnGetColorRgb(void);
+    s32 kwlnGetCamera(void);
     void *memset(void *, s32, size_t);
     void datEntryDrawGatedByFlag39(s32, s32, s32, s32);
     void hFadeTaskStart(s16);
@@ -1205,11 +1205,11 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             goto running;
         case 5:
             if (func_001fc270() != 0) {
-                work->viewColor = *(FldEventColor *)func_00457130();
+                work->viewColor = *(FldEventColor *)kwlnGetColorRgb();
                 work->environmentColor.r = iGpffffba4c;
                 work->environmentColor.g = iGpffffba50;
                 work->environmentColor.b = iGpffffba54;
-                work->viewFog = *(f32 *)((u8 *)func_00457120() + 0x88);
+                work->viewFog = *(f32 *)((u8 *)kwlnGetCamera() + 0x88);
                 work->environmentFog = iGpffffba6c;
                 if (FldUnit_AllSlotsReady() != 0) {
                     func_0015a7c0(FldStepIndex());
@@ -1430,9 +1430,9 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 iGpffffba58 = 0;
                 {
                     f32 fv = work->viewFog;
-                    *(f32 *)((u8 *)func_00457120() + 0x88) = fv;
+                    *(f32 *)((u8 *)kwlnGetCamera() + 0x88) = fv;
                 }
-                func_00457120();
+                kwlnGetCamera();
                 iGpffffba6c = work->environmentFog;
                 {
                     s32 tt = work->modelFile;
@@ -1743,7 +1743,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     extern f32 gPI;
     extern f32 fGpffff84a4;
     extern FldEventVec3 D_00756510;
-    s32 func_00457120(void);
+    s32 kwlnGetCamera(void);
     MovementMatrix *func_003e9700(void *);
     f32 KDraw_MatrixYawDeg(const MovementMatrix *);
     f32 KDraw_RoundYawDeg(f32);
@@ -1779,7 +1779,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     s32 ret16;
 
     h = *(u8 **)(arg0 + 0x38);
-    func_00457120();
+    kwlnGetCamera();
     {
         u8 *p = (u8 *)&move;
         s32 n = 12;
@@ -1807,7 +1807,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
         s32 t = *(s32 *)(h + 0x138);
         if (t != 0 && kwlnTaskIsLinked((void *)(t)) == 0) {
             *(s32 *)(h + 0x138) = 0;
-            *(f32 *)(h + 0x140) = KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4)));
+            *(f32 *)(h + 0x140) = KDraw_MatrixYawDeg(func_003e9700(*(void **)(kwlnGetCamera() + 4)));
         }
     }
     move.z = (f32)D_008C025D[0] - 128.0f;
@@ -1846,7 +1846,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
             if (datGetFlag(0x3E) == 1) {
                 f21 *= -1.0f;
             }
-            a = KDraw_RoundYawDeg(KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4))));
+            a = KDraw_RoundYawDeg(KDraw_MatrixYawDeg(func_003e9700(*(void **)(kwlnGetCamera() + 4))));
             if (a < 0.0f) {
                 a += 360.0f;
             }
@@ -1872,13 +1872,13 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
                 f21 *= -1.0f;
             }
             {
-                f32 angle = KDraw_RoundYawDeg(KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4))));
+                f32 angle = KDraw_RoundYawDeg(KDraw_MatrixYawDeg(func_003e9700(*(void **)(kwlnGetCamera() + 4))));
 
                 if (angle < 0.0f) {
                     angle += 360.0f;
                 }
             }
-            add = f21 + KDraw_MatrixYawDeg(func_003e9700(*(void **)(func_00457120() + 4)));
+            add = f21 + KDraw_MatrixYawDeg(func_003e9700(*(void **)(kwlnGetCamera() + 4)));
             *(u8 **)(h + 0x138) = func_0016f3b0(arg0, 5, (s32)add);
         }
     } else if (camera.x < -48.0f) {
@@ -1921,7 +1921,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
 bigmove:
     {
         f22 = 0.0f;
-        cameraMatrix = *(MovementMatrix *)(*(u8 **)(func_00457120() + 4) + 0x10);
+        cameraMatrix = *(MovementMatrix *)(*(u8 **)(kwlnGetCamera() + 4) + 0x10);
         func_003e0670(&cameraMatrix, &cameraMatrix);
         {
             f32 ang = -func_0044b950(cameraMatrix.right.z, cameraMatrix.right.x);

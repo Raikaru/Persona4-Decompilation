@@ -35,7 +35,7 @@ extern void pscResReleaseArcanaCard(s32 arg0, s32 arg1);
 extern void pscResReleasePersonaCard(s32 arg0);
 extern void pscResReleaseMiscCardW00(void);
 extern void pscResReleaseMiscCardW01(void);
-extern void *func_00457120(void);
+extern void *kwlnGetCamera(void);
 extern void kAssertFail(const char *file, s32 line);
 extern char D_0064E5B0[];
 
@@ -145,7 +145,7 @@ void btlShuffleCardUpdateCards(u8 *arg0)
     sp3C[2] = 0xFF;
     sp3C[3] = 0xFF;
     btlShuffleCardBindSlot(arg0, sp3C);
-    func_0036a8f0(arg0, *(s32 *)((u8 *)func_00457120() + 4));
+    func_0036a8f0(arg0, *(s32 *)((u8 *)kwlnGetCamera() + 4));
     *(u16 *)(arg0 + 0xFAC) |= 1;
 }
 

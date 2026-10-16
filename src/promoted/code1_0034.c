@@ -25,7 +25,7 @@ extern u16 iGpffffb5a4;
 extern u8 *sdkSpriteNewNode(s32 arg0, s32 arg1);
 extern s32 fclSpriteUpdateTweens(void *arg0);
 extern void memcpy(void *arg0, s32 arg1, s32 arg2);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern u8 D_00793E80[];
 extern void fclCombineDrawPacket(u8 *packet, s32 data, void *callback);
@@ -190,7 +190,7 @@ void fclCombineInitView(u8 *arg0) {
     work = (u8 *)(*(u8 **)(arg0 + 0x38));
     *(s32 *)(work + 0xE4) = 0;
     *(s32 *)(work + 0xE0) = 0;
-    func_003e8130((u8 *)func_00457120(), work + 0xE0);
+    func_003e8130((u8 *)kwlnGetCamera(), work + 0xE0);
 }
 
 // Intent: Mark the combine object ready by setting its sixth state byte [inferred]
@@ -217,7 +217,7 @@ void fclCombineDrawPacket(u8 *packet, s32 data, void *callback)
     s32 i;
     u8 *v;
 
-    reciprocal = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
+    reciprocal = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
     raster = (s32 *)func_003315c0();
     state = D_00887300;
     state[0](6, (void *)1);
@@ -286,7 +286,7 @@ s32 fclCmbBallSlotsUpdate(u8 *arg0)
     u8 *packet;
 
     base = *(u8 **)(arg0 + 0x38);
-    func_00457120();
+    kwlnGetCamera();
     counter = 0;
     while ((s64)(s16)counter < *(u8 *)(base + 0x1800)) {
         entry = base + ((s32)(s64)(s16)(s64)counter << 9);
@@ -428,7 +428,7 @@ void nLineDrawLayers(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
     baseX = fparg0;
     if (!(fparg2 <= 0.0f)) {
         delta = D_008872F8[0] - D_0088467C[0];
-        invScale = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
+        invScale = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
         layers = unit + 0x790;
         *(s32 *)(unit + 0x990) = 1;
         baseY = 448.0f + fparg1;

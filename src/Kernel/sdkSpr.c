@@ -85,7 +85,7 @@ typedef struct SdkSpriteGlobalsPrefix {
 } SdkSpriteGlobalsPrefix;
 extern u32 ourGlobals[4096];
 
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern RwMatrix *func_003e0f80(void);
 extern RwMatrix *func_003e0680(RwMatrix *, const RwV3d *, f32, f32, RwOpCombineType);
@@ -541,7 +541,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
     s32 (**states)(RwRenderState, void *);
     s32 (**render)(s32, void *, s32);
 
-    reciprocalZ = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    reciprocalZ = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
     if (setStates != 0) {
         s32 (**initialStates)(RwRenderState, void *) =
             &((SdkSpriteGlobalsPrefix *)ourGlobals)->device.setState;

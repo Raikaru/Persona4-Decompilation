@@ -162,7 +162,7 @@ static inline void wg0015_place_special(u8 special_direction, s32 x, s32 y,
 #pragma opt_loop_invariants on
 extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 mdlPrepareModel(s32 arg0);
 
 
@@ -250,9 +250,9 @@ void MT_Scene_ApplyCameraParams(void)
 
     temp_2 = MT_Scene_GetResListHead(0x14);
     if (temp_2 != NULL) {
-        K_View_SetFov((void *)func_00457120(), *(f32 *)(temp_2 + 0x144));
+        K_View_SetFov((void *)kwlnGetCamera(), *(f32 *)(temp_2 + 0x144));
         func_003e0670(sp30, *(s32 *)(temp_2 + 0x148));
-        func_003e9cb0(*(s32 *)(func_00457120() + 4), sp30, 0);
+        func_003e9cb0(*(s32 *)(kwlnGetCamera() + 4), sp30, 0);
         FldCameraAdvanceCurve(MT_Scene_GetFrameState()[1], *(s32 *)(temp_2 + 0x140));
         FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], temp_2 + 0x150);
         if ((*(f32 *)(temp_2 + 0x15C) == 0.0f) &&
@@ -3113,7 +3113,7 @@ set_test:
             MT_Scene_GetResListHead(0xC);
         }
 
-        work = (u8 *)func_00457120();
+        work = (u8 *)kwlnGetCamera();
         angle = KDraw_MatrixYawDeg(*(u8 **)(work + 4) + 0x10);
         D_0076430C = 0;
         if ((angle <= 45.0f) && !(angle < -45.0f)) {
@@ -3667,8 +3667,8 @@ s32 mtSceneResListPrepareAll(void)
         }
         work = *(u8 **)(work + 0x138);
     }
-    if (func_003e8120(func_00457120()) != 0) {
-        func_003e8110(func_00457120());
+    if (func_003e8120(kwlnGetCamera()) != 0) {
+        func_003e8110(kwlnGetCamera());
     }
     return result;
 }

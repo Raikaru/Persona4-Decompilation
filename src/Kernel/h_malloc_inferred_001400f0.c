@@ -127,7 +127,7 @@ extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 D_007EF9B0[];
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern u8 D_007E8020[];
 
 extern u8 D_005EF7D0[];
@@ -985,7 +985,7 @@ void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
     originY = pos.y;
     originX = pos.x;
     screenDepth = D_008872F8[0];
-    reciprocalNear = (1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80));
+    reciprocalNear = (1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80));
     palette = (struct RadarColor *)D_0064B2F4;
     D_00887300_abs[0](rwRENDERSTATETEXTURERASTER, NULL);
     *(f32 *)(packet.bytes + 0x00) = 1.0f + ((f32)0x19F + originX);

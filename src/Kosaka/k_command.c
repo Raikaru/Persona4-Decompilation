@@ -29,7 +29,7 @@ extern s32 D_00764364;
 extern u8* D_00762EA0;
 
 extern void kAssertFail(const char* file, s32 line);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern void* FldEvent_GetNearestEntry(void);
 extern void* FldEvent_GetTriggerEntry(void);
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
@@ -800,7 +800,7 @@ s32 Cmd_FaceNearestAxis(void)
         diff.z = v2x - ((Vec3f*)((u8*)mdlGetMatrix(D_007EFA00[0]) + 0x30))->z;
         RwV3dNormalize(&diff.x, &diff.x);
         RwV3dNormalize(&v1.x, &v1.x);
-        KDraw_MatrixYawDeg((u8*)func_003e9700(*(s32*)((u8*)func_00457120() + 4)));
+        KDraw_MatrixYawDeg((u8*)func_003e9700(*(s32*)((u8*)kwlnGetCamera() + 4)));
         dot = diff.x * v1.x + diff.y * v1.y + diff.z * v1.z;
         if (dot < 0.0f)
         {
@@ -861,8 +861,8 @@ s32 Cmd_SetSceneMode(void)
 s32 Cmd_SetCameraFloat(void)
 {
     f32 value = scrGetParamFloat(0);
-    *(f32*)((u8*)func_00457120() + 0x88) = value;
-    func_00457120();
+    *(f32*)((u8*)kwlnGetCamera() + 0x88) = value;
+    kwlnGetCamera();
     return 1;
 }
 

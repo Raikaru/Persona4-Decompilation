@@ -10,8 +10,8 @@ extern void TnSetCallback(void *arg0);
 extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
 extern void RwCameraClear(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_00457120(void);
-extern s32 func_00457130(void);
+extern s32 kwlnGetCamera(void);
+extern s32 kwlnGetColorRgb(void);
 extern void H_Dbprt_Flush(void);
 extern void PrimClearNodes(void *arg0, s32 arg1);
 extern void func_00460ac0(void *arg0, void *arg1);
@@ -221,10 +221,10 @@ void mainDrawClearCameraAndSky(void) {
     s32 temp_16;
     void (**base)(u32, u32);
 
-    func_003e8110(func_00457120());
-    temp_16 = func_00457120();
-    RwCameraClear(temp_16, func_00457130(), 2);
-    if (func_003e8120(func_00457120()) != 0) {
+    func_003e8110(kwlnGetCamera());
+    temp_16 = kwlnGetCamera();
+    RwCameraClear(temp_16, kwlnGetColorRgb(), 2);
+    if (func_003e8120(kwlnGetCamera()) != 0) {
         base = D_00887300;
         base[0](6, 1);
         base[0](8, 1);
@@ -367,8 +367,8 @@ s32 mainDrawClearOtUpdate(u8 *arg0) {
 
     temp_17 = *(u8 **)(arg0 + 0x38);
     H_Dbprt_Flush();
-    temp_16 = func_00457120();
-    RwCameraClear(temp_16, func_00457130(), 3);
+    temp_16 = kwlnGetCamera();
+    RwCameraClear(temp_16, kwlnGetColorRgb(), 3);
     PrimClearNodes(&D_00793E80, 0xD8);
     *(s32 *)temp_17 = 0;
     *(s32 *)(temp_17 + 4) = 0;
@@ -573,7 +573,7 @@ void mainDrawStartClearOt(void) {
 s32 mainDrawFrameUpdate(u8 *unusedTask) {
     u32 var_16;
 
-    if (func_003e8120(func_00457120()) != 0) {
+    if (func_003e8120(kwlnGetCamera()) != 0) {
         var_16 = 0;
         while (var_16 < 0xD8U) {
             s32 off = var_16 * 0x30;
@@ -581,7 +581,7 @@ s32 mainDrawFrameUpdate(u8 *unusedTask) {
             var_16 += 1;
         }
     }
-    func_003e8110(func_00457120());
+    func_003e8110(kwlnGetCamera());
     return 0;
 }
 

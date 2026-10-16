@@ -108,7 +108,7 @@ extern s32 iGpffffb194;
 extern f32 iGpffffbb20;
 extern f32 iGpffffbb1c;
 extern f32 iGpffffbb24;
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern char D_007127D0[];
 extern char D_00712950[];
 extern char D_008E4900[];
@@ -328,7 +328,7 @@ void sdkOtFlushBuckets(u8 *arg0)
                     count--;
                 } while (count != 0);
             }
-            RwCameraClear(func_00457120(), &sp2C[0], *(s32 *)(p + 0x1C));
+            RwCameraClear(kwlnGetCamera(), &sp2C[0], *(s32 *)(p + 0x1C));
             break;
         case 2:
             D_00887300[0]((RwRenderState)(*(s32 *)(p + 0x1C)), (void *)(*(s32 *)(p + 0x20)));

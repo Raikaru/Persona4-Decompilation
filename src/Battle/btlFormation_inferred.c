@@ -45,7 +45,7 @@ extern u8 D_0060A0E0[];
 extern u8 D_0060A0F0[];
 
 
-extern u8 *func_00457120();
+extern u8 *kwlnGetCamera();
 extern void func_003e8110(u8 *arg0);
 extern void func_003e8120(u8 *arg0);
 extern void func_003e9cb0(s32 arg0, u8 *arg1, s32 arg2);
@@ -232,7 +232,7 @@ void func_001d4eb0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3)
             temp_f20 = (f32)temp_4;
             temp_f20 = temp_f20 + temp_f20;
         }
-        temp_2 = *(u8 **)(func_00457120() + 4);
+        temp_2 = *(u8 **)(kwlnGetCamera() + 4);
         frame.value80 = *(f32 *)(temp_2 + 0x40) - frame.value90;
         frame.value84 = *(f32 *)(temp_2 + 0x44) - frame.value94;
         frame.value88 = *(f32 *)(temp_2 + 0x48) - frame.value98;
@@ -566,8 +566,8 @@ void func_001d5990(void)
     extern f32 fGpffff8478;
     extern f32 fGpffff847c;
 
-    func_003e8110(func_00457120());
-    source = (u32 *)(*(u8 **)(func_00457120() + 4) + 0x10);
+    func_003e8110(kwlnGetCamera());
+    source = (u32 *)(*(u8 **)(kwlnGetCamera() + 4) + 0x10);
     destination = (u32 *)D_008813B0;
     count = 8;
     do {
@@ -601,8 +601,8 @@ void func_001d5990(void)
     frame.sp40 = temp1;
     frame.sp44 = temp2;
     frame.sp48 = temp3;
-    func_003e9cb0(*(s32 *)(func_00457120() + 4), (u8 *)&frame.sp10, 0);
-    func_003e8120(func_00457120());
+    func_003e9cb0(*(s32 *)(kwlnGetCamera() + 4), (u8 *)&frame.sp10, 0);
+    func_003e8120(kwlnGetCamera());
 }
 
 /* measured: restore optimization_level 2 after func_001d5990. */
@@ -610,9 +610,9 @@ void func_001d5990(void)
 #pragma optimization_level 2
 // FUN_001D5AC0
 void func_001d5ac0(void) {
-    func_003e8110(func_00457120());
-    func_003e9cb0(*(s32 *)(func_00457120() + 4), D_008813B0, 0);
-    func_003e8120(func_00457120());
+    func_003e8110(kwlnGetCamera());
+    func_003e9cb0(*(s32 *)(kwlnGetCamera() + 4), D_008813B0, 0);
+    func_003e8120(kwlnGetCamera());
 }
 
 // FUN_001D5B20
