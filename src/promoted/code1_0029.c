@@ -11,7 +11,7 @@ extern u8 *iGpffffb510;
 extern void func_004b15d0();
 extern s32 iGpffffa7c8;
 extern s32 scrGetParamString(s32 arg0);
-extern void func_0029e9b0(void *arg0, ...);
+extern void scrDiscardArgs(void *arg0, ...);
 
 s32 mtMiscResourceValue(s32 arg0);
 
@@ -196,7 +196,7 @@ s32 func_00299e00(void)
     return 1;
 }
 // FUN_0029E9B0
-void func_0029e9b0(void *arg0, ...)
+void scrDiscardArgs(void *arg0, ...)
 {
     va_list args;
     va_start(args, arg0);

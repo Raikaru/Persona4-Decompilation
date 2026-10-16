@@ -67,12 +67,12 @@ extern s32 calGetDayTableValue(s16 arg0, s16 arg1);
 extern s32 func_0015a160(void);
 extern s32 evtHasTaskHandle(void);
 extern s32 iGpffffb1c8;
-extern s32 func_001060d0(void);
-extern s32 func_001060e0(void);
-extern s32 func_001060f0(void);
-extern void func_00106300();
-extern void func_00106310();
-extern void func_00106320();
+extern s32 datGetPendingDateIndex(void);
+extern s32 datGetPendingTimeSlot(void);
+extern s32 datGetPendingFlag(void);
+extern void datSetPendingDateIndex();
+extern void datSetPendingTimeSlot();
+extern void datSetPendingFlag();
 extern s32 calHasDayEntry();
 extern void func_00260450(void);
 extern s16 clndGetPeriod(void);
@@ -453,29 +453,29 @@ s32 calendarStepTimeSlot(u8 *arg0) {
     case 0:
         *temp_16 = 2;
     case 2:
-        if ((iGpffffb1c8 == 0) && (func_001060f0() != 0)) {
-            func_00106100(func_001060d0());
-            datSetTimeSlot(func_001060e0());
-            func_00106320(0);
+        if ((iGpffffb1c8 == 0) && (datGetPendingFlag() != 0)) {
+            datSetDateIndex(datGetPendingDateIndex());
+            datSetTimeSlot(datGetPendingTimeSlot());
+            datSetPendingFlag(0);
         }
         if ((datGetTimeSlot() & 0xFF) == 5) {
-            func_00106300((s64)(s16)((s16)datGetDateIndex() + 1));
-            func_00106310(0);
+            datSetPendingDateIndex((s64)(s16)((s16)datGetDateIndex() + 1));
+            datSetPendingTimeSlot(0);
         } else if (calHasDayEntry(
                        (s64)(s16)datGetDateIndex()) == 0) {
-            func_00106300(datGetDateIndex());
-            func_00106310(((datGetTimeSlot() & 0xFF) + 1) & 0xFF);
+            datSetPendingDateIndex(datGetDateIndex());
+            datSetPendingTimeSlot(((datGetTimeSlot() & 0xFF) + 1) & 0xFF);
         } else {
-            func_00106300(datGetDateIndex());
+            datSetPendingDateIndex(datGetDateIndex());
             if ((datGetTimeSlot() & 0xFF) == 0) {
-                func_00106310(3);
+                datSetPendingTimeSlot(3);
             } else if ((datGetTimeSlot() & 0xFF) == 3) {
-                func_00106310(5);
+                datSetPendingTimeSlot(5);
             } else {
-                func_00106310(((datGetTimeSlot() & 0xFF) + 1) & 0xFF);
+                datSetPendingTimeSlot(((datGetTimeSlot() & 0xFF) + 1) & 0xFF);
             }
         }
-        func_00106320(1);
+        datSetPendingFlag(1);
         *temp_16 = 3;
     case 3:
         func_00260450();
@@ -1612,8 +1612,8 @@ s32 clndSceneUpdate(u8 *arg0)
         iGpffffb1f0 = 1;
         calendarSyncFromDate();
         calendarSetMode(1);
-        temp_3 = (s16)func_001060d0();
-        if ((temp_3 == 9) && ((u8)func_001060e0() == 5)) {
+        temp_3 = (s16)datGetPendingDateIndex();
+        if ((temp_3 == 9) && ((u8)datGetPendingTimeSlot() == 5)) {
             func_001029a0(0x19, 0, 0, 0);
             return -1;
         }

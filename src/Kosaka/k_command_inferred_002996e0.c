@@ -13,7 +13,7 @@ extern u8 *iGpffffb510;
 extern void func_004b15d0();
 extern s32 iGpffffa7c8;
 extern s32 scrGetParamString(s32 arg0);
-extern void func_0029e9b0(void *arg0, ...);
+extern void scrDiscardArgs(void *arg0, ...);
 
 s32 mtMiscResourceValue(s32 arg0);
 
@@ -70,7 +70,7 @@ extern void mtMiscCollectType1Records(u8 *arg0);
 extern void mtMiscCollectType2Records(u8 *arg0);
 extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
-extern void func_0029e9b0(void *arg0, ...);
+extern void scrDiscardArgs(void *arg0, ...);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
 /* measured: opt_propagation off keeps `weapon` materialised between the index
@@ -248,9 +248,9 @@ s32 func_00299b70(void) {
 }
 
 // FUN_00299C20
-s32 K_Cmd_STRING_SET(void)
+s32 K_Cmd_STRING_DISCARD(void)
 {
-    func_0029e9b0(&iGpffffa7c8, scrGetParamString(0));
+    scrDiscardArgs(&iGpffffa7c8, scrGetParamString(0));
     return 1;
 }
 

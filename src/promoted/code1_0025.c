@@ -39,9 +39,9 @@ s32 calGetWeekdayOfDay(s64 arg0);
 
 s32 scrGetParamInt(s32 arg0);
 s16 calDayOfYearFromMonthDay(s32 arg0, s32 arg1);
-void func_00106300(s64 arg0);
-void func_00106310(s32 arg0);
-void func_00106320(s32 arg0);
+void datSetPendingDateIndex(s64 arg0);
+void datSetPendingTimeSlot(s32 arg0);
+void datSetPendingFlag(s32 arg0);
 s32 calIsDayInRange(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
 u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);

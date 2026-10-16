@@ -704,11 +704,11 @@ void func_001113b0(void)
     void func_00105dc0(s16, s16, s16);
     void datSetMoney(u32);
     void datSetPartyId(s32, s16);
-    void func_00106100(s16);
+    void datSetDateIndex(s16);
     void datSetTimeSlot(u8);
-    void func_00106300(s16);
-    void func_00106310(u8);
-    void func_00106320(u32);
+    void datSetPendingDateIndex(s16);
+    void datSetPendingTimeSlot(u8);
+    void datSetPendingFlag(u32);
     void func_00106480(void);
     void datPersonaClearRosterMode(void);
     void func_001065c0(void);
@@ -727,7 +727,7 @@ void func_001113b0(void)
     extern s16 D_005E4650[];
 
     func_00110e70(0);
-    func_00106320(0);
+    datSetPendingFlag(0);
     func_0010d490(iGpffff9bb8, iGpffff9bc0);
     datSetMoney(0);
     func_0010fc80();
@@ -771,9 +771,9 @@ loop_1_check:
     func_001065c0();
     datPersonaClearRosterMode();
     datSetTimeSlot(5);
-    func_00106100(9);
-    func_00106310(5);
-    func_00106300(9);
+    datSetDateIndex(9);
+    datSetPendingTimeSlot(5);
+    datSetPendingDateIndex(9);
     i = 0;
     goto loop_3_check;
 loop_3:

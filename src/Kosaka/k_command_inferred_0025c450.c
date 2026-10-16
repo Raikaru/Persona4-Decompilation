@@ -22,9 +22,9 @@ s16 datGetDateIndex(void);
 void calSplitDayOfYear(s64 arg0, s32 *arg1, s32 *arg2);
 
 s16 calDayOfYearFromMonthDay(s32 arg0, s32 arg1);
-void func_00106300(s64 arg0);
-void func_00106310(s32 arg0);
-void func_00106320(s32 arg0);
+void datSetPendingDateIndex(s64 arg0);
+void datSetPendingTimeSlot(s32 arg0);
+void datSetPendingFlag(s32 arg0);
 s32 calIsDayInRange(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 
 
@@ -84,7 +84,7 @@ s32 scrCommonChkDays(void) {
 }
 
 // FUN_0025C560
-s32 func_0025c560(void) {
+s32 K_Cmd_DATE_SCHEDULE(void) {
     s32 temp_18;
     s32 temp_17;
     s32 temp_16;
@@ -92,14 +92,14 @@ s32 func_0025c560(void) {
     temp_18 = scrGetParamInt(0);
     temp_17 = scrGetParamInt(1);
     temp_16 = scrGetParamInt(2);
-    func_00106300(calDayOfYearFromMonthDay(temp_18, temp_17));
-    func_00106310(temp_16 & 0xFF);
-    func_00106320(1);
+    datSetPendingDateIndex(calDayOfYearFromMonthDay(temp_18, temp_17));
+    datSetPendingTimeSlot(temp_16 & 0xFF);
+    datSetPendingFlag(1);
     return 1;
 }
 
 // FUN_0025C600
-s32 K_Cmd_DATE_CHECK(void) {
+s32 K_Cmd_DATE_IN_RANGE(void) {
     s32 temp_19;
     s32 temp_18;
     s32 temp_17;
