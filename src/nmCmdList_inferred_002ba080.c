@@ -116,7 +116,7 @@ void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
     typedef struct {
         u32 word;
     } DigitStoredWord __attribute__((packed));
-    extern void func_002b83e0(u8 *draw, FclVec2 position, u32 color0, u32 color1, u8 alpha0,
+    extern void fclSpriteStartEntrance(u8 *draw, FclVec2 position, u32 color0, u32 color1, u8 alpha0,
                               u8 alpha1, f32 height, f32 depth, s32 duration, s32 delay, s8 mode,
                               s8 reverse);
     FclBoundsPacket bounds;
@@ -174,13 +174,13 @@ void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
         ((FclBoundsPacket *)(slot + 0x204))->representation = firstBounds;
         *(s16 *)(slot + 0x100) = layer;
         slot = *(u8 **)(task + 0x38) + offset + 0x104;
-        func_002b83e0(slot, origin, *(u32 *)&color, *(u32 *)((u32)&color), 0,
+        fclSpriteStartEntrance(slot, origin, *(u32 *)&color, *(u32 *)((u32)&color), 0,
                       ((u8 *)&color)[3], (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
     } else {
         u8 *draw = *(u8 **)(task + 0x38) + (s32)firstIndex * 0x220 + 0x104;
 
         if ((*(s16 *)draw & 1) == 1) {
-            func_002b83e0(draw, *(FclVec2 *)(draw + 0x28),
+            fclSpriteStartEntrance(draw, *(FclVec2 *)(draw + 0x28),
                           ((const DigitStoredWord *)(draw + 0x75))->word,
                           ((const DigitStoredWord *)((u32)draw + 0x75))->word,
                           *(u8 *)(draw + 0x5E), 0, (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
@@ -232,7 +232,7 @@ void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
                 u8 *draw = *(u8 **)(task + 0x38) + offset + 0x104;
 
                 redrawn = func_002b2970(origin.x - 18.0f, origin.y);
-                func_002b83e0(draw, redrawn, *(u32 *)&color, *(u32 *)((u32)&color), 0,
+                fclSpriteStartEntrance(draw, redrawn, *(u32 *)&color, *(u32 *)((u32)&color), 0,
                               ((u8 *)&color)[3], (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
             }
         }
@@ -241,7 +241,7 @@ void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
 
         if ((*(s16 *)draw & 1) == 1) {
             retrace = func_002b2970(origin.x - 18.0f, *(f32 *)(draw + 0x2C));
-            func_002b83e0(draw, retrace,
+            fclSpriteStartEntrance(draw, retrace,
                           ((const DigitStoredWord *)(draw + 0x75))->word,
                           ((const DigitStoredWord *)((u32)draw + 0x75))->word, *(u8 *)(draw + 0x5E), 0,
                           (f32)bounds.dimensions.height, depth, duration, delay, mode, 0);
