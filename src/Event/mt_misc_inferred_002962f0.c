@@ -11,7 +11,7 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern s32 iGpffffa7c8;
 
-s32 func_00291a60(s32 arg0);
+s32 mtMiscResourceValue(s32 arg0);
 
 
 extern s32 iGpffffb538;
@@ -50,8 +50,8 @@ extern s32 D_0063E830[];
 /* Source unit: src/promoted/code1_0029.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 002962f0-00296850 */
 
-extern void func_00291530(u8 *arg0);
-extern void func_00291810(u8 *arg0);
+extern void mtMiscCollectType1Records(u8 *arg0);
+extern void mtMiscCollectType2Records(u8 *arg0);
 extern void func_00294280(u8 *arg0);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
@@ -346,8 +346,8 @@ void func_00296720(u8 *arg0, u8 *arg1)
 s32 func_00296850(u8 *arg0, u8 *arg1)
 {
   extern void func_00294280(u8 *arg0);
-  extern void func_00291530(u8 *arg0);
-  extern void func_00291810(u8 *arg0);
+  extern void mtMiscCollectType1Records(u8 *arg0);
+  extern void mtMiscCollectType2Records(u8 *arg0);
   extern void func_00294a90(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3);
   extern void func_002954f0(u8 *arg0, u8 *arg1);
   extern void func_00294be0(u8 *arg0, u8 *arg1);
@@ -383,8 +383,8 @@ s32 func_00296850(u8 *arg0, u8 *arg1)
 
   func_00440b68(D_0063CB00);
   func_00294280(arg1);
-  func_00291530(arg1);
-  func_00291810(arg1);
+  mtMiscCollectType1Records(arg1);
+  mtMiscCollectType2Records(arg1);
   var_18 = 0;
   goto loop18_test;
 loop18_body:

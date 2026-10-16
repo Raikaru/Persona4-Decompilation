@@ -10,7 +10,7 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern s32 iGpffffa7c8;
 
-s32 func_00291a60(s32 arg0);
+s32 mtMiscResourceValue(s32 arg0);
 
 
 extern s32 iGpffffb538;
@@ -48,8 +48,8 @@ extern s32 D_0063E830[];
 /* Source unit: src/promoted/code1_0029.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 00291980-00291980 */
 
-extern void func_00291530(u8 *arg0);
-extern void func_00291810(u8 *arg0);
+extern void mtMiscCollectType1Records(u8 *arg0);
+extern void mtMiscCollectType2Records(u8 *arg0);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
 /* measured: opt_propagation off keeps `weapon` materialised between the index
@@ -60,8 +60,10 @@ extern void func_00291810(u8 *arg0);
 /* measured: restore propagation for the rest of the unit. */
 /* measured probe: preserve the retail type constant and close bracket below. */
 /* measured probe: close opt_propagation bracket after func_00291810. */
+// Reads slot arg1 (0-4): writes its flag word (+0x664) and id (+0x658) through
+// the pointers and returns its value field (+0x644). Out-of-range slots return 0.
 // FUN_00291980
-s32 func_00291980(u8 *arg0, s32 arg1, s32 *arg2, s32 *arg3) {
+s32 mtMiscReadSlotValues(u8 *arg0, s32 arg1, s32 *arg2, s32 *arg3) {
     u8 *p;
 
     if (arg1 >= 5 || arg1 < 0) {

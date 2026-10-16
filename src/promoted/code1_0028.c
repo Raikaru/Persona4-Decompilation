@@ -66,7 +66,7 @@ extern void func_00290ec0(s32 arg0, s32 arg1);
 extern void func_00291060(s32 arg0);
 extern s32 func_00291080(s32 arg0);
 extern void func_00296850(s32 arg0, u8 *arg1);
-extern s32 func_00298250(s32 arg0, s32 arg1);
+extern s32 mtMiscDispatchKeyAction(s32 arg0, s32 arg1);
 extern s32 cmmTableLookupValue(s32 arg0, s32 arg1, s32 arg2);
 extern void func_00298100(s32 arg0);
 extern void func_0028b7b0(u8 *arg0);
@@ -269,7 +269,7 @@ func_00285dd0_loop_check:
     case 14:
         *(s32 *)(data + 0x76C) = 0;
         *(u32 *)(data + 0x770) &= ~1;
-        result = func_00298250(*(s32 *)(data + 0x78C),
+        result = mtMiscDispatchKeyAction(*(s32 *)(data + 0x78C),
                                *(s32 *)(data + 0x790));
         if ((result != 1) && (result != 2)) {
             func_00294040(arg0);
