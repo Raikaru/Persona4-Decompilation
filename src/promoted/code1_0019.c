@@ -301,7 +301,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 func_0018f950(u8 *task);
 extern void btlEffectLoadFilesSync(void);
 extern void btlUiRegisterAvailability(void);
-extern void func_001f8480(void);
+extern void btlSoundLoadBanks(void);
 extern void btlPanelLoadSync(void);
 extern void mdlRunDataCallback(void *model);
 extern s32 func_0047e6f0(void **owner);

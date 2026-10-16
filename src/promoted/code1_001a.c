@@ -88,7 +88,7 @@ extern s32 func_001f6f60(u8 *arg0);
 extern s32 func_001f7140(u8 *arg0);
 extern void func_001f62b0(void);
 extern s32 func_001f62f0(u8 *arg0);
-extern void func_001f86d0(void);
+extern void btlSoundStopBank3(void);
 extern void func_001f9a50(s32 arg0, s32 arg1);
 extern void func_001f9a90(void);
 extern void btlEncounterEntryClearMessageFade(s32 arg0);

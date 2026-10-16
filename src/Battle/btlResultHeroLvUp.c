@@ -25,8 +25,8 @@ struct BtlResultWork
 s16 datGetPartyId(s32 index);
 u32 datCalcIsDeadById(s16 param);
 s32 datGetFlag(s32 id);
-void func_001f8690(u16 param);
-void func_001f86d0(void);
+void btlSoundPlayIndexed(u16 param);
+void btlSoundStopBank3(void);
 void func_001f9a50(u16 param, s32 mode);
 void func_001f9a90(void);
 extern u32 datCalcRandomBelow(u32 max);
@@ -105,7 +105,7 @@ void btlResultHeroLvUpInit(void)
             s16 sound = (s16)(val + 0x80 + datCalcRandomBelow(3));
 
             func_001f9a90();
-            func_001f8690((u16)sound);
+            btlSoundPlayIndexed((u16)sound);
         }
         return;
     }
@@ -128,7 +128,7 @@ void btlResultHeroLvUpInit(void)
     {
         s16 sound = (s16)(val + datCalcRandomBelow(3));
 
-        func_001f86d0();
+        btlSoundStopBank3();
         func_001f9a50((u16)sound, 3);
     }
 }

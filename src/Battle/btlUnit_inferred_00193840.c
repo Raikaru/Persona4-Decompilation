@@ -174,7 +174,7 @@ extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void btlEffectLoadFilesSync(void);
 extern void btlUiRegisterAvailability(void);
-extern void func_001f8480(void);
+extern void btlSoundLoadBanks(void);
 extern void btlPanelLoadSync(void);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
@@ -300,7 +300,7 @@ loop_8_check:
 void btlUnitLoadSyncedAssets(void) {
     btlEffectLoadFilesSync();
     btlUiRegisterAvailability();
-    func_001f8480();
+    btlSoundLoadBanks();
     btlPanelLoadSync();
 }
 

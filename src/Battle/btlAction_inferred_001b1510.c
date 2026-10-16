@@ -157,7 +157,7 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
 extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 extern u8 *btlPacketCreateImmediate(void);
 extern BtlPacket *btlTargetCreateEmptyPacket(void);
-extern void func_001f86d0(void);
+extern void btlSoundStopBank3(void);
 extern void btlDamageStartFlash(s32 arg0);
 extern void btlEncounterSetReady(s32 task);
 extern s32 btlEncounterIsIntroDone(s32 task);
@@ -2017,7 +2017,7 @@ s32 btlMainWinUpdate(u8 *arg0)
         work = (u8 *)btlTargetCreateEmptyPacket();
         *(u16 *)(work + 0x4A) = 0xC;
         btlPacketEnqueue(work, 1);
-        func_001f86d0();
+        btlSoundStopBank3();
         *(s32 *)(p + 0x14) = 1;
     }
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x20000000) != 0 &&

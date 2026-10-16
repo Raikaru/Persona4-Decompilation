@@ -23,10 +23,10 @@ extern void func_0011b480(u8 *arg0, u16 arg1, u32 arg2, s8 arg3);
 extern u8 *func_00455ea0(u8 *archive, s32 index, s32 *size);
 extern u8 *func_0011f410(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4, s32 *a5);
 extern u32 datCalcRandomBelow(u32 max);
-extern void func_001f86d0(void);
+extern void btlSoundStopBank3(void);
 extern void func_001f9a50(s32 arg0, s32 arg1);
 extern void func_001f9a90(void);
-extern void func_001f8690(s32 arg0);
+extern void btlSoundPlayIndexed(s32 arg0);
 extern s32 func_002bb4e0(void);
 extern u32 func_0011f560(u8 *task);
 extern s32 func_0011f580(u8 *task);
@@ -184,13 +184,13 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
             }
             if (*(s16 *)(friendResultAddress((u32)*(s32 *)(r + 56) * 2, (u32)base) + 0x69A) == 5) {
                 s16 t = (s16)(datCalcRandomBelow(3) + 468);
-                func_001f86d0();
+                btlSoundStopBank3();
                 func_001f9a50((u16)t, 3);
             } else {
                 s32 stmp = btlResultFriendPsCheck(*(s16 *)(friendResultAddress((u32)*(s32 *)(r + 56) * 2, (u32)base) + 0x69A)) + 125;
                 s16 u = (s16)(stmp + datCalcRandomBelow(3));
                 func_001f9a90();
-                func_001f8690((u16)u);
+                btlSoundPlayIndexed((u16)u);
             }
             *(u16 *)r = *(u16 *)r | 2;
             *(u32 *)(r + 4) = 2;

@@ -81,9 +81,9 @@ extern u8 *btlPacketAlloc(s32 type, s32 workSize);
 
 
 
-extern s32 func_001f8380(u8 **arg0);
+extern s32 btlSoundMarkSlotReady(u8 **arg0);
 
-extern s32 func_001f8400(u8 **arg0);
+extern s32 btlSoundClearSlotReady(u8 **arg0);
 extern s32 iGpffffb464;
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -144,7 +144,7 @@ extern void func_001f72e0(void);
 /* measured: opt_loop_invariants off baseline for func_001f72e0. */
 /* measured: restore optimization_level 2 after func_001f72e0. */
 // FUN_001F8380
-s32 func_001f8380(u8 **arg0)
+s32 btlSoundMarkSlotReady(u8 **arg0)
 {
     u8 *temp_3;
     u8 *temp_3_2;
@@ -158,18 +158,18 @@ s32 func_001f8380(u8 **arg0)
 }
 
 // FUN_001F83B0
-u8 *func_001f83b0(u32 value)
+u8 *btlSoundCreateMarkReadyPacket(u32 value)
 {
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x90B, 0x4);
-    *(void **)(packet + 0x6C) = (void *)func_001f8380;
+    *(void **)(packet + 0x6C) = (void *)btlSoundMarkSlotReady;
     *(u32 *)*(u8 **)(packet + 0x78) = value;
     return packet;
 }
 
 // FUN_001F8400
-s32 func_001f8400(u8 **arg0)
+s32 btlSoundClearSlotReady(u8 **arg0)
 {
     u8 *temp_3;
     u8 *temp_3_2;
@@ -183,18 +183,18 @@ s32 func_001f8400(u8 **arg0)
 }
 
 // FUN_001F8430
-u8 *func_001f8430(u32 value)
+u8 *btlSoundCreateClearReadyPacket(u32 value)
 {
     u8 *packet;
 
     packet = (u8 *)btlPacketAlloc(0x90C, 0x4);
-    *(void **)(packet + 0x6C) = (void *)func_001f8400;
+    *(void **)(packet + 0x6C) = (void *)btlSoundClearSlotReady;
     *(u32 *)*(u8 **)(packet + 0x78) = value;
     return packet;
 }
 
 // FUN_001F8480
-void func_001f8480(void)
+void btlSoundLoadBanks(void)
 {
     void **allocator;
     u8 sp30[0x100];
@@ -256,7 +256,7 @@ loop_11_test:
 }
 
 // FUN_001F8690
-void func_001f8690(s32 arg0) {
+void btlSoundPlayIndexed(s32 arg0) {
     s32 value;
     u16 index;
 
@@ -266,12 +266,12 @@ void func_001f8690(s32 arg0) {
 }
 
 // FUN_001F86D0
-void func_001f86d0(void) {
+void btlSoundStopBank3(void) {
     func_0045aac0(3, 0, 8);
 }
 
 // FUN_001F8700
-s32 func_001f8700(u8 *arg0, s32 arg1)
+s32 btlSoundGetPersonaVoiceIndex(u8 *arg0, s32 arg1)
 {
     s32 temp_2;
     u8 *temp_4;
@@ -314,7 +314,7 @@ s32 func_001f8700(u8 *arg0, s32 arg1)
 }
 
 // FUN_001F8810
-s32 func_001f8810(u8 *arg0, s32 arg1)
+s32 btlSoundGetSlotVoiceIndex(u8 *arg0, s32 arg1)
 {
     u8 *temp_4;
 
@@ -344,7 +344,7 @@ s32 func_001f8810(u8 *arg0, s32 arg1)
 }
 
 // FUN_001F8920
-s32 func_001f8920(u8 *arg0)
+s32 btlSoundPickActionVoice(u8 *arg0)
 {
     extern s32 func_0022bd20(void);
     s32 temp_16;
@@ -403,7 +403,7 @@ s32 func_001f8920(u8 *arg0)
 }
 
 // FUN_001F8B00
-s32 func_001f8b00(u8 *arg0)
+s32 btlSoundPickIdleVoice(u8 *arg0)
 {
     s32 value;
     u8 *work;
@@ -420,7 +420,7 @@ s32 func_001f8b00(u8 *arg0)
 }
 
 // FUN_001F8B90
-s32 func_001f8b90(u8 *arg0)
+s32 btlSoundPickHurtVoice(u8 *arg0)
 {
     s32 value;
     u8 *work;
@@ -437,7 +437,7 @@ s32 func_001f8b90(u8 *arg0)
 }
 
 // FUN_001F8C20
-s32 func_001f8c20(u8 *arg0, s32 arg1)
+s32 btlSoundPickDamageVoice(u8 *arg0, s32 arg1)
 {
     s32 value;
     u8 *work;
@@ -458,7 +458,7 @@ s32 func_001f8c20(u8 *arg0, s32 arg1)
 }
 
 // FUN_001F8CE0
-s32 func_001f8ce0(u8 *arg0)
+s32 btlSoundPickDownVoice(u8 *arg0)
 {
     s32 value;
     u8 *work;
@@ -475,7 +475,7 @@ s32 func_001f8ce0(u8 *arg0)
 }
 
 // FUN_001F8D70
-s32 func_001f8d70(u8 *arg0, s32 arg1)
+s32 btlSoundPickCommandVoice(u8 *arg0, s32 arg1)
 {
     s32 value;
     u8 *work;
@@ -495,7 +495,7 @@ s32 func_001f8d70(u8 *arg0, s32 arg1)
 }
 
 // FUN_001F8E10
-s32 func_001f8e10(u8 *arg0)
+s32 btlSoundPickStartVoice(u8 *arg0)
 {
     s32 value;
     u8 *work;
@@ -511,11 +511,11 @@ s32 func_001f8e10(u8 *arg0)
     return value + datCalcRandomBelow(3);
 }
 
-/* measured: opt_propagation off preserves func_001f8ea0's loop constants. */
-/* measured: func_001f8ea0 MATCH -> MISMATCH without this pragma. */
+/* measured: opt_propagation off preserves btlSoundPickPartnerCallVoice's loop constants. */
+/* measured: btlSoundPickPartnerCallVoice MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001F8EA0
-s32 func_001f8ea0(u8 *arg0, s32 arg1)
+s32 btlSoundPickPartnerCallVoice(u8 *arg0, s32 arg1)
 {
     s32 five;
     s32 value;
@@ -545,10 +545,10 @@ done:
     return value + D_00624FC0[*(u16 *)(work + 0xA4)];
 }
 
-/* measured: close opt_propagation after func_001f8ea0 probe. */
-/* measured: opt_propagation off preserves func_001f8f40's loop constants. */
+/* measured: close opt_propagation after btlSoundPickPartnerCallVoice probe. */
+/* measured: opt_propagation off preserves btlSoundPickPartnerReplyVoice's loop constants. */
 // FUN_001F8F40
-s32 func_001f8f40(u8 *arg0, s32 arg1)
+s32 btlSoundPickPartnerReplyVoice(u8 *arg0, s32 arg1)
 {
     s32 five;
     s32 value;
@@ -577,10 +577,10 @@ s32 func_001f8f40(u8 *arg0, s32 arg1)
     return value + D_00624FC0[*(u16 *)(work + 0xA4)];
 }
 
-/* measured: close opt_propagation after func_001f8f40 probe. */
-/* measured: opt_propagation off preserves func_001f8fe0's loop constants. */
+/* measured: close opt_propagation after btlSoundPickPartnerReplyVoice probe. */
+/* measured: opt_propagation off preserves btlSoundPickPartnerAssistVoice's loop constants. */
 // FUN_001F8FE0
-s32 func_001f8fe0(u8 *arg0, s32 arg1)
+s32 btlSoundPickPartnerAssistVoice(u8 *arg0, s32 arg1)
 {
     s32 five;
     s32 value;
@@ -609,9 +609,9 @@ s32 func_001f8fe0(u8 *arg0, s32 arg1)
     return value + D_00624FC0[*(u16 *)(work + 0xA4)];
 }
 
-/* measured: close opt_propagation after func_001f8fe0 probe. */
+/* measured: close opt_propagation after btlSoundPickPartnerAssistVoice probe. */
 // FUN_001F9080
-s32 func_001f9080(u8 *arg0) {
+s32 btlSoundPickGuardVoice(u8 *arg0) {
     u8 *p;
 
     p = *(u8 **)(arg0 + 0x30);
@@ -624,9 +624,9 @@ s32 func_001f9080(u8 *arg0) {
     return D_00624FC0[*(u16 *)(p + 0xA4)] + 0x45;
 }
 
-/* measured: opt_propagation off tested for func_001f90e0; retains loop constants. */
+/* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
 // FUN_001F90E0
-s32 func_001f90e0(u8 *arg0)
+s32 btlSoundPickRandomPartnerVoice(u8 *arg0)
 {
     s32 temp_16;
     s32 temp_4;
@@ -685,9 +685,9 @@ s32 func_001f90e0(u8 *arg0)
     return temp_16 + datCalcRandomBelow(3, var_5, var_6);
 }
 
-/* measured: close opt_propagation after func_001f90e0. */
+/* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
 // FUN_001F92C0
-s32 func_001f92c0(u8 *arg0)
+s32 btlSoundPickStatusCueVoice(u8 *arg0)
 {
     s32 value;
 
@@ -709,7 +709,7 @@ s32 func_001f92c0(u8 *arg0)
 }
 
 // FUN_001F93A0
-s32 func_001f93a0(u8 *arg0)
+s32 btlSoundPickHpTierVoice(u8 *arg0)
 {
     s32 type;
     s32 value;
@@ -746,7 +746,7 @@ s32 func_001f93a0(u8 *arg0)
 }
 
 // FUN_001F9570
-s32 func_001f9570(u8 *arg0)
+s32 btlSoundPickGroupVoice(u8 *arg0)
 {
     s32 value;
 
@@ -768,7 +768,7 @@ s32 func_001f9570(u8 *arg0)
 }
 
 // FUN_001F9650
-s32 func_001f9650(u8 *arg0)
+s32 btlSoundPickKnockVoice(u8 *arg0)
 {
     s32 value;
 
