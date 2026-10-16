@@ -6,8 +6,8 @@
 extern void func_00453fa0(u8 *list, s32 visibleRows);
 extern s32 func_00453e60(u8 *list);
 extern void sdkLboxRecalcLayout(u8 *task);
-extern void func_0046ea50();
-extern void func_0046ea60();
+extern void sdkWindowSetCommand();
+extern void sdkWindowSetRect();
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
@@ -18,7 +18,7 @@ extern void strcpy(u8 *dst, u8 *src);
 extern void func_00453c80(u8 *arg0);
 extern s32 func_00453e10(u8 *arg0);
 extern u8 D_00713128[];
-extern s32 func_0046f2b0(u8 *task);
+extern s32 sdkLboxUpdate(u8 *task);
 extern void sdkLboxDestroy(u8 *arg0);
 extern void sprintf(void *buf, const void *fmt, ...);
 extern s32 strlen(const void *str);
@@ -48,7 +48,7 @@ s32 sdkLboxCreateEx(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     if (mem == NULL) {
         return 0;
     }
-    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00713128), 0x102, 0, 0, func_0046f2b0, sdkLboxDestroy, (u8 *)(mem));
+    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00713128), 0x102, 0, 0, sdkLboxUpdate, sdkLboxDestroy, (u8 *)(mem));
     *(s32 *)(mem + 0x18) = arg1;
     *(s32 *)(mem + 0x1C) = arg2;
     *(s32 *)(mem + 0x20) = 0x80;
@@ -78,7 +78,7 @@ void sdkLboxSetSelection(u8 *arg0, s32 arg1) {
     *(s32 *)(p + 0x10) = 2;
     q = *(u8 **)(p + 0x130);
     if (q != NULL) {
-        func_0046ea50(q, arg1);
+        sdkWindowSetCommand(q, arg1);
     }
 }
 
@@ -100,7 +100,7 @@ void sdkLboxSetOrigin(u8 *arg0, s32 arg1, s32 arg2) {
     *(s32 *)(p + 0x1C) = arg2;
     q = *(u8 **)(p + 0x130);
     if (q != NULL) {
-        func_0046ea60(q, p + 0x18);
+        sdkWindowSetRect(q, p + 0x18);
     }
 }
 
@@ -208,7 +208,7 @@ loop_29_check:
     }
     temp4_4 = *(u8 **)(temp17 + 0x130);
     if (temp4_4 != NULL) {
-        func_0046ea60(temp4_4, temp17 + 0x18);
+        sdkWindowSetRect(temp4_4, temp17 + 0x18);
     }
 }
 

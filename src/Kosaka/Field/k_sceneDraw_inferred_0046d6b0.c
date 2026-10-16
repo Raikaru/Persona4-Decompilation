@@ -308,7 +308,7 @@ typedef struct WindowEngineStatePrefix {
     WindowDeviceStatePrefix device;
 } WindowEngineStatePrefix;
 extern u32 ourGlobals[4096];
-extern s32 func_0046d750(u8 *);
+extern s32 sdkWindowUpdate(u8 *);
 extern void chkmemAllocSiteTag(void *, s32);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_007130F8[], D_00713108[];
@@ -353,12 +353,12 @@ static inline u8 *controller_create_window(u8 *parent,
     s32 x, s32 y, s32 width, s32 height,
     const ControllerColor *firstSource, const ControllerColor *secondSource)
 {
-    extern u8 *func_0046e850(u8 *, void *, void *, void *);
+    extern u8 *sdkWindowCreate(u8 *, void *, void *, void *);
     ControllerColor first, second;
     ControllerRect rectangle = { x, y, width, height };
     first = *firstSource;
     second = *secondSource;
-    return func_0046e850(parent, &rectangle, &first, &second);
+    return sdkWindowCreate(parent, &rectangle, &first, &second);
 }
 /* Measured: 1252/1264 native bytes, 20 resolved relocations and twelve
  * zero alignment bytes; 57 neighboring functions and data preserved.
@@ -373,7 +373,7 @@ static inline u8 *controller_create_window(u8 *parent,
 #pragma push
 #pragma pop
 // FUN_0046D6B0
-void func_0046d6b0(s32 arg0)
+void sdkSetActiveHandle(s32 arg0)
 {
     if (arg0 == 0) {
         kAssertFail(D_007130E8, 0x37);
@@ -397,16 +397,16 @@ void kAssertFailAt(const void *msg, const void *file, u32 line) {}
  * enabled window. The function owns its nine-entry state switch table.
  * MWCCPS2 b210: 4244 executable bytes, followed by twelve zero bytes. */
 #pragma push
-/* measured: func_0046d750 MATCH -> MISMATCH without this pragma. */
+/* measured: sdkWindowUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-/* measured: func_0046d750 MATCH -> MISMATCH without this pragma. */
+/* measured: sdkWindowUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
 // FUN_0046D750
-s32 func_0046d750(u8 *arg0) {
+s32 sdkWindowUpdate(u8 *arg0) {
     extern u32 func_003e8120(u32 camera);
     extern u32 func_003e8110(u32 camera);
     extern s32 (*D_00887310[])(s32, void *, s32);
-    extern void func_0046ea60(u8 *arg0, u8 *arg1);
+    extern void sdkWindowSetRect(u8 *arg0, u8 *arg1);
     f32 f2;
     f32 f1;
     s32 i;
@@ -594,7 +594,7 @@ test0k2:
         break;
     }
     case 6:
-        func_0046ea60(arg0, work + 0xC);
+        sdkWindowSetRect(arg0, work + 0xC);
         break;
     case 7:
         if (*(u8 *)(work + 0x23) > 0) {
@@ -672,9 +672,9 @@ test7k:
 // FUN_0046E7F0
 /* Keep the table address cached without changing the free callback type. */
 #pragma push
-/* measured: func_0046e7f0 MATCH -> MISMATCH without this pragma. */
+/* measured: sdkWindowDestroy MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void func_0046e7f0(u8 *arg0)
+void sdkWindowDestroy(u8 *arg0)
 {
     void (**tbl)(void *) = jtbl_008873EC;
     u8 *work = *(u8 **)(arg0 + 0x38);
@@ -688,10 +688,10 @@ void func_0046e7f0(u8 *arg0)
  * MWCCPS2 b210 -O2: 444 executable bytes / 448-byte retail window.
  * The buffer calculation uses rectangle x/y, not width/height. */
 #pragma push
-/* measured: func_0046e850 MATCH -> MISMATCH without this pragma. */
+/* measured: sdkWindowCreate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0046E850
-u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
+u8 *sdkWindowCreate(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
 {
     typedef struct WindowRect { s32 x, y, width, height; } WindowRect;
     typedef struct WindowColor { u8 r, g, b, a; } WindowColor;
@@ -719,7 +719,7 @@ u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
     if (work == NULL) {
         return NULL;
     }
-    result = (s32)kwlnTaskCreateChild((void *)((s32)parent), (const void *)(D_00713108), 0x101, 0, 0, func_0046d750, func_0046e7f0, (u8 *)((u8 *)work));
+    result = (s32)kwlnTaskCreateChild((void *)((s32)parent), (const void *)(D_00713108), 0x101, 0, 0, sdkWindowUpdate, sdkWindowDestroy, (u8 *)((u8 *)work));
     work->enabled = 1;
     work->rect = *rect;
     work->first = *first;
@@ -735,7 +735,7 @@ u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
 
 #pragma pop
 // FUN_0046EA10
-s32 func_0046ea10(u8 *arg0)
+s32 sdkWindowIsOpen(u8 *arg0)
 {
     s32 value = *(s32 *)(*(u8 **)(arg0 + 0x38));
 
@@ -746,13 +746,13 @@ s32 func_0046ea10(u8 *arg0)
 }
 
 // FUN_0046EA50
-void func_0046ea50(u8 *arg0, s32 arg1)
+void sdkWindowSetCommand(u8 *arg0, s32 arg1)
 {
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 4) = arg1;
 }
 
 // FUN_0046EA60
-void func_0046ea60(u8 *arg0, u8 *arg1)
+void sdkWindowSetRect(u8 *arg0, u8 *arg1)
 {
     struct FInput {
         f32 f0;
@@ -997,10 +997,10 @@ void func_0046ec70(u8 *arg0) {
  * Native rectangle/color construction and scoped loop-invariant extraction
  * reproduce 3928 executable bytes plus the eight-byte retail zero tail. */
 #pragma push
-/* measured: func_0046f2b0 MATCH -> MISMATCH without this pragma. */
+/* measured: sdkLboxUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_0046F2B0
-s32 func_0046f2b0(u8 *task)
+s32 sdkLboxUpdate(u8 *task)
 {
     extern s32 func_00457120(void);
     extern u32 func_003e8120(u32 camera);
@@ -1009,8 +1009,8 @@ s32 func_0046f2b0(u8 *task)
     extern s32 func_00453960(u8 *task);
     extern s32 func_00453d70(void *task);
     extern s32 func_00453dc0(void *task);
-    extern s32 func_0046ea10(u8 *task);
-    extern void func_0046ea60(u8 *task, u8 *arg1);
+    extern s32 sdkWindowIsOpen(u8 *task);
+    extern void sdkWindowSetRect(u8 *task, u8 *arg1);
     extern void func_0046ec70(u8 *task);
     extern void sdkLboxSetOrigin(u8 *task, s32 arg1, s32 arg2);
     extern u8 *sdkLboxFindEntry(u8 *task, s32 arg1);
@@ -1146,8 +1146,8 @@ s32 func_0046f2b0(u8 *task)
         work->state = work->state + 1;
         goto update_callback;
     case 2:
-        if (func_0046ea10(work->window) != 1) {
-            func_0046ea60(work->window, (u8 *)&work->rectangle);
+        if (sdkWindowIsOpen(work->window) != 1) {
+            sdkWindowSetRect(work->window, (u8 *)&work->rectangle);
             work->state = work->state + 1;
         }
         goto update_callback;

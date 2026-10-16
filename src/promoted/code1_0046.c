@@ -1451,11 +1451,11 @@ extern u32 ourGlobals[4096];
  * The buffer calculation uses rectangle x/y, not width/height. */
 #pragma push
 #pragma opt_propagation off
-extern s32 func_0046d750(u8 *);
+extern s32 sdkWindowUpdate(u8 *);
 extern void chkmemAllocSiteTag(void *, s32);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_007130F8[], D_00713108[];
-extern u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg);
+extern u8 *sdkWindowCreate(u8 *parent, void *rect_arg, void *first_arg, void *second_arg);
 #pragma pop
 #undef sp0
 #undef sp4
@@ -1511,12 +1511,12 @@ static inline u8 *controller_create_window(u8 *parent,
     s32 x, s32 y, s32 width, s32 height,
     const ControllerColor *firstSource, const ControllerColor *secondSource)
 {
-    extern u8 *func_0046e850(u8 *, void *, void *, void *);
+    extern u8 *sdkWindowCreate(u8 *, void *, void *, void *);
     ControllerColor first, second;
     ControllerRect rectangle = { x, y, width, height };
     first = *firstSource;
     second = *secondSource;
-    return func_0046e850(parent, &rectangle, &first, &second);
+    return sdkWindowCreate(parent, &rectangle, &first, &second);
 }
 
 #pragma push

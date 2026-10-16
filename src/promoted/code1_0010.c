@@ -159,7 +159,7 @@ extern void func_0045b430(void);
 extern void PrimCreatePools(s32 arg0, s32 arg1);
 extern void func_00463520(void);
 extern void func_00466680(void);
-extern void func_0046d6b0(s32 arg0);
+extern void sdkSetActiveHandle(s32 arg0);
 extern void mdlResetModelTable(s32 arg0);
 extern void TnSetTableBase(s32 arg0);
 extern void TnInitModule(s32 arg0);
