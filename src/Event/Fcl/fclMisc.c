@@ -35,7 +35,7 @@ extern u8 *func_002e1db0(s32, int (*)(), int (*)(), int (*)());
 
 extern u8 D_0063F398[];
 extern u8 D_00882F30[];
-extern s32 func_002bce00(u8 *task);
+extern s32 msgAssistUpdate(u8 *task);
 extern void kAssertFail(void *, s32);
 extern char D_0063F2A0[];
 extern void fclMiscReleaseHandle(int *);
@@ -126,13 +126,13 @@ void func_002bcd20(void)
         *(s8 *)(globalState + 0xc) = 1;
         *(s8 *)(globalState + 0xd) = 1;
     }
-    (s32)kwlnTaskCreate((const void *)(D_0063F398), 0xf, 0, 0, func_002bce00, 0, (u8 *)(0));
+    (s32)kwlnTaskCreate((const void *)(D_0063F398), 0xf, 0, 0, msgAssistUpdate, 0, (u8 *)(0));
 }
 
 
 
 // FUN_002BCE00
-s32 func_002bce00(u8 *unusedTask)
+s32 msgAssistUpdate(u8 *unusedTask)
 {
     u8 *manager;
     u8 *head;

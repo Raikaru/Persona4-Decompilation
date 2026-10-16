@@ -32,7 +32,7 @@ extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
 extern u8 *datCloneEntryBlock(s8 arg0);
 extern void RwMatrixRotate(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
-extern s32 func_00349c50(u8 *arg0);
+extern s32 cmbEffModelUpdate(u8 *arg0);
 extern void *mdlFindOrCreateModelObject(u32, u16, u32);
 extern s32 datGetFlag(s32);
 extern s32 func_00348be0(u8 *);
@@ -60,7 +60,7 @@ void func_003493b0(s32 arg0)
 }
 
 /* Model table entry addressed by (task+0x10)[model id]; 0x20 bytes. Field roles follow the
-   uses in func_00349440 (offset/scale/angle/colours/window) and func_00349c50 (field_6). */
+   uses in func_00349440 (offset/scale/angle/colours/window) and cmbEffModelUpdate (field_6). */
 typedef struct FclModelEntry {
     s16 offset[3];
     s16 field_6;
@@ -363,7 +363,7 @@ void func_00349b90(u8 *arg0, u8 *arg1)
    - the model-id colour picks are an if chain in retail order (0x59, 0xA, 0x5F);
    - the animation table at obj+0x10 is an array of 0x20-byte entries indexed by model id. */
 // FUN_00349C50
-s32 func_00349c50(u8 *arg0)
+s32 cmbEffModelUpdate(u8 *arg0)
 {
     FclVec3 pos0;
     FclVec3 pos1;
@@ -563,7 +563,7 @@ s32 func_00349c50(u8 *arg0)
     return 0;
 }
 // FUN_0034A480
-void func_0034a480(u8 *arg0)
+void cmbEffModelDestroy(u8 *arg0)
 {
     u8 *temp_16;
     u8 *temp_4;
@@ -603,7 +603,7 @@ void func_0034a480(u8 *arg0)
 
    Measured and rejected: separate temps for the second copy (8, worse than
    reusing them); a {s64; f32} struct (22). The two callbacks need casts
-   because func_00349c50 and func_0034a480 are declared returning s32/int.
+   because cmbEffModelUpdate and cmbEffModelDestroy are declared returning s32/int.
    Body kept below so the last three words can be attacked without redoing
 /* SOLVED by tools/permute.py after this was documented at nd 5 following five
    hand attempts. The permuter found the two pragmas; everything else below is
@@ -616,12 +616,12 @@ void func_0034a480(u8 *arg0)
 
    Keep the 12-byte vector copies as an explicit s64 + f32 pair: a {s64; f32}
    struct assignment pads to 16 and copies the tail as a second ld/sd (nd 22),
-   and both callbacks need casts because func_00349c50 and func_0034a480 are
+   and both callbacks need casts because cmbEffModelUpdate and cmbEffModelDestroy are
 /* SOLVED by tools/permute.py after this was documented at nd 5 following five
    hand attempts. Keep the 12-byte vector copies as an explicit s64 + f32 pair:
    a {s64; f32} struct assignment pads to 16 and copies the tail as a second
-   ld/sd (nd 22). Both callbacks need casts because func_00349c50 and
-   func_0034a480 are declared returning s32/int. The permuter also proposed
+   ld/sd (nd 22). Both callbacks need casts because cmbEffModelUpdate and
+   cmbEffModelDestroy are declared returning s32/int. The permuter also proposed
    s32 copies of both parameters; those were noise and are dropped.
    measured: optimization_level 1 is load-bearing here -- removing it puts the
    function straight back to MISMATCH -- and `tailcall on` pairs with it. */
@@ -652,7 +652,7 @@ s32 func_0034a4f0(s32 arg0, s32 arg1)
     *(f32 *)&sp40[8] = z;
     chkmemAllocSiteTag(D_0064A618, 0x7A9);
     mem = D_008873F4[0](1, 0x100, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A6D0), 0xF, 0, 0, func_00349c50, func_0034a480, (u8 *)(mem));
+    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A6D0), 0xF, 0, 0, cmbEffModelUpdate, cmbEffModelDestroy, (u8 *)(mem));
     *(s8 *)(mem + 0) = 0;
     *(s16 *)(mem + 8) = 0;
     *(s8 *)(mem + 5) = 0;
