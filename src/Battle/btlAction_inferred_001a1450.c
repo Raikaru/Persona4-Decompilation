@@ -154,7 +154,7 @@ u8 *func_001faa60(void);
 extern void btlMessageRelease(s32 task);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 s32 func_0019ff60(u8 *arg0);
-s64 *func_001b1540(void);
+s64 *btlActionGetQueueFront(void);
 s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 s32 func_001f01a0(u8 *arg0, u8 *arg1);
@@ -1632,7 +1632,7 @@ loop_test:
         goto loop_body;
     }
     status = 1;
-    current = func_001b1540();
+    current = btlActionGetQueueFront();
     if ((*(u16 *)((u8 *)current + 0x18) & 8) != 0 &&
         func_0019ff60((u8 *)current) != 0) {
         status = 0;
@@ -1684,7 +1684,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
             btlPacketEnqueue(func_001fa8f0(), 1);
             btlMessageStartLong(*(u8 **)(D_0076449C + 0xDD4), (u8 *)arg0);
             btlPacketEnqueue((u8 *)btlFormationCreateSlotPacket(3, 0xFFF), 0);
-            partner = (void *)func_001b1540();
+            partner = (void *)btlActionGetQueueFront();
             btlPacketEnqueue(
                 btlUnitCreateRotateTowardUnitPacket((u8 *)partner->field_30,
                               *(u8 **)(arg0 + 0x30), 2),
@@ -1734,7 +1734,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
         if (waitFrames == 0) {
             btlPacketEnqueue((u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3), 1);
             if (btlMessageGetResultAlt(*(s32 *)(D_0076449C + 0xDD4)) == 0) {
-                targetUnit = func_001b1540();
+                targetUnit = btlActionGetQueueFront();
                 btlPacketEnqueue(btlTargetCreateActionPacket((u8 *)targetUnit, 2), 1);
                 *(u16 *)((u8 *)targetUnit + 0x18) |= 0x8000;
                 btlActionSetState((BtlAction *)arg0, 0xE);

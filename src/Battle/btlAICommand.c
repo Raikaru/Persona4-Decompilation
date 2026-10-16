@@ -48,7 +48,7 @@ extern void func_001d8bf0(u8 *arg0, u8 *arg1);
 extern u8 *D_0072449C;
 extern void *D_00609850[];
 extern u32 D_00609600[];
-extern u32 func_001b1570(u16 arg0);
+extern u32 btlActionGetQueueEntry(u16 arg0);
 extern u32 datCalcClearBuffLevel(u32 arg0, u32 arg1);
 extern u32 datCalcRandomBelow(u32 arg0);
 extern u16 datCalcGetHp(s32 unit);
@@ -4763,7 +4763,7 @@ s32 btlAICommandScriptIsSelfListed(void) {
     u32 flag = 0;
     u16 i;
     for (i = 1; i < 0xC; i++) {
-        u32 r = func_001b1570(i);
+        u32 r = btlActionGetQueueEntry(i);
         if (r == 0)
             break;
         if (r == *(u32 *)(D_0072449C + 0x170))

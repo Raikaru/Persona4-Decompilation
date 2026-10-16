@@ -12,7 +12,7 @@ extern void btlPacketStepSide(u32 layer);
 extern void func_001b6ab0(void);
 extern void btlMainUpdate(void);
 extern void func_001b0a60(void);
-extern void func_001b15b0(void);
+extern void btlActionUpdateQueue(void);
 extern void func_001b6a20(void);
 extern void btlCameraApplyView(void);
 extern void func_0019c0d0(void);
@@ -102,7 +102,7 @@ s32 func_00192610(u8 *unusedTask)
         btlPacketStepSide(0);
         btlMainUpdate();
         func_001b0a60();
-        func_001b15b0();
+        btlActionUpdateQueue();
         func_001b6a20();
         btlCameraApplyView();
         func_0019c0d0();

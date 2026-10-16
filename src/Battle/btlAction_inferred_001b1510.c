@@ -259,7 +259,7 @@ static inline s32 btlCameraBlendAmbient(f32 ambientRed, f32 ambientGreen,
 }
 struct RwV3d;
 // FUN_001B1510
-s32 func_001b1510(void)
+s32 btlActionGetActiveOrQueueFront(void)
 {
     s32 *var_4;
     u8 *temp_3;
@@ -273,13 +273,13 @@ s32 func_001b1510(void)
 }
 
 // FUN_001B1540
-s32 func_001b1540(void)
+s32 btlActionGetQueueFront(void)
 {
     return *(s32 *)(iGpffffb3ac + 0x29C);
 }
 
 // FUN_001B1550
-s32 func_001b1550(void)
+s32 btlActionGetActive(void)
 {
     return *(s32 *)(iGpffffb3ac + 0x2CC);
 }
@@ -291,7 +291,7 @@ s32 func_001b1560(void)
 }
 
 // FUN_001B1570
-s32 func_001b1570(u16 arg0) {
+s32 btlActionGetQueueEntry(u16 arg0) {
     if (arg0 >= 0xC) {
         return 0;
     }
@@ -299,7 +299,7 @@ s32 func_001b1570(u16 arg0) {
 }
 
 // FUN_001B15B0
-void func_001b15b0(void)
+void btlActionUpdateQueue(void)
 {
     u16 temp_7;
     u8 *temp_3;
@@ -385,7 +385,7 @@ done:
 }
 
 // FUN_001B1800
-void func_001b1800(void)
+void btlActionEnableQueue(void)
 {
     u8 *temp_4;
     u8 *temp_4_2;
@@ -397,18 +397,18 @@ void func_001b1800(void)
 }
 
 // FUN_001B1830
-void func_001b1830(void) {
+void btlActionDisableQueue(void) {
     *(u16 *)(D_0076449C + 0x290) &= 0xFFFE;
 }
 
 // FUN_001B1850
-void func_001b1850(void)
+void btlActionResetQueueState(void)
 {
     memset(D_0076449C + 0x290, 0, 0x6C);
 }
 
 // FUN_001B1880
-void func_001b1880(void)
+void btlActionResetActiveState(void)
 {
     *(u16 *)(D_0076449C + 0x290) = 0;
     *(s32 *)(D_0076449C + 0x298) = 0;
@@ -571,7 +571,7 @@ first_check:
         *(s32 *)(((*(u16 *)(work + 0xC6C) << 2) + (s32)work) + 0xC84);
     work = (u8 *)iGpffffb3ac;
     *(u16 *)(work + 0xC6C) = *(u16 *)(work + 0xC6C) + 1;
-    func_001b1880();
+    btlActionResetActiveState();
     work = (u8 *)iGpffffb3ac;
     *(s32 *)(work + 0xC) &= 0xFFFEFFFF;
     btlSelectionClearTargetFlag(*(s32 *)((u8 *)iGpffffb3ac + 0xDD4));
@@ -785,7 +785,7 @@ s32 btlMainUnitCreateUpdate(void)
     extern void func_001f73d0(void);
     extern void btlShuffleStart(s32 task);
     extern s32 iGpffffb414;
-    extern s32 func_001b1540(void);
+    extern s32 btlActionGetQueueFront(void);
     extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
     extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern void func_001ee250(u8 *arg0, u8 *arg1);
@@ -854,7 +854,7 @@ s32 btlMainUnitCreateUpdate(void)
        * arbitrary fabricated special/empty-row states are outside it. */
       func_001f73d0();
       formation = (BattleOpeningEncounter *)((u32)iGpffffb414 + (u32)*(u16 *)(*(s32 *)(D_0076449C + 0xc68) + 8) * 0x18);
-      action = (u8 *)func_001b1540();
+      action = (u8 *)btlActionGetQueueFront();
       if ((((action == 0) || (*(u8 *)(*(s32 *)(action + 0x30) + 0xa2) == 1)) ||
           (value = datCalcIsDead(*(u32 *)(*(s32 *)(action + 0x30) + 0xa64),0), value == 1)) ||
          (value = datCalcChkBadStatus(*(u32 *)(*(s32 *)(action + 0x30) + 0xa64),0x100000), value == 1
@@ -1390,7 +1390,7 @@ check:
         *(s32 *)(temp_4 + 0xC) &= ~0x2000;
         func_001eb7f0();
     }
-    func_001b1800();
+    btlActionEnableQueue();
     temp_3_2 = D_0076449C;
     *(s32 *)(temp_3_2 + 0xC) |= 0x800;
     return 8;
@@ -1429,7 +1429,7 @@ s32 btlMainActionUpdate(void)
     s16 rank;
 
     if ((*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x80) != 0) {
-        func_001b1830();
+        btlActionDisableQueue();
         func_00213b80(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4));
         btlDamageSetSource(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4), 0);
         state = *(u16 *)((u8 *)iGpffffb3ac + 0x1C);
@@ -1448,7 +1448,7 @@ s32 btlMainActionUpdate(void)
                 }
                 *(s32 *)((u8 *)iGpffffb3ac + 0xC) &= 0xDFFFFFFF;
             }
-            pick = (u8 *)func_001b1510();
+            pick = (u8 *)btlActionGetActiveOrQueueFront();
             hurt = 0;
             if (pick != NULL) {
                 switch (*(u16 *)(pick + 0x6E)) {
@@ -1712,7 +1712,7 @@ s32 btlMainRevivalUpdate(void)
     temp_16 = (s64 *)(*(u8 **)(D_0076449C + 0x170));
     if (func_00193bf0(*temp_16, (s64)0x3FFFFFFFFFFFFFFF) == 0) {
         func_00106620(0x31E, ((func_00106600(0x31E) & 0xFF) - 1) & 0xFF);
-        func_001b1800();
+        btlActionEnableQueue();
         if (btlCheckBattleEnd() == 0) {
             temp_4 = D_0076449C;
             *(s32 *)(temp_4 + 0xC) &= ~0x80;
@@ -1812,7 +1812,7 @@ void btlMainWinInit(u8 *arg0) {
     f32 ambientAlpha;
     s32 color;
     work = (BtlCameraSequenceWork *)arg0;
-    base = (u8 *)func_001b1510();
+    base = (u8 *)btlActionGetActiveOrQueueFront();
     if ((base == 0) || (*(u8 *)(*(u8 **)(base + 0x30) + 0xA2) == 1)) {
         base = *(u8 **)(iGpffffb3ac + 0x170);
     }

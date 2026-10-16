@@ -97,7 +97,7 @@ u8 *func_001fa8f0(void);
 u8 *func_001faa60(void);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 s32 func_0019ff60(u8 *arg0);
-s64 *func_001b1540(void);
+s64 *btlActionGetQueueFront(void);
 s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 u32 btlCountUnitRecordsById(u32 arg0);
@@ -664,7 +664,7 @@ void btlActionRoundupMesUpdate(u8 *arg0)
                 *(s32 *)(arg0 + 0x41C);
             *(s16 *)(*(u8 **)(D_0076449C + 0x170) + 0x16) = 0x1F;
             func_001b0e30(*(s32 *)(D_0076449C + 0x170));
-            packet2 = (u8 *)func_001b1540();
+            packet2 = (u8 *)btlActionGetQueueFront();
             if ((*(u8 *)(*(u8 **)(packet2 + 0x30) + 0xA2) == 0) &&
                 (*(u8 *)(packet2 + 0x28) != 0)) {
                 *(u16 *)(packet2 + 0x18) |= 0x8000;
