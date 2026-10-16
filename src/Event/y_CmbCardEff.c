@@ -74,7 +74,7 @@ extern u8 D_005DC7D0[];
 
 
 void func_002b6130(u8 *, u32);
-void func_002b5e20(u8 *, f32);
+void fclSpriteSetBaseScale(u8 *, f32);
 
 
 
@@ -1955,42 +1955,42 @@ s32 cmbFiveSpriteTask(u8 *task) {
         while (index < 5) {
             /* handle create: 465,0 -> 5c90 */
             handleSlot = work + index * 4 + 4;
-            *(s32 *)handleSlot = func_002b5c90((s32)task, func_002b2970(0x1D1, 0.0f));
+            *(s32 *)handleSlot = fclSpriteSpawnChild((s32)task, func_002b2970(0x1D1, 0.0f));
             /* vec: 9.0,480.0 -> 5db0 */
-            func_002b5db0((u8 *)*(s32 *)handleSlot, func_002b2970(0x1D1, 0.0f), func_002b29e0(9.0f, 480.0f));
+            fclSpriteSetPositionBounds((u8 *)*(s32 *)handleSlot, func_002b2970(0x1D1, 0.0f), func_002b29e0(9.0f, 480.0f));
             /* Mode one uses a gradient; other modes use solid blue. */
             if (*(s8 *)work == 1) {
                 gradientColor = cmbFiveSpriteColor((index + 2) * 10);
-                func_002b5e30((u8 *)*(s32 *)handleSlot, gradientColor);
+                fclSpriteSetCornerColors((u8 *)*(s32 *)handleSlot, gradientColor);
                 if (index == 4) {
                     lastGradientColor = cmbFiveSpriteColor((index + 1) * 10);
-                    func_002b5e30((u8 *)*(s32 *)handleSlot, lastGradientColor);
+                    fclSpriteSetCornerColors((u8 *)*(s32 *)handleSlot, lastGradientColor);
                 }
             } else {
                 solidColor = func_002b2a60(0, 0x37, 0xF2, 0xFF);
-                func_002b5e30((u8 *)*(s32 *)handleSlot, solidColor);
+                fclSpriteSetCornerColors((u8 *)*(s32 *)handleSlot, solidColor);
             }
             /* Recompute the handle slot for flags and draw depth. */
             updatedHandleSlot = work + (u32)index * 4U + 4;
             func_002b6130(*(u8 **)updatedHandleSlot, 0xBB);
-            func_002b5e20(*(u8 **)updatedHandleSlot, 50.0f);
+            fclSpriteSetBaseScale(*(u8 **)updatedHandleSlot, 50.0f);
             index++;
         }
         /* --- five post-loop 5fd0 groups --- */
         /* group offset 4: 465,275 + 8,480 + 380,480, last 0 */
-        func_002b5fd0((u8 *)*(s32 *)(work + 4), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
+        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 4), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
                       func_002b29e0(8.0f, 480.0f), func_002b29e0(380.0f, 480.0f), 0xF, 0);
         /* group offset 8: same, last 2 */
-        func_002b5fd0((u8 *)*(s32 *)(work + 8), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
+        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 8), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
                       func_002b29e0(8.0f, 480.0f), func_002b29e0(380.0f, 480.0f), 0xF, 2);
         /* group offset C: same, last 9 */
-        func_002b5fd0((u8 *)*(s32 *)(work + 0xC), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
+        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 0xC), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
                       func_002b29e0(8.0f, 480.0f), func_002b29e0(380.0f, 480.0f), 0xF, 9);
         /* group offset 0x10: 8,480 + 8,480, last 9 */
-        func_002b5fd0((u8 *)*(s32 *)(work + 0x10), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
+        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 0x10), func_002b2970(0x1D1, 0.0f), func_002b2970(0x113, 0.0f),
                       func_002b29e0(8.0f, 480.0f), func_002b29e0(8.0f, 480.0f), 0xF, 9);
         /* group offset 0x14: 465,655 + 8,480 + 8,480, last 9 */
-        func_002b5fd0((u8 *)*(s32 *)(work + 0x14), func_002b2970(0x1D1, 0.0f), func_002b2970(0x28F, 0.0f),
+        fclSpriteStartBoundsMoveFade((u8 *)*(s32 *)(work + 0x14), func_002b2970(0x1D1, 0.0f), func_002b2970(0x28F, 0.0f),
                       func_002b29e0(8.0f, 480.0f), func_002b29e0(8.0f, 480.0f), 0xF, 9);
         *(s8 *)(work + 1) = 1;
         break;

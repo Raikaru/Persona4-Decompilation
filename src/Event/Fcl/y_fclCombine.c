@@ -49,8 +49,8 @@ extern s32 shdPersonaIsTransitioning(u8 *);
 extern char iGpffffa8a4;
 extern u16 D_008C0252[];
 extern void fclCombineDrawPanelBorder(u8 *, s8);
-extern void func_002b5e90(u8 *, FclVec2, FclVec2, u32);
-extern void func_002b60f0(u8 *, u8, u8, u32);
+extern void fclSpriteStartMove(u8 *, FclVec2, FclVec2, u32);
+extern void fclSpriteStartFade(u8 *, u8, u8, u32);
 extern void fclCombineFadeCursorArrow(u8 *, s64, f32);
 extern void func_0034a890(u8 *);
 extern void func_0034a840(u8 *);
@@ -168,8 +168,8 @@ extern void func_00313b50(u8 *task);
 extern s32 func_0033e3f0(u8 *task);
 
 
-extern void func_002b5e30(u8 *task, FclDrawColor color);
-extern void func_002b5e20(u8 *task, f32 depth);
+extern void fclSpriteSetCornerColors(u8 *task, FclDrawColor color);
+extern void fclSpriteSetBaseScale(u8 *task, f32 depth);
 extern void func_002b6130(u8 *task, u32 order);
 extern void func_002b6140(u8 *task, u8 hidden);
 extern void func_002b6120(u8 *task, u8 mode);
@@ -443,34 +443,34 @@ s32 fclCombineMenuCreate(u8 *arg0) {
         fclSpriteReset((s16)(k + 0x2FB), 0x131);
         *(s32 *)(out + k * 4 + 0x258) = func_002b8150(task);
     }
-    *(s32 *)(out + 0x28C) = (s32)func_002b5c90(task, func_002b2970(288.0f, 14.0f));
-    func_002b5db0((u8 *)*(s32 *)(out + 0x28C), func_002b2970(288.0f, 14.0f), func_002b29e0(160.0f, 36.0f));
+    *(s32 *)(out + 0x28C) = (s32)fclSpriteSpawnChild(task, func_002b2970(288.0f, 14.0f));
+    fclSpriteSetPositionBounds((u8 *)*(s32 *)(out + 0x28C), func_002b2970(288.0f, 14.0f), func_002b29e0(160.0f, 36.0f));
     func_002b6130((u8 *)(*(s32 *)(out + 0x28C)), 0xAB);
     func_002b6140((u8 *)(*(s32 *)(out + 0x28C)), 0);
-    func_002b5e30((u8 *)*(s32 *)(out + 0x28C), func_002b2a60(0xFF, 0xFF, 0xFF, 0));
-    func_002b5e20((u8 *)(*(s32 *)(out + 0x28C)), 53.0f);
-    *(s32 *)(out + 0x290) = (s32)func_002b5c90(task, func_002b2970(0.0f, 14.0f));
-    func_002b5db0((u8 *)*(s32 *)(out + 0x290), func_002b2970(0.0f, 14.0f), func_002b29e0(26.0f, 36.0f));
+    fclSpriteSetCornerColors((u8 *)*(s32 *)(out + 0x28C), func_002b2a60(0xFF, 0xFF, 0xFF, 0));
+    fclSpriteSetBaseScale((u8 *)(*(s32 *)(out + 0x28C)), 53.0f);
+    *(s32 *)(out + 0x290) = (s32)fclSpriteSpawnChild(task, func_002b2970(0.0f, 14.0f));
+    fclSpriteSetPositionBounds((u8 *)*(s32 *)(out + 0x290), func_002b2970(0.0f, 14.0f), func_002b29e0(26.0f, 36.0f));
     func_002b6130((u8 *)(*(s32 *)(out + 0x290)), 0xAB);
     func_002b6140((u8 *)(*(s32 *)(out + 0x290)), 0);
-    func_002b5e30((u8 *)*(s32 *)(out + 0x290), func_002b2a60(0xFF, 0xFF, 0xFF, 0));
-    func_002b5e20((u8 *)(*(s32 *)(out + 0x290)), 53.0f);
-    *(s32 *)(out + 0x2AC) = (s32)func_002b5c90(task, func_002b2970(0.0f, 0.0f));
-    func_002b5db0((u8 *)*(s32 *)(out + 0x2AC), func_002b2970(0.0f, 0.0f), func_002b29e0(640.0f, 7.0f));
+    fclSpriteSetCornerColors((u8 *)*(s32 *)(out + 0x290), func_002b2a60(0xFF, 0xFF, 0xFF, 0));
+    fclSpriteSetBaseScale((u8 *)(*(s32 *)(out + 0x290)), 53.0f);
+    *(s32 *)(out + 0x2AC) = (s32)fclSpriteSpawnChild(task, func_002b2970(0.0f, 0.0f));
+    fclSpriteSetPositionBounds((u8 *)*(s32 *)(out + 0x2AC), func_002b2970(0.0f, 0.0f), func_002b29e0(640.0f, 7.0f));
     func_002b6130((u8 *)(*(s32 *)(out + 0x2AC)), 0xB2);
-    func_002b5e30((u8 *)*(s32 *)(out + 0x2AC), func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
+    fclSpriteSetCornerColors((u8 *)*(s32 *)(out + 0x2AC), func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
     func_002b6140((u8 *)(*(s32 *)(out + 0x2AC)), 1);
     func_002b6120((u8 *)(*(s32 *)(out + 0x2AC)), 1);
-    *(s32 *)(out + 0x2B0) = (s32)func_002b5c90(task, func_002b2970(0.0f, 432.0f));
-    func_002b5db0((u8 *)*(s32 *)(out + 0x2B0), func_002b2970(0.0f, 432.0f), func_002b29e0(640.0f, 16.0f));
+    *(s32 *)(out + 0x2B0) = (s32)fclSpriteSpawnChild(task, func_002b2970(0.0f, 432.0f));
+    fclSpriteSetPositionBounds((u8 *)*(s32 *)(out + 0x2B0), func_002b2970(0.0f, 432.0f), func_002b29e0(640.0f, 16.0f));
     func_002b6130((u8 *)(*(s32 *)(out + 0x2B0)), 0xB2);
-    func_002b5e30((u8 *)*(s32 *)(out + 0x2B0), func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
+    fclSpriteSetCornerColors((u8 *)*(s32 *)(out + 0x2B0), func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF));
     func_002b6140((u8 *)(*(s32 *)(out + 0x2B0)), 1);
     func_002b6120((u8 *)(*(s32 *)(out + 0x2B0)), 1);
-    *(s32 *)(out + 0x2B4) = (s32)func_002b5c90(task, func_002b2970(0.0f, 69.0f));
-    func_002b5db0((u8 *)*(s32 *)(out + 0x2B4), func_002b2970(0.0f, 69.0f), func_002b29e0(640.0f, 343.0f));
+    *(s32 *)(out + 0x2B4) = (s32)fclSpriteSpawnChild(task, func_002b2970(0.0f, 69.0f));
+    fclSpriteSetPositionBounds((u8 *)*(s32 *)(out + 0x2B4), func_002b2970(0.0f, 69.0f), func_002b29e0(640.0f, 343.0f));
     func_002b6130((u8 *)(*(s32 *)(out + 0x2B4)), 0xB2);
-    func_002b5e30((u8 *)*(s32 *)(out + 0x2B4), func_002b2a60(0x2D, 0x2D, 0x2D, 0xE5));
+    fclSpriteSetCornerColors((u8 *)*(s32 *)(out + 0x2B4), func_002b2a60(0x2D, 0x2D, 0x2D, 0xE5));
     func_002b6140((u8 *)(*(s32 *)(out + 0x2B4)), 1);
     func_002b6120((u8 *)(*(s32 *)(out + 0x2B4)), 1);
     *(s32 *)(out + 0x250) = func_0033e3f0((u8 *)(task));
@@ -5603,10 +5603,10 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclSpriteStartPositionAt(0x2E0, *(FclVec2f *)(ps + 0x38), func_002b2970((f32)0x141, 16.0f), 1, 4, 0);
                 fclDrawSetVisible(p->f148, 0);
                 fclCombineDrawPanelBorder(arg0, 1);
-                func_002b5e90((u8 *)p->f2AC, func_002b2970(0.0f, 0.0f), func_002b2970(0.0f, -7.0f), 4);
-                func_002b5e90((u8 *)p->f2B0, func_002b2970(0.0f, 432.0f), func_002b2970(0.0f, 480.0f), 6);
-                func_002b5ef0((u8 *)p->f2B4, func_002b2970(0.0f, 69.0f), func_002b2970(0.0f, 93.0f), func_002b29e0(640.0f, (f32)0x157), func_002b29e0(640.0f, 294.0f), 5);
-                func_002b60f0((u8 *)p->f2B4, 0xE5, 0, 5);
+                fclSpriteStartMove((u8 *)p->f2AC, func_002b2970(0.0f, 0.0f), func_002b2970(0.0f, -7.0f), 4);
+                fclSpriteStartMove((u8 *)p->f2B0, func_002b2970(0.0f, 432.0f), func_002b2970(0.0f, 480.0f), 6);
+                fclSpriteStartBoundsMove((u8 *)p->f2B4, func_002b2970(0.0f, 69.0f), func_002b2970(0.0f, 93.0f), func_002b29e0(640.0f, (f32)0x157), func_002b29e0(640.0f, 294.0f), 5);
+                fclSpriteStartFade((u8 *)p->f2B4, 0xE5, 0, 5);
                 fclCombineFadeCursorArrow(arg0, 0, 0.0f);
                 fclDrawSetPlacement(p->f148, (s32)datPersonaCachedRecord(*(u16 *)((u8 *)(yListSlotEntry(0, p->f11E)) + 2)), 0, 1);
                 func_0045af60(0, 0, 0, 5);
@@ -5622,10 +5622,10 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclDrawSetVisible(p->f148, 1);
                 fclCombineDrawPanelBorder(arg0, 0);
                 func_0045af60(0, 0, 0, 5);
-                func_002b5e90((u8 *)p->f2AC, func_002b2970(0.0f, -10.0f), func_002b2970(0.0f, 0.0f), 4);
-                func_002b5e90((u8 *)p->f2B0, func_002b2970(0.0f, 480.0f), func_002b2970(0.0f, 432.0f), 6);
-                func_002b5ef0((u8 *)p->f2B4, func_002b2970(0.0f, 93.0f), func_002b2970(0.0f, 69.0f), func_002b29e0(640.0f, 294.0f), func_002b29e0(640.0f, (f32)0x157), 5);
-                func_002b60f0((u8 *)p->f2B4, 0, 0xE5, 5);
+                fclSpriteStartMove((u8 *)p->f2AC, func_002b2970(0.0f, -10.0f), func_002b2970(0.0f, 0.0f), 4);
+                fclSpriteStartMove((u8 *)p->f2B0, func_002b2970(0.0f, 480.0f), func_002b2970(0.0f, 432.0f), 6);
+                fclSpriteStartBoundsMove((u8 *)p->f2B4, func_002b2970(0.0f, 93.0f), func_002b2970(0.0f, 69.0f), func_002b29e0(640.0f, 294.0f), func_002b29e0(640.0f, (f32)0x157), 5);
+                fclSpriteStartFade((u8 *)p->f2B4, 0, 0xE5, 5);
                 fclCombineFadePanelSprite(arg0, 1, 0.0f);
             }
             goto conv9A;
@@ -5673,9 +5673,9 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
                 fclCombineDrawStageBanner(arg0, 1, 1);
                 if (p->f122 == 1) {
                     fclCombineDrawPanelBorder(arg0, 1);
-                    func_002b5e90((u8 *)p->f2AC, func_002b2970(0.0f, 0.0f), func_002b2970(0.0f, -7.0f), 5);
-                    func_002b5e90((u8 *)p->f2B0, func_002b2970(0.0f, 432.0f), func_002b2970(0.0f, 480.0f), 5);
-                    func_002b5ef0((u8 *)p->f2B4, func_002b2970(0.0f, 69.0f), func_002b2970(0.0f, 239.0f), func_002b29e0(640.0f, (f32)0x157), func_002b29e0(640.0f, 0.0f), 5);
+                    fclSpriteStartMove((u8 *)p->f2AC, func_002b2970(0.0f, 0.0f), func_002b2970(0.0f, -7.0f), 5);
+                    fclSpriteStartMove((u8 *)p->f2B0, func_002b2970(0.0f, 432.0f), func_002b2970(0.0f, 480.0f), 5);
+                    fclSpriteStartBoundsMove((u8 *)p->f2B4, func_002b2970(0.0f, 69.0f), func_002b2970(0.0f, 239.0f), func_002b29e0(640.0f, (f32)0x157), func_002b29e0(640.0f, 0.0f), 5);
                 } else {
                     fclCombineFadePanelSprite(arg0, 1, 0.0f);
                 }

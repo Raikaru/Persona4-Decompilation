@@ -490,9 +490,9 @@ s32 func_002e7510(s32 arg0)
     work = D_008873F4[0](1, 0x18, 0x40000);
     result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)((char *)D_0063FC90), 0xF, 0, 0, func_002e72c0, func_002e74e0, (u8 *)(work));
     iGpffffb590 = NULL;
-    iGpffffb590 = (u8 *)func_002b5c90(result, func_002b2970(0, 0));
-    func_002b5db0(iGpffffb590, func_002b2970(0, 0), func_002b29e0(640.0f, 448.0f));
-    func_002b5e30(iGpffffb590, func_002b2a60(0, 0, 0, 0xFF));
+    iGpffffb590 = (u8 *)fclSpriteSpawnChild(result, func_002b2970(0, 0));
+    fclSpriteSetPositionBounds(iGpffffb590, func_002b2970(0, 0), func_002b29e0(640.0f, 448.0f));
+    fclSpriteSetCornerColors(iGpffffb590, func_002b2a60(0, 0, 0, 0xFF));
     *work = 1;
     sdkSndFadeOutChannelFrames(3, 0, 0x1E);
 

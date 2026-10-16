@@ -69,7 +69,7 @@ extern u8 D_0063F1A0[];
 extern u8 D_0063F1B0[];
 extern u8 D_0063F1D0[];
 extern u8 D_0063F1E0[];
-void func_002b60f0(u8 *arg0, u8 arg1, u8 arg2, u32 arg3);
+void fclSpriteStartFade(u8 *arg0, u8 arg1, u8 arg2, u32 arg3);
 
 extern void mdlEffectEmitMaskedTagPair(void);
 extern u8 *func_00457120(void);
@@ -94,10 +94,11 @@ extern u8 D_00793E80[];
    + *(f2 *)(p + 0x134) = p1 struct store (retail's batched pair loads) + the
    4-sb byte loop. The pragma hoists the loop's 0xFF into the preheader in $a0
    exactly as retail. SDK callbacks use their actual update and destroy signatures. */
+// Intent: creates a child task with a 0x190-byte sprite work block at +0x38. It sets the start position at +0x134, clears the four corner colours and the flags, and returns the task handle.
 // FUN_002B5C90
-/* measured: open opt_loop_invariants scope for func_002b5c90. */
+/* measured: open opt_loop_invariants scope for fclSpriteSpawnChild. */
 #pragma opt_loop_invariants on
-s32 func_002b5c90(s32 arg0, f2 p1) {
+s32 fclSpriteSpawnChild(s32 arg0, f2 p1) {
     s32 handle;
     u8 *p;
     s32 i;
@@ -122,7 +123,7 @@ s32 func_002b5c90(s32 arg0, f2 p1) {
     *(s16 *)(p + 0x182) = 0;
     return handle;
 }
-/* measured: close opt_loop_invariants scope after func_002b5c90. */
+/* measured: close opt_loop_invariants scope after fclSpriteSpawnChild. */
 #pragma opt_loop_invariants off
 // FUN_002B5DA0
 u8 *func_002b5da0(u8 *arg0) {
@@ -130,7 +131,7 @@ u8 *func_002b5da0(u8 *arg0) {
 }
 
 // FUN_002B5DB0
-void func_002b5db0(u8 *arg0, f2 p1, FclBoundsPacket p2) {
+void fclSpriteSetPositionBounds(u8 *arg0, f2 p1, FclBoundsPacket p2) {
     FclBoundsBytes t;
     u8 *base;
     t = p2.representation;
@@ -139,13 +140,14 @@ void func_002b5db0(u8 *arg0, f2 p1, FclBoundsPacket p2) {
     ((FclBoundsPacket *)(base + 0x120))->representation = t;
 }
 
+// Intent: stores the base scale at +0x130. fclSpriteResetScale copies it into the four layout scales at +0x4, +0x44, +0x84 and +0xC4.
 // FUN_002B5E20
-void func_002b5e20(u8 *arg0, f32 fparg0) {
+void fclSpriteSetBaseScale(u8 *arg0, f32 fparg0) {
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x130) = fparg0;
 }
 
 // FUN_002B5E30
-void func_002b5e30(u8 *arg0, u4 arg1) {
+void fclSpriteSetCornerColors(u8 *arg0, u4 arg1) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     s32 i;
     for (i = 0; i < 4; i++) {
@@ -153,7 +155,7 @@ void func_002b5e30(u8 *arg0, u4 arg1) {
     }
 }
 // FUN_002B5E90
-void func_002b5e90(u8 *arg0, f2 p1, f2 p2, u32 arg3) {
+void fclSpriteStartMove(u8 *arg0, f2 p1, f2 p2, u32 arg3) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     *(s16 *)(base + 0x14C) = 0;
     *(u32 *)(base + 0x150) = arg3;
@@ -165,7 +167,7 @@ void func_002b5e90(u8 *arg0, f2 p1, f2 p2, u32 arg3) {
 }
 
 // FUN_002B5EF0
-void func_002b5ef0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket p3, FclBoundsPacket p4, u32 arg5) {
+void fclSpriteStartBoundsMove(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket p3, FclBoundsPacket p4, u32 arg5) {
     FclBoundsBytes a = p3.representation;
     FclBoundsBytes b = p4.representation;
     u8 *base = *(u8 **)(arg0 + 0x38);
@@ -180,8 +182,9 @@ void func_002b5ef0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket p3, FclBoundsPacket p
     base[0x0] = 2;
 }
 
+// Intent: as fclSpriteStartBoundsMove, plus a fade (fclSpriteStartFade, alpha 0x80) and the timer at +0x182 from arg6.
 // FUN_002B5FD0
-void func_002b5fd0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket p3, FclBoundsPacket p4, u32 arg5, s16 arg6) {
+void fclSpriteStartBoundsMoveFade(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket p3, FclBoundsPacket p4, u32 arg5, s16 arg6) {
     FclBoundsBytes a = p3.representation;
     FclBoundsBytes b = p4.representation;
     u8 *base = *(u8 **)(arg0 + 0x38);
@@ -192,7 +195,7 @@ void func_002b5fd0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket p3, FclBoundsPacket p
     ((FclBoundsPacket *)(base + 0x158))->representation = a;
     ((FclBoundsPacket *)(base + 0x168))->representation = b;
     *(s16 *)(base + 0x156) = 4;
-    func_002b60f0(arg0, 0x80, 0, arg5);
+    fclSpriteStartFade(arg0, 0x80, 0, arg5);
     base[0x154] = 0;
     base[0x0] = 2;
     base[0x184] = 1;
@@ -200,8 +203,9 @@ void func_002b5fd0(u8 *arg0, f2 p1, f2 p2, FclBoundsPacket p3, FclBoundsPacket p
     *(s16 *)(base + 0x182) = arg6;
 }
 
+// Intent: starts a fade. Stores the two alpha bytes at +0x178/+0x179, resets the timer at +0x17A, sets the duration at +0x17C and enables the fade at +0x180.
 // FUN_002B60F0
-void func_002b60f0(u8 *arg0, u8 arg1, u8 arg2, u32 arg3) {
+void fclSpriteStartFade(u8 *arg0, u8 arg1, u8 arg2, u32 arg3) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     base[0x178] = arg1;
     base[0x179] = arg2;
