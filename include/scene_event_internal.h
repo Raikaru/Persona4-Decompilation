@@ -104,16 +104,16 @@ struct EvtNode {
 
 /* Event task work block (0x60 bytes), stored by evtCreateEventTask. */
 struct EvtEventTask {
-    s32 state;                /* +0x00: 0 create, 3/4 run, 5 wait for mark, 6 done */
+    s32 state;                /* +0x00: 0 create, 3/4 run, 5 wait for loader idle (evtLoaderIsIdle), 6 done */
     u8 unk04[0x08];
     s32 eventTask;            /* +0x0C: handle returned by evtStart */
     u8 unk10[0x50];
 };
 
-/* Event work block: kwlnTaskGetWork of EvtEventTask.eventTask. */
+/* Event work block (0x7B0 bytes): kwlnTaskGetWork of EvtEventTask.eventTask. */
 struct EvtEventWork {
     s32 waitFlags;            /* +0x00: wait bits cleared by evtUpdateNodeWaitFlags */
-    s32 hasMessage;           /* +0x04: nonzero while a message is attached */
+    u8 *sceneSource;          /* +0x04: scene source block (evtPolygonMovieAlloc); nonzero while a message is attached */
     u8 unk08[0x08];
     s32 frameLimit;           /* +0x10 */
     s32 frame;                /* +0x14 */
@@ -124,14 +124,27 @@ struct EvtEventWork {
     s32 nodeCount;            /* +0x48 */
     EvtNode *nodeList;        /* +0x4C */
     EvtNode *nodeTail;        /* +0x50 */
-    u8 unk54[0x580];
+    u8 unk54[0x57C];
+    s32 effectTable;          /* +0x5D0: effect table handle */
     s32 busy;                 /* +0x5D4: nonzero while the event is busy */
     u8 unk5D8[0xA0];
     u8 messageWindow[0x4C];   /* +0x678: message window, runs to at least +0x6C4 */
     s32 waitTask[3];          /* +0x6C4: tasks watched by the 0x200/0x400/0x800 waits */
-    u8 unk6D0[0x8C];
+    u8 unk6D0[0x80];
+    f32 fov;                  /* +0x750: field of view (K_View_GetFov) */
+    u8 unk754[0x08];
     s32 linkedTask;           /* +0x75C: task watched by the 0x4000 wait */
     s32 scriptLoad;           /* +0x760: script load handle for the 0x80000 wait */
+    u8 unk764[0x08];
+    s32 loadState;            /* +0x76C: script loader state (0..14); state 14 resets to 0 */
+    s32 loadFlags;            /* +0x770: 0x1 load requested (evtRequestLoad), 0x2 loader idle */
+    u8 unk774[0x08];
+    s32 readerHandle;         /* +0x77C: PM file reader handle (evtPMFileReaderCreate) */
+    s32 streamTask;           /* +0x780: sound stream task (sdkSndCreateStreamTask) */
+    u8 unk784[0x04];
+    u8 unk788[0x04];          /* +0x788: word passed to evtPMFileReaderCreate, role unknown */
+    s32 eventId[3];           /* +0x78C..+0x794: event id words (evtSetId) */
+    u8 unk798[0x18];
 };
 
 /* mt_misc scene source record: the arg0 block of mtMiscBuildScene and its

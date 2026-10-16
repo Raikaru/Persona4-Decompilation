@@ -21,8 +21,8 @@ extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memset(void *dest, s32 value, s32 size);
 extern s32 evtStart(s32, s32);
 extern void evtSetId(u32, s32, s32, s32);
-extern void evtMarkTaskStarted(s32 task);
-extern s32 evtTaskIsMarked(s32);
+extern void evtRequestLoad(s32 task);
+extern s32 evtLoaderIsIdle(s32);
 extern void evtResetEventScene(s32, s32 *);
 extern void evtUpdateSceneLights(s32 *);
 extern void evtMessageWindowUpdate(s32 *);
@@ -153,7 +153,7 @@ s32 evtNodeTaskUpdate(u8 *task)
         temp_2->state = 5;
         /* fallthrough */
     case 5:
-        if (evtTaskIsMarked(temp_2->eventTask) != 0) {
+        if (evtLoaderIsIdle(temp_2->eventTask) != 0) {
             temp_2->state = 3;
         }
         goto done;
@@ -169,7 +169,7 @@ s32 evtNodeTaskUpdate(u8 *task)
         }
         temp_2_2->lastFrame = temp_2_2->frame;
         evtUpdateSceneLights((s32 *)temp_2_2);
-        if ((temp_2_2->hasMessage != 0) && (evtMessageWindowIsOpen((u32 *)temp_2_2->messageWindow) != 0)) {
+        if ((temp_2_2->sceneSource != 0) && (evtMessageWindowIsOpen((u32 *)temp_2_2->messageWindow) != 0)) {
             evtMessageWindowUpdate((s32 *)temp_2_2->messageWindow);
         }
         evtUpdateNodeWaitFlags((u8 *)temp_2_2);
@@ -219,7 +219,7 @@ s32 evtCreateEventTask(s32 arg0, s32 arg1)
     temp_2 = evtStart(0, 0);
     temp_16->eventTask = temp_2;
     evtSetId(temp_2, arg0, arg1, 0);
-    evtMarkTaskStarted(temp_16->eventTask);
+    evtRequestLoad(temp_16->eventTask);
     temp_16->state = 0;
     return temp_17;
 }
