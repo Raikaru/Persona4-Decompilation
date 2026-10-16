@@ -19,7 +19,7 @@ extern void func_00460ac0(void *, void *);
 extern void func_00122520(s32, s32);
 extern void func_00122640(s32, s32);
 extern s32 fadeStatus(void);
-extern s32 func_0012b890(u8 *task);
+extern s32 titleFileLoadStep(u8 *task);
 extern void titleLoaderDestroy(u8 *task);
 extern void func_0012b9a0(void);
 extern void *kwlnTaskGetWork();
@@ -87,12 +87,12 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
             temp_2_3 = (s32 *)((void *(*)(s32, s32, u32))*(u32 *)allocator)(1, 0xC, 0x40000);
             temp_2_3[0] = 0;
             temp_2_3[1] = (s32)func_004667d0(0, D_005E5770, 0, 0, 0, 0, 0, 0, 0, 0);
-            temp_2->task10 = (s32)kwlnTaskCreate((const void *)(&D_00762D98), 0x100, 0, 0, func_0012b890, titleLoaderDestroy, (u8 *)(temp_2_3));
+            temp_2->task10 = (s32)kwlnTaskCreate((const void *)(&D_00762D98), 0x100, 0, 0, titleFileLoadStep, titleLoaderDestroy, (u8 *)(temp_2_3));
             chkmemAllocSiteTag(&D_005E5730, 0x4D);
             temp_2_4 = (s32 *)((void *(*)(s32, s32, u32))*(u32 *)allocator)(1, 0xC, 0x40000);
             temp_2_4[0] = 0;
             temp_2_4[1] = (s32)func_004667d0(0, D_005E5790, 0, 0, 0, 0, 0, 0, 0, 0);
-            temp_2->task14 = (s32)kwlnTaskCreate((const void *)(&D_00762D98), 0x100, 0, 0, func_0012b890, titleLoaderDestroy, (u8 *)(temp_2_4));
+            temp_2->task14 = (s32)kwlnTaskCreate((const void *)(&D_00762D98), 0x100, 0, 0, titleFileLoadStep, titleLoaderDestroy, (u8 *)(temp_2_4));
         }
         break;
     case 3:

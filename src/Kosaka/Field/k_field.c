@@ -86,7 +86,7 @@ extern s32 func_002940a0(s32, s32 *, s32 *, s32 *, s32 *);
 extern void kAssertFail(const void *, s32);
 extern void FldResource_OpenPrimaryFile(u16, u16);
 extern void func_00162200(s32);
-extern void func_001227d0(void);
+extern void fadeBegin(void);
 extern void FldUnit_SpawnAtEntry(u16, u16, u16);
 extern void resrcMngSetRenderSuppressed(s32);
 extern s32 func_00156640(u8 *, u16, u16, s16, s16, s32, s32, s32);
@@ -175,7 +175,7 @@ s32 func_00155360(u8 *task)
                 for (index = 0; index < 4; index++) {
                     func_00162200(index);
                 }
-                func_001227d0();
+                fadeBegin();
                 work->state = 2;
             } else {
                 kAssertFail(D_005EFF10, 0xE8);
@@ -183,7 +183,7 @@ s32 func_00155360(u8 *task)
         }
         break;
     case 1:
-        func_001227d0();
+        fadeBegin();
         work->state++;
         /* fallthrough */
     case 2:

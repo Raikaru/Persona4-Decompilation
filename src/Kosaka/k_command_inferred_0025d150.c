@@ -28,7 +28,7 @@ extern s32 iGpffffb480;
 
 
 s32 scrGetCmdTimer(void);
-void func_001227d0(void);
+void fadeBegin(void);
 s32 fadeIsIdle(void);
 
 s16 datGetPartyId(s32 arg0);
@@ -302,7 +302,7 @@ s32 K_Cmd_TASK_DESTROY(void) {
 // FUN_0025D7E0
 s32 func_0025d7e0(void) {
     if (scrGetCmdTimer() == 0xA) {
-        func_001227d0();
+        fadeBegin();
         goto block_5;
     }
     if ((scrGetCmdTimer() > 0xA) && (fadeIsIdle() != 0)) {
