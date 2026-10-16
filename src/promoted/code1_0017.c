@@ -1,4 +1,5 @@
 #include "mt_scene_internal.h"
+#include "field_frame_internal.h"
 #include "rw_geometry_internal.h"
 #include "field_transition_internal.h"
 #include "model_callbacks_internal.h"
@@ -236,7 +237,7 @@ s32 FldSmapViewTriggerTest(u8 *arg0)
     u8 *temp;
 
     temp = *(u8 **)(arg0 + 0x38);
-    if ((*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0) && (D_008C024E[0] & 0x800)) {
+    if ((((FldFrame *)MT_Scene_GetFrameState())->smapObject != 0) && (D_008C024E[0] & 0x800)) {
         *(s32 *)(temp + 4) = 0;
         return 1;
     }
@@ -315,21 +316,21 @@ s32 FldCampTriggerRun(u8 *arg0)
     state = *(s32 *)(temp_16 + 4);
     switch (state) {
     case 0:
-        if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0)
-            FldPanel2dSetState(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30), 1);
+        if (((FldFrame *)MT_Scene_GetFrameState())->panelTask != 0)
+            FldPanel2dSetState((s32)((FldFrame *)MT_Scene_GetFrameState())->panelTask, 1);
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
-        FldFrameObjSetActive(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
+        FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
         *(s32 *)(temp_16 + 0x10) = cmpMainTaskCreate((s32)arg0, 1);
-        if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0)
-            smapSetPhase(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18), 1);
+        if (((FldFrame *)MT_Scene_GetFrameState())->smapObject != 0)
+            smapSetPhase((s32)((FldFrame *)MT_Scene_GetFrameState())->smapObject, 1);
         FldSlotBroadcastState(1);
         *(s32 *)(temp_16 + 4) += 1;
         break;
     case 1:
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
-            if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0)
-                FldPanel2dSetState(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30), 0);
+            if (((FldFrame *)MT_Scene_GetFrameState())->panelTask != 0)
+                FldPanel2dSetState((s32)((FldFrame *)MT_Scene_GetFrameState())->panelTask, 0);
             if (datGetFlag(0x1401) != 0) {
                 func_0015a7c0(FldStepIndex());
                 datSetFlag(0x1401, 0);
@@ -337,10 +338,10 @@ s32 FldCampTriggerRun(u8 *arg0)
                 scrStartProcedureChecked(0xF, temp_17, FldStepGetScriptSize(), 5);
                 *(s32 *)(temp_16 + 4) = 3;
             } else {
-                if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18) != 0)
-                    smapSetPhase(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18), 0);
+                if (((FldFrame *)MT_Scene_GetFrameState())->smapObject != 0)
+                    smapSetPhase((s32)((FldFrame *)MT_Scene_GetFrameState())->smapObject, 0);
                 FldSlotBroadcastState(0);
-                FldFrameObjSetActive(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 0);
+                FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 0);
                 *(s32 *)(temp_16 + 0x10) = 0;
                 *(s32 *)(temp_16 + 4) += 1;
             }
@@ -520,7 +521,7 @@ s32 FldStepAreaTriggerRun(u8 *arg0)
             func_0015a7c0(FldStepIndex());
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
-        FldFrameObjSetActive(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
+        FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
         temp_17 = FldStepGetScriptData();
         *(s32 *)(temp_16 + 0x10) =
             scrStartProcedureChecked(0xF, temp_17, FldStepGetScriptSize(), 0);
@@ -529,7 +530,7 @@ s32 FldStepAreaTriggerRun(u8 *arg0)
         break;
     case 1:
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
-            FldFrameObjSetActive(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 0);
+            FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 0);
             FldSlotBroadcastState(0);
             *(s32 *)(temp_16 + 4) += 1;
         }
@@ -581,7 +582,7 @@ s32 FldStepAreaAltTriggerRun(u8 *arg0)
             func_0015a7c0(FldStepIndex());
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
-        FldFrameObjSetActive(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
+        FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 1);
         temp_17 = FldStepGetScriptData();
         *(s32 *)(temp_16 + 0x10) =
             scrStartProcedureChecked(0xF, temp_17, FldStepGetScriptSize(), 1);
@@ -590,7 +591,7 @@ s32 FldStepAreaAltTriggerRun(u8 *arg0)
         break;
     case 1:
         if (kwlnTaskIsLinked(*(s32 *)(temp_16 + 0x10)) != 1) {
-            FldFrameObjSetActive(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 0);
+            FldFrameObjSetActive((s32)((FldFrame *)MT_Scene_GetFrameState())->supporterTask, 0);
             FldSlotBroadcastState(0);
             *(s32 *)(temp_16 + 0x10) = 0;
             *(s32 *)(temp_16 + 4) += 1;
