@@ -38,7 +38,7 @@ extern void memset(void *dst, s32 value, s32 size);
 
 extern void pscResInit(u8 *arg0);
 extern void pscBuildGridIndexTable(void);
-extern void func_0036d8b0(void);
+extern void pscCameraReset(void);
 
 extern void pscResUpdate(void);
 extern s32 pscResAnySlotInUse(void);
@@ -741,17 +741,17 @@ struct PanelTransform;
 #pragma opt_loop_invariants on
 #pragma pop
 // FUN_0036D860
-void func_0036d860(u8 *arg0, s32 arg1)
+void pscResInitScene(u8 *arg0, s32 arg1)
 {
     pscResInit(arg0);
     pscBuildGridIndexTable();
     if (arg1 != 0) {
-        func_0036d8b0();
+        pscCameraReset();
     }
 }
 
 // FUN_0036D8B0
-void func_0036d8b0(void)
+void pscCameraReset(void)
 {
     struct {
         s32 f20;
@@ -777,13 +777,13 @@ void func_0036d8b0(void)
     K_ClumpLookAtBasis((void *)view, &local.f30, &local.f20, 0);
 }
 // FUN_0036D940
-void func_0036d940(void *arg0)
+void pscResTeardown(void *arg0)
 {
     pscResDestroy();
 }
 
 // FUN_0036D960
-s32 func_0036d960(void)
+s32 pscResIsIdle(void)
 {
     pscResUpdate();
     return !pscResAnySlotInUse();

@@ -31,7 +31,7 @@ extern void memset(void *dst, s32 value, s32 size);
 
 
 
-extern void func_0036d860(u8 *arg0, s32 arg1);
+extern void pscResInitScene(u8 *arg0, s32 arg1);
 
 extern void btlShuffleDrawSetup(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 
@@ -101,7 +101,7 @@ extern s32 datGetFlag(s32 id);
 
 extern void datSetFlag(s32 a, s32 b);
 
-extern void func_0036d940(u8 *arg0);
+extern void pscResTeardown(u8 *arg0);
 
 extern void btlShuffleDrawRelease(u8 *arg0);
 
@@ -130,7 +130,7 @@ extern s32 btlShuffleDrawLoadBlob(u8 *arg0);
 
 extern void btlShuffleDrawTaskInit(u8 *arg0, u8 *arg1);
 
-extern s32 func_0036d960(void);
+extern s32 pscResIsIdle(void);
 
 extern void btlShuffleDrawViewRestore(u8 *arg0);
 
@@ -202,7 +202,7 @@ s32 btlShuffleTaskUpdate(u8 *unusedTask)
             *(u16 *)work |= 0x40;
         }
         if (((*(u16 *)work) & 0x40) != 0) {
-            if (func_0036d960() != 0) {
+            if (pscResIsIdle() != 0) {
                 *(u16 *)work |= 0x20;
                 *(u16 *)work &= (u16)~0x40;
             }
@@ -321,7 +321,7 @@ void btlShuffleTaskDestroy(u8 *unusedTask)
     if (datGetFlag(0x1430) == 0) {
         datSetFlag(0x1430, 1);
     }
-    func_0036d940(work + 0x1F384);
+    pscResTeardown(work + 0x1F384);
     btlShuffleDrawRelease(work + 0x70);
     jtbl_008873EC[0](work);
 }
@@ -344,7 +344,7 @@ s32 btlShuffleTaskCreate(u8 *arg0, u8 *arg1)
     *(s32 *)(work + 0x1C) = (s32)work;
     *(s32 *)(work + 0x44) = (s32)(void *)btlShuffleQueueSeqDraw;
     *(s32 *)(work + 0x4C) = (s32)work;
-    func_0036d860(work + 0x1F384, 0);
+    pscResInitScene(work + 0x1F384, 0);
     btlShuffleDrawSetup(work + 0x70, handle, *(s32 *)(arg1 + 0xC),
                   *(s32 *)(arg1 + 0x10), *(s32 *)(arg1 + 0x14));
     btlShuffleRandomizeOrder(work + 0x1F2C0, arg1);
