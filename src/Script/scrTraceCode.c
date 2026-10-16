@@ -86,6 +86,47 @@ typedef struct
 
 typedef u32 (*CodeFunc)(ScrData* scr);
 
+/* Opcode indices into D_0063E2B0 (sCodeFuncTable). Verified against docs/dispatch_tables.md. */
+enum ScrOpcode
+{
+    SCR_OPCODE_PUSH_IMM_INT,          /* scrOpPushImmInt */
+    SCR_OPCODE_PUSH_IMM_FLOAT,        /* scrOpPushImmFloat */
+    SCR_OPCODE_PUSH_GLOBAL_INT,       /* scrOpPushGlobalInt */
+    SCR_OPCODE_PUSH_GLOBAL_FLOAT,     /* scrOpPushGlobalFloat */
+    SCR_OPCODE_PUSH_RETURN,           /* scrOpPushReturn */
+    SCR_OPCODE_POP_GLOBAL_INT,        /* scrOpPopGlobalInt */
+    SCR_OPCODE_POP_GLOBAL_FLOAT,      /* scrOpPopGlobalFloat */
+    SCR_OPCODE_NOP,                   /* scrOpNop */
+    SCR_OPCODE_CALL_COMMAND,          /* scrOpCallCommand (COMM) */
+    SCR_OPCODE_RETURN,                /* scrOpReturn */
+    SCR_OPCODE_JUMP_PROCEDURE,        /* scrOpJumpProcedure */
+    SCR_OPCODE_CALL_PROCEDURE,        /* scrOpCallProcedure */
+    SCR_OPCODE_UNSUPPORTED,           /* scrOpUnsupported */
+    SCR_OPCODE_JUMP_LABEL,            /* scrOpJumpLabel */
+    SCR_OPCODE_ADD,                   /* CodeFunc_Add */
+    SCR_OPCODE_SUB,                   /* CodeFunc_Sub */
+    SCR_OPCODE_MUL,                   /* CodeFunc_Mul */
+    SCR_OPCODE_DIV,                   /* CodeFunc_Div */
+    SCR_OPCODE_NEG,                   /* CodeFunc_Neg */
+    SCR_OPCODE_NOT,                   /* CodeFunc_Not */
+    SCR_OPCODE_OR,                    /* CodeFunc_Or */
+    SCR_OPCODE_AND,                   /* CodeFunc_And */
+    SCR_OPCODE_EQ,                    /* CodeFunc_Eq */
+    SCR_OPCODE_NEQ,                   /* CodeFunc_Neq */
+    SCR_OPCODE_S,                     /* CodeFunc_S */
+    SCR_OPCODE_L,                     /* CodeFunc_L */
+    SCR_OPCODE_SE,                    /* CodeFunc_SE */
+    SCR_OPCODE_LE,                    /* CodeFunc_LE */
+    SCR_OPCODE_JUMP_IF_FALSE,         /* CodeFunc_JumpIfFalse */
+    SCR_OPCODE_PUSH_IMM_SHORT,        /* scrOpPushImmShort */
+    SCR_OPCODE_PUSH_LOCAL_INT,        /* scrOpPushLocalInt */
+    SCR_OPCODE_PUSH_LOCAL_FLOAT,      /* scrOpPushLocalFloat */
+    SCR_OPCODE_POP_LOCAL_INT,         /* scrOpPopLocalInt */
+    SCR_OPCODE_POP_LOCAL_FLOAT,       /* scrOpPopLocalFloat */
+    SCR_OPCODE_PUSH_STRING,           /* scrOpPushString */
+    SCR_OPCODE_COUNT                  /* SCR_CODEFUNC_MAX */
+};
+
 enum ScrOperation
 {
     SCR_OPERATION_ADD,

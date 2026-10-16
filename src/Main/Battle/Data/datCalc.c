@@ -1790,10 +1790,10 @@ u8 arg7;
     case 14:
         switch (DCDamageSkillKind(arg0)) {
         case 1:
-            damage = datScriptRunCalc(1, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
+            damage = datScriptRunCalc(DAT_SCRIPT_CALC_PHYSICAL_DAMAGE, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
             break;
         case 2:
-            damage = datScriptRunCalc(2, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
+            damage = datScriptRunCalc(DAT_SCRIPT_CALC_MAGIC_DAMAGE, (u16 *)arg1, (u16 *)arg2, arg0, arg7);
             break;
         default:
             kAssertFail(D_00635938, 0x7A7);
@@ -1830,7 +1830,7 @@ u8 arg7;
         }
         break;
     case 16:
-        damage = DCDamageAddBonus((s32)datScriptRunCalc(9, (u16 *)arg1, (u16 *)arg2, arg0, arg7), bonus);
+        damage = DCDamageAddBonus((s32)datScriptRunCalc(DAT_SCRIPT_CALC_PHYSICAL_DAMAGE_SCALED, (u16 *)arg1, (u16 *)arg2, arg0, arg7), bonus);
         if (damage <= 0) {
             damage = 1;
         }
@@ -2424,7 +2424,7 @@ return_zero_1:
     if ((s32)iGpffffb3b8[offset + 0x19] >= 100) {
         success = 1;
     } else {
-        chance = (f32)datScriptRunCalc(10, (u16 *)(source), (u16 *)(target), skillId, (s32)statuses);
+        chance = (f32)datScriptRunCalc(DAT_SCRIPT_CALC_RATIO_OF_PRODUCTS, (u16 *)(source), (u16 *)(target), skillId, (s32)statuses);
         chance = chance * multiplier;
         rate = (s32)chance;
         if (rate > 99) {
@@ -3989,7 +3989,7 @@ s32 arg3;
             evadeMultiplier *= 0.5f;
         }
     }
-    baseRate = datScriptRunCalc(4, (u16 *)arg0, (u16 *)arg1, arg2, 0);
+    baseRate = datScriptRunCalc(DAT_SCRIPT_CALC_HIT_RATE, (u16 *)arg0, (u16 *)arg1, arg2, 0);
     if (!(*(u16 *)arg1 & 4)) {
         switch (element) {
         case 0:
@@ -4191,7 +4191,7 @@ s32 arg4;
     switch (entry[idx + 2]) {
     case 1:
         if (base == 0) {
-            base = datScriptRunCalc(5, (u16 *)(arg0), (u16 *)(arg1), arg2, 0);
+            base = datScriptRunCalc(DAT_SCRIPT_CALC_SCALED_RATIO, (u16 *)(arg0), (u16 *)(arg1), arg2, 0);
         }
         if (DC411HasFixedSkill(arg1, 0x206)) {
             f20 = f20 * 0.5f;
@@ -5347,11 +5347,11 @@ void datCalcFormulaTerms13And1A(void)
     f32 temp_f21;
 
     if (datScriptTargetLacksFlag4() != 0) {
-        temp_f20 = datScriptCalcFloat(0x13, 0);
+        temp_f20 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
         temp_f20 += datScriptCalcFloat(0x1A, 0);
     } else {
         temp_f21 = datScriptCalcFloat(0x1A, 0);
-        temp_f20 = D_00761260 * temp_f21 + datScriptCalcFloat(0x13, 0);
+        temp_f20 = D_00761260 * temp_f21 + datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
     }
     datScriptSetResult(temp_f20);
 }
