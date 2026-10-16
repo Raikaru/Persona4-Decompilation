@@ -2167,8 +2167,9 @@ void cmmScriptEntryDestroy(u8 *task)
     DAT_008873ec_abs[0](record);
 }
 
+// Starts the entry tasks: creates the load task and the entry runner, sets the step callbacks, and destroys any stale entry-task handles.
 // FUN_00250120
-s32 func_00250120(void)
+s32 cmmScriptStartEntries(void)
 {
     s32 i;
     s32 handle;
@@ -2317,8 +2318,9 @@ s32 func_00250560(void)
     }
     return 0;
 }
+// Closes the entry channel: on the first call arms entry 2 and destroys the entry tasks; once the entry timer reaches 30 frames it fades channel 2 out over 30 frames and returns 1.
 // FUN_002507C0
-s32 func_002507c0(void)
+s32 cmmScriptStopEntries(void)
 {
     s32 i;
 
@@ -2337,8 +2339,9 @@ s32 func_002507c0(void)
 ret0:
     return 0;
 }
+// Returns the six-entry table value (table copied from D_00635BB8) selected by the index at +0x20 of the entry record.
 // FUN_00250870
-s32 func_00250870(void)
+s32 cmmScriptReadIndexedValue(void)
 {
     s16 buf[6];
     s16* s;
