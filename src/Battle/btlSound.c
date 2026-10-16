@@ -410,7 +410,7 @@ extern s32 btlSoundLoadPoll(s32 *arg0);
 extern s32 btlSoundStopStep(void);
 extern s32 btlSoundReleaseStep(void);
 extern void mdlEffectDestroyWithNodes(s32 arg0);
-extern void func_00486180(s32 arg0);
+extern void mdlEffectUpdateChildren(s32 arg0);
 extern void func_00120f20(s32 arg0);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern void func_001fa490(void);
@@ -602,7 +602,7 @@ s32 btlSoundReleaseStep(void) {
 
     temp_4 = *(s32 *)(D_0076449C + 0xB80);
     if (temp_4 != 0) {
-        func_00486180(temp_4);
+        mdlEffectUpdateChildren(temp_4);
     }
     temp_4_2 = *(s32 *)(D_0076449C + 0xB88);
     if (temp_4_2 != 0) {

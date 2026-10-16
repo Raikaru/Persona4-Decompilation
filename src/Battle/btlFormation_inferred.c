@@ -386,9 +386,9 @@ case8_failure:
 void func_001d53e0(s32 arg0)
 {
     extern void func_001fc2c0(u32 a0, u32 a1);
-    extern void func_004861f0(u8 *a0, f32 *a1);
-    extern void func_00486330(u8 *a0, u8 *a1);
-    extern void func_00486400(u8 *a0, f32 a1);
+    extern void mdlEffectSetChildPositions(u8 *a0, f32 *a1);
+    extern void mdlEffectSetChildRotations(u8 *a0, u8 *a1);
+    extern void mdlEffectSetChildScales(u8 *a0, f32 a1);
     extern BtlAttachPositionCallback *D_00609500[];
     s32 count;
     BtlAttachWork *w;
@@ -476,7 +476,7 @@ void func_001d53e0(s32 arg0)
                         s = btlAttachEffectScale(w->target);
                         break;
                     }
-                    func_00486400(*handles, s);
+                    mdlEffectSetChildScales(*handles, s);
                     break;
                 }
             }
@@ -506,9 +506,9 @@ void func_001d53e0(s32 arg0)
             }
             trans[3] = 0.0f;
         }
-        func_004861f0(*handles, trans);
+        mdlEffectSetChildPositions(*handles, trans);
         btlFormationAttachRotation((u8 *)w, unit, (u8 *)entry, (u8 *)rot);
-        func_00486330(*handles, (u8 *)rot);
+        mdlEffectSetChildRotations(*handles, (u8 *)rot);
         mdlEffectApplyPackedColor(*handles, (s32)color);
         func_00485630(*handles);
     }
