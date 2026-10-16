@@ -1856,7 +1856,7 @@ void shdPersonaTweenSelectionClose(u8 *);
 void shdPersonaTweenComparison(u8 *);
 void shdPersonaUpdateSkillPulse(u8 *);
 void shdPersonaUpdateReveal(u8 *);
-void func_0011b110(u8 *);
+void shdPersonaDrawByState(u8 *);
 void shdPersonaDispCtlSetMode(u8 *, u8);
 void shdPersonaDrawSmoothBar(u8 *);
 void shdPersonaDrawSlidingPanels(u8 *);
@@ -2020,7 +2020,7 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
     if ((work->flags & 0x10) != 0) {
-        func_0011b110((u8 *)work);
+        shdPersonaDrawByState((u8 *)work);
     }
     if ((work->flags & 0x400000) == 0) {
         shdPersonaDispCtlSetMode(work->model, work->alpha);
@@ -2483,8 +2483,9 @@ void shdPersonaTweenChannelsClose(u8 *arg0)
    retail COP1 accumulator ops (`adda.s`/`msub.s`) exactly; they are not a
    residual. Final object is 444B against a 448B window; the remaining four
    bytes are zero tail padding accepted by the verifier (normalized_diff 0). */
+// Intent: Draw the panel for its current state: states 0, 2 and 4 use draw mode 0x10, state 3 uses 0x23, and state 1 draws a gauge bar scaled by the alpha at 0x505 [inferred]
 // FUN_0011B110
-void func_0011b110(u8 *arg0)
+void shdPersonaDrawByState(u8 *arg0)
 {
     Vec2f z;
     s32 state;
@@ -3632,8 +3633,9 @@ void shdPersonaSetPendingSkill(u8 *arg0, s32 arg1)
 
 
 
+// Intent: Reset the reveal counter at 0x4F2 and set the armed bit 0x2 in the flag word at 0x4F0 [inferred]
 // FUN_0011CE30
-void func_0011ce30(u8 *arg0)
+void shdPersonaArmSkillReveal(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     *(u16 *)(b + 0x4F2) = 0;
