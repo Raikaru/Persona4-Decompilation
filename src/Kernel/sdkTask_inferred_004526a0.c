@@ -255,8 +255,9 @@ loop_004526a0_check:
     }
 }
 
+// Intent: returns the processing task pointer (iGpffffba10) that sdkTask.c sets while a task runs and clears afterwards. The allocator assert paths print it as the current task.
 // FUN_004526E0
-s32 func_004526e0(void)
+s32 kwlnTaskGetCurrent(void)
 {
     return iGpffffba10;
 }
@@ -273,12 +274,13 @@ void func_00452730(void *arg0)
     func_003e18c0(arg0, func_004526f0, (s32)arg0);
 }
 
+// Intent: clears the pad records and state buffers, initialises the pad library and both ports, then sets each slot's id and default repeat counter (3). Called from kwlnInitIop.
 // FUN_00452760
 /* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
 #pragma push
 /* measured: func_00452760 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void func_00452760(void)
+void sdkPadInit(void)
 {
     extern u8 D_008C032A[];
     extern u8 D_008C0240[];
