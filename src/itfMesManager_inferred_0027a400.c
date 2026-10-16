@@ -88,14 +88,16 @@ done:
     return;
 }
 
+// Forwards to itfMesListSetColor; entry used by the window procedure [inferred].
 // FUN_0027A490
-void func_0027a490(void)
+void itfMesListSetColorEntry(void)
 {
     itfMesListSetColor();
 }
 
+// Forwards to itfMesListSetRangeFlag; entry used by the window procedure [inferred].
 // FUN_0027A4B0
-void func_0027a4b0(void)
+void itfMesListSetRangeFlagEntry(void)
 {
     itfMesListSetRangeFlag();
 }

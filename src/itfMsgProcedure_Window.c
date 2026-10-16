@@ -71,8 +71,8 @@ extern f32 iGpffff81d8;
 extern void sdkSpriteDrawQueuedUnscaled(f32, f32, f32, s32, u8, s32, void *, s32, void *);
 extern s32 frFontNodeWidth(void *arg0);
 extern void frFontSetGlyphColor(void *arg0, s32 arg1);
-extern void func_0027a490(void *a0, s32 a1, s32 a2, s32 a3);
-extern void func_0027a4b0(void *a0, s32 a1, s32 a2, s32 a3);
+extern void itfMesListSetColorEntry(void *a0, s32 a1, s32 a2, s32 a3);
+extern void itfMesListSetRangeFlagEntry(void *a0, s32 a1, s32 a2, s32 a3);
 extern void func_002e0dd0(void);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *arg0);
@@ -852,8 +852,8 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                 if ((tmp = itfMesWindowGetFontList((void *)arg0)) != 0) {
                     frFontSetGlyphAux((void *)tmp, 0);
                     frFontSetGlyphColor((void *)tmp, -1);
-                    func_0027a490((void *)tmp, a, b, 0);
-                    func_0027a4b0((void *)tmp, a, b, 0x1B1B1BFF);
+                    itfMesListSetColorEntry((void *)tmp, a, b, 0);
+                    itfMesListSetRangeFlagEntry((void *)tmp, a, b, 0x1B1B1BFF);
                 }
             }
         }
@@ -2145,8 +2145,8 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
             if ((pv2 = (void *)itfMesWindowGetFontList(arg0)) != NULL) {
                 frFontSetGlyphAux(pv2, 0);
                 frFontSetGlyphColor(pv2, -1);
-                func_0027a490(pv2, v77070, v79010, 0);
-                func_0027a4b0(pv2, v77070, v79010, 0x1B1B1BFF);
+                itfMesListSetColorEntry(pv2, v77070, v79010, 0);
+                itfMesListSetRangeFlagEntry(pv2, v77070, v79010, 0x1B1B1BFF);
             }
             if (D_00882066[0] >= 10) {
                 D_00882060[0] &= ~8u;
@@ -2178,8 +2178,8 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
                 if ((pv = (void *)itfMesWindowGetFontList(arg0)) != NULL) {
                     frFontSetGlyphAux(pv, 0);
                     frFontSetGlyphColor(pv, -1);
-                    func_0027a490(pv, v77070, v79010, 0);
-                    func_0027a4b0(pv, v77070, v79010, 0x1B1B1BFF);
+                    itfMesListSetColorEntry(pv, v77070, v79010, 0);
+                    itfMesListSetRangeFlagEntry(pv, v77070, v79010, 0x1B1B1BFF);
                 }
             }
         }

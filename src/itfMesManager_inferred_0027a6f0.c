@@ -43,8 +43,9 @@ extern s32 func_0027bce0(s32 arg0);
 /* measured: close opt_propagation off probe for 00270780 family add */
 /* measured: opt_propagation off probe for 00270a80 addu order */
 /* measured: close opt_propagation off probe for 00270a80 */
+// Clears the 0xF00 state field (bits 8 to 11) of the word at arg0 [inferred].
 // FUN_0027A6F0
-void func_0027a6f0(s32 *arg0)
+void itfMesWindowClearStateField(s32 *arg0)
 {
     *arg0 &= ~0xF00;
 }
