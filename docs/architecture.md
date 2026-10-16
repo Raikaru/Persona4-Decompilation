@@ -884,11 +884,50 @@ value is named.
 `src/cmmScript.c` supplies most of script command group 3 (section 9), the
 `CMM_*` commands. `src/cmmMisc.c` holds helpers, including
 `cmmTickReverseProgress` (`func_00248240`), which the scheduler calls when the
-day changes. `src/cmmRankUp.c` is the rank-up presentation. Its state is the
-`CmmRankUpContext` struct in `include/cmm_internal.h`, which the step, wipe
-and render functions take. `src/comuData.c` and `src/comuTimerSequence.c` are
+day changes. `src/cmmRankUp.c` is the rank-up presentation. Its state is two structs in
+`include/cmm_internal.h`: `CmmRankUpCardTask` (0x40 bytes, the card-task block that the
+step and draw callbacks take) and `CmmRankUpSequence` (0x5C bytes, the sequence block
+that the render and sequence-update functions take). `src/comuData.c` and `src/comuTimerSequence.c` are
 related units. Most of these are still unnamed apart from the record layouts
 above.
+
+### Social links: points to rank-up
+
+Points reach a social link through script group 3 (`0x3000`–`0x303C`, table at
+`0x63DE80`). `0x3031` (`cmmAddPointId`, p4flow `CMM_ADD_POINT_ID`) adds points
+through `cmmCommunityAddScaledPoints`, which scales them by the earn scale and
+adds them to `CmmCommunityRecord.points`. `0x3004` (`cmmTryRankUp`) calls
+`cmmCommunityTryRankUp` (`FUN_00108950`), and `0x302C` (`cmmScriptRankUp`, p4flow
+`CMM_RANKUP`) starts the presentation described below.
+
+**Earn scale.** `cmmCommunityEarnScale` (`FUN_001080C0`) returns a float multiplier
+from `cmmRosterHasArcana`, the event bit and the per-slot bands. The bonus values
+come from the earn-scale table returned by `cmmEarnScaleTable` (`FUN_00246B80`), which
+is cmm.bin chunk 14 **[inferred from the `D_00881480` chunk pointer array]**. Each
+bonus is gated by a game flag: the event bit is read from `D_0079B1CC` and the
+slot bands from `D_007973A0 + 0x3E2C`. Both are words of `DatGlobal.flags` at
+`0x79B1CC`, so `datGetFlag` reads the same bits, but that call form changes codegen
+(measured), so the raw reads stay.
+
+**Thresholds.** Chunk 0 of cmm.bin holds one 100-byte record per community kind,
+returned by `cmmKindRecord` (`FUN_002467B0`). `arcana` is at `+0x08`, `tierBits` at
+`+0x0C`, `category` at `+0x0E`, and `rankThreshold[]` (`u16`, indexed by rank level)
+at `+0x10`. `rankThreshold[rank]` is the points needed to leave `rank`.
+`cmmCommunityCanRankUp` compares the record's `points` with it and rejects rank 10,
+the maximum. `cmmCommunityTryRankUp` raises the rank by one through
+`cmmCommunitySetRank`, zeroes `points` and clears the MARKED flag.
+
+**Flag bands.** `cmmCommunitySetFlagBand` (`FUN_00106DB0`) sets one band for a link at
+flag `id + 0x3FF + 32 × band`: band 0 exists, band 1 is the maximum rank, band 2
+reversed, band 3 broken, and bands 4 to 12 are ranks 1 to 9 (`rank + 3`).
+`cmmCommunityRefreshFlags` (`FUN_00106F40`) reapplies them.
+
+**Rank-up sequence.** `cmmScriptRankUp` (`FUN_0024B380`) calls
+`cmmRankUpSequenceStart` (`FUN_0025C230`), which allocates the 0x5C-byte
+`CmmRankUpSequence` block. `cmmRankUpSequenceUpdate` steps it and
+`cmmRankUpSequenceDestroy` frees it. `cmmRankUpCardTaskUpdate` (`func_002519e0`)
+runs the card task, whose 0x40-byte `CmmRankUpCardTask` block is what the step and
+draw callbacks in `src/cmmRankUp.c` take.
 
 ## 11. Persona and skill data
 
