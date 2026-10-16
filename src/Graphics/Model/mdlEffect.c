@@ -4,6 +4,19 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "effect_update_internal.h"
+extern void *func_004b1950(void *source);
+extern f32 effMiscRandFloat(EffRandState *state);
+extern void *func_004a5910(void *source);
+extern void *func_004a5e50(void *source);
+extern void *func_004a6d90(void *source);
+extern void *func_004a6e10(void *source);
+extern u8 *RingCreateKindInstance(u16 kind, u8 *parameters);
+extern RpGeometry *RpGeometryLock(RpGeometry *geometry, s32 lockMode);
+extern u8 *ThunderTextureForIndex(u16 kind, u8 *parameters);
+extern void *func_00498b20(void *source);
+extern void *func_0049a5e0(void *source);
+extern s32 func_002be1b0(s16 item);
+extern void free(void *ptr);
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
@@ -87,6 +100,74 @@ static inline u8 *mdlEffect_camera_matrix(u8 *base)
 
 
 
+
+
+extern void datEntryDrawGatedByFlag39(s32 a0, s32 a1, s32 a2, s32 a3);
+extern void (*jtbl_008873EC[])(void *ptr);
+extern void func_004abd60(s32 arg0);
+// Intent: release the UI handle stored at *arg0, then free its block. [inferred]
+// FUN_00200720
+void btlUiReleaseHandle(s32 *arg0) {
+    s32 temp_4;
+
+    temp_4 = *arg0;
+    if (temp_4 != 0) {
+        func_004abd60(temp_4);
+    }
+    jtbl_008873EC[0](arg0);
+}
+
+
+// Intent: set the window rectangle from the four 16-bit fields of the state block. [inferred]
+// FUN_00200C70
+void btlUiSetWindowRect(u8 *arg0)
+{
+    u8 *temp_7;
+
+    temp_7 = *(u8 **)(arg0 + 0x38);
+    if (*(s32 *)(arg0 + 0x28) == 0) {
+        datEntryDrawGatedByFlag39(*(s16 *)(temp_7 + 0),
+                      *(s16 *)(temp_7 + 4),
+                      *(s16 *)(temp_7 + 8),
+                      *(s16 *)(temp_7 + 0xC));
+    }
+}
+
+
+extern void func_002b5120(s32 arg0, u8 *arg1);
+extern u32 datEntryGetFlags(s16 item);
+extern s32 func_002be1e0(s32 arg0);
+extern void (*D_00887300[])(s32 arg0, s32 arg1);
+/* measured: a typed vtable base local with propagation disabled reproduces the
+   retail single D_00887300 address hoist and saved-register frame. */
+#pragma opt_propagation off
+/* measured: restores opt_propagation after func_002b5120. */
+#pragma opt_propagation on
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+/* Preserve the signed-halfword zero test without merging it with the
+   preceding sentinel comparison. */
+#pragma push
+#pragma opt_common_subs off
+#pragma pop
+#pragma push
+#pragma opt_dead_assignments off
+#pragma pop
+#pragma push
+#pragma opt_propagation off
+#pragma opt_common_subs on
+#pragma opt_common_subs on
+#pragma pop
+#pragma opt_common_subs off
+#pragma opt_common_subs on
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+// FUN_002BE1B0
+s32 func_002be1b0(s16 item)
+{
+    return func_002be1e0(datEntryGetFlags(item));
+}
 
 
 /* Allocates an empty effect list and clears its head. */
@@ -525,6 +606,42 @@ u32 *mdlEffectListWrapShared(u32 **arg0)
     obj[1] = obj[1] + 1;
     return temp;
 }
+extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
+extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
+void func_003e9cb0(void *frame, void *matrix, u32 flags);
+extern void func_004823e0(u8 *arg0);
+extern void func_00484790(u8 *arg0);
+extern void func_004847e0(u8 *arg0);
+extern void func_00492d10(void *object);
+extern void ParticleUpdateScaled(u8 *arg0, f32 arg1);
+void GeometryMatrixBuildCombined();
+extern char D_00713CE0[];
+static inline f32 code1_0048_mul(f32 left, f32 right) {
+    return left * right;
+}
+typedef struct Code48InitialState {
+    f32 vector00[4];
+    f32 vector10[4];
+    u_long128 quad20;
+    u8 unknown30[0x10];
+    f32 vector40[4];
+    f32 vector50[4];
+    f32 scalar60;
+    u32 word64;
+    u32 word68;
+    u32 unknown6c;
+    u32 unknown70;
+    f32 scalar74;
+    u32 unknown78[2];
+} Code48InitialState;
+// FUN_00481EE0
+void func_00481ee0(u8 **arg0)
+{
+    func_004823e0(*arg0);
+    jtbl_008873EC[0](arg0);
+}
+
+
 // Calls func_004824a0 for the sub-object at +0x10 of the first argument and writes the result to the float array in the second.
 // FUN_00482700
 void mdlEffectEvalSubPose(int param_1, float *param_2)
@@ -557,6 +674,30 @@ void mdlEffectWrapTrackFrames(int param_1, u32 param_2)
 
 /* measured: opt_loop_invariants off closes the mdlEffectWrapTrackFrames bracket. */
 #pragma opt_loop_invariants off
+
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
+#pragma opt_propagation on
+#pragma opt_loop_invariants off
+// FUN_00484350
+void func_00484350(u8 *arg0)
+{
+    RwMatrix matrix;
+
+    GeometryMatrixBuild(&matrix);
+    func_003e9cb0(*(void **)(arg0 + 0xC), &matrix, 0);
+}
+
+
+// FUN_004843A0
+void func_004843a0(u8 *arg0)
+{
+    RwMatrix matrix;
+
+    GeometryMatrixBuildCombined(&matrix);
+    func_003e9cb0(*(void **)(arg0 + 0xC), &matrix, 0);
+}
+
 
 // Resolves the self-relative pointer at +0x10 of the source: returns it as-is when the flag at +0x18 is set; otherwise treats it as an offset and returns source+offset, or NULL for a zero offset.
 // FUN_00484490
@@ -616,6 +757,67 @@ done:
 
 
 
+// FUN_00484790
+void func_00484790(u8 *arg0)
+{
+    u8 *node;
+
+    node = ((u8 **)arg0)[6];
+    if (node != NULL) {
+        (*jtbl_008873EC)(node);
+        *(s32 *)(arg0 + 0x10) = 0;
+        *(s32 *)(arg0 + 0x14) = 0;
+        *(u8 **)(arg0 + 0x18) = NULL;
+    }
+}
+
+
+// FUN_004847E0
+void func_004847e0(u8 *arg0)
+{
+    u8 *node;
+
+    node = ((u8 **)arg0)[10];
+    if (node != NULL) {
+        (*jtbl_008873EC)(node);
+        *(s32 *)(arg0 + 0x20) = 0;
+        *(s32 *)(arg0 + 0x24) = 0;
+        *(u8 **)(arg0 + 0x28) = NULL;
+    }
+}
+
+
+// FUN_00484B30
+/* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
+ * eight zero alignment bytes. IDA retains the result that Ghidra drops:
+ * retail leaves the copied quadword in v0 through return. Preserve that
+ * live-out; the current C callers discard it. The four hardware vf0 stores
+ * produce (0,0,0,1), not a zero quadword. */
+#pragma push
+#pragma opt_propagation off
+u_long128 func_00484b30(u8 *arg0)
+{
+    Code48InitialState *state = (Code48InitialState *)(void *)arg0;
+    const u_long128 *quadSource;
+    u_long128 quad;
+
+    memset(state, 0, sizeof(*state));
+    __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(state) : "memory");
+    __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(state) : "memory");
+    __asm__ volatile("sqc2 vf0, 64(%0)" : : "r"(state) : "memory");
+    state->vector40[1] = 5.0f;
+    __asm__ volatile("sqc2 vf0, 80(%0)" : : "r"(state) : "memory");
+    quadSource = (const u_long128 *)(const void *)D_00713CE0;
+    quad = *quadSource;
+    state->quad20 = quad;
+    state->scalar60 = 1.0f;
+    state->scalar74 = 1.0f;
+    state->word64 = 0xFFFFFFFF;
+    state->word68 = 0x80;
+    return quad;
+}
+
+
 /* Copies one 0x90-byte record from source to destination. */
 // FUN_00486710
 void mdlEffectCopyRecord(u8 *destination, u8 *source)
@@ -644,6 +846,37 @@ u8 *mdlEffectFindNodeById(u8 *root, s32 identifier)
 
 
 
+#pragma pop
+#pragma push
+#pragma opt_lifetimes on
+#pragma opt_propagation off
+#pragma pop
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+#pragma opt_propagation off
+#pragma opt_propagation on
+    #pragma optimization_level 1
+    #pragma optimization_level 2
+#pragma optimization_level 1
+/* measured: closes optimization_level 1 for the parked 00486970 body. */
+#pragma optimization_level 2
+// FUN_00489E00
+void func_00489e00(u8 *arg0)
+{
+    u8 *temp_4;
+
+    temp_4 = *(u8 **)(arg0 + 0x4C);
+    if (temp_4 != 0) {
+        func_00492d10(temp_4);
+        ParticleUpdateScaled(arg0, 1.0f);
+    }
+}
+
+
 // Calls func_00487fb0_evt with 1.0f; the callee is not yet named.
 // FUN_00489E50
 void mdlEffectSetUnitWeight(void)
@@ -651,6 +884,20 @@ void mdlEffectSetUnitWeight(void)
   func_00487fb0_evt(1.0f);
 }
 
+
+
+// FUN_00489EE0
+void func_00489ee0(u8 *instance, u32 *position)
+{
+    mdlEffectStoreQuadA(*(s32 *)(instance + 0x4C), position);
+}
+
+
+// FUN_00489F10
+void func_00489f10(u8 *instance, u32 *rotation)
+{
+    mdlEffectStoreQuadB(*(s32 *)(instance + 0x4C), rotation);
+}
 
 
 // Stores param_1 at +0x08 of the record param_2, then calls func_00492e30 with the record emitter at +0x4C and the same scale.
@@ -1205,6 +1452,432 @@ void mdlEffectCatmullRomVU(float param_1, u8 (*param_2)[16])
 
 
 
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
+#pragma pop
+#pragma opt_propagation off
+#pragma opt_propagation on
+#pragma push
+#pragma opt_lifetimes on
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+#pragma pop
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+#pragma pop
+// FUN_0048C440
+void func_0048c440(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_0048c440_check;
+loop_0048c440_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_0048c440_check:
+    if (var_7 < 3U) {
+        goto loop_0048c440_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xCC) = *(f32 *)(temp_5 + 0xCC) * fparg0;
+    *(f32 *)(temp_6 + 0xD4) = *(f32 *)(temp_5 + 0xD4) * fparg0;
+    *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
+    *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
+}
+
+
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+#pragma pop
+// FUN_0048CD60
+void func_0048cd60(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_0048cd60_check;
+loop_0048cd60_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_0048cd60_check:
+    if (var_7 < 3U) {
+        goto loop_0048cd60_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xD0) = *(f32 *)(temp_5 + 0xD0) * fparg0;
+    *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
+    *(f32 *)(temp_6 + 0xDC) = *(f32 *)(temp_5 + 0xDC) * fparg0;
+}
+
+
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
+#pragma pop
+// FUN_0048D820
+void func_0048d820(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_0048d820_check;
+loop_0048d820_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_0048d820_check:
+    if (var_7 < 3U) {
+        goto loop_0048d820_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xCC) = *(f32 *)(temp_5 + 0xCC) * fparg0;
+    *(f32 *)(temp_6 + 0xD4) = *(f32 *)(temp_5 + 0xD4) * fparg0;
+    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
+    *(f32 *)(temp_6 + 0xF0) = *(f32 *)(temp_5 + 0xF0) * fparg0;
+}
+
+
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
+#pragma pop
+// FUN_0048E270
+void func_0048e270(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_0048e270_check;
+loop_0048e270_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_0048e270_check:
+    if (var_7 < 3U) {
+        goto loop_0048e270_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xD0) = *(f32 *)(temp_5 + 0xD0) * fparg0;
+    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
+}
+
+
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+#pragma pop
+// FUN_0048EBC0
+void func_0048ebc0(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_0048ebc0_check;
+loop_0048ebc0_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_0048ebc0_check:
+    if (var_7 < 3U) {
+        goto loop_0048ebc0_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
+    *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
+    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
+}
+
+
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+#pragma pop
+// FUN_0048F560
+void func_0048f560(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_0048f560_check;
+loop_0048f560_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_0048f560_check:
+    if (var_7 < 3U) {
+        goto loop_0048f560_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
+    *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
+    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
+}
+
+
+extern void (*D_00713E70[])(u8 *object);
+extern void (*D_00713E78[])(u8 *object);
+extern void (*D_00713E7C[])(u8 *object);
+extern void (*D_00713E80[])(u8 *object);
+extern void (*D_00713F18[])(void *state);
+extern void (*D_00713F10[])(u8 *object);
+extern void (*D_00713F1C[])(u8 *object);
+extern void (*D_00713F20[])(u8 *object);
+extern void (*D_00713D54[])(u8 *emitter, f32 scale);
+typedef struct EffRandState EffRandState;
+extern u32 effMiscRand(EffRandState *state);
+static inline f32 code1_0049_mul(f32 left, f32 right) {
+    return left * right;
+}
+extern void func_00484280(u8 *object, s32 resource);
+// FUN_00490360
+void func_00490360(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_00490360_check;
+loop_00490360_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_00490360_check:
+    if (var_7 < 3U) {
+        goto loop_00490360_body;
+    }
+}
+
+
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+#pragma pop
+// FUN_00490BB0
+void func_00490bb0(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_00490bb0_check;
+loop_00490bb0_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_00490bb0_check:
+    if (var_7 < 3U) {
+        goto loop_00490bb0_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xDC) = *(f32 *)(temp_5 + 0xDC) * fparg0;
+    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
+    *(f32 *)(temp_6 + 0xE8) = *(f32 *)(temp_5 + 0xE8) * fparg0;
+}
+
+
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_lifetimes on
+#pragma opt_propagation off
+#pragma pop
+// FUN_00491660
+void func_00491660(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_00491660_check;
+loop_00491660_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_00491660_check:
+    if (var_7 < 3U) {
+        goto loop_00491660_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xD0) = *(f32 *)(temp_5 + 0xD0) * fparg0;
+    *(f32 *)(temp_6 + 0xDC) = *(f32 *)(temp_5 + 0xDC) * fparg0;
+    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
+}
+
+
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
+#pragma pop
+// FUN_00492080
+void func_00492080(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_00492080_check;
+loop_00492080_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_00492080_check:
+    if (var_7 < 3U) {
+        goto loop_00492080_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xCC) = *(f32 *)(temp_5 + 0xCC) * fparg0;
+    *(f32 *)(temp_6 + 0xDC) = *(f32 *)(temp_5 + 0xDC) * fparg0;
+}
+
+
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+#pragma pop
+// FUN_00492A80
+void func_00492a80(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_00492a80_check;
+loop_00492a80_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_00492a80_check:
+    if (var_7 < 3U) {
+        goto loop_00492a80_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xCC) = *(f32 *)(temp_5 + 0xCC) * fparg0;
+    *(f32 *)(temp_6 + 0xD4) = *(f32 *)(temp_5 + 0xD4) * fparg0;
+    *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
+    *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
+}
+
+
+// FUN_00492CD0
+void func_00492cd0(u8 *arg0)
+{
+    jtbl_008873EC[0](*(void **)(arg0 + 0x28));
+}
+
+
+// FUN_00492D00
+void func_00492d00(u8 *arg0)
+{
+    *(s32 *)(arg0 + 0x10) = 0;
+}
+
+
+/* measured: probing opt_loop_invariants for the preheader -1 and loop branch. */
+#pragma opt_loop_invariants on
+// FUN_00492D10
+void func_00492d10(void *object) {
+    u8 *arg0 = object;
+    extern void (*D_00713D50[])(u8 *emitter);
+    u32 count;
+    u32 var_6;
+    u8 *var_5;
+
+    if (*(s32 *)(arg0 + 0x10) == 0) {
+        count = *(u32 *)(arg0 + 8);
+        var_5 = *(u8 **)(arg0 + 0x18);
+        var_6 = 0;
+        goto loop_00492d10_check;
+loop_00492d10_body:
+        *(s32 *)(var_5 + 0x10) = -1;
+        var_5 += 0x20;
+        var_6 += 1;
+loop_00492d10_check:
+        if (var_6 < count) {
+            goto loop_00492d10_body;
+        }
+    }
+    D_00713D50[*(u16 *)arg0 * 4](arg0);
+    *(s32 *)(arg0 + 0x10) = *(s32 *)(arg0 + 0x10) + 1;
+}
+
+
 // Loads the 128-bit quad at +0x20 of the object at param_1 into *param_2 and returns it.
 // FUN_00492DB0
 u_long128 mdlEffectLoadQuadA(int param_1, u32 *param_2)
@@ -1264,6 +1937,14 @@ u_long128 mdlEffectStoreQuadB(int param_1, u32 *param_2)
 
 
 
+/* measured: closes opt_loop_invariants at its prior file baseline. */
+#pragma opt_loop_invariants off
+// FUN_00492E30
+void func_00492e30(u16 *arg0, f32 scale) {
+    D_00713D54[*arg0 * 4]((u8 *)arg0, scale);
+}
+
+
 /* Stores 0 in the slot-table entry for param_2 (table at +0x18); -1 is the free state. */
 // FUN_004946D0
 void mdlEffectSlotSetZero(u8 *param_1, u16 param_2)
@@ -1314,6 +1995,536 @@ s32 mdlEffectSlotIsFree(u8 *param_1, u16 param_2)
   return value == -1;
 }
 
+
+
+#pragma opt_propagation off
+#pragma opt_common_subs off
+#pragma opt_common_subs on
+#pragma opt_propagation on
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_pulloutconstants off
+#pragma pop
+#pragma push
+#pragma opt_loop_invariants on
+#pragma pop
+// FUN_00494F90
+void func_00494f90(u8 *arg0) {
+    mdlEffectCopyCameraOrigin(arg0);
+    RpGeometryLock(*(RpGeometry **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x10)) + 0x10)) + 0x18), 0xA);
+    RpGeometryLock(*(RpGeometry **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x14)) + 0x10)) + 0x18), 0xA);
+}
+
+
+// FUN_00494FF0
+void func_00494ff0(u8 *arg0) {
+    extern void func_003c22f0(void *);
+    u8 *temp_16;
+    u8 *temp_17;
+    u8 *temp_17_2;
+    u8 *temp_18;
+
+    temp_18 = *(u8 **)(arg0 + 0x14);
+    temp_17 = *(u8 **)(*(u8 **)(temp_18 + 0x10) + 0x18);
+    func_003c22f0(temp_17);
+    if (*(u16 *)temp_18 & 4) {
+        *(u16 *)(temp_17 + 0xC) = *(u16 *)(temp_17 + 0xC) | 1;
+    }
+    temp_17_2 = *(u8 **)(arg0 + 0x10);
+    temp_16 = *(u8 **)(*(u8 **)(temp_17_2 + 0x10) + 0x18);
+    func_003c22f0(temp_16);
+    if (*(u16 *)temp_17_2 & 4) {
+        *(u16 *)(temp_16 + 0xC) = *(u16 *)(temp_16 + 0xC) | 1;
+    }
+}
+
+
+// FUN_00495090
+void func_00495090(u8 *arg0, u32 arg1)
+{
+    func_00484280(*(u8 **)(arg0 + 0x10), (s32)arg1);
+    func_00484280(*(u8 **)(arg0 + 0x14), (s32)arg1);
+}
+
+
+// FUN_004950E0
+void func_004950e0(u8 *arg0) {
+    u32 temp_16;
+    u8 *var_18;
+    u32 var_17;
+
+    var_18 = *(u8 **)(*(u8 ***)(arg0 + 0x30));
+    temp_16 = *(u32 *)(*(u8 **)(arg0 + 0x34) + 0x38);
+    var_17 = 0;
+    goto loop_004950e0_check;
+loop_004950e0_body:
+    *(s32 *)(var_18 + 4) = -1 - (effMiscRand(0) & 3);
+    var_17 += 1;
+    var_18 += 0x10;
+loop_004950e0_check:
+    if (var_17 < temp_16) {
+        goto loop_004950e0_body;
+    }
+}
+
+
+// FUN_00498AC0
+void func_00498ac0(u8 *arg0) {
+    D_00713E78[*(s32 *)(arg0 + 0x2C) * 6](arg0);
+    jtbl_008873EC[0](arg0);
+}
+
+
+// FUN_00498B20
+void *func_00498b20(void *source) {
+    u8 *arg0 = source;
+
+    return ThunderTextureForIndex(*(u16 *)(arg0 + 0x2C), *(u8 **)(arg0 + 0x34));
+}
+
+
+// FUN_00498B50
+void func_00498b50(u8 *arg0) {
+    D_00713E70[*(s32 *)(arg0 + 0x2C) * 6](arg0);
+    *(s32 *)(arg0 + 0x28) = 0;
+}
+
+
+// FUN_00498BA0
+void func_00498ba0(u8 *arg0) {
+    D_00713E7C[*(s32 *)(arg0 + 0x2C) * 6](arg0);
+    *(s32 *)(arg0 + 0x28) = *(s32 *)(arg0 + 0x28) + 1;
+}
+
+
+// FUN_00498C00
+void func_00498c00(u8 *arg0) {
+    if (*(s32 *)(arg0 + 0x28) > 0) {
+        D_00713E80[*(s32 *)(arg0 + 0x2C) * 6](arg0);
+    }
+}
+
+
+// FUN_00498CE0
+u_long128 func_00498ce0(u_long128 *arg0, u_long128 *arg1) {
+    return *arg0 = *arg1;
+}
+
+
+// FUN_00498CF0
+u_long128 func_00498cf0(u_long128 *arg0, u_long128 *arg1) {
+    return arg0[1] = *arg1;
+}
+
+
+// FUN_00498D00
+void func_00498d00(u8 *arg0, s32 arg1) {
+    *(s32 *)(arg0 + 0x24) = arg1;
+}
+
+
+// FUN_00498D10
+void func_00498d10(u8 *arg0, f32 fparg0) {
+    *(f32 *)(arg0 + 0x20) = fparg0;
+}
+
+
+// FUN_0049A570
+void func_0049a570(u8 *arg0) {
+    D_00713F18[*(s32 *)(arg0 + 0x38) * 6](*(void **)(arg0 + 0x3C));
+    jtbl_008873EC[0](arg0);
+}
+
+
+// FUN_0049A5E0
+void *func_0049a5e0(void *source) {
+    u8 *arg0 = source;
+
+    return RingCreateKindInstance(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
+}
+
+
+// FUN_0049A610
+void func_0049a610(u8 *arg0) {
+    D_00713F10[*(s32 *)(arg0 + 0x38) * 6](arg0);
+    *(s32 *)(arg0 + 0x34) = 0;
+}
+
+
+// FUN_0049A660
+void func_0049a660(u8 *arg0) {
+    D_00713F1C[*(s32 *)(arg0 + 0x38) * 6](arg0);
+    *(s32 *)(arg0 + 0x34) = *(s32 *)(arg0 + 0x34) + 1;
+}
+
+
+// FUN_0049A6C0
+void func_0049a6c0(u8 *arg0) {
+    if (*(s32 *)(arg0 + 0x34) > 0) {
+        D_00713F20[*(s32 *)(arg0 + 0x38) * 6](arg0);
+    }
+}
+
+
+// FUN_0049A7A0
+u_long128 func_0049a7a0(u_long128 *arg0, u_long128 *arg1) {
+    return *arg0 = *arg1;
+}
+
+
+// FUN_0049A7B0
+u_long128 func_0049a7b0(u_long128 *arg0, u_long128 *arg1) {
+    return arg0[1] = *arg1;
+}
+
+
+// FUN_0049A7C0
+void func_0049a7c0(u8 *arg0, s32 arg1) {
+    *(s32 *)(arg0 + 0x30) = arg1;
+}
+
+
+// FUN_0049A7D0
+void func_0049a7d0(u8 *arg0, f32 fparg0) {
+    *(f32 *)(arg0 + 0x20) = fparg0;
+    *(f32 *)(arg0 + 0x24) = fparg0;
+    *(f32 *)(arg0 + 0x28) = fparg0;
+}
+
+
+// FUN_0049A7F0
+void func_0049a7f0(u8 *arg0, f32 *arg1) {
+    *(f32 *)(arg0 + 0x20) = arg1[0];
+    *(f32 *)(arg0 + 0x24) = arg1[1];
+    *(f32 *)(arg0 + 0x28) = arg1[2];
+}
+
+
+extern void func_004a5ef0(u8 *arg0, u8 *arg1);
+extern void func_004ade80(u8 *arg0);
+extern void func_004a5fc0(u8 *arg0);
+extern u8 *func_004a6c00(u8 *arg0);
+extern u8 *WindAllocKindEntry(u16 arg0, u8 *arg1);
+extern u8 D_0071413C[];
+extern void func_004adb50();
+extern void func_004ade80(u8 *arg0);
+extern f32 iGpffff8080;
+extern void (*D_008873ec[])(void *);
+extern s32 D_00724C70;
+extern s8 D_00724C58;
+extern f32 D_00922D80[];
+extern u8 *func_00401b80(void);
+extern u32 D_00922D90[];
+extern f32 D_00922D94[];
+extern f32 D_00922D98[];
+extern u8 D_00714130[];
+extern u8 D_00714140[];
+extern u8 D_00714138[];
+extern u8 D_00714010[];
+extern u8 D_00714024[];
+extern u8 D_00714020[];
+extern u8 D_00714018[];
+extern u8 D_00714144[];
+extern u8 *func_003e9c10(u8 *arg0, const f32 *translation, s32 combineOp);
+extern void func_004a7c00(u8 *arg0, s32 arg1);
+extern void mdlSetLayerTime(u8 *arg0, s32 arg1, f32 arg2);
+extern f32 fGpffff80f4;
+extern void func_004a5ef0(u8 *arg0, u8 *arg1);
+extern u8 *GeometryCloneBlock(s32 arg0);
+extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
+extern void func_00485fe0(s32 arg0);
+extern void *func_004a5bb0(void *source);
+/* Calls kind destroy slot +0x08 on the child at +0x3C, then frees arg0 through the allocator free table. */
+// FUN_004A18E0
+void FlashQuadDestroy(u8 *arg0) {
+    (*(void (**)(u8 *))(D_00714018 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(*(u8 **)(arg0 + 0x3C));
+    jtbl_008873EC[0](arg0);
+}
+
+
+/* Calls kind slot +0x00 with no argument, then clears the counter at +0x34. */
+// FUN_004A1AA0
+void FlashQuadStop(u8 *arg0) {
+    (*(void (**)(void))(D_00714010 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
+    *(s32 *)(arg0 + 0x34) = 0;
+}
+
+
+/* Calls kind slot +0x10 with no argument, then increments the counter at +0x34. */
+// FUN_004A1AF0
+void FlashQuadAdvance(u8 *arg0) {
+    (*(void (**)(void))(D_00714020 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
+    (*(s32 *)(arg0 + 0x34))++;
+}
+
+
+/* Calls kind slot +0x14 with no argument when the counter at +0x34 is positive. */
+// FUN_004A1B50
+void FlashQuadUpdateIfActive(u8 *arg0) {
+    if (*(s32 *)(arg0 + 0x34) > 0) {
+        (*(void (**)(void))(D_00714024 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
+    }
+}
+
+
+/* Calls kind slot +0x10, increments the counter at +0x34, then calls kind slot +0x14 with arg0 when the counter is positive. */
+// FUN_004A1BA0
+void FlashQuadAdvanceAndUpdate(u8 *arg0) {
+    (*(void (**)(void))(D_00714020 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
+    (*(s32 *)(arg0 + 0x34))++;
+    if (*(s32 *)(arg0 + 0x34) > 0) {
+        (*(void (**)(u8 *))(D_00714024 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
+    }
+}
+
+
+/* Copies the 16-byte quad at arg1 to +0x00 and returns it. */
+// FUN_004A1C30
+u_long128 FlashQuadSetFirstQuad(u8 *arg0, u8 *arg1) {
+    u_long128 value;
+    value = *(u_long128 *)arg1;
+    *(u_long128 *)arg0 = value;
+    return value;
+}
+
+
+/* Copies the 16-byte quad at arg1 to +0x10 and returns it. */
+// FUN_004A1C40
+u_long128 FlashQuadSetSecondQuad(u8 *arg0, u8 *arg1) {
+    u_long128 value;
+    value = *(u_long128 *)arg1;
+    *(u_long128 *)(arg0 + 0x10) = value;
+    return value;
+}
+
+
+// FUN_004A1C50
+void func_004a1c50(u8 *arg0, s32 arg1) {
+    *(s32 *)(arg0 + 0x30) = arg1;
+}
+
+
+/* Writes the same float to +0x20, +0x24 and +0x28, giving a uniform scale. */
+// FUN_004A1C60
+void FlashQuadSetUniformScale(u8 *arg0, f32 arg1) {
+    *(f32 *)(arg0 + 0x20) = arg1;
+    *(f32 *)(arg0 + 0x24) = arg1;
+    *(f32 *)(arg0 + 0x28) = arg1;
+}
+
+
+/* Copies the three floats of arg1 into +0x20, +0x24 and +0x28. */
+// FUN_004A1C80
+void FlashQuadSetVec3(u8 *arg0, f32 *arg1) {
+    *(f32 *)(arg0 + 0x20) = arg1[0];
+    *(f32 *)(arg0 + 0x24) = arg1[1];
+    *(f32 *)(arg0 + 0x28) = arg1[2];
+}
+
+
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+#pragma opt_loop_invariants on
+/* measured: restores the file's O2 loop-invariant baseline. */
+#pragma opt_loop_invariants off
+// FUN_004A58B0
+void func_004a58b0(u8 *arg0)
+{
+    (*(void (**)(u8 *))(D_00714138 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
+    jtbl_008873EC[0](arg0);
+}
+
+
+// FUN_004A5910
+void *func_004a5910(void *source)
+{
+    u8 *arg0 = (u8 *)source;
+    u8 *temp_16;
+
+    temp_16 = WindAllocKindEntry(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
+    *(s32 *)(temp_16 + 0x3C) =
+        (*(s32 (**)(u8 *))(D_0071413C + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
+    (*(void (**)(u8 *))(D_00714130 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(temp_16);
+    return temp_16;
+}
+
+
+// FUN_004A59B0
+void func_004a59b0(u8 *arg0)
+{
+    (*(void (**)(void))(D_00714130 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
+    *(s32 *)(arg0 + 0x34) = 0;
+}
+
+
+// FUN_004A5A00
+void func_004a5a00(u8 *arg0)
+{
+    (*(void (**)(void))(D_00714140 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
+    *(s32 *)(arg0 + 0x34) = *(s32 *)(arg0 + 0x34) + 1;
+}
+
+
+// FUN_004A5A60
+void func_004a5a60(u8 *arg0)
+{
+    if (*(s32 *)(arg0 + 0x34) > 0) {
+        (*(void (**)(void))(D_00714144 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
+    }
+}
+
+
+// FUN_004A5AB0
+void func_004a5ab0(u8 *arg0)
+{
+    s32 temp_3;
+
+    (*(void (**)(void))(D_00714140 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
+    temp_3 = *(s32 *)(arg0 + 0x34) + 1;
+    *(s32 *)(arg0 + 0x34) = temp_3;
+    if (temp_3 > 0) {
+        (*(void (**)(u8 *))(D_00714144 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
+    }
+}
+
+
+// FUN_004A5B40
+u_long128 func_004a5b40(u8 *arg0, u8 *arg1) {
+    u_long128 value;
+    value = *(u_long128 *)arg1;
+    *(u_long128 *)arg0 = value;
+    return value;
+}
+
+
+// FUN_004A5B50
+u_long128 func_004a5b50(u8 *arg0, u8 *arg1) {
+    u_long128 value;
+    value = *(u_long128 *)arg1;
+    *(u_long128 *)(arg0 + 0x10) = value;
+    return value;
+}
+
+
+// FUN_004A5B60
+void func_004a5b60(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x30) = arg1;
+}
+
+
+// FUN_004A5B70
+void func_004a5b70(u8 *arg0, f32 arg1) {
+    *(f32 *)(arg0 + 0x20) = arg1;
+    *(f32 *)(arg0 + 0x24) = arg1;
+    *(f32 *)(arg0 + 0x28) = arg1;
+}
+
+
+// FUN_004A5B90
+void func_004a5b90(u8 *arg0, f32 *arg1) {
+    *(f32 *)(arg0 + 0x20) = arg1[0];
+    *(f32 *)(arg0 + 0x24) = arg1[1];
+    *(f32 *)(arg0 + 0x28) = arg1[2];
+}
+
+
+// FUN_004A5E50
+void *func_004a5e50(void *source)
+{
+    u8 *arg0 = (u8 *)source;
+    u8 *temp_16;
+    u8 *temp_2;
+    u8 *temp_3;
+
+    temp_16 = func_004a5bb0(NULL);
+    temp_2 = GeometryCloneBlock(*(s32 *)(arg0 + 0xC8));
+    *(u8 **)(temp_16 + 0xC8) = temp_2;
+    temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18) + 0x30);
+    *(s32 *)(temp_3 + 0) = -1;
+    *(s32 *)(temp_3 + 4) = -1;
+    *(s32 *)(temp_3 + 8) = -1;
+    *(s32 *)(temp_3 + 0xC) = -1;
+    memcpy(temp_16 + 0x30, arg0 + 0x30, 0x98);
+    func_004a5ef0(temp_16, arg0);
+    return temp_16;
+}
+
+
+// FUN_004A5F90
+void func_004a5f90(u8 *arg0)
+{
+    *(s32 *)(arg0 + 0x2C) = 0;
+}
+
+
+// FUN_004A5FA0
+void func_004a5fa0(u8 *arg0) {
+    (*(s32 *)(arg0 + 0x2C))++;
+}
+
+
+// FUN_004A6B90
+void func_004a6b90(u8 *arg0) {
+    (*(s32 *)(arg0 + 0x2C))++;
+    func_004a5fc0(arg0);
+}
+
+
+// FUN_004A6BC0
+u_long128 func_004a6bc0(u8 *arg0, u8 *arg1) {
+    u_long128 value;
+    value = *(u_long128 *)arg1;
+    *(u_long128 *)arg0 = value;
+    return value;
+}
+
+
+// FUN_004A6BD0
+u_long128 func_004a6bd0(u8 *arg0, u8 *arg1) {
+    u_long128 value;
+    value = *(u_long128 *)arg1;
+    *(u_long128 *)(arg0 + 0x10) = value;
+    return value;
+}
+
+
+// FUN_004A6BE0
+void func_004a6be0(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x24) = arg1;
+}
+
+
+// FUN_004A6BF0
+void func_004a6bf0(u8 *arg0, f32 arg1) {
+    *(f32 *)(arg0 + 0x20) = arg1;
+}
+
+
+#pragma opt_loop_invariants on
+/* measured: close loop-invariant hoisting after func_004a6c00. */
+#pragma opt_loop_invariants off
+// FUN_004A6D90
+void *func_004a6d90(void *source) {
+    u8 *temp;
+    temp = mdlEffectResolveRelPtrA(source);
+    return func_004a6c00(temp);
+}
+
+
+// FUN_004A6E10
+void *func_004a6e10(void *source) {
+    u8 *arg0 = (u8 *)source;
+    return func_004a6c00(arg0 + 0x18);
+}
+
+
+// FUN_004A6E40
+void func_004a6e40(u8 *arg0)
+{
+    *(s32 *)(arg0 + 0x10) = 0;
+}
 
 
 /* Increments the u32 counter at +0x10 of the record by one. */
@@ -1711,6 +2922,161 @@ void mdlEffectSetWord5(u32 *param_1, u32 param_2)
 
 
 
+#pragma push
+#pragma optimization_level 3
+#pragma schedule off
+#pragma opt_loop_invariants off
+#pragma opt_rotateloops off
+#pragma tailcall off
+#pragma opt_common_subs off
+#pragma opt_propagation off
+/* measured: restore the enclosing options; owner verification is 92/92 MATCH. */
+#pragma pop
+// FUN_004A7A50
+void func_004a7a50(void) {
+    func_003e9c10((u8 *)D_00724C70, D_00922D80, 0);
+    D_00724C58 = 0;
+}
+
+
+// FUN_004A7B10
+void func_004a7b10(s32 arg0) {
+    func_003e9c10((u8 *)D_00724C70, D_00922D80, 0);
+    D_00724C58 = 0;
+    D_008873ec[0]((void *)arg0);
+}
+
+
+// FUN_004A7DA0
+void func_004a7da0(s32 *arg0) {
+    func_004a7c00((u8 *)arg0 + 4, *arg0);
+    *arg0 += 1;
+}
+
+
+// FUN_004A7DF0
+void func_004a7df0(s32 *arg0) {
+    func_004a7c00((u8 *)arg0 + 4, *arg0);
+    *arg0 += 1;
+}
+
+
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+#pragma opt_loop_invariants on
+#pragma opt_loop_invariants off
+// FUN_004A8A50
+void func_004a8a50(u8 *arg0, u8 *arg1)
+{
+    f32 temp_f1;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 temp_f22;
+    u8 *temp_16;
+
+    *(u32 *)arg1 = effMiscRand(0) % (u32)(*(s32 *)(arg0 + 4) + 1);
+    *(f32 *)(arg1 + 4) = fGpffff80f4;
+    temp_16 = arg1 + 8;
+    *(s32 *)(arg1 + 0x10) = *(s32 *)(arg0 + 0x10);
+    *(f32 *)(arg1 + 0x14) = *(f32 *)(arg0 + 0x14);
+    *(s32 *)(arg1 + 0xC) = *(s32 *)(arg0 + 0xC);
+    temp_f20 = 0.5f * (f32)*(s32 *)(arg0 + 0x28);
+    temp_f21 = *(f32 *)(arg0 + 0x24);
+    temp_f22 = *(f32 *)(arg0 + 0x1C) +
+               temp_f21 * (2.0f * (effMiscRandFloat(0) - 0.5f));
+    temp_f1 = *(f32 *)(arg0 + 0x20) +
+              temp_f21 * (2.0f * (effMiscRandFloat(0) - 0.5f));
+    *(f32 *)(temp_16 + 0x14) = temp_f22;
+    *(f32 *)(temp_16 + 0x18) = temp_f1;
+    *(f32 *)(temp_16 + 0x1C) = temp_f22 - temp_f20;
+    *(f32 *)(temp_16 + 0x20) = temp_f1 - temp_f20;
+    *(f32 *)(temp_16 + 0x24) = temp_f22 + temp_f20;
+    *(f32 *)(temp_16 + 0x28) = temp_f1 + temp_f20;
+}
+
+
+// FUN_004ABB60
+void func_004abb60(void)
+{
+    u8 *temp_2;
+
+    temp_2 = func_00401b80();
+    *(u8 **)&D_00922D90[0] = temp_2;
+    D_00922D94[0] = (f32)*(s32 *)(temp_2 + 0xC);
+    D_00922D98[0] = (f32)*(s32 *)(temp_2 + 0x10);
+}
+
+
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+// FUN_004ADAB0
+void func_004adab0(u8 *arg0)
+{
+    s32 *var_18;
+    u32 temp_16;
+    u32 var_17;
+
+    if (*(s32 *)(arg0 + 0x9C) != 0) {
+        temp_16 = *(u32 *)(arg0 + 0x28);
+        var_18 = *(s32 **)(arg0 + 0x98);
+        var_17 = 0;
+        goto loop_004adab0_check;
+loop_004adab0_body:
+        func_00485fe0(*var_18);
+        var_18++;
+        var_17 += 1;
+loop_004adab0_check:
+        if (var_17 < temp_16) {
+            goto loop_004adab0_body;
+        }
+    }
+    mdlSetLayerTime((u8 *)*(s32 *)(arg0 + 0xA0), 0, 0.0f);
+    *(s32 *)(arg0 + 0x2C) = 0;
+}
+
+
+// FUN_004ADFA0
+void func_004adfa0(u8 *arg0) {
+    func_004adb50();
+    func_004ade80(arg0);
+}
+
+
+// FUN_004ADFE0
+u_long128 func_004adfe0(u8 *arg0, u8 *arg1) {
+    u_long128 value;
+    value = *(u_long128 *)arg1;
+    *(u_long128 *)arg0 = value;
+    return value;
+}
+
+
+// FUN_004ADFF0
+u_long128 func_004adff0(u8 *arg0, u8 *arg1) {
+    u_long128 value;
+    value = *(u_long128 *)arg1;
+    *(u_long128 *)(arg0 + 0x10) = value;
+    return value;
+}
+
+
+// FUN_004AE000
+void func_004ae000(u8 *arg0, s32 arg1) {
+    *(s32 *)(arg0 + 0x24) = arg1;
+}
+
+
+// FUN_004AE010
+void func_004ae010(u8 *arg0, f32 arg1) {
+    *(f32 *)(arg0 + 0x20) = arg1;
+}
+
+
 /* Writes the four colour bytes at param_2 into bytes +4..+7 of every entry in the record's entry table. */
 // FUN_004AE020
 u32 *mdlEffectSetAllColors(u32 *param_1, u8 *param_2)
@@ -1764,6 +3130,217 @@ void *mdlEffectSetFlag40(void *param_1, void *data)
 
 
 
+// FUN_004AE0A0
+void func_004ae0a0(u8 *arg0, u8 *arg1)
+{
+    f32 sp40[4];
+    f32 temp_f0;
+    s32 temp_4;
+
+    if (*(u8 *)(arg0 + 0x10) == 0) {
+        sp40[0] = *(f32 *)(arg0 + 0x14);
+        sp40[1] = *(f32 *)(arg0 + 0x18);
+        sp40[2] = *(f32 *)(arg0 + 0x1C);
+    } else {
+        sp40[0] = 2.0f * (effMiscRandFloat(0) - 0.5f);
+        sp40[1] = 2.0f * (effMiscRandFloat(0) - 0.5f);
+        sp40[2] = 2.0f * (effMiscRandFloat(0) - 0.5f);
+    }
+    __asm__ volatile(
+        "lqc2 $vf10, 0(%1) \n"
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vaddy.x $vf2, $vf2, $vf2y \n"
+        "vaddz.x $vf2, $vf2, $vf2z \n"
+        ".word 0x4A0203BD \n"
+        "vwaitq \n"
+        "cfc2.ni $2, $vi22 \n"
+        "mtc1 $2, %0 \n"
+        : "=f"(temp_f0)
+        : "r"(sp40)
+        : "$2", "$vf2", "$vf10", "Q", "memory");
+    if (temp_f0 == 0.0f) {
+        goto normalized_zero;
+    }
+    __asm__ volatile(
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vmulax.w $ACC, $vf0, $vf2x \n"
+        "vmadday.w $ACC, $vf0, $vf2y \n"
+        "vmaddz.w $vf2, $vf0, $vf2z \n"
+        "vrsqrt $Q, $vf0w, $vf2w \n"
+        "vwaitq \n"
+        "vmulq.xyz $vf10, $vf10, $Q \n"
+        "sqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(sp40)
+        : "$vf0", "$vf2", "$vf10", "ACC", "Q", "memory");
+    *(f32 *)(arg1 + 0) = sp40[0];
+    *(f32 *)(arg1 + 4) = sp40[1];
+    *(f32 *)(arg1 + 8) = sp40[2];
+    goto normalized_done;
+normalized_zero:
+    *(f32 *)(arg1 + 0) = 0.0f;
+    *(f32 *)(arg1 + 4) = 1.0f;
+    *(f32 *)(arg1 + 8) = 0.0f;
+normalized_done:
+    temp_f0 = *(f32 *)(arg0 + 0x28);
+    temp_f0 = (1.0f - temp_f0) + temp_f0 * effMiscRandFloat(0);
+    *(f32 *)(arg1 + 0x10) = *(f32 *)(arg0 + 0x24) * temp_f0;
+    *(f32 *)(arg1 + 0x0C) = iGpffff8080 * effMiscRandFloat(0);
+    temp_4 = *(s32 *)(arg0 + 0x34);
+    switch (temp_4) {
+    case 1:
+        *(u8 *)(arg1 + 0x14) = (u8)(effMiscRand(0) % 6);
+        break;
+    case 2:
+        *(u8 *)(arg1 + 0x14) =
+            (u8)(((u32)((u8 *)arg1 - *(u8 **)(arg0 + 0x5C)) / 0x18) % 6);
+        break;
+    default:
+        *(s8 *)(arg1 + 0x14) = -1;
+        break;
+    }
+}
+
+
+// FUN_004AF5E0
+void func_004af5e0(u8 *instance, u32 *position)
+{
+    mdlEffectStoreQuadA(*(s32 *)(instance + 0x58), position);
+}
+
+
+// FUN_004AF610
+void func_004af610(u8 *instance, u32 *rotation)
+{
+    mdlEffectStoreQuadB(*(s32 *)(instance + 0x58), rotation);
+}
+
+
+// FUN_004AF640
+void func_004af640(u8 *arg0, s32 arg1) {
+    *(s32 *)(arg0 + 0x4) = arg1;
+}
+
+
+// FUN_004AF650
+void func_004af650(u8 *arg0, f32 arg1) {
+    *(f32 *)(arg0 + 0x8) = arg1;
+    func_00492e30(*(u16 **)(arg0 + 0x58), arg1);
+}
+
+
+extern void func_004b1a00(u8 *arg0, u8 *arg1);
+extern s32 iGpffffbb98;
+extern s32 iGpffffbb94;
+extern s32 D_00922DA0[];
+extern s16 D_00922DA4[];
+extern s32 D_00922DA8[];
+extern s32 D_00922DAC[];
+extern void func_004861f0(void *arg0, f32 *arg1);
+extern void func_004b1ad0(u8 *arg0);
+extern void func_003efd20(u8 *arg0, s32 arg1);
+extern void func_003e9390(s32 arg0);
+extern void func_003ec330(s32 arg0);
+extern void func_0040fcd0(s32 arg0, s32 arg1);
+extern void func_003e8440(u8 *arg0);
+extern void func_004b1a00(u8 *arg0, u8 *arg1);
+extern u8 D_0071465C[];
+extern u8 D_00714650[];
+extern u8 D_00714660[];
+extern void func_004866e0(u8 *arg0, u32 *arg1);
+extern void func_00486330(u8 *arg0, void *arg1);
+extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
+extern f32 iGpffff836c;
+extern void func_004866f0(u8 *arg0, u32 *arg1);
+extern void func_004865c0(u8 *arg0, s32 arg1);
+extern u32 func_00486700(void *object);
+typedef signed __int128 s128;
+extern void *func_004b16c0(void *opaqueSource);
+typedef signed __int128 s128;
+typedef signed __int128 s128;
+// FUN_004B1090
+void func_004b1090(u8 *instance, u32 *position)
+{
+    mdlEffectStoreQuadA(*(s32 *)(instance + 0x5c), position);
+}
+
+
+// FUN_004B10C0
+void func_004b10c0(u8 *instance, u32 *rotation)
+{
+    mdlEffectStoreQuadB(*(s32 *)(instance + 0x5c), rotation);
+}
+
+
+// FUN_004B10F0
+void func_004b10f0(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x4) = arg1;
+}
+
+
+// FUN_004B1100
+void func_004b1100(u8 *arg0, f32 arg1)
+{
+    *(f32 *)(arg0 + 8) = arg1;
+    func_00492e30(*(u16 **)(arg0 + 0x5c), arg1);
+}
+
+
+// FUN_004B1250
+void func_004b1250(void *arg0, f32 *arg1)
+{
+    f32 work[4];
+
+    work[0] = arg1[0];
+    work[1] = arg1[1];
+    work[2] = arg1[2];
+    work[3] = 0.0f;
+    func_004861f0(arg0, work);
+}
+
+
+// FUN_004B1290
+void func_004b1290(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
+{
+    u8 scratch[16];
+
+    effMiscEulerToQuatVU(iGpffff836c * arg1, iGpffff836c * arg2, iGpffff836c * arg3);
+    __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(scratch) : "memory");
+    func_00486330(arg0, scratch);
+}
+
+
+// FUN_004B13F0
+void func_004b13f0(void *object, s32 *arg1) {
+    func_004865c0(object, *arg1);
+}
+
+
+// FUN_004B1470
+void func_004b1470(u8 *arg0, u8 *arg1)
+{
+    struct {
+        f32 projected[3];
+        u32 alignment;
+        u8 vector[16];
+    } scratch;
+
+    func_004866f0(arg0, (u32 *)scratch.vector);
+    mdlEffectBuildBasisRows(arg1, scratch.vector);
+    func_004866e0(arg0, (u32 *)scratch.projected);
+    *(f32 *)(arg1 + 0x30) = scratch.projected[0];
+    *(f32 *)(arg1 + 0x34) = scratch.projected[1];
+    *(f32 *)(arg1 + 0x38) = scratch.projected[2];
+}
+
+
+// FUN_004B14F0
+void func_004b14f0(void *object, s32 *arg1) {
+    *arg1 = func_00486700(object);
+}
+
+
 // Returns the word at +0x84 of the object at param_1.
 // FUN_004B1580
 u32 mdlEffectGetWord84(int param_1)
@@ -1773,9 +3350,224 @@ u32 mdlEffectGetWord84(int param_1)
 
 
 
+// FUN_004B1590
+void mdlEffectSeqStart(s32 arg0, s16 arg1)
+{
+    D_00922DA0[0] = arg0;
+    D_00922DA4[0] = arg1;
+    D_00922DA8[0] = 0;
+    D_00922DAC[0] = 0;
+    iGpffffbb94 = 0;
+    iGpffffbb98 = 1;
+}
+
+
+// FUN_004B1600
+void mdlEffectSeqStep(void)
+{
+    s32 temp_5;
+    s32 limit;
+
+    if (iGpffffbb98 != 0) {
+        limit = D_00922DA0[0];
+        if ((iGpffffbb94 < limit) || (limit == 0)) {
+            temp_5 = iGpffffbb94;
+            func_004a7c00((u8 *)&D_00922DA0[0], temp_5);
+        } else {
+            func_004a7a50();
+            iGpffffbb98 = 0;
+        }
+        iGpffffbb94 = iGpffffbb94 + 1;
+    }
+}
+
+
+// FUN_004B1950
+void *func_004b1950(void *opaqueSource) {
+    u8 *arg0 = opaqueSource;
+    s32 temp_4;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_3;
+
+    temp_2 = func_004b16c0(NULL);
+    *(s32 *)(temp_2 + 4) = *(s32 *)(arg0 + 4);
+    memcpy(temp_2 + 0xC, arg0 + 0xC, 0x98);
+    temp_4 = *(s32 *)(arg0 + 0xA4);
+    if (temp_4 != 0) {
+        temp_2_2 = GeometryCloneBlock(temp_4);
+        *(u8 **)(temp_2 + 0xA4) = temp_2_2;
+        temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2_2 + 0x10) + 0x18) + 0x30);
+        *(s32 *)(temp_3 + 0) = -1;
+        *(s32 *)(temp_3 + 4) = -1;
+        *(s32 *)(temp_3 + 8) = -1;
+        *(s32 *)(temp_3 + 0xC) = -1;
+    }
+    func_004b1a00(temp_2, arg0);
+    return temp_2;
+}
+
+
+// FUN_004B1AA0
+void func_004b1aa0(u8 *arg0)
+{
+    *(s32 *)(arg0 + 0x8) = 0;
+}
+
+
+// FUN_004B1AB0
+void func_004b1ab0(u8 *arg0)
+{
+    *(s32 *)(arg0 + 8) = *(s32 *)(arg0 + 8) + 1;
+}
+
+
+#pragma push
+#pragma opt_loop_invariants on
+#pragma pop
+// FUN_004B2740
+void func_004b2740(u8 *arg0)
+{
+    *(s32 *)(arg0 + 8) = *(s32 *)(arg0 + 8) + 1;
+    func_004b1ad0(arg0);
+}
+
+
 // Stores param_2 into the word at *param_1.
 // FUN_004B2770
 void mdlEffectStoreWord(u32 *param_1, u32 param_2)
 {
   *param_1 = param_2;
 }
+#pragma opt_propagation off
+#pragma opt_propagation on
+#pragma push
+#pragma opt_propagation on
+#pragma opt_common_subs on
+#pragma pop
+// FUN_004B2E00
+void func_004b2e00(u8 *object) {
+    u8 *base;
+    u8 *temp_2;
+    u8 *temp_3;
+    u8 *temp_4;
+    s32 *slot_1;
+    s32 *slot_2;
+    s32 temp_17;
+    s32 temp_4_2;
+    s32 temp_4_3;
+
+    base = object;
+    temp_4 = *(u8 **)(base + 0xC);
+    if (temp_4 != NULL) {
+        temp_17 = *(s32 *)(temp_4 + 4);
+        if (temp_17 != 0) {
+            func_003efd20(temp_4, 0);
+            func_003e9390(temp_17);
+        }
+        temp_3 = *(u8 **)(base + 0xC);
+        slot_1 = (s32 *)(temp_3 + 0x64);
+        temp_4_2 = *(s32 *)(temp_3 + 0x64);
+        if (temp_4_2 != 0) {
+            *slot_1 = 0;
+            func_003ec330(temp_4_2);
+        }
+        temp_2 = *(u8 **)(base + 0xC);
+        slot_2 = (s32 *)(temp_2 + 0x60);
+        if (*(s32 *)(temp_2 + 0x60) != 0) {
+            *slot_2 = 0;
+        }
+        func_003e8440(*(u8 **)(base + 0xC));
+        *(u8 **)(base + 0xC) = NULL;
+    }
+    temp_4_3 = *(s32 *)(base + 8);
+    if (temp_4_3 != 0) {
+        func_0040fcd0(temp_4_3, 0);
+        func_003ec330(*(s32 *)(base + 8));
+        *(s32 *)(base + 8) = 0;
+    }
+}
+
+
+// FUN_004B4F40
+void func_004b4f40(u8 *arg0)
+{
+    ((void (*)(void *))(*(u32 *)(D_00714650 + (*(s32 *)(arg0 + 0x18) * 24))))(arg0);
+    *(s32 *)(arg0 + 0x14) = 0;
+}
+
+
+// FUN_004B4F90
+void func_004b4f90(void *param_1) {
+    ((void (*)(void *))(*(u32 *)(D_0071465C + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
+    *(s32 *)((char *)param_1 + 0x14) += 1;
+}
+
+
+// FUN_004B4FF0
+void func_004b4ff0(u8 *arg0)
+{
+    if (*(s32 *)(arg0 + 0x14) > 0) {
+        ((void (*)(void *))(*(u32 *)(D_00714660 + (*(s32 *)(arg0 + 0x18) * 24))))(arg0);
+    }
+}
+
+
+// FUN_004B5040
+void func_004b5040(void *param_1) {
+    u8 *object;
+
+    object = param_1;
+    ((void (*)(void *))(*(u32 *)(D_0071465C + *(s32 *)(object + 0x18) * 24)))(object);
+    *(s32 *)(object + 0x14) += 1;
+    if (*(s32 *)(object + 0x14) > 0) {
+        ((void (*)(void *))(*(u32 *)(D_00714660 + *(s32 *)(object + 0x18) * 24)))(object);
+    }
+}
+
+
+// FUN_004B50D0
+s128 func_004b50d0(s128 *arg0, s128 *arg1) {
+    s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
+    *arg0 = temp;
+    return temp;
+}
+
+
+// FUN_004B50E0
+void func_004b50e0(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x10) = arg1;
+}
+
+
+// FUN_004B5750
+s128 func_004b5750(s128 *arg0, s128 *arg1) {
+    s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
+    *arg0 = temp;
+    return temp;
+}
+
+
+// FUN_004B5760
+s128 func_004b5760(u8 *arg0, s128 *arg1) {
+    s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
+    *(s128 *)(arg0 + 0x10) = temp;
+    return temp;
+}
+
+
+// FUN_004B5770
+void func_004b5770(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x24) = arg1;
+}
+
+
+// FUN_004B5780
+void func_004b5780(u8 *arg0, f32 arg1)
+{
+    *(f32 *)(arg0 + 0x20) = arg1;
+}
+
+

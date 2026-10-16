@@ -89,33 +89,10 @@ static inline f32 code1_0048_mul(f32 left, f32 right) {
 static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
     fn(value);
 }
-// FUN_00481EE0
-void func_00481ee0(u8 **arg0)
-{
-    func_004823e0(*arg0);
-    jtbl_008873EC[0](arg0);
-}
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
-// FUN_00484350
-void func_00484350(u8 *arg0)
-{
-    RwMatrix matrix;
-
-    GeometryMatrixBuild(&matrix);
-    func_003e9cb0(*(void **)(arg0 + 0xC), &matrix, 0);
-}
-
-// FUN_004843A0
-void func_004843a0(u8 *arg0)
-{
-    RwMatrix matrix;
-
-    GeometryMatrixBuildCombined(&matrix);
-    func_003e9cb0(*(void **)(arg0 + 0xC), &matrix, 0);
-}
 
 
 
@@ -123,33 +100,8 @@ void func_004843a0(u8 *arg0)
 
 
 
-// FUN_00484790
-void func_00484790(u8 *arg0)
-{
-    u8 *node;
 
-    node = ((u8 **)arg0)[6];
-    if (node != NULL) {
-        (*jtbl_008873EC)(node);
-        *(s32 *)(arg0 + 0x10) = 0;
-        *(s32 *)(arg0 + 0x14) = 0;
-        *(u8 **)(arg0 + 0x18) = NULL;
-    }
-}
 
-// FUN_004847E0
-void func_004847e0(u8 *arg0)
-{
-    u8 *node;
-
-    node = ((u8 **)arg0)[10];
-    if (node != NULL) {
-        (*jtbl_008873EC)(node);
-        *(s32 *)(arg0 + 0x20) = 0;
-        *(s32 *)(arg0 + 0x24) = 0;
-        *(u8 **)(arg0 + 0x28) = NULL;
-    }
-}
 
 
 
@@ -170,35 +122,8 @@ typedef struct Code48InitialState {
     f32 scalar74;
     u32 unknown78[2];
 } Code48InitialState;
-// FUN_00484B30
-/* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
- * eight zero alignment bytes. IDA retains the result that Ghidra drops:
- * retail leaves the copied quadword in v0 through return. Preserve that
- * live-out; the current C callers discard it. The four hardware vf0 stores
- * produce (0,0,0,1), not a zero quadword. */
 #pragma push
 #pragma opt_propagation off
-u_long128 func_00484b30(u8 *arg0)
-{
-    Code48InitialState *state = (Code48InitialState *)(void *)arg0;
-    const u_long128 *quadSource;
-    u_long128 quad;
-
-    memset(state, 0, sizeof(*state));
-    __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(state) : "memory");
-    __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(state) : "memory");
-    __asm__ volatile("sqc2 vf0, 64(%0)" : : "r"(state) : "memory");
-    state->vector40[1] = 5.0f;
-    __asm__ volatile("sqc2 vf0, 80(%0)" : : "r"(state) : "memory");
-    quadSource = (const u_long128 *)(const void *)D_00713CE0;
-    quad = *quadSource;
-    state->quad20 = quad;
-    state->scalar60 = 1.0f;
-    state->scalar74 = 1.0f;
-    state->word64 = 0xFFFFFFFF;
-    state->word68 = 0x80;
-    return quad;
-}
 #pragma pop
 #pragma push
 #pragma opt_lifetimes on
@@ -245,19 +170,7 @@ static inline void model_normalize_packed_color(const u32 *source, f32 scale)
     #pragma optimization_level 1
     #pragma optimization_level 2
 #pragma optimization_level 1
-/* measured: closes optimization_level 1 for the parked 00486970 body. */
 #pragma optimization_level 2
-// FUN_00489E00
-void func_00489e00(u8 *arg0)
-{
-    u8 *temp_4;
-
-    temp_4 = *(u8 **)(arg0 + 0x4C);
-    if (temp_4 != 0) {
-        func_00492d10(temp_4);
-        ParticleUpdateScaled(arg0, 1.0f);
-    }
-}
 // FUN_00489E80
 void func_00489e80(u8 *arg0)
 {
@@ -269,16 +182,6 @@ void func_00489e80(u8 *arg0)
         ParticleUpdateScaled(arg0, 1.0f);
     }
     ParticleProjectVertices(arg0, 1.0f);
-}
-// FUN_00489EE0
-void func_00489ee0(u8 *instance, u32 *position)
-{
-    mdlEffectStoreQuadA(*(s32 *)(instance + 0x4C), position);
-}
-// FUN_00489F10
-void func_00489f10(u8 *instance, u32 *rotation)
-{
-    mdlEffectStoreQuadB(*(s32 *)(instance + 0x4C), rotation);
 }
 #pragma push
 #pragma opt_common_subs off
@@ -329,128 +232,19 @@ static inline f32 effect_color_opacity(s32 frame, s32 duration, s32 fadeIn, s32 
 #pragma opt_loop_invariants on
 #pragma pop
 
-// FUN_0048C440
-void func_0048c440(u8 *arg0, f32 fparg0) {
-    s32 temp_4;
-    u32 var_7;
-    u8 *temp_5;
-    u8 *temp_6;
-
-    temp_6 = *(u8 **)(arg0 + 0x20);
-    temp_5 = *(u8 **)(arg0 + 0x24);
-    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
-    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
-    var_7 = 0;
-    goto loop_0048c440_check;
-loop_0048c440_body:
-    temp_4 = var_7 * 8;
-    *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
-    var_7 += 1;
-loop_0048c440_check:
-    if (var_7 < 3U) {
-        goto loop_0048c440_body;
-    }
-    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
-    *(f32 *)(temp_6 + 0xCC) = *(f32 *)(temp_5 + 0xCC) * fparg0;
-    *(f32 *)(temp_6 + 0xD4) = *(f32 *)(temp_5 + 0xD4) * fparg0;
-    *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
-    *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
-}
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 
 #pragma pop
-// FUN_0048CD60
-void func_0048cd60(u8 *arg0, f32 fparg0) {
-    s32 temp_4;
-    u32 var_7;
-    u8 *temp_5;
-    u8 *temp_6;
-
-    temp_6 = *(u8 **)(arg0 + 0x20);
-    temp_5 = *(u8 **)(arg0 + 0x24);
-    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
-    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
-    var_7 = 0;
-    goto loop_0048cd60_check;
-loop_0048cd60_body:
-    temp_4 = var_7 * 8;
-    *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
-    var_7 += 1;
-loop_0048cd60_check:
-    if (var_7 < 3U) {
-        goto loop_0048cd60_body;
-    }
-    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
-    *(f32 *)(temp_6 + 0xD0) = *(f32 *)(temp_5 + 0xD0) * fparg0;
-    *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
-    *(f32 *)(temp_6 + 0xDC) = *(f32 *)(temp_5 + 0xDC) * fparg0;
-}
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-// FUN_0048D820
-void func_0048d820(u8 *arg0, f32 fparg0) {
-    s32 temp_4;
-    u32 var_7;
-    u8 *temp_5;
-    u8 *temp_6;
-
-    temp_6 = *(u8 **)(arg0 + 0x20);
-    temp_5 = *(u8 **)(arg0 + 0x24);
-    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
-    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
-    var_7 = 0;
-    goto loop_0048d820_check;
-loop_0048d820_body:
-    temp_4 = var_7 * 8;
-    *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
-    var_7 += 1;
-loop_0048d820_check:
-    if (var_7 < 3U) {
-        goto loop_0048d820_body;
-    }
-    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
-    *(f32 *)(temp_6 + 0xCC) = *(f32 *)(temp_5 + 0xCC) * fparg0;
-    *(f32 *)(temp_6 + 0xD4) = *(f32 *)(temp_5 + 0xD4) * fparg0;
-    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
-    *(f32 *)(temp_6 + 0xF0) = *(f32 *)(temp_5 + 0xF0) * fparg0;
-}
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-// FUN_0048E270
-void func_0048e270(u8 *arg0, f32 fparg0) {
-    s32 temp_4;
-    u32 var_7;
-    u8 *temp_5;
-    u8 *temp_6;
-
-    temp_6 = *(u8 **)(arg0 + 0x20);
-    temp_5 = *(u8 **)(arg0 + 0x24);
-    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
-    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
-    var_7 = 0;
-    goto loop_0048e270_check;
-loop_0048e270_body:
-    temp_4 = var_7 * 8;
-    *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
-    var_7 += 1;
-loop_0048e270_check:
-    if (var_7 < 3U) {
-        goto loop_0048e270_body;
-    }
-    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
-    *(f32 *)(temp_6 + 0xD0) = *(f32 *)(temp_5 + 0xD0) * fparg0;
-    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
-}
 /* Cone emitter: complete direction, aligned XYZ scale representation and
  * particle snapshots, with ordinary C random and integration calculations.
  * One real variation value is reused by the direction/speed/size/angle stages;
@@ -462,65 +256,11 @@ loop_0048e270_check:
 #pragma opt_loop_invariants on
 
 #pragma pop
-// FUN_0048EBC0
-void func_0048ebc0(u8 *arg0, f32 fparg0) {
-    s32 temp_4;
-    u32 var_7;
-    u8 *temp_5;
-    u8 *temp_6;
-
-    temp_6 = *(u8 **)(arg0 + 0x20);
-    temp_5 = *(u8 **)(arg0 + 0x24);
-    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
-    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
-    var_7 = 0;
-    goto loop_0048ebc0_check;
-loop_0048ebc0_body:
-    temp_4 = var_7 * 8;
-    *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
-    var_7 += 1;
-loop_0048ebc0_check:
-    if (var_7 < 3U) {
-        goto loop_0048ebc0_body;
-    }
-    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
-    *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
-    *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
-    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
-}
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 
 #pragma pop
-// FUN_0048F560
-void func_0048f560(u8 *arg0, f32 fparg0) {
-    s32 temp_4;
-    u32 var_7;
-    u8 *temp_5;
-    u8 *temp_6;
-
-    temp_6 = *(u8 **)(arg0 + 0x20);
-    temp_5 = *(u8 **)(arg0 + 0x24);
-    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
-    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
-    var_7 = 0;
-    goto loop_0048f560_check;
-loop_0048f560_body:
-    temp_4 = var_7 * 8;
-    *(f32 *)(temp_6 + temp_4 + 0x74) =
-        code1_0048_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
-    var_7 += 1;
-loop_0048f560_check:
-    if (var_7 < 3U) {
-        goto loop_0048f560_body;
-    }
-    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
-    *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
-    *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
-    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
-}
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
