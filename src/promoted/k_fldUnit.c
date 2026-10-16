@@ -386,10 +386,10 @@ static inline FieldUnitRecord *fieldUnitSlotAt(const s32 *index)
  */
 static inline s32 fieldUnitCalendarRoomMatch(void)
 {
-    extern s32 func_00110680(s32 date, s32 month, s32 day);
+    extern s32 calIsCurrentMonthDay(s32 date, s32 month, s32 day);
     extern s16 datGetDateIndex(void);
     extern u8 datGetTimeSlot(void);
-    extern s64 func_00110960(s32 date, u32 phase);
+    extern s64 calGetDayEntryByPhase(s32 date, u32 phase);
     extern FieldUnitRoomKey D_005F1350[];
     u8 *fieldState;
     s32 fieldId;
@@ -402,7 +402,7 @@ static inline s32 fieldUnitCalendarRoomMatch(void)
 
     found = 0;
     /* March 20 bypasses the room scan. */
-    if (func_00110680((s16)datGetDateIndex(), 3, 0x14) == 1) {
+    if (calIsCurrentMonthDay((s16)datGetDateIndex(), 3, 0x14) == 1) {
         return 0;
     }
     roomIndex = 0;
@@ -412,7 +412,7 @@ room_body:
     if (((FieldUnitRoomKey *)fieldState)->fieldId == fieldId &&
         ((FieldUnitRoomKey *)fieldState)->roomId == entry->roomId) {
         calendarDay = (s16)datGetDateIndex();
-        calendarValue = (s8)func_00110960(calendarDay, datGetTimeSlot() & 0xFF);
+        calendarValue = (s8)calGetDayEntryByPhase(calendarDay, datGetTimeSlot() & 0xFF);
         /* The signed calendar value can be negative; keep the signed remainder. */
         remainder = calendarValue % 2;
         if (remainder != 0) {

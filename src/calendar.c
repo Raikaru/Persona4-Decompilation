@@ -22,8 +22,8 @@ extern s32 func_00120f70(u8 *task);
 extern void func_00121170(u8 *task);
 extern s32 func_001211a0(u8 *task);
 extern s32 calendarDraw(u8 *task);
-extern s32 func_001104a0(s32 arg0);
-extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
+extern s32 calGetMonthLength(s32 arg0);
+extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
 extern u8 datGetTimeSlot(void);
 extern u16 D_008C0276[];
 extern u16 D_008C027A[];
@@ -34,9 +34,9 @@ extern void func_00123850(void);
 extern s32 func_00144af0(s32 a);
 extern s32 kwlnTaskGetState(s32 a);
 extern void datSetTimeSlot(s32 a);
-extern s32 func_00110580(s32 arg0);
-extern s32 func_001105b0(s32 arg0);
-extern s32 func_00110600(s32 arg0, s32 arg1);
+extern s32 calGetWeekdayOfDay(s32 arg0);
+extern s32 calGetWeekOfYear(s32 arg0);
+extern s32 calDayOfYearFromMonthDay(s32 arg0, s32 arg1);
 extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
 extern s32 iGpffff9c54;
 extern const char *D_005E5010[];
@@ -147,14 +147,14 @@ s32 calendarInputUpdate(u8 *arg0)
                 datSetTimeSlot(((datGetTimeSlot() & 0xFF) + 1) & 0xFF);
             }
         } else if (D_008C027A[0] & 0x1) {
-            func_001104d0(*(s32 *)(work + 8), &month, &day);
+            calSplitDayOfYear(*(s32 *)(work + 8), &month, &day);
             if (month != 4) {
-                *(s32 *)(work + 8) = *(s32 *)(work + 8) - (func_001104a0(month) - 1);
+                *(s32 *)(work + 8) = *(s32 *)(work + 8) - (calGetMonthLength(month) - 1);
             }
         } else if (D_008C027A[0] & 0x2) {
-            func_001104d0(*(s32 *)(work + 8), &month, &day);
+            calSplitDayOfYear(*(s32 *)(work + 8), &month, &day);
             if (month != 3) {
-                *(s32 *)(work + 8) = *(s32 *)(work + 8) + func_001104a0(month);
+                *(s32 *)(work + 8) = *(s32 *)(work + 8) + calGetMonthLength(month);
             }
         }
         break;
@@ -199,11 +199,11 @@ s32 calendarDraw(u8 *unusedTask)
     color[0] = 0x40; color[1] = 0x40; color[2] = 0x40; color[3] = 0xff;
     dim[0] = 100; dim[1] = 100; dim[2] = 250; dim[3] = 100;
     func_0045d6e0(color, dim, 0.0f, 1);
-    func_001104d0(*(s32 *)(work + 8), &month, &day);
-    weekday = func_00110580(func_00110600(month, 1));
-    current = func_00110580(*(s32 *)(work + 8));
+    calSplitDayOfYear(*(s32 *)(work + 8), &month, &day);
+    weekday = calGetWeekdayOfDay(calDayOfYearFromMonthDay(month, 1));
+    current = calGetWeekdayOfDay(*(s32 *)(work + 8));
     if (current >= weekday) offset = 0; else offset = 12;
-    offset = offset + (func_001105b0(*(s32 *)(work + 8)) - 1) * 12;
+    offset = offset + (calGetWeekOfYear(*(s32 *)(work + 8)) - 1) * 12;
     color[0] = 0x40; color[1] = 0x80; color[2] = 0x80; color[3] = 0xff;
     dim[0] = current * 36 + 100; dim[1] = offset + 124; dim[2] = 36; dim[3] = 12;
     func_0045d6e0(color, dim, 0.0f, 1);
@@ -212,7 +212,7 @@ s32 calendarDraw(u8 *unusedTask)
     pos.xy.x = 0.0f + 100.0f + 36.0f * (f32)weekday;
     pos.xy.y = 124.0f;
     index = 0;
-    while (index < func_001104a0(month)) {
+    while (index < calGetMonthLength(month)) {
         func_00450dd0(pos, 0.0f, &iGpffff9c54, index + 1);
         weekday++;
         if (weekday > 6) {

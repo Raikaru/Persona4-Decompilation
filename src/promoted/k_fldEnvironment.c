@@ -8,7 +8,7 @@ extern void func_00161500(s32 arg0);
 
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
-extern s64 func_00110960(s32 arg0, u32 arg1);
+extern s64 calGetDayEntryByPhase(s32 arg0, u32 arg1);
 extern u32 datGetFlag(s32 arg0);
 extern s32 func_0015a0c0(void);
 extern s32 FldMap_IsCurrentInEitherBand(void);
@@ -435,7 +435,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
 // FUN_001546A0
 s32 func_001546a0(s32 arg0, s32 arg1)
 {
-    return func_00154720(arg0, arg1, (s8)func_00110960(datGetDateIndex(), datGetTimeSlot() & 0xFF));
+    return func_00154720(arg0, arg1, (s8)calGetDayEntryByPhase(datGetDateIndex(), datGetTimeSlot() & 0xFF));
 }
 
 /* Measured with configured MWCCPS2 b210 -O2: 1008 code bytes and the

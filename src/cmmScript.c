@@ -80,7 +80,7 @@ extern s32 func_002438b0(s32 arg0);
 extern s32 cmmLabelRecord(s32 arg0);
 extern s32 func_00107ac0(s32 arg0);
 extern s32 cmmNextUnlistedDate(s32 arg0);
-extern s32 func_00110580(s32 arg0, s32* arg1, s32* arg2);
+extern s32 calGetWeekdayOfDay(s32 arg0, s32* arg1, s32* arg2);
 extern s32 cmmTextRecord(s32 arg0);
 extern s32 datGetItemNameId(s32 arg0);
 extern s32 cmmDateTableFindRecord(s32 arg0);
@@ -89,7 +89,7 @@ extern void itfMesWindowSetNumber(s32 arg0, s32 arg1, s32 arg2);
 extern s32 cmmItemDescRecordOrNull(s32 arg0);
 extern s32 cmmItemExtraRecordOrNull(s32 arg0);
 extern u8 datGetTimeSlot(void);
-extern s64 func_00110960(s32 arg0, u32 arg1);
+extern s64 calGetDayEntryByPhase(s32 arg0, u32 arg1);
 extern s32 datGetFlag(s32 arg0);
 extern u32 RpRandom(void);
 
@@ -145,7 +145,7 @@ extern s32 D_00635A40[];
 extern s32 D_00635A60[];
 extern s32 D_00635BA8[];
 extern u8* func_00285af0(void);
-extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
+extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
 extern s32 cmmMonthProfileRecord(s32 arg0);
 extern s32 datCalcGetLevelById(s32 arg0);
 extern s32 cmmArcanaCandidateAt(s32 arg0, s32 arg1, s32 arg2);
@@ -353,7 +353,7 @@ s32 cmmPersonaDetailShow(void)
             i--;
             *dst++ = tmp;
         } while (i > 0);
-        frFontExCopyString(tbl[func_00110580(idx, dst, src)], buf, 0x80);
+        frFontExCopyString(tbl[calGetWeekdayOfDay(idx, dst, src)], buf, 0x80);
         itfMesWindowSetString(mesMgr, 6, buf);
     }
     frFontExCopyString(cmmTextRecord(id & 0xFFFF), buf, 0x80);
@@ -1117,12 +1117,12 @@ s32 cmmWeatherRoll(void)
 
     isHoliday = 0;
     category = 0;
-    func_001104d0(datGetDateIndex(), &month, &day);
+    calSplitDayOfYear(datGetDateIndex(), &month, &day);
     profile = (CmmMonthProfile *)cmmMonthProfileRecord((u16)month);
     if ((datGetTimeSlot() & 0xFF) == 5) {
         category = 2;
     }
-    if ((s8)func_00110960(datGetDateIndex(), datGetTimeSlot() & 0xFF) == 1) {
+    if ((s8)calGetDayEntryByPhase(datGetDateIndex(), datGetTimeSlot() & 0xFF) == 1) {
         isHoliday = 1;
     }
     category = category + isHoliday;
@@ -2388,7 +2388,7 @@ s32 func_00250940(void)
 
     row = scrGetParamInt(0);
     field = scrGetParamInt(1);
-    func_001104d0(datGetDateIndex(), &out1, &out2);
+    calSplitDayOfYear(datGetDateIndex(), &out1, &out2);
     table = (u8 *)cmmMonthProfileRecord((u16)out1);
     if (table == 0) {
         kAssertFail(D_006359F0, 0x8B8);
