@@ -23,13 +23,13 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;
-extern u8 func_002a2780(s32 arg0);
+extern u8 yTimeTrackClear(s32 arg0);
 extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                          s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
-extern void func_002a2980(u8 *arg0);
-extern s32 func_002a2c70(u8 *arg0);
-extern f32 func_002a2cd0(u8 *arg0);
-extern s32 func_002a2c10(u8 *arg0, f32 *arg1);
+extern void yTimeTrackAdvance(u8 *arg0);
+extern s32 yTimeTrackIsNotDone(u8 *arg0);
+extern f32 yTimeTrackProgress(u8 *arg0);
+extern s32 yTimeTrackCurrentKey(u8 *arg0, f32 *arg1);
 extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
 extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 extern u8 D_007485D0[];
@@ -160,9 +160,9 @@ void func_002a03b0(u8 *arg0) {
     sdkSpriteDrawNow(540.0f, 347.0f, 0.0f, 0x4972FF, 0xFF, 0xB1, iGpffffb540, 1, 0x5B, 0x5B, (f32)(*(s32 *)(temp_19 + 0x1C68) * -0x168) / 1440.0f, 1.0f, 1.0f);
     sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAF, iGpffffb540, 1);
     sdkSpriteDrawNowUnscaled(0.0f, 346.0f, 0.0f, 0xFFFFFF, 0xFF, 0xAE, iGpffffb540, 1);
-    func_002a2980(temp_19 + 0x2A8);
-    var_16 = (u8)(255.0f * func_002a2cd0(temp_19 + 0x2A8));
-    func_002a2c10(temp_19 + 0x2A8, pos);
+    yTimeTrackAdvance(temp_19 + 0x2A8);
+    var_16 = (u8)(255.0f * yTimeTrackProgress(temp_19 + 0x2A8));
+    yTimeTrackCurrentKey(temp_19 + 0x2A8, pos);
     px = pos[0];
     py = pos[1];
     temp_3 = *(s32 *)(temp_19 + 0x1C34);
@@ -202,8 +202,8 @@ void func_002a03b0(u8 *arg0) {
         }
         sdkSpriteDrawNowUnscaled((f32)var_3_2, (f32)var_2, 0.0f, 0xCCFF33, var_16, 0x18, iGpffffb540, 1);
     }
-    func_002a2cd0(temp_19 + 0x210);
-    func_002a2c10(temp_19 + 0x210, pos);
+    yTimeTrackProgress(temp_19 + 0x210);
+    yTimeTrackCurrentKey(temp_19 + 0x210, pos);
     temp_18_2 = *(s32 *)(temp_19 + 0x24) / 5;
     temp_21 = *(s32 *)(temp_19 + 0x30) / 5;
     temp_22 = *(s32 *)(temp_19 + 0x3C) / 5;
@@ -227,12 +227,12 @@ void func_002a03b0(u8 *arg0) {
         if (*(s32 *)(temp_19 + 0x14) != 3) {
             if ((temp_18_2 != temp_21) && (var_16_2 == temp_22)) {
                 temp_20 = temp_19 + (var_16_2 * 0x98) + 0x340;
-                func_002a2780((s32)temp_20);
+                yTimeTrackClear((s32)temp_20);
                 func_002a27c0((s32)temp_20, 0, 0, 0, 0,
                               fGpffff8204, 0, 0, 0x14);
             }
             temp_20_2 = temp_19 + (var_16_2 * 0x98) + 0x340;
-            func_002a2980(temp_20_2);
+            yTimeTrackAdvance(temp_20_2);
             if (var_16_2 == temp_18_2) {
                 sdkSpriteDrawNowUnscaled(temp_f21_2, temp_f20_2, 0.0f, 0x49AFFD, 0xFF, 1, iGpffffb540, 1);
                 if (var_16_2 == 0) {
@@ -247,8 +247,8 @@ void func_002a03b0(u8 *arg0) {
                 if (var_16_2 == 0x17) {
                     sdkSpriteDrawNowUnscaled((f32)0x24A, (171.0f + pos[1]) - 24.0f, 0.0f, 0x49AFFD, 0xFF, 0x1E, iGpffffb540, 1);
                 }
-            } else if (func_002a2c70(temp_20_2) != 0) {
-                tt = func_002a2cd0(temp_20_2);
+            } else if (yTimeTrackIsNotDone(temp_20_2) != 0) {
+                tt = yTimeTrackProgress(temp_20_2);
                 temp_20_3 = (u8)(255.0f * (1.0f - tt));
                 sdkSpriteDrawNowUnscaled(temp_f21_2, temp_f20_2, 0.0f, 0x49AFFD, temp_20_3, 1, iGpffffb540, 1);
                 if (var_16_2 == 0) {

@@ -23,12 +23,12 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;
-extern u8 func_002a2780(s32 arg0);
+extern u8 yTimeTrackClear(s32 arg0);
 extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                          s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
-extern void func_002a2980(u8 *arg0);
-extern s32 func_002a2c70(u8 *arg0);
-extern s32 func_002a2ca0(u8 *arg0);
+extern void yTimeTrackAdvance(u8 *arg0);
+extern s32 yTimeTrackIsNotDone(u8 *arg0);
+extern s32 yTimeTrackIsIdle(u8 *arg0);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
 extern u8 nmMesWindowOpenCurrent(u8 *message);
@@ -149,12 +149,12 @@ s32 func_002a1b20(u8 *arg0) {
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     if (*(s32 *)(temp_16 + 8) == 0) {
-        func_002a2780((s32)(temp_16 + 0x178));
+        yTimeTrackClear((s32)(temp_16 + 0x178));
         func_002a27c0((s32)(temp_16 + 0x178), 0, 0, 0, 0, fGpffff8204, 0, 10, 20);
         *(s32 *)(temp_16 + 8) = 1;
     }
-    func_002a2980(temp_16 + 0x178);
-    if (func_002a2c70(temp_16 + 0x178) != 0) {
+    yTimeTrackAdvance(temp_16 + 0x178);
+    if (yTimeTrackIsNotDone(temp_16 + 0x178) != 0) {
         goto fail;
     }
     *(s32 *)(temp_16 + 8) = 0;
@@ -175,7 +175,7 @@ s32 func_002a1bd0(u8 *arg0) {
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     if (*(s32 *)(temp_16 + 8) == 0) {
-        func_002a2780((s32)(temp_16 + 0x210));
+        yTimeTrackClear((s32)(temp_16 + 0x210));
         {
             s32 target;
             s32 value;
@@ -186,8 +186,8 @@ s32 func_002a1bd0(u8 *arg0) {
         }
         *(s32 *)(temp_16 + 8) = 1;
     }
-    func_002a2980(temp_16 + 0x210);
-    if (func_002a2c70(temp_16 + 0x210) != 0) {
+    yTimeTrackAdvance(temp_16 + 0x210);
+    if (yTimeTrackIsNotDone(temp_16 + 0x210) != 0) {
         goto fail;
     }
     *(s32 *)(temp_16 + 8) = 0;
@@ -221,7 +221,7 @@ s32 func_002a1c80(u8 *arg0) {
         var_17 = 0;
         while (var_17 < 4) {
             temp_18 = temp_16 + ((iGpffffb530 + (var_17 * 6)) * 0x98) + 0x340;
-            func_002a2780((s32)temp_18);
+            yTimeTrackClear((s32)temp_18);
             func_002a27c0((s32)temp_18, 0, 0, 0, 0, fGpffff8204, 0, 0, 6);
             var_17++;
         }
@@ -232,18 +232,18 @@ s32 func_002a1c80(u8 *arg0) {
     var_17_2 = 0;
     while (var_17_2 < 24) {
         temp_18_2 = temp_16 + (var_17_2 * 0x98) + 0x340;
-        if (func_002a2ca0(temp_18_2) == 0) {
-            func_002a2980(temp_18_2);
+        if (yTimeTrackIsIdle(temp_18_2) == 0) {
+            yTimeTrackAdvance(temp_18_2);
         }
         var_17_2++;
     }
     var_18 = 0;
     var_17_3 = 0;
     while (var_17_3 < 6) {
-        if (func_002a2ca0(temp_16 + (var_17_3 * 0x98) + 0x1180) == 0) {
+        if (yTimeTrackIsIdle(temp_16 + (var_17_3 * 0x98) + 0x1180) == 0) {
             temp_19 = temp_16 + (var_17_3 * 0x98) + 0x1180;
-            func_002a2980(temp_19);
-            if (func_002a2c70(temp_19) == 0) {
+            yTimeTrackAdvance(temp_19);
+            if (yTimeTrackIsNotDone(temp_19) == 0) {
                 var_18++;
             }
         }
