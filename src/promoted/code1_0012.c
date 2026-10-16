@@ -134,7 +134,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_005E57B8[];
 extern u8 D_005E57D0[];
-extern s32 func_0012c220(u8 *arg0);
+extern s32 titleSoundStartStep(u8 *arg0);
 extern void func_0012e9d0(u8 *arg0);
 extern void func_0012fdf0(u8 *arg0);
 extern void func_0012feb0(u8 *arg0);
@@ -1506,8 +1506,8 @@ s32 clndSceneUpdate(u8 *arg0)
     extern s32 func_0046a110(void *arg0, s32 arg1, void *arg2);
     extern void calendarStart(void);
     extern void func_00122640(s32 arg0, s32 arg1);
-    extern s32 func_0012b760(void);
-    extern s32 func_0012b810(s32 arg0);
+    extern s32 titleStartLoader(void);
+    extern s32 titleLoaderReap(s32 arg0);
     extern s32 iGpffffb1e4;
     extern s32 iGpffffb1f0;
 
@@ -1581,11 +1581,11 @@ s32 clndSceneUpdate(u8 *arg0)
         }
         break;
     case 6:
-        *(s32 *)(temp_16 + 0xC) = (s32)func_0012b760();
+        *(s32 *)(temp_16 + 0xC) = (s32)titleStartLoader();
         *(u32 *)temp_16 = 7;
         break;
     case 7:
-        temp_2 = func_0012b810(*(s32 *)(temp_16 + 0xC));
+        temp_2 = titleLoaderReap(*(s32 *)(temp_16 + 0xC));
         if (temp_2 == 4)
             goto state4;
         if (temp_2 == 3)
@@ -1644,7 +1644,7 @@ s32 clndSceneUpdate(u8 *arg0)
     return 0;
 }
 // FUN_00124210
-void func_00124210(u8 *arg0)
+void taskReleaseSlotModel(u8 *arg0)
 {
     func_0046a340(*(s32 *)(arg0 + 0x38));
 }
@@ -2059,7 +2059,7 @@ static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOff
 #pragma push
 #pragma always_inline on
 // FUN_00124F70
-void func_00124f70(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 drawMode, u8 *sceneContext)
+void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 drawMode, u8 *sceneContext)
 {
     extern void func_002aaf20(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
     extern s32 func_0025f3f0(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha,
@@ -2468,7 +2468,7 @@ static inline u8 *titleOffsetPtr_001265a0(u32 offset, u8 *base)
  * - Task fields are TitleTaskView members so b210 does not hoist the
  *   address arithmetic; each (8,1)/(6,1) call pair uses an integer-cast
  *   fnTable so the table address stays in $s1.
- * - Palette glows follow func_00124f70 (titleCopySelect,
+ * - Palette glows follow titleDrawScene (titleCopySelect,
  *   titlePaletteChannel); alpha bytes convert float -> u8 inside the calls.
  * - Commutative FP orders come from reusing multi-definition floats
  *   (lerpT, temp_f2, temp_f13_28); 1 - t is a separate step.
@@ -3051,7 +3051,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                                 }
                             }
                             if (temp_f21 < 1.0f) {
-                                func_00124f70(var_19, (s32)(255.0f * temp_f21), 0, 1, (u8 *)temp_20);
+                                titleDrawScene(var_19, (s32)(255.0f * temp_f21), 0, 1, (u8 *)temp_20);
                             } else {
                                 var_3_5 = sp6A0.bytes;
                                 var_2_6 = 4;
@@ -3168,7 +3168,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                         func_00124bb0(a0, (0.0f + D_005E539C[0] + lerpT * (D_005E53C4[0] - D_005E539C[0])), 0.0f, (0.0f + D_005E53A0[0] + lerpT * (D_005E53C8[0] - D_005E53A0[0])), (0.0f + D_005E53A4[0] + lerpT * (D_005E53CC[0] - D_005E53A4[0])), (0.0f + D_005E53A8[0] + lerpT * (D_005E53D0[0] - D_005E53A8[0])), (0.0f + D_005E53AC[0] + lerpT * (D_005E53D4[0] - D_005E53AC[0])), a1, ((u32)titlePaletteChannel((packedColor >> 0x18) & 0xFF, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel((packedColor >> 0x10) & 0xFF, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel((packedColor >> 8) & 0xFF, 0xFF, 1.0f) << 8) | 0xFF, (0.0f + D_005E53B0[0] + lerpT * (D_005E53D8[0] - D_005E53B0[0])), 0x40, temp_20);
                     }
                 } else {
-                    func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
+                    titleDrawScene(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
                 }
             }
             if (temp_16 < 0x74) {
@@ -3619,7 +3619,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 func_00124bb0(a0, M2C_FIELD(temp_7_5, f32 *, 4), 0.0f, M2C_FIELD(temp_7_5, f32 *, 8), M2C_FIELD(temp_7_5, f32 *, 0xC), M2C_FIELD(temp_7_5, f32 *, 0x10), M2C_FIELD(temp_7_5, f32 *, 0x14), a1, a2, M2C_FIELD(temp_7_5, f32 *, 0x18), 0x42, temp_20);
             }
         }
-        func_00124f70(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
+        titleDrawScene(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
         func_0025f3f0(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
         func_0025f430(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, (u8)(255.0f * fadeT), 0x10007, 0, taskView->sprites, 1, 0, 0, 0.0f, 1.0f, 1.0f);
         func_0025f3f0(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
@@ -4205,7 +4205,7 @@ loop_10_test:
     jtbl_008873EC[0](temp_2);
 }
 // FUN_0012B760
-s32 func_0012b760(void)
+s32 titleStartLoader(void)
 {
     u8 *temp_2;
     chkmemAllocSiteTag(D_005E5548, 0x728);
@@ -4216,7 +4216,7 @@ s32 func_0012b760(void)
     kwlnTaskCreate((const void *)(D_005E5720), 0xF, 0, 0, func_0012aa70, func_0012b660, (u8 *)(temp_2));
 }
 // FUN_0012B810
-s32 func_0012b810(s32 arg0)
+s32 titleLoaderReap(s32 arg0)
 {
     B810Obj *temp_2;
 
@@ -4258,7 +4258,7 @@ s32 func_0012b890(u8 *unusedTask)
     return 0;
 }
 // FUN_0012B940
-void func_0012b940(u8 *arg0) {
+void titleLoaderDestroy(u8 *arg0) {
     u8 *p;
     s32 v;
 
@@ -4363,7 +4363,7 @@ s32 func_0012c1a0(s32 arg0)
 }
 
 // FUN_0012C220
-s32 func_0012c220(u8 *arg0) {
+s32 titleSoundStartStep(u8 *arg0) {
     s32 temp_2_2;
     s32 temp_2_3;
     s32 temp_2_4;
@@ -4430,13 +4430,13 @@ block_20:
     return 0;
 }
 // FUN_0012C410
-void func_0012c410(u8 *arg0)
+void titleSoundStartDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
     func_001029a0(1, 0, 0, 5);
 }
 // FUN_0012C460
-s32 func_0012c460(s32 arg0) {
+s32 titleStartSoundTask(s32 arg0) {
     s32 var_2;
     u8 *temp_2;
 
@@ -4445,7 +4445,7 @@ s32 func_0012c460(s32 arg0) {
     if (temp_2 == NULL) {
         return 0;
     }
-    var_2 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E57D0), 0xF, 0, 0, func_0012c220, func_0012c410, (u8 *)(temp_2));
+    var_2 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E57D0), 0xF, 0, 0, titleSoundStartStep, titleSoundStartDestroy, (u8 *)(temp_2));
     if (var_2 == 0) {
         return 0;
     }
