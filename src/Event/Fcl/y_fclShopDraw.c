@@ -182,7 +182,7 @@ extern u8 D_00794ED0[];
 extern u8 D_0063FB50[];
 
 s32 fclShopStateUpdate(u8 *arg0);
-void func_002be3c0(void);
+void fclMiscInitRenderStates(void);
 s32 datPersonaNamePart1(s16);
 void datClampUnitHpSp(s32);
 s32 datItemMoonGateFirst(s16);
@@ -7153,7 +7153,7 @@ s32 fclShopItemPanelUpdate(u8 *arg0) {
     if (fclObjTestFlagBit(arg0, 0) == 1) {
         if (fclObjTestFlagBit(arg0, 0xD) == 1) {
             void *t = PrimAllocQueueNode();
-            *(void (**)(void))((u8 *)t + 8) = func_002be3c0;
+            *(void (**)(void))((u8 *)t + 8) = fclMiscInitRenderStates;
             *(s32 *)((u8 *)t + 0x10) = 0;
             PrimAppendNode(&D_00793E80[work->field_FC * 0x30], t);
             sdkSpriteDrawQueued(

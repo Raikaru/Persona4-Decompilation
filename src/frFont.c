@@ -38,7 +38,7 @@ extern void nmMesWindowResetRecords(void);
 extern int func_002e0d60(void);
 extern void fclMiscCreateAssistTask(void);
 struct KwlnTask;
-extern s32 func_002e17f0(u8 *task);
+extern s32 fclBankManagerUpdate(u8 *task);
 extern void frFontTaskDestroy(u8 *task);
 extern void frFontInitManager(int param_1, int param_2);
 extern s8 frFontRunScript(void *param_1, int param_2);
@@ -2765,7 +2765,7 @@ void frFontStartup(void)
 
     nmMesWindowResetRecords();
     v = func_002e0d60();
-    *(int *)v = (s32)kwlnTaskCreate((const void *)(&D_00763840), 0xC8, 0, 0, func_002e17f0, 0, (u8 *)(0));
+    *(int *)v = (s32)kwlnTaskCreate((const void *)(&D_00763840), 0xC8, 0, 0, fclBankManagerUpdate, 0, (u8 *)(0));
     frFontInitManager(0x100, 0x100);
     kwlnTaskCreate((const void *)(&D_00763848), 0, 0, 0, frFontMaintainCacheTask, frFontTaskDestroy, (u8 *)(0));
     fclMiscCreateAssistTask();

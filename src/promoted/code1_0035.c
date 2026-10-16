@@ -116,7 +116,7 @@ extern void nmMesWindowStepSlot(s32 arg0, s32 arg1);
 extern s32 nmMesWindowSlotStatus(s8 arg0);
 extern void nmMesWindowCloseSlot(s8 arg0, s32 arg1);
 extern s32 nmMesWindowResetCurrent(void);
-extern s32 func_002bd7b0(const void *arg0);
+extern s32 fclMiscEnsureMesWindow(const void *arg0);
 extern s32 fclMesWindowShowItemRecord(s32 arg0);
 extern u8 D_0064A790[];
 extern void resrcMngSetRenderSuppressed(s32 arg0);
@@ -326,7 +326,7 @@ s32 datMemberNoticeStep(u8 *arg0)
         if (nmMesWindowSlotStatus(*(s8 *)(work + 8)) == 0) {
             nmMesWindowCloseSlot(*(s8 *)(work + 8), 1);
             if ((*(u16 *)work & 1) != 0) {
-                func_002bd7b0(D_0064A790);
+                fclMiscEnsureMesWindow(D_0064A790);
                 fclMesWindowShowItemRecord(7);
                 *(s32 *)(work + 4) = 2;
             } else {
