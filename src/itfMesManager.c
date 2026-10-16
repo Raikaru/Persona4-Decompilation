@@ -51,15 +51,15 @@ void poolFree();
 void func_0046a2d0();
 void *poolAlloc();
 void memset();
-void func_0027a690();
+void itfMesEntryReset();
 void itfMesClearSlots();
-void func_0027a6f0(s32 arg0);
+void itfMesWindowClearStateField(s32 arg0); /* lint: allow H011 -- caller passes the stored pointer as s32 (*(s32 *)(row + 0x28)); the definition takes s32 *, and retyping the caller's load is unmeasured */
 void func_0027b830(s32 arg0);
 void fmGslContPoolUnlink();
 s8 frFontRunCommand(int param_1, int param_2, int param_3);
 u8 *frFontBuildTextSimple(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8);
 u32 itfMesRecordTextAt(int param_1, int param_2);
-void func_0027a340(u8 *arg0, s32 arg1);
+void itfMesListSetValue(u8 *arg0, s32 arg1);
 void itfMesListSetAlpha(int param_1, u32 param_2);
 void itfMesWindowSetString(s32 arg0, s32 arg1, char *arg2);
 void itfMesWindowSetNumber(s32 arg0, s32 arg1, s32 arg2);
@@ -672,7 +672,7 @@ u8 *itfMesObjectCreate(u8 *arg0)
     itfMesWindowSetProcedure(obj + 0x114, 0);
     itfMesSlotReset(obj + 0x14, 1);
     itfMesRecordReset(obj + 0x1C, 1);
-    func_0027a690(obj + 0x3C);
+    itfMesEntryReset(obj + 0x3C);
     itfMesClearSlots(obj + 0x94);
     return obj;
 }
@@ -1259,7 +1259,7 @@ void itfMesWindowFree(s32 arg0)
     row = (u8 *)&DAT_008817E0_abs[arg0 * 0x20];
     base = row + 0x1C;
     if (*(s32 *)(row + 0x28) != 0)
-        func_0027a6f0(*(s32 *)(row + 0x28));
+        itfMesWindowClearStateField(*(s32 *)(row + 0x28));
     func_0027b830(arg0);
     *(s32 *)(base + 0xC) = 0;
     for (i = 0; i < 4; i++) {
@@ -1685,7 +1685,7 @@ void itfMesWindowBuildRow(u8 *arg0)
         *(s32 *)arg0 |= 0x04000000;
     else
         *(s32 *)arg0 &= ~0x04000000;
-    func_0027a340(obj, *(s32 *)(arg0 + 0xC));
+    itfMesListSetValue(obj, *(s32 *)(arg0 + 0xC));
     if (frFontMaskFlags(4) != 0)
         itfMesWindowSetLabel(arg0, D_00881530);
     node = *(u8 **)DAT_008817EC_abs;
@@ -1883,7 +1883,7 @@ void itfMesWindowSetSelectionText(u8 *arg0, u8 *arg1)
             *(s32 *)base = (s32)frFontBuildTextSimple(0, 0, 0, 0, 0, 0xFF,
                 (u32)*(s32 *)(ep + (v2 << 2)), 0);
         }
-        func_0027a340((u8 *)*(s32 *)base, *(s32 *)(arg0 + 0xC));
+        itfMesListSetValue((u8 *)*(s32 *)base, *(s32 *)(arg0 + 0xC));
     }
     iGpffffb4b0 = global;
 }
@@ -1928,7 +1928,7 @@ u8 *itfMesBuildGlyphRun(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 a
         arg0++;
     }
     if (result != NULL) {
-        func_0027a340(result, arg5);
+        itfMesListSetValue(result, arg5);
         itfMesListSetAlpha((int)result, 0xFF);
     }
     return result;
@@ -2018,8 +2018,9 @@ s32 itfMesLineCount(u8 *arg0, u8 *arg1)
    function opens with `b 0x0027A350` into its own loop test, which spimdisasm
    recorded as a separate function, leaving only a 16-byte window here. 0x0027A340
    has 3 jal sites, 0x0027A350 none. See reconcile.BRANCH_LANDING_ENTRIES. */
+// Sets field +0x14 of every entry in the list starting at arg0 to arg1 [inferred].
 // FUN_0027A340
-void func_0027a340(u8 *arg0, int arg1)
+void itfMesListSetValue(u8 *arg0, int arg1)
 {
     while (arg0 != NULL) {
         *(int *)(arg0 + 0x14) = arg1;

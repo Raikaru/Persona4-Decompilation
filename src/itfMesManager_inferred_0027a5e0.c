@@ -69,8 +69,9 @@ void itfMesRecordReset(u8 *arg0)
     *(u8 *)(arg0 + 0xD) = 0xFF;
 }
 
+// Resets an entry: zeroes the words at +4 and +8, zeroes the halfwords at +0xC, +0x12, +0x14 and +0x16, and sets the halfwords at +0xE and +0x10 to -1 [inferred].
 // FUN_0027A690
-void func_0027a690(u8 *arg0)
+void itfMesEntryReset(u8 *arg0)
 {
     *(s32 *)(arg0 + 4) = 0;
     *(s32 *)(arg0 + 8) = 0;
