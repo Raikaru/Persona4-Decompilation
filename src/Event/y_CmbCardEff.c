@@ -21,7 +21,7 @@ struct HCdvd;
 s32 func_00440b68(const char *format, ...);
 u8 *func_00454a60(u8 *arg0, s32 arg1);
 s32 func_00348330(u8 *arg0);
-s32 func_00348c40(u8 *arg0);
+s32 cmbFiveSpriteTask(u8 *arg0);
 u32 H_Cdvd_IsFileLoaded(struct HCdvd *ptr);
 void func_004b1150(s32 arg0);
 u32 H_Cdvd_Destroy(struct HCdvd *ptr);
@@ -35,7 +35,7 @@ u8 *cmbCardEffTaskCreate(u8 *arg0, s32 *arg1);
 void *cmbCardEffState(u8 *arg0);
 void cmbCardEffSetParams(u8 *arg0, u8 arg1, u8 arg2, u16 arg3);
 void cmbCardEffSetPosition(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3);
-void func_00348a90(u8 *arg0, CmbVec3f src1, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f src2, f32 f4, f32 f5, f32 f6, f32 f7, CmbRGBA arg6);
+void cmbCardEffSetTween(u8 *arg0, CmbVec3f src1, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f src2, f32 f4, f32 f5, f32 f6, f32 f7, CmbRGBA arg6);
 s32 *func_00331620(void);
 void RpSkyRenderStateSet(u32 arg0, u32 arg1);
 struct RtQuat;
@@ -234,13 +234,13 @@ s32 cmbCardPathUpdate(u8 *task) {
 
     void cmbCardSetAngle(u8 *, s8, f32);
     void cmbCardSetPosition(u8 *, s8, CmbVec2f);
-    void func_0033fb90(u8 *, s8, CmbVec2f, f32);
+    void cmbCardApplySlotTransform(u8 *, s8, CmbVec2f, f32);
     void cmbCardStartMove(u8 *, s8, CmbVec2f, CmbVec2f, s16);
-    s32 func_0033fc80(u8 *);
-    s32 func_003407f0(u8 *);
-    s32 func_00341640(u8 *);
-    s32 func_003427a0(u8 *);
-    s32 func_00343cf0(u8 *);
+    s32 cmbCardRunTwoCardLayout(u8 *);
+    s32 cmbCardRunThreeCardLayout(u8 *);
+    s32 cmbCardRunFourCardLayout(u8 *);
+    s32 cmbCardRunFiveCardLayout(u8 *);
+    s32 cmbCardRunSixCardLayout(u8 *);
     void cmbCardClearSlots(u8 *);
     s32 func_00348be0(u8 *);
     void btlShuffleCardBindPacket(u8 *, void *);
@@ -295,19 +295,19 @@ s32 cmbCardPathUpdate(u8 *task) {
         cmbCardClearSlots(task);
         break;
     case 1:
-        func_0033fc80(task);
+        cmbCardRunTwoCardLayout(task);
         break;
     case 2:
-        func_003407f0(task);
+        cmbCardRunThreeCardLayout(task);
         break;
     case 3:
-        func_00341640(task);
+        cmbCardRunFourCardLayout(task);
         break;
     case 4:
-        func_003427a0(task);
+        cmbCardRunFiveCardLayout(task);
         break;
     case 5:
-        func_00343cf0(task);
+        cmbCardRunSixCardLayout(task);
         break;
     case 6:
         for (scaleIndex = 0;
@@ -315,7 +315,7 @@ s32 cmbCardPathUpdate(u8 *task) {
              scaleIndex < loadedCount; scaleIndex++) {
             work->cards[scaleIndex].scale = 0.75f;
         }
-        func_00345700(task);
+        cmbCardRunFullLayout(task);
         break;
     case 7:
         return -1;
@@ -371,7 +371,7 @@ s32 cmbCardPathUpdate(u8 *task) {
             btlShuffleCardQueueEnqueue(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0x2758, D_00794E70);
         }
         if (work->layout == 9 && func_00285b30() < 490 && work->hideSecondary == 0) {
-            func_0033fb90(task, (s8)cardIndex, work->cards[cardIndex].position, secondaryScale);
+            cmbCardApplySlotTransform(task, (s8)cardIndex, work->cards[cardIndex].position, secondaryScale);
             *(CmbRGBA *)secondaryColorBytes.bytes = func_002b2a60(0xFF, 0xFF, 0xFF, secondaryOpacity);
             btlShuffleCardBindSlot(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0xE398, secondaryColorBytes.bytes);
             btlShuffleCardQueueEnqueue(*(u8 **)(work->loaderTask + 0x38) + (s32)(s8)cardIndex * 0xFB0 + 0xE398, D_00794EA0);
@@ -527,8 +527,9 @@ void cmbCardSetPosition(u8 *arg0, s8 arg1, CmbVec2f arg2) {
    `ori $at,$zero,0xE398; addu $a0,$v0,$at` before the float setup. The residual
    changed from 8 words (obj 108B/window 112B) to padding-only nd 1, and scoped
    lverify reports MATCH (normalized_diff 0). */
+// Apply slot transform: sets card arg1's position and its 90 * scale size on its packet (btlShuffleCardApplyScale).
 // FUN_0033FB90
-void func_0033fb90(u8 *arg0, s8 arg1, CmbVec2f arg2, f32 fparg0) {
+void cmbCardApplySlotTransform(u8 *arg0, s8 arg1, CmbVec2f arg2, f32 fparg0) {
     u8 *obj;
     u8 *table;
     u32 scaled;
@@ -592,8 +593,9 @@ static inline void cmbAddPath(u8 *arg0, s8 arg1, CmbVec2f pos, s16 n) {
     *(s8 *)(slot + arg1 * 0x84 + 0xC) |= 8;
     *(s8 *)(slot + arg1 * 0x84 + 0x68) = func_002b2cb0(*(s8 *)(slot + arg1 * 0x84 + 0x68), 1, 5, 0, 1);
 }
+// Two-card layout: card-layout state machine for two cards (dispatcher phase 1). States: 0 start the slide at frame 0x50, 6 init slot params at 0x73, 7 spawn the effect, 8 wait for it, 9 converge at 0x1EA, 10 clear colour, 11 cue sound at 0x208-0x347, 12 advance. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_0033FC80
-s32 func_0033fc80(u8 *arg0) {
+s32 cmbCardRunTwoCardLayout(u8 *arg0) {
     u8 *ret;
     u8 *table6;
     u8 *table;
@@ -723,8 +725,9 @@ s32 func_0033fc80(u8 *arg0) {
     return 1;
 }
 
+// Three-card layout: card-layout state machine for three cards (dispatcher phase 2). States as in cmbCardRunTwoCardLayout. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_003407F0
-s32 func_003407f0(u8 *arg0) {
+s32 cmbCardRunThreeCardLayout(u8 *arg0) {
     u8 *ret;
     u8 *table6;
     u8 *table;
@@ -859,8 +862,9 @@ s32 func_003407f0(u8 *arg0) {
     return 1;
 }
 
+// Four-card layout: card-layout state machine for four cards (dispatcher phase 3). States as in cmbCardRunTwoCardLayout. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_00341640
-s32 func_00341640(u8 *arg0) {
+s32 cmbCardRunFourCardLayout(u8 *arg0) {
     u8 *ret;
     u8 *table6;
     u8 *table;
@@ -1000,8 +1004,9 @@ s32 func_00341640(u8 *arg0) {
     return 1;
 }
 
+// Five-card layout: card-layout state machine for five cards (dispatcher phase 4). States as in cmbCardRunTwoCardLayout. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_003427A0
-s32 func_003427a0(u8 *arg0) {
+s32 cmbCardRunFiveCardLayout(u8 *arg0) {
     u8 *ret;
     u8 *table;
     u8 *table6;
@@ -1147,8 +1152,9 @@ s32 func_003427a0(u8 *arg0) {
     return 1;
 }
 
+// Six-card layout: card-layout state machine for six cards (dispatcher phase 5). States as in cmbCardRunTwoCardLayout. Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_00343CF0
-s32 func_00343cf0(u8 *arg0) {
+s32 cmbCardRunSixCardLayout(u8 *arg0) {
     u8 *ret;
     u8 *table;
     u8 *table6;
@@ -1302,8 +1308,9 @@ s32 func_00343cf0(u8 *arg0) {
 
 /* Each of the twelve cards shares the native move, color and path
  * operations used by the smaller combination layouts. */
+// Full layout: card-layout state machine for all twelve card slots (dispatcher phase 6). Same states as the smaller layouts (0 slide start at frame 0x50, 6 slot init at 0x73, 7 spawn effect, 8 wait, 9 converge at 0x1EA, 10 clear colour, 11 cue at 0x208-0x347). Returns 0 when blocked or skipped by flag 0x58, else 1.
 // FUN_00345700
-s32 func_00345700(u8 *arg0) {
+s32 cmbCardRunFullLayout(u8 *arg0) {
     u8 *ret;
     u8 *table6;
     u8 *table;
@@ -1413,7 +1420,7 @@ s32 func_00345700(u8 *arg0) {
         break;
     case 7:
         func_0045aeb0(2, D_0064A5B0);
-        func_00348a90(*(u8 **)(obj + 0x64C),
+        cmbCardEffSetTween(*(u8 **)(obj + 0x64C),
                       func_002b29a0(0.0f, -5.0f, 30.0f),
                       0.0f, 0.0f, 0.0f, iGpffff850c,
                       func_002b2a60(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28,
@@ -1867,8 +1874,9 @@ void func_003489c0(u8 *arg0, CmbVec3f src, f32 f0, f32 f1, f32 f2, f32 f3, CmbRG
     *(u32 *)(obj + 0x10) = arg4;
 }
 
+// Two-keyframe tween setter: writes the start and end positions, colour, duration, and scale fields of an effect block and marks it active.
 // FUN_00348A90
-void func_00348a90(u8 *arg0, CmbVec3f src1, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f src2, f32 f4, f32 f5, f32 f6, f32 f7, CmbRGBA arg6) {
+void cmbCardEffSetTween(u8 *arg0, CmbVec3f src1, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA arg2, u16 arg3, u32 arg4, CmbVec3f src2, f32 f4, f32 f5, f32 f6, f32 f7, CmbRGBA arg6) {
     CmbVec3f tmp1 = src1;
     CmbVec3f tmp2 = src2;
     u8 *obj = *(u8 **)(arg0 + 0x38);
@@ -1927,9 +1935,10 @@ static inline FclDrawColor cmbFiveSpriteColor(s32 base)
  * Native b210 -O2: 1560/1568 bytes plus eight verified zero alignment bytes.
  * Full source, contract and sibling proof:
  * docs/probe_archive/yCmb_angle_forwarding_20260922.md. */
+// Five-sprite task: creates five colour sprites, colours them (gradient in mode 1, solid blue otherwise), sets their bounds, and returns -1 once the fifth sprite's state byte reaches 1.
 // FUN_00348C40
 #pragma push
-s32 func_00348c40(u8 *task) {
+s32 cmbFiveSpriteTask(u8 *task) {
     s32 index;
     u8 *handleSlot;
     u8 *updatedHandleSlot;
@@ -2005,7 +2014,7 @@ void cmbCardEffReleaseState(u8 *arg0) {
 }
 
 extern u8 D_0064A600[];
-s32 func_00348c40(u8 *arg0);
+s32 cmbFiveSpriteTask(u8 *arg0);
 
 // FUN_00349290
 u8 *func_00349290(u8 *arg0, s8 arg1) {
@@ -2014,7 +2023,7 @@ u8 *func_00349290(u8 *arg0, s8 arg1) {
 
     chkmemAllocSiteTag(D_0064A4A0, 0x8B9);
     blk = D_008873F4[0](1, 0x18, 0x40000);
-    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A600), 0xF, 0, 0, func_00348c40, cmbCardEffReleaseState, (u8 *)(blk));
+    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A600), 0xF, 0, 0, cmbFiveSpriteTask, cmbCardEffReleaseState, (u8 *)(blk));
     *(s8 *)(blk + 0) = arg1;
     *(s8 *)(blk + 1) = 0;
     return ret;
