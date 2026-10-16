@@ -162,7 +162,7 @@ extern s32 D_00762EA0;
 
 extern s32 func_004b1130(s32 arg0);
 extern void func_004b1250(void *object, f32 *position);
-extern void func_004b13d0(s32 arg0, f32 arg1);
+extern void mdlEffectSetUniformScale(s32 arg0, f32 arg1);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
@@ -304,7 +304,7 @@ s32 MT_Scene_CreateObjectRes(u16 arg0, s32 arg1, s8 arg2) {
     sp[1] = 0.0f;
     sp[2] = 0.0f;
     func_004b1250(*(void **)(temp_2 + 0x144), sp);
-    func_004b13d0(*(s32 *)(temp_2 + 0x144), 1.5f);
+    mdlEffectSetUniformScale(*(s32 *)(temp_2 + 0x144), 1.5f);
     return temp_16;
 }
 

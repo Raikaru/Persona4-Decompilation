@@ -17,10 +17,10 @@ extern void btlShuffleEffInitTrail(u8 *arg0, s32 arg1);
 
 extern u8 *func_004b1130();
 extern void func_004b1150(u8 *a);
-extern void func_004b1170(s32 a);
+extern void mdlEffectStart(s32 a);
 extern void func_004b1250(void *a, void *b);
 extern void mdlEffectSetEulerRotation(u8 *a, f32 b, f32 c, f32 d);
-extern void func_004b13d0(u8 *a, f32 b);
+extern void mdlEffectSetUniformScale(u8 *a, f32 b);
 /* The callee's real signature is (f32 *, f32 *, f32); this caller-side prototype keeps the
    float in the second position because mwcc b210 materialises call args in declaration
    order, and retail's bytes (addiu a0 / lwc1 f12 / addiu a1 before the jal) require that. */
@@ -109,7 +109,7 @@ void btlShuffleEffEnd(u8 *arg0) {
     tbl = *(u8 **)(arg0 + 0x38);
     for (i = 0; i < 9; i++) {
         if (*(u16 *)(tbl + 4) & (u16)(1 << i)) {
-            func_004b1170(*(s32 *)(tbl + i * 8 + 0xC));
+            mdlEffectStart(*(s32 *)(tbl + i * 8 + 0xC));
         }
     }
 }
@@ -134,7 +134,7 @@ void btlShuffleEffUpdate(u8 *arg0) {
             btlShuffleCalcLookAt(sp58, sp58);
             func_004b1250(*(u8 **)(e + 4), sp58);
             mdlEffectSetEulerRotation(*(u8 **)(e + 4), src[3], src[4], src[5]);
-            func_004b13d0(*(u8 **)(e + 4), src[6]);
+            mdlEffectSetUniformScale(*(u8 **)(e + 4), src[6]);
         }
     }
 }
@@ -173,7 +173,7 @@ void btlShuffleEffInitTrail(u8 *arg0, s32 arg1) {
         eoff = arg1 * 8;
         e = (u8 *)(eoff + (s32)tbl);
         *(s16 *)(e + 8) = 0;
-        func_004b1170(*(s32 *)(e + 0xC));
+        mdlEffectStart(*(s32 *)(e + 0xC));
         switch (arg1) {
         case 0:
         case 1:

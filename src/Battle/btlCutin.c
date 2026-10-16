@@ -11,7 +11,7 @@ extern void btlCutinLoad(u8 *arg0);
 extern s32 btlCutinLoadStatus();
 extern s32 H_Cdvd_IsFileLoaded();
 extern void H_Cdvd_Destroy();
-extern s32 func_004b1520();
+extern s32 mdlEffectIsFinished();
 extern void func_00485630();
 extern void func_00485870();
 extern void *TnGetTableBase();
@@ -154,7 +154,7 @@ s32 btlCutinUpdate(s32 *arg0) {
     for (var_16 = 0; var_16 < 4; var_16++) {
         temp_4 = *(s32 *)((u32)var_16 * 4 + (u32)iGpffffb3ac + 0xB5C);
         if (temp_4 != 0) {
-            if (func_004b1520(temp_4) == 0) {
+            if (mdlEffectIsFinished(temp_4) == 0) {
                 temp_19 = var_16 * 4;
                 func_00485630(*(s32 *)(iGpffffb3ac + temp_19 + 0xB5C));
                 func_00485870(*(s32 *)(iGpffffb3ac + temp_19 + 0xB5C));
@@ -168,7 +168,7 @@ s32 btlCutinUpdate(s32 *arg0) {
     }
     temp_4_2 = *(s32 *)(iGpffffb3ac + 0xB54);
     if (temp_4_2 != 0) {
-        if (func_004b1520(temp_4_2) == 0) {
+        if (mdlEffectIsFinished(temp_4_2) == 0) {
             func_00485630(*(s32 *)(iGpffffb3ac + 0xB54));
             func_00485870(*(s32 *)(iGpffffb3ac + 0xB54));
             var_20 = 0;

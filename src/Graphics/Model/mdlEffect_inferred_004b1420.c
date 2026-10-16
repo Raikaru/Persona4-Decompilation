@@ -60,7 +60,7 @@ extern void (*jtbl_008873EC[])(void *);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b1420-004b1420 */
 
 // FUN_004B1420
-void func_004b1420(u8 *arg0, f32 *arg1) {
+void mdlEffectGetPosition(u8 *arg0, f32 *arg1) {
     f32 sp20[4];
 
     mdlEffectGetPositionVec(arg0, (u32 *)sp20);

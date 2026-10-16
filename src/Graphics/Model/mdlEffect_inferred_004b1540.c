@@ -60,7 +60,7 @@ extern void (*jtbl_008873EC[])(void *);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b1540-004b1540 */
 
 // FUN_004B1540
-void func_004b1540(void)
+void mdlEffectIsActive(void)
 {
     mdlEffectAnyChildActive();
 }

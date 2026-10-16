@@ -66,9 +66,9 @@ u8 *func_004b11b0(u8 *);
 void func_004b11d0(void *, void *);
 void func_004b1250(void *, u8 *);
 void mdlEffectSetEulerRotation(u8 *, f32, f32, f32);
-void func_004b13d0(u8 *, f32);
+void mdlEffectSetUniformScale(u8 *, f32);
 void mdlEffectSetPackedColor(void *, u8 *);
-s32 func_004b1520(u8 *);
+s32 mdlEffectIsFinished(u8 *);
 extern u8 D_005DC7D0[];
 
 
@@ -1746,14 +1746,14 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *arg0) {
             *(u8 **)(obj + 8) = nv;
             func_004b1250(nv, obj + 0x18);
             mdlEffectSetEulerRotation(*(u8 **)(obj + 8), *(f32 *)(obj + 0x24), *(f32 *)(obj + 0x28), *(f32 *)(obj + 0x2C));
-            func_004b13d0(*(u8 **)(obj + 8), *(f32 *)(obj + 0x30));
+            mdlEffectSetUniformScale(*(u8 **)(obj + 8), *(f32 *)(obj + 0x30));
             mdlEffectSetPackedColor(*(u8 **)(obj + 8), obj + 0x34);
             if (*(u8 *)(obj + 0x48) == 1) {
                 u8 *nv2 = func_004b11b0(*(u8 **)(obj + 8));
                 *(u8 **)(obj + 0x44) = nv2;
                 func_004b1250(nv2, obj + 0x4C);
                 mdlEffectSetEulerRotation(*(u8 **)(obj + 0x44), *(f32 *)(obj + 0x58), *(f32 *)(obj + 0x5C), *(f32 *)(obj + 0x60));
-                func_004b13d0(*(u8 **)(obj + 0x44), *(f32 *)(obj + 0x64));
+                mdlEffectSetUniformScale(*(u8 **)(obj + 0x44), *(f32 *)(obj + 0x64));
                 mdlEffectSetPackedColor(*(u8 **)(obj + 0x44), obj + 0x68);
             }
         }
@@ -1807,7 +1807,7 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *arg0) {
         {
             s32 lim = *(s32 *)(obj + 0x10);
             if (lim == -1) {
-                if (func_004b1520(*(u8 **)(obj + 8)) == 0) {
+                if (mdlEffectIsFinished(*(u8 **)(obj + 8)) == 0) {
                     *(s8 *)(obj + 4) = 3;
                 }
             } else {

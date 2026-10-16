@@ -211,11 +211,11 @@ extern void (*jtbl_008873EC[])(void *);
 extern s32 D_00762EA0;
 
 extern s32 func_004b1130(s32 arg0);
-extern void func_004b1170(s32 arg0);
+extern void mdlEffectStart(s32 arg0);
 extern s32 func_004b11b0(s32 arg0);
 extern void func_004b1250(void *object, f32 *position);
 extern s32 FldFrameTask_Spawn(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
-extern void func_004b13d0(s32 arg0, f32 arg1);
+extern void mdlEffectSetUniformScale(s32 arg0, f32 arg1);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];

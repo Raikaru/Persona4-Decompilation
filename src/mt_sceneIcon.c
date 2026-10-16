@@ -20,7 +20,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 // lint: allow H011 -- measured: u16 prototype regresses func_0026da30 (andi on the wide icon id); retail declared this old-style
 extern u8 *MT_Scene_GetRes();
-extern void func_004b1170(s32 a);
+extern void mdlEffectStart(s32 a);
 /* measured: returns 0 / -1 in $v0; the task dispatcher discards it, so the callback site casts. */
 extern s32 mtSceneIconTaskUpdate(u8 *arg0);
 extern u8 D_0063B558[];
@@ -121,12 +121,12 @@ s32 mtSceneIconReleaseRes(s32 arg0, s32 arg1)
             kind = (*(u16 *)icon & 0xFFC00) >> 10;
             if (kind == 1) {
                 if (*(s32 *)(icon + 0x144) != 0) {
-                    func_004b1170(*(s32 *)(icon + 0x144));
+                    mdlEffectStart(*(s32 *)(icon + 0x144));
                     return 0;
                 }
             } else if (kind == 3) {
                 if (*(s32 *)(icon + 0x144) != 0) {
-                    func_004b1170(*(s32 *)(icon + 0x144));
+                    mdlEffectStart(*(s32 *)(icon + 0x144));
                     return 0;
                 }
             }

@@ -502,7 +502,7 @@ u8 *btlSoundLoadPacketNew(const void *arg0) {
 s32 btlSoundLoadPoll(s32 *arg0)
 {
     extern void func_00120f00(s32 arg0);
-    extern s32 func_004b1520(s32 arg0);
+    extern s32 mdlEffectIsFinished(s32 arg0);
     extern s32 TnGetTableBase(void);
     extern void TnSetTableBase(void *arg0);
     extern void func_00485630(s32 arg0);
@@ -529,7 +529,7 @@ s32 btlSoundLoadPoll(s32 *arg0)
     if (temp_4_3 == 0) {
         return 1;
     }
-    if (func_004b1520(temp_4_3) == 0) {
+    if (mdlEffectIsFinished(temp_4_3) == 0) {
         if (*arg0 == 0) {
             sdkSndStartStream(1, 0xE, 2, 0x10);
         }
