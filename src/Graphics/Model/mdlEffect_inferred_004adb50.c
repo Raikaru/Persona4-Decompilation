@@ -123,10 +123,10 @@ u8 *arg0;
     extern void mdlAdvanceModelFromFlags(void *arg0);
     extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
     extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
-    extern void func_004861f0(void *arg0, f32 *arg1);
+    extern void mdlEffectSetChildPositions(void *arg0, f32 *arg1);
     extern void func_0048a980(f32 *arg0);
-    extern void func_00486330(void *arg0, void *arg1);
-    extern void func_00486400(void *arg0, f32 arg1);
+    extern void mdlEffectSetChildRotations(void *arg0, void *arg1);
+    extern void mdlEffectSetChildScales(void *arg0, f32 arg1);
     extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
     extern void func_00485630(void *arg0);
     extern f32 D_00761134;
@@ -224,7 +224,7 @@ loop_body:
                     pos[1] = *(f32 *)(frame + 0x34);
                     pos[2] = *(f32 *)(frame + 0x38);
                     pos[3] = zero;
-                    func_004861f0((void *)*objs, pos);
+                    mdlEffectSetChildPositions((void *)*objs, pos);
                     mat[0] = *(f32 *)(frame + 0x00);
                     mat[1] = *(f32 *)(frame + 0x04);
                     mat[2] = *(f32 *)(frame + 0x08);
@@ -243,8 +243,8 @@ loop_body:
                     mat[15] = zero;
                     func_0048a980(mat);
                     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(out) : "$vf10", "memory");
-                    func_00486330((void *)*objs, out);
-                    func_00486400((void *)*objs, speed);
+                    mdlEffectSetChildRotations((void *)*objs, out);
+                    mdlEffectSetChildScales((void *)*objs, speed);
                     mdlEffectApplyPackedColor((void *)*objs, color);
                     func_00485630((void *)*objs);
                 }

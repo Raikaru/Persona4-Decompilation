@@ -25,8 +25,8 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void func_004861f0(u8 *arg0, f32 *arg1);
-extern void func_00486400(u8 *arg0, f32 arg1);
+extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);
+extern void mdlEffectSetChildScales(u8 *arg0, f32 arg1);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
@@ -60,9 +60,9 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0048.c; members 00484bb0-00485870 */
 
 extern u_long128 func_00484b30(u8 *arg0);
-extern void func_004861f0(u8 *arg0, f32 *arg1);
-extern void func_00486330(u8 *arg0, u8 *arg1);
-extern void func_00486400(u8 *arg0, f32 arg1);
+extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);
+extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
+extern void mdlEffectSetChildScales(u8 *arg0, f32 arg1);
 extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 extern u8 *func_00486780(u8 *arg0, s32 arg1);
 extern s32 func_004867e0(u8 *arg0, u8 *arg1);
@@ -100,9 +100,9 @@ typedef struct Code48InitialState {
 #pragma opt_propagation off
 u8 *func_00484bb0(u8 *arg0)
 {
-    extern void func_004861f0(u8 *arg0, f32 *arg1);
-    extern void func_00486330(u8 *arg0, u8 *arg1);
-    extern void func_00486400(u8 *arg0, f32 arg1);
+    extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);
+    extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
+    extern void mdlEffectSetChildScales(u8 *arg0, f32 arg1);
     extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
     extern char *strcpy(char *destination, const char *source);
     s32 func_004867e0(u8 *arg0, u8 *arg1);
@@ -364,9 +364,9 @@ u8 *func_00484bb0(u8 *arg0)
         }
         /* VU0's fixed vector is (0, 0, 0, 1). */
         __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(&vf0quad) : "memory");
-        func_004861f0(clone, (f32 *)&vf0quad);
-        func_00486330(clone, (u8 *)&vf0quad);
-        func_00486400(clone, 1.0f);
+        mdlEffectSetChildPositions(clone, (f32 *)&vf0quad);
+        mdlEffectSetChildRotations(clone, (u8 *)&vf0quad);
+        mdlEffectSetChildScales(clone, 1.0f);
         mdlEffectApplyPackedColor(clone, -1);
         return clone;
     }
@@ -387,7 +387,7 @@ void func_00485630(u8 *arg0)
 {
     extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
     extern u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2);
-    extern void func_00486330(u8 *arg0, u8 *arg1);
+    extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
     /* 00484b30 initializes the 0x80-byte state; 00484bb0 allocates a
      * 0x90-byte root. The union keeps field and quadword transfers in the
      * same object, including all four components of the saved rotation. */
@@ -431,7 +431,7 @@ void func_00485630(u8 *arg0)
         save_slot = &work.savedRotation;
         *save_slot = root->state.quad[5];
         func_00486970(arg0, (u8 *)&work.origin, &work.rotation);
-        func_00486330(arg0, (u8 *)&work.rotation);
+        mdlEffectSetChildRotations(arg0, (u8 *)&work.rotation);
         restore_slot = &work.savedRotation;
         /* lint: allow H009 -- retail copies this quad through $2 at 0x0048569C; b210 keeps $v0 live after calls (user-approved 2026-10-09) */
         __asm__ volatile("lq $2, 0(%0)\n\tsq $2, 0x50(%1)" : : "r"(restore_slot), "r"(root) : "$2", "memory");
@@ -503,7 +503,7 @@ void func_00485870(u8 *arg0)
 {
     extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
     extern u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2);
-    extern void func_00486330(u8 *arg0, u8 *arg1);
+    extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
     /* 00484b30 initializes the 0x80-byte state; 00484bb0 allocates a
      * 0x90-byte root. The union keeps field and quadword transfers in the
      * same object, including all four components of the saved rotation. */
@@ -554,7 +554,7 @@ void func_00485870(u8 *arg0)
             save_slot = &work.savedRotation;
             *save_slot = root->state.quad[5];
             func_00486970(arg0, (u8 *)&work.origin, &work.rotation);
-            func_00486330(arg0, (u8 *)&work.rotation);
+            mdlEffectSetChildRotations(arg0, (u8 *)&work.rotation);
             restore_slot = &work.savedRotation;
             /* lint: allow H009 -- retail copies this quad through $2 at 0x00485900; b210 keeps $v0 live after calls (user-approved 2026-10-09) */
             __asm__ volatile("lq $2, 0(%0)\n\tsq $2, 0x50(%1)" : : "r"(restore_slot), "r"(root) : "$2", "memory");

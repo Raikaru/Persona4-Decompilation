@@ -2426,7 +2426,7 @@ extern f32 fGpffff80f4;
 extern void mdlEffectCopyReferences(u8 *arg0, u8 *arg1);
 extern u8 *GeometryCloneBlock(s32 arg0);
 extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
-extern void func_00485fe0(s32 arg0);
+extern void mdlEffectStartChildren(s32 arg0);
 extern void *mdlEffectCreateInstance(void *source);
 
 
@@ -3302,7 +3302,7 @@ void EffModelDrawableReset(u8 *arg0)
         var_17 = 0;
         goto loop_004adab0_check;
 loop_004adab0_body:
-        func_00485fe0(*var_18);
+        mdlEffectStartChildren(*var_18);
         var_18++;
         var_17 += 1;
 loop_004adab0_check:
@@ -3586,7 +3586,7 @@ extern s32 D_00922DA0[];
 extern s16 D_00922DA4[];
 extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
-extern void func_004861f0(void *arg0, f32 *arg1);
+extern void mdlEffectSetChildPositions(void *arg0, f32 *arg1);
 extern void func_004b1ad0(u8 *arg0);
 extern void func_003efd20(u8 *arg0, s32 arg1);
 extern void func_003e9390(s32 arg0);
@@ -3598,7 +3598,7 @@ extern u8 D_0071465C[];
 extern u8 D_00714650[];
 extern u8 D_00714660[];
 extern void mdlEffectGetPositionVec(u8 *arg0, u32 *arg1);
-extern void func_00486330(u8 *arg0, void *arg1);
+extern void mdlEffectSetChildRotations(u8 *arg0, void *arg1);
 extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
 extern f32 iGpffff836c;
 extern void mdlEffectGetOrientationVec(u8 *arg0, u32 *arg1);
@@ -3650,7 +3650,7 @@ void func_004b1250(void *arg0, f32 *arg1)
     work[1] = arg1[1];
     work[2] = arg1[2];
     work[3] = 0.0f;
-    func_004861f0(arg0, work);
+    mdlEffectSetChildPositions(arg0, work);
 }
 
 
@@ -3662,7 +3662,7 @@ void mdlEffectSetEulerRotation(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 
     effMiscEulerToQuatVU(iGpffff836c * arg1, iGpffff836c * arg2, iGpffff836c * arg3);
     __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(scratch) : "memory");
-    func_00486330(arg0, scratch);
+    mdlEffectSetChildRotations(arg0, scratch);
 }
 
 

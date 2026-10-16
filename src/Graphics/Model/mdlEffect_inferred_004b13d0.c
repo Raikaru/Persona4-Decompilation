@@ -13,7 +13,7 @@ extern s32 iGpffffbb9c;
 extern u8 *iGpffffbba0;
 /* gp - 0x445C = 0x00764c94: enable predicate, called through the pointer */
 extern s32 (*iGpffffbba4)(void);
-extern void func_00486400();
+extern void mdlEffectSetChildScales();
 
 
 extern s32 iGpffffbb98;
@@ -62,6 +62,6 @@ extern void (*jtbl_008873EC[])(void *);
 // FUN_004B13D0
 void func_004b13d0(u8 *arg0, f32 arg1)
 {
-    func_00486400();
+    mdlEffectSetChildScales();
 }
 
