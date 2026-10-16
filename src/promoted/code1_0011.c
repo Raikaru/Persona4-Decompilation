@@ -70,7 +70,7 @@ extern u16 func_001068b0(s16 arg0);
 extern u16 func_001068e0(s16 arg0);
 extern u16 func_00106940(s16 arg0);
 extern u16 func_00106970(s16 arg0);
-extern s32 func_00106c30(s16 arg0, s16 arg1);
+extern s32 datEntryHasFlag(s16 arg0, s16 arg1);
 extern s32 datIdBand(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern u8 *datPersonaDisplayName(s16 arg0);
@@ -1665,7 +1665,7 @@ void datPanelDrawCompareIcon(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
         sdkSpriteDrawOnceAux(0, temp_2, 3, arg0.x, arg0.y, 0, alpha, arg4, 1);
         return;
     }
-    if (func_00106c30(temp_17, *(s16 *)arg2) == 0) {
+    if (datEntryHasFlag(temp_17, *(s16 *)arg2) == 0) {
         alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
         sdkSpriteDrawOnceAux(0, temp_2, 3, arg0.x, arg0.y, 0, alpha, arg4, 1);
         return;

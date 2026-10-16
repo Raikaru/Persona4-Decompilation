@@ -29,7 +29,7 @@ extern void *K_Clump_GetLightA(void);
 extern void func_003c38b0(void *arg0, void *arg1);
 extern void *K_Clump_GetLightB(void);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
-extern u8 *func_00104900(s8 arg0);
+extern u8 *datCloneEntryBlock(s8 arg0);
 extern void RwMatrixRotate(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
 extern s32 func_00349c50(u8 *arg0);
@@ -656,7 +656,7 @@ s32 func_0034a4f0(s32 arg0, s32 arg1)
     *(s8 *)(mem + 0) = 0;
     *(s16 *)(mem + 8) = 0;
     *(s8 *)(mem + 5) = 0;
-    entry = func_00104900((s8)arg1);
+    entry = datCloneEntryBlock((s8)arg1);
     *(u8 **)(mem + 0x14) = entry;
     *(s32 *)(mem + 0x10) = *(s32 *)(entry + 8);
     *(s32 *)(mem + 0xE8) = 0xB3;

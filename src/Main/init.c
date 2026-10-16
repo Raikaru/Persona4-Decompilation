@@ -10,7 +10,7 @@ extern void H_Cdvd_Destroy(void *handle);
 extern s32 H_Cdvd_IsFileLoaded(void *handle);
 
 extern void chkmemAllocSiteTag(const void *file, u32 line);
-extern void func_00104c50(void);
+extern void datEntryTableUseBuiltin(void);
 extern s32 calendarStartTasks(s32);
 extern void func_002aaa80(void);
 extern void func_002aaaa0(void);
@@ -50,7 +50,7 @@ s32 initDataReadStep(u8 *arg0)
             memcpy(&D_0079BF00, *(u8 **)(temp_2 + 0x110), *(s32 *)(temp_2 + 0x118));
             H_Cdvd_Destroy(*(u8 **)(temp_16 + 4));
             *(u8 **)(temp_16 + 4) = NULL;
-            func_00104c50();
+            datEntryTableUseBuiltin();
             return -1;
         }
         break;
