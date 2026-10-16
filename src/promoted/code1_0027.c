@@ -100,20 +100,6 @@ void func_002746c0(s32 arg0, s32 arg1)
 #pragma opt_loop_invariants off
 
 
-// Intent: Frees every window in the window list (task destroy callback) [inferred]
-// FUN_0027B690
-void itfMesWindowFreeAll(u8 *unusedTask)
-{
-    u8 *temp_16;
-    u8 *var_3;
-
-    var_3 = *(u8 **)DAT_008817EC_abs;
-    while (var_3 != NULL) {
-        temp_16 = *(u8 **)(var_3 + 4);
-        itfMesWindowFree(*(s32 *)(var_3 + 8));
-        var_3 = temp_16;
-    }
-}
 // FUN_0027B7C0
 s32 func_0027b7c0(s32 arg0)
 {
