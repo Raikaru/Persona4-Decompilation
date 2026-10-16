@@ -157,8 +157,8 @@ extern s32 func_0024f790(u8* arg0);
 extern s32 cmmScriptLoadStep(u8 *task);
 extern void cmmScriptTaskDestroy(u8 *task);
 extern s32 cmmScriptStepWaveSprite(u8* arg0, u8* arg1);
-extern s32 func_0024c460(u8* arg0, u8* arg1);
-extern s32 func_0024d1f0(u8* arg0, u8* arg1);
+extern s32 cmmScriptStepPopupBanner(u8* arg0, u8* arg1);
+extern s32 cmmScriptStepScoreDisplay(u8* arg0, u8* arg1);
 typedef struct { f32 x, y, z, w; } Vec4f;
 
 typedef int (*code)();
@@ -1243,8 +1243,9 @@ block_20:
 /* Native b210 -O2 recovery: 3,464 emitted bytes in the 3,472-byte retail
    window. Full proof and callback behavior evidence are retained in
    docs/probe_archive/Community_script_recovery_20260922.md. */
+// Popup banner step: when flag 2 is set, fades and scales the banner sprites in over five frames, then clears the flag.
 // FUN_0024C460
-s32 func_0024c460(u8 *arg0, u8 *work)
+s32 cmmScriptStepPopupBanner(u8 *arg0, u8 *work)
 {
     u8 *task;
     u8 *loadTask;
@@ -1466,8 +1467,9 @@ static inline f32 cmmScoreDisplacement(f32 phase, f32 negative, f32 positive)
     return positive * phase;
 }
 
+// Score display step: animates the score digits with the cmmScoreBounce and cmmScoreDisplacement motion.
 // FUN_0024D1F0
-s32 func_0024d1f0(u8 *parent, u8 *work)
+s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
 {
     extern f32 sinf(f32);
     extern u8 *func_0046a770(char *name);
@@ -2197,8 +2199,8 @@ s32 cmmScriptStartEntries(void)
     chkmemAllocSiteTag(D_006359F0, 0x66C);
     e = D_008873F4[0](1, 0x5C, 0x40000);
     *(s32*)(e + 0x14) = (s32)cmmScriptStepWaveSprite;
-    *(s32*)(e + 0x2C) = (s32)func_0024c460;
-    *(s32*)(e + 0x44) = (s32)func_0024d1f0;
+    *(s32*)(e + 0x2C) = (s32)cmmScriptStepPopupBanner;
+    *(s32*)(e + 0x44) = (s32)cmmScriptStepScoreDisplay;
     (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635B38), 0xF, 0, 0, cmmScriptRunEntries, cmmScriptEntriesDestroy, (u8 *)(e));
     for (i = 0; i < 5; i++) {
         cmmScriptTaskDestroyHandle(i);
