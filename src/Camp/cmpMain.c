@@ -47,9 +47,9 @@ s32 func_00131910(u8 *arg0);
 s32 func_00135cf0(u8 *arg0);
 s32 func_0013ffd0(u8 *arg0);
 s32 func_0035fc90(u8 *arg0);
-void func_00130580(u8 *arg0);
+void radarFreeSpriteNodes(u8 *arg0);
 void func_0013ab30(u8 *arg0);
-void func_00134ab0(u8 *arg0);
+void radarReleaseSpritesAndEntries(u8 *arg0);
 void func_001377e0(u8 *arg0);
 void radarDestroy(u8 *arg0);
 void func_00361a30(u8 *arg0);
@@ -327,13 +327,13 @@ void func_0012cc50(u8 *arg0) {
         func_0012e150(p + 0x18);
         break;
     case 4:
-        func_00130580(p + 0x2BC);
+        radarFreeSpriteNodes(p + 0x2BC);
         break;
     case 5:
         func_0013ab30(p + 0x1EA4);
         break;
     case 6:
-        func_00134ab0(p + 0x31DC);
+        radarReleaseSpritesAndEntries(p + 0x31DC);
         break;
     case 7:
         func_001377e0(p + 0x5A8C);
