@@ -1349,7 +1349,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 b = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
                 fieldSceneLoad(b, FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF);
                 func_00144e10((s16)FldLoadTaskMapState(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
-                func_00144ed0((s64)(s16)func_001546a0(FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()), FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState())));
+                func_00144ed0((s64)(s16)FldEnvStateFromCalendar(FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()), FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState())));
                 v6 = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
                 if (v6 == 0x2C) goto loadFieldModel;
                 if (v6 == 0x2E) goto loadFieldModel;
