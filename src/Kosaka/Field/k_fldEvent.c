@@ -841,8 +841,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 scrStartProcedureIndex(s32, u8 *, s32);
 
     void fieldSceneLoad(s32, s32);
-    void func_00144e10(s64);
-    void func_00144ed0(s64);
+    void fieldSceneRequestRoom(s64);
+    void fieldSceneRequestSecondaryRoom(s64);
     s32 MT_Scene_CreateModelFldRes(u16, s32);
     u16 MT_Scene_FindFreeResId(s32);
     void SceneDraw_SetResVisible(u16, u32);
@@ -1348,8 +1348,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 }
                 b = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
                 fieldSceneLoad(b, FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF);
-                func_00144e10((s16)FldLoadTaskMapState(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
-                func_00144ed0((s64)(s16)FldEnvStateFromCalendar(FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()), FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState())));
+                fieldSceneRequestRoom((s16)FldLoadTaskMapState(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
+                fieldSceneRequestSecondaryRoom((s64)(s16)FldEnvStateFromCalendar(FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()), FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState())));
                 v6 = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()) & 0xFFFF;
                 if (v6 == 0x2C) goto loadFieldModel;
                 if (v6 == 0x2E) goto loadFieldModel;

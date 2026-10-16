@@ -21,8 +21,8 @@ extern s32 func_00293ed0(s32 a, s32 b, s32 c, s32 d);
 extern s32 func_00293fc0(s32 arg0);
 extern s32 func_002940a0(s32 arg0, s32 *a, s32 *b, s32 *c, s32 *d);
 extern void fieldSceneLoad(s32 a, s32 b);
-extern void func_00144e10(s32 a);
-extern void func_00144ed0(s32 a);
+extern void fieldSceneRequestRoom(s32 a);
+extern void fieldSceneRequestSecondaryRoom(s32 a);
 extern s32 fieldSceneLoadStep(void);
 extern s32 func_002859e0(s32 a, s32 b, s32 c);
 extern s32 kwlnTaskIsLinked(s32 handle);
@@ -113,8 +113,8 @@ s32 fclCombineEventSceneUpdate(u8 *arg0)
             if (*(s32 *)(temp_16 + 8) == 0xA) {
                 fieldSceneLoad(sp2C, sp28);
             }
-            func_00144e10((s16)sp24);
-            func_00144ed0(3);
+            fieldSceneRequestRoom((s16)sp24);
+            fieldSceneRequestSecondaryRoom(3);
             temp_16[0] = (s8)((s8)temp_16[0] + 1);
         }
         goto out;

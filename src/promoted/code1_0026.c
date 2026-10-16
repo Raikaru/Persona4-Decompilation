@@ -153,7 +153,7 @@ extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void mdlEffectEmitTagPair(void);
 extern s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2);
 extern void func_0025f620(f32, f32, f32, s32, u8, const char *, s32, s16, s16, Code1_0026Callback, u8 *);
-extern s32 func_0026e360(s64 arg0);
+extern s32 frFontDataEntryClass(s64 arg0);
 // Intent: Sets the enable flag on the sdlScheduler task when it exists [inferred]
 // FUN_00260510
 void sdlSchedulerEnable(void)

@@ -95,7 +95,7 @@ extern char D_0063BC10[];
 extern s32 H_Cdvd_AcquireDirectory(const void *arg0, s32 arg1);
 extern void H_Cdvd_ReadSync(s32 arg0);
 extern u8 *H_Cdvd_LookupRequest(void *arg0, void *arg1);
-extern void func_0026e170(int param_1);
+extern void fmGslContFreeNode(int param_1);
 extern void frFontRasterDestroyCache(void);
 extern void frFontReleaseSlots(void);
 extern void kAssertFailAt(const void *msg, const void *file, u32 line);
@@ -379,8 +379,8 @@ void frFontTaskDestroy(u8 *unusedTask)
     frFontReleaseSlots();
     frFontListRelease(DAT_0088179C_abs[0]);
     frFontListRelease(DAT_008817A0_abs[0]);
-    func_0026e170(DAT_0088175c_abs[0]);
-    func_0026e170(*(u32 *)DAT_00881760_abs);
+    fmGslContFreeNode(DAT_0088175c_abs[0]);
+    fmGslContFreeNode(*(u32 *)DAT_00881760_abs);
     if (DAT_0088152C_abs[0] != 0) {
         tab = (void *(**) )DAT_008873ec_abs;
         ((code)tab[0])(DAT_00881510_abs[0]);
@@ -446,7 +446,7 @@ void frFontSlotFree(u32 param_1)
 
 
 
-// func_0026e120 and frFontFreeListInsert are intentionally left undeclared
+// fmGslContPushNode and frFontFreeListInsert are intentionally left undeclared
 // (implicit old-style calls, as in the P3 donor FUN_003b0030); a typed
 // prototype would force an int->pointer cast mwcc rejects, and the P3
 // retail form is the implicit call.
@@ -665,13 +665,13 @@ u32 frFontListRelease(int param_1)
                 }
             }
 
-            func_0026e120(iVar4, DAT_0088175c_abs[0]);
+            fmGslContPushNode(iVar4, DAT_0088175c_abs[0]);
             iVar4 = iVar1;
             DAT_00881754_abs[0] = DAT_00881754_abs[0] + -1;
         }
 
         next_list = *(int *)(param_1 + 0x24);
-        func_0026e120(param_1, *(u32 *)DAT_00881760_abs);
+        fmGslContPushNode(param_1, *(u32 *)DAT_00881760_abs);
         param_1 = next_list;
         DAT_00881758_abs[0] = DAT_00881758_abs[0] + -1;
     }
@@ -825,8 +825,8 @@ u8 *frFontAcquireGlyph(u8 *arg0, u32 arg1)
         temp_17 = (u8 *)((u32)gFrFontManagerData_abs + (arg0[0x15] << 5));
         chkmemAllocSiteTag(D_0063BAE8, 0x526);
         temp_20 = (u8 *)jtbl_008873E8[0](0x200, 0x40000);
-        func_0026e1a0(*(int **)(temp_17 + 0x1C), (int *)sp60);
-        func_0026e1e0((int)temp_20, (int)arg1, *(int *)(temp_17 + 0x1C), (int *)sp60);
+        fmGslContSetupSubBlocks(*(int **)(temp_17 + 0x1C), (int *)sp60);
+        fmGslContDecodeRun((int)temp_20, (int)arg1, *(int *)(temp_17 + 0x1C), (int *)sp60);
         var_18 = (u8 *)(u32)frFontFindOrLoadEntry(arg1, (u32)temp_20, arg0[0x14]);
         if (var_18 == NULL) {
             kAssertFail(D_0063BAE8, 0x560);
@@ -859,7 +859,7 @@ u8 *frFontAcquireGlyph(u8 *arg0, u32 arg1)
     return temp_17;
 }
 extern char D_0063BC50[];
-extern u8 *func_0026e0e0(s32 param_1);
+extern u8 *fmGslContPopNode(s32 param_1);
 
 
 
@@ -876,7 +876,7 @@ u8 * frFontCreateGlyphNode(u16 arg0, u8 arg1, u8 arg2, u8 arg3)
     s8 hit;
     s32 value;
 
-    node = (u8 *)func_0026e0e0(DAT_0088175c_abs[0]);
+    node = (u8 *)fmGslContPopNode(DAT_0088175c_abs[0]);
     DAT_00881754_abs[0] += 1;
     if (node == NULL) {
         kAssertFailAt(D_0063BC50, D_0063BAE8, 0x5D2);
@@ -1065,7 +1065,7 @@ u8 *frFontCreateTextList(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
         var21 = strlen(arg0);
     }
     if (var19 == NULL) {
-        var19 = func_0026e0e0(*(u32 *)DAT_00881760_abs);
+        var19 = fmGslContPopNode(*(u32 *)DAT_00881760_abs);
         DAT_00881758_abs[0] += 1;
         if (var19 == NULL) {
             kAssertFail(&D_0063BAE8, 0x665);

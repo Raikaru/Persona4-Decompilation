@@ -85,7 +85,7 @@ extern s32 D_008815B0[];
 extern void frFontUpdateTextWork(u8 *arg0);
 extern u8 iGpffffa734;
 
-extern s32 func_0026e360(s64 arg0);
+extern s32 frFontDataEntryClass(s64 arg0);
 
 /* Source unit: src/promoted/code1_0026.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0026.c; members 0026fd90-0026fff0 */
@@ -216,7 +216,7 @@ s32 func_0026fd90(s32 arg0, u8 *arg1)
     }
     if ((u16)second != 0) {
         second = (u16)third;
-        switch (func_0026e360(second)) {
+        switch (frFontDataEntryClass(second)) {
         case 0:
         case 1:
         case 2:
@@ -236,7 +236,7 @@ s32 func_0026fd90(s32 arg0, u8 *arg1)
             arg1[0xD] = 4;
         }
         glyph[0] = -0x7D;
-        glyph[1] = func_0026e360(second) + 0xC7;
+        glyph[1] = frFontDataEntryClass(second) + 0xC7;
         glyph[2] = 0;
         frFontUpdateTextWork(arg1);
         frFontLayoutText((u8 *)glyph, arg1);
