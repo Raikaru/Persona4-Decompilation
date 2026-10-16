@@ -136,44 +136,51 @@ extern void (*jtbl_008873EC[])(void *);
 
 
 
+/* Calls kind destroy slot +0x08 on the child at +0x3C, then frees arg0 through the allocator free table. */
 // FUN_004A18E0
-void func_004a18e0(u8 *arg0) {
+void FlashQuadDestroy(u8 *arg0) {
     (*(void (**)(u8 *))(D_00714018 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(*(u8 **)(arg0 + 0x3C));
     jtbl_008873EC[0](arg0);
 }
+/* Calls kind slot +0x00 with no argument, then clears the counter at +0x34. */
 // FUN_004A1AA0
-void func_004a1aa0(u8 *arg0) {
+void FlashQuadStop(u8 *arg0) {
     (*(void (**)(void))(D_00714010 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
     *(s32 *)(arg0 + 0x34) = 0;
 }
+/* Calls kind slot +0x10 with no argument, then increments the counter at +0x34. */
 // FUN_004A1AF0
-void func_004a1af0(u8 *arg0) {
+void FlashQuadAdvance(u8 *arg0) {
     (*(void (**)(void))(D_00714020 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
     (*(s32 *)(arg0 + 0x34))++;
 }
+/* Calls kind slot +0x14 with no argument when the counter at +0x34 is positive. */
 // FUN_004A1B50
-void func_004a1b50(u8 *arg0) {
+void FlashQuadUpdateIfActive(u8 *arg0) {
     if (*(s32 *)(arg0 + 0x34) > 0) {
         (*(void (**)(void))(D_00714024 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
     }
 }
+/* Calls kind slot +0x10, increments the counter at +0x34, then calls kind slot +0x14 with arg0 when the counter is positive. */
 // FUN_004A1BA0
-void func_004a1ba0(u8 *arg0) {
+void FlashQuadAdvanceAndUpdate(u8 *arg0) {
     (*(void (**)(void))(D_00714020 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
     (*(s32 *)(arg0 + 0x34))++;
     if (*(s32 *)(arg0 + 0x34) > 0) {
         (*(void (**)(u8 *))(D_00714024 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
     }
 }
+/* Copies the 16-byte quad at arg1 to +0x00 and returns it. */
 // FUN_004A1C30
-u_long128 func_004a1c30(u8 *arg0, u8 *arg1) {
+u_long128 FlashQuadSetFirstQuad(u8 *arg0, u8 *arg1) {
     u_long128 value;
     value = *(u_long128 *)arg1;
     *(u_long128 *)arg0 = value;
     return value;
 }
+/* Copies the 16-byte quad at arg1 to +0x10 and returns it. */
 // FUN_004A1C40
-u_long128 func_004a1c40(u8 *arg0, u8 *arg1) {
+u_long128 FlashQuadSetSecondQuad(u8 *arg0, u8 *arg1) {
     u_long128 value;
     value = *(u_long128 *)arg1;
     *(u_long128 *)(arg0 + 0x10) = value;
@@ -183,14 +190,16 @@ u_long128 func_004a1c40(u8 *arg0, u8 *arg1) {
 void func_004a1c50(u8 *arg0, s32 arg1) {
     *(s32 *)(arg0 + 0x30) = arg1;
 }
+/* Writes the same float to +0x20, +0x24 and +0x28, giving a uniform scale. */
 // FUN_004A1C60
-void func_004a1c60(u8 *arg0, f32 arg1) {
+void FlashQuadSetUniformScale(u8 *arg0, f32 arg1) {
     *(f32 *)(arg0 + 0x20) = arg1;
     *(f32 *)(arg0 + 0x24) = arg1;
     *(f32 *)(arg0 + 0x28) = arg1;
 }
+/* Copies the three floats of arg1 into +0x20, +0x24 and +0x28. */
 // FUN_004A1C80
-void func_004a1c80(u8 *arg0, f32 *arg1) {
+void FlashQuadSetVec3(u8 *arg0, f32 *arg1) {
     *(f32 *)(arg0 + 0x20) = arg1[0];
     *(f32 *)(arg0 + 0x24) = arg1[1];
     *(f32 *)(arg0 + 0x28) = arg1[2];
