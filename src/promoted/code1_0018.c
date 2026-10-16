@@ -263,8 +263,8 @@ void FldAmbientTrigger(s32 arg0, u16 mode, u16 id)
 {
     extern u8 *MT_Scene_GetResListHead(s32 arg0);
     extern s32 K_FldFrame_IsPointInTriangle(f32 *point, f32 **vertices, f32 *normal);
-    extern s32 func_0016fe80(s32 arg0);
-    extern s32 func_0016ffd0(s32 arg0);
+    extern s32 FldMoveAnimPrimary(s32 arg0);
+    extern s32 FldMoveAnimSecondary(s32 arg0);
     extern u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *posA, const struct RwV3d *posB, f32 maxDist);
     extern f32 mdlGetLayerWeight(s32 arg0, s32 arg1);
     extern u8 *D_005F08B0[];
@@ -316,17 +316,17 @@ void FldAmbientTrigger(s32 arg0, u16 mode, u16 id)
     switch (mode) {
     case 1:
         if (status == 9) {
-            if (stat == func_0016fe80(mode)) {
+            if (stat == FldMoveAnimPrimary(mode)) {
                 if ((time > 7.0f && time < 8.0f) || (time > 21.0f && time < 22.0f)) {
                     func_001823d0_play(id, 1, area * 4);
                 }
-            } else if (stat == func_0016ffd0(mode)) {
+            } else if (stat == FldMoveAnimSecondary(mode)) {
                 if ((time > 9.0f && time < 10.0f) || (time > 19.0f && time < 20.0f)) {
                     func_001823d0_play(id, 1, area * 4);
                 }
             }
         } else if (status == 1) {
-            if (stat == func_0016ffd0(mode)) {
+            if (stat == FldMoveAnimSecondary(mode)) {
                 if ((time > 9.0f && time < 10.0f) || (time > 19.0f && time < 20.0f)) {
                     func_001823d0_play(id, 1, area * 4);
                 }
@@ -337,7 +337,7 @@ void FldAmbientTrigger(s32 arg0, u16 mode, u16 id)
         if (status == 1 &&
             K_FldEvent_ArePosWithinDist((struct RwV3d *)(mdlGetMatrix(arg0) + 0x30),
                                         (struct RwV3d *)(mdlGetMatrix(D_007EFA00[0]) + 0x30), 1600.0f) != 0 &&
-            stat == func_0016ffd0(mode)) {
+            stat == FldMoveAnimSecondary(mode)) {
             if ((time > 8.0f && time < 9.0f) || (time > 18.0f && time < 19.0f)) {
                 func_001823d0_play(id, 2, 0x18);
             }
@@ -347,7 +347,7 @@ void FldAmbientTrigger(s32 arg0, u16 mode, u16 id)
         if (status == 1 &&
             K_FldEvent_ArePosWithinDist((struct RwV3d *)(mdlGetMatrix(arg0) + 0x30),
                                         (struct RwV3d *)(mdlGetMatrix(D_007EFA00[0]) + 0x30), 1600.0f) != 0 &&
-            stat == func_0016ffd0(mode)) {
+            stat == FldMoveAnimSecondary(mode)) {
             if ((time > 8.0f && time < 9.0f) || (time > 18.0f && time < 19.0f)) {
                 func_001823d0_play(id, 2, area * 4);
             }

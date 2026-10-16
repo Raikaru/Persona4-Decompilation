@@ -49,7 +49,7 @@ extern void *memset(void *dst, s32 value, s32 size);
 extern s32 calCaptureStateImage(void);
 extern s32 *MT_Scene_GetFrameState(void);
 extern s32 datGetFlag(s32 arg0);
-extern s32 func_0016fd00(void);
+extern s32 FldCharacterAnimSelect(void);
 extern s32 FldRoomIsListed(u16 arg0, u16 arg1);
 extern u32 RpRandom(void);
 extern s32 FldStepIndex(void);

@@ -37,7 +37,7 @@ extern s32 datCalcGetLevelById(s32 value);
 extern void scrSetReturnInt(s32 value);
 extern u8* MT_Scene_GetResListHead(s32 arg0);
 extern void FldFrame_RotateTaskCreate(s32 a, s32 b, s32 c);
-extern void func_0016f3b0(s32 a, s32 b, s32 c);
+extern void FldFrameRotateTaskCreate(s32 a, s32 b, s32 c);
 extern s32 mdlPrepareModel(void* arg0);
 extern void* mdlCloneModelObject(s32 arg0);
 extern void mdlDestroyModelObject(u32 arg0);
@@ -768,14 +768,14 @@ s32 K_Cmd_FLD_CAMERA_ROTATE(void)
 
 
 /* P4 flowscript library (build/p4flow/Field.json, index 0x1018): FLD_CAMERA_ROTATE_BEHIND(degrees, speed).
- * func_0016f3b0 takes an absolute target yaw (wrapped to 360) where FldFrame_RotateTaskCreate adds
+ * FldFrameRotateTaskCreate takes an absolute target yaw (wrapped to 360) where FldFrame_RotateTaskCreate adds
  * degrees to the player's yaw. The library name is kept. */
 // FUN_001780D0
 s32 K_Cmd_FLD_CAMERA_ROTATE_BEHIND(void)
 {
     s32 a = scrGetParamInt(0);
     s32 b = scrGetParamInt(1);
-    func_0016f3b0(0, b, a);
+    FldFrameRotateTaskCreate(0, b, a);
     return 1;
 }
 
@@ -826,7 +826,7 @@ s32 Cmd_FaceNearestAxis(void)
         {
             angle = 180.0f;
         }
-        func_0016f3b0(0, v, (s32)angle);
+        FldFrameRotateTaskCreate(0, v, (s32)angle);
     }
     return 1;
 }
