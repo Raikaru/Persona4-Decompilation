@@ -120,7 +120,7 @@ extern s32 func_002bd7b0(const void *arg0);
 extern s32 func_002bd840(s32 arg0);
 extern u8 D_0064A790[];
 extern void resrcMngSetRenderSuppressed(s32 arg0);
-extern s32 func_0015a560(void);
+extern s32 FldStepNotAtBoundary(void);
 extern void func_0034c260(s32 arg0);
 extern s32 func_0034bb10(void);
 extern s64 datGetPartyId(s32 arg0);
@@ -277,7 +277,7 @@ void func_00353fe0(void)
 // FUN_00354010
 s32 func_00354010(void)
 {
-    return func_0015a560();
+    return FldStepNotAtBoundary();
 }
 // FUN_00354030
 s32 func_00354030(void)

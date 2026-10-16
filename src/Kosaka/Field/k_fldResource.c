@@ -111,7 +111,7 @@ extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 ar
 extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
 extern s32 FldMap_IsInBandA(s32 a0, s32 a1);
 extern s32 FldMap_IsInBandB(s32 a0, s32 a1);
-extern u8 *func_0015c640(s32 a0, s32 a1);
+extern u8 *FldStepLoadFilePair(s32 a0, s32 a1);
 extern s32 *MT_Scene_GetFrameState(void);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern s32 atoi(const char *arg0);
@@ -223,7 +223,7 @@ void FldResource_QueueFieldResources(s32 arg0, s32 arg1)
         if (FldMap_IsInBandB(arg0, arg1)) {
             var17 = (u16)((u16)arg0 - 0x14);
             *(s32 *)(iGpffff9db0 + 0x88) |= 0x80000000;
-            var16 = (s32)func_0015c640(arg0, arg1);
+            var16 = (s32)FldStepLoadFilePair(arg0, arg1);
             *(s32 *)(((u8 *)MT_Scene_GetFrameState()) + 0x1864) = var16;
             var16 = D_005F0591[D_005F0590[(u16)var17] * 12];
         } else {
@@ -493,8 +493,8 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
      * provider's only use narrows its s32 parameter to s16 for the filename. */
     extern s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s16 arg4);
     extern s32 func_0015f000(u8 *arg0, u8 *arg1);
-    extern s32 func_0015c6f0(u8 *arg0);
-    extern void func_0015c730(u8 *arg0);
+    extern s32 FldStepLoadHandleIsDone(u8 *arg0);
+    extern void FldStepLoadHandleDestroy(u8 *arg0);
     extern s32 NpcTable_RequestSceneTable(void);
     extern s32 NpcTable_InstallSceneTable(u8 *arg0);
     extern s32 NpcTable_RequestSecondaryTable(void);
@@ -775,7 +775,7 @@ prepareGrid:
             *( s32 * )(iGpffff9db0 + 0x94) = 7;
 readGrid:
             var_16_3 = 0;
-            if (func_0015c6f0((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864))) == 0) {
+            if (FldStepLoadHandleIsDone((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864))) == 0) {
                 var_16_3 += 1;
             }
             if (var_16_3 != 0) {
@@ -793,7 +793,7 @@ readGrid:
             if (FldMap_IsCurrentInBandB() != 0) {
                 temp_16_3 = (s32)(*( s32 * )(*( u8 ** )(((u8 *)MT_Scene_GetFrameState()) + 0x1864) + 0x110));
                 memcpy(((u8 *)MT_Scene_GetFrameState()) + 0x54,(const void *)((u8 *)temp_16_3 + 4), 0x1800);
-                func_0015c730((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864)));
+                FldStepLoadHandleDestroy((u8 *)(*( s32 * )(((u8 *)MT_Scene_GetFrameState()) + 0x1864)));
                 for (var_18 = 0; var_18 < 0x18; var_18++) {
                     var_19 = 0;
                     temp_17 = var_18 << 8;

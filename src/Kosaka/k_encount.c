@@ -14,7 +14,7 @@
 
 extern s32 FldMap_IsInBandA(s32 field, s32 room);
 extern s32 FldMap_IsInBandB(s32 field, s32 room);
-extern s32 func_0015a740();
+extern s32 FldStepBandValue();
 extern s32 func_00106600(s16 id);
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
@@ -94,7 +94,7 @@ s32 Encount_GetEntryRateOrOverride(s32 arg0, s32 arg1, s32 arg2) {
         base = iGpffffb41c;
         idx = arg2 & 0xFFFF;
         result = *(u8 *)((u8 *)encSlot(idx * 10, (u32)base) + 3);
-        v = func_0015a740(idx) & 0xFF;
+        v = FldStepBandValue(idx) & 0xFF;
         if (v < 0xFF) {
             result = v;
         }

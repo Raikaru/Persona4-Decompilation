@@ -18,7 +18,7 @@ extern s32 D_0076434C;
 extern s32 D_00764350;
 extern s32 D_00764494;
 
-extern void func_0015a630(void);
+extern void FldStepResetTables(void);
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 
 extern s32 func_00102980(void);
@@ -39,7 +39,7 @@ s32 func_0018f3c0(s32 arg0)
         return 0;
     }
     ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F59A0), 0xF, 0, 0, func_0018efe0, func_0018f390, (u8 *)(buf));
-    func_0015a630();
+    FldStepResetTables();
     D_00764304 = 0;
     return ret;
 }
@@ -122,7 +122,7 @@ s32 K_Viewer_Create(s32 arg0)
         return 0;
     }
     ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F5AB0), 0xF, 0, 0, K_Viewer_Update, K_Viewer_Destroy, (u8 *)(buf));
-    func_0015a630();
+    FldStepResetTables();
     D_00764304 = 0;
     return ret;
 }

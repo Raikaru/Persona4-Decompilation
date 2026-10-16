@@ -76,8 +76,8 @@ extern void *NpcTable_FindActiveEntry(void);
 extern u16 *NpcTable_GetMarkedEntry(s32 arg0);
 extern void NpcTable_RequestBlockTable(u8 *arg0, s32 arg1);
 extern s32 NpcTable_InstallBlockTable(u8 *arg0, s32 arg1);
-extern void func_0015d270(u8 *arg0);
-extern u16 *func_0015d2c0(u32 arg0);
+extern void FldStepReleaseHandle(u8 *arg0);
+extern u16 *FldStepFindEmptySlot(u32 arg0);
 extern u8 *func_0015d310(u16 *arg0);
 extern void FldFrameTask_SetHeight(u8 *arg0, f32 arg1);
 extern void FldShadow_SetRingParticles(u8 *arg0, f32 arg1);
@@ -259,7 +259,7 @@ s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s32 arg4)
             }
         }
         for (k = 0; k < D_00764388; k++) {
-            AnimEntry2 *e2 = (AnimEntry2 *)func_0015d310(func_0015d2c0(k));
+            AnimEntry2 *e2 = (AnimEntry2 *)func_0015d310(FldStepFindEmptySlot(k));
 
             if (e2 != NULL) {
                 u8 *q = fbn + 0x18;
@@ -409,7 +409,7 @@ s32 func_0015f000(u8 *arg0, u8 *arg1)
             chkmemAllocSiteTag(D_005F1068, 0x26F);
             *(void **)(res + 0x288) = D_008873F4[0](1, *(u32 *)(res + 0x28C), 0x40000);
             memcpy(*(void **)(res + 0x288), (void *)FBN_ENTRY(i)->field_14, *(u32 *)(res + 0x28C));
-            func_0015d270((u8 *)FBN_ENTRY(i));
+            FldStepReleaseHandle((u8 *)FBN_ENTRY(i));
         }
     }
     if (iGpffffb2a4 != NULL) {

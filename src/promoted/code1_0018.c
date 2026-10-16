@@ -153,7 +153,7 @@ extern f32 D_005F219C[];
 extern f32 D_005F21A0[];
 extern f32 D_005F21A4[];
 extern s32 func_0018a200(u8 *task);
-extern s32 func_0015a560(void);
+extern s32 FldStepNotAtBoundary(void);
 extern f32 sinf(f32 arg0);
 
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
@@ -3398,7 +3398,7 @@ s32 func_0018df60(s32 arg0)
     s32 temp_2;
     u8 *temp_2_2;
 
-    if (func_0015a560() == 0)
+    if (FldStepNotAtBoundary() == 0)
         return 0;
     chkmemAllocSiteTag(&D_005F54D8, 0x91);
     temp_2_2 = D_008873F4[0](1, 0x14, 0x40000);
@@ -3790,9 +3790,9 @@ extern const KWindowEntryDescriptor D_005F5FD0[];
 extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern s32 sdkLboxAddEntry(u8 *arg0, u8 *arg1);
 extern void sprintf(void *dst, const char *fmt, ...);
-extern u8 *func_0015c640(s32 arg0, s32 arg1);
-extern s32 func_0015c6f0(u8 *arg0);
-extern void func_0015c730(u8 *arg0);
+extern u8 *FldStepLoadFilePair(s32 arg0, s32 arg1);
+extern s32 FldStepLoadHandleIsDone(u8 *arg0);
+extern void FldStepLoadHandleDestroy(u8 *arg0);
 extern s32 func_0015c630(u8 *arg0);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern void func_00156800(void *arg0, u32 mask);
@@ -3832,7 +3832,7 @@ s32 func_0018f950(u8 *arg0)
             *(s16 *)(work + 0x28) = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1CD10), 0);
             *(s16 *)(work + 0x2A) = *sdkLboxGetValuePtr(*(KwlnTask **)(work + 0x1CD10), 1);
             kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x1CD10));
-            *(u8 **)(work + 0x1CD14) = func_0015c640(*(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));
+            *(u8 **)(work + 0x1CD14) = FldStepLoadFilePair(*(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));
             *(s32 *)(work + 0x1CD10) = sdkLboxCreateEx(arg0, 0x22E, 0x28, 2);
             sprintf(text, "%d-%d", *(u16 *)(work + 0x28), *(u16 *)(work + 0x2A));
             sdkLboxSetState(*(u8 **)(work + 0x1CD10), 1);
@@ -3842,11 +3842,11 @@ s32 func_0018f950(u8 *arg0)
         }
         break;
     case 3:
-        if (func_0015c6f0(*(u8 **)(work + 0x1CD14)) != 0) {
+        if (FldStepLoadHandleIsDone(*(u8 **)(work + 0x1CD14)) != 0) {
             image = *(u8 **)(work + 0x1CD14);
             if (image != NULL) {
                 memcpy(work + 0x2C, *(u8 **)(image + 0x110) + 4, *(s32 *)(image + 0x118) - 4);
-                func_0015c730(*(u8 **)(work + 0x1CD14));
+                FldStepLoadHandleDestroy(*(u8 **)(work + 0x1CD14));
                 *(u8 **)(work + 0x1CD14) = NULL;
             }
             *(s32 *)work += 1;

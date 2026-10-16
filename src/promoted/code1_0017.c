@@ -38,7 +38,7 @@ typedef struct
     u8 blue;
     u8 alpha;
 } FieldColor_0017;
-extern void func_0015a630();
+extern void FldStepResetTables();
 extern void FldEvent_StepGridCell();
 extern s32 func_0015f660();
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);

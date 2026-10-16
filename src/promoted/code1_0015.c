@@ -2106,11 +2106,11 @@ s32 FldStepTaskUpdate(u8 *arg0)
     extern void *mdlCreateModelObjectFromData(u32 arg0, u16 arg1, void *arg2, u32 arg3);
     extern s32 func_003641a0(s32 arg0);
     extern void func_0015bae0(void);
-    extern void func_0015c210(void);
-    extern s32 func_0015c280(void);
-    extern s32 func_0015c360(void);
-    extern s32 func_0015c440(void);
-    extern s32 func_0015c4b0(u8 *arg0);
+    extern void FldStepPreloadBegin(void);
+    extern s32 FldStepPreloadCreateTasks(void);
+    extern s32 FldStepPreloadFinish(void);
+    extern s32 FldStepOpenDataFile(void);
+    extern s32 FldStepCopyLoadedFile(u8 *arg0);
     extern char D_005F0630[];
     extern u8 D_007E3720[];
     u8 sp60[12];
@@ -2124,15 +2124,15 @@ s32 FldStepTaskUpdate(u8 *arg0)
     func_0015bae0();
     switch (*(s32 *)work) {
     case 0:
-        *(s32 *)(work + 0x14) = func_0015c440();
+        *(s32 *)(work + 0x14) = FldStepOpenDataFile();
         *(s32 *)(work + 0x38) = (s32)mdlCreateModelObjectFromData(4, 0xFFFF, D_005F0630, 0);
-        func_0015c210();
+        FldStepPreloadBegin();
         *(s32 *)work += 1;
     case 1:
-        if (func_0015c4b0(*(u8 **)(work + 0x14)) != 0) {
+        if (FldStepCopyLoadedFile(*(u8 **)(work + 0x14)) != 0) {
             *(s32 *)(work + 0x14) = 0;
             if (*(s32 *)(work + 0x38) == 0 || mdlPrepareModel(*(s32 *)(work + 0x38)) != 0) {
-                if (func_0015c280() != 0 && func_0015c360() != 0) {
+                if (FldStepPreloadCreateTasks() != 0 && FldStepPreloadFinish() != 0) {
                     *(u8 **)(work + 0x20) = D_007E3720;
                     if (*(s32 *)(work + 4) != 0x9F) {
                         *(s32 *)(work + 0x1C) = func_003641a0(0);
@@ -2174,7 +2174,7 @@ s32 FldStepTaskUpdate(u8 *arg0)
                 n--;
             } while (n != 0);
         }
-        if (func_0015c4b0(*(u8 **)(work + 0x14)) != 0) {
+        if (FldStepCopyLoadedFile(*(u8 **)(work + 0x14)) != 0) {
             *(s32 *)(work + 0x14) = 0;
             base = *(u8 **)(work + 0x20);
             *(s32 *)(work + 0x24) |= *((u16 *)((u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)base) + 5);
@@ -2483,8 +2483,9 @@ void func_0015a520(s32 arg0)
         }
     }
 }
+// Intent: Return 0 when the current step value is a band boundary (0 to 5, or 0x14 to 0x8C), otherwise 1 [inferred]
 // FUN_0015A560
-s32 func_0015a560(void) {
+s32 FldStepNotAtBoundary(void) {
     s32 var_2;
     s32 var_4;
     u8 *temp_3;
@@ -2505,27 +2506,31 @@ s32 func_0015a560(void) {
     }
     return var_2;
 }
+// Intent: Clear the step table and fill the two index tables with 0xFF [inferred]
 // FUN_0015A630
-void func_0015a630(void) {
+void FldStepResetTables(void) {
     memset(D_007D3E10, 0, 0xF8FC);
     memset(D_007E36E4, 0xFF, 0x14);
     memset(D_007E36F8, 0xFF, 0x14);
 }
 
+// Intent: Return the step table address [inferred]
 // FUN_0015A690
-u8 *func_0015a690(void)
+u8 *FldStepTable(void)
 {
     return D_007D3E10;
 }
+// Intent: Return the step table size in bytes [inferred]
 // FUN_0015A6A0
-s32 func_0015a6a0(void)
+s32 FldStepTableSize(void)
 {
     return 0xF8FC;
 }
 /* measured: opt_rebuildconditionals off preserves the nested loop branch shape. */
 #pragma opt_rebuildconditionals off
+// Intent: Look up the step band of the argument in the threshold table and return 1 when the table entry flag is set [inferred]
 // FUN_0015A6B0
-s32 func_0015a6b0(s32 arg0)
+s32 FldStepTableEntryFlag(s32 arg0)
 {
     s16 threshold;
     s32 offset;
@@ -2557,8 +2562,9 @@ done:
 }
 /* measured: restore conditional rebuilding after the loop function. */
 #pragma opt_rebuildconditionals on
+// Intent: Return the value for the step argument from the second table by its band; 0xFF before the first band [inferred]
 // FUN_0015A740
-u8 func_0015a740(s32 arg0) {
+u8 FldStepBandValue(s32 arg0) {
     s32 i = 0;
 
     while (D_005F05D0[i] >= 0) {
@@ -3202,8 +3208,9 @@ array_b_test:
         }
     }
 }
+// Intent: Return the preload file-load task at the given index (0 or 1) from the step work block [inferred]
 // FUN_0015C1E0
-s32 func_0015c1e0(s32 arg0)
+s32 FldStepFileTask(s32 arg0)
 {
     u8 *work;
     u8 *p;
@@ -3216,8 +3223,9 @@ s32 func_0015c1e0(s32 arg0)
     p = (u8 *)wg0035_add_offset((u32)(arg0 * 4), (u32)p);
     return *(s32 *)(p + 0x40);
 }
+// Intent: Start the step preload: when no preload is active and the step block has no file tasks, open the preload file [inferred]
 // FUN_0015C210
-void func_0015c210(void) {
+void FldStepPreloadBegin(void) {
     if (D_00764334 == NULL) {
         return;
     }
@@ -3231,8 +3239,9 @@ void func_0015c210(void) {
     iGpffffb218 = func_00454a60(D_005F06C0, 1);
 }
 
+// Intent: Once the preload file is loaded, create its two file-load tasks; returns 1 when nothing is left to wait for [inferred]
 // FUN_0015C280
-s32 func_0015c280(void) {
+s32 FldStepPreloadCreateTasks(void) {
     u8 *temp_16;
 
     if (iGpffffb218 == 0) {
@@ -3256,8 +3265,9 @@ s32 func_0015c280(void) {
     }
     return 1;
 }
+// Intent: Return 0 while either preload file task is still loading; otherwise destroy the preload handle and return 1 [inferred]
 // FUN_0015C360
-s32 func_0015c360(void) {
+s32 FldStepPreloadFinish(void) {
     u8 *temp_16;
     s32 i;
 
@@ -3283,8 +3293,9 @@ s32 func_0015c360(void) {
     }
     return 1;
 }
+// Intent: Open the step data file when the step block has no buffer yet; returns the open result or 0 [inferred]
 // FUN_0015C440
-s32 func_0015c440(void)
+s32 FldStepOpenDataFile(void)
 {
     s32 r = 0;
     u8 *p = D_00764334;
@@ -3302,8 +3313,9 @@ s32 func_0015c440(void)
 /* measured: opt_propagation off preserves the retail argument materialization
  * order in the resource copy call. */
 #pragma opt_propagation off
+// Intent: Once the handle's file is loaded, copy its data into a new buffer in the step block, destroy the handle and return 1; 0 while loading [inferred]
 // FUN_0015C4B0
-s32 func_0015c4b0(u8 *arg0) {
+s32 FldStepCopyLoadedFile(u8 *arg0) {
     u8 *temp_17;
     u8 *copy_dst;
     u8 *copy_src;
@@ -3332,8 +3344,9 @@ s32 func_0015c4b0(u8 *arg0) {
 }
 /* measured: close the single-function opt_propagation bracket. */
 #pragma opt_propagation on
+// Intent: Format a numbered file path from the argument and open it [inferred]
 // FUN_0015C590
-void func_0015c590(s32 arg0) {
+void FldStepLoadNumberedFile(s32 arg0) {
     u8 sp10[0x80];
 
     sprintf(sp10, (const char *)D_005F0740, arg0);
@@ -3341,8 +3354,9 @@ void func_0015c590(s32 arg0) {
     func_00454a60(sp10, 0);
 }
 
+// Intent: Return 1 when the id is zero or its file is loaded [inferred]
 // FUN_0015C5F0
-s32 func_0015c5f0(s32 arg0)
+s32 FldStepLoadIdIsDone(s32 arg0)
 {
     if (arg0 == 0) {
         return 1;
@@ -3355,8 +3369,9 @@ s32 func_0015c630(u8 *arg0)
     return 1;
 }
 
+// Intent: Format a file path from the two ids; return NULL when the file is missing, otherwise open it [inferred]
 // FUN_0015C640
-u8 *func_0015c640(s32 arg0, s32 arg1) {
+u8 *FldStepLoadFilePair(s32 arg0, s32 arg1) {
     u8 spB0[0x80];
     u8 sp30[0x80];
 
@@ -3368,22 +3383,25 @@ u8 *func_0015c640(s32 arg0, s32 arg1) {
     func_00440b68(&iGpffff9e28, D_005F05E8, 0xC9E);
     return (u8 *)func_00454a60(sp30, 0);
 }
+// Intent: Return 1 for a null handle or when its file is loaded [inferred]
 // FUN_0015C6F0
-s32 func_0015c6f0(u8 *arg0)
+s32 FldStepLoadHandleIsDone(u8 *arg0)
 {
     if (arg0 == NULL) {
         return 1;
     }
     return H_Cdvd_IsFileLoaded(arg0) != 0;
 }
+// Intent: Destroy a file-load handle [inferred]
 // FUN_0015C730
-void func_0015c730(u8 *arg0)
+void FldStepLoadHandleDestroy(u8 *arg0)
 {
     H_Cdvd_Destroy(arg0);
 }
 
+// Intent: Release the handle at the work block's +0x14 through the hook table and clear it [inferred]
 // FUN_0015D270
-void func_0015d270(u8 *arg0)
+void FldStepReleaseHandle(u8 *arg0)
 {
     s32 h;
 
@@ -3394,8 +3412,9 @@ void func_0015d270(u8 *arg0)
     }
 }
 
+// Intent: Return the step record at the given count of empty records (id 0xFFFF) in the record table [inferred]
 // FUN_0015D2C0
-u16 *func_0015d2c0(u32 arg0)
+u16 *FldStepFindEmptySlot(u32 arg0)
 {
     u16 *record;
     u32 i;

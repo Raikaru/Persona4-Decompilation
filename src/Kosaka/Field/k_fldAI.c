@@ -1001,7 +1001,7 @@ extern void FldRc_SetAxesTargeted(unsigned char *, int);
 extern void FldRc_SetAxesColor(unsigned char *, unsigned char *);
 extern void FldRc_SetAxesPosition(unsigned char *, unsigned char *);
 extern int FldRc_RequestPositionSlot(unsigned char *, float *);
-extern int func_0015c1e0(int);
+extern int FldStepFileTask(int);
 extern void FldFrameTask_SetPosition(unsigned char *, unsigned char *);
 extern void FldFrameTask_StartMove(unsigned char *, float);
 extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
@@ -1335,7 +1335,7 @@ else {
         *(FldAIVec3 *)vec70 = *(FldAIVec3 *)(temp_v0 + 0x30);
         vec70[1] = vec70[1] +
                     ((float (*)[4])D_005F1CC0)[*(unsigned char *)(piVar1[3] + 0x1ca)][*(unsigned char *)(piVar1[3] + 0x1cb)];
-        pbVar7 = (unsigned char *)func_0015c1e0(1);
+        pbVar7 = (unsigned char *)FldStepFileTask(1);
         FldRc_RequestPositionSlot(pbVar7,&vec70[0]);
         func_0045af60(1,0xb,3,5);
         piVar1[0x23] = *(int *)(piVar1[5] + 0x30);
@@ -1352,7 +1352,7 @@ else {
           *(FldAIVec3 *)vec80 = *(FldAIVec3 *)(temp_v0 + 0x30);
           vec80[1] = vec80[1] +
                       ((float (*)[4])D_005F1CC0)[*(unsigned char *)(piVar1[3] + 0x1ca)][*(unsigned char *)(piVar1[3] + 0x1cb)];
-          pbVar7 = (unsigned char *)func_0015c1e0(1);
+          pbVar7 = (unsigned char *)FldStepFileTask(1);
           FldRc_RequestPositionSlot(pbVar7,&vec80[0]);
           func_0045af60(1,0xb,3,5);
           piVar1[0x23] = *(int *)(piVar1[5] + 0x30);
