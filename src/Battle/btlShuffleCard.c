@@ -18,7 +18,7 @@ extern void pscResAcquirePersonaCard(s32 arg0);
 extern void sflDataSetupFramePanel(void);
 extern void func_0036a880(u8 *arg0, u16 arg1, s32 arg2);
 extern void pscResAcquireArcanaCard(s32 arg0, s32 arg1);
-extern void func_00368d30(void);
+extern void pscModelInitPanel(void);
 extern void pscResAcquireMiscCardW01(void);
 extern void func_0036b5a0(u8 *arg0, void *arg1);
 extern void func_0036b5c0(u8 *arg0, void *arg1);
@@ -27,10 +27,10 @@ extern void pscPanelSetColor(u8 *arg0, void *arg1);
 extern void pscModelScreenPos(void *arg0, const f32 *arg1, f32 fparg2, void *arg3);
 extern f32 pscModelPanelScale(const f32 *value, f32 scale);
 extern void func_0036a8f0(u8 *arg0, s32 arg1);
-extern void func_0036b630(u8 *arg0, s32 arg1);
-extern void func_00368e80(u8 *arg0);
+extern void pscModelCopyVector(u8 *arg0, s32 arg1);
+extern void pscModelStepAnimation(u8 *arg0);
 extern void pscModelDraw(u8 *arg0);
-extern void func_00369470(s32 objectAddress, u8 *queue);
+extern void pscModelEnqueueDrawNode(s32 objectAddress, u8 *queue);
 extern void pscResReleaseArcanaCard(s32 arg0, s32 arg1);
 extern void pscResReleasePersonaCard(s32 arg0);
 extern void pscResReleaseMiscCardW00(void);
@@ -119,7 +119,7 @@ void btlShuffleCardSetupQuad(u8 *arg0)
 // FUN_0036DB60
 void btlShuffleCardReset(u8 *arg0)
 {
-    func_00368d30();
+    pscModelInitPanel();
     pscResAcquireMiscCardW01();
     btlShuffleCardUpdateCards(arg0);
 }
@@ -246,9 +246,9 @@ void btlShuffleCardQueueDraw(u8 *arg0)
 
     temp = *(s32 *)(arg0 + 0xFA8);
     if (temp != 0) {
-        func_0036b630(arg0 + 0x600, temp);
+        pscModelCopyVector(arg0 + 0x600, temp);
     }
-    func_00368e80(arg0);
+    pscModelStepAnimation(arg0);
     pscModelDraw(arg0);
 }
 
@@ -261,10 +261,10 @@ void btlShuffleCardQueueEnqueue(u8 *arg0, u8 *queue)
 
     temp = *(s32 *)(arg0 + 0xFA8);
     if (temp != 0) {
-        func_0036b630(arg0 + 0x600, temp);
+        pscModelCopyVector(arg0 + 0x600, temp);
     }
-    func_00368e80(arg0);
-    func_00369470((s32)arg0, queue);
+    pscModelStepAnimation(arg0);
+    pscModelEnqueueDrawNode((s32)arg0, queue);
 }
 
 // FUN_0036E000

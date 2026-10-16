@@ -98,8 +98,9 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
    out of the grid loops after `outer = 0`, as retail does. */
 #pragma push
 #pragma pop
+// Intent: Copies a 3-vector into the panel's stored vector, which the tile builder reads [inferred]
 // FUN_0036B630
-void func_0036b630(u8 *arg0, RwV3d *arg1)
+void pscModelCopyVector(u8 *arg0, RwV3d *arg1)
 {
     *(RwV3d *)(arg0 + 0x994) = *arg1;
 }
