@@ -51,8 +51,9 @@ u32 func_0047de90(u32* resource)
 
 
 
+// Copies the 16-byte value at +0x40, the position (callers use its first three floats), into output and returns it.
 // FUN_004866E0
-u_long128 func_004866e0(int object, u32 *output)
+u_long128 mdlEffectGetPositionVec(int object, u32 *output)
 {
     u_long128 value = *(u_long128 *)(object + 0x40);
     *(u_long128 *)output = value;
@@ -61,8 +62,9 @@ u_long128 func_004866e0(int object, u32 *output)
 
 
 
+// Copies the 16-byte value at +0x50, the orientation vector that mdlEffectBuildObjectMatrix passes to mdlEffectBuildBasisRows, into output and returns it.
 // FUN_004866F0
-u_long128 func_004866f0(int object, u32 *output)
+u_long128 mdlEffectGetOrientationVec(int object, u32 *output)
 {
     u_long128 value = *(u_long128 *)(object + 0x50);
     *(u_long128 *)output = value;
@@ -71,8 +73,9 @@ u_long128 func_004866f0(int object, u32 *output)
 
 
 
+// Returns the packed colour word at +0x64. mdlEffectGetPackedColor reads it through this accessor.
 // FUN_00486700
-u32 func_00486700(void* object)
+u32 mdlEffectGetPackedColorWord(void* object)
 {
     return *(u32*)((u8*)object + 0x64);
 }

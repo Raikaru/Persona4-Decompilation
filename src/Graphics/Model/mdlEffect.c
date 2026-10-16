@@ -3578,13 +3578,13 @@ extern void func_004b1a00(u8 *arg0, u8 *arg1);
 extern u8 D_0071465C[];
 extern u8 D_00714650[];
 extern u8 D_00714660[];
-extern void func_004866e0(u8 *arg0, u32 *arg1);
+extern void mdlEffectGetPositionVec(u8 *arg0, u32 *arg1);
 extern void func_00486330(u8 *arg0, void *arg1);
 extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
 extern f32 iGpffff836c;
-extern void func_004866f0(u8 *arg0, u32 *arg1);
+extern void mdlEffectGetOrientationVec(u8 *arg0, u32 *arg1);
 extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
-extern u32 func_00486700(void *object);
+extern u32 mdlEffectGetPackedColorWord(void *object);
 typedef signed __int128 s128;
 extern void *func_004b16c0(void *opaqueSource);
 typedef signed __int128 s128;
@@ -3664,19 +3664,19 @@ void func_004b1470(u8 *arg0, u8 *arg1)
         u8 vector[16];
     } scratch;
 
-    func_004866f0(arg0, (u32 *)scratch.vector);
+    mdlEffectGetOrientationVec(arg0, (u32 *)scratch.vector);
     mdlEffectBuildBasisRows(arg1, scratch.vector);
-    func_004866e0(arg0, (u32 *)scratch.projected);
+    mdlEffectGetPositionVec(arg0, (u32 *)scratch.projected);
     *(f32 *)(arg1 + 0x30) = scratch.projected[0];
     *(f32 *)(arg1 + 0x34) = scratch.projected[1];
     *(f32 *)(arg1 + 0x38) = scratch.projected[2];
 }
 
 
-// Reads the object's packed colour through 00486700 into *arg1.
+// Reads the object's packed colour through mdlEffectGetPackedColorWord into *arg1.
 // FUN_004B14F0
 void mdlEffectGetPackedColor(void *object, s32 *arg1) {
-    *arg1 = func_00486700(object);
+    *arg1 = mdlEffectGetPackedColorWord(object);
 }
 
 
