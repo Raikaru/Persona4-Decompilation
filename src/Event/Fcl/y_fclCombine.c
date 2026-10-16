@@ -194,6 +194,7 @@ extern s16 D_007490C0[];
 extern s16 D_007490E0[];
 extern s8 D_00749100[];
 extern void nmMesWindowRequestRefresh(void);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern s32 datPersonaGetSkillAt(void *, s16);
 extern u16 *iGpffffb3ec;
 extern u8 *iGpffffb594;
@@ -291,6 +292,7 @@ extern u8 D_0064079C[];
 extern u8 D_006407A8[];
 extern u8 D_006407C0[];
 extern u16 datStagedId(void);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern u16 datPersonaRosterSlotFlags(u16);
 extern void datStageRecord(u8 *, u16);
 extern void datStageSetId(u16);

@@ -73,8 +73,10 @@ extern s32 datPersonaFindRosterSlotById();
 
 extern struct DatPersonaRecord *datPersonaRosterSlot(s16 slot);
 
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern s32 datPersonaGetLevel();
 
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern void datPersonaRemoveRosterMemberById();
 
 extern u8 *datPersonaAddRosterMember(u16 personaId);
@@ -115,8 +117,11 @@ extern u8 D_0064E670[];
 
 extern u8 D_0064E6A0[];
 extern u16 datPersonaCountValidMembers(void);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern u8 datPersonaGetStat(u8 *arg0, u16 arg1);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern u8 datPersonaGetBuffedStat(u8 *arg0, u16 arg1);
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern s32 datPersonaAddStat(u8 *arg0, u16 arg1, s8 arg2);
 extern u8 D_00793E80[];
 

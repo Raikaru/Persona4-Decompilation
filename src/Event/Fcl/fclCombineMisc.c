@@ -404,6 +404,7 @@ typedef struct {
     s8 picks;
 } FclSkillPickTier;
 
+/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern u32 datPersonaCountSkills(void *arg0);
 extern u8 *yListAllocIndexTable(void);
 extern void fclListAddUnique(u8 *arg0, s16 arg1);
