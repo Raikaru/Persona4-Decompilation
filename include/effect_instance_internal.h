@@ -40,7 +40,7 @@ void *func_00498a30(void *source);
 void *func_00498b20(void *source);
 void *func_0049a4e0(void *source);
 void *func_0049a5e0(void *source);
-void *func_004a1780(void *source);
+void *FlashQuadCopyAllocFromParent(void *source);
 void *func_004a1950(void *source);
 void *func_004a5750(void *source);
 void *func_004a5910(void *source);
