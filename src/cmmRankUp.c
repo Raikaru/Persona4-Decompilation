@@ -148,8 +148,8 @@ extern u8 *cmmPersonaRecord();
 /* Forward declarations for asm-fallback siblings referenced by C bodies. */
 s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpContext *context);
 s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpContext *context);
-s32 cmmCdvdLoadStep(u8 *task);
-void cmmCdvdLoadDestroy(u8 *task);
+s32 cmmRankUpSequenceUpdate(u8 *task);
+void cmmRankUpSequenceDestroy(u8 *task);
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
@@ -3266,7 +3266,7 @@ extern void sdkSndStopMainChannel();
 extern void sdkSndStopChannel();
 extern void sdkSndFadeOutChannel();
 extern void sdkSndRequestTrack();
-extern s32 func_002519e0(u8 *task);
+extern s32 cmmRankUpCardTaskUpdate(u8 *task);
 extern void func_00251ce0(u8 *task);
 extern void PrimAppendNode();
 extern u8 *PrimAllocQueueNode();
@@ -3289,7 +3289,7 @@ static inline s32 rankUpAnimationComplete(u8 *task)
 
 // Steps the rank-up CDVD load: creates the portrait tasks, acquires the directory, then waits for the load [inferred].
 // FUN_0025B240
-s32 cmmCdvdLoadStep(u8 *arg0) {
+s32 cmmRankUpSequenceUpdate(u8 *arg0) {
     u8 *ctx;
     s32 tmp;
     s32 tmp2;
@@ -3418,7 +3418,7 @@ s32 cmmCdvdLoadStep(u8 *arg0) {
         pv = D_008873F4[0](1, 0x40, 0x40000);
         *(s32 *)((u8 *)pv + 4) = tmp3;
         *(s32 *)((u8 *)pv + 8) = tmp4;
-        *(void **)(ctx + 0x24) = (void *)(s32)kwlnTaskCreateChild((void *)(argb), (const void *)(D_00635D08), 0xF, 0, 0, func_002519e0, func_00251ce0, (u8 *)(pv));
+        *(void **)(ctx + 0x24) = (void *)(s32)kwlnTaskCreateChild((void *)(argb), (const void *)(D_00635D08), 0xF, 0, 0, cmmRankUpCardTaskUpdate, func_00251ce0, (u8 *)(pv));
     case 8:
         if (kwlnTaskGetTaskByName(D_00635D08) != 0) {
             goto tail;
@@ -3651,7 +3651,7 @@ tail:
  * confirmed D_00887300 vtable calls. */
 // Releases a CDVD load task: disables and clears the scene resources in its list, frees the list and work blocks, and destroys the CDVD handle.
 // FUN_0025C100
-void cmmCdvdLoadDestroy(u8 *unusedTask) {
+void cmmRankUpSequenceDestroy(u8 *unusedTask) {
     void (**fp)(void *);
     u8 *p;
     u8 *list;
@@ -3684,9 +3684,9 @@ void cmmCdvdLoadDestroy(u8 *unusedTask) {
     H_Cdvd_Destroy(*(u32 *)(p + 0x34));
     (*fp)(p);
 }
-// Spawns a CDVD load task under arg0 for resource arg1 (must be nonzero), storing arg2 and arg3 as its load parameters; the task is destroyed by cmmCdvdLoadDestroy.
+// Spawns the rank-up sequence task under arg0 for resource arg1 (must be nonzero), storing arg2 and arg3 as its load parameters; the task is destroyed by cmmRankUpSequenceDestroy.
 // FUN_0025C230
-void cmmSpawnCdvdLoad(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void cmmRankUpSequenceStart(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *p;
 
     if (arg1 == 0) {
@@ -3698,5 +3698,5 @@ void cmmSpawnCdvdLoad(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(s32 *)(p + 0x1C) = arg2;
     *(s32 *)(p + 0x20) = arg3;
     *(s32 *)(p + 0x4) = 0;
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006367C0), 0xF, 0, 0, cmmCdvdLoadStep, cmmCdvdLoadDestroy, (u8 *)(p));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006367C0), 0xF, 0, 0, cmmRankUpSequenceUpdate, cmmRankUpSequenceDestroy, (u8 *)(p));
 }

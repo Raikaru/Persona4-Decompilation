@@ -19,7 +19,7 @@ extern char D_00635C60[];
 extern s32 iGpffffb480;
 
 
-extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
+extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
 
 
 extern u8 D_00635BF0[];
@@ -52,7 +52,7 @@ s32 scrCommonCheckResSlot(void) {
 
     temp_16 = scrGetParamInt(0);
     temp_17 = scrGetParamInt(1);
-    MT_Scene_CheckResSlot(((temp_16 & 0x3FF) | 0xC00) & 0xFFFF, temp_17 & 0xFF);
+    MT_Scene_SpawnResIconTask(((temp_16 & 0x3FF) | 0xC00) & 0xFFFF, temp_17 & 0xFF);
     return 1;
 }
 

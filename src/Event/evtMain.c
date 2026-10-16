@@ -1157,7 +1157,7 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
     extern s32 MT_Scene_BeginResScale(u32, u8 *, s32);
     extern u32 MT_Scene_SetResColorParamById(u32, u8, u32, u32);
     extern s32 MT_Scene_SetResActiveById(u32, s32);
-    extern s32 MT_Scene_CheckResSlot(u32, u32);
+    extern s32 MT_Scene_SpawnResIconTask(u32, u32);
     extern s32 MT_Scene_SetResShadowCasterById(u32, s32);
     extern void evtBlurFilterCopyPoints(u8 *, u8 *, s32);
     extern s32 mtMiscAttachSlotModel(u8 *, u8 *, s32, s32, s32);
@@ -1364,7 +1364,7 @@ s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *comman
                 case 0:
                     {
                         u32 commandValue = *(u8 *)(command + 0x14);
-                        MT_Scene_CheckResSlot(*(u16 *)(resource + 0xC), commandValue);
+                        MT_Scene_SpawnResIconTask(*(u16 *)(resource + 0xC), commandValue);
                     }
                     break;
                 case 1:

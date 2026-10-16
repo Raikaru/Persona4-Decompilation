@@ -9,6 +9,7 @@ void scrSetReturnInt();
 
 
 // Returns the community table head id [inferred].
+/* script command 0x3008 (no p4flow name) */
 // FUN_0024A0B0
 u32 cmmGetTableHead(void)
 {

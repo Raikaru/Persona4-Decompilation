@@ -49,7 +49,7 @@ extern s16 cmmTopPersonaOfArcana(s16 arg0);
 extern u8* cmmMsgStreamEntry(s32 arg0, u16 arg1);
 extern s32 cmmDateTableFindNthMatch(s32 arg0, s32 arg1, s32 arg2);
 extern s32 scrGetCmdTimer(void);
-extern void cmmSpawnCdvdLoad(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void cmmRankUpSequenceStart(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 K_Cmd_TASK_LOOKUP(void);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 D_00635A78[];
@@ -166,6 +166,7 @@ typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 // Message stream start: selects stream entry 'b' for script id 'a' and copies it into the message state.
+/* script command 0x3009 (no p4flow name) */
 // FUN_0024A200
 s32 cmmMsgStreamStart(void)
 {
@@ -234,6 +235,7 @@ typedef struct CmmScriptTask
 } CmmScriptTask;
 
 // Message stream update: sends the next packet every 10 frames and finishes when the stream ends.
+/* script command 0x300A (no p4flow name) */
 // FUN_0024A2E0
 s32 cmmMsgStreamUpdate(void)
 {
@@ -287,6 +289,7 @@ s32 cmmMsgStreamUpdate(void)
     return 0;
 }
 // Message stream result: returns the result value stored in the message state.
+/* script command 0x300B (no p4flow name) */
 // FUN_0024A450
 s32 cmmMsgStreamGetResult(void)
 {
@@ -306,6 +309,7 @@ s32 cmmMsgStreamGetResult(void)
    must be held in an s32 local (an s8/u8 local makes level-1 codegen
    emit a redundant `move` around the dsll32/dsra32 sign-extension). */
 // Script persona detail show: resolves the persona id (0 = current) and fills message slots 0-7 with name, strings, and numbers.
+/* script command 0x3013 (no p4flow name) */
 // FUN_0024A490
 #pragma optimization_level 1
 
@@ -366,6 +370,7 @@ s32 cmmPersonaDetailShow(void)
    baseline everywhere else in this translation unit. */
 #pragma optimization_level 2
 // Persona info lookup and show: resolves the persona entry from the script id, then fills the message slots.
+/* script command 0x301C (no p4flow name) */
 // FUN_0024A710
 /* measured: -O2 CSEs `entry & 0xFFFF` into a callee-saved copy and sinks
    the iGpffffb3d4 base load past the multiply (nd 287, object 428 of 416);
@@ -418,6 +423,7 @@ s32 cmmPersonaInfoLookupShow(void)
    reproduces retail's load-first-into-$v1 and the integer-domain add
    ((u32)off + (u32)base) reproduces the index-first addu $v0,$v0,$v1. */
 // Persona info show: fills the message slots (name row, stat strings) for the persona entry in arg 0.
+/* script command 0x3021 (no p4flow name) */
 // FUN_0024A8B0
 #pragma optimization_level 1
 
@@ -453,6 +459,7 @@ s32 cmmPersonaInfoShow(void)
 }
 #pragma optimization_level 2
 // Script entry select: makes the entry in arg 0 the current one; 0 selects the current entry.
+/* script command 0x3014 (no p4flow name) */
 // FUN_0024AA10
 s32 cmmScriptSelectEntry(void)
 {
@@ -466,6 +473,7 @@ s32 cmmScriptSelectEntry(void)
     return 1;
 }
 // Script message-stream check: returns 1 when cmmMsgStreamEntry finds a record for kind arg 0 and community id arg 1 (0 uses the current community), else 0.
+/* script command 0x3015 (no p4flow name) */
 // FUN_0024AA60
 s32 cmmScriptHasMsgStreamEntry(void)
 {
@@ -485,6 +493,7 @@ s32 cmmScriptHasMsgStreamEntry(void)
     return 1;
 }
 // Script set current entry: sets the current entry to arg 0, or clears it when arg 0 is 0.
+/* script command 0x3016 (no p4flow name) */
 // FUN_0024AAF0
 s32 cmmScriptSetCurrentEntry(void)
 {
@@ -503,6 +512,7 @@ s32 cmmScriptSetCurrentEntry(void)
 
 
 // Script top reversed community: sets the script result to cmmTopReversedCommunity's id (0 when none is reversed and at rank).
+/* script command 0x3017 (no p4flow name) */
 // FUN_0024AB40
 u32 cmmScriptTopReversedCommunity(void)
 {
@@ -514,6 +524,7 @@ u32 cmmScriptTopReversedCommunity(void)
 }
 
 // Script top persona of arcana: sets the script result to cmmTopPersonaOfArcana for the given community id (the current community when 0).
+/* script command 0x3019 (no p4flow name) */
 // FUN_0024AB70
 s32 cmmScriptTopPersonaOfArcana(void)
 {
@@ -537,6 +548,7 @@ s32 cmmScriptTopPersonaOfArcana(void)
 
 
 // Script fresh reverse candidate: sets the script result to cmmFindFreshReverseCandidate's community id (0 when none).
+/* script command 0x301A (no p4flow name) */
 // FUN_0024ABF0
 u32 cmmScriptFindFreshReverseCandidate(void)
 {
@@ -550,6 +562,7 @@ u32 cmmScriptFindFreshReverseCandidate(void)
 
 
 // Script reverse candidate: sets the script result to cmmFindReverseCandidate's community id (0 when none).
+/* script command 0x3023 (no p4flow name) */
 // FUN_0024AC20
 u32 cmmScriptFindReverseCandidate(void)
 {
@@ -561,6 +574,7 @@ u32 cmmScriptFindReverseCandidate(void)
 }
 
 // Marks the community named by arg 0, or the current community when arg 0 is 0.
+/* script command 0x301D (no p4flow name) */
 // FUN_0024AC50
 s32 cmmScriptSetMarkedCommunity(void)
 {
@@ -574,6 +588,7 @@ s32 cmmScriptSetMarkedCommunity(void)
     return 1;
 }
 // Returns the counterpart id of the community named by arg 0.
+/* script command 0x3022 (no p4flow name) */
 // FUN_0024ACA0
 s32 cmmScriptResolveCounterpart(void)
 {
@@ -585,6 +600,7 @@ s32 cmmScriptResolveCounterpart(void)
 
 
 // Script slot in group: for group 0 or 1, returns the first set entry of that group (1 or 2 for group 0, 3 or 4 for group 1), or 0 when none is set. Other groups return 1 with 0 as the result.
+/* script command 0x302B (no p4flow name) */
 // FUN_0024ACF0
 s32 cmmScriptFindSlotInGroup(void)
 {
@@ -602,6 +618,7 @@ s32 cmmScriptFindSlotInGroup(void)
 
 
 // Script entry total: adds the value of the entry in arg 0 to the running total (D_00797560).
+/* script command 0x301E (no p4flow name) */
 // FUN_0024AD70
 s32 cmmScriptAddEntryTotal(void)
 {
@@ -612,6 +629,7 @@ s32 cmmScriptAddEntryTotal(void)
 
 
 // Script total take: returns the running total (D_00797560), resets it through datResetTotalBtl, and runs the total hook datAddMoney with the value.
+/* script command 0x301F (no p4flow name) */
 // FUN_0024ADB0
 s32 cmmScriptTakeTotal(void)
 {
@@ -627,6 +645,7 @@ s32 cmmScriptTakeTotal(void)
 
 
 // Script entry lookup: returns the value stored for the current entry through cmmCommunityGetCurrentEntryValue. The script's argument 0 is passed on, but the definition takes no argument.
+/* script command 0x3020 (no p4flow name) */
 // FUN_0024AE00
 s32 cmmScriptGetEntryIndex(void)
 {
@@ -637,6 +656,7 @@ s32 cmmScriptGetEntryIndex(void)
 
 
 // Returns the index of the current date in the date table.
+/* script command 0x303C (no p4flow name) */
 // FUN_0024AE40
 s32 cmmScriptDateTableIndex(void)
 {
@@ -647,6 +667,7 @@ s32 cmmScriptDateTableIndex(void)
 
 
 // Returns whether the current date has an entry in the date table.
+/* script command 0x3026 (no p4flow name) */
 // FUN_0024AE80
 s32 cmmScriptDateTableHasEntry(void)
 {
@@ -657,6 +678,7 @@ s32 cmmScriptDateTableHasEntry(void)
 
 
 // Returns whether the current date has a special record in the date table.
+/* script command 0x3027 (no p4flow name) */
 // FUN_0024AEC0
 s32 cmmScriptDateTableHasSpecialRecord(void)
 {
@@ -667,6 +689,7 @@ s32 cmmScriptDateTableHasSpecialRecord(void)
 
 
 // Reads a date-table column for the current date: arg 0 picks table 0 or 1, arg 1 picks the field (0 or 1); other values return 0.
+/* script command 0x3028 (no p4flow name) */
 // FUN_0024AF00
 s32 cmmScriptDateTableReadColumn(void)
 {
@@ -690,6 +713,7 @@ s32 cmmScriptDateTableReadColumn(void)
 
 
 // Applies the column delta for arg 0 (0 or 1) to the current date's date-table entry.
+/* script command 0x3029 (no p4flow name) */
 // FUN_0024AFE0
 s32 cmmScriptDateTableApplyColumnDelta(void)
 {
@@ -705,6 +729,7 @@ s32 cmmScriptDateTableApplyColumnDelta(void)
 }
 
 // Script item info show: fills the message window with the item record's names and numbers.
+/* script command 0x302A (no p4flow name) */
 // FUN_0024B070
 s32 cmmItemInfoShow(void)
 {
@@ -764,9 +789,10 @@ s32 cmmItemInfoShow(void)
     }
     return 1;
 }
-// Starts a CDVD load with the three script parameters when no command timer is running; returns 0 while the load is pending and 1 once the lookup task has finished [inferred].
+// Starts the rank-up sequence (cmmRankUpSequenceStart) with the three script parameters when no command timer is running; returns 0 while the sequence is pending and 1 once the lookup task has finished [inferred].
+/* script command 0x302C (p4flow CMM_RANKUP) */
 // FUN_0024B380
-s32 cmmScriptCdvdLoad(void)
+s32 cmmScriptRankUp(void)
 {
     s32 param0;
     s32 param1;
@@ -776,7 +802,7 @@ s32 cmmScriptCdvdLoad(void)
     param1 = scrGetParamInt(1);
     param2 = scrGetParamInt(2);
     if (scrGetCmdTimer() == 0) {
-        cmmSpawnCdvdLoad(0, param0, param1, param2);
+        cmmRankUpSequenceStart(0, param0, param1, param2);
         goto block_4;
     }
     if (K_Cmd_TASK_LOOKUP() == 0) {
@@ -787,6 +813,7 @@ block_4:
 }
 // Adds arg 1 to the date-table count selected by arg 0.
 // FUN_0024B430
+/* script command 0x302D (no p4flow name) */
 s32 cmmScriptDateTableAddCount(void)
 {
     s32 param0;
@@ -802,6 +829,7 @@ s32 cmmScriptDateTableAddCount(void)
    order src, dst, i (first-declared -> $a1 at level 1) and the s8 loads
    need an s32 local (s8 adds a move + dsll32/dsra32 re-extension). */
 // Script record info show: fills the message window slots for the record id with its name, the strings from D_00635A20, and its numbers.
+/* script command 0x302E (no p4flow name) */
 // FUN_0024B490
 #pragma optimization_level 1
 
@@ -858,6 +886,7 @@ s32 cmmRecordInfoShow(void)
 }
 #pragma optimization_level 2
 // Returns the index of the Nth matching date-table entry (arg 2) for args 0 and 1.
+/* script command 0x302F (no p4flow name) */
 // FUN_0024B6A0
 s32 cmmScriptDateTableFindNthMatch(void)
 {
@@ -872,6 +901,7 @@ s32 cmmScriptDateTableFindNthMatch(void)
     return 1;
 }
 // Script record field: returns one field of the record for the id (0 and 3 read 32-bit values, 1, 2, 4, and 5 read bytes; anything else asserts).
+/* script command 0x3030 (no p4flow name) */
 // FUN_0024B720
 s32 cmmRecordGetField(void)
 {
@@ -2174,6 +2204,7 @@ void cmmScriptEntryDestroy(u8 *task)
 }
 
 // Starts the entry tasks: creates the load task and the entry runner, sets the step callbacks, and destroys any stale entry-task handles.
+/* script command 0x3036 (no p4flow name) */
 // FUN_00250120
 s32 cmmScriptStartEntries(void)
 {
@@ -2213,6 +2244,7 @@ s32 cmmScriptStartEntries(void)
 }
 
 // Entry choice: the first call arms the entry (flag 1) and waits; once status bit 4 is set it returns 0, 1 (bit 0x10), or 2 (bit 0x20) and destroys the entry task.
+/* script command 0x3034 (no p4flow name) */
 // FUN_002502F0
 s32 cmmScriptPollEntryChoice(void)
 {
@@ -2271,6 +2303,7 @@ s32 cmmScriptPollEntryChoice(void)
     return 0;
 }
 // Entry confirm: the first call arms the entry (flag 2) and waits; once status bit 8 is set it returns 1 if bit 0x80 is also set (0 otherwise) and destroys the entry task.
+/* script command 0x3035 (no p4flow name) */
 // FUN_00250560
 s32 cmmScriptPollEntryConfirm(void)
 {
@@ -2327,6 +2360,7 @@ s32 cmmScriptPollEntryConfirm(void)
     return 0;
 }
 // Closes the entry channel: on the first call arms entry 2 and destroys the entry tasks; once the entry timer reaches 30 frames it fades channel 2 out over 30 frames and returns 1.
+/* script command 0x3037 (no p4flow name) */
 // FUN_002507C0
 s32 cmmScriptStopEntries(void)
 {
@@ -2348,6 +2382,7 @@ ret0:
     return 0;
 }
 // Returns the six-entry table value (table copied from D_00635BB8) selected by the index at +0x20 of the entry record.
+/* script command 0x3038 (no p4flow name) */
 // FUN_00250870
 s32 cmmScriptReadIndexedValue(void)
 {
@@ -2384,6 +2419,7 @@ s32 cmmScriptReadIndexedValue(void)
     return 1;
 }
 // Returns field arg 1 of row arg 0 in the month-profile record for the current date: 0 and 1 are u16 values at +0x18 and +0x1A, 2 and 3 are s32 values at +0x1C and +0x20; rows are 12 bytes.
+/* script command 0x303B (no p4flow name) */
 // FUN_00250940
 s32 cmmScriptReadMonthProfile(void)
 {

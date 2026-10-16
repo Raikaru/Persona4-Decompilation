@@ -38,8 +38,7 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 {
     return left + right;
 }
-/* Promoted from the canonical function map: every function here is a
-   retail window with an INCLUDE_ASM fallback and no C body yet. */
+/* Promoted from the canonical function map: each function here has a C body in this file; see the `// FUN_` marker above it. */
 
 /* Source unit: src/promoted/code1_0024.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00249b10-0024a060 */
@@ -48,6 +47,7 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 /* measured: func_00249b10 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 // Ensures the community entry for the id (arg 0, or the current community when 0) has a record, allocating one when missing [inferred].
+/* script command 0x3001 (no p4flow name) */
 // FUN_00249B10
 s32 cmmEnsureRecord(void)
 {
@@ -67,6 +67,7 @@ s32 cmmEnsureRecord(void)
 /* measured: cmmAddPointId, cmmSetBroken, cmmSetReverse, func_00249d00 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // Intent: Event command CMM_EXIST (p4flow Event 0x3002): stores whether the cmm entry exists [inferred]
+/* script command 0x3002 (p4flow CMM_EXIST) */
 // FUN_00249B80
 s32 cmmExist(void)
 {
@@ -81,6 +82,7 @@ s32 cmmExist(void)
 }
 
 // Intent: Event command CMM_GET_LV (p4flow Event 0x3003): returns the cmm entry level [inferred]
+/* script command 0x3003 (p4flow CMM_GET_LV) */
 // FUN_00249BE0
 s32 cmmGetLevel(void)
 {
@@ -95,6 +97,7 @@ s32 cmmGetLevel(void)
 }
 
 // Tries to rank up the community entry for the id (arg 0, or the current community when 0) [inferred].
+/* script command 0x3004 (no p4flow name) */
 // FUN_00249C40
 s32 cmmTryRankUp(void)
 {
@@ -109,6 +112,7 @@ s32 cmmTryRankUp(void)
 }
 
 // Intent: Event command CMM_CHK_LVUP (p4flow Event 0x300E): returns whether the cmm entry can level up [inferred]
+/* script command 0x300E (p4flow CMM_CHK_LVUP) */
 // FUN_00249C90
 s32 cmmCheckLevelUp(void)
 {
@@ -127,6 +131,7 @@ s32 cmmCheckLevelUp(void)
 }
 
 // Adds scaled points (arg 1) to the community entry for the id (arg 0, or the current community when 0) [inferred].
+/* script command 0x3005 (no p4flow name) */
 // FUN_00249D00
 s32 cmmAddScaledPointId(void)
 {
@@ -143,6 +148,7 @@ s32 cmmAddScaledPointId(void)
 }
 
 // Intent: Event command CMM_ADD_POINT_ID (p4flow Event 0x3031): adds points to the cmm entry [inferred]
+/* script command 0x3031 (p4flow CMM_ADD_POINT_ID) */
 // FUN_00249D70
 s32 cmmAddPointId(void)
 {
@@ -156,6 +162,7 @@ s32 cmmAddPointId(void)
 }
 
 // Returns 1 when the community entry for the id is reversed, else 0 [inferred].
+/* script command 0x300F (no p4flow name) */
 // FUN_00249DE0
 s32 cmmIsReversed(void)
 {
@@ -174,6 +181,7 @@ s32 cmmIsReversed(void)
 }
 
 // Intent: Event command CMM_SET_REVERSE (p4flow Event 0x3011): sets or clears the reverse flag [inferred]
+/* script command 0x3011 (p4flow CMM_SET_REVERSE) */
 // FUN_00249E50
 s32 cmmSetReverse(void)
 {
@@ -194,6 +202,7 @@ s32 cmmSetReverse(void)
 }
 
 // Returns 1 when the community entry for the id is broken, else 0 [inferred].
+/* script command 0x3010 (no p4flow name) */
 // FUN_00249EE0
 s32 cmmIsBroken(void)
 {
@@ -212,6 +221,7 @@ s32 cmmIsBroken(void)
 }
 
 // Intent: Event command CMM_SET_BROKEN (p4flow Event 0x3012): sets or clears the broken flag [inferred]
+/* script command 0x3012 (p4flow CMM_SET_BROKEN) */
 // FUN_00249F50
 s32 cmmSetBroken(void)
 {
@@ -232,6 +242,7 @@ s32 cmmSetBroken(void)
 }
 
 // Returns the nth community eligible for today's date index; the nth is arg 0 [inferred].
+/* script command 0x3006 (no p4flow name) */
 // FUN_00249FE0
 s32 cmmGetNthEligibleId(void)
 {
@@ -245,6 +256,7 @@ s32 cmmGetNthEligibleId(void)
 }
 
 // Sets the community table head to the id in arg 0 (or the current community when 0) [inferred].
+/* script command 0x3007 (no p4flow name) */
 // FUN_0024A060
 s32 cmmSetTableHead(void)
 {

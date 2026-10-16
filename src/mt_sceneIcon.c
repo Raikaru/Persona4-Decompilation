@@ -105,9 +105,9 @@ void mtSceneIconTaskDestroy(u8 *unusedTask)
     DAT_008873ec_abs[0](iVar1);
 }
 
-// Releases the scene icon handle for kind 1 or 3 when it is set, returning 0 once released [inferred].
+// Starts the icon effect for kind 1 or 3 when arg1 is 0xA and the icon handle is set (returns 0); otherwise spawns mtSceneIconTaskUpdate for the resource [inferred].
 // FUN_0026DA30
-s32 mtSceneIconReleaseRes(s32 arg0, s32 arg1)
+s32 mtSceneIconSpawnTask(s32 arg0, s32 arg1)
 {
     u8 *icon;
     u8 *mem;

@@ -16,7 +16,7 @@ extern u8 *D_00636820[];
 extern u8 D_00636838[];
 extern u8 D_00636850[];
 typedef struct Resrc Resrc;
-extern s32 MT_Scene_CheckResSlot(u32 resourceId, u32 value);
+extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
 extern s64 nmMesWindowAcquire(void *arg0);
 extern void strcpy(u8 *arg0, u8 *arg1);
 extern void nmMesWindowSetSlotString(s8 arg0, s32 arg1, void *arg2);
@@ -70,9 +70,9 @@ s32 func_0025c790(u8 *task)
     switch (work->state) {
     case 0:
         if (MT_Scene_GetRes(0x400) != 0)
-            MT_Scene_CheckResSlot(0x400, 6);
+            MT_Scene_SpawnResIconTask(0x400, 6);
         else
-            MT_Scene_CheckResSlot(0xC01, 6);
+            MT_Scene_SpawnResIconTask(0xC01, 6);
         sdkSndStartStream(0, 0, 4, 3);
         work->slot = (s8)nmMesWindowAcquire(D_00636850);
         if (work->slot != -1) {
