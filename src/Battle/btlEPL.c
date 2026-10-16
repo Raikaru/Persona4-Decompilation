@@ -1077,7 +1077,7 @@ extern BtlEplMatrix D_00922C60;
    source puts them, as in btlEplStepColorPairFade. */
 // FUN_001FF490
 #pragma opt_dead_assignments off
-void func_001ff490(u8 *arg0)
+void btlEplStepLightFadeInOut(u8 *arg0)
 {
     u32 count;
     BtlEplLightParam *param;
