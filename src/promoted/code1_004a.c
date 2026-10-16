@@ -119,6 +119,7 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
+// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes func_004a1950 MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
 extern u8 *FlashQuadCopyAlloc(u16 arg0, s32 arg1);
 
 extern u16 iGpffffbb90;
