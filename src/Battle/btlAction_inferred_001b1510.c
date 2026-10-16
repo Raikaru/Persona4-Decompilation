@@ -119,8 +119,8 @@ extern u32 datCalcRandomBelow(u32 arg0);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern void btlBossCollectTargets(u8 *arg0);
 extern s32 datCalcUnitClass(u8 *arg0);
-extern void func_001b1020(s32 arg0);
-extern void func_001b1280(s32 arg0);
+extern void btlActionQueueSortByRank(s32 arg0);
+extern void btlActionQueueRequeueLeadingEnemies(s32 arg0);
 extern u32 iGpffffa0b8;
 extern void func_0014a2e0(u32 arg0);
 extern void btlMainSetupCameraAndEffects(void);
@@ -339,8 +339,8 @@ void btlActionUpdateQueue(void)
     if ((temp_7 & 2) != 0) {
         temp_5 = *(u8 **)temp_6;
         if (*(u8 *)(*(u8 **)(temp_5 + 0x30) + 0xA2) == 1) {
-            func_001b1020(1);
-            func_001b1280(1);
+            btlActionQueueSortByRank(1);
+            btlActionQueueRequeueLeadingEnemies(1);
             temp_4_4 = D_0076449C;
             *(u16 *)(temp_4_4 + 0x290) &= 0xFFFD;
         }
@@ -348,8 +348,8 @@ void btlActionUpdateQueue(void)
     if ((*(u16 *)(D_0076449C + 0x290) & 4) != 0) {
         temp_5 = *(u8 **)temp_6;
         if (*(u8 *)(*(u8 **)(temp_5 + 0x30) + 0xA2) == 0) {
-            func_001b1020(1);
-            func_001b1280(1);
+            btlActionQueueSortByRank(1);
+            btlActionQueueRequeueLeadingEnemies(1);
             temp_4_5 = D_0076449C;
             *(u16 *)(temp_4_5 + 0x290) &= 0xFFFB;
         }
@@ -623,8 +623,8 @@ void btlMainUnitCreateInit(void) {
     extern u8 *mdlGetClump(u8 *arg0);
     extern void mdlClumpSetEnvMapState(u8 *arg0);
     extern s32 btlUnitGetMoveStateCode(void);
-    extern void func_001b11c0(s32 arg0);
-    extern s32 func_001b0f20(s32 arg0);
+    extern void btlActionQueueSortKeepingKind(s32 arg0);
+    extern s32 btlActionQueueMoveToFront(s32 arg0);
     extern s32 datCalcStatusElement(s32 arg0, s32 arg1);
     extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
     extern u32 datCalcSetBadStatus(s32 unit, u32 badStatus);
@@ -712,25 +712,25 @@ void btlMainUnitCreateInit(void) {
             *(u16 *)(D_0076449C + 0x1A) = btlUnitGetMoveStateCode();
             switch (*(u16 *)(D_0076449C + 0x1A)) {
             case 0:
-                func_001b1020(1);
-                func_001b1280(1);
+                btlActionQueueSortByRank(1);
+                btlActionQueueRequeueLeadingEnemies(1);
                 if ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) != 0) {
-                    func_001b0f20(*(s32 *)(D_0076449C + 0x170));
+                    btlActionQueueMoveToFront(*(s32 *)(D_0076449C + 0x170));
                 }
                 break;
             case 1:
-                func_001b1020(0);
-                func_001b11c0(0);
-                func_001b0f20(*(s32 *)(D_0076449C + 0x170));
+                btlActionQueueSortByRank(0);
+                btlActionQueueSortKeepingKind(0);
+                btlActionQueueMoveToFront(*(s32 *)(D_0076449C + 0x170));
                 *(u16 *)(D_0076449C + 0x290) |= 2;
                 if ((*entry & 0x200) == 0) {
                     *(u32 *)(D_0076449C + 0xC) |= 0x100000;
                 }
                 break;
             case 2:
-                func_001b1020(0);
-                func_001b11c0(1);
-                func_001b1280(1);
+                btlActionQueueSortByRank(0);
+                btlActionQueueSortKeepingKind(1);
+                btlActionQueueRequeueLeadingEnemies(1);
                 *(u16 *)(D_0076449C + 0x290) |= 4;
                 if ((*entry & 0x200) == 0) {
                     *(u32 *)(D_0076449C + 0xC) |= 0x100000;

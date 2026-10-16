@@ -168,7 +168,7 @@ extern void btlActionSetState(u8 *arg0, u32 arg1);
 extern void func_001b08d0(void *arg0);
 extern void btlActionSetUnit(u8 *arg0, u8 *arg1);
 extern u8 *func_001b0930(void);
-extern s32 func_001b0d70(u8 *arg0);
+extern s32 btlActionQueuePush(u8 *arg0);
 extern s32 btlUnitApplyEncounterRoster(u8 *arg0);
 extern s32 func_00243d80(u8 *arg0);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
@@ -649,7 +649,7 @@ u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2)
         var_17 = btlUnitCreate(0);
         var_18 = func_001b0930();
         btlActionSetUnit(var_18, var_17);
-        func_001b0d70(var_18);
+        btlActionQueuePush(var_18);
         func_001b08d0(var_18);
         btlActionSetState(var_18, 1);
         if ((arg1 & 0xFFFF) == 1) {
@@ -665,7 +665,7 @@ u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2)
         var_17 = btlUnitCreate(1);
         var_18 = func_001b0930();
         btlActionSetUnit(var_18, var_17);
-        func_001b0d70(var_18);
+        btlActionQueuePush(var_18);
         func_001b08d0(var_18);
         btlActionSetState(var_18, 1);
         break;

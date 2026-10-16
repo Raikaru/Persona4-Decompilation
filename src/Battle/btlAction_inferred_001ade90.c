@@ -663,7 +663,7 @@ void btlActionRoundupMesUpdate(u8 *arg0)
             *(s32 *)(*(u8 **)(D_0076449C + 0x170) + 0x434) =
                 *(s32 *)(arg0 + 0x41C);
             *(s16 *)(*(u8 **)(D_0076449C + 0x170) + 0x16) = 0x1F;
-            func_001b0e30(*(s32 *)(D_0076449C + 0x170));
+            btlActionActiveListPush(*(s32 *)(D_0076449C + 0x170));
             packet2 = (u8 *)btlActionGetQueueFront();
             if ((*(u8 *)(*(u8 **)(packet2 + 0x30) + 0xA2) == 0) &&
                 (*(u8 *)(packet2 + 0x28) != 0)) {
@@ -1199,7 +1199,7 @@ void btlActionEndUpdate(u8 *action)
 {
     s32 func_0019ff60(u8 *action);
     s32 btlCheckBattleEnd(void);
-    s32 func_001b0e30(s32 action);
+    s32 btlActionActiveListPush(s32 action);
     s32 btlOrderRemoveActionAll(u8 *action);
     void btlOrderQueueAction(u8 *action);
     void btlOrderSetCurrentAction(u8 *action);
@@ -1227,7 +1227,7 @@ void btlActionEndUpdate(u8 *action)
                 return;
             }
             *(s16 *)(action + 0x16) = 30;
-            func_001b0e30((s32)action);
+            btlActionActiveListPush((s32)action);
             restart = 1;
         } else {
             *(u16 *)(action + 0x18) = *(u16 *)(action + 0x18) & 0xFFF7;

@@ -14,7 +14,7 @@ extern u8 *D_0076449C;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/Battle/btlOrder_grouped.c; members 001b0d70-001b1280 */
 
 // FUN_001B0D70
-s32 func_001b0d70(u8 *arg0)
+s32 btlActionQueuePush(u8 *arg0)
 {
     s32 *p;
     u32 i;
@@ -43,7 +43,7 @@ store:
 }
 
 // FUN_001B0E30
-s32 func_001b0e30(s32 arg0)
+s32 btlActionActiveListPush(s32 arg0)
 {
     s32 *p;
     u32 i;
@@ -102,7 +102,7 @@ check:
 
 /* measured: close opt_rebuildconditionals off for func_001b0e90. */
 // FUN_001B0F20
-s32 func_001b0f20(s32 arg0)
+s32 btlActionQueueMoveToFront(s32 arg0)
 {
     s32 *p;
     u32 i;
@@ -136,7 +136,7 @@ shift:
 }
 
 // FUN_001B0FA0
-s32 func_001b0fa0(u8 *arg0)
+s32 btlActionQueueMoveToBack(u8 *arg0)
 {
     s32 *p;
     u32 i;
@@ -194,7 +194,7 @@ store:
 #pragma opt_loop_invariants on
 /* measured: func_001b1020 MATCH -> MISMATCH without this pragma. */
 #pragma opt_dead_assignments off
-void func_001b1020(s32 arg0)
+void btlActionQueueSortByRank(s32 arg0)
 {
     u8 ranks[0xC];
     u8 curr_rank;
@@ -262,7 +262,7 @@ void func_001b1020(s32 arg0)
 #pragma opt_lifetimes on
 /* measured: func_001b11c0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_001b11c0(s32 arg0)
+void btlActionQueueSortKeepingKind(s32 arg0)
 {
     u32 count;
     u16 key;
@@ -305,7 +305,7 @@ void func_001b11c0(s32 arg0)
 
 #pragma pop
 // FUN_001B1280
-void func_001b1280(s32 arg0)
+void btlActionQueueRequeueLeadingEnemies(s32 arg0)
 {
     u8 *base;
     u8 **scan;
@@ -354,7 +354,7 @@ void func_001b1280(s32 arg0)
     }
     start = (u8 **)(base + (count - 1) * 4 + 0x29C);
     for (j = 0; j < (u32)reverse_count; j++) {
-        func_001b0fa0(*start);
+        btlActionQueueMoveToBack(*start);
         start--;
     }
 }

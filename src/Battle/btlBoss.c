@@ -28,8 +28,8 @@ extern s32 btlActionHasNoTargetClass();
 extern s32 btlActionSkillReachesTargets();
 extern s32 btlCurrentUnitId();
 extern s32 btlActionGetQueueFront();
-extern void func_001b0fa0(s32 arg0);
-extern void func_001b11c0(s32 arg0);
+extern void btlActionQueueMoveToBack(s32 arg0);
+extern void btlActionQueueSortKeepingKind(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern u8 *iGpffffb414;
 void btlFormationAllocEncounterSlots(void);
@@ -205,7 +205,7 @@ loop_4_next:
         }
 loop_4_done:
         if ((*temp_16 & 0x10) != 0)
-            func_001b11c0(1);
+            btlActionQueueSortKeepingKind(1);
         if ((arg0 != NULL) &&
             (datCalcIsDead((*(BtlUnit **)(arg0 + 0x30))->datUnit, 0) == 0))
         {
@@ -213,7 +213,7 @@ loop_16:
             temp_2 = btlActionGetQueueFront();
             if ((temp_2 != 0) && ((u8 *)temp_2 != arg0))
             {
-                func_001b0fa0(temp_2);
+                btlActionQueueMoveToBack(temp_2);
                 goto loop_16;
             }
         }

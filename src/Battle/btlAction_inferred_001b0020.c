@@ -24,7 +24,7 @@ typedef struct BtlAction BtlAction;
 extern void (*D_00887300[])();
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
-extern s32 func_001b0d70(u8 *arg0);
+extern s32 btlActionQueuePush(u8 *arg0);
 extern s32 btlOrderRemoveActionAll(u8 *arg0);
 extern u32 datCalcIsDead(s32 arg0, s32 arg1);
 extern void (*jtbl_008873EC[])(void *);
@@ -239,7 +239,7 @@ void btlActionDeadUpdate(u8 *arg0)
     case 0:
         if (datCalcIsDead(*(s32 *)(p + 0xA64), 0) == 0) {
             *(s32 *)(p + 0x9C) &= ~1;
-            func_001b0d70(arg0);
+            btlActionQueuePush(arg0);
             if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
                 btlBossCollectTargets((u8 *)btlActionGetQueueFront());
             }
@@ -253,7 +253,7 @@ void btlActionDeadUpdate(u8 *arg0)
         }
         if (datCalcIsDead(*(s32 *)(p + 0xA64), 0) == 0) {
             *(s32 *)(p + 0x9C) &= ~1;
-            func_001b0d70(arg0);
+            btlActionQueuePush(arg0);
             btlActionSetState((BtlAction *)arg0, 1);
         }
         break;

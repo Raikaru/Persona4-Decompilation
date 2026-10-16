@@ -980,7 +980,7 @@ void btlActionCheckStepTrigger(s32 arg0)
 {
     extern s32 btlActionGetQueueFront(void);
     extern s32 btlActionGetActive(void);
-    extern s32 func_001b0e30(s32 arg0);
+    extern s32 btlActionActiveListPush(s32 arg0);
     s32 i;
     s32 result;
     u8 *current;
@@ -1023,7 +1023,7 @@ void btlActionCheckStepTrigger(s32 arg0)
                             (btlActionGetActive() == 0)) {
                             *(u16 *)(*(u8 **)(iGpffffb3ac + 0x170) + 0x16) =
                                 0x1C;
-                            func_001b0e30(
+                            btlActionActiveListPush(
                                 *(s32 *)(iGpffffb3ac + 0x170));
                             result = 1;
                             *(u16 *)(iGpffffb3ac + 0xA48) =
