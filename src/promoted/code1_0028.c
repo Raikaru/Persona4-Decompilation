@@ -14,8 +14,8 @@ extern u32 kwlnTaskGetWork(void *task);
 void memset(void *arg0, s32 arg1, s32 arg2);
 void func_00285260(void);
 extern void MT_Scene_SetExclusiveRes(s32 arg0);
-extern s32 func_00285af0(void);
-extern u8 *func_00285480(u8 *arg0);
+extern s32 evtEnsureEventTask(void); /* lint: allow H011 -- caller stores the returned value; the definition is void */
+extern s32 evtGetEventTaskWork(u8 *arg0);
 extern void sdkSndStopChannel(s16 arg0);
 extern void kAssertFail(void *arg0, s32 arg1);
 extern s32 D_0063C1D0[];
@@ -510,12 +510,12 @@ done:
 // Event task-handle check: nonzero when the current event's +0x768 task handle is set.
 // FUN_0028B650
 s32 evtHasTaskHandle(void) {
-    s32 h = func_00285af0();
+    s32 h = evtEnsureEventTask();
 
     if (h == 0) {
         return 0;
     }
-    return *(s32 *)(func_00285480((u8 *)kwlnTaskGetWork((void *)h)) + 0x768) != 0;
+    return *(s32 *)((u8 *)evtGetEventTaskWork((u8 *)kwlnTaskGetWork((void *)h)) + 0x768) != 0;
 }
 
 // Event handle table: frees every handle in the table at +0x7A4 and clears it.

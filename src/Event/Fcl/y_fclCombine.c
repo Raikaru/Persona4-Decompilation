@@ -273,7 +273,7 @@ extern void fclSpriteReset(s16, s16);
 extern s32 func_00331600(void);
 extern u8 D_00641B10[];
 extern s32 fclDrawIsActive(s32);
-extern s32 func_00285b30(void);
+extern s32 evtGetEventFrame(void);
 extern s32 kwlnTaskIsLinked(s32);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *);
 extern s32 func_00459760(void);
@@ -9723,7 +9723,7 @@ void fclCombineMenuFinish(u8 *arg0) {
         }
         break;
     case 0xD4:
-        if (func_00285b30() >= 0x2D0) {
+        if (evtGetEventFrame() >= 0x2D0) {
             if (*((s8 *)fclCombineGetWork(*(u8 **)(p + 0x254))) != 0) {
                 *((s8 *)fclCombineGetWork(*(u8 **)(p + 0x254))) = 4;
             }
