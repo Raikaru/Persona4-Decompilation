@@ -11,7 +11,7 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern s32 iGpffffa7c8;
 
-s32 func_00291a60(s32 arg0);
+s32 mtMiscResourceValue(s32 arg0);
 
 
 extern void func_00106390();
@@ -50,7 +50,7 @@ extern s32 D_0063E830[];
 
 
 
-extern void func_00291530(u8 *arg0);
+extern void mtMiscCollectType1Records(u8 *arg0);
 /* measured probe: close opt_propagation bracket after func_00291530. */
 
 

@@ -10,7 +10,7 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern s32 iGpffffa7c8;
 
-s32 func_00291a60(s32 arg0);
+s32 mtMiscResourceValue(s32 arg0);
 
 
 extern s32 iGpffffb538;
@@ -50,8 +50,8 @@ extern s32 D_0063E830[];
 /* Source unit: src/promoted/code1_0029.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 002919e0-00291b30 */
 
-extern void func_00291530(u8 *arg0);
-extern void func_00291810(u8 *arg0);
+extern void mtMiscCollectType1Records(u8 *arg0);
+extern void mtMiscCollectType2Records(u8 *arg0);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
 /* measured: opt_propagation off keeps `weapon` materialised between the index
@@ -62,8 +62,10 @@ extern void func_00291810(u8 *arg0);
 /* measured: restore propagation for the rest of the unit. */
 /* measured probe: preserve the retail type constant and close bracket below. */
 /* measured probe: close opt_propagation bracket after func_00291810. */
+// Destroys the three icon resources (ids 0xC00 | ((i + 0x384) & 0x3FF), i = 0..2)
+// that are still loaded.
 // FUN_002919E0
-void func_002919e0(void) {
+void mtMiscDestroyIconResources(void) {
     s32 i;
     u16 temp;
 
@@ -78,7 +80,7 @@ void func_002919e0(void) {
 }
 
 // FUN_00291A60
-s32 func_00291a60(s32 arg0)
+s32 mtMiscResourceValue(s32 arg0)
 {
     s32 temp_4;
     s32 mask;
@@ -116,7 +118,7 @@ s32 func_00291a60(s32 arg0)
 }
 
 // FUN_00291B30
-s32 func_00291b30(s32 arg0, u16 *arg1) {
-    return (s32)(func_00291a60(*arg1) == 0);
+s32 mtMiscResourceValueIsZero(s32 arg0, u16 *arg1) {
+    return (s32)(mtMiscResourceValue(*arg1) == 0);
 }
 
