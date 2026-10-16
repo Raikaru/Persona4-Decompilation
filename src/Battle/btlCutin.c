@@ -25,7 +25,7 @@ extern const char *iGpffffa530[2];
 extern s16 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s32 arg0);
 extern u32 datGetFlag(s32 bit);
-extern s32 func_00120e20();
+extern s32 cutinDrawTaskCreate();
 extern s32 sprintf(char *dst, const char *format, ...);
 extern s32 func_00440b68(const char *format, ...);
 extern u8 *func_00454a60(u8 *path, s32 flags);
@@ -267,7 +267,7 @@ void btlCutinSetupName(u8 *arg0) {
             sp12.a = 8;
             sp12.b = 0x1E;
         }
-        *(s32 *)(iGpffffb3ac + 0xB88) = func_00120e20(*(s32 *)(iGpffffb3ac + 0xDC8), *(s32 *)&sp12);
+        *(s32 *)(iGpffffb3ac + 0xB88) = cutinDrawTaskCreate(*(s32 *)(iGpffffb3ac + 0xDC8), *(s32 *)&sp12);
         break;
     }
     *(u16 *)(iGpffffb3ac + 0xB7C) = *(u16 *)arg0;
