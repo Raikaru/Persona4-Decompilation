@@ -4045,7 +4045,7 @@ void datCommunityMenuDraw(u8 *work)
                             const char *text, s32 flags, s32 reserved);
     extern void fclMesWindowDrawTableItem(s32 item, f32 x, f32 y, f32 depth,
                               s32 textColor, s32 font, s32 mode, s32 table);
-    extern void func_00361d20(s32 idx, u8 *ctx);
+    extern void radarDrawColumn(s32 idx, u8 *ctx);
     extern s32 RpSkyRenderStateSet(s32 cmd, void *val);
     extern void func_0045c870(u8 *color, s32 flags);
     extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 flags);
@@ -4297,7 +4297,7 @@ void datCommunityMenuDraw(u8 *work)
         sdkSpriteDrawAt(*(void **)(work + 0x6EC), position.x, position.y, palette->r, palette->g, palette->b, opacity);
         for (column = 0; column < 6; column++) {
             if ((*(s16 *)(work + 0x2C) + column) < *(s32 *)(work + 0x38)) {
-                func_00361d20(column, work);
+                radarDrawColumn(column, work);
             }
         }
         offsetX = originX + *(f32 *)(work + 0x598);

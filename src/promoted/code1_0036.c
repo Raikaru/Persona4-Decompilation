@@ -91,7 +91,7 @@ extern void sflDataInitPanel(void);
 extern void pscLightInitQuad(u8 *arg0);
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
-extern void func_00362630(u8 *arg0);
+extern void cmpSystemFocusFlaggedRow(u8 *arg0);
 extern void cmpSystemMenuInit(u8 *arg0);
 extern s32 datCommunityPanelOpenStepAlt(u8 *arg0);
 extern s32 cmpSystemSetMode(u8 *arg0, u32 arg1);
@@ -267,7 +267,7 @@ void radarStepValueAnimation(u8 *arg0) {
    reloads across draws. Palette channels are read after the badge calls;
    final byte opacity is packed into the text color before name lookup. */
 // FUN_00361D20
-void func_00361d20(s32 arg0, u8 *arg1)
+void radarDrawColumn(s32 arg0, u8 *arg1)
 {
     typedef struct MenuPaletteColor { u8 r, g, b, a; } MenuPaletteColor;
     typedef struct MenuRowStride { u8 bytes[0x30]; } MenuRowStride;
@@ -432,7 +432,7 @@ void func_00361d20(s32 arg0, u8 *arg1)
     }
 }
 // FUN_00362630
-void func_00362630(u8 *arg0)
+void cmpSystemFocusFlaggedRow(u8 *arg0)
 {
     s32 count;
     s32 i;
@@ -554,7 +554,7 @@ s32 cmpSystemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2)
         goto block_64;
     case 5:
         if (radarRowsSettled(arg2) != 0) {
-            func_00362630(arg2);
+            cmpSystemFocusFlaggedRow(arg2);
             cmpSystemSetMode(arg2, 3);
             *arg0 = 6;
             nLineSelectSet(0x1F);
@@ -684,7 +684,7 @@ s32 cmpPartyPanelStepRowMotion(u8 *arg0)
     return 1;
 }
 // FUN_003642A0
-void func_003642a0(u8 *arg0)
+void MT_Scene_ReleaseWork(u8 *arg0)
 {
     u16 *flags = *(u16 **)(arg0 + 0x38);
 
