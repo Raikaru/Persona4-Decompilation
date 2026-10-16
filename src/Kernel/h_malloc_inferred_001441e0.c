@@ -116,7 +116,7 @@ extern void kwlnTaskDumpAll(void);
 extern void FldResource_OpenPrimaryFile(s32 arg0, s32 arg1);
 extern void FldResource_QueueFieldResources(s32 arg0, s32 arg1);
 extern s32 FldResource_StepPartLoad(s32 arg0, s32 arg1);
-extern s32 func_0026df80(void);
+extern s32 MT_SceneManager_Create(void);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -713,7 +713,7 @@ s32 func_00144f60(void)
             return 0;
         }
         if (*(s32 *)(iGpffff9db0 + 0x1C) == 0) {
-            *(s32 *)(iGpffff9db0 + 0x1C) = func_0026df80();
+            *(s32 *)(iGpffff9db0 + 0x1C) = MT_SceneManager_Create();
         }
         return 1;
     }

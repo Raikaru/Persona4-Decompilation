@@ -356,7 +356,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
     extern s32 func_00110d30(s32 arg0);
     extern s32 func_00110c50(s32 arg0, s32 arg1);
     extern void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite);
-    extern void func_00261560(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
+    extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
     extern char D_0063BFB0[];
     extern u8 D_007482F0[];
     s32 month;
@@ -503,7 +503,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
             func_00366380(px + 0x5C, py, 0.0f, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, fade);
             calDrawDateCell(px + 0x6B, py, 0.0f, 0xFF, today + i + 1, 1, 1.0f, fade, 0, 0, (s32)font, 0);
             py = 163.0f - 5.0f * rot;
-            func_00261560(px + 0x5D, py, 0.0f, 0xFF, func_00110c50(today + i + 1, today) & 0xFFFF, 1, 1.0f, fade * fade, 0, 0, (s32)font, mode);
+            calDrawWeather(px + 0x5D, py, 0.0f, 0xFF, func_00110c50(today + i + 1, today) & 0xFFFF, 1, 1.0f, fade * fade, 0, 0, (s32)font, mode);
         }
         week = func_00110580(today + 3);
         if (week == 0 || func_00110d30(today + 3) != 0) {
