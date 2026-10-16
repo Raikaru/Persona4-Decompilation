@@ -3058,7 +3058,7 @@ just a difference.
 **Across 212 byte-exact MATCH first-party functions there are 2909 branches
 and zero filled delay slots.**  Not a few, none.  The same held (2026-09-19)
 for every function that still had a floor: `mdlUpdateDrawState` (was `func_00475cd0`) has 179 branches
-and 179 empty slots, `func_004b1ad0` 76 and 76, `func_004a5fc0` 75 and 75,
+and 179 empty slots, `func_004b1ad0` 76 and 76, `EffSpriteUpdate` (was `func_004a5fc0`) 75 and 75,
 `func_0021a7b0` 49 and 49, `FlashTexturedEmitDirectionalQuads` (was `func_0049e150`) 40 and 40, `func_00308f40` 97 and
 97, `func_003599c0` 112 and 112.
 
@@ -3071,7 +3071,7 @@ genuine instruction surplus:
 |---|---|---|
 | `mdlUpdateDrawState` (was `func_00475cd0`) | 1007/1000 "inside" | 1131/1000, **+13.1%** |
 | `func_004b1ad0` | 802/796 "inside" | 909/796, **+14.2%** |
-| `func_004a5fc0` | 762/756 "inside" | 851/756, **+12.6%** |
+| `EffSpriteUpdate` (was `func_004a5fc0`) | 762/756 "inside" | 851/756, **+12.6%** |
 | `func_0021a7b0` | 418/427 "inside" | 460/428, **+7.5%** |
 | `FlashTexturedEmitDirectionalQuads` (was `func_0049e150`) | 489/499 "inside" | 531/500, **+6.2%** |
 
@@ -3448,7 +3448,7 @@ to handle the top bit, so b210 emits `bltz` / `nop` / `mtc1` / `nop` /
 `add.s` / `swc1`.
 
 The consequences are large on a body with several conversions.  On
-`func_004a5fc0`, four conversions declared `u32` instead of `s32` accounted
+`EffSpriteUpdate` (was `func_004a5fc0`), four conversions declared `u32` instead of `s32` accounted
 for **81 of the 87 surplus instructions** that put the draft outside the gate;
 fixing the two locals' declared types took it from 843 to 762 against retail's
 756.  In the other direction, the archived draft of `func_0035aff0` measures

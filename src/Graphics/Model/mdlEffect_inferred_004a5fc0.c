@@ -22,7 +22,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern void func_004a5fc0(u8 *arg0);
+extern void EffSpriteUpdate(u8 *arg0);
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
 
@@ -98,8 +98,9 @@ typedef struct EffSpriteRGBA {
    load-all/store-all byte copy. Separate loop locals keep the saved-register
    allocation exact. */
 /* measured: restores the file's O2 loop-invariant baseline. */
+/* Sprite update: reads the frame counter at +0x2C, resets it to zero when the cycle wraps, and rebuilds the sprite's frame, colour and texture state. */
 // FUN_004A5FC0
-void func_004a5fc0(u8 *arg0)
+void EffSpriteUpdate(u8 *arg0)
 {
     extern void GeometryBlockSetFrameMatrix(void *arg0, void *arg1, void *arg2, f32 arg3);
     extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);

@@ -213,7 +213,7 @@ void func_004b1a00(u8 *arg0, u8 *arg1) {
     }
 }
 
-/* Screen-space sprite update, the func_004a5fc0 sibling. It shares the COP2
+/* Screen-space sprite update, the EffSpriteUpdate sibling. It shares the COP2
  * colour pack (the asm writes the packed frame slot, retail reloads it) and
  * the frame-info struct, then projects the four corners through the camera's
  * depth range onto the 640x448 screen. */
