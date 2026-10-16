@@ -53,7 +53,7 @@ extern code DAT_008873ec_abs[];
 
 typedef struct { f32 x, y, z; } SVec3;
 typedef unsigned int EvtU128 __attribute__((mode(TI)));
-u8 *func_004ab960(u16 *texture, u16 kind);
+u8 *effBlurFilterCreateRefObj(u16 *texture, u16 kind);
 extern u8 D_0063C648[];
 
 typedef struct {
@@ -428,7 +428,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
 
         filter2 = effBlurFilterDirectCreate(2, &frame.filter2);
         *(s32 *)(filter2 + 0x28) =
-            (s32)func_004ab960((u16 *)&frame.filter1.argument, 4);
+            (s32)effBlurFilterCreateRefObj((u16 *)&frame.filter1.argument, 4);
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task2 = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task2[0] = 0;
@@ -663,7 +663,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         }
         argSave = arg2[0x2A];
         tmp = effBlurFilterCopiedCreate(2, &f2.params);
-        *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
+        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&argSave, 4);
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
@@ -779,7 +779,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         }
         argSave = arg2[0x2A];
         tmp = effBlurFilterCopiedCreate(3, &f3.params);
-        *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
+        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&argSave, 4);
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;
@@ -882,7 +882,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         }
         argSave = 0;
         tmp = effBlurFilterCopiedCreate(5, &f5.params);
-        *(s32 *)(tmp + 0x28) = (s32)func_004ab960((u16 *)&argSave, 4);
+        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)&argSave, 4);
         chkmemAllocSiteTag(D_0063C638, 0x11E0);
         task = (s32 *)D_008873F4[0](1, 0x10, 0x40000);
         task[0] = 1;

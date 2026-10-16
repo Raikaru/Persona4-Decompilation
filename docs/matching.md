@@ -186,7 +186,7 @@ These are source-shape decisions, not invitations to add pragmas:
 | Saved-register colors are wrong while the body shape is right | Declaration order; [Register allocation and caching](#register-allocation-and-caching) | `frFont func_002739e0`: declaration-order fix, object/window `724/736`, normalized diff `0` |
 | Loop bases or constants rematerialize in the body | `opt_loop_invariants on`; [Loops](#loops) | `func_00161bb0` nd `45 → 0`; `func_0045b430` nd `8 → 0` |
 | Argument setup order before a call differs | [Argument materialisation](#argument-materialisation--measured-rule) | Emission follows source declaration order of the arguments |
-| A reloc-masked `MATCH` names the wrong global | Check the retail immediate/addend; [Globals and addressing](#globals-and-addressing) | `func_004a8bb0`/`func_004a8f90` both masked `MATCH` but had wrong GP references; only the linked image exposed it |
+| A reloc-masked `MATCH` names the wrong global | Check the retail immediate/addend; [Globals and addressing](#globals-and-addressing) | `effBlurFilterTickSlotsA` (was `func_004a8bb0`) / `effBlurFilterTickSlotsB` (was `func_004a8f90`) both masked `MATCH` but had wrong GP references; only the linked image exposed it |
 
 ### Semantic and target gate
 
@@ -2857,14 +2857,14 @@ report MATCH while referencing the wrong symbol.** The relocated field is
 masked, so any symbol of the right kind compares equal.
 
 Only the linked image catches it. A real example (2026-08-11), from the change
-that added `func_004a8bb0` and `func_004a8f90` to
+that added `effBlurFilterTickSlotsA` (was `func_004a8bb0`) and `effBlurFilterTickSlotsB` (was `func_004a8f90`) to
 `src/Graphics/Effect/effBlurFilter.c`: both verified MATCH at normalized_diff
 0, and both were wrong. They are a sibling cluster, solved once and
 transferred, and the transfer silently carried the first function's global
 into the second:
 
-    func_004a8bb0 @ 0x004a8cbc   ld $a0, -0x7fe0($gp)   fGpffff8020 = 0x00761110
-    func_004a8f90 @ 0x004a909c   ld $a0, -0x7ff0($gp)   fGpffff8010 = 0x00761100
+    effBlurFilterTickSlotsA (was func_004a8bb0) @ 0x004a8cbc   ld $a0, -0x7fe0($gp)   fGpffff8020 = 0x00761110
+    effBlurFilterTickSlotsB (was func_004a8f90) @ 0x004a909c   ld $a0, -0x7ff0($gp)   fGpffff8010 = 0x00761100
 
 `tools/build.py` reported `first diff at vram 0x4a8cbc` and the image sha1
 changed. Nothing else would have.

@@ -8,7 +8,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 
 /* Defined below in this file; called above its definition. */
-extern u8 *func_004ab960(u16 *arg0, u16 arg1);
+extern u8 *effBlurFilterCreateRefObj(u16 *arg0, u16 arg1);
 
 extern char D_00714380[];
 extern u8 D_00714394[];
@@ -44,7 +44,7 @@ extern void memcpy(void *dst, const void *src, u32 size);
 extern void func_003ef3a0(void *ptr);
 extern f32 fGpffff80f8;
 extern void func_004a8a50(u8 *arg0, u8 *arg1);
-extern void func_004a8da0(u8 *arg0, u8 *arg1);
+extern void effBlurFilterSpawnSlot(u8 *arg0, u8 *arg1);
 extern void func_004a8890(u8 *arg0, s32 *arg1);
 extern s32 func_00481390(void *ptr);
 extern s32 func_00481300(u16 param);
@@ -58,8 +58,8 @@ typedef struct BlurRefObj {
     s32 f4;
 } BlurRefObj;
 
-extern void *func_004abb00(BlurRefObj *param_1);
-extern void func_004aba70(void *param_1);
+extern void *effBlurFilterRetainRefObj(BlurRefObj *param_1);
+extern void effBlurFilterReleaseRefObj(void *param_1);
 
 extern f32 sinf(f32 fparg0);
 extern s32 func_0044dcd8(f32 a);
@@ -79,20 +79,21 @@ extern f32 func_0048aff0(u8 *a, s32 b, s32 c);
 extern f32 func_0048a650(f32 a);
 extern f32 fGpffff8044;
 extern f32 fGpffff80f0;
-extern void func_004a8bb0(u8 *a, u8 *b);
-extern void func_004a8f90(u8 *a, u8 *b);
-extern void func_004a9180(u8 *a, u8 *b);
+extern void effBlurFilterTickSlotsA(u8 *a, u8 *b);
+extern void effBlurFilterTickSlotsB(u8 *a, u8 *b);
+extern void effBlurFilterAdvanceSlots(u8 *a, u8 *b);
 
 /* measured: optimization_level 1 plus the swapped integer declaration order and
    a block-local threshold produce object 488B/window 496B and only the two
    zero-padding tail words differ in the standalone probe (nd 2). Compound
    overflow masking keeps the OR/ANDI result in the retail destination
    register; the candidate body follows the 004A8F90 sibling skeleton. */
-/* measured: func_004a8bb0 O1 bracket, standalone probe object 488B/window 496B,
+/* measured: effBlurFilterTickSlotsA O1 bracket, standalone probe object 488B/window 496B,
    normalized_diff 2 (retail-only zero-padding tail). */
 #pragma optimization_level 1
+// Ticks a blur slot table with the first alpha ramp (fGpffff8018 and fGpffff8020 constants).
 // FUN_004A8BB0
-void func_004a8bb0(u8 *a, u8 *b) {
+void effBlurFilterTickSlotsA(u8 *a, u8 *b) {
     int *param_1 = (int *)a;
     float *param_2 = (float *)b;
     int iVar4;
@@ -148,7 +149,7 @@ void func_004a8bb0(u8 *a, u8 *b) {
         param_2 = param_2 + 0x34 / 4;
     }
 }
-/* measured: closes func_004a8bb0 O1 bracket; restore O2 for the next function. */
+/* measured: closes effBlurFilterTickSlotsA O1 bracket; restore O2 for the next function. */
 #pragma optimization_level 2
 
 extern f32 cosf(f32 param);
@@ -168,8 +169,9 @@ extern f32 fGpffff80cc;
    spellings this wave: f32 prod local (2 placements, nd 108-111), (f32)
    cast on one product (folds, nd 12), &fGpffff80cc deref (nd 46). Both
    statement orders tried. FMA-CSE fusion floor. */
+// Spawns one blur slot: random index, random jitter and sine/cosine offsets from the object parameters.
 // FUN_004A8DA0
-void func_004a8da0(u8 *arg0, u8 *arg1) {
+void effBlurFilterSpawnSlot(u8 *arg0, u8 *arg1) {
     f32 temp_f23;
     f32 temp_f22;
     f32 temp_f21;
@@ -202,15 +204,16 @@ void func_004a8da0(u8 *arg0, u8 *arg1) {
     *(f32 *)(temp_16 + 0x28) = temp_f23 + temp_f20;
 }
 
-/* measured: cluster transfer from func_004a8bb0 — changing only the assert
-   line to 575 and the recursive helper to func_004a8da0 preserves the exact
+/* measured: cluster transfer from effBlurFilterTickSlotsA - changing only the assert
+   line to 575 and the recursive helper to effBlurFilterSpawnSlot preserves the exact
    488B candidate body/window 496B with only the two retail zero-padding tail
    words outside the standalone object (nd 2). */
-/* measured: func_004a8f90 O1 bracket, standalone probe object 488B/window 496B,
+/* measured: effBlurFilterTickSlotsB O1 bracket, standalone probe object 488B/window 496B,
    normalized_diff 2 (retail-only zero-padding tail). */
 #pragma optimization_level 1
+// Ticks a blur slot table with the second alpha ramp (fGpffff8018 and fGpffff8010 constants).
 // FUN_004A8F90
-void func_004a8f90(u8 *a, u8 *b) {
+void effBlurFilterTickSlotsB(u8 *a, u8 *b) {
     int *param_1 = (int *)a;
     float *param_2 = (float *)b;
     int iVar4;
@@ -240,7 +243,7 @@ void func_004a8f90(u8 *a, u8 *b) {
         if (((int *)param_2)[0] == 0) {
             float threshold;
             if (!(param_2[1] <= fGpffff8084)) {
-                func_004a8da0(a, (u8 *)param_2);
+                effBlurFilterSpawnSlot(a, (u8 *)param_2);
             }
             fVar6 = sinf(param_2[1]);
             param_2[6] = 1.0f + ((float *)param_1)[6] * fVar6;
@@ -266,10 +269,11 @@ void func_004a8f90(u8 *a, u8 *b) {
         param_2 = param_2 + 0x34 / 4;
     }
 }
-/* measured: closes func_004a8f90 O1 bracket; restore O2 for the next function. */
+/* measured: closes effBlurFilterTickSlotsB O1 bracket; restore O2 for the next function. */
 #pragma optimization_level 2
+// Advances a slot table in place with 13-word slots, fading alpha by the slot fraction.
 // FUN_004A9180
-void func_004a9180(u8 *a, u8 *b) {
+void effBlurFilterAdvanceSlots(u8 *a, u8 *b) {
     int *param_1 = (int *)a;
     float *param_2 = (float *)b;
     int iVar1;
@@ -327,8 +331,9 @@ void func_004a9180(u8 *a, u8 *b) {
         param_2 = param_2 + 0xd;
     }
 }
+// Refreshes the screen-rect block: default constants on first use, then recomputed from the tracker, with the flag byte cleared below the threshold.
 // FUN_004A93D0
-void func_004a93d0(u8 *arg0) {
+void effBlurFilterUpdateScreenRect(u8 *arg0) {
     s32 sp6C;
     s32 sp68;
     s32 sp64;
@@ -409,8 +414,9 @@ void func_004a93d0(u8 *arg0) {
     *(s8 *)(base + 3) = 0;
 }
 
+// Submits the sky pass when the draw count is positive, bracketing the render-state changes.
 // FUN_004A9590
-void func_004a9590(u8 *arg0) {
+void effBlurFilterDrawSlotPass(u8 *arg0) {
     s32 sp12C;
     u8 sp20[0x108];
     u8 *base;
@@ -430,8 +436,9 @@ void func_004a9590(u8 *arg0) {
     }
 }
 
+// Updates the quad corners from the scale parameter, running the scaled radius through the VU helper.
 // FUN_004A9690
-void func_004a9690(u8 *arg0) {
+void effBlurFilterUpdateRectFromScale(u8 *arg0) {
     f32 vec[4];
     s32 sp7C;
     s32 sp78;
@@ -539,8 +546,9 @@ typedef struct BlurGsQuad {
     u8 pad3[0x38];
 } BlurGsQuad;
 
+// Draws the reference pass with the two saved render states and the slot packet.
 // FUN_004A98D0
-void func_004a98d0(u8 *arg0) {
+void effBlurFilterDrawRefPass(u8 *arg0) {
     s32 sp24C;
     s32 sp248;
     u8 sp140[0xFC];
@@ -580,8 +588,9 @@ void func_004a98d0(u8 *arg0) {
     }
 }
 
+// Allocates a slot table (up to 100 entries) and initialises each slot through the init helper.
 // FUN_004A9AA0
-u8 *func_004a9aa0(u8 *arg0) {
+u8 *effBlurFilterAllocSlots(u8 *arg0) {
     s32 i;
     u8 *alloc;
     u8 *base;
@@ -602,13 +611,15 @@ u8 *func_004a9aa0(u8 *arg0) {
     return alloc;
 }
 
+// Frees a slot table through the engine's free callback.
 // FUN_004A9BA0
-void func_004a9ba0(void *param_1) {
+void effBlurFilterFreeSlots(void *param_1) {
     (*jtbl_008873EC)(param_1);
 }
 
+// Steps the first slot-list update: refreshes the screen rect and ticks the list with TickSlotsA.
 // FUN_004A9BD0
-void func_004a9bd0(u8 *arg0) {
+void effBlurFilterStepSlotsA(u8 *arg0) {
     f32 vec[4];
     s32 sp8C;
     s32 sp88;
@@ -694,13 +705,14 @@ void func_004a9bd0(u8 *arg0) {
         *(f32 *)(base + 0x18) = fGpffff80f0 * func_0048aff0(obj + 0x34, b, a);
         *(f32 *)(base + 0x14) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
         *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
-        func_004a8bb0(base, list);
+        effBlurFilterTickSlotsA(base, list);
     } else {
         *(s32 *)(base + 0xC) = 0;
     }
 }
+// Submits every slot with a zero timer and a positive alpha byte to the draw table.
 // FUN_004A9DD0
-void func_004a9dd0(u8 *arg0) {
+void effBlurFilterSubmitZeroTimerSlots(u8 *arg0) {
     u8 *list;
     u8 *obj;
     u8 *base;
@@ -726,8 +738,9 @@ void func_004a9dd0(u8 *arg0) {
     }
 }
 
+// Allocates a small slot table (up to 40 entries) with zeroed timers and per-index base offsets.
 // FUN_004A9EA0
-void func_004a9ea0(u8 *arg0) {
+void effBlurFilterAllocSlotsSmall(u8 *arg0) {
     u8 *base;
     u32 count;
     u8 *alloc;
@@ -750,13 +763,15 @@ void func_004a9ea0(u8 *arg0) {
     }
 }
 
+// Frees a small slot table through the engine's free callback.
 // FUN_004A9FA0
-void func_004a9fa0(void *param_1) {
+void effBlurFilterFreeSlotsSmall(void *param_1) {
     (*jtbl_008873EC)(param_1);
 }
 
+// Steps the third slot-list update: refreshes the screen rect and advances the table with AdvanceSlots.
 // FUN_004A9FD0
-void func_004a9fd0(u8 *arg0) {
+void effBlurFilterStepSlotsC(u8 *arg0) {
     f32 vec[4];
     s32 sp8C;
     s32 sp88;
@@ -842,14 +857,15 @@ void func_004a9fd0(u8 *arg0) {
         *(f32 *)(base + 0x1C) = fGpffff80f0 * func_0048aff0(obj + 0x34, b, a);
         *(f32 *)(base + 0x14) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
         *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
-        func_004a9180(base, list);
+        effBlurFilterAdvanceSlots(base, list);
     } else {
         *(s32 *)(base + 0xC) = 0;
     }
 }
 
+// Submits every slot with a non-negative alpha and a positive alpha byte to the draw table.
 // FUN_004AA1F0
-void func_004aa1f0(u8 *arg0) {
+void effBlurFilterSubmitActiveSlots(u8 *arg0) {
     u8 *list;
     u8 *obj;
     u8 *base;
@@ -872,8 +888,9 @@ void func_004aa1f0(u8 *arg0) {
     }
 }
 
+// Refreshes the screen-rect block with the simple variant: default constants on first use, no flag-byte update.
 // FUN_004AA2B0
-void func_004aa2b0(u8 *arg0) {
+void effBlurFilterUpdateScreenRectSimple(u8 *arg0) {
     s32 sp6C;
     s32 sp68;
     s32 sp64;
@@ -954,8 +971,9 @@ void func_004aa2b0(u8 *arg0) {
     }
 }
 
+// Draws the overlay pass, bracketed by render-state changes around one slot packet.
 // FUN_004AA460
-void func_004aa460(u8 *arg0) {
+void effBlurFilterDrawOverlay(u8 *arg0) {
     s32 sp12C;
     u8 sp20[0x108];
     void *setState;
@@ -975,8 +993,9 @@ void func_004aa460(u8 *arg0) {
         RpSkyRenderStateSet(3, sp12C);
     }
 }
+// Allocates a spawn-mode slot table (up to 100 entries) and initialises each slot through SpawnSlot.
 // FUN_004AA560
-u8 *func_004aa560(u8 *arg0) {
+u8 *effBlurFilterAllocSpawnSlots(u8 *arg0) {
     s32 i;
     u8 *alloc;
     u8 *base;
@@ -991,19 +1010,21 @@ u8 *func_004aa560(u8 *arg0) {
     alloc = (u8 *)(*jtbl_008873E8)(count * 0x34, 0x40000);
     for (i = 0; i < (s32)count; i++) {
         u8 *item = alloc + i * 0x34;
-        func_004a8da0(base, item);
+        effBlurFilterSpawnSlot(base, item);
         *(f32 *)(item + 4) = fGpffff80f8;
     }
     return alloc;
 }
 
+// Frees a spawn-mode slot table through the engine's free callback.
 // FUN_004AA660
-void func_004aa660(void *param_1) {
+void effBlurFilterFreeSpawnSlots(void *param_1) {
     (*jtbl_008873EC)(param_1);
 }
 
+// Steps the second slot-list update: refreshes the screen rect and ticks the list with TickSlotsB.
 // FUN_004AA690
-void func_004aa690(u8 *arg0) {
+void effBlurFilterStepSlotsB(u8 *arg0) {
     f32 vec[4];
     s32 sp8C;
     s32 sp88;
@@ -1089,14 +1110,15 @@ void func_004aa690(u8 *arg0) {
         *(f32 *)(base + 0x18) = fGpffff80f0 * func_0048aff0(obj + 0x34, b, a);
         *(f32 *)(base + 0x14) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
         *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
-        func_004a8f90(base, list);
+        effBlurFilterTickSlotsB(base, list);
     } else {
         *(s32 *)(base + 0xC) = 0;
     }
 }
 
+// Submits zero-timer slots after checking the slot count against the 100-entry limit.
 // FUN_004AA890
-void func_004aa890(u8 *arg0) {
+void effBlurFilterSubmitZeroTimerSlotsChecked(u8 *arg0) {
     u8 *list;
     u8 *obj;
     u8 *base;
@@ -1122,8 +1144,9 @@ void func_004aa890(u8 *arg0) {
     }
 }
 
+// Refreshes the screen-rect block from the defaults on first use, then clears the flag byte at offset 3 when the count is below the threshold.
 // FUN_004AA960
-void func_004aa960(u8 *arg0) {
+void effBlurFilterUpdateScreenRectFlagged(u8 *arg0) {
     s32 sp3C;
     s32 sp38;
     s32 sp34;
@@ -1200,7 +1223,7 @@ void func_004aa960(u8 *arg0) {
     }
 }
 // FUN_004AAA90
-void func_004aaa90(u8 *arg0) {
+void effBlurFilterDrawAux(u8 *arg0) {
     s32 sp12C;
     u8 sp20[0x108];
     u8 *base;
@@ -1216,8 +1239,9 @@ void func_004aaa90(u8 *arg0) {
     }
 }
 
+// Updates the screen-rect corners from the scale parameter; this variant also writes the corner pairs at offsets 4 and 8.
 // FUN_004AAB50
-void func_004aab50(u8 *arg0) {
+void effBlurFilterUpdateRectFromScaleAux(u8 *arg0) {
     f32 vec[4];
     s32 sp7C;
     s32 sp78;
@@ -1311,8 +1335,9 @@ void func_004aab50(u8 *arg0) {
         *(s8 *)(base + 0xF) = 0;
     }
 }
+// Draws the second sky pass, bracketed by render-state changes around one slot packet.
 // FUN_004AAD30
-void func_004aad30(u8 *arg0) {
+void effBlurFilterDrawPassB(u8 *arg0) {
     s32 sp24C;
     s32 sp248;
     u8 sp140[0xFC];
@@ -1423,7 +1448,7 @@ void *effBlurFilterCopiedInstantiate(void *arg0) {
     }
     temp_2_3 = (s32)func_004844d0(arg0);
     if ((temp_2_3 != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(temp_2 + 0x18) * 24) != 0)) {
-        *(s32 *)(temp_2 + 0x28) = (s32)func_004ab960((u16 *)temp_2_3, *(u16 *)((u8 *)arg0 + 0x1C));
+        *(s32 *)(temp_2 + 0x28) = (s32)effBlurFilterCreateRefObj((u16 *)temp_2_3, *(u16 *)((u8 *)arg0 + 0x1C));
     }
     return temp_2;
 }
@@ -1444,7 +1469,7 @@ void *effBlurFilterDirectInstantiate(void *param_1) {
     }
     tex = func_004844d0(param_1);
     if ((tex != 0) && (*(s8 *)(D_00714470 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
-        *(s32 *)(tmp + 0x28) = (s32)func_004ab960(tex, *(u16 *)((char *)param_1 + 0x1C));
+        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterCreateRefObj(tex, *(u16 *)((char *)param_1 + 0x1C));
     }
     return tmp;
 }
@@ -1456,7 +1481,7 @@ void effBlurFilterCopiedDestroy(void *param_1) {
         ((void (*)(void *))(*(u32 *)(D_00714394 + *(s32 *)((char *)param_1 + 0x18) * 24)))(*(void **)((char *)param_1 + 0x20));
     }
     if (*(void **)((char *)param_1 + 0x28) != 0) {
-        func_004aba70(*(void **)((char *)param_1 + 0x28));
+        effBlurFilterReleaseRefObj(*(void **)((char *)param_1 + 0x28));
     }
     (*jtbl_008873EC)(param_1);
 }
@@ -1468,7 +1493,7 @@ void *effBlurFilterCopiedDuplicate(void *param_1) {
 
     tmp = effBlurFilterCopiedCreate(*(u16 *)((char *)param_1 + 0x18), *(const void **)((char *)param_1 + 0x24));
     if ((*(void **)((char *)param_1 + 0x28) != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
-        *(s32 *)(tmp + 0x28) = (s32)func_004abb00(*(void **)((char *)param_1 + 0x28));
+        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterRetainRefObj(*(void **)((char *)param_1 + 0x28));
     }
     return tmp;
 }
@@ -1590,7 +1615,7 @@ void effBlurFilterDirectDestroy(void *param_1) {
         ((void (*)(void *))(*(u32 *)(D_00714464 + *(s32 *)((char *)param_1 + 0x18) * 24)))(*(void **)((char *)param_1 + 0x20));
     }
     if (*(void **)((char *)param_1 + 0x28) != 0) {
-        func_004aba70(*(void **)((char *)param_1 + 0x28));
+        effBlurFilterReleaseRefObj(*(void **)((char *)param_1 + 0x28));
     }
     (*jtbl_008873EC)(param_1);
 }
@@ -1602,7 +1627,7 @@ void *effBlurFilterDirectDuplicate(void *param_1) {
 
     tmp = effBlurFilterDirectCreate(*(u16 *)((char *)param_1 + 0x18), *(const void **)((char *)param_1 + 0x24));
     if ((*(void **)((char *)param_1 + 0x28) != 0) && (*(s8 *)(D_00714470 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
-        *(s32 *)(tmp + 0x28) = (s32)func_004abb00(*(void **)((char *)param_1 + 0x28));
+        *(s32 *)(tmp + 0x28) = (s32)effBlurFilterRetainRefObj(*(void **)((char *)param_1 + 0x28));
     }
     return tmp;
 }
@@ -1672,8 +1697,9 @@ void effBlurFilterDirectSetScale(void *param_1, f32 param_2) {
     *(f32 *)((char *)param_1 + 0x14) = param_2;
 }
 
+// Creates a blur resource: type 1 and type 4 resolve their handle through different lookups; other types assert.
 // FUN_004AB960
-u8 *func_004ab960(u16 *arg0, u16 arg1) {
+u8 *effBlurFilterCreateRefObj(u16 *arg0, u16 arg1) {
     u8 *tmp;
     s32 t;
 
@@ -1700,8 +1726,9 @@ u8 *func_004ab960(u16 *arg0, u16 arg1) {
     return tmp;
 }
 
+// Drops one reference; at zero it releases the handle (unless the type is 4) and frees the block.
 // FUN_004ABA70
-void func_004aba70(void *param_1) {
+void effBlurFilterReleaseRefObj(void *param_1) {
     s32 n;
 
     if (*(s32 *)((char *)param_1 + 4) == 0) {
@@ -1717,8 +1744,9 @@ void func_004aba70(void *param_1) {
     }
 }
 
+// Adds one reference to a blur resource; the second word holds the count.
 // FUN_004ABB00
-void *func_004abb00(BlurRefObj *param_1) {
+void *effBlurFilterRetainRefObj(BlurRefObj *param_1) {
     if (param_1->f4 == 0) {
         kAssertFail(D_00714380, 0x7D7);
     }
