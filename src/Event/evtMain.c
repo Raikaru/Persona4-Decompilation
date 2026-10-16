@@ -868,15 +868,15 @@ void evtUpdateCutin(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
 void evtUpdateWaitState(int param_1, int param_2) {
     u8 *a = NULL;
     u8 *b = NULL;
-    u8 *node = *(u8 **)(param_2 + 0x4C);
+    EvtNode *node = ((EvtEventWork *)param_2)->nodeList;
     while (node != 0) {
-        if (*(u32 *)node == 0x22) {
+        if (node->kind == 0x22) {
             break;
         }
-        node = *(u8 **)(node + 0x90);
+        node = node->next;
     }
     if (node != 0) {
-        evtFindNodeRange(node, param_1, &a, &b);
+        evtFindNodeRange((u8 *)node, param_1, &a, &b);
         if (a != 0 && *(u16 *)a == param_1) {
             switch (*(s8 *)(a + 0x10)) {
             case 0:
