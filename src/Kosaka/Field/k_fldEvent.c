@@ -855,7 +855,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void FldUnit_UpdateSlots(s32);
     void FldUnit_UpdateSlotModels(void);
     void FldUnit_UpdateAllEnemySlots(void);
-    s32 func_0016e2e0(s32);
+    s32 FldCameraTaskCreate(s32);
     s32 FldUnit_SpawnEncounterTask(u8 *, s32);
     u32 FldUnit_IsSettled(u8 *);
     s32 func_00122640(s32, s32);
@@ -1404,7 +1404,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 FldUnit_UpdateSlotModels();
                 FldUnit_UpdateAllEnemySlots();
                 FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20)), 0);
-                t11 = func_0016e2e0(*(s32 *)(u8 *)MT_Scene_GetFrameState());
+                t11 = FldCameraTaskCreate(*(s32 *)(u8 *)MT_Scene_GetFrameState());
                 *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4) = t11;
                 func_0016f750((u8 *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4)), (u8 *)(&work->snapshot));
                 {
@@ -1751,7 +1751,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     u32 datGetFlag(s32);
     void func_0016e8e0(u8 *, f32);
     u8 *func_0016f3b0(u8 *, s32, s32);
-    u8 *func_0016f130(u8 *, s32, s32);
+    u8 *FldFrame_RotateTaskCreate(u8 *, s32, s32);
     f32 FldEvent_GetStickHeading(s32, s32);
     MovementMatrix *func_003e0670(MovementMatrix *, const MovementMatrix *);
     f32 func_0044b950(f32, f32);
@@ -1903,7 +1903,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     if (f20 != 0.0f) {
         func_0016e8e0(*(u8 **)((s32)MT_Scene_GetFrameState() + 4), f20);
     } else if ((D_008C024E[0] & 0x20) && (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7)) {
-        *(u8 **)(h + 0x138) = func_0016f130(arg0, 5, -1);
+        *(u8 **)(h + 0x138) = FldFrame_RotateTaskCreate(arg0, 5, -1);
     }
     if (move.z < -48.0f) {
         goto bigmove;

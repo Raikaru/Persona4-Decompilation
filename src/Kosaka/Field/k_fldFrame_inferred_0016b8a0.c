@@ -74,7 +74,7 @@ extern u8 D_007948D0[];
 extern void *func_003e9320(void);
 extern void func_003e9df0(void *arg0);
 extern s32 func_003e0f80(void);
-extern s32 func_0016bdd0(u8 *task);
+extern s32 FldCameraTaskUpdate(u8 *task);
 extern s32 KDraw_CreateGroupTask(s32 arg0, s32 arg1, void *arg2);
 extern s32 KDraw_CreateSphereTask(s32 arg0, void *arg1);
 extern s32 KDraw_CreateCylinderTask(s32 arg0, void *arg1);
@@ -453,7 +453,7 @@ extern float fGpffff84e4; /* 0xffff84e4 */
 extern float fGpffff84e8; /* 0xffff84e8 */
 extern unsigned int uGpffff9f2c; /* 0xffff9f2c */
 
-extern u8 *func_0016e8c0(u8 *);
+extern u8 *FldCameraGetRecord(u8 *);
 extern int KMisc_CreateRmdFade(int, int, int, int, int);
 extern int KDraw_IsEffectDone(unsigned char *);
 extern void KDraw_SetGroupFlags(u8 *, u32);
@@ -479,27 +479,27 @@ extern float D_00756520[];
 /* measured: scope the 39 -> 0 camera reconstruction to this function. */
 #pragma push
 /* measured: O3 early copy coalescing retains the declared float webs. */
-/* measured: func_0016bdd0 MATCH -> MISMATCH without this pragma. */
+/* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 3
 /* measured: the O3 profile preserves retail's unscheduled delay slots. */
-/* measured: func_0016bdd0 MATCH -> MISMATCH without this pragma. */
+/* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
 #pragma schedule off
 /* measured: keep loop-invariant motion off in the 39 -> 0 profile. */
 /* measured: keep loop rotation off in the 39 -> 0 profile. */
 /* measured: retain framed calls in the 39 -> 0 O3 profile. */
 #pragma tailcall off
 /* measured: CSE off prevents the sqrt and zero copies from folding into late temps. */
-/* measured: func_0016bdd0 MATCH -> MISMATCH without this pragma. */
+/* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
 /* measured: decomposition off recovers the retail stack-vector ld/sd copies. */
-/* measured: func_0016bdd0 MATCH -> MISMATCH without this pragma. */
+/* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_decomposeaggregates off
 /* measured: retain the existing per-role lifetime splitting (39 -> 0). */
 /* measured: propagation off preserves the real phase-value bindings. */
-/* measured: func_0016bdd0 MATCH -> MISMATCH without this pragma. */
+/* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* measured: pullout off keeps the 55.0f and phase constants at their retail uses. */
-s32 func_0016bdd0(u8 *param_1)
+s32 FldCameraTaskUpdate(u8 *param_1)
 
 {
   extern int kwlnTaskDestroyWithHierarchy(void *);
@@ -699,7 +699,7 @@ s32 func_0016bdd0(u8 *param_1)
       case 5:
         FldFrameTask_GetPosition((unsigned char *)&stk260[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
         sv20 = *(FldCopyVec *)stk260;
-        pfVar8_a = (float *)func_0016e8c0(param_1);
+        pfVar8_a = (float *)FldCameraGetRecord(param_1);
         cpv0 = *(FldCopyVec *)(pfVar8_a);
         moved_a = 0;
         attachmentMode = piVar1[2];
@@ -776,7 +776,7 @@ s32 func_0016bdd0(u8 *param_1)
           temp_v4_a = *(int *)(func_00457120() + 4);
           *(FldCopyVec *)stk50 = *(FldCopyVec *)(temp_v4_a + 0x40);
           pbVar9_a = (unsigned char *)func_00457120();
-          pbVar7 = (unsigned char *)func_0016e8c0(param_1);
+          pbVar7 = (unsigned char *)FldCameraGetRecord(param_1);
           K_ClumpLookAtBasis(pbVar9_a,(unsigned char *)((int *)&stk50[0]),pbVar7,0);
         }
         goto LAB_0016e0c0;
@@ -1014,7 +1014,7 @@ s32 func_0016bdd0(u8 *param_1)
       case 6:
         FldFrameTask_GetPosition((unsigned char *)&stk280[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
         *(FldTriVec *)&stkF0.x = *(FldTriVec *)&stk280[0];
-        pfVar8_c = (float *)func_0016e8c0(param_1);
+        pfVar8_c = (float *)FldCameraGetRecord(param_1);
         sv100 = *(FldCopyVec *)pfVar8_c;
         temp_v11_s4 = (float)D_008C025E[0] - 128.0f;
         temp_v4_c = (int)func_00457120();
@@ -1518,7 +1518,7 @@ s32 func_0016bdd0(u8 *param_1)
       case 7:
         FldFrameTask_GetPosition((unsigned char *)&stk290[0],*(unsigned char **)(piVar1[0xa2] + 0x220));
         cv0 = *(FldCamVec *)(stk290);
-        pfVar8_d = (float *)func_0016e8c0(param_1);
+        pfVar8_d = (float *)FldCameraGetRecord(param_1);
         sv200 = *(FldCopyVec *)pfVar8_d;
         temp_v4_d = (int)func_00457120();
         if (*(int *)(*(int *)(temp_v4_d + 4) + 4) == piVar1[4]) {
@@ -1676,7 +1676,7 @@ s32 func_0016bdd0(u8 *param_1)
       default:
 LAB_0016e0c0:
         KDraw_SetCylinderFlags((unsigned char *)piVar1[0xb2],(unsigned int)((piVar1[1] & 0x80000000U) != 0));
-        puVar10_s7 = (unsigned int *)func_0016e8c0(param_1);
+        puVar10_s7 = (unsigned int *)FldCameraGetRecord(param_1);
         {
           unsigned char *targetPosition = (unsigned char *)&stk250[0];
           *(FldCopyVec *)stk250 = *(FldCopyVec *)puVar10_s7;
@@ -1720,7 +1720,7 @@ LAB_0016e0c0:
 /* measured: restore the surrounding translation-unit settings. */
 #pragma pop
 // FUN_0016E210
-void func_0016e210(u8 *arg0) {
+void FldCameraTaskDestroy(u8 *arg0) {
     u8 *temp_16;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
@@ -1739,12 +1739,12 @@ void func_0016e210(u8 *arg0) {
 }
 
 /* measured: opt_common_subs off preserves the retail per-call table address
-   materialization and five-register frame in func_0016e2e0. */
+   materialization and five-register frame in FldCameraTaskCreate. */
 // FUN_0016E2E0
 #pragma push
-/* measured: func_0016e2e0 MATCH -> MISMATCH without this pragma. */
+/* measured: FldCameraTaskCreate MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
-s32 func_0016e2e0(s32 arg0)
+s32 FldCameraTaskCreate(s32 arg0)
 {
     s32 temp_18;
     s32 temp_5;
@@ -1760,7 +1760,7 @@ s32 func_0016e2e0(s32 arg0)
     if (temp_2 == NULL) {
         return 0;
     }
-    temp_18 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16B0), 0x11, 0, 0, func_0016bdd0, func_0016e210, (u8 *)(temp_2));
+    temp_18 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16B0), 0x11, 0, 0, FldCameraTaskUpdate, FldCameraTaskDestroy, (u8 *)(temp_2));
     temp_16 = temp_2 + 0xC;
     temp_2_2 = (u8 *)func_003e9320();
     *(u8 **)(temp_16 + 0) = temp_2_2;
@@ -1937,7 +1937,7 @@ skip:
 }
 
 // FUN_0016E8C0
-u8 *func_0016e8c0(u8 *arg0)
+u8 *FldCameraGetRecord(u8 *arg0)
 {
     return *(u8 **)(*(u8 **)(arg0 + 0x38) + 0xC) + 0x40;
 }
@@ -2175,7 +2175,7 @@ void func_0016ec90(u8 *arg0)
 
 /* measured: opt_propagation off probe for retail pre-call address order. */
 // FUN_0016EE00
-s32 func_0016ee00(u8 *arg0)
+s32 FldFrame_RotateTaskUpdate(u8 *arg0)
 {
     EEE0Frame sp;
     void *temp_2;
@@ -2290,8 +2290,8 @@ done:
     }
 }
 
-/* measured: closing opt_propagation off probe for func_0016ee00. */
-/* measured: func_0016f130, func_0016f3b0 MATCH -> MISMATCH without this pragma. */
+/* measured: closing opt_propagation off probe for FldFrame_RotateTaskUpdate. */
+/* measured: FldFrame_RotateTaskCreate, func_0016f3b0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_0016F100
 void FldFrame_RotateTaskDestroy(u8 *arg0)
@@ -2299,11 +2299,11 @@ void FldFrame_RotateTaskDestroy(u8 *arg0)
     (*DAT_008873EC)(*(void **)(arg0 + 0x38));
 }
 
-/* measured: opt_loop_invariants on reproduces func_0016f130's retail loop schedule. */
-/* measured: func_0016f130 MATCH -> MISMATCH without this pragma. */
+/* measured: opt_loop_invariants on reproduces FldFrame_RotateTaskCreate's retail loop schedule. */
+/* measured: FldFrame_RotateTaskCreate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_0016F130
-u8 *func_0016f130(u8 *arg0, s32 arg1, s32 arg2)
+u8 *FldFrame_RotateTaskCreate(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 *result;
     u8 *temp_2;
@@ -2320,7 +2320,7 @@ u8 *func_0016f130(u8 *arg0, s32 arg1, s32 arg2)
         if (temp_2 == NULL) {
             return NULL;
         }
-            result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, FldFrame_RotateTaskDestroy, (u8 *)(temp_2));
+            result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, FldFrame_RotateTaskUpdate, FldFrame_RotateTaskDestroy, (u8 *)(temp_2));
             *(s32 *)(temp_2 + 4) = arg1;
             temp_f20 = KDraw_MatrixYawDeg(
                 mdlGetMatrix(*(s32 *)D_007EFA00));
@@ -2359,7 +2359,7 @@ u8 *func_0016f130(u8 *arg0, s32 arg1, s32 arg2)
     return result;
 }
 
-/* measured: close opt_loop_invariants scope after func_0016f130. */
+/* measured: close opt_loop_invariants scope after FldFrame_RotateTaskCreate. */
 /* measured: opt_loop_invariants on reproduces func_0016f3b0's loop schedule
    and FPU register allocation. */
 #pragma push
@@ -2380,7 +2380,7 @@ u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
         if (temp_2 == NULL) {
             return NULL;
         }
-        result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, func_0016ee00, FldFrame_RotateTaskDestroy, (u8 *)(temp_2));
+        result = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F16E0), 0xF, 0, 0, FldFrame_RotateTaskUpdate, FldFrame_RotateTaskDestroy, (u8 *)(temp_2));
         *(s32 *)(temp_2 + 4) = arg1;
         KDraw_MatrixYawDeg(mdlGetMatrix(*(s32 *)D_007EFA00));
         temp_f0 = KDraw_MatrixYawDeg(

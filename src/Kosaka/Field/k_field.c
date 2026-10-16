@@ -103,7 +103,7 @@ extern s32 mdlPrepareModel(s32);
 extern s32 fadeIsIdle(void);
 extern s32 func_002859e0(s32, s32, s32);
 extern void FldFrame_BindTypedRes(s32, u16);
-extern void func_0016f130(u8 *, s32, s32);
+extern void FldFrame_RotateTaskCreate(u8 *, s32, s32);
 extern u16 MT_Scene_FindFreeResId(s32);
 extern s32 MT_Scene_CreateModelFldRes(u16, s32);
 extern void SceneDraw_SetResVisible(u16, s32);
@@ -233,7 +233,7 @@ s32 FldRootUpdate(u8 *task)
             }
         } else {
             FldFrame_BindTypedRes(D_007D2514[0], *D_007EFA04[0]);
-            func_0016f130(task, 1, -1);
+            FldFrame_RotateTaskCreate(task, 1, -1);
             model = work->model;
             if (model != 0) {
                 modelId = MT_Scene_CreateModelFldRes(MT_Scene_FindFreeResId(10), model);
