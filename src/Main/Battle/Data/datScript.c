@@ -10,8 +10,6 @@ extern void kAssertFail(const char* file, u32 line);
 #define K_ASSERT(condition, line) \
     if (!(condition)) { kAssertFail(D_00635980, (line)); }
 
-/* Script command dispatch table (0xB entries). */
-extern void* D_00635950[];
 
 extern u16* D_00881460[];   /* current command target unit 1 */
 extern u16* D_00881464[];   /* current command target unit 2 */
