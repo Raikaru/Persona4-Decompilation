@@ -22,7 +22,7 @@ extern s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin,
 extern s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32* origin,
                          f32* vector, f32 fraction, s32 fieldId);
 extern RwMatrix* func_003e9700(RwFrame* frame);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 
 /* PS2 RenderWare rpcollis.h: collision callbacks retain the distance argument
  * even when the query recomputes its own plane distance. */
@@ -970,7 +970,7 @@ s32 FldFrame_RaycastFieldWorlds(f32* origin, f32* vector, f32 fraction, s32 fiel
         if (fieldFlags == 0xffff)
         {
             object = (u8*)((u8*)func_003e9700((RwFrame*)(
-                *(u8**)((u8*)((u8*)(uintptr_t)func_00457120()) + 4))));
+                *(u8**)((u8*)((u8*)(uintptr_t)kwlnGetCamera()) + 4))));
             fieldX = (s32)((*(f32*)(object + 0x30) + 600.0f) / 1200.0f);
             fieldY = (s32)((*(f32*)(object + 0x38) + 600.0f) / 1200.0f);
         }
@@ -1028,7 +1028,7 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
     extern void* memset(void* dst, s32 value, u32 size);
     extern s32 FldMap_IsCurrentInBandA(void);
     extern s32 FldMap_IsCurrentInBandB(void);
-    extern s32 func_00457120(void);
+    extern s32 kwlnGetCamera(void);
     extern RwMatrix* func_003e9700(RwFrame* frame);
     extern s32* MT_Scene_GetFrameState(void);
     extern void* mdlGetClump(void* model);
@@ -1096,7 +1096,7 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
         s32 x;
         s32 z;
         s32 j;
-        dimensions = (const u8*)((u8*)func_003e9700((RwFrame*)(*(u8**)((u8*)((u8*)(uintptr_t)func_00457120()) + 4))));
+        dimensions = (const u8*)((u8*)func_003e9700((RwFrame*)(*(u8**)((u8*)((u8*)(uintptr_t)kwlnGetCamera()) + 4))));
         positionX = *(const f32*)(dimensions + 0x30);
         translatedX = 600.0f + positionX;
         x = (s32)(translatedX / 1200.0f);
@@ -1242,7 +1242,7 @@ s32 FldFrame_CollideSphereSelected(const RwV3d* point, f32 radius, RwV3d* normal
         {
             u8* map;
             FldSelectionNode* node;
-            map = ((u8*)func_003e9700((RwFrame*)(*(u8**)(((u8*)(uintptr_t)func_00457120()) + 4))));
+            map = ((u8*)func_003e9700((RwFrame*)(*(u8**)(((u8*)(uintptr_t)kwlnGetCamera()) + 4))));
             fieldX = (s32)((((const RwV3d*)(map + 0x30))->x + 600.0f) / 1200.0f);
             fieldZ = (s32)((((const RwV3d*)(map + 0x30))->z + 600.0f) / 1200.0f);
             key = *(u16*)((u8*)MT_Scene_GetFrameState() + (fieldZ * 256) +

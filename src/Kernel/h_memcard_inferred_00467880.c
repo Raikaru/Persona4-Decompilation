@@ -101,7 +101,7 @@ extern s32 iGpffffb194;
 extern f32 iGpffffbb20;
 extern f32 iGpffffbb1c;
 extern f32 iGpffffbb24;
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern char D_007127D0[];
 extern char D_00712950[];
 extern char D_008E4900[];
@@ -261,7 +261,7 @@ void func_00467880(u8 *arg0)
     s32 kind;
     void *table;
 
-    if (func_003e8120((u32)func_00457120()) != 0) {
+    if (func_003e8120((u32)kwlnGetCamera()) != 0) {
         D_00887304[0]((RwRenderState)(0xE), (void *)(&work.field58));
         table = D_00887300;
         (*(WindowRenderStateSet *)table)((RwRenderState)(0xE), (void *)(0));
@@ -332,7 +332,7 @@ void func_00467880(u8 *arg0)
         PrimDrawFlatRectangle((u8 *)&work.color0,
                       (f32 *)(void *)&work.field40, 0.0f, 1);
         (*(WindowRenderStateSet *)table)((RwRenderState)(0xE), (void *)(work.field58));
-        func_003e8110((u32)func_00457120());
+        func_003e8110((u32)kwlnGetCamera());
     }
 }
 

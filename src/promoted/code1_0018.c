@@ -140,7 +140,7 @@ extern u8 D_005F5340[];
 extern u8 D_005F5350[];
 extern u8 D_005F5320[];
 extern u8 D_005F5330[];
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern f32 fGpffff8218;
 extern s16 mdlGetLayerAnimation(s32 arg0, s32 arg1);
 extern u8 *mdlGetMatrix(u32 arg0);
@@ -183,7 +183,7 @@ extern u8 D_005F1E08[];
 extern u8 D_005F57B0[];
 extern u8 D_005F57C0[];
 extern s32 func_003bfae0();
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 RwCameraFrustumTestSphere(u8 *arg0, s32 arg1);
 extern void func_003f68a0(s32 arg0, s32 arg1);
 extern u8 D_007E8C00[];
@@ -378,7 +378,7 @@ void FldRainRenderStateSet(void)
 #pragma opt_loop_invariants on
 s32 FldRainUpdate(u8 *task)
 {
-    extern s32 func_00457120(void);
+    extern s32 kwlnGetCamera(void);
     extern RainMatrix *func_003e9700(struct RwFrame *frame);
     extern u32 RpRandom(void);
     extern struct RpAtomic *func_003a2340(s32 count, u32 dataFlags, u32 platformFlags);
@@ -436,7 +436,7 @@ s32 FldRainUpdate(u8 *task)
     {
         u8 *tmp;
         f32 f0;
-        tmp = ((u8 *)(uintptr_t)func_00457120());
+        tmp = ((u8 *)(uintptr_t)kwlnGetCamera());
         *(u8 **)(work + 0x44) = tmp + 0x68;
         *(f32 *)(work + 0x54) = 2.0f * (*(f32 *)(tmp + 0x68) * *(f32 *)(work + 0x18));
         *(f32 *)(work + 0x58) = 2.0f * (*(f32 *)(*(u8 **)(work + 0x44) + 4) * *(f32 *)(work + 0x18));
@@ -509,7 +509,7 @@ s32 FldRainUpdate(u8 *task)
     }
     case 1:
     {
-        camera = ((u8 *)(uintptr_t)func_00457120());
+        camera = ((u8 *)(uintptr_t)kwlnGetCamera());
         cameraMatrix = func_003e9700(*(struct RwFrame **)(camera + 4));
         for (columnIndex = 0; columnIndex < *(s32 *)(work + 0x34); columnIndex++) {
             s32 *slot;
@@ -774,7 +774,7 @@ s32 func_00183b80(u8 *arg0)
 {
     extern f32 fabsf(f32 x);
     /* Retail returns zero at 001850F0, 00183BD4. */
-    extern s32 func_00457120(void);
+    extern s32 kwlnGetCamera(void);
     extern u32 RpRandom(void);
     extern RwTexDictionary *func_003ef6d0(void);
     extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
@@ -824,7 +824,7 @@ s32 func_00183b80(u8 *arg0)
     f32 fhalf_3;
 
     ctx = *(u8 **)(arg0 + 0x38);
-    tmp = ((u8 *)(uintptr_t)func_00457120());
+    tmp = ((u8 *)(uintptr_t)kwlnGetCamera());
     f21 = *(f32 *)(tmp + 0x80);
     f20 = 1.0f / f21;
     if (*(s32 *)(ctx + 4) != 0) {
@@ -1737,7 +1737,7 @@ void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)
     u8 *temp_17;
 
     temp_17 = *(u8 **)(arg0 + 0x38);
-    func_00457120();
+    kwlnGetCamera();
     temp_4 = *(s32 *)temp_17;
     if ((temp_4 != 1) || (*(s32 *)(temp_17 + 0x30) != arg2)) {
         if (fparg0 != 0.0f) {
@@ -1777,7 +1777,7 @@ void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)
         *(struct Vec3 *)(temp_17 + 4) = *(struct Vec3 *)temp_18;
         temp_16_2 = (u8 *)D_005F219C + temp_3;
         *(struct Vec3 *)(temp_17 + 0x10) = *(struct Vec3 *)temp_16_2;
-        K_ClumpLookAtBasis(((u8 *)(uintptr_t)func_00457120()), temp_18, temp_16_2, 0);
+        K_ClumpLookAtBasis(((u8 *)(uintptr_t)kwlnGetCamera()), temp_18, temp_16_2, 0);
     }
 }
 /* measured: retail hoists the D_00887300 base across seven indirect calls;
@@ -2011,7 +2011,7 @@ s32 func_0018a170(s32 arg0, s32 *arg1)
     u8 *temp_16;
 
     func_003bfae0();
-    temp_16 = ((u8 *)(uintptr_t)func_00457120());
+    temp_16 = ((u8 *)(uintptr_t)kwlnGetCamera());
     if (RwCameraFrustumTestSphere(temp_16, func_003bfae0(arg0)) != 0) {
         *arg1 = 1;
         return 0;
@@ -2072,7 +2072,7 @@ extern void func_0018bed0(unsigned char *, s32);
 extern s32 func_0018bf50(unsigned char *);
 extern s64 cmmResolveCounterpart(s64);
 extern float func_003e4180(float *);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern void FldRc_SetClumpVector(void *, void *);
 extern s32 mdlPrepareModel(unsigned char *);
 extern void mdlAdvanceModelFromFlags(unsigned char *);
@@ -2316,7 +2316,7 @@ s32 func_0018a200(u8 *param_1)
         mdlSetLookAtRequested(*(unsigned char **)(puVar1[3] + 0x164));
       }
     }
-    temp_v4 = func_00457120();
+    temp_v4 = kwlnGetCamera();
     temp_v6 = *(unsigned int *)(temp_v4 + 4);
     FldFrameTask_GetPosition((unsigned char *)&vec160[0],*(unsigned char **)(puVar1[3] + 0x228));
     *(FldCopyVec *)vec50 = *(FldCopyVec *)vec160;
@@ -2804,7 +2804,7 @@ s32 func_0018bb20(s32 arg0, s32 arg1)
         return 0;
     temp_17 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F5350), 0xF, 0, 0, func_0018a200, func_0018bad0, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 0xC) = arg1;
-    *(f32 *)(temp_2 + 0x48) = *(f32 *)(((u8 *)(uintptr_t)func_00457120()) + 0x80);
+    *(f32 *)(temp_2 + 0x48) = *(f32 *)(((u8 *)(uintptr_t)kwlnGetCamera()) + 0x80);
     return temp_17;
 }
 // FUN_0018BBF0

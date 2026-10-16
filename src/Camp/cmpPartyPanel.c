@@ -20,7 +20,7 @@ u32 datCalcGetHpById(s16 arg0);
 u16 datCalcMaxHpById(s16 arg0);
 u32 datCalcGetSpById(s16 arg0);
 u16 datCalcMaxSpById(s16 arg0);
-u8* func_00457120(void);
+u8* kwlnGetCamera(void);
 s16 datBuildPartyIdList(s16* dst);
 u8 *sdkSpriteRequestLoad(const char *name);
 s32 sprintf(char *dst, const char *format, ...);
@@ -131,7 +131,7 @@ void cmpPartyPanelDrawGauge(f32 fparg0, f32 fparg1, f32 fparg2) {
     y = fparg1;
     z = fparg2;
     temp_f20 = D_008872F8[0];
-    temp_f6 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f6 = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     temp_f4 = panelMulForward(41.0f, z);
     temp_f2 = panelAdd(x, temp_f4);
     temp_f4 = temp_f2;

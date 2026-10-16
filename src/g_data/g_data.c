@@ -165,7 +165,7 @@ extern u16 datCalcThresholdKind(u8* arg0, s32 arg1);
 
 extern void RwV3dNormalize(f32* a, f32* b);
 
-extern u8* func_00457120(void);
+extern u8* kwlnGetCamera(void);
 
 extern u8* func_003e9700(s32 a0);
 
@@ -2814,12 +2814,12 @@ u8* func_001102f0(u8* arg0, s32 arg1, s32 arg2, f32 fparg0)
     {
         FUN_0046d730(__FILE__, 0xFB8);
     }
-    obj = func_00457120();
+    obj = kwlnGetCamera();
     buf[0] = -((f32)arg1 - 320.0f) * *(f32*)(obj + 0x68) / 320.0f;
     buf[1] = -((f32)arg2 - 224.0f) * *(f32*)(obj + 0x6C) / 224.0f;
     buf[2] = 1.0f;
     RwV3dNormalize(buf, buf);
-    obj3 = func_003e9700(*(s32*)(func_00457120() + 4));
+    obj3 = func_003e9700(*(s32*)(kwlnGetCamera() + 4));
     func_003e4320(buf, buf, obj3);
     buf[0] = buf[0] * fparg0;
     buf[1] = buf[1] * fparg0;

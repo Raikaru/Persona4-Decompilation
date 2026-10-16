@@ -246,11 +246,12 @@ static inline s32 fontAtlasColumn(s32 value)
 /* measured: MWCC b210 -O2, 348B / 352B window; executable bytes exact.
  * Literal separators with loop-invariant motion and propagation disabled
  * recover the retail register allocation; the final word is zero alignment. */
+// Intent: walks the archive directory records and registers each entry under its upper-cased path. singleEntry stops after the first record.
 // FUN_00456530
 #pragma push
 /* measured: func_00456530 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_00456530(u8 *basePath, u8 *archive, s32 singleEntry) {
+void H_Cdvd_RegisterArchiveEntries(u8 *basePath, u8 *archive, s32 singleEntry) {
     s32 recordLength;
     u8 directory[0x100];
     u8 fileName[0x100];

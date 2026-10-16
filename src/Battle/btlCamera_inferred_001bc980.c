@@ -70,7 +70,7 @@ extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
 extern f32 fGpffff8430;
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern f32 fGpffff8048;
 extern u8 D_005F74C0[];
 extern void btlCameraUpdateUnitInRangeFlags(void);
@@ -428,7 +428,7 @@ void btlCameraUpdateUnitInRangeFlags(void)
     f32 values[3];
     f32 delta[3];
 
-    base = *(u8 **)(((u8 *)func_00457120()) + 4) + 0x10;
+    base = *(u8 **)(((u8 *)kwlnGetCamera()) + 4) + 0x10;
     counter = 0;
     goto outer_check;
 outer_body:

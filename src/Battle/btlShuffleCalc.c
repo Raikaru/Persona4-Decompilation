@@ -6,7 +6,7 @@
 
 extern void kAssertFail(const void *file, u32 line);
 extern u32 D_0064E9C0[];
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern u8 *func_003e9700(s32 a0);
 extern void func_003e42a0(void *a0, void *a1, void *a2);
 extern void RwV3dLength(void *a0);
@@ -48,7 +48,7 @@ f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
    f32 constant local assigned before the base hoist:
 
        k = 100.0f;
-       temp_16 = func_00457120() + 0x68;
+       temp_16 = kwlnGetCamera() + 0x68;
        if (*(f32 *)temp_16 * k <= 0.0f) { ... }
 
    Retail materializes the constant into the LOWER FP register and loads the
@@ -67,7 +67,7 @@ void btlShuffleCalcResetPose(u8 *arg0) {
     f32 k;
 
     k = 100.0f;
-    temp_16 = func_00457120() + 0x68;
+    temp_16 = kwlnGetCamera() + 0x68;
     if (*(f32 *)temp_16 * k <= 0.0f) {
         kAssertFail(D_0064E9C0, 0x109);
     }
@@ -85,7 +85,7 @@ void btlShuffleCalcResetTrack(u8 *arg0) {
     f32 k;
 
     k = 84.0f;
-    temp_16 = func_00457120() + 0x68;
+    temp_16 = kwlnGetCamera() + 0x68;
     if (*(f32 *)temp_16 * k <= 0.0f) {
         kAssertFail(D_0064E9C0, 0x109);
     }
@@ -100,7 +100,7 @@ void btlShuffleCalcScaleStep(u8 *arg0, f32 fparg0, u8 *arg1) {
     s32 sp50[8];
     u8 *temp_16;
 
-    temp_16 = func_00457120() + 0x68;
+    temp_16 = kwlnGetCamera() + 0x68;
     func_003e8970(&sp50[0], func_003e89c0());
     *(f32 *)(arg1 + 0) = fparg0 * (*(f32 *)temp_16 * (1.0f + (-(*(f32 *)(arg0 + 0)) / (f32)(sp50[0] >> 1))));
     *(f32 *)(arg1 + 4) = fparg0 * (*(f32 *)(temp_16 + 4) * (1.0f + (-(*(f32 *)(arg0 + 4)) / (f32)(sp50[1] >> 1))));
@@ -114,7 +114,7 @@ void btlShuffleCalcStepPose(u8 *arg0, u8 *arg1, f32 fparg0) {
     u8 *temp_16;
 
     temp_f20 = btlShuffleCalcEase(fparg0);
-    temp_16 = func_00457120() + 0x68;
+    temp_16 = kwlnGetCamera() + 0x68;
     func_003e8970(&sp50[0], func_003e89c0());
     *(f32 *)(arg1 + 0) = temp_f20 * (*(f32 *)temp_16 * (1.0f + (-(*(f32 *)(arg0 + 0)) / (f32)(sp50[0] >> 1))));
     *(f32 *)(arg1 + 4) = temp_f20 * (*(f32 *)(temp_16 + 4) * (1.0f + (-(*(f32 *)(arg0 + 4)) / (f32)(sp50[1] >> 1))));
@@ -123,7 +123,7 @@ void btlShuffleCalcStepPose(u8 *arg0, u8 *arg1, f32 fparg0) {
 
 /* measured: re-tested this wave. `s32 sp30[8]` (same 8-word pattern as
    func_00371500's sp50[8]) fixes the frame to 0x50 with the slot at 0x30, and
-   `temp_2 = func_00457120() + 0x68` reproduces retail's $s0 base hoist. The
+   `temp_2 = kwlnGetCamera() + 0x68` reproduces retail's $s0 base hoist. The
    residual (nd 11) is then the recorded $v0/$v1 coalescing — retail keeps the
    load in $v1 and the rounded-half shift result in $v0 (lw $v1/sra $v0/bgez
    $v1/addiu $v0/sra $v0/mtc1 $v0); mwcc b210 always colors load->$v0,
@@ -148,7 +148,7 @@ f32 btlShuffleCalcEase(f32 fparg0) {
     s32 sp30[8];
     u8 *temp_16;
 
-    temp_16 = func_00457120() + 0x68;
+    temp_16 = kwlnGetCamera() + 0x68;
     if (fparg0 * *(f32 *)temp_16 <= 0.0f) {
         kAssertFail(D_0064E9C0, 0x145);
     }
@@ -157,7 +157,7 @@ f32 btlShuffleCalcEase(f32 fparg0) {
 }
 // FUN_00371780
 void btlShuffleCalcLookAt(u8 *arg0, u8 *arg1) {
-    func_003e42a0(arg0, arg1, func_003e9700(*(s32 *)(func_00457120() + 4)));
+    func_003e42a0(arg0, arg1, func_003e9700(*(s32 *)(kwlnGetCamera() + 4)));
 }
 
 /* measured: best nd 29. Hoisting the ratio ahead of the rounding block
@@ -171,7 +171,7 @@ s32 btlShuffleCalcUpdateSpeed(u8 *arg0, u8 *arg1) {
     f32 x;
     f32 y;
 
-    temp_16 = func_00457120() + 0x68;
+    temp_16 = kwlnGetCamera() + 0x68;
     if (*(f32 *)(arg0 + 8) <= 0.0f || *(f32 *)temp_16 <= 0.0f ||
         *(f32 *)(temp_16 + 4) <= 0.0f) {
         kAssertFail(D_0064E9C0, 0x15F);
@@ -1151,7 +1151,7 @@ void btlShuffleCalcNormalizeOffset(u8 *arg0) {
     ShuffleVec3 sp20;
     u8 *temp_2;
 
-    temp_2 = func_003e9700(*(s32 *)(func_00457120() + 4));
+    temp_2 = func_003e9700(*(s32 *)(kwlnGetCamera() + 4));
     sp30 = *(ShuffleVec3 *)(temp_2 + 0x30);
     sp20.x = *(f32 *)(arg0 + 0) - sp30.x;
     sp20.y = *(f32 *)(arg0 + 4) - sp30.y;

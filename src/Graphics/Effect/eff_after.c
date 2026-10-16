@@ -1316,7 +1316,7 @@ void effAfterRebuildTrailMesh(u8 *work, void **pp)
     case 2:
     {
       temp_v11 = *(f32 *)((*(u8 **)work) + 0x14) / 2.0f;
-      temp_v5 = func_00457120();
+      temp_v5 = kwlnGetCamera();
       temp_v5 = *(s32 *)(((u8 *)temp_v5) + 4);
       pfVar3 = (f32 *)(temp_v5 + 0x40);
       pfVar17 = *(f32 **)(*(s32 *)(((u8 *)*pp) + 0x5c) + 0x14);

@@ -35,7 +35,7 @@ extern s32 D_00724C64;
 extern f32 D_00724C78[2];
 extern f32 D_00724C7C;
 extern u8 D_00714350[];
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern f32 D_00922D80[];
 extern u32 D_00922D90[];
 extern f32 D_00922D94[];
@@ -147,7 +147,7 @@ s32 func_004a7e30(u8 *arg0, u8 *arg1)
     temp_18 = *(u8 *)(arg0 + 1);
     temp_17 = *(u8 *)(arg0 + 2);
     temp_16 = *(u8 *)(arg0 + 3);
-    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     temp_f5 = D_008872F8[0];
     var_8 = 0;
     goto loop_004a7e30_check;
@@ -260,7 +260,7 @@ void func_004a8250(u8 *arg0, u8 *arg1)
     temp_18 = *(u8 *)(arg0 + 1);
     temp_17 = *(u8 *)(arg0 + 2);
     temp_16 = *(u8 *)(arg0 + 3);
-    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     temp_f5 = D_008872F8[0];
     var_9 = 0;
     goto loop_004a8250_check;
@@ -331,7 +331,7 @@ void func_004a8440(u8 *arg0, u8 *arg1)
     temp_f20 = *(f32 *)(arg0 + 0xC);
     temp_f21 = temp_f20 * sinf(temp_f22);
     temp_f20 = temp_f20 * cosf(temp_f22);
-    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     temp_f5 = D_008872F8[0];
     var_9 = 0;
     goto loop_004a8440_check;
@@ -388,7 +388,7 @@ void func_004a86c0(u8 *arg0, u8 *arg1)
     temp_18 = *(u8 *)(arg0 + 1);
     temp_17 = *(u8 *)(arg0 + 2);
     temp_16 = *(u8 *)(arg0 + 3);
-    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    temp_f6 = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     temp_f5 = D_008872F8[0];
     var_9 = 0;
     goto loop_004a86c0_check;

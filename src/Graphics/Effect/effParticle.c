@@ -1528,7 +1528,7 @@ static inline u32 particleProjectedFrameIndex(const u8 *record)
 // FUN_00488D70
 void ParticleDrawBillboards(u8 *arg0)
 {
-    extern s32 func_00457120(void);
+    extern s32 kwlnGetCamera(void);
     extern void effMiscBuildRotationVU(void);
     extern void TlpSelectFrame(TLP *a, u32 b, TlpSel *c);
     extern BtlShuffleRenderStateSet D_00887300[];
@@ -1587,8 +1587,8 @@ void ParticleDrawBillboards(u8 *arg0)
     var_18 = *(u8 **)(temp_19 + 0x18);
     bufferNear = D_008872FC[0];
     bufferFar = D_008872F8[0];
-    cameraFar = *(f32 *)((u8 *)(u32)func_00457120() + 0x84);
-    cameraNear = *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    cameraFar = *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x84);
+    cameraNear = *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
     temp_16 = *(s32 *)(temp_19 + 8);
     switch (*(u16 *)(arg0 + 0xC)) {
     case 7:
@@ -1659,7 +1659,7 @@ void ParticleDrawBillboards(u8 *arg0)
                     tmpPos.x = *(f32 *)(var_18 + 0);
                     tmpPos.y = *(f32 *)(var_18 + 4);
                     tmpPos.z = *(f32 *)(var_18 + 8);
-                    func_003e42a0(&tmpOut, &tmpPos, (const BtlShuffleMatrix *)((u8 *)(u32)func_00457120() + 0x20));
+                    func_003e42a0(&tmpOut, &tmpPos, (const BtlShuffleMatrix *)((u8 *)(u32)kwlnGetCamera() + 0x20));
                     {
                         f32 ry = tmpOut.y / tmpOut.z;
                         f32 rx = tmpOut.x / tmpOut.z;
@@ -1813,7 +1813,7 @@ void ParticleDrawBillboards(u8 *arg0)
                         qb[3].u.els.color.g = (f32)(u32)packed.bytes.green;
                         qb[3].u.els.color.b = (f32)(u32)packed.bytes.blue;
                         qb[3].u.els.color.a = (f32)(u32)packed.bytes.alpha;
-                        func_003e42a0(&tmpOut, &tmpPos, (const BtlShuffleMatrix *)((u8 *)(u32)func_00457120() + 0x20));
+                        func_003e42a0(&tmpOut, &tmpPos, (const BtlShuffleMatrix *)((u8 *)(u32)kwlnGetCamera() + 0x20));
                         {
                             f32 ry2 = tmpOut.y / tmpOut.z;
                             f32 rx2 = tmpOut.x / tmpOut.z;

@@ -50,7 +50,7 @@ extern f32 D_00724C7C;
 extern u8 D_00714350[];
 extern void kAssertFail(u8 *arg0, s32 arg1);
 extern s32 func_003e9320(void);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern void func_003e9830(s32 arg0, s32 arg1);
 extern f32 D_00922D80[];
 extern u8 *func_00401b80(void);

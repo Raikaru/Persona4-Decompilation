@@ -93,7 +93,7 @@ extern s32 D_008815B0[];
 extern u8 iGpffffa734;
 extern f32 RwV3dLength(f32 *arg0);
 extern u8 *func_003e9700(s32 arg0);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern void func_004b1470(s32 arg0, f32 *arg1);
 
 /* Source unit: src/promoted/code1_0026.c */
@@ -232,7 +232,7 @@ s32 mtSceneUnitDepthCompare(u8 **arg0, u8 **arg1)
     u8 *temp_16;
     u8 *temp_2;
 
-    temp_2 = func_00457120();
+    temp_2 = kwlnGetCamera();
     temp_2 = func_003e9700(*(s32 *)(temp_2 + 4));
     temp_f0 = *(f32 *)(temp_2 + 0x30);
     temp_f2 = *(f32 *)(temp_2 + 0x34);

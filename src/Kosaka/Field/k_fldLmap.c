@@ -33,7 +33,7 @@ extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s1
 extern f32 RwV3dNormalize(f32 *param, f32 *out);
 extern u8 *mdlGetMatrix(s32 param);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern u8 *func_00457120();
+extern u8 *kwlnGetCamera();
 extern void K_ClumpLookAtBasis(u8 *param, u8 *src, u8 *dst, s32 mode);
 extern f32 sinf(f32 param);
 extern f32 cosf(f32 param);
@@ -452,11 +452,11 @@ s32 FldLmapUpdate(u8 *arg0)
         }
         *(FldLmapMatrix *)*(u8 **)(st + 0x18) = *(FldLmapMatrix *)MT_Scene_GetCameraResFirst();
         {
-            u8 *tmp = func_00457120();
+            u8 *tmp = kwlnGetCamera();
             K_View_SetFov(tmp, MT_Scene_GetCameraFov());
         }
         {
-            u8 *tmp2 = func_00457120();
+            u8 *tmp2 = kwlnGetCamera();
             func_003e9cb0(*(s32 *)(tmp2 + 4), *(u8 **)(st + 0x18), 0);
         }
         *(s32 *)(st + 0x24) = (s32)sdkSpriteAdoptBlob((u32)func_00455f70(D_005F2010, &out));
@@ -1139,7 +1139,7 @@ s32 FldLmapPathUpdate(u8 *arg0)
     u8 *temp_2;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
-    func_00457120();
+    kwlnGetCamera();
     temp_3 = *(s32 *)temp_16;
     switch (temp_3) {
     case 0:
@@ -1171,12 +1171,12 @@ s32 FldLmapPathUpdate(u8 *arg0)
         *(f32 *)(temp_16 + 0x10) = *(f32 *)(temp_16 + 0x10) + sp40[0];
         *(f32 *)(temp_16 + 0x14) = *(f32 *)(temp_16 + 0x14) + sp40[1];
         *(f32 *)(temp_16 + 0x18) = *(f32 *)(temp_16 + 0x18) + sp40[2];
-        K_ClumpLookAtBasis(func_00457120(), temp_16 + 4, temp_16 + 0x10, 0);
+        K_ClumpLookAtBasis(kwlnGetCamera(), temp_16 + 4, temp_16 + 0x10, 0);
         temp_3_4 = *(s32 *)(temp_16 + 0x24) + 1;
         *(s32 *)(temp_16 + 0x24) = temp_3_4;
         if (*(s32 *)(temp_16 + 0x28) < temp_3_4) {
             temp_17 = (u8 *)D_005F2190 + (*(s32 *)(temp_16 + 0x30) * 0x18);
-            K_ClumpLookAtBasis(func_00457120(), temp_17, temp_17 + 0xC, 0);
+            K_ClumpLookAtBasis(kwlnGetCamera(), temp_17, temp_17 + 0xC, 0);
             temp_2 = (u8 *)D_005F2190 + (*(s32 *)(temp_16 + 0x30) * 0x18);
             *(Vec3 *)(temp_16 + 4) = *(Vec3 *)(temp_2 + 0);
             temp_2_2 = (u8 *)D_005F219C + (*(s32 *)(temp_16 + 0x30) * 0x18);

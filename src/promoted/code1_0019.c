@@ -280,7 +280,7 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 extern void btlUnitHoldPendingLookAt(u8 *arg0);
 extern s32 btlUnitLookAtSidePacketUpdate(u8 *arg0);
 extern void btlUnitReleasePendingLookAt(u8 *arg0);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern s32 func_003e8120(u8 *arg0);
 extern void func_003c1bd0(s32 arg0);
 extern s32 func_003e8110(u8 *arg0);

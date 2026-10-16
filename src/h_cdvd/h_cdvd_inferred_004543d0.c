@@ -243,8 +243,9 @@ static inline s32 fontAtlasColumn(s32 value)
 
 #pragma push
 #pragma pop
+// Intent: held-input repeat step forward. Advances the record's counter at +0x28 by the step at +0x1C, clamped to the limit at +0x20. Returns 0 at the end of the list.
 // FUN_004543D0
-s32 func_004543d0(u8 *arg0) {
+s32 sdkListStateRepeatForward(u8 *arg0) {
     s32 f14;
     s32 next28;
     s32 f28;
@@ -280,12 +281,13 @@ one:
     return 1;
 }
 
+// Intent: held-input repeat step back. Decrements the record's counter at +0x28 by the step at +0x1C, clamped at zero. Returns 0 at the start of the list.
 // FUN_00454460
 /* The three exits are laid out with explicit gotos because retail places the
    `return 0` block and the `return 1` block out of line, in that order, after
    the main body. The natural nested-if / result-variable spellings all merge
    them into one epilogue and come out two words short (nd 24). */
-s32 func_00454460(u8 *arg0) {
+s32 sdkListStateRepeatBack(u8 *arg0) {
     s32 v;
     s32 t;
 
@@ -308,8 +310,9 @@ one:
     return 1;
 }
 
+// Intent: resets the CD streaming state: sets the CD mode, clears the stream table and the movie slot flags.
 // FUN_004544B0
-void func_004544b0(void)
+void H_Cdvd_ResetStreamState(void)
 {
     s32 index;
     u8 *table;

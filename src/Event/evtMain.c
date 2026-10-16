@@ -9,8 +9,8 @@ extern u32 DAT_007645D8;
 // lint: allow H011 -- measured: u16 prototype regresses evtCmdResPlace (andi on wide id args)
 u8 *MT_Scene_GetRes(s32 arg0);
 extern void kAssertFail(void *file, s32 line);
-extern void *func_00457120(void);
-extern u8 *func_00457130(void);
+extern void *kwlnGetCamera(void);
+extern u8 *kwlnGetColorRgb(void);
 void func_003e8180(void *, float);
 void func_003e81c0(void *, float);
 extern u8 D_0063C3B0[];
@@ -280,10 +280,10 @@ u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
         *(u8 *)(temp_17 + 0x14) = DAT_00764B3C;
         *(u8 *)(temp_17 + 0x15) = DAT_00764B40;
         *(u8 *)(temp_17 + 0x16) = DAT_00764B44;
-        *(u8 *)(temp_17 + 0x18) = *func_00457130();
-        *(u8 *)(temp_17 + 0x19) = *(func_00457130() + 1);
-        *(u8 *)(temp_17 + 0x1A) = *(func_00457130() + 2);
-        *(f32 *)(temp_17 + 0x1C) = *(f32 *)((u8 *)func_00457120() + 0x88);
+        *(u8 *)(temp_17 + 0x18) = *kwlnGetColorRgb();
+        *(u8 *)(temp_17 + 0x19) = *(kwlnGetColorRgb() + 1);
+        *(u8 *)(temp_17 + 0x1A) = *(kwlnGetColorRgb() + 2);
+        *(f32 *)(temp_17 + 0x1C) = *(f32 *)((u8 *)kwlnGetCamera() + 0x88);
         *(f32 *)(temp_17 + 0x20) = D_00764B5C;
         *(u16 *)(temp_17 + 2) = 0;
         break;
@@ -2145,8 +2145,8 @@ s32 evtCmdCamPos(int param_1, int param_2, int param_3, int param_4, u16 *param_
         if (*(u16 *)param_5 != param_2) {
             goto ret;
         }
-        func_003e8180(func_00457120(), *(float *)((u8 *)param_5 + 0x10));
-        func_003e81c0(func_00457120(), *(float *)((u8 *)param_5 + 0x14));
+        func_003e8180(kwlnGetCamera(), *(float *)((u8 *)param_5 + 0x10));
+        func_003e81c0(kwlnGetCamera(), *(float *)((u8 *)param_5 + 0x14));
         return 1;
     default:
     ret:
@@ -2697,7 +2697,7 @@ u8 *func_0028afe0(void) {
     if (*(u32 *)p & 0x80000000) {
         *(u32 *)(p + 0x54) = 1;
     }
-    K_View_SetFov(func_00457120(), 35.0f);
+    K_View_SetFov(kwlnGetCamera(), 35.0f);
     FldState_SetEventViewMode(1);
     func_0028be70(p, 0);
     return p;
@@ -2763,8 +2763,8 @@ void evtEnvSlotSave(s32 arg0, s32 arg1) {
         *(u32 *)p |= 1;
     }
     *(u32 *)(p + 4) = (DAT_00764B3C << 16) | (DAT_00764B40 << 8) | DAT_00764B44;
-    *(u32 *)(p + 8) = (*func_00457130() << 16) | (func_00457130()[1] << 8) | func_00457130()[2];
-    *(f32 *)(p + 0xC) = *(f32 *)((u8 *)func_00457120() + 0x88);
+    *(u32 *)(p + 8) = (*kwlnGetColorRgb() << 16) | (kwlnGetColorRgb()[1] << 8) | kwlnGetColorRgb()[2];
+    *(f32 *)(p + 0xC) = *(f32 *)((u8 *)kwlnGetCamera() + 0x88);
     *(f32 *)(p + 0x10) = D_00764B5C;
 }
 
@@ -2791,9 +2791,9 @@ void evtEnvSlotRestore(int param_1, int param_2) {
     DAT_00764B44 = (u8)*(u32 *)(p + 4);
     func_00457140((*(u32 *)(p + 8) >> 16) & 0xFF, (*(u32 *)(p + 8) >> 8) & 0xFF, *(u32 *)(p + 8) & 0xFF, 0);
     v = *(f32 *)(p + 0xC);
-    cam = func_00457120();
+    cam = kwlnGetCamera();
     *(f32 *)((u8 *)cam + 0x88) = v;
-    cam = func_00457120();
+    cam = kwlnGetCamera();
     D_00764B5C = *(f32 *)(p + 0x10);
 }
 
@@ -2807,9 +2807,9 @@ void evtCamPosSave(int param_1) {
     }
     p = (f32 *)(param_1 + 0x98);
     memset(p, 0, 8);
-    cam = func_00457120();
+    cam = kwlnGetCamera();
     p[0] = *(f32 *)((u8 *)cam + 0x80);
-    cam = func_00457120();
+    cam = kwlnGetCamera();
     p[1] = *(f32 *)((u8 *)cam + 0x84);
 }
 
@@ -2821,6 +2821,6 @@ void evtCamPosRestore(int param_1) {
         kAssertFail(D_0063C3B0, 0x110D);
     }
     p = (f32 *)(param_1 + 0x98);
-    func_003e8180(func_00457120(), p[0]);
-    func_003e81c0(func_00457120(), p[1]);
+    func_003e8180(kwlnGetCamera(), p[0]);
+    func_003e81c0(kwlnGetCamera(), p[1]);
 }

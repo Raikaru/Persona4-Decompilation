@@ -23,7 +23,7 @@ extern void func_00349440(u8 *arg0, u8 *arg1);
 extern void mdlDestroyModelObject(u8 *arg0);
 extern void datFreeBlock(u8 *arg0);
 extern s32 mdlPrepareModel(u8 *arg0);
-extern void *func_00457120(void);
+extern void *kwlnGetCamera(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void *K_Clump_GetLightA(void);
 extern void func_003c38b0(void *arg0, void *arg1);
@@ -163,7 +163,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
             *(s64 *)&axisY[0] = xy;
             *(f32 *)&axisY[8] = z;
         }
-        parent = *(u8 **)((u8 *)func_00457120() + 4) + 0x10;
+        parent = *(u8 **)((u8 *)kwlnGetCamera() + 4) + 0x10;
         {
             u8 *entry = *(u8 **)(obj + 0x10) + ((s32)*(u16 *)(obj + 8) << 5);
             *(f32 *)&trans[0] += (f32)*(s16 *)(entry + 0);
@@ -223,8 +223,8 @@ void func_00349440(u8 *arg0, u8 *arg1)
                 } while (n != 0);
             }
         }
-        parent = *(u8 **)((u8 *)func_00457120() + 4) + 0x10;
-        *(f32 *)(obj + 0x70) = K_View_GetFov(func_00457120());
+        parent = *(u8 **)((u8 *)kwlnGetCamera() + 4) + 0x10;
+        *(f32 *)(obj + 0x70) = K_View_GetFov(kwlnGetCamera());
         {
             u8 *cam = (u8 *)K_Clump_GetLightA();
             *(V4 *)(obj + 0x74) = *(V4 *)(cam + 0x18);
@@ -249,7 +249,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
             } while (cnt > 0);
         }
         {
-            u8 *cam = (u8 *)func_00457120();
+            u8 *cam = (u8 *)kwlnGetCamera();
             *(FclVec2 *)(obj + 0xE0) = *(FclVec2 *)(cam + 0x78);
         }
         {
@@ -271,7 +271,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
             win[0] = (f32)tbl[*(u16 *)(obj + 8)].winX / 640.0f;
             win[1] = (f32)tbl[*(u16 *)(obj + 8)].winY / 448.0f;
         }
-        K_View_SetFov(func_00457120(), 40.0f);
+        K_View_SetFov(kwlnGetCamera(), 40.0f);
         func_003c38b0((u8 *)K_Clump_GetLightA(), (u8 *)&colA);
         func_003c38b0((u8 *)K_Clump_GetLightB(), (u8 *)&colB);
         {
@@ -331,7 +331,7 @@ void func_00349440(u8 *arg0, u8 *arg1)
         *(u8 *)((u8 *)K_Clump_GetLightB() + 2) = 3;
         (void)K_Clump_GetLightB();
         func_003cbf30(K_Clump_GetWorld(), (s32)K_Clump_GetLightC());
-        func_003e8130(func_00457120(), win);
+        func_003e8130(kwlnGetCamera(), win);
     }
 }
 #pragma pop
@@ -343,7 +343,7 @@ void func_00349b90(u8 *arg0, u8 *arg1)
 
     temp_4 = *(u8 **)(arg1 + 0xC);
     if ((temp_4 != NULL) && (mdlPrepareModel(temp_4) != 0)) {
-        K_View_SetFov(func_00457120(), *(f32 *)(arg1 + 0x70));
+        K_View_SetFov(kwlnGetCamera(), *(f32 *)(arg1 + 0x70));
         func_003c38b0(K_Clump_GetLightA(), arg1 + 0x74);
         func_003c38b0(K_Clump_GetLightB(), arg1 + 0x84);
         func_003e9cb0(*(s32 *)((u8 *)K_Clump_GetLightB() + 4), arg1 + 0xA0, 0);

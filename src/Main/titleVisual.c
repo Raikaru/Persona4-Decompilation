@@ -24,7 +24,7 @@ extern void mdlPrepareItemSlots(void *arg0);
 extern void mdlDrawVisibleAtomics(s32 arg0);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void func_001102f0(void *arg0, s32 arg1, s32 arg2, f32 fparg0);
-extern void *func_00457120(void);
+extern void *kwlnGetCamera(void);
 extern u8 *func_003e9700(s32 arg0);
 extern void RwV3dNormalize(void *a, void *b);
 extern void RwMatrixUpdate(void *arg0);
@@ -269,7 +269,7 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
     v17 = (s32)fparg1;
     v16 = (s32)fparg0;
     func_001102f0(sp120, v16, v17, fparg2);
-    var_2 = func_003e9700(*(s32 *)((u8 *)func_00457120() + 4));
+    var_2 = func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4));
     var_6 = (u8 *)spE0;
     var_5 = 8;
     do {

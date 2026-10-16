@@ -74,7 +74,7 @@ extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void primAxisLine3D(f32 *arg0, s32 arg1, f32 arg2);
 extern u8 *btlEncounterGetRecord(s32 arg0);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern f32 fGpffff8048;
 extern u8 D_005F74C0[];
@@ -234,9 +234,9 @@ void btlCameraApplyView(void)
         matrix.pos.z = 0.0f;
         matrix.flags = 3;
         matrix.pos = *(Bd7Vec3 *)(D_0076449C + 0xC0);
-        temp_6 = ((u8 *)func_00457120());
+        temp_6 = ((u8 *)kwlnGetCamera());
         func_003e9cb0(*(u8 **)(temp_6 + 4), &matrix, 0);
-        K_View_SetFov(((u8 *)func_00457120()),
+        K_View_SetFov(((u8 *)kwlnGetCamera()),
                       fGpffff8048 * *(f32 *)(D_0076449C + 0xDC));
     }
     if ((*(s32 *)(D_0076449C + 0xF8) & 2) != 0) {
@@ -353,8 +353,8 @@ void btlCameraInitSystem(void)
     u8 *temp_3;
     u8 *temp_3_2;
 
-    func_003e8180(((u8 *)func_00457120()), 35.0f);
-    K_View_SetFov(((u8 *)func_00457120()), 40.0f);
+    func_003e8180(((u8 *)kwlnGetCamera()), 35.0f);
+    K_View_SetFov(((u8 *)kwlnGetCamera()), 40.0f);
     {
         u8 *base;
 
@@ -373,7 +373,7 @@ void btlCameraInitSystem(void)
     memset((void *)temp_2, 0, 0x30);
     *(s32 *)(temp_3_2 + 0x98) = func_003bbbe0(4, 1, (void *)temp_2);
     (*jtbl_008873EC)((u8 *)temp_2);
-    func_00457120();
+    kwlnGetCamera();
     *(f32 *)(D_0076449C + 0xD8) = fGpffff8314;
     *(f32 *)(D_0076449C + 0xCC) = fGpffff8318;
     *(f32 *)(D_0076449C + 0xD0) = fGpffff831c;

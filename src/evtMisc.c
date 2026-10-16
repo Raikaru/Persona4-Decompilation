@@ -23,8 +23,8 @@ void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
 s32 func_00454a60(void *arg0, s32 arg1);
 u8 *func_00455f70(void *arg0, u32 *arg1);
 s32 func_0029da90(s32 arg0, u8 *arg1, s32 arg2);
-u8 *func_00457130(void);
-void *func_00457120(void);
+u8 *kwlnGetColorRgb(void);
+void *kwlnGetCamera(void);
 
 s32 func_0028ee00(u8 *arg0);
 void func_0028f360(u8 *task);
@@ -947,9 +947,9 @@ s32 func_0028ee00(u8 *arg0)
     b = start + progress * (s32)(end - start);
     func_00457140(r, g, b, 0);
 
-    *(f32 *)((u8 *)func_00457120() + 0x88) =
+    *(f32 *)((u8 *)kwlnGetCamera() + 0x88) =
         *(f32 *)(work + 9) + progress * (*(f32 *)(work + 4) - *(f32 *)(work + 9));
-    func_00457120();
+    kwlnGetCamera();
     D_00764B5C =
         *(f32 *)(work + 10) + progress * (*(f32 *)(work + 5) - *(f32 *)(work + 10));
 
@@ -999,11 +999,11 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
     p[0xB] = arg2;
     p[6] = 1;
     p[7] = ((D_00764B3C << 16) | (D_00764B40 << 8)) | D_00764B44;
-    acc = func_00457130()[0] << 16;
-    acc |= func_00457130()[1] << 8;
-    t = func_00457130()[2];
+    acc = kwlnGetColorRgb()[0] << 16;
+    acc |= kwlnGetColorRgb()[1] << 8;
+    t = kwlnGetColorRgb()[2];
     p[8] = t | acc;
-    *(f32 *)(p + 9) = *(f32 *)((u8 *)func_00457120() + 0x88);
+    *(f32 *)(p + 9) = *(f32 *)((u8 *)kwlnGetCamera() + 0x88);
     *(f32 *)(p + 0xA) = D_00764B5C;
     (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763898), 0xF, 0, 0, func_0028ee00, func_0028f360, (u8 *)(p));
 }

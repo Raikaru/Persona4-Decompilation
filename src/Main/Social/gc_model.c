@@ -53,7 +53,7 @@ typedef struct RwMatrix {
     u32 pad3;
 } RwMatrix;
 
-extern void* func_00457120(void);
+extern void* kwlnGetCamera(void);
 extern void* func_003e89c0(void);
 extern void func_003e8970(void* viewport, void* cameraData);
 extern void RwMatrixScale(RwMatrix* matrix, const RwV3d* scale, u32 combine);
@@ -98,7 +98,7 @@ void pscBuildModelMatrix(PanelMatrix* output, const PanelTransform* transform)
     void* camera;
     void* viewportData;
 
-    camera = func_00457120();
+    camera = kwlnGetCamera();
     cameraScale = (const PanelVec3*)((u8*)camera + 0x68);
     viewportData = func_003e89c0();
     func_003e8970(&viewport, viewportData);

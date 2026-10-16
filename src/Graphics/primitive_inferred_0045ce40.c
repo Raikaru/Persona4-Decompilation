@@ -244,7 +244,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 extern void func_0045b430(void);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 #pragma push
 #pragma pop
 #pragma push
@@ -265,7 +265,7 @@ s32 PrimBuildQuadVertices(f32 *out, u8 *colors, s32 *pos, f32 z)
     f32 inv;
 
     v7 = out;
-    result = func_00457120();
+    result = kwlnGetCamera();
     inv = 1.0f / *(f32 *)((u8 *)result + 0x80);
     z = D_008872F8_abs[0] - z;
     v7[0] = (f32)pos[0];
@@ -331,7 +331,7 @@ void PrimBuildRotatedRectangle(void *output, void *colorData, void *rectangle, f
     out = (f32 *)output;
     colors = (u8 *)colorData;
     pos = (s32 *)rectangle;
-    inv = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    inv = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
     depth = D_008872F8_abs[0] - depth;
     pos[2] = (s32)((f32)pos[2] * scaleX);
     pos[3] = (s32)((f32)pos[3] * scaleY);

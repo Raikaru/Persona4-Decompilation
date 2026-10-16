@@ -32,7 +32,7 @@ void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2,
 void RpSkyRenderStateSet(s32 param, s32 value);
 void mdlEffectEmitMaskedTagPair(void);
 void mdlEffectEmitTagPair(void);
-s32 func_00457120(void);
+s32 kwlnGetCamera(void);
 f32 cosf(f32 fparg0);
 f32 sinf(f32 fparg0);
 s32 func_003645c0(char *arg0, s32 rem);
@@ -180,7 +180,7 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     s32 (**draw)(s32, void *, s32);
 
     z = D_008872F8[0] - depth;
-    q = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
+    q = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
     if (ptr == NULL) {
         kAssertFail(D_0064E2F8, 153);
     }
@@ -349,7 +349,7 @@ void func_00364c90(Vec2f position, f32 depth, s32 color,
         geometry[2] = third;
         geometry[3] = fourth;
     }
-    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     far_depth = D_008872F8[0];
     sine = sinf(angle);
     cosine = cosf(angle);
@@ -410,7 +410,7 @@ void func_00364fb0(Vec2f position, f32 depth, s32 color, f32 angle, s32 arg2, s3
     origin_x = position.x;
     origin_y = position.y;
     far_depth = D_008872F8[0] - depth;
-    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     sine = sinf(angle);
     cosine = cosf(angle);
     red = (s32)(u8)(((u32)color >> 24) & 0xFF);
@@ -505,7 +505,7 @@ void func_003657d0(Vec2f arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32
 
     origin_y = arg0.y;
     origin_x = arg0.x;
-    temp_f23 = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    temp_f23 = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     temp_f20 = D_008872F8[0];
     temp_19 = (s32)(u8)(((u32)arg1 & 0xFF000000) >> 24);
     temp_18 = (s32)(u8)(((u32)arg1 & 0x00FF0000) >> 16);
@@ -578,7 +578,7 @@ void func_00365ac0(Vec2f position, f32 depth, s32 color, f32 angle, f32 width, f
     originX = position.x;
     width = width * iGpffff83d4;
     vertexDepth = D_008872F8[0] - depth;
-    camera = ((u8 *)(u32)func_00457120());
+    camera = ((u8 *)(u32)kwlnGetCamera());
     reciprocalDepth = 1.0f / *(f32 *)(camera + 0x80);
     red = (s32)(u8)(((u32)color & 0xFF000000) >> 24);
     green = (s32)(u8)(((u32)color & 0x00FF0000) >> 16);
@@ -659,7 +659,7 @@ void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
     origin_y = *(f32 *)((u8 *)&position + 4);
     origin_x = position.x;
     far_depth = D_008872F8[0];
-    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+    reciprocal = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     num_segments = radialCheckedSegmentCount(segments);
     vertices[0][0] = position.x;
     vertices[0][1] = origin_y;
