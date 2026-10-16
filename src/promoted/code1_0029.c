@@ -74,7 +74,7 @@ extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, f32 farg0, s32 arg5, s32 arg6,
                           s32 arg7);
 extern f32 fGpffff8204;
-extern void func_0029e9e0(s32 arg0, f32 farg0, f32 farg1, f32 farg2,
+extern void mtMiscDrawSpriteAt(s32 arg0, f32 farg0, f32 farg1, f32 farg2,
                           f32 farg3, s32 arg1, s32 arg2);
 extern void func_002a2980(u8 *arg0);
 extern s32 func_002a2ca0(u8 *arg0);
@@ -202,8 +202,11 @@ void func_0029e9b0(void *arg0, ...)
     va_start(args, arg0);
     va_end(args);
 }
+// Draws sprite arg0 once at (farg0, farg1): allocates a node from the sprite table,
+// sets alpha from arg1 (0xFF minus it), scales by farg2/farg3, centres it on the
+// position when arg2 is 1, then draws and frees the node.
 // FUN_0029E9E0
-void func_0029e9e0(s32 arg0, f32 farg0, f32 farg1, f32 farg2, f32 farg3,
+void mtMiscDrawSpriteAt(s32 arg0, f32 farg0, f32 farg1, f32 farg2, f32 farg3,
                    s32 arg1, s32 arg2)
 {
     extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
@@ -697,7 +700,7 @@ void func_0029f790(u8 *arg0)
             alpha = (u8)(255.0f * temp_f2);
             temp_f14 = 1.0f + temp_f2;
         }
-        func_0029e9e0(0xF, temp_f21, temp_f20, temp_f14, temp_f14,
+        mtMiscDrawSpriteAt(0xF, temp_f21, temp_f20, temp_f14, temp_f14,
                       alpha, 1);
     }
 }

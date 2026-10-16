@@ -51,7 +51,7 @@ extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, f32 farg0, s32 arg5, s32 arg6,
                           s32 arg7);
 extern f32 fGpffff8204;
-extern void func_0029e9e0(s32 arg0, f32 farg0, f32 farg1, f32 farg2,
+extern void mtMiscDrawSpriteAt(s32 arg0, f32 farg0, f32 farg1, f32 farg2,
                           f32 farg3, s32 arg1, s32 arg2);
 extern char D_0063C8F0[];
 extern char D_0063C910[];
