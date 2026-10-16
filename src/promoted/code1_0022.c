@@ -168,7 +168,7 @@ void btlCameraUpdateFrame(void);
 extern u8 *DAT_0076449c;
 extern void btlCameraFrameAim(u8 *arg0);
 extern s32 btlCameraUnitAnimFinished(u8 *arg0, u8 *arg1);
-extern void func_0019de70(BtlUnitStateWork *work, u16 value);
+extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
 extern void btlUnitFaceTarget(BtlUnit *unit, const RwV3d *target);
 extern s32 btlCameraSelectMode(u8 *camera);
 extern void btlCameraUpdateMode(u8 *camera);

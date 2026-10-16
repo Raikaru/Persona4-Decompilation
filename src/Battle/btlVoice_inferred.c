@@ -100,7 +100,7 @@ extern u8 D_00629700[];
 extern u8 *DAT_0076449c;
 extern void btlCameraFrameAim(u8 *arg0);
 extern s32 btlCameraUnitAnimFinished(u8 *arg0, u8 *arg1);
-extern void func_0019de70(BtlUnitStateWork *work, u16 value);
+extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
 extern void btlUnitFaceTarget(BtlUnit *unit, const RwV3d *target);
 extern s32 btlCameraSelectMode(u8 *camera);
 extern void btlCameraUpdateMode(u8 *camera);
@@ -627,7 +627,7 @@ void btlCameraTickModeState(u8 *camera)
         color.alpha = 0;
         btlUnitSetColor((BtlUnit *)subordinate, color);
     }
-    func_0019de70((BtlUnitStateWork *)subordinate, 0);
+    btlUnitSetChildValue((BtlUnitStateWork *)subordinate, 0);
     switch (*(u16 *)(camera + 0x110)) {
     case 0:
     case 1:
@@ -744,7 +744,7 @@ void btlCameraApplyMode(u8 *camera)
     *(u32 *)(camera + 0x12C) = 0;
     action = *(u8 **)(camera + 0xE0);
     if ((*(u16 *)(action + 0x1A) & 0x10) != 0) {
-        func_0019de70(*(BtlUnitStateWork **)(*(u8 **)(action + 0x30) + 0xA0C), 1);
+        btlUnitSetChildValue(*(BtlUnitStateWork **)(*(u8 **)(action + 0x30) + 0xA0C), 1);
     }
     switch (*(u16 *)(camera + 0x110)) {
     case 0:
@@ -836,7 +836,7 @@ void btlCameraTickUnitAnim(u8 *arg0)
         if ((temp_3 != NULL) &&
             ((*(u16 *)(temp_3 + 0x1A) & 1) != 0) &&
             (btlCameraUnitAnimFinished(arg0, temp_5) != 0)) {
-            func_0019de70(*(BtlUnitStateWork **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
+            btlUnitSetChildValue(*(BtlUnitStateWork **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
         }
     }
 }
@@ -898,7 +898,7 @@ void btlCameraApplyPartyPose(u8 *camera)
         color.alpha = 0;
         btlUnitSetColor((BtlUnit *)subordinate, color);
     }
-    func_0019de70((BtlUnitStateWork *)subordinate, 0);
+    btlUnitSetChildValue((BtlUnitStateWork *)subordinate, 0);
     switch (*(u16 *)(camera + 0x110)) {
     case 0:
     case 1:
@@ -1023,7 +1023,7 @@ void btlCameraApplyEncounterMode(u8 *camera)
     *(u32 *)(camera + 0x12C) = 0;
     action = *(u8 **)(camera + 0xE0);
     if ((*(u16 *)(action + 0x1A) & 0x10) != 0) {
-        func_0019de70(*(BtlUnitStateWork **)(*(u8 **)(action + 0x30) + 0xA0C), 1);
+        btlUnitSetChildValue(*(BtlUnitStateWork **)(*(u8 **)(action + 0x30) + 0xA0C), 1);
     }
     switch (*(u16 *)(camera + 0x110)) {
     case 0:
