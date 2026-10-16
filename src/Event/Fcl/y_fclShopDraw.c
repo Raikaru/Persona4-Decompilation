@@ -3423,12 +3423,12 @@ void fclShopDrawItemList(void *arg0, s8 arg1) {
         fclObjStartAlpha(work->fED4, 0, 0xFF, 0, 4, 0);
         sp188 = fclMakeVec2(47.0f, 78.0f + 35.0f * (f32)work->sel);
         t = (u8 *)fclObjectGetWork(work->fED4);
-        *(Vec2f *)(t + 0x2C) = sp188;
+        ((FclObject *)t)->anchorPosition = sp188;
         fclObjChangeFlagBit(work->fED8, 0, 0);
         fclObjStartAlpha(work->fED8, 0, 0xFF, 0, 4, 0);
         sp180 = fclMakeVec2(126.0f, 78.0f + 35.0f * (f32)work->sel);
         t = (u8 *)fclObjectGetWork(work->fED8);
-        *(Vec2f *)(t + 0x2C) = sp180;
+        ((FclObject *)t)->anchorPosition = sp180;
         fclShopDrawSwingCursor(arg0);
         fclObjSetAnchorPosition(work->fD3C, 0x41, 128.0f);
         fclObjStartAlpha(work->fD3C, 0, 0xFF, 0, 0xA, 0);
@@ -4564,12 +4564,12 @@ s32 fclShopListInputStep(void *arg0)
             ((u8 *)fclObjectGetWork(work->fCB8))[0x62] = 0x7F;
             sp1E0 = fclMakeVec2(b->x, b->y);
             t = (u8 *)fclObjectGetWork(work->fCB8);
-            *(Vec2f *)(t + 0x2C) = sp1E0;
+            ((FclObject *)t)->anchorPosition = sp1E0;
             fclObjSetAnchorPosition(work->fEAC, 0x57, 84.0f);
             ((u8 *)fclObjectGetWork(work->fEAC))[0x62] = 0x7F;
             sp1D8 = fclMakeVec2(b->x, 50.0f + b->y);
             t = (u8 *)fclObjectGetWork(work->fEAC);
-            *(Vec2f *)(t + 0x2C) = sp1D8;
+            ((FclObject *)t)->anchorPosition = sp1D8;
             break;
         }
         if ((u8)clndGetMoonPhase(yListValueAt(work->f2)) & 1) {
@@ -4580,7 +4580,7 @@ s32 fclShopListInputStep(void *arg0)
         fclObjSetAnchorPosition(work->fE60, 0x56, 94.0f);
         sp1C8 = fclMakeVec2(b->x, b->y);
         t = (u8 *)fclObjectGetWork(work->fE60);
-        *(Vec2f *)(t + 0x2C) = sp1C8;
+        ((FclObject *)t)->anchorPosition = sp1C8;
         t = (u8 *)work->fE60;
         fclObjStartTween(t, fGpffff8530, fGpffff8530, 0, 0, 0);
         for (mark = 0; mark < 3; mark++) {
@@ -4599,7 +4599,7 @@ s32 fclShopListInputStep(void *arg0)
         ((FclObject *)t)->color = c288;
         sp1C0 = fclMakeVec2(468.0f, 338.0f);
         t = (u8 *)fclObjectGetWork(work->fE84);
-        *(Vec2f *)(t + 0x2C) = sp1C0;
+        ((FclObject *)t)->anchorPosition = sp1C0;
         if (yListCount() >= 2) {
             fclObjSetAnchorPosition(work->fC94, 0x41, 88.0f);
             c284 = fclMakeDrawColor(0xFF, 0x96, 0, 0xFF);
@@ -4641,7 +4641,7 @@ s32 fclShopListInputStep(void *arg0)
             ((FclObject *)t)->color = c27C;
             sp190 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(work->fE98);
-            *(Vec2f *)(t + 0x2C) = sp190;
+            ((FclObject *)t)->anchorPosition = sp190;
             b = (Vec2f *)D_0063F640;
             fclObjSetAnchorPosition(work->fEA0, 0x57, 82.0f);
             c278 = fclMakeDrawColor(0xE7, 0xE5, 0xE6, 0xFF);
@@ -4649,7 +4649,7 @@ s32 fclShopListInputStep(void *arg0)
             ((FclObject *)t)->color = c278;
             sp188 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(work->fEA0);
-            *(Vec2f *)(t + 0x2C) = sp188;
+            ((FclObject *)t)->anchorPosition = sp188;
             uA = func_001068b0((s32)func_00106cd0(work->kind[work->sel], 0));
             sp90 = fclMakeVec2(518.0f + (f32)((s16)(fclDecimalDigitCount(uA) - 1) * 8), 158.0f);
             c250 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
@@ -4674,7 +4674,7 @@ s32 fclShopListInputStep(void *arg0)
             ((FclObject *)t)->color = c274;
             sp170 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(work->fE94);
-            *(Vec2f *)(t + 0x2C) = sp170;
+            ((FclObject *)t)->anchorPosition = sp170;
             b = (Vec2f *)D_0063F638;
             fclObjSetAnchorPosition(work->fE9C, 0x57, 80.0f);
             c270 = fclMakeDrawColor(0xE7, 0xE5, 0xE6, 0xFF);
@@ -4682,7 +4682,7 @@ s32 fclShopListInputStep(void *arg0)
             ((FclObject *)t)->color = c270;
             sp168 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(work->fE9C);
-            *(Vec2f *)(t + 0x2C) = sp168;
+            ((FclObject *)t)->anchorPosition = sp168;
             uA = func_00106940((s32)func_00106cd0(work->kind[work->sel], 1));
             sp80 = fclMakeVec2(518.0f + (f32)((s16)(fclDecimalDigitCount(uA) - 1) * 8), 158.0f);
             c248 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
@@ -4705,7 +4705,7 @@ s32 fclShopListInputStep(void *arg0)
             fclObjSetAnchorPosition(work->fEB0, 0x57, 85.0f);
             sp150 = fclMakeVec2(b->x, 50.0f + b->y);
             t = (u8 *)fclObjectGetWork(work->fEB0);
-            *(Vec2f *)(t + 0x2C) = sp150;
+            ((FclObject *)t)->anchorPosition = sp150;
             break;
         }
         for (slot = 0; slot < 3; slot++) {
@@ -4716,7 +4716,7 @@ s32 fclShopListInputStep(void *arg0)
             ((FclObject *)t)->color = c26C;
             sp148 = fclMakeVec2(b->x, b->y - 166.0f);
             t = (u8 *)fclObjectGetWork(*(void **)((u8 *)work + slot * 4 + 0xE88));
-            *(Vec2f *)(t + 0x2C) = sp148;
+            ((FclObject *)t)->anchorPosition = sp148;
         }
         b = (Vec2f *)D_0063F648;
         fclObjSetAnchorPosition(work->fEA4, 0x56, 91.0f);
@@ -4725,14 +4725,14 @@ s32 fclShopListInputStep(void *arg0)
         ((FclObject *)t)->color = c268;
         sp140 = fclMakeVec2(b->x, b->y - 166.0f);
         t = (u8 *)fclObjectGetWork(work->fEA4);
-        *(Vec2f *)(t + 0x2C) = sp140;
+        ((FclObject *)t)->anchorPosition = sp140;
         fclObjSetAnchorPosition(work->fEA8, 0x56, 91.0f);
         c264 = fclMakeDrawColor(0xB0, 0xAE, 0xAF, 0xFF);
         t = (u8 *)fclObjectGetWork(work->fEA8);
         ((FclObject *)t)->color = c264;
         sp138 = fclMakeVec2(468.0f, 172.0f);
         t = (u8 *)fclObjectGetWork(work->fEA8);
-        *(Vec2f *)(t + 0x2C) = sp138;
+        ((FclObject *)t)->anchorPosition = sp138;
         return 1;
     }
     fclObjChangeFlagBit(work->fC9C, 0, 1);
@@ -4892,7 +4892,7 @@ void fclShopSlideInFromRight(void *arg0) {
     fclObjStartAlpha(work->field_D70, 0, 0xFF, 0, 8, 6);
     sp58 = fclMakeVec2(46.0f, 294.0f);
     t = (u8 *)fclObjectGetWork(work->field_D70);
-    *(Vec2f *)(t + 0x2C) = *(Vec2f *)&sp58;
+    ((FclObject *)t)->anchorPosition = *(Vec2f *)&sp58;
     fclObjStartAlpha(work->field_D7C, 0, 0xFF, 0, 8, 6);
     t = (u8 *)fclObjectGetWork(work->field_C8C);
     fclObjStartAlpha(work->field_C8C, t[0x62], 0xFF, 0, 8, 0);
@@ -5325,7 +5325,7 @@ void fclShopStartHeaderBars(void *arg0) {
         ((FclObject *)t)->color = sp1EC;
         sp168 = fclMakeVec2(468.0f, 338.0f);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xE84)));
-        *(Vec2f *)(t + 0x2C) = *(Vec2f *)&sp168;
+        ((FclObject *)t)->anchorPosition = *(Vec2f *)&sp168;
         sp160 = fclMakeVec2(-145.0f, 227.0f);
         sp158 = fclMakeVec2((f32) 0x1C7, 227.0f);
         fclObjStartPosition(*(void **)(work + 0xE84), sp160, sp158, 0, 8, 0);
@@ -5373,7 +5373,7 @@ void fclShopStartHeaderBars(void *arg0) {
         ((FclObject *)t)->color = sp1D4;
         sp100 = fclMakeVec2(468.0f, 338.0f);
         t = (u8 *)(fclObjectGetWork(*(void **)(work + 0xEA8)));
-        *(Vec2f *)(t + 0x2C) = *(Vec2f *)&sp100;
+        ((FclObject *)t)->anchorPosition = *(Vec2f *)&sp100;
         spF8 = fclMakeVec2((f32) 0x41F, 113.0f);
         spF0 = fclMakeVec2((f32) 0x1C7, 113.0f);
         fclObjStartPosition(*(void **)(work + 0xEA8), spF8, spF0, 0, 8, 0);
@@ -5784,19 +5784,19 @@ void fclShopHideSelectionSprites(void *arg0) {
     fclObjChangeFlagBit(work->field_C94, 0, 1);
     fclObjChangeFlagBit(work->field_C98, 0, 1);
     t = (u8 *)fclObjectGetWork(work->field_E50);
-    grp1 = *(Vec2f *)((u8 *)t + 0x2C);
+    grp1 = ((FclObject *)t)->anchorPosition;
     sp60 = fclMakeVec2(740.0f + grp1.x, grp1.y);
     fclObjStartPosition(work->field_E50, grp1, sp60, 0, 4, 0);
     t = (u8 *)fclObjectGetWork(work->field_E54);
-    grp2 = *(Vec2f *)((u8 *)t + 0x2C);
+    grp2 = ((FclObject *)t)->anchorPosition;
     sp58 = fclMakeVec2(740.0f + grp2.x, grp2.y);
     fclObjStartPosition(work->field_E54, grp2, sp58, 0, 4, 0);
     t = (u8 *)fclObjectGetWork(work->field_E58);
-    grp3 = *(Vec2f *)((u8 *)t + 0x2C);
+    grp3 = ((FclObject *)t)->anchorPosition;
     sp50 = fclMakeVec2(740.0f + grp3.x, grp3.y);
     fclObjStartPosition(work->field_E58, grp3, sp50, 0, 4, 0);
     t = (u8 *)fclObjectGetWork(work->field_E5C);
-    grp4 = *(Vec2f *)((u8 *)t + 0x2C);
+    grp4 = ((FclObject *)t)->anchorPosition;
     sp48 = fclMakeVec2(740.0f + grp4.x, grp4.y);
     fclObjStartPosition(work->field_E5C, grp4, sp48, 0, 4, 0);
     fclObjStartSlideFade(work->field_EC4, 3, fGpffff8504, 1.0f, 6, 0, 1);
