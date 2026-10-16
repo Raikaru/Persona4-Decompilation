@@ -1581,7 +1581,7 @@ void mdlEffectCatmullRomVU(float param_1, u8 (*param_2)[16])
 #pragma pop
 /* Scale applier for emitter kind 1 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048C440
-void EffEmitterScaleKind1(u8 *arg0, f32 fparg0) {
+void func_0048c440(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1616,7 +1616,7 @@ loop_0048c440_check:
 #pragma pop
 /* Scale applier for emitter kind 2 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048CD60
-void EffEmitterScaleKind2(u8 *arg0, f32 fparg0) {
+void func_0048cd60(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1650,7 +1650,7 @@ loop_0048cd60_check:
 #pragma pop
 /* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048D820
-void EffEmitterScaleKind3(u8 *arg0, f32 fparg0) {
+void func_0048d820(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1685,7 +1685,7 @@ loop_0048d820_check:
 #pragma pop
 /* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048E270
-void EffEmitterScaleKind4(u8 *arg0, f32 fparg0) {
+void func_0048e270(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1718,7 +1718,7 @@ loop_0048e270_check:
 #pragma pop
 /* Scale applier for emitter kind 5 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048EBC0
-void EffEmitterScaleKind5(u8 *arg0, f32 fparg0) {
+void func_0048ebc0(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1752,7 +1752,7 @@ loop_0048ebc0_check:
 #pragma pop
 /* Scale applier for emitter kind 6 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048F560
-void EffEmitterScaleKind6(u8 *arg0, f32 fparg0) {
+void func_0048f560(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1797,7 +1797,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 extern void func_00484280(u8 *object, s32 resource);
 /* Scale applier for emitter kind 7 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00490360
-void EffEmitterScaleKind7(u8 *arg0, f32 fparg0) {
+void func_00490360(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1827,7 +1827,7 @@ loop_00490360_check:
 #pragma pop
 /* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00490BB0
-void EffEmitterScaleKind8(u8 *arg0, f32 fparg0) {
+void func_00490bb0(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1862,7 +1862,7 @@ loop_00490bb0_check:
 #pragma pop
 /* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00491660
-void EffEmitterScaleKind9(u8 *arg0, f32 fparg0) {
+void func_00491660(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1896,7 +1896,7 @@ loop_00491660_check:
 #pragma pop
 /* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00492080
-void EffEmitterScaleKind10(u8 *arg0, f32 fparg0) {
+void func_00492080(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1929,7 +1929,7 @@ loop_00492080_check:
 #pragma pop
 /* Scale applier for emitter kind 11 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00492A80
-void EffEmitterScaleKind11(u8 *arg0, f32 fparg0) {
+void func_00492a80(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
