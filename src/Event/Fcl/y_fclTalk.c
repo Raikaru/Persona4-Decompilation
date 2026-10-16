@@ -35,8 +35,8 @@ extern s32 func_00106b20(s16);
 extern s32 func_00106b50(s16);
 extern s32 fclShopIsSpecialItem(u16);
 extern u32 RpRandom(void);
-extern s32 func_00331a20(u8 *task);
-extern void func_00331f90(u8 *task);
+extern s32 weaponShopTalkUpdate(u8 *task);
+extern void weaponShopTalkDestroy(u8 *task);
 extern s32 itemShopTalkUpdate(u8 *task);
 extern void itemShopTalkDestroy(u8 *task);
 extern s32 wshopMaterialTalkUpdate(u8 *task);
@@ -48,7 +48,7 @@ void func_00331fc0(u8 *arg0) {
 
     chkmemAllocSiteTag(D_0064A018, 0xC8);
     temp_2 = D_008873F4[0](1, 2, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A030), 0xF, 0, 0, func_00331a20, func_00331f90, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A030), 0xF, 0, 0, weaponShopTalkUpdate, weaponShopTalkDestroy, (u8 *)(temp_2));
     *temp_2 = 0;
 }
 /* measured: nd 165 with a full C body (object 592B against a 576B window).

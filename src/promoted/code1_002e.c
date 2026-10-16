@@ -398,7 +398,7 @@ loop_test:
 /* measured: corrected callee declarations; variadic call casts preserve retail's
    extra ignored arguments to the one-parameter routines. */
 // FUN_002E72C0
-s32 func_002e72c0(u8 *arg0)
+s32 shopSystemUpdate(u8 *arg0)
 {
     void fieldSceneLoad(s32 arg0, s32 arg1);
     s32 func_00122520(s32 arg0, s32 arg1);
@@ -474,7 +474,7 @@ block_24:
     }
 }
 // FUN_002E74E0
-void func_002e74e0(u8 *arg0)
+void shopSystemDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
@@ -488,7 +488,7 @@ s32 func_002e7510(s32 arg0)
 
     chkmemAllocSiteTag(D_0063FC80, 0x11A);
     work = D_008873F4[0](1, 0x18, 0x40000);
-    result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)((char *)D_0063FC90), 0xF, 0, 0, func_002e72c0, func_002e74e0, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)((char *)D_0063FC90), 0xF, 0, 0, shopSystemUpdate, shopSystemDestroy, (u8 *)(work));
     iGpffffb590 = NULL;
     iGpffffb590 = (u8 *)fclSpriteSpawnChild(result, fclMakeVec2(0, 0));
     fclSpriteSetPositionBounds(iGpffffb590, fclMakeVec2(0, 0), fclMakeBoundsPacket(640.0f, 448.0f));

@@ -58,7 +58,7 @@ extern s32 sdkSpriteRequestLoad(void *arg0);
 extern u8 D_0064A458[];
 extern u8 D_0064A470[];
 extern u8 D_0064A480[];
-extern s32 func_0033e1e0(u8 *arg0);
+extern s32 fclBustupUpdate(u8 *arg0);
 extern void func_0033e4b0(u8 *arg0);
 extern s32 fclPackRgba(u8, u8, u8, u8);
 extern f32 fclEaseInterpolate(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
@@ -278,7 +278,7 @@ s32 func_003319c0(void) {
    24 with a separate `s32 level` copy, with or without it. */
 #pragma opt_loop_invariants on
 // FUN_00331A20
-s32 func_00331a20(u8 *arg0)
+s32 weaponShopTalkUpdate(u8 *arg0)
 {
     s8 *work;
     s8 i;
@@ -365,7 +365,7 @@ s32 func_00331a20(u8 *arg0)
 }
 #pragma pop
 // FUN_00331F90
-void func_00331f90(u8 *arg0)
+void weaponShopTalkDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
@@ -568,7 +568,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
     return result;
 }
 // FUN_0033D9D0
- s32 func_0033d9d0(u8 *arg0)
+ s32 fclCombineEventTaskUpdate(u8 *arg0)
  {
      D9D0Locals locals;
      s32 taskHandle;
@@ -645,12 +645,12 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
      }
  }
 // FUN_0033DC60
-void func_0033dc60(u8 *arg0)
+void fclCombineEventTaskDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 // FUN_0033E1E0
-s32 func_0033e1e0(u8 *arg0)
+s32 fclBustupUpdate(u8 *arg0)
 {
     u8 *p;
     s16 value;
@@ -699,7 +699,7 @@ s32 func_0033e1e0(u8 *arg0)
     return 0;
 }
 // FUN_0033E3A0
-void func_0033e3a0(u8 *arg0)
+void fclBustupDestroy(u8 *arg0)
 {
     sdkSpriteRelease((void *)*(u8 **)(*(u8 **)(arg0 + 0x38) + 4));
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
@@ -712,7 +712,7 @@ s32 func_0033e3f0(u8 *arg0)
 
     chkmemAllocSiteTag(D_0064A458, 0x85);
     work = D_008873F4[0](1, 0x2C, 0x40000);
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A470), 0xF, 0, 0, func_0033e1e0, func_0033e3a0, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A470), 0xF, 0, 0, fclBustupUpdate, fclBustupDestroy, (u8 *)(work));
     work[0] = 0;
     *(s32 *)(work + 4) = sdkSpriteRequestLoad(D_0064A480);
     return result;
