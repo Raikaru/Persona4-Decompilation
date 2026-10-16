@@ -39,7 +39,7 @@ extern s32 D_00922CC0[];
 extern u8 *D_0076449C;
 extern s32 btlColorBlendPacketUpdate(struct ColorBlendWork *work);
 extern u8 *btlPacketAlloc(s32 size, s32 align);
-extern s32 func_001ba590(u8 *arg0);
+extern s32 btlQuatMatrixPacketUpdate(u8 *arg0);
 extern u8 D_005F7180[];
 extern u8 D_005F7184[];
 extern u8 D_005F7000[];
@@ -173,7 +173,7 @@ u8 *btlColorBlendPacketCreate(s32 arg0, s32 arg1) {
 }
 
 // FUN_001BA590
-s32 func_001ba590(u8 *arg0)
+s32 btlQuatMatrixPacketUpdate(u8 *arg0)
 {
     typedef struct {
         f32 x;
@@ -281,7 +281,7 @@ s32 func_001ba590(u8 *arg0)
 }
 
 // FUN_001BA710
-u8 *func_001ba710(f32 *arg0, s32 arg1) {
+u8 *btlQuatMatrixPacketCreate(f32 *arg0, s32 arg1) {
     struct F4 {
         f32 x0;
         f32 x1;
@@ -291,7 +291,7 @@ u8 *func_001ba710(f32 *arg0, s32 arg1) {
     u8 *o = btlPacketAlloc(0x60A, 0x28);
     f32 *p;
 
-    *(void (**)(void))(o + 0x6C) = (void (*)(void))func_001ba590;
+    *(void (**)(void))(o + 0x6C) = (void (*)(void))btlQuatMatrixPacketUpdate;
     p = *(f32 **)(o + 0x78);
     value = *(struct F4 *)arg0;
     *(struct F4 *)p = value;
