@@ -28,9 +28,9 @@ extern s32 func_001838d0(f32 f0, u8 *arg0, s32 arg1, f32 f1, f32 f2, f32 f3,
                           s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_0017d070(u8 *arg0);
 extern s32 K_Clump_CreateLoadTask(s32 arg0);
-extern s32 func_00191610(s32 arg0);
-extern s32 func_00191bc0(s32 arg0);
-extern s32 func_00191d90(s32 arg0);
+extern s32 K_TexStripBuildTaskCreate(s32 arg0);
+extern s32 K_TexStripLoadTaskCreate(s32 arg0);
+extern s32 K_TexStripCodeLogTaskCreate(s32 arg0);
 
 // FUN_0018E050
 s32 K_TestMenu_Update(u8 *arg0)
@@ -81,13 +81,13 @@ s32 K_TestMenu_Update(u8 *arg0)
                 *(s32 *)(p + 8) = K_Clump_CreateLoadTask(0);
                 break;
             case 7:
-                *(s32 *)(p + 8) = func_00191610(0);
+                *(s32 *)(p + 8) = K_TexStripBuildTaskCreate(0);
                 break;
             case 8:
-                *(s32 *)(p + 8) = func_00191bc0(0);
+                *(s32 *)(p + 8) = K_TexStripLoadTaskCreate(0);
                 break;
             case 9:
-                *(s32 *)(p + 8) = func_00191d90(0);
+                *(s32 *)(p + 8) = K_TexStripCodeLogTaskCreate(0);
                 break;
             default:
                 kAssertFail(D_005F56F0, 0xA1);

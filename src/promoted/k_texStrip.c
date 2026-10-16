@@ -43,7 +43,7 @@ extern char *strcat(char *dst, const char *src);
 extern void func_003ef1b0(s32 arg0);
 extern void func_003ef260(s32 arg0, s32 (*arg1)(s32, s32), s32 arg2);
 extern void func_003e6870(void *arg0, void *arg1);
-extern s32 func_00190920(s32 arg0, s32 arg1);
+extern s32 K_TexStripNameInsert(s32 arg0, s32 arg1);
 extern char D_005F63F0[];
 extern char D_005F6430[];
 extern char D_005F6450[];
@@ -92,11 +92,11 @@ extern char D_005F6350[];
 extern char D_005F6370[];
 extern char D_005F63B0[];
 
-s32 func_00190680(u8 *arg0, void *arg1);
-void func_001909f0(u8 *arg0, void *arg1, u8 *arg2);
-s32 func_00190c10(u8 *arg0);
-s32 func_001916a0(u8 *arg0, void *arg1);
-s32 func_00191850(u8 *arg0);
+s32 K_TexStripLoadRecords(u8 *arg0, void *arg1);
+void K_TexStripApplyNames(u8 *arg0, void *arg1, u8 *arg2);
+s32 K_TexStripBuildUpdate(u8 *arg0);
+s32 K_TexStripRecordCount(u8 *arg0, void *arg1);
+s32 K_TexStripLoadUpdate(u8 *arg0);
 
 
 
