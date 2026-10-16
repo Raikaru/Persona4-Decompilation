@@ -335,35 +335,37 @@ u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
 // Event node: unlinks 'node' from its owner list, frees its sub-blocks and the node.
 // FUN_00286C60
 void evtNodeRemoveFree(u8 *arg0, u8 *arg1) {
+    EvtNode *owner = (EvtNode *)arg0;
+    EvtNode *node = (EvtNode *)arg1;
     u32 t48;
     u32 t40;
 
-    if (*(u32 *)(arg1 + 0x50) == 0) {
-        *(u32 *)(arg0 + 0x68) = *(u32 *)(arg1 + 0x4C);
+    if (node->childPrev == NULL) {
+        owner->childHead = node->childNext;
     } else {
-        *(u32 *)(*(u32 *)(arg1 + 0x50) + 0x4C) = *(u32 *)(arg1 + 0x4C);
+        node->childPrev->childNext = node->childNext;
     }
-    if (*(u32 *)(arg1 + 0x4C) == 0) {
-        *(u32 *)(arg0 + 0x6C) = *(u32 *)(arg1 + 0x50);
+    if (node->childNext == NULL) {
+        owner->childTail = node->childPrev;
     } else {
-        *(u32 *)(*(u32 *)(arg1 + 0x4C) + 0x50) = *(u32 *)(arg1 + 0x50);
+        node->childNext->childPrev = node->childPrev;
     }
-    *(u32 *)(arg1 + 0x50) = 0;
-    *(u32 *)(arg1 + 0x4C) = 0;
-    *(u32 *)(arg0 + 0x64) -= 1;
-    t48 = *(u32 *)(arg1 + 0x48);
+    node->childPrev = NULL;
+    node->childNext = NULL;
+    owner->childCount -= 1;
+    t48 = node->ownedBlock48;
     if (t48 != 0) {
-        if (*(u32 *)arg0 != 0x12) {
+        if (owner->kind != 0x12) {
             jtbl_008873EC[0]((void *)t48);
             evtMemAccount(9, 0);
         }
-        *(u32 *)(arg1 + 0x48) = 0;
+        node->ownedBlock48 = 0;
     }
-    t40 = *(u32 *)(arg1 + 0x40);
+    t40 = node->ownedBlock40;
     if (t40 != 0) {
         jtbl_008873EC[0]((void *)t40);
         evtMemAccount(0xA, -0x130);
-        *(u32 *)(arg1 + 0x40) = 0;
+        node->ownedBlock40 = 0;
     }
     jtbl_008873EC[0](arg1);
     evtMemAccount(8, -0x54);
