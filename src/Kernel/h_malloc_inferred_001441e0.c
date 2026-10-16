@@ -135,7 +135,7 @@ extern u8 D_007E8020[];
 extern s32 FldMap_IsInBandA(s32 arg0, s32 arg1);
 extern s32 FldMap_IsInBandB(s32 arg0, s32 arg1);
 extern void func_00440b68();
-extern s32 func_00153a60(s32 arg0);
+extern s32 FldFilterCreate(s32 arg0);
 extern s32 resrcMngCreate(void);
 extern s32 MT_Scene_CreateResLightChar(s32 arg0);
 extern void SceneDraw_InitResList4(void);
@@ -610,7 +610,7 @@ loop_5_test:
     *(s16 *)(iGpffff9db0 + 0x10) = 0;
     temp_3_3 = iGpffff9db0;
     *(s16 *)(temp_3_3 + 0x12) = *(s32 *)(temp_3_3 + 4);
-    *(s32 *)(iGpffff9db0 + 0x20) = func_00153a60(0);
+    *(s32 *)(iGpffff9db0 + 0x20) = FldFilterCreate(0);
     *(s32 *)(iGpffff9db0 + 8) = resrcMngCreate();
     MT_Scene_CreateResLightChar(0);
     SceneDraw_InitResList4();

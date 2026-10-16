@@ -466,7 +466,7 @@ s32 FldResource_StepPartLoad(s32 arg0, s32 arg1) {
     extern s32 FldMap_IsCurrentInBandA(void);
     extern void resrcMngResetRenderSlots(void);
     extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
-    extern s32 func_00153c00(s32 arg0);
+    extern s32 FldEnvOpenFile(s32 arg0);
     extern s32 func_00153d60(u8 *arg0, s32 arg1);
     extern s32 func_00154b10(void);
     extern s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4, u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8);
@@ -967,7 +967,7 @@ block_123:
                     resrcMngSetDrawEnabled(enable, enable);
                 }
             }
-            *( s32 * )(iGpffff9db0 + 0xDC) = func_00153c00(*( s16 * )(iGpffff9db0 + 0x12));
+            *( s32 * )(iGpffff9db0 + 0xDC) = FldEnvOpenFile(*( s16 * )(iGpffff9db0 + 0x12));
             if (*( s32 * )(iGpffff9db0 + 0) >= 0xC8) {
                 func_003e8180((void *)(u32)func_00457120(), 100.0f);
             }
@@ -1163,7 +1163,7 @@ loadEnvironment:
             if (fldResourceReady_0014f310((u8 *)iGpffffb200) == 0) {
                 goto block_259;
             }
-            *( s32 * )(iGpffff9db0 + 0xDC) = func_00153c00(*( s16 * )(iGpffff9db0 + 0x12));
+            *( s32 * )(iGpffff9db0 + 0xDC) = FldEnvOpenFile(*( s16 * )(iGpffff9db0 + 0x12));
             *( s32 * )(iGpffff9db0 + 0x94) = 0x29;
 waitReloadedEnvironment:
             temp_2_22 = (u8 *)(iGpffff9db0);
