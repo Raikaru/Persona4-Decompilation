@@ -232,7 +232,7 @@ void func_0019c0d0(void)
     extern void mdlScale(void *arg0, void *arg1, s32 arg2);
     extern void *mdlTranslateMatrix(void *arg0, void *arg1, s32 arg2);
     extern void mdlAdvanceModelFromFlags(void *arg0);
-    extern s32 func_001ee490(u8 *arg0);
+    extern s32 btlTargetRefreshRadiusNode(u8 *arg0);
     extern u32 btlUnitIsModelVisible(u8 *arg0);
     extern s32 btlEffectFlagToSlotIndex(s32 arg0);
     extern s16 func_001d7130(s32 arg0);
@@ -392,7 +392,7 @@ void func_0019c0d0(void)
                         *(Col4_0019 *)(entry + 0x4E) = *cp;
                         mdlSetColor(*(u8 **)(entry + 0xA00), (s32 *)cp);
                     }
-                    func_001ee490(entry);
+                    btlTargetRefreshRadiusNode(entry);
                     *(s32 *)(entry + 0x98) &= ~4;
                 }
                 {

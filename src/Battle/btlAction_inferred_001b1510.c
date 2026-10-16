@@ -788,7 +788,7 @@ s32 btlMainUnitCreateUpdate(void)
     extern s32 btlActionGetQueueFront(void);
     extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
     extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
-    extern void func_001ee250(u8 *arg0, u8 *arg1);
+    extern void btlTargetAddRadiusNode(u8 *arg0, u8 *arg1);
     extern void btlTargetBlendVectors(u8 *rotation, u8 *from, u8 *to);
     extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
     extern void btlUnitSetPos(BtlUnit *unit, const RwV3d *position);
@@ -866,7 +866,7 @@ s32 btlMainUnitCreateUpdate(void)
         if (((*(u32 *)(D_0076449C + 0xc) & 0x20000000) == 0) || ((group & 0xffff) != 0)) {
           for (nodeOrPacket = *(u8 **)(D_0076449C + (u16)group * 8 + 0x178); nodeOrPacket != NULL;
               nodeOrPacket = *(u8 **)(nodeOrPacket + 0xa6c)) {
-            func_001ee250(nodeOrPacket,NULL);
+            btlTargetAddRadiusNode(nodeOrPacket,NULL);
             if ((group & 0xffff) == 0) {
               func_00194ff0(nodeOrPacket,NULL,(f32 *)&rotation,NULL);
             }
