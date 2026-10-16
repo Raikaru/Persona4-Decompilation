@@ -8,11 +8,8 @@
 #include "btl_packet_create_internal.h"
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
-typedef struct RwV3d {
-    f32 x;
-    f32 y;
-    f32 z;
-} P4_95730_Vec3;
+#include "rw_types_internal.h"
+typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
     f32 x;
     f32 y;
@@ -101,7 +98,6 @@ extern s32 H_Cdvd_AcquireDirectory(s32 arg0, s32 arg1);
 extern void H_Cdvd_ReadSync(s32 arg0);
 extern s32 H_Cdvd_IsFileLoaded(s32 arg0);
 extern void H_Cdvd_Destroy(s32 arg0);
-typedef struct RwV3d RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
 extern void btlUnitGetGridSphereCenter(void *arg0, void *arg1);
