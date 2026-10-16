@@ -1542,9 +1542,9 @@ u32 datPersonaGetExpToNextLevel(PersonaWork* persona)
 
 
 // FUN_001094D0
-u16* datPersonaGetSkills(int persona)
+u16 *datPersonaGetSkills(DatPersonaRecord *persona)
 {
-    return (u16*)(persona + 0xc);
+    return (u16 *)((u8 *)persona + 0xc);
 }
 
 

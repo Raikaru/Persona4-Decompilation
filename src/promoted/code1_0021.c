@@ -4419,7 +4419,7 @@ s32 btlXpBaseAward(u8 *arg0)
 extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 datPersonaGetLevel(int persona);
 extern u32 datPersonaGetExp(int persona);
-extern u16 *datPersonaGetSkills(int persona);
+extern u16 *datPersonaGetSkills(struct DatPersonaRecord *persona);
 extern u16 datItemValue(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
@@ -4501,7 +4501,7 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
                 level += (s32)(0.5f * (f32)lv);
             }
         } else {
-            v = (s32)datPersonaGetSkills((s32)entry2);
+            v = (s32)datPersonaGetSkills((struct DatPersonaRecord *)entry2);
             level = 0;
             for (k = 0; k < 8; k++) {
                 v2 = *(u16 *)(v + k * 2);
