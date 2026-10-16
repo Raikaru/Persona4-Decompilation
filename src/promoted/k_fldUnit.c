@@ -83,7 +83,6 @@ extern s32 datGetFlag(s32 arg0);
 extern s32 MT_Scene_CreateModelFldRes(s32 arg0, s32 arg1);
 extern u8 *FldSlotFindFree(void);
 typedef struct DatUnitPc DatUnitPc;
-extern DatUnitPc *datUnitCreatePc(u16 arg0);
 extern u8 *FldPartyModelGet(u16 arg0, u16 arg1, s32 arg2);
 extern u8 datPersonaGetLevelByPcId(u16 arg0);
 extern s16 datGetPartyId(s32 arg0);
