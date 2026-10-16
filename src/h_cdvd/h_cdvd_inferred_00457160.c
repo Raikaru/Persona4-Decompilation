@@ -244,8 +244,9 @@ extern u8 *H_Cdvd_CreateFileDevice(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 a
 #pragma pop
 /* measured probe: opt_propagation off preserves allocator-table liveness for 00456c60. */
 /* measured probe: close opt_propagation scope after func_00456c60. */
+// Intent: returns a pointer to the four bytes of the kwln colour record set by kwlnSetColorBytes.
 // FUN_00457160
-s8 *func_00457160(void)
+s8 *kwlnGetColorBytes(void)
 {
     return (s8 *)&iGpffffba84;
 }

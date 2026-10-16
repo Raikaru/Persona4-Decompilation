@@ -31,7 +31,7 @@ void func_0028f360(u8 *task);
 s32 func_0028f540(u8 *arg0);
 void func_0028f6c0(u8 *arg0);
 void func_0028f4f0(void);
-void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern s32 iGpffffba48;
 
 /* Scalars (complete types) address gp-relative; strings/arrays use absolute
@@ -945,7 +945,7 @@ s32 func_0028ee00(u8 *arg0)
     start = startColor & 0xFF;
     end = endColor & 0xFF;
     b = start + progress * (s32)(end - start);
-    func_00457140(r, g, b, 0);
+    kwlnSetColorRgba(r, g, b, 0);
 
     *(f32 *)((u8 *)kwlnGetCamera() + 0x88) =
         *(f32 *)(work + 9) + progress * (*(f32 *)(work + 4) - *(f32 *)(work + 9));

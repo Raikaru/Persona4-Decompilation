@@ -70,7 +70,7 @@ extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern char D_00748340[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern u8 D_0063C5C0[];
 void sprintf();
 s32 func_0028f770(s32 arg0);
@@ -2789,7 +2789,7 @@ void evtEnvSlotRestore(int param_1, int param_2) {
     DAT_00764B3C = (u8)(*(u32 *)(p + 4) >> 16);
     DAT_00764B40 = (u8)(*(u32 *)(p + 4) >> 8);
     DAT_00764B44 = (u8)*(u32 *)(p + 4);
-    func_00457140((*(u32 *)(p + 8) >> 16) & 0xFF, (*(u32 *)(p + 8) >> 8) & 0xFF, *(u32 *)(p + 8) & 0xFF, 0);
+    kwlnSetColorRgba((*(u32 *)(p + 8) >> 16) & 0xFF, (*(u32 *)(p + 8) >> 8) & 0xFF, *(u32 *)(p + 8) & 0xFF, 0);
     v = *(f32 *)(p + 0xC);
     cam = kwlnGetCamera();
     *(f32 *)((u8 *)cam + 0x88) = v;

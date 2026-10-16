@@ -199,8 +199,8 @@ extern void func_00460ac0(void *arg0, u8 *arg1);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
 extern void MT_Scene_ScaleResColors(u32 *resource, const f32 *color);
-extern void func_00457140(u8 red, u8 green, u8 blue, u8 alpha);
-extern s8 *func_00457160(void);
+extern void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha);
+extern s8 *kwlnGetColorBytes(void);
 extern void FldFilterSetPrimary(s32 arg0, s32 arg1);
 
 extern void FldFilterSetSecondary(s32 arg0, s32 arg1);
@@ -1213,7 +1213,7 @@ void resrcMngApplyColorFactors(void *value) {
     } else {
         resrcMngSetDrawEnabled(1, 1);
     }
-    colorBytes = (u8 *)func_00457160();
+    colorBytes = (u8 *)kwlnGetColorBytes();
     color = *(const P4Bytes0014 *)colorBytes;
     fogColor = iGpffffba64 | (((u32)iGpffffba60 << 8) | (((u32)iGpffffba68 << 0x18) | ((u32)iGpffffba5c << 0x10)));
     redFactor = (f32)color.b0;
@@ -1228,7 +1228,7 @@ void resrcMngApplyColorFactors(void *value) {
     if (blue > 0xFF) { blue = 0xFF; }
     if (green > 0xFF) { green = 0xFF; }
     if (red > 0xFF) { red = 0xFF; }
-    func_00457140(red & 0xFF, green & 0xFF, blue & 0xFF, alpha & 0xFF);
+    kwlnSetColorRgba(red & 0xFF, green & 0xFF, blue & 0xFF, alpha & 0xFF);
     fogRed = (fogColor >> 0x10) & 0xFF;
     redFactor = (f32)fogRed;
     fogRed = (u32)(redFactor * *(f32 *)(factors + 0));

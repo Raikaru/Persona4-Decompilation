@@ -3787,7 +3787,7 @@ void func_0018f8a0(u8 *arg0, u16 arg1, u16 arg2)
 extern u16 D_008C0252[];
 extern u16 D_008C0298[];
 extern const KWindowEntryDescriptor D_005F5FD0[];
-extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern s32 sdkLboxAddEntry(u8 *arg0, u8 *arg1);
 extern void sprintf(void *dst, const char *fmt, ...);
 extern u8 *FldStepLoadFilePair(s32 arg0, s32 arg1);
@@ -3817,7 +3817,7 @@ s32 K_MapEditTask(u8 *arg0)
     work = *(u8 **)(arg0 + 0x38);
     switch (*(s32 *)work) {
     case 0:
-        func_00457140(0, 0x52, 0x76, 0xFF);
+        kwlnSetColorRgba(0, 0x52, 0x76, 0xFF);
         *(s32 *)(work + 0x1D00) = 1;
         *(s32 *)work += 1;
         break;

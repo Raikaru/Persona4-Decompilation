@@ -880,7 +880,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 FldHbnLoadScriptBuffer(u8 *, s32);
     void *mdlCreateModelObjectFromData(u32, u16, void *, u32);
     s32 mdlPrepareModel(u8 *);
-    void func_00457140(u8, u8, u8, u8);
+    void kwlnSetColorRgba(u8, u8, u8, u8);
     s8 *kwlnGetColorRgb(void);
     s32 kwlnGetCamera(void);
     void *memset(void *, s32, size_t);
@@ -1423,7 +1423,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     t13 = FldUnit_SpawnEncounterTask((u8 *)(*(s32 *)(u8 *)MT_Scene_GetFrameState()), work->unitState);
                     *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x20) = t13;
                 }
-                func_00457140(work->viewColor.r, work->viewColor.g, work->viewColor.b, 0);
+                kwlnSetColorRgba(work->viewColor.r, work->viewColor.g, work->viewColor.b, 0);
                 iGpffffba4c = work->environmentColor.r;
                 iGpffffba50 = work->environmentColor.g;
                 iGpffffba54 = work->environmentColor.b;

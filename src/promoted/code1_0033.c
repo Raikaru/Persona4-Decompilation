@@ -42,7 +42,7 @@ extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void fclSpriteStartPosition(u8 *arg0, F2_0033 arg1, F2_0033 arg2,
                            u32 arg3, s32 arg4, s32 arg5);
 
-extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern s8 iGpffffb59c;
 extern u8 *kwlnTaskGetTaskByName(s8 *arg0);
 extern s32 mtSceneResListPrepareAll(void);
@@ -164,7 +164,7 @@ s32 func_00331680(void)
     switch (iGpffffb59c) {
     case 0:
         if (mtSceneResListPrepareAll() != 0) {
-            func_00457140(0, 0, 0, 0xFF);
+            kwlnSetColorRgba(0, 0, 0, 0xFF);
             func_001029a0(0x16, 0, 0, 2);
             calendarSetMode(0);
             iGpffffb59c += 1;
@@ -195,7 +195,7 @@ s32 func_00331770(void)
     switch (iGpffffb59c) {
     case 0:
         if (mtSceneResListPrepareAll() != 0) {
-            func_00457140(0, 0, 0, 0xFF);
+            kwlnSetColorRgba(0, 0, 0, 0xFF);
             func_001029a0(0x17, 0, 0, 2);
             calendarSetMode(0);
             iGpffffb59c += 1;
@@ -226,7 +226,7 @@ s32 func_00331860(void)
     switch (iGpffffb59c) {
     case 0:
         if (mtSceneResListPrepareAll() != 0) {
-            func_00457140(0, 0, 0, 0xFF);
+            kwlnSetColorRgba(0, 0, 0, 0xFF);
             func_001029a0(0x18, 0, 0, 2);
             calendarSetMode(0);
             iGpffffb59c += 1;

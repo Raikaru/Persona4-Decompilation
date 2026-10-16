@@ -13,7 +13,7 @@ extern char* strcat(char* destination, const char* source);
 #include "include_asm.h"
 
 extern s32 scrGetParamInt(s32 arg0);
-extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 
 extern f32 scrGetParamFloat(s32 arg0);
 extern f32 D_00764B5C;
@@ -849,7 +849,7 @@ s32 Cmd_SetSceneMode(void)
 
     temp_17 = scrGetParamInt(0) & 0xFF;
     temp_16 = scrGetParamInt(1) & 0xFF;
-    func_00457140(temp_17, temp_16, scrGetParamInt(2) & 0xFF, 0);
+    kwlnSetColorRgba(temp_17, temp_16, scrGetParamInt(2) & 0xFF, 0);
     return 1;
 }
 
