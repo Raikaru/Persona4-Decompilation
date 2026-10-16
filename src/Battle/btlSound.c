@@ -3,10 +3,10 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "btl_packet_create_internal.h"
+#include "datCalc_unit_internal.h"
 extern u8 *func_00484bb0(u8 *resource);
 extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
 extern s32 btlCond_ESCAPE(u8 *arg0, s32 arg1);
-extern s32 datCalcHasBuffMask(u8 *arg0, s32 arg1);
 
 typedef struct Battle Battle;
 struct Battle
@@ -834,9 +834,9 @@ loop_outer_body:
             var_20 = 0;
             goto loop_inner_test;
 loop_inner_body:
-            if (datCalcHasBuffMask((u8 *)(
-                    *(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_20 * 4) + 0x38) +
-                                      0x30) + 0xA64)),
+            if (datCalcHasBuffMask(
+                    *(DatUnit **)(*(u8 **)(*(u8 **)(arg0 + (var_20 * 4) + 0x38) +
+                                      0x30) + 0xA64),
                     temp_19) != 0) {
                 var_20 += 1;
                 goto loop_inner_test;
@@ -947,8 +947,8 @@ loop_outer_body:
             var_18 = 0;
             goto loop_inner_test;
 loop_inner_body:
-            if (datCalcHasBuffMask((u8 *)(
-                *(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) + 0x30) + 0xA64)),
+            if (datCalcHasBuffMask(
+                *(DatUnit **)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) + 0x30) + 0xA64),
                 temp_17) != 0) {
                 var_18 += 1;
                 goto loop_inner_test;
@@ -1011,7 +1011,7 @@ loop_body:
         if (!(temp_16 & temp_5)) {
             goto loop_increment;
         }
-        if (datCalcHasBuffMask((u8 *)(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64)),
+        if (datCalcHasBuffMask(*(DatUnit **)(*(u8 **)(arg0 + 0x30) + 0xA64),
                           temp_5) == 0) {
             goto loop_after_call;
         }

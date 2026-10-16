@@ -682,19 +682,19 @@ s64 btlActionPickRandomStatusMsg(u8 *arg0) {
                         choiceCount = (choiceCount + 1) & 0xFFFF;
                     }
                 }
-                if (datCalcHasBuffMask((u8 *)(*(s32 *)(unit + 0xA64)), 0xA) != 0) {
+                if (datCalcHasBuffMask(*(DatUnit **)(unit + 0xA64), 0xA) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                     choice->code = 0x6F;
                     choice->actor = *(u16 *)(unit + 0xA4);
                     choiceCount = (choiceCount + 1) & 0xFFFF;
                 }
-                if (datCalcHasBuffMask((u8 *)(*(s32 *)(unit + 0xA64)), 0x80) != 0) {
+                if (datCalcHasBuffMask(*(DatUnit **)(unit + 0xA64), 0x80) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                     choice->code = 0x76;
                     choice->actor = *(u16 *)(unit + 0xA4);
                     choiceCount = (choiceCount + 1) & 0xFFFF;
                 }
-                if (datCalcHasBuffMask((u8 *)(*(s32 *)(unit + 0xA64)), 0x220) != 0) {
+                if (datCalcHasBuffMask(*(DatUnit **)(unit + 0xA64), 0x220) != 0) {
                     struct ActionMessageChoice *choice = &choices[choiceCount & 0xFFFF];
                     choice->code = 0x7D;
                     choice->actor = *(u16 *)(unit + 0xA4);

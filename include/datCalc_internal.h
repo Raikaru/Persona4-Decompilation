@@ -56,7 +56,7 @@ void datCalcInitializeCharacters(void);
 // Intent: seeds the per-character tables for character id arg0; see datCalcInitializeCharacters.
 void datCalcInitializeCharacter(u16 characterId);
 /* Returns the fixed skill-table length (8) for a unit's table. */
-u32 datCalcGetTableLength(u8 *unused);
+u32 datCalcGetTableLength(DatUnit *unused);
 // Intent: maximum HP of unit arg0 from its level and skill/equipment bonuses; capped at 999 unless flag 4.
 u16 datCalcMaxHp(DatUnit *unit);
 // Intent: maximum SP of unit arg0 from its level and SP bonuses; capped at 999 unless flag 4.
