@@ -44,7 +44,7 @@ extern void cmmCommunitySetCurrent(u16 arg0);
 extern s16 func_00248d80(s16 arg0);
 extern s32 cmmDateTableAddCount(s32 arg0, s32 arg1);
 extern s16 func_00247820(s16 arg0);
-extern u8* func_002485e0(s32 arg0, u16 arg1);
+extern u8* cmmMsgStreamEntry(s32 arg0, u16 arg1);
 extern s32 cmmDateTableFindNthMatch(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_0029d020(void);
 extern void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -182,7 +182,7 @@ s32 cmmMsgStreamStart(void)
     if (p == 0) {
         kAssertFail(D_006359F0, 0xE7);
     }
-    q = func_002485e0(a & 0xFFFF, b & 0xFFFF);
+    q = cmmMsgStreamEntry(a & 0xFFFF, b & 0xFFFF);
     *(u8**)(p + 0x18) = q;
     if (q == 0) {
         kAssertFail(D_006359F0, 0xE9);
@@ -475,7 +475,7 @@ s32 func_0024aa60(void)
     if (param1 == 0) {
         param1 = cmmCommunityGetCurrentId() & 0xFFFF;
     }
-    if (func_002485e0(param0 & 0xFFFF, param1 & 0xFFFF) != 0) {
+    if (cmmMsgStreamEntry(param0 & 0xFFFF, param1 & 0xFFFF) != 0) {
         scrSetReturnInt(1);
     } else {
         scrSetReturnInt(0);
