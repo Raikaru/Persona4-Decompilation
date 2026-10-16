@@ -284,8 +284,9 @@ s32 mcLoadState(u8 *arg0) {
 }
 
 
+// Intent: memory-card probe dialog. Runs the card probe (state +0xC = 0); a ready card returns 1, an error opens a dialog and waits for it. The later states wait for a second dialog and return 4 when it closes.
 // FUN_002A32C0
-s32 func_002a32c0(u8 *arg0) {
+s32 mcCardProbeStep(u8 *arg0) {
     s32 v;
     s32 r;
 
@@ -920,7 +921,7 @@ s32 mcStepState(u8 *work) {
             result = mcLoadState(work);
             break;
         case 1:
-            result = func_002a32c0(work);
+            result = mcCardProbeStep(work);
             break;
         case 2:
             result = mcMemcardStep(work);
@@ -994,7 +995,7 @@ s32 mcStepState(u8 *work) {
             result = mcLoadState(work);
             break;
         case 1:
-            result = func_002a32c0(work);
+            result = mcCardProbeStep(work);
             break;
         case 2:
             result = mcMemcardStep(work);
@@ -1026,7 +1027,7 @@ s32 mcStepState(u8 *work) {
             result = mcLoadState(work);
             break;
         case 1:
-            result = func_002a32c0(work);
+            result = mcCardProbeStep(work);
             break;
         case 2:
             result = mcMemcardStep(work);
@@ -1065,7 +1066,7 @@ s32 mcStepState(u8 *work) {
             result = mcLoadState(work);
             break;
         case 1:
-            result = func_002a32c0(work);
+            result = mcCardProbeStep(work);
             break;
         case 2:
             result = mcMemcardStep(work);
