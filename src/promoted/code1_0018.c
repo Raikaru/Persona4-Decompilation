@@ -2784,7 +2784,7 @@ s32 FldNpcControlTaskCreate(s32 arg0, s32 arg1)
     return temp_17;
 }
 // FUN_0018BBF0
-s32 func_0018bbf0(u8 *arg0)
+s32 FldNpcControlReady(u8 *arg0)
 {
     u32 value;
 
@@ -3385,7 +3385,7 @@ s32 FldSupporterTaskCreate(s32 arg0)
     return temp_2;
 }
 // FUN_0018E030
-void func_0018e030(u8 *arg0, s32 arg1)
+void FldFrameObjSetActive(u8 *arg0, s32 arg1)
 {
     if (arg0 != NULL) {
         u8 *p = *(u8 **)(arg0 + 0x38);
@@ -3686,7 +3686,7 @@ void FldViewerDestroy(u8 *arg0)
 // measured: probe propagation-off code shape with typed 16-bit operands
 #pragma opt_propagation off
 // FUN_0018F7B0
-void func_0018f7b0(u8 *arg0, s16 *arg1, u16 arg2, u16 arg3, s16 arg4)
+void FldMapTestCellsFill(u8 *arg0, s16 *arg1, u16 arg2, u16 arg3, s16 arg4)
 {
     s32 i;
     s32 j;
@@ -3730,7 +3730,7 @@ void func_0018f7b0(u8 *arg0, s16 *arg1, u16 arg2, u16 arg3, s16 arg4)
 // measured: restore propagation for following functions
 #pragma opt_propagation on
 // FUN_0018F8A0
-void func_0018f8a0(u8 *arg0, u16 arg1, u16 arg2)
+void FldMapTestCellsClear(u8 *arg0, u16 arg1, u16 arg2)
 {
     s32 var_9;
     s32 var_8;
@@ -3876,10 +3876,10 @@ s32 K_MapEditTask(u8 *arg0)
         if (D_008C0240[0].trigger & 0x40) {
             shape = D_005F5AC0[*(s32 *)(work + 0x1D00)];
             FldTileRotateAttributes(&shape, 1 << *(s32 *)(work + 0x1AB8));
-            func_0018f7b0(work, shape.data, *(s32 *)(work + 0x1AB0), *(s32 *)(work + 0x1AB4),
+            FldMapTestCellsFill(work, shape.data, *(s32 *)(work + 0x1AB0), *(s32 *)(work + 0x1AB4),
                           *(s32 *)(work + 0x1AB8));
         } else if (D_008C0240[0].trigger & 0x20) {
-            func_0018f8a0(work, *(s32 *)(work + 0x1AB0), *(s32 *)(work + 0x1AB4));
+            FldMapTestCellsClear(work, *(s32 *)(work + 0x1AB0), *(s32 *)(work + 0x1AB4));
         } else if (D_008C0240[1].trigger & 0x40) {
             func_0015c630(work + 0x28);
         }

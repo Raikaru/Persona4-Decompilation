@@ -50,7 +50,7 @@ void FldSlotBroadcastState(s32);
 extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
 void FldFrameTask_SetOrientation(u8 *, u8 *);
 s32 *MT_Scene_GetFrameState(void);
-void func_0018e030(s32, s32);
+void FldFrameObjSetActive(s32, s32);
 void fclMiscStopAndClose(void);
 void fclMiscSetDoneFlag(void);
 s32 func_0015a100(void);
@@ -63,7 +63,7 @@ s32 FldEvent_FieldToBattle(u8 *);
 u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);
 f32 RwV3dLength(f32 *);
 s32 MT_Scene_GetResListHead(s32);
-s32 func_0018bbf0(s32);
+s32 FldNpcControlReady(s32);
 u32 K_FldEvent_IsPosWithinFov(const struct RwMatrix *, const struct RwV3d *, f32);
 void FldStepCopyTableEntry(s32, s32, s32);
 void kAssertFail(const void *, u32);
@@ -247,7 +247,7 @@ s32 FldEvent_RunTriggerAndReset(s32 arg0)
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         r = (s32)MT_Scene_GetFrameState();
-        func_0018e030(*(s32 *)(r + 0x1C), 1);
+        FldFrameObjSetActive(*(s32 *)(r + 0x1C), 1);
         h[4] = scrStartProcedureChecked(0xF, func_0015a100(), func_0015a130(), 3);
         FldSlotBroadcastState(1);
         h[1]++;
@@ -255,7 +255,7 @@ s32 FldEvent_RunTriggerAndReset(s32 arg0)
     case 1:
         if (kwlnTaskIsLinked((void *)(h[4])) != 1) {
             r = (s32)MT_Scene_GetFrameState();
-            func_0018e030(*(s32 *)(r + 0x1C), 0);
+            FldFrameObjSetActive(*(s32 *)(r + 0x1C), 0);
             FldSlotBroadcastState(0);
             D_007243EC = 0;
             D_007243E8 = 0;
@@ -308,7 +308,7 @@ s32 FldEvent_RunTriggerHold(s32 arg0)
         fclMiscStopAndClose();
         fclMiscSetDoneFlag();
         r = (s32)MT_Scene_GetFrameState();
-        func_0018e030(*(s32 *)(r + 0x1C), 1);
+        FldFrameObjSetActive(*(s32 *)(r + 0x1C), 1);
         h[4] = scrStartProcedureChecked(0xF, func_0015a100(), func_0015a130(), 2);
         FldSlotBroadcastState(1);
         h[1]++;
@@ -317,11 +317,11 @@ s32 FldEvent_RunTriggerHold(s32 arg0)
         r = (s32)MT_Scene_GetFrameState();
         if (*(s32 *)(r + 0x1C) != 0) {
             r = (s32)MT_Scene_GetFrameState();
-            func_0018e030(*(s32 *)(r + 0x1C), 1);
+            FldFrameObjSetActive(*(s32 *)(r + 0x1C), 1);
         }
         if (kwlnTaskIsLinked((void *)(h[4])) != 1) {
             r = (s32)MT_Scene_GetFrameState();
-            func_0018e030(*(s32 *)(r + 0x1C), 0);
+            FldFrameObjSetActive(*(s32 *)(r + 0x1C), 0);
             FldSlotBroadcastState(0);
             h[1]++;
         }
@@ -348,7 +348,7 @@ s32 FldEvent_FindNearbyEntry(void)
     while (p != 0) {
         if ((*(s32 *)(p + 0x28) & 0x10000000) != 0 &&
             (*(s32 *)(p + 0x28) & 2) != 0) {
-            if (func_0018bbf0(*(s32 *)(p + 0x294)) == 1) {
+            if (FldNpcControlReady(*(s32 *)(p + 0x294)) == 1) {
                 g = (void *)(u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
                 t2 = (s32 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(p + 0x164)));
                 if (K_FldEvent_IsPosWithinFov((const struct RwMatrix *)(g), (const struct RwV3d *)(t2 + 0xC), 120.0f) == 1) {
@@ -465,7 +465,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                 if (*(s32 *)(s2 + 0x288) != 0) {
                     fclMiscStopAndClose();
                     fclMiscSetDoneFlag();
-                    func_0018e030(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 1);
+                    FldFrameObjSetActive(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 1);
                     t2 = *(s32 *)(*(u8 **)(h + 0x20) + 0x28C);
                     *(s32 *)(h + 0x10) = scrStartProcedureChecked(
                         0xF, *(s32 *)(*(u8 **)(h + 0x20) + 0x288), t2, 1);
@@ -483,7 +483,7 @@ s32 FldEvent_RunKindSequence(u8 *arg0)
                 func_0018bdd0(v);
             }
             FldNpcSetPositionLock(*(s32 *)(*(u8 **)(h + 0x20) + 0x294), 0);
-            func_0018e030(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 0);
+            FldFrameObjSetActive(*(s32 *)((s32)MT_Scene_GetFrameState() + 0x1C), 0);
             FldSlotBroadcastState(0);
             (*(s32 *)(h + 4))++;
         }
@@ -670,7 +670,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
         } else {
             fclMiscStopAndClose();
             fclMiscSetDoneFlag();
-            func_0018e030(*(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1C), 1);
+            FldFrameObjSetActive(*(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1C), 1);
             *(s32 *)(h + 0x10) = scrStartProcedureChecked(0xF, *(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1854),
                                                *(u32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1858), FLD_EVT_ENTRY(h)->unk10);
             *(s32 *)(h + 4) = 3;
@@ -689,7 +689,7 @@ s32 FldEvent_HighlightEntry(u8 *arg0)
         if (kwlnTaskIsLinked((void *)(*(s32 *)(h + 0x10))) == 1) {
             break;
         }
-        func_0018e030(*(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1C), 0);
+        FldFrameObjSetActive(*(s32 *)((u8 *)(s32)MT_Scene_GetFrameState() + 0x1C), 0);
         FldSlotBroadcastState(0);
         *(s32 *)(h + 0x10) = 0;
         *(s32 *)(h + 4) = 4;
