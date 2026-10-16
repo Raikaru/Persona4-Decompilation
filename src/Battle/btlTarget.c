@@ -154,8 +154,8 @@ extern void datAddMoney(s32 arg);
 extern void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_001f6c40(void* action, s32 flags);
 extern void btlActionRunTargetCallback(void* action, s32 effect, s32 arg2, s32 arg3, s32 arg4);
-extern void func_00213b10(void* unit);
-extern void func_00213b30(void* unit);
+extern void btlPanelStartRingEffect(void* unit);
+extern void btlPanelStartPulseEffect(void* unit);
 extern s32 datCalcGetLevel(void* data);
 extern void datCalcSetHp(void* data, s32 value);
 extern void datCalcAddHp(void* data, s32 value);
@@ -795,12 +795,12 @@ s32 btlTargetApplyHpSpChange(u8* arg0)
     }
     temp_3 = *(s32*)(arg0 + 8);
     if ((temp_3 < 0) || (temp_2 = *(s32*)(arg0 + 0xc), temp_2 < 0)) {
-        func_00213b10(temp_18);
+        btlPanelStartRingEffect(temp_18);
         if ((*(u16*)(arg0 + 0x26) & 0x300) == 0) {
             datCalcClearStatusBlocked(*(u8**)(temp_18 + 0xa64));
         }
     } else if ((temp_3 > 0) || (temp_2 > 0)) {
-        func_00213b30(temp_18);
+        btlPanelStartPulseEffect(temp_18);
     }
     if (*(s32*)(iGpffffb3ac + 0xc) & 0x20) {
         func_001f6c40(temp_19, *(s32*)(arg0 + 0x10));

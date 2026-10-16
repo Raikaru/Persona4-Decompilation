@@ -24,7 +24,7 @@ typedef struct DatUnitEc DatUnitEc;
 typedef struct DatUnit DatUnit;
 typedef struct BtlAction BtlAction;
 extern void (*D_00887300[])();
-extern void func_00213b80(u8 *arg0);
+extern void btlEncounterEntrySetRetracted(u8 *arg0);
 extern s32 btlEncountRollChance(u8 *arg0);
 extern s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2);
 extern s32 datCalcGetBadStatus(s32 arg0);
@@ -536,8 +536,8 @@ s32 btlMainContinuousUpdate(void)
     extern u8 *btlTargetCreateTargetPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern void btlDamageSetSource(u8 *arg0, s32 arg1);
     extern void btlSelectionClearTargetFlag(s32 arg0);
-    extern void func_00213b50(s32 task);
-    extern void func_00213c40(s32 task);
+    extern void btlEncounterEntryClearRetracted(s32 task);
+    extern void btlEncounterEntryClearEmphasis(s32 task);
     extern void func_001eb7f0(void);
     u8 *node;
     s32 state;
@@ -592,8 +592,8 @@ second_body:
     next = *(u8 **)(next + 0x450);
 second_check:
     if (next != NULL) goto second_body;
-    func_00213c40(*(s32 *)((u8 *)iGpffffb3ac + 0xDD4));
-    func_00213b50(*(s32 *)((u8 *)iGpffffb3ac + 0xDD4));
+    btlEncounterEntryClearEmphasis(*(s32 *)((u8 *)iGpffffb3ac + 0xDD4));
+    btlEncounterEntryClearRetracted(*(s32 *)((u8 *)iGpffffb3ac + 0xDD4));
     if (func_001eb860() == 1) {
         work = (u8 *)iGpffffb3ac;
         *(s32 *)(work + 0xC) |= 0x2000;
@@ -1430,7 +1430,7 @@ s32 btlMainActionUpdate(void)
 
     if ((*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x80) != 0) {
         btlActionDisableQueue();
-        func_00213b80(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4));
+        btlEncounterEntrySetRetracted(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4));
         btlDamageSetSource(*(u8 **)((u8 *)iGpffffb3ac + 0xDD4), 0);
         state = *(u16 *)((u8 *)iGpffffb3ac + 0x1C);
         switch (state) {
@@ -1550,7 +1550,7 @@ s32 btlMainRevivalMesUpdate(void)
     func_002bbcc0();
     if (func_002bb600() == 0) {
         if (func_002bb140() == 0) {
-            func_00213b50(*(s32 *)(iGpffffb3ac + 0xDD4));
+            btlEncounterEntryClearRetracted(*(s32 *)(iGpffffb3ac + 0xDD4));
             func_002bb380();
             func_002bb4e0();
             return 10;

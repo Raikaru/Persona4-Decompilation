@@ -244,7 +244,7 @@ extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0019f0f0(u8 *arg0);
 extern void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1);
 extern void btlPanelReleaseText(s32 task);
-extern void func_00216d40(s32 task);
+extern void btlPanelMarkEntryTimed(s32 task);
 extern void btlPanelSetTarget(u8 *task, s32 arg1);
 extern void btlSelectionSetRowIdle(u8 *arg0);
 extern u16 D_008C024E[];
@@ -3448,7 +3448,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
             *(s16 *)(arg1 + 0x5AC) = -1;
             *(s32 *)(iGpffffb3ac + 0xC) |= 0x2000;
             *(s32 *)(iGpffffb3ac + 0xC) |= 0x20000;
-            func_00213c70(*(u8 **)(arg1 + 0x5B0));
+            btlEncounterEntrySetActive(*(u8 **)(arg1 + 0x5B0));
             var_16 = 4;
         } else {
             func_0045af60(0, 15, 0, 8);
@@ -3466,7 +3466,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
                 task = *(u8 **)(arg1 + 0x5A8);
                 func_0011b480(task, *(u16 *)(stats + 0xA4), (u32)temp_2, 0);
                 func_0011bb90(*(u8 **)(arg1 + 0x5A8));
-                func_00213ca0(*(u8 **)(arg1 + 0x5B0));
+                btlEncounterEntryClearActive(*(u8 **)(arg1 + 0x5B0));
                 memset(sp48, 0, 8);
                 sp48[0] = 4;
                 sp48[1] = 8;
@@ -3496,7 +3496,7 @@ u16 btlSelectionHandleSwapInput(u8 *arg0, u8 *arg1)
             func_0011bc70(*(u8 **)(arg1 + 0x5A8));
             *(s16 *)(arg1 + 0x5AC) = -1;
             btlSelectionSetRepeat(arg0, NULL);
-            func_00213c70(*(u8 **)(arg1 + 0x5B0));
+            btlEncounterEntrySetActive(*(u8 **)(arg1 + 0x5B0));
             *(u16 *)arg0 |= 2;
             *(u16 *)arg0 |= 1;
             *(u16 *)arg0 |= 8;
@@ -4038,7 +4038,7 @@ void btlSelectionUpdateTransition(u8 *arg0)
                         selected = (u8 *)func_001d8bc0(*(u8 **)(arg0 + 0x10));
                         btlPanelStartEntry(*(s32 *)(arg0 + 0x18), func_0019f0f0(*(u8 **)(selected + 0x30)));
                         btlPanelSetCountdown(*(s32 *)(arg0 + 0x18), -1);
-                        func_00216d40(*(s32 *)(arg0 + 0x18));
+                        btlPanelMarkEntryTimed(*(s32 *)(arg0 + 0x18));
                         btlPanelSetTarget(*(u8 **)(arg0 + 0x18), *(s32 *)(selected + 0x30));
                         if (*(u8 **)(arg0 + 0xC) == NULL) {
                             btlSelectionSetRowIdle(*(u8 **)(selected + 0x30) + 0xA48);

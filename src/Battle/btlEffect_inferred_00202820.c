@@ -57,7 +57,7 @@ extern u8 D_00626500[];
 extern u8 D_006265B0[];
 
 extern u8 D_00625240[];
-extern void func_00213b80(s32 task);
+extern void btlEncounterEntrySetRetracted(s32 task);
 extern f32 fGpffff8184;
 extern f32 fGpffff84a4;
 extern f32 fGpffff81a8;
@@ -127,7 +127,7 @@ extern u8 D_006253B0[];
 // Intent: end the UI sequence for the battle UI task. [inferred]
 // FUN_00202820
 s32 btlUiEndSequence(void) {
-    func_00213b80(*(s32 *)(D_0076449C + 0xDD4));
+    btlEncounterEntrySetRetracted(*(s32 *)(D_0076449C + 0xDD4));
     return 1;
 }
 

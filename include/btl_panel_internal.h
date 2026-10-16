@@ -12,8 +12,8 @@ f32 btlUiSpriteWidth(u8 *work, s32 mode, s32 tile);
 f32 btlUiSpriteHeight(u8 *work, s32 mode, s32 tile);
 // Intent: read the selection input and return the action code (1 to 4) or 0. [inferred]
 s32 btlSelectionReadInput(u8 *selection);
-void func_00213c70(u8 *view);
-void func_00213ca0(u8 *view);
+void btlEncounterEntrySetActive(u8 *view);
+void btlEncounterEntryClearActive(u8 *view);
 
 void btlGaugeDrawUnit(s32 task, u8 *unit, f32 x, f32 y, s32 color, f32 fraction);
 

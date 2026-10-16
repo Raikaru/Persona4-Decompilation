@@ -88,8 +88,8 @@ extern s32 func_001f62f0(u8 *arg0);
 extern void func_001f86d0(void);
 extern void func_001f9a50(s32 arg0, s32 arg1);
 extern void func_001f9a90(void);
-extern void func_00213bb0(s32 arg0);
-extern void func_00213be0(s32 arg0);
+extern void btlEncounterEntryClearMessageFade(s32 arg0);
+extern void btlEncounterEntrySetMessageFade(s32 arg0);
 extern void btlMessageSetup(u8 *arg0, u8 *arg1);
 extern s32 btlMessageIsIdle(s32 arg0);
 extern void btlMessageSetPendingValue(u8 *arg0, s32 arg1);
@@ -334,7 +334,7 @@ void btlActionCommandInit(s64 *arg0)
 
     extern void btlPacketEnqueue(u8 *arg0, s32 arg1);
     extern void btlPanelInit(s32 arg0, u8 *arg1);
-    extern void func_00213c10(s32 task);
+    extern void btlEncounterEntrySetEmphasis(s32 task);
 
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) &&
         (*(u16 *)((u8 *)arg0 + 0x1A) & 1) &&
@@ -414,7 +414,7 @@ loop_19_test:
     actionTypeAfter = *(u16 *)(u8 *)func_001a_add_offset(0x10, (s32)arg0);
     if ((actionTypeAfter != 0x25) && (actionTypeAfter != 6) && (actionTypeAfter != 5)) {
         btlPanelInit(*(s32 *)(iGpffffb3ac + 0xDD4), (u8 *)arg0);
-        func_00213c10(*(s32 *)(iGpffffb3ac + 0xDD4));
+        btlEncounterEntrySetEmphasis(*(s32 *)(iGpffffb3ac + 0xDD4));
     }
     btlUnitRequestLookAtOthers((u8 *)arg0);
     *(s32 *)(iGpffffb3ac + 0xC) |= 0x20000;
@@ -458,7 +458,7 @@ void btlActionCommandUpdate(u8 *arg0)
                     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x10000) == 0) {
                         btlSelectionSetTargetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
                         *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) | 0x10000;
-                        func_00213b80(*(s32 *)(iGpffffb3ac + 0xDD4));
+                        btlEncounterEntrySetRetracted(*(s32 *)(iGpffffb3ac + 0xDD4));
                         btlPanelSetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
                         w = btlCameraCreateSetStatePacket(arg0, 40);
                         *(s64 *)(w + 0x60) = *(s64 *)arg0;
@@ -472,7 +472,7 @@ void btlActionCommandUpdate(u8 *arg0)
         if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x10000) != 0) {
             btlSelectionClearTargetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
             *(s32 *)(iGpffffb3ac + 0xC) = *(s32 *)(iGpffffb3ac + 0xC) & ~0x10000;
-            func_00213b50(*(s32 *)(iGpffffb3ac + 0xDD4));
+            btlEncounterEntryClearRetracted(*(s32 *)(iGpffffb3ac + 0xDD4));
             btlPanelClearFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
             w = btlCameraCreateSetStatePacket(arg0, 33);
             *(s64 *)(w + 0x60) = *(s64 *)arg0;
@@ -511,7 +511,7 @@ void btlActionCommandUpdate(u8 *arg0)
                 btlPanelSetClosing(*(s32 *)(iGpffffb3ac + 0xDD4));
                 return;
             } else {
-                func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
+                btlEncounterEntryClearEmphasis(*(s32 *)(iGpffffb3ac + 0xDD4));
                 btlPanelSetFlag(*(s32 *)(iGpffffb3ac + 0xDD4));
                 btlActionSetState((BtlAction *)arg0, 6);
                 return;
@@ -529,7 +529,7 @@ tail:
     btlDamageClearActive(*(s32 *)(iGpffffb3ac + 0xDD4));
     btlPanelReleaseText(*(s32 *)(iGpffffb3ac + 0xDD4));
     btlPanelReset(*(s32 *)(iGpffffb3ac + 0xDD4));
-    func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
+    btlEncounterEntryClearEmphasis(*(s32 *)(iGpffffb3ac + 0xDD4));
     for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
     }
     btlActionSetState((BtlAction *)arg0, 15);
@@ -539,7 +539,7 @@ check9:
         btlDamageClearActive(*(s32 *)(iGpffffb3ac + 0xDD4));
         btlPanelReleaseText(*(s32 *)(iGpffffb3ac + 0xDD4));
         btlPanelReset(*(s32 *)(iGpffffb3ac + 0xDD4));
-        func_00213c40(*(s32 *)(iGpffffb3ac + 0xDD4));
+        btlEncounterEntryClearEmphasis(*(s32 *)(iGpffffb3ac + 0xDD4));
         for (i = *(u8 **)(iGpffffb3ac + 0x174); i != 0; i = *(u8 **)(i + 0x450)) {
         }
         btlActionSetState((BtlAction *)arg0, 9);
@@ -635,10 +635,10 @@ void btlActionTargetUpdate(u8 *action) {
     extern void btlSelectionSetTargetFlag(s32 task);
     extern void btlSelectionClearTargetFlag(s32 task);
     extern void btlDamageClearActive(s32 task);
-    extern void func_00213b50(s32 task);
-    extern void func_00213b80(s32 task);
-    extern void func_00213c10(s32 task);
-    extern void func_00213c40(s32 task);
+    extern void btlEncounterEntryClearRetracted(s32 task);
+    extern void btlEncounterEntrySetRetracted(s32 task);
+    extern void btlEncounterEntrySetEmphasis(s32 task);
+    extern void btlEncounterEntryClearEmphasis(s32 task);
     extern void btlPanelReleaseText(s32 task);
     s32 selectionState;
     s32 selectedAddress;
@@ -671,7 +671,7 @@ void btlActionTargetUpdate(u8 *action) {
                 btlSelectionSetTargetFlag((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
                 enteredBattle = iGpffffb3ac;
                 (*(s32*)(enteredBattle + 0xC)) = (s32) ((*(s32*)(enteredBattle + 0xC)) | 0x10000);
-                func_00213b80((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+                btlEncounterEntrySetRetracted((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
                 enterCamera = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x28);
                 (*(s64*)(enterCamera + 0x60)) = (s64) (*(s64*)action);
                 btlPacketEnqueue(enterCamera, 0U);
@@ -685,7 +685,7 @@ void btlActionTargetUpdate(u8 *action) {
         btlSelectionClearTargetFlag((s32)(*(u8**)(battle + 0xDD4)));
         exitedBattle = iGpffffb3ac;
         (*(s32*)(exitedBattle + 0xC)) = (s32) ((*(s32*)(exitedBattle + 0xC)) & 0xFFFEFFFF);
-        func_00213b50((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+        btlEncounterEntryClearRetracted((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         exitCamera = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)action, 0x22);
         (*(s64*)(exitCamera + 0x60)) = (s64) (*(s64*)action);
         btlPacketEnqueue(exitCamera, 0U);
@@ -700,7 +700,7 @@ select_action:
             btlPanelReleaseText((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             btlPanelReset((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            func_00213c40((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlEncounterEntryClearEmphasis((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             actionCursor = (*(u8**)(iGpffffb3ac + 0x174));
             while (actionCursor != NULL) {
                 actionCursor = *(u8 **)(actionCursor + 0x450);
@@ -772,7 +772,7 @@ select_action:
             btlPanelReleaseText((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             btlPanelReset((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-            func_00213c40((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
+            btlEncounterEntryClearEmphasis((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             clearCursor = (*(u8**)(iGpffffb3ac + 0x174));
             while (clearCursor != NULL) {
                 clearCursor = *(u8 **)(clearCursor + 0x450);
@@ -784,7 +784,7 @@ select_action:
     case 2:
         btlPacketEnqueue((u8*)btlUnitCreateLookAtDeactivatePacket(0, 1), 1U);
         btlSelectionResetUnitFlags((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
-        func_00213c10(*(s32 *)(iGpffffb3ac + 0xDD4));
+        btlEncounterEntrySetEmphasis(*(s32 *)(iGpffffb3ac + 0xDD4));
         btlPanelClearFlag((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         btlPanelSetActive((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
         btlActionSetState((BtlAction *)action, 5);
@@ -857,7 +857,7 @@ void btlActionAnalyzeUpdate(u8 *action)
             }
             index++;
         }
-        func_00213be0(*(s32 *)(D_0076449C + 0xDD4));
+        btlEncounterEntrySetMessageFade(*(s32 *)(D_0076449C + 0xDD4));
         btlMessageSetup(*(u8 **)(D_0076449C + 0xDD4), selected);
         if (hasOther) {
             btlMessageSetHidden(*(s32 *)(D_0076449C + 0xDD4));
@@ -972,7 +972,7 @@ void btlActionAnalyzeUpdate(u8 *action)
             }
             iter = *(u8 **)(iter + 0x450);
         }
-        func_00213bb0(*(s32 *)(D_0076449C + 0xDD4));
+        btlEncounterEntryClearMessageFade(*(s32 *)(D_0076449C + 0xDD4));
         btlMessageSetDone(*(s32 *)(D_0076449C + 0xDD4));
         btlActionSetState((BtlAction *)action, *(u16 *)(action + 0x14));
         *(s32 *)(action + 0x41C) = 0;

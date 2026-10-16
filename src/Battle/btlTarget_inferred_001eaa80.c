@@ -42,8 +42,8 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
-extern void func_00213b80(s32 task);
-extern void func_00213b50(s32 task);
+extern void btlEncounterEntrySetRetracted(s32 task);
+extern void btlEncounterEntryClearRetracted(s32 task);
 extern s32 func_001eb860(void);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 extern s32 D_00724504;
@@ -130,7 +130,7 @@ s32 btlEffectScriptClearBattleFlag2000(void)
 /* AI script command 0x20c4 (p4flow AI.json AI_FUNCTION_00C4). */
 // FUN_001EAB10
 s32 btlEffectScriptSetDamageSourceOn(void) {
-    func_00213b50(*(s32 *)(iGpffffb3ac + 0xDD4));
+    btlEncounterEntryClearRetracted(*(s32 *)(iGpffffb3ac + 0xDD4));
     if (func_001eb860() == 1) {
         btlDamageSetSource(*(u8 **)(iGpffffb3ac + 0xDD4), 1);
     }
@@ -140,7 +140,7 @@ s32 btlEffectScriptSetDamageSourceOn(void) {
 /* AI script command 0x20c5 (p4flow AI.json AI_FUNCTION_00C5). */
 // FUN_001EAB60
 s32 btlEffectScriptSetDamageSourceOff(void) {
-    func_00213b80(*(s32 *)(iGpffffb3ac + 0xDD4));
+    btlEncounterEntrySetRetracted(*(s32 *)(iGpffffb3ac + 0xDD4));
     if (func_001eb860() == 1) {
         btlDamageSetSource(*(u8 **)(iGpffffb3ac + 0xDD4), 0);
     }

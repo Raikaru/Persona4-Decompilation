@@ -284,8 +284,9 @@ extern f32 btlTargetQuatAngle(void *first, void *second);
 extern s32 func_004b3110(s16 frames);
 extern s32 datCalcGetLevelById(s32 arg0);
 
+// Intent: Report whether a shuffle child task has its cancel-request bit (0x4) set in its flag word [inferred]
 // FUN_002218E0
-s32 func_002218e0(KwlnTask *task)
+s32 btlShuffleTaskIsCancelRequestedFor(KwlnTask *task)
 {
     return (*(u16 *)kwlnTaskGetWork(task) & 4) != 0;
 }
@@ -296,8 +297,9 @@ s32 btlLogoTaskExists(void)
     return kwlnTaskGetTaskByName((s8 *)D_006290F0) != 0;
 }
 
+// Intent: Report whether a shuffle child task is still loading its sprite blob (flag 0x10 clear; btlShuffle.c sets it when the load completes) [inferred]
 // FUN_00221940
-s32 func_00221940(KwlnTask *task)
+s32 btlShuffleTaskIsLoading(KwlnTask *task)
 {
     return ((*(u16 *)kwlnTaskGetWork(task) & 0x10) != 0) ^ 1;
 }

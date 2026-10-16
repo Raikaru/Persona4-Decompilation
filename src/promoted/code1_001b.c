@@ -24,7 +24,7 @@ typedef struct DatUnit DatUnit;
 typedef struct BtlAction BtlAction;
 extern void (*D_00887300[])();
 extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
-extern void func_00213b80(u8 *arg0);
+extern void btlEncounterEntrySetRetracted(u8 *arg0);
 extern s32 btlEncountRollChance(u8 *arg0);
 extern s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2);
 extern s32 datCalcGetBadStatus(s32 arg0);

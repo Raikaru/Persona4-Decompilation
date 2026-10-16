@@ -46,7 +46,7 @@ extern s32 D_0062656C[];
 extern void btlPanelSetCountdown(s32 arg0, s32 arg1);
 extern s32 datCalcUnitClass(u8 *arg0);
 extern void btlPanelStartEntry(s32 arg0, s32 arg1);
-extern void func_00216d10(s32 task);
+extern void btlPanelMarkEntryStarted(s32 task);
 
 
 
@@ -153,7 +153,7 @@ s32 btlPacketStepSpriteTable(u8 *arg0)
         } else {
             btlPanelSetCountdown(*(s32 *)(D_0076449C + 0xDD4), 0x10);
         }
-        func_00216d10(*(s32 *)(D_0076449C + 0xDD4));
+        btlPanelMarkEntryStarted(*(s32 *)(D_0076449C + 0xDD4));
     }
     *(u32 *)(arg0 + 8) = *(u32 *)(arg0 + 8) + 1;
     if (var_16 == 0) {

@@ -78,7 +78,7 @@ extern s32 btlEncounterIsActive(void);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_00626C80[];
 extern void btlGaugeSetActive();
-extern s32 func_00221940(KwlnTask *task);
+extern s32 btlShuffleTaskIsLoading(KwlnTask *task);
 extern void btlShuffleTaskRequestCancel(s32 arg0);
 extern void func_00221770(s32 arg0);
 extern u8 D_006290E0[];
@@ -1306,28 +1306,32 @@ void btlEncounterInitParams(s32 arg0, u8 *arg1) {
     *(s16 *)(arg1 + 4) = -2;
 }
 
+// Intent: Start a unit panel's 0x18-frame ring effect: set bit 0x1 of its +0xA10 word and reset the frame counter at +0xA18 [inferred]
 // FUN_00213B10
-void func_00213b10(u8 *arg0)
+void btlPanelStartRingEffect(u8 *arg0)
 {
     *(s32 *)(arg0 + 0xA10) |= 1;
     *(s16 *)(arg0 + 0xA18) = 0;
 }
+// Intent: Start a unit panel's 0x18-frame pulse effect: set bit 0x2 of its +0xA10 word and reset the frame counter at +0xA1A [inferred]
 // FUN_00213B30
-void func_00213b30(u8 *arg0)
+void btlPanelStartPulseEffect(u8 *arg0)
 {
     *(s32 *)(arg0 + 0xA10) |= 2;
     *(s16 *)(arg0 + 0xA1A) = 0;
 }
+// Intent: Clear the retract bit (0x1) of an encounter entry, so its slide offset ramps back out [inferred]
 // FUN_00213B50
-void func_00213b50(s32 task)
+void btlEncounterEntryClearRetracted(s32 task)
 {
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) & ~1;
 }
+// Intent: Set the retract bit (0x1) of an encounter entry while a target is being selected; its slide offset ramps toward retracted [inferred]
 // FUN_00213B80
-void func_00213b80(s32 task)
+void btlEncounterEntrySetRetracted(s32 task)
 {
     u8 *p;
 
@@ -1335,16 +1339,18 @@ void func_00213b80(s32 task)
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x1;
 }
 
+// Intent: Clear the message bit (0x4) of an encounter entry, so its message counter stops ramping up [inferred]
 // FUN_00213BB0
-void func_00213bb0(s32 task)
+void btlEncounterEntryClearMessageFade(s32 task)
 {
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) & ~4;
 }
+// Intent: Set the message bit (0x4) of an encounter entry before its message is set up; its counter ramps up while set [inferred]
 // FUN_00213BE0
-void func_00213be0(s32 task)
+void btlEncounterEntrySetMessageFade(s32 task)
 {
     u8 *p;
 
@@ -1352,8 +1358,9 @@ void func_00213be0(s32 task)
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x4;
 }
 
+// Intent: Set the emphasis bit (0x2) of an encounter entry; its emphasis ramp rises toward 8 [inferred]
 // FUN_00213C10
-void func_00213c10(s32 task)
+void btlEncounterEntrySetEmphasis(s32 task)
 {
     u8 *p;
 
@@ -1361,16 +1368,18 @@ void func_00213c10(s32 task)
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x2;
 }
 
+// Intent: Clear the emphasis bit (0x2) of an encounter entry; its emphasis ramp falls back to 0 [inferred]
 // FUN_00213C40
-void func_00213c40(s32 task)
+void btlEncounterEntryClearEmphasis(s32 task)
 {
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) & ~2;
 }
+// Intent: Set the active bit (0x100) of an encounter entry's status word (the bit btlEncounterInitEntry also sets) [inferred]
 // FUN_00213C70
-void func_00213c70(u8 *view)
+void btlEncounterEntrySetActive(u8 *view)
 {
     u8 *p;
 
@@ -1378,8 +1387,9 @@ void func_00213c70(u8 *view)
     *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x100;
 }
 
+// Intent: Clear the active bit (0x100) of an encounter entry's status word [inferred]
 // FUN_00213CA0
-void func_00213ca0(u8 *view)
+void btlEncounterEntryClearActive(u8 *view)
 {
     u8 *p;
 
@@ -2526,16 +2536,18 @@ void btlPanelReleaseText(s32 task) {
     *(s32 *)(b + 8) = *(s32 *)(b + 4);
 }
 
+// Intent: Set bit 0x8 of a panel entry's +0x85C word once its entry has started [inferred]
 // FUN_00216D10
-void func_00216d10(s32 task)
+void btlPanelMarkEntryStarted(s32 task)
 {
     u8 *p;
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(u16 *)(p + 0x85C) = *(u16 *)(p + 0x85C) | 8;
 }
+// Intent: Set bit 0x4 of a panel entry's +0x85C word after its countdown starts and before its target is set [inferred]
 // FUN_00216D40
-void func_00216d40(s32 task)
+void btlPanelMarkEntryTimed(s32 task)
 {
     u8 *p;
 
@@ -4030,7 +4042,7 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
 {
     s32 arg0 = (s32)sdkTaskBytes;
     extern s32 btlShuffleTaskIsCancelRequested(s32 arg0);
-    extern s32 func_002218e0(KwlnTask *task);
+    extern s32 btlShuffleTaskIsCancelRequestedFor(KwlnTask *task);
     extern void btlShuffleTaskSetBusy(s32 arg0);
     extern void btlXpPrepareAwards(u8 *arg0, u8 *arg1);
     extern s32 btlResultSimpleSetDoneFlag(s32 arg0);
@@ -4070,7 +4082,7 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
                     btlShuffleTaskIsCancelRequested(*(s32 *)(work + 0x938)) != 0) {
                     ready = 0;
                 }
-                if (func_002218e0(*(KwlnTask **)(work + 0x93C)) != 0) {
+                if (btlShuffleTaskIsCancelRequestedFor(*(KwlnTask **)(work + 0x93C)) != 0) {
                     ready = 0;
                 }
                 if (ready != 0) {
@@ -4250,7 +4262,7 @@ s32 btlShuffleIsBusy(s32 task)
     }
     temp = *(s32 *)(p + 0x93C);
     if (temp != 0) {
-        return func_00221940((KwlnTask *)temp);
+        return btlShuffleTaskIsLoading((KwlnTask *)temp);
     }
     return 0;
 }
