@@ -28,7 +28,7 @@ extern u8 datGetTimeSlot(void);
 extern u16 D_008C0276[];
 extern u16 D_008C027A[];
 extern void func_00122520(s32 a, s32 b);
-extern void func_00106100(s32 a);
+extern void datSetDateIndex(s32 a);
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
 extern void calendarSyncFromDate(void);
 extern s32 func_00144af0(s32 a);
@@ -101,12 +101,12 @@ s32 calendarInputUpdate(u8 *arg0)
     case 1:
         if (D_008C0276[0] & 0x40) {
             func_00122520(1, 1);
-            func_00106100((s16)*(s32 *)(work + 8));
+            datSetDateIndex((s16)*(s32 *)(work + 8));
             func_001029a0(0x1A, NULL, 0, 0);
             return -1;
         }
         if (D_008C0276[0] & 0x800) {
-            func_00106100((s16)*(s32 *)(work + 8));
+            datSetDateIndex((s16)*(s32 *)(work + 8));
             calendarSyncFromDate();
             *(s32 *)(work + 0xC) = func_00144af0((s32)arg0);
             *(s32 *)(work + 0) = 4;

@@ -972,7 +972,7 @@ u8 datGetTimeSlot(void)
 
 
 // FUN_001060D0
-s16 func_001060d0(void)
+s16 datGetPendingDateIndex(void)
 {
     return D_00797B84[0];
 }
@@ -980,7 +980,7 @@ s16 func_001060d0(void)
 
 
 // FUN_001060E0
-u8 func_001060e0(void)
+u8 datGetPendingTimeSlot(void)
 {
     return D_00797B86[0];
 }
@@ -988,13 +988,13 @@ u8 func_001060e0(void)
 
 
 // FUN_001060F0
-s32 func_001060f0(void)
+s32 datGetPendingFlag(void)
 {
     return D_00797B80[0];
 }
 
 // FUN_00106100
-void func_00106100(s16 arg0)
+void datSetDateIndex(s16 arg0)
 {
     u32 temp_2;
 
@@ -1049,19 +1049,19 @@ void datSetTimeSlot(u8 arg0)
 }
 
 // FUN_00106300
-void func_00106300(s16 arg0)
+void datSetPendingDateIndex(s16 arg0)
 {
     D_00797B84[0] = arg0;
 }
 
 // FUN_00106310
-void func_00106310(u8 arg0)
+void datSetPendingTimeSlot(u8 arg0)
 {
     D_00797B86[0] = arg0;
 }
 
 // FUN_00106320
-void func_00106320(u32 arg0)
+void datSetPendingFlag(u32 arg0)
 {
     D_00797B80[0] = arg0;
 }
