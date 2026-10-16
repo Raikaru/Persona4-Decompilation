@@ -81,7 +81,7 @@ extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
 extern void shdPersonaStartSlideIn(u8 *arg0);
 extern void shdPersonaBeginClose(u8 *arg0);
 extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
-extern void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
+extern void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern u32 shdPersonaIsSelectionActive(u8 *arg0);
 extern void shdPersonaBeginSelection(u8 *arg0);
 extern void shdPersonaEndSelection(u8 *arg0, s32 arg1);

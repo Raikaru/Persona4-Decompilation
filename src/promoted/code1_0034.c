@@ -57,7 +57,7 @@ void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                    u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 
-void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
+void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7,
                    f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 
@@ -502,12 +502,13 @@ void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
 // FUN_0034F460
 void func_0034f460(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5) {
-    func_0034f4a0(arg0, arg1, fparg0, fparg1, 0.0f, arg2, arg3, arg4, arg5,
+    sdkSpriteDrawOnceScaled(arg0, arg1, fparg0, fparg1, 0.0f, arg2, arg3, arg4, arg5,
                   0x1000, 0x1000, 0.0f, 0, 0);
 }
 
+// Intent: Draw one sprite through a temporary node: allocate it, draw with the transform arguments, then free it [inferred]
 // FUN_0034F4A0
-void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
+void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg2, u8 arg3, u8 arg4, u8 arg5, u16 arg6, u16 arg7,
                    f32 fparg3, s16 arg_sp0, s16 arg_sp8)
 {
