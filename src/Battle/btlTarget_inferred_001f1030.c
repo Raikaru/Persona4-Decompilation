@@ -924,11 +924,11 @@ other:
                 if (*(s32 *)(*(u8 **)(e + 0x90) + 0xE0) == 0) {
                     *(u8 **)(arg0 + 0x8C) = e;
                     *(u16 *)(e + 0x16) = 0xD;
-                    func_001b0e30(e);
+                    btlActionActiveListPush(e);
                 }
             } else if (func_001ef9c0(arg0) != 0) {
                 *(u16 *)(arg0 + 0x16) = 0xC;
-                func_001b0e30(arg0);
+                btlActionActiveListPush(arg0);
             }
         }
     }

@@ -194,7 +194,7 @@ extern u16 datCalcMaxSpById(s16 character);
 extern void func_001056e0(s16 character, s16 value);
 extern void func_00105730(s16 character, s16 value);
 extern void datCalcClearBadStatusById(s16 character, u32 mask);
-extern s32 func_001b0d70(u8 *target);
+extern s32 btlActionQueuePush(u8 *target);
 
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rotation, u32 flags);
 extern u32 datCalcIsDead(void *unit, s32 hpDelta);
@@ -472,7 +472,7 @@ s32 btlEncounterFinishSetup(u8 *arg0)
 {
     extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
     extern u32 datUnitInit(DatUnit *unit, u8 genus, u16 id);
-    extern s32 func_001b0d70(u8 *arg0);
+    extern s32 btlActionQueuePush(u8 *arg0);
     extern s32 btlActionGetQueueFront(void);
     extern void btlBossCollectTargets(u8 *arg0);
     extern u8 *func_001f7650(u8 *arg0);
@@ -496,7 +496,7 @@ s32 btlEncounterFinishSetup(u8 *arg0)
         temp = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
         *(u16 *)temp |= 0x20;
         *(u16 *)(arg0 + 0x1A) |= 0x100;
-        func_001b0d70(arg0);
+        btlActionQueuePush(arg0);
         btlBossCollectTargets((u8 *)btlActionGetQueueFront());
         index = 0;
         fill = -1;
@@ -1786,7 +1786,7 @@ s32 btlUnitApplyEncounterRoster(u8 *arg0)
         *(u32 *)(unit + 0x9C) |= 0x8000;
         **(u16 **)(unit + 0xA64) |= 0x20;
         *(u16 *)(arg0 + 0x1A) |= 0x100;
-        func_001b0d70(arg0);
+        btlActionQueuePush(arg0);
         break;
     case 0x10F:
         *(u16 *)(arg0 + 0x1A) &= ~8;
@@ -1795,7 +1795,7 @@ s32 btlUnitApplyEncounterRoster(u8 *arg0)
         *(u32 *)(unit + 0x9C) |= 0x2000;
         **(u16 **)(unit + 0xA64) |= 0x20;
         *(u16 *)(unit + 0x9D8) |= 0x20;
-        func_001b0d70(arg0);
+        btlActionQueuePush(arg0);
         break;
     case 0x107:
         *(u32 *)(unit + 0x9C) |= 0x8000;
@@ -1807,7 +1807,7 @@ s32 btlUnitApplyEncounterRoster(u8 *arg0)
         break;
     case 0x10A:
         *(u16 *)(arg0 + 0x1A) |= 0x100;
-        func_001b0d70(arg0);
+        btlActionQueuePush(arg0);
         break;
     case 0x10B:
         **(u16 **)(unit + 0xA64) |= 0x20;
@@ -1819,14 +1819,14 @@ s32 btlUnitApplyEncounterRoster(u8 *arg0)
         if (btlCurrentUnitId() != 0x215) {
             **(u16 **)(unit + 0xA64) |= 0x20;
             *(u16 *)(arg0 + 0x1A) |= 0x100;
-            func_001b0d70(arg0);
+            btlActionQueuePush(arg0);
         } else {
             func_00106390(0x15C0, 1);
             *(u16 *)(arg0 + 0x1A) |= 0x2000;
-            func_001b0d70(arg0);
-            func_001b0d70(arg0);
-            func_001b0d70(arg0);
-            func_001b0d70(arg0);
+            btlActionQueuePush(arg0);
+            btlActionQueuePush(arg0);
+            btlActionQueuePush(arg0);
+            btlActionQueuePush(arg0);
         }
         break;
     case 0x112:

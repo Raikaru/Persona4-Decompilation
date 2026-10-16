@@ -267,7 +267,7 @@ extern u16 datCalcMaxSpById(s16 character);
 extern void func_001056e0(s16 character, s16 value);
 extern void func_00105730(s16 character, s16 value);
 extern void datCalcClearBadStatusById(s16 character, u32 mask);
-extern s32 func_001b0d70(u8 *target);
+extern s32 btlActionQueuePush(u8 *target);
 
 extern BtlPacket *btlEffectCreateSpriteFramePacket(u32 unit, u16 effect);
 extern BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
