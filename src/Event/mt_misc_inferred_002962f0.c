@@ -35,8 +35,8 @@ static inline u8 *code29AddOff(s32 offset, u8 *base) {
 static inline MtMiscSceneRecord16 *mtMiscSceneRecord16At(MtMiscSceneSource *source, s32 index) {
     return (MtMiscSceneRecord16 *)((u8 *)source->records94 + index * 0x10);
 }
-static inline MtMiscSceneRecord60 *mtMiscSceneRecord60At(MtMiscSceneSource *source, s32 index) {
-    return (MtMiscSceneRecord60 *)((u8 *)source->records98 + index * 0x3C);
+static inline EvtSceneRecord *evtSceneRecordAt(MtMiscSceneSource *source, s32 index) {
+    return (EvtSceneRecord *)((u8 *)source->records98 + index * 0x3C);
 }
 // lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
 extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
@@ -113,7 +113,7 @@ loop_body:
   }
   else
   {
-    var_3 = mtMiscSceneRecord60At(arg0, var_16)->type;
+    var_3 = evtSceneRecordAt(arg0, var_16)->type;
   }
   if ((var_3 & 0xFFFF) != 4)
   {
@@ -125,7 +125,7 @@ loop_body:
   }
   else
   {
-    var_2 = mtMiscSceneRecord60At(arg0, var_16)->id;
+    var_2 = evtSceneRecordAt(arg0, var_16)->id;
   }
   {
     Pos4_962f0 tmp;
@@ -462,7 +462,7 @@ ll_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_31)->type;
+      id = evtSceneRecordAt(arg0, index_31)->type;
     }
     if ((id & 0xFFFF) != 0x31)
     {
@@ -474,7 +474,7 @@ ll_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_31)->id;
+      id2 = evtSceneRecordAt(arg0, index_31)->id;
     }
     {
       Pos4 tmp;
@@ -525,7 +525,7 @@ loop22_body:
   }
   else
   {
-    id = mtMiscSceneRecord60At(arg0, var_19)->type;
+    id = evtSceneRecordAt(arg0, var_19)->type;
   }
   if ((id & 0xFFFF) != 0x22)
   {
@@ -537,7 +537,7 @@ loop22_body:
   }
   else
   {
-    id2 = mtMiscSceneRecord60At(arg0, var_19)->id;
+    id2 = evtSceneRecordAt(arg0, var_19)->id;
   }
   {
     Pos4 tmp;
@@ -571,7 +571,7 @@ loop22_test:
       }
       else
       {
-        id = mtMiscSceneRecord60At(arg0, index_25)->type;
+        id = evtSceneRecordAt(arg0, index_25)->type;
       }
       if ((id & 0xFFFF) != 0x25)
       {
@@ -583,7 +583,7 @@ loop22_test:
       }
       else
       {
-        id2 = mtMiscSceneRecord60At(arg0, index_25)->id;
+        id2 = evtSceneRecordAt(arg0, index_25)->id;
       }
       {
         Pos4 tmp;
@@ -626,7 +626,7 @@ loop22_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_26)->type;
+      id = evtSceneRecordAt(arg0, index_26)->type;
     }
     if ((id & 0xFFFF) != 0x26)
     {
@@ -638,7 +638,7 @@ loop22_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_26)->id;
+      id2 = evtSceneRecordAt(arg0, index_26)->id;
     }
     {
       Pos4 tmp;
@@ -690,7 +690,7 @@ loop22_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_32)->type;
+      id = evtSceneRecordAt(arg0, index_32)->type;
     }
     if ((id & 0xFFFF) != 0x32)
     {
@@ -702,7 +702,7 @@ loop22_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_32)->id;
+      id2 = evtSceneRecordAt(arg0, index_32)->id;
     }
     {
       Pos4 tmp;
@@ -744,7 +744,7 @@ loop22_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_33)->type;
+      id = evtSceneRecordAt(arg0, index_33)->type;
     }
     if ((id & 0xFFFF) != 0x33)
     {
@@ -756,7 +756,7 @@ loop22_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_33)->id;
+      id2 = evtSceneRecordAt(arg0, index_33)->id;
     }
     {
       Pos4 tmp;
@@ -799,7 +799,7 @@ loop22_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_35)->type;
+      id = evtSceneRecordAt(arg0, index_35)->type;
     }
     if ((id & 0xFFFF) != 0x35)
     {
@@ -811,7 +811,7 @@ loop22_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_35)->id;
+      id2 = evtSceneRecordAt(arg0, index_35)->id;
     }
     {
       Pos4 tmp;
@@ -862,7 +862,7 @@ loop22_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_37)->type;
+      id = evtSceneRecordAt(arg0, index_37)->type;
     }
     if ((id & 0xFFFF) != 0x37)
     {
@@ -874,7 +874,7 @@ loop22_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_37)->id;
+      id2 = evtSceneRecordAt(arg0, index_37)->id;
     }
     {
       Pos4 tmp;
@@ -925,7 +925,7 @@ loop22_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_38)->type;
+      id = evtSceneRecordAt(arg0, index_38)->type;
     }
     if ((id & 0xFFFF) != 0x38)
     {
@@ -937,7 +937,7 @@ loop22_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_38)->id;
+      id2 = evtSceneRecordAt(arg0, index_38)->id;
     }
     {
       Pos4 tmp;
@@ -988,7 +988,7 @@ loop22_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_39)->type;
+      id = evtSceneRecordAt(arg0, index_39)->type;
     }
     if ((id & 0xFFFF) != 0x39)
     {
@@ -1000,7 +1000,7 @@ loop22_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_39)->id;
+      id2 = evtSceneRecordAt(arg0, index_39)->id;
     }
     {
       Pos4 tmp;
@@ -1054,7 +1054,7 @@ loop22_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_36)->type;
+      id = evtSceneRecordAt(arg0, index_36)->type;
     }
     if ((id & 0xFFFF) != 0x36)
     {
@@ -1066,7 +1066,7 @@ loop22_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_36)->id;
+      id2 = evtSceneRecordAt(arg0, index_36)->id;
     }
     {
       Pos4 tmp;
@@ -1109,7 +1109,7 @@ loop22_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_06)->type;
+      id = evtSceneRecordAt(arg0, index_06)->type;
     }
     if ((id & 0xFFFF) != 6)
     {
@@ -1121,7 +1121,7 @@ loop22_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_06)->id;
+      id2 = evtSceneRecordAt(arg0, index_06)->id;
     }
     {
       Pos4 tmp;
@@ -1175,7 +1175,7 @@ loop22_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_07)->type;
+      id = evtSceneRecordAt(arg0, index_07)->type;
     }
     if ((id & 0xFFFF) != 7)
     {
@@ -1187,7 +1187,7 @@ loop22_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_07)->id;
+      id2 = evtSceneRecordAt(arg0, index_07)->id;
     }
     {
       Pos4 tmp;
@@ -1238,7 +1238,7 @@ loop22_test:
     }
     else
     {
-      id = mtMiscSceneRecord60At(arg0, index_1C)->type;
+      id = evtSceneRecordAt(arg0, index_1C)->type;
     }
     if ((id & 0xFFFF) != 0x1C)
     {
@@ -1250,7 +1250,7 @@ loop22_test:
     }
     else
     {
-      id2 = mtMiscSceneRecord60At(arg0, index_1C)->id;
+      id2 = evtSceneRecordAt(arg0, index_1C)->id;
     }
     {
       Pos4 tmp;
