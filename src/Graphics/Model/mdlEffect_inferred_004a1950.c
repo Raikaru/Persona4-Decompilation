@@ -65,7 +65,7 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes func_004a1950 MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
 extern u8 *FlashQuadCopyAlloc(u16 arg0, s32 arg1);
 
 extern u16 iGpffffbb90;
@@ -78,8 +78,9 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 /* Source unit: src/promoted/code1_004a.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004a.c; members 004a1950-004a1950 */
 
+// Allocates a flash quad copy from a record: kind at +0x38 and parameters at +0x40, with the kind's table hooks applied to the result. Unlike FlashQuadCopyAllocFromParent, no relative pointer is resolved.
 // FUN_004A1950
-void *func_004a1950(void *source) {
+void *FlashQuadCopyAllocFromRecord(void *source) {
     u8 *arg0 = (u8 *)source;
     s32 index;
     s32 stride;
