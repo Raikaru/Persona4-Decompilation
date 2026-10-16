@@ -133,7 +133,7 @@ extern u8 D_0062AD40[];
 extern u8 D_0062B490[];
 extern u8 D_0062BBE0[];
 extern u8 D_0062C330[];
-extern s32 func_001b1510(void);
+extern s32 btlActionGetActiveOrQueueFront(void);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern f32 fGpffff834c;
 extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
@@ -1817,7 +1817,7 @@ void btlEncounterStartSequence(u8 *arg0)
     btlFormationCopyRecord((int)temp_17, (u32)btlFormationGetRecord(0xC));
     {
         u8 *temp_2;
-        temp_2 = (u8 *)func_001b1510();
+        temp_2 = (u8 *)btlActionGetActiveOrQueueFront();
         if (temp_2 != NULL) {
             *(u16 *)(temp_2 + 0x18) =
                 (u16)(*(u16 *)(temp_2 + 0x18) | 8);
@@ -2427,7 +2427,7 @@ void btlEncounterResetSlots(u8 *arg0)
     btlFormationCopyRecord((int)temp_16, (u32)btlFormationGetRecord(0xC));
     {
         u8 *temp_2;
-        temp_2 = (u8 *)func_001b1510();
+        temp_2 = (u8 *)btlActionGetActiveOrQueueFront();
         if (temp_2 != NULL) {
             *(u16 *)(temp_2 + 0x18) =
                 (u16)(*(u16 *)(temp_2 + 0x18) | 8);

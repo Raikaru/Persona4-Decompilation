@@ -107,7 +107,7 @@ extern f32 fGpffff8108;
 // FUN_001B0020
 void btlActionEndHomeInit(u8 *arg0)
 {
-    extern s32 func_001b1510(void);
+    extern s32 btlActionGetActiveOrQueueFront(void);
     extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
     typedef struct RwV3d { f32 x, y, z; } RwV3d;
     extern f32 btlTargetVectorDistance(const RwV3d *first, const RwV3d *second);
@@ -137,7 +137,7 @@ void btlActionEndHomeInit(u8 *arg0)
         btlActionSetState((BtlAction *)arg0, 1);
         return;
     }
-    if (arg0 == (u8 *)func_001b1510()) {
+    if (arg0 == (u8 *)btlActionGetActiveOrQueueFront()) {
         btlActionSetState((BtlAction *)arg0, 1);
         return;
     }
@@ -241,7 +241,7 @@ void btlActionDeadUpdate(u8 *arg0)
             *(s32 *)(p + 0x9C) &= ~1;
             func_001b0d70(arg0);
             if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0) {
-                btlBossCollectTargets((u8 *)func_001b1540());
+                btlBossCollectTargets((u8 *)btlActionGetQueueFront());
             }
             btlActionSetState((BtlAction *)arg0, 1);
         }

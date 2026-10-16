@@ -70,7 +70,7 @@ struct RtQuat
     f32 w;
 };
 
-extern s32 func_001b1540(void);
+extern s32 btlActionGetQueueFront(void);
 extern void btlCameraLookAtQuat(void *arg0, const void *arg1, const void *arg2, const void *arg3);
 extern f32 tanf(f32 arg0);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
@@ -112,7 +112,7 @@ void btlAct_PURSUIT(u8 *arg0)
     f32 length;
     RwV3d sum;
 
-    u8 *temp = (u8 *)func_001b1540();
+    u8 *temp = (u8 *)btlActionGetQueueFront();
     action = *(u8 **)(arg0 + 0xE0);
     unitA = *(u8 **)(action + 0x30);
     unitB = *(u8 **)(temp + 0x30);

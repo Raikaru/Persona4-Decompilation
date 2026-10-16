@@ -47,7 +47,7 @@ extern void func_00196b70(void *arg0);
 extern void func_00196ba0(void *arg0);
 extern void btlUnitRequestLookAt(void *arg0);
 extern void func_001ee490(void *arg0);
-extern u8 *func_001b1510(void);
+extern u8 *btlActionGetActiveOrQueueFront(void);
 extern void func_001d1680(s32 arg0, s32 arg1);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 
@@ -866,7 +866,7 @@ u32 btlFormationUpdateDeadPosition(u16 *arg0)
     u8 *temp_16;
     BtlUnit *var_17;
 
-    temp_16 = func_001b1510();
+    temp_16 = btlActionGetActiveOrQueueFront();
     func_001d1680(!(*arg0 & 2), 0);
     if ((*arg0 & 1) != 0) {
         var_17 = *(BtlUnit **)(D_0076449C + 0x178);

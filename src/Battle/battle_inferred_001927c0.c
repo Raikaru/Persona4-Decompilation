@@ -111,7 +111,7 @@ extern void btlCameraInitSystem(void);
 extern void func_001f7260(void);
 extern void func_001f9bf0(void);
 extern void func_001d6a60(void);
-extern void func_001b1850(void);
+extern void btlActionResetQueueState(void);
 extern void btlMainReset(void);
 extern void func_001f6100(void);
 extern s32 itfMesWindowInstall(u8 *arg0);
@@ -355,7 +355,7 @@ void btlInit(void)
     func_001f7260();
     func_001f9bf0();
     func_001d6a60();
-    func_001b1850();
+    btlActionResetQueueState();
     btlMainReset();
     func_001f6100();
     *(s32 *)(iGpffffb3ac + 0xC) |= 0x1480877C;

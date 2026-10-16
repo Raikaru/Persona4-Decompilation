@@ -36,7 +36,7 @@ static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
     return (u8 *)((u32)offset + (u32)base);
 }
 
-extern u8 *func_001b1510(void);
+extern u8 *btlActionGetActiveOrQueueFront(void);
 
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
@@ -150,7 +150,7 @@ s32 btlEffectScriptSetDamageSourceOff(void) {
 /* AI script command 0x20c8 (p4flow AI.json AI_FUNCTION_00C8). */
 // FUN_001EABC0
 s32 btlEffectScriptCheckSideAndId(void) {
-    u8 *p = func_001b1510();
+    u8 *p = btlActionGetActiveOrQueueFront();
     u32 a = scrGetParamIntS32(0) & 0xFFFF;
     u32 b = scrGetParamIntS32(1) & 0xFFFF;
     u32 flag = 1;

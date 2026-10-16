@@ -96,7 +96,7 @@ extern void btlUiSetRect(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
 extern void btlUiSetTileOffset(u8 *arg0, s16 arg1, s32 arg2, f32 arg3);
 extern void btlUiSetFactorXY(u8 *arg0, f32 arg1, f32 arg2);
 extern s32 datCalcUnitClass(u8 *arg0);
-extern s32 func_001b1540(void);
+extern s32 btlActionGetQueueFront(void);
 extern void btlPortraitDraw(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
 extern void btlPortraitDrawPulse(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
 extern void btlPortraitDrawFlash(s32 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, s32 arg2);
@@ -2383,7 +2383,7 @@ void btlPortraitDrawRoster(u8 *arg0, u8 *arg1)
     work = (s32 *)kwlnTaskGetWork((void *)(*(u8 **)(arg1 + 0xC)));
     if ((*(s32 *)work & 1) != 0 && (*(s32 *)arg1 & 0x100) != 0) {
         btlUiSetRenderStates();
-        selected = (u8 *)func_001b1540();
+        selected = (u8 *)btlActionGetQueueFront();
         if (selected != NULL) selected = *(u8 **)(selected + 0x30);
         else selected = *(u8 **)(arg1 + 8);
         selectedIndex = -1;

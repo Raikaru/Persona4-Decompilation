@@ -50,7 +50,7 @@ extern u32 datCalcGetTableLength(u8 *arg0);
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
 extern s32 datCalcDefaultSkillId(u8 *unit);
 extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
-extern u8 *func_001b1510(void);
+extern u8 *btlActionGetActiveOrQueueFront(void);
 extern u8 *func_0029d050();
 
 extern void memset(void *destination, s32 value, u32 size);

@@ -107,7 +107,7 @@ extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCe
 extern void btlUnitGetGridSphereCenter(void *arg0, void *arg1);
 extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern s32 btlUnitGetEntryPosition(u8 *arg0, f32 *arg1, s32 arg2);
-extern u8 *func_001b1510(void);
+extern u8 *btlActionGetActiveOrQueueFront(void);
 extern void btlTargetBlendVectors(void *arg0, void *arg1, void *arg2);
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern void btlUnitGetSphereCenterTowardTarget(void *arg0, void *arg1, void *arg2);
@@ -134,7 +134,7 @@ extern void btlCameraInitSystem(void);
 extern void func_001f7260(void);
 extern void func_001f9bf0(void);
 extern void func_001d6a60(void);
-extern void func_001b1850(void);
+extern void btlActionResetQueueState(void);
 extern void func_001b60a0(void);
 extern void func_001f6100(void);
 extern s32 itfMesWindowInstall(u8 *arg0);
