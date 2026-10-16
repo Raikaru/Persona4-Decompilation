@@ -45,7 +45,7 @@ extern s32 btlActionQueuePush(u8 *arg0);
 extern s32 btlOrderRemoveActionAll(u8 *arg0);
 extern void *SceneDraw_GetList4SecondColor(void);
 extern void btlMainLoadBattleFieldScene();
-extern void func_00193d30(void);
+extern void btlUnitRecordCommitPending(void);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 extern s32 btlFormationAllocWork(s32 arg0);
 extern BtlPacket *btlFormationCreateNamedPacket(u32 arg0, const char *arg1, u16 arg2);
