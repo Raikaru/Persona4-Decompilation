@@ -17,8 +17,9 @@ extern char *strcat(char *dst, const char *src);
 
 
 
+// Intent: resets the time-limit globals: the two string buffers, the counters and the shared 0x12-byte tables. Called from nEntry.c.
 // FUN_002A2340
-void func_002A2340(void)
+void yTimeLimitReset(void)
 
 {
   int i;
@@ -43,8 +44,9 @@ void func_002A2340(void)
 
 
 
+// Intent: clears a track's state (fields 0x80..0x94). Returns 1 when the track pointer is null.
 // FUN_002A2780
-u8 func_002A2780(int param_1)
+u8 yTimeTrackClear(int param_1)
 
 {
   if (param_1 != 0) goto clear;
@@ -152,8 +154,9 @@ static inline int yTimeLess(int lhs, int rhs)
 extern f32 sinf(f32 fparg0);
 extern f32 fGpffff8110;
 extern f32 fGpffff8094;
+// Intent: advances a track by one key and bumps its step counters (0x88, 0x90). Returns 1 on success.
 // FUN_002A2980
-u32 func_002a2980(int param_1)
+u32 yTimeTrackAdvance(int param_1)
 {
   char cVar1;
   int iVar3;
@@ -224,8 +227,9 @@ u32 func_002a2980(int param_1)
   *(int *)(iVar6 + 0x90) = *(int *)(iVar6 + 0x90) + 1;
   return 1;
 }
+// Intent: copies the current key's (x, y) pair into the output. Returns 1 for a null track, 2 when the track has no keys, 0 on success.
 // FUN_002A2C10
-u32 func_002A2C10(int param_1,float *param_2)
+u32 yTimeTrackCurrentKey(int param_1,float *param_2)
 {
   struct Pair2 { float x; float y; };
   struct Pair2 *puVar1;
@@ -245,8 +249,9 @@ u32 func_002A2C10(int param_1,float *param_2)
 
 
 
+// Intent: returns 1 when the track's done flag (bit 2 of 0x8C) is clear; 0 for a null track.
 // FUN_002A2C70
-int func_002A2C70(int param_1)
+int yTimeTrackIsNotDone(int param_1)
 
 {
   int bVar1;
@@ -262,8 +267,9 @@ int func_002A2C70(int param_1)
 
 
 
+// Intent: returns 1 when the track's active flag (bit 1 of 0x8C) is clear; a null track counts as idle.
 // FUN_002A2CA0
-int func_002A2CA0(int param_1)
+int yTimeTrackIsIdle(int param_1)
 
 {
   int bVar1;
@@ -279,8 +285,9 @@ int func_002A2CA0(int param_1)
 
 
 
+// Intent: returns the track's progress in 0..1: 1.0 when done, 0.0 when inactive, else the fraction through its key table.
 // FUN_002A2CD0
-float func_002A2CD0(int param_1)
+float yTimeTrackProgress(int param_1)
 {
   int flags;
   int total;

@@ -25,9 +25,9 @@ extern u8 D_007966A0[];
 extern f32 fGpffff8204;
 extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                          s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
-extern s32 func_002a2ca0(u8 *arg0);
-extern f32 func_002a2cd0(u8 *arg0);
-extern s32 func_002a2c10(u8 *arg0, f32 *arg1);
+extern s32 yTimeTrackIsIdle(u8 *arg0);
+extern f32 yTimeTrackProgress(u8 *arg0);
+extern s32 yTimeTrackCurrentKey(u8 *arg0, f32 *arg1);
 extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
 extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 extern u8 D_007485D0[];
@@ -144,9 +144,9 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
     s16 character;
 
     work = *(NameEntryRenderWork **)(arg0 + 0x38);
-    if ((arg1 >= 0) && (func_002a2ca0((u8 *)&work->background) == 0)) {
+    if ((arg1 >= 0) && (yTimeTrackIsIdle((u8 *)&work->background) == 0)) {
         u8 alpha;
-        alpha = (u8)(255.0f * func_002a2cd0((u8 *)&work->background));
+        alpha = (u8)(255.0f * yTimeTrackProgress((u8 *)&work->background));
         sdkSpriteDrawNowUnscaled(0.0f, 0.0f, 0.0f, 0xFFFFFF, alpha, 0xA4, iGpffffb540, 1);
         cnt = work->backgroundFrame + 1;
         work->backgroundFrame = cnt;
@@ -162,9 +162,9 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
     }
     if (arg1 > 0) {
         func_002a02f0(arg0, 1);
-        if (func_002a2ca0((u8 *)&work->rowOrigin) == 0) {
-            func_002a2c10((u8 *)&work->rowOrigin, stack);
-            func_002a2cd0((u8 *)&work->rowOrigin);
+        if (yTimeTrackIsIdle((u8 *)&work->rowOrigin) == 0) {
+            yTimeTrackCurrentKey((u8 *)&work->rowOrigin, stack);
+            yTimeTrackProgress((u8 *)&work->rowOrigin);
         }
     }
     if (arg1 >= 2) {
@@ -172,8 +172,8 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
             NameTweenState *cellTween;
             u8 alpha2;
             cellTween = &work->cells[i];
-            if (func_002a2ca0((u8 *)cellTween) == 0) {
-                cellProgress = func_002a2cd0((u8 *)cellTween);
+            if (yTimeTrackIsIdle((u8 *)cellTween) == 0) {
+                cellProgress = yTimeTrackProgress((u8 *)cellTween);
                 cellRowY = (f32)((i % 6) * 0x19 + 0xE3);
                 cellY = cellRowY;
                 alpha2 = (u8)(255.0f * cellProgress);
@@ -197,7 +197,7 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
     }
     if (arg1 >= 2) {
         for (j = 0; j < 6; j++) {
-            if (func_002a2ca0((u8 *)&work->rows[j]) == 0) {
+            if (yTimeTrackIsIdle((u8 *)&work->rows[j]) == 0) {
                 {
                     s32 yBase;
                     u8 *rowBase;
@@ -227,8 +227,8 @@ void func_002a12e0(u8 *arg0, s32 arg1) {
                             }
                             rowY = (f32)yBase;
                             glyphY = rowY;
-                            func_002a2cd0((u8 *)&work->rows[j]);
-                            func_002a2c10((u8 *)&work->rows[j], stack);
+                            yTimeTrackProgress((u8 *)&work->rows[j]);
+                            yTimeTrackCurrentKey((u8 *)&work->rows[j], stack);
                             sdkSpriteDrawNowUnscaled(glyphX, glyphY + (f32)(s32)stack[1], 0.0f, 0x2D2D2D, 0xFF, tex,
                                 iGpffffb540, 1);
                         }

@@ -69,17 +69,17 @@ static inline u8 *code29AddOff(s32 offset, u8 *base) {
 extern u8 *MT_Scene_GetRes(s32 arg0);
 extern void MT_Scene_DestroyRes(u16 arg0);
 extern void mdlDetachSlotModel(u8 *arg0, s32 arg1, u8 *arg2, s32 arg3);
-extern u8 func_002a2780(s32 arg0);
+extern u8 yTimeTrackClear(s32 arg0);
 extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, f32 farg0, s32 arg5, s32 arg6,
                           s32 arg7);
 extern f32 fGpffff8204;
 extern void mtMiscDrawSpriteAt(s32 arg0, f32 farg0, f32 farg1, f32 farg2,
                           f32 farg3, s32 arg1, s32 arg2);
-extern void func_002a2980(u8 *arg0);
-extern s32 func_002a2ca0(u8 *arg0);
-extern s32 func_002a2c70(u8 *arg0);
-extern f32 func_002a2cd0(u8 *arg0);
+extern void yTimeTrackAdvance(u8 *arg0);
+extern s32 yTimeTrackIsIdle(u8 *arg0);
+extern s32 yTimeTrackIsNotDone(u8 *arg0);
+extern f32 yTimeTrackProgress(u8 *arg0);
 extern char D_0063C8F0[];
 extern char D_0063C910[];
 extern void func_00440b68();
@@ -95,7 +95,7 @@ extern u8 *iGpffffb540;
 extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 extern s32 D_0063E830[];
-extern s32 func_002a2c10(u8 *arg0, f32 *arg1);
+extern s32 yTimeTrackCurrentKey(u8 *arg0, f32 *arg1);
 extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
 extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
 
@@ -215,7 +215,7 @@ void func_0029ebf0(u8 *arg0, s32 arg1)
         var_17 = 0x4C;
         var_18 = 0x49;
     }
-    func_002a2780(temp_16 + 0x2A8);
+    yTimeTrackClear(temp_16 + 0x2A8);
     func_002a27c0(temp_16 + 0x2A8, var_19, var_18, var_19, var_17,
                   fGpffff8204, 0, 0, 0xA);
 }
@@ -578,8 +578,8 @@ void func_0029f790(u8 *arg0)
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     if (*(s32 *)(temp_16 + 0x14) != 1) {
-        if (func_002a2ca0(temp_16 + 0xE0) == 0) {
-            func_002a2780((s32)(temp_16 + 0xE0));
+        if (yTimeTrackIsIdle(temp_16 + 0xE0) == 0) {
+            yTimeTrackClear((s32)(temp_16 + 0xE0));
         }
         return;
     }
@@ -608,7 +608,7 @@ void func_0029f790(u8 *arg0)
                 break;
             }
             temp_f20 = (f32)(temp_6 * 25 + 0xE5);
-            func_002a2780((s32)(temp_16 + 0xE0));
+            yTimeTrackClear((s32)(temp_16 + 0xE0));
             func_002a27c0((s32)code29AddOff(0xE0, temp_16),
                           (s32)temp_f21,
                           (s32)temp_f20, (s32)temp_f21, (s32)temp_f20,
@@ -618,9 +618,9 @@ void func_0029f790(u8 *arg0)
         *(s32 *)(temp_16 + 0x1C30) = 0;
     }
 
-    if ((func_002a2ca0(temp_16 + 0xE0) == 0) &&
-        (func_002a2c70(temp_16 + 0xE0) != 0)) {
-        func_002a2980(temp_16 + 0xE0);
+    if ((yTimeTrackIsIdle(temp_16 + 0xE0) == 0) &&
+        (yTimeTrackIsNotDone(temp_16 + 0xE0) != 0)) {
+        yTimeTrackAdvance(temp_16 + 0xE0);
         temp_6 = *(s32 *)(temp_16 + 0x20);
         temp_5 = *(s32 *)(temp_16 + 0x1C);
         temp_f2 = (f32)((temp_5 % 5) * 27);
@@ -644,7 +644,7 @@ void func_0029f790(u8 *arg0)
         temp_f20 = temp_f1;
         temp_f21 = temp_f2 + temp_offset;
         temp_f20 += temp_offset;
-        temp_f0 = func_002a2cd0(temp_16 + 0xE0);
+        temp_f0 = yTimeTrackProgress(temp_16 + 0xE0);
         if (temp_f0 < 0.5f) {
             alpha = (u8)(255.0f * temp_f0);
             temp_f14 = 1.0f + temp_f0;
@@ -722,14 +722,14 @@ do_copy:
             if (v0 != *p16) {
                 s32 a0 = tbl[arg1].f4;
                 s32 a1 = tbl[arg1].f5;
-                func_002a2780((s32)temp_18);
+                yTimeTrackClear((s32)temp_18);
                 func_002a27c0((s32)temp_18, a0, a1 + 0x1E, a0, a1, fGpffff8204, 0, 0, 0xA);
                 *p16 = *p22;
             }
-            func_002a2980(temp_18);
-            ret = func_002a2cd0(temp_18);
+            yTimeTrackAdvance(temp_18);
+            ret = yTimeTrackProgress(temp_18);
             color = (u8)(255.0f * ret);
-            func_002a2c10(temp_18, stack);
+            yTimeTrackCurrentKey(temp_18, stack);
             ix = (s32)stack[0];
             iy = (s32)stack[1];
             sdkSpriteDrawNowUnscaled((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, color, tbl[arg1].f1, iGpffffb540, 1);
@@ -740,7 +740,7 @@ do_copy:
             if (v0 == 0) {
                 s32 a0 = tbl[arg1].f4;
                 s32 a1 = tbl[arg1].f5;
-                func_002a2780((s32)temp_18);
+                yTimeTrackClear((s32)temp_18);
                 if (*p16 == 3) {
                     func_002a27c0((s32)temp_18, a0, a1, a0, a1, fGpffff8204, 0, 0, 1);
                 } else {
@@ -749,8 +749,8 @@ do_copy:
             }
             *p16 = *p22;
         }
-        func_002a2980(temp_18);
-        ret = func_002a2cd0(temp_18);
+        yTimeTrackAdvance(temp_18);
+        ret = yTimeTrackProgress(temp_18);
         if (*p16 == 0) {
             f32 t = 1.0f - ret;
             u32 iv = (u32)(255.0f * t);
@@ -759,7 +759,7 @@ do_copy:
             color = 0xFF;
         }
         var23 = color & 0xFF;
-        func_002a2c10(temp_18, stack);
+        yTimeTrackCurrentKey(temp_18, stack);
         ix = (s32)stack[0];
         iy = (s32)stack[1];
         temp30 = tbl[arg1].f1;
@@ -781,15 +781,15 @@ do_copy:
                 *pflag = 0;
                 ix = t17;
                 iy = t18;
-                func_002a2780((s32)temp_19);
+                yTimeTrackClear((s32)temp_19);
                 func_002a27c0((s32)temp_19, t17, t18, t17, t18, fGpffff8204, 0, 0, 2);
             }
         }
-        if ((func_002a2ca0(temp_19) == 0) && (func_002a2c70(temp_19) != 0)) {
-            func_002a2980(temp_19);
-            func_002a2cd0(temp_19);
+        if ((yTimeTrackIsIdle(temp_19) == 0) && (yTimeTrackIsNotDone(temp_19) != 0)) {
+            yTimeTrackAdvance(temp_19);
+            yTimeTrackProgress(temp_19);
             var23 = 0xFF;
-            func_002a2c10(temp_19, stack);
+            yTimeTrackCurrentKey(temp_19, stack);
             ix = (s32)stack[0];
             iy = (s32)stack[1];
             sdkSpriteDrawNow((f32)ix, (f32)iy, 0.0f, 0xCCFF33, 0xFF, temp30, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
