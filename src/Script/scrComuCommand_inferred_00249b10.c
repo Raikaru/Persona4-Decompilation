@@ -47,8 +47,9 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 /* measured: optimization_level 1 preserves the saved task id across the guard. */
 /* measured: func_00249b10 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
+// Ensures the community entry for the id (arg 0, or the current community when 0) has a record, allocating one when missing [inferred].
 // FUN_00249B10
-s32 func_00249b10(void)
+s32 cmmEnsureRecord(void)
 {
     s32 temp_16;
 
@@ -93,8 +94,9 @@ s32 cmmGetLevel(void)
     return 1;
 }
 
+// Tries to rank up the community entry for the id (arg 0, or the current community when 0) [inferred].
 // FUN_00249C40
-s32 func_00249c40(void)
+s32 cmmTryRankUp(void)
 {
     s32 var_2;
 
@@ -124,8 +126,9 @@ s32 cmmCheckLevelUp(void)
     return 1;
 }
 
+// Adds scaled points (arg 1) to the community entry for the id (arg 0, or the current community when 0) [inferred].
 // FUN_00249D00
-s32 func_00249d00(void)
+s32 cmmAddScaledPointId(void)
 {
     s32 temp_16;
     s32 var_17;
@@ -152,8 +155,9 @@ s32 cmmAddPointId(void)
     return 1;
 }
 
+// Returns 1 when the community entry for the id is reversed, else 0 [inferred].
 // FUN_00249DE0
-s32 func_00249de0(void)
+s32 cmmIsReversed(void)
 {
     s32 var_2;
 
@@ -189,8 +193,9 @@ s32 cmmSetReverse(void)
     return 1;
 }
 
+// Returns 1 when the community entry for the id is broken, else 0 [inferred].
 // FUN_00249EE0
-s32 func_00249ee0(void)
+s32 cmmIsBroken(void)
 {
     s32 var_2;
 
@@ -226,8 +231,9 @@ s32 cmmSetBroken(void)
     return 1;
 }
 
+// Returns the nth community eligible for today's date index; the nth is arg 0 [inferred].
 // FUN_00249FE0
-s32 func_00249fe0(void)
+s32 cmmGetNthEligibleId(void)
 {
     s32 sp2C;
     s32 sp28;
@@ -238,8 +244,9 @@ s32 func_00249fe0(void)
     return 1;
 }
 
+// Sets the community table head to the id in arg 0 (or the current community when 0) [inferred].
 // FUN_0024A060
-s32 func_0024a060(void)
+s32 cmmSetTableHead(void)
 {
     s32 var_4;
 

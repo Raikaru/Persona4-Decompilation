@@ -8,8 +8,9 @@ u16 datPersonaLeadPersonaId();
 
 
 
+// Returns the community table head id [inferred].
 // FUN_0024A0B0
-u32 func_0024A0B0(void)
+u32 cmmGetTableHead(void)
 {
     u16 uVar1;
 
@@ -20,8 +21,9 @@ u32 func_0024A0B0(void)
 
 
 
+// Returns the lead persona id [inferred].
 // FUN_0025CFD0
-u32 func_0025CFD0(void)
+u32 scrGetLeadPersonaId(void)
 {
     u16 uVar1;
 
