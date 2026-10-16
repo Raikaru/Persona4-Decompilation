@@ -1169,7 +1169,7 @@ below are the codegen consequences.
     node). Writing `allocated = jtbl_008873E8[0](...); new_node = allocated;`
     instead of assigning the call result straight into `new_node` flipped the
     colouring to retail's and took it to MATCH. Nothing else changed.
-  - `code1_004b func_004b53c0` needed the same split for a different reason —
+  - `code1_004b EffBattleCreateFromRecord` (was `func_004b53c0`) needed the same split for a different reason —
     separating `work` from `result` and assigning `result = work` at the tail
     of both arms — see "Shared-tail joins" below.
 
@@ -1961,13 +1961,13 @@ duplicates the tail inside each arm (so there is nothing to branch to) or has a
 statement between the arms that blocks the merge.
 
 The fix is not a label or a `goto`. Both were tried on `code1_004b
-func_004b53c0` and left it at nd 2. What works:
+`EffBattleCreateFromRecord` (was `func_004b53c0`) and left it at nd 2. What works:
 
 1. Separate the working variable from the returned one (`work` and `result`).
 2. Assign `result = work` at the **tail of every arm**.
 3. Return `result` exactly once, at the end.
 
-That took `func_004b53c0` nd 2 → MATCH, reproducing retail's `beqz` pair both
+That took `EffBattleCreateFromRecord` (was `func_004b53c0`) nd 2 → MATCH, reproducing retail's `beqz` pair both
 targeting the shared join at `0x4b5490`. The diagnostic that pins it down:
 putting a `return` inside one arm makes the branch targets correct but adds a
 `move` and a `b`. The extra `move` means retail's value is already in the

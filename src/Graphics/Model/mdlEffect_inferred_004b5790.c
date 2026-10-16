@@ -66,8 +66,9 @@ extern void AfPackListAppend();
 #pragma pop
 #pragma push
 #pragma pop
+// Installs the battle effect handler table (arg0) and its gate (arg1). Record callers run a table entry only while the gate returns nonzero.
 // FUN_004B5790
-void func_004b5790(u8 *arg0, s32 arg1)
+void EffBattleSetHandlerTable(u8 *arg0, s32 arg1)
 {
     iGpffffbba0 = arg0;
     iGpffffbba4 = (s32 (*)(void))arg1;

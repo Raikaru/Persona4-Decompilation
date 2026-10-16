@@ -77,6 +77,6 @@ void *func_004b1950(void *source);
 void *LineNovaCreateKindInstanceFromObject(void *source);
 void *LineNovaCreateInstanceForRecord(void *source);
 void *EffBattleCreate(void *source);
-void *func_004b53c0(void *source);
+void *EffBattleCreateFromRecord(void *source);
 
 #endif
