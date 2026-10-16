@@ -26,7 +26,6 @@ extern u8 datPersonaGetArcana(u16 personaId);
 extern u8 datPersonaGetLevel(s32 persona);
 extern u32 datPersonaGetExp(s32 persona);
 extern u32 datPersonaGetExpToNextLevel(PersonaWork *persona);
-extern struct DatPersonaRecord *datPersonaGetRecord(u16 pcId);
 
 extern void MT_Scene_SetWorkPresentFlag(u8 *arg0, void *arg1);
 

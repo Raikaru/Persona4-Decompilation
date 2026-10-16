@@ -59,6 +59,7 @@ s32 FldStepGetScriptSize(void);
 s32 scrStartProcedureChecked(s32, s32, s32, s32);
 s32 kwlnTaskIsLinked(void *);
 s32 *FldObjFindFree(void);
+/* lint: allow H011 -- load-bearing: the caller passes its s32 unmasked; the header's u16 prototype adds an andi and moves FldEvent_BeginEncounter */
 s32 datUnitCreateEncounterGroup(s32);
 s32 FldEvent_FieldToBattle(u8 *);
 u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);

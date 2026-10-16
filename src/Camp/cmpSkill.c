@@ -2,6 +2,7 @@
 #include "type.h"
 #include "include_asm.h"
 #include "shd_misc_internal.h"
+#include "datPersona_internal.h"
 
 typedef struct {
     f32 x;
@@ -29,12 +30,10 @@ typedef struct {
     s32 paletteIndex;
 } SkillDecoration;
 
-s16 datPersonaGetLeadSlot(void);
 u16 datPersonaCountValidMembers(void);
 struct DatPersonaRecord *datPersonaRosterSlot(s16);
 void datPersonaSetLeadSlot(s16);
 s32 datPersonaFillSkillCostRow(s32, struct DatPersonaRecord *, s32, void *);
-struct DatPersonaRecord *datPersonaGetRecord(u16);
 u16 *datPersonaGetSkills(struct DatPersonaRecord *);
 void datCalcSkillOutcomeById(s32, s32, u16, s32, s32 *, s32, s32);
 void radarAnimateValue(void *, s32, s32);

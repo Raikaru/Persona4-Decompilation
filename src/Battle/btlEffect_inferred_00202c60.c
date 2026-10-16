@@ -214,7 +214,6 @@ typedef struct BattleRenderDispatch {
     void (*setState)(u32 state, u32 value);
 } BattleRenderDispatch;
 extern s32 datItemCount(s16 id);
-extern struct DatPersonaRecord *datPersonaGetRecord(u16 id);
 extern s32 datCalcIsFlaggedPersonaSkill(s32 id);
 extern u8 *iGpffffb3b8;
 typedef struct {
@@ -2165,7 +2164,6 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
 s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern struct DatPersonaRecord *datPersonaGetRecord(u16 character);
     extern s32 func_001f0620(u8 *arg0, s64 arg1);
     extern s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern s32 datCalcDefaultSkillId(u8 *unit);
@@ -3835,7 +3833,6 @@ void btlPanelDrawSkyFrame(s32 arg0, u8 *arg1)
 // Intent: mark the targets for the selected skill, setting each unit's skill element and buff or ailment flags. [inferred]
 // FUN_0020B6D0
 extern u32 btlEffectCollectGenusMask(u8 *arg0);
-extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
