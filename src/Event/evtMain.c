@@ -514,37 +514,38 @@ void *evtNodeAllocWithRes(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
 // Enables or disables the scene resource of each type-1 and type-0x30 node with a resource id; arg0 == 0 enables, except nodes flagged for a duration are always disabled [inferred].
 // FUN_002871A0
 void evtSetNodeResourcesEnabled(s32 arg0, u8 *arg1, u8 *arg2) {
-    u8 *node;
-    u8 *node2;
+    EvtEventWork *owner = (EvtEventWork *)arg2;
+    EvtNode *node;
+    EvtNode *node2;
     u8 *node3;
     s32 i16;
 
     if (MT_Scene_GetResManager() != 0) {
-        node = *(u8 **)(arg2 + 0x4C);
+        node = owner->nodeList;
         while (node != NULL) {
-            if (*(u32 *)node == 1 || *(u32 *)node == 0x30) {
-                if (*(u16 *)(node + 0xC) != 0) {
-                    if (*(u32 *)(node + 0x60) == 1) {
-                        MT_Scene_SetResEnabledById(*(u16 *)(node + 0xC), 0);
+            if (node->kind == 1 || node->kind == 0x30) {
+                if (node->flags != 0) {
+                    if (node->timedFlag == 1) {
+                        MT_Scene_SetResEnabledById(node->flags, 0);
                     } else if (arg0 == 0) {
-                        MT_Scene_SetResEnabledById(*(u16 *)(node + 0xC), 1);
+                        MT_Scene_SetResEnabledById(node->flags, 1);
                     } else {
-                        MT_Scene_SetResEnabledById(*(u16 *)(node + 0xC), 0);
+                        MT_Scene_SetResEnabledById(node->flags, 0);
                     }
                 }
             }
-            node = *(u8 **)(node + 0x90);
+            node = node->next;
         }
         i16 = 1;
-        node2 = *(u8 **)(arg2 + 0x4C);
+        node2 = owner->nodeList;
         while (node2 != NULL) {
-            if (*(u32 *)node2 == 0x21) {
-                if (*(u32 *)(node2 + 0x60) != 0) {
+            if (node2->kind == 0x21) {
+                if (node2->timedFlag != 0) {
                     i16 = 0;
                 }
                 break;
             }
-            node2 = *(u8 **)(node2 + 0x90);
+            node2 = node2->next;
         }
         node3 = MT_Scene_GetResListHead(7);
         while (node3 != NULL) {
