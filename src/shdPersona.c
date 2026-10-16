@@ -14,7 +14,7 @@ u16 datPersonaGetRecordId(u16 character);
 
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 
-void func_0011e230(u8 *arg0, s32 arg1);
+void shdPersonaDispCtlSetHandle(u8 *arg0, s32 arg1);
 void shdPersonaDispCtlSetPosition();
 void sdkSpriteDrawOnceTinted(s32, s32, s32, f32, f32, u8, u8, u8, u8, f32, s32);
 void shdPersonaDispCtlSetOffsets(u8 *arg0, Vec2f *arg1, Vec2f *arg2);
@@ -68,7 +68,7 @@ extern char D_005E4F50[];
 extern char D_005E4F10[];
 void shdPersonaTaskInit(u8 *, s32, s32, s32);
 s32 shdPersonaTaskUpdate(u8 *);
-void func_0011b2d0(u8 *);
+void shdPersonaDestroy(u8 *);
 s32 shdPersonaLoadModelStep(u8 *);
 void shdPersonaModelDestroy(u8 *);
 u8 *shdPersonaModelCreate(s32, s32, f32, s32, s32);
@@ -95,7 +95,7 @@ void func_002bbf60(void);
 u8 *func_00243840(s32 skillId);
 s32 shdPersonaPickRandomSkillPair(u8 *);
 void shdPersonaEndSelection(u8 *, s32);
-void func_0011b480(u8 *, s32, u32, s8);
+void shdPersonaSetDisplayState(u8 *, s32, u32, s8);
 void shdPersonaDrawQuadStrips(f32, s32, s32, f32, f32, s32, s32, s32);
 u32 shdPersonaDispCtlIsLoaded(u8 *);
 f32 sinf(f32 arg0);
@@ -919,7 +919,7 @@ void shdPersonaTaskInit(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     *(u8 **)(b + 0x550) = b;
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x570) = 0xB1;
     *(u8 **)(b + 0x4F8) = shdPersonaModelCreate((s32)arg0, 0xF, 0, 0, -0x100);
-    func_0011b6d0(arg0, arg1);
+    shdPersonaSetState(arg0, arg1);
     *(s32 *)(b + 0x2B8) = (s32)func_0046a770(D_005E5810);
     *(s32 *)(b + 0x2BC) = (s32)func_0046a770(D_005E5830);
     *(s32 *)(b + 0x2C0) = (s32)func_0046a770(D_005E5850);
@@ -955,7 +955,7 @@ u8 *shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     if (w == NULL) {
         kAssertFail(D_005E4868, 0x5EE);
     }
-    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4810), arg1, 0, 0, shdPersonaTaskUpdate, func_0011b2d0, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4810), arg1, 0, 0, shdPersonaTaskUpdate, shdPersonaDestroy, (u8 *)(w));
     if (r == NULL) {
         kAssertFail(D_005E4868, 0x5F8);
     }
@@ -2528,8 +2528,9 @@ void func_0011b110(u8 *arg0)
 
 
 
+// Intent: Assert the panel state at 0x52C is 0 to 4, then destroy the task [inferred]
 // FUN_0011B2D0
-void func_0011b2d0(u8 *arg0)
+void shdPersonaDestroy(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     s32 v = *(s32 *)(b + 0x52C);
@@ -2541,8 +2542,9 @@ void func_0011b2d0(u8 *arg0)
 
 
 
+// Intent: Finish the panel phase: begin the close when the flag 0x1 is set and the phase is 2, else clear flag 0x1, then set the phase to 3 [inferred]
 // FUN_0011B360
-void func_0011b360(u8 *arg0)
+void shdPersonaFinishPhase(u8 *arg0)
 {
     u8 *b = ((SdkTask *)arg0)->work;
     if ((*(s32 *)(b + 0x534) & 1) != 0 && *(s32 *)(b + 0x538) == 2) {
@@ -2555,8 +2557,9 @@ void func_0011b360(u8 *arg0)
 
 
 
+// Intent: Fill a status block from the persona record, with mode 2 for states 0 to 2 and mode 1 for states 3 and 4 [inferred]
 // FUN_0011B3D0
-void func_0011b3d0(u8 *arg0, u8 *arg1)
+void shdPersonaFillStatusForState(u8 *arg0, u8 *arg1)
 {
     s32 v = *(s32 *)(arg0 + 0x52C);
     switch (v) {
@@ -2581,8 +2584,9 @@ void func_00113610(s32, u8 *);
 void shdPersonaDispCtlReconfigure(u8 *, s32, s32);
 s32 shdPersonaDispCtlGetHandle(u8 *);
 void shdPersonaLevelUpRoute(u8 *);
+// Intent: Set the display state for a target and index: reconfigure the display control, or start the display transition for a nonzero target [inferred]
 // FUN_0011B480
-void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
+void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
 {
     u8 *work;
     s32 t17;
@@ -2646,8 +2650,9 @@ void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
 
 extern char D_005E4E00[];
 void func_0011e360(u8 *, s32);
+// Intent: Set the persona panel state at 0x52C and reconfigure the panel for the new state [inferred]
 // FUN_0011B6D0
-s32 func_0011b6d0(u8 *arg0, s32 arg1)
+s32 shdPersonaSetState(u8 *arg0, s32 arg1)
 {
     u8 *work;
     s32 t1;
@@ -2748,8 +2753,9 @@ s32 func_0011b6d0(u8 *arg0, s32 arg1)
 
 
 
+// Intent: Fill a state block from the persona record pointer, choosing the layout by the panel state at 0x52C [inferred]
 // FUN_0011B8F0
-void func_0011b8f0(u8 *arg0, u8 *arg1)
+void shdPersonaFillStateBlock(u8 *arg0, u8 *arg1)
 {
     u8 *work;
     u16 *ptr;
@@ -3225,7 +3231,7 @@ void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
         dst++;
     } while (n > 0);
     shdPersonaEndSelection(arg0, 0);
-    func_0011b480(arg0, arg1, arg2, arg3);
+    shdPersonaSetDisplayState(arg0, arg1, arg2, arg3);
     func_0045af60(0, 2, 0, 5);
 }
 
@@ -3271,7 +3277,7 @@ void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
         *dst = temp;
         dst++;
     } while (n > 0);
-    func_0011b480(arg0, arg1, arg2, arg3);
+    shdPersonaSetDisplayState(arg0, arg1, arg2, arg3);
     func_0045af60(0, 2, 0, 5);
 }
 
@@ -3738,8 +3744,9 @@ u8 shdPersonaGetAlpha(u8 *arg0)
 
 
 
+// Intent: Refresh the display-control position from the child task [inferred]
 // FUN_0011D0D0
-void func_0011d0d0(u8 *arg0)
+void shdPersonaRefreshDispCtlPosition(u8 *arg0)
 {
     shdPersonaDispCtlSetPosition(*(s32 *)(((SdkTask *)arg0)->work + 0x4F8));
 }
@@ -3764,19 +3771,21 @@ void shdPersonaSetOrigin(u8 *arg0, f32 *arg1)
 
 
 
+// Intent: Set the child display-control handle value to color [inferred]
 // FUN_0011D140
-void func_0011d140(u8 *arg0, s32 color)
+void shdPersonaSetChildDispCtlHandle(u8 *arg0, s32 color)
 {
-    func_0011e230(*(u8 **)(((SdkTask *)arg0)->work + 0x4F8), color);
+    shdPersonaDispCtlSetHandle(*(u8 **)(((SdkTask *)arg0)->work + 0x4F8), color);
 }
 
+// Intent: Set the child display-control handle and colour from arg1 and arg2 [inferred]
 // FUN_0011D170
 /* Kept as a raw deref on purpose: through SdkTask::work mwcc hoists arg0 + 0x38
    into a saved register and reuses it, where retail re-issues lw 0x38 for each
    of the two reads. The typed form is not codegen-neutral here. */
-void func_0011d170(u8 *arg0, s32 arg1, s32 arg2)
+void shdPersonaSetChildDispCtlHandleAndColor(u8 *arg0, s32 arg1, s32 arg2)
 {
-    func_0011e230(*(u8 **)(*(u8 **)(arg0 + 0x38) + 0x4F8), arg1);
+    shdPersonaDispCtlSetHandle(*(u8 **)(*(u8 **)(arg0 + 0x38) + 0x4F8), arg1);
     shdPersonaDispCtlSetColor(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4F8), arg2);
 }
 
@@ -3784,8 +3793,9 @@ void func_0011d170(u8 *arg0, s32 arg1, s32 arg2)
 
 
 
+// Intent: Store the opacity value at offset 0x53C of the persona block [inferred]
 // FUN_0011D1D0
-void func_0011d1d0(u8 *arg0, f32 arg1)
+void shdPersonaSetOpacity(u8 *arg0, f32 arg1)
 {
     *(f32 *)(((SdkTask *)arg0)->work + 0x53C) = arg1;
 }
@@ -4269,8 +4279,9 @@ void shdPersonaDispCtlReconfigure(u8 *arg0, s32 arg1, s32 arg2)
         *(s32 *)(w + 0) = 0;
     }
 }
+// Intent: Store a handle value at offset 0x8 of the display-control block [inferred]
 // FUN_0011E230
-void func_0011e230(u8 *arg0, s32 arg1)
+void shdPersonaDispCtlSetHandle(u8 *arg0, s32 arg1)
 {
     *(s32 *)(((SdkTask *)arg0)->work + 8) = arg1;
 }
@@ -4607,7 +4618,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         r = shdPersonaCalcExpRemaining(first, 0);
         e2 = *(u8 **)(work + 0x1C);
         b2 = *(u8 **)(e2 + 0x38);
-        func_0011b3d0(b2, *(u8 **)b2);
+        shdPersonaFillStatusForState(b2, *(u8 **)b2);
         shdPersonaCopyStatBytes(pc + 0x82, b2 + 0xC);
         *(s32 *)(*(u8 **)(e2 + 0x38) + 0x44) = r;
         *(s32 *)(work + 0x14) = 1;
@@ -4878,7 +4889,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             *(u8 *)(base + j + 0x18) = 0;
             j += 1;
         }
-        func_0011b3d0(base, *(u8 **)base);
+        shdPersonaFillStatusForState(base, *(u8 **)base);
         func_00113610(*(s32 *)base, base + 0x8C);
         func_002bb4e0();
         *(u16 *)(work + 2) = 0;

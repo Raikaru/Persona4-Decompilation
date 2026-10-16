@@ -88,7 +88,7 @@ extern u8 *shdPersonaTaskCreate(s32 parent, s32 priority, s32 mode, s32 layout, 
 extern void shdPersonaSetPersonaId(u8 *window, s32 value);
 extern void shdPersonaSetOrigin(u8 *window, f32 *position);
 extern void shdPersonaStartSlideIn(u8 *window);
-extern void func_0011b480(u8 *window, s32 mode, u32 persona, s8 option);
+extern void shdPersonaSetDisplayState(u8 *window, s32 mode, u32 persona, s8 option);
 extern u8 *shdPersonaLevelUpCreate(s32 parent, s32 window, u8 *record, s32 payload, s32 option, s32 *messages);
 extern u32 shdPersonaLevelUpIsDone(u8 *child);
 extern s32 shdPersonaDestroyTask(u8 *child);
@@ -188,7 +188,7 @@ u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 
 
 extern void (*jtbl_008873EC[])(void *arg0);
-extern void func_0011b360(u8 *arg0);
+extern void shdPersonaFinishPhase(u8 *arg0);
 extern void btlSoundFadeOutBgm(s16 fadeDuration);
 extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
@@ -685,7 +685,7 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
         if (index != *(s32 *)(work + 0x38)) {
             s32 recordIndex;
 
-            func_0011b480(*(u8 **)(work + 0x4C), 1, (u32)persona, 0);
+            shdPersonaSetDisplayState(*(u8 **)(work + 0x4C), 1, (u32)persona, 0);
             messages[0] = 12;
             messages[1] = 0;
             messages[2] = 6;
@@ -788,7 +788,7 @@ void btlResultOverlayDestroy(u8 *sdkTaskBytes)
     if (*(u16 *)p & 4) {
         h = *(s32 *)(p + 0x4C);
         if (h != 0) {
-            func_0011b360((u8 *)h);
+            shdPersonaFinishPhase((u8 *)h);
             *(s32 *)(p + 0x4C) = 0;
         }
     }
@@ -865,7 +865,7 @@ void btlResultSummaryDestroy(u8 *sdkTaskBytes)
     p = (u8 *)kwlnTaskGetWork(task);
     h = *(s32 *)(p + 0x44);
     if (h != 0) {
-        func_0011b360((u8 *)h);
+        shdPersonaFinishPhase((u8 *)h);
         *(s32 *)(p + 0x44) = 0;
     }
     (*jtbl_008873EC)(p);

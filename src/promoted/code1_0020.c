@@ -75,9 +75,9 @@ extern u16 frFontSetFlagBits(s16 arg0);
 extern u16 frFontClearFlagBits(u16 arg0);
 
 extern u32 func_001d8bc0(void *arg0);
-extern void func_0011b360(u8 *arg0);
+extern void shdPersonaFinishPhase(u8 *arg0);
 extern s32 shdPersonaIsTransitioning(u8 *arg0);
-extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
+extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
 extern void shdPersonaStartSlideIn(u8 *arg0);
 extern void shdPersonaBeginClose(u8 *arg0);
 extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);

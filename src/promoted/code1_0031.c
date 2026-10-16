@@ -506,7 +506,7 @@ s32 func_00313fb0(u8 *arg0)
 }
  
 /* measured: corrected all six callee declarations from the verified definitions. */
-extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
+extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
 extern s32 shdPersonaIsTransitioning(u8 *arg0);
 extern void shdPersonaStartSlideIn(u8 *arg0);
 extern void shdPersonaBeginClose(u8 *arg0);
@@ -529,7 +529,7 @@ s32 func_00314010(u8 *arg0) {
         arg2 = *(u32 *)(work + 8);
         task_int = 0;
         task = *(u8 **)(work + 4);
-        func_0011b480(task, task_int, arg2, arg3);
+        shdPersonaSetDisplayState(task, task_int, arg2, arg3);
         shdPersonaSetExtraValue((int)*(u8 **)(work + 4), 0);
         *(s8 *)(work + 0) = 1;
         /* fallthrough */
@@ -560,7 +560,7 @@ s32 func_00314010(u8 *arg0) {
         }
         goto block_33;
     case 8:
-        func_0011b480(*(u8 **)(work + 4), 0, *(u32 *)(work + 8), *(s8 *)(work + 0xC));
+        shdPersonaSetDisplayState(*(u8 **)(work + 4), 0, *(u32 *)(work + 8), *(s8 *)(work + 0xC));
         value = *(s32 *)(work + 0x10);
         if (value != 0) {
             shdPersonaSetExtraValue((int)*(u8 **)(work + 4), value);

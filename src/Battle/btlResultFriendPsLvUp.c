@@ -19,7 +19,7 @@ extern void func_00106390(s32 arg0, s32 arg1);
    compiled each unit separately, and only a u16 parameter here emits the id
    load after the window-pointer argument, as at 00223b5c. A conversion
    argument is always evaluated first (docs/matching.md). */
-extern void func_0011b480(u8 *arg0, u16 arg1, u32 arg2, s8 arg3);
+extern void shdPersonaSetDisplayState(u8 *arg0, u16 arg1, u32 arg2, s8 arg3);
 extern u8 *func_00455ea0(u8 *archive, s32 index, s32 *size);
 extern u8 *shdPersonaLevelUpCreate(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4, s32 *a5);
 extern u32 datCalcRandomBelow(u32 max);
@@ -161,7 +161,7 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
                     break;
                 }
             }
-            func_0011b480(*(u8 **)(r + 68), *(u16 *)(friendResultAddress((u32)*(s32 *)(r + 56) * 2, (u32)base) + 0x69A), (u32)q, 0);
+            shdPersonaSetDisplayState(*(u8 **)(r + 68), *(u16 *)(friendResultAddress((u32)*(s32 *)(r + 56) * 2, (u32)base) + 0x69A), (u32)q, 0);
             sp[0] = 27;
             sp[1] = 25;
             sp[2] = 6;
