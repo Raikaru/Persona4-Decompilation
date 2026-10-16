@@ -100,7 +100,7 @@ extern s32 sprintf(char *, const void *, ...);
 extern void *mdlCreateModelObjectFromData(u32, u16, void *, u32);
 extern s32 FldUnit_InstallResources(void);
 extern s32 mdlPrepareModel(s32);
-extern s32 func_001227f0(void);
+extern s32 fadeIsIdle(void);
 extern s32 func_002859e0(s32, s32, s32);
 extern void FldFrame_BindTypedRes(s32, u16);
 extern void func_0016f130(u8 *, s32, s32);
@@ -225,7 +225,7 @@ s32 func_00155360(u8 *task)
         if (FldUnit_InstallResources() == 0) break;
         if (work->model != 0 && mdlPrepareModel(work->model) == 0) break;
         if (work->eventReader != 0) {
-            if (func_001227f0() != 0) {
+            if (fadeIsIdle() != 0) {
                 resrcMngSetRenderSuppressed(0);
                 func_002aaaa0();
                 work->eventTask = func_002859e0(work->eventId, work->eventMajor, work->eventMinor);
@@ -247,7 +247,7 @@ s32 func_00155360(u8 *task)
         }
         break;
     case 6:
-        if (func_001227f0() != 0) {
+        if (fadeIsIdle() != 0) {
             resrcMngSetRenderSuppressed(0);
             iGpffffb210 = 2;
             if (work->eventReader == 0) {

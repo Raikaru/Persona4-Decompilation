@@ -513,7 +513,7 @@ void func_00121b20(void) {
 }
 
 // FUN_00121B70
-s32 func_00121b70(u8 *unusedTask) {
+s32 fadeTaskStep(u8 *unusedTask) {
     extern s32 calendarStartDayChange(s32 arg0, s32 arg1);
     extern s32 calendarStartTimeChange(s32 arg0, s32 arg1);
     extern s32 clndGetPeriod(void);
@@ -601,7 +601,7 @@ s32 func_00121b70(u8 *unusedTask) {
     return 0;
 }
 // FUN_00121DB0
-void func_00121db0(u8 *unusedTask)
+void fadeTaskDestroy(u8 *unusedTask)
 {
     jtbl_008873EC[0]((void *)iGpffffb1cc);
     iGpffffb1cc = 0;
@@ -807,7 +807,7 @@ void func_001221a0(void *arg0, u8 *arg1)
 /* measured: closes the opt_propagation bracket for func_001221a0. */
 #pragma opt_propagation on
 // FUN_001223D0
-s32 func_001223d0(u8 *unusedTask) {
+s32 fadeQueueCallback(u8 *unusedTask) {
     u8 *p;
     s32 x;
 
@@ -850,7 +850,7 @@ s32 func_00122720(void) {
 }
 
 // FUN_001227A0
-s32 func_001227a0(void)
+s32 fadeState(void)
 {
     if (iGpffffb1cc == 0) {
         return 1;
@@ -865,7 +865,7 @@ void func_001227d0(void)
     }
 }
 // FUN_001227F0
-s32 func_001227f0(void)
+s32 fadeIsIdle(void)
 {
     s32 result;
     u8 *temp_3;
