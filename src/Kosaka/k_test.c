@@ -17,8 +17,8 @@ extern s32 *MT_Scene_GetFrameState(void);
 extern s32 FldLoadTaskIsDone(s32 handle);
 extern s32 mtSceneResListPrepareAll(void);
 
-extern s32 func_0018e450(u8 *arg0);
-extern void func_0018e4d0(u8 *arg0);
+extern s32 K_Test_LauncherUpdate(u8 *arg0);
+extern void K_Test_LauncherDestroy(u8 *arg0);
 
 typedef struct
 {
@@ -34,7 +34,7 @@ typedef struct
 void K_Test_CreateLauncher(s32 arg0)
 {
     chkmemAllocSiteTag(D_005F5718, 0x7A);
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763098), 0xF, 0, 0, func_0018e450, func_0018e4d0, (u8 *)(D_008873F4[0](1, 0x1C, 0x40000)));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763098), 0xF, 0, 0, K_Test_LauncherUpdate, K_Test_LauncherDestroy, (u8 *)(D_008873F4[0](1, 0x1C, 0x40000)));
 }
 
 // FUN_0018E5B0
