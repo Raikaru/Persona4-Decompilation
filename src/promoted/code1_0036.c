@@ -154,7 +154,7 @@ extern f32 iGpffff8040;
 extern f32 fGpffff8198;
 
 // FUN_00361970
-void func_00361970(u8 *arg0)
+void radarResetSlideDirection(u8 *arg0)
 {
     *(s32 *)(arg0 + 0x5C4) = 0;
     if (*(s16 *)(arg0 + 0x2C) > *(s16 *)(arg0 + 0x32)) {
@@ -166,7 +166,7 @@ void func_00361970(u8 *arg0)
 }
 
 // FUN_003619B0
-s32 func_003619b0(u8 *arg0) {
+s32 radarRowsSettled(u8 *arg0) {
     s32 flag = 1;
     s32 i = 0;
     s32 v = *(s16 *)(arg0 + 0x20);
@@ -212,7 +212,7 @@ void cmpSystemMenuRelease(u8 *arg0)
     *(s32 *)(arg0 + 0x1C) = 0;
 }
 // FUN_00361AE0
-void func_00361ae0(u8 *arg0)
+void radarStepBarWave(u8 *arg0)
 {
     s32 top;
     s32 bottom;
@@ -246,7 +246,7 @@ void func_00361ae0(u8 *arg0)
     }
 }
 // FUN_00361CA0
-void func_00361ca0(u8 *arg0) {
+void radarStepValueAnimation(u8 *arg0) {
     s16 c = *(s16 *)(arg0 + 0x26);
     s32 count;
     s32 i;
@@ -500,13 +500,13 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         }
         goto block_64;
     case 2:
-        if (func_003619b0(arg2) != 0) {
+        if (radarRowsSettled(arg2) != 0) {
             cmpSystemMenuRelease(arg2);
             return 1;
         }
         goto block_64;
     case 3:
-        if (func_003619b0(arg2) != 0) {
+        if (radarRowsSettled(arg2) != 0) {
             cmpSystemSetMode(arg2, 2);
             *arg0 = 4;
         }
@@ -553,7 +553,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         }
         goto block_64;
     case 5:
-        if (func_003619b0(arg2) != 0) {
+        if (radarRowsSettled(arg2) != 0) {
             func_00362630(arg2);
             cmpSystemSetMode(arg2, 3);
             *arg0 = 6;
@@ -561,7 +561,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         }
         goto block_64;
     case 6:
-        if (func_003619b0(arg2) != 0) {
+        if (radarRowsSettled(arg2) != 0) {
             cmpSystemSetMode(arg2, 4);
             *arg0 = 7;
             resrcMngSuppressRender();
@@ -587,7 +587,7 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
                 soundType = *(s16 *)(query + 0x28);
                 cmpSystemSetSelection(arg2, 2, soundType);
                 if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x32)) {
-                    func_00361970(arg2);
+                    radarResetSlideDirection(arg2);
                 }
                 datCommunityCursorFeedback(queryResult);
             }
