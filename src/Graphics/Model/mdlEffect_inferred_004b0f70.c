@@ -80,7 +80,7 @@ void func_004b0fd0(u8 *arg0)
         inner = *(u8 **)(node + 0x20);
         *(s32 *)(arg0 + 0x6C) = 0;
         *(s32 *)(arg0 + 0x70) = 0;
-        func_00460ac0(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
+        PrimAppendNode(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
     }
 }
 
@@ -96,7 +96,7 @@ void func_004b1030(u8 *arg0)
         inner = *(u8 **)(node + 0x20);
         *(s32 *)(arg0 + 0x6C) = 0;
         *(s32 *)(arg0 + 0x70) = 0;
-        func_00460ac0(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
+        PrimAppendNode(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x6C);
     }
 }
 

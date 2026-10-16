@@ -87,7 +87,7 @@ extern s32 datEntryGetFlags(s16 arg0);
 
 
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern void cldTimeChangeDraw(s32 arg0, s32 arg1);
 
 extern void sdkSpritePackDestroy(void *arg0);
@@ -1629,7 +1629,7 @@ void calQueueDayStripDraw(s32 arg0, s32 arg1)
     temp_2 = PrimAllocQueueNode();
     *(void (**)(s32, u8 *))(temp_2 + 8) = calDrawDayStripCallback;
     *(s32 *)(temp_2 + 0x10) = arg0;
-    func_00460ac0((u8 *)arg1, temp_2);
+    PrimAppendNode((u8 *)arg1, temp_2);
 }
 // Intent: Day-change task destroy: destroys the child task hierarchy, frees the day-change resource and releases the task work block [inferred]
 // FUN_00264D10

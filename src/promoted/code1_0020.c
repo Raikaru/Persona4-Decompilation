@@ -204,7 +204,7 @@ extern void btlGaugeSetActive(u8 *arg0, s32 arg1);
 extern void btlSelectionUpdateTransition(u8 *arg0);
 extern void btlPanelLoadModels(void *arg0);
 extern void func_0021b1e0(void *arg0);
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern u8 D_00794810[];
 extern u8 D_00794870[];
 extern u8 D_00794FF0[];
@@ -338,8 +338,8 @@ typedef struct {
  * See docs/probe_archive/Battle_strip_00204dc0_20260924.md. */
 
 extern f32 fGpffff836c;
-extern void func_00364c50(void);
-extern void func_00364c70(void);
+extern void shdEnableBlendFlag(void);
+extern void shdDisableBlendFlag(void);
 
 #pragma push
 #pragma opt_propagation off
@@ -730,7 +730,7 @@ void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
         if (!(slide <= 0.0f)) {
             position.x = 89.0f + x;
             position.y = 86.0f + y;
-            func_003657d0(position, 0.0f, color, 22.0f * slide, 0.0f, 1);
+            shdDrawRotatingQuad(position, 0.0f, color, 22.0f * slide, 0.0f, 1);
         }
         if (frame < 0) fade = 0.0f;
         else if (frame < 3) fade = (f32)frame / 3.0f;
@@ -903,11 +903,11 @@ void btlTransitionStepPulse(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
         sp48.x = 86.0f + fparg0;
         sp48.y = 86.0f + fparg1;
         if (var_f20 == 1.0f) {
-            func_00364c90(sp48, 0.0f, 0x151515FF, 87.0f,
+            shdDrawRotatedRect(sp48, 0.0f, 0x151515FF, 87.0f,
                           16.0f, fGpffff815c, 1);
         }
         temp_f1 = 2.0f - var_f20;
-        func_00364c90(sp48, 0.0f, 0xFF0F02FF,
+        shdDrawRotatedRect(sp48, 0.0f, 0xFF0F02FF,
                       87.0f * temp_f1, 16.0f * temp_f1,
                       fGpffff83b0, 1);
     }
@@ -1059,13 +1059,13 @@ void btlPanelDrawGauge(u8 *work, u8 *state)
     transparent.rgba.c2 = black.rgba.c2 = 0;
     black.rgba.c3 = (u8)(76.0f * extent);
     transparent.rgba.c3 = 0;
-    func_00365f00(position, 0.0f, black.bits, transparent.bits, 100.0f, 0.0f, 12, D_00761300, 1.0f, 0);
+    shdDrawRadialFan(position, 0.0f, black.bits, transparent.bits, 100.0f, 0.0f, 12, D_00761300, 1.0f, 0);
     transparent.rgba.c0 = saved.rgba.c0;
     transparent.rgba.c1 = saved.rgba.c1;
     transparent.rgba.c2 = saved.rgba.c2;
     transparent.rgba.c3 = 0;
     btlUiSetRenderMode(2);
-    func_00365f00(position, 0.0f, fill.bits, transparent.bits, 125.0f, 0.0f, 12, D_00761300, 1.0f, 0);
+    shdDrawRadialFan(position, 0.0f, fill.bits, transparent.bits, 125.0f, 0.0f, 12, D_00761300, 1.0f, 0);
     btlUiSetScale(work, extent, 1.0f);
     btlUiSetTileOffset(work, 0, 0, 90.0f);
     btlUiDrawSpriteFaded(work, 10, 45, 20.0f, -57.0f * extent, red, green, blue, 255);
@@ -1136,7 +1136,7 @@ void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
     }
     if (!(lateBand <= 0.0f)) {
         btlUiSetRenderMode(2);
-        func_00365ac0(center, 0.0f, 0xFF1432FF, 0.0f, 400.0f * lateBand, 90.0f, 1);
+        shdDrawRectOutline(center, 0.0f, 0xFF1432FF, 0.0f, 400.0f * lateBand, 90.0f, 1);
         btlUiSetRenderMode(0);
     }
     if (frame < 0x19) {
@@ -1148,7 +1148,7 @@ void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
     }
     if (!(earlyBand <= 0.0f)) {
         btlUiSetRenderMode(2);
-        func_00365ac0(center, 0.0f, 0xFF1432FF, 0.0f, 400.0f * earlyBand, 90.0f, 1);
+        shdDrawRectOutline(center, 0.0f, 0xFF1432FF, 0.0f, 400.0f * earlyBand, 90.0f, 1);
         btlUiSetRenderMode(0);
     }
     if (frame < 0xA) {
@@ -1167,7 +1167,7 @@ void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
     }
     narrowScale = 4.0f * narrowExpansion + narrowIntro;
     if (!(narrowScale <= 0.0f)) {
-        func_00365ac0(center, 0.0f, 0xFF, 0.0f, 86.0f * narrowScale, 11.0f, 1);
+        shdDrawRectOutline(center, 0.0f, 0xFF, 0.0f, 86.0f * narrowScale, 11.0f, 1);
     }
     if (frame < 0) {
         diagonalIntro = 0.0f;
@@ -1189,10 +1189,10 @@ void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
         firstPosition.x = 79.0f + horizontalExtent;
         verticalExtent = 275.0f * diagonalScale;
         firstPosition.y = 448.0f - verticalExtent;
-        func_00364fb0(firstPosition, 0.0f, 0xFF, fGpffff837c, 1, 0);
+        shdDrawWedge(firstPosition, 0.0f, 0xFF, fGpffff837c, 1, 0);
         secondPosition.x = 525.0f - horizontalExtent;
         secondPosition.y = verticalExtent;
-        func_00364fb0(secondPosition, 0.0f, 0xFF, fGpffff84a8, 1, 0);
+        shdDrawWedge(secondPosition, 0.0f, 0xFF, fGpffff84a8, 1, 0);
     }
     if (frame < 8) {
         glyphFadeIn = 0.0f;

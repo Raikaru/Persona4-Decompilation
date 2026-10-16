@@ -110,7 +110,7 @@ void frFontDrawListMode();
 u8 *itfMesWindowBuildEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 void itfMesWindowDrawCallback(u8 *arg0, s32 arg1);
 void *PrimAllocQueueNode();
-void func_00460ac0();
+void PrimAppendNode();
 u8 *itfMesObjectSetRecord(u8 *arg0, u8 *arg1);
 s32 itfMesWindowBindRecord(s32 arg0, s32 arg1, s32 arg2);
 s32 itfMesWindowSetStyle(s32 arg0, s16 arg1);
@@ -1557,7 +1557,7 @@ s32 itfMesWindowQueueEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
     cb = PrimAllocQueueNode();
     *(void (**)(void))(cb + 8) = (void (*)(void))itfMesWindowDrawCallback;
     *(u8 **)(cb + 0x10) = obj;
-    func_00460ac0(arg6, cb);
+    PrimAppendNode(arg6, cb);
     return 0;
 }
 

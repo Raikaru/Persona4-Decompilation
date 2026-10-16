@@ -48,7 +48,7 @@ s32 func_00285b30(void);
 f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
 s32 fclAddClamped(s32, s32, s32, s32, s8);
 s32 kwlnGetCamera(void);
-u8 *func_00461390(void *list, s32 primitive, void *vertices, s32 count);
+u8 *PrimQueueDrawPrimitive(void *list, s32 primitive, void *vertices, s32 count);
 extern f32 iGpffff8360;
 extern f32 iGpffff8508;
 extern f32 iGpffff850c;
@@ -1596,7 +1596,7 @@ s32 func_00347c70(u8 *task)
             primitive = 4;
             vertices = work + 0x10;
             count = primitive;
-            alloc = func_00461390(list, primitive, vertices, count);
+            alloc = PrimQueueDrawPrimitive(list, primitive, vertices, count);
             *(u32 *)(alloc + 8) = (u32)func_00347b30;
             *(u8 **)(alloc + 0x10) = work;
         }

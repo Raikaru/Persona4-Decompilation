@@ -15,7 +15,7 @@ extern u32 RpRandom();
 extern void (*jtbl_008873EC[])(void *);
 
 void nLineUpdate();
-void func_00460ac0(u8 *arg0, u8 *arg1);
+void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern u8 D_00793E80[];
 extern s32 D_00882FC0[];
 extern s32 D_00882FC4[];
@@ -26,7 +26,7 @@ extern u8 *sdkSpriteNewNode(s32 arg0, s32 arg1);
 extern s32 fclSpriteUpdateTweens(void *arg0);
 extern void memcpy(void *arg0, s32 arg1, s32 arg2);
 extern s32 kwlnGetCamera(void);
-extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern u8 D_00793E80[];
 extern void fclCombineDrawPacket(u8 *packet, s32 data, void *callback);
 extern f32 fGpffff8504;
@@ -305,7 +305,7 @@ s32 fclCmbBallSlotsUpdate(u8 *arg0)
                 offset = index << 1;
                 offset += index;
                 offset <<= 4;
-                packet = func_00461390(D_00793E80 + offset, 4, entry2, 4);
+                packet = PrimQueueDrawPrimitive(D_00793E80 + offset, 4, entry2, 4);
                 *(void **)(packet + 8) = (void *)fclCombineDrawPacket;
                 *(u8 **)(packet + 0x10) = entry2;
             }
@@ -374,7 +374,7 @@ s32 nLineRefreshTask(u8 *unusedTask)
         nLineUpdate();
         D_00882FC0[0] = 0;
         D_00882FC4[0] = 0;
-        func_00460ac0(D_00793E80 + iGpffffb5a4 * 0x30, (u8 *)D_00882FC0);
+        PrimAppendNode(D_00793E80 + iGpffffb5a4 * 0x30, (u8 *)D_00882FC0);
     }
     return 0;
 }

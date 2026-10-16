@@ -9,7 +9,7 @@ typedef struct { f32 x, y; } Vec2f;
 
 void kAssertFail(void* arg0, s32 arg1);
 void sdkSpriteFreeNode(void *node);
-void func_00460ac0(void* param, void* work);
+void PrimAppendNode(void* param, void* work);
 void datSetFlag(s32 a, s32 b);
 s32 datCommunityDetailStep(u32* arg0, s32* arg1, u8* arg2);
 s32 nLineIsIdle(void);
@@ -840,7 +840,7 @@ s32 cmpConfigUpdate(u8* arg0) {
         if (local != 0) {
             *(s32*)(p + 0x47C) = 0;
             *(s32*)(p + 0x480) = 0;
-            func_00460ac0(D_00793E80 + *(u16*)(p + 0x4AC) * 48, p + 0x47C);
+            PrimAppendNode(D_00793E80 + *(u16*)(p + 0x4AC) * 48, p + 0x47C);
         }
         break;
     case 2:

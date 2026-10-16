@@ -198,8 +198,8 @@ typedef struct {
     s32 (*draw)(s32 primitive, void *vertices, s32 count);
 } BattlePanelPrimitiveDispatch;
 extern f32 fGpffff836c;
-extern void func_00364c50(void);
-extern void func_00364c70(void);
+extern void shdEnableBlendFlag(void);
+extern void shdDisableBlendFlag(void);
 typedef struct { u8 b0, b1, b2, b3; } BattleSkillIconColor;
 extern void ShdSkill_DrawIcon(Vec2f position, f32 scale,
                           BattleSkillIconColor color, u16 skill, s32 texture);
@@ -769,8 +769,8 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
     extern f32 D_006269E0[][2];
     extern f32 D_00626A90[][2];
     extern f32 D_00626B30[][2];
-    extern void func_00364c50(void);
-    extern void func_00364c70(void);
+    extern void shdEnableBlendFlag(void);
+    extern void shdDisableBlendFlag(void);
     f32 hi[80][16];
     f32 lo[42][16];
     f32 base;
@@ -792,7 +792,7 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
     reciprocal = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
     D_00887300[0](1, 0);
     if ((a & 0xFF) == 0xFF) {
-        func_00364c50();
+        shdEnableBlendFlag();
         {
             u32 init;
             for (init = 0; init < 80; init++) {
@@ -974,7 +974,7 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
             }
         }
         draw->draw(2, hi, vertex);
-        func_00364c70();
+        shdDisableBlendFlag();
     }
     {
         u32 init;
@@ -1349,10 +1349,10 @@ void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, 
     vertices[1][6] = reciprocal;
     vertices[2][6] = reciprocal;
     vertices[3][6] = reciprocal;
-    func_00364c50();
+    shdEnableBlendFlag();
     draw = D_00887310;
     draw[0](4, vertices, 4);
-    func_00364c70();
+    shdDisableBlendFlag();
     if (extend != 0) {
         state = D_00887300;
         state[0](8, 1);
@@ -2447,7 +2447,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
         color.bytes.c1 = 0x1B;
         color.bytes.c2 = 0x1B;
         color.bytes.c3 = 0xFF;
-        func_00365f00(position, 150.0f, color.word, color.word, outlineGrowth * 81.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
+        shdDrawRadialFan(position, 150.0f, color.word, color.word, outlineGrowth * 81.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
     }
     if (*(s16 *)(work + 0xC) < 2) {
         f32 t;
@@ -2473,9 +2473,9 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
     {
         f32 radius;
         radius = circle.progress * 78.0f;
-        func_00365f00(position, 150.0f, color.word, color.word, radius, 0.0f, 0x30, 1.0f, 1.0f, 1);
+        shdDrawRadialFan(position, 150.0f, color.word, color.word, radius, 0.0f, 0x30, 1.0f, 1.0f, 1);
         color.bytes.c3 = 0;
-        func_00365f00(position, 150.0f, color.word, color.word, radius + 1.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
+        shdDrawRadialFan(position, 150.0f, color.word, color.word, radius + 1.0f, 0.0f, 0x30, 1.0f, 1.0f, 1);
     }
     renderer = (BattleRenderDispatch *)D_00887300;
     renderer->setState(8, 0);

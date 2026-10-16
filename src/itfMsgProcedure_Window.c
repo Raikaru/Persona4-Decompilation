@@ -39,7 +39,7 @@ extern void msgWinDrawShape(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 
 extern void msgWinDrawRing(s32 a0, s32 a1, f32 f0, s32 a2, s32 a3, s32 t0, s32 t1, s16 t2, s16 t3, f32 f1, f32 f2, f32 f3, void *a4);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *a0, void *a1);
+extern void PrimAppendNode(void *a0, void *a1);
 extern void calDrawScreen(u8 *arg);
 extern void msgWinDrawSprite(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t3, void *s0, float f0, float f1, float f2, float f3);
 extern void msgWinSelectionPoll(void);
@@ -217,7 +217,7 @@ s32 msgWinEntryStep(MsgProcWindowEntry *arg)
         tmp = PrimAllocQueueNode();
         *(void **)(tmp + 8) = (void *)calDrawScreen;
         *(MsgProcWindowEntry **)(tmp + 0x10) = arg;
-        func_00460ac0(D_00796490, tmp);
+        PrimAppendNode(D_00796490, tmp);
         if (arg->field10 < 20) {
             break;
         }
@@ -386,16 +386,16 @@ void msgWinDrawRect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4
     q1.bits[2] = arg2;
     q1.bits[3] = arg3;
     q2 = q1;
-    func_00460b60(arg4, 0x6, 0x1);
-    func_00460b60(arg4, 0xE, 0x0);
-    func_00460b60(arg4, 0xC, 0x1);
-    func_00460b60(arg4, 0x7, 0x2);
-    func_00460b60(arg4, 0x9, 0x1);
-    func_00460b60(arg4, 0x14, 0x1);
-    func_00460b60(arg4, 0x6, 0x0);
-    func_00460b60(arg4, 0x8, 0x1);
-    func_00460c70(arg4, 0x3, 0x31003);
-    func_00460c70(arg4, 0x2, 0x44);
+    PrimQueueStateSet(arg4, 0x6, 0x1);
+    PrimQueueStateSet(arg4, 0xE, 0x0);
+    PrimQueueStateSet(arg4, 0xC, 0x1);
+    PrimQueueStateSet(arg4, 0x7, 0x2);
+    PrimQueueStateSet(arg4, 0x9, 0x1);
+    PrimQueueStateSet(arg4, 0x14, 0x1);
+    PrimQueueStateSet(arg4, 0x6, 0x0);
+    PrimQueueStateSet(arg4, 0x8, 0x1);
+    PrimQueueStateSetAlt(arg4, 0x3, 0x31003);
+    PrimQueueStateSetAlt(arg4, 0x2, 0x44);
     mdlEffectEmitMaskedTagPair();
     PrimQueueRectangle(&color, &q2, f0, 0, arg4);
     mdlEffectEmitTagPair();
@@ -2781,7 +2781,7 @@ s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
                 u8 *m = PrimAllocQueueNode();
                 *(void **)(m + 8) = (void *)msgCalendarDraw;
                 *(void **)(m + 16) = (void *)D_00882080;
-                func_00460ac0(D_00796490, m);
+                PrimAppendNode(D_00796490, m);
             }
         }
         break;
@@ -2805,7 +2805,7 @@ s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
                 u8 *m = PrimAllocQueueNode();
                 *(void **)(m + 8) = (void *)msgCalendarDraw;
                 *(void **)(m + 16) = (void *)D_00882080;
-                func_00460ac0(D_00796490, m);
+                PrimAppendNode(D_00796490, m);
             }
         }
         break;

@@ -137,8 +137,8 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 D_008872F8[];
 extern f32 fGpffff8198;
 extern u8 D_005EF710[];
-extern void func_00364c50(void);
-extern void func_00364c70(void);
+extern void shdEnableBlendFlag(void);
+extern void shdDisableBlendFlag(void);
 extern u16 D_008C024E[];
 extern s32 iGpffffba48;
 extern u8 iGpffffba4c;
@@ -1013,9 +1013,9 @@ void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
         *(f32 *)(packet.bytes + 0x18) = reciprocalNear;
         pointIndex += 1;
     }
-    func_00364c50();
+    shdEnableBlendFlag();
     D_00887310_abs[0](rwPRIMTYPETRIFAN, packet.vertices, 7);
-    func_00364c70();
+    shdDisableBlendFlag();
     sprite = *(void **)(state + 0x1838);
     palette = (struct RadarColor *)D_0064B2E8;
     spriteIndex = 0;
@@ -1079,9 +1079,9 @@ void radarDrawSegment(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3)
         *(f32 *)(temp_7 + 0x2C) = (f32)(u32)arg3;
         var_12 += 1;
     }
-    func_00364c50();
+    shdEnableBlendFlag();
     D_00887310[0](4, packet, 4);
-    func_00364c70();
+    shdDisableBlendFlag();
 }
 
 /* measured: closes opt_loop_invariants on probe for radarDrawSegment. */

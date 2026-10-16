@@ -49,7 +49,7 @@ extern s32 D_007643A4;
 extern s32 D_007643AC;
 extern f32 D_007643B0;
 extern f32 D_007643B4;
-extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern u8 D_007943C0[];
 extern u8 D_00794960[];
 extern s32 iGpffffba48;
@@ -606,7 +606,7 @@ void FldColorCrossfadeStep(void)
                     *(f32 *)(v + 0x28) = (f32)c[2];
                     *(f32 *)(v + 0x2C) = (f32)c[3];
                 }
-                res = func_00461390(D_007943C0, 4, vtx, 4);
+                res = PrimQueueDrawPrimitive(D_007943C0, 4, vtx, 4);
             } else {
                 u8 *vtx;
 
@@ -638,7 +638,7 @@ void FldColorCrossfadeStep(void)
                     *(f32 *)(v + 0x28) = (f32)c[2];
                     *(f32 *)(v + 0x2C) = (f32)c[3];
                 }
-                res = func_00461390(D_00794960, 4, vtx, 4);
+                res = PrimQueueDrawPrimitive(D_00794960, 4, vtx, 4);
             }
             if ((j == 0) && (i == 0)) {
                 *(void **)(res + 8) = (void *)FldFilterResetRenderState;

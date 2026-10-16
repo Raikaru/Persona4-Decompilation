@@ -30,7 +30,7 @@ extern void func_003c4220(s32 arg0);
 extern void func_003e9390(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 s32 TnGetOffset1C(s32 arg0);
-extern void func_00460ac0(s32 arg0, void *arg1);
+extern void PrimAppendNode(s32 arg0, void *arg1);
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 *func_003c22f0(u8 *arg0);
@@ -167,7 +167,7 @@ void func_00484280(u8 *arg0, s32 arg1)
     temp_2 = TnGetOffset1C(arg1);
     *(s32 *)(arg0 + 0x18) = 0;
     *(s32 *)(arg0 + 0x1C) = 0;
-    func_00460ac0(temp_2, arg0 + 0x18);
+    PrimAppendNode(temp_2, arg0 + 0x18);
 }
 
 // FUN_004842D0

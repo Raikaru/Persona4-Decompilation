@@ -42,8 +42,8 @@ extern u8 *func_004b1130(s32 a);
 extern void kAssertFail(void *file, s32 line);
 extern s32 effBlurFilterTaskUpdate(u8 *task);
 extern void effBlurFilterTaskDestroy(u8 *task);
-extern s32 func_0025fd80(u8 *task);
-extern void func_0025fe00(u8 *task);
+extern s32 shdEffectTaskUpdate(u8 *task);
+extern void shdEffectTaskDestroy(u8 *task);
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -51,8 +51,9 @@ extern char D_00637290[];
 extern char D_006372A0[];
 extern char D_00763798;
 
+// Intent: Create the blur-filter task; use the supplied filter handle or create one directly [inferred]
 // FUN_0025FAB0
-s32 func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext)
+s32 shdEffectCreateBlurTask(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext)
 {
     u8 *buf;
 
@@ -72,8 +73,9 @@ s32 func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext)
     return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((u8 *)D_006372A0), 0xF, 0, 0, effBlurFilterTaskUpdate, effBlurFilterTaskDestroy, (u8 *)(buf));
 }
 
+// Intent: Fill a 0x24-byte frame-buffer parameter block (flag byte, four colours and two floats) into dst [inferred]
 // FUN_0025FBB0
-void func_0025fbb0(u8 *dst, u8 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5,
+void shdEffectFillFbufParams(u8 *dst, u8 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5,
                    f32 farg0, f32 farg1)
 {
     ShdFbuf tmp;
@@ -119,8 +121,9 @@ void func_0025fbb0(u8 *dst, u8 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5,
     } while (i > 0);
 }
 
+// Intent: Fill a 0x10-byte parameter block at dst+0x24 from an integer pair and two floats [inferred]
 // FUN_0025FD00
-void func_0025fd00(u8 *dst, s32 arg1, s32 arg2, f32 farg0, f32 farg1)
+void shdEffectSetFargParams(u8 *dst, s32 arg1, s32 arg2, f32 farg0, f32 farg1)
 {
     ShdFarg tmp;
     s8 *p;
@@ -144,15 +147,17 @@ void func_0025fd00(u8 *dst, s32 arg1, s32 arg2, f32 farg0, f32 farg1)
     *(ShdFarg *)(dst + 0x24) = tmp;
 }
 
+// Intent: Store a render parameter word and byte in the effect's fields [inferred]
 // FUN_0025FD70
-void func_0025fd70(u8 *arg0, s32 arg1, u8 arg2)
+void shdEffectSetRenderParams(u8 *arg0, s32 arg1, u8 arg2)
 {
     *(s32 *)(arg0 + 0xB8) = arg1;
     *(u8 *)(arg0 + 0xBC) = arg2;
 }
 
+// Intent: Effect task update: step the effect and return -1 once its counter reaches the limit [inferred]
 // FUN_0025FD80
-s32 func_0025fd80(u8 *task)
+s32 shdEffectTaskUpdate(u8 *task)
 {
     ShdTask *t;
 
@@ -165,8 +170,9 @@ s32 func_0025fd80(u8 *task)
     return 0;
 }
 
+// Intent: Effect task destroy: release the effect's resource and call the teardown handler [inferred]
 // FUN_0025FE00
-void func_0025fe00(u8 *task)
+void shdEffectTaskDestroy(u8 *task)
 {
     void *t;
 
@@ -175,8 +181,9 @@ void func_0025fe00(u8 *task)
     (*jtbl_008873EC)(t);
 }
 
+// Intent: Create the effect task from a resource handle, with the effect update and destroy callbacks [inferred]
 // FUN_0025FE50
-s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3)
+s32 shdEffectTaskCreate(s32 arg0, s32 arg1, s32 arg2, void *arg3)
 {
     u8 *buf;
 
@@ -194,5 +201,5 @@ s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3)
     *(void **)(buf + 4) = arg3;
     *(s32 *)(buf + 8) = arg2;
     return (s32)kwlnTaskCreateChild((void *)(u32)arg0, &D_00763798,
-                               0xF, 0, 0, func_0025fd80, func_0025fe00, buf);
+                               0xF, 0, 0, shdEffectTaskUpdate, shdEffectTaskDestroy, buf);
 }

@@ -56,7 +56,7 @@ extern void fclBankTableReset(void);
 
 extern s32 func_00121af0(u8 *task);
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(char *name, u8 *task);
+extern void PrimAppendNode(char *name, u8 *task);
 extern void fadeUpdateCallback(void *arg0, u8 *arg1);
 extern void calendarDrawBackdrop(void *unusedNode, void *work);
 extern char D_00796340[];
@@ -94,9 +94,9 @@ extern s32 mdlPrepareModel(void *arg0);
 extern u8 D_005E5560[];
 extern u8 D_005E5570[];
 extern void datCarryOverPersistentState(void);
-extern s32 func_0025e800(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_0025e8b0(s32 arg0);
-extern s32 func_0025e8f0(s32 arg0);
+extern s32 shdWindowTaskCreate(u8 *arg0, s32 arg1, s32 arg2);
+extern void shdWindowMarkDone(s32 arg0);
+extern s32 shdWindowQueryState(s32 arg0);
 extern s32 mcIconTaskCreate(u8 *arg0, s32 arg1);
 extern s32 mcIconTaskPoll(void);
 extern s32 titleSlotSetMode(u8 *arg0, s32 arg1);
@@ -818,7 +818,7 @@ s32 fadeQueueCallback(u8 *unusedTask) {
     }
     *(void **)(p + 8) = (void *)fadeUpdateCallback;
     *(s32 *)(p + 0x10) = x;
-    func_00460ac0(D_00796340, p);
+    PrimAppendNode(D_00796340, p);
     return 0;
 }
 
@@ -1178,7 +1178,7 @@ s32 calendarQueueResult(u8 *unusedTask) {
     q = iGpffffb1dc;
     *(void **)(p + 8) = (void *)calendarDrawBackdrop;
     *(u8 **)(p + 0x10) = q;
-    func_00460ac0(D_00795F50, p);
+    PrimAppendNode(D_00795F50, p);
     return 0;
 }
 
@@ -1410,21 +1410,21 @@ s32 clndPromptUpdate(u8 *arg0)
         *(u32 *)temp_16 = 1;
         goto block_20;
     case 1:
-        *(s32 *)(temp_16 + 4) = func_0025e800(arg0, 1, 0x11);
+        *(s32 *)(temp_16 + 4) = shdWindowTaskCreate(arg0, 1, 0x11);
         *(u32 *)temp_16 = 2;
         goto block_20;
     case 2:
-        temp_2_2 = func_0025e8f0(*(s32 *)(temp_16 + 4));
+        temp_2_2 = shdWindowQueryState(*(s32 *)(temp_16 + 4));
         if (temp_2_2 == 1) {
-            *(s32 *)(temp_16 + 4) = func_0025e800(arg0, 1, 0x12);
+            *(s32 *)(temp_16 + 4) = shdWindowTaskCreate(arg0, 1, 0x12);
             *(u32 *)temp_16 = 4;
         } else if (temp_2_2 == 2) {
-            *(s32 *)(temp_16 + 4) = func_0025e800(arg0, 1, 0x13);
+            *(s32 *)(temp_16 + 4) = shdWindowTaskCreate(arg0, 1, 0x13);
             *(u32 *)temp_16 = 3;
         }
         goto block_20;
     case 3:
-        temp_2_3 = func_0025e8f0(*(s32 *)(temp_16 + 4));
+        temp_2_3 = shdWindowQueryState(*(s32 *)(temp_16 + 4));
         if (temp_2_3 == 1) {
             return -1;
         }
@@ -1433,7 +1433,7 @@ s32 clndPromptUpdate(u8 *arg0)
         }
         goto block_20;
     case 4:
-        if (func_0025e8f0(*(s32 *)(temp_16 + 4)) == 1) {
+        if (shdWindowQueryState(*(s32 *)(temp_16 + 4)) == 1) {
             *(s32 *)(temp_16 + 8) = mcIconTaskCreate(arg0, 1);
             *(u32 *)temp_16 = 5;
         }
@@ -1453,7 +1453,7 @@ s32 clndPromptUpdate(u8 *arg0)
 case_5_error:
         return -1;
 case_5_action:
-        *(s32 *)(temp_16 + 4) = func_0025e800(arg0, 1, 0x13);
+        *(s32 *)(temp_16 + 4) = shdWindowTaskCreate(arg0, 1, 0x13);
         *(u32 *)temp_16 = 3;
         goto block_20;
     default:
@@ -4158,7 +4158,7 @@ s32 func_0012aa70(u8 *task)
         u8 *drawTask = PrimAllocQueueNode();
         *(void (**)(void *, void *))(drawTask + 8) = titleDrawTaskView;
         *(u8 **)(drawTask + 0x10) = task;
-        func_00460ac0(D_00795E60, drawTask);
+        PrimAppendNode(D_00795E60, drawTask);
     }
     return 0;
 }
@@ -4381,7 +4381,7 @@ s32 titleSoundStartStep(u8 *arg0) {
     default:
         goto block_20;
     case 1:
-        *(s32 *)(temp_16 + 0xC) = func_0025e800(arg0, 1, 0xF);
+        *(s32 *)(temp_16 + 0xC) = shdWindowTaskCreate(arg0, 1, 0xF);
         *(s32 *)(temp_16 + 8) = 0x3C;
         *(u32 *)(temp_16 + 0) = 2U;
         goto block_20;
@@ -4398,7 +4398,7 @@ s32 titleSoundStartStep(u8 *arg0) {
         *(s32 *)(temp_16 + 4) = temp_2_3;
         if (temp_2_3 != 0) {
             if (temp_2_3 == 0x64) {
-                func_0025e8b0(*(s32 *)(temp_16 + 0xC));
+                shdWindowMarkDone(*(s32 *)(temp_16 + 0xC));
                 return -1;
             }
             *(u32 *)(temp_16 + 0) = 4U;
@@ -4406,22 +4406,22 @@ s32 titleSoundStartStep(u8 *arg0) {
         }
         goto block_20;
     case 4:
-        func_0025e8b0(*(s32 *)(temp_16 + 0xC));
+        shdWindowMarkDone(*(s32 *)(temp_16 + 0xC));
         if (*(s32 *)(temp_16 + 4) == -6) {
-            *(s32 *)(temp_16 + 0xC) = func_0025e800(arg0, 1, 0x15);
+            *(s32 *)(temp_16 + 0xC) = shdWindowTaskCreate(arg0, 1, 0x15);
         } else {
-            *(s32 *)(temp_16 + 0xC) = func_0025e800(arg0, 1, 0x10);
+            *(s32 *)(temp_16 + 0xC) = shdWindowTaskCreate(arg0, 1, 0x10);
         }
         *(u32 *)(temp_16 + 0) = 5U;
         goto block_20;
     case 5:
-        temp_2_4 = func_0025e8f0(*(s32 *)(temp_16 + 0xC));
+        temp_2_4 = shdWindowQueryState(*(s32 *)(temp_16 + 0xC));
         if (temp_2_4 == 1) {
-            func_0025e8b0(*(s32 *)(temp_16 + 0xC));
+            shdWindowMarkDone(*(s32 *)(temp_16 + 0xC));
             return -1;
         }
         if (temp_2_4 == 2) {
-            func_0025e8b0(*(s32 *)(temp_16 + 0xC));
+            shdWindowMarkDone(*(s32 *)(temp_16 + 0xC));
             *(u32 *)(temp_16 + 0) = 1U;
         }
         goto block_20;
@@ -4714,7 +4714,7 @@ s32 func_0012d630(u8 *menu)
     labelY += *(f32 *)(bytes + 0x228);
     pos.y = labelY;
     numberColor = *(u8 *)(bytes + 0x22E);
-    func_00364320(pos, 0.0f, numberColor, -1);
+    shdDrawNumberText(pos, 0.0f, numberColor, -1);
     pos2.x = *(f32 *)(bytes + 0x254) + 640.0f;
     pos2.y = *(f32 *)(bytes + 0x258) + 400.0f;
     informationColor = *(u8 *)(bytes + 0x25E);

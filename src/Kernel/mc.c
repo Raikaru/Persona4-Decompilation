@@ -9,7 +9,7 @@
 /* The SDK getter requires the callback task and returns a packed address. */
 extern u32 kwlnTaskGetWork(void *task);
 extern void *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *, void *);
+extern void PrimAppendNode(void *, void *);
 extern void PrimDrawFlatRectangle(void *, void *, f32, s32);
 extern void sdkSpritePackDestroy(u32 param_1);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
@@ -27,8 +27,8 @@ extern s32 func_0025f110(s32);
 extern s32 H_Cdvd_AcquireDirectory(const char *path, s32 flags);
 extern void func_00440b68(const void *, ...);
 extern void H_Memcard_SetRecordTable(void *);
-extern void func_0025e8b0(s32);
-extern s32 func_0025e800(s32, s32, s32);
+extern void shdWindowMarkDone(s32);
+extern s32 shdWindowTaskCreate(s32, s32, s32);
 extern u8 *datSaveBuildImage(s32, s32 *, s32);
 extern void memcpy(void *, void *, s32);
 extern void H_Memcard_BeginLoad(s32, void *, s32);
@@ -85,8 +85,8 @@ extern s32 D_0063ED80[];
 extern f32 cosf(f32);
 extern f32 sinf(f32);
 extern f32 iGpffff81e0;
-extern void func_00364c50(void);
-extern void func_00364c70(void);
+extern void shdEnableBlendFlag(void);
+extern void shdDisableBlendFlag(void);
 extern void PrimDrawPoints(void *, void *, f32, s32, s32, s32);
 extern void mcDrawCircleFan(f32, f32, f32, s32, s32, f32, f32, s32);
 extern void PrimDrawFlatTriangle(void *, void *, s32, f32);
@@ -110,7 +110,7 @@ extern char D_0063ECD0[];
 extern char D_0063ECF0[];
 extern char D_0063ED20[];
 extern s32 H_Memcard_LoadStep(s32);
-extern s32 func_0025e8f0(s32);
+extern s32 shdWindowQueryState(s32);
 extern void H_Memcard_SetAbort(void);
 extern s32 H_Memcard_CheckCard(void);
 extern s32 H_Memcard_ProbeCardStep(s32);
@@ -164,10 +164,10 @@ void mcSetState(u8 *arg0, s32 arg1) {
         memset(arg0 + 0x14, 0, 0x380);
         H_Memcard_SetRecordTable(arg0 + 0x14);
         if (*(s32 *)(arg0 + 0x394) != 0) {
-            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0xF);
+        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xF);
         func_00440b68(&D_0063EB90);
         return;
     case 1:
@@ -189,10 +189,10 @@ void mcSetState(u8 *arg0, s32 arg1) {
         H_Memcard_BeginLoad(t19, (void *)*(s32 *)(p + 4), *(s32 *)p);
         *(s32 *)(arg0 + 0x39C) = (s32)p;
         if (*(s32 *)(arg0 + 0x394) != 0) {
-            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0xF);
+        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xF);
         func_00440b68(&D_0063EBB0);
         *(s32 *)(arg0 + 0xC) = 0;
         return;
@@ -216,7 +216,7 @@ s32 mcLoadState(u8 *arg0) {
         switch (r = H_Memcard_LoadStep(v)) {
         case 100:
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
             func_00440b68(&D_0063EBF0);
@@ -231,10 +231,10 @@ s32 mcLoadState(u8 *arg0) {
         case -4:
         case -5:
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
             func_00440b68(&D_0063EC30, r);
             *(s32 *)(arg0 + 0xC) = 0xA;
             break;
@@ -247,7 +247,7 @@ s32 mcLoadState(u8 *arg0) {
         H_Memcard_SetAbort();
         /* fallthrough */
     case 0xB:
-        r = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        r = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (r != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -273,7 +273,7 @@ s32 mcLoadState(u8 *arg0) {
         *(s32 *)(arg0 + 0x3A8) = v;
         if (v >= 0xF) {
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
             return 1;
@@ -299,10 +299,10 @@ s32 mcCardProbeStep(u8 *arg0) {
             return 1;
         case -6:
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 6);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 6);
             func_00440b68(&D_0063EC70);
             *(s32 *)(arg0 + 0xC) = 0xA;
             break;
@@ -311,10 +311,10 @@ s32 mcCardProbeStep(u8 *arg0) {
         case -5:
         case -9:
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
             func_00440b68(&D_0063EC30, 0);
             *(s32 *)(arg0 + 0xC) = 0xA;
             break;
@@ -326,7 +326,7 @@ s32 mcCardProbeStep(u8 *arg0) {
         *(s32 *)(arg0 + 0xC) = 0xB;
         /* fallthrough */
     case 0xB:
-        r = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        r = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (r != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -337,13 +337,13 @@ s32 mcCardProbeStep(u8 *arg0) {
     case 0xC:
         *(s32 *)(arg0 + 0xC) = 0xD;
         if (*(s32 *)(arg0 + 0x394) != 0) {
-            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 8);
+        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 8);
         /* fallthrough */
     case 0xD:
-        r = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        r = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (r != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -391,10 +391,10 @@ s32 mcMemcardStep(u8 *arg0) {
         switch (var_17) {
         case 100:
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 9);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 9);
             func_00440b68(&D_0063EC90);
             *(s32 *)(arg0 + 0xC) = 9;
             if (arg0 == NULL) {
@@ -413,43 +413,43 @@ s32 mcMemcardStep(u8 *arg0) {
             func_00440b68(&D_0063ECB0);
             *(s32 *)(arg0 + 0x10) &= ~1;
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 7);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 7);
             break;
         case 5:
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 7);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 7);
             break;
         case -5:
             func_00440b68(&D_0063EC30, var_17);
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
             *(s32 *)(arg0 + 0xC) = 0xA;
             break;
         case -3:
             func_00440b68(&D_0063EC30, var_17);
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
             *(s32 *)(arg0 + 0xC) = 0xA;
             break;
         case -6:
             func_00440b68(&D_0063EC30, var_17);
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 6);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 6);
             *(s32 *)(arg0 + 0xC) = 0xA;
             break;
         case -4:
@@ -459,10 +459,10 @@ s32 mcMemcardStep(u8 *arg0) {
         case -7:
             func_00440b68(&D_0063EC30, var_17);
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0x16);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0x16);
             *(s32 *)(arg0 + 0xC) = 0xA;
             break;
         case 0:
@@ -472,14 +472,14 @@ s32 mcMemcardStep(u8 *arg0) {
     case 3:
         *(s32 *)(arg0 + 0xC) = 4;
         if (*(s32 *)(arg0 + 0x394) != 0) {
-            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 4);
+        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 4);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 4:
-        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (t != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -487,10 +487,10 @@ s32 mcMemcardStep(u8 *arg0) {
         case 1:
             *(s32 *)(arg0 + 0xC) = 0;
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 7);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 7);
             H_Memcard_SetSeqMode9();
             break;
         case 2:
@@ -503,10 +503,10 @@ s32 mcMemcardStep(u8 *arg0) {
         case 3:
             func_00440b68(&D_0063EC30, t);
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
             *(s32 *)(arg0 + 0xC) = 0xA;
             break;
         }
@@ -515,14 +515,14 @@ s32 mcMemcardStep(u8 *arg0) {
         *(s32 *)(arg0 + 0xC) = 6;
         *(s32 *)(arg0 + 0x10) |= 1;
         if (*(s32 *)(arg0 + 0x394) != 0) {
-            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 1);
+        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 1);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 6:
-        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (t != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -530,10 +530,10 @@ s32 mcMemcardStep(u8 *arg0) {
         case 1:
             *(s32 *)(arg0 + 0xC) = 0;
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 2);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 2);
             H_Memcard_SetSeqMode4();
             break;
         case 2:
@@ -545,16 +545,16 @@ s32 mcMemcardStep(u8 *arg0) {
         case 3:
             func_00440b68(&D_0063EC30, t);
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0);
             *(s32 *)(arg0 + 0xC) = 0xA;
             break;
         }
         break;
     case 9:
-        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (t != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -567,7 +567,7 @@ s32 mcMemcardStep(u8 *arg0) {
         H_Memcard_SetAbort();
         /* fallthrough */
     case 11:
-        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (t != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -587,22 +587,22 @@ s32 mcMemcardStep(u8 *arg0) {
         H_Memcard_SetAbort();
         if (*(s32 *)(arg0 + 0x10) & 1) {
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 3);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 3);
         } else {
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 8);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 8);
         }
         *(s32 *)(arg0 + 0x10) &= ~1;
         D_008873EC[0](*(void **)(arg0 + 0x39C));
         /* fallthrough */
     case 13:
-        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (t != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -643,24 +643,24 @@ s32 mcSaveState(s32 address) {
     case 16:
         *(s32 *)(arg0 + 0xC) = 0x11;
         if (*(s32 *)(arg0 + 0x394) != 0) {
-            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0xB);
+        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xB);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 17:
-        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (t != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
         switch (t) {
         case 1:
             if (*(s32 *)(arg0 + 0x394) != 0) {
-                func_0025e8b0(*(s32 *)(arg0 + 0x394));
+                shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
                 *(s32 *)(arg0 + 0x394) = 0;
             }
-            *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0xC);
+            *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xC);
             *(s32 *)(arg0 + 0xC) = 0x12;
             break;
         case 2:
@@ -736,13 +736,13 @@ read_failed:
     case 20:
         *(s32 *)(arg0 + 0xC) = 0x15;
         if (*(s32 *)(arg0 + 0x394) != 0) {
-            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0xD);
+        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xD);
         /* fallthrough */
     case 21:
-        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (t != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -753,14 +753,14 @@ read_failed:
     case 22:
         *(s32 *)(arg0 + 0xC) = 0x17;
         if (*(s32 *)(arg0 + 0x394) != 0) {
-            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0x14);
+        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0x14);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 23:
-        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (t != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -779,13 +779,13 @@ read_failed:
         *(s32 *)(arg0 + 0xC) = 0xD;
         H_Memcard_SetAbort();
         if (*(s32 *)(arg0 + 0x394) != 0) {
-            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0xE);
+        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0xE);
         /* fallthrough */
     case 13:
-        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (t != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -804,13 +804,13 @@ read_failed:
         *(s32 *)(arg0 + 0xC) = 0xF;
         H_Memcard_SetAbort();
         if (*(s32 *)(arg0 + 0x394) != 0) {
-            func_0025e8b0(*(s32 *)(arg0 + 0x394));
+            shdWindowMarkDone(*(s32 *)(arg0 + 0x394));
             *(s32 *)(arg0 + 0x394) = 0;
         }
-        *(s32 *)(arg0 + 0x394) = func_0025e800(0, 0, 0x16);
+        *(s32 *)(arg0 + 0x394) = shdWindowTaskCreate(0, 0, 0x16);
         /* fallthrough */
     case 15:
-        t = func_0025e8f0(*(s32 *)(arg0 + 0x394));
+        t = shdWindowQueryState(*(s32 *)(arg0 + 0x394));
         if (t != 0) {
             *(s32 *)(arg0 + 0x394) = 0;
         }
@@ -1638,7 +1638,7 @@ void mcQueueDrawJob(s32 arg0) {
     u8 *work = PrimAllocQueueNode();
     *(void **)(work + 8) = func_002a6650;
     *(void **)(work + 0x10) = (void *)arg0;
-    func_00460ac0(&D_00796370, work);
+    PrimAppendNode(&D_00796370, work);
 }
 
 // Intent: draws a ring of 40 segments around a centre as a fan (or a 40-point strip when bit 4 of the mode is set), with the colour packed in arg0/arg1.
@@ -1691,7 +1691,7 @@ void mcDrawCircleFan(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
     setState = (void *)D_00887300;
     (*(void (**)(u32, u32))setState)(1, 0);
     if (arg1 == 0xFF && !(arg2 & 2)) {
-        func_00364c50();
+        shdEnableBlendFlag();
     }
     if (!(arg2 & 4)) {
         PrimDrawPoints(&colors[0][0], &arr[0].a, fparg2, 0x29, 5, arg2 & 1);
@@ -1699,7 +1699,7 @@ void mcDrawCircleFan(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
         PrimDrawPoints(&colors[1][0], &arr[1].a, fparg2, 0x28, 2, arg2 & 1);
     }
     if (arg1 == 0xFF && !(arg2 & 2)) {
-        func_00364c70();
+        shdDisableBlendFlag();
     }
 }
 

@@ -35,7 +35,7 @@ void mdlEffectEmitTagPair(void);
 s32 kwlnGetCamera(void);
 f32 cosf(f32 fparg0);
 f32 sinf(f32 fparg0);
-s32 func_003645c0(char *arg0, s32 rem);
+s32 shdFormatGroupedNumber(char *arg0, s32 rem);
 
 /* Measured: Vec2f-by-value, explicit digit-pointer lifetime and separate alpha
  * extraction reproduce 660 executable bytes and 18 resolved relocations.
@@ -43,8 +43,9 @@ s32 func_003645c0(char *arg0, s32 rem);
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
+// Intent: Draw a number in sprite digits; a value of zero or less shows the player's money [inferred]
 // FUN_00364320
-void func_00364320(Vec2f pos, f32 z, s32 color, s32 num)
+void shdDrawNumberText(Vec2f pos, f32 z, s32 color, s32 num)
 {
     char tmp[64];
     s32 ch;
@@ -56,7 +57,7 @@ void func_00364320(Vec2f pos, f32 z, s32 color, s32 num)
         if (num <= 0) {
             num = datGetMoney();
         }
-        func_003645c0(tmp, num);
+        shdFormatGroupedNumber(tmp, num);
         if (iGpffffb5a8 == 0) {
             s32 temp = resourceFindByName(D_005E5810);
             iGpffffb5a8 = temp;
@@ -104,8 +105,9 @@ void func_00364320(Vec2f pos, f32 z, s32 color, s32 num)
    the earlier body carried were not. */
 #pragma push
 #pragma opt_loop_invariants on
+// Intent: Format a number as decimal text with a '.' every three digits and return the digit count [inferred]
 // FUN_003645C0
-s32 func_003645c0(char *out, s32 value)
+s32 shdFormatGroupedNumber(char *out, s32 value)
 {
     char tmp[16];
     s32 i;
@@ -165,8 +167,9 @@ typedef struct ShdQuadVertex {
    (the direct `D_00887300[0]` spelling is folded to lui/lw at every call).
    The colour channels are s32, which gives retail's $s5-$s2 colouring. */
 #pragma opt_loop_invariants on
+// Intent: Draw a four-vertex colour quad from its corner floats and colour [inferred]
 // FUN_00364680
-void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6, u8 *ptr, s32 arg2, s32 arg3)
+void shdDrawColourQuad(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, f32 fparg6, u8 *ptr, s32 arg2, s32 arg3)
 {
     ShdQuadVertex verts[4];
     f32 z;
@@ -305,13 +308,15 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
 }
 #pragma pop
 
+// Intent: Set bit 0x80 of the shared draw flags, marking the blend pass on [inferred]
 // FUN_00364C50
-void func_00364c50(void) {
+void shdEnableBlendFlag(void) {
     iGpffffabe8 |= 0x80;
 }
 
+// Intent: Clear bit 0x80 of the shared draw flags, marking the blend pass off [inferred]
 // FUN_00364C70
-void func_00364c70(void) {
+void shdDisableBlendFlag(void) {
     iGpffffabe8 &= ~0x80;
 }
 
@@ -319,10 +324,11 @@ void func_00364c70(void) {
    retail argument spill, FP lifetimes and load-all/store-all schedule.
    All 796 executable bytes and 21 resolved relocations match; the remaining
    four bytes are unreachable function-alignment padding. */
+// Intent: Draw a rotated rectangle of the given width and height; alpha 255 in mode 1 uses the blend flag [inferred]
 // FUN_00364C90
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
-void func_00364c90(Vec2f position, f32 depth, s32 color,
+void shdDrawRotatedRect(Vec2f position, f32 depth, s32 color,
                    f32 width, f32 height, f32 angle, s32 mode) {
     f32 vertices[4][16];
     f32 geometry[4];
@@ -392,8 +398,9 @@ static inline void shdFarX(f32 *out, const f32 *origin,
     *out = (0.0f + (*origin + offset)) - length * sine;
 }
 
+// Intent: Draw a wedge from a centre point and an angle; arg3 selects the far-column layout [inferred]
 // FUN_00364FB0
-void func_00364fb0(Vec2f position, f32 depth, s32 color, f32 angle, s32 arg2, s32 arg3) {
+void shdDrawWedge(Vec2f position, f32 depth, s32 color, f32 angle, s32 arg2, s32 arg3) {
     f32 vertices[4][16];
     f32 sine;
     f32 far_depth;
@@ -486,8 +493,9 @@ void func_00364fb0(Vec2f position, f32 depth, s32 color, f32 angle, s32 arg2, s3
    bltz / srl-andi-or / mtc1 / cvt / add.s idiom itself with retail's $v1 destination;
    spelling it out by hand colours $v0). The angle is `iGpffff8094 * (f32)var_20`
    in one expression so the GP constant is the first mul.s operand. */
+// Intent: Draw a rotating quad: four points on a circle around the origin, spaced by a fixed angle step [inferred]
 // FUN_003657D0
-void func_003657d0(Vec2f arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32 arg2) {
+void shdDrawRotatingQuad(Vec2f arg0, f32 fparg0, s32 arg1, f32 fparg1, f32 fparg2, s32 arg2) {
     f32 vertices[4][16];
     f32 sine;
     f32 cosine;
@@ -559,8 +567,9 @@ static inline f32 outlineAxis(s32 phase, f32 width, f32 height)
     f32 extent = outlineExtent(isTip, half, width, height);
     return outlineSignedExtent(phase < 4 ? 1 : -1, extent);
 }
+// Intent: Draw a ten-vertex rectangle outline rotated by the angle [inferred]
 // FUN_00365AC0
-void func_00365ac0(Vec2f position, f32 depth, s32 color, f32 angle, f32 width, f32 height, s32 mode) {
+void shdDrawRectOutline(Vec2f position, f32 depth, s32 color, f32 angle, f32 width, f32 height, s32 mode) {
     f32 output[160];
     f32 vertexDepth;
     f32 reciprocalDepth;
@@ -627,8 +636,9 @@ static inline s32 radialCheckedSegmentCount(u32 segments)
     return count;
 }
 
+// Intent: Draw a radial fan of up to 100 segments from the centre colour to the edge colour [inferred]
 // FUN_00365F00
-void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
+void shdDrawRadialFan(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
                    f32 radius, f32 angle, u32 segments, f32 xscale, f32 yscale,
                    s32 mode) {
     f32 vertices[102][16];

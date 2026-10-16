@@ -25,7 +25,7 @@ s16 datBuildPartyIdList(s16* dst);
 u8 *sdkSpriteRequestLoad(const char *name);
 s32 sprintf(char *dst, const char *format, ...);
 u32 func_0046a750(s16 *node);
-void func_00460ac0(u8 *list, u8 *node);
+void PrimAppendNode(u8 *list, u8 *node);
 extern u8 D_0064E2A0[];
 extern u8 D_0064E2C0[];
 extern u8 D_00794960[];
@@ -322,7 +322,7 @@ s32 cmpPartyPanelTaskStep(u8 *task)
 
     work->node.next = 0;
     work->node.tail = 0;
-    func_00460ac0(D_00794960, (u8 *)&work->node);
+    PrimAppendNode(D_00794960, (u8 *)&work->node);
     switch (work->state) {
     case 0: {
         s32 i;

@@ -27,7 +27,7 @@ extern void btlUnitUpdateAllLookAtTargets(void);
 extern void btlUnitQueueAllModelsForDraw(void);
 extern void btlEffectUpdateFadeNodes(void);
 extern void btlCameraDrawDebug(void);
-extern void func_00460ac0(void *arg0, void *arg1);
+extern void PrimAppendNode(void *arg0, void *arg1);
 extern void func_003e8110(s32 arg0);
 extern u8 D_007940C0[];
 extern u8 D_00794120[];
@@ -127,10 +127,10 @@ s32 btlUpdateDraw3DTask(u8 *unusedTask)
         btlCameraDrawDebug();
         *(s32 *)((u8 *)iGpffffb3ac + 0xE18) = 0;
         *(s32 *)((u8 *)iGpffffb3ac + 0xE1C) = 0;
-        func_00460ac0(D_007940C0, (u8 *)iGpffffb3ac + 0xE18);
+        PrimAppendNode(D_007940C0, (u8 *)iGpffffb3ac + 0xE18);
         *(s32 *)((u8 *)iGpffffb3ac + 0xE48) = 0;
         *(s32 *)((u8 *)iGpffffb3ac + 0xE4C) = 0;
-        func_00460ac0(D_00794120, (u8 *)iGpffffb3ac + 0xE48);
+        PrimAppendNode(D_00794120, (u8 *)iGpffffb3ac + 0xE48);
         func_003e8110(kwlnGetCamera());
     }
     return 0;

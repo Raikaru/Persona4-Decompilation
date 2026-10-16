@@ -56,7 +56,7 @@ extern void mdlQueueModelForDraw(s32 arg0, u8 *arg1);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(char *arg0, u8 *arg1);
+extern void PrimAppendNode(char *arg0, u8 *arg1);
 extern char D_005DC824[];
 extern char D_00794AE0[];
 extern char D_00794C00[];

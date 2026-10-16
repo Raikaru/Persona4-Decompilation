@@ -27,7 +27,7 @@ extern void edScrollWorkInit(u8 *arg0);
 
 /* Window / effect / scripting helpers. */
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *param, void *work);
+extern void PrimAppendNode(void *param, void *work);
 extern s32 datGetFlag(s32 id);
 extern s32 fadeStatus(void);
 extern s32 fadeState(void);
@@ -171,7 +171,7 @@ s32 edSrOverlayTaskUpdate(u8 *arg0) {
     work = PrimAllocQueueNode();
     *(s32 *)(work + 0x8) = (s32)edSrOverlayDraw;
     *(s32 *)(work + 0x10) = v;
-    func_00460ac0(&D_007964C0, work);
+    PrimAppendNode(&D_007964C0, work);
     return 0;
 }
 
@@ -186,8 +186,9 @@ void edSrTaskDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
+// Intent: Start the end scene when the script command timer reaches 0xA; return 1 once the timer is past it and the task is gone [inferred]
 // FUN_0038F290
-s32 func_0038f290(void) {
+s32 edSrStartEndScene(void) {
     s32 state;
     u8 *w;
     u8 *p;

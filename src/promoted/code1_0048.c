@@ -48,7 +48,7 @@ extern u8 *func_00482230(s32 *arg0);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 s32 TnGetOffset1C(s32 arg0);
-extern void func_00460ac0(s32 arg0, void *arg1);
+extern void PrimAppendNode(s32 arg0, void *arg1);
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 *func_003c22f0(u8 *arg0);

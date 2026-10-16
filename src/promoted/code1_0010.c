@@ -152,7 +152,7 @@ typedef struct {
     f32 y;
 } Float2_0010;
 extern u8 D_00796460[];
-extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern void sdkSndInit(void);
 extern void sdkSndSetSlotTrack(s32 arg0, s32 arg1);
 extern void func_0045b430(void);
@@ -298,7 +298,7 @@ void fclBankRenderStateFull(void)
 // FUN_001036D0
 s32 fclBankTaskUpdate(u8 *arg0) {
     extern u8 *PrimAllocBatchNode(void);
-    extern void func_00460ac0(void *list, void *node);
+    extern void PrimAppendNode(void *list, void *node);
     extern u8 D_005DD5D0[];
     extern u8 D_00793E80[];
     extern s64 iGpffff85c8;
@@ -412,8 +412,8 @@ loop2_check:
         *(s32 *)(*(u8 **)(state + 4) + 4) = 0;
         *(s32 *)(*(u8 **)(state + 8) + 0) = 0;
         *(s32 *)(*(u8 **)(state + 8) + 4) = 0;
-        func_00460ac0(D_00793E80, *(u8 **)(state + 4));
-        func_00460ac0(D_00793E80, *(u8 **)(state + 8));
+        PrimAppendNode(D_00793E80, *(u8 **)(state + 4));
+        PrimAppendNode(D_00793E80, *(u8 **)(state + 8));
         break;
     }
     return 0;
@@ -457,14 +457,14 @@ void fclBankTableInit(void) {
     extern void fclBankSlotLoad(u8 *arg0);
     s16 index;
 
-    func_00460b60(D_00796460, 6, 1);
-    func_00460b60(D_00796460, 7, 2);
-    func_00460b60(D_00796460, 8, 1);
-    func_00460b60(D_00796460, 11, 6);
-    func_00460b60(D_00796460, 10, 5);
-    func_00460b60(D_00796460, 9, 1);
-    func_00460b60(D_00796460, 12, 1);
-    func_00460b60(D_00796460, 2, 4);
+    PrimQueueStateSet(D_00796460, 6, 1);
+    PrimQueueStateSet(D_00796460, 7, 2);
+    PrimQueueStateSet(D_00796460, 8, 1);
+    PrimQueueStateSet(D_00796460, 11, 6);
+    PrimQueueStateSet(D_00796460, 10, 5);
+    PrimQueueStateSet(D_00796460, 9, 1);
+    PrimQueueStateSet(D_00796460, 12, 1);
+    PrimQueueStateSet(D_00796460, 2, 4);
 
     index = 0;
     while (index < 2) {
@@ -679,8 +679,8 @@ void fclBankSlotUpdate(u8 *arg0)
         *(s32 *)(arg0 + 0x1F4) = 0x3F800000;
         *(s32 *)(arg0 + 0x230) = 0x3F800000;
         *(s32 *)(arg0 + 0x234) = 0x3F800000;
-        func_00460b60(D_00796460, 1, **(s32 **)(arg0 + 0x14));
-        func_00461390(D_00796460, 4, arg0 + 0x160, 4);
+        PrimQueueStateSet(D_00796460, 1, **(s32 **)(arg0 + 0x14));
+        PrimQueueDrawPrimitive(D_00796460, 4, arg0 + 0x160, 4);
         if (*(s32 *)(arg0 + 0x4C) >= 2) {
             a = arg0[0x1F];
             if (a == 0xFF && *(s32 *)(arg0 + 0x50) != 0) {
@@ -732,8 +732,8 @@ void fclBankSlotUpdate(u8 *arg0)
                     *(s32 *)(arg0 + 0x2F4) = 0x3F800000;
                     *(s32 *)(arg0 + 0x330) = 0x3F800000;
                     *(s32 *)(arg0 + 0x334) = 0x3F800000;
-                    func_00460b60(D_00796460, 1, **(s32 **)(arg0 + 0x18));
-                    func_00461390(D_00796460, 4, arg0 + 0x260, 4);
+                    PrimQueueStateSet(D_00796460, 1, **(s32 **)(arg0 + 0x18));
+                    PrimQueueDrawPrimitive(D_00796460, 4, arg0 + 0x260, 4);
                 }
                 src = (s32 *)D_005DD680;
                 dst = table;

@@ -103,7 +103,7 @@ extern u8 D_0064B410[];
 extern s32 datGridEffectUpdate(u8 *arg0);
 extern void datGridEffectDestroy(u8 *arg0);
 extern void datGridEffectInit(u8 *arg0, s64 arg1, s32 arg2);
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern u8 D_00793E80[];
 extern f32 iGpffff83d4;
 extern f32 iGpffff8544;
@@ -616,7 +616,7 @@ u8 *datScreenWipeTaskCreate(s32 arg0, u16 arg1) {
 /* best stays 16 (ties: loopinv on, strength off, unroll off and pairs; 81 prop */
 /* group, 238 dead group, 272-279 schedule group, 276 peephole ties, 283 csoff */
 /* group, 292-308 peephole/csoff high). No pair wins; floor stands. */
-/* MATCHED 2026-09-18.  func_00364680's parameter order is
+/* MATCHED 2026-09-18.  shdDrawColourQuad's parameter order is
    (f32, s32, f32, f32, f32, f32, f32, f32, s32 *, s32, s32) - the spelling
    already used in src/promoted/shdPersona.c and src/promoted/code1_0022.c -
    not the ints-first shape that was here.  b210 emits call-argument setup in
@@ -632,7 +632,7 @@ void datScreenWipeDraw(u8 *arg0) {
     extern u8 *kwlnGetCamera(void);
     extern f32 D_008872F8[];
     extern f32 D_00761470;
-    extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sx, f32 sy, f32 w, f32 h, s32 *tex, s32 mode, s32 flag);
+    extern void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 sx, f32 sy, f32 w, f32 h, s32 *tex, s32 mode, s32 flag);
     extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern u8 D_00887300[];
     extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
@@ -727,7 +727,7 @@ void datScreenWipeDraw(u8 *arg0) {
     qs[3].u = 0x3F800000;
     qs[3].v = 0x3F800000;
     qs[3].q = q;
-    func_00364680(0.0f, (*(u32 *)(p + 0xC) & ~0xFF) | (((((*(u32 *)(p + 0xC)) & 0xFF) * 0xFF) / *(u8 *)(p + 0xA)) & 0xFF), *(f32 *)(p + 0x28) + *(f32 *)(p + 0x30), *(f32 *)(p + 0x2C) + *(f32 *)(p + 0x34), *(f32 *)(p + 0x10), *(f32 *)(p + 0x14), sx, sy, *(s32 **)(p + 0x150), 1, 0);
+    shdDrawColourQuad(0.0f, (*(u32 *)(p + 0xC) & ~0xFF) | (((((*(u32 *)(p + 0xC)) & 0xFF) * 0xFF) / *(u8 *)(p + 0xA)) & 0xFF), *(f32 *)(p + 0x28) + *(f32 *)(p + 0x30), *(f32 *)(p + 0x2C) + *(f32 *)(p + 0x34), *(f32 *)(p + 0x10), *(f32 *)(p + 0x14), sx, sy, *(s32 **)(p + 0x150), 1, 0);
     base = (u32)D_00887300;
     ((void (*)(u32, u32))*(u32 *)base)(6, 0);
     ((void (*)(u32, u32))*(u32 *)base)(7, 2);
@@ -1104,7 +1104,7 @@ s32 datGridEffectUpdate(u8 *arg0)
     work = *(u8 **)(arg0 + 0x38);
     *(s32 *)(work + 0x1F8) = 0;
     *(s32 *)(work + 0x1FC) = 0;
-    func_00460ac0((u8 *)&D_00793E80 + (*(s32 *)(work + 0x228) * 0x30), work + 0x1F8);
+    PrimAppendNode((u8 *)&D_00793E80 + (*(s32 *)(work + 0x228) * 0x30), work + 0x1F8);
     if (!(*(s32 *)(work + 8) & 4)) {
         goto ret0;
     }
@@ -1341,7 +1341,7 @@ void datGridEffectDrawStrip(s64 arg0, f32 f0, f32 f1, s32 arg1,
     if (sel != 0xFF) {
         var8 = 0;
     }
-    func_00365f00(saved0[0].position, f0,
+    shdDrawRadialFan(saved0[0].position, f0,
                   *(s32 *)((u8 *)saved1), saved1[0],
                   f1, f2, tmp2, 1.0f, 1.0f, var8);
 }
@@ -1388,7 +1388,7 @@ void datGridEffectDrawCell(Vec2f arg0, s32 arg1, f32 dummy,
     call_f3 = one;
     call_arg4 = var8;
     call_f4 = one;
-    func_00365f00(arg0, call_f0, frame.saved1.bits, frame.saved1.bits,
+    shdDrawRadialFan(arg0, call_f0, frame.saved1.bits, frame.saved1.bits,
                   call_f1, call_f2, 4,
                   call_f3, call_f4, call_arg4);
 }
@@ -3391,7 +3391,7 @@ u8 *datPortraitTextTaskCreate(s32 arg0, u16 arg1, s32 arg2)
       an accumulate statement through an f32 local (`tx = *(f32 *)p;
       tx = tx + 256.0f;`) - written as one expression b210 puts the constant
       in rs whichever way the operands are spelled (15 -> 11);
-   2. func_00364680 takes (f32, s32, f32, f32, f32, f32, f32, f32, s32 *,
+   2. shdDrawColourQuad takes (f32, s32, f32, f32, f32, f32, f32, f32, s32 *,
       s32, s32), as src/promoted/shdPersona.c already had it, not the
       ints-first list that was here (11 -> 0).  Argument setup is emitted in
       source order, so the late `mtc1 $zero, $f12` and early `lw $a1` were
@@ -3405,7 +3405,7 @@ f32 datPortraitTextDraw(u8 *arg0, u8 arg1)
     f32 ty;
     extern u8 *kwlnGetCamera(void);
     extern f32 D_008872F8[];
-    extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sx, f32 sy, f32 w, f32 h, s32 *tex, s32 mode, s32 flag);
+    extern void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 sx, f32 sy, f32 w, f32 h, s32 *tex, s32 mode, s32 flag);
     extern void sdkRenderStateSetDefault(void);
     extern s32 (*D_00887300[])(s32, s32);
     extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
@@ -3506,7 +3506,7 @@ f32 datPortraitTextDraw(u8 *arg0, u8 arg1)
     qs[3].u = 0x3F800000;
     qs[3].v = 0x3F800000;
     qs[3].q = q;
-    func_00364680(0.0f, *(s32 *)(p + 0x28) | (arg1 & 0xFF), *(f32 *)(p + 0x18) + -30.0f, *(f32 *)(p + 0x1C), *(f32 *)p, *(f32 *)(p + 4), 256.0f, 256.0f, *(s32 **)(p + 0x3C), 1, 0);
+    shdDrawColourQuad(0.0f, *(s32 *)(p + 0x28) | (arg1 & 0xFF), *(f32 *)(p + 0x18) + -30.0f, *(f32 *)(p + 0x1C), *(f32 *)p, *(f32 *)(p + 4), 256.0f, 256.0f, *(s32 **)(p + 0x3C), 1, 0);
     sdkRenderStateSetDefault();
     D_00887300[0](1, **(s32 **)(p + 0x3C));
     D_00887310[0](4, &qs[0], 4);
