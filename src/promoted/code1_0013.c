@@ -67,11 +67,11 @@ extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
 extern void datEntryDrawRow(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
-extern void func_0011fd30(u8 *arg0);
-extern void func_0011fd50(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
+extern void datPanelResetCursor(u8 *arg0);
+extern void datPanelDrawByKind(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 extern s32 datCalcGetLevelById(s32 arg0);
 extern f32 fGpffff82cc; /* gp -0x7d34 */
-extern void func_00113790(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
+extern void datEntryDrawByKind(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
 extern void func_002bc860(f32 x, f32 y, f32 depth,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_0012e2f0(u8 *arg0);
@@ -303,7 +303,7 @@ void func_00130680(u8 *arg0, s32 arg1)
     id = ((s16 *)(arg0 + 0x34))[arg1];
     dim = 1.0f;
     highlight = 0;
-    func_0011fd30((u8 *)&param);
+    datPanelResetCursor((u8 *)&param);
     param.mode = 1;
     param.id = id;
     x = *(f32 *)(arg0 + 4);
@@ -327,7 +327,7 @@ void func_00130680(u8 *arg0, s32 arg1)
     ty = 24.0f + (y + ((LabelSlot *)(arg0 + 0x16D8))[arg1].y);
     pos.y = ty + yoff;
     ty = ((LabelSlot *)(arg0 + 0x16D8))[arg1].alpha;
-    func_0011fd50(pos, 0.0f, (u8)(ty * fade), (u8 *)&param, 0);
+    datPanelDrawByKind(pos, 0.0f, (u8)(ty * fade), (u8 *)&param, 0);
     alpha = (f32)(arg0 + 0x1622)[arg1 * 0x30] * fade;
     pos.x = 60.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
     ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
@@ -994,7 +994,7 @@ void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2)
     x = *(f32 *)(arg0 + 4);
     y = *(f32 *)(arg0 + 8);
     fade = (f32)*(u8 *)arg0 / 255.0f;
-    func_0011fd30((u8 *)&param);
+    datPanelResetCursor((u8 *)&param);
     param.mode = 1;
     param.id = id;
     selected = ((s16 *)(arg0 + 0x5C))[arg2];
@@ -1030,7 +1030,7 @@ void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2)
     ty = 24.0f + (y + ((LabelSlot *)(arg0 + 0x594))[slot + arg1].y);
     pos.y = ty + yoff;
     ty = ((LabelSlot *)(arg0 + 0x594))[slot + arg1].alpha;
-    func_0011fd50(pos, 0.0f, (u8)(ty * fade), (u8 *)&param, 0);
+    datPanelDrawByKind(pos, 0.0f, (u8)(ty * fade), (u8 *)&param, 0);
     alpha = (f32)(arg0 + 0x59E)[(slot2 + arg1) * 0x30] * fade;
     pos.x = 60.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
     ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
@@ -1209,7 +1209,7 @@ void func_0013b420(void *context, Vec2f inputPosition, s32 inputAlpha, void *ent
                       y, colors.copy.b[0], green, blue, alpha);
     }
     position.xy.x = position.xy.x - 2.0f;
-    func_00113790(position.xy, colors.current.b[3], entry, 1, 0.0f);
+    datEntryDrawByKind(position.xy, colors.current.b[3], entry, 1, 0.0f);
     position.xy.x = 22.0f + inputPosition.x;
     position.xy.y = 54.0f + originalY;
     labelAlpha = (u8)scaledInputAlpha;
