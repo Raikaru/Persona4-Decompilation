@@ -409,7 +409,7 @@ s32 func_002e72c0(u8 *arg0)
     s32 MT_Scene_GetCameraResFirst(void);
     f32 MT_Scene_GetCameraFov(void);
     s32 func_0015f660(void);
-    s32 func_0033be40(u8 *arg0);
+    s32 fclItemShopCreate(u8 *arg0);
     u8 *func_003e9cb0(u8 *arg0, ...);
     s32 kwlnTaskGetTaskByName(s8 *arg0);
     u8 *func_00457120(void);
@@ -446,7 +446,7 @@ s32 func_002e72c0(u8 *arg0)
             if (*(s32 *)(work + 4) != 0) {
                 *(s32 *)(work + 4) = 0;
             }
-            *(s32 *)(work + 4) = func_0033be40(arg0);
+            *(s32 *)(work + 4) = fclItemShopCreate(arg0);
             *(s8 *)work = 0x22;
         }
         goto block_24;
