@@ -26,12 +26,12 @@ extern u8 *func_00483270(u8 *arg0);
 extern void func_00487160(void *arg0, void *arg1);
 extern u8 *func_00492b20(u16 arg0, u32 arg1, void *arg2);
 extern void func_004941f0(void *arg0, void *arg1);
-extern u8 *func_00493e60(u16 arg0, u16 arg1);
-extern void func_004938e0(u8 *arg0);
-extern void func_004936d0(u8 *arg0, u8 *arg1);
-extern void func_00493790(u8 *arg0, u16 arg1, u8 *arg2);
-extern void func_00493820(u8 *arg0, u16 arg1, u8 *arg2);
-extern void func_00493080(u8 *arg0, u16 arg1, s32 *arg2);
+extern u8 *TrackAllocRibbons(u16 arg0, u16 arg1);
+extern void TrackUpdateSlots(u8 *arg0);
+extern void TrackCopyState(u8 *arg0, u8 *arg1);
+extern void TrackLoadRecord(u8 *arg0, u16 arg1, u8 *arg2);
+extern void TrackRebindPathData(u8 *arg0, u16 arg1, u8 *arg2);
+extern void TrackApplyMode(u8 *arg0, u16 arg1, s32 *arg2);
 extern void func_00492df0(void *arg0, u32 *arg1);
 extern void func_00492db0(void *arg0, u32 *arg1);
 extern void func_00484350(void *arg0, void *arg1, void *arg2, f32 arg3);
@@ -69,8 +69,9 @@ extern LineNovaColor iGpffffbb64;
 
 
 
+// Allocates a 0x38-byte track instance with a count, unit scale and a single-entry mode word.
 // FUN_00492E70
-void *func_00492e70(u32 arg0)
+void *TrackAllocInstance(u32 arg0)
 {
     u8 *w;
 
@@ -88,12 +89,13 @@ void *func_00492e70(u32 arg0)
 }
 
 /* measured: arg1's u16 load must be emitted before the $a0 move (retail's
-   pre-jal order). On the identical call pattern in FUN_00493200 the plain
+   pre-jal order). On the identical call pattern in TrackCreateWithMode the plain
    read measures nd 5 (lhu/move swapped at both sites) and a shared named
    local nd 62 (spills into $s2); the volatile-anchored read applied here
    first try, nd 0. */
+// Creates a track from an emitter, with the count (params times segments) capped at 100 (0x64).
 // FUN_00492F20
-void *func_00492f20(void *opaqueSource)
+void *TrackCreateFromEmitter(void *opaqueSource)
 {
     u8 *arg0 = opaqueSource;
     u8 *t;
@@ -128,9 +130,9 @@ void *func_00492f20(void *opaqueSource)
     {
         u16 w = *(volatile u16 *)(arg0 + 0xC);
 
-        func_00493790(t2, w, t);
+        TrackLoadRecord(t2, w, t);
     }
-    func_00493820(t2, *(volatile u16 *)(arg0 + 0xC), t + 0x1C);
+    TrackRebindPathData(t2, *(volatile u16 *)(arg0 + 0xC), t + 0x1C);
     return t2;
 }
 
@@ -138,8 +140,9 @@ void *func_00492f20(void *opaqueSource)
    selector as func_00487650's third argument keeps arg1&0xFFFF in $a2 across
    the dispatch; object 376B/384B, normalized_diff 0 (jump-table relocations
    are the only fndiff rows). */
+// Applies a mode to the track's sub-object: dispatches on the mode value to the matching setter.
 // FUN_00493080
-void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
+void TrackApplyMode(u8 *arg0, u16 arg1, s32 *arg2) {
     u8 *o;
 
     if (*(u8 **)(arg0 + 0x2C) == NULL) {
@@ -180,8 +183,9 @@ void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
 }
 /* measured: same volatile-anchored arg1 read as 0x00492f20; plain reads
    swap the lhu/move order at both call sites (nd 5), local spills (nd 62). */
+// Creates a track from an emitter and applies the emitter's mode when one is attached.
 // FUN_00493200
-void *func_00493200(void *opaqueSource)
+void *TrackCreateWithMode(void *opaqueSource)
 {
     u8 *arg0 = opaqueSource;
     u8 *t;
@@ -202,28 +206,29 @@ void *func_00493200(void *opaqueSource)
     if (var > 0x64) {
         var = 0x64;
     }
-    t2 = func_00492e70(var);
+    t2 = TrackAllocInstance(var);
     if (t2 == NULL) {
         kAssertFail(D_00713E30, 0x63);
     }
     {
         u16 w = *(volatile u16 *)(arg0 + 0xC);
 
-        func_00493790(t2, w, t);
+        TrackLoadRecord(t2, w, t);
     }
-    func_00493820(t2, *(volatile u16 *)(arg0 + 0xC), t + 0x1C);
+    TrackRebindPathData(t2, *(volatile u16 *)(arg0 + 0xC), t + 0x1C);
     {
         s32 *r = (s32 *)func_004844d0(arg0);
 
         if (r != NULL) {
-            func_00493080(t2, *(u16 *)(arg0 + 0x1C), r);
+            TrackApplyMode(t2, *(u16 *)(arg0 + 0x1C), r);
         }
     }
     return t2;
 }
 
+// Frees a track: its ribbon sub-object, its second sub-object, its path block, then the instance.
 // FUN_00493320
-void func_00493320(u8 *arg0)
+void TrackFreeInstance(u8 *arg0)
 {
     u32 temp_4;
     u32 temp_4_2;
@@ -245,8 +250,9 @@ void func_00493320(u8 *arg0)
 }
 /* measured: same volatile-anchored arg1 read as 0x00492f20 (see its
    note); plain reads swap the lhu/move order at both call sites. */
+// Creates a track from an owner's track data, with the count capped at 100 (0x64).
 // FUN_004933A0
-void *func_004933a0(void *opaqueSource)
+void *TrackCreateFromSource(void *opaqueSource)
 {
     u8 *arg0 = opaqueSource;
     u8 *t17;
@@ -284,16 +290,17 @@ void *func_004933a0(void *opaqueSource)
     {
         u16 w = *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0);
 
-        func_00493790(t2, w, arg0 + 0xC);
+        TrackLoadRecord(t2, w, arg0 + 0xC);
     }
-    func_00493820(t2, *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0), t17);
+    TrackRebindPathData(t2, *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0), t17);
     return t2;
 }
 
 /* measured: same volatile-anchored arg1 read as 0x00492f20 (see its
    note); plain reads swap the lhu/move order at both call sites. */
+// Creates a track from an owner source and copies the source track's state across.
 // FUN_00493530
-void *func_00493530(void *opaqueSource)
+void *TrackCreateFromSourceCopy(void *opaqueSource)
 {
     u8 *arg0 = opaqueSource;
     u8 *t17;
@@ -331,15 +338,16 @@ void *func_00493530(void *opaqueSource)
     {
         u16 w = *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0);
 
-        func_00493790(t2, w, arg0 + 0xC);
+        TrackLoadRecord(t2, w, arg0 + 0xC);
     }
-    func_00493820(t2, *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0), t17);
-    func_004936d0(t2, arg0);
+    TrackRebindPathData(t2, *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0), t17);
+    TrackCopyState(t2, arg0);
     return t2;
 }
 
+// Copies a source track's sub-object and width into the destination track.
 // FUN_004936D0
-void func_004936d0(u8 *arg0, u8 *arg1)
+void TrackCopyState(u8 *arg0, u8 *arg1)
 {
     u8 *v;
 
@@ -361,8 +369,9 @@ void func_004936d0(u8 *arg0, u8 *arg1)
         *(u16 *)(*(u8 **)(arg1 + 0x2C) + 0xC);
 }
 
+// Copies the 0x1C source record in and rebuilds the 0x28 sub-object when the track is live.
 // FUN_00493790
-void func_00493790(u8 *arg0, u16 arg1, u8 *arg2)
+void TrackLoadRecord(u8 *arg0, u16 arg1, u8 *arg2)
 {
     u8 *v;
 
@@ -371,14 +380,15 @@ void func_00493790(u8 *arg0, u16 arg1, u8 *arg2)
         if (*(u32 *)(arg0 + 0x28) != 0) {
             func_00494680((void *)*(u32 *)(arg0 + 0x28));
         }
-        v = func_00493e60(*(u16 *)(arg0 + 0), *(u16 *)arg2);
+        v = TrackAllocRibbons(*(u16 *)(arg0 + 0), *(u16 *)arg2);
         *(u8 **)(arg0 + 0x28) = v;
         func_004941f0(v, arg2 + 8);
     }
 }
 
+// Rebinds the track's path data: frees the old 0x30 block and allocates a new one for the index.
 // FUN_00493820
-void func_00493820(u8 *arg0, u16 arg1, u8 *arg2)
+void TrackRebindPathData(u8 *arg0, u16 arg1, u8 *arg2)
 {
     if (*(u32 *)(arg0 + 0x30) != 0) {
         func_00492cd0((u8 *)*(u32 *)(arg0 + 0x30));
@@ -389,8 +399,9 @@ void func_00493820(u8 *arg0, u16 arg1, u8 *arg2)
     *(u32 *)(arg0 + 0x30) = (u32)func_00492b20(arg1 & 0xFFFF, *(u32 *)(arg0 + 0), arg2);
 }
 
+// Releases the track's sub-object through the sub-object release callback.
 // FUN_004938B0
-void func_004938b0(u8 *arg0)
+void TrackReleaseSubobject(u8 *arg0)
 {
     u32 temp_4;
 
@@ -415,8 +426,9 @@ void func_004938b0(u8 *arg0)
    reproduces - `opt_rebuildconditionals off` does not.  The COP2 colour
    unpack follows the established idiom in src/Graphics/Effect/effBlurFilter.c;
    the `sw $2, 0x90($sp)` slot and its volatile reload are part of it. */
+// Per-frame update: writes each live track sample into its owner slot, then sets the owner's colour and width.
 // FUN_004938E0
-void func_004938e0(u8 *arg0)
+void TrackUpdateSlots(u8 *arg0)
 {
     extern f32 fGpffff8044;
     extern void func_00487c30(void *arg0, f32 arg1);
@@ -541,8 +553,9 @@ draw_entry:
     func_00489f40(*(void **)(arg0 + 0x2C), *(u32 *)(arg0 + 4));
     func_00487c30(*(void **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
 }
+// Applies the track width to its ribbon geometry when the track has more than one sample.
 // FUN_00493B90
-void func_00493b90(u8 *arg0)
+void TrackApplyWidth(u8 *arg0)
 {
     if (*(u32 *)(arg0 + 0) != 0) {
         s32 n = *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x10);
@@ -568,10 +581,11 @@ void func_00493b90(u8 *arg0)
     }
 }
 
+// Per-frame refresh: runs the slot update, then applies the width when the track has more than one sample.
 // FUN_00493C90
-void func_00493c90(u8 *arg0)
+void TrackRefresh(u8 *arg0)
 {
-    func_004938e0(arg0);
+    TrackUpdateSlots(arg0);
     if (*(u32 *)(arg0 + 0) != 0) {
         s32 n = *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x10);
 
@@ -596,20 +610,23 @@ void func_00493c90(u8 *arg0)
     }
 }
 
+// Forwards a position to the track emitter.
 // FUN_00493DA0
-void func_00493da0(u8 *instance, u32 *position)
+void TrackSetPosition(u8 *instance, u32 *position)
 {
     func_00492dd0(*(s32 *)(instance + 0x30), position);
 }
 
+// Forwards a rotation to the track emitter.
 // FUN_00493DD0
-void func_00493dd0(u8 *instance, u32 *rotation)
+void TrackSetRotation(u8 *instance, u32 *rotation)
 {
     func_00492e10(*(s32 *)(instance + 0x30), rotation);
 }
 
+// Stores the track colour word and forwards it to the owner's colour setter.
 // FUN_00493E00
-void func_00493e00(u8 *arg0, u32 arg1)
+void TrackSetColor(u8 *arg0, u32 arg1)
 {
     u32 temp_4;
 
@@ -620,8 +637,9 @@ void func_00493e00(u8 *arg0, u32 arg1)
     }
 }
 
+// Stores the track scale and forwards it to the emitter's scale setter.
 // FUN_00493E30
-void func_00493e30(u8 *arg0, f32 fparg0)
+void TrackSetScale(u8 *arg0, f32 fparg0)
 {
     *(f32 *)(arg0 + 8) = fparg0;
     func_00492e30((u16 *)*(u32 *)(arg0 + 0x30), fparg0);
@@ -630,8 +648,9 @@ void func_00493e30(u8 *arg0, f32 fparg0)
 /* Measured: 620/624 bytes, 40 resolved relocations and 4 zero alignment bytes. */
 #pragma push
 #pragma opt_propagation off
+// Allocates a ribbon track: count * 2 + 0x1C bytes, with ribbon and cap geometry and per-sample colours.
 // FUN_00493E60
-u8 *func_00493e60(u16 count, u16 segments) {
+u8 *TrackAllocRibbons(u16 count, u16 segments) {
     s32 size;
     u8 *track;
     u16 count16;
