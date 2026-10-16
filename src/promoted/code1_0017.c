@@ -70,7 +70,7 @@ extern u8 gMtScene[];
 extern u8 *iGpffff9db0;
 extern s32 FldMap_IsCurrentInBandA(void);
 extern s32 FldMap_IsCurrentInBandB(void);
-extern s32 func_00170f60(u8 *arg0, s32 arg1);
+extern s32 FldResAreaHitTest(u8 *arg0, s32 arg1);
 extern s32 D_007EF9F8[];
 extern u32 D_007EFA04[];
 extern u8 D_007EF9B0[];
@@ -231,7 +231,7 @@ extern u8 *K_Clump_GetLightC(void);
 
 extern void FldShadow_CmdRender(u8 *arg0, u8 *arg1);
 // FUN_00170960
-s32 func_00170960(u8 *arg0)
+s32 FldSmapViewTriggerTest(u8 *arg0)
 {
     u8 *temp;
 
@@ -244,7 +244,7 @@ s32 func_00170960(u8 *arg0)
 }
 
 // FUN_001709C0
-s32 func_001709c0(u8 *arg0)
+s32 FldSmapViewTriggerRun(u8 *arg0)
 {
     s32 state;
     u8 *temp_16;
@@ -289,7 +289,7 @@ s32 func_001709c0(u8 *arg0)
 }
 
 // FUN_00170B50
-s32 func_00170b50(u8 *arg0)
+s32 FldCampTriggerTest(u8 *arg0)
 {
     u8 *temp;
 
@@ -305,7 +305,7 @@ s32 func_00170b50(u8 *arg0)
 }
 
 // FUN_00170BC0
-s32 func_00170bc0(u8 *arg0)
+s32 FldCampTriggerRun(u8 *arg0)
 {
     s32 temp_17;
     s32 state;
@@ -408,7 +408,7 @@ s32 func_00170e50(u8 *arg0)
    an s64/f32 pair through separate globals is what cost the archived nd 8, and
    it also made a dead `sp60[0] = &sp50` necessary to hoist $a2. */
 // FUN_00170F60
-s32 func_00170f60(u8 *arg0, s32 arg1)
+s32 FldResAreaHitTest(u8 *arg0, s32 arg1)
 {
     Vec3_00178590 sp70;
     u8 *sp60[3];
@@ -495,7 +495,7 @@ s32 func_001711b0(u8 *arg0)
         var_2 = D_007EFA04[0] != 0;
     if (var_2 == 0)
         return 0;
-    if (func_00170f60(D_007EF9B0, 0) == 1) {
+    if (FldResAreaHitTest(D_007EF9B0, 0) == 1) {
         *(s32 *)(temp_16 + 0x14) = 1;
         if (D_008C024E[0] & 0x40) {
             *(s32 *)(temp_16 + 4) = 0;
@@ -556,7 +556,7 @@ s32 func_001713e0(u8 *arg0)
         var_2 = D_007EFA04[0] != 0;
     if (var_2 == 0)
         return 0;
-    if (func_00170f60(D_007EF9B0, 1) == 1) {
+    if (FldResAreaHitTest(D_007EF9B0, 1) == 1) {
         *(s32 *)(temp_16 + 0x14) = 1;
         if (D_008C024E[0] & 0x40) {
             *(s32 *)(temp_16 + 4) = 0;
