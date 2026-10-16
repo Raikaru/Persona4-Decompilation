@@ -2208,7 +2208,7 @@ s32 datCalcSkillRoll(s32 arg0, DatUnit *arg1, s32 arg2)
         }
         var_f1_2 = (f32)var_16;
         var_f20 = 4.0f + (var_f1_2 / 5.0f);
-        temp_2_3 = datCalcGetBattleStat(arg1, 4);
+        temp_2_3 = datCalcGetBattleStat(arg1, PERSONA_STAT_LUC);
         var_f0 = (f32)temp_2_3;
         var_f20 = var_f21 / (var_f0 / var_f20);
     } else {
@@ -2227,7 +2227,7 @@ s32 datCalcSkillRoll(s32 arg0, DatUnit *arg1, s32 arg2)
         }
         var_f1_3 = (f32)var_18;
         var_f20 = 4.0f + (var_f1_3 / 5.0f);
-        temp_2_6 = datCalcGetBattleStat((DatUnit *)temp_2_4, 4);
+        temp_2_6 = datCalcGetBattleStat((DatUnit *)temp_2_4, PERSONA_STAT_LUC);
         var_f0_2 = (f32)temp_2_6;
         var_f20 = var_f0_2 / var_f20;
         var_f0_3 = (f32)func_002439c0((u8 *)arg1);
