@@ -1037,6 +1037,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
     extern void mdlSetLayerTime(void *a, s32 b, f32 c);
     extern u32 datCalcRandomBelow(u32 a);
     u8 *t17;
+    BtlUnit *unit;
     u8 *t4;
     u8 *made;
     s32 t2;
@@ -1055,73 +1056,74 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
     f32 sp100[3];
 
     t17 = *(u8 **)arg0;
-    if ((*(s32 *)(t17 + 0x98) & 1) == 0) {
+    unit = (BtlUnit *)t17;
+    if ((unit->flags2 & 1) == 0) {
         made = mdlFindModelObject(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
         if (made != 0) {
-            *(u8 **)(t17 + 0xA00) = (u8 *)mdlCloneModelObject(made);
+            unit->layerHandle = (u8 *)mdlCloneModelObject(made);
         } else {
             mdlBuildModelPath(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), (char *)sp80);
             func_00440b68(&iGpffffa0b0, D_005F6D00, 0xDC9);
             *(s32 *)(arg0 + 0xC) = H_Cdvd_AcquireDirectory(sp80, 0);
-            *(s32 *)(t17 + 0x98) |= 1;
+            unit->flags2 |= 1;
         }
     }
-    t4 = *(u8 **)(t17 + 0xA00);
+    t4 = unit->layerHandle;
     if (t4 == NULL) {
         if (H_Cdvd_IsFileLoaded(*(s32 *)(arg0 + 0xC)) != 0) {
             t4 = mdlCreateModelObjectFromResource(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), *(void **)(arg0 + 0xC), 0);
-            *(u8 **)(t17 + 0xA00) = t4;
+            unit->layerHandle = t4;
             mdlAppBindSecondaryText((void *)t4);
             if (*(u16 *)(arg0 + 4) == 1) {
-                mdlRunSetupCallback(*(u8 **)(t17 + 0xA00));
+                mdlRunSetupCallback(unit->layerHandle);
             }
         }
     } else if (mdlPrepareModel(t4) != 0) {
         if (*(u16 *)(arg0 + 8) & 4) {
-            t3 = *(u8 *)(t17 + 0xA2);
+            t3 = unit->genus;
             switch (t3) {
             case 0: {
-                *(u16 *)(t17 + 0x9FE) = MT_Scene_CreateModelCharRes(*(u16 *)(t17 + 0xA4), *(u8 **)(t17 + 0xA00));
-                SceneDraw_SetDirectionalOnly(*(u16 *)(t17 + 0x9FE), 1);
-                *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x400;
-                mdlClumpSetEnvMapState(mdlGetClump(*(u8 **)(t17 + 0xA00)));
+                unit->sceneDrawId = MT_Scene_CreateModelCharRes(unit->charId, unit->layerHandle);
+                SceneDraw_SetDirectionalOnly(unit->sceneDrawId, 1);
+                *(u32 *)(unit->layerHandle + 0xD8) |= 0x400;
+                mdlClumpSetEnvMapState(mdlGetClump(unit->layerHandle));
             } break;
             case 1: {
-                *(u16 *)(t17 + 0x9FE) = MT_Scene_CreateModelCharRes(btlFindFreeCharResId(), *(u8 **)(t17 + 0xA00));
-                SceneDraw_SetDirectionalOnly(*(u16 *)(t17 + 0x9FE), 1);
-                t16_flags = *(u16 *)(btlUnitOffsetAdd(*(u16 *)(t17 + 0xA4) * 0xE8, iGpffffb3cc) + 0x18);
+                unit->sceneDrawId = MT_Scene_CreateModelCharRes(btlFindFreeCharResId(), unit->layerHandle);
+                SceneDraw_SetDirectionalOnly(unit->sceneDrawId, 1);
+                t16_flags = *(u16 *)(btlUnitOffsetAdd(unit->charId * 0xE8, iGpffffb3cc) + 0x18);
                 if (t16_flags & 2) {
-                    *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x200;
+                    *(u32 *)(unit->layerHandle + 0xD8) |= 0x200;
                 }
                 if (t16_flags & 8) {
-                    *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x400;
+                    *(u32 *)(unit->layerHandle + 0xD8) |= 0x400;
                 }
                 if (t16_flags & 0x10) {
-                    *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x800;
+                    *(u32 *)(unit->layerHandle + 0xD8) |= 0x800;
                 }
             } break;
             case 2: {
-                *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) &= ~0x100;
-                t16_sts = func_0010fbd0(*(u16 *)(t17 + 0xA4)) & 0xFFFF;
+                *(u32 *)(unit->layerHandle + 0xD8) &= ~0x100;
+                t16_sts = func_0010fbd0(unit->charId) & 0xFFFF;
                 if (t16_sts & 2) {
-                    *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x200;
+                    *(u32 *)(unit->layerHandle + 0xD8) |= 0x200;
                 } else if (t16_sts & 4) {
                     btlUnitClearModelState(t17, 2);
                     *(u16 *)(arg0 + 8) &= ~1;
                 }
                 if (t16_sts & 8) {
-                    *(u32 *)(*(u8 **)(t17 + 0xA00) + 0xD8) |= 0x400;
+                    *(u32 *)(unit->layerHandle + 0xD8) |= 0x400;
                 }
-                *(u16 *)(t17 + 0x9FE) = MT_Scene_CreateModelUnkRes(*(u16 *)(t17 + 0xA4), *(u8 **)(t17 + 0xA00));
+                unit->sceneDrawId = MT_Scene_CreateModelUnkRes(unit->charId, unit->layerHandle);
             } break;
             }
         }
-        t2 = *(s32 *)(t17 + 0x98) & ~1;
-        *(s32 *)(t17 + 0x98) = t2;
-        *(s32 *)(t17 + 0x98) = t2 | 2;
+        t2 = unit->flags2 & ~1;
+        unit->flags2 = t2;
+        unit->flags2 = t2 | 2;
         btlUnitApplyModelState(t17, 4);
         if (*(u16 *)(arg0 + 8) & 8) {
-            *(u8 *)(t17 + 0x33) = 0;
+            unit->cols[0].alpha = 0;
         }
         if (*(u16 *)(arg0 + 8) & 1) {
             btlUnitApplyModelState(t17, 2);
@@ -1130,46 +1132,46 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
             btlUnitApplyModelState(t17, 1);
         }
         if (*(u16 *)(arg0 + 8) & 0x100) {
-            *(u8 *)(*(u8 **)(t17 + 0xA00) + 0x280) = 0;
-            *(u8 *)(*(u8 **)(t17 + 0xA00) + 0x281) = 0;
-            *(u8 *)(*(u8 **)(t17 + 0xA00) + 0x282) = 0;
+            *(u8 *)(unit->layerHandle + 0x280) = 0;
+            *(u8 *)(unit->layerHandle + 0x281) = 0;
+            *(u8 *)(unit->layerHandle + 0x282) = 0;
         }
         if (*(u16 *)(arg0 + 8) & 0x40) {
             btlTargetAddRadiusNode(t17, 0);
         }
         if (*(u16 *)(arg0 + 8) & 0x20) {
             btlUnitUpdateStatusMotion(t17, 0);
-            btlUnitSetMotion(t17, *(s16 *)(t17 + 0x9EC), 0, *(f32 *)(t17 + 0x9F0), *(s8 *)(t17 + 0x9F4));
-            t3_8 = *(s32 *)(t17 + 0x98) & 2;
-            v2 = (u16)((t3_8 != 0) ? *(s16 *)(t17 + 0x9DA) : 0);
+            btlUnitSetMotion(t17, unit->restMotion, 0, unit->restRate, unit->restOption);
+            t3_8 = unit->flags2 & 2;
+            v2 = (u16)((t3_8 != 0) ? unit->currentMotion : 0);
             if (t3_8 == 0) {
                 v2_2 = 0;
             } else {
                 speed = 1.0f;
                 s5 = btlUnitGetMotionId(t17, v2);
-                f0 = mdlGetLayerKeyTime(*(u8 **)(t17 + 0xA00), 0, s5);
-                if (s5 < *(u16 *)(t17 + 0x9E4)) {
-                    v2_2 = (s16)(s32)(f0 / (speed * ((f32)(*(BtlMotionRate **)(t17 + 0x9F8))[s5].rate / 100.0f)));
+                f0 = mdlGetLayerKeyTime(unit->layerHandle, 0, s5);
+                if (s5 < unit->motionCount) {
+                    v2_2 = (s16)(s32)(f0 / (speed * ((f32)(unit->motionRates)[s5].rate / 100.0f)));
                 } else {
                     v2_2 = (s16)(s32)f0;
                 }
             }
             t16 = datCalcRandomBelow((u32)v2_2);
-            if (*(s32 *)(t17 + 0x98) & 2) {
-                mdlSetLayerTime(*(u8 **)(t17 + 0xA00), 0, (f32)t16);
+            if (unit->flags2 & 2) {
+                mdlSetLayerTime(unit->layerHandle, 0, (f32)t16);
             }
         }
         if (*(s32 *)(arg0 + 0xC) != 0) {
             H_Cdvd_Destroy(*(s32 *)(arg0 + 0xC));
         }
-        t3 = *(u8 *)(t17 + 0xA2);
+        t3 = unit->genus;
         switch (t3) {
         case 0:
         case 1: {
-            f32 x = *(f32 *)(t17 + 0x1C);
-            f32 y = *(f32 *)(t17 + 0x20);
-            f32 z = *(f32 *)(t17 + 0x24);
-            f32 w = *(f32 *)(t17 + 0x28);
+            f32 x = unit->rot.x;
+            f32 y = unit->rot.y;
+            f32 z = unit->rot.z;
+            f32 w = unit->rot.w;
             RwV3d square;
             RwV3d cross;
             RwV3d wimag;
@@ -1196,15 +1198,15 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
             mat.pos.y = 0;
             mat.pos.z = 0;
             mat.flags = 3;
-            mdlApplyModelMatrix(*(u8 **)(t17 + 0xA00), &mat, 0);
-            sp100[0] = sp100[1] = sp100[2] = *(f32 *)(t17 + 0x2C);
-            mdlScale(*(u8 **)(t17 + 0xA00), sp100, 2);
-            sp100[0] = *(f32 *)(t17 + 4) + *(f32 *)(t17 + 0x10);
-            sp100[1] = *(f32 *)(t17 + 8) + *(f32 *)(t17 + 0x14);
-            sp100[2] = *(f32 *)(t17 + 0xC) + *(f32 *)(t17 + 0x18);
-            mdlTranslateMatrix(*(u8 **)(t17 + 0xA00), sp100, 2);
-            mdlUpdateModelMatrix(*(u8 **)(t17 + 0xA00));
-            mdlPrepareItemSlots(*(u8 **)(t17 + 0xA00));
+            mdlApplyModelMatrix(unit->layerHandle, &mat, 0);
+            sp100[0] = sp100[1] = sp100[2] = unit->scale;
+            mdlScale(unit->layerHandle, sp100, 2);
+            sp100[0] = unit->pos.x + unit->posOffset.x;
+            sp100[1] = unit->pos.y + unit->posOffset.y;
+            sp100[2] = unit->pos.z + unit->posOffset.z;
+            mdlTranslateMatrix(unit->layerHandle, sp100, 2);
+            mdlUpdateModelMatrix(unit->layerHandle);
+            mdlPrepareItemSlots(unit->layerHandle);
         } break;
         }
         return 1;
