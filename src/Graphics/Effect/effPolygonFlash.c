@@ -24,13 +24,13 @@ extern f32 D_00713D18[4];
 extern u32 D_00713F70[];
 extern u32 D_00713FB0[];
 
-extern void func_004833f0();
+extern void GeometryBlockDestroy();
 extern void (*jtbl_008873EC[])(void *);
 extern void (*D_008873ec[])(void *);
 extern void func_003c22f0(void *);
 extern s32 func_00481300(s32);
 extern void func_003c42b0(void *, void *);
-extern void func_00483970(void *, void *);
+extern void GeometryBlockSetTextureFromHandle(void *, void *);
 extern char D_00713408[];
 extern char D_00714028[];
 extern char D_00713CE0[];
@@ -43,8 +43,8 @@ extern u8 *(*jtbl_008873E8[])(s32, s32);
 extern void chkmemAllocSiteTag(char *, s32);
 extern void kAssertFail(char *, s32);
 extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
-extern void func_004836b0(void *, void *, void *, void *);
-extern void func_00483490(void *, u16);
+extern void GeometryBlockSetFrameMatrixCombined(void *, void *, void *, void *);
+extern void GeometryBlockBindResource(void *, u16);
 
 /* 4-byte color, copied field-by-field by retail. */
 typedef struct
@@ -54,7 +54,7 @@ typedef struct
 extern char D_00713FF0[];
 extern char D_007133A0[];
 extern char D_007133C0[];
-extern u8 *func_00483270(void *);
+extern u8 *GeometryCloneBlock(void *);
 extern void FlashEvolvingRadialInitEntries(u8 *, u8 *);
 extern void FlashTexturedInitEntries(u8 *, u8 *);
 extern void FlashCenteredStripInitEntries(u8 *, u8 *);
@@ -78,7 +78,7 @@ void *FlashRotatingAllocBlock(u8 *arg0, s32 arg1)
     }
     *(u32 *)(mem + 0) = (u32)(mem + 0x10);
     *(u32 *)(mem + 8) = (u32)mem;
-    *(u32 *)(mem + 4) = (u32)func_00482f70(id & 0xFFFF, 3, 5, D_007133A0, 0x48);
+    *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(id & 0xFFFF, 3, 5, D_007133A0, 0x48);
     return mem;
 }
 
@@ -89,7 +89,7 @@ void *FlashRotatingAllocBlock(u8 *arg0, s32 arg1)
 // FUN_0049A9E0
 void FlashRotatingFreeBlock(u8 *arg0)
 {
-    func_004833f0(*(void **)(arg0 + 4));
+    GeometryBlockDestroy(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 
@@ -490,7 +490,7 @@ void FlashRotatingPackColors(u8 *arg0)
             }
             sp4C.b[3] = 0xFF;
         }
-        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        GeometryBlockSetFrameMatrixCombined(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
         {
             *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
@@ -501,7 +501,7 @@ void FlashRotatingPackColors(u8 *arg0)
         }
         {
             s32 temp_28 = *(u16 *)(temp_17 + 0x28);
-            func_00483490(temp_16, temp_28);
+            GeometryBlockBindResource(temp_16, temp_28);
         }
     }
 }
@@ -588,7 +588,7 @@ void *FlashRadialAllocBlock(u8 *arg0, s32 arg1)
     }
     *(u32 *)(mem + 0) = (u32)(mem + 0x10);
     *(u32 *)(mem + 8) = (u32)mem;
-    *(u32 *)(mem + 4) = (u32)func_00482f70(id & 0xFFFF, 0xC, 0xD, D_007133C0, 0x48);
+    *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(id & 0xFFFF, 0xC, 0xD, D_007133C0, 0x48);
     return mem;
 }
 
@@ -599,7 +599,7 @@ void *FlashRadialAllocBlock(u8 *arg0, s32 arg1)
 // FUN_0049B640
 void FlashRadialFreeBlock(u8 *arg0)
 {
-    func_004833f0(*(void **)(arg0 + 4));
+    GeometryBlockDestroy(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 
@@ -1032,7 +1032,7 @@ void FlashRadialPackColors(u8 *arg0)
             }
             sp4C.b[3] = 0xFF;
         }
-        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        GeometryBlockSetFrameMatrixCombined(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
         {
             *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
@@ -1043,7 +1043,7 @@ void FlashRadialPackColors(u8 *arg0)
         }
         {
             s32 temp_28 = *(u16 *)(temp_17 + 0x28);
-            func_00483490(temp_16, temp_28);
+            GeometryBlockBindResource(temp_16, temp_28);
         }
     }
 }
@@ -1108,7 +1108,7 @@ void *FlashRadialAllocBlockWide(u8 *arg0, s32 arg1)
     }
     *(u32 *)(mem + 0) = (u32)(mem + 0x10);
     *(u32 *)(mem + 8) = (u32)mem;
-    *(u32 *)(mem + 4) = (u32)func_00482f70(id & 0xFFFF, 0xC, 0xD, D_007133C0, 0x48);
+    *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(id & 0xFFFF, 0xC, 0xD, D_007133C0, 0x48);
     return mem;
 }
 
@@ -1119,7 +1119,7 @@ void *FlashRadialAllocBlockWide(u8 *arg0, s32 arg1)
 // FUN_0049C380
 void FlashRadialFreeBlockWide(u8 *arg0)
 {
-    func_004833f0(*(void **)(arg0 + 4));
+    GeometryBlockDestroy(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 
@@ -1527,7 +1527,7 @@ void FlashEvolvingRadialPackColors(u8 *arg0)
             }
             sp4C.b[3] = 0xFF;
         }
-        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        GeometryBlockSetFrameMatrixCombined(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
         {
             *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
@@ -1538,7 +1538,7 @@ void FlashEvolvingRadialPackColors(u8 *arg0)
         }
         {
             s32 temp_28 = *(u16 *)(temp_17 + 0x28);
-            func_00483490(temp_16, temp_28);
+            GeometryBlockBindResource(temp_16, temp_28);
         }
     }
 }
@@ -1659,11 +1659,11 @@ void *FlashEvolvingRadialAllocBlock(u8 *arg0, void *arg1)
     if (*(u32 *)(arg0 + 0x70) == 0) {
         *(u32 *)(arg0 + 0x70) = 1;
     }
-    *(u32 *)(mem + 4) = (u32)func_00482f70(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
+    *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
     if (arg1 == NULL) {
         func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)func_00481300(0x12));
     } else {
-        func_00483970(*(u8 **)(mem + 4), arg1);
+        GeometryBlockSetTextureFromHandle(*(u8 **)(mem + 4), arg1);
     }
     FlashEvolvingRadialInitEntries(mem, arg0);
     return mem;
@@ -1690,7 +1690,7 @@ void *FlashEvolvingRadialAllocFromParent(u8 *arg0)
     if (*(u32 *)(p17 + 0x70) == 0) {
         *(u32 *)(p17 + 0x70) = 1;
     }
-    *(u32 *)(mem + 4) = (u32)func_00483270(*(void **)(p16 + 4));
+    *(u32 *)(mem + 4) = (u32)GeometryCloneBlock(*(void **)(p16 + 4));
     FlashEvolvingRadialInitEntries(mem, p17);
     return mem;
 }
@@ -1698,7 +1698,7 @@ void *FlashEvolvingRadialAllocFromParent(u8 *arg0)
 // FUN_0049D310
 void FlashEvolvingRadialFreeBlock(u8 *arg0)
 {
-    func_004833f0(*(void **)(arg0 + 4));
+    GeometryBlockDestroy(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 // Emits quads from the direction, length and width vectors (no centre) for one evolving radial flash effect.
@@ -2022,7 +2022,7 @@ void FlashTexturedPackColors(u8 *arg0)
             }
             sp4C.b[3] = 0xFF;
         }
-        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        GeometryBlockSetFrameMatrixCombined(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
         {
             *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
@@ -2033,7 +2033,7 @@ void FlashTexturedPackColors(u8 *arg0)
         }
         {
             s32 temp_28 = *(u16 *)(temp_17 + 0x28);
-            func_00483490(temp_16, temp_28);
+            GeometryBlockBindResource(temp_16, temp_28);
         }
     }
 }
@@ -2151,11 +2151,11 @@ void *FlashTexturedAllocBlock(u8 *arg0, void *arg1)
     }
     *(u32 *)(mem + 0) = (u32)(mem + 0x10);
     *(u32 *)(mem + 8) = (u32)mem;
-    *(u32 *)(mem + 4) = (u32)func_00482f70(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
+    *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
     if (arg1 == NULL) {
         func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)func_00481300(0x13));
     } else {
-        func_00483970(*(u8 **)(mem + 4), arg1);
+        GeometryBlockSetTextureFromHandle(*(u8 **)(mem + 4), arg1);
     }
     FlashTexturedInitEntries(mem, arg0);
     return mem;
@@ -2179,7 +2179,7 @@ void *FlashTexturedAllocFromParent(u8 *arg0)
     }
     *(u32 *)(mem + 0) = (u32)(mem + 0x10);
     *(u32 *)(mem + 8) = (u32)mem;
-    *(u32 *)(mem + 4) = (u32)func_00483270(*(void **)(p16 + 4));
+    *(u32 *)(mem + 4) = (u32)GeometryCloneBlock(*(void **)(p16 + 4));
     FlashTexturedInitEntries(mem, p17);
     return mem;
 }
@@ -2187,7 +2187,7 @@ void *FlashTexturedAllocFromParent(u8 *arg0)
 // FUN_0049E100
 void FlashTexturedFreeBlock(u8 *arg0)
 {
-    func_004833f0(*(void **)(arg0 + 4));
+    GeometryBlockDestroy(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 // Emits quads from the direction, length and width vectors (no centre) for one textured flash effect.
@@ -2507,7 +2507,7 @@ void FlashCenteredStripPackColors(u8 *arg0)
             }
             sp4C.b[3] = 0xFF;
         }
-        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        GeometryBlockSetFrameMatrixCombined(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
         {
             *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
@@ -2518,7 +2518,7 @@ void FlashCenteredStripPackColors(u8 *arg0)
         }
         {
             s32 temp_28 = *(u16 *)(temp_17 + 0x28);
-            func_00483490(temp_16, temp_28);
+            GeometryBlockBindResource(temp_16, temp_28);
         }
     }
 }
@@ -2636,11 +2636,11 @@ void *FlashCenteredStripAllocBlock(u8 *arg0, void *arg1)
     }
     *(u32 *)(mem + 0) = (u32)(mem + 0x10);
     *(u32 *)(mem + 8) = (u32)mem;
-    *(u32 *)(mem + 4) = (u32)func_00482f70(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
+    *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
     if (arg1 == NULL) {
         func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)func_00481300(0x12));
     } else {
-        func_00483970(*(u8 **)(mem + 4), arg1);
+        GeometryBlockSetTextureFromHandle(*(u8 **)(mem + 4), arg1);
     }
     FlashCenteredStripInitEntries(mem, arg0);
     return mem;
@@ -2664,7 +2664,7 @@ void *FlashCenteredStripAllocFromParent(u8 *arg0)
     }
     *(u32 *)(mem + 0) = (u32)(mem + 0x10);
     *(u32 *)(mem + 8) = (u32)mem;
-    *(u32 *)(mem + 4) = (u32)func_00483270(*(void **)(p16 + 4));
+    *(u32 *)(mem + 4) = (u32)GeometryCloneBlock(*(void **)(p16 + 4));
     FlashCenteredStripInitEntries(mem, p17);
     return mem;
 }
@@ -2672,7 +2672,7 @@ void *FlashCenteredStripAllocFromParent(u8 *arg0)
 // FUN_0049EF00
 void FlashCenteredStripFreeBlock(u8 *arg0)
 {
-    func_004833f0(*(void **)(arg0 + 4));
+    GeometryBlockDestroy(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 // Emits centred-strip flash quads from the centre, direction and width vectors.
@@ -3014,7 +3014,7 @@ void FlashBoxPackColors(u8 *arg0)
             }
             sp4C.b[3] = 0xFF;
         }
-        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        GeometryBlockSetFrameMatrixCombined(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
         {
             *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
@@ -3025,7 +3025,7 @@ void FlashBoxPackColors(u8 *arg0)
         }
         {
             s32 temp_28 = *(u16 *)(temp_17 + 0x28);
-            func_00483490(temp_16, temp_28);
+            GeometryBlockBindResource(temp_16, temp_28);
         }
     }
 }
@@ -3087,14 +3087,14 @@ void *FlashBoxAllocBlock(u8 *arg0)
     }
     *(u32 *)(mem + 0) = (u32)(mem + 0x10);
     *(u32 *)(mem + 8) = (u32)mem;
-    *(u32 *)(mem + 4) = (u32)func_00482f70(*(u16 *)(arg0 + 0x38), 3, 5, D_007133A0, 0x48);
+    *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(*(u16 *)(arg0 + 0x38), 3, 5, D_007133A0, 0x48);
     return mem;
 }
 // Frees a box flash block: its geometry handle, then the block itself.
 // FUN_0049FBA0
 void FlashBoxFreeBlock(u8 *arg0)
 {
-    func_004833f0(*(void **)(arg0 + 4));
+    GeometryBlockDestroy(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 // Emits box flash quads from the centre, direction, length and width vectors.
@@ -3459,7 +3459,7 @@ void FlashAgedBoxPackColors(u8 *arg0)
             }
             sp4C.b[3] = 0xFF;
         }
-        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        GeometryBlockSetFrameMatrixCombined(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
         {
             *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
@@ -3470,7 +3470,7 @@ void FlashAgedBoxPackColors(u8 *arg0)
         }
         {
             s32 temp_28 = *(u16 *)(temp_17 + 0x28);
-            func_00483490(temp_16, temp_28);
+            GeometryBlockBindResource(temp_16, temp_28);
         }
     }
 }
@@ -3588,11 +3588,11 @@ void *FlashAgedBoxAllocBlock(u8 *arg0, void *arg1)
     }
     *(u32 *)(mem + 0) = (u32)(mem + 0x10);
     *(u32 *)(mem + 8) = (u32)mem;
-    *(u32 *)(mem + 4) = (u32)func_00482f70(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
+    *(u32 *)(mem + 4) = (u32)GeometryCreateTableGrid(*(u16 *)(arg0 + 0x38), 2, 4, D_00713408, 0x4C);
     if (arg1 == NULL) {
         func_003c42b0(*(u8 **)(*(u8 **)(mem + 4) + 0x14), (void *)func_00481300(0x13));
     } else {
-        func_00483970(*(u8 **)(mem + 4), arg1);
+        GeometryBlockSetTextureFromHandle(*(u8 **)(mem + 4), arg1);
     }
     FlashAgedBoxInitEntries(mem, arg0);
     return mem;
@@ -3616,7 +3616,7 @@ void *FlashAgedBoxAllocFromParent(u8 *arg0)
     }
     *(u32 *)(mem + 0) = (u32)(mem + 0x10);
     *(u32 *)(mem + 8) = (u32)mem;
-    *(u32 *)(mem + 4) = (u32)func_00483270(*(void **)(p16 + 4));
+    *(u32 *)(mem + 4) = (u32)GeometryCloneBlock(*(void **)(p16 + 4));
     FlashAgedBoxInitEntries(mem, p17);
     return mem;
 }
@@ -3627,7 +3627,7 @@ void *FlashAgedBoxAllocFromParent(u8 *arg0)
 // Frees an aged-box flash block: its geometry handle, then the block itself.
 // FUN_004A0BB0
 void FlashAgedBoxFreeBlock(u8 *arg0) {
-    func_004833f0(*(s32 *)(arg0 + 4));
+    GeometryBlockDestroy(*(s32 *)(arg0 + 4));
     D_008873ec[0](*(void **)(arg0 + 8));
 }
 
@@ -3981,7 +3981,7 @@ void FlashQuadCopyPackColors(u8 *arg0)
             }
             sp4C.b[3] = 0xFF;
         }
-        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        GeometryBlockSetFrameMatrixCombined(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
         {
             *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
@@ -3992,7 +3992,7 @@ void FlashQuadCopyPackColors(u8 *arg0)
         }
         {
             s32 temp_28 = *(u16 *)(temp_17 + 0x28);
-            func_00483490(temp_16, temp_28);
+            GeometryBlockBindResource(temp_16, temp_28);
         }
     }
 }

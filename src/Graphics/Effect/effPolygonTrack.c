@@ -22,7 +22,7 @@ extern void memcpy(void *dst, const void *src, u32 size);
 extern char D_00713E20[];
 extern char D_00713E30[];
 extern void *ParticleCreateBlock(s32 arg0);
-extern u8 *func_00483270(u8 *arg0);
+extern u8 *GeometryCloneBlock(u8 *arg0);
 extern void ParticleCopyModeFromSource(void *arg0, void *arg1);
 extern u8 *func_00492b20(u16 arg0, u32 arg1, void *arg2);
 extern void func_004941f0(void *arg0, void *arg1);
@@ -42,8 +42,8 @@ extern void func_00494740(void *arg0, u16 arg1, void *arg2, f32 arg3);
 extern void func_004940d0(void *arg0, u16 arg1, void *arg2);
 extern void func_00494f90(void *arg0);
 extern void func_00494ff0(void *arg0);
-extern u8 *func_00483e10(u16 arg0, u16 arg1, void *arg2, s32 arg3, s32 arg4);
-extern u8 *func_00483c40(u16 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
+extern u8 *GeometryCreateStripGridMultiPart(u16 arg0, u16 arg1, void *arg2, s32 arg3, s32 arg4);
+extern u8 *GeometryCreateTableGridMultiPart(u16 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
 extern void ParticleSetMaterialSlot(u8 *arg0, s32 arg1, s32 arg2);
 extern void ParticleSetTextureFromHandle(u8 *arg0, s32 arg1);
 extern void ParticleSetLinkedGroup(u8 *arg0, s32 *arg1);
@@ -361,7 +361,7 @@ void TrackCopyState(u8 *arg0, u8 *arg1)
             *(u32 *)(arg0 + 0x30);
     }
     if (*(u32 *)(*(u8 **)(arg1 + 0x2C) + 0x50) != 0) {
-        v = func_00483270(*(u8 **)(*(u8 **)(arg1 + 0x2C) + 0x50));
+        v = GeometryCloneBlock(*(u8 **)(*(u8 **)(arg1 + 0x2C) + 0x50));
         *(u8 **)(*(u8 **)(arg0 + 0x2C) + 0x50) = v;
     }
     ParticleCopyModeFromSource(*(u8 **)(arg0 + 0x2C), *(u8 **)(arg1 + 0x2C));
@@ -676,10 +676,10 @@ u8 *TrackAllocRibbons(u16 count, u16 segments) {
     }
     memset(track, 0, size);
     *(u8 **)(track + 0x18) = track + 0x1C;
-    geometry = (u16 *)func_00483e10(count, segments, (void *)D_00713310, 3, 0x48);
+    geometry = (u16 *)GeometryCreateStripGridMultiPart(count, segments, (void *)D_00713310, 3, 0x48);
     *(u16 **)(track + 0x10) = geometry;
     *geometry &= 0xFFFB;
-    geometry = (u16 *)func_00483c40(count, 1, 6, 8, (void *)D_00713420, 0x48);
+    geometry = (u16 *)GeometryCreateTableGridMultiPart(count, 1, 6, 8, (void *)D_00713420, 0x48);
     *(u16 **)(track + 0x14) = geometry;
     *geometry = *geometry & (u16)0xFFFB;
     i = 0;

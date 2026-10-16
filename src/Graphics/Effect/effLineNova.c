@@ -6,7 +6,7 @@
 #include "effect_instance_internal.h"
 #include "include_asm.h"
 
-void func_004833f0(void *arg);
+void GeometryBlockDestroy(void *arg);
 void chkmemAllocSiteTag(u8 *file, s32 line);
 void kAssertFail(u8 *file, s32 line);
 void *func_00481460(u16 arg0);
@@ -67,7 +67,7 @@ u8 *LineNovaCreate(u8 *arg0)
     }
     *(u8 **)(r + 0) = r + 0x10;
     *(u8 **)(r + 8) = r;
-    p = (u16 *)func_00482f70(n & 0xFFFF, 4, 6, D_00713310, 0x48);
+    p = (u16 *)GeometryCreateTableGrid(n & 0xFFFF, 4, 6, D_00713310, 0x48);
     *(u16 **)(r + 4) = p;
     *p = *p & 0xFFFE;
     cnt = *(s32 *)(arg0 + 0x38);
@@ -93,7 +93,7 @@ u8 *LineNovaCreate(u8 *arg0)
 // Frees a line-nova instance: its geometry handle, then the instance block.
 // FUN_004B3420
 void LineNovaDestroy(u8 *arg0) {
-    func_004833f0(*(void **)(arg0 + 4));
+    GeometryBlockDestroy(*(void **)(arg0 + 4));
     (*jtbl_008873EC)(*(void **)(arg0 + 8));
 }
 
@@ -523,7 +523,7 @@ u8 *LineNovaCreateAlpha(u8 *arg0)
     }
     *(u8 **)(temp_2 + 0) = temp_2 + 0x10;
     *(u8 **)(temp_2 + 8) = temp_2;
-    temp_2_2 = (u16 *)func_00482f70(temp_16 & 0xFFFF, 4, 6, D_00713310, 0x48);
+    temp_2_2 = (u16 *)GeometryCreateTableGrid(temp_16 & 0xFFFF, 4, 6, D_00713310, 0x48);
     *(u16 **)(temp_2 + 4) = temp_2_2;
     *temp_2_2 &= 0xFFFE;
     cnt = *(u32 *)(arg0 + 0x38);
@@ -560,7 +560,7 @@ u8 *LineNovaCreateAlpha(u8 *arg0)
 // Frees a line-nova instance: same body as LineNovaDestroy.
 // FUN_004B4170
 void LineNovaDestroyAlt(u8 *arg0) {
-    func_004833f0(*(void **)(arg0 + 4));
+    GeometryBlockDestroy(*(void **)(arg0 + 4));
     (*jtbl_008873EC)(*(void **)(arg0 + 8));
 }
 

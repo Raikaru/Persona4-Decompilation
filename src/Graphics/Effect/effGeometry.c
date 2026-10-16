@@ -66,16 +66,17 @@ typedef struct RwMatrix
 
 typedef signed __int128 s128;
 
-void func_00483700(RwMatrix *arg0, RwV3d *arg1, void *arg2, f32 fparg0);
+void GeometryMatrixBuild(RwMatrix *arg0, RwV3d *arg1, void *arg2, f32 fparg0);
 void func_003e9cb0(void *frame, void *matrix, u32 flags);
 
-void func_00483810(RwMatrix *arg0, RwV3d *arg1, void *arg2, RwV3d *arg3);
-extern u8 *func_00483a00(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+void GeometryMatrixBuildCombined(RwMatrix *arg0, RwV3d *arg1, void *arg2, RwV3d *arg3);
+extern u8 *GeometryCreateMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 
 
+// Single-part block: an atomic, geometry with arg0 vertices and arg1 triangles, flags arg2, a frame and a default bounding sphere.
 // FUN_00482C40
-u8 *func_00482c40(s32 arg0, s32 arg1, s32 arg2) {
+u8 *GeometryBlockCreate(s32 arg0, s32 arg1, s32 arg2) {
     struct F4 { f32 x, y, z, w; } vec;
     void *p;
     void *obj;
@@ -113,8 +114,9 @@ u8 *func_00482c40(s32 arg0, s32 arg1, s32 arg2) {
     return p;
 }
 
+// Strip grid: builds the (rows+1) x cols vertex block through GeometryBlockCreate, then one set of triangles per row from the index table.
 // FUN_00482DC0
-u8 *func_00482dc0(u16 arg0, void *arg1, s32 arg2, s32 arg3) {
+u8 *GeometryCreateStripGrid(u16 arg0, void *arg1, s32 arg2, s32 arg3) {
     s32 temp_2;
     u16 temp_22;
     s32 temp_23;
@@ -138,7 +140,7 @@ u8 *func_00482dc0(u16 arg0, void *arg1, s32 arg2, s32 arg3) {
     temp_2 = (arg2 & 0xFFFF) - 1;
     spA0 = temp_2 * 4 + temp_2 * 2;
     temp_22 = (u16)arg0;
-    temp_2_2 = (u8 *)func_00482c40((temp_22 + 1) * (arg2 & 0xFFFF),
+    temp_2_2 = (u8 *)GeometryBlockCreate((temp_22 + 1) * (arg2 & 0xFFFF),
                                    temp_22 * (temp_2 * 2), arg3);
     spCC = temp_2_2;
     temp_20 = *(u8 **)(*(u8 **)(temp_2_2 + 0x10) + 0x18);
@@ -165,8 +167,9 @@ u8 *func_00482dc0(u16 arg0, void *arg1, s32 arg2, s32 arg3) {
     return spCC;
 }
 
+// Table-driven grid: arg0 rows, arg2 vertices per row, arg1 table entries per row (three u16 offsets each), flags arg4.
 // FUN_00482F70
-u8 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, const void *arg3, s32 arg4) {
+u8 *GeometryCreateTableGrid(s32 arg0, s32 arg1, s32 arg2, const void *arg3, s32 arg4) {
     s32 temp_16;
     s32 temp_17;
     s32 temp_22;
@@ -189,7 +192,7 @@ u8 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, const void *arg3, s32 arg4) {
     temp_3 = arg1 & 0xFFFF;
     spA0 = temp_3 * 3;
     temp_16 = arg0 & 0xFFFF;
-    temp_2 = (u8 *)func_00482c40(temp_16 * temp_17, temp_16 * temp_3, arg4);
+    temp_2 = (u8 *)GeometryBlockCreate(temp_16 * temp_17, temp_16 * temp_3, arg4);
     temp_21 = *(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18);
     spB0 = *(s32 *)(temp_2 + 0x14);
     spCC = temp_2;
@@ -212,8 +215,9 @@ u8 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, const void *arg3, s32 arg4) {
     return spCC;
 }
 
+// Creates a type-3 block around the atomic from resource arg0 with flags arg1; sets the 0x80000 colour block when flagged.
 // FUN_004830F0
-u8 *func_004830f0(u16 arg0, s32 arg1) {
+u8 *GeometryCreateAtomicFromResource(u16 arg0, s32 arg1) {
     u8 *p;
     s32 t;
 
@@ -241,8 +245,9 @@ u8 *func_004830f0(u16 arg0, s32 arg1) {
     return p;
 }
 
+// Clones a block: type-3 blocks are rebuilt from the resource; others copy the vertex table into a new grid block.
 // FUN_00483270
-u8 *func_00483270(u8 *arg0) {
+u8 *GeometryCloneBlock(u8 *arg0) {
     extern u8 *func_003c42b0(void *arg0, s32 arg1);
     extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
     extern void func_003c22f0(void *arg0);
@@ -259,14 +264,14 @@ u8 *func_00483270(u8 *arg0) {
     self = arg0;
 
     if (*(u16 *)self & 2) {
-        temp_2 = func_004830f0(*(u16 *)(self + 0xA), *(s32 *)(self + 4));
+        temp_2 = GeometryCreateAtomicFromResource(*(u16 *)(self + 0xA), *(s32 *)(self + 4));
         temp_5 = *(s32 *)(*(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(self + 0x10) + 0x18) + 0x20)));
         if (temp_5 != 0) {
             temp_23 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18) + 0x20));
             func_003c42b0(temp_23, temp_5);
         }
     } else {
-        temp_2 = func_00482c40(*(s16 *)(self + 8), *(s16 *)(self + 0xA),
+        temp_2 = GeometryBlockCreate(*(s16 *)(self + 8), *(s16 *)(self + 0xA),
                                *(s32 *)(self + 4));
         temp_16 = *(s32 *)(temp_2 + 0x14);
         temp_21 = *(u8 **)(*(u8 **)(self + 0x10) + 0x18);
@@ -293,8 +298,9 @@ u8 *func_00483270(u8 *arg0) {
     return temp_2;
 }
 
+// Releases the block's atomic or geometry (chosen by flag 2), its frame and its texture slot, then the block.
 // FUN_004833F0
-void func_004833f0(void *arg0) {
+void GeometryBlockDestroy(void *arg0) {
     s32 p = *(s32 *)((u8 *)arg0 + 0x10);
     if (p != 0) {
         if (*(u16 *)arg0 & 2) {
@@ -314,8 +320,9 @@ void func_004833f0(void *arg0) {
     jtbl_008873EC[0](arg0);
 }
 
+// Clears the binding words at +0x18/+0x1C and binds resource arg1 through the resource table.
 // FUN_00483490
-void func_00483490(u8 *arg0, s32 arg1) {
+void GeometryBlockBindResource(u8 *arg0, s32 arg1) {
     s32 h = func_00481460(arg1);
 
     *(s32 *)(arg0 + 0x18) = 0;
@@ -323,8 +330,9 @@ void func_00483490(u8 *arg0, s32 arg1) {
     func_00460ac0(h, arg0 + 0x18);
 }
 
+// Sets two material slots for part arg1; values 0 to 6 select a texture set, anything else asserts.
 // FUN_004834E0
-void func_004834e0(u8 *arg0, s32 arg1) {
+void GeometryBlockSetPartState(u8 *arg0, s32 arg1) {
     if (*(u16 *)arg0 & 2) {
         switch (arg1 & 0xFFFF) {
         case 0:
@@ -356,32 +364,35 @@ void func_004834e0(u8 *arg0, s32 arg1) {
     }
 }
 
+// Builds the matrix with GeometryMatrixBuild and sets it on the block's frame; the local prototype declares no arguments, so the call's arguments are not verified.
 // FUN_00483660
-void func_00483660(u8 *arg0)
+void GeometryBlockSetFrameMatrix(u8 *arg0)
 {
     RwMatrix matrix;
-    void func_00483700();
+    void GeometryMatrixBuild();
 
-    func_00483700(&matrix);
+    GeometryMatrixBuild(&matrix);
     func_003e9cb0(*(void **)(arg0 + 0xC), &matrix, 0);
 }
 
 
 
+// Builds the matrix with GeometryMatrixBuildCombined and sets it on the block's frame; the local prototype declares no arguments, so the call's arguments are not verified.
 // FUN_004836B0
-void func_004836b0(u8 *arg0)
+void GeometryBlockSetFrameMatrixCombined(u8 *arg0)
 {
     RwMatrix matrix;
-    void func_00483810();
+    void GeometryMatrixBuildCombined();
 
-    func_00483810(&matrix);
+    GeometryMatrixBuildCombined(&matrix);
     func_003e9cb0(*(void **)(arg0 + 0xC), &matrix, 0);
 }
 
 
 
+// Transform: copies the source matrix or the identity, applies scale fparg0 when it is not 1.0, then translates by arg1.
 // FUN_00483700
-void func_00483700(RwMatrix *arg0, RwV3d *arg1, void *arg2, f32 fparg0) {
+void GeometryMatrixBuild(RwMatrix *arg0, RwV3d *arg1, void *arg2, f32 fparg0) {
     f32 v[3];
 
     if (arg2 != 0) {
@@ -415,8 +426,9 @@ void func_00483700(RwMatrix *arg0, RwV3d *arg1, void *arg2, f32 fparg0) {
     }
 }
 
+// Scale matrix from arg3 (identity when null), multiplied by the source arg2 when present, then translated by arg1.
 // FUN_00483810
-void func_00483810(RwMatrix *arg0, RwV3d *arg1, void *arg2, RwV3d *arg3) {
+void GeometryMatrixBuildCombined(RwMatrix *arg0, RwV3d *arg1, void *arg2, RwV3d *arg3) {
     RwMatrix out;
     RwMatrix m;
     f32 v[3];
@@ -468,16 +480,18 @@ void func_00483810(RwMatrix *arg0, RwV3d *arg1, void *arg2, RwV3d *arg3) {
     }
 }
 
+// Applies the texture resolved from arg1 to the block's material, then releases the handle.
 // FUN_00483970
-void func_00483970(u8 *arg0, u8 *arg1) {
+void GeometryBlockSetTextureFromHandle(u8 *arg0, u8 *arg1) {
     s32 ret = func_00481390(arg1);
 
     func_003c42b0(*(s32 **)(arg0 + 0x14), ret);
     func_003ef3a0(ret);
 }
 
+// Copies words +0xC and +0x10 of the first texture entry into out[0] and out[1] and the texture into out[2]; null-safe.
 // FUN_004839D0
-void func_004839d0(int param_1, u32 *param_2)
+void GeometryBlockGetTextureInfo(int param_1, u32 *param_2)
 {
   int *piVar1;
   int iVar2;
@@ -494,8 +508,9 @@ void func_004839d0(int param_1, u32 *param_2)
   return;
 }
 
+// Multi-part block: partCount materials, geometry sized partCount x vertices and partCount x triangles, flags, bounding sphere at the origin.
 // FUN_00483A00
-u8 *func_00483a00(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 flags)
+u8 *GeometryCreateMultiPart(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 flags)
 {
     /* The count check uses the signed interpretation of the low product word. */
     if ((s32)((u32)(verticesPerPart & 0xFFFF) * (partCount & 0xFFFF)) > 0xFFFF) {
@@ -555,8 +570,9 @@ u8 *func_00483a00(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 
         return effect;
     }
 }
+// Multi-part table grid: partCount parts, each filled from the offset table arg4 and the per-part material handles.
 // FUN_00483C40
-u8 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+u8 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     s32 temp_16;
     s32 temp_3;
     u8 *temp_2;
@@ -584,7 +600,7 @@ u8 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     temp_3 = arg2 & 0xFFFF;
     spD0 = temp_3 * 3;
     temp_22 = arg1 & 0xFFFF;
-    temp_2 = (u8 *)func_00483a00(arg0, (temp_22 * temp_16) & 0xFFFF, (temp_22 * temp_3) & 0xFFFF, arg5);
+    temp_2 = (u8 *)GeometryCreateMultiPart(arg0, (temp_22 * temp_16) & 0xFFFF, (temp_22 * temp_3) & 0xFFFF, arg5);
     spE8 = temp_2;
     temp_21 = *(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18);
     spC0 = *(s32 *)(temp_2 + 0x54);
@@ -618,8 +634,9 @@ u8 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
    registers to arg0=$s3, arg1=$s0, arg4=$s2) regardless of declaration order
    or type-mismatch on the check. Tried 3 declaration orders, pre-hoisting and
    type-mismatch, nd 110. */
+// Multi-part strip grid: partCount parts, arg1 rows and arg3 vertices per row, triangles from the u16 table arg2, flags arg4.
 // FUN_00483E10
-u8 *func_00483e10(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+u8 *GeometryCreateStripGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 temp_2;
     u16 temp_22;
     s32 temp_23;
@@ -646,7 +663,7 @@ u8 *func_00483e10(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     temp_2 = (arg3 & 0xFFFF) - 1;
     spD0 = temp_2 * 4 + temp_2 * 2;
     temp_22 = (u16)arg1;
-    temp_2_2 = (u8 *)func_00483a00(arg0,
+    temp_2_2 = (u8 *)GeometryCreateMultiPart(arg0,
                                    ((temp_22 + 1) * (arg3 & 0xFFFF)) & 0xFFFF,
                                    (temp_22 * (temp_2 * 2)) & 0xFFFF,
                                    arg4);
