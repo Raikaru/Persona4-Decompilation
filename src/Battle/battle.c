@@ -15,7 +15,7 @@ extern void btlActionListUpdate(void);
 extern void btlActionUpdateQueue(void);
 extern void btlMainSyncSceneDrawColors(void);
 extern void btlCameraApplyView(void);
-extern void func_0019c0d0(void);
+extern void btlUnitUpdateAll(void);
 extern void btlSoundStepMessagePhase(void);
 extern void func_001f9be0(void);
 extern void btlSoundAdvanceSlotQueue(void);
@@ -23,7 +23,7 @@ extern void func_001eb8d0(void);
 extern void btlDestroyTask(void);
 extern s32 func_00457120(void);
 extern s32 func_003e8120(s32 arg0);
-extern void func_0019cfb0(void);
+extern void btlUnitUpdateAllLookAtTargets(void);
 extern void btlUnitQueueAllModelsForDraw(void);
 extern void btlEffectUpdateFadeNodes(void);
 extern void btlCameraDrawDebug(void);
@@ -105,7 +105,7 @@ s32 btlUpdateTask(u8 *unusedTask)
         btlActionUpdateQueue();
         btlMainSyncSceneDrawColors();
         btlCameraApplyView();
-        func_0019c0d0();
+        btlUnitUpdateAll();
         btlSoundStepMessagePhase();
         func_001f9be0();
         btlSoundAdvanceSlotQueue();
@@ -121,7 +121,7 @@ s32 btlUpdateDraw3DTask(u8 *unusedTask)
 {
     if (func_003e8120(func_00457120()) != 0) {
         btlPacketStepSide(2);
-        func_0019cfb0();
+        btlUnitUpdateAllLookAtTargets();
         btlUnitQueueAllModelsForDraw();
         btlEffectUpdateFadeNodes();
         btlCameraDrawDebug();

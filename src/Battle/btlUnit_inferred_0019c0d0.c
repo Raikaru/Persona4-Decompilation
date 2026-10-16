@@ -222,7 +222,7 @@ static inline void colMul_0019(Col4_0019 *dst, const u8 *src)
  * `mode` uninitialised there in the same way. */
 #pragma push
 // FUN_0019C0D0
-void func_0019c0d0(void)
+void btlUnitUpdateAll(void)
 {
     extern u32 btlUnitUpdateFollowPath(u8 *arg0);
     extern void btlBossCopyPartnerMark(u8 *arg0);
@@ -427,7 +427,7 @@ void func_0019c0d0(void)
 
 #pragma pop
 // FUN_0019CFB0
-void func_0019cfb0(void) {
+void btlUnitUpdateAllLookAtTargets(void) {
     u32 i;
     u8 *entry;
 
