@@ -37,7 +37,7 @@ extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
 
 extern u8 *D_0076449C;
-extern s32 func_001ba0e0(struct ColorBlendWork *work);
+extern s32 btlColorBlendPacketUpdate(struct ColorBlendWork *work);
 extern u8 *btlPacketAlloc(s32 size, s32 align);
 extern s32 func_001ba590(u8 *arg0);
 extern u8 D_005F7180[];
@@ -130,7 +130,7 @@ struct RwV3d;
    with it written as a literal no pragmas are needed. The start colour is
    one struct copy (retail loads all four bytes, then stores them). */
 // FUN_001BA0E0
-s32 func_001ba0e0(ColorBlendWork *work)
+s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
 {
     extern u8 *func_00457130(void);
     extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
@@ -161,11 +161,11 @@ s32 func_001ba0e0(ColorBlendWork *work)
 }
 
 // FUN_001BA530
-u8 *func_001ba530(s32 arg0, s32 arg1) {
+u8 *btlColorBlendPacketCreate(s32 arg0, s32 arg1) {
     u8 *o = btlPacketAlloc(0x608, 0x10);
     u8 *p;
 
-    *(void (**)(void))(o + 0x6C) = (void (*)(void))func_001ba0e0;
+    *(void (**)(void))(o + 0x6C) = (void (*)(void))btlColorBlendPacketUpdate;
     p = *(u8 **)(o + 0x78);
     *(s32 *)p = arg0;
     *(s32 *)(p + 8) = arg1;
