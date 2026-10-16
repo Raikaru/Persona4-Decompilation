@@ -793,7 +793,7 @@ readGrid:
             }
             if (FldMap_IsCurrentInBandB() != 0) {
                 temp_16_3 = (s32)(*(s32 *)(((FldFrame *)MT_Scene_GetFrameState())->hbnHandle + 0x110));
-                memcpy(((FldFrame *)MT_Scene_GetFrameState())->cellGrid,(const void *)((u8 *)temp_16_3 + 4), 0x1800);
+                memcpy(((FldFrame *)MT_Scene_GetFrameState())->cells,(const void *)((u8 *)temp_16_3 + 4), 0x1800);
                 FldStepLoadHandleDestroy(((FldFrame *)MT_Scene_GetFrameState())->hbnHandle);
                 for (var_18 = 0; var_18 < 0x18; var_18++) {
                     var_19 = 0;

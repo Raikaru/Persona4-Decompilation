@@ -2,6 +2,24 @@
 #define FIELD_FRAME_INTERNAL_H
 #include "type.h"
 
+/* One 0x10-byte entry of the field cell grid. Grid rows are 0x100 bytes, so a
+ * cell at (row, col) is at 0x54 + row * 0x100 + col * 0x10 in the frame.
+ * Neighbour checks in the grid code add and subtract 0x10 (column) and 0x100
+ * (row) from these offsets. */
+typedef struct FldFrameCell {
+    u8 occupied;           /* 0x00: 1 when the cell holds a placed entry */
+    u8 flags;              /* 0x01: low nibble is tested; bit 0x20 is set by neighbour checks */
+    u16 resourceId;        /* 0x02: resource index passed to MT_Scene_GetRes */
+    u8 type;               /* 0x04: cell type; 2, 3, 6, 7, 8 and 9..14 are tested by name */
+    u8 kind;               /* 0x05: quarter-turn orientation; FldUnit reads it as the spawn direction */
+    u8 shapeX;             /* 0x06 */
+    u8 shapeZ;             /* 0x07 */
+    u8 unk08[2];
+    u8 exits;              /* 0x0A: exit mask tested against the incoming mask */
+    u8 unk0B;              /* 0x0B: copied from the entry table */
+    u8 unk0C[4];
+} FldFrameCell;
+
 /* Field frame state, returned by MT_Scene_GetFrameState(). Only the offsets
  * read or written by name in the field code are typed; the rest keep their
  * measured extent and are not assumed to mean anything. A wrong offset changes
@@ -17,11 +35,13 @@ typedef struct FldFrame {
     u8 *noiseTask;         /* 0x2C: FldNoiseTaskCreate result */
     u8 *panelTask;         /* 0x30: FldPanel2dSetState target */
     u8 unk34[0x10];
-    u8 cellPick[4];        /* 0x44: four bytes set by the board scan in k_fldResource.c */
+    u8 spawnColumn;        /* 0x44: column of the spawn cell; set by the board scan in k_fldResource.c */
+    u8 spawnRow;           /* 0x45: row of the spawn cell; set by the board scan in k_fldResource.c */
+    u8 cellPick[2];        /* 0x46: picked cell bytes, set by the board scan in k_fldResource.c */
     u8 unk48[0x04];
     s32 boardParam;        /* 0x4C: argument to FldBoardGenerate */
     u8 unk50[0x04];
-    u8 cellGrid[0x1800];   /* 0x54: 24 rows of 16 cells, 0x10 bytes each; copied from the HBN table */
+    FldFrameCell cells[24][16]; /* 0x54: 24 rows of 16 cells, copied from the HBN table */
     u8 *auxBuffer;         /* 0x1854: buffer passed to scrStartProcedureChecked, released by FldAuxBufferRelease */
     u32 auxSize;           /* 0x1858: byte size of auxBuffer */
     u8 unk185C[0x08];
