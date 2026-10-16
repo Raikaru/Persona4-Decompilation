@@ -911,7 +911,7 @@ typedef struct {
 } CmpPersonaLayoutView;
 
 /* Eight-byte header followed by two 0x3c-byte records, initialized by
-   func_00115830. The word and halfword views cover its actual header fields. */
+   datPanelReset. The word and halfword views cover its actual header fields. */
 typedef union {
     u8 bytes[0x80];
     s16 halves[0x40];
@@ -931,7 +931,7 @@ void func_00137890(u8 *arg0, s32 arg1)
 {
     extern s32 datPersonaRosterCapacity(void);
     extern u16 *datPersonaRosterSlot(s16 slot);
-    extern void func_00115830(u8 *panel);
+    extern void datPanelReset(u8 *panel);
     extern void shdPersonaFillStatusBlock(u8 *persona, u8 *record, s32 mode);
     extern void func_0034f2e0(void *sprite, f32 x, f32 y,
                             u8 red, u8 green, u8 blue, u8 alpha);
@@ -985,7 +985,7 @@ void func_00137890(u8 *arg0, s32 arg1)
         func_0034f2e0(*(void **)(arg0 + 0x1C68), position.x, position.y,
                       0xFF, 0xE9, 0x2C, spriteOpacity);
     } else {
-        func_00115830(panel.bytes);
+        datPanelReset(panel.bytes);
         if (arg1 == *(s16 *)(arg0 + 0x52)) {
             selected = 1;
             panel.halves[1] = selected;

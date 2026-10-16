@@ -8773,7 +8773,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
     extern s32 func_0045aa90(s16, s16);
     extern u8 *shdPersonaLevelUpCreate(s32, s32, u8 *, s32, s32, s32 *);
     extern u8 *shdPersonaSkillReplaceCreate(s32, u8 *, s32, u8 *);
-    extern s32 func_0011fcf0(u8 *);
+    extern s32 datBlockStageIsEight(u8 *);
     extern void frFontExCopyString(void *, void *, s32);
     extern void shdPersonaSetPendingSkill(u8 *, s32);
     extern void shdPersonaArmSkillReveal(u8 *);
@@ -9235,7 +9235,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         }
         break;
     case 0xB5:
-        if (func_0011fcf0(*(u8 **)(p + 0x2A8)) == 1) {
+        if (datBlockStageIsEight(*(u8 **)(p + 0x2A8)) == 1) {
             kwlnTaskDestroyWithHierarchy((KwlnTask *)*(u8 **)(p + 0x2A8));
             *(u8 **)(p + 0x2A8) = 0;
             shdPersonaArmSkillReveal(fclDrawGetResource(*(u8 **)(p + 0x148)));
@@ -9458,7 +9458,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         }
         break;
     case 0xAF:
-        if (func_0011fcf0(*(u8 **)(p + 0x2A8)) == 1) {
+        if (datBlockStageIsEight(*(u8 **)(p + 0x2A8)) == 1) {
             kwlnTaskDestroyWithHierarchy((KwlnTask *)*(u8 **)(p + 0x2A8));
             *(u8 **)(p + 0x2A8) = 0;
             shdPersonaArmSkillReveal(fclDrawGetResource(*(u8 **)(p + 0x148)));

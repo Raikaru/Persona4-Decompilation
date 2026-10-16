@@ -9,10 +9,10 @@ typedef struct {
     f32 x;
     f32 y;
 } Vec2f;
-void func_00113800(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3);
+void datEntryDrawIdName(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3);
 void ShdSkill_DrawDescriptor(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3);
 void ShdSkill_DrawEntryName(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg3);
-void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
+void datPanelDrawCompareIcon(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 void drawUnitStatusPanel(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3, s32 arg4_2);
 extern s32 iGpffffb1b4;
 extern u8 iGpffff9bb8[8]; /* Default surname at gp - 0x6448. */
@@ -1452,8 +1452,9 @@ void datEntryDrawGatedByFlag39(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 void datStopPadRumble(void) {
     H_Pad_StopRumble();
 }
+// Intent: Fill a skill cost row from the table entry at the index: the skill id at +2, and the cost at +4 or +8 by the threshold kind; return 1 when the entry is present [inferred]
 // FUN_00113520
-s32 func_00113520(s32 arg0, s32 arg1, s32 arg2, u8 *arg3)
+s32 datPersonaFillSkillCostRow(s32 arg0, s32 arg1, s32 arg2, u8 *arg3)
 {
     s32 temp_3;
     u16 temp_2;
@@ -1483,8 +1484,9 @@ s32 func_00113520(s32 arg0, s32 arg1, s32 arg2, u8 *arg3)
     }
     return 0;
 }
+// Intent: Fill the persona's skill rows: up to eight learned skills first, then the learnable skills, with the counts at 0x60 and 0x224 [inferred]
 // FUN_00113610
-void func_00113610(s32 arg0, u8 *arg1)
+void datPersonaFillSkillRows(s32 arg0, u8 *arg1)
 {
     u16 sp70[32];
     u16 sp30[32];
@@ -1524,29 +1526,32 @@ void func_00113610(s32 arg0, u8 *arg1)
     }
     *(s16 *)(arg1 + 0x224) = count;
 }
+// Intent: Clear the first three halfwords of a record [inferred]
 // FUN_00113730
-void func_00113730(s16 *arg0) {
+void datRecordClearHeader(s16 *arg0) {
     arg0[0] = 0;
     arg0[1] = 0;
     arg0[2] = 0;
 }
+// Intent: Reset a record: zero the two halfword counters, set the two indices at +4 and +5 to -1, and clear the 0x22C bytes from +8 [inferred]
 // FUN_00113750
-void func_00113750(u8 *arg0) {
+void datRecordResetAll(u8 *arg0) {
     *(s16 *)(arg0 + 0) = 0;
     *(s16 *)(arg0 + 2) = 0;
     *(s8 *)(arg0 + 4) = -1;
     *(s8 *)(arg0 + 5) = -1;
     memset(arg0 + 8, 0, 0x22C);
 }
+// Intent: Draw an entry by its kind: kind 0 draws the id name, kind 1 the skill descriptor, kind 2 the skill entry name [inferred]
 // FUN_00113790
-void func_00113790(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4)
+void datEntryDrawByKind(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4)
 {
     s16 temp_8;
 
     temp_8 = *(s16 *)arg2;
     switch (temp_8) {
     case 0:
-        func_00113800(arg0, arg4, arg1, arg2, arg3);
+        datEntryDrawIdName(arg0, arg4, arg1, arg2, arg3);
         return;
     case 1:
         ShdSkill_DrawDescriptor(arg0, arg4, arg1, arg2, arg3);
@@ -1561,8 +1566,9 @@ void func_00113790(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4)
    192B; the only two fndiff residual words are zero-padding tail bytes.
    The plain-char table read preserves lb before the final f14 move with
    the shared signed-byte font API; an s8 read swaps those two words. */
+// Intent: Draw the record's id name at a position with the given alpha and the font index from the table [inferred]
 // FUN_00113800
-void func_00113800(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3)
+void datEntryDrawIdName(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3)
 {
     f32 scale;
     s32 color;
@@ -1576,16 +1582,18 @@ void func_00113800(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3)
     index = *(char *)((s32)D_005E47F0 + (*(s16 *)((u8 *)arg2 + 2) * 2));
     frFontExDrawText((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, index, 1, temp, 0, 0);
 }
+// Intent: Reset a panel: zero two 0x3C-byte sub-blocks and set the header to 1, 0, 0 [inferred]
 // FUN_00115830
-void func_00115830(u8 *arg0) {
+void datPanelReset(u8 *arg0) {
     memset(arg0 + 8, 0, 0x3C);
     memset(arg0 + 0x44, 0, 0x3C);
     *(s16 *)(arg0 + 0) = 1;
     *(s16 *)(arg0 + 2) = 0;
     *(s32 *)(arg0 + 4) = 0;
 }
+// Intent: Return whether the stage field at +8 of the work block is 8; the meaning of stage 8 is not established [inferred]
 // FUN_0011FCF0
-s32 func_0011fcf0(u8 *arg0) {
+s32 datBlockStageIsEight(u8 *arg0) {
     return *(s32 *)(*(u8 **)(arg0 + 0x38) + 8) == 8;
 }
 // Intent: Destroy a task and its hierarchy through the kwln task destroy call; same body as shdPersonaDestroyTask [inferred]
@@ -1593,20 +1601,22 @@ s32 func_0011fcf0(u8 *arg0) {
 void kwlnTaskDestroyHierarchyAlt(s32 task) {
     kwlnTaskDestroyWithHierarchy((KwlnTask *)task);
 }
+// Intent: Reset a panel's cursor: index at +4 to -1 and the count at +6 to 0 [inferred]
 // FUN_0011FD30
-void func_0011fd30(u8 *arg0) {
+void datPanelResetCursor(u8 *arg0) {
     *(s16 *)(arg0 + 4) = -1;
     *(s16 *)(arg0 + 6) = 0;
 }
+// Intent: Draw a panel row by its kind: kind 0 draws the comparison icon, kinds 1 and 2 the status panel, kind 3 the status panel in variant 1 [inferred]
 // FUN_0011FD50
-void func_0011fd50(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
+void datPanelDrawByKind(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
 {
     s32 temp_7;
 
     temp_7 = *(s32 *)(arg2 + 8);
     switch (temp_7) {
     case 0:
-        func_0011fdf0(arg0, arg4, arg1, arg2, temp_7);
+        datPanelDrawCompareIcon(arg0, arg4, arg1, arg2, temp_7);
         return;
     case 1:
         drawUnitStatusPanel(arg0, arg4, arg1, arg2, 0, arg3);
@@ -1619,8 +1629,9 @@ void func_0011fd50(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
         return;
     }
 }
+// Intent: Draw a comparison icon for an entry: sprite 4 when equal to the reference value of its band (always for band 3), 1 when higher, 2 when lower, 3 when no reference applies [inferred]
 // FUN_0011FDF0
-void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
+void datPanelDrawCompareIcon(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
 {
     s16 temp_17;
     s32 temp_2;

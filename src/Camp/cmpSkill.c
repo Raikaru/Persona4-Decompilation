@@ -33,7 +33,7 @@ s16 datPersonaGetLeadSlot(void);
 u16 datPersonaCountValidMembers(void);
 s32 datPersonaRosterSlot(s16);
 void datPersonaSetLeadSlot(s16);
-s32 func_00113520(s32, s32, s32, void *);
+s32 datPersonaFillSkillCostRow(s32, s32, s32, void *);
 u16 *datPersonaGetRecord(u16);
 u16 *datPersonaGetSkills(s32);
 void datCalcSkillOutcomeById(s32, s32, u16, s32, s32 *, s32, s32);
@@ -51,8 +51,8 @@ void func_0034f2e0(void *, f32, f32, u8, u8, u8, u8);
 void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 void func_0013b370(u8 *work, Vec2f position, PackedColor4 color);
 void func_0013b420(void *, Vec2f, s32, void *);
-void func_00113730(s16 *);
-void func_00113790(Vec2f, u8, void *, s32, f32);
+void datRecordClearHeader(s16 *);
+void datEntryDrawByKind(Vec2f, u8, void *, s32, f32);
 void func_0013ad40(u8 *, s32, s32);
 /* Two RGBA decoration colors. Retail copies exactly eight bytes; the next
    small-data object starts at 0x00762DC8. */
@@ -313,7 +313,7 @@ void func_00138490(void *arg0)
                 datPersonaSetLeadSlot((s16)i);
                 for (j = 0; j < 8; j++) {
                     p = b + count * 12;
-                    if (func_00113520(1, w, j, p + 0x100) != 0) {
+                    if (datPersonaFillSkillCostRow(1, w, j, p + 0x100) != 0) {
                         *(s16 *)(p + 0x100) = (s16)i;
                         count++;
                     }
@@ -324,7 +324,7 @@ void func_00138490(void *arg0)
         w = (s32)datPersonaGetRecord((u16)v);
         for (i = 0; i < 8; i++) {
             p = b + count * 12;
-            if (func_00113520(v, w, i, p + 0x100) != 0) {
+            if (datPersonaFillSkillCostRow(v, w, i, p + 0x100) != 0) {
                 *(s16 *)(p + 0x100) = -1;
                 count++;
             }
@@ -628,13 +628,13 @@ void func_00138bf0(u8 *work)
         func_0013b370(work, position, color);
         position.x = 255.0f + (originX + menu->animation[17].x);
         position.y = 21.0f + (originY + menu->animation[17].y);
-        func_00113730(&descriptor.kind);
+        datRecordClearHeader(&descriptor.kind);
         descriptor.kind = 1;
         descriptor.style = 4;
         descriptor.flags = 1;
         payloadIndex = (s32)menu->scrollRow + (s32)menu->selectedRow;
         descriptor.payload = menu->skills[payloadIndex].copy;
-        func_00113790(position, spriteAlpha, &descriptor.kind, 1, 0.0f);
+        datEntryDrawByKind(position, spriteAlpha, &descriptor.kind, 1, 0.0f);
     }
     if ((menu->visible & 0x2000) != 0) {
         f32 scrollOriginY;
@@ -736,7 +736,7 @@ void func_00138bf0(u8 *work)
                 value = (f32)*(u8 *)(work + rowIndex * 0x30 + 0x77E);
                 value = value * opacity;
                 spriteAlpha = (u8)value;
-                func_00113730(&descriptor.kind);
+                datRecordClearHeader(&descriptor.kind);
                 descriptor.kind = 1;
                 if (menu->selectedRow == rowIndex && ((menu->visible & 0x10) != 0)) {
                     descriptor.style = 3;
@@ -745,7 +745,7 @@ void func_00138bf0(u8 *work)
                 }
                 payloadIndex = (s32)menu->scrollRow + rowIndex;
                 descriptor.payload = *(Vec3f *)(work + payloadIndex * 0xC + 0x100);
-                func_00113790(position, spriteAlpha, &descriptor.kind, 1, 0.0f);
+                datEntryDrawByKind(position, spriteAlpha, &descriptor.kind, 1, 0.0f);
             }
         }
     }
@@ -763,7 +763,7 @@ void func_00138bf0(u8 *work)
         value = (f32)menu->animation[32].alpha;
         value = value * opacity;
         overlayAlpha = spriteAlpha = (u8)value;
-        func_00113730(&descriptor.kind);
+        datRecordClearHeader(&descriptor.kind);
         descriptor.kind = 1;
         descriptor.style = 3;
         descriptor.flags = 1;

@@ -888,7 +888,7 @@ void shdPersonaSetPersonaId(u8 *arg0, s32 arg1)
 
 
 void shdPersonaDrawPanels(u8 *, u8 *);
-void func_00113750(u8 *arg0);
+void datRecordResetAll(u8 *arg0);
 extern char D_005E5810[];
 extern char D_005E5830[];
 extern char D_005E5850[];
@@ -931,7 +931,7 @@ void shdPersonaTaskInit(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
         *(f32 *)(dst + 0x2E0) = *(f32 *)(src + 4);
         *(u8 *)(dst + 0x2E6) = *(u8 *)(src + 8);
     }
-    func_00113750(b + 0x84);
+    datRecordResetAll(b + 0x84);
     *(s32 *)(b + 0x444) = 0xC3E10000;
     *(s32 *)(b + 0x448) = 0x80000000;
     *(u8 *)(b + 0x44E) = 0xFF;
@@ -2581,7 +2581,7 @@ void shdPersonaFillStatusForState(u8 *arg0, u8 *arg1)
 
 
 
-void func_00113610(s32, u8 *);
+void datPersonaFillSkillRows(s32, u8 *);
 void shdPersonaDispCtlReconfigure(u8 *, s32, s32);
 s32 shdPersonaDispCtlGetHandle(u8 *);
 void shdPersonaLevelUpRoute(u8 *);
@@ -2620,7 +2620,7 @@ void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
         break;
     }
     *(s16 *)(work + 0xC) = (s16)arg1;
-    func_00113610((s32)arg2, work + 0x8C);
+    datPersonaFillSkillRows((s32)arg2, work + 0x8C);
     *(s8 *)(work + 0xEE) = (s8)arg3;
     memset(work + 0x4C0, 0, 0x30);
     memset(work + 0x4F0, 0, 6);
@@ -4552,7 +4552,7 @@ void shdPersonaAdvanceSkillList(u8 *arg0)
 
 s32 datPersonaAddStat(u8 *, s32, s32);
 s32 datPersonaCountSkills(u8 *);
-s32 func_0011fcf0(u8 *);
+s32 datBlockStageIsEight(u8 *);
 u8 *shdPersonaSkillReplaceCreate(s32, u8 *, s32, u8 *);
 u16 ShdSkill_GetPendingSkill(u8 *);
 s16 ShdSkill_FindSlot(u8 *, s32);
@@ -4809,7 +4809,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         break;
     }
     case 7:
-        if (func_0011fcf0(*(u8 **)(work + 0x18)) != 0) {
+        if (datBlockStageIsEight(*(u8 **)(work + 0x18)) != 0) {
             kwlnTaskDestroyHierarchyAlt(*(s32 *)(work + 0x18));
             *(u8 **)(work + 0x18) = NULL;
             *(s32 *)(work + 0x10) = *(s32 *)(work + 0x10) + 1;
@@ -4896,7 +4896,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             j += 1;
         }
         shdPersonaFillStatusForState(base, *(u8 **)base);
-        func_00113610(*(s32 *)base, base + 0x8C);
+        datPersonaFillSkillRows(*(s32 *)base, base + 0x8C);
         func_002bb4e0();
         *(u16 *)(work + 2) = 0;
         *(s32 *)(work + 0x14) = 0xD;
