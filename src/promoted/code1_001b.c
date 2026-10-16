@@ -191,7 +191,7 @@ extern u8 *btlCameraGetCurrentEntry(u8 *arg0);
 extern void btlCameraInitWork(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 extern void btlCameraUpdateEffectList(u8 *arg0);
 extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
-extern u8 *func_00194b60(void);
+extern u8 *btlPacketCreateImmediate(void);
 extern BtlPacket *btlTargetCreateEmptyPacket(void);
 extern void func_001f86d0(void);
 extern void btlDamageStartFlash(s32 arg0);
