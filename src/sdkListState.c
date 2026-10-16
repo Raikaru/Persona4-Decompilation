@@ -3,16 +3,16 @@
 #include "include_asm.h"
 
 extern void kAssertFail(void* message, u32 code);
-extern s32 func_00453eb0(u8* obj, s32 value);
-extern void func_00453ce0(u8* arg0, s32 arg1);
+extern s32 sdkListStateSeek(u8* obj, s32 value);
+extern void sdkListStateSetCount(u8* arg0, s32 arg1);
 extern void memset(void* dst, s32 value, u32 size);
-extern void func_00453670(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_00453760(u8* arg0, s32 arg1);
-extern void func_004537e0(u8* arg0, s32 arg1);
-extern void func_00454040(u8* arg0);
-extern void func_00454090(u8* arg0);
-extern s32 func_004540e0(u8* arg0);
-extern s32 func_00454250(u8* arg0);
+extern void sdkListStateConfigure(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void sdkListStateSetActive(u8* arg0, s32 arg1);
+extern void sdkListStateSetRefresh(u8* arg0, s32 arg1);
+extern void sdkListStateEnableClamp(u8* arg0);
+extern void sdkListStateDisableClamp(u8* arg0);
+extern s32 sdkListStateStepForward(u8* arg0);
+extern s32 sdkListStateStepBack(u8* arg0);
 extern s32 func_004543d0(u8* arg0);
 extern s32 func_00454460(u8* arg0);
 extern u16 D_008C024C[];
@@ -25,8 +25,9 @@ extern u32 D_007105E8[];
 
 
 
+// Intent: zeroes the 0x2C-byte list state and sets its visible row count (arg1) and item count (arg2).
 // FUN_004535C0
-void func_004535c0(u8* arg0, s32 arg1, s32 arg2)
+void sdkListStateInit(u8* arg0, s32 arg1, s32 arg2)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x45);
@@ -35,11 +36,12 @@ void func_004535c0(u8* arg0, s32 arg1, s32 arg2)
         kAssertFail(D_007105E8, 0x46);
     }
     memset(arg0, 0, 0x2C);
-    func_00453670(arg0, arg1, arg2, 0, 0);
+    sdkListStateConfigure(arg0, arg1, arg2, 0, 0);
 }
 
+// Intent: fully configures the list state: visible rows, item count, cursor and scroll offset, then sets the active and refresh flags.
 // FUN_00453670
-void func_00453670(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+void sdkListStateConfigure(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x4F);
@@ -57,12 +59,13 @@ void func_00453670(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     if (arg1 < 0) {
         *(s32*)(arg0 + 0x1C) = 0;
     }
-    func_00453760(arg0, 1);
-    func_004537e0(arg0, 1);
+    sdkListStateSetActive(arg0, 1);
+    sdkListStateSetRefresh(arg0, 1);
 }
 
+// Intent: sets or clears the active flag (bit 1) of the list state.
 // FUN_00453760
-void func_00453760(u8* arg0, s32 arg1)
+void sdkListStateSetActive(u8* arg0, s32 arg1)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x62);
@@ -74,8 +77,9 @@ void func_00453760(u8* arg0, s32 arg1)
     }
 }
 
+// Intent: sets or clears the refresh flag (bit 2) that the input handler reads.
 // FUN_004537E0
-void func_004537e0(u8* arg0, s32 arg1)
+void sdkListStateSetRefresh(u8* arg0, s32 arg1)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x6F);
@@ -87,8 +91,9 @@ void func_004537e0(u8* arg0, s32 arg1)
     }
 }
 
+// Intent: stores the four primary button masks at +0x04..+0x0A.
 // FUN_00453860
-void func_00453860(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+void sdkListStateSetPrimaryMasks(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x7A);
@@ -99,8 +104,9 @@ void func_00453860(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     *(s16*)(arg0 + 0xA) = arg4;
 }
 
+// Intent: stores the four secondary button masks at +0x0C..+0x12.
 // FUN_004538E0
-void func_004538e0(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+void sdkListStateSetSecondaryMasks(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x85);
@@ -111,8 +117,9 @@ void func_004538e0(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     *(s16*)(arg0 + 0x12) = arg4;
 }
 
+// Intent: reads the pressed-button masks and moves the cursor. Returns 1 or 2 for a forward or back step, 3 or 4 for the other two directions, 0 when nothing moved.
 // FUN_00453960
-s32 func_00453960(u8* arg0)
+s32 sdkListStateHandleInput(u8* arg0)
 {
     s32 result;
     s32 f4;
@@ -126,14 +133,14 @@ s32 func_00453960(u8* arg0)
         kAssertFail(D_007105E8, 0x91);
     }
     if (*(s32*)(arg0 + 0x0) & 2) {
-        func_00454040(arg0);
+        sdkListStateEnableClamp(arg0);
     }
     f4 = *(u16*)(arg0 + 0x4);
     if ((D_008C024E[0] & f4) || (fC = *(u16*)(arg0 + 0xC), (D_008C0276[0] & fC) != 0)) {
         if ((*(s32*)(arg0 + 0x0) & 4) || (*(s32*)(arg0 + 0x20) - 1 != *(s32*)(arg0 + 0x28) + *(s32*)(arg0 + 0x24))) {
-            func_00454090(arg0);
+            sdkListStateDisableClamp(arg0);
         }
-        if (func_004540e0(arg0) != 0) {
+        if (sdkListStateStepForward(arg0) != 0) {
             result = 1;
         }
         goto done;
@@ -141,9 +148,9 @@ s32 func_00453960(u8* arg0)
     f6 = *(u16*)(arg0 + 0x6);
     if ((D_008C024E[0] & f6) || (fE = *(u16*)(arg0 + 0xE), (D_008C0276[0] & fE) != 0)) {
         if ((*(s32*)(arg0 + 0x0) & 4) || (*(s32*)(arg0 + 0x28) + *(s32*)(arg0 + 0x24) != 0)) {
-            func_00454090(arg0);
+            sdkListStateDisableClamp(arg0);
         }
-        if (func_00454250(arg0) != 0) {
+        if (sdkListStateStepBack(arg0) != 0) {
             result = 2;
         }
         goto done;
@@ -163,13 +170,13 @@ s32 func_00453960(u8* arg0)
         goto done;
     }
     if ((D_008C024C[0] & f4) || (D_008C0274[0] & fC)) {
-        if (((D_008C0252[0] & f4) || (D_008C027A[0] & fC)) && func_004540e0(arg0) != 0) {
+        if (((D_008C0252[0] & f4) || (D_008C027A[0] & fC)) && sdkListStateStepForward(arg0) != 0) {
             result = 1;
         }
         goto done;
     }
     if ((D_008C024C[0] & f6) || (D_008C0274[0] & fE)) {
-        if (((D_008C0252[0] & f6) || (D_008C027A[0] & fE)) && func_00454250(arg0) != 0) {
+        if (((D_008C0252[0] & f6) || (D_008C027A[0] & fE)) && sdkListStateStepBack(arg0) != 0) {
             result = 2;
         }
         goto done;
@@ -179,23 +186,25 @@ done:
     return result;
 }
 
+// Intent: appends one item by raising the count by one.
 // FUN_00453C80
-void func_00453c80(u8* arg0)
+void sdkListStateAddItem(u8* arg0)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0xD7);
     }
-    func_00453ce0(arg0, *(s32*)(arg0 + 0x20) + 1);
+    sdkListStateSetCount(arg0, *(s32*)(arg0 + 0x20) + 1);
 }
+// Intent: sets the item count; if the count shrinks, re-seeks the cursor inside the new range.
 // FUN_00453CE0
-void func_00453ce0(u8* arg0, s32 arg1)
+void sdkListStateSetCount(u8* arg0, s32 arg1)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0xF4);
     }
     if (arg1 < *(s32*)(arg0 + 0x20)) {
         *(s32*)(arg0 + 0x20) = arg1;
-        func_00453eb0(arg0, *(s32*)(arg0 + 0x28) + *(s32*)(arg0 + 0x24));
+        sdkListStateSeek(arg0, *(s32*)(arg0 + 0x28) + *(s32*)(arg0 + 0x24));
         return;
     }
     *(s32*)(arg0 + 0x20) = arg1;
@@ -203,8 +212,9 @@ void func_00453ce0(u8* arg0, s32 arg1)
 
 
 
+// Intent: returns the scroll offset (+0x28).
 // FUN_00453D70
-s32 func_00453d70(u8* arg0)
+s32 sdkListStateGetScroll(u8* arg0)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x101);
@@ -214,8 +224,9 @@ s32 func_00453d70(u8* arg0)
 
 
 
+// Intent: returns the cursor's offset within the visible window (+0x24).
 // FUN_00453DC0
-s32 func_00453dc0(u8* arg0)
+s32 sdkListStateGetCursor(u8* arg0)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x108);
@@ -225,8 +236,9 @@ s32 func_00453dc0(u8* arg0)
 
 
 
+// Intent: returns the item count (+0x20).
 // FUN_00453E10
-s32 func_00453e10(u8* arg0)
+s32 sdkListStateGetCount(u8* arg0)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x10F);
@@ -236,8 +248,9 @@ s32 func_00453e10(u8* arg0)
 
 
 
+// Intent: returns the visible row count (+0x14).
 // FUN_00453E60
-s32 func_00453e60(u8* arg0)
+s32 sdkListStateGetVisible(u8* arg0)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x116);
@@ -245,8 +258,9 @@ s32 func_00453e60(u8* arg0)
     return *(s32*)(arg0 + 0x14);
 }
 
+// Intent: moves the cursor to the given item index, clamped to the valid range, and recomputes the scroll offset.
 // FUN_00453EB0
-s32 func_00453eb0(u8* arg0, s32 arg1)
+s32 sdkListStateSeek(u8* arg0, s32 arg1)
 {
     s32 hi;
     s32 diff;
@@ -283,8 +297,9 @@ s32 func_00453eb0(u8* arg0, s32 arg1)
     return 1;
 }
 
+// Intent: sets the visible row count (+0x14).
 // FUN_00453FA0
-void func_00453fa0(u8* arg0, s32 arg1)
+void sdkListStateSetVisible(u8* arg0, s32 arg1)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x144);
@@ -292,8 +307,9 @@ void func_00453fa0(u8* arg0, s32 arg1)
     *(s32*)(arg0 + 0x14) = arg1;
 }
 
+// Intent: sets the rows reserved at the top (+0x18) that the cursor cannot use.
 // FUN_00453FF0
-void func_00453ff0(u8* arg0, s32 arg1)
+void sdkListStateSetReservedRows(u8* arg0, s32 arg1)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x14C);
@@ -301,8 +317,9 @@ void func_00453ff0(u8* arg0, s32 arg1)
     *(s32*)(arg0 + 0x18) = arg1;
 }
 
+// Intent: sets the clamp flag (bit 0) so the cursor stops at the ends instead of wrapping.
 // FUN_00454040
-void func_00454040(u8* arg0)
+void sdkListStateEnableClamp(u8* arg0)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x154);
@@ -310,8 +327,9 @@ void func_00454040(u8* arg0)
     *(s32*)(arg0 + 0x0) |= 1;
 }
 
+// Intent: clears the clamp flag (bit 0) so the cursor wraps at the ends.
 // FUN_00454090
-void func_00454090(u8* arg0)
+void sdkListStateDisableClamp(u8* arg0)
 {
     if (arg0 == NULL) {
         kAssertFail(D_007105E8, 0x15B);
@@ -319,8 +337,9 @@ void func_00454090(u8* arg0)
     *(s32*)(arg0 + 0x0) &= ~1;
 }
 
+// Intent: steps the cursor forward one row, scrolling when it reaches the bottom of the window. Returns 1 when it moved.
 // FUN_004540E0
-s32 func_004540e0(u8* arg0)
+s32 sdkListStateStepForward(u8* arg0)
 {
     s32 cur;
     s32 hi;
@@ -378,8 +397,9 @@ s32 func_004540e0(u8* arg0)
 done:
     return 1;
 }
+// Intent: steps the cursor back one row, scrolling when it reaches the top of the window. Returns 1 when it moved.
 // FUN_00454250
-s32 func_00454250(u8* arg0)
+s32 sdkListStateStepBack(u8* arg0)
 {
     s32 cur;
     s32 hi;

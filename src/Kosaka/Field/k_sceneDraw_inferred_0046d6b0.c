@@ -81,7 +81,7 @@ extern u16 D_008C0276[];
 extern char iGpffffb020[3];
 extern char iGpffffb024[2];
 extern char iGpffffb028[6];
-extern s32 func_00453960(u8 *arg0);
+extern s32 sdkListStateHandleInput(u8 *arg0);
 extern s32 uGpffffb230;
 extern s32 D_00724BC8;
 extern s32 D_00724BF8;
@@ -1006,9 +1006,9 @@ s32 sdkLboxUpdate(u8 *task)
     extern u32 func_003e8120(u32 camera);
     extern u32 func_003e8110(u32 camera);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern s32 func_00453960(u8 *task);
-    extern s32 func_00453d70(void *task);
-    extern s32 func_00453dc0(void *task);
+    extern s32 sdkListStateHandleInput(u8 *task);
+    extern s32 sdkListStateGetScroll(void *task);
+    extern s32 sdkListStateGetCursor(void *task);
     extern s32 sdkWindowIsOpen(u8 *task);
     extern void sdkWindowSetRect(u8 *task, u8 *arg1);
     extern void sdkLboxDrawEntries(u8 *task);
@@ -1228,9 +1228,9 @@ s32 sdkLboxUpdate(u8 *task)
                 delay = work->delay;
                 if (delay > 0) {
                     work->delay = (s32) (delay - 1);
-                } else if (func_00453960(work->input) != 0) {
-                    work->selectedValue = func_00453d70(work->input);
-                    work->selectedRow = func_00453dc0(work->input);
+                } else if (sdkListStateHandleInput(work->input) != 0) {
+                    work->selectedValue = sdkListStateGetScroll(work->input);
+                    work->selectedRow = sdkListStateGetCursor(work->input);
                 } else if (D_008C0252[0] & 0x2000) {
                     incrementEntry = (ControllerEntry *)sdkLboxFindEntry(task, sdkLboxGetSelectedId(task));
                     if (incrementEntry != NULL) {

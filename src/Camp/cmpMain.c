@@ -11,9 +11,9 @@ s32 func_0034bb20(s32 arg0);
 void func_0034c260(s32 arg0);
 void resrcMngUnsuppressRender(void);
 void datGridEffectCreate(s32 a, u8 *b, s32 c, s32 d, s32 e, s32 f, s32 g, s32 h);
-void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-s32 func_00453960(void *arg0);
+void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void sdkListStateSetSecondaryMasks(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+s32 sdkListStateHandleInput(void *arg0);
 void memset(void *dst, s32 value, u32 size);
 
 
@@ -164,10 +164,10 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
                 func_0034bb20(2);
                 sdkSndStartStream(0, 2, 0, 4);
             } else {
-                func_00453670(&sp20, *(s32 *)(p + 0x50), *(s32 *)(p + 0x50),
+                sdkListStateConfigure(&sp20, *(s32 *)(p + 0x50), *(s32 *)(p + 0x50),
                               *(s32 *)(p + 0x28), 0);
-                func_004538e0(&sp20, 0x4000, 0x1000, 0, 0);
-                if (func_00453960(&sp20) != 0) {
+                sdkListStateSetSecondaryMasks(&sp20, 0x4000, 0x1000, 0, 0);
+                if (sdkListStateHandleInput(&sp20) != 0) {
                     func_0012db80(p + 0x18, *(s32 *)((u8 *)&sp20 + 0x24));
                 }
             }

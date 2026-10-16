@@ -265,10 +265,10 @@ extern s32 datCommunityRequestExit(void);
 extern void datScreenWipeSetTextureId(u8 *arg0, s32 arg1);
 extern void sflDataResetPersonaState(void *arg0);
 extern void sflDataLoadPersonaState(void *arg0, s16 pcId);
-extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_00453760(void *arg0, s32 arg1);
-extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_00453960(void *arg0);
+extern void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void sdkListStateSetActive(void *arg0, s32 arg1);
+extern void sdkListStateSetSecondaryMasks(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 sdkListStateHandleInput(void *arg0);
 extern void radarDrawEdge(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
 extern u8 *MT_Scene_GetResListHead(s32 arg0);

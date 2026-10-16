@@ -198,10 +198,10 @@ extern s32 datCommunityRequestExit(void);
 extern void datScreenWipeSetTextureId(u8 *arg0, s32 arg1);
 extern void sflDataResetPersonaState(void *arg0);
 extern void sflDataLoadPersonaState(void *arg0, s16 pcId);
-extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_00453760(void *arg0, s32 arg1);
-extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_00453960(void *arg0);
+extern void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void sdkListStateSetActive(void *arg0, s32 arg1);
+extern void sdkListStateSetSecondaryMasks(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 sdkListStateHandleInput(void *arg0);
 extern void radarDrawEdge(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
 
@@ -1200,9 +1200,9 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 9;
         } else {
-            func_00453670(query, *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x34), 0);
-            func_004538e0(query, 0x4000, 0x1000, 0, 0);
-            if (func_00453960(query) != 0) {
+            sdkListStateConfigure(query, *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x34), 0);
+            sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0, 0);
+            if (sdkListStateHandleInput(query) != 0) {
                 radarPushValue(arg2, 0, *(s32 *)(query + 0x24));
                 datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x3C), *(u16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg2 + 0x34) * 2), arg2) + 0x22));
                 sdkSndStartStream(0, 1, 0, 0);
@@ -1241,10 +1241,10 @@ s32 radarUpdateState(u32 *arg0, s32 *arg1, u8 *arg2)
             s32 n6;
             s32 tmp6;
             u8 *base6;
-            func_00453670(query, *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x34), 0);
-            func_00453760(query, 0);
-            func_004538e0(query, 8, 4, 0, 0);
-            queryResult = func_00453960(query);
+            sdkListStateConfigure(query, *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x32), *(s16 *)(arg2 + 0x34), 0);
+            sdkListStateSetActive(query, 0);
+            sdkListStateSetSecondaryMasks(query, 8, 4, 0, 0);
+            queryResult = sdkListStateHandleInput(query);
             if (queryResult > 0) {
                 radarPushValue(arg2, 0, *(s32 *)(query + 0x24));
                 if (queryResult == 2) {

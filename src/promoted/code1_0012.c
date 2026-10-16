@@ -82,10 +82,10 @@ extern s32 func_00268990(s32 arg0);
 extern void func_00103b00(void);
 extern void poolFree(s32 arg0);
 extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
-extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_00453960(void *arg0);
-extern s32 func_00453dc0(void *arg0);
+extern void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void sdkListStateSetSecondaryMasks(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 sdkListStateHandleInput(void *arg0);
+extern s32 sdkListStateGetCursor(void *arg0);
 extern u16 D_008C024E[];
 extern void sprintf(void *arg0, const char *arg1, ...);
 extern s32 func_00455f70(void *arg0, s32 *arg1);
@@ -1775,9 +1775,9 @@ s32 titleMusicStreamStep(u8 *arg0)
     s32 var_16;
 
     var_16 = 0;
-    func_00453670(sp40, 3, 3, *(s32 *)(arg0 + 0x20), 0);
-    func_004538e0(sp40, 0x4000, 0x1000, 0, 0);
-    temp_2 = func_00453960(sp40);
+    sdkListStateConfigure(sp40, 3, 3, *(s32 *)(arg0 + 0x20), 0);
+    sdkListStateSetSecondaryMasks(sp40, 0x4000, 0x1000, 0, 0);
+    temp_2 = sdkListStateHandleInput(sp40);
     switch (temp_2) {
     case 1:
         var_16 = 1;
@@ -1787,7 +1787,7 @@ s32 titleMusicStreamStep(u8 *arg0)
         break;
     }
     temp_18 = *(s32 *)(arg0 + 0x20);
-    temp_2_2 = func_00453dc0(sp40);
+    temp_2_2 = sdkListStateGetCursor(sp40);
     *(s32 *)(arg0 + 0x20) = temp_2_2;
     if (temp_2_2 != temp_18) {
         *(s32 *)(arg0 + 0x24) = temp_18;

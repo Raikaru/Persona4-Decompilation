@@ -35,10 +35,10 @@ extern void shdPersonaSetFlags(u8 *arg0, s32 arg1);
 extern void shdPersonaClearFlags(u8 *arg0, s32 arg1);
 extern void shdPersonaRefreshDispCtlPosition(u8 *arg0, void *arg1);
 extern void shdPersonaSetChildDispCtlHandleAndColor(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_00453670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_00453760(void *arg0, s32 arg1);
-extern void func_004538e0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_00453960(u8 *arg0);
+extern void sdkListStateConfigure(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void sdkListStateSetActive(void *arg0, s32 arg1);
+extern void sdkListStateSetSecondaryMasks(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 sdkListStateHandleInput(u8 *arg0);
 extern void cmpPersonaSetSelection(u8 *arg0, s32 arg1, s32 arg2);
 extern s32 datPersonaRosterSlot(s16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
@@ -1407,9 +1407,9 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         } else if (radarAdvanceGroupSelection(arg2) != 0) {
             sdkSndStartStream(0, 1, 0, 5);
         } else {
-            func_00453670(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
-            func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-            if ((temp_2_2 = func_00453960(buf)) > 0) {
+            sdkListStateConfigure(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
+            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0x2000, 0x8000);
+            if ((temp_2_2 = sdkListStateHandleInput(buf)) > 0) {
                 radarPushHistoryValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
                 radarPushHistoryValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
                 if (*(s16 *)(arg2 + 0x24) != *(s16 *)(arg2 + 0x2A)) {
@@ -1442,9 +1442,9 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 0xB;
         } else {
-            func_00453670(buf, 4, *(s16 *)(arg2 + 0x3C), *(s16 *)(arg2 + 0x26), 0);
-            func_004538e0(buf, 0x4000, 0x1000, 0, 0);
-            if (func_00453960(buf) != 0) {
+            sdkListStateConfigure(buf, 4, *(s16 *)(arg2 + 0x3C), *(s16 *)(arg2 + 0x26), 0);
+            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
+            if (sdkListStateHandleInput(buf) != 0) {
                 radarPushHistoryValue((s32)arg2, 2, *(s32 *)(buf + 0x24));
                 radarPushSlotState(arg2);
                 sdkSndStartStream(0, 1, 0, 0);
@@ -1502,9 +1502,9 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         } else if (radarAdvanceGroupSelection(arg2) != 0) {
             sdkSndStartStream(0, 1, 0, 5);
         } else {
-            func_00453670(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
-            func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-            if ((temp_2_3 = func_00453960(buf)) > 0) {
+            sdkListStateConfigure(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
+            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0x2000, 0x8000);
+            if ((temp_2_3 = sdkListStateHandleInput(buf)) > 0) {
                 radarPushHistoryValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
                 radarPushHistoryValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
                 if (*(s16 *)(arg2 + 0x24) != *(s16 *)(arg2 + 0x2A)) {
@@ -1567,7 +1567,7 @@ s32 radarEntryTypeIsActive(s16 arg0) {
    m2c's call arguments are stale registers - func_001312b0, func_001318c0,
    radarWideEntriesCoverValue, radarCollectPartyChanges, radarTransferSelectedUnit, radarBeginPickList,
    func_00452490 and two func_00134560 sites all take one fewer.  The two
-   pick-list tests are `if ((n = func_00453960(buf)) > 0)`: assigning in
+   pick-list tests are `if ((n = sdkListStateHandleInput(buf)) > 0)`: assigning in
    the condition keeps the count in $v0 for the `blez`, where a separate
    statement moves it to a saved register first. */
 // Intent: Transfer menu state machine: step the party-change and unit-transfer states, and return the menu's result [inferred]
@@ -1640,9 +1640,9 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
                 *arg0 = 0xD;
             } else {
-                func_00453670(buf, 8, *(s16 *)(arg2 + 0x48), *(s16 *)(arg2 + 0x28), 0);
-                func_004538e0(buf, 0x4000, 0x1000, 0, 0);
-                if (func_00453960(buf) != 0) {
+                sdkListStateConfigure(buf, 8, *(s16 *)(arg2 + 0x48), *(s16 *)(arg2 + 0x28), 0);
+                sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
+                if (sdkListStateHandleInput(buf) != 0) {
                     cmpEquipSetSelection(arg2, 0, *(s32 *)(buf + 0x24));
                     sdkSndStartStream(0, 1, 0, 0);
                 }
@@ -1672,9 +1672,9 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 0xD;
         } else {
-            func_00453670(buf, 3, 3, *(s16 *)(arg2 + 0x2A), 0);
-            func_004538e0(buf, 0x4000, 0x1000, 0, 0);
-            if (func_00453960(buf) != 0) {
+            sdkListStateConfigure(buf, 3, 3, *(s16 *)(arg2 + 0x2A), 0);
+            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
+            if (sdkListStateHandleInput(buf) != 0) {
                 cmpEquipSetSelection(arg2, 1, *(s32 *)(buf + 0x24));
                 sdkSndStartStream(0, 1, 0, 0);
             }
@@ -1717,9 +1717,9 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     sdkSndStartStream(0, 2, 0, 3);
                 }
             } else if (radarBeginPickList(arg2, arg0) == 0) {
-                func_00453670(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
-                func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-                if ((temp_2_2 = func_00453960(buf)) > 0) {
+                sdkListStateConfigure(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
+                sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0x2000, 0x8000);
+                if ((temp_2_2 = sdkListStateHandleInput(buf)) > 0) {
                     cmpEquipSetSelection(arg2, 2, *(s32 *)(buf + 0x28));
                     cmpEquipSetSelection(arg2, 3, *(s32 *)(buf + 0x24));
                     if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x34)) {
@@ -1750,9 +1750,9 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 0xD;
         } else if (radarBeginPickList(arg2, arg0) == 0) {
-            func_00453670(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
-            func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-            if ((temp_2_3 = func_00453960(buf)) > 0) {
+            sdkListStateConfigure(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
+            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0x2000, 0x8000);
+            if ((temp_2_3 = sdkListStateHandleInput(buf)) > 0) {
                 cmpEquipSetSelection(arg2, 2, *(s32 *)(buf + 0x28));
                 cmpEquipSetSelection(arg2, 3, *(s32 *)(buf + 0x24));
                 if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x34)) {
@@ -1882,10 +1882,10 @@ s32 radarBeginPickList(u8 *arg0, s32 *arg1) {
     u8 sp40[0x28];
     s32 temp_2;
 
-    func_00453670(sp40, 8, *(s16 *)(arg0 + 0x48), *(s16 *)(arg0 + 0x28), 0);
-    func_00453760(sp40, 0);
-    func_004538e0(sp40, 8, 4, 0, 0);
-    temp_2 = func_00453960(sp40);
+    sdkListStateConfigure(sp40, 8, *(s16 *)(arg0 + 0x48), *(s16 *)(arg0 + 0x28), 0);
+    sdkListStateSetActive(sp40, 0);
+    sdkListStateSetSecondaryMasks(sp40, 8, 4, 0, 0);
+    temp_2 = sdkListStateHandleInput(sp40);
     if (temp_2 > 0) {
         cmpEquipSetSelection(arg0, 0, *(s32 *)(sp40 + 0x24));
         cmpEquipSetSelection(arg0, 3, 0);
@@ -2082,9 +2082,9 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
                 *arg0 = 0x10;
             } else {
-                func_00453670(buf, 8, *(s16 *)(arg2 + 0x34), *(s16 *)(arg2 + 0x50), 0);
-                func_004538e0(buf, 0x4000, 0x1000, 0, 0);
-                if (func_00453960(buf) != 0) {
+                sdkListStateConfigure(buf, 8, *(s16 *)(arg2 + 0x34), *(s16 *)(arg2 + 0x50), 0);
+                sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
+                if (sdkListStateHandleInput(buf) != 0) {
                     cmpPersonaSetSelection(arg2, 0, *(s32 *)(buf + 0x24));
                     datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24));
                     sdkSndStartStream(0, 1, 0, 0);
@@ -2136,9 +2136,9 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             }
             cmpPersonaResetRosterCursor(arg2);
         } else {
-            func_00453670(buf, 0xC, *(s16 *)(arg2 + 0x4E), *(s16 *)(arg2 + 0x52), 0);
-            func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-            if (func_00453960(buf) != 0) {
+            sdkListStateConfigure(buf, 0xC, *(s16 *)(arg2 + 0x4E), *(s16 *)(arg2 + 0x52), 0);
+            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0x2000, 0x8000);
+            if (sdkListStateHandleInput(buf) != 0) {
                 cmpPersonaSetSelection(arg2, 1, *(s32 *)(buf + 0x24));
                 cmpPersonaResetRosterCursor(arg2);
                 shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
@@ -2316,10 +2316,10 @@ void radarBeginRecipientPick(u8 *arg0, s32 *arg1) {
     u8 sp40[0x28];
     s32 temp_2;
 
-    func_00453670(sp40, 0xC, *(s16 *)(arg0 + 0x4E), *(s16 *)(arg0 + 0x52), 0);
-    func_00453760(sp40, 0);
-    func_004538e0(sp40, 8, 4, 0, 0);
-    temp_2 = func_00453960(sp40);
+    sdkListStateConfigure(sp40, 0xC, *(s16 *)(arg0 + 0x4E), *(s16 *)(arg0 + 0x52), 0);
+    sdkListStateSetActive(sp40, 0);
+    sdkListStateSetSecondaryMasks(sp40, 8, 4, 0, 0);
+    temp_2 = sdkListStateHandleInput(sp40);
     if (temp_2 > 0) {
         cmpPersonaSetSelection(arg0, 1, *(s32 *)(sp40 + 0x24));
         *arg1 = 8;
@@ -2340,10 +2340,10 @@ s32 radarBeginCharacterPick(u8 *arg0, s32 *arg1) {
     s32 temp_18;
     u16 character;
 
-    func_00453670(sp40, 8, *(s16 *)(arg0 + 0x34), *(s16 *)(arg0 + 0x50), 0);
-    func_00453760(sp40, 0);
-    func_004538e0(sp40, 8, 4, 0, 0);
-    temp_2 = func_00453960(sp40);
+    sdkListStateConfigure(sp40, 8, *(s16 *)(arg0 + 0x34), *(s16 *)(arg0 + 0x50), 0);
+    sdkListStateSetActive(sp40, 0);
+    sdkListStateSetSecondaryMasks(sp40, 8, 4, 0, 0);
+    temp_2 = sdkListStateHandleInput(sp40);
     if (temp_2 > 0) {
         cmpPersonaSetSelection(arg0, 0, *(s32 *)(sp40 + 0x24));
         *arg1 = 0xB;
@@ -2449,9 +2449,9 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
                 *arg0 = 0xD;
             } else {
-                func_00453670(query, 4, *(s16 *)(arg2 + 0xFC), characterRow, 0);
-                func_004538e0(query, 0x4000, 0x1000, 0, 0);
-                if ((s32)(func_00453960(query)) != (s32)(0)) {
+                sdkListStateConfigure(query, 4, *(s16 *)(arg2 + 0xFC), characterRow, 0);
+                sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0, 0);
+                if ((s32)(sdkListStateHandleInput(query)) != (s32)(0)) {
                     cmpSkillSetSelection((s16 *)arg2, 0, *(s32 *)(query + 0x24));
                     cmpSkillBuildAbilityList(arg2);
                     cmpSkillSetPartyCursorMotion(arg2);
@@ -2483,9 +2483,9 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
                     *arg0 = 0xD;
                 } else {
-                    func_00453670(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
-                    func_004538e0(query, 0x4000, 0x1000, 0x2000, 0x8000);
-                    if ((queryResult = func_00453960(query)) > 0) {
+                    sdkListStateConfigure(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
+                    sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0x2000, 0x8000);
+                    if ((queryResult = sdkListStateHandleInput(query)) > 0) {
                         cmpSkillSetSelection((s16 *)arg2, 1, *(s32 *)(query + 0x24));
                         cmpSkillSetSelection((s16 *)arg2, 2, *(s32 *)(query + 0x28));
                         if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
@@ -2530,9 +2530,9 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
                     *arg0 = 0xD;
                 } else {
-                    func_00453670(query, 4, *(s16 *)(arg2 + 0xFC), recipientRow, 0);
-                    func_004538e0(query, 0x4000, 0x1000, 0, 0);
-                    if ((s32)(func_00453960(query)) != (s32)(0)) {
+                    sdkListStateConfigure(query, 4, *(s16 *)(arg2 + 0xFC), recipientRow, 0);
+                    sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0, 0);
+                    if ((s32)(sdkListStateHandleInput(query)) != (s32)(0)) {
                         cmpSkillSetSelection((s16 *)arg2, 3, *(s32 *)(query + 0x24));
                         cmpSkillSetScrollCursorMotion(arg2);
                         sdkSndStartStream(0, 1, 0, 0);
@@ -2600,9 +2600,9 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
                     *arg0 = 0xD;
                 } else {
-                    func_00453670(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
-                    func_004538e0(query, 0x4000, 0x1000, 0x2000, 0x8000);
-                    if ((alternateQueryResult = func_00453960(query)) > 0) {
+                    sdkListStateConfigure(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
+                    sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0x2000, 0x8000);
+                    if ((alternateQueryResult = sdkListStateHandleInput(query)) > 0) {
                         cmpSkillSetSelection((s16 *)arg2, 1, *(s32 *)(query + 0x24));
                         cmpSkillSetSelection((s16 *)arg2, 2, *(s32 *)(query + 0x28));
                         if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
