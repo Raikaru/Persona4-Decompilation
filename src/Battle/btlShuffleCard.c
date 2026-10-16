@@ -4,7 +4,7 @@
 
 
 extern void sflDataSetupQuadPanel(void);
-extern void func_0036c450(void);
+extern void pscResAcquireMiscCardW00(void);
 extern void btlShuffleCardUpdateCards(u8 *arg0);
 
 extern void func_003dc740(void *dest, void *src, s32 mode, f32 fparg0);
@@ -14,12 +14,12 @@ extern void func_0036b5e0(u8 *arg0, f32 *out);
 
 extern void sflDataSetupLayoutPanel(void);
 extern void func_0036a820(u8 *arg0, s32 arg1);
-extern void func_0036c7e0(s32 arg0);
+extern void pscResAcquirePersonaCard(s32 arg0);
 extern void sflDataSetupFramePanel(void);
 extern void func_0036a880(u8 *arg0, u16 arg1, s32 arg2);
-extern void func_0036c570(s32 arg0, s32 arg1);
+extern void pscResAcquireArcanaCard(s32 arg0, s32 arg1);
 extern void func_00368d30(void);
-extern void func_0036c900(void);
+extern void pscResAcquireMiscCardW01(void);
 extern void func_0036b5a0(u8 *arg0, void *arg1);
 extern void func_0036b5c0(u8 *arg0, void *arg1);
 extern void func_0036b600(u8 *arg0, void *arg1);
@@ -31,10 +31,10 @@ extern void func_0036b630(u8 *arg0, s32 arg1);
 extern void func_00368e80(u8 *arg0);
 extern void func_003694d0(u8 *arg0);
 extern void func_00369470(s32 objectAddress, u8 *queue);
-extern void func_0036c140(s32 arg0, s32 arg1);
-extern void func_0036c230(s32 arg0);
-extern void func_0036c310(void);
-extern void func_0036c3b0(void);
+extern void pscResReleaseArcanaCard(s32 arg0, s32 arg1);
+extern void pscResReleasePersonaCard(s32 arg0);
+extern void pscResReleaseMiscCardW00(void);
+extern void pscResReleaseMiscCardW01(void);
 extern void *func_00457120(void);
 extern void kAssertFail(const char *file, s32 line);
 extern char D_0064E5B0[];
@@ -89,7 +89,7 @@ void btlShuffleCardSetupLayout(u8 *arg0, s32 arg1)
 {
     sflDataSetupLayoutPanel();
     func_0036a820(arg0, arg1);
-    func_0036c7e0(arg1);
+    pscResAcquirePersonaCard(arg1);
     btlShuffleCardUpdateCards(arg0);
 }
 
@@ -101,7 +101,7 @@ void btlShuffleCardSetupFrame(u8 *arg0, s32 arg1, s32 arg2)
     sflDataSetupFramePanel();
     masked = arg1 & 0xFFFF;
     func_0036a880(arg0, masked, arg2);
-    func_0036c570(masked, arg2);
+    pscResAcquireArcanaCard(masked, arg2);
     btlShuffleCardUpdateCards(arg0);
 }
 
@@ -112,7 +112,7 @@ void btlShuffleCardSetupFrame(u8 *arg0, s32 arg1, s32 arg2)
 void btlShuffleCardSetupQuad(u8 *arg0)
 {
     sflDataSetupQuadPanel();
-    func_0036c450();
+    pscResAcquireMiscCardW00();
     btlShuffleCardUpdateCards(arg0);
 }
 
@@ -120,7 +120,7 @@ void btlShuffleCardSetupQuad(u8 *arg0)
 void btlShuffleCardReset(u8 *arg0)
 {
     func_00368d30();
-    func_0036c900();
+    pscResAcquireMiscCardW01();
     btlShuffleCardUpdateCards(arg0);
 }
 
@@ -280,7 +280,7 @@ void btlShuffleCardUpdateState(u8 *arg0)
             if (state != 0) {
                 kAssertFail(D_0064E5B0, 0x160);
             }
-            func_0036c230(*(u16 *)(arg0 + 0x174));
+            pscResReleasePersonaCard(*(u16 *)(arg0 + 0x174));
             break;
         case 1:
             if (state != 1) {
@@ -290,13 +290,13 @@ void btlShuffleCardUpdateState(u8 *arg0)
             if (*(s32 *)(arg0 + 4) != 1) {
                 kAssertFail(D_0064E5B0, 0x174);
             }
-            func_0036c140(handle, *(s32 *)(arg0 + 0x174));
+            pscResReleaseArcanaCard(handle, *(s32 *)(arg0 + 0x174));
             break;
         case 2:
-            func_0036c310();
+            pscResReleaseMiscCardW00();
             break;
         case 3:
-            func_0036c3b0();
+            pscResReleaseMiscCardW01();
             break;
         default:
             kAssertFail(D_0064E5B0, 0x1E5);
