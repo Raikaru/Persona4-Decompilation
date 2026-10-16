@@ -57,6 +57,8 @@ s32 datPersonaAddStat(u8 *arg0, s32 arg1, s32 arg2);
 s32 datPersonaAddStatById(u16 arg0, s32 arg1, s32 arg2);
 // Intent: maps a persona id to its record; 1 is the selected roster slot, 2..10 index the party array.
 DatPersonaRecord *datPersonaGetRecord(u16 arg0);
+// Intent: skill list of persona record arg0, at +0xC of the record [inferred]
+u16 *datPersonaGetSkills(DatPersonaRecord *persona);
 // Intent: true when the lead (id 1) record has flag bit 4 set; datCalc scales damage and code1_0021 scales level when it is.
 s32 datPersonaLeadBoosted(s32 arg0);
 // Intent: index of the active roster slot whose id matches, or -1.
