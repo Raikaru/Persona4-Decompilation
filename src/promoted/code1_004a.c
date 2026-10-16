@@ -33,7 +33,7 @@ extern void func_004ad030();
 extern void func_004adb50();
 extern void func_004ade80(u8 *arg0);
 extern void func_00460ac0();
-extern void func_004aec80();
+extern void ObjectParticleUpdateRecords();
 extern f32 iGpffff8080;
 extern void mdlDestroyModelObject();
 
@@ -2320,7 +2320,7 @@ void func_004af520(u8 *arg0) {
 void func_004af580(u8 *arg0) {
     u8 *temp;
     u8 *inner;
-    func_004aec80();
+    ObjectParticleUpdateRecords();
     temp = *(u8 **)(arg0 + 0x58);
     if (temp != NULL) {
         inner = *(u8 **)(temp + 0x20);
