@@ -45,7 +45,7 @@ void datScriptCalcPhysicalDamage(void)
         if (datScriptTargetLacksFlag4() != 0) {
             temp_f20 = datScriptCalcFloat(0xE, 2);
             temp_f20 += datScriptCalcFloat(0xE, 2);
-            temp_f1 = datScriptCalcFloat(0x13, 0) / 2.0f;
+            temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0) / 2.0f;
             temp_f1 = mul_f32_ordered(30.0f, temp_f1);
             temp_f0 = 5.0f * temp_f20;
             temp_f20 = temp_f1 / temp_f0;
@@ -53,8 +53,8 @@ void datScriptCalcPhysicalDamage(void)
             temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
             temp_f1 = sqrtf(temp_f0);
             temp_f20 = 10.0f * temp_f1;
-            temp_f20 *= datScriptCalcFloat(0xC, 0);
-            temp_f20 *= datScriptCalcFloat(0x17, 0);
+            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
+            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
         } else {
             temp_f20 = datScriptCalcFloat(0x20, 0) / 4.0f;
             temp_f3 = 2.0f;
@@ -63,7 +63,7 @@ void datScriptCalcPhysicalDamage(void)
             temp_f1 = temp_f2 + temp_f3 * temp_f0;
             temp_f0 = fGpffff811c * temp_f1;
             temp_f20 = temp_f0;
-            temp_f1 = datScriptCalcFloat(0x13, 0);
+            temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
             temp_f1 = mul_f32_ordered(30.0f, temp_f1);
             temp_f0 = mul_f32_ordered(5.0f, temp_f20);
             temp_f20 = temp_f1 / temp_f0;
@@ -71,15 +71,15 @@ void datScriptCalcPhysicalDamage(void)
             temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
             temp_f1 = sqrtf(temp_f0);
             temp_f20 = 10.0f * temp_f1;
-            temp_f20 *= datScriptCalcFloat(0xC, 0);
-            temp_f1 = temp_f20 * datScriptCalcFloat(0x17, 0);
+            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
+            temp_f1 = temp_f20 * datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
             temp_f20 = fGpffff82c0 * temp_f1;
         }
     } else {
         if (datScriptTargetLacksFlag4() != 0) {
             temp_f20 = datScriptCalcFloat(0xE, 2);
             temp_f20 += datScriptCalcFloat(0xE, 2);
-            temp_f1 = datScriptCalcFloat(0x13, 0);
+            temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
             temp_f1 = mul_f32_ordered(30.0f, temp_f1);
             temp_f0 = 5.0f * temp_f20;
             temp_f20 = temp_f1 / temp_f0;
@@ -87,8 +87,8 @@ void datScriptCalcPhysicalDamage(void)
             temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
             temp_f1 = sqrtf(temp_f0);
             temp_f20 = 10.0f * temp_f1;
-            temp_f20 *= datScriptCalcFloat(0xC, 0);
-            temp_f20 *= datScriptCalcFloat(0x17, 0);
+            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
+            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
         } else {
             temp_f20 = datScriptCalcFloat(0x20, 0) / 2.0f;
             temp_f3 = 2.0f;
@@ -97,7 +97,7 @@ void datScriptCalcPhysicalDamage(void)
             temp_f1 = temp_f2 + temp_f3 * temp_f0;
             temp_f0 = fGpffff811c * temp_f1;
             temp_f20 = temp_f0;
-            temp_f1 = datScriptCalcFloat(0x13, 0);
+            temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
             temp_f1 = mul_f32_ordered(30.0f, temp_f1);
             temp_f0 = mul_f32_ordered(5.0f, temp_f20);
             temp_f20 = temp_f1 / temp_f0;
@@ -105,12 +105,12 @@ void datScriptCalcPhysicalDamage(void)
             temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
             temp_f1 = sqrtf(temp_f0);
             temp_f20 = 10.0f * temp_f1;
-            temp_f1 = temp_f20 * datScriptCalcFloat(0x17, 0);
+            temp_f1 = temp_f20 * datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
             temp_f20 = temp_f1 - 30.0f;
             if (temp_f20 <= 0.0f)
                 temp_f20 = 1.0f;
             temp_f20 *= fGpffff824c;
-            temp_f20 *= datScriptCalcFloat(0xC, 0);
+            temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
         }
     }
     datScriptSetResult(temp_f20);
@@ -132,7 +132,7 @@ void datScriptCalcMagicDamage(void)
     if (datScriptTargetLacksFlag4() != 0) {
         temp_f20 = datScriptCalcFloat(0xE, 2);
         temp_f20 += datScriptCalcFloat(0xE, 2);
-        temp_f1 = datScriptCalcFloat(0x13, 0);
+        temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
         temp_f1 = mul_f32_ordered(30.0f, temp_f1);
         temp_f0 = 5.0f * temp_f20;
         temp_f20 = temp_f1 / temp_f0;
@@ -140,9 +140,9 @@ void datScriptCalcMagicDamage(void)
         temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
         temp_f1 = sqrtf(temp_f0);
         temp_f21 = 10.0f * temp_f1;
-        temp_f21 *= datScriptCalcFloat(0xC, 0);
-        temp_f20 = datScriptCalcFloat(0x17, 0);
-        temp_f0 = datScriptCalcFloat(0x19, 0);
+        temp_f21 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
+        temp_f20 = datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
+        temp_f0 = datScriptCalcFloat(DAT_SCRIPT_TERM_MAGIC_TIER_BONUS, 0);
         temp_f20 = temp_f0 + temp_f21 * temp_f20;
     } else {
         temp_f20 = datScriptCalcFloat(0x20, 0) / 2.0f;
@@ -152,7 +152,7 @@ void datScriptCalcMagicDamage(void)
         temp_f1 = temp_f2 + temp_f3 * temp_f0;
         temp_f0 = fGpffff811c * temp_f1;
         temp_f20 = temp_f0;
-        temp_f1 = datScriptCalcFloat(0x13, 0);
+        temp_f1 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
         temp_f1 = mul_f32_ordered(30.0f, temp_f1);
         temp_f0 = mul_f32_ordered(5.0f, temp_f20);
         temp_f20 = temp_f1 / temp_f0;
@@ -160,15 +160,15 @@ void datScriptCalcMagicDamage(void)
         temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
         temp_f1 = sqrtf(temp_f0);
         temp_f21 = 10.0f * temp_f1;
-        temp_f20 = datScriptCalcFloat(0x17, 0);
-        temp_f0 = datScriptCalcFloat(0x19, 0);
+        temp_f20 = datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
+        temp_f0 = datScriptCalcFloat(DAT_SCRIPT_TERM_MAGIC_TIER_BONUS, 0);
         temp_f2 = temp_f0 + temp_f21 * temp_f20;
         temp_f0 = 30.0f;
         temp_f20 = temp_f2 - temp_f0;
         if (temp_f20 <= 0.0f)
             temp_f20 = 1.0f;
         temp_f20 *= 2.0f;
-        temp_f20 *= datScriptCalcFloat(0xC, 0);
+        temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
     }
     datScriptSetResult(temp_f20);
 }

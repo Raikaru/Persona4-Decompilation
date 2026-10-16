@@ -33,7 +33,6 @@ s32 mtMiscFadeOutSoundChannel();
 extern u8 D_0063C5F0[];
 extern u8 D_0063C610[];
 extern s32 (**D_00882204[])(s32, s32, s32, u8 *, u8 *);
-extern u8 D_0063C420[];
 void evtTintTaskKill(void);
 void K_View_SetFov(void *arg0, f32 arg1);
 void mtMiscDestroyIconResources(void);
@@ -528,7 +527,7 @@ void evtSetNodeResourcesEnabled(s32 arg0, u8 *arg1, u8 *arg2) {
     if (MT_Scene_GetResManager() != 0) {
         node = owner->nodeList;
         while (node != NULL) {
-            if (node->kind == 1 || node->kind == 0x30) {
+            if (node->kind == EVT_NODE_RES_COMMAND || node->kind == EVT_NODE_RES_COMMAND_ALT) {
                 if (node->flags != 0) {
                     if (node->timedFlag == 1) {
                         MT_Scene_SetResEnabledById(node->flags, 0);
@@ -544,7 +543,7 @@ void evtSetNodeResourcesEnabled(s32 arg0, u8 *arg1, u8 *arg2) {
         i16 = 1;
         node2 = owner->nodeList;
         while (node2 != NULL) {
-            if (node2->kind == 0x21) {
+            if (node2->kind == EVT_NODE_CAMERA_MOVE) {
                 if (node2->timedFlag != 0) {
                     i16 = 0;
                 }
@@ -873,7 +872,7 @@ void evtUpdateWaitState(int param_1, int param_2) {
     u8 *b = NULL;
     EvtNode *node = ((EvtEventWork *)param_2)->nodeList;
     while (node != 0) {
-        if (node->kind == 0x22) {
+        if (node->kind == EVT_NODE_WAIT_SEARCH) {
             break;
         }
         node = node->next;
@@ -910,7 +909,7 @@ void evtSelectRangeChoice(s32 arg0, u8 *arg1) {
 
     var_17 = work->nodeList;
     while (var_17 != NULL) {
-        if (var_17->kind == 0x26) {
+        if (var_17->kind == EVT_NODE_CHOICE_RANGE) {
             var_16 = var_17->childHead;
             while (var_16 != NULL) {
                 if (evtCheckCondition((u8 *)var_16) != 0) {
