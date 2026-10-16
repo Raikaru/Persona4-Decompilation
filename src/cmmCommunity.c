@@ -18,16 +18,16 @@ extern s32 cmmCommunityHasRecord(s32 arg0);
 extern u16 cmmCommunityRecordValue(s32 arg0);
 extern s32 cmmCommunityTestReversed(s32 arg0);
 extern s32 cmmCommunityTestBroken(s32 arg0);
-extern s32 cmmCommunityFindRecord(s32 arg0);
+extern CmmCommunityRecord *cmmCommunityFindRecord(s32 arg0);
 extern void cmmCommunitySetRank(s32 arg0, s32 arg1);
 extern s32 cmmCommunityGetCurrentId(void);
-extern f32 D_005E42D8[];
+extern s32 D_005E42D8[];
 extern f32 D_005E42DC[];
 extern f32 D_005E42E0[];
-extern f32 D_005E42E8[];
+extern s32 D_005E42E8[];
 extern f32 D_005E42EC[];
 extern f32 D_005E42F0[];
-extern f32 D_005E42F8[];
+extern s32 D_005E42F8[];
 extern f32 D_005E42FC[];
 extern f32 D_005E4300[];
 extern s32 cmmRosterHasArcana(s32 arg0);
@@ -35,11 +35,11 @@ extern void *cmmEarnScaleTable(void);
 extern u8 *cmmEntryValueRecord(void);
 extern s32 datRankForPoints(s16 arg0, s16 arg1);
 extern s16 D_007973F4[];
-extern u32 D_0079B1CC[];
-extern u8 D_007973A0[];
 extern void *cmmKindRecord(s32 arg0);
 extern void cmmCommunityReleaseRecord(s32 arg0);
 extern void datSetFlag(s32 a, s32 b);
+extern u32 D_0079B1CC[];
+extern u8 D_007973A0[];
 extern void cmmCommunitySetFlagBand(s32 a, s32 b);
 
 extern void datDestroyTaskByName(void);
@@ -161,7 +161,7 @@ void cmmCommunityClearTable(void)
 
 // Community find record: returns the community table record for id arg0, or 0 when the id is 0 or absent from the table.
 // FUN_001070E0
-s32 cmmCommunityFindRecord(s32 arg0)
+CmmCommunityRecord *cmmCommunityFindRecord(s32 arg0)
 {
     s32 id = arg0 & 0xFFFF;
     CmmCommunityRecord *ptr;
@@ -181,7 +181,7 @@ s32 cmmCommunityFindRecord(s32 arg0)
     {
         if (ptr->id == id)
         {
-            return (s32)ptr;
+            return ptr;
         }
         ptr++;
         i++;
@@ -604,7 +604,7 @@ ret:
 // FUN_00107B70
 s32 cmmCommunityTestMarked(s32 arg0)
 {
-    s32 r = cmmCommunityFindRecord(arg0);
+    s32 r = (s32)cmmCommunityFindRecord(arg0);
     if (r == 0)
     {
         r = 0;
@@ -741,7 +741,7 @@ ret:
 // FUN_00107C80
 s32 cmmCommunityTestReversed(s32 arg0)
 {
-    s32 r = cmmCommunityFindRecord(arg0);
+    s32 r = (s32)cmmCommunityFindRecord(arg0);
     if (r == 0)
     {
         r = 0;
@@ -761,7 +761,7 @@ s32 cmmCommunityTestReversed(s32 arg0)
 // FUN_00107EA0
 s32 cmmCommunityTestBroken(s32 arg0)
 {
-    s32 r = cmmCommunityFindRecord(arg0);
+    s32 r = (s32)cmmCommunityFindRecord(arg0);
     if (r == 0)
     {
         r = 0;
@@ -862,6 +862,7 @@ ret:
    u32-typed and `0 < x` spellings into a direct and;beqz (2 missing sltu words
    shift the whole tail; nd 64). Everything else matched on the first draft.
    Booleanize floor. */
+// measured: datGetFlag and a static inline bit-test helper both move codegen here (owner verify), so the raw D_0079B1CC and D_007973A0+0x3E2C reads stay.
 // Earn scale: returns the float multiplier for points community arg0 earns, from cmmRosterHasArcana on its arcana, the event bit in D_0079B1CC, and the per-slot bands in D_007973A0.
 // FUN_001080C0
 /* The character lookup receives this function's incoming identifier.
@@ -995,11 +996,11 @@ u16 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2) {
     extern void kAssertFail(void *file, s32 line);
     typedef struct { f32 x; f32 y; f32 z; } Vec3;
     typedef struct {
-        f32 bytes[3];
+        s32 bytes[3];
         s32 pad0;
-        f32 durations[3];
+        s32 durations[3];
         s32 pad1;
-        f32 thresholds[3];
+        s32 thresholds[3];
         s32 pad2;
     } Table;
     Table vals;
@@ -1086,7 +1087,7 @@ ret:
     if (r == NULL) {
         return 0;
     }
-    t = cmmCommunityFindRecord(arg0);
+    t = (s32)cmmCommunityFindRecord(arg0);
     if (t == 0) {
         t = 0;
     } else {
@@ -1095,7 +1096,7 @@ ret:
     if ((t & 0xFFFF) == 0xA) {
         return 0;
     }
-    t = cmmCommunityFindRecord(arg0);
+    t = (s32)cmmCommunityFindRecord(arg0);
     if (t == 0) {
         t = 0;
     } else {
@@ -1170,11 +1171,11 @@ ret:
     if (r == NULL) {
         return 0;
     }
-    id = cmmCommunityFindRecord(arg0);
+    id = (s32)cmmCommunityFindRecord(arg0);
     if (id == 0) {
         ok = 0;
     } else {
-        t = cmmCommunityFindRecord(arg0);
+        t = (s32)cmmCommunityFindRecord(arg0);
         if (t == 0) {
             t = 0;
         } else {
@@ -1183,7 +1184,7 @@ ret:
         if ((t & 0xFFFF) == 0xA) {
             ok = 0;
         } else {
-            u = cmmCommunityFindRecord(arg0);
+            u = (s32)cmmCommunityFindRecord(arg0);
             if (u == 0) {
                 u = 0;
             } else {
@@ -1201,7 +1202,7 @@ ret:
     if (!ok) {
         goto ret0;
     }
-    t = cmmCommunityFindRecord(arg0);
+    t = (s32)cmmCommunityFindRecord(arg0);
     if (t == 0) {
         t = 0;
     } else {
@@ -1209,7 +1210,7 @@ ret:
     }
     cmmCommunitySetRank(arg0, (t & 0xFFFF) + 1);
     r->points = 0;
-    t = cmmCommunityFindRecord(arg0);
+    t = (s32)cmmCommunityFindRecord(arg0);
     if (t != 0) {
         *(s32 *)t = *(s32 *)t & ~CMM_RECORD_FLAG_MARKED;
     }

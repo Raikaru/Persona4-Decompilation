@@ -146,8 +146,8 @@ extern u8 *cmmPersonaRecord();
 
 
 /* Forward declarations for asm-fallback siblings referenced by C bodies. */
-s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpContext *context);
-s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpContext *context);
+s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context);
+s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context);
 s32 cmmRankUpSequenceUpdate(u8 *task);
 void cmmRankUpSequenceDestroy(u8 *task);
 
@@ -447,7 +447,7 @@ static void cmmRankUpLerpState(Sp120 *out, Sp120 *a, Sp120 *b, f32 t)
  * See docs/probe_archive/Rankup_callback_00252710_20260922.md. */
 // Per-frame rank-up sprite step: advances the frame counter, interpolates the sprite state after frame 30, and emits the sprite through the provider until frame 0x3C [inferred].
 // FUN_00252710
-s32 cmmRankUpStepSprite(s32 unused, u8 *work, CmmRankUpContext *context)
+s32 cmmRankUpStepSprite(s32 unused, u8 *work, CmmRankUpCardTask *context)
 {
     Sp120 state;
     RankUpMatrix matrix;
@@ -540,7 +540,7 @@ typedef struct {
 
 // Per-frame rank-up effect step: textured particle/overlay draw with pulse and angle, using the matrix and UV blocks [inferred].
 // FUN_00252A60
-s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpContext *context)
+s32 cmmRankUpStepEffect(s32 root, u8 *work, CmmRankUpCardTask *context)
 {
     RankUpVectorCopy axis;
     PrimPoint displacement;
@@ -786,7 +786,7 @@ u8 *cmmNameRecord(u32 a0);
    local; automatic constant extraction joins the two distance evaluations. */
 // Draws the moving-point wipe for the rank-up panel: a fixed quad set plus a moving pair of points that interpolates across the panel [inferred].
 // FUN_00253850
-s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpContext *context)
+s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
 {
     PrimPoint positions[8];
     PrimPoint movingPoints[4];
@@ -1117,7 +1117,7 @@ u8 *cmmNameRecord(u32);
 // Draws the exit wipe: copies the clip and reset colours, then draws the sprite strips that slide in with the wipe [inferred].
 // FUN_00254A70
 #pragma opt_pulloutconstants off
-s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpContext *context)
+s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context)
 {
     RankUpExitColorCopy clipColor;
     RankUpExitColorCopy clipColorSource;
@@ -1431,7 +1431,7 @@ s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpContext *context)
 #pragma pop
 // Timed rank-up step: counts the frame up to 0x78, runs phase A below 0x3D and phase B after, and returns 1 when the timer finishes.
 // FUN_00255B00
-s32 cmmRankUpStepTimed(u8 *arg0, s32 *arg1, CmmRankUpContext *context) {
+s32 cmmRankUpStepTimed(u8 *arg0, s32 *arg1, CmmRankUpCardTask *context) {
     s32 v;
     s32 rv;
 
@@ -2360,7 +2360,7 @@ typedef union { f32 coordinates[4][2]; s32 words[8]; } RankUpRenderUV;
 // FUN_00257900
 s32 cmmRankUpRender(u8 *task) {
 
-    CmmRankUpContext *context;
+    CmmRankUpSequence *context;
     u8 *renderStateTable;
     s32 firstTexture;
     s32 secondTexture;
@@ -2489,7 +2489,7 @@ s32 cmmRankUpRender(u8 *task) {
     RankUpMatrix leavingMatrix;
     RankUpRectangle overlayRectangle;
 
-    context = (CmmRankUpContext *)kwlnTaskGetWork(task);
+    context = (CmmRankUpSequence *)kwlnTaskGetWork(task);
     firstTexture = (s32)(datPortraitValue(context->portraitIdFirst));
     secondTexture = (s32)(datPortraitValue(context->portraitIdSecond));
     animationMode = (s32)(context->animationMode);
@@ -3278,7 +3278,7 @@ typedef struct { s32 values[5]; } RankUpUnlockFlags;
 #pragma opt_propagation off
 static inline s32 rankUpAnimationComplete(u8 *task)
 {
-    CmmRankUpContext *context = (CmmRankUpContext *)kwlnTaskGetWork(task);
+    CmmRankUpSequence *context = (CmmRankUpSequence *)kwlnTaskGetWork(task);
     s32 complete = 0;
     if (context->unk_44 != 0) {
         complete = 1;
