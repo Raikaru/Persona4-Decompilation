@@ -872,7 +872,7 @@ void evtUpdateWaitState(int param_1, int param_2) {
         if (a != 0 && *(u16 *)a == param_1) {
             switch (*(s8 *)(a + 0x10)) {
             case 0:
-                if (func_002909a0((u32 *)(param_2 + 0x678)) != 0 && func_00290de0((u32 *)(param_2 + 0x678)) == 0) {
+                if (evtMessageWindowIsOpen((u32 *)(param_2 + 0x678)) != 0 && evtMessageWindowIsDone((u32 *)(param_2 + 0x678)) == 0) {
                     *(u32 *)param_2 |= 0x20;
                     func_00440b68((char *)&DAT_00713890);
                 }
@@ -1833,7 +1833,7 @@ s32 func_002894b0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4) {
         if (D_008821E0[0] != 1) {
             return 0;
         }
-        if (func_002909a0((u32 *)((u8 *)arg2 + 0x678)) == 0) {
+        if (evtMessageWindowIsOpen((u32 *)((u8 *)arg2 + 0x678)) == 0) {
             return 0;
         }
         D_008821E4[0] = 0;
@@ -1858,7 +1858,7 @@ s32 func_002894b0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4) {
             if (state0 == 1) {
                 *(s32 *)arg2 = *(s32 *)arg2 | 0x20;
             }
-            func_002909b0((s32 *)((u8 *)arg2 + 0x678), state1, state2, state3, state4);
+            evtMessageWindowRequest((s32 *)((u8 *)arg2 + 0x678), state1, state2, state3, state4);
         }
         return 1;
     }
@@ -1875,7 +1875,7 @@ s32 func_002894b0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4) {
             var_22 = D_008821EC[0];
             var_23 = D_008821F0[0];
             var_16 = D_008821F4[0];
-            temp_2 = func_00290e50((u8 *)arg2 + 0x678, sp9C);
+            temp_2 = evtMessageWindowEntryValue((u8 *)arg2 + 0x678, sp9C);
             if (temp_2 == 0) {
                 var_22 = sp9C;
                 if (*(s8 *)(arg4 + 0x14) == 0) {
@@ -2600,8 +2600,8 @@ loop_6_test:
     datStopPadRumble();
     MT_Scene_StopShake();
     sceneLightSlotsReset();
-    if ((*(s32 *)(arg0 + 4) != 0) && (func_002909a0((u32 *)(arg0 + 0x678)) != 0)) {
-        func_00290b00((u32 *)(arg0 + 0x678));
+    if ((*(s32 *)(arg0 + 4) != 0) && (evtMessageWindowIsOpen((u32 *)(arg0 + 0x678)) != 0)) {
+        evtMessageWindowResetTyped((u32 *)(arg0 + 0x678));
     }
     evtReleaseRes(arg0);
     func_00298190(2, 0);

@@ -398,7 +398,7 @@ s32 evtCheckCondition(u8 *arg0) {
         if (val != 0) {
             ptr = (u8 *)kwlnTaskGetWork((void *)val);
             if (ptr != NULL) {
-                return func_00290de0(ptr + 0x678) != 0;
+                return evtMessageWindowIsDone(ptr + 0x678) != 0;
             }
         }
         goto fail;

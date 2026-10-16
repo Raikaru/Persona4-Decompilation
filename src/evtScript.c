@@ -175,7 +175,7 @@ s32 func_00298700(void) {
         return 1;
     }
     p = (u8 *)kwlnTaskGetWork(kind);
-    if (func_002909a0((u32 *)(p + 0x678)) == 0) {
+    if (evtMessageWindowIsOpen((u32 *)(p + 0x678)) == 0) {
         return 1;
     }
     *(s32 *)((u8 *)evtSlot(slot * 4, (u32)p) + 0x698) = value;

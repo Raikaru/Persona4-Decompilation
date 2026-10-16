@@ -24,7 +24,7 @@ extern void func_00286380(s32 task);
 extern s32 func_002863b0(s32);
 extern void evtResetEventScene(s32, s32 *);
 extern void func_0028c3f0(s32 *);
-extern void func_00290bc0(s32 *);
+extern void evtMessageWindowUpdate(s32 *);
 void evtUpdateNodeWaitFlags(u8 *arg0);
 extern s32 taskRecordIsDone(s32);
 extern s32 fadeStatus(void);
@@ -64,7 +64,7 @@ void evtUpdateNodeWaitFlags(u8 *arg0)
     s32 temp_4_3;
 
     if (arg0 != NULL) {
-        if ((*(s32 *)(arg0 + 0) & 0x20) && (func_00290de0(arg0 + 0x678) == 1)) {
+        if ((*(s32 *)(arg0 + 0) & 0x20) && (evtMessageWindowIsDone(arg0 + 0x678) == 1)) {
             *(s32 *)(arg0 + 0) &= ~0x20;
         }
         if ((*(s32 *)(arg0 + 0) & 0x200) && ((temp_4 = *(s32 *)(arg0 + 0x6C4), temp_4 != 0) || (taskRecordIsDone(temp_4) != 0))) {
@@ -165,8 +165,8 @@ s32 evtNodeTaskUpdate(u8 *task)
         }
         *(s32 *)(temp_2_2 + 0x18) = *(s32 *)(temp_2_2 + 0x14);
         func_0028c3f0((s32 *)temp_2_2);
-        if ((*(s32 *)(temp_2_2 + 4) != 0) && (func_002909a0((u32 *)(temp_2_2 + 0x678)) != 0)) {
-            func_00290bc0((s32 *)(temp_2_2 + 0x678));
+        if ((*(s32 *)(temp_2_2 + 4) != 0) && (evtMessageWindowIsOpen((u32 *)(temp_2_2 + 0x678)) != 0)) {
+            evtMessageWindowUpdate((s32 *)(temp_2_2 + 0x678));
         }
         evtUpdateNodeWaitFlags(temp_2_2);
         if (*(s32 *)(temp_2_2 + 0x14) >= *(s32 *)(temp_2_2 + 0x10)) {

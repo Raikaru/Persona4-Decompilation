@@ -26,8 +26,9 @@ extern u32 itfMesWindowRecordCount(int param_1);
 
 /* measured: a named u8 boolean preserves retail's sltu materialisation;
    object 188B matches the 192-byte retail window with zero padding. */
+// Opens the message window in this slot: installs it with the given style and marks the object active [inferred].
 // FUN_00290880
-s32 func_00290880(u8 *arg0, s32 arg1) {
+s32 evtMessageWindowOpen(u8 *arg0, s32 arg1) {
     s32 temp_2;
     u8 active;
 
@@ -46,11 +47,12 @@ s32 func_00290880(u8 *arg0, s32 arg1) {
     memset(arg0 + 0x20, -1, 0x14);
     return temp_2;
 }
+// Closes the message window: resets it when active, releases it and zeroes the object.
 // FUN_00290940
-void func_00290b00(u32 *param_1);
-void func_00290a50(int *param_1);
+void evtMessageWindowResetTyped(u32 *param_1);
+void evtMessageWindowReset(int *param_1);
 
-void func_00290940(u32 *param_1)
+void evtMessageWindowClose(u32 *param_1)
 {
   u32 *piVar1;
   u8 bVar1;
@@ -59,7 +61,7 @@ void func_00290940(u32 *param_1)
 
   bVar1 = *piVar1 != 0;
   if (bVar1) {
-    func_00290b00(param_1);
+    evtMessageWindowResetTyped(param_1);
     itfMesWindowReleaseIfActive(piVar1[2]);
     *piVar1 = 0;
     memset(param_1, 0, 0x34);
@@ -67,17 +69,19 @@ void func_00290940(u32 *param_1)
   return;
 }
 /* Source unit: src/Event/mt_evtMessage_002909a0.c */
+// Returns 1 when the message window object is active (open), else 0.
 // FUN_002909A0
-u32 func_002909a0(u32 *object)
+u32 evtMessageWindowIsOpen(u32 *object)
 {
     return *object != 0;
 }
+// Requests a message display: resets any previous display, then records the style, record, layout and result slot and starts the update state machine [inferred].
 // FUN_002909B0
-void func_002909b0(int *param_1, int a2, int a3, int a4, int a5)
+void evtMessageWindowRequest(int *param_1, int a2, int a3, int a4, int a5)
 {
   if ((u8)(*param_1 != 0)) {
     if (param_1[3] != 0) {
-      func_00290a50(param_1);
+      evtMessageWindowReset(param_1);
     }
     param_1[3] = 1;
     param_1[1] = a2;
@@ -92,8 +96,9 @@ void func_002909b0(int *param_1, int a2, int a3, int a4, int a5)
 
 
 
+// Resets the window display: clears its contents and flags and returns it to the idle state.
 // FUN_00290A50
-void func_00290a50(int *param_1)
+void evtMessageWindowReset(int *param_1)
 {
   int iVar1;
 
@@ -114,8 +119,9 @@ void func_00290a50(int *param_1)
 
 
 
+// Same reset as evtMessageWindowReset, through the typed window wrappers.
 // FUN_00290B00
-void func_00290b00(u32 *param_1)
+void evtMessageWindowResetTyped(u32 *param_1)
 {
   int iVar1;
   u8 bVar1;
@@ -136,8 +142,9 @@ void func_00290b00(u32 *param_1)
   return;
 }
 
+// Steps the message display state machine (idle, bind, wait, layout, wait for animation, reset), storing the result slot when the animation finishes [inferred].
 // FUN_00290BC0
-void func_00290bc0(int *param_1)
+void evtMessageWindowUpdate(int *param_1)
 {
   u32 bVar0;
   int iVar2;
@@ -210,8 +217,9 @@ void func_00290bc0(int *param_1)
 /* Source unit: src/Event/mt_evtMessage_00290de0.c (donor FUN_0039f6e0) */
 
 
+// Returns 1 when no message is open, or when the open message's state machine is idle (the message is done).
 // FUN_00290DE0
-s32 func_00290de0(void *object)
+s32 evtMessageWindowIsDone(void *object)
 {
   int *param_1 = object;
   if ((u8)(*param_1 != 0)) goto nonzero;
@@ -223,8 +231,9 @@ nonzero:
 
 
 
+// Returns the open window's record count, or 0 when no message is open.
 // FUN_00290E10
-u32 func_00290e10(int *param_1)
+u32 evtMessageWindowRecordCount(int *param_1)
 {
   if ((u8)(*param_1 != 0)) goto nonzero;
   return 0;
@@ -233,8 +242,9 @@ nonzero:
   return itfMesWindowRecordCount(param_1[2]);
 }
 
+// Returns the window's entry value for the given index; asserts the window is open.
 // FUN_00290E50
-s32 func_00290e50(u8 *arg0, s32 arg1)
+s32 evtMessageWindowEntryValue(u8 *arg0, s32 arg1)
 {
     if (!(u8)(*(u32 *)arg0 != 0)) {
         kAssertFail(D_0063C820, 0x122);

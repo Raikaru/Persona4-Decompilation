@@ -142,7 +142,7 @@ u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary, u8 *
     u8 *primaryRecords;
     u8 *secondaryRecords;
     u8 *overlayRecords;
-    extern s32 func_00290880(u8 *, s32);
+    extern s32 evtMessageWindowOpen(u8 *, s32);
     extern s32 func_00440b68(const char *, ...);
     extern char D_0063C6C0[];
     extern char D_0063C6E0[];
@@ -350,7 +350,7 @@ u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary, u8 *
     }
     if (*(u8 **)(work + 0x90) != NULL) {
         if (*(u8 **)(work + 0x4C) != NULL && *(s32 *)(work + 0x50) > 0) {
-            func_00290880(messageContext, *(s32 *)(work + 0x4C));
+            evtMessageWindowOpen(messageContext, *(s32 *)(work + 0x4C));
         }
     }
     *(u8 **)(work + 0x9C) = overlay;
@@ -384,8 +384,8 @@ u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary, u8 *
 void func_00290470(s32 *arg0, u32 *arg1)
 {
     if (arg0 != NULL) {
-        if (func_002909a0(arg1) == 1) {
-            func_00290940(arg1);
+        if (evtMessageWindowIsOpen(arg1) == 1) {
+            evtMessageWindowClose(arg1);
         }
         jtbl_008873EC[0](arg0);
         evtMemAccount(1, -0x114);
