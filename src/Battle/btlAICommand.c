@@ -4624,7 +4624,7 @@ s32 func_001e4090(void) {
 
 /* AI script command 0x20d8 (p4flow AI.json AI_FUNCTION_00D8). */
 // FUN_001E4150
-s32 func_001e4150(void) {
+s32 btlScriptIsSideUnitDownFlagged(void) {
     u32 a = scrGetParamInt(0) & 0xFFFF;
     u32 b = scrGetParamInt(1) & 0xFFFF;
     u32 *r = 0;
