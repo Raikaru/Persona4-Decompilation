@@ -15,9 +15,9 @@ extern void kAssertFail(void *file, s32 line);
 u16 cmmTopReversedCommunity();
 extern void scrSetReturnInt(s32 arg0);
 
-u16 func_00247270();
+u16 cmmFindFreshReverseCandidate();
 
-u16 func_002474f0();
+u16 cmmFindReverseCandidate();
 
 extern s32 scrGetParamInt(s32 arg0);
 extern s32 cmmCommunityFindActiveSlotInGroup(s32 arg0);
@@ -501,8 +501,9 @@ s32 cmmScriptSetCurrentEntry(void)
 
 
 
+// Script top reversed community: sets the script result to cmmTopReversedCommunity's id (0 when none is reversed and at rank).
 // FUN_0024AB40
-u32 func_0024AB40(void)
+u32 cmmScriptTopReversedCommunity(void)
 {
     u16 value;
 
@@ -533,24 +534,26 @@ s32 func_0024ab70(void)
 
 
 
+// Script fresh reverse candidate: sets the script result to cmmFindFreshReverseCandidate's community id (0 when none).
 // FUN_0024ABF0
-u32 func_0024ABF0(void)
+u32 cmmScriptFindFreshReverseCandidate(void)
 {
     u16 value;
 
-    value = func_00247270();
+    value = cmmFindFreshReverseCandidate();
     scrSetReturnInt(value);
     return 1;
 }
 
 
 
+// Script reverse candidate: sets the script result to cmmFindReverseCandidate's community id (0 when none).
 // FUN_0024AC20
-u32 func_0024AC20(void)
+u32 cmmScriptFindReverseCandidate(void)
 {
     u16 value;
 
-    value = func_002474f0();
+    value = cmmFindReverseCandidate();
     scrSetReturnInt(value);
     return 1;
 }

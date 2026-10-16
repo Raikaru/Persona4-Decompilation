@@ -402,10 +402,11 @@ s32 func_00247020(void) {
    residuals were mask-CSE at the nested call/tail. The opt_common_subs-off
    probe measured nd 207 at object 648/640 from duplicated pointer loads, so
    no pragma or body was retained. */
+// Find fresh reverse candidate: like cmmFindReverseCandidate, but the candidate must pass func_002488e0 == 0. Returns the first match, or 0.
 // FUN_00247270
 /* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
 #pragma opt_common_subs off
-s32 func_00247270(void) {
+s32 cmmFindFreshReverseCandidate(void) {
     s32 temp_16;
     u32 *temp_17;
     u32 *temp_17_2;
@@ -463,10 +464,11 @@ s32 func_00247270(void) {
    CSEs the call-arg masks into $s2 and emits move $a0, $s2 instead of andi
    (nd 33, all diffs from this one pattern; u32 vs s32 temp_18 unchanged).
    Mask-CSE floor (same family as FUN_00247DD0/FUN_00248A60). */
+// Find reverse candidate: returns the first rank-up-ready community that is not reversed or broken and passes func_002488e0 != 0, its kind flags, and the marked and condition checks; 0 when none qualifies. The pair with cmmFindFreshReverseCandidate.
 // FUN_002474F0
 /* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
 #pragma opt_common_subs off
-s32 func_002474f0(void) {
+s32 cmmFindReverseCandidate(void) {
     s32 temp_16;
     u32 *temp_17;
     u32 *temp_17_2;
@@ -924,10 +926,11 @@ loop_15:
    top and emits move $a0,$s3 per call, retail re-issues andi per site.
    Mixed `(u16)`/`& 0xFFFF` spellings regress to nd 90 (normalised away).
    Mask-CSE floor (same family as FUN_002483C0/FUN_00248B80). */
+// Tick reverse progress: for each community with a record and no flag band 3, adds 1 to its progress counter (+0xA) when its kind record's threshold (+0x12) is set. Sets REVERSED once the counter reaches the threshold. Called from cldScheduler.c.
 // FUN_00248240
 /* measured: opt_common_subs off restores retail per-use masks while preserving the two table bases. */
 #pragma opt_common_subs off
-void func_00248240(void) {
+void cmmTickReverseProgress(void) {
     s32 temp_17;
     s32 var_20;
     s32 var_3;
