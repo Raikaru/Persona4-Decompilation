@@ -71,20 +71,35 @@ RUN set -eux; \
 # names end in .exe intentionally: build.py derives mwldps2.exe from P4_MWCC.
 # The second compiler wrapper serves the units config/compiler_units.txt marks
 # `cw3.0.1b119` (tools/verify.py resolves that key through P4_MWCC_CW3_0_1B119).
+#
+# MWCC's register allocation can depend on the process's memory layout.  With
+# ASLR on, func_003cebb0 (src/promoted/code1_003c_cw119.c) came out with one of
+# two register assignments, about half the time each (40 compiles); with
+# randomisation off it was the retail one on all 40.  wibo-norandom therefore
+# launches wibo under `setarch -R`.
+# Docker's default seccomp profile refuses that personality, so containers
+# that build must run with `--security-opt seccomp=unconfined` (ci.yml does);
+# without it the launcher falls back to plain wibo and the build may flake.
 RUN set -eux; \
     wget -q -O /usr/local/bin/wibo \
       "https://github.com/decompals/wibo/releases/download/${WIBO_VERSION}/wibo"; \
     chmod 0755 /usr/local/bin/wibo; \
     printf '%s\n' '#!/bin/sh' 'set -eu' \
-      'exec /usr/local/bin/wibo "${P4_MWCC_BINARY:-/opt/p4/mwccps2.exe}" "$@"' \
+      'arch=$(uname -m)' \
+      'if setarch "$arch" -R true 2>/dev/null; then exec setarch "$arch" -R /usr/local/bin/wibo "$@"; fi' \
+      'exec /usr/local/bin/wibo "$@"' \
+      > /usr/local/bin/wibo-norandom; \
+    printf '%s\n' '#!/bin/sh' 'set -eu' \
+      'exec /usr/local/bin/wibo-norandom "${P4_MWCC_BINARY:-/opt/p4/mwccps2.exe}" "$@"' \
       > /usr/local/bin/mwccps2.exe; \
     printf '%s\n' '#!/bin/sh' 'set -eu' \
-      'exec /usr/local/bin/wibo "${P4_MWCC_CW3_0_1B119_BINARY:-/opt/p4/cw3.0.1b119/mwccps2.exe}" "$@"' \
+      'exec /usr/local/bin/wibo-norandom "${P4_MWCC_CW3_0_1B119_BINARY:-/opt/p4/cw3.0.1b119/mwccps2.exe}" "$@"' \
       > /usr/local/bin/mwccps2-cw3.0.1b119.exe; \
     printf '%s\n' '#!/bin/sh' 'set -eu' \
-      'exec /usr/local/bin/wibo "${P4_MWLD_BINARY:-/opt/p4/mwldps2.exe}" "$@"' \
+      'exec /usr/local/bin/wibo-norandom "${P4_MWLD_BINARY:-/opt/p4/mwldps2.exe}" "$@"' \
       > /usr/local/bin/mwldps2.exe; \
-    chmod 0755 /usr/local/bin/mwccps2.exe /usr/local/bin/mwccps2-cw3.0.1b119.exe /usr/local/bin/mwldps2.exe
+    chmod 0755 /usr/local/bin/wibo-norandom /usr/local/bin/mwccps2.exe \
+      /usr/local/bin/mwccps2-cw3.0.1b119.exe /usr/local/bin/mwldps2.exe
 
 COPY requirements-python.txt /tmp/requirements-python.txt
 RUN python -m pip install --no-cache-dir --disable-pip-version-check \
