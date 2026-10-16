@@ -118,7 +118,7 @@ extern u16 D_008C024E[];
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 
-void func_0018e780(s32 arg0);
+void K_Test_Create(s32 arg0);
 
 
 
@@ -3427,7 +3427,7 @@ s32 func_0018e450(u8 *arg0)
         *p = state + 1;
         break;
     case 1:
-        func_0018e780(0);
+        K_Test_Create(0);
         *p += 1;
         break;
     case 2:
