@@ -54,7 +54,7 @@ extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
 extern s32 func_001f3900(u8 **arg0);
 extern s32 func_001f39d0(u8 **arg0);
-extern void func_001f6220(u16 command, u32 param); /* lint: allow H011 -- argument view used by the target packet callers, as in code1_001f */
+extern void btlSoundRequestPlayback(u16 command, u32 param); /* lint: allow H011 -- argument view used by the target packet callers, as in code1_001f */
 extern u32 btlActionCachedDispatch(void* work); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
 extern u32 func_001f6090(void* work); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
 extern f32 RwV3dLength(const RwV3d* vector);
@@ -152,7 +152,7 @@ s32 btlTargetApplyHpSpChange(u8* arg);
 extern u8* iGpffffb3ac;
 extern void datAddMoney(s32 arg);
 extern void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_001f6c40(void* action, s32 flags);
+extern void btlSoundClearStatusCounters(void* action, s32 flags);
 extern void btlActionRunTargetCallback(void* action, s32 effect, s32 arg2, s32 arg3, s32 arg4);
 extern void btlPanelStartRingEffect(void* unit);
 extern void btlPanelStartPulseEffect(void* unit);
@@ -803,7 +803,7 @@ s32 btlTargetApplyHpSpChange(u8* arg0)
         btlPanelStartPulseEffect(temp_18);
     }
     if (*(s32*)(iGpffffb3ac + 0xc) & 0x20) {
-        func_001f6c40(temp_19, *(s32*)(arg0 + 0x10));
+        btlSoundClearStatusCounters(temp_19, *(s32*)(arg0 + 0x10));
         datCalcSetBadStatus(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 0x10));
         datCalcClearBadStatus(*(u8**)(temp_18 + 0xa64), *(s32*)(arg0 + 0x14));
     }
@@ -1121,7 +1121,7 @@ BtlPacket* btlTargetCreateTargetPacket(u32 param_1, u16 param_2, u32 param_3,
 // FUN_001F6000
 u32 btlTargetSimpleCommand(BtlTargetSimpleWork* work)
 {
-    func_001f6220(work->command, work->param);
+    btlSoundRequestPlayback(work->command, work->param);
     return 1;
 }
 

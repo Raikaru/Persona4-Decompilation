@@ -80,7 +80,7 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 }
 extern f32 fGpffff811c;
 extern u32 datCalcGetBadStatus(s32 arg0);
-extern s16 func_001f6d60(u8 *arg0);
+extern s16 btlSoundCalcStatusHpSpDelta(u8 *arg0);
 extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
@@ -338,7 +338,7 @@ void btlActionBadDamageUpdate(u8 *action)
             {
                 func_001f0a10((u8 *)&result);
                 result.flags = result.flags | 0x100;
-                delta = (s16)func_001f6d60(action);
+                delta = (s16)btlSoundCalcStatusHpSpDelta(action);
                 result.hpDelta = delta;
                 if (delta < 0) {
                     resultPacket = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action, &result, 1, 1);
@@ -392,7 +392,7 @@ void btlActionBadDamageUpdate(u8 *action)
             {
                 func_001f0a10((u8 *)&result);
                 result.flags = result.flags | 0x100;
-                delta = (s16)func_001f6d60(action);
+                delta = (s16)btlSoundCalcStatusHpSpDelta(action);
                 result.spDelta = delta;
                 if (delta < 0) {
                     resultPacket = (u8 *)btlTargetCreateDataPacket((s32)action, (s32)action, &result, 1, 1);

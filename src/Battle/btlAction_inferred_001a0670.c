@@ -94,7 +94,7 @@ u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 s32 datCalcGetSkillMask(u8 *arg0);
 s64 datCalcFindStrongBuff(u8 *arg0);
 s32 datCalcIsStatusBlocked(u16 *arg0);
-s32 func_001f6770(u8 *arg0);
+s32 btlSoundRollStatusCure(u8 *arg0);
 s32 func_001fac30(void);
 
 BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
@@ -210,7 +210,7 @@ void btlActionStartInit(BtlAction *action) {
             btlActionSetState(action, 0xA);
             return;
         }
-        if (func_001f6770((u8 *)action) != 0) {
+        if (btlSoundRollStatusCure((u8 *)action) != 0) {
             btlActionSetState(action, 0xB);
             return;
         }
@@ -333,7 +333,7 @@ void btlActionStartUpdate(s64 *arg0) {
         }
         if ((s8)datCalcFindStrongBuff((u8 *)action->unit->data) >= 0) {
             btlActionSetState(arg0, 0xA);
-        } else if (func_001f6770((u8 *)arg0) != 0) {
+        } else if (btlSoundRollStatusCure((u8 *)arg0) != 0) {
             btlActionSetState(arg0, 0xB);
         } else {
             btlActionSetState(arg0, 3);

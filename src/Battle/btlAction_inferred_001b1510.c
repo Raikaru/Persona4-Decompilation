@@ -69,7 +69,7 @@ extern void func_0045a3e0(s32 arg0, s32 arg1);
 extern void btlEncounterSetFinish(s32 task);
 extern u32 datCalcIsDead(s32 arg0, s32 arg1);
 extern u8 *btlUnitRecordFindByActionUID(u64 arg0, u64 arg1);
-extern s32 func_001f6290(void);
+extern s32 btlSoundIsPlaybackActive(void);
 extern void (*jtbl_008873EC[])(void *);
 extern f32 D_00922CA0[];
 extern f32 D_00922CA4[];
@@ -782,7 +782,7 @@ void btlMainUnitCreateInit(void) {
 // FUN_001B2380
 s32 btlMainUnitCreateUpdate(void)
 {
-    extern void func_001f73d0(void);
+    extern void btlSoundPlayRetailSelectTrack(void);
     extern void btlShuffleStart(s32 task);
     extern s32 iGpffffb414;
     extern s32 btlActionGetQueueFront(void);
@@ -852,7 +852,7 @@ s32 btlMainUnitCreateUpdate(void)
        * and their live-unit path receives a complete formation vector.
        * The separate resource/history review proves this caller boundary;
        * arbitrary fabricated special/empty-row states are outside it. */
-      func_001f73d0();
+      btlSoundPlayRetailSelectTrack();
       formation = (BattleOpeningEncounter *)((u32)iGpffffb414 + (u32)*(u16 *)(*(s32 *)(D_0076449C + 0xc68) + 8) * 0x18);
       action = (u8 *)btlActionGetQueueFront();
       if ((((action == 0) || (*(u8 *)(*(s32 *)(action + 0x30) + 0xa2) == 1)) ||
@@ -1185,7 +1185,7 @@ void btlMainUnitLoadInit(void)
     extern u8 *btlEffectCreateFormationPacket(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
     extern u8 *btlEffectCreateLoadPacket(void);
     extern u8 *func_00202b60(s32 arg0);
-    extern u8 *func_001f6710(s32 arg0);
+    extern u8 *btlSoundCreateLoadPlaybackPacket(s32 arg0);
     extern s32 iGpffffb450;
     s32 group_mode;
     s32 first;
@@ -1272,7 +1272,7 @@ void btlMainUnitLoadInit(void)
         } else {
             finish_mode = 0;
         }
-        finish_packet = func_001f6710((u16)finish_mode);
+        finish_packet = btlSoundCreateLoadPlaybackPacket((u16)finish_mode);
         *(s8 *)(finish_packet + 0) = 4;
         *(s64 *)(finish_packet + 8) = *(s64 *)(panel_packet + 0x58);
         btlPacketEnqueue(finish_packet, 1);
@@ -2103,7 +2103,7 @@ s32 btlMainLoseUpdate(u8 *arg0)
                      (s64)0x3FFFFFFFFFFFFFFF) != 0) {
         return 0;
     }
-    if (func_001f6290() != 0) {
+    if (btlSoundIsPlaybackActive() != 0) {
         return 0;
     }
     return 0xE;

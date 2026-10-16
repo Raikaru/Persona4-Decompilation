@@ -62,7 +62,7 @@ static inline s32 func_001a_fix_var(s32 value)
     }
     return value;
 }
-void func_001f6cd0(void);
+void btlSoundBumpStatusCounters(void);
 
 void func_001f14f0(u8 *arg0);
 void func_001eb3b0(u8 *arg0);
@@ -82,12 +82,12 @@ extern void btlDamageStart(u8 *arg0, u8 *arg1);
 extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
 extern void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status);
-extern s32 func_001f6930(u8 *arg0);
-extern s32 func_001f6bf0(u8 *arg0);
-extern s32 func_001f6f60(u8 *arg0);
-extern s32 func_001f7140(u8 *arg0);
-extern void func_001f62b0(void);
-extern s32 func_001f62f0(u8 *arg0);
+extern s32 btlSoundSelectCureableStatuses(u8 *arg0);
+extern s32 btlSoundIsStatusCounterHigh(u8 *arg0);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
+extern void btlSoundCancelPlayback(void);
+extern s32 btlSoundPickResistVoice(u8 *arg0);
 extern void btlSoundStopBank3(void);
 extern void func_001f9a50(s32 arg0, s32 arg1);
 extern void func_001f9a90(void);
@@ -135,7 +135,7 @@ extern BtlPacket *btlUnitCreateMoveToUnitPacket(BtlUnit *unit, BtlUnit *target, 
 extern BtlPacket *btlFormationCreateWaitPacket(u32 source, u32 target, u16 mode);
 extern f32 fGpffff811c;
 extern u32 datCalcGetBadStatus(s32 arg0);
-extern s16 func_001f6d60(u8 *arg0);
+extern s16 btlSoundCalcStatusHpSpDelta(u8 *arg0);
 extern u8 *btlPacketCreateUnitCounter(s32 unit, s8 kind, s16 value);
 extern void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
@@ -192,7 +192,7 @@ u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 s32 datCalcGetSkillMask(u8 *arg0);
 s64 datCalcFindStrongBuff(u8 *arg0);
 s32 datCalcIsStatusBlocked(u16 *arg0);
-s32 func_001f6770(u8 *arg0);
+s32 btlSoundRollStatusCure(u8 *arg0);
 s32 func_001fac30(void);
 s32 btlActionGetCounter420(BtlAction *action);
 
