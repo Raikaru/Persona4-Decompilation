@@ -179,8 +179,8 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     extern u8 *func_003e8180(u8 *arg0, f32 arg1);
     extern u8 *func_003e81c0(u8 *arg0, f32 arg1);
     extern void kwlnTaskDestroyWithHierarchy(void *arg0);
-    extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
-    extern void func_00457170(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+    extern void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+    extern void kwlnSetColorBytes(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
     extern void FldRc_SetClumpVector(void *arg0, void *arg1);
     extern void *mdlGetClump(s32 arg0);
     extern char D_005EFEB0[];
@@ -248,8 +248,8 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     iGpffffba60 = *(u8 *)(data + 0xD);
     iGpffffba64 = *(u8 *)(data + 0xE);
     iGpffffba68 = 0;
-    func_00457140(*(u8 *)(data + 0xC), *(u8 *)(data + 0xD), *(u8 *)(data + 0xE), 0);
-    func_00457170(*(u8 *)(data + 0xC), *(u8 *)(data + 0xD), *(u8 *)(data + 0xE), 0);
+    kwlnSetColorRgba(*(u8 *)(data + 0xC), *(u8 *)(data + 0xD), *(u8 *)(data + 0xE), 0);
+    kwlnSetColorBytes(*(u8 *)(data + 0xC), *(u8 *)(data + 0xD), *(u8 *)(data + 0xE), 0);
     func_003e81c0(kwlnGetCamera(), *(f32 *)(data + 0x14));
     fsave = *(f32 *)(data + 0x10);
     *(f32 *)(kwlnGetCamera() + 0x88) = fsave;
@@ -262,8 +262,8 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
             func_003e8180(kwlnGetCamera(), 100.0f);
         }
         if (*(u8 *)(data + 0x1FF) == 0xFF) {
-            func_00457140(*(u8 *)(data + 0x1FC), *(u8 *)(data + 0x1FD), *(u8 *)(data + 0x1FE), 0);
-            func_00457170(*(u8 *)(data + 0x1FC), *(u8 *)(data + 0x1FD), *(u8 *)(data + 0x1FE), 0);
+            kwlnSetColorRgba(*(u8 *)(data + 0x1FC), *(u8 *)(data + 0x1FD), *(u8 *)(data + 0x1FE), 0);
+            kwlnSetColorBytes(*(u8 *)(data + 0x1FC), *(u8 *)(data + 0x1FD), *(u8 *)(data + 0x1FE), 0);
         }
     }
     if ((u32)*(s32 *)(data + 4) > 0x10004U) {

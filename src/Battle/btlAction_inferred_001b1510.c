@@ -1787,7 +1787,7 @@ void btlMainWinInit(u8 *arg0) {
     extern u8 *func_00194c90(void *arg0, void *arg1);
     extern u8 *btlEffectCreateFormationPacket(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
     extern struct RtQuat *func_003dc740(struct RtQuat *rotation, const struct RwV3d *axis, f32 angle, s32 mode);
-    extern s8 *func_00457160(void);
+    extern s8 *kwlnGetColorBytes(void);
     extern BtlPacket *func_001f99c0(BtlAction *action, u16 voice, s32 option, s32 argument, s32 flags);
     extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const struct RwV3d *target, f32 speed, u32 flags);
     extern BtlPacket *btlUnitCreateHidePacket(BtlUnit *unit);
@@ -1915,13 +1915,13 @@ void btlMainWinInit(u8 *arg0) {
         *(s16 *)(pkt + 0x48) = work->delay + 1;
         *(s64 *)(pkt + 0x60) = *(s64 *)base;
         btlPacketEnqueue(pkt, 1);
-        palette = (u8 *)func_00457160();
+        palette = (u8 *)kwlnGetColorBytes();
         ambientRed = (1.0f / 255.0f) * (f32)palette[0];
-        palette = (u8 *)func_00457160();
+        palette = (u8 *)kwlnGetColorBytes();
         ambientGreen = (1.0f / 255.0f) * (f32)palette[1];
-        palette = (u8 *)func_00457160();
+        palette = (u8 *)kwlnGetColorBytes();
         ambientBlue = (1.0f / 255.0f) * (f32)palette[2];
-        palette = (u8 *)func_00457160();
+        palette = (u8 *)kwlnGetColorBytes();
         ambientAlpha = (1.0f / 255.0f) * (f32)palette[3];
         color = btlCameraBlendAmbient(ambientRed, ambientGreen, ambientBlue, ambientAlpha);
         pkt = btlColorBlendPacketCreate(color, 0);
