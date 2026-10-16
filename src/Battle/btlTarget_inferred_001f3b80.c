@@ -71,7 +71,6 @@ extern u8 D_006251F0[];
 
 
 
-extern s32 datPersonaFindSkillSlot(u8 *persona, u16 skill);
 
 
 

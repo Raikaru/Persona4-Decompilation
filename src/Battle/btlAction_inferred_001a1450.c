@@ -1925,7 +1925,6 @@ void btlActionReadyInit(void)
 void btlActionReadyUpdate(u8 *arg0)
 {
     extern void func_001eb420(u8 *target);
-    extern s32 datPersonaFindSkillSlot(u8 *persona, u16 skillId);
     extern s32 btlActionSkillReachesTargets(u8 *action);
     extern void btlActionRollGroupRatio(s32 state);
     extern s32 btlSoundCanReceiveStatus(u8 *action);
