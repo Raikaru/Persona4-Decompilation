@@ -68,7 +68,7 @@ extern struct RwMatrixTag *RwMatrixUpdate(struct RwMatrixTag *matrix);
 extern s32 FldFrameTask_SetHeight(s32 arg0, f32 arg1);
 extern f32 FldFrameTask_GetHeight(s32 arg0);
 extern void FldFrameTask_UpdateTile(s32 arg0);
-extern void func_0015bae0(void);
+extern void FldStepUpdateBandRes(void);
 extern void FldCameraUpdateOrbit(s32 arg0);
 extern void FldAI_ChaserDisable(s32 arg0);
 extern void FldShadow_SetRingParticles(s32 arg0, f32 arg1);
@@ -457,7 +457,7 @@ s32 Cmd_PlaceFieldResource(void)
                 RwMatrixOptimize(mdlGetMatrix(*(s32 *)(resource + 0x164)), &tolerance);
                 RwMatrixUpdate(mdlGetMatrix(*(s32 *)(resource + 0x164)));
                 FldFrameTask_UpdateTile(*(s32 *)(resource + 0x220));
-                func_0015bae0();
+                FldStepUpdateBandRes();
                 for (i = 0; i < 3; i++) {
                     hasWork = 0;
                     entry = D_007EF9B0 + i * 0x750;
