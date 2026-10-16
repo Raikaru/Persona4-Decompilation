@@ -11,6 +11,7 @@ typedef struct BtlPacket BtlPacket;
 #include "shd_misc_internal.h"
 #include "btl_panel_internal.h"
 #include "fr_font_internal.h"
+#include "datPersona_internal.h"
 
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
@@ -57,7 +58,6 @@ extern f32 fGpffff83b0;
 extern struct DatPersonaRecord *datPersonaRosterSlot(s16 arg0);
 extern s32 datPersonaGetLeadSlot(void);
 extern s32 datPersonaGetLevel(u8 *arg0);
-extern u8 *datPersonaGetRow(u16 arg0);
 extern u16 frFontSetFlagBits(s16 arg0);
 extern u16 frFontClearFlagBits(u16 arg0);
 
@@ -215,7 +215,6 @@ typedef struct BattleRenderDispatch {
 } BattleRenderDispatch;
 extern s32 datItemCount(s16 id);
 extern struct DatPersonaRecord *datPersonaGetRecord(u16 id);
-extern u16 datPersonaGetSkillAt(u8 *persona, s16 slot);
 extern s32 datCalcIsFlaggedPersonaSkill(s32 id);
 extern u8 *iGpffffb3b8;
 typedef struct {
@@ -2134,7 +2133,7 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
     if (unit[0xA2] == 0) {
         persona = (u8 *)datPersonaGetRecord(*(u16 *)(unit + 0xA4));
         for (skillSlot = 0; skillSlot < 8; skillSlot++) {
-            skill = datPersonaGetSkillAt(persona, (s16)skillSlot);
+            skill = datPersonaGetSkillAt((DatPersonaRecord *)persona, (s16)skillSlot);
             if (skill != 0 && skill < 0x1B8 && (*(u8 *)(skill * 0x28 + iGpffffb3b8 + 1) & 2)) {
                 *(u16 *)(work + skillCount * 2 + 0x194) = skill;
                 skillCount++;

@@ -8,6 +8,8 @@
 #include "btl_packet_create_internal.h"
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
+#include "datPersona_internal.h"
+#include "datUnit_internal.h"
 #include "rw_types_internal.h"
 typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
@@ -55,8 +57,6 @@ extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern s32 datGetPartyId(s32 arg0);
-extern s32 datUnitCreatePc(s32 arg0);
-extern s32 datUnitCreateEncounterGroup(s32 arg0);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 extern u8 *iGpffffb3e0;
 extern s32 iGpffffb430;
@@ -246,7 +246,6 @@ extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern float btlFormationGetScale(int arg0);
 extern s32 btlUnitArcMovePacketUpdate(u8 *arg0);
 extern s32 datPersonaNamePart1Alt(s16 arg0);
-extern u8 *datPersonaGetRow(u16 arg0);
 extern s32 iGpffffb444;
 extern s32 btlUnitIsMoving(u8 *arg0);
 extern s32 btlUnitIdleAnimTick(u8 *arg0);

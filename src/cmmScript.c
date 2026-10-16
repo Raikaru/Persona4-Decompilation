@@ -5,6 +5,7 @@
 #include "type.h"
 #include "evt_internal.h"
 #include "cmm_internal.h"
+#include "datPersona_internal.h"
 
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u32 kwlnTaskGetWork(void *task);
@@ -68,7 +69,6 @@ extern s32 func_0046a750(s32 arg0);
 extern void func_00440b68(void* arg0, void* arg1, u32 arg2);
 extern u8* cmmItemInfoRecord(s32 arg0);
 extern void cmmAdvanceReverseProgress(s32 arg0);
-extern u8 *datPersonaGetRow(u16 arg0);
 extern void datPersonaCollectSkills(s32 arg0, void* arg1, s32* arg2);
 extern void func_001029a0(s32 arg0, void* arg1, s32 arg2, s32 arg3);
 extern s32 func_00102980(void);

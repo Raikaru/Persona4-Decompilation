@@ -1505,6 +1505,7 @@ void datPersonaFillSkillRows(s32 arg0, u8 *arg1)
     s32 index;
     u16 value;
 
+    // Old-style call: no argument is passed; datPersonaGetSkills reads the record still in $a0 (mwccps2 hidden-argument liveness).
     table = datPersonaGetSkills();
     i = 0;
     while (i < 8) {

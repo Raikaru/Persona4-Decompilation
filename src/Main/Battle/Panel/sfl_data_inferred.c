@@ -3,6 +3,7 @@
 #include "message_frame_internal.h"
 #include "primitive_point_buffer.h"
 #include "fr_font_internal.h"
+#include "datPersona_internal.h"
 struct RwMatrixTag;
 #include "rw_types_internal.h"
 typedef struct {
@@ -21,7 +22,6 @@ typedef struct PersonaWork PersonaWork;
 extern s16 datCategoryRank(s16 index);
 extern u16 func_00105290(s16 pcId);
 extern s32 func_00105a50(s16 pcId);
-extern u8 *datPersonaGetRow(u16 personaId);
 extern u8 datPersonaGetArcana(u16 personaId);
 extern u8 datPersonaGetLevel(s32 persona);
 extern u32 datPersonaGetExp(s32 persona);
