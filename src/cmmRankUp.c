@@ -3260,7 +3260,6 @@ extern void frFontExCopyString(char *source, char *destination, s32 capacity);
 extern void nmMesWindowSetSlotString(s8 handle, s32 variable, void *text);
 extern s32 datGetFlag();
 extern void datSetFlag();
-extern s32 datPersonaAddSkill(u8 *character, u16 skill);
 extern void hsndQueueSound();
 extern void sdkSndSetMainChannelData();
 extern void sdkSndStopMainChannel();
