@@ -81,7 +81,7 @@ extern u16 *FldStepFindEmptySlot(u32 arg0);
 extern u8 *func_0015d310(u16 *arg0);
 extern void FldFrameTask_SetHeight(u8 *arg0, f32 arg1);
 extern void FldShadow_SetRingParticles(u8 *arg0, f32 arg1);
-extern s32 func_0018bb20(s32 arg0, s32 arg1);
+extern s32 FldNpcControlTaskCreate(s32 arg0, s32 arg1);
 extern void *RwMatrixUpdate(void *arg0);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern s32 sprintf(char *destination, const char *format, ...);
@@ -396,14 +396,14 @@ s32 FldFbnApplyTable(u8 *arg0, u8 *arg1)
             mdlAdvanceModelFromFlags(*(u8 **)(res + 0x22C));
             *(u32 *)(res + 0x28) &= ~0x10000000;
             *(FbnMatrix *)(res + 0x240) = *(FbnMatrix *)(rec + 0x20);
-            *(s32 *)(res + 0x294) = func_0018bb20(*(s32 *)(res + 0x228), (s32)res);
+            *(s32 *)(res + 0x294) = FldNpcControlTaskCreate(*(s32 *)(res + 0x228), (s32)res);
         } else if (kind == 2) {
             *(s32 *)(res + 0x284) = FBN_ENTRY(i)->field_4;
             mdlTranslateMatrix(*(u8 **)(res + 0x22C), rec + 0x50, 2);
             mdlAdvanceModelFromFlags(*(u8 **)(res + 0x22C));
             *(u32 *)(res + 0x28) &= ~0x10000000;
             *(FbnMatrix *)(res + 0x240) = *(FbnMatrix *)(rec + 0x20);
-            *(s32 *)(res + 0x294) = func_0018bb20(*(s32 *)(res + 0x228), (s32)res);
+            *(s32 *)(res + 0x294) = FldNpcControlTaskCreate(*(s32 *)(res + 0x228), (s32)res);
             *(u32 *)(res + 0x28C) = FBN_ENTRY(i)->field_18;
             *(s32 *)(res + 0x288) = FBN_ENTRY(i)->field_14;
             chkmemAllocSiteTag(D_005F1068, 0x26F);

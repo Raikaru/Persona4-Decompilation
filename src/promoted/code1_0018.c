@@ -152,7 +152,7 @@ extern f32 D_005F2198[];
 extern f32 D_005F219C[];
 extern f32 D_005F21A0[];
 extern f32 D_005F21A4[];
-extern s32 func_0018a200(u8 *task);
+extern s32 FldNpcControlUpdate(u8 *task);
 extern s32 FldStepNotAtBoundary(void);
 extern f32 sinf(f32 arg0);
 
@@ -165,10 +165,10 @@ extern f32 D_00761184;
 extern u8 D_00794C60[];
 extern u32 D_007EFA00[];
 extern u8 D_005F54D8[];
-extern s32 func_00189940(u8 *arg0);
+extern s32 FldPanel2dUpdate(u8 *arg0);
 extern void func_0018a010(s32 arg0);
 extern u8 D_005F54E8[];
-extern s32 func_0018dde0(u8 *arg0);
+extern s32 FldSupporterUpdate(u8 *arg0);
 extern u8 D_005F1D80[];
 extern u8 D_005F1D90[];
 extern s32 iGpffff9f60;
@@ -176,8 +176,8 @@ extern s32 FldRainUpdate(u8 *task);
 
 extern s32 FldNoiseUpdate(u8 *task);
 extern void FldNoiseDestroy(u8 *arg0);
-extern s32 func_0018e810(u8 *arg0);
-extern void func_0018ef20(u8 *arg0);
+extern s32 FldMapTestUpdate(u8 *arg0);
+extern void FldMapTestDestroy(u8 *arg0);
 extern u8 D_005F1DF8[];
 extern u8 D_005F1E08[];
 extern u8 D_005F57B0[];
@@ -1781,7 +1781,7 @@ void func_00189870(void)
  * Preserve integer-to-float conversions and reloads across rendering callbacks.
  * Indexed addresses stay integer-valued until their final pointer conversion. */
 #pragma opt_loop_invariants on
-s32 func_00189940(u8 *arg0)
+s32 FldPanel2dUpdate(u8 *arg0)
 {
     u8 *temp_16;
     u8 *temp_2;
@@ -1888,7 +1888,7 @@ s32 func_00189940(u8 *arg0)
 }
 #pragma opt_loop_invariants off
 // FUN_00189E90
-void func_00189e90(u8 *arg0)
+void FldPanel2dDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
@@ -1896,7 +1896,7 @@ void func_00189e90(u8 *arg0)
 
 
 // FUN_00189EC0
-void func_00189ec0(void)
+void FldPanel2dTaskCreate(void)
 {
     u8 *temp_16;
     u8 *temp_2;
@@ -1908,7 +1908,7 @@ void func_00189ec0(void)
         if (temp_2 == NULL) {
             var_16 = 0;
         } else {
-            var_16 = (s32)kwlnTaskCreateChild((void *)(temp_16), (const void *)(&D_005F5330), 0xF, 0, 0, func_00189940, func_00189e90, (u8 *)(temp_2));
+            var_16 = (s32)kwlnTaskCreateChild((void *)(temp_16), (const void *)(&D_005F5330), 0xF, 0, 0, FldPanel2dUpdate, FldPanel2dDestroy, (u8 *)(temp_2));
         }
         *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) = var_16;
         func_0018a010(-1);
@@ -2103,7 +2103,7 @@ typedef struct {
 
 /* Update field-actor visibility, animation, spline travel, and facing. */
 // FUN_0018A200
-s32 func_0018a200(u8 *param_1)
+s32 FldNpcControlUpdate(u8 *param_1)
 {
   typedef struct { float x, y, z; } FldCopyVec;
   s32 actorIndex;
@@ -2759,7 +2759,7 @@ s32 func_0018a200(u8 *param_1)
 }
 #pragma pop
 // FUN_0018BAD0
-void func_0018bad0(u8 *arg0) {
+void FldNpcControlDestroy(u8 *arg0) {
     s32 h = *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x14);
 
     if (h != 0) {
@@ -2769,7 +2769,7 @@ void func_0018bad0(u8 *arg0) {
 }
 
 // FUN_0018BB20
-s32 func_0018bb20(s32 arg0, s32 arg1)
+s32 FldNpcControlTaskCreate(s32 arg0, s32 arg1)
 {
     s32 temp_17;
     u8 *temp_2;
@@ -2778,7 +2778,7 @@ s32 func_0018bb20(s32 arg0, s32 arg1)
     temp_2 = D_008873F4[0](1, 0x58, 0x40000);
     if (temp_2 == NULL)
         return 0;
-    temp_17 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F5350), 0xF, 0, 0, func_0018a200, func_0018bad0, (u8 *)(temp_2));
+    temp_17 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F5350), 0xF, 0, 0, FldNpcControlUpdate, FldNpcControlDestroy, (u8 *)(temp_2));
     *(s32 *)(temp_2 + 0xC) = arg1;
     *(f32 *)(temp_2 + 0x48) = *(f32 *)(((u8 *)(uintptr_t)kwlnGetCamera()) + 0x80);
     return temp_17;
@@ -3318,7 +3318,7 @@ s32 sndRequestAreaTrack(void)
 #pragma push
 #pragma opt_propagation off
 // FUN_0018DDE0
-s32 func_0018dde0(u8 *arg0)
+s32 FldSupporterUpdate(u8 *arg0)
 {
     u8 *work;
     s32 state;
@@ -3361,7 +3361,7 @@ s32 func_0018dde0(u8 *arg0)
 }
 #pragma pop
 // FUN_0018DF30
-void func_0018df30(u8 *arg0)
+void FldSupporterDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
@@ -3369,7 +3369,7 @@ void func_0018df30(u8 *arg0)
 
 
 // FUN_0018DF60
-s32 func_0018df60(s32 arg0)
+s32 FldSupporterTaskCreate(s32 arg0)
 {
     s32 temp_2;
     u8 *temp_2_2;
@@ -3380,7 +3380,7 @@ s32 func_0018df60(s32 arg0)
     temp_2_2 = D_008873F4[0](1, 0x14, 0x40000);
     if (temp_2_2 == NULL)
         return 0;
-    temp_2 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F54E8), 0xF, 0, 0, func_0018dde0, func_0018df30, (u8 *)(temp_2_2));
+    temp_2 = (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F54E8), 0xF, 0, 0, FldSupporterUpdate, FldSupporterDestroy, (u8 *)(temp_2_2));
     *(s32 *)(temp_2_2 + 8) = 0x1E;
     return temp_2;
 }
@@ -3460,7 +3460,7 @@ typedef struct {
    button halfword; the map uses 16-byte cells and RGBA colors. Keep the
    row byte offset alive across its sixteen columns. */
 // FUN_0018E810
-s32 func_0018e810(u8 *arg0)
+s32 FldMapTestUpdate(u8 *arg0)
 {
     extern PadStatus D_008C0240[2];
     extern s64 iGpffff9fd0;
@@ -3589,15 +3589,15 @@ s32 func_0018e810(u8 *arg0)
     return 0;
 }
 // FUN_0018EF20
-void func_0018ef20(u8 *arg0)
+void FldMapTestDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 // FUN_0018EF50
-void func_0018ef50(s32 arg0)
+void FldMapTestTaskCreate(s32 arg0)
 {
     chkmemAllocSiteTag(&D_005F57B0, 0x101);
-    (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F57C0), 0xF, 0, 0, func_0018e810, func_0018ef20, (u8 *)(D_008873F4[0](1, 0x1B440, 0x40000)));
+    (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(&D_005F57C0), 0xF, 0, 0, FldMapTestUpdate, FldMapTestDestroy, (u8 *)(D_008873F4[0](1, 0x1B440, 0x40000)));
 }
 #pragma opt_propagation off
 // FUN_0018EFE0

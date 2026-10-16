@@ -92,7 +92,7 @@ extern s32 datCalcGetLevelById(s32 arg0);
 extern s32 *MT_Scene_GetFrameState(void);
 extern void SceneDraw_SetResVisible(u16 arg0, s32 arg1);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern s32 func_0018bb20(s32 arg0, s32 arg1);
+extern s32 FldNpcControlTaskCreate(s32 arg0, s32 arg1);
 
 extern void *memset(void *destination, s32 value, u32 size);
 extern u8 D_007E8020[];
