@@ -20,7 +20,7 @@ extern s32 datGetFlag(s32 arg0);
 extern s32 func_00106cd0(s32 arg0, s32 arg1);
 extern s32 func_00110d60(s16 arg0);
 extern s32 sprintf(char *buf, char *fmt, ...);
-extern void func_00231550(s32 arg0, u16 arg1);
+extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
 extern char D_007636e0;
 extern char D_006358D0[];
 extern char D_006358F0[];
@@ -47,7 +47,7 @@ extern char D_00635800[];
 /* Source unit: src/promoted/code1_0023.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0023.c; members 002305c0-002308a0 */
 
-extern void func_00231550(s32 arg0, u16 arg1);
+extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
 // FUN_002305C0
 BtlPacket *btlBossCreateLoadEndBgmPacket(s32 arg0)
 {
@@ -224,7 +224,7 @@ s32 btlBossResolveModelName(u32 arg0, u16 arg1, char *arg2)
                       temp_20, arg1 & 0xFF);
         break;
     case 5:
-        func_00231550((s32)arg2, arg1);
+        btlBossResolveNpcModelName((s32)arg2, arg1);
         break;
     case 11:
         sprintf(arg2, D_006357B0, &D_007636e0, arg1 & 0xFFFF);

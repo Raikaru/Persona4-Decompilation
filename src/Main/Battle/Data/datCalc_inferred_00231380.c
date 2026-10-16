@@ -9,11 +9,11 @@ extern u8 *iGpffffb3ac;
 
 extern u8 *iGpffffa5f0;
 
-extern void func_00231380(s32 *arg0, s32 arg1);
+extern void btlBuildNpcModelName(s32 *arg0, s32 arg1);
 extern s64 datGetDateIndex(void);
 extern s32 func_00110d60(s16 arg0);
 extern s32 sprintf(char *buf, char *fmt, ...);
-extern void func_00231550(s32 arg0, u16 arg1);
+extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
 extern u8 *func_00455f70(void *arg0, u32 *arg1);
 extern char D_007636e0;
 extern char D_006358D0[];
@@ -41,8 +41,9 @@ extern char D_00635800[];
 /* Source unit: src/promoted/code1_0023.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0023.c; members 00231380-00231550 */
 
+// Intent: Writes the NPC model file name for a battle model id: the "npc/" or "npc2/" directory, the id and a variant from its table entry and the current flags [inferred]
 // FUN_00231380
-void func_00231380(s32 *arg0, s32 arg1)
+void btlBuildNpcModelName(s32 *arg0, s32 arg1)
 {
     u32 sp5C;
     s16 var_17;
@@ -111,9 +112,10 @@ void func_00231380(s32 *arg0, s32 arg1)
                       temp_18, var_19);
 }
 
+// Intent: Boss model name resolver for case 5 (NPC models): forwards to btlBuildNpcModelName [inferred]
 // FUN_00231550
-void func_00231550(s32 arg0, u16 arg1)
+void btlBossResolveNpcModelName(s32 arg0, u16 arg1)
 {
-    func_00231380((s32 *)arg0, arg1 & 0xFFFF);
+    btlBuildNpcModelName((s32 *)arg0, arg1 & 0xFFFF);
 }
 

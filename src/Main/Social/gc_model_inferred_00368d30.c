@@ -84,7 +84,7 @@ extern f32 fGpffff8198;
 /* Source unit: src/promoted/code1_0036.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0036.c; members 00368d30-00368e80 */
 
-extern void func_0036ae90(u8 *arg0, u8 *arg1);
+extern void pscModelBuildTileVertices(u8 *arg0, u8 *arg1);
 /* 780/784 bytes; nine resolved relocations; four zero alignment bytes.
  * Keep the angle and shared scale local to each primitive call. */
 #pragma push
@@ -96,8 +96,9 @@ extern void func_0036ae90(u8 *arg0, u8 *arg1);
    ahead of the entry branch. Alpha: `n = arg1 & 0xFF; arg1 = 0xFF - n;` through the
    loop counter's register puts the andi before the li (fresh local or one expression: nd 3). */
 /* measured: closes the loop-invariant bracket; the file default is off. */
+// Intent: Initialises a shuffle-card panel model in mode 3: its sub-panel, light quad, corner positions, colours and timing constants [inferred]
 // FUN_00368D30
-void func_00368d30(u8 *arg0)
+void pscModelInitPanel(u8 *arg0)
 {
     RwV3d p1;
     RwV3d p2;
@@ -155,12 +156,13 @@ void func_00368d30(u8 *arg0)
 #pragma push
 /* measured: func_00368e80 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+// Intent: Advances a panel's animation timer and phase values for its mode, then rebuilds its tile vertices [inferred]
 // FUN_00368E80
-void func_00368e80(u8 *arg0)
+void pscModelStepAnimation(u8 *arg0)
 {
     extern f32 D_007612D0;
     extern f32 fGpffff838c;
-    extern void func_0036ae90(u8 *arg0, u8 *arg1);
+    extern void pscModelBuildTileVertices(u8 *arg0, u8 *arg1);
     u8 *base;
     s32 mode;
     f32 ftmp;
@@ -321,7 +323,7 @@ void func_00368e80(u8 *arg0)
         }
     }
     if (((*(s32 *)base) & 8) != 0) {
-        func_0036ae90(*(u8 **)(base + 0xDC), base);
+        pscModelBuildTileVertices(*(u8 **)(base + 0xDC), base);
     }
 }
 

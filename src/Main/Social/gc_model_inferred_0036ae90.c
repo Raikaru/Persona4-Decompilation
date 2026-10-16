@@ -102,8 +102,9 @@ struct PanelTransform;
 #pragma push
 /* measured: func_0036ae90 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+// Intent: Builds a panel's tile vertex list: the camera-facing flip, the 9-row grid of tiles and their colours [inferred]
 // FUN_0036AE90
-void func_0036ae90(u8 *arg0, u8 *arg1) {
+void pscModelBuildTileVertices(u8 *arg0, u8 *arg1) {
     extern u8 *func_003e9700(u8 *frame);
     extern struct RwMatrixTag *func_003e0f80(void);
     extern void pscBuildModelMatrix(struct PanelMatrix *output,

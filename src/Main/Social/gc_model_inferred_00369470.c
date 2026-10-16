@@ -97,8 +97,9 @@ extern f32 fGpffff8198;
 /* measured: retail hoists the 0.5f loop constants out of the corner loops. */
 #pragma push
 #pragma pop
+// Intent: Queues a draw node for a panel object with the shared draw callback func_00369440 [inferred]
 // FUN_00369470
-void func_00369470(s32 arg0, u8 *arg1) {
+void pscModelEnqueueDrawNode(s32 arg0, u8 *arg1) {
     u8 *p;
 
     p = func_00460990();
