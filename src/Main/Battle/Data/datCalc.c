@@ -3258,7 +3258,7 @@ s32 datCalcSkillElement(u8 *arg0, u16 arg1)
     s32 v;
 
     if (arg0 != 0 && (arg1 & 0xFFFF) < 0x1B8 &&
-        (iGpffffb3b8[(arg1 & 0xFFFF) * 0x28] & 2)) {
+        (((DatSkillEntry *)(iGpffffb3b8 + ((arg1 & 0xFFFF)) * 0x28))->flags00 & 2)) {
         if (*(u16 *)arg0 & 4) {
             v = iGpffffb3c4[*(u16 *)(arg0 + 2) * 0x3C + 0x38];
         } else {
@@ -4200,7 +4200,7 @@ s32 arg4;
         if (tmp22 >= 0x1B8) {
             kAssertFail(D_00635938, 0xF5E);
         }
-        if ((u8)((iGpffffb3b8[idx] & 2) != 0)) {
+        if ((u8)((((DatSkillEntry *)(iGpffffb3b8 + idx))->flags00 & 2) != 0)) {
             if (DC411HasEquipmentProperty(arg0, 0x3C)) {
                 bonus += 5;
             }
@@ -4372,7 +4372,7 @@ s32 datCalcRollSupportSkillHit(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     if ((u16)arg2 >= 0x1B8) {
         kAssertFail(D_00635938, 0x1360);
     }
-    if (!(iGpffffb3b8[(arg2 & 0xFFFF) * 0x28] & 2)) {
+    if (!(((DatSkillEntry *)(iGpffffb3b8 + ((arg2 & 0xFFFF)) * 0x28))->flags00 & 2)) {
         return 0;
     }
     if ((s32)((*(s32 *)(arg1 + 0xC) & 0x100000) != 0) != 0) {
