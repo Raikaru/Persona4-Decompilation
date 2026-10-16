@@ -128,7 +128,7 @@ extern f32 D_00881410[];
 extern f32 D_00881414[];
 extern f32 D_00881418[];
 extern f32 fGpffffb454;
-extern u8 *func_001bcb50(s32 arg0, f32 *arg1, f32 *arg2, f32 arg3, f32 *arg4, f32 *arg5, f32 arg6, f32 arg7);
+extern u8 *btlCameraCreatePoseSequencePacket(s32 arg0, f32 *arg1, f32 *arg2, f32 arg3, f32 *arg4, f32 *arg5, f32 arg6, f32 arg7);
 extern BtlPacket *btlBossCreateStepEndBgmPacket(void);
 extern u8 *btlSoundCreateStreamPacket(s32 arg0, void *arg1);
 extern void sprintf(void *arg0, void *arg1, s64 arg2);

@@ -89,11 +89,11 @@ f32 RwV3dNormalize(RwV3d* out, const RwV3d* in);
 RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
 RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
 void btlCameraLookAtQuat(void* out, const void* first, const void* second, const void* config);
-void func_001bcd40(u8* param_2, u8* param_3, f32* param_4, f32 param_1, u16 param_5);
+void btlCameraSetupActionGeometry(u8* param_2, u8* param_3, f32* param_4, f32 param_1, u16 param_5);
 
 static inline void cameraApplyVisibility(f32 radius, u8 *camera, u16 mode)
 {
-    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, radius, mode);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, radius, mode);
 }
 extern f32 btlUnitGetGroupBounds(u32, u32, void*, f32*, void*, u32);
 extern void btlUnitGetGridSphereCenter(BtlUnit*, RwV3d*);
@@ -286,7 +286,7 @@ s32 btlCameraStateRecordFlag(u8 *param_1)
 void btlCameraSetState(s32 state, BtlAction* action, u32 param_3)
 {
     extern u8 *btlEncounterGetRecord(s32 arg0);
-    extern void func_001bd300(void);
+    extern void btlCameraClearAllUnitFlags(void);
     extern u8 D_005F74C0[];
     u8 *entry;
     u8 *camera;
@@ -325,7 +325,7 @@ void btlCameraSetState(s32 state, BtlAction* action, u32 param_3)
             *(s32 *)(camera + 0xF8) &= ~2;
         }
         if (param_3 != 0) {
-            func_001bd300();
+            btlCameraClearAllUnitFlags();
         }
         callback = *(void (**)(u8 *))entry;
         if (callback != NULL) {
@@ -890,7 +890,7 @@ void btlCameraUpdateFrameForState(u8 *arg0)
             btlUnitGetSphereWorldCenter(temp17, &local.value);
             scale = 0.5f * (*(f32 *)(temp17 + 0x90) *
                             *(f32 *)(temp17 + 0x2C));
-            func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, (f32 *)&local.value,
+            btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, (f32 *)&local.value,
                           scale, 0xC1);
         }
         break;
@@ -993,7 +993,7 @@ void btlCameraFrameOrbit(void *camera, float angle, float distanceScale, float h
   scratch.secondPosition.x = scratch.center.value.x + scratch.direction.value.x;
   scratch.secondPosition.y = scratch.center.value.y + scratch.direction.value.y;
   scratch.secondPosition.z = scratch.center.value.z + scratch.direction.value.z;
-  func_001bcd40(*(u8 **)(cameraAddress + 0xe0), NULL, NULL, 0.0f, 1);
+  btlCameraSetupActionGeometry(*(u8 **)(cameraAddress + 0xe0), NULL, NULL, 0.0f, 1);
   btlMainCurveSetPoses((u16 *)camera, (f32 *)&scratch.firstPosition, (f32 *)&scratch.secondPosition, 1);
   btlCameraSetDuration((u8 *)camera, 3.5f);
 }
@@ -1104,7 +1104,7 @@ void btlCameraFrameOrbitUnit(u8 *arg0)
     if (work.secondPosition.y < 25.0f) {
         work.secondPosition.y = 25.0f;
     }
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 2);
+    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 2);
     btlMainCurveSetPoses((u16 *)arg0, (f32 *)&work.firstPosition, (f32 *)&work.secondPosition, 1);
     btlCameraSetDuration(arg0, 1.5f);
 }
@@ -1319,7 +1319,7 @@ void btlCameraFrameActionUnitPose(BtlCamera* camera)
   buf[7] = buf[20] * fVar20 + fVar9;
   buf[8] = buf[21] * fVar20 + fVar8;
   buf[9] = buf[22] * fVar20 + fVar7;
-  func_001bcd40((u8 *)camera->action, 0, 0, 0.0f, 1);
+  btlCameraSetupActionGeometry((u8 *)camera->action, 0, 0, 0.0f, 1);
   btlMainCurveSetPoses((u16 *)camera, (f32 *)buf, (f32 *)(buf + 7), 1);
   btlCameraSetDuration((u8 *)camera, 2.5f);
 }
@@ -1377,7 +1377,7 @@ void btlCameraFrameActionUnitPoseMirror(BtlCamera* camera)
   buf[7] = buf[20] * fVar20 + fVar9;
   buf[8] = buf[21] * fVar20 + fVar8;
   buf[9] = buf[22] * fVar20 + fVar7;
-  func_001bcd40((u8 *)camera->action, 0, 0, 0.0f, 1);
+  btlCameraSetupActionGeometry((u8 *)camera->action, 0, 0, 0.0f, 1);
   btlMainCurveSetPoses((u16 *)camera, (f32 *)(buf + 7), (f32 *)buf, 1);
   btlCameraSetDuration((u8 *)camera, 2.5f);
 }
@@ -1569,7 +1569,7 @@ void btlCameraFrameFreshPose(u8 *camera)
         work.pos.y = 25.0f;
     }
 
-    func_001bcd40(*(u8 **)(camera + 0xE0), (u8 *)&work.pos, (f32 *)&target, 400.0f, 3);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), (u8 *)&work.pos, (f32 *)&target, 400.0f, 3);
     btlMainCurveReset((u16 *)(camera), (f32 *)(&work.pos));
 }
 // FUN_001CC5C0
@@ -1812,7 +1812,7 @@ void btlCameraFrameClampedDistance(BtlCamera* camera)
     scratch.out.y = scratch.diff.y + scratch.target.y;
     scratch.out.z = scratch.diff.z + scratch.target.z;
     btlCameraClampOffsetToLimit((f32*)&scratch.out, (f32*)&scratch.out);
-    func_001bcd40((u8*)0, (u8*)0, (f32 *)0, 0.0f, 0x100);
+    btlCameraSetupActionGeometry((u8*)0, (u8*)0, (f32 *)0, 0.0f, 0x100);
     btlMainCurveReset((u16 *)(uintptr_t)iVar2, (f32 *)&scratch.out);
     btlCameraCopyPoseSnapshot((f32*)(iVar2 + 0x9c), (f32*)&scratch.out);
 }
@@ -1964,8 +1964,8 @@ void btlAct_NOP(u8 *camera)
         frames[1].pos.y = frames[0].pos.y;
         duration = 2.0f;
     }
-    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
-    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
     btlMainCurveSetThreePoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], (f32 *)&frames[2], 1);
     btlCameraSetDuration(camera, duration);
 }
@@ -2089,7 +2089,7 @@ void btlAct_WIN_P(BtlCamera* camera)
     distance = distance + 25.0f;
     i = (i + 1) & 0xffff;
   }
-  func_001bcd40((u8*)camera->action, 0, 0, 0.0f, 1);
+  btlCameraSetupActionGeometry((u8*)camera->action, 0, 0, 0.0f, 1);
   btlMainCurveSetFourPoses(camera, &scratch.frameBytes[0],
                &scratch.frameBytes[0x1c],
                &scratch.frameBytes[0x38],
@@ -2198,7 +2198,7 @@ void btlAct_CONDITION(u8 *camera)
     work.candidate[2] = work.currentPosition.z + work.transformed[2];
     btlCameraLookAtQuat(work.targetRotation, &work.currentPosition,
                   work.candidate, &D_0060A0E0);
-    func_001bcd40(*(u8 **)(camera + 0xe0), (u8 *)&work.currentPosition,
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xe0), (u8 *)&work.currentPosition,
                   (f32 *)work.unitPosition,
                   60.0f, 0x8c0);
     btlMainCurveSetPoses((u16 *)camera, (f32 *)&work.currentPosition,
@@ -2392,7 +2392,7 @@ void btlCameraFrameTrackUnitScaled(u8 *arg0)
         btlUnitGetSphereWorldCenter(temp16, &local.value);
         scale = 0.5f * (*(f32 *)(temp16 + 0x90) *
                         *(f32 *)(temp16 + 0x2C));
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, (f32 *)&local.value,
+        btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, (f32 *)&local.value,
                       scale, 0xC1);
     }
 }
@@ -2424,7 +2424,7 @@ void btlCameraFrameTrackUnit(u8 *arg0)
         if ((*(u16 *)(temp_4 + 0x1A) & 1) != 0) {
             temp_16 = *(u8 **)(temp_4 + 0x30);
             btlUnitGetSphereWorldCenter(temp_16, sp30);
-            func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)),
+            btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)),
                           0xC1);
         }
     }
@@ -2447,7 +2447,7 @@ void btlCameraFrameTrackUnitAlt(u8 *arg0)
         if ((*(u16 *)(temp_4 + 0x1A) & 1) != 0) {
             temp_16 = *(u8 **)(temp_4 + 0x30);
             btlUnitGetSphereWorldCenter(temp_16, sp30);
-            func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)),
+            btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)),
                           0xC1);
         }
     }

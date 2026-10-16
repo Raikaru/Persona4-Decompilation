@@ -48,7 +48,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *arg0);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern u32 iGpffffa0b8;
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
+extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
@@ -78,7 +78,7 @@ extern s32 func_00457120(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern f32 fGpffff8048;
 extern u8 D_005F74C0[];
-extern void func_001bd390(void);
+extern void btlCameraUpdateUnitInRangeFlags(void);
 extern u8 *func_003e8180(u8 *arg0, f32 arg1);
 extern s32 func_003bbbe0(s32 arg0, s32 arg1, void *arg2);
 extern void func_001d12e0(void *arg0);
@@ -138,7 +138,7 @@ extern f32 fGpffff8108;
 /* measured: closes opt_common_subs for the following translation-unit code. */
 /* measured: closes opt_propagation for the following translation-unit code. */
 /* measured: opt_common_subs off preserves the retail per-use masked index. */
-/* measured: restore common-subexpression optimization after func_001bd390. */
+/* measured: restore common-subexpression optimization after btlCameraUpdateUnitInRangeFlags. */
 // FUN_001BD7D0
 void btlCameraApplyView(void)
 {
@@ -240,7 +240,7 @@ void btlCameraApplyView(void)
                       fGpffff8048 * *(f32 *)(D_0076449C + 0xDC));
     }
     if ((*(s32 *)(D_0076449C + 0xF8) & 2) != 0) {
-        func_001bd390();
+        btlCameraUpdateUnitInRangeFlags();
     }
 }
 
@@ -436,8 +436,8 @@ void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2)
     if (temp_2 != NULL) {
         if ((*(u16 *)(temp_2 + 0x1C) == 1) &&
             ((*(u16 *)(arg0 + 0x142) & 2) == 0)) {
-            func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 1);
-            func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 8);
+            btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 1);
+            btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 8);
             *(s32 *)(arg0 + 0x138) = 1;
         } else {
             temp_f12 = 0.0f;
@@ -446,7 +446,7 @@ void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2)
             } else {
                 var_7 = 0xA;
             }
-            func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, temp_f12,
+            btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, temp_f12,
                           var_7);
             *(s32 *)(arg0 + 0x138) = 0;
         }
@@ -478,7 +478,7 @@ void btlCameraUpdateEffectList(u8 *arg0)
             if ((*(u16 *)(temp_2 + 0x1C) == 1) &&
                 ((*(u16 *)(arg0 + 0x142) & 2) == 0)) {
                 if (*(s32 *)(arg0 + 0x13C) != 0) {
-                    func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x201);
+                    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x201);
                 }
                 *(s32 *)(arg0 + 0x138) = 1;
                 return;
@@ -492,12 +492,12 @@ void btlCameraUpdateEffectList(u8 *arg0)
             if (*(s32 *)(arg0 + 0x13C) == 0) {
                 if (datCalcIsDead(*(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0x134) + 0x30) + 0xA64),
                                   0) == 0) {
-                    func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C,
+                    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C,
                                   (f32 *)(*(u8 **)(*(u8 **)(arg0 + 0x134) + 0x30) + 4),
                                   50.0f, temp_16);
                 }
             } else {
-                func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, temp_16);
+                btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, temp_16);
             }
             *(s32 *)(arg0 + 0x138) = 0;
         }

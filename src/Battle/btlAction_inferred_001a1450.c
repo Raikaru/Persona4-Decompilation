@@ -2590,7 +2590,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
     /* Retail's call at 0x001A6F38 returns the packet in $v0, consumed by
        the +0/+8/+0x60 stores at 0x001A6F48..58. The provider's existing
        void spelling omits that live return; this pointer result is required. */
-    extern u8 *func_001bccc0(s32 kind, s16 duration, s32 argument, s32 flags);
+    extern u8 *btlCameraCreatePacketCommand(s32 kind, s16 duration, s32 argument, s32 flags);
     extern BtlPacket *btlFormationCreateMovePacket(u32 source, u32 target, f32 distance, u16 mode);
     extern u8 *btlFormationCreateWaitPacket();
     extern u8 *btlFormationCreatePacket();
@@ -3261,7 +3261,7 @@ void btlActionAttackUpdate(s64 *arg0_) {
                         (*(s64 *)((u8 *)(hitPacket) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
                         (*(s64 *)((u8 *)(hitPacket) + (0x60))) = actionUid;
                         btlPacketEnqueue(hitPacket, 1);
-                        shakePacket = (u8 *)(func_001bccc0(0x14, 0x32, 0, 5));
+                        shakePacket = (u8 *)(btlCameraCreatePacketCommand(0x14, 0x32, 0, 5));
                         (*(s8 *)((u8 *)(shakePacket) + (0))) = 5;
                         (*(s64 *)((u8 *)(shakePacket) + (8))) = (s64) btlPacketUID_001a59a0(counterAnimPacketSaved);
                         (*(s64 *)((u8 *)(shakePacket) + (0x60))) = actionUid;
@@ -3505,7 +3505,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern BtlPacket* btlMainCreateColorFadePacket(s32 arg);
     extern BtlPacket* btlMainCreateColorSetPacket(s32 arg);
     extern BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
-    extern u8 *func_001bccc0(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
+    extern u8 *btlCameraCreatePacketCommand(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
     extern BtlPacket *btlFormationCreateStepPacket();
     extern BtlPacket *btlFormationCreateTurnPacket(u32 source, u32 action, u32 target, u16 skill);
     extern BtlPacket *btlFormationCreateWaitPacket(u32 param_1, u32 param_2, u16 param_3);
@@ -5017,7 +5017,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                             areaScale = scaleLimit;
                         }
                     }
-                    pkt104 = (BtlPacketTiming *)(func_001bccc0(0x12, (s16)(s32)((80.0f * areaScale) / 5.0f), 0, 6));
+                    pkt104 = (BtlPacketTiming *)(btlCameraCreatePacketCommand(0x12, (s16)(s32)((80.0f * areaScale) / 5.0f), 0, 6));
                     pkt104->queue = 5;
                     pkt104->startTime = sp4B8->endTime;
                     pkt104->ownerId = actionId;

@@ -66,7 +66,7 @@ extern f32 fGpffff8114;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
+extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
 extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
 extern s32 btlCameraUnitAnimFinished(u8 *arg0, u8 *arg1);
 extern void btlCameraFrameStatus(u8 *arg0, s32 arg1);
@@ -555,7 +555,7 @@ void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused)
         transition.frames[0].pos.z = focus.z + position.z;
         frameCount = 0x4B;
     }
-    func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
     btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24), (f32 *)&transition.frames[0].pos, (f32 *)&transition.frames[1].pos, 1);
     btlCameraSetDuration(iGpffffb3ac + 0x24, (f32)frameCount / 30.0f);
     if (notify != 0) {
@@ -631,7 +631,7 @@ void btlCameraEnterRandomFrame(u8 *arg0)
         frame.value6C = frame.valueA0 + *(f32 *)(temp_17 + 4);
         frame.value70 = frame.valueA4 + *(f32 *)(temp_17 + 8);
         frame.value74 = frame.valueA8 + *(f32 *)(temp_17 + 0xC);
-        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 1);
+        btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 1);
         btlMainCurveSetPoses((u16 *)(iGpffffb3ac + 0x24), &frame.value50, &frame.value6C, 1);
         temp_2 = *temp_16;
         var_f1 = (f32)(u16)temp_2;
@@ -925,7 +925,7 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
         frames[0].pos = frames[1].pos;
         frames[0].rot.quat = frames[1].rot.quat;
     }
-    func_001bcd40(*(u8 **)(camera + 0xE0), unit + 4, (f32 *)&frames[0].pos, 50.0f, 3);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), unit + 4, (f32 *)&frames[0].pos, 50.0f, 3);
     btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0].pos, (f32 *)&frames[1].pos, 1);
     btlCameraSetDuration(camera, extentScale);
     if (notify != 0) {
@@ -962,7 +962,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
     extern RwV3d *RtQuatTransformVectors(RwV3d *camera, const RwV3d *notify, s32 distinctPoses, const RtQuat *arg3);
     extern void btlCameraLookAtQuat(void *camera, const void *notify, const void *distinctPoses, const void *arg3);
     extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
-    extern void func_001bcd40(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
+    extern void btlCameraSetupActionGeometry(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
     extern u32 btlCameraClampOffsetToLimit(f32 *camera, f32 *notify);
     extern void btlMainCurveSetPoses(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);
     extern void btlCameraSetDuration(u8 *camera, f32 notify);
@@ -1284,7 +1284,7 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
         frames[0].pos.z = frames[1].pos.z + direction.z;
     }
     if (*(s32 *)(camera + 0xDC) > 0) {
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
+        btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 1);
     }
     btlCameraClampOffsetToLimit((f32 *)&frames[0], (f32 *)&frames[0]);
     btlCameraClampOffsetToLimit((f32 *)&frames[1], (f32 *)&frames[1]);
@@ -1308,9 +1308,9 @@ void btlCameraWaitForAnimFrame(u8 *arg0, s32 arg1)
     if ((temp_4 != NULL) && ((*(u16 *)(temp_4 + 0x1A) & 1) != 0)) {
         if (*(s32 *)(arg0 + 0xDC) == 0) {
             if (arg1 == 0) {
-                func_001bcd40(temp_4, NULL, NULL, 0.0f, 3);
+                btlCameraSetupActionGeometry(temp_4, NULL, NULL, 0.0f, 3);
             } else {
-                func_001bcd40(temp_4, NULL, NULL, 0.0f, 0x11);
+                btlCameraSetupActionGeometry(temp_4, NULL, NULL, 0.0f, 0x11);
             }
         }
         if (btlCameraUnitAnimFinished(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
@@ -1331,7 +1331,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
     extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
     extern f32 tanf(f32 angle);
     extern void btlUnitSetChildValue(BtlUnitStateWork *action, u16 value);
-    extern void func_001bcd40(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
+    extern void btlCameraSetupActionGeometry(u8 *camera, u8 *notify, f32 *distinctPoses, f32 arg3, u16 arg4);
     extern void btlMainCurveSetPoses(u16 *camera, f32 *notify, f32 *distinctPoses, u16 arg3);
     extern void btlCameraSetDuration(u8 *camera, f32 notify);
     extern void func_004b3110(s32 camera);
@@ -1703,7 +1703,7 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
         frames[0].pos = frames[1].pos;
         frames[0].rot.quat = frames[1].rot.quat;
     }
-    func_001bcd40(*(u8 **)(camera + 0xE0), selectedUnit + 4, (f32 *)&frames[0].pos, 50.0f, 3);
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), selectedUnit + 4, (f32 *)&frames[0].pos, 50.0f, 3);
     btlMainCurveSetPoses((u16 *)camera, (f32 *)&frames[0], (f32 *)&frames[1], 1);
     btlCameraSetDuration(camera, duration);
     if (notify != 0) {
@@ -1783,7 +1783,7 @@ void btlCameraUpdateWaitMode(u8 *arg0)
         if ((*(u8 **)(arg0 + 0xE0) != NULL) &&
             ((*(u16 *)(*(u8 **)(arg0 + 0xE0) + 0x1A) & 1) != 0)) {
             if (*(s32 *)(arg0 + 0xDC) == 0) {
-                func_001bcd40(*(u8 **)(arg0 + 0xE0),
+                btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0),
                               NULL, NULL, 0.0f, 3);
             }
             if (btlCameraUnitAnimFinished(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
@@ -1804,7 +1804,7 @@ void btlCameraUpdateWaitMode(u8 *arg0)
                     btlUnitSetChildValue(*(BtlUnitStateWork **)(arg0 + 0x12C),
                                   *(u16 *)(arg0 + 0x130));
                 }
-                func_001bcd40(*(u8 **)(arg0 + 0xE0),
+                btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0),
                               arg0 + 0x9C, (f32 *)(arg0 + 0x104), 10.0f, 0xC3);
                 return;
             }
@@ -2031,7 +2031,7 @@ void btlCameraFrameTargetPose(u8 *arg0, s32 arg1)
         poses.second.pos.y = 25.0f;
     }
 
-    func_001bcd40(*(u8 **)(arg0 + 0xE0), secondaryUnit + 4, (f32 *)&poses.second, 50.0f, command);
+    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), secondaryUnit + 4, (f32 *)&poses.second, 50.0f, command);
     btlMainCurveSetPoses((u16 *)arg0, (f32 *)&poses.first, (f32 *)&poses.second, 1);
     btlCameraSetDuration(arg0, duration);
 }

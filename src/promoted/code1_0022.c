@@ -225,7 +225,7 @@ extern u8 *btlCameraCreateSetStatePacket(u8 *arg0, s32 arg1);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern u8 *btlPacketCreateEffectCounter(s32 arg0, s32 arg1);
 extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
-extern void func_001bcd40(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
+extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern u8 D_00632240[];
 extern u8 *btlUnitFindInSideById(s32 arg0, s32 arg1);
 extern void btlUnitHideModel(u8 *arg0);
@@ -1044,7 +1044,7 @@ void btlCameraSelectEncounterPreset(u8 *camera)
     }
     if (reset != 0) {
         btlMainApplyUnitBaseColors(NULL);
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+        btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         btlMainCurveReset((u16 *)camera, (f32 *)&poses.second);
     } else {
         btlMainCurveSetPoses((u16 *)camera, (f32 *)&poses.first, (f32 *)&poses.second, 1);
@@ -1239,7 +1239,7 @@ group1_party_done:
         poses.second = *(RwV3d *)D_00634890;
     }
     if (reset != 0) {
-        func_001bcd40(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
+        btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), NULL, NULL, 0.0f, 0x100);
         btlMainCurveReset((u16 *)camera, (f32 *)&poses.second);
         return;
     }
@@ -1544,7 +1544,7 @@ void btlCameraFrameTarget(u8 *camera, f32 distanceOffset, f32 duration)
     } else {
         flags = 0xC3;
     }
-    func_001bcd40(*(u8 **)(camera + 0xE0), farUnit + 4,
+    btlCameraSetupActionGeometry(*(u8 **)(camera + 0xE0), farUnit + 4,
                   (f32 *)&poses.second, 50.0f, flags);
     if (duration == 0.0f) {
         btlCameraCopyPoseTarget((f32 *)&poses.first, (f32 *)&poses.second);
