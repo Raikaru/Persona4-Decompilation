@@ -291,7 +291,7 @@ typedef struct FilerDirent {
 } FilerDirent;
 
 
-extern void func_004673c0(u8 *work);
+extern void sdkFilerScanDirectory(u8 *work);
 extern void func_00467880(u8 *arg0);
 #pragma push
 #pragma opt_loop_invariants on

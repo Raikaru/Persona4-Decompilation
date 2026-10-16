@@ -45,7 +45,7 @@ s32 cmpSkillMenuUpdate(u8 *arg0);
 s32 datCommunityPanelUpdate(u8 *arg0);
 s32 cmpEquipMenuUpdate(u8 *arg0);
 s32 cmpPersonaMenuUpdate(u8 *arg0);
-s32 func_0013ffd0(u8 *arg0);
+s32 radarUpdateFrame(u8 *arg0);
 s32 datCommunityMenuUpdate(u8 *arg0);
 void radarFreeSpriteNodes(u8 *arg0);
 void cmpSkillFreeSprites(u8 *arg0);
@@ -421,7 +421,7 @@ void cmpMainUpdateMenus(void) {
             }
         }
         if (*(s32 *)(p + 0x10) & 0x40) {
-            result = func_0013ffd0(p + 0x7750);
+            result = radarUpdateFrame(p + 0x7750);
             if (result != 0) {
                 *(s32 *)(p + 0x10) &= ~0x40;
             }
