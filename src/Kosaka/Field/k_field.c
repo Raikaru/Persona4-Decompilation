@@ -112,10 +112,10 @@ extern void mdlTranslateMatrix(s32, f32 *, s32);
 extern s32 func_0029da90(s32, u8 *, s32);
 extern s32 FldMap_IsCurrentInBandA(void);
 extern u8 *FldStepEntry(void);
-extern u8 *func_0015c590(u8);
-extern s32 func_0015c5f0(u8 *);
+extern u8 *FldStepLoadNumberedFile(u8);
+extern s32 FldStepLoadIdIsDone(u8 *);
 extern s32 FldStepIndex(void);
-extern s32 func_0015a6b0(s32);
+extern s32 FldStepTableEntryFlag(s32);
 extern void FldUnit_UpdateAllEnemySlots(void);
 extern void FldUnit_UpdateEnemySlot(void);
 extern s32 FldUnit_SpawnEncounterTask(u8 *, s32);
@@ -255,7 +255,7 @@ s32 func_00155360(u8 *task)
                     work->scriptTask = func_0029da90(15, D_007D3D64[0], work->room - 1);
                 }
                 if (FldMap_IsCurrentInBandA() == 1) {
-                    work->roomData = func_0015c590(*(u8 *)(FldStepEntry() + 0xC));
+                    work->roomData = FldStepLoadNumberedFile(*(u8 *)(FldStepEntry() + 0xC));
                 }
             }
             work->state++;
@@ -266,11 +266,11 @@ s32 func_00155360(u8 *task)
         work->state++;
         /* fallthrough */
     case 8:
-        if (func_0015c5f0(work->roomData) == 0) break;
+        if (FldStepLoadIdIsDone(work->roomData) == 0) break;
         work->state++;
         /* fallthrough */
     case 9:
-        if (func_0015a6b0(FldStepIndex()) != 0) {
+        if (FldStepTableEntryFlag(FldStepIndex()) != 0) {
             FldUnit_UpdateAllEnemySlots();
         } else {
             FldUnit_UpdateEnemySlot();

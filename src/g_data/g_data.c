@@ -1725,8 +1725,8 @@ extern u8 D_0079BEF4[];
 extern u8 D_007BBF00[];
 extern s32 iGpffffb1b4;
 extern s32 iGpffffb1b8;
-extern u8 *func_0015a690(void);
-extern s32 func_0015a6a0(void);
+extern u8 *FldStepTable(void);
+extern s32 FldStepTableSize(void);
 
 /* The inferred nested metadata layout leaves one natural tail-padding byte.
  * Retail includes that byte in the character-wise summary checksum.
@@ -1995,13 +1995,13 @@ level_done:
     memcpy(cursor + 8, D_0079BE2C, 200);
     tag = 41;
     memcpy(cursor + 208, &tag, 4);
-    length = func_0015a6a0();
+    length = FldStepTableSize();
     memcpy(cursor + 212, &length, 4);
     cursor += 216;
     eventEnd = total + 216;
-    memcpy(cursor, func_0015a690(), func_0015a6a0());
-    cursor += func_0015a6a0();
-    total = eventEnd + func_0015a6a0();
+    memcpy(cursor, FldStepTable(), FldStepTableSize());
+    cursor += FldStepTableSize();
+    total = eventEnd + FldStepTableSize();
     for (unitIndex = 0; unitIndex < 10; unitIndex++) {
         tag = (unitIndex << 8) + 0x100;
         memcpy(cursor, &tag, 4);
@@ -2266,8 +2266,8 @@ void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
             memcpy(D_0079BE2C, arg3, arg2);
         break;
     case 41:
-        if (arg2 == func_0015a6a0())
-            memcpy(func_0015a690(), arg3, arg2);
+        if (arg2 == FldStepTableSize())
+            memcpy(FldStepTable(), arg3, arg2);
         break;
     case 0x100:
     case 0x200:
