@@ -430,7 +430,7 @@ extern void btlUnitInitChild(u8 *arg0, u64 arg1);
 extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
 extern void *D_00609CE0[];
 // FUN_001E6B90
-s32 func_001e6b90(void) {
+s32 btlAICommandDispatchCheck(void) {
     u32 a = scrGetParamIntS32(0);
     u32 b = scrGetParamIntS32(1);
     u8 *p = btlActionFindById(a & 0xFFFFFFF);
@@ -449,7 +449,7 @@ s32 func_001e6b90(void) {
 
 
 // FUN_001E6C60
-s32 func_001e6c60(void) {
+s32 btlAICommandSetTarget(void) {
     u8 *temp_2;
     u32 index;
 
@@ -466,7 +466,7 @@ s32 func_001e6c60(void) {
 
 
 // FUN_001E6FA0
-s32 func_001e6fa0(void) {
+s32 btlAICommandPickWeakCandidateGated(void) {
     u16 count;
     u8 *work;
 
@@ -486,7 +486,7 @@ s32 func_001e6fa0(void) {
 
 
 // FUN_001E7080
-s32 func_001e7080(void) {
+s32 btlAICommandPickWeakCandidate(void) {
     u16 count;
     u8 *work;
 
@@ -506,7 +506,7 @@ s32 func_001e7080(void) {
 
 
 // FUN_001E7160
-s32 func_001e7160(void) {
+s32 btlAICommandPickNormalCandidate(void) {
     u16 count;
     u8 *work;
 
@@ -526,7 +526,7 @@ s32 func_001e7160(void) {
 
 
 // FUN_001E7240
-s32 func_001e7240(void) {
+s32 btlAICommandPickNormalCandidateGated(void) {
     u16 count;
     u8 *work;
 
@@ -575,7 +575,7 @@ s32 func_001e7320(void)
 #pragma opt_rebuildconditionals off
 #pragma pop
 // FUN_001E8BB0
-s32 func_001e8bb0(void) {
+s32 btlAICommandScriptCollectCommands(void) {
     u64 temp_16;
     u64 temp_17;
     u8 *temp_19;
@@ -591,7 +591,7 @@ s32 func_001e8bb0(void) {
 
 
 // FUN_001E8CD0
-s32 func_001e8cd0(void) {
+s32 btlAICommandScriptCollectSkills(void) {
     u64 temp_16;
     u8 *temp_19;
     u64 temp_18;
@@ -607,7 +607,7 @@ s32 func_001e8cd0(void) {
 
 
 // FUN_001EA2D0
-s32 func_001ea2d0(void) {
+s32 btlAICommandScriptSpawnChild(void) {
     u64 temp_16;
     u8 *temp_18;
     u64 temp_17;
