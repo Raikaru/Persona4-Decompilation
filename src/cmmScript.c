@@ -78,7 +78,7 @@ extern s32 cmmNameRecord(s32 arg0);
 extern s64 cmmCommunityArcana(s32 arg0);
 extern s32 func_002438b0(s32 arg0);
 extern s32 cmmLabelRecord(s32 arg0);
-extern s32 func_00107ac0(s32 arg0);
+extern s32 cmmCommunityRecordValue(s32 arg0);
 extern s32 cmmNextUnlistedDate(s32 arg0);
 extern s32 calGetWeekdayOfDay(s32 arg0, s32* arg1, s32* arg2);
 extern s32 cmmTextRecord(s32 arg0);
@@ -338,7 +338,7 @@ s32 cmmPersonaDetailShow(void)
     itfMesWindowSetString(mesMgr, 2, func_002438b0((u8)cmmCommunityArcana(id & 0xFFFF)));
     frFontExCopyString(cmmLabelRecord((s8)cmmCommunityArcana(id & 0xFFFF)), buf, 0x80);
     itfMesWindowSetString(mesMgr, 3, buf);
-    itfMesWindowFormatValue(mesMgr, 4, func_00107ac0(id & 0xFFFF) & 0xFFFF, 0);
+    itfMesWindowFormatValue(mesMgr, 4, cmmCommunityRecordValue(id & 0xFFFF) & 0xFFFF, 0);
     key = cmmTopPersonaOfArcana((s16)id);
     if (key != 0) {
         itfMesWindowSetString(mesMgr, 5, datPersonaGetRow(key & 0xFFFF));

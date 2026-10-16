@@ -1598,7 +1598,7 @@ void shdPersonaDrawParticleQuads(f32 *arg0, u8 arg1)
 
 
 
-s32 func_00107890(s32);
+s32 cmmCommunityValueForArcana(s32);
 void sdkSpriteDrawOnce(s32, s32, s32, f32, f32, u8, f32, s32);
 void shdPersonaDrawParticleQuads(f32 *, u8);
 extern u8 D_005E4DB0[];
@@ -1633,7 +1633,7 @@ void shdPersonaDrawBackdrop(u8 *work)
     if (*(s32 *)(work + 0x4C4) == 0) {
         return;
     }
-    communityRank = func_00107890(datPersonaGetArcana(*(u16 *)(*(u8 **)work + 2)) & 0xFF) & 0xFF;
+    communityRank = cmmCommunityValueForArcana(datPersonaGetArcana(*(u16 *)(*(u8 **)work + 2)) & 0xFF) & 0xFF;
     alpha = *(work + 0x505);
     {
         if (++*(u16 *)animation >= 0x14) {

@@ -111,7 +111,7 @@ extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 
 extern u32 D_00764298;
 
-extern u16 func_00107890(u8 arg0);
+extern u16 cmmCommunityValueForArcana(u8 arg0);
 
 extern void memcpy(void* arg0, void* arg1, u32 arg2);
 
@@ -916,7 +916,7 @@ s8 func_00105f50(u16 arg0)
     u8* table = DAT_007644c4;
     u16 id = arg0;
 
-    return (s8)func_00107890(table[id * 0xE + 2]);
+    return (s8)cmmCommunityValueForArcana(table[id * 0xE + 2]);
 }
 
 // FUN_00105FA0

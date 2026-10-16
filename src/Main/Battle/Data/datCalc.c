@@ -74,7 +74,7 @@ extern s64 datCalcAddBuffLevel(u8 *arg0, s32 arg1, s64 arg2);
 extern s32 datCalcSkillAppliesToTarget(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 datScriptRunCalc(u32 arg0, u16 *arg1, u16 *arg2, u16 arg3, s32 arg4);
 extern u16 cmmCommunityForArcana(s64 arg0);
-extern u16 func_00107ac0(s32 arg0);
+extern u16 cmmCommunityRecordValue(s32 arg0);
 
 extern u8 *iGpffffb3b4;
 
@@ -4967,7 +4967,7 @@ done8:
     }
 tail:
     if (((s16)var_17 == -1) && (!(*(u16 *)arg0 & 4)) && (*(u16 *)(arg0 + 2) != 1) && (!(*(u16 *)arg0 & 0x400))) {
-        if ((s32)(func_00107ac0((u16)(cmmCommunityForArcana((s16)*(u16 *)(arg0 + 2)) & 0xFFFF)) & 0xFFFF) >= 9) {
+        if ((s32)(cmmCommunityRecordValue((u16)(cmmCommunityForArcana((s16)*(u16 *)(arg0 + 2)) & 0xFFFF)) & 0xFFFF) >= 9) {
             var_17 = 0x20F;
         }
     }

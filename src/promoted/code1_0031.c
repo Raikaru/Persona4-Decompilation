@@ -20,7 +20,7 @@ static inline s32 func_0031_ne(s32 value, s32 target)
 extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 extern s32 datGetFlag(s32 arg0);
 extern s32 func_00106600(s16 id);
-extern u16 func_00107ac0(u16 arg0);
+extern u16 cmmCommunityRecordValue(u16 arg0);
 extern u8 D_006432B0[];
 extern u8 func_002e78a0(void);
 extern s32 func_002e78e0(void);
@@ -77,9 +77,9 @@ s32 func_00311930(s32 arg0, u8 *arg1, s8 arg2)
     s32 limit;
     s32 fracDelta;
 
-    scale = D_00749500[func_00107ac0(arg0)];
+    scale = D_00749500[cmmCommunityRecordValue(arg0)];
     whole = (u8)scale;
-    fracScale = D_00749500[func_00107ac0(arg0)];
+    fracScale = D_00749500[cmmCommunityRecordValue(arg0)];
     wholeF = (f32)(u32)whole;
     frac10 = (s16)(10.0f * (fracScale - wholeF));
     total = 0;
@@ -97,7 +97,7 @@ s32 func_00311930(s32 arg0, u8 *arg1, s8 arg2)
     if ((s8)arg2 == 0) {
         return total;
     }
-    return (s32)((f32)total * D_007494D0[func_00107ac0(arg0)]);
+    return (s32)((f32)total * D_007494D0[cmmCommunityRecordValue(arg0)]);
 }
 /* measured: b210 -O2 with loop-invariant hoisting gives 364B/368B,
    normalized diff 0; the remaining retail word is zero tail padding.
@@ -285,7 +285,7 @@ s32 func_003136b0(u16 arg0)
         goto done;
     }
     if (value == 0xA6) {
-        if ((func_00107ac0(0x1E) & 0xFFFF) == 0xA) {
+        if ((cmmCommunityRecordValue(0x1E) & 0xFFFF) == 0xA) {
             result = 1;
         } else {
             result = datGetFlag(0x1DD) != 0;

@@ -1366,7 +1366,7 @@ void func_00356250(u8 *arg0)
     extern char D_005E5850[];
     extern s32 cmmCommunityFindByKind(s16 arg0);
     extern s64 cmmCommunityArcana(s32 arg0);
-    extern u16 func_00107ac0(s32 arg0);
+    extern u16 cmmCommunityRecordValue(s32 arg0);
     extern s32 cmmCommunityTestBroken(s32 arg0);
     extern s32 cmmCommunityTestReversed(s32 arg0);
     extern u8 *resourceFindByName(char *arg0);
@@ -1430,7 +1430,7 @@ void func_00356250(u8 *arg0)
             *(s8 *)(p + 0x38) = cmmCommunityArcana(id);
             *(s16 *)(p + 0x3A) = id;
             kind = (u16 *)(p + 0x3C);
-            *kind = func_00107ac0(id);
+            *kind = cmmCommunityRecordValue(id);
             if (*kind == 0xA) {
                 *(s32 *)(p + 0x40) = 1;
             } else if (cmmCommunityTestBroken(id) != 0) {
@@ -1736,7 +1736,7 @@ void func_00356a10(u8 *work) {
     extern f32 func_0035aff0(u8 *, u8);
     extern f32 func_0035c040(u8 *, u8);
     extern void func_0035c670(u8 *, Vec2f *);
-    extern u16 func_00107ac0(s32);
+    extern u16 cmmCommunityRecordValue(s32);
     extern u32 datPersonaDisplayName(s16);
     extern void func_0034f9d0(Vec2f, f32, u8, s32, s32);
     extern s32 (*D_00887300[])(s32, void *);
@@ -2049,7 +2049,7 @@ void func_00356a10(u8 *work) {
         switch (selectedMode) {
         case 0:
         case 1:
-            rankIndex = (func_00107ac0(*nameId) - 1) & 0xFFFF;
+            rankIndex = (cmmCommunityRecordValue(*nameId) - 1) & 0xFFFF;
             break;
         case 3:
             rankIndex = 11;
@@ -2226,7 +2226,7 @@ void func_00356a10(u8 *work) {
         func_0034f2e0(sprite, (f32) 0x173 + position.x, position.y, palette->r, palette->g, palette->b, footerOpacity);
         if (menu->detailCount > 0) {
             detailId = *(u16 *)((u8 *)add_offset_first((u32)(menu->selectedDetail * 2), (u32)work) + 0x136);
-            currentRank = (s32)(func_00107ac0(*nameId) & 0xFFFF);
+            currentRank = (s32)(cmmCommunityRecordValue(*nameId) & 0xFFFF);
             detailValues = cmmDetailRecord((s16)detailId);
             position.x = (244.0f + (originX + menu->detailFooterOffset.x));
             position.y = (320.0f + (originY + menu->detailFooterOffset.y));

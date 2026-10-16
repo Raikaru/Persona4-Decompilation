@@ -17,7 +17,7 @@ extern u8 D_006359C0[];
 extern void cmmCommunityAllocRecord(s32 arg0);
 extern s32 cmmCommunityHasRecord(s32 arg0);
 extern s32 cmmCommunityGetCurrentId(void);
-extern s32 func_00107ac0(s32 arg0);
+extern s32 cmmCommunityRecordValue(s32 arg0);
 extern s32 cmmCommunityTryRankUp(s32 arg0);
 extern s32 scrGetParamInt(s32 arg0);
 extern void scrSetReturnInt(s32 arg0);
