@@ -1391,7 +1391,7 @@ void datGridEffectDrawCell(Vec2f arg0, s32 arg1, f32 dummy,
 #pragma opt_propagation on
 // FUN_00356250
 #pragma opt_loop_invariants on
-void func_00356250(u8 *arg0)
+void datCommunityMenuInit(u8 *arg0)
 {
     extern u8 D_0064BDA0[];
     extern u8 D_0064CBE0[];
@@ -1525,8 +1525,9 @@ void func_00356250(u8 *arg0)
     *(u8 **)(arg0 + 0x1310) = func_0035bf10(0, 0, 0);
 }
 #pragma opt_loop_invariants off
+// Intent: Community panel open step: move the panel from its closed state to open and report it as ready [inferred]
 // FUN_00356820
-s32 func_00356820(u8 *arg0) {
+s32 datCommunityPanelOpenStep(u8 *arg0) {
     s32 v = *(s32 *)(arg0 + 0x14);
 
     switch (v) {
@@ -1541,14 +1542,15 @@ s32 func_00356820(u8 *arg0) {
     }
 }
 
+// Intent: Community panel update: animate the panel's radar values, advance its rotation, update its helpers and draw the community list; returns 0 while any entry is still animating [inferred]
 // FUN_00356870
-s32 func_00356870(u8 *arg0)
+s32 datCommunityPanelUpdate(u8 *arg0)
 {
     s16 counter;
     s32 index;
     s32 result;
     u8 *slot;
-    extern void func_00356a10(u8 *arg0);
+    extern void datCommunityListDraw(u8 *arg0);
     extern void func_00359340(u8 *arg0);
     extern void func_003593b0(u8 *arg0);
 
@@ -1586,7 +1588,7 @@ loop_test:
     }
     func_00359340(arg0);
     func_003593b0(arg0);
-    func_00356a10(arg0);
+    datCommunityListDraw(arg0);
     return result;
 }
 /* Community-list renderer: 10536/10544 bytes, all 115 relocations exact.
@@ -1597,12 +1599,13 @@ loop_test:
  * disabling literal extraction avoids extra call-crossing float constants.
  * The sparse context view preserves observed offsets without allocating data.
  * See docs/probe_archive/Community_menu_renderer_00356a10_20260930.md. */
+// Intent: Draw the community list: the entry layout, badges and text for the community menu [inferred]
 // FUN_00356A10
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
-void func_00356a10(u8 *work) {
+void datCommunityListDraw(u8 *work) {
     typedef struct {
         u8 opacity;
         u8 unknown0001[0x3];
@@ -3629,12 +3632,12 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
         *(f32 *)(arg2 + 4) = 0.0f;
         *(f32 *)(arg2 + 8) = 0.0f;
         *(u8 *)arg2 = 0xFF;
-        func_00356250(arg2);
+        datCommunityMenuInit(arg2);
         *arg0 = 1;
         *arg1 = 0;
         break;
     case 1:
-        if ((func_00356820(arg2) & func_0034c210()) != 0) {
+        if ((datCommunityPanelOpenStep(arg2) & func_0034c210()) != 0) {
             *arg0 = 3;
             func_0034bb20(0x19);
         } else {
