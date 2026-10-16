@@ -24,8 +24,8 @@ void datScreenWipeInit(s32 arg0, void* arg1, void* arg2);
 void datScreenWipeSetTarget(s32 arg0, void* arg1, void* arg2);
 void datScreenWipeSetColor(s32 arg0, s32 arg1);
 void kAssertFail(void* arg0, s32 arg1);
-void func_00136fc0(u8* arg0);
-void func_00135dc0(u8* arg0);
+void cmpPersonaMenuStepAnimations(u8* arg0);
+void cmpPersonaMenuDraw(u8* arg0);
 extern s32 D_005EB580[];
 extern u8 D_005EB560[];
 extern u8 D_005EB570[];
@@ -52,8 +52,8 @@ void datScreenWipeSetOffset(s32 arg0, CmpPair arg1);
 // FUN_001356D0
 #pragma push
 #pragma opt_loop_invariants on
-void func_001356d0(u8* arg0) {
- extern void func_00135c10(u8* arg0);
+void cmpPersonaMenuInit(u8* arg0) {
+ extern void cmpPersonaBuildRosterList(u8* arg0);
  extern s16 datBuildMemberIdList(s16* arg0);
  extern void* memset(void* dst, s32 value, u32 size);
  extern u8* resourceFindByName(char* arg0);
@@ -62,7 +62,7 @@ void func_001356d0(u8* arg0) {
  extern u8* datScreenWipeTaskCreate(s32 arg0, u16 arg1);
  extern u8* shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
  extern void shdPersonaSetPersonaId(u8* arg0, s32 arg1);
- extern s32 func_001371a0(u8* arg0, s32 arg1);
+ extern s32 cmpPersonaSetMode(u8* arg0, s32 arg1);
  extern u8 D_005E57F0[];
  extern u8 D_005E5830[];
  extern u8 D_005E5850[];
@@ -167,16 +167,16 @@ void func_001356d0(u8* arg0) {
   }
  }
  nmMesWindowOpenCurrent(D_0064A790);
- func_00135c10(arg0);
+ cmpPersonaBuildRosterList(arg0);
  *(s32*)(arg0 + 0x1CB8) = (s32)datScreenWipeTaskCreate(0, 1);
  *(s32*)(arg0 + 0x1CB4) = (s32)shdPersonaTaskCreate(0, 0xC7, 0, 8, 3);
  shdPersonaSetPersonaId(*(u8**)(arg0 + 0x1CB4), 0xB0);
- func_001371a0(arg0, 0);
+ cmpPersonaSetMode(arg0, 0);
 }
 
 #pragma pop
 // FUN_00135C10
-void func_00135c10(u8* arg0) {
+void cmpPersonaBuildRosterList(u8* arg0) {
     s16 j = 0;
     s16 i = 0;
     while (j < 0xC) {
@@ -209,7 +209,7 @@ s32 func_00135cb0(u8 *arg0) {
    callee-saved pointer (nd 40); with it off each access keeps the
    base+offset form like retail (nd 0). */
 #pragma opt_common_subs off
-s32 func_00135cf0(u8* arg0) {
+s32 cmpPersonaMenuUpdate(u8* arg0) {
     s32 i;
     s32 result = 1;
     u8* p;
@@ -225,8 +225,8 @@ s32 func_00135cf0(u8* arg0) {
             result = 0;
         }
     }
-    func_00136fc0(arg0);
-    func_00135dc0(arg0);
+    cmpPersonaMenuStepAnimations(arg0);
+    cmpPersonaMenuDraw(arg0);
     return result;
 }
 #pragma opt_common_subs on
@@ -293,7 +293,7 @@ typedef struct {
 #pragma push
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
-void func_00135dc0(u8* work)
+void cmpPersonaMenuDraw(u8* work)
 {
     extern void sdkRenderStateSetDefault(void);
     extern void func_0034c270(Vec2f position, s32 alpha, s32 background, f32 depth);
@@ -305,7 +305,7 @@ void func_00135dc0(u8* work)
     extern void RpSkyRenderStateSet(s32 state, s32 value);
     extern void datScreenWipeSetAlpha(u8 *task, u8 alpha);
     extern void datScreenWipeDraw(void *task);
-    extern void func_00137890(u8 *work, s32 index);
+    extern void cmpPersonaDrawRosterRow(u8 *work, s32 index);
     extern s32 datPersonaRosterCapacity(void);
     extern u32 func_0010d6d0(s16 character);
     extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 font, int id, const char *text, int flags,
@@ -540,7 +540,7 @@ void func_00135dc0(u8* work)
             kAssertFail(D_005EB580, 0x2FB);
         } else {
             for (personaIndex = 0; personaIndex < (datPersonaRosterCapacity() & 0xFFFF); personaIndex++) {
-                func_00137890(work, personaIndex);
+                cmpPersonaDrawRosterRow(work, personaIndex);
             }
         }
     }
@@ -553,7 +553,7 @@ void func_00135dc0(u8* work)
 #pragma pop
 
 // FUN_00136FA0
-s32 func_00136fa0(s16* arg0, s32 arg1, s32 arg2) {
+s32 cmpPersonaSetSelection(s16* arg0, s32 arg1, s32 arg2) {
     s32 idx = arg1 * 2;
     s16* p = (s16*)(idx + (s32)arg0);
     p[0x2C] = p[0x28];
@@ -562,7 +562,7 @@ s32 func_00136fa0(s16* arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_00136FC0
-void func_00136fc0(u8* arg0) {
+void cmpPersonaMenuStepAnimations(u8* arg0) {
     s16 temp_3;
     s32 i;
 
@@ -588,7 +588,7 @@ void func_00136fc0(u8* arg0) {
    address sequence (MATCH); leaving propagation on folds the +0x40 into lh. */
 #pragma opt_propagation off
 // FUN_001370E0
-void func_001370e0(u8* arg0) {
+void cmpPersonaScatterGridCells(u8* arg0) {
     s16 values[0x19];
     s16* src;
     s16* dst;
@@ -630,7 +630,7 @@ void func_001370e0(u8* arg0) {
    targeting the default block, so no empty case is needed. */
 #pragma opt_common_subs off
 // FUN_001371A0
-s32 func_001371a0(u8* arg0, s32 arg1) {
+s32 cmpPersonaSetMode(u8* arg0, s32 arg1) {
     s32 i;
     s32 j;
     u8* table;
@@ -738,7 +738,7 @@ s32 func_001371a0(u8* arg0, s32 arg1) {
    constants are rematerialized inside the loop (nd 39); with it they hoist
    to the preheader like retail (nd 0). */
 #pragma opt_loop_invariants on
-void func_001374d0(u8* arg0) {
+void cmpPersonaSetPartyCursor(u8* arg0) {
     s32 i;
     s16 cur;
     u8* p;
@@ -770,7 +770,7 @@ void func_001374d0(u8* arg0) {
    constant inside the loop body (nd 22); with it the lui hoists to the
    preheader like retail (nd 0). */
 #pragma opt_loop_invariants on
-void func_00137570(u8* arg0) {
+void cmpPersonaResetRosterCursor(u8* arg0) {
     s32 i;
     u8* p;
     s32 c = 0x41F00000;
@@ -795,7 +795,7 @@ void func_00137570(u8* arg0) {
 // FUN_001375F0
 /* measured: probing O1 for retail's extra saved pointer. */
 #pragma optimization_level 1
-void func_001375f0(u8 *arg0)
+void cmpPersonaRandomizeBackgroundCells(u8 *arg0)
 {
     f32 f;
     u32 val;
@@ -840,7 +840,7 @@ void func_001375f0(u8 *arg0)
    constants are rematerialized inside the loop (nd 39); with it they hoist
    to the preheader like retail (nd 0). */
 #pragma opt_loop_invariants on
-void func_00137740(u8* arg0) {
+void cmpPersonaSetRosterCursorMotion(u8* arg0) {
     s32 i;
     s16 cur;
     u8* p;
@@ -868,7 +868,7 @@ void func_00137740(u8* arg0) {
 #pragma opt_loop_invariants off
 
 // FUN_001377E0
-void func_001377e0(u8* arg0) {
+void cmpPersonaMenuRelease(u8* arg0) {
     u8* base = arg0;
     s32 i;
     s32* p;
@@ -927,7 +927,7 @@ static inline u32 CmpPersonaOffsetAddress(u32 offset, u32 base)
    alignment bytes. The menu's typed row view preserves the parent-X load
    before the row-address addition. See the recovery archive for controls. */
 // FUN_00137890
-void func_00137890(u8 *arg0, s32 arg1)
+void cmpPersonaDrawRosterRow(u8 *arg0, s32 arg1)
 {
     extern s32 datPersonaRosterCapacity(void);
     extern u16 *datPersonaRosterSlot(s16 slot);
@@ -1047,7 +1047,7 @@ void func_00137890(u8 *arg0, s32 arg1)
     }
 }
 // FUN_00137DD0
-s32 func_00137dd0(u8* arg0) {
+s32 cmpPersonaRowsSettled(u8* arg0) {
     s32 result = 1;
     s32 i = 0;
     s32 cmp = *(s16*)((u8*)arg0 + 0x20);
@@ -1060,7 +1060,7 @@ s32 func_00137dd0(u8* arg0) {
 }
 
 // FUN_00137E50
-void func_00137e50(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+void cmpPersonaStartScreenWipe(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8* var_5;
     u8* var_6;
     CmpPair pair;
