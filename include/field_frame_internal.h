@@ -57,4 +57,17 @@ typedef struct FldFrame {
     u8 *sceneEntriesEnd;   /* 0x18F4: sceneEntries + sceneCount * 0x20 */
 } FldFrame;
 
+/* Typed pointer to the cell at (row, col). Keeps the frame-base tree
+ * (base + row * 0x100 + col * 0x10 + 0x54) so field codegen is unchanged. */
+static inline FldFrameCell *FldFrameCellAt(u8 *base, s32 row, s32 col)
+{
+    return (FldFrameCell *)(base + row * 0x100 + col * 0x10 + 0x54);
+}
+
+/* Typed pointer to column col of the row whose base is rowBase (frame + row * 0x100). */
+static inline FldFrameCell *FldFrameCellInRow(u8 *rowBase, s32 col)
+{
+    return (FldFrameCell *)(rowBase + col * 0x10 + 0x54);
+}
+
 #endif
