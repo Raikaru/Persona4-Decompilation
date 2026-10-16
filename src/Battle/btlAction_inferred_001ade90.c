@@ -91,10 +91,10 @@ extern u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 value);
 extern BtlPacket *btlFormationCreateEventPacket(u32 action);
 BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
-u8 *func_001fa720(const void *data);
+u8 *btlSoundLoadPacketNew(const void *data);
 s32 func_001eb860(void);
-u8 *func_001fa8f0(void);
-u8 *func_001faa60(void);
+u8 *btlSoundLoadTaskStart(void);
+u8 *btlSoundReleaseTaskStart(void);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 s32 btlActionCanFollowUpAfterEnemiesDown(u8 *arg0);
 s64 *btlActionGetQueueFront(void);
@@ -526,7 +526,7 @@ void btlActionRoundupMesInit(u8 *action)
     }
     cutin.mode = 1;
     cutin.unitId = *(u16 *)(*(u8 **)(target + 48) + 164);
-    packet = func_001fa720(&cutin);
+    packet = btlSoundLoadPacketNew(&cutin);
     *(s64 *)(packet + 96) = *(s64 *)action;
     btlPacketEnqueue(packet, 1);
     if (*(u8 *)(*(u8 **)(action + 48) + 162) != 0) {
@@ -622,7 +622,7 @@ void btlActionRoundupMesUpdate(u8 *arg0)
         *(u16 *)(frame + 8) = *(u16 *)(gp2 + 0xC58);
         packet1 = btlCutinCreatePacket(frame);
         btlPacketEnqueue(packet1, 1);
-        packet2 = func_001fa8f0();
+        packet2 = btlSoundLoadTaskStart();
         *(s16 *)(packet2 + 0x48) = *(s16 *)(arg0 + 0x42C);
         btlPacketEnqueue(packet2, 1);
         packet3 = btlPacketAllocZeroed((s32)btlActionGetCounter428, (s32)arg0);
@@ -679,7 +679,7 @@ void btlActionRoundupMesUpdate(u8 *arg0)
             btlPacketEnqueue(packet1, 1);
         }
 
-        packet1 = func_001faa60();
+        packet1 = btlSoundReleaseTaskStart();
         *(u64 *)(packet1 + 0x60) = *(u64 *)arg0;
         btlPacketEnqueue(packet1, 1);
         packet2 = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 1);

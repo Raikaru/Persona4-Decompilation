@@ -407,8 +407,8 @@ static inline u32 addOffsetFirst(u32 offset, u32 base) {
 }
 extern u8 *iGpffffb3b8;
 extern s32 btlSoundLoadPoll(s32 *arg0);
-extern s32 func_001fa940(void);
-extern s32 func_001faa00(void);
+extern s32 btlSoundStopStep(void);
+extern s32 btlSoundReleaseStep(void);
 extern void func_00485b20(s32 arg0);
 extern void func_00486180(s32 arg0);
 extern void func_00120f20(s32 arg0);
@@ -485,7 +485,7 @@ s32 btlCdvdLoadPoll(void)
 #pragma push
 #pragma pop
 // FUN_001FA720
-u8 *func_001fa720(const void *arg0) {
+u8 *btlSoundLoadPacketNew(const void *arg0) {
     u8 *temp_2;
 
     temp_2 = (u8 *)btlPacketAlloc(0xC04, 0xA);
@@ -550,7 +550,7 @@ block_12:
 
 
 // FUN_001FA8F0
-void func_001fa8f0(void) {
+void btlSoundLoadTaskStart(void) {
     u8 *temp_2;
 
     temp_2 = (u8 *)btlPacketAlloc(0xC05, 4);
@@ -561,7 +561,7 @@ void func_001fa8f0(void) {
 
 
 // FUN_001FA940
-s32 func_001fa940(void) {
+s32 btlSoundStopStep(void) {
     s32 temp_4;
     s32 temp_4_2;
     u8 *temp_3;
@@ -586,17 +586,17 @@ s32 func_001fa940(void) {
 
 
 // FUN_001FA9C0
-void func_001fa9c0(void) {
+void btlSoundStopTaskStart(void) {
     u8 *temp_2;
 
     temp_2 = (u8 *)btlPacketAlloc(0xC06, 0);
     temp_2[0x47] &= 0xEE;
-    *(void **)(temp_2 + 0x6C) = (void *)func_001fa940;
+    *(void **)(temp_2 + 0x6C) = (void *)btlSoundStopStep;
 }
 
 
 // FUN_001FAA00
-s32 func_001faa00(void) {
+s32 btlSoundReleaseStep(void) {
     s32 temp_4;
     s32 temp_4_2;
 
@@ -614,12 +614,12 @@ s32 func_001faa00(void) {
 
 
 // FUN_001FAA60
-void func_001faa60(void) {
+void btlSoundReleaseTaskStart(void) {
     u8 *temp_2;
 
     temp_2 = (u8 *)btlPacketAlloc(0xC07, 0);
     temp_2[0x47] &= 0xEE;
-    *(void **)(temp_2 + 0x6C) = (void *)func_001faa00;
+    *(void **)(temp_2 + 0x6C) = (void *)btlSoundReleaseStep;
 }
 
 
