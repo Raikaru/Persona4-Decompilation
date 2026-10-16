@@ -655,6 +655,22 @@ action's hit rows). The controllers in `btlAction` build the same
 provider-sized payload. The header is separate so that translation units which
 only need the record do not pull in the whole battle unit and action graph.
 
+### Damage pipeline
+
+`btlTargetResolveSelectedSkill` (`func_001f14f0`, `src/Battle/btlTarget_inferred_001f1030.c`) runs the per-target damage path. For each target it calls, in order:
+
+1. `datCalcResolveSkillHit` (`src/Main/Battle/Data/datCalc.c`, ~3770) returns the hit outcome. `DatResolveOutcome` in `include/datCalc_internal.h` names the values: HIT 1, MISS 4, NULL 0x100, REPEL 0x200, DRAIN 0x400. Only 0x200 is confirmed by use; the others are `[inferred]`.
+2. `datCalcHitResult` (`datCalc.c`, ~4103) turns the affinity of the skill against the target into the hit result. An affinity of weak gives 4, `BTL_HIT_RESULT_WEAK`. A critical hit is 2, `BTL_HIT_RESULT_CRITICAL`, in `include/btl_action_internal.h`. The code that sets 2 was not traced here.
+3. `datCalcSkillAmount` (`datCalc.c`, 1640) computes the amount. It reads power and effect from `DatSkillEntry` (`include/datCalc_internal.h`; `power` at +0x12, `spPower` at +0x16). It applies the critical multiplier when the hit result is 2. It selects HP or SP by the effect kind (switch at ~1697–1717), and applies the variance `RpRandom() % 11 + 95` percent (~2113 for damage, ~2129 for healing). That is a 95–105% range.
+
+Affinity is encoded in `enum DatAffinity` (`include/datCalc_internal.h`): NULL 0x01000000, REPEL 0x02000000, DRAIN 0x04000000, WEAK 0x08000000, RESIST 0x10000000. The low 16 bits of the affinity word hold an explicit percent. When they are zero, `datCalcGetAffinity` (`datCalc.c`, ~2804) uses the defaults: weak 125, resist 50, and 100 for null, repel and drain.
+
+`datCalcIsGuarding` (`datCalc.c`, ~5210) tests the unit flag `0x200`. Its guard meaning is `[inferred]` from the name.
+
+The script-side formulas `datScriptCalcPhysicalDamage` and `datScriptCalcMagicDamage` are in `src/Main/Battle/Data/datCalc_inferred_00244110.c`. Their relation to the path above is `[inferred]`.
+
+Where the amount is applied to HP is not traced here. `datCalcSetHp` (`datCalc.c`, 185) has seven callers across `btlAction` and `btlTarget`, and most of them set HP to 0 or 1 directly. The hit rows' `hpDelta` is read by `btlAction_inferred_001a0670.c` (~250–325), which is a starting point for that trace.
+
 ### Targeting
 
 `src/Battle/btlTarget.c` (0x1EA9A0..) holds target selection; it is partly
