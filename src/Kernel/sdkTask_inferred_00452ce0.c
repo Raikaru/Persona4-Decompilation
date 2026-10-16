@@ -95,7 +95,7 @@ extern u8 D_008C0346[];
 extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
-extern void func_004533d0(void);
+extern void sdkPadStepSequence(void);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern u8 D_00711720[];
@@ -237,7 +237,7 @@ static inline s32 fontAtlasColumn(s32 value)
 extern void sdkPadUpdateRecord(void *arg0);
 extern void sdkPadCookInput(s32 slot);
 extern void sdkPadDispatchButtons(s32 arg0);
-extern void func_004533d0(void);
+extern void sdkPadStepSequence(void);
 #pragma pop
 /* measured: restore O2 after func_00450e80. */
 /* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
@@ -268,6 +268,6 @@ loop_00452ce0_check:
     D_008C0347[0] = 0x80;
     D_008C0348[0] = 0x80;
     D_008C0349[0] = 0x80;
-    func_004533d0();
+    sdkPadStepSequence();
 }
 
