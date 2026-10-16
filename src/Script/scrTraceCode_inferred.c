@@ -69,7 +69,7 @@ void scrSetCurrentLabel(s32 arg0)
 }
 
 // FUN_0029D020
-s32 func_0029d020(void)
+s32 scrGetCmdTimer(void)
 {
     return *(s32 *)(iGpffffb510 + 0x138);
 }

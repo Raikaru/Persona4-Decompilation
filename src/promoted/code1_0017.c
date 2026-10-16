@@ -111,7 +111,7 @@ extern u8 D_00794E70[];
 
 extern void (*jtbl_008873EC[])(void *);
 
-extern s32 func_0029d020(void);
+extern s32 scrGetCmdTimer(void);
 extern s32 func_00110f00(void);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern s32 K_FldFrame_IsPointInTriangle(void *arg0, void *arg1, void *arg2);

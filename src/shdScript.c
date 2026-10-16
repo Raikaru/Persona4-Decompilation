@@ -35,7 +35,7 @@ extern void func_002bbcf0(s32 arg0);
 extern s32 func_0025c790(u8 *task);
 extern u32 kwlnTaskGetWork(void *task);
 extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
-extern s32 func_0029d020(void);
+extern s32 scrGetCmdTimer(void);
 extern s32 scrGetParamInt(s32 which);
 extern void scrSetReturnInt(s32 arg0);
 
@@ -165,7 +165,7 @@ s32 func_0025ccb0(void) {
     s32 b;
     s32 hit;
 
-    if (func_0029d020() == 0) {
+    if (scrGetCmdTimer() == 0) {
         a = scrGetParamInt(0);
         b = scrGetParamInt(1);
         chkmemAllocSiteTag(D_00636838, 0x113);

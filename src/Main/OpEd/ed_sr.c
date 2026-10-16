@@ -39,7 +39,7 @@ extern s32 sdkSndPlayCue(s32 a, s32 b);
 extern void sdkSndStopChannel(s32 fadeDuration);
 extern s32 func_0046a1f0(s32 a, s64 b, void *c);
 extern s32 func_0046a2c0(void);
-extern s32 func_0029d020(void);
+extern s32 scrGetCmdTimer(void);
 
 /* Data / jumptable globals. */
 extern char D_007964C0[];
@@ -187,7 +187,7 @@ s32 func_0038f290(void) {
     u8 *p;
     s32 r;
 
-    r = func_0029d020();
+    r = scrGetCmdTimer();
     if (r == 0xA) {
         chkmemAllocSiteTag(&iGpffffa9f0, 0x112);
         w = (u8 *)jtbl_008873E8[0](0x1258, 0x40000);
