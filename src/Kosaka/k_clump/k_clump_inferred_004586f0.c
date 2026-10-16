@@ -238,15 +238,15 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Source unit: src/promoted/code1_0045.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 004586f0-004586f0 */
 
-extern void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
+extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 /* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: close propagation-off probe for func_00457630. */
+/* measured: close propagation-off probe for K_ClumpLookAtBasis. */
 // FUN_004586F0
-void func_004586f0(u8 *arg0, u8 *arg1) {
+void K_ClumpMatColorStore(u8 *arg0, u8 *arg1) {
     s32 userData;
     s32 index;
 

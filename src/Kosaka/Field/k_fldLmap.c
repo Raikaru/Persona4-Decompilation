@@ -34,7 +34,7 @@ extern f32 RwV3dNormalize(f32 *param, f32 *out);
 extern u8 *mdlGetMatrix(s32 param);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern u8 *func_00457120();
-extern void func_00457630(u8 *param, u8 *src, u8 *dst, s32 mode);
+extern void K_ClumpLookAtBasis(u8 *param, u8 *src, u8 *dst, s32 mode);
 extern f32 sinf(f32 param);
 extern f32 cosf(f32 param);
 extern s64 datGetDateIndex();
@@ -1171,12 +1171,12 @@ s32 FldLmapPathUpdate(u8 *arg0)
         *(f32 *)(temp_16 + 0x10) = *(f32 *)(temp_16 + 0x10) + sp40[0];
         *(f32 *)(temp_16 + 0x14) = *(f32 *)(temp_16 + 0x14) + sp40[1];
         *(f32 *)(temp_16 + 0x18) = *(f32 *)(temp_16 + 0x18) + sp40[2];
-        func_00457630(func_00457120(), temp_16 + 4, temp_16 + 0x10, 0);
+        K_ClumpLookAtBasis(func_00457120(), temp_16 + 4, temp_16 + 0x10, 0);
         temp_3_4 = *(s32 *)(temp_16 + 0x24) + 1;
         *(s32 *)(temp_16 + 0x24) = temp_3_4;
         if (*(s32 *)(temp_16 + 0x28) < temp_3_4) {
             temp_17 = (u8 *)D_005F2190 + (*(s32 *)(temp_16 + 0x30) * 0x18);
-            func_00457630(func_00457120(), temp_17, temp_17 + 0xC, 0);
+            K_ClumpLookAtBasis(func_00457120(), temp_17, temp_17 + 0xC, 0);
             temp_2 = (u8 *)D_005F2190 + (*(s32 *)(temp_16 + 0x30) * 0x18);
             *(Vec3 *)(temp_16 + 4) = *(Vec3 *)(temp_2 + 0);
             temp_2_2 = (u8 *)D_005F219C + (*(s32 *)(temp_16 + 0x30) * 0x18);

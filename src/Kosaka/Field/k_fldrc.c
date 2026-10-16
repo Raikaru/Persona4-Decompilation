@@ -22,8 +22,8 @@ extern void* FldResource_Create(char* path);
 extern void func_003c21e0();
 extern void func_003ca270(void *object, void *callback, void *userdata);
 extern s32 kwlnTaskDestroyWithHierarchy(void *arg0);
-extern u8 *func_004587d0(u8 *arg0, u8 *arg1);
-extern u8 *func_00458ce0(u8 *material, u8 *data);
+extern u8 *K_ClumpMatColorScale(u8 *arg0, u8 *arg1);
+extern u8 *K_ClumpMatPropScale(u8 *material, u8 *data);
 struct RpGeometry;
 struct RpMaterial;
 extern struct RpMaterial *func_0018c610(struct RpMaterial *material, void *data);
@@ -74,7 +74,7 @@ void FldRc_ReleaseCachedObject(void) {
 void *FldRc_ScaleGeometryColors(void *object, void *arg1)
 {
     u8 *arg0 = object;
-    func_003c21e0(*(s32 *)(arg0 + 0x18), func_004587d0, arg1);
+    func_003c21e0(*(s32 *)(arg0 + 0x18), K_ClumpMatColorScale, arg1);
     return object;
 }
 // FUN_00458C80
@@ -85,13 +85,13 @@ void FldRc_ScaleClumpColors(void *arg0, void *arg1)
 // FUN_00458CB0
 void FldRc_ScaleObjectColors(void *arg0, void *arg1)
 {
-    func_003ca270(arg0, func_004587d0, arg1);
+    func_003ca270(arg0, K_ClumpMatColorScale, arg1);
 }
 // FUN_00458F00
 void *FldRc_SetGeometryVector(void *object, void *arg1)
 {
     u8 *arg0 = object;
-    func_003c21e0(*(s32 *)(arg0 + 0x18), func_00458ce0, arg1);
+    func_003c21e0(*(s32 *)(arg0 + 0x18), K_ClumpMatPropScale, arg1);
     return object;
 }
 // FUN_00458F40
@@ -102,5 +102,5 @@ void FldRc_SetClumpVector(void *arg0, void *arg1)
 // FUN_00458F70
 void FldRc_SetObjectVector(void *arg0, void *arg1)
 {
-    func_003ca270(arg0, func_00458ce0, arg1);
+    func_003ca270(arg0, K_ClumpMatPropScale, arg1);
 }
