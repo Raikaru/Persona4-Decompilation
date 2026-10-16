@@ -24,7 +24,7 @@ typedef struct BtlPacket {
 } BtlPacket;
 
 extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
-extern u32 func_001d1cc0(int* param_1);
+extern u32 btlCameraNudgeUnitPair(int* param_1);
 extern u32 btlFormationPlaceUnits(u32 *work);
 extern void func_001d2e00(u32 *work);
 extern u32 btlFormationPlaceFromRaw(u8 *param_1);
@@ -48,7 +48,7 @@ extern void func_00196ba0(void *arg0);
 extern void btlUnitRequestLookAt(void *arg0);
 extern void btlTargetRefreshRadiusNode(void *arg0);
 extern u8 *btlActionGetActiveOrQueueFront(void);
-extern void func_001d1680(s32 arg0, s32 arg1);
+extern void btlCameraAssignFormationSlots(s32 arg0, s32 arg1);
 extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 
 typedef struct BtlFormationState
@@ -132,7 +132,7 @@ BtlPacket *btlFormationCreateMovePacket(u32 param_1, u32 param_2, float param_3,
     u32 packet;
 
     packet = (u32)btlPacketAlloc(0xb00, 0x10);
-    *(code **)(packet + 0x6c) = (code *)func_001d1cc0;
+    *(code **)(packet + 0x6c) = (code *)btlCameraNudgeUnitPair;
     work = *(u32 **)(packet + 0x78);
     work[0] = param_1;
     work[1] = param_2;
@@ -867,7 +867,7 @@ u32 btlFormationUpdateDeadPosition(u16 *arg0)
     BtlUnit *var_17;
 
     temp_16 = btlActionGetActiveOrQueueFront();
-    func_001d1680(!(*arg0 & 2), 0);
+    btlCameraAssignFormationSlots(!(*arg0 & 2), 0);
     if ((*arg0 & 1) != 0) {
         var_17 = *(BtlUnit **)(D_0076449C + 0x178);
         while (var_17 != NULL) {

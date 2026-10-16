@@ -210,7 +210,7 @@ extern void mdlDestroyModelObject(void *arg0);
 extern void mdlSetColor(void *arg0, s32 *arg1);
 extern void mdlSetLayerWeight(u8 *arg0, s32 arg1, f32 arg2);
 extern u8 iGpffffa4d8;
-extern void func_001d1540(u8 *arg0, s32 arg1, s32 arg2);
+extern void btlCameraSetUnitSlotValue(u8 *arg0, s32 arg1, s32 arg2);
 extern void btlTargetRemoveRadiusNode(u8 *arg0);
 extern void btlEffectDestroyPlacementEntry(s32 arg0);
 extern void btlEffectFreeNodePool(s32 arg0);

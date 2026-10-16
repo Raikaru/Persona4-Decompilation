@@ -77,8 +77,8 @@ extern f32 fGpffff8110;
 /* Source unit: src/promoted/code1_001d.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d7b30-001d7b60 */
 
-/* measured: opt_propagation off probe for func_001d14b0 loop masks. */
-/* measured: close opt_propagation after func_001d14b0 probe. */
+/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
+/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
 #pragma push
 #pragma pop
 /* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */

@@ -628,7 +628,7 @@ void btlMainUnitCreateInit(void) {
     extern s32 datCalcStatusElement(s32 arg0, s32 arg1);
     extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
     extern u32 datCalcSetBadStatus(s32 unit, u32 badStatus);
-    extern void func_001d1680(s32 arg0, s32 arg1);
+    extern void btlCameraAssignFormationSlots(s32 arg0, s32 arg1);
     extern void btlUnitSetPos(u8 *arg0, f32 *arg1);
     u8 *tmp;
     u8 *unit;
@@ -755,10 +755,10 @@ void btlMainUnitCreateInit(void) {
         }
     }
     if ((*(u32 *)(D_0076449C + 0xC) & 0x20000000) == 0) {
-        func_001d1680(1, 0);
+        btlCameraAssignFormationSlots(1, 0);
         return;
     }
-    func_001d1680(0, 0);
+    btlCameraAssignFormationSlots(0, 0);
     st[1] = 0.0f;
     for (j = *(u8 **)(D_0076449C + 0x180); j != NULL; j = *(u8 **)(j + 0xA6C)) {
         st[0] = (f32)(*(s16 *)(j + 0x94) * 0x19 - 0x6D6);

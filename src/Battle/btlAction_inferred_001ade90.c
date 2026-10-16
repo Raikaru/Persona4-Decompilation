@@ -112,7 +112,7 @@ extern void btlMessageStartShort(u8 *task, u8 *unit);
 extern s32 btlMessageIsActive(s32 task);
 extern s32 btlMessageGetResult(s32 task);
 extern void btlMessageReset(s32 task);
-s16 func_001d15a0(void);
+s16 btlCameraSelectFormationIndex(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 
@@ -535,7 +535,7 @@ void btlActionRoundupMesInit(u8 *action)
                (enemyCount = btlSideCountNotBad(2, 0x80000) & 0xFFFF,
                 (u32)(*(s16 *)(iGpffffb3ac + 2674) >> 1) >= enemyCount) &&
                (previousFormation = *(s16 *)(iGpffffb3ac + 2672),
-                previousFormation != (s16)func_001d15a0())) {
+                previousFormation != (s16)btlCameraSelectFormationIndex())) {
         changeFormation = 1;
     } else {
         changeFormation = 0;

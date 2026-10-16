@@ -86,7 +86,7 @@ s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s3
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 u32 btlCountUnitRecordsById(u32 arg0);
 u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
-s16 func_001d15a0(void);
+s16 btlCameraSelectFormationIndex(void);
 void func_001eb7f0(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 s32 func_001fabe0(u8 *arg0);
@@ -163,7 +163,7 @@ void btlActionStartInit(BtlAction *action) {
     } else if ((*(s16 *)(iGpffffb3ac + 0xA70) != -1) &&
                (threshold = btlSideCountNotBad(2, 0x80000) & 0xFFFF,
                 (u32)(*(s16 *)(iGpffffb3ac + 0xA72) >> 1) >= threshold) &&
-               ((storedId = *(s16 *)(iGpffffb3ac + 0xA70)) != (s16)func_001d15a0())) {
+               ((storedId = *(s16 *)(iGpffffb3ac + 0xA70)) != (s16)btlCameraSelectFormationIndex())) {
         needsDelay = 1;
     } else {
         needsDelay = 0;
