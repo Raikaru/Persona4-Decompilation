@@ -283,7 +283,6 @@ extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern s32 btlRelease(void);
 extern void btlPacketFlushAll(void);
 extern void btlUnitFreeRemovedUnits(void);
-extern void datUnitFree(s32 arg0);
 extern void func_003ef3a0(s32 arg0);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void chkmemAllocSiteTag(void *arg0, s32 arg1);

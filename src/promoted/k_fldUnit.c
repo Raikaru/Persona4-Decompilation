@@ -39,7 +39,6 @@ extern u8 iGpffff9f2a;
 extern u8 iGpffff9f2b;
 extern u8 iGpffff9f24;
 extern s32 KMisc_CreateDelayMdlFree(s32 arg0, s32 arg1);
-extern void datUnitFree(s32 arg0);
 extern s32 mdlPrepareSlotModel(u8 *arg0, u16 arg1);
 extern void mdlDetachSlotModel(u8 *arg0, u16 arg1);
 extern u32 H_Cdvd_IsFileLoaded(HCdvd *arg0);
