@@ -172,7 +172,7 @@ u8 *btlCutinCreatePacket(u8 *arg0);
 extern void btlMessageStartLong(u8 *arg0, u8 *arg1);
 u8 *btlUnitCreateRotateTowardUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *btlPacketAllocZeroed(s32 arg0, s32 arg1);
-u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
+u8 *btlEffectCreateFormationPacket(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
 extern s32 btlMessageIsActiveAlt(s32 task);
 extern s32 btlMessageGetResultAlt(s32 task);
 u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);

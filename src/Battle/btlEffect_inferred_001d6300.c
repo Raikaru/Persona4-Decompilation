@@ -15,7 +15,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern void btlEffectFreeEntry(s32 arg0, s32 arg1);
-extern s32 func_001d6360(u8 *arg0);
+extern s32 btlEffectStepFormationPlacement(u8 *arg0);
 extern void btlFormationSetPlacement(s32 arg0);
 extern u32 iGpffffb3b8;
 
@@ -94,7 +94,7 @@ extern f32 fGpffff8110;
 /* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
 /* measured: restore optimization_level 2 after func_001d5990. */
 // FUN_001D6300
-void func_001d6300(u8 *arg0) {
+void btlEffectPrepareFormationStep(u8 *arg0) {
     u8 *temp_3;
 
     *(s32 *)(arg0 + 0x1C) = 0;
@@ -104,12 +104,12 @@ void func_001d6300(u8 *arg0) {
     *(s32 *)(arg0 + 0x18) = btlEffectAllocEntry(*(s32 *)((u8 *)(*(u8 **)(arg0 + 4)) + 0xA08));
 }
 
-/* measured: opt_propagation off probe for func_001d6360 argument setup and register coloring. */
+/* measured: opt_propagation off probe for btlEffectStepFormationPlacement argument setup and register coloring. */
 #pragma push
-/* measured: func_001d6360 MATCH -> MISMATCH without this pragma. */
+/* measured: btlEffectStepFormationPlacement MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001D6360
-s32 func_001d6360(u8 *arg0)
+s32 btlEffectStepFormationPlacement(u8 *arg0)
 {
     extern s32 func_00193b70(s64 arg0, s64 arg1);
     extern u32 btlFormationGetCount(void *arg0);
@@ -170,10 +170,10 @@ s32 func_001d6360(u8 *arg0)
     return 0;
 }
 
-/* measured: restore pragma state after func_001d6360. */
+/* measured: restore pragma state after btlEffectStepFormationPlacement. */
 #pragma pop
 // FUN_001D6570
-void func_001d6570(u8 *arg0)
+void btlEffectFinishFormationStep(u8 *arg0)
 {
     btlEffectFreeEntry(*(s32 *)(*(u8 **)(arg0 + 4) + 0xA08), *(s32 *)(arg0 + 0x18));
     btlFormationSetPlacement(*(s32 *)arg0);
@@ -182,16 +182,16 @@ void func_001d6570(u8 *arg0)
 }
 
 // FUN_001D65D0
-u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4)
+u8 *btlEffectCreateFormationPacket(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4)
 {
     u8 *packet;
     u8 *work;
 
     packet = (u8 *)btlPacketAlloc(0x302, 0x28);
     *(u8 *)(packet + 0x47) &= 0xEF;
-    *(void (**)(u8 *))(packet + 0x68) = func_001d6300;
-    *(s32 (**)(u8 *))(packet + 0x6C) = func_001d6360;
-    *(void (**)(u8 *))(packet + 0x70) = func_001d6570;
+    *(void (**)(u8 *))(packet + 0x68) = btlEffectPrepareFormationStep;
+    *(s32 (**)(u8 *))(packet + 0x6C) = btlEffectStepFormationPlacement;
+    *(void (**)(u8 *))(packet + 0x70) = btlEffectFinishFormationStep;
     work = *(u8 **)(packet + 0x78);
     *(s32 *)(work + 0) = arg0;
     *(s32 *)(work + 4) = arg1;
@@ -201,12 +201,12 @@ u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4)
     return packet;
 }
 
-/* The 0x24-byte records built by func_001d6ad0 store packed RGBA at +4
+/* The 0x24-byte records built by btlEffectAllocNodePool store packed RGBA at +4
  * and a wrapping frame counter at +0xC. Fade-out wins over fade-in;
  * bit 0x40 freezes update/cleanup, not drawing.
  * Retail: 504/512B, 14 resolved relocations, eight zero tail bytes. */
 // FUN_001D6680
-void func_001d6680(void)
+void btlEffectUpdateFadeNodes(void)
 {
     struct BtlPacket {
         u16 flags;

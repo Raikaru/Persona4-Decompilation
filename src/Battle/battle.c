@@ -25,7 +25,7 @@ extern s32 func_00457120(void);
 extern s32 func_003e8120(s32 arg0);
 extern void func_0019cfb0(void);
 extern void btlUnitQueueAllModelsForDraw(void);
-extern void func_001d6680(void);
+extern void btlEffectUpdateFadeNodes(void);
 extern void btlCameraDrawDebug(void);
 extern void func_00460ac0(void *arg0, void *arg1);
 extern void func_003e8110(s32 arg0);
@@ -123,7 +123,7 @@ s32 func_001926c0(u8 *unusedTask)
         btlPacketStepSide(2);
         func_0019cfb0();
         btlUnitQueueAllModelsForDraw();
-        func_001d6680();
+        btlEffectUpdateFadeNodes();
         btlCameraDrawDebug();
         *(s32 *)((u8 *)iGpffffb3ac + 0xE18) = 0;
         *(s32 *)((u8 *)iGpffffb3ac + 0xE1C) = 0;
