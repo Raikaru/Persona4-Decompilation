@@ -54,7 +54,7 @@ void func_003552d0(s32 arg0, CmpPair arg1);
 #pragma opt_loop_invariants on
 void func_001356d0(u8* arg0) {
  extern void func_00135c10(u8* arg0);
- extern s16 func_00353c10(s16* arg0);
+ extern s16 datBuildMemberIdList(s16* arg0);
  extern void* memset(void* dst, s32 value, u32 size);
  extern u8* resourceFindByName(char* arg0);
  extern u8* sdkSpriteNewNode(u32 arg0, u32 arg1);
@@ -135,7 +135,7 @@ void func_001356d0(u8* arg0) {
    *(s32*)(arg0 + i * 0x30 + 0x15C0) = 10;
   }
  }
- *(s16*)(arg0 + 0x34) = func_00353c10((s16*)(arg0 + 0x24));
+ *(s16*)(arg0 + 0x34) = datBuildMemberIdList((s16*)(arg0 + 0x24));
  resource0 = resourceFindByName((char*)D_005E5830);
  if (resource0 == 0) {
   kAssertFail(&D_005EB580[0], 0x199);

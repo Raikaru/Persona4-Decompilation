@@ -21,7 +21,7 @@ u16 datCalcMaxHpById(s16 arg0);
 u32 datCalcGetSpById(s16 arg0);
 u16 datCalcMaxSpById(s16 arg0);
 u8* func_00457120(void);
-s16 func_00353b50(s16* dst);
+s16 datBuildPartyIdList(s16* dst);
 u8 *sdkSpriteRequestLoad(const char *name);
 s32 sprintf(char *dst, const char *format, ...);
 u32 func_0046a750(s16 *node);
@@ -327,7 +327,7 @@ s32 func_00363610(u8 *task)
     case 0: {
         s32 i;
         work->sprite = sdkSpriteRequestLoad((const char *)D_0064E2C0);
-        work->count = func_00353b50(roster);
+        work->count = datBuildPartyIdList(roster);
         for (i = 0; i < work->count; i++) {
             panelPosition(&position, (f32)565, work->count, i);
             id = roster[i];
@@ -381,7 +381,7 @@ s32 func_00363610(u8 *task)
                 return 0;
             }
         }
-        count = func_00353b50(roster);
+        count = datBuildPartyIdList(roster);
         if (work->count != count) {
             if (count < work->count) {
                 s32 changed;
@@ -479,7 +479,7 @@ s32 func_00363610(u8 *task)
         s32 changed;
         row = &work->rows[work->changed];
         if (!(row->motion.frame < row->motion.duration)) {
-            func_00353b50(roster);
+            datBuildPartyIdList(roster);
             row = &work->rows[work->changed];
             row->id = 0;
             row->ready = 0;

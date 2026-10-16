@@ -12,12 +12,12 @@ extern void (*D_008873EC[])(void *);
 extern void func_003549d0();
 extern s32 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s64 arg0);
-extern s32 func_00353dc0(s64 arg0);
+extern s32 datMemberIsUnlocked(s64 arg0);
 extern s32 datGetFlag(s32 arg0);
 extern u8 *kwlnTaskGetTaskByName(const void *arg0);
 extern s32 scrGetParamInt(s32 arg0);
 extern u8 D_0064B320[];
-extern void func_00354280(u8 *arg0, s32 arg1, s32 arg2);
+extern void datMemberNoticeSetup(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_0064B3B0[];
 extern u8 D_0064B3D0[];
 extern s32 func_00355460(u8 *arg0);
@@ -124,8 +124,9 @@ extern s32 FldStepNotAtBoundary(void);
 extern void func_0034c260(s32 arg0);
 extern s32 func_0034bb10(void);
 extern s64 datGetPartyId(s32 arg0);
+// Intent: Build the list of party member ids from the first three party slots, with the count in the first entry [inferred]
 // FUN_00353B50
-s16 func_00353b50(s16 *arg0)
+s16 datBuildPartyIdList(s16 *arg0)
 {
     s16 len;
     s16 partyId;
@@ -147,8 +148,9 @@ s16 func_00353b50(s16 *arg0)
 done:
     return len;
 }
+// Intent: Build the list of member ids from 2 to 8 that are unlocked, with the count in the first entry [inferred]
 // FUN_00353C10
-s16 func_00353c10(s16 *arg0)
+s16 datBuildMemberIdList(s16 *arg0)
 {
     s16 len;
     s16 memberId;
@@ -158,7 +160,7 @@ s16 func_00353c10(s16 *arg0)
     *arg0 = 1;
     for (i = 1; i < 8; i++) {
         memberId = (s16)(i + 1);
-        if (func_00353dc0(memberId) != 0) {
+        if (datMemberIsUnlocked(memberId) != 0) {
             ((s16 *)arg0)[len] = memberId;
             len++;
         }
@@ -170,8 +172,9 @@ s16 func_00353c10(s16 *arg0)
 done:
     return len;
 }
+// Intent: Build the list of unlocked member ids from 2 to 8, leaving out member 5, with the count in the first entry [inferred]
 // FUN_00353CE0
-s16 func_00353ce0(s16 *arg0)
+s16 datBuildMemberIdListExcluding5(s16 *arg0)
 {
     s16 len;
     s16 memberId;
@@ -184,7 +187,7 @@ s16 func_00353ce0(s16 *arg0)
         if (memberId == 5) {
             goto skip;
         }
-        if (func_00353dc0(memberId) != 0) {
+        if (datMemberIsUnlocked(memberId) != 0) {
             ((s16 *)arg0)[len] = memberId;
             len++;
         }
@@ -198,8 +201,9 @@ skip:
 done:
     return len;
 }
+// Intent: Report whether a member id is unlocked by its story flag; member 1 is always unlocked [inferred]
 // FUN_00353DC0
-s32 func_00353dc0(s64 arg0)
+s32 datMemberIsUnlocked(s64 arg0)
 {
     s64 value;
     s32 result;
@@ -264,18 +268,21 @@ s32 func_00353f50(s32 arg0)
     }
     return 1;
 }
+// Intent: Unsuppress resource rendering [inferred]
 // FUN_00353FB0
-void func_00353fb0(void)
+void resrcMngUnsuppressRender(void)
 {
     resrcMngSetRenderSuppressed(0);
 }
+// Intent: Suppress resource rendering [inferred]
 // FUN_00353FE0
-void func_00353fe0(void)
+void resrcMngSuppressRender(void)
 {
     resrcMngSetRenderSuppressed(1);
 }
+// Intent: Return 0 when the current step value is a band boundary, otherwise 1 [inferred]
 // FUN_00354010
-s32 func_00354010(void)
+s32 FldStepNotAtBoundaryQuery(void)
 {
     return FldStepNotAtBoundary();
 }
@@ -349,8 +356,9 @@ void func_00354230(u8 *arg0)
     (*D_008873EC)(work);
 }
 
+// Intent: Set up the member notice: set the member's notice flags, pick the message, and show the label and sub-label [inferred]
 // FUN_00354280
-void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
+void datMemberNoticeSetup(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 label[0x40];
     u8 subLabel[0x40];
@@ -366,7 +374,7 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
     extern u8 sdkSndStartChannel(s16 channelIndex, const char *name);
     extern u8 D_0064B340[];
     extern char iGpffffa958;
-    extern u32 func_00354490(s32 arg0);
+    extern u32 datMemberNameLabel(s32 arg0);
 
     *(s8 *)(arg0 + 8) = func_002bab80(D_0064A790);
     if (arg2 == 0) {
@@ -396,15 +404,16 @@ void func_00354280(u8 *arg0, s32 arg1, s32 arg2)
     }
     sprintf(label, &D_0064B340, msgId);
     sdkSndStartChannel(2, (const char *)label);
-    frFontExCopyString((void *)(u32)func_00354490(arg1), label, 0x40);
+    frFontExCopyString((void *)(u32)datMemberNameLabel(arg1), label, 0x40);
     func_002bbd80(*(s8 *)(arg0 + 8), 0, label);
     sprintf(subLabel, &iGpffffa958, arg1 + 1);
     frFontExCopyString(subLabel, label, 0x40);
     func_002bbd80(*(s8 *)(arg0 + 8), 1, label);
     func_002badc0(*(s8 *)(arg0 + 8), mode);
 }
+// Intent: Return the name label for a member id from the label table [inferred]
 // FUN_00354490
-u32 func_00354490(s32 arg0)
+u32 datMemberNameLabel(s32 arg0)
 {
     if (!(arg0 < 0x40)) {
         kAssertFail(D_0064B310, 0x3D6);
@@ -445,7 +454,7 @@ s32 func_00354500(void) {
     if (kwlnTaskCreateChild((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(newTask)) == NULL) {
         kAssertFail(&D_0064B310, 0x3B5);
     }
-    func_00354280(newTask, slot, 0);
+    datMemberNoticeSetup(newTask, slot, 0);
 block_10:
     return 0;
 }
@@ -476,7 +485,7 @@ s32 func_00354660(void) {
     if (kwlnTaskCreateChild((void *)(0), (const void *)(&D_0064B320), 0xF, 0, 0, func_003540f0, func_00354230, (u8 *)(work)) == NULL) {
         kAssertFail(&D_0064B310, 0x3B5);
     }
-    func_00354280(work, slot, 1);
+    datMemberNoticeSetup(work, slot, 1);
 block_10_2:
     return 0;
 }
@@ -3613,7 +3622,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
         break;
     case 3:
         if (func_003596a0(arg2) != 0) {
-            func_00353fe0();
+            resrcMngSuppressRender();
             func_00355190((u8 *)*(s32 *)(arg2 + 0x1308), 1);
             func_0035ac60((u8 *)*(s32 *)(arg2 + 0x1308), 0, 1, 0);
             *arg0 = 4;
@@ -3623,7 +3632,7 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
         if (D_008C024E[0] & 0x20) {
             func_00359400(arg2, 1);
             *arg0 = 2;
-            func_00353fb0();
+            resrcMngUnsuppressRender();
             func_0034bb20(0x1B);
             func_0035ac60((u8 *)*(s32 *)(arg2 + 0x1308), 0, 0, 1);
             sdkSndStartStream(0, 2, 0, 4);
@@ -3813,7 +3822,7 @@ s32 func_0035f0c0(u32 *arg0, s32 *arg1, u8 *arg2)
         if (func_0035dcc0(arg2) != 0) {
             switch (*(s32 *)(arg2 + 0x1C)) {
             case 0:
-                func_00353fe0();
+                resrcMngSuppressRender();
                 break;
             case 1:
                 break;
@@ -3834,7 +3843,7 @@ s32 func_0035f0c0(u32 *arg0, s32 *arg1, u8 *arg2)
                 func_0034bb20(0x22);
                 switch (*(s32 *)(arg2 + 0x1C)) {
                 case 0:
-                    func_00353fb0();
+                    resrcMngUnsuppressRender();
                     break;
                 case 1:
                     break;
@@ -3849,7 +3858,7 @@ s32 func_0035f0c0(u32 *arg0, s32 *arg1, u8 *arg2)
             func_0034bb20(0x22);
             switch (*(s32 *)(arg2 + 0x1C)) {
             case 0:
-                func_00353fb0();
+                resrcMngUnsuppressRender();
                 break;
             case 1:
                 break;
