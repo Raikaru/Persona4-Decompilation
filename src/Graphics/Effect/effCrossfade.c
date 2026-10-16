@@ -16,8 +16,8 @@ extern void memset(void *dst, s32 value, u32 size);
 extern void func_004b2a00(u8 *arg0);
 extern s32 func_004b2780(u8 *arg0);
 extern void func_004b2e00(u8 *arg0);
-extern s32 func_004b2ed0(u8 *arg0);
-extern void func_004b30a0(u8 *arg0, u8 *arg1);
+extern s32 CrossfadeUpdate(u8 *arg0);
+extern void CrossfadeAdvance(u8 *arg0, u8 *arg1);
 extern u8 *func_003e84a0(void);
 extern s32 func_003e9320(void);
 extern void func_003efd20(void *a, void *b);
@@ -26,8 +26,9 @@ extern void func_0040fcd0(s32 a, s32 b);
 extern void RwCameraSetProjectionType(void *a, s32 b);
 extern void func_00460ac0(void *a, void *b);
 
+// Crossfade state machine: state 1 sets up the camera and projection and falls through to state 2, state 2 runs func_004b2780 and advances to state 3, state 3 runs the update through the registered pack, and state 4 runs func_004b2e00 and returns to idle.
 // FUN_004B2ED0
-s32 func_004b2ed0(u8 *arg0) {
+s32 CrossfadeUpdate(u8 *arg0) {
     u8 *st;
     s32 t;
 
@@ -87,8 +88,9 @@ s32 func_004b2ed0(u8 *arg0) {
    compound assignment's VALUE (see the measured comment at the site) puts the
    sh before the andi. The single-case switch is still what gives the positive
    beq to the out-of-line body. */
+// In state 3 advances the frame counter at +4 and moves to state 4 once it reaches the limit at +2.
 // FUN_004B30A0
-void func_004b30a0(u8 *arg0, u8 *st)
+void CrossfadeAdvance(u8 *arg0, u8 *st)
 {
     s32 bumped;
 
@@ -107,8 +109,9 @@ void func_004b30a0(u8 *arg0, u8 *st)
     }
 }
 
+// Starts a crossfade on the named task when it is idle: stores state 1 and arg0 in its work block; returns 1 on success, 0 when the task is missing or busy.
 // FUN_004B3110
-s32 func_004b3110(s16 arg0) {
+s32 CrossfadeRequest(s16 arg0) {
     u8 *p2;
     u8 *p3;
 
@@ -125,8 +128,9 @@ s32 func_004b3110(s16 arg0) {
     return 1;
 }
 
+// Allocates the crossfade work block, registers CrossfadeAdvance and CrossfadeUpdate, and creates the update task at priority arg0.
 // FUN_004B3180
-void func_004b3180(s32 arg0) {
+void CrossfadeCreateTask(s32 arg0) {
     u8 *p;
 
     chkmemAllocSiteTag(D_00714618, 0x171);
@@ -135,8 +139,8 @@ void func_004b3180(s32 arg0) {
     if (p == NULL) {
         kAssertFail(D_00714608, 0x15B);
     }
-    *(void **)(p + 0x18) = (void *)func_004b30a0;
+    *(void **)(p + 0x18) = (void *)CrossfadeAdvance;
     *(u8 **)(p + 0x20) = p;
     *(u8 *)(p + 0) = 0;
-    (s32)kwlnTaskCreate((const void *)(D_007145F0), arg0, 0, 0, func_004b2ed0, 0, (u8 *)(p));
+    (s32)kwlnTaskCreate((const void *)(D_007145F0), arg0, 0, 0, CrossfadeUpdate, 0, (u8 *)(p));
 }

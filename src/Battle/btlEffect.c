@@ -244,7 +244,7 @@ void btlEffectLoadFilesSync(void) {
 // FUN_001D79E0
 u32 btlEffectReleaseId(u16 *param_1)
 {
-    func_004b3110(*param_1);
+    CrossfadeRequest(*param_1);
     return 1;
 }
 /* Both callers attach dependencies to the allocated packet returned here. */

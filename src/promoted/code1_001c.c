@@ -49,7 +49,7 @@ extern void btlCameraSetLimitFrame(u8 *camera, f32 angleLimit, s32 reverse, s32 
 extern void btlCameraFrameRotated(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void btlCameraFrameRotatedWide(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void btlMainApplyUnitBaseColors(u8 *arg0);
-extern void func_004b3110(s32 arg0);
+extern void CrossfadeRequest(s32 arg0);
 extern void btlMainCurveReset(u16 *arg0, f32 *arg1);
 extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);

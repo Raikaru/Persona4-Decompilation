@@ -66,8 +66,8 @@ void *func_004abe80(void *source);
 void *func_004ac100(void *source);
 void *func_004ac640(void *source);
 void *func_004ac930(void *source);
-void *func_004ad460(void *source);
-void *func_004ad810(void *source);
+void *EffHelperCreate(void *source);
+void *EffHelperClone(void *source);
 void *ObjectParticleCreateFromSource(void *source);
 void *ObjectParticleCreateFromParent(void *source);
 void *DistortParticleCreateFromSource(void *source);
@@ -76,7 +76,7 @@ void *func_004b16c0(void *source);
 void *func_004b1950(void *source);
 void *LineNovaCreateKindInstanceFromObject(void *source);
 void *func_004b4f10(void *source);
-void *func_004b5200(void *source);
+void *EffBattleCreate(void *source);
 void *func_004b53c0(void *source);
 
 #endif

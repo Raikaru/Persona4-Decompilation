@@ -40,10 +40,11 @@ typedef struct EffHlpWork
     s32 res;         // 0xA0
 } EffHlpWork;        // 0xA4
 
-void func_004ad880(EffHlpWork *work, EffHlpWork *src);
+void EffHelperRebindModel(EffHlpWork *work, EffHlpWork *src);
 
+// Allocates a 0xA4-byte helper work block; with a source, copies its 0x68-byte header, loads the model layer, counts its user data and builds the list when the source kind is 6.
 // FUN_004AD460
-void *func_004ad460(void *arg0)
+void *EffHelperCreate(void *arg0)
 {
     void *(*const *allocSlot)(u32, u32);
     EffHlpWork *work;
@@ -117,8 +118,9 @@ void *func_004ad460(void *arg0)
     return work;
 }
 
+// Releases the model layer, the list entries and the block.
 // FUN_004AD760
-void func_004ad760(EffHlpWork *work)
+void EffHelperFree(EffHlpWork *work)
 {
     u32 i;
 
@@ -134,19 +136,21 @@ void func_004ad760(EffHlpWork *work)
     (*jtbl_008873EC)(work);
 }
 
+// Creates a helper from arg0 by copying its 0x68-byte header and rebinding its model.
 // FUN_004AD810
-void *func_004ad810(void *arg0)
+void *EffHelperClone(void *arg0)
 {
     EffHlpWork *work;
 
-    work = func_004ad460(NULL);
+    work = EffHelperCreate(NULL);
     memcpy((u8 *)work + 0x30, (u8 *)arg0 + 0x30, 0x68);
-    func_004ad880(work, (EffHlpWork *)arg0);
+    EffHelperRebindModel(work, (EffHlpWork *)arg0);
     return work;
 }
 
+// Replaces work's model layer with the model object that src's layer names (ids at +0xD4 and +0xD6); asserts that src has a layer.
 // FUN_004AD880
-void func_004ad880(EffHlpWork *work, EffHlpWork *src)
+void EffHelperRebindModel(EffHlpWork *work, EffHlpWork *src)
 {
     u32 i;
 

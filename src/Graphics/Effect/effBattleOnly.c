@@ -36,7 +36,7 @@ typedef struct EffBattleWork
 s32 (*D_00764C94)(void);     // 0x00764c94
 EffBattleEntry *D_00764C90;  // 0x00764c90
 
-u8 *func_004b50f0(s32 id, s32 arg1);
+u8 *EffBattleAllocWork(s32 id, s32 arg1);
 
 
 
@@ -47,8 +47,9 @@ u8 *func_004b50f0(s32 id, s32 arg1);
    keys or b210 folds them back into one: `(u16)id` in the check, `(id & 0xFFFF)` for the
    index and the stored id. The reverse assignment of the two spellings scores nd 88 and
    using one spelling for both scores nd 13 or nd 167 - measured. */
+// Allocates a battle effect work block sized from the per-id table, stores the id, and copies arg1's data into it.
 // FUN_004B50F0
-u8 *func_004b50f0(s32 id, s32 arg1)
+u8 *EffBattleAllocWork(s32 id, s32 arg1)
 {
     EffBattleWork *work;
     s32 size;
@@ -80,8 +81,9 @@ u8 *func_004b50f0(s32 id, s32 arg1)
  * named base, add 4 and the offset for setup, and reload base before adding the
  * offset for post. This preserves retail's lw/addiu/addu address sequence.
  * Object 316B/window 320B; scoped verify normalized_diff 0. */
+// Creates a battle effect from a source: loads its texture, then when the test callback passes calls the per-id setup and post callbacks from the table.
 // FUN_004B5200
-void *func_004b5200(void *arg0)
+void *EffBattleCreate(void *arg0)
 {
     u8 *tex;
     s32 value;
@@ -100,7 +102,7 @@ void *func_004b5200(void *arg0)
     id16 = *(u16 *)((u8 *)arg0 + 0x1C);
     param = *(s32 *)((u8 *)arg0 + 0x24);
     id = *(u16 *)((u8 *)arg0 + 0xC);
-    work = func_004b50f0(id, (s32)tex);
+    work = EffBattleAllocWork(id, (s32)tex);
     if ((*D_00764C94)() != 0) {
         off = (id & 0xFFFF) * 0x1C;
         base = (u8 *)D_00764C90;

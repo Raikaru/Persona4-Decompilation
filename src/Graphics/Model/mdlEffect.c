@@ -50,7 +50,7 @@ extern void RtQuatConvertFromMatrix(void *arg0, void *arg1);
 extern void func_004b12e0(s32 arg0, void *arg1);
 
 extern void effMiscNormalizeVU(void);
-extern void func_004bceb0(void);
+extern void effMiscBuildRotationVU(void);
 typedef struct RwV3d { f32 x, y, z; } RwV3d;
 typedef struct RwMatrixTag RwMatrix;
 typedef struct RwFrame RwFrame;
@@ -747,7 +747,7 @@ void func_0048a150(u8 *arg0, u8 *arg1)
         : "r"(arg1)
         : "$vf10", "memory");
     effMiscNormalizeVU();
-    func_004bceb0();
+    effMiscBuildRotationVU();
     base = (u8 *)work;
     __asm__ volatile(
         "sqc2 $vf28, 0(%0) \n"

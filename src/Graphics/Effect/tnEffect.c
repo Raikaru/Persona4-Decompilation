@@ -52,7 +52,7 @@ void sprintf(void *arg0, const void *arg1, s32 arg2);
 u8 *func_003ef740(void *arg0, s32 arg1);
 void func_004abb60(void);
 void func_004a77b0(void);
-void func_004b3180(s32 arg0);
+void CrossfadeCreateTask(s32 arg0);
 
 
 extern char D_00713270[];
@@ -414,6 +414,6 @@ void TnInitModule(s32 arg0)
     D_00922CDC[0] |= 0x20003;
     func_004abb60();
     func_004a77b0();
-    func_004b3180(arg0);
+    CrossfadeCreateTask(arg0);
     (s32)kwlnTaskCreate((const void *)(D_007132B8), arg0, 0, 0, TnTaskUpdate, 0, (u8 *)(0));
 }

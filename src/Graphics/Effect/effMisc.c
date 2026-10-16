@@ -43,7 +43,7 @@ typedef struct RwMatrix
     u32 pad3;       // 0x3c
 } RwMatrix;
 
-extern void func_004bd230(f32 angle, const RwV3d* axis, RwMatrix* matrix);
+extern void effMiscAxisAngleMatrix(f32 angle, const RwV3d* axis, RwMatrix* matrix);
 
 
 
@@ -91,8 +91,9 @@ void effMiscNormalizeVU(void)
 
 
 
+// Builds a rotation basis in vf28 to vf31 from the quaternion in vf10 (VU0 asm body).
 // FUN_004BCEB0
-void func_004bceb0(void)
+void effMiscBuildRotationVU(void)
 {
     __asm__ volatile (
         ".set noreorder                              \n"
@@ -131,8 +132,9 @@ void func_004bceb0(void)
 
 
 
+// Builds a quaternion from three angles (half-angle sines and cosines combined) and loads it into vf10.
 // FUN_004BCF20
-void func_004bcf20(f32 angleX, f32 angleY, f32 angleZ)
+void effMiscEulerToQuatVU(f32 angleX, f32 angleY, f32 angleZ)
 {
     RwV4d quaternion;
     f32 halfAngle;
@@ -234,8 +236,9 @@ void effMiscRandInit(EffRandState* state, u32 seed)
 
 
 
+// Builds a rotation about X by angle into a matrix and loads its rows into vf28 to vf31.
 // FUN_004BD1A0
-void func_004bd1a0(f32 angle)
+void effMiscRotateXVU(f32 angle)
 {
     RwMatrix matrix;
     f32 cosine;
@@ -279,8 +282,9 @@ void func_004bd1a0(f32 angle)
 
 
 
+// Writes the axis-angle rotation matrix for angle about the normalised axis into matrix; the axis is normalised through VU0 first and the pad words are zeroed.
 // FUN_004BD230
-void func_004bd230(f32 angle, const RwV3d* axis, RwMatrix* matrix)
+void effMiscAxisAngleMatrix(f32 angle, const RwV3d* axis, RwMatrix* matrix)
 {
     f32 xSquared;
     f32 ySquared;
@@ -366,12 +370,13 @@ void func_004bd230(f32 angle, const RwV3d* axis, RwMatrix* matrix)
         : "memory"
     );
 }
+// Builds the axis-angle matrix for angle about axis and loads it into vf28 to vf31.
 // FUN_004BD380
-void func_004bd380(const RwV3d* axis, f32 angle)
+void effMiscAxisAngleVU(const RwV3d* axis, f32 angle)
 {
     RwMatrix matrix;
 
-    func_004bd230(angle, axis, &matrix);
+    effMiscAxisAngleMatrix(angle, axis, &matrix);
     __asm__ volatile (
         ".set noreorder          \n"
         "lqc2 vf28, 0(%0)        \n"
@@ -387,8 +392,9 @@ void func_004bd380(const RwV3d* axis, f32 angle)
 
 
 
+// Builds a rotation about Y by angle and loads its rows into vf24 to vf27.
 // FUN_004BD3C0
-void func_004bd3c0(f32 angle)
+void effMiscRotateYVU(f32 angle)
 {
     RwMatrix matrix;
     f32 cosine;
@@ -432,8 +438,9 @@ void func_004bd3c0(f32 angle)
 
 
 
+// Multiplies the basis in vf28 to vf31 by the matrix in vf24 to vf27 (VU0 asm body).
 // FUN_004BD450
-void func_004bd450(void)
+void effMiscCombineRotationVU(void)
 {
     __asm__ volatile (
         ".set noreorder                              \n"

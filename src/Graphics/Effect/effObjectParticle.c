@@ -351,7 +351,7 @@ void ObjectParticleDraw(u8 *arg0)
 {
     extern u_long128 func_00492df0(int param_1, u32 *param_2);
     extern u_long128 func_00492db0(int param_1, u32 *param_2);
-    extern void func_004bceb0(void);
+    extern void effMiscBuildRotationVU(void);
     extern void func_004ae2f0(u8 *a, u8 *b, s32 c);
     extern void *mdlEffectSetAllColors(void *object, void *data);
     extern u8 *func_003bfe90(u8 *arg0);
@@ -433,7 +433,7 @@ void ObjectParticleDraw(u8 *arg0)
         if ((*(s32 *)(list + 0xC) & 1) == 0) {
             func_00492df0((int)list, (u32 *)&snapA);
             effectVuLoad10(&snapA);
-            func_004bceb0();
+            effMiscBuildRotationVU();
             __asm__ volatile(
                 "sqc2 $vf28, 0x0(%1)\n"
                 "sqc2 $vf29, 0x10(%1)\n"
@@ -520,7 +520,7 @@ void ObjectParticleDraw(u8 *arg0)
             func_00492df0((int)list, (u32 *)&snapA);
             func_00492db0(*(int *)(self + 0x58), (u32 *)&snapB);
             effectVuLoad10(&snapA);
-            func_004bceb0();
+            effMiscBuildRotationVU();
             __asm__ volatile("lqc2 $vf31, 0(%0)" : : "r"(&snapB), "m"(snapB) : "$vf31");
             __asm__ volatile(
                 "sqc2 $vf28, 0x0(%1)\n"
