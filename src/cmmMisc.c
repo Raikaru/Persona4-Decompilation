@@ -17,7 +17,7 @@ extern u32 datGetFlag(s32 flag);
 extern void datSetFlag(s32 id, s32 flag);
 extern u32 func_001064f0(s32 idx);
 extern s32 func_00106550(s32 id, s32 value);
-extern s32 func_00106600(s16 idx);
+extern s32 datItemCount(s16 idx);
 extern s32 cmmCommunityTestMarked(s32 idx);
 extern s32 cmmCommunityTestReversed(s32 idx);
 extern void cmmCommunitySetReversed(s32 idx);
@@ -1637,7 +1637,7 @@ static inline u32 cmmMiscAddAddress(u32 offset, u32 base)
     return offset + base;
 }
 
-// Date table apply column: selects the record for date (special record when flag 0xA61 allows it), then applies the column's two counter deltas clamped at 99 through func_00106620; asserts column is 0 or 1.
+// Date table apply column: selects the record for date (special record when flag 0xA61 allows it), then applies the column's two counter deltas clamped at 99 through datItemSetCount; asserts column is 0 or 1.
 // FUN_002494C0
 s32 cmmDateTableApplyColumnDelta(s32 date, s32 column)
 {
@@ -1668,19 +1668,19 @@ selected_record:
     key = (u16 *)(cmmMiscAddOff(offset, (s32)selected) + 4);
     id = *key;
     if (id != 0) {
-        value = func_00106600((s16)id) & 0xFF;
+        value = datItemCount((s16)id) & 0xFF;
         value = cmmMiscAddOff(value, *(s16 *)(cmmMiscAddAddress((u32)offset, (u32)selected) + 6));
         if (value > 99) value = 99;
-        func_00106620((s32)*(s16 *)key, value & 0xFF);
+        datItemSetCount((s32)*(s16 *)key, value & 0xFF);
     }
     key = (u16 *)(cmmMiscAddAddress((u32)offset, (u32)selected) + 8);
     id = *key;
     if (id != 0) {
         offset = (u32)column << 4;
-        value = func_00106600((s16)id) & 0xFF;
+        value = datItemCount((s16)id) & 0xFF;
         value = cmmMiscAddOff(value, *(s16 *)(cmmMiscAddOff(offset, (s32)selected) + 10));
         if (value > 99) value = 99;
-        func_00106620((s32)*(s16 *)key, value & 0xFF);
+        datItemSetCount((s32)*(s16 *)key, value & 0xFF);
     }
     return 1;
 }
@@ -1733,7 +1733,7 @@ s32 cmmDateTableAddCount(s32 arg0, s32 arg1)
         }
     }
     func_00106550(0x58, arg0);
-    if (!(func_00106600((s16)(arg0 + 0x4EA)) & 0xFF)) {
+    if (!(datItemCount((s16)(arg0 + 0x4EA)) & 0xFF)) {
         kAssertFail(D_006359D0, 0x4CC);
     }
     n = cmmAddCountFirst(func_001064f0(0x57), arg1);
@@ -1777,17 +1777,17 @@ s32 cmmDateTableFindNthMatch(s32 arg0, s32 arg1, s32 arg2) {
             }
             break;
         case 1:
-            if (((func_00106600((s16)(var_16 + 0x4EB)) & 0xFF) > 0) && (datGetFlag(var_16 + 0x9B0) == 0)) {
+            if (((datItemCount((s16)(var_16 + 0x4EB)) & 0xFF) > 0) && (datGetFlag(var_16 + 0x9B0) == 0)) {
                 var_20 += 1;
             }
             break;
         case 2:
-            if ((func_00106600((s16)(var_16 + 0x4EB)) & 0xFF) > 0) {
+            if ((datItemCount((s16)(var_16 + 0x4EB)) & 0xFF) > 0) {
                 var_20 += 1;
             }
             break;
         case 3:
-            if ((func_00106600((s16)(var_16 + 0x4EB)) & 0xFF) == 0) {
+            if ((datItemCount((s16)(var_16 + 0x4EB)) & 0xFF) == 0) {
                 var_20 += 1;
             }
             break;

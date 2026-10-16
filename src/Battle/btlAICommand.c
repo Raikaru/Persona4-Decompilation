@@ -103,7 +103,7 @@ extern s32 scrFindPrcdIdxByName(u32 a, u8 *b);
 extern s32 scrStartProcedureIndex(u8 *a, u32 b, s32 c);
 extern void scrSetTaskProc(u32 a, u8 *b);
 extern u8 *kwlnTaskGetWork(u32 a);
-extern s32 func_0010d740(s32 a);
+extern s32 datPersonaNamePart1Alt(s32 a);
 extern void itfMesWindowSetString(s32 a, s32 b, u32 c);
 extern void kwlnTaskAddChild(u8 *a, u32 b);
 extern u8 D_00609E20[];
@@ -1962,7 +1962,7 @@ s32 btlAICommandSpawnActionProc(u8 *p, u8 *q, u32 v, u32 w)
     if (*(s32 *)(v2 + 0x130) >= 0) {
         switch (*(u8 *)(*(u32 *)(p + 0x30) + 0xA2)) {
         case 0:
-            d = (u32)func_0010d740(*(s16 *)(*(u32 *)(p + 0x30) + 0xA4));
+            d = (u32)datPersonaNamePart1Alt(*(s16 *)(*(u32 *)(p + 0x30) + 0xA4));
             break;
         case 1:
             d = (u32)iGpffffb444 + (*(u16 *)(*(u32 *)(p + 0x30) + 0xA4)) * 21;

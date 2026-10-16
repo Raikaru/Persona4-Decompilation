@@ -7,7 +7,7 @@ void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 void cmpEquipStepTabAnimations(u8 *arg0);
 void cmpEquipMenuDraw(u8 *arg0);
 s16 func_00106cd0(s16 arg0, s16 arg1);
-s32 func_00106600(s16 id);
+s32 datItemCount(s16 id);
 s32 datEntryHasFlag(s16 arg0, s16 arg1);
 s32 datIdBand(s16 arg0);
 s16 datBuildMemberIdListExcluding5(void *arg0);
@@ -151,7 +151,7 @@ void cmpEquipBuildItemList(s16 *arg0) {
     for (i = 0, count = 0; i < 0x2FF; i++) {
         found = i == func_00106cd0(id, call_type);
         if (!found) {
-            filter = (u8)func_00106600((s16)i) != 0;
+            filter = (u8)datItemCount((s16)i) != 0;
             if (filter) {
                 filter = datEntryHasFlag(i, id) != 0;
             }
@@ -162,7 +162,7 @@ void cmpEquipBuildItemList(s16 *arg0) {
                 goto skip;
             }
         }
-        value = found + (u8)func_00106600((s16)i);
+        value = found + (u8)datItemCount((s16)i);
         if (value > 99) {
             value = 99;
         }
@@ -246,7 +246,7 @@ void cmpEquipMenuDraw(u8 *arg0)
     extern void datEntryReset(u8 *arg0);
     extern u32 datEntryGetFlags(s16 arg0);
     extern s16 func_00106cd0(s16 arg0, s16 arg1);
-    extern u32 func_0010d6d0(s16 arg0);
+    extern u32 datPersonaNamePart1(s16 arg0);
     extern s32 radarFlagToIconMode(s32 arg0);
     extern void radarDrawPalettePair(u8 *arg0, s64 arg1, s64 arg2, u8 arg3);
     extern void radarDrawPaletteSet(u8 *arg0, s64 arg1, s64 arg2, u8 arg3);
@@ -403,7 +403,7 @@ void cmpEquipMenuDraw(u8 *arg0)
       drawSprite = *(u8 **)(work + 0x14c4);
       sdkSpriteDrawSized(drawSprite,drawPosition.xy.x + 202.0f,drawY,0.0f,*actorPalette,actorPalette[1],
                     actorPalette[2],opacity.value,(u16)scaleX,(u16)scaleY,0,0.0f,0);
-      labelText = (char *)func_0010d6d0(*(s16 *)(work + temp_v8 * 2 + 0x38));
+      labelText = (char *)datPersonaNamePart1(*(s16 *)(work + temp_v8 * 2 + 0x38));
       frFontExDrawText(drawPosition.xy.x + 105.0f,drawY,0.0f,packedColor,labelStyle,1,labelText,8,0);
       }
       temp_v4 = (s32)(s16)(temp_v4 + 1);
@@ -546,7 +546,7 @@ void cmpEquipMenuDraw(u8 *arg0)
       /* EE addresses are 32-bit; accumulate the signed index as an unsigned address. */
       u32 partyAddress = *(s16 *)(work + 0x28) * 2;
       partyAddress += (u32)work;
-      labelText = (char *)func_0010d6d0(*(s16 *)(partyAddress + 0x38));
+      labelText = (char *)datPersonaNamePart1(*(s16 *)(partyAddress + 0x38));
     }
     frFontExDrawText(drawPosition.xy.x + 105.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
   }
@@ -577,7 +577,7 @@ void cmpEquipMenuDraw(u8 *arg0)
     temp_v9 *= opacityScale;
     alpha = (u8)temp_v9;
     packedColor = (alpha) | 0xffffff00;
-    labelText = (char *)func_0010d6d0(*(s16 *)(work + 0xc7e));
+    labelText = (char *)datPersonaNamePart1(*(s16 *)(work + 0xc7e));
     frFontExDrawText(drawPosition.xy.x + 88.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
     drawPosition.xy.x = originX + *(f32 *)(work + 0x13e0) + 18.0f;
     drawPosition.xy.y = originY + *(f32 *)(work + 0x13e4) + 60.0f;
@@ -588,7 +588,7 @@ void cmpEquipMenuDraw(u8 *arg0)
     {
       u32 partyAddress = *(s16 *)(work + 0x28) * 2;
       partyAddress += (u32)work;
-      labelText = (char *)func_0010d6d0(*(s16 *)(partyAddress + 0x38));
+      labelText = (char *)datPersonaNamePart1(*(s16 *)(partyAddress + 0x38));
     }
     frFontExDrawText(drawPosition.xy.x + 88.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
     palette = (EquipColor *)D_0064B2E0;

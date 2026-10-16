@@ -56,7 +56,7 @@ float scrGetParamFloat(s32 arg0);
 s16 datCategoryRankProgress(s16 arg0, float arg1);
 s16 datCategoryRank(s16 arg0);
 s32 datPersonaAddStatById(u16 arg0, s32 arg1, s32 arg2);
-void func_00106620(s16 arg0, s32 arg1);
+void datItemSetCount(s16 arg0, s32 arg1);
 s16 datGetPartyId(s32 arg0);
 void datSetPartyId(s32 arg0, s32 arg1);
 s16 func_00106cd0(s16 arg0, s16 arg1);

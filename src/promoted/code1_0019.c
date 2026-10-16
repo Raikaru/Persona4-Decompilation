@@ -245,11 +245,11 @@ extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
 
 
 extern s32 btlUnitResourceFreePacketUpdate(u8 *arg0);
-extern s32 func_0010d6d0(s16 arg0);
+extern s32 datPersonaNamePart1(s16 arg0);
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern float btlFormationGetScale(int arg0);
 extern s32 btlUnitArcMovePacketUpdate(u8 *arg0);
-extern s32 func_0010d740(s16 arg0);
+extern s32 datPersonaNamePart1Alt(s16 arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
 extern s32 iGpffffb444;
 extern s32 btlUnitIsMoving(u8 *arg0);

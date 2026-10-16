@@ -31,8 +31,8 @@ extern u32 D_0064A078[];
 extern u32 D_0064A07C[];
 extern u32 D_0064A080[];
 extern u8 D_006450B0[];
-extern s32 func_00106b20(s16);
-extern s32 func_00106b50(s16);
+extern s32 datItemMoonGateFirst(s16);
+extern s32 datItemMoonGateSecond(s16);
 extern s32 fclShopIsSpecialItem(u16);
 extern u32 RpRandom(void);
 extern s32 weaponShopTalkUpdate(u8 *task);
@@ -219,15 +219,15 @@ state_one_32520:
         *(s32 *)(work + (i * 4) + 4) = 0;
         category = func_002be1b0((s16)i);
         if (category != 0x10 && category != 0x11 && category != 0x12) {
-            if (work[0x1808] == func_00106ac0((s16)i)) {
+            if (work[0x1808] == datItemAvailableMonth((s16)i)) {
                 if (fclShopIsSpecialItem(
-                        (u16)((func_00106b20((s16)i) & 0xFFF00) >> 8)) == 0) {
+                        (u16)((datItemMoonGateFirst((s16)i) & 0xFFF00) >> 8)) == 0) {
                     if (fclMoonPhaseAtLeast(
-                            (func_00106b20((s16)i) & 0xFFF00) >> 8,
-                            func_00106b20((s16)i) & 0xFF) == 0 ||
+                            (datItemMoonGateFirst((s16)i) & 0xFFF00) >> 8,
+                            datItemMoonGateFirst((s16)i) & 0xFF) == 0 ||
                         fclMoonPhaseAtLeast(
-                            (func_00106b50((s16)i) & 0xFFF00) >> 8,
-                            func_00106b50((s16)i) & 0xFF) == 0) {
+                            (datItemMoonGateSecond((s16)i) & 0xFFF00) >> 8,
+                            datItemMoonGateSecond((s16)i) & 0xFF) == 0) {
                         *(s32 *)(work + (*(s32 *)(work + 0x1804) * 4) + 4) = i;
                         *(s32 *)(work + 0x1804) =
                             *(s32 *)(work + 0x1804) + 1;
@@ -246,13 +246,13 @@ state_two_32520:
     } else {
         offset = (RpRandom() % *(s32 *)(work + 0x1804)) * 4;
         selected = *(s32 *)(offset + (u32)work + 4);
-        if (((func_00106b20((s16)selected) & 0xFFF00) >> 8) != 0x500) {
+        if (((datItemMoonGateFirst((s16)selected) & 0xFFF00) >> 8) != 0x500) {
             func_00332370(arg0, selected,
-                          func_00106b20((s16)selected));
-        } else if (((func_00106b50((s16)selected) & 0xFFF00) >> 8) !=
+                          datItemMoonGateFirst((s16)selected));
+        } else if (((datItemMoonGateSecond((s16)selected) & 0xFFF00) >> 8) !=
                    0x500) {
             func_00332370(arg0, selected,
-                          func_00106b50((s16)selected));
+                          datItemMoonGateSecond((s16)selected));
         }
     }
     (*work)++;

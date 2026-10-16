@@ -74,7 +74,7 @@ extern u8 D_006251F0[];
 
 extern s32 func_001f39d0(u8 **arg0);
 
-extern s32 func_00106600(s16 arg0);
+extern s32 datItemCount(s16 arg0);
 extern s32 datCalcAddHp(s32 arg0, s32 arg1);
 extern s32 datCalcAddSp(s32 arg0, s32 arg1);
 extern u32 datCalcSkillCost(u8 *arg0, s32 arg1);
@@ -157,7 +157,7 @@ s32 func_001f39d0(u8 **arg0) {
         if (*(u8 *)(temp_16 + 0xA2) == 0) {
             temp_3 = *(u16 *)(temp_4 + 0x70);
             itemId = (s16)temp_3;
-            func_00106620(itemId, ((func_00106600((s16)temp_3) & 0xFF) - 1) & 0xFF);
+            datItemSetCount(itemId, ((datItemCount((s16)temp_3) & 0xFF) - 1) & 0xFF);
         }
         break;
     case 9:

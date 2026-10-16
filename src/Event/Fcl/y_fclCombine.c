@@ -198,7 +198,7 @@ extern s32 datPersonaGetSkillAt(void *, s16);
 extern u16 *iGpffffb3ec;
 extern u8 *iGpffffb594;
 extern void datPersonaCacheRecord(void *);
-extern void func_00106620(s16, s32);
+extern void datItemSetCount(s16, s32);
 extern u8 D_00641BE0[];
 extern u8 D_00641C00[];
 extern char iGpffffa8c8;
@@ -234,7 +234,7 @@ extern u8 *iGpffffb44c;
 extern s8 iGpffffa8a8;
 extern u16 cmmCommunityRecordValue(s32 arg0);
 extern u16 *datPersonaFindRosterRecordById(s32 arg0);
-extern s32 func_00106600(s16 id);
+extern s32 datItemCount(s16 id);
 extern u8 D_00641880[];
 extern u8 D_0063FCA0[];
 extern u8 D_006406F0[];
@@ -621,7 +621,7 @@ void fclCombineMenuRoot(u8 *arg0)
         msgArgs0[1] = 0;
         nmMesWindowSetSlotString(p[0xD], 0, msgArgs0);
         nmMesWindowShowSlotRecord(p[0xD], 9);
-        func_00106620(*(s16 *)(entry + 2), (u8)((u8)func_00106600(*(s16 *)(entry + 2)) + 1));
+        datItemSetCount(*(s16 *)(entry + 2), (u8)((u8)datItemCount(*(s16 *)(entry + 2)) + 1));
         p[1] = 0x16;
         break;
     case 0x16:
@@ -651,7 +651,7 @@ void fclCombineMenuRoot(u8 *arg0)
         msgArgs1[1] = 0;
         nmMesWindowSetSlotString(p[0xD], 0, msgArgs1);
         nmMesWindowShowSlotRecord(p[0xD], 9);
-        func_00106620(*(s16 *)(entry + 2), (u8)((u8)func_00106600(*(s16 *)(entry + 2)) + 1));
+        datItemSetCount(*(s16 *)(entry + 2), (u8)((u8)datItemCount(*(s16 *)(entry + 2)) + 1));
         break;
     case 0x17:
         if (func_0033e5a0(*(u8 **)(p + 0x250)) == 0) {
@@ -5821,7 +5821,7 @@ s32 fclCombineClaimSlot(u8 *arg0) {
             nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, datGetItemNameId((s16)(*(s8 *)(p + 0x130) + 0x464)));
             nmMesWindowShowSlotRecord(*(s8 *)(p + 0xD), *(s8 *)(p + 0x130) + 0x17);
             datSetFlag((s32)i + 0x1309, 1);
-            func_00106620((s16)(i + 0x464), 1);
+            datItemSetCount((s16)(i + 0x464), 1);
             *(u8 *)(p + 1) = 0x97;
             return 1;
         }
@@ -9937,7 +9937,7 @@ s32 fclCombineRecipeUnlocked(void) {
             }
             return 0;
         case 1:
-            if ((func_00106600(*(s16 *)(base + i * 12 + 4)) & 0xFF) < *(s16 *)(base + i * 12 + 8)) {
+            if ((datItemCount(*(s16 *)(base + i * 12 + 4)) & 0xFF) < *(s16 *)(base + i * 12 + 8)) {
                 return 0;
             }
             break;
@@ -10011,7 +10011,7 @@ void fclCombineRestoreSnapshot(void)
     i = 0;
     while (i < 4) {
         if (*(s8 *)((u32)iGpffffb594 + i + 0x3000) == 1) {
-            func_00106620((s16)(i + 0x464), 1);
+            datItemSetCount((s16)(i + 0x464), 1);
             datSetFlag(i + 0x1309, 1);
         }
         i++;
@@ -10206,7 +10206,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
         } else {
             nmMesWindowDestroySlot(p[0xD]);
             if ((cmmCommunityRecordValue(0x14) & 0xFFFF) == 0xA) {
-                func_00106620(0x4A2, ((func_00106600(0x4A2) & 0xFF) + 1) & 0xFF);
+                datItemSetCount(0x4A2, ((datItemCount(0x4A2) & 0xFF) + 1) & 0xFF);
             }
             p[0] = 0;
             p[0] = 1;

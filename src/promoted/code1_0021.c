@@ -42,7 +42,7 @@ extern u32 datPersonaGetExpById(s16 arg0);
 extern void datSetHeroExp(s16 arg0, u32 value);
 extern u8 func_001059e0(s32 arg0);
 extern s32 datAddMoney(s32 arg0);
-extern s32 func_00106600(s16 id);
+extern s32 datItemCount(s16 id);
 extern void datCalcSetLevel(u8 *arg0, u8 arg1);
 extern s32 btlDamageIsIdle(s32);
 extern void btlPanelSetCountdown(s32, s32);
@@ -4639,12 +4639,12 @@ void btlXpApplyAwards(u8 *arg0, u8 *arg1)
     while (var_17 < *(s32 *)(arg1 + 0x30)) {
         temp_19 = arg1 + var_17 * 4;
         temp_20 = temp_19 + 0x24;
-        temp_21 = (s16)(func_00106600(*(s16 *)(temp_19 + 0x24)) & 0xFF);
+        temp_21 = (s16)(datItemCount(*(s16 *)(temp_19 + 0x24)) & 0xFF);
         sum = temp_21 + *(s16 *)(temp_19 + 0x26);
         if (sum > 0x63) {
             sum = 0x63;
         }
-        func_00106620((s32)*(s16 *)temp_20, (u8)sum);
+        datItemSetCount((s32)*(s16 *)temp_20, (u8)sum);
         var_17 += 1;
     }
 }

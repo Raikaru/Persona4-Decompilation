@@ -1474,7 +1474,7 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
 {
     extern f32 sinf(f32);
     extern u8 *resourceFindByName(char *name);
-    extern s32 func_00106600(s16);
+    extern s32 datItemCount(s16);
     extern u8 D_005E5850[];
     extern f32 iGpffff81dc;
     extern f32 iGpffff81e0;
@@ -1588,7 +1588,7 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
             fadePhase = sinf((iGpffff8094 * (f32)(frame - 10)) / 10.0f);
         }
         fade = (s32)(fadePhase * 255.0f);
-        score = func_00106600(0x3F8) & 0xFF;
+        score = datItemCount(0x3F8) & 0xFF;
         if (score < 10) {
             sdkSpriteDrawQueued(47.0f, 83.0f, 0.0f, 0, fade, score + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         } else {
@@ -1629,7 +1629,7 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
         }
         fade = (s32)((1.0f - fadePhase) * 255.0f);
         sdkSpriteDrawQueued(30.0f, 66.0f, 0.0f, 0x7AFEFF, fade, 5, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        score = func_00106600(0x3F8) & 0xFF;
+        score = datItemCount(0x3F8) & 0xFF;
         if (score < 10) {
             sdkSpriteDrawQueued(47.0f, 83.0f, 0.0f, 0, fade, score + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         } else {
@@ -1668,7 +1668,7 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
         sdkSpriteDrawQueued(8.0f, 52.0f + cmmScoreDisplacement(phase, 8.0f, 2.0f), 0.0f, 0x2346, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(59.0f, 121.0f + cmmScoreDisplacement(phase, 10.0f, 6.0f), 0.0f, 0xC52, 0xFF, 6, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         sdkSpriteDrawQueued(30.0f, 66.0f, 0.0f, 0x7AFEFF, 0xFF, 5, atlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
-        score = func_00106600(0x3F8) & 0xFF;
+        score = datItemCount(0x3F8) & 0xFF;
         if (score < 10) {
             sdkSpriteDrawQueued(47.0f, 83.0f, 0.0f, 0, 0xFF, score + 0x1D, digitsAtlas, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00794E70);
         } else {

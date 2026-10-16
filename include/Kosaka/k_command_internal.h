@@ -8,7 +8,7 @@
 
 
 typedef struct Model Model;
-extern s32 func_00106600(s16 id);
+extern s32 datItemCount(s16 id);
 extern void SceneDraw_SetResVisible(u16 resourceId, u32 value);
 extern u16 MT_Scene_FindFreeResId(s32 type);
 extern void func_00106550(s32 arg0, s32 arg1);

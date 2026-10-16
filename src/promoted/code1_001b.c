@@ -15,7 +15,7 @@ typedef struct RtQuat { RwV3d imag; f32 real; } RtQuat;
 #include "btl_target_state_packet_internal.h"
 #include "btl_packet_create_internal.h"
 #include "btl_formation_internal.h"
-extern s32 func_00106600(s16 id);
+extern s32 datItemCount(s16 id);
 typedef struct KwlnTask KwlnTask;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlPacket BtlPacket;

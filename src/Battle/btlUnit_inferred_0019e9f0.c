@@ -152,9 +152,9 @@ extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
 
 
 
-extern s32 func_0010d6d0(s16 arg0);
+extern s32 datPersonaNamePart1(s16 arg0);
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
-extern s32 func_0010d740(s16 arg0);
+extern s32 datPersonaNamePart1Alt(s16 arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
 extern s32 iGpffffb444;
 extern s32 btlUnitIsMoving(u8 *arg0);
@@ -440,7 +440,7 @@ s32 btlUnitGetDataRow(u8 *arg0)
     type = *(u8 *)(arg0 + 0xA2);
     switch (type) {
     case 0:
-        result = func_0010d740((s16)id);
+        result = datPersonaNamePart1Alt((s16)id);
         break;
     case 1:
         result = p4_base_add_0019f050((u32)id * 0x15,
@@ -455,8 +455,8 @@ s32 btlUnitGetDataRow(u8 *arg0)
     return result;
 }
 
-/* Identical body to btlUnitGetDataRow (its type-0 callee func_0010D6D0 has the same
- * body as func_0010D740); a separate retail function at its own address. */
+/* Identical body to btlUnitGetDataRow (its type-0 callee datPersonaNamePart1 has the same
+ * body as datPersonaNamePart1Alt); a separate retail function at its own address. */
 // FUN_0019F0F0
 s32 btlUnitGetDataRowAlt(u8 *arg0)
 {
@@ -469,14 +469,14 @@ s32 btlUnitGetDataRowAlt(u8 *arg0)
     type = *(u8 *)(arg0 + 0xA2);
     switch (type) {
     case 0:
-        result = func_0010d6d0((s16)id);
+        result = datPersonaNamePart1((s16)id);
         break;
     case 1:
     case 2:
         result = 0;
         switch (type) {
         case 0:
-            result = func_0010d740((s16)id);
+            result = datPersonaNamePart1Alt((s16)id);
             break;
         case 1:
             result = p4_base_add_0019f050((u32)id * 0x15,

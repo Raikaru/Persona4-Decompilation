@@ -49,11 +49,11 @@ extern s64 cmmCommunityIsListable(s32 id);
 extern s32 cmmCommunityPassesFlagGate(s32 id);
 extern s32 cmmCommunityHasFlagGate(s32 id);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern s32 func_00106600(s16 arg0);
+extern s32 datItemCount(s16 arg0);
 extern u32 datEntryGetFlags(s16 arg0);
 extern u32 datEntryCategoryMask(s16 arg0);
-extern u32 func_00106b20(s16 arg0);
-extern u32 func_00106b50(s16 arg0);
+extern u32 datItemMoonGateFirst(s16 arg0);
+extern u32 datItemMoonGateSecond(s16 arg0);
 
 /* 228/240 bytes; fifteen resolved relocations and twelve zero alignment bytes. */
 // FUN_002E24A0
@@ -311,11 +311,11 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
         for (i = 0; i < 0x600; i++) {
             p->rows.paired[i].quantity = 0;
             p->rows.paired[i].id = 0;
-            if ((func_00106600(i) & 0xFF) > 0) {
+            if ((datItemCount(i) & 0xFF) > 0) {
                 ok = yListAcceptsItem(iGpffffb58c, i);
                 if ((ok == 1) && !(datEntryCategoryMask(i) & 0x2000)) {
                     p->rows.paired[p->count].id = i;
-                    p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
+                    p->rows.paired[p->count].quantity = datItemCount(i) & 0xFF;
                     count = fclAddClamped(p->count, 1, 0, 0, 0);
                     p->count = count;
                 }
@@ -331,10 +331,10 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
                 type = (s16)func_002be1b0(i);
                 if ((type != 0x10) && (type != 0x11) && (type != 0x12)) {
                     if (datGetFlag(0x1462) == 0) {
-                        value = (s32)(func_00106b20(i) & 0xFFF00) >> 8;
-                        if (fclMoonPhaseAtLeast(value, func_00106b20(i) & 0xFF) == 1) {
-                            value = (s32)(func_00106b50(i) & 0xFFF00) >> 8;
-                            if (fclMoonPhaseAtLeast(value, func_00106b50(i) & 0xFF) == 1) {
+                        value = (s32)(datItemMoonGateFirst(i) & 0xFFF00) >> 8;
+                        if (fclMoonPhaseAtLeast(value, datItemMoonGateFirst(i) & 0xFF) == 1) {
+                            value = (s32)(datItemMoonGateSecond(i) & 0xFFF00) >> 8;
+                            if (fclMoonPhaseAtLeast(value, datItemMoonGateSecond(i) & 0xFF) == 1) {
                                 p->rows.paired[i].quantity = 0;
                                 p->rows.paired[p->count].id = i;
                                 count = fclAddClamped(p->count, 1, 0, 0, 0);
@@ -384,11 +384,11 @@ void yListRebuild(s32 arg0, s32 arg1, s8 arg2, s8 arg3) {
         for (i = 0; i < 0x600; i++) {
             p->rows.paired[i].quantity = 0;
             p->rows.paired[i].id = 0;
-            if ((func_00106600(i) & 0xFF) > 0) {
+            if ((datItemCount(i) & 0xFF) > 0) {
                 ok = yListAcceptsItem(iGpffffb58c, i);
                 if (ok == 1) {
                     p->rows.paired[p->count].id = i;
-                    p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
+                    p->rows.paired[p->count].quantity = datItemCount(i) & 0xFF;
                     count = fclAddClamped(p->count, 1, 0, 0, 0);
                     p->count = count;
                 }
@@ -479,11 +479,11 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
         for (i = 0; i < 0x600; i++) {
             p->rows.paired[i].quantity = 0;
             p->rows.paired[i].id = 0;
-            if ((func_00106600(i) & 0xFF) > 0) {
+            if ((datItemCount(i) & 0xFF) > 0) {
                 ok = yListAcceptsItem(arg0, i);
                 if ((ok == 1) && !(datEntryCategoryMask(i) & 0x2000)) {
                     p->rows.paired[p->count].id = i;
-                    p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
+                    p->rows.paired[p->count].quantity = datItemCount(i) & 0xFF;
                     count = fclAddClamped(p->count, 1, 0, 0, 0);
                     p->count = count;
                 }
@@ -499,10 +499,10 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
                 type = (s16)func_002be1b0(i);
                 if ((type != 0x10) && (type != 0x11) && (type != 0x12)) {
                     if (datGetFlag(0x1462) == 0) {
-                        value = (s32)(func_00106b20(i) & 0xFFF00) >> 8;
-                        if (fclMoonPhaseAtLeast(value, func_00106b20(i) & 0xFF) == 1) {
-                            value = (s32)(func_00106b50(i) & 0xFFF00) >> 8;
-                            if (fclMoonPhaseAtLeast(value, func_00106b50(i) & 0xFF) == 1) {
+                        value = (s32)(datItemMoonGateFirst(i) & 0xFFF00) >> 8;
+                        if (fclMoonPhaseAtLeast(value, datItemMoonGateFirst(i) & 0xFF) == 1) {
+                            value = (s32)(datItemMoonGateSecond(i) & 0xFFF00) >> 8;
+                            if (fclMoonPhaseAtLeast(value, datItemMoonGateSecond(i) & 0xFF) == 1) {
                                 p->rows.paired[i].quantity = 0;
                                 p->rows.paired[p->count].id = i;
                                 count = fclAddClamped(p->count, 1, 0, 0, 0);
@@ -552,11 +552,11 @@ void yListRebuildFor(u8 *arg0, s32 arg1, s32 arg2, s8 arg3, s32 arg4) {
         for (i = 0; i < 0x600; i++) {
             p->rows.paired[i].quantity = 0;
             p->rows.paired[i].id = 0;
-            if ((func_00106600(i) & 0xFF) > 0) {
+            if ((datItemCount(i) & 0xFF) > 0) {
                 ok = yListAcceptsItem(arg0, i);
                 if (ok == 1) {
                     p->rows.paired[p->count].id = i;
-                    p->rows.paired[p->count].quantity = func_00106600(i) & 0xFF;
+                    p->rows.paired[p->count].quantity = datItemCount(i) & 0xFF;
                     count = fclAddClamped(p->count, 1, 0, 0, 0);
                     p->count = count;
                 }

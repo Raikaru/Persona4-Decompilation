@@ -6151,7 +6151,7 @@ void btlActionEndureUpdate(u8 *arg0) {
     u8 *statPacket;
     u8 *removeFlagsPacket;
 
-    s32 func_00106600(s16 id);
+    s32 datItemCount(s16 id);
     u8 *btlCreateRemoveFlagsPacket(s32 arg0);
     u8 *btlPacketCreateImmediate(void);
     void btlTargetClearResultBuffer(u8 *arg0);
@@ -6215,9 +6215,9 @@ void btlActionEndureUpdate(u8 *arg0) {
         btlPacketEnqueue(messagePacket, 0);
         secondPacketTag = *(s64 *)(messagePacket + 0x58);
         if (*(u16 *)(arg0 + 0x3F4) == 0x154) {
-            remainingCount = func_00106600(0x340) & 0xFF;
+            remainingCount = datItemCount(0x340) & 0xFF;
             if (remainingCount > 0) {
-                func_00106620(0x340, (remainingCount - 1) & 0xFF);
+                datItemSetCount(0x340, (remainingCount - 1) & 0xFF);
             }
         }
         if (*(u16 *)(arg0 + 0x3F4) == 0x210) {

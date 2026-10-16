@@ -370,7 +370,7 @@ void shdPersonaDrawDetailPanel(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
     }
 }
 #pragma pop
-u32 func_0010d6d0(s16 arg0);
+u32 datPersonaNamePart1(s16 arg0);
 // Intent: Draw a persona name plate: panel sprite 0x59 and the persona name text from the id lookup [inferred]
 // FUN_00116190
 void shdPersonaDrawNamePlate(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
@@ -393,7 +393,7 @@ void shdPersonaDrawNamePlate(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
         sdkSpriteDrawOnceTinted(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, high, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
         x = (f32)(s32)(114.0f + *(f32 *)&arg0);
         y = (f32)(s32)(2.0f + high);
-        frFontExDrawText(x, y, fparg0, color | -0x100, 8, 1, (const char *)func_0010d6d0(*(s16 *)arg2), 8, 0);
+        frFontExDrawText(x, y, fparg0, color | -0x100, 8, 1, (const char *)datPersonaNamePart1(*(s16 *)arg2), 8, 0);
     }
 }
 
@@ -2099,7 +2099,7 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
                 sdkSpriteDrawOnceTinted(0, id, 0x59, 207.0f + headerPosition.xy.x, headerY, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, 0.0f, 0);
                 x = (f32)(s32)(114.0f + headerPosition.xy.x);
                 y = (f32)(s32)(2.0f + headerY);
-                frFontExDrawText(x, y, 0.0f, color | ~0xFF, 8, 1, (const char *)func_0010d6d0((s16)work->persona[0].category), 8, 0);
+                frFontExDrawText(x, y, 0.0f, color | ~0xFF, 8, 1, (const char *)datPersonaNamePart1((s16)work->persona[0].category), 8, 0);
             }
         }
         if ((work->flags & 0x40) != 0) {
@@ -4646,7 +4646,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             nmMesWindowOpenCurrent((u8 *)(*(s32 *)(work + 0x24)));
             nmMesWindowSetCurrentString(0, datPersonaGetRow(datPersonaRecordId((u32)first)));
             id2 = *(s16 *)(*(u8 **)(*(u8 **)(work + 0x1C) + 0x38) + 0xC);
-            nmMesWindowSetCurrentString(1, (void *)func_0010d6d0(id2));
+            nmMesWindowSetCurrentString(1, (void *)datPersonaNamePart1(id2));
             nmMesWindowShowCurrentRecord(*(s32 *)(work + 0x30));
             *(s32 *)(work + 0x14) = 2;
         }

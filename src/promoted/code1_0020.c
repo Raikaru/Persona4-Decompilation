@@ -370,7 +370,7 @@ extern u16 datCalcThresholdKind(u8 *unit, s32 skill);
 #pragma opt_propagation off
 #pragma pop
 extern s16 func_00105f00(s16 arg0);
-extern u32 func_0010d6d0(s16 arg0);
+extern u32 datPersonaNamePart1(s16 arg0);
 #pragma push
 #pragma opt_rebuildconditionals off
 #pragma opt_common_subs off
@@ -390,7 +390,7 @@ typedef struct BattleRenderDispatch {
 
 #pragma pop
 
-extern s32 func_00106600(s16 id);
+extern s32 datItemCount(s16 id);
 extern u16 *datPersonaGetRecord(u16 id);
 extern u16 datPersonaGetSkillAt(u8 *persona, s16 slot);
 extern s32 datCalcIsFlaggedPersonaSkill(s32 id);

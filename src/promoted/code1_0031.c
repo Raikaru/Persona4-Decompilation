@@ -19,7 +19,7 @@ static inline s32 func_0031_ne(s32 value, s32 target)
 
 extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 extern s32 datGetFlag(s32 arg0);
-extern s32 func_00106600(s16 id);
+extern s32 datItemCount(s16 id);
 extern u16 cmmCommunityRecordValue(u16 arg0);
 extern u8 D_006432B0[];
 extern u8 fclCalendarMonth(void);
@@ -258,23 +258,23 @@ s32 fclCombineMaterialAvailable(u16 arg0)
 
     value = arg0 & 0xFFFF;
     if (value == 0x93) {
-        result = (func_00106600(0x4A8) & 0xFF) >= 1;
+        result = (datItemCount(0x4A8) & 0xFF) >= 1;
         goto done;
     }
     if (value == 0xB9) {
-        result = (func_00106600(0x4A4) & 0xFF) >= 1;
+        result = (datItemCount(0x4A4) & 0xFF) >= 1;
         goto done;
     }
     if (value == 0x26) {
-        result = (func_00106600(0x4A6) & 0xFF) >= 1;
+        result = (datItemCount(0x4A6) & 0xFF) >= 1;
         goto done;
     }
     if (value == 0x53) {
-        result = (func_00106600(0x4AD) & 0xFF) >= 1;
+        result = (datItemCount(0x4AD) & 0xFF) >= 1;
         goto done;
     }
     if (value == 0x68) {
-        result = (func_00106600(0x4AF) & 0xFF) >= 1;
+        result = (datItemCount(0x4AF) & 0xFF) >= 1;
         goto done;
     }
     if (value == 0xA6) {

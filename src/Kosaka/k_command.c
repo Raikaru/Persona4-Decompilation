@@ -962,7 +962,7 @@ u32 Cmd_SetResourceValueByte(void)
 // FUN_0025D100
 u32 Cmd_LoadTableWord()
 {
-    scrSetReturnInt((u8)func_00106600((s16)scrGetParamInt(0)));
+    scrSetReturnInt((u8)datItemCount((s16)scrGetParamInt(0)));
 
     return true;
 }

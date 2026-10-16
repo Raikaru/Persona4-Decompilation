@@ -57,7 +57,7 @@ extern void cmpEquipSetMode(u8 *arg0, s32 arg1);
 extern void radarBeginSlideOut(u8 *arg0);
 extern void radarBeginSlideIn(u8 *arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
-extern s32 func_00106600(s16 arg0);
+extern s32 datItemCount(s16 arg0);
 extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 extern void radarResetAndSetIndices(u8 *arg0, s16 arg1, s16 arg2);
 extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1,
@@ -1825,9 +1825,9 @@ s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2)
         datCalcApplySkillEffectById(arg0, arg1, item_type, 1);
     } else state = 0;
     if (state > 0) {
-        updated = (s16)(func_00106600(item) & 0xff) - 1;
+        updated = (s16)(datItemCount(item) & 0xff) - 1;
         if (updated < 0) kAssertFail(D_005ED9D0, 0x29c);
-        func_00106620(item, updated & 0xff);
+        datItemSetCount(item, updated & 0xff);
         if (state == 3) {
             datSetFlag(5121, 1);
         } else {
@@ -1927,11 +1927,11 @@ s32 radarTransferSelectedUnit(u8 *arg0) {
     }
     cmpEquipSetMode(arg0, 7);
     radarResetAndSetIndices(arg0, temp_17, temp_19);
-    if ((func_00106600(temp_17) & 0xFF) != 0x63) {
-        func_00106620(temp_17, ((func_00106600(temp_17) & 0xFF) + 1) & 0xFF);
+    if ((datItemCount(temp_17) & 0xFF) != 0x63) {
+        datItemSetCount(temp_17, ((datItemCount(temp_17) & 0xFF) + 1) & 0xFF);
     }
     func_00106d40(temp_18, temp_16.value, temp_19);
-    func_00106620(temp_19, ((func_00106600(temp_19) & 0xFF) - 1) & 0xFF);
+    datItemSetCount(temp_19, ((datItemCount(temp_19) & 0xFF) - 1) & 0xFF);
     cmpEquipBuildItemList(arg0);
     temp_2 = *(s16 *)(arg0 + 0xC46);
     if (temp_2 < 5) {

@@ -131,7 +131,7 @@ void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
 // FUN_002BC0E0
  s32 func_002bc0e0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
 {
-    extern s32 func_00106600(s16 id);
+    extern s32 datItemCount(s16 id);
     extern u32 datEntryGetFlags(s16 arg0);
     extern s32 itfMesWindowRecordCount(s32 arg0);
     extern s32 itfMesWindowDrawEntry(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
@@ -187,13 +187,13 @@ void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
             temp_index = (s32)datEntryGetFlags((s16)arg5);
         }
         temp_item_index = spC0[temp_index];
-        arg5 = (s16)func_00106b80((s16)arg5);
+        arg5 = (s16)datItemBankOffset((s16)arg5);
         goto block_23;
     case 1:
         temp_index_2 = arg5 & 0xFFFF;
         temp_item_index = spC0[datEntryGetFlags((s16)temp_index_2)];
         temp_item = D_0063F2B0[temp_item_index];
-        temp_count = (s16)func_00106b80((s16)temp_index_2);
+        temp_count = (s16)datItemBankOffset((s16)temp_index_2);
         if ((u32)itfMesWindowRecordCount(temp_item) < (u32)temp_count) {
             return 0;
         }
@@ -206,20 +206,20 @@ void func_002bc0b0(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
                       D_0063F2C0[0], temp_level);
         return 0;
     case 2:
-        temp_index_2 = func_00106600((s16)arg5) & 0xFF;
+        temp_index_2 = datItemCount((s16)arg5) & 0xFF;
         temp_item_index = spC0[datEntryGetFlags((s16)temp_index_2)];
         temp_item = D_0063F2B0[temp_item_index];
-        temp_count = (s16)func_00106b80((s16)temp_index_2);
+        temp_count = (s16)datItemBankOffset((s16)temp_index_2);
         if ((u32)itfMesWindowRecordCount(temp_item) < (u32)temp_count) {
             return 0;
         }
         temp_22 = itfMesWindowRecordCount(D_0063F2C0[0]);
-        if (temp_22 < (u32)(func_00106600((s16)arg5) & 0xFF)) {
+        if (temp_22 < (u32)(datItemCount((s16)arg5) & 0xFF)) {
             return 0;
         }
         itfMesWindowDrawPair(fparg0, fparg1, fparg2,
                       arg0, arg1, arg2, 1, temp_item, temp_count,
-                      D_0063F2C0[0], func_00106600((s16)arg5) & 0xFF);
+                      D_0063F2C0[0], datItemCount((s16)arg5) & 0xFF);
         return 0;
     default:
         temp_item_index = sp90[arg4];
@@ -261,32 +261,32 @@ void func_002bc4b0(f32 inputDepth, s16 arg0, s32 arg1, s32 arg2,
     case 0:
         itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[0],
-                      (s16)func_00106b80(arg0));
+                      (s16)datItemBankOffset(arg0));
         return;
     case 1:
         itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[1],
-                      (s16)func_00106b80(arg0));
+                      (s16)datItemBankOffset(arg0));
         return;
     case 2:
         itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[2],
-                      (s16)func_00106b80(arg0));
+                      (s16)datItemBankOffset(arg0));
         return;
     case 3:
         itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[4],
-                      (s16)func_00106b80(arg0));
+                      (s16)datItemBankOffset(arg0));
         return;
     case 4:
         itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[5],
-                      (s16)func_00106b80(arg0));
+                      (s16)datItemBankOffset(arg0));
         return;
     case 5:
         itfMesWindowDrawEntry((f32)arg1, (f32)arg2, fparg0,
                       arg3, arg4, arg5, 1, D_0063F2B0[7],
-                      (s16)func_00106b80(arg0));
+                      (s16)datItemBankOffset(arg0));
     default:
         return;
     }

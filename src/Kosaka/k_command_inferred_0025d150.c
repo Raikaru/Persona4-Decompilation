@@ -71,7 +71,7 @@ s32 scrCommonSetItemCount(void) {
     s16 temp_16;
 
     temp_16 = scrGetParamInt(0);
-    func_00106620(temp_16, scrGetParamInt(1) & 0xFF);
+    datItemSetCount(temp_16, scrGetParamInt(1) & 0xFF);
     return 1;
 }
 

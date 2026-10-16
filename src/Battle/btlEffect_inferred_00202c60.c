@@ -207,13 +207,13 @@ extern u32 datCalcSkillCost(u8 *unit, s32 skill);
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
 extern u16 datCalcThresholdKind(u8 *unit, s32 skill);
 extern s16 func_00105f00(s16 arg0);
-extern u32 func_0010d6d0(s16 arg0);
+extern u32 datPersonaNamePart1(s16 arg0);
 extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 mode,
                          s32 style, s32 flags, s32 handle, s32 index);
 typedef struct BattleRenderDispatch {
     void (*setState)(u32 state, u32 value);
 } BattleRenderDispatch;
-extern s32 func_00106600(s16 id);
+extern s32 datItemCount(s16 id);
 extern u16 *datPersonaGetRecord(u16 id);
 extern u16 datPersonaGetSkillAt(u8 *persona, s16 slot);
 extern s32 datCalcIsFlaggedPersonaSkill(s32 id);
@@ -1691,7 +1691,7 @@ void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
     }
     persona = ((u8 **)(work + 0x17C))[slot];
     frFontSetFlagBits(0x40);
-    name = (const char *)func_0010d6d0(*(s16 *)(persona + 0xA4));
+    name = (const char *)datPersonaNamePart1(*(s16 *)(persona + 0xA4));
     {
         f32 text_x = 1.0f + x;
         f32 text_y = (19.0f + y) - 3.0f;
@@ -2144,10 +2144,10 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
     *(u16 *)(work + 0x1A4) = skillCount;
     itemCount = 0;
     for (itemSlot = 0; itemSlot < 0x100; itemSlot++) {
-        if (func_00106600((s16)(itemSlot + 0x300)) != 0 &&
+        if (datItemCount((s16)(itemSlot + 0x300)) != 0 &&
             datCalcIsFlaggedPersonaSkill((u16)(itemSlot + 0x300)) != 0) {
             ((BattleListWork *)work)->items[itemCount].id = itemSlot + 0x300;
-            ((BattleListWork *)work)->items[itemCount].quantity = func_00106600((s16)(itemSlot + 0x300));
+            ((BattleListWork *)work)->items[itemCount].quantity = datItemCount((s16)(itemSlot + 0x300));
             itemCount++;
         }
     }
@@ -3248,7 +3248,7 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
 {
     extern u32 kwlnTaskGetWork(void *task);
     extern s16 func_00105f00(s16 selection);
-    extern u32 func_0010d6d0(s16 selection);
+    extern u32 datPersonaNamePart1(s16 selection);
     extern s32 frFontNodeWidth(struct FrFontNode *node);
     extern void frFontMoveListTo(s32 node, s32 x, s32 y);
     extern s32 frFontListKeepOrRelease(s32 node);
@@ -3351,7 +3351,7 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
     iconFrame = (s16)func_00105f00(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4)) + 0x3F;
     btlUiDrawSpriteFaded(glyphs, 9, iconFrame, 168.0f, 334.0f, 0xFE, 0xFF, 0x22, 0xFF);
     frFontSetFlagBits(0x40);
-    nameAddress = func_0010d6d0(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4));
+    nameAddress = datPersonaNamePart1(*(s16 *)(*(u8 **)(work + 0x190) + 0xA4));
     font = (u8 *)(u32)frFontExCreateText(357.0f, 332.0f, 50.0f, -1, 0, 1, (const char *)nameAddress, 0, NULL);
     nameWidth = frFontNodeWidth((struct FrFontNode *)font);
     {

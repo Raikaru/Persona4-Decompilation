@@ -1156,15 +1156,17 @@ void func_001065c0(void)
     }
 }
 
+// Intent: returns an item's stack count (byte at D_0079757A[id]). datItemSetCount writes the same table.
 // FUN_00106600
-s32 func_00106600(s16 arg0)
+s32 datItemCount(s16 arg0)
 {
     return D_0079757A[arg0];
 }
 
+// Intent: sets an item's stack count, clamped to 99 (0x63), in the D_0079757A table.
 // FUN_00106620
 /* Inventory and metadata queries share the signed halfword item ID. */
-void func_00106620(s16 arg0, s32 arg1)
+void datItemSetCount(s16 arg0, s32 arg1)
 {
     s16 id;
     u8 *p;
@@ -1317,33 +1319,38 @@ u32 datItemPrice(s16 arg0)
     return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x34);
 }
 
+// Intent: returns the calendar month (+0x38) an item is available from. Compared through func_002be100 with fclCalendarMonth.
 // FUN_00106AC0
-s8 func_00106ac0(s16 arg0)
+s8 datItemAvailableMonth(s16 arg0)
 {
     return *(s8*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x38);
 }
 
+// Intent: returns the calendar day (+0x39) an item is available from, paired with datItemAvailableMonth.
 // FUN_00106AF0
-s8 func_00106af0(s16 arg0)
+s8 datItemAvailableDay(s16 arg0)
 {
     return *(s8*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x39);
 }
 
+// Intent: returns the first moon-phase gate word (+0x3C). Bits 8..19 are the phase key and the low byte is the second fclMoonPhaseAtLeast argument.
 // FUN_00106B20
-u32 func_00106b20(s16 arg0)
+u32 datItemMoonGateFirst(s16 arg0)
 {
     return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x3C);
 }
 
+// Intent: returns the second moon-phase gate word (+0x40), with the same layout as datItemMoonGateFirst.
 // FUN_00106B50
-u32 func_00106b50(s16 arg0)
+u32 datItemMoonGateSecond(s16 arg0)
 {
     return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x40);
 }
 
 /* The signed item ID selects a bank-relative metadata index. */
+// Intent: maps an item id to its offset within its 0x100-entry bank (ids 0x000..0x5FF).
 // FUN_00106B80
-s64 func_00106b80(s16 arg0)
+s64 datItemBankOffset(s16 arg0)
 {
     s16 temp_2;
 
@@ -1675,8 +1682,9 @@ u32 datPersonaDisplayName(s16 arg0)
     }
 }
 
+// Intent: returns name part 0 for a persona id. Id 1 is the hero's buffer; ids below 11 use the part-0 table; other ids use the display-name table.
 // FUN_0010D660
-u32 func_0010d660(s16 arg0)
+u32 datPersonaNamePart0(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -1689,8 +1697,9 @@ u32 func_0010d660(s16 arg0)
     return D_005E4480[arg0];
 }
 
+// Intent: returns name part 1 for a persona id, with the same lookup as datPersonaNamePart0 over the part-1 table.
 // FUN_0010D6D0
-u32 func_0010d6d0(s16 arg0)
+u32 datPersonaNamePart1(s16 arg0)
 {
     if (arg0 == 1)
     {
@@ -1703,8 +1712,9 @@ u32 func_0010d6d0(s16 arg0)
     return D_005E4480[arg0];
 }
 
+// Intent: same body as datPersonaNamePart1 (a duplicate kept at its own address).
 // FUN_0010D740
-u32 func_0010d740(s16 arg0)
+u32 datPersonaNamePart1Alt(s16 arg0)
 {
     if (arg0 == 1)
     {

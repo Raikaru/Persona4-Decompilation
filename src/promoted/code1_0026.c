@@ -129,8 +129,8 @@ extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
 extern u32 frFontGetMode(void);
 extern void frFontLayoutText(u8 *text, u8 *context);
 extern u32 datGetItemNameId(s16 id);
-extern s64 func_0010d660(s32 arg0);
-extern s64 func_0010d6d0(s32 arg0);
+extern s64 datPersonaNamePart0(s32 arg0);
+extern s64 datPersonaNamePart1(s32 arg0);
 extern s32 sprintf(char *dst, const char *fmt, ...);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
@@ -1778,7 +1778,7 @@ static inline const s32 *contourOutlineCount(const s32 *words, s32 shape)
 #pragma opt_common_subs off
 #pragma opt_propagation off
 #pragma pop
-// Left func_: three text setters with one shape (frFontGetMode guard, sprintf of a DAT word from func_0010d660 or func_0010d6d0 at index 1, then frFontLayoutText). Their addresses are entries 0-2 of a function-pointer table at VA 0x63B994 in the retail data, and no source file names that table, so the owner of the index is not established and the words stay unnamed. [inferred]
+// Left func_: three text setters with one shape (frFontGetMode guard, sprintf of a DAT word from datPersonaNamePart0 or datPersonaNamePart1 at index 1, then frFontLayoutText). Their addresses are entries 0-2 of a function-pointer table at VA 0x63B994 in the retail data, and no source file names that table, so the owner of the index is not established and the words stay unnamed. [inferred]
 // FUN_0026FBA0
 s32 func_0026fba0(s32 arg0, u8 *arg1)
 {
@@ -1787,7 +1787,7 @@ s32 func_0026fba0(s32 arg0, u8 *arg1)
     if (frFontGetMode() != 0) {
         return 0;
     }
-    sprintf((char *)sp20, (const char *)&iGpffffa734, func_0010d660(1));
+    sprintf((char *)sp20, (const char *)&iGpffffa734, datPersonaNamePart0(1));
     frFontUpdateTextWork(arg1);
     frFontLayoutText((u8 *)sp20, arg1);
     return 0;
@@ -1800,7 +1800,7 @@ s32 func_0026fc20(s32 arg0, u8 *arg1)
     if (frFontGetMode() != 0) {
         return 0;
     }
-    sprintf((char *)sp20, (const char *)&iGpffffa734, func_0010d6d0(1));
+    sprintf((char *)sp20, (const char *)&iGpffffa734, datPersonaNamePart1(1));
     frFontUpdateTextWork(arg1);
     frFontLayoutText((u8 *)sp20, arg1);
     return 0;
@@ -1813,7 +1813,7 @@ s32 func_0026fca0(s32 arg0, u8 *arg1)
     if (frFontGetMode() != 0) {
         return 0;
     }
-    sprintf((char *)sp20, (const char *)&iGpffffa734, func_0010d6d0(1));
+    sprintf((char *)sp20, (const char *)&iGpffffa734, datPersonaNamePart1(1));
     frFontUpdateTextWork(arg1);
     frFontLayoutText((u8 *)sp20, arg1);
     sp20[0] = -0x7D;
@@ -1821,7 +1821,7 @@ s32 func_0026fca0(s32 arg0, u8 *arg1)
     sp20[2] = 0;
     frFontUpdateTextWork(arg1);
     frFontLayoutText((u8 *)sp20, arg1);
-    sprintf((char *)sp20, (const char *)&iGpffffa734, func_0010d660(1));
+    sprintf((char *)sp20, (const char *)&iGpffffa734, datPersonaNamePart0(1));
     frFontUpdateTextWork(arg1);
     frFontLayoutText((u8 *)sp20, arg1);
     return 0;

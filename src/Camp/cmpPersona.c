@@ -308,7 +308,7 @@ void cmpPersonaMenuDraw(u8* work)
     extern void datScreenWipeDraw(void *task);
     extern void cmpPersonaDrawRosterRow(u8 *work, s32 index);
     extern s32 datPersonaRosterCapacity(void);
-    extern u32 func_0010d6d0(s16 character);
+    extern u32 datPersonaNamePart1(s16 character);
     extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 font, int id, const char *text, int flags,
                              int extra);
     extern s32 shdPersonaGetChildTask(u8 *work);
@@ -476,7 +476,7 @@ void cmpPersonaMenuDraw(u8* work)
             sdkSpriteDrawSized(rowSprite, 202.0f + position.x, position.y, 0.0f, rowPalette[0], rowPalette[1],
                           rowPalette[2], rowAlpha, width, height, 0, 0.0f, 0);
             frFontExDrawText(105.0f + position.x, position.y, 0.0f, rowColor, rowStyle, 1,
-                          (const char*)func_0010d6d0(*(s16*)(work + rowIndex * 2 + 0x24)), 8, 0);
+                          (const char*)datPersonaNamePart1(*(s16*)(work + rowIndex * 2 + 0x24)), 8, 0);
         }
     }
     if ((menu->visible & 0x100) != 0) {
