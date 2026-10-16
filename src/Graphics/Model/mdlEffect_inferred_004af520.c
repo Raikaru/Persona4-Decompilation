@@ -68,7 +68,7 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes func_004a1950 MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -101,8 +101,9 @@ extern void func_004a86c0(u8 *arg0, u8 *arg1);
 /* Measured: scoped propagation preserves constant-first model lookup arguments. */
 #pragma push
 #pragma pop
+// Clears the node at +0x64 of the record at +0x58 and appends it to the table that TnGetOffset1C selects from the inner kind at +0x54.
 // FUN_004AF520
-void func_004af520(u8 *arg0) {
+void ObjectParticleAppendNode(u8 *arg0) {
     u8 *temp;
     u8 *inner;
     temp = *(u8 **)(arg0 + 0x58);
@@ -114,8 +115,9 @@ void func_004af520(u8 *arg0) {
     }
 }
 
+// Runs ObjectParticleUpdateRecords, then clears and appends the node at +0x64 of the record at +0x58, as ObjectParticleAppendNode does.
 // FUN_004AF580
-void func_004af580(u8 *arg0) {
+void ObjectParticleUpdateAndAppendNode(u8 *arg0) {
     u8 *temp;
     u8 *inner;
     ObjectParticleUpdateRecords();

@@ -41,7 +41,7 @@ void *ThunderTextureForRecord(void *source);
 void *RingCreateKindInstanceFromObject(void *source);
 void *RingCreateInstanceForRecord(void *source);
 void *FlashQuadCopyAllocFromParent(void *source);
-void *func_004a1950(void *source);
+void *FlashQuadCopyAllocFromRecord(void *source);
 void *WindCreateKindEntry(void *source);
 void *WindCreateKindEntryAlt(void *source);
 void *func_004a5bb0(void *source);
@@ -75,7 +75,7 @@ void *DistortParticleCreateFromParent(void *source);
 void *func_004b16c0(void *source);
 void *func_004b1950(void *source);
 void *LineNovaCreateKindInstanceFromObject(void *source);
-void *func_004b4f10(void *source);
+void *LineNovaCreateInstanceForRecord(void *source);
 void *EffBattleCreate(void *source);
 void *func_004b53c0(void *source);
 
