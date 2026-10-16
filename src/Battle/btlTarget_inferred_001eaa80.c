@@ -51,7 +51,7 @@ extern void func_001eb7f0(void);
 extern s32 func_001eb860(void);
 extern void btlActionFinishPresentation(s32 arg0);
 extern BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
-extern u8 *func_001d9280();
+extern u8 *btlEffectFindUnitByIdAndStatus();
 
 
 extern void btlPacketEnqueue(u8 *arg0, s32 arg1);
@@ -250,7 +250,7 @@ s32 btlEffectScriptNoHitRecorded(void) {
 // FUN_001EAEC0
 s32 btlEffectScriptApplyToSideUnit(void)
 {
-    extern u8 *func_001d9280(s64 arg0, s32 arg1, s32 arg2);
+    extern u8 *btlEffectFindUnitByIdAndStatus(s64 arg0, s32 arg1, s32 arg2);
     s64 temp_20;
     s64 temp_19;
     s64 temp_18;
@@ -269,7 +269,7 @@ s32 btlEffectScriptApplyToSideUnit(void)
     } else {
         var_2 = 2;
     }
-    temp_2 = func_001d9280(temp_19 & 0xFFFF, var_2 & 0xFFFF, 0x80000);
+    temp_2 = btlEffectFindUnitByIdAndStatus(temp_19 & 0xFFFF, var_2 & 0xFFFF, 0x80000);
     if (temp_2 != NULL) {
         func_00198920(*(u8 **)(temp_2 + 0x30), (s16)temp_18, (u16)temp_17, 1.0f, (u16)temp_16);
     }

@@ -116,7 +116,7 @@ u32 func_001d8bc0(void *arg0);
 void func_001d8be0(s32 formation, u64 *unit);
 
 extern u8 *iGpffffb3b8;
-void func_001d8e50(u8 *arg0, u8 *arg1);
+void btlEffectSelectTargetByStatus(u8 *arg0, u8 *arg1);
 void btlSelectionMarkTargets(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
 extern void btlDamageSetActive(s32 task);
 void btlUnitRequestLookAtOthers(u8 *arg0);
@@ -155,7 +155,7 @@ extern void btlMessageRelease(s32 task);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 s32 func_0019ff60(u8 *arg0);
 s64 *btlActionGetQueueFront(void);
-s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 s32 func_001f01a0(u8 *arg0, u8 *arg1);
 s32 datCalcSkillElement(u8 *arg0, u16 arg1);
@@ -601,7 +601,7 @@ type12_2_1c80:
     lookAtUnit = NULL;
     goto after_type_1c80;
 typeother_2_1c80:
-    func_001d8e50(arg0, arg0 + 0x98);
+    btlEffectSelectTargetByStatus(arg0, arg0 + 0x98);
 after_type_1c80:
     btlSelectionMarkTargets(
         *(s32 *)(D_0076449C + 0xDD4),
@@ -1638,7 +1638,7 @@ loop_test:
         status = 0;
     }
     if (status == 1) {
-        status = func_001d94d0(
+        status = btlEffectFindUnitMatchingCallback(
             (u8 *)action,
             datCalcSkillElement(
                 *(u8 **)(*(u8 **)((u8 *)action + 0x30) + 0xA64),

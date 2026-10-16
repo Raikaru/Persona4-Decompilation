@@ -119,7 +119,7 @@ u32 func_001d8bc0(void *arg0);
 void func_001d8be0(s32 formation, u64 *unit);
 
 extern u8 *iGpffffb3b8;
-void func_001d8e50(u8 *arg0, u8 *arg1);
+void btlEffectSelectTargetByStatus(u8 *arg0, u8 *arg1);
 void btlSelectionMarkTargets(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
 extern void btlDamageSetActive(s32 task);
 void btlUnitRequestLookAtOthers(u8 *arg0);
@@ -161,7 +161,7 @@ extern void btlMessageRelease(s32 task);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 s32 func_0019ff60(u8 *arg0);
 s64 *btlActionGetQueueFront(void);
-s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 s32 func_001f01a0(u8 *arg0, u8 *arg1);
 s32 datCalcSkillElement(u8 *arg0, u16 arg1);

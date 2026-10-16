@@ -63,7 +63,7 @@ s32 btlCond_MYMP(u8 *arg0, s32 arg1)
 
 // FUN_001D9890
 void btlCond_FRHP(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYHP);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYHP);
 }
 
 // FUN_001D98E0
@@ -83,7 +83,7 @@ void btlCond_ENHP(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHP);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHP);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
@@ -105,7 +105,7 @@ void btlCond_ENHP_O(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCondCheckMaxHp);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCondCheckMaxHp);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
@@ -197,9 +197,9 @@ void btlCond_FRBAD(u8 *arg0, u32 arg1)
 
     mask = (1 << *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2)) & 0xFFFF;
     if ((arg1 & 0x80000) != 0) {
-        func_001d94d0((int)arg0, arg1, mask, 0, 0, btlCond_MYBAD);
+        btlEffectFindUnitMatchingCallback((int)arg0, arg1, mask, 0, 0, btlCond_MYBAD);
     } else {
-        func_001d94d0((int)arg0, arg1, mask, 0x80000, 0, btlCond_MYBAD);
+        btlEffectFindUnitMatchingCallback((int)arg0, arg1, mask, 0x80000, 0, btlCond_MYBAD);
     }
 }
 
@@ -223,9 +223,9 @@ void btlCond_ENBAD(u8 *arg0, u32 arg1)
     }
     temp_3 = shift & 0xFFFF;
     if ((arg1 & 0x80000) != 0) {
-        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0, 0, btlCond_MYBAD);
+        btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0, 0, btlCond_MYBAD);
     } else {
-        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0x80000, 0, btlCond_MYBAD);
+        btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0x80000, 0, btlCond_MYBAD);
     }
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
@@ -459,7 +459,7 @@ s32 btlCond_MYWEAK(u8 *arg0, s16 arg1) {
 
 // FUN_001DA330
 void btlCond_FRHANSYA(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYHANSYA);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYHANSYA);
 }
 
 // FUN_001DA380
@@ -479,14 +479,14 @@ void btlCond_ENHANSYA(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHANSYA);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHANSYA);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 
 // FUN_001DA3E0
 void btlCond_FRKYUSYU(u8 *arg0, s32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << *(u8 *)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA2)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYKYUSYU);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << *(u8 *)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA2)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYKYUSYU);
 }
 
 // FUN_001DA430
@@ -505,13 +505,13 @@ void btlCond_ENKYUSYU(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYKYUSYU);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYKYUSYU);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DA490
 void btlCond_FRMUKOU(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYMUKOU);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYMUKOU);
 }
 // FUN_001DA4E0
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
@@ -529,13 +529,13 @@ void btlCond_ENMUKOU(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYMUKOU);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYMUKOU);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DA540
 void btlCond_FRWEAK(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYWEAK);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYWEAK);
 }
 // FUN_001DA590
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
@@ -553,7 +553,7 @@ void btlCond_ENWEAK(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYWEAK);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYWEAK);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
@@ -566,7 +566,7 @@ s32 btlCond_MYUSEATTR(u8 *arg0, s32 arg1)
 }
 // FUN_001DA640
 void btlCond_FRUSEATTR(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYUSEATTR);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)btlCond_MYUSEATTR);
 }
 // FUN_001DA690
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
@@ -584,7 +584,7 @@ void btlCond_ENUSEATTR(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYUSEATTR);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYUSEATTR);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
@@ -611,7 +611,7 @@ bool btlCond_MYUSESKIL(int param_1, int param_2)
 // FUN_001DA730
 void btlCond_FRUSESKIL(int param_1, u32 param_2)
 {
-    func_001d94d0(param_1, param_2, 1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
+    btlEffectFindUnitMatchingCallback(param_1, param_2, 1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
 }
 /* measured: opt_rebuildconditionals off is required for the retail branch shape. */
 #pragma opt_rebuildconditionals off
@@ -627,7 +627,7 @@ void btlCond_ENUSESKIL(int param_1, u32 param_2)
 nonzero:
     shift = 0;
 done:
-    func_001d94d0(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
+    btlEffectFindUnitMatchingCallback(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
 }
 /* measured: closes the function-local conditional rebuild setting. */
 #pragma opt_rebuildconditionals on
@@ -651,7 +651,7 @@ u32 btlCond_MYGROUP(int param_1)
 // FUN_001DA840
 void btlCond_FRGROUP(int param_1, u32 param_2)
 {
-    func_001d94d0(param_1, param_2, 1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
+    btlEffectFindUnitMatchingCallback(param_1, param_2, 1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
 }
 /* measured: opt_rebuildconditionals off is required for the retail branch shape. */
 #pragma opt_rebuildconditionals off
@@ -667,7 +667,7 @@ void btlCond_ENGROUP(int param_1, u32 param_2)
 nonzero:
     shift = 0;
 done:
-    func_001d94d0(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
+    btlEffectFindUnitMatchingCallback(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
 }
 /* measured: closes the function-local conditional rebuild setting. */
 #pragma opt_rebuildconditionals on
@@ -709,7 +709,7 @@ s32 btlCond_MYHREC(u8 *arg0)
 }
 // FUN_001DAA00
 void btlCond_FRHANSYA_ST(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYHANSYA);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYHANSYA);
 }
 // FUN_001DAA50
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
@@ -727,13 +727,13 @@ void btlCond_ENHANSYA_ST(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYHANSYA);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYHANSYA);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DAAB0
 void btlCond_FRKYUSYU_ST(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYKYUSYU);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYKYUSYU);
 }
 // FUN_001DAB00
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
@@ -751,13 +751,13 @@ void btlCond_ENKYUSYU_ST(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYKYUSYU);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYKYUSYU);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DAB60
 void btlCond_FRMUKOU_ST(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYMUKOU);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYMUKOU);
 }
 // FUN_001DABB0
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
@@ -775,13 +775,13 @@ void btlCond_ENMUKOU_ST(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYMUKOU);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYMUKOU);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DAC10
 void btlCond_FRWEAK_ST(u8 *arg0, u32 arg1) {
-    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYWEAK);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)btlCond_MYWEAK);
 }
 // FUN_001DAC60
 /* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
@@ -799,7 +799,7 @@ void btlCond_ENWEAK_ST(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYWEAK);
+    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYWEAK);
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on

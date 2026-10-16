@@ -60,7 +60,7 @@ extern void memcpy(void* dst, void* src, u32 size);
 extern void H_Cdvd_Destroy(u8* ptr);
 extern s32 btlFormationAllocWork(u32 param_1);
 extern void btlFormationSetSlot(int param_1, u32 param_2);
-extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
+extern u32 btlEffectFindUnitMatchingCallback(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 
 extern u8* D_0076449C;
