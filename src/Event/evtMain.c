@@ -1141,8 +1141,8 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
     extern void func_0028d1b0(u8 *, u8 *, s32);
     extern s32 mtMiscAttachSlotModel(u8 *, u8 *, s32, s32, s32);
     extern void mtMiscDetachSlotModel(u8 *, s32);
-    extern void func_00293270(void);
-    extern void func_002932b0(s32);
+    extern void evtModelDestroy(void);
+    extern void evtModelFlushResource(s32);
     extern void mdlSetBlendWeight(void *, f32);
     extern void mdlSetLookAtDirection(void *, struct RwV3d *);
     extern void mdlSetLookAtRequested(void *);
@@ -1204,7 +1204,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                     MT_Scene_ResetResMotion(*(u16 *)(resource + 0xC));
                     MT_Scene_SetResColorParamById(*(u16 *)(resource + 0xC), *(u8 *)(resource + 0x53), 0, 0);
                     *(s32 *)(resource + 0x60) = 0;
-                    func_00293270();
+                    evtModelDestroy();
                     if ((*(s32 *)(resource + 0x54) & 2) != 0) {
                         MT_Scene_SetResActiveById(*(u16 *)(resource + 0xC), 1);
                     } else {
@@ -1332,9 +1332,9 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                 settings.delay = *(s8 *)(command + 0x37);
                 settings.surface = *(s8 *)(command + 0x30);
                 if (*(s8 *)(command + 0x34) != 0) {
-                    func_00293710(*(u16 *)(resource + 0xC), 4, 0.0f, 0.0f, *(f32 *)(command + 0x14), 0.0f, *(s8 *)(command + 0x24), (u8 *)&settings);
+                    evtModelQueueMotionAt(*(u16 *)(resource + 0xC), 4, 0.0f, 0.0f, *(f32 *)(command + 0x14), 0.0f, *(s8 *)(command + 0x24), (u8 *)&settings);
                 } else {
-                    func_00293710(*(u16 *)(resource + 0xC), 4, 0.0f, 0.0f, *(f32 *)(command + 0x14), 0.0f, *(s8 *)(command + 0x24), NULL);
+                    evtModelQueueMotionAt(*(u16 *)(resource + 0xC), 4, 0.0f, 0.0f, *(f32 *)(command + 0x14), 0.0f, *(s8 *)(command + 0x24), NULL);
                 }
                 break;
             }
@@ -1372,7 +1372,7 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                 tmp8 = *(s8 *)(command + 0x14);
                 if (tmp8 == 0) {
                     if (modelData != NULL) {
-                        func_002932b0(*(u16 *)(resource + 0xC));
+                        evtModelFlushResource(*(u16 *)(resource + 0xC));
                         p = (u8 *)&origin;
                         n = 12;
                         if (p != NULL) {
@@ -1395,12 +1395,12 @@ s32 func_00288170(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
                             mdlSetBlendWeight(modelData, fGpffff8218);
                             mdlSetLookAtRequested(modelData);
                         }
-                        func_002932b0(*(u16 *)(resource + 0xC));
+                        evtModelFlushResource(*(u16 *)(resource + 0xC));
                     }
                 } else if (tmp8 == 2) {
-                    func_002933a0(*(u16 *)(resource + 0xC), 1, factor / fGpffff8218);
+                    evtModelQueueMotion(*(u16 *)(resource + 0xC), 1, factor / fGpffff8218);
                 } else if (tmp8 == 3) {
-                    func_002933a0(*(u16 *)(resource + 0xC), 2, factor / fGpffff8218);
+                    evtModelQueueMotion(*(u16 *)(resource + 0xC), 2, factor / fGpffff8218);
                 } else if (tmp8 == 4) {
                     {
                         u16 duration = *(u16 *)(command + 0x18);
@@ -2566,7 +2566,7 @@ void func_0028ad90(u8 *arg0, s32 arg1) {
     u8 *child;
 
     func_0028f4f0();
-    func_00293270();
+    evtModelDestroy();
     var_16 = 0;
     goto loop_6_test;
 loop_6_body:
