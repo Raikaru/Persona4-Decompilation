@@ -104,7 +104,7 @@ u32 btlCountUnitRecordsById(u32 arg0);
 u8 *btlCutinCreatePacket(u8 *arg0);
 u8 *btlUnitCreateRotateTowardUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *btlPacketAllocZeroed(s32 arg0, s32 arg1);
-u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
+u8 *btlEffectCreateFormationPacket(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
 u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
 u8 *btlCutinCreateEndPacket(void);
 u8 *btlCutinCreateStartPacket(void);
@@ -628,7 +628,7 @@ void btlActionRoundupMesUpdate(u8 *arg0)
         packet3 = btlPacketAllocZeroed((s32)btlActionGetCounter428, (s32)arg0);
         *(s16 *)(packet3 + 0x48) = *(s16 *)(arg0 + 0x42C);
         btlPacketEnqueue(packet3, 1);
-        packet4 = func_001d65d0(
+        packet4 = btlEffectCreateFormationPacket(
             *(s32 *)(D_0076449C + 0xD8C),
             *(s32 *)(arg0 + 0x30), 0,
             *(s64 *)(packet3 + 0x58), 0x8000);

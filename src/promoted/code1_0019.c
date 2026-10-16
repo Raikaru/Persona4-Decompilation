@@ -213,7 +213,7 @@ extern u8 iGpffffa4d8;
 extern void func_001d1540(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_001ee430(u8 *arg0);
 extern void func_001d7040(s32 arg0);
-extern void func_001d6c10(s32 arg0);
+extern void btlEffectFreeNodePool(s32 arg0);
 extern void btlPacketStep(u8 *arg0);
 extern int mdlHasActiveMode(void *arg0);
 extern void mdlSetLookAtActive(void *arg0);

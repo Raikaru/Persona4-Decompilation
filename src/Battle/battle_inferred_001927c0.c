@@ -371,7 +371,7 @@ s32 btlRelease(void)
     btlUnitFreeRemovedUnits();
     func_001b68d0();
     func_001b6110();
-    func_001d6a70();
+    btlEffectFreeAllNodes();
     func_001f9c40();
     func_001f73c0();
     btlCameraResetWorkList();

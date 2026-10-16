@@ -13,7 +13,7 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 func_001d6360(u8 *arg0);
+extern s32 btlEffectStepFormationPlacement(u8 *arg0);
 extern void btlEffectResetEntry(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void func_001d6910(u8 *arg0);
@@ -87,9 +87,9 @@ extern f32 fGpffff8110;
 #pragma pop
 /* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
 /* measured: restore optimization_level 2 after func_001d5990. */
-/* measured: opt_propagation off probe for func_001d6360 argument setup and register coloring. */
+/* measured: opt_propagation off probe for btlEffectStepFormationPlacement argument setup and register coloring. */
 #pragma push
-/* measured: restore pragma state after func_001d6360. */
+/* measured: restore pragma state after btlEffectStepFormationPlacement. */
 #pragma pop
 // FUN_001D6A60
 void func_001d6a60(void)
@@ -97,7 +97,7 @@ void func_001d6a60(void)
 }
 
 // FUN_001D6A70
-void func_001d6a70(void)
+void btlEffectFreeAllNodes(void)
 {
     u8 *temp_16;
     u8 *var_4;
@@ -112,7 +112,7 @@ void func_001d6a70(void)
 }
 
 // FUN_001D6AD0
-u8 *func_001d6ad0(void)
+u8 *btlEffectAllocNodePool(void)
 {
     u8 *array;
     u32 i;
@@ -149,7 +149,7 @@ u8 *func_001d6ad0(void)
 }
 
 // FUN_001D6C10
-void func_001d6c10(u8 *arg0)
+void btlEffectFreeNodePool(u8 *arg0)
 {
     u32 i;
     u8 *entry;

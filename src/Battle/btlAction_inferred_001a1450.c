@@ -166,7 +166,7 @@ u8 *btlCutinCreatePacket(u8 *arg0);
 extern void btlMessageStartLong(u8 *arg0, u8 *arg1);
 u8 *btlUnitCreateRotateTowardUnitPacket(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *btlPacketAllocZeroed(s32 arg0, s32 arg1);
-u8 *func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
+u8 *btlEffectCreateFormationPacket(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4);
 extern s32 btlMessageIsActiveAlt(s32 task);
 extern s32 btlMessageGetResultAlt(s32 task);
 u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -1704,7 +1704,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
             waitPacket = btlPacketAllocZeroed((s32)btlActionGetCounter420, (s32)arg0);
             btlPacketEnqueue(waitPacket, 1);
             btlPacketEnqueue(
-                func_001d65d0(*(s32 *)(D_0076449C + 0xD90),
+                btlEffectCreateFormationPacket(*(s32 *)(D_0076449C + 0xD90),
                               *(s32 *)(arg0 + 0x30), 0,
                               *(s64 *)(waitPacket + 0x58), 0xC000),
                 2);
@@ -4232,7 +4232,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             waitPkt23->delay = 0xC;
             waitPkt23->ownerId = actionId;
             btlPacketEnqueue((u8 *)waitPkt23, 1);
-            effectPkt24 = (BtlPacketTiming *)(func_001d65d0(effectHandles[0], (*(s32 *)(arg0 + 0x30)), 0, (waitPkt23->endTime), 0x100));
+            effectPkt24 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(effectHandles[0], (*(s32 *)(arg0 + 0x30)), 0, (waitPkt23->endTime), 0x100));
             effectPkt24->ownerId = actionId;
             btlPacketEnqueue((u8 *)effectPkt24, 2);
             soundPkt25 = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xA, 2, 3));
@@ -4269,7 +4269,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 btlPacketEnqueue((u8 *)pkt29, 0);
             }
             recoveryBase = (s32)(btlUnitMotionFrames(act->unit, 0xFU, 1.0f));
-            effectPkt30 = (BtlPacketTiming *)(func_001d65d0(effectHandles[1], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
+            effectPkt30 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(effectHandles[1], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
             effectPkt30->queue = 4;
             effectPkt30->startTime = chainTime;
             effectPkt30->delay = (s16) recoveryBase;
@@ -4281,7 +4281,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             soundPkt31->delay = (s16)recoveryBase + 2;
             soundPkt31->ownerId = actionId;
             btlPacketEnqueue((u8 *)soundPkt31, 1);
-            effectPkt32 = (BtlPacketTiming *)(func_001d65d0(effectHandles[2], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
+            effectPkt32 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(effectHandles[2], (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
             effectPkt32->queue = 4;
             effectPkt32->startTime = chainTime;
             effectPkt32->ownerId = actionId;
@@ -4369,7 +4369,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 }
             }
             if (noOverride == 0) {
-                effectPkt43 = (BtlPacketTiming *)(func_001d65d0(*(s32 *)(iGpffffb3ac + 0xD88), (*(s32 *)(arg0 + 0x30)), btlEffectDelay_001a7720(timingFrames), 0, 0x100));
+                effectPkt43 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(*(s32 *)(iGpffffb3ac + 0xD88), (*(s32 *)(arg0 + 0x30)), btlEffectDelay_001a7720(timingFrames), 0, 0x100));
                 effectPkt43->queue = 4;
                 effectPkt43->startTime = animPacket->endTime;
                 btlPacketEnqueue((u8 *)effectPkt43, 1);
@@ -4474,7 +4474,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             if (followState == 0) {
                 followState = *(s32 *)((u8 *)iGpffffb3ac + 0xD40);
             }
-            effectPkt51 = (BtlPacketTiming *)(func_001d65d0(followState, (*(s32 *)(arg0 + 0x30)), btlEffectDelay_001a7720(timingFrames), 0, 0x100));
+            effectPkt51 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(followState, (*(s32 *)(arg0 + 0x30)), btlEffectDelay_001a7720(timingFrames), 0, 0x100));
             effectPkt51->queue = 4;
             effectPkt51->startTime = animPacket->endTime;
             btlPacketEnqueue((u8 *)effectPkt51, 1);
@@ -4485,7 +4485,7 @@ void btlActionSkillUpdate(u8 *arg0) {
         }
     } else if ((altCamera == 0) && (side == 0)) {
         sp2C0 = 1;
-        effectPkt53 = (BtlPacketTiming *)(func_001d65d0(*(s32 *)(iGpffffb3ac + 0xDB8), (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
+        effectPkt53 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(*(s32 *)(iGpffffb3ac + 0xDB8), (*(s32 *)(arg0 + 0x30)), 0, 0, 0x100));
         effectPkt53->ownerId = actionId;
         btlPacketEnqueue((u8 *)effectPkt53, 2);
         animPkt17 = (BtlPacketTiming *)(btlUnitCreateAnimPacket((BtlUnit *)act->unit, 6, 0, 1.0f, 2));
@@ -5468,7 +5468,7 @@ reactionPacket:
         colorPkt147->delay = colorDelay;
         colorPkt147->ownerId = actionId;
         btlPacketEnqueue((u8 *)colorPkt147, 1);
-        effectPkt148 = (BtlPacketTiming *)(func_001d65d0(*(s32 *)(iGpffffb3ac + 0xD70), (s32)linkedUnit, damageFrames, 0, 0x2100));
+        effectPkt148 = (BtlPacketTiming *)(btlEffectCreateFormationPacket(*(s32 *)(iGpffffb3ac + 0xD70), (s32)linkedUnit, damageFrames, 0, 0x2100));
         effectPkt148->queue = 4;
         effectPkt148->startTime = animEndTime;
         effectPkt148->ownerId = actionId;
@@ -5712,7 +5712,7 @@ void btlActionSummonUpdate(s64 *arg0)
     *(s16 *)(tailPkt + 0x48) = 0x18;
     *(s64 *)(tailPkt + 0x60) = uid;
     btlPacketEnqueue(tailPkt, 1);
-    tailPkt = func_001d65d0(*(s32 *)(iGpffffb3ac + 0xD40), action->unitRef.signedAddress, 0, *(s64 *)(tailPkt + 0x58), 0x100);
+    tailPkt = btlEffectCreateFormationPacket(*(s32 *)(iGpffffb3ac + 0xD40), action->unitRef.signedAddress, 0, *(s64 *)(tailPkt + 0x58), 0x100);
     *tailPkt = 4;
     *(s64 *)(tailPkt + 8) = *(s64 *)(evPkt + 0x58);
     *(s64 *)(tailPkt + 0x60) = uid;
@@ -6019,7 +6019,7 @@ void btlActionErrorUpdate(u8 *action) {
     btlPacketEnqueue(animationPacket, 0);
     {
         u8 *packet;
-        packet = func_001d65d0(
+        packet = btlEffectCreateFormationPacket(
             actionResourceAt((ActionResourcePrefix *)D_0076449C, (u16)selection.resource),
             *(s32 *)(action + 0x30), 0,
             *(s64 *)(animationPacket + 0x58), 0x100);
