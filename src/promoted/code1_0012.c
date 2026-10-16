@@ -191,7 +191,7 @@ extern void H_Cdvd_Destroy(s32 arg0);
 extern void sdkSndStopChannel(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern s16 func_00353b50(void *arg0);
+extern s16 datBuildPartyIdList(void *arg0);
 extern u8 *sdkSpriteNewNode(u32 sprites, u32 index);
 extern u8 D_005E5F40[];
 extern u8 D_005E7670[];
@@ -5128,7 +5128,7 @@ s32 titleStateInit(u8 *arg0)
         *(s32 *)(arg0 + (n * 0x30) + 0x1AE0) = 0;
         *(s32 *)(arg0 + (n * 0x30) + 0x1AE4) = 3;
     }
-    *(s16 *)(arg0 + 0x3C) = func_00353b50(arg0 + 0x34);
+    *(s16 *)(arg0 + 0x3C) = datBuildPartyIdList(arg0 + 0x34);
     res_1 = (u8 *)resourceFindByName((char *)D_005E5830);
     if (res_1 == NULL) {
         kAssertFail(D_005E76C8, 0x1FA);
