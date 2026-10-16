@@ -184,7 +184,6 @@ s32 btlActionGetCounter420(BtlAction *action);
 
 u8 *btlPacketCreateSpriteTable(u32 arg0, u16 arg1);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
-extern void datPersonaRemoveSelectedRosterMember(void);
 extern s32 datGetFlag(s32 arg0);
 BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
