@@ -28,7 +28,7 @@ extern void func_00290bc0(s32 *);
 void func_002854e0(u8 *arg0);
 extern s32 taskRecordIsDone(s32);
 extern s32 fadeStatus(void);
-extern s32 func_0028f8e0(s32);
+extern s32 evtScriptLoadIsReady(s32);
 extern void evtRefreshNodeResources(u8 *);
 extern void func_00440b68(void *);
 extern u8 D_0063C2E0[];
@@ -81,7 +81,7 @@ void func_002854e0(u8 *arg0)
             *(s32 *)(arg0 + 0) &= ~0x4000;
             *(s32 *)(arg0 + 0x75C) = 0;
         }
-        if ((*(s32 *)(arg0 + 0) & 0x80000) && (func_0028f8e0(*(s32 *)(arg0 + 0x760)) != 0)) {
+        if ((*(s32 *)(arg0 + 0) & 0x80000) && (evtScriptLoadIsReady(*(s32 *)(arg0 + 0x760)) != 0)) {
             *(s32 *)(arg0 + 0) &= 0xFFF7FFFF;
         }
         temp_4_4 = *(s32 *)(arg0 + 0);

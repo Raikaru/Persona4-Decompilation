@@ -26,11 +26,11 @@ s32 scrStartProcedureIndex(s32 arg0, u8 *arg1, s32 arg2);
 u8 *kwlnGetColorRgb(void);
 void *kwlnGetCamera(void);
 
-s32 func_0028ee00(u8 *arg0);
-void func_0028f360(u8 *task);
-s32 func_0028f540(u8 *arg0);
-void func_0028f6c0(u8 *arg0);
-void func_0028f4f0(void);
+s32 evtTintTaskUpdate(u8 *arg0);
+void evtTintTaskDestroy(u8 *task);
+s32 evtScriptLoadStep(u8 *arg0);
+void evtScriptLoadDestroy(u8 *arg0);
+void evtTintTaskKill(void);
 void kwlnSetColorRgba(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern s32 iGpffffba48;
 
@@ -111,8 +111,9 @@ typedef struct {
 
 
 
+// Allocates the blur filter's 0x130-byte state block once, when its slot is empty, and records it in the slot [inferred].
 // FUN_0028D110
-void func_0028d110(s32 *arg0) {
+void evtBlurFilterEnsureBlock(s32 *arg0) {
     s32 *temp_16;
 
     if (arg0[0x10] != 0) {
@@ -132,8 +133,9 @@ void func_0028d110(s32 *arg0) {
  * preheader, shifting every temp register (nd 18). */
 #pragma opt_loop_invariants on
 
+// Copies the blur filter's point table (count = 3n+1 entries) into the destination, reversed when arg2 is 1 [inferred].
 // FUN_0028D1B0
-void func_0028d1b0(u8 *arg0, u8 *arg1, s32 arg2) {
+void evtBlurFilterCopyPoints(u8 *arg0, u8 *arg1, s32 arg2) {
     u8 temp_7;
     s32 temp_10;
     s32 var_11;
@@ -159,8 +161,9 @@ void func_0028d1b0(u8 *arg0, u8 *arg1, s32 arg2) {
 /* measured: see annotation above (func_0028d1b0). */
 #pragma opt_loop_invariants off
 
+// Blur filter task update: advances the direct or copied blur filter and bumps its frame counter (same logic as effBlurFilterTaskUpdate).
 // FUN_0028D280
-s32 func_0028d280(u8 *unusedTask) {
+s32 evtBlurFilterTaskUpdate(u8 *unusedTask) {
     s32 *temp_2;
     s32 temp_3;
 
@@ -179,8 +182,9 @@ s32 func_0028d280(u8 *unusedTask) {
     return 0;
 }
 
+// Blur filter task destroy: destroys the direct or copied blur filter, then frees the work block (same logic as effBlurFilterTaskDestroy).
 // FUN_0028D310
-void func_0028d310(u8 *unusedTask) {
+void evtBlurFilterTaskDestroy(u8 *unusedTask) {
     s32 *temp_2;
     s32 temp_3;
 
@@ -322,7 +326,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
         task1[0] = 0;
         task1[1] = (s32)effBlurFilterDirectCreate(1, &frame.filter1);
         task1[3] = frame.filter1.params.valueB8;
-        (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task1));
+        (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task1));
         break;
 
     case 2:
@@ -438,7 +442,7 @@ void func_0028d390(s32 arg0, s32 type, u8 *arg2)
             task2[1] = (s32)effBlurFilterDirectCreate(2, &frame.filter2);
         }
         task2[3] = frame.filter2.params.valueB8;
-        (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task2));
+        (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task2));
         break;
     }
 }
@@ -572,7 +576,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
         task[0] = 1;
         task[1] = (s32)effBlurFilterCopiedCreate(1, &f1.params);
         task[3] = f1.params.valueB8;
-        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
+        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
     case 2:
         mode = 0;
         if (arg2[0x1B] & 1) {
@@ -673,7 +677,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             task[1] = (s32)effBlurFilterCopiedCreate(2, &f2.params);
         }
         task[3] = f2.params.valueB8;
-        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
+        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
     case 3:
         mode = 0;
         if (arg2[0x1B] & 1) {
@@ -789,7 +793,7 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             task[1] = (s32)effBlurFilterCopiedCreate(3, &f3.params);
         }
         task[3] = f3.params.valueB8;
-        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
+        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
     case 5:
         mode = 0;
         if (arg2[0x1B] & 1) {
@@ -892,14 +896,15 @@ s32 func_0028dc30(s32 arg0, s32 type, u8 *arg2)
             task[1] = (s32)effBlurFilterCopiedCreate(5, &f5.params);
         }
         task[3] = f5.params.valueB8;
-        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, func_0028d280, func_0028d310, (u8 *)(task));
+        return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task));
     }
 }
 
 #pragma pop
 
+// Tint task update: runs the colour tint step for the task's state each frame [inferred].
 // FUN_0028EE00
-s32 func_0028ee00(u8 *arg0)
+s32 evtTintTaskUpdate(u8 *arg0)
 {
     s32 *work;
     f32 progress;
@@ -964,8 +969,9 @@ s32 func_0028ee00(u8 *arg0)
     return 0;
 }
 
+// Tint task destroy: frees the tint task's work block.
 // FUN_0028F360
-void func_0028f360(u8 *unusedTask)
+void evtTintTaskDestroy(u8 *unusedTask)
 {
     extern s32 *kwlnTaskGetWork(void);
     int iVar1;
@@ -973,8 +979,9 @@ void func_0028f360(u8 *unusedTask)
     iVar1 = (s32)kwlnTaskGetWork();
     DAT_008873ec_abs[0](iVar1);
 }
+// Creates a tint task: copies five words of tint data and takes the colour from the kwln colour record and the camera distance [inferred].
 // FUN_0028F3A0
-void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
+void evtCreateTintTask(s32 arg0, s32 *arg1, s32 arg2) {
     s32 v;
     s32 acc;
     s32 t;
@@ -983,7 +990,7 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
     s32 *src;
     s32 i;
 
-    func_0028f4f0();
+    evtTintTaskKill();
     chkmemAllocSiteTag(D_0063C638, 0x12E4);
     p = (s32 *)D_008873F4[0](1, 0x30, 0x40000);
     src = arg1;
@@ -1005,11 +1012,12 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
     p[8] = t | acc;
     *(f32 *)(p + 9) = *(f32 *)((u8 *)kwlnGetCamera() + 0x88);
     *(f32 *)(p + 0xA) = D_00764B5C;
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763898), 0xF, 0, 0, func_0028ee00, func_0028f360, (u8 *)(p));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_00763898), 0xF, 0, 0, evtTintTaskUpdate, evtTintTaskDestroy, (u8 *)(p));
 }
 
+// Destroys the tint task by name, if it is alive.
 // FUN_0028F4F0
-void func_0028f4f0(void) {
+void evtTintTaskKill(void) {
     s32 h;
 
     if (h = kwlnTaskGetTaskByName(&iGpffffa7a8)) {
@@ -1021,8 +1029,9 @@ void func_0028f4f0(void) {
 void func_0028f530(u8 *resource) {
 }
 
+// Script load task step: loads the script file named by the task, starts its procedure at the requested index, and waits for it to finish [inferred].
 // FUN_0028F540
-s32 func_0028f540(u8 *arg0) {
+s32 evtScriptLoadStep(u8 *arg0) {
     s32 *p;
     u32 local_3C;
     u8 *s1;
@@ -1065,8 +1074,9 @@ s32 func_0028f540(u8 *arg0) {
     return 0;
 }
 
+// Script load task destroy: destroys the started procedure and the file load, then frees the work block.
 // FUN_0028F6C0
-void func_0028f6c0(u8 *arg0) {
+void evtScriptLoadDestroy(u8 *arg0) {
     s32 *temp_2;
 
     temp_2 = kwlnTaskGetWork();
@@ -1082,18 +1092,20 @@ void func_0028f6c0(u8 *arg0) {
     jtbl_008873EC[0](temp_2);
 }
 
+// Creates a script load task with its work block in the ready state (state 4) [inferred].
 // FUN_0028F770
-void func_0028f770(s32 arg0) {
+void evtStartScriptLoad(s32 arg0) {
     s32 *temp_2;
 
     chkmemAllocSiteTag(D_0063C638, 0x1370);
     temp_2 = (s32 *)D_008873F4[0](1, 0x114, 0x40000);
     temp_2[0] = 4;
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0063C690), 0xF, 0, 0, func_0028f540, func_0028f6c0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0063C690), 0xF, 0, 0, evtScriptLoadStep, evtScriptLoadDestroy, (u8 *)(temp_2));
 }
 
+// Script load request: when the task is ready, records the procedure index and file name for the next load and returns 1; otherwise returns 0 [inferred].
 // FUN_0028F800
-s32 func_0028f800(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 evtScriptLoadRequest(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *temp_2;
 
     if (kwlnTaskIsLinked(arg0) == 0) {
@@ -1114,8 +1126,9 @@ s32 func_0028f800(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     return 0;
 }
 
+// Returns 1 when the script load task is in the ready state (state 4), else 0 [inferred].
 // FUN_0028F8E0
-s32 func_0028f8e0(s32 arg0) {
+s32 evtScriptLoadIsReady(s32 arg0) {
     if (kwlnTaskIsLinked(arg0) == 0) {
         kAssertFail(D_0063C638, 0x1393);
     }
