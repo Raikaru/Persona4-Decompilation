@@ -397,7 +397,7 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
     extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern void func_00364c50(void);
     extern void func_00364c70(void);
-    extern void func_0045dfd0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4);
+    extern void PrimDrawPoints(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4);
     extern f32 fGpffff8384;
     extern f32 fGpffff8388;
     f32 var_f24;
@@ -451,7 +451,7 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
         colors[i].a = alpha;
     }
     func_00364c50();
-    func_0045dfd0((u8 *)colors, (u8 *)coords, 0.0f, 3, 5, 0);
+    PrimDrawPoints((u8 *)colors, (u8 *)coords, 0.0f, 3, 5, 0);
     func_00364c70();
 
     pos.x = 348.0f + 292.0f * var_f24;
@@ -469,7 +469,7 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
         colors[i].a = alpha;
     }
     func_00364c50();
-    func_0045dfd0((u8 *)colors, (u8 *)coords, 0.0f, 3, 5, 0);
+    PrimDrawPoints((u8 *)colors, (u8 *)coords, 0.0f, 3, 5, 0);
     func_00364c70();
 
     base.x = (220.0f + fGpffff8384 * var_f21) - 9.0f;

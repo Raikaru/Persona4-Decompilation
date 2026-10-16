@@ -681,7 +681,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
     extern f32 fGpffff8418;
     extern s32 (*D_00887300[])(s32, void *);
     void sdkSpriteDrawSized(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
-    void func_0045db40(u8 *, u8 *, f32, s32, s32, s32, f32, f32, f32);
+    void PrimDrawRectangle(u8 *, u8 *, f32, s32, s32, s32, f32, f32, f32);
     void func_0045d6e0(u8 *, f32 *, f32, s32);
     s32 RpSkyRenderStateSet(s32, void *);
     void func_00364c50(void);
@@ -721,7 +721,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         c11[3] = 0xFF;
         ((s32 (*)(s32, void *))*(u32 *)vt)(1, (void *)0);
         func_00364c50();
-        func_0045db40(&c11[0], (u8 *)&sC[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
+        PrimDrawRectangle(&c11[0], (u8 *)&sC[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
         func_00364c70();
         sC[0] = (s32)(-224.0f + (*(f32 *)(w + 0x200)));
         sC[1] = (s32)(224.0f + (*(f32 *)(w + 0x204)));
@@ -733,7 +733,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         c11[3] = 0xFF;
         func_00364c50();
         ((s32 (*)(s32, void *))*(u32 *)vt)(1, (void *)0);
-        func_0045db40(&c11[0], (u8 *)&sC[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
+        PrimDrawRectangle(&c11[0], (u8 *)&sC[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
         func_00364c70();
         position.v[0] =(386.0f + (*(f32 *)(w + 0x1A0)));
         position.v[1] =(35.0f + (*(f32 *)(w + 0x1A4)));

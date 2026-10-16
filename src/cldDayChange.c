@@ -30,7 +30,7 @@ void cldDayChangeTaskDestroy(u8 *arg0);
 void func_00364c50(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                    u8 *arg4, s32 arg5, s32 arg6);
 void func_00364c70(void);
-void func_0045dfd0(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3,
+void PrimDrawPoints(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3,
                    s32 arg4);
 extern f32 iGpffff84a4;
 extern f32 iGpffff84a4;
@@ -279,7 +279,7 @@ void cldDayChangeDrawPolygon(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
         i += 1;
     }
     func_00364c50(arg0, arg1, c3, c2, arg4, c1, c0);
-    func_0045dfd0(colors, vertices, fparg0, arg5, 4, 1);
+    PrimDrawPoints(colors, vertices, fparg0, arg5, 4, 1);
     func_00364c70();
 }
 /* measured: closes loop-invariant probe for func_00265f40. */

@@ -47,7 +47,7 @@ extern f32 cosf(f32 arg0);
 extern f32 sinf(f32 arg0);
 extern void func_00364c50(void);
 extern void func_00364c70(void);
-extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0,
+extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
                            s32 arg2, s32 arg3, s32 arg4);
 extern void func_0045ee00(s32 arg0, s32 arg1, void *arg2, s32 arg3,
                            f32 farg0, f32 farg1, s32 arg4);
@@ -384,7 +384,7 @@ loop_test:
     var_17[6] = (u8)((u32)arg0 >> 8);
     var_17[7] = (u8)arg0;
     func_00364c50();
-    func_0045dfd0(local.spB0, local.sp1B0, farg2, 0x3E, 4, 1);
+    PrimDrawPoints(local.spB0, local.sp1B0, farg2, 0x3E, 4, 1);
     local.spB0[0] = 0xDC;
     local.spB0[1] = 0xDC;
     local.spB0[2] = 0xDC;

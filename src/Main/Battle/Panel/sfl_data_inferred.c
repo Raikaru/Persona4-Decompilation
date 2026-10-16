@@ -115,8 +115,8 @@ void func_00366380(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3,
 {
     extern s64 iGpffffabe8;
     extern const s32 D_0064E320[36];
-    extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
-    extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+    extern void PrimQueueBatchAlpha(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+    extern void PrimQueueBatch(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
     PrimPointRow v[18];
     u8 col[0x48];
     f32 w;
@@ -193,16 +193,16 @@ void func_00366380(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3,
     }
     if (arg9 != 0) {
         if (arg5 == 0xFF) {
-            func_0045eb20(col, v, fparg0, 18, 5, arg6, queuedOffsetX, arg8, fparg1, fparg2, fparg3, arg9);
+            PrimQueueBatchAlpha(col, v, fparg0, 18, 5, arg6, queuedOffsetX, arg8, fparg1, fparg2, fparg3, arg9);
         } else {
-            func_0045e8e0(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
+            PrimQueueBatch(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
         }
     } else if (arg5 == 0xFF) {
         iGpffffabe8 |= 0x80;
-        func_0045e6a0(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+        PrimDrawTransformed(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
         iGpffffabe8 &= ~0x80;
     } else {
-        func_0045e6a0(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+        PrimDrawTransformed(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
     }
 }
 
@@ -213,8 +213,8 @@ void func_00366380(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3,
  */
 void func_00366670(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s16 arg8, void *arg9, f32 fparg1, f32 fparg2, f32 fparg3) { extern s64 iGpffffabe8;
 extern const s32 D_0064E3B0[36];
-extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
-extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+extern void PrimQueueBatchAlpha(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+extern void PrimQueueBatch(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
 PrimPointRow v[18];
 u8 col[0x48];
 f32 w;
@@ -291,16 +291,16 @@ while (i < 18) {
 }
 if (arg9 != 0) {
     if (arg5 == 0xFF) {
-        func_0045eb20(col, v, fparg0, 18, 5, arg6, queuedOffsetX, arg8, fparg1, fparg2, fparg3, arg9);
+        PrimQueueBatchAlpha(col, v, fparg0, 18, 5, arg6, queuedOffsetX, arg8, fparg1, fparg2, fparg3, arg9);
     } else {
-        func_0045e8e0(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
+        PrimQueueBatch(col, v, fparg0, 18, 5, arg6, arg7, arg8, fparg1, fparg2, fparg3, arg9);
     }
 } else if (arg5 == 0xFF) {
     iGpffffabe8 |= 0x80;
-    func_0045e6a0(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+    PrimDrawTransformed(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
     iGpffffabe8 &= ~0x80;
 } else {
-    func_0045e6a0(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
+    PrimDrawTransformed(col, v, fparg0, 18, 5, arg6, arg7, centerY, fparg1, fparg2, fparg3);
 } }
 
 /* 780/784 bytes; nine resolved relocations; four zero alignment bytes.
@@ -315,8 +315,8 @@ void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                    const struct RwMatrixTag *matrix, void *queue)
 {
     extern s64 iGpffffabe8;
-    extern void func_0045eb20(void *, void *, f32, s32, s32, s32, s16, s16, f32, f32, f32, void *);
-    extern void func_0045e8e0(void *, void *, f32, s32, s32, s32, s32, s16, f32, f32, f32, void *);
+    extern void PrimQueueBatchAlpha(void *, void *, f32, s32, s32, s32, s16, s16, f32, f32, f32, void *);
+    extern void PrimQueueBatch(void *, void *, f32, s32, s32, s32, s32, s16, f32, f32, f32, void *);
     PrimPoint points[4] = { 0.0f };
     u8 colors[16];
     RwV3d transformed;
@@ -358,13 +358,13 @@ void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
             {
                 f32 angle = 0.0f;
                 f32 scale = 1.0f;
-                func_0045eb20(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale, queue);
+                PrimQueueBatchAlpha(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale, queue);
             }
         } else {
             {
                 f32 angle = 0.0f;
                 f32 scale = 1.0f;
-                func_0045e8e0(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale, queue);
+                PrimQueueBatch(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale, queue);
             }
         }
     } else if (alpha == 255) {
@@ -372,14 +372,14 @@ void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
         {
             f32 angle = 0.0f;
             f32 scale = 1.0f;
-            func_0045e6a0(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale);
+            PrimDrawTransformed(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale);
         }
         iGpffffabe8 &= ~0x80;
     } else {
         {
             f32 angle = 0.0f;
             f32 scale = 1.0f;
-            func_0045e6a0(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale);
+            PrimDrawTransformed(colors, points, z, 4, 5, mode, 0, 0, angle, scale, scale);
         }
     }
 }

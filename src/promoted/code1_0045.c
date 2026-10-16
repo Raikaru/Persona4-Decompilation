@@ -9,7 +9,7 @@ extern f32 D_008872FC_abs[];
 extern f32 fGpffff8200;
 extern f32 cosf(f32 fparg0);
 extern f32 sinf(f32 fparg0);
-extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4);
+extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00446ed8(void *buf, const void *fmt, void *va);
 extern void func_00450a50(PackedColor4 color, PackedVec2f position, f32 depth, void *characters);
 extern s32 iGpffffb9e8;

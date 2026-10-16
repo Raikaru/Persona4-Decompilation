@@ -93,7 +93,7 @@ extern f32 cosf(f32 arg0);
 extern f32 sinf(f32 arg0);
 extern void func_00364c50(void);
 extern void func_00364c70(void);
-extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0,
+extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
                            s32 arg2, s32 arg3, s32 arg4);
 extern void func_0045ee00(s32 arg0, s32 arg1, void *arg2, s32 arg3,
                            f32 farg0, f32 farg1, s32 arg4);

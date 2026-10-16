@@ -624,7 +624,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
             i9++;
         }
         func_00364c50();
-        func_0045e6a0(colors, points, fparg2, count9, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
+        PrimDrawTransformed(colors, points, fparg2, count9, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
         func_00364c70();
         return;
     }
@@ -692,7 +692,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     RpSkyRenderStateSet(3, (void *)(0x30003));
     RpSkyRenderStateSet(2, (void *)(0x44));
     mdlEffectEmitMaskedTagPair();
-    func_0045e6a0(colors, points, fparg2, countA, 5, 0, arg4, arg5, fparg3, fparg4, fparg5);
+    PrimDrawTransformed(colors, points, fparg2, countA, 5, 0, arg4, arg5, fparg3, fparg4, fparg5);
     mdlEffectEmitTagPair();
     func_00364c70();
     countB = counts.value[arg3 * 2];
@@ -714,7 +714,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     if (arg1 == 0xFF) {
         func_00364c50();
     }
-    func_0045e6a0(colors, points, 1.0f + fparg2, countB, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
+    PrimDrawTransformed(colors, points, 1.0f + fparg2, countB, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
     if (arg1 == 0xFF) {
         func_00364c70();
     }
@@ -742,7 +742,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
         s32 v1;
         v0 = (s32)(s16)(s32)(fparg0 + ((f32)arg4 - points[0].v[0]));
         v1 = (s32)(s16)(s32)(fparg1 + ((f32)arg5 - points[0].v[1]));
-        func_0045e6a0(colors, points, fparg2, countA - 1, 4, 1, v0, v1, fparg3, fparg4, fparg5);
+        PrimDrawTransformed(colors, points, fparg2, countA - 1, 4, 1, v0, v1, fparg3, fparg4, fparg5);
     }
     if (arg1 == 0xFF) {
         func_00364c70();

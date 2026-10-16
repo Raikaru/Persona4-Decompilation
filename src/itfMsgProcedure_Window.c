@@ -24,7 +24,7 @@ extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern float sinf(float angle);
 extern float cosf(float angle);
-extern void func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+extern void PrimQueueBatchAlpha(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
 extern float D_007612D0;
 extern f32 iGpffff81e0;
 extern f32 iGpffff8094;
@@ -297,7 +297,7 @@ void msgWinStart(void *arg0)
 }
 
 /* measured: byte-exact after preserving the mixed ABI order in both the
-   function signature and func_0045eb20 declaration: arg0,arg1,fparg0,arg2,
+   function signature and PrimQueueBatchAlpha declaration: arg0,arg1,fparg0,arg2,
    arg3,arg4,arg5,arg6,arg7,fparg1,fparg2,fparg3,arg_sp0. The call uses the
    same order, reproducing retail's f12 move before integer setup and stack
    pointer last. Scoped verify: MATCH nd 0, object 600B/window 608B. */
@@ -346,7 +346,7 @@ void msgWinDrawRing(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4
     spD0[i].g = (u8)g;
     spD0[i].b = (u8)b;
     spD0[i].a = (u8)a;
-    func_0045eb20(&spD0[0], &sp180[0], fparg0, 0x2A, 5, arg5, spCE, spCC, fparg1, fparg2, fparg3, arg_sp0);
+    PrimQueueBatchAlpha(&spD0[0], &sp180[0], fparg0, 0x2A, 5, arg5, spCE, spCC, fparg1, fparg2, fparg3, arg_sp0);
 }
 
 // FUN_0027D620
@@ -397,7 +397,7 @@ void msgWinDrawRect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4
     func_00460c70(arg4, 0x3, 0x31003);
     func_00460c70(arg4, 0x2, 0x44);
     mdlEffectEmitMaskedTagPair();
-    func_0045da40(&color, &q2, f0, 0, arg4);
+    PrimQueueRectangle(&color, &q2, f0, 0, arg4);
     mdlEffectEmitTagPair();
 }
 
@@ -486,7 +486,7 @@ void msgWinDrawShape(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32
     c->a = (u8) alpha;
   }
 
-  func_0045eb20(&work.colors[0], &work.points[0], f0, 10, 4, 1, t0, t1, f1, f2, f3, t2);
+  PrimQueueBatchAlpha(&work.colors[0], &work.points[0], f0, 10, 4, 1, t0, t1, f1, f2, f3, t2);
 }
 
 /* Message-window choice phases (cases 0-18). Checked against retail:
@@ -543,7 +543,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
     extern s32 func_002e0fb0(void);
     extern void func_002e0f90(void);
     extern s32 func_0026e350(void);
-    extern void func_0045e8e0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+    extern void PrimQueueBatch(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
     typedef struct { MsgProcWindowRGBA colors[10]; u8 gap[24]; MsgProcWindowF2 points[10]; } Work10;
     typedef struct { MsgProcWindowRGBA colors[16]; MsgProcWindowF2 points[16]; } Work16;
     Work10 w0;
@@ -616,7 +616,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                     c->b = 0x2B;
                     c->a = 0xFF;
                 }
-                func_0045eb20(&w0.colors[0], &w0.points[0], 0.0f, 10, 4, 1, 2000, 0, f * 5.0f, 1.0f, 1.0f, D_00796490);
+                PrimQueueBatchAlpha(&w0.colors[0], &w0.points[0], 0.0f, 10, 4, 1, 2000, 0, f * 5.0f, 1.0f, 1.0f, D_00796490);
             } else if (D_00882004[0] >= 11) {
                 f = 1.0f - (float)(D_00882004[0] - 11) / 3.0f;
                 *(MsgProcWindowCopy10 *)w1.points = *(MsgProcWindowCopy10 *)D_0063C030;
@@ -635,7 +635,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                     c->b = 0x07;
                     c->a = 0xFF;
                 }
-                func_0045eb20(&w1.colors[0], &w1.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8 * (1.0f - f), 1.0f, 1.0f, D_00796430);
+                PrimQueueBatchAlpha(&w1.colors[0], &w1.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8 * (1.0f - f), 1.0f, 1.0f, D_00796430);
                 *(MsgProcWindowCopy10 *)w2.points = *(MsgProcWindowCopy10 *)D_0063C030;
                 w2.points[1].y = 83.0f;
                 w2.points[3].y = 85.0f;
@@ -652,7 +652,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                     c->b = 0x2B;
                     c->a = 0xFF;
                 }
-                func_0045eb20(&w2.colors[0], &w2.points[0], 0.0f, 10, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
+                PrimQueueBatchAlpha(&w2.colors[0], &w2.points[0], 0.0f, 10, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
             }
             if (D_00882004[0] >= 13) {
                 D_00882000[0] &= ~2;
@@ -679,7 +679,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                 c->b = 0x07;
                 c->a = 0xFF;
             }
-            func_0045eb20(&w3.colors[0], &w3.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8, 1.0f, 1.0f, D_00796430);
+            PrimQueueBatchAlpha(&w3.colors[0], &w3.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8, 1.0f, 1.0f, D_00796430);
             *(MsgProcWindowCopy10 *)w4.points = *(MsgProcWindowCopy10 *)D_0063C030;
             w4.points[1].y = 83.0f;
             w4.points[3].y = 85.0f;
@@ -696,7 +696,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                 c->b = 0x2B;
                 c->a = 0xFF;
             }
-            func_0045eb20(&w4.colors[0], &w4.points[0], 0.0f, 10, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
+            PrimQueueBatchAlpha(&w4.colors[0], &w4.points[0], 0.0f, 10, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
         }
         ret = 1;
         break;
@@ -796,7 +796,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                 c->b = 0x11;
                 c->a = 0xD8;
             }
-            func_0045e8e0(&w5.colors[0], &w5.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
+            PrimQueueBatch(&w5.colors[0], &w5.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
             if (D_00882006[0] >= 6) {
                 D_00882000[0] &= ~8;
                 D_00882006[0] = 0;
@@ -844,7 +844,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                     c->b = 0x11;
                     c->a = 0xD8;
                 }
-                func_0045e8e0(&w6.colors[0], &w6.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
+                PrimQueueBatch(&w6.colors[0], &w6.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
                 v1 = (5 - b) * 0x1E + 0x8A;
                 v1 = (float)v1 + 30.0f * (float)a;
                 sdkSpriteDrawQueuedUnscaled(23.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
@@ -929,7 +929,7 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                         c->b = 0x11;
                         c->a = 0xD8;
                     }
-                    func_0045e8e0(&w7.colors[0], &w7.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
+                    PrimQueueBatch(&w7.colors[0], &w7.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
                 }
                 v0 = (5 - b2) * 0x1E + 0x8A;
                 v0 = (float)v0 + 30.0f * (float)a2;
@@ -1311,7 +1311,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                 cl->b = 0x17;
                 cl->a = 0xFF;
             }
-            func_0045eb20(&blocks[11].cols[0], &blocks[11].pts[0], 5.0f, 4, 4, 1, 0, -1, 15.0f, f, 1.0f, (void *)D_00796490);
+            PrimQueueBatchAlpha(&blocks[11].cols[0], &blocks[11].pts[0], 5.0f, 4, 4, 1, 0, -1, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&blocks[10].pts[0];
             mn = 0x20;
             if (mp != (u8 *)0) {
@@ -1335,7 +1335,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                 cl->b = 0x00;
                 cl->a = 0xFF;
             }
-            func_0045eb20(&blocks[10].cols[0], &blocks[10].pts[0], 5.0f, 4, 4, 1, 0, 0, 15.0f, f, 1.0f, (void *)D_00796490);
+            PrimQueueBatchAlpha(&blocks[10].cols[0], &blocks[10].pts[0], 5.0f, 4, 4, 1, 0, 0, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&blocks[9].pts[0];
             mn = 0x20;
             if (mp != (u8 *)0) {
@@ -1359,7 +1359,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                 cl->b = 0x00;
                 cl->a = 0xFF;
             }
-            func_0045eb20(&blocks[9].cols[0], &blocks[9].pts[0], 5.0f, 4, 4, 1, 0, -6, 15.0f, f, 1.0f, (void *)D_00796490);
+            PrimQueueBatchAlpha(&blocks[9].cols[0], &blocks[9].pts[0], 5.0f, 4, 4, 1, 0, -6, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&blocks[8].pts[0];
             mn = 0x20;
             if (mp != (u8 *)0) {
@@ -1383,7 +1383,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                 cl->b = 0x2C;
                 cl->a = 0xFF;
             }
-            func_0045eb20(&blocks[8].cols[0], &blocks[8].pts[0], 5.0f, 4, 4, 1, 0, -16, 15.0f, f, 1.0f, (void *)D_00796490);
+            PrimQueueBatchAlpha(&blocks[8].cols[0], &blocks[8].pts[0], 5.0f, 4, 4, 1, 0, -16, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&blocks[7].pts[0];
             mn = 0x20;
             if (mp != (u8 *)0) {
@@ -1407,7 +1407,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                 cl->b = 0xFF;
                 cl->a = 0xFF;
             }
-            func_0045eb20(&blocks[7].cols[0], &blocks[7].pts[0], 5.0f, 4, 4, 1, 0, -13, 15.0f, f, 1.0f, (void *)D_00796490);
+            PrimQueueBatchAlpha(&blocks[7].cols[0], &blocks[7].pts[0], 5.0f, 4, 4, 1, 0, -13, 15.0f, f, 1.0f, (void *)D_00796490);
             mp = (u8 *)&blocks[6].pts[0];
             mn = 0x20;
             if (mp != (u8 *)0) {
@@ -1431,7 +1431,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                 cl->b = 0x20;
                 cl->a = 0xFF;
             }
-            func_0045eb20(&blocks[6].cols[0], &blocks[6].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, f, 1.0f, (void *)D_00796490);
+            PrimQueueBatchAlpha(&blocks[6].cols[0], &blocks[6].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, f, 1.0f, (void *)D_00796490);
         }
         if (D_00882024[0] >= 0x14) {
             D_00882020[0] &= ~2u;
@@ -1501,7 +1501,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             cl->b = 0x17;
             cl->a = 0xFF;
         }
-        func_0045eb20(&blocks[5].cols[0], &blocks[5].pts[0], 5.0f, 4, 4, 1, 0, -1, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        PrimQueueBatchAlpha(&blocks[5].cols[0], &blocks[5].pts[0], 5.0f, 4, 4, 1, 0, -1, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&blocks[4].pts[0];
         mn = 0x20;
         if (mp != (u8 *)0) {
@@ -1525,7 +1525,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             cl->b = 0x00;
             cl->a = 0xFF;
         }
-        func_0045eb20(&blocks[4].cols[0], &blocks[4].pts[0], 5.0f, 4, 4, 1, 0, 0, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        PrimQueueBatchAlpha(&blocks[4].cols[0], &blocks[4].pts[0], 5.0f, 4, 4, 1, 0, 0, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&blocks[3].pts[0];
         mn = 0x20;
         if (mp != (u8 *)0) {
@@ -1549,7 +1549,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             cl->b = 0x00;
             cl->a = 0xFF;
         }
-        func_0045eb20(&blocks[3].cols[0], &blocks[3].pts[0], 5.0f, 4, 4, 1, 0, -6, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        PrimQueueBatchAlpha(&blocks[3].cols[0], &blocks[3].pts[0], 5.0f, 4, 4, 1, 0, -6, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&blocks[2].pts[0];
         mn = 0x20;
         if (mp != (u8 *)0) {
@@ -1573,7 +1573,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             cl->b = 0x2C;
             cl->a = 0xFF;
         }
-        func_0045eb20(&blocks[2].cols[0], &blocks[2].pts[0], 5.0f, 4, 4, 1, 0, -16, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        PrimQueueBatchAlpha(&blocks[2].cols[0], &blocks[2].pts[0], 5.0f, 4, 4, 1, 0, -16, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&blocks[1].pts[0];
         mn = 0x20;
         if (mp != (u8 *)0) {
@@ -1597,7 +1597,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             cl->b = 0xFF;
             cl->a = 0xFF;
         }
-        func_0045eb20(&blocks[1].cols[0], &blocks[1].pts[0], 5.0f, 4, 4, 1, 0, -13, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        PrimQueueBatchAlpha(&blocks[1].cols[0], &blocks[1].pts[0], 5.0f, 4, 4, 1, 0, -13, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         mp = (u8 *)&blocks[0].pts[0];
         mn = 0x20;
         if (mp != (u8 *)0) {
@@ -1621,7 +1621,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             cl->b = 0x20;
             cl->a = 0xFF;
         }
-        func_0045eb20(&blocks[0].cols[0], &blocks[0].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
+        PrimQueueBatchAlpha(&blocks[0].cols[0], &blocks[0].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         break;
     case 6:
         func_0027bec0((s32)arg0);
@@ -1710,7 +1710,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             msgWinCopyColor((u8 *)&color, (const u8 *)&backgroundColor);
             background = D_0063C130;
             msgWinCopyRectangle((u8 *)&rectangle, (const u8 *)&background);
-            func_0045da40(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
+            PrimQueueRectangle(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
             tmp = itfMesWindowGetAnimAux((s32)arg0);
             tmp2 = func_00279010((s32)arg0);
             if ((s16)tmp2 == 5) {
@@ -1727,7 +1727,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             selection.signedWords.word[0] = 0x38;
             selection.signedWords.word[1] = j >> 3;
             rectangle = selection;
-            func_0045da40(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
+            PrimQueueRectangle(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
         }
         ret = 1;
         break;

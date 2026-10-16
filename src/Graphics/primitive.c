@@ -281,7 +281,7 @@ extern float fGpffff8028;
 extern f32 func_0044b920(f32 param_1); // P3 FUN_0052e9e8 (acosf)
 extern f32 sinf(f32 angle);   // P3 FUN_0052e878 (sinf)
 
-extern void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1);
+extern void PrimInterpSlerp(void* param_2, void* param_3, void* param_4, f32 param_1);
 
 extern void* func_003df1a0(void* stream, const void* buf, u32 size); // P3 FUN_004c1750
 extern void* func_003df240(void* stream, const void* buf, u32 size); // P3 FUN_004c17f0
@@ -312,15 +312,15 @@ typedef struct
     s32 zero;
 } PrimDesc;
 
-extern void func_00480940(void* result, void* frame);
+extern void PrimInterpToMatrix(void* result, void* frame);
 extern void* func_003df300(void* stream, void* buf, u32 size);
 extern void* func_003df360(void* stream, void* buf, u32 size);
-extern void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1, void* customData);
-extern void func_004810c0(void* out, void* first, void* second);
-extern void func_00480f20(void* param_1, void* param_2);
-extern void* func_00480e20(void* param_1, void* param_2);
-extern s32 func_00480d50(const void* param_1, void* param_2);
-extern s32 func_00480f00(void* param_1);
+extern void PrimInterpByTime(void* param_2, void* param_3, void* param_4, f32 param_1, void* customData);
+extern void PrimInterpCompose(void* out, void* first, void* second);
+extern void PrimInterpDelta(void* param_1, void* param_2);
+extern void* PrimDeserializeEntries(void* param_1, void* param_2);
+extern s32 PrimSerializeEntries(const void* param_1, void* param_2);
+extern s32 PrimEntryTableBytes(void* param_1);
 extern s32 func_003d5000(PrimDesc* desc); // Registers a 0x30-byte RtAnim scheme.
 
 
@@ -534,13 +534,14 @@ void primAxisLine3D(const RwMatrix* mat, f32 length, u32 saveAndRestoreRenderSta
 
 
 
+/* Writes one interpolation frame into a RwMatrix result: values[0..2] become the translation and matrix flag bit 0x20000 is cleared. */
 // FUN_00480940
 /* REPLACE is the opaque RenderWare output-storage contract: the SDK guide
  * and its UV-animation example permit a raw local destination. The retail
  * Scale provider still reads its flags word; its preserved bits are killed
  * by AND with matrix.flags (3) in Multiply. This recovers the game caller,
  * not globally defined provider C. See the 00480940 SDK-boundary record. */
-void func_00480940(void* result, void* frame)
+void PrimInterpToMatrix(void* result, void* frame)
 {
     PrimInterpData* input = frame;
     RwMatrix buffer;
@@ -597,8 +598,9 @@ void func_00480940(void* result, void* frame)
 
 
 
+/* Blends two interpolation frames at weight param_1: the second quaternion is flipped into the first's hemisphere, the quaternion uses slerp weights when the frames are far apart and a linear blend otherwise, and the six values blend linearly. */
 // FUN_00480AA0
-void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1)
+void PrimInterpSlerp(void* param_2, void* param_3, void* param_4, f32 param_1)
 {
     PrimInterpData* out = (PrimInterpData*)param_2;
     const PrimInterpData* first = (const PrimInterpData*)param_3;
@@ -647,8 +649,9 @@ void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1)
 
 
 
+/* Interpolates two frames at time param_1: the weight is (time - start) / (end - start) on the frames' time fields, then PrimInterpSlerp blends them and the value30 fields are multiplied. */
 // FUN_00480CD0
-void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1, void* customData)
+void PrimInterpByTime(void* param_2, void* param_3, void* param_4, f32 param_1, void* customData)
 {
     PrimInterpData* out = (PrimInterpData*)param_2;
     const PrimInterpData* first = (const PrimInterpData*)param_3;
@@ -660,14 +663,15 @@ void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1, voi
     firstTime = *(const f32*)((const u8*)first + 4);
     secondTime = *(const f32*)((const u8*)second + 4);
     t = (param_1 - firstTime) / (secondTime - firstTime);
-    func_00480aa0(out, (void*)first, (void*)second, t);
+    PrimInterpSlerp(out, (void*)first, (void*)second, t);
     out->value30 = first->value30 * second->value30;
 }
 
 
 
+/* Writes the entry table to the sink: for each 0x34-byte entry, the 0x30-byte body and a 4-byte offset from the table base are written; returns 0 on the first failed write and 1 otherwise. */
 // FUN_00480D50
-s32 func_00480d50(const void* param_1, void* param_2)
+s32 PrimSerializeEntries(const void* param_1, void* param_2)
 {
     int iVar1;
     void* lVar2;
@@ -693,8 +697,9 @@ s32 func_00480d50(const void* param_1, void* param_2)
 
 
 
+/* Reads the entry table back from the source: for each entry, reads the 0x30-byte body and the 4-byte offset and rebases the entry pointer onto the table base; returns NULL when a read fails, else arg1. */
 // FUN_00480E20
-void *func_00480e20(void *arg0, void *arg1)
+void *PrimDeserializeEntries(void *arg0, void *arg1)
 {
     s32 sp6C;
     s32 *temp_16;
@@ -716,18 +721,20 @@ void *func_00480e20(void *arg0, void *arg1)
     }
     return arg1;
 }
+/* Returns the byte size of the entry table: its count (+4) times the 0x34-byte entry size. */
 // FUN_00480F00
-s32 func_00480f00(void* arg0)
+s32 PrimEntryTableBytes(void* arg0)
 {
     return *(const s32*)((const u8*)arg0 + 4) * 0x34;
 }
+/* Stores the difference of two frames in out: the quaternion becomes the product of the inverse of in's quaternion and out's saved quaternion, and in's six values are subtracted from out's. */
 /* A reciprocal does not exist for a zero-norm source quaternion, and the
  * stream reader does not reject that input. Retail computes the product with
  * `inverse` on every path; on nonpositive norm its components have no
  * producer (no store before the reads at 00480fa0). The C keeps that exact
  * dataflow: `inverse` is read uninitialised on that path, as in retail. */
 // FUN_00480F20
-void func_00480f20(void *param_1, void *param_2)
+void PrimInterpDelta(void *param_1, void *param_2)
 {
     PrimInterpData *out = (PrimInterpData *)param_1;
     const PrimInterpData *in = (const PrimInterpData *)param_2;
@@ -772,8 +779,9 @@ void func_00480f20(void *param_1, void *param_2)
     out->values[4] -= in->values[4];
     out->values[5] -= in->values[5];
 }
+/* Composes two frames: the quaternion becomes the product of a's and b's quaternions and the six values are summed element-wise. */
 // FUN_004810C0
-void func_004810c0(void *arg0, void *arg1, void *arg2)
+void PrimInterpCompose(void *arg0, void *arg1, void *arg2)
 {
     PrimInterpData *out;
     const PrimInterpData *a;
@@ -803,8 +811,9 @@ void func_004810c0(void *arg0, void *arg1, void *arg2)
     out->values[4] = a->values[4] + b->values[4];
     out->values[5] = a->values[5] + b->values[5];
 }
+/* Registers the PrimInterp descriptor with the sdk (hash 0x44a07195, 0x34-byte frames) and returns nonzero when the registration succeeds. */
 // FUN_00481250
-u32 func_00481250(void)
+u32 PrimInterpRegister(void)
 {
     PrimDesc desc;
     int result;
@@ -812,14 +821,14 @@ u32 func_00481250(void)
     desc.hash = 0x44a07195;
     desc.size1 = 0x34;
     desc.size0 = 0x34;
-    desc.funcA = func_00480940;
-    desc.funcB = func_00480aa0;
-    desc.funcB2 = func_00480cd0;
-    desc.funcC = func_004810c0;
-    desc.funcD = func_00480f20;
-    desc.funcE = func_00480e20;
-    desc.funcF = func_00480d50;
-    desc.funcG = func_00480f00;
+    desc.funcA = PrimInterpToMatrix;
+    desc.funcB = PrimInterpSlerp;
+    desc.funcB2 = PrimInterpByTime;
+    desc.funcC = PrimInterpCompose;
+    desc.funcD = PrimInterpDelta;
+    desc.funcE = PrimDeserializeEntries;
+    desc.funcF = PrimSerializeEntries;
+    desc.funcG = PrimEntryTableBytes;
     desc.zero = 0;
 
     result = func_003d5000(&desc);

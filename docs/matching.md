@@ -3206,7 +3206,7 @@ reproduced the retail accumulator chain from ordinary C — 4 ops
 (`func_0035bad0`), 6 (`func_0011c780`), 6 (`func_0026bfc0`), 3
 (`mdlBlendVec4Tracks` (was `func_0047f4d0`)), the full `MULA`/`MSUB`/`MADD` sequence (`func_00208870`),
 `madd.s` (`func_001bb790`), the tail chain (`func_004b7300`), and —
-decisively — **all 25** ops of `func_00480f20`, the densest accumulator
+decisively — **all 25** ops of `PrimInterpDelta` (was `func_00480f20`), the densest accumulator
 function in the corpus. Not one lane needed a pragma, an intrinsic or inline
 asm to emit the chain, and not one found the chain itself to be the residual.
 Two closed outright (`func_004b7300`, `func_0026bfc0`); the rest walled on
@@ -4100,7 +4100,7 @@ have fuller source and measurements in `docs/probe_archive/`.
 
 ### IDA quaternion recovery: aggregates before register speculation
 
-`func_00480f20` in `src/Graphics/primitive.c` is now MATCH: 408B of
+`PrimInterpDelta` (was `func_00480f20`) in `src/Graphics/primitive.c` is now MATCH: 408B of
 instructions plus eight bytes of retail zero tail. The old JnF archive had
 all three cross-product signs reversed; a native reproduction produced
 z = -1 where inverse-input times output requires z = +1. IDA and retail
@@ -10084,7 +10084,7 @@ Six more assembly fallbacks are replaced by ordinary C:
 | `func_00201b00` | 676 / 688 | 7 | 12 |
 | `func_00243a30` | 688 / 688 | 16 | 0 |
 | `func_002caa10` | 696 / 704 | 14 | 8 |
-| `func_0045dd30` | 664 / 672 | 6 | 8 |
+| `PrimBuildTransformedVertices` (was `func_0045dd30`) | 664 / 672 | 6 | 8 |
 | `func_0046a430` | 692 / 704 | 53 | 12 |
 
 The current build objects match retail after resolving all 119 code

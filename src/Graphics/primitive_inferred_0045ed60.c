@@ -9,7 +9,7 @@ extern f32 D_008872FC_abs[];
 extern f32 fGpffff8200;
 extern f32 cosf(f32 fparg0);
 extern f32 sinf(f32 fparg0);
-extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4);
+extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4);
 extern s32 iGpffffb9e8;
 struct RwCamera;
 struct RwSphere;
@@ -308,7 +308,7 @@ void func_0045ed60(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0) {
     colors[9] = color1;
     colors[10] = color2;
     colors[11] = color3;
-    func_0045dfd0(ptr, arg1, fparg0, 3, 3, arg2);
+    PrimDrawPoints(ptr, arg1, fparg0, 3, 3, arg2);
 }
 
 /* measured: restores propagation after func_0045ed60. */
@@ -403,6 +403,6 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
     colors[9] = color1;
     colors[10] = color2;
     colors[11] = color3;
-    func_0045dfd0(colors, coords, fparg1, 3, 3, (s32)arg4);
+    PrimDrawPoints(colors, coords, fparg1, 3, 3, (s32)arg4);
 }
 
