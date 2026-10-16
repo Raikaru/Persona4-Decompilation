@@ -74,7 +74,7 @@ struct EvtEventWork {
    ones the readers use; names follow the offsets until a role is proven. */
 typedef struct MtMiscSceneHeader MtMiscSceneHeader;
 typedef struct MtMiscSceneRecord16 MtMiscSceneRecord16;
-typedef struct MtMiscSceneRecord60 MtMiscSceneRecord60;
+typedef struct EvtSceneRecord EvtSceneRecord;
 typedef struct MtMiscSceneSource MtMiscSceneSource;
 
 struct MtMiscSceneHeader
@@ -98,8 +98,11 @@ struct MtMiscSceneRecord16
     u8 unk_0f;
 };
 
-/* 0x3C-byte record, the tables at +0x98 and +0xA4. */
-struct MtMiscSceneRecord60
+/* 0x3C-byte record of the scene event table at +0x98 (and +0xA4). Read by the
+   mt_misc collectors (src/Event/mt_misc_inferred_002962f0.c) and by the event
+   record loader (src/Event/evtLoadSave.c). Coordinates sit at +0x0C; payload
+   from +0x14 is read per kind. */
+struct EvtSceneRecord
 {
     u16 type;                 /* 0x00. Compared with 5, 0x13 and 4 */
     u16 id;                   /* 0x02 */
@@ -125,9 +128,9 @@ struct MtMiscSceneSource
     u8 unk_84[0x0C];
     s32 *headerWords;         /* 0x90. Nine words copied into the scene */
     MtMiscSceneRecord16 *records94;   /* 0x94 */
-    MtMiscSceneRecord60 *records98;   /* 0x98 */
+    EvtSceneRecord *records98;   /* 0x98 */
     u8 unk_9c[0x08];          /* 0x9C */
-    MtMiscSceneRecord60 *recordsA4;   /* 0xA4 */
+    EvtSceneRecord *recordsA4;   /* 0xA4 */
     s32 countA8;              /* 0xA8. Count when the header kind is 6 or more */
     s32 countAC;              /* 0xAC. Count when the header kind is below 6 */
 };
