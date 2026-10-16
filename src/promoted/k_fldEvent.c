@@ -493,7 +493,7 @@ s32 FldEvent_SelectEntryAtPosition(u8 *arg0)
     s32 ambience;
 
     h = *(u8 **)(arg0 + 0x38);
-    *(u16 *)(h + 0x2C) = func_0014be50(
+    *(u16 *)(h + 0x2C) = FldFrame_PickSurfaceAtPoint(
         (u8 *)(u8 *)mdlGetMatrix((void *)(*(s32 *)(*(u8 **)(h + 0x18) + 0x164))) + 0x30,
         &out);
     id = *(u16 *)(h + 0x2C);

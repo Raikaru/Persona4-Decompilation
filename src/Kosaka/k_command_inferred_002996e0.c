@@ -139,13 +139,15 @@ s32 func_00299860(void) {
 }
 
 // FUN_00299890
-s32 func_00299890(void) {
+/* p4flow Common 0x006F BGM (plays a sound cue with flag 1). */
+s32 K_Cmd_BGM(void) {
     sdkSndPlayCue(scrGetParamInt(0), 1);
     return 1;
 }
 
 // FUN_002998D0
-s32 func_002998d0(void) {
+/* p4flow Common 0x0070 BGM_STOP (id 0 stops all, else stops channel). */
+s32 K_Cmd_BGM_STOP(void) {
     s32 temp_2;
 
     temp_2 = scrGetParamInt(0);
@@ -158,7 +160,8 @@ s32 func_002998d0(void) {
 }
 
 // FUN_00299920
-s32 func_00299920(void) {
+/* p4flow Common 0x0071 EVT_SE_PLAY (numbered SE on channel 2). */
+s32 K_Cmd_EVT_SE_PLAY(void) {
     char sp10[0x20];
     s32 v;
 
@@ -169,7 +172,8 @@ s32 func_00299920(void) {
 }
 
 // FUN_00299970
-s32 func_00299970(void) {
+/* p4flow Common 0x0072 EVT_SE_STOP (0 stops channel 2, else fades out). */
+s32 K_Cmd_EVT_SE_STOP(void) {
     s32 v;
 
     v = scrGetParamInt(0);
@@ -182,13 +186,15 @@ s32 func_00299970(void) {
 }
 
 // FUN_002999D0
-s32 func_002999d0(void) {
+/* p4flow Common 0x0073 EVT_SE_PLAY2 (body requests a sound track). */
+s32 K_Cmd_EVT_SE_PLAY2(void) {
     sdkSndRequestTrack(scrGetParamInt(0));
     return 1;
 }
 
 // FUN_00299A10
-s32 func_00299a10(void) {
+/* p4flow Common 0x0074 EVT_SE_STOP2 (fades out channel 3). */
+s32 K_Cmd_EVT_SE_STOP2(void) {
     scrGetParamInt(0);
     sdkSndFadeOutChannel(3, 0);
     return 1;
