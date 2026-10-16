@@ -1,3 +1,4 @@
+#include "rw_types_internal.h"
 #include "btl_motion_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
@@ -14,13 +15,6 @@ typedef struct BtlUnitStateWork BtlUnitStateWork;
 typedef struct BtlUnit BtlUnit;
 typedef struct RwV3d RwV3d;
 typedef struct RwMatrixTag RwMatrix;
-typedef struct RtQuat RtQuat;
-
-struct RwV3d {
-    f32 x;
-    f32 y;
-    f32 z;
-};
 
 typedef struct P4Vec4_001EC2B0 { f32 x, y, z, w; } P4Vec4_001EC2B0;
 typedef struct P4Vec4Holder_001EC2B0 { P4Vec4_001EC2B0 quat; } P4Vec4Holder_001EC2B0;
