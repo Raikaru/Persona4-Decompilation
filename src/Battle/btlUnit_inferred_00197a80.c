@@ -295,7 +295,7 @@ s32 btlUnitRotatePacketUpdate(u8 *arg0)
             btlUnitRequestLookAt(unit);
         } else {
             if ((*(s32 *)(arg0 + 0x10) & 0x20) != 0) {
-                func_00194ff0(unit, NULL, NULL, (f32 *)&output);
+                btlUnitGetAnchorPose(unit, NULL, NULL, (f32 *)&output);
                 *(P4_95730_Vec3 *)(arg0 + 4) = output;
             }
             flags = *(s32 *)(arg0 + 0x10);

@@ -38,7 +38,7 @@ extern f32 D_00922CB8[];
 extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
 extern s32 btlUnitIsMoving(u8 *arg0);
-extern void func_00194ff0(u8 *unit, u8 *position, f32 *rotation, f32 *direction);
+extern void btlUnitGetAnchorPose(u8 *unit, u8 *position, f32 *rotation, f32 *direction);
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *direction, u32 flags);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void btlActionSetState(BtlAction *arg0, u16 arg1);
@@ -144,7 +144,7 @@ void btlActionEndHomeInit(u8 *arg0)
     if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x400000) != 0 &&
         (*(u16 *)(iGpffffb3ac + 0x18) & 2) != 0) return;
     if (datCalcChkBadStatus(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x180001) != 0) return;
-    func_00194ff0(unit, (u8 *)&position, NULL, NULL);
+    btlUnitGetAnchorPose(unit, (u8 *)&position, NULL, NULL);
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 0) {
         *(s32 *)(arg0 + 0x41C) = 1;
     }
@@ -178,7 +178,7 @@ void btlActionEndHomeUpdate(u8 *arg0)
 
     if (btlUnitIsMoving(*(u8 **)(arg0 + 0x30)) == 0) {
         if (*(s32 *)(arg0 + 0x41C) == 1) {
-            func_00194ff0(*(u8 **)(arg0 + 0x30), NULL, NULL, sp20);
+            btlUnitGetAnchorPose(*(u8 **)(arg0 + 0x30), NULL, NULL, sp20);
             temp_2 = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)(*(u8 **)(arg0 + 0x30)), (const RwV3d *)(sp20), (u32)(0));
             *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(temp_2, 1);

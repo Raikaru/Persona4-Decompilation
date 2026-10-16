@@ -97,7 +97,7 @@ extern void btlCameraSetState(s32 state, BtlAction *action, u32 param_3);
 extern void btlCameraSetupActionGeometry(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
 extern u8 *btlActionFindByUnit(s32 arg0);
 extern s32 datCalcIsDead(s32 arg0, s32 arg1);
-extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
+extern void btlUnitGetAnchorPose(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void btlUnitSetPos(void *arg0, void *arg1);
 extern void btlUnitSetRot(void *arg0, void *arg1);
 extern u8 *iGpffffb3ac;
@@ -272,7 +272,7 @@ loop_19_body:
 loop_17_body:
     temp_4_2 = *(s32 *)(var_17 + 0xA64);
     if ((temp_4_2 != 0) && (datCalcIsDead(temp_4_2, 0) == 0)) {
-        func_00194ff0(var_17, sp40, sp30, NULL);
+        btlUnitGetAnchorPose(var_17, sp40, sp30, NULL);
         btlUnitSetPos(var_17, sp40);
         btlUnitSetRot(var_17, sp30);
         btlUnitUpdateStatusMotion(var_17, 0);

@@ -80,7 +80,7 @@ extern f32 D_00922CB4[];
 extern f32 D_00922CB8[];
 extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
-extern void func_00194ff0(u8 *unit, u8 *position, f32 *rotation, f32 *direction);
+extern void btlUnitGetAnchorPose(u8 *unit, u8 *position, f32 *rotation, f32 *direction);
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *direction, u32 flags);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void btlActionSetState(BtlAction *arg0, u16 arg1);
@@ -868,7 +868,7 @@ s32 btlMainUnitCreateUpdate(void)
               nodeOrPacket = *(u8 **)(nodeOrPacket + 0xa6c)) {
             btlTargetAddRadiusNode(nodeOrPacket,NULL);
             if ((group & 0xffff) == 0) {
-              func_00194ff0(nodeOrPacket,NULL,(f32 *)&rotation,NULL);
+              btlUnitGetAnchorPose(nodeOrPacket,NULL,(f32 *)&rotation,NULL);
             }
             else {
               position.x = (f32)(*(s16 *)(nodeOrPacket + 0x94) * 0x19 - 0x6d6);
@@ -902,7 +902,7 @@ s32 btlMainUnitCreateUpdate(void)
             btlUnitSetPos((BtlUnit *)unit, &position);
           }
         } else {
-          func_00194ff0(unit,(u8 *)&position,NULL,(f32 *)&targetDirection);
+          btlUnitGetAnchorPose(unit,(u8 *)&position,NULL,(f32 *)&targetDirection);
           btlUnitGetGroupBounds(2,0,&groupCenter,NULL,NULL,1);
           if ((*(u32 *)(D_0076449C + 0xc) & 0x20000000) == 0) {
             mode = *(u16 *)(D_0076449C + 0x1a);

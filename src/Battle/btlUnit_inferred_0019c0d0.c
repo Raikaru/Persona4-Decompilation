@@ -172,7 +172,7 @@ extern u8 D_00794150[];
 /* Source unit: src/promoted/code1_0019.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 0019c0d0-0019d0c0 */
 
-extern void func_00198380(u8 *arg0);
+extern void btlUnitUpdateMotionLayer(u8 *arg0);
 typedef struct { u8 r, g, b, a; } Col4_0019;
 typedef struct {
     f32 right[3];
@@ -251,7 +251,7 @@ void btlUnitUpdateAll(void)
         entry = *(u8 **)(D_0076449C + (i * 8) + 0x17C);
         while (entry != NULL) {
             btlUnitUpdateFollowPath(entry);
-            func_00198380(entry);
+            btlUnitUpdateMotionLayer(entry);
             switch (i) {
             case 1:
                 btlBossCopyPartnerMark(entry);

@@ -261,7 +261,7 @@ u32 btlUnitMovePacketUpdate(void *workData)
         switch (state) {
         case 0:
             if ((flags & 0x10) != 0) {
-                func_00194ff0(unit, (u8 *)position.values, NULL, NULL);
+                btlUnitGetAnchorPose(unit, (u8 *)position.values, NULL, NULL);
                 *(P4_95730_Vec3 *)(arg0 + 4) = position.vector;
             }
             *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;
@@ -339,7 +339,7 @@ u32 btlUnitMovePacketUpdate(void *workData)
         switch (state) {
         case 0:
             if ((flags & 0x10) != 0) {
-                func_00194ff0(unit, (u8 *)position.values, NULL, NULL);
+                btlUnitGetAnchorPose(unit, (u8 *)position.values, NULL, NULL);
                 *(P4_95730_Vec3 *)(arg0 + 4) = position.vector;
             }
             *(u16 *)(arg0 + 0x14) = *(u16 *)(arg0 + 0x14) + 1;

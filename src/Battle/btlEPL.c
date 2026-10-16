@@ -19,7 +19,7 @@ extern u8 D_00625230[];
 
 static u8 *D_0072449C;
 
-extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
+extern void btlUnitGetAnchorPose(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void btlUnitSetPos(void *arg0, void *arg1);
 extern void btlUnitSetRot(void *arg0, void *arg1);
 extern void func_0048a150(void *arg0, void *arg1);
@@ -1364,7 +1364,7 @@ void btlEplApplyScaleEffect(u8 *arg0) {
                     if ((node->datUnit != 0) &&
                         (btlEplUnitIsSelected(node, &param->select) != 0) &&
                         (datCalcIsDead(node->datUnit, 0) == 0)) {
-                        func_00194ff0(node, sp120, sp50, NULL);
+                        btlUnitGetAnchorPose(node, sp120, sp50, NULL);
                         btlUnitSetPos(node, sp120);
                         btlUnitSetRot(node, sp50);
                         btlUnitUpdateStatusMotion((u8 *)node, 0);

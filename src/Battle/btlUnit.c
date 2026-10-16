@@ -16,7 +16,7 @@ extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
 extern f32 fGpffff82d4;
 extern u8 D_005F6D00[];
 extern u8 iGpffffa0b0;
-extern void func_00194ff0(void *arg0, void *arg1, s32 arg2, void *arg3);
+extern void btlUnitGetAnchorPose(void *arg0, void *arg1, s32 arg2, void *arg3);
 extern void func_003dc740(void *dst, void *src, f32 angle, s32 mode);
 #define func_003dc740(dst, src, mode, angle) \
     func_003dc740(dst, src, angle, mode)
@@ -899,7 +899,7 @@ s32 btlUnitRotateTowardUnitPacketUpdate(u8 *arg0)
         {
             if ((temp_3 & 0x20) != 0)
             {
-                func_00194ff0(*(u8 **)(arg0 + 4), temp_17 + 0xD0, 0, NULL);
+                btlUnitGetAnchorPose(*(u8 **)(arg0 + 4), temp_17 + 0xD0, 0, NULL);
             }
             else
             {

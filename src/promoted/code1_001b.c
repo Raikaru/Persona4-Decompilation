@@ -93,7 +93,7 @@ extern f32 D_00922CB8[];
 extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
 extern s32 btlUnitIsMoving(u8 *arg0);
-extern void func_00194ff0(u8 *unit, u8 *position, f32 *rotation, f32 *direction);
+extern void btlUnitGetAnchorPose(u8 *unit, u8 *position, f32 *rotation, f32 *direction);
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *direction, u32 flags);
 extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
 extern void btlActionSetState(BtlAction *arg0, u16 arg1);

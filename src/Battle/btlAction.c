@@ -20,7 +20,7 @@ struct BtlPacket
 };
 
 extern u32 btlUnitIsMoving(void* unit);
-extern void func_00194ff0(void* unit, void* arg1, void* arg2, RwV3d* rot);
+extern void btlUnitGetAnchorPose(void* unit, void* arg1, void* arg2, RwV3d* rot);
 extern BtlPacket* btlUnitCreateRotatePacket(void* unit, const RwV3d* rot, u32 flags);
 extern void btlPacketEnqueue(BtlPacket* packet, u32 type);
 extern void btlActionSetState(BtlAction* action, u16 state);
@@ -40,7 +40,7 @@ void btlActionStartHomeUpdate(BtlAction* action)
 
     if (btlUnitIsMoving(action->unit) == 0)
     {
-        func_00194ff0(action->unit, NULL, NULL, &rot);
+        btlUnitGetAnchorPose(action->unit, NULL, NULL, &rot);
 
         packet = btlUnitCreateRotatePacket(action->unit, &rot, 0);
         packet->actionUID = action->uid;

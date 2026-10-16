@@ -38,7 +38,7 @@ static inline void *actionMessagePacketBytes(s32 unit, s32 message)
 {
     return btlPacketCreateEffectCounter(unit, message);
 }
-extern void func_00194ff0(u8 *, u8 *, f32 *, f32 *);
+extern void btlUnitGetAnchorPose(u8 *, u8 *, f32 *, f32 *);
 extern f32 btlTargetVectorDistance(const RwV3d *, const RwV3d *);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *, const RwV3d *, f32, u32);
 extern u8 *iGpffffb3cc;
@@ -373,7 +373,7 @@ void btlActionStartHomeInit(BtlAction *action)
         btlActionSetState(action, *(u16 *)((u8 *)action + 0x14));
         return;
     }
-    func_00194ff0(battleUnit, (u8 *)&sp30, 0, NULL);
+    btlUnitGetAnchorPose(battleUnit, (u8 *)&sp30, 0, NULL);
     if (!(btlTargetVectorDistance((const RwV3d *)(battleUnit + 4), &sp30) <= 75.0f)) {
         moveId = 2;
         tableColumn = (u16)(!(iGpffffb3b8[
