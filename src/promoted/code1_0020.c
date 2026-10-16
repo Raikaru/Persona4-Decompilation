@@ -95,7 +95,7 @@ extern void btlPanelSetCountdown(s32 arg0, s32 arg1);
 extern s32 datCalcUnitClass(u8 *arg0);
 extern void btlPanelStartEntry(s32 arg0, s32 arg1);
 extern void btlPanelStartValues(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_00216d10(s32 task);
+extern void btlPanelMarkEntryStarted(s32 task);
 
 
 
@@ -127,8 +127,8 @@ extern s32 datCalcMaxHp(s32 arg0);
 extern void func_004abd60(s32 arg0);
 extern void func_004b5790(void *arg0, void *arg1);
 extern u8 D_00625240[];
-extern void func_00213b50(s32 task);
-extern void func_00213b80(s32 task);
+extern void btlEncounterEntryClearRetracted(s32 task);
+extern void btlEncounterEntrySetRetracted(s32 task);
 extern f32 fGpffff8184;
 extern f32 fGpffff84a4;
 extern f32 fGpffff81a8;
@@ -576,7 +576,7 @@ extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0019f0f0(u8 *arg0);
 extern void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1);
 extern void btlPanelReleaseText(s32 task);
-extern void func_00216d40(s32 task);
+extern void btlPanelMarkEntryTimed(s32 task);
 extern void btlPanelSetTarget(u8 *task, s32 arg1);
 extern void btlSelectionSetRowIdle(u8 *arg0);
 extern void btlSelectionSwapRowState(u8 *arg0, u8 *arg1);

@@ -45,7 +45,7 @@ extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
 extern void btlPanelStartEntry(s32 arg0, s32 arg1);
-extern void func_00216d10(s32 task);
+extern void btlPanelMarkEntryStarted(s32 task);
 
 
 
@@ -136,7 +136,7 @@ s32 btlPacketStepSpriteFrameLookup(u8 *arg0)
     if (*(u32 *)(arg0 + 8) == 0) {
         btlPanelStartEntry(*(s32 *)(D_0076449C + 0xDD4),
                       datGetItemNameId(*(s16 *)(arg0 + 4)));
-        func_00216d10(*(s32 *)(D_0076449C + 0xDD4));
+        btlPanelMarkEntryStarted(*(s32 *)(D_0076449C + 0xDD4));
     }
     temp_2 = *(u32 *)(arg0 + 8) + 1;
     *(u32 *)(arg0 + 8) = temp_2;

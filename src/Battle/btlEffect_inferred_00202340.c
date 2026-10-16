@@ -45,7 +45,7 @@ extern s32 iGpffffb448;
 extern s32 D_0062656C[];
 extern void btlPanelStartEntry(s32 arg0, s32 arg1);
 extern void btlPanelStartValues(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_00216d10(s32 task);
+extern void btlPanelMarkEntryStarted(s32 task);
 
 
 
@@ -146,7 +146,7 @@ s32 btlPacketStepEffectCounter(u8 *arg0)
             btlPanelStartEntry(*(s32 *)(D_0076449C + 0xDD4),
                           iGpffffb448 +
                               (((temp_7 - 0x1000) & 0xFFFF) * 0x13));
-            func_00216d10(*(s32 *)(D_0076449C + 0xDD4));
+            btlPanelMarkEntryStarted(*(s32 *)(D_0076449C + 0xDD4));
         }
     }
     temp_2 = *(u32 *)(arg0 + 8) + 1;
