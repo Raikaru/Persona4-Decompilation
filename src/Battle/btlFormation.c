@@ -683,12 +683,7 @@ BtlPacket* btlFormationCreateTurnPacket(u32 param_1, u32 param_2, u32 param_3, u
 // FUN_001D3090
 u32 btlFormationUpdatePose(u32 *work)
 {
-    typedef struct RtQuat {
-        f32 x;
-        f32 y;
-        f32 z;
-        f32 w;
-    } RtQuat;
+    #include "rw_types_internal.h"
 
     extern void btlUnitFaceTarget(void *arg0, void *arg1);
     extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
