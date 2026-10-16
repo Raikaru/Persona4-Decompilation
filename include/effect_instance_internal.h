@@ -7,6 +7,22 @@
  * and return the allocated instance, or NULL for an unsupported primitive. */
 typedef void *(*EffectInstanceConstructor)(void *source);
 
+/* Object particle instance (effObjectParticle.c). Only fields read by the update and
+ * draw paths are named; gaps are kept as fields so offsets stay exact. */
+typedef struct ObjectParticleInstance {
+    u32 field_0x00;
+    u32 packedColour;        /* +0x04: packed colour word read by the draw path */
+    f32 field_0x08;
+    u16 kind;                /* +0x0C: record kind compared by the update and draw switches */
+    u8 field_0x0E[0x2C - 0x0E];
+    f32 ageFactor;           /* +0x2C: multiplies the age in the draw path's trail step */
+    u16 field_0x30;
+    u8 field_0x32[0x54 - 0x32];
+    u8 *clump;               /* +0x54 */
+    u8 *list;                /* +0x58: record list; count at +0x8, entries at +0x18 */
+    u8 *entries;             /* +0x5C: per-entry table walked by the update and draw paths */
+} ObjectParticleInstance;
+
 /* Effect RNG state (effMisc.c). A NULL state selects the global generator. */
 typedef struct EffRandState EffRandState;
 u32 effMiscRand(EffRandState *state);
