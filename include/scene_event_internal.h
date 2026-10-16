@@ -7,6 +7,61 @@ typedef struct SVec3 {
     f32 x, y, z;
 } SVec3;
 
+typedef struct EvtNode EvtNode;
+typedef struct EvtEventTask EvtEventTask;
+typedef struct EvtEventWork EvtEventWork;
+
+/* Four colour bytes, copied as one word (evtNpcModelTaskUpdate). */
+typedef struct EvtColor {
+    u8 b0;
+    u8 b1;
+    u8 b2;
+    u8 b3;
+} EvtColor;
+
+/* Event node (src/Event/evtMain.c, evtEvent.c). Only offsets the matched
+   code reads are named; the rest is padding. */
+struct EvtNode {
+    s32 kind;                 /* +0x00: switched on by evtResetEventScene */
+    u8 unk04[0x08];
+    u16 flags;                /* +0x0C: resource id in the low 10 bits */
+    u8 unk0E[0x42];
+    EvtColor color;           /* +0x50: colour copied in by evtNpcModelTaskUpdate */
+    u8 unk54[0x3C];
+    EvtNode *next;            /* +0x90: next node in the event's list */
+};
+
+/* Event task work block (0x60 bytes), stored by evtCreateEventTask. */
+struct EvtEventTask {
+    s32 state;                /* +0x00: 0 create, 3/4 run, 5 wait for mark, 6 done */
+    u8 unk04[0x08];
+    s32 eventTask;            /* +0x0C: handle returned by evtStart */
+    u8 unk10[0x50];
+};
+
+/* Event work block: kwlnTaskGetWork of EvtEventTask.eventTask. */
+struct EvtEventWork {
+    s32 waitFlags;            /* +0x00: wait bits cleared by evtUpdateNodeWaitFlags */
+    s32 hasMessage;           /* +0x04: nonzero while a message is attached */
+    u8 unk08[0x08];
+    s32 frameLimit;           /* +0x10 */
+    s32 frame;                /* +0x14 */
+    s32 lastFrame;            /* +0x18 */
+    s32 resetRequested;       /* +0x1C */
+    s32 resetFrame;           /* +0x20 */
+    u8 unk24[0x24];
+    s32 nodeCount;            /* +0x48 */
+    EvtNode *nodeList;        /* +0x4C */
+    u8 unk50[0x584];
+    s32 busy;                 /* +0x5D4: nonzero while the event is busy */
+    u8 unk5D8[0xA0];
+    u8 messageWindow[0x4C];   /* +0x678: message window, runs to at least +0x6C4 */
+    s32 waitTask[3];          /* +0x6C4: tasks watched by the 0x200/0x400/0x800 waits */
+    u8 unk6D0[0x8C];
+    s32 linkedTask;           /* +0x75C: task watched by the 0x4000 wait */
+    s32 scriptLoad;           /* +0x760: script load handle for the 0x80000 wait */
+};
+
 /* mt_misc scene source record: the arg0 block of mtMiscBuildScene and its
    collect helpers (src/Event/mt_misc_inferred_002962f0.c). Offsets are the
    ones the readers use; names follow the offsets until a role is proven. */
