@@ -9985,7 +9985,7 @@ the complete verifier reports every target as `MATCH`:
 | `func_004667d0` | 512 / 512 | 10 | 0 |
 | `func_00466c60` | 540 / 544 | 20 | 4 |
 | `func_00468d10` | 652 / 656 | 8 | 4 |
-| `func_00493e60` | 620 / 624 | 40 | 4 |
+| `TrackAllocRibbons` (was `func_00493e60`) | 620 / 624 | 40 | 4 |
 
 The task-work boundary now passes real task values in 61 getter calls; that
 cutover preserved 490 previously matched bodies. The shared four-byte

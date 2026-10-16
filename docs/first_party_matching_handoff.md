@@ -4953,7 +4953,7 @@ automates the sweep: it lifts each body from between `#ifdef NON_MATCHING` and
   shifts.  Narrowing the callees' index parameter to `u16` makes the mask a
   parameter promotion, which is never treated as a common subexpression
   (the general rule is 7h-sexies); `opt_common_subs off` stops the remaining
-  hoist.  Both were needed on `func_004938e0`: `opt_common_subs off` alone
+  hoist.  Both were needed on `TrackUpdateSlots` (was `func_004938e0`): `opt_common_subs off` alone
   also duplicates a `lwc1 $fN, <gp>` you wanted shared (152 words), and the
   `u16` prototypes alone leave the CSE (109).  Together, 98 words at an exact
   171/171 instruction count, and then one more shape below took it to MATCH.
@@ -4976,7 +4976,7 @@ automates the sweep: it lifts each body from between `#ifdef NON_MATCHING` and
   other:
   ```
 
-  That was the last four words of `func_004938e0`.  Any `a == K ||
+  That was the last four words of `TrackUpdateSlots` (was `func_004938e0`).  Any `a == K ||
   a == K + 1` in a condition is a candidate.
 - **`slti $at` versus `slti $v0`: spell the bound inclusively.** Retail's
   branch-if-true range tests land the compare in `$at`; this build puts it
