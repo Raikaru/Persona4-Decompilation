@@ -4,11 +4,7 @@
 #include "primitive_point_buffer.h"
 #include "fr_font_internal.h"
 struct RwMatrixTag;
-typedef struct RwV3d {
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
+#include "rw_types_internal.h"
 typedef struct {
     s32 lo;
     s32 hi;

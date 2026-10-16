@@ -37,11 +37,7 @@ typedef struct PanelTransform {
     PanelVec3 scale;
     void* model;
 } PanelTransform;
-typedef struct RwV3d {
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
+#include "rw_types_internal.h"
 typedef struct RwMatrix {
     RwV3d right;
     u32 flags;
