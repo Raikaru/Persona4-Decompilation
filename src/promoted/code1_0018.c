@@ -156,7 +156,7 @@ extern s32 func_0018a200(u8 *task);
 extern s32 FldStepNotAtBoundary(void);
 extern f32 sinf(f32 arg0);
 
-extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern s32 frFontExDrawTextDeferredWithCharWidth(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id,
                          const char *str, s32 flags, s32 unused, void *param,
                          s32 charWidth);
@@ -779,8 +779,8 @@ s32 func_00183b80(u8 *arg0)
     extern RwTexDictionary *func_003ef6d0(void);
     extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
     extern u8 *PrimAllocQueueNode(void);
-    extern void func_00460ac0(u8 *, u8 *);
-    extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+    extern void PrimAppendNode(u8 *, u8 *);
+    extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
     extern void FldRainRenderStateReset(u8 *arg0, u8 *arg1);
     extern u8 D_005F1D10[];
     extern u8 D_00794930[];
@@ -1024,7 +1024,7 @@ s32 func_00183b80(u8 *arg0)
     pkt = PrimAllocQueueNode();
     *(void (**)(u8 *, u8 *))(pkt + 8) = FldRainRenderStateReset;
     *(u8 **)(pkt + 0x10) = ctx;
-    func_00460ac0(D_00794930, pkt);
+    PrimAppendNode(D_00794930, pkt);
     for (m = 0; m < 2; m++) {
         for (k = 0; k < 2; k++) {
             f32 v0;
@@ -1042,7 +1042,7 @@ s32 func_00183b80(u8 *arg0)
             *(f32 *)(((ctx + (m << 9)) + (k << 8)) + 0xA4) = v3;
             *(f32 *)(((ctx + (m << 9)) + (k << 8)) + 0xE0) = v2;
             *(f32 *)(((ctx + (m << 9)) + (k << 8)) + 0xE4) = v3;
-            func_00461390(D_00794930, 4, ((ctx + (m << 9)) + (k << 8)) + 0x10, 4);
+            PrimQueueDrawPrimitive(D_00794930, 4, ((ctx + (m << 9)) + (k << 8)) + 0x10, 4);
         }
     }
     *(f32 *)(ctx + 0x450) = *(f32 *)(ctx + 0x450) + *(f32 *)(ctx + 0x414);
@@ -1332,8 +1332,8 @@ s32 func_00185850(u8 *task)
     extern f32 cosf(f32 angle);
     extern f32 sinf(f32 angle);
     extern u8 *PrimAllocQueueNode(void);
-    extern void func_00460ac0(u8 *, u8 *);
-    extern u8 *func_00461390(void *task, s32 arg1, void *arg2, s32 arg3);
+    extern void PrimAppendNode(u8 *, u8 *);
+    extern u8 *PrimQueueDrawPrimitive(void *task, s32 arg1, void *arg2, s32 arg3);
     extern void func_001853e0(u8 *task, u8 *arg1);
     extern void func_001854f0(u8 *task, u8 *arg1);
     extern void func_00185600(void);
@@ -1602,25 +1602,25 @@ s32 func_00185850(u8 *task)
         work->state = work->state + 1;
         break;
     case 1:
-        node = func_00461390(D_00794930,4,work->cover,4);
+        node = PrimQueueDrawPrimitive(D_00794930,4,work->cover,4);
         *(void (**)(void))(node + 8) = func_00185730;
         *(GridDrawWork **)(node + 0x10) = work;
-        node = func_00461390(D_00794930,4,work->rings[2],0x42);
+        node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[2],0x42);
         *(void (**)(void))(node + 8) = func_00185730;
         *(GridDrawWork **)(node + 0x10) = work;
         *(void (**)(void))(node + 0xc) = func_00185830;
         *(GridDrawWork **)(node + 0x14) = work;
-        node = func_00461390(D_00794930,4,work->overlay,4);
+        node = PrimQueueDrawPrimitive(D_00794930,4,work->overlay,4);
         *(void (**)(u8 *, u8 *))(node + 8) = func_00185620;
         *(GridDrawWork **)(node + 0x10) = work;
         callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(void))(callbackNode + 8) = func_00185600;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
-        func_00460ac0(D_00794930,callbackNode);
-        node = func_00461390(D_00794930,4,work->cover,4);
+        PrimAppendNode(D_00794930,callbackNode);
+        node = PrimQueueDrawPrimitive(D_00794930,4,work->cover,4);
         *(void (**)(void))(node + 8) = func_00185730;
         *(GridDrawWork **)(node + 0x10) = work;
-        node = func_00461390(D_00794930,4,work->rings[1],0x42);
+        node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[1],0x42);
         *(void (**)(void))(node + 8) = func_00185730;
         *(GridDrawWork **)(node + 0x10) = work;
         *(void (**)(void))(node + 0xc) = func_00185830;
@@ -1628,24 +1628,24 @@ s32 func_00185850(u8 *task)
         callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(u8 *, u8 *))(callbackNode + 8) = func_001854f0;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
-        func_00460ac0(D_00794930,callbackNode);
+        PrimAppendNode(D_00794930,callbackNode);
         for (index = 0; index < 0xe; index = index + 1) {
             for (column = 0; column < 1; column = column + 1) {
-                func_00461390(D_00794930,4,work->bands[index][column],4);
+                PrimQueueDrawPrimitive(D_00794930,4,work->bands[index][column],4);
             }
         }
         callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(void))(callbackNode + 8) = func_00185600;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
-        func_00460ac0(D_00794930,callbackNode);
-        node = func_00461390(D_00794930,4,work->rings[0],0x42);
+        PrimAppendNode(D_00794930,callbackNode);
+        node = PrimQueueDrawPrimitive(D_00794930,4,work->rings[0],0x42);
         *(void (**)(void))(node + 0xc) = func_00185830;
         *(GridDrawWork **)(node + 0x14) = work;
         uGpffffb314 = uGpffffb314 != 0 ^ 1;
         callbackNode = (u8 *)PrimAllocQueueNode();
         *(void (**)(u8 *, u8 *))(callbackNode + 8) = func_001853e0;
         *(GridDrawWork **)(callbackNode + 0x10) = work;
-        func_00460ac0(D_00794930,callbackNode);
+        PrimAppendNode(D_00794930,callbackNode);
         for (index = 0; index < 7; index = index + 1) {
             for (column = 0; column < 10; column = column + 1) {
                 phaseSlot = &work->phases[index][column];
@@ -1668,7 +1668,7 @@ s32 func_00185850(u8 *task)
                 if (*phaseSlot >= 4) {
                     *phaseSlot = 0;
                 }
-                func_00461390(D_00794930,4,work->grid[index][column],4);
+                PrimQueueDrawPrimitive(D_00794930,4,work->grid[index][column],4);
             }
         }
         break;
@@ -1868,10 +1868,10 @@ s32 func_00189940(u8 *arg0)
                     *(s32 *)(temp_16 + 8) = !(u32)*(s32 *)(temp_16 + 8);
                 }
             }
-            temp_2 = func_00461390(D_00794C60, 4, temp_16 + 0x20, 4);
+            temp_2 = PrimQueueDrawPrimitive(D_00794C60, 4, temp_16 + 0x20, 4);
             *(void (**)(void))(temp_2 + 8) = func_00189870;
             *(s32 *)(temp_2 + 0x10) = 0;
-            func_00461390(D_00794C60, 4, temp_16 + 0x120, 4);
+            PrimQueueDrawPrimitive(D_00794C60, 4, temp_16 + 0x120, 4);
             if (*(const char **)(temp_16 + 0x10) != NULL) {
                 frFontExDrawTextDeferredWithCharWidth((f32)(s32)*(f32 *)(temp_16 + 0x18), (f32)399, (f32)58990, -1, 0, 1, *(const char **)(temp_16 + 0x10), 8, 0, D_00794C60, -1);
             }

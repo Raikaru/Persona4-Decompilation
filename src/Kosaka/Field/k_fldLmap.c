@@ -28,7 +28,7 @@ extern void func_003e0f40(u8 *param);
 extern void fieldSceneUnload();
 extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern u8 *PrimAllocQueueNode();
-extern void func_00460ac0(void *param, u8 *work);
+extern void PrimAppendNode(void *param, u8 *work);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 RwV3dNormalize(f32 *param, f32 *out);
 extern u8 *mdlGetMatrix(s32 param);
@@ -804,7 +804,7 @@ void FldLmapDrawSlotRow(u8 *arg0, u8 *arg1)
     temp_2 = PrimAllocQueueNode();
     *(void (**)(void))(temp_2 + 8) = FldLmapSkyState71009;
     *(s32 *)(temp_2 + 0x10) = 0;
-    func_00460ac0(D_00795E60, temp_2);
+    PrimAppendNode(D_00795E60, temp_2);
     temp_f0 = -44.0f;
     temp_f0 += *(f32 *)arg1;
     temp_f1 = -7.0f + *(f32 *)(arg1 + 4);
@@ -878,7 +878,7 @@ void FldLmapDrawSlotMarker(u8 *arg0, u8 *arg1, s32 arg2)
     temp_2 = PrimAllocQueueNode();
     *(void (**)(void))(temp_2 + 8) = (void (*)(void))FldLmapSkyState7100D;
     *(s32 *)(temp_2 + 0x10) = 0;
-    func_00460ac0(D_00795E60, temp_2);
+    PrimAppendNode(D_00795E60, temp_2);
     temp_3 = arg2 * 0x18;
     temp_f14 = *(f32 *)(arg1 + 8);
     sdkSpriteDrawQueued((f32)(s32)(*(f32 *)arg1 + *(f32 *)((u8 *)D_005F20B0 + temp_3)), (f32)(s32)(*(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20B4 + temp_3)), temp_f14, 0xFF0000, 2, arg2, *(void **)(arg0 + 0x34), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
@@ -936,7 +936,7 @@ void FldLmapDrawPanel(u8 *arg0, u8 *arg1, s32 arg2)
     temp_2 = PrimAllocQueueNode();
     *(void (**)(void))(temp_2 + 8) = (void (*)(void))FldLmapSkyState71009;
     *(s32 *)(temp_2 + 0x10) = 0;
-    func_00460ac0(D_00795E60, temp_2);
+    PrimAppendNode(D_00795E60, temp_2);
     temp_f0 = -45.0f;
     temp_f0 += *(f32 *)arg1;
     temp_f1 = -5.0f + *(f32 *)(arg1 + 4);
@@ -948,7 +948,7 @@ void FldLmapDrawPanel(u8 *arg0, u8 *arg1, s32 arg2)
     temp_2_2 = PrimAllocQueueNode();
     *(void (**)(void))(temp_2_2 + 8) = (void (*)(void))FldLmapSkyState72001;
     *(s32 *)(temp_2_2 + 0x10) = 0;
-    func_00460ac0(D_00795E60, temp_2_2);
+    PrimAppendNode(D_00795E60, temp_2_2);
     temp_f0 = 185.0f;
     temp_f0 += *(f32 *)arg1;
     temp_f1 = 0.0f;

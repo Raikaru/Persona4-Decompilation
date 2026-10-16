@@ -69,8 +69,8 @@ s16 nLineRollStyle(u8 *arg0, s32 arg1);
 s32 nLineBuildDecoration(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 void nLineDrawLayers(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
 u32 RpRandom(void);
-void func_00364c50(void);
-void func_00364c70(void);
+void shdEnableBlendFlag(void);
+void shdDisableBlendFlag(void);
 void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 s32 kwlnGetCamera(void);
 f32 sinf(f32 arg0);
@@ -710,14 +710,14 @@ void nLineDrawBatch(u8 *arg0) {
 
     D_00887300[0](1, 0);
     if (*(s16 *)(arg0 + 0xFE0) > 0) {
-        func_00364c50();
+        shdEnableBlendFlag();
         if ((u32)*(s16 *)(arg0 + 0xFE0) <= 0x33U) {
             /* no-op */
         } else {
             kAssertFail(&iGpffffa950, 0x3EF);
         }
         D_00887310[0](3, arg0 + 0x320, *(s16 *)(arg0 + 0xFE0));
-        func_00364c70();
+        shdDisableBlendFlag();
     }
     f = (void (**)(s32, void *, s32))(u32)D_00887310;
     f[0](5, arg0, 4);

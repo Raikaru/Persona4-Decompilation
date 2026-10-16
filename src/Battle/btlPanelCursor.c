@@ -144,7 +144,7 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
     if (*(u16 *)(cursor + 0x10) & 1) {
         point.x = 22.0f + position[0];
         point.y = position[1];
-        func_003657d0(point, 0.0f, 255, 22.0f, iGpffff83d4[1] * alpha, 1);
+        shdDrawRotatingQuad(point, 0.0f, 255, 22.0f, iGpffff83d4[1] * alpha, 1);
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
         t = btlGaugeHpRatio(panel);
@@ -275,7 +275,7 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
     if (*(u16 *)(cursor + 0x10) & 1) {
         point.x = 22.0f + position[0];
         point.y = position[1];
-        func_003657d0(point, 0.0f, 255, 22.0f, iGpffff83d4[1] * alpha, 1);
+        shdDrawRotatingQuad(point, 0.0f, 255, 22.0f, iGpffff83d4[1] * alpha, 1);
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
         t = btlGaugeHpRatio(panel);
@@ -404,7 +404,7 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
     if (*(u16 *)(cursor + 0x10) & 1) {
         point.x = position[0];
         point.y = position[1];
-        func_003657d0(point, 0.0f, 255, 22.0f, iGpffff83d4[1] * alpha, 1);
+        shdDrawRotatingQuad(point, 0.0f, 255, 22.0f, iGpffff83d4[1] * alpha, 1);
     }
     if (*(u16 *)(cursor + 0x10) & 8) {
         point.x = position[0];
@@ -412,9 +412,9 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
         btlUiSetRenderMode(2);
         packed = 0xFF620000 | (u8)(255.0f * alpha);
         t = *(f32 *)(cursor + 0x18);
-        func_00364c90(point, 0.0f, packed, 5.0f * t, 77.0f * t, fGpffff837c, 1);
+        shdDrawRotatedRect(point, 0.0f, packed, 5.0f * t, 77.0f * t, fGpffff837c, 1);
         t = *(f32 *)(cursor + 0x18);
-        func_00364c90(point, 0.0f, packed, 5.0f * t, 77.0f * t, D_00761590, 1);
+        shdDrawRotatedRect(point, 0.0f, packed, 5.0f * t, 77.0f * t, D_00761590, 1);
         btlUiSetRenderMode(0);
     }
     if (*(u16 *)(cursor + 0x10) & 2) {
@@ -551,7 +551,7 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
     if (*(u16 *)(cursor + 0x10) & 1) {
         point.x = position[0];
         point.y = position[1];
-        func_003657d0(point, 0.0f, 255, 22.0f, fGpffff84a4 * alpha, 1);
+        shdDrawRotatingQuad(point, 0.0f, 255, 22.0f, fGpffff84a4 * alpha, 1);
     }
     if (*(u16 *)(cursor + 0x10) & 8) {
         /* Snapshot all four direction components before publishing
@@ -566,7 +566,7 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
             ringRadius = 21.0f * ringScale;
             point.x = position[0] + ringRadius * dir.values[(i + 1) % 4];
             point.y = position[1] + ringRadius * dir.values[i % 4];
-            func_00364c90(point, 0.0f, 0x0EFF02FF, 3.0f * ringScale,
+            shdDrawRotatedRect(point, 0.0f, 0x0EFF02FF, 3.0f * ringScale,
                           26.0f * ringScale, fGpffff84a4 * (f32)i, 1);
         }
         t = *(f32 *)(cursor + 0x18);

@@ -88,7 +88,7 @@ s32 fclSubClamped(s32, s32, s32, s32, s8);
 void memcpy(void *, s32, s32);
 s32 fclSpriteUpdateTweens(void *);
 void *PrimAllocQueueNode(void);
-void func_00460ac0(void *, void *);
+void PrimAppendNode(void *, void *);
 s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_00795FE0[];
 extern u8 D_0064A360[];
@@ -197,7 +197,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
     task = PrimAllocQueueNode();
     *(void **)((u8 *)task + 8) = (void *)func_00332b60;
     *(void **)((u8 *)task + 0x10) = work;
-    func_00460ac0(D_00795FE0, task);
+    PrimAppendNode(D_00795FE0, task);
     switch (*(s8 *)(work + 0)) {
     case 0:
         *(s32 *)(work + 0xC) = sdkSpriteRequestLoad(D_0064A360);
@@ -1997,7 +1997,7 @@ s32 fclItemShopPanelUpdate(u8 *arg0) {
             temp_2 = (u8 *)PrimAllocQueueNode();
             *(void **)(temp_2 + 8) = (void *)func_00332a80;
             *(s32 *)(temp_2 + 0x10) = 0;
-            func_00460ac0(
+            PrimAppendNode(
                 (void *)((u8 *)D_00793E80 +
                          (*(s32 *)(callback_work + 0xFC) * 0x30)),
                 temp_2);

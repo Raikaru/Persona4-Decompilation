@@ -36,7 +36,7 @@ extern s32 H_Cdvd_AcquireDirectory(char *path, s32 mode);
 extern s32 H_Cdvd_IsFileLoaded(s32 handle);
 extern u8 *func_00460f80(u8 *list, s32 arg1);
 extern u8 *func_00461080(u8 *list, s32 arg1);
-extern u8 *func_00461180(u8 *list, s32 arg1);
+extern u8 *PrimQueueSkyStateEnter(u8 *list, s32 arg1);
 extern u8 *func_003e9d50(u8 *arg0);
 extern void FldResource_BeginDrawState(u8 *arg0, u8 *arg1);
 extern s32 K_Clump_CountIntUsrData(void *object, const char *name);
@@ -1923,13 +1923,13 @@ void FldResource_QueueDrawCallbacks(u8 *arg0, u8 *arg1)
             if (*(s32 *)(arg1 + 0xC) != 0) {
                 var_6 = func_00460e80(arg0, *(s32 *)(arg1 + 0xC));
             } else {
-                var_6 = func_00461180(arg0, *(s32 *)(arg1 + 8));
+                var_6 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 8));
             }
         } else if (flags & 0x40000000) {
-            var_6 = func_00461180(arg0, *(s32 *)(arg1 + 0x10));
+            var_6 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 0x10));
         } else if (flags & 0x20000000) {
             if (*(s32 *)(arg1 + 0x14) != 0) {
-                var_6 = func_00461180(arg0, *(s32 *)(arg1 + 0x14));
+                var_6 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 0x14));
             }
         }
         if (var_6 != NULL) {
@@ -1944,7 +1944,7 @@ void FldResource_QueueDrawCallbacks(u8 *arg0, u8 *arg1)
             if (*(s32 *)(arg1 + 0x9C + i * 4) != 0) {
                 p2 = func_00460e80(arg0, *(s32 *)(arg1 + 0x9C + i * 4));
             } else {
-                p2 = func_00461180(arg0, *(s32 *)(arg1 + 0x1C + i * 4));
+                p2 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 0x1C + i * 4));
             }
             if (p2 != NULL && i == 0) {
                 *(void (**)(void))(p2 + 8) = (void (*)(void))FldResource_BeginDrawState;
@@ -2007,11 +2007,11 @@ void FldResource_QueueDrawCallbacksSecondary(u8 *arg0, u8 *arg1)
             }
         } else if ((*(u32 *)arg1 & 0x40000000)) {
             if (*(s32 *)(arg1 + 0x10) != 0) {
-                var_6 = func_00461180(arg0, *(s32 *)(arg1 + 0x10));
+                var_6 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 0x10));
             }
         } else if ((*(u32 *)arg1 & 0x20000000)) {
             if (*(s32 *)(arg1 + 0x14) != 0) {
-                var_6 = func_00461180(arg0, *(s32 *)(arg1 + 0x14));
+                var_6 = PrimQueueSkyStateEnter(arg0, *(s32 *)(arg1 + 0x14));
             }
         }
         if (var_6 != NULL) {

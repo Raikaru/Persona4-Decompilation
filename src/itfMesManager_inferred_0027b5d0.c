@@ -24,7 +24,7 @@ extern void itfMesWindowQueueCallback(s32 arg0);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 
 /* Source unit: src/promoted/code1_0027.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0027.c; members 0027b5d0-0027b5d0 */
@@ -48,6 +48,6 @@ void itfMesWindowQueueCallback(s32 arg0)
     temp_2 = PrimAllocQueueNode();
     *(void (**)(s32))(temp_2 + 8) = func_0027b5a0;
     *(s32 *)(temp_2 + 0x10) = arg0;
-    func_00460ac0(D_007964C0, temp_2);
+    PrimAppendNode(D_007964C0, temp_2);
 }
 

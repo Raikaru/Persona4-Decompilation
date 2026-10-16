@@ -9,7 +9,7 @@ typedef struct RpAtomic RpAtomic;
 typedef struct RpGeometry RpGeometry;
 typedef struct RpMaterial RpMaterial;
 extern s32 TnGetOffset1C();
-extern void func_00460ac0();
+extern void PrimAppendNode();
 extern s32 TnUploadStreamTagged();
 extern u8 *func_003c42b0(void *arg0, s32 arg1);
 extern void func_003ef3a0();
@@ -327,7 +327,7 @@ void GeometryBlockBindResource(u8 *arg0, s32 arg1) {
 
     *(s32 *)(arg0 + 0x18) = 0;
     *(s32 *)(arg0 + 0x1C) = 0;
-    func_00460ac0(h, arg0 + 0x18);
+    PrimAppendNode(h, arg0 + 0x18);
 }
 
 // Sets two material slots for part arg1; values 0 to 6 select a texture set, anything else asserts.

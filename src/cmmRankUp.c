@@ -8,7 +8,7 @@
 extern u8 *PrimAllocQueueNode();
 extern void cmmRankUpRunQueue();
 extern u8 D_007963D0[];
-extern void func_00460ac0();
+extern void PrimAppendNode();
 extern void func_002516f0();
 
 /* Absolute-addressed data (retail emits lui/addiu for these, so they must be
@@ -101,7 +101,7 @@ extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s16 centerX, s16 centerY,
                           struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]);
 
-extern s32 func_0025fe50(s32 arg0, s32 arg1, s32 arg2, void *arg3);
+extern s32 shdEffectTaskCreate(s32 arg0, s32 arg1, s32 arg2, void *arg3);
 extern s32 func_0025ff60(s32 arg0);
 extern void func_004b12e0(s32 arg0, s32 arg1);
 extern void func_004b1250(void *object, f32 *position);
@@ -198,7 +198,7 @@ s32 cmmRankUpEnqueueTask(u8 *sdkTaskBytes) {
     p = PrimAllocQueueNode();
     *(void **)(p + 0x8) = (void *)cmmRankUpRunQueue;
     *(s32 *)(p + 0x10) = arg0;
-    func_00460ac0(D_007963D0, p);
+    PrimAppendNode(D_007963D0, p);
     return 0;
 }
 
@@ -2491,40 +2491,40 @@ s32 func_00257900(u8 *task) {
         }
         temp_f20 = (f32) *(s32 *)(context + 0x48) / 45.0f;
         if (*(s32 *)(context + 8) == 0) {
-            temp_20 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_20 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_2 = func_0025ff60(temp_20);
             func_004b12e0(temp_20_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_2), position);
         }
         if (*(s32 *)(context + 8) == 0) {
-            temp_20_3 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636650, &resourceSize), 0x64, &D_005DC974));
+            temp_20_3 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636650, &resourceSize), 0x64, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_20_4 = func_0025ff60(temp_20_3);
             func_004b12e0(temp_20_4, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_4), position);
         }
         if (*(s32 *)(context + 8) == 0x78) {
-            temp_20_5 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636670, &resourceSize), 0x96, &D_005DC974));
+            temp_20_5 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636670, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_20_6 = func_0025ff60(temp_20_5);
             func_004b12e0(temp_20_6, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_6), position);
         }
         if (*(s32 *)(context + 8) == 0x23A) {
-            temp_20_7 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_20_7 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_8 = func_0025ff60(temp_20_7);
             func_004b12e0(temp_20_8, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_8), position);
         }
         if ((*(s32 *)(context + 8) == 0x258) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
-            temp_20_9 = (s32)(func_0025ff60(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
+            temp_20_9 = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
             func_004b12e0(temp_20_9, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_9), position);
         }
         if ((*(s32 *)(context + 8) == 0x280) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
-            func_004b1250((void *)(func_0025ff60(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974))), position);
+            func_004b1250((void *)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974))), position);
         }
         mode0Frame = (s32)(*(s32 *)(context + 8));
         if (mode0Frame >= 0xA) {
@@ -2699,7 +2699,7 @@ s32 func_00257900(u8 *task) {
         }
         temp_f20_2 = (f32) *(s32 *)(context + 0x48) / 45.0f;
         if (*(s32 *)(context + 8) == 0) {
-            temp_20_10 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_20_10 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_11 = func_0025ff60(temp_20_10);
             func_004b12e0(temp_20_11, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
@@ -2710,7 +2710,7 @@ s32 func_00257900(u8 *task) {
         }
         temp_3_4 = (s32)(*(s32 *)(context + 8));
         if (((temp_3_4 % 10) == 0) && (temp_3_4 < 0x1CD)) {
-            temp_20_12 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_006366F0, &resourceSize), 0x32, &D_005DC974));
+            temp_20_12 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366F0, &resourceSize), 0x32, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_13 = func_0025ff60(temp_20_12);
             func_004b12e0(temp_20_13, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
@@ -2720,19 +2720,19 @@ s32 func_00257900(u8 *task) {
             func_004b13f0((void *)temp_20_13, &drawColorValue.packed);
         }
         if (*(s32 *)(context + 8) == 0x21C) {
-            temp_20_14 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_20_14 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_15 = func_0025ff60(temp_20_14);
             func_004b12e0(temp_20_15, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_15), position);
         }
         if ((*(s32 *)(context + 8) == 0x23A) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
-            temp_20_16 = (s32)(func_0025ff60(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
+            temp_20_16 = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
             func_004b12e0(temp_20_16, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_16), position);
         }
         if ((*(s32 *)(context + 8) == 0x262) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
-            temp_19_2 = (s32)(func_0025ff60(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974)));
+            temp_19_2 = (s32)(func_0025ff60(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974)));
             func_004b12e0(temp_19_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_19_2), position);
         }
@@ -2901,14 +2901,14 @@ s32 func_00257900(u8 *task) {
     case 11:
         spriteTexture = (s32)(**(s32 **)(context + 0x54));
         if (*(s32 *)(context + 8) == 0) {
-            temp_21 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_21 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_21_2 = func_0025ff60(temp_21);
             func_004b12e0(temp_21_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_21_2), position);
         }
         if (*(s32 *)(context + 8) == 0xBE) {
-            temp_19_4 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_19_4 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_19_5 = func_0025ff60(temp_19_4);
             func_004b12e0(temp_19_5, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
@@ -2978,14 +2978,14 @@ s32 func_00257900(u8 *task) {
         break;
     case 12:
         if (*(s32 *)(context + 8) == 0) {
-            temp_17_4 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
+            temp_17_4 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_17_5 = func_0025ff60(temp_17_4);
             func_004b12e0(temp_17_5, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_17_5), position);
         }
         if (*(s32 *)(context + 8) == 0x9B) {
-            temp_17_6 = (s32)(func_0025fe50((s32)(task), H_Cdvd_LookupRequest((s32)D_00636710, &resourceSize), 0x96, &D_005DC974));
+            temp_17_6 = (s32)(shdEffectTaskCreate((s32)(task), H_Cdvd_LookupRequest((s32)D_00636710, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_17_7 = func_0025ff60(temp_17_6);
             func_004b12e0(temp_17_7, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
@@ -3218,10 +3218,10 @@ extern s32 func_00459760();
 extern s32 func_0045b400();
 extern s32 sdkSndFadeMainChannel();
 extern void sdkSndFadeOutChannelFrames();
-extern void func_0025fd70(u8 *arg0, s32 arg1, u8 arg2);
-extern void func_0025fbb0(u8 *dst, u8 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 farg0, f32 farg1);
-extern void func_0025fd00(u8 *dst, s32 arg1, s32 arg2, f32 farg0, f32 farg1);
-extern s32 func_0025fab0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext);
+extern void shdEffectSetRenderParams(u8 *arg0, s32 arg1, u8 arg2);
+extern void shdEffectFillFbufParams(u8 *dst, u8 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 farg0, f32 farg1);
+extern void shdEffectSetFargParams(u8 *dst, s32 arg1, s32 arg2, f32 farg0, f32 farg1);
+extern s32 shdEffectCreateBlurTask(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, void *renderContext);
 extern u8 *func_00255b90();
 extern void func_002518d0();
 extern s32 func_00189fa0();
@@ -3258,7 +3258,7 @@ extern void sdkSndFadeOutChannel();
 extern void sdkSndRequestTrack();
 extern s32 func_002519e0(u8 *task);
 extern void func_00251ce0(u8 *task);
-extern void func_00460ac0();
+extern void PrimAppendNode();
 extern u8 *PrimAllocQueueNode();
 typedef struct { s32 values[5]; } RankUpUnlockFlags;
 
@@ -3373,10 +3373,10 @@ s32 func_0025b240(u8 *arg0) {
         *(s32 *)(ctx + 4) = 6;
         *(s32 *)(ctx + 8) = 0;
         memset(sp80, 0, 0xD8);
-        func_0025fd70(sp80, 0x35, 0);
-        func_0025fbb0(sp80, 0, 0xFFFFFFFF, 0xFFFFFFFF, 0, 0, 0.0f, 0.0f);
-        func_0025fd00(sp80, 0xFF, 0, fGpffff82a4, 0.25f);
-        *(s32 *)(ctx + 0x28) = func_0025fab0((s32)argb, 1, 0, sp80, D_005DC974);
+        shdEffectSetRenderParams(sp80, 0x35, 0);
+        shdEffectFillFbufParams(sp80, 0, 0xFFFFFFFF, 0xFFFFFFFF, 0, 0, 0.0f, 0.0f);
+        shdEffectSetFargParams(sp80, 0xFF, 0, fGpffff82a4, 0.25f);
+        *(s32 *)(ctx + 0x28) = shdEffectCreateBlurTask((s32)argb, 1, 0, sp80, D_005DC974);
         *(s32 *)(ctx + 0x40) = (s32)func_00255b90();
         func_002518d0(*(s32 *)(ctx + 0x1C));
     case 6:
@@ -3627,7 +3627,7 @@ tail:
     pb = PrimAllocQueueNode();
     *(void **)(pb + 8) = (void *)cmmRankUpDrawSprite;
     *(u8 **)(pb + 0x10) = argb;
-    func_00460ac0(D_007963D0, pb);
+    PrimAppendNode(D_007963D0, pb);
     return 0;
 }
 

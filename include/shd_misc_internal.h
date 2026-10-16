@@ -17,18 +17,18 @@ typedef union {
     s32 packed;
 } PackedColor4;
 
-void func_00364320(Vec2f position, f32 depth, s32 color, s32 number);
+void shdDrawNumberText(Vec2f position, f32 depth, s32 color, s32 number);
 
-void func_00364c90(Vec2f position, f32 depth, s32 color,
+void shdDrawRotatedRect(Vec2f position, f32 depth, s32 color,
                    f32 width, f32 height, f32 angle, s32 mode);
-void func_00364fb0(Vec2f position, f32 depth, s32 color,
+void shdDrawWedge(Vec2f position, f32 depth, s32 color,
                    f32 angle, s32 arg2, s32 arg3);
-void func_003657d0(Vec2f position, f32 depth, s32 color,
+void shdDrawRotatingQuad(Vec2f position, f32 depth, s32 color,
                    f32 radius, f32 angle, s32 mode);
-void func_00365ac0(Vec2f position, f32 depth, s32 color,
+void shdDrawRectOutline(Vec2f position, f32 depth, s32 color,
                    f32 angle, f32 width, f32 height, s32 mode);
 
-void func_00365f00(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
+void shdDrawRadialFan(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
                    f32 radius, f32 angle, u32 segments, f32 xscale, f32 yscale,
                    s32 mode);
 

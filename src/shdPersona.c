@@ -73,7 +73,7 @@ s32 shdPersonaLoadModelStep(u8 *);
 void shdPersonaModelDestroy(u8 *);
 u8 *shdPersonaModelCreate(s32, s32, f32, s32, s32);
 void func_0011e390(u8 *, Vec2f);
-void func_00364680(f32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
+void shdDrawColourQuad(f32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
 s32 RpSkyRenderStateSet(s32, void *);
 s32 shdPersonaSkillReplaceStep(u8 *);
 void shdPersonaSkillReplaceDestroy(u8 *);
@@ -974,7 +974,7 @@ s32 shdPersonaTaskUpdate(u8 *arg0)
     *(s32 *)(b + 0x540) = 0;
     *(s32 *)(b + 0x544) = 0;
     off = 0x30 * *(u16 *)(b + 0x570);
-    func_00460ac0(D_00793E80 + off, b + 0x540);
+    PrimAppendNode(D_00793E80 + off, b + 0x540);
     switch (*(s32 *)(b + 0x538)) {
     case 0:
         *(s32 *)(b + 0x538) = 1;
@@ -1243,7 +1243,7 @@ void shdPersonaDrawEffect(u8 *arg0)
             opacity = (u8)opacityValue;
         }
         {
-            func_003657d0(drawPosition, 0.0f, particleColor | (opacity & 0xFF), 15.0f, particleAngles[radialSlot], 0);
+            shdDrawRotatingQuad(drawPosition, 0.0f, particleColor | (opacity & 0xFF), 15.0f, particleAngles[radialSlot], 0);
         }
         if ((s32)(*particleFrame & 0xFFFF) >= (s32)(*particleDuration & 0xFFFF)) {
             *particleFrame = 0;
@@ -1261,14 +1261,14 @@ void shdPersonaDrawEffect(u8 *arg0)
             drawPosition.y = (f32)(s32)cornerDirections[qq2] * 54.0f + 91.0f;
         }
         {
-            func_003657d0(drawPosition, 0.0f, (col & 0xFF) | 0x1353FF00, 24.0f, rotation * 4.0f, 0);
+            shdDrawRotatingQuad(drawPosition, 0.0f, (col & 0xFF) | 0x1353FF00, 24.0f, rotation * 4.0f, 0);
         }
         particle += 1;
     }
     {
         drawPosition.x = 557.0f;
         drawPosition.y = 91.0f;
-        func_003657d0(drawPosition, 0.0f, (col & 0xFF) | 0xB34DFF00, 41.0f, rotation, 0);
+        shdDrawRotatingQuad(drawPosition, 0.0f, (col & 0xFF) | 0xB34DFF00, 41.0f, rotation, 0);
     }
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
@@ -1370,8 +1370,8 @@ extern f32 iGpffff8094;
 #pragma opt_loop_invariants on
 void shdPersonaDrawSlidingPanels(u8 *arg0)
 {
-    void func_00364c50(void);
-    void func_00364c70(void);
+    void shdEnableBlendFlag(void);
+    void shdDisableBlendFlag(void);
     f32 f25;
     f32 f24;
     f32 f23;
@@ -1489,9 +1489,9 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
             color->rgba[3] = b505;
         }
     }
-    func_00364c50();
+    shdEnableBlendFlag();
     PrimDrawPoints((u8 *)sp80, (u8 *)sp60, 0.0f, 3, 5, 0);
-    func_00364c70();
+    shdDisableBlendFlag();
     x2 = -21.0f - 131.0f * f24;
     sp90.values[2] = x2;
     sp90.values[3] = (f32)0x151;
@@ -1511,9 +1511,9 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
             color->rgba[3] = b505;
         }
     }
-    func_00364c50();
+    shdEnableBlendFlag();
     PrimDrawPoints((u8 *)sp80, (u8 *)sp60, 0.0f, 3, 5, 0);
-    func_00364c70();
+    shdDisableBlendFlag();
     t90 = 552.0f + 461.0f * f23 - 15.0f;
     t94 = 10.0f + 413.0f * f23;
     t98 = -(400.0f * f21);
@@ -2048,7 +2048,7 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
                 sx = modelPosition.x;
                 t = 204.0f * (1.0f - phase);
                 packed = ((u8)t & 0xFF) | 0xFF8C3200;
-                func_00364680(0.0f, packed, sx, sy, sx, sy, 512.0f, 512.0f, shdPersonaDispCtlGetLoadedValue(model), 0, 1);
+                shdDrawColourQuad(0.0f, packed, sx, sy, sx, sy, 512.0f, 512.0f, shdPersonaDispCtlGetLoadedValue(model), 0, 1);
                 RpSkyRenderStateSet(3, (void *)0x717FB);
                 RpSkyRenderStateSet(2, (void *)0x44);
             }
@@ -4110,7 +4110,7 @@ void shdPersonaDrawSineQuad(u8 *arg0)
    instruction with $t0 vs $a1). Tried: declaration order both ways, SdkTask
    typed form vs raw deref (per assignment note), s32 vs u8 byte locals —
    identical. Register-colouring floor. */
-/* measured: full body decompiled (guard chain, two float lerps, func_00364680 + two func_003f6440 calls all reproduce). every remaining row is the work-pointer base register: retail keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12 loads/stores; mwcc b210 always colours it $t0. Tried declaration order both ways, SdkTask typed form vs raw deref, s32 vs u8 byte locals, half as 3.0f literal vs local — identical $t0. Register-colouring floor (same family as shdPersonaDrawSineQuad note). Committed at nd 53. */
+/* measured: full body decompiled (guard chain, two float lerps, shdDrawColourQuad + two func_003f6440 calls all reproduce). every remaining row is the work-pointer base register: retail keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12 loads/stores; mwcc b210 always colours it $t0. Tried declaration order both ways, SdkTask typed form vs raw deref, s32 vs u8 byte locals, half as 3.0f literal vs local — identical $t0. Register-colouring floor (same family as shdPersonaDrawSineQuad note). Committed at nd 53. */
 // Intent: Draw the state-3 gauge bar: two lerped spans scaled by one third of the total [inferred]
 // FUN_0011DD50
 void shdPersonaDrawSmoothBar(u8 *arg0)
@@ -4126,7 +4126,7 @@ void shdPersonaDrawSmoothBar(u8 *arg0)
         *(f32 *)(work + 0x44) +=
             (*(f32 *)(work + 0x2C) - *(f32 *)(work + 0x44)) / 3.0f;
         first = *(s32 *)(work + 0x0C);
-        func_00364680(*(f32 *)(work + 0x18), first,
+        shdDrawColourQuad(*(f32 *)(work + 0x18), first,
                       *(f32 *)(work + 0x40) + *(f32 *)(work + 0x38),
                       *(f32 *)(work + 0x44) + *(f32 *)(work + 0x3C),
                       *(f32 *)(work + 0x28), *(f32 *)(work + 0x2C),

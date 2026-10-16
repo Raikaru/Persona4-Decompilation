@@ -11,7 +11,7 @@ void chkmemAllocSiteTag(u8 *file, s32 line);
 void kAssertFail(u8 *file, s32 line);
 void *TnGetOffset1C(u16 arg0);
 void *TnGetIndexedWord(u16 arg0);
-void func_00460ac0(void *arg0, void *arg1);
+void PrimAppendNode(void *arg0, void *arg1);
 void memcpy(void *dst, const void *src, u32 size);
 void LineNovaUpdateVertices(u8 *arg0, u8 *arg1);
 
@@ -455,13 +455,13 @@ void LineNovaBindResource(u8 *arg0) {
             r = TnGetIndexedWord(*(u16 *)(p6 + 0x28));
             *(s32 *)(p16 + 0x18) = 0;
             *(s32 *)(p16 + 0x1C) = 0;
-            func_00460ac0(r, p16 + 0x18);
+            PrimAppendNode(r, p16 + 0x18);
             break;
         default:
             r = TnGetOffset1C(*(u16 *)(p6 + 0x28));
             *(s32 *)(p16 + 0x18) = 0;
             *(s32 *)(p16 + 0x1C) = 0;
-            func_00460ac0(r, p16 + 0x18);
+            PrimAppendNode(r, p16 + 0x18);
             break;
         }
     }
@@ -844,13 +844,13 @@ void LineNovaBindResourceAlt(u8 *arg0) {
             r = TnGetIndexedWord(*(u16 *)(p6 + 0x28));
             *(s32 *)(p16 + 0x18) = 0;
             *(s32 *)(p16 + 0x1C) = 0;
-            func_00460ac0(r, p16 + 0x18);
+            PrimAppendNode(r, p16 + 0x18);
             break;
         default:
             r = TnGetOffset1C(*(u16 *)(p6 + 0x28));
             *(s32 *)(p16 + 0x18) = 0;
             *(s32 *)(p16 + 0x1C) = 0;
-            func_00460ac0(r, p16 + 0x18);
+            PrimAppendNode(r, p16 + 0x18);
             break;
         }
     }

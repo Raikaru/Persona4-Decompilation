@@ -270,7 +270,7 @@ s32 func_002b52a0(u8 *arg0)
     /* far-plane depth inside the render-state record; sized so that it is
        re-read after the vertex stores, as retail does */
     extern f32 D_008872F8[4];
-    extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+    extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
     FclFadeRect *work;
     f32 q;
     s32 i;
@@ -358,7 +358,7 @@ s32 func_002b52a0(u8 *arg0)
         work->vtx[2].y = work->y + (f32)work->height;
         work->vtx[3].x = work->x + (f32)work->width;
         work->vtx[3].y = work->y + (f32)work->height;
-        pkt = func_00461390(D_00793E80 + work->layer * 0x30, 4, work->vtx, 4);
+        pkt = PrimQueueDrawPrimitive(D_00793E80 + work->layer * 0x30, 4, work->vtx, 4);
         *(void **)(pkt + 8) = (void *)func_002b5120;
         *(FclFadeRect **)(pkt + 0x10) = work;
         break;

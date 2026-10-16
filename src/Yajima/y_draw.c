@@ -75,8 +75,8 @@ extern void mdlEffectEmitMaskedTagPair(void);
 extern u8 *kwlnGetCamera(void);
 extern void memcpy(void *, s32, s32);
 extern void *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *, void *);
-extern u8 *func_00461390(void *list, s32 arg1, void *arg2, s32 arg3);
+extern void PrimAppendNode(void *, void *);
+extern u8 *PrimQueueDrawPrimitive(void *list, s32 arg1, void *arg2, s32 arg3);
 extern f32 fGpffff8504;
 extern f32 iGpffff84f4;
 extern f32 D_008872F8[];
@@ -294,7 +294,7 @@ s32 fclSpriteUpdateAndDrawTask(u8 *arg0) {
             q = PrimAllocQueueNode();
             *(void (**)(void))(q + 8) = fclSpriteApplySkyPresetA;
             *(s32 *)(q + 0x10) = 0;
-            func_00460ac0(D_00793E80 + *(s32 *)(p + 8) * 0x30, q);
+            PrimAppendNode(D_00793E80 + *(s32 *)(p + 8) * 0x30, q);
             color = fclPackRgba(255, p[0x85], p[0x86], p[0x87]);
             sdkSpriteDrawQueued(*(f32 *)(p + 0x38), *(f32 *)(p + 0x3C), *(f32 *)(p + 0x14),
                 color, p[0x6E], *(s16 *)(p + 4), *(void **)(p + 0), 0,
@@ -733,7 +733,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
                 *(void (**)(void))(w + 8) = fclSpriteApplySkyPresetB;
                 *(s32 *)(w + 0x10) = 0;
                 b2 = YDRAW_BASE;
-                func_00460ac0(D_00793E80 + *(s32 *)(b2 + (s32)i * 0x100 + 0xC) * 0x30, w);
+                PrimAppendNode(D_00793E80 + *(s32 *)(b2 + (s32)i * 0x100 + 0xC) * 0x30, w);
                 b2 = YDRAW_BASE;
                 if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + (s32)entryOffset + 0xB0) <= 0.1f)) {
                     s32 rowOffset = (s32)(u32)i * 0x100;
@@ -758,7 +758,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
                 *(void (**)(void))(w + 8) = fclSpriteApplySkyPresetA;
                 *(s32 *)(w + 0x10) = 0;
                 b2 = YDRAW_BASE;
-                func_00460ac0(D_00793E80 + *(s32 *)(b2 + (s32)i * 0x100 + 0xC) * 0x30, w);
+                PrimAppendNode(D_00793E80 + *(s32 *)(b2 + (s32)i * 0x100 + 0xC) * 0x30, w);
                 b2 = YDRAW_BASE;
                 if (!(*(f32 *)(b2 + (s32)i * 0x100 + 0xA4) <= 0.1f) && !(*(f32 *)(b2 + (s32)entryOffset + 0xB0) <= 0.1f)) {
                     s32 rowOffset = (s32)(u32)i * 0x100;
@@ -1185,14 +1185,14 @@ s32 fclSpriteStartPanelLayout(u8 *arg0) {
     *(f32 *)(p + 0xA4) = *(f32 *)(p + 4) + (f32)*(s32 *)(p + 0x14);
     *(f32 *)(p + 0xE0) = *(f32 *)(p + 0) + (f32)*(s32 *)(p + 0x10);
     *(f32 *)(p + 0xE4) = *(f32 *)(p + 4) + (f32)*(s32 *)(p + 0x14);
-    q = func_00461390(D_00793E80 + *(s32 *)(p + 0x120) * 0x30,
+    q = PrimQueueDrawPrimitive(D_00793E80 + *(s32 *)(p + 0x120) * 0x30,
                       4, (void *)(p + 0x20), 4);
     *(void **)(q + 8) = (void *)fclSpriteApplyMaskedPreset;
     *(u8 **)(q + 0x10) = p;
     q = PrimAllocQueueNode();
     *(void **)(q + 8) = (void *)fclSpriteEmitTagPair;
     *(u8 **)(q + 0x10) = p;
-    func_00460ac0(D_00793E80 + (*(s32 *)(p + 0x120) + 1) * 0x30, q);
+    PrimAppendNode(D_00793E80 + (*(s32 *)(p + 0x120) + 1) * 0x30, q);
     return 0;
 }
 /* measured: restore opt_loop_invariants after the target. */
@@ -1679,7 +1679,7 @@ s32 fclSpriteListUpdate(u8 *arg0) {
                 u8 *res;
                 u8 *e;
                 e = p + (u32)i * 0x220;
-                res = func_00461390(D_00793E80 + *(s16 *)(e + 0x100) * 0x30, 4, (void *)e, 4);
+                res = PrimQueueDrawPrimitive(D_00793E80 + *(s16 *)(e + 0x100) * 0x30, 4, (void *)e, 4);
                 *(void **)(res + 8) = (void *)fclSpriteBuildCornerQuads;
                 *(u8 **)(res + 0x10) = e;
             } else {

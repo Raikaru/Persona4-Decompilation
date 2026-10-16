@@ -44,7 +44,7 @@ extern u8 D_00794E40[];
 extern u8 D_00795E30[];
 extern u8 D_00795EF0[];
 extern u8 D_0064EEB0[];
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern void kAssertFail(void *arg0, s32 arg1);
 extern void sdkRenderStateSetDefault(void);
 extern void func_0038acd0(u8 *arg0);
@@ -59,8 +59,8 @@ extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern s32 (*D_00887310[])(s32, void *, s32);
 extern s32 kwlnGetCamera(void);
 extern f32 cosf(f32 fparg0);
-extern void func_00364c50(void);
-extern void func_00364c70(void);
+extern void shdEnableBlendFlag(void);
+extern void shdDisableBlendFlag(void);
 extern u8 D_0064F0E0[];
 extern u8 D_0064EEF0[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
@@ -559,7 +559,7 @@ void btlShuffleDrawPatternLineFade(u8 *work)
     RpSkyRenderStateSet(2, (void *)0x48);
     if (*patternFlags & 0x20) {
         if (lineAlpha != 0) {
-            func_00364c90(point, 0.0f, packed, 403.0f, 2.0f, 0.0f, 1);
+            shdDrawRotatedRect(point, 0.0f, packed, 403.0f, 2.0f, 0.0f, 1);
         }
         mask |= 0x1F;
     }
@@ -567,7 +567,7 @@ void btlShuffleDrawPatternLineFade(u8 *work)
     point.y = 236.0f;
     if (*patternFlags & 0x10) {
         if (lineAlpha != 0) {
-            func_00364c90(point, 0.0f, packed, 485.0f, 2.0f, fGpffff83c0, 1);
+            shdDrawRotatedRect(point, 0.0f, packed, 485.0f, 2.0f, fGpffff83c0, 1);
         }
         mask |= 0x1E1;
     }
@@ -575,7 +575,7 @@ void btlShuffleDrawPatternLineFade(u8 *work)
     point.y = 236.0f;
     if (*patternFlags & 0x40) {
         if (lineAlpha != 0) {
-            func_00364c90(point, 0.0f, packed, 485.0f, 2.0f, fGpffff83c4, 1);
+            shdDrawRotatedRect(point, 0.0f, packed, 485.0f, 2.0f, fGpffff83c4, 1);
         }
         mask |= 0x1E01;
     }
@@ -626,7 +626,7 @@ void func_00385380(u8 *arg0)
     point.y = 231.0f;
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
-    func_00364c90(point, 0.0f, 0x71BA00FF, 270.0f * (blend - extent), 45.0f * blend, -0.2617994f, 0);
+    shdDrawRotatedRect(point, 0.0f, 0x71BA00FF, 270.0f * (blend - extent), 45.0f * blend, -0.2617994f, 0);
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 
@@ -774,10 +774,10 @@ void btlShuffleDrawSideQuads(u8 *arg0)
         rightX = 603.0f - 20.0f * trailExpansion;
         position.x = rightX;
         position.y = 224.0f;
-        func_00364fb0(position, 0.0f, opaqueTrailColor, fGpffff8374, 0, 0);
+        shdDrawWedge(position, 0.0f, opaqueTrailColor, fGpffff8374, 0, 0);
         position.x = 56.0f + 20.0f * trailExpansion;
         position.y = 224.0f;
-        func_00364fb0(position, 0.0f, opaqueTrailColor, fGpffff83cc, 0, 0);
+        shdDrawWedge(position, 0.0f, opaqueTrailColor, fGpffff83cc, 0, 0);
         {
             u8 alpha;
             s32 fadingColor;
@@ -789,10 +789,10 @@ void btlShuffleDrawSideQuads(u8 *arg0)
             leftX = 56.0f + 20.0f * quadExtent + 30.0f * trailExpansion;
             position.x = rightX;
             position.y = 224.0f;
-            func_00364fb0(position, 0.0f, fadingColor, fGpffff8374, 0, 0);
+            shdDrawWedge(position, 0.0f, fadingColor, fGpffff8374, 0, 0);
             position.x = leftX;
             position.y = 224.0f;
-            func_00364fb0(position, 0.0f, fadingColor, fGpffff83cc, 0, 0);
+            shdDrawWedge(position, 0.0f, fadingColor, fGpffff83cc, 0, 0);
         }
         {
             u8 alpha;
@@ -805,10 +805,10 @@ void btlShuffleDrawSideQuads(u8 *arg0)
             leftX = 56.0f + 50.0f * quadExtent + 40.0f * trailExpansion;
             position.x = rightX;
             position.y = 224.0f;
-            func_00364fb0(position, 0.0f, fadingColor, fGpffff8374, 0, 0);
+            shdDrawWedge(position, 0.0f, fadingColor, fGpffff8374, 0, 0);
             position.x = leftX;
             position.y = 224.0f;
-            func_00364fb0(position, 0.0f, fadingColor, fGpffff83cc, 0, 0);
+            shdDrawWedge(position, 0.0f, fadingColor, fGpffff83cc, 0, 0);
         }
         {
             u8 alpha;
@@ -821,10 +821,10 @@ void btlShuffleDrawSideQuads(u8 *arg0)
             leftX = 56.0f + 90.0f * quadExtent + 50.0f * trailExpansion;
             position.x = rightX;
             position.y = 224.0f;
-            func_00364fb0(position, 0.0f, fadingColor, fGpffff8374, 0, 0);
+            shdDrawWedge(position, 0.0f, fadingColor, fGpffff8374, 0, 0);
             position.x = leftX;
             position.y = 224.0f;
-            func_00364fb0(position, 0.0f, fadingColor, fGpffff83cc, 0, 0);
+            shdDrawWedge(position, 0.0f, fadingColor, fGpffff83cc, 0, 0);
         }
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
@@ -846,10 +846,10 @@ void btlShuffleDrawSideQuads(u8 *arg0)
         quadExtent = quadTransition * 300.0f;
         position.x = 603.0f - quadExtent;
         position.y = 224.0f - quadExtent;
-        func_00364fb0(position, 0.0f, baseColor, fGpffff8374, 0, 1);
+        shdDrawWedge(position, 0.0f, baseColor, fGpffff8374, 0, 1);
         position.x = 56.0f + quadExtent;
         position.y = 224.0f + quadExtent;
-        func_00364fb0(position, 0.0f, baseColor, fGpffff83cc, 0, 1);
+        shdDrawWedge(position, 0.0f, baseColor, fGpffff83cc, 0, 1);
     }
     {
         f32 cornerWeight;
@@ -995,14 +995,14 @@ void btlShuffleDrawMenuBatch(u8 *arg0)
         outerRadius = code38ScaleRadius(outerRadius, 111.5f);
         RpSkyRenderStateSet(3, (void *)0x71801);
         RpSkyRenderStateSet(2, (void *)0x48);
-        func_00365ac0(pos, 0.0f, 0xAE545AFF, outerAngle, outerRadius, 92.0f, 0);
+        shdDrawRectOutline(pos, 0.0f, 0xAE545AFF, outerAngle, outerRadius, 92.0f, 0);
     }
     if (innerRadius > 0.0f) {
         innerAngle = fGpffff837c * (1.0f + innerAngleScale);
         innerRadius = code38ScaleRadius(innerRadius, 98.0f);
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
-        func_00365ac0(pos, 0.0f, 0x4A2400FF, innerAngle, innerRadius, 18.0f, 1);
+        shdDrawRectOutline(pos, 0.0f, 0x4A2400FF, innerAngle, innerRadius, 18.0f, 1);
     }
     cornerDisplacement = (cornerScale - 1.0f) * 300.0f;
     pos.x = (f32)359 + cornerDisplacement;
@@ -1414,10 +1414,10 @@ void func_00387e70(u8 *arg0)
     t = 1.0f - (2.0f * t - t * t);
     pos.x = -116.0f;
     pos.y = 30.0f - 160.0f * t;
-    func_00364c90(pos, 0.0f, 0xFF0000FF, 684.0f, 313, fGpffff83b0, 1);
+    shdDrawRotatedRect(pos, 0.0f, 0xFF0000FF, 684.0f, 313, fGpffff83b0, 1);
     pos.x = -132.0f;
     pos.y = 14.0f - 160.0f * t;
-    func_00364c90(pos, 0.0f, 0xFF, 684.0f, 313, fGpffff83b0, 1);
+    shdDrawRotatedRect(pos, 0.0f, 0xFF, 684.0f, 313, fGpffff83b0, 1);
     t = (f32)(state[4] - 14) / 6.0f;
     if (t > 1.0f) {
         t = 1.0f;
@@ -1487,10 +1487,10 @@ s32 btlShuffleDrawViewStep(u8 *arg0)
     p = *(u8 **)(arg0 + 0x38);
     *(s32 *)(p + 0x50) = 0;
     *(s32 *)(p + 0x54) = 0;
-    func_00460ac0(D_00795E30, p + 0x50);
+    PrimAppendNode(D_00795E30, p + 0x50);
     *(s32 *)(p + 0x80) = 0;
     *(s32 *)(p + 0x84) = 0;
-    func_00460ac0(D_00795EF0, p + 0x80);
+    PrimAppendNode(D_00795EF0, p + 0x80);
     return 0;
 }
 // FUN_00388BA0
@@ -2092,7 +2092,7 @@ void btlShuffleDrawWave(u8 **arg0)
                 }
             }
         }
-        func_00364c50();
+        shdEnableBlendFlag();
         if (outer < 2) {
             if (found != 0) {
                 RpSkyRenderStateSet(3, (void *)0x71801);
@@ -2105,7 +2105,7 @@ void btlShuffleDrawWave(u8 **arg0)
             }
         }
         D_00887310[0](4, work.vertices, 62);
-        func_00364c70();
+        shdDisableBlendFlag();
     }
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
@@ -2223,9 +2223,9 @@ void func_0038a480(u8 *arg0)
     }
     func_003e0f40(matrix);
     D_00887300[0]((RwRenderState)1, (void *)0);
-    func_00364c50();
+    shdEnableBlendFlag();
     D_00887310[0](4, vertices, count);
-    func_00364c70();
+    shdDisableBlendFlag();
 }
 /* Measured: 904/912 bytes, eleven resolved relocations and eight zero
  * alignment bytes. D_00761490 is the retail scalar 0xBD872B00, not the
@@ -2390,13 +2390,13 @@ void func_0038acd0(u8 *arg0)
         distance = half + *(f32 *)entry;
         off = distance * fac;
         point.x = upper + off;
-        func_00364c90(point, 0.0f, 0xFF403DFF, width, 448.0f, 0.0f, 0);
+        shdDrawRotatedRect(point, 0.0f, 0xFF403DFF, width, 448.0f, 0.0f, 0);
         point.x = upper - off;
-        func_00364c90(point, 0.0f, 0xFF403DFF, width, 448.0f, 0.0f, 0);
+        shdDrawRotatedRect(point, 0.0f, 0xFF403DFF, width, 448.0f, 0.0f, 0);
     }
     width = lower * tail;
     point.x = upper;
-    func_00364c90(point, 0.0f, 0xFF403DFF, width, 448.0f, 0.0f, 0);
+    shdDrawRotatedRect(point, 0.0f, 0xFF403DFF, width, 448.0f, 0.0f, 0);
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
 }
@@ -2646,19 +2646,19 @@ void func_0038bab0(u8 *arg0)
         f32 base = fGpffff83ac + ((f32)517 + verticalOffset);
         point.y = (0.0f + base) + verticalTravel * remainder;
     }
-    func_00364c90(point, 0.0f, 0xFF0000FF, 430.0f, 5.0f, fGpffff83b0, 1);
+    shdDrawRotatedRect(point, 0.0f, 0xFF0000FF, 430.0f, 5.0f, fGpffff83b0, 1);
     centerX = 300.0f + horizontalOffset;
     point.x = fGpffff83b4 + centerX;
     centerX = point.x;
     displacement = verticalTravel * (1.0f - mainFactor);
     shiftedY = fGpffff83b8 + ((f32)553 + verticalOffset);
     point.y = shiftedY + displacement;
-    func_00364c90(point, 0.0f, 0xFF, 430.0f, 21.0f, fGpffff83b0, 1);
+    shdDrawRotatedRect(point, 0.0f, 0xFF, 430.0f, 21.0f, fGpffff83b0, 1);
     if (*(u16 *)(state + 4) & 2) {
         point.x = centerX;
         shiftedY = fGpffff83b8 + (524.0f + verticalOffset);
         point.y = shiftedY + displacement;
-        func_00364c90(point, 0.0f, 0xFF, 430.0f, 21.0f, fGpffff83b0, 1);
+        shdDrawRotatedRect(point, 0.0f, 0xFF, 430.0f, 21.0f, fGpffff83b0, 1);
     }
     {
         s32 mode = *(s32 *)(state + 8);
@@ -2933,9 +2933,9 @@ void func_0038cab0(u8 *arg0)
     work[3].color[3] = 255.0f;
     work[3].scale = inv_scale;
     D_00887300[0]((RwRenderState)1, (void *)0);
-    func_00364c50();
+    shdEnableBlendFlag();
     D_00887310[0](4, &work[0], 4);
-    func_00364c70();
+    shdDisableBlendFlag();
 }
 // FUN_0038CD70
 void func_0038cd70(u8 *arg0, u8 *arg1)
@@ -2966,10 +2966,10 @@ s32 btlShuffleDrawCardStep(u8 *arg0) {
 
     *(s32 *)(p + 8) = 0;
     *(s32 *)(p + 0xC) = 0;
-    func_00460ac0(D_00794990, p + 8);
+    PrimAppendNode(D_00794990, p + 8);
     *(s32 *)(p + 0x38) = 0;
     *(s32 *)(p + 0x3C) = 0;
-    func_00460ac0(D_00794E40, p + 0x38);
+    PrimAppendNode(D_00794E40, p + 0x38);
     return 0;
 }
 

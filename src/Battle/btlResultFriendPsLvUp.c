@@ -5,7 +5,7 @@
 void kAssertFail(void *arg0, s32 arg1);
 
 extern u32 kwlnTaskGetWork(void *task);
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u8 *shdPersonaTaskCreate(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4);
 extern void shdPersonaSetOrigin(u8 *task, f32 *position);
@@ -108,7 +108,7 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
     e = *(u8 **)(r + 60);
     *(s32 *)(r + 8) = 0;
     *(s32 *)(r + 12) = 0;
-    func_00460ac0(D_00795F20, r + 8);
+    PrimAppendNode(D_00795F20, r + 8);
     st = *(u32 *)(r + 4);
     switch (st) {
     case 0:

@@ -192,7 +192,7 @@ s32 fclShopItemPanelUpdate(u8 *task);
 void memcpy(void *, s32, s32);
 s32 fclSpriteUpdateTweens(void *);
 void *PrimAllocQueueNode(void);
-void func_00460ac0(void *, void *);
+void PrimAppendNode(void *, void *);
 /* measured: the second parameter is u8 - a u8 lvalue passed to a u8 parameter is a
    plain load and materialises in slot order (li $a0 before lbu $a1); passed to an
    s32 parameter it counts as a conversion and is hoisted ahead of the constant. */
@@ -858,7 +858,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     temp_2 = PrimAllocQueueNode();
     (*(void * *)((u8 *)temp_2 + 8)) = func_002be4a0;
     (*(void * *)((u8 *)temp_2 + 0x10)) = work;
-    func_00460ac0(D_00795FE0, temp_2);
+    PrimAppendNode(D_00795FE0, temp_2);
     temp_2_2 = (*(s8 *)(work + 0));
     switch (temp_2_2) {                             /* switch 1 */
     case 0x9:                                       /* switch 1 */
@@ -7155,7 +7155,7 @@ s32 fclShopItemPanelUpdate(u8 *arg0) {
             void *t = PrimAllocQueueNode();
             *(void (**)(void))((u8 *)t + 8) = func_002be3c0;
             *(s32 *)((u8 *)t + 0x10) = 0;
-            func_00460ac0(&D_00793E80[work->field_FC * 0x30], t);
+            PrimAppendNode(&D_00793E80[work->field_FC * 0x30], t);
             sdkSpriteDrawQueued(
                 work->field_2C, work->field_30, work->field_8,
                 fclPackRgba(0xFF, work->field_79, work->field_7A, work->field_7B),

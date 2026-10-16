@@ -4931,7 +4931,7 @@ void mdlResetDrawState(void* param_1, void* param_2)
 /* Queue command uses k_draw.c raw offsets (obj+8/0x0C/0x10/0x14/0x18/0x1A/0x1C); no new struct. */
 
 extern u8* PrimAllocQueueNode(void);
-extern void func_00460ac0(void*, void*);
+extern void PrimAppendNode(void*, void*);
 extern void mdlAdvanceModel(u8*, s32);
 extern void mdlApplySkyDrawState(u8*, u8*);
 extern void mdlEffectListSetColor(u8**, s32*);
@@ -4967,7 +4967,7 @@ void mdlQueueModelForDraw(void* queue, u8* model)
         command = PrimAllocQueueNode();
         *(u16*)(command + 0x18) = 0x1c;
         *(void**)(command + 0x1c) = model;
-        func_00460ac0(*(void**)(model + 0x2f8), command);
+        PrimAppendNode(*(void**)(model + 0x2f8), command);
     }
     renderCommand = PrimAllocQueueNode();
     if (*(void**)(model + 0xe0) != 0)
@@ -4989,7 +4989,7 @@ void mdlQueueModelForDraw(void* queue, u8* model)
         {
             *(u16*)(renderCommand + 0x18) = 9;
             *(void**)(renderCommand + 0x1C) = ((Model*)model)->clump;
-            func_00460ac0(queue, renderCommand);
+            PrimAppendNode(queue, renderCommand);
         }
         else
         {
@@ -4999,14 +4999,14 @@ void mdlQueueModelForDraw(void* queue, u8* model)
                 *(u16*)(renderCommand + 0x1A) |= 2;
             *(u16*)(renderCommand + 0x18) = 5;
             *(void**)(renderCommand + 0x1C) = *(void**)(model + 0xe0);
-            func_00460ac0(queue, renderCommand);
+            PrimAppendNode(queue, renderCommand);
         }
     }
     else
     {
         *(u16*)(renderCommand + 0x18) = 0x1B;
         *(void**)(renderCommand + 0x1C) = model;
-        func_00460ac0(queue, renderCommand);
+        PrimAppendNode(queue, renderCommand);
     }
 
     if (*(void**)(model + 0x2cc) != 0)

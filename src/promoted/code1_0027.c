@@ -58,7 +58,7 @@ extern s8 D_0063BAB0[];
 extern s32 cmmCommunityGetCurrentId(void);
 extern void itfMesWindowFree(s32 arg0);
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 
 
 

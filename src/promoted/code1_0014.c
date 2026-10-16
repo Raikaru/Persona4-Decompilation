@@ -189,8 +189,8 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 D_008872F8[];
 extern f32 fGpffff8198;
 extern u8 D_005EF710[];
-extern void func_00364c50(void);
-extern void func_00364c70(void);
+extern void shdEnableBlendFlag(void);
+extern void shdDisableBlendFlag(void);
 extern u16 D_008C024E[];
 extern s32 iGpffffba48;
 extern u8 iGpffffba4c;
@@ -248,7 +248,7 @@ extern s32 D_007642F0;
 
 
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *arg0, u8 *arg1);
+extern void PrimAppendNode(void *arg0, u8 *arg1);
 extern void FldEventDrawMarker(u8 *arg0, u8 *arg1);
 
 extern s32 nLineIsIdle(void);

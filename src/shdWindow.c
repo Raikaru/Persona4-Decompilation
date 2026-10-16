@@ -21,10 +21,10 @@ extern u8 D_00796670[];
 extern u16 D_008C024E[];
 extern u16 D_008C0276[];
 
-extern s32 func_0025e170(u8 *task);
-extern void func_0025e4a0(s32, s32);
+extern s32 shdWindowTaskUpdate(u8 *task);
+extern void shdWindowDrawQueued(s32, s32);
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *, void *);
+extern void PrimAppendNode(void *, void *);
 extern u8 *frFontBuildTextSimple(u32, u32, u32, u32, u32, u32, u32, u32);
 extern s32 frFontCountRuns(u8 *);
 extern u8 *frFontSplitRun(u8 **, s32);
@@ -36,7 +36,7 @@ extern f32 iGpffff8094;
 extern f32 sinf(f32);
 extern void func_00366670(s32, s32, f32, s32, s32, s32, s32, s32, s32,
                          s16, void *, f32, f32, f32);
-extern void func_0025dd30(f32, f32, s32, u8 *);
+extern void shdDrawEntryRow(f32, f32, s32, u8 *);
 
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
@@ -48,8 +48,9 @@ extern void func_0025dd30(f32, f32, s32, u8 *);
 // mask placement; declaring var_17 after the three list-walk locals gives the
 // retail $s4/$s3/$s2/$s1 allocation (old declaration order was nd 22).
 #pragma opt_loop_invariants on
+// Intent: Draw a block of text runs, centred or left-aligned, from a text table entry; returns the block height [inferred]
 // FUN_0025DB00
-s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
+s32 shdDrawTextBlock(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
                   s32 arg3)
 {
     u8 *sp9C;
@@ -94,14 +95,14 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
     }
     return var_17 * 0x1C;
 }
-// measured: closes the func_0025db00 loop-invariant bracket.
+// measured: closes the shdDrawTextBlock loop-invariant bracket.
 #pragma opt_loop_invariants off
 
 // measured: 14 differing words at an exact 269/269.  The previous note on
 // this function claimed a saved-register rotation at nd 216-224 and a later
 // pass reported nd 719; both were measuring something other than the body
 // that is banked here, which scores 14 via
-// `tools/measure_guarded.py src/shdWindow.c func_0025dd30`.  The body was
+// `tools/measure_guarded.py src/shdWindow.c shdDrawEntryRow`.  The body was
 // also left LIVE and unguarded, so `verify.py` reported a real MISMATCH on
 // this translation unit; it is behind `#ifdef NON_MATCHING` now.
 // WALL, all 14 words: retail loads D_00637260/64/68/6C into $f3,$f2,$f1,$f0
@@ -118,12 +119,12 @@ s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
 // propagation and rescheduled; nothing short of disabling propagation for
 // the whole function reproduces retail's four live FPRs.
 // measured 2026-09-17 full pragma_sweep --pairs (8 singles + 28 pairs):
-// banked 14 via `python3 -E -s tools/measure_guarded.py src/shdWindow.c func_0025dd30`;
+// banked 14 via `python3 -E -s tools/measure_guarded.py src/shdWindow.c shdDrawEntryRow`;
 // best stays 14 (ties: opt_loop_invariants on, opt_strength_reduction off,
 // opt_unroll_loops off and their three pairs; 26-group: prop off and five
 // prop/dead/loopinv/strength pairs; 157 csoff+propoff, 165 csoff group,
 // 220-224 peephole group, 244-247 schedule group). No pair wins; floor stands.
-// `python3 -E -s tools/pragma_sweep.py src/shdWindow.c func_0025dd30 --pairs`.
+// `python3 -E -s tools/pragma_sweep.py src/shdWindow.c shdDrawEntryRow --pairs`.
 extern s8 frFontExGlyphHeight(char param_1);
 extern void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
 // MATCH.  The last six words were the emission slot of `mtc1 $zero, $f12`
@@ -151,8 +152,9 @@ extern void func_0025d850(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
 // original textual position: the first float placed before the integers, or
 // after one, two, three or four of them, all compile identically.  After
 // five it scores 4, after six or more it scores 6 again.
+// Intent: Draw one entry row: a bar and its text, chosen by the row kind [inferred]
 // FUN_0025DD30
-void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
+void shdDrawEntryRow(f32 param_1, f32 param_2, s32 color, u8 *data) {
     struct ShdWindowQuad { f32 a, b, c, d; };
     f32 table[4];
     s32 y;
@@ -174,7 +176,7 @@ void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
     } else {
         var = (150.0f + param_2) - 6.0f;
     }
-    ret = func_0025db00(xprog, var, 0xFFFFFF, color, *(s32 *)(data + 12), 1);
+    ret = shdDrawTextBlock(xprog, var, 0xFFFFFF, color, *(s32 *)(data + 12), 1);
     y = (s32)(49.0f + (var + (f32)(ret >> 1)));
     switch (kind) {
     case 2:
@@ -195,8 +197,9 @@ void func_0025dd30(f32 param_1, f32 param_2, s32 color, u8 *data) {
         break;
     }
 }
+// Intent: Window task update: run the open and close state machine and queue the draw callback [inferred]
 // FUN_0025E170
-s32 func_0025e170(u8 *sdkTaskBytes)
+s32 shdWindowTaskUpdate(u8 *sdkTaskBytes)
 {
     s32 arg0 = (s32)sdkTaskBytes;
     u8 *p;
@@ -287,9 +290,9 @@ s32 func_0025e170(u8 *sdkTaskBytes)
     }
 block_37:
     temp_2_3 = (u8 *)PrimAllocQueueNode();
-    *(void (**)(s32, s32))(temp_2_3 + 8) = func_0025e4a0;
+    *(void (**)(s32, s32))(temp_2_3 + 8) = shdWindowDrawQueued;
     *(s32 *)(temp_2_3 + 0x10) = arg0;
-    func_00460ac0(&D_00796670, temp_2_3);
+    PrimAppendNode(&D_00796670, temp_2_3);
     return 0;
 }
 
@@ -297,8 +300,9 @@ block_37:
 // switch(action), an explicit action=0 for the bit-2 arm, and the ternary
 // count clamp reproduce retail's branch layout. Packing the color channels
 // through (s8)(s32) preserves the retail sign-extension sequence.
+// Intent: Queued window draw: step the open or close counter and draw the bar and its row [inferred]
 // FUN_0025E4A0
-void func_0025e4a0(s32 arg0, s32 arg1)
+void shdWindowDrawQueued(s32 arg0, s32 arg1)
 {
     u8 *p;
     u8 *temp_5;
@@ -338,7 +342,7 @@ void func_0025e4a0(s32 arg0, s32 arg1)
         count = count < 3 ? count : 3;
         temp_f20 = sinf((iGpffff8094 * (f32)count) / 3.0f);
         func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - temp_f20)), 0.0f, 456, (s32)(300.0f * temp_f20), 0x2D2D2D, 255, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
-        func_0025dd30(92.0f, 74.0f, (s32)(255.0f * temp_f20), p);
+        shdDrawEntryRow(92.0f, 74.0f, (s32)(255.0f * temp_f20), p);
         break;
     case 0:
         count = *(s32 *)(temp_5 + 0x10);
@@ -347,21 +351,23 @@ void func_0025e4a0(s32 arg0, s32 arg1)
         temp_f20 = 255.0f * frac;
         color = 0x2D2D2D00 | (((s8)(s32)(255.0f * frac)) & 0xFF);
         func_00366670(92, (s32)(74.0f + 150.0f * (1.0f - frac)), 0.0f, 456, (s32)(10.0f + 290.0f * frac), color >> 8, color & 0xFF, 1, 0, 0, 0, 0.0f, 1.0f, 1.0f);
-        func_0025dd30(92.0f, 74.0f, (s32)temp_f20, p);
+        shdDrawEntryRow(92.0f, 74.0f, (s32)temp_f20, p);
         break;
     }
 }
 
+// Intent: Window task destroy: call the teardown handler for the window's work [inferred]
 // FUN_0025E7C0
-void func_0025e7c0(u8 *unusedTask)
+void shdWindowTaskDestroy(u8 *unusedTask)
 {
     int iVar1;
 
     iVar1 = kwlnTaskGetWork();
     DAT_008873ec_abs[0](iVar1);
 }
+// Intent: Create the window task with its update and destroy callbacks [inferred]
 // FUN_0025E800
-void func_0025e800(s32 arg0, s32 arg1, s32 arg2)
+void shdWindowTaskCreate(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *temp_2;
 
@@ -369,11 +375,12 @@ void func_0025e800(s32 arg0, s32 arg1, s32 arg2)
     temp_2 = D_008873F4[0](1, 0x2C, 0x40000);
     *(s32 *)(temp_2 + 8) = arg1;
     *(s32 *)(temp_2 + 0xC) = arg2;
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00637270), 0xF, 0, 0, func_0025e170, func_0025e7c0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00637270), 0xF, 0, 0, shdWindowTaskUpdate, shdWindowTaskDestroy, (u8 *)(temp_2));
 }
 
+// Intent: Mark the window as finished by setting bit 4 of its flags [inferred]
 // FUN_0025E8B0
-void func_0025e8b0(void) {
+void shdWindowMarkDone(void) {
     u8 *p = (u8 *)kwlnTaskGetWork();
     s32 v = *(s32 *)(p + 0x4);
 
@@ -382,8 +389,9 @@ void func_0025e8b0(void) {
     }
 }
 
+// Intent: Return the window's completion state: 1 when finished, phase + 1 for the slide kind, 0 otherwise [inferred]
 // FUN_0025E8F0
-s32 func_0025e8f0(void)
+s32 shdWindowQueryState(void)
 {
     u8 *p;
     s32 v17;

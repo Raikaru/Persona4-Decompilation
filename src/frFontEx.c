@@ -16,7 +16,7 @@ extern u32 frFontFadeNodes(int param_1);
 extern u32 frFontListRelease(int param_1);
 extern int frFontNodeWidth(int node);
 extern void *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *param, void *work);
+extern void PrimAppendNode(void *param, void *work);
 extern void memset(void *dst, s32 value, s32 size);
 
 /* Font-height tables (P3FES frFontGetHeight ports). */
@@ -309,7 +309,7 @@ int frFontExDrawTextDeferred(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
     work = PrimAllocQueueNode();
     *(void **)((char *)work + 0x8) = (void *)frFontExFreeText;
     *(s32 *)((char *)work + 0x10) = font;
-    func_00460ac0(param, work);
+    PrimAppendNode(param, work);
     return result;
 }
 
@@ -342,7 +342,7 @@ int frFontExDrawTextDeferredWithCharWidth(f32 x, f32 y, f32 scale, int color, s8
     work = PrimAllocQueueNode();
     *(void **)((char *)work + 0x8) = (void *)frFontExFreeText;
     *(s32 *)((char *)work + 0x10) = font;
-    func_00460ac0(param, work);
+    PrimAppendNode(param, work);
     return result;
 }
 
@@ -371,7 +371,7 @@ int frFontExDrawTextDeferredOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int
     work = PrimAllocQueueNode();
     *(void **)((char *)work + 0x8) = (void *)frFontExFreeText;
     *(s32 *)((char *)work + 0x10) = font;
-    func_00460ac0(param, work);
+    PrimAppendNode(param, work);
     return result;
 }
 

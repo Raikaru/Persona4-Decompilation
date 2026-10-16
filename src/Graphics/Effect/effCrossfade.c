@@ -24,7 +24,7 @@ extern void func_003efd20(void *a, void *b);
 extern s32 func_003ec590(s32 a, s32 b, s32 c, s32 d);
 extern void func_0040fcd0(s32 a, s32 b);
 extern void RwCameraSetProjectionType(void *a, s32 b);
-extern void func_00460ac0(void *a, void *b);
+extern void PrimAppendNode(void *a, void *b);
 
 // Crossfade state machine: state 1 sets up the camera and projection and falls through to state 2, state 2 runs func_004b2780 and advances to state 3, state 3 runs the update through the registered pack, and state 4 runs func_004b2e00 and returns to idle.
 // FUN_004B2ED0
@@ -71,7 +71,7 @@ s32 CrossfadeUpdate(u8 *arg0) {
         if (iGpffffbb9c != 0) {
             *(s32 *)(st + 0x10) = 0;
             *(s32 *)(st + 0x14) = 0;
-            func_00460ac0(iGpffffbb9c, st + 0x10);
+            PrimAppendNode(iGpffffbb9c, st + 0x10);
         }
         break;
     default:

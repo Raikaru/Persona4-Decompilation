@@ -70,7 +70,7 @@ extern u8 D_00637420[];
 
 
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern void cldTimeChangeDraw(s32 arg0, s32 arg1);
 
 extern void sdkSpritePackDestroy(void *arg0);
@@ -348,7 +348,7 @@ void cldTimeChangeQueueDraw(s32 arg0, u8 *arg1) {
     p = PrimAllocQueueNode();
     *(void **)(p + 0x8) = (void *)cldTimeChangeDraw;
     *(s32 *)(p + 0x10) = arg0;
-    func_00460ac0(arg1, p);
+    PrimAppendNode(arg1, p);
 }
 
 // FUN_00267510
@@ -545,7 +545,7 @@ void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32
     } ContourColor;
     extern const ContourCountTable D_0063A9E0;
     extern const ContourSourceTable D_0063AA30;
-    extern void func_00364c70(void);
+    extern void shdDisableBlendFlag(void);
     ContourColor backdrop;
     ContourColor backdropScratch;
     PrimPoint points[257];
@@ -623,9 +623,9 @@ void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32
             col9[3] = b3_9;
             i9++;
         }
-        func_00364c50();
+        shdEnableBlendFlag();
         PrimDrawTransformed(colors, points, fparg2, count9, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
-        func_00364c70();
+        shdDisableBlendFlag();
         return;
     }
     p = (u8 *)&backdropScratch.transfer;
@@ -685,7 +685,7 @@ void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32
         colA[3] = contourChannelValue(&channels, 3);
         iA++;
     }
-    func_00364c50();
+    shdEnableBlendFlag();
     tbl = D_00887300;
     tbl[0]((RwRenderState)(6), (void *)(0));
     tbl[0]((RwRenderState)(8), (void *)(1));
@@ -694,7 +694,7 @@ void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32
     mdlEffectEmitMaskedTagPair();
     PrimDrawTransformed(colors, points, fparg2, countA, 5, 0, arg4, arg5, fparg3, fparg4, fparg5);
     mdlEffectEmitTagPair();
-    func_00364c70();
+    shdDisableBlendFlag();
     countB = counts.value[arg3 * 2];
     ptrB = sources.value[arg3 * 2];
     iB = 0;
@@ -712,11 +712,11 @@ void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32
         iB++;
     }
     if (arg1 == 0xFF) {
-        func_00364c50();
+        shdEnableBlendFlag();
     }
     PrimDrawTransformed(colors, points, 1.0f + fparg2, countB, 5, 1, arg4, arg5, fparg3, fparg4, fparg5);
     if (arg1 == 0xFF) {
-        func_00364c70();
+        shdDisableBlendFlag();
     }
     /* The closing pass walks the outline through its own cursor. */
     ptrC = ptrA;
@@ -735,7 +735,7 @@ void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32
         iC++;
     }
     if (arg1 == 0xFF) {
-        func_00364c50();
+        shdEnableBlendFlag();
     }
     {
         s32 v0;
@@ -745,7 +745,7 @@ void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32
         PrimDrawTransformed(colors, points, fparg2, countA - 1, 4, 1, v0, v1, fparg3, fparg4, fparg5);
     }
     if (arg1 == 0xFF) {
-        func_00364c70();
+        shdDisableBlendFlag();
     }
 }
 

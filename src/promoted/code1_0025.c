@@ -71,7 +71,7 @@ extern void sdkSpriteDraw(u8 *arg0, s32 arg1);
 extern void sdkSpriteFreeNode(void *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern void sdkSpriteDrawAndFreeFlag1(s32 arg0, u8 *arg1);
 extern void sdkSpriteDrawAndFreeFlag0(s32 arg0, u8 *arg1);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
@@ -90,8 +90,8 @@ extern u16 D_008C024E[];
 extern f32 fGpffff8200;
 extern f32 cosf(f32 arg0);
 extern f32 sinf(f32 arg0);
-extern void func_00364c50(void);
-extern void func_00364c70(void);
+extern void shdEnableBlendFlag(void);
+extern void shdDisableBlendFlag(void);
 extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
                            s32 arg2, s32 arg3, s32 arg4);
 extern void PrimDrawRadialTriangle(s32 arg0, s32 arg1, void *arg2, s32 arg3,
@@ -229,7 +229,7 @@ callback_2:
     *(void **)(temp_16 + 8) = (void *)sdkSpriteDrawAndFreeFlag0;
     *(u8 **)(temp_16 + 0x10) = temp_2;
 callback_call:
-    func_00460ac0(arg7, temp_16);
+    PrimAppendNode(arg7, temp_16);
     goto done;
 cleanup:
     sdkSpriteFreeNode(temp_2);

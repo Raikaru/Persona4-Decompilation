@@ -87,7 +87,7 @@ void func_004b1ad0(u8 *arg0)
     extern void func_003c22f0(void *arg0);
     extern void func_003c42b0(void *arg0, s32 arg1);
     extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
-    extern void func_00460ac0(void *arg0, void *arg1);
+    extern void PrimAppendNode(void *arg0, void *arg1);
     extern s32 TnGetOffset38(u16 arg0);
     extern f32 cosf(f32 arg0);
     extern f32 sinf(f32 arg0);
@@ -330,7 +330,7 @@ f32 *camera;
 
         *(u32 *)(sprite + 0x18) = 0;
         *(u32 *)(sprite + 0x1C) = 0;
-        func_00460ac0((void *)light, sprite + 0x18);
+        PrimAppendNode((void *)light, sprite + 0x18);
     }
 }
 

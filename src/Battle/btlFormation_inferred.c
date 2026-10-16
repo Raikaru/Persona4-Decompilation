@@ -29,7 +29,7 @@ extern void func_001d53e0(s32 arg0);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(char *arg0, u8 *arg1);
+extern void PrimAppendNode(char *arg0, u8 *arg1);
 extern char D_005DC824[];
 extern char D_00794AE0[];
 extern char D_00794C00[];
@@ -648,7 +648,7 @@ void func_001d5b20(u8 *arg0)
     *(s32 *)(task + 4) = 0;
     *(void (**)(void))(task + 8) = func_001d5990;
     *(u8 **)(task + 0x10) = iGpffffb3ac;
-    func_00460ac0(D_00794AE0, task);
+    PrimAppendNode(D_00794AE0, task);
     index = 0;
     count = (u16)(count & 0xFFFF);
     while ((u16)index < count) {
@@ -664,6 +664,6 @@ void func_001d5b20(u8 *arg0)
     *(s32 *)(task + 4) = 0;
     *(void (**)(void))(task + 8) = func_001d5ac0;
     *(u8 **)(task + 0x10) = iGpffffb3ac;
-    func_00460ac0(D_00794C00, task);
+    PrimAppendNode(D_00794C00, task);
 }
 

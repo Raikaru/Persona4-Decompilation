@@ -2806,7 +2806,7 @@ void mdlEffectRenderFlares(u8 *arg0)
     extern RpMaterial *RpMaterialSetTexture(RpMaterial *material, RwTexture *texture);
     extern s32 TnSlotObject(u16 b);
     extern s32 TnGetOffset38(u16 b);
-    extern void func_00460ac0(u8 *a, u8 *b);
+    extern void PrimAppendNode(u8 *a, u8 *b);
     extern RwFrame *func_003e9cb0(RwFrame *frame, const RwMatrix *matrix, RwOpCombineType combine);
     extern s32 kwlnGetCamera(void);
     extern RwMatrix *RwFrameGetLTM(RwFrame *frame);
@@ -3148,7 +3148,7 @@ void mdlEffectRenderFlares(u8 *arg0)
             u8 *wd = (u8 *)(u32)TnGetOffset38(id);
             *(s32 *)(listBase + 0x18) = 0;
             *(s32 *)(listBase + 0x1C) = 0;
-            func_00460ac0(wd, listBase + 0x18);
+            PrimAppendNode(wd, listBase + 0x18);
         }
     }
 }

@@ -4,8 +4,8 @@
 #include "btl_panel_internal.h"
 extern void memset();
 s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
-void func_00364c50(void);
-void func_00364c70(void);
+void shdEnableBlendFlag(void);
+void shdDisableBlendFlag(void);
 void func_003c38b0(void *arg0, void *arg1);
 void func_003e8110(void *arg0);
 void func_003e8120(void *arg0);
@@ -192,9 +192,9 @@ void btlPanelSetRgb(f32 fparg0, f32 fparg1, f32 fparg2) {
     *(u32 *)(p + 0x28) = 0x41F80000;
     *(u32 *)(p + 0x2C) = 0x437F0000;
     D_00887300[0](1, 0);
-    func_00364c50();
+    shdEnableBlendFlag();
     D_00887310[0](4, &quads[0], 4);
-    func_00364c70();
+    shdDisableBlendFlag();
 }
 
 // FUN_00218C60
@@ -729,9 +729,9 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
                 quads[2].color[2] = 0x42E00000;
                 quads[2].color[3] = 0x437F0000;
                 D_00887300[0](1, 0);
-                func_00364c50();
+                shdEnableBlendFlag();
                 D_00887310[0](4, &quads[0], 3);
-                func_00364c70();
+                shdDisableBlendFlag();
                 btlUiDrawSpriteFaded(work, 10, 0x4D, 25.0f + slide.x, 289.0f, 8, 8, 8, 0xFF);
                 slide.x = panelAdd2(202.0f, slide.x);
                 btlUiDrawSpriteFaded(work, 10, 0x48, slide.x, 314.0f, 0x70, 0x70, 0x70, 0xFF);

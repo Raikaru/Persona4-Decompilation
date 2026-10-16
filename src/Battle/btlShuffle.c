@@ -122,7 +122,7 @@ extern u8 D_00793E80[];
 
 extern s32 iGpffffa9c0;
 
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 
 extern void btlShuffleDrawLoadSprites(u8 *arg0);
 
@@ -170,7 +170,7 @@ s32 btlShuffleTaskUpdate(u8 *unusedTask)
         u8 *p = work + i * 0x30;
         *(s32 *)(p + 0xC) = 0;
         *(s32 *)(p + 0x10) = 0;
-        func_00460ac0((u8 *)D_00793E80 + *(s32 *)((u8 *)&iGpffffa9c0 + i * 4) * 0x30, p + 0xC);
+        PrimAppendNode((u8 *)D_00793E80 + *(s32 *)((u8 *)&iGpffffa9c0 + i * 4) * 0x30, p + 0xC);
     }
     switch (*(s32 *)(work + 8)) {
     case 0:

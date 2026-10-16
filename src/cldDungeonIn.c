@@ -6,7 +6,7 @@
 
 extern u32 kwlnTaskGetWork(void *task);
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern void func_00268230(void *unused, void *task);
 extern u8 D_007964F0[];
 extern void func_002e1ef0(void *a);
@@ -42,7 +42,7 @@ s32 func_00268870(u8 *arg0)
     obj = PrimAllocQueueNode();
     *(void **)(obj + 8) = (void *)func_00268230;
     *(u8 **)(obj + 0x10) = arg0;
-    func_00460ac0(D_007964F0, obj);
+    PrimAppendNode(D_007964F0, obj);
     switch (*(s32 *)state) {
     case 0:
     case 1:

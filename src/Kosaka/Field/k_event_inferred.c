@@ -175,7 +175,7 @@ extern s32 D_007642F0;
 
 
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *arg0, u8 *arg1);
+extern void PrimAppendNode(void *arg0, u8 *arg1);
 extern void FldEventDrawMarker(u8 *arg0, u8 *arg1);
 
 
@@ -747,7 +747,7 @@ s32 FldEventQueueDraw(u8 *arg0)
     obj = PrimAllocQueueNode();
     *(void **)(obj + 8) = FldEventDrawMarker;
     *(void **)(obj + 0x10) = work;
-    func_00460ac0(*(void **)(work + 0x110), obj);
+    PrimAppendNode(*(void **)(work + 0x110), obj);
     return 0;
 }
 

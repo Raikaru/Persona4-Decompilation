@@ -39,7 +39,7 @@ extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *param, void *work);
+extern void PrimAppendNode(void *param, void *work);
 extern void (*jtbl_008873EC[])(void *);
 extern void primSphereLine3D(u8 *position, f32 size, u8 *color, s32 setStates);
 extern u8 D_005EFBC8[];
@@ -136,7 +136,7 @@ s32 KDraw_UpdateSphere(u8 *arg0)
     obj = PrimAllocQueueNode();
     *(void **)(obj + 8) = KDraw_DrawSphere;
     *(void **)(obj + 0x10) = work;
-    func_00460ac0(*(void **)(work + 0x14), obj);
+    PrimAppendNode(*(void **)(work + 0x14), obj);
     return 0;
 }
 
@@ -202,7 +202,7 @@ s32 KDraw_UpdateCylinder(u8 *arg0)
     obj = PrimAllocQueueNode();
     *(void **)(obj + 8) = KDraw_DrawCylinder;
     *(void **)(obj + 0x10) = work;
-    func_00460ac0(*(void **)(work + 0x18), obj);
+    PrimAppendNode(*(void **)(work + 0x18), obj);
     return 0;
 }
 
@@ -277,7 +277,7 @@ s32 KDraw_UpdateAxes(u8 *arg0)
     obj = PrimAllocQueueNode();
     *(void **)(obj + 8) = KDraw_DrawAxes;
     *(void **)(obj + 0x10) = work;
-    func_00460ac0(*(void **)(work + 0x4C), obj);
+    PrimAppendNode(*(void **)(work + 0x4C), obj);
     return 0;
 }
 
@@ -287,7 +287,7 @@ void KDraw_DestroyAxes(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
-/* Parent is forwarded to task creation; drawList is retained for func_00460ac0. */
+/* Parent is forwarded to task creation; drawList is retained for PrimAppendNode. */
 // FUN_0014DBB0
 s32 KDraw_CreateAxesTask(void *parent, void *drawList)
 {

@@ -23,7 +23,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s64 iGpffffabe8;
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(void *param, void *work);
+extern void PrimAppendNode(void *param, void *work);
 extern void PrimBuildRotatedRectangle(void *out, void *a1, void *a2, f32 f0, s32 a3, s32 a4, f32 f1, f32 f2, f32 f3);
 extern void PrimBuildTransformedVertices(PrimVertex *out, const u8 *colors, const void *positions,
                           f32 depth, u32 count, s32 offsetX, s32 offsetY,
@@ -68,7 +68,7 @@ void PrimQueueRectangle(const PrimitiveRectangleColor *arg0, const PrimitiveRect
     temp_2_2 = (u8 *)(PrimAllocQueueNode());
     *(void (**)(void *, u8 *))(temp_2_2 + 8) = PrimExecuteRectangle;
     *(u8 **)(temp_2_2 + 0x10) = temp_2;
-    func_00460ac0((void *)arg3, temp_2_2);
+    PrimAppendNode((void *)arg3, temp_2_2);
 }
 
 
@@ -388,7 +388,7 @@ void PrimQueueBatch(void *colors, void *positions, f32 depth, s32 count,
     callback = PrimAllocQueueNode();
     *(void (**)(void *, PrimBatch *))(callback + 8) = PrimBatchExecute;
     *(void **)(callback + 0x10) = work;
-    func_00460ac0(queue, callback);
+    PrimAppendNode(queue, callback);
 }
 
 
@@ -454,5 +454,5 @@ void PrimQueueBatchAlpha(void *colors, void *positions, f32 depth, s32 count,
     callback = PrimAllocQueueNode();
     *(void (**)(void *, PrimBatch *))(callback + 8) = PrimBatchExecute;
     *(void **)(callback + 0x10) = work;
-    func_00460ac0(queue, callback);
+    PrimAppendNode(queue, callback);
 }

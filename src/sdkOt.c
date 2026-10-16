@@ -11,8 +11,9 @@ extern u8 iGpffffaf70;   /* gp - 0x5090 = 0x00764060 */
 extern void movieNativeSkyStateEnter(void);
 
 
+// Intent: Append a node to the tail of an ordering-table list [inferred]
 // FUN_00460AC0
-void func_00460ac0(u8 *list, u8 *node)
+void PrimAppendNode(u8 *list, u8 *node)
 {
     u8 *tail;
 
@@ -35,8 +36,9 @@ void func_00460ac0(u8 *list, u8 *node)
 }
 
 
+// Intent: Queue a state-set node (command 2) carrying a state and a value [inferred]
 // FUN_00460B60
-u8 *func_00460b60(u8 *list, s32 arg1, s32 arg2)
+u8 *PrimQueueStateSet(u8 *list, s32 arg1, s32 arg2)
 {
     u8 *node;
     u8 *tail;
@@ -69,8 +71,9 @@ u8 *func_00460b60(u8 *list, s32 arg1, s32 arg2)
 }
 
 
+// Intent: Queue a state-set node (command 3) carrying a state and a value; same as PrimQueueStateSet with command 3 [inferred]
 // FUN_00460C70
-u8 *func_00460c70(u8 *list, s32 arg1, s32 arg2)
+u8 *PrimQueueStateSetAlt(u8 *list, s32 arg1, s32 arg2)
 {
     u8 *node;
     u8 *tail;
@@ -235,8 +238,9 @@ u8 *func_00461080(u8 *list, s32 arg1)
 }
 
 
+// Intent: Queue a node (command 9) whose callback is the sky-state entry routine [inferred]
 // FUN_00461180
-u8 *func_00461180(u8 *list, s32 arg1)
+u8 *PrimQueueSkyStateEnter(u8 *list, s32 arg1)
 {
     u8 *node;
     u8 *tail;
@@ -323,8 +327,9 @@ typedef char OtPrimitiveNodeSize[(sizeof(OtPrimitiveNode) == 0x30) ? 1 : -1];
 /* The vertex buffer is a pointer, matching all source callers. The complete
  * 0x30-byte node and late list view preserve the existing 284 native bytes.
  * See docs/probe_archive/Map_shape_002b0b10_20260924.md. */
+// Intent: Queue a draw-primitive node (command 0xB) with a primitive type, vertex buffer and vertex count [inferred]
 // FUN_00461390
-u8 *func_00461390(void *inputList, s32 primitive, void *vertices, s32 count)
+u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices, s32 count)
 {
     OtPrimitiveNode *node;
     OtPrimitiveNode *tail;

@@ -58,7 +58,7 @@ extern void memcpy(void *dst, void *src, u32 size);
 
 extern s32 btlShuffleTaskCreate(s32 arg0, void *arg1);
 extern s32 btlResultSimpleCreateTask(s32 arg0);
-extern void func_00460ac0(void *arg0, void *arg1);
+extern void PrimAppendNode(void *arg0, void *arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 fadeStatus(void);
 extern u8 D_00796340[];
@@ -975,11 +975,11 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
     }
     drawPosition.x = (f32)563 - slideOffset;
     drawPosition.y = 224.0f - slideOffset;
-    func_00364fb0(drawPosition, 0.0f, 0xFF,
+    shdDrawWedge(drawPosition, 0.0f, 0xFF,
         fGpffff8374, 0, 1);
     drawPosition.x = 76.0f + slideOffset;
     drawPosition.y = 224.0f + slideOffset;
-    func_00364fb0(drawPosition, 0.0f, 0xFF,
+    shdDrawWedge(drawPosition, 0.0f, 0xFF,
         fGpffff8378, 0, 1);
     btlUiSetRenderMode(2);
     {
@@ -1016,11 +1016,11 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
     }
     drawPosition.x = 182.0f - slideOffset;
     drawPosition.y = (f32)331 - slideOffset;
-    func_00364fb0(drawPosition, 0.0f, 0xFF6400FF,
+    shdDrawWedge(drawPosition, 0.0f, 0xFF6400FF,
         fGpffff8374, 0, 0);
     drawPosition.x = (f32)457 + slideOffset;
     drawPosition.y = 117.0f + slideOffset;
-    func_00364fb0(drawPosition, 0.0f, 0xFF6400FF,
+    shdDrawWedge(drawPosition, 0.0f, 0xFF6400FF,
         fGpffff8378, 0, 0);
     {
         if (entering) {
@@ -1182,7 +1182,7 @@ s32 btlEncounterUpdateTask(u8 *sdkTaskBytes)
     temp_2 = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(temp_2 + 8) = 0;
     *(s32 *)(temp_2 + 0xC) = 0;
-    func_00460ac0(&D_00796340, temp_2 + 8);
+    PrimAppendNode(&D_00796340, temp_2 + 8);
     temp_2_2 = *(s16 *)(temp_2 + 0);
     switch (temp_2_2) {
     case 0:
@@ -3343,7 +3343,7 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
             {
                 f32 depth = 0.0f;
                 if (!(firstScale <= depth)) {
-                    func_003657d0(effectPosition.xy, depth, 0xCC, D_007615B4 * firstScale, D_007615B8 * firstScale, 0);
+                    shdDrawRotatingQuad(effectPosition.xy, depth, 0xCC, D_007615B4 * firstScale, D_007615B8 * firstScale, 0);
                 }
             }
         }
@@ -3358,7 +3358,7 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
             {
                 f32 depth = 0.0f;
                 if (!(secondScale <= depth)) {
-                    func_00365ac0(effectPosition.xy, depth, 0x89FF1FFF, fGpffff84a4 * secondScale, 125.5f * secondScale, 16.0f, 1);
+                    shdDrawRectOutline(effectPosition.xy, depth, 0x89FF1FFF, fGpffff84a4 * secondScale, 125.5f * secondScale, 16.0f, 1);
                 }
             }
         }
@@ -3747,7 +3747,7 @@ void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
         func_0045c870(color.bytes, 0);
         color.bytes[3] = 0xFF;
         color_value.f = color.value;
-        func_00365f00(coords.v, 0.0f,
+        shdDrawRadialFan(coords.v, 0.0f,
                       color_value.i, color_value.i,
                       scale, 0.0f, 0x24, fGpffff84cc, 1.0f, 0);
         mdlEffectEmitTagPair();
@@ -3760,7 +3760,7 @@ void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
                     sinf(
                         fGpffff84a4 * ((f32)(arg1 - 3) / 30.0f));
             arg_color_copy.f = *(f32 *)&arg0;
-            func_00365f00(coords.v, 0.0f,
+            shdDrawRadialFan(coords.v, 0.0f,
                           arg_color_copy.i, arg_color_copy.i,
                           scale, 0.0f, 0x24, fGpffff84cc, 1.0f, 0);
             RpSkyRenderStateSet(2, 0x44);
@@ -4277,7 +4277,7 @@ s32 btlShuffleTickFrame(u8 *sdkTaskBytes)
     p = (u8 *)kwlnTaskGetWork((void *)task);
     *(s32 *)(p + 4) = 0;
     *(s32 *)(p + 8) = 0;
-    func_00460ac0(&D_00796340, p + 4);
+    PrimAppendNode(&D_00796340, p + 4);
     value = *(s32 *)p + 1;
     *(s32 *)p = value;
     if (value == 0xC) {
@@ -4314,7 +4314,7 @@ void btlShuffleDrawSweep(s32 arg0, s32 *arg1)
     temp_f0 = cosf(fGpffff837c);
     temp_f1 = 800.0f * temp_f0;
     sp38.y = sp38.y + var_f20 * temp_f1;
-    func_00364c90(sp38, 0.0f, 0xFF,
+    shdDrawRotatedRect(sp38, 0.0f, 0xFF,
                   1500.0f, 1000.0f, fGpffff8378, 0);
 }
 // Intent: start the shuffle overlay task if it is not already running. [inferred]

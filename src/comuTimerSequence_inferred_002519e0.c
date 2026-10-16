@@ -23,7 +23,7 @@ extern s32 iGpffffb480;
 
 
 extern u8 *PrimAllocQueueNode(void);
-extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
 extern s64 cmmCommunityArcana(s32 arg0);
 extern s32 sdkSpritePackCreate(u8 *arg0);
 extern s32 func_0025f110(s32 arg0);
@@ -139,7 +139,7 @@ block_15:
     temp_2_3 = PrimAllocQueueNode();
     *(void **)(temp_2_3 + 8) = (void *)func_002519b0;
     *(s32 *)(temp_2_3 + 0x10) = arg0;
-    func_00460ac0(D_007963D0, temp_2_3);
+    PrimAppendNode(D_007963D0, temp_2_3);
     return 0;
 }
 

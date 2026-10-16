@@ -880,7 +880,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
     extern void func_004865c0(u8 * a, s32 b);
     extern void func_00485870(s32 a);
     extern s32 TnGetOffset1C(u16 a);
-    extern void func_00460ac0(u8 * list, u8 * node);
+    extern void PrimAppendNode(u8 * list, u8 * node);
     extern f32 fGpffff8044;
     extern f32 fGpffff8080;
     extern f32 fGpffff8084;
@@ -1482,7 +1482,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
         *(s32*)(*(u8**)(particle + 0x5C) + 4) = 0;
         {
             u8* pb = (u8*)TnGetOffset1C(*(u16*)(t + 0x54));
-            func_00460ac0(pb, *(u8**)(particle + 0x5C));
+            PrimAppendNode(pb, *(u8**)(particle + 0x5C));
         }
     }
     break;

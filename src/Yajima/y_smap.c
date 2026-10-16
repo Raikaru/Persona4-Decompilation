@@ -32,7 +32,7 @@ extern u8 D_00794C90[];
 extern char D_0063F0F0[];
 
 extern u8 *kwlnGetCamera(void);
-extern u8 *func_00461390(void *a, s32 b, void *c, s32 d);
+extern u8 *PrimQueueDrawPrimitive(void *a, s32 b, void *c, s32 d);
 extern u8 *sdkSpriteNewNode(u32 a, u32 b);
 extern void memset(void *dst, s32 value, u32 size);
 extern char D_0063EFD8[];
@@ -55,7 +55,7 @@ extern void smapSetRenderStates(void);
 extern void chkmemAllocSiteTag(void *msg, s32 id);
 
 
-extern void func_00460ac0(void *param, void *work);
+extern void PrimAppendNode(void *param, void *work);
 extern void func_00440b68();
 extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 extern s32 func_0046a750(s32 param);
@@ -855,11 +855,11 @@ s32 smapUpdateEntities(u8 *arg0)
     task = PrimAllocQueueNode();
     *(void **)(task + 8) = smapSetPrimitiveState;
     *(u8 **)(task + 0x10) = work;
-    func_00460ac0(D_00794C30, task);
+    PrimAppendNode(D_00794C30, task);
     task = PrimAllocQueueNode();
     *(void **)(task + 8) = smapSetStateValue;
     *(u8 **)(task + 0x10) = work;
-    func_00460ac0(D_00794E10, task);
+    PrimAppendNode(D_00794E10, task);
     switch ((s8)work[4]) {
     case 0:
         smapUpdateItems(arg0);
@@ -1911,7 +1911,7 @@ void smapDrawQuad(u8 *task, YVec2f position, f32 width, f32 height, f32 depth, u
         }
     }
     {
-        u8 *packet = (u8 *)func_00461390((u8 *)&D_00793E80 + ((s16)layer * 0x30), 4, cell + 0x40, 4);
+        u8 *packet = (u8 *)PrimQueueDrawPrimitive((u8 *)&D_00793E80 + ((s16)layer * 0x30), 4, cell + 0x40, 4);
         *(void (**)(u8 *, u8 *))(packet + 8) = smapDrawLabel;
         *(u8 **)(packet + 0x10) = cell;
     }
@@ -2248,7 +2248,7 @@ void smapClearSelection(u8 *arg0) {
     if (D_0076464C != 0) {
         *(s32 *)(q + 0x84) = 0;
         *(s32 *)(q + 0x88) = 0;
-        func_00460ac0(&D_00794C90[0], q + 0x84);
+        PrimAppendNode(&D_00794C90[0], q + 0x84);
     }
 }
 
@@ -2404,7 +2404,7 @@ s32 smapUpdateOverlay(u8 *arg0) {
         *(f32 *)(temp_16 + 4) + *(f32 *)(temp_16 + 0xC);
     *(f32 *)(temp_16 + 0xE4) =
         *(f32 *)(temp_16 + 8) + *(f32 *)(temp_16 + 0x10);
-    temp_2 = func_00461390(D_00794D50, 4, temp_16 + 0x20, 4);
+    temp_2 = PrimQueueDrawPrimitive(D_00794D50, 4, temp_16 + 0x20, 4);
     *(void (**)(void))(temp_2 + 8) = smapSetRenderStates;
     *(u8 **)(temp_2 + 0x10) = temp_16;
     return 0;

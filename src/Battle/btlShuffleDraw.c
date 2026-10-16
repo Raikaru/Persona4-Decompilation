@@ -111,8 +111,8 @@ extern BtlShuffleMatrix *RwMatrixTranslate(BtlShuffleMatrix *matrix, const BtlSh
 extern BtlShuffleVec3 *func_003e42a0(BtlShuffleVec3 *out, const BtlShuffleVec3 *in, const BtlShuffleMatrix *matrix);
 extern s32 btlShuffleCalcUpdateSpeed(u8 *point, u8 *screen);
 extern s32 func_003e0f40(BtlShuffleMatrix *matrix);
-extern void func_00364c50(void);
-extern void func_00364c70(void);
+extern void shdEnableBlendFlag(void);
+extern void shdDisableBlendFlag(void);
 extern f32 D_008872F8[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310[];
@@ -1690,11 +1690,11 @@ void btlShuffleDrawCardSprites(u8 *arg0, s32 arg1, const BtlShuffleVec3 *arg2, u
     }
     D_00887300[0](rwRENDERSTATETEXTURERASTER, NULL);
     if (arg4 != 0 && arg3[3] == 0xFF) {
-        func_00364c50();
+        shdEnableBlendFlag();
     }
     D_00887310[0](rwPRIMTYPETRISTRIP, mat, 4);
     if (arg4 != 0 && arg3[3] == 0xFF) {
-        func_00364c70();
+        shdDisableBlendFlag();
     }
     func_003e0f40(matrix);
 }

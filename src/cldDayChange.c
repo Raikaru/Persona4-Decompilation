@@ -11,7 +11,7 @@ extern u8 D_006376D0[];
 extern u8 D_00638EF0[];
 extern u8 *kwlnTaskGetWork();
 extern u8 *PrimAllocQueueNode();
-extern void func_00460ac0(void *, void *);
+extern void PrimAppendNode(void *, void *);
 extern u8 *kwlnTaskGetWork();
 extern void sdkSpriteRelease(void *);
 void kAssertFail(const void *file, s32 line);
@@ -27,9 +27,9 @@ void cldDayChangeDrawFrame(s32 arg0, s32 arg1);
 s32 cldDayChangeUpdateState(u8 *arg0);
 void cldDayChangeAddRenderTask(s32 arg0, u8 *arg1);
 void cldDayChangeTaskDestroy(u8 *arg0);
-void func_00364c50(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+void shdEnableBlendFlag(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                    u8 *arg4, s32 arg5, s32 arg6);
-void func_00364c70(void);
+void shdDisableBlendFlag(void);
 void PrimDrawPoints(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3,
                    s32 arg4);
 extern f32 iGpffff84a4;
@@ -278,9 +278,9 @@ void cldDayChangeDrawPolygon(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
         colors[i * 4 + 3] = c3;
         i += 1;
     }
-    func_00364c50(arg0, arg1, c3, c2, arg4, c1, c0);
+    shdEnableBlendFlag(arg0, arg1, c3, c2, arg4, c1, c0);
     PrimDrawPoints(colors, vertices, fparg0, arg5, 4, 1);
-    func_00364c70();
+    shdDisableBlendFlag();
 }
 /* measured: closes loop-invariant probe for func_00265f40. */
 #pragma opt_loop_invariants off
@@ -694,7 +694,7 @@ void cldDayChangeAddRenderTask(s32 arg0, u8 *arg1) {
     p = PrimAllocQueueNode();
     *(void **)(p + 0x8) = (void *)cldDayChangeDrawFrame;
     *(s32 *)(p + 0x10) = arg0;
-    func_00460ac0(arg1, p);
+    PrimAppendNode(arg1, p);
 }
 
 /* Destroy callback of the day-change task: frees its buffer and calls the destroy table. */

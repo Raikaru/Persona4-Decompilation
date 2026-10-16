@@ -43,7 +43,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *work);
 void btlResultSimpleTaskDestroy(u8 *task);
 void sdkSpriteDrawAt(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6);
 extern s32 sprintf(void *dst, const void *fmt, ...);
-void func_00460ac0(void *param, void *work);
+void PrimAppendNode(void *param, void *work);
 extern u32 D_00795F20[];
 s32 btlResultSimpleStepPhase(u8 *arg0);
 s32 btlShuffleOverlayIdle(void);
@@ -423,7 +423,7 @@ s32 btlResultSimpleUpdate(u8 *arg0) {
     work = (BtlResultWork *)kwlnTaskGetWork();
     work->field08 = 0;
     work->field0C = 0;
-    func_00460ac0(&D_00795F20, &work->field08);
+    PrimAppendNode(&D_00795F20, &work->field08);
     state = work->state;
     switch (state) {
     case 0:
@@ -530,8 +530,8 @@ static inline f32 resultParticleProduct(f32 range, f32 sample)
 // FUN_0021FA40
 void btlResultSimpleInitAnimRecords(u8 *work)
 {
-    extern void func_00364c50(void);
-    extern void func_00364c70(void);
+    extern void shdEnableBlendFlag(void);
+    extern void shdDisableBlendFlag(void);
     extern f32 sinf(f32 angle);
     extern f32 iGpffff83d8;
     extern f32 fGpffff81e0;
@@ -547,7 +547,7 @@ void btlResultSimpleInitAnimRecords(u8 *work)
     u32 random;
     s32 nextAge;
 
-    func_00364c50();
+    shdEnableBlendFlag();
     for (i = 0; i < 5; i++) {
         particle = (ResultParticleState *)(work + 0x4C0 + i * sizeof(ResultParticleState));
         if ((*(u16 *)(*(u8 **)(work + 0x570) + 8) & 4) == 0 && *(s32 *)(work + 0x38) != 0) {
@@ -594,7 +594,7 @@ void btlResultSimpleInitAnimRecords(u8 *work)
         }
         sdkSpriteDrawAt(resource, x, y, 0xFF, 0xFF, 0xFF, opacity);
     }
-    func_00364c70();
+    shdDisableBlendFlag();
 }
 
 /* Matched 2026-09-30: 5676/5680B, 65 resolved relocations and one zero
@@ -684,8 +684,8 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
     void PrimDrawRectangle(u8 *, u8 *, f32, s32, s32, s32, f32, f32, f32);
     void PrimDrawFlatRectangle(u8 *, f32 *, f32, s32);
     s32 RpSkyRenderStateSet(s32, void *);
-    void func_00364c50(void);
-    void func_00364c70(void);
+    void shdEnableBlendFlag(void);
+    void shdDisableBlendFlag(void);
     s32 datCalcGetLevelById(s32);
     u32 func_0010d6d0(s16);
     s32 btlXpBaseAward(u8 *);
@@ -720,9 +720,9 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         c11[2] = 0x2C;
         c11[3] = 0xFF;
         ((s32 (*)(s32, void *))*(u32 *)vt)(1, (void *)0);
-        func_00364c50();
+        shdEnableBlendFlag();
         PrimDrawRectangle(&c11[0], (u8 *)&sC[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
-        func_00364c70();
+        shdDisableBlendFlag();
         sC[0] = (s32)(-224.0f + (*(f32 *)(w + 0x200)));
         sC[1] = (s32)(224.0f + (*(f32 *)(w + 0x204)));
         sC[2] = 0x30C;
@@ -731,10 +731,10 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         c11[1] = 0xAE;
         c11[2] = 0x20;
         c11[3] = 0xFF;
-        func_00364c50();
+        shdEnableBlendFlag();
         ((s32 (*)(s32, void *))*(u32 *)vt)(1, (void *)0);
         PrimDrawRectangle(&c11[0], (u8 *)&sC[0], 0.0f, 0, 0, 0, 45.0f, 1.0f, 1.0f);
-        func_00364c70();
+        shdDisableBlendFlag();
         position.v[0] =(386.0f + (*(f32 *)(w + 0x1A0)));
         position.v[1] =(35.0f + (*(f32 *)(w + 0x1A4)));
         opacity = *(u8 *)(w + 0x1AA);
@@ -965,9 +965,9 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
             position.v[1] =(506.0f + (*(f32 *)(w + 0x324)));
             b17 = (*(u8 *)(w + 0x32A));
             w4B0 = (s32)(*(s32 *)(w + 0x4B0));
-            func_00364c50();
+            shdEnableBlendFlag();
             sdkSpriteDrawSized((u8 *)w4B0, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b17, 0x1000, 0x1000, 0, -72.0f, (s64)0);
-            func_00364c70();
+            shdDisableBlendFlag();
             coordinate = (f32)0x107;
             coordinate += (*(f32 *)(w + 0x350));
             position.v[0] = coordinate;
@@ -976,9 +976,9 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
             basePosition.v[1] = position.v[1];
             b172 = (*(u8 *)(w + 0x35A));
             w4B4 = (s32)(*(s32 *)(w + 0x4B4));
-            func_00364c50();
+            shdEnableBlendFlag();
             sdkSpriteDrawSized((u8 *)w4B4, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b172, 0x1000, 0x1000, 0, -30.0f, (s64)0);
-            func_00364c70();
+            shdDisableBlendFlag();
             position.v[0] =((*(f32 *)(w + 0x3B0)) + (*(f32 *)(w + 0x560)));
             position.v[1] =((*(f32 *)(w + 0x3B4)));
             b173 = (*(u8 *)(w + 0x3BA));
@@ -1008,9 +1008,9 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
             basePosition.v[1] = position.v[1];
             b174 = (*(u8 *)(w + 0x38A));
             w4B8 = (s32)(*(s32 *)(w + 0x4B8));
-            func_00364c50();
+            shdEnableBlendFlag();
             sdkSpriteDrawSized((u8 *)w4B8, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b174, 0x1000, 0x1000, 0, 15.0f, (s64)0);
-            func_00364c70();
+            shdDisableBlendFlag();
             position.v[0] =((*(f32 *)(w + 0x3E0)) + (*(f32 *)(w + 0x568)));
             position.v[1] =((*(f32 *)(w + 0x3E4)));
             b175 = (*(u8 *)(w + 0x3EA));

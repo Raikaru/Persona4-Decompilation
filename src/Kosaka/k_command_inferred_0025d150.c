@@ -45,8 +45,8 @@ extern u16 D_008C024E[];
 extern f32 fGpffff8200;
 extern f32 cosf(f32 arg0);
 extern f32 sinf(f32 arg0);
-extern void func_00364c50(void);
-extern void func_00364c70(void);
+extern void shdEnableBlendFlag(void);
+extern void shdDisableBlendFlag(void);
 extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
                            s32 arg2, s32 arg3, s32 arg4);
 extern void PrimDrawRadialTriangle(s32 arg0, s32 arg1, void *arg2, s32 arg3,
@@ -383,7 +383,7 @@ loop_test:
     var_17[5] = (u8)((u32)arg0 >> 0x10);
     var_17[6] = (u8)((u32)arg0 >> 8);
     var_17[7] = (u8)arg0;
-    func_00364c50();
+    shdEnableBlendFlag();
     PrimDrawPoints(local.spB0, local.sp1B0, farg2, 0x3E, 4, 1);
     local.spB0[0] = 0xDC;
     local.spB0[1] = 0xDC;
@@ -391,6 +391,6 @@ loop_test:
     local.spB0[3] = 0xFF;
     temp_f0 = 180.0f;
     PrimDrawRadialTriangle((s32)farg0, (s32)farg1, local.spB0, 8, temp_f0, farg2, 1);
-    func_00364c70();
+    shdDisableBlendFlag();
 }
 
