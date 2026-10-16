@@ -15,7 +15,7 @@ extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern void (*jtbl_008873EC[])(void *);
 extern void btlFormationSetPlacement(s32 arg0);
-extern void func_001d75d0(u8 *arg0);
+extern void btlEffectReleaseAllPlacements(u8 *arg0);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern u32 iGpffffb3b8;
 
@@ -87,7 +87,7 @@ extern f32 fGpffff8110;
 #pragma push
 #pragma pop
 // FUN_001D72E0
-s32 func_001d72e0(s32 arg0)
+s32 btlEffectFlagToSlotIndex(s32 arg0)
 {
     if (arg0 == 0) {
         return -1;
@@ -121,9 +121,9 @@ s32 func_001d72e0(s32 arg0)
 /* measured: opt_propagation off plus ascending default loads reproduces retail exactly (object 452B/window 464B, normalized_diff 0). */
 // FUN_001D7400
 /* measured: opt_propagation off is required for the default GP load/store register order. */
-/* measured: func_001d7400 MATCH -> MISMATCH without this pragma. */
+/* measured: btlEffectFlagToColor MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-void func_001d7400(s32 arg0, u8 *arg1)
+void btlEffectFlagToColor(s32 arg0, u8 *arg1)
 {
     u8 * arg1_p = arg1;
     s32 arg0_p = arg0;
@@ -194,9 +194,9 @@ void func_001d7400(s32 arg0, u8 *arg1)
     }
 }
 
-/* measured: close opt_propagation after func_001d7400. */
+/* measured: close opt_propagation after btlEffectFlagToColor. */
 // FUN_001D75D0
-void func_001d75d0(u8 *arg0)
+void btlEffectReleaseAllPlacements(u8 *arg0)
 {
     int iVar1 = 0;
     u32 firstIndex = 0;
@@ -233,7 +233,7 @@ void func_001d75d0(u8 *arg0)
 }
 
 // FUN_001D7700
-void func_001d7700(void)
+void btlEffectReleaseCdvdHandle(void)
 {
     u8 *temp_4;
     u8 *temp_5;
