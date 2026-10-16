@@ -47,6 +47,7 @@ src/promoted/code1_004e.c
 src/promoted/code1_004f.c
 src/promoted/code1_0050.c
 src/promoted/code1_0052.c
+src/Graphics/Effect/effMisc_inferred_0052d9a0.c
 src/promoted/code2_0070.c
 
 # Isolated fp-bit runtime conversion; do not switch its mixed original unit.
