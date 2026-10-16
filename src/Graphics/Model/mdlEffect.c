@@ -2275,14 +2275,18 @@ u_long128 ThunderSetSecondQuad(u_long128 *arg0, u_long128 *arg1) {
 }
 
 
+
+
+// Stores the packed colour word at +0x24. Called through the kind 15 (thunder) +0x30 slot with the packed colour.
 // FUN_00498D00
-void func_00498d00(u8 *arg0, s32 arg1) {
+void ThunderSetPackedColor(u8 *arg0, s32 arg1) {
     *(s32 *)(arg0 + 0x24) = arg1;
 }
 
 
+// Stores the float at +0x20. Called through the kind 15 (thunder) +0x28 slot.
 // FUN_00498D10
-void func_00498d10(u8 *arg0, f32 fparg0) {
+void ThunderSetScale(u8 *arg0, f32 fparg0) {
     *(f32 *)(arg0 + 0x20) = fparg0;
 }
 
@@ -2365,8 +2369,9 @@ u_long128 RingSetSecondQuad(u_long128 *arg0, u_long128 *arg1) {
 }
 
 
+// Stores the packed colour word at +0x30. Called through the kind 14 (ring) +0x30 slot with the packed colour.
 // FUN_0049A7C0
-void func_0049a7c0(u8 *arg0, s32 arg1) {
+void RingSetPackedColor(u8 *arg0, s32 arg1) {
     *(s32 *)(arg0 + 0x30) = arg1;
 }
 
