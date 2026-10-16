@@ -36,7 +36,7 @@ extern s32 kwlnTaskGetTaskByName(void *path);
 extern s32 kwlnTaskIsLinked(s32 handle);
 extern void kwlnTaskAddChild(void *a, void *b);
 extern s32 func_0045a3e0(s32 a, s32 b);
-extern void func_004598e0(s32 fadeDuration);
+extern void sdkSndStopChannel(s32 fadeDuration);
 extern s32 func_0046a1f0(s32 a, s64 b, void *c);
 extern s32 func_0046a2c0(void);
 extern s32 func_0029d020(void);
@@ -88,7 +88,7 @@ void func_0038ee40(void) {
                 func_00122520(func_001227a0(), 0xA);
                 *(s32 *)(p + 0x124C) = 3;
                 if (datGetFlag(0x1472) == 0) {
-                    func_004598e0(0x3C);
+                    sdkSndStopChannel(0x3C);
                 }
             }
             break;

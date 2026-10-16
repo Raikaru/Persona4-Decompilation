@@ -94,7 +94,7 @@ extern s32 sprintf(char *dst, const char *fmt, ...);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
 extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_0045aeb0(s16 arg0, const char *arg1);
+extern s32 sdkSndStartChannel(s16 arg0, const char *arg1);
 extern s32 D_008815B0[];
 extern void frFontUpdateTextWork(u8 *arg0);
 extern void frFontLayoutSlotText(s32 arg0, u8 *arg1);
@@ -1213,7 +1213,7 @@ L0:
     } else if ((second >= 0x191) && (second < 0x1F5)) {
         sprintf((char *)sp50, D_0063BA80, second, third / 0x14, second, third, fourth);
     }
-    func_0045aeb0(1, (const char *)sp50);
+    sdkSndStartChannel(1, (const char *)sp50);
     goto Lend;
 
 L1:

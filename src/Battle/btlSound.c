@@ -13,7 +13,7 @@ struct Battle
 
 extern Battle* iGpffffb3ac;
 extern void func_00459880(void);
-extern void func_004598e0(s32 fadeDuration);
+extern void sdkSndStopChannel(s32 fadeDuration);
 
 extern void func_0045aac0(s16 channel, s32 unused, s32 fadeFrames);
 
@@ -61,7 +61,7 @@ extern char sGpffffa4F8[7];
 extern char DAT_00624F40[15];
 extern char D_00624F20[];
 extern char D_00624F30[];
-extern u8 func_0045aeb0(s16 channelIndex, const char* name);
+extern u8 sdkSndStartChannel(s16 channelIndex, const char* name);
 extern u8 *D_0076449C;
 
 extern void func_00440b68(const char* fmt, const char* file, s32 line);
@@ -97,7 +97,7 @@ void btlSoundFadeOutBgm(s16 fadeDuration)
 {
     if ((iGpffffb3ac->flags & 0x40) != 0)
     {
-        func_004598e0(fadeDuration);
+        sdkSndStopChannel(fadeDuration);
     }
 }
 
@@ -308,7 +308,7 @@ u32 btlSoundLoadStream(u16* work)
     char path[512];
 
     sprintf(path, sGpffffa500, DAT_00624F40, *(u32*)(work + 2));
-    func_0045aeb0((s16)*work, path);
+    sdkSndStartChannel((s16)*work, path);
     return 1;
 }
 

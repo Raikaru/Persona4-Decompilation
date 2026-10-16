@@ -358,7 +358,7 @@ s32 func_002be530(u8 *arg0)
     extern void func_00331fc0(u8 *);
     extern s32 sprintf(char *, const char *, ...);
     extern s32 kwlnTaskGetTaskByName(void *);
-    extern u8 func_0045aeb0(s16, const char *);
+    extern u8 sdkSndStartChannel(s16, const char *);
     extern void func_002dfe00(void *arg0);
     extern s32 func_002dfd00(u16 arg0);
     extern void func_002e02d0(u8 *task);
@@ -2330,7 +2330,7 @@ block_368:
             func_002bbcf0((*(s8 *)(work + 0x10)));
         } else {
             func_002bb550((*(s8 *)(work + 0x10)));
-            func_0045aeb0(2, (const char *) D_0063FAF0);
+            sdkSndStartChannel(2, (const char *) D_0063FAF0);
             (*(s8 *)(work + 0)) = 0x2A;
         }
         break;

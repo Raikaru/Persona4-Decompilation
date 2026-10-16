@@ -19,7 +19,7 @@ extern u8 D_00882EF0[];
 extern u8 D_00882EDE[];
 extern u8 D_00882EFE[];
 extern void sprintf(char *buf, const char *fmt, s32 value);
-extern void func_0045aeb0(s16 arg0, char *buf);
+extern void sdkSndStartChannel(s16 arg0, char *buf);
 extern char D_0063CB30[];
 extern char D_0063D050[];
 
@@ -69,15 +69,14 @@ extern void mtMiscCollectType2Records(u8 *arg0);
  * function window ends in eight zero alignment bytes. */
 #pragma push
 #pragma pop
-// Formats arg1 into a short string with D_0063CB30 and passes it, with arg2, to
-// func_0045aeb0. Always returns 0. The callee is still unnamed, so the name
-// describes the call shape, not a confirmed cue.
+// Formats arg1 into a short string with D_0063CB30 and starts sound channel arg2
+// with it (sdkSndStartChannel). Always returns 0.
 // FUN_00298130
 s32 mtMiscPlayFormattedCue(s32 arg0, s32 arg1, s32 arg2) {
     char sp20[0x20];
 
     sprintf(sp20, D_0063CB30, arg1);
-    func_0045aeb0((s16)arg2, sp20);
+    sdkSndStartChannel((s16)arg2, sp20);
     return 0;
 }
 
