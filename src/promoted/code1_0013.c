@@ -835,7 +835,7 @@ void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
 {
     extern u16 datItemValue(s16 item);
     extern void PrimDrawFlatRectangle(u8 *color, f32 *rect, f32 depth, s32 flags);
-    extern void func_002bc7a0(s32 item, f32 x, f32 y, f32 depth,
+    extern void fclMesWindowDrawTableItem(s32 item, f32 x, f32 y, f32 depth,
                             s32 color, s32 font, s32 mode, s32 table);
     typedef struct { u8 r; u8 g; u8 b; } Rgb;
     struct { Rgb rgb; u8 alpha; } color;
@@ -910,7 +910,7 @@ void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
         itemValue = datItemValue(*(s16 *)entry) & 0xFFFF;
     }
     labelColor = (inputAlpha & 0xFF) | ~0xFF;
-    func_002bc7a0(itemValue, (f32)(s32)position.xy.x,
+    fclMesWindowDrawTableItem(itemValue, (f32)(s32)position.xy.x,
                   (f32)(s32)position.xy.y, 0.0f, labelColor, 1, 6, 3);
     position.xy.x = 131.0f + ((f32 *)&inputPosition)[0];
     position.xy.y = 81.0f + originalY;
