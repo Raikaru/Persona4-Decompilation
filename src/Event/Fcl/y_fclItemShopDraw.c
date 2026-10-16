@@ -75,7 +75,7 @@ extern u32 datGetItemNameId(s16 arg0);
 extern s32 func_00106600(s16 arg0);
 extern void fclShopDrawNumber(F2_0033 position, f32 depth, FclDrawColor color, u32 number, s16 glyphBase, void *sprite,
                           s32 style);
-extern void func_002bc7f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
+extern void fclMesWindowDraw(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
 extern s32 yListCount(void);
 extern u8 *func_0033d310(u8 *arg0);
 extern void func_0033d3d0(u8 *arg0, s32 arg1);
@@ -1845,7 +1845,7 @@ void fclItemShopDrawList(u8 *arg0)
         fclShopDrawNumber(pos1, 62.0f, col1,
                       fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(p + 4))), 0x19,
                       *(void **)(p + 0xC), 0xAB);
-        func_002bc7f0((s16)func_00106b80((s16)yListValueAt(*(s16 *)(p + 4))), -1, 1, 0, 4, 0xAA,
+        fclMesWindowDraw((s16)func_00106b80((s16)yListValueAt(*(s16 *)(p + 4))), -1, 1, 0, 4, 0xAA,
                       71.0f, 135.0f, 62.0f);
         func_0033d320(*(void **)(p + 0x120), 0, 1);
         func_0033d320(*(void **)(p + 0x124), 0, 1);

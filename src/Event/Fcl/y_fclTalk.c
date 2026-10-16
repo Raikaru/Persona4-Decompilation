@@ -37,10 +37,10 @@ extern s32 fclShopIsSpecialItem(u16);
 extern u32 RpRandom(void);
 extern s32 func_00331a20(u8 *task);
 extern void func_00331f90(u8 *task);
-extern s32 func_00332060(u8 *task);
-extern void func_003322a0(u8 *task);
-extern s32 func_00332520(u8 *task);
-extern void func_003329b0(u8 *task);
+extern s32 itemShopTalkUpdate(u8 *task);
+extern void itemShopTalkDestroy(u8 *task);
+extern s32 wshopMaterialTalkUpdate(u8 *task);
+extern void wshopMaterialTalkDestroy(u8 *task);
 
 // FUN_00331FC0
 void func_00331fc0(u8 *arg0) {
@@ -56,7 +56,7 @@ void func_00331fc0(u8 *arg0) {
    adaptation rather than a settled floor -- re-attempt from the m2c draft with
    the brief's recipes before treating any of it as established. */
 // FUN_00332060
-s32 func_00332060(u8 *arg0) {
+s32 itemShopTalkUpdate(u8 *arg0) {
     s8 *work;
     u8 *entry;
     s8 i;
@@ -116,7 +116,7 @@ done:
     return 0;
 }
 // FUN_003322A0
-void func_003322a0(u8 *arg0) {
+void itemShopTalkDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -126,7 +126,7 @@ void func_003322d0(u8 *arg0) {
 
     chkmemAllocSiteTag(D_0064A018, 0x12D);
     temp_2 = D_008873F4[0](1, 2, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A050), 0xF, 0, 0, func_00332060, func_003322a0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A050), 0xF, 0, 0, itemShopTalkUpdate, itemShopTalkDestroy, (u8 *)(temp_2));
     *temp_2 = 0;
 }
 
@@ -162,7 +162,7 @@ void func_00332370(u8 *arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_00332520
-s32 func_00332520(u8 *arg0) {
+s32 wshopMaterialTalkUpdate(u8 *arg0) {
     s8 *work;
     s32 level;
     s16 level_value;
@@ -271,7 +271,7 @@ done_32520:
 
 }
 // FUN_003329B0
-void func_003329b0(u8 *arg0) {
+void wshopMaterialTalkDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
@@ -281,7 +281,7 @@ void func_003329e0(u8 *arg0) {
 
     chkmemAllocSiteTag(D_0064A018, 0x1EC);
     temp_2 = D_008873F4[0](1, 0x180C, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A000), 0xF, 0, 0, func_00332520, func_003329b0, (u8 *)(temp_2));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A000), 0xF, 0, 0, wshopMaterialTalkUpdate, wshopMaterialTalkDestroy, (u8 *)(temp_2));
     *temp_2 = 0;
     *(temp_2 + 0x1808) = 0;
 }
