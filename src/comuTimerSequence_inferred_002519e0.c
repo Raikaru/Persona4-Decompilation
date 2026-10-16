@@ -29,9 +29,9 @@ extern s32 sdkSpritePackCreate(u8 *arg0);
 extern s32 func_0025f110(s32 arg0);
 extern s32 datPortraitTaskCreate(s32 arg0, s64 arg1, s32 arg2);
 extern s32 datPortraitIsLoaded(s32 arg0);
-extern s32 func_00251f00(s32 arg0, s32 *arg1);
+extern s32 cmmRankUpCreate(s32 arg0, s32 *arg1); /* lint: allow H011 -- caller stores the returned v0 at temp_2[7] (retail keeps it); definition is void */
 extern void func_00251fc0(s32 arg0, s32 arg1);
-extern void func_00252050(s32 arg0, s32 arg1, s32 arg2);
+extern void cmmRankUpCopyState(s32 arg0, s32 arg1, s32 arg2);
 extern void func_002519b0(s32 *arg0);
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
@@ -73,7 +73,7 @@ s32 func_002519e0(u8 *sdkTaskBytes) {
         temp_2[0] = 2;
         temp_2[5] = datPortraitTaskCreate(arg0, cmmCommunityArcana((u16)temp_2[1]), 0);
         temp_2[6] = datPortraitTaskCreate(arg0, -1, 0);
-        temp_2[7] = func_00251f00(arg0, temp_2);
+        temp_2[7] = cmmRankUpCreate(arg0, temp_2);
         goto block_15;
     case 1:
         return -1;
@@ -88,18 +88,18 @@ s32 func_002519e0(u8 *sdkTaskBytes) {
             goto block_15;
         }
         temp_2[0] = 3;
-        func_00252050(temp_2[7], 0, 4);
-        func_00252050(temp_2[7], 0, 5);
-        func_00252050(temp_2[7], 0, 6);
-        func_00252050(temp_2[7], 0, 7);
-        func_00252050(temp_2[7], 0, 8);
-        func_00252050(temp_2[7], 0, 9);
-        func_00252050(temp_2[7], 0, 0);
-        func_00252050(temp_2[7], 0, 1);
-        func_00252050(temp_2[7], 0, 2);
-        func_00252050(temp_2[7], 0, 3);
-        func_00252050(temp_2[7], 2, 0);
-        func_00252050(temp_2[7], 1, 0);
+        cmmRankUpCopyState(temp_2[7], 0, 4);
+        cmmRankUpCopyState(temp_2[7], 0, 5);
+        cmmRankUpCopyState(temp_2[7], 0, 6);
+        cmmRankUpCopyState(temp_2[7], 0, 7);
+        cmmRankUpCopyState(temp_2[7], 0, 8);
+        cmmRankUpCopyState(temp_2[7], 0, 9);
+        cmmRankUpCopyState(temp_2[7], 0, 0);
+        cmmRankUpCopyState(temp_2[7], 0, 1);
+        cmmRankUpCopyState(temp_2[7], 0, 2);
+        cmmRankUpCopyState(temp_2[7], 0, 3);
+        cmmRankUpCopyState(temp_2[7], 2, 0);
+        cmmRankUpCopyState(temp_2[7], 1, 0);
         goto block_15;
     case 3:
         temp_2_4 = temp_2[3] + 1;
