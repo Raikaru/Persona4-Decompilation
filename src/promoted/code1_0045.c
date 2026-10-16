@@ -112,7 +112,7 @@ extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
 extern void sdkPadStepSequence(void);
-extern void func_00453310(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButtonDispatch(s32 arg0, u16 arg1, s32 arg2);
 extern void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2);
 extern u8 *K_ClumpMatColorScale(u8 *arg0, u8 *arg1);
 extern void H_Cdvd_BuildPathUppercase(s32 arg0, void *arg1);
@@ -324,8 +324,9 @@ static inline s32 fontAtlasColumn(s32 value)
 #pragma push
 #pragma opt_propagation off
 #pragma pop
+// Same body as sdkPadRepeatButton (sdkTask_inferred.c), run on the dispatch-stage held/edge words (D_008C0314..D_008C031E) instead of the cook-stage words.
 // FUN_00453310
-void func_00453310(s32 arg0, u16 arg1, s32 arg2) {
+void sdkPadRepeatButtonDispatch(s32 arg0, u16 arg1, s32 arg2) {
     s32 off;
     s32 bits;
     u16 *word;
