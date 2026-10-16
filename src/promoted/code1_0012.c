@@ -135,9 +135,9 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005E57B8[];
 extern u8 D_005E57D0[];
 extern s32 titleSoundStartStep(u8 *arg0);
-extern void func_0012e9d0(u8 *arg0);
-extern void func_0012fdf0(u8 *arg0);
-extern void func_0012feb0(u8 *arg0);
+extern void radarDrawPanel(u8 *arg0);
+extern void radarStepSlotAnimB(u8 *arg0);
+extern void radarStepPairAnim(u8 *arg0);
 extern s32 calendarStateTask(u8 *task);
 /* Calendar state block at iGpffffb1dc: header fields, five 0x30-byte records from 0x20, owner pointer at 0x110. */
 typedef struct CalendarRecord {
@@ -5213,7 +5213,7 @@ guard_done:
 /* measured: opt_propagation on closes the temp16 width probe */
 #pragma opt_propagation on
 // FUN_0012E8B0
-s32 func_0012e8b0(u8 *arg0)
+s32 titleAdvanceWait(u8 *arg0)
 {
     s32 temp_3;
 
@@ -5229,7 +5229,7 @@ s32 func_0012e8b0(u8 *arg0)
     }
 }
 // FUN_0012E900
-s32 func_0012e900(u8 *arg0) {
+s32 radarStepSlotAnimA(u8 *arg0) {
     s16 temp_2;
     s32 var_17;
     s32 var_16;
@@ -5253,9 +5253,9 @@ loop_test_0012e900:
     if (var_17 < 0x1E) {
         goto loop_body_0012e900;
     }
-    func_0012fdf0(arg0);
-    func_0012feb0(arg0);
-    func_0012e9d0(arg0);
+    radarStepSlotAnimB(arg0);
+    radarStepPairAnim(arg0);
+    radarDrawPanel(arg0);
     return var_16;
 }
 /* measured: propagation and constant extraction off preserve cached
@@ -5291,7 +5291,7 @@ typedef struct {
  * Native b210 -O2: 5148 executable bytes and four zero alignment bytes.
  * Preserve the independent position/opacity views across renderer calls. */
 // FUN_0012E9D0
-void func_0012e9d0(u8 *state)
+void radarDrawPanel(u8 *state)
 {
     extern void func_0034f1e0(void);
     extern void func_0034c270(Vec2f position, s32 alpha, s32 mode, f32 depth);
@@ -5608,7 +5608,7 @@ void func_0012e9d0(u8 *state)
 
 #pragma pop
 // FUN_0012FDF0
-void func_0012fdf0(u8 *arg0)
+void radarStepSlotAnimB(u8 *arg0)
 {
     s16 temp_3;
     s32 var_16;
@@ -5633,7 +5633,7 @@ void func_0012fdf0(u8 *arg0)
    the two-record callback loop. */
 #pragma opt_common_subs off
 // FUN_0012FEB0
-void func_0012feb0(u8 *arg0)
+void radarStepPairAnim(u8 *arg0)
 {
     s32 i;
     u8 *p;
@@ -5652,7 +5652,7 @@ void func_0012feb0(u8 *arg0)
 #pragma opt_common_subs on
 /* The selection is passed as a word; the field stores its low halfword. */
 // FUN_0012FF40
-s32 func_0012ff40(s32 arg0, s32 arg1, s32 arg2)
+s32 radarPushHistoryValue(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *p;
 
