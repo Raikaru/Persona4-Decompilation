@@ -10438,7 +10438,7 @@ files, and generated progress validates. All-matching remains open.
 
 ### First-party continuation: material animation loading
 
-`func_004800d0` is recovered in `src/Graphics/Model/mdlMatAnim.c`:
+`mdlMatAnimLoadChunk` (was `func_004800d0`) is recovered in `src/Graphics/Model/mdlMatAnim.c`:
 **864 / 864 bytes**, all 27 relocations resolved, and no alignment tail.
 The private recovery reduced the old 103-word candidate to 19 words; three
 ordinary-C changes close the rest:

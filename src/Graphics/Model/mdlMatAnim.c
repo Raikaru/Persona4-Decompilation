@@ -24,18 +24,19 @@ extern s32 strcmp(const char *left, const char *right);
 extern void mdlAppendU32Entry(int *param_1,u32 param_2);
 extern u8 DAT_007641e0;
 
-extern void *func_00480430(void *object, void *data);
+extern void *mdlMatAnimCollectMaterial(void *object, void *data);
 
-extern void *func_00480580(void *object, void *data);
+extern void *mdlMatAnimFlagMatchedAtomic(void *object, void *data);
 
-extern void *func_00480670(void *object, void *data);
-
-
+extern void *mdlMatAnimCountAtomicMatch(void *object, void *data);
 
 
 
+
+
+/* Allocates an empty material-animation list: a single head word set to null. */
 // FUN_0047F9F0
-s32 *func_0047f9f0(void)
+s32 *mdlMatAnimCreateList(void)
 {
     s32 *anim;
 
@@ -46,8 +47,9 @@ s32 *func_0047f9f0(void)
     return anim;
 }
 
+/* Frees a material-animation list: each node releases its four channel slots and its table reference, then the list head. */
 // FUN_0047FA60
-void func_0047fa60(int param_1)
+void mdlMatAnimFreeList(int param_1)
 {
   int iVar2;
   int iVar1;
@@ -79,8 +81,9 @@ void func_0047fa60(int param_1)
 
 
 
+/* Finds the node whose table is arg1, or whose table holds the same leading u32 entries (count at +4); NULL when none matches. */
 // FUN_0047FB50
-u8 *func_0047fb50(u8 **arg0, s32 *arg1)
+u8 *mdlMatAnimFindNodeByTable(u8 **arg0, s32 *arg1)
 {
     s32 temp_6;
     s32 var_9;
@@ -116,8 +119,9 @@ u8 *func_0047fb50(u8 **arg0, s32 *arg1)
 
 
 
+/* Scaled apply: for each node, initialises each enabled channel with the scale, then applies every table entry to that channel's working object. */
 // FUN_0047FBF0
-void func_0047fbf0(u8 **arg0, f32 scale)
+void mdlMatAnimApplyScaled(u8 **arg0, f32 scale)
 {
     u8 *node;
     u8 *tbl;
@@ -149,8 +153,9 @@ void func_0047fbf0(u8 **arg0, f32 scale)
 }
 
 
+/* For each node, dispatches the track rows when the second list has a matching table; otherwise applies every enabled channel with the pivot at +0x40 and the scales. */
 // FUN_0047FD10
-void func_0047fd10(u8 **arg0, f32 scale1, u8 **arg1, f32 scale2, f32 scale3)
+void mdlMatAnimUpdateList(u8 **arg0, f32 scale1, u8 **arg1, f32 scale2, f32 scale3)
 {
     u8 *node;
     u8 *match;
@@ -165,7 +170,7 @@ void func_0047fd10(u8 **arg0, f32 scale1, u8 **arg1, f32 scale2, f32 scale3)
 
     node = *arg0;
     while (node != NULL) {
-        match = func_0047fb50(arg1, (s32 *)*(u8 **)(node + 0x50));
+        match = mdlMatAnimFindNodeByTable(arg1, (s32 *)*(u8 **)(node + 0x50));
         if (match != NULL) {
             mdlDispatchTrackRows(node, match, scale1, scale2, scale3);
         } else {
@@ -190,8 +195,9 @@ void func_0047fd10(u8 **arg0, f32 scale1, u8 **arg1, f32 scale2, f32 scale3)
 
 
 
+/* For each node, applies every enabled channel's init callback with scale1, the node pivot at +0x40 and scale2, then applies each table entry to the working object. */
 // FUN_0047FE90
-void func_0047fe90(u8 **arg0, f32 scale1, f32 scale2)
+void mdlMatAnimApplyWithPivot(u8 **arg0, f32 scale1, f32 scale2)
 {
     u8 *node;
     u8 *tbl;
@@ -223,8 +229,9 @@ void func_0047fe90(u8 **arg0, f32 scale1, f32 scale2)
 }
 
 
+/* Copies each node's packed colour (+0x40) and three surface floats (+0x44..+0x4C) into every entry of its track table. The reads are volatile, per the measured note in the body. */
 // FUN_0047FFC0
-void func_0047ffc0(int *param_1)
+void mdlMatAnimCopyNodeMaterial(int *param_1)
 {
   u8 uVar0;
 
@@ -286,8 +293,9 @@ void func_0047ffc0(int *param_1)
 
 
 
+/* Returns the largest channel duration (+4) across all nodes whose channel data pointer (+0xC) is set; zero if none. */
 // FUN_00480060
-f32 func_00480060(u8 **arg0)
+f32 mdlMatAnimMaxDuration(u8 **arg0)
 {
     f32 var_f0;
     f32 temp_f1;
@@ -314,12 +322,13 @@ f32 func_00480060(u8 **arg0)
 
 
 
+/* Reads one material-animation chunk: header, material name, the matching materials in the clump, the track node for the first match (created if absent), and the channel selected by chunk tag 0xF0F00080..83. */
 /* 864/864 bytes; 27 resolved relocations; no alignment tail.
  * Aggregate material copies and a separate search result preserve retail
  * scheduling. Reuse the counter to stage the name length before reading.
  * Both loader paths supply only material chunk tags 0xF0F00080..83. */
 // FUN_004800D0
-s32 func_004800d0(void *arg0, u8 **arg1, u32 arg2, void *arg3)
+s32 mdlMatAnimLoadChunk(void *arg0, u8 **arg1, u32 arg2, void *arg3)
 {
     typedef struct { u32 count; f32 duration; u32 stride; u32 nameLength; u32 unk10; } Hdr;
     typedef struct { u8 r, g, b, a; } MatColor;
@@ -338,9 +347,9 @@ s32 func_004800d0(void *arg0, u8 **arg1, u32 arg2, void *arg3)
     u8 *tmp;
     extern u32 func_003e2910(void *a, void *b, u32 c);
     extern void *func_003e2ce0(void *a, u32 b);
-    extern u16 func_00480800(void *a, u32 b);
-    extern u8 *func_00480840(s32 a);
-    extern void *func_00480630(void *a, void *b);
+    extern u16 mdlMatAnimCountClumpMatches(void *a, u32 b);
+    extern u8 *mdlMatAnimAllocCollector(s32 a);
+    extern void *mdlMatAnimFlagClumpMatches(void *a, void *b);
     extern u32 mdlRetainU16Ref(s32 a);
 
     func_003e2910(arg0, &header, 0x14);
@@ -355,9 +364,9 @@ s32 func_004800d0(void *arg0, u8 **arg1, u32 arg2, void *arg3)
     i = header.nameLength;
     func_003e2910(arg0, name, i);
     name[header.nameLength] = 0;
-    search[0] = (u32)func_00480840(func_00480800(arg3, (u32)name) & 0xFFFFU);
+    search[0] = (u32)mdlMatAnimAllocCollector(mdlMatAnimCountClumpMatches(arg3, (u32)name) & 0xFFFFU);
     search[1] = (u32)name;
-    func_00480630(arg3, search);
+    mdlMatAnimFlagClumpMatches(arg3, search);
     if (allocated != 0) {
         DAT_008873ec_abs[0](name);
     }
@@ -436,8 +445,9 @@ looptest2:
 
 
 
+/* Material callback: appends the material to the collector and returns NULL when one of its user-data strings (type 3) equals the collector's name; otherwise returns the material so the walk continues. */
 // FUN_00480430
-void *func_00480430(void *param_1, void *context)
+void *mdlMatAnimCollectMaterial(void *param_1, void *context)
 {
   u32 *param_2 = context;
   s32 arrayCount;
@@ -475,8 +485,9 @@ void *func_00480430(void *param_1, void *context)
 
 
 
+/* Atomic callback: the first material collected for this atomic sets flag 0x40 on the atomic's geometry and stops the material walk. */
 // FUN_00480580
-void *func_00480580(void *param_1, void *param_2)
+void *mdlMatAnimFlagMatchedAtomic(void *param_1, void *param_2)
 {
   u8 *iVar1;
   int iVar2;
@@ -488,7 +499,7 @@ void *func_00480580(void *param_1, void *param_2)
   iVar4 = 0;
   goto check;
 loop:
-  lVar3 = func_00480430((void *)(*(u32 *)(*(u8 **)(iVar1 + 0x20) + iVar4 * 4)),param_2);
+  lVar3 = mdlMatAnimCollectMaterial((void *)(*(u32 *)(*(u8 **)(iVar1 + 0x20) + iVar4 * 4)),param_2);
   if (lVar3 != 0) {
     goto increment;
   }
@@ -506,10 +517,11 @@ done:
 
 
 
+/* Flags every atomic in the clump whose materials match the collector's name. */
 // FUN_00480630
-void *func_00480630(void *param_1, void *param_2)
+void *mdlMatAnimFlagClumpMatches(void *param_1, void *param_2)
 {
-  RpClumpForAllAtomics(param_1,func_00480580,param_2);
+  RpClumpForAllAtomics(param_1,mdlMatAnimFlagMatchedAtomic,param_2);
   return param_1;
 }
 
@@ -517,8 +529,9 @@ void *func_00480630(void *param_1, void *param_2)
 
 
 
+/* Atomic callback: for each material of the atomic, adds one to the counter at +4 of the stack result when a user-data string matches the name; each material counts once. Returns the atomic. */
 // FUN_00480670
-void *func_00480670(void *arg0, void *arg1)
+void *mdlMatAnimCountAtomicMatch(void *arg0, void *arg1)
 {
     s32 spB0;
     s32 spA0;
@@ -560,8 +573,9 @@ void *func_00480670(void *arg0, void *arg1)
     return arg0;
 }
 
+/* Returns how many materials in the clump carry the given name, found by a clump-wide walk with the atomic count callback. */
 // FUN_00480800
-u16 func_00480800(void *param_1,u32 param_2)
+u16 mdlMatAnimCountClumpMatches(void *param_1,u32 param_2)
 {
   struct {
     u32 input;
@@ -570,14 +584,15 @@ u16 func_00480800(void *param_1,u32 param_2)
 
   stack.input = param_2;
   stack.output = 0;
-  RpClumpForAllAtomics(param_1,func_00480670,&stack);
+  RpClumpForAllAtomics(param_1,mdlMatAnimCountAtomicMatch,&stack);
   return stack.output;
 }
 
 
 
+/* Allocates a material collector for arg0 entries: the entry pointer at +0 targets the inline array at +0xC, the u16 count at +4 starts at zero, the u16 capacity at +6 is arg0, and a flag at +8 is one. */
 // FUN_00480840
-u8 *func_00480840(s32 arg0)
+u8 *mdlMatAnimAllocCollector(s32 arg0)
 {
     u8 *anim;
 
