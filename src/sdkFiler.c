@@ -18,7 +18,7 @@ extern s32 sprintf(char *buf, const char *fmt, ...);
 extern char iGpffffb01c;
 typedef struct { f32 a; f32 b; } F2;
 s32 func_00468260(u8 *arg0);
-extern s32 func_00467bd0(u8 *arg0);
+extern s32 sdkFilerTaskUpdate(u8 *arg0);
 extern void func_004680c0(u8 *arg0);
 extern u16 D_008C024E[];
 extern u16 D_008C0252[];
@@ -42,7 +42,7 @@ u8 *func_00468170(void *arg0, const char *arg1) {
     if (work == NULL) {
         return NULL;
     }
-    temp = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00712A50), 0x100, 0, 0, func_00467bd0, func_004680c0, (u8 *)(work));
+    temp = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00712A50), 0x100, 0, 0, sdkFilerTaskUpdate, func_004680c0, (u8 *)(work));
     if (temp == NULL) {
         return NULL;
     }

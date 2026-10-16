@@ -84,7 +84,7 @@ extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
 extern void func_003e18c0(void *object, void *callback, s32 userdata);
-extern void func_004526f0(u8 *arg0, s32 arg1);
+extern void kwlnTaskDispatchCallback(u8 *arg0, s32 arg1);
 extern u8 D_008C02E0[];
 extern s16 D_008C0336[];
 extern s16 D_008C0338[];
@@ -262,16 +262,18 @@ s32 kwlnTaskGetCurrent(void)
     return iGpffffba10;
 }
 
+// Intent: task callback. Calls the dispatch slot D_008873FC with (arg1, arg0). Registered for a task by kwlnTaskRegisterCallback.
 // FUN_004526F0
-void func_004526f0(u8* arg0, s32 arg1)
+void kwlnTaskDispatchCallback(u8* arg0, s32 arg1)
 {
     (*D_008873FC)(arg1, arg0);
 }
 
+// Intent: registers kwlnTaskDispatchCallback for the task node `arg0` through func_003e18c0. Called from the primitive node setup in primitive_inferred_004601c0.c.
 // FUN_00452730
-void func_00452730(void *arg0)
+void kwlnTaskRegisterCallback(void *arg0)
 {
-    func_003e18c0(arg0, func_004526f0, (s32)arg0);
+    func_003e18c0(arg0, kwlnTaskDispatchCallback, (s32)arg0);
 }
 
 // Intent: clears the pad records and state buffers, initialises the pad library and both ports, then sets each slot's id and default repeat counter (3). Called from kwlnInitIop.

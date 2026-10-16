@@ -97,7 +97,7 @@ extern s16 iGpffffba34;
 extern void func_003e18c0(void *object, void *callback, s32 userdata);
 extern void func_003ca270(void *object, void *callback, void *userdata);
 extern void func_003c21e0();
-extern void func_004526f0(u8 *arg0, s32 arg1);
+extern void kwlnTaskDispatchCallback(u8 *arg0, s32 arg1);
 extern void sdkPadUpdateRecord(void *arg0);
 extern void sdkPadCookInput(s32 arg0);
 extern void sdkPadDispatchButtons(s32 arg0);

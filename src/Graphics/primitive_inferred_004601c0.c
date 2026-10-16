@@ -59,7 +59,7 @@ extern s32 D_00724B8C;
 
 extern void (*jtbl_008873FC[])();
 
-extern void func_00452730(s32 arg0);
+extern void kwlnTaskRegisterCallback(s32 arg0);
 
 extern void (*jtbl_008873EC[])(void *);
 extern s32 iGpffffbae8;
@@ -461,11 +461,11 @@ void PrimFreeBatchNode(s32 arg0)
     jtbl_008873FC[0](D_00724B8C, arg0);
 }
 
-// Zeroes arg1 consecutive 0x30-byte nodes at arg0, then calls func_00452730 on the queue pool handle (D_00724B88).
+// Zeroes arg1 consecutive 0x30-byte nodes at arg0, then calls kwlnTaskRegisterCallback on the queue pool handle (D_00724B88).
 // FUN_00460A80
 void PrimClearNodes(s32 arg0, s32 arg1)
 {
     memset((void *)arg0, 0, arg1 * 0x30);
-    func_00452730(D_00724B88);
+    kwlnTaskRegisterCallback(D_00724B88);
 }
 
