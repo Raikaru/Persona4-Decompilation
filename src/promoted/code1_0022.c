@@ -264,8 +264,8 @@ extern void btlUnitInitChild(u8 *unit, u16 action);
 extern void func_00106d40(s16 character, s16 slot, s16 value);
 extern u16 datCalcMaxHpById(s16 character);
 extern u16 datCalcMaxSpById(s16 character);
-extern void func_001056e0(s16 character, s16 value);
-extern void func_00105730(s16 character, s16 value);
+extern void datSetUnitHp(s16 character, s16 value);
+extern void datSetUnitSp(s16 character, s16 value);
 extern void datCalcClearBadStatusById(s16 character, u32 mask);
 extern s32 btlActionQueuePush(u8 *target);
 

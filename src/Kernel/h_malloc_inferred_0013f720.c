@@ -42,8 +42,8 @@ extern u8 D_0064B2FC[];
 extern u8 D_0064B308[];
 extern u8 D_0064B30C[];
 typedef signed __int128 code13S128;
-extern void func_001056e0(s16 arg0, s16 arg1);
-extern void func_00105730(s16 arg0, s16 arg1);
+extern void datSetUnitHp(s16 arg0, s16 arg1);
+extern void datSetUnitSp(s16 arg0, s16 arg1);
 extern void datSetFlag(s32 arg0, s32 arg1);
 extern void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 extern s32 FldStepNotAtBoundaryQuery(void);
@@ -178,14 +178,14 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
             if (temp_17_2 <= 0) {
                 kAssertFail(D_005ED9F0, 0x25B);
             }
-            func_001056e0(arg0, (s16)temp_17_2);
+            datSetUnitHp(arg0, (s16)temp_17_2);
         }
         if (temp_30 > 0) {
             temp_17_3 = (datCalcGetSpById(arg0) & 0xFFFF) - temp_30;
             if (temp_17_3 < 0) {
                 kAssertFail(D_005ED9F0, 0x261);
             }
-            func_00105730(arg0, (s16)temp_17_3);
+            datSetUnitSp(arg0, (s16)temp_17_3);
         }
         if (temp_16 == 3) {
             datSetFlag(0x1401, 1);

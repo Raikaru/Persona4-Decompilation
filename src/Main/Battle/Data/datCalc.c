@@ -44,9 +44,9 @@ extern u8 *datEntryAt(s16 arg0);
 u16 datCalcUnderlyingSkillId();
 
 extern u16 datCalcMaxHpById(s16 character);
-extern void func_001056e0(s16 character, s16 value);
+extern void datSetUnitHp(s16 character, s16 value);
 extern u16 datCalcMaxSpById(s16 character);
-extern void func_00105730(s16 character, s16 value);
+extern void datSetUnitSp(s16 character, s16 value);
 extern void datCalcClearBadStatusById(s16 character, u32 mask);
 
 extern u8 *datPersonaGetSkillsByPcId(u16 arg0);
@@ -5258,9 +5258,9 @@ void datCalcInitializeCharacter(u16 characterId)
 
     id = (s16)characterId;
     value = (s16)datCalcMaxHpById(id);
-    func_001056e0(id, value);
+    datSetUnitHp(id, value);
     value = (s16)datCalcMaxSpById(id);
-    func_00105730(id, value);
+    datSetUnitSp(id, value);
     datCalcClearBadStatusById(id, -1);
 }
 

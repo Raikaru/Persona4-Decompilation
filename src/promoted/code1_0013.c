@@ -25,7 +25,7 @@ extern void sdkSpriteFreeNode(void *node);
 extern void radarDrawFrame(u8 *arg0);
 extern void radarResetEntries(u8 *arg0);
 extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
-extern void func_00105780(s16 arg0);
+extern void datClampUnitHpSp(s16 arg0);
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 titleSetMenuLayout(u8 *arg0, u32 arg1);
 extern s32 func_0034bb20(s32 arg0);
@@ -96,8 +96,8 @@ extern u8 D_0064B2FC[];
 extern u8 D_0064B308[];
 extern u8 D_0064B30C[];
 typedef signed __int128 code13S128;
-extern void func_001056e0(s16 arg0, s16 arg1);
-extern void func_00105730(s16 arg0, s16 arg1);
+extern void datSetUnitHp(s16 arg0, s16 arg1);
+extern void datSetUnitSp(s16 arg0, s16 arg1);
 extern void datSetFlag(s32 arg0, s32 arg1);
 extern void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 extern s32 FldStepNotAtBoundaryQuery(void);
@@ -654,7 +654,7 @@ void radarReleaseSpritesAndEntries(u8 *arg0) {
     }
     var17 = 0;
     while (var17 < *(s16 *)(arg0 + 0x48)) {
-        func_00105780(*(s16 *)(arg0 + var17 * 2 + 0x38));
+        datClampUnitHpSp(*(s16 *)(arg0 + var17 * 2 + 0x38));
         var17++;
     }
     *(s32 *)(arg0 + 0x1c) = 0;

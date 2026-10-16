@@ -184,7 +184,7 @@ extern u8 D_0063FB50[];
 s32 func_002be530(u8 *arg0);
 void func_002be3c0(void);
 s32 func_0010d6d0(s16);
-void func_00105780(s32);
+void datClampUnitHpSp(s32);
 s32 func_00106b20(s16);
 void chkmemAllocSiteTag(const void *, u32);
 
@@ -2659,7 +2659,7 @@ void fclShopDrawDestroy(u8 *arg0) {
     void *work = *(void **)((u8 *)arg0 + 0x38);
 
     for (i = 0; i < *(s8 *)((u8 *)work + 9); i++) {
-        func_00105780(*(s8 *)((u8 *)work + i + 0xF73));
+        datClampUnitHpSp(*(s8 *)((u8 *)work + i + 0xF73));
     }
     if (*(void **)((u8 *)work + 0xF28)) {
         sdkSpriteRelease(*(void **)((u8 *)work + 0xF28));

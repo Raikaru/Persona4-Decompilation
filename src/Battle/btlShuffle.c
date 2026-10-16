@@ -45,7 +45,7 @@ extern void btlShuffleTaskDestroy(u8 *task);
 
 extern u16 datCalcMaxHpById(s16 character);
 
-extern void func_001056e0(s16 character, s16 value);
+extern void datSetUnitHp(s16 character, s16 value);
 
 extern u32 datCalcIsDeadById(s16 param);
 
@@ -55,7 +55,7 @@ extern u16 datCalcMaxSpById(s16 character);
 
 extern u32 datCalcGetSpById(s16 character);
 
-extern void func_00105730(s16 character, s16 value);
+extern void datSetUnitSp(s16 character, s16 value);
 
 extern u8 D_0064E5F0[];
 
@@ -994,9 +994,9 @@ s32 btlShuffleIsPartyMember(s32 arg0)
     s32 flag = arg0 & 0xFFFF;
 
     if (flag != 0) {
-        func_001056e0(1, (s16)datCalcMaxHpById(1));
+        datSetUnitHp(1, (s16)datCalcMaxHpById(1));
     } else {
-        func_001056e0(1, 1);
+        datSetUnitHp(1, 1);
     }
     i = 0;
     for (; i < 4; i++) {
@@ -1005,9 +1005,9 @@ s32 btlShuffleIsPartyMember(s32 arg0)
             s = (s16)r;
             if (datCalcIsDeadById(s) == 0) {
                 if (flag != 0) {
-                    func_001056e0((s16)r, (s16)datCalcMaxHpById((s16)r));
+                    datSetUnitHp((s16)r, (s16)datCalcMaxHpById((s16)r));
                 } else {
-                    func_001056e0(s, 1);
+                    datSetUnitHp(s, 1);
                 }
             }
         }
@@ -1063,17 +1063,17 @@ s32 btlShuffleCountPartyMembers(s32 arg0)
     u16 r;
 
     if (flag != 0) {
-        func_00105730(1, (s16)datCalcMaxSpById(1));
+        datSetUnitSp(1, (s16)datCalcMaxSpById(1));
     } else {
-        func_00105730(1, (s16)((u32)((u16)datCalcGetSpById(1)) >> 1));
+        datSetUnitSp(1, (s16)((u32)((u16)datCalcGetSpById(1)) >> 1));
     }
     for (i = 0; i < 4; i++) {
         r = (u16)datGetPartyId(i);
         if (r != 0 && datCalcIsDeadById((s16)r) == 0) {
             if (flag != 0) {
-                func_00105730((s16)r, (s16)datCalcMaxSpById((s16)r));
+                datSetUnitSp((s16)r, (s16)datCalcMaxSpById((s16)r));
             } else {
-                func_00105730((s16)r, (s16)((u32)((u16)datCalcGetSpById((s16)r)) >> 1));
+                datSetUnitSp((s16)r, (s16)((u32)((u16)datCalcGetSpById((s16)r)) >> 1));
             }
         }
     }

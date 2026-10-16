@@ -48,7 +48,7 @@ void scrSetReturnInt(s32 arg0);
 u16 datCalcMaxHpById(s16 arg0);
 
 u32 datCalcGetSpById(s16 arg0);
-extern void func_001056e0(s16 arg0, s16 arg1);
+extern void datSetUnitHp(s16 arg0, s16 arg1);
 extern s64 scrGetParamIntS64(s32 arg0);
 extern void sdkSndRequestTrack(s32 arg0);
 extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
@@ -61,7 +61,7 @@ extern s32 kwlnTaskGetTaskByName(void *path);
 extern s32 datGetFlag(s32 arg0);
 extern void calendarSetMode(s32 arg0);
 extern u16 datCalcMaxSpById(s16 arg0);
-extern void func_00105730(s16 arg0, s16 arg1);
+extern void datSetUnitSp(s16 arg0, s16 arg1);
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -169,7 +169,7 @@ s32 func_00299d00(void)
 
     temp_16 = scrGetParamIntS64(0);
     temp_17 = scrGetParamIntS64(1);
-    func_001056e0((s16)temp_16, (s16)temp_17);
+    datSetUnitHp((s16)temp_16, (s16)temp_17);
     return 1;
 }
 
@@ -192,7 +192,7 @@ s32 func_00299e00(void)
 
     temp_16 = scrGetParamIntS64(0);
     temp_17 = scrGetParamIntS64(1);
-    func_00105730((s16)temp_16, (s16)temp_17);
+    datSetUnitSp((s16)temp_16, (s16)temp_17);
     return 1;
 }
 // FUN_0029E9B0

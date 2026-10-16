@@ -89,7 +89,7 @@ extern s32 iGpffffb280;
 extern s32 scrGetCmdTimer(void);
 extern u8 *scrGetContext(void);
 extern void datCalcIsDeadById(s16 arg0);
-extern void func_001056e0(s16 arg0, s16 arg1);
+extern void datSetUnitHp(s16 arg0, s16 arg1);
 extern void datCalcClearBadStatusById(s16 arg0, s32 arg1);
 extern void KMisc_CreateScrShutdown(s32 arg0);
 extern void sdlSchedulerEnable(void);
