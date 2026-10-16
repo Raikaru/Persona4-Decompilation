@@ -66,7 +66,7 @@ void itfMesWindowSetNumber(s32 arg0, s32 arg1, s32 arg2);
 s32 sprintf(char *buf, const char *fmt, ...);
 s32 func_002438b0(s32 arg0);
 s32 func_00243840(s32 arg0);
-u32 func_0010d620(s16 arg0);
+u32 datPersonaDisplayName(s16 arg0);
 u32 datGetItemNameId(s16 arg0);
 u8 *datPersonaGetRow(u16 arg0);
 extern char iGpffffa760;
@@ -1044,7 +1044,7 @@ s16 func_00278260(s32 arg0)
    address in $a2, b210 emits the addiu first (3 words). Naming the buffer in
    an int local and taking &sp30[0] both measure nd 10; schedule on is far
    worse (nd 203). Call-argument setup order floor. Committed at nd 10. */
-/* object_size=388; window=400; normalized_diff=10; differing_word_offsets=80,84,88; first_diff_bytes=80,81,82,83,85,86,88,89,90,91. Corrected matched-callee declarations: func_0010d620(s16) and datGetItemNameId(s16), both with u32 return, replacing file-scope s64 declarations. Retail prologue checks for open callees confirmed func_00442088's existing variadic call shape and s32 signatures for func_00243840, func_002438b0 and func_00109220. Residual remains case-0 func_00278450 argument materialization: retail emits move a0,s1; move a1,s0; addiu a2,sp,0x30, while MWCC b210 emits addiu first. Probes retained from prior lane: char sp30[16]; u32/s32 sp30[4]; &sp30[0], integer/pointer casts; named a0/a1/a2 and dst/src/count locals with assignments in retail and reverse order; case-scoped/register locals; pointer local; comma-sequenced arguments; nested old-style callee declaration; fixed and variadic func_00442088 prototypes; optimization_level 1 (object 404, nd67); schedule-on (nd203); fresh permute (best nd10). No volatile or inline asm used. */
+/* object_size=388; window=400; normalized_diff=10; differing_word_offsets=80,84,88; first_diff_bytes=80,81,82,83,85,86,88,89,90,91. Corrected matched-callee declarations: datPersonaDisplayName(s16) and datGetItemNameId(s16), both with u32 return, replacing file-scope s64 declarations. Retail prologue checks for open callees confirmed func_00442088's existing variadic call shape and s32 signatures for func_00243840, func_002438b0 and func_00109220. Residual remains case-0 func_00278450 argument materialization: retail emits move a0,s1; move a1,s0; addiu a2,sp,0x30, while MWCC b210 emits addiu first. Probes retained from prior lane: char sp30[16]; u32/s32 sp30[4]; &sp30[0], integer/pointer casts; named a0/a1/a2 and dst/src/count locals with assignments in retail and reverse order; case-scoped/register locals; pointer local; comma-sequenced arguments; nested old-style callee declaration; fixed and variadic func_00442088 prototypes; optimization_level 1 (object 404, nd67); schedule-on (nd203); fresh permute (best nd10). No volatile or inline asm used. */
 /* measured: the case-0 argument order (move a0 / move a1 / addiu a2,sp) is
    produced by passing the buffer to a pointer-typed parameter; casting it
    to an integer materialises the address first. Same lever as the "call-
@@ -1068,7 +1068,7 @@ void itfMesWindowFormatValue(int param_1, int param_2, int param_3, u32 param_4)
         itfMesWindowSetString(param_1, param_2, (char *)func_002438b0(param_3 & 0xFF));
         break;
     case 4:
-        itfMesWindowSetString(param_1, param_2, (char *)func_0010d620((s16)param_3));
+        itfMesWindowSetString(param_1, param_2, (char *)datPersonaDisplayName((s16)param_3));
         break;
     case 5:
         itfMesWindowSetString(param_1, param_2, (char *)datGetItemNameId((s16)param_3));

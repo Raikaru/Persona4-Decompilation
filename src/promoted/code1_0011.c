@@ -73,7 +73,7 @@ extern u16 func_00106970(s16 arg0);
 extern s32 func_00106c30(s16 arg0, s16 arg1);
 extern s32 func_00106c80(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
-extern u8 *func_0010d620(s16 arg0);
+extern u8 *datPersonaDisplayName(s16 arg0);
 extern s8 func_00123ae0(void);
 extern s16 func_00123b10(void);
 extern s16 func_00123b40(void);
@@ -1610,7 +1610,7 @@ void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
         temp_2 = arg1 & 0xFF;
         frFontExDrawText((f32)(s32)arg0.x, (f32)(s32)arg0.y, arg4,
                       temp_2 | -0x100, 0, 4,
-                      (const char *)func_0010d620(*(s16 *)arg2), 0, 0);
+                      (const char *)datPersonaDisplayName(*(s16 *)arg2), 0, 0);
         return;
     }
     if (p4_0011_signext16(temp_17) == -1) {
