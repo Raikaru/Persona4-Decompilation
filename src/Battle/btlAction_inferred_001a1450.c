@@ -3478,7 +3478,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
     extern u8 *btlPacketCreateImmediate(void);
     extern u8 *btlPacketAllocZeroed(void *arg0, void *arg1);
-    extern s32 func_00195530(u8 *arg0);
+    extern s32 btlUnitGetPersonaAlphaColor(u8 *arg0);
     extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
     extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *btlUnitCreateArcMovePacket(s32 unit, s16 skill, s16 delay);
@@ -4298,7 +4298,7 @@ void btlActionSkillUpdate(u8 *arg0) {
             animPkt34->delay = 0xF;
             animPkt34->ownerId = actionId;
             btlPacketEnqueue((u8 *)animPacket, 0);
-            colorPkt35 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)linkedUnit, (u32)(func_00195530(linkedUnit)), 8, 0, 3, 1));
+            colorPkt35 = (BtlPacketTiming *)(btlUnitCreateColorPacket((BtlUnit *)linkedUnit, (u32)(btlUnitGetPersonaAlphaColor(linkedUnit)), 8, 0, 3, 1));
             colorPkt35->queue = 4;
             colorPkt35->startTime = animPacket->endTime;
             colorPkt35->ownerId = actionId;

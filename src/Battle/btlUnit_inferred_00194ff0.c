@@ -346,7 +346,7 @@ void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5,
 /* measured: func_00195530 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_00195530
-s32 func_00195530(u8 *arg0) {
+s32 btlUnitGetPersonaAlphaColor(u8 *arg0) {
     u8 *e;
 
     if (arg0[0xA2] != 2) {
