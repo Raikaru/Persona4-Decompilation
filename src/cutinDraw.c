@@ -15,7 +15,7 @@ void sprintf();
 s32 func_00454a60();
 s32 H_Cdvd_IsFileLoaded();
 s32 func_00455f70();
-s32 func_004b1130();
+u8 *func_004b1130();
 
 void func_004b11d0();
 void func_004b1250();
@@ -64,7 +64,7 @@ s32 func_00120bc0(u8 *arg0)
         if (H_Cdvd_IsFileLoaded(*(s32 *)(temp_16 + 0x28)) != 0) {
             sprintf(sp20, D_005E4FA0, *(s16 *)(temp_16 + 4),
                           *(s16 *)(temp_16 + 6));
-            *(s32 *)(temp_16 + 0x24) = func_004b1130(func_00455f70(sp20, 0));
+            *(s32 *)(temp_16 + 0x24) = (s32)func_004b1130(func_00455f70(sp20, 0));
             *(s32 *)temp_16 = 2;
         }
         break;

@@ -23,7 +23,7 @@ u8 *func_00454a60(u8 *arg0, s32 arg1);
 s32 func_00348330(u8 *arg0);
 s32 cmbFiveSpriteTask(u8 *arg0);
 u32 H_Cdvd_IsFileLoaded(struct HCdvd *ptr);
-void func_004b1150(s32 arg0);
+void func_004b1150(u8 *arg0);
 u32 H_Cdvd_Destroy(struct HCdvd *ptr);
 void func_0036d940(void *arg0);
 void func_0036d860(u8 *arg0, s32 arg1);
@@ -60,14 +60,14 @@ s32 func_0045aeb0(s16 channelIndex, u8 *name);
 s32 kwlnTaskIsLinked(void *target);
 extern u8 D_0064A5B0[];
 s32 func_002b2d00(s32, s32, s32, s32, s8);
-s32 func_004b1130(s32);
-s32 func_004b11b0(s32);
+u8 *func_004b1130(s32);
+u8 *func_004b11b0(u8 *);
 
 void func_004b11d0(void *, void *);
-void func_004b1250(s32, u8 *);
-void func_004b1290(s32, f32, f32, f32);
-void func_004b13d0(s32, f32);
-void func_004b13f0(s32, u8 *);
+void func_004b1250(void *, u8 *);
+void func_004b1290(u8 *, f32, f32, f32);
+void func_004b13d0(u8 *, f32);
+void func_004b13f0(void *, u8 *);
 s32 func_004b1520(u8 *);
 extern u8 D_005DC7D0[];
 
@@ -1730,26 +1730,26 @@ s32 func_00348330(u8 *arg0) {
             return 0;
         }
         {
-            u32 h = *(u32 *)(obj + 8);
+            u8 *h = *(u8 **)(obj + 8);
             if (h != 0) {
                 func_004b1150(h);
-                *(u32 *)(obj + 8) = 0;
+                *(u8 **)(obj + 8) = 0;
             }
         }
         {
-            s32 nv = func_004b1130(*(s32 *)(*(u8 **)(obj + 0) + 0x110));
-            *(s32 *)(obj + 8) = nv;
+            u8 *nv = func_004b1130(*(s32 *)(*(u8 **)(obj + 0) + 0x110));
+            *(u8 **)(obj + 8) = nv;
             func_004b1250(nv, obj + 0x18);
-            func_004b1290(*(s32 *)(obj + 8), *(f32 *)(obj + 0x24), *(f32 *)(obj + 0x28), *(f32 *)(obj + 0x2C));
-            func_004b13d0(*(s32 *)(obj + 8), *(f32 *)(obj + 0x30));
-            func_004b13f0(*(s32 *)(obj + 8), obj + 0x34);
+            func_004b1290(*(u8 **)(obj + 8), *(f32 *)(obj + 0x24), *(f32 *)(obj + 0x28), *(f32 *)(obj + 0x2C));
+            func_004b13d0(*(u8 **)(obj + 8), *(f32 *)(obj + 0x30));
+            func_004b13f0(*(u8 **)(obj + 8), obj + 0x34);
             if (*(u8 *)(obj + 0x48) == 1) {
-                s32 nv2 = func_004b11b0(*(s32 *)(obj + 8));
-                *(s32 *)(obj + 0x44) = nv2;
+                u8 *nv2 = func_004b11b0(*(u8 **)(obj + 8));
+                *(u8 **)(obj + 0x44) = nv2;
                 func_004b1250(nv2, obj + 0x4C);
-                func_004b1290(*(s32 *)(obj + 0x44), *(f32 *)(obj + 0x58), *(f32 *)(obj + 0x5C), *(f32 *)(obj + 0x60));
-                func_004b13d0(*(s32 *)(obj + 0x44), *(f32 *)(obj + 0x64));
-                func_004b13f0(*(s32 *)(obj + 0x44), obj + 0x68);
+                func_004b1290(*(u8 **)(obj + 0x44), *(f32 *)(obj + 0x58), *(f32 *)(obj + 0x5C), *(f32 *)(obj + 0x60));
+                func_004b13d0(*(u8 **)(obj + 0x44), *(f32 *)(obj + 0x64));
+                func_004b13f0(*(u8 **)(obj + 0x44), obj + 0x68);
             }
         }
         *(u16 *)(obj + 0xC) = 0;
@@ -1786,10 +1786,10 @@ s32 func_00348330(u8 *arg0) {
             *(s16 *)(obj + 0x3C) = func_002b2cb0(*(s16 *)(obj + 0x3C), 1, *(s16 *)(obj + 0x3A), 0, 1);
             if (*(s16 *)(obj + 0x3C) < *(s16 *)(obj + 0x3A)) {
                 *(u8 *)(obj + 0x37) = *(u8 *)(obj + 0x38);
-                func_004b13f0(*(s32 *)(obj + 8), obj + 0x34);
+                func_004b13f0(*(u8 **)(obj + 8), obj + 0x34);
                 if (*(u8 *)(obj + 0x48) == 1) {
                     *(u8 *)(obj + 0x6B) = *(u8 *)(obj + 0x38);
-                    func_004b13f0(*(s32 *)(obj + 0x44), obj + 0x68);
+                    func_004b13f0(*(u8 **)(obj + 0x44), obj + 0x68);
                 }
             }
         }
@@ -1825,16 +1825,16 @@ s32 func_00348330(u8 *arg0) {
 /* Frees the handle stored at state+0x8, if any. */
 void cmbCardEffFreeHandle(u8 *arg0) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
-    u32 p = *(u32 *)(obj + 8);
+    u8 *p = *(u8 **)(obj + 8);
     if (p != 0) {
         func_004b1150(p);
-        *(u32 *)(obj + 8) = 0;
+        *(u8 **)(obj + 8) = 0;
     }
     if (*(u8 *)(obj + 0x48) == 1) {
-        u32 q = *(u32 *)(obj + 0x44);
+        u8 *q = *(u8 **)(obj + 0x44);
         if (q != 0) {
             func_004b1150(q);
-            *(u32 *)(obj + 0x44) = 0;
+            *(u8 **)(obj + 0x44) = 0;
         }
     }
     H_Cdvd_Destroy(*(struct HCdvd **)obj);

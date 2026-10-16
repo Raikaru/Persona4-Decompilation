@@ -77,7 +77,7 @@ extern u8 D_007568C8[];
 extern u8 D_00756900[];
 extern void func_004bd6a0(u8 *arg0, s32 arg1);
 extern void func_004bd9f8(u8 *arg0);
-extern void func_00486330(s32 arg0, void *arg1);
+extern void func_00486330(u8 *arg0, void *arg1);
 extern void func_004bcf20(f32 arg0, f32 arg1, f32 arg2);
 extern f32 iGpffff836c;
 extern void func_004866f0(u8 *arg0, u32 *arg1);
@@ -177,15 +177,15 @@ void func_004b1100(u8 *arg0, f32 arg1)
     func_00492e30(*(u16 **)(arg0 + 0x5c), arg1);
 }
 // FUN_004B1130
-s32 func_004b1130(s32 resource)
+u8 *func_004b1130(s32 resource)
 {
-    return (s32)func_00484bb0((u8 *)(u32)resource);
+    return func_00484bb0((u8 *)(u32)resource);
 }
 
 // FUN_004B1150
-void func_004b1150(s32 model)
+void func_004b1150(u8 *model)
 {
-    func_00485b20((u8 *)(u32)model);
+    func_00485b20(model);
 }
 
 // FUN_004B1170
@@ -201,9 +201,9 @@ void func_004b1190(u8 *object)
 }
 
 // FUN_004B11B0
-s32 func_004b11b0(s32 arg0)
+u8 *func_004b11b0(u8 *arg0)
 {
-    return (s32)(u32)func_00485c80((u8 *)arg0);
+    return func_00485c80(arg0);
 }
 
 // FUN_004B11D0
@@ -234,7 +234,7 @@ void func_004b1250(void *arg0, f32 *arg1)
     func_004861f0(arg0, work);
 }
 // FUN_004B1290
-void func_004b1290(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
+void func_004b1290(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
 {
     u8 scratch[16];
 
@@ -244,7 +244,7 @@ void func_004b1290(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
 }
 
 // FUN_004B12E0
-void func_004b12e0(s32 arg0, u8 *arg1) {
+void func_004b12e0(u8 *arg0, u8 *arg1) {
     struct {
         f32 first[4];
         u8 result[16];
@@ -277,7 +277,7 @@ void func_004b12e0(s32 arg0, u8 *arg1) {
     func_00486330(arg0, work.result);
 }
 // FUN_004B13D0
-void func_004b13d0(s32 arg0, f32 arg1)
+void func_004b13d0(u8 *arg0, f32 arg1)
 {
     func_00486400();
 }

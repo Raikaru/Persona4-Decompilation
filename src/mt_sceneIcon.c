@@ -4,7 +4,7 @@
 #include "type.h"
 
 extern s32 func_00455f70(s32 arg0, void *arg1);
-extern s32 func_004b1130(s32 arg0);
+extern u8 *func_004b1130(s32 arg0);
 extern void MT_Scene_SpawnIconTask(s32 arg0);
 extern s32 D_0063B4F0[];
 
@@ -71,7 +71,7 @@ s32 func_0026d890(u8 *arg0)
         *(u32 *)w = 1;
         break;
     case 1:
-        handle = func_004b1130(*(s32 *)(w + 0xC));
+        handle = (s32)func_004b1130(*(s32 *)(w + 0xC));
         if ((icon_raw = (s32)MT_Scene_GetRes(*(u16 *)(w + 4))) != 0) {
             icon = (u8 *)icon_raw;
             kind = (*(u16 *)icon & 0xFFC00) >> 0xA;
