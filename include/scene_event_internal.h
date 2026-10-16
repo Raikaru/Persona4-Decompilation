@@ -37,6 +37,7 @@ typedef struct EvtPayloadKind16 { s16 unk00; } EvtPayloadKind16;
 typedef struct EvtPayloadKind21 { s16 unk00; u8 pad02[6]; u32 unk08; u32 unk0C; u32 unk10; u32 unk14; u32 unk18; u32 unk1C; } EvtPayloadKind21;
 typedef struct EvtPayloadKind23 { u8 pad00; u8 unk01; u8 pad02[2]; u16 unk04; } EvtPayloadKind23;
 typedef struct EvtPayloadKind24 { u8 pad00; u8 unk01; } EvtPayloadKind24;
+typedef struct EvtPayloadKind29 { s8 unk00; } EvtPayloadKind29;
 typedef struct EvtPayloadKind34 { u8 pad00[2]; u8 unk02; } EvtPayloadKind34;
 /* Kind 0x35: the environment slot (evtEnvSlotSave stores the light and camera state). */
 typedef struct EvtEnvSlotPayload { u8 unk00; u8 pad01[3]; u8 unk04; u8 unk05; u8 unk06; u8 pad07; u8 unk08; u8 unk09; u8 unk0A; u8 pad0B; f32 unk0C; f32 unk10; } EvtEnvSlotPayload;
@@ -56,7 +57,7 @@ typedef union EvtChildPayload {
     EvtPayloadKind23 kind23;
     EvtPayloadKind24 kind24;
     EvtPayloadByte kind27;
-    EvtPayloadByte kind29;
+    EvtPayloadKind29 kind29;
     EvtPayloadByte kind30;
     EvtPayloadKind34 kind34;
     EvtEnvSlotPayload envSlot;
