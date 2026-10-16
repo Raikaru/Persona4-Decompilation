@@ -24,8 +24,8 @@ extern void chkmemAllocSiteTag(void *msg, s32 id);
 extern s32 func_00102980(void);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 
-extern s32 func_0018efe0(u8 *arg0);
-extern void func_0018f390(u8 *arg0);
+extern s32 FldViewerUpdate(u8 *arg0);
+extern void FldViewerDestroy(u8 *arg0);
 
 // FUN_0018F3C0
 s32 FldViewerCreate(s32 arg0)
@@ -38,7 +38,7 @@ s32 FldViewerCreate(s32 arg0)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F59A0), 0xF, 0, 0, func_0018efe0, func_0018f390, (u8 *)(buf));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F59A0), 0xF, 0, 0, FldViewerUpdate, FldViewerDestroy, (u8 *)(buf));
     FldStepResetTables();
     D_00764304 = 0;
     return ret;
