@@ -147,6 +147,7 @@ s32 btlUpdateDraw2DTask(u8 *task)
 
 
 
+// AI script command 0x20DF (AI command table entry, VA 0x0063DCD8). AI library name: AI_FUNCTION_00DF.
 // FUN_001935F0
 u32 btlScriptHasCmdTimer(void)
 {

@@ -554,6 +554,7 @@ s32 func_00193260(void)
     return 0;
 }
 
+// AI script command 0x20DC (AI command table entry, VA 0x0063DCC0). AI library name: AI_FUNCTION_00DC.
 // FUN_001932F0
 s32 func_001932f0(void)
 {
@@ -598,6 +599,7 @@ loop_5_check:
     return 1;
 }
 
+// AI script command 0x20DD (AI command table entry, VA 0x0063DCC8). AI library name: AI_FUNCTION_00DD.
 /* Measured: the archived body compiles to object 356B in the 368B window. Retail words at offsets 356, 360, and 364 are all 00000000 (nop); verify therefore accepts the zero-padded tail and reports MATCH. */
 // FUN_00193450
 s32 func_00193450(void)
@@ -643,6 +645,7 @@ block_13:
     return 0;
 }
 
+// AI script command 0x20DE (AI command table entry, VA 0x0063DCD0). AI library name: AI_FUNCTION_00DE.
 // FUN_001935C0
 s32 func_001935c0(void) {
     hFadeTaskStart(1);
