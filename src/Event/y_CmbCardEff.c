@@ -27,7 +27,7 @@ void func_004b1150(u8 *arg0);
 u32 H_Cdvd_Destroy(struct HCdvd *ptr);
 void func_0036d940(void *arg0);
 void func_0036d860(u8 *arg0, s32 arg1);
-void func_0036d230(u8 *arg0);
+void pscResBuildMiscCardW00(u8 *arg0);
 s32 func_0036d960(void);
 void btlShuffleCardSetupLayout(u8 *arg0, s32 arg1);
 s32 func_00347c70(u8 *arg0);
@@ -139,7 +139,7 @@ s32 cmbCardLoaderStep(u8 *arg0) {
             break;
         case 1:
             if (H_Cdvd_IsFileLoaded((struct HCdvd *)obj->file) != 0) {
-                func_0036d230(*(u8 **)(obj->file + 0x110));
+                pscResBuildMiscCardW00(*(u8 **)(obj->file + 0x110));
                 H_Cdvd_Destroy((struct HCdvd *)obj->file);
                 obj->state += 1;
             }

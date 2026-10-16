@@ -68,13 +68,13 @@ extern void func_00410520(u32 primitive, void *indices, u32 count);
 extern void func_004104d0(void);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern u16 D_0064E470[];
-extern s32 func_0036bee0(s32 arg0, s32 arg1);
-extern s32 func_0036bff0(s32 arg0);
+extern s32 pscResGetArcanaRaster(s32 arg0, s32 arg1);
+extern s32 pscResGetPersonaRaster(s32 arg0);
 extern s32 func_0036be00(void);
-extern s32 func_0036be70(void);
-extern s32 func_0036c0d0(void);
-extern s32 func_0036d130(s32 arg0);
-extern s32 func_0036d1b0(s32 arg0);
+extern s32 pscResGetMiscCardW00Raster(void);
+extern s32 pscResGetMiscCardW01Raster(void);
+extern s32 pscResGetMiscCardW00Texture(s32 arg0);
+extern s32 pscResGetMiscCardW00SubTexture(s32 arg0);
 extern void func_0036b470(void *work, void *vertices);
 
 /* Floor: 759 differing words, 1099 emitted instructions against retail's
@@ -229,7 +229,7 @@ void func_003694d0(PscModel *model)
         fn = (void (**)(u32, u32))D_00887300;
         (*fn)(8, 1);
         RpSkyRenderStateSet(3, 0x317F3);
-        (*fn)(1, func_0036bee0(model->u.m01.unk170, model->u.m01.unk174));
+        (*fn)(1, pscResGetArcanaRaster(model->u.m01.unk170, model->u.m01.unk174));
         RpSkyRenderStateSet(2, 0x44);
         func_00410420(model->u.m01.b0, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
@@ -242,38 +242,38 @@ void func_003694d0(PscModel *model)
         RpSkyRenderStateSet(3, 0x317F3);
         (*fn)(3, 1);
         (*fn)(4, 1);
-        (*fn)(1, func_0036d130(0));
+        (*fn)(1, pscResGetMiscCardW00Texture(0));
         RpSkyRenderStateSet(2, 0x44);
         func_00410420(m0->u.m01.b0, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x48);
-        (*fn)(1, func_0036d130(4));
+        (*fn)(1, pscResGetMiscCardW00Texture(4));
         func_00410420(m0->u.m01.b4, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x48);
-        (*fn)(1, func_0036d130(3));
+        (*fn)(1, pscResGetMiscCardW00Texture(3));
         func_00410420(m0->u.m01.b3, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x48);
-        (*fn)(1, func_0036d130(2));
+        (*fn)(1, pscResGetMiscCardW00Texture(2));
         func_00410420(m0->u.m01.b2, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x44);
-        (*fn)(1, func_0036bff0((*(u16 *)&model->u.m01.unk174)));
+        (*fn)(1, pscResGetPersonaRaster((*(u16 *)&model->u.m01.unk174)));
         func_00410420(m0->u.m01.b5, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x48);
-        (*fn)(1, func_0036bff0((*(u16 *)&model->u.m01.unk174)));
+        (*fn)(1, pscResGetPersonaRaster((*(u16 *)&model->u.m01.unk174)));
         func_00410420(m0->u.m01.b6, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x44);
-        (*fn)(1, func_0036d130(1));
+        (*fn)(1, pscResGetMiscCardW00Texture(1));
         func_00410420(m0->u.m01.b1, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
@@ -281,7 +281,7 @@ void func_003694d0(PscModel *model)
         RpSkyRenderStateSet(2, 0x48);
         (*fn)(3, 3);
         (*fn)(4, 3);
-        (*fn)(1, func_0036d130(5));
+        (*fn)(1, pscResGetMiscCardW00Texture(5));
         func_00410420(m0->u.m01.b7, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
@@ -292,7 +292,7 @@ void func_003694d0(PscModel *model)
         (*fn)(8, 1);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x317F3);
-        (*fn)(1, func_0036be70());
+        (*fn)(1, pscResGetMiscCardW00Raster());
         func_00410420(model->u.w170, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
@@ -302,7 +302,7 @@ void func_003694d0(PscModel *model)
         (*fn)(8, 1);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x317F3);
-        (*fn)(1, func_0036c0d0());
+        (*fn)(1, pscResGetMiscCardW01Raster());
         func_00410420(model->u.w170, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
@@ -314,7 +314,7 @@ void func_003694d0(PscModel *model)
             switch (model->mode) {
             case 1:
                 RpSkyRenderStateSet(2, 0x6A);
-                (*tbl)(1, func_0036d130(1));
+                (*tbl)(1, pscResGetMiscCardW00Texture(1));
                 func_00410420(m0->u.m01.b1, 4, mtx, 3);
                 func_00410520(3, D_0064E470, 6);
                 func_004104d0();
@@ -323,7 +323,7 @@ void func_003694d0(PscModel *model)
             RpSkyRenderStateSet(2, 0x58);
             fn = (void (**)(u32, u32))D_00887300;
             (*fn)(4, 3);
-            (*fn)(1, func_0036d130(6));
+            (*fn)(1, pscResGetMiscCardW00Texture(6));
             func_00410420(model->unk4C, 4, mtx, 3);
             func_00410520(3, D_0064E470, 6);
             func_004104d0();
@@ -338,7 +338,7 @@ void func_003694d0(PscModel *model)
         (*fn)(8, 1);
         RpSkyRenderStateSet(3, 0x717FB);
         RpSkyRenderStateSet(2, 0x44);
-        (*fn)(1, func_0036d1b0(1));
+        (*fn)(1, pscResGetMiscCardW00SubTexture(1));
         func_00410420(model->u.m01.b2, 4, mtx, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
@@ -361,11 +361,11 @@ void func_003694d0(PscModel *model)
             RpSkyRenderStateSet(2, 0x6A);
             switch (model->mode) {
             case 0:
-                (*tbl)(1, func_0036d130(1));
+                (*tbl)(1, pscResGetMiscCardW00Texture(1));
                 func_00410420(model->u.m01.b1, 4, mtx, 3);
                 break;
             case 1:
-                (*tbl)(1, func_0036d1b0(0));
+                (*tbl)(1, pscResGetMiscCardW00SubTexture(0));
                 func_00410420(model->u.m01.b1, 4, mtx, 3);
                 break;
             case 2:

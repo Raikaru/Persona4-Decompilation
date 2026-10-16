@@ -36,12 +36,12 @@ extern void func_003642e0(u8 *arg0, void *arg1);
 
 extern void memset(void *dst, s32 value, s32 size);
 
-extern void func_0036b650(u8 *arg0);
+extern void pscResInit(u8 *arg0);
 extern void func_0036aa20(void);
 extern void func_0036d8b0(void);
 
-extern void func_0036b750(void);
-extern s32 func_0036bb60(void);
+extern void pscResUpdate(void);
+extern s32 pscResAnySlotInUse(void);
 extern void radarAnimateValue(u8 *arg0, s16 arg1, s32 arg2);
 
 extern s32 func_0034c210(void);
@@ -742,7 +742,7 @@ struct PanelTransform;
 // FUN_0036D860
 void func_0036d860(u8 *arg0, s32 arg1)
 {
-    func_0036b650(arg0);
+    pscResInit(arg0);
     func_0036aa20();
     if (arg1 != 0) {
         func_0036d8b0();
@@ -778,12 +778,12 @@ void func_0036d8b0(void)
 // FUN_0036D940
 void func_0036d940(void *arg0)
 {
-    func_0036bbf0();
+    pscResDestroy();
 }
 
 // FUN_0036D960
 s32 func_0036d960(void)
 {
-    func_0036b750();
-    return !func_0036bb60();
+    pscResUpdate();
+    return !pscResAnySlotInUse();
 }

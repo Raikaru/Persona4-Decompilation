@@ -60,7 +60,7 @@ extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern f32 btlShuffleCalcNormalizeOffset(u8 *arg0);
 extern s32 datGetFlag(s32 arg0);
-extern void func_0036c900(void);
+extern void pscResAcquireMiscCardW01(void);
 extern void btlShuffleCardInit(u8 *arg0, u8 *arg1);
 extern void btlShuffleCardAttachSprite(u8 *arg0, void *arg1);
 extern void btlShuffleCardBindPacket(u8 *arg0, void *arg1);
@@ -91,7 +91,7 @@ struct HCdvd;
 extern u32 H_Cdvd_IsFileLoaded(struct HCdvd *archive);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 extern void memcpy(s32 arg0, s32 arg1, s32 arg2);
-extern void func_0036d230(u8 *data);
+extern void pscResBuildMiscCardW00(u8 *data);
 extern u32 func_0046a750(s16 *sprite);
 extern u32 H_Cdvd_Destroy(struct HCdvd *archive);
 extern void btlShuffleDrawTrail(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, u8 *arg3);
@@ -210,7 +210,7 @@ void btlShuffleDrawTaskInit(u8 *arg0, s32 arg1) {
     u8 *p;
 
     if ((datGetFlag(0x1403) != 0) && (datGetFlag(0x142B) != 0)) {
-        func_0036c900();
+        pscResAcquireMiscCardW01();
     }
     count = btlShuffleDrawTableLookup(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
     for (i = 0; i < count; i++) {
@@ -321,7 +321,7 @@ s32 btlShuffleDrawLoadBlob(u8 *work)
                 memcpy(*(u8 **)p, source, (size_t)byteCount);
             }
         }
-        func_0036d230(func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, NULL));
+        pscResBuildMiscCardW00(func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, NULL));
         *(s32 *)(work + 0x1F2EC) = 1;
     }
     case 1:
