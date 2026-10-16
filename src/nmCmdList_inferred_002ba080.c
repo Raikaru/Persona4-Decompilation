@@ -16,7 +16,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 {
     return right * left;
 }
-extern void func_002baa50(void);
+extern void nmMesWindowClearSlotTable(void);
 extern void nmMesWindowInitRecord(s32 *arg0);
 
 
@@ -97,19 +97,20 @@ static inline s32 fclDigitIsZero(const s16 *value)
 #pragma push
 #pragma pop
 /* Row and value are signed halfwords; retail discards incoming row high bits.
-   Rewritten on the matched func_002ba5d0 pattern. Retail passes both colours
+   Rewritten on the matched nmMesWindowSetNumber pattern. Retail passes both colours
    as words (the parameter home reloaded with lw, the stored digit colour with
    lwl/lwr), so the block-scope callee declaration takes u32 colours; the two
    copies are spelled differently so only post-colouring CSE shares them.
    The redraw positions are named locals, which puts their frame slots above
-   secondPosition as in retail. Depth precedes layer, as in func_002ba5d0:
+   secondPosition as in retail. Depth precedes layer, as in nmMesWindowSetNumber:
    retail copies $f12 before $t3 in the prologue, and both callers still
    match. opt_dead_assignments off reproduces retail's late argument loads. */
 #pragma push
 /* measured: func_002ba080 MATCH -> MISMATCH without this pragma. */
 #pragma opt_dead_assignments off
+// Intent: shows the two-digit number on row `row`: the entrance animation when mode is 0, otherwise a retrace of the existing sprite.
 // FUN_002BA080
-void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
+void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
                    FclDrawColor color, s32 duration, s32 delay, f32 depth,
                    s32 layer, s8 mode)
 {
@@ -256,8 +257,9 @@ void func_002ba080(u8 *task, s16 row, s16 number, FclVec2 position,
 #pragma push
 /* measured: func_002ba5d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+// Intent: sets the two-digit number on row `row` without an entrance animation; the tens digit is hidden for values below 10 except 0.
 // FUN_002BA5D0
-void func_002ba5d0(u8 *task, s16 row, s32 number, FclVec2 position,
+void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
                     FclDrawColor color, f32 depth, s64 layer)
 {
     FclBoundsPacket bounds;
@@ -369,8 +371,9 @@ void func_002ba5d0(u8 *task, s16 row, s32 number, FclVec2 position,
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
 /* measured: func_002ba970 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
+// Intent: sets the colour and alpha of both digit sprites on row `arg1`.
 // FUN_002BA970
-void func_002ba970(u8 *arg0, s16 arg1, FclDrawColor color)
+void nmMesWindowSetNumberColor(u8 *arg0, s16 arg1, FclDrawColor color)
 {
     s32 first;
     s32 second;
@@ -403,15 +406,17 @@ void func_002ba970(u8 *arg0, s16 arg1, FclDrawColor color)
     p[0x162] = alpha;
 }
 
+// Intent: resets the current message record and clears the slot table.
 // FUN_002BAA20
-void func_002baa20(void)
+void nmMesWindowResetRecords(void)
 {
     nmMesWindowInitRecord(D_00882F60);
-    func_002baa50();
+    nmMesWindowClearSlotTable();
 }
 
+// Intent: clears all five message slots.
 // FUN_002BAA50
-void func_002baa50(void)
+void nmMesWindowClearSlotTable(void)
 {
     s32 i;
     u8 **t;

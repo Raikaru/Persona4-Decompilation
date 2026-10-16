@@ -16,7 +16,7 @@ static inline f32 p4_mul_left(f32 left, f32 right)
 {
     return right * left;
 }
-extern void func_002bb7c0(s32 arg0);
+extern void nmMesWindowStepCurrent(s32 arg0);
 
 
 
@@ -103,12 +103,12 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma push
 #pragma pop
 /* Row and value are signed halfwords; retail discards incoming row high bits.
-   Rewritten on the matched func_002ba5d0 pattern. Retail passes both colours
+   Rewritten on the matched nmMesWindowSetNumber pattern. Retail passes both colours
    as words (the parameter home reloaded with lw, the stored digit colour with
    lwl/lwr), so the block-scope callee declaration takes u32 colours; the two
    copies are spelled differently so only post-colouring CSE shares them.
    The redraw positions are named locals, which puts their frame slots above
-   secondPosition as in retail. Depth precedes layer, as in func_002ba5d0:
+   secondPosition as in retail. Depth precedes layer, as in nmMesWindowSetNumber:
    retail copies $f12 before $t3 in the prologue, and both callers still
    match. opt_dead_assignments off reproduces retail's late argument loads. */
 #pragma push
@@ -120,8 +120,9 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma pop
 /* Preserve the RGBA snapshot and later alpha reload across byte stores.
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
+// Intent: advances the state machine of the current message window; `arg0` releases the window once it closes.
 // FUN_002BB7C0
-void func_002bb7c0(s32 arg0)
+void nmMesWindowStepCurrent(s32 arg0)
 {
     typedef struct {
         s32 id;
@@ -220,8 +221,9 @@ void func_002bb7c0(s32 arg0)
     }
 }
 
+// Intent: advances the state machine of slot `arg0`; `arg1` releases the window once it closes.
 // FUN_002BB9E0
-void func_002bb9e0(s32 arg0, s32 arg1)
+void nmMesWindowStepSlot(s32 arg0, s32 arg1)
 {
     typedef struct {
         s32 id;
@@ -341,14 +343,16 @@ void func_002bb9e0(s32 arg0, s32 arg1)
     }
 }
 
+// Intent: steps the current message window with release enabled.
 // FUN_002BBCC0
-void func_002bbcc0(void)
+void nmMesWindowStepCurrentRelease(void)
 {
-    func_002bb7c0(1);
+    nmMesWindowStepCurrent(1);
 }
 
+// Intent: steps the window in slot `arg0` with release enabled.
 // FUN_002BBCF0
-void func_002bbcf0(s32 arg0) {
-    func_002bb9e0(arg0, 1);
+void nmMesWindowStepSlotRelease(s32 arg0) {
+    nmMesWindowStepSlot(arg0, 1);
 }
 

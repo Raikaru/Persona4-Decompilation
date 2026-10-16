@@ -16,9 +16,9 @@ static inline f32 p4_mul_left(f32 left, f32 right)
     return right * left;
 }
 extern void (*jtbl_008873EC[])(void *);
-extern void func_002baa50(void);
+extern void nmMesWindowClearSlotTable(void);
 extern void nmMesWindowInitRecord(s32 *arg0);
-extern void func_002bb7c0(s32 arg0);
+extern void nmMesWindowStepCurrent(s32 arg0);
 extern void func_002bd440(void);
 
 

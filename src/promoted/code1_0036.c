@@ -61,7 +61,7 @@ extern void datPanelResetCursor(u8 *arg0);
 extern void datPanelDrawByKind(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 extern void sdkSpriteFreeNode(void *node);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
-extern void func_002bb550(s8 arg0);
+extern void nmMesWindowDestroySlot(s8 arg0);
 extern f32 iGpffff84a4;
 extern s32 resourceFindByName(const void *arg0);
 extern void kAssertFail(const void *arg0, s32 arg1);
@@ -107,10 +107,10 @@ extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
 extern void nmMesWindowSetSlotParam(s8 arg0, s32 arg1);
 extern void nmMesWindowSetSlotFlag(s8 arg0, s32 arg1);
 extern void nmMesWindowRequestRefresh(void);
-extern s32 func_002bb180(s8 arg0);
+extern s32 nmMesWindowSlotResult(s8 arg0);
 extern void nmMesWindowCloseSlot(s8 arg0, s32 arg1);
-extern s32 func_002bb680(s8 arg0);
-extern void func_002bb9e0(s32 arg0, s32 arg1);
+extern s32 nmMesWindowSlotStatus(s8 arg0);
+extern void nmMesWindowStepSlot(s32 arg0, s32 arg1);
 extern void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void sdkListStateSetSecondaryMasks(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 sdkListStateHandleInput(void *arg0);
@@ -206,7 +206,7 @@ void func_00361a30(u8 *arg0)
     }
     id = *(s8 *)(arg0 + 0x3C);
     if (id != -1) {
-        func_002bb550(id);
+        nmMesWindowDestroySlot(id);
         *(s8 *)(arg0 + 0x3C) = -1;
     }
     *(s32 *)(arg0 + 0x1C) = 0;
@@ -610,9 +610,9 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2)
         }
         goto block_64;
     case 10:
-        func_002bb9e0(*(s8 *)(arg2 + 0x3C), resultFlag);
-        if (func_002bb680(*(s8 *)(arg2 + 0x3C)) == 0) {
-            switch (func_002bb180(*(s8 *)(arg2 + 0x3C))) {
+        nmMesWindowStepSlot(*(s8 *)(arg2 + 0x3C), resultFlag);
+        if (nmMesWindowSlotStatus(*(s8 *)(arg2 + 0x3C)) == 0) {
+            switch (nmMesWindowSlotResult(*(s8 *)(arg2 + 0x3C))) {
             case 0:
                 func_00122520(1, 0x1E);
                 sdkSndStopChannel(0x1E);

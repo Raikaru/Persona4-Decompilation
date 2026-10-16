@@ -19,7 +19,7 @@ void datCommunityEntryStep(void* arg0);
 u32 RpRandom(void);
 void sdkSpriteFreeNode(void *node);
 void kwlnTaskDestroyWithHierarchy(s32 arg0);
-void func_002bb4e0(void);
+void nmMesWindowResetCurrent(void);
 void datScreenWipeInit(s32 arg0, void* arg1, void* arg2);
 void datScreenWipeSetTarget(s32 arg0, void* arg1, void* arg2);
 void datScreenWipeSetColor(s32 arg0, s32 arg1);
@@ -887,7 +887,7 @@ void cmpPersonaMenuRelease(u8* arg0) {
         kwlnTaskDestroyWithHierarchy(*(s32*)(base + 0x1CB8));
         *(s32*)(base + 0x1CB8) = 0;
     }
-    func_002bb4e0();
+    nmMesWindowResetCurrent();
     *(s32*)(base + 0x1C) = 0;
 }
 

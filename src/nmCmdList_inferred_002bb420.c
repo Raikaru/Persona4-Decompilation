@@ -97,12 +97,12 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma push
 #pragma pop
 /* Row and value are signed halfwords; retail discards incoming row high bits.
-   Rewritten on the matched func_002ba5d0 pattern. Retail passes both colours
+   Rewritten on the matched nmMesWindowSetNumber pattern. Retail passes both colours
    as words (the parameter home reloaded with lw, the stored digit colour with
    lwl/lwr), so the block-scope callee declaration takes u32 colours; the two
    copies are spelled differently so only post-colouring CSE shares them.
    The redraw positions are named locals, which puts their frame slots above
-   secondPosition as in retail. Depth precedes layer, as in func_002ba5d0:
+   secondPosition as in retail. Depth precedes layer, as in nmMesWindowSetNumber:
    retail copies $f12 before $t3 in the prologue, and both callers still
    match. opt_dead_assignments off reproduces retail's late argument loads. */
 #pragma push
@@ -114,8 +114,9 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma pop
 /* Preserve the RGBA snapshot and later alpha reload across byte stores.
    Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
+// Intent: stops, releases and clears the window in slot `arg0`, then marks the slot running again. Returns 1 when restarted.
 // FUN_002BB420
-s32 func_002bb420(s64 arg0)
+s32 nmMesWindowRestartSlot(s64 arg0)
 {
     s32 temp_4;
     u8 **temp_17;
@@ -138,8 +139,9 @@ s32 func_002bb420(s64 arg0)
     return 1;
 }
 
+// Intent: releases the current message window, resets its record and tears down the window state.
 // FUN_002BB4E0
-s32 func_002bb4e0(void) {
+s32 nmMesWindowResetCurrent(void) {
     s32 *temp_2;
     s32 temp_4;
 
@@ -158,8 +160,9 @@ s32 func_002bb4e0(void) {
     return 1;
 }
 
+// Intent: releases the window in slot `arg0`, frees its record and empties the slot. Returns 1 when the slot was live.
 // FUN_002BB550
-s32 func_002bb550(s64 arg0)
+s32 nmMesWindowDestroySlot(s64 arg0)
 {
     s32 temp_4;
     u8 **temp_16;

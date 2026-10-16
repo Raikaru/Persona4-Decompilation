@@ -59,7 +59,7 @@ extern void nmMesWindowShowCurrentRecord(s32 arg0);
 extern void nmMesWindowSetCurrentParam(s32 arg0);
 extern void nmMesWindowSetCurrentFlag(s32 arg0);
 extern s32 nmMesWindowCurrentAnim(void);
-extern void func_002bb4e0(void);
+extern void nmMesWindowResetCurrent(void);
 extern s32 nmMesWindowCurrentOpenState(void);
 typedef struct P4_002aabf0_Work {
     f32 values[4];
@@ -69,7 +69,7 @@ typedef struct P4_002aabf0_Work {
     u8 colors[4];
 } P4_002aabf0_Work;
 extern s32 nmMesWindowLatchAnimAux(void);
-extern void func_002bbcc0(void);
+extern void nmMesWindowStepCurrentRelease(void);
 extern s32 iGpffffb52c;
 extern u8 D_0063E630[];
 extern u8 D_0063EEA0[];

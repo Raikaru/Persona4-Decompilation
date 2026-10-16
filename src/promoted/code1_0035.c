@@ -6,7 +6,7 @@
 
 extern void datCommunityEntryStep(u8 *arg0);
 
-extern void func_002bb550(s8 arg0);
+extern void nmMesWindowDestroySlot(s8 arg0);
 extern void (*D_008873EC[])(void *);
 
 extern void datTextSlotRelease();
@@ -109,13 +109,13 @@ extern f32 iGpffff83d4;
 extern f32 iGpffff8544;
 extern f32 sinf(f32 arg0);
 extern f32 fGpffff84a4;
-extern void func_002bb7c0(s32 arg0);
+extern void nmMesWindowStepCurrent(s32 arg0);
 extern s32 nmMesWindowCurrentOpenState(void);
 extern void nmMesWindowCloseCurrent(s32 arg0);
-extern void func_002bb9e0(s32 arg0, s32 arg1);
-extern s32 func_002bb680(s8 arg0);
+extern void nmMesWindowStepSlot(s32 arg0, s32 arg1);
+extern s32 nmMesWindowSlotStatus(s8 arg0);
 extern void nmMesWindowCloseSlot(s8 arg0, s32 arg1);
-extern s32 func_002bb4e0(void);
+extern s32 nmMesWindowResetCurrent(void);
 extern s32 func_002bd7b0(const void *arg0);
 extern s32 func_002bd840(s32 arg0);
 extern u8 D_0064A790[];
@@ -262,7 +262,7 @@ s32 datMemberIsUnlocked(s64 arg0)
 // FUN_00353F50
 s32 datMemberNoticeTryBegin(s32 arg0)
 {
-    func_002bb7c0(arg0);
+    nmMesWindowStepCurrent(arg0);
     if (nmMesWindowCurrentOpenState() == 0) {
         nmMesWindowCloseCurrent(arg0);
         return 0;
@@ -322,8 +322,8 @@ s32 datMemberNoticeStep(u8 *arg0)
         *(s32 *)(work + 4) = 1;
         break;
     case 1:
-        func_002bb9e0(*(s8 *)(work + 8), 1);
-        if (func_002bb680(*(s8 *)(work + 8)) == 0) {
+        nmMesWindowStepSlot(*(s8 *)(work + 8), 1);
+        if (nmMesWindowSlotStatus(*(s8 *)(work + 8)) == 0) {
             nmMesWindowCloseSlot(*(s8 *)(work + 8), 1);
             if ((*(u16 *)work & 1) != 0) {
                 func_002bd7b0(D_0064A790);
@@ -335,10 +335,10 @@ s32 datMemberNoticeStep(u8 *arg0)
         }
         break;
     case 2:
-        func_002bb7c0(1);
+        nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
-            func_002bb4e0();
+            nmMesWindowResetCurrent();
             *(s32 *)(work + 4) = 3;
         }
         break;
@@ -357,7 +357,7 @@ void datMemberNoticeDestroy(u8 *arg0)
     u8 *work;
 
     work = *(u8 **)(arg0 + 0x38);
-    func_002bb550(*(s8 *)(work + 8));
+    nmMesWindowDestroySlot(*(s8 *)(work + 8));
     (*D_008873EC)(work);
 }
 
@@ -375,7 +375,7 @@ void datMemberNoticeSetup(u8 *arg0, s32 arg1, s32 arg2)
     extern void datSetFlag(s32 arg0, s32 arg1);
     extern void frFontExCopyString(void *src, void *dst, s32 maxlen);
     extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
-    extern void func_002bbd80(s8 arg0, s32 arg1, void *arg2);
+    extern void nmMesWindowSetSlotString(s8 arg0, s32 arg1, void *arg2);
     extern u8 sdkSndStartChannel(s16 channelIndex, const char *name);
     extern u8 D_0064B340[];
     extern char iGpffffa958;
@@ -410,10 +410,10 @@ void datMemberNoticeSetup(u8 *arg0, s32 arg1, s32 arg2)
     sprintf(label, &D_0064B340, msgId);
     sdkSndStartChannel(2, (const char *)label);
     frFontExCopyString((void *)(u32)datMemberNameLabel(arg1), label, 0x40);
-    func_002bbd80(*(s8 *)(arg0 + 8), 0, label);
+    nmMesWindowSetSlotString(*(s8 *)(arg0 + 8), 0, label);
     sprintf(subLabel, &iGpffffa958, arg1 + 1);
     frFontExCopyString(subLabel, label, 0x40);
-    func_002bbd80(*(s8 *)(arg0 + 8), 1, label);
+    nmMesWindowSetSlotString(*(s8 *)(arg0 + 8), 1, label);
     nmMesWindowShowSlotRecord(*(s8 *)(arg0 + 8), mode);
 }
 // Intent: Return the name label for a member id from the label table [inferred]
