@@ -105,7 +105,7 @@ extern f32 fGpffff8108;
 #pragma push
 #pragma pop
 // FUN_001BBE80
-void func_001bbe80(u8 *arg0, f32 fp) {
+void btlCameraSetSpringDuration(u8 *arg0, f32 fp) {
     btlTargetInitSpring(arg0 + 0x84, 60.0f * fp / 2.0f);
     *(u16 *)arg0 &= 0xFFF3;
     *(u16 *)arg0 |= 2;
