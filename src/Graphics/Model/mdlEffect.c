@@ -6,7 +6,7 @@
 #include "effect_update_internal.h"
 extern void *func_004b1950(void *source);
 extern f32 effMiscRandFloat(EffRandState *state);
-extern void *func_004a5910(void *source);
+extern void *WindCreateKindEntryAlt(void *source);
 extern void *func_004a5e50(void *source);
 extern void *func_004a6d90(void *source);
 extern void *func_004a6e10(void *source);
@@ -2350,8 +2350,9 @@ void WindInstanceDestroy(u8 *arg0)
 }
 
 
+/* Same role as WindCreateKindEntry (effPolygonWind.c): allocates a kind entry through WindAllocKindEntry. This copy reads the kind index from +0x38 directly, with no kind switch, stores the result of table D_0071413C at +0x3C of the new entry, then calls table D_00714130 on it. */
 // FUN_004A5910
-void *func_004a5910(void *source)
+void *WindCreateKindEntryAlt(void *source)
 {
     u8 *arg0 = (u8 *)source;
     u8 *temp_16;
