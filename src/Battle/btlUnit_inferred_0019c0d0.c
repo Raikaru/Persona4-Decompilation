@@ -224,7 +224,7 @@ static inline void colMul_0019(Col4_0019 *dst, const u8 *src)
 // FUN_0019C0D0
 void func_0019c0d0(void)
 {
-    extern u32 func_00196610(u8 *arg0);
+    extern u32 btlUnitUpdateFollowPath(u8 *arg0);
     extern void btlBossCopyPartnerMark(u8 *arg0);
     extern void SceneDraw_SetResPersona(u16 arg0, u32 arg1);
     extern void func_001b70c0(u8 *arg0);
@@ -250,7 +250,7 @@ void func_0019c0d0(void)
     for (i = 0; i < 4; i++) {
         entry = *(u8 **)(D_0076449C + (i * 8) + 0x17C);
         while (entry != NULL) {
-            func_00196610(entry);
+            btlUnitUpdateFollowPath(entry);
             func_00198380(entry);
             switch (i) {
             case 1:

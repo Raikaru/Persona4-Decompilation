@@ -763,7 +763,7 @@ void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *sec
     f32 tanHalfFov;
     f32 zero;
     extern void btlCameraCopyPose(f32 *out, f32 *in);
-    extern void func_00195aa0(BtlUnit *unit, BtlUnit *target, RwV3d *out);
+    extern void btlUnitGetSphereCenterTowardTarget(BtlUnit *unit, BtlUnit *target, RwV3d *out);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
     extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0 *first, P4Vec4Holder_001EC2B0 *second);
     extern void func_003dcc70(const void *first, const void *second, void *out);
@@ -784,7 +784,7 @@ void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *sec
     actorPosition.x = *(f32 *)(actor + 0xDC);
     actorPosition.y = *(f32 *)(actor + 0x84) * *(f32 *)(actor + 0x2C);
     actorPosition.z = *(f32 *)(actor + 0xE4);
-    func_00195aa0((BtlUnit *)target, (BtlUnit *)actor, &targetPosition);
+    btlUnitGetSphereCenterTowardTarget((BtlUnit *)target, (BtlUnit *)actor, &targetPosition);
     height = 0.0f + actorPosition.y + p4_cacd0_mul(*(f32 *)(actor + 0x8C), *(f32 *)(actor + 0x2C)) * fGpffff8118;
     height += 0.0f + targetPosition.y + p4_cacd0_mul(*(f32 *)(target + 0x8C), *(f32 *)(target + 0x2C)) * fGpffff8118;
     span = 0.0f + *(f32 *)(actor + 0xE8);
