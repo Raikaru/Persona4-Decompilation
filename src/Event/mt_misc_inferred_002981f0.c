@@ -72,14 +72,16 @@ extern void mtMiscCollectType2Records(u8 *arg0);
  * function window ends in eight zero alignment bytes. */
 #pragma push
 #pragma pop
+// Requests sound track arg1 through sdkSndRequestTrack; the first argument is unused.
 // FUN_002981F0
-s32 func_002981f0(s32 unused, s32 arg1) {
+s32 mtMiscRequestSoundTrack(s32 unused, s32 arg1) {
     sdkSndRequestTrack(arg1);
     return 0;
 }
 
+// Fades out sound channel arg0 through sdkSndFadeOutChannel with a zero second argument.
 // FUN_00298220
-s32 func_00298220(s64 arg0) {
+s32 mtMiscFadeOutSoundChannel(s64 arg0) {
     sdkSndFadeOutChannel((s16) arg0, 0);
     return 0;
 }
