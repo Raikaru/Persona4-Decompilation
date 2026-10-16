@@ -22,7 +22,7 @@ extern u16 datCalcGetHp(u8 *arg0);
 extern u16 datCalcGetSp(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
-extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
+extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
@@ -352,7 +352,7 @@ int btlSideSelectUnits(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 (*a
     u8 *work;
     u16 flags;
 
-    func_001d7c60((u8 *)arg0, (u8 *)&frame, arg3, 0, 0);
+    btlEffectCollectTargetUnits((u8 *)arg0, (u8 *)&frame, arg3, 0, 0);
     matches = 0;
     index = 0;
     goto test;
