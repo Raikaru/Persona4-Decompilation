@@ -68,7 +68,7 @@ extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
 extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg3, u16 arg4);
 extern s32 btlEffectCollectGenusMask(u8 *arg0);
-extern u32 func_001d8bc0(void *formation);
+extern u32 btlFormationCurrentEntry(void *formation);
 extern void btlCameraFrameStatus(u8 *arg0, s32 arg1);
 extern void btlCameraFrameSideView(u8 *arg0, s32 arg1);
 extern void btlCameraUpdateOcclusion(u8 *arg0);
@@ -270,7 +270,7 @@ void btlCameraFrameStatus(u8 *arg0, s32 arg1)
         btlCameraSetDuration(saved_arg0, 0.75f);
     } else {
         *(s32 *)(saved_arg0 + 0x148) = 1;
-        var17 = (u8 *)func_001d8bc0(*(u8 **)(saved_arg0 + 0xE0) + 0x98);
+        var17 = (u8 *)btlFormationCurrentEntry(*(u8 **)(saved_arg0 + 0xE0) + 0x98);
         var16 = *(u8 **)(var17 + 0x30);
         var_f20 = *(f32 *)(var16 + 0x90) * *(f32 *)(var16 + 0x2C);
         var_f24 = 0.5f * (*(f32 *)(var16 + 0x8C) * *(f32 *)(var16 + 0x2C));
@@ -375,7 +375,7 @@ void btlCameraFrameSideView(u8 *camera, s32 immediate)
     extern f32 fGpffff8104, fGpffff8054, fGpffff8058, fGpffff805c, fGpffff8060, fGpffff8108;
 
     unit = *(u8 **)(*(u8 **)(camera + 0xE0) + 0x30);
-    next = (u8 *)func_001d8bc0(*(u8 **)(camera + 0xE0) + 0x98);
+    next = (u8 *)btlFormationCurrentEntry(*(u8 **)(camera + 0xE0) + 0x98);
     btlCameraCopyPose((f32 *)&frames[0], (f32 *)(camera + 0x9C));
     btlUnitGetSphereWorldCenter((BtlUnit *)unit, &actorPosition);
     doubledRadius = *(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C);
@@ -599,7 +599,7 @@ void btlCameraUpdateOcclusion(u8 *arg0)
 
     if (*(u16 *)(arg0 + 0x106) == 0) {
         temp18 = *(u8 **)(kwlnGetCamera() + 4) + 0x10;
-        temp19 = *(u8 **)((u8 *)func_001d8bc0(*(u8 **)(arg0 + 0xE0) + 0x98) + 0x30);
+        temp19 = *(u8 **)((u8 *)btlFormationCurrentEntry(*(u8 **)(arg0 + 0xE0) + 0x98) + 0x30);
         temp16 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
         if (btlCameraFindOccluder(temp19, &frame.value60, &frame.value88, temp18) != 0) {
             btlCameraClearUnitFramed(temp19);
@@ -679,7 +679,7 @@ void btlCameraUpdateFrame(u8 *arg0)
     u8 *next;
     u8 *current;
 
-    next = (u8 *)func_001d8bc0(*(u8 **)(arg0 + 0xE0) + 0x98);
+    next = (u8 *)btlFormationCurrentEntry(*(u8 **)(arg0 + 0xE0) + 0x98);
     if (*(u16 *)(arg0 + 0x104) == 2) {
         btlCameraUpdateOcclusion(arg0);
     }
