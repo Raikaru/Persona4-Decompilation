@@ -63,7 +63,7 @@ extern s32 D_00724B8C;
 
 extern void (*jtbl_008873FC[])();
 
-extern void func_00452730(s32 arg0);
+extern void kwlnTaskRegisterCallback(s32 arg0);
 
 extern void (*jtbl_008873EC[])(void *);
 extern s32 iGpffffbae8;

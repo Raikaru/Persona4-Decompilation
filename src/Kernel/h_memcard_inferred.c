@@ -307,8 +307,9 @@ typedef struct MovieNativeWork {
 /* measured: share the checked path index and hoist the slash constant. */
 /* measured: func_00467bd0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
+// Intent: per-frame update of the filer task. Works on the FilerWork state (path, entry list, page, row). func_00468170 creates the task with this as its update callback.
 // FUN_00467BD0
-s32 func_00467bd0(u8 *task)
+s32 sdkFilerTaskUpdate(u8 *task)
 {
     /* Allocated as 0x81094 bytes by func_00468170. */
     typedef struct FilerWork {
