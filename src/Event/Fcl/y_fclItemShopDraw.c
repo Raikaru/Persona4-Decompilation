@@ -15,7 +15,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 typedef FclVec2 F2_0033;
 
-extern u32 func_002e7a60(void);
+extern u32 fclGetMoney(void);
 extern s32 fclDecimalDigitCount(s32 arg0);
 extern void func_0033d3c0(void *, f32);
 extern void func_0033d3e0(void *, F2_0033, F2_0033, u32, u32, s64);
@@ -107,8 +107,8 @@ extern void nmMesWindowStepSlotRelease(s32 arg0);
 extern void nmMesWindowDestroySlot(s8 arg0);
 extern s8 nmMesWindowAcquire(s32 arg0);
 extern s32 nmMesWindowShowSlotRecord(s8 arg0, s32 arg1);
-extern u8 func_002e78a0(void);
-extern s32 func_002e78e0(void);
+extern u8 fclCalendarMonth(void);
+extern s32 fclCalendarDay(void);
 extern s32 calGetDayEntryForMonthDay(s32 arg0, s32 arg1);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern u8 D_0064A3C0[];
@@ -121,7 +121,7 @@ extern f32 D_0064A210[];
 extern f32 D_0064A218[];
 extern void sdkSndStartStream(s32, s32, s32, s32);
 extern s32 func_002bb1c0(s8 arg0);
-extern void func_002e7a80(s32 arg0);
+extern void fclAddMoney(s32 arg0);
 void fclItemShopDrawList(u8 *arg0);
 extern void func_0033d550(void *arg0);
 extern u16 D_008C024E[];
@@ -243,7 +243,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             *(f32 *)(work + 0x420) = 108.0f / (f32)(yListCount() - 5);
         }
         *(s8 *)(work + 9) = 0;
-        if ((s8)calGetDayEntryForMonthDay(func_002e78a0(), (u8)func_002e78e0()) == 1) {
+        if ((s8)calGetDayEntryForMonthDay(fclCalendarMonth(), (u8)fclCalendarDay()) == 1) {
             *(s8 *)(work + 9) = 1;
         }
         break;
@@ -313,7 +313,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         }
         *(f32 *)(work + 0x1D0) = 0x28A;
         *(f32 *)(work + 0x1D4) = 15.0f;
-        *(f32 *)(work + 0x1D8) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(func_002e7a60()) + 0.0f;
+        *(f32 *)(work + 0x1D8) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(fclGetMoney()) + 0.0f;
         *(f32 *)(work + 0x1DC) = 15.0f;
         *(s16 *)(work + 0x1E8) = 10;
         tbl = (F2_0033 *)D_0064A1D8;
@@ -461,7 +461,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             func_0033d320(*(void **)(work + i11 * 4 + 0x17C), 3, 1);
             func_0033d320(*(void **)(work + i11 * 4 + 0x17C), 4, 1);
         }
-        *(f32 *)(work + 0x1E0) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(func_002e7a60()) + 0.0f;
+        *(f32 *)(work + 0x1E0) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(fclGetMoney()) + 0.0f;
         *(f32 *)(work + 0x1E4) = 15.0f;
         *(s16 *)(work + 0x1EA) = 10;
         tbl = (F2_0033 *)D_0064A1D8;
@@ -1048,7 +1048,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
                 }
                 yListRetreatCursorScroll(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);
             } else if (D_008C024E[0] & 0x40) {
-                if (fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) <= func_002e7a60() &&
+                if (fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) <= fclGetMoney() &&
                     (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) < 0x63) {
                     tbl = (F2_0033 *)D_0064A210;
                     func_0033d3e0(*(void **)(work + 0xD0),
@@ -1383,8 +1383,8 @@ s32 fclItemShopUpdate(u8 *arg0) {
             }
             *(s8 *)(work + 3) = fclAddClamped(*(s8 *)(work + 3), 1,
                                               (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
-            if (*(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) > func_002e7a60()) {
-                *(s8 *)(work + 3) = func_002e7a60() / fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4)));
+            if (*(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) > fclGetMoney()) {
+                *(s8 *)(work + 3) = fclGetMoney() / fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4)));
             }
             tbl = (F2_0033 *)D_0064A328;
             func_0033d3e0(*(void **)(work + 0x15C), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y - 7.0f), 1,
@@ -1403,8 +1403,8 @@ s32 fclItemShopUpdate(u8 *arg0) {
             }
             *(s8 *)(work + 3) = fclAddClamped(*(s8 *)(work + 3), 0xA,
                                               (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
-            if (*(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) > func_002e7a60()) {
-                *(s8 *)(work + 3) = func_002e7a60() / fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4)));
+            if (*(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) > fclGetMoney()) {
+                *(s8 *)(work + 3) = fclGetMoney() / fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4)));
             }
             tbl = (F2_0033 *)D_0064A328;
             func_0033d3e0(*(void **)(work + 0x15C), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y - 7.0f), 1,
@@ -1461,9 +1461,9 @@ s32 fclItemShopUpdate(u8 *arg0) {
         if (!func_002bb1c0(*(s8 *)(work + 8))) {
             func_00106620((s16)yListValueAt(*(s16 *)(work + 4)),
                           (u8)(*(s8 *)(work + 3) + (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))));
-            func_002e7a80(func_002e7a60() -
+            fclAddMoney(fclGetMoney() -
                           *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, (s16)yListValueAt(*(s16 *)(work + 4))));
-            *(f32 *)(work + 0x1E0) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(func_002e7a60()) + 0.0f;
+            *(f32 *)(work + 0x1E0) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(fclGetMoney()) + 0.0f;
             *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
                 (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
             func_0033d320(*(void **)(work + 0x19C), 0, 0);
@@ -1522,7 +1522,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             *(s8 *)(work + 0) = 5;
         } else if (func_0033d390(*(void **)(work + 0x10), 1) != 0 && (D_008C024E[0] & 0x20)) {
             sdkSndStartStream(0, 0, 0, 2);
-            *(f32 *)(work + 0x1D0) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(func_002e7a60()) + 0.0f;
+            *(f32 *)(work + 0x1D0) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(fclGetMoney()) + 0.0f;
             *(f32 *)(work + 0x1D4) = 15.0f;
             *(f32 *)(work + 0x1D8) = 0x28A;
             *(f32 *)(work + 0x1DC) = 15.0f;
@@ -1783,7 +1783,7 @@ void func_0033bf90(u8 *arg0) {
     func_0033d3c0((void *)*(s32 *)(work + 0x110), 84.0f);
     func_0033d3c0((void *)*(s32 *)(work + 0x114), 84.0f);
     func_0033d3c0((void *)*(s32 *)(work + 0x60), 83.0f);
-    *(f32 *)(work + 0x1D0) = 580.0f - (f32)fclDecimalDigitCount(func_002e7a60()) * 21.0f;
+    *(f32 *)(work + 0x1D0) = 580.0f - (f32)fclDecimalDigitCount(fclGetMoney()) * 21.0f;
     *(s32 *)(work + 0x1D4) = 0x41700000;
     *(f32 *)(work + 0x1D8) = (f32)0x28A;
     *(s32 *)(work + 0x1DC) = 0x41700000;
@@ -1889,7 +1889,7 @@ void fclItemShopDrawList(u8 *arg0)
             red = green = blue = 0x26;
         } else {
             price = fclItemShopDiscountedPrice(arg0, yListValueAt(i));
-            if (func_002e7a60() < price) {
+            if (fclGetMoney() < price) {
                 red = 0x4F;
                 green = blue = 0;
             } else if ((u8)func_00106600((s16)yListValueAt(i)) == 0x63) {

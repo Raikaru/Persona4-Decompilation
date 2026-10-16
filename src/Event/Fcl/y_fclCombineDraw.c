@@ -590,8 +590,8 @@ void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
     extern s32 calGetWeekdayOfDay(s32 arg0);
     extern s32 calHasDayEntry(s32 arg0);
     extern s64 calGetDayEntryForMonthDay(s32 arg0, s32 arg1);
-    extern u8 func_002e78a0(void);
-    extern s32 func_002e78e0(void);
+    extern u8 fclCalendarMonth(void);
+    extern s32 fclCalendarDay(void);
     extern f32 D_00643DA8[];
     extern f32 D_00643E28[];
     extern f32 D_00643E30[];
@@ -622,8 +622,8 @@ void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
         fclSpriteStartPositionAt(7, fclMakeVec2(24.0f + b->x, b->y), fclMakeVec2(24.0f + (300.0f + b->x), b->y), 0, 0xA, 0);
     }
     if ((s8)arg1 == 0) {
-        fclSpriteCreate((func_002e78a0() & 0xFF) / 10 + 9, fclMakeVec2(24.0f + (13.0f + pos.x), pos.y), 89.0f, 0x56);
-        id = (func_002e78a0() & 0xFF) / 10 + 9;
+        fclSpriteCreate((fclCalendarMonth() & 0xFF) / 10 + 9, fclMakeVec2(24.0f + (13.0f + pos.x), pos.y), 89.0f, 0x56);
+        id = (fclCalendarMonth() & 0xFF) / 10 + 9;
         fclSpriteStartPositionAt(id, fclMakeVec2(300.0f + (24.0f + (13.0f + pos.x)), pos.y), fclMakeVec2(24.0f + (13.0f + pos.x), pos.y), 0, 0xA, 0);
         fclSpriteCreate(0x2DB, fclMakeVec2(24.0f + (26.0f + pos.x), pos.y), 89.0f, 0x56);
         fclSpriteStartPositionAt(0x2DB, fclMakeVec2(300.0f + (24.0f + (26.0f + pos.x)), pos.y), fclMakeVec2(24.0f + (26.0f + pos.x), pos.y), 0, 0xA, 0);
@@ -658,14 +658,14 @@ void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
         c198 = fclMakeDrawColor(0x19, 0x19, 0x19, 0xFF);
         *(FclByte4 *)(fclSpriteEntry(0x18) + 0x85) = c198;
         fclSpriteStartPositionAt(0x18, fclMakeVec2(300.0f + v->x, v->y), fclMakeVec2(v->x, v->y), 0, 0xA, 0);
-        id2 = (s8)calGetDayEntryForMonthDay(func_002e78a0() & 0xFF, func_002e78e0() & 0xFF) + 0x13;
+        id2 = (s8)calGetDayEntryForMonthDay(fclCalendarMonth() & 0xFF, fclCalendarDay() & 0xFF) + 0x13;
         v = (FclVec2 *)D_00643D70 + id2;
         fclSpriteCreate(id2, fclMakeVec2(v->x, v->y), 91.0f, 0x58);
         c194 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
         *(FclByte4 *)(fclSpriteEntry(id2) + 0x85) = c194;
         fclSpriteStartPositionAt(id2, fclMakeVec2(300.0f + v->x, v->y), fclMakeVec2(v->x, v->y), 0, 0xA, 0);
     } else {
-        id = (func_002e78a0() & 0xFF) / 10 + 9;
+        id = (fclCalendarMonth() & 0xFF) / 10 + 9;
         pos = *(FclVec2 *)(fclSpriteEntry(id) + 0x38);
         fclSpriteStartPositionAt(id, pos, fclMakeVec2(300.0f + pos.x, pos.y), 0, 0xA, 0);
         pos = *(FclVec2 *)(fclSpriteEntry(0x2DB) + 0x38);
@@ -682,7 +682,7 @@ void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
         fclSpriteStartPositionAt(0x17, pos, fclMakeVec2(300.0f + pos.x, pos.y), 0, 0xA, 0);
         pos = *(FclVec2 *)(fclSpriteEntry(0x18) + 0x38);
         fclSpriteStartPositionAt(0x18, pos, fclMakeVec2(300.0f + pos.x, pos.y), 0, 0xA, 0);
-        id = (s8)calGetDayEntryForMonthDay(func_002e78a0() & 0xFF, func_002e78e0() & 0xFF) + 0x13;
+        id = (s8)calGetDayEntryForMonthDay(fclCalendarMonth() & 0xFF, fclCalendarDay() & 0xFF) + 0x13;
         pos = *(FclVec2 *)(fclSpriteEntry(id) + 0x38);
         fclSpriteStartPositionAt(id, pos, fclMakeVec2(300.0f + pos.x, pos.y), 0, 0xA, 0);
     }
@@ -5513,8 +5513,8 @@ void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVe
 // Fcl combine detail panel: draws the text panel for the highlighted choice. When its table index (t+0x2D6 selecting an entry in t+0x2D4) is -1 it draws the empty-choice header and the entries flagged in t+0x2C4; otherwise it draws the entry's three info lines or its header, then the same flagged-entry list.
 // FUN_0032E570
 void fclCombineDrawDetailPanel(u8 *arg0) {
-    extern u8 func_002e78a0(void);
-    extern s32 func_002e78e0(void);
+    extern u8 fclCalendarMonth(void);
+    extern s32 fclCalendarDay(void);
     extern s64 calGetDayEntryForMonthDay(s32 arg0, s32 arg1);
     extern u8 D_00643D00[];
     extern u8 D_006432B0[];
@@ -5559,7 +5559,7 @@ void fclCombineDrawDetailPanel(u8 *arg0) {
     v = ((s8 *)(t + 0x2D4))[*(s8 *)(t + 0x2D6)];
     if (v == -1) {
         if (*(s8 *)(t + 0x122) == 1) {
-            base = D_00643D00 + (s8)calGetDayEntryForMonthDay(func_002e78a0() & 0xFF, func_002e78e0() & 0xFF) * 0x14;
+            base = D_00643D00 + (s8)calGetDayEntryForMonthDay(fclCalendarMonth() & 0xFF, fclCalendarDay() & 0xFF) * 0x14;
         } else if (*(s8 *)(t + 0x122) == 0) {
             base = D_00643D00 + (s8)calGetDayEntryForMonthDay(*(s8 *)(t + 0x2D2), *(s8 *)(t + 0x2D3)) * 0x14;
         }

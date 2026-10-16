@@ -77,7 +77,7 @@ s32 func_002bdb50(s32 arg0, s8 arg1)
 }
 
 // FUN_002BDEA0
-void func_002bdea0(void)
+void fclClearMoonFlagEntries(void)
 {
     s32 i;
 

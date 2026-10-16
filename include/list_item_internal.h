@@ -13,7 +13,7 @@ void datSetStateTableEntry(s32 item, u8 flags);
 u8 clndGetMoonPhase(s32 index);
 void func_002bc4b0(f32 depth, s16 item, s32 x, s32 y, s32 color, s32 font, s32 mode);
 s32 func_002bdff0(s16 item);
-s32 func_002be160(s32 index, s32 required);
+s32 fclMoonPhaseAtLeast(s32 index, s32 required);
 s32 func_002be1b0(s16 item);
 s32 datItemPriceCompare(const void *left, const void *right);
 s32 yListValueAt(s32 row);

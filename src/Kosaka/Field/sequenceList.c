@@ -14,7 +14,7 @@ extern s32 func_002853c0(void);
 extern void func_0029e8d0(void *);
 extern void seqYajiTaskCreate(void);
 extern s32 func_002bdb50(s32, s8);
-extern s32 func_002e7510(s32);
+extern s32 shopSystemCreate(s32);
 extern s32 fclCombineTaskCreate(s32);
 extern void func_0034b8c0(void);
 extern s32 kwlnTaskGetTaskByName(void *);
@@ -267,7 +267,7 @@ void SeqWeaponStore_End(void)
 // FUN_001032C0
 void SeqItemStore_Start(void)
 {
-    func_002e7510(0);
+    shopSystemCreate(0);
 }
 
 // FUN_001032F0
