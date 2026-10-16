@@ -8,6 +8,8 @@
 #include "type.h"
 #include "message_frame_internal.h"
 #include "g_data_internal.h"
+#include "field_frame_internal.h"
+#include "field_panel_internal.h"
 extern void *FldRc_ReplaceGeometryTextures(void *object, void *data);
 
 typedef struct RwV3d {
@@ -1901,7 +1903,7 @@ void FldPanel2dTaskCreate(void)
     u8 *temp_16;
     u8 *temp_2;
     s32 var_16;
-    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) == 0) {
+    if (((FldFrame *)MT_Scene_GetFrameState())->panelTask == 0) {
         temp_16 = *(u8 **)MT_Scene_GetFrameState();
         chkmemAllocSiteTag(&D_005F5320, 0x17C);
         temp_2 = D_008873F4[0](1, 0x230, 0x40000);
@@ -1910,24 +1912,24 @@ void FldPanel2dTaskCreate(void)
         } else {
             var_16 = (s32)kwlnTaskCreateChild((void *)(temp_16), (const void *)(&D_005F5330), 0xF, 0, 0, FldPanel2dUpdate, FldPanel2dDestroy, (u8 *)(temp_2));
         }
-        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) = var_16;
+        ((FldFrame *)MT_Scene_GetFrameState())->panelTask = (u8 *)var_16;
         FldPanel2dSelectEntry(-1);
     }
 }
 // FUN_00189FA0
 s32 FldPanel2dRelease(void) {
-    if (*(s32 *)((u8 *)(MT_Scene_GetFrameState()) + 0x30) == 0) {
+    if (((FldFrame *)MT_Scene_GetFrameState())->panelTask == 0) {
         return 0;
     }
-    kwlnTaskDestroyWithHierarchy(*(KwlnTask **)((u8 *)(MT_Scene_GetFrameState()) + 0x30));
-    *(s32 *)((u8 *)(MT_Scene_GetFrameState()) + 0x30) = 0;
+    kwlnTaskDestroyWithHierarchy((KwlnTask *)((FldFrame *)MT_Scene_GetFrameState())->panelTask);
+    ((FldFrame *)MT_Scene_GetFrameState())->panelTask = 0;
     return 1;
 }
 
 // FUN_0018A000
 void FldPanel2dSetState(u8 *arg0, s32 arg1)
 {
-    *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4) = arg1;
+    ((FldPanel2dWork *)*(u8 **)(arg0 + 0x38))->hidden = arg1;
 }
 
 /* measured: the inner mode/index selection assigns a scratch `p` and `base = p`
