@@ -141,7 +141,6 @@ extern s32 itfMesWindowQueueEntry(f32, f32, f32, s32, s32, s32, s32, s32, s32, u
 extern int frFontExDrawTextDeferredOutB(f32, f32, f32, int, s8, int, const char *, int, int, void *, int);
 extern void fclCombineSetModel(s32, u16, s32);
 extern s32 fclCombineGetWork(u8 *);
-extern u8 datPersonaGetArcana(u16);
 extern void shdPersonaSetOpacity(u8 *, f32);
 extern s8 fclCombineGetRowCount(void);
 extern void fclCombineDrawResourceAt(s32, FclVec2, f32, s32, u8, s32, f32, f32, void *);
@@ -1317,7 +1316,6 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
     /* Slot is s32 here, not the header's s8: fclCombinePartyRow passes an unnarrowed
        value. Measured: the s8 prototype regresses this function to nd. */
     extern u8 *fclCombineSlotRecord(u8 *, s32);
-    extern u8 datPersonaGetArcana(u16);
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     extern void fclCombineSetSprite(u8 *, FclVec2, s16, FclDrawColor, f32);
     extern void fclCombineSetTint(u8 *, u8, u8, u8, s16, s16);

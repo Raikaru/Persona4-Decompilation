@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "cmm_internal.h"
+#include "datPersona_internal.h"
 
 extern u32 RpRandom(void);
 
@@ -32,12 +33,8 @@ extern s32 cmmCommunityCounterpart(s64 idx); /* lint: allow H011 -- measured: s6
 extern s32 cmmCommunityRecordValue(s32 idx);
 extern s32 cmmCommunityTestRecordFlags(s32 idx, s32 arg1);
 extern u16 cmmCommunityGetTableHead(void);
-extern s32 datPersonaRosterSlotRank(s32 idx);
 extern s64 cmmCommunityArcana(s32 idx);
 extern s32 cmmCommunityHasRecord(u16 idx);
-extern u8 datPersonaGetArcana(u16 idx);
-extern s32 datPersonaRosterSlotId(s32 idx);
-extern s32 datPersonaCountValidMembers(void);
 extern void calSplitDayOfYear(s32 seed, s32 *month, s32 *day);
 extern s32 calDayOfYearFromMonthDay(s32 a, s32 b);
 extern s32 calHasDayEntry(s32 idx);
