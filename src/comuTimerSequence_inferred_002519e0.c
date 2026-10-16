@@ -9,7 +9,7 @@ static inline f32 p4_0025_add(f32 left, f32 right) {
     return left + right;
 }
 extern u32 kwlnTaskGetWork(void *task);
-extern void func_0025f230(s32 arg0);
+extern void sdkSpritePackDestroy(s32 arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 D_006367C0[];
 extern s16 D_00636A40[];
@@ -25,7 +25,7 @@ extern s32 iGpffffb480;
 extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern s64 cmmCommunityArcana(s32 arg0);
-extern s32 func_0025ef20(u8 *arg0);
+extern s32 sdkSpritePackCreate(u8 *arg0);
 extern s32 func_0025f110(s32 arg0);
 extern s32 func_0035adc0(s32 arg0, s64 arg1, s32 arg2);
 extern s32 func_0035af60(s32 arg0);
@@ -69,7 +69,7 @@ s32 func_002519e0(u8 *sdkTaskBytes) {
     temp_2 = (s32 *)kwlnTaskGetWork(sdkTaskBytes);
     switch (*temp_2) {
     case 0:
-        temp_2[4] = func_0025ef20(D_00635BF0);
+        temp_2[4] = sdkSpritePackCreate(D_00635BF0);
         temp_2[0] = 2;
         temp_2[5] = func_0035adc0(arg0, cmmCommunityArcana((u16)temp_2[1]), 0);
         temp_2[6] = func_0035adc0(arg0, -1, 0);
@@ -149,7 +149,7 @@ void func_00251ce0(u8 *task)
     void *t;
 
     t = (s32 *)kwlnTaskGetWork(task);
-    func_0025f230(*(s32 *)((u8 *)t + 0x10));
+    sdkSpritePackDestroy(*(s32 *)((u8 *)t + 0x10));
     (*jtbl_008873EC)(t);
 }
 
