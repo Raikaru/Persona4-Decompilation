@@ -548,7 +548,7 @@ void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
 // FUN_0014E2A0
 s32 FldRc_FileLoadStep(u8 *arg0) {
     extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-    extern s32 func_00455f70(u8 *arg0, s32 *arg1);
+    extern s32 H_Cdvd_LookupRequest(u8 *arg0, s32 *arg1);
     extern void H_Cdvd_Destroy(u8 *arg0);
 
     extern void func_004b11d0();
@@ -582,7 +582,7 @@ s32 FldRc_FileLoadStep(u8 *arg0) {
             }
         } else {
             *(s32 *)(temp_18 + 0x14) =
-                func_004b1130(func_00455f70(temp_18 + 0xBC, &sp5C));
+                func_004b1130(H_Cdvd_LookupRequest(temp_18 + 0xBC, &sp5C));
 block_10:
             *(s32 *)(temp_18 + 0) = *(s32 *)(temp_18 + 0) + 1;
         }
@@ -685,7 +685,7 @@ s32 FldRc_CreateFileLoadTask(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
     temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(temp_2));
     if (arg3 == 0) {
         func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
-        *(s32 *)(temp_2 + 4) = (s32)func_00454a60(arg1, 0);
+        *(s32 *)(temp_2 + 4) = (s32)H_Cdvd_AcquireDirectory(arg1, 0);
     } else {
         *(s32 *)(temp_2 + 4) = arg3;
         *(s32 *)(temp_2 + 0xC) = 1;
@@ -907,7 +907,7 @@ void FldRc_TransitionDestroy(u8 *arg0)
 // FUN_0014EC50
 s32 FldRc_CreateTransitionTask(u8 *arg0, s32 arg1) {
     extern s32 FldRc_TransitionStep(u8 *arg0);
-    extern s32 func_00454a60(const void *arg0, s32 arg1);
+    extern s32 H_Cdvd_AcquireDirectory(const void *arg0, s32 arg1);
     extern u8 D_005EFC40[];
     u8 **allocator_table;
     u8 *temp_2_2;
@@ -931,7 +931,7 @@ s32 FldRc_CreateTransitionTask(u8 *arg0, s32 arg1) {
         } else {
             arg1 = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(temp_2_2));
             func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
-            *(s32 *)(temp_2_2 + 4) = func_00454a60(&D_005EFC40, 0);
+            *(s32 *)(temp_2_2 + 4) = H_Cdvd_AcquireDirectory(&D_005EFC40, 0);
             *(s32 *)(temp_2_2 + 8) = 0x53;
             strcpy(temp_2_2 + 0xBC, (const char *)&D_005EFC40);
         }
@@ -944,7 +944,7 @@ s32 FldRc_CreateTransitionTask(u8 *arg0, s32 arg1) {
         } else {
             arg1 = (s32)kwlnTaskCreateChild((void *)((u8 *)result), (const void *)(&D_005EFC18), 0xF, 0, 0, FldRc_FileLoadStep, FldRc_FileLoadDestroy, (u8 *)(temp_2_2));
             func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
-            *(s32 *)(temp_2_2 + 4) = func_00454a60(&D_005EFC40, 0);
+            *(s32 *)(temp_2_2 + 4) = H_Cdvd_AcquireDirectory(&D_005EFC40, 0);
             *(s32 *)(temp_2_2 + 8) = 0x32;
             strcpy(temp_2_2 + 0xBC, (const char *)&D_005EFC40);
         }

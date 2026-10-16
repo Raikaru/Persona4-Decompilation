@@ -24,7 +24,7 @@ extern void func_003ef3a0(void *handle);
 extern s32 func_003ef6d0(void);
 extern void *func_003ef650(s32 owner, const void *name);
 extern void func_00440b68(const void *file, const void *message, s32 line);
-extern void *func_00454a60(const char *path, s32 flags);
+extern void *H_Cdvd_AcquireDirectory(const char *path, s32 flags);
 extern void H_Cdvd_Destroy(void *handle);
 extern s32 func_004667d0(s32, const void *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern void func_004669d0(s32 task, s32 *result, s32 flags);

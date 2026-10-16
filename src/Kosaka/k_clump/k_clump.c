@@ -492,7 +492,7 @@ u32 K_Clump_StateFlagIsSet(const u32* state)
 // FUN_00462EB0
 void K_Clump_LogCodeCounts(s8* arg0)
 {
-    extern u8* func_00455f70(void*, u32*);
+    extern u8* H_Cdvd_LookupRequest(void*, u32*);
     extern void strcat();
     extern s32 func_003e2f60(s32, s32, void*);
     extern s32 func_003df3c0(s32, s32*);
@@ -532,7 +532,7 @@ void K_Clump_LogCodeCounts(s8* arg0)
     var_22 = 0;
     var_23 = 0;
     var_16 = arg0;
-    func_00455f70(arg0, &work.output);
+    H_Cdvd_LookupRequest(arg0, &work.output);
     strcpy(work.buffer, (const char*)&iGpffffaf80);
     var_4 = 0;
     delimiter = 0x3A;

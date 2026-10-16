@@ -57,7 +57,7 @@ extern void chkmemAllocSiteTag(void *msg, s32 id);
 
 extern void func_00460ac0(void *param, void *work);
 extern void func_00440b68();
-extern u8 *func_00454a60(u8 *param, s32 mode);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 extern s32 func_0046a750(s32 param);
 extern s32 sdkSpriteRequestLoad(const u8 *name);
 extern void sdkSpriteFreeNode(void *node);
@@ -159,7 +159,7 @@ s32 smapLoadStep(u8 *arg0) {
         break;
     case 2:
         func_00440b68(&D_00763928, D_0063EF60, 0xA0);
-        *(s32 *)p = (s32)func_00454a60((u8 *)D_0063EFB0, 0);
+        *(s32 *)p = (s32)H_Cdvd_AcquireDirectory((u8 *)D_0063EFB0, 0);
         *(s8 *)(p + 4) += 1;
         break;
     case 3:

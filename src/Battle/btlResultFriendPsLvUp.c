@@ -20,7 +20,7 @@ extern void datSetFlag(s32 arg0, s32 arg1);
    load after the window-pointer argument, as at 00223b5c. A conversion
    argument is always evaluated first (docs/matching.md). */
 extern void shdPersonaSetDisplayState(u8 *arg0, u16 arg1, u32 arg2, s8 arg3);
-extern u8 *func_00455ea0(u8 *archive, s32 index, s32 *size);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *archive, s32 index, s32 *size);
 extern u8 *shdPersonaLevelUpCreate(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4, s32 *a5);
 extern u32 datCalcRandomBelow(u32 max);
 extern void btlSoundStopBank3(void);
@@ -177,9 +177,9 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
                 s32 a;
                 s32 b;
                 e = *(u8 **)(r + 60);
-                a = (s32)func_00455ea0(*(u8 **)(e + 2356), 0, 0);
+                a = (s32)H_Cdvd_GetArchiveEntry(*(u8 **)(e + 2356), 0, 0);
                 e = *(u8 **)(r + 60);
-                b = (s32)func_00455ea0(*(u8 **)(e + 2356), 1, 0);
+                b = (s32)H_Cdvd_GetArchiveEntry(*(u8 **)(e + 2356), 1, 0);
                 *(u8 **)(r + 72) = shdPersonaLevelUpCreate(arg0, *(s32 *)(r + 68), base + *(s32 *)(r + 56) * 136 + 0x6B4, a, b, sp);
             }
             if (*(s16 *)(friendResultAddress((u32)*(s32 *)(r + 56) * 2, (u32)base) + 0x69A) == 5) {

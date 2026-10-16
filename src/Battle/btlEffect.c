@@ -55,9 +55,9 @@ typedef u8 bool;
 extern u32 btlPacketStepSpriteFrame(int param_1);
 
 extern void func_00440b68();
-extern u8* func_00454a60(u8* param, s32 mode);
+extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
 extern s32 H_Cdvd_IsFileLoaded(u8* ptr);
-extern u8* func_00455ea0(u8* handle, s32 index, s32* out);
+extern u8* H_Cdvd_GetArchiveEntry(u8* handle, s32 index, s32* out);
 extern void H_Cdvd_ReadSync(void* handle);
 extern void chkmemAllocSiteTag(void* msg, s32 id);
 extern void memcpy(void* dst, void* src, u32 size);
@@ -235,10 +235,10 @@ u32 btlEffectLoadTable(void)
 
   if (*(int *)(D_0076449C + 0xDC4) == 0) {
     func_00440b68(&iGpffffa290, D_00609548, 0x4AB);
-    *(u32 *)(D_0076449C + 0xDC4) = (u32)func_00454a60((u8 *)D_006095C0, 1);
+    *(u32 *)(D_0076449C + 0xDC4) = (u32)H_Cdvd_AcquireDirectory((u8 *)D_006095C0, 1);
   } else if (H_Cdvd_IsFileLoaded(*(u8 **)(D_0076449C + 0xDC4)) != 0) {
     for (firstIndex = 0; firstIndex < 0x30; firstIndex++) {
-      firstValue = (u32)func_00455ea0(*(void **)(D_0076449C + 0xDC4), firstIndex, &auStack_4);
+      firstValue = (u32)H_Cdvd_GetArchiveEntry(*(void **)(D_0076449C + 0xDC4), firstIndex, &auStack_4);
       firstOffset = firstIndex * 4;
       *(u32 *)(D_0076449C + firstOffset + 0xD04) = btlFormationAllocWork(2);
       btlFormationSetSlot(*(u32 *)(D_0076449C + firstOffset + 0xD04), firstValue);
@@ -277,7 +277,7 @@ void btlEffectLoadFilesSync(void) {
     while (i == 0) {
         func_00440b68(&iGpffffa290, D_00609548, 0x559);
         offset = i * 4;
-        work = func_00454a60(*(u8 **)((u8 *)&iGpffffa2a0 + offset), 0);
+        work = H_Cdvd_AcquireDirectory(*(u8 **)((u8 *)&iGpffffa2a0 + offset), 0);
         H_Cdvd_ReadSync(work);
         out = (s32 *)((u8 *)&iGpffffb450 + offset);
         *out = btlFormationAllocWork(2);

@@ -39,7 +39,7 @@ void nmMesWindowResetCurrent(void);
 void nmMesWindowSetCurrentString(s32 param, void* text);
 s32 datMemberNoticeTryBegin(s32 param);
 void sprintf(void* dst, void* fmt, s32 value);
-u8* func_00455ea0(u8* param, s32 a, s32* b);
+u8* H_Cdvd_GetArchiveEntry(u8* param, s32 a, s32* b);
 s32 datCalcGetLevelById(s32 param);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
@@ -148,7 +148,7 @@ s32 btlResultHeroLvUpStep(BtlResultWork* work)
     case 0:
         if ((work->flags & 8) || (D_008C024E[0] & 0x50) ||
             ((D_008C024C[0] & 0x10) && ((work->count = work_p->count + 1) > 4))) {
-            nmMesWindowOpenCurrent((u8 *)((s32)func_00455ea0(*(u8**)(work_p->field3C + 0x934), 0, 0)));
+            nmMesWindowOpenCurrent((u8 *)((s32)H_Cdvd_GetArchiveEntry(*(u8**)(work_p->field3C + 0x934), 0, 0)));
             sprintf(sp30, &iGpffffa5C8, datCalcGetLevelById(1) & 0xFF);
             nmMesWindowSetCurrentString(0, sp30);
             nmMesWindowShowCurrentRecord(3);
@@ -234,7 +234,7 @@ s32 btlResultHeroLvUpRun(u8* arg0)
 
             if (f & 8) {
                 work->state = 3;
-                nmMesWindowOpenCurrent((u8 *)((s32)func_00455ea0(*(u8**)(work->field3C + 0x934), 0, 0)));
+                nmMesWindowOpenCurrent((u8 *)((s32)H_Cdvd_GetArchiveEntry(*(u8**)(work->field3C + 0x934), 0, 0)));
                 nmMesWindowShowCurrentRecord(1);
             } else if (f & 0x10) {
                 work->flags &= 0xFFFE;

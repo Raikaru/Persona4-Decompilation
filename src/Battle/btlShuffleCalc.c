@@ -48,7 +48,7 @@ f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
    f32 constant local assigned before the base hoist:
 
        k = 100.0f;
-       temp_16 = kwlnGetCamera() + 0x68;
+       temp_16 = func_00457120() + 0x68;
        if (*(f32 *)temp_16 * k <= 0.0f) { ... }
 
    Retail materializes the constant into the LOWER FP register and loads the
@@ -123,7 +123,7 @@ void btlShuffleCalcStepPose(u8 *arg0, u8 *arg1, f32 fparg0) {
 
 /* measured: re-tested this wave. `s32 sp30[8]` (same 8-word pattern as
    func_00371500's sp50[8]) fixes the frame to 0x50 with the slot at 0x30, and
-   `temp_2 = kwlnGetCamera() + 0x68` reproduces retail's $s0 base hoist. The
+   `temp_2 = func_00457120() + 0x68` reproduces retail's $s0 base hoist. The
    residual (nd 11) is then the recorded $v0/$v1 coalescing — retail keeps the
    load in $v1 and the rounded-half shift result in $v0 (lw $v1/sra $v0/bgez
    $v1/addiu $v0/sra $v0/mtc1 $v0); mwcc b210 always colors load->$v0,

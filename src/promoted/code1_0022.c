@@ -183,7 +183,7 @@ extern void btlTargetSetDefeatState(u8 *arg0, s32 arg1);
 extern void btlSoundStopBgmIfEnabled(void);
 
 
-u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
+u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2);
 
 
 
@@ -697,7 +697,7 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
             messages[8] = 19;
             messages[9] = 20;
             messages[10] = 21;
-            payload = func_00455ea0(
+            payload = H_Cdvd_GetArchiveEntry(
                 *(u8 **)(*(u8 **)(work + 0x40) + 0x934), 0, 0);
             recordIndex = *(s32 *)(work + 0x3C);
             *(u8 **)(work + 0x50) = shdPersonaLevelUpCreate(

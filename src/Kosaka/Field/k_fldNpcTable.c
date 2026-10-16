@@ -9,7 +9,7 @@ extern void strcpy(void *arg0, const char *arg1);
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 H_Cdvd_FileExists(void *arg0);
 extern void func_00440b68(char *arg0, const char *arg1, s32 arg2, ...);
-extern u8 *func_00454a60(void *arg0, s32 arg1);
+extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern u8 *gMtScene;
 extern char D_00762F20;
 extern char D_005F0790[];
@@ -28,7 +28,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 D_00764384;
 extern s32 D_00764388;
 extern s32 D_0076438C;
-extern u8 *func_00455f70(void *arg0, u32 *arg1);
+extern u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
 extern s32 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
 extern void calSplitDayOfYear(s16 year, s32 *month, s32 *day);
@@ -55,7 +55,7 @@ s32 NpcTable_RequestSceneTable(void)
         return 0;
     }
     func_00440b68(&D_00762F20, D_005F07C0, 0x68);
-    return (s32)func_00454a60(sp10, 0);
+    return (s32)H_Cdvd_AcquireDirectory(sp10, 0);
 ret1:
     return 1;
 }
@@ -96,7 +96,7 @@ s32 NpcTable_InstallSceneTable(u8 *arg0)
         return 1;
     }
     sprintf(sp40, D_005F07D0, *(s32 *)gMtScene, *(s32 *)(gMtScene + 4));
-    table = func_00455f70(sp40, &sp8C);
+    table = H_Cdvd_LookupRequest(sp40, &sp8C);
     if (table != 0) {
         chkmemAllocSiteTag(&D_005F07C0, 0xA2);
         temp = (s32)(*D_008873F4)(1, (s32)(sp8C), 0x40000);
@@ -228,7 +228,7 @@ s32 NpcTable_RequestSecondaryTable(void)
         return 0;
     }
     func_00440b68(&D_00762F20, D_005F07C0, 0x140);
-    return (s32)func_00454a60(sp10, 0);
+    return (s32)H_Cdvd_AcquireDirectory(sp10, 0);
 ret1:
     return 1;
 }
@@ -264,7 +264,7 @@ s32 NpcTable_InstallSecondaryTable(u8 *arg0)
         goto ret0;
     }
     sprintf(sp30, D_005F0810, *(s32 *)gMtScene, *(s32 *)(gMtScene + 4));
-    arg = func_00455f70(sp30, &sp7C);
+    arg = H_Cdvd_LookupRequest(sp30, &sp7C);
     if (arg != 0) {
         chkmemAllocSiteTag(&D_005F07C0, 0x172);
         temp = (s32)(*D_008873F4)(1, (s32)(sp7C), 0x40000);
@@ -304,7 +304,7 @@ s32 NpcTable_RequestFixedTable(void)
         return 0;
     }
     func_00440b68(&D_00762F20, D_005F07C0, 0x1A2);
-    return (s32)func_00454a60(sp10, 0);
+    return (s32)H_Cdvd_AcquireDirectory(sp10, 0);
 }
 
 // FUN_0015D000
@@ -354,7 +354,7 @@ void NpcTable_RequestBlockTable(u8 *arg0, s32 arg1)
     sprintf(sp30, D_005F0850, arg1);
     if (H_Cdvd_FileExists(sp30) != 0) {
         func_00440b68(&D_00762F20, D_005F07C0, 0x1DF);
-        *(s32 *)(arg0 + 0xC) = (s32)func_00454a60(sp30, 1);
+        *(s32 *)(arg0 + 0xC) = (s32)H_Cdvd_AcquireDirectory(sp30, 1);
     }
 }
 

@@ -56,7 +56,7 @@ extern s32 func_003e2e40(s32 arg0, s32 *arg1);
 extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2);
 extern void H_Cdvd_ReadSync(u8 *arg0);
 extern void K_Clump_FreeTextureNameList(void *arg0);
 extern s32 mdlReadAuxChunks(u8 *arg0);

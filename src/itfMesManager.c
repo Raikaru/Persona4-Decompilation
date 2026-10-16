@@ -141,7 +141,7 @@ void itfMesObjectSetNumber(u8 *arg0, s32 arg1, s32 arg2);
 void itfMesRecordFixup(u8 *arg0);
 void itfMesWindowSetProcedure(void *arg0, s16 arg1);
 extern char D_0063BED0[];
-s32 func_00454a60(char *arg0, s32 arg1);
+s32 H_Cdvd_AcquireDirectory(char *arg0, s32 arg1);
 void H_Cdvd_ReadSync(s32 arg0);
 void msgWinStart(s32 arg0);
 extern char D_0063BF00[];
@@ -1226,7 +1226,7 @@ s32 itfMesWindowMeasureText(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 void itfMesLoadData(void)
 {
     func_00440b68(&DAT_00723858, D_0063BE10, 0xA00);
-    H_Cdvd_ReadSync(func_00454a60(D_0063BF00, 1));
+    H_Cdvd_ReadSync(H_Cdvd_AcquireDirectory(D_0063BF00, 1));
     msgWinStart(0);
 }
 

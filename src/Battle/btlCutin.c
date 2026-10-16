@@ -28,7 +28,7 @@ extern u32 datGetFlag(s32 bit);
 extern s32 cutinDrawTaskCreate();
 extern s32 sprintf(char *dst, const char *format, ...);
 extern s32 func_00440b68(const char *format, ...);
-extern u8 *func_00454a60(u8 *path, s32 flags);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 extern const char *iGpffffa520[2];
 extern const char *D_00625050[3];
 extern char D_00625060[];
@@ -58,7 +58,7 @@ void btlCutinLoad(u8 *arg0) {
         sprintf(sp60, D_00625060, count + 1, count + 1, iGpffffa520[temp_5]);
         suffix = &iGpffffa520[temp_5];
         func_00440b68(iGpffffa528, D_00625090, 0x26);
-        *(s32 *)(iGpffffb3ac + 0xB6C) = (u32)func_00454a60((u8 *)sp60, 0);
+        *(s32 *)(iGpffffb3ac + 0xB6C) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp60, 0);
         var_19 = 0;
         while (var_19 < count) {
             temp_16 = var_19 * 4;
@@ -66,24 +66,24 @@ void btlCutinLoad(u8 *arg0) {
                           D_00625050[var_19],
                           *(s16 *)(arg0 + var_19 * 2 + 2), *suffix);
             func_00440b68(iGpffffa528, D_00625090, 0x2C);
-            *(s32 *)(iGpffffb3ac + temp_16 + 0xB70) = (u32)func_00454a60((u8 *)sp60, 0);
+            *(s32 *)(iGpffffb3ac + temp_16 + 0xB70) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp60, 0);
             var_19++;
         }
         sprintf(sp60, D_006250D0, count + 1, count + 1);
         func_00440b68(iGpffffa528, D_00625090, 0x2F);
-        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)func_00454a60((u8 *)sp60, 0);
+        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp60, 0);
         break;
     }
     case 2:
         sprintf(sp60, D_00625100, *(s16 *)(arg0 + 2), iGpffffa520[temp_5]);
         func_00440b68(iGpffffa528, D_00625090, 0x35);
-        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)func_00454a60((u8 *)sp60, 0);
+        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp60, 0);
         break;
     case 4:
         if (*(s16 *)(arg0 + 2) < 0xB) sprintf(sp60, D_00625130, *(s16 *)(arg0 + 2));
         else sprintf(sp60, D_00625160, *(s16 *)(arg0 + 2));
         func_00440b68(iGpffffa528, D_00625090, 0x40);
-        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)func_00454a60((u8 *)sp60, 0);
+        *(s32 *)(iGpffffb3ac + 0xB58) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp60, 0);
         break;
     }
     *(u16 *)(iGpffffb3ac + 0xB50) = *(u16 *)arg0;
@@ -248,12 +248,12 @@ void btlCutinSetupName(u8 *arg0) {
     case 1:
         sprintf(sp20, D_00625190, *(s16 *)(arg0 + 2), iGpffffa530[temp_5]);
         func_00440b68(iGpffffa528, D_00625090, 0x152);
-        *(s32 *)(iGpffffb3ac + 0xB84) = (u32)func_00454a60((u8 *)sp20, 0);
+        *(s32 *)(iGpffffb3ac + 0xB84) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp20, 0);
         break;
     case 3:
         sprintf(sp20, D_006251C0, *(s16 *)(arg0 + 2), iGpffffa530[temp_5]);
         func_00440b68(iGpffffa528, D_00625090, 0x158);
-        *(s32 *)(iGpffffb3ac + 0xB84) = (u32)func_00454a60((u8 *)sp20, 0);
+        *(s32 *)(iGpffffb3ac + 0xB84) = (u32)H_Cdvd_AcquireDirectory((u8 *)sp20, 0);
         break;
     case 5:
         if (datGetFlag(0x38) != 0) {

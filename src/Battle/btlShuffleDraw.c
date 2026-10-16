@@ -49,7 +49,7 @@ extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s16 value);
 extern char iGpffffa9d0;
 extern s32 iGpffffa9c8;
-extern u8 *func_00454a60(u8 *param, s32 mode);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 extern void func_00440b68();
 extern void btlShuffleCalcRotateVector(u8 *arg0, f32 fparg0, u8 *arg1);
 extern void btlShuffleDrawReset(u8 *arg0);
@@ -89,7 +89,7 @@ extern void btlShuffleCalcLoadTable(u8 *arg0);
 extern void btlShuffleDrawSetLayout(u8 *arg0, s32 arg1);
 struct HCdvd;
 extern u32 H_Cdvd_IsFileLoaded(struct HCdvd *archive);
-extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2);
 extern void memcpy(s32 arg0, s32 arg1, s32 arg2);
 extern void pscResBuildMiscCardW00(u8 *data);
 extern u32 func_0046a750(s16 *sprite);
@@ -231,7 +231,7 @@ void btlShuffleDrawLoadSprites(u8 *arg0) {
 
     temp_17 = !(calGetDayWindowFlags((s16)datGetDateIndex()) & 1);
     func_00440b68(&iGpffffa9d0, D_0064EA20, 0xB5);
-    temp_2 = (s32)(func_00454a60(*(u8 **)((u8 *)&iGpffffa9c8 + temp_17 * 4), 1));
+    temp_2 = (s32)(H_Cdvd_AcquireDirectory(*(u8 **)((u8 *)&iGpffffa9c8 + temp_17 * 4), 1));
     *(s32 *)(arg0 + 0x1F2E8) = temp_2;
     if (temp_2 == 0) {
         kAssertFail(D_0064EA20, 0xB6);
@@ -285,7 +285,7 @@ s32 btlShuffleDrawLoadBlob(u8 *work)
             u8 *val;
             u8 *p;
             for (copyIndex = 0; copyIndex < 9; copyIndex++, archiveIndex++) {
-                source = func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, &byteCount);
+                source = H_Cdvd_GetArchiveEntry((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, &byteCount);
                 chkmemAllocSiteTag(&D_0064EA20, 0x101);
                 val = D_008873F4[0](1, byteCount, 0x40000);
                 p = work + copyIndex * 4 + 0x1F2B8;
@@ -300,7 +300,7 @@ s32 btlShuffleDrawLoadBlob(u8 *work)
             u8 *p;
             for (spriteIndex = 0; spriteIndex < 3; spriteIndex++, archiveIndex++) {
                 p = work + spriteIndex * 4 + 0x1F2AC;
-                *(u8 **)p = sdkSpriteAdoptBlob((u32)func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, NULL));
+                *(u8 **)p = sdkSpriteAdoptBlob((u32)H_Cdvd_GetArchiveEntry((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, NULL));
                 if (*(u8 **)p == NULL) {
                     kAssertFail(&D_0064EA20, 0x109);
                 }
@@ -310,7 +310,7 @@ s32 btlShuffleDrawLoadBlob(u8 *work)
             u8 *val;
             u8 *p;
             for (copyIndex = 0; copyIndex < 3; copyIndex++, archiveIndex++) {
-                source = func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, &byteCount);
+                source = H_Cdvd_GetArchiveEntry((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, &byteCount);
                 chkmemAllocSiteTag(&D_0064EA20, 0x10F);
                 val = D_008873F4[0](1, byteCount, 0x40000);
                 p = work + copyIndex * 4 + 0x1F2DC;
@@ -321,7 +321,7 @@ s32 btlShuffleDrawLoadBlob(u8 *work)
                 memcpy(*(u8 **)p, source, (size_t)byteCount);
             }
         }
-        pscResBuildMiscCardW00(func_00455ea0((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, NULL));
+        pscResBuildMiscCardW00(H_Cdvd_GetArchiveEntry((u8 *)(*(s32 *)(work + 0x1F2E8)), archiveIndex, NULL));
         *(s32 *)(work + 0x1F2EC) = 1;
     }
     case 1:

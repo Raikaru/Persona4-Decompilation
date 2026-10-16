@@ -7,9 +7,9 @@ extern u32 RpRandom(void);
 
 
 extern void func_00440b68(const char *fmt, const char *file, s32 line);
-extern void *func_00454a60(const char *path, s32 flags);
+extern void *H_Cdvd_AcquireDirectory(const char *path, s32 flags);
 extern void H_Cdvd_ReadSync(void *handle);
-extern u8 *func_00455ea0(u8 *handle, s32 index, s32 *out);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *handle, s32 index, s32 *out);
 extern void kAssertFail(void *file, s32 line);
 extern void kAssertFailMsg(const char *file, s32 line, char *fmt, s32 value);
 extern s32 datGetDateIndex(void);
@@ -100,9 +100,9 @@ void cmmLoadTables(void) {
     void *handle;
 
     func_00440b68(&D_007636F0, D_006359D0, 0x3F);
-    H_Cdvd_ReadSync(handle = func_00454a60(D_006359E0, 1));
+    H_Cdvd_ReadSync(handle = H_Cdvd_AcquireDirectory(D_006359E0, 1));
     for (i = 0; i < 0x1C; i++) {
-        D_00881480[i] = func_00455ea0(handle, i, &sp3C);
+        D_00881480[i] = H_Cdvd_GetArchiveEntry(handle, i, &sp3C);
     }
 }
 

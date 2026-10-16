@@ -14,7 +14,7 @@ extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s16 arg0);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void btlBossResolveNpcModelName(s32 arg0, u16 arg1);
-extern u8 *func_00455f70(void *arg0, u32 *arg1);
+extern u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
 extern char D_007636e0;
 extern char D_006358D0[];
 extern char D_006358F0[];
@@ -60,7 +60,7 @@ void btlBuildNpcModelName(s32 *arg0, s32 arg1)
 
     var_19 = 0;
     var_17 = 0;
-    temp_2 = func_00455f70(&D_006358D0, &sp5C);
+    temp_2 = H_Cdvd_LookupRequest(&D_006358D0, &sp5C);
     temp_5 = *(s32 *)(temp_2 + 4);
     temp_4 = temp_2 + 8;
     temp_18 = arg1 & 0xFFFF;

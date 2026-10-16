@@ -29,7 +29,7 @@ extern void strcpy(void *arg0, const char *arg1);
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 H_Cdvd_FileExists(void *arg0);
 extern void func_00440b68(char *arg0, const char *arg1, s32 arg2, ...);
-extern u8 *func_00454a60(void *arg0, s32 arg1);
+extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern char D_005F1218[];
 extern char D_005F1230[];
 extern char D_005F1248[];
@@ -291,7 +291,7 @@ void FldFilterLoadFile(void)
         iGpffffb2b0 = (u8 *)D_008873F4[0](1, 0x12400, 0x40000);
     }
     func_00440b68((char *)&iGpffff9f00, D_005F11E8, 0xF4);
-    temp_2 = func_00454a60(D_005F1200, 0);
+    temp_2 = H_Cdvd_AcquireDirectory(D_005F1200, 0);
     H_Cdvd_ReadSync(temp_2);
     memcpy(iGpffffb2b0, *(void **)(temp_2 + 0x110), 0x12400);
     H_Cdvd_Destroy(temp_2);
@@ -679,7 +679,7 @@ s32 FldEnemyOpenTable(void)
         return 0;
     }
     func_00440b68((char *)&iGpffff9f08, D_005F1248, 0x69);
-    return (s32)func_00454a60(sp10, 0);
+    return (s32)H_Cdvd_AcquireDirectory(sp10, 0);
 }
 
 /* measured: opt_propagation off probe for retail field-load order in FldEnemyLoadTable */

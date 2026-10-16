@@ -203,7 +203,7 @@ extern u8 D_00641BE0[];
 extern u8 D_00641C00[];
 extern char iGpffffa8c8;
 extern void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
-extern s32 func_00454a60(void *arg0, s32 arg1);
+extern s32 H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern void sdkSndFadeOutChannelFrames(s32, s32, s32);
 extern s32 datGetClearedWord(void);
 extern void func_00105690(s32, s32);
@@ -10255,7 +10255,7 @@ s32 fclCombineTaskCreate(u8 *arg0)
     result = (s32)kwlnTaskCreateChild((void *)((void *)(result)), (const void *)(D_00641BE0), 0xF, 0, 0, fclCombineTaskUpdate, fclCombineTaskDestroy, (u8 *)(p));
     p[0] = 8;
     func_00440b68(&iGpffffa8c8, D_00641B00, 0x2C96);
-    *(s32 *)(p + 0x10) = func_00454a60(D_00641C00, 0);
+    *(s32 *)(p + 0x10) = H_Cdvd_AcquireDirectory(D_00641C00, 0);
     sdkSndFadeOutChannelFrames(3, 0, 0x1E);
     *(s32 *)(p + 0x4) = 0x41000000;
     *(s32 *)(p + 0x8) = 0x41200000;

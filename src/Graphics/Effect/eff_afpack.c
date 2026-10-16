@@ -25,7 +25,7 @@ extern RuntimeListNode* D_00764CA0;
 extern void effAfterResetCommand(void* arg0, void* arg1);
 extern void effAfterRunCommands(void* arg0, void* arg1);
 extern void func_00440b68(const void* msg, const void* file, s32 line);
-extern u8* func_00454a60(u8* param, s32 mode);
+extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
 extern void H_Cdvd_ReadSync(void* handle);
 extern s32 func_003ef740(u8* param, s32 mode);
 extern void H_Cdvd_Destroy(u8* ptr);
@@ -449,7 +449,7 @@ void AfPackInit(s32 arg0, s32 arg1)
     s32 temp_2;
 
     func_00440b68(&D_00764210, D_007146B0, 0x2DA);
-    temp_2 = (s32)func_00454a60(D_007146C0, 0);
+    temp_2 = (s32)H_Cdvd_AcquireDirectory(D_007146C0, 0);
     H_Cdvd_ReadSync((void*)temp_2);
     D_00764CA8 = (s32)func_003ef740(D_007146C0, 0);
     H_Cdvd_Destroy((u8*)temp_2);

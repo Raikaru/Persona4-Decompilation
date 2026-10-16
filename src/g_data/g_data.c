@@ -185,7 +185,7 @@ extern void sprintf(void* dst, void* fmt, void* value, void* extra);
 
 extern void H_Cdvd_ReadSync(u8* ptr);
 
-extern u8* func_00454a60(u8* param, s32 mode);
+extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
 
 extern void datSetFlag(s32 arg0, s32 arg1);
 
@@ -280,7 +280,7 @@ void datLoadEntryTable(void)
     u8* dst;
 
     func_00440b68(&iGpffff9b10, D_005E4298, 0xCD);
-    obj = func_00454a60(D_005E42B0, 0);
+    obj = H_Cdvd_AcquireDirectory(D_005E42B0, 0);
     H_Cdvd_ReadSync(obj);
     src = *(u8**)(obj + 0x110);
     size = (*(u32*)(src + 0) + *(u32*)(src + 0x10)) * 32 + 0x20 + (*(u32*)(src + 4) + *(u32*)(src + 0x14)) * 16;

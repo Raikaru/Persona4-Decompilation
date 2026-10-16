@@ -19,7 +19,7 @@ void chkmemAllocSiteTag(void *arg0, u32 arg1);
 
 struct HCdvd;
 s32 func_00440b68(const char *format, ...);
-u8 *func_00454a60(u8 *arg0, s32 arg1);
+u8 *H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
 s32 func_00348330(u8 *arg0);
 s32 cmbFiveSpriteTask(u8 *arg0);
 u32 H_Cdvd_IsFileLoaded(struct HCdvd *ptr);
@@ -134,7 +134,7 @@ s32 cmbCardLoaderStep(u8 *arg0) {
         case 0:
             func_0036d860(obj->environment, 0);
             func_00440b68((const char *)D_00763A28, D_0064A4A0, 0x63);
-            obj->file = func_00454a60(D_0064E590, 0);
+            obj->file = H_Cdvd_AcquireDirectory(D_0064E590, 0);
             obj->state += 1;
             break;
         case 1:
@@ -1852,7 +1852,7 @@ u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2) {
     *(s8 *)(blk + 4) = 0;
     *(s8 *)(blk + 0x14) = arg2;
     func_00440b68(D_00763A28, D_0064A4A0, 0x805);
-    *(u8 **)(blk + 0) = func_00454a60(arg1, 0);
+    *(u8 **)(blk + 0) = H_Cdvd_AcquireDirectory(arg1, 0);
     *(u32 *)(blk + 0x40) = 0x437F0000;
     return ret;
 }

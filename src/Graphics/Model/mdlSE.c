@@ -15,7 +15,7 @@ extern void memcpy(void *dst, const void *src, u32 size);
 extern s32 sdkSndQueueSlotRequest(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *arg5, u32 arg6);
 extern s32 H_Cdvd_IsFileLoaded(void *arg0);
 extern void H_Cdvd_Destroy(void *arg0);
-extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2);
 extern s32 hsndSlotIsStarting(s16 arg0);
 extern u32 RpRandom(void);
 extern s32 mdlSeAcquireSlot(u32 type, u16 id);
@@ -407,9 +407,9 @@ s32 mdlSeUpdateRecord(void **owner)
             if (H_Cdvd_IsFileLoaded(*(void **)((u8 *)current + 0x14)) == 0) {
                 return 0;
             }
-            record0 = (void *)func_00455ea0(*(void **)((u8 *)*owner + 0x14), 0, (s32 *)&size0);
-            record1 = (void *)func_00455ea0(*(void **)((u8 *)*owner + 0x14), 1, (s32 *)&size1);
-            record2 = (void *)func_00455ea0(*(void **)((u8 *)*owner + 0x14), 2, (s32 *)&size2);
+            record0 = (void *)H_Cdvd_GetArchiveEntry(*(void **)((u8 *)*owner + 0x14), 0, (s32 *)&size0);
+            record1 = (void *)H_Cdvd_GetArchiveEntry(*(void **)((u8 *)*owner + 0x14), 1, (s32 *)&size1);
+            record2 = (void *)H_Cdvd_GetArchiveEntry(*(void **)((u8 *)*owner + 0x14), 2, (s32 *)&size2);
             sdkSndQueueSlotRequest(*(s16 *)((u8 *)*owner + 4), record0, size0, record1, size1, record2, size2);
             *(u16 *)((u8 *)*owner + 0x12) |= 8;
             break;

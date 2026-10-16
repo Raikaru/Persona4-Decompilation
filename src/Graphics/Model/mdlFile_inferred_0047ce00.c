@@ -36,7 +36,7 @@ extern s32 func_003e2e40(s32 arg0, s32 *arg1);
 extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
-extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2);
 extern void H_Cdvd_ReadSync(u8 *arg0);
 extern void K_Clump_FreeTextureNameList(void *arg0);
 extern s32 mdlReadAuxChunks(u8 *arg0);
@@ -88,10 +88,10 @@ s32 mdlAdvanceAuxLoad(u8 *arg0)
                 *(s32 *)(obj + 0x2C) = *(s32 *)(*(u8 **)(obj + 0x38) + 0x110);
                 *(s32 *)(obj + 0x30) = *(s32 *)(*(u8 **)(obj + 0x38) + 0x118);
             } else {
-                *(s32 *)(obj + 0x2C) = (s32)func_00455ea0(*(u8 **)(obj + 0x38), 0, (s32 *)&sp4C);
+                *(s32 *)(obj + 0x2C) = (s32)H_Cdvd_GetArchiveEntry(*(u8 **)(obj + 0x38), 0, (s32 *)&sp4C);
                 *(s32 *)(obj + 0x30) = sp4C;
                 mdlSeRequestLoad((void **)((u32)arg0 + 0x2D0), *(u16 *)(arg0 + 0xD4), *(u16 *)(arg0 + 0xD6),
-                              (s32)func_00455ea0(*(u8 **)(obj + 0x38), 1, (s32 *)&sp4C), sp4C);
+                              (s32)H_Cdvd_GetArchiveEntry(*(u8 **)(obj + 0x38), 1, (s32 *)&sp4C), sp4C);
             }
             *(u8 *)(obj + 0x3C) = 2;
         }

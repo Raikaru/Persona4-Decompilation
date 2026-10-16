@@ -5,7 +5,7 @@
 
 extern void func_00440b68(...);
 extern void memcpy(void *dest, const void *src, u32 size);
-extern void *func_00454a60(const char *path, s32 flags);
+extern void *H_Cdvd_AcquireDirectory(const char *path, s32 flags);
 extern void H_Cdvd_Destroy(void *handle);
 extern s32 H_Cdvd_IsFileLoaded(void *handle);
 
@@ -41,7 +41,7 @@ s32 initDataReadStep(u8 *arg0)
     switch (temp_3) {
     case 0:
         func_00440b68(&D_00762CB8, &D_00762CC0, 0x1FA);
-        *(u8 **)(temp_16 + 4) = func_00454a60(D_005E46A0, 0);
+        *(u8 **)(temp_16 + 4) = H_Cdvd_AcquireDirectory(D_005E46A0, 0);
         *(s32 *)temp_16 += 1;
         break;
     case 1:

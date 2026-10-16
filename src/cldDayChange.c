@@ -42,7 +42,7 @@ void cldDayChangeDrawMarker(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u32 arg3,
 void cldDayChangeDrawPolygon(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
                    u8 *arg4, s32 arg5, f32 fparg1, f32 fparg2);
 s32 sprintf(char *buf, const char *fmt, ...);
-u8 *func_00455f70(void *arg0, u32 *arg1);
+u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
 u8 *sdkSpriteRequestLoad(const char *name);
 s32 func_0046a750(s32 param);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
@@ -73,7 +73,7 @@ void cldDayChangeStartTask(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 void cldDayChangePreloadData(void)
 {
     func_00440b68(&iGpffffa6c8, D_006376B0, 0x464);
-    H_Cdvd_ReadSync(func_00454a60(D_006376D0, 1));
+    H_Cdvd_ReadSync(H_Cdvd_AcquireDirectory(D_006376D0, 1));
 }
 
 /* Day-change state machine: advances the display through states 0 to 10. */
@@ -105,7 +105,7 @@ s32 cldDayChangeUpdateState(u8 *arg0) {
             p[1] &= ~4;
         }
         sprintf((char *)buf, (const char *)D_006376F0, p[4]);
-        s = func_00455f70(buf, &tmp);
+        s = H_Cdvd_LookupRequest(buf, &tmp);
         if (s == 0) {
             p[2] = (s32)sdkSpriteRequestLoad((const char *)buf);
             p[0] = 3;

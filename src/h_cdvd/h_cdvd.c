@@ -64,7 +64,7 @@ typedef struct HCdvdRequestView
     s16 archiveFileCount;
 } HCdvdRequestView;
 extern char* strcat(char* destination, const char* source);
-extern void func_00455d70(void* requestData, void* fileMemory, u32 fileSize,
+extern void H_Cdvd_RegisterRequest(void* requestData, void* fileMemory, u32 fileSize,
                           const char* path);
 
 typedef struct ArchiveEntryHeader
@@ -643,7 +643,7 @@ void H_Cdvd_ParseArchive(void* requestData)
 
         fileMemory = request->fileMemory;
         readByteSize = request->readByteSize;
-        func_00455d70(requestData, fileMemory, readByteSize, request->path);
+        H_Cdvd_RegisterRequest(requestData, fileMemory, readByteSize, request->path);
         request->archiveFileCount = 1;
         return;
     }
@@ -723,7 +723,7 @@ outer_check:
                 j++;
             }
         }
-        func_00455d70(requestData, (u8*)request->fileMemory + offset,
+        H_Cdvd_RegisterRequest(requestData, (u8*)request->fileMemory + offset,
                       fileSize, work.directory);
         fileSize = ((s32)(fileSize + 0x3f) / 0x40) * 0x40;
         offset += fileSize;
@@ -768,7 +768,7 @@ void H_Cdvd_ReadSync(HCdvd* cdvd)
     {
         if (!H_Cdvd_IsFileLoaded(cdvd))
         {
-            func_00454640();
+            H_Cdvd_UpdateRequests();
         }
         else
         {
