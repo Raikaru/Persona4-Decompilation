@@ -1,0 +1,1516 @@
+/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00260510-00264d10 */
+
+#include "include_asm.h"
+#include "list_item_internal.h"
+#include "sdk_task_registration.h"
+#include "type.h"
+#include "rw/plcore/barenderstate.h"
+#include "primitive_point_buffer.h"
+#include "scene_event_internal.h"
+extern s32 datGetFlag(s32 arg0);
+extern void qsort(u32 *arg0, s32 arg1, s32 arg2,
+                           s32 (*arg3)(u8 **arg0, u8 **arg1));
+extern f32 fGpffff84a4;
+extern f32 fGpffff8574;
+extern f32 fGpffff82fc;
+typedef struct {
+    u8 pad18[0x18];
+    s32 field18;
+    s32 field1C;
+    s32 field20;
+} Code1_00263220State;
+
+extern char iGpffffa6c4;
+extern s32 (*D_00887300[])(RwRenderState state, void *value);
+typedef struct { s32 a, b, c, d; } Quad4;
+
+typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
+
+extern u8 *kwlnTaskGetWork();
+extern s32 kwlnTaskIsLinked();
+extern s32 sdkSpritePackCreate(u8 *arg0);
+extern u8 D_00637420[];
+extern u8 *PrimAllocQueueNode(void);
+extern void PrimAppendNode(u8 *arg0, u8 *arg1);
+extern void sdkSpritePackDestroy(void *arg0);
+extern void (*jtbl_008873EC[])(void *);
+extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
+extern s32 shdSpriteEnsureLoaded(u8 *arg0);
+extern char D_00637348[];
+extern s32 kwlnTaskGetTaskByName(void *arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
+extern void calDrawDayStripCallback(s32 arg0, u8 *arg1);
+extern s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2);
+extern s32 cldDayChangeRequest(u32 arg0, s32 arg1);
+extern void cldDayChangeMarkDone(u8 *arg0);
+extern s32 cldDayChangeIsDone(s32 arg0);
+extern void datSetFlag(s32 arg0, s32 arg1);
+extern void calQueueDayStripDraw(s32 arg0, s32 arg1);
+extern s32 calGetPackedDayEntry(s32 arg0, s32 arg1);
+extern s32 func_0043c6a0(s32 arg0);
+extern f32 sinf(f32 fparg0);
+extern void calDrawDateCell(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
+extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
+                           s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
+                           s32 arg5, s32 arg6, s32 arg7,
+                           s32 arg_sp0);
+extern s32 sprintf(char *dst, const char *fmt, ...);
+extern s32 calGetWeekdayOfDay(s32 arg0);
+extern s32 calHasDayEntry(s32 arg0);
+extern s32 RpSkyRenderStateSet(s32 state, void *value);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 arg2, s32 arg3);
+extern void mdlEffectEmitTagPair(void);
+extern s32 shdSpriteEntryWidth(s32 arg0, s32 arg1, u8 *arg2);
+extern void shdSpriteDrawUniformNumber(f32, f32, f32, s32, u8, const char *, s32, s16, s16, Code1_0026Callback, u8 *);
+// Intent: Sets the enable flag on the sdlScheduler task when it exists [inferred]
+// FUN_00260510
+void sdlSchedulerEnable(void)
+{
+    s32 temp_2;
+    u8 *temp_2_2;
+
+    temp_2 = kwlnTaskGetTaskByName(D_00637348);
+    if (temp_2 != 0) {
+        temp_2_2 = kwlnTaskGetWork(temp_2);
+        *(s32 *)(temp_2_2 + 8) |= 1;
+    }
+}
+
+// Intent: Destroys the sdlScheduler task when it exists [inferred]
+// FUN_00260560
+void sdlSchedulerDestroy(void)
+{
+    s32 temp_2;
+
+    temp_2 = kwlnTaskGetTaskByName(D_00637348);
+    if (temp_2 != 0) {
+        kwlnTaskDestroyWithHierarchy(temp_2);
+    }
+}
+
+// Intent: Draws one character of a day number as a glyph (callback for the shdSpriteDrawUniformNumber text drawer; skips newline codes) [inferred]
+// FUN_002605A0
+void calDrawDayNumberGlyph(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * arg2, s32 arg3, s32 arg4, u8 * arg5)
+{
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    s8 temp_7;
+
+    temp_7 = *(s8 *)(arg2 + arg3);
+    if (temp_7 != 0xA) {
+        shdSpriteDrawNowEx(fparg0, fparg1, fparg2, arg0, arg1, 0, temp_7, *(u8 **)(arg5 + 0x10), 1, *(s16 *)(arg5 + 0), *(s16 *)(arg5 + 2), *(f32 *)(arg5 + 4), *(f32 *)(arg5 + 8), *(f32 *)(arg5 + 0xC));
+    }
+}
+
+typedef struct { u32 w[48]; } TrailTable_00260600;
+
+#pragma push
+#pragma opt_lifetimes on
+#pragma opt_loop_invariants on
+// Intent: Draws a highlight trail around a weather icon in one of three layouts (variant 0/1/2) [inferred]
+// FUN_00260600
+void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6)
+{
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, u32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern f32 cosf(f32);
+    extern f32 sinf(f32);
+    extern u8 D_00637440[];
+    extern u8 D_00637500[];
+    extern f32 fGpffff811c;
+    extern f32 iGpffff81d0;
+    extern f32 D_007612C4;
+    f32 tbl0[12][4];
+    f32 tbl1[12][4];
+    s32 biasA;
+    f32 cosS;
+    s32 biasB;
+    f32 halfThird;
+    f32 halfFiveThird;
+    u32 i;
+    f32 entry3;
+    f32 angle;
+    f32 entry2;
+    f32 sinS;
+    f32 fx;
+    f32 fy;
+    *(TrailTable_00260600 *)tbl0 = *(TrailTable_00260600 *)D_00637440;
+    *(TrailTable_00260600 *)tbl1 = *(TrailTable_00260600 *)D_00637500;
+    switch (arg4) {
+    case 0:
+        biasA = (int)((float)arg0 - 14.0f * fparg1);
+        biasB = (int)((float)arg1 - 16.0f * fparg2);
+        i = 0;
+        halfThird = 0.5f * fparg2;
+        halfFiveThird = 0.5f * (5.0f * fparg2);
+        for (; i < 0xC; i++) {
+            f32 *p = tbl0[i];
+
+            entry2 = p[2];
+            angle = iGpffff81d0 * (90.0f - entry2);
+            cosS = 18.0f * cosf(angle);
+            sinS = 18.0f * -sinf(angle);
+            fx = cosS + (47.0f + p[0]);
+            fy = sinS + (52.0f + p[1]);
+            entry3 = p[3];
+            shdSpriteDrawNowEx((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
+                          (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
+                          entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
+        }
+        shdSpriteDrawNowEx((float)biasA + 34.0f * fparg1, (float)biasB + 36.0f * fparg2, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, fparg1, fparg2);
+        break;
+    case 1:
+        biasA = (int)((float)arg0 - 41.0f * fparg1);
+        biasB = (int)((float)arg1 - 29.0f * fparg2);
+        i = 0;
+        halfThird = fGpffff811c * fparg2;
+        halfFiveThird = fGpffff811c * (5.0f * fparg2);
+        for (; i < 0xC; i++) {
+            f32 *p = tbl1[i];
+
+            entry2 = p[2];
+            angle = iGpffff81d0 * (90.0f - entry2);
+            cosS = 13.0f * cosf(angle);
+            sinS = 13.0f * -sinf(angle);
+            fx = cosS + (57.0f + p[0]);
+            fy = sinS + (48.0f + p[1]);
+            entry3 = p[3];
+            shdSpriteDrawNowEx((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
+                          (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
+                          entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
+        }
+        fx = (float)biasA + 52.0f * fparg1;
+        fy = (float)biasB + 38.0f * fparg2;
+        shdSpriteDrawNowEx(fx, fy, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+        break;
+    case 2:
+        biasA = (int)((float)arg0 - 12.0f * fparg1);
+        biasB = (int)((float)arg1 + fparg2);
+        i = 0;
+        halfThird = fGpffff811c * fparg2;
+        halfFiveThird = fGpffff811c * (5.0f * fparg2);
+        for (; i < 0xC; i++) {
+            f32 *p = tbl1[i];
+
+            entry2 = p[2];
+            angle = iGpffff81d0 * (90.0f - entry2);
+            cosS = 13.0f * cosf(angle);
+            sinS = 13.0f * -sinf(angle);
+            fx = cosS + (57.0f + p[0]);
+            fy = sinS + (48.0f + p[1]);
+            entry3 = p[3];
+            shdSpriteDrawNowEx((float)biasA + fx * fparg1, (float)biasB + fy * fparg2, fparg0, arg2, arg3, 0x13, 0, (u8 *)arg5, arg6,
+                          (s16)(int)(0.5f * (fparg1 * (22.0f * entry3))), (s16)halfFiveThird,
+                          entry2 - 180.0f, 0.5f * (fparg1 * entry3), halfThird);
+        }
+        fx = (float)biasA + 52.0f * fparg1;
+        fy = (float)biasB + 38.0f * fparg2;
+        shdSpriteDrawNowEx(fx, fy, fparg0, arg2, arg3, 5, 0, (u8 *)arg5, arg6, 0, 0, 0.0f, D_007612C4 * fparg1, D_007612C4 * fparg2);
+        break;
+    }
+}
+#pragma pop
+
+extern f32 D_007612C4;
+typedef struct {
+    s32 x, y;
+} CalendarSparkle;
+
+typedef struct {
+    CalendarSparkle offset[30];
+} CalendarSparkleTable;
+
+extern CalendarSparkle D_006375C0[30];
+extern void calDrawHighlightTrail(s32 x, s32 y, f32 depth, s32 color, u8 alpha, s32 variant, f32 scaleX, f32 scaleY, s32 font, s32 arg6);
+#pragma push
+#pragma opt_propagation off
+// Intent: Draws the weather highlight (sparkle table, colour by highlight kind) for a calendar cell [inferred]
+// FUN_00260E60
+void calDrawWeatherHighlight(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 variant, s32 highlight, f32 scaleX, f32 scaleY, s32 font, s32 setupStates)
+{
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    CalendarSparkleTable sparkle;
+    CalendarSparkle *spot;
+    s32 (**states)(RwRenderState state, void *value);
+    s32 color;
+    f32 posX;
+    f32 posY;
+    u32 i;
+
+    color = 0x919191;
+    switch (highlight) {
+    case 1:
+        color = 0xFFF000;
+        break;
+    case 2:
+        color = 0x52BDFF;
+        break;
+    case 3:
+        color = 0xFF296B;
+        break;
+    }
+    if (setupStates != 0) {
+        states = D_00887300;
+        states[0]((RwRenderState)(20), (void *)(1));
+        states[0]((RwRenderState)(6), (void *)(1));
+        states[0]((RwRenderState)(7), (void *)(2));
+        states[0]((RwRenderState)(8), (void *)(1));
+        states[0]((RwRenderState)(9), (void *)(2));
+        states[0]((RwRenderState)(12), (void *)(1));
+        states[0]((RwRenderState)(2), (void *)(4));
+        states[0]((RwRenderState)(14), (void *)(0));
+        RpSkyRenderStateSet(3, (void *)(0x7000D));
+        RpSkyRenderStateSet(2, (void *)(0x44));
+    }
+    switch (kind) {
+    case 0:
+        if (highlight != 0) {
+            color = 0xFF9000;
+        }
+        switch (variant) {
+        case 0:
+            calDrawHighlightTrail(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
+            break;
+        case 1:
+            calDrawHighlightTrail(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
+            break;
+        case 2:
+            calDrawHighlightTrail(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
+            break;
+        }
+        break;
+    case 1:
+        if (highlight != 0) {
+            color = 0x4C85EF;
+        }
+        switch (variant) {
+        case 0:
+            shdSpriteDrawNowEx((f32)x, (f32)y, depth, color, alpha, 8, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            break;
+        case 1:
+            posX = ((f32)x + 0.0f) - 3.0f * scaleX;
+            posY = (f32)(y - 4);
+            shdSpriteDrawNowEx(posX, posY, depth, color, alpha, 7, 0, (u8 *)font, 0, 0, 0, 0.0f, 0.707f * scaleX, 0.707f * scaleY);
+            break;
+        case 2:
+            posX = ((f32)x + 0.0f) + 23.0f * scaleX;
+            posY = (f32)(y + 27);
+            shdSpriteDrawNowEx(posX, posY, depth, color, alpha, 7, 0, (u8 *)font, 0, 0, 0, 0.0f, 0.707f * scaleX, 0.707f * scaleY);
+            break;
+        }
+        break;
+    case 2:
+        if (highlight != 0) {
+            color = 0x949494;
+        }
+        switch (variant) {
+        case 0:
+            shdSpriteDrawNowEx((f32)x, (f32)y, depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            break;
+        case 1:
+            shdSpriteDrawNowEx((f32)x, (f32)y, depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            break;
+        case 2:
+            shdSpriteDrawNowEx((f32)(x - 5), (f32)(y + 25), depth, color, alpha, 6, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            break;
+        }
+        break;
+    case 3:
+        break;
+    case 4:
+        if (highlight != 0) {
+            color = 0xFFFFFF;
+        }
+        switch (variant) {
+        case 0:
+            sparkle = *(CalendarSparkleTable *)D_006375C0;
+            shdSpriteDrawNowEx((f32)x, (f32)y, depth, color, alpha, 10, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            for (i = 0; i < 30; i++) {
+                spot = &sparkle.offset[i];
+                shdSpriteDrawNowEx((f32)(x - 10 + spot->x), (f32)(y - 12 + spot->y), depth, color, alpha, 9, 0, (u8 *)font, 0, 0, 0, 0.0f, scaleX, scaleY);
+            }
+            break;
+        case 1:
+            break;
+        case 2:
+            break;
+        }
+        break;
+    }
+}
+#pragma pop
+
+/* Render the current weather and its transition using complete clip/color records. */
+// Intent: Renders the weather icon for a calendar day, cross-fading old and new weather during a transition [inferred]
+// FUN_00261560
+#pragma push
+#pragma opt_lifetimes on
+void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highlight, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipWidth, s32 font, s32 forcedHighlight)
+{
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    typedef signed __int128 s128;
+    typedef union {
+        struct { s32 x, y, width, height; } fields;
+        s128 packet;
+    } WeatherClip;
+    typedef struct { u8 red, green, blue, alpha; } WeatherColor;
+    extern s128 D_00637430;
+    extern s32 (*D_00887300[])(RwRenderState state, void *value);
+    u8 *renderStates;
+    extern s32 RpSkyRenderStateSet(s32 state, void *value);
+    extern void PrimDrawFlatRectangle(void *, void *, f32, s32);
+    extern void mdlEffectEmitMaskedTagPair(void);
+    extern void mdlEffectEmitTagPair(void);
+    WeatherColor sameBackdropColor;
+    WeatherColor sameBackdropColorScratch;
+    WeatherColor sameViewportColor;
+    WeatherColor sameViewportColorScratch;
+    WeatherColor sameOverlayColor;
+    WeatherColor sameOverlayColorScratch;
+    WeatherColor sameFinishColor;
+    WeatherColor sameFinishColorScratch;
+    WeatherColor currentBackdropColor;
+    WeatherColor currentBackdropColorScratch;
+    WeatherColor currentViewportColor;
+    WeatherColor currentViewportColorScratch;
+    WeatherColor currentOverlayColor;
+    WeatherColor currentOverlayColorScratch;
+    WeatherColor currentFinishColor;
+    WeatherColor currentFinishColorScratch;
+    WeatherColor previousBackdropColor;
+    WeatherColor previousBackdropColorScratch;
+    WeatherColor previousViewportColor;
+    WeatherColor previousViewportColorScratch;
+    WeatherColor previousOverlayColor;
+    WeatherColor previousOverlayColorScratch;
+    WeatherColor previousFinishColor;
+    WeatherColor previousFinishColorScratch;
+    WeatherClip sameBackdropBounds;
+    WeatherClip sameBackdropBoundsScratch;
+    WeatherClip sameViewportBounds;
+    WeatherClip sameViewportBoundsScratch;
+    WeatherClip sameOverlayBounds;
+    WeatherClip sameOverlayBoundsScratch;
+    WeatherClip sameFinishBounds;
+    WeatherClip sameFinishBoundsScratch;
+    WeatherClip currentBackdropBounds;
+    WeatherClip currentBackdropBoundsScratch;
+    WeatherClip currentViewportBounds;
+    WeatherClip currentViewportBoundsScratch;
+    WeatherClip currentOverlayBounds;
+    WeatherClip currentOverlayBoundsScratch;
+    WeatherClip currentFinishBounds;
+    WeatherClip currentFinishBoundsScratch;
+    WeatherClip previousBackdropBounds;
+    WeatherClip previousBackdropBoundsScratch;
+    WeatherClip previousViewportBounds;
+    WeatherClip previousViewportBoundsScratch;
+    WeatherClip previousOverlayBounds;
+    WeatherClip previousOverlayBoundsScratch;
+    WeatherClip previousFinishBounds;
+    WeatherClip previousFinishBoundsScratch;
+    s32 fallbackHighlight;
+    s32 oldWeather;
+    u8 *cursor;
+    s32 previousWeather;
+    s32 currentWeather;
+    s32 backgroundColor;
+    s32 remaining;
+
+    fallbackHighlight = highlight;
+    backgroundColor = 0x242424;
+    if (highlight != 0) {
+        backgroundColor = 0;
+    }
+    currentWeather = weather & 0xF;
+    previousWeather = weather >> 4;
+    oldWeather = previousWeather;
+    if (previousWeather == currentWeather) {
+        x = (s32)((float)x + 47.0f * (1.0f - scaleX));
+        cursor = (u8 *)(&sameBackdropColorScratch);
+        remaining = 4;
+        if (cursor != NULL) {
+            do {
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
+        }
+        sameBackdropColor = sameBackdropColorScratch;
+        sameBackdropBoundsScratch.packet = D_00637430;
+        sameBackdropBoundsScratch.fields.x = x - 0x40;
+        sameBackdropBoundsScratch.fields.y = y - 0x40;
+        sameBackdropBounds = sameBackdropBoundsScratch;
+        renderStates = (u8 *)D_00887300;
+        (*(void (**)(u32, u32))renderStates)(0xE, 0);
+        (*(void (**)(u32, u32))renderStates)(0xC, 1);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
+        (*(void (**)(u32, u32))renderStates)(9, 1);
+        (*(void (**)(u32, u32))renderStates)(0x14, 1);
+        (*(void (**)(u32, u32))renderStates)(6, 0);
+        (*(void (**)(u32, u32))renderStates)(8, 1);
+        RpSkyRenderStateSet(3, (void *)(0x71003));
+        RpSkyRenderStateSet(2, (void *)(0x44));
+        mdlEffectEmitMaskedTagPair();
+        PrimDrawFlatRectangle(&sameBackdropColor, &sameBackdropBounds, 10.0f, 0);
+        mdlEffectEmitTagPair();
+        cursor = (u8 *)(&sameViewportColorScratch);
+        remaining = 4;
+        if (cursor != NULL) {
+            do {
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
+        }
+        sameViewportColor = sameViewportColorScratch;
+        cursor = (u8 *)(&sameViewportBoundsScratch);
+        remaining = 0x10;
+        if (cursor != NULL) {
+            do {
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
+        }
+        sameViewportBoundsScratch.fields.x = clipLeft;
+        sameViewportBoundsScratch.fields.y = 0;
+        sameViewportBoundsScratch.fields.width = clipWidth;
+        sameViewportBoundsScratch.fields.height = 0x1E0;
+        sameViewportBounds = sameViewportBoundsScratch;
+        (*(void (**)(u32, u32))renderStates)(0xE, 0);
+        (*(void (**)(u32, u32))renderStates)(0xC, 1);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
+        (*(void (**)(u32, u32))renderStates)(9, 1);
+        (*(void (**)(u32, u32))renderStates)(0x14, 1);
+        (*(void (**)(u32, u32))renderStates)(6, 0);
+        (*(void (**)(u32, u32))renderStates)(8, 1);
+        RpSkyRenderStateSet(3, (void *)(0x31003));
+        RpSkyRenderStateSet(2, (void *)(0x44));
+        mdlEffectEmitMaskedTagPair();
+        PrimDrawFlatRectangle(&sameViewportColor, &sameViewportBounds, 1.0f, 0);
+        mdlEffectEmitTagPair();
+        (*(void (**)(u32, u32))renderStates)(6, 1);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
+        RpSkyRenderStateSet(3, (void *)(0x7000D));
+        shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        shdSpriteDrawNowEx((f32)x + (9.0f * scaleX), (f32) (y + 4), 10.0f, backgroundColor, opacity, 0xD, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        if (!(scaleX < 1.0f)) {
+            shdSpriteDrawNowEx(((float)x + 70.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        } else {
+            shdSpriteDrawNowEx(((float)x + 69.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        }
+        cursor = (u8 *)(&sameOverlayColorScratch);
+        remaining = 4;
+        if (cursor != NULL) {
+            do {
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
+        }
+        sameOverlayColor = sameOverlayColorScratch;
+        sameOverlayBoundsScratch.packet = D_00637430;
+        sameOverlayBoundsScratch.fields.x = x - 0x40;
+        sameOverlayBoundsScratch.fields.y = y - 0x40;
+        sameOverlayBounds = sameOverlayBoundsScratch;
+        renderStates = (u8 *)D_00887300;
+        (*(void (**)(u32, u32))renderStates)(0xE, 0);
+        (*(void (**)(u32, u32))renderStates)(0xC, 1);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
+        (*(void (**)(u32, u32))renderStates)(9, 1);
+        (*(void (**)(u32, u32))renderStates)(0x14, 1);
+        (*(void (**)(u32, u32))renderStates)(6, 0);
+        (*(void (**)(u32, u32))renderStates)(8, 1);
+        RpSkyRenderStateSet(3, (void *)(0x71003));
+        RpSkyRenderStateSet(2, (void *)(0x44));
+        mdlEffectEmitMaskedTagPair();
+        PrimDrawFlatRectangle(&sameOverlayColor, &sameOverlayBounds, 5.0f, 0);
+        mdlEffectEmitTagPair();
+        (*(void (**)(u32, u32))renderStates)(6, 0);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
+        RpSkyRenderStateSet(3, (void *)(0x7000D));
+        mdlEffectEmitMaskedTagPair();
+        shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        shdSpriteDrawNowEx((f32)x + (9.0f * scaleX), (f32) (y + 4), 10.0f, backgroundColor, opacity, 0xD, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        if (!(scaleX < 1.0f)) {
+            shdSpriteDrawNowEx(((float)x + 70.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        } else {
+            shdSpriteDrawNowEx(((float)x + 69.0f * scaleX), (f32) y, 10.0f, backgroundColor, opacity, 0xE, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+        }
+        mdlEffectEmitTagPair();
+        cursor = (u8 *)(&sameFinishColorScratch);
+        remaining = 4;
+        if (cursor != NULL) {
+            do {
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
+        }
+        sameFinishColor = sameFinishColorScratch;
+        cursor = (u8 *)(&sameFinishBoundsScratch);
+        remaining = 0x10;
+        if (cursor != NULL) {
+            do {
+                *cursor = 0;
+                cursor += 1;
+            } while (--remaining != 0);
+        }
+        sameFinishBoundsScratch.fields.x = clipLeft;
+        sameFinishBoundsScratch.fields.y = 0;
+        sameFinishBoundsScratch.fields.width = clipWidth;
+        sameFinishBoundsScratch.fields.height = 0x1E0;
+        sameFinishBounds = sameFinishBoundsScratch;
+        renderStates = (u8 *)D_00887300;
+        (*(void (**)(u32, u32))renderStates)(0xE, 0);
+        (*(void (**)(u32, u32))renderStates)(0xC, 1);
+        (*(void (**)(u32, u32))renderStates)(7, 2);
+        (*(void (**)(u32, u32))renderStates)(9, 1);
+        (*(void (**)(u32, u32))renderStates)(0x14, 1);
+        (*(void (**)(u32, u32))renderStates)(6, 0);
+        (*(void (**)(u32, u32))renderStates)(8, 1);
+        RpSkyRenderStateSet(3, (void *)(0x31003));
+        RpSkyRenderStateSet(2, (void *)(0x44));
+        mdlEffectEmitMaskedTagPair();
+        PrimDrawFlatRectangle(&sameFinishColor, &sameFinishBounds, 1.0f, 0);
+        mdlEffectEmitTagPair();
+        if (forcedHighlight != 0) {
+            calDrawWeatherHighlight(x, y, 10.0f, opacity, currentWeather, 0, forcedHighlight, scaleX, scaleY, font, 1);
+            return;
+        }
+        calDrawWeatherHighlight(x, y, 10.0f, opacity, currentWeather, 0, fallbackHighlight, scaleX, scaleY, font, 1);
+        return;
+    }
+    (void)depth;
+    x = (s32)((float)x + 47.0f * (1.0f - scaleX));
+    cursor = (u8 *)(&currentBackdropColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    currentBackdropColor = currentBackdropColorScratch;
+    currentBackdropBoundsScratch.packet = D_00637430;
+    currentBackdropBoundsScratch.fields.x = x - 0x40;
+    currentBackdropBoundsScratch.fields.y = y - 0x40;
+    currentBackdropBounds = currentBackdropBoundsScratch;
+    renderStates = (u8 *)D_00887300;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
+    RpSkyRenderStateSet(3, (void *)(0x71003));
+    RpSkyRenderStateSet(2, (void *)(0x44));
+    mdlEffectEmitMaskedTagPair();
+    PrimDrawFlatRectangle(&currentBackdropColor, &currentBackdropBounds, 10.0f, 0);
+    mdlEffectEmitTagPair();
+    cursor = (u8 *)(&currentViewportColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    currentViewportColor = currentViewportColorScratch;
+    cursor = (u8 *)(&currentViewportBoundsScratch);
+    remaining = 0x10;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    currentViewportBoundsScratch.fields.x = clipLeft;
+    currentViewportBoundsScratch.fields.y = 0;
+    currentViewportBoundsScratch.fields.width = clipWidth;
+    currentViewportBoundsScratch.fields.height = 0x1E0;
+    currentViewportBounds = currentViewportBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
+    RpSkyRenderStateSet(3, (void *)(0x31003));
+    RpSkyRenderStateSet(2, (void *)(0x44));
+    mdlEffectEmitMaskedTagPair();
+    PrimDrawFlatRectangle(&currentViewportColor, &currentViewportBounds, 1.0f, 0);
+    mdlEffectEmitTagPair();
+    (*(void (**)(u32, u32))renderStates)(6, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    RpSkyRenderStateSet(3, (void *)(0x3000D));
+    shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 0xF, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+    cursor = (u8 *)(&currentOverlayColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    currentOverlayColor = currentOverlayColorScratch;
+    currentOverlayBoundsScratch.packet = D_00637430;
+    currentOverlayBoundsScratch.fields.x = x - 0x40;
+    currentOverlayBoundsScratch.fields.y = y - 0x40;
+    currentOverlayBounds = currentOverlayBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
+    RpSkyRenderStateSet(3, (void *)(0x71003));
+    RpSkyRenderStateSet(2, (void *)(0x44));
+    mdlEffectEmitMaskedTagPair();
+    PrimDrawFlatRectangle(&currentOverlayColor, &currentOverlayBounds, 5.0f, 0);
+    mdlEffectEmitTagPair();
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    RpSkyRenderStateSet(3, (void *)(0x7000D));
+    mdlEffectEmitMaskedTagPair();
+    shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 0xF, 0, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+    mdlEffectEmitTagPair();
+    cursor = (u8 *)(&currentFinishColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    currentFinishColor = currentFinishColorScratch;
+    cursor = (u8 *)(&currentFinishBoundsScratch);
+    remaining = 0x10;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    currentFinishBoundsScratch.fields.x = clipLeft;
+    currentFinishBoundsScratch.fields.y = 0;
+    currentFinishBoundsScratch.fields.width = clipWidth;
+    currentFinishBoundsScratch.fields.height = 0x1E0;
+    currentFinishBounds = currentFinishBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
+    RpSkyRenderStateSet(3, (void *)(0x31003));
+    RpSkyRenderStateSet(2, (void *)(0x44));
+    mdlEffectEmitMaskedTagPair();
+    PrimDrawFlatRectangle(&currentFinishColor, &currentFinishBounds, 1.0f, 0);
+    mdlEffectEmitTagPair();
+    if (forcedHighlight != 0) {
+        calDrawWeatherHighlight(x, y, 10.0f, opacity, currentWeather, 1, forcedHighlight, scaleX, scaleY, font, 1);
+    } else {
+        calDrawWeatherHighlight(x, y, 10.0f, opacity, currentWeather, 1, fallbackHighlight, scaleX, scaleY, font, 1);
+    }
+    cursor = (u8 *)(&previousBackdropColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    previousBackdropColor = previousBackdropColorScratch;
+    previousBackdropBoundsScratch.packet = D_00637430;
+    previousBackdropBoundsScratch.fields.x = x - 0x40;
+    previousBackdropBoundsScratch.fields.y = y - 0x40;
+    previousBackdropBounds = previousBackdropBoundsScratch;
+    renderStates = (u8 *)D_00887300;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
+    RpSkyRenderStateSet(3, (void *)(0x71003));
+    RpSkyRenderStateSet(2, (void *)(0x44));
+    mdlEffectEmitMaskedTagPair();
+    PrimDrawFlatRectangle(&previousBackdropColor, &previousBackdropBounds, 10.0f, 0);
+    mdlEffectEmitTagPair();
+    cursor = (u8 *)(&previousViewportColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    previousViewportColor = previousViewportColorScratch;
+    cursor = (u8 *)(&previousViewportBoundsScratch);
+    remaining = 0x10;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    previousViewportBoundsScratch.fields.x = clipLeft;
+    previousViewportBoundsScratch.fields.y = 0;
+    previousViewportBoundsScratch.fields.width = clipWidth;
+    previousViewportBoundsScratch.fields.height = 0x1E0;
+    previousViewportBounds = previousViewportBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
+    RpSkyRenderStateSet(3, (void *)(0x31003));
+    RpSkyRenderStateSet(2, (void *)(0x44));
+    mdlEffectEmitMaskedTagPair();
+    PrimDrawFlatRectangle(&previousViewportColor, &previousViewportBounds, 1.0f, 0);
+    mdlEffectEmitTagPair();
+    (*(void (**)(u32, u32))renderStates)(6, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    RpSkyRenderStateSet(3, (void *)(0x3000D));
+    shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 1, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+    cursor = (u8 *)(&previousOverlayColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    previousOverlayColor = previousOverlayColorScratch;
+    previousOverlayBoundsScratch.packet = D_00637430;
+    previousOverlayBoundsScratch.fields.x = x - 0x40;
+    previousOverlayBoundsScratch.fields.y = y - 0x40;
+    previousOverlayBounds = previousOverlayBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
+    RpSkyRenderStateSet(3, (void *)(0x71003));
+    RpSkyRenderStateSet(2, (void *)(0x44));
+    mdlEffectEmitMaskedTagPair();
+    PrimDrawFlatRectangle(&previousOverlayColor, &previousOverlayBounds, 5.0f, 0);
+    mdlEffectEmitTagPair();
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    RpSkyRenderStateSet(3, (void *)(0x7000D));
+    mdlEffectEmitMaskedTagPair();
+    shdSpriteDrawNowEx((f32) x, (f32) y, 10.0f, backgroundColor, opacity, 3, 1, (u8 *)(font), 0, 0.0f, 0.0f, 0.0f, scaleX, scaleY);
+    mdlEffectEmitTagPair();
+    cursor = (u8 *)(&previousFinishColorScratch);
+    remaining = 4;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    previousFinishColor = previousFinishColorScratch;
+    cursor = (u8 *)(&previousFinishBoundsScratch);
+    remaining = 0x10;
+    if (cursor != NULL) {
+        do {
+            *cursor = 0;
+            cursor += 1;
+        } while (--remaining != 0);
+    }
+    previousFinishBoundsScratch.fields.x = clipLeft;
+    previousFinishBoundsScratch.fields.y = 0;
+    previousFinishBoundsScratch.fields.width = clipWidth;
+    previousFinishBoundsScratch.fields.height = 0x1E0;
+    previousFinishBounds = previousFinishBoundsScratch;
+    (*(void (**)(u32, u32))renderStates)(0xE, 0);
+    (*(void (**)(u32, u32))renderStates)(0xC, 1);
+    (*(void (**)(u32, u32))renderStates)(7, 2);
+    (*(void (**)(u32, u32))renderStates)(9, 1);
+    (*(void (**)(u32, u32))renderStates)(0x14, 1);
+    (*(void (**)(u32, u32))renderStates)(6, 0);
+    (*(void (**)(u32, u32))renderStates)(8, 1);
+    RpSkyRenderStateSet(3, (void *)(0x31003));
+    RpSkyRenderStateSet(2, (void *)(0x44));
+    mdlEffectEmitMaskedTagPair();
+    PrimDrawFlatRectangle(&previousFinishColor, &previousFinishBounds, 1.0f, 0);
+    mdlEffectEmitTagPair();
+    if (forcedHighlight != 0) {
+        calDrawWeatherHighlight(x, y, 10.0f, opacity, (oldWeather & 0xF), 2, forcedHighlight, scaleX, scaleY, font, 1);
+        return;
+    }
+    calDrawWeatherHighlight(x, y, 10.0f, opacity, (oldWeather & 0xF), 2, fallbackHighlight, scaleX, scaleY, font, 1);
+}
+
+static inline void calendarZeroBytes(void *memory, s32 count)
+{
+    u8 *cursor;
+    s32 remaining;
+    cursor = memory;
+    remaining = count;
+    if (cursor != NULL) {
+        do {
+            *cursor++ = 0;
+            remaining--;
+        } while (remaining != 0);
+    }
+}
+
+#pragma push
+#pragma opt_propagation off
+// Intent: Draws one calendar date cell: day number, weekday colour, opacity and clip state [inferred]
+// FUN_00262DE0
+void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite)
+{
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    struct CalendarGlyphContext {
+        s16 offsetX, offsetY;
+        f32 depthOffset, scaleX, scaleY;
+        u8 *font;
+    };
+    char number[4];
+    s32 month;
+    s32 day;
+    struct CalendarColor { u8 r, g, b, a; } depthValue;
+    struct CalendarColor depthScratch;
+    Quad4 clip;
+    Quad4 clipScratch;
+    struct CalendarGlyphContext glyphContext;
+    s32 weekday;
+    s32 color;
+    s32 glyphWidth;
+    f32 drawDepth;
+    s32 (**states)(RwRenderState state, void *value);
+
+    calSplitDayOfYear(date, &month, &day);
+    weekday = calGetWeekdayOfDay(date);
+    color = enabled ? 0 : 0x686868;
+    if (enabled) {
+        if (weekday == 0 || calHasDayEntry(date) != 0) color = 0x860113;
+        else if (weekday == 6) color = 0x35081;
+    } else {
+        if (weekday == 0 || calHasDayEntry(date) != 0) color = 0x885C62;
+        else if (weekday == 6) color = 0x4D626F;
+    }
+    if (forceWhite == 1 && (weekday == 6 || weekday == 0 || calHasDayEntry(date) != 0))
+        color = 0xFFFFFF;
+
+    calendarZeroBytes(&depthScratch, sizeof(depthScratch));
+    depthValue = depthScratch;
+    calendarZeroBytes(&clipScratch, sizeof(clipScratch));
+    clipScratch.a = clipLeft;
+    clipScratch.b = 0;
+    clipScratch.c = clipRight;
+    clipScratch.d = 480;
+    clip = clipScratch;
+    states = D_00887300;
+    states[0]((RwRenderState)(14), (void *)(0));
+    states[0]((RwRenderState)(12), (void *)(1));
+    states[0]((RwRenderState)(7), (void *)(2));
+    states[0]((RwRenderState)(9), (void *)(1));
+    states[0]((RwRenderState)(20), (void *)(1));
+    states[0]((RwRenderState)(6), (void *)(0));
+    states[0]((RwRenderState)(8), (void *)(1));
+    RpSkyRenderStateSet(3, (void *)(0x31003));
+    RpSkyRenderStateSet(2, (void *)(0x44));
+    mdlEffectEmitMaskedTagPair();
+    PrimDrawFlatRectangle(&depthValue, &clip, depth, 0);
+    mdlEffectEmitTagPair();
+    glyphWidth = shdSpriteEntryWidth(1, 0, (u8 *)fontWord);
+    drawDepth = 1.0f + depth;
+    shdSpriteDrawNowEx(((f32)x + 0.0f) + ((f32)glyphWidth / 2.0f) * (1.0f - scaleX), (f32)y, drawDepth, color, alpha, 1, weekday, (u8 *)fontWord, 1, 0, 0, 0.0f, scaleX, scaleY);
+    sprintf(number, &iGpffffa6c4, day);
+    glyphContext.offsetX = 0;
+    glyphContext.offsetY = 0;
+    glyphContext.depthOffset = 0.0f;
+    glyphContext.scaleX = scaleX;
+    glyphContext.scaleY = scaleY;
+    glyphContext.font = (u8 *)fontWord;
+    shdSpriteDrawUniformNumber((f32)(x + 20), ((f32)y + 0.0f) + 19.0f * scaleY, drawDepth,
+                  color, alpha, number, 2, 31, 0, calDrawDayNumberGlyph, (u8 *)&glyphContext);
+}
+#pragma pop
+
+#pragma push
+#pragma opt_propagation on
+// Intent: Advances a day-scroll step over 15 frames with a sine ease and returns 1 when finished [inferred]
+// FUN_00263220
+/* measured: optimization-level probe for 00263220 register colouring */
+#pragma optimization_level 1
+s32 calDayScrollStep(Code1_00263220State *arg0, s32 arg1, s32 arg2)
+{
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f1;
+    f32 temp_f1_2;
+    s32 temp_2;
+    s32 temp_17;
+    s32 temp_3;
+    s32 var_16;
+
+    temp_17 = arg0->field20 + 1;
+    arg0->field20 = temp_17;
+    temp_3 = arg2 - arg1;
+    if (temp_3 == 1) {
+        temp_f0 = sinf((fGpffff84a4 * (f32)temp_17) /
+                                15.0f);
+        temp_f1 = temp_f0 * (f32)(arg2 - arg1);
+        temp_f0 = (f32)arg1;
+        temp_f0 = temp_f0 + temp_f1;
+        temp_2 = (s32)temp_f0;
+        arg0->field18 = temp_2;
+        arg0->field1C =
+            (s32)(94.0f * (temp_f1 - (f32)(temp_2 - arg1)));
+        if (temp_17 >= 0xF) {
+            arg0->field18 = arg2;
+            arg0->field1C = 0;
+            return 1;
+        }
+            goto block_8;
+        }
+    if (arg1 < arg2) {
+        var_16 = temp_3 * 3;
+    } else {
+        var_16 = (arg1 - arg2) * 3;
+    }
+    temp_f1_2 =
+        (1.0f + sinf(fGpffff8574 +
+                               (fGpffff82fc * (f32)temp_17) /
+                               (f32)var_16)) /
+        2.0f;
+    temp_f1_2 = temp_f1_2 * (f32)(arg2 - arg1);
+    temp_f0_2 = (f32)arg1;
+    temp_f0_2 = temp_f0_2 + temp_f1_2;
+    temp_2 = (s32)temp_f0_2;
+    arg0->field18 = temp_2;
+    arg0->field1C =
+        (s32)(94.0f * (temp_f1_2 - (f32)(temp_2 - arg1)));
+    if (temp_17 >= var_16) {
+        arg0->field18 = arg2;
+        arg0->field1C = 0;
+        return 1;
+    }
+block_8:
+    return 0;
+}
+#pragma pop
+
+#pragma push
+#pragma opt_propagation on
+#pragma optimization_level 2
+// Intent: Day-change task update: loads the day-change resource, then drives the day-change state task [inferred]
+// FUN_00263460
+s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
+{
+    s32 arg0 = (s32)sdkTaskBytes;
+    s32 sp3C;
+    s32 sp38;
+    s32 temp_2_3;
+    s32 temp_2_4;
+    s32 temp_2_5;
+    s32 temp_2_6;
+    s32 temp_2_7;
+    s32 temp_2_8;
+    u8 *temp_2;
+
+    temp_2 = kwlnTaskGetWork();
+    calSplitDayOfYear(*(s32 *)(temp_2 + 0xC), &sp3C, &sp38);
+    switch (*(u32 *)temp_2) {
+    case 0:
+        *(s32 *)(temp_2 + 4) = sdkSpritePackCreate(D_00637420);
+        *(u32 *)temp_2 = 1;
+        goto block_25;
+    case 1:
+        if (shdSpriteEnsureLoaded((u8 *)*(s32 *)(temp_2 + 4)) != 0) {
+            *(u32 *)temp_2 = 2;
+            *(s32 *)(temp_2 + 0x14) =
+                cldDayChangeStartStateTask(arg0, *(s32 *)(temp_2 + 4),
+                              *(s32 *)(temp_2 + 8));
+            if (datGetFlag(0x1471) != 0) {
+                datSetFlag(0x1471, 0);
+                return -1;
+            }
+        }
+        goto block_25;
+    case 2:
+        *(u32 *)temp_2 = 3;
+        *(s32 *)(temp_2 + 0x20) = 0;
+        *(s32 *)(temp_2 + 0x18) = *(s32 *)(temp_2 + 0xC);
+        cldDayChangeRequest(*(s32 *)(temp_2 + 0x14), sp3C);
+        /* fall through */
+    case 3:
+        temp_2_3 = *(s32 *)(temp_2 + 0x20) + 1;
+        *(s32 *)(temp_2 + 0x20) = temp_2_3;
+        if (temp_2_3 > 0xA) {
+            *(u32 *)temp_2 = 4;
+            *(s32 *)(temp_2 + 0x20) = 0;
+        }
+        goto block_25;
+    case 8:
+        temp_2_4 = *(s32 *)(temp_2 + 0x20) + 1;
+        *(s32 *)(temp_2 + 0x20) = temp_2_4;
+        if (temp_2_4 > 0x1E) {
+            cldDayChangeMarkDone((u8 *)*(s32 *)(temp_2 + 0x14));
+            *(u32 *)temp_2 = 0xA;
+            *(s32 *)(temp_2 + 0x20) = 0;
+        }
+        goto block_25;
+    case 4:
+        temp_2_5 = *(s32 *)(temp_2 + 0x20) + 1;
+        *(s32 *)(temp_2 + 0x20) = temp_2_5;
+        if (temp_2_5 > 5) {
+            *(u32 *)temp_2 = 5;
+            *(s32 *)(temp_2 + 0x20) = 0;
+        }
+        goto block_25;
+    case 9:
+        temp_2_6 = *(s32 *)(temp_2 + 0x20) + 1;
+        *(s32 *)(temp_2 + 0x20) = temp_2_6;
+        if (temp_2_6 > 0xA) {
+            *(u32 *)temp_2 = 8;
+            *(s32 *)(temp_2 + 0x20) = 0;
+        }
+        goto block_25;
+    case 5:
+        if (calDayScrollStep((Code1_00263220State *)temp_2, *(s32 *)(temp_2 + 0xC),
+                          *(s32 *)(temp_2 + 0x10)) != 0) {
+            *(u32 *)temp_2 = 6;
+            *(s32 *)(temp_2 + 0x20) = 0;
+        }
+        calSplitDayOfYear(*(s32 *)(temp_2 + 0x18), &sp3C, &sp38);
+        cldDayChangeRequest(*(s32 *)(temp_2 + 0x14), sp3C);
+        goto block_25;
+    case 7:
+        temp_2_7 = *(s32 *)(temp_2 + 0x20) + 1;
+        *(s32 *)(temp_2 + 0x20) = temp_2_7;
+        if (temp_2_7 > 0xA) {
+            *(u32 *)temp_2 = 9;
+            *(s32 *)(temp_2 + 0x20) = 0;
+        }
+        goto block_25;
+    case 6:
+        temp_2_8 = *(s32 *)(temp_2 + 0x20) + 1;
+        *(s32 *)(temp_2 + 0x20) = temp_2_8;
+        if (temp_2_8 > 5) {
+            *(u32 *)temp_2 = 7;
+            *(s32 *)(temp_2 + 0x20) = 0;
+        }
+        goto block_25;
+    case 10:
+        cldDayChangeMarkDone((u8 *)*(s32 *)(temp_2 + 0x14));
+        /* fall through */
+    case 11:
+        if (cldDayChangeIsDone(*(s32 *)(temp_2 + 0x14)) != 0) {
+            return -1;
+        }
+    default:
+        goto block_25;
+    }
+block_25:
+    calQueueDayStripDraw(arg0, *(s32 *)(temp_2 + 8));
+    return 0;
+}
+#pragma pop
+
+#pragma push
+#pragma opt_propagation on
+#pragma optimization_level 2
+/* The scrolling state supplies a fractional-day offset of at most 94 pixels.
+ * Blend the weather glyphs on either side of the day boundary; the selected
+ * columns are redrawn with their own clip intervals. Opacity is a byte in
+ * this function and in both calendar drawing helpers. */
+// Intent: Draws the day strip with a crossfade between two weather columns at the fractional scroll offset [inferred]
+// FUN_00263730
+/* measured: opt_loop_invariants on hoists (u8)opacity into the sq/lq spill retail has (269 -> 253 words on the shape before the statement-ordered font word; off it stays inside the fade block). */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_lifetimes on
+void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade, u8 *work)
+{
+    s32 column;
+    s32 oldWeather;
+    s32 weather;
+    u8 oldOpacity;
+    u8 newOpacity;
+    s32 oldFont;
+    s32 newFont;
+    s32 rowFont;
+    s32 selectedFont;
+
+    for (column = 0; column < 8; column++) {
+        if (date - 1 + column < 0) {
+            continue;
+        }
+        if (crossfade != 0 && (oldWeather = (u16)calGetPackedDayEntry(date - 1 + column, date)) != (u16)calGetPackedDayEntry(date - 1 + column, date + 1)) {
+            oldOpacity = (u8)(255.0f - (f32)(func_0043c6a0(x) * (u8)opacity) / 94.0f);
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, oldOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
+            oldFont = *(s32 *)(work + 4);
+            weather = (u16)calGetPackedDayEntry(date - 1 + column, date);
+            calDrawWeather(x + column * 0x5E, y + 295, depth, oldOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, oldFont, 0);
+            newOpacity = (u8)((f32)(func_0043c6a0(x) * (u8)opacity) / 94.0f);
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, newOpacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
+            newFont = *(s32 *)(work + 4);
+            weather = (u16)calGetPackedDayEntry(date - 1 + column, date + 1);
+            calDrawWeather(x + column * 0x5E, y + 295, depth, newOpacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, newFont, 0);
+        } else {
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(work + 4), 0);
+            rowFont = *(s32 *)(work + 4);
+            weather = (u16)calGetPackedDayEntry(date - 1 + column, date);
+            calDrawWeather(x + column * 0x5E, y + 295, depth, opacity, weather, 0, 1.0f, 1.0f, 0x58, 0x5A, rowFont, 0);
+        }
+        if (column == 1) {
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(work + 4), 0);
+            selectedFont = *(s32 *)(work + 4);
+            weather = (u16)calGetPackedDayEntry(date - 1 + column, date);
+            calDrawWeather(x + column * 0x5E, y + 295, depth, opacity, weather, 1, 1.0f, 1.0f, 0, 0x58, selectedFont, 0);
+        } else if (column == 2) {
+            calDrawDateCell(x + column * 0x5E + 15, y + 245, depth, opacity, date - 1 + column, 1, 1.0f, 1.0f, 0xB2, 0x5E, *(s32 *)(work + 4), 0);
+            selectedFont = *(s32 *)(work + 4);
+            weather = (u16)calGetPackedDayEntry(date - 1 + column, date);
+            calDrawWeather(x + column * 0x5E, y + 295, depth, opacity, weather, 1, 1.0f, 1.0f, 0xB2, 0x5E, selectedFont, 0);
+        }
+    }
+}
+#pragma pop
+
+#pragma push
+#pragma opt_propagation on
+#pragma optimization_level 2
+#pragma opt_lifetimes on
+// Intent: Queued draw callback for the day strip: draws fade rectangles and the strip columns [inferred]
+// FUN_00263CB0
+void calDrawDayStripCallback(s32 arg0, u8 *arg1)
+{
+    typedef signed __int128 s128;
+    extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
+    extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
+    extern void calDrawDayStrip(s32, s32, f32, u8, s32, s32, u8 *);
+    u8 *temp_2;
+    s32 temp_3;
+    f32 spEC;
+    f32 spE8;
+    f32 spE4;
+    f32 spE0;
+    typedef struct { s32 x, y, w, h; } FadeRect;
+    s128 spD0;
+    FadeRect rectC __attribute__((aligned(16)));
+    s128 spB0;
+    FadeRect rectA __attribute__((aligned(16)));
+    f32 *var_3;
+    f32 *var_3_3;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f13;
+    s32 var_21;
+    f32 temp_f20;
+    f32 temp_f21;
+    u8 *var_3_2;
+    u8 *var_3_4;
+    s32 temp_16;
+    s32 temp_16_2;
+    s32 temp_17;
+    s32 temp_17_2;
+    s32 temp_17_3;
+    s32 temp_17_4;
+    s32 temp_17_5;
+    s32 temp_17_6;
+    s32 temp_17_7;
+    s32 temp_17_8;
+    s32 temp_17_9;
+    s32 temp_18;
+    s32 temp_18_3;
+    f32 temp_f13_2;
+    s32 temp_18_5;
+    s32 temp_18_6;
+    s32 temp_18_7;
+    s32 temp_21;
+    s32 temp_2_2;
+    s32 temp_2_3;
+    s32 temp_3_2;
+    s32 temp_3_3;
+    s32 temp_3_4;
+    s32 var_17;
+    s32 var_18;
+    s32 temp_18_4;
+    s32 var_2;
+    s32 var_2_2;
+    s32 var_2_3;
+    s32 var_2_4;
+    s32 temp_20;
+    s64 temp_20_2;
+
+    temp_2 = kwlnTaskGetWork(arg1);
+    temp_3 = *(s32 *)(temp_2 + 0);
+    switch (temp_3) {
+    case 3:
+        temp_17 = *(s32 *)(temp_2 + 0x18);
+        temp_2_2 = *(s32 *)(temp_2 + 0x20);
+        if (temp_2_2 < 5) {
+            temp_f20 = sinf(fGpffff84a4 * ((f32)temp_2_2 / 5.0f));
+            temp_f0 = (f32)shdSpriteEntryWidth(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
+            temp_f13 = 1.0f - temp_f20;
+            temp_f13_2 = 88.0f + temp_f0 * temp_f13;
+            shdSpriteDrawNowEx(temp_f13_2, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f20, 1.0f);
+        } else {
+            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        }
+        temp_3_2 = *(s32 *)(temp_2 + 0x20);
+        if (temp_3_2 > 1) {
+            temp_f0 = 255.0f * ((f32)(temp_3_2 - 1) / 9.0f);
+            temp_21 = (s32)temp_f0;
+            calDrawDayStrip(0, 0, 0.0f, temp_21 & 0xFF, temp_17, 0,
+                          temp_2);
+        }
+        break;
+    case 4:
+    case 9:
+        temp_17_2 = *(s32 *)(temp_2 + 0x18);
+        shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        calDrawDayStrip(0, 0, 0.0f, 0xFF, temp_17_2, 0, temp_2);
+        break;
+    case 6:
+        temp_17_5 = *(s32 *)(temp_2 + 0xC);
+        if (*(s32 *)(temp_2 + 0x10) - temp_17_5 == 1) {
+            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            calDrawDayStrip(-0x5E, 0, 0.0f, 0xFF, temp_17_5, 0, temp_2);
+        } else {
+            temp_17_6 = *(s32 *)(temp_2 + 0x18);
+            temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
+            shdSpriteDrawNowEx(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_17_6, 0, temp_2);
+        }
+        break;
+    case 8:
+        temp_3 = *(s32 *)(temp_2 + 0x18);
+        temp_3_3 = *(s32 *)(temp_2 + 0x20);
+        if (temp_3_3 < 0xA) {
+            temp_f0 = (f32)temp_3_3 / 10.0f;
+            temp_21 = (s32)(255.0f * (1.0f - temp_f0));
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            var_21 = 0;
+            while (var_21 < 7) {
+                temp_20 = temp_3 - 1 + var_21;
+                if ((temp_20 >= 0) && (var_21 != 1)) {
+                    calDrawDateCell(var_21 * 0x5E + 0xF, 0xF5, 0.0f, temp_21, (s32)temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
+                    temp_17 = *(s32 *)(temp_2 + 4);
+                    calDrawWeather(var_21 * 0x5E, 0x127, 0.0f, temp_21, calGetPackedDayEntry((s32)temp_20, temp_3) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
+                }
+                var_21 += 1;
+            }
+            calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+            temp_16_2 = *(s32 *)(temp_2 + 4);
+            calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
+        } else if (temp_3_3 < 0x19) {
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            var_3 = &spE8;
+            var_2 = 4;
+            if (var_3 != NULL) {
+                do {
+                    *(u8 *)var_3 = 0;
+                    var_3 = (f32 *)((u8 *)var_3 + 1);
+                    var_2 -= 1;
+                } while (var_2 != 0);
+            }
+            spEC = spE8;
+            var_3_2 = (u8 *)&rectC;
+            var_2_2 = 0x10;
+            if (var_3_2 != NULL) {
+                do {
+                    *var_3_2 = 0;
+                    var_3_2 += 1;
+                    var_2_2 -= 1;
+                } while (var_2_2 != 0);
+            }
+            rectC.x = 0;
+            rectC.y = 0;
+            rectC.w = 0x280;
+            rectC.h = 0x1E0;
+            spD0 = *(s128 *)&rectC;
+            {
+                u32 table = (u32)D_00887300;
+
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0xE), (void *)(0));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0xC), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(7), (void *)(2));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(9), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0x14), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(6), (void *)(0));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(8), (void *)(1));
+            }
+            RpSkyRenderStateSet(3, (void *)(0x31003));
+            RpSkyRenderStateSet(2, (void *)(0x44));
+            mdlEffectEmitMaskedTagPair();
+            PrimDrawFlatRectangle(&spEC, &spD0, 10.0f, 0);
+            mdlEffectEmitTagPair();
+            calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+            temp_16_2 = *(s32 *)(temp_2 + 4);
+            calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16_2, 0);
+        } else if (temp_3_3 < 0x1E) {
+            temp_f20 = (f32)(temp_3_3 - 0x19) / 5.0f;
+            temp_f0_2 = 1.0f - temp_f20;
+            temp_17_9 = (s32)(255.0f * temp_f0_2);
+            temp_f0 = (f32)shdSpriteEntryWidth(2, 0, *(u8 **)(temp_2 + 4)) / 2.0f;
+            temp_f13 = 88.0f + temp_f0 * temp_f20;
+            shdSpriteDrawNowEx(temp_f13, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, temp_f0_2, 1.0f);
+            var_3_3 = &spE0;
+            var_2_3 = 4;
+            if (var_3_3 != NULL) {
+                do {
+                    *(u8 *)var_3_3 = 0;
+                    var_3_3 = (f32 *)((u8 *)var_3_3 + 1);
+                    var_2_3 -= 1;
+                } while (var_2_3 != 0);
+            }
+            spE4 = spE0;
+            var_3_4 = (u8 *)&rectA;
+            var_2_4 = 0x10;
+            if (var_3_4 != NULL) {
+                do {
+                    *var_3_4 = 0;
+                    var_3_4 += 1;
+                    var_2_4 -= 1;
+                } while (var_2_4 != 0);
+            }
+            rectA.x = 0;
+            rectA.y = 0;
+            rectA.w = 0x280;
+            rectA.h = 0x1E0;
+            spB0 = *(s128 *)&rectA;
+            {
+                u32 table = (u32)D_00887300;
+
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0xE), (void *)(0));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0xC), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(7), (void *)(2));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(9), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(0x14), (void *)(1));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(6), (void *)(0));
+                (*(s32 (**)(RwRenderState, void *))table)((RwRenderState)(8), (void *)(1));
+            }
+            RpSkyRenderStateSet(3, (void *)(0x31003));
+            RpSkyRenderStateSet(2, (void *)(0x44));
+            mdlEffectEmitMaskedTagPair();
+            PrimDrawFlatRectangle(&spE4, &spB0, 10.0f, 0);
+            mdlEffectEmitTagPair();
+            calDrawDateCell(0x6D, 0xF5, 0.0f, temp_17_9, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+            temp_16 = *(s32 *)(temp_2 + 4);
+            calDrawWeather(0x5E, 0x127, 0.0f, temp_17_9, calGetPackedDayEntry(temp_3, temp_3) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
+        }
+        break;
+    case 5:
+        temp_17_3 = *(s32 *)(temp_2 + 0xC);
+        temp_3_4 = *(s32 *)(temp_2 + 0x10);
+        if (temp_3_4 - temp_17_3 == 1) {
+            if (*(s32 *)(temp_2 + 0x18) == temp_3_4) {
+                var_18 = -0x5E;
+            } else {
+                var_18 = -*(s32 *)(temp_2 + 0x1C);
+            }
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            calDrawDayStrip(var_18, 0, 0.0f, 0xFF, temp_17_3, 0, temp_2);
+        } else {
+            temp_16_2 = *(s32 *)(temp_2 + 0x18);
+            temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_16_2, 1, temp_2);
+        }
+        break;
+    case 7:
+        temp_17_7 = *(s32 *)(temp_2 + 0x10);
+        if (temp_17_7 - *(s32 *)(temp_2 + 0xC) == 1) {
+            temp_18_4 = calGetPackedDayEntry(temp_17_7 + 3, temp_17_7) & 0xFFFF;
+            temp_18_5 = calGetPackedDayEntry(temp_17_7 + 3, temp_17_7 + 1) & 0xFFFF;
+            if (temp_18_4 == temp_18_5) {
+                temp_17_8 = *(s32 *)(temp_2 + 0x18);
+                shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+                calDrawDayStrip(0, 0, 0.0f, 0xFF, temp_17_8, 0, temp_2);
+            } else {
+                temp_17_9 = *(s32 *)(temp_2 + 0xC);
+                shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+                temp_17_3 = 0;
+                while (temp_17_3 < 7) {
+                    if ((temp_17_3 != 1) && (temp_17_3 != 4)) {
+                        temp_20 = temp_17_9 + temp_17_3;
+                        var_2 = temp_17_3 * 0x5E;
+                        calDrawDateCell(var_2 + 0xF, 0xF5, 0.0f, 0xFF, temp_20, 0, 1.0f, 1.0f, 0x58, 0x5A, *(s32 *)(temp_2 + 4), 0);
+                        temp_17 = *(s32 *)(temp_2 + 4);
+                        calDrawWeather(var_2, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_20, temp_17_9) & 0xFFFF, 0, 1.0f, 1.0f, 0x58, 0x5A, temp_17, 0);
+                    }
+                    temp_17_3 += 1;
+                }
+                calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_17_9 + 1, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+                temp_16 = *(s32 *)(temp_2 + 4);
+                calDrawWeather(0x5E, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_17_9 + 1, temp_17_9) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0x58, temp_16, 0);
+                temp_3_2 = *(s32 *)(temp_2 + 0x20);
+                if (temp_3_2 < 5) {
+                    temp_f21 = (f32)temp_3_2 / 5.0f;
+                    calDrawDateCell(0x187, 0xF5, 0.0f, 0xFF, temp_17_9 + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+                    temp_18_6 = *(s32 *)(temp_2 + 4);
+                    calDrawWeather(0x178, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_17_9 + 4, temp_17_9) & 0xFFFF, 0, 1.0f - temp_f21, 1.0f, 0, 0x58, temp_18_6, 0);
+                } else {
+                    temp_f21 = ((f32)temp_3_2 - 5.0f) / 5.0f;
+                    calDrawDateCell(0x187, 0xF5, 0.0f, 0xFF, temp_17_9 + 4, 0, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
+                    temp_18_7 = *(s32 *)(temp_2 + 4);
+                    calDrawWeather(0x178, 0x127, 0.0f, 0xFF, calGetPackedDayEntry(temp_17_9 + 4, temp_17_9 + 1) & 0xFFFF, 0, temp_f21, 1.0f, 0, 0x58, temp_18_7, 0);
+                }
+            }
+        } else {
+            temp_16_2 = *(s32 *)(temp_2 + 0x18);
+            temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
+            shdSpriteDrawNow(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
+            calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_16_2, 1, temp_2);
+        }
+        break;
+    case 0:
+    case 1:
+    case 2:
+        break;
+    default:
+        break;
+    }
+}
+#pragma pop
+
+#pragma push
+#pragma opt_propagation on
+#pragma optimization_level 2
+// Intent: Queues a day-strip draw task with the strip callback and its state argument [inferred]
+// FUN_00264CB0
+void calQueueDayStripDraw(s32 arg0, s32 arg1)
+{
+    u8 *temp_2;
+
+    temp_2 = PrimAllocQueueNode();
+    *(void (**)(s32, u8 *))(temp_2 + 8) = calDrawDayStripCallback;
+    *(s32 *)(temp_2 + 0x10) = arg0;
+    PrimAppendNode((u8 *)arg1, temp_2);
+}
+#pragma pop
+
+#pragma push
+#pragma opt_propagation on
+#pragma optimization_level 2
+// Intent: Day-change task destroy: destroys the child task hierarchy, frees the day-change resource and releases the task work block [inferred]
+// FUN_00264D10
+void cldDayChangeStopTask(u8 *unusedTask)
+{
+    s32 temp_4;
+    u8 *temp_2;
+
+    temp_2 = kwlnTaskGetWork();
+    if (kwlnTaskIsLinked((u8 *)*(s32 *)(temp_2 + 0x14)) != 0) {
+        kwlnTaskDestroyWithHierarchy(*(s32 *)(temp_2 + 0x14));
+    }
+    temp_4 = *(s32 *)(temp_2 + 4);
+    if (temp_4 != 0) {
+        sdkSpritePackDestroy((void *)temp_4);
+    }
+    (*jtbl_008873EC)(temp_2);
+}
+#pragma pop
