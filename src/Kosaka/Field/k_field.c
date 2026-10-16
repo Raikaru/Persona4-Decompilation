@@ -436,7 +436,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void resrcMngSetRenderSuppressed(s32 arg0);
 extern s32 evtPMFileReaderCreate(s32 a, s32 b, s32 c, s32 d);
-extern void func_0029ddb0(s32 arg0);
+extern void scrDebugDumpWorkList(s32 arg0);
 extern void FldResource_OpenPrimaryFile(u16 arg0, u16 arg1);
 extern u8 D_007D255A[];
 extern u8 D_007D255B[];
@@ -494,7 +494,7 @@ s32 FldRootCreate(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
         *(s32 *)(work + 0x10) = *(s32 *)&arg11;
         *(s32 *)(work + 0x14) = *(s32 *)&arg12;
     } else {
-        func_0029ddb0(*(s32 *)&arg10);
+        scrDebugDumpWorkList(*(s32 *)&arg10);
         *(u16 *)(work + 0x18) = arg1;
         *(u16 *)(work + 0x1A) = arg2;
         *(s16 *)(work + 0x20) = arg4;

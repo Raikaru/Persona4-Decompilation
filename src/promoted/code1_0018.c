@@ -88,7 +88,7 @@ extern s32 D_0076428C;
 extern s32 iGpffffb27c;
 extern u64 iGpffffb8c8;
 extern s32 iGpffffb278;
-extern s32 func_0029d2e0(void);
+extern s32 scrGetWorkCount(void);
 extern s32 iGpffffb268;
 extern s32 iGpffffb250;
 extern s16 iGpffffb390;
@@ -3326,7 +3326,7 @@ s32 FldSupporterUpdate(u8 *arg0)
     work = *(u8 **)(arg0 + 0x38);
     if ((*(s32 *)(work + 4) == 1))
         return 0;
-    if (func_0029d2e0() > 0)
+    if (scrGetWorkCount() > 0)
         return 0;
     state = *(s32 *)(work + 0);
     switch (state) {

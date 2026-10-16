@@ -11,7 +11,7 @@ extern void titleStartSoundTask(s32);
 extern s32 btlIsRunning(void);
 extern void func_002853b0(void);
 extern s32 func_002853c0(void);
-extern void func_0029e8d0(void *);
+extern void scrCreateScriptChildTask(void *);
 extern void seqYajiTaskCreate(void);
 extern s32 func_002bdb50(s32, s8);
 extern s32 shopSystemCreate(s32);
@@ -149,7 +149,7 @@ void SeqBattle_End(void)
 void SeqScriptViewer_Start(void)
 {
     if (kwlnTaskGetTaskByName(D_005DCBB0) == 0) {
-        func_0029e8d0(0);
+        scrCreateScriptChildTask(0);
     }
 }
 

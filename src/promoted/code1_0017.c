@@ -124,7 +124,7 @@ extern s32 FldStepAdvance(s32 arg0);
 extern s32 FldSceneLoadReady(void);
 extern s32 FldRc_CreateTransitionTask(s32 arg0, s32 arg1);
 extern s32 scrGetAiState(void);
-extern void func_0029dfe0(s32 arg0, s32 arg1);
+extern void scrSetTaskProc(s32 arg0, s32 arg1);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 
 extern s32 scrGetParamInt(s32 arg0);
