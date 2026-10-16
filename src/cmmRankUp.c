@@ -134,7 +134,7 @@ extern u8 D_00636710[];
 extern u8 D_00635C80[];
 extern u8 D_00635CA0[];
 extern u8 D_005DC974[];
-extern s64 func_00248760(s32 arg0);
+extern s64 cmmCommunityArcana(s32 arg0);
 extern u8 *func_002438b0();
 extern u8 *cmmPersonaRecord();
 extern u8 *datPersonaGetRow(u16 personaId);
@@ -269,7 +269,7 @@ extern void *memset(void *dst, s32 value, u32 size);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern u8 *cmmKindRecord(s32 arg0);
 extern s32 datGetFlag(s32 flag);
-extern s64 func_00248d80(s16 arg0);
+extern s64 cmmResolveCounterpart(s16 arg0);
 extern void itfMesWindowApplySlots(s32 arg0);
 extern u8 *itfMesWindowBuildEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
                          s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
@@ -1531,8 +1531,8 @@ u8 *func_00255b90(void) {
 s32 func_00255ed0(s64 arg0, s32 arg1) {
     if ((*(s32 *)((u8 *)cmmKindRecord((u16)arg0) + 4) & 0x10) != 0 &&
         (arg0 != 0x18 || datGetFlag(0x38) != 0)) {
-        if ((s16)func_00248d80(arg0) == 3 ||
-            (s16)func_00248d80(arg0) == 4) {
+        if ((s16)cmmResolveCounterpart(arg0) == 3 ||
+            (s16)cmmResolveCounterpart(arg0) == 4) {
             if (arg1 == 3) {
                 return 7;
             }
@@ -2533,7 +2533,7 @@ s32 func_00257900(u8 *task) {
             } else if (mode0Frame < 0x1EB) {
                 func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
                 temp_17_2 = (s32)(*(s32 *)(context + 8) - 0xBE);
-                itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+                itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(cmmCommunityArcana(*(u16 *)(context + 0x18)) & 0xFF));
                 temp_2_3 = (s32)(*(s32 *)(context + 0xC));
                 if (temp_2_3 > 0) {
                     *(s32 *)(context + 0xC) = (s32) (temp_2_3 + 1);
@@ -2638,7 +2638,7 @@ s32 func_00257900(u8 *task) {
             } else if (mode0Frame < 0x213) {
                 func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
                 func_002561f0(0.0f, 40.0f, 0.0f, 0, 0x99, 0x99, 0x99, 1, 0, 0, 1.0f, 1.0f);
-                itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+                itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(cmmCommunityArcana(*(u16 *)(context + 0x18)) & 0xFF));
                 func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 0);
                 func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 1);
                 func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 0, 2);
@@ -2651,7 +2651,7 @@ s32 func_00257900(u8 *task) {
                 func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20, firstTexture, secondTexture);
                 temp_f0_4 = 153.0f * temp_f21;
                 func_002561f0(0.0f, 40.0f, 0.0f, 0, (s32)( temp_f0_4), (s32)( temp_f0_4), (s32)( temp_f0_4), 1, 0, 0, 1.0f, 1.0f);
-                itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
+                itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(cmmCommunityArcana(*(u16 *)(context + 0x18)) & 0xFF));
                 temp_f0_5 = 255.0f * temp_f21;
                 func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 0);
                 func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_5), 0, 0, 0, *(s8 *)(context + 0x3C), 0, 1);
@@ -2736,8 +2736,8 @@ s32 func_00257900(u8 *task) {
         } else if (mode10Frame < 0x1C3) {
             func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
             temp_17_3 = (s32)(*(s32 *)(context + 8) - 0x96);
-            itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(cmmCommunityArcana(*(u16 *)(context + 0x18)) & 0xFF));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(*(u16 *)(context + 0x18))) + 0x40)));
             temp_2_18 = (s32)(*(s32 *)(context + 0xC));
             if (temp_2_18 > 0) {
                 *(s32 *)(context + 0xC) = (s32) (temp_2_18 + 1);
@@ -2842,8 +2842,8 @@ s32 func_00257900(u8 *task) {
         } else if (mode10Frame < 0x1F5) {
             func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
             func_00256460(0.0f, 40.0f, 0.0f, 0, 0x99, 0x99, 0x99, 1, 0, 0, 1.0f, 1.0f);
-            itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(cmmCommunityArcana(*(u16 *)(context + 0x18)) & 0xFF));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(*(u16 *)(context + 0x18))) + 0x40)));
             func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 0);
             func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 1);
             func_00256040(320.0f, 140.0f, 0.0f, 0xFFFFFF, 0xFF, 0, 0, 0, *(s8 *)(context + 0x3C), 1, 2);
@@ -2858,8 +2858,8 @@ s32 func_00257900(u8 *task) {
             func_002566d0(0.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 0.0f, temp_f20_2, firstTexture, secondTexture);
             temp_f0_9 = 153.0f * temp_f21_2;
             func_00256460(0.0f, 40.0f, 0.0f, 0, (s32)( temp_f0_9), (s32)( temp_f0_9), (s32)( temp_f0_9), 1, 0, 0, 1.0f, 1.0f);
-            itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(func_00248760(*(u16 *)(context + 0x18)) & 0xFF));
-            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)func_00248760(*(u16 *)(context + 0x18))) + 0x40)));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 0, func_002438b0(cmmCommunityArcana(*(u16 *)(context + 0x18)) & 0xFF));
+            itfMesWindowSetString(*(s8 *)(context + 0x3C), 1, datPersonaGetRow(*(u16 *)((u8 *)cmmPersonaRecord((s32)(s8)cmmCommunityArcana(*(u16 *)(context + 0x18))) + 0x40)));
             temp_f0_10 = 255.0f * temp_f21_2;
             func_00256040(320.0f, 60.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 0);
             func_00256040(320.0f, 100.0f, 0.0f, 0xFFFFFF, (s32)( temp_f0_10), 0, 0, 0, *(s8 *)(context + 0x3C), 1, 1);
@@ -3226,7 +3226,7 @@ extern s8 func_002bab80();
 extern s32 func_002badc0(s8 slot, s32 message);
 extern void func_002bae80();
 extern s32 func_00255ed0();
-extern s64 func_00248760(s32 arg0);
+extern s64 cmmCommunityArcana(s32 arg0);
 extern u8 *func_002438b0();
 extern u8 *cmmNameRecord(u32);
 extern u8 *cmmTextRecord();
@@ -3290,7 +3290,7 @@ s32 func_0025b240(u8 *arg0) {
     switch (*(s32 *)(ctx + 4)) {
     case 0:
         *(s32 *)(ctx + 4) = 3;
-        *(s32 *)(ctx + 0x2C) = (s32)func_0035adc0((s32)argb, func_00248760(*(u16 *)(ctx + 0x18)), 0);
+        *(s32 *)(ctx + 0x2C) = (s32)func_0035adc0((s32)argb, cmmCommunityArcana(*(u16 *)(ctx + 0x18)), 0);
         *(s32 *)(ctx + 0x30) = (s32)func_0035adc0((s32)argb, -1, 0);
         func_00440b68(&cGpffffa680, D_00635CF8, 0xADB);
         *(u8 **)(ctx + 0x34) = func_00454a60(D_00636760, 1);
@@ -3444,7 +3444,7 @@ s32 func_0025b240(u8 *arg0) {
         *(s8 *)(ctx + 0x3C) = func_002bab80(*(void **)(ctx + 0x38));
         tmp4 = *(s32 *)(ctx + 0x1C);
         if (tmp4 == 0) {
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 0, (char *)func_002438b0((u8)func_00248760(*(u16 *)(ctx + 0x18))));
+            func_002bbd80(*(s8 *)(ctx + 0x3C), 0, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
             if (*(s32 *)(ctx + 0x18) == 7) {
                 func_002badc0(*(s8 *)(ctx + 0x3C), 0xC);
             } else {
@@ -3453,10 +3453,10 @@ s32 func_0025b240(u8 *arg0) {
         } else if (tmp4 == 10) {
             frFontExCopyString((char *)cmmNameRecord(*(u16 *)(ctx + 0x18)), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (char *)func_002438b0((u8)func_00248760(*(u16 *)(ctx + 0x18))));
-            frFontExCopyString((char *)cmmPersonaRecord((s8)func_00248760(*(u16 *)(ctx + 0x18))), (char *)sp160, 0x20);
+            func_002bbd80(*(s8 *)(ctx + 0x3C), 1, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
+            frFontExCopyString((char *)cmmPersonaRecord((s8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))), (char *)sp160, 0x20);
             func_002bbd80(*(s8 *)(ctx + 0x3C), 2, sp160);
-            strcpy((char *)sp160, (char *)datPersonaGetRow(*(u16 *)(cmmPersonaRecord((s8)func_00248760(*(u16 *)(ctx + 0x18))) + 0x40)));
+            strcpy((char *)sp160, (char *)datPersonaGetRow(*(u16 *)(cmmPersonaRecord((s8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))) + 0x40)));
             func_002bbd80(*(s8 *)(ctx + 0x3C), 3, sp160);
             func_002badc0(*(s8 *)(ctx + 0x3C), 4);
         } else if (tmp4 == 11) {
@@ -3479,7 +3479,7 @@ s32 func_0025b240(u8 *arg0) {
             func_002bbd80(*(s8 *)(ctx + 0x3C), 0, sp160);
             sprintf(sp160, &cGpffffa688, *(s32 *)(ctx + 0x1C));
             func_002bbd80(*(s8 *)(ctx + 0x3C), 1, sp160);
-            func_002bbd80(*(s8 *)(ctx + 0x3C), 2, (char *)func_002438b0((u8)func_00248760(*(u16 *)(ctx + 0x18))));
+            func_002bbd80(*(s8 *)(ctx + 0x3C), 2, (char *)func_002438b0((u8)cmmCommunityArcana(*(u16 *)(ctx + 0x18))));
             func_002badc0(*(s8 *)(ctx + 0x3C), 3);
         }
     case 14:

@@ -1365,7 +1365,7 @@ void func_00356250(u8 *arg0)
     extern char D_005E5830[];
     extern char D_005E5850[];
     extern s32 cmmCommunityFindByKind(s16 arg0);
-    extern s64 func_00248760(s32 arg0);
+    extern s64 cmmCommunityArcana(s32 arg0);
     extern u16 func_00107ac0(s32 arg0);
     extern s32 cmmCommunityTestBroken(s32 arg0);
     extern s32 cmmCommunityTestReversed(s32 arg0);
@@ -1427,7 +1427,7 @@ void func_00356250(u8 *arg0)
         id = cmmCommunityFindByKind(m) & 0xFFFF;
         if (id > 0) {
             p = arg0 + n * 0xC;
-            *(s8 *)(p + 0x38) = func_00248760(id);
+            *(s8 *)(p + 0x38) = cmmCommunityArcana(id);
             *(s16 *)(p + 0x3A) = id;
             kind = (u16 *)(p + 0x3C);
             *kind = func_00107ac0(id);

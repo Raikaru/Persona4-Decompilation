@@ -67,7 +67,7 @@ extern void func_00291060(s32 arg0);
 extern s32 func_00291080(s32 arg0);
 extern void func_00296850(s32 arg0, u8 *arg1);
 extern s32 func_00298250(s32 arg0, s32 arg1);
-extern s32 func_00248d00(s32 arg0, s32 arg1, s32 arg2);
+extern s32 cmmTableLookupValue(s32 arg0, s32 arg1, s32 arg2);
 extern void func_00298100(s32 arg0);
 extern void func_0028b7b0(u8 *arg0);
 extern void evtEnvSlotSave(u8 *arg0, s32 arg1);
@@ -273,7 +273,7 @@ func_00285dd0_loop_check:
                                *(s32 *)(data + 0x790));
         if ((result != 1) && (result != 2)) {
             func_00294040(arg0);
-            result = func_00248d00(*(s32 *)(data + 0x78C),
+            result = cmmTableLookupValue(*(s32 *)(data + 0x78C),
                                    *(s32 *)(data + 0x790),
                                    *(s32 *)(data + 0x794));
             if (result > 0) {
