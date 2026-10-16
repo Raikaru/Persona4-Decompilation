@@ -42,7 +42,7 @@ typedef struct {
     s32 field1C;
     s32 field20;
 } Code1_00263220State;
-static inline f32 func_00263220_mul(f32 left, f32 right)
+static inline f32 mtSceneMulF32(f32 left, f32 right)
 {
     return left * right;
 }
@@ -55,11 +55,11 @@ extern u8 D_00881530[];
 extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
-static inline u32 *func_0026e010_add_offset(s32 offset, u32 *base)
+static inline u32 *mtScenePayloadAt(s32 offset, u32 *base)
 {
     return (u32 *)((u8 *)base + offset + 8);
 }
-static inline u8 *func_0026f1e0_add(u8 *base, u32 index)
+static inline u8 *mtSceneByteOffset(u8 *base, u32 index)
 {
     return base + index;
 }
@@ -833,7 +833,7 @@ s32 func_0026f1e0(s32 arg0, u32 arg1, s32 arg2)
     self = (u8 *)arg1;
     temp_3_4 = *(s32 *)(self + 0x18);
     temp_3_5 = *(s32 *)(self + 0x10);
-    temp_3 = func_0026f1e0_add((u8 *)temp_3_5, (u32)temp_3_4);
+    temp_3 = mtSceneByteOffset((u8 *)temp_3_5, (u32)temp_3_4);
     temp_4 = (temp_3[0] - 1) & 0xFF;
     temp_3_2 = temp_3[1];
     if (temp_3_2 == 0xFF) {
@@ -885,7 +885,7 @@ s32 func_0026f2c0(s32 arg0, u8 *arg1)
 
     stream_offset = *(s32 *)(arg1 + 0x18);
     stream_base = *(s32 *)(arg1 + 0x10);
-    stream = func_0026f1e0_add((u8 *)stream_base, (u32)stream_offset);
+    stream = mtSceneByteOffset((u8 *)stream_base, (u32)stream_offset);
     low = (stream[0] - 1) & 0xFF;
     high_byte = stream[1];
     if (high_byte == 0xFF) {
