@@ -13,16 +13,18 @@ extern void pscModelDraw(void* a0);
 
 
 
+// Intent: task callback that forwards its work pointer to kwlnTaskGetWork. Stored in a task node's +8 callback slot (comuTimerSequence_inferred_002519e0.c).
 // FUN_002519B0
-void func_002519b0(void* param_1, void* param_2)
+void kwlnTaskGetWorkCallback(void* param_1, void* param_2)
 {
     kwlnTaskGetWork(param_2);
 }
 
 
 
+// Intent: callback that forwards its work pointer to itfMesFlushPending. Stored in a manager node's +8 callback slot (itfMesManager_inferred_0027b5d0.c).
 // FUN_0027B5A0
-void func_0027b5a0(void* param_1, void* param_2)
+void itfMesFlushPendingCallback(void* param_1, void* param_2)
 {
     itfMesFlushPending(param_2);
 }
@@ -37,16 +39,18 @@ void func_002a1ef0(void* param_1, void* param_2)
 
 
 
+// Intent: draw-node callback that forwards its work pointer to mcDrawDispatch. Stored in a draw work item's +8 slot (Kernel/mc.c).
 // FUN_002A6650
-void func_002a6650(void* param_1, void* param_2)
+void mcDrawDispatchCallback(void* param_1, void* param_2)
 {
     mcDrawDispatch(param_2);
 }
 
 
 
+// Intent: draw-node callback that forwards its work pointer to pscModelDraw. Stored in a panel draw node's +8 slot (gc_model_inferred_00369470.c).
 // FUN_00369440
-void func_00369440(void* param_1, void* param_2)
+void pscModelDrawCallback(void* param_1, void* param_2)
 {
     pscModelDraw(param_2);
 }

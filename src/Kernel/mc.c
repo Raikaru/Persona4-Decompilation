@@ -13,7 +13,7 @@ extern void PrimAppendNode(void *, void *);
 extern void PrimDrawFlatRectangle(void *, void *, f32, s32);
 extern void sdkSpritePackDestroy(u32 param_1);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
-extern void func_002a6650(void *, void *);
+extern void mcDrawDispatchCallback(void *, void *);
 extern void mcQueueDrawJob(s32);
 extern void mcIconWorkFree(void *arg0);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
@@ -1636,7 +1636,7 @@ s32 mcDrawDispatch(s32 arg0) {
 // FUN_002A6680
 void mcQueueDrawJob(s32 arg0) {
     u8 *work = PrimAllocQueueNode();
-    *(void **)(work + 8) = func_002a6650;
+    *(void **)(work + 8) = mcDrawDispatchCallback;
     *(void **)(work + 0x10) = (void *)arg0;
     PrimAppendNode(&D_00796370, work);
 }

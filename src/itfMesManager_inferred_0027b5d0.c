@@ -16,7 +16,7 @@ static inline u32 add_retail_ptr(u32 offset, u32 base) {
 }
 
 extern u16 D_008817E8[];
-extern void func_0027b5a0(s32 arg0);
+extern void itfMesFlushPendingCallback(s32 arg0);
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
@@ -46,7 +46,7 @@ void itfMesWindowQueueCallback(s32 arg0)
     u8 *temp_2;
 
     temp_2 = PrimAllocQueueNode();
-    *(void (**)(s32))(temp_2 + 8) = func_0027b5a0;
+    *(void (**)(s32))(temp_2 + 8) = itfMesFlushPendingCallback;
     *(s32 *)(temp_2 + 0x10) = arg0;
     PrimAppendNode(D_007964C0, temp_2);
 }

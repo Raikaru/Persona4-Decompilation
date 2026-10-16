@@ -52,7 +52,7 @@ extern s32 datCalcGetLevelById(s32 arg0);
 
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(u8 *arg0, u8 *arg1);
-extern void func_00369440(void);
+extern void pscModelDrawCallback(void);
 extern u8 *kwlnGetCamera(void);
 extern void func_003e8180(void *arg0, f32 arg1);
 extern void K_View_SetFov(void *arg0, f32 arg1);

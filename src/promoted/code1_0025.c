@@ -83,7 +83,7 @@ extern s32 datPortraitTaskCreate(s32 arg0, s64 arg1, s32 arg2);
 extern s32 datPortraitIsLoaded(s32 arg0);
 extern void cmmRankUpSetEntryHold(s32 arg0, s32 arg1);
 extern void cmmRankUpCopyState(s32 arg0, s32 arg1, s32 arg2);
-extern void func_002519b0(s32 *arg0);
+extern void kwlnTaskGetWorkCallback(s32 *arg0);
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];

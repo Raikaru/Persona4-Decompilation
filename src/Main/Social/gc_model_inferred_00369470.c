@@ -30,7 +30,7 @@ typedef struct PersonaWork PersonaWork;
 
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(u8 *arg0, u8 *arg1);
-extern void func_00369440(void);
+extern void pscModelDrawCallback(void);
 extern f32 iGpffff84a4;
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5,
@@ -97,13 +97,13 @@ extern f32 fGpffff8198;
 /* measured: retail hoists the 0.5f loop constants out of the corner loops. */
 #pragma push
 #pragma pop
-// Intent: Queues a draw node for a panel object with the shared draw callback func_00369440 [inferred]
+// Intent: Queues a draw node for a panel object with the shared draw callback pscModelDrawCallback [inferred]
 // FUN_00369470
 void pscModelEnqueueDrawNode(s32 arg0, u8 *arg1) {
     u8 *p;
 
     p = PrimAllocQueueNode();
-    *(void **)(p + 0x8) = (void *)func_00369440;
+    *(void **)(p + 0x8) = (void *)pscModelDrawCallback;
     *(s32 *)(p + 0x10) = arg0;
     PrimAppendNode(arg1, p);
 }
