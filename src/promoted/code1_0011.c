@@ -1044,8 +1044,9 @@ loop7_check:
     iGpffffb19c = saved;
 }
 #pragma opt_propagation on
+// Intent: Draw one entry row: the name text, the stat value, the count, and the badges, at the entry's position and depth [inferred]
 // FUN_00112300
-void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
+void datEntryDrawRow(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
 {
     f32 fparg0;
     u8 *arg2;
@@ -1064,9 +1065,9 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
     void sprintf(void *, void *, s32);
     s32 resourceFindByName(void *);
     void kAssertFail(void *, s32);
-    void func_00112610(Vec2f, f32, u8, u8 *, s32, s32);
-    void func_00112830(Vec2f, f32, u8, u8 *, s32);
-    void func_001130c0(Vec2f, f32, u8, u8 *, s32);
+    void datEntryDrawBadges(Vec2f, f32, u8, u8 *, s32, s32);
+    void datEntryDrawStatValue(Vec2f, f32, u8, u8 *, s32);
+    void datEntryDrawCount(Vec2f, f32, u8, u8 *, s32);
     extern f32 D_005E4790[];
     extern f32 D_005E4794[];
     extern f32 D_005E479C[];
@@ -1087,7 +1088,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
         kAssertFail(&iGpffff9be0, 0x94);
     }
     if (*(u16 *)(arg2 + 0x14) != 0) {
-        func_00112610(arg0, fparg0, arg1, arg2, temp16, temp19);
+        datEntryDrawBadges(arg0, fparg0, arg1, arg2, temp16, temp19);
         arg0.x = arg0.x + 45.0f;
     }
     if (*(s32 *)(arg2 + 0xC) != 0) {
@@ -1110,7 +1111,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
         temp_1 = 9.0f;
         temp_1 += arg0.y;
         xy.values[1] = temp_1;
-        func_00112830(xy.position, fparg0, arg1, arg2, temp16);
+        datEntryDrawStatValue(xy.position, fparg0, arg1, arg2, temp16);
     }
     if (*(s16 *)(arg2 + 2) != -1) {
         xy.position.x = arg0.x +
@@ -1118,7 +1119,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
         temp_1 = 12.0f;
         temp_1 += arg0.y;
         xy.position.y = temp_1;
-        func_001130c0(xy.position, fparg0, arg1, arg2, temp16);
+        datEntryDrawCount(xy.position, fparg0, arg1, arg2, temp16);
     }
     if (*(s32 *)(arg2 + 8) != -1) {
         xy.values[0] = arg0.x +
@@ -1140,8 +1141,9 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
     }
 }
 #pragma opt_propagation on
+// Intent: Reset the entry's fields to their defaults: sentinel -1 for the indices and 3 for the state [inferred]
 // FUN_001125D0
-void func_001125d0(u8 *arg0) {
+void datEntryReset(u8 *arg0) {
     s32 temp_1;
     s32 temp_m1;
 
@@ -1158,15 +1160,16 @@ void func_001125d0(u8 *arg0) {
     *(s16 *)(arg0 + 0x18) = 0;
     *(s16 *)(arg0 + 0x16) = 0;
 }
+// Intent: Draw the entry's icons when the flag bits in the state word at 0x14 are set, using the colours from the two colour tables [inferred]
 // FUN_00112610
-void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4)
+void datEntryDrawBadges(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4)
 {
     typedef struct {
         u8 b[4];
     } Color4;
     extern u8 D_005E4710[];
     extern u8 D_005E4730[];
-    void func_00113280(s64, f32, Color4, s16, s32, s32);
+    void datEntryDrawFlagIcon(s64, f32, Color4, s16, s32, s32);
     Color4 color_a;
     Color4 color_b;
     Vec2f pos;
@@ -1212,7 +1215,7 @@ void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4
         color_b.b[3] = arg1;
         pos.x = arg0.x + 3.0f;
         pos.y = arg0.y + 2.0f;
-        func_00113280(*(s64 *)&pos, fparg0, color_b,
+        datEntryDrawFlagIcon(*(s64 *)&pos, fparg0, color_b,
                       *(s16 *)(arg2 + 0), arg3, arg4);
     }
 }
@@ -1259,8 +1262,9 @@ static inline void func_00112830_arrow(Vec2f pos, f32 depth, StatColor color,
    row y out of the digit loops, as retail does (without it: 2088 B). */
 #pragma push
 #pragma opt_loop_invariants on
+// Intent: Draw a stat value and, when it differs from the previous value, its up or down arrow glyph, then its digits [inferred]
 // FUN_00112830
-void func_00112830(Vec2f pos, f32 depth, u8 alpha, u8 *arg2, s32 tex)
+void datEntryDrawStatValue(Vec2f pos, f32 depth, u8 alpha, u8 *arg2, s32 tex)
 {
     extern StatColor D_005E4750[];
     StatColor color;
@@ -1333,8 +1337,9 @@ static inline s32 fontDrawLeadingGlyph(const Vec2f *position, f32 depth, u8 opac
 /* Native b210 -O2: 440 executable bytes, nine resolved relocations,
  * and eight retail alignment zeros. The leading draw keeps inverse
  * opacity live while the loop retains its blue and green snapshots. */
+// Intent: Draw the entry's count as text glyphs, right to left, after the leading glyph [inferred]
 // FUN_001130C0
-void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
+void datEntryDrawCount(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 {
     struct {
         s8 text[0x4C];
@@ -1374,8 +1379,9 @@ void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     }
 }
 
+// Intent: Draw the icon for the first set flag bit, with its sprite mode and id, at the given position [inferred]
 // FUN_00113280
-void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1, s16 arg2, s32 arg3,
+void datEntryDrawFlagIcon(Vec2f arg0, f32 fparg0, s32 arg1, s16 arg2, s32 arg3,
                    s32 arg4)
 {
     f32 scale;
@@ -1433,15 +1439,17 @@ void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1, s16 arg2, s32 arg3,
                       ((u8 *)&arg1)[2], scale, 0);
     }
 }
+// Intent: Forward a draw to the subsystem routine only while flag 0x39 is set [inferred]
 // FUN_00113480
-void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+void datEntryDrawGatedByFlag39(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     if (datGetFlag(0x39) != 0) {
         func_004534f0(arg0, arg1, arg2, arg3);
     }
 }
+// Intent: Stop controller rumble [inferred]
 // FUN_00113500
-void func_00113500(void) {
+void datStopPadRumble(void) {
     H_Pad_StopRumble();
 }
 // FUN_00113520

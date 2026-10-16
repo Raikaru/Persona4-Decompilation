@@ -66,7 +66,7 @@ extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
-extern void func_00112300(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
+extern void datEntryDrawRow(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
 extern void func_0011fd30(u8 *arg0);
 extern void func_0011fd50(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 extern s32 datCalcGetLevelById(s32 arg0);
@@ -502,7 +502,7 @@ void func_00130ce0(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16 *ent
                       y, colors.copy.b[0], green, blue, alpha);
     }
     position.xy.x = position.xy.x - 2.0f;
-    func_00112300(position.xy, 0.0f, colors.current.b[3], (u8 *)entry);
+    datEntryDrawRow(position.xy, 0.0f, colors.current.b[3], (u8 *)entry);
     position.xy.x = 22.0f + inputPosition.xy.x;
     position.xy.y = 54.0f + originalY;
     labelAlpha = (u8)scaledInputAlpha;
@@ -882,7 +882,7 @@ void func_00135130(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
     func_00135520(work, position, inputAlpha, 3);
     position.xy.x = ((f32 *)&inputPosition)[0] - 2.0f;
     position.xy.y = originalY;
-    func_00112300(position.xy, 0.0f, inputAlpha, entry);
+    datEntryDrawRow(position.xy, 0.0f, inputAlpha, entry);
     position.xy.x = 128.0f + ((f32 *)&inputPosition)[0];
     position.xy.y = 32.0f + originalY;
     if ((datEntryGetFlags(*(s16 *)entry) & 0x8000) != 0) {

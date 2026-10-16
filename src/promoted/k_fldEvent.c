@@ -870,7 +870,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s8 *func_00457130(void);
     s32 func_00457120(void);
     void *memset(void *, s32, size_t);
-    void func_00113480(s32, s32, s32, s32);
+    void datEntryDrawGatedByFlag39(s32, s32, s32, s32);
     void hFadeTaskStart(s16);
     s32 func_001fc270(void);
     s32 func_0018df60(s32);
@@ -1134,7 +1134,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     FldUnit_SetMode((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x20)), 1);
                     hFadeTaskStart(0);
                     func_0045af60(0, 0xA, 3, 0);
-                    func_00113480(3, 0xFF, 3, 0);
+                    datEntryDrawGatedByFlag39(3, 0xFF, 3, 0);
                     work->state = 5;
                 }
             }

@@ -17,7 +17,7 @@ typedef struct RwV3d RwV3d;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
-extern void func_00113500(void);
+extern void datStopPadRumble(void);
 
 
 
@@ -295,6 +295,6 @@ done:
 // FUN_00200C50
 void func_00200c50(void)
 {
-    func_00113500();
+    datStopPadRumble();
 }
 
