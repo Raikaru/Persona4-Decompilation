@@ -52,7 +52,7 @@ extern s32 iGpffffb1e0;
 extern s32 iGpffffb1e8;
 extern s32 iGpffffb1cc;
 extern s32 iGpffff9c58;
-extern void func_00103a60(void);
+extern void fclBankTableReset(void);
 
 extern s32 func_00121af0(u8 *task);
 extern u8 *PrimAllocQueueNode(void);
@@ -79,7 +79,7 @@ extern s16 clndGetPeriod(void);
 extern s16 clndGetDaysSinceApr5(void);
 extern void calendarSyncFromDate(void);
 extern s32 func_00268990(s32 arg0);
-extern void func_00103b00(void);
+extern void fclBankTableInit(void);
 extern void poolFree(s32 arg0);
 extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 extern void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -503,12 +503,12 @@ s32 func_001211a0(u8 *unusedTask)
 // FUN_00121AF0
 s32 func_00121af0(u8 *unusedTask)
 {
-    func_00103b00();
+    fclBankTableInit();
     return 0;
 }
 // FUN_00121B20
 void tickerStartTask(void) {
-    func_00103a60();
+    fclBankTableReset();
     kwlnTaskCreate((const void *)(&iGpffff9c58), 0xF, 0, 0, func_00121af0, 0, (u8 *)(0));
 }
 
