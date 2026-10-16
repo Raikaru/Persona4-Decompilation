@@ -3716,9 +3716,9 @@ s32 datCommunityMenuStep(u32 *arg0, s32 *arg1, u8 *arg2)
             *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
             *arg0 = 7;
         } else {
-            func_00453670(buf, 5, *(s16 *)(arg2 + 0x134), *(s16 *)(arg2 + 0x24), *(s16 *)(arg2 + 0x26));
-            func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-            if ((result = func_00453960(buf)) > 0) {
+            sdkListStateConfigure(buf, 5, *(s16 *)(arg2 + 0x134), *(s16 *)(arg2 + 0x24), *(s16 *)(arg2 + 0x26));
+            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0x2000, 0x8000);
+            if ((result = sdkListStateHandleInput(buf)) > 0) {
                 datCommunityPushValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
                 datCommunityPushValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
                 datCommunityCursorFeedback(result);
@@ -3746,10 +3746,10 @@ s32 datCommunityMenuStep(u32 *arg0, s32 *arg1, u8 *arg2)
                 *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
                 *arg0 = 7;
             } else {
-                func_00453670(buf, 5, *(s16 *)(arg2 + 0x134), *(s16 *)(arg2 + 0x24), *(s16 *)(arg2 + 0x26));
-                func_00453760(buf, 0);
-                func_004538e0(buf, 8, 4, 0, 0);
-                if (func_00453960(buf) != 0) {
+                sdkListStateConfigure(buf, 5, *(s16 *)(arg2 + 0x134), *(s16 *)(arg2 + 0x24), *(s16 *)(arg2 + 0x26));
+                sdkListStateSetActive(buf, 0);
+                sdkListStateSetSecondaryMasks(buf, 8, 4, 0, 0);
+                if (sdkListStateHandleInput(buf) != 0) {
                     datCommunityPushValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
                     datCommunityPushValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
                     datCommunityPushValue((s32)arg2, 2, 0);
@@ -3759,9 +3759,9 @@ s32 datCommunityMenuStep(u32 *arg0, s32 *arg1, u8 *arg2)
                     datCommunityPortraitSetSelected(arg2);
                     sdkSndStartStream(0, 1, 0, 5);
                 } else if (*(s32 *)(arg2 + 0x148) > 1) {
-                    func_00453670(buf, 8, *(s32 *)(arg2 + 0x148), *(s16 *)(arg2 + 0x28), 0);
-                    func_004538e0(buf, 0x4000, 0x1000, 0, 0);
-                    if (func_00453960(buf) != 0) {
+                    sdkListStateConfigure(buf, 8, *(s32 *)(arg2 + 0x148), *(s16 *)(arg2 + 0x28), 0);
+                    sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
+                    if (sdkListStateHandleInput(buf) != 0) {
                         datCommunityPushValue((s32)arg2, 2, *(s32 *)(buf + 0x24));
                         datCommunityPortraitSetSelected(arg2);
                         sdkSndStartStream(0, 1, 0, 0);
@@ -3936,9 +3936,9 @@ s32 datCommunityDetailStep(u32 *arg0, s32 *arg1, u8 *arg2)
                 *arg0 = 5;
             }
         } else {
-            func_00453670(query, 7, 7, *(s32 *)(arg2 + 0x30), 0);
-            func_004538e0(query, 0x4000, 0x1000, 0, 0);
-            if (func_00453960(query) != 0) {
+            sdkListStateConfigure(query, 7, 7, *(s32 *)(arg2 + 0x30), 0);
+            sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0, 0);
+            if (sdkListStateHandleInput(query) != 0) {
                 cmpConfigSetValue(arg2, 0, *(s32 *)(query + 0x24));
                 sdkSndStartStream(0, 1, 0, 0);
             } else {

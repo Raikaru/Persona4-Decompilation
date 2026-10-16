@@ -45,14 +45,14 @@ extern s32 mcAnimateTransition(s32);
 extern s32 mcTableRandomize(s32, u8 *, u8 *, s32);
 extern s32 mcRunScreenExitFrame(s32);
 extern s32 mcDrawScreenSettled(s32);
-extern void func_00453670(void *, s32, s32, s32, s32);
-extern void func_004538e0(void *, s32, s32, s32, s32);
-extern void func_00453ff0(void *, s32);
-extern void func_004537e0(void *, s32);
-extern s32 func_00453960(void *);
-extern void func_00453760(void *, s32);
-extern s32 func_00453dc0(void *);
-extern s32 func_00453d70(void *);
+extern void sdkListStateConfigure(void *, s32, s32, s32, s32);
+extern void sdkListStateSetSecondaryMasks(void *, s32, s32, s32, s32);
+extern void sdkListStateSetReservedRows(void *, s32);
+extern void sdkListStateSetRefresh(void *, s32);
+extern s32 sdkListStateHandleInput(void *);
+extern void sdkListStateSetActive(void *, s32);
+extern s32 sdkListStateGetCursor(void *);
+extern s32 sdkListStateGetScroll(void *);
 extern void *memset(void *dst, s32 value, u32 size);
 extern char D_00796370[];
 extern void (*D_008873EC[])(void *);
@@ -845,11 +845,11 @@ s32 mcUpdateCardStatus(s32 arg0) {
     McWork *w = (McWork *)arg0;
     s32 v;
 
-    func_00453670(buf, 0x10, 0x10, w->f3AC, w->f3B0);
-    func_004538e0(buf, 0x4000, 0x1000, 0, 0);
-    func_00453ff0(buf, 0);
-    func_004537e0(buf, 0);
-    v = func_00453960(buf);
+    sdkListStateConfigure(buf, 0x10, 0x10, w->f3AC, w->f3B0);
+    sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
+    sdkListStateSetReservedRows(buf, 0);
+    sdkListStateSetRefresh(buf, 0);
+    v = sdkListStateHandleInput(buf);
     switch (v) {
     case 1:
     case 3:
@@ -864,11 +864,11 @@ s32 mcUpdateCardStatus(s32 arg0) {
         sdkSndStartStream(0, 0, 0, 0);
         break;
     default:
-        func_00453760(buf, 0);
+        sdkListStateSetActive(buf, 0);
         break;
     }
-    w->f3AC = func_00453dc0(buf);
-    w->f3B0 = func_00453d70(buf);
+    w->f3AC = sdkListStateGetCursor(buf);
+    w->f3B0 = sdkListStateGetScroll(buf);
     if (w->f3AC == 0) {
         w->flags &= ~0x4000;
     } else {

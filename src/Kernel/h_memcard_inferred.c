@@ -80,9 +80,9 @@ extern char iGpffffb020[3];
 extern char iGpffffb024[2];
 extern char iGpffffb028[6];
 extern u8 *func_00468940(u8 *arg0, s64 arg1);
-extern void func_00453670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_00453860(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_00453960(u8 *arg0);
+extern void sdkListStateConfigure(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void sdkListStateSetPrimaryMasks(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 sdkListStateHandleInput(u8 *arg0);
 extern s32 func_004688d0(u8 *arg0, s8 *arg1);
 extern s32 strcmp(const char *a, const char *b);
 extern s32 uGpffffb230;
@@ -420,9 +420,9 @@ parentDirectory:
             work->state = 3;
             return 0;
         } else {
-            func_00453670((u8 *)&navigation, 10, work->count, work->row, work->page);
-            func_00453860((u8 *)&navigation, 0x4000, 0x1000, 0x2000, 0x8000);
-            if (func_00453960((u8 *)&navigation) != 0) {
+            sdkListStateConfigure((u8 *)&navigation, 10, work->count, work->row, work->page);
+            sdkListStateSetPrimaryMasks((u8 *)&navigation, 0x4000, 0x1000, 0x2000, 0x8000);
+            if (sdkListStateHandleInput((u8 *)&navigation) != 0) {
                 work->row = navigation.row;
                 work->page = navigation.page;
             }

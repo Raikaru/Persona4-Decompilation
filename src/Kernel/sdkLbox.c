@@ -3,20 +3,20 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
-extern void func_00453fa0(u8 *list, s32 visibleRows);
-extern s32 func_00453e60(u8 *list);
+extern void sdkListStateSetVisible(u8 *list, s32 visibleRows);
+extern s32 sdkListStateGetVisible(u8 *list);
 extern void sdkLboxRecalcLayout(u8 *task);
 extern void sdkWindowSetCommand();
 extern void sdkWindowSetRect();
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-extern void func_004535c0(u8 *a, s32 b, s32 c);
-extern void func_00453860(u8 *a, s32 b, s32 c, s32 d, s32 e);
+extern void sdkListStateInit(u8 *a, s32 b, s32 c);
+extern void sdkListStateSetPrimaryMasks(u8 *a, s32 b, s32 c, s32 d, s32 e);
 extern u8 D_00713118[];
 extern void strcpy(u8 *dst, u8 *src);
-extern void func_00453c80(u8 *arg0);
-extern s32 func_00453e10(u8 *arg0);
+extern void sdkListStateAddItem(u8 *arg0);
+extern s32 sdkListStateGetCount(u8 *arg0);
 extern u8 D_00713128[];
 extern s32 sdkLboxUpdate(u8 *task);
 extern void sdkLboxDestroy(u8 *arg0);
@@ -58,8 +58,8 @@ s32 sdkLboxCreateEx(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     *(s32 *)(mem + 0x13C) = 0xA;
     *(s32 *)(mem + 8) = arg3;
     vec = mem + 0x164;
-    func_004535c0(vec, *(s32 *)(mem + 0x13C), 0);
-    func_00453860(vec, 0x4000, 0x1000, 0, 0);
+    sdkListStateInit(vec, *(s32 *)(mem + 0x13C), 0);
+    sdkListStateSetPrimaryMasks(vec, 0x4000, 0x1000, 0, 0);
     return handle;
 }
 
@@ -86,8 +86,8 @@ void sdkLboxSetSelection(u8 *arg0, s32 arg1) {
 void sdkLboxSetVisibleRows(u8 *arg0, s32 visibleRows) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
-    func_00453fa0(p + 0x164, visibleRows);
-    *(s32 *)(p + 0x13C) = func_00453e60(p + 0x164);
+    sdkListStateSetVisible(p + 0x164, visibleRows);
+    *(s32 *)(p + 0x13C) = sdkListStateGetVisible(p + 0x164);
     sdkLboxRecalcLayout(arg0);
 }
 
@@ -259,8 +259,8 @@ s32 sdkLboxAddEntry(u8 *arg0, u8 *arg1)
     *p = handle;
     *(s32 *)(work + 0x140) = *(s32 *)(work + 0x140) + 1;
     sdkLboxRecalcLayout(arg0);
-    func_00453c80(work + 0x164);
-    *(s32 *)(work + 0x140) = func_00453e10(work + 0x164);
+    sdkListStateAddItem(work + 0x164);
+    *(s32 *)(work + 0x140) = sdkListStateGetCount(work + 0x164);
     return *(s32 *)node;
 }
 
