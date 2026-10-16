@@ -763,8 +763,9 @@ s32 cmmItemInfoShow(void)
     }
     return 1;
 }
+// Starts a CDVD load with the three script parameters when no command timer is running; returns 0 while the load is pending and 1 once the lookup task has finished [inferred].
 // FUN_0024B380
-s32 func_0024b380(void)
+s32 cmmScriptCdvdLoad(void)
 {
     s32 param0;
     s32 param1;

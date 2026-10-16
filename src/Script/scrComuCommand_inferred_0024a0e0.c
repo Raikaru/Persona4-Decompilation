@@ -32,11 +32,12 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 /* Source unit: src/promoted/code1_0024.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 0024a0e0-0024a140 */
 
-extern s32 func_00249b10(void);
+extern s32 cmmEnsureRecord(void);
 /* measured: optimization_level 1 preserves the saved task id across the guard. */
 /* measured: closes optimization_level 1 around func_00249b10. */
+// Returns 1 when the community table has entries and today's date is not yet listed, else 0 [inferred].
 // FUN_0024A0E0
-s32 func_0024a0e0(void)
+s32 cmmTodayNotListed(void)
 {
     s32 var_4;
 
@@ -48,8 +49,9 @@ s32 func_0024a0e0(void)
     return 1;
 }
 
+// Classifies the next unlisted date: 1 when it is tomorrow, 2 when it falls on weekday 0, 3 when it has a day entry, else 0 [inferred].
 // FUN_0024A140
-s32 func_0024a140(void)
+s32 cmmNextUnlistedDateKind(void)
 {
     s32 temp_17;
     s32 var_16;
