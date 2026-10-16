@@ -1485,16 +1485,16 @@ void fclCombinePartyRow(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3, s16 arg4, s1
     }
     sdkSpriteFreeNode(hD);
     if (*(s16 *)(t + 0x11E) == c) {
-        func_002b83e0(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
+        fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
                       (c260 = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF)), (c25C = func_002b2a60(0xCC, 0xFF, 0x33, 0xFF)),
                       0xFF, 0xFF, 32.0f, 159.0f, 3, (s16)arg5, arg6, 0);
     } else if (special == 1) {
-        func_002b83e0(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
+        fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
                       *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2) + 0x75),
                       *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2) + 0x75),
                       0xFF, 0xFF, 32.0f, 159.0f, 3, (s16)arg5, arg6, 0);
     } else {
-        func_002b83e0(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
+        fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(t + 0x188), arg2), func_002b2970(arg1.x, y),
                       (c258 = func_002b2a60(0, 0, 0x99, 0xFF)), (c254 = func_002b2a60(0, 0, 0x99, 0xFF)),
                       0xFF, 0xFF, 32.0f, 159.0f, 3, (s16)arg5, arg6, 0);
     }
@@ -2680,7 +2680,7 @@ static inline void fclClearGridCellTransition(FclCombineGridRowStateView *rowSta
    arithmetic. Both entry and refresh consume the same row/delay contract. */
 static inline void fclAnimatePairGridRow(FclCombineRowWork *work, s64 renderedRow, s32 gridOffset, s32 mode)
 {
-    extern void func_002b8200(u8 *, FclVec2, FclDrawColor, f32, f32, f32);
+    extern void fclSpriteSetAppearance(u8 *, FclVec2, FclDrawColor, f32, f32, f32);
     FclDrawColor initialCellColor;
     FclDrawColor initialFadeStartColor;
     FclDrawColor initialFadeEndColor;
@@ -2706,7 +2706,7 @@ static inline void fclAnimatePairGridRow(FclCombineRowWork *work, s64 renderedRo
             cellElement = fclCombineSlotRecord(rowTasks->cellListTask, (s8)column);
             initialCellPosition = func_002b2970((f32)(columnIndex * 23 + 0x149), (f32)rowY);
             initialCellColor = func_002b2a60(0, 0, 0x99, 0xA5);
-            func_002b8200(cellElement, initialCellPosition, initialCellColor, 1.0f, 0.0f, 159.0f);
+            fclSpriteSetAppearance(cellElement, initialCellPosition, initialCellColor, 1.0f, 0.0f, 159.0f);
             {
                 s32 delay = (s16)column + rowIndex;
                 u8 *colorElement = fclCombineSlotRecord(rowTasks->cellListTask, (s8)column);
@@ -2730,7 +2730,7 @@ static inline void fclAnimatePairGridRow(FclCombineRowWork *work, s64 renderedRo
             cellElement = fclCombineSlotRecord(rowTasks->cellListTask, (s8)column);
             refreshCellPosition = func_002b2970((f32)(columnIndex * 23 + 0x149), (f32)rowY);
             refreshCellColor = func_002b2a60(0, 0, 0x99, 0xA5);
-            func_002b8200(cellElement, refreshCellPosition, refreshCellColor, 1.0f, 0.0f, 159.0f);
+            fclSpriteSetAppearance(cellElement, refreshCellPosition, refreshCellColor, 1.0f, 0.0f, 159.0f);
             {
                 u8 *colorElement = fclCombineSlotRecord(rowTasks->cellListTask, (s8)column);
                 refreshFadeStartColor = func_002b2a60(0x49, 0x72, 0xFF, 0xA5);
@@ -2816,7 +2816,7 @@ void fclCombineSetupPairGrid(u8 *task, s8 entryMode) {
             columnHeaderPosition = func_002b2970((f32)(gridOffset + 0x149), 104.0f);
             columnHeaderStartColor = func_002b2a60(0, 0, 0x99, 0xFF);
             columnHeaderEndColor = func_002b2a60(0, 0, 0x99, 0xFF);
-            func_002b83e0(columnHeaderElement, columnHeaderPosition,
+            fclSpriteStartEntrance(columnHeaderElement, columnHeaderPosition,
                           columnHeaderStartColor, columnHeaderEndColor,
                           0xFF, 0xFF, 32.0f, 159.0f, 2, rowIndex, 0, 0);
         }
@@ -2959,7 +2959,7 @@ void fclCombineRefreshGridCells(u8 *arg0, s16 arg1) {
     for (; i < (u16)datPersonaRosterCapacity(); i++) {
         x = i * 23;
         e = fclCombineSlotRecord(*(u8 **)(t + 0x184), i);
-        func_002b83e0(e, func_002b2970(x + 0x149, 104.0f),
+        fclSpriteStartEntrance(e, func_002b2970(x + 0x149, 104.0f),
                       c16C = func_002b2a60(0, 0, 0x99, 0xFF), c168 = func_002b2a60(0, 0, 0x99, 0xFF),
                       0xFF, 0xFF, 32.0f, 159.0f, 2, order, 0, 0);
         r = i + 0x25E;
@@ -2991,7 +2991,7 @@ void fclCombineRefreshGridCells(u8 *arg0, s16 arg1) {
                     *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75) = c158;
                 }
             }
-            func_002b83e0(fclCombineSlotRecord(*(u8 **)(p + 0x154), j),
+            fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(p + 0x154), j),
                           func_002b2970(j * 23 + 0x149, y),
                           *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75),
                           *(FclDrawColor *)(fclCombineSlotRecord(*(u8 **)(p + 0x154), j) + 0x75),
@@ -3107,13 +3107,13 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
             while ((s16)ja < (u16)datPersonaRosterCapacity()) {
                 ma = ja * 23;
                 pa = fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)ja);
-                func_002b83e0(pa, func_002b2970((f32)(ma + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
+                fclSpriteStartEntrance(pa, func_002b2970((f32)(ma + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
                               func_002b2a60(0, 0, 0x99, 0xFF), 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
                 ka = 0;
                 rowa = t + ja * 4;
                 acca = ma + 0x7F;
                 while ((s16)ka < (u16)datPersonaRosterCapacity()) {
-                    func_002b83e0(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka),
+                    fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka),
                                   func_002b2970((f32)(ka * 23 + 0x149), (f32)acca),
                                   *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 0x75),
                                   *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowa + 0x154), (s8)ka) + 0x75),
@@ -3154,13 +3154,13 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                     fclCombineDrawPersonaRow(arg0, func_002b2970((f32)0x149, 128.0f), *(s8 *)(t + 0x128), (s8)jb1, *(u16 *)(yListSlotEntry(*(s8 *)(t + 0x128) + 1, jb1) + 2), *(u8 *)(yListSlotEntry(*(s8 *)(t + 0x128) + 1, jb1) + 4), 3, 0, 1, 0xCC);
                     mb1 = jb1 * 23;
                     pb1 = fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)jb1);
-                    func_002b83e0(pb1, func_002b2970((f32)(mb1 + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
+                    fclSpriteStartEntrance(pb1, func_002b2970((f32)(mb1 + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
                                   func_002b2a60(0, 0, 0x99, 0xFF), 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
                     kb1 = 0;
                     rowb1 = t + jb1 * 4;
                     accb1 = mb1 + 0x7F;
                     while ((s16)kb1 < (u16)datPersonaRosterCapacity()) {
-                        func_002b83e0(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1),
+                        fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1),
                                       func_002b2970((f32)(kb1 * 23 + 0x149), (f32)accb1),
                                       *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x75),
                                       *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowb1 + 0x154), (s8)kb1) + 0x75),
@@ -3212,7 +3212,7 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                                 c21C = func_002b2a60(0, 0, 0x99, 0xA5);
                             }
                             alpha = c21C.c3;
-                            func_002b83e0(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2),
+                            fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2),
                                           *(FclVec2 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 0x28),
                                           func_002b2a60(0, 0, 0x99, 0xA5), c21C, alpha, alpha,
                                           32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 4), 6, 0, 1, 1);
@@ -3223,7 +3223,7 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
                                 c21C = func_002b2a60(0x49, 0x72, 0xFF, 0xCC);
                             }
                             alpha = c21C.c3;
-                            func_002b83e0(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2),
+                            fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2),
                                           *(FclVec2 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 0x28),
                                           func_002b2a60(0, 0, 0x99, 0xCC), c21C, alpha, alpha,
                                           32.0f, *(f32 *)(fclCombineSlotRecord(*(u8 **)(rowb2 + 0x154), (s8)kb2) + 4), 6, 0, 1, 1);
@@ -3245,12 +3245,12 @@ void fclCombineHandleGridInput(u8 *arg0, s64 arg1, u8 arg2, u8 arg3) {
         while ((s16)jc < (u16)datPersonaRosterCapacity()) {
             fclCombinePartyRow(arg0, func_002b2970(16.0f, 128.0f), (s8)jc, *(u16 *)(yListSlotEntry(0, jc) + 2), *(u8 *)(yListSlotEntry(0, jc) + 4), 0, 1, (rowCount = *(s8 *)(yListSlotWork(0) + 8)));
             m = jc * 23;
-            func_002b83e0(fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)jc), func_002b2970((f32)(m + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
+            fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(t + 0x184), (s8)jc), func_002b2970((f32)(m + 0x149), 104.0f), func_002b2a60(0, 0, 0x99, 0xFF),
                           func_002b2a60(0, 0, 0x99, 0xFF), 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
             kc = 0;
             rowc = t + jc * 4;
             while ((s16)kc < (u16)datPersonaRosterCapacity()) {
-                func_002b83e0(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc),
+                fclSpriteStartEntrance(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc),
                               *(FclVec2 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x28),
                               *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x75),
                               *(FclByte4 *)(fclCombineSlotRecord(*(u8 **)(rowc + 0x154), (s8)kc) + 0x75),
@@ -5855,7 +5855,7 @@ void fclCombineDrawGridRows(u8 *arg0) {
             e4 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
             e5 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
             e6 = fclCombineSlotRecord(*(u8 **)(p + 0x154), (s8)j);
-            func_002b83e0(e0, *(FclVec2 *)(e1 + 0x28),
+            fclSpriteStartEntrance(e0, *(FclVec2 *)(e1 + 0x28),
                           *(FclByte4 *)(e2 + 0x75), *(FclByte4 *)(e3 + 0x75),
                           *(u8 *)(e4 + 0x5E), *(u8 *)(e5 + 0x5E),
                           32.0f, *(f32 *)(e6 + 4), 3, 0, 1, 0);
@@ -5870,7 +5870,7 @@ void fclCombineDrawGridRows(u8 *arg0) {
         }
         c10C = func_002b2a60(0, 0, 0x99, 0xFF);
         c108 = func_002b2a60(0, 0, 0x99, 0xFF);
-        func_002b83e0(p, spF0, c10C, c108, 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
+        fclSpriteStartEntrance(p, spF0, c10C, c108, 0xFF, 0xFF, 32.0f, 159.0f, 2, 0, 1, 0);
         {
             s16 normalizedRow = i;
             s16 resource = (s16)(normalizedRow + 0x25E);

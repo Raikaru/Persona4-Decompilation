@@ -8,8 +8,8 @@
 s32 fclSpriteSpawnChild(s32 parent, FclVec2 position);
 s32 fclCmbBallTaskCreateSlots(s32 parent, u8 count, s16 order);
 s32 fclCmbBallTaskCreate(s32 parent);
-s32 func_002b8150(s32 parent);
-s32 func_002b9f90(s32 parent, s16 count, s32 resource);
+s32 fclSpriteCreatePanelChild(s32 parent);
+s32 fclSpriteListCreateChild(s32 parent, s16 count, s32 resource);
 
 void fclSpriteSetCornerColors(u8 *task, FclDrawColor color);
 u8 *func_002b5da0(u8 *task);
@@ -19,7 +19,7 @@ void fclSpriteStartRevealScaleAt(s16 resource, f32 scale0, f32 scale1, f32 scale
                    u32 mode, u32 duration, s16 delay);
 /* Positions travel by value; mode and reverse are signed stack bytes
    (retail 002b83e0 loads both with lb). */
-void func_002b83e0(u8 *draw, FclVec2 position, FclDrawColor color0,
+void fclSpriteStartEntrance(u8 *draw, FclVec2 position, FclDrawColor color0,
                    FclDrawColor color1, u8 alpha0, u8 alpha1, f32 height,
                    f32 depth, s32 duration, s32 delay, s8 mode, s8 reverse);
 

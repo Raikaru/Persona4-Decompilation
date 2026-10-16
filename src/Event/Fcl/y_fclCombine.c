@@ -441,7 +441,7 @@ s32 fclCombineMenuCreate(u8 *arg0) {
     fclSpriteReset(0x2DE, 0x125);
     for (k = 0; k < 0xC; k++) {
         fclSpriteReset((s16)(k + 0x2FB), 0x131);
-        *(s32 *)(out + k * 4 + 0x258) = func_002b8150(task);
+        *(s32 *)(out + k * 4 + 0x258) = fclSpriteCreatePanelChild(task);
     }
     *(s32 *)(out + 0x28C) = (s32)fclSpriteSpawnChild(task, func_002b2970(288.0f, 14.0f));
     fclSpriteSetPositionBounds((u8 *)*(s32 *)(out + 0x28C), func_002b2970(288.0f, 14.0f), func_002b29e0(160.0f, 36.0f));
@@ -474,7 +474,7 @@ s32 fclCombineMenuCreate(u8 *arg0) {
     func_002b6140((u8 *)(*(s32 *)(out + 0x2B4)), 1);
     func_002b6120((u8 *)(*(s32 *)(out + 0x2B4)), 1);
     *(s32 *)(out + 0x250) = func_0033e3f0((u8 *)(task));
-    *(s32 *)(out + 0x2BC) = func_002b9f90(task, 0x30, func_00331600());
+    *(s32 *)(out + 0x2BC) = fclSpriteListCreateChild(task, 0x30, func_00331600());
     return task;
 }
 
@@ -2320,7 +2320,7 @@ typedef struct {
     s16 inner; \
     Fcl0f00RowList *list; \
  \
-    func_002b83e0(fclCombineSlotRecord((u8 *)menu->f184, (s8)outer), \
+    fclSpriteStartEntrance(fclCombineSlotRecord((u8 *)menu->f184, (s8)outer), \
         (headerPosition = func_002b2970((f32)(offset + 329), 104.0f)), \
         (color0 = func_002b2a60(0, 0, 0x99, 0xFF)), \
         (color1 = func_002b2a60(0, 0, 0x99, 0xFF)), 255, 255, 32.0f, 159.0f, 3, 0, transition, 0); \
@@ -2329,7 +2329,7 @@ typedef struct {
     y = offset + 127; \
     for (; inner < (datPersonaRosterCapacity() & 0xFFFF); inner++) { \
         if (grid) { \
-            func_002b83e0(fclCombineSlotRecord(list->list, (s8)inner), \
+            fclSpriteStartEntrance(fclCombineSlotRecord(list->list, (s8)inner), \
                 (cellPosition = func_002b2970((f32)(inner * 23 + 329), (f32)y)), \
                 *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
                 *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
@@ -2337,7 +2337,7 @@ typedef struct {
                 fclCombineSlotRecord(list->list, (s8)inner)[0x5e], \
                 32.0f, *(f32 *)(fclCombineSlotRecord(list->list, (s8)inner) + 4), 3, 0, transition, 0); \
         } else { \
-            func_002b83e0(fclCombineSlotRecord(list->list, (s8)inner), \
+            fclSpriteStartEntrance(fclCombineSlotRecord(list->list, (s8)inner), \
                 *(FclVec2 *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x28), \
                 *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
                 *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
@@ -2964,7 +2964,7 @@ block_83:
                         temp_18_21 = (Fcl0f00RowList *)((u8 *)temp_17 + temp_3_3 * 4);
                         for (; (s32)((s32)(((s16)(var_19_8)))) < (s32)((s32)((datPersonaRosterCapacity() & 0xFFFF)));) {
                         temp_21_11 = (s16)(var_19_8);
-                            func_002b83e0(fclCombineSlotRecord(temp_18_21->list, (s8)var_19_8),
+                            fclSpriteStartEntrance(fclCombineSlotRecord(temp_18_21->list, (s8)var_19_8),
                                 (sp2C0 = func_002b2970((f32)(temp_21_11 * 23 + 329), (f32)(temp_3_3 * 23 + 127))),
                                 *(FclDrawColor *)(fclCombineSlotRecord(temp_18_21->list, (s8)var_19_8) + 0x75),
                                 (sp3D8 = func_002b2a60(0, 0, 0x99, 0xA5)), 0xA5, 0xA5,
@@ -6578,7 +6578,7 @@ typedef struct {
     s32 y; \
     FclCombineRowView *list; \
  \
-    func_002b83e0(fclCombineSlotRecord((u8 *)menu->f184, (s8)outer), \
+    fclSpriteStartEntrance(fclCombineSlotRecord((u8 *)menu->f184, (s8)outer), \
         (headerPosition = func_002b2970((f32)(offset + 329), 104.0f)), \
         (color0 = func_002b2a60(0, 0, 0x99, 0xFF)), \
         (color1 = func_002b2a60(0, 0, 0x99, 0xFF)), 255, 255, 32.0f, 159.0f, 3, 0, 1, 0); \
@@ -6587,7 +6587,7 @@ typedef struct {
     y = offset + 127; \
     for (; inner < (datPersonaRosterCapacity() & 0xFFFF); inner++) { \
         if (grid) { \
-            func_002b83e0(fclCombineSlotRecord(list->list, (s8)inner), \
+            fclSpriteStartEntrance(fclCombineSlotRecord(list->list, (s8)inner), \
                 (cellPosition = func_002b2970((f32)(inner * 23 + 329), (f32)y)), \
                 *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
                 *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
@@ -6595,7 +6595,7 @@ typedef struct {
                 fclCombineSlotRecord(list->list, (s8)inner)[0x5e], \
                 32.0f, *(f32 *)(fclCombineSlotRecord(list->list, (s8)inner) + 4), 3, 0, 1, 0); \
         } else { \
-            func_002b83e0(fclCombineSlotRecord(list->list, (s8)inner), \
+            fclSpriteStartEntrance(fclCombineSlotRecord(list->list, (s8)inner), \
                 *(FclVec2 *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x28), \
                 *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \
                 *(FclDrawColor *)(fclCombineSlotRecord(list->list, (s8)inner) + 0x75), \

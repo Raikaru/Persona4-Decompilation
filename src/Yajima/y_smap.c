@@ -104,8 +104,8 @@ extern u8 D_00794E10[];
 extern u8 *func_00460990(void);
 extern void smapUpdateItems(u8 *);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
-extern s32 func_002b6850(u8 *);
-extern void func_002b67a0(u8 *, u32, s8);
+extern s32 fclSpriteHasDisplayFlags(u8 *);
+extern void fclSpriteSetRecordFlag(u8 *, u32, s8);
 extern s32 mapSymbolEntityCreate(s32, s32);
 extern void smapRevealCell(u8, u8);
 extern void func_002b31a0(u8 *, u8 *, u8 *);
@@ -867,11 +867,11 @@ s32 smapUpdateEntities(u8 *arg0)
         break;
     case 2:
         *(s16 *)(work + 0x766) = func_002b2cb0(*(s16 *)(work + 0x766), 1, 5, 0, 1);
-        if ((s8)func_002b6850(*(u8 **)(work + 0x748)) == 0) {
-            func_002b67a0(*(u8 **)(work + 0x748), 0, 1);
+        if ((s8)fclSpriteHasDisplayFlags(*(u8 **)(work + 0x748)) == 0) {
+            fclSpriteSetRecordFlag(*(u8 **)(work + 0x748), 0, 1);
         }
-        if ((s8)func_002b6850(*(u8 **)(work + 0x74C)) == 0) {
-            func_002b67a0(*(u8 **)(work + 0x74C), 0, 1);
+        if ((s8)fclSpriteHasDisplayFlags(*(u8 **)(work + 0x74C)) == 0) {
+            fclSpriteSetRecordFlag(*(u8 **)(work + 0x74C), 0, 1);
         }
         /* fall through */
     case 5:

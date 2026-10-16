@@ -53,7 +53,7 @@ extern s16 func_002b2d00(s32, s32, s32, s32, s8);
 extern void func_002b6180(void);
 extern void func_002b6260(void);
 extern s32 func_002b6340(u8 *arg0);
-extern void func_002b6560(u8 *arg0);
+extern void fclSpriteDestroyTask(u8 *arg0);
 extern s32 func_002b7f20(u8 *arg0);
 extern s32 func_002b89a0(u8 *arg0);
 extern s8 func_002b6820(u8 *arg0, u32 arg1);
@@ -61,7 +61,7 @@ extern s32 func_002b9e10(u8 *arg0);
 extern void func_002b9ab0(u8 *arg0, u8 *arg1);
 extern s32 fclSpritePoolUpdate(u8 *arg0);
 extern void fclSpritePoolDestroy(u8 *arg0);
-extern void func_002b9f60(u8 *arg0);
+extern void fclSpriteDestroyListTask(u8 *arg0);
 
 extern u8 D_0063F178[];
 extern u8 D_0063F188[];
@@ -304,8 +304,9 @@ s32 func_002b6340(u8 *arg0) {
     return 0;
 }
 #pragma pop
+// Intent: destroy callback for the 0x100-byte task created by func_002b6590 (frees the work block at +0x38).
 // FUN_002B6560
-void func_002b6560(u8 *arg0) {
+void fclSpriteDestroyTask(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
     jtbl_008873EC[0](p);
 }
@@ -343,7 +344,7 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
     f32 zero;
     chkmemAllocSiteTag(&D_0063F178, 0x236);
     p = D_008873F4[0](1, 0x100, 0x40000);
-    result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1A0), 0xF, 0, 0, func_002b6340, func_002b6560, (u8 *)(p));
+    result = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1A0), 0xF, 0, 0, func_002b6340, fclSpriteDestroyTask, (u8 *)(p));
     *(s16 *)(p + 4) = arg1;
     *(s32 *)(p + 0) = arg2;
     i = 0;
@@ -385,8 +386,9 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
 #pragma pop
 
 
+// Intent: sets (arg2 == 0) or clears (arg2 == 1) bit arg1 in the record's flag word at +0x10. Record-level twin of fclSpriteSetFlag.
 // FUN_002B67A0
-void func_002b67a0(u8 *arg0, u32 arg1, s8 arg2) {
+void fclSpriteSetRecordFlag(u8 *arg0, u32 arg1, s8 arg2) {
     u8 *base = *(u8 **)(arg0 + 0x38);
     if (arg2 == 0) {
         *(s16 *)(base + 0x10) |= (s16)((1 << (arg1 & 0xFFFF)) & 0xFFFF);
@@ -407,8 +409,9 @@ s8 func_002b6820(u8 *arg0, u32 arg1) {
 
 
 
+// Intent: returns 1 when any of flag bits 1-4 of the record's +0x10 word is set.
 // FUN_002B6850
-s32 func_002b6850(u8 *arg0) {
+s32 fclSpriteHasDisplayFlags(u8 *arg0) {
     s16 flags = *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x10);
     if (((s8)((flags & 2) >> 1)) == 0 && ((s8)((flags & 4) >> 2)) == 0 &&
         ((s8)((flags & 8) >> 3)) == 0 && ((s8)((flags & 0x10) >> 4)) == 0) {
@@ -1182,19 +1185,21 @@ s32 func_002b7f20(u8 *arg0) {
 #pragma opt_loop_invariants off
 #pragma pop
 
+// Intent: destroy callback for the 0x130-byte panel task created by fclSpriteCreatePanelChild (frees the work block at +0x38).
 // FUN_002B8120
-void func_002b8120(u8 *arg0) {
+void fclSpriteDestroyPanel(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
     jtbl_008873EC[0](p);
 }
 
+// Intent: creates a child task with a 0x130-byte panel work block (destroy: fclSpriteDestroyPanel), sets the panel flag at +0x124 and clears +0x125.
 // FUN_002B8150
-s32 func_002b8150(s32 arg0) {
+s32 fclSpriteCreatePanelChild(s32 arg0) {
     s32 handle;
     u8 *p;
     chkmemAllocSiteTag(&D_0063F178, 0x4A2);
     p = D_008873F4[0](1, 0x130, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1D0), 0xF, 0, 0, func_002b7f20, func_002b8120, (u8 *)(p));
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1D0), 0xF, 0, 0, func_002b7f20, fclSpriteDestroyPanel, (u8 *)(p));
     p[0x124] = 1;
     p[0x125] = 0;
     return handle;
@@ -1206,8 +1211,9 @@ u8 *fclSpriteWork(u8 *arg0) {
     return *(u8 **)(arg0 + 0x38);
 }
 
+// Intent: sets a sprite's appearance: position at +0x28, size at +0x90/+0x9C, colour at +0x5E/+0x75, the scale at +0xC0 and +0x4, and enables the sprite (flag |= 1).
 // FUN_002B8200
-void func_002b8200(u8 *arg0, f2 p1, u4 arg2, f32 fparg0, f32 fparg1, f32 fparg2) {
+void fclSpriteSetAppearance(u8 *arg0, f2 p1, u4 arg2, f32 fparg0, f32 fparg1, f32 fparg2) {
     *(f2 *)(arg0 + 0x28) = p1;
     *(f32 *)(arg0 + 0x9C) = fparg0;
     *(f32 *)(arg0 + 0x90) = fparg0;
@@ -1364,8 +1370,9 @@ static inline void fclStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, 
     *(s16 *)(arg0 + 0x0) |= 0x200;
 }
 
+// Intent: starts an entrance: alpha, reveal scale, position and colour in one call. The first flag selects the variant.
 // FUN_002B83E0
-void func_002b83e0(u8 *arg0, FclVec2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5,
+void fclSpriteStartEntrance(u8 *arg0, FclVec2 p1, u4 arg2, u4 arg3, u8 arg4, u8 arg5,
                    f32 fparg0, f32 fparg1, s32 arg6, s32 arg7, s8 arg_sp0, s8 arg_sp8)
 {
     arg0[0x37] = arg_sp8;
@@ -1669,20 +1676,22 @@ s32 func_002b9e10(u8 *arg0) {
 }
 /* measured: restore propagation for the rest of the unit. */
 #pragma opt_propagation on
+// Intent: destroy callback for the 0x6610-byte list task created by fclSpriteListCreateChild (frees the work block at +0x38).
 // FUN_002B9F60
-void func_002b9f60(u8 *arg0) {
+void fclSpriteDestroyListTask(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
     jtbl_008873EC[0](p);
 }
 
+// Intent: creates a child task with a 0x6610-byte list of 48 entries of 0x220 bytes, clears each entry's state and sets the list's count argument at +0x6600.
 // FUN_002B9F90
-s32 func_002b9f90(s32 arg0, s16 arg1, s32 arg2) {
+s32 fclSpriteListCreateChild(s32 arg0, s16 arg1, s32 arg2) {
     s32 handle;
     u8 *p;
     s32 i;
     chkmemAllocSiteTag(&D_0063F178, 0x693);
     p = D_008873F4[0](1, 0x6610, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1E0), 0xF, 0, 0, func_002b9e10, func_002b9f60, (u8 *)(p));
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0063F1E0), 0xF, 0, 0, func_002b9e10, fclSpriteDestroyListTask, (u8 *)(p));
     for (i = 0; i < 0x30; i++) {
         *(s16 *)(p + i * 0x220 + 0x104) = 0;
         *(u32 *)(p + i * 0x220 + 0x214) = arg2;
