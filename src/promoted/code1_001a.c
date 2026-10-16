@@ -9,6 +9,7 @@
 #include "type.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_action_internal.h"
+#include "datPersona_internal.h"
 typedef struct BtlPacket BtlPacket;
 extern BtlPacket *btlFormationCreateNamedPacket(u32 formation, const char *text, u16 mode);
 u32 datCalcRandomBelow(u32 bound);
@@ -197,7 +198,6 @@ s32 btlTaskSlotLinkedSlot2(void);
 s32 btlActionGetCounter420(BtlAction *action);
 
 u8 *btlPacketCreateSpriteTable(u32 arg0, u16 arg1);
-s32 datPersonaSelectRosterMemberById(s32 arg0);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void datPersonaRemoveSelectedRosterMember(void);
 extern s32 datGetFlag(s32 arg0);

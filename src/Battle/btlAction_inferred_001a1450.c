@@ -183,7 +183,6 @@ s32 btlSoundRollStatusCure(u8 *arg0);
 s32 btlActionGetCounter420(BtlAction *action);
 
 u8 *btlPacketCreateSpriteTable(u32 arg0, u16 arg1);
-s32 datPersonaSelectRosterMemberById(s32 arg0);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
 extern void datPersonaRemoveSelectedRosterMember(void);
 extern s32 datGetFlag(s32 arg0);
