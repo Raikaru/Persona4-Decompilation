@@ -8,41 +8,41 @@ Indexed by opcode. Each entry is a `CodeFunc` pointer.
 
 | Opcode | Handler | Defined at |
 |---|---|---|
-| 0 | `scrOpPushImmInt` (0x0029A050) | src/Script/scrTraceCode.c:282 |
-| 1 | `scrOpPushImmFloat` (0x0029A1B0) | src/Script/scrTraceCode.c:300 |
-| 2 | `scrOpPushGlobalInt` (0x0029A260) | src/Script/scrTraceCode.c:309 |
-| 3 | `scrOpPushGlobalFloat` (0x0029A320) | src/Script/scrTraceCode.c:318 |
-| 4 | `scrOpPushReturn` (0x0029A610) | src/Script/scrTraceCode.c:361 |
-| 5 | `scrOpPopGlobalInt` (0x0029A6A0) | src/Script/scrTraceCode.c:375 |
-| 6 | `scrOpPopGlobalFloat` (0x0029A820) | src/Script/scrTraceCode.c:384 |
-| 7 | `scrOpNop` (0x0029AD20) | src/Script/scrTraceCode.c:422 |
-| 8 | `scrOpCallCommand` (0x0029AD40) | src/Script/scrTraceCode.c:438 |
-| 9 | `scrOpReturn` (0x0029AE90) | src/Script/scrTraceCode.c:450 |
-| 10 | `scrOpJumpProcedure` (0x0029B020) | src/Script/scrTraceCode.c:466 |
-| 11 | `scrOpCallProcedure` (0x0029B060) | src/Script/scrTraceCode.c:477 |
-| 12 | `scrOpUnsupported` (0x0029B120) | src/Script/scrTraceCode.c:486 |
-| 13 | `scrOpJumpLabel` (0x0029B170) | src/Script/scrTraceCode.c:496 |
-| 14 | `CodeFunc_Add` (0x0029BEB0) | src/Script/scrTraceCode.c:754 |
-| 15 | `CodeFunc_Sub` (0x0029BEF0) | src/Script/scrTraceCode.c:765 |
-| 16 | `CodeFunc_Mul` (0x0029BF30) | src/Script/scrTraceCode.c:777 |
-| 17 | `CodeFunc_Div` (0x0029BF70) | src/Script/scrTraceCode.c:788 |
-| 18 | `CodeFunc_Neg` (0x0029BFB0) | src/Script/scrTraceCode.c:798 |
-| 19 | `CodeFunc_Not` (0x0029C130) | src/Script/scrTraceCode.c:840 |
-| 20 | `CodeFunc_Or` (0x0029C550) | src/Script/scrTraceCode.c:877 |
-| 21 | `CodeFunc_And` (0x0029C590) | src/Script/scrTraceCode.c:888 |
-| 22 | `CodeFunc_Eq` (0x0029C5D0) | src/Script/scrTraceCode.c:899 |
-| 23 | `CodeFunc_Neq` (0x0029C610) | src/Script/scrTraceCode.c:910 |
-| 24 | `CodeFunc_S` (0x0029C650) | src/Script/scrTraceCode.c:921 |
-| 25 | `CodeFunc_L` (0x0029C690) | src/Script/scrTraceCode.c:932 |
-| 26 | `CodeFunc_SE` (0x0029C6D0) | src/Script/scrTraceCode.c:943 |
-| 27 | `CodeFunc_LE` (0x0029C710) | src/Script/scrTraceCode.c:954 |
-| 28 | `CodeFunc_JumpIfFalse` (0x0029C750) | src/Script/scrTraceCode.c:964 |
-| 29 | `scrOpPushImmShort` (0x0029A100) | src/Script/scrTraceCode.c:291 |
-| 30 | `scrOpPushLocalInt` (0x0029A3E0) | src/Script/scrTraceCode.c:330 |
-| 31 | `scrOpPushLocalFloat` (0x0029A4A0) | src/Script/scrTraceCode.c:339 |
-| 32 | `scrOpPopLocalInt` (0x0029A9C0) | src/Script/scrTraceCode.c:399 |
-| 33 | `scrOpPopLocalFloat` (0x0029AB80) | src/Script/scrTraceCode.c:410 |
-| 34 | `scrOpPushString` (0x0029A560) | src/Script/scrTraceCode.c:348 |
+| 0 | `scrOpPushImmInt` (0x0029A050) | src/Script/scrTraceCode.c:323 |
+| 1 | `scrOpPushImmFloat` (0x0029A1B0) | src/Script/scrTraceCode.c:341 |
+| 2 | `scrOpPushGlobalInt` (0x0029A260) | src/Script/scrTraceCode.c:350 |
+| 3 | `scrOpPushGlobalFloat` (0x0029A320) | src/Script/scrTraceCode.c:359 |
+| 4 | `scrOpPushReturn` (0x0029A610) | src/Script/scrTraceCode.c:402 |
+| 5 | `scrOpPopGlobalInt` (0x0029A6A0) | src/Script/scrTraceCode.c:416 |
+| 6 | `scrOpPopGlobalFloat` (0x0029A820) | src/Script/scrTraceCode.c:425 |
+| 7 | `scrOpNop` (0x0029AD20) | src/Script/scrTraceCode.c:463 |
+| 8 | `scrOpCallCommand` (0x0029AD40) | src/Script/scrTraceCode.c:479 |
+| 9 | `scrOpReturn` (0x0029AE90) | src/Script/scrTraceCode.c:491 |
+| 10 | `scrOpJumpProcedure` (0x0029B020) | src/Script/scrTraceCode.c:507 |
+| 11 | `scrOpCallProcedure` (0x0029B060) | src/Script/scrTraceCode.c:518 |
+| 12 | `scrOpUnsupported` (0x0029B120) | src/Script/scrTraceCode.c:527 |
+| 13 | `scrOpJumpLabel` (0x0029B170) | src/Script/scrTraceCode.c:537 |
+| 14 | `CodeFunc_Add` (0x0029BEB0) | src/Script/scrTraceCode.c:795 |
+| 15 | `CodeFunc_Sub` (0x0029BEF0) | src/Script/scrTraceCode.c:806 |
+| 16 | `CodeFunc_Mul` (0x0029BF30) | src/Script/scrTraceCode.c:818 |
+| 17 | `CodeFunc_Div` (0x0029BF70) | src/Script/scrTraceCode.c:829 |
+| 18 | `CodeFunc_Neg` (0x0029BFB0) | src/Script/scrTraceCode.c:839 |
+| 19 | `CodeFunc_Not` (0x0029C130) | src/Script/scrTraceCode.c:881 |
+| 20 | `CodeFunc_Or` (0x0029C550) | src/Script/scrTraceCode.c:918 |
+| 21 | `CodeFunc_And` (0x0029C590) | src/Script/scrTraceCode.c:929 |
+| 22 | `CodeFunc_Eq` (0x0029C5D0) | src/Script/scrTraceCode.c:940 |
+| 23 | `CodeFunc_Neq` (0x0029C610) | src/Script/scrTraceCode.c:951 |
+| 24 | `CodeFunc_S` (0x0029C650) | src/Script/scrTraceCode.c:962 |
+| 25 | `CodeFunc_L` (0x0029C690) | src/Script/scrTraceCode.c:973 |
+| 26 | `CodeFunc_SE` (0x0029C6D0) | src/Script/scrTraceCode.c:984 |
+| 27 | `CodeFunc_LE` (0x0029C710) | src/Script/scrTraceCode.c:995 |
+| 28 | `CodeFunc_JumpIfFalse` (0x0029C750) | src/Script/scrTraceCode.c:1005 |
+| 29 | `scrOpPushImmShort` (0x0029A100) | src/Script/scrTraceCode.c:332 |
+| 30 | `scrOpPushLocalInt` (0x0029A3E0) | src/Script/scrTraceCode.c:371 |
+| 31 | `scrOpPushLocalFloat` (0x0029A4A0) | src/Script/scrTraceCode.c:380 |
+| 32 | `scrOpPopLocalInt` (0x0029A9C0) | src/Script/scrTraceCode.c:440 |
+| 33 | `scrOpPopLocalFloat` (0x0029AB80) | src/Script/scrTraceCode.c:451 |
+| 34 | `scrOpPushString` (0x0029A560) | src/Script/scrTraceCode.c:389 |
 
 ## Script command groups (`D_00748530`)
 
@@ -124,7 +124,7 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 0x0045 | 69 | `scrCommonPersonaAddStat` (0x0025CE90) | src/Kosaka/k_command_inferred_0025cdd0.c:69 | 3 | FUNCTION_0045 |
 | 0x0046 | 70 | `scrCommonPersonaAddBonusStat` (0x0025CF00) | src/Kosaka/k_command_inferred_0025cdd0.c:82 | 3 | FUNCTION_0046 |
 | 0x0047 | 71 | `scrCommonPersonaGetTotalStat` (0x0025CF70) | src/Kosaka/k_command_inferred_0025cdd0.c:93 | 2 | FUNCTION_0047 |
-| 0x0048 | 72 | `scrGetLeadPersonaId` (0x0025CFD0) | src/Script/scrComuCommand.c:26 | 0 | FUNCTION_0048 |
+| 0x0048 | 72 | `scrGetLeadPersonaId` (0x0025CFD0) | src/Script/scrComuCommand.c:27 | 0 | FUNCTION_0048 |
 | 0x0049 | 73 | `func_00331680` (0x00331680) | src/promoted/code1_0033.c:163 | 0 | CALL_WEAPON_SHOP |
 | 0x004A | 74 | `fclShopRunSystemScreen` (0x00331770) | src/promoted/code1_0033.c:194 | 0 | CALL_ITEM_SHOP |
 | 0x004B | 75 | `fclCombineRunTitleScreen` (0x00331860) | src/promoted/code1_0033.c:225 | 0 | CALL_COMBINE_SHOP |
@@ -448,8 +448,8 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 0x20D3 | 211 | `btlEffectScriptPickRandomHighestLevelUnit` (0x001E7AB0) | src/Battle/btlEffect_inferred_001e7400.c:347 | 1 | AI_FUNCTION_00D3 |
 | 0x20D4 | 212 | `btlAICommandSideIdQueryMyAttrSkil` (0x001E4430) | src/Battle/btlAICommand.c:4727 | 2 | AI_FUNCTION_00D4 |
 | 0x20D5 | 213 | `btlAICommandScriptSetActionSubword` (0x001DF140) | src/Battle/btlAICommand.c:2144 | 1 | AI_FUNCTION_00D5 |
-| 0x20D6 | 214 | `btlScriptIsSideUnitLandedFlagged` (0x001E3FD0) | src/Battle/btlAICommand.c:4577 | 2 | AI_FUNCTION_00D6 |
-| 0x20D7 | 215 | `btlScriptIsSideUnitCriticalFlagged` (0x001E4090) | src/Battle/btlAICommand.c:4602 | 2 | AI_FUNCTION_00D7 |
+| 0x20D6 | 214 | `btlScriptIsSideUnitCriticalFlagged` (0x001E3FD0) | src/Battle/btlAICommand.c:4577 | 2 | AI_FUNCTION_00D6 |
+| 0x20D7 | 215 | `btlScriptIsSideUnitWeakFlagged` (0x001E4090) | src/Battle/btlAICommand.c:4602 | 2 | AI_FUNCTION_00D7 |
 | 0x20D8 | 216 | `btlScriptIsSideUnitDownFlagged` (0x001E4150) | src/Battle/btlAICommand.c:4627 | 2 | AI_FUNCTION_00D8 |
 | 0x20D9 | 217 | `btlAICommandScriptIsSelfListed` (0x001E4520) | src/Battle/btlAICommand.c:4761 | 0 | AI_FUNCTION_00D9 |
 | 0x20DA | 218 | `btlEffectScriptCountNoBadStatusUnits` (0x001E7C20) | src/Battle/btlEffect_inferred_001e7400.c:400 | 1 | AI_FUNCTION_00DA |
@@ -517,65 +517,65 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 |---|---|---|---|---|---|
 | 0x3000 | 0 | `evtCmdNpcModelLoad` (0x00298550) | src/evtScript.c:121 | 2 | EVT_NPC_MODEL_LOAD |
 | 0x3001 | 1 | `cmmEnsureRecord` (0x00249B10) | src/Script/scrComuCommand_inferred_00249b10.c:52 | 1 | EVT_FUNCTION_0001 |
-| 0x3002 | 2 | `cmmExist` (0x00249B80) | src/Script/scrComuCommand_inferred_00249b10.c:71 | 1 | CMM_EXIST |
-| 0x3003 | 3 | `cmmGetLevel` (0x00249BE0) | src/Script/scrComuCommand_inferred_00249b10.c:85 | 1 | CMM_GET_LV |
-| 0x3004 | 4 | `cmmTryRankUp` (0x00249C40) | src/Script/scrComuCommand_inferred_00249b10.c:99 | 1 | EVT_FUNCTION_0004 |
-| 0x3005 | 5 | `cmmAddScaledPointId` (0x00249D00) | src/Script/scrComuCommand_inferred_00249b10.c:131 | 2 | EVT_FUNCTION_0005 |
-| 0x3006 | 6 | `cmmGetNthEligibleId` (0x00249FE0) | src/Script/scrComuCommand_inferred_00249b10.c:236 | 1 | EVT_FUNCTION_0006 |
-| 0x3007 | 7 | `cmmSetTableHead` (0x0024A060) | src/Script/scrComuCommand_inferred_00249b10.c:249 | 1 | EVT_FUNCTION_0007 |
-| 0x3008 | 8 | `cmmGetTableHead` (0x0024A0B0) | src/Script/scrComuCommand.c:13 | 0 | EVT_FUNCTION_0008 |
-| 0x3009 | 9 | `cmmMsgStreamStart` (0x0024A200) | src/cmmScript.c:170 | 2 | EVT_FUNCTION_0009 |
-| 0x300A | 10 | `cmmMsgStreamUpdate` (0x0024A2E0) | src/cmmScript.c:238 | 0 | EVT_FUNCTION_000A |
-| 0x300B | 11 | `cmmMsgStreamGetResult` (0x0024A450) | src/cmmScript.c:291 | 0 | EVT_FUNCTION_000B |
+| 0x3002 | 2 | `cmmExist` (0x00249B80) | src/Script/scrComuCommand_inferred_00249b10.c:72 | 1 | CMM_EXIST |
+| 0x3003 | 3 | `cmmGetLevel` (0x00249BE0) | src/Script/scrComuCommand_inferred_00249b10.c:87 | 1 | CMM_GET_LV |
+| 0x3004 | 4 | `cmmTryRankUp` (0x00249C40) | src/Script/scrComuCommand_inferred_00249b10.c:102 | 1 | EVT_FUNCTION_0004 |
+| 0x3005 | 5 | `cmmAddScaledPointId` (0x00249D00) | src/Script/scrComuCommand_inferred_00249b10.c:136 | 2 | EVT_FUNCTION_0005 |
+| 0x3006 | 6 | `cmmGetNthEligibleId` (0x00249FE0) | src/Script/scrComuCommand_inferred_00249b10.c:247 | 1 | EVT_FUNCTION_0006 |
+| 0x3007 | 7 | `cmmSetTableHead` (0x0024A060) | src/Script/scrComuCommand_inferred_00249b10.c:261 | 1 | EVT_FUNCTION_0007 |
+| 0x3008 | 8 | `cmmGetTableHead` (0x0024A0B0) | src/Script/scrComuCommand.c:14 | 0 | EVT_FUNCTION_0008 |
+| 0x3009 | 9 | `cmmMsgStreamStart` (0x0024A200) | src/cmmScript.c:171 | 2 | EVT_FUNCTION_0009 |
+| 0x300A | 10 | `cmmMsgStreamUpdate` (0x0024A2E0) | src/cmmScript.c:240 | 0 | EVT_FUNCTION_000A |
+| 0x300B | 11 | `cmmMsgStreamGetResult` (0x0024A450) | src/cmmScript.c:294 | 0 | EVT_FUNCTION_000B |
 | 0x300C | 12 | `evtCmdSetEventSlot` (0x00298700) | src/evtScript.c:165 | 2 | EVT_FUNCTION_000C |
 | 0x300D | 13 | `K_Cmd_CMM_COMMUNITY_CURRENT_SECONDARY` (0x00298340) | src/Kosaka/k_command.c:980 | 0 | EVT_FUNCTION_000D |
-| 0x300E | 14 | `cmmCheckLevelUp` (0x00249C90) | src/Script/scrComuCommand_inferred_00249b10.c:113 | 1 | CMM_CHK_LVUP |
-| 0x300F | 15 | `cmmIsReversed` (0x00249DE0) | src/Script/scrComuCommand_inferred_00249b10.c:160 | 1 | EVT_FUNCTION_000F |
-| 0x3010 | 16 | `cmmIsBroken` (0x00249EE0) | src/Script/scrComuCommand_inferred_00249b10.c:198 | 1 | EVT_FUNCTION_0010 |
-| 0x3011 | 17 | `cmmSetReverse` (0x00249E50) | src/Script/scrComuCommand_inferred_00249b10.c:178 | 2 | CMM_SET_REVERSE |
-| 0x3012 | 18 | `cmmSetBroken` (0x00249F50) | src/Script/scrComuCommand_inferred_00249b10.c:216 | 2 | CMM_SET_BROKEN |
-| 0x3013 | 19 | `cmmPersonaDetailShow` (0x0024A490) | src/cmmScript.c:312 | 1 | EVT_FUNCTION_0013 |
-| 0x3014 | 20 | `cmmScriptSelectEntry` (0x0024AA10) | src/cmmScript.c:457 | 1 | EVT_FUNCTION_0014 |
-| 0x3015 | 21 | `cmmScriptHasMsgStreamEntry` (0x0024AA60) | src/cmmScript.c:470 | 2 | EVT_FUNCTION_0015 |
-| 0x3016 | 22 | `cmmScriptSetCurrentEntry` (0x0024AAF0) | src/cmmScript.c:489 | 1 | EVT_FUNCTION_0016 |
-| 0x3017 | 23 | `cmmScriptTopReversedCommunity` (0x0024AB40) | src/cmmScript.c:507 | 0 | EVT_FUNCTION_0017 |
-| 0x3018 | 24 | `cmmTodayNotListed` (0x0024A0E0) | src/Script/scrComuCommand_inferred_0024a0e0.c:40 | 0 | EVT_FUNCTION_0018 |
-| 0x3019 | 25 | `cmmScriptTopPersonaOfArcana` (0x0024AB70) | src/cmmScript.c:518 | 1 | EVT_FUNCTION_0019 |
-| 0x301A | 26 | `cmmScriptFindFreshReverseCandidate` (0x0024ABF0) | src/cmmScript.c:541 | 0 | EVT_FUNCTION_001A |
-| 0x301B | 27 | `cmmNextUnlistedDateKind` (0x0024A140) | src/Script/scrComuCommand_inferred_0024a0e0.c:54 | 0 | EVT_FUNCTION_001B |
-| 0x301C | 28 | `cmmPersonaInfoLookupShow` (0x0024A710) | src/cmmScript.c:376 | 2 | EVT_FUNCTION_001C |
-| 0x301D | 29 | `cmmScriptSetMarkedCommunity` (0x0024AC50) | src/cmmScript.c:565 | 1 | EVT_FUNCTION_001D |
-| 0x301E | 30 | `cmmScriptAddEntryTotal` (0x0024AD70) | src/cmmScript.c:606 | 1 | EVT_FUNCTION_001E |
-| 0x301F | 31 | `cmmScriptTakeTotal` (0x0024ADB0) | src/cmmScript.c:616 | 0 | EVT_FUNCTION_001F |
-| 0x3020 | 32 | `cmmScriptGetEntryIndex` (0x0024AE00) | src/cmmScript.c:631 | 1 | EVT_FUNCTION_0020 |
-| 0x3021 | 33 | `cmmPersonaInfoShow` (0x0024A8B0) | src/cmmScript.c:424 | 1 | EVT_FUNCTION_0021 |
-| 0x3022 | 34 | `cmmScriptResolveCounterpart` (0x0024ACA0) | src/cmmScript.c:578 | 1 | EVT_FUNCTION_0022 |
-| 0x3023 | 35 | `cmmScriptFindReverseCandidate` (0x0024AC20) | src/cmmScript.c:554 | 0 | EVT_FUNCTION_0023 |
+| 0x300E | 14 | `cmmCheckLevelUp` (0x00249C90) | src/Script/scrComuCommand_inferred_00249b10.c:117 | 1 | CMM_CHK_LVUP |
+| 0x300F | 15 | `cmmIsReversed` (0x00249DE0) | src/Script/scrComuCommand_inferred_00249b10.c:167 | 1 | EVT_FUNCTION_000F |
+| 0x3010 | 16 | `cmmIsBroken` (0x00249EE0) | src/Script/scrComuCommand_inferred_00249b10.c:207 | 1 | EVT_FUNCTION_0010 |
+| 0x3011 | 17 | `cmmSetReverse` (0x00249E50) | src/Script/scrComuCommand_inferred_00249b10.c:186 | 2 | CMM_SET_REVERSE |
+| 0x3012 | 18 | `cmmSetBroken` (0x00249F50) | src/Script/scrComuCommand_inferred_00249b10.c:226 | 2 | CMM_SET_BROKEN |
+| 0x3013 | 19 | `cmmPersonaDetailShow` (0x0024A490) | src/cmmScript.c:316 | 1 | EVT_FUNCTION_0013 |
+| 0x3014 | 20 | `cmmScriptSelectEntry` (0x0024AA10) | src/cmmScript.c:464 | 1 | EVT_FUNCTION_0014 |
+| 0x3015 | 21 | `cmmScriptHasMsgStreamEntry` (0x0024AA60) | src/cmmScript.c:478 | 2 | EVT_FUNCTION_0015 |
+| 0x3016 | 22 | `cmmScriptSetCurrentEntry` (0x0024AAF0) | src/cmmScript.c:498 | 1 | EVT_FUNCTION_0016 |
+| 0x3017 | 23 | `cmmScriptTopReversedCommunity` (0x0024AB40) | src/cmmScript.c:517 | 0 | EVT_FUNCTION_0017 |
+| 0x3018 | 24 | `cmmTodayNotListed` (0x0024A0E0) | src/Script/scrComuCommand_inferred_0024a0e0.c:41 | 0 | EVT_FUNCTION_0018 |
+| 0x3019 | 25 | `cmmScriptTopPersonaOfArcana` (0x0024AB70) | src/cmmScript.c:529 | 1 | EVT_FUNCTION_0019 |
+| 0x301A | 26 | `cmmScriptFindFreshReverseCandidate` (0x0024ABF0) | src/cmmScript.c:553 | 0 | EVT_FUNCTION_001A |
+| 0x301B | 27 | `cmmNextUnlistedDateKind` (0x0024A140) | src/Script/scrComuCommand_inferred_0024a0e0.c:56 | 0 | EVT_FUNCTION_001B |
+| 0x301C | 28 | `cmmPersonaInfoLookupShow` (0x0024A710) | src/cmmScript.c:381 | 2 | EVT_FUNCTION_001C |
+| 0x301D | 29 | `cmmScriptSetMarkedCommunity` (0x0024AC50) | src/cmmScript.c:579 | 1 | EVT_FUNCTION_001D |
+| 0x301E | 30 | `cmmScriptAddEntryTotal` (0x0024AD70) | src/cmmScript.c:623 | 1 | EVT_FUNCTION_001E |
+| 0x301F | 31 | `cmmScriptTakeTotal` (0x0024ADB0) | src/cmmScript.c:634 | 0 | EVT_FUNCTION_001F |
+| 0x3020 | 32 | `cmmScriptGetEntryIndex` (0x0024AE00) | src/cmmScript.c:650 | 1 | EVT_FUNCTION_0020 |
+| 0x3021 | 33 | `cmmPersonaInfoShow` (0x0024A8B0) | src/cmmScript.c:430 | 1 | EVT_FUNCTION_0021 |
+| 0x3022 | 34 | `cmmScriptResolveCounterpart` (0x0024ACA0) | src/cmmScript.c:593 | 1 | EVT_FUNCTION_0022 |
+| 0x3023 | 35 | `cmmScriptFindReverseCandidate` (0x0024AC20) | src/cmmScript.c:567 | 0 | EVT_FUNCTION_0023 |
 | 0x3024 | 36 | `fclScriptFlagIsSet` (0x00331980) | src/promoted/code1_0033.c:256 | 1 | EVT_FUNCTION_0024 |
 | 0x3025 | 37 | `fclScriptSetFlagOnButton` (0x003319C0) | src/promoted/code1_0033.c:261 | 1 | EVT_FUNCTION_0025 |
-| 0x3026 | 38 | `cmmScriptDateTableHasEntry` (0x0024AE80) | src/cmmScript.c:651 | 0 | EVT_FUNCTION_0026 |
-| 0x3027 | 39 | `cmmScriptDateTableHasSpecialRecord` (0x0024AEC0) | src/cmmScript.c:661 | 0 | EVT_FUNCTION_0027 |
-| 0x3028 | 40 | `cmmScriptDateTableReadColumn` (0x0024AF00) | src/cmmScript.c:671 | 2 | EVT_FUNCTION_0028 |
-| 0x3029 | 41 | `cmmScriptDateTableApplyColumnDelta` (0x0024AFE0) | src/cmmScript.c:694 | 1 | EVT_FUNCTION_0029 |
-| 0x302A | 42 | `cmmItemInfoShow` (0x0024B070) | src/cmmScript.c:709 | 1 | EVT_FUNCTION_002A |
-| 0x302B | 43 | `cmmScriptFindSlotInGroup` (0x0024ACF0) | src/cmmScript.c:589 | 1 | EVT_FUNCTION_002B |
-| 0x302C | 44 | `cmmScriptCdvdLoad` (0x0024B380) | src/cmmScript.c:769 | 3 | CMM_RANKUP |
-| 0x302D | 45 | `cmmScriptDateTableAddCount` (0x0024B430) | src/cmmScript.c:790 | 2 | EVT_FUNCTION_002D |
-| 0x302E | 46 | `cmmRecordInfoShow` (0x0024B490) | src/cmmScript.c:808 | 1 | EVT_FUNCTION_002E |
-| 0x302F | 47 | `cmmScriptDateTableFindNthMatch` (0x0024B6A0) | src/cmmScript.c:862 | 3 | EVT_FUNCTION_002F |
-| 0x3030 | 48 | `cmmRecordGetField` (0x0024B720) | src/cmmScript.c:876 | 2 | EVT_FUNCTION_0030 |
-| 0x3031 | 49 | `cmmAddPointId` (0x00249D70) | src/Script/scrComuCommand_inferred_00249b10.c:147 | 3 | CMM_ADD_POINT_ID |
+| 0x3026 | 38 | `cmmScriptDateTableHasEntry` (0x0024AE80) | src/cmmScript.c:672 | 0 | EVT_FUNCTION_0026 |
+| 0x3027 | 39 | `cmmScriptDateTableHasSpecialRecord` (0x0024AEC0) | src/cmmScript.c:683 | 0 | EVT_FUNCTION_0027 |
+| 0x3028 | 40 | `cmmScriptDateTableReadColumn` (0x0024AF00) | src/cmmScript.c:694 | 2 | EVT_FUNCTION_0028 |
+| 0x3029 | 41 | `cmmScriptDateTableApplyColumnDelta` (0x0024AFE0) | src/cmmScript.c:718 | 1 | EVT_FUNCTION_0029 |
+| 0x302A | 42 | `cmmItemInfoShow` (0x0024B070) | src/cmmScript.c:734 | 1 | EVT_FUNCTION_002A |
+| 0x302B | 43 | `cmmScriptFindSlotInGroup` (0x0024ACF0) | src/cmmScript.c:605 | 1 | EVT_FUNCTION_002B |
+| 0x302C | 44 | `cmmScriptRankUp` (0x0024B380) | src/cmmScript.c:795 | 3 | CMM_RANKUP |
+| 0x302D | 45 | `cmmScriptDateTableAddCount` (0x0024B430) | src/cmmScript.c:817 | 2 | EVT_FUNCTION_002D |
+| 0x302E | 46 | `cmmRecordInfoShow` (0x0024B490) | src/cmmScript.c:836 | 1 | EVT_FUNCTION_002E |
+| 0x302F | 47 | `cmmScriptDateTableFindNthMatch` (0x0024B6A0) | src/cmmScript.c:891 | 3 | EVT_FUNCTION_002F |
+| 0x3030 | 48 | `cmmRecordGetField` (0x0024B720) | src/cmmScript.c:906 | 2 | EVT_FUNCTION_0030 |
+| 0x3031 | 49 | `cmmAddPointId` (0x00249D70) | src/Script/scrComuCommand_inferred_00249b10.c:153 | 3 | CMM_ADD_POINT_ID |
 | 0x3032 | 50 | `evtCmdRestartTask` (0x00298C60) | src/evtScript.c:302 | 0 | EVT_FUNCTION_0032 |
 | 0x3033 | 51 | `scrDestroyTaskByName` (0x00298D30) | src/Script/scrCommonCommand_inferred_00298d30.c:76 | 0 | EVT_FUNCTION_0033 |
-| 0x3034 | 52 | `cmmScriptPollEntryChoice` (0x002502F0) | src/cmmScript.c:2217 | 0 | EVT_FUNCTION_0034 |
-| 0x3035 | 53 | `cmmScriptPollEntryConfirm` (0x00250560) | src/cmmScript.c:2275 | 0 | EVT_FUNCTION_0035 |
-| 0x3036 | 54 | `cmmScriptStartEntries` (0x00250120) | src/cmmScript.c:2178 | 0 | EVT_FUNCTION_0036 |
-| 0x3037 | 55 | `cmmScriptStopEntries` (0x002507C0) | src/cmmScript.c:2331 | 0 | EVT_FUNCTION_0037 |
-| 0x3038 | 56 | `cmmScriptReadIndexedValue` (0x00250870) | src/cmmScript.c:2352 | 0 | EVT_FUNCTION_0038 |
+| 0x3034 | 52 | `cmmScriptPollEntryChoice` (0x002502F0) | src/cmmScript.c:2249 | 0 | EVT_FUNCTION_0034 |
+| 0x3035 | 53 | `cmmScriptPollEntryConfirm` (0x00250560) | src/cmmScript.c:2308 | 0 | EVT_FUNCTION_0035 |
+| 0x3036 | 54 | `cmmScriptStartEntries` (0x00250120) | src/cmmScript.c:2209 | 0 | EVT_FUNCTION_0036 |
+| 0x3037 | 55 | `cmmScriptStopEntries` (0x002507C0) | src/cmmScript.c:2365 | 0 | EVT_FUNCTION_0037 |
+| 0x3038 | 56 | `cmmScriptReadIndexedValue` (0x00250870) | src/cmmScript.c:2387 | 0 | EVT_FUNCTION_0038 |
 | 0x3039 | 57 | `datMemberNoticeScriptOpen` (0x00354500) | src/promoted/code1_0035.c:437 | 1 | NPC_QUEST_START |
 | 0x303A | 58 | `datMemberNoticeScriptOpenAlt` (0x00354660) | src/promoted/code1_0035.c:469 | 1 | NPC_QUEST_END |
-| 0x303B | 59 | `cmmScriptReadMonthProfile` (0x00250940) | src/cmmScript.c:2388 | 2 | EVT_FUNCTION_003B |
-| 0x303C | 60 | `cmmScriptDateTableIndex` (0x0024AE40) | src/cmmScript.c:641 | 0 | EVT_FUNCTION_003C |
+| 0x303B | 59 | `cmmScriptReadMonthProfile` (0x00250940) | src/cmmScript.c:2424 | 2 | EVT_FUNCTION_003B |
+| 0x303C | 60 | `cmmScriptDateTableIndex` (0x0024AE40) | src/cmmScript.c:661 | 0 | EVT_FUNCTION_003C |
 
 ## Event node tables (`D_0063C1D0`, `D_0063C420`)
 
@@ -584,16 +584,16 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | Kind | Order position | Handler | Defined at |
 |---|---|---|---|
 | 0 | 25 | - | - |
-| 1 | 1 | `evtNodeResCommand` (0x00288170) | src/Event/evtMain.c:1151 |
+| 1 | 1 | `evtNodeResCommand` (0x00288170) | src/Event/evtMain.c:1150 |
 | 2 | 26 | - | - |
 | 3 | 2 | - | - |
-| 4 | 7 | `evtNodeMessageSelect` (0x002894B0) | src/Event/evtMain.c:1831 |
-| 5 | 8 | `evtCmdPlayCue` (0x00289FB0) | src/Event/evtMain.c:2173 |
-| 6 | 15 | `func_0028a7c0` (0x0028A7C0) | src/Event/evtMain.c:2404 |
-| 7 | 16 | `evtCmdRangeFlag` (0x0028A560) | src/Event/evtMain.c:2330 |
+| 4 | 7 | `evtNodeMessageSelect` (0x002894B0) | src/Event/evtMain.c:1830 |
+| 5 | 8 | `evtCmdPlayCue` (0x00289FB0) | src/Event/evtMain.c:2172 |
+| 6 | 15 | `func_0028a7c0` (0x0028A7C0) | src/Event/evtMain.c:2403 |
+| 7 | 16 | `evtCmdRangeFlag` (0x0028A560) | src/Event/evtMain.c:2329 |
 | 8 | 27 | - | - |
 | 9 | 28 | - | - |
-| 10 | 17 | `func_0028a850` (0x0028A850) | src/Event/evtMain.c:2424 |
+| 10 | 17 | `func_0028a850` (0x0028A850) | src/Event/evtMain.c:2423 |
 | 11 | 31 | - | - |
 | 12 | 32 | - | - |
 | 13 | 33 | - | - |
@@ -602,7 +602,7 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 16 | 36 | - | - |
 | 17 | 37 | - | - |
 | 18 | 38 | - | - |
-| 19 | 11 | `evtNodeSoundCue` (0x0028A3B0) | src/Event/evtMain.c:2280 |
+| 19 | 11 | `evtNodeSoundCue` (0x0028A3B0) | src/Event/evtMain.c:2279 |
 | 20 | 29 | - | - |
 | 21 | 30 | - | - |
 | 22 | 39 | - | - |
@@ -611,16 +611,16 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 25 | 42 | - | - |
 | 26 | 43 | - | - |
 | 27 | 44 | - | - |
-| 28 | 18 | `evtNodeDrawOrRumble` (0x0028A6A0) | src/Event/evtMain.c:2367 |
+| 28 | 18 | `evtNodeDrawOrRumble` (0x0028A6A0) | src/Event/evtMain.c:2366 |
 | 29 | 45 | - | - |
 | 30 | 46 | - | - |
 | 31 | 47 | - | - |
 | 32 | 48 | - | - |
-| 33 | 19 | `evtNodeCameraMove` (0x00288AF0) | src/Event/evtMain.c:1538 |
+| 33 | 19 | `evtNodeCameraMove` (0x00288AF0) | src/Event/evtMain.c:1537 |
 | 34 | 21 | - | - |
 | 35 | 49 | - | - |
-| 36 | 22 | `func_0028a8e0` (0x0028A8E0) | src/Event/evtMain.c:2444 |
-| 37 | 14 | `evtCmdResPlace` (0x002891D0) | src/Event/evtMain.c:1749 |
+| 36 | 22 | `func_0028a8e0` (0x0028A8E0) | src/Event/evtMain.c:2443 |
+| 37 | 14 | `evtCmdResPlace` (0x002891D0) | src/Event/evtMain.c:1748 |
 | 38 | 23 | - | - |
 | 39 | 50 | - | - |
 | 40 | 51 | - | - |
@@ -630,17 +630,17 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 44 | 55 | - | - |
 | 45 | 56 | - | - |
 | 46 | 57 | - | - |
-| 47 | 12 | `evtCmdResDisplay` (0x00288F20) | src/Event/evtMain.c:1650 |
-| 48 | 24 | `evtNodeResCommand` (0x00288170) | src/Event/evtMain.c:1151 |
-| 49 | 13 | `evtCmdResEnable` (0x002890B0) | src/Event/evtMain.c:1708 |
-| 50 | 10 | `evtCmdPlayStream` (0x0028A2A0) | src/Event/evtMain.c:2249 |
-| 51 | 0 | `evtCmdLabelText` (0x00289780) | src/Event/evtMain.c:1926 |
-| 52 | 3 | `evtCmdTaskSlot` (0x002898B0) | src/Event/evtMain.c:1968 |
-| 53 | 4 | `evtCmdEnvSlot` (0x00289B10) | src/Event/evtMain.c:2040 |
-| 54 | 9 | `evtNodeSoundTrack` (0x0028A100) | src/Event/evtMain.c:2209 |
-| 55 | 5 | `evtCmdScreenColor` (0x00289C90) | src/Event/evtMain.c:2081 |
-| 56 | 6 | `evtCmdTaskHandle` (0x00289D70) | src/Event/evtMain.c:2108 |
-| 57 | 20 | `evtCmdCamPos` (0x00289EC0) | src/Event/evtMain.c:2146 |
+| 47 | 12 | `evtCmdResDisplay` (0x00288F20) | src/Event/evtMain.c:1649 |
+| 48 | 24 | `evtNodeResCommand` (0x00288170) | src/Event/evtMain.c:1150 |
+| 49 | 13 | `evtCmdResEnable` (0x002890B0) | src/Event/evtMain.c:1707 |
+| 50 | 10 | `evtCmdPlayStream` (0x0028A2A0) | src/Event/evtMain.c:2248 |
+| 51 | 0 | `evtCmdLabelText` (0x00289780) | src/Event/evtMain.c:1925 |
+| 52 | 3 | `evtCmdTaskSlot` (0x002898B0) | src/Event/evtMain.c:1967 |
+| 53 | 4 | `evtCmdEnvSlot` (0x00289B10) | src/Event/evtMain.c:2039 |
+| 54 | 9 | `evtNodeSoundTrack` (0x0028A100) | src/Event/evtMain.c:2208 |
+| 55 | 5 | `evtCmdScreenColor` (0x00289C90) | src/Event/evtMain.c:2080 |
+| 56 | 6 | `evtCmdTaskHandle` (0x00289D70) | src/Event/evtMain.c:2107 |
+| 57 | 20 | `evtCmdCamPos` (0x00289EC0) | src/Event/evtMain.c:2145 |
 
 ## datScriptRunCalc table (`D_00635950`)
 
@@ -649,8 +649,8 @@ Indexed by calc kind (`DatScriptCalcKind`), `arg0 < 0xB`.
 | Kind | Formula | Defined at |
 |---|---|---|
 | 0 | `func_00244100` (0x00244100) | src/Main/Battle/Data/datCalc.c:5338 |
-| 1 | `datScriptCalcPhysicalDamage` (0x00244110) | src/Main/Battle/Data/datCalc_inferred_00244110.c:32 |
-| 2 | `datScriptCalcMagicDamage` (0x00244540) | src/Main/Battle/Data/datCalc_inferred_00244110.c:121 |
+| 1 | `datScriptCalcPhysicalDamage` (0x00244110) | src/Main/Battle/Data/datCalc_inferred_00244110.c:34 |
+| 2 | `datScriptCalcMagicDamage` (0x00244540) | src/Main/Battle/Data/datCalc_inferred_00244110.c:125 |
 | 3 | `datCalcFormulaTerms13And1A` (0x002447C0) | src/Main/Battle/Data/datCalc.c:5344 |
 | 4 | `datScriptCalcHitRate` (0x00244870) | src/Main/Battle/Data/datCalc_inferred_00244870.c:32 |
 | 5 | `datCalcFormulaScaledRatio` (0x002449C0) | src/Main/Battle/Data/datCalc.c:5361 |
