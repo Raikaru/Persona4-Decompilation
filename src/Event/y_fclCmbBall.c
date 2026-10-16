@@ -3,8 +3,8 @@
 #include "fcl_combine_internal.h"
 #include "fcl_draw_task.h"
 #include "sdk_task_registration.h"
-extern s32 func_0034ac00(u8 *task);
-extern void func_0034ad40(u8 *task);
+extern s32 fclCmbBallSlotsUpdate(u8 *task);
+extern void fclCmbBallSlotsDestroy(u8 *task);
 /* Original translation unit y_fclCmbBall.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
@@ -36,7 +36,7 @@ s32 fclCmbBallTaskCreateSlots(s32 arg0, u8 arg1, s16 arg2) {
 
     chkmemAllocSiteTag(&D_0064A740, 0x98);
     buf = (u8 *)D_008873F4[0](1, 0x1810, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0064A750), 0xF, 0, 0, func_0034ac00, func_0034ad40, (u8 *)(buf));
+    handle = (s32)kwlnTaskCreateChild((void *)((void *)(arg0)), (const void *)(D_0064A750), 0xF, 0, 0, fclCmbBallSlotsUpdate, fclCmbBallSlotsDestroy, (u8 *)(buf));
     for (i = 0; i < 0xC; i++) {
         *(s16 *)(buf + (i << 9) + 0x104) = 0;
         *(s16 *)(buf + (i << 9) + 0x100) = arg2;

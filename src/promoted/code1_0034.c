@@ -268,11 +268,12 @@ void fclCombineDrawPacket(u8 *packet, s32 data, void *callback)
     state[0](1, (void *)*raster);
 }
 #pragma pop
+// Ball slot task update: for each slot up to the count at +0x1800 whose flag bit 0 is set, inside its time window, with a nonzero +0x162, queues the slot's draw packet.
 // FUN_0034AC00
 /* measured: opt_propagation off plus a named local forces the GP global read to its written position, producing retail's field-first/global-second order. */
 #pragma push
 #pragma opt_propagation off
-s32 func_0034ac00(u8 *arg0)
+s32 fclCmbBallSlotsUpdate(u8 *arg0)
 {
     s32 counter;
     s16 bumped;
@@ -316,8 +317,9 @@ s32 func_0034ac00(u8 *arg0)
 }
 /* measured: restore pragma state after func_0034ac00. */
 #pragma pop
+// Ball slot task destroy: forwards the state block to jump-table slot 0.
 // FUN_0034AD40
-void func_0034ad40(u8 *arg0) {
+void fclCmbBallSlotsDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
