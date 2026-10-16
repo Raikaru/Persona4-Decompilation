@@ -11,7 +11,7 @@ extern s32 D_0063F520[];
 extern char iGpffffa870;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-s32 func_002ca830(s32);
+s32 fclShopDrawCreate(s32);
 s32 func_002be100(s32);
 s32 func_00106b20(s16);
 s32 func_00106b50(s16);
@@ -44,7 +44,7 @@ s32 func_002bdb50(s32 arg0, s8 arg1)
         temp_2[0] = 3;
         temp_2[1] = 1;
     }
-    *(s32 *)(temp_2 + 4) = func_002ca830(arg0);
+    *(s32 *)(temp_2 + 4) = fclShopDrawCreate(arg0);
     *(s16 *)(temp_2 + 0x18) = 0;
     *(s16 *)(temp_2 + 0x24) = 0;
     *(s16 *)(temp_2 + 0x26) = 0;

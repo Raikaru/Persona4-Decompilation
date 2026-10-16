@@ -33,7 +33,7 @@ extern u32 D_0064A080[];
 extern u8 D_006450B0[];
 extern s32 func_00106b20(s16);
 extern s32 func_00106b50(s16);
-extern s32 func_002dfd00(u16);
+extern s32 fclShopIsSpecialItem(u16);
 extern u32 RpRandom(void);
 extern s32 func_00331a20(u8 *task);
 extern void func_00331f90(u8 *task);
@@ -220,7 +220,7 @@ state_one_32520:
         category = func_002be1b0((s16)i);
         if (category != 0x10 && category != 0x11 && category != 0x12) {
             if (work[0x1808] == func_00106ac0((s16)i)) {
-                if (func_002dfd00(
+                if (fclShopIsSpecialItem(
                         (u16)((func_00106b20((s16)i) & 0xFFF00) >> 8)) == 0) {
                     if (func_002be160(
                             (func_00106b20((s16)i) & 0xFFF00) >> 8,
