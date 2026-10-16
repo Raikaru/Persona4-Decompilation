@@ -101,7 +101,7 @@ extern u8 *iGpffffb444;
 extern void sprintf(u8 *a, u8 *b, u32 c, u8 d);
 extern s32 scrFindPrcdIdxByName(u32 a, u8 *b);
 extern s32 scrStartProcedureIndex(u8 *a, u32 b, s32 c);
-extern void func_0029dfe0(u32 a, u8 *b);
+extern void scrSetTaskProc(u32 a, u8 *b);
 extern u8 *kwlnTaskGetWork(u32 a);
 extern s32 func_0010d740(s32 a);
 extern void itfMesWindowSetString(s32 a, s32 b, u32 c);
@@ -1957,7 +1957,7 @@ s32 btlAICommandSpawnActionProc(u8 *p, u8 *q, u32 v, u32 w)
         c = w;
     }
     t = scrStartProcedureIndex((u8 *)(*(u32 *)(*(u32 *)(iGpffffb3ac + 0xDC8) + 0x20) - 1), v, c);
-    func_0029dfe0(t, p);
+    scrSetTaskProc(t, p);
     v2 = (u32)kwlnTaskGetWork(t);
     if (*(s32 *)(v2 + 0x130) >= 0) {
         switch (*(u8 *)(*(u32 *)(p + 0x30) + 0xA2)) {
