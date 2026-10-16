@@ -1129,8 +1129,9 @@ u16 btlResultSimpleIsDone(void) {
    field400 destination=$s2. Complete iGp declarations, a u32 masked result
    local, and the explicit field400 destination expression reproduce the
    368B window exactly. */
+// Intent: set up the result entries from the date index and asset slot. [inferred]
 // FUN_00221770
-void func_00221770(void) {
+void btlResultSimpleSetupEntries(void) {
     s32 *dst;
     s32 i;
     BtlResultWork *work;
