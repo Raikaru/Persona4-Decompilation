@@ -66,7 +66,9 @@ typedef struct ParticleLinkNode {
 /* Effect particle (effParticle.c). Only the texture scale and link are named; the other
  * fields are not yet typed. */
 typedef struct EffParticleInstance {
-    u8 field_0x00[0x54];
+    u8 field_0x00[0x48];
+    s32 tlpRef;              /* +0x48: TLP handle, reference-counted by ParticleCopyModeFromSource */
+    u8 field_0x4C[0x54 - 0x4C];
     f32 texScaleX;           /* +0x54: texture scale, the texture's +0xC word divided by 32 */
     f32 texScaleY;           /* +0x58: texture scale, the texture's +0x10 word divided by 32 */
     ParticleLinkNode *link;  /* +0x5C */
