@@ -84,5 +84,44 @@ struct CmmRankUpWork
     u8 unk_780[0x260];       /* 0x780 */
     u8 *callerArg;           /* 0x9E0. Argument passed to every entry step */
 };
+/* Rank-up presentation state (cmmRankUp.c). The step callbacks and the renderer
+   read the same block: cmmRankUpCreate stores the caller's block at
+   CmmRankUpWork.callerArg, and cmmRankUpRender reads its work block. [inferred]
+   Offsets are from the cmmRankUpRender and step-function reads. Slots that the
+   code reads at more than one width are unions over the same bytes. */
+typedef struct CmmRankUpContext CmmRankUpContext;
+struct CmmRankUpContext
+{
+    u32 flags;               /* 0x00. Bit 0x10 tested by the renderer */
+    s32 relation;            /* 0x04. Relation id for the panel */
+    s32 mode;                /* 0x08. Display mode; 0xA is the maximum-rank panel */
+    s32 unk_0c;              /* 0x0C */
+    union {
+        u8 *sprites;         /* sprite table passed to shdSpriteDraw* */
+        s32 counter;         /* renderer frame counter */
+    } slot10;                /* 0x10 */
+    s32 unk_14;              /* 0x14. Portrait-related value (datPortraitValue input) */
+    union {
+        u16 communityId;     /* 0x18. Community id (cmmCommunityArcana) */
+        s32 word;
+    } slot18;                /* 0x18 */
+    s32 animationMode;       /* 0x1C. Selects the renderer branch */
+    s32 unk_20;              /* 0x20. Resource id for cmmRankUpAttachResMatrix */
+    u8 unk_24[0x08];         /* 0x24 */
+    s32 portraitIdFirst;     /* 0x2C. Portrait id for the first texture */
+    s32 portraitIdSecond;    /* 0x30. Portrait id for the second texture */
+    u8 unk_34[0x08];         /* 0x34 */
+    union {
+        s16 ticks;           /* 0x3C. Frame timer that wraps at 120 */
+        s8 low;              /* 0x3C. Low byte, passed as a label argument */
+    } pulse120;              /* 0x3C */
+    s16 pulse45;             /* 0x3E. Frame timer that wraps at 45 */
+    s32 unk_40;              /* 0x40 */
+    s32 unk_44;              /* 0x44 */
+    s32 frame45;             /* 0x48. Frame counter that wraps at 45 */
+    u8 unk_4c[0x08];         /* 0x4C */
+    s32 *unk_54;             /* 0x54. Pointer to the portrait value word (renderer reads through it) */
+    u8 *unk_58;              /* 0x58. Cast to a palette row (RankUpColor) by the renderer */
+};
 
 #endif
