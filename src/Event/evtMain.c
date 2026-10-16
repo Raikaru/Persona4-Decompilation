@@ -114,8 +114,9 @@ void taskRecordSetPosition(u8 *arg0, s64 arg1);
    and r=$s1 where mwcc rotates to arg0=$s0/arg1=$s1/arg2=$s4, var_16=$s3,
    r=$s2. Tried the complete m2c switch body + 1 declaration order; nd 324
    (obj 1424B vs window 1248B). Jump-table-density + saved-register floor. */
+// Creates the event node for type 10: allocates its 0x30-byte record, counts it against the event memory, and fills its geometry through func_0028c080; other types create nothing [inferred].
 // FUN_00286780
-u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
+u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
     f32 sp8c;
     f32 sp88;
     u8 sp60[0x20];
@@ -505,8 +506,9 @@ void *evtNodeAllocWithRes(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
  * constant inside the loop body after the entry jump; retail hoists it to the
  * preheader before the jump (same pattern as func_00287ad0). */
 #pragma opt_loop_invariants on
+// Enables or disables the scene resource of each type-1 and type-0x30 node with a resource id; arg0 == 0 enables, except nodes flagged for a duration are always disabled [inferred].
 // FUN_002871A0
-void func_002871a0(s32 arg0, u8 *arg1, u8 *arg2) {
+void evtSetNodeResourcesEnabled(s32 arg0, u8 *arg1, u8 *arg2) {
     u8 *node;
     u8 *node2;
     u8 *node3;
@@ -553,13 +555,14 @@ void func_002871a0(s32 arg0, u8 *arg1, u8 *arg2) {
 /* measured: see annotation above (func_002871a0). */
 #pragma opt_loop_invariants off
 
+// Applies the event's resource state: enables its nodes when the state is 1, otherwise disables them.
 // FUN_00287310
-void func_00287310(u8 *arg0) {
+void evtRefreshNodeResources(u8 *arg0) {
     if (*(s32 *)(arg0 + 0x5D4) == 1) {
-        func_002871a0(0, *(u8 **)(arg0 + 0x14), arg0);
+        evtSetNodeResourcesEnabled(0, *(u8 **)(arg0 + 0x14), arg0);
         return;
     }
-    func_002871a0(1, *(u8 **)(arg0 + 0x14), arg0);
+    evtSetNodeResourcesEnabled(1, *(u8 **)(arg0 + 0x14), arg0);
 }
 
 /* The earlier duration-gate experiments remain in the Event recovery archives.
@@ -579,8 +582,9 @@ static inline u8 *evtCutinAddress(u32 index, u8 *work)
    bytes. Reassigning the consumed enable state retains retail's duration load
    and common join; both duration outcomes perform the same polygon update.
    Current proof: docs/probe_archive/Event_duration_current_5a1bcf7_20260921.md. */
+// Updates the cut-in polygon each frame from its duration gate and enable state, using the packed position and colour values [inferred].
 // FUN_00287360
-void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+void evtUpdateCutin(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     union {
         struct { s16 first, second; } halves;
         s32 packed;
@@ -937,8 +941,9 @@ u8 *evtFindBestChoice(u32 arg0, u8 *arg1, s32 arg2, s32 arg3) {
     return found;
 }
 
+// Steps the model layers for the choice the event selects: finds the best matching choice and advances its layers' times [inferred].
 // FUN_00287D90
-void func_00287d90(arg0, arg1, arg2, arg3)
+void evtStepLayerByChoice(arg0, arg1, arg2, arg3)
 s32 arg0;
 u8 *arg1;
 s32 arg2;
@@ -1047,8 +1052,9 @@ block_29:
    the trailing if/else exactly as m2c emitted it) closed it. Converting all four at
    once while also collapsing that if/else scores nd 127 at 300B, so keep the
    surrounding structure and change only the loop form. */
+// Syncs each event node with its resource manager entry, updating the node's resource state [inferred].
 // FUN_00288020
-void func_00288020(s32 arg0, u8 *arg1) {
+void evtSyncResManagerNodes(s32 arg0, u8 *arg1) {
     u8 *temp_2;
     u8 *var_18;
     u8 *var_18_2;
@@ -1073,7 +1079,7 @@ void func_00288020(s32 arg0, u8 *arg1) {
             if (var_3 == NULL) {
                 var_18 = *(u8 **)(var_18 + 0x138);
             } else {
-                func_00287d90(arg0, var_18, (s32) var_6, arg1, 0);
+                evtStepLayerByChoice(arg0, var_18, (s32) var_6, arg1, 0);
                 var_18 = *(u8 **)(var_18 + 0x138);
             }
         }
@@ -1091,7 +1097,7 @@ void func_00288020(s32 arg0, u8 *arg1) {
             if (var_4 == NULL) {
                 var_18_2 = *(u8 **)(var_18_2 + 0x138);
             } else {
-                func_00287d90(arg0, var_18_2, (s32) var_6_2, arg1, 0);
+                evtStepLayerByChoice(arg0, var_18_2, (s32) var_6_2, arg1, 0);
                 var_18_2 = *(u8 **)(var_18_2 + 0x138);
             }
         }
@@ -2490,7 +2496,7 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
     *(s32 *)arg1 = temp_3;
     *(s32 *)arg1 = temp_3 & ~4;
     sceneLightSlotsReset();
-    func_00288020(arg0, arg1);
+    evtSyncResManagerNodes(arg0, arg1);
     var_18 = *(u8 **)(arg1 + 0x4C);
     while (var_18 != NULL) {
         memset(D_008821E0, 0, 0x28);
@@ -2544,7 +2550,7 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
                 }
                 var_18_3 = *(u8 **)(var_18_3 + 0x50);
             }
-            func_00287360(var_20, var_19, var_18_3, arg0, arg1);
+            evtUpdateCutin(var_20, var_19, var_18_3, arg0, arg1);
         }
         var_20 = *(u8 **)(var_20 + 0x90);
     }

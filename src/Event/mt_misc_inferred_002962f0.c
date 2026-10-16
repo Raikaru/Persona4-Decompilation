@@ -76,7 +76,7 @@ void mtMiscCollectType4Records(u8 *arg0, u8 *arg1)
 {
   extern s32 func_00290e10(s32 *arg0);
   extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
-  extern u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2);
+  extern u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2);
   typedef struct { s16 x, y, z, w; } Pos4_962f0;
   s32 temp_3;
   u8 *temp_17;
@@ -126,7 +126,7 @@ loop_body:
     u8 *p14;
     u8 *p15;
     u8 *p16;
-    temp_2 = func_00286780(temp_17, var_2 & 0xFFFF, arg1);
+    temp_2 = evtNodeCreate(temp_17, var_2 & 0xFFFF, arg1);
     temp_3 = var_16 * 0x3C;
     temp_7 = *((u8 **)(arg0 + 0x98)) + temp_3;
     tmp = *((Pos4_962f0 *)(temp_7 + 0xC));
@@ -202,7 +202,7 @@ loop_test:
 // FUN_00296600
 void mtMiscCollectType5Records(u8 *arg0, u8 *arg1)
 {
-  extern u8 *func_00286780();
+  extern u8 *evtNodeCreate();
   extern u8 *evtNodeAlloc(s32 arg0);
   s32 temp_16;
   u8 *new_var3;
@@ -238,7 +238,7 @@ void mtMiscCollectType5Records(u8 *arg0, u8 *arg1)
   {
     goto loop_7_increment;
   }
-  temp_2 = func_00286780((temp_6 = *((u16 *) (temp_5 + 2)), temp_19), temp_6, arg1);
+  temp_2 = evtNodeCreate((temp_6 = *((u16 *) (temp_5 + 2)), temp_19), temp_6, arg1);
   temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
   field_c = *((s16 *) (temp_3 + 0xC));
   field_e = *((s16 *) (temp_3 + 0xE));
@@ -271,7 +271,7 @@ void mtMiscCollectType5Records(u8 *arg0, u8 *arg1)
 // FUN_00296720
 void mtMiscCollectType19Records(u8 *arg0, u8 *arg1)
 {
-  extern u8 *func_00286780();
+  extern u8 *evtNodeCreate();
   extern u8 *evtNodeAlloc(s32 arg0);
   s32 temp_16;
   u8 *new_var3;
@@ -309,7 +309,7 @@ void mtMiscCollectType19Records(u8 *arg0, u8 *arg1)
   {
     goto loop_7_increment;
   }
-  temp_2 = func_00286780((temp_6 = *((u16 *) (temp_5 + 2)), temp_19),
+  temp_2 = evtNodeCreate((temp_6 = *((u16 *) (temp_5 + 2)), temp_19),
                           temp_6, arg1);
   temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
   field_c = *((s16 *) (temp_3 + 0xC));
@@ -366,10 +366,10 @@ s32 mtMiscBuildScene(u8 *arg0, u8 *arg1)
   extern void mtMiscCollectType4Records(u8 *arg0, u8 *arg1);
   extern void mtMiscCollectType5Records(u8 *arg0, u8 *arg1);
   extern void mtMiscCollectType19Records(u8 *arg0, u8 *arg1);
-  extern void func_00287310(u8 *arg0);
+  extern void evtRefreshNodeResources(u8 *arg0);
   extern void evtResultSet(s32 arg0, s32 arg1);
   extern u8 *evtNodeAlloc(s32 arg0, u8 *arg1);
-  extern u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2);
+  extern u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2);
   extern void func_00440b68(char *fmt, ...);
   extern char D_0063CB00[];
   extern char D_0063CB18[];
@@ -470,7 +470,7 @@ ll_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_31, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_31, id2 & 0xFFFF, arg1);
       off = index_31 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -533,7 +533,7 @@ loop22_body:
   {
     Pos4 tmp;
     Pos4 pos;
-    dest = func_00286780(temp_18, id2 & 0xFFFF, arg1);
+    dest = evtNodeCreate(temp_18, id2 & 0xFFFF, arg1);
     off = var_19 * 0x3C;
     q = *((u8 **)(arg0 + 0x98)) + off;
     tmp = *((Pos4 *)(q + 0xC));
@@ -579,7 +579,7 @@ loop22_test:
       {
         Pos4 tmp;
         Pos4 pos;
-        dest = func_00286780(resource_25, id2 & 0xFFFF, arg1);
+        dest = evtNodeCreate(resource_25, id2 & 0xFFFF, arg1);
         off = index_25 * 0x3C;
         q = *((u8 **)(arg0 + 0x98)) + off;
         tmp = *((Pos4 *)(q + 0xC));
@@ -634,7 +634,7 @@ loop22_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_26, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_26, id2 & 0xFFFF, arg1);
       off = index_26 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -698,7 +698,7 @@ loop22_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_32, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_32, id2 & 0xFFFF, arg1);
       off = index_32 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -752,7 +752,7 @@ loop22_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_33, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_33, id2 & 0xFFFF, arg1);
       off = index_33 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -807,7 +807,7 @@ loop22_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_35, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_35, id2 & 0xFFFF, arg1);
       off = index_35 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -870,7 +870,7 @@ loop22_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_37, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_37, id2 & 0xFFFF, arg1);
       off = index_37 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -933,7 +933,7 @@ loop22_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_38, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_38, id2 & 0xFFFF, arg1);
       off = index_38 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -996,7 +996,7 @@ loop22_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_39, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_39, id2 & 0xFFFF, arg1);
       off = index_39 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -1062,7 +1062,7 @@ loop22_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_36, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_36, id2 & 0xFFFF, arg1);
       off = index_36 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -1117,7 +1117,7 @@ loop22_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_06, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_06, id2 & 0xFFFF, arg1);
       off = index_06 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -1183,7 +1183,7 @@ loop22_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_07, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_07, id2 & 0xFFFF, arg1);
       off = index_07 * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -1246,7 +1246,7 @@ loop22_test:
     {
       Pos4 tmp;
       Pos4 pos;
-      dest = func_00286780(resource_1C, id2 & 0xFFFF, arg1);
+      dest = evtNodeCreate(resource_1C, id2 & 0xFFFF, arg1);
       off = index_1C * 0x3C;
       q = *((u8 **)(arg0 + 0x98)) + off;
       tmp = *((Pos4 *)(q + 0xC));
@@ -1297,7 +1297,7 @@ loop22_test:
       goto loop1C_body;
     }
   }
-  func_00287310(arg1);
+  evtRefreshNodeResources(arg1);
   var_18 = 0;
   goto loopA_test;
 loopA_body:

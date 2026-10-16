@@ -29,7 +29,7 @@ void func_002854e0(u8 *arg0);
 extern s32 taskRecordIsDone(s32);
 extern s32 fadeStatus(void);
 extern s32 func_0028f8e0(s32);
-extern void func_00287310(u8 *);
+extern void evtRefreshNodeResources(u8 *);
 extern void func_00440b68(void *);
 extern u8 D_0063C2E0[];
 s32 func_002857c0(u8 *task);
@@ -92,7 +92,7 @@ void func_002854e0(u8 *arg0)
         }
         if (*(s32 *)(arg0 + 0x5D4) != var_4) {
             *(s32 *)(arg0 + 0x5D4) = var_4;
-            func_00287310(arg0);
+            evtRefreshNodeResources(arg0);
             func_00440b68(&D_0063C2E0);
         }
     }

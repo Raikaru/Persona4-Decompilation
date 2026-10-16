@@ -18,7 +18,7 @@ extern u16 MT_Scene_CreateRes07(u16);
 extern void MT_Scene_OffsetPointByRotation(f32 *, f32, f32, f32, f32, f32 *);
 extern u8 *evtNodeAllocWithRes(s32, u8 *, u16, u8 *);
 extern void func_0028be70(u8 *, s32);
-extern u8 *func_00286780(u8 *, u16, u8 *);
+extern u8 *evtNodeCreate(u8 *, u16, u8 *);
 extern void func_00294610(u8 *, u8 *, s32);
 extern s32 mtMiscReadSlotValues(s32, s32, s32 *, s32 *);
 extern void *mdlCreateModelObjectFromMemory(u32, u16, void *, u32, u32);
@@ -206,7 +206,7 @@ void func_00294a90(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3) {
                     } else {
                         var_2 = *(u16 *)(temp_5 + 2);
                     }
-                    func_00294610(arg0, func_00286780(arg2, var_2 & 0xFFFF, arg1), i);
+                    func_00294610(arg0, evtNodeCreate(arg2, var_2 & 0xFFFF, arg1), i);
                 }
             }
         }
@@ -302,7 +302,7 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
                     } else {
                         var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (idx * 0x3C) + 2);
                     }
-                    temp_2_3 = func_00286780(dest, var_2 & 0xFFFF, arg1);
+                    temp_2_3 = evtNodeCreate(dest, var_2 & 0xFFFF, arg1);
                     off = idx * 0x3C;
                     temp_7 = (u8 *)(*(s32 *)(arg0 + 0x98) + off);
                     coord = &temp_6;
@@ -434,7 +434,7 @@ void func_002951c0(u8 *arg0, u8 *arg1) {
             } else {
                 var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (i * 0x3C) + 2);
             }
-            dest = func_00286780(arr[idx], var_2 & 0xFFFF, arg1);
+            dest = evtNodeCreate(arr[idx], var_2 & 0xFFFF, arg1);
             temp_3 = i * 0x3C;
             coord = &temp_6;
             *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xC);
@@ -516,7 +516,7 @@ void func_002954f0(u8 *arg0, u8 *arg1) {
             } else {
                 var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (var_16 * 0x3C) + 2);
             }
-            temp_2 = (u8 *)(func_00286780(temp_17, var_2 & 0xFFFF, arg1));
+            temp_2 = (u8 *)(evtNodeCreate(temp_17, var_2 & 0xFFFF, arg1));
             temp_3 = var_16 * 0x3C;
             coord = &temp_6;
             *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xC);
@@ -657,7 +657,7 @@ void func_00295b80(u8 *arg0, u8 *arg1) {
                 var_2_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (i * 0x3C) + 2);
             }
             idx = (u8)(*(u8 *)(var_2 + 2)) >> 4;
-            temp_2_2 = func_00286780(arr[idx], var_2_2 & 0xFFFF, arg1);
+            temp_2_2 = evtNodeCreate(arr[idx], var_2_2 & 0xFFFF, arg1);
             temp_8 = i * 0x10;
             temp_7 = i * 0x3C;
             entry = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_7);
@@ -722,7 +722,7 @@ void func_00295910(u8 *arg0, u8 *arg1) {
                     } else {
                         var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (var_19 * 0x3C) + 2);
                     }
-                    func_00294610(arg0, func_00286780(temp_2, var_2 & 0xFFFF, arg1), var_19);
+                    func_00294610(arg0, evtNodeCreate(temp_2, var_2 & 0xFFFF, arg1), var_19);
                 }
             }
         }
@@ -804,7 +804,7 @@ void func_00295db0(u8 *arg0, u8 *arg1) {
                     } else {
                         var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (inner * 0x3C) + 2);
                     }
-                    temp_2_2 = func_00286780(temp_2, var_2 & 0xFFFF, arg1);
+                    temp_2_2 = evtNodeCreate(temp_2, var_2 & 0xFFFF, arg1);
                     temp_8 = inner * 0x3C;
                     temp_7_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8);
                     coord = &temp_5;
