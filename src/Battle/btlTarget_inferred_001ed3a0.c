@@ -112,8 +112,8 @@ typedef struct P4NeighborWorld {
     P4NeighborNode goal;
 } P4NeighborWorld;
 extern s32 btlTargetLineClear(f32 *first, f32 *second, f32 margin);
-extern void func_001ed700(f32 radius);
-extern s32 func_001ee610(u8 *route, f32 radius);
+extern void btlTargetRebuildRadiusLinks(f32 radius);
+extern s32 btlTargetBuildSmoothRoute(u8 *route, f32 radius);
 typedef struct RoutePoint {
     f32 x;
     f32 z;
@@ -219,14 +219,14 @@ s32 func_001ed3a0(u8 *node, f32 threshold)
 }
 
 #pragma push
-/* measured: func_001ed700 MATCH -> MISMATCH without this pragma. */
+/* measured: btlTargetRebuildRadiusLinks MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-/* measured: func_001ed700 MATCH -> MISMATCH without this pragma. */
+/* measured: btlTargetRebuildRadiusLinks MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
-/* measured: func_001ed700 MATCH -> MISMATCH without this pragma. */
+/* measured: btlTargetRebuildRadiusLinks MATCH -> MISMATCH without this pragma. */
 #pragma opt_dead_assignments off
 // FUN_001ED700
-void func_001ed700(f32 radius)
+void btlTargetRebuildRadiusLinks(f32 radius)
 {
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 RwV2dLength(f32 *vec);
@@ -623,10 +623,10 @@ s32 btlTargetRefreshRadiusNode(u8 *arg0) {
    locals. opt_loop_invariants hoists &pts[n] (retail $s5) and pts[0].z
    (retail $f20) out of the subdivision loop. */
 #pragma push
-/* measured: func_001ee610 MATCH -> MISMATCH without this pragma. */
+/* measured: btlTargetBuildSmoothRoute MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001EE610
-s32 func_001ee610(u8 *route, f32 radius)
+s32 btlTargetBuildSmoothRoute(u8 *route, f32 radius)
 {
     extern f32 func_003e41e0(f32 *out, f32 *in);
     RoutePoint last;
