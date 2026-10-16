@@ -186,9 +186,11 @@ void edSrTaskDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
-// Intent: Start the end scene when the script command timer reaches 0xA; return 1 once the timer is past it and the task is gone [inferred]
+// Intent: Common script command 0x6A, CALL_STAFF_ROLL (0 params): starts the end-credits scene; returns 1 once the command timer is past 0xA and the task is gone.
+// Index: Common table group 0 base 0x63D070; entry 0x63D3C0 = (0x63D3C0 - 0x63D070) / 8 = 0x6A.
+// Library: p4flow Common.json 0x006A = CALL_STAFF_ROLL.
 // FUN_0038F290
-s32 edSrStartEndScene(void) {
+s32 K_Cmd_CALL_STAFF_ROLL(void) {
     s32 state;
     u8 *w;
     u8 *p;
