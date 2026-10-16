@@ -423,7 +423,7 @@ s32 FldLoadTaskUpdate(u8 *task)
     extern s32 FldMap_IsInBandA(s32 fieldId, s32 roomId);
     extern u8 *FldHbnOpenScript(s32 fieldId);
     extern s32 FldHbnLoadScriptBuffer(u8 *file, s32 fieldId);
-    extern s32 func_0029db50(s32 priority, s32 memory, s32 bytes, s32 procedure);
+    extern s32 scrStartProcedureChecked(s32 priority, s32 memory, s32 bytes, s32 procedure);
     extern s32 kwlnTaskIsLinked(void *task);
     extern void fieldSceneLoad(s32 fieldId, s32 roomId);
     extern void func_00144e10(s64 mapState);
@@ -482,7 +482,7 @@ s32 FldLoadTaskUpdate(u8 *task)
         iGpffffb210 = 0;
         if (work->mode == 0 && D_007D3D64[0] != 0 && iGpffffb268 == 0) {
             scriptSize = D_007D3D68[0];
-            work->scriptTask = func_0029db50(0xF, D_007D3D64[0], scriptSize, work->roomId - 1);
+            work->scriptTask = scrStartProcedureChecked(0xF, D_007D3D64[0], scriptSize, work->roomId - 1);
         }
         work->state++;
     case 2:
@@ -537,7 +537,7 @@ s32 FldLoadTaskUpdate(u8 *task)
         iGpffffb210 = 1;
         if (D_007D3D64[0] != 0) {
             scriptSize = D_007D3D68[0];
-            work->scriptTask = func_0029db50(0xF, D_007D3D64[0], scriptSize, work->roomId - 1);
+            work->scriptTask = scrStartProcedureChecked(0xF, D_007D3D64[0], scriptSize, work->roomId - 1);
         }
         work->state++;
     case 4:

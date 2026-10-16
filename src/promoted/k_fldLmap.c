@@ -53,7 +53,7 @@ extern void func_00122640(s32 a, s32 b);
 extern s32 fadeStatus();
 extern void func_00122520(s32 a, s32 b);
 extern s32 kwlnTaskIsLinked(u8 *param);
-extern u8 *func_0029db50(s32 a, s32 b, s32 c, s32 d);
+extern s32 scrStartProcedureChecked(s32 a, s32 b, s32 c, s32 d);
 extern void func_003e9cb0(s32 param, u8 *src, s32 mode);
 extern void K_View_SetFov(u8 *param, f32 value);
 extern void func_00189600(u8 *param, s32 a, s32 b, f32 value);
