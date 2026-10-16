@@ -82,7 +82,7 @@ extern s32 iGpffffb280;
 extern s32 scrGetCmdTimer(void);
 extern u8 *scrGetContext(void);
 extern void datCalcIsDeadById(s16 arg0);
-extern void func_001056e0(s16 arg0, s16 arg1);
+extern void datSetUnitHp(s16 arg0, s16 arg1);
 extern void datCalcClearBadStatusById(s16 arg0, s32 arg1);
 extern void KMisc_CreateScrShutdown(s32 arg0);
 extern void sdlSchedulerEnable(void);
@@ -607,7 +607,7 @@ s32 btlScriptResolvePartyDeath(void)
 {
     extern s16 datGetPartyId(s32 idx);
     extern u32 datCalcIsDeadById(s16 character);
-    extern void func_001056e0(s16 character, s16 value);
+    extern void datSetUnitHp(s16 character, s16 value);
     extern void datCalcClearBadStatusById(s16 character, u32 mask);
     u32 var_16;
     u32 dep;
@@ -631,7 +631,7 @@ s32 btlScriptResolvePartyDeath(void)
 loop_11_body:
             if (((s16)datGetPartyId((s32)var_16) != 0) &&
                 (datCalcIsDeadById(datGetPartyId((s32)var_16)) != 0)) {
-                func_001056e0(datGetPartyId((s32)var_16), 1);
+                datSetUnitHp(datGetPartyId((s32)var_16), 1);
                 datCalcClearBadStatusById(datGetPartyId((s32)var_16), 0x80000);
             }
             var_16 += 1;

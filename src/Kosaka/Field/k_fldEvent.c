@@ -888,7 +888,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void hFadeTaskStart(s16);
     s32 func_001fc270(void);
     s32 func_0018df60(s32);
-    void func_001056e0(s16, s16);
+    void datSetUnitHp(s16, s16);
     void datCalcClearBadStatusById(s16, u32);
     s32 FldUnit_AllSlotsReady(void);
     FldEventWork *work;
@@ -1314,7 +1314,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         s32 p = *(s32 *)(D_007EF9B0 + (i * 0x750) + 0x48);
                         if (p != 0 && datUnitGroupIsDefeated((struct DatUnitGenusBase *)(p)) == 1) {
                             s16 *partyId = &((FldEventActor *)(D_007EF9B0 + (s32)i * 0x750))->partyId;
-                            func_001056e0(*partyId, 1);
+                            datSetUnitHp(*partyId, 1);
                             datCalcClearBadStatusById(*partyId, 0x80000);
                         }
                     }
