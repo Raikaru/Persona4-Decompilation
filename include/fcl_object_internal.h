@@ -14,7 +14,9 @@ typedef struct FclObject {
     f32 anchorValue;
     u8 unk0C[0x20];
     FclVec2 anchorPosition;
-    u8 unk34[0x28];
+    u8 unk34[0x7];
+    s8 mode;
+    u8 unk3C[0x20];
     u8 unk5C[0x6];
     u8 alpha;
     u8 unk63[0x3D];
