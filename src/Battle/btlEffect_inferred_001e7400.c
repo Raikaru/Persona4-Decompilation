@@ -195,7 +195,7 @@ loop_test:
 // FUN_001E7640
 s32 btlEffectScriptPickRandomHighestOpposingUnit(void)
 {
-    extern s32 func_001d7c60(u32, void *, s32, s32, s32);
+    extern s32 btlEffectCollectTargetUnits(u32, void *, s32, s32, s32);
     extern u8 *func_0029d050(void);
     extern u32 datCalcRandomBelow(u32);
     extern s32 datCalcGetLevel(u8 *);
@@ -218,7 +218,7 @@ s32 btlEffectScriptPickRandomHighestOpposingUnit(void)
 
     unit = func_0029d050();
     desired = p4_formation_get_opposing_genus((u32)unit);
-    func_001d7c60((u32)unit, &candidates, 2, 0, 0);
+    btlEffectCollectTargetUnits((u32)unit, &candidates, 2, 0, 0);
     highest = 0;
     selectedCount = 0;
     index = 0;

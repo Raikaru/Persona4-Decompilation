@@ -66,7 +66,7 @@ void func_001f6cd0(void);
 
 void func_001f14f0(u8 *arg0);
 void func_001eb3b0(u8 *arg0);
-extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
+extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 void func_001d8cb0(void *arg0, void *arg1);
 
 s32 btlUnitIsMoving(u8 *arg0);
@@ -557,7 +557,7 @@ void btlActionTargetInit(u8 *arg0)
 
     switch (*(u16 *)(arg0 + 0x6C)) {
     case 4:
-        func_001d7c60(arg0, arg0 + 0x98, 2, 0, 0);
+        btlEffectCollectTargetUnits(arg0, arg0 + 0x98, 2, 0, 0);
         unitIndex = func_001a_fix_var(*(u16 *)(arg0 + 0x6E));
         break;
     default:
@@ -568,9 +568,9 @@ void btlActionTargetInit(u8 *arg0)
         case 1:
         case 2:
             {
-                extern void func_001d7c60(
+                extern void btlEffectCollectTargetUnits(
                     u8 *arg0, u8 *arg1, u8 arg2, u8 arg3, u32 arg4);
-                func_001d7c60(
+                btlEffectCollectTargetUnits(
                     arg0,
                     arg0 + 0x98,
                     *(u8 *)(func_001a_add_offset(unitIndex * 0x28,
@@ -842,7 +842,7 @@ void btlActionAnalyzeUpdate(u8 *action)
             iter = *(u8 **)(iter + 0x450);
         }
         selected = *(u8 **)(action + 0x38);
-        func_001d7c60(action, action + 0x98, 2, 0, 0);
+        btlEffectCollectTargetUnits(action, action + 0x98, 2, 0, 0);
         hasOther = 0;
         *(u16 *)(action + 0xD2) = *(u16 *)(action + 0xD0);
         index = 0;

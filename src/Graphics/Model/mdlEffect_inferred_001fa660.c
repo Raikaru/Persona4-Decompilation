@@ -446,7 +446,7 @@ void func_001fae60(s32 arg0, s32 arg1, s32 arg2)
 // FUN_001FAE80
 s32 func_001fae80(u8 *arg0, s32 arg1)
 {
-    extern void func_001d7c60(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3,
+    extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3,
                               u32 arg4);
     u8 sp30[0x38];
     s32 temp_16;
@@ -460,7 +460,7 @@ s32 func_001fae80(u8 *arg0, s32 arg1)
     if ((*(u8 *)temp_3 & 8) == 0) {
         return 0;
     }
-    func_001d7c60(arg0, sp30,
+    btlEffectCollectTargetUnits(arg0, sp30,
                    *(u8 *)(temp_3 + 9),
                    *(u8 *)(temp_3 + 0xA),
                    *(u16 *)(temp_3 + 0xC));

@@ -18,7 +18,7 @@ extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern u32 datCalcChkBadStatus(int unit, u32 badStatus);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
-extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
+extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern u8 D_005DC7D0[];
@@ -97,7 +97,7 @@ extern f32 fGpffff8110;
  * btlActionSetUnit. Type-2 auxiliary work lives at work+0xA0C instead.
  * This construction contract defines both sides before they are used. */
 // FUN_001D7C60
-void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4)
+void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4)
 {
     u16 sideA;
     u16 sideB;
@@ -216,7 +216,7 @@ u16 btlSkillClassifyTargets(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
                 bVar4 = (u8)(bVar4 | 2);
             }
         }
-        func_001d7c60(arg0, arg1, effect, bVar4,
+        btlEffectCollectTargetUnits(arg0, arg1, effect, bVar4,
                       *(u16 *)((u8 *)p4_001d7f10_add(
                           (s32)offset, (s32)iGpffffb3b8) + 0xC));
     }
@@ -227,13 +227,13 @@ u16 btlSkillClassifyTargets(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
 #pragma push
 /* measured: 25 -> 18 -> 11 -> 0. Hoisting retains the live-count bound copies;
  * opt_lifetimes splits the reused gather counters after those bounds. */
-/* measured: func_001d8010 MATCH -> MISMATCH without this pragma. */
+/* measured: btlEffectSelectNeighbourTarget MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-/* measured: func_001d8010 MATCH -> MISMATCH without this pragma. */
+/* measured: btlEffectSelectNeighbourTarget MATCH -> MISMATCH without this pragma. */
 #pragma opt_lifetimes on
 /* Select a neighbouring battle target by screen position, facing, or chain order. */
 // FUN_001D8010
-void func_001d8010(u8 *arg0, u8 *arg1) {
+void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
     extern void btlUnitGetSphereWorldCenter(u8 *a0, f32 *a1);
     extern void func_003e42a0(f32 *dst, f32 *src, u8 *cam);
     extern f32 func_003e41e0(f32 *out, f32 *in);

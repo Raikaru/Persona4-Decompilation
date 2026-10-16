@@ -77,7 +77,7 @@ extern void *D_00609D78[];
 extern void *D_00609D80[];
 extern void *D_00609DF0[];
 extern void *D_00609E18[];
-extern void func_001d7c60(u8 *arg0, u8 *arg1, u16 arg2, s32 arg3, u8 *arg4);
+extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u16 arg2, s32 arg3, u8 *arg4);
 extern s32 btlAICommandCollectSkillCandidates(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1);
 extern char D_006095E0[];
@@ -604,7 +604,7 @@ code arg5;
 
     f23 = arg3 & 0xFFFF;
     if ((f23 & 0x20) != 0) {
-        func_001d7c60((u8 *)arg0, (u8 *)arg0 + 0x98, 2, 0, 0);
+        btlEffectCollectTargetUnits((u8 *)arg0, (u8 *)arg0 + 0x98, 2, 0, 0);
     } else {
         u16 available;
 

@@ -37,7 +37,7 @@ extern void func_001d6910(u8 *arg0);
 extern void btlEffectReleaseAllPlacements(u8 *arg0);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern u32 iGpffffb3b8;
-extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
+extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 
 extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern s32 mdlComputeIndexedAttachMatrix();
