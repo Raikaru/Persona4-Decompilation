@@ -8,6 +8,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "fr_font_internal.h"
+#include "fcl_object_internal.h"
 extern void (*jtbl_008873EC[])(void *arg0);
 typedef FclVec2 f2;
 typedef struct {
@@ -112,12 +113,12 @@ void fclObjStartAlpha(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s16 arg5)
    the same object as the ints-first spelling (measured: identical bytes). */
 void fclObjStartUniformRevealScale(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg3)
 {
-    fclSpriteStartRevealScale(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
+    fclSpriteStartRevealScale(fclObjSprite(arg0), fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
 }
 // FUN_002E06D0
 void fclObjStartRevealScale(u8 *arg0, f32 scale0, f32 scale1, f32 scale2, f32 scale3, u32 arg1, u32 arg2, s64 arg3)
 {
-    fclSpriteStartRevealScale(*(u8 **)(arg0 + 0x38) + 4, scale0, scale1, scale2, scale3, arg1, arg2, (s16)arg3);
+    fclSpriteStartRevealScale(fclObjSprite(arg0), scale0, scale1, scale2, scale3, arg1, arg2, (s16)arg3);
 }
 
 
@@ -198,30 +199,30 @@ void fclObjStartTween(u8 *arg0, f32 first, f32 second, u8 mode, s32 duration, s6
 void fclObjStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s64 arg5)
 {
     extern void fclSpriteStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s16 arg5);
-    fclSpriteStartColor(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, arg5);
+    fclSpriteStartColor(fclObjSprite(arg0), arg1, arg2, arg3, arg4, arg5);
 }
 
 // FUN_002E09B0
 void fclObjSetHoldTimer(u8 *arg0, f32 fparg0, s16 arg1)
 {
-    u8 *temp = *(u8 **)(arg0 + 0x38);
-    s16 flags = *(s16 *)(temp + 4);
-    *(s16 *)(temp + 4) = flags | 0x80;
-    *(s16 *)(temp + 0xF0) = 0;
-    *(f32 *)(temp + 0xEC) = fparg0;
-    *(s16 *)(temp + 0xF2) = arg1;
+    FclObject *obj = fclObjWork(arg0);
+    s16 flags = obj->spriteFlags;
+    obj->spriteFlags = flags | 0x80;
+    obj->holdFrames = 0;
+    obj->holdTimer = fparg0;
+    obj->holdLimit = arg1;
 }
 // FUN_002E09E0
 void fclObjSetAnchorPosition(u8 *arg0, s32 arg1, f32 fparg0) {
-    u8 *work = *(u8 **)(arg0 + 0x38);
-    f32 *entry = (f32 *)(D_0063F560 + *(s16 *)(work + 0xF8) * 8);
+    FclObject *work = fclObjWork(arg0);
+    f32 *entry = (f32 *)(D_0063F560 + work->anchorIndex * 8);
     f2 out;
-    *(s16 *)(work + 4) |= 1;
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = fparg0;
-    *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
-    work = *(u8 **)(arg0 + 0x38);
+    work->spriteFlags |= 1;
+    fclObjWork(arg0)->anchorValue = fparg0;
+    fclObjWork(arg0)->anchorMode = arg1;
+    work = fclObjWork(arg0);
     out = fclMakeVec2(entry[0], entry[1]);
-    *(f2 *)(work + 0x2C) = out;
+    work->anchorPosition = out;
 }
 
 // FUN_002E0A60
