@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "shdPersona_internal.h"
+#include "datPersona_internal.h"
 extern void (*jtbl_008873EC[])(void *);
 extern s8 D_00641E60[];
 extern s32 cmmNameRecord();
@@ -17,7 +18,6 @@ static inline s32 func_0031_ne(s32 value, s32 target)
     return value != target;
 }
 
-extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 extern s32 datGetFlag(s32 arg0);
 extern s32 datItemCount(s16 id);
 extern u16 cmmCommunityRecordValue(u16 arg0);

@@ -4418,7 +4418,6 @@ extern u8 datPersonaGetLevel(int persona);
 extern u32 datPersonaGetExp(int persona);
 extern u16 datItemValue(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
-extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 
 /* Prepare XP awards and 0x88-byte growth deltas without applying them.
  * Inventory deltas end at 0x698; four party deltas end at 0x8D4.
