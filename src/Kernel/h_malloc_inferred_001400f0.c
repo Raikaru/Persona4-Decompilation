@@ -150,7 +150,7 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void (*jtbl_008873EC[])(void *);
@@ -241,7 +241,7 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
  * it without another mask, while the matched definitions in this file keep
  * s32 because their own bodies use the full word.
  * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the func_0034f320
+ * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
  * call, so the label pointer is loaded before the stack argument. */
 #pragma push
 /* measured: radarDrawFrame MATCH -> MISMATCH without this pragma. */
@@ -273,8 +273,8 @@ extern f32 D_008872F8[];
 extern void func_0034f1e0(void);
 extern void func_0034c270(Float2_0014 work, s32 arg1, s32 arg2, f32 fparg0);
 extern f32 func_0034f720(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2);
-extern void func_0034f2e0(void *work, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-extern void func_0034f320(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawAt(void *work, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+extern void sdkSpriteDrawSized(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void func_0034f9d0(Float2_0014 work, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 extern void func_00355410(u8 *work, u8 arg1);
 extern void func_00354ba0(void *work);
@@ -348,7 +348,7 @@ void radarDrawFrame(u8 *work)
                 ft = func_0034f720(e, 0.5f, 0.5f, 1.0f);
                 palette = (CampDisplayRgba *)D_005EF520 + *(s16 *)e;
                 color.rgba = *palette;
-                func_0034f2e0(gridSprite, px, py, color.bytes[0], color.bytes[1], color.bytes[2],
+                sdkSpriteDrawAt(gridSprite, px, py, color.bytes[0], color.bytes[1], color.bytes[2],
                               (u8)((f32)outer * ft));
             }
         }
@@ -389,14 +389,14 @@ void radarDrawFrame(u8 *work)
                 selected = 0;
             }
             sprite = *(void **)(work + 0x1810);
-            func_0034f2e0(sprite, position.xy.x, position.xy.y,
+            sdkSpriteDrawAt(sprite, position.xy.x, position.xy.y,
                           palette->r, palette->g, palette->b, alpha);
             sprite = *(void **)(work + 0x1814);
-            func_0034f2e0(sprite, 222.0f + position.xy.x, position.xy.y,
+            sdkSpriteDrawAt(sprite, 222.0f + position.xy.x, position.xy.y,
                           palette->r, palette->g, palette->b, alpha);
             if (selected) {
                 sprite = *(void **)(work + 0x186C);
-                func_0034f2e0(sprite, 156.0f + position.xy.x, position.xy.y,
+                sdkSpriteDrawAt(sprite, 156.0f + position.xy.x, position.xy.y,
                               0x4C, 0x4C, 0x4C, alpha);
                 numberPosition.xy.x = 207.0f + position.xy.x;
                 numberPosition.xy.y = 9.0f + position.xy.y;
@@ -555,7 +555,7 @@ void radarDrawFrame(u8 *work)
         alpha = (u8)((f32)(u32)work[0x68A] * opacity);
         palette = (CampDisplayRgba *)D_0064B2E8;
         sprite = *(void **)(work + 0x1834);
-        func_0034f320(sprite, position.xy.x, position.xy.y, 0.0f,
+        sdkSpriteDrawSized(sprite, position.xy.x, position.xy.y, 0.0f,
                       palette->r, palette->g, palette->b, alpha,
                       *(u16 *)(work + 0x690), 0x1000, 0, 0.0f, 0);
     }
@@ -565,31 +565,31 @@ void radarDrawFrame(u8 *work)
             position.xy.x = (19.0f + (originX + *(f32 *)(work + 0x3B0)));
             position.xy.y = (18.0f + (originY + *(f32 *)(work + 0x3B4)));
             alpha = (u8)((f32)(u32)work[0x3BA] * opacity);
-            func_0034f2e0(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
+            sdkSpriteDrawAt(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
         if ((*(s32 *)(work + 0x1C) & 2) != 0) {
             position.xy.x = (39.0f + (originX + *(f32 *)(work + 0x3E0)));
             position.xy.y = (f32)0x171 + (originY + *(f32 *)(work + 0x3E4));
             alpha = (u8)((f32)(u32)work[0x3EA] * opacity);
-            func_0034f2e0(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
+            sdkSpriteDrawAt(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
         if ((*(s32 *)(work + 0x1C) & 4) != 0) {
             position.xy.x = (420.0f + (originX + *(f32 *)(work + 0x410)));
             position.xy.y = (18.0f + (originY + *(f32 *)(work + 0x414)));
             alpha = (u8)((f32)(u32)work[0x41A] * opacity);
-            func_0034f2e0(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
+            sdkSpriteDrawAt(sprite, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
         if ((*(s32 *)(work + 0x1C) & 0x100) != 0) {
             position.xy.x = (62.0f + (originX + *(f32 *)(work + 0x440)));
             position.xy.y = (59.0f + (originY + *(f32 *)(work + 0x444)));
             alpha = (u8)((f32)(u32)work[0x44A] * opacity);
-            func_0034f2e0(*(void **)(work + 0x183C), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
+            sdkSpriteDrawAt(*(void **)(work + 0x183C), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
         if ((*(s32 *)(work + 0x1C) & 0x200) != 0) {
             position.xy.x = (60.0f + (originX + *(f32 *)(work + 0x470)));
             position.xy.y = (410.0f + (originY + *(f32 *)(work + 0x474)));
             alpha = (u8)((f32)(u32)work[0x47A] * opacity);
-            func_0034f2e0(*(void **)(work + 0x1840), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
+            sdkSpriteDrawAt(*(void **)(work + 0x1840), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alpha);
         }
         position.xy.x = (640.0f + (originX + *(f32 *)(work + 0x350)));
         position.xy.y = (400.0f + (originY + *(f32 *)(work + 0x354)));
@@ -866,7 +866,7 @@ void radarDrawNumber(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
     c2 = ((u8 *)&arg1)[2];
     c3 = ((u8 *)&arg1)[1];
     while (count > 0) {
-        func_0034f320(*(u8 **)(base + ((count % 10) * 4) + 0x1844),
+        sdkSpriteDrawSized(*(u8 **)(base + ((count % 10) * 4) + 0x1844),
                       *(f32 *)&arg0, *(((f32 *)&arg0) + 1), fparg0, *(u8 *)&arg1, c3, c2,
                       c1, 0x1000, 0x1000, 0, 0, 0);
         *(f32 *)&arg0 -= 22.0f;
@@ -887,7 +887,7 @@ void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
     extern f32 D_005EF6E4[];
     extern void kAssertFail(const void *file, s32 line);
     extern void func_00356170(s64 arg0, f32 f0, f32 f1, s32 arg1, f32 f2, s32 arg2, s32 arg3);
-    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+    extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     extern s32 cmmRankStringAt(s16 arg0, s16 arg1);
     extern s32 frFontExDrawTextOutA(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 out, s32 charWidth);
 
@@ -938,7 +938,7 @@ void radarDrawText(Float2_0014 pos, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
         break;
     }
 
-    func_0034f2e0(*(u8 **)(p4_00141cf0_add(arg3 * 4, arg2) + 0x1820), pos2.position.x, pos2.position.y, 0x2D, 0x2D, 0x2D, arg1);
+    sdkSpriteDrawAt(*(u8 **)(p4_00141cf0_add(arg3 * 4, arg2) + 0x1820), pos2.position.x, pos2.position.y, 0x2D, 0x2D, 0x2D, arg1);
     str = (u8 *)cmmRankStringAt((s16) kind, *(s16 *)(p4_00141cf0_add(kind * 2, arg2) + 0x187E));
     frFontExDrawTextOutA(61.0f + pos.x + D_005EF6E0[arg3 * 2],
                   62.0f + pos_y + D_005EF6E4[arg3 * 2],
@@ -965,7 +965,7 @@ void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
 {
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2F4[];
-    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+    extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     union { RadarVertex vertices[7]; u8 bytes[7 * sizeof(RadarVertex)]; } packet;
     f32 screenDepth;
     f32 reciprocalNear;
@@ -1031,7 +1031,7 @@ void radarDrawPolygon(Float2_0014 pos, f32 depthOffset, s32 opacity, u8 *state)
         spriteY = (*(f32 *)(spritePoint + 0x594) + originY) - 5.0f;
         tint = *(u8 *)(spritePoint + 0x59A);
         alpha = ((tint * spriteAlpha) / 255) & 0xFF;
-        func_0034f2e0(sprite, spriteX, spriteY, palette->r, palette->g, palette->b, alpha);
+        sdkSpriteDrawAt(sprite, spriteX, spriteY, palette->r, palette->g, palette->b, alpha);
         spriteIndex += 1;
     }
 }

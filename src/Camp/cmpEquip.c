@@ -239,8 +239,8 @@ void func_00131a00(u8 *arg0)
     PackedVec2f drawPosition;
     extern void func_0034f1e0(void);
     extern void func_0034c270(Vec2f arg0, s32 arg1, s32 arg2, f32 arg3);
-    extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-    extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+    extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+    extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void datEntryDrawRow(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
     extern void datEntryReset(u8 *arg0);
     extern u32 datEntryGetFlags(s16 arg0);
@@ -318,7 +318,7 @@ void func_00131a00(u8 *arg0)
     alpha = (u8)temp_v9;
     scaleX = (f32)*(u16 *)(work + 0x1270);
     scaleY = (f32)*(u16 *)(work + 0x1276);
-    func_0034f320(pbVar7,drawPosition.xy.x,drawPosition.xy.y,0.0f,0xff,0xff,0x81,alpha,(u16)scaleX,(u16)scaleY,0x3d,
+    sdkSpriteDrawSized(pbVar7,drawPosition.xy.x,drawPosition.xy.y,0.0f,0xff,0xff,0x81,alpha,(u16)scaleX,(u16)scaleY,0x3d,
                   (f32)(s32)*(s16 *)(work + 0x22),0x3f);
     drawPosition.xy.x = originX + *(f32 *)(work + 0x1290) + (f32)0x226;
     drawPosition.xy.y = (originY + *(f32 *)(work + 0x1294)) - 22.0f;
@@ -327,7 +327,7 @@ void func_00131a00(u8 *arg0)
     alpha = (u8)temp_v9;
     scaleX = (f32)*(u16 *)(work + 0x12a0);
     scaleY = (f32)*(u16 *)(work + 0x12a6);
-    func_0034f320(pbVar7,drawPosition.xy.x,drawPosition.xy.y,0.0f,0xfb,0xa2,0,alpha,(u16)scaleX,(u16)scaleY,0x3d,
+    sdkSpriteDrawSized(pbVar7,drawPosition.xy.x,drawPosition.xy.y,0.0f,0xfb,0xa2,0,alpha,(u16)scaleX,(u16)scaleY,0x3d,
                   (f32)(s32)*(s16 *)(work + 0x22),0x3f);
   }
   if ((*(u32 *)(work + 0x1c) & 0x400) != 0) {
@@ -337,7 +337,7 @@ void func_00131a00(u8 *arg0)
     temp_v9 = (f32)work[0xc9a];
     temp_v9 *= opacityScale;
     alpha = (u8)temp_v9;
-    func_0034f2e0(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
+    sdkSpriteDrawAt(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
   if ((*(u32 *)(work + 0x1c) & 0x800) != 0) {
     pbVar9 = *(u8 **)(work + 0x158c);
@@ -346,7 +346,7 @@ void func_00131a00(u8 *arg0)
     temp_v9 = (f32)work[0xcca];
     temp_v9 *= opacityScale;
     alpha = (u8)temp_v9;
-    func_0034f2e0(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
+    sdkSpriteDrawAt(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
   if ((*(u32 *)(work + 0x1c) & 0x80) != 0) {
     pbVar9 = *(u8 **)(work + 0x1564);
@@ -355,7 +355,7 @@ void func_00131a00(u8 *arg0)
     temp_v9 = (f32)work[0x12ca];
     temp_v9 *= opacityScale;
     alpha = (u8)temp_v9;
-    func_0034f2e0(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
+    sdkSpriteDrawAt(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
   if ((*(u32 *)(work + 0x1c) & 0x100) != 0) {
     pbVar9 = *(u8 **)(work + 0x1568);
@@ -364,7 +364,7 @@ void func_00131a00(u8 *arg0)
     temp_v9 = (f32)work[0x12fa];
     temp_v9 *= opacityScale;
     alpha = (u8)temp_v9;
-    func_0034f2e0(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
+    sdkSpriteDrawAt(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
   if ((*(u32 *)(work + 0x1c) & 0x200) != 0) {
     pbVar9 = *(u8 **)(work + 0x1564);
@@ -373,7 +373,7 @@ void func_00131a00(u8 *arg0)
     temp_v9 = (f32)work[0x132a];
     temp_v9 *= opacityScale;
     alpha = (u8)temp_v9;
-    func_0034f2e0(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
+    sdkSpriteDrawAt(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
   if ((*(u32 *)(work + 0x1c) & 4) != 0) {
     temp_v4 = 0;
@@ -397,10 +397,10 @@ void func_00131a00(u8 *arg0)
       }
       drawSprite = *(u8 **)(work + 0x14c0);
       drawY = drawPosition.xy.y;
-      func_0034f320(drawSprite,drawPosition.xy.x,drawY,0.0f,*actorPalette,actorPalette[1],actorPalette[2],
+      sdkSpriteDrawSized(drawSprite,drawPosition.xy.x,drawY,0.0f,*actorPalette,actorPalette[1],actorPalette[2],
                     opacity.value,(u16)scaleX,(u16)scaleY,0,0.0f,0);
       drawSprite = *(u8 **)(work + 0x14c4);
-      func_0034f320(drawSprite,drawPosition.xy.x + 202.0f,drawY,0.0f,*actorPalette,actorPalette[1],
+      sdkSpriteDrawSized(drawSprite,drawPosition.xy.x + 202.0f,drawY,0.0f,*actorPalette,actorPalette[1],
                     actorPalette[2],opacity.value,(u16)scaleX,(u16)scaleY,0,0.0f,0);
       labelText = (char *)func_0010d6d0(*(s16 *)(work + temp_v8 * 2 + 0x38));
       frFontExDrawText(drawPosition.xy.x + 105.0f,drawY,0.0f,packedColor,labelStyle,1,labelText,8,0);
@@ -469,10 +469,10 @@ void func_00131a00(u8 *arg0)
       }
       {
       drawY = drawPosition.xy.y;
-      func_0034f320(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0.0f,*pbVar7,pbVar7[1],pbVar7[2],alpha,
+      sdkSpriteDrawSized(pbVar9,drawPosition.xy.x,drawPosition.xy.y,0.0f,*pbVar7,pbVar7[1],pbVar7[2],alpha,
                     (u16)scaleX,(u16)scaleY,0,0.0f,0);
       drawSprite = *(u8 **)(work + rowIcon * 4 + 0x14c0);
-      func_0034f320(drawSprite,drawPosition.xy.x + 3.0f,drawY + 2.0f,0.0f,
+      sdkSpriteDrawSized(drawSprite,drawPosition.xy.x + 3.0f,drawY + 2.0f,0.0f,
                     *pbVar11,pbVar11[1],pbVar11[2],alpha,(u16)scaleX,(u16)scaleY,0,0.0f,0);
       }
       }
@@ -489,7 +489,7 @@ void func_00131a00(u8 *arg0)
       else {
         pbVar7 = D_0064B2E4;
       }
-      func_0034f2e0(drawSprite,drawPosition.xy.x + 42.0f,drawPosition.xy.y + 1.0f,*pbVar7,
+      sdkSpriteDrawAt(drawSprite,drawPosition.xy.x + 42.0f,drawPosition.xy.y + 1.0f,*pbVar7,
                     pbVar7[1],pbVar7[2],alpha);
       drawPosition.xy.x = drawPosition.xy.x + 42.0f;
       drawPosition.xy.y = drawPosition.xy.y + 24.0f;
@@ -529,10 +529,10 @@ void func_00131a00(u8 *arg0)
     palette = (EquipColor *)D_0064B2F4;
     drawSprite = *(u8 **)(work + 0x14c0);
     pairY = drawPosition.xy.y;
-    func_0034f320(drawSprite,drawPosition.xy.x,pairY,0.0f,palette->r,palette->g,
+    sdkSpriteDrawSized(drawSprite,drawPosition.xy.x,pairY,0.0f,palette->r,palette->g,
                   palette->b,alpha,(u16)pairScaleX,(u16)pairScaleY,0,0.0f,0);
     drawSprite = *(u8 **)(work + 0x14c4);
-    func_0034f320(drawSprite,drawPosition.xy.x + 202.0f,pairY,0.0f,palette->r,palette->g,
+    sdkSpriteDrawSized(drawSprite,drawPosition.xy.x + 202.0f,pairY,0.0f,palette->r,palette->g,
                   palette->b,alpha,(u16)pairScaleX,(u16)pairScaleY,0,0.0f,0);
     }
     drawPosition.xy.x = originX + *(f32 *)(work + 0x1230) + 35.0f;
@@ -558,17 +558,17 @@ void func_00131a00(u8 *arg0)
     drawSprite = *(u8 **)(work + 0x1570);
     drawPosition.xy.x = originX + *(f32 *)(work + 0x1050) + 18.0f;
     drawPosition.xy.y = originY + *(f32 *)(work + 0x1054) + 51.0f;
-    func_0034f2e0(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
+    sdkSpriteDrawAt(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
                   palette->b,headerAlpha);
     drawSprite = *(u8 **)(work + 0x1574);
     drawPosition.xy.x = originX + *(f32 *)(work + 0x1050) + 186.0f;
     drawPosition.xy.y = originY + *(f32 *)(work + 0x1054) + 51.0f;
-    func_0034f2e0(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
+    sdkSpriteDrawAt(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
                   palette->b,headerAlpha);
     drawSprite = *(u8 **)(work + 0x1578);
     drawPosition.xy.x = originX + *(f32 *)(work + 0x1050) + (f32)0x25F;
     drawPosition.xy.y = originY + *(f32 *)(work + 0x1054) + 90.0f;
-    func_0034f2e0(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
+    sdkSpriteDrawAt(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
                   palette->b,headerAlpha);
     drawPosition.xy.x = originX + *(f32 *)(work + 0x1410) + 18.0f;
     drawPosition.xy.y = originY + *(f32 *)(work + 0x1414) + 60.0f;
@@ -599,39 +599,39 @@ void func_00131a00(u8 *arg0)
     case 0: {
       drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 48.0f;
       drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 96.0f;
-      func_0034f2e0(*(void **)(work + 0x1528),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
+      sdkSpriteDrawAt(*(void **)(work + 0x1528),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
                     palette->g,palette->b,layoutAlpha);
       drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + (f32)0x171;
       drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f;
-      func_0034f2e0(*(void **)(work + 0x150c),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
+      sdkSpriteDrawAt(*(void **)(work + 0x150c),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
       drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 460.0f;
       drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f;
-      func_0034f2e0(*(void **)(work + 0x1510),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
+      sdkSpriteDrawAt(*(void **)(work + 0x1510),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
 
       break;
     }
     case 1: {
       drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 33.0f;
       drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 96.0f;
-      func_0034f2e0(*(void **)(work + 0x152c),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
+      sdkSpriteDrawAt(*(void **)(work + 0x152c),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
                     palette->g,palette->b,layoutAlpha);
       drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 71.0f;
       drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 103.0f;
-      func_0034f2e0(*(void **)(work + 0x1530),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
+      sdkSpriteDrawAt(*(void **)(work + 0x1530),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
                     palette->g,palette->b,layoutAlpha);
       drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + (f32)0x171;
       drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f;
-      func_0034f2e0(*(void **)(work + 0x1514),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
+      sdkSpriteDrawAt(*(void **)(work + 0x1514),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
       drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 460.0f;
       drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f;
-      func_0034f2e0(*(void **)(work + 0x1518),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
+      sdkSpriteDrawAt(*(void **)(work + 0x1518),drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
 
       break;
     }
     case 2: {
       drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 34.0f;
       drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 91.0f;
-      func_0034f2e0(*(void **)(work + 0x1534),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
+      sdkSpriteDrawAt(*(void **)(work + 0x1534),drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
                     palette->g,palette->b,layoutAlpha);
 
       break;
@@ -672,10 +672,10 @@ void func_00131a00(u8 *arg0)
     scrollbarAlpha = (u8)rawAlpha;
     drawPosition.xy.x = ((f32)0x25E + baseX);
     drawPosition.xy.y = temp_v10 + 133.0f;
-    func_0034f2e0(*(void **)(work + 0x151c),((f32)0x25E + baseX),drawPosition.xy.y,0xff,0xff,0xff,scrollbarAlpha);
+    sdkSpriteDrawAt(*(void **)(work + 0x151c),((f32)0x25E + baseX),drawPosition.xy.y,0xff,0xff,0xff,scrollbarAlpha);
     drawPosition.xy.x = ((f32)0x25E + baseX);
     drawPosition.xy.y = temp_v10 + 298.0f;
-    func_0034f2e0(*(void **)(work + 0x1520),((f32)0x25E + baseX),drawPosition.xy.y,0xff,0xff,0xff,scrollbarAlpha);
+    sdkSpriteDrawAt(*(void **)(work + 0x1520),((f32)0x25E + baseX),drawPosition.xy.y,0xff,0xff,0xff,scrollbarAlpha);
     drawPosition.xy.x = ((f32)0x25E + baseX);
     drawPosition.xy.y = temp_v10 + 136.0f;
     if (0 < *(s16 *)(work + 0xc46) - 5) {
@@ -684,7 +684,7 @@ void func_00131a00(u8 *arg0)
                         (*(s16 *)(work + 0xc46) - 5));
     }
     palette = (EquipColor *)D_0064B2E8;
-    func_0034f2e0(*(void **)(work + 0x1524),drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,palette->b
+    sdkSpriteDrawAt(*(void **)(work + 0x1524),drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,palette->b
                   ,scrollbarAlpha);
   }
   if ((*(u32 *)(work + 0x1c) & 1) != 0) {

@@ -41,7 +41,7 @@ u8 *func_00455ea0(u8 *param, s32 a, s32 *b);
 s32 func_0046a750(s32 param);
 void btlResultSimpleDraw(u8 *arg0, u8 *work);
 void btlResultSimpleTaskDestroy(u8 *task);
-void func_0034f2e0(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6);
+void sdkSpriteDrawAt(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6);
 extern s32 sprintf(void *dst, const void *fmt, ...);
 void func_00460ac0(void *param, void *work);
 extern u32 D_00795F20[];
@@ -147,7 +147,7 @@ void btlResultSimpleDrawLabel(u8 *arg0, f32 *arg1, f32 arg5, s32 arg2, u32 arg3,
         while (rev[i] != 0) {
             switch (rev[i]) {
             case 0x2E:
-                func_0034f2e0(*(void **)(arg0 + 0x4A0),
+                sdkSpriteDrawAt(*(void **)(arg0 + 0x4A0),
                               arg1[0], arg1[1], hi, mid, lo, ch);
                 arg1[0] += 8.0f;
                 break;
@@ -156,7 +156,7 @@ void btlResultSimpleDrawLabel(u8 *arg0, f32 *arg1, f32 arg5, s32 arg2, u32 arg3,
                 if (digit < 0 || digit > 9) {
                     kAssertFail(&D_00629610, 0x119);
                 }
-                func_0034f2e0(
+                sdkSpriteDrawAt(
                     *(void **)(arg0 + digit * 4 + 0x478),
                     arg1[0], arg1[1], hi, mid, lo, ch);
                 arg1[0] += 22.0f;
@@ -592,7 +592,7 @@ void btlResultSimpleInitAnimRecords(u8 *work)
             kAssertFail(D_00629610, 0x2AD);
             break;
         }
-        func_0034f2e0(resource, x, y, 0xFF, 0xFF, 0xFF, opacity);
+        sdkSpriteDrawAt(resource, x, y, 0xFF, 0xFF, 0xFF, opacity);
     }
     func_00364c70();
 }
@@ -680,7 +680,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
     extern f32 fGpffff8414;
     extern f32 fGpffff8418;
     extern s32 (*D_00887300[])(s32, void *);
-    void func_0034f320(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
+    void sdkSpriteDrawSized(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
     void func_0045db40(u8 *, u8 *, f32, s32, s32, s32, f32, f32, f32);
     void func_0045d6e0(u8 *, f32 *, f32, s32);
     s32 RpSkyRenderStateSet(s32, void *);
@@ -739,7 +739,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         position.v[1] =(35.0f + (*(f32 *)(w + 0x1A4)));
         opacity = *(u8 *)(w + 0x1AA);
         sprite = *(u8 **)(w + 0x4A4);
-        func_0034f2e0(sprite, position.v[0], position.v[1], 0x32, 0x32, 0x32, opacity);
+        sdkSpriteDrawAt(sprite, position.v[0], position.v[1], 0x32, 0x32, 0x32, opacity);
         ((s32 (*)(s32, void *))*(u32 *)vt)(1, (void *)0);
         sC[0] = (s32)((*(f32 *)(w + 0x1D0)));
         sC[1] = (s32)((*(f32 *)(w + 0x1D4)));
@@ -793,7 +793,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         coordinate += (*(f32 *)(w + 0x174));
         position.v[1] = coordinate;
                 sprite = *(u8 **)(w + 0x448);
-                func_0034f320(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
+                sdkSpriteDrawSized(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
                     b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
         coordinate = (f32)0x111;
         coordinate += (*(f32 *)(w + 0x170));
@@ -802,7 +802,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         coordinate += (*(f32 *)(w + 0x174));
         position.v[1] = coordinate;
                 sprite = *(u8 **)(w + 0x44C);
-                func_0034f320(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
+                sdkSpriteDrawSized(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
                     b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
         ((s32 (*)(s32, void *))*(u32 *)vt)(6, (void *)0);
         ((s32 (*)(s32, void *))*(u32 *)vt)(6, (void *)1);
@@ -811,7 +811,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         coordinate += (*(f32 *)(w + 0x174));
         position.v[1] = coordinate;
                 sprite = *(u8 **)(w + 0x434);
-                func_0034f320(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
+                sdkSpriteDrawSized(sprite, position.v[0], position.v[1], 10.0f, 0x2DU, 0x2DU, 0x2DU,
                     b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
         if (p16->flags & 4) {
             c11[0] = 0;
@@ -831,7 +831,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         while (numberText[s19] != 0) {
             sidx = numberText[s19];
                 sprite = *(u8 **)(w + sidx * 4 + 0x390);
-            func_0034f320(sprite, position.v[0], position.v[1], 10.0f,
+            sdkSpriteDrawSized(sprite, position.v[0], position.v[1], 10.0f,
                     c11[0], c11[1], c11[2], b18, 0x1000, 0x1000, 0, 0.0f, (s64)0);
             position.v[0] += 16.0f;
             s19 += 1;
@@ -848,15 +848,15 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
             position.v[0] =(78.0f + (*(f32 *)(w + 0xE0)));
             position.v[1] =(53.0f + (*(f32 *)(w + 0xE4)));
             opacity = *(u8 *)(w + 0xEA);
-            func_0034f2e0((void *)(w444), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
+            sdkSpriteDrawAt((void *)(w444), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
             position.v[0] =(75.0f + (*(f32 *)(w + 0x110)));
             position.v[1] =(113.0f + (*(f32 *)(w + 0x114)));
             opacity = *(u8 *)(w + 0x11A);
-            func_0034f2e0((void *)(w444), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
+            sdkSpriteDrawAt((void *)(w444), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
             position.v[0] =(75.0f + (*(f32 *)(w + 0x140)));
             position.v[1] =(172.0f + (*(f32 *)(w + 0x144)));
             opacity = *(u8 *)(w + 0x14A);
-            func_0034f2e0((void *)(w444), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
+            sdkSpriteDrawAt((void *)(w444), position.v[0], position.v[1], 0x95, 0x88, 0x17, opacity);
         } else {
             c18 = 0;
             c17 = 0;
@@ -867,14 +867,14 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
             bEA = (u8)((*(u8 *)(w + 0xEA)));
             btlResultSimpleDrawLabel(w, &position.v[0], 0.0f, bEA | (s32)0xEC7C0000, fld64, 0);
             sprite = *(u8 **)(w + 0x42C);
-            func_0034f2e0(sprite, 5.0f + position.v[0], 9.0f + position.v[1], 0xEC, 0x7C, 0, bEA);
+            sdkSpriteDrawAt(sprite, 5.0f + position.v[0], 9.0f + position.v[1], 0xEC, 0x7C, 0, bEA);
             eret = (u32)(btlXpBaseAward((u8 *)&p16->flags));
             position.v[0] =(75.0f + (*(f32 *)(w + 0x110)));
             position.v[1] =(112.0f + (*(f32 *)(w + 0x114)));
             b11A = (u8)((*(u8 *)(w + 0x11A)));
             btlResultSimpleDrawLabel(w, &position.v[0], 0.0f, b11A | (s32)0xEC7C0000, eret, 1);
             sprite = *(u8 **)(w + 0x430);
-            func_0034f2e0(sprite, 5.0f + position.v[0], 9.0f + position.v[1], 0xEC, 0x7C, 0, b11A);
+            sdkSpriteDrawAt(sprite, 5.0f + position.v[0], 9.0f + position.v[1], 0xEC, 0x7C, 0, b11A);
             position.v[0] =(73.0f + (*(f32 *)(w + 0x140)));
             position.v[1] =(162.0f + (*(f32 *)(w + 0x144)));
             b22 = (u8)((*(u8 *)(w + 0x14A)));
@@ -895,17 +895,17 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         position.v[1] =(20.0f + (*(f32 *)(w + 0xE4)));
         opacity = *(u8 *)(w + 0xEA);
         sprite = *(u8 **)(w + 0x418);
-        func_0034f2e0(sprite, position.v[0], position.v[1], c19, c18, c17, opacity);
+        sdkSpriteDrawAt(sprite, position.v[0], position.v[1], c19, c18, c17, opacity);
         position.v[0] =(67.0f + (*(f32 *)(w + 0x110)));
         position.v[1] =(80.0f + (*(f32 *)(w + 0x114)));
         opacity = *(u8 *)(w + 0x11A);
         sprite = *(u8 **)(w + 0x414);
-        func_0034f2e0(sprite, position.v[0], position.v[1], c19, c18, c17, opacity);
+        sdkSpriteDrawAt(sprite, position.v[0], position.v[1], c19, c18, c17, opacity);
         position.v[0] =(68.0f + (*(f32 *)(w + 0x140)));
         position.v[1] =(139.0f + (*(f32 *)(w + 0x144)));
         opacity = *(u8 *)(w + 0x14A);
         sprite = *(u8 **)(w + 0x41C);
-        func_0034f2e0(sprite, position.v[0], position.v[1], c19, c18, c17, opacity);
+        sdkSpriteDrawAt(sprite, position.v[0], position.v[1], c19, c18, c17, opacity);
         sC[0] = 0;
         sC[1] = 0x14;
         sC[2] = 0x46;
@@ -928,17 +928,17 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         position.v[1] =(20.0f + (*(f32 *)(w + 0x54)));
         opacity = *(u8 *)(w + 0x5A);
         sprite = *(u8 **)(w + 0x420);
-        func_0034f2e0(sprite, position.v[0], position.v[1], c193, c182, c172, opacity);
+        sdkSpriteDrawAt(sprite, position.v[0], position.v[1], c193, c182, c172, opacity);
         position.v[0] =(17.0f + (*(f32 *)(w + 0x80)));
         position.v[1] =(80.0f + (*(f32 *)(w + 0x84)));
         opacity = *(u8 *)(w + 0x8A);
         sprite = *(u8 **)(w + 0x424);
-        func_0034f2e0(sprite, position.v[0], position.v[1], c193, c182, c172, opacity);
+        sdkSpriteDrawAt(sprite, position.v[0], position.v[1], c193, c182, c172, opacity);
         position.v[0] =(17.0f + (*(f32 *)(w + 0xB0)));
         position.v[1] =(139.0f + (*(f32 *)(w + 0xB4)));
         opacity = *(u8 *)(w + 0xBA);
         sprite = *(u8 **)(w + 0x428);
-        func_0034f2e0(sprite, position.v[0], position.v[1], c193, c182, c172, opacity);
+        sdkSpriteDrawAt(sprite, position.v[0], position.v[1], c193, c182, c172, opacity);
         if (p16->flags & 4) {
             s7 = 0;
             while (s7 < 2) {
@@ -966,7 +966,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
             b17 = (*(u8 *)(w + 0x32A));
             w4B0 = (s32)(*(s32 *)(w + 0x4B0));
             func_00364c50();
-            func_0034f320((u8 *)w4B0, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b17, 0x1000, 0x1000, 0, -72.0f, (s64)0);
+            sdkSpriteDrawSized((u8 *)w4B0, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b17, 0x1000, 0x1000, 0, -72.0f, (s64)0);
             func_00364c70();
             coordinate = (f32)0x107;
             coordinate += (*(f32 *)(w + 0x350));
@@ -977,7 +977,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
             b172 = (*(u8 *)(w + 0x35A));
             w4B4 = (s32)(*(s32 *)(w + 0x4B4));
             func_00364c50();
-            func_0034f320((u8 *)w4B4, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b172, 0x1000, 0x1000, 0, -30.0f, (s64)0);
+            sdkSpriteDrawSized((u8 *)w4B4, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b172, 0x1000, 0x1000, 0, -30.0f, (s64)0);
             func_00364c70();
             position.v[0] =((*(f32 *)(w + 0x3B0)) + (*(f32 *)(w + 0x560)));
             position.v[1] =((*(f32 *)(w + 0x3B4)));
@@ -993,10 +993,10 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
                     const f32 drawX = offsetSnapshot.v[0] + shadowBase.xy.x;
                     const f32 drawY = offsetSnapshot.v[1] + anchorY;
                     sprite = *(u8 **)(w + 0x4A8);
-                    func_0034f320(sprite, drawX, drawY, 0.0f, 0, 0, 0, b173, (u16)fGpffff8410,
+                    sdkSpriteDrawSized(sprite, drawX, drawY, 0.0f, 0, 0, 0, b173, (u16)fGpffff8410,
                         (u16)*(f32 *)&fGpffff8410, (s16)(shadowBase.xy.x - drawX), -30.0f, (s16)(shadowBase.xy.y - drawY));
                     nextDrawX = (fGpffff8414 + drawX);
-                    func_0034f320(*(u8 **)(w + 0x4AC), nextDrawX, drawY, 0.0f, 0, 0, 0, b173, (u16)fGpffff8410,
+                    sdkSpriteDrawSized(*(u8 **)(w + 0x4AC), nextDrawX, drawY, 0.0f, 0, 0, 0, b173, (u16)fGpffff8410,
                         (u16)*(f32 *)&fGpffff8410, (s16)(shadowBase.xy.x - nextDrawX), -30.0f, (s16)(anchorY - drawY));
                 }
                 position.v[0] += fGpffff8418;
@@ -1009,7 +1009,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
             b174 = (*(u8 *)(w + 0x38A));
             w4B8 = (s32)(*(s32 *)(w + 0x4B8));
             func_00364c50();
-            func_0034f320((u8 *)w4B8, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b174, 0x1000, 0x1000, 0, 15.0f, (s64)0);
+            sdkSpriteDrawSized((u8 *)w4B8, position.v[0], position.v[1], 0.0f, 0xFFU, 0xFFU, 0xFFU, b174, 0x1000, 0x1000, 0, 15.0f, (s64)0);
             func_00364c70();
             position.v[0] =((*(f32 *)(w + 0x3E0)) + (*(f32 *)(w + 0x568)));
             position.v[1] =((*(f32 *)(w + 0x3E4)));
@@ -1026,11 +1026,11 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
                     /* A named floating scale preserves the per-argument conversion. */
                     scale = 4096.0f;
                     sprite = *(u8 **)(w + 0x4A8);
-                    func_0034f320(sprite, secondaryDrawX, secondaryDrawY, 0.0f, 0, 0, 0, b175,
+                    sdkSpriteDrawSized(sprite, secondaryDrawX, secondaryDrawY, 0.0f, 0, 0, 0, b175,
                         (u16)scale, (u16)scale, (s16)(secondaryBase.xy.x - secondaryDrawX), 15.0f,
                         (s16)(secondaryBase.xy.y - secondaryDrawY));
                     secondaryNextX = 225.0f + secondaryDrawX;
-                    func_0034f320(*(u8 **)(w + 0x4AC), secondaryNextX, secondaryDrawY, 0.0f, 0, 0, 0, b175,
+                    sdkSpriteDrawSized(*(u8 **)(w + 0x4AC), secondaryNextX, secondaryDrawY, 0.0f, 0, 0, 0, b175,
                         (u16)scale, (u16)scale, (s16)(secondaryBase.xy.x - secondaryNextX), 15.0f,
                         (s16)(secondaryAnchorY - secondaryDrawY));
                 }

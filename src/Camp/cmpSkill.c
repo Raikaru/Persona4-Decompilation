@@ -44,10 +44,10 @@ u32 RpRandom(void);
 s32 datCalcSkillElement(u8 *, u16);
 void func_0034f1e0(void);
 void func_0034c270(Vec2f, s32, s32, f32);
-void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg1, u8 arg2, u8 arg3, u8 arg4,
                    u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-void func_0034f2e0(void *, f32, f32, u8, u8, u8, u8);
+void sdkSpriteDrawAt(void *, f32, f32, u8, u8, u8, u8);
 void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 void radarDrawSecondSpritePair(u8 *work, Vec2f position, PackedColor4 color);
 void radarDrawSkillCard(void *, Vec2f, s32, void *);
@@ -569,7 +569,7 @@ void func_00138bf0(u8 *work)
             value = value * opacity;
             spriteAlpha = (u8)value;
             decorationColor = &palette[layout->paletteIndex];
-            func_0034f320(decorationSprite, position.x, position.y, 0.0f,
+            sdkSpriteDrawSized(decorationSprite, position.x, position.y, 0.0f,
                           decorationColor->red, decorationColor->green, decorationColor->blue, spriteAlpha,
                           (u16)(1.0f + ((f32)*(u16 *)(animation + 0xCC4) * layout->width) / 100.0f),
                           (u16)(((f32)*(u16 *)(animation + 0xCCA) * layout->height) / 100.0f),
@@ -582,7 +582,7 @@ void func_00138bf0(u8 *work)
         value = (f32)menu->animation[0].alpha;
         value = value * opacity;
         spriteAlpha = (u8)value;
-        func_0034f2e0(menu->sprites[58], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
+        sdkSpriteDrawAt(menu->sprites[58], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
     }
     if ((menu->visible & 0x200) != 0) {
         position.x = 14.0f + (originX + menu->animation[33].x);
@@ -590,7 +590,7 @@ void func_00138bf0(u8 *work)
         value = (f32)menu->animation[33].alpha;
         value = value * opacity;
         spriteAlpha = (u8)value;
-        func_0034f2e0(menu->sprites[27], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
+        sdkSpriteDrawAt(menu->sprites[27], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
     }
     if ((menu->visible & 0x400) != 0) {
         position.x = 14.0f + (originX + menu->animation[34].x);
@@ -598,7 +598,7 @@ void func_00138bf0(u8 *work)
         value = (f32)menu->animation[34].alpha;
         value = value * opacity;
         spriteAlpha = (u8)value;
-        func_0034f2e0(menu->sprites[28], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
+        sdkSpriteDrawAt(menu->sprites[28], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
     }
     if ((menu->visible & 0x800) != 0) {
         position.x = 71.0f + (originX + menu->animation[35].x);
@@ -606,7 +606,7 @@ void func_00138bf0(u8 *work)
         value = (f32)menu->animation[35].alpha;
         value = value * opacity;
         spriteAlpha = (u8)value;
-        func_0034f2e0(menu->sprites[29], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
+        sdkSpriteDrawAt(menu->sprites[29], position.x, position.y, 0xFF, 0xFF, 0xFF, spriteAlpha);
     }
     if ((menu->visible & 2) != 0) {
         for (rowIndex = 0; rowIndex < menu->partyCount; rowIndex++) {
@@ -650,17 +650,17 @@ void func_00138bf0(u8 *work)
         scrollX = 607.0f + scrollOriginX;
         position.x = scrollX;
         position.y = 32.0f + scrollOriginY;
-        func_0034f2e0(menu->sprites[11], position.x, position.y, 0xFF, 0xFF, 0xFF, scrollAlpha);
+        sdkSpriteDrawAt(menu->sprites[11], position.x, position.y, 0xFF, 0xFF, 0xFF, scrollAlpha);
         position.x = scrollX;
         position.y = 197.0f + scrollOriginY;
-        func_0034f2e0(menu->sprites[12], position.x, position.y, 0xFF, 0xFF, 0xFF, scrollAlpha);
+        sdkSpriteDrawAt(menu->sprites[12], position.x, position.y, 0xFF, 0xFF, 0xFF, scrollAlpha);
         position.x = scrollX;
         position.y = 35.0f + scrollOriginY;
         if (menu->skillCount - 6 > 0) {
             position.y += (f32)(((menu->scrollRow * 0x42 + (s32)menu->scrollRow) * 2) / (menu->skillCount - 6));
         }
         paletteColor = (void *)D_0064B2E8;
-        func_0034f2e0(menu->sprites[13], position.x, position.y, paletteColor->red, paletteColor->green,
+        sdkSpriteDrawAt(menu->sprites[13], position.x, position.y, paletteColor->red, paletteColor->green,
                       paletteColor->blue, scrollAlpha);
     }
     if ((menu->visible & 8) != 0) {
@@ -671,7 +671,7 @@ void func_00138bf0(u8 *work)
             position.y = originY + menu->animation[66].y;
             paletteColor = (void *)D_0064B2E4;
             rowSprite = menu->sprites[0];
-            func_0034f320(rowSprite, position.x, position.y, 0.0f, paletteColor->red, paletteColor->green,
+            sdkSpriteDrawSized(rowSprite, position.x, position.y, 0.0f, paletteColor->red, paletteColor->green,
                           paletteColor->blue, menu->animation[66].alpha, 0x1000, 0x1000, 0, 0.0f, 0);
         }
         /* Six visible entries use the +0x8F4 animation group and their
@@ -710,7 +710,7 @@ void func_00138bf0(u8 *work)
                     value = value * opacity;
                     spriteAlpha = (u8)value;
                     rowSprite = menu->sprites[0];
-                    func_0034f320(rowSprite, position.x, position.y, 0.0f, paletteColor->red, paletteColor->green,
+                    sdkSpriteDrawSized(rowSprite, position.x, position.y, 0.0f, paletteColor->red, paletteColor->green,
                                   paletteColor->blue, spriteAlpha, 0x1000, *(u16 *)(work + rowIndex * 0x30 + 0x90A),
                                   0, 0.0f, 0);
                 }
@@ -724,7 +724,7 @@ void func_00138bf0(u8 *work)
                     value = (f32)*(u8 *)(work + rowIndex * 0x30 + 0x8FE);
                     value = value * opacity;
                     spriteAlpha = (u8)value;
-                    func_0034f320(skillIconSprite, position.x, position.y, 0.0f, iconColor->red, iconColor->green,
+                    sdkSpriteDrawSized(skillIconSprite, position.x, position.y, 0.0f, iconColor->red, iconColor->green,
                                   iconColor->blue, spriteAlpha, 0x1000, *(u16 *)(work + rowIndex * 0x30 + 0x90A), 0,
                                   0.0f, 0);
                 }

@@ -25,8 +25,8 @@ void radarAnimateValue(void* arg0, s32 arg1, s32 arg2);
 void func_0034f8f0(void* arg0);
 void func_0034f1e0(void);
 void func_0034c270(Vec2f position, s32 alpha, s32 mode, f32 depth);
-void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg1, u8 arg2, u8 arg3, u8 arg4,
                    u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 f32 sinf(f32 arg0);
@@ -468,7 +468,7 @@ void func_0035d0a0(u8 *work) {
         pos.y = 388.0f + (baseY + menu->motion[0].position.y);
         alpha = (u8)((f32)menu->motion[0].opacity * fade);
         sprite = menu->sprites[0];
-        func_0034f2e0(sprite, pos.x, pos.y, 0x5E, 0x37, 0xFF, alpha);
+        sdkSpriteDrawAt(sprite, pos.x, pos.y, 0x5E, 0x37, 0xFF, alpha);
     }
     if ((menu->visible & 2) != 0) {
         {
@@ -500,7 +500,7 @@ void func_0035d0a0(u8 *work) {
                         continue;
                     }
                     pos.y = graphY + (f32)(cellIndex * 17);
-                    func_0034f2e0(graphSprite, pos.x, pos.y, color.rgba.red, color.rgba.green, color.rgba.blue,
+                    sdkSpriteDrawAt(graphSprite, pos.x, pos.y, color.rgba.red, color.rgba.green, color.rgba.blue,
                                   color.rgba.alpha);
                 }
             }
@@ -531,18 +531,18 @@ void func_0035d0a0(u8 *work) {
                 rowBlue = color.rgba.blue;
                 green = color.rgba.green;
                 pairY = pos.y;
-                func_0034f2e0(sprite, pos.x, pairY, color.rgba.red, green, rowBlue, alpha);
+                sdkSpriteDrawAt(sprite, pos.x, pairY, color.rgba.red, green, rowBlue, alpha);
                 sprite = menu->sprites[2];
-                func_0034f2e0(sprite, 380.0f + pos.x, pairY, color.rgba.red, green, rowBlue, alpha);
+                sdkSpriteDrawAt(sprite, 380.0f + pos.x, pairY, color.rgba.red, green, rowBlue, alpha);
                 if (index == selectedOption) {
                     u8 *selectedPalette;
                     selected = 1;
                     selectedPalette = D_0064B2E8;
                     sprite = menu->sprites[6];
-                    func_0034f2e0(sprite, pos.x, pairY, selectedPalette[0], selectedPalette[1], selectedPalette[2],
+                    sdkSpriteDrawAt(sprite, pos.x, pairY, selectedPalette[0], selectedPalette[1], selectedPalette[2],
                                   alpha);
                     sprite = menu->sprites[8];
-                    func_0034f2e0(sprite, 247.0f + pos.x, pairY, selectedPalette[0], selectedPalette[1],
+                    sdkSpriteDrawAt(sprite, 247.0f + pos.x, pairY, selectedPalette[0], selectedPalette[1],
                                   selectedPalette[2], alpha);
                     if ((index == 2) && (menu->options[1] == 0)) {
                         textColor = (alpha & 0xFF) | 0xB4B4B400;
@@ -587,9 +587,9 @@ void func_0035d0a0(u8 *work) {
                 pos.y = (f32)0x137 + (baseY + *buttonY);
                 buttonPalette = D_0064B2E8;
                 sprite = menu->sprites[7];
-                func_0034f2e0(sprite, pos.x, pos.y, buttonPalette[0], buttonPalette[1], buttonPalette[2], alpha);
+                sdkSpriteDrawAt(sprite, pos.x, pos.y, buttonPalette[0], buttonPalette[1], buttonPalette[2], alpha);
                 sprite = menu->sprites[8];
-                func_0034f2e0(sprite, 150.0f + pos.x, pos.y, buttonPalette[0], buttonPalette[1], buttonPalette[2],
+                sdkSpriteDrawAt(sprite, 150.0f + pos.x, pos.y, buttonPalette[0], buttonPalette[1], buttonPalette[2],
                               alpha);
                 pos.x = (f32)0x205 + (baseX + *buttonX);
                 pos.y = (f32)0x13F + (baseY + *buttonY);
@@ -599,7 +599,7 @@ void func_0035d0a0(u8 *work) {
                 } else {
                     buttonColor = D_0064B304;
                 }
-                func_0034f2e0(sprite, pos.x, pos.y, buttonColor[0], buttonColor[1], buttonColor[2], alpha);
+                sdkSpriteDrawAt(sprite, pos.x, pos.y, buttonColor[0], buttonColor[1], buttonColor[2], alpha);
             }
         }
         if (pendingOption != -1) {
@@ -731,7 +731,7 @@ void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
             angle = (90.0f + 180.0f * phase) - 180.0f;
         else
             angle = (-90.0f + 180.0f * phase) - 180.0f;
-        func_0034f320(sprite, x, y, 0.0f, 0xFF, 0xFF, 0xFF, arrowAlpha,
+        sdkSpriteDrawSized(sprite, x, y, 0.0f, 0xFF, 0xFF, 0xFF, arrowAlpha,
                       0x1000, 0x1000, 0x11, angle, 0x11);
     }
     if (arg2 == 2) {
@@ -753,7 +753,7 @@ void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
             angle = (90.0f + 180.0f * phase) - 180.0f;
         else
             angle = (-90.0f + 180.0f * phase) - 180.0f;
-        func_0034f320(sprite, x, y, 0.0f, 0xFF, 0xFF, 0xFF, 0xFF,
+        sdkSpriteDrawSized(sprite, x, y, 0.0f, 0xFF, 0xFF, 0xFF, 0xFF,
                       0x1000, 0x1000, 0x11, angle, 0x11);
         mdlEffectEmitTagPair();
         RpSkyRenderStateSet(3, 0x2D801);
@@ -780,10 +780,10 @@ void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
     x = x + (baseX + *rowXField);
     rowYField = (f32 *)(arg1 * 0x30 + arg0 + 0x20C);
     rowY = 32.0f * (f32)arg1;
-    func_0034f2e0(*(u8 **)(arg0 + 0x454), x,
+    sdkSpriteDrawAt(*(u8 **)(arg0 + 0x454), x,
                   rowY + (121.0f + (baseY + *rowYField)),
                   color[0], color[1], color[2], alpha);
-    func_0034f2e0(*(u8 **)(arg0 + 0x458),
+    sdkSpriteDrawAt(*(u8 **)(arg0 + 0x458),
                   556.0f + (baseX + *rowXField),
                   rowY + (131.0f + (baseY + *rowYField)),
                   otherColor, otherColor, otherColor, alpha);

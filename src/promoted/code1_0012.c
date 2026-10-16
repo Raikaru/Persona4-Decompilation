@@ -4588,7 +4588,7 @@ s32 func_0012d630(u8 *menu)
 {
     extern s32 func_0012e1d0(u8 *arg0);
     extern void func_0034f1e0(void);
-    extern void func_0034f320(u8 *arg0, f32 farg0, f32 farg1, f32 farg2,
+    extern void sdkSpriteDrawSized(u8 *arg0, f32 farg0, f32 farg1, f32 farg2,
                               u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                               u16 arg6, s16 arg7, f32 farg3, s16 arg_sp0);
     extern void func_0034f9d0(Vec2f pos, f32 z, u8 arg1, s32 arg2, s32 arg3);
@@ -4692,7 +4692,7 @@ s32 func_0012d630(u8 *menu)
             }
             sprite = *(u8 **)(bytes + option * 4 + 0x3C);
         }
-        func_0034f320(sprite, pos.x, pos.y, 0.0f, 0xFF, 0xFF, 0xFF,
+        sdkSpriteDrawSized(sprite, pos.x, pos.y, 0.0f, 0xFF, 0xFF, 0xFF,
                       alpha, 0x1000, *(u16 *)(rowBytes + 0xBA), 0,
                       0.0f, 0);
     }
@@ -4705,7 +4705,7 @@ s32 func_0012d630(u8 *menu)
         u8 selectedAlpha = tween->alpha;
         s32 selectedOption = work->visibleOptions[work->selection];
         u8 *selectedSprite = work->sprites[2][selectedOption];
-        func_0034f320(selectedSprite, pos.x, pos.y, 0.0f,
+        sdkSpriteDrawSized(selectedSprite, pos.x, pos.y, 0.0f,
                       0xFF, 0xFF, 0xFF, selectedAlpha, 0x1000,
                       tween->scaleY, 0, 0.0f, 0);
     }
@@ -5296,9 +5296,9 @@ void func_0012e9d0(u8 *state)
     extern void func_0034f1e0(void);
     extern void func_0034c270(Vec2f position, s32 alpha, s32 mode, f32 depth);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern void func_0034f2e0(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
+    extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
     extern f32 func_0034f720(u8 *cell, f32 horizontal, f32 vertical, f32 gain);
-    extern void func_0034f320(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+    extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
         u16 scaleY, s16 mode, f32 angle, s16 flags);
     extern void radarDrawSpritePair(u8 *state, s64 position, s32 color);
     extern void datEntryReset(u8 *entry);
@@ -5378,7 +5378,7 @@ void func_0012e9d0(u8 *state)
             row = state + dotIndex * 0x30;
             position.xy.x = 363.0f + (originX + *(f32 *)(row + 0x1888));
             position.xy.y = 8.0f + (originY + *(f32 *)(row + 0x188C));
-            func_0034f2e0(dotSprite, position.xy.x, position.xy.y, 0, 0xFF, 0x64, cachedAlpha);
+            sdkSpriteDrawAt(dotSprite, position.xy.x, position.xy.y, 0, 0xFF, 0x64, cachedAlpha);
         }
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
@@ -5401,7 +5401,7 @@ void func_0012e9d0(u8 *state)
                 palette = D_005E76B0 + cell->palette * 4;
                 color.channels = *(CampColorBytes *)palette;
                 scaledAlpha = (f32)cachedAlpha * cellWeight;
-                func_0034f2e0(dotSprite, drawX, cellY, color.channels.bytes[0], color.channels.bytes[1],
+                sdkSpriteDrawAt(dotSprite, drawX, cellY, color.channels.bytes[0], color.channels.bytes[1],
                     color.channels.bytes[2], (u8)scaledAlpha);
             }
         }
@@ -5411,21 +5411,21 @@ void func_0012e9d0(u8 *state)
         position.xy.y = 370.0f + (originY + *(f32 *)(state + 0x12EC));
         scaledAlpha = (f32)(u32)*(u8 *)(state + 0x12F2) * opacityScale;
         alphaByte = (u8)scaledAlpha;
-        func_0034f2e0(*(void **)(state + 0x1BDC), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
+        sdkSpriteDrawAt(*(void **)(state + 0x1BDC), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
     }
     if ((*(s32 *)(state + 0x14) & 0x40) != 0) {
         position.xy.x = 16.0f + (originX + *(f32 *)(state + 0x1798));
         position.xy.y = 405.0f + (originY + *(f32 *)(state + 0x179C));
         scaledAlpha = (f32)(u32)*(u8 *)(state + 0x17A2) * opacityScale;
         alphaByte = (u8)scaledAlpha;
-        func_0034f2e0(*(void **)(state + 0x1B88), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
+        sdkSpriteDrawAt(*(void **)(state + 0x1B88), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
     }
     if ((*(s32 *)(state + 0x14) & 0x80) != 0) {
         position.xy.x = 62.0f + (originX + *(f32 *)(state + 0x17C8));
         position.xy.y = 405.0f + (originY + *(f32 *)(state + 0x17CC));
         scaledAlpha = (f32)(u32)*(u8 *)(state + 0x17D2) * opacityScale;
         alphaByte = (u8)scaledAlpha;
-        func_0034f2e0(*(void **)(state + 0x1B8C), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
+        sdkSpriteDrawAt(*(void **)(state + 0x1B8C), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
     }
     if ((*(s32 *)(state + 0x14) & 8) != 0) {
         u8 headingAlpha;
@@ -5468,10 +5468,10 @@ void func_0012e9d0(u8 *state)
         drawX = 573.0f + value;
         position.xy.x = drawX;
         position.xy.y = 32.0f + rowY;
-        func_0034f2e0(*(void **)(state + 0x1B44), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, cachedAlpha);
+        sdkSpriteDrawAt(*(void **)(state + 0x1B44), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, cachedAlpha);
         position.xy.x = drawX;
         position.xy.y = 197.0f + rowY;
-        func_0034f2e0(*(void **)(state + 0x1B48), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, cachedAlpha);
+        sdkSpriteDrawAt(*(void **)(state + 0x1B48), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, cachedAlpha);
         position.xy.x = drawX;
         position.xy.y = 35.0f + rowY;
         scrollRange = (s32)*(s16 *)(state + 0xC3E) - 6;
@@ -5480,7 +5480,7 @@ void func_0012e9d0(u8 *state)
             position.xy.y += (f32)(scrollPosition / scrollRange);
         }
         theme = D_0064B2E8;
-        func_0034f2e0(*(void **)(state + 0x1B4C), position.xy.x, position.xy.y, theme[0], theme[1], theme[2],
+        sdkSpriteDrawAt(*(void **)(state + 0x1B4C), position.xy.x, position.xy.y, theme[0], theme[1], theme[2],
             cachedAlpha);
     }
     if ((*(s32 *)(state + 0x14) & 2) != 0) {
@@ -5496,7 +5496,7 @@ void func_0012e9d0(u8 *state)
                 position.xy.y = originY + *(f32 *)(state + 0x1ACC);
                 theme = D_0064B2E4;
                 panelSprite = *(u8 **)(state + 0x1B18);
-                func_0034f320(panelSprite, position.xy.x, position.xy.y, 0.0f, theme[0], theme[1], theme[2],
+                sdkSpriteDrawSized(panelSprite, position.xy.x, position.xy.y, 0.0f, theme[0], theme[1], theme[2],
                     *(u8 *)(state + 0x1AD2), 0x1000, 0x1000, 0, 0.0f, 0);
             }
             for (rowIndex = 0; rowIndex < 6; rowIndex++) {
@@ -5534,7 +5534,7 @@ void func_0012e9d0(u8 *state)
                         scaledAlpha = (f32)(u32)*(u8 *)(row + 0x14A2) * opacityScale;
                         alphaByte = (u8)scaledAlpha;
                         panelSprite = *(u8 **)(state + 0x1B18);
-                        func_0034f320(panelSprite, position.xy.x, position.xy.y, 0.0f, theme[0], theme[1], theme[2],
+                        sdkSpriteDrawSized(panelSprite, position.xy.x, position.xy.y, 0.0f, theme[0], theme[1], theme[2],
                             alphaByte, 0x1000, *(u16 *)(row + 0x14AE), 0, 0.0f, 0);
                     }
                     row = state + rowIndex * 0x30;
@@ -5554,7 +5554,7 @@ void func_0012e9d0(u8 *state)
                      * remains live for the opacity read after label initialization. */
                     textIndex = rowIndex;
                     textRow = state + textIndex * 0x30;
-                    func_0034f320(iconSprite, position.xy.x, position.xy.y, 0.0f, palette[0], palette[1],
+                    sdkSpriteDrawSized(iconSprite, position.xy.x, position.xy.y, 0.0f, palette[0], palette[1],
                         palette[2], iconAlpha, 0x1000, *(u16 *)(textRow + 0x14AE), 0, 0.0f, 0);
                     position.xy.x = 266.0f + (originX + *(f32 *)(textRow + 0x1348));
                     position.xy.y = 21.0f + (*(f32 *)(textRow + 0x134C) + (originY + rowY));
