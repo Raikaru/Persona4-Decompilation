@@ -114,7 +114,7 @@ extern s32 btlActionIsPendingBit(s32 arg0);
    index arithmetic and the 0x70 field load in a temporary before its saved copy. */
 /* measured: restore propagation for the rest of the unit. */
 // FUN_001F3FE0
-s32 func_001f3fe0(u8 *arg0)
+s32 btlActionGetNormalStatePrimaryMsgCode(u8 *arg0)
 {
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
         return -1;
@@ -123,7 +123,7 @@ s32 func_001f3fe0(u8 *arg0)
 }
 
 // FUN_001F4010
-s32 func_001f4010(u8 *arg0)
+s32 btlActionGetNormalStateSecondaryMsgCode(u8 *arg0)
 {
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
         return -1;
@@ -132,7 +132,7 @@ s32 func_001f4010(u8 *arg0)
 }
 
 // FUN_001F4040
-s32 func_001f4040(u8 *arg0) {
+s32 btlActionGetPendingBitMsgCode(u8 *arg0) {
     if (*(u8 *)((u8 *)(*(u8 **)(arg0 + 0x30)) + 0xA2) != 0) {
         return -1;
     }
@@ -143,7 +143,7 @@ s32 func_001f4040(u8 *arg0) {
 }
 
 // FUN_001F40A0
-s32 func_001f40a0(void) {
+s32 btlActionGetRollTierMsgCode(void) {
     s32 temp_3;
 
     temp_3 = func_001ef720(2, 0x80000) & 0xFFFF;
@@ -157,7 +157,7 @@ s32 func_001f40a0(void) {
 }
 
 // FUN_001F4100
-s32 func_001f4100(u8 *arg0)
+s32 btlActionGetStatusMsgCode(u8 *arg0)
 {
     u16 temp_2;
     u8 *temp_3;
@@ -188,7 +188,7 @@ s32 func_001f4100(u8 *arg0)
 }
 
 // FUN_001F41B0
-s32 func_001f41b0(u8 *arg0)
+s32 btlActionGetNormalStateTertiaryMsgCode(u8 *arg0)
 {
     if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
         return -1;
@@ -197,7 +197,7 @@ s32 func_001f41b0(u8 *arg0)
 }
 
 // FUN_001F41E0
-s32 func_001f41e0(void) {
+s32 btlActionGetRollTierBandMsgCode(void) {
     s32 temp_3;
 
     temp_3 = func_001ef720(2, 0x80000) & 0xFFFF;
