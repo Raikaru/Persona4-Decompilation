@@ -13,8 +13,8 @@ extern void *func_004a6e10(void *source);
 extern u8 *RingCreateKindInstance(u16 kind, u8 *parameters);
 extern RpGeometry *RpGeometryLock(RpGeometry *geometry, s32 lockMode);
 extern u8 *ThunderTextureForIndex(u16 kind, u8 *parameters);
-extern void *func_00498b20(void *source);
-extern void *func_0049a5e0(void *source);
+extern void *ThunderTextureForRecord(void *source);
+extern void *RingCreateInstanceForRecord(void *source);
 extern s32 func_002be1b0(s16 item);
 extern void free(void *ptr);
 
@@ -956,8 +956,9 @@ u8 *mdlEffectFindNodeById(u8 *root, s32 identifier)
 #pragma optimization_level 1
 /* measured: closes optimization_level 1 for the parked 00486970 body. */
 #pragma optimization_level 2
+// Releases the emitter at +0x4C and updates the particle with a unit scale.
 // FUN_00489E00
-void func_00489e00(u8 *arg0)
+void ParticleReleaseEmitterAndUpdate(u8 *arg0)
 {
     u8 *temp_4;
 
@@ -984,8 +985,9 @@ void mdlEffectSetUnitWeight(void)
     #pragma optimization_level 2
 #pragma optimization_level 1
 #pragma optimization_level 2
+// Releases the emitter at +0x4C, updates the particle, then projects its vertices.
 // FUN_00489E80
-void func_00489e80(u8 *arg0)
+void ParticleReleaseEmitterAndProject(u8 *arg0)
 {
     u8 *temp_4;
 
@@ -998,15 +1000,17 @@ void func_00489e80(u8 *arg0)
 }
 
 
+// Stores the position quad into the particle's emitter at +0x4C.
 // FUN_00489EE0
-void func_00489ee0(u8 *instance, u32 *position)
+void ParticleSetEmitterPosition(u8 *instance, u32 *position)
 {
     mdlEffectStoreQuadA(*(s32 *)(instance + 0x4C), position);
 }
 
 
+// Stores the rotation quad into the particle's emitter at +0x4C.
 // FUN_00489F10
-void func_00489f10(u8 *instance, u32 *rotation)
+void ParticleSetEmitterRotation(u8 *instance, u32 *rotation)
 {
     mdlEffectStoreQuadB(*(s32 *)(instance + 0x4C), rotation);
 }
@@ -2152,8 +2156,9 @@ s32 mdlEffectSlotIsFree(u8 *param_1, u16 param_2)
 #pragma push
 #pragma opt_loop_invariants on
 #pragma pop
+// Copies the camera origin, then locks the geometry under the sub-objects at +0x10 and +0x14.
 // FUN_00494F90
-void func_00494f90(u8 *arg0) {
+void mdlEffectCopyOriginAndLockGeometry(u8 *arg0) {
     mdlEffectCopyCameraOrigin(arg0);
     RpGeometryLock(*(RpGeometry **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x10)) + 0x10)) + 0x18), 0xA);
     RpGeometryLock(*(RpGeometry **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x14)) + 0x10)) + 0x18), 0xA);
@@ -2220,8 +2225,9 @@ void ThunderInstanceDestroy(u8 *arg0) {
 }
 
 
+// Thunder texture for a record: kind at +0x2C and the texture table at +0x34. Unlike ThunderTextureForObject, no relative pointer is resolved.
 // FUN_00498B20
-void *func_00498b20(void *source) {
+void *ThunderTextureForRecord(void *source) {
     u8 *arg0 = source;
 
     return ThunderTextureForIndex(*(u16 *)(arg0 + 0x2C), *(u8 **)(arg0 + 0x34));
@@ -2309,8 +2315,9 @@ void RingInstanceDestroy(u8 *arg0) {
 }
 
 
+// Ring instance for a record: kind at +0x38 and parameters at +0x40. Unlike RingCreateKindInstanceFromObject, no relative pointer is resolved.
 // FUN_0049A5E0
-void *func_0049a5e0(void *source) {
+void *RingCreateInstanceForRecord(void *source) {
     u8 *arg0 = source;
 
     return RingCreateKindInstance(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
