@@ -316,13 +316,14 @@ s32 evtStart(s32 arg0, s32 arg1) {
     if (arg0 != 0) {
         p[0] |= 0x40000000;
     }
+    // Event player task named D_0063C368 = "evtEditLoad" (retail string at VA 0x63C368); update is evtStepEventTask.
     task = (s32)kwlnTaskCreate((const void *)(D_0063C368), 0, 0, 0, evtStepEventTask, evtTaskDestroy, (u8 *)(p));
     if (arg1 != 0) {
         p[0] |= 0x80000000;
     }
     return task;
 }
-// Event task lookup: returns the id of the event task registered under the event name.
+// Event task lookup: returns the id of the event player task named "evtEditLoad" (D_0063C368).
 // FUN_00286350
 s32 evtFindTask(void) {
     return kwlnTaskGetTaskByName(D_0063C368);
