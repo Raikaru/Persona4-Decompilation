@@ -343,7 +343,7 @@ s32 func_002be530(u8 *arg0)
     extern void func_00106390(s32, s32);
     extern s32 func_00106b50(s16);
     extern void func_00106d40(s16, s16, s16);
-    extern s64 func_00110a60(s32, s32);
+    extern s64 calGetDayEntryForMonthDay(s32, s32);
     extern s32 func_002b32a0(s32, s32, s32, s32);
     extern s32 func_002bae80(s64, s32);
     extern s32 func_002bb1c0(s8);
@@ -978,7 +978,7 @@ s32 func_002be530(u8 *arg0)
             (*(s8 *)(work + 0)) = 0xC;
             return 0;
         }
-        if (((s8) (func_00110a60((func_002e78a0() & 0xFF), (u8)func_002e78e0() & 0xFF))) == 1) {
+        if (((s8) (calGetDayEntryForMonthDay((func_002e78a0() & 0xFF), (u8)func_002e78e0() & 0xFF))) == 1) {
             temp_3_2 = (s16) ((((u8)func_002e78e0() & 0xFF) + ((func_002e78a0() & 0xFF) * 0x64)));
             if ((temp_3_2 >= 0x190) && (temp_3_2 < 0x207)) {
                 (*(s8 *)(work + 0x10)) = func_002dfec0(arg0, 0xC, (*(void * *)((u8 *)((*(void * *)(work + 0xF2C))) + 0x110)), 0);

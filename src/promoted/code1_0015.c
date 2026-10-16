@@ -399,7 +399,7 @@ s32 func_001561a0(u8 *task)
 {
     extern s16 datGetDateIndex(void);
     extern u8 datGetTimeSlot(void);
-    extern s64 func_00110960(s32 day, u32 period);
+    extern s64 calGetDayEntryByPhase(s32 day, u32 period);
     extern s32 cmmTableLookupFlagged(s32 group, s32 entry, s32 condition);
     extern void func_00123aa0(s16 selection);
     extern void func_002aaa80(void);
@@ -487,7 +487,7 @@ s32 func_001561a0(u8 *task)
             selectedEnvironment = 0;
             if (work->mode == 1) {
                 initialDay = (s16)datGetDateIndex();
-                condition = (s8)func_00110960(initialDay, datGetTimeSlot() & 0xFF);
+                condition = (s8)calGetDayEntryByPhase(initialDay, datGetTimeSlot() & 0xFF);
                 selection = cmmTableLookupFlagged(work->storyGroup, work->storyEntry, condition);
                 if (selection != -1) {
                     if ((selection & 0x8000) != 0) {
@@ -501,7 +501,7 @@ s32 func_001561a0(u8 *task)
             if (selectedEnvironment == 0) {
                 if (selection == -1) {
                     day = (s16)datGetDateIndex();
-                    selection = (s8)func_00110960(day, datGetTimeSlot() & 0xFF);
+                    selection = (s8)calGetDayEntryByPhase(day, datGetTimeSlot() & 0xFF);
                 }
                 work->environmentState = func_00154720(work->fieldId, work->roomId, selection);
             } else {
@@ -3399,7 +3399,7 @@ u16 *func_0015d2c0(u32 arg0)
     return record;
 }
 
-/* HBN-record floor (1056B window). Counted-for inner loops (Main order #1): 97wd / 48+1 edits (267 vs 264 3-long) -> 14wd / 14+1 edits (261/261 exact). Entry-guard blez (#2) ties 97, incr-order swap (#3) ties 97, s16 counters (#4) explode 255. s32 for s64 temps ties 14. Remnant is pure $v0/$v1 + addiu/daddiu in the (s8)func_00110960 &1/-2 adjust (6 sites). Frame -0x90 exact, 7/7 pairs balanced, opclass clean. Production stays ASM. */
+/* HBN-record floor (1056B window). Counted-for inner loops (Main order #1): 97wd / 48+1 edits (267 vs 264 3-long) -> 14wd / 14+1 edits (261/261 exact). Entry-guard blez (#2) ties 97, incr-order swap (#3) ties 97, s16 counters (#4) explode 255. s32 for s64 temps ties 14. Remnant is pure $v0/$v1 + addiu/daddiu in the (s8)calGetDayEntryByPhase &1/-2 adjust (6 sites). Frame -0x90 exact, 7/7 pairs balanced, opclass clean. Production stays ASM. */
 /* MATCHED.  The last 14 differing words were the hand-expanded signed modulo: the body
    lowered `x % 2` itself as `x & 1` plus a negative correction and a `-= 2`, which left six
    sites of $v0/$v1 and addiu/daddiu churn.  Writing `(s32)var_2 % 2` with s32 temporaries
@@ -3408,11 +3408,11 @@ u16 *func_0015d2c0(u32 arg0)
 u8 *func_0015d310(u16 *arg0)
 {
     extern s16 datGetDateIndex(void);
-    extern s64 func_00110960(s32 arg0, u32 arg1);
+    extern s64 calGetDayEntryByPhase(s32 arg0, u32 arg1);
     extern u8 datGetTimeSlot(void);
-    extern void func_001104d0(s32 date, s32 *month, s32 *day);
-    extern s32 func_00110580(s32 date);
-    extern s32 func_00110d30(s32 date);
+    extern void calSplitDayOfYear(s32 date, s32 *month, s32 *day);
+    extern s32 calGetWeekdayOfDay(s32 date);
+    extern s32 calHasDayEntry(s32 date);
     extern u32 clndIsDateInRange(u32 firstMonth, u32 firstDay, u32 lastMonth, u32 lastDay);
     extern u32 datGetFlag(s32 bit);
     s32 sp8C;
@@ -3456,7 +3456,7 @@ loop_3:
     var_18 = 3;
     var_19 = 0x1F;
     var_20 = 0;
-    func_001104d0((s16)datGetDateIndex(), &sp8C, &sp88);
+    calSplitDayOfYear((s16)datGetDateIndex(), &sp8C, &sp88);
     var_21 = 0;
     goto loop_test;
 loop_body:
@@ -3483,17 +3483,17 @@ loop_body:
                 }
                 if (((*(u8 *)(recordAddress + 8) == 0) ||
                      (*(u8 *)(recordAddress + 8) &
-                      (1U << func_00110d30((s16)datGetDateIndex())))) &&
+                      (1U << calHasDayEntry((s16)datGetDateIndex())))) &&
                     ((*(u8 *)(recordAddress + 9) == 0) ||
                      (*(u8 *)(recordAddress + 9) &
-                      (1U << func_00110580((s16)datGetDateIndex())))) &&
+                      (1U << calGetWeekdayOfDay((s16)datGetDateIndex())))) &&
                     ((*(u8 *)(recordAddress + 0xA) == 0) ||
                      (*(u8 *)(recordAddress + 0xA) &
                       (1U << (datGetTimeSlot() & 0xFF))))) {
                     temp_3 = *(u8 *)(recordAddress + 0xB);
                     if (temp_3 == 1) {
                         temp_22 = (s16)datGetDateIndex();
-                        var_2 = (s64)(s8)func_00110960(temp_22,
+                        var_2 = (s64)(s8)calGetDayEntryByPhase(temp_22,
                                                      datGetTimeSlot() & 0xFF);
                         temp_3_2 = (s32)var_2 % 2;
                         if (temp_3_2 != 0) {
@@ -3503,7 +3503,7 @@ loop_body:
                     }
                     if (temp_3 == 2) {
                         temp_22_2 = (s16)datGetDateIndex();
-                        var_2_2 = (s64)(s8)func_00110960(temp_22_2,
+                        var_2_2 = (s64)(s8)calGetDayEntryByPhase(temp_22_2,
                                                        datGetTimeSlot() & 0xFF);
                         temp_3_3 = (s32)var_2_2 % 2;
                         if (temp_3_3 != 0) {

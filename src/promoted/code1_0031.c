@@ -433,7 +433,7 @@ typedef struct DateSelectionWork {
 #pragma opt_loop_invariants on
 void func_00313d20(u8 *task, u8 month, s32 day, s8 mode)
 {
-    extern s64 func_00110a60(s32 month, s32 day);
+    extern s64 calGetDayEntryForMonthDay(s32 month, s32 day);
     extern u8 D_00643D00[];
     s16 best;
     DateSelectionWork *state;
@@ -450,7 +450,7 @@ void func_00313d20(u8 *task, u8 month, s32 day, s8 mode)
         s16 i;
         u8 *entry;
         s8 priority;
-        fallback = D_00643D00 + 20 * (s8)func_00110a60(month, (u8)day);
+        fallback = D_00643D00 + 20 * (s8)calGetDayEntryForMonthDay(month, (u8)day);
         for (i = 0; i < 5; i++) {
             state->selectedFlags[savedMode][i] = 0;
             entry = fallback + 4 * i;

@@ -297,7 +297,7 @@ extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
 s32 func_001441e0(u8 *arg0) {
     extern s16 datGetDateIndex(void);
     extern s64 func_00110850(s32 arg0, u32 arg1);
-    extern s32 func_00110c50(s32 arg0, s32 arg1);
+    extern s32 calGetPackedDayEntry(s32 arg0, s32 arg1);
     extern u16 D_008C024E[];
     extern char iGpffff9ce4;
     extern char iGpffff9ce8;
@@ -350,7 +350,7 @@ s32 func_001441e0(u8 *arg0) {
             row[2] = (u16)(v0 + v1 * 0x10);
             t2 = i + datGetDateIndex();
             t3 = datGetDateIndex();
-            row[9] = (u16)func_00110c50(t2, t3);
+            row[9] = (u16)calGetPackedDayEntry(t2, t3);
         }
         st->fields.kind = 1;
         break;

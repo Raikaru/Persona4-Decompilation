@@ -189,9 +189,9 @@ extern u8* func_00454a60(u8* param, s32 mode);
 
 extern void func_00106390(s32 arg0, s32 arg1);
 
-extern u32 func_00110580(s32 arg0);
+extern u32 calGetWeekdayOfDay(s32 arg0);
 
-extern s32 func_00110d30(s32 idx);
+extern s32 calHasDayEntry(s32 idx);
 
 extern void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3);
 
@@ -1011,7 +1011,7 @@ void func_00106100(s16 arg0)
     func_00106390(0xADA, 0);
     func_00106390(0xADB, 0);
     D_00797B7A[0] = arg0;
-    temp_2 = func_00110580(arg0);
+    temp_2 = calGetWeekdayOfDay(arg0);
     switch (temp_2)
     {
     case 0:
@@ -1036,7 +1036,7 @@ void func_00106100(s16 arg0)
         func_00106390(0xAD6, 1);
         break;
     }
-    if (func_00110d30(D_00797B7A[0]) != 0)
+    if (calHasDayEntry(D_00797B7A[0]) != 0)
     {
         func_00106390(0xAD0, 1);
     }

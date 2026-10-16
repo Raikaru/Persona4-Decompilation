@@ -587,9 +587,9 @@ void fclCombineDrawSlotRows(u8 *arg0, s64 arg1) {
 // FUN_00315600
 void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
     extern s64 datGetDateIndex(void);
-    extern s32 func_00110580(s32 arg0);
-    extern s32 func_00110d30(s32 arg0);
-    extern s64 func_00110a60(s32 arg0, s32 arg1);
+    extern s32 calGetWeekdayOfDay(s32 arg0);
+    extern s32 calHasDayEntry(s32 arg0);
+    extern s64 calGetDayEntryForMonthDay(s32 arg0, s32 arg1);
     extern u8 func_002e78a0(void);
     extern s32 func_002e78e0(void);
     extern f32 D_00643DA8[];
@@ -610,7 +610,7 @@ void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
     FclVec2 *v;
     u8 *p;
 
-    tmp18 = func_00110580((s16)datGetDateIndex());
+    tmp18 = calGetWeekdayOfDay((s16)datGetDateIndex());
     b = (FclVec2 *)D_00643DA8;
     pos = func_002b2970(b->x, b->y);
     if ((s8)arg1 == 0) {
@@ -643,7 +643,7 @@ void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
             c1A4 = func_002b2a60(0x99, 0xA4, 0xFF, 0xFF);
             *(FclByte4 *)(fclSpriteEntry((s16)tmp18) + 0x85) = c1A4;
         }
-        if (func_00110d30((s16)datGetDateIndex()) == 1) {
+        if (calHasDayEntry((s16)datGetDateIndex()) == 1) {
             c1A0 = func_002b2a60(0xFF, 0xAC, 0x99, 0xFF);
             *(FclByte4 *)(fclSpriteEntry((s16)tmp18) + 0x85) = c1A0;
         }
@@ -658,7 +658,7 @@ void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
         c198 = func_002b2a60(0x19, 0x19, 0x19, 0xFF);
         *(FclByte4 *)(fclSpriteEntry(0x18) + 0x85) = c198;
         fclSpriteStartPositionAt(0x18, func_002b2970(300.0f + v->x, v->y), func_002b2970(v->x, v->y), 0, 0xA, 0);
-        id2 = (s8)func_00110a60(func_002e78a0() & 0xFF, func_002e78e0() & 0xFF) + 0x13;
+        id2 = (s8)calGetDayEntryForMonthDay(func_002e78a0() & 0xFF, func_002e78e0() & 0xFF) + 0x13;
         v = (FclVec2 *)D_00643D70 + id2;
         fclSpriteCreate(id2, func_002b2970(v->x, v->y), 91.0f, 0x58);
         c194 = func_002b2a60(0x49, 0x72, 0xFF, 0xFF);
@@ -682,7 +682,7 @@ void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
         fclSpriteStartPositionAt(0x17, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
         pos = *(FclVec2 *)(fclSpriteEntry(0x18) + 0x38);
         fclSpriteStartPositionAt(0x18, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
-        id = (s8)func_00110a60(func_002e78a0() & 0xFF, func_002e78e0() & 0xFF) + 0x13;
+        id = (s8)calGetDayEntryForMonthDay(func_002e78a0() & 0xFF, func_002e78e0() & 0xFF) + 0x13;
         pos = *(FclVec2 *)(fclSpriteEntry(id) + 0x38);
         fclSpriteStartPositionAt(id, pos, func_002b2970(300.0f + pos.x, pos.y), 0, 0xA, 0);
     }
@@ -5515,7 +5515,7 @@ void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVe
 void fclCombineDrawDetailPanel(u8 *arg0) {
     extern u8 func_002e78a0(void);
     extern s32 func_002e78e0(void);
-    extern s64 func_00110a60(s32 arg0, s32 arg1);
+    extern s64 calGetDayEntryForMonthDay(s32 arg0, s32 arg1);
     extern u8 D_00643D00[];
     extern u8 D_006432B0[];
     extern char *D_006430B0[];
@@ -5559,9 +5559,9 @@ void fclCombineDrawDetailPanel(u8 *arg0) {
     v = ((s8 *)(t + 0x2D4))[*(s8 *)(t + 0x2D6)];
     if (v == -1) {
         if (*(s8 *)(t + 0x122) == 1) {
-            base = D_00643D00 + (s8)func_00110a60(func_002e78a0() & 0xFF, func_002e78e0() & 0xFF) * 0x14;
+            base = D_00643D00 + (s8)calGetDayEntryForMonthDay(func_002e78a0() & 0xFF, func_002e78e0() & 0xFF) * 0x14;
         } else if (*(s8 *)(t + 0x122) == 0) {
-            base = D_00643D00 + (s8)func_00110a60(*(s8 *)(t + 0x2D2), *(s8 *)(t + 0x2D3)) * 0x14;
+            base = D_00643D00 + (s8)calGetDayEntryForMonthDay(*(s8 *)(t + 0x2D2), *(s8 *)(t + 0x2D3)) * 0x14;
         }
         fclCombineDrawResourceAt(0x1D2, func_002b2970(135.0f, 96.0f), 43.0f, func_002b2a30(0, 0x42, 0x42, 0xCA), alpha, 0, 1.0f, 1.0f, D_00795E60);
         frFontExDrawTextDeferred(153.0f, 86.0f, 43.0f, func_002b2a30(0xFF, 0xFF, 0xFF, alpha), 0, 1, D_00644D18[0], 0, 0, D_00795E60);

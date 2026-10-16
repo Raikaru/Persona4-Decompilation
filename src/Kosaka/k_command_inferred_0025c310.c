@@ -20,8 +20,8 @@ extern char D_00635C60[];
 extern s32 iGpffffb480;
 
 s16 datGetDateIndex(void);
-void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
-s32 func_00110580(s64 arg0);
+void calSplitDayOfYear(s64 arg0, s32 *arg1, s32 *arg2);
+s32 calGetWeekdayOfDay(s64 arg0);
 
 
 
@@ -60,7 +60,7 @@ s32 scrCommonGetMonth(void) {
 
     sp1C = 0;
     sp18 = 0;
-    func_001104d0(datGetDateIndex(), &sp1C, &sp18);
+    calSplitDayOfYear(datGetDateIndex(), &sp1C, &sp18);
     scrSetReturnInt(sp1C);
     return 1;
 }
@@ -72,14 +72,14 @@ s32 scrCommonGetDay(void) {
 
     sp1C = 0;
     sp18 = 0;
-    func_001104d0(datGetDateIndex(), &sp1C, &sp18);
+    calSplitDayOfYear(datGetDateIndex(), &sp1C, &sp18);
     scrSetReturnInt(sp18);
     return 1;
 }
 
 // FUN_0025C3E0
 s32 func_0025c3e0(void) {
-    scrSetReturnInt(func_00110580(datGetDateIndex()));
+    scrSetReturnInt(calGetWeekdayOfDay(datGetDateIndex()));
     return 1;
 }
 

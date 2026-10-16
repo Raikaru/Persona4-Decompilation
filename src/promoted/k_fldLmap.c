@@ -39,7 +39,7 @@ extern f32 sinf(f32 param);
 extern f32 cosf(f32 param);
 extern s64 datGetDateIndex();
 extern s32 datGetTimeSlot();
-extern s64 func_00110960(s64 param, s32 param2);
+extern s64 calGetDayEntryByPhase(s64 param, s32 param2);
 extern s32 datGetFlag(s32 id);
 extern u8 *func_003e0f80();
 extern void fieldSceneLoad(s32 a, s32 b);
@@ -136,7 +136,7 @@ s32 func_001866d0(u8 *arg0)
     switch (temp_3) {
     case 0:
         temp_17 = (s16)datGetDateIndex();
-        temp_18 = (s8)func_00110960(temp_17, datGetTimeSlot() & 0xFF);
+        temp_18 = (s8)calGetDayEntryByPhase(temp_17, datGetTimeSlot() & 0xFF);
         temp_17_2 = datGetTimeSlot() & 0xFF;
         if (datGetFlag(0x8A) == 1) {
             if ((s8)temp_18 == 1) {

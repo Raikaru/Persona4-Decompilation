@@ -39,7 +39,7 @@ void func_004534f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 extern s32 iGpffffb1bc;
 extern s32 iGpffffb19c;
-extern void func_001104d0(s32 seed, s32 *month, s32 *day);
+extern void calSplitDayOfYear(s32 seed, s32 *month, s32 *day);
 extern s32 iGpffffb1b8;
 extern s32 iGpffffb1f0;
 extern void (*jtbl_008873EC[])(void *);
@@ -111,8 +111,9 @@ static inline s64 p4_0011_load_s8(s8 *ptr)
 u32 func_00110460(void) {
     return *(u32 *)D_0079BEF4;
 }
+// Intent: Return the day count of the calendar month at 1-based index arg0 from the twelve-entry month-length table, in the April-based year [inferred]
 // FUN_001104A0
-s32 func_001104a0(s32 arg0)
+s32 calGetMonthLength(s32 arg0)
 {
     return D_005E45E0[(arg0 - 1) % 12];
 }
@@ -124,8 +125,9 @@ s32 func_001104a0(s32 arg0)
 #pragma opt_loop_invariants on
 /* measured: opt_propagation off preserves the retail duplicate table loads and local colouring. */
 #pragma opt_propagation off
+// Intent: Split a day count within the 365-day year into a 1-based month and day by subtracting month lengths from April [inferred]
 // FUN_001104D0
-void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2)
+void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2)
 {
     s32 temp_8;
     s32 temp_9;
@@ -159,19 +161,21 @@ done:
     *arg1 = var_12 + 1;
     *arg2 = var_11 + 1;
 }
-/* measured: restore opt_propagation after func_001104d0. */
+/* measured: restore opt_propagation after calSplitDayOfYear. */
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
+// Intent: Return the weekday index (0 to 6) of a day count within the 365-day year [inferred]
 // FUN_00110580
-s32 func_00110580(s32 arg0) {
+s32 calGetWeekdayOfDay(s32 arg0) {
     return (((arg0 % 0x16D) % 7) + 5) % 7;
 }
+// Intent: Return the week of the year (1-based) for a day count, from its day of the year [inferred]
 // FUN_001105B0
-s32 func_001105b0(s32 arg0) {
+s32 calGetWeekOfYear(s32 arg0) {
     s32 sp1C;
     s32 sp18;
 
-    func_001104d0(arg0, &sp1C, &sp18);
+    calSplitDayOfYear(arg0, &sp1C, &sp18);
     sp18 = (sp18 - 1) / 7;
     return sp18 + 1;
 }
@@ -180,8 +184,9 @@ s32 func_001105b0(s32 arg0) {
    it in $a0 for the whole loop, and any separate `cur` local rotates the three
    live values through $a3/$a2/$a0 instead (identical instruction sequence,
    11 differing words). */
+// Intent: Return the day-of-year offset of a month and day: the summed month lengths from April plus day minus one [inferred]
 // FUN_00110600
-s32 func_00110600(s32 arg0, s32 arg1) {
+s32 calDayOfYearFromMonthDay(s32 arg0, s32 arg1) {
     s32 sum = 0;
     s32 next;
 
@@ -205,12 +210,13 @@ s32 func_00110600(s32 arg0, s32 arg1) {
     return sum + (arg1 - 1);
 }
 
+// Intent: Return whether the current calendar day equals month arg1 and day arg2 [inferred]
 // FUN_00110680
-s32 func_00110680(s32 arg0, s32 arg1, s32 arg2) {
+s32 calIsCurrentMonthDay(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp3C;
     s32 sp38;
 
-    func_001104d0(D_00797B7A[0], &sp3C, &sp38);
+    calSplitDayOfYear(D_00797B7A[0], &sp3C, &sp38);
     if (sp3C == arg1 && sp38 == arg2) {
         return 1;
     }
@@ -332,8 +338,9 @@ block_12:
 #pragma opt_propagation off
 /* measured probe: opt_common_subs off preserves the retail fallback loads. */
 #pragma opt_common_subs off
+// Intent: Return the day-table entry for a day and phase: the override value when one is set, else the stored byte [inferred]
 // FUN_00110960
-s64 func_00110960(s32 arg0, u32 arg1)
+s64 calGetDayEntryByPhase(s32 arg0, u32 arg1)
 {
     s32 loaded;
     s32 value;
@@ -367,9 +374,9 @@ s64 func_00110960(s32 arg0, u32 arg1)
     }
     return result;
 }
-/* measured: restore opt_propagation after func_00110960. */
+/* measured: restore opt_propagation after calGetDayEntryByPhase. */
 #pragma opt_propagation on
-/* measured probe: restore opt_common_subs after func_00110960. */
+/* measured probe: restore opt_common_subs after calGetDayEntryByPhase. */
 #pragma opt_common_subs on
 static inline s64 calendarOverrideValue(s32 date, s32 phase)
 {
@@ -392,10 +399,11 @@ static inline s64 calendarOverrideValue(s32 date, s32 phase)
    and retain the signed override staging in both inlined phase branches. */
 #pragma opt_propagation off
 #pragma opt_common_subs off
+// Intent: Return the day-table entry for a month and day, choosing phase 3 or 4 from the day-of-year test [inferred]
 // FUN_00110A60
-s64 func_00110a60(s32 month, s32 day)
+s64 calGetDayEntryForMonthDay(s32 month, s32 day)
 {
-    extern s32 func_00110d30(s32 date);
+    extern s32 calHasDayEntry(s32 date);
     s32 previous;
     s32 total;
     s32 next;
@@ -414,14 +422,15 @@ s64 func_00110a60(s32 month, s32 day)
             if (next == 0) previous = divisor;
         } while (1);
     }
-    if (func_00110d30(total + (day - 1)) == 1)
-        return calendarOverrideValue(func_00110600(month, day), 3);
-    return calendarOverrideValue(func_00110600(month, day), 4);
+    if (calHasDayEntry(total + (day - 1)) == 1)
+        return calendarOverrideValue(calDayOfYearFromMonthDay(month, day), 3);
+    return calendarOverrideValue(calDayOfYearFromMonthDay(month, day), 4);
 }
 #pragma opt_common_subs on
 #pragma opt_propagation on
+// Intent: Return the packed 16-bit day entry for day arg0, combining two byte table values [inferred]
 // FUN_00110C50
-s32 func_00110c50(s32 arg0, s32 arg1)
+s32 calGetPackedDayEntry(s32 arg0, s32 arg1)
 {
     s32 temp_3_3;
     s32 temp_4;
@@ -455,8 +464,9 @@ s32 func_00110c50(s32 arg0, s32 arg1)
     }
     return ((var_5 & 0xFFFF) + ((var_2 & 0xFFFF) * 0x10)) & 0xFFFF;
 }
+// Intent: Return whether the day table has an entry for day arg0 [inferred]
 // FUN_00110D30
-s32 func_00110d30(s32 arg0)
+s32 calHasDayEntry(s32 arg0)
 {
     return D_005E3A00[arg0 * 6] != 0;
 }
@@ -477,15 +487,15 @@ s32 func_00110d60(s32 arg0)
     s32 var_2_2;
 
     var_16 = 0;
-    temp_18 = func_00110600(4, 1);
-    temp_2 = func_00110600(6, 0xC);
+    temp_18 = calDayOfYearFromMonthDay(4, 1);
+    temp_2 = calDayOfYearFromMonthDay(6, 0xC);
     if ((arg0 >= temp_18) && (arg0 <= temp_2)) {
         var_2 = 1;
     } else {
         var_2 = 0;
     }
     if (var_2 == 0) {
-        temp_2_2 = func_00110600(0xA, 0xA);
+        temp_2_2 = calDayOfYearFromMonthDay(0xA, 0xA);
         temp_2_3 = temp_2_2 + 0x16C;
         if ((arg0 >= temp_2_2) && (arg0 <= temp_2_3)) {
             var_2_2 = 1;

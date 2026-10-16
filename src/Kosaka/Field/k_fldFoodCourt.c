@@ -27,7 +27,7 @@ extern s32 fieldSceneLoadStep(void);
 extern s32 func_0015f660(void);
 extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
-extern s64 func_00110960(s64 arg0, s32 arg1);
+extern s64 calGetDayEntryByPhase(s64 arg0, s32 arg1);
 extern u8 *MT_Scene_GetCameraResSecond(void);
 extern u8 *MT_Scene_GetCameraResFirst(void);
 extern u8 *func_00457120(void);
@@ -86,7 +86,7 @@ s32 K_FldFoodCourt_Update(u8 *arg0) {
                 return 0;
             }
             temp_17 = (s16)datGetDateIndex();
-            if ((s8)func_00110960(temp_17, datGetTimeSlot() & 0xFF) == 1) {
+            if ((s8)calGetDayEntryByPhase(temp_17, datGetTimeSlot() & 0xFF) == 1) {
                 var_2 = (u8 *)MT_Scene_GetCameraResSecond();
                 var_6 = *(u8 **)(temp_16 + 4);
                 var_5 = 8;
