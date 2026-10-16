@@ -61,7 +61,7 @@ extern u8 *datPersonaGetRow(u16 arg0);
 extern u16 frFontSetFlagBits(s16 arg0);
 extern u16 frFontClearFlagBits(u16 arg0);
 
-extern u32 func_001d8bc0(void *arg0);
+extern u32 btlFormationCurrentEntry(void *arg0);
 extern void shdPersonaFinishPhase(u8 *arg0);
 extern s32 shdPersonaIsTransitioning(u8 *arg0);
 extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
@@ -3973,7 +3973,7 @@ void btlSelectionClearTargetMark(s32 task)
 u32 btlSelectionGetFormationEntry(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    return func_001d8bc0(*(u8 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x720));
+    return btlFormationCurrentEntry(*(u8 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x720));
 }
 
 // Intent: return the formation entry for the selection task's current target (duplicate of btlSelectionGetFormationEntry). [inferred]
@@ -3981,7 +3981,7 @@ u32 btlSelectionGetFormationEntry(s32 task)
 u32 btlSelectionGetFormationEntryAlt(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    return func_001d8bc0(*(u8 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x720));
+    return btlFormationCurrentEntry(*(u8 **)((u8 *)kwlnTaskGetWork((void *)task) + 0x720));
 }
 
 // Intent: clear the buff flag on every party unit and mark the selection task as ready. [inferred]
@@ -4035,7 +4035,7 @@ void btlSelectionUpdateTransition(u8 *arg0)
                 btlEffectSelectNeighbourTarget(*(u8 **)(arg0 + 8), *(u8 **)(arg0 + 0x10));
                 if (*(u8 *)(*(u8 **)(arg0 + 0x10) + 0x3C) & 1) {
                     if ((u16)func_0010f8c0(*(u16 *)(arg0 + 0x14)) == 0) {
-                        selected = (u8 *)func_001d8bc0(*(u8 **)(arg0 + 0x10));
+                        selected = (u8 *)btlFormationCurrentEntry(*(u8 **)(arg0 + 0x10));
                         btlPanelStartEntry(*(s32 *)(arg0 + 0x18), btlUnitGetDataRowAlt(*(u8 **)(selected + 0x30)));
                         btlPanelSetCountdown(*(s32 *)(arg0 + 0x18), -1);
                         btlPanelMarkEntryTimed(*(s32 *)(arg0 + 0x18));

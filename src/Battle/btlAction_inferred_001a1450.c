@@ -112,8 +112,8 @@ u32 func_001deeb0(void *arg0);
 void btlAICommandSetUnitAction();
 u32 btlAICommandTryReleaseProc();
 s32 datCalcDefaultSkillId(u8 *unit);
-u32 func_001d8bc0(void *arg0);
-void func_001d8be0(s32 formation, u64 *unit);
+u32 btlFormationCurrentEntry(void *arg0);
+void btlFormationEntrySetSelected(s32 formation, u64 *unit);
 
 extern u8 *iGpffffb3b8;
 void btlEffectSelectTargetByStatus(u8 *arg0, u8 *arg1);
@@ -736,7 +736,7 @@ select_action:
             selectedAddress = (s32)btlSelectionGetFormationEntry((s32)(*(u8**)(iGpffffb3ac + 0xDD4)));
             (*(u8**)(action + 0x38)) = (u8*)selectedAddress;
             (*(u16*)(action + 0x6A)) = 1U;
-            func_001d8be0((s32)(action + 0x98), (u64 *)(u32)selectedAddress);
+            btlFormationEntrySetSelected((s32)(action + 0x98), (u64 *)(u32)selectedAddress);
         } break;
         }
         actionKind = (*(u16*)(action + 0x6C));
@@ -1032,9 +1032,9 @@ void btlActionAutoUpdate(u8 *arg0)
     *(s16 *)(arg0 + 0x6C) = 1;
     *(s16 *)(arg0 + 0x6E) =
         datCalcDefaultSkillId(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
-    *(s32 *)(arg0 + 0x38) = func_001d8bc0(arg0 + 0x98);
+    *(s32 *)(arg0 + 0x38) = btlFormationCurrentEntry(arg0 + 0x98);
     *(s16 *)(arg0 + 0x6A) = 1;
-    func_001d8be0((s32)(arg0 + 0x98), *(u64 **)(arg0 + 0x38));
+    btlFormationEntrySetSelected((s32)(arg0 + 0x98), *(u64 **)(arg0 + 0x38));
     battleUnit = *(u8 **)(arg0 + 0x30);
     if ((battleUnit[0xA2] == 0) && (*(u16 *)(battleUnit + 0xA4) == 1)) {
         btlPacketEnqueue(actionTargetPacketBytes(arg0, 1, 0, 0, 0), 1);

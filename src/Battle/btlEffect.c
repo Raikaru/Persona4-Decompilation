@@ -182,10 +182,10 @@ u32 btlEffectFreeEntry(int param_1, u16 *entry)
 void func_001d6ee0(void** units);
 void btlPacketSetValue(u8* packet, s16 value);
 void func_001d72c0(void* packet, u32 value);
-u32 func_001d8bc0(void* formation);
+u32 btlFormationCurrentEntry(void* formation);
 s16 btlPacketGetValue(s32 param_1);
-void func_001d8be0(s32 param_1, u64* param_2);
-void func_001d8bf0(s32 param_1, s32 param_2);
+void btlFormationEntrySetSelected(s32 param_1, u64* param_2);
+void btlFormationEntryCopySelected(s32 param_1, s32 param_2);
 u32 btlCond_MORE(s32 param_1);
 extern void (*jtbl_008873EC[])(void* ptr);
 // FUN_001D6EE0
@@ -348,21 +348,21 @@ u8 *btlFormationDispatchPacketNew(u32 param_1, u32 param_2, u32 param_3)
 
 
 // FUN_001D8BC0
-u32 func_001d8bc0(void* formation)
+u32 btlFormationCurrentEntry(void* formation)
 {
     return *(u32*)((u8*)formation + (*(u16*)((u8*)formation + 0x3A) * 4));
 }
 
 
 // FUN_001D8BE0
-void func_001d8be0(s32 param_1, u64* param_2)
+void btlFormationEntrySetSelected(s32 param_1, u64* param_2)
 {
     *(u64*)(param_1 + 0x30) = *param_2;
 }
 
 
 // FUN_001D8BF0
-void func_001d8bf0(s32 param_1, s32 param_2)
+void btlFormationEntryCopySelected(s32 param_1, s32 param_2)
 {
     *(u64*)(param_1 + 0x30) = *(u64*)(param_2 + 0x30);
 }
@@ -545,8 +545,9 @@ s32 btlAICommandPickNormalCandidateGated(void) {
 }
 
 
+// Identical body to btlAICommandPickNormalCandidate (opcode 0x2C); this is a separate AI command, 0x208F, with its own table slot (opcode 0x2D).
 // FUN_001E7320
-s32 func_001e7320(void)
+s32 btlAICommandPickNormalCandidateAlt(void)
 {
     int count;
     u8 *work;

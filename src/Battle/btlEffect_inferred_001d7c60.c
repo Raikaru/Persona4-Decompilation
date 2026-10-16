@@ -239,7 +239,7 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 btlTargetAngleBetween(f32 *a0, f32 *a1, f32 *a2, f32 *a3);
     extern s32 btlEffectCollectGenusMask(u8 *a0);
-    extern u8 *func_001d8bc0(u8 *a0);
+    extern u8 *btlFormationCurrentEntry(u8 *a0);
     extern u16 D_008C027A[];
     extern u16 D_008C0276[];
     extern u8 D_00881430[];
@@ -362,7 +362,7 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
                 }
             } while (swapped != 0);
             {
-                u8 *curPtr = func_001d8bc0(arg1);
+                u8 *curPtr = btlFormationCurrentEntry(arg1);
                 for (i = 0; (i & 0xFFFF) < nn; i = (i + 1) & 0xFFFF) {
                     if (entries[(u16)i].unit == curPtr) {
                         break;
@@ -446,7 +446,7 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
                 }
             } while (swapped != 0);
             {
-                u8 *curPtr = func_001d8bc0(arg1);
+                u8 *curPtr = btlFormationCurrentEntry(arg1);
                 for (i = 0; (i & 0xFFFF) < nn; i = (i + 1) & 0xFFFF) {
                     if (entries[(u16)i].unit == curPtr) {
                         break;
@@ -527,7 +527,7 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
             } while (depth != 0);
         }
         {
-            u8 *curPtr = func_001d8bc0(arg1);
+            u8 *curPtr = btlFormationCurrentEntry(arg1);
             s32 nn = n & 0xFFFF;
             for (i = 0; (i & 0xFFFF) < nn; i = (i + 1) & 0xFFFF) {
                 if (entries[(u16)i].unit == curPtr) {
