@@ -32,7 +32,7 @@ extern void func_003e8110(s32 arg0);
 extern u8 D_007940C0[];
 extern u8 D_00794120[];
 
-extern s32 func_0029d020(void);
+extern s32 scrGetCmdTimer(void);
 extern u32 func_001fc270(void);
 
 typedef struct Battle Battle;
@@ -148,9 +148,9 @@ s32 btlUpdateDraw2DTask(u8 *task)
 
 
 // FUN_001935F0
-u32 btlCountIsPositive(void)
+u32 btlScriptHasCmdTimer(void)
 {
-    if (func_0029d020() > 0)
+    if (scrGetCmdTimer() > 0)
     {
         return func_001fc270() != 0;
     }
