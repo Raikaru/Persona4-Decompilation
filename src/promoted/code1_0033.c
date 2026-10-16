@@ -66,9 +66,9 @@ extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern s16 fclSubClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern s32 func_0046a750(s32 arg0, s32 arg1);
 extern s32 evtCreateEventTask(s32 arg0, s32 arg1, s32 arg2); /* lint: allow H011 -- caller stores the returned handle; the definition takes two arguments and ignores the third */
-extern s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_00293fc0(s32 arg0);
-extern s32 func_002940a0(s32 arg0, s32 *arg1, s32 *arg2,
+extern s32 evtPMFileReaderCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 evtPMFileReaderIsDone(s32 arg0);
+extern s32 evtPMFileReaderGetFirstEntry(s32 arg0, s32 *arg1, s32 *arg2,
                          s16 *arg3, s32 *arg4);
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern void fieldSceneRequestRoom(s32 arg0);
@@ -587,14 +587,14 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
      state = *(s8 *)work;
      switch (state) {
      case 0:
-         *(s32 *)(work + 4) = func_00293ed0(
+         *(s32 *)(work + 4) = evtPMFileReaderCreate(
              0x5A, *(s8 *)(work + 0x10) + 1, 0, 0);
          *(s8 *)work = *(s8 *)work + 1;
      default:
          goto out;
      case 1:
-         if ((func_00293fc0(*(s32 *)(work + 4)) != 0) &&
-             (func_002940a0(*(s32 *)(work + 4), &locals.sp3c,
+         if ((evtPMFileReaderIsDone(*(s32 *)(work + 4)) != 0) &&
+             (evtPMFileReaderGetFirstEntry(*(s32 *)(work + 4), &locals.sp3c,
                             &locals.sp38, &locals.sp34, &locals.sp30) == 1)) {
              fieldSceneLoad(locals.sp3c, locals.sp38);
              fieldSceneRequestRoom(locals.sp34);

@@ -39,8 +39,9 @@ extern s128 D_0063C790;
    moved the allocation. measured: pragma on nd ~110 -> 0. */
 #pragma opt_loop_invariants on
 
+// Intent: Blends two pose sets by fparg0 (the 8 fields and the 4-vector, angles wrapped); copies arg3 when arg2 is NULL [inferred]
 // FUN_0028F990
-void func_0028f990(s32 arg0, f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3)
+void evtPolygonMovieLerpPose(s32 arg0, f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3)
 {
     f32 sp90[4];
     f32 sp80[4];
@@ -105,8 +106,9 @@ void func_0028f990(s32 arg0, f32 fparg0, f32 *arg1, f32 *arg2, f32 *arg3)
 }
 #pragma opt_loop_invariants off
 
+// Intent: Allocates the 0x114-byte movie work block, accounts its memory and returns it zeroed [inferred]
 // FUN_0028FB90
-u8 *func_0028fb90(void)
+u8 *evtPolygonMovieAlloc(void)
 {
     u8 *work;
 
@@ -128,12 +130,13 @@ u8 *func_0028fb90(void)
    bytes. Direct parameters with lifetime analysis preserve the retail entry
    moves; propagation-off and loop-invariant analysis preserve the traversals.
    See docs/probe_archive/evtPolygonMovie_0028fc40_167e607.md. */
+// Intent: Binds the primary, secondary and overlay resource sections into the work block; opens the message window when one is bound [inferred]
 // FUN_0028FC40
 #pragma push
 #pragma opt_propagation off
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
-u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary, u8 *overlay)
+u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary, u8 *overlay)
 {
     s32 recordIndex;
     u8 *entry;
@@ -380,8 +383,9 @@ u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary, u8 *
     return work;
 }
 #pragma pop
+// Intent: Frees the movie: closes its message window when active, then releases the block (accounts -0x114) [inferred]
 // FUN_00290470
-void func_00290470(s32 *arg0, u32 *arg1)
+void evtPolygonMovieFree(s32 *arg0, u32 *arg1)
 {
     if (arg0 != NULL) {
         if (evtMessageWindowIsOpen(arg1) == 1) {
@@ -392,8 +396,9 @@ void func_00290470(s32 *arg0, u32 *arg1)
     }
 }
 
+// Intent: Allocates a 0x20-byte copy of the static table at D_0063C700 into *arg0 (memory account 4) [inferred]
 // FUN_002904F0
-s32 *func_002904f0(s32 **arg0)
+s32 *evtPolygonMovieAllocTableA(s32 **arg0)
 {
     s2x128 sp30;
     s32 *temp;
@@ -407,8 +412,9 @@ s32 *func_002904f0(s32 **arg0)
     return temp;
 }
 
+// Intent: Allocates a 0x54-byte copy of the static table at D_0063C720 into *arg0 (memory account 5) [inferred]
 // FUN_002905A0
-s32 *func_002905a0(s32 **arg0)
+s32 *evtPolygonMovieAllocTableB(s32 **arg0)
 {
     u8 sp30[0x54];
     s128 *src;
@@ -437,8 +443,9 @@ s32 *func_002905a0(s32 **arg0)
     return temp;
 }
 
+// Intent: Allocates a 0x20-byte copy of the static table at D_0063C780 into *arg0 (memory account 6) [inferred]
 // FUN_00290660
-s32 *func_00290660(s32 **arg0)
+s32 *evtPolygonMovieAllocTableC(s32 **arg0)
 {
     s2x128 sp30;
     s32 *temp;
@@ -452,8 +459,9 @@ s32 *func_00290660(s32 **arg0)
     return temp;
 }
 
+// Intent: Formats the four name strings for a frame number (rounded down to tens) with the four D_0063C7A0..7C0 formats [inferred]
 // FUN_00290710
-void func_00290710(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5)
+void evtPolygonMovieFormatNames(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5)
 {
     s32 temp;
 

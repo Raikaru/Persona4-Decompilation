@@ -34,12 +34,12 @@ typedef struct {
 
 
 
-extern u8 *func_0028fc40(u8 *messageContext, u8 *work, u8 *primary,
+extern u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary,
                          u8 *secondary, u8 *overlay);
 extern char D_0063C340[];
 extern char D_0063C380[];
 extern char D_0063C350[];
-extern void func_0028f990(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
+extern void evtPolygonMovieLerpPose(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
                           f32 *arg4);
 typedef signed __int128 s128;
 extern void *(*D_008873F4[])(size_t, size_t, u32);

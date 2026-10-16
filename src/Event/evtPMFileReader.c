@@ -8,13 +8,13 @@ extern u32 kwlnTaskGetWork(void *task);
 extern u8 D_0063C970[];
 extern u8 D_0063C990[];
 extern char iGpffffa7c0;
-extern void func_00290710(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5);
+extern void evtPolygonMovieFormatNames(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5);
 extern u8 *H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern s32 H_Cdvd_LookupRequest(u8 *arg0, s32 *arg1);
-extern s32 *func_002904f0(s32 **arg0);
-extern s32 *func_002905a0(s32 **arg0);
-extern s32 *func_00290660(s32 **arg0);
+extern s32 *evtPolygonMovieAllocTableA(s32 **arg0);
+extern s32 *evtPolygonMovieAllocTableB(s32 **arg0);
+extern s32 *evtPolygonMovieAllocTableC(s32 **arg0);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void evtMemAccount(s32 arg0, s32 arg1);
 extern void memset(void *dest, s32 value, s32 size);
@@ -22,8 +22,8 @@ extern void memset(void *dest, s32 value, s32 size);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];
 extern u8 D_0063CAA0[];
-extern s32 func_002938c0(u8 *task);
-extern void func_00293d30(u8 *task);
+extern s32 evtPMFileReaderTaskUpdate(u8 *task);
+extern void evtPMFileReaderTaskDestroy(u8 *task);
 extern void datSetFlag(s32 a, s32 b);
 extern void H_Cdvd_Destroy(s32 a);
 extern void func_00440b68(char *fmt, ...);
@@ -48,10 +48,11 @@ extern u8 D_0063CA70[];
    `*(s32 *)(ctx + 4) == 1` tests as boolean values rather than branches,
    restoring the empty `case 7` the second dispatch needs for its eight-
    entry jump table, writing the cases in ascending order, taking the
-   format buffer through its small-data name, and giving func_00290710
+   format buffer through its small-data name, and giving evtPolygonMovieFormatNames
    the pointer parameters its own body already requires. */
+// Intent: Reader task update: loads the movie's CD files (sections 0x0C..0x38) in stages and advances the reader state machine to done (state 7) [inferred]
 // FUN_002938C0
-s32 func_002938c0(u8 *task) {
+s32 evtPMFileReaderTaskUpdate(u8 *task) {
     s32 sp12C;
     u8 spE0[64];
     u8 spA0[64];
@@ -66,7 +67,7 @@ s32 func_002938c0(u8 *task) {
     s32 ready;
 
     temp_2 = (u8 *)kwlnTaskGetWork(task);
-    func_00290710(*(s32 *)(temp_2 + 0x0C), *(s32 *)(temp_2 + 0x10), spE0, spA0, sp60, sp20);
+    evtPolygonMovieFormatNames(*(s32 *)(temp_2 + 0x0C), *(s32 *)(temp_2 + 0x10), spE0, spA0, sp60, sp20);
     if (*(s32 *)(temp_2 + 8) != 0) {
         temp_3 = *(u8 **)temp_2;
         switch ((s32)temp_3) {
@@ -86,19 +87,19 @@ s32 func_002938c0(u8 *task) {
                 temp_2_2 = H_Cdvd_LookupRequest(spE0, &sp12C);
                 *(s32 *)(temp_2 + 0x34) = temp_2_2;
                 if (temp_2_2 == 0) {
-                    *(s32 *)(temp_2 + 0x28) = (s32)func_002904f0((s32 **)(temp_2 + 0x34));
+                    *(s32 *)(temp_2 + 0x28) = (s32)evtPolygonMovieAllocTableA((s32 **)(temp_2 + 0x34));
                 }
                 evtMemAccount(4, sp12C);
                 temp_2_3 = H_Cdvd_LookupRequest(spA0, &sp12C);
                 *(s32 *)(temp_2 + 0x38) = temp_2_3;
                 if (temp_2_3 == 0) {
-                    *(s32 *)(temp_2 + 0x2C) = (s32)func_002905a0((s32 **)(temp_2 + 0x38));
+                    *(s32 *)(temp_2 + 0x2C) = (s32)evtPolygonMovieAllocTableB((s32 **)(temp_2 + 0x38));
                 }
                 evtMemAccount(5, sp12C);
                 temp_2_4 = H_Cdvd_LookupRequest(sp60, &sp12C);
                 *(s32 *)(temp_2 + 0x3C) = temp_2_4;
                 if (temp_2_4 == 0) {
-                    *(s32 *)(temp_2 + 0x30) = (s32)func_00290660((s32 **)(temp_2 + 0x3C));
+                    *(s32 *)(temp_2 + 0x30) = (s32)evtPolygonMovieAllocTableC((s32 **)(temp_2 + 0x3C));
                 }
                 evtMemAccount(6, sp12C);
                 *(u8 **)temp_2 = (u8 *)7;
@@ -126,7 +127,7 @@ s32 func_002938c0(u8 *task) {
         case 2:
             ready = (*(s32 *)(temp_2 + 4) == 1);
             if (ready != 0) {
-                *(s32 *)(temp_2 + 0x2C) = (s32)func_002905a0((s32 **)(temp_2 + 0x38));
+                *(s32 *)(temp_2 + 0x2C) = (s32)evtPolygonMovieAllocTableB((s32 **)(temp_2 + 0x38));
                 if (*(s32 *)(temp_2 + 0x38) == 0) {
                     kAssertFail(D_0063C970, 0x88);
                 }
@@ -148,7 +149,7 @@ s32 func_002938c0(u8 *task) {
         case 4:
             ready = (*(s32 *)(temp_2 + 4) == 1);
             if (ready != 0) {
-                *(s32 *)(temp_2 + 0x30) = (s32)func_00290660((s32 **)(temp_2 + 0x3C));
+                *(s32 *)(temp_2 + 0x30) = (s32)evtPolygonMovieAllocTableC((s32 **)(temp_2 + 0x3C));
                 if (*(s32 *)(temp_2 + 0x3C) == 0) {
                     kAssertFail(D_0063C970, 0xA4);
                 }
@@ -183,8 +184,9 @@ s32 func_002938c0(u8 *task) {
     return 0;
 }
 
+// Intent: Reader task destroy: destroys the CD requests and flags, frees the reader's sections and releases the work block [inferred]
 // FUN_00293D30
-void func_00293d30(u8 *task) {
+void evtPMFileReaderTaskDestroy(u8 *task) {
     s32 *p;
     u16 h18;
 
@@ -230,8 +232,9 @@ void func_00293d30(u8 *task) {
     evtMemAccount(1, -0x40);
 }
 
+// Intent: Creates the reader task for the four given arguments and returns its handle [inferred]
 // FUN_00293ED0
-s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 evtPMFileReaderCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *temp_20;
 
     chkmemAllocSiteTag(D_00748340, 0x52);
@@ -243,11 +246,12 @@ s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     temp_20[0x14 / 4] = arg2;
     temp_20[0x4 / 4] = arg3;
     temp_20[0x8 / 4] = 0;
-    return (s32)kwlnTaskCreate((const void *)(D_0063CAA0), 0xF, 1, 1, func_002938c0, func_00293d30, (u8 *)(temp_20));
+    return (s32)kwlnTaskCreate((const void *)(D_0063CAA0), 0xF, 1, 1, evtPMFileReaderTaskUpdate, evtPMFileReaderTaskDestroy, (u8 *)(temp_20));
 }
 
+// Intent: Returns 1 when the reader task has finished loading (state 7) [inferred]
 // FUN_00293FC0
-s32 func_00293fc0(s32 arg0) {
+s32 evtPMFileReaderIsDone(s32 arg0) {
     if (kwlnTaskIsLinked(arg0) == 0) {
         kAssertFail(D_0063C970, 0x123);
     }
@@ -257,16 +261,18 @@ s32 func_00293fc0(s32 arg0) {
     return 0;
 }
 
+// Intent: Returns the reader task's work block; asserts the task is linked [inferred]
 // FUN_00294040
-u8 *func_00294040(s32 arg0) {
+u8 *evtPMFileReaderGetWork(s32 arg0) {
     if (kwlnTaskIsLinked(arg0) == 0) {
         kAssertFail(D_0063C970, 0x131);
     }
     return (u8 *)kwlnTaskGetWork((void *)arg0);
 }
 
+// Intent: Returns the first kind-0 record of the reader's table through the output pointers, or 0 when none is found or the reader is not done [inferred]
 // FUN_002940A0
-s32 func_002940a0(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
+s32 evtPMFileReaderGetFirstEntry(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     u8 sp70[0x114];
     u8 *base = sp70;
     s32 *temp_2;

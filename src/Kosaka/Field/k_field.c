@@ -81,8 +81,8 @@ extern u16 *D_007EFA04[];
 extern s32 datGetFlag(s32);
 extern void loadingSpinnerRequestShow(void);
 extern void loadingSpinnerRequestHide(void);
-extern s32 func_00293fc0(s32);
-extern s32 func_002940a0(s32, s32 *, s32 *, s32 *, s32 *);
+extern s32 evtPMFileReaderIsDone(s32);
+extern s32 evtPMFileReaderGetFirstEntry(s32, s32 *, s32 *, s32 *, s32 *);
 extern void kAssertFail(const void *, s32);
 extern void FldResource_OpenPrimaryFile(u16, u16);
 extern void FldPartyModelRelease(s32);
@@ -162,8 +162,8 @@ s32 FldRootUpdate(u8 *task)
     }
     switch (work->state) {
     case 0:
-        if (func_00293fc0(work->eventReader) != 0) {
-            if (func_002940a0(work->eventReader, &field, &room, &spawn, &direction) == 1) {
+        if (evtPMFileReaderIsDone(work->eventReader) != 0) {
+            if (evtPMFileReaderGetFirstEntry(work->eventReader, &field, &room, &spawn, &direction) == 1) {
                 if (field == 0) {
                     kAssertFail(D_005EFF10, 0xD6);
                 }
@@ -435,7 +435,7 @@ extern void chkmemAllocSiteTag(const void *msg, s32 id);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void resrcMngSetRenderSuppressed(s32 arg0);
-extern s32 func_00293ed0(s32 a, s32 b, s32 c, s32 d);
+extern s32 evtPMFileReaderCreate(s32 a, s32 b, s32 c, s32 d);
 extern void func_0029ddb0(s32 arg0);
 extern void FldResource_OpenPrimaryFile(u16 arg0, u16 arg1);
 extern u8 D_007D255A[];
@@ -488,7 +488,7 @@ s32 FldRootCreate(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
     D_007D2510[0] = handle;
     resrcMngSetRenderSuppressed(0);
     if (*(s32 *)&arg10 > 0) {
-        *(s32 *)(work + 0x3C) = func_00293ed0(*(s32 *)&arg10, *(s32 *)&arg11, *(s32 *)&arg12, *(s32 *)&arg13);
+        *(s32 *)(work + 0x3C) = evtPMFileReaderCreate(*(s32 *)&arg10, *(s32 *)&arg11, *(s32 *)&arg12, *(s32 *)&arg13);
         *(s32 *)(work + 0) = 0;
         *(s32 *)(work + 0xC) = *(s32 *)&arg10;
         *(s32 *)(work + 0x10) = *(s32 *)&arg11;

@@ -39,8 +39,8 @@ void K_View_SetFov(void *arg0, f32 arg1);
 void mtMiscDestroyIconResources(void);
 static void evtNodeUnlink(int param_1, int param_2);
 void evtCreateTintTask(s32 arg0, s32 *arg1, s32 arg2);
-s32 func_0028d390();
-s32 func_0028dc30(s32 parent, s32 type, u8 *parameters);
+s32 evtCreateBlurFilterTask();
+s32 evtCreateBlurFilterTaskSet(s32 parent, s32 type, u8 *parameters);
 u32 MT_Scene_SetResColorParamById(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
 void func_004b13d0(u8 *arg0, f32 arg1);
 extern u8 D_0063C558[];
@@ -707,7 +707,7 @@ void evtUpdateCutin(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             var_6_2 = 0;
         }
         if ((var_3_2 != 0) || (var_6_2 != 0)) {
-            func_0028f990(var_4, var_f12, (f32 *)var_3_2, (f32 *)var_6_2, D_008821B0);
+            evtPolygonMovieLerpPose(var_4, var_f12, (f32 *)var_3_2, (f32 *)var_6_2, D_008821B0);
             var_19 = NULL;
             var_16 = 0;
             temp_4_2 = *(s8 *)(arg0 + 0x1E);
@@ -2000,22 +2000,22 @@ s32 evtCmdTaskSlot(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 }
                 break;
             case 1:
-                result = func_0028d390(t, 1, arg4);
+                result = evtCreateBlurFilterTask(t, 1, arg4);
                 break;
             case 2:
-                result = func_0028d390(t, 2, arg4);
+                result = evtCreateBlurFilterTask(t, 2, arg4);
                 break;
             case 3:
-                result = func_0028dc30(t, 1, arg4);
+                result = evtCreateBlurFilterTaskSet(t, 1, arg4);
                 break;
             case 4:
-                result = func_0028dc30(t, 2, arg4);
+                result = evtCreateBlurFilterTaskSet(t, 2, arg4);
                 break;
             case 5:
-                result = func_0028dc30(t, 3, arg4);
+                result = evtCreateBlurFilterTaskSet(t, 3, arg4);
                 break;
             case 6:
-                result = func_0028dc30(t, 5, arg4);
+                result = evtCreateBlurFilterTaskSet(t, 5, arg4);
                 break;
             }
             *(s32 *)slot = result;
@@ -2656,7 +2656,7 @@ loop_27_test:
     }
     temp_4_5 = (s32)(*(s32 *)(arg0 + 4));
     if (temp_4_5 != 0) {
-        func_00290470((s32 *)temp_4_5, (u32 *)(arg0 + 0x678));
+        evtPolygonMovieFree((s32 *)temp_4_5, (u32 *)(arg0 + 0x678));
         *(s32 *)(arg0 + 4) = 0;
     }
 }

@@ -356,13 +356,13 @@ s32 mtMiscBuildScene(u8 *arg0, u8 *arg1)
   extern void mtMiscBuildSceneNodes(u8 *arg0);
   extern void mtMiscCollectType1Records(u8 *arg0);
   extern void mtMiscCollectType2Records(u8 *arg0);
-  extern void func_00294a90(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3);
-  extern void func_002954f0(u8 *arg0, u8 *arg1);
-  extern void func_00294be0(u8 *arg0, u8 *arg1);
-  extern void func_002951c0(u8 *arg0, u8 *arg1);
-  extern void func_00295910(u8 *arg0, u8 *arg1);
-  extern void func_00295b80(u8 *arg0, u8 *arg1);
-  extern void func_00295db0(u8 *arg0, u8 *arg1);
+  extern void evtNodeLoadRecordsByCount(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3);
+  extern void evtNodeLoadRecords2F(u8 *arg0, u8 *arg1);
+  extern void evtNodeLoadCameraRecords(u8 *arg0, u8 *arg1);
+  extern void evtNodeLoadRecords24(u8 *arg0, u8 *arg1);
+  extern void evtNodeLoadRecords30(u8 *arg0, u8 *arg1);
+  extern void evtNodeLoadRecords34(u8 *arg0, u8 *arg1);
+  extern void evtNodeLoadRecords0A(u8 *arg0, u8 *arg1);
   extern void mtMiscCollectType4Records(u8 *arg0, u8 *arg1);
   extern void mtMiscCollectType5Records(u8 *arg0, u8 *arg1);
   extern void mtMiscCollectType19Records(u8 *arg0, u8 *arg1);
@@ -433,13 +433,13 @@ do_copy:
   node = *((u8 **)(arg1 + 0x4C));
   goto ll_test;
 ll_body:
-  func_00294a90(arg0, arg1, node, *((u16 *)(node + 0xC)));
+  evtNodeLoadRecordsByCount(arg0, arg1, node, *((u16 *)(node + 0xC)));
   node = *((u8 **)(node + 0x90));
 ll_test:
   if (node != NULL) {
     goto ll_body;
   }
-  func_002954f0(arg0, arg1);
+  evtNodeLoadRecords2F(arg0, arg1);
   {
     u8 *resource_31;
     s32 index_31;
@@ -503,7 +503,7 @@ ll_test:
       goto loop31_body;
     }
   }
-  func_00294be0(arg0, arg1);
+  evtNodeLoadCameraRecords(arg0, arg1);
   temp_18 = evtNodeAlloc(0x22, arg1);
   *((s32 *)(temp_18 + 8)) = -1;
   *((s32 *)(temp_18 + 0x34)) = 0;
@@ -547,7 +547,7 @@ loop22_test:
   {
     goto loop22_body;
   }
-  func_002951c0(arg0, arg1);
+  evtNodeLoadRecords24(arg0, arg1);
   if (*((s32 *)(*((u8 **)(arg1 + 0x5D0)) + 4)) > 0) {
     {
       u8 *resource_25;
@@ -667,7 +667,7 @@ loop22_test:
       goto loop26_body;
     }
   }
-  func_00295910(arg0, arg1);
+  evtNodeLoadRecords30(arg0, arg1);
   {
     u8 *resource_32;
     s32 index_32;
@@ -776,7 +776,7 @@ loop22_test:
       goto loop33_body;
     }
   }
-  func_00295b80(arg0, arg1);
+  evtNodeLoadRecords34(arg0, arg1);
   {
     u8 *resource_35;
     s32 index_35;
@@ -1029,7 +1029,7 @@ loop22_test:
       goto loop39_body;
     }
   }
-  func_00295db0(arg0, arg1);
+  evtNodeLoadRecords0A(arg0, arg1);
   mtMiscCollectType4Records(arg0, arg1);
   mtMiscCollectType5Records(arg0, arg1);
   {

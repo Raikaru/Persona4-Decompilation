@@ -17,9 +17,9 @@ extern s32 fclCombineEventSceneUpdate(u8 *arg0);
 extern s32 evtGetEventFrame(void);
 extern void datSetFlag(s32 a, s32 b);
 extern u16 D_008C024E[];
-extern s32 func_00293ed0(s32 a, s32 b, s32 c, s32 d);
-extern s32 func_00293fc0(s32 arg0);
-extern s32 func_002940a0(s32 arg0, s32 *a, s32 *b, s32 *c, s32 *d);
+extern s32 evtPMFileReaderCreate(s32 a, s32 b, s32 c, s32 d);
+extern s32 evtPMFileReaderIsDone(s32 arg0);
+extern s32 evtPMFileReaderGetFirstEntry(s32 arg0, s32 *a, s32 *b, s32 *c, s32 *d);
 extern void fieldSceneLoad(s32 a, s32 b);
 extern void fieldSceneRequestRoom(s32 a);
 extern void fieldSceneRequestSecondaryRoom(s32 a);
@@ -105,11 +105,11 @@ s32 fclCombineEventSceneUpdate(u8 *arg0)
     temp_4 = (s8)temp_16[0];
     switch (temp_4) {
     case 0:
-        *(s32 *)(temp_16 + 0x10) = func_00293ed0(*(s32 *)(temp_16 + 4), *(s32 *)(temp_16 + 8), 0, 0);
+        *(s32 *)(temp_16 + 0x10) = evtPMFileReaderCreate(*(s32 *)(temp_16 + 4), *(s32 *)(temp_16 + 8), 0, 0);
         temp_16[0] = (s8)((s8)temp_16[0] + 1);
         /* fallthrough */
     case 1:
-        if ((func_00293fc0(*(s32 *)(temp_16 + 0x10)) != 0) && (func_002940a0(*(s32 *)(temp_16 + 0x10), &sp2C, &sp28, &sp24, &sp20) == 1)) {
+        if ((evtPMFileReaderIsDone(*(s32 *)(temp_16 + 0x10)) != 0) && (evtPMFileReaderGetFirstEntry(*(s32 *)(temp_16 + 0x10), &sp2C, &sp28, &sp24, &sp20) == 1)) {
             if (*(s32 *)(temp_16 + 8) == 0xA) {
                 fieldSceneLoad(sp2C, sp28);
             }
