@@ -75,8 +75,8 @@ s32 func_0016ffd0(s32);
 s32 func_0016fd00(s32);
 void FldFrame_SetStateFlags(s32, s32);
 void FldFrame_ClearStateFlags(s32, s32);
-void func_0017d100(u8 *);
-void func_0017d0f0(s32, s32);
+void FldPlayerIconUpdatePos(u8 *);
+void FldPlayerIconSetActive(s32, s32);
 s32 FldEvent_StepMoveToward(u8 *);
 s32 func_0018bea0();
 void func_0018bc20(s32);
@@ -1593,11 +1593,11 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
     if (*(s32 *)(h + 0x14) == 1) {
         (u8 *)mdlGetMatrix((void *)(D_007EFA00[0]));
         if (D_007EFB64[0] != 0) {
-            func_0017d100((u8 *)D_007EFB64[0]);
-            func_0017d0f0(D_007EFB64[0], 1);
+            FldPlayerIconUpdatePos((u8 *)D_007EFB64[0]);
+            FldPlayerIconSetActive(D_007EFB64[0], 1);
         }
     } else if (D_007EFB64[0] != 0) {
-        func_0017d0f0(D_007EFB64[0], 0);
+        FldPlayerIconSetActive(D_007EFB64[0], 0);
     }
     return 0;
 }

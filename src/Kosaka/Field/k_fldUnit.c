@@ -72,7 +72,7 @@ extern s32 datUnitGroupIsDefeated(s32 arg0);
 extern s32 func_0016fd00(s32 arg0);
 extern s32 FldAI_SpawnChaser(s32 arg0, u8 *arg1, u8 *arg2);
 extern void FldAI_ChaserEnable(s32 arg0);
-extern s32 func_0017d070(u8 *arg0);
+extern s32 FldPlayerIconTaskCreate(u8 *arg0);
 extern void FldFrameTask_UpdateTile(s32 arg0);
 extern f32 RwV3dLength(f32 *arg0);
 extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
@@ -1048,7 +1048,7 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
             *(s32 *)(unit + 0x44) = 0;
             *(s32 *)(unit + 0x1C0) = datPersonaGetLevelByPcId(1) & 0xFF;
             *(s32 *)(unit + 0x1C4) = datCalcGetLevelById(1) & 0xFF;
-            *(u8 **)(unit + 0x1B4) = (u8 *)func_0017d070(NULL);
+            *(u8 **)(unit + 0x1B4) = (u8 *)FldPlayerIconTaskCreate(NULL);
             *(u16 *)(unit + 0x58) = entryId;
         }
     }
@@ -1102,7 +1102,7 @@ void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
                     *(s32 *)(unit + 0x1C0) = datPersonaGetLevelByPcId(pcId) & 0xFF;
                     if (modelId == 1) {
                         *(s32 *)(unit + 0x1C4) = datCalcGetLevelById((s16)pcId) & 0xFF;
-                        *(u8 **)(unit + 0x1B4) = (u8 *)func_0017d070(NULL);
+                        *(u8 **)(unit + 0x1B4) = (u8 *)FldPlayerIconTaskCreate(NULL);
                     } else {
                         func_00440b68((const char *)D_00763008, D_005F1500, 0x1DD);
                         *(u8 **)(unit + 0x730) =
@@ -1510,7 +1510,7 @@ void FldUnit_UpdateSlot(s32 arg0)
             FldAI_ChaserEnable(temp_2_2);
         }
         if (arg0 == 0) {
-            *(s32 *)(D_007EFB64 + temp_17) = func_0017d070(0);
+            *(s32 *)(D_007EFB64 + temp_17) = FldPlayerIconTaskCreate(0);
         }
     }
 }
