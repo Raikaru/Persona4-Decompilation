@@ -135,12 +135,6 @@ typedef struct Code48InitialState {
 #pragma push
 #pragma opt_propagation off
 #pragma pop
-// FUN_00485AE0
-void func_00485ae0(s32 arg0)
-{
-    func_00485630((u8 *)arg0);
-    func_00485870((u8 *)arg0);
-}
 extern void func_00486330(u8 *arg0, u8 *arg1);
 extern void func_004865c0(u8 *arg0, s32 arg1);
 #pragma opt_propagation off
@@ -171,18 +165,6 @@ static inline void model_normalize_packed_color(const u32 *source, f32 scale)
     #pragma optimization_level 2
 #pragma optimization_level 1
 #pragma optimization_level 2
-// FUN_00489E80
-void func_00489e80(u8 *arg0)
-{
-    u8 *temp_4;
-
-    temp_4 = *(u8 **)(arg0 + 0x4C);
-    if (temp_4 != 0) {
-        func_00492d10(temp_4);
-        ParticleUpdateScaled(arg0, 1.0f);
-    }
-    ParticleProjectVertices(arg0, 1.0f);
-}
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off
