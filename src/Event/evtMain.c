@@ -173,6 +173,7 @@ u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
         temp_17->payload.kind03.unk08 = 0;
         break;
     }
+    /* Raw: the byte store at +0x10 aliases the halfword stored just before it. */
     case 0x12: {
         s32 temp_neg = -1;
         *(u16 *)((u8 *)temp_17 + 0x10) = 0;
@@ -230,6 +231,7 @@ u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
         temp_17->payload.kind06.unk02 = temp_neg;
         break;
     }
+    /* Raw: copies the sp60 scratch block field by field; its offsets are not a struct. */
     case 0x18:
         memset(sp60, 0, 0x20);
         *(u8 *)((u8 *)temp_17 + 0x10) = *(s32 *)(sp60 + 0x14);
