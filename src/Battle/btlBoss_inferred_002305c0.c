@@ -14,7 +14,7 @@ extern void H_Cdvd_Destroy(u8 *ptr);
 extern void func_0045ac90(s32 arg0, s32 arg1, s32 arg2);
 extern s32 btlBossLoadEndBgmStep(u8 *work);
 
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 extern s64 func_001060b0(void);
 extern s32 datGetFlag(s32 arg0);
 extern s32 func_00106cd0(s32 arg0, s32 arg1);
@@ -132,7 +132,7 @@ BtlPacket *func_00230750(void)
 // FUN_00230790
 s32 func_00230790(void)
 {
-    switch (func_001ef9a0()) {
+    switch (btlCurrentUnitId()) {
     case 0x200:
         return 0x100;
     case 0x201:

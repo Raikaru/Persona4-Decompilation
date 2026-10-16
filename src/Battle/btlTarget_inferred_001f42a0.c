@@ -50,7 +50,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
 
-extern s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2);
+extern s32 btlSideAverageBattleStat(s32 arg0, s32 arg1, s32 arg2);
 
 extern u32 datCalcRandomBelow();
 extern u8 D_0060AB08[];
@@ -67,7 +67,7 @@ extern u16 D_00624FC0[];
 extern u16 D_00624FD8[];
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 
 
 
@@ -135,7 +135,7 @@ s32 func_001f42a0(s32 arg0) {
 // FUN_001F42D0
 s32 func_001f42d0(void) {
     if ((*(s32 *)(iGpffffb3ac + 0x10) & 0x20000000) != 0) {
-        if (func_001ef9a0() == 0x20B) {
+        if (btlCurrentUnitId() == 0x20B) {
             return 0x18B;
         }
     }
@@ -551,7 +551,7 @@ s32 func_001f4ce0(u8 *arg0)
         return -1;
     }
     if ((*(s32 *)(iGpffffb3ac + 0x10) & 0x20000000) != 0) {
-        if (func_001ef9a0() != 0x20B) {
+        if (btlCurrentUnitId() != 0x20B) {
             goto high_default_4ce0;
         }
         temp_2 = *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
@@ -1067,10 +1067,10 @@ void func_001f5bd0(s32 arg0)
         goto done;
     }
 body:
-    group1.stat3 = (f32)(u32)func_001ef5f0(1, 3, 0x80000);
-    group2.stat3 = (f32)(u32)func_001ef5f0(2, 3, 0x80000);
-    group1.stat4 = (f32)(u32)func_001ef5f0(1, 4, 0x80000);
-    group2.stat4 = (f32)(u32)func_001ef5f0(2, 4, 0x80000);
+    group1.stat3 = (f32)(u32)btlSideAverageBattleStat(1, 3, 0x80000);
+    group2.stat3 = (f32)(u32)btlSideAverageBattleStat(2, 3, 0x80000);
+    group1.stat4 = (f32)(u32)btlSideAverageBattleStat(1, 4, 0x80000);
+    group2.stat4 = (f32)(u32)btlSideAverageBattleStat(2, 4, 0x80000);
 
     random_value = datCalcRandomBelow(0xF) + 5;
     random_ratio = (f32)random_value;

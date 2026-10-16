@@ -26,7 +26,7 @@ u32 btlBossLoadPakInit(void* work);
 u32 btlBossLoadPakUpdate(void* work);
 extern s32 btlActionHasNoTargetClass();
 extern s32 btlActionSkillReachesTargets();
-extern s32 func_001ef9a0();
+extern s32 btlCurrentUnitId();
 extern s32 func_001b1540();
 extern void func_001b0fa0(s32 arg0);
 extern void func_001b11c0(s32 arg0);
@@ -159,7 +159,7 @@ void btlBossCollectTargets(u8 *arg0)
     if ((temp_4 & 0x200000) != 0)
     {
         temp_16 = (s32 *)(iGpffffb414 +
-                          (func_001ef9a0(temp_4) * 0x18));
+                          (btlCurrentUnitId(temp_4) * 0x18));
         memset(DAT_0076449c + 0x29C, 0, 0x30);
         temp_3 = DAT_0076449c;
         var_18 = (u8 **)(temp_3 + 0x29C);
@@ -338,7 +338,7 @@ s32 btlBossIsAllowedAction(void)
 
     if ((*(s32 *)(DAT_0076449c + 0xc) & 0x200000) == 0)
         return 0;
-    temp_2 = func_001ef9a0();
+    temp_2 = btlCurrentUnitId();
     switch (temp_2)
     {
     case 0x200:
@@ -412,7 +412,7 @@ u32 btlBossLoadPakInit(void* work)
 {
     u8 buf[0x80];
 
-    sprintf(buf, D_00635620, func_001ef9a0());
+    sprintf(buf, D_00635620, btlCurrentUnitId());
     func_00440b68(&iGpffffa5e8, D_00635638, 0x997);
     *(u32*)(DAT_0076449c + 0xB90) = (u32)func_00454a60(buf, 1);
 }

@@ -25,7 +25,7 @@ typedef struct DatUnit DatUnit;
 typedef struct BtlAction BtlAction;
 extern void (*D_00887300[])();
 extern void func_00213b80(u8 *arg0);
-extern s32 func_001ef7e0(u8 *arg0);
+extern s32 btlEncountRollChance(u8 *arg0);
 extern s32 btlShuffleSelectMember(u8 *arg0, s16 arg1, s32 arg2);
 extern s32 datCalcGetBadStatus(s32 arg0);
 extern void btlEncounterStart(u8 *arg0);
@@ -98,7 +98,7 @@ extern u32 btlCountUnitRecords(void);
 extern BtlPacket *btlTargetCreateTargetPacket(u32 arg0, u16 arg1, u32 arg2, u32 arg3, u32 arg4);
 extern void btlUnitShowModel(u8 *arg0);
 extern void btlUnitHideModel(u8 *arg0);
-extern s32 func_001ef9a0(void);
+extern s32 btlCurrentUnitId(void);
 extern void func_002aaaa0(void);
 extern void btlFadeStart(s32 arg0);
 extern s32 func_001faaa0(u8 *arg0);
@@ -471,7 +471,7 @@ s32 btlMainSceneSetUpdate(void)
     extern s32 func_0022bd20(void);
     extern u8 *btlBossCreateLoadPakPacket(void);
     extern s32 func_00230790(void);
-    extern s32 func_001ef9a0(void);
+    extern s32 btlCurrentUnitId(void);
     extern void func_002aaa80(void);
     extern void hFadeSetCustomWhite(void);
     s32 var_2;
@@ -509,7 +509,7 @@ got_var:
             btlPacketEnqueue((u8 *)func_002305c0(temp_2_3), 1);
         }
     }
-    temp_2_4 = func_001ef9a0();
+    temp_2_4 = btlCurrentUnitId();
     switch (temp_2_4) {
     case 0x20B:
     case 0x215:
@@ -622,7 +622,7 @@ void btlMainUnitCreateInit(void) {
     extern void mdlRunDataCallback(void *model);
     extern u8 *mdlGetClump(u8 *arg0);
     extern void mdlClumpSetEnvMapState(u8 *arg0);
-    extern s32 func_001ef8c0(void);
+    extern s32 btlUnitGetMoveStateCode(void);
     extern void func_001b11c0(s32 arg0);
     extern s32 func_001b0f20(s32 arg0);
     extern s32 datCalcStatusElement(s32 arg0, s32 arg1);
@@ -709,7 +709,7 @@ void btlMainUnitCreateInit(void) {
             }
             btlBossCollectTargets((u8 *)0);
         } else {
-            *(u16 *)(D_0076449C + 0x1A) = func_001ef8c0();
+            *(u16 *)(D_0076449C + 0x1A) = btlUnitGetMoveStateCode();
             switch (*(u16 *)(D_0076449C + 0x1A)) {
             case 0:
                 func_001b1020(1);
@@ -1145,7 +1145,7 @@ unit_done:
         *(u32 *)(D_0076449C + 0xc) = *(u32 *)(D_0076449C + 0xc) & 0xffefffff;
       }
       if ((*(u32 *)(D_0076449C + 0x10) & 1) == 0) {
-        value = func_001ef9a0();
+        value = btlCurrentUnitId();
         switch (value) {
         case 0x20b:
         case 0x215:
@@ -1322,7 +1322,7 @@ void btlMainStartInit(void)
     if ((*(s32 *)(D_0076449C + 0x10) & 1) == 0) {
         goto done;
     }
-    temp2 = func_001ef9a0();
+    temp2 = btlCurrentUnitId();
     switch (temp2) {
     case 0x20B:
     case 0x215:
@@ -1477,15 +1477,15 @@ s32 btlMainActionUpdate(void)
             if (*(u16 *)((u8 *)iGpffffb3ac + 0xC5A) > 0) {
                 *(s32 *)((u8 *)iGpffffb3ac + 0xCE4) /= *(u16 *)((u8 *)iGpffffb3ac + 0xC5A);
             }
-            if (*(u16 *)((u8 *)iGpffffb3ac + 0x1C) != 3 && func_001ef7e0(pick) != 0 &&
+            if (*(u16 *)((u8 *)iGpffffb3ac + 0x1C) != 3 && btlEncountRollChance(pick) != 0 &&
                 btlShuffleSelectMember((u8 *)iGpffffb3ac + 0xCEC, *(s32 *)((u8 *)iGpffffb3ac + 0xCE4), hurt) != 0) {
                 *(u16 *)((u8 *)iGpffffb3ac + 0xCAC) |= 1;
             }
             if (func_0022bd20() != 0) {
                 *(u16 *)((u8 *)iGpffffb3ac + 0xCAC) |= 8;
             }
-            *(s32 *)((u8 *)iGpffffb3ac + 0xCB8) = func_001ef9a0();
-            if (*(s32 *)((u8 *)iGpffffb414 + func_001ef9a0() * 0x18) & 0x2000) {
+            *(s32 *)((u8 *)iGpffffb3ac + 0xCB8) = btlCurrentUnitId();
+            if (*(s32 *)((u8 *)iGpffffb414 + btlCurrentUnitId() * 0x18) & 0x2000) {
                 rank = datCalcGetLevel(*(s32 *)(*(u8 **)(*(u8 **)((u8 *)iGpffffb3ac + 0x170) + 0x30) + 0xA64)) & 0xFF;
                 diff = *(s16 *)((u8 *)iGpffffb3ac + 0xCE0) - rank;
                 if (diff < 0) {
@@ -2076,7 +2076,7 @@ void btlMainLoseInit(void)
     *(u16 *)(work + 0x48) = 0x2A;
     btlPacketEnqueue(work, 1);
     func_00122520(1, 0x1E);
-    switch (func_001ef9a0()) {
+    switch (btlCurrentUnitId()) {
     case 0x214:
         H_Fade_SetCustomColor(0, 0, 0);
         break;
