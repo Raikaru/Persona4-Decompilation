@@ -170,11 +170,8 @@ extern f32 cosf(f32 arg0);
 extern f32 sinf(f32 arg0);
 extern void primLine3D(void *arg0, void *arg1, void *arg2, s32 arg3);
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
-typedef struct RwV3d {
-    f32 x;
-    f32 y;
-    f32 z;
-} Code46RingPoint;
+#include "rw_types_internal.h"
+typedef RwV3d Code46RingPoint;
 extern void primCircleLine3D(const Code46RingPoint *position, f32 radius,
                          u8 *color, f32 *matrix, s32 setStates);
 struct Data_00712508 {
@@ -186,7 +183,6 @@ extern struct Data_00712508 D_00712508[] __attribute__((aligned(8)));
 extern f32 fGpffff81f0;
 extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
 typedef struct RwMatrixTag RwMatrix;
-typedef struct RwV3d RwV3d;
 typedef enum RwOpCombineType {
     rwCOMBINEREPLACE = 0,
     rwCOMBINEPRECONCAT,

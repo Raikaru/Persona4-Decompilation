@@ -54,11 +54,8 @@ extern u8 D_007124C0[];
 typedef struct {
     f32 v[4];
 } Code45Float4;
-typedef struct RwV3d {
-    f32 x;
-    f32 y;
-    f32 z;
-} Code45Vec3;
+#include "rw_types_internal.h"
+typedef RwV3d Code45Vec3;
 
 typedef struct RwMatrixTag {
     Code45Vec3 right;
