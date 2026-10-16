@@ -209,7 +209,7 @@ void btlSoundCancelPlayback(void) {
 s32 btlSoundPickResistVoice(u8 *arg0)
 {
     extern s32 datCalcGetLevel(u8 *arg0);
-    extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
+    extern s32 datCalcGetAffinity(u8 *arg0, s32 arg1);
     extern u32 effMiscRand(struct EffRandState *state);
     s32 code;
     s32 base;
@@ -266,7 +266,7 @@ s32 btlSoundPickResistVoice(u8 *arg0)
         }
         if ((*(u8 *)(arg0 + 0xA2) != 1) ||
             ((flags = (u16)code, func_001f0950(*(u16 *)(arg0 + 0xA4), flags)) != 0)) {
-            flags = datCalcStatusResistance(*(u8 **)(arg0 + 0xA64), code);
+            flags = datCalcGetAffinity(*(u8 **)(arg0 + 0xA64), code);
             if ((flags & 0x08000000) != 0) {
                 values[count++] =
                     (u16)(battleMessageBand(base + (i * 2), offset) + 2 +

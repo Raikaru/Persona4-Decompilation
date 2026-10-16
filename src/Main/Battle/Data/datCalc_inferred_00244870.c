@@ -1,7 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
-extern s32 datScriptTargetLacksFlag4(void);
+extern s32 datScriptTargetIsNotEnemy(void);
 extern f32 datScriptCalcFloat(s32 arg0, s32 arg1);
 #include "datScript_internal.h"
 
@@ -37,7 +37,7 @@ void datScriptCalcHitRate(void)
     f32 temp_f0;
     f32 temp_f1;
 
-    if (datScriptTargetLacksFlag4() != 0) {
+    if (datScriptTargetIsNotEnemy() != 0) {
         temp_f20 = add_f32_ordered(200.0f, datScriptCalcFloat(0xD, 3));
         temp_f0 = add_f32_ordered(200.0f, datScriptCalcFloat(0xE, 3));
         temp_f20 = temp_f20 / temp_f0;

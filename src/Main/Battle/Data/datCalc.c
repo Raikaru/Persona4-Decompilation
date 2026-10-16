@@ -19,7 +19,7 @@ extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern u32 func_001053b0(s16 arg0);
 extern s32 datCalcHasSkill(DatUnit *arg0, s32 arg1);
 
-extern s32 datScriptTargetLacksFlag4(void);
+extern s32 datScriptTargetIsNotEnemy(void);
 extern f32 datScriptCalcFloat(u32 arg0, s32 arg1);
 extern f32 D_00761260;
 extern f32 fGpffff811c;
@@ -64,8 +64,8 @@ extern u16 datItemValue(s16 arg0);
 extern u16 datItemElement(s16 arg0);
 extern u32 datItemGrantedSkill(s16 arg0);
 
-extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
-extern s32 datCalcAilmentChance(u8 *arg0, s32 arg1);
+extern s32 datCalcGetAffinity(u8 *arg0, s32 arg1);
+extern s32 datCalcGetElementAffinity(u8 *arg0, s32 arg1);
 extern s32 datCalcInflictStatus(s32 arg0, DatUnit *arg1, DatUnit *arg2, s32 arg3);
 extern s32 datCalcSkillAmount(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
 extern u32 datCalcStatusEffectResult(s32 arg0, DatUnit *arg1, DatUnit *arg2, s32 arg3, s32 arg4, s32 arg5);
@@ -1979,7 +1979,7 @@ u8 arg7;
                 attack *= fGpffff80bc;
             }
         }
-        if (datCalcIsStatusBlocked((u16 *)arg2)) {
+        if (datCalcIsGuarding((u16 *)arg2)) {
             defense *= fGpffff82cc;
         }
         targetStatus = *(u32 *)(arg2 + 0xC);
@@ -2281,7 +2281,7 @@ s32 options;
     s32 element;
     u8 active;
     s16 message;
-    extern s32 datCalcIsStatusBlocked(u16 *unit);
+    extern s32 datCalcIsGuarding(u16 *unit);
     extern s32 datCalcStatusElement(s32 skill, s32 mask);
 
     if ((skillId & 0xFFFF) >= 0x240) {
@@ -2327,7 +2327,7 @@ return_zero_0:
         default:
             break;
         }
-        if (datCalcIsStatusBlocked((u16 *)target)) {
+        if (datCalcIsGuarding((u16 *)target)) {
             return 0;
         }
         kind = iGpffffb3b8[offset + 0x24];
@@ -2363,7 +2363,7 @@ return_zero_1:
         default:
             break;
         }
-        resistance = datCalcStatusResistance((u8 *)target, (s16)datCalcStatusElement((s16)skillId, (s32)statuses));
+        resistance = datCalcGetAffinity((u8 *)target, (s16)datCalcStatusElement((s16)skillId, (s32)statuses));
         if (resistance & 0x27000000) {
             return 0;
         }
@@ -2795,13 +2795,13 @@ s32 datCalcSkillSlotValue(s32 arg0, u16 arg1)
 /* Base persona resistance and unit-type query. */
 extern u8 *iGpffffb3c8;
 extern u32 datPersonaGetSkillSlot(u16 arg0, s32 arg1);
-extern s32 datCalcIsStatusBlocked(u16 *arg0);
+extern s32 datCalcIsGuarding(u16 *arg0);
 
 #pragma push
 #pragma opt_loop_invariants on
 // Intent: resistance and nullify flags of unit arg0 against status element arg1; callers test the 0x08000000 and 0x07000000 groups; [inferred].
 // FUN_0023A6B0
-s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
+s32 datCalcGetAffinity(u8 *arg0, s32 arg1)
 {
     s32 temp_16;
     s32 found;
@@ -2853,7 +2853,7 @@ s32 datCalcStatusResistance(u8 *arg0, s32 arg1)
             }
         }
     }
-    if (datCalcIsStatusBlocked((u16 *)arg0) != 0) {
+    if (datCalcIsGuarding((u16 *)arg0) != 0) {
         hasFlag = 1;
     }
     switch (temp_16) {
@@ -3820,15 +3820,15 @@ s32 arg3;
     case 8:
         return (targetFlags & 0x1000) ? 1 : 4;
     case 9:
-        if (datCalcIsStatusBlocked((u16 *)arg1) != 0) {
+        if (datCalcIsGuarding((u16 *)arg1) != 0) {
             return 0x100;
         }
         break;
     case 12:
-        if (datCalcAilmentChance(arg1, 6) & 0x08000000) {
+        if (datCalcGetElementAffinity(arg1, 6) & 0x08000000) {
             return 1;
         }
-        return (datCalcAilmentChance(arg1, 7) & 0x08000000) ? 1 : 4;
+        return (datCalcGetElementAffinity(arg1, 7) & 0x08000000) ? 1 : 4;
     case 14:
         if ((u8)(*(u8 *)(arg1 + 0xC) != 0)) {
             result = 1;
@@ -3892,7 +3892,7 @@ s32 arg3;
             *(u32 *)(arg1 + 0x18) |= 0x20000;
             return 0x200;
         }
-        resistance = datCalcAilmentChance(arg1, rawElement);
+        resistance = datCalcGetElementAffinity(arg1, rawElement);
         if (resistance & 0x02000000) {
             return 0x200;
         }
@@ -3909,7 +3909,7 @@ s32 arg3;
     if ((u8)((*(u32 *)(arg1 + 0xC) & 0x100000) != 0)) {
         return 1;
     }
-    if (datCalcIsStatusBlocked((u16 *)arg1) != 0) {
+    if (datCalcIsGuarding((u16 *)arg1) != 0) {
         return 1;
     }
     if (iGpffffb3b8[offset + 0xE] >= 100) {
@@ -4156,7 +4156,7 @@ s32 arg4;
     if ((bits & 0xE0001) != 0) {
         return 1;
     }
-    res = datCalcAilmentChance(arg1, lvl);
+    res = datCalcGetElementAffinity(arg1, lvl);
     if (((bits & 2) == 0) && (((bits & 0x40) == 0) || (iGpffffb3b8[idx * 0x28 + 2] != 1))) {
         if (res & 0x08000000) {
             return 4;
@@ -4177,7 +4177,7 @@ s32 arg4;
     if ((res & 0x08000000) != 0) {
         return 4;
     }
-    if (datCalcIsStatusBlocked((u16 *)arg1) != 0) {
+    if (datCalcIsGuarding((u16 *)arg1) != 0) {
         return 1;
     }
     base = 0;
@@ -4512,7 +4512,7 @@ s32 datCalcRollSkillChance(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     if (temp_16 >= 0x1B8) {
         kAssertFail(D_00635938, 0x13B6);
     }
-    temp_2 = datCalcStatusResistance(arg1, 0xC);
+    temp_2 = datCalcGetAffinity(arg1, 0xC);
     if (temp_2 & 0x27000000) {
         return 0;
     }
@@ -4587,7 +4587,7 @@ done:
 
 // Intent: chance (0..100) that an ailment of level arg1 lands on unit arg0: 0 for level -1 or bit 0, 100 for bits 0xE0000, else the skill-table result; [inferred].
 // FUN_00242800
-s32 datCalcAilmentChance(u8 *arg0, s32 arg1)
+s32 datCalcGetElementAffinity(u8 *arg0, s32 arg1)
 {
     s16 id;
     s32 x;
@@ -4609,7 +4609,7 @@ s32 datCalcAilmentChance(u8 *arg0, s32 arg1)
     if (x & 0xE0000) {
         return 0x64;
     }
-    return datCalcStatusResistance(arg0, arg1);
+    return datCalcGetAffinity(arg0, arg1);
 }
 
 // FUN_002428F0
@@ -5207,7 +5207,7 @@ s32 func_00243d80(DatUnit *unit)
 
 // Intent: nonzero when the unit word arg0 has the status-blocked bit (0x200) set; a blocked target takes no status from datCalcInflictStatus; [inferred].
 // FUN_00243E30
-s32 datCalcIsStatusBlocked(u16 *arg0)
+s32 datCalcIsGuarding(u16 *arg0)
 {
     return (s32)((*arg0 & 0x200) != 0);
 }
@@ -5346,7 +5346,7 @@ void datCalcFormulaTerms13And1A(void)
     f32 temp_f20;
     f32 temp_f21;
 
-    if (datScriptTargetLacksFlag4() != 0) {
+    if (datScriptTargetIsNotEnemy() != 0) {
         temp_f20 = datScriptCalcFloat(0x13, 0);
         temp_f20 += datScriptCalcFloat(0x1A, 0);
     } else {
@@ -5363,7 +5363,7 @@ void datCalcFormulaScaledRatio(void)
     f32 temp_f20;
     f32 temp_f0;
 
-    if (datScriptTargetLacksFlag4() != 0) {
+    if (datScriptTargetIsNotEnemy() != 0) {
         temp_f20 = (50.0f + datScriptCalcFloat(0xD, 4)) /
                    (50.0f + datScriptCalcFloat(0xE, 4));
         temp_f0 = datScriptCalcFloat(0x14, 0);
@@ -5380,7 +5380,7 @@ void datCalcFormulaScaledRatio(void)
 /* Result = calc 0x15; the flag-4 check runs only for its side effect. */
 void datCalcFormulaPassCalc15(void)
 {
-    datScriptTargetLacksFlag4();
+    datScriptTargetIsNotEnemy();
     datScriptSetResult(datScriptCalcFloat(0x15, 0));
 }
 
@@ -5423,7 +5423,7 @@ void datCalcFormulaRatioOfProducts(void)
     f32 temp_f0;
     f32 temp_f1;
 
-    if (datScriptTargetLacksFlag4() != 0) {
+    if (datScriptTargetIsNotEnemy() != 0) {
         temp_f20 = datScriptCalcFloat(0x12, 0);
         temp_f20 *= datScriptCalcFloat(0x10, 0);
         temp_f0 = datScriptCalcFloat(0xD, 4);
