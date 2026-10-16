@@ -241,7 +241,7 @@ void func_0019c0d0(void)
      * without narrowing; the s16 definition's prototype adds a re-extension. */
     extern void func_001d7100(u8 *arg0, s32 arg1);
     extern void func_001d72c0(void *arg0, u32 arg1);
-    extern void func_001d7140(u8 *arg0);
+    extern void btlEffectRefreshPlacementState(u8 *arg0);
     u8 *entry;
     u32 i;
     s32 v41;
@@ -417,7 +417,7 @@ void func_0019c0d0(void)
                         }
                     }
                     func_001d72c0(*(u8 **)(entry + 0xA04), *(u32 *)(entry + 0x4E));
-                    func_001d7140(*(u8 **)(entry + 0xA04));
+                    btlEffectRefreshPlacementState(*(u8 **)(entry + 0xA04));
                 }
             }
             entry = *(u8 **)(entry + 0xA68);

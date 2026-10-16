@@ -135,7 +135,7 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     func_0029db50(arg0, arg1, arg2, arg3);
 }
 extern u8 iGpffffa4d8;
-extern void func_001d7040(s32 arg0);
+extern void btlEffectDestroyPlacementEntry(s32 arg0);
 extern void btlEffectFreeNodePool(s32 arg0);
 extern void btlUnitUnlinkAndFree(u8 *arg0);
 extern f32 fGpffff80fc;
@@ -208,7 +208,7 @@ void btlUnitReleaseAllResources(u8 *arg0)
     }
     h = ((s32 *)arg0)[641];
     if (h != 0) {
-        func_001d7040(h);
+        btlEffectDestroyPlacementEntry(h);
         *(s32 *)(arg0 + 0xA04) = 0;
     }
     h = ((s32 *)arg0)[642];

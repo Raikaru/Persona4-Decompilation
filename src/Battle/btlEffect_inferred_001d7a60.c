@@ -85,7 +85,7 @@ extern f32 fGpffff8110;
 /* measured: opt_propagation off is required for the default GP load/store register order. */
 /* measured: close opt_propagation after btlEffectFlagToColor. */
 // FUN_001D7A60
-s32 func_001d7a60(u8 *arg0) {
+s32 btlEffectApplyFadeCustomColor(u8 *arg0) {
     func_00122520(1, *(u16 *)(arg0 + 4));
     H_Fade_SetCustomColor(*(u8 *)(arg0 + 0), *(u8 *)(arg0 + 1), *(u8 *)(arg0 + 2));
     return 1;

@@ -254,7 +254,7 @@ u8 *btlUnitCreate(s32 arg0)
     *(f32 *)(temp_2 + 0x4F4) = 0.5f * var_f1;
     *(s32 *)(temp_2 + 0x9E0) = 0x3F800000;
     *(s8 *)(temp_2 + 0x9FC) = -1;
-    *(s32 *)(temp_2 + 0xA04) = func_001d6f20(temp_2);
+    *(s32 *)(temp_2 + 0xA04) = btlEffectCreatePlacementEntry(temp_2);
     *(s32 *)(temp_2 + 0xA08) = btlEffectAllocNodePool();
     *(s32 *)(temp_2 + 0xA68) = 0;
     temp_4 = (arg0 & 0xFF) * 8;

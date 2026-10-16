@@ -22,7 +22,7 @@ extern void mdlDestroyModelObject(u32 arg0);
 
 /* measured: live MATCH, object 372B/window 384B, normalized_diff 0; integer-domain global base plus source-driven addu operand order. */
 // FUN_001D7140
-void func_001d7140(u8* arg0)
+void btlEffectRefreshPlacementState(u8* arg0)
 {
     s16 temp_4_5;
     s32 temp_4;

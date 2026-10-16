@@ -100,7 +100,7 @@ extern u8 iGpffffa4d8[4];
 extern u8 *func_001ebb00(s32 action, s32 kind, u8 *name);
 extern u8 *btlPacketAllocZeroed(void *callback, void *data);
 extern BtlPacket *btlEffectCreateMessagePacket(u8 *values, u16 duration);
-extern BtlPacket *func_001d7b60(u16 duration);
+extern BtlPacket *btlEffectCreateFadeLevelPacket(u16 duration);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 extern u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 id, s16 animation);
 extern BtlPacket *btlBossCreateLoadEndBgmPacket(s32 id);
