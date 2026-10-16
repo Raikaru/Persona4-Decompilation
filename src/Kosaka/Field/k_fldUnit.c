@@ -193,6 +193,12 @@ typedef struct {
     s32 fieldId;
     s32 roomId;
 } FieldUnitRoomKey;
+/* Spawn-direction view of the frame grid. Its cells start at 0x50, four bytes
+ * before FldFrame.cells[row][0] (0x54), so cells[c].direction here is the byte
+ * at 0x59 + c * 0x10, which is FldFrame.cells[row][c].kind. The 0x54 boundary is
+ * the one the table copy and the neighbour checks use; new code should read
+ * FldFrame.cells. FldUnit_UpdateFacing keeps this view: the typed form moved its
+ * codegen. */
 typedef struct {
     u8 unknown00[9];
     u8 direction;                        /* 0x09: quarter-turn orientation */
