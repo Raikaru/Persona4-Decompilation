@@ -46,7 +46,7 @@ extern void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern s32 datPersonaGetLeadSlot(void);
 extern void datPersonaSetLeadSlot(s16 arg0);
 extern s32 datCalcThresholdTriggerById(s16 arg0, u32 arg1);
-extern void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
+extern void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2);
 extern s32 func_0013a040(s16 *arg0, s32 arg1, s32 arg2);
 extern s32 func_0013a530(u8 *arg0, s32 arg1);
@@ -2293,7 +2293,7 @@ void func_0013e7c0(u8 *arg0, s32 *arg1) {
             return;
         }
         if (temp_2 == 2) {
-            func_0011c180(*(u8 **)(arg0 + 0x1CB4), 1, datPersonaRosterSlot(*(s16 *)(arg0 + 0x52)), 0);
+            shdPersonaBeginDisplayAndEndSelection(*(u8 **)(arg0 + 0x1CB4), 1, datPersonaRosterSlot(*(s16 *)(arg0 + 0x52)), 0);
         }
     }
 }
@@ -2315,7 +2315,7 @@ s32 func_0013e8e0(u8 *arg0, s32 *arg1) {
         if (temp_2 == 1) {
             shdPersonaBeginDisplay(*(u8 **)(arg0 + 0x1CB4), temp_18, (s32)datPersonaGetRecord(character), 0);
         } else if (temp_2 == 2) {
-            func_0011c180(*(u8 **)(arg0 + 0x1CB4), temp_18, (s32)datPersonaGetRecord(character), 0);
+            shdPersonaBeginDisplayAndEndSelection(*(u8 **)(arg0 + 0x1CB4), temp_18, (s32)datPersonaGetRecord(character), 0);
         }
         return 1;
     }
