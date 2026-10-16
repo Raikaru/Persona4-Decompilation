@@ -112,10 +112,10 @@ void btlPacketResetUnit(BtlUnit* unit)
     unit->pos = D_00881430;
     unit->posOffset = D_00881430;
 
-    unit->rot.w = 1.0f;
-    unit->rot.x = 0.0f;
-    unit->rot.y = 0.0f;
-    unit->rot.z = 0.0f;
+    unit->rot.real = 1.0f;
+    unit->rot.imag.x = 0.0f;
+    unit->rot.imag.y = 0.0f;
+    unit->rot.imag.z = 0.0f;
 
     unit->cols[0].red = 0xff;
     unit->cols[0].green = 0xff;
@@ -127,8 +127,8 @@ void btlPacketResetUnit(BtlUnit* unit)
 
     unit->unk_4c = 0;
     unit->unk_54 = D_00881430;
-    unit->unk_70.x = 0.0f;
-    unit->unk_70.y = 0.0f;
-    unit->unk_70.z = 0.0f;
-    unit->unk_70.w = 0.5f;
+    unit->unk_70.imag.x = 0.0f;
+    unit->unk_70.imag.y = 0.0f;
+    unit->unk_70.imag.z = 0.0f;
+    unit->unk_70.real = 0.5f;
 }
