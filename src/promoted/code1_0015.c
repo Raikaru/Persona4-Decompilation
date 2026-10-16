@@ -6,6 +6,7 @@
 #include "sdktask.h"
 #include "type.h"
 #include "field_light_internal.h"
+#include "field_frame_internal.h"
 typedef struct RwRGBA
 {
     u8 r;
@@ -814,15 +815,13 @@ s32 FldCellFindPlacement(void *arg0, u32 *arg1, u32 *arg2)
     u8 *shape;
     u8 *row;
     u8 *rule;
-    u8 *board;
+    FldFrameCell *board;
     s32 x;
     s32 y;
     s32 saved_y;
     s32 by;
     s32 ry;
     s32 bx;
-    s32 rowbase;
-    s32 colofs;
     s32 i;
     s32 k;
     s32 j;
@@ -842,29 +841,29 @@ s32 FldCellFindPlacement(void *arg0, u32 *arg1, u32 *arg2)
                     bx = *(s8 *)(shape + 0x16) + (x + c);
                     by = *(s8 *)(shape + 0x17) + ry;
                     if (cell == 1) {
-                        board = (u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10);
-                        if (board[0x54] != 0) {
+                        board = &((FldFrame *)MT_Scene_GetFrameState())->cells[by][bx];
+                        if (board->occupied != 0) {
                             goto next_x;
                         }
                     }
                     if (row[c + 0x18] == 2) {
-                        if (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x54) == 1) {
+                        if (((FldFrame *)MT_Scene_GetFrameState())->cells[by][bx].occupied == 1) {
                             goto next_x;
                         }
-                        if (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x64) == 1 &&
-                            (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x6E) & 0x20)) {
+                        if (((FldFrame *)MT_Scene_GetFrameState())->cells[by][bx + 1].occupied == 1 &&
+                            (((FldFrame *)MT_Scene_GetFrameState())->cells[by][bx + 1].exits & 0x20)) {
                             goto next_x;
                         }
-                        if (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x44) == 1 &&
-                            (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x4E) & 0x80)) {
+                        if (((FldFrame *)MT_Scene_GetFrameState())->cells[by][bx - 1].occupied == 1 &&
+                            (((FldFrame *)MT_Scene_GetFrameState())->cells[by][bx - 1].exits & 0x80)) {
                             goto next_x;
                         }
-                        if (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x154) == 1 &&
-                            (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) + 0x15E) & 0x10)) {
+                        if (((FldFrame *)MT_Scene_GetFrameState())->cells[by + 1][bx].occupied == 1 &&
+                            (((FldFrame *)MT_Scene_GetFrameState())->cells[by + 1][bx].exits & 0x10)) {
                             goto next_x;
                         }
-                        if (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) - 0xAC) == 1 &&
-                            (*((u8 *)MT_Scene_GetFrameState() + (by << 8) + (bx * 0x10) - 0xA2) & 0x40)) {
+                        if (((FldFrame *)MT_Scene_GetFrameState())->cells[by - 1][bx].occupied == 1 &&
+                            (((FldFrame *)MT_Scene_GetFrameState())->cells[by - 1][bx].exits & 0x40)) {
                             goto next_x;
                         }
                     }
@@ -879,7 +878,7 @@ s32 FldCellFindPlacement(void *arg0, u32 *arg1, u32 *arg2)
 fits:
     saved_y = y;
     for (k = 0; k < shape[2]; k++, y++) {
-        for (r = 0, bx = x, rule = shape + k * 0xC, rowbase = y << 8; r < shape[1]; r++, bx++) {
+        for (r = 0, bx = x, rule = shape + k * 0xC; r < shape[1]; r++, bx++) {
             if (y == 0x16 && (rule[r * 4 + 0x32] & 0x40)) {
                 return 0;
             }
@@ -892,9 +891,8 @@ fits:
             if (bx == 1 && (rule[r * 4 + 0x32] & 0x20)) {
                 return 0;
             }
-            colofs = bx * 0x10;
-            if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs - 0xAC) != 0) {
-                if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs - 0xA2) & 0x40) {
+            if (((FldFrame *)MT_Scene_GetFrameState())->cells[y - 1][bx].occupied != 0) {
+                if (((FldFrame *)MT_Scene_GetFrameState())->cells[y - 1][bx].exits & 0x40) {
                     if (!(rule[r * 4 + 0x32] & 0x10)) {
                         return 0;
                     }
@@ -902,8 +900,8 @@ fits:
                     return 0;
                 }
             }
-            if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x44) != 0) {
-                if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x4E) & 0x80) {
+            if (((FldFrame *)MT_Scene_GetFrameState())->cells[y][bx - 1].occupied != 0) {
+                if (((FldFrame *)MT_Scene_GetFrameState())->cells[y][bx - 1].exits & 0x80) {
                     if (!(rule[r * 4 + 0x32] & 0x20)) {
                         return 0;
                     }
@@ -911,8 +909,8 @@ fits:
                     return 0;
                 }
             }
-            if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x154) != 0) {
-                if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x15E) & 0x10) {
+            if (((FldFrame *)MT_Scene_GetFrameState())->cells[y + 1][bx].occupied != 0) {
+                if (((FldFrame *)MT_Scene_GetFrameState())->cells[y + 1][bx].exits & 0x10) {
                     if (!(rule[r * 4 + 0x32] & 0x40)) {
                         return 0;
                     }
@@ -920,8 +918,8 @@ fits:
                     return 0;
                 }
             }
-            if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x64) != 0) {
-                if (*((u8 *)MT_Scene_GetFrameState() + rowbase + colofs + 0x6E) & 0x20) {
+            if (((FldFrame *)MT_Scene_GetFrameState())->cells[y][bx + 1].occupied != 0) {
+                if (((FldFrame *)MT_Scene_GetFrameState())->cells[y][bx + 1].exits & 0x20) {
                     if (!(rule[r * 4 + 0x32] & 0x80)) {
                         return 0;
                     }
