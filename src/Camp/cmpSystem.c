@@ -22,14 +22,14 @@ void memset(void *, s32, s32);
 void *resourceFindByName(char *);
 s32 sdkSpriteNewNode(void *, u8);
 void kAssertFail(char *, s32);
-s32 func_0035fa20(u8 *, u32);
+s32 cmpSystemSetMode(u8 *, u32);
 
 // FUN_0035F5B0
 /* measured: removing this regresses func_0035f5b0 from nd 0 to nd 118
    (loop-invariant hoisting of the D_0064D6B0 base and the store-constant
    3 is required for the retail layout). */
 #pragma opt_loop_invariants on
-void func_0035f5b0(u8 *arg0)
+void cmpSystemMenuInit(u8 *arg0)
 {
     void *spr2;
     void *spr1;
@@ -121,13 +121,13 @@ void func_0035f5b0(u8 *arg0)
     *(s16 *)(arg0 + 0x22) = 0;
     *(s16 *)(arg0 + 0x24) = 0;
     *(s32 *)(arg0 + 0x38) = func_003544f0();
-    func_0035fa20(arg0, 0);
+    cmpSystemSetMode(arg0, 0);
 }
 /* measured: see the annotation above the matching `on` pragma (func_0035f5b0). */
 #pragma opt_loop_invariants off
 
 // FUN_0035FA00
-s32 func_0035fa00(s32 arg0, s32 arg1, s16 arg2)
+s32 cmpSystemSetSelection(s32 arg0, s32 arg1, s16 arg2)
 {
     u8 *temp_3;
     s32 var_4;
@@ -140,7 +140,7 @@ s32 func_0035fa00(s32 arg0, s32 arg1, s16 arg2)
 }
 
 // FUN_0035FA20
-s32 func_0035fa20(u8 *arg0, u32 arg1)
+s32 cmpSystemSetMode(u8 *arg0, u32 arg1)
 {
     u8 *var_16;
     s32 var_4;

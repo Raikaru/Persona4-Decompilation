@@ -51,9 +51,9 @@ extern s32 radarEntryIsAllowed(s16 arg0, s32 arg1, u8 *arg2);
 extern s32 cmpSkillSetSelection(s16 *arg0, s32 arg1, s32 arg2);
 extern s32 cmpSkillSetMode(u8 *arg0, s32 arg1);
 extern void cmpSkillSetScrollCursorMotion(u8 *arg0);
-extern void func_001344b0(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_00131730(u8 *arg0);
-extern void func_00134560(u8 *arg0, s32 arg1);
+extern void cmpEquipSetSelection(u8 *arg0, s32 arg1, s32 arg2);
+extern void cmpEquipBuildItemList(u8 *arg0);
+extern void cmpEquipSetMode(u8 *arg0, s32 arg1);
 extern void radarBeginSlideOut(u8 *arg0);
 extern void radarBeginSlideIn(u8 *arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
@@ -1588,7 +1588,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     switch (*arg0) {
     case 0:
         *arg1 = 0;
-        func_001312b0(arg2);
+        cmpEquipMenuInit(arg2);
         *arg0 = 1;
         break;
     default:
@@ -1606,7 +1606,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         temp_4 = (s32)(*(s32 *)(arg2 + 0x1594));
         if ((temp_4 == 0) || (kwlnTaskIsLinked(temp_4) == 0)) {
             *arg0 = 3;
-            func_00134560(arg2, 1);
+            cmpEquipSetMode(arg2, 1);
             resrcMngUnsuppressRender();
             func_0034bb20(7);
         case 3:
@@ -1620,7 +1620,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     case 4:
         if (radarWideEntriesCoverValue(arg2) != 0) {
             resrcMngSuppressRender();
-            func_00134560(arg2, 2);
+            cmpEquipSetMode(arg2, 2);
             *arg0 = 5;
         }
         break;
@@ -1631,7 +1631,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 radarCollectPartyChanges(arg2);
                 sdkSndStartStream(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
-                func_00134560(arg2, 3);
+                cmpEquipSetMode(arg2, 3);
                 *arg0 = 7;
                 func_0034bb20(4);
                 sdkSndStartStream(0, 0, 0, 1);
@@ -1643,7 +1643,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_00453670(buf, 8, *(s16 *)(arg2 + 0x48), *(s16 *)(arg2 + 0x28), 0);
                 func_004538e0(buf, 0x4000, 0x1000, 0, 0);
                 if (func_00453960(buf) != 0) {
-                    func_001344b0(arg2, 0, *(s32 *)(buf + 0x24));
+                    cmpEquipSetSelection(arg2, 0, *(s32 *)(buf + 0x24));
                     sdkSndStartStream(0, 1, 0, 0);
                 }
             }
@@ -1651,19 +1651,19 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 6:
         if (radarWideEntriesCoverValue(arg2) != 0) {
-            func_00134560(arg2, 4);
+            cmpEquipSetMode(arg2, 4);
             *arg0 = 7;
         }
         break;
     case 7:
         if (D_008C024E[0] & 0x20) {
-            func_001344b0(arg2, 1, 0);
-            func_00134560(arg2, 2);
+            cmpEquipSetSelection(arg2, 1, 0);
+            cmpEquipSetMode(arg2, 2);
             *arg0 = 5;
             func_0034bd60(3);
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
-            func_00134560(arg2, 5);
+            cmpEquipSetMode(arg2, 5);
             *arg0 = 8;
             func_0034bb20(5);
             sdkSndStartStream(0, 0, 0, 1);
@@ -1675,21 +1675,21 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_00453670(buf, 3, 3, *(s16 *)(arg2 + 0x2A), 0);
             func_004538e0(buf, 0x4000, 0x1000, 0, 0);
             if (func_00453960(buf) != 0) {
-                func_001344b0(arg2, 1, *(s32 *)(buf + 0x24));
+                cmpEquipSetSelection(arg2, 1, *(s32 *)(buf + 0x24));
                 sdkSndStartStream(0, 1, 0, 0);
             }
         }
         break;
     case 8:
         if (radarWideEntriesCoverValue(arg2) != 0) {
-            func_00134560(arg2, 6);
+            cmpEquipSetMode(arg2, 6);
             *arg0 = 9;
             func_0034bb20(6);
         }
         break;
     case 9:
         if (radarWideEntriesCoverValue(arg2) != 0) {
-            func_00134560(arg2, 7);
+            cmpEquipSetMode(arg2, 7);
             *arg0 = 0xA;
         }
         break;
@@ -1700,9 +1700,9 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     radarTransferSelectedUnit(arg2);
                 }
             } else if (D_008C024E[0] & 0x20) {
-                func_001344b0(arg2, 2, 0);
-                func_001344b0(arg2, 3, 0);
-                func_00134560(arg2, 4);
+                cmpEquipSetSelection(arg2, 2, 0);
+                cmpEquipSetSelection(arg2, 3, 0);
+                cmpEquipSetMode(arg2, 4);
                 *arg0 = 6;
                 func_0034bd60(4);
                 sdkSndStartStream(0, 0, 0, 2);
@@ -1712,7 +1712,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *arg0 = 0xD;
             } else if (D_008C024E[0] & 0x80) {
                 if (*(s16 *)(arg2 + 0xC46) != 0) {
-                    func_00134560(arg2, 8);
+                    cmpEquipSetMode(arg2, 8);
                     *arg0 = 0xB;
                     sdkSndStartStream(0, 2, 0, 3);
                 }
@@ -1720,8 +1720,8 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_00453670(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
                 func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
                 if ((temp_2_2 = func_00453960(buf)) > 0) {
-                    func_001344b0(arg2, 2, *(s32 *)(buf + 0x28));
-                    func_001344b0(arg2, 3, *(s32 *)(buf + 0x24));
+                    cmpEquipSetSelection(arg2, 2, *(s32 *)(buf + 0x28));
+                    cmpEquipSetSelection(arg2, 3, *(s32 *)(buf + 0x24));
                     if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x34)) {
                         radarResetLayout(arg2);
                     }
@@ -1732,7 +1732,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 11:
         if (radarWideEntriesCoverValue(arg2) != 0) {
-            func_00134560(arg2, 9);
+            cmpEquipSetMode(arg2, 9);
             *arg0 = 0xC;
         }
         break;
@@ -1742,7 +1742,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 *arg0 = 9;
             }
         } else if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
-            func_00134560(arg2, 7);
+            cmpEquipSetMode(arg2, 7);
             *arg0 = 9;
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x10) {
@@ -1753,8 +1753,8 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_00453670(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
             func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
             if ((temp_2_3 = func_00453960(buf)) > 0) {
-                func_001344b0(arg2, 2, *(s32 *)(buf + 0x28));
-                func_001344b0(arg2, 3, *(s32 *)(buf + 0x24));
+                cmpEquipSetSelection(arg2, 2, *(s32 *)(buf + 0x28));
+                cmpEquipSetSelection(arg2, 3, *(s32 *)(buf + 0x24));
                 if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x34)) {
                     radarResetLayout(arg2);
                 }
@@ -1887,11 +1887,11 @@ s32 radarBeginPickList(u8 *arg0, s32 *arg1) {
     func_004538e0(sp40, 8, 4, 0, 0);
     temp_2 = func_00453960(sp40);
     if (temp_2 > 0) {
-        func_001344b0(arg0, 0, *(s32 *)(sp40 + 0x24));
-        func_001344b0(arg0, 3, 0);
-        func_001344b0(arg0, 2, 0);
-        func_00131730(arg0);
-        func_00134560(arg0, 7);
+        cmpEquipSetSelection(arg0, 0, *(s32 *)(sp40 + 0x24));
+        cmpEquipSetSelection(arg0, 3, 0);
+        cmpEquipSetSelection(arg0, 2, 0);
+        cmpEquipBuildItemList(arg0);
+        cmpEquipSetMode(arg0, 7);
         *arg1 = 0xA;
         if (temp_2 == 1) {
             radarBeginSlideOut(arg0);
@@ -1925,25 +1925,25 @@ s32 radarTransferSelectedUnit(u8 *arg0) {
         sdkSndStartStream(0, 0, 0, 8);
         return 0;
     }
-    func_00134560(arg0, 7);
+    cmpEquipSetMode(arg0, 7);
     radarResetAndSetIndices(arg0, temp_17, temp_19);
     if ((func_00106600(temp_17) & 0xFF) != 0x63) {
         func_00106620(temp_17, ((func_00106600(temp_17) & 0xFF) + 1) & 0xFF);
     }
     func_00106d40(temp_18, temp_16.value, temp_19);
     func_00106620(temp_19, ((func_00106600(temp_19) & 0xFF) - 1) & 0xFF);
-    func_00131730(arg0);
+    cmpEquipBuildItemList(arg0);
     temp_2 = *(s16 *)(arg0 + 0xC46);
     if (temp_2 < 5) {
-        func_001344b0(arg0, 2, 0);
+        cmpEquipSetSelection(arg0, 2, 0);
         temp_6 = *(s16 *)(arg0 + 0xC46) - 1;
         if (temp_6 < *(s16 *)(arg0 + 0x2E)) {
-            func_001344b0(arg0, 3, temp_6);
+            cmpEquipSetSelection(arg0, 3, temp_6);
         }
     } else {
         temp_6_2 = temp_2 - 5;
         if (temp_6_2 < *(s16 *)(arg0 + 0x2C)) {
-            func_001344b0(arg0, 2, temp_6_2);
+            cmpEquipSetSelection(arg0, 2, temp_6_2);
         }
     }
     sdkSndStartStream(0, 3, 0, 7);
