@@ -72,7 +72,7 @@ extern BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
 extern u8 *btlCameraCreateSetStatePacket(s32 arg0, s32 arg1);
 extern s32 btlAICommandSelectCandidates();
 extern u32 datCalcRandomBelow(u32 arg0);
-extern u8 *func_001d9280();
+extern u8 *btlEffectFindUnitByIdAndStatus();
 extern u8 *btlEffectFindUnitByKey();
 extern u8 *btlAICommandPickUnitByHpWeight();
 extern s32 btlAICommandCollectSkillCandidates();

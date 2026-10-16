@@ -6,7 +6,7 @@
 /* Battle condition predicates and their FR/EN wrappers. Each prototype
  * matches its definition, which is byte-exact against retail, so the
  * parameter types are the retail register use. The FR/EN wrappers pass
- * their predicate to func_001d94d0 as a callback. */
+ * their predicate to btlEffectFindUnitMatchingCallback as a callback. */
 
 /* Predicates defined in btlCond.c. */
 s32 btlCond_MYHP(u8 *arg0, s32 arg1);
@@ -78,6 +78,6 @@ u16 btlSkillClassifyTargets(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3);
 
 /* Callback dispatcher in code1_001d.c. Callers pass the predicate as a (code)
  * or (code *) callback with their own argument order, so it stays unprototyped. */
-int func_001d94d0();
+int btlEffectFindUnitMatchingCallback();
 
 #endif

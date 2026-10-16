@@ -66,7 +66,7 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
     return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
 }
 extern f32 fGpffff811c;
-s32 func_001d94d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 
 extern f32 D_0076144C;
