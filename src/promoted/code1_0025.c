@@ -309,6 +309,7 @@ void effBlurFilterTaskDestroy(u8 *task)
     }
     jtbl_008873EC[0](temp_2);
 }
+// Left func_: returns word 0 of a task work area. Blur-filter tasks store their mode there, but cmmRankUp and cmmScript call it on other task types, so no single name fits.
 // FUN_0025FF60
 s32 func_0025ff60(s32 task)
 {
