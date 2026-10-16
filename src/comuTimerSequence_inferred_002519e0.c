@@ -32,7 +32,7 @@ extern s32 datPortraitIsLoaded(s32 arg0);
 extern s32 cmmRankUpCreate(s32 arg0, s32 *arg1); /* lint: allow H011 -- caller stores the returned v0 at temp_2[7] (retail keeps it); definition is void */
 extern void cmmRankUpSetEntryHold(s32 arg0, s32 arg1);
 extern void cmmRankUpCopyState(s32 arg0, s32 arg1, s32 arg2);
-extern void func_002519b0(s32 *arg0);
+extern void kwlnTaskGetWorkCallback(s32 *arg0);
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
@@ -137,7 +137,7 @@ s32 func_002519e0(u8 *sdkTaskBytes) {
     }
 block_15:
     temp_2_3 = PrimAllocQueueNode();
-    *(void **)(temp_2_3 + 8) = (void *)func_002519b0;
+    *(void **)(temp_2_3 + 8) = (void *)kwlnTaskGetWorkCallback;
     *(s32 *)(temp_2_3 + 0x10) = arg0;
     PrimAppendNode(D_007963D0, temp_2_3);
     return 0;

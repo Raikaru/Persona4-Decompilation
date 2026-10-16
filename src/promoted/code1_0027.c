@@ -36,7 +36,7 @@ extern void func_002e0f90(void);
 extern u16 D_008817E8[];
 extern u8 *frFontRasterFindEntry();
 extern u8 *frFontRasterAllocEntry();
-extern void func_0027b5a0(s32 arg0);
+extern void itfMesFlushPendingCallback(s32 arg0);
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
