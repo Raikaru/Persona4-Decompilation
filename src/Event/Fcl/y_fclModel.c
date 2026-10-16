@@ -38,7 +38,7 @@ extern s32 datGetFlag(s32);
 extern s32 func_00348be0(u8 *);
 extern s32 func_00348c10(u8 *);
 extern u8 *func_001102f0(u8 *, s32, s32, f32);
-extern s32 func_00285b30(void);
+extern s32 evtGetEventFrame(void);
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, void *);
 extern s16 fclAddClamped(s32, s32, s32, s32, s32);
@@ -471,7 +471,7 @@ s32 cmbEffModelUpdate(u8 *arg0)
                     if (*(u8 *)(*(u8 **)(obj + 0xC) + 0xEE) == 1) {
                         *(s8 *)(obj + 5) = 0;
                         *(s8 *)(obj + 4) = 4;
-                    } else if ((f32)func_00285b30() >= 700.0f) {
+                    } else if ((f32)evtGetEventFrame() >= 700.0f) {
                         *(s8 *)(obj + 5) = 0;
                         *(s8 *)(obj + 4) = 4;
                     }
@@ -483,7 +483,7 @@ s32 cmbEffModelUpdate(u8 *arg0)
                             mdlDispatchAnimIfPresent(mdl, 0, 0, 30, 1);
                             *(s8 *)(obj + 5) = 0;
                             *(s8 *)(obj + 4) = 4;
-                        } else if ((f32)func_00285b30() >= 700.0f) {
+                        } else if ((f32)evtGetEventFrame() >= 700.0f) {
                             mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, 0, 30, 1);
                             *(s8 *)(obj + 5) = 0;
                             *(s8 *)(obj + 4) = 4;

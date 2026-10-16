@@ -144,7 +144,7 @@ extern u8* iGpffffb3d4;
 extern s32 D_00635A40[];
 extern s32 D_00635A60[];
 extern s32 D_00635BA8[];
-extern u8* func_00285af0(void);
+extern u8* evtEnsureEventTask(void); /* lint: allow H011 -- caller stores the returned value; the definition is void */
 extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
 extern s32 cmmMonthProfileRecord(s32 arg0);
 extern s32 datCalcGetLevelById(s32 arg0);
@@ -2185,7 +2185,7 @@ s32 cmmScriptStartEntries(void)
         kwlnTaskDestroyWithHierarchy(handle);
     }
     if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
-        parent = func_00285af0();
+        parent = evtEnsureEventTask();
         if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
             chkmemAllocSiteTag(D_006359F0, 0x402);
             e = D_008873F4[0](1, 0x28, 0x40000);
@@ -2193,7 +2193,7 @@ s32 cmmScriptStartEntries(void)
             (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_00635A78), 0xF, 0, 0, cmmScriptLoadStep, cmmScriptTaskDestroy, (u8 *)(e));
         }
     }
-    parent = func_00285af0();
+    parent = evtEnsureEventTask();
     handle = (s32)kwlnTaskGetTaskByName((s8 *)(D_00635B38));
     if (handle != 0) {
         kwlnTaskDestroyWithHierarchy(handle);
@@ -2221,7 +2221,7 @@ s32 cmmScriptPollEntryChoice(void)
     s32 ret;
 
     if (scrGetCmdTimer() == 0) {
-        parent = func_00285af0();
+        parent = evtEnsureEventTask();
         if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8)) == 0) {
             if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
                 if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
@@ -2279,7 +2279,7 @@ s32 cmmScriptPollEntryConfirm(void)
     s32 ret;
 
     if (scrGetCmdTimer() == 0) {
-        parent = func_00285af0();
+        parent = evtEnsureEventTask();
         if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635BA8)) == 0) {
             if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {
                 if ((s32)kwlnTaskGetTaskByName((s8 *)(D_00635A78)) == 0) {

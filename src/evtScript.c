@@ -34,8 +34,8 @@ extern u16 *MT_Scene_GetRes(s32);
 extern s32 mdlPrepareModel(u32 arg0);
 extern u8 *mdlGetColor(s32);
 extern void evtNodeSetRes(u8 *, s32, u16 *);
-extern s32 func_00285af0();
-extern u8 *func_00285480();
+extern s32 evtEnsureEventTask(); /* lint: allow H011 -- caller stores the returned value; the definition is void */
+extern s32 evtGetEventTaskWork();
 extern u8 *func_00285b80();
 extern s32 scrGetParamInt();
 extern s32 scrGetCmdTimer(void);
@@ -90,11 +90,11 @@ s32 func_00298370(u8 *unusedTask) {
         }
         MT_Scene_SetResActiveById(temp_17, 1);
         temp_18 = (u8 *)MT_Scene_GetRes(temp_17);
-        temp_2_2 = func_00285af0();
+        temp_2_2 = evtEnsureEventTask();
         if (temp_2_2 == 0) {
             kAssertFail(D_0063CF80, 0x39);
         }
-        temp_2_4 = (u8 *)func_00285480(kwlnTaskGetWork(temp_2_2));
+        temp_2_4 = (u8 *)evtGetEventTaskWork(kwlnTaskGetWork(temp_2_2));
         temp_2_2 = *(s32 *)(temp_2 + 4);
         temp_2 = (u8 *)func_00285b80(temp_2_4, temp_2_2);
         if (temp_2 == NULL) {
@@ -240,7 +240,7 @@ void func_00298990(s32 unused, s32 arg1) {
     u8 *temp_17;
 
     temp_17 = (u8 *)kwlnTaskGetWork(arg1);
-    temp_19 = *(s32 *)((u8 *)func_00285480(kwlnTaskGetWork(func_00285af0())) + 0x680);
+    temp_19 = *(s32 *)((u8 *)evtGetEventTaskWork(kwlnTaskGetWork(evtEnsureEventTask())) + 0x680);
     var_18 = 0;
     while (var_18 < 0xF) {
         temp_5 = var_18 * 0x28;
@@ -302,7 +302,7 @@ s32 func_00298c60(void)
     if (task != 0) {
         kwlnTaskDestroyWithHierarchy((void *)task);
     }
-    v0 = func_00285af0();
+    v0 = evtEnsureEventTask();
     chkmemAllocSiteTag(D_0063CF80, 0xF6);
     (s32)kwlnTaskCreateChild((void *)(v0), (const void *)(D_0063CFA0), 0xF, 0, 0, func_00298b80, func_00298c10, (u8 *)(D_008873F4[0](1, 8, 0x40000)));
     return 1;
