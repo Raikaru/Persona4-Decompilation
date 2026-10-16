@@ -279,7 +279,7 @@ static inline f32 PopFloat(ScrData* scr)
 }
 
 // FUN_0029A050. Push an immediate int value
-u32 func_0029a050(ScrData* scr)
+u32 scrOpPushImmInt(ScrData* scr)
 {
     PushInt(scr, scr->instrContent[++scr->pc].iOperand);
     scr->pc++;
@@ -288,7 +288,7 @@ u32 func_0029a050(ScrData* scr)
 }
 
 // FUN_0029A100. Push an immediate short value
-u32 func_0029a100(ScrData* scr)
+u32 scrOpPushImmShort(ScrData* scr)
 {
     PushInt(scr, scr->instrContent[scr->pc].opOperand16.sOperand);
     scr->pc++;
@@ -297,7 +297,7 @@ u32 func_0029a100(ScrData* scr)
 }
 
 // FUN_0029A1B0. Push an immediate float value
-u32 func_0029a1b0(ScrData* scr)
+u32 scrOpPushImmFloat(ScrData* scr)
 {
     PushFloat(scr, scr->instrContent[++scr->pc].fOperand);
     scr->pc++;
@@ -306,7 +306,7 @@ u32 func_0029a1b0(ScrData* scr)
 }
 
 // FUN_0029A260. Push an int from the VM memory
-u32 func_0029a260(ScrData* scr)
+u32 scrOpPushGlobalInt(ScrData* scr)
 {
     PushInt(scr, D_00882AD0[scr->instrContent[scr->pc].opOperand16.sOperand]);
     scr->pc++;
@@ -315,7 +315,7 @@ u32 func_0029a260(ScrData* scr)
 }
 
 // FUN_0029A320. Push a float from the VM memory
-u32 func_0029a320(ScrData* scr)
+u32 scrOpPushGlobalFloat(ScrData* scr)
 {
     f32* f;
 
@@ -327,7 +327,7 @@ u32 func_0029a320(ScrData* scr)
 }
 
 // FUN_0029A3E0. Push an int from the local ints
-u32 func_0029a3e0(ScrData* scr)
+u32 scrOpPushLocalInt(ScrData* scr)
 {
     PushInt(scr, scr->localInt[scr->instrContent[scr->pc].opOperand16.sOperand]);
     scr->pc++;
@@ -336,7 +336,7 @@ u32 func_0029a3e0(ScrData* scr)
 }
 
 // FUN_0029A4A0. Push a float from the local floats
-u32 func_0029a4a0(ScrData* scr)
+u32 scrOpPushLocalFloat(ScrData* scr)
 {
     PushFloat(scr, scr->localFloat[scr->instrContent[scr->pc].opOperand16.sOperand]);
     scr->pc++;
@@ -345,7 +345,7 @@ u32 func_0029a4a0(ScrData* scr)
 }
 
 // FUN_0029A560. Push a string
-u32 func_0029a560(ScrData* scr)
+u32 scrOpPushString(ScrData* scr)
 {
     char* str;
 
@@ -358,7 +358,7 @@ u32 func_0029a560(ScrData* scr)
 }
 
 // FUN_0029A610. Push return value
-u32 func_0029a610(ScrData* scr)
+u32 scrOpPushReturn(ScrData* scr)
 {
     K_ASSERT_MSG(scr->sp < SCR_STACK_RET, 298, D_0063E080, scr->sp);
 
@@ -372,7 +372,7 @@ u32 func_0029a610(ScrData* scr)
 }
 
 // FUN_0029A6A0. Pop an int into the VM memory
-u32 func_0029a6a0(ScrData* scr)
+u32 scrOpPopGlobalInt(ScrData* scr)
 {
     D_00882AD0[scr->instrContent[scr->pc].opOperand16.sOperand] = PopInt(scr);
     scr->pc++;
@@ -381,7 +381,7 @@ u32 func_0029a6a0(ScrData* scr)
 }
 
 // FUN_0029A820. Pop a float into the VM memory
-u32 func_0029a820(ScrData* scr)
+u32 scrOpPopGlobalFloat(ScrData* scr)
 {
     f32 val;
     f32* f;
@@ -396,7 +396,7 @@ u32 func_0029a820(ScrData* scr)
 }
 
 // FUN_0029A9C0. Pop an int into a local int
-u32 func_0029a9c0(ScrData* scr)
+u32 scrOpPopLocalInt(ScrData* scr)
 {
     K_ASSERT_MSG(scr->instrContent[scr->pc].opOperand16.sOperand < scr->scrHeader->localIntNum, 336, D_0063E130, scr->instrContent[scr->pc].opOperand16.sOperand);
 
@@ -407,7 +407,7 @@ u32 func_0029a9c0(ScrData* scr)
 }
 
 // FUN_0029AB80. Pop a float into a local float
-u32 func_0029ab80(ScrData* scr)
+u32 scrOpPopLocalFloat(ScrData* scr)
 {
     scr->localFloat[scr->instrContent[scr->pc].opOperand16.sOperand] = PopFloat(scr);
     scr->pc++;
@@ -419,7 +419,7 @@ u32 func_0029ab80(ScrData* scr)
 
 
 // FUN_0029AD20
-u32 func_0029AD20(ScrData* scr)
+u32 scrOpNop(ScrData* scr)
 {
     scr->pc++;
 
@@ -435,7 +435,7 @@ u32 func_0029AD20(ScrData* scr)
 #pragma opt_common_subs off
 /* measured: optimization_level 1 is required for the exact object. */
 #pragma optimization_level 1
-u32 func_0029ad40(u8 *arg0) {
+u32 scrOpCallCommand(u8 *arg0) {
     ScrData *ctx; s32 group; s32 raw; s32 result; s32 cmdOffset; ScrCmdEntry *cmds; ScrCmdEntry *entry; s32 prevPc; s32 currPc; s32 hasFunc;
     ctx = (ScrData *)arg0; raw = ctx->instrContent[ctx->pc].opOperand16.sOperand; K_ASSERT(raw >= 0, 0x175); group = ((raw >> 12) & 0xFF) << 3; raw &= 0xFFF; K_ASSERT(*(s32 *)((u8 *)D_00748534 + group) > raw, 0x176); cmdOffset = raw << 3; cmds = *(ScrCmdEntry **)((u8 *)D_00748530 + group); entry = (ScrCmdEntry *)((u8 *)cmds + cmdOffset); hasFunc = (entry->func != 0); K_ASSERT(hasFunc != 0, 0x177); prevPc = ctx->pc; sCurrScript = ctx; result = entry->func(); if (result == 0) return 2; entry = (ScrCmdEntry *)((u8 *)((u32)cmdOffset + (u32)cmds)); ctx->sp -= entry->paramCount; currPc = ctx->pc; if (prevPc == currPc) { currPc++; ctx->pc = currPc; } return 1;
 }
@@ -447,7 +447,7 @@ u32 func_0029ad40(u8 *arg0) {
 
 
 // FUN_0029AE90
-u32 func_0029ae90(ScrData* scr)
+u32 scrOpReturn(ScrData* scr)
 {
     if (scr->sp == 0)
     {
@@ -463,7 +463,7 @@ u32 func_0029ae90(ScrData* scr)
 }
 
 // FUN_0029B020. Jump to a procedure
-u32 func_0029b020(ScrData* scr)
+u32 scrOpJumpProcedure(ScrData* scr)
 {
     s16 prcdIdx;
 
@@ -474,7 +474,7 @@ u32 func_0029b020(ScrData* scr)
 }
 
 // FUN_0029B060. Call a procedure + push PC
-u32 func_0029b060(ScrData* scr)
+u32 scrOpCallProcedure(ScrData* scr)
 {
     PushPC(scr, scr->pc);
     scr->pc = scr->proceduresContent[scr->instrContent[scr->pc].opOperand16.sOperand].addr;
@@ -483,7 +483,7 @@ u32 func_0029b060(ScrData* scr)
 }
 
 // FUN_0029B120
-u32 func_0029b120(ScrData* scr)
+u32 scrOpUnsupported(ScrData* scr)
 {
     K_ABORT(D_0063E160, 506);
 
@@ -493,7 +493,7 @@ u32 func_0029b120(ScrData* scr)
 }
 
 // FUN_0029B170. Jump to a label
-u32 func_0029b170(ScrData* scr)
+u32 scrOpJumpLabel(ScrData* scr)
 {
     s16 lblIdx;
 
