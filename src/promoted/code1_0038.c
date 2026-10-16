@@ -1597,13 +1597,13 @@ void func_00388f00(u8 *arg0)
     *(u16 *)(p + 4) = *(u16 *)(p + 4) | 0x10;
 }
 // FUN_00388F20
-void func_00388f20(u8 *arg0)
+void btlShuffleDrawViewSetHold(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) | 0x10;
 }
 
 // FUN_00388F40
-void func_00388f40(u8 *arg0)
+void btlShuffleDrawViewClearHold(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0xFFEF;
 }
