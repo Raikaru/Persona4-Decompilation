@@ -38,7 +38,7 @@ extern void btlShuffleEffEnd(u8 *a);
 extern void btlShuffleEffUpdate(u8 *a);
 extern void btlShuffleEffInitTrail(u8 *a, s32 b);
 extern void btlShuffleEffSetup(u8 *a, s32 b);
-extern s32 func_00380d80(u8 *arg0, s32 arg1);
+extern s32 btlShuffleAddRosterMember(u8 *arg0, s32 arg1);
 extern s32 btlShuffleResultOpen(u8 *arg0);
 extern s32 btlShuffleResultRun(u8 *arg0);
 extern s32 btlShuffleResultInit(u8 *arg0);
@@ -85,7 +85,7 @@ extern void *func_0036e910(void *a);
 extern s32 btlShuffleDrawSpawn(u8 *parent, s32 cardIndex);
 extern void func_0038d2a0(u8 *a);
 extern u32 RpRandom(void);
-extern s32 func_00380bd0(u8 *a);
+extern s32 btlShuffleRollChance(u8 *a);
 extern u8 D_0064E6E0[][2];
 extern u8 D_0064E700[][2];
 extern u8 iGpffffa9B8[5]; /* per-rate bonus thresholds: 5, 5, 5, 10, 10 */
@@ -104,7 +104,7 @@ extern s32 func_00389330(u8 *a);
 extern void func_00389350(u8 *a);
 extern void btlShuffleSeqClearA(u8 *a, s32 b);
 extern s32 btlShuffleSeqFlag(u8 *a);
-extern s32 func_00380980(u8 *a);
+extern s32 btlShuffleShowRosterMessage(u8 *a);
 extern u16 datPersonaCountValidMembers(void);
 extern u16 *datPersonaFindRosterRecordById(s32 a);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
@@ -800,7 +800,7 @@ s32 btlShuffleResultRun(u8 *arg0)
             if (override != 0) {
                 view.state->phase = 0x10;
             } else {
-                result = func_00380980(arg0);
+                result = btlShuffleShowRosterMessage(arg0);
                 if (result == 0) {
                     return 1;
                 }
@@ -836,7 +836,7 @@ s32 btlShuffleResultRun(u8 *arg0)
                 nmMesWindowShowCurrentRecord(0x11);
                 view.state->phase = 0x11;
             } else {
-                func_00380980(arg0);
+                btlShuffleShowRosterMessage(arg0);
                 view.state->phase = 8;
             }
         }
@@ -1026,7 +1026,7 @@ s32 btlShuffleResultBonus(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
             *(u8 *)(work + 0x12) = shuffleBonusPick() + 1;
             *(u16 *)(work + 4) |= 1;
             *(s32 *)(unit + 0x1F2A0) = btlShuffleDrawSpawn(*(u8 **)(unit + 0x1F2A8), (u8)(*(u8 *)(work + 0x12) - 1));
-        } else if (func_00380bd0(work) != 0) {
+        } else if (btlShuffleRollChance(work) != 0) {
             *(u16 *)(work + 4) |= 2;
         }
         nmMesWindowShowCurrentRecord(7);
@@ -1034,7 +1034,7 @@ s32 btlShuffleResultBonus(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3)
         *(s32 *)(work + 8) = 2;
         break;
     case 3:
-        if (func_00380bd0(work) != 0) {
+        if (btlShuffleRollChance(work) != 0) {
             *(u16 *)(work + 4) |= 2;
         }
         *(u16 *)(work + 6) = 0;
@@ -1086,7 +1086,7 @@ s32 btlShuffleResultMain(u8 *arg0) {
         nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
             nmMesWindowCloseCurrent(1);
-            *(s32 *)(arg0 + 8) = func_00380d80(arg0, *(u16 *)(arg0 + 0x10));
+            *(s32 *)(arg0 + 8) = btlShuffleAddRosterMember(arg0, *(u16 *)(arg0 + 0x10));
         }
         goto block_39;
     case 1:
