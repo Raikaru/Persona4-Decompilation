@@ -864,7 +864,7 @@ extern s32 btlShuffleSeqStateCheck(u8 *arg0);
 extern s32 btlShuffleSeqCardCount(u8 *arg0, s32 arg1);
 extern s32 btlShuffleSeqDispatch(u8 *arg0);
 /* Deal state machine for the second shuffle layout.  It is the twin of
-   func_00379f90: the deal loop spreads the cards 150 units left or right by
+   btlShuffleSeq1Run: the deal loop spreads the cards 150 units left or right by
    index parity and lifts them 100 units. */
 #pragma push
 // measured: MISMATCH without loop invariants (in-file build); retail hoists (u16)mod out of the loops
@@ -1166,7 +1166,7 @@ void func_0037b8c0(u8 *arg0, s32 arg1, f32 *arg2) {
                   &work.sp70, 0.0f, 0.0f);
 }
 // FUN_0037BAC0
-void func_0037bac0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+void btlShuffleCalcSetBezierTiming(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     struct Vec3 {
         f32 x;
         f32 y;
@@ -1216,8 +1216,8 @@ void func_0037bac0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     btlShuffleDrawSetTiming(arg0, arg1, arg2, arg3, &points.base.x);
 }
 /* Deal state machine for the third shuffle layout.  It is the twin of
-   func_00379f90 and func_0037ad10.  The deal loop hands each card to
-   func_0037bac0, and the fan step also sets the per-card offset
+   btlShuffleSeq1Run and btlShuffleSeq2Run.  The deal loop hands each card to
+   btlShuffleCalcSetBezierTiming, and the fan step also sets the per-card offset
    through func_00378c80. */
 #pragma push
 // measured: MISMATCH without loop invariants (in-file build); retail hoists (u16)mod out of the loops
@@ -1301,7 +1301,7 @@ s32 btlShuffleSeq3Run(u8 *arg0) {
             *(s32 *)(sbase + 8) = 0;
             for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
                 m = (u16)mod * i;
-                func_0037bac0(arg0, i, (u16)m, (u16)(m + 0x14));
+                btlShuffleCalcSetBezierTiming(arg0, i, (u16)m, (u16)(m + 0x14));
             }
             sdkSndStartStream(0, 4, 0, 1);
         } else if ((D_008C024E[0] & 0x20) != 0) {
