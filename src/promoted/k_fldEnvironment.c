@@ -49,7 +49,7 @@ extern void func_0016ea30(s32 arg0, f32 arg1);
 extern void FldFrame_SetSlotVector(s32 arg0, s32 arg1, void *arg2);
 extern u8 *FldFrame_GetSlotBuffer(s32 arg0);
 extern void func_0016eb00(s32 arg0);
-extern void func_0046d700(const char *arg0, s32 arg1, void *arg2, void *arg3);
+extern void kAssertFailMsg(const char *arg0, s32 arg1, void *arg2, void *arg3);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern char D_005EFEF0[];
 
@@ -214,7 +214,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
             return 1;
         }
         if (data == NULL) {
-            func_0046d700(D_005EFE50, 0x1E3, &iGpffff9e20, &sp60);
+            kAssertFailMsg(D_005EFE50, 0x1E3, &iGpffff9e20, &sp60);
         }
     }
     tmp4 = MT_Scene_GetResListHead(4);
@@ -618,7 +618,7 @@ s32 func_00154b10(void) {
    (3) the 0x10001/0x10002 guards must be written `x < 0x10001` (sltu $at +
    bnez) not `x >= 0x10001` -- brief lever 2 comparison form;
    (4) 20 extra bytes of body code. The double `if (var_16==NULL){return 1}
-   if(var_16==NULL){func_0046d700...}` mirrors retail's dead func_0046d700 block.
+   if(var_16==NULL){kAssertFailMsg...}` mirrors retail's dead kAssertFailMsg block.
    func_003e9cb0 first arg is a pointer loaded from [4] (cast to void*). */
 // FUN_00154BE0
 s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
@@ -644,7 +644,7 @@ s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
             return 1;
         }
         if (data == 0) {
-            func_0046d700(D_005EFE50, 0x5A1, &iGpffff9e20, &spA0);
+            kAssertFailMsg(D_005EFE50, 0x5A1, &iGpffff9e20, &spA0);
         }
     }
     if (arg1 != 0) {

@@ -14,7 +14,7 @@ extern s32 iGpffffa7c8;
 s32 mtMiscResourceValue(s32 arg0);
 
 
-extern void func_00106390();
+extern void datSetFlag();
 extern s32 iGpffffb538;
 extern u8 D_00882ED0[];
 extern u8 D_00882EF0[];
@@ -71,31 +71,31 @@ s32 K_Cmd_DATE_DISP(void) {
 }
 
 // FUN_00299EA0
-s32 func_00299ea0(void)
+s32 K_Cmd_FLAG_SELECT(void)
 {
     s32 temp_16;
 
     temp_16 = scrGetParamInt(0);
-    func_00106390(0x1203, 0);
-    func_00106390(0x1204, 0);
-    func_00106390(0x1205, 0);
-    func_00106390(0x1206, 0);
-    func_00106390(0x1207, 0);
+    datSetFlag(0x1203, 0);
+    datSetFlag(0x1204, 0);
+    datSetFlag(0x1205, 0);
+    datSetFlag(0x1206, 0);
+    datSetFlag(0x1207, 0);
     switch (temp_16) {
     case 0:
-        func_00106390(0x1203);
+        datSetFlag(0x1203);
         break;
     case 1:
-        func_00106390(0x1204, 1);
+        datSetFlag(0x1204, 1);
         break;
     case 2:
-        func_00106390(0x1205, 1);
+        datSetFlag(0x1205, 1);
         break;
     case 3:
-        func_00106390(0x1206, 1);
+        datSetFlag(0x1206, 1);
         break;
     case 4:
-        func_00106390(0x1207, 1);
+        datSetFlag(0x1207, 1);
         break;
     }
     return 1;

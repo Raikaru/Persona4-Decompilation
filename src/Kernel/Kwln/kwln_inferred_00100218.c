@@ -331,7 +331,7 @@ void func_00100670(void)
     typedef RwImage *(*ImageReadCallback)(const char *name);
     typedef RwImage *(*ImageWriteCallback)(RwImage *image, const char *name);
     extern s32 func_003eb1f0(const char *extension, ImageReadCallback readImage, ImageWriteCallback writeImage);
-    extern void func_0046d740(const void *arg0, const void *arg1, u32 arg2);
+    extern void kAssertFailAt(const void *arg0, const void *arg1, u32 arg2);
     extern RwImage *func_003d8c00(const char *name);
     extern RwImage *func_003d96b0(RwImage *image, const char *name);
     extern RwImage *tmxLoadFile(const char *name);
@@ -603,7 +603,7 @@ void func_00100670(void)
     ok = 1;
 check:
     if (ok == 0) {
-        func_0046d740(D_005DC760, (void *)&iGpffff8598, 0x2C8);
+        kAssertFailAt(D_005DC760, (void *)&iGpffff8598, 0x2C8);
     }
 }
 

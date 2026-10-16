@@ -44,7 +44,7 @@ extern u8 D_0064B30C[];
 typedef signed __int128 code13S128;
 extern void func_001056e0(s16 arg0, s16 arg1);
 extern void func_00105730(s16 arg0, s16 arg1);
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 extern void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 extern s32 func_00354010(void);
 extern void func_0013aa90(u8 *arg0);
@@ -188,7 +188,7 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
             func_00105730(arg0, (s16)temp_17_3);
         }
         if (temp_16 == 3) {
-            func_00106390(0x1401, 1);
+            datSetFlag(0x1401, 1);
         } else {
             var_17 = 1;
             var_16_2 = -1;

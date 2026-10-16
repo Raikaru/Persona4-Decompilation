@@ -52,7 +52,7 @@ typedef struct DatUnitEc DatUnitEc;
 extern DatUnitEc *datUnitCreateEncounterGroup(u16 encountId);
 extern u8 *FldUnit_CreateEncounterUnit(u32 arg0, u8 *arg1, s32 arg2);
 extern s32 sprintf(char *dst, const char *fmt, ...);
-extern void func_0046d740(const void *msg, const void *file, u32 line);
+extern void kAssertFailAt(const void *msg, const void *file, u32 line);
 extern u32 RpRandom(void);
 extern void mdlSetAttachedOwner(u8 *arg0, u8 *arg1);
 extern s32 FldEvent_AverageEntryValue(void);
@@ -750,7 +750,7 @@ u8 *FldUnit_CreateEncounterUnit(u32 encounter, u8 *placement, s32 variant)
         break;
     default:
         sprintf((char *)message, (const char *)D_005F1510, encounter);
-        func_0046d740(message, D_005F1500, 0x4B6);
+        kAssertFailAt(message, D_005F1500, 0x4B6);
         break;
     }
     switch (variant) {

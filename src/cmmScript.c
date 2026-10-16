@@ -48,7 +48,7 @@ extern u8* cmmMsgStreamEntry(s32 arg0, u16 arg1);
 extern s32 cmmDateTableFindNthMatch(s32 arg0, s32 arg1, s32 arg2);
 extern s32 scrGetCmdTimer(void);
 extern void cmmSpawnCdvdLoad(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_0025c310(void);
+extern s32 K_Cmd_TASK_LOOKUP(void);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 D_00635A78[];
 extern s32 D_006359F0[];
@@ -777,7 +777,7 @@ s32 func_0024b380(void)
         cmmSpawnCdvdLoad(0, param0, param1, param2);
         goto block_4;
     }
-    if (func_0025c310() == 0) {
+    if (K_Cmd_TASK_LOOKUP() == 0) {
         return 1;
     }
 block_4:

@@ -78,7 +78,7 @@ extern u8 D_00638FB0[];
 extern u8 D_00638F90[];
 extern char D_00637348[];
 extern void frFontSetStateBits(u32 param_1, int param_2);
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 extern s32 cmmCommunityGetCurrentId(void);
 extern void cmmCommunitySetReversed(s32 arg0);
 extern void cmmCommunityClearReversed(s32 arg0);
@@ -735,7 +735,7 @@ s32 func_0026ef60(s32 arg0, u8 *arg1)
         *(s32 *)var_5 = temp_2;
         var_5 += 4;
     } while (var_3 > 0);
-    func_00106390(temp_18 + sp30[temp_17], 1);
+    datSetFlag(temp_18 + sp30[temp_17], 1);
     return 0;
 }
 
@@ -808,7 +808,7 @@ s32 func_0026f0a0(s32 arg0, u8 *arg1)
         *(s32 *)var_5 = temp_2;
         var_5 += 4;
     } while (var_3 > 0);
-    func_00106390(temp_18 + sp30[temp_17], 0);
+    datSetFlag(temp_18 + sp30[temp_17], 0);
     return 0;
 }
 
@@ -1080,7 +1080,7 @@ s32 func_0026f5e0(s32 arg0, u8 *arg1)
             *dst = temp_2;
             dst += 1;
         } while (i > 0);
-        func_00106390(third + sp20[second], fourth);
+        datSetFlag(third + sp20[second], fourth);
         break;
     case 1:
         if (fourth != 0) {

@@ -28,7 +28,7 @@ typedef struct P4_95730_Bytes4 {
 typedef struct DatUnit DatUnit;
 extern u32 datUnitInit(DatUnit *unit, u8 genus, u16 id);
 
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);

@@ -98,7 +98,7 @@ extern u8 *func_00455f70(void *arg0, void *arg1);
 extern void func_0026e170(int param_1);
 extern void frFontRasterDestroyCache(void);
 extern void frFontReleaseSlots(void);
-extern void func_0046d740(const void *msg, const void *file, u32 line);
+extern void kAssertFailAt(const void *msg, const void *file, u32 line);
 extern void func_00440b68();
 extern char D_0063BBB0[];
 extern char D_0063BBF0[];
@@ -412,7 +412,7 @@ void frFontSlotLoad(s32 arg0, u8 *arg1, u8 *arg2)
     temp_4 = arg0 & 0xFF;
     slot = &gFrFontManagerData_abs[0].slots[temp_4];
     if (temp_4 >= 9) {
-        func_0046d740(D_0063BB40, D_0063BAE8, 0x2ED);
+        kAssertFailAt(D_0063BB40, D_0063BAE8, 0x2ED);
     }
     slot->f00 = (u32)arg2;
     slot->f04 = (u32)arg1;
@@ -593,7 +593,7 @@ void frFontReleaseSlots(void)
             continue;
         mask = i & 0xff;
         if (mask >= 9)
-            func_0046d740(D_0063BBB0, D_0063BAE8, 0x319);
+            kAssertFailAt(D_0063BBB0, D_0063BAE8, 0x319);
         idx = (u32)i & 0xff;
         slot = (u8 *)DAT_00881630_abs + idx * 0x20;
         if (*(u32 *)(slot + 0x1c) == 0)
@@ -844,7 +844,7 @@ u8 *frFontAcquireGlyph(u8 *arg0, u32 arg1)
         DAT_00881528_abs[0] -= 1;
     }
     if (var_16 == NULL) {
-        func_0046d740(D_0063BC20, D_0063BAE8, 0x508);
+        kAssertFailAt(D_0063BC20, D_0063BAE8, 0x508);
     }
     temp_17 = *(u8 **)(var_16 + 0x14);
     if (temp_17 == NULL) {
@@ -879,7 +879,7 @@ u8 * frFontCreateGlyphNode(u16 arg0, u8 arg1, u8 arg2, u8 arg3)
     node = (u8 *)func_0026e0e0(DAT_0088175c_abs[0]);
     DAT_00881754_abs[0] += 1;
     if (node == NULL) {
-        func_0046d740(D_0063BC50, D_0063BAE8, 0x5D2);
+        kAssertFailAt(D_0063BC50, D_0063BAE8, 0x5D2);
     }
     *(u16 *)(node + 0) = arg0;
     *(u8 *)(node + 0x15) = arg1;

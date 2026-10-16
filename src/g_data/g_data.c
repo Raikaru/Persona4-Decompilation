@@ -187,7 +187,7 @@ extern void H_Cdvd_ReadSync(u8* ptr);
 
 extern u8* func_00454a60(u8* param, s32 mode);
 
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 
 extern u32 calGetWeekdayOfDay(s32 arg0);
 
@@ -1001,47 +1001,47 @@ void datSetDateIndex(s16 arg0)
 {
     u32 temp_2;
 
-    func_00106390(0xAD0, 0);
-    func_00106390(0xAD7, 0);
-    func_00106390(0xAD1, 0);
-    func_00106390(0xAD2, 0);
-    func_00106390(0xAD3, 0);
-    func_00106390(0xAD4, 0);
-    func_00106390(0xAD5, 0);
-    func_00106390(0xAD6, 0);
-    func_00106390(0xAD8, 0);
-    func_00106390(0xAD9, 0);
-    func_00106390(0xADA, 0);
-    func_00106390(0xADB, 0);
+    datSetFlag(0xAD0, 0);
+    datSetFlag(0xAD7, 0);
+    datSetFlag(0xAD1, 0);
+    datSetFlag(0xAD2, 0);
+    datSetFlag(0xAD3, 0);
+    datSetFlag(0xAD4, 0);
+    datSetFlag(0xAD5, 0);
+    datSetFlag(0xAD6, 0);
+    datSetFlag(0xAD8, 0);
+    datSetFlag(0xAD9, 0);
+    datSetFlag(0xADA, 0);
+    datSetFlag(0xADB, 0);
     D_00797B7A[0] = arg0;
     temp_2 = calGetWeekdayOfDay(arg0);
     switch (temp_2)
     {
     case 0:
-        func_00106390(0xAD7, 1);
+        datSetFlag(0xAD7, 1);
         break;
     case 1:
-        func_00106390(0xAD1, 1);
+        datSetFlag(0xAD1, 1);
         break;
     case 2:
-        func_00106390(0xAD2, 1);
+        datSetFlag(0xAD2, 1);
         break;
     case 3:
-        func_00106390(0xAD3, 1);
+        datSetFlag(0xAD3, 1);
         break;
     case 4:
-        func_00106390(0xAD4, 1);
+        datSetFlag(0xAD4, 1);
         break;
     case 5:
-        func_00106390(0xAD5, 1);
+        datSetFlag(0xAD5, 1);
         break;
     case 6:
-        func_00106390(0xAD6, 1);
+        datSetFlag(0xAD6, 1);
         break;
     }
     if (calHasDayEntry(D_00797B7A[0]) != 0)
     {
-        func_00106390(0xAD0, 1);
+        datSetFlag(0xAD0, 1);
     }
 }
 
@@ -1084,7 +1084,7 @@ u32 datGetFlag(s32 bit)
 
 
 // FUN_00106390
-void func_00106390(s32 arg0, s32 arg1)
+void datSetFlag(s32 arg0, s32 arg1)
 {
     s32 idx;
     s32 bit;

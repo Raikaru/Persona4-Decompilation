@@ -78,7 +78,7 @@ extern char D_00764030;
 /* Sony SDK PS2 sound-library helpers (shared blob). */
 extern void func_00440b68(const void *format, ...);
 extern void kAssertFail(void *file, s32 line);
-extern void func_0046d740(const void *msg, const void *file, u32 line);
+extern void kAssertFailAt(const void *msg, const void *file, u32 line);
 extern void func_00421a60();
 extern s32 func_00424708();
 extern s32 func_00421b80();
@@ -411,7 +411,7 @@ void func_0045c130(s16 index, s16 fileIndex)
         *(s16 *)&D_008E4090[index * 0x44] = 2;
         return;
     }
-    func_0046d740(D_00712440, D_00712408, 0x1D0);
+    kAssertFailAt(D_00712440, D_00712408, 0x1D0);
 }
 
 // FUN_0045C210
@@ -432,7 +432,7 @@ void func_0045c210(s16 index, s16 fileIndex, void *data0, u32 data0Size, void *d
         *(u32 *)&D_008E40C0[index * 0x44] = data2Size;
         return;
     }
-    func_0046d740(D_00712440, D_00712408, 0x1E9);
+    kAssertFailAt(D_00712440, D_00712408, 0x1E9);
 }
 
 // FUN_0045C390
@@ -462,7 +462,7 @@ void func_0045c3d0(s16 index)
         *inp = 0;
         return;
     }
-    func_0046d740(D_00712440, D_00712408, 0x21C);
+    kAssertFailAt(D_00712440, D_00712408, 0x21C);
 }
 
 // FUN_0045C510
@@ -546,9 +546,9 @@ void func_0045c640(s16 index, s16 stream, s16 arg2, s16 arg3)
                 outputHandle, 0, 0xA, (s32)arg2, (s32)arg3);
             return;
         }
-        func_0046d740(D_00712470, D_00712408, 0x283);
+        kAssertFailAt(D_00712470, D_00712408, 0x283);
         return;
     }
-    func_0046d740(D_00712470, D_00712408, 0x286);
+    kAssertFailAt(D_00712470, D_00712408, 0x286);
 }
 #pragma pop

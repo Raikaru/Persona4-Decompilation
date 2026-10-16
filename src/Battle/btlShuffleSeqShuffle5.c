@@ -71,7 +71,7 @@ extern s32 btlShuffleSeqFlag(u8 *ctx);
 extern void btlShuffleSeqReset(u8 *ctx);
 extern void btlShuffleSeqClearA(u8 *ctx, s32 a);
 extern s32 datGetFlag(s32 a);
-extern void func_00106390(s32 a, s32 b);
+extern void datSetFlag(s32 a, s32 b);
 extern s32 btlShuffleCalcUpdateSpeed(u8 *a, u8 *b);
 extern void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 scale, f32 *dst);
 extern void btlShuffleDrawMoveCard(u8 *ctx, s32 idx, f32 start, f32 end, f32 *from, f32 *to);
@@ -525,7 +525,7 @@ s32 btlShuffleSeq5Run(u8 *work)
                 *(u16 *)(work + 0x1F2F4) &= 0xFFFD;
             }
             if (++*(u16 *)(work + 0x1F2F0) >= 0x1E) {
-                func_00106390(0x1433, 1);
+                datSetFlag(0x1433, 1);
                 *(u32 *)(work + 0x1F2F8) = 6;
             }
         }

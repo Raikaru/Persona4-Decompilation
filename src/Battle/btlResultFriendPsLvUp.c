@@ -13,7 +13,7 @@ extern void shdPersonaStartSlideIn(u8 *task);
 extern void shdPersonaSetPersonaId(u8 *task, s32 a1);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern u32 datGetFlag(s32 arg0);
-extern void func_00106390(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 arg0, s32 arg1);
 /* This unit's view of the window helper takes the 16-bit display id as u16.
    The definition (shdPersona.c) and its other callers use s32; retail
    compiled each unit separately, and only a u16 parameter here emits the id
@@ -151,13 +151,13 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
                     if (datGetFlag(0x1012) != 0) {
                         kAssertFail(D_00629720, 158);
                     }
-                    func_00106390(0x1012, 1);
+                    datSetFlag(0x1012, 1);
                     break;
                 case 0x113:
                     if (datGetFlag(0x1013) != 0) {
                         kAssertFail(D_00629720, 163);
                     }
-                    func_00106390(0x1013, 1);
+                    datSetFlag(0x1013, 1);
                     break;
                 }
             }

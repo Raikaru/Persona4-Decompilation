@@ -18,7 +18,7 @@ extern void func_00460ac0(void *arg0, void *arg1);
 extern void sdkOtFlushBuckets(s32 arg0);
 extern void chkmemAllocSiteTag(void *file, s32 line);
 extern void kAssertFail(void *file, s32 line);
-extern void func_0046d740(const void *msg, const void *file, u32 line);
+extern void kAssertFailAt(const void *msg, const void *file, u32 line);
 
 extern u8 D_00793E80[];
 extern u8 D_00793EB0[];
@@ -233,7 +233,7 @@ void mainDrawClearCameraAndSky(void) {
         base[0](0xE, 0);
         return;
     }
-    func_0046d740(D_005DCAD0, D_005DCAE8, 0x5A);
+    kAssertFailAt(D_005DCAD0, D_005DCAE8, 0x5A);
 }
 /* measured: closing opt_propagation bracket after the matching target. */
 #pragma opt_propagation on
