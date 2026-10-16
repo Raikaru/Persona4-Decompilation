@@ -48,7 +48,7 @@ extern s32 D_00922CC0[];
 
 extern u8 *D_0076449C;
 extern s32 btlCurrentUnitId(void);
-extern s32 func_002aa3f0(void);
+extern s32 mcIconTaskPoll(void);
 extern void btlResetEffectSlots(void);
 extern void fieldSceneUnload();
 extern void btlMainUnloadFieldScene(void);
@@ -146,7 +146,7 @@ void btlMainMcInit(void)
 // FUN_001B5F30
 s32 btlMainMcUpdate(void)
 {
-    if (func_002aa3f0() != 0) {
+    if (mcIconTaskPoll() != 0) {
         btlResetEffectSlots();
         return 0x12;
     }

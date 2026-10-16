@@ -98,7 +98,7 @@ extern s32 func_0025e800(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0025e8b0(s32 arg0);
 extern s32 func_0025e8f0(s32 arg0);
 extern s32 mcIconTaskCreate(u8 *arg0, s32 arg1);
-extern s32 func_002aa3f0(void);
+extern s32 mcIconTaskPoll(void);
 extern s32 titleSlotSetMode(u8 *arg0, s32 arg1);
 extern void sdkSpriteFreeNode(void *node);
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
@@ -1439,7 +1439,7 @@ s32 clndPromptUpdate(u8 *arg0)
         }
         goto block_20;
     case 5:
-        temp_2_4 = func_002aa3f0();
+        temp_2_4 = mcIconTaskPoll();
         if (temp_2_4 == 2) {
             goto case_5_action;
         }
@@ -4113,7 +4113,7 @@ s32 func_0012aa70(u8 *task)
         *(s32 *)work = 0xB;
         *(s32 *)(work + 0x34) = mcIconTaskCreate(task, 0);
     case 11:
-        result = func_002aa3f0();
+        result = mcIconTaskPoll();
         switch (result) {
         case 1:
             func_00122520(1, 0xA);

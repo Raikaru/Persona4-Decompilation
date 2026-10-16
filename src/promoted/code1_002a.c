@@ -213,7 +213,7 @@ void func_002a2740(void) {
 
 
 // FUN_002AA3F0
-s32 func_002aa3f0(void) {
+s32 mcIconTaskPoll(void) {
     s32 r;
 
     if (kwlnTaskGetTaskByName(&D_00763918) == 0) {

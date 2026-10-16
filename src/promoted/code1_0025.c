@@ -64,7 +64,7 @@ void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 s32 kwlnTaskIsLinked(s32 arg0);
 void func_00120f20(s32 arg0);
 s32 mcIconTaskCreate(u8 *parent, s32 mode);
-s32 func_002aa3f0(void);
+s32 mcIconTaskPoll(void);
 extern s32 TnGetTableBase(void);
 extern void TnSetTableBase(s32 arg0);
 extern void sdkSpriteDraw(u8 *arg0, s32 arg1);
