@@ -40,8 +40,8 @@ void ObjectParticleDraw(void *arg0);
 void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 void func_004b1600(void);
 void func_004a7830(void);
-void *func_004571a0(void);
-void *func_004571c0(void);
+void *K_Clump_GetLightA(void);
+void *K_Clump_GetLightC(void);
 void func_003c38b0(void *arg0, void *arg1);
 void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 void func_00440b68(const void *arg0, const void *arg1, s32 arg2);
@@ -278,9 +278,9 @@ s32 TnTaskUpdate(u8 *unusedTask) {
     func_004b1600();
     func_004a7830();
     if (D_00922CC0[0] != 0) {
-        func_003c38b0(func_004571a0(), (void *)D_00922CA0);
-        func_003c38b0(func_004571c0(), (void *)D_00922CB0);
-        func_003e9cb0(*(void **)((u8 *)func_004571c0() + 4), (void *)D_00922C60, 0);
+        func_003c38b0(K_Clump_GetLightA(), (void *)D_00922CA0);
+        func_003c38b0(K_Clump_GetLightC(), (void *)D_00922CB0);
+        func_003e9cb0(*(void **)((u8 *)K_Clump_GetLightC() + 4), (void *)D_00922C60, 0);
         D_00922CC0[0] = 0;
     }
     return 0;
