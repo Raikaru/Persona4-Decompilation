@@ -848,11 +848,12 @@ void func_00287360(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     }
 }
 #pragma pop
+// Updates an event's wait state: finds its type-0x22 node and sets wait bit 0x20 (mode 0, once the state at +0x678 has cleared) or 0x2000 (mode 1, once the fade has finished).
 // FUN_00287AD0
 /* measured: without opt_loop_invariants, MWCC rematerializes the 0x22 loop
  * constant inside the loop body; retail hoists it to the preheader. */
 #pragma opt_loop_invariants on
-void func_00287ad0(int param_1, int param_2) {
+void evtUpdateWaitState(int param_1, int param_2) {
     u8 *a = NULL;
     u8 *b = NULL;
     u8 *node = *(u8 **)(param_2 + 0x4C);
@@ -884,8 +885,9 @@ void func_00287ad0(int param_1, int param_2) {
 /* measured: see annotation above (func_00287ad0). */
 #pragma opt_loop_invariants off
 
+// Selects the type-0x26 choice whose range [start, start + length] contains arg0, stores its value in arg1, and sets the selected flag.
 // FUN_00287BF0
-void func_00287bf0(s32 arg0, u8 *arg1) {
+void evtSelectRangeChoice(s32 arg0, u8 *arg1) {
     u8 *var_17;
     u8 *var_16;
     u16 temp_4;
@@ -910,8 +912,9 @@ void func_00287bf0(s32 arg0, u8 *arg1) {
     }
 }
 
+// Returns the type-2 choice node with the largest start not above arg2 that matches kind arg3 and passes its condition, or NULL.
 // FUN_00287CC0
-u8 *func_00287cc0(u32 arg0, u8 *arg1, s32 arg2, s32 arg3) {
+u8 *evtFindBestChoice(u32 arg0, u8 *arg1, s32 arg2, s32 arg3) {
     u8 *node;
     u8 *found;
     s32 best;
@@ -942,7 +945,7 @@ s32 arg2;
 u8 *arg3;
 {
 
-    u8 *func_00287cc0(u32, u8 *, s32, s32);
+    u8 *evtFindBestChoice(u32, u8 *, s32, s32);
     s32 mdlLayerIsPresent(void *, s32);
     f32 mdlGetLayerTime(void *, s32);
     s32 spB0;
@@ -976,7 +979,7 @@ u8 *arg3;
         while (var_17 < 4) {
             call_idx = (u16)var_17;
             if (mdlLayerIsPresent((void *)var_18, call_idx) != 0) {
-                temp_2 = func_00287cc0((u32)arg3, (u8 *)arg2, arg0, var_17);
+                temp_2 = evtFindBestChoice((u32)arg3, (u8 *)arg2, arg0, var_17);
                 if (temp_2 != NULL) {
                     if (*(s8 *)(temp_2 + 0x16) == 0) {
                         var_3 = 1;
@@ -2545,8 +2548,8 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
         }
         var_20 = *(u8 **)(var_20 + 0x90);
     }
-    func_00287ad0(arg0, (s32)arg1);
-    func_00287bf0(arg0, arg1);
+    evtUpdateWaitState(arg0, (s32)arg1);
+    evtSelectRangeChoice(arg0, arg1);
     temp_4 = *(s32 *)arg1;
     if ((temp_4 & 1) && !(temp_4 & 2)) {
         MT_Scene_StopShake();
@@ -2657,7 +2660,7 @@ u8 *func_0028afe0(void) {
     p = D_008873F4[0](1, 0x7B0, 0x40000);
     evtMemAccount(0, 0x7B0);
     memset(p, 0, 0x7B0);
-    func_0028b230((s32)p);
+    evtResetPendingState((s32)p);
     src = (u32 *)(p + 0x76C);
     dst = sp30;
     i = 15;
@@ -2715,8 +2718,9 @@ void evtDestroy(int param_1, s32 arg1) {
     func_00440b68(D_0063C628);
 }
 
+// Clears the pending word at +0x774 of the event block and calls the event state reset.
 // FUN_0028B230
-void func_0028b230(int param_1) {
+void evtResetPendingState(int param_1) {
     *(u32 *)(param_1 + 0x774) = 0;
     func_00285260();
 }
