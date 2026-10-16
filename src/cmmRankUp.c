@@ -86,7 +86,7 @@ extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern u8 *func_00251570(s32 arg0, s32 arg1);
 extern void func_00251850(u8 *arg0);
 extern s32 func_0025f360(s32 arg0, s32 arg1, u8 *arg2);
-extern s32 func_0035afa0(s32 arg0);
+extern s32 datPortraitValue(s32 arg0);
 extern u32 RpRandom(void);
 extern u8 *RwMatrixMultiply(u8 *arg0, u8 *arg1, u8 *arg2);
 extern f32 cosf(f32 fparg0);
@@ -618,8 +618,8 @@ s32 func_00252a60(s32 root, u8 *work, u8 *context)
         RwMatrixRotate(&matrix, &state.axis, state.f1C, 0);
         RwMatrixRotate(&matrix, &axis.vector, -90.0f * (f32)frame / 30.0f, 2);
     }
-    textureA = func_0035afa0(*(s32 *)(context + 0x14));
-    textureB = func_0035afa0(*(s32 *)(context + 0x18));
+    textureA = datPortraitValue(*(s32 *)(context + 0x14));
+    textureB = datPortraitValue(*(s32 *)(context + 0x18));
     if (*(s32 *)(work + 4) >= 25) {
         f32 factor;
         overlay = func_0025f360(25, 0, *(u8 **)(context + 0x10));
@@ -2467,8 +2467,8 @@ s32 func_00257900(u8 *task) {
     RankUpRectangle overlayRectangle;
 
     context = (u8 *)kwlnTaskGetWork(task);
-    firstTexture = (s32)(func_0035afa0(*(s32 *)(context + 0x2C)));
-    secondTexture = (s32)(func_0035afa0(*(s32 *)(context + 0x30)));
+    firstTexture = (s32)(datPortraitValue(*(s32 *)(context + 0x2C)));
+    secondTexture = (s32)(datPortraitValue(*(s32 *)(context + 0x30)));
     animationMode = (s32)(*(s32 *)(context + 0x1C));
     switch (animationMode) {
     case 0:
@@ -3195,7 +3195,7 @@ extern f32 fGpffff82a4;
 extern u8 *iGpffffb448;
 extern char cGpffffa680;
 extern char cGpffffa688;
-extern u8 *func_0035adc0(s32 parent, s64 id, s32 flags);
+extern u8 *datPortraitTaskCreate(s32 parent, s64 id, s32 flags);
 extern void func_00440b68();
 extern u8 *func_00454a60();
 extern s32 H_Cdvd_IsFileLoaded();
@@ -3290,8 +3290,8 @@ s32 func_0025b240(u8 *arg0) {
     switch (*(s32 *)(ctx + 4)) {
     case 0:
         *(s32 *)(ctx + 4) = 3;
-        *(s32 *)(ctx + 0x2C) = (s32)func_0035adc0((s32)argb, cmmCommunityArcana(*(u16 *)(ctx + 0x18)), 0);
-        *(s32 *)(ctx + 0x30) = (s32)func_0035adc0((s32)argb, -1, 0);
+        *(s32 *)(ctx + 0x2C) = (s32)datPortraitTaskCreate((s32)argb, cmmCommunityArcana(*(u16 *)(ctx + 0x18)), 0);
+        *(s32 *)(ctx + 0x30) = (s32)datPortraitTaskCreate((s32)argb, -1, 0);
         func_00440b68(&cGpffffa680, D_00635CF8, 0xADB);
         *(u8 **)(ctx + 0x34) = func_00454a60(D_00636760, 1);
         goto tail;
@@ -3318,10 +3318,10 @@ s32 func_0025b240(u8 *arg0) {
         }
         return -1;
     case 3:
-        if (func_0035af60(*(s32 *)(ctx + 0x2C)) == 0) {
+        if (datPortraitIsLoaded(*(s32 *)(ctx + 0x2C)) == 0) {
             goto tail;
         }
-        if (func_0035af60(*(s32 *)(ctx + 0x30)) == 0) {
+        if (datPortraitIsLoaded(*(s32 *)(ctx + 0x30)) == 0) {
             goto tail;
         }
         if (H_Cdvd_IsFileLoaded(*(u8 **)(ctx + 0x34)) == 0) {
@@ -3334,7 +3334,7 @@ s32 func_0025b240(u8 *arg0) {
         u8 *palette;
         s32 raster;
         u8 *paletteCopy;
-        raster = func_0035afa0(*(s32 *)(ctx + 0x2C));
+        raster = datPortraitValue(*(s32 *)(ctx + 0x2C));
         palette = func_003ec3d0((void *)raster, 1);
         if (palette == 0) {
             kAssertFail(D_00635CF8, 0xAF7);

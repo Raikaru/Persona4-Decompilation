@@ -27,8 +27,8 @@ extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern s64 cmmCommunityArcana(s32 arg0);
 extern s32 sdkSpritePackCreate(u8 *arg0);
 extern s32 func_0025f110(s32 arg0);
-extern s32 func_0035adc0(s32 arg0, s64 arg1, s32 arg2);
-extern s32 func_0035af60(s32 arg0);
+extern s32 datPortraitTaskCreate(s32 arg0, s64 arg1, s32 arg2);
+extern s32 datPortraitIsLoaded(s32 arg0);
 extern s32 func_00251f00(s32 arg0, s32 *arg1);
 extern void func_00251fc0(s32 arg0, s32 arg1);
 extern void func_00252050(s32 arg0, s32 arg1, s32 arg2);
@@ -71,8 +71,8 @@ s32 func_002519e0(u8 *sdkTaskBytes) {
     case 0:
         temp_2[4] = sdkSpritePackCreate(D_00635BF0);
         temp_2[0] = 2;
-        temp_2[5] = func_0035adc0(arg0, cmmCommunityArcana((u16)temp_2[1]), 0);
-        temp_2[6] = func_0035adc0(arg0, -1, 0);
+        temp_2[5] = datPortraitTaskCreate(arg0, cmmCommunityArcana((u16)temp_2[1]), 0);
+        temp_2[6] = datPortraitTaskCreate(arg0, -1, 0);
         temp_2[7] = func_00251f00(arg0, temp_2);
         goto block_15;
     case 1:
@@ -81,10 +81,10 @@ s32 func_002519e0(u8 *sdkTaskBytes) {
         if (func_0025f110(temp_2[4]) == 0) {
             goto block_15;
         }
-        if (func_0035af60(temp_2[5]) == 0) {
+        if (datPortraitIsLoaded(temp_2[5]) == 0) {
             goto block_15;
         }
-        if (func_0035af60(temp_2[6]) == 0) {
+        if (datPortraitIsLoaded(temp_2[6]) == 0) {
             goto block_15;
         }
         temp_2[0] = 3;

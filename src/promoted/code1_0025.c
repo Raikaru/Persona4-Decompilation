@@ -79,8 +79,8 @@ s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg
 extern s64 cmmCommunityArcana(s32 arg0);
 extern s32 sdkSpritePackCreate(u8 *arg0);
 extern s32 func_0025f110(s32 arg0);
-extern s32 func_0035adc0(s32 arg0, s64 arg1, s32 arg2);
-extern s32 func_0035af60(s32 arg0);
+extern s32 datPortraitTaskCreate(s32 arg0, s64 arg1, s32 arg2);
+extern s32 datPortraitIsLoaded(s32 arg0);
 extern s32 func_00251f00(s32 arg0, s32 *arg1);
 extern void func_00251fc0(s32 arg0, s32 arg1);
 extern void func_00252050(s32 arg0, s32 arg1, s32 arg2);
