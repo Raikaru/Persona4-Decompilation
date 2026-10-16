@@ -68,7 +68,7 @@ extern s32 func_003df590(s32 arg0, ...);
 extern u8 *func_003df4d0(s32 *arg0);
 extern void func_00389370();
 extern void func_00389640();
-extern void func_00389e10();
+extern void btlShuffleDrawWave();
 extern void func_0038a940();
 extern void func_0038b1c0();
 extern void sdkSpriteDrawOnceAt(s32 resource, s32 slot, f32 x, f32 y,
@@ -654,7 +654,7 @@ void func_00385380(u8 *arg0)
  * Native b210 O2: 4752/4752 bytes, all 47 relocations resolved; no zero tail.
  * See docs/probe_archive/Shuffle_side_quads_00385970_20260930.md. */
 // FUN_00385970
-void func_00385970(u8 *arg0)
+void btlShuffleDrawSideQuads(u8 *arg0)
 {
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
@@ -915,7 +915,7 @@ static inline f32 code38ScaleRadius(f32 value, f32 scale)
  * lifetimes; the final alpha is converted once at the byte provider.
  * See docs/probe_archive/Menu_shuffle_batch_20260923.md. */
 // FUN_00386C00
-void func_00386c00(u8 *arg0)
+void btlShuffleDrawMenuBatch(u8 *arg0)
 {
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
@@ -1049,8 +1049,8 @@ void func_003874c0(s32 arg0, u8 *arg1)
     extern void btlShuffleDrawGlowCards(u8 *arg0);
     extern void btlShuffleDrawPatternLineFade(u8 *arg0);
     extern void func_00385380(u8 *arg0);
-    extern void func_00385970(u8 *arg0);
-    extern void func_00386c00(u8 *arg0);
+    extern void btlShuffleDrawSideQuads(u8 *arg0);
+    extern void btlShuffleDrawMenuBatch(u8 *arg0);
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     u8 *base;
     u8 *entry;
@@ -1099,10 +1099,10 @@ void func_003874c0(s32 arg0, u8 *arg1)
         func_00385380(arg1);
     }
     if ((*(u16 *)(arg1 + 0x4C) & 1) != 0) {
-        func_00385970(arg1);
+        btlShuffleDrawSideQuads(arg1);
     }
     if ((*(u16 *)(arg1 + 0x4C) & 2) != 0) {
-        func_00386c00(arg1);
+        btlShuffleDrawMenuBatch(arg1);
     }
 }
 static inline f32 code38QuarterTurnOffset(s32 index)
@@ -1962,7 +1962,7 @@ typedef struct Code38WaveWorkspace {
  * lifetimes. Its explicit gap has no read or written value.
  * See docs/probe_archive/Shuffle_wave_00389e10_20260923.md. */
 // FUN_00389E10
-void func_00389e10(u8 **arg0)
+void btlShuffleDrawWave(u8 **arg0)
 {
     extern f32 D_007612D0;
     extern f32 D_007613EC;
@@ -2478,7 +2478,7 @@ void func_0038b490(s32 arg0, u8 **arg1)
     func_00389640(arg1);
     resource = *(s32 *)(*arg1 + 0x1F2B4);
     sdkSpriteDrawOnceAt(resource, 0, 0.0f, 0.0f, 0xDA, 0x8C, 0x17, 0xC0);
-    func_00389e10(arg1);
+    btlShuffleDrawWave(arg1);
     func_0038a940(arg1);
     func_0038b1c0((u8 *)arg1);
 }
