@@ -12,7 +12,7 @@ s32 func_001546a0(s32 field, s32 room);
 s32 func_00154720(s32 field, s32 room, s32 condition);
 
 /* Field IDs travel as words; the file provider explicitly selects low 16 bits. */
-u8 *func_0015ff20(s32 fieldId, s32 roomId);
+u8 *FldHbnOpenTable(s32 fieldId, s32 roomId);
 
 /* Creates the field-area task and returns the registration handle. */
 s32 func_00186640(u8 *parent);

@@ -875,9 +875,9 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 FldUnit_AllSlotAnimsDone(void);
     void FldUnit_RequestUnitResource(void);
     s32 FldUnit_InstallResources(void);
-    s32 func_00160000(u8 *);
-    u8 *func_001601e0(s32);
-    s32 func_001602a0(u8 *, s32);
+    s32 FldHbnLoadEntryTable(u8 *);
+    u8 *FldHbnOpenScript(s32);
+    s32 FldHbnLoadScriptBuffer(u8 *, s32);
     void *mdlCreateModelObjectFromData(u32, u16, void *, u32);
     s32 mdlPrepareModel(u8 *);
     void func_00457140(u8, u8, u8, u8);
@@ -1340,8 +1340,8 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 s32 a;
                 s32 b;
                 a = FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState());
-                work->fieldTask = (s32)func_0015ff20(a, FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
-                work->environmentTask = (s32)func_001601e0(FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
+                work->fieldTask = (s32)FldHbnOpenTable(a, FldLoadTaskRoomId(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
+                work->environmentTask = (s32)FldHbnOpenScript(FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState()));
                 {
                     u32 _p88 = D_00762EA0;
                     *(s32 *)(_p88 + 0x88) = *(s32 *)(_p88 + 0x88) | 0x80000000;
@@ -1372,9 +1372,9 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
             }
             goto running;
         case 14:
-            if (func_00160000((u8 *)(work->fieldTask)) != 0) {
+            if (FldHbnLoadEntryTable((u8 *)(work->fieldTask)) != 0) {
                 work->fieldTask = 0;
-                if (func_001602a0((u8 *)(work->environmentTask), FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState())) != 0) {
+                if (FldHbnLoadScriptBuffer((u8 *)(work->environmentTask), FldLoadTaskFieldId(*(u8 **)(u8 *)MT_Scene_GetFrameState())) != 0) {
                     work->environmentTask = 0;
                     if (FldUnit_AllSlotAnimsDone() != 0 && fieldSceneLoadStep() != 0) {
                         s32 t = work->modelFile;

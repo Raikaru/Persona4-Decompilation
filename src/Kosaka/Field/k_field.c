@@ -139,7 +139,7 @@ extern void func_001029a0(s32, void *, s32, s32);
 
 #pragma opt_propagation off
 // FUN_00155360
-s32 func_00155360(u8 *task)
+s32 FldRootUpdate(u8 *task)
 {
     s32 field;
     s32 room;
@@ -348,10 +348,10 @@ s32 func_00155360(u8 *task)
 #pragma opt_propagation on
 
 
-/* measured: func_00155bf0 now matches at normalized_diff 0 (object 540B/window 544B); spelling the second range as <= 0x1E makes MWCCPS2 use the retail $at branch temporary, with the same trailing window nop. */
+/* measured: FldRootDestroy now matches at normalized_diff 0 (object 540B/window 544B); spelling the second range as <= 0x1E makes MWCCPS2 use the retail $at branch temporary, with the same trailing window nop. */
 // Committed at nd 0.
 // FUN_00155BF0
-void func_00155bf0(u8 *arg0)
+void FldRootDestroy(u8 *arg0)
 {
     u8 *temp_17;
     s32 temp_4;
@@ -447,7 +447,7 @@ extern f32 D_005EFF40[];
 extern void RwEngineGetMatrixTolerances(f32 *arg0);
 extern void RwMatrixOptimize(void *arg0, f32 *arg1);
 extern void func_003e9680(void *arg0);
-extern s32 func_00155360(u8 *arg0);
+extern s32 FldRootUpdate(u8 *arg0);
 /* measured: object 648B/window 656B, nd 0. The six stack parameters are s64
    slots read in place through `*(s32 *)&argN` / `*(u8 *)&arg8`: an s32
    stack parameter with several uses gets homed into $s2 at entry and pushes
@@ -484,7 +484,7 @@ s32 FldRootCreate(u8 *arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4, s16 arg5, s3
     if (work == NULL) {
         return 0;
     }
-    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFF48), 0xF, 0, 0, func_00155360, func_00155bf0, (u8 *)(work));
+    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFF48), 0xF, 0, 0, FldRootUpdate, FldRootDestroy, (u8 *)(work));
     D_007D2510[0] = handle;
     resrcMngSetRenderSuppressed(0);
     if (*(s32 *)&arg10 > 0) {
