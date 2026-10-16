@@ -35,168 +35,15 @@ extern void calSplitDayOfYear(s16 year, s32 *month, s32 *day);
 extern s32 datGetFlag(s32 id);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
-// FUN_0015C750
-s32 NpcTable_RequestSceneTable(void)
-{
-    char sp90[0x80];
-    char sp10[0x80];
-    u8 *scene;
-
-    if (FldRc_GetLoadSource() != 0) {
-        goto ret1;
-    }
-    strcpy(sp90, D_005F0790);
-    scene = gMtScene;
-    sprintf(sp10, D_005F07A0, *(s32 *)scene, *(s32 *)(scene + 4));
-    if (H_Cdvd_FileExists(sp10) == 0) {
-        return 0;
-    }
-    func_00440b68(&D_00762F20, D_005F07C0, 0x68);
-    return (s32)func_00454a60(sp10, 0);
-ret1:
-    return 1;
-}
-
-
-// FUN_0015C800
-s32 NpcTable_InstallSceneTable(u8 *arg0)
-{
-    s32 temp;
-    u8 *table;
-    u8 *work;
-    char sp40[0x4C];
-    u32 sp8C;
-
-    if (arg0 == 0) {
-        return 1;
-    }
-    if (FldRc_GetLoadSource() == 0) {
-        if (H_Cdvd_IsFileLoaded(arg0) == 0) {
-            goto ret0;
-        }
-        chkmemAllocSiteTag(&D_005F07C0, 0x81);
-        temp = (s32)(*D_008873F4)(1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
-        *(u8 **)(MT_Scene_GetFrameState() + 0x18E8) = (u8 *)temp;
-        {
-            u8 *state = MT_Scene_GetFrameState();
-            s32 size = *(s32 *)(arg0 + 0x118);
-            void *dst = *(void **)(state + 0x18E8);
-            void *src = *(void **)(arg0 + 0x110);
-            memcpy(dst, src, size);
-        }
-        table = *(u8 **)(MT_Scene_GetFrameState() + 0x18E8);
-        *(s32 *)(MT_Scene_GetFrameState() + 0x18EC) = *(s32 *)table;
-        work = table + 0x20;
-        *(u8 **)(MT_Scene_GetFrameState() + 0x18F0) = work;
-        *(u8 **)(MT_Scene_GetFrameState() + 0x18F4) =
-            *(u8 **)(MT_Scene_GetFrameState() + 0x18F0) + *(s32 *)table * 0x20;
-        H_Cdvd_Destroy(arg0);
-        return 1;
-    }
-    sprintf(sp40, D_005F07D0, *(s32 *)gMtScene, *(s32 *)(gMtScene + 4));
-    table = func_00455f70(sp40, &sp8C);
-    if (table != 0) {
-        chkmemAllocSiteTag(&D_005F07C0, 0xA2);
-        temp = (s32)(*D_008873F4)(1, (s32)(sp8C), 0x40000);
-        *(u8 **)(MT_Scene_GetFrameState() + 0x18E8) = (u8 *)temp;
-        {
-            u8 *state = MT_Scene_GetFrameState();
-            s32 size = sp8C;
-            void *dst = *(void **)(state + 0x18E8);
-            void *src = table;
-            memcpy(dst, src, size);
-        }
-        work = *(u8 **)(MT_Scene_GetFrameState() + 0x18E8);
-        *(s32 *)(MT_Scene_GetFrameState() + 0x18EC) = *(s32 *)work;
-        table = work + 0x20;
-        *(u8 **)(MT_Scene_GetFrameState() + 0x18F0) = table;
-        *(u8 **)(MT_Scene_GetFrameState() + 0x18F4) =
-            *(u8 **)(MT_Scene_GetFrameState() + 0x18F0) + *(s32 *)work * 0x20;
-    }
-    return 1;
-ret0:
-    return 0;
-}
-
-// FUN_0015CA30
-void *NpcTable_FindActiveEntry(void)
-{
-    s32 sp6C;
-    s32 sp68;
-    u16 *work = *(u16 **)(MT_Scene_GetFrameState() + 0x18F0);
-    u16 *end;
-    s32 s3;
-    s32 s2;
-    s32 s1;
-    s32 i;
-
-    if (work == 0) {
-        return 0;
-    }
-    end = work + (*(s32 *)(MT_Scene_GetFrameState() + 0x18EC) - 1) * 0x10;
-    s3 = 3;
-    s2 = 0x1F;
-    s1 = 5;
-    calSplitDayOfYear((s16)datGetDateIndex(), &sp6C, &sp68);
-    i = 0;
-    while (i < *(u32 *)(MT_Scene_GetFrameState() + 0x18EC)) {
-        if (clndIsDateInRange(end[0], end[1], s3, s2) != 1) {
-            goto update;
-        }
-        if (end[0] == sp6C && end[1] == sp68) {
-            if ((datGetTimeSlot() & 0xFF) < end[2]) {
-                goto next;
-            }
-        }
-        if (s3 == sp6C && s2 == sp68) {
-            if ((datGetTimeSlot() & 0xFF) > s1) {
-                goto next;
-            }
-        }
-        if (*(s32 *)((u8 *)end + 8) == -1) {
-            break;
-        }
-        if (datGetFlag(*(s32 *)((u8 *)end + 8)) == 1) {
-            break;
-        }
-    update:
-        s3 = end[0];
-        s2 = end[1];
-        s1 = end[2];
-    next:
-        i++;
-        end -= 0x10;
-    }
-    if (i >= *(u32 *)(MT_Scene_GetFrameState() + 0x18EC)) {
-        end = 0;
-    }
-    return end;
-}
 
 
 
 
-// FUN_0015CBE0
-/* measured: without opt_loop_invariants on the loop's invariant table base is
-   rematerialized in the body (nd 6); with it the address hoists to the
-   preheader like retail (nd 1, the last word being all-zero padding tail). */
+
+
+
+extern u16 *NpcTable_GetMarkedEntry(s32 arg0);
 #pragma opt_loop_invariants on
-u16 *NpcTable_GetMarkedEntry(s32 arg0)
-{
-    u16 *work = *(u16 **)(MT_Scene_GetFrameState() + 0x18F4);
-    s32 count = 0;
-
-    for (;;) {
-        if (count == arg0) {
-            break;
-        }
-        if (*work == 0xFFFF) {
-            count += 1;
-        }
-        work += 0x10;
-    }
-    return work;
-}
 /* measured: see annotation above (NpcTable_GetMarkedEntry). */
 #pragma opt_loop_invariants off
 
@@ -207,192 +54,20 @@ u16 *NpcTable_GetMarkedEntry(s32 arg0)
 
 
 
-// FUN_0015CC40
-void NpcTable_ReleaseSceneTable(void)
-{
-    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18E8) != 0) {
-        (*DAT_008873EC)(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x18E8));
-        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18E8) = 0;
-        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18EC) = 0;
-        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18F0) = 0;
-        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18F4) = 0;
-    }
-}
 
 
-// FUN_0015CCC0
-s32 NpcTable_RequestSecondaryTable(void)
-{
-    char sp90[0x80];
-    char sp10[0x80];
-    u8 *scene;
-
-    if (FldRc_GetLoadSource() != 0) {
-        goto ret1;
-    }
-    strcpy(sp90, D_005F0790);
-    scene = gMtScene;
-    sprintf(sp10, D_005F07F0, *(s32 *)scene, *(s32 *)(scene + 4));
-    if (H_Cdvd_FileExists(sp10) == 0) {
-        return 0;
-    }
-    func_00440b68(&D_00762F20, D_005F07C0, 0x140);
-    return (s32)func_00454a60(sp10, 0);
-ret1:
-    return 1;
-}
 
 
-// FUN_0015CD70
-s32 NpcTable_InstallSecondaryTable(u8 *arg0)
-{
-    u8 *arg;
-    s32 temp;
-    char sp30[0x4C];
-    u32 sp7C;
-
-    arg = arg0;
-    if (arg == 0) {
-        return 1;
-    }
-    if (FldRc_GetLoadSource() == 0) {
-        if (H_Cdvd_IsFileLoaded(arg) != 0) {
-            chkmemAllocSiteTag(&D_005F07C0, 0x158);
-            temp = (s32)(*D_008873F4)(1, (s32)(*(u32 *)(arg + 0x118)), 0x40000);
-            *(u16 **)(MT_Scene_GetFrameState() + 0x18E0) = (u16 *)temp;
-            *(u32 *)(MT_Scene_GetFrameState() + 0x18E4) = *(u32 *)(arg + 0x118);
-            {
-                u8 *state = MT_Scene_GetFrameState();
-                s32 size = *(s32 *)(arg + 0x118);
-                void *dst = *(void **)(state + 0x18E0);
-                void *src = *(void **)(arg + 0x110);
-                memcpy(dst, src, size);
-            }
-            H_Cdvd_Destroy(arg);
-            return 1;
-        }
-        goto ret0;
-    }
-    sprintf(sp30, D_005F0810, *(s32 *)gMtScene, *(s32 *)(gMtScene + 4));
-    arg = func_00455f70(sp30, &sp7C);
-    if (arg != 0) {
-        chkmemAllocSiteTag(&D_005F07C0, 0x172);
-        temp = (s32)(*D_008873F4)(1, (s32)(sp7C), 0x40000);
-        *(u16 **)(MT_Scene_GetFrameState() + 0x18E0) = (u16 *)temp;
-        *(u32 *)(MT_Scene_GetFrameState() + 0x18E4) = sp7C;
-        {
-            u8 *state = MT_Scene_GetFrameState();
-            s32 size = sp7C;
-            void *dst = *(void **)(state + 0x18E0);
-            void *src = arg;
-            memcpy(dst, src, size);
-        }
-    }
-    return 1;
-ret0:
-    return 0;
-}
-
-// FUN_0015CF10
-void NpcTable_ReleaseSecondaryTable(void)
-{
-    if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18E0) != 0) {
-        (*DAT_008873EC)(*(void **)((u8 *)MT_Scene_GetFrameState() + 0x18E0));
-        *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x18E0) = 0;
-    }
-}
 
 
-// FUN_0015CF70
-s32 NpcTable_RequestFixedTable(void)
-{
-    char sp90[0x80];
-    char sp10[0x80];
-
-    strcpy(sp90, D_005F0790);
-    sprintf(sp10, D_005F0830);
-    if (H_Cdvd_FileExists(sp10) == 0) {
-        return 0;
-    }
-    func_00440b68(&D_00762F20, D_005F07C0, 0x1A2);
-    return (s32)func_00454a60(sp10, 0);
-}
 
 
-// FUN_0015D000
-/* measured: without opt_loop_invariants on, mwcc rematerializes the loop's
-   invariant base inside the body (nd 6); with it it hoists to the preheader
-   like retail (nd 0). */
+
+extern s32 NpcTable_InstallFixedTable(u8 *arg0);
 #pragma opt_loop_invariants on
-s32 NpcTable_InstallFixedTable(u8 *arg0)
-{
-    s32 handle;
-    s32 count;
-    u16 *work;
-    s32 i;
-
-    if (arg0 == 0) {
-        return 1;
-    }
-    if (H_Cdvd_IsFileLoaded(arg0) == 0) {
-        return 0;
-    }
-    chkmemAllocSiteTag(D_005F07C0, 0x1B3);
-    handle = (s32)D_008873F4[0](1, (s32)(*(u32 *)(arg0 + 0x118)), 0x40000);
-    D_00764384 = handle;
-    memcpy((void *)handle, *(void **)(arg0 + 0x110), *(s32 *)(arg0 + 0x118));
-    count = *(u32 *)(arg0 + 0x118) / 0x84;
-    D_0076438C = count;
-    work = (u16 *)D_00764384;
-    i = 0;
-    while (i < count) {
-        if (*work == 0xFFFF) {
-            D_00764388 += 1;
-        }
-        i++;
-        work = (u16 *)((u8 *)work + 0x84);
-    }
-    H_Cdvd_Destroy(arg0);
-    return 1;
-}
 /* measured: see annotation above (NpcTable_InstallFixedTable). */
 #pragma opt_loop_invariants off
 
 
-// FUN_0015D100
-void NpcTable_RequestBlockTable(u8 *arg0, s32 arg1)
-{
-    char spB0[0x80];
-    char sp30[0x80];
-
-    strcpy(spB0, D_005F0790);
-    sprintf(sp30, D_005F0850, arg1);
-    if (H_Cdvd_FileExists(sp30) != 0) {
-        func_00440b68(&D_00762F20, D_005F07C0, 0x1DF);
-        *(s32 *)(arg0 + 0xC) = (s32)func_00454a60(sp30, 1);
-    }
-}
 
 
-// FUN_0015D1A0
-s32 NpcTable_InstallBlockTable(u8 *arg0, s32 arg1)
-{
-    s32 size;
-
-    if (*(s32 *)(arg0 + 0xC) == 0) {
-        return 1;
-    }
-    if (H_Cdvd_IsFileLoaded(*(u8 **)(arg0 + 0xC)) == 0) {
-        goto ret0;
-    }
-    chkmemAllocSiteTag(D_005F07C0, 0x1F6);
-    size = *(u32 *)(*(u8 **)(arg0 + 0xC) + 0x118);
-    *(s32 *)(arg0 + 0x14) = (s32)D_008873F4[0](1, (s32)(size), 0x40000);
-    *(s32 *)(arg0 + 0x18) = *(s32 *)(*(u8 **)(arg0 + 0xC) + 0x118);
-    memcpy(*(void **)(arg0 + 0x14), *(void **)(*(u8 **)(arg0 + 0xC) + 0x110), *(s32 *)(*(u8 **)(arg0 + 0xC) + 0x118));
-    H_Cdvd_Destroy(*(u8 **)(arg0 + 0xC));
-    *(s32 *)(arg0 + 0xC) = 0;
-    return 1;
-ret0:
-    return 0;
-}
