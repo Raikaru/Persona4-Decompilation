@@ -48,9 +48,9 @@ extern void datPersonaSetLeadSlot(s16 arg0);
 extern s32 datCalcThresholdTriggerById(s16 arg0, u32 arg1);
 extern void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern s32 radarEntryIsAllowed(s16 arg0, s32 arg1, u8 *arg2);
-extern s32 func_0013a040(s16 *arg0, s32 arg1, s32 arg2);
-extern s32 func_0013a530(u8 *arg0, s32 arg1);
-extern void func_0013aa00(u8 *arg0);
+extern s32 cmpSkillSetSelection(s16 *arg0, s32 arg1, s32 arg2);
+extern s32 cmpSkillSetMode(u8 *arg0, s32 arg1);
+extern void cmpSkillSetScrollCursorMotion(u8 *arg0);
 extern void func_001344b0(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00131730(u8 *arg0);
 extern void func_00134560(u8 *arg0, s32 arg1);
@@ -101,7 +101,7 @@ extern void datSetUnitSp(s16 arg0, s16 arg1);
 extern void datSetFlag(s32 arg0, s32 arg1);
 extern void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 extern s32 FldStepNotAtBoundaryQuery(void);
-extern void func_0013aa90(u8 *arg0);
+extern void cmpSkillRandomizeCellMotions(u8 *arg0);
 extern void *memset(void *arg0, s32 arg1, u32 arg2);
 extern s16 datBuildMemberIdList(s16 *arg0);
 extern s16 datBuildPartyIdList(s16 *arg0);
@@ -2363,14 +2363,14 @@ s32 radarBeginCharacterPick(u8 *arg0, s32 *arg1) {
 // Intent: Recipient menu state machine: step the recipient selection and entry action states, and return the menu's result [inferred]
 // FUN_0013EA20
 s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
-    extern void func_00137fb0(u8 *arg0);
+    extern void cmpSkillMenuInit(u8 *arg0);
     extern u32 datCalcIsDeadById(s16 character);
     extern s32 func_00138ad0(u8 *arg0);
-    extern s32 func_0013abb0(u8 *arg0);
-    extern void func_0013ab30(u8 *arg0);
-    extern void func_0013a8a0(u8 *arg0);
-    extern void func_0013a930(void *arg0);
-    extern void func_00138490(void *arg0);
+    extern s32 cmpSkillRowsSettled(u8 *arg0);
+    extern void cmpSkillFreeSprites(u8 *arg0);
+    extern void cmpSkillSetPartyCursorMotion(u8 *arg0);
+    extern void cmpSkillLayoutScrollRows(void *arg0);
+    extern void cmpSkillBuildAbilityList(void *arg0);
     extern void radarHandleEntryAction(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3);
     u8 query[0x30];
     f32 alpha;
@@ -2403,7 +2403,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     switch (*arg0) {
         case 0:
             *arg1 = 0;
-            func_00137fb0(arg2);
+            cmpSkillMenuInit(arg2);
             *arg0 = 1;
             break;
         case 1:
@@ -2411,28 +2411,28 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             if (ready & func_0034c210()) {
                 *arg0 = 3;
                 func_0034bb20(8);
-                func_0013a8a0(arg2);
+                cmpSkillSetPartyCursorMotion(arg2);
             } else {
                 *arg1 = 0;
             }
             break;
         case 2:
-            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
-                func_0013ab30(arg2);
+            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
+                cmpSkillFreeSprites(arg2);
                 return 1;
             }
             break;
         case 3:
-            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
+            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
                 resrcMngSuppressRender();
                 *arg0 = 4;
-                func_0013a530(arg2, 2U);
-                func_0013a8a0(arg2);
+                cmpSkillSetMode(arg2, 2U);
+                cmpSkillSetPartyCursorMotion(arg2);
             }
             break;
         case 4:
             if (D_008C024E[0] & 0x20) {
-                func_0013a530(arg2, 1U);
+                cmpSkillSetMode(arg2, 1U);
                 *arg0 = 2;
                 resrcMngUnsuppressRender();
                 func_0034bb20(0xA);
@@ -2441,7 +2441,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 if ((s32)(datCalcIsDeadById(character)) != (s32)(0)) {
                     sdkSndStartStream(0, 0, 0, 8);
                 } else {
-                    func_0013a530(arg2, 3U);
+                    cmpSkillSetMode(arg2, 3U);
                     *arg0 = 5;
                     sdkSndStartStream(0, 0, 0, 1);
                 }
@@ -2452,31 +2452,31 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_00453670(query, 4, *(s16 *)(arg2 + 0xFC), characterRow, 0);
                 func_004538e0(query, 0x4000, 0x1000, 0, 0);
                 if ((s32)(func_00453960(query)) != (s32)(0)) {
-                    func_0013a040((s16 *)arg2, 0, *(s32 *)(query + 0x24));
-                    func_00138490(arg2);
-                    func_0013a8a0(arg2);
+                    cmpSkillSetSelection((s16 *)arg2, 0, *(s32 *)(query + 0x24));
+                    cmpSkillBuildAbilityList(arg2);
+                    cmpSkillSetPartyCursorMotion(arg2);
                     sdkSndStartStream(0, 1, 0, 0);
                 }
             }
             break;
         case 5:
-            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
+            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
                 *arg0 = 6;
-                func_0013a530(arg2, 4U);
+                cmpSkillSetMode(arg2, 4U);
             }
             break;
         case 6:
             if (D_008C024E[0] & 0x20) {
                 *arg0 = 3;
-                func_0013a530(arg2, 2);
-                func_0013a8a0(arg2);
+                cmpSkillSetMode(arg2, 2);
+                cmpSkillSetPartyCursorMotion(arg2);
                 sdkSndStartStream(0, 0, 0, 2);
             } else {
                 confirm = D_008C024E[0] & 0x40;
                 if (confirm != 0) {
                     radarHandleEntryAction((s32 *)arg0, character, recipientValue, arg2);
                 } else if (D_008C024E[0] & 0x80) {
-                    func_0013a530(arg2, 9);
+                    cmpSkillSetMode(arg2, 9);
                     *arg0 = 0xB;
                     sdkSndStartStream(0, 2, 0, 3);
                 } else if (D_008C024E[0] & 0x10) {
@@ -2486,10 +2486,10 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_00453670(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
                     func_004538e0(query, 0x4000, 0x1000, 0x2000, 0x8000);
                     if ((queryResult = func_00453960(query)) > 0) {
-                        func_0013a040((s16 *)arg2, 1, *(s32 *)(query + 0x24));
-                        func_0013a040((s16 *)arg2, 2, *(s32 *)(query + 0x28));
+                        cmpSkillSetSelection((s16 *)arg2, 1, *(s32 *)(query + 0x24));
+                        cmpSkillSetSelection((s16 *)arg2, 2, *(s32 *)(query + 0x28));
                         if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
-                            func_0013a930(arg2);
+                            cmpSkillLayoutScrollRows(arg2);
                         }
                         datCommunityCursorFeedback(queryResult);
                     }
@@ -2497,15 +2497,15 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             }
             break;
         case 7:
-            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
-                func_0013a530(arg2, 6U);
-                func_0013aa00(arg2);
+            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
+                cmpSkillSetMode(arg2, 6U);
+                cmpSkillSetScrollCursorMotion(arg2);
                 *arg0 = 8;
             }
             break;
         case 8:
             if (D_008C024E[0] & 0x20) {
-                func_0013a530(arg2, 3U);
+                cmpSkillSetMode(arg2, 3U);
                 *arg0 = 5;
                 func_0034bd60(8);
                 sdkSndStartStream(0, 0, 0, 2);
@@ -2518,7 +2518,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 case 1:
                     break;
                 case 2:
-                    func_0013a530(arg2, 3U);
+                    cmpSkillSetMode(arg2, 3U);
                     *arg0 = 5;
                     func_0034bd60(8);
                     break;
@@ -2533,8 +2533,8 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_00453670(query, 4, *(s16 *)(arg2 + 0xFC), recipientRow, 0);
                     func_004538e0(query, 0x4000, 0x1000, 0, 0);
                     if ((s32)(func_00453960(query)) != (s32)(0)) {
-                        func_0013a040((s16 *)arg2, 3, *(s32 *)(query + 0x24));
-                        func_0013aa00(arg2);
+                        cmpSkillSetSelection((s16 *)arg2, 3, *(s32 *)(query + 0x24));
+                        cmpSkillSetScrollCursorMotion(arg2);
                         sdkSndStartStream(0, 1, 0, 0);
                     }
                 }
@@ -2542,15 +2542,15 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             }
             break;
         case 9:
-            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
-                func_0013a530(arg2, 8U);
+            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
+                cmpSkillSetMode(arg2, 8U);
                 *arg0 = 0xA;
             }
             break;
         case 10:
-            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
+            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
                 if (D_008C024E[0] & 0x20) {
-                    func_0013a530(arg2, 3U);
+                    cmpSkillSetMode(arg2, 3U);
                     *arg0 = 5;
                     func_0034bd60(8);
                     sdkSndStartStream(0, 0, 0, 2);
@@ -2563,7 +2563,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     case 1:
                         break;
                     case 2:
-                        func_0013a530(arg2, 3U);
+                        cmpSkillSetMode(arg2, 3U);
                         *arg0 = 5;
                         func_0034bd60(8);
                         break;
@@ -2582,14 +2582,14 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             }
             break;
         case 11:
-            if ((s32)(func_0013abb0(arg2)) != (s32)(0)) {
-                func_0013a530(arg2, 0xAU);
+            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
+                cmpSkillSetMode(arg2, 0xAU);
                 *arg0 = 0xC;
             }
             break;
         case 12:
             if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
-                func_0013a530(arg2, 3);
+                cmpSkillSetMode(arg2, 3);
                 *arg0 = 5;
                 sdkSndStartStream(0, 2, 0, 4);
             } else {
@@ -2603,10 +2603,10 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_00453670(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
                     func_004538e0(query, 0x4000, 0x1000, 0x2000, 0x8000);
                     if ((alternateQueryResult = func_00453960(query)) > 0) {
-                        func_0013a040((s16 *)arg2, 1, *(s32 *)(query + 0x24));
-                        func_0013a040((s16 *)arg2, 2, *(s32 *)(query + 0x28));
+                        cmpSkillSetSelection((s16 *)arg2, 1, *(s32 *)(query + 0x24));
+                        cmpSkillSetSelection((s16 *)arg2, 2, *(s32 *)(query + 0x28));
                         if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
-                            func_0013a930(arg2);
+                            cmpSkillLayoutScrollRows(arg2);
                         }
                         datCommunityCursorFeedback(alternateQueryResult);
                     }
@@ -2644,15 +2644,15 @@ void radarHandleEntryAction(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
     }
     temp_3 = func_0010f8c0(*(u16 *)(code13AddOff(temp_18 * 0xC, arg3) + 0x102)) & 0xFFFF;
     if (temp_3 == 0) {
-        func_0013a040((s16 *)arg3, 3, 0);
-        func_0013a530(arg3, 5);
-        func_0013aa00(arg3);
+        cmpSkillSetSelection((s16 *)arg3, 3, 0);
+        cmpSkillSetMode(arg3, 5);
+        cmpSkillSetScrollCursorMotion(arg3);
         if (arg0 != 0) {
             *arg0 = 7;
         }
     } else {
         if ((temp_3 == 2) || (temp_3 == 1)) {
-            func_0013a530(arg3, 7);
+            cmpSkillSetMode(arg3, 7);
             if (arg0 != 0) {
                 *arg0 = 9;
             }
