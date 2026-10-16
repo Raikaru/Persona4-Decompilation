@@ -1022,8 +1022,6 @@ static inline u8 *btlUnitOffsetAdd(u32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
 }
-/* Ten-byte motion table entries; the second halfword is a percentage. */
-typedef struct { s16 unk0; s16 rate; s16 unk4; s16 unk6; s16 unk8; } BtlMotionRate;
 /* 1796/1808 bytes (three words of padding). The unit's model is loaded or
    adopted, its resource ids and material flags are applied, then its motion
    frame, scale and quaternion rotation are pushed to the model. Levers: the
