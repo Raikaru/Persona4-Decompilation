@@ -143,28 +143,7 @@ void func_004b1100(u8 *arg0, f32 arg1)
 
 
 
-// FUN_004B11B0
-u8 *func_004b11b0(u8 *arg0)
-{
-    return func_00485c80(arg0);
-}
 
-// FUN_004B11D0
-void func_004b11d0(void *arg0, void *arg1)
-{
-    if (arg0 != NULL) {
-        TnSetTableBase(arg0);
-    }
-    func_00485870(arg1);
-}
-// FUN_004B1210
-void func_004b1210(void *arg0, void *arg1)
-{
-    if (arg0 != NULL) {
-        TnSetTableBase(arg0);
-    }
-    func_00485ae0(arg1);
-}
 // FUN_004B1250
 void func_004b1250(void *arg0, f32 *arg1)
 {
@@ -219,11 +198,6 @@ void func_004b12e0(u8 *arg0, u8 *arg1) {
     __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(work.result) : "memory");
     func_00486330(arg0, work.result);
 }
-// FUN_004B13D0
-void func_004b13d0(u8 *arg0, f32 arg1)
-{
-    func_00486400();
-}
 
 // FUN_004B13F0
 void func_004b13f0(void *object, s32 *arg1) {
@@ -234,15 +208,6 @@ void func_004b13f0(void *object, s32 *arg1) {
 extern u32 func_00486700(void *object);
 
 
-// FUN_004B1420
-void func_004b1420(u8 *arg0, f32 *arg1) {
-    f32 sp20[4];
-
-    func_004866e0(arg0, (u32 *)sp20);
-    arg1[0] = sp20[0];
-    arg1[1] = sp20[1];
-    arg1[2] = sp20[2];
-}
 
 // FUN_004B1470
 void func_004b1470(u8 *arg0, u8 *arg1)
@@ -270,23 +235,8 @@ void func_004b14f0(void *object, s32 *arg1) {
 typedef signed __int128 s128;
 
 
-// FUN_004B1520
-s32 func_004b1520(u8 *arg0)
-{
-    return func_00486060(arg0);
-}
 
-// FUN_004B1540
-void func_004b1540(void)
-{
-    func_004860f0();
-}
 
-// FUN_004B1560
-void func_004b1560(void)
-{
-    func_00486180();
-}
 
 // FUN_004B1590
 void func_004b1590(s32 arg0, s16 arg1)
@@ -297,12 +247,6 @@ void func_004b1590(s32 arg0, s16 arg1)
     D_00922DAC[0] = 0;
     iGpffffbb94 = 0;
     iGpffffbb98 = 1;
-}
-// FUN_004B15D0
-void func_004b15d0(void)
-{
-    func_004a7a50();
-    iGpffffbb98 = 0;
 }
 // FUN_004B1600
 void func_004b1600(void)
@@ -322,75 +266,7 @@ void func_004b1600(void)
         iGpffffbb94 = iGpffffbb94 + 1;
     }
 }
-// FUN_004B1680
-void func_004b1680(s32 arg0, s16 arg1, s32 arg2, s32 arg3)
-{
-    D_00922DA0[0] = arg0;
-    D_00922DA4[0] = arg1;
-    D_00922DA8[0] = arg2;
-    D_00922DAC[0] = arg3;
-    iGpffffbb94 = 0;
-    iGpffffbb98 = 1;
-}
-// FUN_004B16C0
-void *func_004b16c0(void *opaqueSource) {
-    u8 *arg0 = opaqueSource;
-    u16 *temp_2_3;
-    u16 *temp_2_4;
-    u16 temp_4;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_3;
-
-    chkmemAllocSiteTag(&iGpffffb118, 0x1A);
-    temp_2 = (u8 *)jtbl_008873E8[0](0xB0, 0x40000);
-    if (temp_2 == NULL) {
-        kAssertFail(&iGpffffb118, 0x1B);
-    }
-    memset(temp_2, 0, 0xB0);
-    *(s32 *)(temp_2 + 0) = -1;
-    if (arg0 == NULL) {
-        return temp_2;
-    }
-    *(s32 *)(temp_2 + 4) = *(u16 *)(arg0 + 0xC);
-    temp_2_2 = func_00484490(arg0);
-    if (temp_2_2 == NULL) {
-        kAssertFail(&iGpffffb118, 0x2C);
-    }
-    memcpy(temp_2 + 0xC, temp_2_2, 0x98);
-    temp_2_3 = (u16 *)GeometryCreateTableGrid(1, 2, 4, D_00713408, 0x4C);
-    *(u16 **)(temp_2 + 0xA4) = temp_2_3;
-    *temp_2_3 = *temp_2_3 & 0xFFFB;
-    temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0xA4) + 0x10) + 0x18);
-    temp_3 = *(u8 **)(temp_3 + 0x30);
-    *(s32 *)(temp_3 + 0) = -1;
-    *(s32 *)(temp_3 + 4) = -1;
-    *(s32 *)(temp_3 + 8) = -1;
-    *(s32 *)(temp_3 + 0xC) = -1;
-    temp_2_4 = func_004844d0(arg0);
-    if (temp_2_4 != NULL) {
-        temp_4 = *(u16 *)(arg0 + 0x1C);
-        switch (temp_4) {
-        case 1:
-            GeometryBlockSetTextureFromHandle(*(u8 **)(temp_2 + 0xA4), temp_2_4);
-            break;
-        case 2:
-            *(s32 *)(temp_2 + 0xAC) = func_00481d80(temp_2_4);
-            break;
-        case 4:
-            func_003c42b0(*(s32 *)(*(u8 **)(temp_2 + 0xA4) + 0x14),
-                          TnSlotObject(*temp_2_4));
-            break;
-        case 7:
-            *(s32 *)(temp_2 + 0xA8) = func_00482800(temp_2_4);
-            break;
-        default:
-            kAssertFail(&iGpffffb118, 0x5C);
-            break;
-        }
-    }
-    return temp_2;
-}
+extern void *func_004b16c0(void *opaqueSource);
 // FUN_004B18E0
 void func_004b18e0(u8 *arg0)
 {
@@ -483,264 +359,6 @@ typedef struct EffScreenSpriteRGBA {
 
 #pragma push
 #pragma opt_loop_invariants on
-// FUN_004B1AD0
-void func_004b1ad0(u8 *arg0)
-{
-    extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-    extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
-    extern void func_00482730(s32 arg0, u32 arg1);
-    extern void func_00482700(s32 arg0, f32 *arg1);
-    extern void func_00482ad0(void *arg0, u32 arg1, f32 *arg2);
-    extern void GeometryBlockGetTextureInfo(s32 arg0, u32 *arg1);
-    extern void func_003c22f0(void *arg0);
-    extern void func_003c42b0(void *arg0, s32 arg1);
-    extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
-    extern void func_00460ac0(void *arg0, void *arg1);
-    extern s32 TnGetOffset38(u16 arg0);
-    extern f32 cosf(f32 arg0);
-    extern f32 sinf(f32 arg0);
-    extern f32 D_00761134;
-    extern f32 fGpffff8084;
-    EffScreenSpriteRGBA color;
-    u32 baseWord;
-    u32 tintWord;
-    u32 packed;
-    u32 frame[4];
-    f32 animation[16];
-    f32 texture[8];
-    EffScreenSpriteFrame info;
-    f32 scale;
-    f32 right;
-    f32 bottom;
-    f32 left;
-    f32 top;
-    f32 spin;
-    s32 count;
-    s32 total;
-    u8 *sprite;
-    f32 *vertex;
-    f32 *uv;
-
-    total = *(s32 *)(arg0 + 0x98);
-    count = *(s32 *)(arg0 + 0x8);
-    sprite = *(u8 **)(arg0 + 0xA4);
-    if (count == 0) {
-        return;
-    }
-    if (count >= total) {
-        return;
-    }
-    {
-        s32 tint = func_0048abd0(arg0 + 0xC, arg0 + 0x30, count, total);
-        f32 unit;
-
-        baseWord = *(u32 *)arg0;
-        {
-            const u32 *word = &baseWord;
-
-            unit = D_00761134;
-            effectVuUnpackColor10V0(word, unit);
-        }
-        __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf11");
-        tintWord = tint;
-        effectVuUnpackColor10V0(&tintWord, unit);
-    }
-    __asm__ volatile(
-        "vmul.xyzw $vf10, $vf10, $vf11\n"
-        "lui $2, 0x437F\n"
-        "qmtc2.ni $2, $vf2\n"
-        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
-        "vftoi0.xyzw $vf10, $vf10\n"
-        "qmfc2.ni $2, $vf10\n"
-        "ppach $2, $0, $2\n"
-        "ppacb $2, $0, $2\n"
-        "sw $2, packed\n" : "=m"(packed) : : "$2", "$vf2", "$vf10");
-    *(u32 *)&color = packed;
-    if (color.alpha != 0xFF) {
-        *(EffScreenSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
-    } else {
-        color.alpha = 0xFE;
-        *(EffScreenSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
-        color.alpha = 0xFF;
-    }
-    scale = func_0048aff0(arg0 + 0x40, count, total) / 100.0f;
-    spin = func_0048aff0(arg0 + 0x6C, count, total);
-    spin += fGpffff8084;
-    if (*(s32 *)(arg0 + 0xAC) != 0) {
-        f32 cellW;
-        f32 cellH;
-        f32 y0;
-        f32 x0;
-        f32 x1;
-
-        func_00482730(*(s32 *)(arg0 + 0xAC), count);
-        func_00482700(*(s32 *)(arg0 + 0xAC), animation);
-        cellW = 16.0f * animation[12];
-        cellH = 16.0f * animation[13];
-        x0 = animation[6] * cellW;
-        info.corner[2] = (u16)x0;
-        y0 = animation[7] * cellH;
-        info.corner[3] = (u16)y0;
-        x1 = animation[8] * cellW;
-        info.corner[0] = (u16)x1;
-        info.corner[1] = (u16)y0;
-        info.corner[6] = (u16)x1;
-        x1 = animation[9] * cellH;
-        info.corner[7] = (u16)x1;
-        info.corner[4] = (u16)x0;
-        info.corner[5] = (u16)x1;
-        info.rect[0] = animation[0];
-        info.rect[1] = animation[1];
-        info.rect[2] = animation[2];
-        info.rect[3] = animation[3];
-        info.size[0] = (u32)animation[12];
-        info.size[1] = (u32)animation[13];
-        spin += animation[4];
-        func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&animation[5]);
-    } else if (*(void **)(arg0 + 0xA8) != NULL) {
-        s32 w;
-        s32 h;
-
-        func_00482ad0(*(void **)(arg0 + 0xA8), count, texture);
-        w = (s32)(16.0f * texture[2]);
-        h = (s32)(16.0f * texture[3]);
-        info.corner[2] = 0;
-        info.corner[3] = 0;
-        info.corner[0] = w;
-        info.corner[1] = 0;
-        info.corner[6] = w;
-        info.corner[7] = h;
-        info.corner[4] = 0;
-        info.corner[5] = h;
-        w = (s32)((f32)w * texture[0]);
-        h = (s32)((f32)h * texture[1]);
-        info.rect[0] = 0.0f;
-        info.rect[1] = 0.0f;
-        info.rect[2] = (f32)(w >> 5);
-        info.rect[3] = (f32)(h >> 5);
-        info.size[0] = (u32)texture[2];
-        info.size[1] = (u32)texture[3];
-        func_003c42b0(*(void **)(sprite + 0x14), *(s32 *)&texture[4]);
-    } else {
-        s32 w;
-        s32 h;
-
-        GeometryBlockGetTextureInfo((s32)sprite, frame);
-        w = frame[0] << 4;
-        h = frame[1] << 4;
-        info.corner[2] = 0;
-        info.corner[3] = 0;
-        info.corner[0] = w;
-        info.corner[1] = 0;
-        info.corner[6] = w;
-        info.corner[7] = h;
-        info.corner[4] = 0;
-        info.corner[5] = h;
-        info.rect[0] = 0.0f;
-        info.rect[1] = 0.0f;
-        info.rect[2] = (f32)w;
-        info.rect[3] = (f32)h;
-        info.size[0] = frame[0];
-        info.size[1] = frame[1];
-    }
-    RpGeometryLock(*(RpGeometry **)(*(u8 **)(sprite + 0x10) + 0x18), 0xFF2);
-    {
-        u8 *geometry = *(u8 **)(*(u8 **)(sprite + 0x10) + 0x18);
-
-        vertex = *(f32 **)(*(u8 **)(geometry + 0x5C) + 0x14);
-        uv = *(f32 **)(geometry + 0x34);
-    }
-    left = info.rect[0] * scale;
-    top = info.rect[1] * scale;
-    right = info.rect[2] * scale;
-    bottom = info.rect[3] * scale;
-    {
-        f32 c = cosf(spin);
-        f32 s = sinf(spin);
-        f32 x1 = left + right;
-        f32 y1 = top + bottom;
-        f32 x2;
-        f32 y2;
-        f32 x3;
-
-        vertex[0] = x1 * c - y1 * s;
-        vertex[1] = y1 * c + x1 * s;
-        x2 = left - right;
-        vertex[3] = x2 * c - y1 * s;
-        vertex[4] = x2 * s + y1 * c;
-        y2 = top - bottom;
-        vertex[9] = x2 * c - y2 * s;
-        vertex[10] = x2 * s + y2 * c;
-        vertex[6] = x1 * c - y2 * s;
-        x3 = left + right;
-        vertex[7] = y2 * c + x3 * s;
-    }
-    {
-        f32 invW = 1.0f / (f32)(info.size[0] << 4);
-        f32 invH = 1.0f / (f32)(info.size[1] << 4);
-
-        uv[2] = (f32)info.corner[0] * invW;
-        uv[3] = (f32)info.corner[1] * invH;
-        uv[0] = (f32)info.corner[2] * invW;
-        uv[1] = (f32)info.corner[3] * invH;
-        uv[6] = (f32)info.corner[6] * invW;
-        uv[7] = (f32)info.corner[7] * invH;
-        uv[4] = (f32)info.corner[4] * invW;
-        uv[5] = (f32)info.corner[5] * invH;
-    }
-    {
-f32 *camera;
-        f32 nearZ;
-        f32 farZ;
-        f32 offsetX;
-        f32 depth;
-        f32 halfW;
-        f32 halfH;
-        f32 z;
-        f32 offsetY;
-        u32 i;
-
-        camera = (f32 *)((u8 *)func_00457120() + 0x68);
-        nearZ = *(f32 *)((u8 *)func_00457120() + 0x80);
-        farZ = *(f32 *)((u8 *)func_00457120() + 0x84);
-        offsetX = (f32)*(s32 *)(arg0 + 0x9C);
-        offsetY = (f32)*(s32 *)(arg0 + 0xA0);
-        depth = ((f32)(-65535) * nearZ * farZ) / ((f32)(-65535) * farZ - -31.0f * (farZ - nearZ));
-        halfW = 2.0f * (camera[0] * depth);
-        halfH = 2.0f * (camera[1] * depth);
-        i = 0;
-        z = 1.0f + depth;
-
-        for (; i < 4; i++) {
-            vertex[0] = halfW * (0.5f + -(vertex[0] + offsetX) / 640.0f);
-            vertex[1] = halfH * (0.5f + -(vertex[1] + offsetY) / 448.0f);
-            vertex[2] = z;
-            vertex += 3;
-        }
-    }
-    {
-        u8 *owner = *(u8 **)(arg0 + 0xA4);
-        u8 *geometry = *(u8 **)(*(u8 **)(owner + 0x10) + 0x18);
-
-        func_003c22f0(geometry);
-        if ((*(u16 *)owner & 4) != 0) {
-            *(u16 *)(geometry + 0xC) |= 1;
-        }
-    }
-    {
-        u8 *scene = (u8 *)func_00457120();
-
-        func_003e9cb0(*(void **)(sprite + 0xC), (void *)((u32)*(u8 **)(scene + 4) + 0x10), 0);
-    }
-    *(u16 *)sprite &= 0xFFFE;
-    {
-        s32 light = TnGetOffset38(*(u16 *)(arg0 + 0x34));
-
-        *(u32 *)(sprite + 0x18) = 0;
-        *(u32 *)(sprite + 0x1C) = 0;
-        func_00460ac0((void *)light, sprite + 0x18);
-    }
-}
 #pragma pop
 // FUN_004B2740
 void func_004b2740(u8 *arg0)
@@ -829,113 +447,10 @@ s32 func_004b2780(u8 *arg0) {
     func_003e8110(*(u8 **)(arg0 + 0xC));
     return 1;
 }
-/* measured: close the opt_propagation bracket around func_004b2780. */
 #pragma opt_propagation on
-/* Native b210 recovery: 1016 executable bytes and eight zero alignment bytes.
-   Native unsigned conversions retain the retail paths. The raster declaration
-   precedes opacity, and the render-state table keeps its address while each
-   call reloads its callback. Four PS2 vertices own the complete draw buffer.
-   For initialized positive-duration state 3, elapsed is below duration.
-   Float operation order is retained. See Crossfade_004b2a00_20260922.md. */
-// FUN_004B2A00
 #pragma push
 #pragma opt_propagation on
 #pragma opt_common_subs on
-void func_004b2a00(u8 *fade) {
-    BtlShuffleSkyVertex vertices[4];
-    u8 *raster;
-    s32 opacity;
-    f32 screenDepth;
-    f32 reciprocalFar;
-    f32 alphaFloat;
-    f32 duration;
-    f32 alpha0;
-    f32 alpha1;
-    f32 alpha2;
-    f32 alpha3;
-    f32 colorValue;
-    s32 addressMode;
-    s32 vertexCount;
-    u32 elapsed;
-    s32 durationFrames;
-    s32 convertedAlpha;
-    uintptr_t stateInterface;
-
-    elapsed = *(u16 *)(fade + 4);
-    alphaFloat = (f32)(u32)elapsed;
-    durationFrames = *(u16 *)(fade + 2);
-    duration = (f32)(u32)durationFrames;
-    alphaFloat = 255.0f * (1.0f - (alphaFloat / duration));
-    convertedAlpha = (u8)alphaFloat;
-    opacity = convertedAlpha & 0xFF;
-    raster = *(u8 **)(*(u8 **)(fade + 12) + 96);
-    RpSkyRenderStateSet(2, (void *)0x44);
-    RpSkyRenderStateSet(3, (void *)0x717FB);
-    stateInterface = (uintptr_t)D_00887300;
-    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)0xE, (void *)0);
-    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)6, (void *)0);
-    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)8, (void *)0);
-    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)9, (void *)2);
-    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)0xC, (void *)1);
-    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)1, (void *)(u32)raster);
-    addressMode = 3;
-    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)addressMode, (void *)addressMode);
-    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)4, (void *)3);
-    screenDepth = *(f32 *)D_008872FC_abs;
-    reciprocalFar = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 132);
-    vertices[0].u.els.scrVertex.x = 0.0f;
-    vertices[0].u.els.scrVertex.y = 0.0f;
-    vertices[0].u.els.scrVertex.z = screenDepth;
-    colorValue = 255.0f;
-    vertices[0].u.els.color.r = colorValue;
-    vertices[0].u.els.color.g = colorValue;
-    vertices[0].u.els.color.b = colorValue;
-    alpha0 = (f32)(u32)opacity;
-    vertices[0].u.els.color.a = alpha0;
-    vertices[0].u.els.recipZ = reciprocalFar;
-    vertices[0].u.els.u = 0.0f;
-    vertices[0].u.els.v = 0.0f;
-    vertices[1].u.els.scrVertex.x = 0.0f;
-    vertices[1].u.els.scrVertex.y = 448.0f;
-    vertices[1].u.els.scrVertex.z = screenDepth;
-    colorValue = 255.0f;
-    vertices[1].u.els.color.r = colorValue;
-    vertices[1].u.els.color.g = colorValue;
-    vertices[1].u.els.color.b = colorValue;
-    alpha1 = (f32)(u32)opacity;
-    vertices[1].u.els.color.a = alpha1;
-    vertices[1].u.els.recipZ = reciprocalFar;
-    vertices[1].u.els.u = 0.0f;
-    vertices[1].u.els.v = 1.0f;
-    vertices[2].u.els.scrVertex.x = 640.0f;
-    vertices[2].u.els.scrVertex.y = 0.0f;
-    vertices[2].u.els.scrVertex.z = screenDepth;
-    colorValue = 255.0f;
-    vertices[2].u.els.color.r = colorValue;
-    vertices[2].u.els.color.g = colorValue;
-    vertices[2].u.els.color.b = colorValue;
-    alpha2 = (f32)(u32)opacity;
-    vertices[2].u.els.color.a = alpha2;
-    vertices[2].u.els.recipZ = reciprocalFar;
-    vertices[2].u.els.u = 1.0f;
-    vertices[2].u.els.v = 0.0f;
-    vertices[3].u.els.scrVertex.x = 640.0f;
-    vertices[3].u.els.scrVertex.y = 448.0f;
-    vertices[3].u.els.scrVertex.z = screenDepth;
-    colorValue = 255.0f;
-    vertices[3].u.els.color.r = colorValue;
-    vertices[3].u.els.color.g = colorValue;
-    vertices[3].u.els.color.b = colorValue;
-    alpha3 = (f32)(u32)opacity;
-    vertices[3].u.els.color.a = alpha3;
-    vertices[3].u.els.recipZ = reciprocalFar;
-    colorValue = 1.0f;
-    vertices[3].u.els.u = colorValue;
-    vertices[3].u.els.v = colorValue;
-    vertexCount = 4;
-    D_00887310_abs[0](rwPRIMTYPETRISTRIP, vertices, vertexCount);
-    (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)1, (void *)0);
-}
 #pragma pop
 // FUN_004B2E00
 void func_004b2e00(u8 *object) {
@@ -979,32 +494,7 @@ void func_004b2e00(u8 *object) {
         *(s32 *)(base + 8) = 0;
     }
 }
-// FUN_004B3250
-void func_004b3250(s32 arg0)
-{
-    iGpffffbb9c = arg0;
-}
 
-// FUN_004B3260
-void func_004b3260(u8 *arg0) {
-    u8 *temp_1;
-    u8 *temp_2;
-    u8 *dst;
-
-    temp_1 = *(u8 **)(arg0 + 0x20);
-    temp_2 = *(u8 **)(temp_1 + 4);
-    if (iGpffffbb64.c3 != 0xFF) {
-        dst = *(u8 **)(temp_2 + 0x14);
-        *(Code1_004bColor *)(dst + 4) = iGpffffbb64;
-    } else {
-        iGpffffbb64.c3 = 0xFE;
-        dst = *(u8 **)(temp_2 + 0x14);
-        *(Code1_004bColor *)(dst + 4) = iGpffffbb64;
-        iGpffffbb64.c3 = 0xFF;
-    }
-    *(void (**)(void))(temp_2 + 0x20) = LineNovaUpdateCameraQuads;
-    *(u8 **)(temp_2 + 0x28) = arg0;
-}
 // FUN_004B4EA0
 void func_004b4ea0(u8 *arg0)
 {
