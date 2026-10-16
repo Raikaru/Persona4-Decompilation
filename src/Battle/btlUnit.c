@@ -35,6 +35,7 @@ extern f32 D_007614c0;
 #include "include_asm.h"
 #define BTLUNIT_FLAG2_DIRTY (1 << 2)
 #define BTLUNIT_FLAG3_NOROT (1 << 13)
+#define BTLUNIT_FLAG3_MODEL_HIDDEN (1 << 12)
 
 extern RwV3d D_0060A0F0;
 
@@ -1447,9 +1448,9 @@ void btlUnitReleasePendingUnit(BtlUnitPacketUnitAtC* packet)
 }
 
 // FUN_0019D130
-u32 func_0019d130(BtlUnit* unit)
+u32 btlUnitIsModelVisible(BtlUnit* unit)
 {
-    return !((unit->flags3 & (1 << 12)) != 0);
+    return !((unit->flags3 & BTLUNIT_FLAG3_MODEL_HIDDEN) != 0);
 }
 
 // FUN_0019DE70
