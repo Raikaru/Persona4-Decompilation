@@ -293,7 +293,7 @@ extern f32 D_008872F8[];
  * Its aggregate copy preserves the grouped retail load/store schedule.
  * The predicate and subsequent height checks share the live triangle. */
 // FUN_0014BE50
-u16 func_0014be50(u8 *arg0, u8 **arg1) {
+u16 FldFrame_PickSurfaceAtPoint(u8 *arg0, u8 **arg1) {
     f32 *triangle[3];
     RwV3d normal;
     f32 pointY;
