@@ -251,13 +251,6 @@ s32 func_00331860(void)
     }
     return 0;
 }
-// FUN_00331950
-s32 func_00331950(void)
-{
-    func_002bdea0();
-    fclCombineApplyPackedResult();
-    return 1;
-}
 // FUN_00331980
 s32 func_00331980(void)
 {

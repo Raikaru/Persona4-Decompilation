@@ -286,92 +286,14 @@ extern void btlUiSetFactorXY(u8 *arg0, f32 fparg0, f32 fparg1);
 #pragma opt_propagation off
 #pragma pop
 #pragma opt_rebuildconditionals off
-/* measured: restore conditional rebuilding after callback completion. */
 #pragma opt_rebuildconditionals on
-// Intent: allocate the sprite-step packet (type 0x505). [inferred]
-// FUN_00202120
-BtlPacket *btlPacketCreateSpriteStep(u32 param_1, u16 param_2)
-{
-  u32 *puVar1;
-  int iVar2 = 0;
-
-  iVar2 = (int)btlPacketAlloc(0x505, 0xc);
-  *(void **)(iVar2 + 0x6c) = (void *)btlPacketStepSpriteFrameLookup;
-  puVar1 = *(u32 **)(iVar2 + 0x78);
-  *puVar1 = param_1;
-  *(u16 *)(puVar1 + 1) = param_2;
-  puVar1[2] = 0;
-  return (BtlPacket *)iVar2;
-}
-
-// Intent: allocate the sprite-table packet (type 0x507). [inferred]
-// FUN_002022E0
-u8 *btlPacketCreateSpriteTable(u32 param_1, u16 param_2)
-{
-  u32 *puVar1;
-  int iVar2 = 0;
-
-  iVar2 = (int)btlPacketAlloc(0x507, 0xc);
-  *(void **)(iVar2 + 0x6c) = (void *)btlPacketStepSpriteTable;
-  puVar1 = *(u32 **)(iVar2 + 0x78);
-  *puVar1 = param_1;
-  *(u16 *)(puVar1 + 1) = param_2;
-  puVar1[2] = 0;
-  return (u8 *)iVar2;
-}
-
-// Intent: allocate the effect-counter packet (type 0x506). [inferred]
-// FUN_00202400
-BtlPacket *btlPacketCreateEffectCounter(s32 arg0, s32 arg1)
-{
-    u8 *temp_2;
-    u8 *temp_3;
-
-    temp_2 = (u8 *)btlPacketAlloc(0x506, 0xC);
-    *(void **)(temp_2 + 0x6C) = (void *)btlPacketStepEffectCounter;
-    temp_3 = *(u8 **)(temp_2 + 0x78);
-    *(s32 *)(temp_3 + 0) = arg0;
-    *(s32 *)(temp_3 + 4) = arg1;
-    *(s32 *)(temp_3 + 8) = 0;
-    return (BtlPacket *)temp_2;
-}
 
 
 
-// Intent: allocate the unit-counter packet (type 0x500) with inc, update and dec callbacks. [inferred]
-// FUN_00202590
-u8 *btlPacketCreateUnitCounter(s32 arg0, s8 arg1, s16 arg2)
-{
-    u8 *packet;
-    u8 *temp;
 
-    packet = (u8 *)btlPacketAlloc(0x500, 8);
-    *(u8 *)(packet + 0x47) &= 0xEF;
-    *(void **)(packet + 0x68) = (void *)btlPacketIncUnitCounter;
-    *(void **)(packet + 0x6C) = (void *)btlPacketUpdateHpRatio;
-    *(void **)(packet + 0x70) = (void *)btlPacketDecUnitCounter;
-    temp = *(u8 **)(packet + 0x78);
-    *(s32 *)(temp + 0) = arg0;
-    *(s8 *)(temp + 4) = arg1;
-    *(s16 *)(temp + 6) = arg2;
-    return packet;
-}
+
 extern void btlPacketIncUnitCounterAlt(u8 *arg0);
 extern void btlPacketDecUnitCounterAlt(u8 *arg0);
-// Intent: allocate the HP-ratio packet (type 0x501) for a unit. [inferred]
-// FUN_00202740
-u8 *btlPacketCreateHpRatio(u8 *unit)
-{
-    u8 *packet;
-    packet = (u8 *)btlPacketAlloc(0x501, 4);
-    *(u8 *)(packet + 71) &= ~(1 << 4);
-    *(void **)(packet + 0x68) = (void *)btlPacketIncUnitCounterAlt;
-    *(void **)(packet + 0x6C) = (void *)btlPacketSetHpRatio;
-    *(void **)(packet + 0x70) = (void *)btlPacketDecUnitCounterAlt;
-    *(u8 **)*(u8 **)(packet + 0x78) = unit;
-
-    return packet;
-}
 
 
 

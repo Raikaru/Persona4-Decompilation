@@ -249,14 +249,7 @@ s32 func_00311e40(s32 arg0)
     }
     return 0;
 }
-/* measured: restore the default invariant setting after this function. */
 #pragma opt_loop_invariants off
-/* Callers pass a signed-halfword selector and narrow the returned word themselves. */
-// FUN_00313690
-s32 func_00313690(s16 arg0)
-{
-    return D_00641E60[(s16)arg0];
-}
 // FUN_003136B0
 s32 func_003136b0(u16 arg0)
 {

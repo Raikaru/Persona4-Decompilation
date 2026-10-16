@@ -121,12 +121,6 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 
 
 
-// Intent: Script command: returns the current time slot (datGetTimeSlot) as the script return value [inferred]
-// FUN_0025C420
-s32 scrGetTimeSlot(void) {
-    scrSetReturnInt(datGetTimeSlot() & 0xFF);
-    return 1;
-}
 
 
 
