@@ -251,7 +251,7 @@ extern s32 btlUnitIdleAnimTick(u8 *arg0);
 extern s32 datCalcIsStandardUnit(s32 arg0, s32 arg1);
 extern u8 *btlUnitCreateLookAtPacket(u8 *arg0, f32 *arg1, s32 arg2);
 extern s32 datCalcIsLowHp(u8 *arg0);
-extern s32 datCalcIsStatusBlocked(s32 arg0);
+extern s32 datCalcIsGuarding(s32 arg0);
 extern void mdlSetLayerHandleFlag(void *arg0);
 extern void mdlClearLayerHandleFlag(void *arg0);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);

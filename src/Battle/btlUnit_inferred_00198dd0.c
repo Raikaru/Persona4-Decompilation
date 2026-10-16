@@ -144,7 +144,7 @@ extern f32 DAT_0076112c;
 extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
 extern s32 iGpffffb444;
 extern s32 datCalcIsLowHp(u8 *arg0);
-extern s32 datCalcIsStatusBlocked(s32 arg0);
+extern s32 datCalcIsGuarding(s32 arg0);
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
@@ -222,7 +222,7 @@ void btlUnitUpdateStatusMotion(u8 *arg0, u16 arg1)
     if (datCalcChkBadStatus(*(s32 *)(arg0 + 0xA64), 0x100000) != 0) {
         var_18 = 0xA;
     }
-    if (datCalcIsStatusBlocked(*(s32 *)(arg0 + 0xA64)) != 0) {
+    if (datCalcIsGuarding(*(s32 *)(arg0 + 0xA64)) != 0) {
         var_18 = 0x18;
     }
     if (datCalcChkBadStatus(*(s32 *)(arg0 + 0xA64), 0x100) != 0) {

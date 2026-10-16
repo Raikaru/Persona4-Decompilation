@@ -1,7 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
-extern s32 datScriptTargetLacksFlag4(void);
+extern s32 datScriptTargetIsNotEnemy(void);
 extern f32 datScriptCalcFloat(s32 arg0, s32 arg1);
 #include "datScript_internal.h"
 
@@ -42,7 +42,7 @@ void datScriptCalcPhysicalDamage(void)
     f32 temp_f3;
 
     if (datScriptCmdFlag2Set() != 0) {
-        if (datScriptTargetLacksFlag4() != 0) {
+        if (datScriptTargetIsNotEnemy() != 0) {
             temp_f20 = datScriptCalcFloat(0xE, 2);
             temp_f20 += datScriptCalcFloat(0xE, 2);
             temp_f1 = datScriptCalcFloat(0x13, 0) / 2.0f;
@@ -76,7 +76,7 @@ void datScriptCalcPhysicalDamage(void)
             temp_f20 = fGpffff82c0 * temp_f1;
         }
     } else {
-        if (datScriptTargetLacksFlag4() != 0) {
+        if (datScriptTargetIsNotEnemy() != 0) {
             temp_f20 = datScriptCalcFloat(0xE, 2);
             temp_f20 += datScriptCalcFloat(0xE, 2);
             temp_f1 = datScriptCalcFloat(0x13, 0);
@@ -129,7 +129,7 @@ void datScriptCalcMagicDamage(void)
     f32 temp_f2;
     f32 temp_f3;
 
-    if (datScriptTargetLacksFlag4() != 0) {
+    if (datScriptTargetIsNotEnemy() != 0) {
         temp_f20 = datScriptCalcFloat(0xE, 2);
         temp_f20 += datScriptCalcFloat(0xE, 2);
         temp_f1 = datScriptCalcFloat(0x13, 0);

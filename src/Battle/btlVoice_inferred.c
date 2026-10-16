@@ -161,7 +161,7 @@ extern BtlPacket *btlUnitCreateRotateTowardUnitPacket(BtlUnit *unit, BtlUnit *ta
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rotation, u32 flags);
 extern BtlPacket *btlUnitCreateMovePacket(BtlUnit *unit, const RwV3d *targetPosition, f32 speed, u32 flags);
 extern u32 datCalcIsDead(void *unit, s32 hpDelta);
-extern s32 datCalcIsStatusBlocked(u16 *unit);
+extern s32 datCalcIsGuarding(u16 *unit);
 extern s32 btlUnitSlotValueOrOne(s32 action);
 extern u8 D_006354C0[], D_006354D0[], D_00635500[];
 extern BtlPacket *btlFormationCreateSlotPacket(u16 group, u16 mask);
@@ -176,7 +176,7 @@ extern void btlCameraSelectEncounterPreset(u8 *camera);
 extern void btlCameraFrameTarget(u8 *camera, f32 distanceOffset, f32 duration);
 extern u8 *btlFormationGetRecord(s32 arg0);
 extern s32 btlUnitSkillBlocked(u8 *arg0, u8 *arg1);
-extern s32 datCalcIsStatusBlocked(u16 *unitData);
+extern s32 datCalcIsGuarding(u16 *unitData);
 extern void btlMainApplyUnitBaseColors(u8 *unit);
 static inline s32 func_00225ec0_flag(u8 *action)
 {
@@ -2074,7 +2074,7 @@ void btlActionRunPresentation(u8 *action)
         *(u64 *)(packet + 0x60) = *(u64 *)action;
         btlPacketEnqueue(packet, 1);
 
-        if (datCalcIsStatusBlocked(*(u16 **)(*(u8 **)(target + 0x30) + 0xA64)) != 0)
+        if (datCalcIsGuarding(*(u16 **)(*(u8 **)(target + 0x30) + 0xA64)) != 0)
             targetParams.halves[15] |= 0x80;
         else
             targetParams.halves[15] &= 0xFF7F;

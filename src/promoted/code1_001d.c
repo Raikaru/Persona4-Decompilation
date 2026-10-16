@@ -13,7 +13,7 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern void btlUnitSetRot(void *arg0, void *arg1);
 extern void btlTargetBlendVectors(void *out, void *first, void *second);
 extern void btlTargetPositionToCell(s16 *arg0, s16 *arg1, f32 *position);
-extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
+extern s32 datCalcGetAffinity(u8 *arg0, s32 arg1);
 extern u16 datCalcMaxHp(u8 *arg0);
 extern u16 datCalcMaxSp(u8 *arg0);
 extern u8 *iGpffffb3ac;

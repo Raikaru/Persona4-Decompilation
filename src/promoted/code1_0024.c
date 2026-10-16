@@ -1,7 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
-extern s32 datScriptTargetLacksFlag4(void);
+extern s32 datScriptTargetIsNotEnemy(void);
 extern f32 datScriptCalcFloat(s32 arg0, s32 arg1);
 #include "datScript_internal.h"
 extern void chkmemAllocSiteTag(void *file, s32 line);

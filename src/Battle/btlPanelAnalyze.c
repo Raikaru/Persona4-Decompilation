@@ -4,7 +4,7 @@
 #include "btl_panel_internal.h"
 #include "datCalc_unit_internal.h"
 extern void memset();
-s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
+s32 datCalcGetAffinity(u8 *arg0, s32 arg1);
 void shdEnableBlendFlag(void);
 void shdDisableBlendFlag(void);
 void func_003c38b0(void *arg0, void *arg1);
@@ -204,7 +204,7 @@ void btlPanelAddStatusEntry(u8 *arg0, s32 arg1, s64 arg2, f32 fparg0, f32 fparg1
     f32 temp_f12;
     f32 temp_f13;
 
-    temp = datCalcStatusResistance((u8 *)arg1, (s16)arg2);
+    temp = datCalcGetAffinity((u8 *)arg1, (s16)arg2);
     btlUiDrawSpriteFaded(arg0, 0xE, 0x43, fparg0, fparg1, 0x24, 0x4C, 0, 0xFF);
     temp_f12 = panelAdd2(fparg0, 2.0f);
     temp_f13 = panelAdd2(fparg1, 2.0f);

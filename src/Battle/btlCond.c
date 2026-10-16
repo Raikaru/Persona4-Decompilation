@@ -21,7 +21,7 @@ extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern u16 datCalcGetHp(u8 *arg0);
 extern u16 datCalcMaxHp(u8 *arg0);
 extern u16 datCalcMaxSp(u8 *arg0);
-extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
+extern s32 datCalcGetAffinity(u8 *arg0, s32 arg1);
 extern s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 extern s32 func_0023df20(s32 arg0);
 extern u8 *iGpffffb3ac;
@@ -430,28 +430,28 @@ s32 btlCond_SENSEI(u8 *arg0)
 
 // FUN_001DA230
 s32 btlCond_MYHANSYA(u8 *arg0, s16 arg1) {
-    return (s32)((datCalcStatusResistance(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x02000000) != 0);
+    return (s32)((datCalcGetAffinity(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x02000000) != 0);
 }
 
 
 
 // FUN_001DA270
 s32 btlCond_MYKYUSYU(u8 *arg0, s16 arg1) {
-    return (s32)((datCalcStatusResistance(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x04000000) != 0);
+    return (s32)((datCalcGetAffinity(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x04000000) != 0);
 }
 
 
 
 // FUN_001DA2B0
 s32 btlCond_MYMUKOU(u8 *arg0, s16 arg1) {
-    return (s32)((datCalcStatusResistance(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x01000000) != 0);
+    return (s32)((datCalcGetAffinity(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x01000000) != 0);
 }
 
 
 
 // FUN_001DA2F0
 s32 btlCond_MYWEAK(u8 *arg0, s16 arg1) {
-    return (s32)((datCalcStatusResistance(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x08000000) != 0);
+    return (s32)((datCalcGetAffinity(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x08000000) != 0);
 }
 
 

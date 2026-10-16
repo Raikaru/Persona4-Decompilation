@@ -145,7 +145,7 @@ BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
 BtlPacket *btlEffectCreateReleasePacket(u16 mode);
 u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
-extern s32 datCalcAilmentChance(u8 *unit, s32 element);
+extern s32 datCalcGetElementAffinity(u8 *unit, s32 element);
 u8 *btlSoundLoadPacketNew(const void *data);
 s32 func_001eb860(void);
 extern void btlMessageInstallWindow(s32 task, u8 *arg1);
@@ -1818,7 +1818,7 @@ void btlActionPursuitUpdate(u8 *action)
             u8 *affinityUnit = *(u8 **)(workspace + 0xA64);
             s32 affinityElement = targets.element;
 
-            if (datCalcAilmentChance(affinityUnit, affinityElement) & 0x7000000) {
+            if (datCalcGetElementAffinity(affinityUnit, affinityElement) & 0x7000000) {
                 continue;
             }
         }

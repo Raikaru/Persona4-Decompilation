@@ -166,7 +166,7 @@ extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
 extern void datCalcApplyBuffMask(void* data, s32 value, s32 mode);
 extern s32 datCalcIsDead(void* data, s32 mode);
 extern s32 datCalcIsLowHp(void* data);
-extern s32 datCalcIsStatusBlocked(void* data);
+extern s32 datCalcIsGuarding(void* data);
 extern void datCalcSetStatusBlocked(void* data);
 extern void datCalcClearStatusBlocked(void* data);
 extern void btlUnitUpdateHpGauge(void* source, u8* packet, s32* hpDelta);
@@ -782,7 +782,7 @@ s32 btlTargetApplyHpSpChange(u8* arg0)
         *(u16*)(temp_19 + 0x1a) = *(u16*)(temp_19 + 0x1a) | 0x80;
     }
     if (*(u16*)(arg0 + 0x26) & 0x80) {
-        if (datCalcIsStatusBlocked(*(u8**)(temp_18 + 0xa64)) != 0) {
+        if (datCalcIsGuarding(*(u8**)(temp_18 + 0xa64)) != 0) {
             datCalcClearStatusBlocked(*(u8**)(temp_18 + 0xa64));
         } else {
             datCalcSetStatusBlocked(*(u8**)(temp_18 + 0xa64));
