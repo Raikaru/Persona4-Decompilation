@@ -6,7 +6,7 @@
 extern void func_00161460(s32 arg0, s32 arg1, s32 arg2);
 extern void func_00161500(s32 arg0);
 
-extern s16 func_001060b0(void);
+extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
 extern u32 datGetFlag(s32 arg0);
@@ -435,7 +435,7 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
 // FUN_001546A0
 s32 func_001546a0(s32 arg0, s32 arg1)
 {
-    return func_00154720(arg0, arg1, (s8)func_00110960(func_001060b0(), datGetTimeSlot() & 0xFF));
+    return func_00154720(arg0, arg1, (s8)func_00110960(datGetDateIndex(), datGetTimeSlot() & 0xFF));
 }
 
 /* Measured with configured MWCCPS2 b210 -O2: 1008 code bytes and the

@@ -16,7 +16,7 @@ extern s32 func_0014a230(s32 field, s32 room);
 extern s32 func_0014a2a0(s32 field, s32 room);
 extern s32 func_0015a740();
 extern s32 func_00106600(s16 id);
-extern s16 func_001060b0(void);
+extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
 extern s64 func_00110960(s32 day, u32 time);
 extern u32 datGetFlag(s32 bit);
@@ -175,7 +175,7 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
     } else {
         return -1;
     }
-    day = (s16)func_001060b0();
+    day = (s16)datGetDateIndex();
     alternate = (s8)func_00110960(day, datGetTimeSlot() & 0xFF) == 1;
     if (datGetFlag(0x1411) == 1) {
         multiplier = 100.0f;

@@ -80,7 +80,7 @@ extern u16 datCalcPickWeightedSkill(u8 *arg0, s32 *arg1);
 extern void kAssertFail(void *arg0, s32 arg1);
 extern u8 D_0060AB08[];
 extern void func_0045a3e0(s32 arg0, s32 arg1);
-extern s16 func_001060b0(void);
+extern s16 datGetDateIndex(void);
 extern s32 func_00110d60(s32 arg0);
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];

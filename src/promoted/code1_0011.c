@@ -71,7 +71,7 @@ extern u16 func_001068e0(s16 arg0);
 extern u16 func_00106940(s16 arg0);
 extern u16 func_00106970(s16 arg0);
 extern s32 func_00106c30(s16 arg0, s16 arg1);
-extern s32 func_00106c80(s16 arg0);
+extern s32 datIdBand(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern u8 *datPersonaDisplayName(s16 arg0);
 extern s8 func_00123ae0(void);
@@ -690,7 +690,7 @@ void func_001113b0(void)
     void func_00106310(u8);
     void func_00106320(u32);
     void func_00106480(void);
-    void func_001064c0(void);
+    void datPersonaClearRosterMode(void);
     void func_001065c0(void);
     void func_00106d40(s16, s16, s16);
     void cmmCommunityClearTable(void);
@@ -749,7 +749,7 @@ loop_1_check:
 
     func_00106480();
     func_001065c0();
-    func_001064c0();
+    datPersonaClearRosterMode();
     datSetTimeSlot(5);
     func_00106100(9);
     func_00106310(5);
@@ -1249,7 +1249,7 @@ void func_00112830(Vec2f pos, f32 depth, u8 alpha, u8 *arg2, s32 tex)
 
     color = D_005E4750[*(s16 *)(arg2 + 0x16)];
     color.b[3] = alpha;
-    switch (func_00106c80(*(s16 *)arg2)) {
+    switch (datIdBand(*(s16 *)arg2)) {
     case 0:
         value = func_001068b0(*(s16 *)arg2);
         func_00112830_number(pos, depth, value, color, tex);
@@ -1623,7 +1623,7 @@ void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
         sdkSpriteDrawOnceAux(0, temp_2, 3, arg0.x, arg0.y, 0, alpha, arg4, 1);
         return;
     }
-    mode = func_00106c80(temp_17);
+    mode = datIdBand(temp_17);
     switch (mode) {
     case 0:
         temp_20 = func_001068b0(temp_17) & 0xFFFF;

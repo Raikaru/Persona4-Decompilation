@@ -22,7 +22,7 @@ extern char D_00625090[];
 extern char D_006251C0[];
 extern char iGpffffa528[8];
 extern const char *iGpffffa530[2];
-extern s16 func_001060b0(void);
+extern s16 datGetDateIndex(void);
 extern s32 func_00110d60(s32 arg0);
 extern u32 datGetFlag(s32 bit);
 extern s32 func_00120e20();
@@ -49,7 +49,7 @@ void btlCutinLoad(u8 *arg0) {
     s32 var_19;
     char sp60[0x100];
 
-    temp_5 = (func_00110d60(func_001060b0()) & 1) != 0;
+    temp_5 = (func_00110d60(datGetDateIndex()) & 1) != 0;
     switch (*(u16 *)arg0) {
     case 0: {
         const char **suffix;
@@ -242,7 +242,7 @@ void btlCutinSetupName(u8 *arg0) {
     s32 temp_5;
     u16 temp_4;
 
-    temp_5 = (func_00110d60(func_001060b0()) & 1) != 0;
+    temp_5 = (func_00110d60(datGetDateIndex()) & 1) != 0;
     temp_4 = *(u16 *)arg0;
     switch (temp_4) {
     case 1:
@@ -258,7 +258,7 @@ void btlCutinSetupName(u8 *arg0) {
     case 5:
         if (datGetFlag(0x38) != 0) {
             sp12.a = 5;
-            if (func_00110d60(func_001060b0()) & 1) {
+            if (func_00110d60(datGetDateIndex()) & 1) {
                 sp12.b = 0x1E;
             } else {
                 sp12.b = 0x14;

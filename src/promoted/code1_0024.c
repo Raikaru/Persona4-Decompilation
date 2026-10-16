@@ -30,7 +30,7 @@ extern s32 cmmCommunitySetBroken(s32 arg0);
 extern s32 cmmCommunityClearBroken(s32 arg0);
 extern s32 cmmCommunityAddScaledPoints(s32 arg0, s32 arg1);
 extern s32 cmmCommunityAddPoints(s32 arg0, s32 arg1, s32 arg2);
-extern s64 func_001060b0(void);
+extern s64 datGetDateIndex(void);
 extern s32 func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
 extern s32 cmmNthEligibleCommunity(s32 arg0, s32 arg1, s32 arg2);
 extern s32 cmmNextUnlistedDate(s32 arg0);

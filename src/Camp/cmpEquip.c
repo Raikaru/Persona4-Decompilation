@@ -9,7 +9,7 @@ void func_00131a00(u8 *arg0);
 s16 func_00106cd0(s16 arg0, s16 arg1);
 s32 func_00106600(s16 id);
 s32 func_00106c30(s16 arg0, s16 arg1);
-s32 func_00106c80(s16 arg0);
+s32 datIdBand(s16 arg0);
 s16 func_00353ce0(void *arg0);
 void memset(void *arg0, s32 arg1, s32 arg2);
 void *func_0046a770(void *arg0);
@@ -156,7 +156,7 @@ void func_00131730(s16 *arg0) {
                 filter = func_00106c30(i, id) != 0;
             }
             if (filter) {
-                filter = (s32)type == func_00106c80(i);
+                filter = (s32)type == datIdBand(i);
             }
             if (!filter) {
                 goto skip;

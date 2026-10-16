@@ -48,7 +48,7 @@ extern void itfMesWindowQueueCallback(s32 arg0);
 extern s32 func_0027bd40(s32 arg0);
 extern s32 func_0027bda0(s32 arg0);
 extern s32 func_0027be00(s32 arg0);
-extern s16 func_001060b0(void);
+extern s16 datGetDateIndex(void);
 extern void func_001104d0(s32 date, s32 *month, s32 *day);
 extern s32 sprintf(void *arg0, const void *arg1, s32 arg2);
 extern u8 iGpffffa738;
@@ -464,7 +464,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
                 } while (appearRemaining != 0);
             }
         }
-        today = (s16)func_001060b0();
+        today = (s16)datGetDateIndex();
         for (i = 0; i < 6; i++) {
             s32 step;
 

@@ -295,7 +295,7 @@ extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
 #pragma opt_lifetimes on
 // FUN_001441E0
 s32 func_001441e0(u8 *arg0) {
-    extern s16 func_001060b0(void);
+    extern s16 datGetDateIndex(void);
     extern s64 func_00110850(s32 arg0, u32 arg1);
     extern s32 func_00110c50(s32 arg0, s32 arg1);
     extern u16 D_008C024E[];
@@ -343,13 +343,13 @@ s32 func_001441e0(u8 *arg0) {
     case 0:
         for (i = 0; i < 7; i++) {
             u16 *row = st->words + i;
-            t0 = func_001060b0();
+            t0 = datGetDateIndex();
             v0 = (s8)func_00110850(i + t0, 3);
-            t1 = func_001060b0();
+            t1 = datGetDateIndex();
             v1 = (s8)func_00110850(i + t1, 0);
             row[2] = (u16)(v0 + v1 * 0x10);
-            t2 = i + func_001060b0();
-            t3 = func_001060b0();
+            t2 = i + datGetDateIndex();
+            t3 = datGetDateIndex();
             row[9] = (u16)func_00110c50(t2, t3);
         }
         st->fields.kind = 1;

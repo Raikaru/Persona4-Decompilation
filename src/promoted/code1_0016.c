@@ -123,7 +123,7 @@ extern s32 func_0015a160();
 extern s32 func_001623f0();
 extern s32 func_00162510(u16 arg0, u16 arg1);
 extern s16 datGetPartyId(s32 arg0);
-extern s64 func_001060b0(void);
+extern s64 datGetDateIndex(void);
 extern s32 func_00110d60(s32 arg0);
 extern s32 func_00110680(s32 arg0, s32 arg1, s32 arg2);
 extern s32 datGetTimeSlot(void);
@@ -838,7 +838,7 @@ s32 func_001623f0(void)
     u8 *temp_4;
 
     var_17 = 0;
-    if (func_00110680((s16)func_001060b0(), 3, 0x14) == 1) {
+    if (func_00110680((s16)datGetDateIndex(), 3, 0x14) == 1) {
         return 0;
     }
     var_16 = 0;
@@ -847,7 +847,7 @@ loop_body:
     temp_5 = iGpffff9db0;
     if ((*(s32 *)(temp_5 + 0) == temp_3) &&
         (*(s32 *)(temp_5 + 4) == *(s32 *)(temp_4 + 4))) {
-        temp_18 = (s16)func_001060b0();
+        temp_18 = (s16)datGetDateIndex();
         temp_3_2 = (s8)func_00110960(temp_18, datGetTimeSlot() & 0xFF);
         var_2 = temp_3_2 & 1;
         if ((temp_3_2 < 0) && (var_2 != 0)) {
@@ -979,7 +979,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
 
         if (func_00162510(field, room) == 1) {
             modelKind = type = 9;
-            switch (func_00110d60((s16)func_001060b0())) {
+            switch (func_00110d60((s16)datGetDateIndex())) {
             case 0:
             case 2:
                 id = 0x103;
@@ -997,7 +997,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
             id = member;
         } else if ((field == 7 && room == 2) || (field == 7 && room == 3)) {
             modelKind = type = 9;
-            switch (func_00110d60((s16)func_001060b0())) {
+            switch (func_00110d60((s16)datGetDateIndex())) {
             case 0:
                 id = 0x10B;
                 break;
@@ -1013,7 +1013,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
             }
         } else {
             modelKind = type = 9;
-            switch (func_00110d60((s16)func_001060b0())) {
+            switch (func_00110d60((s16)datGetDateIndex())) {
             case 0:
                 id = 0x101;
                 break;

@@ -268,7 +268,7 @@ void func_00266cc0(s32 arg0, s32 arg1)
 {
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern f32 sinf(f32);
-    extern s16 func_001060b0(void);
+    extern s16 datGetDateIndex(void);
     s32 first;
     s32 second;
     u8 *work;
@@ -278,7 +278,7 @@ void func_00266cc0(s32 arg0, s32 arg1)
     work = kwlnTaskGetWork(arg1);
     first = *(s32 *)(work + 0xC);
     second = *(s32 *)(work + 0x10);
-    if (func_00110d30(func_001060b0()) != 0) {
+    if (func_00110d30(datGetDateIndex()) != 0) {
         if (*(s32 *)(work + 0xC) == 3) {
             first = 6;
         }

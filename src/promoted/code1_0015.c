@@ -397,7 +397,7 @@ typedef char FldLoadWorkSizeCheck[sizeof(FldLoadWork) == 0x20 ? 1 : -1];
 // FUN_001561A0
 s32 func_001561a0(u8 *task)
 {
-    extern s16 func_001060b0(void);
+    extern s16 datGetDateIndex(void);
     extern u8 datGetTimeSlot(void);
     extern s64 func_00110960(s32 day, u32 period);
     extern s32 cmmTableLookupFlagged(s32 group, s32 entry, s32 condition);
@@ -486,7 +486,7 @@ s32 func_001561a0(u8 *task)
             selection = -1;
             selectedEnvironment = 0;
             if (work->mode == 1) {
-                initialDay = (s16)func_001060b0();
+                initialDay = (s16)datGetDateIndex();
                 condition = (s8)func_00110960(initialDay, datGetTimeSlot() & 0xFF);
                 selection = cmmTableLookupFlagged(work->storyGroup, work->storyEntry, condition);
                 if (selection != -1) {
@@ -500,7 +500,7 @@ s32 func_001561a0(u8 *task)
             }
             if (selectedEnvironment == 0) {
                 if (selection == -1) {
-                    day = (s16)func_001060b0();
+                    day = (s16)datGetDateIndex();
                     selection = (s8)func_00110960(day, datGetTimeSlot() & 0xFF);
                 }
                 work->environmentState = func_00154720(work->fieldId, work->roomId, selection);
@@ -3407,7 +3407,7 @@ u16 *func_0015d2c0(u32 arg0)
 // FUN_0015D310
 u8 *func_0015d310(u16 *arg0)
 {
-    extern s16 func_001060b0(void);
+    extern s16 datGetDateIndex(void);
     extern s64 func_00110960(s32 arg0, u32 arg1);
     extern u8 datGetTimeSlot(void);
     extern void func_001104d0(s32 date, s32 *month, s32 *day);
@@ -3456,7 +3456,7 @@ loop_3:
     var_18 = 3;
     var_19 = 0x1F;
     var_20 = 0;
-    func_001104d0((s16)func_001060b0(), &sp8C, &sp88);
+    func_001104d0((s16)datGetDateIndex(), &sp8C, &sp88);
     var_21 = 0;
     goto loop_test;
 loop_body:
@@ -3483,16 +3483,16 @@ loop_body:
                 }
                 if (((*(u8 *)(recordAddress + 8) == 0) ||
                      (*(u8 *)(recordAddress + 8) &
-                      (1U << func_00110d30((s16)func_001060b0())))) &&
+                      (1U << func_00110d30((s16)datGetDateIndex())))) &&
                     ((*(u8 *)(recordAddress + 9) == 0) ||
                      (*(u8 *)(recordAddress + 9) &
-                      (1U << func_00110580((s16)func_001060b0())))) &&
+                      (1U << func_00110580((s16)datGetDateIndex())))) &&
                     ((*(u8 *)(recordAddress + 0xA) == 0) ||
                      (*(u8 *)(recordAddress + 0xA) &
                       (1U << (datGetTimeSlot() & 0xFF))))) {
                     temp_3 = *(u8 *)(recordAddress + 0xB);
                     if (temp_3 == 1) {
-                        temp_22 = (s16)func_001060b0();
+                        temp_22 = (s16)datGetDateIndex();
                         var_2 = (s64)(s8)func_00110960(temp_22,
                                                      datGetTimeSlot() & 0xFF);
                         temp_3_2 = (s32)var_2 % 2;
@@ -3502,7 +3502,7 @@ loop_body:
                         goto block_34;
                     }
                     if (temp_3 == 2) {
-                        temp_22_2 = (s16)func_001060b0();
+                        temp_22_2 = (s16)datGetDateIndex();
                         var_2_2 = (s64)(s8)func_00110960(temp_22_2,
                                                        datGetTimeSlot() & 0xFF);
                         temp_3_3 = (s32)var_2_2 % 2;

@@ -586,7 +586,7 @@ void fclCombineDrawSlotRows(u8 *arg0, s64 arg1) {
 // Fcl combine detail layout: arg1 == 0 creates the detail sprite set at its table positions and tints it; any other value only repositions the existing sprites.
 // FUN_00315600
 void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
-    extern s64 func_001060b0(void);
+    extern s64 datGetDateIndex(void);
     extern s32 func_00110580(s32 arg0);
     extern s32 func_00110d30(s32 arg0);
     extern s64 func_00110a60(s32 arg0, s32 arg1);
@@ -610,7 +610,7 @@ void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
     FclVec2 *v;
     u8 *p;
 
-    tmp18 = func_00110580((s16)func_001060b0());
+    tmp18 = func_00110580((s16)datGetDateIndex());
     b = (FclVec2 *)D_00643DA8;
     pos = func_002b2970(b->x, b->y);
     if ((s8)arg1 == 0) {
@@ -643,7 +643,7 @@ void fclCombineLayoutDetailSprites(u8 *arg0, s64 arg1) {
             c1A4 = func_002b2a60(0x99, 0xA4, 0xFF, 0xFF);
             *(FclByte4 *)(fclSpriteEntry((s16)tmp18) + 0x85) = c1A4;
         }
-        if (func_00110d30((s16)func_001060b0()) == 1) {
+        if (func_00110d30((s16)datGetDateIndex()) == 1) {
             c1A0 = func_002b2a60(0xFF, 0xAC, 0x99, 0xFF);
             *(FclByte4 *)(fclSpriteEntry((s16)tmp18) + 0x85) = c1A0;
         }

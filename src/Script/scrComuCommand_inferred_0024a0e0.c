@@ -9,7 +9,7 @@ extern u8 D_00635990[];
 extern u8 D_006359A0[];
 extern u8 D_006359B0[];
 extern u8 D_006359C0[];
-extern s64 func_001060b0(void);
+extern s64 datGetDateIndex(void);
 extern s32 cmmNextUnlistedDate(s32 arg0);
 extern s32 func_00110580(s32 arg0);
 extern s32 func_00110d30(s32 arg0);
@@ -42,7 +42,7 @@ s32 func_0024a0e0(void)
 
     var_4 = (cmmCommunityGetTableHead() & 0xFFFF) != 0;
     if (var_4 != 0) {
-        var_4 = cmmDateNotListed((s16)func_001060b0()) != 0;
+        var_4 = cmmDateNotListed((s16)datGetDateIndex()) != 0;
     }
     scrSetReturnInt(var_4);
     return 1;
@@ -53,9 +53,9 @@ s32 func_0024a140(void)
 {
     s32 temp_17;
     s32 var_16;
-    temp_17 = cmmNextUnlistedDate((s16)func_001060b0());
+    temp_17 = cmmNextUnlistedDate((s16)datGetDateIndex());
     var_16 = 0;
-    if (temp_17 == ((s16)func_001060b0() + 1)) {
+    if (temp_17 == ((s16)datGetDateIndex() + 1)) {
         var_16 = 1;
     } else if (func_00110580(temp_17) == 0) {
         var_16 = 2;

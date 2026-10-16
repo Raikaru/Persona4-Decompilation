@@ -47,7 +47,7 @@ extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
 
 extern u8 D_0060AB08[];
-extern s16 func_001060b0(void);
+extern s16 datGetDateIndex(void);
 extern s32 func_00110d60(s32 arg0);
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
@@ -138,7 +138,7 @@ u8 *func_001f7650(u8 *arg0)
     u32 temp_3;
 
     if (*(u8 *)(arg0 + 0xA2) == 0) {
-        if (func_00110d60((s16)func_001060b0()) & 1) {
+        if (func_00110d60((s16)datGetDateIndex()) & 1) {
             var_2 = D_0060AC00 + (*(u16 *)(arg0 + 0xA4) * 0xA20);
         } else {
             var_2 = D_0060AC00 + (*(u16 *)(arg0 + 0xA4) * 0xA20) + 0x6F60;

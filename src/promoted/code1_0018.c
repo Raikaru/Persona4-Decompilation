@@ -187,7 +187,7 @@ extern s32 func_00457120(void);
 extern s32 RwCameraFrustumTestSphere(u8 *arg0, s32 arg1);
 extern void func_003f68a0(s32 arg0, s32 arg1);
 extern u8 D_007E8C00[];
-extern s64 func_001060b0(void);
+extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
 extern s64 func_00110960(s32 arg0, u32 arg1);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -3085,7 +3085,7 @@ s32 func_0018c7e0(void) {
 
     dungeon = func_0015a160();
     res = 0;
-    date = (s16)func_001060b0();
+    date = (s16)datGetDateIndex();
     w1 = (s8)func_00110960(date, datGetTimeSlot() & 0xFF);
     phase = datGetTimeSlot() & 0xFF;
     if (iGpffffb264 == 1) {
@@ -3119,7 +3119,7 @@ s32 func_0018c7e0(void) {
         } else {
             s32 t2;
             s32 w2;
-            dungeon = (s16)func_001060b0();
+            dungeon = (s16)datGetDateIndex();
             t2 = datGetTimeSlot() & 0xFF;
             w2 = (s8)func_00110960(dungeon, t2);
             switch (w2) {
@@ -3198,7 +3198,7 @@ s32 func_0018ced0(void)
 
     result = 0;
     mode = func_0015a160();
-    kind = (s8)func_00110960((s16)func_001060b0(), datGetTimeSlot() & 0xFF);
+    kind = (s8)func_00110960((s16)datGetDateIndex(), datGetTimeSlot() & 0xFF);
     sub = (u8)datGetTimeSlot();
     if (datGetFlag(0x3E0) == 1) {
         func_0045aac0(3, 0, 0x1E);

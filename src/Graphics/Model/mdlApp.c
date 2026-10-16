@@ -25,7 +25,7 @@ extern s32 func_0047e440(u32 id, u16 subId);
 extern void *func_0047dea0(u32 id, u16 subId, s32 kind);
 extern s32 func_0047df40(u32 id, u16 subId);
 extern s32 datGetFlag(s32 id);
-extern s64 func_001060b0(void);
+extern s64 datGetDateIndex(void);
 extern s32 func_00110d60(s16 value);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void func_00440b68(char *fmt, ...);
@@ -67,7 +67,7 @@ s32 func_00230f20(MdlAppObj *obj)
             *bcp = func_0047dea0(id, subId, 1);
         if (datGetFlag(0x1438) != 0 && (subId & 0xFFFF) == 1)
             sprintf(buf, D_00635820, &D_007636e0, subId & 0xFFFF);
-        else if (func_00110d60((s16)func_001060b0()) & 1)
+        else if (func_00110d60((s16)datGetDateIndex()) & 1)
             sprintf(buf, D_00635840, &D_007636e0, subId & 0xFFFF);
         else
             sprintf(buf, D_00635860, &D_007636e0, subId & 0xFFFF);

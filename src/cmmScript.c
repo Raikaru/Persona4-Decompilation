@@ -28,7 +28,7 @@ extern s32 cmmCommunityGetTotal(void);
 extern void datResetTotalBtl(void);
 extern void datAddMoney(s32 arg0);
 
-extern s16 func_001060b0(void);
+extern s16 datGetDateIndex(void);
 extern s32 cmmDateTableFindIndex(s32 arg0);
 extern s32 cmmDateTableHasEntry(s32 arg0);
 extern s32 cmmDateTableHasSpecialRecord(s32 arg0);
@@ -343,7 +343,7 @@ s32 cmmPersonaDetailShow(void)
     if (key != 0) {
         itfMesWindowSetString(mesMgr, 5, datPersonaGetRow(key & 0xFFFF));
     }
-    idx = cmmNextUnlistedDate(func_001060b0());
+    idx = cmmNextUnlistedDate(datGetDateIndex());
     if (idx != 0) {
         src = D_00635A00;
         dst = tbl;
@@ -636,7 +636,7 @@ s32 cmmScriptGetEntryIndex(void)
 // FUN_0024AE40
 s32 func_0024ae40(void)
 {
-    scrSetReturnInt(cmmDateTableFindIndex(func_001060b0()));
+    scrSetReturnInt(cmmDateTableFindIndex(datGetDateIndex()));
     return 1;
 }
 
@@ -645,7 +645,7 @@ s32 func_0024ae40(void)
 // FUN_0024AE80
 s32 func_0024ae80(void)
 {
-    scrSetReturnInt(cmmDateTableHasEntry(func_001060b0()) != 0);
+    scrSetReturnInt(cmmDateTableHasEntry(datGetDateIndex()) != 0);
     return 1;
 }
 
@@ -654,7 +654,7 @@ s32 func_0024ae80(void)
 // FUN_0024AEC0
 s32 func_0024aec0(void)
 {
-    scrSetReturnInt(cmmDateTableHasSpecialRecord(func_001060b0()) != 0);
+    scrSetReturnInt(cmmDateTableHasSpecialRecord(datGetDateIndex()) != 0);
     return 1;
 }
 
@@ -673,9 +673,9 @@ s32 func_0024af00(void)
         return 1;
     }
     if (param0 == 0) {
-        scrSetReturnInt(cmmDateTableReadColumn(0, func_001060b0(), param1));
+        scrSetReturnInt(cmmDateTableReadColumn(0, datGetDateIndex(), param1));
     } else {
-        scrSetReturnInt(cmmDateTableReadColumn(1, func_001060b0(), param1));
+        scrSetReturnInt(cmmDateTableReadColumn(1, datGetDateIndex(), param1));
     }
     return 1;
 }
@@ -692,7 +692,7 @@ s32 func_0024afe0(void)
     if ((param0 != 0) && (param0 != 1)) {
         return 1;
     }
-    scrSetReturnInt(cmmDateTableApplyColumnDelta(func_001060b0(), param0));
+    scrSetReturnInt(cmmDateTableApplyColumnDelta(datGetDateIndex(), param0));
     return 1;
 }
 
@@ -707,7 +707,7 @@ s32 cmmItemInfoShow(void)
     u8* p;
 
     rec = scrGetParamInt(0);
-    slot = func_001060b0();
+    slot = datGetDateIndex();
     if (rec == 0) {
         rec = cmmDateTableFindRecord(slot);
     } else {
@@ -1108,12 +1108,12 @@ s32 cmmWeatherRoll(void)
 
     isHoliday = 0;
     category = 0;
-    func_001104d0(func_001060b0(), &month, &day);
+    func_001104d0(datGetDateIndex(), &month, &day);
     profile = (CmmMonthProfile *)cmmMonthProfileRecord((u16)month);
     if ((datGetTimeSlot() & 0xFF) == 5) {
         category = 2;
     }
-    if ((s8)func_00110960(func_001060b0(), datGetTimeSlot() & 0xFF) == 1) {
+    if ((s8)func_00110960(datGetDateIndex(), datGetTimeSlot() & 0xFF) == 1) {
         isHoliday = 1;
     }
     category = category + isHoliday;
@@ -2374,7 +2374,7 @@ s32 func_00250940(void)
 
     row = scrGetParamInt(0);
     field = scrGetParamInt(1);
-    func_001104d0(func_001060b0(), &out1, &out2);
+    func_001104d0(datGetDateIndex(), &out1, &out2);
     table = (u8 *)cmmMonthProfileRecord((u16)out1);
     if (table == 0) {
         kAssertFail(D_006359F0, 0x8B8);

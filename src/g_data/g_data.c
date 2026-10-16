@@ -956,7 +956,7 @@ s32 datAddMoney(s32 arg0)
     return value;
 }
 // FUN_001060B0
-s16 func_001060b0(void)
+s16 datGetDateIndex(void)
 {
     return D_00797B7A[0];
 }
@@ -1119,7 +1119,7 @@ void func_00106480(void)
 }
 
 // FUN_001064C0
-void func_001064c0(void)
+void datPersonaClearRosterMode(void)
 {
     datPersonaSetRosterMode(0);
 }
@@ -1379,7 +1379,7 @@ s32 func_00106c30(s16 arg0, s16 arg1)
 #pragma opt_propagation on
 
 // FUN_00106C80
-s32 func_00106c80(s16 arg0)
+s32 datIdBand(s16 arg0)
 {
     if (arg0 < 0x100)
     {

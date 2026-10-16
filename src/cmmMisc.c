@@ -12,7 +12,7 @@ extern void H_Cdvd_ReadSync(void *handle);
 extern u8 *func_00455ea0(u8 *handle, s32 index, s32 *out);
 extern void kAssertFail(void *file, s32 line);
 extern void func_0046d700(const char *file, s32 line, char *fmt, s32 value);
-extern s32 func_001060b0(void);
+extern s32 datGetDateIndex(void);
 extern u32 datGetFlag(s32 flag);
 extern void func_00106390(s32 id, s32 flag);
 extern u32 func_001064f0(s32 idx);
@@ -353,12 +353,12 @@ s32 cmmConditionMet(s32 arg0) {
             temp_3 = *(u16 *)(var_19 + 4);
             switch (temp_3) {
             case 0:
-                if (func_00110680((s16)func_001060b0(), var_19[6], var_19[7]) != 0) {
+                if (func_00110680((s16)datGetDateIndex(), var_19[6], var_19[7]) != 0) {
                     return 1;
                 }
                 break;
             case 1:
-                if (*(u16 *)(var_19 + 6) == func_00110580((s16)func_001060b0())) {
+                if (*(u16 *)(var_19 + 6) == func_00110580((s16)datGetDateIndex())) {
                     return 1;
                 }
                 break;
@@ -372,25 +372,25 @@ s32 cmmConditionMet(s32 arg0) {
 // Has pending unlock: returns 1 when unlock flag 0x11 is still unset and the event check func_001106f0 passes for the current community; else 0.
 // FUN_00247020
 s32 cmmHasPendingUnlock(void) {
-    if ((datGetFlag(0x11) == 0) && (func_001106f0((s16)func_001060b0(), 4, 0x12, 4, 0x1D) != 0)) {
+    if ((datGetFlag(0x11) == 0) && (func_001106f0((s16)datGetDateIndex(), 4, 0x12, 4, 0x1D) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x12) == 0) && (func_001106f0((s16)func_001060b0(), 5, 0x12, 6, 4) != 0)) {
+    if ((datGetFlag(0x12) == 0) && (func_001106f0((s16)datGetDateIndex(), 5, 0x12, 6, 4) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x13) == 0) && (func_001106f0((s16)func_001060b0(), 6, 0x18, 7, 9) != 0)) {
+    if ((datGetFlag(0x13) == 0) && (func_001106f0((s16)datGetDateIndex(), 6, 0x18, 7, 9) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x14) == 0) && (func_001106f0((s16)func_001060b0(), 7, 0x1B, 8, 0xC) != 0)) {
+    if ((datGetFlag(0x14) == 0) && (func_001106f0((s16)datGetDateIndex(), 7, 0x1B, 8, 0xC) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x15) == 0) && (func_001106f0((s16)func_001060b0(), 9, 0x10, 0xA, 5) != 0)) {
+    if ((datGetFlag(0x15) == 0) && (func_001106f0((s16)datGetDateIndex(), 9, 0x10, 0xA, 5) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x16) == 0) && (func_001106f0((s16)func_001060b0(), 0xB, 6, 0xB, 0x14) != 0)) {
+    if ((datGetFlag(0x16) == 0) && (func_001106f0((s16)datGetDateIndex(), 0xB, 6, 0xB, 0x14) != 0)) {
         return 1;
     }
-    if ((datGetFlag(0x17) == 0) && (func_001106f0((s16)func_001060b0(), 0xC, 8, 0xC, 0x18) != 0)) {
+    if ((datGetFlag(0x17) == 0) && (func_001106f0((s16)datGetDateIndex(), 0xC, 8, 0xC, 0x18) != 0)) {
         return 1;
     }
     return 0;

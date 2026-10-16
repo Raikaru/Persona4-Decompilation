@@ -2450,7 +2450,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
     extern s32 func_00110d30(s32 arg0);
     extern s32 func_00110c50(s32 arg0, s32 arg1);
     extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
-    extern s16 func_001060b0(void);
+    extern s16 datGetDateIndex(void);
     extern void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite);
     extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
     extern f32 fGpffff803c;
@@ -2576,7 +2576,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         {
         s32 appear[6] = {3, 3, 3, 3, 3, 3};
 
-        today = (s16)func_001060b0();
+        today = (s16)datGetDateIndex();
         for (i = 0; i < 6; i++) {
             s32 step;
 
@@ -2675,7 +2675,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         sdkSpriteDrawNowUnscaled(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
         func_00366380(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
         font = msgCalendarResource(1);
-        today = (s16)func_001060b0();
+        today = (s16)datGetDateIndex();
         for (i = 0; i < 6; i++) {
             date = today + i + 1;
             week = func_00110580(date);
