@@ -3660,8 +3660,9 @@ void mdlEffectSetPackedColor(void *object, s32 *arg1) {
 }
 
 
+// Builds the object's basis rows from the orientation vector at +0x50 and writes its position (the first three floats of +0x40) into the matrix translation at +0x30..+0x38.
 // FUN_004B1470
-void func_004b1470(u8 *arg0, u8 *arg1)
+void mdlEffectBuildObjectMatrix(u8 *arg0, u8 *arg1)
 {
     struct {
         f32 projected[3];
