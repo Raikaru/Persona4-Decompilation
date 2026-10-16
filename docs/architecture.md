@@ -1065,13 +1065,17 @@ Three kinds of file header tell you how much is known about a unit:
    recovered from assertion strings. 112 files carry this header.
 2. `/* Source unit: src/Dir/name_XXXXXXXX.c */`: the unit was named by
    `tools/tu_audit.py` from other evidence, mainly P3 FES cross-references
-   and shared data. The suffix is its first function's address. 632 files
-   carry this header. These are the "inferred units".
-3. `src/promoted/code1_XXXX.c`: no name yet. Functions are grouped by the
-   top bits of their address (`code1_0019.c` covers `0x190000..0x19FFFF`).
-   These 63 files hold 3,158 `// FUN_` markers, of which 1,627 are still
-   `INCLUDE_ASM` lines. Roughly half of the C bodies in them still carry
-   `func_` names. That is a line-pattern count, so it is approximate.
+   and shared data. The suffix is its first function's address. 637 files
+   carry this header. These are the "inferred units". A function with no
+   evidence lands in `src/unplaced/unplaced_inferred_XXXXXXXX.c` instead.
+3. `src/promoted/code1_XXXX.c` (plus `code2_0070.c`, `nullsub.c`, and
+   `src/*_grouped.c`): buckets of functions that do not have a name yet.
+   Functions are grouped by the top bits of their address (`code1_0019.c`
+   covers `0x190000..0x19FFFF`). The buckets hold 2,548 `// FUN_` markers in
+   42 files, of which about 1,630 are `INCLUDE_ASM` lines. Moving a function
+   out of a bucket gives it an inferred unit. A bucket whose function would
+   change codegen when moved stays as it is, and a bucket whose third-party
+   functions would lose link eligibility keeps one first-party function.
 
 Ownership is per function. Each `// FUN_XXXXXXXX` marker places one function
 at its retail address, so a named unit can own functions that sit between a
