@@ -92,7 +92,7 @@ extern void shdPersonaSetDisplayState(u8 *window, s32 mode, u32 persona, s8 opti
 extern u8 *shdPersonaLevelUpCreate(s32 parent, s32 window, u8 *record, s32 payload, s32 option, s32 *messages);
 extern u32 shdPersonaLevelUpIsDone(u8 *child);
 extern s32 shdPersonaDestroyTask(u8 *child);
-extern s32 func_00353f50(s32 mode);
+extern s32 datMemberNoticeTryBegin(s32 mode);
 extern s32 btlShuffleOverlayIdle(void);
 extern void kAssertFail(const void *file, u32 line);
 extern u8 D_00635560[], D_00635580[];
@@ -741,7 +741,7 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
         *(s32 *)(work + 4) = 1;
         break;
     case 5:
-        if (func_00353f50(1) != 0) {
+        if (datMemberNoticeTryBegin(1) != 0) {
             break;
         }
         *(u16 *)work &= 0xFFFE;

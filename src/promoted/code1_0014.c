@@ -261,7 +261,7 @@ extern s32 func_0034bb20(s32 arg0);
 extern void func_0034bd60(s32 arg0);
 extern void resrcMngUnsuppressRender(void);
 extern void resrcMngSuppressRender(void);
-extern s32 func_00354030(void);
+extern s32 datCommunityRequestExit(void);
 extern void datScreenWipeSetTextureId(u8 *arg0, s32 arg1);
 extern void sflDataResetPersonaState(void *arg0);
 extern void sflDataLoadPersonaState(void *arg0, s16 pcId);
