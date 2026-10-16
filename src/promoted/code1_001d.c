@@ -28,7 +28,7 @@ extern u16 datCalcGetSp(u8 *arg0);
 extern void btlEffectFreeEntry(s32 arg0, s32 arg1);
 extern s32 btlEffectStepFormationPlacement(u8 *arg0);
 extern void btlFormationResetState(s32 arg0);
-extern void func_00485b20(s32 arg0);
+extern void mdlEffectDestroyWithNodes(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
 extern void btlEffectResetEntry(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);

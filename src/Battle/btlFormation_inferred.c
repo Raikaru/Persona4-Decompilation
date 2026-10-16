@@ -451,7 +451,7 @@ void func_001d53e0(s32 arg0)
                 created = 0;
                 entry->state = 0xFD;
             } else {
-                *handles = func_00485c80(entry->resource);
+                *handles = mdlEffectCloneWithNodes(entry->resource);
                 created = 1;
             }
             mode = w->table[0x10];

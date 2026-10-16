@@ -29,7 +29,7 @@ extern void memset(void* dst, s32 value, u32 size);
 extern void btlFormationResetState(u8* arg0);
 extern void btlFormationCopyDefault(u8* arg0);
 extern u8* btlFormationAllocEntry(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_00485b20(u32 arg0);
+extern void mdlEffectDestroyWithNodes(u32 arg0);
 extern void mdlDestroyModelObject(u32 arg0);
 
 /* Source unit: src/btlFormation/btlFormation_001d4120.c (8 function markers) */

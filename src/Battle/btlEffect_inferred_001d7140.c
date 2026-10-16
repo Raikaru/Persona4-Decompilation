@@ -12,7 +12,7 @@ extern char D_00609558[];
 extern void btlFormationResetState(u8* arg0);
 extern void btlFormationCopyDefault(u8* arg0);
 extern u8* btlFormationAllocEntry(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_00485b20(u32 arg0);
+extern void mdlEffectDestroyWithNodes(u32 arg0);
 extern void mdlDestroyModelObject(u32 arg0);
 
 /* Source unit: src/btlFormation/btlFormation_001d4120.c (8 function markers) */
@@ -50,7 +50,7 @@ void btlEffectRefreshPlacementState(u8* arg0)
             temp_4_2 = *(s32*)(temp_17 + 0x14);
             if (temp_4_2 != 0)
             {
-                func_00485b20((u32)temp_4_2);
+                mdlEffectDestroyWithNodes((u32)temp_4_2);
                 *(s32*)(temp_17 + 0x14) = 0;
             }
             temp_4_3 = *(s32*)(temp_17 + 0x18);

@@ -3,7 +3,7 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 extern u8 *iGpffffb3ac;
-extern void func_00485b20();
+extern void mdlEffectDestroyWithNodes();
 extern u8 *btlPacketAlloc();
 extern s32 btlCutinPoll();
 extern void memcpy();
@@ -161,7 +161,7 @@ s32 btlCutinUpdate(s32 *arg0) {
                 var_20 = 0;
             } else {
                 temp_19 = var_16 * 4;
-                func_00485b20(*(s32 *)(iGpffffb3ac + temp_19 + 0xB5C));
+                mdlEffectDestroyWithNodes(*(s32 *)(iGpffffb3ac + temp_19 + 0xB5C));
                 *(s32 *)(iGpffffb3ac + temp_19 + 0xB5C) = 0;
             }
         }
@@ -173,7 +173,7 @@ s32 btlCutinUpdate(s32 *arg0) {
             func_00485870(*(s32 *)(iGpffffb3ac + 0xB54));
             var_20 = 0;
         } else {
-            func_00485b20(*(s32 *)(iGpffffb3ac + 0xB54));
+            mdlEffectDestroyWithNodes(*(s32 *)(iGpffffb3ac + 0xB54));
             *(s32 *)(iGpffffb3ac + 0xB54) = 0;
         }
     }
@@ -209,7 +209,7 @@ s32 btlCutinPoll(void) {
         } else {
             h = *(s32 *)(p + 0xB5C);
             if (h != 0) {
-                func_00485b20(h);
+                mdlEffectDestroyWithNodes(h);
                 *(s32 *)(iGpffffb3ac + off + 0xB5C) = 0;
             }
         }
@@ -220,7 +220,7 @@ s32 btlCutinPoll(void) {
     } else {
         h = *(s32 *)(base + 0xB54);
         if (h != 0) {
-            func_00485b20(h);
+            mdlEffectDestroyWithNodes(h);
             *(s32 *)(iGpffffb3ac + 0xB54) = 0;
         }
     }

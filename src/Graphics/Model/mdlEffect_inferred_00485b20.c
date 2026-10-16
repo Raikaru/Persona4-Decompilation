@@ -92,8 +92,9 @@ static inline void model_normalize_packed_color(const u32 *source, f32 scale)
 #pragma pop
 #pragma push
 #pragma pop
+// Destroys a node tree: walks the list at +0x8C. For each node without the flag at +0x98 bit 0, runs the kind's +0x10 release callback on its payload and frees the payload's two blocks, then frees the node; finally frees the root.
 // FUN_00485B20
-void func_00485b20(u8 *arg0)
+void mdlEffectDestroyWithNodes(u8 *arg0)
 {
     u8 *var_18;
     u8 *temp_17;
@@ -145,12 +146,13 @@ loop_00485b20_check:
    back in; `> 0xD2` gives retail's `sltiu $at` form where `>= 0xD3` colours
    into $v0; the 16-byte stack quadword is zeroed with the tree's `sqc2 vf0`
    idiom before the two calls that read it. */
+// Clones a node tree: copies the root header, then for each source node allocates a clone, rebuilds its primitive record through the kind's +0x14 constructor, and copies the node with mdlEffectCopyRecord.
 // FUN_00485C80
 /* measured: opt_propagation off keeps `alloc` live in $s1 across all three
    allocations instead of re-materialising the table address at the first use. */
-/* measured: func_00485c80 MATCH -> MISMATCH without this pragma. */
+/* measured: mdlEffectCloneWithNodes MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-u8 *func_00485c80(u8 *arg0)
+u8 *mdlEffectCloneWithNodes(u8 *arg0)
 {
     u_long128 sp80;
     u8 *clone;
