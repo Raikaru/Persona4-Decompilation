@@ -73,14 +73,14 @@ extern f32 iGpffff8218;
 extern f32 iGpffff821c;
 extern f32 iGpffff8030;
 extern s32 func_0043c6a0(u32 arg0);
-extern void func_002a7920(f32, f32, f32, s32, u8 *, s32, s32, f32, u8 *);
+extern void mcDrawSlotDial(f32, f32, f32, s32, u8 *, s32, s32, f32, u8 *);
 extern void mcScreenStep(f32, f32, f32, s32, u8 *, s32, s32, u8 *);
 extern void mcDrawFadedColor(s32, s32, s32, void *);
 extern void mcSeedEntryTable(s32, u8 *);
 extern void mcDrawGlyph(s32, s32, s32, u8 *);
 extern void mcAdvanceMeter(s32, s32, s32, u8 *);
 extern void mcSetSkyRenderState(s32, s32, s32, s32, f32);
-extern void func_002a6e30(s32, s32, s32, u8 *);
+extern void mcDrawCardStatusPulse(s32, s32, s32, u8 *);
 extern s32 D_0063ED80[];
 extern f32 cosf(f32);
 extern f32 sinf(f32);
@@ -829,8 +829,9 @@ read_failed:
     return 0;
 }
 
+// Intent: refreshes the card status flags from the probe result. Error codes 1-4 set 0x2000/0x1000 and arm a 10-frame timer; the status word sets 0x4000 and 0x8000; always sets 0x80000.
 // FUN_002A4390
-s32 func_002a4390(s32 arg0) {
+s32 mcUpdateCardStatus(s32 arg0) {
     typedef struct {
         u8 pad[4];
         u32 flags; /* 0x04 */
@@ -954,7 +955,7 @@ s32 mcStepState(u8 *work) {
         H_Memcard_SetAbort();
         /* fallthrough */
     case 6:
-        func_002a4390((s32)work);
+        mcUpdateCardStatus((s32)work);
         if (D_008C024E[0] & 0x40) {
             if (*(u32 *)(work + 4) & 2) {
                 *(s16 *)(work + 2) = 7;
@@ -1291,7 +1292,7 @@ s32 mcRunScreenFrame(s32 arg0)
             diff = row - *(s32 *)(p + 0x3B4);
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
-            func_002a7920(x - slide, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
+            mcDrawSlotDial(x - slide, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
             mcScreenStep(x, y, 5.0f, alpha, p + 0x14, slot, 0, p);
         }
         idx++;
@@ -1326,7 +1327,7 @@ s32 mcRunScreenFrame(s32 arg0)
             slide = 400.0f * remaining;
         }
         mcDrawCircleFan(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
-        func_002a7920(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
+        mcDrawSlotDial(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
     }
     frame = *(s32 *)(p + 0x568) + 1;
     *(s32 *)(p + 0x568) = frame;
@@ -1352,7 +1353,7 @@ s32 mcRunScreenFrame(s32 arg0)
    saved register (80 edits with the pragma and a single `alpha`).  Saved
    registers are retail's alpha->$s0 p->$s1 base->$s2 slot->$s3 idx->$s4 row->$s5
    only with `opt_lifetimes on` and p, alpha, row, idx, slot, base declared in
-   that order (77 edits without the pragma, 0 with it).  func_002a7920 is declared (f32, f32, f32, u8, u8 *, s32, s32,
+   that order (77 edits without the pragma, 0 with it).  mcDrawSlotDial is declared (f32, f32, f32, u8, u8 *, s32, s32,
    f32, u8 *): that parameter order reproduces retail's argument emission order. */
 #pragma opt_lifetimes on
 // FUN_002A5630
@@ -1457,7 +1458,7 @@ s32 mcRunScreenExitFrame(s32 arg0)
                 diff = row - *(s32 *)(p + 0x3B4);
                 x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
                 y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
-                func_002a7920(x - slide, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
+                mcDrawSlotDial(x - slide, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
                 mcScreenStep(x, y, 5.0f, alpha, p + 0x14, slot, 0, p);
             }
             idx++;
@@ -1488,7 +1489,7 @@ s32 mcRunScreenExitFrame(s32 arg0)
             scale = 1.0f + pulse;
             slide = 350.0f * wave;
             mcDrawCircleFan(72.0f - slide, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
-            func_002a7920(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
+            mcDrawSlotDial(19.0f - slide, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
         }
     }
     frame = *(s32 *)(p + 0x568) + 1;
@@ -1564,7 +1565,7 @@ s32 mcDrawScreenSettled(s32 arg0)
             diff = mcRowDisplacement(base, *(s32 *)(p + 0x3B4));
             x = -59.0f + (f32)(idx * 26) + (f32)(diff * 26) / 65536.0f;
             y = -152.0f + (f32)(idx * 94) + (f32)(diff * 94) / 65536.0f;
-            func_002a7920(x, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
+            mcDrawSlotDial(x, y, 0.0f, 0xFF, p + 0x14, slot, 0, 1.0f, p);
             mcScreenStep(x, y, 5.0f, 0xFF, p + 0x14, slot, 0, p);
         }
         idx++;
@@ -1594,9 +1595,9 @@ s32 mcDrawScreenSettled(s32 arg0)
         pulse = iGpffff8030 * sinf(iGpffff8084 * (f32)*(s32 *)(p + 0x3B8) / 10.0f);
         scale = 1.0f + pulse;
         mcDrawCircleFan(72.0f, 179.0f, 0.0f, 0x2D2D2D, 0xFF, 124.0f * scale, 116.0f * scale, 1);
-        func_002a7920(19.0f, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
+        mcDrawSlotDial(19.0f, 130.0f, 0.0f, 0xFF, p + 0x14, *(s32 *)(p + 0x3AC), 1, scale, p);
     }
-    func_002a6e30(5, -5, 0xFF, p);
+    mcDrawCardStatusPulse(5, -5, 0xFF, p);
     return 1;
 }
 #pragma pop
@@ -1813,8 +1814,9 @@ void mcAdvanceMeter(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     }
 }
 
+// Intent: draws the card-status pulse overlay (224 lines). Flag 0x4000 selects the pulsing layout; the caller passes (5, -5, 0xFF, screen state).
 // FUN_002A6E30
-void func_002a6e30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
+void mcDrawCardStatusPulse(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     typedef struct { s32 a, b; } I8;
     f32 f1, f3;
     f32 f23, f22, f21, f20, f24;
@@ -2138,8 +2140,9 @@ static inline u32 mcUnsignedColorRgb(const u32 *rgba)
  * Border alpha is full-width; sprite interfaces consume its low byte.
  * The inset is evaluated as remaining scale, pixel span, then half span.
  * 6100 matching code bytes; the 6112-byte window has a zero alignment tail. */
+// Intent: draws one card-slot dial. Callers loop over the slots; arg3 selects the active variant, which draws the digit glyphs for the slot index and the card status at +0x3AC.
 // FUN_002A7920
-void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 arg2, s32 arg3, f32 fparg3, u8 *arg4) {
+void mcDrawSlotDial(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 arg2, s32 arg3, f32 fparg3, u8 *arg4) {
     extern f32 D_00761184;
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     struct { u8 r, g, b, a; } color;
