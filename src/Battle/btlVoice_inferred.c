@@ -1920,7 +1920,7 @@ s32 btlEncounterFinishStep(u8 *arg0)
         btlUnitHideModel(*(u8 **)(arg0 + 0x30));
         datCalcClearAllBuffs(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64));
         btlUnitUpdateStatusMotion(*(u8 **)(arg0 + 0x30), 0);
-        func_00198920(*(u8 **)(arg0 + 0x30), 0, 0, 1.0f, 1);
+        btlUnitSetMotion(*(u8 **)(arg0 + 0x30), 0, 0, 1.0f, 1);
         *(u8 **)(DAT_0076449c + 0xB98) = &D_0062D920[0];
         temp_4_3 = DAT_0076449c;
         *(s32 *)(temp_4_3 + 0xC) &= 0xFFF7FFFF;

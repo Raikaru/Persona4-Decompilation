@@ -1141,7 +1141,7 @@ s32 btlUnitModelMotionPacketUpdate(u8 *arg0) {
         }
         if (*(u16 *)(arg0 + 8) & 0x20) {
             btlUnitUpdateStatusMotion(t17, 0);
-            func_00198920(t17, *(s16 *)(t17 + 0x9EC), 0, *(f32 *)(t17 + 0x9F0), *(s8 *)(t17 + 0x9F4));
+            btlUnitSetMotion(t17, *(s16 *)(t17 + 0x9EC), 0, *(f32 *)(t17 + 0x9F0), *(s8 *)(t17 + 0x9F4));
             t3_8 = *(s32 *)(t17 + 0x98) & 2;
             v2 = (u16)((t3_8 != 0) ? *(s16 *)(t17 + 0x9DA) : 0);
             if (t3_8 == 0) {

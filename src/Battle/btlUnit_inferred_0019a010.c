@@ -128,7 +128,7 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
 
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
-    func_00198920(arg0, arg1, arg2, arg3, arg4);
+    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
 }
 static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
 {
@@ -207,7 +207,7 @@ u32 btlUnitMotionRequestPacketUpdate(void *workData)
         option = *(s8 *)((u8 *)workData + 0x9F4);
         frame = *(u16 *)(packet + 4);
         rate = *(f32 *)((u8 *)workData + 0x9F0);
-        func_00198920((u8 *)workData, requested, frame, rate, option);
+        btlUnitSetMotion((u8 *)workData, requested, frame, rate, option);
     }
     return 1;
 }

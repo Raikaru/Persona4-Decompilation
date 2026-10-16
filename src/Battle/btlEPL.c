@@ -1272,7 +1272,7 @@ void btlEplUnitApplyMotion(u8 *arg0)
                         btlUnitClearModelState(node, 4);
                     }
                     value = param->motion;
-                    func_00198920((u8 *)node, (s16)value, param->frame, param->rate, param->option);
+                    btlUnitSetMotion((u8 *)node, (s16)value, param->frame, param->rate, param->option);
                     value = param->unk10;
                     if (value != 0) {
                         btlUnitSetModelAnimFrame(node, (s16)value);
@@ -1368,7 +1368,7 @@ void btlEplApplyScaleEffect(u8 *arg0) {
                         btlUnitSetPos(node, sp120);
                         btlUnitSetRot(node, sp50);
                         btlUnitUpdateStatusMotion((u8 *)node, 0);
-                        func_00198920((u8 *)node, node->motion, 0, node->rate, (u16)node->option);
+                        btlUnitSetMotion((u8 *)node, node->motion, 0, node->rate, (u16)node->option);
                     }
                     node = node->next;
                 }

@@ -128,7 +128,7 @@ static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
 
 static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
 {
-    func_00198920(arg0, arg1, arg2, arg3, arg4);
+    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
 }
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
@@ -278,7 +278,7 @@ static inline u32 battleColorBlendWords(const u32 *start, const u32 *target, f32
 #pragma push
 #pragma pop
 // FUN_0019B710
-void func_0019b710(u8 *arg0)
+void btlUnitHoldPendingColor(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
@@ -293,7 +293,7 @@ void func_0019b710(u8 *arg0)
 /* measured: func_0019b730 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0019B730
-u32 func_0019b730(void *workData)
+u32 btlUnitColorPacketUpdate(void *workData)
 {
     BattleColorPacket *packet = (BattleColorPacket *)workData;
     BattleColorUnit *unit;
@@ -380,7 +380,7 @@ u32 func_0019b730(void *workData)
 
 #pragma pop
 // FUN_0019BBC0
-void func_0019bbc0(u8 *arg0)
+void btlUnitReleasePendingColor(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
