@@ -38,13 +38,13 @@ extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void func_00145080(void);
+extern void fieldSceneUnload(void);
 extern char D_0063F340[];
 extern char D_0063F360[];
 extern char D_0063F380[];
 extern f32 iGpffff82fc;
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
-extern s32 func_00144f60(void);
+extern s32 fieldSceneLoadStep(void);
 extern s32 func_0015f660(void);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122640(s32 arg0, s32 arg1);
@@ -172,7 +172,7 @@ s32 func_002bd8e0(u8 *arg0)
         fieldSceneLoad(8, 4);
         *(s8 *)(temp_16 + 0) = 2;
     case 2:
-        if ((func_00144f60() != 0) && (func_0015f660() != 0)) {
+        if ((fieldSceneLoadStep() != 0) && (func_0015f660() != 0)) {
             if (func_002cb6a0(*(s32 *)(temp_16 + 4)) == 0) {
                 return 0;
             }
@@ -219,7 +219,7 @@ s32 func_002bd8e0(u8 *arg0)
 // FUN_002BDB10
 void func_002bdb10(u8 *arg0)
 {
-    func_00145080();
+    fieldSceneUnload();
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
