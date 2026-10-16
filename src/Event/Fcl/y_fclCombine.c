@@ -162,7 +162,7 @@ extern void nmMesWindowSetSlotFlag(s64, s8);
 extern int sprintf(char *, const char *, ...);
 extern void nmMesWindowSetNumber(u8 *, s16, s32, FclVec2, FclDrawColor, f32, s64);
 extern u32 fclGetMoney(void);
-extern u8 *func_00349290(u8 *, s8);
+extern u8 *cmbCardEffCreateTask(u8 *, s8);
 
 extern void cmmDateSelectionRefresh(u8 *task);
 extern s32 func_0033e3f0(u8 *task);
@@ -5482,7 +5482,7 @@ void fclCombineMenuPriceInfo(u8 *arg0) {
             if (p->f2B8 != 0) {
                 p->f2B8 = 0;
             }
-            p->f2B8 = (s32)func_00349290(arg0, p->f122);
+            p->f2B8 = (s32)cmbCardEffCreateTask(arg0, p->f122);
             return;
         }
         nmMesWindowDestroySlot(p->fD);
@@ -7967,15 +7967,15 @@ static inline s32 fclCombineHasEntry(u8 *task, s8 id)
 static inline void fclCombineStartFade(u8 *task)
 {
     extern u8 *func_001102f0(u8 *, s32, s32, f32);
-    extern void func_00348c30(s32, s32);
+    extern void cmbCardEffSetSpriteValue(s32, s32); /* lint: allow H011 -- caller's declared types kept; retyping to the definition is unmeasured */
     u8 *w = *(u8 **)(task + 0x38);
     FclVec3 pos;
     FclDrawColor color;
 
     func_001102f0((u8 *)&pos, 0x140, 0xA5, 300.0f);
     color = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
-    func_003489c0(*(u8 **)(w + 0x308), pos, 0.0f, 0.0f, 0.0f, 1.0f, color, 0, -1);
-    func_00348c30(*(s32 *)(w + 0x308), 0x14);
+    cmbCardEffSpawnSprite(*(u8 **)(w + 0x308), pos, 0.0f, 0.0f, 0.0f, 1.0f, color, 0, -1);
+    cmbCardEffSetSpriteValue(*(s32 *)(w + 0x308), 0x14);
     *(s16 *)(w + 0x2D8) = 0;
 }
 
@@ -7986,10 +7986,10 @@ static inline void fclCombineStartFade(u8 *task)
 #pragma opt_loop_invariants on
 void fclCombineMenuResult(u8 *arg0) {
     extern void fclCombineSetModel(s32, u16, s32);
-    extern s32 func_0033f690(u8 *, u16 *, s32);
-    extern s32 func_003488d0(u8 *, void *, s32);
-    extern s8 *func_0033fa20(s32);
-    extern s32 func_00348be0(s32);
+    extern s32 cmbCardEffSpawnChild(u8 *, u16 *, s32); /* lint: allow H011 -- caller's declared types kept; retyping to the definition is unmeasured */
+    extern s32 cmbCardEffCreateSprite(u8 *, void *, s32); /* lint: allow H011 -- caller's declared types kept; retyping to the definition is unmeasured */
+    extern s8 *cmbCardEffWork(s32); /* lint: allow H011 -- caller's declared types kept; s8 return is dereferenced and retyping is unmeasured */
+    extern s32 cmbCardEffSpriteFileLoaded(s32); /* lint: allow H011 -- caller's declared types kept; retyping to the definition is unmeasured */
     extern s32 fclCombineEventTaskCreate(u8 *, s8);
     extern void frFontExCopyString(void *, void *, s32);
     extern void fclCombineClearState(s32);
@@ -8041,20 +8041,20 @@ void fclCombineMenuResult(u8 *arg0) {
         case 2:
             buf[0] = *(u16 *)((u16 *)yListSlotEntry(0, *(s8 *)(p + 0x128)) + 1);
             buf[1] = *(u16 *)((u16 *)yListSlotEntry(0, *(s16 *)(p + 0x11E)) + 1);
-            *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 1);
+            *(s32 *)(p + 0x304) = cmbCardEffSpawnChild(arg0, buf, 1);
             break;
         case 3:
             buf[0] = *(u16 *)((u16 *)yListSlotEntry(0, *(s8 *)(p + 0x128)) + 1);
             buf[1] = *(u16 *)((u16 *)yListSlotEntry(0, *(s8 *)(p + 0x129)) + 1);
             buf[2] = *(u16 *)((u16 *)yListSlotEntry(0, *(s16 *)(p + 0x11E)) + 1);
-            *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 2);
+            *(s32 *)(p + 0x304) = cmbCardEffSpawnChild(arg0, buf, 2);
             break;
         case 4:
             buf[0] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 0) + 1);
             buf[1] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 1) + 1);
             buf[2] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 2) + 1);
             buf[3] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 3) + 1);
-            *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 3);
+            *(s32 *)(p + 0x304) = cmbCardEffSpawnChild(arg0, buf, 3);
             break;
         case 5:
             buf[0] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 0) + 1);
@@ -8062,7 +8062,7 @@ void fclCombineMenuResult(u8 *arg0) {
             buf[2] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 2) + 1);
             buf[3] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 3) + 1);
             buf[4] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 4) + 1);
-            *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 4);
+            *(s32 *)(p + 0x304) = cmbCardEffSpawnChild(arg0, buf, 4);
             break;
         case 6:
             buf[0] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 0) + 1);
@@ -8071,23 +8071,23 @@ void fclCombineMenuResult(u8 *arg0) {
             buf[3] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 3) + 1);
             buf[4] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 4) + 1);
             buf[5] = *(u16 *)((u16 *)yListSlotEntry(*(s16 *)(p + 0x11E) + 1, 5) + 1);
-            *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 5);
+            *(s32 *)(p + 0x304) = cmbCardEffSpawnChild(arg0, buf, 5);
             break;
         case 7:
             for (i = 0; i < 0xC; i++) {
                 buf[i] = *(u16 *)((u16 *)yListSlotEntry(0, i) + 1);
             }
-            *(s32 *)(p + 0x304) = func_0033f690(arg0, buf, 6);
+            *(s32 *)(p + 0x304) = cmbCardEffSpawnChild(arg0, buf, 6);
             break;
         }
         if (func_00105f50(cls) > 0) {
-            *(s32 *)(p + 0x308) = func_003488d0(arg0, D_00641B50, 7);
+            *(s32 *)(p + 0x308) = cmbCardEffCreateSprite(arg0, D_00641B50, 7);
         }
         p[1] = 0xC6;
         break;
     case 0xC6:
-        if (*func_0033fa20(*(s32 *)(p + 0x304)) != 0 &&
-            (func_00105f50(cls) <= 0 || func_00348be0(*(s32 *)(p + 0x308)) != 0)) {
+        if (*cmbCardEffWork(*(s32 *)(p + 0x304)) != 0 &&
+            (func_00105f50(cls) <= 0 || cmbCardEffSpriteFileLoaded(*(s32 *)(p + 0x308)) != 0)) {
             *(s32 *)(p + 0x300) = fclCombineEventTaskCreate(arg0, *(s8 *)(p + 0x1A) - 2);
             if (*(s8 *)(p + 0xB2) != 0) {
                 datSetFlag(0x5C, 1);

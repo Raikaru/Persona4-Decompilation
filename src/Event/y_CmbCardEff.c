@@ -20,7 +20,7 @@ void chkmemAllocSiteTag(void *arg0, u32 arg1);
 struct HCdvd;
 s32 func_00440b68(const char *format, ...);
 u8 *H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
-s32 func_00348330(u8 *arg0);
+s32 cmbCardEffSpriteTaskUpdate(u8 *arg0);
 s32 cmbFiveSpriteTask(u8 *arg0);
 u32 H_Cdvd_IsFileLoaded(struct HCdvd *ptr);
 void func_004b1150(u8 *arg0);
@@ -30,7 +30,7 @@ void pscResInitScene(u8 *arg0, s32 arg1);
 void pscResBuildMiscCardW00(u8 *arg0);
 s32 pscResIsIdle(void);
 void btlShuffleCardSetupLayout(u8 *arg0, s32 arg1);
-s32 func_00347c70(u8 *arg0);
+s32 cmbCardEffRenderTask(u8 *arg0);
 u8 *cmbCardEffTaskCreate(u8 *arg0, s32 *arg1);
 void *cmbCardEffState(u8 *arg0);
 void cmbCardEffSetParams(u8 *arg0, u8 arg1, u8 arg2, u16 arg3);
@@ -93,7 +93,7 @@ extern u8 D_0064A580[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 s32 cmbCardPathUpdate(u8 *arg0);
 s32 cmbCardLoaderStep(u8 *arg0);
-u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2);
+u8 *cmbCardEffCreateSprite(u8 *arg0, u8 *arg1, s8 arg2);
 /* Retail's six-byte "%s %d" diagnostic format, addressed at GP - 0x56C8. */
 extern char D_00763A28[6];
 extern s64 D_0064A5A0[];
@@ -242,7 +242,7 @@ s32 cmbCardPathUpdate(u8 *task) {
     s32 cmbCardRunFiveCardLayout(u8 *);
     s32 cmbCardRunSixCardLayout(u8 *);
     void cmbCardClearSlots(u8 *);
-    s32 func_00348be0(u8 *);
+    s32 cmbCardEffSpriteFileLoaded(u8 *);
     void btlShuffleCardBindPacket(u8 *, void *);
     void btlShuffleCardBindSlot(u8 *, void *);
     void btlShuffleCardQueueEnqueue(u8 *, u8 *);
@@ -273,7 +273,7 @@ s32 cmbCardPathUpdate(u8 *task) {
     }
     switch (work->phase) {
     case 0:
-        if (func_00348be0(work->loadGate) == 0) {
+        if (cmbCardEffSpriteFileLoaded(work->loadGate) == 0) {
             return 0;
         }
         /* Keep a fresh signed count snapshot before promoting the short index. */
@@ -398,8 +398,9 @@ void cmbCardReleaseState(u8 *arg0) {
    where retail's second loop counter is $a0 (the first loop holds $a2). nd path:
    68 (plain array spelling) -> 40 (recipe B) -> 8 (ret-first) -> 0 (separate j).
    Callbacks cmbCardPathUpdate/cmbCardLoaderStep need file-scope prototypes for the arg passing. */
+// Creates the card's child tasks: a path task with a 0x6E0-byte work block and a loader task with a 0x19FDC-byte block that copies the 12-entry table from arg1 [inferred].
 // FUN_0033F690
-u8 *func_0033f690(u8 *arg0, u8 *arg1, s8 arg2) {
+u8 *cmbCardEffSpawnChild(u8 *arg0, u8 *arg1, s8 arg2) {
     u8 *ret;
     u8 *blk1;
     u32 base;
@@ -431,27 +432,27 @@ u8 *func_0033f690(u8 *arg0, u8 *arg1, s8 arg2) {
     switch (arg2) {
     case 1:
         *(s8 *)(blk1 + 0x6B9) = 2;
-        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A500, 6);
+        *(u32 *)(blk1 + 0x64C) = (u32)cmbCardEffCreateSprite(ret, D_0064A500, 6);
         break;
     case 2:
         *(s8 *)(blk1 + 0x6B9) = 3;
-        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A520, 6);
+        *(u32 *)(blk1 + 0x64C) = (u32)cmbCardEffCreateSprite(ret, D_0064A520, 6);
         break;
     case 3:
         *(s8 *)(blk1 + 0x6B9) = 4;
-        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A540, 6);
+        *(u32 *)(blk1 + 0x64C) = (u32)cmbCardEffCreateSprite(ret, D_0064A540, 6);
         break;
     case 4:
         *(s8 *)(blk1 + 0x6B9) = 5;
-        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A560, 6);
+        *(u32 *)(blk1 + 0x64C) = (u32)cmbCardEffCreateSprite(ret, D_0064A560, 6);
         break;
     case 5:
         *(s8 *)(blk1 + 0x6B9) = 6;
-        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A580, 6);
+        *(u32 *)(blk1 + 0x64C) = (u32)cmbCardEffCreateSprite(ret, D_0064A580, 6);
         break;
     case 6:
         *(s8 *)(blk1 + 0x6B9) = 0xC;
-        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A580, 6);
+        *(u32 *)(blk1 + 0x64C) = (u32)cmbCardEffCreateSprite(ret, D_0064A580, 6);
         break;
     }
     datSetFlag(0x58, 0);
@@ -464,8 +465,9 @@ u8 *func_0033f690(u8 *arg0, u8 *arg1, s8 arg2) {
     datSetFlag(0x5F, 0);
     return ret;
 }
+// Returns the card effect's work block, stored at task+0x38 [inferred].
 // FUN_0033FA20
-void *func_0033fa20(u8 *arg0) {
+void *cmbCardEffWork(u8 *arg0) {
     return *(void **)(arg0 + 0x38);
 }
 
@@ -671,7 +673,7 @@ s32 cmbCardRunTwoCardLayout(u8 *arg0) {
         break;
     case 7:
         sdkSndStartChannel(2, D_0064A5B0);
-        func_003489c0(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f),
+        cmbCardEffSpawnSprite(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f),
                       0.0f, 0.0f, 0.0f, 1.0f,
                       fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
@@ -808,7 +810,7 @@ s32 cmbCardRunThreeCardLayout(u8 *arg0) {
         break;
     case 7:
         sdkSndStartChannel(2, D_0064A5B0);
-        func_003489c0(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, -5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+        cmbCardEffSpawnSprite(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, -5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
@@ -951,7 +953,7 @@ s32 cmbCardRunFourCardLayout(u8 *arg0) {
         break;
     case 7:
         sdkSndStartChannel(2, D_0064A5B0);
-        func_003489c0(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+        cmbCardEffSpawnSprite(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
@@ -1099,7 +1101,7 @@ s32 cmbCardRunFiveCardLayout(u8 *arg0) {
         break;
     case 7:
         sdkSndStartChannel(2, D_0064A5B0);
-        func_003489c0(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+        cmbCardEffSpawnSprite(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, iGpffff8360, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
@@ -1253,7 +1255,7 @@ s32 cmbCardRunSixCardLayout(u8 *arg0) {
         break;
     case 7:
         sdkSndStartChannel(2, D_0064A5B0);
-        func_003489c0(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, 1.5f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
+        cmbCardEffSpawnSprite(*(u8 **)(obj + 0x64C), fclMakeVec3(0.0f, 5.0f, 30.0f), 0.0f, 0.0f, 0.0f, 1.5f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFFU), 0, 0x28);
         *(s16 *)(obj + 0x63C) = 8;
         /* fallthrough */
     case 8:
@@ -1511,8 +1513,9 @@ void cmbCardClearSlots(u8 *arg0) {
     }
 }
 
+// Sets the draw render states, resets the draw record arg1 to its defaults, then runs the frame's draw callback [inferred].
 // FUN_00347B30
-void func_00347b30(u8 *arg0, u8 *arg1) {
+void cmbCardEffDrawStep(u8 *arg0, u8 *arg1) {
     u32 base = (u32)D_00887300;
 
     ((void (*)(s32, s32))*(u32 *)base)(6, 1);
@@ -1545,11 +1548,12 @@ void func_00347b30(u8 *arg0, u8 *arg1) {
  * camera result, first scale read and packet arguments keep retail's order.
  * Recovery history and full relocation/sibling proof:
  * docs/probe_archive/yCmb_00347c70_recovery_20260922.md. */
+// Renders the enabled card quads: updates each quad from the camera depth, then queues its draw packet [inferred].
 // FUN_00347C70
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
-s32 func_00347c70(u8 *task)
+s32 cmbCardEffRenderTask(u8 *task)
 {
     u8 *work;
     f32 reciprocalDepth;
@@ -1597,7 +1601,7 @@ s32 func_00347c70(u8 *task)
             vertices = work + 0x10;
             count = primitive;
             alloc = PrimQueueDrawPrimitive(list, primitive, vertices, count);
-            *(u32 *)(alloc + 8) = (u32)func_00347b30;
+            *(u32 *)(alloc + 8) = (u32)cmbCardEffDrawStep;
             *(u8 **)(alloc + 0x10) = work;
         }
         if (((( *(s32 *)(work + 0x11C) & 4) >> 2) == 1)) {
@@ -1648,7 +1652,7 @@ u8 *cmbCardEffTaskCreate(u8 *arg0, s32 *arg1) {
 
     chkmemAllocSiteTag(D_0064A4A0, 0x702);
     blk = D_008873F4[0](1, 0x1B0, 0x40000);
-    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A5D0), 0xF, 0, 0, func_00347c70, cmbCardEffDestroy, (u8 *)(blk));
+    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A5D0), 0xF, 0, 0, cmbCardEffRenderTask, cmbCardEffDestroy, (u8 *)(blk));
     *(s32 **)(blk + 0x118) = arg1;
     *(s32 *)(blk + 0x11C) = 0;
     for (i = 0; i < 3; i++) {
@@ -1719,8 +1723,9 @@ void cmbCardEffSetPosition(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3) {
    result $v1 with the constant in $v0 - the hand-written form does the
    reverse, which was the whole 15-word residual.  Writing the cast fixes all
    three at once; fixing only the two shallow sites leaves 5. */
+// Sprite task update: waits for the sprite's file to load, releases its handle, then creates the next resource handle [inferred].
 // FUN_00348330
-s32 func_00348330(u8 *arg0) {
+s32 cmbCardEffSpriteTaskUpdate(u8 *arg0) {
     u8 *obj = *(u8 **)(arg0 + 0x38);
     switch (*(s8 *)(obj + 4)) {
     case 0:
@@ -1841,14 +1846,15 @@ void cmbCardEffFreeHandle(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
+// Creates a sprite task with a 0x70-byte state block and acquires the directory arg1 for it [inferred].
 // FUN_003488D0
-u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2) {
+u8 *cmbCardEffCreateSprite(u8 *arg0, u8 *arg1, s8 arg2) {
     u8 *ret;
     u8 *blk;
 
     chkmemAllocSiteTag(D_0064A4A0, 0x7F5);
     blk = D_008873F4[0](1, 0x70, 0x40000);
-    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A5E8), 0xF, 0, 0, func_00348330, cmbCardEffFreeHandle, (u8 *)(blk));
+    ret = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A5E8), 0xF, 0, 0, cmbCardEffSpriteTaskUpdate, cmbCardEffFreeHandle, (u8 *)(blk));
     *(s8 *)(blk + 4) = 0;
     *(s8 *)(blk + 0x14) = arg2;
     func_00440b68(D_00763A28, D_0064A4A0, 0x805);
@@ -1856,8 +1862,9 @@ u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2) {
     *(u32 *)(blk + 0x40) = 0x437F0000;
     return ret;
 }
+// Starts a sprite: sets its state to 1 and stores its position, scale, colour and timing values [inferred].
 // FUN_003489C0
-void func_003489c0(u8 *arg0, CmbVec3f src, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA col, u16 arg3, u32 arg4) {
+void cmbCardEffSpawnSprite(u8 *arg0, CmbVec3f src, f32 f0, f32 f1, f32 f2, f32 f3, CmbRGBA col, u16 arg3, u32 arg4) {
     CmbVec3f tmp = src;
     u8 *obj = *(u8 **)(arg0 + 0x38);
     *(s8 *)(obj + 4) = 1;
@@ -1902,17 +1909,20 @@ void cmbCardEffSetTween(u8 *arg0, CmbVec3f src1, f32 f0, f32 f1, f32 f2, f32 f3,
     *(u8 *)(obj + 0x48) = 1;
 }
 
+// Returns 1 when the sprite's file is loaded, else 0 [inferred].
 // FUN_00348BE0
-s32 func_00348be0(u8 *arg0) {
+s32 cmbCardEffSpriteFileLoaded(u8 *arg0) {
     return H_Cdvd_IsFileLoaded(*(struct HCdvd **)(*(u8 **)(arg0 + 0x38))) != 0;
 }
 
+// Returns 1 when the sprite is in state 2 (active), else 0 [inferred].
 // FUN_00348C10
-u32 func_00348c10(u8 *arg0) {
+u32 cmbCardEffSpriteIsActive(u8 *arg0) {
     return *(s8 *)(*(u8 **)(arg0 + 0x38) + 4) == 2;
 }
+// Stores a 16-bit value in the sprite state's +0x3E field [inferred].
 // FUN_00348C30
-void func_00348c30(u8 *arg0, u16 arg1) {
+void cmbCardEffSetSpriteValue(u8 *arg0, u16 arg1) {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x3E) = arg1;
 }
 
@@ -2016,8 +2026,9 @@ void cmbCardEffReleaseState(u8 *arg0) {
 extern u8 D_0064A600[];
 s32 cmbFiveSpriteTask(u8 *arg0);
 
+// Creates a card effect task with a 0x18-byte state block: arg1 goes in its first byte and its second byte is cleared [inferred].
 // FUN_00349290
-u8 *func_00349290(u8 *arg0, s8 arg1) {
+u8 *cmbCardEffCreateTask(u8 *arg0, s8 arg1) {
     u8 *blk;
     u8 *ret;
 
