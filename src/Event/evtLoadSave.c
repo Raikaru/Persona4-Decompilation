@@ -19,7 +19,7 @@ extern void MT_Scene_OffsetPointByRotation(f32 *, f32, f32, f32, f32, f32 *);
 extern u8 *evtNodeAllocWithRes(s32, u8 *, u16, u8 *);
 extern void evtSetKindExclusiveRes(u8 *, s32);
 extern u8 *evtNodeCreate(u8 *, u16, u8 *);
-extern void func_00294610(u8 *, u8 *, s32);
+extern void evtNodeLoadRecordEntry(u8 *, u8 *, s32);
 extern s32 mtMiscReadSlotValues(s32, s32, s32 *, s32 *);
 extern void *mdlCreateModelObjectFromMemory(u32, u16, void *, u32, u32);
 extern void mdlSetAttachedOwner(s32, u8 *);
@@ -37,8 +37,9 @@ extern u8 D_0063CAB0[];
 extern s64 D_0063CAE8[];
 extern f32 D_0063CAF0[];
 
+// Intent: Copies record arg2 from the node's record table into entry arg1: coordinates, kind and the per-kind fields [inferred]
 // FUN_00294610
-void func_00294610(u8 *arg0, u8 *arg1, s32 arg2) {
+void evtNodeLoadRecordEntry(u8 *arg0, u8 *arg1, s32 arg2) {
     S16x4 sp48;
     s16 *coord;
     s32 temp_3;
@@ -175,8 +176,9 @@ void func_00294610(u8 *arg0, u8 *arg1, s32 arg2) {
     }
 }
 
+// Intent: Loads each kind-1 record whose count equals arg3 into a new node entry (through evtNodeLoadRecordEntry) [inferred]
 // FUN_00294A90
-void func_00294a90(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3) {
+void evtNodeLoadRecordsByCount(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3) {
     s32 i;
     s32 type;
     u16 var_4;
@@ -206,7 +208,7 @@ void func_00294a90(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3) {
                     } else {
                         var_2 = *(u16 *)(temp_5 + 2);
                     }
-                    func_00294610(arg0, evtNodeCreate(arg2, var_2 & 0xFFFF, arg1), i);
+                    evtNodeLoadRecordEntry(arg0, evtNodeCreate(arg2, var_2 & 0xFFFF, arg1), i);
                 }
             }
         }
@@ -217,8 +219,9 @@ void func_00294a90(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3) {
  * Preserve the source-type reloads after object creation, separate resource
  * ID/pointer lifetimes, and the three-float vector copies. Address-taken angle
  * fields retain retail's constant-load and stack-store ordering. */
+// Intent: Builds the camera resources (ids 0x1E58 and 0x1E59) and the kind-0x21 node entries from the record table [inferred]
 // FUN_00294BE0
-void func_00294be0(u8 *arg0, u8 *arg1) {
+void evtNodeLoadCameraRecords(u8 *arg0, u8 *arg1) {
     typedef struct { f32 x; f32 y; f32 z; } EventVector;
     StackState stack;
     s16 *coord;
@@ -390,8 +393,9 @@ void func_00294be0(u8 *arg0, u8 *arg1) {
     }
 }
 
+// Intent: Allocates three kind-0x24 slot nodes and loads the kind-0x24 records into them [inferred]
 // FUN_002951C0
-void func_002951c0(u8 *arg0, u8 *arg1) {
+void evtNodeLoadRecords24(u8 *arg0, u8 *arg1) {
     u8 *arr[3];
     S16x4 sp58;
     s16 *coord;
@@ -484,8 +488,9 @@ void func_002951c0(u8 *arg0, u8 *arg1) {
 }
 
 /* measured: address-taken coordinate locals preserve retail's grouped loads and stores; the clamp uses a direct swapped relational guard so b210 emits retail's $at compare. Object 592/592, normalized_diff 0. Committed at nd 0. */
+// Intent: Creates a kind-0x2F node, loads its kind-0x2F records and clamps the field at +0x1A to 100 when out of range [inferred]
 // FUN_002954F0
-void func_002954f0(u8 *arg0, u8 *arg1) {
+void evtNodeLoadRecords2F(u8 *arg0, u8 *arg1) {
     u8 *temp_17;
     S16x4 sp58;
     s16 *coord;
@@ -565,8 +570,9 @@ next_954:
     }
 }
 
+// Intent: Creates the entry's model, attaches its owner, creates its NPC shadow resource and copies its colour to the node [inferred]
 // FUN_00295740
-void func_00295740(s32 arg0, u8 *arg1) {
+void evtNodeCreateModel(s32 arg0, u8 *arg1) {
     s32 sp6C;
     u32 sp68;
     struct {
@@ -612,8 +618,9 @@ void func_00295740(s32 arg0, u8 *arg1) {
     }
 }
 
+// Intent: Allocates three kind-0x34 slot nodes and copies the 0x28-byte payload of each kind-0x34 record [inferred]
 // FUN_00295B80
-void func_00295b80(u8 *arg0, u8 *arg1) {
+void evtNodeLoadRecords34(u8 *arg0, u8 *arg1) {
     u8 *arr[3];
     S16x4 sp58;
     s32 i;
@@ -684,8 +691,9 @@ void func_00295b80(u8 *arg0, u8 *arg1) {
     }
 }
 
+// Intent: Allocates eight kind-0x30 slot nodes and loads the kind-0x30 records matching each slot's index, then the table at +0x100 [inferred]
 // FUN_00295910
-void func_00295910(u8 *arg0, u8 *arg1) {
+void evtNodeLoadRecords30(u8 *arg0, u8 *arg1) {
     u8 *temp_2;
     u8 *var_5;
     u8 *var_4;
@@ -722,7 +730,7 @@ void func_00295910(u8 *arg0, u8 *arg1) {
                     } else {
                         var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (var_19 * 0x3C) + 2);
                     }
-                    func_00294610(arg0, evtNodeCreate(temp_2, var_2 & 0xFFFF, arg1), var_19);
+                    evtNodeLoadRecordEntry(arg0, evtNodeCreate(temp_2, var_2 & 0xFFFF, arg1), var_19);
                 }
             }
         }
@@ -748,15 +756,16 @@ void func_00295910(u8 *arg0, u8 *arg1) {
                 }
             }
         }
-        func_00295740((s32)arg1, temp_2);
+        evtNodeCreateModel((s32)arg1, temp_2);
     }
 }
 
 /* measured: the plain-C reconstruction of the three outer tag-0xA objects,
    nested source dispatch, coordinate copy, and descriptor search matches
    retail (object 1336B against the 1344B retail window). */
+// Intent: Allocates three kind-0xA nodes and loads the kind-0xA records matching each node's index [inferred]
 // FUN_00295DB0
-void func_00295db0(u8 *arg0, u8 *arg1) {
+void evtNodeLoadRecords0A(u8 *arg0, u8 *arg1) {
     S16x4 sp88;
     s16 *coord;
     s16 temp_5;

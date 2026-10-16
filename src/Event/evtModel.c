@@ -77,10 +77,11 @@ extern void mdlSetLookAtRequested(s32 a);
 extern s32 mdlHasActiveMode(s32 a);
 extern f32 func_004bd4a0(void *a, f32 *b);
 
+// Intent: Single-model motion state machine: state 0 ramps the blend weight from speed, state 1 aims the look-at subobject at dst, then the timed step ends the motion [inferred]
 // FUN_00291B60
 #pragma push
 #pragma opt_rebuildconditionals off
-s32 func_00291b60(s32 arg0, u8 *arg1) {
+s32 evtModelStepLookAt(s32 arg0, u8 *arg1) {
     EvtModelRec *rec = (EvtModelRec *)arg1;
     f32 temp_f21;
     f32 temp_f20;
@@ -182,10 +183,11 @@ common:
 }
 #pragma pop
 
+// Intent: Variant of evtModelStepLookAt with a different track scale range and blend factor [inferred]
 // FUN_00291FA0
 #pragma push
 #pragma opt_rebuildconditionals off
-s32 func_00291fa0(s32 arg0, u8 *arg1) {
+s32 evtModelStepLookAtAlt(s32 arg0, u8 *arg1) {
     EvtModelRec *rec = (EvtModelRec *)arg1;
     f32 temp_f0;
     f32 temp_f0_2;
@@ -492,8 +494,9 @@ common:
 }
 #pragma pop
 
+// Intent: Two-model aim: points model id's look-at direction at model id2 while blending, then waits for model id's motion to finish [inferred]
 // FUN_00292BB0
-s32 func_00292bb0(s32 arg0, u8 *arg1) {
+s32 evtModelStepAimAtModel(s32 arg0, u8 *arg1) {
     EvtModelRec *rec = (EvtModelRec *)arg1;
     typedef struct {
         f32 x;
