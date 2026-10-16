@@ -8776,7 +8776,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
     extern s32 func_0011fcf0(u8 *);
     extern void frFontExCopyString(void *, void *, s32);
     extern void shdPersonaSetPendingSkill(u8 *, s32);
-    extern void func_0011ce30(u8 *);
+    extern void shdPersonaArmSkillReveal(u8 *);
     extern s32 shdPersonaAddSkill(u8 *, u16);
     extern void yListSlotCopyEntry(u8 *, s8, s16);
     extern void fclDrawSetState(u8 *, s8);
@@ -9238,7 +9238,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         if (func_0011fcf0(*(u8 **)(p + 0x2A8)) == 1) {
             kwlnTaskDestroyWithHierarchy((KwlnTask *)*(u8 **)(p + 0x2A8));
             *(u8 **)(p + 0x2A8) = 0;
-            func_0011ce30(fclDrawGetResource(*(u8 **)(p + 0x148)));
+            shdPersonaArmSkillReveal(fclDrawGetResource(*(u8 **)(p + 0x148)));
             p[1] = 0xBF;
             for (j5 = 0; j5 < 6; j5++) {
                 q5 = *(s8 **)(arg0 + 0x38);
@@ -9298,7 +9298,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         } else {
             func_002bb550(*(s8 *)(p + 0xD));
             p[1] = 0xBF;
-            func_0011ce30(fclDrawGetResource(*(u8 **)(p + 0x148)));
+            shdPersonaArmSkillReveal(fclDrawGetResource(*(u8 **)(p + 0x148)));
             for (j6 = 0; j6 < 6; j6++) {
                 q6 = *(s8 **)(arg0 + 0x38);
                 for (k6 = 0; k6 < q6[0x2DF]; k6++) {
@@ -9337,7 +9337,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
                 skill = *(u16 *)(p + 0x1C);
                 shdPersonaAddSkill(personaTask, skill);
             }
-            func_0011ce30(fclDrawGetResource(*(u8 **)(p + 0x148)));
+            shdPersonaArmSkillReveal(fclDrawGetResource(*(u8 **)(p + 0x148)));
             func_0045af60(1, 3, 3, 2);
         } else if (*(s16 *)(p + 0x2D8) >= 0x28) {
             p[1] = 0xBF;
@@ -9461,7 +9461,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
         if (func_0011fcf0(*(u8 **)(p + 0x2A8)) == 1) {
             kwlnTaskDestroyWithHierarchy((KwlnTask *)*(u8 **)(p + 0x2A8));
             *(u8 **)(p + 0x2A8) = 0;
-            func_0011ce30(fclDrawGetResource(*(u8 **)(p + 0x148)));
+            shdPersonaArmSkillReveal(fclDrawGetResource(*(u8 **)(p + 0x148)));
             for (i13 = 0; i13 < *(s8 *)(p + 0x2DF); i13++) {
                 if (*(s8 *)(p + i13 + 0x2DA) > 0 && *(s8 *)(p + i13 + 0x2DA) < 7) {
                     p[1] = 0xAC;
@@ -9494,7 +9494,7 @@ void fclCombineMenuResultGrowth(u8 *arg0) {
             func_0045af60(1, 3, 3, 2);
         }
         if (*(s16 *)(p + 0x2D8) >= 0x28) {
-            func_0011ce30(fclDrawGetResource(*(u8 **)(p + 0x148)));
+            shdPersonaArmSkillReveal(fclDrawGetResource(*(u8 **)(p + 0x148)));
             for (i14 = 0; i14 < *(s8 *)(p + 0x2DF); i14++) {
                 if (*(s8 *)(p + i14 + 0x2DA) > 0 && *(s8 *)(p + i14 + 0x2DA) < 7) {
                     p[1] = 0xAC;
