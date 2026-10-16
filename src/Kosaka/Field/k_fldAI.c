@@ -73,7 +73,7 @@ s32 FldAI_ChaserUpdate(u8 *task)
     extern f32 FldEvent_GetMoveStep(void);
     extern f32 func_0044b920(f32);
     extern s32 KMisc_CreateRmdFade(s32, s32, s32, s32, s32);
-    extern s32 func_0014bd90(u8 *);
+    extern s32 KDraw_IsEffectDone(u8 *);
     extern s32 FldFrameTask_GetTileX(u8 *);
     extern s32 FldFrameTask_GetTileZ(u8 *);
     extern void FldFrameTask_ClearFlags(u8 *, s32);
@@ -210,7 +210,7 @@ discoveryAvailabilityDone:
         cameraDelta.y = focusPosition.y - cameraPosition.y;
         cameraDelta.z = focusPosition.z - cameraPosition.z;
         distance = RwV3dLength(&cameraDelta.x);
-        if (*(u8 **)(work + 0x6C) != NULL && func_0014bd90(*(u8 **)(work + 0x6C)) == 1) {
+        if (*(u8 **)(work + 0x6C) != NULL && KDraw_IsEffectDone(*(u8 **)(work + 0x6C)) == 1) {
             mdlClearAlphaBlend(*(void **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x164));
             kwlnTaskDestroyWithHierarchy(*(KwlnTask **)(work + 0x6C));
             *(u8 **)(work + 0x6C) = NULL;
@@ -994,7 +994,7 @@ extern struct RwMatrix *func_003e9700(struct RwFrame *);
 extern f32 sinf(f32 angle);
 extern void *mdlGetColor(void *);
 extern int KMisc_CreateRmdFade(int, int, int, int, int);
-extern int func_0014bd90(unsigned char *);
+extern int KDraw_IsEffectDone(unsigned char *);
 extern unsigned int FldEvent_HasLineOfSight(void *, void *, float, float);
 extern s32 KDraw_CreateAxesTask(void *, void *);
 extern void FldRc_SetAxesTargeted(unsigned char *, int);
@@ -1368,7 +1368,7 @@ else {
       break;
     case 4:
       if ((unsigned char *)piVar1[0x22] != (unsigned char *)0x0) {
-        temp_v0 = func_0014bd90((unsigned char *)piVar1[0x22]);
+        temp_v0 = KDraw_IsEffectDone((unsigned char *)piVar1[0x22]);
         if (temp_v0 == 0) {
           break;
         }
@@ -1387,7 +1387,7 @@ else {
       }
       break;
     case 5:
-      temp_v0 = func_0014bd90((unsigned char *)piVar1[0x22]);
+      temp_v0 = KDraw_IsEffectDone((unsigned char *)piVar1[0x22]);
       if (temp_v0 != 0) {
         kwlnTaskDestroyWithHierarchy((void *)piVar1[0x22]);
         piVar1[0x22] = 0;
@@ -1919,7 +1919,7 @@ else {
       }
       break;
     case 0xc:
-      temp_v0 = func_0014bd90((unsigned char *)piVar1[0x22]);
+      temp_v0 = KDraw_IsEffectDone((unsigned char *)piVar1[0x22]);
       if (temp_v0 != 0) {
         kwlnTaskDestroyWithHierarchy((void *)piVar1[0x22]);
         piVar1[0x22] = 0;
@@ -1939,7 +1939,7 @@ else {
       }
       break;
     case 0xd:
-      temp_v0 = func_0014bd90((unsigned char *)piVar1[0x22]);
+      temp_v0 = KDraw_IsEffectDone((unsigned char *)piVar1[0x22]);
       if (temp_v0 != 0) {
         if (*(unsigned char *)(piVar1[3] + 0x1ca) == '\x01') {
           temp_v0 = *(int *)(piVar1[3] + 0x50);

@@ -117,7 +117,7 @@ extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
 extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
 extern void func_0016ea30(s32 arg0, f32 arg1);
 extern void FldFrame_SetSlotVector(s32 arg0, s8 arg1, void *arg2);
-extern u8 *func_0016eaf0(s32 arg0);
+extern u8 *FldFrame_GetSlotBuffer(s32 arg0);
 extern u8 *mdlGetMatrix(s32 arg0);
 extern s32 K_Clump_ClumpHasMatUsrData(s32 arg0, const void *arg1);
 extern u8 D_005F0690[];
@@ -270,7 +270,7 @@ loop_test:
             goto loop_body;
         }
         func_003e0670(sp30, *(s32 *)(temp_2 + 0x14C));
-        var_2 = func_0016eaf0(func_00155280()[1]);
+        var_2 = FldFrame_GetSlotBuffer(func_00155280()[1]);
         var_6 = sp30;
         var_5 = 8;
         do {

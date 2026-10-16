@@ -2058,7 +2058,7 @@ extern f32 KDraw_MatrixYawDeg(void *);
 extern f32 KDraw_MatrixPitchDeg(void *);
 extern f32 KDraw_MatrixRollDeg(void *);
 extern s32 KMisc_CreateRmdFade(s32, s32, s32, s32, s32);
-extern s32 func_0014bd90(unsigned char *);
+extern s32 KDraw_IsEffectDone(unsigned char *);
 extern u32 FldEvent_HasLineOfSight(void *, void *, f32, f32);
 extern s32 FldRc_FileLoadIsReady(unsigned char *);
 extern s32 FldRc_RequestPositionSlot(unsigned char *, float *);
@@ -2328,7 +2328,7 @@ s32 func_0018a200(u8 *param_1)
     vec60[2] = vec50[2] - vec70[2];
     temp_v13 = func_003e4180(&vec60[0]);
     effectTask = (u8 *)puVar1[4];
-    if (effectTask != NULL && func_0014bd90(effectTask) == 1) {
+    if (effectTask != NULL && KDraw_IsEffectDone(effectTask) == 1) {
       mdlClearAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
       kwlnTaskDestroyWithHierarchy((void *)puVar1[4]);
       puVar1[4] = 0;
@@ -2541,7 +2541,7 @@ s32 func_0018a200(u8 *param_1)
     *puVar1 = *puVar1 + 1;
     break;
   case 3:
-    temp_v4 = func_0014bd90((unsigned char *)puVar1[4]);
+    temp_v4 = KDraw_IsEffectDone((unsigned char *)puVar1[4]);
     if (temp_v4 != 0) {
       mdlClearAlphaBlend(*(unsigned char **)(puVar1[3] + 0x164));
       kwlnTaskDestroyWithHierarchy((void *)puVar1[4]);

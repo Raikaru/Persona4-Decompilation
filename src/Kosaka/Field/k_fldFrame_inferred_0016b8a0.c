@@ -455,7 +455,7 @@ extern unsigned int uGpffff9f2c; /* 0xffff9f2c */
 
 extern u8 *func_0016e8c0(u8 *);
 extern int KMisc_CreateRmdFade(int, int, int, int, int);
-extern int func_0014bd90(unsigned char *);
+extern int KDraw_IsEffectDone(unsigned char *);
 extern void KDraw_SetGroupFlags(u8 *, u32);
 extern void KDraw_SetSphereFlags(u8 *, u32);
 extern void KDraw_SetSphereCenter(unsigned char *, unsigned char *);
@@ -1492,7 +1492,7 @@ s32 func_0016bdd0(u8 *param_1)
         {
           unsigned char *fadeTask = (unsigned char *)piVar1[0xaa];
           if (fadeTask != (unsigned char *)0x0 &&
-              (temp_v4_c = func_0014bd90(fadeTask), temp_v4_c == 1)) {
+              (temp_v4_c = KDraw_IsEffectDone(fadeTask), temp_v4_c == 1)) {
             mdlClearAlphaBlend(*(unsigned char **)(piVar1[0xa2] + 0x164));
             kwlnTaskDestroyWithHierarchy((void *)piVar1[0xaa]);
             piVar1[0xaa] = 0;
@@ -2047,7 +2047,7 @@ void FldFrame_SetSlotVector(u8 *arg0, s32 arg1, RwV3d *arg2) {
 }
 
 // FUN_0016EAF0
-s32 func_0016eaf0(u8 *arg0)
+s32 FldFrame_GetSlotBuffer(u8 *arg0)
 {
     return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x2BC);
 }

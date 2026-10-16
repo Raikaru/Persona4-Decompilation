@@ -248,7 +248,7 @@ s32 func_00299b70(void) {
 }
 
 // FUN_00299C20
-s32 func_00299c20(void)
+s32 K_Cmd_STRING_SET(void)
 {
     func_0029e9b0(&iGpffffa7c8, scrGetParamString(0));
     return 1;
