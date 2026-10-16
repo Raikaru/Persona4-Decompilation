@@ -186,7 +186,7 @@ void func_002be3c0(void)
 }
 
 // FUN_002BE4A0
-void func_002be4a0(void)
+void fclDrawMoneyDisplay(void)
 {
     Vec2f sp18;
 

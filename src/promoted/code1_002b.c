@@ -19,7 +19,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern void nmMesWindowClearSlotTable(void);
 extern void nmMesWindowInitRecord(s32 *arg0);
 extern void nmMesWindowStepCurrent(s32 arg0);
-extern void func_002bd440(void);
+extern void fclMiscCloseActiveHandle(void);
 
 
 

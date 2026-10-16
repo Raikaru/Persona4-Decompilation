@@ -287,7 +287,7 @@ s32 btlSoundPickResistVoice(u8 *arg0)
 // FUN_001F65D0
 s32 btlSoundLoadPlaybackFile(u8 *arg0)
 {
-    extern void func_002bd240(u32 arg0);
+    extern void fclMiscOrStateFlags(u32 arg0);
     extern void func_00440b68();
     extern s32 H_Cdvd_AcquireDirectory();
     extern u8 iGpffffa4e8;
@@ -318,7 +318,7 @@ s32 btlSoundLoadPlaybackFile(u8 *arg0)
     case 2:
         if (H_Cdvd_IsFileLoaded(*(u8 **)(iGpffffb3ac + 0xA54)) != 0) {
     case 3:
-            func_002bd240(
+            fclMiscOrStateFlags(
                 (1 << *(u16 *)(iGpffffb3ac + 0xA4C)) | 1);
             *(u16 *)(arg0 + 6) = 4;
     case 4:
