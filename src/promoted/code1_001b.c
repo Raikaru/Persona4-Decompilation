@@ -173,7 +173,7 @@ extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
 extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
 extern void btlMainApplyUnitBaseColors(u8 *arg0);
 extern void btlCameraStartEffect(u8 *arg0, u8 *arg1, s32 arg2);
-extern s32 func_001be990(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 btlCameraFrameActionGeneral(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
