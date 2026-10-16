@@ -80,7 +80,7 @@ extern u8 D_00626C80[];
 extern void btlGaugeSetActive();
 extern s32 btlShuffleTaskIsLoading(KwlnTask *task);
 extern void btlShuffleTaskRequestCancel(s32 arg0);
-extern void func_00221770(s32 arg0);
+extern void btlResultSimpleSetupEntries(s32 arg0);
 extern u8 D_006290E0[];
 
 extern void btlShuffleDrawSweep(s32 arg0, s32 *arg1);
@@ -4240,7 +4240,7 @@ void btlShuffleCancel(s32 task)
     if ((*(s32 *)(p + 0x60) & 1) != 0) {
         btlShuffleTaskRequestCancel(*(s32 *)(p + 0x938));
     }
-    func_00221770(*(s32 *)(p + 0x93C));
+    btlResultSimpleSetupEntries(*(s32 *)(p + 0x93C));
     *(s32 *)p |= 2;
 }
 // Intent: report whether a shuffle task was canceled. [inferred]
