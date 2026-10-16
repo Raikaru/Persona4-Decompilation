@@ -62,13 +62,14 @@ extern void (*jtbl_008873EC[])(void *);
 #pragma pop
 #pragma push
 #pragma pop
-// FUN_004B5340
+// Destroys a battle effect record: when the gate passes, calls the kind's table entry +0x08 callback with the value at +0x30, then frees the record.
 /* The handler-table address is built through two named locals on purpose:
    retail adds the sub-table offset to the base, then the 0x1C-strided index,
    then loads at displacement 0. Folding either step into the expression makes
    b210 sink the offset into the load displacement and flip the addu operands
    (nd 40-54). */
-void func_004b5340(u8 *arg0) {
+// FUN_004B5340
+void EffBattleDestroy(u8 *arg0) {
     s32 tbl;
     s32 idx;
     void (*fn)(s32);
@@ -84,8 +85,9 @@ void func_004b5340(u8 *arg0) {
     jtbl_008873EC[0](arg0);
 }
 
+// Creates a battle effect from a record: the kind at +0x2C and the texture at +0x38 are read directly, with no relative pointer. When table entry +0xC for the kind is empty, allocates the work block; when the gate passes, runs the entry's setup (result stored at work+0x30) and post callbacks.
 // FUN_004B53C0
-void *func_004b53c0(void *opaqueSource)
+void *EffBattleCreateFromRecord(void *opaqueSource)
 {
     u8 *arg0 = opaqueSource;
     u8 *result;

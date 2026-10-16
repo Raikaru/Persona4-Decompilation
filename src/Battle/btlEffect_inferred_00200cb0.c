@@ -74,7 +74,7 @@ extern void btlUiInitComponents(s32 arg0, u8 *arg1);
 extern s32 btlPacketBuildHitFlags(u8 *arg0);
 extern void itfMesWindowReleaseIfActive(s32 arg0);
 extern void sdkSpriteRelease(void *arg0);
-extern void func_004b5790(void *arg0, void *arg1);
+extern void EffBattleSetHandlerTable(void *arg0, void *arg1);
 extern u8 D_00625240[];
 extern f32 fGpffff8184;
 extern f32 fGpffff84a4;
@@ -181,7 +181,7 @@ f32 btlUiSpriteHeight(u8 *arg0, s32 arg1, s32 arg2);
 // Intent: register the overlay-ready callback for the UI object. [inferred]
 // FUN_00200CB0
 void btlUiRegisterAvailability(void) {
-    func_004b5790((void *)&D_00625240, (void *)btlUiIsOverlayReady);
+    EffBattleSetHandlerTable((void *)&D_00625240, (void *)btlUiIsOverlayReady);
 }
 
 // Intent: report whether the overlay work block exists (used as availability callback). [inferred]

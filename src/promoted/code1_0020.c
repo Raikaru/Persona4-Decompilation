@@ -125,7 +125,7 @@ extern void sdkSpriteRelease(void *arg0);
 extern s32 datCalcGetHp(s32 arg0);
 extern s32 datCalcMaxHp(s32 arg0);
 extern void func_004abd60(s32 arg0);
-extern void func_004b5790(void *arg0, void *arg1);
+extern void EffBattleSetHandlerTable(void *arg0, void *arg1);
 extern u8 D_00625240[];
 extern void btlEncounterEntryClearRetracted(s32 task);
 extern void btlEncounterEntrySetRetracted(s32 task);
