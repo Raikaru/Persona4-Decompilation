@@ -1758,7 +1758,7 @@ void datCommunityListDraw(u8 *work) {
     extern s32 frFontExDrawTextOutB(f32, f32, f32, s32, s8, s32, const char *, s32, s32, s32);
     extern void func_0034c270(Vec2f, s32, s32, f32);
     extern void func_0045d6e0(u8 *, f32 *, f32, s32);
-    extern void func_003599c0(s32, u8 *);
+    extern void datPartyHudDraw(s32, u8 *);
     extern void datScreenWipeSetAlpha(u8 *, u8);
     extern void datScreenWipeDraw(u8 *);
     extern void sdkSpriteDrawAt(void *, f32, f32, u8, u8, u8, u8);
@@ -1962,7 +1962,7 @@ void datCommunityListDraw(u8 *work) {
         }
         for (visibleIndex = 0; visibleIndex < 5; visibleIndex++) {
             if (menu->rowCount > (visibleIndex + menu->firstRow)) {
-                func_003599c0(visibleIndex, work);
+                datPartyHudDraw(visibleIndex, work);
             }
         }
         menuOpacityProduct = 255.0f * globalOpacity;
@@ -2427,8 +2427,9 @@ table_loop_test:
     return 1;
 }
 #pragma pop
+// Intent: Report whether every community entry's threshold is met and the external check passes; returns 1 when the community list is ready [inferred]
 // FUN_003596A0
-s32 func_003596a0(u8 *arg0) {
+s32 datCommunityIsReady(u8 *arg0) {
     s32 flag = 1;
     s32 i = 0;
     s32 v = *(s16 *)(arg0 + 0x20);
@@ -2442,8 +2443,9 @@ s32 func_003596a0(u8 *arg0) {
     return flag & func_0034c210();
 }
 
+// Intent: Release the community menu: free its sprite nodes, destroy its wipe and helper tasks, and reset its count [inferred]
 // FUN_00359720
-void func_00359720(u8 *arg0)
+void datCommunityMenuRelease(u8 *arg0)
 {
     s32 handle;
     s32 handle1308;
@@ -2484,8 +2486,9 @@ loop_test:
     *(s32 *)(arg0 + 0x1C) = 0;
     func_002bc060(0xB);
 }
+// Intent: Fill the community menu's visible record list from the kind table, keeping entries with a value and a passing flag [inferred]
 // FUN_003597F0
-void func_003597f0(u8 *arg0)
+void datCommunityFillVisibleRecords(u8 *arg0)
 {
     s32 table;
     s32 flagId;
@@ -2519,8 +2522,9 @@ loop_test:
 }
 /* measured: probe loop-invariant constant hoisting for func_003598d0. */
 #pragma opt_loop_invariants on
+// Intent: Set the five community slot positions: the active slots move to the off-screen start and the current slot to its resting position [inferred]
 // FUN_003598D0
-void func_003598d0(u8 *arg0)
+void datCommunitySetSlotLayout(u8 *arg0)
 {
     s32 activeCount;
     s32 index;
@@ -2565,8 +2569,9 @@ loop_test:
 }
 /* measured: restore loop-invariant optimization after func_003598d0. */
 #pragma opt_loop_invariants off
+// Intent: Reset the community entry's vertical offset and its target to fixed values [inferred]
 // FUN_003599A0
-void func_003599a0(u8 *arg0)
+void datCommunityResetOffset(u8 *arg0)
 {
     *(u32 *)(arg0 + 0x30) = 0x42700000;
     *(f32 *)(arg0 + 0x34) = D_00761260;
@@ -2632,8 +2637,9 @@ typedef struct {
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
 #pragma opt_lifetimes on
+// Intent: Draw the party HUD panel: the three panel groups with their names, counts and modes, using the HUD sprite table [inferred]
 // FUN_003599C0
-void func_003599c0(s32 arg0, u8 *arg1)
+void datPartyHudDraw(s32 arg0, u8 *arg1)
 {
     extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void func_0045d6e0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2);
@@ -3649,13 +3655,13 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
         }
         break;
     case 2:
-        if (func_003596a0(arg2) != 0) {
-            func_00359720(arg2);
+        if (datCommunityIsReady(arg2) != 0) {
+            datCommunityMenuRelease(arg2);
             return 1;
         }
         break;
     case 3:
-        if (func_003596a0(arg2) != 0) {
+        if (datCommunityIsReady(arg2) != 0) {
             resrcMngSuppressRender();
             datScreenWipeSetTextureId((u8 *)*(s32 *)(arg2 + 0x1308), 1);
             func_0035ac60((u8 *)*(s32 *)(arg2 + 0x1308), 0, 1, 0);
@@ -3673,13 +3679,13 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
         } else if (D_008C024E[0] & 0x40) {
             if (*(s16 *)(arg2 + 0x134) > 0) {
                 datCommunitySetTableMode(arg2, 2);
-                func_003598d0(arg2);
+                datCommunitySetSlotLayout(arg2);
                 *arg0 = 5;
                 datCommunityPushValue((s32)arg2, 2, 0);
                 func_0034bb20(0x1A);
                 func_0035ac60((u8 *)*(s32 *)(arg2 + 0x1308), 1, 0, 0);
                 func_0035ef80(arg2);
-                func_003597f0(arg2);
+                datCommunityFillVisibleRecords(arg2);
                 func_0035f020(arg2);
                 sdkSndStartStream(0, 0, 0, 1);
             }
@@ -3697,16 +3703,16 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
         }
         break;
     case 5:
-        if (func_003596a0(arg2) != 0) {
+        if (datCommunityIsReady(arg2) != 0) {
             datCommunitySetTableMode(arg2, 3);
             *arg0 = 6;
             func_0034bb20(0x1C);
-            func_003599a0(arg2);
+            datCommunityResetOffset(arg2);
             datScreenWipeSetTextureId((u8 *)*(s32 *)(arg2 + 0x1308), 0);
         }
         break;
     case 6:
-        if (func_003596a0(arg2) != 0) {
+        if (datCommunityIsReady(arg2) != 0) {
             if (D_008C024E[0] & 0x20) {
                 datCommunitySetTableMode(arg2, 4);
                 *arg0 = 3;
@@ -3725,8 +3731,8 @@ s32 func_0035e8b0(u32 *arg0, s32 *arg1, u8 *arg2)
                     datCommunityPushValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
                     datCommunityPushValue((s32)arg2, 2, 0);
                     func_0035ef80(arg2);
-                    func_003599a0(arg2);
-                    func_003597f0(arg2);
+                    datCommunityResetOffset(arg2);
+                    datCommunityFillVisibleRecords(arg2);
                     func_0035f020(arg2);
                     sdkSndStartStream(0, 1, 0, 5);
                 } else if (*(s32 *)(arg2 + 0x148) > 1) {
