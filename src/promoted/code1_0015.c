@@ -400,7 +400,7 @@ s32 func_001561a0(u8 *task)
     extern s16 func_001060b0(void);
     extern u8 datGetTimeSlot(void);
     extern s64 func_00110960(s32 day, u32 period);
-    extern s32 func_00248e20(s32 group, s32 entry, s32 condition);
+    extern s32 cmmTableLookupFlagged(s32 group, s32 entry, s32 condition);
     extern void func_00123aa0(s16 selection);
     extern void func_002aaa80(void);
     extern s32 FldResource_IsPrimaryFileLoaded(void);
@@ -488,7 +488,7 @@ s32 func_001561a0(u8 *task)
             if (work->mode == 1) {
                 initialDay = (s16)func_001060b0();
                 condition = (s8)func_00110960(initialDay, datGetTimeSlot() & 0xFF);
-                selection = func_00248e20(work->storyGroup, work->storyEntry, condition);
+                selection = cmmTableLookupFlagged(work->storyGroup, work->storyEntry, condition);
                 if (selection != -1) {
                     if ((selection & 0x8000) != 0) {
                         selectedEnvironment = selection & 0x7FF;

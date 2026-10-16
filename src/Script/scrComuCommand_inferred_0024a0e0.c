@@ -10,7 +10,7 @@ extern u8 D_006359A0[];
 extern u8 D_006359B0[];
 extern u8 D_006359C0[];
 extern s64 func_001060b0(void);
-extern s32 func_00248040(s32 arg0);
+extern s32 cmmNextUnlistedDate(s32 arg0);
 extern s32 func_00110580(s32 arg0);
 extern s32 func_00110d30(s32 arg0);
 extern s32 cmmCommunityGetTableHead(void);
@@ -53,7 +53,7 @@ s32 func_0024a140(void)
 {
     s32 temp_17;
     s32 var_16;
-    temp_17 = func_00248040((s16)func_001060b0());
+    temp_17 = cmmNextUnlistedDate((s16)func_001060b0());
     var_16 = 0;
     if (temp_17 == ((s16)func_001060b0() + 1)) {
         var_16 = 1;
