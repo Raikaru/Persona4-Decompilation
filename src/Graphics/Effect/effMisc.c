@@ -47,6 +47,111 @@ extern void effMiscAxisAngleMatrix(f32 angle, const RwV3d* axis, RwMatrix* matri
 
 
 
+extern void func_0045b430(void);
+extern f32 D_008872F8_abs[];
+extern void (*D_00887300[])();
+extern s32 (*D_00887310[])(s32, void *, s32);
+extern void RpSkyRenderStateSet(s32 param, s32 value);
+extern void (*D_00887304[])();
+extern void (*D_008873EC[])(void *);
+typedef struct Code45RenderState {
+    s32 state;
+    s32 val;
+} Code45RenderState;
+extern Code45RenderState D_00712490[6];
+extern void (*D_008873FC[])(s32 param, u8* arg);
+extern s32 func_00457120(void);
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+#pragma pop
+#pragma opt_propagation off
+#pragma opt_propagation on
+#pragma opt_propagation off
+#pragma opt_propagation on
+#pragma push
+#pragma opt_scalarize off
+#pragma pop
+/* measured: opt_loop_invariants on hoists the array base into $v1 ahead of
+   the loop as retail; a named base local is coloured $a0 (archived nd 8). */
+#pragma opt_loop_invariants on
+/* measured: closes the hoisting scope after func_0045b430. */
+#pragma opt_loop_invariants off
+// FUN_0045C870
+void func_0045c870(u8 *colors, s32 enabled)
+{
+    struct {
+        s32 saved[6];
+        u8 pad1[8];
+        f32 out[64];
+    } work;
+    f32 depth;
+    s32 state;
+    f32 inv;
+    s32 *p;
+    u32 i;
+    u32 j;
+
+    if (enabled != 0) {
+        for (i = 0; i < 6; i++) {
+            p = (s32 *)&D_00712490[i];
+            D_00887304[0](p[0], (void *)&work.saved[i]);
+            D_00887300[0](p[0], p[1]);
+        }
+        D_00887300[0](1, 0);
+        RpSkyRenderStateSet(2, 0x44);
+        RpSkyRenderStateSet(3, 0x717FB);
+    }
+    depth = D_008872F8_abs[0];
+    state = func_00457120();
+    inv = 1.0f / *(f32 *)((u8 *)state + 0x80);
+
+    work.out[0] = 0.0f;
+    work.out[1] = 0.0f;
+    work.out[2] = depth;
+    work.out[8] = (f32)colors[0];
+    work.out[9] = (f32)colors[1];
+    work.out[10] = (f32)colors[2];
+    work.out[11] = (f32)colors[3];
+    work.out[6] = inv;
+    work.out[16] = 0.0f;
+    work.out[17] = 448.0f;
+    work.out[18] = depth;
+    work.out[24] = (f32)colors[0];
+    work.out[25] = (f32)colors[1];
+    work.out[26] = (f32)colors[2];
+    work.out[27] = (f32)colors[3];
+    work.out[22] = inv;
+    work.out[32] = 640.0f;
+    work.out[33] = 0.0f;
+    work.out[34] = depth;
+    work.out[40] = (f32)colors[0];
+    work.out[41] = (f32)colors[1];
+    work.out[42] = (f32)colors[2];
+    work.out[43] = (f32)colors[3];
+    work.out[38] = inv;
+    work.out[48] = 640.0f;
+    work.out[49] = 448.0f;
+    work.out[50] = depth;
+    work.out[56] = (f32)colors[0];
+    work.out[57] = (f32)colors[1];
+    work.out[58] = (f32)colors[2];
+    work.out[59] = (f32)colors[3];
+    work.out[54] = inv;
+    D_00887310[0](4, work.out, 4);
+    if (enabled != 0) {
+        for (j = 0; j < 6; j++) {
+            p = (s32 *)&D_00712490[j];
+            D_00887300[0](p[0], work.saved[j]);
+        }
+    }
+    return;
+}
+
+
 // FUN_004BCE50
 void effMiscQuatMultiplyVU(void)
 {

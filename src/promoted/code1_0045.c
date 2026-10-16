@@ -428,22 +428,6 @@ s32 func_004535b0(void)
 #pragma opt_propagation on
 extern s32 func_00457120(void);
 
-// FUN_00457140
-void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
-{
-    iGpffffba88 = arg0;
-    iGpffffba89 = arg1;
-    iGpffffba8a = arg2;
-    iGpffffba8b = arg3;
-}
-// FUN_00457170
-void func_00457170(s8 arg0, s8 arg1, s8 arg2, s8 arg3)
-{
-    iGpffffba84 = arg0;
-    iGpffffba85 = arg1;
-    iGpffffba86 = arg2;
-    iGpffffba87 = arg3;
-}
 
 
 
@@ -464,14 +448,6 @@ s16 func_00459760(void)
 
 
 
-// FUN_0045B400
-s16 func_0045b400(void)
-{
-    if (D_008D2F2C[0] == 0) {
-        return -1;
-    }
-    return D_008D2F34[0];
-}
 
 /* The slot loop indexes the global array directly with an s16 counter (the
    dsll32/dsra32 pairs are that counter's sign extension); the second loop is
@@ -513,78 +489,7 @@ void func_0045b430(void) {
     D_008E41C4_abs[0] = func_0043bcb8(0x19000);
     D_008E4208_abs[0] = func_0043bcb8(0x19000);
 }
-/* measured: closes the hoisting scope after func_0045b430. */
 #pragma opt_loop_invariants off
-// FUN_0045C870
-void func_0045c870(u8 *colors, s32 enabled)
-{
-    struct {
-        s32 saved[6];
-        u8 pad1[8];
-        f32 out[64];
-    } work;
-    f32 depth;
-    s32 state;
-    f32 inv;
-    s32 *p;
-    u32 i;
-    u32 j;
-
-    if (enabled != 0) {
-        for (i = 0; i < 6; i++) {
-            p = (s32 *)&D_00712490[i];
-            D_00887304[0](p[0], (void *)&work.saved[i]);
-            D_00887300[0](p[0], p[1]);
-        }
-        D_00887300[0](1, 0);
-        RpSkyRenderStateSet(2, 0x44);
-        RpSkyRenderStateSet(3, 0x717FB);
-    }
-    depth = D_008872F8_abs[0];
-    state = func_00457120();
-    inv = 1.0f / *(f32 *)((u8 *)state + 0x80);
-
-    work.out[0] = 0.0f;
-    work.out[1] = 0.0f;
-    work.out[2] = depth;
-    work.out[8] = (f32)colors[0];
-    work.out[9] = (f32)colors[1];
-    work.out[10] = (f32)colors[2];
-    work.out[11] = (f32)colors[3];
-    work.out[6] = inv;
-    work.out[16] = 0.0f;
-    work.out[17] = 448.0f;
-    work.out[18] = depth;
-    work.out[24] = (f32)colors[0];
-    work.out[25] = (f32)colors[1];
-    work.out[26] = (f32)colors[2];
-    work.out[27] = (f32)colors[3];
-    work.out[22] = inv;
-    work.out[32] = 640.0f;
-    work.out[33] = 0.0f;
-    work.out[34] = depth;
-    work.out[40] = (f32)colors[0];
-    work.out[41] = (f32)colors[1];
-    work.out[42] = (f32)colors[2];
-    work.out[43] = (f32)colors[3];
-    work.out[38] = inv;
-    work.out[48] = 640.0f;
-    work.out[49] = 448.0f;
-    work.out[50] = depth;
-    work.out[56] = (f32)colors[0];
-    work.out[57] = (f32)colors[1];
-    work.out[58] = (f32)colors[2];
-    work.out[59] = (f32)colors[3];
-    work.out[54] = inv;
-    D_00887310[0](4, work.out, 4);
-    if (enabled != 0) {
-        for (j = 0; j < 6; j++) {
-            p = (s32 *)&D_00712490[j];
-            D_00887300[0](p[0], work.saved[j]);
-        }
-    }
-    return;
-}
 #pragma push
 #pragma opt_loop_invariants on
 #pragma pop
