@@ -158,7 +158,7 @@ extern f32 D_00644888[];
 extern f32 D_00644890[];
 extern f32 D_00644898[];
 extern f32 D_006440B8[];
-extern void func_002b6140(u8 *, u8);
+extern void fclSpriteSetHidden(u8 *, u8);
 extern f32 D_00643D70[];
 extern f32 D_00644CA0[];
 extern f32 D_006441C8[];
@@ -2551,7 +2551,7 @@ void fclCombineDrawSlotLabels(u8 *arg0, FclVec2 arg1, s16 arg2, s8 arg3) {
 // Fcl combine slot slide-in: starts the slide-in of the slot sprites for two slot resources, firstResource from the left (x - 200) and secondResource from the right; resource 0x92 also starts the 0x1E6 sprite.
 // FUN_003205F0
 void fclCombineSlideInSlotSprites(u8 *arg0, s16 arg1, s16 arg2) {
-    extern void func_002b6140(u8 *, u8);
+    extern void fclSpriteSetHidden(u8 *, u8);
     f2 spA0;
     f2 sp98;
     f2 sp90;
@@ -2573,8 +2573,8 @@ void fclCombineSlideInSlotSprites(u8 *arg0, s16 arg1, s16 arg2) {
     u8 *temp_2;
 
     obj = *(u8 **)(arg0 + 0x38);
-    func_002b6140(*(u8 **)(obj + 0x28C), 0);
-    func_002b6140(*(u8 **)(obj + 0x290), 0);
+    fclSpriteSetHidden(*(u8 **)(obj + 0x28C), 0);
+    fclSpriteSetHidden(*(u8 **)(obj + 0x290), 0);
     idx1 = (s16)arg1;
     if (idx1 != 0) {
         tbl1 = (f2 *)&D_00643D70[idx1 * 2];
@@ -3015,8 +3015,8 @@ static inline void fclShowCombineCursorArrows(u8 *t)
     fclSpriteCreate(0x1E4, func_002b2970(v->x + dx, v->y), 103.0f, 0xBC);
     fclSpriteStartAlphaAt(0x1E4, 0, 0xFF, 0, 0xA, 0);
     fclSpriteStartTweenAt(0x1E4, 0, 0, 0, 0.0f, 90.0f);
-    func_002b6140(*(u8 **)(t + 0x28C), 1);
-    func_002b6140(*(u8 **)(t + 0x290), 1);
+    fclSpriteSetHidden(*(u8 **)(t + 0x28C), 1);
+    fclSpriteSetHidden(*(u8 **)(t + 0x290), 1);
 }
 
 /* measured: opt_lifetimes on keeps the independent nested counters live.
@@ -3883,8 +3883,8 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
         fclSpriteReset(0x2E1, 0x14C);
         fclSpriteReset(0x2E2, 0x14F);
         if ((s8)arg2 == 0) {
-            func_002b6140(*(u8 **)(t + 0x28C), 1);
-            func_002b6140(*(u8 **)(t + 0x290), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x28C), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x290), 1);
             *(s8 *)(t + 0x122) = 2;
         }
         pt = func_002b2970(138.0f + pos.x, (9.0f + pos.y));
@@ -3914,8 +3914,8 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
         fclSpriteReset(0x2E3, 0x141);
         fclSpriteReset(0x2E4, 0x14F);
         if ((s8)arg2 == 0) {
-            func_002b6140(*(u8 **)(t + 0x28C), 1);
-            func_002b6140(*(u8 **)(t + 0x290), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x28C), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x290), 1);
             *(s8 *)(t + 0x122) = 3;
         }
         pt = func_002b2970(127.0f + pos.x, (9.0f + pos.y));
@@ -3953,8 +3953,8 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
         fclSpriteReset(0x2E6, 0x14F);
         fclSpriteReset(0x2E7, 0x14B);
         if ((s8)arg2 == 0) {
-            func_002b6140(*(u8 **)(t + 0x28C), 1);
-            func_002b6140(*(u8 **)(t + 0x290), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x28C), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x290), 1);
             *(s8 *)(t + 0x122) = 4;
         }
         pt = func_002b2970(114.0f + pos.x, (9.0f + pos.y));
@@ -4004,8 +4004,8 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
         fclSpriteReset(0x2EA, 0x14B);
         fclSpriteReset(0x2EB, 0x14B);
         if ((s8)arg2 == 0) {
-            func_002b6140(*(u8 **)(t + 0x28C), 1);
-            func_002b6140(*(u8 **)(t + 0x290), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x28C), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x290), 1);
             *(s8 *)(t + 0x122) = 5;
         }
         pt = func_002b2970(20.0f + (87.0f + pos.x), (9.0f + pos.y));
@@ -4067,8 +4067,8 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
         fclSpriteReset(0x2EE, 0x14B);
         fclSpriteReset(0x2EF, 0x14B);
         if ((s8)arg2 == 0) {
-            func_002b6140(*(u8 **)(t + 0x28C), 1);
-            func_002b6140(*(u8 **)(t + 0x290), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x28C), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x290), 1);
             *(s8 *)(t + 0x122) = 6;
         }
         pt = func_002b2970(13.0f + (87.0f + pos.x), (9.0f + pos.y));
@@ -4126,8 +4126,8 @@ void fclCombineDrawStageBanner(u8 *arg0, s32 arg1, s8 arg2) {
         fclSpriteReset(0x2E2, 0x14F);
         fclSpriteReset(0x2E3, 0x14F);
         if ((s8)arg2 == 0) {
-            func_002b6140(*(u8 **)(t + 0x28C), 1);
-            func_002b6140(*(u8 **)(t + 0x290), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x28C), 1);
+            fclSpriteSetHidden(*(u8 **)(t + 0x290), 1);
             *(s8 *)(t + 0x122) = 0xC;
             *(s16 *)(t + 0x120) = 6;
         }
