@@ -108,7 +108,7 @@ void datPersonaApplyLevelUp(u8 *arg0, u8 *arg1);
 // Intent: total experience needed to reach level arg1 on persona arg0's growth curve; levels below 2 return 0.
 u32 datPersonaGetExpForLevel(void *persona, u16 level);
 // Intent: adds experience arg1 to persona record arg0 at +8; fatal when negative.
-void datPersonaAddExp(u8 *arg0, s32 arg1);
+void datPersonaAddExp(DatPersonaRecord *arg0, s32 arg1);
 // Intent: compacts the 8-slot skill list of persona record arg0 so non-empty skills come first.
 void datPersonaCompactSkills(u8 *arg0);
 // Intent: initializes roster record arg0 for persona id arg1 from its table row, at the table level, with fixed skills.
@@ -124,7 +124,7 @@ s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 // Intent: number of non-empty skill slots in persona record arg0 (8 slots); 8 means full.
 s32 datPersonaCountSkills(u8 *arg0);
 // Intent: skill id in slot arg1 (0..7) of persona record arg0.
-u16 datPersonaGetSkillAt(u8 *arg0, s16 arg1);
+u16 datPersonaGetSkillAt(DatPersonaRecord *arg0, s16 arg1);
 // Intent: stores source record arg2 (persona id arg1, its skills and stat bonuses) into the 0x30-byte record arg0; returns 1.
 s32 datPersonaLoadRecord(u8 *arg0, u16 arg1, u8 *arg2);
 // Intent: adds the fixed-table skills of a party persona record arg0 (ids 0xC0..0xD7) into its empty skill slots.
