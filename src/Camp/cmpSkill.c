@@ -39,11 +39,11 @@ u16 *datPersonaGetSkills(s32);
 void datCalcSkillOutcomeById(s32, s32, u16, s32, s32 *, s32, s32);
 void radarAnimateValue(void *, s32, s32);
 void sdkSpriteFreeNode(void *);
-s32 func_0034c210(void);
+s32 nLineIsIdle(void);
 u32 RpRandom(void);
 s32 datCalcSkillElement(u8 *, u16);
 void sdkRenderStateSetDefault(void);
-void func_0034c270(Vec2f, s32, s32, f32);
+void nLineDrawSet(Vec2f, s32, s32, f32);
 void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u8 arg1, u8 arg2, u8 arg3, u8 arg4,
                    u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
@@ -531,7 +531,7 @@ void cmpSkillMenuDraw(u8 *work)
         position.y = originY;
         value = 255.0f * opacity;
         spriteAlpha = (u8)value;
-        func_0034c270(position, spriteAlpha, menu->background, 0.0f);
+        nLineDrawSet(position, spriteAlpha, menu->background, 0.0f);
     }
     if ((menu->visible & 0x1000) != 0) {
         s8 *paletteSource;
@@ -1193,7 +1193,7 @@ s32 cmpSkillRowsSettled(u8 *arg0)
         }
         i++;
     }
-    return result & func_0034c210();
+    return result & nLineIsIdle();
 }
 
 /* Case values decoded from jtbl_007469C0 with tools/jtbl.py: twenty dense

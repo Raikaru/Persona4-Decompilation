@@ -103,7 +103,7 @@ extern s32 titleSlotSetMode(u8 *arg0, s32 arg1);
 extern void sdkSpriteFreeNode(void *node);
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
-extern s32 func_0034c210(void);
+extern s32 nLineIsIdle(void);
 
 
 typedef struct {
@@ -5023,7 +5023,7 @@ s32 func_0012e1d0(u8 *arg0)
         }
         var_5 += 1;
     }
-    return var_16 & func_0034c210();
+    return var_16 & nLineIsIdle();
 }
 // FUN_0012E250
 s32 titleSlotsSettled(u8 *arg0)
@@ -5050,7 +5050,7 @@ block_loop:
         }
         var_5 += 1;
     }
-    return var_16 & func_0034c210();
+    return var_16 & nLineIsIdle();
 }
 /* measured: opt_loop_invariants on hoists the conversion constants into the loop preheader. */
 #pragma opt_loop_invariants on
@@ -5294,7 +5294,7 @@ typedef struct {
 void radarDrawPanel(u8 *state)
 {
     extern void sdkRenderStateSetDefault(void);
-    extern void func_0034c270(Vec2f position, s32 alpha, s32 mode, f32 depth);
+    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 mode, f32 depth);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
     extern f32 cmpGridCellFade(u8 *cell, f32 horizontal, f32 vertical, f32 gain);
@@ -5363,7 +5363,7 @@ void radarDrawPanel(u8 *state)
         position.xy.y = originY;
         scaledAlpha = 255.0f * opacityScale;
         alphaByte = (u8)scaledAlpha;
-        func_0034c270(position.xy, alphaByte & 0xFF, *(s32 *)(state + 0x10), 0.0f);
+        nLineDrawSet(position.xy, alphaByte & 0xFF, *(s32 *)(state + 0x10), 0.0f);
     }
     selectedItem = *(s16 *)(state + 0x24) + *(s16 *)(state + 0x22);
     if ((*(s32 *)(state + 0x14) & 0x200) != 0) {

@@ -238,7 +238,7 @@ void cmpEquipMenuDraw(u8 *arg0)
     typedef union { Vec2f xy; s64 packed; } PackedVec2f;
     PackedVec2f drawPosition;
     extern void sdkRenderStateSetDefault(void);
-    extern void func_0034c270(Vec2f arg0, s32 arg1, s32 arg2, f32 arg3);
+    extern void nLineDrawSet(Vec2f arg0, s32 arg1, s32 arg2, f32 arg3);
     extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
     extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
     extern void datEntryDrawRow(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
@@ -305,7 +305,7 @@ void cmpEquipMenuDraw(u8 *arg0)
     drawPosition.xy.y = originY;
     temp_v9 = opacityScale * 255.0f;
     alpha = (u8)temp_v9;
-    func_0034c270(drawPosition.xy,alpha,*(s32 *)(work + 0x10),0.0f);
+    nLineDrawSet(drawPosition.xy,alpha,*(s32 *)(work + 0x10),0.0f);
   }
   if ((*(u32 *)(work + 0x1c) & 0x1000) != 0) {
     pbVar7 = *(u8 **)(work + 0x157c);

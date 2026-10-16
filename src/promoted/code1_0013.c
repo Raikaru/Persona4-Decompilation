@@ -9,7 +9,7 @@ extern u32 datCalcGetSpById(s16 arg0);
 extern s32 radarSkillEffectMissing(s16 arg0, s16 arg1, s32 arg2);
 extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
 extern u32 RpRandom(void);
-extern s32 func_0034c210(void);
+extern s32 nLineIsIdle(void);
 struct GDataEntry;
 extern struct GDataEntry *datEntryAt(s16 arg0);
 extern u32 datEntryGetFlags(s16 arg0);
@@ -28,7 +28,7 @@ extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 extern void datClampUnitHpSp(s16 arg0);
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 titleSetMenuLayout(u8 *arg0, u32 arg1);
-extern s32 func_0034bb20(s32 arg0);
+extern s32 nLineSelectSet(s32 arg0);
 extern s32 radarEntryTypeIsActive(s16 arg0);
 extern s32 func_0010f540(s32 arg0);
 extern void shdPersonaSetFlags(u8 *arg0, s32 arg1);
@@ -81,7 +81,7 @@ extern void resrcMngUnsuppressRender(void);
 extern void resrcMngSuppressRender(void);
 extern s32 datCommunityRequestExit(void);
 extern void datCommunityCursorFeedback(s32 arg0);
-extern s32 func_0034bd60(s32 arg0);
+extern s32 nLineSelectSetImmediate(s32 arg0);
 extern s32 radarAdvanceGroupSelection(u8 *arg0);
 extern s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2);
 extern u16 D_008C024E[];
@@ -262,7 +262,7 @@ s32 radarEntriesCoverValue(u8 *arg0) {
         }
         i++;
     }
-    return flag & func_0034c210();
+    return flag & nLineIsIdle();
 }
 /* measured: 1448B in the 1456B window.  The slot x/y reads are f32-array views
    (retail adds the row before arg0), and the last sprite pointer is a local
@@ -672,7 +672,7 @@ s32 radarWideEntriesCoverValue(u8 *arg0) {
         }
         i++;
     }
-    return flag & func_0034c210();
+    return flag & nLineIsIdle();
 }
 /* measured: loop-invariant hoisting gives 444B / 448B with only zero tail padding. */
 #pragma push
@@ -1366,9 +1366,9 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 1:
         temp_16 = titleAdvanceWait(arg2);
-        if (temp_16 & func_0034c210()) {
+        if (temp_16 & nLineIsIdle()) {
             *arg0 = 3;
-            func_0034bb20(0xB);
+            nLineSelectSet(0xB);
         } else {
             *arg1 = 0;
         }
@@ -1391,7 +1391,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             titleSetMenuLayout(arg2, 1);
             *arg0 = 2;
             resrcMngUnsuppressRender();
-            func_0034bb20(0xD);
+            nLineSelectSet(0xD);
             sdkSndStartStream(0, 2, 0, 4);
         } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
             radarHandleEntrySelect((s32 *)arg0, arg2);
@@ -1430,13 +1430,13 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         if (D_008C024E[0] & 0x20) {
             titleSetMenuLayout(arg2, 2);
             *arg0 = 3;
-            func_0034bd60(0xB);
+            nLineSelectSetImmediate(0xB);
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
             if (radarApplyItemStep(1, *(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x26) * 2) + (u32)arg2) + 0x34), arg2) == 2) {
                 titleSetMenuLayout(arg2, 2);
                 *arg0 = 3;
-                func_0034bd60(0xB);
+                nLineSelectSetImmediate(0xB);
             }
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
@@ -1461,7 +1461,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         if (D_008C024E[0] & 0x20) {
             titleSetMenuLayout(arg2, 2);
             *arg0 = 3;
-            func_0034bd60(0xB);
+            nLineSelectSetImmediate(0xB);
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
             {
@@ -1470,7 +1470,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 case 2:
                     titleSetMenuLayout(arg2, 2);
                     *arg0 = 3;
-                    func_0034bd60(0xB);
+                    nLineSelectSetImmediate(0xB);
                     break;
                 case 3:
                     return 2;
@@ -1555,7 +1555,7 @@ void radarHandleEntrySelect(s32 *arg0, u8 *arg1) {
             *arg0 = 9;
         }
     }
-    func_0034bb20(0xC);
+    nLineSelectSet(0xC);
     sdkSndStartStream(0, 0, 0, 1);
 }
 // Intent: Return whether the type of the entry's item is active [inferred]
@@ -1595,9 +1595,9 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 1:
         temp_16 = (s32)(func_001318c0(arg2));
-        if (temp_16 & func_0034c210()) {
+        if (temp_16 & nLineIsIdle()) {
             *arg0 = 4;
-            func_0034bb20(3);
+            nLineSelectSet(3);
         } else {
             *arg1 = 0;
         }
@@ -1608,7 +1608,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             *arg0 = 3;
             cmpEquipSetMode(arg2, 1);
             resrcMngUnsuppressRender();
-            func_0034bb20(7);
+            nLineSelectSet(7);
         case 3:
             if (radarWideEntriesCoverValue(arg2) != 0) {
                 radarReleaseSpritesAndEntries(arg2);
@@ -1633,7 +1633,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             } else if (D_008C024E[0] & 0x40) {
                 cmpEquipSetMode(arg2, 3);
                 *arg0 = 7;
-                func_0034bb20(4);
+                nLineSelectSet(4);
                 sdkSndStartStream(0, 0, 0, 1);
             } else if (D_008C024E[0] & 0x10) {
                 radarCollectPartyChanges(arg2);
@@ -1660,12 +1660,12 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             cmpEquipSetSelection(arg2, 1, 0);
             cmpEquipSetMode(arg2, 2);
             *arg0 = 5;
-            func_0034bd60(3);
+            nLineSelectSetImmediate(3);
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
             cmpEquipSetMode(arg2, 5);
             *arg0 = 8;
-            func_0034bb20(5);
+            nLineSelectSet(5);
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
             radarCollectPartyChanges(arg2);
@@ -1684,7 +1684,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         if (radarWideEntriesCoverValue(arg2) != 0) {
             cmpEquipSetMode(arg2, 6);
             *arg0 = 9;
-            func_0034bb20(6);
+            nLineSelectSet(6);
         }
         break;
     case 9:
@@ -1704,7 +1704,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 cmpEquipSetSelection(arg2, 3, 0);
                 cmpEquipSetMode(arg2, 4);
                 *arg0 = 6;
-                func_0034bd60(4);
+                nLineSelectSetImmediate(4);
                 sdkSndStartStream(0, 0, 0, 2);
             } else if (D_008C024E[0] & 0x10) {
                 radarCollectPartyChanges(arg2);
@@ -2020,9 +2020,9 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 1:
         temp_16 = (s32)(func_00135cb0(arg2));
-        if (temp_16 & func_0034c210()) {
+        if (temp_16 & nLineIsIdle()) {
             *arg0 = 3;
-            func_0034bb20(0xE);
+            nLineSelectSet(0xE);
         } else {
             *arg1 = 0;
         }
@@ -2049,7 +2049,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 cmpPersonaSetMode(arg2, 1);
                 *arg0 = 2;
                 resrcMngUnsuppressRender();
-                func_0034bb20(0x14);
+                nLineSelectSet(0x14);
                 cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
                 sdkSndStartStream(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
@@ -2060,7 +2060,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     cmpPersonaSetPartyCursor(arg2);
                     cmpPersonaResetRosterCursor(arg2);
                     cmpPersonaScatterGridCells(arg2);
-                    func_0034bb20(0xF);
+                    nLineSelectSet(0xF);
                     cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
                     shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                     radarSetPersonaHighlight(arg2, 1);
@@ -2071,7 +2071,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     cmpPersonaSetMode(arg2, 8);
                     *arg0 = 0xA;
                     cmpPersonaSetPartyCursor(arg2);
-                    func_0034bb20(0x11);
+                    nLineSelectSet(0x11);
                     cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
                     radarSetPersonaHighlight(arg2, 0);
                     shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24), (u32)datPersonaGetRecord(*(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24)), 0);
@@ -2104,7 +2104,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         if (D_008C024E[0] & 0x20) {
             cmpPersonaSetMode(arg2, 2);
             *arg0 = 3;
-            func_0034bd60(0xE);
+            nLineSelectSetImmediate(0xE);
             datPersonaRemoveSelectedRosterMember();
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
@@ -2117,7 +2117,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             cmpPersonaSetMode(arg2, 6);
             cmpPersonaSetRosterCursorMotion(arg2);
             *arg0 = 7;
-            func_0034bb20(0x10);
+            nLineSelectSet(0x10);
         } else if (D_008C024E[0] & 0x10) {
             temp_17 = (s16)(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
             if (temp_17 == func_00105330(1)) {
@@ -2158,7 +2158,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 cmpPersonaSetMode(arg2, 5);
                 *arg0 = 5;
                 cmpPersonaResetRosterCursor(arg2);
-                func_0034bd60(0xF);
+                nLineSelectSetImmediate(0xF);
                 shdPersonaBeginClose(*(u8 **)(arg2 + 0x1CB4));
                 radarSetPersonaHighlight(arg2, 1);
             } else if (D_008C024E[0] & 0x40) {
@@ -2218,7 +2218,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         if (D_008C024E[0] & 0x20) {
             cmpPersonaSetMode(arg2, 2);
             *arg0 = 3;
-            func_0034bd60(0xE);
+            nLineSelectSetImmediate(0xE);
             shdPersonaBeginClose(*(u8 **)(arg2 + 0x1CB4));
         } else if (D_008C024E[0] & 0x80) {
             shdPersonaBeginSelection(*(u8 **)(arg2 + 0x1CB4));
@@ -2408,9 +2408,9 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             break;
         case 1:
             ready = (func_00138ad0(arg2));
-            if (ready & func_0034c210()) {
+            if (ready & nLineIsIdle()) {
                 *arg0 = 3;
-                func_0034bb20(8);
+                nLineSelectSet(8);
                 cmpSkillSetPartyCursorMotion(arg2);
             } else {
                 *arg1 = 0;
@@ -2435,7 +2435,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 cmpSkillSetMode(arg2, 1U);
                 *arg0 = 2;
                 resrcMngUnsuppressRender();
-                func_0034bb20(0xA);
+                nLineSelectSet(0xA);
                 sdkSndStartStream(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
                 if ((s32)(datCalcIsDeadById(character)) != (s32)(0)) {
@@ -2507,7 +2507,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             if (D_008C024E[0] & 0x20) {
                 cmpSkillSetMode(arg2, 3U);
                 *arg0 = 5;
-                func_0034bd60(8);
+                nLineSelectSetImmediate(8);
                 sdkSndStartStream(0, 0, 0, 2);
                 break;
             }
@@ -2520,7 +2520,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 case 2:
                     cmpSkillSetMode(arg2, 3U);
                     *arg0 = 5;
-                    func_0034bd60(8);
+                    nLineSelectSetImmediate(8);
                     break;
                 case 3:
                     return 2;
@@ -2552,7 +2552,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 if (D_008C024E[0] & 0x20) {
                     cmpSkillSetMode(arg2, 3U);
                     *arg0 = 5;
-                    func_0034bd60(8);
+                    nLineSelectSetImmediate(8);
                     sdkSndStartStream(0, 0, 0, 2);
                     break;
                 }
@@ -2565,7 +2565,7 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     case 2:
                         cmpSkillSetMode(arg2, 3U);
                         *arg0 = 5;
-                        func_0034bd60(8);
+                        nLineSelectSetImmediate(8);
                         break;
                     case 3:
                         return 2;
@@ -2658,7 +2658,7 @@ void radarHandleEntryAction(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
             }
         }
     }
-    func_0034bb20(9);
+    nLineSelectSet(9);
     sdkSndStartStream(0, 0, 0, 1);
 }
 // Intent: Return 1 when the entry's type is valid and the threshold check does not block it [inferred]

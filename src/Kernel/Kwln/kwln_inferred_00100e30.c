@@ -94,7 +94,7 @@ extern void itfMesInitManager(void);
 extern void func_0029d950(void);
 extern void func_002aaa10(void);
 extern void func_002bdf20(void);
-extern void func_0034b970(void);
+extern void nLineInit(void);
 extern void func_003f67e0(s32 arg0);
 extern void func_003f67f0(s32 arg0);
 extern void func_00418b18(s32 arg0);
@@ -311,7 +311,7 @@ void func_00100e60(void)
     resrcMngSpawnRenderTask(NULL);
     tickerStartTask();
     func_00122430(0);
-    func_0034b970();
+    nLineInit();
 }
 
 /* measured: func_00101270 MATCH -> MISMATCH without this pragma. */
