@@ -44,7 +44,7 @@ extern s32 btlShuffleResultRun(u8 *arg0);
 extern s32 btlShuffleResultInit(u8 *arg0);
 extern s32 btlShuffleResultLayout(u8 *arg0);
 extern s32 btlShuffleResultMenu(u8 *arg0);
-extern u16 *datPersonaRosterSlot(s16 a);
+extern struct DatPersonaRecord *datPersonaRosterSlot(s16 a);
 extern void datPersonaInitRecord(u8 *dst, u16 id);
 extern s32 datPersonaRosterCapacity(void);
 extern u16 datPersonaLeadPersonaId(void);
@@ -106,7 +106,7 @@ extern void btlShuffleSeqClearA(u8 *a, s32 b);
 extern s32 btlShuffleSeqFlag(u8 *a);
 extern s32 btlShuffleShowRosterMessage(u8 *a);
 extern u16 datPersonaCountValidMembers(void);
-extern u16 *datPersonaFindRosterRecordById(s32 a);
+extern struct DatPersonaRecord *datPersonaFindRosterRecordById(s32 a);
 extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern char *datCalcGetSlotRecord(s32 a);
 extern char *strcpy(char *dst, const char *source);
@@ -152,7 +152,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
         j = 1;
         for (; i < cnt; i++) {
             dst = (u16 **)(state + j * 4 + 0x4C);
-            slotp = datPersonaRosterSlot((s16)i);
+            slotp = (u16 *)datPersonaRosterSlot((s16)i);
             *dst = slotp;
             if (*(u16 *)((u8 *)slotp + 2) != cur) {
                 j++;

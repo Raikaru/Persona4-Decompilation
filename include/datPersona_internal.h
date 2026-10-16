@@ -56,7 +56,7 @@ s32 datPersonaAddStat(u8 *arg0, s32 arg1, s32 arg2);
 // Intent: adds delta arg2 to stat arg1 of the record for persona id arg0, clamped to 0..99.
 s32 datPersonaAddStatById(u16 arg0, s32 arg1, s32 arg2);
 // Intent: maps a persona id to its record; 1 is the selected roster slot, 2..10 index the party array.
-u16 *datPersonaGetRecord(u16 arg0);
+DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 // Intent: true when the lead (id 1) record has flag bit 4 set; datCalc scales damage and code1_0021 scales level when it is.
 s32 datPersonaLeadBoosted(s32 arg0);
 // Intent: index of the active roster slot whose id matches, or -1.
@@ -66,9 +66,9 @@ s32 datPersonaFindFreeRosterSlot(void);
 // Intent: true when roster slot arg0 has its active flag set.
 s32 datPersonaRosterSlotActive(s16 arg0);
 // Intent: roster record of the active slot matching the id, or NULL.
-u16 *datPersonaFindRosterRecordById(s32 arg0);
+DatPersonaRecord *datPersonaFindRosterRecordById(s32 arg0);
 // Intent: roster record at index arg0, or NULL when the slot is inactive.
-u16 *datPersonaRosterSlot(s16 arg0);
+DatPersonaRecord *datPersonaRosterSlot(s16 arg0);
 // Intent: removes the active roster slot holding the id, if any.
 s32 datPersonaRemoveRosterMemberById(s32 arg0);
 // Intent: removes roster slot arg0, shifts later slots down, then reselects the lead.

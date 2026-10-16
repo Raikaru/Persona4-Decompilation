@@ -35,13 +35,13 @@ extern s32 yListCompareByWeightedKeyDesc(const void *arg0, const void *arg1);
 #include "rw/std/stdlib.h"
 extern u8 *datPersonaCachedRecord(s32 arg0);
 extern s32 datPersonaFindRosterSlotById(s32 arg0);
-extern u16 *datPersonaFindRosterRecordById(s32 arg0);
+extern struct DatPersonaRecord *datPersonaFindRosterRecordById(s32 arg0);
 
 extern void datPersonaInitRecord(u8 *dest, u16 id);
 extern s32 datPersonaRosterCapacity(void);
 extern s32 datPersonaRosterSlotActive(s16 arg0);
-extern u16 *datPersonaRosterSlot(s16 arg0);
-extern u16 *datPersonaGetRecord(u16 arg0);
+extern struct DatPersonaRecord *datPersonaRosterSlot(s16 arg0);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 extern void datPersonaInitAllRecords(void);
 extern s32 yListRecordsDiffer(u8 *arg0, u8 *arg1);
 extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
@@ -673,8 +673,8 @@ s32 yListSlotRefresh(u8 *arg0) {
     case 5:
         for (i = 0; i < (datPersonaRosterCapacity() & 0xFFFF); i++) {
             if (datPersonaRosterSlotActive(i) == 1) {
-                tmp = datPersonaGetRecord(1);
-                if (tmp != datPersonaRosterSlot(i)) {
+                tmp = (u16 *)datPersonaGetRecord(1);
+                if (tmp != (u16 *)datPersonaRosterSlot(i)) {
                     memset(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, 0, 0x30);
                     memcpy(p + (*(s32 *)(p + 8) * 0x30) + 0xA4, datPersonaRosterSlot(i), 0x30);
                     *(s32 *)(p + 8) += 1;
@@ -1216,7 +1216,7 @@ void yListSlotAppend(s8 arg0, s32 arg1, s8 arg2) {
                 q = p + ((index * 3) * 0x10) + 0x14;
                 break;
             }
-            src = datPersonaFindRosterRecordById((u16)arg1);
+            src = (u16 *)datPersonaFindRosterRecordById((u16)arg1);
             memcpy(q, src, 0x30);
         }
         (*(s32 *)(*(u8 **)(*entryp + 0x38) + 8))++;

@@ -85,7 +85,7 @@ u16 datPersonaRecordId(u32 arg0)
 // FUN_00109300
 u16 datPersonaRosterSlotId(s32 arg0)
 {
-    u16 *p = datPersonaRosterSlot(arg0);
+    DatPersonaRecord *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
         kAssertFail(D_005E4318, 0x3E);
     }
@@ -103,7 +103,7 @@ u16 datPersonaGetRecordId(u16 arg0)
 // FUN_001093A0
 u8 datPersonaRosterSlotRank(s32 arg0)
 {
-    u16 *p = datPersonaRosterSlot(arg0);
+    DatPersonaRecord *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
         kAssertFail(D_005E4318, 0x5F);
     }
@@ -114,11 +114,11 @@ u8 datPersonaRosterSlotRank(s32 arg0)
 // FUN_00109470
 u16 datPersonaRosterSlotFlags(s32 arg0)
 {
-    u16 *p = datPersonaRosterSlot(arg0);
+    DatPersonaRecord *p = datPersonaRosterSlot(arg0);
     if (p == NULL) {
         kAssertFail(D_005E4318, 0xF1);
     }
-    return *p;
+    return *(u16 *)p;
 }
 
 /* The selected learning range uses independent output and traversal counts.
@@ -315,7 +315,7 @@ s32 datPersonaGetStatById(arg0, arg1)
 u16 arg0;
 s32 arg1;
 {
-    u16 *p = datPersonaGetRecord(arg0);
+    DatPersonaRecord *p = datPersonaGetRecord(arg0);
     u8 *base = (u8 *)p;
     if ((arg1 & 0xFFFF) >= 5) {
         kAssertFail(D_005E4318, 0x1DE);
@@ -579,9 +579,9 @@ s32 datPersonaAddStatById(u16 arg0, s32 arg1, s32 arg2) {
 
 // Intent: maps a persona id to its record; 1 is the selected roster slot, 2..10 index the party array.
 // FUN_0010A900
-u16 *datPersonaGetRecord(u16 arg0)
+DatPersonaRecord *datPersonaGetRecord(u16 arg0)
 {
-    u16 *p;
+    DatPersonaRecord *p;
     s32 v = arg0 & 0xFFFF;
 
     if (v == 1) {
@@ -590,7 +590,7 @@ u16 *datPersonaGetRecord(u16 arg0)
         if (v >= 0xB) {
             kAssertFail(D_005E4318, 0x3A5);
         }
-        p = (u16 *)(&((DatPartySlot *)D_00796E50)[v - 2].personaRecord);
+        p = &((DatPartySlot *)D_00796E50)[v - 2].personaRecord;
     }
     if (p == NULL) {
         kAssertFail(D_005E4318, 0x3A9);
@@ -602,7 +602,7 @@ u16 *datPersonaGetRecord(u16 arg0)
 // FUN_0010A9B0
 s32 datPersonaLeadBoosted(s32 arg0)
 {
-    u16 *p;
+    DatPersonaRecord *p;
     s32 v = arg0 & 0xFFFF;
 
     if (v != 1) {
@@ -614,7 +614,7 @@ s32 datPersonaLeadBoosted(s32 arg0)
         if (v >= 0xB) {
             kAssertFail(D_005E4318, 0x3A5);
         }
-        p = (u16 *)(&((DatPartySlot *)D_00796E50)[v - 2].personaRecord);
+        p = &((DatPartySlot *)D_00796E50)[v - 2].personaRecord;
     }
     if (p == NULL) {
         kAssertFail(D_005E4318, 0x3A9);
@@ -664,7 +664,7 @@ s32 datPersonaRosterSlotActive(s16 arg0)
 
 // Intent: roster record of the active slot matching the id, or NULL.
 // FUN_0010AC10
-u16 *datPersonaFindRosterRecordById(s32 arg0)
+DatPersonaRecord *datPersonaFindRosterRecordById(s32 arg0)
 {
     s32 count = datPersonaRosterCapacity() & 0xFFFF;
     s32 i = 0;
@@ -691,7 +691,7 @@ done:
 
 // Intent: roster record at index arg0, or NULL when the slot is inactive.
 // FUN_0010ACE0
-u16 *datPersonaRosterSlot(s16 arg0)
+DatPersonaRecord *datPersonaRosterSlot(s16 arg0)
 {
     s32 v = (s32)arg0;
 
@@ -701,7 +701,7 @@ u16 *datPersonaRosterSlot(s16 arg0)
     if ((*(u16 *)((u8 *)D_00797F8C + v * 0x30) & 1) == 0) {
         return NULL;
     }
-    return (u16 *)((u8 *)D_007973A0 + v * 0x30 + 0xBEC);
+    return (DatPersonaRecord *)((u8 *)D_007973A0 + v * 0x30 + 0xBEC);
 }
 
 // Intent: removes the active roster slot holding the id, if any.

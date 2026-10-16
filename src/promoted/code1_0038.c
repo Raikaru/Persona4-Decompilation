@@ -19,7 +19,7 @@ void func_00389180(u8 *arg0);
 extern void memset(void *dst, s32 value, u32 size);
 extern s32 datPersonaCountValidMembers(void);
 extern s32 datPersonaRosterCapacity(void);
-extern s32 datPersonaFindRosterRecordById(u16 arg0);
+extern struct DatPersonaRecord *datPersonaFindRosterRecordById(u16 arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
 extern void nmMesWindowShowCurrentRecord(s32 arg0);
 extern void nmMesWindowSetCurrentString(s32 arg0, void *arg1);

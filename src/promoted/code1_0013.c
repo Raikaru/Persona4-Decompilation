@@ -40,8 +40,8 @@ extern void sdkListStateSetActive(void *arg0, s32 arg1);
 extern void sdkListStateSetSecondaryMasks(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 sdkListStateHandleInput(u8 *arg0);
 extern void cmpPersonaSetSelection(u8 *arg0, s32 arg1, s32 arg2);
-extern s32 datPersonaRosterSlot(s16 arg0);
-extern u16 *datPersonaGetRecord(u16 arg0);
+extern struct DatPersonaRecord *datPersonaRosterSlot(s16 arg0);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 extern void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
 extern s32 datPersonaGetLeadSlot(void);
 extern void datPersonaSetLeadSlot(s16 arg0);
@@ -1998,8 +1998,8 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void cmpPersonaScatterGridCells(u8 *arg0);
     extern void shdPersonaStartSlideIn(u8 *arg0);
     extern void radarSetPersonaHighlight(u8 *arg0, s32 arg1);
-    extern s32 datPersonaRosterSlot(s32 arg0);
-    extern u16 *datPersonaGetRecord(u16 arg0);
+    extern struct DatPersonaRecord *datPersonaRosterSlot(s32 arg0);
+    extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
     u8 buf[0x30];
     f32 temp_f1;
     f32 var_f1;
@@ -2062,7 +2062,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     cmpPersonaScatterGridCells(arg2);
                     nLineSelectSet(0xF);
                     cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
-                    shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
+                    shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, (u32)datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                     radarSetPersonaHighlight(arg2, 1);
                     shdPersonaRefreshDispCtlPosition(*(u8 **)(arg2 + 0x1CB4), NULL);
                     shdPersonaSetFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
@@ -2141,7 +2141,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             if (sdkListStateHandleInput(buf) != 0) {
                 cmpPersonaSetSelection(arg2, 1, *(s32 *)(buf + 0x24));
                 cmpPersonaResetRosterCursor(arg2);
-                shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
+                shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, (u32)datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                 sdkSndStartStream(0, 1, 0, 0);
             }
         }
@@ -2273,7 +2273,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 if (*(s16 *)(arg2 + 0x52) >= temp_3_2) {
                     cmpPersonaSetSelection(arg2, 1, temp_3_2 - 1);
                 }
-                shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
+                shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, (u32)datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                 break;
             case 1:
                 break;
@@ -2324,11 +2324,11 @@ void radarBeginRecipientPick(u8 *arg0, s32 *arg1) {
         cmpPersonaSetSelection(arg0, 1, *(s32 *)(sp40 + 0x24));
         *arg1 = 8;
         if (temp_2 == 1) {
-            shdPersonaBeginDisplay(*(u8 **)(arg0 + 0x1CB4), 1, datPersonaRosterSlot(*(s16 *)(arg0 + 0x52)), 0);
+            shdPersonaBeginDisplay(*(u8 **)(arg0 + 0x1CB4), 1, (s32)datPersonaRosterSlot(*(s16 *)(arg0 + 0x52)), 0);
             return;
         }
         if (temp_2 == 2) {
-            shdPersonaBeginDisplayAndEndSelection(*(u8 **)(arg0 + 0x1CB4), 1, datPersonaRosterSlot(*(s16 *)(arg0 + 0x52)), 0);
+            shdPersonaBeginDisplayAndEndSelection(*(u8 **)(arg0 + 0x1CB4), 1, (s32)datPersonaRosterSlot(*(s16 *)(arg0 + 0x52)), 0);
         }
     }
 }

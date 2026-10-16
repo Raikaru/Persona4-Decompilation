@@ -931,7 +931,7 @@ static inline u32 CmpPersonaOffsetAddress(u32 offset, u32 base)
 void cmpPersonaDrawRosterRow(u8 *arg0, s32 arg1)
 {
     extern s32 datPersonaRosterCapacity(void);
-    extern u16 *datPersonaRosterSlot(s16 slot);
+    extern struct DatPersonaRecord *datPersonaRosterSlot(s16 slot);
     extern void datPanelReset(u8 *panel);
     extern void shdPersonaFillStatusBlock(u8 *persona, u8 *record, s32 mode);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y,

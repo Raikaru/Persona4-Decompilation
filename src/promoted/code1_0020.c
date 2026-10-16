@@ -67,7 +67,7 @@ static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
 extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
-extern u8 *datPersonaRosterSlot(s16 arg0);
+extern struct DatPersonaRecord *datPersonaRosterSlot(s16 arg0);
 extern s32 datPersonaGetLeadSlot(void);
 extern s32 datPersonaGetLevel(u8 *arg0);
 extern u8 *datPersonaGetRow(u16 arg0);
@@ -391,7 +391,7 @@ typedef struct BattleRenderDispatch {
 #pragma pop
 
 extern s32 datItemCount(s16 id);
-extern u16 *datPersonaGetRecord(u16 id);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 id);
 extern u16 datPersonaGetSkillAt(u8 *persona, s16 slot);
 extern s32 datCalcIsFlaggedPersonaSkill(s32 id);
 extern u8 *iGpffffb3b8;

@@ -83,7 +83,7 @@ extern u8 D_006296D0[];
 extern u8 D_008C0240[0x94];
 extern void PrimAppendNode(u8 *list, u8 *node);
 extern u16 datPersonaCountValidMembers(void);
-extern u16 *datPersonaRosterSlot(s16 slot);
+extern struct DatPersonaRecord *datPersonaRosterSlot(s16 slot);
 extern u8 *shdPersonaTaskCreate(s32 parent, s32 priority, s32 mode, s32 layout, s32 option);
 extern void shdPersonaSetPersonaId(u8 *window, s32 value);
 extern void shdPersonaSetOrigin(u8 *window, f32 *position);

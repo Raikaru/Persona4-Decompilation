@@ -36,7 +36,7 @@ void FldAmbientFlagClear(void);
 void FldEvent_SetTriggerParam(s32, s32);
 s32 FldEvent_FindNearbyEntry(void);
 s32 FldEvent_MoverUpdate(u8 *);
-u16 *datPersonaGetRecord(u16);
+struct DatPersonaRecord *datPersonaGetRecord(u16);
 s32 datPersonaFindSkillSlot(u8 *, u16);
 s16 datGetPartyId(s32);
 s16 func_00106cd0(s16, s32);

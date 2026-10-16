@@ -31,10 +31,10 @@ typedef struct {
 
 s16 datPersonaGetLeadSlot(void);
 u16 datPersonaCountValidMembers(void);
-s32 datPersonaRosterSlot(s16);
+struct DatPersonaRecord *datPersonaRosterSlot(s16);
 void datPersonaSetLeadSlot(s16);
 s32 datPersonaFillSkillCostRow(s32, s32, s32, void *);
-u16 *datPersonaGetRecord(u16);
+struct DatPersonaRecord *datPersonaGetRecord(u16);
 u16 *datPersonaGetSkills(s32);
 void datCalcSkillOutcomeById(s32, s32, u16, s32, s32 *, s32, s32);
 void radarAnimateValue(void *, s32, s32);
@@ -308,7 +308,7 @@ void cmpSkillBuildAbilityList(void *arg0)
     if (v == 1) {
         sel = datPersonaGetLeadSlot();
         for (i = 0; i < datPersonaCountValidMembers(); i++) {
-            w = datPersonaRosterSlot((s16)i);
+            w = (s32)datPersonaRosterSlot((s16)i);
             if (w != 0) {
                 datPersonaSetLeadSlot((s16)i);
                 for (j = 0; j < 8; j++) {
@@ -339,10 +339,10 @@ void cmpSkillBuildAbilityList(void *arg0)
             key = *kp;
             if (cur == key) {
                 if (cur < 0x1B8 && sel != -1) {
-                    res = campSkillListHas(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(p + 0x100))), 0x20A);
+                    res = campSkillListHas(datPersonaGetSkills((s32)datPersonaRosterSlot(*(s16 *)(p + 0x100))), 0x20A);
                     if (res == 0) {
                         qr = (SkillRec *)(q + 0x100);
-                        res = campSkillListHas(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(q + 0x100))), 0x20A);
+                        res = campSkillListHas(datPersonaGetSkills((s32)datPersonaRosterSlot(*(s16 *)(q + 0x100))), 0x20A);
                         if (res != 0) {
                             *(SkillRec *)(p + 0x100) = *qr;
                         } else {

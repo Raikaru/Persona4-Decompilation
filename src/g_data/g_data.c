@@ -229,7 +229,7 @@ typedef struct PersonaWork {
     u8 bonusStats[5];
 } PersonaWork;
 
-extern u16 *datPersonaGetRecord(u16 pcId);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 pcId);
 
 extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 

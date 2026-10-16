@@ -16,7 +16,7 @@ extern s32 D_006367C0[];
 extern void sdkSndStartChannel(s32 arg0, const char *arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_00250ad0(s32 *arg0, u8 *arg1);
-extern u16 *datPersonaGetRecord(u16 arg0);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaLoadRecord(u8 *arg0, u16 arg1, u8 *arg2);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern s16 D_00636A40[];

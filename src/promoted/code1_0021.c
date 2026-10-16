@@ -85,12 +85,12 @@ extern u8 D_006290E0[];
 
 extern void btlShuffleDrawSweep(s32 arg0, s32 *arg1);
 extern void func_0021dd60(u8 *task);
-extern u16 *datPersonaRosterSlot(s16 arg0);
+extern struct DatPersonaRecord *datPersonaRosterSlot(s16 arg0);
 extern u16 datPersonaCountValidMembers(void);
 extern void datPersonaAddExp(u8 *arg0, s32 arg1);
 extern s32 datPersonaCanLevelUp(PersonaWork *arg0);
 extern void datPersonaApplyLevelUp(u8 *arg0, u8 *arg1);
-extern u16 *datPersonaGetRecord(u16 arg0);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 extern void btlUiSetScale(void *arg0, f32 arg1, f32 arg2);
 extern void btlUiSetRect(s32 *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4);
 extern void btlUiSetTileOffset(u8 *arg0, s16 arg1, s32 arg2, f32 arg3);
@@ -4481,12 +4481,12 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
     }
     *(s16 *)(arg0 + 0x698) = *(s16 *)(arg1 + 0x10);
     *(u32 *)(arg0 + 4) = level;
-    entry = datPersonaGetRecord(1);
+    entry = (u16 *)datPersonaGetRecord(1);
     datUnitGetRecord(1);
     ref = entry[1];
     count = datPersonaCountValidMembers() & 0xFFFF;
     for (i = 0; i < count; i++) {
-        entry2 = datPersonaRosterSlot((s16)i);
+        entry2 = (u16 *)datPersonaRosterSlot((s16)i);
         id = datPersonaGetLevel((s32)entry2) & 0xFF;
         lv = btlXpComputeAward(id, arg1);
         if (entry2[1] == ref) {
@@ -4546,7 +4546,7 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
     for (j = 0; j < count2; j++) {
         id2 = *(u16 *)(arg1 + j * 2 + 0x12);
         if (id2 != 1) {
-            entry3 = datPersonaGetRecord((u16)id2);
+            entry3 = (u16 *)datPersonaGetRecord((u16)id2);
             v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
             lv2 = btlXpComputeAward(v5, arg1);
             level2 = lv2;
@@ -4570,7 +4570,7 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
         }
     }
     if (datGetFlag(0x38) != 0) {
-        entry3 = datPersonaGetRecord(5);
+        entry3 = (u16 *)datPersonaGetRecord(5);
         v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
         lv3 = btlXpComputeAward(v5, arg1);
         level2 = lv3;

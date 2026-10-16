@@ -3261,7 +3261,7 @@ extern void frFontExCopyString(char *source, char *destination, s32 capacity);
 extern void nmMesWindowSetSlotString(s8 handle, s32 variable, void *text);
 extern s32 datGetFlag();
 extern void datSetFlag();
-extern u16 *datPersonaGetRecord(u16 character);
+extern struct DatPersonaRecord *datPersonaGetRecord(u16 character);
 extern s32 datPersonaAddSkill(u8 *character, u16 skill);
 extern void hsndQueueSound();
 extern void sdkSndSetMainChannelData();

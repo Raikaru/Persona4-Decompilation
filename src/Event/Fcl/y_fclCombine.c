@@ -180,7 +180,7 @@ extern void H_Cdvd_Destroy(void *);
 extern void (*jtbl_008873EC[])(void *);
 extern u8 D_00641BC8[];
 extern s8 D_007490F8[];
-extern u16 *datPersonaRosterSlot(s16);
+extern struct DatPersonaRecord *datPersonaRosterSlot(s16);
 extern u8 datPersonaGetArcana(u16);
 extern s32 fclCombineGetMesWindow(void);
 extern void nmMesWindowSetSlotString(s8, s32, void *);
@@ -233,7 +233,7 @@ extern s8 D_00749480[];
 extern u8 *iGpffffb44c;
 extern s8 iGpffffa8a8;
 extern u16 cmmCommunityRecordValue(s32 arg0);
-extern u16 *datPersonaFindRosterRecordById(s32 arg0);
+extern struct DatPersonaRecord *datPersonaFindRosterRecordById(s32 arg0);
 extern s32 datItemCount(s16 id);
 extern u8 D_00641880[];
 extern u8 D_0063FCA0[];
@@ -7770,16 +7770,16 @@ void fclCombineApplyPackedResult(void) {
     for (i = 0; i < (u16)datPersonaCountValidMembers(); i++) {
         if (datPersonaRosterSlotFlags(i) & 4) {
             if (datPersonaRosterSlotFlags(i) & 0x80) {
-                *datPersonaRosterSlot(i) ^= 4;
-                *datPersonaRosterSlot(i) ^= 0x20;
-                *datPersonaRosterSlot(i) ^= 0x40;
-                *datPersonaRosterSlot(i) ^= 0x80;
+                *(u16 *)datPersonaRosterSlot(i) ^= 4;
+                *(u16 *)datPersonaRosterSlot(i) ^= 0x20;
+                *(u16 *)datPersonaRosterSlot(i) ^= 0x40;
+                *(u16 *)datPersonaRosterSlot(i) ^= 0x80;
             } else if (datPersonaRosterSlotFlags(i) & 0x40) {
-                *datPersonaRosterSlot(i) |= 0x80;
+                *(u16 *)datPersonaRosterSlot(i) |= 0x80;
             } else if (datPersonaRosterSlotFlags(i) & 0x20) {
-                *datPersonaRosterSlot(i) |= 0x40;
+                *(u16 *)datPersonaRosterSlot(i) |= 0x40;
             } else {
-                *datPersonaRosterSlot(i) |= 0x20;
+                *(u16 *)datPersonaRosterSlot(i) |= 0x20;
             }
         }
     }
@@ -9900,7 +9900,7 @@ s32 fclCombineRecipeUnlocked(void) {
         e = base + i * 12;
         switch (e[0]) {
         case 0:
-            p = datPersonaFindRosterRecordById(*(u16 *)(e + 4));
+            p = (u16 *)datPersonaFindRosterRecordById(*(u16 *)(e + 4));
             if (p != 0) {
                 if (datPersonaFindSkillSlot((u8 *)p, (u16)*(u32 *)(e + 8)) == -1) {
                     return 0;
