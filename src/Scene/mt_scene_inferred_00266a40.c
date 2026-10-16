@@ -88,7 +88,7 @@ extern u8 D_00638F90[];
 extern void func_002674b0(s32 arg0, u8 *arg1);
 extern char D_00637348[];
 extern s32 cldDayChangeRequest(u32 arg0, s32 arg1);
-extern void func_00266a90(u8 *arg0);
+extern void cldDayChangeMarkDone(u8 *arg0);
 extern s32 cldDayChangeIsDone(s32 arg0);
 extern f32 sinf(f32 fparg0);
 extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
@@ -189,7 +189,7 @@ s32 cldDayChangeRequest(u32 unk, s32 arg1) {
 }
 
 // FUN_00266A90
-void func_00266a90(u8 *arg0) {
+void cldDayChangeMarkDone(u8 *arg0) {
     u8 *p;
 
     if (kwlnTaskIsLinked(arg0) != 0) {

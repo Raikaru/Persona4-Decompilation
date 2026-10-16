@@ -718,7 +718,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     extern void func_004b11d0(void *arg0, void *arg1);
     extern void qsort(void *base, size_t count, size_t size,
                       s32 (*compare)(const void *, const void *));
-    extern s32 func_0014a160(void);
+    extern s32 FldMap_IsCurrentInEitherBand(void);
     extern u8 D_005DC7D0[];
     extern u8 D_005DC824[];
     extern u8 D_005EFB00[];
@@ -915,7 +915,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttached;
                 *(u8 **)(tmp + 0x10) = *pp;
                 func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
-                if (func_0014a160() == 1 && (*(u16 *)*pp & 0x3FF) >= 100) {
+                if (FldMap_IsCurrentInEitherBand() == 1 && (*(u16 *)*pp & 0x3FF) >= 100) {
                     mdlQueueModelForDraw(D_007943F0, *(u8 **)(*pp + 0x164));
                 } else {
                     mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(*pp + 0x164));

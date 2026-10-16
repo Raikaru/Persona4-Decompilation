@@ -11,9 +11,9 @@ extern u8* iGpffff9db0;
 // lint: allow H011 -- measured: u16 prototype regresses FldFrame_RaycastFieldWorlds (andi on wide id args)
 extern s32 MT_Scene_GetRes(s32 arg0);
 extern u8* MT_Scene_GetResListHead(s32 arg0);
-extern s32 func_0014a160(void);
-extern s32 func_0014a200(void);
-extern s32 func_0014a270(void);
+extern s32 FldMap_IsCurrentInEitherBand(void);
+extern s32 FldMap_IsCurrentInBandA(void);
+extern s32 FldMap_IsCurrentInBandB(void);
 extern s32* func_00155280(void);
 extern s32 FldFrameTask_GetTileX(s32 arg0);
 extern s32 FldFrameTask_GetTileZ(s32 arg0);
@@ -774,8 +774,8 @@ s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32 *origin, f32 *vector, f
     /* Mode one appends the flagged prefix. Mode zero preserves those flags, so
      * each flagged correction is written before an unflagged contact reads it. */
     work.collector.mode = 0;
-    func_0014a200();
-    func_0014a200();
+    FldMap_IsCurrentInBandA();
+    FldMap_IsCurrentInBandA();
     {
         u16 low = (u16)fieldId;
         if ((low & 0x3ff) == 0)
@@ -956,7 +956,7 @@ s32 FldFrame_RaycastFieldWorlds(f32* origin, f32* vector, f32 fraction, s32 fiel
     }
 
     collisionWorld = 0;
-    if (func_0014a200() == 1 ||
+    if (FldMap_IsCurrentInBandA() == 1 ||
         (*(s32*)iGpffff9db0 >= 0x33 && *(s32*)iGpffff9db0 < 0x4f))
     {
         u8* entry;
@@ -1026,8 +1026,8 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
 {
     extern u8* MT_Scene_GetResListHead(s32 arg0);
     extern void* memset(void* dst, s32 value, u32 size);
-    extern s32 func_0014a200(void);
-    extern s32 func_0014a270(void);
+    extern s32 FldMap_IsCurrentInBandA(void);
+    extern s32 FldMap_IsCurrentInBandB(void);
     extern s32 func_00457120(void);
     extern RwMatrix* func_003e9700(RwFrame* frame);
     extern s32* func_00155280(void);
@@ -1088,7 +1088,7 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
         return 0;
     work.collector.mode = 1;
     RpClumpForAllAtomics(collisionWorld, FldFrame_SphereAtomicCallback, ((u8 *)&work.collector));
-    if (func_0014a200() == 1 || func_0014a270() == 1)
+    if (FldMap_IsCurrentInBandA() == 1 || FldMap_IsCurrentInBandB() == 1)
     {
         const u8* dimensions;
         f32 positionX;
@@ -1238,7 +1238,7 @@ s32 FldFrame_CollideSphereSelected(const RwV3d* point, f32 radius, RwV3d* normal
     if ((object->flags & 1) == 0)
     {
         collisionWorld = 0;
-        if (func_0014a200() == 1 || func_0014a270() == 1)
+        if (FldMap_IsCurrentInBandA() == 1 || FldMap_IsCurrentInBandB() == 1)
         {
             u8* map;
             FldSelectionNode* node;
@@ -1461,7 +1461,7 @@ u32 FldFrame_RaycastSelectedWorld(const RwV3d* line, RwV3d* hitPointDst)
         FldFrameIntersection intersection;
         FldFrameRaycast raycast;
         collisionWorld = NULL;
-        if (func_0014a160() != 0)
+        if (FldMap_IsCurrentInEitherBand() != 0)
         {
             u8* entry;
             u32 key;

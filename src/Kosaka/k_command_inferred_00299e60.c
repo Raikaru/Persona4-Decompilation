@@ -65,7 +65,7 @@ extern void mtMiscCollectType1Records(u8 *arg0);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0029.c; members 00299e60-00299ea0 */
 
 // FUN_00299E60
-s32 func_00299e60(void) {
+s32 K_Cmd_DATE_DISP(void) {
     func_001238c0(scrGetParamInt(0) != 0);
     return 1;
 }

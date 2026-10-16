@@ -50,7 +50,7 @@ extern s32 iGpffffb300;
 extern s32 iGpffffb304;
 extern u8 gMtScene[];
 extern u8 *iGpffff9db0;
-extern s32 func_0014a200(void);
+extern s32 FldMap_IsCurrentInBandA(void);
 extern s32 D_007EF9F8[];
 extern u32 D_007EFA04[];
 extern u8 D_007EF9B0[];
@@ -259,7 +259,7 @@ s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3, f32 farg0
         count = 0;
         ctx.geometry = arg3;
         ctx.work = (FldShadowProjectionWork *)arg5;
-        if (func_0014a200() == 1) goto alloc_path;
+        if (FldMap_IsCurrentInBandA() == 1) goto alloc_path;
         gp_val = *(s32 *)iGpffff9db0;
         if (gp_val < 0x33) goto check_second;
         if (gp_val <= 0x3A) goto alloc_path;

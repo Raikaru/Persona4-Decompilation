@@ -55,8 +55,8 @@ extern void strcpy(void *dst, const char *fmt);
 extern u8 *iGpffffb244;
 extern s32 D_007E8060[];
 extern u8 *iGpffff9db0;
-extern s32 func_0014a200();
-extern s32 func_0014a270(void);
+extern s32 FldMap_IsCurrentInBandA();
+extern s32 FldMap_IsCurrentInBandB(void);
 extern void FldResource_Destroy(s32 arg0);
 extern s32 FldRc_FileLoadIsReady();
 extern void kAssertFail();
@@ -89,7 +89,7 @@ extern s32 func_00106390(s32 arg0, s32 arg1);
 extern s32 func_00159a60(u8 *arg0);
 extern void func_00159d50(u8 *task);
 extern void func_001587d0(u16 arg0, u32 arg1, u32 arg2);
-extern s32 func_0014a160(void);
+extern s32 FldMap_IsCurrentInEitherBand(void);
 extern void FldFrame_SetStateFlags(s32 arg0, s32 arg1);
 extern void func_003642a0(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
@@ -251,7 +251,7 @@ void func_00155070(void)
         func_0016e590(func_00155280()[1], *(s32 *)(temp_2 + 0x140));
         FldFrame_SetViewOffset(func_00155280()[1], temp_2 + 0x150);
         if ((*(f32 *)(temp_2 + 0x15C) == 0.0f) &&
-            (func_0014a160() == 1)) {
+            (FldMap_IsCurrentInEitherBand() == 1)) {
             *(f32 *)(temp_2 + 0x15C) = 20.0f;
         }
         FldFrame_SetViewDistance(func_00155280()[1], *(f32 *)(temp_2 + 0x15C));
@@ -414,7 +414,7 @@ s32 func_001561a0(u8 *task)
     extern void func_00144ed0(s64 environmentState);
     extern s32 func_00160000(u8 *file);
     extern s32 fieldSceneLoadStep(void);
-    extern s32 func_0014a190(s32 fieldId, s32 roomId);
+    extern s32 FldMap_IsInEitherBand(s32 fieldId, s32 roomId);
     extern s32 FldRc_CreateFileLoadTask(u8 *parent, u8 *path, s32 index, s32 file);
     extern s32 FldRc_FileLoadIsReady(u8 *task);
     extern s32 func_0016e2e0(s32 parent);
@@ -529,14 +529,14 @@ s32 func_001561a0(u8 *task)
         if (script != 0 && kwlnTaskIsLinked((void *)script) == 1) {
             break;
         }
-        if (func_0014a190(work->fieldId, work->roomId) == 0) {
+        if (FldMap_IsInEitherBand(work->fieldId, work->roomId) == 0) {
             D_007D2544[0] = FldRc_CreateFileLoadTask(NULL, D_005EFF80, -1, D_007E3710[0]);
             D_007D2548[0] = FldRc_CreateFileLoadTask(NULL, D_005EFFA0, -1, D_007E3714[0]);
             D_007D254C[0] = FldRc_CreateFileLoadTask(NULL, D_005EFFC0, -1, D_007E3718[0]);
         }
         work->state++;
     case 5:
-        if (func_0014a190(work->fieldId, work->roomId) == 0 &&
+        if (FldMap_IsInEitherBand(work->fieldId, work->roomId) == 0 &&
             (FldRc_FileLoadIsReady((u8 *)D_007D2544[0]) == 0 ||
              FldRc_FileLoadIsReady((u8 *)D_007D2548[0]) == 0 ||
              FldRc_FileLoadIsReady((u8 *)D_007D254C[0]) == 0)) {
@@ -1617,8 +1617,8 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     extern s32 MT_Scene_CreatePointRes18(u16 arg0, f32 *arg1, f32 fparg0);
     extern void resrcMngResetRenderSlots(void);
     extern void SceneDraw_SetResVisible(u16 arg0, u32 arg1);
-    extern s32 func_0014a200(void);
-    extern s32 func_0014a270(void);
+    extern s32 FldMap_IsCurrentInBandA(void);
+    extern s32 FldMap_IsCurrentInBandB(void);
     extern u16 MT_Scene_FindFreeResId(s32 arg0);
     extern void Vpad_BuildRotatedQuad(RuntimeVec3 *vertices, const RuntimeVec3 *translation, f32 width, f32 depth, f32 angle);
     extern void *RwMatrixRotate(void *matrix, const void *axis, f32 angle, s32 combine);
@@ -1709,7 +1709,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
     grid = (u8 *)func_00155280();
     worldPosition.z = worldScale * worldCoordinate + (f32)(s32)(*(u8 *)(grid + templateScan + worldColumnOffset + 0x5b) - 1) * 600.0f;
     templateCount = D_005F0590[D_0076432C * 0xc];
-    if (func_0014a270() != 0) {
+    if (FldMap_IsCurrentInBandB() != 0) {
       templateCount = D_005F0591[D_0076432C * 0xc];
     }
     templateScan = 0;
@@ -1799,7 +1799,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
       for (volumeIndex = 0; volumeIndex < *(u32 *)(data + 8);
           volumeIndex = volumeIndex + 1, record = record + 0x20) {
         u8 *volumeUnit;
-        if ((func_0014a200() == 1) || (func_0014a270() == 1)) {
+        if ((FldMap_IsCurrentInBandA() == 1) || (FldMap_IsCurrentInBandB() == 1)) {
           grid = (u8 *)func_00155280();
           if (*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x58) == '\x06') {
             volumeId = 0x3fe;
@@ -1840,7 +1840,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
         }
       }
       for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x10); recordIndex = recordIndex + 1, record = record + 0x14) {
-        if ((func_0014a200() == 1) || (func_0014a270() == 1)) {
+        if ((FldMap_IsCurrentInBandA() == 1) || (FldMap_IsCurrentInBandB() == 1)) {
           point_20 = *(SVec3 *)(record + 4);
           grid = (u8 *)func_00155280();
           angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
@@ -1870,7 +1870,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
         }
       }
       for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x18); recordIndex = recordIndex + 1, record = record + 0x14) {
-        if (func_0014a200() == 1) {
+        if (FldMap_IsCurrentInBandA() == 1) {
           point_30 = *(SVec3 *)(record + 4);
           grid = (u8 *)func_00155280();
           angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
@@ -1900,7 +1900,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
         }
       }
       for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x20); recordIndex = recordIndex + 1, record = record + 0x14) {
-        if (func_0014a200() == 1) {
+        if (FldMap_IsCurrentInBandA() == 1) {
           point_40 = *(SVec3 *)(record + 4);
           grid = (u8 *)func_00155280();
           angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
@@ -1931,7 +1931,7 @@ void func_001587d0(u16 arg0, u32 arg1, u32 arg2)
       }
       if (c10000 < *(u32 *)(data + 4)) {
         for (recordIndex = 0; recordIndex < *(u32 *)(data + 0x28); recordIndex = recordIndex + 1, record = record + 0x14) {
-          if (func_0014a200() == 1) {
+          if (FldMap_IsCurrentInBandA() == 1) {
             point_50 = *(SVec3 *)(record + 4);
             grid = (u8 *)func_00155280();
             angle = (f32)((*(u8 *)(wg0035_add_offset((u32)gridOffset, (u32)grid) + 0x59) + 4) % 4) * 90.0f;
@@ -2189,7 +2189,7 @@ void func_00159d50(u8 *arg0)
     u8 *temp_4_2;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
-    if (func_0014a160() == 1) {
+    if (FldMap_IsCurrentInEitherBand() == 1) {
         func_0015a7c0(*(s32 *)(temp_16 + 4));
     }
     temp_4 = *(s32 *)(temp_16 + 0x1C);
@@ -2270,8 +2270,8 @@ void func_00159f70(s32 arg0)
              (*(u16 *)(base + 2 + base_offset) !=
               *(u16 *)wg0015_add_ptr((u8 *)(base + 2 + base_offset), arg_offset))) &&
             (((*(s32 *)(state + 0x24) |= 0x80000000),
-              func_0014a200(base, base_offset, arg_offset) == 1) ||
-             (func_0014a270() == 1))) {
+              FldMap_IsCurrentInBandA(base, base_offset, arg_offset) == 1) ||
+             (FldMap_IsCurrentInBandB() == 1))) {
             index = 0;
             while (index < 0x10) {
                 entry = &D_007E8060[index];
@@ -2721,7 +2721,7 @@ s32 func_0015ac60(s32 arg0)
     u16 h0;
     u16 h4;
 
-    if (func_0014a200(arg0) != 0) {
+    if (FldMap_IsCurrentInBandA(arg0) != 0) {
         D_0076432C = D_005F0590[*(s32 *)iGpffff9db0];
     } else {
         D_0076432C = D_005F057C[*(s32 *)iGpffff9db0];
@@ -2898,8 +2898,8 @@ void func_0015b240(void)
     s32 field_y;
 
     entry = MT_Scene_GetResListHead(0xA);
-    if (func_0014a200() == 0) {
-        if (func_0014a270() == 0) {
+    if (FldMap_IsCurrentInBandA() == 0) {
+        if (FldMap_IsCurrentInBandB() == 0) {
             return;
         }
     }
@@ -3044,7 +3044,7 @@ void func_0015bae0(void)
     var_17 = MT_Scene_GetResListHead(0xB);
     var_16 = 0;
     var_15 = 0;
-    if (func_0014a160() != 0) {
+    if (FldMap_IsCurrentInEitherBand() != 0) {
         if (temp_s5 != NULL) {
             var_16 = FldFrameTask_GetTileX(*(s32 *)(temp_s5 + 0x220));
             var_15 = FldFrameTask_GetTileZ(*(s32 *)(temp_s5 + 0x220));
