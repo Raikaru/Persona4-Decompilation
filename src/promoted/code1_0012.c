@@ -80,7 +80,7 @@ extern s16 clndGetDaysSinceApr5(void);
 extern void calendarSyncFromDate(void);
 extern s32 func_00268990(s32 arg0);
 extern void func_00103b00(void);
-extern void func_0046a340(s32 arg0);
+extern void poolFree(s32 arg0);
 extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -1646,7 +1646,7 @@ s32 clndSceneUpdate(u8 *arg0)
 // FUN_00124210
 void taskReleaseSlotModel(u8 *arg0)
 {
-    func_0046a340(*(s32 *)(arg0 + 0x38));
+    poolFree(*(s32 *)(arg0 + 0x38));
 }
 // FUN_00124350
 extern u32 RpRandom(void);

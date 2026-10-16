@@ -167,7 +167,7 @@ void memset(void* dst, s32 value, s32 size);
 void memcpy(void* dst, void* src, s32 size);
 void func_0046a2d0(char* file, s32 line);
 u8* func_0046a430(s32 size);
-void func_0046a340(void* ptr);
+void poolFree(void* ptr);
 u32 kwlnTaskGetWork(void* task);
 s32 func_0029cb00(void* arg0, ...);
 s32 func_0029e970(void);
@@ -619,7 +619,7 @@ void func_0029dc80(ScrScriptWork* work)
     handle = (s32)work->textBuf;
     if (handle != 0)
     {
-        func_0046a340((void*)handle);
+        poolFree((void*)handle);
         func_00440b68(D_0063E5A0);
     }
     if (D_00764608 == work)
@@ -986,7 +986,7 @@ s32 func_0029e550(u8 *arg0)
                     func_00440b68(D_0063E580);
                 }
                 if (child->textBuf != NULL) {
-                    func_0046a340(child->textBuf);
+                    poolFree(child->textBuf);
                     func_00440b68(D_0063E5A0);
                 }
                 scrScriptWorkUnlink(child);
@@ -1036,7 +1036,7 @@ void func_0029e7b0(u8* arg0)
         handle = (s32)work->textBuf;
         if (handle != 0)
         {
-            func_0046a340((void*)handle);
+            poolFree((void*)handle);
             func_00440b68(D_0063E5A0);
         }
         scrScriptWorkUnlink(work);

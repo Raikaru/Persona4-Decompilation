@@ -73,7 +73,7 @@ extern void mwPlyReleaseLp(s32 arg0);
 extern void func_005097e8(s32 arg0);
 extern RwBool RwRasterDestroy(RwRaster *raster);
 extern s32 func_003d5fb0(u8 *arg0);
-extern void func_0046a340(u32 arg0);
+extern void poolFree(u32 arg0);
 
 extern s32 D_00724BEC;
 extern s32 D_00724BF0;
@@ -129,7 +129,7 @@ extern void func_00461be0(u8 *arg0);
 extern u8 *H_Calloc(s32 arg0, s32 arg1);
 
 extern s32 func_00468fa0(u8 *arg0);
-extern void func_0046a020(u8 *arg0);
+extern void mwPlayerTaskDestroy(u8 *arg0);
 extern u32 iGpffffbb14;
 extern u32 iGpffffbb10;
 extern u32 iGpffffbb0c;
@@ -1034,7 +1034,7 @@ movieComplete:
 #pragma pop
 
 // FUN_0046A020
-void func_0046a020(u8 *arg0)
+void mwPlayerTaskDestroy(u8 *arg0)
 {
     u8 *work;
 
@@ -1066,7 +1066,7 @@ void func_0046a020(u8 *arg0)
         *(s32 *)(work + 0x1FC) = 0;
         func_003d5fb0(D_0070B610);
     }
-    func_0046a340((u32)work);
+    poolFree((u32)work);
 }
 // FUN_0046A110
 s32 func_0046a110(s32 arg0, s16 arg1, s32 arg2) {
@@ -1077,7 +1077,7 @@ s32 func_0046a110(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, func_0046a020, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, mwPlayerTaskDestroy, (u8 *)(work));
     if (result == 0) {
         return 0;
     }
@@ -1088,7 +1088,7 @@ s32 func_0046a110(s32 arg0, s16 arg1, s32 arg2) {
     return result;
 }
 // FUN_0046A1E0
-s32 func_0046a1e0(void)
+s32 mwPlayerGetTaskName(void)
 {
     return iGpffffb034;
 }
@@ -1102,7 +1102,7 @@ s32 func_0046a1f0(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, func_0046a020, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, mwPlayerTaskDestroy, (u8 *)(work));
     if (result == 0) {
         return 0;
     }
@@ -1129,7 +1129,7 @@ void func_0046a2d0(s32 arg0, s32 arg1)
 
 
 // FUN_0046A2E0
-void func_0046a2e0(u8 *arg0, s32 arg1) {
+void initEntryTable(u8 *arg0, s32 arg1) {
     u32 i;
 
     D_00724C04 = arg0;
@@ -1146,7 +1146,7 @@ void func_0046a2e0(u8 *arg0, s32 arg1) {
 }
 
 // FUN_0046A340
-void func_0046a340(u32 arg0) {
+void poolFree(u32 arg0) {
     s32 flag;
     u32 count;
     u32 index;

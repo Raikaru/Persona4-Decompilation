@@ -7,7 +7,7 @@
 extern s32 D_0063BF80[];
 extern u16 D_008C024E[];
 
-extern void func_0046a340(s32 arg0);
+extern void poolFree(s32 arg0);
 
 
 extern s32 D_008815B0[];
@@ -60,7 +60,7 @@ void itfMesWindowFreeSlots(s32 arg0) {
         p = (s32 *)(arg0 + i * 4);
         v = *p;
         if (v != 0) {
-            func_0046a340(v);
+            poolFree(v);
             *p = 0;
         }
     }

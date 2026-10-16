@@ -327,7 +327,7 @@ void func_00100670(void)
     extern void func_00456e40(void);
     extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
     extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-    extern void func_0046a2e0(void *arg0, s32 arg1);
+    extern void initEntryTable(void *arg0, s32 arg1);
     typedef RwImage *(*ImageReadCallback)(const char *name);
     typedef RwImage *(*ImageWriteCallback)(RwImage *image, const char *name);
     extern s32 func_003eb1f0(const char *extension, ImageReadCallback readImage, ImageWriteCallback writeImage);
@@ -591,7 +591,7 @@ void func_00100670(void)
     FldShadow_InstallIntcHandler();
     func_00456e40();
     chkmemAllocSiteTag((void *)&iGpffff8598, 0x2C3);
-    func_0046a2e0(jtbl_008873E8[0](0x62000, 0x40000), 0x62000);
+    initEntryTable(jtbl_008873E8[0](0x62000, 0x40000), 0x62000);
     if (func_003eb1f0((const char *)&iGpffff8590, func_003d8c00, func_003d96b0) == 0) {
         ok = 0;
         goto check;

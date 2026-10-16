@@ -7,7 +7,7 @@
 extern s32 D_0063BF80[];
 extern u16 D_008C024E[];
 
-extern void func_0046a340(s32 arg0);
+extern void poolFree(s32 arg0);
 extern void itfMesListSetColor();
 extern void itfMesListSetRangeFlag();
 
