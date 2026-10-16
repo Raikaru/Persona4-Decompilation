@@ -609,7 +609,7 @@ void func_001d5990(void)
 /* measured: func_001d5b20 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_001D5AC0
-void func_001d5ac0(void) {
+void btlFormationCameraUpdate(void) {
     func_003e8110(kwlnGetCamera());
     func_003e9cb0(*(s32 *)(kwlnGetCamera() + 4), D_008813B0, 0);
     func_003e8120(kwlnGetCamera());
@@ -662,7 +662,7 @@ void func_001d5b20(u8 *arg0)
     task = PrimAllocQueueNode();
     *(s32 *)(task + 0) = 0;
     *(s32 *)(task + 4) = 0;
-    *(void (**)(void))(task + 8) = func_001d5ac0;
+    *(void (**)(void))(task + 8) = btlFormationCameraUpdate;
     *(u8 **)(task + 0x10) = iGpffffb3ac;
     PrimAppendNode(D_00794C00, task);
 }
