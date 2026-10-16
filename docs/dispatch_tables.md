@@ -8,41 +8,41 @@ Indexed by opcode. Each entry is a `CodeFunc` pointer.
 
 | Opcode | Handler | Defined at |
 |---|---|---|
-| 0 | `scrOpPushImmInt` (0x0029A050) | src/Script/scrTraceCode.c:323 |
-| 1 | `scrOpPushImmFloat` (0x0029A1B0) | src/Script/scrTraceCode.c:341 |
-| 2 | `scrOpPushGlobalInt` (0x0029A260) | src/Script/scrTraceCode.c:350 |
-| 3 | `scrOpPushGlobalFloat` (0x0029A320) | src/Script/scrTraceCode.c:359 |
-| 4 | `scrOpPushReturn` (0x0029A610) | src/Script/scrTraceCode.c:402 |
-| 5 | `scrOpPopGlobalInt` (0x0029A6A0) | src/Script/scrTraceCode.c:416 |
-| 6 | `scrOpPopGlobalFloat` (0x0029A820) | src/Script/scrTraceCode.c:425 |
-| 7 | `scrOpNop` (0x0029AD20) | src/Script/scrTraceCode.c:463 |
-| 8 | `scrOpCallCommand` (0x0029AD40) | src/Script/scrTraceCode.c:479 |
-| 9 | `scrOpReturn` (0x0029AE90) | src/Script/scrTraceCode.c:491 |
-| 10 | `scrOpJumpProcedure` (0x0029B020) | src/Script/scrTraceCode.c:507 |
-| 11 | `scrOpCallProcedure` (0x0029B060) | src/Script/scrTraceCode.c:518 |
-| 12 | `scrOpUnsupported` (0x0029B120) | src/Script/scrTraceCode.c:527 |
-| 13 | `scrOpJumpLabel` (0x0029B170) | src/Script/scrTraceCode.c:537 |
-| 14 | `CodeFunc_Add` (0x0029BEB0) | src/Script/scrTraceCode.c:795 |
-| 15 | `CodeFunc_Sub` (0x0029BEF0) | src/Script/scrTraceCode.c:806 |
-| 16 | `CodeFunc_Mul` (0x0029BF30) | src/Script/scrTraceCode.c:818 |
-| 17 | `CodeFunc_Div` (0x0029BF70) | src/Script/scrTraceCode.c:829 |
-| 18 | `CodeFunc_Neg` (0x0029BFB0) | src/Script/scrTraceCode.c:839 |
-| 19 | `CodeFunc_Not` (0x0029C130) | src/Script/scrTraceCode.c:881 |
-| 20 | `CodeFunc_Or` (0x0029C550) | src/Script/scrTraceCode.c:918 |
-| 21 | `CodeFunc_And` (0x0029C590) | src/Script/scrTraceCode.c:929 |
-| 22 | `CodeFunc_Eq` (0x0029C5D0) | src/Script/scrTraceCode.c:940 |
-| 23 | `CodeFunc_Neq` (0x0029C610) | src/Script/scrTraceCode.c:951 |
-| 24 | `CodeFunc_S` (0x0029C650) | src/Script/scrTraceCode.c:962 |
-| 25 | `CodeFunc_L` (0x0029C690) | src/Script/scrTraceCode.c:973 |
-| 26 | `CodeFunc_SE` (0x0029C6D0) | src/Script/scrTraceCode.c:984 |
-| 27 | `CodeFunc_LE` (0x0029C710) | src/Script/scrTraceCode.c:995 |
-| 28 | `CodeFunc_JumpIfFalse` (0x0029C750) | src/Script/scrTraceCode.c:1005 |
-| 29 | `scrOpPushImmShort` (0x0029A100) | src/Script/scrTraceCode.c:332 |
-| 30 | `scrOpPushLocalInt` (0x0029A3E0) | src/Script/scrTraceCode.c:371 |
-| 31 | `scrOpPushLocalFloat` (0x0029A4A0) | src/Script/scrTraceCode.c:380 |
-| 32 | `scrOpPopLocalInt` (0x0029A9C0) | src/Script/scrTraceCode.c:440 |
-| 33 | `scrOpPopLocalFloat` (0x0029AB80) | src/Script/scrTraceCode.c:451 |
-| 34 | `scrOpPushString` (0x0029A560) | src/Script/scrTraceCode.c:389 |
+| 0 | `scrOpPushImmInt` (0x0029A050) | src/Script/scrTraceCode.c:324 |
+| 1 | `scrOpPushImmFloat` (0x0029A1B0) | src/Script/scrTraceCode.c:342 |
+| 2 | `scrOpPushGlobalInt` (0x0029A260) | src/Script/scrTraceCode.c:351 |
+| 3 | `scrOpPushGlobalFloat` (0x0029A320) | src/Script/scrTraceCode.c:360 |
+| 4 | `scrOpPushReturn` (0x0029A610) | src/Script/scrTraceCode.c:403 |
+| 5 | `scrOpPopGlobalInt` (0x0029A6A0) | src/Script/scrTraceCode.c:417 |
+| 6 | `scrOpPopGlobalFloat` (0x0029A820) | src/Script/scrTraceCode.c:426 |
+| 7 | `scrOpNop` (0x0029AD20) | src/Script/scrTraceCode.c:464 |
+| 8 | `scrOpCallCommand` (0x0029AD40) | src/Script/scrTraceCode.c:484 |
+| 9 | `scrOpReturn` (0x0029AE90) | src/Script/scrTraceCode.c:533 |
+| 10 | `scrOpJumpProcedure` (0x0029B020) | src/Script/scrTraceCode.c:549 |
+| 11 | `scrOpCallProcedure` (0x0029B060) | src/Script/scrTraceCode.c:560 |
+| 12 | `scrOpUnsupported` (0x0029B120) | src/Script/scrTraceCode.c:569 |
+| 13 | `scrOpJumpLabel` (0x0029B170) | src/Script/scrTraceCode.c:579 |
+| 14 | `CodeFunc_Add` (0x0029BEB0) | src/Script/scrTraceCode.c:837 |
+| 15 | `CodeFunc_Sub` (0x0029BEF0) | src/Script/scrTraceCode.c:848 |
+| 16 | `CodeFunc_Mul` (0x0029BF30) | src/Script/scrTraceCode.c:860 |
+| 17 | `CodeFunc_Div` (0x0029BF70) | src/Script/scrTraceCode.c:871 |
+| 18 | `CodeFunc_Neg` (0x0029BFB0) | src/Script/scrTraceCode.c:881 |
+| 19 | `CodeFunc_Not` (0x0029C130) | src/Script/scrTraceCode.c:923 |
+| 20 | `CodeFunc_Or` (0x0029C550) | src/Script/scrTraceCode.c:960 |
+| 21 | `CodeFunc_And` (0x0029C590) | src/Script/scrTraceCode.c:971 |
+| 22 | `CodeFunc_Eq` (0x0029C5D0) | src/Script/scrTraceCode.c:982 |
+| 23 | `CodeFunc_Neq` (0x0029C610) | src/Script/scrTraceCode.c:993 |
+| 24 | `CodeFunc_S` (0x0029C650) | src/Script/scrTraceCode.c:1004 |
+| 25 | `CodeFunc_L` (0x0029C690) | src/Script/scrTraceCode.c:1015 |
+| 26 | `CodeFunc_SE` (0x0029C6D0) | src/Script/scrTraceCode.c:1026 |
+| 27 | `CodeFunc_LE` (0x0029C710) | src/Script/scrTraceCode.c:1037 |
+| 28 | `CodeFunc_JumpIfFalse` (0x0029C750) | src/Script/scrTraceCode.c:1047 |
+| 29 | `scrOpPushImmShort` (0x0029A100) | src/Script/scrTraceCode.c:333 |
+| 30 | `scrOpPushLocalInt` (0x0029A3E0) | src/Script/scrTraceCode.c:372 |
+| 31 | `scrOpPushLocalFloat` (0x0029A4A0) | src/Script/scrTraceCode.c:381 |
+| 32 | `scrOpPopLocalInt` (0x0029A9C0) | src/Script/scrTraceCode.c:441 |
+| 33 | `scrOpPopLocalFloat` (0x0029AB80) | src/Script/scrTraceCode.c:452 |
+| 34 | `scrOpPushString` (0x0029A560) | src/Script/scrTraceCode.c:390 |
 
 ## Script command groups (`D_00748530`)
 
@@ -106,7 +106,7 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 0x0033 | 51 | `scrCommonGetMonth` (0x0025C340) | src/Kosaka/k_command_inferred_0025c310.c:57 | 0 | FUNCTION_0033 |
 | 0x0034 | 52 | `scrCommonGetDay` (0x0025C390) | src/Kosaka/k_command_inferred_0025c310.c:69 | 0 | FUNCTION_0034 |
 | 0x0035 | 53 | `K_Cmd_DATE_WEEKDAY` (0x0025C3E0) | src/Kosaka/k_command_inferred_0025c310.c:81 | 0 | FUNCTION_0035 |
-| 0x0036 | 54 | `scrGetTimeSlot` (0x0025C420) | src/Kosaka/k_command.c:941 | 0 | FUNCTION_0036 |
+| 0x0036 | 54 | `scrGetTimeSlot` (0x0025C420) | src/Kosaka/k_command.c:939 | 0 | FUNCTION_0036 |
 | 0x0037 | 55 | `scrCommonChkDays` (0x0025C4B0) | src/Kosaka/k_command_inferred_0025c450.c:67 | 2 | CHK_DAYS |
 | 0x0038 | 56 | `scrCommonPartyIn` (0x0025D1B0) | src/Kosaka/k_command_inferred_0025d150.c:81 | 1 | PARTY_IN |
 | 0x0039 | 57 | `scrCommonPartyOut` (0x0025D2D0) | src/Kosaka/k_command_inferred_0025d150.c:126 | 1 | PARTY_OUT |
@@ -117,8 +117,8 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 0x003E | 62 | `K_Cmd_CALL_DNG_FLOOR_ONLY` (0x001766E0) | src/Kosaka/k_command_inferred_00175f70.c:375 | 1 | FUNCTION_003E |
 | 0x003F | 63 | `K_Cmd_CALL_DNG_FLOOR` (0x00176770) | src/Kosaka/k_command_inferred_00175f70.c:393 | 2 | CALL_DNG_FLOOR |
 | 0x0040 | 64 | `K_Cmd_DATE_IN_RANGE` (0x0025C600) | src/Kosaka/k_command_inferred_0025c450.c:102 | 4 | FUNCTION_0040 |
-| 0x0041 | 65 | `Cmd_SetResourceValueByte` (0x0025C6D0) | src/Kosaka/k_command.c:948 | 2 | MDL_EMOTE_ANIM |
-| 0x0042 | 66 | `func_0025ccb0` (0x0025CCB0) | src/shdScript.c:162 | 2 | SET_PC_PARAM |
+| 0x0041 | 65 | `Cmd_SetResourceValueByte` (0x0025C6D0) | src/Kosaka/k_command.c:946 | 2 | MDL_EMOTE_ANIM |
+| 0x0042 | 66 | `func_0025ccb0` (0x0025CCB0) | src/shdScript.c:160 | 2 | SET_PC_PARAM |
 | 0x0043 | 67 | `scrCommonGetRankProgress` (0x0025CDD0) | src/Kosaka/k_command_inferred_0025cdd0.c:52 | 2 | FUNCTION_0043 |
 | 0x0044 | 68 | `scrCommonGetPcParam` (0x0025CE40) | src/Kosaka/k_command_inferred_0025cdd0.c:62 | 1 | GET_PC_PARAM |
 | 0x0045 | 69 | `scrCommonPersonaAddStat` (0x0025CE90) | src/Kosaka/k_command_inferred_0025cdd0.c:69 | 3 | FUNCTION_0045 |
@@ -134,11 +134,11 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 0x004F | 79 | `K_Cmd_CALL_TITLE` (0x001762E0) | src/Kosaka/k_command_inferred_00175f70.c:260 | 0 | CALL_TITLE |
 | 0x0050 | 80 | `scrCommonAddPcMoney` (0x0025D000) | src/Kosaka/k_command_inferred_0025d000.c:52 | 1 | ADD_PC_MONEY |
 | 0x0051 | 81 | `scrCommonCallNameEntry` (0x0025D090) | src/Kosaka/k_command_inferred_0025d000.c:73 | 0 | CALL_NAME_ENTRY |
-| 0x0052 | 82 | `Cmd_LoadTableWord` (0x0025D100) | src/Kosaka/k_command.c:963 | 1 | SET_ITEM_NUM |
+| 0x0052 | 82 | `Cmd_LoadTableWord` (0x0025D100) | src/Kosaka/k_command.c:961 | 1 | SET_ITEM_NUM |
 | 0x0053 | 83 | `scrCommonSetItemCount` (0x0025D150) | src/Kosaka/k_command_inferred_0025d150.c:70 | 2 | FUNCTION_0053 |
 | 0x0054 | 84 | `scrCommonGetCharStat` (0x0025D350) | src/Kosaka/k_command_inferred_0025d150.c:142 | 2 | FUNCTION_0054 |
 | 0x0055 | 85 | `scrCommonSetCharStat` (0x0025D3C0) | src/Kosaka/k_command_inferred_0025d150.c:153 | 3 | FUNCTION_0055 |
-| 0x0056 | 86 | `K_Cmd_FCL_CLEAR_APPLY_COMBINE` (0x00331950) | src/Kosaka/k_command.c:1057 | 0 | FUNCTION_0056 |
+| 0x0056 | 86 | `K_Cmd_FCL_CLEAR_APPLY_COMBINE` (0x00331950) | src/Kosaka/k_command.c:1055 | 0 | FUNCTION_0056 |
 | 0x0057 | 87 | `K_Cmd_ICON_START_FLAGGED_WAIT` (0x0025D440) | src/Kosaka/k_command_inferred_0025d150.c:164 | 0 | FUNCTION_0057 |
 | 0x0058 | 88 | `K_Cmd_ICON_START_WAIT` (0x0025D4B0) | src/Kosaka/k_command_inferred_0025d150.c:181 | 0 | FUNCTION_0058 |
 | 0x0059 | 89 | `scrCommonNop` (0x0025D520) | src/Kosaka/k_command_inferred_0025d150.c:197 | 0 | FUNCTION_0059 |
@@ -146,12 +146,12 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 0x005B | 91 | `scrCommonLoadPersonaRecord` (0x0025D580) | src/Kosaka/k_command_inferred_0025d150.c:210 | 1 | FUNCTION_005B |
 | 0x005C | 92 | `K_Cmd_CUTIN_DRAW_START` (0x0025D650) | src/Kosaka/k_command_inferred_0025d150.c:248 | 4 | FUNCTION_005C |
 | 0x005D | 93 | `K_Cmd_TASK_DESTROY` (0x0025D760) | src/Kosaka/k_command_inferred_0025d150.c:281 | 1 | FUNCTION_005D |
-| 0x005E | 94 | `K_Cmd_CALC_GET_HP` (0x00299C60) | src/Kosaka/k_command.c:988 | 1 | FUNCTION_005E |
-| 0x005F | 95 | `K_Cmd_CALC_MAX_HP` (0x00299CB0) | src/Kosaka/k_command.c:996 | 1 | FUNCTION_005F |
-| 0x0060 | 96 | `K_Cmd_SET_UNIT_HP` (0x00299D00) | src/Kosaka/k_command.c:1004 | 2 | FUNCTION_0060 |
-| 0x0061 | 97 | `K_Cmd_CALC_GET_SP` (0x00299D60) | src/Kosaka/k_command.c:1018 | 1 | FUNCTION_0061 |
-| 0x0062 | 98 | `K_Cmd_CALC_MAX_SP` (0x00299DB0) | src/Kosaka/k_command.c:1026 | 1 | FUNCTION_0062 |
-| 0x0063 | 99 | `K_Cmd_SET_UNIT_SP` (0x00299E00) | src/Kosaka/k_command.c:1034 | 2 | FUNCTION_0063 |
+| 0x005E | 94 | `K_Cmd_CALC_GET_HP` (0x00299C60) | src/Kosaka/k_command.c:986 | 1 | FUNCTION_005E |
+| 0x005F | 95 | `K_Cmd_CALC_MAX_HP` (0x00299CB0) | src/Kosaka/k_command.c:994 | 1 | FUNCTION_005F |
+| 0x0060 | 96 | `K_Cmd_SET_UNIT_HP` (0x00299D00) | src/Kosaka/k_command.c:1002 | 2 | FUNCTION_0060 |
+| 0x0061 | 97 | `K_Cmd_CALC_GET_SP` (0x00299D60) | src/Kosaka/k_command.c:1016 | 1 | FUNCTION_0061 |
+| 0x0062 | 98 | `K_Cmd_CALC_MAX_SP` (0x00299DB0) | src/Kosaka/k_command.c:1024 | 1 | FUNCTION_0062 |
+| 0x0063 | 99 | `K_Cmd_SET_UNIT_SP` (0x00299E00) | src/Kosaka/k_command.c:1032 | 2 | FUNCTION_0063 |
 | 0x0064 | 100 | `scrSendParamPair` (0x00299170) | src/Script/scrCommonCommand.c:202 | 1 | MOVIE_PLAY |
 | 0x0065 | 101 | `scrIsIdle` (0x002991C0) | src/Script/scrCommonCommand.c:215 | 0 | FUNCTION_0065 |
 | 0x0066 | 102 | `K_Cmd_DATE_DISP` (0x00299E60) | src/Kosaka/k_command_inferred_00299e60.c:68 | 1 | DATE_DISP |
@@ -169,7 +169,7 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 0x0072 | 114 | `K_Cmd_EVT_SE_STOP` (0x00299970) | src/Kosaka/k_command_inferred_002996e0.c:176 | 1 | EVT_SE_STOP |
 | 0x0073 | 115 | `K_Cmd_EVT_SE_PLAY2` (0x002999D0) | src/Kosaka/k_command_inferred_002996e0.c:190 | 1 | EVT_SE_PLAY2 |
 | 0x0074 | 116 | `K_Cmd_EVT_SE_STOP2` (0x00299A10) | src/Kosaka/k_command_inferred_002996e0.c:197 | 1 | EVT_SE_STOP2 |
-| 0x0075 | 117 | `Cmd_LoadTableWordAlt` (0x00299FD0) | src/Kosaka/k_command.c:1047 | 1 | FUNCTION_0075 |
+| 0x0075 | 117 | `Cmd_LoadTableWordAlt` (0x00299FD0) | src/Kosaka/k_command.c:1045 | 1 | FUNCTION_0075 |
 | 0x0076 | 118 | `scrCommonCheckResSlot` (0x0025C730) | src/Kosaka/k_command_inferred_0025c730.c:49 | 2 | FUNCTION_0076 |
 | 0x0077 | 119 | `K_Cmd_CALENDAR_REFRESH` (0x0029A020) | src/Kosaka/k_command_inferred_0029a020.c:66 | 0 | FUNCTION_0077 |
 | 0x0078 | 120 | `K_Cmd_FADE_BEGIN_WAIT` (0x0025D7E0) | src/Kosaka/k_command_inferred_0025d150.c:303 | 0 | FUNCTION_0078 |
@@ -178,31 +178,31 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 
 | Command id | Entry | Handler | Defined at | paramCount | p4flow name |
 |---|---|---|---|---|---|
-| 0x1000 | 0 | `K_Cmd_FLD_SCENE_LOAD_READY` (0x001768B0) | src/Kosaka/k_command.c:105 | 0 | FLD_FUNCTION_0000 |
+| 0x1000 | 0 | `K_Cmd_FLD_SCENE_LOAD_READY` (0x001768B0) | src/Kosaka/k_command.c:103 | 0 | FLD_FUNCTION_0000 |
 | 0x1001 | 1 | `K_Cmd_FLD_MAP_STEP` (0x00176810) | src/Kosaka/k_command_inferred_00175f70.c:411 | 1 | FLD_FUNCTION_0001 |
-| 0x1002 | 2 | `K_Cmd_FLD_STEP_INDEX` (0x00176880) | src/Kosaka/k_command.c:96 | 0 | FLD_FUNCTION_0002 |
+| 0x1002 | 2 | `K_Cmd_FLD_STEP_INDEX` (0x00176880) | src/Kosaka/k_command.c:94 | 0 | FLD_FUNCTION_0002 |
 | 0x1003 | 3 | `K_Cmd_FLD_MAP_RESET` (0x00176850) | src/Kosaka/k_command_inferred_00175f70.c:418 | 0 | FLD_FUNCTION_0003 |
 | 0x1004 | 4 | `Cmd_GetFieldPartyValue` (0x001768E0) | src/Kosaka/k_command_inferred_001768e0.c:133 | 1 | FLD_FUNCTION_0004 |
 | 0x1005 | 5 | `Cmd_CountResListEntries` (0x00176A50) | src/Kosaka/k_command_inferred_001768e0.c:189 | 0 | FLD_FUNCTION_0005 |
 | 0x1006 | 6 | `Cmd_GetResListEntryLevel` (0x00176AB0) | src/Kosaka/k_command_inferred_001768e0.c:205 | 1 | FLD_FUNCTION_0006 |
-| 0x1007 | 7 | `Cmd_SetSceneResourceParam` (0x00176C20) | src/Kosaka/k_command.c:113 | 2 | FLD_FUNCTION_0007 |
-| 0x1008 | 8 | `Cmd_PlayModelMotion` (0x00176C70) | src/Kosaka/k_command.c:129 | 5 | FLD_FUNCTION_0008 |
-| 0x1009 | 9 | `Cmd_CheckModelFlag` (0x00176EF0) | src/Kosaka/k_command.c:200 | 1 | FLD_FUNCTION_0009 |
-| 0x100A | 10 | `Cmd_SetModelScale` (0x00177280) | src/Kosaka/k_command.c:326 | 2 | FLD_FUNCTION_000A |
-| 0x100B | 11 | `Cmd_SetShadowRingRadius` (0x001773D0) | src/Kosaka/k_command.c:374 | 2 | FLD_FUNCTION_000B |
-| 0x100C | 12 | `Cmd_PlaceFieldResource` (0x001774A0) | src/Kosaka/k_command.c:413 | 2 | FLD_FUNCTION_000C |
-| 0x100D | 13 | `K_Cmd_CREATE_FLD_MDL` (0x00177A10) | src/Kosaka/k_command.c:550 | 2 | FLD_NPC_MODEL_LOAD |
-| 0x100E | 14 | `Cmd_CreateFieldModel` (0x00177B30) | src/Kosaka/k_command.c:589 | 2 | FLD_FUNCTION_000E |
-| 0x100F | 15 | `Cmd_CreateModelResource` (0x00177D10) | src/Kosaka/k_command.c:635 | 1 | FLD_FUNCTION_000F |
-| 0x1010 | 16 | `Cmd_SetResourceWord150` (0x00177DB0) | src/Kosaka/k_command.c:659 | 2 | FLD_FUNCTION_0010 |
-| 0x1011 | 17 | `K_Cmd_CREATE_MDL` (0x00177E20) | src/Kosaka/k_command.c:672 | 2 | FLD_FUNCTION_0011 |
-| 0x1012 | 18 | `Cmd_CreateSceneResource` (0x00177E80) | src/Kosaka/k_command.c:693 | 2 | FLD_FUNCTION_0012 |
-| 0x1013 | 19 | `Cmd_SetFieldFloat` (0x00177F50) | src/Kosaka/k_command.c:714 | 2 | FLD_FUNCTION_0013 |
-| 0x1014 | 20 | `Cmd_LoadFieldWord` (0x001784A0) | src/Kosaka/k_command.c:883 | 0 | FLD_FUNCTION_0014 |
+| 0x1007 | 7 | `Cmd_SetSceneResourceParam` (0x00176C20) | src/Kosaka/k_command.c:111 | 2 | FLD_FUNCTION_0007 |
+| 0x1008 | 8 | `Cmd_PlayModelMotion` (0x00176C70) | src/Kosaka/k_command.c:127 | 5 | FLD_FUNCTION_0008 |
+| 0x1009 | 9 | `Cmd_CheckModelFlag` (0x00176EF0) | src/Kosaka/k_command.c:198 | 1 | FLD_FUNCTION_0009 |
+| 0x100A | 10 | `Cmd_SetModelScale` (0x00177280) | src/Kosaka/k_command.c:324 | 2 | FLD_FUNCTION_000A |
+| 0x100B | 11 | `Cmd_SetShadowRingRadius` (0x001773D0) | src/Kosaka/k_command.c:372 | 2 | FLD_FUNCTION_000B |
+| 0x100C | 12 | `Cmd_PlaceFieldResource` (0x001774A0) | src/Kosaka/k_command.c:411 | 2 | FLD_FUNCTION_000C |
+| 0x100D | 13 | `K_Cmd_CREATE_FLD_MDL` (0x00177A10) | src/Kosaka/k_command.c:548 | 2 | FLD_NPC_MODEL_LOAD |
+| 0x100E | 14 | `Cmd_CreateFieldModel` (0x00177B30) | src/Kosaka/k_command.c:587 | 2 | FLD_FUNCTION_000E |
+| 0x100F | 15 | `Cmd_CreateModelResource` (0x00177D10) | src/Kosaka/k_command.c:633 | 1 | FLD_FUNCTION_000F |
+| 0x1010 | 16 | `Cmd_SetResourceWord150` (0x00177DB0) | src/Kosaka/k_command.c:657 | 2 | FLD_FUNCTION_0010 |
+| 0x1011 | 17 | `K_Cmd_CREATE_MDL` (0x00177E20) | src/Kosaka/k_command.c:670 | 2 | FLD_FUNCTION_0011 |
+| 0x1012 | 18 | `Cmd_CreateSceneResource` (0x00177E80) | src/Kosaka/k_command.c:691 | 2 | FLD_FUNCTION_0012 |
+| 0x1013 | 19 | `Cmd_SetFieldFloat` (0x00177F50) | src/Kosaka/k_command.c:712 | 2 | FLD_FUNCTION_0013 |
+| 0x1014 | 20 | `Cmd_LoadFieldWord` (0x001784A0) | src/Kosaka/k_command.c:881 | 0 | FLD_FUNCTION_0014 |
 | 0x1015 | 21 | `Cmd_StepGridCell` (0x00178560) | src/Kosaka/k_command_inferred_00178560.c:147 | 0 | FLD_FUNCTION_0015 |
 | 0x1016 | 22 | `K_Cmd_CALL_BATTLE` (0x00178790) | src/Kosaka/k_command_inferred_00178560.c:209 | 2 | CALL_BATTLE |
-| 0x1017 | 23 | `K_Cmd_FLD_CAMERA_ROTATE` (0x00178070) | src/Kosaka/k_command.c:760 | 2 | FLD_CAMERA_ROTATE |
-| 0x1018 | 24 | `K_Cmd_FLD_CAMERA_ROTATE_BEHIND` (0x001780D0) | src/Kosaka/k_command.c:774 | 2 | FLD_CAMERA_ROTATE_BEHIND |
+| 0x1017 | 23 | `K_Cmd_FLD_CAMERA_ROTATE` (0x00178070) | src/Kosaka/k_command.c:758 | 2 | FLD_CAMERA_ROTATE |
+| 0x1018 | 24 | `K_Cmd_FLD_CAMERA_ROTATE_BEHIND` (0x001780D0) | src/Kosaka/k_command.c:772 | 2 | FLD_CAMERA_ROTATE_BEHIND |
 | 0x1019 | 25 | `K_Spipe_GetStateIndex` (0x00178A00) | src/Kosaka/k_spipe_inferred_00178a00.c:131 | 0 | FLD_FUNCTION_0019 |
 | 0x101A | 26 | `K_Spipe_GetRecordBand` (0x00178A30) | src/Kosaka/k_spipe_inferred_00178a00.c:138 | 0 | FLD_FUNCTION_001A |
 | 0x101B | 27 | `K_Spipe_IsRecordEnabled` (0x00178AF0) | src/Kosaka/k_spipe_inferred_00178a00.c:162 | 0 | FLD_FUNCTION_001B |
@@ -210,24 +210,24 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 0x101D | 29 | `K_Spipe_GetRecordId` (0x00178B70) | src/Kosaka/k_spipe_inferred_00178a00.c:187 | 0 | FLD_FUNCTION_001D |
 | 0x101E | 30 | `K_Spipe_GetRecordKind` (0x00178BA0) | src/Kosaka/k_spipe_inferred_00178a00.c:194 | 0 | FLD_FUNCTION_001E |
 | 0x101F | 31 | `K_Spipe_Finish` (0x00178C00) | src/Kosaka/k_spipe_inferred_00178a00.c:210 | 0 | FLD_FUNCTION_001F |
-| 0x1020 | 32 | `Cmd_SetModelFloatParam` (0x00176FF0) | src/Kosaka/k_command.c:243 | 2 | FLD_FUNCTION_0020 |
-| 0x1021 | 33 | `Cmd_CompareModelThreshold` (0x00177120) | src/Kosaka/k_command.c:287 | 2 | FLD_FUNCTION_0021 |
+| 0x1020 | 32 | `Cmd_SetModelFloatParam` (0x00176FF0) | src/Kosaka/k_command.c:241 | 2 | FLD_FUNCTION_0020 |
+| 0x1021 | 33 | `Cmd_CompareModelThreshold` (0x00177120) | src/Kosaka/k_command.c:285 | 2 | FLD_FUNCTION_0021 |
 | 0x1022 | 34 | `Cmd_GetCurrentFieldMajorId` (0x00176B60) | src/Kosaka/k_command_inferred_001768e0.c:238 | 0 | FLD_FUNCTION_0022 |
 | 0x1023 | 35 | `Cmd_GetCurrentFieldMinorId` (0x00176BC0) | src/Kosaka/k_command_inferred_001768e0.c:250 | 0 | FLD_FUNCTION_0023 |
 | 0x1024 | 36 | `K_Cmd_RES_LIST_PREPARE` (0x00176280) | src/Kosaka/k_command_inferred_00175f70.c:245 | 0 | FLD_FUNCTION_0024 |
 | 0x1025 | 37 | `Cmd_GetNearestEntryFacing` (0x00178590) | src/Kosaka/k_command_inferred_00178560.c:154 | 0 | FLD_FUNCTION_0025 |
 | 0x1026 | 38 | `K_Spipe_GetRecordLevel` (0x00178BD0) | src/Kosaka/k_spipe_inferred_00178a00.c:201 | 0 | FLD_FUNCTION_0026 |
-| 0x1027 | 39 | `Cmd_LoadFieldWordAlt` (0x00178500) | src/Kosaka/k_command.c:900 | 0 | FLD_FUNCTION_0027 |
+| 0x1027 | 39 | `Cmd_LoadFieldWordAlt` (0x00178500) | src/Kosaka/k_command.c:898 | 0 | FLD_FUNCTION_0027 |
 | 0x1028 | 40 | `K_Cmd_FLD_EFFECT_TRAESTO_START` (0x001786F0) | src/Kosaka/k_command_inferred_00178560.c:189 | 0 | FLD_EFFECT_TRAESTO_START |
 | 0x1029 | 41 | `Cmd_PickEncounter` (0x00178870) | src/Kosaka/k_command_inferred_00178560.c:233 | 1 | FLD_FUNCTION_0029 |
 | 0x102A | 42 | `Cmd_StartFieldSequence` (0x001788E0) | src/Kosaka/k_command_inferred_00178560.c:244 | 2 | FLD_FUNCTION_002A |
-| 0x102B | 43 | `Cmd_TestResourceValue` (0x00178970) | src/Kosaka/k_command.c:915 | 2 | FLD_FUNCTION_002B |
-| 0x102C | 44 | `K_Cmd_FLD_RESET_FCL_CHANNEL` (0x001789D0) | src/Kosaka/k_command.c:930 | 0 | FLD_FUNCTION_002C |
-| 0x102D | 45 | `Cmd_FaceNearestAxis` (0x00178130) | src/Kosaka/k_command.c:785 | 1 | FLD_FUNCTION_002D |
-| 0x102E | 46 | `Cmd_SetSceneMode` (0x001783B0) | src/Kosaka/k_command.c:847 | 3 | FLD_FUNCTION_002E |
-| 0x102F | 47 | `Cmd_SetWorkValues` (0x00178360) | src/Kosaka/k_command.c:837 | 3 | FLD_FUNCTION_002F |
-| 0x1030 | 48 | `Cmd_SetCameraFloat` (0x00178420) | src/Kosaka/k_command.c:863 | 1 | FLD_FUNCTION_0030 |
-| 0x1031 | 49 | `Cmd_SetFloatGlobal` (0x00178470) | src/Kosaka/k_command.c:872 | 1 | FLD_FUNCTION_0031 |
+| 0x102B | 43 | `Cmd_TestResourceValue` (0x00178970) | src/Kosaka/k_command.c:913 | 2 | FLD_FUNCTION_002B |
+| 0x102C | 44 | `K_Cmd_FLD_RESET_FCL_CHANNEL` (0x001789D0) | src/Kosaka/k_command.c:928 | 0 | FLD_FUNCTION_002C |
+| 0x102D | 45 | `Cmd_FaceNearestAxis` (0x00178130) | src/Kosaka/k_command.c:783 | 1 | FLD_FUNCTION_002D |
+| 0x102E | 46 | `Cmd_SetSceneMode` (0x001783B0) | src/Kosaka/k_command.c:845 | 3 | FLD_FUNCTION_002E |
+| 0x102F | 47 | `Cmd_SetWorkValues` (0x00178360) | src/Kosaka/k_command.c:835 | 3 | FLD_FUNCTION_002F |
+| 0x1030 | 48 | `Cmd_SetCameraFloat` (0x00178420) | src/Kosaka/k_command.c:861 | 1 | FLD_FUNCTION_0030 |
+| 0x1031 | 49 | `Cmd_SetFloatGlobal` (0x00178470) | src/Kosaka/k_command.c:870 | 1 | FLD_FUNCTION_0031 |
 | 0x1032 | 50 | `K_Cmd_AREA_TRACK_PLAY` (0x001762A0) | src/Kosaka/k_command_inferred_00175f70.c:251 | 0 | FLD_FUNCTION_0032 |
 
 ### Group 2 (AI, 276 entries, table 0x0063D5E0)
@@ -515,7 +515,7 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 
 | Command id | Entry | Handler | Defined at | paramCount | p4flow name |
 |---|---|---|---|---|---|
-| 0x3000 | 0 | `evtCmdNpcModelLoad` (0x00298550) | src/evtScript.c:121 | 2 | EVT_NPC_MODEL_LOAD |
+| 0x3000 | 0 | `evtCmdNpcModelLoad` (0x00298550) | src/evtScript.c:120 | 2 | EVT_NPC_MODEL_LOAD |
 | 0x3001 | 1 | `cmmEnsureRecord` (0x00249B10) | src/Script/scrComuCommand_inferred_00249b10.c:52 | 1 | EVT_FUNCTION_0001 |
 | 0x3002 | 2 | `cmmExist` (0x00249B80) | src/Script/scrComuCommand_inferred_00249b10.c:72 | 1 | CMM_EXIST |
 | 0x3003 | 3 | `cmmGetLevel` (0x00249BE0) | src/Script/scrComuCommand_inferred_00249b10.c:87 | 1 | CMM_GET_LV |
@@ -524,58 +524,58 @@ Group `g` is the 8-byte record `{cmds, count}` at `D_00748530 + g * 8`. `cmds` i
 | 0x3006 | 6 | `cmmGetNthEligibleId` (0x00249FE0) | src/Script/scrComuCommand_inferred_00249b10.c:247 | 1 | EVT_FUNCTION_0006 |
 | 0x3007 | 7 | `cmmSetTableHead` (0x0024A060) | src/Script/scrComuCommand_inferred_00249b10.c:261 | 1 | EVT_FUNCTION_0007 |
 | 0x3008 | 8 | `cmmGetTableHead` (0x0024A0B0) | src/Script/scrComuCommand.c:14 | 0 | EVT_FUNCTION_0008 |
-| 0x3009 | 9 | `cmmMsgStreamStart` (0x0024A200) | src/cmmScript.c:171 | 2 | EVT_FUNCTION_0009 |
-| 0x300A | 10 | `cmmMsgStreamUpdate` (0x0024A2E0) | src/cmmScript.c:240 | 0 | EVT_FUNCTION_000A |
-| 0x300B | 11 | `cmmMsgStreamGetResult` (0x0024A450) | src/cmmScript.c:294 | 0 | EVT_FUNCTION_000B |
-| 0x300C | 12 | `evtCmdSetEventSlot` (0x00298700) | src/evtScript.c:165 | 2 | EVT_FUNCTION_000C |
-| 0x300D | 13 | `K_Cmd_CMM_COMMUNITY_CURRENT_SECONDARY` (0x00298340) | src/Kosaka/k_command.c:980 | 0 | EVT_FUNCTION_000D |
+| 0x3009 | 9 | `cmmMsgStreamStart` (0x0024A200) | src/cmmScript.c:168 | 2 | EVT_FUNCTION_0009 |
+| 0x300A | 10 | `cmmMsgStreamUpdate` (0x0024A2E0) | src/cmmScript.c:237 | 0 | EVT_FUNCTION_000A |
+| 0x300B | 11 | `cmmMsgStreamGetResult` (0x0024A450) | src/cmmScript.c:291 | 0 | EVT_FUNCTION_000B |
+| 0x300C | 12 | `evtCmdSetEventSlot` (0x00298700) | src/evtScript.c:164 | 2 | EVT_FUNCTION_000C |
+| 0x300D | 13 | `K_Cmd_CMM_COMMUNITY_CURRENT_SECONDARY` (0x00298340) | src/Kosaka/k_command.c:978 | 0 | EVT_FUNCTION_000D |
 | 0x300E | 14 | `cmmCheckLevelUp` (0x00249C90) | src/Script/scrComuCommand_inferred_00249b10.c:117 | 1 | CMM_CHK_LVUP |
 | 0x300F | 15 | `cmmIsReversed` (0x00249DE0) | src/Script/scrComuCommand_inferred_00249b10.c:167 | 1 | EVT_FUNCTION_000F |
 | 0x3010 | 16 | `cmmIsBroken` (0x00249EE0) | src/Script/scrComuCommand_inferred_00249b10.c:207 | 1 | EVT_FUNCTION_0010 |
 | 0x3011 | 17 | `cmmSetReverse` (0x00249E50) | src/Script/scrComuCommand_inferred_00249b10.c:186 | 2 | CMM_SET_REVERSE |
 | 0x3012 | 18 | `cmmSetBroken` (0x00249F50) | src/Script/scrComuCommand_inferred_00249b10.c:226 | 2 | CMM_SET_BROKEN |
-| 0x3013 | 19 | `cmmPersonaDetailShow` (0x0024A490) | src/cmmScript.c:316 | 1 | EVT_FUNCTION_0013 |
-| 0x3014 | 20 | `cmmScriptSelectEntry` (0x0024AA10) | src/cmmScript.c:464 | 1 | EVT_FUNCTION_0014 |
-| 0x3015 | 21 | `cmmScriptHasMsgStreamEntry` (0x0024AA60) | src/cmmScript.c:478 | 2 | EVT_FUNCTION_0015 |
-| 0x3016 | 22 | `cmmScriptSetCurrentEntry` (0x0024AAF0) | src/cmmScript.c:498 | 1 | EVT_FUNCTION_0016 |
-| 0x3017 | 23 | `cmmScriptTopReversedCommunity` (0x0024AB40) | src/cmmScript.c:517 | 0 | EVT_FUNCTION_0017 |
+| 0x3013 | 19 | `cmmPersonaDetailShow` (0x0024A490) | src/cmmScript.c:313 | 1 | EVT_FUNCTION_0013 |
+| 0x3014 | 20 | `cmmScriptSelectEntry` (0x0024AA10) | src/cmmScript.c:461 | 1 | EVT_FUNCTION_0014 |
+| 0x3015 | 21 | `cmmScriptHasMsgStreamEntry` (0x0024AA60) | src/cmmScript.c:475 | 2 | EVT_FUNCTION_0015 |
+| 0x3016 | 22 | `cmmScriptSetCurrentEntry` (0x0024AAF0) | src/cmmScript.c:495 | 1 | EVT_FUNCTION_0016 |
+| 0x3017 | 23 | `cmmScriptTopReversedCommunity` (0x0024AB40) | src/cmmScript.c:514 | 0 | EVT_FUNCTION_0017 |
 | 0x3018 | 24 | `cmmTodayNotListed` (0x0024A0E0) | src/Script/scrComuCommand_inferred_0024a0e0.c:41 | 0 | EVT_FUNCTION_0018 |
-| 0x3019 | 25 | `cmmScriptTopPersonaOfArcana` (0x0024AB70) | src/cmmScript.c:529 | 1 | EVT_FUNCTION_0019 |
-| 0x301A | 26 | `cmmScriptFindFreshReverseCandidate` (0x0024ABF0) | src/cmmScript.c:553 | 0 | EVT_FUNCTION_001A |
+| 0x3019 | 25 | `cmmScriptTopPersonaOfArcana` (0x0024AB70) | src/cmmScript.c:526 | 1 | EVT_FUNCTION_0019 |
+| 0x301A | 26 | `cmmScriptFindFreshReverseCandidate` (0x0024ABF0) | src/cmmScript.c:550 | 0 | EVT_FUNCTION_001A |
 | 0x301B | 27 | `cmmNextUnlistedDateKind` (0x0024A140) | src/Script/scrComuCommand_inferred_0024a0e0.c:56 | 0 | EVT_FUNCTION_001B |
-| 0x301C | 28 | `cmmPersonaInfoLookupShow` (0x0024A710) | src/cmmScript.c:381 | 2 | EVT_FUNCTION_001C |
-| 0x301D | 29 | `cmmScriptSetMarkedCommunity` (0x0024AC50) | src/cmmScript.c:579 | 1 | EVT_FUNCTION_001D |
-| 0x301E | 30 | `cmmScriptAddEntryTotal` (0x0024AD70) | src/cmmScript.c:623 | 1 | EVT_FUNCTION_001E |
-| 0x301F | 31 | `cmmScriptTakeTotal` (0x0024ADB0) | src/cmmScript.c:634 | 0 | EVT_FUNCTION_001F |
-| 0x3020 | 32 | `cmmScriptGetEntryIndex` (0x0024AE00) | src/cmmScript.c:650 | 1 | EVT_FUNCTION_0020 |
-| 0x3021 | 33 | `cmmPersonaInfoShow` (0x0024A8B0) | src/cmmScript.c:430 | 1 | EVT_FUNCTION_0021 |
-| 0x3022 | 34 | `cmmScriptResolveCounterpart` (0x0024ACA0) | src/cmmScript.c:593 | 1 | EVT_FUNCTION_0022 |
-| 0x3023 | 35 | `cmmScriptFindReverseCandidate` (0x0024AC20) | src/cmmScript.c:567 | 0 | EVT_FUNCTION_0023 |
+| 0x301C | 28 | `cmmPersonaInfoLookupShow` (0x0024A710) | src/cmmScript.c:378 | 2 | EVT_FUNCTION_001C |
+| 0x301D | 29 | `cmmScriptSetMarkedCommunity` (0x0024AC50) | src/cmmScript.c:576 | 1 | EVT_FUNCTION_001D |
+| 0x301E | 30 | `cmmScriptAddEntryTotal` (0x0024AD70) | src/cmmScript.c:620 | 1 | EVT_FUNCTION_001E |
+| 0x301F | 31 | `cmmScriptTakeTotal` (0x0024ADB0) | src/cmmScript.c:631 | 0 | EVT_FUNCTION_001F |
+| 0x3020 | 32 | `cmmScriptGetEntryIndex` (0x0024AE00) | src/cmmScript.c:647 | 1 | EVT_FUNCTION_0020 |
+| 0x3021 | 33 | `cmmPersonaInfoShow` (0x0024A8B0) | src/cmmScript.c:427 | 1 | EVT_FUNCTION_0021 |
+| 0x3022 | 34 | `cmmScriptResolveCounterpart` (0x0024ACA0) | src/cmmScript.c:590 | 1 | EVT_FUNCTION_0022 |
+| 0x3023 | 35 | `cmmScriptFindReverseCandidate` (0x0024AC20) | src/cmmScript.c:564 | 0 | EVT_FUNCTION_0023 |
 | 0x3024 | 36 | `fclScriptFlagIsSet` (0x00331980) | src/promoted/code1_0033.c:256 | 1 | EVT_FUNCTION_0024 |
 | 0x3025 | 37 | `fclScriptSetFlagOnButton` (0x003319C0) | src/promoted/code1_0033.c:261 | 1 | EVT_FUNCTION_0025 |
-| 0x3026 | 38 | `cmmScriptDateTableHasEntry` (0x0024AE80) | src/cmmScript.c:672 | 0 | EVT_FUNCTION_0026 |
-| 0x3027 | 39 | `cmmScriptDateTableHasSpecialRecord` (0x0024AEC0) | src/cmmScript.c:683 | 0 | EVT_FUNCTION_0027 |
-| 0x3028 | 40 | `cmmScriptDateTableReadColumn` (0x0024AF00) | src/cmmScript.c:694 | 2 | EVT_FUNCTION_0028 |
-| 0x3029 | 41 | `cmmScriptDateTableApplyColumnDelta` (0x0024AFE0) | src/cmmScript.c:718 | 1 | EVT_FUNCTION_0029 |
-| 0x302A | 42 | `cmmItemInfoShow` (0x0024B070) | src/cmmScript.c:734 | 1 | EVT_FUNCTION_002A |
-| 0x302B | 43 | `cmmScriptFindSlotInGroup` (0x0024ACF0) | src/cmmScript.c:605 | 1 | EVT_FUNCTION_002B |
-| 0x302C | 44 | `cmmScriptRankUp` (0x0024B380) | src/cmmScript.c:795 | 3 | CMM_RANKUP |
-| 0x302D | 45 | `cmmScriptDateTableAddCount` (0x0024B430) | src/cmmScript.c:817 | 2 | EVT_FUNCTION_002D |
-| 0x302E | 46 | `cmmRecordInfoShow` (0x0024B490) | src/cmmScript.c:836 | 1 | EVT_FUNCTION_002E |
-| 0x302F | 47 | `cmmScriptDateTableFindNthMatch` (0x0024B6A0) | src/cmmScript.c:891 | 3 | EVT_FUNCTION_002F |
-| 0x3030 | 48 | `cmmRecordGetField` (0x0024B720) | src/cmmScript.c:906 | 2 | EVT_FUNCTION_0030 |
+| 0x3026 | 38 | `cmmScriptDateTableHasEntry` (0x0024AE80) | src/cmmScript.c:669 | 0 | EVT_FUNCTION_0026 |
+| 0x3027 | 39 | `cmmScriptDateTableHasSpecialRecord` (0x0024AEC0) | src/cmmScript.c:680 | 0 | EVT_FUNCTION_0027 |
+| 0x3028 | 40 | `cmmScriptDateTableReadColumn` (0x0024AF00) | src/cmmScript.c:691 | 2 | EVT_FUNCTION_0028 |
+| 0x3029 | 41 | `cmmScriptDateTableApplyColumnDelta` (0x0024AFE0) | src/cmmScript.c:715 | 1 | EVT_FUNCTION_0029 |
+| 0x302A | 42 | `cmmItemInfoShow` (0x0024B070) | src/cmmScript.c:731 | 1 | EVT_FUNCTION_002A |
+| 0x302B | 43 | `cmmScriptFindSlotInGroup` (0x0024ACF0) | src/cmmScript.c:602 | 1 | EVT_FUNCTION_002B |
+| 0x302C | 44 | `cmmScriptRankUp` (0x0024B380) | src/cmmScript.c:792 | 3 | CMM_RANKUP |
+| 0x302D | 45 | `cmmScriptDateTableAddCount` (0x0024B430) | src/cmmScript.c:814 | 2 | EVT_FUNCTION_002D |
+| 0x302E | 46 | `cmmRecordInfoShow` (0x0024B490) | src/cmmScript.c:833 | 1 | EVT_FUNCTION_002E |
+| 0x302F | 47 | `cmmScriptDateTableFindNthMatch` (0x0024B6A0) | src/cmmScript.c:888 | 3 | EVT_FUNCTION_002F |
+| 0x3030 | 48 | `cmmRecordGetField` (0x0024B720) | src/cmmScript.c:903 | 2 | EVT_FUNCTION_0030 |
 | 0x3031 | 49 | `cmmAddPointId` (0x00249D70) | src/Script/scrComuCommand_inferred_00249b10.c:153 | 3 | CMM_ADD_POINT_ID |
-| 0x3032 | 50 | `evtCmdRestartTask` (0x00298C60) | src/evtScript.c:302 | 0 | EVT_FUNCTION_0032 |
+| 0x3032 | 50 | `evtCmdRestartTask` (0x00298C60) | src/evtScript.c:301 | 0 | EVT_FUNCTION_0032 |
 | 0x3033 | 51 | `scrDestroyTaskByName` (0x00298D30) | src/Script/scrCommonCommand_inferred_00298d30.c:76 | 0 | EVT_FUNCTION_0033 |
-| 0x3034 | 52 | `cmmScriptPollEntryChoice` (0x002502F0) | src/cmmScript.c:2249 | 0 | EVT_FUNCTION_0034 |
-| 0x3035 | 53 | `cmmScriptPollEntryConfirm` (0x00250560) | src/cmmScript.c:2308 | 0 | EVT_FUNCTION_0035 |
-| 0x3036 | 54 | `cmmScriptStartEntries` (0x00250120) | src/cmmScript.c:2209 | 0 | EVT_FUNCTION_0036 |
-| 0x3037 | 55 | `cmmScriptStopEntries` (0x002507C0) | src/cmmScript.c:2365 | 0 | EVT_FUNCTION_0037 |
-| 0x3038 | 56 | `cmmScriptReadIndexedValue` (0x00250870) | src/cmmScript.c:2387 | 0 | EVT_FUNCTION_0038 |
+| 0x3034 | 52 | `cmmScriptPollEntryChoice` (0x002502F0) | src/cmmScript.c:2246 | 0 | EVT_FUNCTION_0034 |
+| 0x3035 | 53 | `cmmScriptPollEntryConfirm` (0x00250560) | src/cmmScript.c:2305 | 0 | EVT_FUNCTION_0035 |
+| 0x3036 | 54 | `cmmScriptStartEntries` (0x00250120) | src/cmmScript.c:2206 | 0 | EVT_FUNCTION_0036 |
+| 0x3037 | 55 | `cmmScriptStopEntries` (0x002507C0) | src/cmmScript.c:2362 | 0 | EVT_FUNCTION_0037 |
+| 0x3038 | 56 | `cmmScriptReadIndexedValue` (0x00250870) | src/cmmScript.c:2384 | 0 | EVT_FUNCTION_0038 |
 | 0x3039 | 57 | `datMemberNoticeScriptOpen` (0x00354500) | src/promoted/code1_0035.c:437 | 1 | NPC_QUEST_START |
 | 0x303A | 58 | `datMemberNoticeScriptOpenAlt` (0x00354660) | src/promoted/code1_0035.c:469 | 1 | NPC_QUEST_END |
-| 0x303B | 59 | `cmmScriptReadMonthProfile` (0x00250940) | src/cmmScript.c:2424 | 2 | EVT_FUNCTION_003B |
-| 0x303C | 60 | `cmmScriptDateTableIndex` (0x0024AE40) | src/cmmScript.c:661 | 0 | EVT_FUNCTION_003C |
+| 0x303B | 59 | `cmmScriptReadMonthProfile` (0x00250940) | src/cmmScript.c:2421 | 2 | EVT_FUNCTION_003B |
+| 0x303C | 60 | `cmmScriptDateTableIndex` (0x0024AE40) | src/cmmScript.c:658 | 0 | EVT_FUNCTION_003C |
 
 ## Event node tables (`D_0063C1D0`, `D_0063C420`)
 
@@ -648,17 +648,17 @@ Indexed by calc kind (`DatScriptCalcKind`), `arg0 < 0xB`.
 
 | Kind | Formula | Defined at |
 |---|---|---|
-| 0 | `func_00244100` (0x00244100) | src/Main/Battle/Data/datCalc.c:5338 |
+| 0 | `func_00244100` (0x00244100) | src/Main/Battle/Data/datCalc.c:5339 |
 | 1 | `datScriptCalcPhysicalDamage` (0x00244110) | src/Main/Battle/Data/datCalc_inferred_00244110.c:34 |
 | 2 | `datScriptCalcMagicDamage` (0x00244540) | src/Main/Battle/Data/datCalc_inferred_00244110.c:125 |
-| 3 | `datCalcFormulaTerms13And1A` (0x002447C0) | src/Main/Battle/Data/datCalc.c:5344 |
+| 3 | `datCalcFormulaTerms13And1A` (0x002447C0) | src/Main/Battle/Data/datCalc.c:5345 |
 | 4 | `datScriptCalcHitRate` (0x00244870) | src/Main/Battle/Data/datCalc_inferred_00244870.c:32 |
-| 5 | `datCalcFormulaScaledRatio` (0x002449C0) | src/Main/Battle/Data/datCalc.c:5361 |
-| 6 | `datCalcFormulaPassCalc15` (0x00244AD0) | src/Main/Battle/Data/datCalc.c:5381 |
-| 7 | `datCalcFormulaWeightedRatio` (0x00244B10) | src/Main/Battle/Data/datCalc.c:5389 |
-| 8 | `datCalcFormulaInverseRatio` (0x00244C10) | src/Main/Battle/Data/datCalc.c:5404 |
+| 5 | `datCalcFormulaScaledRatio` (0x002449C0) | src/Main/Battle/Data/datCalc.c:5362 |
+| 6 | `datCalcFormulaPassCalc15` (0x00244AD0) | src/Main/Battle/Data/datCalc.c:5382 |
+| 7 | `datCalcFormulaWeightedRatio` (0x00244B10) | src/Main/Battle/Data/datCalc.c:5390 |
+| 8 | `datCalcFormulaInverseRatio` (0x00244C10) | src/Main/Battle/Data/datCalc.c:5405 |
 | 9 | `datScriptCalcPhysicalDamageScaled` (0x00244CF0) | src/Main/Battle/Data/datCalc_inferred_00244cf0.c:31 |
-| 10 | `datCalcFormulaRatioOfProducts` (0x00244E20) | src/Main/Battle/Data/datCalc.c:5420 |
+| 10 | `datCalcFormulaRatioOfProducts` (0x00244E20) | src/Main/Battle/Data/datCalc.c:5421 |
 
 ## Battle state table (`0x5F7180`, btlMain)
 
