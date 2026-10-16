@@ -43,7 +43,7 @@ extern s32 wshopMaterialTalkUpdate(u8 *task);
 extern void wshopMaterialTalkDestroy(u8 *task);
 
 // FUN_00331FC0
-void func_00331fc0(u8 *arg0) {
+void weaponShopTalkCreate(u8 *arg0) {
     u8 *temp_2;
 
     chkmemAllocSiteTag(D_0064A018, 0xC8);
@@ -121,7 +121,7 @@ void itemShopTalkDestroy(u8 *arg0) {
 }
 
 // FUN_003322D0
-void func_003322d0(u8 *arg0) {
+void itemShopTalkCreate(u8 *arg0) {
     u8 *temp_2;
 
     chkmemAllocSiteTag(D_0064A018, 0x12D);
@@ -276,7 +276,7 @@ void wshopMaterialTalkDestroy(u8 *arg0) {
 }
 
 // FUN_003329E0
-void func_003329e0(u8 *arg0) {
+void wshopMaterialTalkCreate(u8 *arg0) {
     u8 *temp_2;
 
     chkmemAllocSiteTag(D_0064A018, 0x1EC);
