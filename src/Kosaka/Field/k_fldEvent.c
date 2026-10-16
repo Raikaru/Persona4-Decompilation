@@ -70,9 +70,9 @@ void kAssertFail(const void *, u32);
 void FldUnit_UpdateFieldState(void);
 s32 MT_Scene_AllResFlagSet(void);
 s16 mdlGetLayerAnimation(s32, s32);
-s32 func_0016fe80(s32);
-s32 func_0016ffd0(s32);
-s32 func_0016fd00(s32);
+s32 FldMoveAnimPrimary(s32);
+s32 FldMoveAnimSecondary(s32);
+s32 FldCharacterAnimSelect(s32);
 void FldFrame_SetStateFlags(s32, s32);
 void FldFrame_ClearStateFlags(s32, s32);
 void FldPlayerIconUpdatePos(u8 *);
@@ -811,7 +811,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     s32 *MT_Scene_GetFrameState(void);
     void FldUnit_SetMode(u8 *, s32);
     s32 FldRc_GetPositionSlotCount(u8 *, s32);
-    s32 func_0016fd00(s32);
+    s32 FldCharacterAnimSelect(s32);
     s32 FldEvent_PartyHasSkill(void);
     u32 RpRandom(void);
     u32 datGetFlag(s32);
@@ -831,7 +831,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void FldPanel2dSetState(u8 *, s32);
     void fclMiscStopAndClose(void);
     void fclMiscSetDoneFlag(void);
-    void func_0016f630(FldEventSnapshot *, u8 *);
+    void FldEventSnapshotCapture(FldEventSnapshot *, u8 *);
     void FldCameraApplyRecord(u8 *, u8 *);
     void FldFrame_BindTypedRes(u8 *, u16);
 
@@ -1033,7 +1033,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     } else {
                         FldEventAttack *attack = work->attack;
                         if (cur >= (u32)attack->endFrame) {
-                            s16 animation = func_0016fd00(1);
+                            s16 animation = FldCharacterAnimSelect(1);
                             u32 blend = attack->idleBlend;
                             mdlDispatchAnimIfPresent((u8 *)D_007EFA00[0], 0, animation, blend, 1);
                             work->motionState = 0;
@@ -1229,7 +1229,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                     FldStepSetPresentFlag(0);
                     calendarSetMode(0);
                     if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4) != 0) {
-                        func_0016f630(&snapshot, (u8 *)*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4));
+                        FldEventSnapshotCapture(&snapshot, (u8 *)*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4));
                         work->snapshot = snapshot;
                         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4)));
                         *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x4) = 0;
@@ -1565,8 +1565,8 @@ s32 FldEvent_TriggerUpdate(u8 *arg0)
         }
         if (*(s32 *)(h + 0xC) > -1) {
             v = (s16)mdlGetLayerAnimation(D_007EFA00[0], 0);
-            if (v == func_0016fe80(1) || v == func_0016ffd0(1)) {
-                mdlDispatchAnimIfPresent((u8*)D_007EFA00[0], 0, (s16)func_0016fd00(1), 4, 1);
+            if (v == FldMoveAnimPrimary(1) || v == FldMoveAnimSecondary(1)) {
+                mdlDispatchAnimIfPresent((u8*)D_007EFA00[0], 0, (s16)FldCharacterAnimSelect(1), 4, 1);
             }
             if (*(s32 *)((s32)MT_Scene_GetFrameState() + 4) != 0) {
                 FldFrame_SetStateFlags(*(s32 *)((s32)MT_Scene_GetFrameState() + 4), 2);
@@ -1750,7 +1750,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     s32 FldFrame_GetStatus(u8 *);
     u32 datGetFlag(s32);
     void FldCameraSetDistance(u8 *, f32);
-    u8 *func_0016f3b0(u8 *, s32, s32);
+    u8 *FldFrameRotateTaskCreate(u8 *, s32, s32);
     u8 *FldFrame_RotateTaskCreate(u8 *, s32, s32);
     f32 FldEvent_GetStickHeading(s32, s32);
     MovementMatrix *func_003e0670(MovementMatrix *, const MovementMatrix *);
@@ -1861,7 +1861,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
                     rounded = (45.0f * (f32)(quotient + 1)) *
                               (b < 0.0f ? -1.0f : 1.0f);
                 }
-                *(u8 **)(h + 0x138) = func_0016f3b0(arg0, 5, (s32)rounded);
+                *(u8 **)(h + 0x138) = FldFrameRotateTaskCreate(arg0, 5, (s32)rounded);
             }
         }
     } else if (D_008C024E[0] & 1) {
@@ -1879,7 +1879,7 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
                 }
             }
             add = f21 + KDraw_MatrixYawDeg(func_003e9700(*(void **)(kwlnGetCamera() + 4)));
-            *(u8 **)(h + 0x138) = func_0016f3b0(arg0, 5, (s32)add);
+            *(u8 **)(h + 0x138) = FldFrameRotateTaskCreate(arg0, 5, (s32)add);
         }
     } else if (camera.x < -48.0f) {
         if (FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 0 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 6 || FldFrame_GetStatus(*(u8 **)((s32)MT_Scene_GetFrameState() + 4)) == 7) {
@@ -1989,25 +1989,25 @@ bigmove:
         if (ret16 == 0) {
             if (f22 <= 13.0f) {
                 s32 cur = *(s32 *)(h + 0x144);
-                if (cur != func_0016fe80(1)) {
+                if (cur != FldMoveAnimPrimary(1)) {
                     s32 c = *(s32 *)(h + 0x14C);
                     if (c < 2) {
                         *(s32 *)(h + 0x14C) = c + 1;
                     } else {
                         *(s32 *)(h + 0x134) = 0;
-                        *(s32 *)(h + 0x144) = func_0016fe80(1);
+                        *(s32 *)(h + 0x144) = FldMoveAnimPrimary(1);
                         *(s32 *)(h + 0x14C) = 0;
                     }
                 }
             } else {
                 s32 cur = *(s32 *)(h + 0x144);
-                if (cur != func_0016ffd0(1)) {
+                if (cur != FldMoveAnimSecondary(1)) {
                     s32 c = *(s32 *)(h + 0x14C);
                     if (c < 2) {
                         *(s32 *)(h + 0x14C) = c + 1;
                     } else {
                         *(s32 *)(h + 0x134) = 0;
-                        *(s32 *)(h + 0x144) = func_0016ffd0(1);
+                        *(s32 *)(h + 0x144) = FldMoveAnimSecondary(1);
                         *(s32 *)(h + 0x14C) = 0;
                     }
                 }
@@ -2033,7 +2033,7 @@ smallmove:
             return 0;
         }
         if (*(s32 *)(h + 0x148) == 0) {
-            mdlDispatchAnimIfPresent(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)func_0016fd00(1), 4, 1);
+            mdlDispatchAnimIfPresent(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)FldCharacterAnimSelect(1), 4, 1);
         }
         c148 = *(s32 *)(h + 0x148) + 1;
         *(s32 *)(h + 0x148) = c148;
@@ -2056,7 +2056,7 @@ smallmove:
             *(s32 *)(h + 0x134) = 1;
         }
         if (*(s32 *)(h + 0x134) == 1) {
-            mdlDispatchAnimIfPresent(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)func_0016fd00(1), 8, 1);
+            mdlDispatchAnimIfPresent(*(u8 **)(*(s32 *)(h + 0x18) + 0x164), 0, (s16)FldCharacterAnimSelect(1), 8, 1);
             *(s32 *)(h + 0x134) = 0;
         }
         if (ret16 == 1) {

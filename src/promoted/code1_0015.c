@@ -122,7 +122,7 @@ extern u8 *mdlGetMatrix(s32 arg0);
 extern s32 K_Clump_ClumpHasMatUsrData(s32 arg0, const void *arg1);
 extern u8 D_005F0690[];
 extern u8 D_005F06A0[];
-extern void func_0016eb00(s32 arg0);
+extern void FldCameraUpdateLookAt(s32 arg0);
 extern s32 FldFrameTask_GetTileX(s32 arg0);
 extern s32 FldFrameTask_GetTileZ(s32 arg0);
 extern f32 KDraw_MatrixYawDeg(u8 *arg0);
@@ -287,7 +287,7 @@ loop_test:
             *(s32 *)(var_2 + 4) = temp_3;
             var_2 += 8;
         } while (var_5 > 0);
-        func_0016eb00(MT_Scene_GetFrameState()[1]);
+        FldCameraUpdateLookAt(MT_Scene_GetFrameState()[1]);
     }
 }
 // Intent: Clear the scene frame state block [inferred]

@@ -48,7 +48,7 @@ extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
 extern void func_0016ea30(s32 arg0, f32 arg1);
 extern void FldFrame_SetSlotVector(s32 arg0, s32 arg1, void *arg2);
 extern u8 *FldFrame_GetSlotBuffer(s32 arg0);
-extern void func_0016eb00(s32 arg0);
+extern void FldCameraUpdateLookAt(s32 arg0);
 extern void kAssertFailMsg(const char *arg0, s32 arg1, void *arg2, void *arg3);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern char D_005EFEF0[];

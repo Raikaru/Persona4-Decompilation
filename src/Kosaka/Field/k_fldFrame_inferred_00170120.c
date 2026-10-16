@@ -37,7 +37,7 @@ typedef struct
     u8 blue;
     u8 alpha;
 } FieldColor_0017;
-extern s32 func_0016fd00(void);
+extern s32 FldCharacterAnimSelect(void);
 extern s32 FldRoomIsListed(u16 arg0, u16 arg1);
 extern u32 RpRandom(void);
 extern s32 FldStepIndex(void);
@@ -134,7 +134,7 @@ s32 func_00170120(s32 arg0)
     u8 *temp_2;
     u8 *temp_4;
 
-    func_0016fd00();
+    FldCharacterAnimSelect();
     if (arg0 != 1)
         return 1;
     temp_2 = iGpffff9db0;

@@ -93,6 +93,6 @@ typedef struct FldEventWork {
     s32 fieldEffect;
 } FldEventWork;
 
-void func_0016f630(FldEventSnapshot *destination, u8 *cameraTask);
+void FldEventSnapshotCapture(FldEventSnapshot *destination, u8 *cameraTask);
 
 #endif
