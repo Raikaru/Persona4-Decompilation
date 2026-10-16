@@ -52,7 +52,16 @@ extern void func_004b12e0(s32 arg0, void *arg1);
 extern void effMiscNormalizeVU(void);
 extern void effMiscBuildRotationVU(void);
 typedef struct RwV3d { f32 x, y, z; } RwV3d;
-typedef struct RwMatrixTag RwMatrix;
+typedef struct RwMatrixTag {
+    RwV3d right;
+    u32 flags;
+    RwV3d up;
+    u32 pad1;
+    RwV3d at;
+    u32 pad2;
+    RwV3d pos;
+    u32 pad3;
+} RwMatrix;
 typedef struct RwFrame RwFrame;
 typedef struct RwTexture RwTexture;
 typedef struct RpMaterial RpMaterial;
