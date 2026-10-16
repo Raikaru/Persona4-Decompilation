@@ -117,10 +117,11 @@ void taskRecordSetPosition(u8 *arg0, s64 arg1);
 // Creates the event node for type 10: allocates its 0x30-byte record, counts it against the event memory, and fills its geometry through evtInterpolateNodeMatrices; other types create nothing [inferred].
 // FUN_00286780
 u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
+    EvtNode *parent = (EvtNode *)arg0;
     f32 sp8c;
     f32 sp88;
     u8 sp60[0x20];
-    u8 *temp_17;
+    EvtChildNode *temp_17;
     u8 *r = NULL;
 
     switch (*(u32 *)arg0) {
@@ -138,154 +139,154 @@ u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
         break;
     }
     chkmemAllocSiteTag(D_00748340, 0x52);
-    temp_17 = D_008873F4[0](1, 0x54, 0x40000);
+    temp_17 = (EvtChildNode *)D_008873F4[0](1, 0x54, 0x40000);
     evtMemAccount(8, 0x54);
     if (temp_17 == NULL) {
         kAssertFail(D_0063C3B0, 0x198);
     }
     memset(temp_17, 0, 0x54);
-    *(u16 *)(temp_17 + 0) = arg1;
-    *(u32 *)(temp_17 + 4) = -1;
-    *(u32 *)(temp_17 + 0x40) = 0;
-    *(u32 *)(temp_17 + 0x38) = *(u32 *)arg0;
-    evtAppendNodeToList(arg0, temp_17);
+    temp_17->start = arg1;
+    temp_17->unk04 = -1;
+    temp_17->ownedBlock40 = 0;
+    temp_17->kind = *(u32 *)arg0;
+    evtAppendNodeToList(arg0, (u8 *)temp_17);
     switch (*(u32 *)arg0) {
     case 2:
-        *(f32 *)(temp_17 + 0x10) = fGpffff815c;
+        temp_17->payload.kind02.unk00 = fGpffff815c;
         break;
     case 1:
-        *(u8 *)(temp_17 + 0x10) = 0;
-        *(u8 *)(temp_17 + 0x16) = 0;
-        *(u8 *)(temp_17 + 0x17) = 0x14;
+        temp_17->payload.kind01.unk00 = 0;
+        temp_17->payload.kind01.unk06 = 0;
+        temp_17->payload.kind01.unk07 = 0x14;
         break;
     case 0x30:
-        *(u8 *)(temp_17 + 0x10) = 0;
-        *(u8 *)(temp_17 + 0x30) = *(u32 *)(arg0 + 4);
+        temp_17->payload.kind30.unk00 = 0;
+        temp_17->unk30 = parent->param04;
         break;
     case 3: {
         s32 temp_neg = -1;
-        *(s8 *)(temp_17 + 0x10) = temp_neg;
-        *(s16 *)(temp_17 + 0x12) = 0;
-        *(s8 *)(temp_17 + 0x14) = 0;
-        *(s8 *)(temp_17 + 0x15) = temp_neg;
-        *(s16 *)(temp_17 + 0x16) = temp_neg;
-        *(s16 *)(temp_17 + 0x18) = 0;
+        temp_17->payload.kind03.unk00 = temp_neg;
+        temp_17->payload.kind03.unk02 = 0;
+        temp_17->payload.kind03.unk04 = 0;
+        temp_17->payload.kind03.unk05 = temp_neg;
+        temp_17->payload.kind03.unk06 = temp_neg;
+        temp_17->payload.kind03.unk08 = 0;
         break;
     }
     case 0x12: {
         s32 temp_neg = -1;
-        *(u16 *)(temp_17 + 0x10) = 0;
-        *(s16 *)(temp_17 + 0x12) = temp_neg;
-        *(u8 *)(temp_17 + 0x10) = 0;
+        *(u16 *)((u8 *)temp_17 + 0x10) = 0;
+        *(s16 *)((u8 *)temp_17 + 0x12) = temp_neg;
+        *(u8 *)((u8 *)temp_17 + 0x10) = 0;
         break;
     }
     case 0x14:
     case 0x15: {
         s32 temp_neg = -1;
-        *(s8 *)(temp_17 + 0x10) = temp_neg;
-        *(s8 *)(temp_17 + 0x11) = 0;
-        *(s16 *)(temp_17 + 0x12) = 0;
-        *(s8 *)(temp_17 + 0x14) = temp_neg;
-        *(s8 *)(temp_17 + 0x15) = temp_neg;
-        *(s8 *)(temp_17 + 0x16) = temp_neg;
-        *(s8 *)(temp_17 + 0x17) = temp_neg;
-        *(s16 *)(temp_17 + 0x18) = 0;
+        temp_17->payload.kind14.unk00 = temp_neg;
+        temp_17->payload.kind14.unk01 = 0;
+        temp_17->payload.kind14.unk02 = 0;
+        temp_17->payload.kind14.unk04 = temp_neg;
+        temp_17->payload.kind14.unk05 = temp_neg;
+        temp_17->payload.kind14.unk06 = temp_neg;
+        temp_17->payload.kind14.unk07 = temp_neg;
+        temp_17->payload.kind14.unk08 = 0;
         break;
     }
     case 0x1A: {
         s32 temp_neg = -1;
-        *(s8 *)(temp_17 + 0x10) = temp_neg;
-        *(s16 *)(temp_17 + 0x12) = 0;
-        *(s8 *)(temp_17 + 0x14) = 0;
-        *(s8 *)(temp_17 + 0x15) = temp_neg;
-        *(s16 *)(temp_17 + 0x16) = temp_neg;
-        *(s16 *)(temp_17 + 0x18) = 0;
+        temp_17->payload.kind1A.unk00 = temp_neg;
+        temp_17->payload.kind1A.unk02 = 0;
+        temp_17->payload.kind1A.unk04 = 0;
+        temp_17->payload.kind1A.unk05 = temp_neg;
+        temp_17->payload.kind1A.unk06 = temp_neg;
+        temp_17->payload.kind1A.unk08 = 0;
         break;
     }
     case 9: {
         s32 temp_neg = -1;
-        *(s16 *)(temp_17 + 0x10) = temp_neg;
-        *(s16 *)(temp_17 + 0x12) = 1;
+        temp_17->payload.kind09.unk00 = temp_neg;
+        temp_17->payload.kind09.unk02 = 1;
         break;
     }
     case 0xC:
-        *(s16 *)(temp_17 + 0x10) = 1;
-        *(s16 *)(temp_17 + 0x12) = 0x80;
-        *(u32 *)(temp_17 + 0x14) = 0;
+        temp_17->payload.kind0C.unk00 = 1;
+        temp_17->payload.kind0C.unk02 = 0x80;
+        temp_17->payload.kind0C.unk04 = 0;
         break;
     case 0x16:
-        *(s16 *)(temp_17 + 0x10) = 1;
+        temp_17->payload.kind16.unk00 = 1;
         break;
     case 0xA:
-        *(u32 *)(temp_17 + 0x48) = (u32)r;
-        *(f32 *)(temp_17 + 0x10) = sp8c;
-        *(f32 *)(temp_17 + 0x14) = sp88;
-        *(s16 *)(temp_17 + 0x18) = *(u32 *)(arg0 + 4);
-        *(u32 *)(temp_17 + 4) = 0;
+        temp_17->ownedBlock48 = (u32)r;
+        temp_17->payload.kind0A.unk00 = sp8c;
+        temp_17->payload.kind0A.unk04 = sp88;
+        temp_17->payload.kind0A.unk08 = parent->param04;
+        temp_17->unk04 = 0;
         break;
     case 6: {
         s32 temp_neg = -1;
-        *(u16 *)(temp_17 + 0x10) = 0;
-        *(s16 *)(temp_17 + 0x12) = temp_neg;
+        temp_17->payload.kind06.unk00 = 0;
+        temp_17->payload.kind06.unk02 = temp_neg;
         break;
     }
     case 0x18:
         memset(sp60, 0, 0x20);
-        *(u8 *)(temp_17 + 0x10) = *(s32 *)(sp60 + 0x14);
-        *(u8 *)(temp_17 + 0x11) = *(s32 *)(sp60 + 0x18);
-        *(u16 *)(temp_17 + 0x14) = *(s32 *)(sp60 + 0);
-        *(u16 *)(temp_17 + 0x16) = *(s32 *)(sp60 + 4);
-        *(u8 *)(temp_17 + 0x18) = *(u8 *)(sp60 + 8);
-        *(u8 *)(temp_17 + 0x19) = *(u8 *)(sp60 + 9);
-        *(u8 *)(temp_17 + 0x1A) = *(u8 *)(sp60 + 10);
-        *(u8 *)(temp_17 + 0x1B) = *(u8 *)(sp60 + 11);
-        *(f32 *)(temp_17 + 0x1C) = *(f32 *)(sp60 + 0x10);
-        *(f32 *)(temp_17 + 0x20) = *(f32 *)(sp60 + 0xC);
-        *(u8 *)(temp_17 + 0x24) = *(s32 *)(sp60 + 0x1C);
+        *(u8 *)((u8 *)temp_17 + 0x10) = *(s32 *)(sp60 + 0x14);
+        *(u8 *)((u8 *)temp_17 + 0x11) = *(s32 *)(sp60 + 0x18);
+        *(u16 *)((u8 *)temp_17 + 0x14) = *(s32 *)(sp60 + 0);
+        *(u16 *)((u8 *)temp_17 + 0x16) = *(s32 *)(sp60 + 4);
+        *(u8 *)((u8 *)temp_17 + 0x18) = *(u8 *)(sp60 + 8);
+        *(u8 *)((u8 *)temp_17 + 0x19) = *(u8 *)(sp60 + 9);
+        *(u8 *)((u8 *)temp_17 + 0x1A) = *(u8 *)(sp60 + 10);
+        *(u8 *)((u8 *)temp_17 + 0x1B) = *(u8 *)(sp60 + 11);
+        *(f32 *)((u8 *)temp_17 + 0x1C) = *(f32 *)(sp60 + 0x10);
+        *(f32 *)((u8 *)temp_17 + 0x20) = *(f32 *)(sp60 + 0xC);
+        *(u8 *)((u8 *)temp_17 + 0x24) = *(s32 *)(sp60 + 0x1C);
         break;
     case 0x21:
-        *(s16 *)(temp_17 + 0x10) = 30;
-        *(u32 *)(temp_17 + 0x18) = 0;
-        *(u32 *)(temp_17 + 0x1C) = 0x44200000;
-        *(u32 *)(temp_17 + 0x20) = 0xC4430000;
-        *(u32 *)(temp_17 + 0x24) = 0x42000000;
-        *(u32 *)(temp_17 + 0x28) = 0;
-        *(u32 *)(temp_17 + 0x2C) = 0x420C0000;
+        temp_17->payload.kind21.unk00 = 30;
+        temp_17->payload.kind21.unk08 = 0;
+        temp_17->payload.kind21.unk0C = 0x44200000;
+        temp_17->payload.kind21.unk10 = 0xC4430000;
+        temp_17->payload.kind21.unk14 = 0x42000000;
+        temp_17->payload.kind21.unk18 = 0;
+        temp_17->payload.kind21.unk1C = 0x420C0000;
         break;
     case 0x23:
-        *(u8 *)(temp_17 + 0x11) = *(u32 *)(arg0 + 4);
-        if (*(u32 *)(arg0 + 4) == 1) {
-            *(u16 *)(temp_17 + 0x14) = 380;
+        temp_17->payload.kind23.unk01 = parent->param04;
+        if (parent->param04 == 1) {
+            temp_17->payload.kind23.unk04 = 380;
         }
         break;
     case 0x24:
-        *(u8 *)(temp_17 + 0x11) = *(u32 *)(arg0 + 4);
+        temp_17->payload.kind24.unk01 = parent->param04;
         break;
     case 0x27:
-        *(u8 *)(temp_17 + 0x10) = 0;
+        temp_17->payload.kind27.unk00 = 0;
         break;
     case 0x29:
-        *(u8 *)(temp_17 + 0x10) = 0;
-        if (*(s8 *)(temp_17 + 0x10) != 0) {
+        temp_17->payload.kind29.unk00 = 0;
+        if (temp_17->payload.kind29.unk00 != 0) {
             break;
         }
         evtBlurFilterEnsureBlock((s32 *)temp_17);
         break;
     case 0x34:
-        *(u8 *)(temp_17 + 0x12) = 0x10 * *(u32 *)(arg0 + 4);
+        temp_17->payload.kind34.unk02 = 0x10 * parent->param04;
         break;
     case 0x35:
         evtEnvSlot((s32)arg2, 0);
-        *(u8 *)(temp_17 + 0x10) = DAT_00764B38;
-        *(u8 *)(temp_17 + 0x14) = DAT_00764B3C;
-        *(u8 *)(temp_17 + 0x15) = DAT_00764B40;
-        *(u8 *)(temp_17 + 0x16) = DAT_00764B44;
-        *(u8 *)(temp_17 + 0x18) = *kwlnGetColorRgb();
-        *(u8 *)(temp_17 + 0x19) = *(kwlnGetColorRgb() + 1);
-        *(u8 *)(temp_17 + 0x1A) = *(kwlnGetColorRgb() + 2);
-        *(f32 *)(temp_17 + 0x1C) = *(f32 *)((u8 *)kwlnGetCamera() + 0x88);
-        *(f32 *)(temp_17 + 0x20) = D_00764B5C;
-        *(u16 *)(temp_17 + 2) = 0;
+        temp_17->payload.envSlot.unk00 = DAT_00764B38;
+        temp_17->payload.envSlot.unk04 = DAT_00764B3C;
+        temp_17->payload.envSlot.unk05 = DAT_00764B40;
+        temp_17->payload.envSlot.unk06 = DAT_00764B44;
+        temp_17->payload.envSlot.unk08 = *kwlnGetColorRgb();
+        temp_17->payload.envSlot.unk09 = *(kwlnGetColorRgb() + 1);
+        temp_17->payload.envSlot.unk0A = *(kwlnGetColorRgb() + 2);
+        temp_17->payload.envSlot.unk0C = *(f32 *)((u8 *)kwlnGetCamera() + 0x88);
+        temp_17->payload.envSlot.unk10 = D_00764B5C;
+        temp_17->unk02 = 0;
         break;
     case 4:
     case 5:
@@ -329,7 +330,7 @@ u8 *evtNodeCreate(u8 *arg0, s32 arg1, u8 *arg2) {
         kAssertFail(D_0063C3B0, 0x27E);
         break;
     }
-    return temp_17;
+    return (u8 *)temp_17;
 }
 
 // Event node: unlinks 'node' from its owner list, frees its sub-blocks and the node.
