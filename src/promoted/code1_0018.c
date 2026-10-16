@@ -166,7 +166,7 @@ extern u8 D_00794C60[];
 extern u32 D_007EFA00[];
 extern u8 D_005F54D8[];
 extern s32 FldPanel2dUpdate(u8 *arg0);
-extern void func_0018a010(s32 arg0);
+extern void FldPanel2dSelectEntry(s32 arg0);
 extern u8 D_005F54E8[];
 extern s32 FldSupporterUpdate(u8 *arg0);
 extern u8 D_005F1D80[];
@@ -1694,7 +1694,7 @@ s32 FldNoiseTaskCreate(u8 *arg0)
     return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_005F1E08), 0xF, 0, 0, FldNoiseUpdate, FldNoiseDestroy, (u8 *)(D_008873F4[0](1, 0x88D0, 0x40000)));
 }
 // FUN_00189600
-void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)
+void FldLmapCameraMoveTo(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)
 {
     struct Vec3 {
         f32 x;
@@ -1760,7 +1760,7 @@ void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)
    opt_propagation off preserves the saved-register address materialization. */
 // FUN_00189870
 #pragma opt_propagation off
-void func_00189870(void)
+void FldSkyApplyDefaultPreset(void)
 {
     void (**base)(s32, s32);
 
@@ -1869,7 +1869,7 @@ s32 FldPanel2dUpdate(u8 *arg0)
                 }
             }
             temp_2 = PrimQueueDrawPrimitive(D_00794C60, 4, temp_16 + 0x20, 4);
-            *(void (**)(void))(temp_2 + 8) = func_00189870;
+            *(void (**)(void))(temp_2 + 8) = FldSkyApplyDefaultPreset;
             *(s32 *)(temp_2 + 0x10) = 0;
             PrimQueueDrawPrimitive(D_00794C60, 4, temp_16 + 0x120, 4);
             if (*(const char **)(temp_16 + 0x10) != NULL) {
@@ -1911,7 +1911,7 @@ void FldPanel2dTaskCreate(void)
             var_16 = (s32)kwlnTaskCreateChild((void *)(temp_16), (const void *)(&D_005F5330), 0xF, 0, 0, FldPanel2dUpdate, FldPanel2dDestroy, (u8 *)(temp_2));
         }
         *(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) = var_16;
-        func_0018a010(-1);
+        FldPanel2dSelectEntry(-1);
     }
 }
 // FUN_00189FA0
@@ -1936,7 +1936,7 @@ void FldPanel2dSetState(u8 *arg0, s32 arg1)
    work setup. `slot` is a named local recomputed per store so the addu keeps
    index-first operand order and retail's repeated load. */
 // FUN_0018A010
-void func_0018a010(s32 arg0)
+void FldPanel2dSelectEntry(s32 arg0)
 {
     extern u8 D_005F2210[];
     extern u8 D_005F4090[];
@@ -2802,7 +2802,7 @@ s32 FldNpcControlReady(u8 *arg0)
 #pragma optimization_level 1
 #pragma push
 #pragma opt_common_subs on
-void func_0018bc20(u8 *arg0)
+void FldNpcControlFacePlayer(u8 *arg0)
 {
     struct Vec3 {
         f32 x;
@@ -2873,7 +2873,7 @@ void func_0018bc20(u8 *arg0)
 // FUN_0018BDD0
 #pragma push
 #pragma opt_common_subs on
-void func_0018bdd0(u8 *arg0)
+void FldNpcControlTurnBack(u8 *arg0)
 {
     struct Direction {
         f32 x;
