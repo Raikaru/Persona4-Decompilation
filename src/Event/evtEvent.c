@@ -20,10 +20,10 @@ extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memset(void *dest, s32 value, s32 size);
 extern s32 evtStart(s32, s32);
 extern void evtSetId(u32, s32, s32, s32);
-extern void func_00286380(s32 task);
-extern s32 func_002863b0(s32);
+extern void evtMarkTaskStarted(s32 task);
+extern s32 evtTaskIsMarked(s32);
 extern void evtResetEventScene(s32, s32 *);
-extern void func_0028c3f0(s32 *);
+extern void evtUpdateSceneLights(s32 *);
 extern void evtMessageWindowUpdate(s32 *);
 void evtUpdateNodeWaitFlags(u8 *arg0);
 extern s32 taskRecordIsDone(s32);
@@ -149,7 +149,7 @@ s32 evtNodeTaskUpdate(u8 *task)
         *(s32 *)(temp_2 + 0) = 5;
         /* fallthrough */
     case 5:
-        if (func_002863b0(*(s32 *)(temp_2 + 0xC)) != 0) {
+        if (evtTaskIsMarked(*(s32 *)(temp_2 + 0xC)) != 0) {
             *(s32 *)(temp_2 + 0) = 3;
         }
         goto done;
@@ -164,7 +164,7 @@ s32 evtNodeTaskUpdate(u8 *task)
             evtResetEventScene(temp_4_3, (s32 *)temp_2_2);
         }
         *(s32 *)(temp_2_2 + 0x18) = *(s32 *)(temp_2_2 + 0x14);
-        func_0028c3f0((s32 *)temp_2_2);
+        evtUpdateSceneLights((s32 *)temp_2_2);
         if ((*(s32 *)(temp_2_2 + 4) != 0) && (evtMessageWindowIsOpen((u32 *)(temp_2_2 + 0x678)) != 0)) {
             evtMessageWindowUpdate((s32 *)(temp_2_2 + 0x678));
         }
@@ -215,7 +215,7 @@ s32 evtCreateEventTask(s32 arg0, s32 arg1)
     temp_2 = evtStart(0, 0);
     *(s32 *)(temp_16 + 0xC) = temp_2;
     evtSetId(temp_2, arg0, arg1, 0);
-    func_00286380(*(s32 *)(temp_16 + 0xC));
+    evtMarkTaskStarted(*(s32 *)(temp_16 + 0xC));
     *(s32 *)(temp_16 + 0) = 0;
     return temp_17;
 }
