@@ -53,7 +53,7 @@ typedef struct {
     s32 field1C;
     s32 field20;
 } Code1_00263220State;
-static inline f32 func_00263220_mul(f32 left, f32 right)
+static inline f32 mtSceneMulF32(f32 left, f32 right)
 {
     return left * right;
 }
@@ -67,11 +67,11 @@ extern u8 D_00881530[];
 extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
-static inline u32 *func_0026e010_add_offset(s32 offset, u32 *base)
+static inline u32 *mtScenePayloadAt(s32 offset, u32 *base)
 {
     return (u32 *)((u8 *)base + offset + 8);
 }
-static inline u8 *func_0026f1e0_add(u8 *base, u32 index)
+static inline u8 *mtSceneByteOffset(u8 *base, u32 index)
 {
     return base + index;
 }
@@ -1667,11 +1667,11 @@ static inline f32 func_0026_div_140(f32 value)
 
 /* Copy complete table objects; renderer callbacks may change the item index. */
 #pragma optimization_level 1
-static inline f32 func_00267800_threshold(void)
+static inline f32 mtSceneThresholdValue(void)
 {
     return fGpffff8218;
 }
-static inline s32 *func_00267800_shape_at(s32 *values, s32 index)
+static inline s32 *mtSceneShapeValueAt(s32 *values, s32 index)
 {
     return values + index;
 }

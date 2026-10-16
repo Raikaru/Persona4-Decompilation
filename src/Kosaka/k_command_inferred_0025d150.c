@@ -38,7 +38,7 @@ void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 s32 kwlnTaskIsLinked(s32 arg0);
 void func_00120f20(s32 arg0);
 s32 mcIconTaskCreate(u8 *parent, s32 mode);
-s32 func_002aa3f0(void);
+s32 mcIconTaskPoll(void);
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
@@ -161,14 +161,14 @@ s32 scrCommonSetCharStat(void) {
 }
 
 // FUN_0025D440
-s32 func_0025d440(void) {
+s32 K_Cmd_ICON_START_FLAGGED_WAIT(void) {
     s32 temp_2;
 
     if (scrGetCmdTimer() == 0) {
         mcIconTaskCreate(0, 1);
         goto block_4;
     }
-    temp_2 = func_002aa3f0();
+    temp_2 = mcIconTaskPoll();
     if (temp_2 != 0) {
         scrSetReturnInt(temp_2);
         return 1;
@@ -178,13 +178,13 @@ block_4:
 }
 
 // FUN_0025D4B0
-s32 func_0025d4b0(void) {
+s32 K_Cmd_ICON_START_WAIT(void) {
     s32 temp_2;
 
     if (scrGetCmdTimer() == 0) {
         mcIconTaskCreate(0, 0);
     } else {
-        temp_2 = func_002aa3f0();
+        temp_2 = mcIconTaskPoll();
         if (temp_2 != 0) {
             scrSetReturnInt(temp_2);
             return 1;
