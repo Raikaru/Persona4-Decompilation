@@ -41,8 +41,9 @@ void mtMiscAppendEntry(int param_1, u32 param_2)
 
 
 
+// Intent: Sets slot arg2 (below 16) of the table to the object resource built from entry arg3 after destroying the slot's previous resource [inferred]
 // FUN_00291220
-void func_00291220(int param_1, int param_2, int param_3, u64 param_4)
+void mtMiscSetSlotRes(int param_1, int param_2, int param_3, u64 param_4)
 {
     u16 sVar1;
     u16 uVar2;
@@ -79,8 +80,9 @@ void func_00291220(int param_1, int param_2, int param_3, u64 param_4)
 
 
 
+// Intent: Returns the resource id held in slot arg2 (below 16), or 0 when the slot is empty or no object is active [inferred]
 // FUN_00291360
-s32 func_00291360(int param_1, int param_2)
+s32 mtMiscGetSlotRes(int param_1, int param_2)
 {
     int lVar2;
 
@@ -99,8 +101,9 @@ s32 func_00291360(int param_1, int param_2)
 
 
 
+// Intent: Destroys the resource in slot arg2 (below 16) and clears the slot [inferred]
 // FUN_002913D0
-void func_002913d0(int param_1, int param_2)
+void mtMiscClearSlotRes(int param_1, int param_2)
 {
     u16 *puVar5;
     u16 sVar1;
@@ -124,8 +127,9 @@ void func_002913d0(int param_1, int param_2)
 
 
 
+// Intent: Destroys every slot resource of the table and clears the slots [inferred]
 // FUN_00291470
-void func_00291470(int param_1)
+void mtMiscClearAllSlotRes(int param_1)
 {
     u16 *puVar5;
     u16 sVar1;
@@ -162,8 +166,9 @@ u64 mtMiscPlayCue(s16 param_1)
 
 
 
+// Intent: Stops sound channel arg1 by fading it out over arg2 frames when arg2 is nonzero, otherwise resets the channel [inferred]
 // FUN_00298190
-u64 func_00298190(s16 param_1, int param_2)
+u64 mtMiscStopSoundChannel(s16 param_1, int param_2)
 {
     int iVar1;
 

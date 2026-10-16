@@ -1754,7 +1754,7 @@ s32 evtCmdResPlace(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
             break;
         }
         if (arg1 == *(u32 *)(arg2 + 0xC)) {
-            func_00291470(*(u32 *)(arg2 + 0x5D0));
+            mtMiscClearAllSlotRes(*(u32 *)(arg2 + 0x5D0));
         }
         return 1;
     case 1:
@@ -1765,8 +1765,8 @@ s32 evtCmdResPlace(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 v16 = *(s8 *)(arg4 + 0x11);
                 switch (*(s8 *)(arg4 + 0x10)) {
                 case 0:
-                    func_00291220(*(u32 *)(arg2 + 0x5D0), v16, *(s8 *)(arg4 + 0x12), *(s8 *)(arg4 + 0x13) != 0);
-                    t = func_00291360(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF;
+                    mtMiscSetSlotRes(*(u32 *)(arg2 + 0x5D0), v16, *(s8 *)(arg4 + 0x12), *(s8 *)(arg4 + 0x13) != 0);
+                    t = mtMiscGetSlotRes(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF;
                     if (t != 0) {
                         sp70.x = *(f32 *)(arg4 + 0x14);
                         sp70.y = *(f32 *)(arg4 + 0x18);
@@ -1779,7 +1779,7 @@ s32 evtCmdResPlace(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                     }
                     break;
                 case 1:
-                    v16 = func_00291360(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF;
+                    v16 = mtMiscGetSlotRes(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF;
                     if (v16 != 0) {
                         sp50.x = *(f32 *)(arg4 + 0x14);
                         sp50.y = *(f32 *)(arg4 + 0x18);
@@ -1794,13 +1794,13 @@ s32 evtCmdResPlace(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                     }
                     break;
                 case 2:
-                    func_002913d0(*(u32 *)(arg2 + 0x5D0), v16);
+                    mtMiscClearSlotRes(*(u32 *)(arg2 + 0x5D0), v16);
                     break;
                 case 3:
-                    MT_Scene_SetResColorParamById(func_00291360(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF, *(u8 *)(arg4 + 0x12), *(s16 *)(arg4 + 0x14), 0);
+                    MT_Scene_SetResColorParamById(mtMiscGetSlotRes(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF, *(u8 *)(arg4 + 0x12), *(s16 *)(arg4 + 0x14), 0);
                     break;
                 case 4:
-                    p = MT_Scene_GetRes(func_00291360(*(u32 *)(arg2 + 0x5D0), v16));
+                    p = MT_Scene_GetRes(mtMiscGetSlotRes(*(u32 *)(arg2 + 0x5D0), v16));
                     if (p != NULL) {
                         func_004b13d0(*(u8 **)(p + 0x144), (f32)*(s16 *)(arg4 + 0x34) / 100.0f);
                     }
@@ -2184,7 +2184,7 @@ s32 evtCmdPlayCue(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
                 func_00440b68((char *)D_0063C3E0, *(s16 *)(arg4 + 0x10));
                 break;
             case 1:
-                func_00298190(2, *(s16 *)(arg4 + 0x10));
+                mtMiscStopSoundChannel(2, *(s16 *)(arg4 + 0x10));
                 break;
             }
             return 1;
@@ -2610,7 +2610,7 @@ loop_6_test:
         evtMessageWindowResetTyped((u32 *)(arg0 + 0x678));
     }
     evtReleaseRes(arg0);
-    func_00298190(2, 0);
+    mtMiscStopSoundChannel(2, 0);
     temp_4_2 = (s32)(*(s32 *)(arg0 + 0x760));
     if ((temp_4_2 != 0) && (kwlnTaskIsLinked((void *)temp_4_2) != 0)) {
         kwlnTaskDestroyWithHierarchy((struct KwlnTask *)*(s32 *)(arg0 + 0x760));

@@ -7,7 +7,7 @@ extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void kAssertFail(u8 *file, s32 line);
 extern void evtMemAccount(s32 arg0, s32 arg1);
 extern void H_Cdvd_Destroy(u8 *arg0);
-extern void func_00291470(u8 *arg0);
+extern void mtMiscClearAllSlotRes(u8 *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void memset(void *dest, s32 value, s32 size);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -52,7 +52,7 @@ void evtEffectTableDestroy(u8 *arg0)
                 H_Cdvd_Destroy(*(u8 **)(e + 0x38));
             }
         }
-        func_00291470(arg0);
+        mtMiscClearAllSlotRes(arg0);
         jtbl_008873EC[0](arg0);
         evtMemAccount(0xB, -0x190);
     }
