@@ -104,7 +104,7 @@ extern void btlFadeStart(s32 arg0);
 extern s32 func_001faaa0(u8 *arg0);
 extern s32 btlBossIsAllowedAction(void);
 extern s32 func_001fae10(void);
-extern void func_0045a9a0(s32 arg0, s32 arg1);
+extern void sdkSndResetChannel(s32 arg0, s32 arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern void H_Fade_SetCustomColor(s32 arg0, s32 arg1, s32 arg2);
 extern void btlMainUnloadFieldScene(void);
@@ -1747,7 +1747,7 @@ s32 btlMainEnemyDeadUpdate(void)
     if (func_001fae10() == 0) {
         temp4 = D_0076449C;
         *(s32 *)(temp4 + 0xC) = *(s32 *)(temp4 + 0xC) & 0xFFF7FFFF;
-        func_0045a9a0(2, 0);
+        sdkSndResetChannel(2, 0);
         if ((*(s32 *)(D_0076449C + 0xC) & 0x400) == 0) {
             func_00122520(1, 0x1E);
             H_Fade_SetCustomColor(0xFF, 0xFF, 0xFF);

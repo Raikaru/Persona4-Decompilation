@@ -51,7 +51,7 @@ extern s32 mdlSeUpdateRecord(void **owner);
 extern s32 mdlSeFillEntryState(u8 *arg0, s16 arg1, s16 arg2, u16 arg3);
 extern void func_0045abd0(s16 arg0, s32 arg1, s16 arg2);
 extern s32 hsndSlotIsStarting(s16 arg0);
-extern s32 func_0045af90(s16 arg0);
+extern s32 sdkSndIsChannelPlaying(s16 arg0);
 extern s32 func_003e2e40(s32 arg0, s32 *arg1);
 extern s32 func_003e2f60(s32 arg0, s32 arg1, s32 *arg2);
 extern void H_Cdvd_Destroy(u8 *arg0);

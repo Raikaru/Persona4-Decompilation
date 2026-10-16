@@ -28,11 +28,11 @@ extern void sprintf(char *buf, const char *fmt, s32 value);
 extern void sdkSndStartChannel(s16 arg0, char *buf);
 extern char D_0063CB30[];
 extern char D_0063D050[];
-extern void func_0045a9a0(s32 arg0, s32 arg1);
+extern void sdkSndResetChannel(s32 arg0, s32 arg1);
 extern void sdkSndFadeOutChannelFrames(s32 arg0, s32 arg1, s32 arg2);
 void mdlEffectSeqStart(s32 arg0, s16 arg1);
 s32 sdkSndPlayCue(s16 arg0, s32 arg1);
-s32 func_00459880(void);
+s32 sdkSndStopMainChannel(void);
 s32 sdkSndStopChannel(s16 arg0);
 
 
@@ -152,7 +152,7 @@ s32 K_Cmd_BGM_STOP(void) {
 
     temp_2 = scrGetParamInt(0);
     if (temp_2 == 0) {
-        func_00459880();
+        sdkSndStopMainChannel();
     } else {
         sdkSndStopChannel(temp_2);
     }
@@ -178,7 +178,7 @@ s32 K_Cmd_EVT_SE_STOP(void) {
 
     v = scrGetParamInt(0);
     if (v == 0) {
-        func_0045a9a0(2, 0);
+        sdkSndResetChannel(2, 0);
     } else {
         sdkSndFadeOutChannelFrames(2, 0, v);
     }

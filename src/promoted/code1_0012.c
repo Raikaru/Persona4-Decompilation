@@ -1499,7 +1499,7 @@ s32 clndSceneUpdate(u8 *arg0)
 {
     extern s32 func_00122520(s32 arg0, s32 arg1);
     extern void calSetDefaultDayFlags(s32 arg0);
-    extern void func_00459880(void);
+    extern void sdkSndStopMainChannel(void);
     extern void sdkSndFadeOutChannel(s32 arg0, s32 arg1);
     extern s32 logoTaskStart(void);
     extern s32 func_0012c1a0(s32 arg0);
@@ -1556,7 +1556,7 @@ s32 clndSceneUpdate(u8 *arg0)
         break;
     case 2:
         calSetDefaultDayFlags(1);
-        func_00459880();
+        sdkSndStopMainChannel();
         sdkSndFadeOutChannel(3, 0);
         *(s32 *)(temp_16 + 0xC) = logoTaskStart();
         *(u32 *)temp_16 = 3;

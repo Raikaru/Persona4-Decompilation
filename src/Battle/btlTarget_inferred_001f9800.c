@@ -43,7 +43,7 @@ extern u8 *iGpffffb3e0;
 
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
-extern s32 func_0045af90(s32 arg0);
+extern s32 sdkSndIsChannelPlaying(s32 arg0);
 
 
 
@@ -171,7 +171,7 @@ s32 btlVoicePacketUpdate(u8 *arg0)
         *(s32 *)(arg0 + 0x14) = 1;
         goto block_15_9800;
     }
-    if (func_0045af90(3) != 1) {
+    if (sdkSndIsChannelPlaying(3) != 1) {
         if ((*(u16 *)(arg0 + 0x10) & 1) == 0 && (temp_16 != NULL)) {
             temp_3 = *(u8 **)(temp_16 + 0x30);
             if ((*(s32 *)(temp_3 + 0x98) & 2) != 0) {

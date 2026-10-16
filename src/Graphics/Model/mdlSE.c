@@ -12,7 +12,7 @@ extern u8 D_00922C10[];
 extern u8 D_00922C14[];
 extern u8 D_00922C16[];
 extern void memcpy(void *dst, const void *src, u32 size);
-extern s32 func_0045a570(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *arg5, u32 arg6);
+extern s32 sdkSndQueueSlotRequest(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *arg5, u32 arg6);
 extern s32 H_Cdvd_IsFileLoaded(void *arg0);
 extern void H_Cdvd_Destroy(void *arg0);
 extern u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
@@ -318,7 +318,7 @@ void mdlSeRequestLoad(void **arg0, u32 arg1, u16 arg2, s32 arg3, u32 arg4)
                 var_17 = temp_4_4 + ((sp16C + 0x3F) / 64) * 64;
                 var_16 += 1;
             }
-            func_0045a570((s16)*(s32 *)((u8 *)(*arg0) + 4), sp180[0], sp170[0], sp180[1], sp170[1], sp180[2], sp170[2]);
+            sdkSndQueueSlotRequest((s16)*(s32 *)((u8 *)(*arg0) + 4), sp180[0], sp170[0], sp180[1], sp170[1], sp180[2], sp170[2]);
             temp_4_5 = *arg0_p;
             *(u16 *)((u8 *)temp_4_5 + 0x12) |= 8;
             temp_4_6 = *arg0_p;
@@ -410,7 +410,7 @@ s32 mdlSeUpdateRecord(void **owner)
             record0 = (void *)func_00455ea0(*(void **)((u8 *)*owner + 0x14), 0, (s32 *)&size0);
             record1 = (void *)func_00455ea0(*(void **)((u8 *)*owner + 0x14), 1, (s32 *)&size1);
             record2 = (void *)func_00455ea0(*(void **)((u8 *)*owner + 0x14), 2, (s32 *)&size2);
-            func_0045a570(*(s16 *)((u8 *)*owner + 4), record0, size0, record1, size1, record2, size2);
+            sdkSndQueueSlotRequest(*(s16 *)((u8 *)*owner + 4), record0, size0, record1, size1, record2, size2);
             *(u16 *)((u8 *)*owner + 0x12) |= 8;
             break;
         }

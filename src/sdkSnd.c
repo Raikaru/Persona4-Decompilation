@@ -214,20 +214,21 @@ extern void mwPlyInitSfdFx(void *);
 extern u32 hsndSlotIsStarting();
 extern void hsndSlotUpdate(HsndSlotWork *slot);
 
-s32 func_004599d0(s32 arg0);
-s32 func_00459ad0(s32 arg0);
-extern s32 func_0045b030(u8 *task);
-extern void func_0045b120(u8 *task);
+s32 sdkSndStopChannelSlot(s32 arg0);
+s32 sdkSndStartRequest(s32 arg0);
+extern s32 sdkSndStreamTaskUpdate(u8 *task);
+extern void sdkSndStreamTaskDestroy(u8 *task);
 
 /* ================================================================== */
 /* FUN_00458FA0                                                        */
 /* ================================================================== */
 
+// Intent: initialises the sound driver: the five channel records, their handles and buffers, and the default track table.
 // FUN_00458FA0
 /* measured: retail hoists the loop bases/0x134/-1 constants to the
    preheaders; mwcc rematerialises them, so the scoped pragma is required. */
 #pragma opt_loop_invariants on
-void func_00458fa0(void)
+void sdkSndInit(void)
 {
     s16 i, j;
     s32 temp, p, h;
@@ -328,8 +329,9 @@ void func_00458fa0(void)
 /* measured: see the annotation above the matching `on` pragma (func_00458fa0). */
 #pragma opt_loop_invariants off
 
+// Intent: per-frame update of channels 1 to 4: advances each active channel's request state.
 // FUN_004594C0
-void func_004594c0(void)
+void sdkSndUpdate(void)
 {
     s16 i;
     s32 j;
@@ -363,8 +365,8 @@ void func_004594c0(void)
         }
         else if (result == 4)
         {
-            func_004599d0(0);
-            func_00459ad0(0);
+            sdkSndStopChannelSlot(0);
+            sdkSndStartRequest(0);
             func_004d8e98(CH_HANDLE(0), 1);
         }
     }
@@ -382,8 +384,8 @@ void func_004594c0(void)
             else if (result == 4)
             {
                 idx = (s16)j;
-                func_004599d0(idx);
-                func_00459ad0(idx);
+                sdkSndStopChannelSlot(idx);
+                sdkSndStartRequest(idx);
                 func_004d8e98(*f10, 1);
             }
             else
@@ -406,7 +408,7 @@ state_two:
                 goto state_done;
 state_three:
                 idx = (s16)j;
-                func_00459ad0(idx);
+                sdkSndStartRequest(idx);
                 *state = 1;
 state_done:
                 ;
@@ -415,8 +417,9 @@ state_done:
     }
 }
 
+// Intent: stops channel 0 if it is active and clears its record. Returns 1.
 // FUN_00459880
-s32 func_00459880(void)
+s32 sdkSndStopMainChannel(void)
 {
     if (D_008D2B90[0].f00 != 0)
     {
@@ -450,8 +453,9 @@ s32 sdkSndStopChannel(s16 arg0)
 /* FUN_00459950                                                        */
 /* ================================================================== */
 
+// Intent: sets channel 0's parameter word and the data pointer passed in.
 // FUN_00459950
-void func_00459950(void *arg0)
+void sdkSndSetMainChannelData(void *arg0)
 {
     func_004d8ee0(CH_HANDLE(0), 0xF);
     func_004d8e38(CH_HANDLE(0), (s32)arg0);
@@ -461,8 +465,9 @@ void func_00459950(void *arg0)
 /* FUN_004599D0                                                        */
 /* ================================================================== */
 
+// Intent: stops the channel at the given index if it is active and clears its record. Returns 1.
 // FUN_004599D0
-s32 func_004599d0(s32 arg0)
+s32 sdkSndStopChannelSlot(s32 arg0)
 {
     if (D_008D2B90[arg0].f00 != 0)
     {
@@ -478,8 +483,9 @@ s32 func_004599d0(s32 arg0)
 /* FUN_00459A60                                                        */
 /* ================================================================== */
 
+// Intent: starts a fade on channel 0 once, when it is active and not already fading. Returns 0.
 // FUN_00459A60
-s32 func_00459a60(void)
+s32 sdkSndFadeMainChannel(void)
 {
     if (D_008D2B90[0].f00 != 0 && LD32(D_008D2B94, 0) == 0)
     {
@@ -502,8 +508,9 @@ s32 func_00459a60(void)
 #pragma opt_dead_assignments off
 typedef struct SndHandleRecord { s32 handle; u8 rest[0x130]; } SndHandleRecord;
 typedef struct SndCreateRecord { u32 words[10]; } SndCreateRecord;
+// Intent: starts the pending request for channel arg0 (a stream open, a track or a handle create) according to its request mode. Returns 1.
 // FUN_00459AD0
-s32 func_00459ad0(s32 arg0)
+s32 sdkSndStartRequest(s32 arg0)
 {
     char path[0x100];
     s32 handleValue;
@@ -766,7 +773,7 @@ s32 sdkSndPlayCue(s16 arg0)
         LD16(D_008D2BA6, 0) = LD16(D_008D2BA4, 0);
         LD16(D_008D2BA4, 0) = 0;
         sprintf(&D_008D2BA8[0], &D_00764008, LD32(D_007118B4, x * 0xC));
-        func_00459ad0(0);
+        sdkSndStartRequest(0);
     }
     return 1;
 }
@@ -778,8 +785,9 @@ s32 sdkSndPlayCue(s16 arg0)
 /* measured: 448/448B MATCH. Forward the raw slot word to readiness, narrow
    only for table access, and retain the constant success return. A void
    return changes register allocation (28 differing words). */
+// Intent: queues a request on slot arg0 by storing its six data words and marking it queued. Returns 1.
 // FUN_0045A570
-s32 func_0045a570(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *arg5, u32 arg6)
+s32 sdkSndQueueSlotRequest(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *arg5, u32 arg6)
 {
     if (hsndSlotIsStarting(arg0) != 0)
     {
@@ -806,8 +814,9 @@ s32 func_0045a570(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *ar
 /* FUN_0045A730                                                        */
 /* ================================================================== */
 
+// Intent: sets the track id on slot arg0 and marks it queued. Returns 1.
 // FUN_0045A730
-s32 func_0045a730(s16 arg0, s16 arg1)
+s32 sdkSndSetSlotTrack(s16 arg0, s16 arg1)
 {
     if (hsndSlotIsStarting() != 0)
     {
@@ -857,8 +866,9 @@ s32 sdkSndFadeOutChannel(s16 arg0)
 /* FUN_0045A9A0                                                        */
 /* ================================================================== */
 
+// Intent: stops the channel at index arg0 if it is active and resets its record. Indexes of 5 or more are ignored. Returns 1.
 // FUN_0045A9A0
-s32 func_0045a9a0(s16 arg0)
+s32 sdkSndResetChannel(s16 arg0)
 {
     if (arg0 < 5)
     {
@@ -961,7 +971,7 @@ s32 func_0045abd0(s16 arg0, s32 arg1, s16 arg2)
         LD16(D_008D2BA6, SND_IDX(arg0)) = LD16(D_008D2BA4, SND_IDX(arg0));
         LD16(D_008D2BA4, SND_IDX(arg0)) = 3;
         LD32(D_008D2CA8, SND_IDX(arg0)) = arg1;
-        func_00459ad0(arg0);
+        sdkSndStartRequest(arg0);
     }
     return 1;
 }
@@ -982,7 +992,7 @@ s32 func_0045ac90(s16 arg0, s32 arg1, s32 arg2)
         LD16(D_008D2BA4, SND_IDX(arg0)) = 2;
         LD32(D_008D2CB0, SND_IDX(arg0)) = arg2;
         LD32(D_008D2CA8, SND_IDX(arg0)) = arg1;
-        func_00459ad0(arg0);
+        sdkSndStartRequest(arg0);
     }
     return 1;
 }
@@ -1003,7 +1013,7 @@ s32 func_0045ad50(s16 arg0, s32 arg1, s32 arg2)
         LD16(D_008D2BA4, SND_IDX(arg0)) = 4;
         LD32(D_008D2CB0, SND_IDX(arg0)) = arg2;
         LD32(D_008D2CA8, SND_IDX(arg0)) = arg1;
-        func_00459ad0(arg0);
+        sdkSndStartRequest(arg0);
     }
     return 1;
 }
@@ -1021,7 +1031,7 @@ s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2)
     LD16(D_008D2B9C, SND_IDX(arg1)) = 0;
     LD16(D_008D2BA6, SND_IDX(arg1)) = LD16(D_008D2BA4, SND_IDX(arg1));
     LD16(D_008D2BA4, SND_IDX(arg1)) = 5;
-    func_00459ad0(arg1);
+    sdkSndStartRequest(arg1);
     return 1;
 }
 
@@ -1043,7 +1053,7 @@ s32 sdkSndStartChannel(s16 arg0, const char * arg1)
         LD16(D_008D2BA6, SND_IDX(arg0)) = LD16(D_008D2BA4, SND_IDX(arg0));
         LD16(D_008D2BA4, SND_IDX(arg0)) = 0;
         strcpy((u8 *)ch + 0x18, arg1, ch, SND_IDX(arg0));
-        func_00459ad0(arg0);
+        sdkSndStartRequest(arg0);
     }
     return 1;
 }
@@ -1062,8 +1072,9 @@ s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3)
 /* FUN_0045AF90                                                        */
 /* ================================================================== */
 
+// Intent: returns 1 while channel arg0's handle is playing; the fourth channel never reports playing.
 // FUN_0045AF90
-s32 func_0045af90(s16 arg0)
+s32 sdkSndIsChannelPlaying(s16 arg0)
 {
     s32 r;
 
@@ -1087,8 +1098,9 @@ s32 func_0045af90(s16 arg0)
 /* FUN_0045B030                                                        */
 /* ================================================================== */
 
+// Intent: state machine of a stream-load task: opens the stream, waits for it to finish, and marks the task done or failed.
 // FUN_0045B030
-s32 func_0045b030(u8 *arg0)
+s32 sdkSndStreamTaskUpdate(u8 *arg0)
 {
     s32 state;
     s32 result;
@@ -1133,8 +1145,9 @@ s32 func_0045b030(u8 *arg0)
 /* FUN_0045B120                                                        */
 /* ================================================================== */
 
+// Intent: destroy callback for a stream-load task: frees its handle and its work block.
 // FUN_0045B120
-void func_0045b120(u8 *arg0)
+void sdkSndStreamTaskDestroy(u8 *arg0)
 {
     u8 *w;
 
@@ -1151,8 +1164,9 @@ void func_0045b120(u8 *arg0)
 /* FUN_0045B170                                                        */
 /* ================================================================== */
 
+// Intent: destroys the stream-load task and its hierarchy once it is done. Returns 1 when it destroyed the task.
 // FUN_0045B170
-s32 func_0045b170(void *arg0)
+s32 sdkSndStreamTaskReap(void *arg0)
 {
     if (*(s32 *)(*(u8 **)((u8 *)arg0 + 0x38)) == 2)
     {
@@ -1166,8 +1180,9 @@ s32 func_0045b170(void *arg0)
 /* FUN_0045B1C0                                                        */
 /* ================================================================== */
 
+// Intent: creates a stream-load task under parent arg0 for the given stream and copies the path into its record.
 // FUN_0045B1C0
-s32 func_0045b1c0(void *arg0, s32 arg1, s32 arg2, void *arg3)
+s32 sdkSndCreateStreamTask(void *arg0, s32 arg1, s32 arg2, void *arg3)
 {
     s32 h;
     u8 *p;
@@ -1178,7 +1193,7 @@ s32 func_0045b1c0(void *arg0, s32 arg1, s32 arg2, void *arg3)
     {
         return 0;
     }
-    h = (s32)kwlnTaskCreate((const void *)(&D_00712310[0]), 0, 0, 0, func_0045b030, func_0045b120, (u8 *)(p));
+    h = (s32)kwlnTaskCreate((const void *)(&D_00712310[0]), 0, 0, 0, sdkSndStreamTaskUpdate, sdkSndStreamTaskDestroy, (u8 *)(p));
     if (h == 0)
     {
         return 0;
@@ -1214,7 +1229,7 @@ s32 sdkSndRequestTrack(s32 arg0)
     D_008D2F42[0] = D_008D2F40[0];
     D_008D2F40[0] = 6;
     strcpy(&D_008D2F44[0], (char *)buf);
-    func_00459ad0(3);
+    sdkSndStartRequest(3);
     if (arg0 <= 0)
     {
         kAssertFail(D_00712238, 0x510);

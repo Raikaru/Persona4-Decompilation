@@ -8,7 +8,7 @@ typedef struct BtlPacket BtlPacket;
 extern u8 *iGpffffb3ac;
 
 extern u8 *iGpffffa5f0;
-extern void func_0045a9a0(s32 arg0, s32 arg1);
+extern void sdkSndResetChannel(s32 arg0, s32 arg1);
 extern u8 *btlPacketAlloc(s32 type, s32 workSize);
 extern void H_Cdvd_Destroy(u8 *ptr);
 extern void func_0045ac90(s32 arg0, s32 arg1, s32 arg2);

@@ -31,7 +31,7 @@ extern s32 D_00882F60[];
 extern void kAssertFail(const void *arg0, s32 arg1);
 extern char D_0063F2A0[];
 extern char D_007488E8[];
-extern void func_0045a9a0(s32 arg0, s32 arg1);
+extern void sdkSndResetChannel(s32 arg0, s32 arg1);
 
 
 extern u32 datItemPrice(s16 arg0);

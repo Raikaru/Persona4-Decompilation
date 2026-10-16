@@ -67,7 +67,7 @@ extern void btlSoundCancelPlayback();
 extern void btlActionStepMessagePhase();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
-extern s32 func_0045af90(s32 arg0);
+extern s32 sdkSndIsChannelPlaying(s32 arg0);
 
 extern void memset(void *destination, s32 value, u32 size);
 
@@ -97,8 +97,8 @@ extern s32 btlSoundLoadPlaybackFile(u8 *arg0);
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 extern s32 btlCurrentUnitId(void);
-extern void func_0045a9a0(s32 arg0, s32 arg1);
-extern s32 func_00459880(void);
+extern void sdkSndResetChannel(s32 arg0, s32 arg1);
+extern s32 sdkSndStopMainChannel(void);
 
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern void datCalcClearFlaggedBuffs(s32 arg0);

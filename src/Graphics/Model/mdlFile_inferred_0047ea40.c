@@ -34,7 +34,7 @@ static inline s32 viewAddReverse(s32 base, s32 offset)
 extern s32 mdlSeUpdateRecord(void **owner);
 extern s32 mdlSeFillEntryState(u8 *arg0, s16 arg1, s16 arg2, u16 arg3);
 extern s32 hsndSlotIsStarting(s16 arg0);
-extern s32 func_0045af90(s16 arg0);
+extern s32 sdkSndIsChannelPlaying(s16 arg0);
 extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;
@@ -132,10 +132,10 @@ void mdlRequestMotionAnim(u8 *arg0, s16 arg1, u16 arg2)
         }
         if ((type == 1 &&
              (arg1 != 0xE || *(s16 *)(arg0 + 4) != arg1 ||
-              func_0045af90(status) == 0)) ||
+              sdkSndIsChannelPlaying(status) == 0)) ||
             (*(u16 *)(*(u8 **)arg0 + 0xC) == 2 &&
              (arg1 != 2 || *(s16 *)(arg0 + 4) != arg1 ||
-              func_0045af90(status) == 0))) {
+              sdkSndIsChannelPlaying(status) == 0))) {
             if (mdlSeFillEntryState(arg0, 0, arg1, arg2) != 0) {
                 *(s16 *)(arg0 + 8) = 0;
                 *(s16 *)(arg0 + 4) = arg1;

@@ -54,7 +54,7 @@ extern s32 iGpffffb19c;
 extern void func_00454640(void);
 extern void resourceLoadSprites(void);
 extern void func_0045b7c0(void);
-extern void func_004594c0(void);
+extern void sdkSndUpdate(void);
 extern void func_00452ce0(void);
 extern s32 kwlnTaskRunFrame(void);
 extern void func_00466580(void);
@@ -139,8 +139,8 @@ typedef struct {
     f32 y;
 } Float2_0010;
 extern u8 D_00796460[];
-extern void func_00458fa0(void);
-extern void func_0045a730(s32 arg0, s32 arg1);
+extern void sdkSndInit(void);
+extern void sdkSndSetSlotTrack(s32 arg0, s32 arg1);
 extern void func_0045b430(void);
 extern void PrimCreatePools(s32 arg0, s32 arg1);
 extern void func_00463520(void);
@@ -234,7 +234,7 @@ void func_00100e60(void)
     func_004559b0();
     func_0010d7b0();
     func_0045b430();
-    func_00458fa0();
+    sdkSndInit();
     memset(&D_00764D10[0], 0, 0x14);
     D_00764D10[0] = (s32)((u8 *)&D_00761690 + 4);
     D_00764D14[0] = 0;
@@ -278,8 +278,8 @@ void func_00100e60(void)
     D_00764D3C[0] = 0;
     mwPlyInitSfdFx(&D_00764D30[0]);
     func_004cc200((s32)&func_00100dd0, 0);
-    func_0045a730(0, 1);
-    func_0045a730(1, 2);
+    sdkSndSetSlotTrack(0, 1);
+    sdkSndSetSlotTrack(1, 2);
     mdlResetModelTable((s32)&D_005DC878);
     mdlAppRegisterModelCallbacks();
     func_0044f570(func_00457120());
@@ -332,7 +332,7 @@ s32 func_00101270(void)
     func_00454640();
     resourceLoadSprites();
     func_0045b7c0();
-    func_004594c0();
+    sdkSndUpdate();
     func_00452ce0();
     if (kwlnTaskRunFrame() == 0) {
         return 0;

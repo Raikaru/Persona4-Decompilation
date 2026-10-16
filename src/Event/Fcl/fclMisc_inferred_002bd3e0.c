@@ -26,7 +26,7 @@ extern s32 D_0063F2C8[];
 extern s32 D_00882F60[];
 extern char D_0063F2A0[];
 extern char D_007488E8[];
-extern void func_0045a9a0(s32 arg0, s32 arg1);
+extern void sdkSndResetChannel(s32 arg0, s32 arg1);
 
 
 extern u8 *D_00882F40[];
@@ -110,7 +110,7 @@ void func_002bd3e0(void) {
 // FUN_002BD410
 void func_002bd410(void)
 {
-    func_0045a9a0(1, 0);
+    sdkSndResetChannel(1, 0);
     func_002bd440();
 }
 
