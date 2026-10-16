@@ -193,24 +193,6 @@ typedef struct {
     s32 fieldId;
     s32 roomId;
 } FieldUnitRoomKey;
-/* Spawn-direction view of the frame grid. Its cells start at 0x50, four bytes
- * before FldFrame.cells[row][0] (0x54), so cells[c].direction here is the byte
- * at 0x59 + c * 0x10, which is FldFrame.cells[row][c].kind. The 0x54 boundary is
- * the one the table copy and the neighbour checks use; new code should read
- * FldFrame.cells. FldUnit_UpdateFacing keeps this view: the typed form moved its
- * codegen. */
-typedef struct {
-    u8 unknown00[9];
-    u8 direction;                        /* 0x09: quarter-turn orientation */
-    u8 unknown0A[6];
-} FieldUnitGridCell;                     /* 0x10-byte cell, 0x100-byte row */
-typedef struct {
-    u8 unknown00[0x44];
-    u8 spawnColumn;                      /* 0x44 */
-    u8 spawnRow;                         /* 0x45 */
-    u8 unknown46[0xA];
-    FieldUnitGridCell cells[16];          /* 0x50: first-row view only */
-} FieldUnitGridView;
 typedef struct FieldUnitPlacement {
     u16 resourceId;                       /* 0x000: low 10 bits are the ID */
     u8 unknown002[0x136];
@@ -615,20 +597,19 @@ void FldUnit_UpdateFacing(void)
             mdlAdvanceModelFromFlags((u8 *)(*setupResource)->markerModel);
             placement = unitForSetup->placement;
             if (placement == NULL) {
-                FieldUnitGridView *gridRow;
+                u8 *gridRow;
 
                 /* Keep the separate grid queries and unsigned byte-to-float casts. */
                 spawnPosition.x = 1200.0f *
-                    (f32)(u32)((FieldUnitGridView *)MT_Scene_GetFrameState())->spawnColumn;
+                    (f32)(u32)((FldFrame *)MT_Scene_GetFrameState())->spawnColumn;
                 spawnPosition.y = 2.0f;
                 spawnPosition.z = 1200.0f *
-                    (f32)(u32)((FieldUnitGridView *)MT_Scene_GetFrameState())->spawnRow;
+                    (f32)(u32)((FldFrame *)MT_Scene_GetFrameState())->spawnRow;
                 unitForSetup = fieldUnitSlotAt(&partyIndex);
-                gridRow = (FieldUnitGridView *)((u8 *)MT_Scene_GetFrameState() +
-                    (((FieldUnitGridView *)MT_Scene_GetFrameState())->spawnRow << 8));
+                gridRow = (u8 *)MT_Scene_GetFrameState() +
+                    (((FldFrame *)MT_Scene_GetFrameState())->spawnRow << 8);
                 FldFrameTask_Rotate((*sceneResource)->movementTask, D_00756510,
-                    90.0f * (f32)((((FieldUnitGridView *)(u32)gridRow)->cells[
-                        ((FieldUnitGridView *)MT_Scene_GetFrameState())->spawnColumn].direction + 2) % 4));
+                    90.0f * (f32)((FldFrameCellInRow((u8 *)(u32)gridRow, ((FldFrame *)MT_Scene_GetFrameState())->spawnColumn)->kind + 2) % 4));
                 mdlDispatchAnimIfPresent((u8 *)*characterModel, 0,
                               FldCharacterAnimSelect(unitForSetup->characterId), 0, 1);
                 *formationMatrix = *(FieldUnitMatrix *)mdlGetMatrix(
