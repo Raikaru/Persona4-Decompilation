@@ -158,7 +158,6 @@ extern s32 btlUnitIdleAnimTick(u8 *arg0);
 extern u8 *btlUnitCreateLookAtPacket(u8 *arg0, f32 *arg1, s32 arg2);
 extern s32 datCalcIsLowHp(u8 *arg0);
 extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
-extern struct DatPersonaRecord *datPersonaGetRecord(u16 character);
 extern s32 datPersonaGetRosterSlot(s32 arg0);
 extern void btlActionSetState(u8 *arg0, u32 arg1);
 extern void func_001b08d0(void *arg0);

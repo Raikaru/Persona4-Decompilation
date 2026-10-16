@@ -9,6 +9,7 @@
 #include "type.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_action_internal.h"
+#include "datPersona_internal.h"
 typedef struct BtlPacket BtlPacket;
 extern BtlPacket *btlFormationCreateNamedPacket(u32 formation, const char *text, u16 mode);
 u32 datCalcRandomBelow(u32 bound);
@@ -1924,7 +1925,6 @@ void btlActionReadyInit(void)
 void btlActionReadyUpdate(u8 *arg0)
 {
     extern void func_001eb420(u8 *target);
-    extern struct DatPersonaRecord *datPersonaGetRecord(u16 personaId);
     extern s32 datPersonaFindSkillSlot(u8 *persona, u16 skillId);
     extern s32 btlActionSkillReachesTargets(u8 *action);
     extern void btlActionRollGroupRatio(s32 state);

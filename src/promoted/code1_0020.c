@@ -391,7 +391,6 @@ typedef struct BattleRenderDispatch {
 #pragma pop
 
 extern s32 datItemCount(s16 id);
-extern struct DatPersonaRecord *datPersonaGetRecord(u16 id);
 extern s32 datCalcIsFlaggedPersonaSkill(s32 id);
 extern u8 *iGpffffb3b8;
 

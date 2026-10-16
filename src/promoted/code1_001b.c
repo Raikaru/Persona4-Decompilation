@@ -211,7 +211,6 @@ extern void btlCameraReleaseActionRefs(u8 *arg0);
 extern void datUnitRemoveEncounterUnit(DatUnitEc *arg0, DatUnit *arg1);
 extern void btlCameraSuppressEncounterCallback(void);
 extern u8 *datUnitGetRecord(s16 arg0);
-extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaFindSkillSlot(u8 *arg0, u16 arg1);
 extern void btlPanelReset(s32 arg0);
 extern void datCalcSetHp(s32 arg0, u16 arg1);
@@ -304,6 +303,7 @@ extern u8 *btlActionFindByUnit(s32 arg0);
 
 
 #include "btl_camera_sequence_internal.h"
+#include "datPersona_internal.h"
 
 typedef struct BtlCameraColorReal {
     f32 red, green, blue, alpha;

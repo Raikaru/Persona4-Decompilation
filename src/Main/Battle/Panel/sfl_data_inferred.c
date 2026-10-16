@@ -26,7 +26,6 @@ extern u8 datPersonaGetArcana(u16 personaId);
 extern u8 datPersonaGetLevel(s32 persona);
 extern u32 datPersonaGetExp(s32 persona);
 extern u32 datPersonaGetExpToNextLevel(PersonaWork *persona);
-extern struct DatPersonaRecord *datPersonaGetRecord(u16 pcId);
 
 
 extern void memset(void *dst, s32 value, s32 size);

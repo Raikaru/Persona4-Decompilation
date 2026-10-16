@@ -4,6 +4,7 @@
 #include "datScript_internal.h"
 #include "type.h"
 #include "include_asm.h"
+#include "datPersona_internal.h"
 
 
 extern u32 RpRandom(void);
@@ -50,7 +51,6 @@ extern void datSetUnitSp(s16 character, s16 value);
 extern void datCalcClearBadStatusById(s16 character, u32 mask);
 
 extern u8 *datPersonaGetSkillsByPcId(u16 arg0);
-extern struct DatPersonaRecord *datPersonaGetRecord(u16 arg0);
 extern s32 datPersonaGetLevel(s32 arg0);
 extern u32 datGetMoney(void);
 extern u8 *datUnitGetRecord(s32 arg0);

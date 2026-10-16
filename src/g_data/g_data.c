@@ -4,6 +4,7 @@
 #include "g_data_internal.h"
 #include "datUnit_internal.h"
 #include "h_cdvd.h"
+#include "datPersona_internal.h"
 extern u8 D_007973A0[];
 
 extern s16 D_00797F88[];
@@ -229,7 +230,6 @@ typedef struct PersonaWork {
     u8 bonusStats[5];
 } PersonaWork;
 
-extern struct DatPersonaRecord *datPersonaGetRecord(u16 pcId);
 
 extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 
