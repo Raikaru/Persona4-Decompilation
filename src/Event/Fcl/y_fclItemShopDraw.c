@@ -54,7 +54,7 @@ extern u8 D_0064A3F0[];
 
 s32 func_00332bb0(u8 *arg0);
 extern void func_00332a80(void);
-extern s32 func_0033cc40(u8 *task);
+extern s32 fclItemShopPanelUpdate(u8 *task);
 void chkmemAllocSiteTag(const void *, u32);
 
 void yListDestroy(void);
@@ -82,7 +82,7 @@ extern void func_0033d3d0(u8 *arg0, s32 arg1);
 extern f32 D_0064A2B0[];
 extern f32 D_0064A2B8[];
 extern u8 D_00795E60[];
-extern u32 func_0033cbc0(void *arg0, s32 arg1);
+extern u32 fclItemShopDiscountedPrice(void *arg0, s32 arg1);
 s32 func_002b2cb0(s32, s32, s32, s32, s8);
 s32 func_002b2d00(s32, s32, s32, s32, s8);
 void memcpy(void *, s32, s32);
@@ -100,7 +100,7 @@ extern void func_00440b68(void *, void *, s32);
 extern void *func_00454a60(void *, s32);
 extern s32 func_0046a750(s32);
 extern s32 H_Cdvd_IsFileLoaded(void *);
-extern u8 *func_0033d130(void *, s32, s32);
+extern u8 *fclItemShopPanelCreate(void *, s32, s32);
 extern s32 fadeStatus(void);
 extern s32 func_002bb680(s8 arg0);
 extern void func_002bbcf0(s32 arg0);
@@ -145,7 +145,7 @@ extern void func_002bb0a0(s8 arg0, s32 arg1);
 extern void func_002bbf60(void);
 
 /* The shared SDK update signature accepts func_00332bb0 directly at the
-   func_0033be40 registration site. */
+   fclItemShopCreate registration site. */
 // FUN_00332BB0
 /* Object 37380/window 37392 (retail tail is zero padding). The loops that
    retail colours apart keep their own counters; the case 5 slot loop needs its
@@ -216,28 +216,28 @@ s32 func_00332bb0(u8 *arg0) {
             if (*(void **)(work + j * 4 + 0x10) != 0) {
                 *(void **)(work + j * 4 + 0x10) = 0;
             }
-            *(void **)(work + j * 4 + 0x10) = func_0033d130(arg0, (u16)j, *(s32 *)(work + 0xC));
+            *(void **)(work + j * 4 + 0x10) = fclItemShopPanelCreate(arg0, (u16)j, *(s32 *)(work + 0xC));
         }
         for (k = 0; k < 0xF; k++) {
             if (*(void **)(work + k * 4 + 0x178) != 0) {
                 *(void **)(work + k * 4 + 0x178) = 0;
             }
         }
-        *(void **)(work + 0x178) = func_0033d130(arg0, 0x2B, *(s32 *)(work + 0xC));
-        *(void **)(work + 0x17C) = func_0033d130(arg0, 0x28, *(s32 *)(work + 0xC));
-        *(void **)(work + 0x180) = func_0033d130(arg0, 0x28, *(s32 *)(work + 0xC));
-        *(void **)(work + 0x184) = func_0033d130(arg0, 0x28, *(s32 *)(work + 0xC));
+        *(void **)(work + 0x178) = fclItemShopPanelCreate(arg0, 0x2B, *(s32 *)(work + 0xC));
+        *(void **)(work + 0x17C) = fclItemShopPanelCreate(arg0, 0x28, *(s32 *)(work + 0xC));
+        *(void **)(work + 0x180) = fclItemShopPanelCreate(arg0, 0x28, *(s32 *)(work + 0xC));
+        *(void **)(work + 0x184) = fclItemShopPanelCreate(arg0, 0x28, *(s32 *)(work + 0xC));
         for (j = 0; j < 4; j++) {
-            *(void **)(work + j * 4 + 0x188) = func_0033d130(arg0, 0x28, *(s32 *)(work + 0xC));
+            *(void **)(work + j * 4 + 0x188) = fclItemShopPanelCreate(arg0, 0x28, *(s32 *)(work + 0xC));
             func_0033d320(*(void **)(work + j * 4 + 0x188), 13, 0);
             func_0033d4e0(*(void **)(work + j * 4 + 0x188), 0.0f, 0.0f, 0, 0, 0);
         }
-        *(void **)(work + 0x19C) = func_0033d130(arg0, 0x46, *(s32 *)(work + 0xC));
-        *(void **)(work + 0x198) = func_0033d130(arg0, 0x46, *(s32 *)(work + 0xC));
-        *(void **)(work + 0x1A0) = func_0033d130(arg0, 0x46, *(s32 *)(work + 0xC));
-        *(void **)(work + 0x1A4) = func_0033d130(arg0, 0x46, *(s32 *)(work + 0xC));
-        *(void **)(work + 0x1A8) = func_0033d130(arg0, 0x40, *(s32 *)(work + 0xC));
-        *(void **)(work + 0x1AC) = func_0033d130(arg0, 0x41, *(s32 *)(work + 0xC));
+        *(void **)(work + 0x19C) = fclItemShopPanelCreate(arg0, 0x46, *(s32 *)(work + 0xC));
+        *(void **)(work + 0x198) = fclItemShopPanelCreate(arg0, 0x46, *(s32 *)(work + 0xC));
+        *(void **)(work + 0x1A0) = fclItemShopPanelCreate(arg0, 0x46, *(s32 *)(work + 0xC));
+        *(void **)(work + 0x1A4) = fclItemShopPanelCreate(arg0, 0x46, *(s32 *)(work + 0xC));
+        *(void **)(work + 0x1A8) = fclItemShopPanelCreate(arg0, 0x40, *(s32 *)(work + 0xC));
+        *(void **)(work + 0x1AC) = fclItemShopPanelCreate(arg0, 0x41, *(s32 *)(work + 0xC));
         if (yListCount() > 5) {
             *(f32 *)(work + 0x420) = 108.0f / (f32)(yListCount() - 5);
         }
@@ -966,7 +966,7 @@ s32 func_00332bb0(u8 *arg0) {
         *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
         if (func_0033d390(*(void **)(work + 0xCC), 1) == 0) {
             fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
-                          func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35, *(void **)(work + 0xC), 0xAB);
+                          fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35, *(void **)(work + 0xC), 0xAB);
             func_0033c490(arg0);
             tbl = (F2_0033 *)D_0064A218;
             *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30) =
@@ -1047,7 +1047,7 @@ s32 func_00332bb0(u8 *arg0) {
                 }
                 func_002b2f90(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);
             } else if (D_008C024E[0] & 0x40) {
-                if (func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))) <= func_002e7a60() &&
+                if (fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) <= func_002e7a60() &&
                     (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) < 0x63) {
                     tbl = (F2_0033 *)D_0064A210;
                     func_0033d3e0(*(void **)(work + 0xD0),
@@ -1329,7 +1329,7 @@ s32 func_00332bb0(u8 *arg0) {
         *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
         *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
         fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
-                      *(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
+                      *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
                       *(void **)(work + 0xC), 0xAB);
         func_0033c490(arg0);
         *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
@@ -1369,7 +1369,7 @@ s32 func_00332bb0(u8 *arg0) {
             *(s8 *)(work + 8) = func_002bab80(*(s32 *)(*(u8 **)(work + 0x428) + 0x110));
             sprintf(buf, "%d", *(s8 *)(work + 3));
             func_002bbd80(*(s8 *)(work + 8), 1, buf);
-            sprintf(buf, "%d", *(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))));
+            sprintf(buf, "%d", *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))));
             func_002bbd80(*(s8 *)(work + 8), 2, buf);
             func_002badc0(*(s8 *)(work + 8), 1);
             func_002bafc0(*(s8 *)(work + 8), 0);
@@ -1382,8 +1382,8 @@ s32 func_00332bb0(u8 *arg0) {
             }
             *(s8 *)(work + 3) = func_002b2cb0(*(s8 *)(work + 3), 1,
                                               (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
-            if (*(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))) > func_002e7a60()) {
-                *(s8 *)(work + 3) = func_002e7a60() / func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4)));
+            if (*(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) > func_002e7a60()) {
+                *(s8 *)(work + 3) = func_002e7a60() / fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4)));
             }
             tbl = (F2_0033 *)D_0064A328;
             func_0033d3e0(*(void **)(work + 0x15C), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y - 7.0f), 1,
@@ -1402,8 +1402,8 @@ s32 func_00332bb0(u8 *arg0) {
             }
             *(s8 *)(work + 3) = func_002b2cb0(*(s8 *)(work + 3), 0xA,
                                               (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
-            if (*(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))) > func_002e7a60()) {
-                *(s8 *)(work + 3) = func_002e7a60() / func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4)));
+            if (*(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) > func_002e7a60()) {
+                *(s8 *)(work + 3) = func_002e7a60() / fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4)));
             }
             tbl = (F2_0033 *)D_0064A328;
             func_0033d3e0(*(void **)(work + 0x15C), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y - 7.0f), 1,
@@ -1447,7 +1447,7 @@ s32 func_00332bb0(u8 *arg0) {
         *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
         *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
         fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
-                      *(s8 *)(work + 3) * func_0033cbc0(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
+                      *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
                       *(void **)(work + 0xC), 0xAB);
         func_0033c490(arg0);
         frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
@@ -1461,7 +1461,7 @@ s32 func_00332bb0(u8 *arg0) {
             func_00106620((s16)yListValueAt(*(s16 *)(work + 4)),
                           (u8)(*(s8 *)(work + 3) + (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))));
             func_002e7a80(func_002e7a60() -
-                          *(s8 *)(work + 3) * func_0033cbc0(arg0, (s16)yListValueAt(*(s16 *)(work + 4))));
+                          *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, (s16)yListValueAt(*(s16 *)(work + 4))));
             *(f32 *)(work + 0x1E0) = 580.0f - 21.0f * (f32)func_002b3170(func_002e7a60()) + 0.0f;
             *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
                 (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
@@ -1650,8 +1650,9 @@ s32 func_00332bb0(u8 *arg0) {
 }
 #pragma opt_loop_invariants off /* measured: restore the baseline */
 
+// Item shop task destroy: releases the item list, the CDVD and sprite handles, then calls the destroy jump-table entry.
 // FUN_0033BDC0
-void func_0033bdc0(u8 *arg0) {
+void fclItemShopDestroy(u8 *arg0) {
     u8 *work = *(u8 **)(arg0 + 0x38);
 
     yListDestroy();
@@ -1665,12 +1666,13 @@ void func_0033bdc0(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
+// Creates the item shop task under arg0: allocates the 0x42C-byte work, sets the initial layout values and item flags, then registers the update and destroy callbacks.
 /* measured: object_size 324/window 336, normalized_diff 0 (retail tail is
    zero padding). MWCCPS2 needs opt_loop_invariants on to hoist the loop's
    `1` constant before the entry jump, matching retail's preheader materialisation. */
 #pragma opt_loop_invariants on
 // FUN_0033BE40
-u8 *func_0033be40(u8 *arg0) {
+u8 *fclItemShopCreate(u8 *arg0) {
     s32 i;
     s32 one;
     u8 *temp_17;
@@ -1678,7 +1680,7 @@ u8 *func_0033be40(u8 *arg0) {
 
     chkmemAllocSiteTag(D_0064A380, 0x958);
     temp_2 = (s8 *)D_008873F4[0](1, 0x42C, 0x40000);
-    temp_17 = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A3D8), 0xF, 0, 0, func_00332bb0, func_0033bdc0, (u8 *)((u8 *)temp_2));
+    temp_17 = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A3D8), 0xF, 0, 0, func_00332bb0, fclItemShopDestroy, (u8 *)((u8 *)temp_2));
     *(s8 *)(temp_2 + 0) = 0;
     *(s32 *)(temp_2 + 0xC) = 0;
     *(f32 *)(temp_2 + 0x1E0) = (f32)0x28A;
@@ -1839,7 +1841,7 @@ void func_0033c490(u8 *arg0)
         pos1 = func_002b2970(406.0f, 84.0f);
         col1 = func_002b2a60(0x26, 0x26, 0x26, 0xFF);
         fclShopDrawNumber(pos1, 62.0f, col1,
-                      func_0033cbc0(arg0, yListValueAt(*(s16 *)(p + 4))), 0x19,
+                      fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(p + 4))), 0x19,
                       *(void **)(p + 0xC), 0xAB);
         func_002bc7f0((s16)func_00106b80((s16)yListValueAt(*(s16 *)(p + 4))), -1, 1, 0, 4, 0xAA,
                       71.0f, 135.0f, 62.0f);
@@ -1884,7 +1886,7 @@ void func_0033c490(u8 *arg0)
         if (i == *(s16 *)(p + 4)) {
             red = green = blue = 0x26;
         } else {
-            price = func_0033cbc0(arg0, yListValueAt(i));
+            price = fclItemShopDiscountedPrice(arg0, yListValueAt(i));
             if (func_002e7a60() < price) {
                 red = 0x4F;
                 green = blue = 0;
@@ -1902,21 +1904,23 @@ void func_0033c490(u8 *arg0)
         fclShopDrawItemName(i, (f32)top, red, green, blue);
         pos2 = func_002b2970(406.0f, (f32)(y + 0x54));
         col2 = func_002b2a60(red, green, blue, 0xFF);
-        fclShopDrawNumber(pos2, 62.0f, col2, func_0033cbc0(arg0, yListValueAt(i)),
+        fclShopDrawNumber(pos2, 62.0f, col2, fclItemShopDiscountedPrice(arg0, yListValueAt(i)),
                       0x19, *(void **)(p + 0xC), 0xAB);
     }
 }
+// Returns the price for item arg1 after a percentage discount: base price minus (base * work[9] * 20 / 100).
 // FUN_0033CBC0
-u32 func_0033cbc0(void *arg0, s32 arg1) {
+u32 fclItemShopDiscountedPrice(void *arg0, s32 arg1) {
     u8 *work = *(u8 **)((u8 *)arg0 + 0x38);
     u32 d = (u32)((s32)(*(s8 *)(work + 9) * (s32)func_00106a90((s64)(s16)arg1)) * 0x14) / 100U;
 
     return (u32)func_00106a90((s64)(s16)(s32)arg1) - d;
 }
 
+// Item panel task update callback: runs each frame for the panel's work block.
 /* measured: 1216B/1216B MATCH (304 instrs, 0 edits + 9 reloc-only). Re-probed from scratch: floats-first func_0025ecd0 spelling (f32,f32,f32 first, then color/ints, then f32,f32,f32, pointer last) with u16 0xF8 load (lhu) and inline s16/2 division gives retail scheduling; shift+temp hoisting was +33, s16 F8 was +2 (35), archive ints-first is a compile error under this prototype. Mixed-arg orders tested explicitly. */
 // FUN_0033CC40
-s32 func_0033cc40(u8 *arg0) {
+s32 fclItemShopPanelUpdate(u8 *arg0) {
     f32 temp_f0;
     f32 temp_f21;
     f32 temp_f20;
@@ -2031,11 +2035,13 @@ s32 func_0033cc40(u8 *arg0) {
     return 0;
 }
 
+// Item panel task destroy: calls the destroy jump-table entry for its work block.
 // FUN_0033D100
-void func_0033d100(u8 *arg0) {
+void fclItemShopPanelDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
+// Creates the item panel task under arg0 for item index arg1 with flag arg2: allocates the 0x104-byte work, registers its update and destroy callbacks, and initialises the three slot rows from the item table.
 // FUN_0033D130
 /* Counter must be s32 with explicit (s16) casts at each use to reproduce
    retail's $a3 counter coloring and the per-use dsll32/dsra32 normalization.
@@ -2043,7 +2049,7 @@ void func_0033d100(u8 *arg0) {
    constants inside the loop body (nd 50+); with it they hoist to the
    preheader exactly as retail does (nd 0). */
 #pragma opt_loop_invariants on
-u8 *func_0033d130(void *arg0, s32 arg1, s32 arg2) {
+u8 *fclItemShopPanelCreate(void *arg0, s32 arg1, s32 arg2) {
     s32 i;
     u8 *temp_17;
     u8 *work;
@@ -2052,7 +2058,7 @@ u8 *func_0033d130(void *arg0, s32 arg1, s32 arg2) {
 
     chkmemAllocSiteTag(D_0064A380, 0xACA);
     work = D_008873F4[0](1, 0x104, 0x40000);
-    temp_17 = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A3F0), 0xF, 0, 0, func_0033cc40, func_0033d100, (u8 *)(work));
+    temp_17 = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A3F0), 0xF, 0, 0, fclItemShopPanelUpdate, fclItemShopPanelDestroy, (u8 *)(work));
     work[0] = 0;
     *(s16 *)(work + 0xF8) = arg1;
     *(s32 *)(work + 0xF4) = arg2;
