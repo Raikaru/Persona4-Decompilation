@@ -3534,15 +3534,17 @@ normalized_done:
 }
 
 
+// Stores the position quad into the record at +0x58 through mdlEffectStoreQuadA, the same record ObjectParticleAppendNode reads. DistortParticleStorePosition stores the same way at +0x5c.
 // FUN_004AF5E0
-void func_004af5e0(u8 *instance, u32 *position)
+void ObjectParticleStorePosition(u8 *instance, u32 *position)
 {
     mdlEffectStoreQuadA(*(s32 *)(instance + 0x58), position);
 }
 
 
+// Stores the rotation quad into the record at +0x58 through mdlEffectStoreQuadB, the same record ObjectParticleAppendNode reads.
 // FUN_004AF610
-void func_004af610(u8 *instance, u32 *rotation)
+void ObjectParticleStoreRotation(u8 *instance, u32 *rotation)
 {
     mdlEffectStoreQuadB(*(s32 *)(instance + 0x58), rotation);
 }
