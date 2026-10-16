@@ -461,7 +461,7 @@ void func_0033d4e0(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg
 }
 // Identical to fclObjStartTween (code1_002e.c).
 // FUN_0033D520
-void func_0033d520(u8 *arg0, f32 fparg0, f32 fparg1, u8 arg1, s32 arg2, s64 arg3)
+void fclBustupObjStartTween(u8 *arg0, f32 fparg0, f32 fparg1, u8 arg1, s32 arg2, s64 arg3)
 {
     fclSpriteStartTween(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, fparg0, fparg1);
 }

@@ -21,6 +21,6 @@ void fclObjStartRevealScale(u8 *task, f32 firstX, f32 firstY, f32 secondX, f32 s
 void fclObjStartTween(u8 *task, f32 first, f32 second, u8 mode, s32 duration, s64 delay);
 void fclBustupObjStartAlpha(u8 *task, u8 first, u8 second, u8 mode, s32 duration, s64 delay);
 void func_0033d4e0(u8 *task, f32 first, f32 second, u32 mode, u32 duration, s64 delay);
-void func_0033d520(u8 *task, f32 first, f32 second, u8 mode, s32 duration, s64 delay);
+void fclBustupObjStartTween(u8 *task, f32 first, f32 second, u8 mode, s32 duration, s64 delay);
 
 #endif

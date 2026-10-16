@@ -281,7 +281,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         fclBustupObjStartPosition(*(void **)(work + 0x10), fclMakeVec2(0x28A, D_0064A090[1]), fclMakeVec2(D_0064A090[0], D_0064A090[1]),
                       0, 0x1E, 0xA);
         fclBustupObjChangeFlagBit(*(void **)(work + 0x10), 3, 0);
-        func_0033d520(*(u8 **)(work + 0x10), 720.0f, 0.0f, 0, 0x1E, 0xA);
+        fclBustupObjStartTween(*(u8 **)(work + 0x10), 720.0f, 0.0f, 0, 0x1E, 0xA);
         func_0033d3c0(*(void **)(work + 0x10), 36.0f);
         func_0033d3d0(*(void **)(work + 0x10), 0x62);
         tbl = (F2_0033 *)D_0064A338;
@@ -306,7 +306,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             fclBustupObjChangeFlagBit(*(void **)(work + i4 * 4 + 0x17C), 0, 0);
             fclBustupObjStartAlpha(*(void **)(work + i4 * 4 + 0x17C), 0, 0xFF, 0, 7, 0x3F);
             func_0033d4e0(*(void **)(work + i4 * 4 + 0x17C), 0.1f, 1.0f, 0, 0xF, 0x3F);
-            func_0033d520(*(u8 **)(work + i4 * 4 + 0x17C), (f32)((i4 + 1) * 0x5A), (f32)((i4 + 1) * 0x5A), 0, 0, 0);
+            fclBustupObjStartTween(*(u8 **)(work + i4 * 4 + 0x17C), (f32)((i4 + 1) * 0x5A), (f32)((i4 + 1) * 0x5A), 0, 0, 0);
             func_0033d3c0(*(void **)(work + i4 * 4 + 0x17C), (f32)(i4 + 0x31));
             func_0033d3d0(*(void **)(work + i4 * 4 + 0x17C), 0x5B);
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + i4 * 4 + 0x17C)) + 0x100) = *(s16 *)(fclBustupObjGetWork(*(void **)(work + i4 * 4 + 0x17C)) + 0x102) = 0;
@@ -750,7 +750,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             fclBustupObjChangeFlagBit(*(void **)(work + i22 * 4 + 0x188), 13, 0);
             fclBustupObjChangeFlagBit(*(void **)(work + i22 * 4 + 0x188), 0, 0);
             func_0033d4e0(*(void **)(work + i22 * 4 + 0x188), 0.1f, 2.7f, 0, 0xC, 0);
-            func_0033d520(*(u8 **)(work + i22 * 4 + 0x188), 0.0f, i22 * 0x5A, 0, 0, 0);
+            fclBustupObjStartTween(*(u8 **)(work + i22 * 4 + 0x188), 0.0f, i22 * 0x5A, 0, 0, 0);
             func_0033d3c0(*(void **)(work + i22 * 4 + 0x188), 1.0f);
             func_0033d3d0(*(void **)(work + i22 * 4 + 0x188), 0x64);
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + i22 * 4 + 0x188)) + 0x100) = *(s16 *)(fclBustupObjGetWork(*(void **)(work + i22 * 4 + 0x188)) + 0x102) = 0;
@@ -759,7 +759,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         fclBustupObjChangeFlagBit(*(void **)(work + 0x10), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x10), fclMakeVec2(D_0064A090[0], D_0064A090[1]), fclMakeVec2(428.0f, 241.0f),
                       0, 0xF, 0);
-        func_0033d520(*(u8 **)(work + 0x10), -360.0f, 0.0f, 0, 0xF, 0);
+        fclBustupObjStartTween(*(u8 **)(work + 0x10), -360.0f, 0.0f, 0, 0xF, 0);
         tbl = (F2_0033 *)D_0064A320;
         fclBustupObjChangeFlagBit(*(void **)(work + 0x158), 0, 0);
         fclBustupObjStartAlpha(*(void **)(work + 0x158), 0, 0xFF, 0, 0, 0xF);
@@ -785,7 +785,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         tbl = (F2_0033 *)D_0064A1F8;
         fclBustupObjChangeFlagBit(*(void **)(work + 0xC4), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0xC4), fclMakeVec2(980.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 8, 5);
-        func_0033d520(*(u8 **)(work + 0xC4), 0.0f, -90.0f, 0, 0, 0);
+        fclBustupObjStartTween(*(u8 **)(work + 0xC4), 0.0f, -90.0f, 0, 0, 0);
         *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0xC4)) + 0xBC) = *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0xC4)) + 0xC0) =
             *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0xC4)) + 0xC4) = -90.0f;
         func_0033d3c0(*(void **)(work + 0xC4), 44.0f);
@@ -876,7 +876,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             tbl = (F2_0033 *)D_0064A318;
             fclBustupObjChangeFlagBit(*(void **)(work + 0x154), 0, 0);
             fclBustupObjStartPosition(*(void **)(work + 0x154), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
-            func_0033d520(*(u8 **)(work + 0x154), -90.0f, 0.0f, 0, 7, 0xA);
+            fclBustupObjStartTween(*(u8 **)(work + 0x154), -90.0f, 0.0f, 0, 7, 0xA);
             func_0033d3c0(*(void **)(work + 0x154), 40.0f);
             func_0033d3d0(*(void **)(work + 0x154), 0x62);
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x154)) + 0x100) = 0;
@@ -887,7 +887,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             tbl = (F2_0033 *)D_0064A340;
             fclBustupObjChangeFlagBit(*(void **)(work + 0x168), 0, 0);
             fclBustupObjStartPosition(*(void **)(work + 0x168), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
-            func_0033d520(*(u8 **)(work + 0x168), 150.0f, 0.0f, 0, 0xA, 0x1B);
+            fclBustupObjStartTween(*(u8 **)(work + 0x168), 150.0f, 0.0f, 0, 0xA, 0x1B);
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x168)) + 0x100) = 0x231 - tbl->x;
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x168)) + 0x102) = 470.0f - tbl->y;
             func_0033d3c0(*(void **)(work + 0x168), 24.0f);
@@ -1195,22 +1195,22 @@ s32 fclItemShopUpdate(u8 *arg0) {
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x120), 0, 1);
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x124), 0, 1);
                     if (*(s8 *)(work + 0x424) == 1) {
-                        func_0033d520(*(u8 **)(work + 0x154), 0.0f, 180.0f, 0, 7, 0);
+                        fclBustupObjStartTween(*(u8 **)(work + 0x154), 0.0f, 180.0f, 0, 7, 0);
                     }
                     if (*(s8 *)(work + 9) == 1) {
-                        func_0033d520(*(u8 **)(work + 0x168), 0.0f, -150.0f, 0, 0xA, 0);
+                        fclBustupObjStartTween(*(u8 **)(work + 0x168), 0.0f, -150.0f, 0, 0xA, 0);
                         tbl = (F2_0033 *)D_0064A348;
                         *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x16C)) + 0x100) = 0x231 - tbl->x;
                         *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x16C)) + 0x102) = 470.0f - tbl->y;
-                        func_0033d520(*(u8 **)(work + 0x16C), 0.0f, -150.0f, 0, 0xA, 0);
+                        fclBustupObjStartTween(*(u8 **)(work + 0x16C), 0.0f, -150.0f, 0, 0xA, 0);
                         tbl = (F2_0033 *)D_0064A350;
                         *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x170)) + 0x100) = 0x231 - tbl->x;
                         *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x170)) + 0x102) = 470.0f - tbl->y;
-                        func_0033d520(*(u8 **)(work + 0x170), 0.0f, -150.0f, 0, 0xA, 0);
+                        fclBustupObjStartTween(*(u8 **)(work + 0x170), 0.0f, -150.0f, 0, 0xA, 0);
                         tbl = (F2_0033 *)D_0064A358;
                         *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x174)) + 0x100) = 0x231 - tbl->x;
                         *(s16 *)(fclBustupObjGetWork(*(void **)(work + 0x174)) + 0x102) = 470.0f - tbl->y;
-                        func_0033d520(*(u8 **)(work + 0x174), 0.0f, -30.0f, 0, 2, 0);
+                        fclBustupObjStartTween(*(u8 **)(work + 0x174), 0.0f, -30.0f, 0, 2, 0);
                         func_0033d420(*(u8 **)(work + 0x174), *(F2_0033 *)(fclBustupObjGetWork(*(void **)(work + 0x174)) + 0x2C),
                                       fclMakeVec2(-300.0f + tbl->x, 250.0f + tbl->y), 0, 2, 0x14, 1);
                     }
@@ -1218,7 +1218,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
                     fclBustupObjChangeFlagBit(*(void **)(work + 0x10), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0x10), fclMakeVec2(428.0f, 241.0f),
                                   fclMakeVec2(D_0064A090[0], D_0064A090[1]), 0, 0xF, 5);
-                    func_0033d520(*(u8 **)(work + 0x10), 720.0f, 0.0f, 0, 0xF, 5);
+                    fclBustupObjStartTween(*(u8 **)(work + 0x10), 720.0f, 0.0f, 0, 0xF, 5);
                     tbl = (F2_0033 *)D_0064A1D8;
                     fclBustupObjChangeFlagBit(*(void **)(work + 0xB4), 0, 0);
                     fclBustupObjStartPosition(*(void **)(work + 0xB4), fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
@@ -1529,7 +1529,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             *(s16 *)(work + 0x1EA) = 0;
             fclBustupObjStartPosition(*(void **)(work + 0x10), *(F2_0033 *)(fclBustupObjGetWork(*(void **)(work + 0x10)) + 0x2C),
                           fclMakeVec2(0x28A, *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0x10)) + 0x30)), 0, 0xA, 0);
-            func_0033d520(*(u8 **)(work + 0x10), *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0x10)) + 0xC4),
+            fclBustupObjStartTween(*(u8 **)(work + 0x10), *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0x10)) + 0xC4),
                           *(f32 *)(fclBustupObjGetWork(*(void **)(work + 0x10)) + 0xBC), 0, 0xA, 0);
             func_0033d550(*(void **)(work + 0xB4));
             func_0033d550(*(void **)(work + 0xB8));
@@ -1627,7 +1627,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             fclBustupObjChangeFlagBit(*(void **)(work + i42 * 4 + 0x188), 13, 0);
             fclBustupObjChangeFlagBit(*(void **)(work + i42 * 4 + 0x188), 0, 0);
             func_0033d4e0(*(void **)(work + i42 * 4 + 0x188), 0.1f, 2.7f, 0, 0xA, 0);
-            func_0033d520(*(u8 **)(work + i42 * 4 + 0x188), 0.0f, i42 * 0x5A, 0, 0, 0);
+            fclBustupObjStartTween(*(u8 **)(work + i42 * 4 + 0x188), 0.0f, i42 * 0x5A, 0, 0, 0);
             func_0033d3c0(*(void **)(work + i42 * 4 + 0x188), 1.0f);
             *(s16 *)(fclBustupObjGetWork(*(void **)(work + i42 * 4 + 0x188)) + 0x100) = *(s16 *)(fclBustupObjGetWork(*(void **)(work + i42 * 4 + 0x188)) + 0x102) = 0;
             *(u8 *)(fclBustupObjGetWork(*(void **)(work + i42 * 4 + 0x188)) + 0x62) = 2;
@@ -1636,7 +1636,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         fclBustupObjChangeFlagBit(*(void **)(work + 0x10), 0, 0);
         fclBustupObjStartPosition(*(void **)(work + 0x10), fclMakeVec2(D_0064A090[0], D_0064A090[1]), fclMakeVec2(0x28A, 241.0f),
                       0, 0xA, 0);
-        func_0033d520(*(u8 **)(work + 0x10), -720.0f, 0.0f, 0, 0xA, 0);
+        fclBustupObjStartTween(*(u8 **)(work + 0x10), -720.0f, 0.0f, 0, 0xA, 0);
         func_0033d3d0(*(void **)(work + 0x10), 0x62);
         func_00122520(1, 0x1E);
         *(s8 *)(work + 0) = 0x12;
