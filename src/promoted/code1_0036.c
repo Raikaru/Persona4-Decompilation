@@ -47,7 +47,7 @@ extern void radarAnimateValue(u8 *arg0, s16 arg1, s32 arg2);
 extern s32 nLineIsIdle(void);
 extern u32 datGetFlag(s32 arg0);
 extern s32 cmpSystemSetSelection(u8 *arg0, s32 arg1, s16 arg2);
-extern void func_0034f8f0(void *arg0);
+extern void datSmoothTargetStep(void *arg0);
 extern s32 datCalcGetLevelById(s32 arg0);
 
 extern u8 *PrimAllocQueueNode(void);
@@ -241,7 +241,7 @@ void func_00361ae0(u8 *arg0)
         if (score < bottomScore) score = bottomScore;
         p = arg0 + i * 0xA;
         *(s16 *)(p + 0x5E8) = (s16)score;
-        func_0034f8f0(p + 0x5E8);
+        datSmoothTargetStep(p + 0x5E8);
         i++;
     }
 }
