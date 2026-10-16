@@ -67,7 +67,7 @@ extern void mdlInitIdentityMatrix(void *arg0);
 extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
 extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
 extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
-extern void func_004abe60(void);
+extern void EffModelResetCallback(void);
 extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
@@ -113,7 +113,7 @@ void func_004abbb0(u8 *arg0)
         mdlSetLayerWeight(arg0, 0, 1.0f);
     }
     *(s32 *)(arg0 + 0xD8) &= ~2;
-    mdlSetResetCallback(arg0, func_004abe60, arg0);
+    mdlSetResetCallback(arg0, EffModelResetCallback, arg0);
 }
 
 /* Measured: scoped propagation preserves constant-first model lookup arguments. */
@@ -139,7 +139,7 @@ loop_004abc50_check:
         mdlSetLayerWeight(temp_2, 0, 1.0f);
     }
     *(s32 *)(temp_2 + 0xD8) &= ~2;
-    mdlSetResetCallback(temp_2, func_004abe60, temp_2);
+    mdlSetResetCallback(temp_2, EffModelResetCallback, temp_2);
     iGpffffbb90 += 1;
     return temp_2;
 }

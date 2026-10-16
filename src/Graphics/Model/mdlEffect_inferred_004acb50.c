@@ -250,7 +250,7 @@ void func_004accc0(u8 *arg0)
     }
 }
 
-/* measured: effModel func_004ac300 VU0 colour-pack idiom with D_00761134 (1/255) scale; */
+/* measured: effModel EffModelUpdate VU0 colour-pack idiom with D_00761134 (1/255) scale; */
 /* measured: plain `(u32)temp_f0` gives retail's `lui $3,0x8000; or` (no D_80000001, unlike */
 /* measured: the `+1` siblings); `sp5C = *(s32 *)&sp50` forces the packed word back through */
 /* measured: memory so the `lw $2,0x50; sw $2,0x5C` copy survives and the saved ranking stays */

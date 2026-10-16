@@ -114,7 +114,7 @@ extern void mdlInitIdentityMatrix(void *arg0);
 extern s32 mdlLayerIsPresent(void *arg0, s32 arg1);
 extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
 extern void mdlSetResetCallback(void *arg0, void (*arg1)(void), void *arg2);
-extern void func_004abe60(void);
+extern void EffModelResetCallback(void);
 extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
