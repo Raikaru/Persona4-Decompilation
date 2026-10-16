@@ -728,7 +728,7 @@ void datInitDefaultGameState(void)
     void func_0010fc80(void);
     void MT_Scene_ResetFrameState(void);
     void FldStepResetTables(void);
-    void func_00162120(void);
+    void FldStateTablesClear(void);
     extern u16 D_005E4630[];
     extern s16 D_005E4650[];
 
@@ -808,7 +808,7 @@ loop_4_check:
     datSetPartyId(2, 0);
     datSetPartyId(3, 0);
     MT_Scene_ResetFrameState();
-    func_00162120();
+    FldStateTablesClear();
     FldStepResetTables();
     func_0010f390();
     func_0010f4c0();

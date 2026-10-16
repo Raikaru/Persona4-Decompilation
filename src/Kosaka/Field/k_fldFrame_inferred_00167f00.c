@@ -80,7 +80,7 @@ extern char D_005F11E8[];
 extern char D_005F1200[];
 extern s32 iGpffff9f08;
 extern u8 *iGpffff9db0;
-extern s32 func_001623f0();
+extern s32 FldDayEventActive();
 extern s32 D_005F1350[];
 extern void mdlAttachSlotModelFromResource(void *arg0, u16 arg1, u32 arg2, u16 arg3,
                            void *arg4, u32 arg5);
@@ -176,10 +176,10 @@ static inline f32 code1_0016_cvt(s32 value) {
  * read before the row-offset calculations across the branch join. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off probe for retail field-load order in func_001615a0 */
-/* measured: opt_propagation on closes the func_001615a0 load-order probe */
-/* measured: opt_propagation off preserves the retail recomputed index and live register set in func_00162200. */
-/* measured: closes the opt_propagation bracket for func_00162200. */
+/* measured: opt_propagation off probe for retail field-load order in FldEnemyLoadTable */
+/* measured: opt_propagation on closes the FldEnemyLoadTable load-order probe */
+/* measured: opt_propagation off preserves the retail recomputed index and live register set in FldPartyModelRelease. */
+/* measured: closes the opt_propagation bracket for FldPartyModelRelease. */
 /* measured: direct global address expressions preserve retail bases while
    opt_loop_invariants hoists the stride (nd 14 -> 0). */
 /* measured: direct global address expression preserves retail base/stride
@@ -188,8 +188,8 @@ static inline f32 code1_0016_cvt(s32 value) {
 /* measured: direct global address expression preserves retail base/stride
    register assignment while loop invariants hoist the stride (nd 0). */
 /* measured: closes the loop-invariant scope at the file baseline. */
-/* measured: optimization_level 1 reproduces func_001623f0's register coloring. */
-/* measured: restore baseline optimization level after func_001623f0. */
+/* measured: optimization_level 1 reproduces FldDayEventActive's register coloring. */
+/* measured: restore baseline optimization level after FldDayEventActive. */
 // FUN_00167F00
 s32 FldFrameTask_UpdateFollower(u8 *arg0)
 {

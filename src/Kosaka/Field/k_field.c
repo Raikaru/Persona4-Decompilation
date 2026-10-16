@@ -27,7 +27,7 @@ extern void resrcMngSelectDrawSet(s32);
 extern void kwlnTaskDestroyWithHierarchy(s32);
 extern void FldResource_Destroy(s32);
 extern s32 func_00102980(void);
-extern void func_001622d0(void);
+extern void FldSlotTablesReset(void);
 extern void FldUnit_ReleaseGroupSlots(void);
 extern void FldUnit_ReleaseAllSlots(void);
 extern void memset(void *, s32, s32);
@@ -85,14 +85,14 @@ extern s32 func_00293fc0(s32);
 extern s32 func_002940a0(s32, s32 *, s32 *, s32 *, s32 *);
 extern void kAssertFail(const void *, s32);
 extern void FldResource_OpenPrimaryFile(u16, u16);
-extern void func_00162200(s32);
+extern void FldPartyModelRelease(s32);
 extern void fadeBegin(void);
 extern void FldUnit_SpawnAtEntry(u16, u16, u16);
 extern void resrcMngSetRenderSuppressed(s32);
 extern s32 FldLoadTaskCreate(u8 *, u16, u16, s16, s16, s32, s32, s32);
 extern s32 FldUnit_UpdateTable(void);
 extern s32 kwlnTaskIsLinked(s32);
-extern s32 func_001614d0(void);
+extern s32 FldFilterGetEntry(void);
 extern void FldUnit_UpdateFacing(void);
 extern void FldUnit_RequestSceneResource(void);
 extern s32 FldMap_IsCurrentInEitherBand(void);
@@ -173,7 +173,7 @@ s32 FldRootUpdate(u8 *task)
                 work->direction = direction;
                 FldResource_OpenPrimaryFile(work->field, work->room);
                 for (index = 0; index < 4; index++) {
-                    func_00162200(index);
+                    FldPartyModelRelease(index);
                 }
                 fadeBegin();
                 work->state = 2;
@@ -198,7 +198,7 @@ s32 FldRootUpdate(u8 *task)
         /* fallthrough */
     case 3:
         if (FldUnit_UpdateTable() != 0 && kwlnTaskIsLinked(work->loadTask) != 1) {
-            if (func_001614d0() == 3) {
+            if (FldFilterGetEntry() == 3) {
                 resrcMngSelectDrawSet(1);
             }
             work->state = 4;
@@ -390,7 +390,7 @@ void FldRootDestroy(u8 *arg0)
     if (func_00102980() != 9 &&
         func_00102980() != 0xB &&
         func_00102980() != 0xA) {
-        func_001622d0();
+        FldSlotTablesReset();
     }
     if ((u16)*(u16 *)(temp_17 + 0x18) < 0x15) {
         goto field_special;
@@ -406,7 +406,7 @@ field_special:
         goto field_done;
     }
 field_call:
-    func_001622d0();
+    FldSlotTablesReset();
 field_done:
     FldUnit_ReleaseGroupSlots();
     FldUnit_ReleaseAllSlots();

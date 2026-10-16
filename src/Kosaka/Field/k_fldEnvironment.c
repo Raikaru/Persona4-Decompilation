@@ -4,7 +4,7 @@
 #include "type.h"
 
 extern void func_00161460(s32 arg0, s32 arg1, s32 arg2);
-extern void func_00161500(s32 arg0);
+extern void FldFilterSetIndex(s32 arg0);
 
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
@@ -124,7 +124,7 @@ void FldFilterSetIntensity(u8 *arg0, s32 arg1)
 
     work = *(u8 **)(arg0 + 0x38);
     *(s32 *)(work + 0xC) = arg1;
-    func_00161500(arg1);
+    FldFilterSetIndex(arg1);
 }
 
 // FUN_00153C00

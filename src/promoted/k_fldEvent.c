@@ -57,7 +57,7 @@ s32 func_0015a100(void);
 s32 func_0015a130(void);
 s32 func_0029db50(s32, s32, s32, s32);
 s32 kwlnTaskIsLinked(void *);
-s32 *func_00162390(void);
+s32 *FldObjFindFree(void);
 s32 datUnitCreateEncounterGroup(s32);
 s32 FldEvent_FieldToBattle(u8 *);
 u32 datUnitGroupIsDefeated(struct DatUnitGenusBase *);

@@ -82,10 +82,10 @@ extern void FldEvent_BeginGridScan(void);
 extern s32 FldEvent_NextGridCell(s32 *arg0, s32 *arg1);
 extern s32 datGetFlag(s32 arg0);
 extern s32 MT_Scene_CreateModelFldRes(s32 arg0, s32 arg1);
-extern u8 *func_00162330(void);
+extern u8 *FldSlotFindFree(void);
 typedef struct DatUnitPc DatUnitPc;
 extern DatUnitPc *datUnitCreatePc(u16 arg0);
-extern u8 *func_00162680(u16 arg0, u16 arg1, s32 arg2);
+extern u8 *FldPartyModelGet(u16 arg0, u16 arg1, s32 arg2);
 extern u8 datPersonaGetLevelByPcId(u16 arg0);
 extern s16 datGetPartyId(s32 arg0);
 extern s32 datCalcGetLevelById(s32 arg0);
@@ -169,7 +169,7 @@ void MT_Scene_DestroyRes(u16 arg0);
 void mdlClearAlphaBlend(s32 arg0);
 void mdlDestroyModelObject(u8 *arg0);
 void kwlnTaskDestroyWithHierarchy(s32 arg0);
-s32 func_00162510(u16 arg0, u16 arg1);
+s32 FldRoomIsListed(u16 arg0, u16 arg1);
 s32 FldStepIndex(void);
 s32 FldUnit_UpdatePartyState(u8 *arg0);
 u8 *MT_Scene_GetResListHead(s32 arg0);
@@ -200,7 +200,7 @@ extern s32 FldUnit_UpdateTable(void);
  *
  * measured: 1 -> 0 fnalign edits, 736 instructions. The remaining operand was a
  * real inline-result lifetime, not a compiler floor. The calendar search below
- * follows matched sibling func_001623f0: its initial found = 0 and early return 0
+ * follows matched sibling FldDayEventActive: its initial found = 0 and early return 0
  * both survive allocation, giving found four counted references and retail's $s5.
  * Post-color CSE removes the early-return zero; the success store is then the
  * required addiu $s5, $zero, 1. A capture confirms that exact deletion.
@@ -324,7 +324,7 @@ static inline FieldUnitRecord *fieldUnitSlotAt(const s32 *index)
     return (FieldUnitRecord *)(D_007EF9B0 + (*index * 0x750));
 }
 
-/* The same date/room search as func_001623f0, kept inline so its internal result
+/* The same date/room search as FldDayEventActive, kept inline so its internal result
  * and early-return value remain separate until the compiler merges their lives.
  * Before allocation the result has two zero definitions, one success definition
  * and one test (score 4). Post-color CSE deletes the redundant early-return zero.

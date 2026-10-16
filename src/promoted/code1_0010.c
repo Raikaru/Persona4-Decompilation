@@ -93,7 +93,7 @@ extern void func_0010d7b0(void);
 extern void tickerStartTask(void);
 extern void func_00122430(s32 arg0);
 extern u8 *resrcMngSpawnRenderTask(u8 *parent);
-extern void func_001605a0(void);
+extern void FldFilterLoadFile(void);
 extern void btlUnitLoadSyncedAssets(void);
 extern void mdlAppRegisterModelCallbacks(void);
 extern void mdlAppPreloadResource(void);

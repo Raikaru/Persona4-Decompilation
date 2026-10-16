@@ -120,8 +120,8 @@ extern s32 iGpffff9f08;
 extern u8 *iGpffff9db0;
 extern s32 datGetFlag();
 extern s32 FldStepIndex();
-extern s32 func_001623f0();
-extern s32 func_00162510(u16 arg0, u16 arg1);
+extern s32 FldDayEventActive();
+extern s32 FldRoomIsListed(u16 arg0, u16 arg1);
 extern s16 datGetPartyId(s32 arg0);
 extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s32 arg0);
@@ -282,7 +282,7 @@ void K_FldFilter_InitQuads(u8 *arg0)
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
 // FUN_001605A0
-void func_001605a0(void)
+void FldFilterLoadFile(void)
 {
     u8 *temp_2;
 
@@ -301,7 +301,7 @@ void func_001605a0(void)
    five indirect calls; opt_propagation off preserves that address materialization. */
 // FUN_00160680
 #pragma opt_propagation off
-void func_00160680(void)
+void FldFilterResetRenderState(void)
 {
     s32 temp_5;
     void (**base)(u32, u32);
@@ -335,7 +335,7 @@ void func_00160680(void)
 /* measured: opt_propagation off preserves the render-state table base across calls. */
 #pragma opt_propagation off
 // FUN_001607E0
-void func_001607e0(void)
+void FldFilterApplyColour(void)
 {
     u32 color;
     void (**base)(u32, u32);
@@ -641,11 +641,11 @@ void FldColorCrossfadeStep(void)
                 res = func_00461390(D_00794960, 4, vtx, 4);
             }
             if ((j == 0) && (i == 0)) {
-                *(void **)(res + 8) = (void *)func_00160680;
+                *(void **)(res + 8) = (void *)FldFilterResetRenderState;
                 *(s32 *)(res + 16) = 0;
             }
             if ((j == 7) && (i == 6) && (*(s32 *)(iGpffffb2b0 + iGpffffb2b8 * 0x124) == 3)) {
-                *(void **)(res + 12) = (void *)func_001607e0;
+                *(void **)(res + 12) = (void *)FldFilterApplyColour;
                 *(s32 *)(res + 20) = 0;
             }
         }
@@ -653,12 +653,12 @@ void FldColorCrossfadeStep(void)
 }
 #pragma pop
 // FUN_001614D0
-s32 func_001614d0(void)
+s32 FldFilterGetEntry(void)
 {
     return *(s32 *)(iGpffffb2b0 + iGpffffb2b8 * 0x124);
 }
 // FUN_00161500
-void func_00161500(s32 arg0)
+void FldFilterSetIndex(s32 arg0)
 {
     iGpffff9ef8 = arg0;
 }
@@ -668,7 +668,7 @@ void func_00161500(s32 arg0)
    Committed at nd 0. */
 
 // FUN_00161510
-s32 func_00161510(void)
+s32 FldEnemyOpenTable(void)
 {
     char sp90[0x80];
     char sp10[0x80];
@@ -682,10 +682,10 @@ s32 func_00161510(void)
     return (s32)func_00454a60(sp10, 0);
 }
 
-/* measured: opt_propagation off probe for retail field-load order in func_001615a0 */
+/* measured: opt_propagation off probe for retail field-load order in FldEnemyLoadTable */
 #pragma opt_propagation off
 // FUN_001615A0
-s32 func_001615a0(u8 *arg0)
+s32 FldEnemyLoadTable(u8 *arg0)
 {
     void *src;
     u32 size;
@@ -704,10 +704,10 @@ s32 func_001615a0(u8 *arg0)
     H_Cdvd_Destroy(arg0);
     return 1;
 }
-/* measured: opt_propagation on closes the func_001615a0 load-order probe */
+/* measured: opt_propagation on closes the FldEnemyLoadTable load-order probe */
 #pragma opt_propagation on
 // FUN_00162120
-void func_00162120(void)
+void FldStateTablesClear(void)
 {
     memset(D_007F16F0, 0, 0x20);
     memset(D_007EF9B0, 0, 0x1D40);
@@ -723,10 +723,10 @@ void func_00162120(void)
     memset(D_007E8020, 0, 0x40);
 }
 
-/* measured: opt_propagation off preserves the retail recomputed index and live register set in func_00162200. */
+/* measured: opt_propagation off preserves the retail recomputed index and live register set in FldPartyModelRelease. */
 #pragma opt_propagation off
 // FUN_00162200
-void func_00162200(s32 arg0) {
+void FldPartyModelRelease(s32 arg0) {
     s32 saved_arg0;
     s32 temp_18;
     s32 *temp_17;
@@ -756,13 +756,13 @@ loop_test:
         *(s16 *)(D_007F16F2 + temp_18) = 0;
     }
 }
-/* measured: closes the opt_propagation bracket for func_00162200. */
+/* measured: closes the opt_propagation bracket for FldPartyModelRelease. */
 #pragma opt_propagation on
 /* measured: direct global address expressions preserve retail bases while
    opt_loop_invariants hoists the stride (nd 14 -> 0). */
 // FUN_001622D0
 #pragma opt_loop_invariants on
-void func_001622d0(void) {
+void FldSlotTablesReset(void) {
     s32 i = 0;
     s32 one = 1;
     s32 stride = 0x750;
@@ -783,7 +783,7 @@ void func_001622d0(void) {
 /* measured: direct global address expression preserves retail base/stride
    register assignment while loop invariants hoist the stride (nd 0). */
 #pragma opt_loop_invariants on
-u8 *func_00162330(void) {
+u8 *FldSlotFindFree(void) {
     u8 *r = NULL;
     s32 i = 0;
     u8 *e;
@@ -805,7 +805,7 @@ u8 *func_00162330(void) {
 /* measured: direct global address expression preserves retail base/stride
    register assignment while loop invariants hoist the stride (nd 0). */
 #pragma opt_loop_invariants on
-u8 *func_00162390(void) {
+u8 *FldObjFindFree(void) {
     u8 *r = NULL;
     s32 i = 0;
     s32 stride = 0x750;
@@ -824,10 +824,10 @@ u8 *func_00162390(void) {
 /* measured: closes the loop-invariant scope at the file baseline. */
 #pragma opt_loop_invariants off
 
-/* measured: optimization_level 1 reproduces func_001623f0's register coloring. */
+/* measured: optimization_level 1 reproduces FldDayEventActive's register coloring. */
 #pragma optimization_level 1
 // FUN_001623F0
-s32 func_001623f0(void)
+s32 FldDayEventActive(void)
 {
     u8 *temp_5;
     s32 temp_3;
@@ -869,10 +869,10 @@ loop_test:
 done:
     return var_17;
 }
-/* measured: restore baseline optimization level after func_001623f0. */
+/* measured: restore baseline optimization level after FldDayEventActive. */
 #pragma optimization_level 2
 // FUN_00162510
-s32 func_00162510(u16 arg0, u16 arg1)
+s32 FldRoomIsListed(u16 arg0, u16 arg1)
 {
     s32 result;
 
@@ -957,7 +957,7 @@ static inline u8 *fldPartyModelCached(s32 slot, u16 type, u16 id)
 }
 
 // FUN_00162680
-u8 *func_00162680(u16 field, u16 room, s32 member)
+u8 *FldPartyModelGet(u16 field, u16 room, s32 member)
 {
     s32 i;
     u8 *obj;
@@ -978,7 +978,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
     case 1: {
         u8 *entry;
 
-        if (func_00162510(field, room) == 1) {
+        if (FldRoomIsListed(field, room) == 1) {
             modelKind = type = 9;
             switch (calGetDayWindowFlags((s16)datGetDateIndex())) {
             case 0:

@@ -38,7 +38,7 @@ typedef struct
     u8 alpha;
 } FieldColor_0017;
 extern s32 func_0016fd00(void);
-extern s32 func_00162510(u16 arg0, u16 arg1);
+extern s32 FldRoomIsListed(u16 arg0, u16 arg1);
 extern u32 RpRandom(void);
 extern s32 FldStepIndex(void);
 /* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
@@ -138,7 +138,7 @@ s32 func_00170120(s32 arg0)
     if (arg0 != 1)
         return 1;
     temp_2 = iGpffff9db0;
-    if (func_00162510(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4)) == 1)
+    if (FldRoomIsListed(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4)) == 1)
         return (RpRandom() % 3U) + 6;
     temp_4 = iGpffff9db0;
     if ((*(s32 *)(temp_4 + 0) == 0x44) &&
