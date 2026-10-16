@@ -1915,7 +1915,7 @@ void FldPanel2dTaskCreate(void)
     }
 }
 // FUN_00189FA0
-s32 func_00189fa0(void) {
+s32 FldPanel2dRelease(void) {
     if (*(s32 *)((u8 *)(MT_Scene_GetFrameState()) + 0x30) == 0) {
         return 0;
     }
@@ -1925,7 +1925,7 @@ s32 func_00189fa0(void) {
 }
 
 // FUN_0018A000
-void func_0018a000(u8 *arg0, s32 arg1)
+void FldPanel2dSetState(u8 *arg0, s32 arg1)
 {
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4) = arg1;
 }
@@ -1982,7 +1982,7 @@ void func_0018a010(s32 arg0)
     *(s32 *)(work + 0xC) = 0;
 }
 // FUN_0018A170
-s32 func_0018a170(s32 arg0, s32 *arg1)
+s32 FldRcAtomicFrustumTest(s32 arg0, s32 *arg1)
 {
     u8 *temp_16;
 
@@ -2044,7 +2044,7 @@ extern void FldFrameTask_GetPosition(unsigned char *, unsigned char *);
 extern void FldFrameTask_SetOrientation(unsigned char *, unsigned char *);
 extern void FldFrameTask_SetPosition(unsigned char *, unsigned char *);
 extern void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle);
-extern void func_0018bed0(unsigned char *, s32);
+extern void FldNpcSetPositionLock(unsigned char *, s32);
 extern s32 func_0018bf50(unsigned char *);
 extern s64 cmmResolveCounterpart(s64);
 extern float func_003e4180(float *);
@@ -2205,7 +2205,7 @@ s32 FldNpcControlUpdate(u8 *param_1)
     if (*(int *)(puVar1[3] + 0x234) == 2) {
       iStack_4 = 0;
       temp_v8 = func_0047a310(*(unsigned int *)(puVar1[3] + 0x164));
-      RpClumpForAllAtomics((void *)temp_v8, (KClumpCallback)func_0018a170, &iStack_4);
+      RpClumpForAllAtomics((void *)temp_v8, (KClumpCallback)FldRcAtomicFrustumTest, &iStack_4);
       temp_v4 = (s32)MT_Scene_GetFrameState();
       if (*(int *)(temp_v4 + puVar1[0x14] * 4 + 0x34) != 0) {
         s32 actorVisible;
@@ -2216,7 +2216,7 @@ s32 FldNpcControlUpdate(u8 *param_1)
         FldRc_SetPositionSlotVisibility(visibilityTarget,puVar1[0x15],actorVisible);
       }
       if ((*(unsigned int *)(puVar1[3] + 0x28) & 2) == 0) {
-        func_0018bed0(param_1,1);
+        FldNpcSetPositionLock(param_1,1);
       }
     }
     temp_v4 = *(int *)(puVar1[3] + 0x164);
@@ -2940,7 +2940,7 @@ rest:
 /* measured: opt_propagation on closes the state-predicate probe. */
 #pragma opt_propagation on
 // FUN_0018BED0
-void func_0018bed0(u8 *arg0, s32 arg1) {
+void FldNpcSetPositionLock(u8 *arg0, s32 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + *(s32 *)(p + 0x50) * 4 + 0x34) == 0) {
