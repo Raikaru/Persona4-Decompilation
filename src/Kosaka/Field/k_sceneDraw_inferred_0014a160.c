@@ -119,8 +119,8 @@ extern u8 D_005EF858[];
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 
-extern s32 func_0014a230(s32 arg0, s32 arg1);
-extern s32 func_0014a2a0(s32 arg0, s32 arg1);
+extern s32 FldMap_IsInBandA(s32 arg0, s32 arg1);
+extern s32 FldMap_IsInBandB(s32 arg0, s32 arg1);
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
@@ -302,10 +302,10 @@ s32 func_0014a160(void) {
 #pragma opt_rebuildconditionals off
 // FUN_0014A190
 s32 func_0014a190(s32 arg0, s32 arg1) {
-    if (func_0014a230(arg0, arg1) == 1) {
+    if (FldMap_IsInBandA(arg0, arg1) == 1) {
         return 1;
     }
-    return func_0014a2a0(arg0, arg1) == 1;
+    return FldMap_IsInBandB(arg0, arg1) == 1;
 }
 
 /* measured: closes opt_rebuildconditionals for func_0014a190. */
@@ -314,11 +314,11 @@ s32 func_0014a200(void) {
     u8 *temp_2;
 
     temp_2 = iGpffff9db0;
-    return func_0014a230(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
+    return FldMap_IsInBandA(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
 }
 
 // FUN_0014A230
-s32 func_0014a230(s32 arg0, s32 arg1) {
+s32 FldMap_IsInBandA(s32 arg0, s32 arg1) {
     s32 result;
 
     arg0 &= 0xFFFF;
@@ -344,11 +344,11 @@ s32 func_0014a270(void) {
     u8 *temp_2;
 
     temp_2 = iGpffff9db0;
-    return func_0014a2a0(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
+    return FldMap_IsInBandB(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
 }
 
 // FUN_0014A2A0
-s32 func_0014a2a0(s32 arg0, s32 arg1) {
+s32 FldMap_IsInBandB(s32 arg0, s32 arg1) {
     s32 result;
 
     arg0 &= 0xFFFF;

@@ -12,8 +12,8 @@
  *       encounter-record table used by Encount_FindRecord
  */
 
-extern s32 func_0014a230(s32 field, s32 room);
-extern s32 func_0014a2a0(s32 field, s32 room);
+extern s32 FldMap_IsInBandA(s32 field, s32 room);
+extern s32 FldMap_IsInBandB(s32 field, s32 room);
 extern s32 func_0015a740();
 extern s32 func_00106600(s16 id);
 extern s16 datGetDateIndex(void);
@@ -52,7 +52,7 @@ s32 Encount_GetEntryFlags(s32 arg0, s32 arg1, s32 arg2) {
     u8 *base;
 
     result = 0;
-    if ((func_0014a230(arg0, arg1) == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+    if ((FldMap_IsInBandA(arg0, arg1) == 1) || (FldMap_IsInBandB(arg0, arg1) == 1)) {
         base = iGpffffb41c;
         result = *(u8 *)((u8 *)encSlot((arg2 & 0xFFFF) * 10, (u32)base) + 2);
     }
@@ -70,7 +70,7 @@ s32 Encount_GetEntryRate(s32 arg0, s32 arg1, s32 arg2) {
     u8 *base;
 
     result = 0;
-    if ((func_0014a230(arg0, arg1) == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+    if ((FldMap_IsInBandA(arg0, arg1) == 1) || (FldMap_IsInBandB(arg0, arg1) == 1)) {
         base = iGpffffb41c;
         result = *(u8 *)((u8 *)encSlot((arg2 & 0xFFFF) * 10, (u32)base) + 4);
     }
@@ -90,7 +90,7 @@ s32 Encount_GetEntryRateOrOverride(s32 arg0, s32 arg1, s32 arg2) {
     u8 *base;
 
     result = 0;
-    if ((func_0014a230(arg0, arg1) == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+    if ((FldMap_IsInBandA(arg0, arg1) == 1) || (FldMap_IsInBandB(arg0, arg1) == 1)) {
         base = iGpffffb41c;
         idx = arg2 & 0xFFFF;
         result = *(u8 *)((u8 *)encSlot(idx * 10, (u32)base) + 3);
@@ -170,7 +170,7 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
 
     selected = 0xFFFF;
     multiplier = 1.0f;
-    if (func_0014a230(field, room) == 1 || func_0014a2a0(field, room) == 1) {
+    if (FldMap_IsInBandA(field, room) == 1 || FldMap_IsInBandB(field, room) == 1) {
         tableId = *(u16 *)(iGpffffb41c + (u16)encounter * 10);
     } else {
         return -1;
@@ -279,7 +279,7 @@ u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
     s32 rnd;
 
     found = NULL;
-    if ((func_0014a230(field, room) == 1) || (func_0014a2a0(field, room) == 1)) {
+    if ((FldMap_IsInBandA(field, room) == 1) || (FldMap_IsInBandB(field, room) == 1)) {
         EncEntry *entry = (EncEntry *)iGpffffb41c;
         base = iGpffffb424 + entry[index].table * 0x15C;
     } else {

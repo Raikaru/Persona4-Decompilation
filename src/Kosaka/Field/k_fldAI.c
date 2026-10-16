@@ -69,7 +69,7 @@ s32 FldAI_ChaserUpdate(u8 *task)
     extern void *func_003e0f80(void);
     extern struct RwMatrix *func_003e9700(struct RwFrame *);
     extern f32 RwV3dNormalize(RwV3d *, const RwV3d *);
-    extern f32 func_0014c3d0(const struct RwMatrix *, const RwV3d *, f32, f32, f32);
+    extern f32 FldEvent_GetVisibleDistance(const struct RwMatrix *, const RwV3d *, f32, f32, f32);
     extern f32 FldEvent_GetMoveStep(void);
     extern f32 func_0044b920(f32);
     extern s32 KMisc_CreateRmdFade(s32, s32, s32, s32, s32);
@@ -312,7 +312,7 @@ neighborAvailabilityDone:
             neighborReady = neighborActive != 0;
             if (neighborReady && *(u8 **)(work + 0x10) != entry) {
                 u8 **otherModel = fldFollowerModelSlot(entry);
-                f32 candidate = func_0014c3d0(
+                f32 candidate = FldEvent_GetVisibleDistance(
                     (const struct RwMatrix *)mdlGetMatrix(*(u8 **)(*(u8 **)(work + 0x10) + 0x50)),
                     (const RwV3d *)(mdlGetMatrix(*otherModel) + 0x30),
                     *(f32 *)(work + 0x28), *(f32 *)(work + 0x24), 0.0f);
@@ -995,7 +995,7 @@ extern f32 sinf(f32 angle);
 extern void *mdlGetColor(void *);
 extern int KMisc_CreateRmdFade(int, int, int, int, int);
 extern int func_0014bd90(unsigned char *);
-extern unsigned int func_0014c240(void *, void *, float, float);
+extern unsigned int FldEvent_HasLineOfSight(void *, void *, float, float);
 extern s32 KDraw_CreateAxesTask(void *, void *);
 extern void FldRc_SetAxesTargeted(unsigned char *, int);
 extern void FldRc_SetAxesColor(unsigned char *, unsigned char *);
@@ -1512,7 +1512,7 @@ else {
       }
       if ((D_00764348 == 0) && (temp_v0 = piVar1[3], iGpffffb310 == 0)) {
         temp_v6 = (u32)iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 + (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
-        if (func_0014c240((void *)mdlGetMatrix((u8 *)*(unsigned int *)(temp_v0 + 0x50)),
+        if (FldEvent_HasLineOfSight((void *)mdlGetMatrix((u8 *)*(unsigned int *)(temp_v0 + 0x50)),
                          &((FldAIMatrix *)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]))->pos,
                          *(float *)(temp_v6 + 8), *(float *)(temp_v6 + 4)) == 1) {
           iGpffffb310 = temp_v0;
@@ -1643,7 +1643,7 @@ else {
       }
       if ((D_00764348 == 0) && (temp_v0 = piVar1[3], iGpffffb310 == 0)) {
         temp_v6 = (u32)iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 + (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
-        if (func_0014c240((void *)mdlGetMatrix((u8 *)*(unsigned int *)(temp_v0 + 0x50)),
+        if (FldEvent_HasLineOfSight((void *)mdlGetMatrix((u8 *)*(unsigned int *)(temp_v0 + 0x50)),
                          &((FldAIMatrix *)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]))->pos,
                          *(float *)(temp_v6 + 8), *(float *)(temp_v6 + 4)) == 1) {
           iGpffffb310 = temp_v0;
@@ -1748,7 +1748,7 @@ else {
       }
       if ((D_00764348 == 0) && (temp_v0 = piVar1[3], iGpffffb310 == 0)) {
         temp_v6 = (u32)iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 + (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
-        if (func_0014c240((void *)mdlGetMatrix((u8 *)*(unsigned int *)(temp_v0 + 0x50)),
+        if (FldEvent_HasLineOfSight((void *)mdlGetMatrix((u8 *)*(unsigned int *)(temp_v0 + 0x50)),
                          &((FldAIMatrix *)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]))->pos,
                          *(float *)(temp_v6 + 8), *(float *)(temp_v6 + 4)) == 1) {
           iGpffffb310 = temp_v0;
@@ -1807,7 +1807,7 @@ else {
       }
       if ((D_00764348 == 0) && (temp_v0 = piVar1[3], iGpffffb310 == 0)) {
         temp_v6 = (u32)iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 + (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
-        if (func_0014c240((void *)mdlGetMatrix((u8 *)*(unsigned int *)(temp_v0 + 0x50)),
+        if (FldEvent_HasLineOfSight((void *)mdlGetMatrix((u8 *)*(unsigned int *)(temp_v0 + 0x50)),
                          &((FldAIMatrix *)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]))->pos,
                          *(float *)(temp_v6 + 8), *(float *)(temp_v6 + 4)) == 1) {
           iGpffffb310 = temp_v0;
@@ -1865,7 +1865,7 @@ else {
       }
       if ((D_00764348 == 0) && (temp_v0 = piVar1[3], iGpffffb310 == 0)) {
         temp_v6 = (u32)iGpffffb2c8 + (unsigned int)*(unsigned char *)(temp_v0 + 0x1ca) * 0x180 + (unsigned int)*(unsigned short *)(temp_v0 + 0x1c8) * 0x40;
-        if (func_0014c240((void *)mdlGetMatrix((u8 *)*(unsigned int *)(temp_v0 + 0x50)),
+        if (FldEvent_HasLineOfSight((void *)mdlGetMatrix((u8 *)*(unsigned int *)(temp_v0 + 0x50)),
                          &((FldAIMatrix *)mdlGetMatrix((u8 *)(unsigned int)D_007EFA00[0]))->pos,
                          *(float *)(temp_v6 + 8), *(float *)(temp_v6 + 4)) == 1) {
           iGpffffb310 = temp_v0;

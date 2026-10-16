@@ -132,15 +132,15 @@ extern u8 D_005EF858[];
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 
-extern s32 func_0014a230(s32 arg0, s32 arg1);
-extern s32 func_0014a2a0(s32 arg0, s32 arg1);
+extern s32 FldMap_IsInBandA(s32 arg0, s32 arg1);
+extern s32 FldMap_IsInBandB(s32 arg0, s32 arg1);
 extern void func_00440b68();
 extern s32 func_00153a60(s32 arg0);
 extern s32 resrcMngCreate(void);
 extern s32 MT_Scene_CreateResLightChar(s32 arg0);
-extern void func_0014ad90(void);
+extern void SceneDraw_InitResList4(void);
 extern s32 MT_Scene_CreateResLightNpc(s32 arg0);
-extern void func_0014b1e0(void);
+extern void SceneDraw_InitResList5(void);
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
@@ -568,8 +568,8 @@ s32 func_00144b80(s32 arg0, s32 arg1)
         return 0;
     }
     result = 1;
-    if (func_0014a230((u16)arg0, (u16)arg1) == 1 ||
-        func_0014a2a0(arg0 & 0xFFFF, arg1 & 0xFFFF) == 1) {
+    if (FldMap_IsInBandA((u16)arg0, (u16)arg1) == 1 ||
+        FldMap_IsInBandB(arg0 & 0xFFFF, arg1 & 0xFFFF) == 1) {
         result = 1;
     }
     return result;
@@ -587,7 +587,7 @@ void fieldSceneLoad(s32 arg0, s32 arg1) {
     temp_3 = iGpffff9db0;
     if ((*(s32 *)(temp_3 + 0) == arg0) &&
         (*(s32 *)(temp_3 + 4) == arg1) &&
-        (func_0014a230(arg0 & 0xFFFF, arg1 & 0xFFFF) == 0)) {
+        (FldMap_IsInBandA(arg0 & 0xFFFF, arg1 & 0xFFFF) == 0)) {
         func_00440b68(&D_005EF7D0, arg0, arg1);
         temp_3_2 = iGpffff9db0;
         *(s32 *)(temp_3_2 + 0xC) = *(s32 *)(temp_3_2 + 0xC) | 1;
@@ -613,9 +613,9 @@ loop_5_test:
     *(s32 *)(iGpffff9db0 + 0x20) = func_00153a60(0);
     *(s32 *)(iGpffff9db0 + 8) = resrcMngCreate();
     MT_Scene_CreateResLightChar(0);
-    func_0014ad90();
+    SceneDraw_InitResList4();
     MT_Scene_CreateResLightNpc(0);
-    func_0014b1e0();
+    SceneDraw_InitResList5();
     func_00440b68(&D_005EF800);
 }
 

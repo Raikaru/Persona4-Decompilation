@@ -144,7 +144,7 @@ extern s32 iGpffffba48;
 typedef struct { Vec3_00178590 right; u32 flags; Vec3_00178590 up; u32 pad1; Vec3_00178590 at; u32 pad2; Vec3_00178590 position; u32 pad3; } FieldMatrix_0017;
 extern f32 fabsf(f32 x);
 // FUN_00175F70
-s32 func_00175f70(const u8 *arg0, const FieldMatrix_0017 *arg1, f32 arg2, f32 arg3)
+s32 FldEvent_BeginHeadingTurn(const u8 *arg0, const FieldMatrix_0017 *arg1, f32 arg2, f32 arg3)
 {
     extern f32 fGpffff8558;
     extern f32 fabsf(f32);
@@ -218,7 +218,7 @@ s32 func_00175f70(const u8 *arg0, const FieldMatrix_0017 *arg1, f32 arg2, f32 ar
 }
 
 // FUN_001761D0
-s32 func_001761d0(u8 *arg0)
+s32 FldEvent_IsHeadingTurning(u8 *arg0)
 {
     return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x40) == 1;
 }

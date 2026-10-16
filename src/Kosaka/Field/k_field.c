@@ -102,7 +102,7 @@ extern s32 FldUnit_InstallResources(void);
 extern s32 mdlPrepareModel(s32);
 extern s32 func_001227f0(void);
 extern s32 func_002859e0(s32, s32, s32);
-extern void func_0016ea40(s32, u16);
+extern void FldFrame_BindTypedRes(s32, u16);
 extern void func_0016f130(u8 *, s32, s32);
 extern u16 MT_Scene_FindFreeResId(s32);
 extern s32 MT_Scene_CreateModelFldRes(u16, s32);
@@ -232,7 +232,7 @@ s32 func_00155360(u8 *task)
                 work->state = 14;
             }
         } else {
-            func_0016ea40(D_007D2514[0], *D_007EFA04[0]);
+            FldFrame_BindTypedRes(D_007D2514[0], *D_007EFA04[0]);
             func_0016f130(task, 1, -1);
             model = work->model;
             if (model != 0) {

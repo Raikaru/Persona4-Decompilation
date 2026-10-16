@@ -819,7 +819,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void func_002bd3c0(void);
     void func_0016f630(FldEventSnapshot *, u8 *);
     void func_0016f750(u8 *, u8 *);
-    void func_0016ea40(u8 *, u16);
+    void FldFrame_BindTypedRes(u8 *, u16);
 
     void FldUnit_ReleaseSlot(u8 *);
     void func_00182390(void);
@@ -1396,7 +1396,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 {
                     s32 *field = func_00155280();
                     u32 _pA04 = D_007EFA04[0];
-                    func_0016ea40((u8 *)field[1], *(u16 *)(_pA04));
+                    FldFrame_BindTypedRes((u8 *)field[1], *(u16 *)(_pA04));
                 }
                 work->resource = (u8 *)MT_Scene_GetRes(0x400);
                 res = work->resource;
@@ -1689,7 +1689,7 @@ void FldEvent_StepGridCell(void)
 /* Field movement controller. Retail keeps the unused heading comparison of
  * the 45-degree step branch (`c.lt.s` with no branch after it): the dead
  * `angle += 360.0f` survives the frontend under opt_dead_assignments off and
- * only the backend drops it. func_00175f70 is declared with its float
+ * only the backend drops it. FldEvent_BeginHeadingTurn is declared with its float
  * parameter before the matrix pointer: the EE ABI assigns the same registers,
  * and retail materialises $a0, $f12, $a1 in that order. Retail tests bit 0x20
  * of datCalcGetBadStatusNoDownById's $v0 (andi at 00175C30), so the local declaration returns u32
@@ -1730,16 +1730,16 @@ s32 FldEvent_StepMoveToward(u8 *arg0)
     void func_0016e8e0(u8 *, f32);
     u8 *func_0016f3b0(u8 *, s32, s32);
     u8 *func_0016f130(u8 *, s32, s32);
-    f32 func_0016f8b0(s32, s32);
+    f32 FldEvent_GetStickHeading(s32, s32);
     MovementMatrix *func_003e0670(MovementMatrix *, const MovementMatrix *);
     f32 func_0044b950(f32, f32);
     void *mdlGetClumpFrame(void *);
     f32 RwV3dLength(f32 *);
     f32 sinf(f32);
     f32 fabsf(f32);
-    s32 func_001761d0(u8 *);
+    s32 FldEvent_IsHeadingTurning(u8 *);
     MovementMatrix *RwMatrixRotate(MovementMatrix *, const FldEventVec3 *, f32, s32);
-    s32 func_00175f70(const u8 *, f32, const MovementMatrix *, f32);
+    s32 FldEvent_BeginHeadingTurn(const u8 *, f32, const MovementMatrix *, f32);
     void FldFrameTask_StartMove(u8 *, f32);
     u32 datCalcGetBadStatusNoDownById(s16);
     s32 func_001623f0(void);
@@ -1927,10 +1927,10 @@ bigmove:
         if (f20 < 0.0f) {
             f20 += 360.0f;
         }
-        if (func_001761d0(*(u8 **)(h + 0x13C)) == 1) {
+        if (FldEvent_IsHeadingTurning(*(u8 **)(h + 0x13C)) == 1) {
             return 0;
         }
-        f23 = func_0016f8b0(0, 0);
+        f23 = FldEvent_GetStickHeading(0, 0);
         mat.right.x = mat.up.y = mat.at.z = 1.0f;
         mat.right.y = mat.right.z = mat.up.x = 0.0f;
         mat.up.z = mat.at.x = mat.at.y = 0.0f;
@@ -1943,8 +1943,8 @@ bigmove:
         RwMatrixRotate(&mat, &D_00756510, f21, 1);
         RwMatrixRotate(&mat, &D_00756510, f23, 1);
         {
-            ret16 = func_00175f70(*(u8 **)(h + 0x13C), f20, &mat, f21 + f23);
-            if (func_001761d0(*(u8 **)(h + 0x13C)) == 0) {
+            ret16 = FldEvent_BeginHeadingTurn(*(u8 **)(h + 0x13C), f20, &mat, f21 + f23);
+            if (FldEvent_IsHeadingTurning(*(u8 **)(h + 0x13C)) == 0) {
                 FldFrameTask_SetOrientation(*(u8 **)(*(s32 *)(h + 0x18) + 0x220), (u8 *)&mat);
                 {
                     f32 len = RwV3dLength(&move.x);

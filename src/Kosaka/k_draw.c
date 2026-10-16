@@ -48,7 +48,7 @@ extern u8 D_005EFBE8[];
 extern u8 D_005EFBF8[];
 extern u8 D_005EFC08[];
 extern s32 func_0014d470(u8 *);
-extern void func_0014d4e0(u8 *);
+extern void KDraw_GroupTaskDestroy(u8 *);
 extern void KDraw_DrawCylinder(u8 *, u8 *);
 extern void KDraw_DrawAxes(u8 *, u8 *);
 
@@ -97,7 +97,7 @@ s32 KDraw_CreateGroupTask(s32 arg0, s32 arg1, s32 arg2)
     if (buf == NULL) {
         return 0;
     }
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFBD8), 0xF, 0, 0, func_0014d470, func_0014d4e0, (u8 *)(buf));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005EFBD8), 0xF, 0, 0, func_0014d470, KDraw_GroupTaskDestroy, (u8 *)(buf));
     *(s32 *)(buf + 0xC) = arg1;
     *(s32 *)(buf + 0x4) = 0x14;
     *(s32 *)(buf + 0x110) = arg2;

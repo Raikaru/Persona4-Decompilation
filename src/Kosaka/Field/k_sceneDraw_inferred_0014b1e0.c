@@ -119,7 +119,7 @@ extern u8 D_005EF858[];
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 
-extern void func_0014b1e0(void);
+extern void SceneDraw_InitResList5(void);
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
@@ -292,7 +292,7 @@ extern f32 D_008872F8[];
 /* measured: opt_rebuildconditionals off is scoped to func_0014a190. */
 /* measured: closes opt_rebuildconditionals for func_0014a190. */
 // FUN_0014B1E0
-void func_0014b1e0(void) {
+void SceneDraw_InitResList5(void) {
     extern f32 fGpffff8198;
     extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
     s32 stack[3];

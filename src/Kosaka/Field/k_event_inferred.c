@@ -121,7 +121,7 @@ extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 extern void *mdlGetMatrix(void *model);
 extern f32 RwV3dLength(f32 *arg0);
-extern s32 func_0014c240(void *arg0, void *arg1, f32 fparg0, f32 fparg1);
+extern s32 FldEvent_HasLineOfSight(void *arg0, void *arg1, f32 fparg0, f32 fparg1);
 
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
@@ -439,7 +439,7 @@ s32 *FldEvent_FindFirstRegionActor(u8 *arg0, f32 fparg0, f32 fparg1) {
     goto loop_test_0014c850;
 loop_body_0014c850:
     if (*(s32 *)temp_18 != 0) {
-        if (func_0014c240((u8 *)mdlGetMatrix(*(void **)(arg0 + 0x50)),
+        if (FldEvent_HasLineOfSight((u8 *)mdlGetMatrix(*(void **)(arg0 + 0x50)),
                           temp_18 + 0x150, fparg1, fparg0) != 0) {
             return *(s32 **)temp_19;
         }
@@ -752,7 +752,7 @@ s32 func_0014d470(u8 *arg0)
 }
 
 // FUN_0014D4E0
-void func_0014d4e0(u8 *arg0)
+void KDraw_GroupTaskDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }

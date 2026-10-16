@@ -131,7 +131,7 @@ title, a shop and so on. `src/Main/sequence.c` owns the switch:
 
 - `func_001028c0` creates the **sequence observer** task. Its name string
   `"sequence observer"` is at `0x5DCB40`. It has priority `0xF`, update
-  `func_00102780` and destroy `func_00102890`, the last two in
+  `FldShadowAnim_Update` and destroy `FldShadowAnim_Destroy`, the last two in
   `src/promoted/code1_0010.c`.
 - `func_001029a0(id, data, size, delay)` requests sequence `id`:
   1. If a sequence is running and its *isRunning* callback still returns 1,
@@ -140,7 +140,7 @@ title, a shop and so on. `src/Main/sequence.c` owns the switch:
      passing `data`.
   3. Otherwise it copies `size` bytes of `data` into a fresh allocation, and
      the observer starts the sequence after `delay` frames.
-- `func_00102780`, the observer's update, counts the delay down, calls
+- `FldShadowAnim_Update`, the observer's update, counts the delay down, calls
   *start*, and then polls *isRunning* every frame. When *isRunning* stops
   returning 1, the sequence id is reset to −1.
 - `func_00102980` returns the current sequence id. Field code uses it to tell
@@ -151,7 +151,7 @@ holds `name[0x40]`, a word at `+0x40`, and the *start*, *isRunning* and *end*
 callbacks at `+0x44`, `+0x48` and `+0x4C`.
 
 The record layout comes from the `D_005DCC64/68/6C + id * 0x50` indexing in
-`func_001029a0` and `func_00102780`. Nearly every *isRunning* callback is
+`func_001029a0` and `FldShadowAnim_Update`. Nearly every *isRunning* callback is
 "find the task by name". Nearly every *end* callback destroys that task.
 Most of these callbacks live in `src/Kosaka/Field/sequenceList.c`
 (the `Seq*` callbacks, from `SeqInitDataRead_End` to `SeqMovie_End`) and `src/promoted/k_sequence.c`.
@@ -159,7 +159,7 @@ Most of these callbacks live in `src/Kosaka/Field/sequenceList.c`
 | Id | Retail name | Start callback (owner) | Notes |
 |---|---|---|---|
 | 0 | (none) | `SeqDebugMenu_Start` (sequenceList.c), which calls the empty `func_00103590` | Polls for the `"debug menu"` task, which is stripped from retail |
-| 1 | (none) | `func_00102b90`, which calls `initBootChainStart` (`src/Main/init.c`) | `initDataRead`: loads the init tables |
+| 1 | (none) | `FldBootChain_Start`, which calls `initBootChainStart` (`src/Main/init.c`) | `initDataRead`: loads the init tables |
 | 2–5 | FIELD (EVENT) VIEW, DUNGEON VIEW, DUNGEON EDITOR, LARGE MAP DEBUG | k_sequence.c | Viewer and debug modes |
 | 6 | BATTLE | BATTLE sequence start callback: destroys the field resource archives (`K_Fldrc_DestroyArchives`), which calls `func_00192e90` and `func_00193730` (`src/promoted/code1_0019.c`) | See section 8. |
 | 7 | SCRIPT VIEWER | `SeqScriptViewer_Start`, which calls `func_0029e8d0` (`scrScriptProcess.c`) | |
@@ -416,7 +416,7 @@ field's state machine:
 |---|---|
 | 0 | Event-driven entry. Reads the field and room from an event reader (`func_00293fc0`/`func_002940a0`). |
 | 1–3 | `func_00156640` (`src/promoted/code1_0015.c`) starts the child task `"setup field resource"` (`func_001561a0`). That task loads the scene through `fieldSceneLoad` and the field script. State 3 waits for it. |
-| 4–5 | For fields `0x2C`..`0x44`, loads an extra field model (`mdlCreateModelObjectFromData`, was `func_00477e80`) and in state 5 positions it (`func_0015a350`, `mdlTranslateMatrix`, was `func_0047a180`). Calls `func_0016ea40` and `func_0016f130`. In event mode, starts the event instead (`func_002859e0`) and goes to state 14. |
+| 4–5 | For fields `0x2C`..`0x44`, loads an extra field model (`mdlCreateModelObjectFromData`, was `func_00477e80`) and in state 5 positions it (`func_0015a350`, `mdlTranslateMatrix`, was `func_0047a180`). Calls `FldFrame_BindTypedRes` and `func_0016f130`. In event mode, starts the event instead (`func_002859e0`) and goes to state 14. |
 | 6–8 | Waits on `func_001227f0`, starts the room's script as a task (`func_0029da90`), and loads room data (`func_0015c590`). |
 | 9–10 | Creates field units (`func_001664a0`/`func_001662d0`, `func_00166b40` in `k_fldUnit.c`), the minimap (`smapCreateSymbols`, `func_002ae630` before the rename, in `src/Yajima/y_smap.c`) and other field tasks, then fades in (`func_00122640`). |
 | 11–12 | Runs the room's entry script procedure (`func_0029db50`) and waits for it. Then starts `func_00174ad0` (`k_fldEvent.c`) and `func_0018df60`. |

@@ -87,9 +87,9 @@ extern s32 func_0025f110(u8 *arg0);
 extern u8 D_00638F90[];
 extern void func_002674b0(s32 arg0, u8 *arg1);
 extern char D_00637348[];
-extern s32 func_00266a40(u32 arg0, s32 arg1);
+extern s32 cldDayChangeRequest(u32 arg0, s32 arg1);
 extern void func_00266a90(u8 *arg0);
-extern s32 func_00266ae0(s32 arg0);
+extern s32 cldDayChangeIsDone(s32 arg0);
 extern f32 sinf(f32 fparg0);
 extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
                            s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
@@ -178,7 +178,7 @@ static inline const s32 *contourOutlineCount(const s32 *words, s32 shape)
 #pragma push
 #pragma pop
 // FUN_00266A40
-s32 func_00266a40(u32 unk, s32 arg1) {
+s32 cldDayChangeRequest(u32 unk, s32 arg1) {
     u8 *temp_2 = kwlnTaskGetWork();
 
     if (*(s32 *)(temp_2 + 0x10) != arg1) {
@@ -199,7 +199,7 @@ void func_00266a90(u8 *arg0) {
 }
 
 // FUN_00266AE0
-s32 func_00266ae0(s32 arg0)
+s32 cldDayChangeIsDone(s32 arg0)
 {
     u8 *temp_2;
     s32 temp_4;
@@ -402,7 +402,7 @@ void func_00267670(u8 **arg0)
     extern f32 D_0076165C;
     extern f32 D_00761260;
     extern s32 func_00267800(u8 **arg0, u8 *arg1);
-    extern f32 func_002677a0(f32 arg0, f32 arg1, f32 arg2, f32 arg3,
+    extern f32 MT_Scene_CubicBezier(f32 arg0, f32 arg1, f32 arg2, f32 arg3,
                               f32 arg4);
 
     base = (u8 *)arg0;
@@ -428,7 +428,7 @@ loop_test:
             return;
         }
         temp_f12 = func_0026_div_140(*(f32 *)(base + 4));
-        result = func_002677a0(D_00761658, D_00761658,
+        result = MT_Scene_CubicBezier(D_00761658, D_00761658,
                                D_0076165C, D_00761260, temp_f12);
         old = *(f32 *)(base + 8);
         *(f32 *)(base + 8) = result * old + old;
@@ -438,7 +438,7 @@ loop_test:
 /* measured: optimization_level 1 and the right-associated first two terms produce the retail FPU chain; exact match nd 0 (obj 88B/window 96B). */
 /* measured: opens optimization_level 1 to preserve retail's FPU term and accumulator order (nd 0). */
 // FUN_002677A0
-f32 func_002677a0(f32 p0, f32 p1, f32 p2, f32 p3, f32 t) {
+f32 MT_Scene_CubicBezier(f32 p0, f32 p1, f32 p2, f32 p3, f32 t) {
     f32 u;
     f32 k;
     f32 a;

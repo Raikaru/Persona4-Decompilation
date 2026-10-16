@@ -116,7 +116,7 @@ extern void func_0016e590(s32 arg0, s32 arg1);
 extern void FldFrame_SetViewOffset(s32 arg0, void *arg1);
 extern void FldFrame_SetViewDistance(s32 arg0, f32 arg1);
 extern void func_0016ea30(s32 arg0, f32 arg1);
-extern void func_0016eaa0(s32 arg0, s8 arg1, void *arg2);
+extern void FldFrame_SetSlotVector(s32 arg0, s8 arg1, void *arg2);
 extern u8 *func_0016eaf0(s32 arg0);
 extern u8 *mdlGetMatrix(s32 arg0);
 extern s32 K_Clump_ClumpHasMatUsrData(s32 arg0, const void *arg1);
@@ -260,7 +260,7 @@ void func_00155070(void)
         goto loop_test;
 loop_body:
         if (*(s8 *)(temp_2 + var_17 + 0x164) != 0) {
-            func_0016eaa0(func_00155280()[1],
+            FldFrame_SetSlotVector(func_00155280()[1],
                           (s8)var_17,
                           temp_2 + var_17 * 0xC + 0x184);
         }
@@ -404,7 +404,7 @@ s32 func_001561a0(u8 *task)
     extern void func_00123aa0(s16 selection);
     extern void func_002aaa80(void);
     extern s32 FldResource_IsPrimaryFileLoaded(void);
-    extern s32 func_0014a230(s32 fieldId, s32 roomId);
+    extern s32 FldMap_IsInBandA(s32 fieldId, s32 roomId);
     extern u8 *func_001601e0(s32 fieldId);
     extern s32 func_001602a0(u8 *file, s32 fieldId);
     extern s32 func_0029db50(s32 priority, s32 memory, s32 bytes, s32 procedure);
@@ -452,7 +452,7 @@ s32 func_001561a0(u8 *task)
         if (FldResource_IsPrimaryFileLoaded() == 0) {
             break;
         }
-        if (func_0014a230(work->fieldId, work->roomId) == 0) {
+        if (FldMap_IsInBandA(work->fieldId, work->roomId) == 0) {
             work->file = func_001601e0(work->fieldId);
         }
         work->state = 1;

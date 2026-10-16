@@ -616,7 +616,7 @@ void btlMainUnitCreateInit(void) {
     extern u32 datCalcClearBadStatus(s32 arg0, u32 arg1);
     extern void *mdlFindModelObject(u32 arg0, u16 arg1, u32 arg2);
     extern u8 *btlUnitCreateModelLoadPacket(u8 *arg0, u16 arg1, s16 arg2);
-    extern void func_0014a460(u16 arg0, u32 arg1);
+    extern void SceneDraw_SetDirectionalOnly(u16 arg0, u32 arg1);
     extern void btlUnitApplyModelState(u8 *arg0, s32 arg1);
     extern void btlUnitSetRandomAnimFrame(u8 *arg0);
     extern void mdlRunDataCallback(void *model);
@@ -674,7 +674,7 @@ void btlMainUnitCreateInit(void) {
                 *(s32 *)(unit + 0x98) = f;
                 *(s32 *)(unit + 0x98) = f | 8;
                 *(u16 *)(unit + 0x9FE) = MT_Scene_CreateModelCharRes(id, *(void **)(unit + 0xA00));
-                func_0014a460(*(u16 *)(unit + 0x9FE), 1);
+                SceneDraw_SetDirectionalOnly(*(u16 *)(unit + 0x9FE), 1);
                 btlUnitApplyModelState(unit, 1);
                 btlUnitUpdateStatusMotion(unit, 0);
                 func_00198920(unit, *(s16 *)(unit + 0x9EC), 0, *(f32 *)(unit + 0x9F0), *(s8 *)(unit + 0x9F4));
