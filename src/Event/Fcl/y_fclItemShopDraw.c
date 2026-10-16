@@ -134,7 +134,7 @@ extern u8 D_007950B0[];
 extern char iGpffffa930;
 extern void FldRc_ReleaseCachedObject(void);
 extern u16 D_008C0276[];
-extern s32 func_002e26a0(void);
+extern s32 yListLastIndex(void);
 extern s16 yListStepIndex(s16, s16, s16, s16, s16);
 extern void yListAdvanceCursorScroll(s32, s32, s32, s32, void *, void *);
 extern void yListRetreatCursorScroll(s32, s32, s32, s32, void *, void *);
@@ -997,7 +997,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         if ((D_008C0276[0] & 0x1000) && *(s8 *)(work + 0x425) == 0) {
             sdkSndStartStream(0, 0, 0, 0);
             if (*(s16 *)(work + 4) == 0) {
-                *(s16 *)(work + 4) = func_002e26a0();
+                *(s16 *)(work + 4) = yListLastIndex();
                 *(s16 *)(work + 6) = fclAddClamped(0, *(s16 *)(work + 4), 4, 0, 1);
             } else {
                 *(s16 *)(work + 4) = fclSubClamped(*(s16 *)(work + 4), 1, 0, (s16)yListCount(), 2);
@@ -1014,31 +1014,31 @@ s32 fclItemShopUpdate(u8 *arg0) {
             *(s8 *)(work + 0x425) = 1;
         } else if ((D_008C0276[0] & 0x4000) && *(s8 *)(work + 0x425) == 0) {
             sdkSndStartStream(0, 0, 0, 0);
-            *(s16 *)(work + 4) = fclAddClamped(*(s16 *)(work + 4), 1, func_002e26a0(), 0, 2);
+            *(s16 *)(work + 4) = fclAddClamped(*(s16 *)(work + 4), 1, yListLastIndex(), 0, 2);
             if (*(s16 *)(work + 4) == 0) {
                 *(s16 *)(work + 6) = 0;
-            } else if (func_002e26a0() >= 5) {
-                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(), 5, 1);
+            } else if (yListLastIndex() >= 5) {
+                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)yListLastIndex(), 5, 1);
             } else {
-                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(),
+                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)yListLastIndex(),
                                                    (s16)yListCount(), 1);
             }
             *(s8 *)(work + 0x425) = 1;
         } else if (D_008C027A[0] & 0x4000) {
-            if (*(s16 *)(work + 4) != func_002e26a0()) {
+            if (*(s16 *)(work + 4) != yListLastIndex()) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            *(s16 *)(work + 4) = fclAddClamped(*(s16 *)(work + 4), 1, func_002e26a0(), 0, 1);
-            if (func_002e26a0() >= 5) {
-                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(), 5, 1);
+            *(s16 *)(work + 4) = fclAddClamped(*(s16 *)(work + 4), 1, yListLastIndex(), 0, 1);
+            if (yListLastIndex() >= 5) {
+                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)yListLastIndex(), 5, 1);
             } else {
-                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(),
+                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)yListLastIndex(),
                                                    (s16)yListCount(), 1);
             }
             *(s8 *)(work + 0x425) = 1;
         } else {
             if ((D_008C027A[0] & 8) || (D_008C027A[0] & 0x2000)) {
-                if (*(s16 *)(work + 4) != func_002e26a0()) {
+                if (*(s16 *)(work + 4) != yListLastIndex()) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
                 yListAdvanceCursorScroll(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);

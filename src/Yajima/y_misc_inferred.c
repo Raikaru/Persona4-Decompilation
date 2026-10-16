@@ -755,8 +755,9 @@ s32 mapSymbolTaskUpdate(u8 *arg0)
     return 0;
 }
 
+// Intent: destructor for the marker task made by mapSymbolMarkerCreate. Frees the task's data block through the free table.
 // FUN_002B3960
-void func_002b3960(u8 *arg0)
+void mapSymbolMarkerDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }

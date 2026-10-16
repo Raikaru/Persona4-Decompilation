@@ -97,8 +97,9 @@ s16 yListCount(void) {
     return *(s16 *)(*(u8 **)(g + 0x38) + 2);
 }
 
+// Intent: index of the last entry in the current list (count - 1, clamped), or -1 when no list is active. Pairs with yListCount.
 // FUN_002E26A0
-s32 func_002e26a0(void) {
+s32 yListLastIndex(void) {
     u8 *g = iGpffffb58c;
 
     if (g == NULL) {
@@ -112,8 +113,9 @@ s16 yListCountFor(void *arg0) {
     return *(s16 *)(*(u8 **)((u8 *)arg0 + 0x38) + 2);
 }
 
+// Intent: index of the last entry in the list `arg0` (count - 1, clamped). Pairs with yListCountFor.
 // FUN_002E2700
-s32 func_002e2700(void *arg0) {
+s32 yListLastIndexFor(void *arg0) {
     return fclSubClamped(*(s16 *)(*(u8 **)((u8 *)arg0 + 0x38) + 2), 1, 0, 0, 1);
 }
 

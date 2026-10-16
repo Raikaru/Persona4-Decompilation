@@ -66,7 +66,7 @@ extern u8 *sdkSpriteNewNode(s32 arg0, s32 arg1);
 extern void sdkSpriteFreeNode(void *node);
 
 extern s32 mapSymbolTaskUpdate(u8 *arg0);
-extern void func_002b3960(u8 *arg0);
+extern void mapSymbolMarkerDestroy(u8 *arg0);
 extern s32 mapSymbolPointUpdate(u8 *arg0);
 extern s32 mapSymbolEntityUpdate(u8 *arg0);
 extern s32 mapSymbolTargetUpdate(u8 *arg0);
@@ -80,7 +80,7 @@ s32 mapSymbolMarkerCreate(s32 arg0)
 
     chkmemAllocSiteTag(D_0063F120, 0x98);
     work = D_008873F4[0](1, 0x24, 0x40000);
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F130), 0xF, 0, 0, mapSymbolTaskUpdate, func_002b3960, (u8 *)(work));
+    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F130), 0xF, 0, 0, mapSymbolTaskUpdate, mapSymbolMarkerDestroy, (u8 *)(work));
     *(u32 *)(work + 4) = (u32)MT_Scene_GetRes(0x400);
     *(u32 *)(work + 0) = (u32)work;
     *(u32 *)(work + 8) = 0x3F400000;
