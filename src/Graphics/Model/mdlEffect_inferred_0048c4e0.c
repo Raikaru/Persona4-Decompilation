@@ -54,8 +54,8 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 /* Source unit: src/promoted/code1_0048.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0048.c; members 0048c4e0-0048c4e0 */
 
-extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+extern f32 mdlEffectSampleScalarKeys(u8 *arg0, s32 arg1, s32 arg2);
+extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
 extern void func_0048b340(u8 *arg0, u8 *arg1);
 /* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
  * eight zero alignment bytes. IDA retains the result that Ghidra drops:
@@ -105,7 +105,7 @@ extern void func_0048b340(u8 *arg0, u8 *arg1);
 #pragma opt_loop_invariants on
 void EffMotionEmitterUpdate(u8 *arg0)
 {
-    extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void *memcpy(void *dst, const void *src, u32 size);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 fGpffff807c;
@@ -341,7 +341,7 @@ skip_clear:
         effectVuStore10((EffectVuVector *)nodes);
         *(s32 *)(nodes + 16) = (s32)prerollElapsed;
     }
-    func_0048b220(nodes, config, *(s32 *)(nodes + 16), &b220buf);
+    mdlEffectSampleKeyState(nodes, config, *(s32 *)(nodes + 16), &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];
@@ -376,7 +376,7 @@ else_branch:
     effectVuLoad10(&vec130);
     spawnVuAdd10();
     effectVuStore10((EffectVuVector *)nodes);
-    func_0048b220(nodes, config, node10, &b220buf);
+    mdlEffectSampleKeyState(nodes, config, node10, &b220buf);
     *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[4];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[6];
     *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[5];

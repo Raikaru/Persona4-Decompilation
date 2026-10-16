@@ -56,7 +56,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 // FUN_00490C40
 void func_00490c40(u8 *arg0)
 {
-    extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern void memcpy(void *dst, void *src, u32 size);
     extern f32 fabsf(f32 x);
@@ -262,7 +262,7 @@ void func_00490c40(u8 *arg0)
                 *(f32 *)(extra + 0x1C) = zero;
                 *(f32 *)(extra + 0x20) = one;
             }
-            func_0048b220(node, config, *(s32 *)(node + 0x10), (u_long128 *)node);
+            mdlEffectSampleKeyState(node, config, *(s32 *)(node + 0x10), (u_long128 *)node);
             *(f32 *)(node + 0x18) = *(f32 *)(node + 0x18) * *(f32 *)(extra + 0x18);
             *(f32 *)(node + 0x1C) = *(f32 *)(node + 0x1C) * *(f32 *)(extra + 0x20);
             *(f32 *)(node + 0x1C) = *(f32 *)(node + 0x1C) + *(f32 *)(extra + 0x1C);
@@ -352,7 +352,7 @@ void func_00490c40(u8 *arg0)
         } else {
             effectVuStore11((EffectVuVector *)node);
         }
-        func_0048b220(node, config, state, &prev);
+        mdlEffectSampleKeyState(node, config, state, &prev);
         *(f32 *)(node + 0x18) = *(f32 *)(node + 0x18) * *(f32 *)(extra + 0x18);
         *(f32 *)(node + 0x1C) = *(f32 *)(node + 0x1C) * *(f32 *)(extra + 0x20);
         *(f32 *)(node + 0x1C) = *(f32 *)(node + 0x1C) + *(f32 *)(extra + 0x1C);

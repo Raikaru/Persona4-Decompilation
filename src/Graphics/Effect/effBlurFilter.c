@@ -74,8 +74,8 @@ extern s64 fGpffff8020;
 extern s64 fGpffff8010;
 extern s64 fGpffff8020;
 
-extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
-extern f32 func_0048aff0(u8 *a, s32 b, s32 c);
+extern s32 mdlEffectSamplePackedColor(u8 *a, u8 *b, s32 c, s32 d);
+extern f32 mdlEffectSampleScalarKeys(u8 *a, s32 b, s32 c);
 extern f32 mdlEffectAnchorScreenScale(f32 a);
 extern f32 fGpffff8044;
 extern f32 fGpffff80f0;
@@ -363,7 +363,7 @@ void effBlurFilterUpdateScreenRect(u8 *arg0) {
         *(s32 *)(base + 4) = *(s32 *)(obj + 0x28);
     }
     if (a >= b) {
-        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
         sp6C = *(s32 *)(arg0 + 0x10);
         pt = &sp6C;
         scale = fGpffff8044;
@@ -407,8 +407,8 @@ void effBlurFilterUpdateScreenRect(u8 *arg0) {
         /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
         *(s32 *)base = *(volatile s32 *)&sp64;
-        *(f32 *)(base + 0xC) = 1.0f + fGpffff80f0 * func_0048aff0(obj + 0x34, b, a);
-        *(f32 *)(base + 8) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
+        *(f32 *)(base + 0xC) = 1.0f + fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
+        *(f32 *)(base + 8) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
         return;
     }
     *(s8 *)(base + 3) = 0;
@@ -463,7 +463,7 @@ void effBlurFilterUpdateRectFromScale(u8 *arg0) {
         b = *(s32 *)(arg0 + 0x1C);
     }
     if (a >= b) {
-        f = func_0048aff0(obj + 0x8C, b, a);
+        f = mdlEffectSampleScalarKeys(obj + 0x8C, b, a);
         if (*(u8 *)(obj + 0xBC) != 0) {
             *(f32 *)(base + 0x14) = 320.0f;
             *(f32 *)(base + 0x18) = 224.0f;
@@ -483,7 +483,7 @@ void effBlurFilterUpdateRectFromScale(u8 *arg0) {
             *(f32 *)(base + 0x24) = vec[0] + g;
             *(f32 *)(base + 0x28) = vec[1] + g;
         }
-        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
         sp7C = *(s32 *)(arg0 + 0x10);
         pt = &sp7C;
         scale = fGpffff8044;
@@ -527,8 +527,8 @@ void effBlurFilterUpdateRectFromScale(u8 *arg0) {
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
 *(s32 *)(base + 4) = *(volatile s32 *)&sp74;
-        *(f32 *)(base + 0x10) = fGpffff80f0 * func_0048aff0(obj + 0x34, b, a) + 1.0f;
-        *(f32 *)(base + 0xC) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
+        *(f32 *)(base + 0x10) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a) + 1.0f;
+        *(f32 *)(base + 0xC) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
         *(s32 *)(base + 8) = *(s32 *)(obj + 0x28);
     } else {
         *(s8 *)(base + 7) = 0;
@@ -645,7 +645,7 @@ void effBlurFilterStepSlotsA(u8 *arg0) {
         b = *(s32 *)(arg0 + 0x1C);
     }
     if (a >= b) {
-        f = func_0048aff0(obj + 0x8C, b, a);
+        f = mdlEffectSampleScalarKeys(obj + 0x8C, b, a);
         if (*(u8 *)(obj + 0xBC) != 0) {
             *(s32 *)(base + 0x1C) = 0x43A00000;
             *(s32 *)(base + 0x20) = 0x43600000;
@@ -658,7 +658,7 @@ void effBlurFilterStepSlotsA(u8 *arg0) {
             *(f32 *)(base + 0x1C) = vec[0];
             *(f32 *)(base + 0x20) = vec[1];
         }
-        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
         sp8C = *(s32 *)(arg0 + 0x10);
         pt = &sp8C;
         scale = fGpffff8044;
@@ -702,8 +702,8 @@ void effBlurFilterStepSlotsA(u8 *arg0) {
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
 *(s32 *)(base + 0xC) = *(volatile s32 *)&sp84;
-        *(f32 *)(base + 0x18) = fGpffff80f0 * func_0048aff0(obj + 0x34, b, a);
-        *(f32 *)(base + 0x14) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
+        *(f32 *)(base + 0x18) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
+        *(f32 *)(base + 0x14) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
         *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
         effBlurFilterTickSlotsA(base, list);
     } else {
@@ -797,7 +797,7 @@ void effBlurFilterStepSlotsC(u8 *arg0) {
         b = *(s32 *)(arg0 + 0x1C);
     }
     if (a >= b) {
-        f = func_0048aff0(obj + 0x8C, b, a);
+        f = mdlEffectSampleScalarKeys(obj + 0x8C, b, a);
         if (*(u8 *)(obj + 0xBC) != 0) {
             *(s32 *)(base + 0x20) = 0x43A00000;
             *(s32 *)(base + 0x24) = 0x43600000;
@@ -810,7 +810,7 @@ void effBlurFilterStepSlotsC(u8 *arg0) {
             *(f32 *)(base + 0x20) = vec[0];
             *(f32 *)(base + 0x24) = vec[1];
         }
-        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
         sp8C = *(s32 *)(arg0 + 0x10);
         pt = &sp8C;
         scale = fGpffff8044;
@@ -854,8 +854,8 @@ void effBlurFilterStepSlotsC(u8 *arg0) {
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
 *(s32 *)(base + 0xC) = *(volatile s32 *)&sp84;
-        *(f32 *)(base + 0x1C) = fGpffff80f0 * func_0048aff0(obj + 0x34, b, a);
-        *(f32 *)(base + 0x14) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
+        *(f32 *)(base + 0x1C) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
+        *(f32 *)(base + 0x14) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
         *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
         effBlurFilterAdvanceSlots(base, list);
     } else {
@@ -920,7 +920,7 @@ void effBlurFilterUpdateScreenRectSimple(u8 *arg0) {
         *(s32 *)(base + 4) = *(s32 *)(obj + 0x28);
     }
     if (a >= b) {
-        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
         sp6C = *(s32 *)(arg0 + 0x10);
         pt = &sp6C;
         scale = fGpffff8044;
@@ -964,8 +964,8 @@ void effBlurFilterUpdateScreenRectSimple(u8 *arg0) {
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
 *(s32 *)base = *(volatile s32 *)&sp64;
-        *(f32 *)(base + 0xC) = 1.0f + func_0048aff0(obj + 0x34, b, a);
-        *(f32 *)(base + 8) = func_0048aff0(obj + 0x60, b, a);
+        *(f32 *)(base + 0xC) = 1.0f + mdlEffectSampleScalarKeys(obj + 0x34, b, a);
+        *(f32 *)(base + 8) = mdlEffectSampleScalarKeys(obj + 0x60, b, a);
     } else {
         *(s8 *)(base + 3) = 0;
     }
@@ -1050,7 +1050,7 @@ void effBlurFilterStepSlotsB(u8 *arg0) {
         b = *(s32 *)(arg0 + 0x1C);
     }
     if (a >= b) {
-        f = func_0048aff0(obj + 0x8C, b, a);
+        f = mdlEffectSampleScalarKeys(obj + 0x8C, b, a);
         if (*(u8 *)(obj + 0xBC) != 0) {
             *(s32 *)(base + 0x1C) = 0x43A00000;
             *(s32 *)(base + 0x20) = 0x43600000;
@@ -1063,7 +1063,7 @@ void effBlurFilterStepSlotsB(u8 *arg0) {
             *(f32 *)(base + 0x1C) = vec[0];
             *(f32 *)(base + 0x20) = vec[1];
         }
-        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
         sp8C = *(s32 *)(arg0 + 0x10);
         pt = &sp8C;
         scale = fGpffff8044;
@@ -1107,8 +1107,8 @@ void effBlurFilterStepSlotsB(u8 *arg0) {
                 /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
            hoists the reload above the asm, so the read is volatile. */
 *(s32 *)(base + 0xC) = *(volatile s32 *)&sp84;
-        *(f32 *)(base + 0x18) = fGpffff80f0 * func_0048aff0(obj + 0x34, b, a);
-        *(f32 *)(base + 0x14) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
+        *(f32 *)(base + 0x18) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
+        *(f32 *)(base + 0x14) = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
         *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
         effBlurFilterTickSlotsB(base, list);
     } else {
@@ -1174,7 +1174,7 @@ void effBlurFilterUpdateScreenRectFlagged(u8 *arg0) {
         *(s32 *)(base + 4) = *(s32 *)(obj + 0x28);
     }
     if (a >= b) {
-        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
         sp3C = *(s32 *)(arg0 + 0x10);
         pt = &sp3C;
         scale = fGpffff8044;
@@ -1266,7 +1266,7 @@ void effBlurFilterUpdateRectFromScaleAux(u8 *arg0) {
         b = *(s32 *)(arg0 + 0x1C);
     }
     if (a >= b) {
-        f = func_0048aff0(obj + 0x8C, b, a);
+        f = mdlEffectSampleScalarKeys(obj + 0x8C, b, a);
         if (*(u8 *)(obj + 0xBC) != 0) {
             *(f32 *)(base + 4) = 320.0f;
             *(f32 *)(base + 8) = 224.0f;
@@ -1286,7 +1286,7 @@ void effBlurFilterUpdateRectFromScaleAux(u8 *arg0) {
             *(f32 *)(base + 0x1C) = vec[0] + g;
             *(f32 *)(base + 0x20) = vec[1] + g;
         }
-        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        tmp = mdlEffectSamplePackedColor(obj, obj + 0x24, b, a);
         sp7C = *(s32 *)(arg0 + 0x10);
         pt = &sp7C;
         scale = fGpffff8044;

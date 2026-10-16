@@ -49,7 +49,7 @@ void EffSwayParticleUpdate(u8 *arg0)
 {
     extern void effMiscBuildRotationVU(void);
     extern f32 fabsf(f32 value);
-    extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void func_0048b340(u8 *arg0, u8 *arg1);
     extern f32 sinf(f32 arg0);
     extern u_long128 D_00713D40;
@@ -280,7 +280,7 @@ skip_clear:
         u_long128 *snapshot = &previousPosition;
         *snapshot = *(u_long128 *)&particle->position;
     }
-    func_0048b220((u8 *)particle, (u8 *)parameters, particle->age, &previousPosition);
+    mdlEffectSampleKeyState((u8 *)particle, (u8 *)parameters, particle->age, &previousPosition);
     particle->size = particle->size * state->sizeScale;
     particle->angle = particle->angle * state->angleScale;
     particle->angle = particle->angle + state->angleOffset;
@@ -322,7 +322,7 @@ else_branch:
         state->speed = state->speed * state->bounceScale;
         particle->position.lane[1] = floorHeight + state->bounceScale * (particle->position.lane[1] - floorHeight);
     }
-    func_0048b220((u8 *)particle, (u8 *)parameters, age, &previousPosition);
+    mdlEffectSampleKeyState((u8 *)particle, (u8 *)parameters, age, &previousPosition);
     particle->size = particle->size * state->sizeScale;
     particle->angle = particle->angle * state->angleScale;
     particle->angle = particle->angle + state->angleOffset;

@@ -103,8 +103,8 @@ typedef struct EffSpriteRGBA {
 void EffSpriteUpdate(u8 *arg0)
 {
     extern void GeometryBlockSetFrameMatrix(void *arg0, void *arg1, void *arg2, f32 arg3);
-    extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-    extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
+    extern s32 mdlEffectSamplePackedColor(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+    extern f32 mdlEffectSampleScalarKeys(u8 *arg0, s32 arg1, s32 arg2);
     extern void mdlEffectWrapTrackFrames(s32 arg0, u32 arg1);
     extern void mdlEffectEvalSubPose(s32 arg0, f32 *arg1);
     extern void TlpSelectFrame(void *arg0, u32 arg1, f32 *arg2);
@@ -151,7 +151,7 @@ void EffSpriteUpdate(u8 *arg0)
     }
     GeometryBlockSetFrameMatrix(sprite, arg0, arg0 + 0x10, *(f32 *)(arg0 + 0x20));
     {
-        s32 tint = func_0048abd0(arg0 + 0x30, arg0 + 0x54, count, total);
+        s32 tint = mdlEffectSamplePackedColor(arg0 + 0x30, arg0 + 0x54, count, total);
         f32 unit;
 
         baseWord = *(u32 *)(arg0 + 0x24);
@@ -183,9 +183,9 @@ void EffSpriteUpdate(u8 *arg0)
         *(EffSpriteRGBA *)(*(u8 **)(sprite + 0x14) + 4) = color;
         color.alpha = 0xFF;
     }
-    scale = func_0048aff0(arg0 + 0x64, count, total);
+    scale = mdlEffectSampleScalarKeys(arg0 + 0x64, count, total);
     scale = scale * *(f32 *)(arg0 + 0xC0);
-    spin = func_0048aff0(arg0 + 0x90, count, total);
+    spin = mdlEffectSampleScalarKeys(arg0 + 0x90, count, total);
     if (*(s32 *)(arg0 + 0xD0) != 0) {
         f32 cellW;
         f32 cellH;

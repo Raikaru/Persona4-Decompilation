@@ -33,7 +33,7 @@ extern void RingInstanceDestroy(void *arg0);
 extern void chkmemAllocSiteTag();
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00713390[];
-extern s32 func_0048abd0();
+extern s32 mdlEffectSamplePackedColor();
 extern void GeometryBlockSetFrameMatrixCombined(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void GeometryBlockBindResource(int arg0, int arg1);
 extern f32 iGpffff8044;
@@ -290,7 +290,7 @@ void RingUpdateRowColour(u8 *param_1)
   iVar6 = *(int *)(iVar5 + 0x34);
   iVar4 = *(int *)(iVar1 + 0x34);
   if (((u32)iVar6 <= (u32)iVar4) || (iVar4 == 0)) {
-    iVar3 = func_0048abd0((char *)iVar1, (u32 *)(iVar1 + 0x24), iVar6, iVar4);
+    iVar3 = mdlEffectSamplePackedColor((char *)iVar1, (u32 *)(iVar1 + 0x24), iVar6, iVar4);
     *(u32 *)&colourStack[8] = *(u32 *)(iVar5 + 0x30);
     cs8 = &colourStack[8];
     scale = iGpffff8044;
@@ -602,7 +602,7 @@ void RingUpdateLineSegment(u8 *arg0)
     temp_17 = *(u8 **)(temp_16 + 8);
     if ((*(u32 *)(temp_18 + 0x34) >= *(u32 *)(arg0 + 0x34)) ||
         (*(u32 *)(temp_18 + 0x34) == 0)) {
-        temp_3 = func_0048abd0(temp_18, temp_18 + 0x24,
+        temp_3 = mdlEffectSamplePackedColor(temp_18, temp_18 + 0x24,
                                *(u32 *)(arg0 + 0x34),
                                *(u32 *)(temp_18 + 0x34));
         *(u32 *)&colourStack[8] = *(u32 *)(arg0 + 0x30);
@@ -902,7 +902,7 @@ void RingUpdateRowColourAlt(u8 *param_1)
   iVar6 = *(int *)(iVar5 + 0x34);
   iVar4 = *(int *)(iVar1 + 0x34);
   if (((u32)iVar6 <= (u32)iVar4) || (iVar4 == 0)) {
-    iVar3 = func_0048abd0((char *)iVar1, (u32 *)(iVar1 + 0x24), iVar6, iVar4);
+    iVar3 = mdlEffectSamplePackedColor((char *)iVar1, (u32 *)(iVar1 + 0x24), iVar6, iVar4);
     *(u32 *)&colourStack[8] = *(u32 *)(iVar5 + 0x30);
     cs8 = &colourStack[8];
     scale = iGpffff8044;
