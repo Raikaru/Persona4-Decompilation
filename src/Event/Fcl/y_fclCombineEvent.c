@@ -10,8 +10,8 @@ extern u8 D_0064A420[];
 extern u8 D_0064A440[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-extern s32 func_0033d9d0(u8 *task);
-extern void func_0033dc60(u8 *arg0);
+extern s32 fclCombineEventTaskUpdate(u8 *task);
+extern void fclCombineEventTaskDestroy(u8 *arg0);
 extern s32 fclCombineEventGate(u8 *arg0);
 extern s32 fclCombineEventSceneUpdate(u8 *arg0);
 extern s32 func_00285b30(void);
@@ -37,7 +37,7 @@ void func_0033dc90(u8 *arg0, s8 arg1)
 
     chkmemAllocSiteTag(D_0064A400, 0xAF);
     work = D_008873F4[0](1, 0x14, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A420), 0xF, 0, 0, func_0033d9d0, func_0033dc60, (u8 *)(work));
+    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A420), 0xF, 0, 0, fclCombineEventTaskUpdate, fclCombineEventTaskDestroy, (u8 *)(work));
     work[0] = 0;
     *(s8 *)(work + 0x10) = arg1;
 }
