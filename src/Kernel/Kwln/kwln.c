@@ -50,3 +50,45 @@ void func_00369440(void* param_1, void* param_2)
 {
     pscModelDraw(param_2);
 }
+extern void (*D_00887300[])();
+extern s32 (*D_00887310[])(s32, void *, s32);
+extern void (*D_00887304[])();
+extern void (*D_008873EC[])(void *);
+extern s8 iGpffffba84;
+extern s8 iGpffffba85;
+extern s8 iGpffffba86;
+extern s8 iGpffffba87;
+extern s8 iGpffffba88;
+extern s8 iGpffffba89;
+extern s8 iGpffffba8a;
+extern s8 iGpffffba8b;
+extern void (*D_008873FC[])(s32 param, u8* arg);
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+#pragma pop
+#pragma opt_propagation off
+#pragma opt_propagation on
+// FUN_00457140
+void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
+{
+    iGpffffba88 = arg0;
+    iGpffffba89 = arg1;
+    iGpffffba8a = arg2;
+    iGpffffba8b = arg3;
+}
+
+
+// FUN_00457170
+void func_00457170(s8 arg0, s8 arg1, s8 arg2, s8 arg3)
+{
+    iGpffffba84 = arg0;
+    iGpffffba85 = arg1;
+    iGpffffba86 = arg2;
+    iGpffffba87 = arg3;
+}
+
+

@@ -93,3 +93,34 @@ u32 hsndSlotIsStarting(s32 slotIndex)
     index = slotIndex;
     return sSlotWork[index].state == HSND_CHANNEL_STARTING;
 }
+extern void (*D_00887300[])();
+extern s32 (*D_00887310[])(s32, void *, s32);
+extern void (*D_00887304[])();
+extern void (*D_008873EC[])(void *);
+extern void (*D_008873FC[])(s32 param, u8* arg);
+extern s32 D_008D2F2C[];
+extern s16 D_008D2F34[];
+#pragma push
+#pragma opt_propagation off
+#pragma pop
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+#pragma pop
+#pragma opt_propagation off
+#pragma opt_propagation on
+#pragma opt_propagation off
+#pragma opt_propagation on
+#pragma push
+#pragma opt_scalarize off
+#pragma pop
+// FUN_0045B400
+s16 func_0045b400(void)
+{
+    if (D_008D2F2C[0] == 0) {
+        return -1;
+    }
+    return D_008D2F34[0];
+}
+
+
