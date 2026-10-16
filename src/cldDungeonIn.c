@@ -5,7 +5,7 @@
 #include "rw/std/stddef.h"
 
 extern u32 kwlnTaskGetWork(void *task);
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00268230(void *unused, void *task);
 extern u8 D_007964F0[];
@@ -39,7 +39,7 @@ s32 func_00268870(u8 *arg0)
     u8 *obj;
 
     state = (u8 *)kwlnTaskGetWork(arg0);
-    obj = func_00460990();
+    obj = PrimAllocQueueNode();
     *(void **)(obj + 8) = (void *)func_00268230;
     *(u8 **)(obj + 0x10) = arg0;
     func_00460ac0(D_007964F0, obj);
@@ -109,7 +109,7 @@ typedef struct DungeonInWork {
     s32 frame;
     DungeonInList **list;
 } DungeonInWork;
-extern void func_0045d6e0(u8 *, f32 *, f32, s32);
+extern void PrimDrawFlatRectangle(u8 *, f32 *, f32, s32);
 extern void H_Fade_SetCustomColor(s32, s32, s32);
 extern void func_00267b20(f32, f32, f32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
 extern s32 sdkSpriteDrawNow(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
@@ -156,7 +156,7 @@ void func_00268230(void *unused, void *task)
         {
             color = (DungeonInColor){0, 0, 0, 255};
             rect = (DungeonInRect){0, 0, 640, 480};
-            func_0045d6e0((u8 *)&color, (f32 *)&rect, 0.0f, 1);
+            PrimDrawFlatRectangle((u8 *)&color, (f32 *)&rect, 0.0f, 1);
         }
         if (++work->frame >= 15) {
             work->frame = 0;
@@ -168,7 +168,7 @@ void func_00268230(void *unused, void *task)
         {
             color = (DungeonInColor){0, 0, 0, 255};
             rect = (DungeonInRect){0, 0, 640, 480};
-            func_0045d6e0((u8 *)&color, (f32 *)&rect, 0.0f, 1);
+            PrimDrawFlatRectangle((u8 *)&color, (f32 *)&rect, 0.0f, 1);
         }
         frame = ++work->frame;
         if (frame < 41) {
@@ -184,7 +184,7 @@ void func_00268230(void *unused, void *task)
                 color = (DungeonInColor){196, 196, 196, 255};
             }
             rect = (DungeonInRect){0, 0, 640, 480};
-            func_0045d6e0((u8 *)&color, (f32 *)&rect, 0.0f, 1);
+            PrimDrawFlatRectangle((u8 *)&color, (f32 *)&rect, 0.0f, 1);
         }
         alpha = 0;
         if (work->frame < 36) {
@@ -255,7 +255,7 @@ void func_00268230(void *unused, void *task)
         {
             color = (DungeonInColor){196, 196, 196, (u8)(255.0f * (1.0f - t))};
             rect = (DungeonInRect){0, 0, 640, 480};
-            func_0045d6e0((u8 *)&color, (f32 *)&rect, 0.0f, 1);
+            PrimDrawFlatRectangle((u8 *)&color, (f32 *)&rect, 0.0f, 1);
         }
         if (++work->frame >= 20) {
             work->state = 3;

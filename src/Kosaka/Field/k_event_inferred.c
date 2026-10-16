@@ -174,7 +174,7 @@ extern s32 D_007642F0;
 
 
 
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *arg0, u8 *arg1);
 extern void func_0014d290(u8 *arg0, u8 *arg1);
 
@@ -744,7 +744,7 @@ s32 func_0014d470(u8 *arg0)
     if (*(s32 *)work == 0) {
         return 0;
     }
-    obj = func_00460990();
+    obj = PrimAllocQueueNode();
     *(void **)(obj + 8) = func_0014d290;
     *(void **)(obj + 0x10) = work;
     func_00460ac0(*(void **)(work + 0x110), obj);

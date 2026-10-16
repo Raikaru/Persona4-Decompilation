@@ -682,7 +682,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
     extern s32 (*D_00887300[])(s32, void *);
     void sdkSpriteDrawSized(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
     void PrimDrawRectangle(u8 *, u8 *, f32, s32, s32, s32, f32, f32, f32);
-    void func_0045d6e0(u8 *, f32 *, f32, s32);
+    void PrimDrawFlatRectangle(u8 *, f32 *, f32, s32);
     s32 RpSkyRenderStateSet(s32, void *);
     void func_00364c50(void);
     void func_00364c70(void);
@@ -749,7 +749,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         c11[1] = 0xEA;
         c11[2] = 0x2C;
         c11[3] = 0xFF;
-        func_0045d6e0(&c11[0], (f32 *)&sC[0], 0.0f, 0);
+        PrimDrawFlatRectangle(&c11[0], (f32 *)&sC[0], 0.0f, 0);
         coordinate = (f32)0x275;
         coordinate += (*(f32 *)(w + 0x1D0));
         sC[0] = (s32)(coordinate);
@@ -760,7 +760,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         c11[1] = 0xEA;
         c11[2] = 0x2C;
         c11[3] = 0xFF;
-        func_0045d6e0(&c11[0], (f32 *)&sC[0], 0.0f, 0);
+        PrimDrawFlatRectangle(&c11[0], (f32 *)&sC[0], 0.0f, 0);
         btlResultSimpleInitAnimRecords(w);
         RpSkyRenderStateSet(3, (void *)0x32801);
         ((s32 (*)(s32, void *))*(u32 *)vt)(8, (void *)1);
@@ -772,7 +772,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         c11[1] = 0;
         c11[2] = 0;
         c11[3] = 0;
-        func_0045d6e0(&c11[0], (f32 *)&sC[0], 20.0f, 0);
+        PrimDrawFlatRectangle(&c11[0], (f32 *)&sC[0], 20.0f, 0);
         coordinate = (f32)0x19F;
         coordinate += (*(f32 *)(w + 0x260));
         sC[0] = (s32)(coordinate);
@@ -783,7 +783,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         c11[1] = 0xFF;
         c11[2] = 0xFF;
         c11[3] = 0;
-        func_0045d6e0(&c11[0], (f32 *)&sC[0], 0.0f, 0);
+        PrimDrawFlatRectangle(&c11[0], (f32 *)&sC[0], 0.0f, 0);
         RpSkyRenderStateSet(3, (void *)0x717FB);
         ((s32 (*)(s32, void *))*(u32 *)vt)(8, (void *)0);
         ((s32 (*)(s32, void *))*(u32 *)vt)(6, (void *)1);
@@ -914,7 +914,7 @@ void btlResultSimpleDraw(u8 *arg0, u8 *arg1)
         c11[1] = 0xE9;
         c11[2] = 0xE;
         c11[3] = (u8)((*(u8 *)(w + 0x23A)));
-        func_0045d6e0(&c11[0], (f32 *)&sC[0], 0.0f, 1);
+        PrimDrawFlatRectangle(&c11[0], (f32 *)&sC[0], 0.0f, 1);
         if (p16->flags & 4) {
             c193 = 0x67;
             c182 = 0x5F;

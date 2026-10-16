@@ -72,7 +72,7 @@ typedef struct RwSphere {
 typedef struct {
     u8 red, green, blue, alpha;
 } Code45RGBA;
-extern s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z);
+extern s32 PrimBuildQuadVertices(f32 *out, u8 *colors, s32 *pos, f32 z);
 typedef struct Code45RenderState {
     s32 state;
     s32 val;
@@ -258,7 +258,7 @@ extern s32 func_00457120(void);
    the loop as retail; a named base local is coloured $a0 (archived nd 8). */
 /* measured: closes the hoisting scope after func_0045b430. */
 // FUN_0045CE40
-s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z)
+s32 PrimBuildQuadVertices(f32 *out, u8 *colors, s32 *pos, f32 z)
 {
     f32 *v7;
     s32 result;
@@ -309,7 +309,7 @@ s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z)
  * seed. See docs/probe_archive/Primitive_corners_0045d370_20260924.md. */
 // FUN_0045D370
 #pragma push
-void func_0045d370(void *output, void *colorData, void *rectangle, f32 depth,
+void PrimBuildRotatedRectangle(void *output, void *colorData, void *rectangle, f32 depth,
                   s32 offsetX, s32 offsetY, f32 angle, f32 scaleX, f32 scaleY)
 {
     typedef struct { f32 x, y; } QuadPoint;
@@ -377,7 +377,7 @@ void func_0045d370(void *output, void *colorData, void *rectangle, f32 depth,
 
 #pragma pop
 // FUN_0045D6E0
-void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
+void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
 {
     struct {
         s32 saved[6];
@@ -401,7 +401,7 @@ void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
         RpSkyRenderStateSet(3, 0x717FB);
     }
     memset(work.out, 0, 0x100);
-    func_0045ce40(work.out, arg0, (s32 *)&work.pos, fparg0);
+    PrimBuildQuadVertices(work.out, arg0, (s32 *)&work.pos, fparg0);
     D_00887310[0](4, work.out, 4);
     if (arg2 != 0) {
         for (j = 0; j < 6; j++) {
@@ -412,7 +412,7 @@ void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
 }
 
 // FUN_0045D890
-void func_0045d890(void *unused, u8 *arg1)
+void PrimExecuteRectangle(void *unused, u8 *arg1)
 {
     struct {
         PrimitiveRectangleSignedWords pos;
@@ -441,7 +441,7 @@ void func_0045d890(void *unused, u8 *arg1)
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
     }
-    func_0045ce40(work.out, packet->color.rgba, work.pos.word, scale);
+    PrimBuildQuadVertices(work.out, packet->color.rgba, work.pos.word, scale);
     D_00887310[0](4, work.out, 4);
     if (enabled != 0) {
         for (j = 0; j < 6; j++) {

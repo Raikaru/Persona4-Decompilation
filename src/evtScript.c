@@ -22,7 +22,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u16 D_008C024E[];
 extern u8 D_00795E60[];
 
-extern void *func_00460990(void);
+extern void *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *param, void *work);
 extern s32 kwlnTaskDestroyWithHierarchy(void *task);
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
@@ -276,7 +276,7 @@ s32 func_00298b80(u8 *sdkTaskBytes)
     if (D_008C024E[0] & 0x9FF) {
         datSetFlag(0x1211, 1);
     }
-    p = (u8 *)func_00460990();
+    p = (u8 *)PrimAllocQueueNode();
     *(void **)(p + 8) = (void *)func_00298990;
     *(s32 *)(p + 0x10) = arg0;
     func_00460ac0(D_00795E60, p);

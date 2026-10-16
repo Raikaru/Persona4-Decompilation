@@ -4092,7 +4092,7 @@ the reverse: the two bodies disagree about whether the product is shared.
 
 **How common is it?**  A scan of all 87 measured floors (2026-09-18) comparing
 the `mtc1 $zero` count in retail against the candidate found only **three**
-that differ: `func_00479100` (+3), `func_00206dd0` (+1) and `func_0045d370`
+that differ: `func_00479100` (+3), `func_00206dd0` (+1) and `PrimBuildRotatedRectangle` (was `func_0045d370`)
 (-1).  So 7r is a sharp tool, not a broad one - worth checking on any
 float-heavy body, but it is not a hidden cause across the tree.
 

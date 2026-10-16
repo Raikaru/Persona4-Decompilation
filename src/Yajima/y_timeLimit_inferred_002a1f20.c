@@ -20,8 +20,8 @@ extern u8 D_0063EED0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 arg2, s32 arg3);
-extern u8 *func_00460990(void);
+extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 arg2, s32 arg3);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *arg0, void *arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
@@ -146,7 +146,7 @@ s32 func_002a1f20(u8 *arg0) {
     u8 *temp_2;
 
     if (*(s32 *)(*(u8 **)(arg0 + 0x38) + 4) != 3) {
-        temp_2 = func_00460990();
+        temp_2 = PrimAllocQueueNode();
         *(void (**)(u8 *))(temp_2 + 8) = func_002a1ef0;
         *(u8 **)(temp_2 + 0x10) = arg0;
         func_00460ac0(D_00795E60, temp_2);
@@ -188,7 +188,7 @@ s32 func_002a1fa0(u8 *arg0) {
     colors[1] = 0;
     colors[2] = 0;
     colors[3] = 0xFF;
-    func_0045d6e0(colors, sp40_ptr, 0.0f, 1);
+    PrimDrawFlatRectangle(colors, sp40_ptr, 0.0f, 1);
     temp_5 = *(s32 *)(temp_16 + 4);
     switch (temp_5) {
     case 0:

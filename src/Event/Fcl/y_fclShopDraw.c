@@ -191,7 +191,7 @@ void chkmemAllocSiteTag(const void *, u32);
 s32 fclShopItemPanelUpdate(u8 *task);
 void memcpy(void *, s32, s32);
 s32 func_002b89a0(void *);
-void *func_00460990(void);
+void *PrimAllocQueueNode(void);
 void func_00460ac0(void *, void *);
 /* measured: the second parameter is u8 - a u8 lvalue passed to a u8 parameter is a
    plain load and materialises in slot order (li $a0 before lbu $a1); passed to an
@@ -855,7 +855,7 @@ s32 fclShopStateUpdate(u8 *arg0)
 
     work = (*(void * *)(arg0 + 0x38));
     var_19 = 0;
-    temp_2 = func_00460990();
+    temp_2 = PrimAllocQueueNode();
     (*(void * *)((u8 *)temp_2 + 8)) = func_002be4a0;
     (*(void * *)((u8 *)temp_2 + 0x10)) = work;
     func_00460ac0(D_00795FE0, temp_2);
@@ -7152,7 +7152,7 @@ s32 fclShopItemPanelUpdate(u8 *arg0) {
     memcpy((u8 *)work + 4, func_002b89a0(&work->field_4), 0xF0);
     if (func_002e0570(arg0, 0) == 1) {
         if (func_002e0570(arg0, 0xD) == 1) {
-            void *t = func_00460990();
+            void *t = PrimAllocQueueNode();
             *(void (**)(void))((u8 *)t + 8) = func_002be3c0;
             *(s32 *)((u8 *)t + 0x10) = 0;
             func_00460ac0(&D_00793E80[work->field_FC * 0x30], t);

@@ -79,7 +79,7 @@ typedef struct {
     u8 red, green, blue, alpha;
 } Code45RGBA;
 extern u32 K_Clump_MatUsrDataHasData(const RpMaterial *material, const char *name);
-extern s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z);
+extern s32 PrimBuildQuadVertices(f32 *out, u8 *colors, s32 *pos, f32 z);
 typedef struct Code45RenderState {
     s32 state;
     s32 val;

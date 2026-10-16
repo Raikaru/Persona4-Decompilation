@@ -190,7 +190,7 @@ s32 func_00454a60(void* arg0, s32 arg1);
 s32 func_004680f0(u8* task, s8* text);
 void strcpy(void* arg0, void* arg1);
 s32 func_00455f70(s32 arg0, s32 *arg1);
-void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
+void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
 static inline u8 *scrAddOff(u32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
@@ -905,7 +905,7 @@ s32 func_0029e040(u8 *sdkTask)
             rectangle.coordinates[0] = (s32)pixelX;
             rectangle.coordinates[1] = (s32)pixelY;
             drawRectangle = scrPreviewRectangleValue(&rectangle);
-            func_0045d6e0((u8 *)&color, drawRectangle.transport, 0.0f, 1);
+            PrimDrawFlatRectangle((u8 *)&color, drawRectangle.transport, 0.0f, 1);
             break;
         case 3:
             task->unk_214 = func_0029d660((ScrHeader *)(void *)task->unk_224, task->unk_218);

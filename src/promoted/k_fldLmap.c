@@ -27,7 +27,7 @@ extern void sdkSpriteRelease(void *ptr);
 extern void func_003e0f40(u8 *param);
 extern void fieldSceneUnload();
 extern void RpSkyRenderStateSet(s32 param, s32 value);
-extern u8 *func_00460990();
+extern u8 *PrimAllocQueueNode();
 extern void func_00460ac0(void *param, u8 *work);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 RwV3dNormalize(f32 *param, f32 *out);

@@ -18,7 +18,7 @@ extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
 extern u8 iGpffffb1d0;
 extern f32 sinf();
-extern void func_0045d6e0(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 fparg0, s32 arg2);
 extern void PrimDrawPoints(void *arg0, void *arg1, f32 fparg0, s32 arg2,
                           s32 arg3, s32 arg4);
 extern f32 fGpffff8478;
@@ -55,7 +55,7 @@ extern s32 iGpffff9c58;
 extern void func_00103a60(void);
 
 extern s32 func_00121af0(u8 *task);
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(char *name, u8 *task);
 extern void fadeUpdateCallback(void *arg0, u8 *arg1);
 extern void calendarDrawBackdrop(void *unusedNode, void *work);
@@ -231,7 +231,7 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     extern u16 datCalcMaxSpById(s16 unit);
     extern void sdkSpriteDrawOnceTinted(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, u8 red, u8 green, u8 blue, f32 depth, s32 flags);
     extern void sdkSpriteDrawOnce(s32 parent, s32 sprites, s32 index, f32 x, f32 y, u8 alpha, f32 depth, s32 flags);
-    extern void func_0045d6e0(void *color, void *rectangle, f32 depth, s32 mode);
+    extern void PrimDrawFlatRectangle(void *color, void *rectangle, f32 depth, s32 mode);
     extern u8 D_005E5830[];
     extern u8 D_005E5850[];
     extern u8 D_005E4F88[];
@@ -348,7 +348,7 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     hpRect[1] = (s32)(4.0f + hpY);
     emptyColor[2] = emptyColor[1] = emptyColor[0] = 0x2D;
     emptyColor[3] = (u8)opacity;
-    func_0045d6e0(emptyColor, hpRect, 0.0f, 1);
+    PrimDrawFlatRectangle(emptyColor, hpRect, 0.0f, 1);
     spNumber = datCalcGetSpById(unit) & 0xFFFF;
     point.x = 30.0f + origin.x;
     point.y = 43.0f + origin.y;
@@ -390,7 +390,7 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     }
     emptyColor[2] = emptyColor[1] = emptyColor[0] = 0x2D;
     emptyColor[3] = (u8)opacity;
-    func_0045d6e0(emptyColor, &spRect[0], 0.0f, 1);
+    PrimDrawFlatRectangle(emptyColor, &spRect[0], 0.0f, 1);
 }
 
 #pragma pop
@@ -653,7 +653,7 @@ void fadeDrawWipe(void)
         sp.c1c = iGpffffb1d8;
         sp.c1d = iGpffffb1d4;
         sp.c1e = iGpffffb1d0;
-        func_0045d6e0(&sp.c1c, &sp.s0, 0.0f, 1);
+        PrimDrawFlatRectangle(&sp.c1c, &sp.s0, 0.0f, 1);
     }
 }
 // FUN_00121F20
@@ -792,7 +792,7 @@ void fadeUpdateCallback(void *arg0, u8 *arg1)
             sp.c1c = iGpffffb1d8;
             sp.c1d = iGpffffb1d4;
             sp.c1e = iGpffffb1d0;
-            func_0045d6e0(&sp.c1c, &sp.s0, 0.0f, 1);
+            PrimDrawFlatRectangle(&sp.c1c, &sp.s0, 0.0f, 1);
         }
         goto done;
     state2:
@@ -811,7 +811,7 @@ s32 fadeQueueCallback(u8 *unusedTask) {
     u8 *p;
     s32 x;
 
-    p = func_00460990();
+    p = PrimAllocQueueNode();
     x = iGpffffb1cc;
     if (x == 0) {
         return 0;
@@ -1174,7 +1174,7 @@ s32 calendarQueueResult(u8 *unusedTask) {
     u8 *p;
     u8 *q;
 
-    p = func_00460990();
+    p = PrimAllocQueueNode();
     q = iGpffffb1dc;
     *(void **)(p + 8) = (void *)calendarDrawBackdrop;
     *(u8 **)(p + 0x10) = q;
@@ -2401,10 +2401,10 @@ void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1)
     shade = clear;
     upper.bits = D_005E5590.bits;
     rect = upper;
-    func_0045d6e0(&shade, &rect, 0.0f, 0);
+    PrimDrawFlatRectangle(&shade, &rect, 0.0f, 0);
     lower.bits = D_005E55A0.bits;
     rect = lower;
-    func_0045d6e0(&shade, &rect, 0.0f, 0);
+    PrimDrawFlatRectangle(&shade, &rect, 0.0f, 0);
     mdlEffectEmitTagPair();
     frame = *(s32 *)(arg1 + 0x80) + 1;
     *(s32 *)(arg1 + 0x80) = frame;
@@ -2534,7 +2534,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern s32 func_00455f70();
     extern s32 func_0045ad50();
     extern void func_0045c870(u8 *colors, s32 enabled);
-    extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
+    extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
     extern s32 kAssertFail();
     extern s32 mdlPrepareModel();
     extern void mdlAdvanceModelFromFlags(u8 *);
@@ -2900,10 +2900,10 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
         lerpT = 1.0f - temp_f20;
         temp_f20 = 42.0f * lerpT;
         sp520.words[1] = (s32)-temp_f20;
-        func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp520), 0.0f, 1);
+        PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp520), 0.0f, 1);
         sp510.bits = D_005E5660;
         sp510.words[1] = (s32)(406.0f + temp_f20);
-        func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp510), 0.0f, 1);
+        PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp510), 0.0f, 1);
         break;
     case 4:
     case 5:
@@ -2941,11 +2941,11 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
             titleCopyValue((u8 *)&layerColor, (const u8 *)&layerColorSource);
             {
                 /* Retail passes depth in f12 and saveState in a2 at both calls. */
-                extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
+                extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
                 sp4B0 = D_005E5590;
-                func_0045d6e0((u8 *)&layerColor, titleCopyRect((u8 *)&sp4C0, (const u8 *)&sp4B0), 0.0f, 1);
+                PrimDrawFlatRectangle((u8 *)&layerColor, titleCopyRect((u8 *)&sp4C0, (const u8 *)&sp4B0), 0.0f, 1);
                 sp4A0 = D_005E55A0;
-                func_0045d6e0((u8 *)&layerColor, titleCopyRect((u8 *)&sp4C0, (const u8 *)&sp4A0), 0.0f, 1);
+                PrimDrawFlatRectangle((u8 *)&layerColor, titleCopyRect((u8 *)&sp4C0, (const u8 *)&sp4A0), 0.0f, 1);
             }
             titleDrawShadeBars(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)temp_20);
             if (temp_16 >= 0xCD) {
@@ -2976,9 +2976,9 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 sp624.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp628, (const u8 *)&sp624);
                 sp480 = D_005E5590;
-                func_0045d6e0((u8 *)&sp628, titleCopyRect((u8 *)&sp490, (const u8 *)&sp480), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp628, titleCopyRect((u8 *)&sp490, (const u8 *)&sp480), 0.0f, 0);
                 sp470 = D_005E55A0;
-                func_0045d6e0((u8 *)&sp628, titleCopyRect((u8 *)&sp490, (const u8 *)&sp470), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp628, titleCopyRect((u8 *)&sp490, (const u8 *)&sp470), 0.0f, 0);
                 mdlEffectEmitTagPair();
                 temp_2_2 = (s32)(taskView->f10 + 1);
                 taskView->f10 = temp_2_2;
@@ -3200,9 +3200,9 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 sp61C.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp620, (const u8 *)&sp61C);
                 sp390 = D_005E5590;
-                func_0045d6e0((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp390), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp390), 0.0f, 0);
                 sp380 = D_005E55A0;
-                func_0045d6e0((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp380), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp380), 0.0f, 0);
                 mdlEffectEmitTagPair();
                 func_002aaac0();
                 fnTable[0](6, 1);
@@ -3254,9 +3254,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp614.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp618, (const u8 *)&sp614);
                 sp360 = D_005E5590;
-                func_0045d6e0((u8 *)&sp618, titleCopyRect((u8 *)&sp370, (const u8 *)&sp360), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp618, titleCopyRect((u8 *)&sp370, (const u8 *)&sp360), 0.0f, 0);
                 sp350 = D_005E55A0;
-                func_0045d6e0((u8 *)&sp618, titleCopyRect((u8 *)&sp370, (const u8 *)&sp350), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp618, titleCopyRect((u8 *)&sp370, (const u8 *)&sp350), 0.0f, 0);
                 mdlEffectEmitTagPair();
                 func_0025f3f0(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
             } else {
@@ -3290,9 +3290,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp60C.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp610, (const u8 *)&sp60C);
                 sp330 = D_005E5590;
-                func_0045d6e0((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp330), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp330), 0.0f, 0);
                 sp320 = D_005E55A0;
-                func_0045d6e0((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp320), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp320), 0.0f, 0);
                 mdlEffectEmitTagPair();
                 func_002aaac0();
                 fnTable[0](6, 1);
@@ -3327,9 +3327,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp604.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp608, (const u8 *)&sp604);
                 sp300 = D_005E5590;
-                func_0045d6e0((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp300), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp300), 0.0f, 0);
                 sp2F0 = D_005E55A0;
-                func_0045d6e0((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp2F0), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp2F0), 0.0f, 0);
                 mdlEffectEmitTagPair();
                 temp_f22 = sinf(((((1.5707964f * (f32) (temp_16 - 0x55)) / 60.0f))));
                 func_002aaac0();
@@ -3365,9 +3365,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp5FC.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp600, (const u8 *)&sp5FC);
                 sp2D0 = D_005E5590;
-                func_0045d6e0((u8 *)&sp600, titleCopyRect((u8 *)&sp2E0, (const u8 *)&sp2D0), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp600, titleCopyRect((u8 *)&sp2E0, (const u8 *)&sp2D0), 0.0f, 0);
                 sp2C0 = D_005E55A0;
-                func_0045d6e0((u8 *)&sp600, titleCopyRect((u8 *)&sp2E0, (const u8 *)&sp2C0), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp600, titleCopyRect((u8 *)&sp2E0, (const u8 *)&sp2C0), 0.0f, 0);
                 mdlEffectEmitTagPair();
                 titleBuildPointRows(200.0f, 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
             } else if (temp_16 < 0xCE) {
@@ -3397,9 +3397,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp5F4.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp5F8, (const u8 *)&sp5F4);
                 sp2A0 = D_005E5590;
-                func_0045d6e0((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp2A0), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp2A0), 0.0f, 0);
                 sp290 = D_005E55A0;
-                func_0045d6e0((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp290), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp290), 0.0f, 0);
                 mdlEffectEmitTagPair();
                 titleBuildPointRows(200.0f - 700.0f * sinf(((((1.5707964f * (f32) (temp_16 - 0x55)) / 120.0f)))), 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
             }
@@ -3430,9 +3430,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
                 sp5EC.bytes[3] = 0xFF;
                 titleCopyValue((u8 *)&sp5F0, (const u8 *)&sp5EC);
                 sp270 = D_005E5590;
-                func_0045d6e0((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp270), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp270), 0.0f, 0);
                 sp260 = D_005E55A0;
-                func_0045d6e0((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp260), 0.0f, 0);
+                PrimDrawFlatRectangle((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp260), 0.0f, 0);
                 mdlEffectEmitTagPair();
                 temp_f20_5 = sinf((1.5707964f * (f32) temp_16) / 225.0f);
                 if (temp_16 > 0x87) {
@@ -3483,9 +3483,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             sp5E4.bytes[3] = 0xFF;
             titleCopyValue((u8 *)&sp5E8, (const u8 *)&sp5E4);
             sp240 = D_005E5590;
-            func_0045d6e0((u8 *)&sp5E8, titleCopyRect((u8 *)&sp250, (const u8 *)&sp240), 0.0f, 0);
+            PrimDrawFlatRectangle((u8 *)&sp5E8, titleCopyRect((u8 *)&sp250, (const u8 *)&sp240), 0.0f, 0);
             sp230 = D_005E55A0;
-            func_0045d6e0((u8 *)&sp5E8, titleCopyRect((u8 *)&sp250, (const u8 *)&sp230), 0.0f, 0);
+            PrimDrawFlatRectangle((u8 *)&sp5E8, titleCopyRect((u8 *)&sp250, (const u8 *)&sp230), 0.0f, 0);
             mdlEffectEmitTagPair();
             sp69C.value = fGpffff9c80;
             temp_f1_11 = 255.0f;
@@ -3493,7 +3493,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             sp69C.bytes[3] = (u8)var_3_26;
             titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp69C);
             sp500 = *(TitleRect *)&D_005E5670;
-            func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp500), 10.0f, 1);
+            PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp500), 10.0f, 1);
         } else if (temp_16 < 0x56) {
             var_3_27 = sp634.bytes;
             var_2_24 = 4;
@@ -3521,9 +3521,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             sp5DC.bytes[3] = 0xFF;
             titleCopyValue((u8 *)&sp5E0, (const u8 *)&sp5DC);
             sp210 = D_005E5590;
-            func_0045d6e0((u8 *)&sp5E0, titleCopyRect((u8 *)&sp220, (const u8 *)&sp210), 0.0f, 0);
+            PrimDrawFlatRectangle((u8 *)&sp5E0, titleCopyRect((u8 *)&sp220, (const u8 *)&sp210), 0.0f, 0);
             sp200 = D_005E55A0;
-            func_0045d6e0((u8 *)&sp5E0, titleCopyRect((u8 *)&sp220, (const u8 *)&sp200), 0.0f, 0);
+            PrimDrawFlatRectangle((u8 *)&sp5E0, titleCopyRect((u8 *)&sp220, (const u8 *)&sp200), 0.0f, 0);
             mdlEffectEmitTagPair();
             temp_f2_3 = 1.5707964f;
             temp_f0_5 = sinf((((temp_f2_3 + ((temp_f2_3 * (f32) (temp_16 - 0x19)) / 60.0f)))));
@@ -3533,7 +3533,7 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
             sp698.bytes[3] = (u8)var_3_29;
             titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp698);
             sp4F0 = *(TitleRect *)&D_005E5680;
-            func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4F0), 10.0f, 1);
+            PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4F0), 10.0f, 1);
         }
         break;
     case 6:
@@ -3551,9 +3551,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         sp694.value = fGpffff9c88;
         sp6BC = sp694;
         sp4E0 = *(TitleRect *)&D_005E5690;
-        func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4E0), 0.0f, 1);
+        PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4E0), 0.0f, 1);
         sp4D0 = *(TitleRect *)&D_005E56A0;
-        func_0045d6e0((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4D0), 0.0f, 1);
+        PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4D0), 0.0f, 1);
         titleDrawShadeBars(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)temp_20);
         var_3_31 = sp62C.bytes;
         var_2_26 = 4;
@@ -3581,9 +3581,9 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         sp5D4.bytes[3] = 0xFF;
         titleCopyValue((u8 *)&sp5D8, (const u8 *)&sp5D4);
         sp1E0 = D_005E5590;
-        func_0045d6e0((u8 *)&sp5D8, titleCopyRect((u8 *)&sp1F0, (const u8 *)&sp1E0), 0.0f, 0);
+        PrimDrawFlatRectangle((u8 *)&sp5D8, titleCopyRect((u8 *)&sp1F0, (const u8 *)&sp1E0), 0.0f, 0);
         sp1D0 = D_005E55A0;
-        func_0045d6e0((u8 *)&sp5D8, titleCopyRect((u8 *)&sp1F0, (const u8 *)&sp1D0), 0.0f, 0);
+        PrimDrawFlatRectangle((u8 *)&sp5D8, titleCopyRect((u8 *)&sp1F0, (const u8 *)&sp1D0), 0.0f, 0);
         mdlEffectEmitTagPair();
         temp_2_19 = (s32)(taskView->f10 + 1);
         taskView->f10 = temp_2_19;
@@ -4155,7 +4155,7 @@ s32 func_0012aa70(u8 *task)
         break;
     }
     {
-        u8 *drawTask = func_00460990();
+        u8 *drawTask = PrimAllocQueueNode();
         *(void (**)(void *, void *))(drawTask + 8) = titleDrawTaskView;
         *(u8 **)(drawTask + 0x10) = task;
         func_00460ac0(D_00795E60, drawTask);
@@ -4309,7 +4309,7 @@ void func_0012b9a0(s32 unused, s32 arg1)
         stack.sp60 = D_005E5740;
         sp70_ptr = (s32 *)&stack.sp70;
         stack.sp70 = D_005E5740;
-        func_0045d6e0(sp8c_ptr, sp70_ptr, 0.0f, 1);
+        PrimDrawFlatRectangle(sp8c_ptr, sp70_ptr, 0.0f, 1);
         temp_17 = *(s32 *)(temp_2 + 0x10);
         temp_16 = (u8 *)kwlnTaskGetWork(temp_17);
         if (kwlnTaskIsLinked(temp_17) == 0) {
@@ -4331,7 +4331,7 @@ void func_0012b9a0(s32 unused, s32 arg1)
         stack.sp50 = D_005E5750;
         sp70_ptr = (s32 *)&stack.sp70;
         stack.sp70 = D_005E5750;
-        func_0045d6e0(sp8c_ptr, sp70_ptr, 0.0f, 1);
+        PrimDrawFlatRectangle(sp8c_ptr, sp70_ptr, 0.0f, 1);
         temp_17_2 = *(s32 *)(temp_2 + 0x14);
         temp_16_2 = (u8 *)kwlnTaskGetWork(temp_17_2);
         if (kwlnTaskIsLinked(temp_17_2) == 0) {

@@ -28,7 +28,7 @@ typedef struct PersonaWork PersonaWork;
 
 
 
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00369440(void);
 extern f32 iGpffff84a4;
@@ -102,7 +102,7 @@ extern f32 fGpffff8198;
 void pscModelEnqueueDrawNode(s32 arg0, u8 *arg1) {
     u8 *p;
 
-    p = func_00460990();
+    p = PrimAllocQueueNode();
     *(void **)(p + 0x8) = (void *)func_00369440;
     *(s32 *)(p + 0x10) = arg0;
     func_00460ac0(arg1, p);

@@ -834,7 +834,7 @@ void radarDrawPaletteSet(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
 void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
 {
     extern u16 datItemValue(s16 item);
-    extern void func_0045d6e0(u8 *color, f32 *rect, f32 depth, s32 flags);
+    extern void PrimDrawFlatRectangle(u8 *color, f32 *rect, f32 depth, s32 flags);
     extern void func_002bc7a0(s32 item, f32 x, f32 y, f32 depth,
                             s32 color, s32 font, s32 mode, s32 table);
     typedef struct { u8 r; u8 g; u8 b; } Rgb;
@@ -875,7 +875,7 @@ void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
     rectangle.integer[2] = 470;
     rectangle.integer[3] = 39;
     D_00887300[0](1, 0);
-    func_0045d6e0((u8 *)&color, rectangle.words, 0.0f, 0);
+    PrimDrawFlatRectangle((u8 *)&color, rectangle.words, 0.0f, 0);
     sprite = *(void **)(work + 0x1548);
     sdkSpriteDrawAt(sprite, 4.0f + position.xy.x,
                   10.0f + initialY, 0xFF, 0xFF, 0xFF, inputAlpha);

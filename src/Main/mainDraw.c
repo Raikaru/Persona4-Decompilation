@@ -13,7 +13,7 @@ extern void RwCameraClear(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00457120(void);
 extern s32 func_00457130(void);
 extern void H_Dbprt_Flush(void);
-extern void func_00460a80(void *arg0, s32 arg1);
+extern void PrimClearNodes(void *arg0, s32 arg1);
 extern void func_00460ac0(void *arg0, void *arg1);
 extern void sdkOtFlushBuckets(s32 arg0);
 extern void chkmemAllocSiteTag(void *file, s32 line);
@@ -369,7 +369,7 @@ s32 mainDrawClearOtUpdate(u8 *arg0) {
     H_Dbprt_Flush();
     temp_16 = func_00457120();
     RwCameraClear(temp_16, func_00457130(), 3);
-    func_00460a80(&D_00793E80, 0xD8);
+    PrimClearNodes(&D_00793E80, 0xD8);
     *(s32 *)temp_17 = 0;
     *(s32 *)(temp_17 + 4) = 0;
     *(s32 *)(temp_17 + 0x30) = 0;

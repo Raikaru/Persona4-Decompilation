@@ -86,7 +86,7 @@ extern s32 datEntryGetFlags(s16 arg0);
 
 
 
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00266cc0(s32 arg0, s32 arg1);
 
@@ -149,7 +149,7 @@ extern s32 calGetWeekdayOfDay(s32 arg0);
 extern s32 calHasDayEntry(s32 arg0);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void mdlEffectEmitMaskedTagPair(void);
-extern void func_0045d6e0(void *arg0, void *arg1, f32 arg2, s32 arg3);
+extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void mdlEffectEmitTagPair(void);
 extern s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2);
 extern void func_0025f620(f32, f32, f32, s32, u8, const char *, s32, s16, s16, Code1_0026Callback, u8 *);
@@ -452,7 +452,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     extern s32 (*D_00887300[])(RwRenderState state, void *value);
     u8 *renderStates;
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern void func_0045d6e0(void *, void *, f32, s32);
+    extern void PrimDrawFlatRectangle(void *, void *, f32, s32);
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
     WeatherColor sameBackdropColor;
@@ -545,7 +545,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
         RpSkyRenderStateSet(3, (void *)(0x71003));
         RpSkyRenderStateSet(2, (void *)(0x44));
         mdlEffectEmitMaskedTagPair();
-        func_0045d6e0(&sameBackdropColor, &sameBackdropBounds, 10.0f, 0);
+        PrimDrawFlatRectangle(&sameBackdropColor, &sameBackdropBounds, 10.0f, 0);
         mdlEffectEmitTagPair();
         cursor = (u8 *)(&sameViewportColorScratch);
         remaining = 4;
@@ -579,7 +579,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
         RpSkyRenderStateSet(3, (void *)(0x31003));
         RpSkyRenderStateSet(2, (void *)(0x44));
         mdlEffectEmitMaskedTagPair();
-        func_0045d6e0(&sameViewportColor, &sameViewportBounds, 1.0f, 0);
+        PrimDrawFlatRectangle(&sameViewportColor, &sameViewportBounds, 1.0f, 0);
         mdlEffectEmitTagPair();
         (*(void (**)(u32, u32))renderStates)(6, 1);
         (*(void (**)(u32, u32))renderStates)(7, 2);
@@ -615,7 +615,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
         RpSkyRenderStateSet(3, (void *)(0x71003));
         RpSkyRenderStateSet(2, (void *)(0x44));
         mdlEffectEmitMaskedTagPair();
-        func_0045d6e0(&sameOverlayColor, &sameOverlayBounds, 5.0f, 0);
+        PrimDrawFlatRectangle(&sameOverlayColor, &sameOverlayBounds, 5.0f, 0);
         mdlEffectEmitTagPair();
         (*(void (**)(u32, u32))renderStates)(6, 0);
         (*(void (**)(u32, u32))renderStates)(7, 2);
@@ -662,7 +662,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
         RpSkyRenderStateSet(3, (void *)(0x31003));
         RpSkyRenderStateSet(2, (void *)(0x44));
         mdlEffectEmitMaskedTagPair();
-        func_0045d6e0(&sameFinishColor, &sameFinishBounds, 1.0f, 0);
+        PrimDrawFlatRectangle(&sameFinishColor, &sameFinishBounds, 1.0f, 0);
         mdlEffectEmitTagPair();
         if (forcedHighlight != 0) {
             calDrawWeatherHighlight(x, y, 10.0f, opacity, currentWeather, 0, forcedHighlight, scaleX, scaleY, font, 1);
@@ -697,7 +697,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     RpSkyRenderStateSet(3, (void *)(0x71003));
     RpSkyRenderStateSet(2, (void *)(0x44));
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&currentBackdropColor, &currentBackdropBounds, 10.0f, 0);
+    PrimDrawFlatRectangle(&currentBackdropColor, &currentBackdropBounds, 10.0f, 0);
     mdlEffectEmitTagPair();
     cursor = (u8 *)(&currentViewportColorScratch);
     remaining = 4;
@@ -731,7 +731,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     RpSkyRenderStateSet(3, (void *)(0x31003));
     RpSkyRenderStateSet(2, (void *)(0x44));
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&currentViewportColor, &currentViewportBounds, 1.0f, 0);
+    PrimDrawFlatRectangle(&currentViewportColor, &currentViewportBounds, 1.0f, 0);
     mdlEffectEmitTagPair();
     (*(void (**)(u32, u32))renderStates)(6, 1);
     (*(void (**)(u32, u32))renderStates)(7, 2);
@@ -760,7 +760,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     RpSkyRenderStateSet(3, (void *)(0x71003));
     RpSkyRenderStateSet(2, (void *)(0x44));
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&currentOverlayColor, &currentOverlayBounds, 5.0f, 0);
+    PrimDrawFlatRectangle(&currentOverlayColor, &currentOverlayBounds, 5.0f, 0);
     mdlEffectEmitTagPair();
     (*(void (**)(u32, u32))renderStates)(6, 0);
     (*(void (**)(u32, u32))renderStates)(7, 2);
@@ -800,7 +800,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     RpSkyRenderStateSet(3, (void *)(0x31003));
     RpSkyRenderStateSet(2, (void *)(0x44));
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&currentFinishColor, &currentFinishBounds, 1.0f, 0);
+    PrimDrawFlatRectangle(&currentFinishColor, &currentFinishBounds, 1.0f, 0);
     mdlEffectEmitTagPair();
     if (forcedHighlight != 0) {
         calDrawWeatherHighlight(x, y, 10.0f, opacity, currentWeather, 1, forcedHighlight, scaleX, scaleY, font, 1);
@@ -831,7 +831,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     RpSkyRenderStateSet(3, (void *)(0x71003));
     RpSkyRenderStateSet(2, (void *)(0x44));
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&previousBackdropColor, &previousBackdropBounds, 10.0f, 0);
+    PrimDrawFlatRectangle(&previousBackdropColor, &previousBackdropBounds, 10.0f, 0);
     mdlEffectEmitTagPair();
     cursor = (u8 *)(&previousViewportColorScratch);
     remaining = 4;
@@ -865,7 +865,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     RpSkyRenderStateSet(3, (void *)(0x31003));
     RpSkyRenderStateSet(2, (void *)(0x44));
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&previousViewportColor, &previousViewportBounds, 1.0f, 0);
+    PrimDrawFlatRectangle(&previousViewportColor, &previousViewportBounds, 1.0f, 0);
     mdlEffectEmitTagPair();
     (*(void (**)(u32, u32))renderStates)(6, 1);
     (*(void (**)(u32, u32))renderStates)(7, 2);
@@ -894,7 +894,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     RpSkyRenderStateSet(3, (void *)(0x71003));
     RpSkyRenderStateSet(2, (void *)(0x44));
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&previousOverlayColor, &previousOverlayBounds, 5.0f, 0);
+    PrimDrawFlatRectangle(&previousOverlayColor, &previousOverlayBounds, 5.0f, 0);
     mdlEffectEmitTagPair();
     (*(void (**)(u32, u32))renderStates)(6, 0);
     (*(void (**)(u32, u32))renderStates)(7, 2);
@@ -934,7 +934,7 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     RpSkyRenderStateSet(3, (void *)(0x31003));
     RpSkyRenderStateSet(2, (void *)(0x44));
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&previousFinishColor, &previousFinishBounds, 1.0f, 0);
+    PrimDrawFlatRectangle(&previousFinishColor, &previousFinishBounds, 1.0f, 0);
     mdlEffectEmitTagPair();
     if (forcedHighlight != 0) {
         calDrawWeatherHighlight(x, y, 10.0f, opacity, (oldWeather & 0xF), 2, forcedHighlight, scaleX, scaleY, font, 1);
@@ -1013,7 +1013,7 @@ void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f
     RpSkyRenderStateSet(3, (void *)(0x31003));
     RpSkyRenderStateSet(2, (void *)(0x44));
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&depthValue, &clip, depth, 0);
+    PrimDrawFlatRectangle(&depthValue, &clip, depth, 0);
     mdlEffectEmitTagPair();
     glyphWidth = func_0025f2c0(1, 0, (u8 *)fontWord);
     drawDepth = 1.0f + depth;
@@ -1490,7 +1490,7 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
             RpSkyRenderStateSet(3, (void *)(0x31003));
             RpSkyRenderStateSet(2, (void *)(0x44));
             mdlEffectEmitMaskedTagPair();
-            func_0045d6e0(&spEC, &spD0, 10.0f, 0);
+            PrimDrawFlatRectangle(&spEC, &spD0, 10.0f, 0);
             mdlEffectEmitTagPair();
             calDrawDateCell(0x6D, 0xF5, 0.0f, 0xFF, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
             temp_16_2 = *(s32 *)(temp_2 + 4);
@@ -1540,7 +1540,7 @@ void calDrawDayStripCallback(s32 arg0, u8 *arg1)
             RpSkyRenderStateSet(3, (void *)(0x31003));
             RpSkyRenderStateSet(2, (void *)(0x44));
             mdlEffectEmitMaskedTagPair();
-            func_0045d6e0(&spE4, &spB0, 10.0f, 0);
+            PrimDrawFlatRectangle(&spE4, &spB0, 10.0f, 0);
             mdlEffectEmitTagPair();
             calDrawDateCell(0x6D, 0xF5, 0.0f, temp_17_9, temp_3, 1, 1.0f, 1.0f, 0, 0x58, *(s32 *)(temp_2 + 4), 0);
             temp_16 = *(s32 *)(temp_2 + 4);
@@ -1626,7 +1626,7 @@ void calQueueDayStripDraw(s32 arg0, s32 arg1)
 {
     u8 *temp_2;
 
-    temp_2 = func_00460990();
+    temp_2 = PrimAllocQueueNode();
     *(void (**)(s32, u8 *))(temp_2 + 8) = calDrawDayStripCallback;
     *(s32 *)(temp_2 + 0x10) = arg0;
     func_00460ac0((u8 *)arg1, temp_2);

@@ -238,7 +238,7 @@ void func_00467880(u8 *arg0)
 {
     extern u32 func_003e8110(u32 camera);
     extern u32 func_003e8120(u32 camera);
-    extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 farg0, s32 arg2);
+    extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 farg0, s32 arg2);
     extern char iGpffffb01c;
     extern u8 D_00712A20[];
     extern u8 D_00712A30[];
@@ -302,7 +302,7 @@ void func_00467880(u8 *arg0)
         work.color2 = 0x1E;
         work.color1 = 0x1E;
         work.color0 = 0x1E;
-        func_0045d6e0((u8 *)&work.color0,
+        PrimDrawFlatRectangle((u8 *)&work.color0,
                       (f32 *)(void *)&work.field40, 0.0f, 1);
         work.field40 = 0x30;
         *(s32 *)(void *)&work.field44 =
@@ -314,7 +314,7 @@ void func_00467880(u8 *arg0)
         *(u8 *)(void *)&work.color2 = 0xFF;
         work.color1 = 0x50;
         work.color0 = 0x50;
-        func_0045d6e0((u8 *)&work.color0,
+        PrimDrawFlatRectangle((u8 *)&work.color0,
                       (f32 *)(void *)&work.field40, 0.0f, 1);
         work.field40 = 0x1B4;
         *(s32 *)(void *)&work.field44 =
@@ -329,7 +329,7 @@ void func_00467880(u8 *arg0)
         *(u8 *)(void *)&work.color2 = 0x80;
         *(u8 *)(void *)&work.color1 = 0x80;
         *(u8 *)(void *)&work.color0 = 0x80;
-        func_0045d6e0((u8 *)&work.color0,
+        PrimDrawFlatRectangle((u8 *)&work.color0,
                       (f32 *)(void *)&work.field40, 0.0f, 1);
         (*(WindowRenderStateSet *)table)((RwRenderState)(0xE), (void *)(work.field58));
         func_003e8110((u32)func_00457120());

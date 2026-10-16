@@ -30,7 +30,7 @@ extern u16 D_008C024E[];
 extern f32 fGpffff8200;
 extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
                            s32 arg2, s32 arg3, s32 arg4);
-extern void func_0045ee00(s32 arg0, s32 arg1, void *arg2, s32 arg3,
+extern void PrimDrawRadialTriangle(s32 arg0, s32 arg1, void *arg2, s32 arg3,
                            f32 farg0, f32 farg1, s32 arg4);
 
 

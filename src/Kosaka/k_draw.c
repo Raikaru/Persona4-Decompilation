@@ -38,7 +38,7 @@ extern f32 gPI;
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-extern void *func_00460990(void);
+extern void *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *param, void *work);
 extern void (*jtbl_008873EC[])(void *);
 extern void primSphereLine3D(u8 *position, f32 size, u8 *color, s32 setStates);
@@ -133,7 +133,7 @@ s32 KDraw_UpdateSphere(u8 *arg0)
     if (*(s32 *)work == 0) {
         return 0;
     }
-    obj = func_00460990();
+    obj = PrimAllocQueueNode();
     *(void **)(obj + 8) = KDraw_DrawSphere;
     *(void **)(obj + 0x10) = work;
     func_00460ac0(*(void **)(work + 0x14), obj);
@@ -199,7 +199,7 @@ s32 KDraw_UpdateCylinder(u8 *arg0)
     if (*(s32 *)work == 0) {
         return 0;
     }
-    obj = func_00460990();
+    obj = PrimAllocQueueNode();
     *(void **)(obj + 8) = KDraw_DrawCylinder;
     *(void **)(obj + 0x10) = work;
     func_00460ac0(*(void **)(work + 0x18), obj);
@@ -274,7 +274,7 @@ s32 KDraw_UpdateAxes(u8 *arg0)
     if (*(s32 *)(work + 0x44) == 0) {
         return 0;
     }
-    obj = func_00460990();
+    obj = PrimAllocQueueNode();
     *(void **)(obj + 8) = KDraw_DrawAxes;
     *(void **)(obj + 0x10) = work;
     func_00460ac0(*(void **)(work + 0x4C), obj);

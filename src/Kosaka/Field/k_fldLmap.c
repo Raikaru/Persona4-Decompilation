@@ -27,7 +27,7 @@ extern void sdkSpriteRelease(void *ptr);
 extern void func_003e0f40(u8 *param);
 extern void fieldSceneUnload();
 extern void RpSkyRenderStateSet(s32 param, s32 value);
-extern u8 *func_00460990();
+extern u8 *PrimAllocQueueNode();
 extern void func_00460ac0(void *param, u8 *work);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 RwV3dNormalize(f32 *param, f32 *out);
@@ -801,7 +801,7 @@ void func_00188320(u8 *arg0, u8 *arg1)
     const f32 *p;
 
     p = (const f32 *)arg1;
-    temp_2 = func_00460990();
+    temp_2 = PrimAllocQueueNode();
     *(void (**)(void))(temp_2 + 8) = func_00187f50;
     *(s32 *)(temp_2 + 0x10) = 0;
     func_00460ac0(D_00795E60, temp_2);
@@ -875,7 +875,7 @@ void func_00188590(u8 *arg0, u8 *arg1, s32 arg2)
     s32 temp_3;
     u8 *temp_2;
     f32 temp_f14;
-    temp_2 = func_00460990();
+    temp_2 = PrimAllocQueueNode();
     *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00188030;
     *(s32 *)(temp_2 + 0x10) = 0;
     func_00460ac0(D_00795E60, temp_2);
@@ -933,7 +933,7 @@ void func_00188940(u8 *arg0, u8 *arg1, s32 arg2)
     u8 *temp_2_2;
     s32 temp_16;
 
-    temp_2 = func_00460990();
+    temp_2 = PrimAllocQueueNode();
     *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00187f50;
     *(s32 *)(temp_2 + 0x10) = 0;
     func_00460ac0(D_00795E60, temp_2);
@@ -945,7 +945,7 @@ void func_00188940(u8 *arg0, u8 *arg1, s32 arg2)
     temp_f0 += *(f32 *)arg1;
     temp_f1 = 224.0f + *(f32 *)(arg1 + 4);
     sdkSpriteDrawQueued((f32)(s32)temp_f0, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8) - 10.0f, 0xFF0000, 0xFF, 1, *(void **)(arg0 + 0x2C), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
-    temp_2_2 = func_00460990();
+    temp_2_2 = PrimAllocQueueNode();
     *(void (**)(void))(temp_2_2 + 8) = (void (*)(void))func_00188110;
     *(s32 *)(temp_2_2 + 0x10) = 0;
     func_00460ac0(D_00795E60, temp_2_2);

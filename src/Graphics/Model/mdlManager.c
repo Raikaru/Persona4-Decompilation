@@ -4927,7 +4927,7 @@ void mdlResetDrawState(void* param_1, void* param_2)
  * color-forwarding wrapper, are recorded in IDA_model_followthrough.json. */
 /* Queue command uses k_draw.c raw offsets (obj+8/0x0C/0x10/0x14/0x18/0x1A/0x1C); no new struct. */
 
-extern u8* func_00460990(void);
+extern u8* PrimAllocQueueNode(void);
 extern void func_00460ac0(void*, void*);
 extern void mdlAdvanceModel(u8*, s32);
 extern void mdlApplySkyDrawState(u8*, u8*);
@@ -4961,12 +4961,12 @@ void mdlQueueModelForDraw(void* queue, u8* model)
 
     if ((flags & 1) != 0 && (flags & 0x8000) == 0)
     {
-        command = func_00460990();
+        command = PrimAllocQueueNode();
         *(u16*)(command + 0x18) = 0x1c;
         *(void**)(command + 0x1c) = model;
         func_00460ac0(*(void**)(model + 0x2f8), command);
     }
-    renderCommand = func_00460990();
+    renderCommand = PrimAllocQueueNode();
     if (*(void**)(model + 0xe0) != 0)
     {
         *(void**)(renderCommand + 8) = (void*)mdlApplyDrawState;

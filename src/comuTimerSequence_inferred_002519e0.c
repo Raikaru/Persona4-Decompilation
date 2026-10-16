@@ -22,7 +22,7 @@ extern s32 iGpffffb480;
 
 
 
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern s64 cmmCommunityArcana(s32 arg0);
 extern s32 sdkSpritePackCreate(u8 *arg0);
@@ -39,7 +39,7 @@ extern u16 D_008C024E[];
 extern f32 fGpffff8200;
 extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
                            s32 arg2, s32 arg3, s32 arg4);
-extern void func_0045ee00(s32 arg0, s32 arg1, void *arg2, s32 arg3,
+extern void PrimDrawRadialTriangle(s32 arg0, s32 arg1, void *arg2, s32 arg3,
                            f32 farg0, f32 farg1, s32 arg4);
 
 
@@ -136,7 +136,7 @@ s32 func_002519e0(u8 *sdkTaskBytes) {
         goto block_15;
     }
 block_15:
-    temp_2_3 = func_00460990();
+    temp_2_3 = PrimAllocQueueNode();
     *(void **)(temp_2_3 + 8) = (void *)func_002519b0;
     *(s32 *)(temp_2_3 + 0x10) = arg0;
     func_00460ac0(D_007963D0, temp_2_3);

@@ -220,7 +220,7 @@ extern f32 fGpffff81cc;
 
 
 
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 
 
 
@@ -413,7 +413,7 @@ s32 mwPlayerUpdate(u8 *arg0) {
     u8 *task;
 
     ctx = *(u8 **)(arg0 + 0x38);
-    task = func_00460990();
+    task = PrimAllocQueueNode();
     *(void **)(task + 8) = (void *)movieNativeTaskUpdate;
     *(u8 **)(task + 0x10) = ctx;
     func_00460ac0(*(char **)(ctx + 0x218), task);

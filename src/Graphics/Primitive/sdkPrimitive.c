@@ -22,9 +22,9 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s64 iGpffffabe8;
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *param, void *work);
-extern void func_0045d370(void *out, void *a1, void *a2, f32 f0, s32 a3, s32 a4, f32 f1, f32 f2, f32 f3);
+extern void PrimBuildRotatedRectangle(void *out, void *a1, void *a2, f32 f0, s32 a3, s32 a4, f32 f1, f32 f2, f32 f3);
 extern void PrimBuildTransformedVertices(PrimVertex *out, const u8 *colors, const void *positions,
                           f32 depth, u32 count, s32 offsetX, s32 offsetY,
                           f32 rotation, f32 scaleX, f32 scaleY);
@@ -65,8 +65,8 @@ void PrimQueueRectangle(const PrimitiveRectangleColor *arg0, const PrimitiveRect
     chkmemAllocSiteTag(D_007124C0, 0x101);
     temp_2 = (u8 *)(*jtbl_008873E8)(0x1C, 0x40000);
     memcpy(temp_2, &packet, 0x1C);
-    temp_2_2 = (u8 *)(func_00460990());
-    *(void (**)(void *, u8 *))(temp_2_2 + 8) = func_0045d890;
+    temp_2_2 = (u8 *)(PrimAllocQueueNode());
+    *(void (**)(void *, u8 *))(temp_2_2 + 8) = PrimExecuteRectangle;
     *(u8 **)(temp_2_2 + 0x10) = temp_2;
     func_00460ac0((void *)arg3, temp_2_2);
 }
@@ -90,7 +90,7 @@ void PrimDrawRectangle(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 a
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x717FB);
     }
-    func_0045d370(&work.out, arg0, &work.pos, fparg0, arg3, arg4, fparg1, fparg2, fparg3);
+    PrimBuildRotatedRectangle(&work.out, arg0, &work.pos, fparg0, arg3, arg4, fparg1, fparg2, fparg3);
     D_00887310[0](4, &work.out, 4);
     if (arg2 != 0) {
         for (j = 0; j < 6; j++) {
@@ -385,7 +385,7 @@ void PrimQueueBatch(void *colors, void *positions, f32 depth, s32 count,
         ((PrimPoint *)work->positions)[i].v[1] = base.v[1] + (f32)offsetY + (x * negSine + y * cosine);
         i++;
     }
-    callback = func_00460990();
+    callback = PrimAllocQueueNode();
     *(void (**)(void *, PrimBatch *))(callback + 8) = PrimBatchExecute;
     *(void **)(callback + 0x10) = work;
     func_00460ac0(queue, callback);
@@ -451,7 +451,7 @@ void PrimQueueBatchAlpha(void *colors, void *positions, f32 depth, s32 count,
         i++;
     }
     work->alpha = 1;
-    callback = func_00460990();
+    callback = PrimAllocQueueNode();
     *(void (**)(void *, PrimBatch *))(callback + 8) = PrimBatchExecute;
     *(void **)(callback + 0x10) = work;
     func_00460ac0(queue, callback);

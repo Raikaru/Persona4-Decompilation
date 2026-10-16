@@ -74,7 +74,7 @@ void fclSpriteStartFade(u8 *arg0, u8 arg1, u8 arg2, u32 arg3);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern u8 *func_00457120(void);
 extern void memcpy(void *, s32, s32);
-extern void *func_00460990(void);
+extern void *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *, void *);
 extern u8 *func_00461390(void *list, s32 arg1, void *arg2, s32 arg3);
 extern f32 fGpffff8504;
@@ -284,7 +284,7 @@ s32 func_002b6340(u8 *arg0) {
     if (*(f32 *)(p + 0xAC) <= g) return 0;
     if (fclSpriteTestRecordFlag(arg0, 0) == 1) {
         if (fclSpriteTestRecordFlag(arg0, 13) == 1) {
-            q = func_00460990();
+            q = PrimAllocQueueNode();
             *(void (**)(void))(q + 8) = func_002b6180;
             *(s32 *)(q + 0x10) = 0;
             func_00460ac0(D_00793E80 + *(s32 *)(p + 8) * 0x30, q);
@@ -719,7 +719,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
             e = base + (s32)entryOffset;
             fl = *(s16 *)(e + 0x14);
             if ((s16)((fl & 0x4000) >> 0xE) == 1) {
-                w = func_00460990();
+                w = PrimAllocQueueNode();
                 *(void (**)(void))(w + 8) = func_002b6260;
                 *(s32 *)(w + 0x10) = 0;
                 b2 = YDRAW_BASE;
@@ -744,7 +744,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
                     }
                 }
             } else if ((s16)((fl & 0x2000) >> 0xD) == 1) {
-                w = func_00460990();
+                w = PrimAllocQueueNode();
                 *(void (**)(void))(w + 8) = func_002b6180;
                 *(s32 *)(w + 0x10) = 0;
                 b2 = YDRAW_BASE;
@@ -1177,7 +1177,7 @@ s32 func_002b7f20(u8 *arg0) {
                       4, (void *)(p + 0x20), 4);
     *(void **)(q + 8) = (void *)func_002b6da0;
     *(u8 **)(q + 0x10) = p;
-    q = func_00460990();
+    q = PrimAllocQueueNode();
     *(void **)(q + 8) = (void *)func_002b6ea0;
     *(u8 **)(q + 0x10) = p;
     func_00460ac0(D_00793E80 + (*(s32 *)(p + 0x120) + 1) * 0x30, q);

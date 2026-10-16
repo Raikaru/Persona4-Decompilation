@@ -3,7 +3,7 @@
 #include "type.h"
 
 extern void chkmemAllocSiteTag(const void *file, s32 line);
-extern u8 *func_00460990();
+extern u8 *PrimAllocQueueNode();
 extern void func_00460ac0(void *arg0, void *arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -67,7 +67,7 @@ void func_002aaf20(f32 fparg0, f32 fparg1, f32 fparg2, u8 *arg0, f32 fparg3, f32
     *(Byte4 *)(temp_16 + 0x14) = *(Byte4 *)arg0;
     *(s32 *)(temp_16 + 0x18) = arg1;
     if (arg2 != NULL) {
-        temp_2 = func_00460990();
+        temp_2 = PrimAllocQueueNode();
         *(void **)(temp_2 + 8) = (void *)func_002aabf0;
         *(u8 **)(temp_2 + 0x10) = temp_16;
         func_00460ac0(arg2, temp_2);
@@ -153,7 +153,7 @@ void func_002ab380(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     *(void **)(temp_2 + 0x14) = arg3;
     *(s32 *)(temp_2 + 0x18) = arg2;
     if (arg5 != NULL) {
-        temp_2_2 = func_00460990();
+        temp_2_2 = PrimAllocQueueNode();
         *(void **)(temp_2_2 + 8) = (void *)func_002ab0e0;
         *(u8 **)(temp_2_2 + 0x10) = temp_2;
         func_00460ac0(arg5, temp_2_2);
@@ -330,7 +330,7 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
     } while (var_4_2 > 0);
     *(u8 **)(temp_2_2 + 0x54) = arg3;
     if (arg4 != NULL) {
-        temp_2_4 = func_00460990();
+        temp_2_4 = PrimAllocQueueNode();
         *(void **)(temp_2_4 + 8) = (void *)func_002ab4b0;
         *(u8 **)(temp_2_4 + 0x10) = temp_2_2;
         func_00460ac0(arg4, temp_2_4);
@@ -420,7 +420,7 @@ void func_002abb30(
     *(Byte4 *)(packet + 0x14) = *(Byte4 *)&spC8[1];
     *(s32 *)(packet + 0x18) = 0x12;
     if (arg4 != NULL) {
-        callback = func_00460990();
+        callback = PrimAllocQueueNode();
         *(void **)(callback + 8) = (void *)func_002aabf0;
         *(u8 **)(callback + 0x10) = packet;
         func_00460ac0(arg4, callback);
@@ -453,7 +453,7 @@ void func_002abb30(
     *(Byte4 *)(packet + 0x14) = *(Byte4 *)&spC8[1];
     *(s32 *)(packet + 0x18) = 1;
     if (arg4 != NULL) {
-        callback = func_00460990();
+        callback = PrimAllocQueueNode();
         *(void **)(callback + 8) = (void *)func_002aabf0;
         *(u8 **)(callback + 0x10) = packet;
         func_00460ac0(arg4, callback);
@@ -480,7 +480,7 @@ void func_002abb30(
     *(Byte4 *)(packet3 + 0x14) = *(Byte4 *)&spC8[1];
     *(s32 *)(packet3 + 0x18) = 8;
     if (arg4 != NULL) {
-        callback = func_00460990();
+        callback = PrimAllocQueueNode();
         *(void **)(callback + 8) = (void *)func_002aabf0;
         *(u8 **)(callback + 0x10) = packet3;
         func_00460ac0(arg4, callback);

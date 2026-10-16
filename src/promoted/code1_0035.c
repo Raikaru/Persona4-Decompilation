@@ -1762,7 +1762,7 @@ void datCommunityListDraw(u8 *work) {
     extern void sdkRenderStateSetDefault(void);
     extern s32 frFontExDrawTextOutB(f32, f32, f32, s32, s8, s32, const char *, s32, s32, s32);
     extern void func_0034c270(Vec2f, s32, s32, f32);
-    extern void func_0045d6e0(u8 *, f32 *, f32, s32);
+    extern void PrimDrawFlatRectangle(u8 *, f32 *, f32, s32);
     extern void datPartyHudDraw(s32, u8 *);
     extern void datScreenWipeSetAlpha(u8 *, u8);
     extern void datScreenWipeDraw(u8 *);
@@ -1963,7 +1963,7 @@ void datCommunityListDraw(u8 *work) {
                 rectangle.integer[2] = 0x280;
                 rectangle.integer[3] = 3;
                 D_00887300[0](1, 0);
-                func_0045d6e0((u8 *)&color, rectangle.transport, 0.0f, (s64)0);
+                PrimDrawFlatRectangle((u8 *)&color, rectangle.transport, 0.0f, (s64)0);
         }
         for (visibleIndex = 0; visibleIndex < 5; visibleIndex++) {
             if (menu->rowCount > (visibleIndex + menu->firstRow)) {
@@ -2647,7 +2647,7 @@ typedef struct {
 void datPartyHudDraw(s32 arg0, u8 *arg1)
 {
     extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-    extern void func_0045d6e0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2);
+    extern void PrimDrawFlatRectangle(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2);
     /* H011: the callee masks its argument with 0xFFFF. */
     /* H011: the u16 parameter is measured; the u32 definition (cmmMisc.c)
        mismatches the name-sprite call. */
@@ -2737,7 +2737,7 @@ void datPartyHudDraw(s32 arg0, u8 *arg1)
     rc[2] = 640.0f * w / 4096.0f;
     rc[3] = 59.0f * h / 4096.0f;
     D_00887300[0](1, 0);
-    func_0045d6e0(col, (u8 *)rc, 0.0f, 0);
+    PrimDrawFlatRectangle(col, (u8 *)rc, 0.0f, 0);
     x2 = 5.0f + (x0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x190));
     y2 = 78.0f + (rowY + (y0 + *(f32 *)(hudOffsetPtr_003599c0(arg0 * 48, arg1) + 0x194)));
     scale = (f32)hudOffsetPtr_003599c0(arg0 * 48, arg1)[0x19A];
@@ -4048,7 +4048,7 @@ void datCommunityMenuDraw(u8 *work)
     extern void func_00361d20(s32 idx, u8 *ctx);
     extern s32 RpSkyRenderStateSet(s32 cmd, void *val);
     extern void func_0045c870(u8 *color, s32 flags);
-    extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 flags);
+    extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 flags);
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
     extern u8 D_0064B2E8[];
@@ -4312,7 +4312,7 @@ void datCommunityMenuDraw(u8 *work)
         colorBytes[2] = D_0064B2E8[2];
         colorBytes[3] = opacity;
         D_00887300[0](1, 0);
-        func_0045d6e0(colorBytes, rectangle.transport, 0.0f, 0);
+        PrimDrawFlatRectangle(colorBytes, rectangle.transport, 0.0f, 0);
         position.x = 212.0f + offsetX;
         position.y = (304.0f + offsetY) - 5.0f;
         itemIndex = (s32)(*(s16 *)(work + 0x2A) + *(s16 *)(work + 0x2C));

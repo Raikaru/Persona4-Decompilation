@@ -50,7 +50,7 @@ extern s32 func_0035fa00(u8 *arg0, s32 arg1, s16 arg2);
 extern void func_0034f8f0(void *arg0);
 extern s32 datCalcGetLevelById(s32 arg0);
 
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00369440(void);
 extern u8 *func_00457120(void);

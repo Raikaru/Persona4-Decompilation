@@ -39,7 +39,7 @@ void shdPersonaDrawFramePair(s64, f32, u8, u8 *, s32 *);
 void shdPersonaDrawArcanaBadge(s64, f32, u8, u8 *, s32 *);
 void shdPersonaDrawAffinityPanel(Vec2f, f32, u8, u8 *, s32 *);
 void shdPersonaDrawGaugeBar(Vec2f, f32, u8, u8, u8, s16, s32);
-void func_0045d6e0(u8 *, f32 *, f32, s32);
+void PrimDrawFlatRectangle(u8 *, f32 *, f32, s32);
 void func_0034c270(Vec2f, f32, u8, s32);
 extern s32 (*D_00887300[])(s32, void *);
 extern char D_005E5810[];
@@ -722,7 +722,7 @@ void shdPersonaDrawGaugeBar(Vec2f position, f32 depth, u8 alpha, u8 filled, u8 a
     rectangle.integer[3] = 9;
     stateWords = (u32 *)D_00887300;
     ((s32 (**)(s32, void *))stateWords)[0](1, 0);
-    func_0045d6e0(colors[1].rgba, rectangle.transport, depth, 0);
+    PrimDrawFlatRectangle(colors[1].rgba, rectangle.transport, depth, 0);
     if (bonus > 0) {
         f32 bonusWidth = (f32)((bonus * 204) / 99);
         rectangle.integer[0] = left;
@@ -730,7 +730,7 @@ void shdPersonaDrawGaugeBar(Vec2f position, f32 depth, u8 alpha, u8 filled, u8 a
         rectangle.integer[2] = (s32)bonusWidth;
         rectangle.integer[3] = 7;
         ((s32 (**)(s32, void *))stateWords)[0](1, 0);
-        func_0045d6e0(colors[0].rgba, rectangle.transport, depth, 0);
+        PrimDrawFlatRectangle(colors[0].rgba, rectangle.transport, depth, 0);
         position.x += bonusWidth;
     }
     sdkSpriteDrawOnceTinted(0, resource, 0x40, position.x, position.y,
@@ -2517,7 +2517,7 @@ void shdPersonaDrawByState(u8 *arg0)
         color[2] = 0x2C;
         color[3] = *(u8 *)(arg0 + 0x505);
         D_00887300[0](1, 0);
-        func_0045d6e0(color, (f32 *)work, 0.0f, 0);
+        PrimDrawFlatRectangle(color, (f32 *)work, 0.0f, 0);
         return;
     default:
         kAssertFail(D_005E4868, 0xB3D);

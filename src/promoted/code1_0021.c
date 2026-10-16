@@ -2619,7 +2619,7 @@ void btlMessageDrawTimed(u8 *arg0, u8 *arg1)
     extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 arg4,
                              s32 arg5, s32 arg6, s32 arg7, s32 arg8);
     extern s32 itfMesWindowRunEntry(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-    extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 state);
+    extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 state);
     extern void btlUiSetRenderStates(void);
     extern s32 itfMesWindowMeasureText(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     extern void btlUiDrawSpriteFaded(u8 *work, s32 mode, s32 tile, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
@@ -2745,13 +2745,13 @@ void btlMessageDrawTimed(u8 *arg0, u8 *arg1)
                     boxOffset = ws14_mul(16.0f, fade);
                     box.y = (s32)(103.0f - (f32)box.height - boxOffset);
                     firstBoxY = (f32)box.y;
-                    func_0045d6e0(colorBytes, (f32 *)&box, 0.0f, 0);
+                    PrimDrawFlatRectangle(colorBytes, (f32 *)&box, 0.0f, 0);
                     box.y = (s32)(99.0f + boxOffset);
                     secondBoxY = (f32)box.y;
-                    func_0045d6e0(colorBytes, (f32 *)&box, 0.0f, 0);
+                    PrimDrawFlatRectangle(colorBytes, (f32 *)&box, 0.0f, 0);
                     box.y = (s32)(firstBoxY + (f32)box.height);
                     box.height = (s32)(secondBoxY - (f32)box.y);
-                    func_0045d6e0(colorBytes, (f32 *)&box, 51.0f, 0);
+                    PrimDrawFlatRectangle(colorBytes, (f32 *)&box, 51.0f, 0);
                     (*(BtlShuffleRenderStateSet *)renderStates)(rwRENDERSTATEZWRITEENABLE, 0);
                 }
                 btlUiSetScale((u8 *)p, 1.0f, fade);

@@ -70,7 +70,7 @@ extern void TnSetTableBase(s32 arg0);
 extern void sdkSpriteDraw(u8 *arg0, s32 arg1);
 extern void sdkSpriteFreeNode(void *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void sdkSpriteDrawAndFreeFlag1(s32 arg0, u8 *arg1);
 extern void sdkSpriteDrawAndFreeFlag0(s32 arg0, u8 *arg1);
@@ -95,7 +95,7 @@ extern void func_00364c50(void);
 extern void func_00364c70(void);
 extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
                            s32 arg2, s32 arg3, s32 arg4);
-extern void func_0045ee00(s32 arg0, s32 arg1, void *arg2, s32 arg3,
+extern void PrimDrawRadialTriangle(s32 arg0, s32 arg1, void *arg2, s32 arg3,
                            f32 farg0, f32 farg1, s32 arg4);
 
 
@@ -200,7 +200,7 @@ s32 sdkSpriteDrawQueued(f32 farg0, f32 farg1, f32 farg2,
     u8 *temp_16;
     u8 *temp_2;
 
-    temp_16 = func_00460990();
+    temp_16 = PrimAllocQueueNode();
     temp_2 = sdkSpriteNewNode((u32)arg3, arg2);
     *(f32 *)(temp_2 + 8) = farg0;
     *(f32 *)(temp_2 + 0xC) = farg1;
