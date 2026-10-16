@@ -106,7 +106,7 @@ extern void func_002674b0(s32 arg0, u8 *arg1);
 extern char D_00637348[];
 extern s32 kwlnTaskGetTaskByName(void *arg0);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
-extern void func_00263cb0(s32 arg0, u8 *arg1);
+extern void calDrawDayStripCallback(s32 arg0, u8 *arg1);
 extern void frFontSetStateBits(u32 param_1, int param_2);
 extern s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00266a40(u32 arg0, s32 arg1);
@@ -117,7 +117,7 @@ extern s32 cmmCommunityGetCurrentId(void);
 extern void cmmCommunitySetReversed(s32 arg0);
 extern void cmmCommunityClearReversed(s32 arg0);
 extern s32 cmmCommunityAddScaledPoints(s32 arg0, u32 arg1);
-extern void func_00264cb0(s32 arg0, s32 arg1);
+extern void calQueueDayStripDraw(s32 arg0, s32 arg1);
 extern s32 func_00110c50(s32 arg0, s32 arg1);
 extern s32 func_0043c6a0(s32 arg0);
 extern f32 sinf(f32 fparg0);
@@ -181,8 +181,9 @@ void sdlSchedulerDestroy(void)
 /* measured: declaring func_0025f430's halfword parameters as s16 reproduces
    retail's zero/pointer/constant/halfword setup order; object 88B, retail
    window 96B with zero tail, normalized_diff 0. */
+// Intent: Draws one character of a day number as a glyph (callback for the func_0025f620 text drawer; skips newline codes) [inferred]
 // FUN_002605A0
-void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * arg2, s32 arg3, s32 arg4, u8 * arg5)
+void calDrawDayNumberGlyph(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * arg2, s32 arg3, s32 arg4, u8 * arg5)
 {
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     s8 temp_7;
@@ -205,8 +206,9 @@ void func_002605a0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 arg1, s8 * a
 #pragma opt_loop_invariants on
 typedef struct { u32 w[48]; } TrailTable_00260600;
 
+// Intent: Draws a highlight trail around a weather icon in one of three layouts (variant 0/1/2) [inferred]
 // FUN_00260600
-void func_00260600(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6)
+void calDrawHighlightTrail(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6)
 {
     extern s32 func_0025f430(f32, f32, f32, u32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern f32 cosf(f32);
@@ -314,11 +316,12 @@ typedef struct {
     CalendarSparkle offset[30];
 } CalendarSparkleTable;
 extern CalendarSparkle D_006375C0[30];
-extern void func_00260600(s32 x, s32 y, f32 depth, s32 color, u8 alpha, s32 variant, f32 scaleX, f32 scaleY, s32 font, s32 arg6);
+extern void calDrawHighlightTrail(s32 x, s32 y, f32 depth, s32 color, u8 alpha, s32 variant, f32 scaleX, f32 scaleY, s32 font, s32 arg6);
 #pragma push
 #pragma opt_propagation off
+// Intent: Draws the weather highlight (sparkle table, colour by highlight kind) for a calendar cell [inferred]
 // FUN_00260E60
-void func_00260e60(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 variant, s32 highlight, f32 scaleX, f32 scaleY, s32 font, s32 setupStates)
+void calDrawWeatherHighlight(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 variant, s32 highlight, f32 scaleX, f32 scaleY, s32 font, s32 setupStates)
 {
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     CalendarSparkleTable sparkle;
@@ -361,13 +364,13 @@ void func_00260e60(s32 x, s32 y, f32 depth, u8 alpha, s32 kind, s32 variant, s32
         }
         switch (variant) {
         case 0:
-            func_00260600(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
+            calDrawHighlightTrail(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
             break;
         case 1:
-            func_00260600(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
+            calDrawHighlightTrail(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
             break;
         case 2:
-            func_00260600(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
+            calDrawHighlightTrail(x, y, depth, color, alpha, variant, scaleX, scaleY, font, 0);
             break;
         }
         break;
@@ -662,10 +665,10 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
         func_0045d6e0(&sameFinishColor, &sameFinishBounds, 1.0f, 0);
         func_0048a000();
         if (forcedHighlight != 0) {
-            func_00260e60(x, y, 10.0f, opacity, currentWeather, 0, forcedHighlight, scaleX, scaleY, font, 1);
+            calDrawWeatherHighlight(x, y, 10.0f, opacity, currentWeather, 0, forcedHighlight, scaleX, scaleY, font, 1);
             return;
         }
-        func_00260e60(x, y, 10.0f, opacity, currentWeather, 0, fallbackHighlight, scaleX, scaleY, font, 1);
+        calDrawWeatherHighlight(x, y, 10.0f, opacity, currentWeather, 0, fallbackHighlight, scaleX, scaleY, font, 1);
         return;
     }
     (void)depth;
@@ -800,9 +803,9 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     func_0045d6e0(&currentFinishColor, &currentFinishBounds, 1.0f, 0);
     func_0048a000();
     if (forcedHighlight != 0) {
-        func_00260e60(x, y, 10.0f, opacity, currentWeather, 1, forcedHighlight, scaleX, scaleY, font, 1);
+        calDrawWeatherHighlight(x, y, 10.0f, opacity, currentWeather, 1, forcedHighlight, scaleX, scaleY, font, 1);
     } else {
-        func_00260e60(x, y, 10.0f, opacity, currentWeather, 1, fallbackHighlight, scaleX, scaleY, font, 1);
+        calDrawWeatherHighlight(x, y, 10.0f, opacity, currentWeather, 1, fallbackHighlight, scaleX, scaleY, font, 1);
     }
     cursor = (u8 *)(&previousBackdropColorScratch);
     remaining = 4;
@@ -934,10 +937,10 @@ void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highli
     func_0045d6e0(&previousFinishColor, &previousFinishBounds, 1.0f, 0);
     func_0048a000();
     if (forcedHighlight != 0) {
-        func_00260e60(x, y, 10.0f, opacity, (oldWeather & 0xF), 2, forcedHighlight, scaleX, scaleY, font, 1);
+        calDrawWeatherHighlight(x, y, 10.0f, opacity, (oldWeather & 0xF), 2, forcedHighlight, scaleX, scaleY, font, 1);
         return;
     }
-    func_00260e60(x, y, 10.0f, opacity, (oldWeather & 0xF), 2, fallbackHighlight, scaleX, scaleY, font, 1);
+    calDrawWeatherHighlight(x, y, 10.0f, opacity, (oldWeather & 0xF), 2, fallbackHighlight, scaleX, scaleY, font, 1);
 }
 #pragma pop
 #pragma opt_propagation off
@@ -1023,13 +1026,14 @@ void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f
     glyphContext.scaleY = scaleY;
     glyphContext.font = (u8 *)fontWord;
     func_0025f620((f32)(x + 20), ((f32)y + 0.0f) + 19.0f * scaleY, drawDepth,
-                  color, alpha, number, 2, 31, 0, func_002605a0, (u8 *)&glyphContext);
+                  color, alpha, number, 2, 31, 0, calDrawDayNumberGlyph, (u8 *)&glyphContext);
 }
 #pragma opt_propagation on
+// Intent: Advances a day-scroll step over 15 frames with a sine ease and returns 1 when finished [inferred]
 // FUN_00263220
 /* measured: optimization-level probe for 00263220 register colouring */
 #pragma optimization_level 1
-s32 func_00263220(Code1_00263220State *arg0, s32 arg1, s32 arg2)
+s32 calDayScrollStep(Code1_00263220State *arg0, s32 arg1, s32 arg2)
 {
     f32 temp_f0;
     f32 temp_f0_2;
@@ -1161,7 +1165,7 @@ s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
         }
         goto block_25;
     case 5:
-        if (func_00263220((Code1_00263220State *)temp_2, *(s32 *)(temp_2 + 0xC),
+        if (calDayScrollStep((Code1_00263220State *)temp_2, *(s32 *)(temp_2 + 0xC),
                           *(s32 *)(temp_2 + 0x10)) != 0) {
             *(u32 *)temp_2 = 6;
             *(s32 *)(temp_2 + 0x20) = 0;
@@ -1196,19 +1200,20 @@ s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
         goto block_25;
     }
 block_25:
-    func_00264cb0(arg0, *(s32 *)(temp_2 + 8));
+    calQueueDayStripDraw(arg0, *(s32 *)(temp_2 + 8));
     return 0;
 }
 /* The scrolling state supplies a fractional-day offset of at most 94 pixels.
  * Blend the weather glyphs on either side of the day boundary; the selected
  * columns are redrawn with their own clip intervals. Opacity is a byte in
  * this function and in both calendar drawing helpers. */
+// Intent: Draws the day strip with a crossfade between two weather columns at the fractional scroll offset [inferred]
 // FUN_00263730
 /* measured: opt_loop_invariants on hoists (u8)opacity into the sq/lq spill retail has (269 -> 253 words on the shape before the statement-ordered font word; off it stays inside the fade block). */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade, u8 *work)
+void calDrawDayStrip(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade, u8 *work)
 {
     s32 column;
     s32 oldWeather;
@@ -1322,13 +1327,14 @@ void func_00263730(s32 x, s32 y, f32 depth, u8 opacity, s32 date, s32 crossfade,
  * form. opt_lifetimes on is measured (102 -> 85 edits without the other levers). */
 #pragma push
 #pragma opt_lifetimes on
+// Intent: Queued draw callback for the day strip: draws fade rectangles and the strip columns [inferred]
 // FUN_00263CB0
-void func_00263cb0(s32 arg0, u8 *arg1)
+void calDrawDayStripCallback(s32 arg0, u8 *arg1)
 {
     typedef signed __int128 s128;
     extern s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
-    extern void func_00263730(s32, s32, f32, u8, s32, s32, u8 *);
+    extern void calDrawDayStrip(s32, s32, f32, u8, s32, s32, u8 *);
     u8 *temp_2;
     s32 temp_3;
     f32 spEC;
@@ -1402,7 +1408,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
         if (temp_3_2 > 1) {
             temp_f0 = 255.0f * ((f32)(temp_3_2 - 1) / 9.0f);
             temp_21 = (s32)temp_f0;
-            func_00263730(0, 0, 0.0f, temp_21 & 0xFF, temp_17, 0,
+            calDrawDayStrip(0, 0, 0.0f, temp_21 & 0xFF, temp_17, 0,
                           temp_2);
         }
         break;
@@ -1410,18 +1416,18 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     case 9:
         temp_17_2 = *(s32 *)(temp_2 + 0x18);
         func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-        func_00263730(0, 0, 0.0f, 0xFF, temp_17_2, 0, temp_2);
+        calDrawDayStrip(0, 0, 0.0f, 0xFF, temp_17_2, 0, temp_2);
         break;
     case 6:
         temp_17_5 = *(s32 *)(temp_2 + 0xC);
         if (*(s32 *)(temp_2 + 0x10) - temp_17_5 == 1) {
             func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-            func_00263730(-0x5E, 0, 0.0f, 0xFF, temp_17_5, 0, temp_2);
+            calDrawDayStrip(-0x5E, 0, 0.0f, 0xFF, temp_17_5, 0, temp_2);
         } else {
             temp_17_6 = *(s32 *)(temp_2 + 0x18);
             temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
             func_0025f430(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1, 0, 0, 0.0f, 1.0f, 1.0f);
-            func_00263730(temp_18_3, 0, 0.0f, 0xFF, temp_17_6, 0, temp_2);
+            calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_17_6, 0, temp_2);
         }
         break;
     case 8:
@@ -1551,12 +1557,12 @@ void func_00263cb0(s32 arg0, u8 *arg1)
                 var_18 = -*(s32 *)(temp_2 + 0x1C);
             }
             func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-            func_00263730(var_18, 0, 0.0f, 0xFF, temp_17_3, 0, temp_2);
+            calDrawDayStrip(var_18, 0, 0.0f, 0xFF, temp_17_3, 0, temp_2);
         } else {
             temp_16_2 = *(s32 *)(temp_2 + 0x18);
             temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
             func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-            func_00263730(temp_18_3, 0, 0.0f, 0xFF, temp_16_2, 1, temp_2);
+            calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_16_2, 1, temp_2);
         }
         break;
     case 7:
@@ -1567,7 +1573,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
             if (temp_18_4 == temp_18_5) {
                 temp_17_8 = *(s32 *)(temp_2 + 0x18);
                 func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-                func_00263730(0, 0, 0.0f, 0xFF, temp_17_8, 0, temp_2);
+                calDrawDayStrip(0, 0, 0.0f, 0xFF, temp_17_8, 0, temp_2);
             } else {
                 temp_17_9 = *(s32 *)(temp_2 + 0xC);
                 func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
@@ -1602,7 +1608,7 @@ void func_00263cb0(s32 arg0, u8 *arg1)
             temp_16_2 = *(s32 *)(temp_2 + 0x18);
             temp_18_3 = -*(s32 *)(temp_2 + 0x1C);
             func_0025f3f0(88.0f, 0.0f, 0.0f, 0xFFFFFF, 0xFF, 2, 0, *(u8 **)(temp_2 + 4), 1);
-            func_00263730(temp_18_3, 0, 0.0f, 0xFF, temp_16_2, 1, temp_2);
+            calDrawDayStrip(temp_18_3, 0, 0.0f, 0xFF, temp_16_2, 1, temp_2);
         }
         break;
     case 0:
@@ -1614,13 +1620,14 @@ void func_00263cb0(s32 arg0, u8 *arg1)
     }
 }
 #pragma pop
+// Intent: Queues a day-strip draw task with the strip callback and its state argument [inferred]
 // FUN_00264CB0
-void func_00264cb0(s32 arg0, s32 arg1)
+void calQueueDayStripDraw(s32 arg0, s32 arg1)
 {
     u8 *temp_2;
 
     temp_2 = func_00460990();
-    *(void (**)(s32, u8 *))(temp_2 + 8) = func_00263cb0;
+    *(void (**)(s32, u8 *))(temp_2 + 8) = calDrawDayStripCallback;
     *(s32 *)(temp_2 + 0x10) = arg0;
     func_00460ac0((u8 *)arg1, temp_2);
 }
