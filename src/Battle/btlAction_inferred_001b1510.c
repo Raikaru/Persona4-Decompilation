@@ -209,7 +209,7 @@ extern f32 fGpffff8108;
 
 
 
-extern u8 *func_001b0c80(s32 arg0);
+extern u8 *btlActionFindByUnit(s32 arg0);
 #pragma push
 #pragma pop
 
@@ -1626,7 +1626,7 @@ void btlMainRevivalInit(void)
     *(s64 *)(next + 8) = *(s64 *)(packet + 0x58);
     btlPacketEnqueue(next, 1);
     for (unit = *(u8 **)(iGpffffb3ac + 0x178); unit != NULL; unit = *(u8 **)(unit + 0xA6C)) {
-        unitAction = func_001b0c80((s32)unit);
+        unitAction = btlActionFindByUnit((s32)unit);
         func_001f0a10(result.bytes);
         maxHp = datCalcMaxHp(*(DatUnit **)(unit + 0xA64));
         maxSp = datCalcMaxSp(*(DatUnit **)(unit + 0xA64));

@@ -145,7 +145,7 @@ extern void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawSta
 extern void btlPanelDrawStrip(s32 index, f32 x, f32 y, f32 depth, f32 angle, s32 extend);
 extern void btlSelectionSaveCursor();
 extern void btlSelectionDrawBar(u8 *unused, u8 *arg1, f32 *arg2);
-extern u8 *func_001b0c80(s32 arg0);
+extern u8 *btlActionFindByUnit(s32 arg0);
 extern u8 *iGpffffb3ac;
 
 extern s32 D_00881444_abs[];
@@ -3181,7 +3181,7 @@ u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1)
 {
     extern s16 func_00105f00(s16 arg0);
     extern void func_00105e30(s16 arg0, s16 arg1);
-    extern u8 *func_001b0c80(s32 arg0);
+    extern u8 *btlActionFindByUnit(s32 arg0);
     extern u8 *func_001f99c0(u8 *arg0, u16 arg1, s32 arg2, s32 arg3,
                               s32 arg4);
     extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
@@ -3199,7 +3199,7 @@ u16 btlSelectionConfirmSubList(u8 *arg0, u8 *arg1)
             func_00105f00(*(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4))) {
             func_00105e30(
                 *(s16 *)(*(u8 **)(arg1 + 0x190) + 0xA4), temp_16);
-            temp_2 = func_001b0c80(*(s32 *)(arg1 + 0x190));
+            temp_2 = btlActionFindByUnit(*(s32 *)(arg1 + 0x190));
             if (temp_2 != NULL) {
                 btlPacketEnqueue(
                     func_001f99c0(temp_2, 2, *(s16 *)(arg0 + 4), 0, 0), 1);

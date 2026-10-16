@@ -167,7 +167,7 @@ extern s32 datPersonaGetRosterSlot(s32 arg0);
 extern void btlActionSetState(u8 *arg0, u32 arg1);
 extern void func_001b08d0(void *arg0);
 extern void btlActionSetUnit(u8 *arg0, u8 *arg1);
-extern u8 *func_001b0930(void);
+extern u8 *btlActionCreate(void);
 extern s32 btlActionQueuePush(u8 *arg0);
 extern s32 btlUnitApplyEncounterRoster(u8 *arg0);
 extern s32 func_00243d80(u8 *arg0);
@@ -647,7 +647,7 @@ u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2)
     switch (temp_16) {
     case 0:
         var_17 = btlUnitCreate(0);
-        var_18 = func_001b0930();
+        var_18 = btlActionCreate();
         btlActionSetUnit(var_18, var_17);
         btlActionQueuePush(var_18);
         func_001b08d0(var_18);
@@ -663,7 +663,7 @@ u8 *btlActionCreateWork(s32 arg0, u16 arg1, u16 *arg2)
         break;
     case 1:
         var_17 = btlUnitCreate(1);
-        var_18 = func_001b0930();
+        var_18 = btlActionCreate();
         btlActionSetUnit(var_18, var_17);
         btlActionQueuePush(var_18);
         func_001b08d0(var_18);

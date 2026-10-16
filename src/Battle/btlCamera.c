@@ -2475,7 +2475,7 @@ static inline f32 btlCamera_product(f32 left, f32 right)
 // FUN_001D07E0
 s32 btlCameraFrameActionStart(u8 *arg0, u8 *arg1)
 {
-    extern u8 *func_001b0c80(s32 arg0);
+    extern u8 *btlActionFindByUnit(s32 arg0);
     extern void btlUnitGetSphereCenterTowardTarget(BtlUnit *unit, BtlUnit *target, RwV3d *out);
     extern void btlTargetBlendVectors(u8 *out, u8 *first, u8 *second);
     extern RwV3d *RtQuatTransformVectors(RwV3d *out, const RwV3d *in, s32 count, const RtQuat *rotation);
@@ -2545,13 +2545,13 @@ next_entry:
     if (*(u8 **)(arg1 + 0) == NULL) {
         goto clear_flag;
     }
-    if (func_001b0c80(*(s32 *)(*(u8 **)(arg1 + 0) + 0x30)) == NULL) {
+    if (btlActionFindByUnit(*(s32 *)(*(u8 **)(arg1 + 0) + 0x30)) == NULL) {
         goto clear_flag;
     }
     if (*(u8 **)(arg1 + 4) == NULL) {
         goto clear_flag;
     }
-    if (func_001b0c80(*(s32 *)(*(u8 **)(arg1 + 4) + 0x30)) == NULL) {
+    if (btlActionFindByUnit(*(s32 *)(*(u8 **)(arg1 + 4) + 0x30)) == NULL) {
         goto clear_flag;
     }
     entry = base + next * 0x3C + 4;

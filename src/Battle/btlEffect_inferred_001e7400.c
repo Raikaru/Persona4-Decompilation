@@ -26,7 +26,7 @@ typedef struct P4RouteSlerp_001EF110 {
 } P4RouteSlerp_001EF110;
 extern void btlCameraLookAtQuat(void *out, const void *first,
                           const void *second, const void *up);
-extern u8 *func_001b0cc0();
+extern u8 *btlActionFindById();
 extern void *D_00609850[];
 extern s32 datCalcMaxHp();
 extern s64 scrGetParamInt();
@@ -440,14 +440,14 @@ s32 btlEffectScriptGetCurrentUnit(void) {
 /* AI script command 0x20E6 (p4flow AI.json AI_FUNCTION_00E6). */
 // FUN_001E7D70
 s32 btlEffectScriptGetMaxHp(void) {
-    scrSetReturnInt(datCalcMaxHp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(datCalcMaxHp(*(s32 *)(*(u8 **)(btlActionFindById((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
 /* AI script command 0x20E7 (p4flow AI.json AI_FUNCTION_00E7). */
 // FUN_001E7DD0
 s32 btlEffectScriptGetHp(void) {
-    scrSetReturnInt(datCalcGetHp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(datCalcGetHp(*(s32 *)(*(u8 **)(btlActionFindById((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
@@ -471,7 +471,7 @@ s32 btlEffectScriptGetStatusByte(void)
     u8 *payload;
     s32 value;
 
-    base = *(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30);
+    base = *(u8 **)(btlActionFindById((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30);
     if (*(u8 *)(base + 0xA2) == 0 && *(u16 *)(base + 0xA4) != 1) {
         payload = *(u8 **)(base + 0xA64);
         value = *(s8 *)(payload + 0x10);
@@ -485,14 +485,14 @@ s32 btlEffectScriptGetStatusByte(void)
 /* AI script command 0x20EE (p4flow AI.json AI_FUNCTION_00EE). */
 // FUN_001E7EF0
 s32 btlEffectScriptGetMaxSp(void) {
-    scrSetReturnInt(datCalcMaxSp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(datCalcMaxSp(*(s32 *)(*(u8 **)(btlActionFindById((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
 /* AI script command 0x20EF (p4flow AI.json AI_FUNCTION_00EF). */
 // FUN_001E7F50
 s32 btlEffectScriptGetSp(void) {
-    scrSetReturnInt(datCalcGetSp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(datCalcGetSp(*(s32 *)(*(u8 **)(btlActionFindById((u64) scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 
