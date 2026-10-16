@@ -1,0 +1,450 @@
+#include "include_asm.h"
+#include "sdk_dbprt.h"
+#include "sdk_task_registration.h"
+#include "sdk_lbox_internal.h"
+#include "type.h"
+#include "rw/plcore/barenderstate.h"
+#include "h_cdvd_internal.h"
+#include "Kosaka/k_clump_internal.h"
+typedef struct {
+	s32 mode;               /* 0x00 file type (1: Sofdec, 2: MPEG video only, 3: video-only Sofdec; 2: no additional-info stream) */
+	s32 max_bps;            /* 0x04 maximum bit rate */
+	s32 max_width;          /* 0x08 */
+	s32 max_height;         /* 0x0C */
+	s32 max_skip;           /* 0x10 frames mwPlyGetCurFrm may skip to catch up (= decoded frame pool size) */
+	s32 nsec;               /* 0x14 seconds of input buffering */
+	void *work;                /* 0x18 user work for the component buffers (NULL: malloc/free callbacks) */
+	s32 wksize;             /* 0x1C */
+	s32 compo;              /* 0x20 requested component layout (0 / 0x101: additional-info sj used) */
+	s32 buffmt;             /* 0x24 MwsfdBufFmt */
+	s32 x28;
+	s32 x2c;
+} MWSFD_CRPRM;
+typedef char MovieParametersSize[sizeof(MWSFD_CRPRM) == 0x30 ? 1 : -1];
+struct RwSList;
+typedef struct RwRaster RwRaster;
+typedef s32 RwBool;
+
+typedef s32 (*WindowRenderStateSet)(RwRenderState state, void *value);
+/* Compatible with s32 (RwRenderState, void *) in C89: both arguments retain
+ * their types under default promotions. The explicit argument conversions
+ * at the save/restore calls retain retail's address-before-load evaluation. */
+typedef s32 (*WindowRenderStateCall)();
+
+extern s32 iGpffffb034;
+extern s32 iGpffffbaf8;
+extern s32 iGpffffbab4;
+extern s32 iGpffffbab0;
+extern s32 D_008E4B30[];
+extern s32 D_008E4B34[];
+extern s32 D_008E4B38[];
+extern u8 D_008E4800[];
+extern u8 D_008E4B50[];
+extern u8 D_008E4D30[];
+extern s32 iGpffffba98;
+extern s32 iGpffffba9c;
+extern u8 D_008E43C0[];
+extern u8 D_008E43E4[];
+extern s32 D_00922984[];
+extern s32 D_00922980[];
+extern s32 D_00922988[];
+extern s32 D_00922934[];
+extern s32 D_00922930[];
+extern s32 D_0092293C[];
+extern u8 *(*D_008873F8[])();
+extern s32 D_00724B88;
+extern s32 D_00724B8C;
+
+extern void (*jtbl_008873FC[])();
+
+
+extern void (*jtbl_008873EC[])(void *);
+extern s32 iGpffffbae8;
+extern s32 iGpffffbaec;
+extern u8 D_0070B610[];
+
+extern s32 D_00724BEC;
+extern s32 D_00724BF0;
+
+extern u8 *D_00724C08;
+
+extern u8 D_007130E8[];
+extern s32 D_00724130;
+
+struct MovieNativeWork;
+extern u8 D_00712670[];
+extern s32 D_00724BF4;
+extern u8 D_00800000[];
+extern u16 D_008C0276[];
+extern char iGpffffb020[3];
+extern char iGpffffb024[2];
+extern char iGpffffb028[6];
+extern u8 *func_00468940(u8 *arg0, s64 arg1);
+extern void func_00453670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void func_00453860(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00453960(u8 *arg0);
+extern s32 func_004688d0(u8 *arg0, s8 *arg1);
+extern s32 strcmp(const char *a, const char *b);
+extern s32 uGpffffb230;
+extern s32 D_00724BC8;
+extern s32 D_00724BF8;
+extern u32 D_00724BFC;
+extern u8 *D_00724C00;
+extern u8 *D_00724C04;
+extern WindowRenderStateSet D_00887300[];
+extern s32 (*D_00887304[])(RwRenderState state, void *value);
+extern u8 D_008872E0[];
+extern s32 iGpffffaf60;
+
+extern u32 iGpffffbb14;
+extern u32 iGpffffbb10;
+extern u32 iGpffffbb0c;
+extern u32 iGpffffbb04;
+/* sceMc2CheckAsync consumes the two command/result output pointers. */
+extern s32 iGpffffba8c;
+extern s32 iGpffffb198;
+extern s32 iGpffffb194;
+extern f32 iGpffffbb20;
+extern f32 iGpffffbb1c;
+extern f32 iGpffffbb24;
+extern s32 sprintf(char *dst, const char *fmt, ...);
+extern char D_007127D0[];
+extern char D_00712950[];
+extern char D_008E4900[];
+extern char D_008E4A20[];
+extern s32 D_00764BA4;
+extern s32 D_00764BB8;
+extern s32 D_00764BC0;
+extern s32 D_008E4B20[];
+extern s32 D_008E4B28[];
+extern s32 D_00712490[];
+extern s64 D_007615DC;
+extern f32 fGpffff82fc;
+extern f32 fGpffff84f0;
+/* Same RwV3d tag and fields as the ring provider and RenderWare. */
+typedef struct RwV3d {
+    f32 x;
+    f32 y;
+    f32 z;
+} Code46RingPoint;
+extern void primCircleLine3D(const Code46RingPoint *position, f32 radius,
+                         u8 *color, f32 *matrix, s32 setStates);
+struct Data_00712508 {
+    f32 field_0;
+    f32 field_4;
+    f32 field_8;
+};
+extern struct Data_00712508 D_00712508[] __attribute__((aligned(8)));
+extern f32 fGpffff81f0;
+typedef struct RwMatrixTag RwMatrix;
+typedef struct RwV3d RwV3d;
+typedef enum RwOpCombineType {
+    rwCOMBINEREPLACE = 0,
+    rwCOMBINEPRECONCAT,
+    rwCOMBINEPOSTCONCAT,
+    rwOPCOMBINETYPEFORCEENUMSIZEINT = 0x7FFFFFFF
+} RwOpCombineType;
+extern RwMatrix *func_003e0680(RwMatrix *matrix, const RwV3d *axis,
+                            f32 oneMinusCosine, f32 sine, RwOpCombineType combineOp);
+extern u8 D_007130B8[];
+extern f32 fGpffff8054;
+extern f32 fGpffff8058;
+extern f32 fGpffff805c;
+extern f32 fGpffff8060;
+extern f32 fGpffff8084;
+extern f32 fGpffff81b0;
+extern f32 fGpffff81b4;
+extern f32 fGpffff81b8;
+extern f32 fGpffff81bc;
+extern f32 fGpffff81c0;
+extern f32 fGpffff81c4;
+extern f32 fGpffff81c8;
+extern f32 fGpffff81cc;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+typedef struct FilerEntry {
+    char name[256];
+    s32 type;
+    s32 active;
+} FilerEntry;
+
+typedef struct FilerTable {
+    u8 path[256];
+    FilerEntry entries[2000];
+} FilerTable;
+
+typedef struct FilerStat {
+    u32 mode;
+    u32 attr;
+    u32 size;
+    u8 ctime[8];
+    u8 atime[8];
+    u8 mtime[8];
+    u32 hisize;
+    u32 private_0;
+    u32 private_1;
+    u32 private_2;
+    u32 private_3;
+    u32 private_4;
+    u32 private_5;
+} FilerStat;
+
+/* Extended directory entry: 64-byte stat, 256-byte name, trailing word.
+ * Layout: PCSX2 IopBios.cpp, revision 9fe8235e, fxio_dirent_t.
+ * Natural four-byte alignment, not modern ps2sdk's aligned(64) variant. */
+typedef struct FilerDirent {
+    FilerStat stat;
+    char name[256];
+    u32 unknown;
+} FilerDirent;
+
+
+extern void func_004673c0(u8 *work);
+extern void func_00467880(u8 *arg0);
+
+/* Source unit: src/promoted/code1_0046.c */
+/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0046.c; members 00467bd0-00467bd0 */
+
+typedef struct MovieNativeFrame {
+    void *buffer;                 /* 0x00 */
+    s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
+    s32 bufferFormat;              /* 0x08 */
+    s32 width;                     /* 0x0c */
+    s32 height;                    /* 0x10 */
+    s32 macroblockWidth;           /* 0x14 */
+    s32 macroblockHeight;          /* 0x18 */
+    s32 pictureType;               /* 0x1c */
+    s32 frameRate;                 /* 0x20 */
+    s32 frameNumber;               /* 0x24 */
+    s32 time;                      /* 0x28 */
+    s32 timeUnit;                  /* 0x2c */
+    s32 concatenation;             /* 0x30 */
+    s32 frameInFile;               /* 0x34 */
+    s32 timeInFile;                /* 0x38 */
+    s32 errorCount;                /* 0x3c */
+    s32 recoveryCount;             /* 0x40 */
+    void *pictureUserData;         /* 0x44 */
+    s32 pictureUserLength;         /* 0x48 */
+    s32 frameType;                 /* 0x4c */
+    u64 extension[7];              /* 0x50..0x87: seven native doubleword copies */
+    void *supplementalData;        /* 0x88 */
+    s32 supplementalLength;        /* 0x8c */
+} MovieNativeFrame;
+typedef unsigned int MovieQuadword __attribute__((mode(TI)));
+typedef struct MovieVector3 { f32 x, y, z; } MovieVector3;
+typedef struct MovieColorReal { f32 red, green, blue, alpha; } MovieColorReal;
+typedef struct MovieVertexFields {
+    MovieVector3 scrVertex;
+    f32 camVertex_z, u, v, recipZ, pad1;
+    MovieColorReal color;
+    MovieVector3 objNormal;
+    f32 pad2;
+} MovieVertexFields;
+typedef union MovieVertexOverlay {
+    MovieVertexFields els;
+    MovieQuadword qWords[4];
+} MovieVertexOverlay;
+typedef struct MovieSdkVertex { MovieVertexOverlay u; } MovieSdkVertex;
+typedef struct MovieNativeWork {
+    void *task;                    /* 0x000 */
+    void *player;                  /* 0x004 */
+    MWSFD_CRPRM parameters;         /* 0x008 */
+    s32 playerStatus;              /* 0x038 */
+    u32 field03c;
+    MovieNativeFrame frame;        /* 0x040 */
+    RwRaster *raster;              /* 0x0d0 */
+    void *payload;                 /* 0x0d4 */
+    s32 usesLoopPlayer;            /* 0x0d8 */
+    u32 field0dc;
+    MovieSdkVertex vertices[4]; /* 0x0e0 */
+    u32 decoderWorkAddress;             /* 0x1e0 */
+    s16 state;                     /* 0x1e4 */
+    s16 field1e6;
+    s16 field1e8;
+    s16 movieIndex;                /* 0x1ea */
+    s16 field1ec;
+    s16 startupTicks;              /* 0x1ee */
+    u32 field1f0;
+    s32 field1f4;
+    u32 field1f8;
+    s32 ownsList;                  /* 0x1fc */
+    void *imageBuffer;             /* 0x200 */
+    s32 fadeOutFrames;             /* 0x204 */
+    s32 fadeInFrames;              /* 0x208 */
+    u32 field20c;
+    s32 width;                     /* 0x210 */
+    s32 height;                    /* 0x214 */
+    void *path;                    /* 0x218 */
+    u32 field21c;
+} MovieNativeWork;
+/* Measured: 1252/1264 native bytes, 20 resolved relocations and twelve
+ * zero alignment bytes; 57 neighboring functions and data preserved.
+ * See docs/probe_archive/Filer_navigation_00467bd0_20260924.md. */
+#pragma push
+/* measured: share the checked path index and hoist the slash constant. */
+/* measured: func_00467bd0 MATCH -> MISMATCH without this pragma. */
+#pragma opt_loop_invariants on
+// FUN_00467BD0
+s32 func_00467bd0(u8 *task)
+{
+    /* Allocated as 0x81094 bytes by func_00468170. */
+    typedef struct FilerWork {
+        s8 path[256];
+        FilerEntry entries[2000];
+        s16 state;
+        s16 row;
+        s16 page;
+        s16 count;
+        s32 accepted;
+        u32 reserved;
+        s8 result[256];
+        u8 *chooser;
+    } FilerWork;
+    /* The list-state providers initialize and access 0x2C bytes. */
+    typedef struct FilerNavigation {
+        u32 flags;
+        u16 buttons[8];
+        s32 pageSize;
+        s32 scrollMargin;
+        s32 visibleRows;
+        s32 count;
+        s32 row;
+        s32 page;
+    } FilerNavigation;
+    union { f32 xy[2]; s64 packed; } position;
+    FilerNavigation navigation;
+    s8 typedName[256];
+    u16 length;
+    FilerWork *work;
+
+    work = *(FilerWork **)(task + 0x38);
+    switch (work->state) {
+    case 0:
+        work->state = 1;
+        break;
+    case 1:
+        func_004673c0((u8 *)work);
+        work->page = 0;
+        work->row = 0;
+        work->state = 2;
+        break;
+    case 2:
+        if ((D_008C0276[0] & 0x40) != 0) {
+            s32 kind;
+            kind = work->entries[work->row + work->page].type;
+            if (kind == 1) {
+                if (strcmp((const char *)iGpffffb020,
+                                 (const char *)work->entries[work->row + work->page].name) == 0) {
+parentDirectory:
+                    {
+                        u16 scan;
+                        u16 cursor;
+                        s32 checked;
+                        /* path is the NUL-terminated directory string. */
+                        scan = 0;
+                        while (scan < 256) {
+                            if (work->path[scan] == 0) {
+                                length = scan;
+                                break;
+                            }
+                            scan++;
+                        }
+                        cursor = length;
+                        /* Reuse the signed index validated by this test. */
+                        while ((checked = cursor) >= 2) {
+                            s8 *current;
+                            current = &work->path[checked];
+                            if (*current == '/') {
+                                if (current[-1] != ':') {
+                                    work->path[cursor] = 0;
+                                } else {
+                                    current[1] = 0;
+                                }
+                                break;
+                            }
+                            cursor--;
+                        }
+                        work->state = 1;
+                        return 0;
+                    }
+                }
+                if (strcmp((const char *)iGpffffb024,
+                                 (const char *)work->entries[work->row + work->page].name) == 0) {
+                    work->state = 1;
+                    return 0;
+                }
+                sprintf((char *)work->path, (const char *)iGpffffb028,
+                              (char *)work->path, (char *)work->entries[work->row + work->page].name);
+                work->state = 1;
+                return 0;
+            }
+            if (kind == 0) {
+                work->accepted = 1;
+                sprintf((char *)work->result, (const char *)iGpffffb028,
+                              (char *)work->path, (char *)work->entries[work->row + work->page].name);
+                work->state = 3;
+                return 0;
+            }
+        } else if ((D_008C0276[0] & 0x10) != 0) {
+            goto parentDirectory;
+        } else if ((D_008C0276[0] & 0x80) != 0) {
+            position.xy[0] = 48.0f;
+            position.xy[1] = 248.0f;
+            work->chooser = func_00468940(task, position.packed);
+            work->state = 4;
+        } else if ((D_008C0276[0] & 0x20) != 0) {
+            work->accepted = 0;
+            work->state = 3;
+            return 0;
+        } else {
+            func_00453670((u8 *)&navigation, 10, work->count, work->row, work->page);
+            func_00453860((u8 *)&navigation, 0x4000, 0x1000, 0x2000, 0x8000);
+            if (func_00453960((u8 *)&navigation) != 0) {
+                work->row = navigation.row;
+                work->page = navigation.page;
+            }
+        }
+        func_00467880((u8 *)work);
+        break;
+    case 3:
+        break;
+    case 4:
+        if (func_004688d0(work->chooser, typedName) != 0) {
+            if (typedName[0] == 0) {
+                work->state = 2;
+            } else {
+                work->accepted = 1;
+                sprintf((char *)work->result, (const char *)iGpffffb028,
+                              (char *)work->path, (char *)typedName);
+                work->state = 3;
+            }
+        }
+        func_00467880((u8 *)work);
+        break;
+    }
+    return 0;
+}
+
