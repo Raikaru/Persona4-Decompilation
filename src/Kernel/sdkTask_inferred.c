@@ -92,7 +92,7 @@ extern u8 D_008C0346[];
 extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
-extern void func_00453250(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern u8 D_00711720[];
@@ -240,8 +240,9 @@ static inline s32 fontAtlasColumn(s32 value)
 
 #pragma push
 #pragma pop
+// Intent: per-button repeat timer for record `arg0`. A button in the first mask resets its timer to 7. A held button counts the timer down and, at zero, re-sends its bit and reloads the timer to 3.
 // FUN_00453250
-void func_00453250(s32 arg0, u16 arg1, s32 arg2) {
+void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2) {
     s32 bits;
     s32 off;
     u16 *word;

@@ -82,7 +82,7 @@ extern s16 iGpffffba28;
 extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
-extern void func_004530b0(s32 arg0);
+extern void sdkPadDispatchButtons(s32 arg0);
 extern u8 D_008C02E0[];
 extern s16 D_008C0336[];
 extern s16 D_008C0338[];
@@ -243,8 +243,9 @@ extern void func_00453310(s32 arg0, u16 arg1, s32 arg2);
  * Analog values 0x5B..0xA5 are neutral; retain raw button bits 4..7. */
 #pragma push
 #pragma pop
+// Intent: computes the held and edge masks for slot `arg0` and dispatches each button through func_00453310.
 // FUN_004530B0
-void func_004530b0(s32 arg0) {
+void sdkPadDispatchButtons(s32 arg0) {
     s32 off;
     u16 *edge;
     u16 *held;

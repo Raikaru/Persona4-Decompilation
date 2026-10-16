@@ -55,7 +55,7 @@ extern void H_Cdvd_UpdateRequests(void);
 extern void resourceLoadSprites(void);
 extern void func_0045b7c0(void);
 extern void sdkSndUpdate(void);
-extern void func_00452ce0(void);
+extern void sdkPadUpdateAll(void);
 extern s32 kwlnTaskRunFrame(void);
 extern void func_00466580(void);
 extern void func_003e5510(s32 arg0);
@@ -333,7 +333,7 @@ s32 func_00101270(void)
     resourceLoadSprites();
     func_0045b7c0();
     sdkSndUpdate();
-    func_00452ce0();
+    sdkPadUpdateAll();
     if (kwlnTaskRunFrame() == 0) {
         return 0;
     }
