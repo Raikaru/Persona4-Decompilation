@@ -30,8 +30,8 @@ void kAssertFail(char *, s32);
 void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3,
                   f32 z, s32 arg4);
 void RpSkyRenderStateSet(s32 param, s32 value);
-void func_00489f80(void);
-void func_0048a000(void);
+void mdlEffectEmitMaskedTagPair(void);
+void mdlEffectEmitTagPair(void);
 s32 func_00457120(void);
 f32 cosf(f32 fparg0);
 f32 sinf(f32 fparg0);
@@ -217,7 +217,7 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     renderState[0](0xC, 1);
     renderState[0](1, *(u32 *)ptr);
     RpSkyRenderStateSet(2, 0x44);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     if (flag) {
         verts[0].x = fparg3;
         verts[0].y = fparg4;
@@ -265,7 +265,7 @@ void func_00364680(f32 depth, s32 color, f32 fparg1, f32 fparg2, f32 fparg3, f32
     }
     draw = (void *)D_00887310;
     draw[0](5, verts, 4);
-    func_0048a000();
+    mdlEffectEmitTagPair();
     renderState[0](1, 0);
     switch (arg3) {
     case 0:

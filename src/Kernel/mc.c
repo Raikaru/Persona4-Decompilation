@@ -20,8 +20,8 @@ extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void kAssertFail(const void *file, u32 line);
 
 extern void RpSkyRenderStateSet(s32, s32);
-extern void func_00489f80(void);
-extern void func_0048a000(void);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void mdlEffectEmitTagPair(void);
 extern s32 func_0025ef20(const void *);
 extern s32 func_0025f110(s32);
 extern s32 func_00454a60(const char *path, s32 flags);
@@ -1748,9 +1748,9 @@ void mcSetSkyRenderState(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0) {
     (*(void (**)(u32, u32))setState)(8, 1);
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     func_0045d6e0(&sp5C, &sp40, fparg0, 0);
-    func_0048a000();
+    mdlEffectEmitTagPair();
 }
 
 // FUN_002A6AF0
@@ -2206,7 +2206,7 @@ void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 a
         v0 = 0x6A;
         v1 = 0x62;
     }
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     setState = (void *)D_00887300;
     (*(void (**)(s32, s32))setState)(6, 0);
     (*(void (**)(s32, s32))setState)(8, 1);
@@ -2410,7 +2410,7 @@ void func_002a7920(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 a
             func_0025f3f0(iconX, iconY, f20, iconRgb, arg0, 0x3E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 0);
         }
     }
-    func_0048a000();
+    mdlEffectEmitTagPair();
     p = (u8 *)(&spD);
     n = 0x10;
     if (p != NULL) {
@@ -2740,10 +2740,10 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
     (*(void (**)(u32, u32))setState)(8, 1);
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     func_0045d6e0(&singleCopy, &rectCopy, 0.0f, 0);
-    func_0048a000();
-    func_00489f80();
+    mdlEffectEmitTagPair();
+    mdlEffectEmitMaskedTagPair();
     tmpY2 = fparg1 + 48.0f;
     tmpX2 = (f32)0x129 + fparg0;
     func_0025f3f0(tmpX2, tmpY2, fparg2, temp_18, (u8)arg0, 0x1E, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
@@ -2759,7 +2759,7 @@ void mcDrawDateAndLocation(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg
         func_0025f3f0(tmpX2 + 21.0f, tmpY2 + 3.0f, fparg2, temp_17, (u8)arg0, 0x1D, 0, (u8 *)(*(s32 *)(arg4 + 0x398)), 1);
         break;
     }
-    func_0048a000();
+    mdlEffectEmitTagPair();
     setState = (void *)D_00887300;
     (*(void (**)(u32, u32))setState)(6, 0);
     (*(void (**)(u32, u32))setState)(8, 1);

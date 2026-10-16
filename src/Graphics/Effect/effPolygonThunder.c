@@ -192,7 +192,7 @@ static inline f32 thunderAdd(f32 first, f32 second) { return first + second; }
 // FUN_004956B0
 void ThunderBoltUpdateStrip(u8 *arg0)
 {
-    extern void func_0048a1f0(f32 *arg0);
+    extern void mdlEffectCopyCameraOrigin(f32 *arg0);
     extern void effMiscBuildRotationVU(void);
     extern f32 sinf(f32 arg0);
     extern f32 cosf(f32 arg0);
@@ -274,7 +274,7 @@ void ThunderBoltUpdateStrip(u8 *arg0)
     if (segmentLength <= 0.0f) {
         return;
     }
-    func_0048a1f0(up.lane);
+    mdlEffectCopyCameraOrigin(up.lane);
     effectVuLoad10((EffectVuVector *)(arg0 + 0x10));
     effMiscBuildRotationVU();
     effectVuLoad10(&D_00713D00);
@@ -799,7 +799,7 @@ void ThunderPaddedGeometryDestroy(u8 *arg0)
 // FUN_004968A0
 void ThunderOrbitBoltUpdateStrip(u8 *arg0)
 {
-    extern void func_0048a1f0(f32 *arg0);
+    extern void mdlEffectCopyCameraOrigin(f32 *arg0);
     extern f32 sinf(f32 arg0);
     extern f32 cosf(f32 arg0);
     extern f32 sqrtf(f32 arg0);
@@ -897,7 +897,7 @@ void ThunderOrbitBoltUpdateStrip(u8 *arg0)
     if (segmentLength <= 0.0f) {
         return;
     }
-    func_0048a1f0(up.lane);
+    mdlEffectCopyCameraOrigin(up.lane);
     jitter = fGpffff80d8;
     dropScale = -(fGpffff804c * (segmentLength / 10.0f));
     zero = 0.0f;
@@ -1495,7 +1495,7 @@ void ThunderPairedGeometryDestroy(u8 *arg0)
 // FUN_00497CE0
 void ThunderPairedUpdateStrip(u8 *arg0)
 {
-    extern void func_0048a1f0(f32 *arg0);
+    extern void mdlEffectCopyCameraOrigin(f32 *arg0);
     extern void effMiscBuildRotationVU(void);
     extern f32 sinf(f32 arg0);
     extern void effMiscAxisAngleVU(f32 angle, f32 *axis);
@@ -1558,7 +1558,7 @@ void ThunderPairedUpdateStrip(u8 *arg0)
     }
     count = *(s32 *)(config + 0x38);
     respawnRange = *(s32 *)(config + 0x40);
-    func_0048a1f0(up.lane);
+    mdlEffectCopyCameraOrigin(up.lane);
     effectVuLoad10(&D_00713CE0);
     __asm__ volatile("vmove.xyzw $vf12, $vf10" : : : "$vf12");
     {
@@ -2086,7 +2086,7 @@ void *ThunderTextureForObject(void *arg0)
 {
     u8 *tex;
 
-    tex = func_00484490(arg0);
+    tex = mdlEffectResolveRelPtrA(arg0);
     if (tex == NULL)
     {
         kAssertFail(D_00713E50, 0x6C9);

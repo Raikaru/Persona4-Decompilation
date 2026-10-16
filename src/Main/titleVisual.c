@@ -15,8 +15,8 @@ extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void func_00364c50(void);
 extern void func_00364c70(void);
-extern void func_00489f80(void);
-extern void func_0048a000(void);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void mdlEffectEmitTagPair(void);
 extern void mdlSetColor(void *arg0, void *arg1);
 extern void mdlApplyColorToAtomics(void *arg0);
 extern void mdlUpdateModelMatrix(void *arg0);
@@ -125,11 +125,11 @@ void func_002ab0e0(u8 *arg0, u8 *arg1) {
         func_00364c50();
     }
     if ((temp_1 & 0x10) != 0) {
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
     }
     func_0025f3f0(temp_5, temp_4, temp_3, (s32)(temp_2 >> 8), (s32)(temp_2 & 0xFF), *(s32 *)(arg1 + 0x18), 0, (u8 *)(*(s32 *)(arg1 + 0x14)), 0);
     if ((temp_1 & 0x10) != 0) {
-        func_0048a000();
+        mdlEffectEmitTagPair();
     }
     if ((temp_1 & 0x40) != 0) {
         func_00364c70();
@@ -213,7 +213,7 @@ void func_002ab550(u8 *arg0, s8 *arg1) {
         func_00364c50();
     }
     if ((*(s32 *)(arg0 + 0xD8) & 0x100000) != 0) {
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
     }
     mdlSetColor(arg0, arg1);
     mdlApplyColorToAtomics(arg0);
@@ -224,7 +224,7 @@ void func_002ab550(u8 *arg0, s8 *arg1) {
         func_00364c70();
     }
     if ((*(s32 *)(arg0 + 0xD8) & 0x100000) != 0) {
-        func_0048a000();
+        mdlEffectEmitTagPair();
     }
 }
 #pragma opt_propagation on

@@ -25,8 +25,8 @@ extern void func_004a5fc0(u8 *arg0);
 extern u8 *func_004a6c00(u8 *arg0);
 extern u8 *WindAllocKindEntry(u16 arg0, u8 *arg1);
 extern u8 D_0071413C[];
-extern u_long128 func_00492dd0(s32 emitter, u32 *position);
-extern u_long128 func_00492e10(s32 emitter, u32 *rotation);
+extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
+extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
 extern void func_00492e30(u16 *emitter, f32 scale);
 extern s32 TnGetOffset38(u16 arg0);
 extern void func_004ad030();
@@ -80,10 +80,10 @@ extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void (*D_00887314[])(s32, void *, s32, void *, s32);
 extern u8 D_00714368[];
-extern void func_0048a070(s64 arg);
-extern void func_0048a0e0(void);
-extern void func_00489f80(void);
-extern void func_0048a000(void);
+extern void mdlEffectEmitValuePacket(s64 arg);
+extern void mdlEffectEmitSlotPacket(void);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void mdlEffectEmitTagPair(void);
 extern f32 D_008872F8[];
  
 extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
@@ -418,7 +418,7 @@ void func_004a6bf0(u8 *arg0, f32 arg1) {
 // FUN_004A6D90
 void *func_004a6d90(void *source) {
     u8 *temp;
-    temp = func_00484490(source);
+    temp = mdlEffectResolveRelPtrA(source);
     return func_004a6c00(temp);
 }
 // FUN_004A6DC0
@@ -711,12 +711,12 @@ normalized_done:
 // FUN_004AF5E0
 void func_004af5e0(u8 *instance, u32 *position)
 {
-    func_00492dd0(*(s32 *)(instance + 0x58), position);
+    mdlEffectStoreQuadA(*(s32 *)(instance + 0x58), position);
 }
 // FUN_004AF610
 void func_004af610(u8 *instance, u32 *rotation)
 {
-    func_00492e10(*(s32 *)(instance + 0x58), rotation);
+    mdlEffectStoreQuadB(*(s32 *)(instance + 0x58), rotation);
 }
 // FUN_004AF640
 void func_004af640(u8 *arg0, s32 arg1) {

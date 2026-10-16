@@ -4129,7 +4129,7 @@ The next compact IDA replay retained two measured floors:
 `func_001d15a0` is 212B/224B with nine index/result register differences
 and three zero-tail words; its eight-byte helper buffer passes 9,750
 native cases, including unsigned high-bit thresholds and gate values 0/1/2.
-`func_0048a460` remains 176B/176B with 15 instruction differences.
+`mdlEffectProjectAnchorDepth` (was `func_0048a460`) remains 176B/176B with 15 instruction differences.
 A named aligned projection frame ties its prior score; 153 native cases
 with VU transfer hooks check transformed coordinates, negative depth,
 successive projections, positive-zero lanes and spill canaries.
@@ -13047,7 +13047,7 @@ active [semantic gate](#semantic-and-target-gate) summarizes the rules.
   `(0,0,0,1)`, not zero. The former `func_00484b30` archive cleared four W
   lanes; the corrected four-COP2-store candidate was 120B/128B with six
   register words when this was recorded. An address left in `$v0` for a
-  hardware transfer is not a C return either: callers of `func_0048a460`
+  hardware transfer is not a C return either: callers of `mdlEffectProjectAnchorDepth` (was `func_0048a460`)
   consume `$vf10`, so the honest body is `void` (176B/176B, 15 words), not
   the misleading 11-word floor that returned a local array.
 - **Counts runtime library code as game code.** `func_0044e830` is GCC

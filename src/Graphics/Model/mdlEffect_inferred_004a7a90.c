@@ -108,7 +108,7 @@ void *func_004a7a90(void *source)
     u8 *src;
     void *dst;
 
-    src = func_00484490(source);
+    src = mdlEffectResolveRelPtrA(source);
     chkmemAllocSiteTag(D_00714350, 0x249);
     dst = jtbl_008873E8[0](0x14, 0x40000);
     *(u32 *)dst = 0;

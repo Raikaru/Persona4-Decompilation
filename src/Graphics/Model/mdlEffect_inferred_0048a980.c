@@ -415,7 +415,7 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
 {
     s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
     f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
-    f32 func_0048a460(void);
+    f32 mdlEffectProjectAnchorDepth(void);
     u_long128 sp50;
     s32 size;
 
@@ -432,10 +432,10 @@ void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
         return;
     }
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
-    func_0048a460();
+    mdlEffectProjectAnchorDepth();
     __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf10", "$vf11", "memory");
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg3) : "$vf10", "memory");
-    func_0048a460();
+    mdlEffectProjectAnchorDepth();
     __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp50) : "$vf10", "memory");
     if ((*(f32 *)((u8 *)&sp50 + 0) != 0.0f) ||
@@ -515,7 +515,7 @@ void func_0048b340(u8 *arg0, u8 *arg1)
         u32 alpha : 8;
     } TrailColor;
     extern void memcpy(void *dst, void *src, u32 size);
-    extern void func_0048a810(void *quads, f32 t);
+    extern void mdlEffectCatmullRomVU(void *quads, f32 t);
     extern f32 D_00761134;
     u_long128 quadF0[4];
     u_long128 tmpE0;
@@ -658,7 +658,7 @@ loop1_check:
         effectVuStore10((EffectVuVector *)&tmpD0);
         for (k = 0; k < (u32)c4 - 1; iter -= 0x20, k++) {
             acc2 = acc2 + inv2;
-            func_0048a810(quadF0, acc2);
+            mdlEffectCatmullRomVU(quadF0, acc2);
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(*(EffectVuVector *)iter) : "r"(iter) : "memory");
             *(f32 *)(iter + 0x18) = baseX + diffX * acc2;
             *(f32 *)(iter + 0x1C) = baseY + diffY * acc2;

@@ -91,8 +91,8 @@ extern u32 RpRandom(void);
 extern u8 *RwMatrixMultiply(u8 *arg0, u8 *arg1, u8 *arg2);
 extern f32 cosf(f32 fparg0);
 extern f32 sinf(f32 fparg0);
-extern void func_00489f80(void);
-extern void func_0048a000(void);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void mdlEffectEmitTagPair(void);
 extern void func_0045db40(u8 *color, u8 *rectangle, f32 depth,
                           s32 saveState, s32 centerX, s32 centerY,
                           f32 rotation, f32 scaleX, f32 scaleY);
@@ -1192,9 +1192,9 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         (*(void (**)(u32, u32))renderState)(8, 1);
         RpSkyRenderStateSet(3, 0x31003);
         RpSkyRenderStateSet(2, 0x44);
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
         func_0045d6e0((u8 *)(&clipColor), (f32 *)(&clipRect), 5.0f, 0);
-        func_0048a000();
+        mdlEffectEmitTagPair();
         for (i = 0; i < 8; i++) {
             if (!(elapsed < i)) {
                 if (elapsed - i < 9) {
@@ -1245,9 +1245,9 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         (*(void (**)(u32, u32))renderState)(8, 1);
         RpSkyRenderStateSet(3, 0x31003);
         RpSkyRenderStateSet(2, 0x44);
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
         func_0045d6e0((u8 *)(&resetColor), (f32 *)(&resetRect), 0.0f, 0);
-        func_0048a000();
+        mdlEffectEmitTagPair();
     }
     if (elapsed < 25) {
         func_0025f3f0(0.0f, 375.0f, 0.0f, 0xFFFFFF, 255, 41, 0, *(u8 **)(context + 0x10), 1);
@@ -2170,9 +2170,9 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
     (*(void (**)(u32, u32))renderState)(8, 1);
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     func_0045d6e0((u8 *)(&firstColorCopy), (f32 *)(&firstScreenCopy), 10.0f, 0);
-    func_0048a000();
+    mdlEffectEmitTagPair();
     /* Each template and the working rectangle is a complete 16-byte object.
      * Their addressable representation copies retain the original two stores. */
     *(u_long128 *)&firstTemplate = D_00636560;
@@ -2223,9 +2223,9 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
     (*(void (**)(u32, u32))renderState)(8, 1);
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     func_0045d6e0((u8 *)(&secondColorCopy), (f32 *)(&secondScreenCopy), 10.0f, 0);
-    func_0048a000();
+    mdlEffectEmitTagPair();
     *(u_long128 *)&secondTemplate = D_00636570;
     *(u_long128 *)&rectangle = *(u_long128 *)&secondTemplate;
     rectangle.fields.x = (s32)((f32)rectangle.fields.x - deltaX);
@@ -3089,9 +3089,9 @@ s32 func_00257900(u8 *task) {
     (*(void (**)(u32, u32))renderStateTable)(8, 1);
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     func_0045d6e0((u8 *)(&overlayColor), (f32 *)(&overlayRectangle), (f32) 0xFFFF, 0);
-    func_0048a000();
+    mdlEffectEmitTagPair();
     }
     }
     return 0;

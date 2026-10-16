@@ -56,8 +56,8 @@ extern void func_00485fe0(u8 *arg0);
 extern void func_00486400(u8 *arg0, f32 arg1);
 extern void func_004861f0(u8 *arg0, f32 *arg1);
 extern void func_00485630(u8 *arg0);
-extern ParticleSnapshot func_00492df0(s32 arg0, u32 *arg1);
-extern ParticleSnapshot func_00492db0(s32 arg0, u32 *arg1);
+extern ParticleSnapshot mdlEffectLoadQuadB(s32 arg0, u32 *arg1);
+extern ParticleSnapshot mdlEffectLoadQuadA(s32 arg0, u32 *arg1);
 extern void effMiscBuildRotationVU(void);
 
 // Allocates a 0x60-byte particle block with the given count, unit scale and no links.
@@ -89,7 +89,7 @@ void *ParticleCreateFromSource(void *opaqueSource)
     u8 *link;
     s32 *resource;
 
-    settings = (u8 *)func_00484490(source);
+    settings = (u8 *)mdlEffectResolveRelPtrA(source);
     if (settings == NULL) {
         kAssertFail(D_00713CD0, 0x55);
     }
@@ -120,7 +120,7 @@ void *ParticleCreateFromSource(void *opaqueSource)
         if (*(u32 *)particle == 0) {
             return particle;
         }
-        resource = (s32 *)func_004844d0(source);
+        resource = (s32 *)mdlEffectResolveRelPtrB(source);
         if (resource != NULL) {
             switch (*(u16 *)(source + 0x1C)) {
             case 1:
@@ -620,8 +620,8 @@ void ParticleUpdateScaled(u8* particle, f32 scale)
                 }
                 return;
             }
-            func_00492df0(emitterAddress, (u32*)rotationSnapshot);
-            func_00492db0(emitterAddress, (u32*)translationSnapshot);
+            mdlEffectLoadQuadB(emitterAddress, (u32*)rotationSnapshot);
+            mdlEffectLoadQuadA(emitterAddress, (u32*)translationSnapshot);
             __asm__ volatile(".set noreorder       \n"
                              "lqc2 $vf10, 0(%0)    \n"
                              ".set reorder         \n"
@@ -713,8 +713,8 @@ void ParticleUpdateScaled(u8* particle, f32 scale)
                 }
                 return;
             }
-            func_00492df0(emitterAddress, (u32*)rotationSnapshot);
-            func_00492db0(emitterAddress, (u32*)translationSnapshot);
+            mdlEffectLoadQuadB(emitterAddress, (u32*)rotationSnapshot);
+            mdlEffectLoadQuadA(emitterAddress, (u32*)translationSnapshot);
             __asm__ volatile(".set noreorder       \n"
                              "lqc2 $vf10, 0(%0)    \n"
                              ".set reorder         \n"
@@ -870,8 +870,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
     extern s32 func_003a5180(RpAtomic * atomic);
     extern s32 func_003a2770(RpAtomic * atomic, RpPTankLockStruct * lock, u32 dataFlags, RpPTankLockFlags access);
     extern RpAtomic *func_003a2920(RpAtomic *atomic);
-    extern void func_00482730(int a, u32 b);
-    extern void func_00482700(int a, float* b);
+    extern void mdlEffectWrapTrackFrames(int a, u32 b);
+    extern void mdlEffectEvalSubPose(int a, float* b);
     extern s32 func_00482790(u8 * *a, u32 b);
     extern void GeometryBlockSetPartState(u8 * a, s32 b);
     extern void GeometryBlockBindResource(u8 * a, s32 b);
@@ -1020,8 +1020,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
         {
             f32(*transformMatrix)[4];
             f32* transformedPosition;
-            func_00492df0((s32)emitterOrObjects, (u32*)rotationSnapshot);
-            func_00492db0((s32)emitterOrObjects, (u32*)translationSnapshot);
+            mdlEffectLoadQuadB((s32)emitterOrObjects, (u32*)rotationSnapshot);
+            mdlEffectLoadQuadA((s32)emitterOrObjects, (u32*)translationSnapshot);
             __asm__ volatile("lqc2 $vf10, 0(%0)\n"
                              :
                              : "r"(rotationSnapshot), "m"(rotationSnapshot)
@@ -1149,8 +1149,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                 {
                     if (*(s32*)(record + 0x10) >= 0)
                     {
-                        func_00482730((int)animationResource, *(u32*)(record + 0x10));
-                        func_00482700((int)animationResource, (float*)&animation);
+                        mdlEffectWrapTrackFrames((int)animationResource, *(u32*)(record + 0x10));
+                        mdlEffectEvalSubPose((int)animationResource, (float*)&animation);
                         *(f32*)(uvLock.data + 0) = animation.u0;
                         *(f32*)(uvLock.data + 4) = animation.v0;
                         *(f32*)(uvLock.data + 8) = animation.u1;
@@ -1237,8 +1237,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                 f32 upperAngle;
                 f32 angleStep;
                 f32 lowerAngle;
-                func_00492df0((s32)emitterOrObjects, (u32*)rotationSnapshot);
-                func_00492db0((s32)emitterOrObjects, (u32*)translationSnapshot);
+                mdlEffectLoadQuadB((s32)emitterOrObjects, (u32*)rotationSnapshot);
+                mdlEffectLoadQuadA((s32)emitterOrObjects, (u32*)translationSnapshot);
                 __asm__ volatile("lqc2 $vf10, 0(%0)\n"
                                  :
                                  : "r"(rotationSnapshot), "m"(rotationSnapshot)
@@ -1264,8 +1264,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                 {
                     if (*(s32*)(record + 0x10) >= 0)
                     {
-                        func_00482730((int)animationResource, *(u32*)(record + 0x10));
-                        func_00482700((int)animationResource, (float*)&animation);
+                        mdlEffectWrapTrackFrames((int)animationResource, *(u32*)(record + 0x10));
+                        mdlEffectEvalSubPose((int)animationResource, (float*)&animation);
                         __asm__ volatile("lqc2 $vf28, 0(%0)\n"
                                          "lqc2 $vf29, 16(%0)\n"
                                          "lqc2 $vf30, 32(%0)\n"
@@ -1724,8 +1724,8 @@ void ParticleDrawBillboards(u8 *arg0)
         f32 one;
         f32 s640;
         f32 s448;
-        func_00492df0((s32)temp_19, snapA);
-        func_00492db0((s32)temp_19, snapB);
+        mdlEffectLoadQuadB((s32)temp_19, snapA);
+        mdlEffectLoadQuadA((s32)temp_19, snapB);
         __asm__ volatile("lqc2 $vf10, 0(%0)\n" : : "r"(snapA) : "$vf10", "memory");
         effMiscBuildRotationVU();
         __asm__ volatile("lqc2 $vf31, 0(%0)\n" : : "r"(snapB) : "$vf31", "memory");

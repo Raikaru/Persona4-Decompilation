@@ -46,8 +46,8 @@ extern s32 func_003e8120(s32 arg0);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern s32 func_00457120(void);
 extern void func_0045c870(u8 *arg0, s32 arg1);
-extern void func_00489f80(void);
-extern void func_0048a000(void);
+extern void mdlEffectEmitMaskedTagPair(void);
+extern void mdlEffectEmitTagPair(void);
 extern u8 *iGpffffb3c4;
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
@@ -183,7 +183,7 @@ s32 hFadeTaskUpdate(u8 *work) {
                 (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATETEXTURERASTER, (void *)0);
                 RpSkyRenderStateSet(2, (void *)0x44);
                 RpSkyRenderStateSet(3, (void *)0x31801);
-                func_00489f80();
+                mdlEffectEmitMaskedTagPair();
                 colors.screen[2] = colors.screen[1] = colors.screen[0] = 0xFF;
                 square = fadeProgress * fadeProgress;
                 {
@@ -213,7 +213,7 @@ s32 hFadeTaskUpdate(u8 *work) {
                 RpSkyRenderStateSet(2, (void *)0x44);
                 RpSkyRenderStateSet(3, (void *)0x31801);
                 btlPanelDrawCircle(0, layerScale, layerScale, D_008872FC_abs[0], colors.radial.word);
-                func_0048a000();
+                mdlEffectEmitTagPair();
                 func_001fb480(1.0f, (u8 *)&D_007635C8, 0x54, 0x31801, (u8 *)1);
                 if ((s32)D_0076455A >= 0x14) {
                     *work = 3;

@@ -1595,7 +1595,7 @@ passed. These symbols were added to
 - Declaration hill climbs: `00160880` 502 → 401 and `001ed700` 636 → 457.
 - `004aed70`: the VU result is copied into `pos` as three one-element array
   copies, so b210 keeps the particle-life reload (see
-  [matching.md](matching.md)). `func_00492df0`/`func_00492db0`/`func_003bfe90`
+  [matching.md](matching.md)). `mdlEffectLoadQuadB` (was `func_00492df0`)/`mdlEffectLoadQuadA` (was `func_00492db0`)/`func_003bfe90`
   are now declared with their defined types, and `tnEffect.c` declares the
   function `void`.
 - `00263cb0` (guarded) 75 → 48: the load locals at its `func_00261560` calls
@@ -2638,7 +2638,7 @@ register), `schedule` (the same instructions in a different order) or
 one side only).  Run over all 34 floors under 60 edits:
 
 - 14 floors are pure rotation with **no** structural hunk - `func_001b11c0`,
-  `func_0048a980`, `func_0034ddf0`, `func_0024be40`, `func_0048a460`,
+  `func_0048a980`, `func_0034ddf0`, `func_0024be40`, `mdlEffectProjectAnchorDepth` (was `func_0048a460`),
   `func_004b2a00`, `func_00331a20`, `ParticleUpdateScaled` (was `func_00487c30`), `func_001b05d0`,
   `func_001dd920`, `func_0036d3e0` among them.  Those are banked; no source
   change reaches them.
@@ -3290,7 +3290,7 @@ The families, with representative functions:
   these; nothing moves them.
 * **FPR rotation** - `func_0048a980` (five pairs: `$f3`/`$f1`, `$f1`/`$f2`,
   `$f2` source, `$f3` spill), `func_0034ddf0` (`$f1`/`$f2` conversion temp),
-  `func_0048a460` (a whole `$f0`/`$f1`/`$f2` triple through two divisions).
+  `mdlEffectProjectAnchorDepth` (was `func_0048a460`; a whole `$f0`/`$f1`/`$f2` triple through two divisions).
 * **Instruction scheduling** - `func_001130c0` (one `lbu` pair five slots
   early), `func_0012d630` (FPU staging plus one `addu` operand order),
   `func_002b4ad0`, `func_00347c70` (loop-preheader hoist granularity).
@@ -3405,7 +3405,7 @@ float triple.  Examples measured 2026-09-19: `func_003c0050` (36/36 exact, 26
 words) holds the list end in the wrong saved register and tests `bne` where
 retail tests `beq`; `func_0045e8e0` and `func_0045eb20` in `sdkPrimitive.c`
 both keep the work pointer in `$s0` where retail uses `$s2`, repeated at eight
-sites each; `func_0048a460` rotates a float triple, `$f0`/`$f1`/`$f2` against
+sites each; `mdlEffectProjectAnchorDepth` (was `func_0048a460`) rotates a float triple, `$f0`/`$f1`/`$f2` against
 `$f2`/`$f0`/`$f1`, through two divisions.
 
 **What does not move it**, measured across those functions: every declaration
@@ -4243,7 +4243,7 @@ That is eight probes, not two, and it is worth spending on any floor whose
 re-probed with the full eight-variant procedure on 2026-09-18:
 `func_0024be40` (8), `func_001b11c0` (5), `func_0025dd30` (6),
 `func_00268230` (12), `func_0012d630` (13), `func_00365f00` (13),
-`func_0048a460` (15), plus `func_00224450` (32), `func_00331a20` (24),
+`mdlEffectProjectAnchorDepth` (was `func_0048a460`) (15), plus `func_00224450` (32), `func_00331a20` (24),
 `RingRebuildCircle` (was `func_00498f10`) (34) and `func_0048a980` (5).  **Every one of them tied at its
 old score.**  So 7o is a real lever but not a general solvent for the class.
 
@@ -4282,7 +4282,7 @@ numbers being exchanged.**
 | `func_0024be40` | 8 | $s0 / $s2 | `found` pointer vs loop counter |
 | `func_001eca10` | 11 | $s2 / $s3 | inner counter vs `corner` pointer (since matched, 7o) |
 | `func_00365f00` | 13 | $s3 / $fp | `edge_g` byte vs `num_segments` |
-| `func_0048a460` | 15 | $f0-$f2 / $v0 | perspective-divide temporaries |
+| `mdlEffectProjectAnchorDepth` (was `func_0048a460`) | 15 | $f0-$f2 / $v0 | perspective-divide temporaries |
 | `func_0025dd30` | 6 | - | float argument setup slot (see 7p) |
 
 **Declaration order does not drive it.**  Twenty-two permutations were measured
@@ -5201,7 +5201,7 @@ load/store opcode.
 An `lqc2` immediately before `jr $ra` can be the real output operation. Do not
 replace it with a C pointer return:
 
-- `func_0048a460` captures incoming `$vf10` with `sqc2`, computes a projected
+- `mdlEffectProjectAnchorDepth` (was `func_0048a460`) captures incoming `$vf10` with `sqc2`, computes a projected
   four-lane value in memory, then publishes it with `lqc2 $vf10`. Its observed
   callers consume `$vf10`, not `$v0`. The old candidate returned its local
   array only to keep `$v0` live; that pointer was dangling and the apparent
@@ -5283,7 +5283,7 @@ prefix and twelve zero-tail bytes.
 `lqc2` and `sqc2` transfer sixteen bytes. Their memory operand must have a real
 four-lane extent and 16-byte alignment. Do not widen unrelated data:
 
-- `func_0048a460` uses genuine 12-byte XYZ input and transformed locals.
+- `mdlEffectProjectAnchorDepth` (was `func_0048a460`) uses genuine 12-byte XYZ input and transformed locals.
 - Only its four-lane COP2 output is widened and explicitly aligned.
 - Every lane loaded by `lqc2` must be initialized; both projection padding
   lanes are positive zero.
@@ -5300,7 +5300,7 @@ Recorded 2026-09-16; remeasure before acting.
 | --- | --- | --- |
 | `func_00484b30` | 120/128 bytes, three relocations, exact executable prefix, eight zero-tail bytes | Existing exact bridge: typed state, four real `$vf0` stores, `u_long128` copy/return, scoped propagation off |
 | `func_004865c0` | 276/288 bytes, exact executable prefix, twelve zero-tail bytes | Existing exact bridge with C-owned state and packed-color VU operations |
-| `func_0048a460` | 176/176 bytes, fifteen differing instruction words, ten exact relocations | Honest `void` floor; `$vf10` is the output. Production stays ASM because of the measured residual, not because `lqc2` is unreachable from C |
+| `mdlEffectProjectAnchorDepth` (was `func_0048a460`) | 176/176 bytes, fifteen differing instruction words, ten exact relocations | Honest `void` floor; `$vf10` is the output. Production stays ASM because of the measured residual, not because `lqc2` is unreachable from C |
 | `func_0048a980` | 584/592 bytes, five executable FPR differences and two zero-tail words | Plain-C quaternion arithmetic with a final `$vf10` load. Production stays ASM because of the measured FPR/code-shape floor, not the terminal `lqc2` |
 | `func_004ad030` | Retail contains an interior `qmtc2`/`vitof0`/`vmulx`/`vmul`/`vftoi0`/`qmfc2` pipeline | Requires function-specific recovery; do not infer either C reachability or an assembly requirement from the transfer opcodes alone |
 
@@ -5631,7 +5631,7 @@ Known exact-looking candidates that remain rejected unless a defined, truthful s
 - `func_00452870`: retail passes six bytes after initializing only two; the consumer reads all six.
 - `ParticleCreateFromSource` (was `func_00486b00`): stored exact proof was invalidated by a current recompilation that produced a different 768-byte object.
 
-The hardware-bound `func_0048a460`, `func_0048a980`, and `func_004ad030`
+The hardware-bound `mdlEffectProjectAnchorDepth` (was `func_0048a460`), `func_0048a980`, and `func_004ad030`
 floors are documented in the VU/COP2 section above. Do not return them to the
 ordinary source-shaping queue while the clean-C policy remains in force.
 

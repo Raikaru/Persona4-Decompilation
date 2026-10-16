@@ -4044,7 +4044,7 @@ void *FlashQuadCopyAllocFromParent(void *arg0)
     u8 *p17;
     u32 idx;
 
-    p18 = func_004844d0(arg0);
+    p18 = mdlEffectResolveRelPtrB(arg0);
     if (p18 == NULL) {
         kAssertFail(D_00713FF0, 0xD08);
     }
@@ -4058,7 +4058,7 @@ void *FlashQuadCopyAllocFromParent(void *arg0)
         kAssertFail(D_00713FF0, 0xD11);
         break;
     }
-    p19 = func_00484490(arg0);
+    p19 = mdlEffectResolveRelPtrA(arg0);
     if (p19 == NULL) {
         kAssertFail(D_00713FF0, 0xD16);
     }

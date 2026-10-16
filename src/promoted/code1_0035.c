@@ -1097,8 +1097,8 @@ static inline s32 effect_timer_past_threshold(u8 *p)
 // FUN_00355920
 void func_00355920(u8 *arg0, u8 *arg1) {
     extern u8 D_00887300[];
-    extern void func_00489f80(void);
-    extern void func_0048a000(void);
+    extern void mdlEffectEmitMaskedTagPair(void);
+    extern void mdlEffectEmitTagPair(void);
     extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern void func_0045c870(u8 *arg0, s32 arg1);
     extern f32 cosf(f32 arg0);
@@ -1129,7 +1129,7 @@ void func_00355920(u8 *arg0, u8 *arg1) {
     tbl[0](0xC, 1);
     tbl[0](1, 0);
     if (isZero != 0) {
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x31801);
         col.b[0] = 0xFF;
@@ -1194,7 +1194,7 @@ void func_00355920(u8 *arg0, u8 *arg1) {
         }
     }
     if (isZero != 0) {
-        func_0048a000();
+        mdlEffectEmitTagPair();
         RpSkyRenderStateSet(3, 0x35801);
         RpSkyRenderStateSet(2, 0x44);
     } else {
@@ -2909,8 +2909,8 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
     extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
     extern s32 (*D_00887314[])(s32 arg0, void *arg1, s32 arg2, void *arg3, s32 arg4);
     extern s32 RpSkyRenderStateSet(s32 arg0, void *arg1);
-    extern void func_00489f80(void);
-    extern void func_0048a000(void);
+    extern void mdlEffectEmitMaskedTagPair(void);
+    extern void mdlEffectEmitTagPair(void);
     extern f32 cosf(f32 arg0);
     extern f32 func_0035bd20(Float2 first, Float2 second, Float2 origin);
     extern f32 fGpffff81e0;
@@ -3086,11 +3086,11 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
         }
         {
             s32 (**drawPrimitive)(s32, void *, s32);
-            func_00489f80();
+            mdlEffectEmitMaskedTagPair();
             RpSkyRenderStateSet(3, (void *)0x31801);
             drawPrimitive = D_00887310;
             drawPrimitive[0](4, &qs[0], 4);
-            func_0048a000();
+            mdlEffectEmitTagPair();
             stateSet[0](1, 0);
             RpSkyRenderStateSet(3, (void *)0x31801);
             RpSkyRenderStateSet(2, (void *)0x58);
@@ -3150,12 +3150,12 @@ f32 func_0035aff0(u8 *arg0, u8 arg1)
                 idx[ii * 5 + jj].bottom = (s16)(jj + (ii + 1) * 5);
             }
         }
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(3, (void *)0x31801);
         for (i = 0; i < 6; i++) {
             D_00887314[0](4, &verts[0], 0x23, &idx[i * 5], 10);
         }
-        func_0048a000();
+        mdlEffectEmitTagPair();
         stateSet[0](1, 0);
         RpSkyRenderStateSet(3, (void *)0x31801);
         RpSkyRenderStateSet(2, (void *)0x58);
@@ -3971,8 +3971,8 @@ void func_0035fd60(u8 *work)
     extern s32 RpSkyRenderStateSet(s32 cmd, void *val);
     extern void func_0045c870(u8 *color, s32 flags);
     extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 flags);
-    extern void func_00489f80(void);
-    extern void func_0048a000(void);
+    extern void mdlEffectEmitMaskedTagPair(void);
+    extern void mdlEffectEmitTagPair(void);
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2EC[];
     extern u8 D_0064B300[];
@@ -4085,12 +4085,12 @@ void func_0035fd60(u8 *work)
         colorBytes[1] = D_0064B2E8[1];
         colorBytes[2] = D_0064B2E8[2];
         func_0034f2e0(cursorSprite, position.x, position.y, colorBytes[0], colorBytes[1], colorBytes[2], lastRowAlpha);
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
         D_00887300[0](1, 0);
         colorBytes[3] = 0;
         func_0045c870(colorBytes, 0);
         func_0034f2e0(cursorSprite, position.x, position.y, colorBytes[0], colorBytes[1], colorBytes[2], 0xFF);
-        func_0048a000();
+        mdlEffectEmitTagPair();
         RpSkyRenderStateSet(3, (void *)0x2D801);
         RpSkyRenderStateSet(2, (void *)0x44);
         for (column = 0; column < 3; column++) {

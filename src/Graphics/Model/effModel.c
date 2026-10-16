@@ -90,12 +90,12 @@ void *func_004abe80(void *arg0) {
     __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(temp_2) : "memory");
     __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(temp_2) : "memory");
     if (arg0 != NULL) {
-        temp_2_2 = func_00484490(arg0);
+        temp_2_2 = mdlEffectResolveRelPtrA(arg0);
         if (temp_2_2 == NULL) {
             kAssertFail(D_007144A8, 0x83);
         }
         memcpy(temp_2 + 0x2C, temp_2_2, 0x68);
-        temp_2_3 = (s32)func_004844d0(arg0);
+        temp_2_3 = (s32)mdlEffectResolveRelPtrB(arg0);
         if (temp_2_3 != 0) {
             if (*(u16 *)((u8 *)arg0 + 0x1C) != 3) {
                 kAssertFail(D_007144A8, 0x8A);
@@ -188,7 +188,7 @@ extern void mdlSetAlphaBlend(void *arg0);
 extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern void mdlSetColor(void *arg0, s32 *arg1);
 extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
-extern void func_0048a150(void *arg0, void *arg1);
+extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
 extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
 extern void mdlScale(void *arg0, f32 *arg1, s32 arg2);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
@@ -267,7 +267,7 @@ void func_004ac300(s32 arg0, u8 *arg1)
         spBC = *(s32 *)&spB0;
         mdlSetColor(*(u8 **)(arg1 + 0x94), &spBC);
         temp_f20 = func_0048aff0(arg1 + 0x60, temp_17, temp_16) / 10.0f;
-        func_0048a150(sp60, arg1 + 0x10);
+        mdlEffectBuildBasisRows(sp60, arg1 + 0x10);
         mdlApplyModelMatrix(*(u8 **)(arg1 + 0x94), sp60, 0);
         temp_f0 = *(f32 *)(arg1 + 0x20) * temp_f20;
         spA0[2] = temp_f0;
@@ -352,12 +352,12 @@ void *func_004ac640(void *arg0) {
     }
     *(s32 *)(temp_2 + 0xC) = -1;
     if (arg0 != NULL) {
-        temp_2_2 = func_00484490(arg0);
+        temp_2_2 = mdlEffectResolveRelPtrA(arg0);
         if (temp_2_2 == NULL) {
             kAssertFail(D_007144A8, 0x196);
         }
         memcpy(temp_2 + 0x10, temp_2_2, 0xA4);
-        temp_2_3 = (s32)func_004844d0(arg0);
+        temp_2_3 = (s32)mdlEffectResolveRelPtrB(arg0);
         if (temp_2_3 != 0) {
             if (*(u16 *)((u8 *)arg0 + 0x1C) != 3) {
                 kAssertFail(D_007144A8, 0x19D);

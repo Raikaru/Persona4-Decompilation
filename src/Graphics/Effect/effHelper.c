@@ -67,7 +67,7 @@ void *EffHelperCreate(void *arg0)
     if (arg0 == NULL) {
         return work;
     }
-    tex = func_00484490(arg0);
+    tex = mdlEffectResolveRelPtrA(arg0);
     if (tex == NULL) {
         kAssertFail(D_007144F8, 0x2E);
     }
@@ -96,7 +96,7 @@ void *EffHelperCreate(void *arg0)
     if (work->count == 0) {
         return work;
     }
-    v = (s32)func_004844d0(arg0);
+    v = (s32)mdlEffectResolveRelPtrB(arg0);
     if (v != 0) {
         if (*(u16 *)((u8 *)arg0 + 0x1C) != 6) {
             kAssertFail(D_007144F8, 0x53);

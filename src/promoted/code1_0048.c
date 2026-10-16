@@ -25,8 +25,8 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern u_long128 func_00492dd0(s32 emitter, u32 *position);
-extern u_long128 func_00492e10(s32 emitter, u32 *rotation);
+extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
+extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
 extern void func_003c02e0(u8 *arg0);
 extern void func_003c4220(s32 arg0);
 extern void func_003e9390(s32 arg0);
@@ -35,7 +35,7 @@ extern void func_004823e0(u8 *arg0);
 extern void func_00481f30(u8 *arg0, s32 arg1);
 extern void func_004861f0(u8 *arg0, f32 *arg1);
 extern void effMiscQuatMultiplyVU(void);
-extern void func_0048a2b0(u8 *arg0, u8 *arg1);
+extern void mdlEffectAimDirection(u8 *arg0, u8 *arg1);
 extern f32 func_0044b920(f32 arg0);
 extern f32 func_0044b950(f32 arg0, f32 arg1);
 extern f32 fabsf(f32 value);
@@ -273,12 +273,12 @@ void func_00489e80(u8 *arg0)
 // FUN_00489EE0
 void func_00489ee0(u8 *instance, u32 *position)
 {
-    func_00492dd0(*(s32 *)(instance + 0x4C), position);
+    mdlEffectStoreQuadA(*(s32 *)(instance + 0x4C), position);
 }
 // FUN_00489F10
 void func_00489f10(u8 *instance, u32 *rotation)
 {
-    func_00492e10(*(s32 *)(instance + 0x4C), rotation);
+    mdlEffectStoreQuadB(*(s32 *)(instance + 0x4C), rotation);
 }
 #pragma push
 #pragma opt_common_subs off

@@ -1116,8 +1116,8 @@ void func_00387750(u8 *arg0)
 {
     extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
     extern f32 sinf(f32 fparg0);
-    extern void func_00489f80(void);
-    extern void func_0048a000(void);
+    extern void mdlEffectEmitMaskedTagPair(void);
+    extern void mdlEffectEmitTagPair(void);
     extern void func_0045c870(void *arg0, s32 arg1);
     extern f32 fGpffff82cc;
     extern f32 fGpffff82fc;
@@ -1171,12 +1171,12 @@ void func_00387750(u8 *arg0)
     colors[1] = 0;
     colors[2] = 0;
     colors[3] = 0;
-    func_00489f80();
+    mdlEffectEmitMaskedTagPair();
     RpSkyRenderStateSet(3, (void *)0x31801);
     func_0045c870(colors, 0);
     colors[3] = 0xFF;
     btlShuffleDrawCardSprites(base, *(s32 *)(base + 0x1F308), 0, colors, 0);
-    func_0048a000();
+    mdlEffectEmitTagPair();
     RpSkyRenderStateSet(3, (void *)0x3F801);
     RpSkyRenderStateSet(2, (void *)0x48);
     {

@@ -1009,7 +1009,7 @@ u8 *RingCreateKindInstance(u16 arg0, u8 *arg1)
 void *RingCreateKindInstanceFromObject(void *arg0) {
     u8 *p;
 
-    p = func_00484490(arg0);
+    p = mdlEffectResolveRelPtrA(arg0);
     if (p == NULL) {
         kAssertFail(D_00713EF0, 0x2E5);
     }

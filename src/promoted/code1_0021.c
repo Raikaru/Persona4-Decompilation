@@ -3705,8 +3705,8 @@ void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
     extern BtlShuffleRenderStateSet D_00887300[];
     extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern void func_0045c870(u8 *arg0, s32 arg1);
-    extern void func_00489f80(void);
-    extern void func_0048a000(void);
+    extern void mdlEffectEmitMaskedTagPair(void);
+    extern void mdlEffectEmitTagPair(void);
     extern f32 fGpffff84a4;
     extern f32 fGpffff84cc;
     union {
@@ -3741,7 +3741,7 @@ void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
         scale = 400.0f *
                 (1.0f - cosf(
                     fGpffff84a4 * ((f32)(arg1 - 0x21) / 15.0f)));
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
         RpSkyRenderStateSet(3, 0x31801);
         color.bytes[3] = 0;
         func_0045c870(color.bytes, 0);
@@ -3750,7 +3750,7 @@ void btlEffectDrawSkyPulse(s32 arg0, u16 arg1)
         func_00365f00(coords.v, 0.0f,
                       color_value.i, color_value.i,
                       scale, 0.0f, 0x24, fGpffff84cc, 1.0f, 0);
-        func_0048a000();
+        mdlEffectEmitTagPair();
         RpSkyRenderStateSet(3, 0x37801);
     }
     if (arg1 >= 3) {

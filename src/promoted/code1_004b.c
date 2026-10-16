@@ -32,8 +32,8 @@ extern void func_004a7a50(void);
 extern s16 D_00922DA4[];
 extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
-extern u_long128 func_00492dd0(s32 emitter, u32 *position);
-extern u_long128 func_00492e10(s32 emitter, u32 *rotation);
+extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
+extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
 extern void func_00492e30(u16 *emitter, f32 scale);
 extern void TnSetTableBase(void *arg0);
 extern void func_00485870(void *arg0);
@@ -81,7 +81,7 @@ extern void func_00486330(u8 *arg0, void *arg1);
 extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
 extern f32 iGpffff836c;
 extern void func_004866f0(u8 *arg0, u32 *arg1);
-extern void func_0048a150(void *arg0, void *arg1);
+extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
 extern void func_0048a980(f32 *arg0);
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
@@ -121,12 +121,12 @@ extern void func_004865c0(u8 *arg0, s32 arg1);
 // FUN_004B1090
 void func_004b1090(u8 *instance, u32 *position)
 {
-    func_00492dd0(*(s32 *)(instance + 0x5c), position);
+    mdlEffectStoreQuadA(*(s32 *)(instance + 0x5c), position);
 }
 // FUN_004B10C0
 void func_004b10c0(u8 *instance, u32 *rotation)
 {
-    func_00492e10(*(s32 *)(instance + 0x5c), rotation);
+    mdlEffectStoreQuadB(*(s32 *)(instance + 0x5c), rotation);
 }
 // FUN_004B10F0
 void func_004b10f0(u8 *arg0, s32 arg1)
@@ -219,7 +219,7 @@ void func_004b1470(u8 *arg0, u8 *arg1)
     } scratch;
 
     func_004866f0(arg0, (u32 *)scratch.vector);
-    func_0048a150(arg1, scratch.vector);
+    mdlEffectBuildBasisRows(arg1, scratch.vector);
     func_004866e0(arg0, (u32 *)scratch.projected);
     *(f32 *)(arg1 + 0x30) = scratch.projected[0];
     *(f32 *)(arg1 + 0x34) = scratch.projected[1];

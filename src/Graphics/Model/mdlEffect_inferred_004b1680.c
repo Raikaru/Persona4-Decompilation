@@ -99,7 +99,7 @@ void *func_004b16c0(void *opaqueSource) {
         return temp_2;
     }
     *(s32 *)(temp_2 + 4) = *(u16 *)(arg0 + 0xC);
-    temp_2_2 = func_00484490(arg0);
+    temp_2_2 = mdlEffectResolveRelPtrA(arg0);
     if (temp_2_2 == NULL) {
         kAssertFail(&iGpffffb118, 0x2C);
     }
@@ -113,7 +113,7 @@ void *func_004b16c0(void *opaqueSource) {
     *(s32 *)(temp_3 + 4) = -1;
     *(s32 *)(temp_3 + 8) = -1;
     *(s32 *)(temp_3 + 0xC) = -1;
-    temp_2_4 = func_004844d0(arg0);
+    temp_2_4 = mdlEffectResolveRelPtrB(arg0);
     if (temp_2_4 != NULL) {
         temp_4 = *(u16 *)(arg0 + 0x1C);
         switch (temp_4) {

@@ -125,12 +125,12 @@ void *func_004a5bb0(void *source)
     *(s32 *)(temp_3 + 8) = -1;
     *(s32 *)(temp_3 + 0xC) = -1;
     *(s32 *)(temp_2 + 0x28) = *(u16 *)(arg0 + 0xC);
-    temp_2_3 = func_00484490(arg0);
+    temp_2_3 = mdlEffectResolveRelPtrA(arg0);
     if (temp_2_3 == NULL) {
         kAssertFail(D_007141A0, 0x47);
     }
     memcpy(temp_2 + 0x30, temp_2_3, 0x98);
-    temp_2_4 = func_004844d0(arg0);
+    temp_2_4 = mdlEffectResolveRelPtrB(arg0);
     if (temp_2_4 != NULL) {
         temp_4 = *(u16 *)(arg0 + 0x1C);
         switch (temp_4) {

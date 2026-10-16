@@ -9,8 +9,8 @@ extern void ParticleFree(void *arg0);
 extern void func_00494680(void *arg0);
 extern void func_00492cd0(u8 *arg0);
 extern void func_00492d00(int arg0);
-extern u_long128 func_00492dd0(s32 emitter, u32 *position);
-extern u_long128 func_00492e10(s32 emitter, u32 *rotation);
+extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
+extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
 extern void func_00492e30(u16 *emitter, f32 scale);
 extern void func_00489f40(void *arg0, u32 color);
 extern void (*jtbl_008873EC[])(void *);
@@ -32,8 +32,8 @@ extern void TrackCopyState(u8 *arg0, u8 *arg1);
 extern void TrackLoadRecord(u8 *arg0, u16 arg1, u8 *arg2);
 extern void TrackRebindPathData(u8 *arg0, u16 arg1, u8 *arg2);
 extern void TrackApplyMode(u8 *arg0, u16 arg1, s32 *arg2);
-extern void func_00492df0(void *arg0, u32 *arg1);
-extern void func_00492db0(void *arg0, u32 *arg1);
+extern void mdlEffectLoadQuadB(void *arg0, u32 *arg1);
+extern void mdlEffectLoadQuadA(void *arg0, u32 *arg1);
 extern void func_00484350(void *arg0, void *arg1, void *arg2, f32 arg3);
 extern void ParticleProjectVertices(void *arg0, f32 arg1);
 extern void func_00495090(void *arg0, u32 arg1);
@@ -102,7 +102,7 @@ void *TrackCreateFromEmitter(void *opaqueSource)
     u32 var;
     u8 *t2;
 
-    t = func_00484490(arg0);
+    t = mdlEffectResolveRelPtrA(arg0);
     if (t == NULL) {
         kAssertFail(D_00713E30, 0x61);
     }
@@ -193,7 +193,7 @@ void *TrackCreateWithMode(void *opaqueSource)
     u32 var;
     u8 *t2;
 
-    t = func_00484490(arg0);
+    t = mdlEffectResolveRelPtrA(arg0);
     if (t == NULL) {
         kAssertFail(D_00713E30, 0x61);
     }
@@ -217,7 +217,7 @@ void *TrackCreateWithMode(void *opaqueSource)
     }
     TrackRebindPathData(t2, *(volatile u16 *)(arg0 + 0xC), t + 0x1C);
     {
-        s32 *r = (s32 *)func_004844d0(arg0);
+        s32 *r = (s32 *)mdlEffectResolveRelPtrB(arg0);
 
         if (r != NULL) {
             TrackApplyMode(t2, *(u16 *)(arg0 + 0x1C), r);
@@ -568,8 +568,8 @@ void TrackApplyWidth(u8 *arg0)
                 u32 sp50[4];
                 u32 sp40[4];
 
-                func_00492df0(*(u8 **)(arg0 + 0x30), sp40);
-                func_00492db0(*(u8 **)(arg0 + 0x30), sp50);
+                mdlEffectLoadQuadB(*(u8 **)(arg0 + 0x30), sp40);
+                mdlEffectLoadQuadA(*(u8 **)(arg0 + 0x30), sp50);
                 func_00484350((void *)*(u32 *)(t17 + 0x10), sp50, sp40, 1.0f);
                 func_00484350((void *)*(u32 *)(t17 + 0x14), sp50, sp40, 1.0f);
             }
@@ -597,8 +597,8 @@ void TrackRefresh(u8 *arg0)
                 u32 sp50[4];
                 u32 sp40[4];
 
-                func_00492df0(*(u8 **)(arg0 + 0x30), sp40);
-                func_00492db0(*(u8 **)(arg0 + 0x30), sp50);
+                mdlEffectLoadQuadB(*(u8 **)(arg0 + 0x30), sp40);
+                mdlEffectLoadQuadA(*(u8 **)(arg0 + 0x30), sp50);
                 func_00484350((void *)*(u32 *)(t17 + 0x10), sp50, sp40, 1.0f);
                 func_00484350((void *)*(u32 *)(t17 + 0x14), sp50, sp40, 1.0f);
             }
@@ -614,14 +614,14 @@ void TrackRefresh(u8 *arg0)
 // FUN_00493DA0
 void TrackSetPosition(u8 *instance, u32 *position)
 {
-    func_00492dd0(*(s32 *)(instance + 0x30), position);
+    mdlEffectStoreQuadA(*(s32 *)(instance + 0x30), position);
 }
 
 // Forwards a rotation to the track emitter.
 // FUN_00493DD0
 void TrackSetRotation(u8 *instance, u32 *rotation)
 {
-    func_00492e10(*(s32 *)(instance + 0x30), rotation);
+    mdlEffectStoreQuadB(*(s32 *)(instance + 0x30), rotation);
 }
 
 // Stores the track colour word and forwards it to the owner's colour setter.

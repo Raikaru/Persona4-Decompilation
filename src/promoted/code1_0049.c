@@ -37,7 +37,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 }
 
 extern void func_004841c0(void *arg0);
-extern void func_0048a1f0(u8 *arg0);
+extern void mdlEffectCopyCameraOrigin(u8 *arg0);
 
 extern void func_00484280(u8 *object, s32 resource);
 
@@ -272,7 +272,7 @@ typedef struct TrackVertex
 #pragma pop
 // FUN_00494F90
 void func_00494f90(u8 *arg0) {
-    func_0048a1f0(arg0);
+    mdlEffectCopyCameraOrigin(arg0);
     RpGeometryLock(*(RpGeometry **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x10)) + 0x10)) + 0x18), 0xA);
     RpGeometryLock(*(RpGeometry **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x14)) + 0x10)) + 0x18), 0xA);
 }

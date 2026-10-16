@@ -26,7 +26,7 @@ typedef struct RwMatrix
 } RwMatrix;
 
 extern void effMiscQuatMultiplyVU(void);
-extern void func_0048a2b0(u8 *arg0, u8 *arg1);
+extern void mdlEffectAimDirection(u8 *arg0, u8 *arg1);
 extern f32 func_0044b920(f32 arg0);
 extern f32 func_0044b950(f32 arg0, f32 arg1);
 extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
@@ -170,7 +170,7 @@ u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2)
             :
             : "$2", "$f0", "$vf2", "$vf10", "Q", "memory");
     }
-    func_0048a2b0(arg1, work);
+    mdlEffectAimDirection(arg1, work);
     {
         u32 mask;
 
@@ -244,7 +244,7 @@ u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2)
         *arg2 = value;
         return value;
     }
-    func_0048a2b0(arg1, (u8 *)&sp40);
+    mdlEffectAimDirection(arg1, (u8 *)&sp40);
     if (*(s32 *)(arg0 + 0x68) & 0x40) {
         var_f20 = 0.0f;
     } else {

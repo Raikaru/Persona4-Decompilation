@@ -32,9 +32,9 @@ void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
 f32 sinf(f32 arg0);
 
 void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
-void func_00489f80(void);
+void mdlEffectEmitMaskedTagPair(void);
 void func_0045c870(void* arg0, s32 arg1);
-void func_0048a000(void);
+void mdlEffectEmitTagPair(void);
 void RpSkyRenderStateSet(s32 a, s32 b);
 void func_0035e820(u8* arg0);
 s32 func_0035e720(u8* arg0);
@@ -735,7 +735,7 @@ void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
                       0x1000, 0x1000, 0x11, angle, 0x11);
     }
     if (arg2 == 2) {
-        func_00489f80();
+        mdlEffectEmitMaskedTagPair();
         D_00887300[0](1, 0);
         color[0] = 0;
         color[1] = 0;
@@ -755,7 +755,7 @@ void func_0035dfb0(u8 *arg0, s32 arg1, s32 arg2)
             angle = (-90.0f + 180.0f * phase) - 180.0f;
         func_0034f320(sprite, x, y, 0.0f, 0xFF, 0xFF, 0xFF, 0xFF,
                       0x1000, 0x1000, 0x11, angle, 0x11);
-        func_0048a000();
+        mdlEffectEmitTagPair();
         RpSkyRenderStateSet(3, 0x2D801);
         RpSkyRenderStateSet(2, 0x44);
     }
