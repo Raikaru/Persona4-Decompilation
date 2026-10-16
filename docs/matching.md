@@ -496,7 +496,7 @@ below are the codegen consequences.
   immune: the full-image SHA1 resolves every relocation. Register the
   corrected name in `config/symbol_data_addrs.txt` from `GP + signed(imm)`.
 - **Repeated reloads of the same bytes — measured, but the `volatile` spelling
-  is rejected.** `func_0045ed60` copies `arg0[0..3]` into three consecutive
+  is rejected.** `PrimDrawFlatTriangle` (was `func_0045ed60`) copies `arg0[0..3]` into three consecutive
   4-byte slots of a local array and retail reloads the four bytes each time.
   A plain `u8 *` lets b210 CSE the loads; `opt_common_subs off` restores them
   but also un-CSEs the `3, 3` argument pair that retail materialises as
@@ -3075,7 +3075,7 @@ other three.
 above a `// FUN_` marker covers every occurrence of an advisory finding
 (H001/H003/H007) inside that function. So a note written to justify a
 *pragma* silently silences H001 for a `volatile` in the same body. That is how
-a wave-3 lane landed a "MATCH" on `func_0045ed60` that reached nd 0 only by
+a wave-3 lane landed a "MATCH" on `PrimDrawFlatTriangle` (was `func_0045ed60`) that reached nd 0 only by
 casting a plain `void *` parameter to `volatile u8 *` to defeat b210's CSE and
 force retail's twelve repeated byte loads -- ordinary-memory `volatile` as
 codegen steering, which is rejected in production. It was reverted and
@@ -3091,7 +3091,7 @@ Before rejecting that body its repeated loads were checked for honest aliasing,
 which would make a legitimate shape possible. They were not: a direct `u8 *`
 cast, a local `u8 *`, a `char *` source, and stores through the destination
 local all let b210 collapse the three load groups into one, scoring nd 59-66
-and losing about 44 bytes of object. (`func_0045ed60` is in the MATCH set of
+and losing about 44 bytes of object. (`PrimDrawFlatTriangle`, was `func_0045ed60`, is in the MATCH set of
 `progress/metrics.json` as of 2026-09-28.)
 
 A second instance (2026-08-30): a lane closed `code1_0039.c`'s `func_00399bf0`
@@ -9364,7 +9364,7 @@ and evidence. The two other fresh candidates remain ASM:
 
 | Target | Result | Blocker |
 | --- | --- | --- |
-| `func_0045d370` | 852/880 bytes, nd455, six object relocations | 28 executable bytes uncovered; register/FP shape remains non-exact |
+| `PrimBuildRotatedRectangle` (was `func_0045d370`) | 852/880 bytes, nd455, six object relocations | 28 executable bytes uncovered; register/FP shape remains non-exact |
 | `func_0026f860` | Complete structural candidate; not compiled | Reachable case0 passes an unwritten string buffer to the sound provider |
 
 `FreshPrimitiveBuilder_0045d370_body.c` preserves the first source. Explicit

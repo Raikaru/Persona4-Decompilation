@@ -192,7 +192,7 @@ extern s32 D_007642F0;
 
 
 
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *arg0, u8 *arg1);
 
 
@@ -798,11 +798,11 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
         }
         l12 = *(u8 **)(l12 + 0x138);
     }
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFog;
     *(u8 **)(tmp + 0x10) = D_007D2400;
     func_00460ac0(D_00793EE0, tmp);
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFog;
     *(u8 **)(tmp + 0x10) = D_007D2350;
     if (flag != 0) {
@@ -810,7 +810,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     } else {
         func_00460ac0(D_00794300, tmp);
     }
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFog;
     *(u8 **)(tmp + 0x10) = D_007D22A0;
     if (flag != 0) {
@@ -855,11 +855,11 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
         }
         l10 = *(u8 **)(l10 + 0x138);
     }
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCamera;
     *(u8 **)(tmp + 0x10) = D_007D2400;
     func_00460ac0(D_00793EE0, tmp);
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCamera;
     *(u8 **)(tmp + 0x10) = D_007D2350;
     if (flag != 0) {
@@ -867,7 +867,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     } else {
         func_00460ac0(D_00794300, tmp);
     }
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCamera;
     *(u8 **)(tmp + 0x10) = D_007D22A0;
     if (flag != 0) {
@@ -875,15 +875,15 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     } else {
         func_00460ac0(D_00794360, tmp);
     }
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFade;
     *(u8 **)(tmp + 0x10) = D_007D21F0;
     func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFade;
     *(u8 **)(tmp + 0x10) = D_007D2140;
     func_00460ac0(D_007945D0, tmp);
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFade;
     *(u8 **)(tmp + 0x10) = D_007D1FE0;
     func_00460ac0(D_007945A0, tmp);
@@ -911,7 +911,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
             } else {
                 s32 j;
 
-                tmp = func_00460990();
+                tmp = PrimAllocQueueNode();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttached;
                 *(u8 **)(tmp + 0x10) = *pp;
                 func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
@@ -944,16 +944,16 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
             if (!(*(s32 *)(obj + 0x28) & 0x04000000)) {
                 obj = *(u8 **)(obj + 0x138);
             } else {
-                tmp = func_00460990();
+                tmp = PrimAllocQueueNode();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFade;
                 *(u8 **)(tmp + 0x10) = D_007D2090;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), tmp);
-                tmp = func_00460990();
+                tmp = PrimAllocQueueNode();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttached;
                 *(u8 **)(tmp + 0x10) = obj;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), tmp);
                 mdlQueueModelForDraw((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), *(u8 **)(obj + 0x164));
-                tmp = func_00460990();
+                tmp = PrimAllocQueueNode();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
                 *(u8 **)(tmp + 0x10) = D_007D2090;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x22C) * 0x30), tmp);
@@ -962,7 +962,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
         }
     }
     if (l3 != NULL) {
-        tmp = func_00460990();
+        tmp = PrimAllocQueueNode();
         *(void **)(tmp + 8) = (void *)resrcMngRenderCameraSlots;
         *(u8 **)(tmp + 0x10) = NULL;
         func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
@@ -1008,7 +1008,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 s32 flags = *(s32 *)(obj + 0x28);
 
                 if ((flags & 0x10000000) && (flags & 2)) {
-                    tmp = func_00460990();
+                    tmp = PrimAllocQueueNode();
                     *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedPair;
                     *(u8 **)(tmp + 0x10) = obj;
                     func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
@@ -1045,13 +1045,13 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
                 continue;
             }
             if (flags & 0x10000) {
-                tmp = func_00460990();
+                tmp = PrimAllocQueueNode();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedAlt;
                 *(u8 **)(tmp + 0x10) = l2;
                 func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
                 mdlQueueModelForDraw((void *)(D_00793E80 + iGpffff9dd0 * 0x30), *(u8 **)(l2 + 0x158));
             } else {
-                tmp = func_00460990();
+                tmp = PrimAllocQueueNode();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedAlt;
                 *(u8 **)(tmp + 0x10) = l2;
                 func_00460ac0(D_007945A0, tmp);
@@ -1067,16 +1067,16 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
             if (!(*(s32 *)(obj + 0x28) & 0x04000000)) {
                 obj = *(u8 **)(obj + 0x138);
             } else {
-                tmp = func_00460990();
+                tmp = PrimAllocQueueNode();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderCameraFade;
                 *(u8 **)(tmp + 0x10) = D_007D1F30;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), tmp);
-                tmp = func_00460990();
+                tmp = PrimAllocQueueNode();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedAlt;
                 *(u8 **)(tmp + 0x10) = obj;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), tmp);
                 mdlQueueModelForDraw((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), *(u8 **)(obj + 0x158));
-                tmp = func_00460990();
+                tmp = PrimAllocQueueNode();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
                 *(u8 **)(tmp + 0x10) = D_007D1F30;
                 func_00460ac0((void *)(D_00793E80 + *(s32 *)(obj + 0x210) * 0x30), tmp);
@@ -1088,7 +1088,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
         qsort(arrB, n2, 4, resrcMngCompareDistanceArrB);
     }
     if (n2 != 0) {
-        tmp = func_00460990();
+        tmp = PrimAllocQueueNode();
         *(void **)(tmp + 8) = (void *)resrcMngRenderCameraSlots;
         *(u8 **)(tmp + 0x10) = NULL;
         func_00460ac0(D_007945D0, tmp);
@@ -1119,7 +1119,7 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
             s32 flags = *(s32 *)(arrB[k] + 0x28);
 
             if ((flags & 0x10000000) && (flags & 2) && (flags & 0x80000000)) {
-                tmp = func_00460990();
+                tmp = PrimAllocQueueNode();
                 *(void **)(tmp + 8) = (void *)resrcMngRenderAttachedPair;
                 *(u8 **)(tmp + 0x10) = arrB[k];
                 func_00460ac0(D_007945D0, tmp);
@@ -1137,15 +1137,15 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
             }
         }
     }
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
     *(u8 **)(tmp + 0x10) = D_007D21F0;
     func_00460ac0((void *)(D_00793E80 + iGpffff9dd0 * 0x30), tmp);
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
     *(u8 **)(tmp + 0x10) = D_007D2140;
     func_00460ac0(D_007945D0, tmp);
-    tmp = func_00460990();
+    tmp = PrimAllocQueueNode();
     *(void **)(tmp + 8) = (void *)resrcMngRenderCameraPair;
     *(u8 **)(tmp + 0x10) = D_007D1FE0;
     func_00460ac0(D_007945A0, tmp);

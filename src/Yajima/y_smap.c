@@ -101,7 +101,7 @@ extern u8 *D_007EFA04[];
 extern u8 D_007E8C00[];
 extern u8 D_00794C30[];
 extern u8 D_00794E10[];
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void smapUpdateItems(u8 *);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s32 fclSpriteHasDisplayFlags(u8 *);
@@ -852,11 +852,11 @@ s32 smapUpdateEntities(u8 *arg0)
     FldFrameTask_GetPosition((u8 *)&positionSnapshot, *(u8 **)(D_007EFA04[0] + 0x220));
     /* The provider always writes all three floats, including the no-model path. */
     pos = *(YVec3f *)(u8 *)&positionSnapshot;
-    task = func_00460990();
+    task = PrimAllocQueueNode();
     *(void **)(task + 8) = smapSetPrimitiveState;
     *(u8 **)(task + 0x10) = work;
     func_00460ac0(D_00794C30, task);
-    task = func_00460990();
+    task = PrimAllocQueueNode();
     *(void **)(task + 8) = smapSetStateValue;
     *(u8 **)(task + 0x10) = work;
     func_00460ac0(D_00794E10, task);

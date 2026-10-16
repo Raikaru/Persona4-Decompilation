@@ -347,7 +347,7 @@ Each frame is bracketed by two tasks created in `src/Main/mainDraw.c`:
 1. **`"clear ot"`**: `mainDrawStartClearOt`, priority `0x0A`, update
    `mainDrawClearOtUpdate`. It flushes debug print (`H_Dbprt_Flush`), clears the
    camera (`RwCameraClear`), resets the ordering table at `D_00793E80`
-   (`func_00460a80`; `0xD8` buckets of `0x30` bytes), and installs fixed
+   (`PrimClearNodes`, was `func_00460a80`; `0xD8` buckets of `0x30` bytes), and installs fixed
    render-state callbacks (`func_001015c0`..`func_00101a80`) into specific
    buckets.
 2. Game tasks then append draw nodes to buckets. `src/sdkOt.c`

@@ -242,7 +242,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 extern void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 extern void func_0045b430(void);
-extern void func_0045ed60(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern void PrimDrawFlatTriangle(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0);
 extern s32 func_00457120(void);
 #pragma push
 #pragma pop
@@ -259,7 +259,7 @@ extern s32 func_00457120(void);
 #pragma push
 #pragma pop
 /* Honest plain-C best is the 1-word common-off body, still MISMATCH. */
-/* measured: restores propagation after func_0045ed60. */
+/* measured: restores propagation after PrimDrawFlatTriangle. */
 // FUN_0045FBE0
 void primCircleLine3D(const Code45Vec3 *center, f32 radius, u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState)
 {

@@ -69,7 +69,7 @@ extern u8 D_00637420[];
 
 
 
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00266cc0(s32 arg0, s32 arg1);
 
@@ -103,7 +103,7 @@ extern u8 iGpffffa734;
 extern s32 calHasDayEntry(s32 arg0);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void mdlEffectEmitMaskedTagPair(void);
-extern void func_0045d6e0(void *arg0, void *arg1, f32 arg2, s32 arg3);
+extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void mdlEffectEmitTagPair(void);
 extern s32 func_0025f2c0(s32 arg0, s32 arg1, u8 *arg2);
 
@@ -345,7 +345,7 @@ void func_00266cc0(s32 arg0, s32 arg1)
 void func_002674b0(s32 arg0, u8 *arg1) {
     u8 *p;
 
-    p = func_00460990();
+    p = PrimAllocQueueNode();
     *(void **)(p + 0x8) = (void *)func_00266cc0;
     *(s32 *)(p + 0x10) = arg0;
     func_00460ac0(arg1, p);
@@ -663,7 +663,7 @@ void func_00267b20(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 a
     RpSkyRenderStateSet(3, (void *)(0x31003));
     RpSkyRenderStateSet(2, (void *)(0x44));
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0(&backdrop.transfer, &clip.packet, 10.0f, 0);
+    PrimDrawFlatRectangle(&backdrop.transfer, &clip.packet, 10.0f, 0);
     mdlEffectEmitTagPair();
     countA = *contourOutlineCount(counts.value, arg3);
     ptrA = *contourOutlinePoints(sources.value, arg3);

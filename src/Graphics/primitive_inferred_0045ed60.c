@@ -274,10 +274,10 @@ extern void func_0045b430(void);
 /* volatile declaration (src/Kernel/mc.c declares void *,void *,s32,f32, not edited). */
 /* opt_propagation off keeps the colors pointer in $t1; it is not the banned part. */
 /* Honest plain-C best is the 1-word common-off body, still MISMATCH. */
-/* measured: func_0045ed60 MATCH -> MISMATCH without this pragma. */
+/* measured: PrimDrawFlatTriangle MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0045ED60
-void func_0045ed60(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0) {
+void PrimDrawFlatTriangle(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0) {
     u8 colors[12];
     u8 *ptr = colors;
     u8 color0;
@@ -311,11 +311,11 @@ void func_0045ed60(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0) {
     PrimDrawPoints(ptr, arg1, fparg0, 3, 3, arg2);
 }
 
-/* measured: restores propagation after func_0045ed60. */
-/* measured: func_0045ee00 MATCH -> MISMATCH without this pragma. */
+/* measured: restores propagation after PrimDrawFlatTriangle. */
+/* measured: PrimDrawRadialTriangle MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 // FUN_0045EE00
-void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg1, u8 *arg4) {
+void PrimDrawRadialTriangle(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg1, u8 *arg4) {
     u8 colors[12];
     f32 coords[6];
     u8 color0;

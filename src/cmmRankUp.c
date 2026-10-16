@@ -5,7 +5,7 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
-extern u8 *func_00460990();
+extern u8 *PrimAllocQueueNode();
 extern void func_00251d80();
 extern u8 D_007963D0[];
 extern void func_00460ac0();
@@ -77,7 +77,7 @@ typedef struct {
     s16 f22;
 } Sp120;
 extern u_long128 D_00636730;
-extern void func_0045d6e0(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
+extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
 static void func_00252230(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
 
 extern struct RwMatrixTag *RwMatrixRotate(struct RwMatrixTag *matrix,
@@ -193,7 +193,7 @@ s32 func_00251e60(u8 *sdkTaskBytes) {
     u8 *p;
 
     kwlnTaskGetWork();
-    p = func_00460990();
+    p = PrimAllocQueueNode();
     *(void **)(p + 0x8) = (void *)func_00251d80;
     *(s32 *)(p + 0x10) = arg0;
     func_00460ac0(D_007963D0, p);
@@ -1193,7 +1193,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         RpSkyRenderStateSet(3, 0x31003);
         RpSkyRenderStateSet(2, 0x44);
         mdlEffectEmitMaskedTagPair();
-        func_0045d6e0((u8 *)(&clipColor), (f32 *)(&clipRect), 5.0f, 0);
+        PrimDrawFlatRectangle((u8 *)(&clipColor), (f32 *)(&clipRect), 5.0f, 0);
         mdlEffectEmitTagPair();
         for (i = 0; i < 8; i++) {
             if (!(elapsed < i)) {
@@ -1246,7 +1246,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         RpSkyRenderStateSet(3, 0x31003);
         RpSkyRenderStateSet(2, 0x44);
         mdlEffectEmitMaskedTagPair();
-        func_0045d6e0((u8 *)(&resetColor), (f32 *)(&resetRect), 0.0f, 0);
+        PrimDrawFlatRectangle((u8 *)(&resetColor), (f32 *)(&resetRect), 0.0f, 0);
         mdlEffectEmitTagPair();
     }
     if (elapsed < 25) {
@@ -2171,7 +2171,7 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0((u8 *)(&firstColorCopy), (f32 *)(&firstScreenCopy), 10.0f, 0);
+    PrimDrawFlatRectangle((u8 *)(&firstColorCopy), (f32 *)(&firstScreenCopy), 10.0f, 0);
     mdlEffectEmitTagPair();
     /* Each template and the working rectangle is a complete 16-byte object.
      * Their addressable representation copies retain the original two stores. */
@@ -2224,7 +2224,7 @@ void func_002570f0(f32 unusedX, f32 unusedY, f32 unusedZ,
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0((u8 *)(&secondColorCopy), (f32 *)(&secondScreenCopy), 10.0f, 0);
+    PrimDrawFlatRectangle((u8 *)(&secondColorCopy), (f32 *)(&secondScreenCopy), 10.0f, 0);
     mdlEffectEmitTagPair();
     *(u_long128 *)&secondTemplate = D_00636570;
     *(u_long128 *)&rectangle = *(u_long128 *)&secondTemplate;
@@ -2997,7 +2997,7 @@ s32 func_00257900(u8 *task) {
             *(u_long128 *)&enteringRectangle = D_006365F0;
             drawRectangle = (u_long128 *)&drawRectangleValue;
             *(u_long128 *)&drawRectangleValue = *(u_long128 *)&enteringRectangle;
-            func_0045d6e0((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
+            PrimDrawFlatRectangle((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
             {
                 RankUpColor *palette;
                 const RankUpColor *original;
@@ -3034,7 +3034,7 @@ s32 func_00257900(u8 *task) {
             *(u_long128 *)&steadyRectangle = D_00636600;
             drawRectangle = (u_long128 *)&drawRectangleValue;
             *(u_long128 *)&drawRectangleValue = *(u_long128 *)&steadyRectangle;
-            func_0045d6e0((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
+            PrimDrawFlatRectangle((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
             func_002570f0(0, 0, 0, 0xFFFFFF, 0xFF, 0.0f, firstTexture);
         } else if (mode12Frame < 0xA4) {
             drawColor = &drawColorValue.bits;
@@ -3042,7 +3042,7 @@ s32 func_00257900(u8 *task) {
             *(u_long128 *)&pulseRectangle = D_00636610;
             drawRectangle = (u_long128 *)&drawRectangleValue;
             *(u_long128 *)&drawRectangleValue = *(u_long128 *)&pulseRectangle;
-            func_0045d6e0((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
+            PrimDrawFlatRectangle((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
             bannerPhase = (f32) (*(s32 *)(context + 8) - 0xA0) / 3.0f;
             bannerPhase = bannerPhase * bannerPhase;
             func_002570f0(0, 0, 0, 0xFFFFFF, 0xFF, bannerPhase, firstTexture);
@@ -3058,7 +3058,7 @@ s32 func_00257900(u8 *task) {
             *(u_long128 *)&leavingRectangle = D_00636620;
             drawRectangle = (u_long128 *)&drawRectangleValue;
             *(u_long128 *)&drawRectangleValue = *(u_long128 *)&leavingRectangle;
-            func_0045d6e0((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
+            PrimDrawFlatRectangle((u8 *)(drawColor), (f32 *)(drawRectangle), 0.0f, 1);
             func_002570f0(0, 0, 0, 0xFFFFFF, (s32)( (255.0f * leavingOpacity)), 1.0f, firstTexture);
         }
         temp_2_43 = (s32)(*(s32 *)(context + 8) + 1);
@@ -3090,7 +3090,7 @@ s32 func_00257900(u8 *task) {
     RpSkyRenderStateSet(3, 0x31003);
     RpSkyRenderStateSet(2, 0x44);
     mdlEffectEmitMaskedTagPair();
-    func_0045d6e0((u8 *)(&overlayColor), (f32 *)(&overlayRectangle), (f32) 0xFFFF, 0);
+    PrimDrawFlatRectangle((u8 *)(&overlayColor), (f32 *)(&overlayRectangle), (f32) 0xFFFF, 0);
     mdlEffectEmitTagPair();
     }
     }
@@ -3146,7 +3146,7 @@ void func_0025b0f0(s32 arg0, u8 *arg1) {
     *(u_long128 *)&arr[0] = quad;
     arr16 = (u_long128 *)&arr[16];
     *(u_long128 *)&arr[16] = quad;
-    func_0045d6e0((u8 *)(pfbuf), (f32 *)(arr16), 0.0f, 1);
+    PrimDrawFlatRectangle((u8 *)(pfbuf), (f32 *)(arr16), 0.0f, 1);
     switch (*(u32 *)(sp + 4)) {
     case 0:
     case 1:
@@ -3248,7 +3248,7 @@ extern void sdkSndRequestTrack();
 extern s32 func_002519e0(u8 *task);
 extern void func_00251ce0(u8 *task);
 extern void func_00460ac0();
-extern u8 *func_00460990();
+extern u8 *PrimAllocQueueNode();
 typedef struct { s32 values[5]; } RankUpUnlockFlags;
 
 #pragma push
@@ -3613,7 +3613,7 @@ tail:
             *(s32 *)ctx |= 8;
         }
     }
-    pb = func_00460990();
+    pb = PrimAllocQueueNode();
     *(void **)(pb + 8) = (void *)func_0025b0f0;
     *(u8 **)(pb + 0x10) = argb;
     func_00460ac0(D_007963D0, pb);

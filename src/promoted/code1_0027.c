@@ -57,7 +57,7 @@ extern void frFontExCopyString(void *arg0, void *arg1, s32 arg2);
 extern s8 D_0063BAB0[];
 extern s32 cmmCommunityGetCurrentId(void);
 extern void itfMesWindowFree(s32 arg0);
-extern u8 *func_00460990(void);
+extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 
 
@@ -346,7 +346,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
     typedef union { u8 rgba[4]; f32 value; } CalendarColor;
     extern s32 msgCalResourceGet(s32 arg0);
     extern f32 sinf(f32 arg0);
-    extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
+    extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
     extern u8 *resourceFindByName(char *arg0);
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
@@ -414,7 +414,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
         {
             rect = (CalendarRectangle){0, 0, 640, 480};
 
-            func_0045d6e0((u8 *)&depthColor, (f32 *)&rect, 10.0f, 1);
+            PrimDrawFlatRectangle((u8 *)&depthColor, (f32 *)&rect, 10.0f, 1);
         }
         phase = *(s32 *)(arg1 + 0x10) % 4;
         table = (s32 (**)(s32, void *))(u32)D_00887300;

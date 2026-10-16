@@ -142,7 +142,7 @@ extern u8 D_00796460[];
 extern void func_00458fa0(void);
 extern void func_0045a730(s32 arg0, s32 arg1);
 extern void func_0045b430(void);
-extern void func_00460910(s32 arg0, s32 arg1);
+extern void PrimCreatePools(s32 arg0, s32 arg1);
 extern void func_00463520(void);
 extern void func_00466680(void);
 extern void func_0046d6b0(s32 arg0);
@@ -229,7 +229,7 @@ void func_00100e60(void)
     s32 one;
     func_0046d6b0((s32)&scrReleaseActiveHandle);
     kwlnTaskInitPool(0x190);
-    func_00460910(0x7D0, 0x64);
+    PrimCreatePools(0x7D0, 0x64);
     func_004544b0();
     func_004559b0();
     func_0010d7b0();
