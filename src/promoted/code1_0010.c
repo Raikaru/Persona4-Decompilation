@@ -94,7 +94,7 @@ extern void func_00121b20(void);
 extern void func_00122430(s32 arg0);
 extern u8 *resrcMngSpawnRenderTask(u8 *parent);
 extern void func_001605a0(void);
-extern void func_001939a0(void);
+extern void btlUnitLoadSyncedAssets(void);
 extern void func_002312e0(void);
 extern void func_00231330(void);
 extern void cmmLoadTables(void);

@@ -68,7 +68,7 @@ extern s32 func_00459760(s32 arg0);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
 extern void btlEncounterSetFinish(s32 task);
 extern u32 datCalcIsDead(s32 arg0, s32 arg1);
-extern u8 *func_00193bf0(u64 arg0, u64 arg1);
+extern u8 *btlUnitRecordFindByActionUID(u64 arg0, u64 arg1);
 extern s32 func_001f6290(void);
 extern void (*jtbl_008873EC[])(void *);
 extern f32 D_00922CA0[];
@@ -1710,7 +1710,7 @@ s32 btlMainRevivalUpdate(void)
     u8 *temp_4_2;
 
     temp_16 = (s64 *)(*(u8 **)(D_0076449C + 0x170));
-    if (func_00193bf0(*temp_16, (s64)0x3FFFFFFFFFFFFFFF) == 0) {
+    if (btlUnitRecordFindByActionUID(*temp_16, (s64)0x3FFFFFFFFFFFFFFF) == 0) {
         func_00106620(0x31E, ((func_00106600(0x31E) & 0xFF) - 1) & 0xFF);
         btlActionEnableQueue();
         if (btlCheckBattleEnd() == 0) {
@@ -2099,7 +2099,7 @@ s32 btlMainLoseUpdate(u8 *arg0)
         func_00122520(1, 1);
         H_Fade_SetCustomColor(0xFF, 0xFF, 0xFF);
     }
-    if (func_00193bf0(*(s64 *)(*(u8 **)(D_0076449C + 0x170)),
+    if (btlUnitRecordFindByActionUID(*(s64 *)(*(u8 **)(D_0076449C + 0x170)),
                      (s64)0x3FFFFFFFFFFFFFFF) != 0) {
         return 0;
     }

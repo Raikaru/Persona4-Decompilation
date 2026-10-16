@@ -78,7 +78,7 @@ extern s32 func_00459760(s32 arg0);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
 extern void btlEncounterSetFinish(s32 task);
 extern u32 datCalcIsDead(s32 arg0, s32 arg1);
-extern u8 *func_00193bf0(u64 arg0, u64 arg1);
+extern u8 *btlUnitRecordFindByActionUID(u64 arg0, u64 arg1);
 extern s32 func_001f6290(void);
 extern s32 fieldSceneLoadStep(void);
 extern void (*jtbl_008873EC[])(void *);

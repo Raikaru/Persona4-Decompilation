@@ -84,7 +84,7 @@ extern s32 btlAICommandAlwaysTrue(void);
 extern void btlPacketEnqueue(u8 *arg0, s32 arg1);
 extern u8 *btlTargetCreateEmptyPacket(void);
 extern u8 *func_001f6030(s32 arg0, s64 arg1);
-extern s32 func_00193b70(s64 arg0, s64 arg1);
+extern s32 btlUnitRecordFindByUID(s64 arg0, s64 arg1);
 extern void func_003dc740(void *arg0, void *arg1, f32 arg3, s32 arg2);
 extern f32 func_0044b950(f32 arg0, f32 arg1);
 extern f32 fGpffff8048;

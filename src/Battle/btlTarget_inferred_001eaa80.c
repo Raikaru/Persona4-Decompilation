@@ -55,7 +55,7 @@ extern u8 *func_001d9280();
 
 
 extern void btlPacketEnqueue(u8 *arg0, s32 arg1);
-extern s32 func_00193b70(s64 arg0, s64 arg1);
+extern s32 btlUnitRecordFindByUID(s64 arg0, s64 arg1);
 extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
 extern u8 D_0060A0F0[];
@@ -240,9 +240,9 @@ s32 btlEffectScriptNoHitRecorded(void) {
     s32 hit;
 
     mask = 0x3FFFFFFFFFFFFFFFLL;
-    if (func_00193b70(*(s64 *)(iGpffffb3ac + 0xBD0), mask) != 0)
+    if (btlUnitRecordFindByUID(*(s64 *)(iGpffffb3ac + 0xBD0), mask) != 0)
         return 0;
-    hit = func_00193b70(*(s64 *)(iGpffffb3ac + 0xBD8), mask) != 0;
+    hit = btlUnitRecordFindByUID(*(s64 *)(iGpffffb3ac + 0xBD8), mask) != 0;
     return hit ^ 1;
 }
 

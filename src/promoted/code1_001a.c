@@ -50,7 +50,7 @@ extern u8 *iGpffffb3cc;
 extern f32 D_005F6D20[];
 
 void btlActionSetState(BtlAction *action, u16 state);
-u8 *func_00193bf0(u64 arg0, u64 arg1);
+u8 *btlUnitRecordFindByActionUID(u64 arg0, u64 arg1);
 static inline s32 func_001a_add_offset(s32 offset, s32 base)
 {
     return offset + base;
@@ -513,7 +513,7 @@ static inline s32 actionResourceAt(ActionResourcePrefix *table, u16 index)
 // FUN_001ADE10
 void btlActionPersonaUpdate(BtlAction *action)
 {
-    if (func_00193bf0(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
+    if (btlUnitRecordFindByActionUID(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
         if (*(u8 *)(*(u8 **)((u8 *)action + 0x30) + 0xA2) == 0) {
             *(u16 *)((u8 *)action + 0x18) &= 0xFBFF;
         }
