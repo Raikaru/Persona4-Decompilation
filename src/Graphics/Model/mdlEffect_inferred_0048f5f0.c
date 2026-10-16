@@ -59,9 +59,9 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
 extern void func_0048b340(u8 *arg0, u8 *arg1);
-extern void func_0048c4e0(u8 *arg0);
+extern void EffMotionEmitterUpdate(u8 *arg0);
 extern void func_0048d8c0(u8 *arg0);
-extern void func_0048ec50(u8 *arg0);
+extern void EffConeAngleEmitterUpdate(u8 *arg0);
 /* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
  * eight zero alignment bytes. IDA retains the result that Ghidra drops:
  * retail leaves the copied quadword in v0 through return. Preserve that
@@ -111,7 +111,7 @@ extern void func_0048ec50(u8 *arg0);
  * constants one..half ($f24-$f20). */
 #pragma push
 #pragma pop
-/* Taken from the matched sibling func_0048c4e0: the loop constants are
+/* Taken from the matched sibling EffMotionEmitterUpdate: the loop constants are
  * locals assigned after the preroll in retail's hoist order (one, orbit,
  * zero, half, two, tilt, angle, -1) and declared in its FPR order. `c`
  * carries the first, fifth and sixth scale (retail $f30) and `a` the second
@@ -127,7 +127,7 @@ extern void func_0048ec50(u8 *arg0);
 #pragma pop
 /* Bezier emitter update. The 76-byte work record separates control points,
  * offsets and scalar state; its length union keeps the hardware-Q bits.
- * Matched by applying the func_0048ec50 family shape: stack objects
+ * Matched by applying the EffConeAngleEmitterUpdate family shape: stack objects
  * declared in retail address order, the preroll-elapsed float first among
  * the FPR locals, one `angle` local for the orbit angle, the six blends and
  * the progress fraction, (s32)/(f32) preroll in prerollScale/scale locals,

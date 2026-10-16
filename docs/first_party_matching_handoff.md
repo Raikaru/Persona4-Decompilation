@@ -2733,7 +2733,7 @@ So **a float literal used a dozen times was a variable in the original
 source**, and retail's saved-float count tells you how many such variables
 there were.
 
-The same lever applies to gp globals and struct fields.  `func_0048ec50`:
+The same lever applies to gp globals and struct fields.  `EffConeAngleEmitterUpdate` (was `func_0048ec50`):
 retail does `lwc1 $f25, -0x7f70($gp)` and `lwc1 $f24, -0x7f6c($gp)` once at
 R165-R166 and keeps them; the body re-read `fGpffff807c` and `fGpffff8080` at
 each use.  Hoisting took **548 -> 505 edits** with the frame moving 0x130 ->
@@ -2742,8 +2742,8 @@ two, so most of that function's remaining distance is more of the same:
 `$f28`/`$f29` are the 0xE0/0xE4 fields, `$f31` the 0xD4 field.
 
 On 2026-09-19, **18 first-party floors** in the worst 120 showed missing
-float saves, led by `func_0048ec50` (8 missing), `FunnelWindUpdateStrip` (was `func_004a2310`) (4),
-`func_004916f0` (4), `func_0048b9e0` (3), `FlashEvolvingRadialEmitDirectionalQuads` (was `func_0049d360`) (3) and
+float saves, led by `EffConeAngleEmitterUpdate` (was `func_0048ec50`) (8 missing), `FunnelWindUpdateStrip` (was `func_004a2310`) (4),
+`func_004916f0` (4), `EffWaveUpdate` (was `func_0048b9e0`) (3), `FlashEvolvingRadialEmitDirectionalQuads` (was `func_0049d360`) (3) and
 `func_0048d8c0` (3).
 
 One caution, from the same function.  Folding two re-reads of `config + 212`
@@ -2775,7 +2775,7 @@ words, object 606 -> 599 vs retail 609, -1.6% inside 591-627, frame 0x140 vs
 and use it for the five `(one-a)+a*b` lerps (`E0`, `CC`, `D4`, `6C`, `98`).
 **423 -> 418 edits** (554 -> 600 words, object 645 -> 649 vs retail 646 -> 648,
 +0.2% inside 628-667, frame 0x170 exact).
-- `func_00492100` (1 missing `$f30`, still `$f30`): hoist `one = 1.0f` once for
+- `EffSwayParticleUpdate` (was `func_00492100`) (1 missing `$f30`, still `$f30`): hoist `one = 1.0f` once for
 the seven `(one-a)+a*b` lerps and split `cD8` (the `D8*((one-DC)+DC*b)` value
 held in `$f30` across the `E4` call) from the reused `c` (retail keeps `D8` in
 `$f30`, the later `2*(b-0.5f)` vec value is a temporary). **392 -> 391 edits**

@@ -99,11 +99,11 @@ extern void func_0048b340(u8 *arg0, u8 *arg1);
  * Measured scopes preserve scalar operand lifetimes across RNG calls. */
 // FUN_0048C4E0
 #pragma push
-/* measured: func_0048c4e0 MATCH -> MISMATCH without this pragma. */
+/* measured: EffMotionEmitterUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-/* measured: func_0048c4e0 MATCH -> MISMATCH without this pragma. */
+/* measured: EffMotionEmitterUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-void func_0048c4e0(u8 *arg0)
+void EffMotionEmitterUpdate(u8 *arg0)
 {
     extern void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
     extern void *memcpy(void *dst, const void *src, u32 size);

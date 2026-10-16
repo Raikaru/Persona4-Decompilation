@@ -1581,7 +1581,7 @@ void mdlEffectCatmullRomVU(float param_1, u8 (*param_2)[16])
 #pragma pop
 /* Scale applier for emitter kind 1 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048C440
-void func_0048c440(u8 *arg0, f32 fparg0) {
+void EffWaveApplyScale(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1616,7 +1616,7 @@ loop_0048c440_check:
 #pragma pop
 /* Scale applier for emitter kind 2 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048CD60
-void func_0048cd60(u8 *arg0, f32 fparg0) {
+void EffMotionApplyScale(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1718,7 +1718,7 @@ loop_0048e270_check:
 #pragma pop
 /* Scale applier for emitter kind 5 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048EBC0
-void func_0048ebc0(u8 *arg0, f32 fparg0) {
+void EffConeApplyScale(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1752,7 +1752,7 @@ loop_0048ebc0_check:
 #pragma pop
 /* Scale applier for emitter kind 6 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048F560
-void func_0048f560(u8 *arg0, f32 fparg0) {
+void EffConeAngleApplyScale(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1929,7 +1929,7 @@ loop_00492080_check:
 #pragma pop
 /* Scale applier for emitter kind 11 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00492A80
-void func_00492a80(u8 *arg0, f32 fparg0) {
+void EffSwayParticleApplyScale(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
