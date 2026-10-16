@@ -41,7 +41,7 @@ extern u8 *func_001102f0(u8 *, s32, s32, f32);
 extern s32 func_00285b30(void);
 extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *, void *);
-extern s16 func_002b2cb0(s32, s32, s32, s32, s32);
+extern s16 fclAddClamped(s32, s32, s32, s32, s32);
 extern void mdlQueueModelForDraw(void *, u8 *);
 extern void mdlSetAttachedOwner(u8 *, void *);
 extern void kwlnTaskDestroyWithHierarchy(u8 *);
@@ -354,7 +354,7 @@ void func_00349b90(u8 *arg0, u8 *arg1)
 
 /* Effect state machine for the model task at task+0x38. Layout notes measured against retail:
    - the two draw calls take FclDrawColor by value and their colours are locals filled by
-     func_002b2a60 struct returns; declaring the locals in this order (pos0, pos1, color1,
+     fclMakeDrawColor struct returns; declaring the locals in this order (pos0, pos1, color1,
      color0, colorTmp) reproduces retail's stack slots 0x38/0x28/0x4C/0x48/0x44;
    - the second colour is copied from colorTmp through an FclDrawColor cast (a plain
      struct assignment becomes a word copy, retail copies bytes);
@@ -435,19 +435,19 @@ s32 cmbEffModelUpdate(u8 *arg0)
                 case 1:
                     if (func_00348c10(*(u8 **)(obj + 0xEC)) == 0) {
                         func_001102f0((u8 *)&pos0, 0x140, 0xA5, 300.0f);
-                        color0 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
+                        color0 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
                         func_003489c0(*(u8 **)(obj + 0xEC), pos0, 0.0f, 0.0f, 0.0f, 1.0f, color0, 0, -1);
                     }
                     if (func_00348c10(*(u8 **)(obj + 0xF0)) == 0) {
-                        colorTmp = func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF);
+                        colorTmp = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
                         *(FclDrawColor *)&color1 = colorTmp;
                         func_001102f0((u8 *)&pos1, 0x140, 0xA5, 300.0f);
                         if (*(u16 *)(obj + 8) == 0x59) {
-                            color1 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xCD);
+                            color1 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xCD);
                         } else if (*(u16 *)(obj + 8) == 0xA) {
-                            color1 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xA);
+                            color1 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xA);
                         } else if (*(u16 *)(obj + 8) == 0x5F) {
-                            color1 = func_002b2a60(0xFF, 0xFF, 0xFF, 0xAA);
+                            color1 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xAA);
                         }
                         func_003489c0(*(u8 **)(obj + 0xF0), pos1, 0.0f, 0.0f, 0.0f, 1.0f, color1, 0, -1);
                     }
@@ -505,7 +505,7 @@ s32 cmbEffModelUpdate(u8 *arg0)
             {
                 s16 cur = *(s16 *)(obj + 2);
                 if (cur < 3) {
-                    *(s16 *)(obj + 2) = func_002b2cb0(cur, 1, 3, 0, 1);
+                    *(s16 *)(obj + 2) = fclAddClamped(cur, 1, 3, 0, 1);
                 } else {
                     mdlQueueModelForDraw(&D_00793E80[(*(s32 *)(obj + 0xE8)) * 0x30], *(u8 **)(obj + 0xC));
                     if (*(s8 *)(obj + 0x28) == 0) {

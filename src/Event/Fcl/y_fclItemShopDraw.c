@@ -16,7 +16,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 typedef FclVec2 F2_0033;
 
 extern u32 func_002e7a60(void);
-extern s32 func_002b3170(s32 arg0);
+extern s32 fclDecimalDigitCount(s32 arg0);
 extern void func_0033d3c0(void *, f32);
 extern void func_0033d3e0(void *, F2_0033, F2_0033, u32, u32, s64);
 extern f32 D_0064A1D8[];
@@ -68,8 +68,8 @@ f32 sdkSpriteScaledHeight(void *);
 void sdkSpriteFreeNode(void *);
 s32 func_0033d390(void *, s32);
 void func_0033d320(u8 *arg0, s32 arg1, s8 arg2);
-f32 func_002b2aa0(s32, f32, f32, f32, f32);
-s32 func_002b2a30(u8, u8, u8, u8);
+f32 fclEaseInterpolate(s32, f32, f32, f32, f32);
+s32 fclPackRgba(u8, u8, u8, u8);
 extern s32 frFontExDrawTextDeferred(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, void *arg9);
 extern u32 datGetItemNameId(s16 arg0);
 extern s32 func_00106600(s16 arg0);
@@ -83,8 +83,8 @@ extern f32 D_0064A2B0[];
 extern f32 D_0064A2B8[];
 extern u8 D_00795E60[];
 extern u32 fclItemShopDiscountedPrice(void *arg0, s32 arg1);
-s32 func_002b2cb0(s32, s32, s32, s32, s8);
-s32 func_002b2d00(s32, s32, s32, s32, s8);
+s32 fclAddClamped(s32, s32, s32, s32, s8);
+s32 fclSubClamped(s32, s32, s32, s32, s8);
 void memcpy(void *, s32, s32);
 s32 fclSpriteUpdateTweens(void *);
 void *PrimAllocQueueNode(void);
@@ -135,9 +135,9 @@ extern char iGpffffa930;
 extern void FldRc_ReleaseCachedObject(void);
 extern u16 D_008C0276[];
 extern s32 func_002e26a0(void);
-extern s16 func_002b2d50(s16, s16, s16, s16, s16);
-extern void func_002b2e70(s32, s32, s32, s32, void *, void *);
-extern void func_002b2f90(s32, s32, s32, s32, void *, void *);
+extern s16 yListStepIndex(s16, s16, s16, s16, s16);
+extern void yListAdvanceCursorScroll(s32, s32, s32, s32, void *, void *);
+extern void yListRetreatCursorScroll(s32, s32, s32, s32, void *, void *);
 extern void sprintf(void *dst, void *fmt, s32 val);
 extern void nmMesWindowSetSlotString(s8 arg0, s32 arg1, void *arg2);
 extern void nmMesWindowSetSlotParam(s8 arg0, s32 arg1);
@@ -255,30 +255,30 @@ s32 fclItemShopUpdate(u8 *arg0) {
         *(s16 *)(work + 0x41E) = 1;
         tbl = (F2_0033 *)D_0064A290;
         func_0033d320(*(void **)(work + 0x110), 0, 0);
-        func_0033d3e0(*(void **)(work + 0x110), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0x110), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0x110), 17.0f);
         func_0033d3d0(*(void **)(work + 0x110), 0x63);
         tbl = (F2_0033 *)D_0064A298;
         func_0033d320(*(void **)(work + 0x114), 0, 0);
-        func_0033d3e0(*(void **)(work + 0x114), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0x114), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0x114), 17.0f);
         func_0033d3d0(*(void **)(work + 0x114), 0x63);
         tbl = (F2_0033 *)D_0064A290;
         func_0033d320(*(void **)(work + 0x1A8), 0, 0);
-        func_0033d3e0(*(void **)(work + 0x1A8), func_002b2970(-0x125, tbl->y), func_002b2970(200.0f + tbl->x, tbl->y), 2,
+        func_0033d3e0(*(void **)(work + 0x1A8), fclMakeVec2(-0x125, tbl->y), fclMakeVec2(200.0f + tbl->x, tbl->y), 2,
                       0x14, 0);
-        *(FclDrawColor *)(func_0033d310(*(void **)(work + 0x1A8)) + 0x79) = func_002b2a60(0, 0, 0, 0xFF);
+        *(FclDrawColor *)(func_0033d310(*(void **)(work + 0x1A8)) + 0x79) = fclMakeDrawColor(0, 0, 0, 0xFF);
         func_0033d3c0(*(void **)(work + 0x1A8), 16.0f);
         func_0033d3d0(*(void **)(work + 0x1A8), 0x63);
         tbl = (F2_0033 *)D_0064A298;
         func_0033d320(*(void **)(work + 0x1AC), 0, 0);
-        func_0033d3e0(*(void **)(work + 0x1AC), func_002b2970(-180.0f, tbl->y), func_002b2970(200.0f + tbl->x, tbl->y), 2,
+        func_0033d3e0(*(void **)(work + 0x1AC), fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(200.0f + tbl->x, tbl->y), 2,
                       0x14, 0);
-        *(FclDrawColor *)(func_0033d310(*(void **)(work + 0x1AC)) + 0x79) = func_002b2a60(0, 0, 0, 0xFF);
+        *(FclDrawColor *)(func_0033d310(*(void **)(work + 0x1AC)) + 0x79) = fclMakeDrawColor(0, 0, 0, 0xFF);
         func_0033d3c0(*(void **)(work + 0x1AC), 16.0f);
         func_0033d3d0(*(void **)(work + 0x1AC), 0x63);
         func_0033d320(*(void **)(work + 0x10), 0, 0);
-        func_0033d3e0(*(void **)(work + 0x10), func_002b2970(0x28A, D_0064A090[1]), func_002b2970(D_0064A090[0], D_0064A090[1]),
+        func_0033d3e0(*(void **)(work + 0x10), fclMakeVec2(0x28A, D_0064A090[1]), fclMakeVec2(D_0064A090[0], D_0064A090[1]),
                       0, 0x1E, 0xA);
         func_0033d320(*(void **)(work + 0x10), 3, 0);
         func_0033d520(*(u8 **)(work + 0x10), 720.0f, 0.0f, 0, 0x1E, 0xA);
@@ -290,9 +290,9 @@ s32 fclItemShopUpdate(u8 *arg0) {
         func_0033d4e0(*(void **)(work + 0x164), 0.1f, 1.0f, 0, 0xF, 0x2B);
         labelFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x55);
         func_0033d3e0(*(void **)(work + 0x164),
-                      func_002b2970((sdkSpriteScaledWidth(labelFont) / 10.0f) * 5.0f + tbl->x + 0.0f,
+                      fclMakeVec2((sdkSpriteScaledWidth(labelFont) / 10.0f) * 5.0f + tbl->x + 0.0f,
                                     (sdkSpriteScaledHeight(labelFont) / 10.0f) * 5.0f + tbl->y + 0.0f),
-                      func_002b2970(tbl->x, tbl->y), 0, 0xF, 0x2B);
+                      fclMakeVec2(tbl->x, tbl->y), 0, 0xF, 0x2B);
         sdkSpriteFreeNode(labelFont);
         func_0033d3c0(*(void **)(work + 0x164), 69.0f);
         func_0033d3d0(*(void **)(work + 0x164), 0x56);
@@ -313,31 +313,31 @@ s32 fclItemShopUpdate(u8 *arg0) {
         }
         *(f32 *)(work + 0x1D0) = 0x28A;
         *(f32 *)(work + 0x1D4) = 15.0f;
-        *(f32 *)(work + 0x1D8) = 580.0f - 21.0f * (f32)func_002b3170(func_002e7a60()) + 0.0f;
+        *(f32 *)(work + 0x1D8) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(func_002e7a60()) + 0.0f;
         *(f32 *)(work + 0x1DC) = 15.0f;
         *(s16 *)(work + 0x1E8) = 10;
         tbl = (F2_0033 *)D_0064A1D8;
         func_0033d320(*(void **)(work + 0xB4), 0, 0);
-        func_0033d3e0(*(void **)(work + 0xB4), func_002b2970(-180.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 0xF, 0x16);
+        func_0033d3e0(*(void **)(work + 0xB4), fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0xF, 0x16);
         func_0033d3c0(*(void **)(work + 0xB4), 47.0f);
         func_0033d3d0(*(void **)(work + 0xB4), 0x61);
         tbl = (F2_0033 *)D_0064A1E0;
         func_0033d320(*(void **)(work + 0xB8), 0, 0);
-        func_0033d3e0(*(void **)(work + 0xB8), func_002b2970(-200.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 1, 9, 0x1C);
+        func_0033d3e0(*(void **)(work + 0xB8), fclMakeVec2(-200.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 9, 0x1C);
         func_0033d3c0(*(void **)(work + 0xB8), 33.0f);
         func_0033d3d0(*(void **)(work + 0xB8), 0x61);
         tbl = (F2_0033 *)D_0064A1E8;
         func_0033d320(*(void **)(work + 0xBC), 0, 0);
-        func_0033d3e0(*(void **)(work + 0xBC), func_002b2970(-50.0f, tbl->y), func_002b2970(153.0f, tbl->y), 0, 0xF, 0x19);
+        func_0033d3e0(*(void **)(work + 0xBC), fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(153.0f, tbl->y), 0, 0xF, 0x19);
         func_0033d3c0(*(void **)(work + 0xBC), 48.0f);
         func_0033d3d0(*(void **)(work + 0xBC), 0x61);
         func_0033d320(*(void **)(work + 0x178), 0, 0);
-        func_0033d3e0(*(void **)(work + 0x178), func_002b2970(-50.0f, tbl->y), func_002b2970(203.0f, tbl->y), 0, 0xF, 0x19);
+        func_0033d3e0(*(void **)(work + 0x178), fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(203.0f, tbl->y), 0, 0xF, 0x19);
         func_0033d3c0(*(void **)(work + 0x178), 48.0f);
         func_0033d3d0(*(void **)(work + 0x178), 0x61);
         tbl = (F2_0033 *)D_0064A0E8;
         func_0033d320(*(void **)(work + 0x3C), 0, 0);
-        func_0033d3e0(*(void **)(work + 0x3C), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0x3C), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
         func_0033d4b0(*(void **)(work + 0x3C), 0, 0xFF, 0, 0xA, 0x28);
         func_0033d3c0(*(void **)(work + 0x3C), 46.0f);
         func_0033d3d0(*(void **)(work + 0x3C), 0x62);
@@ -356,9 +356,9 @@ s32 fclItemShopUpdate(u8 *arg0) {
             func_0033d3d0(*(void **)(work + j * 4 + 0x1C), 0x63);
             rowFont = sdkSpriteNewNode(*(void **)(work + 0xC), rowIndex);
             func_0033d3e0(*(void **)(work + j * 4 + 0x1C),
-                          func_002b2970((sdkSpriteScaledWidth(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
+                          fclMakeVec2((sdkSpriteScaledWidth(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
                                         (sdkSpriteScaledHeight(rowFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
-                          func_002b2970(coords[0], coords[1]), 0, 5, layer0);
+                          fclMakeVec2(coords[0], coords[1]), 0, 5, layer0);
             sdkSpriteFreeNode(rowFont);
         }
         *(s8 *)(work + 0) = 3;
@@ -367,18 +367,18 @@ s32 fclItemShopUpdate(u8 *arg0) {
         }
         /* fallthrough */
     case 3:
-        *(s16 *)(work + 0x3D4) = func_002b2d00(*(s16 *)(work + 0x3D4), 1, 0, 0, 1);
+        *(s16 *)(work + 0x3D4) = fclSubClamped(*(s16 *)(work + 0x3D4), 1, 0, 0, 1);
         if (*(s16 *)(work + 0x3D4) == 0) {
             for (i7 = 0; i7 < 0x24; i7++) {
-                *(u8 *)(work + i7 + 0x2B4) = func_002b2aa0(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
+                *(u8 *)(work + i7 + 0x2B4) = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
                 if (*(s8 *)(work + i7 + 0x2D8) == 1) {
                     *(f32 *)(work + i7 * 4 + 0x2FC) =
-                        func_0033d630(func_002b2970(23.0f, 225.0f), (s16)(i7 * 10), *(f32 *)(work + 0x2A8), *(u8 *)(work + i7 + 0x2B4), 1);
+                        func_0033d630(fclMakeVec2(23.0f, 225.0f), (s16)(i7 * 10), *(f32 *)(work + 0x2A8), *(u8 *)(work + i7 + 0x2B4), 1);
                 }
             }
-            *(f32 *)(work + 0x2A8) = func_002b2aa0(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 720.0f);
-            *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), *(s16 *)(work + 0x41E), 0x2D0, 1, 2);
-            *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
+            *(f32 *)(work + 0x2A8) = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 720.0f);
+            *(s32 *)(work + 0x2AC) = fclAddClamped(*(s32 *)(work + 0x2AC), *(s16 *)(work + 0x41E), 0x2D0, 1, 2);
+            *(s32 *)(work + 0x2B0) = fclAddClamped(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
         }
         for (j = 0; j < 4; j++) {
             if (func_0033d390(*(void **)(work + j * 4 + 0x1C), 2) == 0) {
@@ -396,14 +396,14 @@ s32 fclItemShopUpdate(u8 *arg0) {
             func_0033d320(*(void **)(work + 0x118), 0, 0);
             func_0033d3c0(*(void **)(work + 0x118), 82.0f);
             func_0033d3d0(*(void **)(work + 0x118), 0x3E);
-            func_0033d3e0(*(void **)(work + 0x118), func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
-                          func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
+            func_0033d3e0(*(void **)(work + 0x118), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
+                          fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
             tbl = (F2_0033 *)D_0064A2A8;
             func_0033d320(*(void **)(work + 0x11C), 0, 0);
             func_0033d3c0(*(void **)(work + 0x11C), 83.0f);
             func_0033d3d0(*(void **)(work + 0x11C), 0x3E);
-            func_0033d3e0(*(void **)(work + 0x11C), func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
-                          func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
+            func_0033d3e0(*(void **)(work + 0x11C), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
+                          fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
             for (j = 0; j < 6; j++) {
                 func_0033d320(*(void **)(work + j * 4 + 0x40), 0, 1);
                 func_0033d3c0(*(void **)(work + j * 4 + 0x40), (f32)(j + 0x4A));
@@ -430,12 +430,12 @@ s32 fclItemShopUpdate(u8 *arg0) {
             break;
         }
         tbl = (F2_0033 *)D_0064A290;
-        *(F2_0033 *)(func_0033d310(*(void **)(work + 0x1A8)) + 0x2C) = func_002b2970(200.0f + tbl->x, tbl->y);
+        *(F2_0033 *)(func_0033d310(*(void **)(work + 0x1A8)) + 0x2C) = fclMakeVec2(200.0f + tbl->x, tbl->y);
         func_0033d320(*(void **)(work + 0x1A8), 1, 1);
         tbl = (F2_0033 *)D_0064A298;
-        *(F2_0033 *)(func_0033d310(*(void **)(work + 0x1AC)) + 0x2C) = func_002b2970(200.0f + tbl->x, tbl->y);
+        *(F2_0033 *)(func_0033d310(*(void **)(work + 0x1AC)) + 0x2C) = fclMakeVec2(200.0f + tbl->x, tbl->y);
         func_0033d320(*(void **)(work + 0x1AC), 1, 1);
-        *(F2_0033 *)(func_0033d310(*(void **)(work + 0x10)) + 0x2C) = func_002b2970(D_0064A090[0], D_0064A090[1]);
+        *(F2_0033 *)(func_0033d310(*(void **)(work + 0x10)) + 0x2C) = fclMakeVec2(D_0064A090[0], D_0064A090[1]);
         *(f32 *)(func_0033d310(*(void **)(work + 0x10)) + 0xC4) = 0.0f;
         func_0033d320(*(void **)(work + 0x10), 1, 1);
         func_0033d320(*(void **)(work + 0x10), 3, 1);
@@ -443,7 +443,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         *(u8 *)(func_0033d310(*(void **)(work + 0x164)) + 0x62) = 0xFF;
         *(f32 *)(func_0033d310(*(void **)(work + 0x164)) + 0x94) = 1.0f;
         *(f32 *)(func_0033d310(*(void **)(work + 0x164)) + 0xA0) = 1.0f;
-        *(F2_0033 *)(func_0033d310(*(void **)(work + 0x164)) + 0x2C) = func_002b2970(tbl->x, tbl->y);
+        *(F2_0033 *)(func_0033d310(*(void **)(work + 0x164)) + 0x2C) = fclMakeVec2(tbl->x, tbl->y);
         func_0033d320(*(void **)(work + 0x164), 2, 1);
         func_0033d320(*(void **)(work + 0x164), 1, 1);
         func_0033d320(*(void **)(work + 0x164), 4, 1);
@@ -461,19 +461,19 @@ s32 fclItemShopUpdate(u8 *arg0) {
             func_0033d320(*(void **)(work + i11 * 4 + 0x17C), 3, 1);
             func_0033d320(*(void **)(work + i11 * 4 + 0x17C), 4, 1);
         }
-        *(f32 *)(work + 0x1E0) = 580.0f - 21.0f * (f32)func_002b3170(func_002e7a60()) + 0.0f;
+        *(f32 *)(work + 0x1E0) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(func_002e7a60()) + 0.0f;
         *(f32 *)(work + 0x1E4) = 15.0f;
         *(s16 *)(work + 0x1EA) = 10;
         tbl = (F2_0033 *)D_0064A1D8;
-        *(F2_0033 *)(func_0033d310(*(void **)(work + 0xB4)) + 0x2C) = func_002b2970(tbl->x, tbl->y);
+        *(F2_0033 *)(func_0033d310(*(void **)(work + 0xB4)) + 0x2C) = fclMakeVec2(tbl->x, tbl->y);
         func_0033d320(*(void **)(work + 0xB4), 1, 1);
         tbl = (F2_0033 *)D_0064A1E0;
-        *(F2_0033 *)(func_0033d310(*(void **)(work + 0xB8)) + 0x2C) = func_002b2970(tbl->x, tbl->y);
+        *(F2_0033 *)(func_0033d310(*(void **)(work + 0xB8)) + 0x2C) = fclMakeVec2(tbl->x, tbl->y);
         func_0033d320(*(void **)(work + 0xB8), 1, 1);
         tbl = (F2_0033 *)D_0064A1E8;
-        *(F2_0033 *)(func_0033d310(*(void **)(work + 0xBC)) + 0x2C) = func_002b2970(153.0f, tbl->y);
+        *(F2_0033 *)(func_0033d310(*(void **)(work + 0xBC)) + 0x2C) = fclMakeVec2(153.0f, tbl->y);
         func_0033d320(*(void **)(work + 0xBC), 1, 1);
-        *(F2_0033 *)(func_0033d310(*(void **)(work + 0x178)) + 0x2C) = func_002b2970(203.0f, tbl->y);
+        *(F2_0033 *)(func_0033d310(*(void **)(work + 0x178)) + 0x2C) = fclMakeVec2(203.0f, tbl->y);
         func_0033d320(*(void **)(work + 0x178), 1, 1);
         *(u8 *)(func_0033d310(*(void **)(work + 0x3C)) + 0x62) = 0xFF;
         func_0033d320(*(void **)(work + 0x3C), 2, 1);
@@ -481,7 +481,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         func_0033d320(*(void **)(work + 0x14), 2, 1);
         for (j = 0; j < 4; j++) {
             coords = (f32 *)((u8 *)D_0064A090 + (j + 3) * 8);
-            *(F2_0033 *)(func_0033d310(*(void **)(work + j * 4 + 0x1C)) + 0x2C) = func_002b2970(coords[0], coords[1]);
+            *(F2_0033 *)(func_0033d310(*(void **)(work + j * 4 + 0x1C)) + 0x2C) = fclMakeVec2(coords[0], coords[1]);
             *(f32 *)(func_0033d310(*(void **)(work + j * 4 + 0x1C)) + 0x94) = 1.0f;
             *(f32 *)(func_0033d310(*(void **)(work + j * 4 + 0x1C)) + 0xA0) = 1.0f;
             *(u8 *)(func_0033d310(*(void **)(work + j * 4 + 0x1C)) + 0x62) = 0xFF;
@@ -503,14 +503,14 @@ s32 fclItemShopUpdate(u8 *arg0) {
         func_0033d320(*(void **)(work + 0x118), 0, 0);
         func_0033d3c0(*(void **)(work + 0x118), 82.0f);
         func_0033d3d0(*(void **)(work + 0x118), 0x3E);
-        func_0033d3e0(*(void **)(work + 0x118), func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
-                      func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0x118), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
+                      fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
         tbl = (F2_0033 *)D_0064A2A8;
         func_0033d320(*(void **)(work + 0x11C), 0, 0);
         func_0033d3c0(*(void **)(work + 0x11C), 83.0f);
         func_0033d3d0(*(void **)(work + 0x11C), 0x3E);
-        func_0033d3e0(*(void **)(work + 0x11C), func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
-                      func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0x11C), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
+                      fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
         for (j = 0; j < 6; j++) {
             func_0033d320(*(void **)(work + j * 4 + 0x40), 0, 1);
             func_0033d3c0(*(void **)(work + j * 4 + 0x40), (f32)(j + 0x4A));
@@ -534,21 +534,21 @@ s32 fclItemShopUpdate(u8 *arg0) {
         break;
     case 4:
         *(f32 *)(work + 0x1E0) =
-            func_002b2aa0(0, *(f32 *)(work + 0x1D0), *(f32 *)(work + 0x1D8), *(s16 *)(work + 0x1EA), 10.0f);
-        *(s16 *)(work + 0x1EA) = func_002b2cb0(*(s16 *)(work + 0x1EA), 1, 10, 1, 1);
+            fclEaseInterpolate(0, *(f32 *)(work + 0x1D0), *(f32 *)(work + 0x1D8), *(s16 *)(work + 0x1EA), 10.0f);
+        *(s16 *)(work + 0x1EA) = fclAddClamped(*(s16 *)(work + 0x1EA), 1, 10, 1, 1);
         for (i16 = 0; i16 < 0x24; i16++) {
             if (*(s8 *)(work + i16 + 0x2D8) == 1) {
-                *(s16 *)(work + i16 * 2 + 0x38C) = func_002b2d00(*(s16 *)(work + i16 * 2 + 0x38C), 1, 0, 0, 1);
+                *(s16 *)(work + i16 * 2 + 0x38C) = fclSubClamped(*(s16 *)(work + i16 * 2 + 0x38C), 1, 0, 0, 1);
                 if (*(s16 *)(work + i16 * 2 + 0x38C) == 0) {
-                    *(u8 *)(work + i16 + 0x2B4) = func_002b2aa0(0, 255.0f, 0.0f, *(s16 *)(work + i16 * 2 + 0x3D6), 15.0f);
-                    *(s16 *)(work + i16 * 2 + 0x3D6) = func_002b2cb0(*(s16 *)(work + i16 * 2 + 0x3D6), 1, 0xF, 1, 1);
+                    *(u8 *)(work + i16 + 0x2B4) = fclEaseInterpolate(0, 255.0f, 0.0f, *(s16 *)(work + i16 * 2 + 0x3D6), 15.0f);
+                    *(s16 *)(work + i16 * 2 + 0x3D6) = fclAddClamped(*(s16 *)(work + i16 * 2 + 0x3D6), 1, 0xF, 1, 1);
                 }
-                *(f32 *)(work + i16 * 4 + 0x2FC) = func_0033d630(func_002b2970(23.0f, 225.0f), (s16)(i16 * 10),
+                *(f32 *)(work + i16 * 4 + 0x2FC) = func_0033d630(fclMakeVec2(23.0f, 225.0f), (s16)(i16 * 10),
                                                                *(f32 *)(work + 0x2A8), *(u8 *)(work + i16 + 0x2B4), 1);
             }
         }
-        *(f32 *)(work + 0x2A8) = func_002b2aa0(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 720.0f);
-        *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), *(s16 *)(work + 0x41E), 0x2D0, 1, 2);
+        *(f32 *)(work + 0x2A8) = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 720.0f);
+        *(s32 *)(work + 0x2AC) = fclAddClamped(*(s32 *)(work + 0x2AC), *(s16 *)(work + 0x41E), 0x2D0, 1, 2);
         for (i17 = 0; i17 < 0x24; i17++) {
             if (!(*(f32 *)(work + i17 * 4 + 0x2FC) < 140.0f) && *(f32 *)(work + i17 * 4 + 0x2FC) < 340.0f) {
                 *(s8 *)(work + i17 + 0x2D8) = 0;
@@ -605,13 +605,13 @@ s32 fclItemShopUpdate(u8 *arg0) {
         break;
     case 5:
         if (D_008C027A[0] & 0x4000) {
-            *(s8 *)(work + 1) = func_002b2cb0(*(s8 *)(work + 1), 1, 2, 0, 2);
+            *(s8 *)(work + 1) = fclAddClamped(*(s8 *)(work + 1), 1, 2, 0, 2);
             for (j = 0; j < 6; j++) {
                 func_0033d320(*(void **)(work + j * 4 + 0x40), 0, 1);
             }
             sdkSndStartStream(0, 0, 0, 0);
         } else if (D_008C027A[0] & 0x1000) {
-            *(s8 *)(work + 1) = func_002b2d00(*(s8 *)(work + 1), 1, 0, 2, 2);
+            *(s8 *)(work + 1) = fclSubClamped(*(s8 *)(work + 1), 1, 0, 2, 2);
             for (j = 0; j < 6; j++) {
                 func_0033d320(*(void **)(work + j * 4 + 0x40), 0, 1);
             }
@@ -630,8 +630,8 @@ s32 fclItemShopUpdate(u8 *arg0) {
                         func_0033d4e0(*(void **)(work + n * 4 + 0x1C), 1.0f, 0.5f, 0, 3, n);
                         func_0033d4b0(*(void **)(work + n * 4 + 0x1C), 0xFF, 0, 0, 3, n);
                         slotFont = sdkSpriteNewNode(*(void **)(work + 0xC), slot);
-                        func_0033d3e0(*(void **)(work + n * 4 + 0x1C), func_002b2970(slotPos[0], slotPos[1]),
-                                      func_002b2970((sdkSpriteScaledWidth(slotFont) / 10.0f) * 1.5f + slotPos[0] + 0.0f,
+                        func_0033d3e0(*(void **)(work + n * 4 + 0x1C), fclMakeVec2(slotPos[0], slotPos[1]),
+                                      fclMakeVec2((sdkSpriteScaledWidth(slotFont) / 10.0f) * 1.5f + slotPos[0] + 0.0f,
                                                     (sdkSpriteScaledHeight(slotFont) / 10.0f) * 1.5f + slotPos[1] + 0.0f),
                                       0, 3, n);
                         sdkSpriteFreeNode(slotFont);
@@ -640,18 +640,18 @@ s32 fclItemShopUpdate(u8 *arg0) {
                 func_0033d320(*(void **)(work + 0x14), 0, 0);
                 func_0033d4b0(*(void **)(work + 0x14), 0xFF, 0, 0, 6, 0);
                 tbl = (F2_0033 *)D_0064A1D8;
-                func_0033d3e0(*(void **)(work + 0xB4), func_002b2970(tbl->x, tbl->y), func_002b2970(-180.0f, tbl->y), 0, 0xD,
+                func_0033d3e0(*(void **)(work + 0xB4), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(-180.0f, tbl->y), 0, 0xD,
                               5);
                 tbl = (F2_0033 *)D_0064A1E0;
-                func_0033d3e0(*(void **)(work + 0xB8), func_002b2970(tbl->x, tbl->y), func_002b2970(-200.0f, tbl->y), 0, 0xD,
+                func_0033d3e0(*(void **)(work + 0xB8), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(-200.0f, tbl->y), 0, 0xD,
                               8);
                 tbl = (F2_0033 *)D_0064A1E8;
-                func_0033d3e0(*(void **)(work + 0xBC), func_002b2970(153.0f, tbl->y), func_002b2970(-100.0f, tbl->y), 0, 0xD,
+                func_0033d3e0(*(void **)(work + 0xBC), fclMakeVec2(153.0f, tbl->y), fclMakeVec2(-100.0f, tbl->y), 0, 0xD,
                               5);
-                func_0033d3e0(*(void **)(work + 0x178), func_002b2970(203.0f, tbl->y), func_002b2970(-50.0f, tbl->y), 0, 0xD,
+                func_0033d3e0(*(void **)(work + 0x178), fclMakeVec2(203.0f, tbl->y), fclMakeVec2(-50.0f, tbl->y), 0, 0xD,
                               5);
                 tbl = (F2_0033 *)D_0064A0E8;
-                func_0033d3e0(*(void **)(work + 0x3C), func_002b2970(tbl->x, tbl->y), func_002b2970(-200.0f, tbl->y), 0, 0xD,
+                func_0033d3e0(*(void **)(work + 0x3C), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(-200.0f, tbl->y), 0, 0xD,
                               5);
                 func_0033d4e0(*(void **)(work + 0xB0), 1.0f, 4.5f, 0, 0x14, 0);
                 for (j = 0; j < 3; j++) {
@@ -699,11 +699,11 @@ s32 fclItemShopUpdate(u8 *arg0) {
             sdkSndStartStream(0, 0, 0, 2);
         }
         tbl = (F2_0033 *)D_0064A2A0;
-        func_0033d3e0(*(void **)(work + 0x118), func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
-                      func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0x118), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
+                      fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
         tbl = (F2_0033 *)D_0064A2A8;
-        func_0033d3e0(*(void **)(work + 0x11C), func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
-                      func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0x11C), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
+                      fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
         switch (*(s8 *)(work + 1)) {
         case 0:
             func_0033d320(*(void **)(work + 0x4C), 0, 0);
@@ -757,7 +757,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             *(u8 *)(func_0033d310(*(void **)(work + i22 * 4 + 0x188)) + 0x62) = 2;
         }
         func_0033d320(*(void **)(work + 0x10), 0, 0);
-        func_0033d3e0(*(void **)(work + 0x10), func_002b2970(D_0064A090[0], D_0064A090[1]), func_002b2970(428.0f, 241.0f),
+        func_0033d3e0(*(void **)(work + 0x10), fclMakeVec2(D_0064A090[0], D_0064A090[1]), fclMakeVec2(428.0f, 241.0f),
                       0, 0xF, 0);
         func_0033d520(*(u8 **)(work + 0x10), -360.0f, 0.0f, 0, 0xF, 0);
         tbl = (F2_0033 *)D_0064A320;
@@ -768,23 +768,23 @@ s32 fclItemShopUpdate(u8 *arg0) {
         func_0033d3d0(*(void **)(work + 0x158), 0x5B);
         labelFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x52);
         func_0033d3e0(*(void **)(work + 0x158),
-                      func_002b2970((sdkSpriteScaledWidth(labelFont) / 10.0f) * 5.0f + tbl->x + 0.0f,
+                      fclMakeVec2((sdkSpriteScaledWidth(labelFont) / 10.0f) * 5.0f + tbl->x + 0.0f,
                                     (sdkSpriteScaledHeight(labelFont) / 10.0f) * 5.0f + tbl->y + 0.0f),
-                      func_002b2970(tbl->x, tbl->y), 0, 8, 0xF);
+                      fclMakeVec2(tbl->x, tbl->y), 0, 8, 0xF);
         sdkSpriteFreeNode(labelFont);
         tbl = (F2_0033 *)D_0064A200;
         func_0033d320(*(void **)(work + 0xC8), 0, 0);
-        func_0033d3e0(*(void **)(work + 0xC8), func_002b2970(660.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 1, 0x14, 5);
+        func_0033d3e0(*(void **)(work + 0xC8), fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0x14, 5);
         func_0033d3c0(*(void **)(work + 0xC8), 42.0f);
         func_0033d3d0(*(void **)(work + 0xC8), 0x61);
         tbl = (F2_0033 *)D_0064A1F0;
         func_0033d320(*(void **)(work + 0xC0), 0, 0);
-        func_0033d3e0(*(void **)(work + 0xC0), func_002b2970(660.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 8, 5);
+        func_0033d3e0(*(void **)(work + 0xC0), fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 8, 5);
         func_0033d3c0(*(void **)(work + 0xC0), 43.0f);
         func_0033d3d0(*(void **)(work + 0xC0), 0x61);
         tbl = (F2_0033 *)D_0064A1F8;
         func_0033d320(*(void **)(work + 0xC4), 0, 0);
-        func_0033d3e0(*(void **)(work + 0xC4), func_002b2970(980.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 8, 5);
+        func_0033d3e0(*(void **)(work + 0xC4), fclMakeVec2(980.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 8, 5);
         func_0033d520(*(u8 **)(work + 0xC4), 0.0f, -90.0f, 0, 0, 0);
         *(f32 *)(func_0033d310(*(void **)(work + 0xC4)) + 0xBC) = *(f32 *)(func_0033d310(*(void **)(work + 0xC4)) + 0xC0) =
             *(f32 *)(func_0033d310(*(void **)(work + 0xC4)) + 0xC4) = -90.0f;
@@ -801,9 +801,9 @@ s32 fclItemShopUpdate(u8 *arg0) {
             func_0033d3d0(*(void **)(work + j * 4 + 0x2C), 0x63);
             rowFont = sdkSpriteNewNode(*(void **)(work + 0xC), listIndex);
             func_0033d3e0(*(void **)(work + j * 4 + 0x2C),
-                          func_002b2970((sdkSpriteScaledWidth(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
+                          fclMakeVec2((sdkSpriteScaledWidth(rowFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
                                         (sdkSpriteScaledHeight(rowFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
-                          func_002b2970(coords[0], coords[1]), 0, 5, layer1);
+                          fclMakeVec2(coords[0], coords[1]), 0, 5, layer1);
             sdkSpriteFreeNode(rowFont);
         }
         func_0033d320(*(void **)(work + 0x18), 0, 0);
@@ -812,17 +812,17 @@ s32 fclItemShopUpdate(u8 *arg0) {
         func_0033d3d0(*(void **)(work + 0x18), 0x64);
         tbl = (F2_0033 *)D_0064A208;
         func_0033d320(*(void **)(work + 0xCC), 0, 0);
-        func_0033d3e0(*(void **)(work + 0xCC), func_002b2970(660.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 1, 0xA, 5);
+        func_0033d3e0(*(void **)(work + 0xCC), fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5);
         func_0033d3c0(*(void **)(work + 0xCC), 68.0f);
         func_0033d3d0(*(void **)(work + 0xCC), 0x5B);
         tbl = (F2_0033 *)D_0064A210;
         func_0033d320(*(void **)(work + 0xD0), 0, 0);
-        func_0033d3e0(*(void **)(work + 0xD0), func_002b2970(1064.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 1, 0xA, 5);
+        func_0033d3e0(*(void **)(work + 0xD0), fclMakeVec2(1064.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5);
         func_0033d3c0(*(void **)(work + 0xD0), 60.0f);
         func_0033d3d0(*(void **)(work + 0xD0), 0x5B);
         tbl = (F2_0033 *)D_0064A218;
         func_0033d320(*(void **)(work + 0xD4), 0, 0);
-        func_0033d3e0(*(void **)(work + 0xD4), func_002b2970(1064.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 1, 0xA, 5);
+        func_0033d3e0(*(void **)(work + 0xD4), fclMakeVec2(1064.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1, 0xA, 5);
         func_0033d3c0(*(void **)(work + 0xD4), 59.0f);
         func_0033d3d0(*(void **)(work + 0xD4), 0x5B);
         func_0033d320(*(void **)(work + 0x150), 0, 0);
@@ -831,23 +831,23 @@ s32 fclItemShopUpdate(u8 *arg0) {
         func_0033d3d0(*(void **)(work + 0x150), 0x5B);
         func_0033d320(*(void **)(work + 0x198), 0, 0);
         func_0033d4b0(*(void **)(work + 0x198), 0, 0xFF, 0, 0, 0xA);
-        func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f), func_002b2970(0x243, 185.0f), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0x198), 57.0f);
         *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
             (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
         func_0033d3d0(*(void **)(work + 0x198), 0x5B);
-        *(FclDrawColor *)(func_0033d310(*(void **)(work + 0x198)) + 0x79) = func_002b2a60(0x7E, 0, 8, 0xFF);
+        *(FclDrawColor *)(func_0033d310(*(void **)(work + 0x198)) + 0x79) = fclMakeDrawColor(0x7E, 0, 8, 0xFF);
         func_0033d320(*(void **)(work + 0x19C), 0, 0);
         func_0033d4b0(*(void **)(work + 0x19C), 0, 0xFF, 0, 0, 0xA);
-        func_0033d3e0(*(void **)(work + 0x19C), func_002b2970(552.0f, 185.0f), func_002b2970(552.0f, 185.0f), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0x19C), fclMakeVec2(552.0f, 185.0f), fclMakeVec2(552.0f, 185.0f), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0x19C), 57.0f);
         *(u16 *)(func_0033d310(*(void **)(work + 0x19C)) + 0xF8) =
             (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
         func_0033d3d0(*(void **)(work + 0x19C), 0x5B);
-        *(FclDrawColor *)(func_0033d310(*(void **)(work + 0x19C)) + 0x79) = func_002b2a60(0x7E, 0, 8, 0xFF);
+        *(FclDrawColor *)(func_0033d310(*(void **)(work + 0x19C)) + 0x79) = fclMakeDrawColor(0x7E, 0, 8, 0xFF);
         if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
             func_0033d320(*(void **)(work + 0x19C), 0, 1);
-            func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f), func_002b2970(0x243, 185.0f), 0, 0, 0);
+            func_0033d3e0(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
         }
         for (j = 0; j < 4; j++) {
             func_0033d320(*(void **)(work + j * 4 + 0x64), 0, 0);
@@ -858,24 +858,24 @@ s32 fclItemShopUpdate(u8 *arg0) {
         func_0033d320(*(void **)(work + 0x70), 0, 1);
         tbl = (F2_0033 *)D_0064A228;
         func_0033d320(*(void **)(work + 0xDC), 0, 1);
-        func_0033d3e0(*(void **)(work + 0xDC), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0xDC), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0xDC), 66.0f);
         func_0033d3d0(*(void **)(work + 0xDC), 0x5B);
         tbl = (F2_0033 *)D_0064A230;
         func_0033d320(*(void **)(work + 0xE0), 0, 1);
-        func_0033d3e0(*(void **)(work + 0xE0), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0xE0), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0xE0), 67.0f);
         func_0033d3d0(*(void **)(work + 0xE0), 0x5B);
         tbl = (F2_0033 *)D_0064A220;
         func_0033d320(*(void **)(work + 0xD8), 0, 1);
-        func_0033d3e0(*(void **)(work + 0xD8), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0xD8), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0xD8), 61.0f);
         func_0033d3d0(*(void **)(work + 0xD8), 0x5B);
         if (*(s8 *)(work + 0x424) == 1) {
             capFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x51);
             tbl = (F2_0033 *)D_0064A318;
             func_0033d320(*(void **)(work + 0x154), 0, 0);
-            func_0033d3e0(*(void **)(work + 0x154), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 0, 0);
+            func_0033d3e0(*(void **)(work + 0x154), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
             func_0033d520(*(u8 **)(work + 0x154), -90.0f, 0.0f, 0, 7, 0xA);
             func_0033d3c0(*(void **)(work + 0x154), 40.0f);
             func_0033d3d0(*(void **)(work + 0x154), 0x62);
@@ -886,7 +886,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
         if (*(s8 *)(work + 9) == 1) {
             tbl = (F2_0033 *)D_0064A340;
             func_0033d320(*(void **)(work + 0x168), 0, 0);
-            func_0033d3e0(*(void **)(work + 0x168), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 0, 0);
+            func_0033d3e0(*(void **)(work + 0x168), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
             func_0033d520(*(u8 **)(work + 0x168), 150.0f, 0.0f, 0, 0xA, 0x1B);
             *(s16 *)(func_0033d310(*(void **)(work + 0x168)) + 0x100) = 0x231 - tbl->x;
             *(s16 *)(func_0033d310(*(void **)(work + 0x168)) + 0x102) = 470.0f - tbl->y;
@@ -894,7 +894,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             func_0033d3d0(*(void **)(work + 0x168), 0x63);
             tbl = (F2_0033 *)D_0064A348;
             func_0033d320(*(void **)(work + 0x16C), 0, 0);
-            func_0033d3e0(*(void **)(work + 0x16C), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y), 0, 0, 0);
+            func_0033d3e0(*(void **)(work + 0x16C), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0, 0, 0);
             func_0033d4b0(*(void **)(work + 0x16C), 0xFF, 0x33, 0, 0x14, 0x34);
             func_0033d4e0(*(void **)(work + 0x16C), 0.0f, 1.0f, 0, 0, 0x25);
             *(f32 *)(func_0033d310(*(void **)(work + 0x16C)) + 0xC4) = 0.0f;
@@ -904,8 +904,8 @@ s32 fclItemShopUpdate(u8 *arg0) {
             tbl = (F2_0033 *)D_0064A350;
             func_0033d320(*(void **)(work + 0x170), 0, 0);
             func_0033d3e0(*(void **)(work + 0x170),
-                          func_002b2970(tbl->x + sdkSpriteScaledWidth(labelFont) / 2.0f, tbl->y + sdkSpriteScaledHeight(labelFont) / 2.0f),
-                          func_002b2970(tbl->x - 4.0f, tbl->y - 3.0f), 0, 5, 0x23);
+                          fclMakeVec2(tbl->x + sdkSpriteScaledWidth(labelFont) / 2.0f, tbl->y + sdkSpriteScaledHeight(labelFont) / 2.0f),
+                          fclMakeVec2(tbl->x - 4.0f, tbl->y - 3.0f), 0, 5, 0x23);
             func_0033d4e0(*(void **)(work + 0x170), 0.0f, 1.05f, 2, 5, 0x23);
             func_0033d4b0(*(void **)(work + 0x170), 0, 0xFF, 0, 0, 0x23);
             *(f32 *)(func_0033d310(*(void **)(work + 0x170)) + 0xC4) = 0.0f;
@@ -914,8 +914,8 @@ s32 fclItemShopUpdate(u8 *arg0) {
             sdkSpriteFreeNode(labelFont);
             tbl = (F2_0033 *)D_0064A358;
             func_0033d320(*(void **)(work + 0x174), 0, 0);
-            func_0033d420(*(u8 **)(work + 0x174), func_002b2970(0x113 + tbl->x, tbl->y),
-                          func_002b2970(tbl->x, tbl->y - 120.0f), 1, 0, 0xE, 0x20);
+            func_0033d420(*(u8 **)(work + 0x174), fclMakeVec2(0x113 + tbl->x, tbl->y),
+                          fclMakeVec2(tbl->x, tbl->y - 120.0f), 1, 0, 0xE, 0x20);
             *(f32 *)(func_0033d310(*(void **)(work + 0x174)) + 0xC4) = 0.0f;
             func_0033d3c0(*(void **)(work + 0x174), 9.0f);
             func_0033d3d0(*(void **)(work + 0x174), 0x64);
@@ -951,22 +951,22 @@ s32 fclItemShopUpdate(u8 *arg0) {
         *(s8 *)(work + 3) = 1;
         if (func_0033d390(*(void **)(work + 0x170), 4) == 0) {
             tbl = (F2_0033 *)D_0064A350;
-            *(F2_0033 *)(func_0033d310(*(void **)(work + 0x170)) + 0x2C) = func_002b2970(tbl->x, tbl->y);
+            *(F2_0033 *)(func_0033d310(*(void **)(work + 0x170)) + 0x2C) = fclMakeVec2(tbl->x, tbl->y);
             *(f32 *)(func_0033d310(*(void **)(work + 0x170)) + 0x94) = 1.0f;
             *(f32 *)(func_0033d310(*(void **)(work + 0x170)) + 0xA0) = 1.0f;
         }
         for (j = 0; j < 0x24; j++) {
-            *(u8 *)(work + j + 0x2B4) = func_002b2aa0(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
+            *(u8 *)(work + j + 0x2B4) = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
             if (*(s8 *)(work + j + 0x2D8) == 1) {
-                *(f32 *)(work + j * 4 + 0x2FC) = func_0033d630(func_002b2970(400.0f, 220.0f), (s16)(j * 10),
+                *(f32 *)(work + j * 4 + 0x2FC) = func_0033d630(fclMakeVec2(400.0f, 220.0f), (s16)(j * 10),
                                                                *(f32 *)(work + 0x2A8), *(u8 *)(work + j + 0x2B4), 0);
             }
         }
-        *(f32 *)(work + 0x2A8) = func_002b2aa0(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
-        *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
-        *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
+        *(f32 *)(work + 0x2A8) = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
+        *(s32 *)(work + 0x2AC) = fclAddClamped(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
+        *(s32 *)(work + 0x2B0) = fclAddClamped(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
         if (func_0033d390(*(void **)(work + 0xCC), 1) == 0) {
-            fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
+            fclShopDrawNumber(fclMakeVec2(0x253, 78.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF),
                           fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35, *(void **)(work + 0xC), 0xAB);
             fclItemShopDrawList(arg0);
             tbl = (F2_0033 *)D_0064A218;
@@ -980,7 +980,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
         if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
             func_0033d320(*(void **)(work + 0x19C), 0, 1);
-            func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f), func_002b2970(0x243, 185.0f), 0, 0, 0);
+            func_0033d3e0(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
         }
         if (func_0033d390(*(void **)(work + 0x158), 1) != 0 || func_0033d390(*(void **)(work + 0x158), 4) != 0 ||
             func_0033d390(*(void **)(work + 0xC8), 1) != 0 || func_0033d390(*(void **)(work + 0xC0), 1) != 0 ||
@@ -998,29 +998,29 @@ s32 fclItemShopUpdate(u8 *arg0) {
             sdkSndStartStream(0, 0, 0, 0);
             if (*(s16 *)(work + 4) == 0) {
                 *(s16 *)(work + 4) = func_002e26a0();
-                *(s16 *)(work + 6) = func_002b2cb0(0, *(s16 *)(work + 4), 4, 0, 1);
+                *(s16 *)(work + 6) = fclAddClamped(0, *(s16 *)(work + 4), 4, 0, 1);
             } else {
-                *(s16 *)(work + 4) = func_002b2d00(*(s16 *)(work + 4), 1, 0, (s16)yListCount(), 2);
+                *(s16 *)(work + 4) = fclSubClamped(*(s16 *)(work + 4), 1, 0, (s16)yListCount(), 2);
                 *(s16 *)(work + 6) =
-                    func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)yListCount(), 5, -1);
+                    yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)yListCount(), 5, -1);
             }
             *(s8 *)(work + 0x425) = 1;
         } else if (D_008C027A[0] & 0x1000) {
             if (*(s16 *)(work + 4) != 0) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            *(s16 *)(work + 4) = func_002b2d00(*(s16 *)(work + 4), 1, 0, 0, 1);
-            *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)yListCount(), 5, -1);
+            *(s16 *)(work + 4) = fclSubClamped(*(s16 *)(work + 4), 1, 0, 0, 1);
+            *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)yListCount(), 5, -1);
             *(s8 *)(work + 0x425) = 1;
         } else if ((D_008C0276[0] & 0x4000) && *(s8 *)(work + 0x425) == 0) {
             sdkSndStartStream(0, 0, 0, 0);
-            *(s16 *)(work + 4) = func_002b2cb0(*(s16 *)(work + 4), 1, func_002e26a0(), 0, 2);
+            *(s16 *)(work + 4) = fclAddClamped(*(s16 *)(work + 4), 1, func_002e26a0(), 0, 2);
             if (*(s16 *)(work + 4) == 0) {
                 *(s16 *)(work + 6) = 0;
             } else if (func_002e26a0() >= 5) {
-                *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(), 5, 1);
+                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(), 5, 1);
             } else {
-                *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(),
+                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(),
                                                    (s16)yListCount(), 1);
             }
             *(s8 *)(work + 0x425) = 1;
@@ -1028,11 +1028,11 @@ s32 fclItemShopUpdate(u8 *arg0) {
             if (*(s16 *)(work + 4) != func_002e26a0()) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            *(s16 *)(work + 4) = func_002b2cb0(*(s16 *)(work + 4), 1, func_002e26a0(), 0, 1);
+            *(s16 *)(work + 4) = fclAddClamped(*(s16 *)(work + 4), 1, func_002e26a0(), 0, 1);
             if (func_002e26a0() >= 5) {
-                *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(), 5, 1);
+                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(), 5, 1);
             } else {
-                *(s16 *)(work + 6) = func_002b2d50(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(),
+                *(s16 *)(work + 6) = yListStepIndex(*(s16 *)(work + 4), *(s16 *)(work + 6), (s16)func_002e26a0(),
                                                    (s16)yListCount(), 1);
             }
             *(s8 *)(work + 0x425) = 1;
@@ -1041,37 +1041,37 @@ s32 fclItemShopUpdate(u8 *arg0) {
                 if (*(s16 *)(work + 4) != func_002e26a0()) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
-                func_002b2e70(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);
+                yListAdvanceCursorScroll(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);
             } else if ((D_008C027A[0] & 4) || (D_008C027A[0] & 0x8000)) {
                 if (*(s16 *)(work + 4) != 0) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
-                func_002b2f90(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);
+                yListRetreatCursorScroll(*(s16 *)(work + 4), *(s16 *)(work + 6), yListCount(), 5, work + 4, work + 6);
             } else if (D_008C024E[0] & 0x40) {
                 if (fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) <= func_002e7a60() &&
                     (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) < 0x63) {
                     tbl = (F2_0033 *)D_0064A210;
                     func_0033d3e0(*(void **)(work + 0xD0),
-                                  func_002b2970(*(f32 *)(func_0033d310(*(void **)(work + 0xD0)) + 0x2C), tbl->y),
-                                  func_002b2970(tbl->x - 0x193, tbl->y), 0, 7, 0);
+                                  fclMakeVec2(*(f32 *)(func_0033d310(*(void **)(work + 0xD0)) + 0x2C), tbl->y),
+                                  fclMakeVec2(tbl->x - 0x193, tbl->y), 0, 7, 0);
                     tbl = (F2_0033 *)D_0064A218;
                     func_0033d3e0(*(void **)(work + 0xD4),
-                                  func_002b2970(*(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x2C),
+                                  fclMakeVec2(*(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x2C),
                                                 *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)),
-                                  func_002b2970(tbl->x - 0x193, *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)),
+                                  fclMakeVec2(tbl->x - 0x193, *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)),
                                   0, 7, 0);
                     tbl = (F2_0033 *)D_0064A328;
                     func_0033d320(*(void **)(work + 0x15C), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0x15C), func_002b2970(tbl->x, tbl->y),
-                                  func_002b2970(tbl->x, tbl->y - 7.0f), 1, 0xA, 7);
+                    func_0033d3e0(*(void **)(work + 0x15C), fclMakeVec2(tbl->x, tbl->y),
+                                  fclMakeVec2(tbl->x, tbl->y - 7.0f), 1, 0xA, 7);
                     func_0033d4b0(*(void **)(work + 0x15C), 0, 0xFF, 0, 0xA, 7);
                     func_0033d3c0(*(void **)(work + 0x15C), 54.0f);
                     func_0033d3d0(*(void **)(work + 0x15C), 0x5B);
                     *(s8 *)(func_0033d310(*(void **)(work + 0x15C)) + 0x3B) = 1;
                     tbl = (F2_0033 *)D_0064A330;
                     func_0033d320(*(void **)(work + 0x160), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0x160), func_002b2970(tbl->x, tbl->y),
-                                  func_002b2970(tbl->x, 7.0f + tbl->y), 1, 0xA, 7);
+                    func_0033d3e0(*(void **)(work + 0x160), fclMakeVec2(tbl->x, tbl->y),
+                                  fclMakeVec2(tbl->x, 7.0f + tbl->y), 1, 0xA, 7);
                     func_0033d4b0(*(void **)(work + 0x160), 0, 0xFF, 0, 0xA, 7);
                     func_0033d3c0(*(void **)(work + 0x160), 55.0f);
                     func_0033d3d0(*(void **)(work + 0x160), 0x5B);
@@ -1102,25 +1102,25 @@ s32 fclItemShopUpdate(u8 *arg0) {
                     func_0033d4e0(*(void **)(work + 0x158), 1.0f, 0.6f, 0, 5, 0);
                     func_0033d3c0(*(void **)(work + 0x158), 45.0f);
                     cardFont = sdkSpriteNewNode(*(void **)(work + 0xC), 0x52);
-                    func_0033d3e0(*(void **)(work + 0x158), func_002b2970(tbl->x, tbl->y),
-                                  func_002b2970((sdkSpriteScaledWidth(cardFont) / 10.0f) * 2.0f + tbl->x + 0.0f,
+                    func_0033d3e0(*(void **)(work + 0x158), fclMakeVec2(tbl->x, tbl->y),
+                                  fclMakeVec2((sdkSpriteScaledWidth(cardFont) / 10.0f) * 2.0f + tbl->x + 0.0f,
                                                 (sdkSpriteScaledHeight(cardFont) / 10.0f) * 2.0f + tbl->y + 0.0f),
                                   0, 5, 0);
                     sdkSpriteFreeNode(cardFont);
                     tbl = (F2_0033 *)D_0064A200;
                     func_0033d320(*(void **)(work + 0xC8), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0xC8), func_002b2970(tbl->x, tbl->y), func_002b2970(660.0f, tbl->y), 0,
+                    func_0033d3e0(*(void **)(work + 0xC8), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0,
                                   0xF, 0);
                     func_0033d3c0(*(void **)(work + 0xC8), 42.0f);
                     tbl = (F2_0033 *)D_0064A1F0;
                     func_0033d320(*(void **)(work + 0xC0), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0xC0), func_002b2970(tbl->x, tbl->y), func_002b2970(660.0f, tbl->y), 0,
+                    func_0033d3e0(*(void **)(work + 0xC0), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0,
                                   0xC, 0);
                     func_0033d3c0(*(void **)(work + 0xC0), 43.0f);
                     tbl = (F2_0033 *)D_0064A1F8;
                     func_0033d320(*(void **)(work + 0xC4), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0xC4), func_002b2970(tbl->x, tbl->y),
-                                  func_002b2970(320.0f + tbl->x, tbl->y), 0, 0xC, 0);
+                    func_0033d3e0(*(void **)(work + 0xC4), fclMakeVec2(tbl->x, tbl->y),
+                                  fclMakeVec2(320.0f + tbl->x, tbl->y), 0, 0xC, 0);
                     func_0033d3c0(*(void **)(work + 0xC4), 44.0f);
                     for (j = 0; j < 4; j++) {
                         layer2 = (s16)(j * 2);
@@ -1130,8 +1130,8 @@ s32 fclItemShopUpdate(u8 *arg0) {
                         func_0033d4b0(*(void **)(work + j * 4 + 0x2C), 0xFF, 0, 0, 4, layer2);
                         func_0033d3c0(*(void **)(work + j * 4 + 0x2C), (f32)(j + 0x1A));
                         font = sdkSpriteNewNode(*(void **)(work + 0xC), cardIndex);
-                        func_0033d3e0(*(void **)(work + j * 4 + 0x2C), func_002b2970(coords[0], coords[1]),
-                                      func_002b2970((sdkSpriteScaledWidth(font) / 10.0f) * 1.5f + coords[0] + 0.0f,
+                        func_0033d3e0(*(void **)(work + j * 4 + 0x2C), fclMakeVec2(coords[0], coords[1]),
+                                      fclMakeVec2((sdkSpriteScaledWidth(font) / 10.0f) * 1.5f + coords[0] + 0.0f,
                                                     (sdkSpriteScaledHeight(font) / 10.0f) * 1.5f + coords[1] + 0.0f),
                                       0, 4, layer2);
                         sdkSpriteFreeNode(font);
@@ -1141,32 +1141,32 @@ s32 fclItemShopUpdate(u8 *arg0) {
                     func_0033d3c0(*(void **)(work + 0x18), 21.0f);
                     tbl = (F2_0033 *)D_0064A208;
                     func_0033d320(*(void **)(work + 0xCC), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0xCC), func_002b2970(tbl->x, tbl->y), func_002b2970(660.0f, tbl->y), 0,
+                    func_0033d3e0(*(void **)(work + 0xCC), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(660.0f, tbl->y), 0,
                                   0xA, 0);
                     func_0033d3c0(*(void **)(work + 0xCC), 68.0f);
                     tbl = (F2_0033 *)D_0064A210;
                     func_0033d320(*(void **)(work + 0xD0), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0xD0), func_002b2970(tbl->x, tbl->y), func_002b2970(1064.0f, tbl->y), 0,
+                    func_0033d3e0(*(void **)(work + 0xD0), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(1064.0f, tbl->y), 0,
                                   0xA, 0);
                     func_0033d3c0(*(void **)(work + 0xD0), 60.0f);
                     tbl = (F2_0033 *)D_0064A218;
                     func_0033d320(*(void **)(work + 0xD4), 0, 0);
                     func_0033d3e0(*(void **)(work + 0xD4),
-                                  func_002b2970(tbl->x, *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)),
-                                  func_002b2970(1064.0f, *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)), 0, 0xA,
+                                  fclMakeVec2(tbl->x, *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)),
+                                  fclMakeVec2(1064.0f, *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)), 0, 0xA,
                                   0);
                     func_0033d3c0(*(void **)(work + 0xD4), 59.0f);
                     func_0033d4b0(*(void **)(work + 0x150), 0xFF, 0, 0, 0, 5);
                     func_0033d3c0(*(void **)(work + 0x150), 56.0f);
                     func_0033d320(*(void **)(work + 0x198), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f), func_002b2970(0x243, 185.0f), 0,
+                    func_0033d3e0(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0,
                                   0, 0);
                     func_0033d4b0(*(void **)(work + 0x198), 0xFF, 0, 0, 0, 5);
                     func_0033d3c0(*(void **)(work + 0x198), 57.0f);
                     *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
                         (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
                     func_0033d320(*(void **)(work + 0x19C), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0x19C), func_002b2970(552.0f, 185.0f), func_002b2970(552.0f, 185.0f), 0,
+                    func_0033d3e0(*(void **)(work + 0x19C), fclMakeVec2(552.0f, 185.0f), fclMakeVec2(552.0f, 185.0f), 0,
                                   0, 0);
                     func_0033d4b0(*(void **)(work + 0x19C), 0xFF, 0, 0, 0, 5);
                     func_0033d3c0(*(void **)(work + 0x19C), 57.0f);
@@ -1174,8 +1174,8 @@ s32 fclItemShopUpdate(u8 *arg0) {
                         (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
                     if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
                         func_0033d320(*(void **)(work + 0x19C), 0, 1);
-                        func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f),
-                                      func_002b2970(0x243, 185.0f), 0, 0, 0);
+                        func_0033d3e0(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f),
+                                      fclMakeVec2(0x243, 185.0f), 0, 0, 0);
                     }
                     for (j = 0; j < 4; j++) {
                         func_0033d4b0(*(void **)(work + j * 4 + 0x64), 0xFF, 0, 0, 5, 0);
@@ -1183,13 +1183,13 @@ s32 fclItemShopUpdate(u8 *arg0) {
                     }
                     if (*(s8 *)(work + 2) == 1) {
                         tbl = (F2_0033 *)D_0064A228;
-                        func_0033d3e0(*(void **)(work + 0xDC), func_002b2970(tbl->x, tbl->y), func_002b2970(0x2A3, tbl->y),
+                        func_0033d3e0(*(void **)(work + 0xDC), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(0x2A3, tbl->y),
                                       0, 0xA, 0);
                         tbl = (F2_0033 *)D_0064A230;
-                        func_0033d3e0(*(void **)(work + 0xE0), func_002b2970(tbl->x, tbl->y), func_002b2970(0x413, tbl->y),
+                        func_0033d3e0(*(void **)(work + 0xE0), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(0x413, tbl->y),
                                       0, 0xA, 0);
                         tbl = (F2_0033 *)D_0064A220;
-                        func_0033d3e0(*(void **)(work + 0xD8), func_002b2970(tbl->x, tbl->y), func_002b2970(0x2AD, tbl->y),
+                        func_0033d3e0(*(void **)(work + 0xD8), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(0x2AD, tbl->y),
                                       0, 0xA, 0);
                     }
                     func_0033d320(*(void **)(work + 0x120), 0, 1);
@@ -1212,46 +1212,46 @@ s32 fclItemShopUpdate(u8 *arg0) {
                         *(s16 *)(func_0033d310(*(void **)(work + 0x174)) + 0x102) = 470.0f - tbl->y;
                         func_0033d520(*(u8 **)(work + 0x174), 0.0f, -30.0f, 0, 2, 0);
                         func_0033d420(*(u8 **)(work + 0x174), *(F2_0033 *)(func_0033d310(*(void **)(work + 0x174)) + 0x2C),
-                                      func_002b2970(-300.0f + tbl->x, 250.0f + tbl->y), 0, 2, 0x14, 1);
+                                      fclMakeVec2(-300.0f + tbl->x, 250.0f + tbl->y), 0, 2, 0x14, 1);
                     }
                     *(s32 *)(work + 0x2B0) = 0;
                     func_0033d320(*(void **)(work + 0x10), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0x10), func_002b2970(428.0f, 241.0f),
-                                  func_002b2970(D_0064A090[0], D_0064A090[1]), 0, 0xF, 5);
+                    func_0033d3e0(*(void **)(work + 0x10), fclMakeVec2(428.0f, 241.0f),
+                                  fclMakeVec2(D_0064A090[0], D_0064A090[1]), 0, 0xF, 5);
                     func_0033d520(*(u8 **)(work + 0x10), 720.0f, 0.0f, 0, 0xF, 5);
                     tbl = (F2_0033 *)D_0064A1D8;
                     func_0033d320(*(void **)(work + 0xB4), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0xB4), func_002b2970(-180.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 0,
+                    func_0033d3e0(*(void **)(work + 0xB4), fclMakeVec2(-180.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0xF, 0xC);
                     func_0033d3c0(*(void **)(work + 0xB4), 47.0f);
                     tbl = (F2_0033 *)D_0064A1E0;
                     func_0033d320(*(void **)(work + 0xB8), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0xB8), func_002b2970(-200.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 1,
+                    func_0033d3e0(*(void **)(work + 0xB8), fclMakeVec2(-200.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 1,
                                   9, 0xC);
                     func_0033d3c0(*(void **)(work + 0xB8), 33.0f);
                     tbl = (F2_0033 *)D_0064A1E8;
                     func_0033d320(*(void **)(work + 0xBC), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0xBC), func_002b2970(-50.0f, tbl->y), func_002b2970(153.0f, tbl->y), 0,
+                    func_0033d3e0(*(void **)(work + 0xBC), fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(153.0f, tbl->y), 0,
                                   0xF, 0x18);
                     func_0033d3c0(*(void **)(work + 0xBC), 48.0f);
                     func_0033d320(*(void **)(work + 0x178), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0x178), func_002b2970(-50.0f, tbl->y), func_002b2970(203.0f, tbl->y), 0,
+                    func_0033d3e0(*(void **)(work + 0x178), fclMakeVec2(-50.0f, tbl->y), fclMakeVec2(203.0f, tbl->y), 0,
                                   0xF, 0x18);
                     func_0033d3c0(*(void **)(work + 0x178), 48.0f);
                     tbl = (F2_0033 *)D_0064A0E8;
                     func_0033d320(*(void **)(work + 0x3C), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0x3C), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y), 0,
+                    func_0033d3e0(*(void **)(work + 0x3C), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0, 0);
                     func_0033d4b0(*(void **)(work + 0x3C), 0, 0xFF, 0, 0xF, 0x25);
                     func_0033d3c0(*(void **)(work + 0x3C), 46.0f);
                     tbl = (F2_0033 *)D_0064A290;
                     func_0033d320(*(void **)(work + 0x110), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0x110), func_002b2970(660.0f, tbl->y), func_002b2970(tbl->x, tbl->y), 0,
+                    func_0033d3e0(*(void **)(work + 0x110), fclMakeVec2(660.0f, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0x14, 0xC);
                     func_0033d3c0(*(void **)(work + 0x110), 17.0f);
                     tbl = (F2_0033 *)D_0064A298;
                     func_0033d320(*(void **)(work + 0x114), 0, 0);
-                    func_0033d3e0(*(void **)(work + 0x114), func_002b2970(0x305, tbl->y), func_002b2970(tbl->x, tbl->y), 0,
+                    func_0033d3e0(*(void **)(work + 0x114), fclMakeVec2(0x305, tbl->y), fclMakeVec2(tbl->x, tbl->y), 0,
                                   0x14, 0xC);
                     func_0033d3c0(*(void **)(work + 0x114), 17.0f);
                     for (i16 = 0; i16 < 4; i16++) {
@@ -1265,9 +1265,9 @@ s32 fclItemShopUpdate(u8 *arg0) {
                         func_0033d3c0(*(void **)(work + i16 * 4 + 0x1C), (f32)(i16 + 0x1A));
                         iconFont = sdkSpriteNewNode(*(void **)(work + 0xC), index);
                         func_0033d3e0(*(void **)(work + i16 * 4 + 0x1C),
-                                      func_002b2970((sdkSpriteScaledWidth(iconFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
+                                      fclMakeVec2((sdkSpriteScaledWidth(iconFont) / 10.0f) * 1.5f + coords[0] + 0.0f,
                                                     (sdkSpriteScaledHeight(iconFont) / 10.0f) * 1.5f + coords[1] + 0.0f),
-                                      func_002b2970(coords[0], coords[1]), 0, 4, layer3);
+                                      fclMakeVec2(coords[0], coords[1]), 0, 4, layer3);
                         sdkSpriteFreeNode(iconFont);
                     }
                     func_0033d320(*(void **)(work + 0x14), 0, 0);
@@ -1293,14 +1293,14 @@ s32 fclItemShopUpdate(u8 *arg0) {
                     func_0033d320(*(void **)(work + 0x118), 0, 0);
                     func_0033d4b0(*(void **)(work + 0x118), 0, 0xFF, 0, 0xA, 0x14);
                     func_0033d3c0(*(void **)(work + 0x118), 82.0f);
-                    func_0033d3e0(*(void **)(work + 0x118), func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
-                                  func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
+                    func_0033d3e0(*(void **)(work + 0x118), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
+                                  fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
                     tbl = (F2_0033 *)D_0064A2A8;
                     func_0033d320(*(void **)(work + 0x11C), 0, 0);
                     func_0033d4b0(*(void **)(work + 0x11C), 0, 0xFF, 0, 0xA, 0x14);
                     func_0033d3c0(*(void **)(work + 0x11C), 83.0f);
-                    func_0033d3e0(*(void **)(work + 0x11C), func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
-                                  func_002b2970(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
+                    func_0033d3e0(*(void **)(work + 0x11C), fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)),
+                                  fclMakeVec2(tbl->x, tbl->y + (f32)(*(s8 *)(work + 1) * 30)), 0, 0, 0);
                     for (j = 0; j < 6; j++) {
                         func_0033d320(*(void **)(work + j * 4 + 0x40), 0, 1);
                         func_0033d4b0(*(void **)(work + j * 4 + 0x40), 0, 0xFF, 0, 0xA, 0x14);
@@ -1320,16 +1320,16 @@ s32 fclItemShopUpdate(u8 *arg0) {
         break;
     case 12:
         for (j = 0; j < 0x24; j++) {
-            *(u8 *)(work + j + 0x2B4) = func_002b2aa0(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
+            *(u8 *)(work + j + 0x2B4) = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
             if (*(s8 *)(work + j + 0x2D8) == 1) {
-                *(f32 *)(work + j * 4 + 0x2FC) = func_0033d630(func_002b2970(400.0f, 220.0f), (s16)(j * 10),
+                *(f32 *)(work + j * 4 + 0x2FC) = func_0033d630(fclMakeVec2(400.0f, 220.0f), (s16)(j * 10),
                                                                *(f32 *)(work + 0x2A8), *(u8 *)(work + j + 0x2B4), 0);
             }
         }
-        *(f32 *)(work + 0x2A8) = func_002b2aa0(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
-        *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
-        *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
-        fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
+        *(f32 *)(work + 0x2A8) = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
+        *(s32 *)(work + 0x2AC) = fclAddClamped(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
+        *(s32 *)(work + 0x2B0) = fclAddClamped(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
+        fclShopDrawNumber(fclMakeVec2(0x253, 78.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF),
                       *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
                       *(void **)(work + 0xC), 0xAB);
         fclItemShopDrawList(arg0);
@@ -1340,30 +1340,30 @@ s32 fclItemShopUpdate(u8 *arg0) {
             (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
         if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
             func_0033d320(*(void **)(work + 0x19C), 0, 1);
-            func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f), func_002b2970(0x243, 185.0f), 0, 0, 0);
+            func_0033d3e0(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0, 0);
         }
         if (func_0033d390(*(void **)(work + 0xD0), 1) != 0) {
             break;
         }
         func_0033d320(*(void **)(work + 0x1A0), 0, 0);
-        func_0033d3e0(*(void **)(work + 0x1A0), func_002b2970(0x167, 134.0f), func_002b2970(0x167, 134.0f), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0x1A0), fclMakeVec2(0x167, 134.0f), fclMakeVec2(0x167, 134.0f), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0x1A0), 57.0f);
         *(u16 *)(func_0033d310(*(void **)(work + 0x1A0)) + 0xF8) = *(s8 *)(work + 3) % 10 + 0x46;
         func_0033d3d0(*(void **)(work + 0x1A0), 0x61);
         func_0033d320(*(void **)(work + 0x1A4), 0, 0);
-        func_0033d3e0(*(void **)(work + 0x1A4), func_002b2970(332.0f, 134.0f), func_002b2970(332.0f, 134.0f), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0x1A4), fclMakeVec2(332.0f, 134.0f), fclMakeVec2(332.0f, 134.0f), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0x1A4), 57.0f);
         *(u16 *)(func_0033d310(*(void **)(work + 0x1A4)) + 0xF8) = *(s8 *)(work + 3) / 10 + 0x46;
         func_0033d3d0(*(void **)(work + 0x1A4), 0x61);
         if (*(s8 *)(work + 3) / 10 == 0) {
             func_0033d320(*(void **)(work + 0x1A4), 0, 1);
-            func_0033d3e0(*(void **)(work + 0x1A0), func_002b2970(346.0f, 134.0f), func_002b2970(346.0f, 134.0f), 0, 0, 0);
+            func_0033d3e0(*(void **)(work + 0x1A0), fclMakeVec2(346.0f, 134.0f), fclMakeVec2(346.0f, 134.0f), 0, 0, 0);
         }
         func_0033d320(*(void **)(work + 0xA0), 0, 0);
-        func_0033d3e0(*(void **)(work + 0xA0), func_002b2970(45.0f, 133.0f), func_002b2970(45.0f, 133.0f), 0, 0, 0);
+        func_0033d3e0(*(void **)(work + 0xA0), fclMakeVec2(45.0f, 133.0f), fclMakeVec2(45.0f, 133.0f), 0, 0, 0);
         func_0033d3c0(*(void **)(work + 0xA0), 53.0f);
         func_0033d3d0(*(void **)(work + 0xA0), 0x61);
-        frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
+        frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
                       datGetItemNameId((s16)yListValueAt(*(s16 *)(work + 4))), 0, 0, D_007950B0);
         if (D_008C024E[0] & 0x40) {
             sdkSndStartStream(0, 0, 0, 1);
@@ -1381,53 +1381,53 @@ s32 fclItemShopUpdate(u8 *arg0) {
             if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))))) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            *(s8 *)(work + 3) = func_002b2cb0(*(s8 *)(work + 3), 1,
+            *(s8 *)(work + 3) = fclAddClamped(*(s8 *)(work + 3), 1,
                                               (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
             if (*(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) > func_002e7a60()) {
                 *(s8 *)(work + 3) = func_002e7a60() / fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4)));
             }
             tbl = (F2_0033 *)D_0064A328;
-            func_0033d3e0(*(void **)(work + 0x15C), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y - 7.0f), 1,
+            func_0033d3e0(*(void **)(work + 0x15C), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y - 7.0f), 1,
                           0xA, 0);
         } else if (D_008C027A[0] & 0x4000) {
             if (*(s8 *)(work + 3) != 1) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            *(s8 *)(work + 3) = func_002b2d00(*(s8 *)(work + 3), 1, 1, 0x63, 1);
+            *(s8 *)(work + 3) = fclSubClamped(*(s8 *)(work + 3), 1, 1, 0x63, 1);
             tbl = (F2_0033 *)D_0064A330;
-            func_0033d3e0(*(void **)(work + 0x160), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, 7.0f + tbl->y), 1,
+            func_0033d3e0(*(void **)(work + 0x160), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, 7.0f + tbl->y), 1,
                           0xA, 0);
         } else if (D_008C027A[0] & 0x2000) {
             if (*(s8 *)(work + 3) != (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))))) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            *(s8 *)(work + 3) = func_002b2cb0(*(s8 *)(work + 3), 0xA,
+            *(s8 *)(work + 3) = fclAddClamped(*(s8 *)(work + 3), 0xA,
                                               (s16)(0x63 - (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))), 0, 1);
             if (*(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))) > func_002e7a60()) {
                 *(s8 *)(work + 3) = func_002e7a60() / fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4)));
             }
             tbl = (F2_0033 *)D_0064A328;
-            func_0033d3e0(*(void **)(work + 0x15C), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, tbl->y - 7.0f), 1,
+            func_0033d3e0(*(void **)(work + 0x15C), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, tbl->y - 7.0f), 1,
                           0xA, 0);
         } else if (D_008C027A[0] & 0x8000) {
             if (*(s8 *)(work + 3) != 1) {
                 sdkSndStartStream(0, 0, 0, 0);
             }
-            *(s8 *)(work + 3) = func_002b2d00(*(s8 *)(work + 3), 0xA, 1, 0x63, 1);
+            *(s8 *)(work + 3) = fclSubClamped(*(s8 *)(work + 3), 0xA, 1, 0x63, 1);
             tbl = (F2_0033 *)D_0064A330;
-            func_0033d3e0(*(void **)(work + 0x160), func_002b2970(tbl->x, tbl->y), func_002b2970(tbl->x, 7.0f + tbl->y), 1,
+            func_0033d3e0(*(void **)(work + 0x160), fclMakeVec2(tbl->x, tbl->y), fclMakeVec2(tbl->x, 7.0f + tbl->y), 1,
                           0xA, 0);
         } else if (D_008C024E[0] & 0x20) {
             sdkSndStartStream(0, 0, 0, 2);
             tbl = (F2_0033 *)D_0064A210;
             func_0033d3e0(*(void **)(work + 0xD0),
-                          func_002b2970(*(f32 *)(func_0033d310(*(void **)(work + 0xD0)) + 0x2C), tbl->y),
-                          func_002b2970(tbl->x, tbl->y), 0, 7, 0);
+                          fclMakeVec2(*(f32 *)(func_0033d310(*(void **)(work + 0xD0)) + 0x2C), tbl->y),
+                          fclMakeVec2(tbl->x, tbl->y), 0, 7, 0);
             tbl = (F2_0033 *)D_0064A218;
             func_0033d3e0(*(void **)(work + 0xD4),
-                          func_002b2970(*(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x2C),
+                          fclMakeVec2(*(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x2C),
                                         *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)),
-                          func_002b2970(tbl->x, *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)), 0, 7, 0);
+                          fclMakeVec2(tbl->x, *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)), 0, 7, 0);
             *(s8 *)(work + 0) = 0xB;
             func_0033d320(*(void **)(work + 0x15C), 0, 1);
             func_0033d320(*(void **)(work + 0x160), 0, 1);
@@ -1438,20 +1438,20 @@ s32 fclItemShopUpdate(u8 *arg0) {
         break;
     case 13:
         for (i34 = 0; i34 < 0x24; i34++) {
-            *(u8 *)(work + i34 + 0x2B4) = func_002b2aa0(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
+            *(u8 *)(work + i34 + 0x2B4) = fclEaseInterpolate(0, 0.0f, 255.0f, (f32)*(s32 *)(work + 0x2B0), 15.0f);
             if (*(s8 *)(work + i34 + 0x2D8) == 1) {
-                *(f32 *)(work + i34 * 4 + 0x2FC) = func_0033d630(func_002b2970(400.0f, 220.0f), (s16)(i34 * 10),
+                *(f32 *)(work + i34 * 4 + 0x2FC) = func_0033d630(fclMakeVec2(400.0f, 220.0f), (s16)(i34 * 10),
                                                                *(f32 *)(work + 0x2A8), *(u8 *)(work + i34 + 0x2B4), 0);
             }
         }
-        *(f32 *)(work + 0x2A8) = func_002b2aa0(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
-        *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
-        *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
-        fclShopDrawNumber(func_002b2970(0x253, 78.0f), 1.0f, func_002b2a60(0xFF, 0xFF, 0xFF, 0xFF),
+        *(f32 *)(work + 0x2A8) = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
+        *(s32 *)(work + 0x2AC) = fclAddClamped(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
+        *(s32 *)(work + 0x2B0) = fclAddClamped(*(s32 *)(work + 0x2B0), 1, 0xF, 1, 1);
+        fclShopDrawNumber(fclMakeVec2(0x253, 78.0f), 1.0f, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF),
                       *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(work + 4))), 0x35,
                       *(void **)(work + 0xC), 0xAB);
         fclItemShopDrawList(arg0);
-        frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
+        frFontExDrawTextDeferred(82.0f, 132.0f, 58.0f, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF), 0, 1,
                       datGetItemNameId((s16)yListValueAt(*(s16 *)(work + 4))), 0, 0, D_00795E60);
         if (nmMesWindowSlotStatus(*(s8 *)(work + 8)) != 0) {
             nmMesWindowStepSlotRelease(*(s8 *)(work + 8));
@@ -1463,7 +1463,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
                           (u8)(*(s8 *)(work + 3) + (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4)))));
             func_002e7a80(func_002e7a60() -
                           *(s8 *)(work + 3) * fclItemShopDiscountedPrice(arg0, (s16)yListValueAt(*(s16 *)(work + 4))));
-            *(f32 *)(work + 0x1E0) = 580.0f - 21.0f * (f32)func_002b3170(func_002e7a60()) + 0.0f;
+            *(f32 *)(work + 0x1E0) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(func_002e7a60()) + 0.0f;
             *(u16 *)(func_0033d310(*(void **)(work + 0x198)) + 0xF8) =
                 (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) % 10 + 0x46;
             func_0033d320(*(void **)(work + 0x19C), 0, 0);
@@ -1471,18 +1471,18 @@ s32 fclItemShopUpdate(u8 *arg0) {
                 (u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 + 0x46;
             if ((u8)func_00106600((s16)yListValueAt(*(s16 *)(work + 4))) / 10 == 0) {
                 func_0033d320(*(void **)(work + 0x19C), 0, 1);
-                func_0033d3e0(*(void **)(work + 0x198), func_002b2970(0x243, 185.0f), func_002b2970(0x243, 185.0f), 0, 0,
+                func_0033d3e0(*(void **)(work + 0x198), fclMakeVec2(0x243, 185.0f), fclMakeVec2(0x243, 185.0f), 0, 0,
                               0);
             }
             tbl = (F2_0033 *)D_0064A210;
             func_0033d3e0(*(void **)(work + 0xD0),
-                          func_002b2970(*(f32 *)(func_0033d310(*(void **)(work + 0xD0)) + 0x2C), tbl->y),
-                          func_002b2970(tbl->x, tbl->y), 0, 7, 0);
+                          fclMakeVec2(*(f32 *)(func_0033d310(*(void **)(work + 0xD0)) + 0x2C), tbl->y),
+                          fclMakeVec2(tbl->x, tbl->y), 0, 7, 0);
             tbl = (F2_0033 *)D_0064A218;
             func_0033d3e0(*(void **)(work + 0xD4),
-                          func_002b2970(*(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x2C),
+                          fclMakeVec2(*(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x2C),
                                         *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)),
-                          func_002b2970(tbl->x, *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)), 0, 7, 0);
+                          fclMakeVec2(tbl->x, *(f32 *)(func_0033d310(*(void **)(work + 0xD4)) + 0x30)), 0, 7, 0);
             *(s8 *)(work + 0) = 0xB;
             func_0033d320(*(void **)(work + 0x15C), 0, 1);
             func_0033d320(*(void **)(work + 0x160), 0, 1);
@@ -1495,15 +1495,15 @@ s32 fclItemShopUpdate(u8 *arg0) {
         break;
     case 14:
         for (i35 = 0; i35 < 0x24; i35++) {
-            *(u8 *)(work + i35 + 0x2B4) = func_002b2aa0(0, 255.0f, 0.0f, (f32)*(s32 *)(work + 0x2B0), 5.0f);
+            *(u8 *)(work + i35 + 0x2B4) = fclEaseInterpolate(0, 255.0f, 0.0f, (f32)*(s32 *)(work + 0x2B0), 5.0f);
             if (*(s8 *)(work + i35 + 0x2D8) == 1) {
-                *(f32 *)(work + i35 * 4 + 0x2FC) = func_0033d630(func_002b2970(400.0f, 220.0f), (s16)(i35 * 10),
+                *(f32 *)(work + i35 * 4 + 0x2FC) = func_0033d630(fclMakeVec2(400.0f, 220.0f), (s16)(i35 * 10),
                                                                *(f32 *)(work + 0x2A8), *(u8 *)(work + i35 + 0x2B4), 0);
             }
         }
-        *(f32 *)(work + 0x2A8) = func_002b2aa0(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
-        *(s32 *)(work + 0x2AC) = func_002b2cb0(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
-        *(s32 *)(work + 0x2B0) = func_002b2cb0(*(s32 *)(work + 0x2B0), 1, 5, 1, 1);
+        *(f32 *)(work + 0x2A8) = fclEaseInterpolate(0, 0.0f, 360.0f, (f32)*(s32 *)(work + 0x2AC), 1000.0f);
+        *(s32 *)(work + 0x2AC) = fclAddClamped(*(s32 *)(work + 0x2AC), 1, 1000, 1, 2);
+        *(s32 *)(work + 0x2B0) = fclAddClamped(*(s32 *)(work + 0x2B0), 1, 5, 1, 1);
         if (func_0033d390(*(void **)(work + 0x10), 1) == 0 && func_0033d390(*(void **)(work + 0x10), 3) == 0 &&
             func_0033d390(*(void **)(work + 0xB4), 1) == 0 && func_0033d390(*(void **)(work + 0xB8), 1) == 0 &&
             func_0033d390(*(void **)(work + 0x110), 1) == 0 && func_0033d390(*(void **)(work + 0x114), 1) == 0 &&
@@ -1522,13 +1522,13 @@ s32 fclItemShopUpdate(u8 *arg0) {
             *(s8 *)(work + 0) = 5;
         } else if (func_0033d390(*(void **)(work + 0x10), 1) != 0 && (D_008C024E[0] & 0x20)) {
             sdkSndStartStream(0, 0, 0, 2);
-            *(f32 *)(work + 0x1D0) = 580.0f - 21.0f * (f32)func_002b3170(func_002e7a60()) + 0.0f;
+            *(f32 *)(work + 0x1D0) = 580.0f - 21.0f * (f32)fclDecimalDigitCount(func_002e7a60()) + 0.0f;
             *(f32 *)(work + 0x1D4) = 15.0f;
             *(f32 *)(work + 0x1D8) = 0x28A;
             *(f32 *)(work + 0x1DC) = 15.0f;
             *(s16 *)(work + 0x1EA) = 0;
             func_0033d3e0(*(void **)(work + 0x10), *(F2_0033 *)(func_0033d310(*(void **)(work + 0x10)) + 0x2C),
-                          func_002b2970(0x28A, *(f32 *)(func_0033d310(*(void **)(work + 0x10)) + 0x30)), 0, 0xA, 0);
+                          fclMakeVec2(0x28A, *(f32 *)(func_0033d310(*(void **)(work + 0x10)) + 0x30)), 0, 0xA, 0);
             func_0033d520(*(u8 **)(work + 0x10), *(f32 *)(func_0033d310(*(void **)(work + 0x10)) + 0xC4),
                           *(f32 *)(func_0033d310(*(void **)(work + 0x10)) + 0xBC), 0, 0xA, 0);
             func_0033d550(*(void **)(work + 0xB4));
@@ -1595,8 +1595,8 @@ s32 fclItemShopUpdate(u8 *arg0) {
         break;
     case 17:
         *(f32 *)(work + 0x1E0) =
-            func_002b2aa0(0, *(f32 *)(work + 0x1D0), *(f32 *)(work + 0x1D8), *(s16 *)(work + 0x1EA), 10.0f);
-        *(s16 *)(work + 0x1EA) = func_002b2cb0(*(s16 *)(work + 0x1EA), 1, 10, 1, 1);
+            fclEaseInterpolate(0, *(f32 *)(work + 0x1D0), *(f32 *)(work + 0x1D8), *(s16 *)(work + 0x1EA), 10.0f);
+        *(s16 *)(work + 0x1EA) = fclAddClamped(*(s16 *)(work + 0x1EA), 1, 10, 1, 1);
         for (j = 0; j < 4; j++) {
             *(f32 *)(func_0033d310(*(void **)(work + j * 4 + 0x188)) + 0xC4) = 0.01f;
         }
@@ -1634,7 +1634,7 @@ s32 fclItemShopUpdate(u8 *arg0) {
             func_0033d3d0(*(void **)(work + i42 * 4 + 0x188), 0x64);
         }
         func_0033d320(*(void **)(work + 0x10), 0, 0);
-        func_0033d3e0(*(void **)(work + 0x10), func_002b2970(D_0064A090[0], D_0064A090[1]), func_002b2970(0x28A, 241.0f),
+        func_0033d3e0(*(void **)(work + 0x10), fclMakeVec2(D_0064A090[0], D_0064A090[1]), fclMakeVec2(0x28A, 241.0f),
                       0, 0xA, 0);
         func_0033d520(*(u8 **)(work + 0x10), -720.0f, 0.0f, 0, 0xA, 0);
         func_0033d3d0(*(void **)(work + 0x10), 0x62);
@@ -1744,10 +1744,10 @@ void func_0033bf90(u8 *arg0) {
         func_0033d4b0((void *)*(s32 *)item, 0xFF, 0, 0, 10, layer);
         func_0033d3d0((void *)*(s32 *)item, 0xAC);
         font = sdkSpriteNewNode((void *)*(s32 *)(work + 0xC), item_index);
-        pos0 = func_002b2970(coords[0], coords[1]);
+        pos0 = fclMakeVec2(coords[0], coords[1]);
         x = (sdkSpriteScaledWidth(font) / 10.0f) * 1.5f + coords[0] + 0.0f;
         y = (sdkSpriteScaledHeight(font) / 10.0f) * 1.5f + coords[1] + 0.0f;
-        pos1 = func_002b2970(x, y);
+        pos1 = fclMakeVec2(x, y);
         func_0033d3e0((void *)*(s32 *)item, pos0, pos1, 0, 10, layer);
         sdkSpriteFreeNode(font);
         i = (s16)(i + 1);
@@ -1756,23 +1756,23 @@ void func_0033bf90(u8 *arg0) {
     func_0033d4b0((void *)*(s32 *)(work + 0x14), 0xFF, 0, 0, 10, 0);
     func_0033d3d0((void *)*(s32 *)(work + 0x14), 0xAC);
     table = (u8 *)D_0064A1D8;
-    pos2 = func_002b2970(*(f32 *)(table + 0), *(f32 *)(table + 4));
-    pos3 = func_002b2970(-180.0f, *(f32 *)(table + 4));
+    pos2 = fclMakeVec2(*(f32 *)(table + 0), *(f32 *)(table + 4));
+    pos3 = fclMakeVec2(-180.0f, *(f32 *)(table + 4));
     func_0033d3e0((void *)*(s32 *)(work + 0xB4), pos2, pos3, 0, 0x14, 0);
     table = (u8 *)D_0064A1E0;
-    pos4 = func_002b2970(*(f32 *)(table + 0), *(f32 *)(table + 4));
-    pos5 = func_002b2970(-200.0f, *(f32 *)(table + 4));
+    pos4 = fclMakeVec2(*(f32 *)(table + 0), *(f32 *)(table + 4));
+    pos5 = fclMakeVec2(-200.0f, *(f32 *)(table + 4));
     func_0033d3e0((void *)*(s32 *)(work + 0xB8), pos4, pos5, 0, 10, 0);
     table = (u8 *)D_0064A1E8;
-    pos6 = func_002b2970(153.0f, *(f32 *)(table + 4));
-    pos7 = func_002b2970(-100.0f, *(f32 *)(table + 4));
+    pos6 = fclMakeVec2(153.0f, *(f32 *)(table + 4));
+    pos7 = fclMakeVec2(-100.0f, *(f32 *)(table + 4));
     func_0033d3e0((void *)*(s32 *)(work + 0xBC), pos6, pos7, 0, 0x14, 0);
-    pos8 = func_002b2970(203.0f, *(f32 *)(table + 4));
-    pos9 = func_002b2970(-50.0f, *(f32 *)(table + 4));
+    pos8 = fclMakeVec2(203.0f, *(f32 *)(table + 4));
+    pos9 = fclMakeVec2(-50.0f, *(f32 *)(table + 4));
     func_0033d3e0((void *)*(s32 *)(work + 0x178), pos8, pos9, 0, 0x14, 0);
     table = (u8 *)D_0064A0E8;
-    pos10 = func_002b2970(*(f32 *)(table + 0), *(f32 *)(table + 4));
-    pos11 = func_002b2970(-200.0f, *(f32 *)(table + 4));
+    pos10 = fclMakeVec2(*(f32 *)(table + 0), *(f32 *)(table + 4));
+    pos11 = fclMakeVec2(-200.0f, *(f32 *)(table + 4));
     func_0033d3e0((void *)*(s32 *)(work + 0x3C), pos10, pos11, 0, 0xF, 0);
     func_0033d4e0((void *)*(s32 *)(work + 0xB0), 1.0f, 4.5f, 0, 0xF, 0);
     i = 0;
@@ -1783,7 +1783,7 @@ void func_0033bf90(u8 *arg0) {
     func_0033d3c0((void *)*(s32 *)(work + 0x110), 84.0f);
     func_0033d3c0((void *)*(s32 *)(work + 0x114), 84.0f);
     func_0033d3c0((void *)*(s32 *)(work + 0x60), 83.0f);
-    *(f32 *)(work + 0x1D0) = 580.0f - (f32)func_002b3170(func_002e7a60()) * 21.0f;
+    *(f32 *)(work + 0x1D0) = 580.0f - (f32)fclDecimalDigitCount(func_002e7a60()) * 21.0f;
     *(s32 *)(work + 0x1D4) = 0x41700000;
     *(f32 *)(work + 0x1D8) = (f32)0x28A;
     *(s32 *)(work + 0x1DC) = 0x41700000;
@@ -1800,13 +1800,13 @@ void func_0033bf90(u8 *arg0) {
    written `green = blue = 0` (the andi on $zero). */
 static inline void fclShopDrawItemFrame(u8 *p, f32 y, u8 red, u8 green, u8 blue)
 {
-    sdkSpriteDrawQueued(44.0f, y, 62.0f, func_002b2a30(0xFF, red, green, blue), 0xFF, 0x24,
+    sdkSpriteDrawQueued(44.0f, y, 62.0f, fclPackRgba(0xFF, red, green, blue), 0xFF, 0x24,
                   *(void **)(p + 0xC), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
 static inline void fclShopDrawItemName(s16 item, f32 y, u8 red, u8 green, u8 blue)
 {
-    frFontExDrawTextDeferred(78.0f, y, 62.0f, func_002b2a30(red, green, blue, 0xFF), 0, 1,
+    frFontExDrawTextDeferred(78.0f, y, 62.0f, fclPackRgba(red, green, blue, 0xFF), 0, 1,
                   datGetItemNameId((s16)yListValueAt(item)), 0, 0, D_00795E60);
 }
 
@@ -1835,13 +1835,13 @@ void fclItemShopDrawList(u8 *arg0)
 
     p = *(u8 **)(arg0 + 0x38);
     if (*(s8 *)(p + 2) == 1) {
-        sdkSpriteDrawQueued(44.0f, 77.0f, 62.0f, func_002b2a30(0xFF, 0x26, 0x26, 0x26), 0xFF, 0x24,
+        sdkSpriteDrawQueued(44.0f, 77.0f, 62.0f, fclPackRgba(0xFF, 0x26, 0x26, 0x26), 0xFF, 0x24,
                       *(void **)(p + 0xC), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
-        color = func_002b2a30(0x26, 0x26, 0x26, 0xFF);
+        color = fclPackRgba(0x26, 0x26, 0x26, 0xFF);
         value = datGetItemNameId((s16)yListValueAt(*(s16 *)(p + 4)));
         frFontExDrawTextDeferred(78.0f, 77.0f, 62.0f, color, 0, 1, value, 0, 0, D_00795E60);
-        pos1 = func_002b2970(406.0f, 84.0f);
-        col1 = func_002b2a60(0x26, 0x26, 0x26, 0xFF);
+        pos1 = fclMakeVec2(406.0f, 84.0f);
+        col1 = fclMakeDrawColor(0x26, 0x26, 0x26, 0xFF);
         fclShopDrawNumber(pos1, 62.0f, col1,
                       fclItemShopDiscountedPrice(arg0, yListValueAt(*(s16 *)(p + 4))), 0x19,
                       *(void **)(p + 0xC), 0xAB);
@@ -1904,8 +1904,8 @@ void fclItemShopDrawList(u8 *arg0)
         top = y + 0x4D;
         fclShopDrawItemFrame(p, (f32)top, red, green, blue);
         fclShopDrawItemName(i, (f32)top, red, green, blue);
-        pos2 = func_002b2970(406.0f, (f32)(y + 0x54));
-        col2 = func_002b2a60(red, green, blue, 0xFF);
+        pos2 = fclMakeVec2(406.0f, (f32)(y + 0x54));
+        col2 = fclMakeDrawColor(red, green, blue, 0xFF);
         fclShopDrawNumber(pos2, 62.0f, col2, fclItemShopDiscountedPrice(arg0, yListValueAt(i)),
                       0x19, *(void **)(p + 0xC), 0xAB);
     }
@@ -1942,40 +1942,40 @@ s32 fclItemShopPanelUpdate(u8 *arg0) {
             temp_3 = *(s8 *)(callback_work + 0x3B);
             switch (temp_3) {
             case 0:
-                *(f32 *)(callback_work + 0x2C) = func_002b2aa0(
+                *(f32 *)(callback_work + 0x2C) = fclEaseInterpolate(
                     0, *(f32 *)(callback_work + 0x1C), *(f32 *)(callback_work + 0x24),
                     (f32)*(s16 *)(callback_work + 0x36), (f32)*(s16 *)(callback_work + 0x34));
-                *(f32 *)(callback_work + 0x30) = func_002b2aa0(
+                *(f32 *)(callback_work + 0x30) = fclEaseInterpolate(
                     *(s8 *)(callback_work + 0x3A), *(f32 *)(callback_work + 0x20),
                     *(f32 *)(callback_work + 0x28), (f32)*(s16 *)(callback_work + 0x36),
                     (f32)(*(s16 *)(callback_work + 0x34) / 2));
                 break;
             case 1:
-                *(f32 *)(callback_work + 0x2C) = func_002b2aa0(
+                *(f32 *)(callback_work + 0x2C) = fclEaseInterpolate(
                     *(s8 *)(callback_work + 0x3A), *(f32 *)(callback_work + 0x1C),
                     *(f32 *)(callback_work + 0x24), (f32)*(s16 *)(callback_work + 0x36),
                     (f32)(*(s16 *)(callback_work + 0x34) / 2));
-                *(f32 *)(callback_work + 0x30) = func_002b2aa0(
+                *(f32 *)(callback_work + 0x30) = fclEaseInterpolate(
                     0, *(f32 *)(callback_work + 0x20), *(f32 *)(callback_work + 0x28),
                     (f32)*(s16 *)(callback_work + 0x36), (f32)*(s16 *)(callback_work + 0x34));
                 break;
             case 2:
-                *(f32 *)(callback_work + 0x2C) = func_002b2aa0(
+                *(f32 *)(callback_work + 0x2C) = fclEaseInterpolate(
                     1, *(f32 *)(callback_work + 0x1C), *(f32 *)(callback_work + 0x24),
                     (f32)*(s16 *)(callback_work + 0x36), (f32)*(s16 *)(callback_work + 0x34));
-                *(f32 *)(callback_work + 0x30) = func_002b2aa0(
+                *(f32 *)(callback_work + 0x30) = fclEaseInterpolate(
                     2, *(f32 *)(callback_work + 0x20), *(f32 *)(callback_work + 0x28),
                     (f32)*(s16 *)(callback_work + 0x36), (f32)*(s16 *)(callback_work + 0x34));
                 *(f32 *)(callback_work + 0x30) = (f32)(
                     *(f32 *)(callback_work + 0x30) -
-                    func_002b2aa0(1, 0.0f, 100.0f,
+                    fclEaseInterpolate(1, 0.0f, 100.0f,
                                   (f32)*(s16 *)(callback_work + 0x36), (f32)(*(s16 *)(callback_work + 0x34) / 2)));
                 break;
             }
             temp_6 = *(s16 *)(callback_work + 0x34);
             temp_4_2 = *(s16 *)(callback_work + 0x36);
             if (temp_4_2 < temp_6) {
-                *(s16 *)(callback_work + 0x36) = func_002b2cb0(
+                *(s16 *)(callback_work + 0x36) = fclAddClamped(
                     (s32)temp_4_2, 1, (s32)temp_6, 0, 1);
             } else {
                 *(f32 *)(callback_work + 0x2C) = *(f32 *)(callback_work + 0x24);
@@ -1989,7 +1989,7 @@ s32 fclItemShopPanelUpdate(u8 *arg0) {
                 func_0033d320((u8 *)arg0, 0xA, 1);
             }
         } else {
-            *(s16 *)(callback_work + 0x38) = func_002b2d00(temp_4, 1, 0, 0, 1);
+            *(s16 *)(callback_work + 0x38) = fclSubClamped(temp_4, 1, 0, 0, 1);
         }
     }
     if (func_0033d390((u8 *)arg0, 0) == 1) {
@@ -2004,7 +2004,7 @@ s32 fclItemShopPanelUpdate(u8 *arg0) {
             sdkSpriteDrawQueued(
                 *(f32 *)(callback_work + 0x2C), *(f32 *)(callback_work + 0x30),
                 *(f32 *)(callback_work + 8),
-                func_002b2a30(0xFF, *(u8 *)(callback_work + 0x79),
+                fclPackRgba(0xFF, *(u8 *)(callback_work + 0x79),
                               *(u8 *)(callback_work + 0x7A), *(u8 *)(callback_work + 0x7B)),
                 *(u8 *)(callback_work + 0x62), *(u16 *)(callback_work + 0xF8),
                 (void *)*(s32 *)(callback_work + 0xF4), 0,
@@ -2021,7 +2021,7 @@ s32 fclItemShopPanelUpdate(u8 *arg0) {
                     sdkSpriteDrawQueued(
                         *(f32 *)(callback_work + 0x2C), *(f32 *)(callback_work + 0x30),
                         *(f32 *)(callback_work + 8),
-                        func_002b2a30(0xFF, *(u8 *)(callback_work + 0x79),
+                        fclPackRgba(0xFF, *(u8 *)(callback_work + 0x79),
                                       *(u8 *)(callback_work + 0x7A),
                                       *(u8 *)(callback_work + 0x7B)),
                         *(u8 *)(callback_work + 0x62), *(u16 *)(callback_work + 0xF8),

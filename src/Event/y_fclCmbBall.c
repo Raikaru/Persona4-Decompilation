@@ -16,9 +16,9 @@ extern char D_0064A750[];
 extern char D_0064A770[];
 extern s32 fclCmbBallUpdate(u8 *);
 extern u8 *func_00461390(void *, s32, void *, s32);
-extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
-extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
-extern s32 func_002b2d00(s32, s32, s32, s32, s8);
+extern f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
+extern s32 fclAddClamped(s32, s32, s32, s32, s8);
+extern s32 fclSubClamped(s32, s32, s32, s32, s8);
 extern u8 D_00793E80[];
 extern void (*D_00887300[])(u32, u32);
 extern s32 func_00457120(void);
@@ -102,11 +102,11 @@ void fclCmbBallDraw(u8 *arg0, u8 *arg1) {
     *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0xE0) = 0x3F800000;
     *(s32 *)((*(s16 *)(arg1 + 2) << 8) + (u32)arg1 + 0xE4) = 0x3F800000;
     if (*(s8 *)(arg1 + 0xF00) == 1) {
-        color = func_002b2a60(0x2D, 0x2D, 0x2D, *(u8 *)(arg1 + 0xE6E));
+        color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, *(u8 *)(arg1 + 0xE6E));
     } else {
-        color = func_002b2a60(0, 0, 0x66, *(u8 *)(arg1 + 0xE6E));
+        color = fclMakeDrawColor(0, 0, 0x66, *(u8 *)(arg1 + 0xE6E));
         if (*(s16 *)(arg1 + 2) >= 3) {
-            color = func_002b2a60(0xCC, 0xFF, 0xFF, (u32)*(u8 *)(arg1 + 0xE6E) >> 1);
+            color = fclMakeDrawColor(0xCC, 0xFF, 0xFF, (u32)*(u8 *)(arg1 + 0xE6E) >> 1);
         }
     }
     for (i = 0; i < 4; i++) {
@@ -140,7 +140,7 @@ void fclCmbBallDraw(u8 *arg0, u8 *arg1) {
    0xE-entry packet loop are represented directly. The first interpolation
    call passes E72 as its signed integer mode and E6C/E6D/E6A/E68 as floats;
    the second uses signed E68 / 2 (C division supplies retail's correction
-   sequence). The bounded update is func_002b2cb0(E6A, 1, E68, 0, 1).
+   sequence). The bounded update is fclAddClamped(E6A, 1, E68, 0, 1).
    The plain u8 result cast preserves retail's float-to-u8 saturation path. */
 /* Target window: 0x390 bytes; the compiled owner image is 0x384 bytes and
    its remaining 12 target bytes are zero padding. */
@@ -162,14 +162,14 @@ s32 fclCmbBallUpdate(u8 *arg0) {
         if (*(s16 *)(p + 0xE70) == 0) {
             if (*(s8 *)(p + 0xE73) == 0) {
                 *(u8 *)(p + 0xE6E) =
-                    (u8)func_002b2aa0((s32)*(s8 *)(p + 0xE72),
+                    (u8)fclEaseInterpolate((s32)*(s8 *)(p + 0xE72),
                                            (f32)*(u8 *)(p + 0xE6C),
                                            (f32)*(u8 *)(p + 0xE6D),
                                            (f32)(s16)*(s16 *)(p + 0xE6A),
                                            (f32)(s16)*(s16 *)(p + 0xE68));
             } else {
                 *(u8 *)(p + 0xE6E) =
-                    (u8)func_002b2aa0((s32)*(s8 *)(p + 0xE72),
+                    (u8)fclEaseInterpolate((s32)*(s8 *)(p + 0xE72),
                                            (f32)*(u8 *)(p + 0xE6C),
                                            (f32)*(u8 *)(p + 0xE6D),
                                            (f32)(s16)*(s16 *)(p + 0xE6A),
@@ -177,7 +177,7 @@ s32 fclCmbBallUpdate(u8 *arg0) {
             }
             if (*(s16 *)(p + 0xE6A) < *(s16 *)(p + 0xE68)) {
                 *(s16 *)(p + 0xE6A) =
-                    func_002b2cb0(*(s16 *)(p + 0xE6A), 1,
+                    fclAddClamped(*(s16 *)(p + 0xE6A), 1,
                                   *(s16 *)(p + 0xE68), 0, 1);
             } else {
                 *(u8 *)(p + 0xE6E) = *(u8 *)(p + 0xE6D);
@@ -187,7 +187,7 @@ s32 fclCmbBallUpdate(u8 *arg0) {
                 *(s16 *)(p + 0xE10) = *(s16 *)(p + 0xE10) | 4;
             }
         } else {
-            *(s16 *)(p + 0xE70) = func_002b2d00(*(s16 *)(p + 0xE70), 1, 0, 0, 1);
+            *(s16 *)(p + 0xE70) = fclSubClamped(*(s16 *)(p + 0xE70), 1, 0, 0, 1);
         }
     }
 

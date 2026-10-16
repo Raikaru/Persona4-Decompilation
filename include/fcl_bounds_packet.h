@@ -24,7 +24,7 @@ typedef union {
 
 /* Returned by value; the sixteen-byte records are passed by value too
    (through a caller-side copy whose address travels in the argument). */
-FclBoundsPacket func_002b29e0(f32 width, f32 height);
+FclBoundsPacket fclMakeBoundsPacket(f32 width, f32 height);
 void fclSpriteSetPositionBounds(u8 *task, FclVec2 position, FclBoundsPacket bounds);
 void fclSpriteStartBoundsMove(u8 *task, FclVec2 start, FclVec2 end,
                    FclBoundsPacket startBounds, FclBoundsPacket endBounds,

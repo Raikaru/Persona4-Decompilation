@@ -117,7 +117,7 @@ extern void strcat(void *arg0, void *arg1);
 extern void strncpy(void *arg0, void *arg1, s32 arg2);
 extern void frFontExCopyString(void *arg0, void *arg1, s32 arg2);
 extern s32 func_00443010(u8 *arg0, u8 *arg1);
-extern s32 func_002b3520(u8 *arg0, s64 arg1);
+extern s32 fclTagTextLength(u8 *arg0, s64 arg1);
 extern u8 *D_0063F110[];
 extern s8 D_007488C0[];
 
@@ -144,19 +144,19 @@ typedef char FclDigitStoredWordByteAligned[(sizeof(FclDigitStoredWordAlignment) 
 typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : -1];
 #endif
 
-extern FclVec2 func_002b2970(f32 x, f32 y);
-extern f32 func_002b2aa0(s64 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
-extern s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
+extern FclVec2 fclMakeVec2(f32 x, f32 y);
+extern f32 fclEaseInterpolate(s64 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
+extern s32 fclAddClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 
 
 
-extern s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
+extern s32 fclSubClamped(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 
 
 
 
 #pragma opt_rebuildconditionals off
-extern s32 func_002b3170(s32 arg0);
+extern s32 fclDecimalDigitCount(s32 arg0);
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants on
 #pragma opt_loop_invariants off
@@ -285,35 +285,35 @@ s32 func_002b52a0(u8 *arg0)
     case 2:
         if (work->wait == 0) {
             if (work->mode == 0) {
-                work->x = func_002b2aa0(0, work->x0 + (f32)(work->width1 / 2), work->x0, (f32)work->frame, (f32)work->frames);
-                work->y = func_002b2aa0(0, work->y0 + (f32)(work->height1 / 2), work->y0, (f32)work->frame, (f32)work->frames);
-                work->width = func_002b2aa0(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
-                work->height = func_002b2aa0(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
+                work->x = fclEaseInterpolate(0, work->x0 + (f32)(work->width1 / 2), work->x0, (f32)work->frame, (f32)work->frames);
+                work->y = fclEaseInterpolate(0, work->y0 + (f32)(work->height1 / 2), work->y0, (f32)work->frame, (f32)work->frames);
+                work->width = fclEaseInterpolate(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
+                work->height = fclEaseInterpolate(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
             } else if (work->mode == 1) {
-                work->x = func_002b2aa0(0, work->x0, work->x0 + (f32)(work->width0 / 2), (f32)work->frame, (f32)work->frames);
-                work->y = func_002b2aa0(0, work->y0, work->y0 + (f32)(work->height0 / 2), (f32)work->frame, (f32)work->frames);
-                work->width = func_002b2aa0(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
-                work->height = func_002b2aa0(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
+                work->x = fclEaseInterpolate(0, work->x0, work->x0 + (f32)(work->width0 / 2), (f32)work->frame, (f32)work->frames);
+                work->y = fclEaseInterpolate(0, work->y0, work->y0 + (f32)(work->height0 / 2), (f32)work->frame, (f32)work->frames);
+                work->width = fclEaseInterpolate(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
+                work->height = fclEaseInterpolate(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
             } else if (work->mode == 2) {
-                work->x = func_002b2aa0(0, work->x0, work->x1, (f32)work->frame, (f32)work->frames);
-                work->y = func_002b2aa0(0, work->y0, work->y1, (f32)work->frame, (f32)work->frames);
+                work->x = fclEaseInterpolate(0, work->x0, work->x1, (f32)work->frame, (f32)work->frames);
+                work->y = fclEaseInterpolate(0, work->y0, work->y1, (f32)work->frame, (f32)work->frames);
             } else if (work->mode == 3) {
-                work->x = func_002b2aa0(0, work->x0, work->x1, (f32)work->frame, (f32)work->frames);
-                work->y = func_002b2aa0(0, work->y0, work->y1, (f32)work->frame, (f32)work->frames);
-                work->width = func_002b2aa0(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
-                work->height = func_002b2aa0(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
+                work->x = fclEaseInterpolate(0, work->x0, work->x1, (f32)work->frame, (f32)work->frames);
+                work->y = fclEaseInterpolate(0, work->y0, work->y1, (f32)work->frame, (f32)work->frames);
+                work->width = fclEaseInterpolate(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
+                work->height = fclEaseInterpolate(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
             } else if (work->mode == 4) {
-                work->x = func_002b2aa0(0, work->x0, work->x1, (f32)work->frame, (f32)work->frames);
-                work->y = func_002b2aa0(0, work->y0, work->y1, (f32)work->frame, (f32)work->frames);
-                work->width = func_002b2aa0(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
-                work->height = func_002b2aa0(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
+                work->x = fclEaseInterpolate(0, work->x0, work->x1, (f32)work->frame, (f32)work->frames);
+                work->y = fclEaseInterpolate(0, work->y0, work->y1, (f32)work->frame, (f32)work->frames);
+                work->width = fclEaseInterpolate(0, (f32)work->width0, (f32)work->width1, (f32)work->frame, (f32)work->frames);
+                work->height = fclEaseInterpolate(0, (f32)work->height0, (f32)work->height1, (f32)work->frame, (f32)work->frames);
             }
             if (work->alphaFading == 1) {
-                work->color[0][3] = func_002b2aa0(2, (f32)work->alpha0, (f32)work->alpha1, (f32)work->alphaFrame, (f32)work->alphaFrames);
+                work->color[0][3] = fclEaseInterpolate(2, (f32)work->alpha0, (f32)work->alpha1, (f32)work->alphaFrame, (f32)work->alphaFrames);
                 for (j = 1; j < 4; j++) {
                     work->color[j][3] = work->color[0][3];
                 }
-                work->alphaFrame = func_002b2cb0(work->alphaFrame, 1, work->alphaFrames, 0, 1);
+                work->alphaFrame = fclAddClamped(work->alphaFrame, 1, work->alphaFrames, 0, 1);
                 if (work->alphaFrame >= work->alphaFrames) {
                     work->color[0][3] = work->alpha1;
                     for (j = 1; j < 4; j++) {
@@ -334,7 +334,7 @@ s32 func_002b52a0(u8 *arg0)
                 }
             }
         } else {
-            work->wait = func_002b2d00(work->wait, 1, 0, 0, 1);
+            work->wait = fclSubClamped(work->wait, 1, 0, 0, 1);
             return 0;
         }
     case 0:
