@@ -32,7 +32,7 @@ extern char iGpffff9c0c;
 extern char iGpffff9c08;
 
 u8 *datPersonaGetRow(u16 personaId);
-u8 *func_0046a770(char *arg0);
+u8 *resourceFindByName(char *arg0);
 void shdPersonaDrawNamePlate(s64, f32, u8, u8 *, s32 *);
 void shdPersonaDrawExpRow(s64, f32, u8, u8 *, s32 *);
 void shdPersonaDrawFramePair(s64, f32, u8, u8 *, s32 *);
@@ -333,10 +333,10 @@ void shdPersonaDrawDetailPanel(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
     u8 *record;
 
     y = arg0.y;
-    resources[0] = (s32)func_0046a770(D_005E5810);
-    resources[1] = (s32)func_0046a770(D_005E5830);
-    resources[2] = (s32)func_0046a770(D_005E5850);
-    resources[3] = (s32)func_0046a770(D_005E57F0);
+    resources[0] = (s32)resourceFindByName(D_005E5810);
+    resources[1] = (s32)resourceFindByName(D_005E5830);
+    resources[2] = (s32)resourceFindByName(D_005E5850);
+    resources[3] = (s32)resourceFindByName(D_005E57F0);
     base = (u32 *)D_00887300;
     ((s32 (**)(s32, void *))base)[0](6, (void *)0);
     ((s32 (**)(s32, void *))base)[0](7, (void *)2);
@@ -920,10 +920,10 @@ void shdPersonaTaskInit(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x570) = 0xB1;
     *(u8 **)(b + 0x4F8) = shdPersonaModelCreate((s32)arg0, 0xF, 0, 0, -0x100);
     shdPersonaSetState(arg0, arg1);
-    *(s32 *)(b + 0x2B8) = (s32)func_0046a770(D_005E5810);
-    *(s32 *)(b + 0x2BC) = (s32)func_0046a770(D_005E5830);
-    *(s32 *)(b + 0x2C0) = (s32)func_0046a770(D_005E5850);
-    *(s32 *)(b + 0x2C4) = (s32)func_0046a770(D_005E57F0);
+    *(s32 *)(b + 0x2B8) = (s32)resourceFindByName(D_005E5810);
+    *(s32 *)(b + 0x2BC) = (s32)resourceFindByName(D_005E5830);
+    *(s32 *)(b + 0x2C0) = (s32)resourceFindByName(D_005E5850);
+    *(s32 *)(b + 0x2C4) = (s32)resourceFindByName(D_005E57F0);
     for (i = 0; i < 0xA; i++) {
         src = D_005E4880 + i * 0x14;
         dst = b + i * 0x24;
@@ -2727,7 +2727,7 @@ s32 shdPersonaSetState(u8 *arg0, s32 arg1)
             *(s32 *)(work + 0x534) = t5;
             t6 = t5 | 0x200000;
             *(s32 *)(work + 0x534) = t6;
-            t7 = (s32)func_0046a770(D_005E4E00);
+            t7 = (s32)resourceFindByName(D_005E4E00);
             *(s32 *)(work + 0x2C8) = t7;
             if (t7 == 0) {
                 kAssertFail(D_005E4868, 0xC02);

@@ -17,7 +17,7 @@ void chkmemAllocSiteTag(void* file, s32 line);
 void memset(void* dest, s32 value, s32 size);
 
 void func_0034c260(s32 arg0);
-void* func_0046a770(char* arg0);
+void* resourceFindByName(char* arg0);
 s32 sdkSpriteNewNode();
 s32 datGetFlag(s32 arg0);
 void func_00113480(s32 a, s32 b, s32 c, s32 d);
@@ -141,11 +141,11 @@ void func_0035c830(u8* arg0) {
         *(f32 *)(dst + 0x8C) = *(f32 *)(src + 0x04);
         *(u8 *)(dst + 0x92) = *(u8 *)(src + 0x08);
     }
-    resource = (s32)(u32)func_0046a770((char *)D_005E5850);
+    resource = (s32)(u32)resourceFindByName((char *)D_005E5850);
     if (resource == 0) {
         kAssertFail(D_0064D3C8, 0x12F);
     }
-    result = (s32)(u32)func_0046a770((char *)D_005E57F0);
+    result = (s32)(u32)resourceFindByName((char *)D_005E57F0);
     *(s32 *)(arg0 + 0x474) = result;
     for (k = 0; k < 11; k++) {
         dst = arg0 + k * 4 + 0x448;

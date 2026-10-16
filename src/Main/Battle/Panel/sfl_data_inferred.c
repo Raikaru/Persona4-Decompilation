@@ -43,7 +43,7 @@ extern u8 *func_00457120(void);
 extern void func_0011fd30(u8 *arg0);
 extern void func_0011fd50(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 extern f32 iGpffff84a4;
-extern s32 func_0046a770(const void *arg0);
+extern s32 resourceFindByName(const void *arg0);
 extern void kAssertFail(const void *arg0, s32 arg1);
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5,
@@ -630,7 +630,7 @@ void sflDataDrawSpritePair(PairBits arg0, f32 fparg0, s32 arg1)
     s32 tex;
     s32 alpha;
 
-    tex = func_0046a770(D_005E5810);
+    tex = resourceFindByName(D_005E5810);
     if (tex == 0) {
         kAssertFail(D_0064E460, 0xB5);
     }
@@ -659,11 +659,11 @@ void sflDataDrawByteValuePanel(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 
     factor = fparg0;
     value = *(u8 *)(arg2 + 0x19);
-    tex0 = func_0046a770(D_005E5810);
+    tex0 = resourceFindByName(D_005E5810);
     if (tex0 == 0) {
         kAssertFail(D_0064E460, 0xDD);
     }
-    tex1 = func_0046a770(D_005E5850);
+    tex1 = resourceFindByName(D_005E5850);
     if (tex1 == 0) {
         kAssertFail(D_0064E460, 0xDF);
     }
@@ -718,11 +718,11 @@ void sflDataDrawNumberValue(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 
     scale = fparg0;
     y = *((f32 *)&arg0 + 1);
-    tex1 = func_0046a770(D_005E5810);
+    tex1 = resourceFindByName(D_005E5810);
     if (tex1 == 0) {
         kAssertFail(D_0064E460, 0x13D);
     }
-    tex2 = func_0046a770(D_005E5830);
+    tex2 = resourceFindByName(D_005E5830);
     if (tex2 == 0) {
         kAssertFail(D_0064E460, 0x13F);
     }
@@ -762,11 +762,11 @@ void sflDataDrawTitledIcon(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 
     scale = fparg0;
     color = (arg1 & 0xFF) | 0xFFFFFF00;
-    tex = func_0046a770(D_005E5810);
+    tex = resourceFindByName(D_005E5810);
     if (tex == 0) {
         kAssertFail(D_0064E460, 0x174);
     }
-    if (func_0046a770(D_005E5830) == 0) {
+    if (resourceFindByName(D_005E5830) == 0) {
         kAssertFail(D_0064E460, 0x176);
     }
     y = *((f32 *)&arg0 + 1);
@@ -808,11 +808,11 @@ void sflDataDrawLevelBadge(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 
     value = (u8)datCalcGetLevelById(*(s16 *)(arg2 + 4));
     factor = fparg0;
-    tex0 = func_0046a770(D_005E5850);
+    tex0 = resourceFindByName(D_005E5850);
     if (tex0 == 0) {
         kAssertFail(D_0064E460, 0x1A1);
     }
-    tex1 = func_0046a770(D_005E57F0);
+    tex1 = resourceFindByName(D_005E57F0);
     if (tex1 == 0) {
         kAssertFail(D_0064E460, 0x1A3);
     }

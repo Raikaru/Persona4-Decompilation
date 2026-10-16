@@ -166,7 +166,7 @@ void func_0046d700(char* file, s32 line, char* msg, s32 value);
 void memset(void* dst, s32 value, s32 size);
 void memcpy(void* dst, void* src, s32 size);
 void func_0046a2d0(char* file, s32 line);
-u8* func_0046a430(s32 size);
+u8* poolAlloc(s32 size);
 void poolFree(void* ptr);
 u32 kwlnTaskGetWork(void* task);
 s32 func_0029cb00(void* arg0, ...);
@@ -584,7 +584,7 @@ s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     s32 task;
 
     func_0046a2d0(D_0063E3D0, 0x275);
-    text = func_0046a430(arg2);
+    text = poolAlloc(arg2);
     memset(text, 0, arg2);
     memcpy(text, (void*)arg1, arg2);
     work = func_0029d660((ScrHeader*)text, arg3);

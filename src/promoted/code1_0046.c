@@ -128,7 +128,7 @@ extern void func_00461a40(u8 *arg0);
 extern void func_00461be0(u8 *arg0);
 extern u8 *H_Calloc(s32 arg0, s32 arg1);
 
-extern s32 func_00468fa0(u8 *arg0);
+extern s32 mwPlayerUpdate(u8 *arg0);
 extern void mwPlayerTaskDestroy(u8 *arg0);
 extern u32 iGpffffbb14;
 extern u32 iGpffffbb10;
@@ -406,7 +406,7 @@ void func_00468d10(void)
 }
 #pragma opt_loop_invariants reset
 // FUN_00468FA0
-s32 func_00468fa0(u8 *arg0) {
+s32 mwPlayerUpdate(u8 *arg0) {
     u8 *ctx;
     u8 *task;
 
@@ -1077,7 +1077,7 @@ s32 func_0046a110(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, mwPlayerTaskDestroy, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, mwPlayerUpdate, mwPlayerTaskDestroy, (u8 *)(work));
     if (result == 0) {
         return 0;
     }
@@ -1102,7 +1102,7 @@ s32 func_0046a1f0(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, func_00468fa0, mwPlayerTaskDestroy, (u8 *)(work));
+    result = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)((const void *)iGpffffb034), 0xC6, 0, 0, mwPlayerUpdate, mwPlayerTaskDestroy, (u8 *)(work));
     if (result == 0) {
         return 0;
     }
@@ -1231,7 +1231,7 @@ static inline u32 sdkMallocFindOverlap(u32 candidate, u32 size)
 /* Measured: 692/704 bytes, 53 resolved relocations and twelve zero
    alignment bytes. Diagnostic arguments reload after the task-name call. */
 // FUN_0046A430
-u8 *func_0046a430(s32 arg0)
+u8 *poolAlloc(s32 arg0)
 {
     s32 lock;
     u32 candidate;
@@ -1295,7 +1295,7 @@ allocated:
 /* The list walk is written with an explicit goto loop: retail tests the
    cursor at the TOP of the loop and both early exits are out of line, which
    the natural `while (p != NULL)` form does not reproduce (nd 57). */
-u8 *func_0046a770(char *arg0) {
+u8 *resourceFindByName(char *arg0) {
     u8 *p;
 
     p = D_00724C08;
@@ -1318,7 +1318,7 @@ loop:
 // FUN_0046A7F0
 #pragma push
 #pragma opt_loop_invariants on
-void func_0046a7f0(u8 *attachment, u8 *points)
+void sdkSpriteTransformPoints(u8 *attachment, u8 *points)
 {
     RwV3d source[4];
     RwV3d transformed[4];
@@ -1407,7 +1407,7 @@ void func_0046a7f0(u8 *attachment, u8 *points)
 
 #pragma pop
 // FUN_0046AB40
-void func_0046ab40(void)
+void resourceLoadSprites(void)
 {
     u8 *attachment = D_00724C08;
 loop_1:

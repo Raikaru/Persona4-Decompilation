@@ -1472,7 +1472,7 @@ static inline f32 cmmScoreDisplacement(f32 phase, f32 negative, f32 positive)
 s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
 {
     extern f32 sinf(f32);
-    extern u8 *func_0046a770(char *name);
+    extern u8 *resourceFindByName(char *name);
     extern s32 func_00106600(s16);
     extern u8 D_005E5850[];
     extern f32 iGpffff81dc;
@@ -1487,7 +1487,7 @@ s32 cmmScriptStepScoreDisplay(u8 *parent, u8 *work)
     s32 score;
 
     atlas = cmmScoreAtlas();
-    digitsAtlas = func_0046a770((char *)D_005E5850);
+    digitsAtlas = resourceFindByName((char *)D_005E5850);
     if ((*(u32 *)work & 2) != 0) {
         frame = *(u32 *)(work + 8);
         if (frame < 5) {

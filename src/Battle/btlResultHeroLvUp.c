@@ -52,7 +52,7 @@ void func_00355300(s32 param, s32 mode);
 s32 btlShuffleOverlayIdle(void);
 extern u8* kwlnTaskGetWork(u32 param);
 void func_00460ac0(void* param, void* work);
-s32 func_0046a770(u32 param);
+s32 resourceFindByName(u32 param);
 extern u32 D_00795F20[];
 extern s32 iGpffffa5C0;
 
@@ -220,7 +220,7 @@ s32 btlResultHeroLvUpRun(u8* arg0)
         for (i = 0; i < 2; i++) {
             s32* slot = &work->slots50[i];
 
-            *slot = func_0046a770(*(u32*)((u8*)&iGpffffa5C0 + i * 4));
+            *slot = resourceFindByName(*(u32*)((u8*)&iGpffffa5C0 + i * 4));
             if (*slot == 0) {
                 kAssertFail(D_00629660, 0x52);
             }

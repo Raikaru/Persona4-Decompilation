@@ -49,7 +49,7 @@ extern char D_0063BF20[];
 void itfMesWindowFreeSlots();
 void poolFree();
 void func_0046a2d0();
-void *func_0046a430();
+void *poolAlloc();
 void memset();
 void func_0027a690();
 void itfMesClearSlots();
@@ -662,7 +662,7 @@ u8 *itfMesObjectCreate(u8 *arg0)
     if (itfMesRecordIsValid(arg0) != 1)
         kAssertFail(D_0063BE10, 0x55A);
     func_0046a2d0(D_0063BE10, 0x567);
-    obj = func_0046a430(0x130);
+    obj = poolAlloc(0x130);
     memset(obj, 0, 0x130);
     *(s32 *)(obj + 4) = 0;
     itfMesObjectSetRecord(obj, arg0);
@@ -1741,13 +1741,13 @@ void itfMesObjectSetString(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     if (arg3 <= 0) {
         size = (strlen((const void *)arg2) + 4) & ~3;
         func_0046a2d0(D_0063BE10, 0xD0F);
-        res = (s32 *)func_0046a430(size);
+        res = (s32 *)poolAlloc(size);
         *(s32 **)((u32)base + (u32)arg1 * 4) = res;
         memcpy(res, (void *)arg2, size);
     } else {
         size = (arg3 + 5) & ~3;
         func_0046a2d0(D_0063BE10, 0xD22);
-        res = (s32 *)func_0046a430(size);
+        res = (s32 *)poolAlloc(size);
         *(s32 **)((u32)base + (u32)arg1 * 4) = res;
         memset(res, 0, size);
         memcpy(*(s32 **)((u32)base + (u32)arg1 * 4), (void *)arg2, arg3);
@@ -1786,7 +1786,7 @@ void itfMesObjectSetNumber(u8 *arg0, s32 arg1, s32 arg2) {
         *(u8 **)slot = NULL;
     }
     func_0046a2d0(D_0063BE10, 0xD55);
-    res = (s32 *)func_0046a430(4);
+    res = (s32 *)poolAlloc(4);
     *(s32 **)((u32)base + (u32)arg1 * 4) = res;
     *res = arg2;
 }

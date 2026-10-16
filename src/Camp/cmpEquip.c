@@ -12,7 +12,7 @@ s32 func_00106c30(s16 arg0, s16 arg1);
 s32 datIdBand(s16 arg0);
 s16 func_00353ce0(void *arg0);
 void memset(void *arg0, s32 arg1, s32 arg2);
-void *func_0046a770(void *arg0);
+void *resourceFindByName(void *arg0);
 s32 sdkSpriteNewNode(void *arg0, s8 arg1);
 void kAssertFail(void *arg0, s32 arg1);
 extern u8 D_005E5830[];
@@ -101,15 +101,15 @@ void func_001312b0(u8 *arg0)
         }
     }
     func_00134560(base, 0);
-    asset0 = func_0046a770(D_005E5830);
+    asset0 = resourceFindByName(D_005E5830);
     if (asset0 == 0) {
         kAssertFail(D_005E9FA0, 0x26A);
     }
-    asset1 = func_0046a770(D_005E5850);
+    asset1 = resourceFindByName(D_005E5850);
     if (asset1 == 0) {
         kAssertFail(D_005E9FA0, 0x26C);
     }
-    *(s32 *)(base + 0x1590) = (s32)(asset2 = func_0046a770(D_005E57F0));
+    *(s32 *)(base + 0x1590) = (s32)(asset2 = resourceFindByName(D_005E57F0));
     if (asset2 == 0) {
         kAssertFail(D_005E9FA0, 0x26E);
     }

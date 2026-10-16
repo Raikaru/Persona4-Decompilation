@@ -347,7 +347,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
     extern s32 msgCalResourceGet(s32 arg0);
     extern f32 sinf(f32 arg0);
     extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
-    extern u8 *func_0046a770(char *arg0);
+    extern u8 *resourceFindByName(char *arg0);
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
@@ -425,7 +425,7 @@ void calDrawScreen(u8 *unusedTask, u8 *arg1)
         for (tile = 0; tile < 24; tile++) {
             x = (tile % 6) * 126;
             y = (tile / 6) * 126;
-            sdkSpriteDrawNow(x, y, 10.0f, 0xFFFFFF, alpha, phase, func_0046a770(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
+            sdkSpriteDrawNow(x, y, 10.0f, 0xFFFFFF, alpha, phase, resourceFindByName(D_0063BFB0), 0, 0, 0, 0.0f, 1.0f, 1.0f);
             phase = (phase + 1) % 4;
         }
         frame = (f32)*(s32 *)(arg1 + 0x10) + *(f32 *)(arg1 + 8);

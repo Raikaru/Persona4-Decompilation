@@ -52,7 +52,7 @@ extern s32 iGpffffb194;
 extern s32 iGpffffb1a0;
 extern s32 iGpffffb19c;
 extern void func_00454640(void);
-extern void func_0046ab40(void);
+extern void resourceLoadSprites(void);
 extern void func_0045b7c0(void);
 extern void func_004594c0(void);
 extern void func_00452ce0(void);
@@ -330,7 +330,7 @@ s32 func_00101270(void)
     }
     iGpffffb194 = *(u32 *)0x10000000;
     func_00454640();
-    func_0046ab40();
+    resourceLoadSprites();
     func_0045b7c0();
     func_004594c0();
     func_00452ce0();

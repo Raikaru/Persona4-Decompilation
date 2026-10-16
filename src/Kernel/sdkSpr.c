@@ -91,7 +91,7 @@ extern RwMatrix *func_003e0f80(void);
 extern RwMatrix *func_003e0680(RwMatrix *, const RwV3d *, f32, f32, RwOpCombineType);
 extern RwV3d *func_003e42e0(RwV3d *, const RwV3d *, s32, const RwMatrix *);
 extern s32 func_003e0f40(RwMatrix *);
-extern void func_0046a7f0(u8 *, u8 *);
+extern void sdkSpriteTransformPoints(u8 *, u8 *);
 extern f32 D_008872F8[];
 extern u8 D_007130D8[];
 extern f32 fGpffff8084;
@@ -775,7 +775,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         points[2].y = (f32)-*(s16 *)(sample + 0x1E);
         points[3].x = sdkSpriteRight(sample, 0);
         points[3].y = (f32)-*(s16 *)(sample + 0x1E);
-        func_0046a7f0(sample, (u8 *)points);
+        sdkSpriteTransformPoints(sample, (u8 *)points);
         sdkSpritePositionQuad(vertices, points);
         vertices[0].u.els.u = uv[0].x; vertices[0].u.els.v = uv[0].y;
         vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;
@@ -797,7 +797,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         points[2].y = sdkSpriteBottom(sample, 1);
         points[3].x = sdkSpriteRight(sample, 0);
         points[3].y = sdkSpriteBottom(sample, 1);
-        func_0046a7f0(sample, (u8 *)points);
+        sdkSpriteTransformPoints(sample, (u8 *)points);
         sdkSpritePositionQuad(vertices, points);
         vertices[0].u.els.u = uv[2].x; vertices[0].u.els.v = uv[2].y;
         vertices[1].u.els.u = uv[3].x; vertices[1].u.els.v = uv[3].y;
@@ -819,7 +819,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         points[2].y = sdkSpriteBottom(sample, 0);
         points[3].x = (f32)-*(s16 *)(sample + 0x1C);
         points[3].y = sdkSpriteBottom(sample, 0);
-        func_0046a7f0(sample, (u8 *)points);
+        sdkSpriteTransformPoints(sample, (u8 *)points);
         sdkSpritePositionQuad(vertices, points);
         vertices[0].u.els.u = uv[0].x; vertices[0].u.els.v = uv[0].y;
         vertices[1].u.els.u = uv[0].x; vertices[1].u.els.v = uv[0].y;
@@ -841,7 +841,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         points[2].y = sdkSpriteBottom(sample, 0);
         points[3].x = sdkSpriteRight(sample, 1);
         points[3].y = sdkSpriteBottom(sample, 0);
-        func_0046a7f0(sample, (u8 *)points);
+        sdkSpriteTransformPoints(sample, (u8 *)points);
         sdkSpritePositionQuad(vertices, points);
         vertices[0].u.els.u = uv[1].x; vertices[0].u.els.v = uv[1].y;
         vertices[1].u.els.u = uv[1].x; vertices[1].u.els.v = uv[1].y;

@@ -1247,7 +1247,7 @@ void func_00387750(u8 *arg0)
 // FUN_00387E70
 void func_00387e70(u8 *arg0)
 {
-    extern u8 *func_0046a770(char *name);
+    extern u8 *resourceFindByName(char *name);
     extern s32 datPersonaRosterCapacity(void);
     extern u8 datPersonaGetArcana(u16 personaId);
     extern u8 *datPersonaGetRow(u16 personaId);
@@ -1284,8 +1284,8 @@ void func_00387e70(u8 *arg0)
     if (fonts == NULL) {
         kAssertFail(D_0064EEB0, 0x50B);
     }
-    fonts[0] = (s32)func_0046a770((char *)D_005E5810);
-    fonts[1] = (s32)func_0046a770((char *)D_005E5850);
+    fonts[0] = (s32)resourceFindByName((char *)D_005E5810);
+    fonts[1] = (s32)resourceFindByName((char *)D_005E5850);
     selected = state[1] + state[2];
     t = (f32)(state[4] - 12) / 12.0f;
     if (t > 1.0f) {

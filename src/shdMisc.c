@@ -25,7 +25,7 @@ extern char D_005E5810[];
 extern char D_0064E2F8[];
 
 u32 datGetMoney(void);
-s32 func_0046a770(char *param);
+s32 resourceFindByName(char *param);
 void kAssertFail(char *, s32);
 void sdkSpriteDrawOnceAux(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg3,
                   f32 z, s32 arg4);
@@ -58,7 +58,7 @@ void func_00364320(Vec2f pos, f32 z, s32 color, s32 num)
         }
         func_003645c0(tmp, num);
         if (iGpffffb5a8 == 0) {
-            s32 temp = func_0046a770(D_005E5810);
+            s32 temp = resourceFindByName(D_005E5810);
             iGpffffb5a8 = temp;
             if (temp == 0) {
                 kAssertFail(D_0064E2F8, 0x31);
