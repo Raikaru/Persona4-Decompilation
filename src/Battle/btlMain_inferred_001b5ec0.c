@@ -597,26 +597,28 @@ void btlMainDrawSkyOverlay(void) {
     ((void (*)(u32, u8 *, u32))D_00887300[4])(4, (u8 *)&buf, 4);
 }
 
+/* V4 work slots 0-3 of the battle state. Consecutive 0x30-byte blocks at
+ * iGpffffb3ac+0x1BC, +0x1EC, +0x21C, +0x24C; btlEPL.c uses them as scratch vectors. */
 // FUN_001B7020
-s32 func_001b7020(void)
+s32 btlMainGetV4Slot0(void)
 {
     return iGpffffb3ac + 0x1BC;
 }
 
 // FUN_001B7030
-s32 func_001b7030(void)
+s32 btlMainGetV4Slot1(void)
 {
     return iGpffffb3ac + 0x1EC;
 }
 
 // FUN_001B7040
-s32 func_001b7040(void)
+s32 btlMainGetV4Slot2(void)
 {
     return iGpffffb3ac + 0x21C;
 }
 
 // FUN_001B7050
-s32 func_001b7050(void)
+s32 btlMainGetV4Slot3(void)
 {
     return iGpffffb3ac + 0x24C;
 }
