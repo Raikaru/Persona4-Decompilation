@@ -343,7 +343,7 @@ void func_001900a0(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 // FUN_00190130
-s32 func_00190130(s32 arg0)
+s32 K_MapEdit_Create(s32 arg0)
 {
     s32 *work;
 

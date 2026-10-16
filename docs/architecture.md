@@ -164,11 +164,11 @@ Most of these callbacks live in `src/Kosaka/Field/sequenceList.c`
 | 6 | BATTLE | BATTLE sequence start callback: destroys the field resource archives (`K_Fldrc_DestroyArchives`), which calls `func_00192e90` and `func_00193730` (`src/promoted/code1_0019.c`) | See section 8. |
 | 7 | SCRIPT VIEWER | `SeqScriptViewer_Start`, which calls `func_0029e8d0` (`scrScriptProcess.c`) | |
 | 8 | EVENT | `SeqEvent_Start`, which calls the stub `func_002853b0` | |
-| 9 | FIELD | `func_00170220` (`src/promoted/k_sequence.c`), which calls `func_00155e10` (`k_field.c`) | 0x1C-byte packet: field, room, entry, spawn, direction |
-| 10 | TOOL EVENT | `func_00170350` | |
-| 11 | DUNGEON | `func_001704a0`, which calls `func_00159e90` (`src/promoted/code1_0015.c`) | |
-| 12 | LARGE MAP | `func_001707b0` | |
-| 13 | FOOD COURT | `func_001708a0` | |
+| 9 | FIELD | `K_SeqFieldRecordStart` (`src/promoted/k_sequence.c`), which calls `FldRootCreate` (`k_field.c`) | 0x1C-byte packet: field, room, entry, spawn, direction |
+| 10 | TOOL EVENT | `K_SeqFieldPosStart` | |
+| 11 | DUNGEON | `K_SeqFldStepStart`, which calls `func_00159e90` (`src/promoted/code1_0015.c`) | |
+| 12 | LARGE MAP | `K_SeqLmapStart` | |
+| 13 | FOOD COURT | `K_SeqFoodCourtStart` | |
 | 14–21 | KOSAKA, TOHYAMA (MOVIE), NIIDA, YAJI, NOWATARI, MIWA, IMANISHI (STAFF), SAMPLE | various | Per-programmer test entries. **[inferred]** These match the `src/Kosaka/` and `src/Yajima/` directory names. |
 | 22 | WEAPON STORE | `SeqWeaponStore_Start`, which calls `func_002bdb50` (`src/Event/Fcl/y_fclShop.c`) | Polls `Y_FclShopMainProc` |
 | 23 | ITEM STORE | `SeqItemStore_Start`, which calls `func_002e7510` | Polls `46ShopSystem` |
@@ -404,8 +404,8 @@ prefix comes from the original file names.
 
 ### Entering a field
 
-Sequence 9 calls `func_00170220` in `src/promoted/k_sequence.c`, which
-passes the 0x1C-byte field packet to `func_00155e10` in
+Sequence 9 calls `K_SeqFieldRecordStart` in `src/promoted/k_sequence.c`, which
+passes the 0x1C-byte field packet to `FldRootCreate` in
 `src/Kosaka/Field/k_field.c`. That creates the **`"field root"`** task
 (priority `0xF`, update `func_00155360`, destroy `func_00155bf0`) with a
 `KFieldStateWork` block (`field`, `room`, `entry`, `spawn`, `direction`,
@@ -453,7 +453,7 @@ battle packet with the party units (`datUnitCreatePc(1)` plus
 `id` is the script argument) and the battle field (default `0xF0`, 1).
 
 It then calls `func_001029a0(6, packet, 0x3C, 4)`. Switching sequence calls
-the FIELD record's *end* callback, `func_001702c0`, which destroys the field
+the FIELD record's *end* callback, `K_SeqFieldRecordStop`, which destroys the field
 root, so the field is torn down while the battle runs. **[inferred]**
 Dungeon-contact and story battles therefore both reach battle through a
 script procedure. The path from a shadow touching the

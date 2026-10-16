@@ -698,7 +698,7 @@ void func_00187da0(u8 *arg0)
 }
 
 // FUN_00187E80
-u8 *func_00187e80(u8 *arg0, s32 arg1, s32 arg2)
+u8 *FldLmapCreate(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 *temp_2_2;
     u8 *temp_2;
