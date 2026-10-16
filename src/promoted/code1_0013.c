@@ -39,7 +39,7 @@ extern void func_00453670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00453760(void *arg0, s32 arg1);
 extern void func_004538e0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00453960(u8 *arg0);
-extern void func_00136fa0(u8 *arg0, s32 arg1, s32 arg2);
+extern void cmpPersonaSetSelection(u8 *arg0, s32 arg1, s32 arg2);
 extern s32 datPersonaRosterSlot(s16 arg0);
 extern u16 *datPersonaGetRecord(u16 arg0);
 extern void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
@@ -1985,17 +1985,17 @@ void radarSetPersonaHighlight(u8 *arg0, s32 arg1) {
 // FUN_0013D8B0
 s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void radarBeginRecipientPick(u8 *arg0, s32 *arg1);
-    extern void func_001356d0(u8 *arg0);
+    extern void cmpPersonaMenuInit(u8 *arg0);
     extern s32 func_00135cb0(u8 *arg0);
-    extern s32 func_00137dd0(u8 *arg0);
-    extern void func_001377e0(u8 *arg0);
-    extern void func_001371a0(u8 *arg0, s32 arg1);
+    extern s32 cmpPersonaRowsSettled(u8 *arg0);
+    extern void cmpPersonaMenuRelease(u8 *arg0);
+    extern void cmpPersonaSetMode(u8 *arg0, s32 arg1);
     extern void datScreenWipeSetTextureId(u8 *arg0, s32 arg1);
-    extern void func_00137e50(u8 *arg0, s32 a, s32 b, s32 c);
+    extern void cmpPersonaStartScreenWipe(u8 *arg0, s32 a, s32 b, s32 c);
     extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
-    extern void func_001374d0(u8 *arg0);
-    extern void func_00137570(u8 *arg0);
-    extern void func_001370e0(u8 *arg0);
+    extern void cmpPersonaSetPartyCursor(u8 *arg0);
+    extern void cmpPersonaResetRosterCursor(u8 *arg0);
+    extern void cmpPersonaScatterGridCells(u8 *arg0);
     extern void shdPersonaStartSlideIn(u8 *arg0);
     extern void radarSetPersonaHighlight(u8 *arg0, s32 arg1);
     extern s32 datPersonaRosterSlot(s32 arg0);
@@ -2014,7 +2014,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     *arg1 = (var_2 = 1);
     switch (*arg0) {
     case 0:
-        func_001356d0(arg2);
+        cmpPersonaMenuInit(arg2);
         *arg0 = 1;
         *arg1 = 0;
         break;
@@ -2028,51 +2028,51 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 2:
-        if (func_00137dd0(arg2) != 0) {
-            func_001377e0(arg2);
+        if (cmpPersonaRowsSettled(arg2) != 0) {
+            cmpPersonaMenuRelease(arg2);
             return 1;
         }
         break;
     case 3:
-        if (func_00137dd0(arg2) != 0) {
-            func_001371a0(arg2, 2);
+        if (cmpPersonaRowsSettled(arg2) != 0) {
+            cmpPersonaSetMode(arg2, 2);
             *arg0 = 4;
             resrcMngSuppressRender();
             datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24));
-            func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 1, 0);
+            cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 1, 0);
             shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 0U, 0, 0);
         }
         break;
     case 4:
-        if (func_00137dd0(arg2) != 0) {
+        if (cmpPersonaRowsSettled(arg2) != 0) {
             if (D_008C024E[0] & 0x20) {
-                func_001371a0(arg2, 1);
+                cmpPersonaSetMode(arg2, 1);
                 *arg0 = 2;
                 resrcMngUnsuppressRender();
                 func_0034bb20(0x14);
-                func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
+                cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
                 sdkSndStartStream(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
                 if (*(s16 *)(arg2 + 0x50) == 0) {
-                    func_001371a0(arg2, 3);
+                    cmpPersonaSetMode(arg2, 3);
                     *arg0 = 5;
-                    func_00136fa0(arg2, 1, 0);
-                    func_001374d0(arg2);
-                    func_00137570(arg2);
-                    func_001370e0(arg2);
+                    cmpPersonaSetSelection(arg2, 1, 0);
+                    cmpPersonaSetPartyCursor(arg2);
+                    cmpPersonaResetRosterCursor(arg2);
+                    cmpPersonaScatterGridCells(arg2);
                     func_0034bb20(0xF);
-                    func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
+                    cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
                     shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                     radarSetPersonaHighlight(arg2, 1);
                     shdPersonaRefreshDispCtlPosition(*(u8 **)(arg2 + 0x1CB4), NULL);
                     shdPersonaSetFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
                     sdkSndStartStream(0, 0, 0, 1);
                 } else {
-                    func_001371a0(arg2, 8);
+                    cmpPersonaSetMode(arg2, 8);
                     *arg0 = 0xA;
-                    func_001374d0(arg2);
+                    cmpPersonaSetPartyCursor(arg2);
                     func_0034bb20(0x11);
-                    func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
+                    cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
                     radarSetPersonaHighlight(arg2, 0);
                     shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24), (u32)datPersonaGetRecord(*(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24)), 0);
                     shdPersonaStartSlideIn(*(u8 **)(arg2 + 0x1CB4));
@@ -2085,7 +2085,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_00453670(buf, 8, *(s16 *)(arg2 + 0x34), *(s16 *)(arg2 + 0x50), 0);
                 func_004538e0(buf, 0x4000, 0x1000, 0, 0);
                 if (func_00453960(buf) != 0) {
-                    func_00136fa0(arg2, 0, *(s32 *)(buf + 0x24));
+                    cmpPersonaSetSelection(arg2, 0, *(s32 *)(buf + 0x24));
                     datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24));
                     sdkSndStartStream(0, 1, 0, 0);
                 }
@@ -2093,16 +2093,16 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 5:
-        if (func_00137dd0(arg2) != 0) {
-            func_001371a0(arg2, 4);
+        if (cmpPersonaRowsSettled(arg2) != 0) {
+            cmpPersonaSetMode(arg2, 4);
             *arg0 = 6;
-            func_00137570(arg2);
+            cmpPersonaResetRosterCursor(arg2);
             datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), 0U);
         }
         break;
     case 6:
         if (D_008C024E[0] & 0x20) {
-            func_001371a0(arg2, 2);
+            cmpPersonaSetMode(arg2, 2);
             *arg0 = 3;
             func_0034bd60(0xE);
             datPersonaRemoveSelectedRosterMember();
@@ -2110,19 +2110,19 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         } else if (D_008C024E[0] & 0x40) {
             datPersonaSetLeadSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
             sdkSndStartStream(1, 3, 2, 6);
-            func_001375f0(arg2);
+            cmpPersonaRandomizeBackgroundCells(arg2);
         } else if (D_008C024E[0] & 0x80) {
             radarSetPersonaHighlight(arg2, 0);
             shdPersonaStartSlideIn(*(u8 **)(arg2 + 0x1CB4));
-            func_001371a0(arg2, 6);
-            func_00137740(arg2);
+            cmpPersonaSetMode(arg2, 6);
+            cmpPersonaSetRosterCursorMotion(arg2);
             *arg0 = 7;
             func_0034bb20(0x10);
         } else if (D_008C024E[0] & 0x10) {
             temp_17 = (s16)(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
             if (temp_17 == func_00105330(1)) {
                 nmMesWindowShowCurrentRecord(2);
-                func_001371a0(arg2, 0xC);
+                cmpPersonaSetMode(arg2, 0xC);
                 *arg0 = 0xF;
                 sdkSndStartStream(0, 0, 0, 8);
             } else {
@@ -2130,39 +2130,39 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 nmMesWindowSetCurrentParam(0);
                 nmMesWindowSetCurrentFlag(1);
                 nmMesWindowRequestRefresh();
-                func_001371a0(arg2, 0xB);
+                cmpPersonaSetMode(arg2, 0xB);
                 *arg0 = 0xE;
                 sdkSndStartStream(0, 0, 0, 1);
             }
-            func_00137570(arg2);
+            cmpPersonaResetRosterCursor(arg2);
         } else {
             func_00453670(buf, 0xC, *(s16 *)(arg2 + 0x4E), *(s16 *)(arg2 + 0x52), 0);
             func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
             if (func_00453960(buf) != 0) {
-                func_00136fa0(arg2, 1, *(s32 *)(buf + 0x24));
-                func_00137570(arg2);
+                cmpPersonaSetSelection(arg2, 1, *(s32 *)(buf + 0x24));
+                cmpPersonaResetRosterCursor(arg2);
                 shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                 sdkSndStartStream(0, 1, 0, 0);
             }
         }
         break;
     case 7:
-        if (func_00137dd0(arg2) != 0) {
+        if (cmpPersonaRowsSettled(arg2) != 0) {
             *arg0 = 8;
-            func_001371a0(arg2, 7);
+            cmpPersonaSetMode(arg2, 7);
         }
         break;
     case 8:
-        if (func_00137dd0(arg2) != 0) {
+        if (cmpPersonaRowsSettled(arg2) != 0) {
             if (D_008C024E[0] & 0x20) {
-                func_001371a0(arg2, 5);
+                cmpPersonaSetMode(arg2, 5);
                 *arg0 = 5;
-                func_00137570(arg2);
+                cmpPersonaResetRosterCursor(arg2);
                 func_0034bd60(0xF);
                 shdPersonaBeginClose(*(u8 **)(arg2 + 0x1CB4));
                 radarSetPersonaHighlight(arg2, 1);
             } else if (D_008C024E[0] & 0x40) {
-                func_001371a0(arg2, 0xA);
+                cmpPersonaSetMode(arg2, 0xA);
                 nmMesWindowShowCurrentRecord(3);
                 nmMesWindowSetCurrentParam(0);
                 nmMesWindowSetCurrentFlag(0);
@@ -2188,7 +2188,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             shdPersonaEndSelection(*(u8 **)(arg2 + 0x1CB4), 1);
             *arg0 = 8;
         } else if (D_008C024E[0] & 0x40) {
-            func_001371a0(arg2, 0xA);
+            cmpPersonaSetMode(arg2, 0xA);
             shdPersonaEndSelection(*(u8 **)(arg2 + 0x1CB4), 0);
             nmMesWindowShowCurrentRecord(3);
             nmMesWindowSetCurrentParam(0);
@@ -2208,15 +2208,15 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 10:
-        if (func_00137dd0(arg2) != 0) {
+        if (cmpPersonaRowsSettled(arg2) != 0) {
             *arg0 = 0xB;
-            func_001371a0(arg2, 7);
+            cmpPersonaSetMode(arg2, 7);
             datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), 0U);
         }
         break;
     case 11:
         if (D_008C024E[0] & 0x20) {
-            func_001371a0(arg2, 2);
+            cmpPersonaSetMode(arg2, 2);
             *arg0 = 3;
             func_0034bd60(0xE);
             shdPersonaBeginClose(*(u8 **)(arg2 + 0x1CB4));
@@ -2246,7 +2246,7 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 13:
-        if ((func_00137dd0(arg2) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
+        if ((cmpPersonaRowsSettled(arg2) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
             temp_2 = nmMesWindowCurrentAnimFlag();
             switch (temp_2) {
             case 0:
@@ -2263,15 +2263,15 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 14:
-        if ((func_00137dd0(arg2) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
+        if ((cmpPersonaRowsSettled(arg2) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
             temp_2_2 = nmMesWindowCurrentAnimFlag();
             switch (temp_2_2) {
             case 0:
                 datPersonaRemoveRosterSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
-                func_00135c10(arg2);
+                cmpPersonaBuildRosterList(arg2);
                 temp_3_2 = (s16)(*(s16 *)(arg2 + 0x4E));
                 if (*(s16 *)(arg2 + 0x52) >= temp_3_2) {
-                    func_00136fa0(arg2, 1, temp_3_2 - 1);
+                    cmpPersonaSetSelection(arg2, 1, temp_3_2 - 1);
                 }
                 shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
                 break;
@@ -2281,13 +2281,13 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 kAssertFail(D_005ED9E0, 0x244);
                 break;
             }
-            func_00137570(arg2);
+            cmpPersonaResetRosterCursor(arg2);
             *arg0 = 5;
         }
         break;
     case 15:
         if (datMemberNoticeTryBegin(1) == 0) {
-            func_00137570(arg2);
+            cmpPersonaResetRosterCursor(arg2);
             *arg0 = 5;
         }
         break;
@@ -2321,7 +2321,7 @@ void radarBeginRecipientPick(u8 *arg0, s32 *arg1) {
     func_004538e0(sp40, 8, 4, 0, 0);
     temp_2 = func_00453960(sp40);
     if (temp_2 > 0) {
-        func_00136fa0(arg0, 1, *(s32 *)(sp40 + 0x24));
+        cmpPersonaSetSelection(arg0, 1, *(s32 *)(sp40 + 0x24));
         *arg1 = 8;
         if (temp_2 == 1) {
             shdPersonaBeginDisplay(*(u8 **)(arg0 + 0x1CB4), 1, datPersonaRosterSlot(*(s16 *)(arg0 + 0x52)), 0);
@@ -2345,7 +2345,7 @@ s32 radarBeginCharacterPick(u8 *arg0, s32 *arg1) {
     func_004538e0(sp40, 8, 4, 0, 0);
     temp_2 = func_00453960(sp40);
     if (temp_2 > 0) {
-        func_00136fa0(arg0, 0, *(s32 *)(sp40 + 0x24));
+        cmpPersonaSetSelection(arg0, 0, *(s32 *)(sp40 + 0x24));
         *arg1 = 0xB;
         temp_18 = character = *(u16 *)(code13AddOff(*(s32 *)(sp40 + 0x24) * 2, arg0) + 0x24);
         if (temp_2 == 1) {
