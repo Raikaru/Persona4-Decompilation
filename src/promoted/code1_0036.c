@@ -32,7 +32,7 @@ extern u32 datPersonaGetNextExp(s32 persona);
 extern u32 datPersonaGetExpToNextLevel(PersonaWork *persona);
 extern u16 *datPersonaGetRecord(u16 pcId);
 
-extern void func_003642e0(u8 *arg0, void *arg1);
+extern void MT_Scene_SetWorkPresentFlag(u8 *arg0, void *arg1);
 
 extern void memset(void *dst, s32 value, s32 size);
 
@@ -688,12 +688,13 @@ void func_003642a0(u8 *arg0)
 {
     u16 *flags = *(u16 **)(arg0 + 0x38);
 
-    func_003642e0(arg0, NULL);
+    MT_Scene_SetWorkPresentFlag(arg0, NULL);
     *flags |= 2;
 }
 
+// Intent: Set the work block's present flag (bit 0 of the flags halfword) when the pointer is non-null, otherwise clear it [inferred]
 // FUN_003642E0
-void func_003642e0(u8 *arg0, void *arg1)
+void MT_Scene_SetWorkPresentFlag(u8 *arg0, void *arg1)
 {
     u16 *flags;
 

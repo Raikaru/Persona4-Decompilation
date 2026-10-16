@@ -73,14 +73,14 @@ extern f32 iGpffff8218;
 extern f32 iGpffff830c;
 extern s32 func_00454a60(void *arg0, s32 arg1);
 extern u8 D_005EFF60[];
-extern void func_00160880(void);
+extern void FldColorCrossfadeStep(void);
 extern s32 D_007D2510[];
 extern u8 D_007D24F0[];
 extern u8 D_005EFFE0[];
 extern s32 FldLoadTaskUpdate(u8 *arg0);
 extern void func_00156630(u8 *task);
 extern s32 H_Cdvd_IsFileLoaded();
-extern void func_003642e0(s32 arg0, s32 arg1);
+extern void MT_Scene_SetWorkPresentFlag(s32 arg0, s32 arg1);
 extern u8 D_007E31E4[];
 extern u8 D_005F0650[];
 extern u32 datGetFlag(s32 arg0);
@@ -219,10 +219,11 @@ void MT_Scene_ScaleResColors(u32 *resource, const f32 *color)
         node = *(s32 *)(node + 0x138);
     }
 }
+// Intent: Task update for the colour cross-fade: run one cross-fade step and continue [inferred]
 // FUN_00153A00
-s32 func_00153a00(u8 *unusedTask)
+s32 FldColorCrossfadeUpdate(u8 *unusedTask)
 {
-    func_00160880();
+    FldColorCrossfadeStep();
     return 0;
 }
 // Intent: Call the task's hook from the hook table with the work block at +0x38 [inferred]
@@ -2470,8 +2471,9 @@ void func_0015a350(P4_0015_Vec3 *arg0)
     func_00440b68(D_005F0670, min_x, min_y, max_x, max_y);
     *arg0 = out;
 }
+// Intent: Set the step's present flag from the argument pointer, using the step work block's sub-block [inferred]
 // FUN_0015A520
-void func_0015a520(s32 arg0)
+void FldStepSetPresentFlag(s32 arg0)
 {
     u8 *work;
     s32 value;
@@ -2480,7 +2482,7 @@ void func_0015a520(s32 arg0)
     if (work != NULL) {
         value = *(s32 *)(*(u8 **)(work + 0x38) + 0x1C);
         if (value != 0) {
-            func_003642e0(value, arg0);
+            MT_Scene_SetWorkPresentFlag(value, arg0);
         }
     }
 }
