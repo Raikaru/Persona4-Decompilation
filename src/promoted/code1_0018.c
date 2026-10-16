@@ -105,14 +105,14 @@ extern u8 D_007966D0[];
 extern s64 iGpffff9fd0;
 extern s32 iGpffffb240;
 extern void FldBoardGenerate(s32 mode, s32 value, s32 arg2);
-extern void func_0017d1f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
+extern void FldSmapTileQueueByType(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
                            f32 arg5, f32 arg6, f32 arg7, s32 arg4);
 extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
                           f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
                           f32 fparg4, u8 *arg2, s32 arg3,
                           f32 fparg5, f32 fparg6, f32 fparg7, s32 arg4,
                           f32 arg_sp0);
-extern void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
+extern void FldSmapTileQueueQuad(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
                           s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
 extern u16 D_008C024E[];
 extern s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -3570,7 +3570,7 @@ s32 FldMapTestUpdate(u8 *arg0)
                         type = ((MapTestGrid *)(rowOffset + (intptr_t)MT_Scene_GetFrameState()))->cells[0][off].shape;
                         fx = (f32)(x * 0x12);
                         fy = (f32)ty;
-                        func_0017d1f0(D_007966D0, panels + x * 0x120 + 0x10, type, 0, fx, fy, 0.0f, ((MapTestGrid *)(rowOffset + (intptr_t)MT_Scene_GetFrameState()))->cells[0][off].rotation);
+                        FldSmapTileQueueByType(D_007966D0, panels + x * 0x120 + 0x10, type, 0, fx, fy, 0.0f, ((MapTestGrid *)(rowOffset + (intptr_t)MT_Scene_GetFrameState()))->cells[0][off].rotation);
                     }
                     if (((MapTestGrid *)(rowOffset + (intptr_t)MT_Scene_GetFrameState()))->cells[0][x].occupied == 2) {
                         color = iGpffff9fd8;
@@ -3889,7 +3889,7 @@ s32 K_MapEditTask(u8 *arg0)
         icon = icon_color;
         FldRc_QueueScreenQuad(D_007966D0, work + 0x1BE0, 452.0f, 52.0f, 0.0f, 70.0f, 70.0f,
                       (u8 *)&icon, 0, 0.0f, 0.0f, 0.0f, 0, 0.0f);
-        func_0017d240(D_007966D0, work + 0x1AC0, *(s32 *)(work + 0x1D00), 0, 0x36, 0x36,
+        FldSmapTileQueueQuad(D_007966D0, work + 0x1AC0, *(s32 *)(work + 0x1D00), 0, 0x36, 0x36,
                       *(s32 *)(work + 0x1AB8), 460.0f, 60.0f, 0.0f);
         {
             s32 y;
@@ -3904,13 +3904,13 @@ s32 K_MapEditTask(u8 *arg0)
                     u8 *cell = cells + x * 0x10;
 
                     if (cell[0x2C] != 0 && (cell[0x2D] & 0xF) == 1) {
-                        func_0017d1f0(D_007966D0, panels + x * 0x120 + 0x1D10, cell[0x30], 0,
+                        FldSmapTileQueueByType(D_007966D0, panels + x * 0x120 + 0x1D10, cell[0x30], 0,
                                       80.0f + (f32)(x * 0x12), fy, 0.0f, cell[0x31]);
                     }
                 }
             }
         }
-        func_0017d1f0(D_007966D0, work + 0x1990, *(s32 *)(work + 0x1D00), 0,
+        FldSmapTileQueueByType(D_007966D0, work + 0x1990, *(s32 *)(work + 0x1D00), 0,
                       80.0f + 18.0f * (f32)*(s32 *)(work + 0x1AB0),
                       6.0f + 18.0f * (f32)*(s32 *)(work + 0x1AB4), 0.0f, *(s32 *)(work + 0x1AB8));
         break;

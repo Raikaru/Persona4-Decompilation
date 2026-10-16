@@ -94,7 +94,7 @@ extern s32 cmpMainTaskCreate(s32 arg0, s32 arg1);
 extern void datSetFlag(s32 arg0, s32 arg1);
 s32 FldShadow_CasterStep(u8 *arg0);
 void FldShadow_CasterDestroy(u8 *arg0);
-void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
+void FldSmapTileQueueQuad(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
                     s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
 extern s32 FldPlayerIconUpdate(u8 *arg0);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
@@ -830,21 +830,21 @@ void FldPlayerIconUpdatePos(u8 *arg0)
     *(s16 *)(temp_16 + 0xE) = *(s32 *)((u8 *)D_005F1934 + temp_4);
 }
 // FUN_0017D1F0
-void func_0017d1f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
+void FldSmapTileQueueByType(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3,
                    f32 arg5, f32 arg6, f32 arg7, s32 arg4)
 {
     s32 temp_3;
 
     temp_3 = arg2 * 8;
-    func_0017d240(arg0, arg1, arg2, arg3,
+    FldSmapTileQueueQuad(arg0, arg1, arg2, arg3,
                   *(s32 *)(D_005F1A60 + temp_3) + 1,
                   *(s32 *)(D_005F1A64 + temp_3) + 1, arg4,
                   arg5, arg6, arg7);
 }
-/* measured: optimization_level 1 is required for func_0017d240 codegen. */
+/* measured: optimization_level 1 is required for FldSmapTileQueueQuad codegen. */
 #pragma optimization_level 1
 // FUN_0017D240
-void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
+void FldSmapTileQueueQuad(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
                    s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9)
 {
     struct {
@@ -894,5 +894,5 @@ void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
                   local_4, temp_9,
                   *(f32 *)(D_005F197C + temp_18));
 }
-/* measured: restore optimization_level 2 after func_0017d240. */
+/* measured: restore optimization_level 2 after FldSmapTileQueueQuad. */
 #pragma optimization_level 2
