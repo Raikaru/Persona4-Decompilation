@@ -43,7 +43,7 @@ extern char *strcat(char *dst, const char *src);
 extern void func_003ef1b0(s32 arg0);
 extern void func_003ef260(s32 arg0, s32 (*arg1)(s32, s32), s32 arg2);
 extern void func_003e6870(void *arg0, void *arg1);
-extern s32 func_00190920(s32 arg0, s32 arg1);
+extern s32 K_TexStripNameInsert(s32 arg0, s32 arg1);
 extern char D_005F63F0[];
 extern char D_005F6430[];
 extern char D_005F6450[];
@@ -90,16 +90,16 @@ extern char D_005F6350[];
 extern char D_005F6370[];
 extern char D_005F63B0[];
 
-s32 func_00190680(u8 *arg0, void *arg1);
-void func_001909f0(u8 *arg0, void *arg1, u8 *arg2);
-s32 func_00190c10(u8 *arg0);
-s32 func_001916a0(u8 *arg0, void *arg1);
-s32 func_00191850(u8 *arg0);
+s32 K_TexStripLoadRecords(u8 *arg0, void *arg1);
+void K_TexStripApplyNames(u8 *arg0, void *arg1, u8 *arg2);
+s32 K_TexStripBuildUpdate(u8 *arg0);
+s32 K_TexStripRecordCount(u8 *arg0, void *arg1);
+s32 K_TexStripLoadUpdate(u8 *arg0);
 
 /* Source unit: src/promoted/k_texStrip.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_texStrip.c; members 00190680-00191d90 */
 
-// measured: nd 115 after 4 attempts (best). Spill-slot rule as func_001916a0:
+// measured: nd 115 after 4 attempts (best). Spill-slot rule as K_TexStripRecordCount:
 // func_003df3c0 writes four signed header words in spill.s. Switch `case 0x16 / case 0xF0F000E0 /
 // default` compiles the dispatch comparison in the correct order (0xF0F000E0 first, then 0x16)
 // and matches retail exactly. Residual nd 115 is dominated by register allocation: retail keeps
@@ -117,7 +117,7 @@ s32 func_00191850(u8 *arg0);
 // pointer, saves a1/a2, and masks a3/t0, proving five args `(void *,s32,s32,s32,s32)`;
 // existing calls already pass all five, so no prototype change was needed.
 // FUN_00190680
-s32 func_00190680(u8 *arg0, void *arg1) {
+s32 K_TexStripLoadRecords(u8 *arg0, void *arg1) {
     s32 sp[2];
     union { s32 s[4]; u32 u[4]; } spill;
     s32 buffer[5];
@@ -177,10 +177,10 @@ loop_check:
    the lookup result. Pointer-typed lookup/print arguments and disabled CSE
    preserve retail's first-argument-before-name-address materialization.
    measured: object 196B/window 208B; exact instructions, 12B zero tail. */
-/* measured: func_00190920 MATCH -> MISMATCH without this pragma. */
+/* measured: K_TexStripNameInsert MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs off
 // FUN_00190920
-s32 func_00190920(s32 arg0, s32 arg1) {
+s32 K_TexStripNameInsert(s32 arg0, s32 arg1) {
     if (func_003ef650((void *)arg1, (char *)arg0 + 0x10) == 0) {
         func_003ef610(arg0);
         func_003ef5b0(arg1, arg0);
@@ -195,7 +195,7 @@ s32 func_00190920(s32 arg0, s32 arg1) {
 }
 
 /* measured: restore CSE after the exact 00190920 call sequence. */
-/* measured: func_001909f0, func_00190c10, func_001916a0, func_00191850 MATCH -> MISMATCH without this pragma. */
+/* measured: K_TexStripApplyNames, K_TexStripBuildUpdate, K_TexStripRecordCount, K_TexStripLoadUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs on
 // measured: candidate frame, spill arrays, saved-register order, switch/goto layout, and
 // shared-callee five-argument signature reached object 532/window 544 with normalized_diff 10.
@@ -204,7 +204,7 @@ s32 func_00190920(s32 arg0, s32 arg1) {
 // first. Casting those two stack values to u32 reproduces the retail order and closes this
 // function (normalized_diff 0).
 // FUN_001909F0
-void func_001909f0(u8 *arg0, void *arg1, u8 *arg2) {
+void K_TexStripApplyNames(u8 *arg0, void *arg1, u8 *arg2) {
     s32 sp[2];
     union { s32 s[4]; u32 u[4]; } spill;
     s32 temp_20;
@@ -229,7 +229,7 @@ loop_body:
 item_body:
             temp_4 = *(s32 *)(arg2 + var_17 * 4 + 0x658);
             if (temp_4 != 0) {
-                func_003ef260(temp_4, func_00190920, temp_18);
+                func_003ef260(temp_4, K_TexStripNameInsert, temp_18);
             }
             var_17++;
 item_check:
@@ -266,9 +266,9 @@ loop_check:
    TexStrip_00190c10_20261005.md for owner and relocation evidence. */
 // FUN_00190C10
 #pragma push
-/* measured: func_00190c10 MATCH -> MISMATCH without this pragma. */
+/* measured: K_TexStripBuildUpdate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 func_00190c10(u8 *task)
+s32 K_TexStripBuildUpdate(u8 *task)
 {
     /* sceGetstat owns each complete 64-byte record. Only its size word is
        interpreted here; the other thirteen trailing words remain opaque. */
@@ -440,7 +440,7 @@ s32 func_00190c10(u8 *task)
     case 6: {
         s32 tmp;
         sprintf(texturePath, D_005F6370, ((s16 *)work[0x93])[2], work[work[0x397] + 0x96]);
-        tmp = func_00190680((u8 *)work[0x398], texturePath);
+        tmp = K_TexStripLoadRecords((u8 *)work[0x398], texturePath);
         work[work[0x397] + 0x196] = tmp;
         H_Cdvd_Destroy((void *)work[0x398]);
         work[0x398] = 0;
@@ -462,7 +462,7 @@ s32 func_00190c10(u8 *task)
         for (; *p != '/'; p--) {
         }
         strcat(resourcePath, p + 1);
-        func_001909f0((u8 *)work[0x94], resourcePath, (u8 *)work);
+        K_TexStripApplyNames((u8 *)work[0x94], resourcePath, (u8 *)work);
         H_Cdvd_Destroy((void *)work[0x94]);
         strcpy(resourcePath, D_005F63B0);
         for (p = (char *)&work[0x53]; *p != 0; p++) {
@@ -491,7 +491,7 @@ s32 func_00190c10(u8 *task)
 
 #pragma pop
 // FUN_001915C0
-void func_001915c0(u8 *arg0)
+void K_TexStripBuildTaskDestroy(u8 *arg0)
 {
     s32 handle;
 
@@ -504,7 +504,7 @@ void func_001915c0(u8 *arg0)
 }
 
 // FUN_00191610
-s32 func_00191610(void)
+s32 K_TexStripBuildTaskCreate(void)
 {
     void *mem;
 
@@ -514,7 +514,7 @@ s32 func_00191610(void)
     {
         return 0;
     }
-    return (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, func_00190c10, func_001915c0, (u8 *)(mem));
+    return (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, K_TexStripBuildUpdate, K_TexStripBuildTaskDestroy, (u8 *)(mem));
 }
 
 // measured: MATCH (object 420/window 432). The four func_003df3c0 spill slots
@@ -524,7 +524,7 @@ s32 func_00191610(void)
 // The `(u32)` casts on spill.s[0] and spill.s[1] in func_003deff0 reproduce retail's
 // argument-materialization order (loads before the first-argument move).
 // FUN_001916A0
-s32 func_001916a0(u8 *arg0, void *arg1)
+s32 K_TexStripRecordCount(u8 *arg0, void *arg1)
 {
     s32 sp[2];
     union { s32 s[4]; u32 u[4]; } spill;
@@ -569,7 +569,7 @@ loop_check:
 }
 
 // FUN_00191850
-s32 func_00191850(u8 *arg0)
+s32 K_TexStripLoadUpdate(u8 *arg0)
 {
     char buf240[0x40];
     char buf140[0x100];
@@ -613,7 +613,7 @@ s32 func_00191850(u8 *arg0)
         sprintf(buf140, D_005F6450);
         strcat(buf140, (char *)&work[0x53]);
         strcat(buf140, &D_00763158);
-        work[work[0x95] + 0x196] = func_001916a0((u8 *)work[0x94], buf140);
+        work[work[0x95] + 0x196] = K_TexStripRecordCount((u8 *)work[0x94], buf140);
         H_Cdvd_Destroy((u8 *)work[0x94]);
         work[0x94] = 0;
         work[0x95] = work[0x95] + 1;
@@ -628,7 +628,7 @@ s32 func_00191850(u8 *arg0)
         sprintf(buf40, D_005F6450);
         strcat(buf40, (char *)&work[0x53]);
         strcat(buf40, &D_00763158);
-        func_001909f0((u8 *)work[0x94], buf40, (u8 *)work);
+        K_TexStripApplyNames((u8 *)work[0x94], buf40, (u8 *)work);
         for (i = 0; i < (u32)work[0x95]; i++)
         {
             s32 *elem = (s32 *)((u8 *)work + i * 4 + 0x658);
@@ -659,7 +659,7 @@ s32 func_00191850(u8 *arg0)
 }
 
 // FUN_00191B70
-void func_00191b70(u8 *arg0)
+void K_TexStripLoadDestroy(u8 *arg0)
 {
     s32 handle;
 
@@ -672,7 +672,7 @@ void func_00191b70(u8 *arg0)
 }
 
 // FUN_00191BC0
-s32 func_00191bc0(void)
+s32 K_TexStripLoadTaskCreate(void)
 {
     s32 ret;
     void *mem;
@@ -683,14 +683,14 @@ s32 func_00191bc0(void)
     {
         return 0;
     }
-    ret = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, func_00191850, func_00191b70, (u8 *)(mem));
+    ret = (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, K_TexStripLoadUpdate, K_TexStripLoadDestroy, (u8 *)(mem));
     *(s32 *)((u8 *)mem + 0xE6C) = 0x28;
     *(s32 *)((u8 *)mem + 0xE70) = 1;
     return ret;
 }
 
 // FUN_00191C70
-s32 func_00191c70(u8 *arg0)
+s32 K_TexStripCodeLogUpdate(u8 *arg0)
 {
     s32 *work;
     char buf[0x80];
@@ -724,12 +724,12 @@ s32 func_00191c70(u8 *arg0)
 }
 
 // FUN_00191D60
-void func_00191d60(u8 *arg0) {
+void K_TexStripCodeLogDestroy(u8 *arg0) {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
 // FUN_00191D90
-s32 func_00191d90(void)
+s32 K_TexStripCodeLogTaskCreate(void)
 {
     void *mem;
 
@@ -739,6 +739,6 @@ s32 func_00191d90(void)
     {
         return 0;
     }
-    return (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F64A8), 0xF, 0, 0, func_00191c70, func_00191d60, (u8 *)(mem));
+    return (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F64A8), 0xF, 0, 0, K_TexStripCodeLogUpdate, K_TexStripCodeLogDestroy, (u8 *)(mem));
 }
 
