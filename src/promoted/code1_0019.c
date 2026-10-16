@@ -298,7 +298,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_0018f950(u8 *task);
+extern s32 K_MapEditTask(u8 *task);
 extern void btlEffectLoadFilesSync(void);
 extern void btlUiRegisterAvailability(void);
 extern void btlSoundLoadBanks(void);
@@ -325,7 +325,7 @@ extern s16 btlUnitMotionFrames(u8 *arg0, u16 arg1, f32 fparg0);
 extern void btlPacketStepSide(s32 arg0);
 extern void btlUnitSetMotion(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
 // FUN_001900A0
-void func_001900a0(u8 *arg0)
+void K_MapEdit_Destroy(u8 *arg0)
 {
     s32 *entries;
     s32 value;
@@ -352,7 +352,7 @@ s32 K_MapEdit_Create(s32 arg0)
     if (work == NULL) {
         return 0;
     }
-    return (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(D_005F6020), 0xF, 0, 0, func_0018f950, func_001900a0, (u8 *)(work));
+    return (s32)kwlnTaskCreateChild((void *)((u8 *)arg0), (const void *)(D_005F6020), 0xF, 0, 0, K_MapEditTask, K_MapEdit_Destroy, (u8 *)(work));
 }
 #pragma opt_propagation off
 #pragma opt_propagation on

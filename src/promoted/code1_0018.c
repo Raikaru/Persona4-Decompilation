@@ -3800,7 +3800,7 @@ typedef struct {
     s16 data[0x2B];
 } FieldPanelShape;
 // FUN_0018F950
-s32 func_0018f950(u8 *arg0)
+s32 K_MapEditTask(u8 *arg0)
 {
     extern PadStatus D_008C0240[2];
     extern FieldPanelShape D_005F5AC0[];
