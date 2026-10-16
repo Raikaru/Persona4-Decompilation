@@ -52,7 +52,7 @@ extern s32 *gEncountTbl;
 extern s32 D_00724504;
 extern s32 btlAICommandSelectCandidates();
 extern u32 datCalcRandomBelow(u32 arg0);
-extern u8 *func_001d8c00();
+extern u8 *btlEffectFindUnitByKey();
 extern s32 btlAICommandCollectSkillCandidates();
 extern s32 btlSideSelectUnits();
 extern s32 btlAICommandAlwaysTrue(void);
@@ -259,7 +259,7 @@ s32 btlEffectScriptPickRandomSide1Unit(void) {
     s32 count;
     u8 *stack[12];
 
-    selected = func_001d8c00(func_0029d050() + 0x98);
+    selected = btlEffectFindUnitByKey(func_0029d050() + 0x98);
     if (selected == NULL || *(u8 *)(*(u8 **)(selected + 0x30) + 0xA2) != 1) {
         count = 0;
         current = *(u8 **)(iGpffffb3ac + 0x174);
@@ -335,7 +335,7 @@ s32 btlEffectScriptPickRandomSide1OtherUnit(void) {
     u8 *stack[12];
 
     func_0029d050();
-    selected = func_001d8c00(*(u8 **)(iGpffffb3ac + 0x170) + 0x98);
+    selected = btlEffectFindUnitByKey(*(u8 **)(iGpffffb3ac + 0x170) + 0x98);
     if (selected == NULL || *(u8 *)(*(u8 **)(selected + 0x30) + 0xA2) != 1) {
         count = 0;
         current = *(u8 **)(iGpffffb3ac + 0x174);

@@ -91,7 +91,7 @@ extern f32 fGpffff8110;
  * opt_lifetimes splits the reused gather counters after those bounds. */
 #pragma pop
 // FUN_001D8C00
-u8 *func_001d8c00(u8 *arg0)
+u8 *btlEffectFindUnitByKey(u8 *arg0)
 {
     u16 flags;
     u8 *data;
@@ -122,9 +122,9 @@ u8 *func_001d8c00(u8 *arg0)
    uninitialised read - was the whole residual. */
 // FUN_001D8CB0
 #pragma push
-/* measured: func_001d8cb0 MATCH -> MISMATCH without this pragma. */
+/* measured: btlEffectSelectNearestEntry MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 func_001d8cb0(u8 *arg0, u8 *arg1)
+s32 btlEffectSelectNearestEntry(u8 *arg0, u8 *arg1)
 {
     struct BtlUnit;
     struct BtlAction {

@@ -67,7 +67,7 @@ void func_001f6cd0(void);
 void func_001f14f0(u8 *arg0);
 void func_001eb3b0(u8 *arg0);
 extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
-void func_001d8cb0(void *arg0, void *arg1);
+void btlEffectSelectNearestEntry(void *arg0, void *arg1);
 
 s32 btlUnitIsMoving(u8 *arg0);
 

@@ -67,7 +67,7 @@ void func_001f6cd0(void);
 void func_001f14f0(u8 *arg0);
 void func_001eb3b0(u8 *arg0);
 extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
-void func_001d8cb0(void *arg0, void *arg1);
+void btlEffectSelectNearestEntry(void *arg0, void *arg1);
 
 s32 btlUnitIsMoving(u8 *arg0);
 
@@ -587,7 +587,7 @@ void btlActionTargetInit(u8 *arg0)
         break;
     }
 init_1c80:
-    func_001d8cb0(arg0, arg0 + 0x98);
+    btlEffectSelectNearestEntry(arg0, arg0 + 0x98);
     entryType = *(u8 *)(func_001a_add_offset(
         *(u16 *)(arg0 + 0x6E) * 0x28, (u32)iGpffffb3b8) + 8);
     switch (entryType) {
@@ -1021,7 +1021,7 @@ void btlActionAiUpdate(u8 *arg0)
 void btlActionAutoInit(s64 *arg0) {
     func_001eb3b0((u8 *)arg0 + 0x38);
     btlSkillClassifyTargets((u8 *)arg0, (u8 *)arg0 + 0x98, 0, 0);
-    func_001d8cb0(NULL, arg0 + 0x13);
+    btlEffectSelectNearestEntry(NULL, arg0 + 0x13);
 }
 
 // FUN_001A2C70
