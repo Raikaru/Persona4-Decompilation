@@ -2310,6 +2310,7 @@ void datCommunityListDraw(u8 *work) {
 
 #pragma pop
 
+// Intent: Step each of the community menu's 108 entries once through their update function [inferred]
 // FUN_00359340
 void datCommunityEntriesStep(u8 *arg0) {
     s32 i;
