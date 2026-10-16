@@ -171,7 +171,7 @@ extern void func_00198920(u8 *arg0, s16 arg1, u16 arg2, f32 arg3, u16 arg4);
 /* Source unit: src/promoted/code1_0019.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0019.c; members 00198380-00198380 */
 
-extern s32 func_00198810(u8 *arg0);
+extern s32 btlUnitGetMotionState(u8 *arg0);
 extern u32 func_00198840(u8 *arg0);
 extern u32 func_001988b0(u8 *arg0);
 extern s64 btlUnitModelAnimFrame(u8 *arg0);
@@ -232,7 +232,7 @@ void func_00198380(u8 *arg0) {
         case 0:
             if (*(u8 *)(temp_16 + 0xEE) == 1) {
                 temp_16_2 = (s16)(*(s16 *)(arg0 + 0x9EC));
-                if (temp_16_2 != (s16)func_00198810(arg0)) {
+                if (temp_16_2 != (s16)btlUnitGetMotionState(arg0)) {
                     temp_2 = (s16)(*(s16 *)(arg0 + 0x9EE));
                     if (temp_2 > 0) {
                         var_6 = temp_2 & 0xFFFF;
@@ -260,7 +260,7 @@ void func_00198380(u8 *arg0) {
             break;
         case 3:
             if (!(*(f32 *)(temp_16 + 0x108) < 1.0f)) {
-                temp_19 = (s16)func_00198810(arg0);
+                temp_19 = (s16)btlUnitGetMotionState(arg0);
                 temp_18 = (s16)btlUnitModelAnimFrame(arg0);
                 if (temp_18 >= (s16)btlUnitMotionFrames(arg0, temp_19 & 0xFFFF, 1.0f)) {
                     mdlSetLayerWeight(temp_16, 0, 0.0f);
@@ -268,12 +268,12 @@ void func_00198380(u8 *arg0) {
             }
             break;
         case 4:
-            if ((*(u8 *)(temp_16 + 0xEE) == 1) && ((s16)func_00198810(arg0) != 0xE)) {
+            if ((*(u8 *)(temp_16 + 0xEE) == 1) && ((s16)btlUnitGetMotionState(arg0) != 0xE)) {
                 func_00198920(arg0, 0xE, 0U, 1.0f, 1);
             }
             break;
         case 5:
-            if ((*(u8 *)(temp_16 + 0xEE) == 1) && ((s16)func_00198810(arg0) != 0x10)) {
+            if ((*(u8 *)(temp_16 + 0xEE) == 1) && ((s16)btlUnitGetMotionState(arg0) != 0x10)) {
                 func_00198920(arg0, 0x10, 0U, 1.0f, 1);
             }
             break;

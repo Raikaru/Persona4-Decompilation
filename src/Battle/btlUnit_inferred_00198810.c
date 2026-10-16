@@ -183,7 +183,7 @@ extern u8 D_00794150[];
 /* measured: opt_propagation off preserves the COP1 chain's intermediate colouring. */
 /* measured: restore opt_propagation after func_00197a80 FPR temporary colouring probe. */
 // FUN_00198810
-s32 func_00198810(u8 *arg0) {
+s32 btlUnitGetMotionState(u8 *arg0) {
     if ((*(s32 *)(arg0 + 0x98) & 2) != 0) {
         return *(s16 *)(arg0 + 0x9DA);
     }

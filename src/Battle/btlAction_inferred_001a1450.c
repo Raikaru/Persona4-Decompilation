@@ -3483,7 +3483,7 @@ void btlActionSkillUpdate(u8 *arg0) {
     extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern u8 *btlUnitCreateArcMovePacket(s32 unit, s16 skill, s16 delay);
     extern s32 btlUnitCreateRotateTowardUnitPacket();
-    extern s32 func_00198810(u8 *arg0);
+    extern s32 btlUnitGetMotionState(u8 *arg0);
     extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
     extern BtlPacket *btlUnitCreateModelFramePacket(BtlUnit *unit, s16 value);
     extern BtlPacket *btlUnitCreateMotionSpeedPacket(BtlUnit *unit, u16 value, f32 speed, u16 mode);
@@ -4119,7 +4119,7 @@ void btlActionSkillUpdate(u8 *arg0) {
                 btlState4 = (u8 *)(iGpffffb3ac);
                 *(u16 *)(btlState4 + 0x18) = (u16) (*(u16 *)(btlState4 + 0x18) | 6);
             }
-            motionState = (s16)func_00198810(act->unit);
+            motionState = (s16)btlUnitGetMotionState(act->unit);
             switch (motionState) {
             case 0:
             case 0x11:
@@ -6265,7 +6265,7 @@ void btlActionWaitInit(void)
 
 // FUN_001ACF50
 u8 *btlPacketCreateImmediate(void);
-s32 func_00198810(u8 *arg0);
+s32 btlUnitGetMotionState(u8 *arg0);
 
 void func_001f0a10(u8 *arg0);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
@@ -6311,7 +6311,7 @@ void btlActionWaitUpdate(u8 *arg0) {
             packet = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)arg0, 0x32);
             *(s64 *)(packet + 0x60) = *(s64 *)arg0;
             btlPacketEnqueue(packet, 0);
-            if ((s16)func_00198810(*(u8 **)(arg0 + 0x30)) != 0x11) {
+            if ((s16)btlUnitGetMotionState(*(u8 **)(arg0 + 0x30)) != 0x11) {
                 recoveryPacket = actionRecoveryPacketBytes((BtlUnit *)*(u8 **)(arg0 + 0x30));
                 *(s64 *)(recoveryPacket + 0x60) = *(s64 *)arg0;
                 btlPacketEnqueue(recoveryPacket, 0);
