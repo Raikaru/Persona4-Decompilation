@@ -22,7 +22,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *func_004a6c00(u8 *arg0);
+extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
 
@@ -83,7 +83,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 /* Source unit: src/promoted/code1_004a.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004a.c; members 004a77b0-004a7830 */
 
-extern u8 *func_004a6c00(u8 *arg0);
+extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
 /* measured: the sibling 004a3010 body matches this loop and byte-copy shape. */
 /* measured: closes the opt_loop_invariants scope for 004a1ca0 at the file baseline. */
 /* measured: loop-invariant hoisting recovers the shared fade constants and
@@ -92,7 +92,7 @@ extern u8 *func_004a6c00(u8 *arg0);
    allocation exact. */
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: testing loop-invariant hoisting for the retail preheader. */
-/* measured: close loop-invariant hoisting after func_004a6c00. */
+/* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 // FUN_004A77B0
 void func_004a77b0(void) {
     if (D_00724C70 != 0) {

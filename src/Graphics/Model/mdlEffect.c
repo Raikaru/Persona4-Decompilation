@@ -8,8 +8,8 @@ extern void *func_004b1950(void *source);
 extern f32 effMiscRandFloat(EffRandState *state);
 extern void *WindCreateKindEntryAlt(void *source);
 extern void *mdlEffectCloneInstance(void *source);
-extern void *func_004a6d90(void *source);
-extern void *func_004a6e10(void *source);
+extern void *mdlEffectCreateGridForObject(void *source);
+extern void *mdlEffectCreateGridFromInstance(void *source);
 extern u8 *RingCreateKindInstance(u16 kind, u8 *parameters);
 extern RpGeometry *RpGeometryLock(RpGeometry *geometry, s32 lockMode);
 extern u8 *ThunderTextureForIndex(u16 kind, u8 *parameters);
@@ -2390,7 +2390,7 @@ void RingSetVec3(u8 *arg0, f32 *arg1) {
 extern void mdlEffectCopyReferences(u8 *arg0, u8 *arg1);
 extern void func_004ade80(u8 *arg0);
 extern void EffSpriteUpdate(u8 *arg0);
-extern u8 *func_004a6c00(u8 *arg0);
+extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
 extern u8 *WindAllocKindEntry(u16 arg0, u8 *arg1);
 extern u8 D_0071413C[];
 extern void func_004adb50();
@@ -2757,13 +2757,14 @@ void func_004a6bf0(u8 *arg0, f32 arg1) {
 
 
 #pragma opt_loop_invariants on
-/* measured: close loop-invariant hoisting after func_004a6c00. */
+/* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma opt_loop_invariants off
+// Resolves the source's relative pointer A and creates the grid object from that record.
 // FUN_004A6D90
-void *func_004a6d90(void *source) {
+void *mdlEffectCreateGridForObject(void *source) {
     u8 *temp;
     temp = mdlEffectResolveRelPtrA(source);
-    return func_004a6c00(temp);
+    return mdlEffectCreateGridForRecord(temp);
 }
 
 
@@ -2777,10 +2778,11 @@ void func_004a6dc0(u8 *arg0)
 }
 
 
+// Creates the grid object from the record embedded at +0x18 of the source instance.
 // FUN_004A6E10
-void *func_004a6e10(void *source) {
+void *mdlEffectCreateGridFromInstance(void *source) {
     u8 *arg0 = (u8 *)source;
-    return func_004a6c00(arg0 + 0x18);
+    return mdlEffectCreateGridForRecord(arg0 + 0x18);
 }
 
 
