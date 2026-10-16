@@ -26,7 +26,7 @@ extern s32 K_Test_CreateLauncher(u8 *arg0);
 extern void K_ReadTexTaskCreate(void);
 extern s32 FldRainTaskCreate(f32 f0, u8 *arg0, s32 arg1, f32 f1, f32 f2, f32 f3,
                           s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_0017d070(u8 *arg0);
+extern s32 FldPlayerIconTaskCreate(u8 *arg0);
 extern s32 K_Clump_CreateLoadTask(s32 arg0);
 extern s32 K_TexStripBuildTaskCreate(s32 arg0);
 extern s32 K_TexStripLoadTaskCreate(s32 arg0);
@@ -75,7 +75,7 @@ s32 K_TestMenu_Update(u8 *arg0)
                 *(s32 *)(p + 8) = func_00186640(arg0);
                 break;
             case 5:
-                *(s32 *)(p + 8) = func_0017d070(arg0);
+                *(s32 *)(p + 8) = FldPlayerIconTaskCreate(arg0);
                 break;
             case 6:
                 *(s32 *)(p + 8) = K_Clump_CreateLoadTask(0);

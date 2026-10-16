@@ -96,7 +96,7 @@ s32 FldShadow_CasterStep(u8 *arg0);
 void FldShadow_CasterDestroy(u8 *arg0);
 void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
                     s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
-extern s32 func_0017cd60(u8 *arg0);
+extern s32 FldPlayerIconUpdate(u8 *arg0);
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
 
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
@@ -732,7 +732,7 @@ extern f32 fabsf(f32 x);
 /* 764/768 bytes; fourteen resolved relocations; four zero alignment bytes.
  * Preserve unsigned frame updates and the three ordered sprite draws. */
 // FUN_0017CD60
-s32 func_0017cd60(u8 *arg0)
+s32 FldPlayerIconUpdate(u8 *arg0)
 {
     u8 *work;
     f32 easing;
@@ -790,22 +790,22 @@ done:
     return 0;
 }
 // FUN_0017D060
-void func_0017d060(u8 *arg0)
+void FldPlayerIconDestroy(u8 *arg0)
 {
 }
 // FUN_0017D070
-s32 func_0017d070(u8 *arg0)
+s32 FldPlayerIconTaskCreate(u8 *arg0)
 {
     memset(D_007F1740, 0, 0x20);
-    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1950), 0x12, 0, 0, func_0017cd60, func_0017d060, (u8 *)(D_007F1740));
+    return (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005F1950), 0x12, 0, 0, FldPlayerIconUpdate, FldPlayerIconDestroy, (u8 *)(D_007F1740));
 }
 // FUN_0017D0F0
-void func_0017d0f0(u8 *arg0, s32 arg1)
+void FldPlayerIconSetActive(u8 *arg0, s32 arg1)
 {
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 4) = arg1;
 }
 // FUN_0017D100
-void func_0017d100(u8 *arg0)
+void FldPlayerIconUpdatePos(u8 *arg0)
 {
     F2_0017 sp30;
     f32 temp_f1;

@@ -72,7 +72,7 @@ extern s32 datUnitGroupIsDefeated(s32 arg0);
 extern s32 func_0016fd00(s32 arg0);
 extern s32 FldAI_SpawnChaser(s32 arg0, u8 *arg1, u8 *arg2);
 extern void FldAI_ChaserEnable(s32 arg0);
-extern s32 func_0017d070(u8 *arg0);
+extern s32 FldPlayerIconTaskCreate(u8 *arg0);
 extern void FldFrameTask_UpdateTile(s32 arg0);
 extern f32 RwV3dLength(f32 *arg0);
 extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
