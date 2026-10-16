@@ -45,7 +45,6 @@ extern s32 btlShuffleResultRun(u8 *arg0);
 extern s32 btlShuffleResultInit(u8 *arg0);
 extern s32 btlShuffleResultLayout(u8 *arg0);
 extern s32 btlShuffleResultMenu(u8 *arg0);
-extern u16 datPersonaLeadPersonaId(void);
 extern u8 *shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void nmMesWindowSetCurrentString(s32 a, void *text);
 extern s32 nmMesWindowSetCurrentParam(s32 arg0);
