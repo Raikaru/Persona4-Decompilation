@@ -23,7 +23,7 @@ extern u8 datGetTimeSlot(void);
 extern void calSplitDayOfYear(s32 date, s32 *month, s32 *day);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 extern void cmmTickReverseProgress(void);
-extern s32 func_0029da90(s32 kind, u8 *script, s32 index);
+extern s32 scrStartProcedureIndex(s32 kind, u8 *script, s32 index);
 extern s32 scrFindPrcdIdxByName(s32 a, void *b);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern void func_00440b68(char *fmt, ...);
@@ -146,7 +146,7 @@ s32 func_00260020(u8 *task)
             }
             else
             {
-                msg = func_0029da90(0xF, (u8 *)a, ret);
+                msg = scrStartProcedureIndex(0xF, (u8 *)a, ret);
             }
             sched->unk4 = msg;
             if (msg == 0)

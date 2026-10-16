@@ -135,7 +135,7 @@ static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 
 }
 static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
 {
-    func_0029db50(arg0, arg1, arg2, arg3);
+    scrStartProcedureChecked(arg0, arg1, arg2, arg3);
 }
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;

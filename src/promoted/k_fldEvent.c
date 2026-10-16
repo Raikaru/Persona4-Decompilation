@@ -55,7 +55,7 @@ void func_002bd410(void);
 void func_002bd3c0(void);
 s32 func_0015a100(void);
 s32 func_0015a130(void);
-s32 func_0029db50(s32, s32, s32, s32);
+s32 scrStartProcedureChecked(s32, s32, s32, s32);
 s32 kwlnTaskIsLinked(void *);
 s32 *FldObjFindFree(void);
 s32 datUnitCreateEncounterGroup(s32);

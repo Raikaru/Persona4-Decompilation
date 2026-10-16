@@ -115,7 +115,7 @@ extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
 extern void func_0017d240(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
                           s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
 extern u16 D_008C024E[];
-extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 kwlnTaskIsLinked(s32 arg0);
 
 void K_Test_Create(s32 arg0);
@@ -3365,7 +3365,7 @@ s32 func_0018dde0(u8 *arg0)
             s32 size;
 
             size = iGpffffb278;
-            *(s32 *)(work + 0x10) = func_0029db50(0xF, iGpffffb27c, size, 0);
+            *(s32 *)(work + 0x10) = scrStartProcedureChecked(0xF, iGpffffb27c, size, 0);
             *(s32 *)(work + 0) = 2;
             *(u32 *)(work + 8) = 0x384U;
             *(s32 *)(work + 0xC) = D_0076428C;
