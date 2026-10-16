@@ -1079,7 +1079,7 @@ s32 cmmScriptSpawnHandle(s32 arg0) {
 /* measured: restore the translation-unit optimization level after cmmScriptSpawnHandle. */
 #pragma optimization_level 2
 /* The month provider advances by 72 bytes: four rows of six signed weather
-   weights precede four 12-byte attributes (also read by func_00250940).
+   weights precede four 12-byte attributes (also read by cmmScriptReadMonthProfile).
    The selection loop walks a `cursor` copy of the weather row. That copy use
    keeps `weights` a declared local instead of folding into its address
    temporary, so it takes retail's $s2; `cumulativeWeight` declared before
@@ -2208,8 +2208,9 @@ s32 cmmScriptStartEntries(void)
     return 1;
 }
 
+// Entry choice: the first call arms the entry (flag 1) and waits; once status bit 4 is set it returns 0, 1 (bit 0x10), or 2 (bit 0x20) and destroys the entry task.
 // FUN_002502F0
-s32 func_002502f0(void)
+s32 cmmScriptPollEntryChoice(void)
 {
     u8* parent;
     cmmScriptEntry* e;
@@ -2265,8 +2266,9 @@ s32 func_002502f0(void)
     }
     return 0;
 }
+// Entry confirm: the first call arms the entry (flag 2) and waits; once status bit 8 is set it returns 1 if bit 0x80 is also set (0 otherwise) and destroys the entry task.
 // FUN_00250560
-s32 func_00250560(void)
+s32 cmmScriptPollEntryConfirm(void)
 {
     u8* parent;
     cmmScriptEntry* e;
@@ -2377,8 +2379,9 @@ s32 cmmScriptReadIndexedValue(void)
     scrSetReturnInt(buf[idx]);
     return 1;
 }
+// Returns field arg 1 of row arg 0 in the month-profile record for the current date: 0 and 1 are u16 values at +0x18 and +0x1A, 2 and 3 are s32 values at +0x1C and +0x20; rows are 12 bytes.
 // FUN_00250940
-s32 func_00250940(void)
+s32 cmmScriptReadMonthProfile(void)
 {
     s32 field;
     s32 row;
