@@ -49,7 +49,7 @@ typedef struct BtlUnitMotionWork {
     f32 phase;
 } BtlUnitMotionWork;
 u32 btlUnitHoldPendingUnit(void* work);
-u32 func_0019a370(void* work);
+u32 btlUnitPacketArcOffsetUpdate(void* work);
 u32 btlUnitReleasePendingUnit(void* work);
 typedef struct BtlUnitPacketEnmDodgeAnim {
     BtlUnit* unit;
@@ -210,14 +210,14 @@ BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 value)
 
 
 // FUN_0019A5E0
-BtlPacket* func_0019a5e0(BtlUnit* unit, s32 value)
+BtlPacket* btlUnitCreateArcOffsetPacket(BtlUnit* unit, s32 value)
 {
     BtlPacket* packet;
     BtlUnitMotionWork* work;
 
     packet = btlPacketAlloc(0x108, sizeof(BtlUnitMotionWork));
     packet->initFunc = btlUnitHoldPendingUnit;
-    packet->updateFunc = func_0019a370;
+    packet->updateFunc = btlUnitPacketArcOffsetUpdate;
     packet->destroyFunc = btlUnitReleasePendingUnit;
     work = (BtlUnitMotionWork*)packet->workData;
     work->unit = unit;

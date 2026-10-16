@@ -485,7 +485,7 @@ extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 #pragma opt_propagation on
 
 
-extern s32 func_00198810(u8 *arg0);
+extern s32 btlUnitGetMotionState(u8 *arg0);
 extern u32 func_00198840(u8 *arg0);
 extern u32 func_001988b0(u8 *arg0);
 extern s64 btlUnitModelAnimFrame(u8 *arg0);
