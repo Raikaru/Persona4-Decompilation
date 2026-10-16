@@ -8,7 +8,7 @@
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 /* 0x004833f0 is a texture release helper shared by the eff* units. */
-extern void func_004833f0(void *arg0);
+extern void GeometryBlockDestroy(void *arg0);
 extern void kAssertFail(const char *file, s32 line);
 extern void chkmemAllocSiteTag(const char *file, s32 line);
 extern void memcpy(void *dst, void *src, u32 size);
@@ -23,7 +23,7 @@ extern u32 D_00713E84[];
    GPREL16 reloc. */
 extern f32 iGpffff8044;
 extern u32 D_00713360[];
-extern u8 *func_00482dc0(u16 copies, void *indices, s32 vertices, s32 flags);
+extern u8 *GeometryCreateStripGrid(u16 copies, void *indices, s32 vertices, s32 flags);
 
 /* 4-byte color, copied field-by-field by retail. */
 typedef struct
@@ -31,9 +31,9 @@ typedef struct
     u8 c[4];
 } Color4;
 extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
-extern void func_00483700(void *dst, void *obj, void *src, f32 arg3);
+extern void GeometryMatrixBuild(void *dst, void *obj, void *src, f32 arg3);
 extern void func_003e9cb0(void *a, void *b, s32 c);
-extern void func_00483490(void *a, u16 b);
+extern void GeometryBlockBindResource(void *a, u16 b);
 
 
 #pragma push
@@ -97,7 +97,7 @@ u8 *ThunderGeometryCreate(u8 *parameters)
     fadeEnd = (u32)endIndex;
     copyIndex = 0;
     while (copyIndex < copyCount) {
-        geometry = func_00482dc0(*(u16 *)(parameters + 0x3C), D_00713360, 5, 0x48);
+        geometry = GeometryCreateStripGrid(*(u16 *)(parameters + 0x3C), D_00713360, 5, 0x48);
         *(u8 **)entry = geometry;
         sampleCount = *(s16 *)(geometry + 8) / 5;
         {
@@ -169,7 +169,7 @@ void ThunderGeometryDestroy(u8 *arg0)
     i = 0;
     while (i < count)
     {
-        func_004833f0(*p);
+        GeometryBlockDestroy(*p);
         i++;
         p += 4;
     }
@@ -532,7 +532,7 @@ void ThunderBoltWriteRows(u8 *arg0)
             : "r"(&spD4), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(spB0) : "memory");
-        func_00483700(&sp70[0], arg0, 0, *(f32 *)(arg0 + 0x20));
+        GeometryMatrixBuild(&sp70[0], arg0, 0, *(f32 *)(arg0 + 0x20));
         i = 0;
         while (i < count)
         {
@@ -593,7 +593,7 @@ void ThunderBoltWriteRows(u8 *arg0)
                 }
                 {
                     s32 b = *(u16 *)(ctrl + 0x28);
-                    func_00483490(e0, b);
+                    GeometryBlockBindResource(e0, b);
                 }
             }
             i++;
@@ -707,7 +707,7 @@ u8 *ThunderGeometryCreatePadded(u8 *parameters)
     fadeEnd = (u32)endIndex;
     copyIndex = 0;
     while (copyIndex < copyCount) {
-        geometry = func_00482dc0(*(u16 *)(parameters + 0x3C), D_00713360, 5, 0x48);
+        geometry = GeometryCreateStripGrid(*(u16 *)(parameters + 0x3C), D_00713360, 5, 0x48);
         *(u8 **)entry = geometry;
         sampleCount = *(s16 *)(geometry + 8) / 5;
         {
@@ -778,7 +778,7 @@ void ThunderPaddedGeometryDestroy(u8 *arg0)
     i = 0;
     while (i < count)
     {
-        func_004833f0(*p);
+        GeometryBlockDestroy(*p);
         i++;
         p += 0xC;
     }
@@ -1244,7 +1244,7 @@ void ThunderOrbitBoltWriteRows(u8 *arg0)
             : "r"(&spD4), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(spB0) : "memory");
-        func_00483700(&sp70[0], arg0, arg0 + 0x10, *(f32 *)(arg0 + 0x20));
+        GeometryMatrixBuild(&sp70[0], arg0, arg0 + 0x10, *(f32 *)(arg0 + 0x20));
         i = 0;
         while (i < count)
         {
@@ -1305,7 +1305,7 @@ void ThunderOrbitBoltWriteRows(u8 *arg0)
                 }
                 {
                     s32 b = *(u16 *)(ctrl + 0x28);
-                    func_00483490(e0, b);
+                    GeometryBlockBindResource(e0, b);
                 }
             }
             i++;
@@ -1402,7 +1402,7 @@ u8 *ThunderPairedGeometryCreate(u8 *parameters)
     fade = 0.0f;
     copyIndex = 0;
     while (copyIndex < copyCount) {
-        geometry = func_00482dc0(*(u16 *)(parameters + 0x3C), D_00713360, 5, 0x48);
+        geometry = GeometryCreateStripGrid(*(u16 *)(parameters + 0x3C), D_00713360, 5, 0x48);
         *(u8 **)entry = geometry;
         sampleCount = *(s16 *)(geometry + 8) / 5;
         {
@@ -1475,7 +1475,7 @@ void ThunderPairedGeometryDestroy(u8 *arg0)
     i = 0;
     while (i < count)
     {
-        func_004833f0(*p);
+        GeometryBlockDestroy(*p);
         i++;
         p += 3;
     }
@@ -1974,7 +1974,7 @@ void ThunderPairedWriteRows(u8 *arg0)
             : "r"(&spD4), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(spB0) : "memory");
-        func_00483700(&sp70[0], arg0, 0, *(f32 *)(arg0 + 0x20));
+        GeometryMatrixBuild(&sp70[0], arg0, 0, *(f32 *)(arg0 + 0x20));
         i = 0;
         while (i < count)
         {
@@ -2035,7 +2035,7 @@ void ThunderPairedWriteRows(u8 *arg0)
                 }
                 {
                     s32 b = *(u16 *)(ctrl + 0x28);
-                    func_00483490(e0, b);
+                    GeometryBlockBindResource(e0, b);
                 }
             }
             i++;

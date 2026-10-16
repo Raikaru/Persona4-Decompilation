@@ -82,7 +82,7 @@ extern u8 *btlUnitRecordFindByActionUID(u64 arg0, u64 arg1);
 extern s32 func_001f6290(void);
 extern s32 fieldSceneLoadStep(void);
 extern void (*jtbl_008873EC[])(void *);
-extern void func_004833f0(void *arg0);
+extern void GeometryBlockDestroy(void *arg0);
 extern f32 D_00922CA0[];
 extern f32 D_00922CA4[];
 extern f32 D_00922CA8[];

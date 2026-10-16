@@ -95,15 +95,15 @@ extern f32 fGpffff81f4;
 
 extern void memset(void *dst, s32 value, u32 size);
 extern void func_003c22f0();
-extern u16 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           void *arg4, s32 arg5);
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern void func_004a5ef0(u8 *arg0, u8 *arg1);
-extern u8 *func_00483270(s32 arg0);
+extern u8 *GeometryCloneBlock(s32 arg0);
 extern s32 func_00481300(u16 arg0);
 extern s32 func_00481d80(u16 *arg0);
 extern s32 func_00482800(u16 *arg0);
-extern void func_00483970(u8 *arg0, u16 *arg1);
+extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern s32 func_00481e30(s32 arg0);
@@ -451,7 +451,7 @@ void *func_004a5bb0(void *source)
     if (arg0 == NULL) {
         return temp_2;
     }
-    temp_2_2 = func_00482f70(1, 2, 4, D_00713408, 0x4C);
+    temp_2_2 = GeometryCreateTableGrid(1, 2, 4, D_00713408, 0x4C);
     *(u8 **)(temp_2 + 0xC8) = temp_2_2;
     temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2_2 + 0x10) + 0x18) + 0x30);
     *(s32 *)(temp_3 + 0) = -1;
@@ -469,7 +469,7 @@ void *func_004a5bb0(void *source)
         temp_4 = *(u16 *)(arg0 + 0x1C);
         switch (temp_4) {
         case 1:
-            func_00483970(*(u8 **)(temp_2 + 0xC8), temp_2_4);
+            GeometryBlockSetTextureFromHandle(*(u8 **)(temp_2 + 0xC8), temp_2_4);
             break;
         case 2:
             *(s32 *)(temp_2 + 0xD0) = func_00481d80(temp_2_4);
@@ -503,7 +503,7 @@ void func_004a5de0(u8 *arg0) {
     if (temp_4_2 != 0) {
         func_00481ee0(temp_4_2);
     }
-    func_004833f0(*(s32 *)((u8 *)(arg0) + 0xC8));
+    GeometryBlockDestroy(*(s32 *)((u8 *)(arg0) + 0xC8));
     (*jtbl_008873EC)(arg0);
 }
 
@@ -516,7 +516,7 @@ void *func_004a5e50(void *source)
     u8 *temp_3;
 
     temp_16 = func_004a5bb0(NULL);
-    temp_2 = func_00483270(*(s32 *)(arg0 + 0xC8));
+    temp_2 = GeometryCloneBlock(*(s32 *)(arg0 + 0xC8));
     *(u8 **)(temp_16 + 0xC8) = temp_2;
     temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18) + 0x30);
     *(s32 *)(temp_3 + 0) = -1;
@@ -563,10 +563,11 @@ void func_004a5fa0(u8 *arg0) {
  * animated tint, packed by the COP2 block. Its store to the packed slot is
  * part of that asm; b210 forwards any compiler-side store, and retail reloads
  * the slot. The UV corner/rect/size block is one frame-info struct, as the
- * retail frame layout shows. func_00483490 is declared with an int second
- * parameter because retail loads the halfword before setting up $a0.
- * func_00483660 takes four arguments here: retail sets $a1, $a2 and $f12,
- * which its one-parameter definition forwards untouched to func_00483700. */
+ * retail frame layout shows. GeometryBlockBindResource is declared with an int
+ * second parameter because retail loads the halfword before setting up $a0.
+ * GeometryBlockSetFrameMatrix takes four arguments here: retail sets $a1, $a2
+ * and $f12, which its one-parameter definition forwards untouched to
+ * GeometryMatrixBuild. */
 typedef struct EffSpriteFrame {
     f32 rect[4];
     u32 size[2];
@@ -583,14 +584,14 @@ typedef struct EffSpriteRGBA {
 // FUN_004A5FC0
 void func_004a5fc0(u8 *arg0)
 {
-    extern void func_00483660(void *arg0, void *arg1, void *arg2, f32 arg3);
+    extern void GeometryBlockSetFrameMatrix(void *arg0, void *arg1, void *arg2, f32 arg3);
     extern s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
     extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
     extern void func_00482730(s32 arg0, u32 arg1);
     extern void func_00482700(s32 arg0, f32 *arg1);
     extern void func_00482ad0(void *arg0, u32 arg1, f32 *arg2);
-    extern void func_004839d0(s32 arg0, u32 *arg1);
-    extern void func_00483490(void *arg0, s32 arg1);
+    extern void GeometryBlockGetTextureInfo(s32 arg0, u32 *arg1);
+    extern void GeometryBlockBindResource(void *arg0, s32 arg1);
     extern void func_003c22f0(void *arg0);
     extern void func_003c42b0(void *arg0, s32 arg1);
     extern f32 cosf(f32 arg0);
@@ -630,7 +631,7 @@ void func_004a5fc0(u8 *arg0)
             return;
         }
     }
-    func_00483660(sprite, arg0, arg0 + 0x10, *(f32 *)(arg0 + 0x20));
+    GeometryBlockSetFrameMatrix(sprite, arg0, arg0 + 0x10, *(f32 *)(arg0 + 0x20));
     {
         s32 tint = func_0048abd0(arg0 + 0x30, arg0 + 0x54, count, total);
         f32 unit;
@@ -726,7 +727,7 @@ void func_004a5fc0(u8 *arg0)
         s32 w;
         s32 h;
 
-        func_004839d0((s32)sprite, frame);
+        GeometryBlockGetTextureInfo((s32)sprite, frame);
         w = frame[0] << 4;
         h = frame[1] << 4;
         info.corner[0] = 0;
@@ -807,7 +808,7 @@ void func_004a5fc0(u8 *arg0)
     } else {
         *(u16 *)sprite &= 0xFFFE;
     }
-    func_00483490(sprite, *(u16 *)(arg0 + 0x58));
+    GeometryBlockBindResource(sprite, *(u16 *)(arg0 + 0x58));
 }
 // FUN_004A6B90
 void func_004a6b90(u8 *arg0) {
@@ -859,7 +860,7 @@ u8 *func_004a6c00(u8 *arg0)
     memset(temp_2, 0, 0x5C);
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(temp_2) : "memory");
     memcpy(temp_2 + 0x18, arg0, 0x40);
-    temp_2_2 = func_00483c40(0xD, 4, 2, 4, D_00713408, 0x4C);
+    temp_2_2 = GeometryCreateTableGridMultiPart(0xD, 4, 2, 4, D_00713408, 0x4C);
     *(u16 **)(temp_2 + 0x58) = temp_2_2;
     *temp_2_2 = *temp_2_2 & 0xFFFE;
     temp_3 = *(u16 **)(temp_2 + 0x58);

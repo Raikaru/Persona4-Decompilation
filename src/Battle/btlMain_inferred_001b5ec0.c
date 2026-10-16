@@ -35,7 +35,7 @@ extern s32 btlMainSkillColorDefault(s32 arg0);
 extern s32 btlMainSkillTintDefault(s32 arg0);
 extern void btlMainSkillColorPairDefaultsAlt(u32 arg0, s32 *arg1, s32 *arg2);
 extern s32 fieldSceneLoadStep(void);
-extern void func_004833f0(void *arg0);
+extern void GeometryBlockDestroy(void *arg0);
 extern f32 D_00922CA0[];
 extern f32 D_00922CA4[];
 extern f32 D_00922CA8[];
@@ -389,7 +389,7 @@ void btlMainSetupCameraAndEffects(void)
     *(u8 **)(D_0076449C + 0xE78) = (u8 *)func_003ef650(func_003ef6d0(), buf);
     if (*(u32 *)(D_0076449C + 0xE78) != 0) {
         *(u32 *)(D_0076449C + 0xE80) = 0;
-        *(u8 **)(D_0076449C + 0xE7C) = (u8 *)func_00482f70(1, 0x76, 0x59, D_0060A140, 0x4C);
+        *(u8 **)(D_0076449C + 0xE7C) = (u8 *)GeometryCreateTableGrid(1, 0x76, 0x59, D_0060A140, 0x4C);
         base = D_0076449C;
         func_003c42b0(*(void **)(*(u8 **)(base + 0xE7C) + 0x14), *(void **)(base + 0xE78));
         base = D_0076449C;
@@ -470,7 +470,7 @@ void btlMainSaveFieldSnapshotAndUnload(void)
     *(s32 *)(D_0076449C + 0xE78) = 0;
     value = *(s32 *)(D_0076449C + 0xE7C);
     if (value != 0) {
-        func_004833f0((void *)(u32)value);
+        GeometryBlockDestroy((void *)(u32)value);
         *(s32 *)(D_0076449C + 0xE7C) = 0;
     }
     fieldSceneUnload();

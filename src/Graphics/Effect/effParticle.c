@@ -6,8 +6,8 @@
 
 typedef unsigned int ParticleSnapshot __attribute__((mode(TI)));
 
-void func_004833f0(s32 arg0);
-s32 func_004830f0(s32 arg0, s32 arg1);
+void GeometryBlockDestroy(s32 arg0);
+s32 GeometryCreateAtomicFromResource(s32 arg0, s32 arg1);
 
 void func_00481ee0(s32 arg0);
 s32 func_00481d80(s32 *arg0);
@@ -38,7 +38,7 @@ extern u8 *func_00484570(u8 *arg0);
 extern void func_004846d0(u8 *arg0);
 extern u8 *func_00484830(u8 *arg0);
 extern void func_00485b20(void *arg0);
-extern u8 *func_00483270(void *arg0);
+extern u8 *GeometryCloneBlock(void *arg0);
 void ParticleAllocRecords(u8 *arg0, s32 arg1, void *arg2);
 void ParticleCopyModeFromSource(u8 *arg0, u8 *arg1);
 void ParticleSetMaterialSlot(u8 *arg0, s32 arg1, s32 arg2);
@@ -200,7 +200,7 @@ void ParticleFree(u8 *arg0)
         func_00492cd0((u8 *)*(s32 *)(arg0 + 0x4C));
     }
     if (*(s32 *)(arg0 + 0x50) != 0) {
-        func_004833f0(*(s32 *)(arg0 + 0x50));
+        GeometryBlockDestroy(*(s32 *)(arg0 + 0x50));
     }
     if (*(s32 *)(arg0 + 0x5C) != 0) {
         jtbl_008873EC[0](*(void **)(arg0 + 0x5C));
@@ -250,7 +250,7 @@ void *ParticleCreateFromParent(void *opaqueSource)
         return p;
     }
     if (*(s32 *)(arg0 + 0x50) != 0) {
-        *(s32 *)(p + 0x50) = (s32)func_00483270((void *)*(s32 *)(arg0 + 0x50));
+        *(s32 *)(p + 0x50) = (s32)GeometryCloneBlock((void *)*(s32 *)(arg0 + 0x50));
     }
     ParticleCopyModeFromSource(p, arg0);
     return p;
@@ -405,15 +405,15 @@ void ParticleSetMaterialSlot(u8 *arg0, s32 arg1, s32 arg2)
     s32 temp_4 = *(s32 *)(arg0 + 0x50);
 
     if (temp_4 != 0) {
-        func_004833f0(temp_4);
+        GeometryBlockDestroy(temp_4);
     }
     switch (arg2) {
     case 1:
     case 4:
-        *(s32 *)(arg0 + 0x50) = func_004830f0(arg1 & 0xFFFF, 0x20080027);
+        *(s32 *)(arg0 + 0x50) = GeometryCreateAtomicFromResource(arg1 & 0xFFFF, 0x20080027);
         return;
     case 2:
-        *(s32 *)(arg0 + 0x50) = func_004830f0(arg1 & 0xFFFF, 0x200000A7);
+        *(s32 *)(arg0 + 0x50) = GeometryCreateAtomicFromResource(arg1 & 0xFFFF, 0x200000A7);
         /* fallthrough */
     case 7:
         return;
@@ -873,8 +873,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
     extern void func_00482730(int a, u32 b);
     extern void func_00482700(int a, float* b);
     extern s32 func_00482790(u8 * *a, u32 b);
-    extern void func_004834e0(u8 * a, s32 b);
-    extern void func_00483490(u8 * a, s32 b);
+    extern void GeometryBlockSetPartState(u8 * a, s32 b);
+    extern void GeometryBlockBindResource(u8 * a, s32 b);
     extern void func_00484ae0(u8 * a, s32 b);
     extern void func_00484a00(u8 * a);
     extern void func_004865c0(u8 * a, s32 b);
@@ -1113,8 +1113,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                 *(s32*)(*(u8**)(atomicAddress + iGpffffb610) + 0x40) |= 0x800000;
                 *(s32*)(*(u8**)(atomicAddress + iGpffffb610) + 4) = activeCount;
             }
-            func_004834e0(*(u8**)(particle + 0x50), *(u16*)(settings + 0x54));
-            func_00483490(*(u8**)(particle + 0x50), *(u16*)(settings + 0x54));
+            GeometryBlockSetPartState(*(u8**)(particle + 0x50), *(u16*)(settings + 0x54));
+            GeometryBlockBindResource(*(u8**)(particle + 0x50), *(u16*)(settings + 0x54));
         }
         break;
     }
@@ -1365,8 +1365,8 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                     *(s32*)(*(u8**)(atomicAddress + iGpffffb610) + 0x40) |= 0x800000;
                     *(s32*)(*(u8**)(atomicAddress + iGpffffb610) + 4) = animatedActiveCount;
                 }
-                func_004834e0(*(u8**)(particle + 0x50), *(u16*)(animationSettings + 0x54));
-                func_00483490(*(u8**)(particle + 0x50), *(u16*)(animationSettings + 0x54));
+                GeometryBlockSetPartState(*(u8**)(particle + 0x50), *(u16*)(animationSettings + 0x54));
+                GeometryBlockBindResource(*(u8**)(particle + 0x50), *(u16*)(animationSettings + 0x54));
             }
         }
     }

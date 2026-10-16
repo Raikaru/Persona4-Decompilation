@@ -53,7 +53,7 @@ extern void func_003e9390(s32 arg0);
 extern void func_003ec330(s32 arg0);
 extern void func_0040fcd0(s32 arg0, s32 arg1);
 extern void func_003e8440(u8 *arg0);
-extern u8 *func_00483270(s32 arg0);
+extern u8 *GeometryCloneBlock(s32 arg0);
 extern void memcpy(void *arg0, void *arg1, s32 arg2);
 extern void func_004b1a00(u8 *arg0, u8 *arg1);
 extern s32 func_00481e30(s32 arg0);
@@ -89,7 +89,7 @@ extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
 extern void kAssertFail(void *arg0, s32 arg1);
 extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern void func_00483970(u8 *arg0, u16 *arg1);
+extern void GeometryBlockSetTextureFromHandle(u8 *arg0, u16 *arg1);
 extern s32 func_00481d80(u16 *arg0);
 extern s32 func_00481300(u16 arg0);
 extern void func_003c42b0(s32 arg0, s32 arg1);
@@ -415,7 +415,7 @@ void *func_004b16c0(void *opaqueSource) {
         kAssertFail(&iGpffffb118, 0x2C);
     }
     memcpy(temp_2 + 0xC, temp_2_2, 0x98);
-    temp_2_3 = (u16 *)func_00482f70(1, 2, 4, D_00713408, 0x4C);
+    temp_2_3 = (u16 *)GeometryCreateTableGrid(1, 2, 4, D_00713408, 0x4C);
     *(u16 **)(temp_2 + 0xA4) = temp_2_3;
     *temp_2_3 = *temp_2_3 & 0xFFFB;
     temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0xA4) + 0x10) + 0x18);
@@ -429,7 +429,7 @@ void *func_004b16c0(void *opaqueSource) {
         temp_4 = *(u16 *)(arg0 + 0x1C);
         switch (temp_4) {
         case 1:
-            func_00483970(*(u8 **)(temp_2 + 0xA4), temp_2_4);
+            GeometryBlockSetTextureFromHandle(*(u8 **)(temp_2 + 0xA4), temp_2_4);
             break;
         case 2:
             *(s32 *)(temp_2 + 0xAC) = func_00481d80(temp_2_4);
@@ -461,7 +461,7 @@ void func_004b18e0(u8 *arg0)
     if (h != 0) {
         func_00481ee0(h);
     }
-    func_004833f0(*(s32 *)(arg0 + 0xA4));
+    GeometryBlockDestroy(*(s32 *)(arg0 + 0xA4));
     (*jtbl_008873EC)(arg0);
 }
 
@@ -478,7 +478,7 @@ void *func_004b1950(void *opaqueSource) {
     memcpy(temp_2 + 0xC, arg0 + 0xC, 0x98);
     temp_4 = *(s32 *)(arg0 + 0xA4);
     if (temp_4 != 0) {
-        temp_2_2 = func_00483270(temp_4);
+        temp_2_2 = GeometryCloneBlock(temp_4);
         *(u8 **)(temp_2 + 0xA4) = temp_2_2;
         temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2_2 + 0x10) + 0x18) + 0x30);
         *(s32 *)(temp_3 + 0) = -1;
@@ -548,7 +548,7 @@ void func_004b1ad0(u8 *arg0)
     extern void func_00482730(s32 arg0, u32 arg1);
     extern void func_00482700(s32 arg0, f32 *arg1);
     extern void func_00482ad0(void *arg0, u32 arg1, f32 *arg2);
-    extern void func_004839d0(s32 arg0, u32 *arg1);
+    extern void GeometryBlockGetTextureInfo(s32 arg0, u32 *arg1);
     extern void func_003c22f0(void *arg0);
     extern void func_003c42b0(void *arg0, s32 arg1);
     extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
@@ -682,7 +682,7 @@ void func_004b1ad0(u8 *arg0)
         s32 w;
         s32 h;
 
-        func_004839d0((s32)sprite, frame);
+        GeometryBlockGetTextureInfo((s32)sprite, frame);
         w = frame[0] << 4;
         h = frame[1] << 4;
         info.corner[2] = 0;

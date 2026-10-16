@@ -26,7 +26,7 @@ typedef struct RwRGBA
 
 extern void kAssertFail();
 extern u8 D_00713EF0[];
-extern void func_004833f0(void *arg0);
+extern void GeometryBlockDestroy(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void func_0049a570(void *arg0);
 
@@ -34,12 +34,12 @@ extern void chkmemAllocSiteTag();
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00713390[];
 extern s32 func_0048abd0();
-extern void func_004836b0(void *arg0, void *arg1, void *arg2, void *arg3);
-extern void func_00483490(int arg0, int arg1);
+extern void GeometryBlockSetFrameMatrixCombined(void *arg0, void *arg1, void *arg2, void *arg3);
+extern void GeometryBlockBindResource(int arg0, int arg1);
 extern f32 iGpffff8044;
 extern f32 fGpffff8044;
 extern void func_0049a610(void *arg0);
-extern u8 *func_00482dc0(u16 copies, void *indices, s32 vertices, s32 flags);
+extern u8 *GeometryCreateStripGrid(u16 copies, void *indices, s32 vertices, s32 flags);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00713330[];
 extern LineNovaColor iGpffffbb64;
@@ -80,7 +80,7 @@ u8 *RingCreateHandle(u8 *arg0) {
     if (*(u32 *)(arg0 + 0x38) < 3) {
         *(u32 *)(arg0 + 0x38) = 3;
     }
-    p2 = func_00482dc0(*(u16 *)(arg0 + 0x38), D_00713330, 4, 0x48);
+    p2 = GeometryCreateStripGrid(*(u16 *)(arg0 + 0x38), D_00713330, 4, 0x48);
     *(u32 *)alloc = (u32)p2;
     count = *(s16 *)(p2 + 8) / 4;
     dst = *(u8 **)(*(u8 **)(*(u8 **)(p2 + 0x10) + 0x18) + 0x30);
@@ -102,7 +102,7 @@ u8 *RingCreateHandle(u8 *arg0) {
 // FUN_00498EC0
 void RingDestroyHandle(void **arg0)
 {
-    func_004833f0(*arg0);
+    GeometryBlockDestroy(*arg0);
     jtbl_008873EC[0](arg0);
 }
 
@@ -342,14 +342,14 @@ void RingUpdateRowColour(u8 *param_1)
       colourStack[15] = 0xff;
     }
     if (*(u8 *)(*(int *)(puVar2 + 10) + 7) != 0) {
-      func_004836b0(puVar2, iVar5, iVar5 + 0x10, iVar5 + 0x20);
+      GeometryBlockSetFrameMatrixCombined(puVar2, iVar5, iVar5 + 0x10, iVar5 + 0x20);
       if (*(u8 *)(iVar1 + 0x3c) != 0) {
         *puVar2 = *puVar2 | 1;
       }
       else {
         *puVar2 = *puVar2 & 0xfffe;
       }
-      func_00483490((int)puVar2, *(u16 *)(iVar1 + 0x28));
+      GeometryBlockBindResource((int)puVar2, *(u16 *)(iVar1 + 0x28));
     }
   }
 }
@@ -404,7 +404,7 @@ u8 *RingCreateRandomScaled(u8 *arg0) {
     *(u32 *)(work + 0xC) = (u32)p;
     memcpy(arg0 + 0x5C, arg0, 0x5C);
     *(u32 *)(work + 4) = (u32)RingCreateKindInstance(1, arg0 + 0x5C);
-    *(u32 *)(work + 8) = (u32)func_00482f70(count & 0xFFFF, 2, 4, D_00713390, 0x48);
+    *(u32 *)(work + 8) = (u32)GeometryCreateTableGrid(count & 0xFFFF, 2, 4, D_00713390, 0x48);
     dst = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(work + 8) + 0x10) + 0x18) + 0x30);
     v44 = *(s32 *)(arg0 + 0x44);
     v48 = *(s32 *)(arg0 + 0x48);
@@ -428,7 +428,7 @@ u8 *RingCreateRandomScaled(u8 *arg0) {
 // FUN_004996E0
 void RingDestroyBlock(u8 *arg0)
 {
-    func_004833f0(*(void **)(arg0 + 8));
+    GeometryBlockDestroy(*(void **)(arg0 + 8));
     func_0049a570(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 0xC));
 }
@@ -667,13 +667,13 @@ void RingUpdateLineSegment(u8 *arg0)
             dstq = (u_long128 *)(dest + 0x10);
             *dstq = *(u_long128 *)(arg0 + 0x10);
             func_0049a6c0(*(void **)(temp_16 + 4));
-            func_004836b0(temp_17, arg0, arg0 + 0x10, arg0 + 0x20);
+            GeometryBlockSetFrameMatrixCombined(temp_17, arg0, arg0 + 0x10, arg0 + 0x20);
             if (*(u8 *)(temp_18 + 0x3C) != 0) {
                 *(u16 *)temp_17 = *(u16 *)temp_17 | 1;
             } else {
                 *(u16 *)temp_17 = *(u16 *)temp_17 & 0xFFFE;
             }
-            func_00483490((s32)temp_17, *(u16 *)(temp_18 + 0x28));
+            GeometryBlockBindResource((s32)temp_17, *(u16 *)(temp_18 + 0x28));
         }
     }
 }
@@ -716,7 +716,7 @@ u8 *RingCreateHandleAlt(u8 *arg0) {
     if (*(u32 *)(arg0 + 0x38) < 3) {
         *(u32 *)(arg0 + 0x38) = 3;
     }
-    p2 = func_00482dc0(*(u16 *)(arg0 + 0x38), D_00713330, 4, 0x48);
+    p2 = GeometryCreateStripGrid(*(u16 *)(arg0 + 0x38), D_00713330, 4, 0x48);
     *(u32 *)alloc = (u32)p2;
     count = *(s16 *)(p2 + 8) / 4;
     dst = *(u8 **)(*(u8 **)(*(u8 **)(p2 + 0x10) + 0x18) + 0x30);
@@ -738,7 +738,7 @@ u8 *RingCreateHandleAlt(u8 *arg0) {
 // FUN_00499DF0
 void RingDestroyHandleAlt(void **arg0)
 {
-    func_004833f0(*arg0);
+    GeometryBlockDestroy(*arg0);
     jtbl_008873EC[0](arg0);
 }
 
@@ -954,14 +954,14 @@ void RingUpdateRowColourAlt(u8 *param_1)
       colourStack[15] = 0xff;
     }
     if (*(u8 *)(*(int *)(puVar2 + 10) + 7) != 0) {
-      func_004836b0(puVar2, iVar5, iVar5 + 0x10, iVar5 + 0x20);
+      GeometryBlockSetFrameMatrixCombined(puVar2, iVar5, iVar5 + 0x10, iVar5 + 0x20);
       if (*(u8 *)(iVar1 + 0x3c) != 0) {
         *puVar2 = *puVar2 | 1;
       }
       else {
         *puVar2 = *puVar2 & 0xfffe;
       }
-      func_00483490((int)puVar2, *(u16 *)(iVar1 + 0x28));
+      GeometryBlockBindResource((int)puVar2, *(u16 *)(iVar1 + 0x28));
     }
   }
 }

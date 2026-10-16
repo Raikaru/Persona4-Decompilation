@@ -21,7 +21,7 @@ typedef struct {
 extern PolygonWindColor iGpffffbb64; /* 0x00724C54 */
 extern void chkmemAllocSiteTag(char *, s32);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern u8 *func_00483e10(s32, s32, s32, s32, s32);
+extern u8 *GeometryCreateStripGridMultiPart(s32, s32, s32, s32, s32);
 extern s32 func_00481300(s32);
 extern void func_004842d0(void *, s32);
 extern void func_004843f0(void *, s32);
@@ -74,7 +74,7 @@ u8 *FunnelWindAllocBlock(u8 *arg0, s32 arg1)
     if (*(u32 *)(arg0 + 0x8C) < 3U) {
         *(u32 *)(arg0 + 0x8C) = 3U;
     }
-    *(u8 **)(work + 4) = func_00483e10(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
+    *(u8 **)(work + 4) = GeometryCreateStripGridMultiPart(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
     if (arg1 == 0) {
         func_004842d0(*(void **)(work + 4), func_00481300(0x14));
     } else {
@@ -677,7 +677,7 @@ u8 *FallingFunnelWindAllocBlock(u8 *arg0, s32 arg1)
     if (*(u32 *)(arg0 + 0x8C) < 3U) {
         *(u32 *)(arg0 + 0x8C) = 3U;
     }
-    *(u8 **)(work + 4) = func_00483e10(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
+    *(u8 **)(work + 4) = GeometryCreateStripGridMultiPart(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
     if (arg1 == 0) {
         func_004842d0(*(void **)(work + 4), func_00481300(0x14));
     } else {
@@ -1316,7 +1316,7 @@ u8 *SpiralWindAllocBlock(u8 *arg0, s32 arg1)
     if (*(u32 *)(arg0 + 0x8C) < 3U) {
         *(u32 *)(arg0 + 0x8C) = 3U;
     }
-    *(u8 **)(work + 4) = func_00483e10(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
+    *(u8 **)(work + 4) = GeometryCreateStripGridMultiPart(*(u16 *)(arg0 + 0x38), *(u16 *)(arg0 + 0x8C), (s32)(u32)D_00713330, 4, 0x4C);
     if (arg1 == 0) {
         func_004842d0(*(void **)(work + 4), func_00481300(0x14));
     } else {
