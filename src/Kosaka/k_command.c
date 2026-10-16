@@ -979,22 +979,25 @@ s32 func_00298340(void) {
 }
 
 
+/* Script command 0x5E (group 0 table 0x63D070 + 0x2F0, FUNCTION_005E). */
 // FUN_00299C60
-s32 func_00299c60(void) {
+s32 K_Cmd_CALC_GET_HP(void) {
     scrSetReturnInt(datCalcGetHpById(scrGetParamInt(0)) & 0xFFFF);
     return 1;
 }
 
 
+/* Script command 0x5F (group 0 table 0x63D070 + 0x2F8, FUNCTION_005F). */
 // FUN_00299CB0
-s32 func_00299cb0(void) {
+s32 K_Cmd_CALC_MAX_HP(void) {
     scrSetReturnInt(datCalcMaxHpById((s16)scrGetParamInt(0)) & 0xFFFF);
     return 1;
 }
 
 
+/* Script command 0x60 (group 0 table 0x63D070 + 0x300, FUNCTION_0060). */
 // FUN_00299D00
-s32 func_00299d00(void)
+s32 K_Cmd_SET_UNIT_HP(void)
 {
     s64 temp_16;
     s64 temp_17;
@@ -1006,22 +1009,25 @@ s32 func_00299d00(void)
 }
 
 
+/* Script command 0x61 (group 0 table 0x63D070 + 0x308, FUNCTION_0061). */
 // FUN_00299D60
-s32 func_00299d60(void) {
+s32 K_Cmd_CALC_GET_SP(void) {
     scrSetReturnInt(datCalcGetSpById(scrGetParamInt(0)) & 0xFFFF);
     return 1;
 }
 
 
+/* Script command 0x62 (group 0 table 0x63D070 + 0x310, FUNCTION_0062). */
 // FUN_00299DB0
-s32 func_00299db0(void) {
+s32 K_Cmd_CALC_MAX_SP(void) {
     scrSetReturnInt(datCalcMaxSpById((s16)scrGetParamIntS64(0)) & 0xFFFF);
     return 1;
 }
 
 
+/* Script command 0x63 (group 0 table 0x63D070 + 0x318, FUNCTION_0063). */
 // FUN_00299E00
-s32 func_00299e00(void)
+s32 K_Cmd_SET_UNIT_SP(void)
 {
     s64 temp_16;
     s64 temp_17;
@@ -1042,8 +1048,9 @@ u32 Cmd_LoadTableWordAlt(void)
 }
 extern void fclClearMoonFlagEntries(void);
 extern void fclCombineApplyPackedResult(void);
+/* Script command 0x56 (group 0 table 0x63D070 + 0x2B0, FUNCTION_0056). */
 // FUN_00331950
-s32 func_00331950(void)
+s32 K_Cmd_FCL_CLEAR_APPLY_COMBINE(void)
 {
     fclClearMoonFlagEntries();
     fclCombineApplyPackedResult();
