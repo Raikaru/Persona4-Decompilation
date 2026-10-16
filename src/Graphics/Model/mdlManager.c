@@ -3968,10 +3968,11 @@ void mdlSetFrameColorByName(void* param_1, int param_2, u8 param_3)
    in both loops regardless (p8 $t0 vs $t1, mask regs). Tried: plain C (nd 45),
    one=1.0f local (nd 45), pragma on (nd 55). Register-coloring floor. */
  
+// Builds two 0xA4-byte records at arg0 for each nonzero counter at arg1+0x198. The records take their scale terms from arg1 (+0x184 and +0x188 are inverted) and their count from the counter, and set flag 0x10 in +0xEC.
 // FUN_00477810
 /* measured probe: hoist invariant constant for retail prologue. */
 #pragma opt_loop_invariants on
-void func_00477810(void *arg0, void *arg1)
+void mdlBuildScaledSlotRecords(void *arg0, void *arg1)
 {
     s32 i;
     s32 j;
@@ -5826,7 +5827,7 @@ void mdlSetLookAtDirection(void* param_1, RwV3d* param_2)
     *(RwV3d*)((u8*)param_1 + 0x17C) = *param_2;
 }
 
-/* Stores the range pair at +0x188/+0x18C. func_00477810 divides by +0x188 and copies +0x18C into the track records. Also sets flag 0x8000 and clears 0x100. Called from evtModel model setup. */
+/* Stores the range pair at +0x188/+0x18C. mdlBuildScaledSlotRecords divides by +0x188 and copies +0x18C into the track records. Also sets flag 0x8000 and clears 0x100. Called from evtModel model setup. */
 // FUN_0047A950
 void mdlSetTrackScaleRange(void* param_1, float param_2, float param_3)
 {
@@ -6510,7 +6511,7 @@ s32 mdlReadAuxChunks(u8 *model)
             chkmemAllocSiteTag(D_00713138, 0x18c5);
             properties = ((void *(*)(int, int))DAT_008873e8[0])(0x2b8, 0x40000);
             func_003e2910(state->stream, properties, chunk.length);
-            func_00477810(model, properties);
+            mdlBuildScaledSlotRecords(model, properties);
             DAT_008873ec[0](properties);
         }
         continue;
