@@ -49,10 +49,10 @@ typedef struct {
 
 extern void evtDestroy(s32 arg0, s32 arg1);
 extern u8 *evtCreateEventState(void);
-extern s32 func_00285dd0(u8 *task);
+extern s32 evtStepEventTask(u8 *task);
 
 extern void evtDestroyEventScene(u8 *arg0, s32 arg1);
-extern void func_002865e0(UnkStruct_002865E0 *arg0);
+extern void evtApplyEventBlock(UnkStruct_002865E0 *arg0);
 extern u8 *kwlnGetCamera(void);
 extern f32 K_View_GetFov(u8 *arg0);
 extern s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -69,7 +69,7 @@ extern void mtMiscBuildScene(s32 arg0, u8 *arg1);
 extern s32 mtMiscDispatchKeyAction(s32 arg0, s32 arg1);
 extern s32 cmmTableLookupValue(s32 arg0, s32 arg1, s32 arg2);
 extern void func_00298100(s32 arg0);
-extern void func_0028b7b0(u8 *arg0);
+extern void evtLoadEventTables(u8 *arg0);
 extern void evtEnvSlotSave(u8 *arg0, s32 arg1);
 extern void evtCamPosSave(u8 *arg0);
 extern void sprintf(void *arg0, ...);
@@ -106,15 +106,16 @@ extern void *SceneDraw_GetList5Matrix(void);
 extern SceneLightMatrix *RwMatrixRotate(SceneLightMatrix *matrix, const SceneLightAxis *axis, f32 angle, s32 combine);
 extern u8 D_005EFA10[];
 extern u8 D_005EFA20[];
-extern void func_0028c580(u8 *arg0, u8 *arg1, u8 *arg2);
+extern void evtUpdateSceneLight(u8 *arg0, u8 *arg1, u8 *arg2);
 
 
 
 extern void evtMemAccount(s32 arg0, s32 arg1);
 #pragma opt_loop_invariants on
 #pragma opt_loop_invariants off
+// Requests the field room for the event's room record (and the secondary room when set), loading it when the room file exists [inferred].
 // FUN_00285CC0
-s32 func_00285cc0(u8 *arg0) {
+s32 evtRequestFieldRoom(u8 *arg0) {
     s64 temp_19;
     s32 temp_19_raw;
     s16 temp_18;
@@ -144,8 +145,9 @@ s32 func_00285cc0(u8 *arg0) {
     func_00440b68(D_0063C310, temp_17, temp_16);
     return 1;
 }
+// Event task step: runs the event's state machine (stream, file and room loads) for the current state [inferred].
 // FUN_00285DD0
-s32 func_00285dd0(u8 *sdkTaskBytes) {
+s32 evtStepEventTask(u8 *sdkTaskBytes) {
     s32 arg0 = (s32)sdkTaskBytes;
     u8 *data;
     u8 *entry;
@@ -173,7 +175,7 @@ s32 func_00285dd0(u8 *sdkTaskBytes) {
         *(s32 *)(data + 0x76C) = 3;
         if (*(s32 *)(data + 0x77C) == 0) {
             evtDestroyEventScene(data, (*(u32 *)data & 0x80000000) != 0);
-            func_002865e0((UnkStruct_002865E0 *)data);
+            evtApplyEventBlock((UnkStruct_002865E0 *)data);
             *(u32 *)data |= 1;
             *(f32 *)(data + 0x750) = K_View_GetFov(kwlnGetCamera());
             *(s32 *)(data + 0x77C) =
@@ -198,7 +200,7 @@ s32 func_00285dd0(u8 *sdkTaskBytes) {
         }
         break;
     case 4:
-        if (func_00285cc0(*(u8 **)(data + 4)) != 0) {
+        if (evtRequestFieldRoom(*(u8 **)(data + 4)) != 0) {
             *(s32 *)(data + 0x76C) = 5;
         } else {
             *(s32 *)(data + 0x76C) = 8;
@@ -282,7 +284,7 @@ func_00285dd0_loop_check:
         }
         flag = (*(u32 *)data & 0x80000000) != 0;
         if (flag != 0) {
-            func_0028b7b0(data);
+            evtLoadEventTables(data);
         }
         evtEnvSlotSave(data, 0);
         evtCamPosSave(data);
@@ -314,7 +316,7 @@ s32 evtStart(s32 arg0, s32 arg1) {
     if (arg0 != 0) {
         p[0] |= 0x40000000;
     }
-    task = (s32)kwlnTaskCreate((const void *)(D_0063C368), 0, 0, 0, func_00285dd0, evtTaskDestroy, (u8 *)(p));
+    task = (s32)kwlnTaskCreate((const void *)(D_0063C368), 0, 0, 0, evtStepEventTask, evtTaskDestroy, (u8 *)(p));
     if (arg1 != 0) {
         p[0] |= 0x80000000;
     }
@@ -328,8 +330,9 @@ s32 evtFindTask(void) {
 
 
 
+// Marks the event task as started by setting its started flag.
 // FUN_00286380
-void func_00286380(s32 task)
+void evtMarkTaskStarted(s32 task)
 {
     u8 *p;
 
@@ -337,8 +340,9 @@ void func_00286380(s32 task)
     *(s32 *)(p + 0x770) = *(s32 *)(p + 0x770) | 0x1;
 }
 
+// Returns 1 when the event task carries the marked flag, else 0 [inferred].
 // FUN_002863B0
-s32 func_002863b0(s32 task) {
+s32 evtTaskIsMarked(s32 task) {
     return (*(s32 *)((u8 *)kwlnTaskGetWork((void *)task) + 0x770) & 2) != 0;
 }
 // Event id: stores the three id words (+0x78C..+0x794) that label the event.
@@ -411,8 +415,9 @@ fail:
     return 0;
 }
 
+// Applies an event block to the event's state table, clearing and refilling the working copy [inferred].
 // FUN_002865E0
-void func_002865e0(UnkStruct_002865E0 *arg0) {
+void evtApplyEventBlock(UnkStruct_002865E0 *arg0) {
     s32 sp30[15];
     s32 *var_5;
     s32 *var_4;
@@ -458,8 +463,9 @@ void func_002865e0(UnkStruct_002865E0 *arg0) {
 
 
 
+// Appends a node to the event's node list (head and tail pointers at +0x68/+0x6C) [inferred].
 // FUN_002866C0
-void func_002866c0(u8 *arg0, u8 *arg1) {
+void evtAppendNodeToList(u8 *arg0, u8 *arg1) {
     u8 *temp_3;
     u8 *var_7;
 
@@ -552,8 +558,9 @@ void evtClearHandles(u8 *arg0)
     *(s32 *)(arg0 + 0x7A4) = 0;
     *(s32 *)(arg0 + 0x7A0) = 0;
 }
+// Loads the event's tables: allocates the working area, copies the table entries and records their memory [inferred].
 // FUN_0028B7B0
-void func_0028b7b0(u8 *arg0) {
+void evtLoadEventTables(u8 *arg0) {
     u8 *count_node;
     u8 *copy;
     u8 *array;
@@ -822,8 +829,9 @@ func_0028b7b0_copy_valid_done:
         }
     }
 }
+// Sets the exclusive resource for kind 0 or 1 and stores the kind on the event [inferred].
 // FUN_0028BE70
-void func_0028be70(u8 *arg0, s32 arg1)
+void evtSetKindExclusiveRes(u8 *arg0, s32 arg1)
 {
     if (arg1 < 2) {
         switch (arg1) {
@@ -841,8 +849,9 @@ void func_0028be70(u8 *arg0, s32 arg1)
 }
 
 
+// Decodes a node's key: low 12 bits of the node word become arg2, bits 12 to 15 become arg3, and the table entry for the node type is returned [inferred].
 // FUN_0028BEF0
-s32 func_0028bef0(s32 arg0, u8 *arg1, s32 *arg2, s32 *arg3) {
+s32 evtDecodeNodeKey(s32 arg0, u8 *arg1, s32 *arg2, s32 *arg3) {
     s32 temp_3_2;
     s8 temp_3;
 
@@ -872,8 +881,9 @@ block_6:
 /* measured: func_0028bfb0 is nd 97 without opt_loop_invariants on (retail loop codegen). */
 #pragma push
 #pragma opt_loop_invariants on
+// Finds the node range for a key: walks the event node list and reports the first and last matching nodes [inferred].
 // FUN_0028BFB0
-void func_0028bfb0(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3) {
+void evtFindNodeRange(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3) {
     u8 *temp_3;
     s16 temp_8;
     s32 temp_6;
@@ -919,8 +929,9 @@ done:
 /* measured: restore pragma state after func_0028bfb0. */
 #pragma pop
 
+// Interpolates two matrix pairs between their start and end times, by the ratio of elapsed time [inferred].
 // FUN_0028C080
-void func_0028c080(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3, f32 *arg4,
+void evtInterpolateNodeMatrices(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3, f32 *arg4,
                    f32 *arg5) {
     u8 *start;
     u8 *end;
@@ -939,7 +950,7 @@ void func_0028c080(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3, f32 *arg4,
     f32 *out;
     s32 i;
 
-    func_0028bfb0(arg1, arg2, &start, &end);
+    evtFindNodeRange(arg1, arg2, &start, &end);
     if (start != NULL) {
         start_time = *(u16 *)start;
     } else {
@@ -1063,8 +1074,9 @@ done:
    goto (`t = match; goto found;`) - the copy keeps retail's bne / b-to-call-tail pair; the
    fall-through `t = NULL` then reaches the shared call. */
 #pragma opt_propagation off
+// Updates the scene lights: runs the per-light update over the light table, then resets the light state [inferred].
 // FUN_0028C3F0
-void func_0028c3f0(u8 *arg0)
+void evtUpdateSceneLights(u8 *arg0)
 {
     u32 nodes[51];
     s32 count;
@@ -1121,7 +1133,7 @@ void func_0028c3f0(u8 *arg0)
             }
             t = NULL;
 found:
-            func_0028c580(arg0, node, t);
+            evtUpdateSceneLight(arg0, node, t);
             i++;
         }
     }
@@ -1134,10 +1146,11 @@ found:
  * reserved words; no host-C definedness is asserted for those reads.
  * Measured whole-owner b210 -O2: all 2372 live bytes match retail, with
  * 12 additional zero bytes in the retail alignment tail. */
+// Updates one scene light: computes its model and character matrices from the resource and its defaults [inferred].
 // FUN_0028C580
 #pragma push
 #pragma opt_loop_invariants on
-void func_0028c580(u8 *workBytes, u8 *resource, u8 *defaults)
+void evtUpdateSceneLight(u8 *workBytes, u8 *resource, u8 *defaults)
 {
     SceneLightWork *work = (SceneLightWork *)workBytes;
     SceneLightModel *model = (SceneLightModel *)resource;
