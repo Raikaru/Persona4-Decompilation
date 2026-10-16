@@ -22,7 +22,7 @@ typedef struct EvtColor {
 /* Event node (src/Event/evtMain.c, evtEvent.c). Only offsets the matched
    code reads are named; the rest is padding. */
 struct EvtNode {
-    s32 kind;                 /* +0x00: switched on by evtResetEventScene */
+    u32 kind;                 /* +0x00: switched on by evtResetEventScene */
     u8 unk04[0x08];
     u16 flags;                /* +0x0C: resource id in the low 10 bits */
     u8 unk0E[0x26];
@@ -30,7 +30,9 @@ struct EvtNode {
     u8 unk38[0x18];
     EvtColor color;           /* +0x50: colour copied in by evtNpcModelTaskUpdate */
     u32 resData;              /* +0x54: data offset read from the resource */
-    u8 unk58[0x38];
+    u8 unk58[0x08];
+    s32 timedFlag;            /* +0x60: 1 when the node is flagged for a duration */
+    u8 unk64[0x2C];
     EvtNode *next;            /* +0x90: next node in the event's list */
     EvtNode *prev;            /* +0x94: previous node in the event's list */
 };
