@@ -70,7 +70,6 @@ extern void func_0038d0d0(u8 *arg0, s32 arg1);
 extern void func_0038d0a0(u8 *arg0);
 extern void btlShuffleDrawViewSetActive(u8 *arg0);
 extern void btlShuffleDrawViewClearActive(u8 *arg0);
-extern u8 *datPersonaTryAddRosterMember(u16 personaId);
 extern u16 D_008C024E[];
 extern s32 datGetFlag(s32 a);
 extern s32 cmmCommunityValueForArcana(s32 a);
