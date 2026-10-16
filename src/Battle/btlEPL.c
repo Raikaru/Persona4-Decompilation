@@ -286,7 +286,7 @@ typedef struct BtlEplUnitParam
 // FUN_001FC630
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
-void func_001fc630(u8 *arg0)
+void btlEplStepUnitFadeInOut(u8 *arg0)
 {
     u32 count;
     BtlEplUnitParam *param;
@@ -422,13 +422,13 @@ void func_001fc630(u8 *arg0)
 #pragma opt_loop_invariants off
 
 // FUN_001FCE30
-void func_001fce30(void) {
+void btlEplAllocColorPair(void) {
     chkmemAllocSiteTag(D_00625230, 0x1D3);
     (*jtbl_008873E8)(0x20, 0x40000);
 }
 
 // FUN_001FCE80
-void func_001fce80(void *arg0) {
+void btlEplFreeColorPair(void *arg0) {
     jtbl_008873EC[0](arg0);
 }
 
@@ -445,7 +445,7 @@ typedef struct BtlEplFade2Param
    scaled per component); 189 words without it. */
 // FUN_001FCEB0
 #pragma opt_dead_assignments off
-void func_001fceb0(u8 *arg0)
+void btlEplStepColorPairFade(u8 *arg0)
 {
     u32 count;
     BtlEplFade2Param *param;
@@ -600,7 +600,7 @@ typedef struct BtlEplUnitRgbaParam
 // FUN_001FD790
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
-void func_001fd790(u8 *arg0)
+void btlEplStepUnitRgbaFade(u8 *arg0)
 {
     u32 count;
     BtlEplUnitRgbaParam *param;
@@ -726,13 +726,13 @@ void func_001fd790(u8 *arg0)
 #pragma opt_loop_invariants off
 
 // FUN_001FE010
-void func_001fe010(void) {
+void btlEplAllocColorValueTarget(void) {
     chkmemAllocSiteTag(D_00625230, 0x2DF);
     (*jtbl_008873E8)(0x20, 0x40000);
 }
 
 // FUN_001FE060
-void func_001fe060(void *arg0) {
+void btlEplFreeColorValueTarget(void *arg0) {
     jtbl_008873EC[0](arg0);
 }
 
@@ -740,7 +740,7 @@ void func_001fe060(void *arg0) {
    like the first (138 words without it). */
 // FUN_001FE090
 #pragma opt_dead_assignments off
-void func_001fe090(u8 *arg0)
+void btlEplStepColorValueTargetFade(u8 *arg0)
 {
     u32 count;
     BtlEplFade2Param *param;
@@ -893,20 +893,20 @@ void func_001fe090(u8 *arg0)
 }
 #pragma opt_dead_assignments on
 // FUN_001FEB80
-void func_001feb80(void) {
+void btlEplAllocColor(void) {
     chkmemAllocSiteTag(D_00625230, 0x389);
     (*jtbl_008873E8)(0x10, 0x40000);
 }
 
 // FUN_001FEBD0
-void func_001febd0(void *arg0) {
+void btlEplFreeColor(void *arg0) {
     jtbl_008873EC[0](arg0);
 }
 
 // FUN_001FEC00
 /* The blend keeps the third colour term unscaled until the final add, as in
    btlMainUpdateColorWork (btlMain.c); retail fuses only that last component. */
-void func_001fec00(u8 *arg0)
+void btlEplStepColorFade(u8 *arg0)
 {
     u32 count;
     BtlEplFadeParam *param;
@@ -1074,7 +1074,7 @@ typedef struct BtlEplLightTarget
 extern BtlEplMatrix D_00922C60;
 
 /* measured: opt_dead_assignments off keeps the colour conversions where the
-   source puts them, as in func_001fceb0. */
+   source puts them, as in btlEplStepColorPairFade. */
 // FUN_001FF490
 #pragma opt_dead_assignments off
 void func_001ff490(u8 *arg0)
