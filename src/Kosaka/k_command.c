@@ -91,16 +91,18 @@ extern void (*jtbl_008873EC[])(void *);
 extern s32 FldSceneLoadReady(void);
 extern void func_002bd410(void);
 extern void func_002bd3c0(void);
+/* Script command 0x1002 (group 1 table 0x63D440 + 0x010, FLD_FUNCTION_0002). */
 // FUN_00176880
-s32 func_00176880(void)
+s32 K_Cmd_FLD_STEP_INDEX(void)
 {
     scrSetReturnInt(FldStepIndex());
     return 1;
 }
 
 
+/* Script command 0x1000 (group 1 table 0x63D440 + 0x000, FLD_FUNCTION_0000). */
 // FUN_001768B0
-s32 func_001768b0(void)
+s32 K_Cmd_FLD_SCENE_LOAD_READY(void)
 {
     scrSetReturnInt(FldSceneLoadReady());
     return 1;
@@ -923,8 +925,9 @@ u32 Cmd_TestResourceValue()
 
 
 
+/* Script command 0x102C (group 1 table 0x63D440 + 0x160, FLD_FUNCTION_002C). */
 // FUN_001789D0
-s32 func_001789d0(void)
+s32 K_Cmd_FLD_RESET_FCL_CHANNEL(void)
 {
     func_002bd410();
     func_002bd3c0();
@@ -972,8 +975,9 @@ extern s64 scrGetParamIntS64(s32 arg0);
 extern s32 cmmCommunityGetCurrentSecondary(void);
 extern u16 datCalcMaxSpById(s16 arg0);
 extern void datSetUnitSp(s16 arg0, s16 arg1);
+/* Script command 0x300D (group 3 table 0x63DE80 + 0x68, EVT_FUNCTION_000D). */
 // FUN_00298340
-s32 func_00298340(void) {
+s32 K_Cmd_CMM_COMMUNITY_CURRENT_SECONDARY(void) {
     scrSetReturnInt(cmmCommunityGetCurrentSecondary());
     return 1;
 }
