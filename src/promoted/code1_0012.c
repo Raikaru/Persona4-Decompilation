@@ -204,7 +204,7 @@ extern s32 D_005E5B60[];
 extern u8 D_005E5BB8[];
 extern u8 D_005E76C8[];
 extern void func_0012e7c0(u8 *arg0);
-extern s32 func_0012ff60(u8 *arg0, u32 arg1);
+extern s32 titleSetMenuLayout(u8 *arg0, u32 arg1);
 typedef struct {
     u8 b[4];
 } PanelRgba;
@@ -4739,7 +4739,7 @@ s32 func_0012db80(u8 *arg0, s32 arg1)
    the object grows to 676 bytes against the 672-byte window at nd 243. */
 #pragma opt_loop_invariants on
 // FUN_0012DC00
-void func_0012dc00(u8 *arg0)
+void titleLayoutSlots(u8 *arg0)
 {
     s32 temp_10;
     s32 temp_3;
@@ -4887,7 +4887,7 @@ loop_0012dc00_21_check:
 extern u8 D_005E58C0[];
 extern u8 D_005E59A0[];
 extern u8 D_005E5A80[];
-extern void func_0012dc00(u8 *arg0);
+extern void titleLayoutSlots(u8 *arg0);
 
 #pragma push
 /* measured: opt_loop_invariants on is load-bearing: removing it yields MISMATCH nd 383 (obj 684B/window 688B); on yields MATCH nd 0 (obj 680B/window 688B) by hoisting the case-zero constants. */
@@ -4966,7 +4966,7 @@ s32 titleSlotSetMode(u8 *arg0, s32 arg1)
         }
         break;
     case 2:
-        func_0012dc00(arg0);
+        titleLayoutSlots(arg0);
         break;
     case 3:
         i3 = 0;
@@ -5167,7 +5167,7 @@ s32 func_0012e2f0(u8 *arg0)
         ii++;
     }
     func_0012e7c0(arg0);
-    return func_0012ff60(arg0, 0);
+    return titleSetMenuLayout(arg0, 0);
 }
 #pragma opt_rebuildconditionals on
 /* measured: closes the opt_loop_invariants bracket for func_0012e2f0. */
@@ -5673,7 +5673,7 @@ extern u8 D_005E7320[];
    addressing and setup order; on reverts immediately after the switch. */
 #pragma opt_common_subs off
 // FUN_0012FF60
-s32 func_0012ff60(u8 *arg0, u32 arg1)
+s32 titleSetMenuLayout(u8 *arg0, u32 arg1)
 {
     s32 i;
     s32 j;

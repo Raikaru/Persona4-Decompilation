@@ -27,7 +27,7 @@ extern void radarResetEntries(u8 *arg0);
 extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
 extern void func_00105780(s16 arg0);
 extern u16 func_0010f8c0(s32 arg0);
-extern s32 func_0012ff60(u8 *arg0, u32 arg1);
+extern s32 titleSetMenuLayout(u8 *arg0, u32 arg1);
 extern s32 func_0034bb20(s32 arg0);
 extern s32 radarEntryTypeIsActive(s16 arg0);
 extern s32 func_0010f540(s32 arg0);
@@ -1381,14 +1381,14 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 3:
         if (radarEntriesCoverValue(arg2) != 0) {
-            func_0012ff60(arg2, 3);
+            titleSetMenuLayout(arg2, 3);
             *arg0 = 4;
             func_00353fe0();
         }
         break;
     case 4:
         if (D_008C024E[0] & 0x20) {
-            func_0012ff60(arg2, 1);
+            titleSetMenuLayout(arg2, 1);
             *arg0 = 2;
             func_00353fb0();
             func_0034bb20(0xD);
@@ -1397,7 +1397,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             radarHandleEntrySelect((s32 *)arg0, arg2);
             *(s32 *)(arg2 + 0xC44) = 0;
         } else if ((D_008C024E[0] & 0x80) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
-            func_0012ff60(arg2, 8);
+            titleSetMenuLayout(arg2, 8);
             *arg0 = 5;
             *(s32 *)(arg2 + 0xC44) = 1;
             sdkSndStartStream(0, 2, 0, 3);
@@ -1421,20 +1421,20 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 7:
         if (radarEntriesCoverValue(arg2) != 0) {
-            func_0012ff60(arg2, 6);
+            titleSetMenuLayout(arg2, 6);
             radarPushSlotState(arg2);
             *arg0 = 8;
         }
         break;
     case 8:
         if (D_008C024E[0] & 0x20) {
-            func_0012ff60(arg2, 2);
+            titleSetMenuLayout(arg2, 2);
             *arg0 = 3;
             func_0034bd60(0xB);
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
             if (radarApplyItemStep(1, *(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x26) * 2) + (u32)arg2) + 0x34), arg2) == 2) {
-                func_0012ff60(arg2, 2);
+                titleSetMenuLayout(arg2, 2);
                 *arg0 = 3;
                 func_0034bd60(0xB);
             }
@@ -1453,13 +1453,13 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 9:
         if (radarEntriesCoverValue(arg2) != 0) {
-            func_0012ff60(arg2, 7);
+            titleSetMenuLayout(arg2, 7);
             *arg0 = 0xA;
         }
         break;
     case 10:
         if (D_008C024E[0] & 0x20) {
-            func_0012ff60(arg2, 2);
+            titleSetMenuLayout(arg2, 2);
             *arg0 = 3;
             func_0034bd60(0xB);
             sdkSndStartStream(0, 0, 0, 2);
@@ -1468,7 +1468,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 s32 inner = radarApplyItemStep(1, -1, arg2);
                 switch (inner) {
                 case 2:
-                    func_0012ff60(arg2, 2);
+                    titleSetMenuLayout(arg2, 2);
                     *arg0 = 3;
                     func_0034bd60(0xB);
                     break;
@@ -1485,13 +1485,13 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
         break;
     case 5:
         if (radarEntriesCoverValue(arg2) != 0) {
-            func_0012ff60(arg2, 9);
+            titleSetMenuLayout(arg2, 9);
             *arg0 = 6;
         }
         break;
     case 6:
         if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
-            func_0012ff60(arg2, 2);
+            titleSetMenuLayout(arg2, 2);
             *arg0 = 3;
             sdkSndStartStream(0, 2, 0, 4);
         } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
@@ -1546,12 +1546,12 @@ void radarHandleEntrySelect(s32 *arg0, u8 *arg1) {
     }
     type = (s16)func_0010f8c0(*(u16 *)((u8 *)datEntryAt(*(s16 *)entry) + 0x24));
     if (type == 0) {
-        func_0012ff60(arg1, 4);
+        titleSetMenuLayout(arg1, 4);
         radarPushSlotState(arg1);
         *arg0 = 7;
     } else {
         if ((type == 2) || (type == 1)) {
-            func_0012ff60(arg1, 5);
+            titleSetMenuLayout(arg1, 5);
             *arg0 = 9;
         }
     }
