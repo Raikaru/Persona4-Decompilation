@@ -160,8 +160,9 @@ u32 scrDebugPrintString(void)
     return 1;
 }
 
+// Kills the task named by parameter 0 when it is nonzero [inferred].
 // FUN_002990A0
-u32 func_002990a0(void)
+u32 scrKillTask(void)
 {
     s32 task;
 
@@ -173,8 +174,9 @@ u32 func_002990a0(void)
     return 1;
 }
 
+// Sets parameter 0 on the task named by parameter 1 when parameter 1 is nonzero [inferred].
 // FUN_002990E0
-u32 func_002990e0(void)
+u32 scrSetTaskParam(void)
 {
     s32 p0;
     s32 p1;
@@ -195,8 +197,9 @@ u32 scrIsFading(void)
     return fadeStatus() != 0;
 }
 
+// Sends the value of parameter 0 as a two-entry parameter pair through the sound/command channel [inferred].
 // FUN_00299170
-s32 func_00299170(void) {
+s32 scrSendParamPair(void) {
     s16 sp1C[2]; /* measured: 2-element form required for retail slot at 0x1c */
 
     sp1C[0] = scrGetParamInt(0);
@@ -207,8 +210,9 @@ s32 func_00299170(void) {
 
 
 
+// Returns 1 when the command at index 0 is idle [inferred].
 // FUN_002991C0
-u32 func_002991c0(void)
+u32 scrIsIdle(void)
 {
     return ~func_00102980() == 0;
 }
@@ -238,22 +242,25 @@ u32 scrSwitchCaseJump(void)
     return 1;
 }
 
+// Returns the first mask global ANDed with parameter 0.
 // FUN_00299290
-u32 func_00299290(void)
+u32 scrMaskReturnPrimary(void)
 {
     scrSetReturnInt(D_008C024E[0] & scrGetParamInt(0));
     return 1;
 }
 
+// Returns the second mask global ANDed with parameter 0.
 // FUN_002992D0
-u32 func_002992d0(void)
+u32 scrMaskReturnSecondary(void)
 {
     scrSetReturnInt(D_008C024C[0] & scrGetParamInt(0));
     return 1;
 }
 
+// Parameter 0 of zero stops the pad rumble; otherwise draws the flag-gated entry with the other four parameters [inferred].
 // FUN_00299310
-u32 func_00299310(void)
+u32 scrRumbleOrDrawEntry(void)
 {
     s32 p0;
     s32 p1;
@@ -275,15 +282,17 @@ u32 func_00299310(void)
     return 1;
 }
 
+// Returns the result of the table lookup for parameter 0 [inferred].
 // FUN_002993C0
-u32 func_002993c0(void)
+u32 scrQueryTableValue(void)
 {
     scrSetReturnInt(func_001064f0(scrGetParamInt(0)));
     return 1;
 }
 
+// Stores parameter 1 at table index parameter 0 [inferred].
 // FUN_00299400
-u32 func_00299400()
+u32 scrSetTableValue()
 {
     func_00106550(scrGetParamInt(0), scrGetParamInt(1));
 
@@ -293,8 +302,9 @@ u32 func_00299400()
 
 
 
+// Starts procedure parameter 0 in the current script context at the task priority plus parameter 1; the new task id is returned.
 // FUN_00299450
-u32 func_00299450(void)
+u32 scrStartProcedureTask(void)
 {
     s32 prcdIdx;
     ScrData450 *scr;
