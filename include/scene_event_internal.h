@@ -27,12 +27,19 @@ struct EvtNode {
     u16 flags;                /* +0x0C: resource id in the low 10 bits */
     u8 unk0E[0x26];
     void *res;                /* +0x34: scene resource (evtNodeSetRes) */
-    u8 unk38[0x18];
-    EvtColor color;           /* +0x50: colour copied in by evtNpcModelTaskUpdate */
+    u8 unk38[0x14];
+    EvtNode *childNext;       /* +0x4C: next sibling in the parent's child list */
+    union {
+        EvtColor color;       /* +0x50: top-level nodes (evtNpcModelTaskUpdate) */
+        EvtNode *childPrev;   /* +0x50: child nodes, previous sibling */
+    };
     u32 resData;              /* +0x54: data offset read from the resource */
     u8 unk58[0x08];
     s32 timedFlag;            /* +0x60: 1 when the node is flagged for a duration */
-    u8 unk64[0x2C];
+    s32 childCount;           /* +0x64 */
+    EvtNode *childHead;       /* +0x68 */
+    EvtNode *childTail;       /* +0x6C */
+    u8 unk70[0x20];
     EvtNode *next;            /* +0x90: next node in the event's list */
     EvtNode *prev;            /* +0x94: previous node in the event's list */
 };
