@@ -764,7 +764,7 @@ extern f32 D_00761174, D_0076118C, D_00761308, D_0076132C, D_0076139C;
 s32 func_0025f3f0(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5);
 s32 func_0025f430(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5);
 void func_0045dfd0(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4);
-u8 *func_0046a770(char *a0);
+u8 *resourceFindByName(char *a0);
 f32 sdkSpriteEntryWidth(void *a0, s32 a1);
 void sdkSpriteDrawNowUnscaled(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, void *a3, s32 a4);
 u8 *cmmNameRecord(u32 a0);
@@ -928,7 +928,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
             func_0045dfd0(movingColors, movingPoints, 0.0f, 4, 4, 1);
             relation = *(s32 *)(context + 4);
             sprites = *(u8 **)(context + 0x10);
-            font = func_0046a770((char *)D_00635CE0);
+            font = resourceFindByName((char *)D_00635CE0);
             if (font == NULL) {
                 kAssertFail(D_00635CF8, 0x1E4);
             }
@@ -984,7 +984,7 @@ s32 func_00253850(u8 *root, u8 *work, u8 *context)
             func_0045dfd0(fixedColors, fixedPoints, 0.0f, 4, 4, 1);
             relation = *(s32 *)(context + 4);
             sprites = *(u8 **)(context + 0x10);
-            font = func_0046a770((char *)D_00635CE0);
+            font = resourceFindByName((char *)D_00635CE0);
             if (font == NULL) {
                 kAssertFail(D_00635CF8, 0x1E4);
             }
@@ -1096,7 +1096,7 @@ extern f32 D_0076118C;
 s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 s32 func_0025f430(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
 void func_0045dfd0(void *, void *, f32, s32, s32, s32);
-u8 *func_0046a770(char *);
+u8 *resourceFindByName(char *);
 f32 sdkSpriteEntryWidth(void *, s32);
 void sdkSpriteDrawNowUnscaled(f32, f32, f32, s32, u8, s32, void *, s32);
 u8 *cmmNameRecord(u32);
@@ -1325,7 +1325,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         func_0045dfd0(fixedColors, fixedPoints, 0.0f, 4, 4, 1);
         relation = *(s32 *)(context + 4);
         sprites = *(u8 **)(context + 0x10);
-        font = func_0046a770((char *)D_00635CE0);
+        font = resourceFindByName((char *)D_00635CE0);
         if (font == NULL) {
             kAssertFail(D_00635CF8, 0x1E4);
         }
@@ -1394,7 +1394,7 @@ s32 func_00254a70(u8 *root, u8 *work, u8 *context)
         func_0045dfd0(movingColors, movingPoints, 0.0f, 4, 4, 1);
         relation = *(s32 *)(context + 4);
         sprites = *(u8 **)(context + 0x10);
-        font = func_0046a770((char *)D_00635CE0);
+        font = resourceFindByName((char *)D_00635CE0);
         if (font == NULL) {
             kAssertFail(D_00635CF8, 0x1E4);
         }

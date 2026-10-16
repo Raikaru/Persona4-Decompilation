@@ -24,7 +24,7 @@ extern u8 *func_002e1db0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern u32 datGetMoney(void);
 extern s32 func_002e1230();
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern s32 func_0046a770(const void *arg0);
+extern s32 resourceFindByName(const void *arg0);
 extern u8 D_0063FB50[];
 extern u8 D_0063FAA0[];
 extern u8 D_0063FB90[];
@@ -254,19 +254,19 @@ void func_002e0a60(u8 *arg0, s32 arg1, f32 fparg0)
 void func_002e0b20(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
                    s32 arg4, u8 *arg5)
 {
-    sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)func_0046a770(D_0063FB50), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
+    sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FB50), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 // FUN_002E0BE0
 void func_002e0be0(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
                    s32 arg4, u8 *arg5)
 {
-    sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)func_0046a770(D_0063FAA0), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
+    sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FAA0), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 // FUN_002E0CA0
 void func_002e0ca0(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
                    s32 arg4, u8 *arg5)
 {
-    sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)func_0046a770(D_0063FB90), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
+    sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FB90), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 // FUN_002E0D60
 s32 func_002e0d60(void)

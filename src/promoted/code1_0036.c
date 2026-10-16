@@ -63,7 +63,7 @@ extern void sdkSpriteFreeNode(void *node);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern void func_002bb550(s8 arg0);
 extern f32 iGpffff84a4;
-extern s32 func_0046a770(const void *arg0);
+extern s32 resourceFindByName(const void *arg0);
 extern void kAssertFail(const void *arg0, s32 arg1);
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5,

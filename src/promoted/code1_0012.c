@@ -43,7 +43,7 @@ extern void cldDayChangeStartTask();
 extern s32 D_00796670[];
 extern u8 D_005E50D0[];
 extern u8 D_005E5870[];
-extern u8 *func_0046a770(char *filename);
+extern u8 *resourceFindByName(char *filename);
 extern void calendarSetMode(s32 arg0);
 
 extern void cldTimeChangeCreate();
@@ -220,7 +220,7 @@ void drawNumberSprites(Vec2f position, f32 depth, PanelRgba color, u32 number, s
 #pragma opt_lifetimes on
 void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 fullName)
 {
-    extern u8 *func_0046a770(char *filename);
+    extern u8 *resourceFindByName(char *filename);
     extern void kAssertFail(const void *file, s32 line);
     extern u32 datPersonaDisplayName(s16 unit);
     extern u32 func_0010d6d0(s16 unit);
@@ -262,8 +262,8 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
     u32 spNumber;
     u32 maxSpNumber;
 
-    panelSprites = (s32)func_0046a770((char *)D_005E5830);
-    helpSprites = (s32)func_0046a770((char *)D_005E5850);
+    panelSprites = (s32)resourceFindByName((char *)D_005E5830);
+    helpSprites = (s32)resourceFindByName((char *)D_005E5850);
     if (panelSprites == 0) {
         kAssertFail(D_005E4F88, 0xB1);
     }
@@ -908,7 +908,7 @@ s32 calendarStateTask(u8 *unusedTask)
     state = calendar->state;
     switch (state) {
     case 0:
-        calendar->field_110 = (s32)func_0046a770((char *)D_005E5870);
+        calendar->field_110 = (s32)resourceFindByName((char *)D_005E5870);
         reloaded = (CalendarState *)iGpffffb1dc;
         i = 0;
         table = D_005E50D0;
@@ -4485,11 +4485,11 @@ void func_0012d410(u8 *arg0)
         *(s8 *)(arg0 + (var_5 * 0x30) + 0xAE) = 0;
         var_5++;
     }
-    temp_2_2 = (u32)func_0046a770((char *)D_005E5810);
+    temp_2_2 = (u32)resourceFindByName((char *)D_005E5810);
     if (temp_2_2 == 0) {
         kAssertFail(D_005E5BB8, 0xC1);
     }
-    temp_2_3 = (s32)func_0046a770((char *)D_005E57F0);
+    temp_2_3 = (s32)resourceFindByName((char *)D_005E57F0);
     *(s32 *)(arg0 + 0x90) = temp_2_3;
     if (temp_2_3 == 0) {
         kAssertFail(D_005E5BB8, 0xC3);
@@ -5129,15 +5129,15 @@ s32 func_0012e2f0(u8 *arg0)
         *(s32 *)(arg0 + (n * 0x30) + 0x1AE4) = 3;
     }
     *(s16 *)(arg0 + 0x3C) = func_00353b50(arg0 + 0x34);
-    res_1 = (u8 *)func_0046a770((char *)D_005E5830);
+    res_1 = (u8 *)resourceFindByName((char *)D_005E5830);
     if (res_1 == NULL) {
         kAssertFail(D_005E76C8, 0x1FA);
     }
-    res_2 = (u8 *)func_0046a770((char *)D_005E5850);
+    res_2 = (u8 *)resourceFindByName((char *)D_005E5850);
     if (res_2 == NULL) {
         kAssertFail(D_005E76C8, 0x1FC);
     }
-    temp_16 = (s32)func_0046a770((char *)D_005E57F0);
+    temp_16 = (s32)resourceFindByName((char *)D_005E57F0);
     res_3 = (u8 *)temp_16;
     *(u8 **)(arg0 + 0x1BE4) = (u8 *)temp_16;
     if (res_3 == NULL) {

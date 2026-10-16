@@ -65,7 +65,7 @@ extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5,
                           f32 z, s32 arg6);
 extern u32 datEntryGetFlags(s16 arg0);
-extern s32 func_0046a770(void *param);
+extern s32 resourceFindByName(void *param);
 extern u16 func_001068b0(s16 arg0);
 extern u16 func_001068e0(s16 arg0);
 extern u16 func_00106940(s16 arg0);
@@ -1062,7 +1062,7 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
     
     s32 func_00106a90(s16);
     void sprintf(void *, void *, s32);
-    s32 func_0046a770(void *);
+    s32 resourceFindByName(void *);
     void kAssertFail(void *, s32);
     void func_00112610(Vec2f, f32, u8, u8 *, s32, s32);
     void func_00112830(Vec2f, f32, u8, u8 *, s32);
@@ -1078,8 +1078,8 @@ void func_00112300(Vec2f arg0, f32 inputDepth, u8 arg1, u8 *inputEntry)
 
     fparg0 = inputDepth;
     arg2 = inputEntry;
-    temp16 = func_0046a770(D_005E5830);
-    temp19 = func_0046a770(D_005E5850);
+    temp16 = resourceFindByName(D_005E5830);
+    temp19 = resourceFindByName(D_005E5850);
     if (temp16 == 0) {
         kAssertFail(&iGpffff9be0, 0x93);
     }
@@ -1625,7 +1625,7 @@ void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
     s32 alpha;
     s32 mode;
 
-    temp_2 = func_0046a770(D_005E4F70);
+    temp_2 = resourceFindByName(D_005E4F70);
     temp_17 = *(s16 *)(arg2 + 4);
     if (temp_2 == 0) {
         temp_2 = arg1 & 0xFF;

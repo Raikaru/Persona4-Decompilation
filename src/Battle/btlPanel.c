@@ -20,7 +20,7 @@ s32 datGetFlag(s32 id);
 s32 btlUnitFindInSideById(s32 a, s32 b);
 s32 sdkSpriteCreateFromName(u32 param);
 s32 func_0046a750(s32 param);
-s32 func_0046a770(u32 param);
+s32 resourceFindByName(u32 param);
 extern u8* kwlnTaskGetWork(s32 param);
 extern char iGpffffa578;
 extern s32 iGpffffa570;
@@ -101,7 +101,7 @@ s32 btlPanelIsEnabled(void* param)
 check:
     if (done == 0xC) {
         for (idx = 0xC; idx < 0x10; idx++) {
-            *(s32*)((u8*)recs + idx * 4 + 0x2C) = func_0046a770(D_00626720[idx]);
+            *(s32*)((u8*)recs + idx * 4 + 0x2C) = resourceFindByName(D_00626720[idx]);
         }
         recs->flags |= 1;
         return 1;

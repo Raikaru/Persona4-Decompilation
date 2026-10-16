@@ -62,7 +62,7 @@ extern u8 D_0064B2E4[];
 extern u8 D_0064B2E8[];
 extern u8 D_0064B2EC[];
 extern u8 D_0064B2F4[];
-void *func_0046a770(char *);
+void *resourceFindByName(char *);
 s32 sdkSpriteNewNode(void *, u8);
 s16 func_00353b50(void *);
 void kAssertFail(char *, s32);
@@ -188,15 +188,15 @@ loop4_test:
     *(s16 *)(arg0 + 0xFC) = func_00353b50(arg0 + 0xF4);
     *(s16 *)(arg0 + 0x580) = 0;
 
-    asset0 = func_0046a770(D_005E5830);
+    asset0 = resourceFindByName(D_005E5830);
     if (asset0 == 0) {
         kAssertFail(D_005ED9C0, 0x25F);
     }
-    asset1 = func_0046a770(D_005E5850);
+    asset1 = resourceFindByName(D_005E5850);
     if (asset1 == 0) {
         kAssertFail(D_005ED9C0, 0x261);
     }
-    *(void **)(arg0 + 0x1334) = asset2 = func_0046a770(D_005E57F0);
+    *(void **)(arg0 + 0x1334) = asset2 = resourceFindByName(D_005E57F0);
     if (asset2 == 0) {
         kAssertFail(D_005ED9C0, 0x263);
     }
