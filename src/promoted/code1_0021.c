@@ -2993,7 +2993,7 @@ void btlMessageStartShort(u8 *arg0, u8 *arg1)
     *(s32 *)(sub + 0x30) = value + datCalcRandomBelow(3);
     *(s32 *)(sub + 0x38) = 0;
     *(s16 *)(sub + 0x2A) = 8;
-    func_001f62b0();
+    btlSoundCancelPlayback();
     *(u16 *)(sub + 0x10) |= 0x10;
 }
 // Intent: report whether a message is still running. [inferred]
@@ -3041,7 +3041,7 @@ void btlMessageStartLong(u8 *arg0, u8 *arg1)
     *(s32 *)(sub + 0x30) = value + datCalcRandomBelow(3);
     *(s32 *)(sub + 0x38) = 0;
     *(s16 *)(sub + 0x2A) = 8;
-    func_001f62b0();
+    btlSoundCancelPlayback();
     *(u16 *)(sub + 0x10) |= 0x10;
 }
 // Intent: report whether a message is still running (duplicate of btlMessageIsActive). [inferred]
@@ -3085,7 +3085,7 @@ void btlMessageInstallWindow(s32 task, u8 *arg1)
     *(s32 *)(sub + 0x30) = 0;
     *(s32 *)(sub + 0x38) = 0;
     *(s16 *)(sub + 0x2A) = 8;
-    func_001f62b0();
+    btlSoundCancelPlayback();
     *(u16 *)(sub + 0x10) = *(u16 *)(sub + 0x10) | 0x10;
 }
 

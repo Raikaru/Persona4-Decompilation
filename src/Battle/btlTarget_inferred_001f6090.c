@@ -41,7 +41,7 @@ extern u8 *iGpffffb3c4;
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
-extern void func_001f62b0();
+extern void btlSoundCancelPlayback();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
@@ -91,7 +91,7 @@ extern s32 func_001f0d30(u8 *arg0);
 extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
 extern s32 btlActionHasNoTargetClass(u32 arg0);
 extern s32 func_001f1030(u8 *arg0);
-extern void func_001f62b0(void);
+extern void btlSoundCancelPlayback(void);
 #pragma push
 #pragma pop
 /* measured: invariant mask materialisation needs opt_loop_invariants on to
@@ -119,7 +119,7 @@ extern void func_001f62b0(void);
 // FUN_001F6090
 s32 func_001f6090(void)
 {
-    func_001f62b0();
+    btlSoundCancelPlayback();
     return 1;
 }
 

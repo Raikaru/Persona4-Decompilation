@@ -131,12 +131,12 @@ extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 extern void btlTargetResetRadiusState(void);
 extern void func_00194660(void);
 extern void btlCameraInitSystem(void);
-extern void func_001f7260(void);
+extern void btlSoundResetSlotQueue(void);
 extern void btlVoiceResetPlaybackState(void);
 extern void func_001d6a60(void);
 extern void btlActionResetQueueState(void);
 extern void func_001b60a0(void);
-extern void func_001f6100(void);
+extern void btlSoundResetPlaybackState(void);
 extern s32 itfMesWindowInstall(u8 *arg0);
 extern s32 btlUnitLoadStep(u8 *task);
 

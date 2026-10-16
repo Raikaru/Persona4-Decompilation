@@ -12,7 +12,7 @@ struct BtlMain
 };
 
 extern u32 btlCountUnitRecords(void);
-extern u32 func_001f6290(void);
+extern u32 btlSoundIsPlaybackActive(void);
 extern void func_001f75b0(void);
 
 typedef int (*code)();
@@ -158,7 +158,7 @@ u32 btlMainExitUpdate(void* work)
 {
     BtlMain* btl;
 
-    if (btlCountUnitRecords() == 0 && func_001f6290() == 0)
+    if (btlCountUnitRecords() == 0 && btlSoundIsPlaybackActive() == 0)
     {
         func_001f75b0();
         btl = (BtlMain*)iGpffffb3ac;

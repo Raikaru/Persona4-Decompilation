@@ -63,7 +63,7 @@ extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
 extern s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_001f62b0();
+extern void btlSoundCancelPlayback();
 extern void btlActionStepMessagePhase();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
@@ -93,7 +93,7 @@ extern s32 iGpffffb460;
 extern u8 *D_0076449C;
 extern u16 D_00624FC0[];
 extern u16 D_00624FD8[];
-extern s32 func_001f65d0(u8 *arg0);
+extern s32 btlSoundLoadPlaybackFile(u8 *arg0);
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 extern s32 btlCurrentUnitId(void);
@@ -191,8 +191,8 @@ extern s32 func_001f0950(s32 arg0, s32 arg1);
 #pragma opt_loop_invariants on
 #pragma opt_loop_invariants off
 
-extern s32 func_001f6f60(u8 *arg0);
-extern void func_001f7260(void);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
+extern void btlSoundResetSlotQueue(void);
 /* measured: compiler residual in call argument materialization. Committed at nd 3. */
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 #pragma optimization_level 1
@@ -279,13 +279,13 @@ static inline s32 battleMessageBand(s32 value, s32 band)
    baseline for the rest of the file. */
 #pragma opt_loop_invariants off
 
-// measured: required for exact retail loop codegen in func_001f7260.
+// measured: required for exact retail loop codegen in btlSoundResetSlotQueue.
 #pragma opt_loop_invariants on
 
 
 
 #pragma opt_rebuildconditionals off
-/* measured: close opt_rebuildconditionals after func_001f6f60 probe. */
+/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceA probe. */
 #pragma opt_rebuildconditionals on
 
 #pragma opt_rebuildconditionals off

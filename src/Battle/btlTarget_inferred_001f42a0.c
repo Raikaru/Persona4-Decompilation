@@ -44,7 +44,7 @@ extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
 extern s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_001f62b0();
+extern void btlSoundCancelPlayback();
 extern void btlActionStepMessagePhase();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
@@ -98,8 +98,8 @@ extern s32 func_001f0d30(u8 *arg0);
 extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
 extern s32 btlActionHasNoTargetClass(u32 arg0);
 extern s32 func_001f1030(u8 *arg0);
-extern s32 func_001f6220(s16 arg0, s32 arg1);
-extern void func_001f62b0(void);
+extern s32 btlSoundRequestPlayback(s16 arg0, s32 arg1);
+extern void btlSoundCancelPlayback(void);
 extern u32 datCalcIsLowHp(s32 unit);
 extern u8 *func_001b0c80(s32 arg0);
 #pragma push
@@ -860,7 +860,7 @@ s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4)
     u8 *table;
 
     extern s32 (*D_0060AB20[])(s32, s32, s32, s32);
-    extern s32 func_001f6220(u16, s32);
+    extern s32 btlSoundRequestPlayback(u16, s32);
 
     flags = *(s32 *)(iGpffffb3ac + 0xC);
     if ((flags & 0x1000000) == 0) {
@@ -906,12 +906,12 @@ s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4)
         }
     }
     if ((arg4 & 2) != 0) {
-        func_001f62b0();
+        btlSoundCancelPlayback();
         *(u16 *)(iGpffffb3ac + 0xA6E) = 2;
     } else {
         *(u16 *)(iGpffffb3ac + 0xA6E) = 0;
     }
-    result = func_001f6220(arg1, value);
+    result = btlSoundRequestPlayback(arg1, value);
     return result;
 }
 

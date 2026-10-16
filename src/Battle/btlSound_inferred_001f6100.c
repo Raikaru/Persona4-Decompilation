@@ -49,7 +49,7 @@ extern u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
-extern void func_001f62b0();
+extern void btlSoundCancelPlayback();
 extern void btlActionStepMessagePhase();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
@@ -71,7 +71,7 @@ extern s32 iGpffffb460;
 extern u8 *D_0076449C;
 extern u16 D_00624FC0[];
 extern u16 D_00624FD8[];
-extern s32 func_001f65d0(u8 *arg0);
+extern s32 btlSoundLoadPlaybackFile(u8 *arg0);
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
@@ -129,7 +129,7 @@ static inline s32 battleMessageBand(s32 value, s32 band)
 #pragma push
 #pragma pop
 // FUN_001F6100
-void func_001f6100(void)
+void btlSoundResetPlaybackState(void)
 {
     memset(iGpffffb3ac + 0xA44, 0, 0x2C);
     *(s32 *)(iGpffffb3ac + 0xA54) = 0;
@@ -146,13 +146,13 @@ void func_001f6100(void)
 }
 
 // FUN_001F6190
-void func_001f6190(void)
+void btlSoundStepMessagePhase(void)
 {
     btlActionStepMessagePhase();
 }
 
 // FUN_001F61B0
-void func_001f61b0(void)
+void btlSoundStopAndReleaseHandle(void)
 {
     u8 *temp_3;
     u8 *var_4;
@@ -170,7 +170,7 @@ void func_001f61b0(void)
 }
 
 // FUN_001F6220
-s32 func_001f6220(s16 arg0, s32 arg1)
+s32 btlSoundRequestPlayback(s16 arg0, s32 arg1)
 {
     u8 *temp_3;
 
@@ -190,12 +190,12 @@ s32 func_001f6220(s16 arg0, s32 arg1)
 }
 
 // FUN_001F6290
-s32 func_001f6290(void) {
+s32 btlSoundIsPlaybackActive(void) {
     return (s32)((*(u16 *)((u8 *)iGpffffb3ac + 0xA4E) & 1) != 0);
 }
 
 // FUN_001F62B0
-void func_001f62b0(void) {
+void btlSoundCancelPlayback(void) {
     u8 *temp_4;
 
     func_002bd3e0();
@@ -206,7 +206,7 @@ void func_001f62b0(void) {
 }
 
 // FUN_001F62F0
-s32 func_001f62f0(u8 *arg0)
+s32 btlSoundPickResistVoice(u8 *arg0)
 {
     extern s32 datCalcGetLevel(u8 *arg0);
     extern s32 datCalcStatusResistance(u8 *arg0, s32 arg1);
@@ -285,7 +285,7 @@ s32 func_001f62f0(u8 *arg0)
 }
 
 // FUN_001F65D0
-s32 func_001f65d0(u8 *arg0)
+s32 btlSoundLoadPlaybackFile(u8 *arg0)
 {
     extern void func_002bd240(u32 arg0);
     extern void func_00440b68();
@@ -335,13 +335,13 @@ s32 func_001f65d0(u8 *arg0)
 }
 
 // FUN_001F6710
-u8 *func_001f6710(s32 arg0) {
+u8 *btlSoundCreateLoadPlaybackPacket(s32 arg0) {
     u8 *p;
     u8 *q;
 
     p = (u8 *)btlPacketAlloc(0x803, 8);
     p[0x47] &= 0xFE;
-    *(void **)(p + 0x6C) = (void *)func_001f65d0;
+    *(void **)(p + 0x6C) = (void *)btlSoundLoadPlaybackFile;
     q = *(u8 **)(p + 0x78);
     *(s16 *)(q + 4) = (s16)arg0;
     *(s16 *)(q + 6) = 0;
@@ -349,10 +349,10 @@ u8 *func_001f6710(s32 arg0) {
 }
 
 /* measured: opt_loop_invariants on hoists the loop's one constant before the entry test. */
-/* measured: func_001f6770 MATCH -> MISMATCH without this pragma. */
+/* measured: btlSoundRollStatusCure MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_001F6770
-s32 func_001f6770(u8 *arg0)
+s32 btlSoundRollStatusCure(u8 *arg0)
 {
     extern u32 datCalcRandomBelow(s32 arg0);
     extern s32 datCalcHasSkill(u8 *arg0, s32 arg1);
@@ -401,11 +401,11 @@ s32 func_001f6770(u8 *arg0)
     return chance;
 }
 
-/* measured: close opt_loop_invariants after func_001f6770. */
-/* measured: func_001f6930 MATCH -> MISMATCH without this pragma. */
+/* measured: close opt_loop_invariants after btlSoundRollStatusCure. */
+/* measured: btlSoundSelectCureableStatuses MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants off
 // FUN_001F68E0
-s32 func_001f68e0(u8 *arg0)
+s32 btlSoundCanReceiveStatus(u8 *arg0)
 {
     u8 *unit;
     s32 status;
@@ -419,10 +419,10 @@ s32 func_001f68e0(u8 *arg0)
 }
 
 #pragma push
-/* measured: func_001f6930 MATCH -> MISMATCH without this pragma. */
+/* measured: btlSoundSelectCureableStatuses MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_001F6930
-s32 func_001f6930(u8 *arg0)
+s32 btlSoundSelectCureableStatuses(u8 *arg0)
 {
     extern s32 datCalcHasSkill(s32 arg0, s32 arg1);
     extern s32 func_00244f60(u32 arg0, u16 *arg1, u16 *arg2, u16 arg3, s32 arg4);
@@ -529,9 +529,9 @@ loop_31_test:
 // FUN_001F6BF0
 /* measured: retail materialises this loop's invariant in the preheader; plain
    -O2 rematerialises it in the body (nd 9 -> byte-exact with the hoist). */
-/* measured: func_001f6bf0 MATCH -> MISMATCH without this pragma. */
+/* measured: btlSoundIsStatusCounterHigh MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 func_001f6bf0(u8 *arg0) {
+s32 btlSoundIsStatusCounterHigh(u8 *arg0) {
     s32 i;
     s32 one;
 
@@ -549,7 +549,7 @@ s32 func_001f6bf0(u8 *arg0) {
 /* measured: closes the hoist bracket opened above and restores the -O2
    baseline for the rest of the file. */
 // FUN_001F6C40
-void func_001f6c40(u8 *arg0, s32 arg1)
+void btlSoundClearStatusCounters(u8 *arg0, s32 arg1)
 {
     s32 temp_2;
     s32 temp_4;
@@ -573,7 +573,7 @@ loop_test_6:
 }
 
 // FUN_001F6CD0
-void func_001f6cd0(u8 *arg0)
+void btlSoundBumpStatusCounters(u8 *arg0)
 {
     s32 temp_2;
     u32 var_6;
@@ -601,7 +601,7 @@ loop_test_5:
 }
 
 // FUN_001F6D60
-s16 func_001f6d60(u8 *arg0)
+s16 btlSoundCalcStatusHpSpDelta(u8 *arg0)
 {
     u8 *temp_17;
     s16 var_16;
@@ -651,11 +651,11 @@ s16 func_001f6d60(u8 *arg0)
     return var_16;
 }
 
-/* measured: opt_rebuildconditionals off probe for func_001f6f60 final branch. */
-/* measured: func_001f6f60 MATCH -> MISMATCH without this pragma. */
+/* measured: opt_rebuildconditionals off probe for btlSoundPickStatusTalkVoiceA final branch. */
+/* measured: btlSoundPickStatusTalkVoiceA MATCH -> MISMATCH without this pragma. */
 #pragma opt_rebuildconditionals off
 // FUN_001F6F60
-s32 func_001f6f60(u8 *arg0)
+s32 btlSoundPickStatusTalkVoiceA(u8 *arg0)
 {
     u8 *temp_16;
     s32 var_17;
@@ -741,10 +741,10 @@ s32 func_001f6f60(u8 *arg0)
     return var_17;
 }
 
-/* measured: close opt_rebuildconditionals after func_001f6f60 probe. */
-/* measured: opt_rebuildconditionals off preserves func_001f7140's positive flag branch. */
+/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceA probe. */
+/* measured: opt_rebuildconditionals off preserves btlSoundPickStatusTalkVoiceB's positive flag branch. */
 // FUN_001F7140
-s32 func_001f7140(u8 *arg0)
+s32 btlSoundPickStatusTalkVoiceB(u8 *arg0)
 {
     u8 *temp_16;
     s32 var_17;
@@ -796,9 +796,9 @@ s32 func_001f7140(u8 *arg0)
     return var_17;
 }
 
-/* measured: close opt_rebuildconditionals after func_001f7140. */
+/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceB. */
 // FUN_001F7260
-void func_001f7260(void)
+void btlSoundResetSlotQueue(void)
 {
     s32 offset;
     s32 empty;
@@ -818,13 +818,13 @@ void func_001f7260(void)
     }
 }
 
-// measured: required for exact retail loop codegen in func_001f7260.
-/* measured: optimization_level 1 required for exact func_001f72e0 codegen. */
-/* measured: func_001f72e0 MATCH -> MISMATCH without this pragma. */
+// measured: required for exact retail loop codegen in btlSoundResetSlotQueue.
+/* measured: optimization_level 1 required for exact btlSoundAdvanceSlotQueue codegen. */
+/* measured: btlSoundAdvanceSlotQueue MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
-/* measured: opt_loop_invariants off baseline for func_001f72e0. */
+/* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
 // FUN_001F72E0
-void func_001f72e0(void)
+void btlSoundAdvanceSlotQueue(void)
 {
     s32 var_8;
     u8 *temp_3_4;
@@ -876,8 +876,8 @@ loop_test_8:
     }
 }
 
-/* measured: restore optimization_level 2 after func_001f72e0. */
-/* measured: func_001f73d0 MATCH -> MISMATCH without this pragma. */
+/* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
+/* measured: btlSoundPlayRetailSelectTrack MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_001F73C0
 void func_001f73c0(void)
@@ -887,7 +887,7 @@ void func_001f73c0(void)
 /* Retail selectors 4/5/6 request tracks 5/6/4. Preserve block order:
  * the eleven resolved jump-table entries at 0x00747550 must also match. */
 // FUN_001F73D0
-void func_001f73d0(void)
+void btlSoundPlayRetailSelectTrack(void)
 {
     u16 temp_2;
     u8 *temp_4;

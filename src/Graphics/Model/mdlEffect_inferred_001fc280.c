@@ -94,7 +94,7 @@ extern u8 D_00624FA0[];
 
 
 
-extern s32 func_001f6f60(u8 *arg0);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
 
 /* Source unit: src/promoted/code1_001f.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001f.c; members 001fc280-001fc280 */
@@ -118,7 +118,7 @@ extern s32 func_001f0ff0(u32 arg0);
 #pragma pop
 /* measured: closes the hoist bracket opened above and restores the -O2
    baseline for the rest of the file. */
-/* measured: close opt_rebuildconditionals after func_001f6f60 probe. */
+/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceA probe. */
 #pragma push
 #pragma pop
 #pragma push
