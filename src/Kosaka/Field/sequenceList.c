@@ -7,7 +7,7 @@ extern void btlSetFreeUnitsOnTeardown(void);
 
 extern s32 func_00103590(void);
 extern s32 func_001039e0(void);
-extern void func_0012c460(s32);
+extern void titleStartSoundTask(s32);
 extern s32 btlIsRunning(void);
 extern void func_002853b0(void);
 extern s32 func_002853c0(void);
@@ -54,7 +54,7 @@ void SeqInitDataRead_End(void)
 // FUN_00102C50
 void SeqMemcardBootCheck_Start(void)
 {
-    func_0012c460(0);
+    titleStartSoundTask(0);
 }
 
 // FUN_00102C80
