@@ -46,7 +46,7 @@ extern f32 sdkSpriteScaledWidth(u8 *arg0);
 extern f32 sdkSpriteScaledHeight(u8 *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 extern void sdkSpriteFreeNode(void *node);
-extern void func_002b7cd0(u8 *, s16, s16);
+extern void fclSpriteUpdateCulling(u8 *, s16, s16);
 extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s16 func_002b2d00(s32, s32, s32, s32, s8);
@@ -56,9 +56,9 @@ extern s32 func_002b6340(u8 *arg0);
 extern void fclSpriteDestroyTask(u8 *arg0);
 extern s32 func_002b7f20(u8 *arg0);
 extern s32 func_002b89a0(u8 *arg0);
-extern s8 func_002b6820(u8 *arg0, u32 arg1);
+extern s8 fclSpriteTestRecordFlag(u8 *arg0, u32 arg1);
 extern s32 func_002b9e10(u8 *arg0);
-extern void func_002b9ab0(u8 *arg0, u8 *arg1);
+extern void fclSpriteBuildCornerQuads(u8 *arg0, u8 *arg1);
 extern s32 fclSpritePoolUpdate(u8 *arg0);
 extern void fclSpritePoolDestroy(u8 *arg0);
 extern void fclSpriteDestroyListTask(u8 *arg0);
@@ -282,8 +282,8 @@ s32 func_002b6340(u8 *arg0) {
     g = iGpffff84f4;
     if (a <= g) return 0;
     if (*(f32 *)(p + 0xAC) <= g) return 0;
-    if (func_002b6820(arg0, 0) == 1) {
-        if (func_002b6820(arg0, 13) == 1) {
+    if (fclSpriteTestRecordFlag(arg0, 0) == 1) {
+        if (fclSpriteTestRecordFlag(arg0, 13) == 1) {
             q = func_00460990();
             *(void (**)(void))(q + 8) = func_002b6180;
             *(s32 *)(q + 0x10) = 0;
@@ -400,8 +400,9 @@ void fclSpriteSetRecordFlag(u8 *arg0, u32 arg1, s8 arg2) {
     }
 }
 
+// Intent: returns bit arg1 of the record's flag word at +0x10 (as 0 or 1). Test-side twin of fclSpriteSetRecordFlag.
 // FUN_002B6820
-s8 func_002b6820(u8 *arg0, u32 arg1) {
+s8 fclSpriteTestRecordFlag(u8 *arg0, u32 arg1) {
     u32 n = arg1 & 0xFFFF;
     return (s8)((s32)(*(s16 *)(*(u8 **)(arg0 + 0x38) + 0x10) & ((1 << n) & 0xFFFF)) >> n);
 }
@@ -713,7 +714,7 @@ s32 fclSpritePoolUpdate(u8 *arg0) {
         if ((s16)(*(s16 *)(e + 0x14) & 1) == 1) {
             animation = func_002b89a0(e + 0x14);
             memcpy(YDRAW_BASE + entryOffset + 0x14, animation, 0xF0);
-            func_002b7cd0(arg0, i, *(s16 *)(YDRAW_BASE + entryOffset + 8));
+            fclSpriteUpdateCulling(arg0, i, *(s16 *)(YDRAW_BASE + entryOffset + 8));
             base = YDRAW_BASE;
             e = base + (s32)entryOffset;
             fl = *(s16 *)(e + 0x14);
@@ -1042,8 +1043,9 @@ typedef struct {
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma schedule off
+// Intent: when the sprite entry has no bit set in flags 1-12, computes its screen margins and sets or clears its cull flag by whether it lies on screen.
 // FUN_002B7CD0
-void func_002b7cd0(u8 *arg0, s16 arg1, s16 arg2) {
+void fclSpriteUpdateCulling(u8 *arg0, s16 arg1, s16 arg2) {
     u8 *context;
     s32 entryOffset;
     s32 flags;
@@ -1567,8 +1569,9 @@ s32 func_002b89a0(u8 *arg0) {
    final-call argument setup; removing it produced obj 852B/window 864B with
    130 differing words. */
 #pragma opt_propagation off
+// Intent: sets the four corner quads of a sprite from the fixed inputs at +0x1F4-+0x200, sets the sky render states for the quad draw, and writes the four corner positions.
 // FUN_002B9AB0
-void func_002b9ab0(u8 *arg0, u8 *arg1) {
+void fclSpriteBuildCornerQuads(u8 *arg0, u8 *arg1) {
     f32 scale;
     s16 i;
     s16 j;
@@ -1631,7 +1634,7 @@ void func_002b9ab0(u8 *arg0, u8 *arg1) {
     tbl[0](one, *(s32 *)r);
 }
 #pragma opt_propagation on
-/* measured probe: restore opt_loop_invariants after func_002b9ab0. */
+/* measured probe: restore opt_loop_invariants after fclSpriteBuildCornerQuads. */
 #pragma opt_loop_invariants off
 
 
@@ -1663,7 +1666,7 @@ s32 func_002b9e10(u8 *arg0) {
                 u8 *e;
                 e = p + (u32)i * 0x220;
                 res = func_00461390(D_00793E80 + *(s16 *)(e + 0x100) * 0x30, 4, (void *)e, 4);
-                *(void **)(res + 8) = (void *)func_002b9ab0;
+                *(void **)(res + 8) = (void *)fclSpriteBuildCornerQuads;
                 *(u8 **)(res + 0x10) = e;
             } else {
                 if (*r == 1) {

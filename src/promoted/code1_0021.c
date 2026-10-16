@@ -4420,7 +4420,7 @@ extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 datPersonaGetLevel(int persona);
 extern u32 datPersonaGetNextExp(int persona);
 extern u16 *datPersonaGetSkills(int persona);
-extern u16 func_001069d0(s16 arg0);
+extern u16 datItemValue(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern u32 datPersonaGetExpForLevel(void *persona, u16 level);
 
@@ -4470,10 +4470,10 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
     c = datCalcGetLevelById(1) & 0xFF;
     level = btlXpComputeAward(c, arg1);
     base = level;
-    if (func_001069d0(func_00106cd0(1, 0)) == 0x86) {
+    if (datItemValue(func_00106cd0(1, 0)) == 0x86) {
         level += (s32)(0.5f * (f32)level);
     }
-    if (func_001069d0(func_00106cd0(1, 1)) == 0x86) {
+    if (datItemValue(func_00106cd0(1, 1)) == 0x86) {
         level += (s32)(0.5f * (f32)base);
     }
     if (c != (func_001059e0(level + datPersonaGetExpById(1)) & 0xFF)) {
@@ -4494,10 +4494,10 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
             if (datPersonaLeadBoosted(1) != 0) {
                 level += (s32)(0.5f * (f32)lv);
             }
-            if (func_001069d0(func_00106cd0(1, 0)) == 0x86) {
+            if (datItemValue(func_00106cd0(1, 0)) == 0x86) {
                 level += (s32)(0.5f * (f32)lv);
             }
-            if (func_001069d0(func_00106cd0(1, 1)) == 0x86) {
+            if (datItemValue(func_00106cd0(1, 1)) == 0x86) {
                 level += (s32)(0.5f * (f32)lv);
             }
         } else {
@@ -4523,10 +4523,10 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
             if (entry2[0] & 4) {
                 level += (s32)(0.5f * (f32)level);
             }
-            if (func_001069d0(func_00106cd0(1, 0)) == 0x86) {
+            if (datItemValue(func_00106cd0(1, 0)) == 0x86) {
                 level += (s32)(0.5f * (f32)sum);
             }
-            if (func_001069d0(func_00106cd0(1, 1)) == 0x86) {
+            if (datItemValue(func_00106cd0(1, 1)) == 0x86) {
                 level += (s32)(0.5f * (f32)sum);
             }
         }
@@ -4550,10 +4550,10 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
             v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
             lv2 = btlXpComputeAward(v5, arg1);
             level2 = lv2;
-            if (func_001069d0(func_00106cd0((s16)id2, 0)) == 0x86) {
+            if (datItemValue(func_00106cd0((s16)id2, 0)) == 0x86) {
                 level2 += (s32)(0.5f * (f32)lv2);
             }
-            if (func_001069d0(func_00106cd0((s16)id2, 1)) == 0x86) {
+            if (datItemValue(func_00106cd0((s16)id2, 1)) == 0x86) {
                 level2 += (s32)(0.5f * (f32)lv2);
             }
             if (v5 < 99) {
@@ -4574,10 +4574,10 @@ void btlXpPrepareAwards(u8 *arg0, u8 *arg1)
         v5 = datPersonaGetLevel((s32)entry3) & 0xFF;
         lv3 = btlXpComputeAward(v5, arg1);
         level2 = lv3;
-        if (func_001069d0(func_00106cd0(5, 0)) == 0x86) {
+        if (datItemValue(func_00106cd0(5, 0)) == 0x86) {
             level2 += (s32)(0.5f * (f32)lv3);
         }
-        if (func_001069d0(func_00106cd0(5, 1)) == 0x86) {
+        if (datItemValue(func_00106cd0(5, 1)) == 0x86) {
             level2 += (s32)(0.5f * (f32)lv3);
         }
         if (v5 < 99) {

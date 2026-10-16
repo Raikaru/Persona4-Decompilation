@@ -251,7 +251,7 @@ void func_002cacd0(Vec2f, f32, FclDrawColor, s32, s16, u32, s32, s32, s32, s32, 
 u8 *resourceFindByName(char *);
 s32 yListValueAtFor(u8 *, s32);
 s32 func_00106600(s16 id);
-u16 func_001069d0(s16);
+u16 datItemValue(s16);
 void func_002bc7f0(s32, s32, s32, s32, s32, s32, f32, f32, f32);
 void func_002e0ca0(s32, Vec2f, f32, s32, u8, s32, u8 *);
 void func_002e0a60(void *, s32, f32);
@@ -4318,7 +4318,7 @@ void func_002cdf80(void *arg0, s8 arg1) {
    0x130/0x128/0x110/... label positions copied via *(Vec2f *)&); both
    work[7] dispatches as 0/1/2 switches; each loop gets its own s16 counter;
    the DBC/E88 handle arrays addressed as work + i*4 (retail CSEs that sum);
-   stat deltas computed once into `d`; func_001069d0 takes s16 and the
+   stat deltas computed once into `d`; datItemValue takes s16 and the
    second-switch stat reads widen func_00106cd0's s16 result with (s32), as
    retail re-extends only there; the E60 handle loaded before the shared
    fGpffff8530 argument. */
@@ -4459,13 +4459,13 @@ s32 func_002d1590(void *arg0)
         sp228 = func_002b2970(129.0f, 255.0f);
         sp130 = *(Vec2f *)&sp228;
         frFontExDrawTextDeferredWithCharWidth(sp130.x, sp130.y, 70.0f, colB, 0, 1, ((void *)datGetItemNameId((s16)yListValueAt(work->f2))), 0, 0, D_00794ED0, -1);
-        if (func_001069d0((s16)yListValueAt(work->f2)) == 0) {
+        if (datItemValue((s16)yListValueAt(work->f2)) == 0) {
             for (dash = 0; dash < 0xF; dash++) {
                 sp220 = func_002b2970((f32)(dash * 0x16 + 0x6F), (f32)0x12B);
                 func_002e0b20(0x3C, sp220, 86.0f, func_002b2a30(0xFF, 0xFF, 0xC7, 0x31), 0xFF, 0, D_00794ED0);
             }
         } else {
-            func_002bc7f0(func_001069d0((s16)yListValueAt(work->f2)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0x57, 109.0f, 290.0f, 70.0f);
+            func_002bc7f0(datItemValue((s16)yListValueAt(work->f2)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0x57, 109.0f, 290.0f, 70.0f);
         }
         switch (work->f7) {
         case 0:
@@ -4616,13 +4616,13 @@ s32 func_002d1590(void *arg0)
         sp1B0 = func_002b2970((f32)0x219, 266.0f);
         func_002cacd0(sp1B0, 70.0f, c2AC, 0x10, 5, func_00106a90((s16)yListValueAt(work->f2)), 9, 0x7B,
                       (s32)resourceFindByName((char *)(D_0063FB50)), (s32)work->fF28, 0xA9);
-        if (func_001069d0(func_00106cd0(work->kind[work->sel], work->f7)) == 0) {
+        if (datItemValue(func_00106cd0(work->kind[work->sel], work->f7)) == 0) {
             for (dash2 = 0; dash2 < 0xF; dash2++) {
                 sp1A8 = func_002b2970((f32)(dash2 * 0x16 + 0x6F), 134.0f);
                 func_002e0b20(0x3C, sp1A8, 86.0f, func_002b2a30(0xFF, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00794ED0);
             }
         } else {
-            func_002bc7f0(func_001069d0(func_00106cd0(work->kind[work->sel], work->f7)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0xAA, 109.0f, 124.0f, 70.0f);
+            func_002bc7f0(datItemValue(func_00106cd0(work->kind[work->sel], work->f7)), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0xAA, 109.0f, 124.0f, 70.0f);
         }
         switch (work->f7) {
         case 0:
@@ -6754,7 +6754,7 @@ static inline void shopDrawStatAt(u32 raw, u32 value, Vec2f pos)
    func_002d5040/func_002de5a0 levers (Vec2f constructor and colour calls as
    arguments, inlined label and stat helpers).  The prototype set this needs
    is one consistent contract: the item-table getters (func_001068b0,
-   func_001068e0, func_00106940, func_00106970, func_00106600, func_001069d0)
+   func_001068e0, func_00106940, func_00106970, func_00106600, datItemValue)
    take int, as retail passes the int item id to them unextended, and
    func_00106cd0 returns int; call sites that retail narrows (the
    func_00106a90 argument here, the func_00106cd0 results in
@@ -6799,12 +6799,12 @@ void func_002dd3b0(void *arg0) {
     func_002cacd0(func_002b2970(486.0f, 145.0f), 70.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, count, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
     func_002e0b20(0x47, func_002b2970((f32)0x202, 147.0f), 70.0f, func_002b2a30(0x2D, 0x2D, 0x2D, 0x2D), 0xFF, 0, D_00795E60);
     func_002cacd0(func_002b2970((f32)0x221, 145.0f), 70.0f, func_002b2a60(0x2D, 0x2D, 0x2D, 0xFF), 0x10, 5, func_00106600(id) & 0xFF, 9, 0x7B, (s32)resourceFindByName((char *)(D_0063FB50)), *(s32 *)(work + 0xF28), 0xA9);
-    if (func_001069d0(id) == 0) {
+    if (datItemValue(id) == 0) {
         for (j = 0; j < 15; j++) {
             func_002e0b20(0x3C, func_002b2970((f32)(j * 22 + 111), 178.0f), 86.0f, func_002b2a30(0xFF, 0xFF, 0xC7, 0x31), 0xFF, 0, D_00794ED0);
         }
     } else {
-        func_002bc7f0(func_001069d0(id), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0x57, 109.0f, 169.0f, 70.0f);
+        func_002bc7f0(datItemValue(id), func_002b2a30(0x2D, 0x2D, 0x2D, 0xFF), 1, 0, 3, 0x57, 109.0f, 169.0f, 70.0f);
     }
     switch (*(s8 *)(work + 0x11)) {
     case 1:
