@@ -550,7 +550,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
     extern s32 func_0050d4d0(s32 arg0);
     extern void mwPlyReleaseLp(s32 arg0);
     extern void H_Fade_SetCustomColor(s32 r, s32 g, s32 b);
-    extern void func_00143ba0(RwRaster *raster, u32 owner, s32 t0, s32 t1);
+    extern void gsUploadRasterTiles(RwRaster *raster, u32 owner, s32 t0, s32 t1);
     extern s32 iGpffffbaf0;
     extern s32 iGpffffbaf4;
     extern u8 D_0070B610[];
@@ -895,7 +895,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
         func_0040fcd0(work->raster, 1);
         imageAddr = iGpffffbae8;
         if (imageAddr != 0) {
-            func_00143ba0(work->raster, imageAddr, iGpffffbaf4, iGpffffbaf0);
+            gsUploadRasterTiles(work->raster, imageAddr, iGpffffbaf4, iGpffffbaf0);
             ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(0x14), (void *)(1));
             work->playerStatus = playerStatus;
             ((MovieEnginePrefix *)ourGlobals)->device.setState((RwRenderState)(6), (void *)(0));

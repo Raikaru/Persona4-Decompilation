@@ -71,8 +71,8 @@ extern s32 func_00293fc0(s32 arg0);
 extern s32 func_002940a0(s32 arg0, s32 *arg1, s32 *arg2,
                          s16 *arg3, s32 *arg4);
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
-extern void func_00144e10(s32 arg0);
-extern void func_00144ed0(s32 arg0);
+extern void fieldSceneRequestRoom(s32 arg0);
+extern void fieldSceneRequestSecondaryRoom(s32 arg0);
 extern s32 fieldSceneLoadStep(void);
 extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
 extern s32 kwlnTaskIsLinked(s32 arg0);
@@ -597,8 +597,8 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
              (func_002940a0(*(s32 *)(work + 4), &locals.sp3c,
                             &locals.sp38, &locals.sp34, &locals.sp30) == 1)) {
              fieldSceneLoad(locals.sp3c, locals.sp38);
-             func_00144e10(locals.sp34);
-             func_00144ed0(3);
+             fieldSceneRequestRoom(locals.sp34);
+             fieldSceneRequestSecondaryRoom(3);
              *(s8 *)work = *(s8 *)work + 1;
          }
          goto out;
@@ -625,7 +625,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
          goto out;
      case 6:
          fieldSceneLoad(8, 3);
-         func_00144e10(1);
+         fieldSceneRequestRoom(1);
          *(s8 *)work = *(s8 *)work + 1;
          goto out;
      case 7:

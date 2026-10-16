@@ -9,8 +9,9 @@ extern u32 DAT_00764590;
 
 
 
+// Intent: Pop the head node from a singly linked list and return its payload pointer, or NULL when empty [inferred]
 // FUN_0026E0E0
-int* func_0026e0e0(int param_1)
+int* fmGslContPopNode(int param_1)
 {
     int* piVar1;
     int* piVar2;
@@ -32,8 +33,9 @@ int* func_0026e0e0(int param_1)
 
 
 
+// Intent: Push a node onto a singly linked list; returns 1 when pushed, 0 when the node is NULL or already linked [inferred]
 // FUN_0026E120
-u32 func_0026e120(int* param_1, int param_2)
+u32 fmGslContPushNode(int* param_1, int param_2)
 {
     u32 uVar1;
     int* piVar1;
@@ -60,8 +62,9 @@ u32 func_0026e120(int* param_1, int param_2)
 
 
 
+// Intent: Free a node's block through the free callback and return 1 [inferred]
 // FUN_0026E170
-u32 func_0026e170(int param_1)
+u32 fmGslContFreeNode(int param_1)
 {
     DAT_008873ec_abs[0](*(u32*)(param_1 + -4));
     return 1;
@@ -69,8 +72,9 @@ u32 func_0026e170(int param_1)
 
 
 
+// Intent: Compute three sub-block pointers from a block header and store them in the output array [inferred]
 // FUN_0026E1A0
-void func_0026e1a0(int* param_1, int* param_2)
+void fmGslContSetupSubBlocks(int* param_1, int* param_2)
 {
     int iVar1;
     int iVar2;
@@ -87,8 +91,9 @@ void func_0026e1a0(int* param_1, int* param_2)
 
 
 
+// Intent: Decode a run of 16-bit codes from a packed table into the output array and record the count [inferred]
 // FUN_0026E1E0
-int func_0026e1e0(int param_1, int param_2, u64 param_3, int* param_4)
+int fmGslContDecodeRun(int param_1, int param_2, u64 param_3, int* param_4)
 {
     int iVar1;
     int iVar2;
@@ -134,8 +139,9 @@ int func_0026e1e0(int param_1, int param_2, u64 param_3, int* param_4)
 
 
 
+// Intent: Build a free-list ring of fixed-size nodes at a stride and set the pool header [inferred]
 // FUN_002850F0
-void func_002850f0(u32* param_1, u32* param_2, int param_3, int param_4)
+void fmGslContPoolInit(u32* param_1, u32* param_2, int param_3, int param_4)
 {
     int cVar4;
     u32* puVar1;
@@ -168,8 +174,9 @@ void func_002850f0(u32* param_1, u32* param_2, int param_3, int param_4)
 
 
 
+// Intent: Take the next node from a pool and link it at the tail; returns NULL when the pool is empty [inferred]
 // FUN_00285170
-int* func_00285170(int* param_1)
+int* fmGslContPoolAlloc(int* param_1)
 {
     u32* puVar1;
     int* piVar2;
@@ -209,8 +216,9 @@ int* func_00285170(int* param_1)
 
 
 
+// Intent: Unlink a node from its pool list, updating the head and tail [inferred]
 // FUN_002851F0
-void func_002851f0(int* param_1, u32* param_2)
+void fmGslContPoolUnlink(int* param_1, u32* param_2)
 {
     int iVar1;
     int* piVar2;

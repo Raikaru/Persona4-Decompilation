@@ -40,7 +40,7 @@ extern u8 D_008817FC_abs[];
 void itfMesWindowUpdateLists(u32 param_1);
 extern char D_0063BE10[];
 void kAssertFail(const char *file, s32 line);
-void func_002850f0();
+void fmGslContPoolInit();
 
 s32 itfMesWindowTaskUpdate(u8 *task);
 void itfMesWindowFreeAll(u8 *task);
@@ -55,7 +55,7 @@ void func_0027a690();
 void itfMesClearSlots();
 void func_0027a6f0(s32 arg0);
 void func_0027b830(s32 arg0);
-void func_002851f0();
+void fmGslContPoolUnlink();
 s8 frFontRunCommand(int param_1, int param_2, int param_3);
 u8 *frFontBuildTextSimple(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8);
 u32 itfMesRecordTextAt(int param_1, int param_2);
@@ -80,7 +80,7 @@ s32 strlen(const void *param_1);
 void frFontSetGlyphAux(u8 *arg0, s32 arg1);
 void frFontSetGlyphColor(u8 *arg0, s32 arg1);
 void frFontExSetScale(u8 *arg0, f32 fparg0);
-void *func_00285170(void *arg0);
+void *fmGslContPoolAlloc(void *arg0);
 extern char D_0063BE60[];
 void func_0027b7c0(s32 arg0);
 void itfMesWindowSetSelectionText(u8 *arg0, u8 *arg1);
@@ -613,7 +613,7 @@ s32 itfMesWindowInstall(u8 *arg0)
 
     if (itfMesRecordIsValid(arg0) != 1)
         kAssertFail(D_0063BE10, 0x525);
-    manager = (u8 *)func_00285170(DAT_008817EC_abs);
+    manager = (u8 *)fmGslContPoolAlloc(DAT_008817EC_abs);
     if (manager == NULL)
         kAssertFail(D_0063BE10, 0x529);
     result = *(s32 *)(manager + 8);
@@ -1238,7 +1238,7 @@ void itfMesInitManager(void)
     *(u32 *)DAT_008817E0_abs = 0;
     *(u32 *)DAT_008817E4_abs = 0;
     *(u16 *)D_008817E8_abs = 0;
-    func_002850f0(DAT_008817EC_abs, D_008817FC_abs, 0x40, 0x20);
+    fmGslContPoolInit(DAT_008817EC_abs, D_008817FC_abs, 0x40, 0x20);
     entry = D_008817F4_abs[0];
     while (entry != NULL) {
         *(s32 *)(entry + 0xC) = 0;
@@ -1275,7 +1275,7 @@ void itfMesWindowFree(s32 arg0)
             itfMesObjectFree((u8 *)v);
         }
     }
-    func_002851f0(base, DAT_008817EC_abs);
+    fmGslContPoolUnlink(base, DAT_008817EC_abs);
     *(u32 *)DAT_008817E0_abs -= 1;
 }
 
