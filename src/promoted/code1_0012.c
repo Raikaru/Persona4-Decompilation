@@ -44,7 +44,7 @@ extern s32 D_00796670[];
 extern u8 D_005E50D0[];
 extern u8 D_005E5870[];
 extern u8 *func_0046a770(char *filename);
-extern void func_001238c0(s32 arg0);
+extern void calendarSetMode(s32 arg0);
 
 extern void cldTimeChangeCreate();
 
@@ -138,7 +138,7 @@ extern s32 func_0012c220(u8 *arg0);
 extern void func_0012e9d0(u8 *arg0);
 extern void func_0012fdf0(u8 *arg0);
 extern void func_0012feb0(u8 *arg0);
-extern s32 func_001228c0(u8 *task);
+extern s32 calendarStateTask(u8 *task);
 /* Calendar state block at iGpffffb1dc: header fields, five 0x30-byte records from 0x20, owner pointer at 0x110. */
 typedef struct CalendarRecord {
     f32 field_00;
@@ -419,7 +419,7 @@ void func_00120ae0(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 s
     } while (remaining != 0);
 }
 // FUN_00120EE0
-s32 func_00120ee0(void *arg0)
+s32 taskRecordIsDone(void *arg0)
 {
     return *(s32 *)(*(u8 **)((u8 *)arg0 + 0x38)) == 2;
 }
@@ -434,7 +434,7 @@ void func_00120f20(void *arg0)
     *(s32 *)(*(u8 **)((u8 *)arg0 + 0x38) + 0x10) = 1;
 }
 // FUN_00120F40
-void func_00120f40(u8 *arg0, s64 arg1)
+void taskRecordSetPosition(u8 *arg0, s64 arg1)
 {
     SVec2_0012 sp8;
     u8 *temp_3;
@@ -514,8 +514,8 @@ void func_00121b20(void) {
 
 // FUN_00121B70
 s32 func_00121b70(u8 *unusedTask) {
-    extern s32 func_00122820(s32 arg0, s32 arg1);
-    extern s32 func_00122860(s32 arg0, s32 arg1);
+    extern s32 calendarStartDayChange(s32 arg0, s32 arg1);
+    extern s32 calendarStartTimeChange(s32 arg0, s32 arg1);
     extern s32 clndGetPeriod(void);
     extern s32 clndGetDaysSinceApr5(void);
     extern void func_00123850(void);
@@ -581,10 +581,10 @@ s32 func_00121b70(u8 *unusedTask) {
         temp_19 = clndGetDaysSinceApr5();
         temp_2_4 = clndGetPeriod();
         if (temp_17 != temp_19) {
-            *(s32 *)(temp_16 + 0x1C) = func_00122820(temp_17, temp_19);
+            *(s32 *)(temp_16 + 0x1C) = calendarStartDayChange(temp_17, temp_19);
             *(u32 *)(temp_16 + 0) = 7;
         } else if (temp_18 != temp_2_4) {
-            *(s32 *)(temp_16 + 0x1C) = func_00122860(temp_18, temp_2_4);
+            *(s32 *)(temp_16 + 0x1C) = calendarStartTimeChange(temp_18, temp_2_4);
             *(u32 *)(temp_16 + 0) = 7;
         } else {
             *(s32 *)(temp_16 + 0x14) = 0;
@@ -878,7 +878,7 @@ s32 func_001227f0(void)
     return result;
 }
 // FUN_00122820
-void func_00122820(s32 arg0, s32 arg1)
+void calendarStartDayChange(s32 arg0, s32 arg1)
 {
     cldDayChangeStartTask(0, arg0, arg1, D_00796670);
 }
@@ -886,7 +886,7 @@ void func_00122820(s32 arg0, s32 arg1)
 
 
 // FUN_00122860
-void func_00122860(s32 arg0, s32 arg1)
+void calendarStartTimeChange(s32 arg0, s32 arg1)
 {
     cldTimeChangeCreate(0, arg0, arg1, D_00796670);
 }
@@ -894,7 +894,7 @@ void func_00122860(s32 arg0, s32 arg1)
 
 
 // FUN_001228C0
-s32 func_001228c0(u8 *unusedTask)
+s32 calendarStateTask(u8 *unusedTask)
 {
     s32 state;
     s32 i;
@@ -933,7 +933,7 @@ s32 func_001228c0(u8 *unusedTask)
         calendar->period = datGetTimeSlot() & 0xFF;
         calendar->field_08 =
             (s8)func_00110850(calendar->daysSinceApr5, calendar->period);
-        func_001238c0(0);
+        calendarSetMode(0);
         calendar->state = 2;
         break;
     case 2:
@@ -942,7 +942,7 @@ s32 func_001228c0(u8 *unusedTask)
     return 0;
 }
 // FUN_00122A10
-void func_00122a10(u8 *arg0)
+void calendarStateTaskDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
     iGpffffb1dc = 0;
@@ -1170,7 +1170,7 @@ void func_00122a40(void *unusedNode, void *work)
 }
 #pragma pop
 // FUN_001236E0
-s32 func_001236e0(u8 *unusedTask) {
+s32 calendarQueueResult(u8 *unusedTask) {
     u8 *p;
     u8 *q;
 
@@ -1183,7 +1183,7 @@ s32 func_001236e0(u8 *unusedTask) {
 }
 
 // FUN_00123730
-s32 func_00123730(s32 arg0)
+s32 calendarStartTasks(s32 arg0)
 {
     s32 temp_2;
     s32 temp_2_2;
@@ -1192,8 +1192,8 @@ s32 func_00123730(s32 arg0)
     if (temp_2_2 == 0)
         return 0;
     iGpffffb1dc = (u8 *)temp_2_2;
-    temp_2 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E5180), 0x96, 0, 0, func_001228c0, func_00122a10, (u8 *)((u8 *)temp_2_2));
-    (s32)kwlnTaskCreateChild((void *)(temp_2), (const void *)(D_005E5190), 0x97, 0, 0, func_001236e0, 0, (u8 *)((u8 *)0));
+    temp_2 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E5180), 0x96, 0, 0, calendarStateTask, calendarStateTaskDestroy, (u8 *)((u8 *)temp_2_2));
+    (s32)kwlnTaskCreateChild((void *)(temp_2), (const void *)(D_005E5190), 0x97, 0, 0, calendarQueueResult, 0, (u8 *)((u8 *)0));
     return temp_2;
 }
 // FUN_00123810
@@ -1250,7 +1250,7 @@ void func_00123850(void) {
 #pragma optimization_level 2
 
 // FUN_001238C0
-void func_001238c0(s32 arg0)
+void calendarSetMode(s32 arg0)
 {
     s32 i;
     s32 j;
@@ -1311,7 +1311,7 @@ void func_001238c0(s32 arg0)
     }
 }
 // FUN_00123A10
-void func_00123a10(void) {
+void calendarRefreshPromptState(void) {
     CalendarState *p;
 
     p = (CalendarState *)iGpffffb1dc;
@@ -1331,7 +1331,7 @@ set1:
 }
 
 // FUN_00123A80
-void func_00123a80(void)
+void calendarResetPending(void)
 {
     CalendarState *p;
 
@@ -1345,7 +1345,7 @@ void func_00123a80(void)
 
 
 // FUN_00123AA0
-void func_00123aa0(s16 arg0) {
+void calendarPushValue(s16 arg0) {
     CalendarState *p;
 
     p = (CalendarState *)iGpffffb1dc;
@@ -1355,7 +1355,7 @@ void func_00123aa0(s16 arg0) {
     }
 }
 // FUN_00123AC0
-void func_00123ac0(void) {
+void calendarPopValue(void) {
     CalendarState *p;
 
     p = (CalendarState *)iGpffffb1dc;
@@ -1364,7 +1364,7 @@ void func_00123ac0(void) {
     }
 }
 // FUN_00123AE0
-s8 func_00123ae0(void) {
+s8 calendarGetValueLowByte(void) {
     CalendarState *p;
 
     p = (CalendarState *)iGpffffb1dc;
@@ -1374,7 +1374,7 @@ s8 func_00123ae0(void) {
     return -1;
 }
 // FUN_00123B10
-s16 func_00123b10(void) {
+s16 calendarStateDaysSinceApr5(void) {
     CalendarState *p;
 
     p = (CalendarState *)iGpffffb1dc;
@@ -1384,7 +1384,7 @@ s16 func_00123b10(void) {
     return -1;
 }
 // FUN_00123B40
-s16 func_00123b40(void) {
+s16 calendarStatePeriod(void) {
     CalendarState *p;
 
     p = (CalendarState *)iGpffffb1dc;
@@ -1605,13 +1605,13 @@ s32 clndSceneUpdate(u8 *arg0)
         func_001113b0();
         calRestoreDayFlagMask();
         func_00123850();
-        func_001238c0(1);
+        calendarSetMode(1);
         func_001029a0(0x19, 0, 0, 0);
         return -1;
     state3:
         iGpffffb1f0 = 1;
         func_00123850();
-        func_001238c0(1);
+        calendarSetMode(1);
         temp_3 = (s16)func_001060d0();
         if ((temp_3 == 9) && ((u8)func_001060e0() == 5)) {
             func_001029a0(0x19, 0, 0, 0);
@@ -1631,7 +1631,7 @@ s32 clndSceneUpdate(u8 *arg0)
         }
         goto state_done;
     state4:
-        func_001238c0(1);
+        calendarSetMode(1);
         calendarStart();
         func_00122640(0, 1);
         *(u32 *)temp_16 = 8;
@@ -1719,7 +1719,7 @@ block_end:
     return var_16 + 0xB;
 }
 // FUN_001246D0
-s32 func_001246d0(u8 *arg0)
+s32 taskLoadSlotModels(u8 *arg0)
 {
     u32 sp7C;
     u8 sp50[0x2C];
@@ -3872,7 +3872,7 @@ s32 func_0012aa70(u8 *task)
     extern s32 H_Cdvd_IsFileLoaded(void *task);
     extern u8 *func_0025ef20(u8 *task);
     extern s32 func_0025f110(u8 *task);
-    extern s32 func_001246d0(u8 *task);
+    extern s32 taskLoadSlotModels(u8 *task);
     extern s32 func_00124830(u8 *task);
     extern s32 func_00124350(u8 *unusedWork);
     extern s32 calReadDayFlagMask(void);
@@ -3935,7 +3935,7 @@ s32 func_0012aa70(u8 *task)
         }
         break;
     case 3:
-        if ((func_0025f110(*(u8 **)(work + 0x3C)) != 0) && (func_001246d0(work) != 0)) {
+        if ((func_0025f110(*(u8 **)(work + 0x3C)) != 0) && (taskLoadSlotModels(work) != 0)) {
             *(s32 *)work = 4;
             hsndQueueSound(0x13, 0x1E);
         }

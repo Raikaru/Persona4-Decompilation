@@ -74,9 +74,9 @@ extern s32 func_00106c30(s16 arg0, s16 arg1);
 extern s32 datIdBand(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern u8 *datPersonaDisplayName(s16 arg0);
-extern s8 func_00123ae0(void);
-extern s16 func_00123b10(void);
-extern s16 func_00123b40(void);
+extern s8 calendarGetValueLowByte(void);
+extern s16 calendarStateDaysSinceApr5(void);
+extern s16 calendarStatePeriod(void);
 extern u8 D_005E4F70[];
 extern s8 D_005E47F0[];
 static inline s64 p4_0011_signext16(s16 arg0)
@@ -348,9 +348,9 @@ s64 calGetDayEntryByPhase(s32 arg0, u32 arg1)
     s32 selection;
 
     result = -1;
-    if ((arg0 == (s16)func_00123b10()) &&
-        (arg1 == (s16)func_00123b40())) {
-        result = (s8)func_00123ae0();
+    if ((arg0 == (s16)calendarStateDaysSinceApr5()) &&
+        (arg1 == (s16)calendarStatePeriod())) {
+        result = (s8)calendarGetValueLowByte();
     }
     if ((s8)result == -1) {
         switch (arg1) {
@@ -385,8 +385,8 @@ static inline s64 calendarOverrideValue(s32 date, s32 phase)
     s32 loaded;
 
     result = -1;
-    if (date == (s16)func_00123b10() && (s16)func_00123b40() == phase)
-        result = (s8)func_00123ae0();
+    if (date == (s16)calendarStateDaysSinceApr5() && (s16)calendarStatePeriod() == phase)
+        result = (s8)calendarGetValueLowByte();
     if ((s8)result == -1) {
         address = p4_00110850_add(date * 6, (s32)D_005E3A02);
         loaded = p4_0011_load_s8((s8 *)address + 2);

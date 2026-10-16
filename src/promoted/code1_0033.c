@@ -47,7 +47,7 @@ extern s8 iGpffffb59c;
 extern u8 *kwlnTaskGetTaskByName(s8 *arg0);
 extern s32 func_0015f660(void);
 extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
-extern void func_001238c0(s32 arg0);
+extern void calendarSetMode(s32 arg0);
 extern u8 D_00644E80[];
 extern u8 D_00644E98[];
 extern u8 D_00644EB0[];
@@ -166,7 +166,7 @@ s32 func_00331680(void)
         if (func_0015f660() != 0) {
             func_00457140(0, 0, 0, 0xFF);
             func_001029a0(0x16, 0, 0, 2);
-            func_001238c0(0);
+            calendarSetMode(0);
             iGpffffb59c += 1;
         }
         break;
@@ -179,7 +179,7 @@ s32 func_00331680(void)
         break;
     case 6:
         if (kwlnTaskGetTaskByName((s8 *)D_00644E80) == 0) {
-            func_001238c0(1);
+            calendarSetMode(1);
             iGpffffb59c = 0;
             return 1;
         }
@@ -197,7 +197,7 @@ s32 func_00331770(void)
         if (func_0015f660() != 0) {
             func_00457140(0, 0, 0, 0xFF);
             func_001029a0(0x17, 0, 0, 2);
-            func_001238c0(0);
+            calendarSetMode(0);
             iGpffffb59c += 1;
         }
         break;
@@ -210,7 +210,7 @@ s32 func_00331770(void)
         break;
     case 6:
         if (kwlnTaskGetTaskByName((s8 *)D_00644E98) == 0) {
-            func_001238c0(1);
+            calendarSetMode(1);
             iGpffffb59c = 0;
             return 1;
         }
@@ -228,7 +228,7 @@ s32 func_00331860(void)
         if (func_0015f660() != 0) {
             func_00457140(0, 0, 0, 0xFF);
             func_001029a0(0x18, 0, 0, 2);
-            func_001238c0(0);
+            calendarSetMode(0);
             iGpffffb59c += 1;
         }
         break;
@@ -241,7 +241,7 @@ s32 func_00331860(void)
         break;
     case 6:
         if (kwlnTaskGetTaskByName((s8 *)D_00644EB0) == 0) {
-            func_001238c0(1);
+            calendarSetMode(1);
             iGpffffb59c = 0;
             return 1;
         }

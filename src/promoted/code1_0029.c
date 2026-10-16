@@ -55,11 +55,11 @@ extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern s32 D_0063CB50[];
 extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern s32 cmmCommunityGetCurrentSecondary(void);
-extern void func_00123a10(void);
+extern void calendarRefreshPromptState(void);
 extern u8 D_0063CFA0[];
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern s32 datGetFlag(s32 arg0);
-extern void func_001238c0(s32 arg0);
+extern void calendarSetMode(s32 arg0);
 extern u16 datCalcMaxSpById(s16 arg0);
 extern void func_00105730(s16 arg0, s16 arg1);
 static inline u8 *code29AddOff(s32 offset, u8 *base) {

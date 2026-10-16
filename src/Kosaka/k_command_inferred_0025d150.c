@@ -20,9 +20,9 @@ extern char D_00635C20[];
 extern char D_00635C40[];
 extern char D_00635C60[];
 extern s32 func_00120e20(s32 arg0, s32 arg1);
-extern s32 func_00120ee0(s32 arg0);
+extern s32 taskRecordIsDone(s32 arg0);
 extern void func_00120f00(s32 arg0);
-extern void func_00120f40(s32 arg0, s64 arg1);
+extern void taskRecordSetPosition(s32 arg0, s64 arg1);
 extern s32 iGpffffb480;
 
 
@@ -266,9 +266,9 @@ s32 func_0025d650(void) {
         iGpffffb480 = func_00120e20(0, *(s32 *)&local.h0);
         goto block_4;
     }
-    if (func_00120ee0(iGpffffb480) != 0) {
+    if (taskRecordIsDone(iGpffffb480) != 0) {
         func_00120f00(iGpffffb480);
-        func_00120f40(iGpffffb480, *(s64 *)&local.f0);
+        taskRecordSetPosition(iGpffffb480, *(s64 *)&local.f0);
         scrSetReturnInt(iGpffffb480);
         iGpffffb480 = 0;
         return 1;

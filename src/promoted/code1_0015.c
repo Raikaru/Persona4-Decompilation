@@ -401,7 +401,7 @@ s32 func_001561a0(u8 *task)
     extern u8 datGetTimeSlot(void);
     extern s64 calGetDayEntryByPhase(s32 day, u32 period);
     extern s32 cmmTableLookupFlagged(s32 group, s32 entry, s32 condition);
-    extern void func_00123aa0(s16 selection);
+    extern void calendarPushValue(s16 selection);
     extern void func_002aaa80(void);
     extern s32 FldResource_IsPrimaryFileLoaded(void);
     extern s32 FldMap_IsInBandA(s32 fieldId, s32 roomId);
@@ -494,7 +494,7 @@ s32 func_001561a0(u8 *task)
                         selectedEnvironment = selection & 0x7FF;
                     } else {
                         iGpffffb20c = 1;
-                        func_00123aa0((s16)selection);
+                        calendarPushValue((s16)selection);
                     }
                 }
             }
