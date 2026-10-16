@@ -111,7 +111,7 @@ extern u8 D_008C0346[];
 extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
-extern void func_004533d0(void);
+extern void sdkPadStepSequence(void);
 extern void func_00453310(s32 arg0, u16 arg1, s32 arg2);
 extern void sdkPadRepeatButton(s32 arg0, u16 arg1, s32 arg2);
 extern u8 *K_ClumpMatColorScale(u8 *arg0, u8 *arg1);
@@ -349,7 +349,7 @@ void func_00453310(s32 arg0, u16 arg1, s32 arg2) {
     }
 }
 // FUN_004533D0
-void func_004533d0(void)
+void sdkPadStepSequence(void)
 {
     s16 remaining;
     s16 phase;
@@ -396,8 +396,8 @@ void func_004533d0(void)
     }
 }
 // FUN_004534F0
-void func_004534f0(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
-    if (func_004535b0() == 0) {
+void sdkPadStartSequence(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+    if (sdkPadSequenceEnabled() == 0) {
         return;
     }
     iGpffffba34 = arg0;
@@ -410,7 +410,7 @@ void func_004534f0(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
 }
 
 // FUN_004535B0
-s32 func_004535b0(void)
+s32 sdkPadSequenceEnabled(void)
 {
     return iGpffffac74;
 }

@@ -35,7 +35,7 @@ void datSetFlag(s32, s32);
 s32 calReadDayFlagMask(void);
 void calWriteDayFlagMask(s32);
 void datInitDefaultGameState(void);
-void func_004534f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+void sdkPadStartSequence(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 extern s32 iGpffffb1bc;
 extern s32 iGpffffb19c;
@@ -1451,7 +1451,7 @@ void datEntryDrawFlagIcon(Vec2f arg0, f32 fparg0, s32 arg1, s16 arg2, s32 arg3,
 void datEntryDrawGatedByFlag39(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     if (datGetFlag(0x39) != 0) {
-        func_004534f0(arg0, arg1, arg2, arg3);
+        sdkPadStartSequence(arg0, arg1, arg2, arg3);
     }
 }
 // Intent: Stop controller rumble [inferred]
