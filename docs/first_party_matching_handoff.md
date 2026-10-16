@@ -2835,8 +2835,8 @@ scratch (MIXED, 75).  Reordering blocks is finished as a strategy here.
 
 The RECOLOUR floors are the cheapest of the categories because the fix is
 named: `func_003694d0` (0.859), `func_001ed700` (0.827), `func_00207b00`
-(0.908), `func_0036ee60` (0.896), `func_00497ce0` (0.889), `func_0049fbf0`
-(0.862) and `func_0049aa30` (0.877).  (The list names seven functions against
+(0.908), `func_0036ee60` (0.896), `func_00497ce0` (0.889), `FlashBoxEmitQuads` (was `func_0049fbf0`)
+(0.862) and `FlashRotatingEmitQuads` (was `func_0049aa30`) (0.877).  (The list names seven functions against
 the table's six; the source records do not say which is extra.)
 
 Worked example of what MIXED means in practice: `func_001400f0`'s pair is
@@ -5655,7 +5655,7 @@ unchanged; all 13 calls resolve to retail targets. The native access smoke cover
 all 256 byte values at six valid indices. Receipts are retained in
 `build/weather-match-20260929/retained-proof.json`.
 
-The radial Flash updater `func_0049b690` is reconstructed to a two-word guarded
+The radial Flash updater `FlashRadialEmitQuads` (was `func_0049b690`) is reconstructed to a two-word guarded
 frontier; see `docs/probe_archive/effect_flash_recovery_20260929.md`. Neither
 target is newly C-matched. Final configured verification of both owners reports
 92 MATCH and eight ASM functions, with no mismatch or compilation error.

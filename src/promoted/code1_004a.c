@@ -119,7 +119,7 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-extern u8 *func_004a1660(u16 arg0, s32 arg1);
+extern u8 *FlashQuadCopyAlloc(u16 arg0, s32 arg1);
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -152,13 +152,13 @@ void *func_004a1950(void *source) {
     if (*(s32 *)(D_0071401C + (index * 0x1C)) == 0) {
         temp = *(s32 *)(arg0 + 0x40);
         index = (u16)index;
-        result = func_004a1660((u16)index, temp);
+        result = FlashQuadCopyAlloc((u16)index, temp);
         stride = (u16)index * 0x1C;
         *(s32 *)(result + 0x3C) =
             (*(s32 (**)(s32, s32))(D_00714014 + stride))(temp, 0);
         (*(void (**)(u8 *))(D_00714010 + stride))(result);
     } else {
-        result = func_004a1660((u16)index, *(s32 *)(arg0 + 0x40));
+        result = FlashQuadCopyAlloc((u16)index, *(s32 *)(arg0 + 0x40));
         *(s32 *)(result + 0x3C) =
             (*(s32 (**)(u8 *))(D_0071401C + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
         (*(void (**)(u8 *))(D_00714010 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(result);
