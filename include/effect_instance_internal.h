@@ -24,6 +24,17 @@ typedef struct ObjectParticleInstance {
     u8 *recordTable;         /* +0x60: owned allocation with 0x18 bytes per record; ObjectParticleFree releases it */
 } ObjectParticleInstance;
 
+/* Distortion particle instance (effDistortParticle.c). Its layout differs from
+ * ObjectParticleInstance: +0x5C is the record list, +0x60 the texture object and +0x68 the
+ * record table. Fields before +0x5C are not yet named. */
+typedef struct DistortParticleInstance {
+    u8 field_0x00[0x5C];
+    u8 *list;                /* +0x5C: released by DistortParticleFree and DistortParticleReleaseSource */
+    u8 *texture;             /* +0x60: texture object, refcount at its +0x54 */
+    u8 *field_0x64;
+    u8 *table;               /* +0x68: record table released through the allocator table */
+} DistortParticleInstance;
+
 /* Effect RNG state (effMisc.c). A NULL state selects the global generator. */
 typedef struct EffRandState EffRandState;
 u32 effMiscRand(EffRandState *state);
