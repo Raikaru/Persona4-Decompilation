@@ -26,7 +26,7 @@ void mdlEffectSlotRelease(u8 *param_1, u16 param_2);
 s32 mdlEffectSlotIsFree(u8 *param_1, u16 param_2);
 
 u8 *ThunderTextureForIndex(u16 kind, u8 *parameters);
-u8 *func_0049a370(u16 kind, u8 *parameters);
+u8 *RingCreateKindInstance(u16 kind, u8 *parameters);
 u8 *func_004b4cb0(s32 kind, u8 *parameters);
 
 void *func_00484530(void *source);
@@ -38,7 +38,7 @@ void *TrackCreateWithMode(void *source);
 void *TrackCreateFromSourceCopy(void *source);
 void *ThunderTextureForObject(void *source);
 void *func_00498b20(void *source);
-void *func_0049a4e0(void *source);
+void *RingCreateKindInstanceFromObject(void *source);
 void *func_0049a5e0(void *source);
 void *FlashQuadCopyAllocFromParent(void *source);
 void *func_004a1950(void *source);
