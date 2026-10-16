@@ -97,8 +97,8 @@ extern u8 *iGpffffb42c;
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
 extern void func_001ec5e0(u8 *arg0, f32 arg1);
-extern void func_001ed700(f32 radius);
-extern s32 func_001ee610(u8 *route, f32 radius);
+extern void btlTargetRebuildRadiusLinks(f32 radius);
+extern s32 btlTargetBuildSmoothRoute(u8 *route, f32 radius);
 extern f32 RwV2dLength(f32 *vector);
 extern s32 btlTargetLineClear(f32 *first, f32 *second, f32 margin);
 typedef struct RoutePoint {
@@ -252,7 +252,7 @@ s32 btlRouteFindPath(u8 *route, f32 *start, f32 *end, f32 radius)
     z = end[1];
     *(f32 *)(world + 0x914) = x;
     *(f32 *)(world + 0x918) = z;
-    func_001ed700(radius);
+    btlTargetRebuildRadiusLinks(radius);
     world = iGpffffb3ac;
     if (*(s32 *)(world + 0x80C) == 0 || *(s32 *)(world + 0x93C) == 0) {
         route[0x404] = 3;
@@ -324,7 +324,7 @@ s32 btlRouteFindPath(u8 *route, f32 *start, f32 *end, f32 radius)
         *(RouteNode **)(iGpffffb3ac + 0xA40) = node;
     }
     if (found != 0) {
-        func_001ee610(route, radius);
+        btlTargetBuildSmoothRoute(route, radius);
         route[0x404] = 2;
     } else {
         route[0x404] = 3;
