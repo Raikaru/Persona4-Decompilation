@@ -131,7 +131,7 @@ typedef struct MdlAnimResourceEntry
     u8 unk_05[3];
 } MdlAnimResourceEntry;
 
-extern void func_0047fa60(int resource);
+extern void mdlMatAnimFreeList(int resource);
 extern void (*DAT_008873ec[])(void* memory);
 
 extern s32 func_003df7f0(u8* arg0);
@@ -2201,7 +2201,7 @@ void mdlReleaseAnimEntryTable(MdlAnimEntryTable* table)
             entry += i;
 
             if ((entry->resource != NULL) && ((entry->flags & 1) == 0)) {
-                func_0047fa60((int)entry->resource);
+                mdlMatAnimFreeList((int)entry->resource);
             }
         }
 
@@ -2212,14 +2212,14 @@ void mdlReleaseAnimEntryTable(MdlAnimEntryTable* table)
 
 
 
-extern void func_0047ffc0(int *a);
-extern void func_0047fd10(u8 **a, f32 b, u8 **c, f32 d, f32 e);
-extern void func_0047fe90(u8 **a, f32 b, f32 c);
-extern void func_0047fbf0(u8 **a, f32 b);
-extern f32 func_00480060(u8 **a);
+extern void mdlMatAnimCopyNodeMaterial(int *a);
+extern void mdlMatAnimUpdateList(u8 **a, f32 b, u8 **c, f32 d, f32 e);
+extern void mdlMatAnimApplyWithPivot(u8 **a, f32 b, f32 c);
+extern void mdlMatAnimApplyScaled(u8 **a, f32 b);
+extern f32 mdlMatAnimMaxDuration(u8 **a);
 extern void* mdlResolveLoopAnimation(void* a, u8* b);
 /* measured: u8* params fixed the param_2+0xC address-CSE (nd 106 -> 54) and
-   the func_0047fd10 call needs FOUR args (e2, e, *(p2+0x14), 0.0f — the
+   the mdlMatAnimUpdateList call needs FOUR args (e2, e, *(p2+0x14), 0.0f — the
    a1=$s0 move is deliberate, fixing it removes the shift). Residual
    (nd 54-79): the s16 t lands in $a2 vs retail $a1, the f32 alpha local lands
    in $f13 (arg reg, dead before calls) vs retail $f14 (forcing the
@@ -2251,13 +2251,13 @@ void mdlUpdateBlendTrack(u8* arg0, u8* arg1)
             temp_4_2 = *(u8***)(temp_4 + *(s16*)(arg1 + 0x10) * 8);
             if (temp_4_2 != NULL) {
                 if (temp_16 != NULL) {
-                    func_0047fd10(temp_4_2, *(f32*)(arg1 + 0x14), temp_16,
+                    mdlMatAnimUpdateList(temp_4_2, *(f32*)(arg1 + 0x14), temp_16,
                                   0.0f, temp_f14);
                 } else {
-                    func_0047fe90(temp_4_2, 0.0f, temp_f14);
+                    mdlMatAnimApplyWithPivot(temp_4_2, 0.0f, temp_f14);
                 }
             } else if (temp_16 != NULL) {
-                func_0047fe90(temp_16, 0.0f, 1.0f - temp_f14);
+                mdlMatAnimApplyWithPivot(temp_16, 0.0f, 1.0f - temp_f14);
             }
             *(s32*)(arg0 + 4) = (s32)temp_16;
             return;
@@ -2265,7 +2265,7 @@ void mdlUpdateBlendTrack(u8* arg0, u8* arg1)
         if (temp_16 == NULL) {
             temp_4_3 = *(s32*)(arg0 + 4);
             if (temp_4_3 != 0) {
-                func_0047ffc0((int*)temp_4_3);
+                mdlMatAnimCopyNodeMaterial((int*)temp_4_3);
             }
         } else {
             temp_4_4 = *(u32*)(arg1 + 0x34);
@@ -2281,10 +2281,10 @@ void mdlUpdateBlendTrack(u8* arg0, u8* arg1)
                 } else {
                     var_f12 = *(f32*)(arg1 + 0xC);
                 }
-                func_0047fbf0(temp_16, var_f12);
+                mdlMatAnimApplyScaled(temp_16, var_f12);
             } else {
-                func_0047fbf0(temp_16, *(f32*)(arg1 + 0xC));
-                if (*(f32*)(arg1 + 0xC) > func_00480060(temp_16)) {
+                mdlMatAnimApplyScaled(temp_16, *(f32*)(arg1 + 0xC));
+                if (*(f32*)(arg1 + 0xC) > mdlMatAnimMaxDuration(temp_16)) {
                     mdlResolveLoopAnimation(NULL, arg1);
                 }
             }
@@ -5158,7 +5158,7 @@ static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s16 animation, u16
             }
         }
         if (*(void**)(mdl + 0x234) && (blend = *(u8***)(mdl + 0x238)))
-            func_0047fe90(blend, 0.0f, 1.0f);
+            mdlMatAnimApplyWithPivot(blend, 0.0f, 1.0f);
         mdlStartAnimation(*(void**)(mdl + 0xdc), (MdlAnimControlView*)(mdl + 0x23c), animation, frame, flags);
     }
     mdlStartLayerAnimation(mdl + 0xec + (u16)layer * 0xa4, animation, frame, flags);
@@ -6234,8 +6234,8 @@ s32 mdlReadAuxChunks(u8 *model)
     extern u32 *mdlEffectListAppendBlock(u32 **head, s32 data, u32 length, u16 index, u32 flags);
     extern u32 *mdlEffectListAppendNode(u32 *head, u32 *node, u16 index);
     extern u32 *mdlEffectListWrapCopy(s32 data, s32 length);
-    extern s32 *func_0047f9f0(void);
-    extern s32 func_004800d0(void *stream, u8 **head, u32 kind, void *clump);
+    extern s32 *mdlMatAnimCreateList(void);
+    extern s32 mdlMatAnimLoadChunk(void *stream, u8 **head, u32 kind, void *clump);
     extern u8 D_0070B610[];
 
 #define LOAD_LAYER() ((MdlCloneLayerView *)(model + 0xec + (u32)state->layer * 0xa4))
@@ -6482,10 +6482,10 @@ s32 mdlReadAuxChunks(u8 *model)
                 LOAD_MATERIALS() = table;
             }
             if (LOAD_MATERIALS()->entries[state->slot].value == 0) {
-                s32 *material = func_0047f9f0();
+                s32 *material = mdlMatAnimCreateList();
                 LOAD_MATERIALS()->entries[state->slot].value = material;
             }
-            func_004800d0(state->stream, LOAD_MATERIALS()->entries[state->slot].value,
+            mdlMatAnimLoadChunk(state->stream, LOAD_MATERIALS()->entries[state->slot].value,
                 chunk.type, *(void **)(model + 0xdc));
         } else {
             MdlLoaderMaterial *pending;
@@ -6673,8 +6673,8 @@ extern void* func_003d60e0(void* schema, void* dictionary);
 extern u8 *func_004667d0(s32 kind, const char *name, const char *path,
     s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName,
     s32 resultKind, s32 memoryKind);
-extern s32 *func_0047f9f0(void);
-extern s32 func_004800d0(void *stream, u8 **head, u32 kind, void *clump);
+extern s32 *mdlMatAnimCreateList(void);
+extern s32 mdlMatAnimLoadChunk(void *stream, u8 **head, u32 kind, void *clump);
 extern u8 D_0070B610[];
 /* Native b210 O2 MATCH: 1944B/window 1952B; the remaining eight bytes are zero.
    Poll results retain their real pointer type and their status/stream outputs.
@@ -6839,9 +6839,9 @@ s32 mdlPollAuxResources(u8 *arg0)
                     *(u8 **)(arg0 + 0x234) = slot;
                 }
                 if (*(u32 *)(**(u8 ***)(arg0 + 0x234) + *(u16 *)(node + 4) * 8) == 0) {
-                    *(u32 *)(**(u8 ***)(arg0 + 0x234) + *(u16 *)(node + 4) * 8) = (u32)func_0047f9f0();
+                    *(u32 *)(**(u8 ***)(arg0 + 0x234) + *(u16 *)(node + 4) * 8) = (u32)mdlMatAnimCreateList();
                 }
-                func_004800d0(*(void **)(node + 8), (u8 **)*(void **)(**(u8 ***)(arg0 + 0x234) + *(u16 *)(node + 4) * 8), *(u32 *)(node + 0), *(void **)(arg0 + 0xDC));
+                mdlMatAnimLoadChunk(*(void **)(node + 8), (u8 **)*(void **)(**(u8 ***)(arg0 + 0x234) + *(u16 *)(node + 4) * 8), *(u32 *)(node + 0), *(void **)(arg0 + 0xDC));
                 func_003e2e40(*(void **)(node + 8), 0);
                 next = *(u8 **)(node + 0xC);
                 DAT_008873ec[0](node);
