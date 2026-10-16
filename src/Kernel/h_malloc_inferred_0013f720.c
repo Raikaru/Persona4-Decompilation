@@ -86,10 +86,10 @@ typedef struct {
    loaded ahead of the alpha conversion, which needs opt_propagation off. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off probe for func_00130c30 ordering. */
-/* measured: close opt_propagation for func_00130c30 probe. */
+/* measured: opt_propagation off probe for radarDrawSpritePair ordering. */
+/* measured: close opt_propagation for radarDrawSpritePair probe. */
 /* measured: second 00134890 probe preserves the retail floating zero and constant materialization. */
-/* measured: close opt_propagation for func_00134890. */
+/* measured: close opt_propagation for radarResetLayout. */
 /* measured: loop-invariant hoisting gives 444B / 448B with only zero tail padding. */
 #pragma push
 #pragma pop
@@ -98,7 +98,7 @@ typedef struct {
 /* measured: transfer the neighboring mixed-ABI palette branch shape. */
 /* measured: close neighboring mixed-ABI palette branch pragma. */
 /* measured: 1580B in the 1584B window.  Built from the matched twin
-   func_00130680 (same slot views, same sprite-pointer local under
+   radarDrawEntryRow (same slot views, same sprite-pointer local under
    opt_propagation off); the selected entry is a local so the compare keeps
    retail's operand order. */
 #pragma push

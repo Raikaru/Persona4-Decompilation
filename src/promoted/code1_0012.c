@@ -5300,14 +5300,14 @@ void func_0012e9d0(u8 *state)
     extern f32 func_0034f720(u8 *cell, f32 horizontal, f32 vertical, f32 gain);
     extern void func_0034f320(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
         u16 scaleY, s16 mode, f32 angle, s16 flags);
-    extern void func_00130c30(u8 *state, s64 position, s32 color);
+    extern void radarDrawSpritePair(u8 *state, s64 position, s32 color);
     extern void datEntryReset(u8 *entry);
     extern void datEntryDrawRow(Vec2f position, f32 depth, u8 alpha, u8 *entry);
-    extern void func_00130680(u8 *state, s32 index);
+    extern void radarDrawEntryRow(u8 *state, s32 index);
     extern u32 datEntryGetFlags(s16 item);
     extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 font, s32 mode, const char *text, s32 flags,
         s32 unused);
-    extern void func_00130ce0(u8 *state, PackedVec2f position, s32 alpha, s16 *entry);
+    extern void radarDrawEntryCard(u8 *state, PackedVec2f position, s32 alpha, s16 *entry);
     extern void func_0034f9d0(Vec2f position, f32 depth, u8 alpha, s32 value, s32 mode);
     extern u8 D_005E76B0[];
     extern u8 D_0064B2E8[];
@@ -5440,7 +5440,7 @@ void func_0012e9d0(u8 *state)
         color.channels.bytes[1] = theme[1];
         color.channels.bytes[2] = theme[2];
         color.channels.bytes[3] = headingAlpha;
-        func_00130c30(state, position.packed, color.word);
+        radarDrawSpritePair(state, position.packed, color.word);
         datEntryReset((u8 *)&label);
         label.itemId = ((s16 *)(state + 0x3E))[selectedItem * 2];
         label.quantity = ((s16 *)(state + 0x40))[selectedItem * 2];
@@ -5456,7 +5456,7 @@ void func_0012e9d0(u8 *state)
     }
     if ((*(s32 *)(state + 0x14) & 4) != 0) {
         for (labelIndex = 0; labelIndex < *(s16 *)(state + 0x3C); labelIndex++) {
-            func_00130680(state, labelIndex);
+            radarDrawEntryRow(state, labelIndex);
         }
     }
     if ((*(s32 *)(state + 0x14) & 0x400) != 0) {
@@ -5524,7 +5524,7 @@ void func_0012e9d0(u8 *state)
                         alphaByte = (u8)scaledAlpha;
                         color.channels.bytes[3] = (u8)(alphaByte & 0xFF);
 
-                        func_00130c30(state, position.packed, color.word);
+                        radarDrawSpritePair(state, position.packed, color.word);
                     } else {
                         theme = D_0064B2E4;
                         palette = D_0064B2E0;
@@ -5596,7 +5596,7 @@ void func_0012e9d0(u8 *state)
         detailLabel.iconFlags = 1;
         detailLabel.layout = 4;
 
-        func_00130ce0(state, position, alphaByte & 0xFF, (s16 *)&detailLabel);
+        radarDrawEntryCard(state, position, alphaByte & 0xFF, (s16 *)&detailLabel);
     }
     position.xy.x = 640.0f + (originX + *(f32 *)(state + 0x1828));
     position.xy.y = 400.0f + (originY + *(f32 *)(state + 0x182C));

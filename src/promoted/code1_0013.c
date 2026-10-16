@@ -6,7 +6,7 @@
 
 extern u32 datCalcGetHpById(s16 arg0);
 extern u32 datCalcGetSpById(s16 arg0);
-extern s32 func_0013ca60(s16 arg0, s16 arg1, s32 arg2);
+extern s32 radarSkillEffectMissing(s16 arg0, s16 arg1, s32 arg2);
 extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
 extern u32 RpRandom(void);
 extern s32 func_0034c210(void);
@@ -29,7 +29,7 @@ extern void func_00105780(s16 arg0);
 extern u16 func_0010f8c0(s32 arg0);
 extern s32 func_0012ff60(u8 *arg0, u32 arg1);
 extern s32 func_0034bb20(s32 arg0);
-extern s32 func_0013c6d0(s16 arg0);
+extern s32 radarEntryTypeIsActive(s16 arg0);
 extern s32 func_0010f540(s32 arg0);
 extern void shdPersonaSetFlags(u8 *arg0, s32 arg1);
 extern void shdPersonaClearFlags(u8 *arg0, s32 arg1);
@@ -47,25 +47,25 @@ extern s32 datPersonaGetLeadSlot(void);
 extern void datPersonaSetLeadSlot(s16 arg0);
 extern s32 datCalcThresholdTriggerById(s16 arg0, u32 arg1);
 extern void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
-extern s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2);
+extern s32 radarEntryIsAllowed(s16 arg0, s32 arg1, u8 *arg2);
 extern s32 func_0013a040(s16 *arg0, s32 arg1, s32 arg2);
 extern s32 func_0013a530(u8 *arg0, s32 arg1);
 extern void func_0013aa00(u8 *arg0);
 extern void func_001344b0(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00131730(u8 *arg0);
 extern void func_00134560(u8 *arg0, s32 arg1);
-extern void func_00134a50(u8 *arg0);
-extern void func_001349f0(u8 *arg0);
+extern void radarBeginSlideOut(u8 *arg0);
+extern void radarBeginSlideIn(u8 *arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern s32 func_00106600(s16 arg0);
 extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
-extern void func_00134990(u8 *arg0, s16 arg1, s16 arg2);
+extern void radarResetAndSetIndices(u8 *arg0, s16 arg1, s16 arg2);
 extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
+extern void radarDrawHeaderFrame(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
 extern void datEntryDrawRow(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2);
 extern void datPanelResetCursor(u8 *arg0);
 extern void datPanelDrawByKind(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
@@ -82,11 +82,11 @@ extern void func_00353fe0(void);
 extern s32 func_00354030(void);
 extern void func_00354080(s32 arg0);
 extern s32 func_0034bd60(s32 arg0);
-extern s32 func_0013b9f0(u8 *arg0);
-extern s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2);
+extern s32 radarAdvanceGroupSelection(u8 *arg0);
+extern s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2);
 extern u16 D_008C024E[];
 extern u16 D_008C0252[];
-extern void func_0013c5a0(s32 *arg0, u8 *arg1);
+extern void radarHandleEntrySelect(s32 *arg0, u8 *arg1);
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern u8 D_0064B2EC[];
@@ -132,8 +132,9 @@ typedef struct {
 
 /* measured: donor loop shape requires invariant hoisting for the retail preheader and loop register coloring. */
 #pragma opt_loop_invariants on
+// Intent: Shift each of the four slots' positions and alphas into their previous values, highlight the selected slot, and reset the counter at +0x1C [inferred]
 // FUN_001302D0
-void func_001302d0(u8 *arg0) {
+void radarPushSlotState(u8 *arg0) {
     s32 i;
 
     for (i = 0; i < 4; i++) {
@@ -156,8 +157,9 @@ void func_001302d0(u8 *arg0) {
 }
 /* measured: close the donor loop's invariant-hoisting bracket. */
 #pragma opt_loop_invariants off
+// Intent: Reset the indicator's colours and positions, choosing the x offset by comparing the counters at +0x24 and +0x2A [inferred]
 // FUN_00130360
-void func_00130360(u8 *arg0) {
+void radarResetIndicator(u8 *arg0) {
     f32 f0;
     f32 f1;
 
@@ -186,8 +188,9 @@ void func_00130360(u8 *arg0) {
 }
 /* measured: probing O1 for retail's extra saved pointer. */
 #pragma optimization_level 1
+// Intent: Randomize the scatter of each of the twelve entries with probability three in four; the others keep their current alpha [inferred]
 // FUN_00130430
-void func_00130430(u8 *arg0)
+void radarRandomizeEntries(u8 *arg0)
 {
     f32 f;
     u32 val;
@@ -225,8 +228,9 @@ void func_00130430(u8 *arg0)
 }
 /* measured: closing O1 probe. */
 #pragma optimization_level 2
+// Intent: Free the 51 sprite nodes in the radar sprite table and clear the count at +0x14 [inferred]
 // FUN_00130580
-void func_00130580(u8 *arg0) {
+void radarFreeSpriteNodes(u8 *arg0) {
     s32 i;
     u8 *p;
     u8 *q;
@@ -245,8 +249,9 @@ void func_00130580(u8 *arg0) {
     }
     *(s32 *)(arg0 + 0x14) = 0;
 }
+// Intent: Return 1 when the value at +0x1C is at least the threshold of every one of the 30 entries and the external check passes [inferred]
 // FUN_00130600
-s32 func_00130600(u8 *arg0) {
+s32 radarEntriesCoverValue(u8 *arg0) {
     s32 flag = 1;
     s32 i = 0;
     s32 v = *(s16 *)(arg0 + 0x1c);
@@ -264,8 +269,9 @@ s32 func_00130600(u8 *arg0) {
    loaded ahead of the alpha conversion, which needs opt_propagation off. */
 #pragma push
 #pragma opt_propagation off
+// Intent: Draw one radar entry row: the panel row with its highlight, the level digits and the icon, at the slot position and fade [inferred]
 // FUN_00130680
-void func_00130680(u8 *arg0, s32 arg1)
+void radarDrawEntryRow(u8 *arg0, s32 arg1)
 {
     typedef struct
     {
@@ -358,10 +364,11 @@ void func_00130680(u8 *arg0, s32 arg1)
     func_0034f2e0(spr, pos.x, pos.y, color2[0], color2[1], color2[2], (u8)((f32)alpha * dim));
 }
 #pragma pop
+// Intent: Draw a sprite at the given position and another 340 units to its right, with the given colour [inferred]
 // FUN_00130C30
-/* measured: opt_propagation off probe for func_00130c30 ordering. */
+/* measured: opt_propagation off probe for radarDrawSpritePair ordering. */
 #pragma opt_propagation off
-void func_00130c30(u8 *arg0, s64 arg1, s32 arg2)
+void radarDrawSpritePair(u8 *arg0, s64 arg1, s32 arg2)
 {
     f32 c0;
     s32 p;
@@ -381,13 +388,14 @@ void func_00130c30(u8 *arg0, s64 arg1, s32 arg2)
                   340.0f + ((f32 *)&arg1)[0], c0,
                   ((u8 *)&arg2)[0], c3, c2, c1);
 }
-/* measured: close opt_propagation for func_00130c30 probe. */
+/* measured: close opt_propagation for radarDrawSpritePair probe. */
 #pragma opt_propagation on
 /* 1476/1488 bytes; fourteen resolved relocations and twelve zero tail bytes.
  * The position and color copies have their full object extents. Keep the
  * original Y component and the shared sprite cursor across the draw pairs. */
+// Intent: Draw one radar entry card: the background bars, the value text and the entry row, at the given position and alpha [inferred]
 // FUN_00130CE0
-void func_00130ce0(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16 *entry)
+void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16 *entry)
 {
     typedef union {
         f32 f;
@@ -511,8 +519,9 @@ void func_00130ce0(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16 *ent
 }
 /* measured: second 00134890 probe preserves the retail floating zero and constant materialization. */
 #pragma opt_propagation off
+// Intent: Reset the layout state, choosing the target and start positions by comparing the counters at +0x2C and +0x34 [inferred]
 // FUN_00134890
-void func_00134890(u8 *arg0)
+void radarResetLayout(u8 *arg0)
 {
     f32 temp_f1;
     f32 temp_f0;
@@ -561,10 +570,11 @@ void func_00134890(u8 *arg0)
     }
     *(s16 *)(arg0 + 0x24) = 0;
 }
-/* measured: close opt_propagation for func_00134890. */
+/* measured: close opt_propagation for radarResetLayout. */
 #pragma opt_propagation on
+// Intent: Reset the state, clear the cursor, and store two indices at +0xC7A and +0xC7C [inferred]
 // FUN_00134990
-void func_00134990(u8 *arg0, s16 arg1, s16 arg2) {
+void radarResetAndSetIndices(u8 *arg0, s16 arg1, s16 arg2) {
     *(s32 *)(arg0 + 0x13d0) = 0;
     *(u8 *)(arg0 + 0x13e8) = 0xff;
     *(s8 *)(arg0 + 0x1418) = 0;
@@ -584,8 +594,9 @@ void func_00134990(u8 *arg0, s16 arg1, s16 arg2) {
     *(s16 *)(arg0 + 0xc7c) = arg2;
     *(s16 *)(arg0 + 0x20) = 0;
 }
+// Intent: Reset the state and begin a slide in from the +50 offset, copying the entry at +0x30 [inferred]
 // FUN_001349F0
-void func_001349f0(u8 *arg0) {
+void radarBeginSlideIn(u8 *arg0) {
     *(s32 *)(arg0 + 0x13d0) = 0;
     *(u8 *)(arg0 + 0x13e8) = 0xff;
     *(s8 *)(arg0 + 0x1418) = 0;
@@ -602,8 +613,9 @@ void func_001349f0(u8 *arg0) {
     *(s16 *)(arg0 + 0xc7e) = *(s16 *)(code13AddOff(*(s16 *)(arg0 + 0x30) * 2, arg0) + 0x38);
     *(s16 *)(arg0 + 0x20) = 0;
 }
+// Intent: Reset the state and begin a slide out to the -50 offset, copying the entry at +0x30 [inferred]
 // FUN_00134A50
-void func_00134a50(u8 *arg0) {
+void radarBeginSlideOut(u8 *arg0) {
     *(s32 *)(arg0 + 0x13d0) = 0;
     *(u8 *)(arg0 + 0x13e8) = 0xff;
     *(s8 *)(arg0 + 0x1418) = 0;
@@ -620,8 +632,9 @@ void func_00134a50(u8 *arg0) {
     *(s16 *)(arg0 + 0xc7e) = *(s16 *)(code13AddOff(*(s16 *)(arg0 + 0x30) * 2, arg0) + 0x38);
     *(s16 *)(arg0 + 0x20) = 0;
 }
+// Intent: Free the 52 sprite nodes in the second radar sprite table, then release the entries listed at +0x38 [inferred]
 // FUN_00134AB0
-void func_00134ab0(u8 *arg0) {
+void radarReleaseSpritesAndEntries(u8 *arg0) {
     s32 temp;
     s32 var17;
     s32 var18;
@@ -646,8 +659,9 @@ void func_00134ab0(u8 *arg0) {
     }
     *(s32 *)(arg0 + 0x1c) = 0;
 }
+// Intent: Return 1 when the value at +0x20 is at least the threshold of every one of the 41 entries and the external check passes [inferred]
 // FUN_00134B60
-s32 func_00134b60(u8 *arg0) {
+s32 radarWideEntriesCoverValue(u8 *arg0) {
     s32 flag = 1;
     s32 i = 0;
     s32 v = *(s16 *)(arg0 + 0x20);
@@ -663,8 +677,9 @@ s32 func_00134b60(u8 *arg0) {
 /* measured: loop-invariant hoisting gives 444B / 448B with only zero tail padding. */
 #pragma push
 #pragma opt_loop_invariants on
+// Intent: Collect the stat changes of party members, record each changed stat, and spawn the party task when any changed [inferred]
 // FUN_00134BE0
-s32 func_00134be0(u8 *arg0) {
+s32 radarCollectPartyChanges(u8 *arg0) {
     struct ChangeRecord {
         s32 id;
         s16 before;
@@ -703,8 +718,9 @@ s32 func_00134be0(u8 *arg0) {
     return count > 0;
 }
 #pragma pop
+// Intent: Map the first set flag bit to an icon mode from 7 to 13 [inferred]
 // FUN_00134DA0
-s32 func_00134da0(s32 arg0) {
+s32 radarFlagToIconMode(s32 arg0) {
     s32 result;
 
     if (arg0 & 0x81) {
@@ -737,10 +753,11 @@ s32 func_00134da0(s32 arg0) {
 done:
     return result;
 }
+// Intent: Draw a palette sprite pair at the given position, with the colour set chosen by the mode value [inferred]
 // FUN_00134E50
 /* measured: reconstructing the mixed-ABI palette draw pair from the matching 00130C30 shape. */
 #pragma opt_propagation off
-void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
+void radarDrawPalettePair(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
 {
     f32 temp_f20;
     s32 p;
@@ -765,10 +782,11 @@ void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
 }
 /* measured: close mixed-ABI palette draw pair pragma. */
 #pragma opt_propagation on
+// Intent: Draw a palette sprite set for mode 0 (four sprites) or mode 1 (two sprites) [inferred]
 // FUN_00134F40
 /* measured: transfer the neighboring mixed-ABI palette branch shape. */
 #pragma opt_propagation off
-void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
+void radarDrawPaletteSet(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
 {
     f32 temp_f20;
     s32 p;
@@ -811,8 +829,9 @@ void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
 }
 /* measured: close neighboring mixed-ABI palette branch pragma. */
 #pragma opt_propagation on
+// Intent: Draw one item card: the bordered panel, its corner sprites, the entry row, and the value and count text [inferred]
 // FUN_00135130
-void func_00135130(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
+void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
 {
     extern u16 func_001069d0(s16 item);
     extern void func_0045d6e0(u8 *color, f32 *rect, f32 depth, s32 flags);
@@ -879,7 +898,7 @@ void func_00135130(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
                   2.0f + borderY, color.rgb.r, color.rgb.g, color.rgb.b, inputAlpha);
     position.xy.x = ((f32 *)&inputPosition)[0];
     position.xy.y = originalY;
-    func_00135520(work, position, inputAlpha, 3);
+    radarDrawHeaderFrame(work, position, inputAlpha, 3);
     position.xy.x = ((f32 *)&inputPosition)[0] - 2.0f;
     position.xy.y = originalY;
     datEntryDrawRow(position.xy, 0.0f, inputAlpha, entry);
@@ -902,8 +921,9 @@ void func_00135130(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
    emits the constant as the first add.s operand like retail; `temp_f21 +=
    130.0f` keeps the variable first. The 467.0f sum is recomputed for the last
    call, as retail does. */
+// Intent: Draw the header frame sprites when bit 2 of the flags is set, and the palette set when bit 1 is set [inferred]
 // FUN_00135520
-void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3)
+void radarDrawHeaderFrame(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3)
 {
     f32 temp_f21;
     f32 temp_f20;
@@ -940,17 +960,18 @@ void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3)
     if (temp_16 & 1) {
         arg1.xy.x -= 2.0f;
         arg1.xy.y -= 26.0f;
-        func_00134f40(arg0, arg1.packed, 1, arg2);
+        radarDrawPaletteSet(arg0, arg1.packed, 1, arg2);
     }
 }
 /* measured: 1580B in the 1584B window.  Built from the matched twin
-   func_00130680 (same slot views, same sprite-pointer local under
+   radarDrawEntryRow (same slot views, same sprite-pointer local under
    opt_propagation off); the selected entry is a local so the compare keeps
    retail's operand order. */
 #pragma push
 #pragma opt_propagation off
+// Intent: Draw one radar entry row from the first group (slots 5 and 1) or the second group (slots 0x1C and 0x18) [inferred]
 // FUN_0013AD40
-void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2)
+void radarDrawEntryRowGroup(u8 *arg0, s32 arg1, s32 arg2)
 {
     typedef struct
     {
@@ -1061,12 +1082,13 @@ void func_0013ad40(u8 *arg0, s32 arg1, s32 arg2)
     func_0034f2e0(spr, pos.x, pos.y, color2[0], color2[1], color2[2], (u8)((f32)alpha * dim));
 }
 #pragma pop
+// Intent: Draw a sprite pair from the second sprite table at the given position, 340 units apart, with the given colour [inferred]
 // FUN_0013B370
 /* The call consumes a complete position and RGBA packet. Keep explicit
    views of their argument storage: b210 otherwise hoists the Y load before
    the RGB snapshots. All 176 instruction bytes and 42 sibling images match. */
 #pragma opt_propagation off
-void func_0013b370(u8 *arg0, Vec2f arg1, PackedColor4 arg2)
+void radarDrawSecondSpritePair(u8 *arg0, Vec2f arg1, PackedColor4 arg2)
 {
     f32 c0;
     s32 p;
@@ -1091,8 +1113,9 @@ void func_0013b370(u8 *arg0, Vec2f arg1, PackedColor4 arg2)
 /* 1480/1488 bytes; fourteen resolved relocations and eight zero tail bytes.
  * The skill renderer uses complete position/color objects and retains the
  * original Y component and sprite cursor through the draw pairs. */
+// Intent: Draw one skill card: the background sprites, the bars and the value text, at the given position and alpha [inferred]
 // FUN_0013B420
-void func_0013b420(void *context, Vec2f inputPosition, s32 inputAlpha, void *entry)
+void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void *entry)
 {
     typedef union {
         f32 f;
@@ -1254,8 +1277,9 @@ static inline s32 code13SelectionSum(s32 row, s32 column)
 {
     return row + column;
 }
+// Intent: Advance the group selection to the neighbour chosen by the button bits, and update the two group windows [inferred]
 // FUN_0013B9F0
-s32 func_0013b9f0(u8 *arg0)
+s32 radarAdvanceGroupSelection(u8 *arg0)
 {
     s32 count;
     s32 index;
@@ -1317,7 +1341,7 @@ process:
    parameter for func_0012ff40 gives retail's word loads (217 -> 2).  The
    party-slot address `(u8 *)((u8 *)(*(s16 *)(arg2 + 0x26) * 2) +
    (u32)arg2) + 0x34` gives retail's index-then-base addu.  The last two
-   words were the argument setup order at the func_0013c700 call: with an
+   words were the argument setup order at the radarApplyItemStep call: with an
    s32 second parameter MWCC schedules the `lh` before the `move`, with
    s16 it emits retail's move-then-load, so the declaration above is
    load-bearing. */
@@ -1349,13 +1373,13 @@ s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 2:
-        if (func_00130600(arg2) != 0) {
-            func_00130580(arg2);
+        if (radarEntriesCoverValue(arg2) != 0) {
+            radarFreeSpriteNodes(arg2);
             return 1;
         }
         break;
     case 3:
-        if (func_00130600(arg2) != 0) {
+        if (radarEntriesCoverValue(arg2) != 0) {
             func_0012ff60(arg2, 3);
             *arg0 = 4;
             func_00353fe0();
@@ -1369,7 +1393,7 @@ s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_0034bb20(0xD);
             func_0045af60(0, 2, 0, 4);
         } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
-            func_0013c5a0((s32 *)arg0, arg2);
+            radarHandleEntrySelect((s32 *)arg0, arg2);
             *(s32 *)(arg2 + 0xC44) = 0;
         } else if ((D_008C024E[0] & 0x80) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
             func_0012ff60(arg2, 8);
@@ -1379,7 +1403,7 @@ s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 0xB;
-        } else if (func_0013b9f0(arg2) != 0) {
+        } else if (radarAdvanceGroupSelection(arg2) != 0) {
             func_0045af60(0, 1, 0, 5);
         } else {
             func_00453670(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
@@ -1388,16 +1412,16 @@ s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_0012ff40((s32)arg2, 0, *(s32 *)(buf + 0x24));
                 func_0012ff40((s32)arg2, 1, *(s32 *)(buf + 0x28));
                 if (*(s16 *)(arg2 + 0x24) != *(s16 *)(arg2 + 0x2A)) {
-                    func_00130360(arg2);
+                    radarResetIndicator(arg2);
                 }
                 func_00354080(temp_2_2);
             }
         }
         break;
     case 7:
-        if (func_00130600(arg2) != 0) {
+        if (radarEntriesCoverValue(arg2) != 0) {
             func_0012ff60(arg2, 6);
-            func_001302d0(arg2);
+            radarPushSlotState(arg2);
             *arg0 = 8;
         }
         break;
@@ -1408,7 +1432,7 @@ s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_0034bd60(0xB);
             func_0045af60(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
-            if (func_0013c700(1, *(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x26) * 2) + (u32)arg2) + 0x34), arg2) == 2) {
+            if (radarApplyItemStep(1, *(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x26) * 2) + (u32)arg2) + 0x34), arg2) == 2) {
                 func_0012ff60(arg2, 2);
                 *arg0 = 3;
                 func_0034bd60(0xB);
@@ -1421,13 +1445,13 @@ s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_004538e0(buf, 0x4000, 0x1000, 0, 0);
             if (func_00453960(buf) != 0) {
                 func_0012ff40((s32)arg2, 2, *(s32 *)(buf + 0x24));
-                func_001302d0(arg2);
+                radarPushSlotState(arg2);
                 func_0045af60(0, 1, 0, 0);
             }
         }
         break;
     case 9:
-        if (func_00130600(arg2) != 0) {
+        if (radarEntriesCoverValue(arg2) != 0) {
             func_0012ff60(arg2, 7);
             *arg0 = 0xA;
         }
@@ -1440,7 +1464,7 @@ s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_0045af60(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
             {
-                s32 inner = func_0013c700(1, -1, arg2);
+                s32 inner = radarApplyItemStep(1, -1, arg2);
                 switch (inner) {
                 case 2:
                     func_0012ff60(arg2, 2);
@@ -1459,7 +1483,7 @@ s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 5:
-        if (func_00130600(arg2) != 0) {
+        if (radarEntriesCoverValue(arg2) != 0) {
             func_0012ff60(arg2, 9);
             *arg0 = 6;
         }
@@ -1470,11 +1494,11 @@ s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
             *arg0 = 3;
             func_0045af60(0, 2, 0, 4);
         } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
-            func_0013c5a0((s32 *)arg0, arg2);
+            radarHandleEntrySelect((s32 *)arg0, arg2);
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 0xB;
-        } else if (func_0013b9f0(arg2) != 0) {
+        } else if (radarAdvanceGroupSelection(arg2) != 0) {
             func_0045af60(0, 1, 0, 5);
         } else {
             func_00453670(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
@@ -1483,7 +1507,7 @@ s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_0012ff40((s32)arg2, 0, *(s32 *)(buf + 0x24));
                 func_0012ff40((s32)arg2, 1, *(s32 *)(buf + 0x28));
                 if (*(s16 *)(arg2 + 0x24) != *(s16 *)(arg2 + 0x2A)) {
-                    func_00130360(arg2);
+                    radarResetIndicator(arg2);
                 }
                 func_00354080(temp_2_3);
             }
@@ -1507,21 +1531,22 @@ s32 func_0013bcf0(u32 *arg0, s32 *arg1, u8 *arg2) {
     }
     return 0;
 }
+// Intent: Handle a selected entry: when its type is active, set the state by type (0 becomes 7, 1 or 2 become 9) and play the cue; otherwise play cue 8 [inferred]
 // FUN_0013C5A0
-void func_0013c5a0(s32 *arg0, u8 *arg1) {
+void radarHandleEntrySelect(s32 *arg0, u8 *arg1) {
     u8 *entry;
     s16 type;
 
     entry = code13AddOff((*(s16 *)(arg1 + 0x24) + *(s16 *)(arg1 + 0x22)) * 4,
                          arg1) + 0x3E;
-    if (func_0013c6d0(*(s16 *)entry) == 0) {
+    if (radarEntryTypeIsActive(*(s16 *)entry) == 0) {
         func_0045af60(0, 0, 0, 8);
         return;
     }
     type = (s16)func_0010f8c0(*(u16 *)((u8 *)datEntryAt(*(s16 *)entry) + 0x24));
     if (type == 0) {
         func_0012ff60(arg1, 4);
-        func_001302d0(arg1);
+        radarPushSlotState(arg1);
         *arg0 = 7;
     } else {
         if ((type == 2) || (type == 1)) {
@@ -1532,13 +1557,14 @@ void func_0013c5a0(s32 *arg0, u8 *arg1) {
     func_0034bb20(0xC);
     func_0045af60(0, 0, 0, 1);
 }
+// Intent: Return whether the type of the entry's item is active [inferred]
 // FUN_0013C6D0
-s32 func_0013c6d0(s16 arg0) {
+s32 radarEntryTypeIsActive(s16 arg0) {
     return func_0010f540(*(u16 *)((u8 *)datEntryAt(arg0) + 0x24)) != 0;
 }
 /* MATCHED: the same menu state machine as func_0013d8b0 beside it.  Nine of
    m2c's call arguments are stale registers - func_001312b0, func_001318c0,
-   func_00134b60, func_00134be0, func_0013d5d0, func_0013d470,
+   radarWideEntriesCoverValue, radarCollectPartyChanges, radarTransferSelectedUnit, radarBeginPickList,
    func_00452490 and two func_00134560 sites all take one fewer.  The two
    pick-list tests are `if ((n = func_00453960(buf)) > 0)`: assigning in
    the condition keeps the count in $v0 for the `blez`, where a separate
@@ -1582,25 +1608,25 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_00353fb0();
             func_0034bb20(7);
         case 3:
-            if (func_00134b60(arg2) != 0) {
-                func_00134ab0(arg2);
+            if (radarWideEntriesCoverValue(arg2) != 0) {
+                radarReleaseSpritesAndEntries(arg2);
                 return 1;
             }
             break;
         }
         break;
     case 4:
-        if (func_00134b60(arg2) != 0) {
+        if (radarWideEntriesCoverValue(arg2) != 0) {
             func_00353fe0();
             func_00134560(arg2, 2);
             *arg0 = 5;
         }
         break;
     case 5:
-        if (func_00134b60(arg2) != 0) {
+        if (radarWideEntriesCoverValue(arg2) != 0) {
             if (D_008C024E[0] & 0x20) {
                 *arg0 = 2;
-                func_00134be0(arg2);
+                radarCollectPartyChanges(arg2);
                 func_0045af60(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
                 func_00134560(arg2, 3);
@@ -1608,7 +1634,7 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_0034bb20(4);
                 func_0045af60(0, 0, 0, 1);
             } else if (D_008C024E[0] & 0x10) {
-                func_00134be0(arg2);
+                radarCollectPartyChanges(arg2);
                 *(s32 *)(arg2 + 0x10) = func_00354030();
                 *arg0 = 0xD;
             } else {
@@ -1622,7 +1648,7 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 6:
-        if (func_00134b60(arg2) != 0) {
+        if (radarWideEntriesCoverValue(arg2) != 0) {
             func_00134560(arg2, 4);
             *arg0 = 7;
         }
@@ -1640,7 +1666,7 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_0034bb20(5);
             func_0045af60(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
-            func_00134be0(arg2);
+            radarCollectPartyChanges(arg2);
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 0xD;
         } else {
@@ -1653,23 +1679,23 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 8:
-        if (func_00134b60(arg2) != 0) {
+        if (radarWideEntriesCoverValue(arg2) != 0) {
             func_00134560(arg2, 6);
             *arg0 = 9;
             func_0034bb20(6);
         }
         break;
     case 9:
-        if (func_00134b60(arg2) != 0) {
+        if (radarWideEntriesCoverValue(arg2) != 0) {
             func_00134560(arg2, 7);
             *arg0 = 0xA;
         }
         break;
     case 10:
-        if (func_00134b60(arg2) != 0) {
+        if (radarWideEntriesCoverValue(arg2) != 0) {
             if (D_008C024E[0] & 0x40) {
                 if (*(s16 *)(arg2 + 0xC46) != 0) {
-                    func_0013d5d0(arg2);
+                    radarTransferSelectedUnit(arg2);
                 }
             } else if (D_008C024E[0] & 0x20) {
                 func_001344b0(arg2, 2, 0);
@@ -1679,7 +1705,7 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_0034bd60(4);
                 func_0045af60(0, 0, 0, 2);
             } else if (D_008C024E[0] & 0x10) {
-                func_00134be0(arg2);
+                radarCollectPartyChanges(arg2);
                 *(s32 *)(arg2 + 0x10) = func_00354030();
                 *arg0 = 0xD;
             } else if (D_008C024E[0] & 0x80) {
@@ -1688,14 +1714,14 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
                     *arg0 = 0xB;
                     func_0045af60(0, 2, 0, 3);
                 }
-            } else if (func_0013d470(arg2, arg0) == 0) {
+            } else if (radarBeginPickList(arg2, arg0) == 0) {
                 func_00453670(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
                 func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
                 if ((temp_2_2 = func_00453960(buf)) > 0) {
                     func_001344b0(arg2, 2, *(s32 *)(buf + 0x28));
                     func_001344b0(arg2, 3, *(s32 *)(buf + 0x24));
                     if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x34)) {
-                        func_00134890(arg2);
+                        radarResetLayout(arg2);
                     }
                     func_00354080(temp_2_2);
                 }
@@ -1703,14 +1729,14 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
         }
         break;
     case 11:
-        if (func_00134b60(arg2) != 0) {
+        if (radarWideEntriesCoverValue(arg2) != 0) {
             func_00134560(arg2, 9);
             *arg0 = 0xC;
         }
         break;
     case 12:
         if (D_008C024E[0] & 0x40) {
-            if (func_0013d5d0(arg2) != 0) {
+            if (radarTransferSelectedUnit(arg2) != 0) {
                 *arg0 = 9;
             }
         } else if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
@@ -1718,17 +1744,17 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
             *arg0 = 9;
             func_0045af60(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x10) {
-            func_00134be0(arg2);
+            radarCollectPartyChanges(arg2);
             *(s32 *)(arg2 + 0x10) = func_00354030();
             *arg0 = 0xD;
-        } else if (func_0013d470(arg2, arg0) == 0) {
+        } else if (radarBeginPickList(arg2, arg0) == 0) {
             func_00453670(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
             func_004538e0(buf, 0x4000, 0x1000, 0x2000, 0x8000);
             if ((temp_2_3 = func_00453960(buf)) > 0) {
                 func_001344b0(arg2, 2, *(s32 *)(buf + 0x28));
                 func_001344b0(arg2, 3, *(s32 *)(buf + 0x24));
                 if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x34)) {
-                    func_00134890(arg2);
+                    radarResetLayout(arg2);
                 }
                 func_00354080(temp_2_3);
             }
@@ -1757,8 +1783,9 @@ s32 func_0013caa0(u32 *arg0, s32 *arg1, u8 *arg2) {
 /* The original row survives item application; recipient traversal and the
    post-removal selection have separate lifetimes. Item accessors and
    inventory writes share the same signed halfword ID. */
+// Intent: Apply the selected item to the chosen recipients, consume one use, and update the row; return the resulting state [inferred]
 // FUN_0013C700
-s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
+s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2)
 {
     extern void func_0012e7c0(u8 *arg0);
     extern u8 D_005ED9D0[];
@@ -1785,14 +1812,14 @@ s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
         index = 0;
         while (index < *(s16 *)(arg2 + 0x3C)) {
             recipient = arg2 + index * 2 + 0x34;
-            if (func_0013ca60(arg0, *(s16 *)recipient, item_type) != 0) {
+            if (radarSkillEffectMissing(arg0, *(s16 *)recipient, item_type) != 0) {
                 datCalcApplySkillEffectById(arg0, *(s16 *)recipient, item_type, 1);
                 index_count++;
             }
             index++;
         }
         if (index_count == 0) state = 0;
-    } else if (func_0013ca60(arg0, arg1, item_type) != 0) {
+    } else if (radarSkillEffectMissing(arg0, arg1, item_type) != 0) {
         datCalcApplySkillEffectById(arg0, arg1, item_type, 1);
     } else state = 0;
     if (state > 0) {
@@ -1802,7 +1829,7 @@ s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
         if (state == 3) {
             func_00106390(5121, 1);
         } else {
-            func_00130430(arg2);
+            radarRandomizeEntries(arg2);
             entry = code13AddOff((u32)total * 4U, arg2);
             remaining = --*(s16 *)(entry + 0x40);
             if (remaining == 0) {
@@ -1837,8 +1864,9 @@ s32 func_0013c700(s16 arg0, s16 arg1, u8 *arg2)
     }
     return state;
 }
+// Intent: Return 1 when the skill effect for the recipient is not yet applied [inferred]
 // FUN_0013CA60
-s32 func_0013ca60(s16 arg0, s16 arg1, s32 arg2) {
+s32 radarSkillEffectMissing(s16 arg0, s16 arg1, s32 arg2) {
     s32 v = 0;
 
     if (datCalcSkillEffectFlagsById(arg0, arg1, arg2, 1) == 0) {
@@ -1846,8 +1874,9 @@ s32 func_0013ca60(s16 arg0, s16 arg1, s32 arg2) {
     }
     return v;
 }
+// Intent: Open the pick list when it has entries: set state 10 and initialise its groups; return 1 when opened [inferred]
 // FUN_0013D470
-s32 func_0013d470(u8 *arg0, s32 *arg1) {
+s32 radarBeginPickList(u8 *arg0, s32 *arg1) {
     u8 sp40[0x28];
     s32 temp_2;
 
@@ -1863,17 +1892,18 @@ s32 func_0013d470(u8 *arg0, s32 *arg1) {
         func_00134560(arg0, 7);
         *arg1 = 0xA;
         if (temp_2 == 1) {
-            func_00134a50(arg0);
+            radarBeginSlideOut(arg0);
         } else if (temp_2 == 2) {
-            func_001349f0(arg0);
+            radarBeginSlideIn(arg0);
         }
         func_0045af60(0, 1, 0, 5);
         return 1;
     }
     return 0;
 }
+// Intent: Transfer one unit of the selected entry to the target entry, refresh the rows, and step the cursor; return 1 when a transfer happened [inferred]
 // FUN_0013D5D0
-s32 func_0013d5d0(u8 *arg0) {
+s32 radarTransferSelectedUnit(u8 *arg0) {
     struct {
         s16 value;
     } temp_16;
@@ -1894,7 +1924,7 @@ s32 func_0013d5d0(u8 *arg0) {
         return 0;
     }
     func_00134560(arg0, 7);
-    func_00134990(arg0, temp_17, temp_19);
+    radarResetAndSetIndices(arg0, temp_17, temp_19);
     if ((func_00106600(temp_17) & 0xFF) != 0x63) {
         func_00106620(temp_17, ((func_00106600(temp_17) & 0xFF) + 1) & 0xFF);
     }
@@ -1917,8 +1947,9 @@ s32 func_0013d5d0(u8 *arg0) {
     func_0045af60(0, 3, 0, 7);
     return 1;
 }
+// Intent: Set or clear the persona highlight flags and position for arg1 0 (set) or 1 (clear) [inferred]
 // FUN_0013D7D0
-void func_0013d7d0(u8 *arg0, s32 arg1) {
+void radarSetPersonaHighlight(u8 *arg0, s32 arg1) {
     code13Pair sp0;
     code13Pair sp1;
 
@@ -1950,7 +1981,7 @@ void func_0013d7d0(u8 *arg0, s32 arg1) {
    func_00354030 are stale registers; both take none. */
 // FUN_0013D8B0
 s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
-    extern void func_0013e7c0(u8 *arg0, s32 *arg1);
+    extern void radarBeginRecipientPick(u8 *arg0, s32 *arg1);
     extern void func_001356d0(u8 *arg0);
     extern s32 func_00135cb0(u8 *arg0);
     extern s32 func_00137dd0(u8 *arg0);
@@ -1963,7 +1994,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void func_00137570(u8 *arg0);
     extern void func_001370e0(u8 *arg0);
     extern void shdPersonaStartSlideIn(u8 *arg0);
-    extern void func_0013d7d0(u8 *arg0, s32 arg1);
+    extern void radarSetPersonaHighlight(u8 *arg0, s32 arg1);
     extern s32 datPersonaRosterSlot(s32 arg0);
     extern u16 *datPersonaGetRecord(u16 arg0);
     u8 buf[0x30];
@@ -2029,7 +2060,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_0034bb20(0xF);
                     func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
                     shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
-                    func_0013d7d0(arg2, 1);
+                    radarSetPersonaHighlight(arg2, 1);
                     shdPersonaRefreshDispCtlPosition(*(u8 **)(arg2 + 0x1CB4), NULL);
                     shdPersonaSetFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
                     func_0045af60(0, 0, 0, 1);
@@ -2039,7 +2070,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                     func_001374d0(arg2);
                     func_0034bb20(0x11);
                     func_00137e50(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
-                    func_0013d7d0(arg2, 0);
+                    radarSetPersonaHighlight(arg2, 0);
                     shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24), (u32)datPersonaGetRecord(*(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24)), 0);
                     shdPersonaStartSlideIn(*(u8 **)(arg2 + 0x1CB4));
                     shdPersonaClearFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
@@ -2078,7 +2109,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             func_0045af60(1, 3, 2, 6);
             func_001375f0(arg2);
         } else if (D_008C024E[0] & 0x80) {
-            func_0013d7d0(arg2, 0);
+            radarSetPersonaHighlight(arg2, 0);
             shdPersonaStartSlideIn(*(u8 **)(arg2 + 0x1CB4));
             func_001371a0(arg2, 6);
             func_00137740(arg2);
@@ -2126,7 +2157,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                 func_00137570(arg2);
                 func_0034bd60(0xF);
                 shdPersonaBeginClose(*(u8 **)(arg2 + 0x1CB4));
-                func_0013d7d0(arg2, 1);
+                radarSetPersonaHighlight(arg2, 1);
             } else if (D_008C024E[0] & 0x40) {
                 func_001371a0(arg2, 0xA);
                 func_002bad10(3);
@@ -2145,7 +2176,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                 shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
                 *arg0 = 0x10;
             } else {
-                func_0013e7c0(arg2, (s32 *)arg0);
+                radarBeginRecipientPick(arg2, (s32 *)arg0);
             }
         }
         break;
@@ -2170,7 +2201,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             *arg0 = 0x10;
         } else {
             shdPersonaStepSelectionCursor(*(u8 **)(arg2 + 0x1CB4));
-            func_0013e7c0(arg2, (s32 *)arg0);
+            radarBeginRecipientPick(arg2, (s32 *)arg0);
         }
         break;
     case 10:
@@ -2195,7 +2226,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
         } else {
-            func_0013e8e0(arg2, arg0);
+            radarBeginCharacterPick(arg2, arg0);
         }
         break;
     case 12:
@@ -2207,7 +2238,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
             shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
-        } else if (func_0013e8e0(arg2, arg0) == 0) {
+        } else if (radarBeginCharacterPick(arg2, arg0) == 0) {
             shdPersonaStepSelectionCursor(*(u8 **)(arg2 + 0x1CB4));
         }
         break;
@@ -2276,8 +2307,9 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
     }
     return 0;
 }
+// Intent: Open the recipient pick display for the chosen entry: set state 8 and begin the display for one or two picks [inferred]
 // FUN_0013E7C0
-void func_0013e7c0(u8 *arg0, s32 *arg1) {
+void radarBeginRecipientPick(u8 *arg0, s32 *arg1) {
     u8 sp40[0x28];
     s32 temp_2;
 
@@ -2297,8 +2329,9 @@ void func_0013e7c0(u8 *arg0, s32 *arg1) {
         }
     }
 }
+// Intent: Open the character pick display for the chosen entry, and return 1 when a pick list was opened [inferred]
 // FUN_0013E8E0
-s32 func_0013e8e0(u8 *arg0, s32 *arg1) {
+s32 radarBeginCharacterPick(u8 *arg0, s32 *arg1) {
     u8 sp40[0x28];
     s32 temp_2;
     s32 temp_18;
@@ -2334,7 +2367,7 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
     extern void func_0013a8a0(u8 *arg0);
     extern void func_0013a930(void *arg0);
     extern void func_00138490(void *arg0);
-    extern void func_0013f4d0(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3);
+    extern void radarHandleEntryAction(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3);
     u8 query[0x30];
     f32 alpha;
     s16 character;
@@ -2437,7 +2470,7 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
             } else {
                 confirm = D_008C024E[0] & 0x40;
                 if (confirm != 0) {
-                    func_0013f4d0((s32 *)arg0, character, recipientValue, arg2);
+                    radarHandleEntryAction((s32 *)arg0, character, recipientValue, arg2);
                 } else if (D_008C024E[0] & 0x80) {
                     func_0013a530(arg2, 9);
                     *arg0 = 0xB;
@@ -2558,7 +2591,7 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
             } else {
                 alternateConfirm = D_008C024E[0] & 0x40;
                 if (alternateConfirm != 0) {
-                    func_0013f4d0((s32 *)arg0, character, recipientValue, arg2);
+                    radarHandleEntryAction((s32 *)arg0, character, recipientValue, arg2);
                 } else if (D_008C024E[0] & 0x10) {
                     *(s32 *)(arg2 + 0x10) = (s32)(func_00354030());
                     *arg0 = 0xD;
@@ -2594,13 +2627,14 @@ s32 func_0013ea20(u32 *arg0, s32 *arg1, u8 *arg2) {
     }
     return 0;
 }
+// Intent: Handle the entry action after its check: the type zero path sets state 7, and the type 1 or 2 path sets state 9 [inferred]
 // FUN_0013F4D0
-void func_0013f4d0(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
+void radarHandleEntryAction(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
     s32 temp_18;
     u16 temp_3;
 
     temp_18 = *(s16 *)(arg3 + 0x60) + *(s16 *)(arg3 + 0x5E);
-    if (func_0013f620(arg1, temp_18, arg3) == 0) {
+    if (radarEntryIsAllowed(arg1, temp_18, arg3) == 0) {
         func_0045af60(0, 0, 0, 8);
         return;
     }
@@ -2623,8 +2657,9 @@ void func_0013f4d0(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
     func_0034bb20(9);
     func_0045af60(0, 0, 0, 1);
 }
+// Intent: Return 1 when the entry's type is valid and the threshold check does not block it [inferred]
 // FUN_0013F620
-s32 func_0013f620(s16 arg0, s32 arg1, u8 *arg2) {
+s32 radarEntryIsAllowed(s16 arg0, s32 arg1, u8 *arg2) {
     s32 var_19;
     s16 var_18;
     s16 temp_17;

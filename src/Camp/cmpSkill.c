@@ -49,11 +49,11 @@ void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                    u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 void func_0034f2e0(void *, f32, f32, u8, u8, u8, u8);
 void func_0034f9d0(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
-void func_0013b370(u8 *work, Vec2f position, PackedColor4 color);
-void func_0013b420(void *, Vec2f, s32, void *);
+void radarDrawSecondSpritePair(u8 *work, Vec2f position, PackedColor4 color);
+void radarDrawSkillCard(void *, Vec2f, s32, void *);
 void datRecordClearHeader(s16 *);
 void datEntryDrawByKind(Vec2f, u8, void *, s32, f32);
-void func_0013ad40(u8 *, s32, s32);
+void radarDrawEntryRowGroup(u8 *, s32, s32);
 /* Two RGBA decoration colors. Retail copies exactly eight bytes; the next
    small-data object starts at 0x00762DC8. */
 extern u8 D_00762DC0[8];
@@ -610,7 +610,7 @@ void func_00138bf0(u8 *work)
     }
     if ((menu->visible & 2) != 0) {
         for (rowIndex = 0; rowIndex < menu->partyCount; rowIndex++) {
-            func_0013ad40(work, rowIndex, 0);
+            radarDrawEntryRowGroup(work, rowIndex, 0);
         }
     }
     if ((menu->visible & 0x20) != 0) {
@@ -625,7 +625,7 @@ void func_00138bf0(u8 *work)
         color.rgba[1] = paletteColor->green;
         color.rgba[2] = paletteColor->blue;
         color.rgba[3] = spriteAlpha;
-        func_0013b370(work, position, color);
+        radarDrawSecondSpritePair(work, position, color);
         position.x = 255.0f + (originX + menu->animation[17].x);
         position.y = 21.0f + (originY + menu->animation[17].y);
         datRecordClearHeader(&descriptor.kind);
@@ -694,7 +694,7 @@ void func_00138bf0(u8 *work)
                         value = (f32)menu->animation[9].alpha;
                         value = value * opacity;
                         color.rgba[3] = (u8)value;
-                        func_0013b370(work, position, color);
+                        radarDrawSecondSpritePair(work, position, color);
                     } else {
                         continue;
                     }
@@ -751,7 +751,7 @@ void func_00138bf0(u8 *work)
     }
     if ((menu->visible & 0x40) != 0) {
         for (rowIndex = 0; rowIndex < menu->partyCount; rowIndex++) {
-            func_0013ad40(work, rowIndex, 3);
+            radarDrawEntryRowGroup(work, rowIndex, 3);
         }
     }
     if ((menu->visible & 0x80) != 0) {
@@ -769,7 +769,7 @@ void func_00138bf0(u8 *work)
         descriptor.flags = 1;
         payloadIndex = (s32)menu->scrollRow + (s32)menu->selectedRow;
         descriptor.payload = menu->skills[payloadIndex].copy;
-        func_0013b420(work, position, overlayAlpha, &descriptor.kind);
+        radarDrawSkillCard(work, position, overlayAlpha, &descriptor.kind);
     }
     {
         position.x = 640.0f + (originX + menu->animation[36].x);

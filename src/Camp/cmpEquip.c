@@ -246,11 +246,11 @@ void func_00131a00(u8 *arg0)
     extern u32 datEntryGetFlags(s16 arg0);
     extern s16 func_00106cd0(s16 arg0, s16 arg1);
     extern u32 func_0010d6d0(s16 arg0);
-    extern s32 func_00134da0(s32 arg0);
-    extern void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, u8 arg3);
-    extern void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u8 arg3);
-    extern void func_00135130(u8 *arg0, s64 arg1, u8 arg2, u8 *arg3);
-    extern void func_00135520(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
+    extern s32 radarFlagToIconMode(s32 arg0);
+    extern void radarDrawPalettePair(u8 *arg0, s64 arg1, s64 arg2, u8 arg3);
+    extern void radarDrawPaletteSet(u8 *arg0, s64 arg1, s64 arg2, u8 arg3);
+    extern void radarDrawItemCard(u8 *arg0, s64 arg1, u8 arg2, u8 *arg3);
+    extern void radarDrawHeaderFrame(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
     extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags, s32 extra);
     extern void func_0034f9d0(Vec2f arg0, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
     extern void kAssertFail(void *arg0, s32 arg1);
@@ -428,7 +428,7 @@ void func_00131a00(u8 *arg0)
           } else {
             selectedMode = 0;
           }
-          func_00134e50(work, drawPosition.packed, selectedMode, (u8)(alpha));
+          radarDrawPalettePair(work, drawPosition.packed, selectedMode, (u8)(alpha));
         }
       }
       drawPosition.xy.x = originX + *(f32 *)(work + rowCounter * 0x30 + 0xf00) + 253.0f;
@@ -443,7 +443,7 @@ void func_00131a00(u8 *arg0)
       switch (rowCounter) {
       case 0:
         temp_v3 = datEntryGetFlags(func_00106cd0(actor.id, 0));
-        temp_v4 = func_00134da0(temp_v3);
+        temp_v4 = radarFlagToIconMode(temp_v3);
         rowIcon = (s16)temp_v4;
         break;
       case 1:
@@ -696,7 +696,7 @@ void func_00131a00(u8 *arg0)
     if (0 < (s32)panelAlpha) {
       drawPosition.xy.x = originX + *(f32 *)(work + 0x1440);
       drawPosition.xy.y = originY + *(f32 *)(work + 0x1444);
-      func_00134f40(work, drawPosition.packed, 0, panelAlpha);
+      radarDrawPaletteSet(work, drawPosition.packed, 0, panelAlpha);
     }
     {
     s16 rowIndex;
@@ -717,11 +717,11 @@ void func_00131a00(u8 *arg0)
         datEntryReset((u8 *)&descriptor);
         if (*(s16 *)(work + 0x2e) == rowIndex) {
           descriptor._1a = 3;
-          func_00134f40(work, drawPosition.packed, 1, rowAlpha);
+          radarDrawPaletteSet(work, drawPosition.packed, 1, rowAlpha);
         }
         else {
           descriptor._1a = 5;
-          func_00134f40(work, drawPosition.packed, 0, rowAlpha);
+          radarDrawPaletteSet(work, drawPosition.packed, 0, rowAlpha);
         }
         descriptor.itemId = temp_v8;
         descriptor.quantity = temp_v1;
@@ -751,7 +751,7 @@ void func_00131a00(u8 *arg0)
     else if (!(*(f32 *)(work + 0x149c) <= 0.0f)) {
       borderMode = 2;
     }
-    func_00135520(arg0, drawPosition, work[0x14aa], borderMode);
+    radarDrawHeaderFrame(arg0, drawPosition, work[0x14aa], borderMode);
     drawPosition.xy.x = originX + *(f32 *)(work + 0xe40) + 124.0f;
     drawPosition.xy.y = originY + *(f32 *)(work + 0xe44) + 147.0f;
     {
@@ -769,7 +769,7 @@ void func_00131a00(u8 *arg0)
     descriptor._18 = 3;
     temp_v9 = (f32)work[0xe4a];
     temp_v9 *= opacityScale;
-    func_00135130(arg0, drawPosition.packed, (u8)temp_v9, (u8 *)&descriptor);
+    radarDrawItemCard(arg0, drawPosition.packed, (u8)temp_v9, (u8 *)&descriptor);
   }
   drawPosition.xy.x = originX + *(f32 *)(work + 0x1350) + 640.0f;
   drawPosition.xy.y = originY + *(f32 *)(work + 0x1354) + 400.0f;
