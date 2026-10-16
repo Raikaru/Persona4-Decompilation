@@ -38,10 +38,10 @@ extern void btlUnitClearModelState(void *arg0, s32 arg1);
 extern void btlUnitSetModelAnimFrame(void *arg0, s32 arg1);
 extern void btlUnitApplyModelState(void *arg0, s32 arg1);
 extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
-extern u8 *btlMainGetV4Slot0(void);
-extern u8 *btlMainGetV4Slot1(void);
-extern u8 *btlMainGetV4Slot2(void);
-extern u8 *btlMainGetV4Slot3(void);
+extern u8 *btlMainGetSceneColorBlock(void);
+extern u8 *btlMainGetSceneList4Block(void);
+extern u8 *btlMainGetSceneList4SavedBlock(void);
+extern u8 *btlMainGetSceneRgbaBlock(void);
 extern void resrcMngApplyColorFactors(void *arg0);
 extern u8 *resrcMngGetColorValue(void);
 extern u8 *resrcMngGetColorTarget(void);
@@ -464,8 +464,8 @@ void btlEplStepColorPairFade(u8 *arg0)
     if (total < count && total != 0) {
         return;
     }
-    dst = (V4 *)btlMainGetV4Slot1();
-    src = (V4 *)btlMainGetV4Slot2();
+    dst = (V4 *)btlMainGetSceneList4Block();
+    src = (V4 *)btlMainGetSceneList4SavedBlock();
     mode = 0;
     if (total != 0) {
         if (count <= param->fadeIn) {
@@ -759,7 +759,7 @@ void btlEplStepColorValueTargetFade(u8 *arg0)
     if (total < count && total != 0) {
         return;
     }
-    mul = (V4 *)btlMainGetV4Slot0();
+    mul = (V4 *)btlMainGetSceneColorBlock();
     mode = 0;
     if (total != 0) {
         if (count <= param->fadeIn) {
@@ -951,7 +951,7 @@ void btlEplStepColorFade(u8 *arg0)
             mode = 2;
         }
     }
-    heap = (V4 *)btlMainGetV4Slot3();
+    heap = (V4 *)btlMainGetSceneRgbaBlock();
     switch (mode) {
     case 0:
         if (count != 0) {
@@ -1098,7 +1098,7 @@ void btlEplStepLightFadeInOut(u8 *arg0)
     if (total < count && total != 0) {
         return;
     }
-    src = (V4 *)btlMainGetV4Slot0();
+    src = (V4 *)btlMainGetSceneColorBlock();
     mode = 0;
     if (total != 0) {
         if (count <= param->fadeIn) {
