@@ -2170,7 +2170,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     extern s32 func_001f0620(u8 *arg0, s64 arg1);
     extern s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern s32 datCalcDefaultSkillId(u8 *unit);
-    extern u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+    extern u8 *shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern u16 datPersonaCountValidMembers(void);
     extern void btlSelectionInit(u8 *arg0, s16 arg1, s16 arg2, void *a, void *b, void *c, void *d, u8 *arg7);
     extern void btlSelectionSetOwner(u8 *arg0, void *arg1);
@@ -2315,7 +2315,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
             func_0045af60(0, 0xF, 0, 8);
             return 1;
         }
-        *(u8 **)(work + 0x5A8) = func_00117780(*(s32 *)(work + 0x5B0), 0xF, 1, 8, 8);
+        *(u8 **)(work + 0x5A8) = shdPersonaTaskCreate(*(s32 *)(work + 0x5B0), 0xF, 1, 8, 8);
         *(s16 *)(work + 0x5AC) = -1;
         btlSelectionInit(work + 0x144, 4, (s16)datPersonaCountValidMembers(), btlSelectionResetCursorState,
                       btlSelectionHandleSwapInput, btlSelectionDrawSwapPanel, func_0020ad70, work);

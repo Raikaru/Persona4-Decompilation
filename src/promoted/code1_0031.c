@@ -64,7 +64,7 @@ void func_00311900(s64 arg0)
 // FUN_00311930
 s32 func_00311930(s32 arg0, u8 *arg1, s8 arg2)
 {
-    extern s32 func_00115890(u8 *arg0, s32 arg1);
+    extern s32 shdPersonaCalcExpRemaining(u8 *arg0, s32 arg1);
     extern f32 D_007494D0[];
     extern f32 D_00749500[];
     f32 scale;
@@ -86,13 +86,13 @@ s32 func_00311930(s32 arg0, u8 *arg1, s8 arg2)
     i = 0;
     limit = whole & 0xFF;
     while ((s16)(s64)i < limit) {
-        total = func_00115890(arg1, (u8)i);
+        total = shdPersonaCalcExpRemaining(arg1, (u8)i);
         i = (s16)(i + 1);
     }
     fracDelta = (s16)frac10;
     if (fracDelta != 0) {
-        limit = func_00115890(arg1, (u8)(limit - 1));
-        total += (s32)((s32)fracDelta * 10 * ((func_00115890(arg1, whole) - limit) / 100));
+        limit = shdPersonaCalcExpRemaining(arg1, (u8)(limit - 1));
+        total += (s32)((s32)fracDelta * 10 * ((shdPersonaCalcExpRemaining(arg1, whole) - limit) / 100));
     }
     if ((s8)arg2 == 0) {
         return total;

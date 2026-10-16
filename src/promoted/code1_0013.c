@@ -2142,7 +2142,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
                 datPersonaRemoveSelectedRosterMember();
                 *(s32 *)(arg2 + 0x10) = func_00354030();
                 func_0011b360(*(u8 **)(arg2 + 0x1CB4));
-                func_00117580(*(u8 **)(arg2 + 0x1CB4), 0xB1);
+                shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
                 *arg0 = 0x10;
             } else {
                 func_0013e7c0(arg2, (s32 *)arg0);
@@ -2166,7 +2166,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
             datPersonaRemoveSelectedRosterMember();
             *(s32 *)(arg2 + 0x10) = func_00354030();
             func_0011b360(*(u8 **)(arg2 + 0x1CB4));
-            func_00117580(*(u8 **)(arg2 + 0x1CB4), 0xB1);
+            shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
         } else {
             func_0011caf0(*(u8 **)(arg2 + 0x1CB4));
@@ -2192,7 +2192,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             func_0011b360(*(u8 **)(arg2 + 0x1CB4));
-            func_00117580(*(u8 **)(arg2 + 0x1CB4), 0xB1);
+            shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
         } else {
             func_0013e8e0(arg2, arg0);
@@ -2205,7 +2205,7 @@ s32 func_0013d8b0(u32 *arg0, s32 *arg1, u8 *arg2) {
         } else if (D_008C024E[0] & 0x10) {
             *(s32 *)(arg2 + 0x10) = func_00354030();
             func_0011b360(*(u8 **)(arg2 + 0x1CB4));
-            func_00117580(*(u8 **)(arg2 + 0x1CB4), 0xB1);
+            shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
             *arg0 = 0x10;
         } else if (func_0013e8e0(arg2, arg0) == 0) {
             func_0011caf0(*(u8 **)(arg2 + 0x1CB4));

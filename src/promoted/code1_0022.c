@@ -84,8 +84,8 @@ extern u8 D_008C0240[0x94];
 extern void func_00460ac0(u8 *list, u8 *node);
 extern u16 datPersonaCountValidMembers(void);
 extern u16 *datPersonaRosterSlot(s16 slot);
-extern u8 *func_00117780(s32 parent, s32 priority, s32 mode, s32 layout, s32 option);
-extern void func_00117580(u8 *window, s32 value);
+extern u8 *shdPersonaTaskCreate(s32 parent, s32 priority, s32 mode, s32 layout, s32 option);
+extern void shdPersonaSetPersonaId(u8 *window, s32 value);
 extern void func_0011d100(u8 *window, f32 *position);
 extern void func_0011bb90(u8 *window);
 extern void func_0011b480(u8 *window, s32 mode, u32 persona, s8 option);
@@ -655,11 +655,11 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
     case 0:
         *(s32 *)(work + 0x3C) = 0;
         *(s32 *)(work + 0x38) = (u16)datPersonaCountValidMembers();
-        *(u8 **)(work + 0x4C) = func_00117780(0, 15, 4, 5, 0);
+        *(u8 **)(work + 0x4C) = shdPersonaTaskCreate(0, 15, 4, 5, 0);
         if (*(u8 **)(work + 0x4C) == 0) {
             kAssertFail(D_006296D0, 0x2F);
         }
-        func_00117580(*(u8 **)(work + 0x4C), 0xAE);
+        shdPersonaSetPersonaId(*(u8 **)(work + 0x4C), 0xAE);
         position[0] = 0.0f;
         position[1] = 19.0f;
         func_0011d100(*(u8 **)(work + 0x4C), position);

@@ -60,8 +60,8 @@ void func_001356d0(u8* arg0) {
  extern u8* sdkSpriteNewNode(u32 arg0, u32 arg1);
  extern u8 func_002baac0(u8* arg0);
  extern u8* func_00354a50(s32 arg0, u16 arg1);
- extern u8* func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
- extern void func_00117580(u8* arg0, s32 arg1);
+ extern u8* shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+ extern void shdPersonaSetPersonaId(u8* arg0, s32 arg1);
  extern s32 func_001371a0(u8* arg0, s32 arg1);
  extern u8 D_005E57F0[];
  extern u8 D_005E5830[];
@@ -169,8 +169,8 @@ void func_001356d0(u8* arg0) {
  func_002baac0(D_0064A790);
  func_00135c10(arg0);
  *(s32*)(arg0 + 0x1CB8) = (s32)func_00354a50(0, 1);
- *(s32*)(arg0 + 0x1CB4) = (s32)func_00117780(0, 0xC7, 0, 8, 3);
- func_00117580(*(u8**)(arg0 + 0x1CB4), 0xB0);
+ *(s32*)(arg0 + 0x1CB4) = (s32)shdPersonaTaskCreate(0, 0xC7, 0, 8, 3);
+ shdPersonaSetPersonaId(*(u8**)(arg0 + 0x1CB4), 0xB0);
  func_001371a0(arg0, 0);
 }
 
@@ -932,11 +932,11 @@ void func_00137890(u8 *arg0, s32 arg1)
     extern s32 datPersonaRosterCapacity(void);
     extern u16 *datPersonaRosterSlot(s16 slot);
     extern void func_00115830(u8 *panel);
-    extern void func_00115940(u8 *persona, u8 *record, s32 mode);
+    extern void shdPersonaFillStatusBlock(u8 *persona, u8 *record, s32 mode);
     extern void func_0034f2e0(void *sprite, f32 x, f32 y,
                             u8 red, u8 green, u8 blue, u8 alpha);
     extern s32 func_00105330(s32 character);
-    extern void func_00115c40(Vec2f position, u8 alpha, s16 *panel, f32 depth);
+    extern void shdPersonaDrawByMode(Vec2f position, u8 alpha, s16 *panel, f32 depth);
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E9[];
     extern u8 D_0064B2EA[];
@@ -1008,7 +1008,7 @@ void func_00137890(u8 *arg0, s32 arg1)
             selected = 0;
         }
         panel.halves[0] = 2;
-        func_00115940((u8 *)datPersonaRosterSlot(*(s16 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 2, (u32)arg0) + 0x36)),
+        shdPersonaFillStatusBlock((u8 *)datPersonaRosterSlot(*(s16 *)((u8 *)CmpPersonaOffsetAddress(arg1 * 2, (u32)arg0) + 0x36)),
                       panel.bytes + 8, 2);
         position.x = x - 40.0f;
         position.y = y + 21.0f;
@@ -1043,7 +1043,7 @@ void func_00137890(u8 *arg0, s32 arg1)
         }
         position.x = x + 99.0f;
         position.y = y + 20.0f;
-        func_00115c40(position, spriteOpacity, panel.halves, 0.0f);
+        shdPersonaDrawByMode(position, spriteOpacity, panel.halves, 0.0f);
     }
 }
 // FUN_00137DD0
