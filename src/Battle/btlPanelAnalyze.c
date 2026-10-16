@@ -12,7 +12,7 @@ void func_003e8120(void *arg0);
 void func_003e8180(void *arg0, f32 arg1);
 void func_003e81c0(void *arg0, f32 arg1);
 void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
-u8 *func_00457120(void);
+u8 *kwlnGetCamera(void);
 u8 *K_Clump_GetLightA(void);
 u8 *K_Clump_GetLightC(void);
 void sprintf(void *dst, const void *fmt, s32 value);
@@ -154,7 +154,7 @@ void btlPanelSetRgb(f32 fparg0, f32 fparg1, f32 fparg2) {
     f32 scale;
 
     zval = D_008872F8[0];
-    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     p = (u8 *)&quads[0];
     *(f32 *)(p + 0) = fparg0;
     *(f32 *)(p + 4) = fparg1;
@@ -260,7 +260,7 @@ void btlPanelSetupLayout(u8 *arg0) {
     PanelVec4X tmp;
 
     dst = arg0;
-    func_003e8110(func_00457120());
+    func_003e8110(kwlnGetCamera());
     temp_2 = K_Clump_GetLightA();
     *(PanelVec4X *)(dst + 0x14) = *(PanelVec4X *)(temp_2 + 0x18);
     tmp.x = fGpffff847c;
@@ -289,28 +289,28 @@ void btlPanelSetupLayout(u8 *arg0) {
         *(s32 *)(var_5 + 4) = temp_2_3;
         var_5 += 8;
     } while (var_4 > 0);
-    temp_2_2 = (u8 *)(*(u32 *)(func_00457120() + 4));
+    temp_2_2 = (u8 *)(*(u32 *)(kwlnGetCamera() + 4));
     temp_2 = (u8 *)*src;
     func_003e9cb0(temp_2, temp_2_2 + 0x10, 0);
-    *(f32 *)(dst + 0x80) = *(f32 *)(func_00457120() + 0x80);
-    *(f32 *)(dst + 0x84) = *(f32 *)(func_00457120() + 0x84);
-    func_003e8180(func_00457120(), 35.0f);
-    func_003e81c0(func_00457120(), (f32)(s32)0xDAC0);
-    func_003e8120(func_00457120());
+    *(f32 *)(dst + 0x80) = *(f32 *)(kwlnGetCamera() + 0x80);
+    *(f32 *)(dst + 0x84) = *(f32 *)(kwlnGetCamera() + 0x84);
+    func_003e8180(kwlnGetCamera(), 35.0f);
+    func_003e81c0(kwlnGetCamera(), (f32)(s32)0xDAC0);
+    func_003e8120(kwlnGetCamera());
 }
 
 // FUN_00219060
 void btlPanelResetLayout(u8 *arg0) {
     u8 *temp;
 
-    func_003e8110(func_00457120());
+    func_003e8110(kwlnGetCamera());
     func_003c38b0(K_Clump_GetLightA(), arg0 + 0x14);
     temp = K_Clump_GetLightC();
     func_003c38b0(temp, arg0 + 0x24);
     func_003e9cb0((void *)*(s32 *)(temp + 4), arg0 + 0x40, 0);
-    func_003e8180(func_00457120(), *(f32 *)(arg0 + 0x80));
-    func_003e81c0(func_00457120(), *(f32 *)(arg0 + 0x84));
-    func_003e8120(func_00457120());
+    func_003e8180(kwlnGetCamera(), *(f32 *)(arg0 + 0x80));
+    func_003e81c0(kwlnGetCamera(), *(f32 *)(arg0 + 0x84));
+    func_003e8120(kwlnGetCamera());
 }
 
 /* 1624/1632 bytes; 53 resolved relocations and eight zero alignment bytes.
@@ -422,11 +422,11 @@ void btlPanelLoadModels(u8 *arg0) {
                 *(f32 *)(arg0 + 0x88) = (f32)-entry[0x15];
             }
         }
-        unit = func_00457120();
+        unit = kwlnGetCamera();
         translated = *(f32 *)(unit + 0x68);
         width = 2.0f * (translated * fGpffff8484);
         height = 2.0f * (*(f32 *)(unit + 0x6C) * fGpffff8484);
-        matrix = *(u8 **)(func_00457120() + 4) + 0x10;
+        matrix = *(u8 **)(kwlnGetCamera() + 4) + 0x10;
         translated = 320.0f;
         translated += *(f32 *)(entry + 0);
         position.x = (0.5f + -translated / 640.0f) * width;
@@ -698,7 +698,7 @@ void btlPanelAnimate(s32 unusedTask, u8 *panel)
                 f32 z;
                 f32 sc;
                 z = D_008872F8[0];
-                m = func_00457120();
+                m = kwlnGetCamera();
                 sc = *(f32 *)(m + 0x80);
                 qx = 18.0f + slide.x;
                 btlUiDrawSpriteFaded(work, 10, 0x3E, qx, 283.0f, 0x70, 0x70, 0x70, 0xFF);

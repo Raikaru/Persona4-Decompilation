@@ -248,8 +248,9 @@ static inline s32 fontAtlasColumn(s32 value)
 #pragma pop
 #pragma push
 #pragma pop
+// Intent: file-record open callback. Builds the path from the base and the name, opens the file, and seeks to its end. Returns 1 on success, 2 for a null name, 3 when the open fails.
 // FUN_004566C0
-s32 func_004566c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
+s32 H_Cdvd_FileOpen(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     u8 sp50[0x100];
     s32 bit0;
     s32 handle;
@@ -294,8 +295,9 @@ s32 func_004566c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     return 1;
 }
 
+// Intent: file-record close callback. Closes the handle and clears the shared path buffer.
 // FUN_00456840
-void func_00456840(u8 *arg0) {
+void H_Cdvd_FileClose(u8 *arg0) {
     func_004244c8(D_00711738);
     *(s32 *)(arg0 + 0x38) = 1;
     func_00426f80(*(s32 *)(arg0 + 0x74));

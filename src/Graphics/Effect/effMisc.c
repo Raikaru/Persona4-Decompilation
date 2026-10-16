@@ -60,7 +60,7 @@ typedef struct Code45RenderState {
 } Code45RenderState;
 extern Code45RenderState D_00712490[6];
 extern void (*D_008873FC[])(s32 param, u8* arg);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 #pragma push
 #pragma opt_propagation off
 #pragma pop
@@ -106,7 +106,7 @@ void func_0045c870(u8 *colors, s32 enabled)
         RpSkyRenderStateSet(3, 0x717FB);
     }
     depth = D_008872F8_abs[0];
-    state = func_00457120();
+    state = kwlnGetCamera();
     inv = 1.0f / *(f32 *)((u8 *)state + 0x80);
 
     work.out[0] = 0.0f;

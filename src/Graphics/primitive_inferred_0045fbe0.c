@@ -243,7 +243,7 @@ static inline s32 fontAtlasColumn(s32 value)
 extern void K_ClumpLookAtBasis(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3);
 extern void func_0045b430(void);
 extern void PrimDrawFlatTriangle(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 #pragma push
 #pragma pop
 #pragma push
@@ -297,9 +297,9 @@ void primCircleLine3D(const Code45Vec3 *center, f32 radius, u8 *inputColors, f32
         const void *view;
         farDepth = D_008872FC_abs[0];
         depthScale = D_008872F8_abs[0];
-        farPlane = *(f32 *)((u8 *)(u32)func_00457120() + 0x84);
-        nearPlane = *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
-        view = (u8 *)(u32)func_00457120() + 0x20;
+        farPlane = *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x84);
+        nearPlane = *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
+        view = (u8 *)(u32)kwlnGetCamera() + 0x20;
         if (sourceMatrix != NULL) {
             const s32 (*source)[2];
             s32 (*destination)[2];

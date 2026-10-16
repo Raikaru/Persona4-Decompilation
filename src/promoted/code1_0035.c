@@ -629,7 +629,7 @@ u8 *datScreenWipeTaskCreate(s32 arg0, u16 arg1) {
 // Intent: Draw one step of the screen wipe: advance its blend toward the target, then draw its quad with the render state table [inferred]
 // FUN_00354BA0
 void datScreenWipeDraw(u8 *arg0) {
-    extern u8 *func_00457120(void);
+    extern u8 *kwlnGetCamera(void);
     extern f32 D_008872F8[];
     extern f32 D_00761470;
     extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sx, f32 sy, f32 w, f32 h, s32 *tex, s32 mode, s32 flag);
@@ -666,7 +666,7 @@ void datScreenWipeDraw(u8 *arg0) {
 
     p = *(u8 **)(arg0 + 0x38);
     z = D_008872F8[0];
-    q = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    q = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     if ((*(s32 *)(p + 0x40) == 0) || (*(u16 *)(p + 8) == 0)) {
         return;
     }
@@ -2962,7 +2962,7 @@ s32 datPortraitValue(u8 *arg0) {
 #pragma opt_propagation off
 f32 datCommunityPortraitDraw(u8 *arg0, u8 arg1)
 {
-    extern u8 *func_00457120(void);
+    extern u8 *kwlnGetCamera(void);
     extern f32 D_008872F8[];
     extern f32 datPortraitMoveStep(u8 *arg0);
     extern void sdkRenderStateSetDefault(void);
@@ -3047,7 +3047,7 @@ f32 datCommunityPortraitDraw(u8 *arg0, u8 arg1)
      * post-camera visibility view deliberately have separate lifetimes. */
     portrait = (CommunityPortrait *)*(u8 **)(arg0 + 0x38);
     z = D_008872F8[0];
-    q = 1.0f / ((CommunityCameraView *)func_00457120())->nearClip;
+    q = 1.0f / ((CommunityCameraView *)kwlnGetCamera())->nearClip;
     {
         CommunityPortrait *t = (CommunityPortrait *)((CommunityPortraitTask *)arg0)->work;
         s32 flag;
@@ -3403,7 +3403,7 @@ f32 datPortraitTextDraw(u8 *arg0, u8 arg1)
 {
     f32 tx;
     f32 ty;
-    extern u8 *func_00457120(void);
+    extern u8 *kwlnGetCamera(void);
     extern f32 D_008872F8[];
     extern void func_00364680(f32 depth, s32 color, f32 x, f32 y, f32 sx, f32 sy, f32 w, f32 h, s32 *tex, s32 mode, s32 flag);
     extern void sdkRenderStateSetDefault(void);
@@ -3433,7 +3433,7 @@ f32 datPortraitTextDraw(u8 *arg0, u8 arg1)
 
     p = *(u8 **)(arg0 + 0x38);
     z = D_008872F8[0];
-    q = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    q = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     {
         u8 *t = *(u8 **)(arg0 + 0x38);
         s32 flag;

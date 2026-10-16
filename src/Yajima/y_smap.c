@@ -31,7 +31,7 @@ extern u8 D_0063EFC8[];
 extern u8 D_00794C90[];
 extern char D_0063F0F0[];
 
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern u8 *func_00461390(void *a, s32 b, void *c, s32 d);
 extern u8 *sdkSpriteNewNode(u32 a, u32 b);
 extern void memset(void *dst, s32 value, u32 size);
@@ -1743,7 +1743,7 @@ void smapDrawQuad(u8 *task, YVec2f position, f32 width, f32 height, f32 depth, u
     u8 *cell;
     s32 cornerMode;
     cell = *(u8 **)(task + 0x38);
-    reciprocalZ = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    reciprocalZ = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
     *(f32 *)(cell + 0x38) = reciprocalZ;
     scaledWidth = width * scale;
     scaledHeight = height * scale;
@@ -2372,7 +2372,7 @@ s32 smapUpdateOverlay(u8 *arg0) {
     u8 *temp_5;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_f2 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f2 = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     *(f32 *)(temp_16 + 0x1C) = temp_f2;
     if (D_0076464C == 0) {
         return 0;

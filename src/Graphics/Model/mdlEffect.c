@@ -52,7 +52,7 @@ extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern u8 D_007131E8[];
 /* Defined below in this file; called at line 54, above its definition. */
 extern void mdlEffectListClear(u32 *param_1);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern u8 *func_003e9700(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void *memcpy(void *dst, const void *src, u32 size);
@@ -1051,7 +1051,7 @@ void mdlEffectCopyCameraOrigin(u8 *arg0)
 {
     u8 *obj;
 
-    obj = func_003e9700(*(s32 *)((u8 *)(u32)func_00457120() + 4));
+    obj = func_003e9700(*(s32 *)((u8 *)(u32)kwlnGetCamera() + 4));
     *(f32 *)(arg0 + 0) = *(f32 *)(obj + 0x20);
     *(f32 *)(arg0 + 4) = *(f32 *)(obj + 0x24);
     *(f32 *)(arg0 + 8) = *(f32 *)(obj + 0x28);
@@ -1063,7 +1063,7 @@ void mdlEffectCopyCameraAim(u8 *arg0)
 {
     u8 *obj;
 
-    obj = func_003e9700(*(s32 *)((u8 *)(u32)func_00457120() + 4));
+    obj = func_003e9700(*(s32 *)((u8 *)(u32)kwlnGetCamera() + 4));
     *(f32 *)(arg0 + 0) = *(f32 *)(obj + 0x30);
     *(f32 *)(arg0 + 4) = *(f32 *)(obj + 0x34);
     *(f32 *)(arg0 + 8) = *(f32 *)(obj + 0x38);
@@ -1076,7 +1076,7 @@ void mdlEffectAimDirection(u8 *arg0, u8 *arg1)
     u8 *obj;
     f32 temp[4];
 
-    obj = func_003e9700(*(s32 *)((u8 *)(u32)func_00457120() + 4));
+    obj = func_003e9700(*(s32 *)((u8 *)(u32)kwlnGetCamera() + 4));
     temp[0] = *(f32 *)(obj + 0x30);
     temp[1] = *(f32 *)(obj + 0x34);
     temp[2] = *(f32 *)(obj + 0x38);
@@ -1200,7 +1200,7 @@ f32 mdlEffectProjectAnchorDepth(void)
     input.y = D_00713D14[0];
     input.z = D_00713D18[0];
     func_003e42a0(&transformed, &input,
-                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)func_00457120()));
+                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)kwlnGetCamera()));
     depth = transformed.z;
     output[0] = 640.0f * (transformed.x / depth);
     output[1] = 448.0f * (transformed.y / depth);
@@ -1233,10 +1233,10 @@ s32 mdlEffectAnchorOnScreen(void)
     *(f32 *)(raw + 0x24) = D_00713D14[0];
     *(f32 *)(raw + 0x28) = D_00713D18[0];
     func_003e42a0((RwV3d *)(raw + 0x30), (const RwV3d *)(raw + 0x20),
-                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)func_00457120()));
-    ptr = (u8 *)(u32)func_00457120();
+                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)kwlnGetCamera()));
+    ptr = (u8 *)(u32)kwlnGetCamera();
     temp_f20 = *(f32 *)(ptr + 0x80);
-    ptr = (u8 *)(u32)func_00457120();
+    ptr = (u8 *)(u32)kwlnGetCamera();
     temp_f0 = *(f32 *)(ptr + 0x84);
     temp_f1 = *(f32 *)(raw + 0x38);
     if ((temp_f1 <= temp_f20) || !(temp_f1 < temp_f0)) {
@@ -1288,7 +1288,7 @@ f32 mdlEffectAnchorScreenScale(f32 fparg0)
     *(f32 *)(raw + 0x34) = D_00713D14[0];
     *(f32 *)(raw + 0x38) = D_00713D18[0];
     func_003e42a0((RwV3d *)(raw + 0x40), (const RwV3d *)(raw + 0x30),
-                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)func_00457120()));
+                  (const RwMatrix *)mdlEffect_camera_matrix((u8 *)(u32)kwlnGetCamera()));
     temp_f22 = *(f32 *)(raw + 0x48);
     temp_f1 = *(f32 *)(raw + 0x40) / temp_f22;
     temp_f0 = 640.0f * temp_f1;
@@ -1308,14 +1308,14 @@ f32 mdlEffectAnchorScreenScale(f32 fparg0)
         :
         : "r"(raw + 0x20)
         : "$vf10", "memory");
-    ptr = (u8 *)(u32)func_00457120();
+    ptr = (u8 *)(u32)kwlnGetCamera();
     temp_f21 = *(f32 *)(ptr + 0x80);
-    ptr = (u8 *)(u32)func_00457120();
+    ptr = (u8 *)(u32)kwlnGetCamera();
     temp_f0 = *(f32 *)(ptr + 0x84);
     if ((temp_f22 <= temp_f21) || !(temp_f22 < temp_f0)) {
         return 0.0f;
     }
-    ptr = (u8 *)(u32)func_00457120();
+    ptr = (u8 *)(u32)kwlnGetCamera();
     ptr = *(u8 **)(ptr + 4);
     __asm__ volatile(
         "lqc2 $vf10, 0(%0) \n"
@@ -2581,7 +2581,7 @@ void mdlEffectRenderFlares(u8 *arg0)
     extern s32 TnGetOffset38(u16 b);
     extern void func_00460ac0(u8 *a, u8 *b);
     extern RwFrame *func_003e9cb0(RwFrame *frame, const RwMatrix *matrix, RwOpCombineType combine);
-    extern s32 func_00457120(void);
+    extern s32 kwlnGetCamera(void);
     extern RwMatrix *RwFrameGetLTM(RwFrame *frame);
     extern f32 sqrtf(f32 x);
     extern u8 D_007141B0[];
@@ -2882,9 +2882,9 @@ void mdlEffectRenderFlares(u8 *arg0)
         }
     }
     {
-        u8 *window = ((u8 *)(u32)func_00457120()) + 0x68;
-        f32 nearPlane = *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
-        f32 farPlane = *(f32 *)(((u8 *)(u32)func_00457120()) + 0x84);
+        u8 *window = ((u8 *)(u32)kwlnGetCamera()) + 0x68;
+        f32 nearPlane = *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
+        f32 farPlane = *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x84);
         f32 span = farPlane - nearPlane;
         f32 deviceDepth = (f32)(s32)0xFFFF0001;
         f32 denominator = deviceDepth * farPlane - -255.0f * span;
@@ -2914,7 +2914,7 @@ void mdlEffectRenderFlares(u8 *arg0)
             *(u16 *)(q + 0xC) |= 1;
         }
         {
-            u8 *r = (u8 *)((u8 *)(u32)func_00457120());
+            u8 *r = (u8 *)((u8 *)(u32)kwlnGetCamera());
             RwMatrix *s2 = RwFrameGetLTM(*(RwFrame **)(r + 4));
             func_003e9cb0(*(RwFrame **)(listBase + 0xC), s2, rwCOMBINEREPLACE);
         }

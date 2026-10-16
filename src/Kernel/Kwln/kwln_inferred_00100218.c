@@ -324,7 +324,7 @@ void func_00100670(void)
     extern s32 func_003f4f90(s32 arg0, s32 arg1, s32 arg2);
     extern s32 func_003e8a50(void);
     extern s32 FldShadow_InstallIntcHandler(void);
-    extern void func_00456e40(void);
+    extern void kwlnInitSceneRig(void);
     extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
     extern void *(*jtbl_008873E8[])(u32 size, u32 align);
     extern void initEntryTable(void *arg0, s32 arg1);
@@ -589,7 +589,7 @@ void func_00100670(void)
     func_003f4f90(0x280000, 0x400, 0);
     func_003e8a50();
     FldShadow_InstallIntcHandler();
-    func_00456e40();
+    kwlnInitSceneRig();
     chkmemAllocSiteTag((void *)&iGpffff8598, 0x2C3);
     initEntryTable(jtbl_008873E8[0](0x62000, 0x40000), 0x62000);
     if (func_003eb1f0((const char *)&iGpffff8590, func_003d8c00, func_003d96b0) == 0) {

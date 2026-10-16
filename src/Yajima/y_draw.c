@@ -72,7 +72,7 @@ extern u8 D_0063F1E0[];
 void fclSpriteStartFade(u8 *arg0, u8 arg1, u8 arg2, u32 arg3);
 
 extern void mdlEffectEmitMaskedTagPair(void);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern void memcpy(void *, s32, s32);
 extern void *PrimAllocQueueNode(void);
 extern void func_00460ac0(void *, void *);
@@ -1161,7 +1161,7 @@ s32 fclSpriteStartPanelLayout(u8 *arg0) {
     f32 d;
 
     p = *(u8 **)(arg0 + 0x38);
-    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     if (*(s8 *)(p + 0x124) == 1) {
         return 0;
     }
@@ -1597,7 +1597,7 @@ void fclSpriteBuildCornerQuads(u8 *arg0, u8 *arg1) {
     u8 *r;
     void (*const *tbl)(u32, u32);
 
-    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     tbl = D_00887300;
     tbl[0](6, 1);
     tbl[0](7, 2);

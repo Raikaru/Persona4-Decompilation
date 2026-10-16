@@ -96,7 +96,7 @@ extern void fclShopDrawSetMode(s32 arg0, s32 arg1);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
 extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern s32 MT_Scene_GetCameraResFirst(void);
 extern f32 MT_Scene_GetCameraFov(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
@@ -339,7 +339,7 @@ s32 func_002b52a0(u8 *arg0)
         }
     case 0:
     case 1:
-        q = 1.0f / *(f32 *)(func_00457120() + 0x80);
+        q = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
         for (i = 0; i < 4; i++) {
             f32 farZ = D_008872F8[0];
 

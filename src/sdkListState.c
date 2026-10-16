@@ -13,8 +13,8 @@ extern void sdkListStateEnableClamp(u8* arg0);
 extern void sdkListStateDisableClamp(u8* arg0);
 extern s32 sdkListStateStepForward(u8* arg0);
 extern s32 sdkListStateStepBack(u8* arg0);
-extern s32 func_004543d0(u8* arg0);
-extern s32 func_00454460(u8* arg0);
+extern s32 sdkListStateRepeatForward(u8* arg0);
+extern s32 sdkListStateRepeatBack(u8* arg0);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern u16 D_008C0252[];
@@ -157,14 +157,14 @@ s32 sdkListStateHandleInput(u8* arg0)
     }
     f8 = *(u16*)(arg0 + 0x8);
     if ((D_008C024C[0] & f8) || (D_008C0274[0] & *(u16*)(arg0 + 0x10))) {
-        if (((D_008C0252[0] & f8) || (D_008C027A[0] & *(u16*)(arg0 + 0x10))) && func_004543d0(arg0) != 0) {
+        if (((D_008C0252[0] & f8) || (D_008C027A[0] & *(u16*)(arg0 + 0x10))) && sdkListStateRepeatForward(arg0) != 0) {
             result = 3;
         }
         goto done;
     }
     fA = *(u16*)(arg0 + 0xA);
     if ((D_008C024C[0] & fA) || (D_008C0274[0] & *(u16*)(arg0 + 0x12))) {
-        if (((D_008C0252[0] & fA) || (D_008C027A[0] & *(u16*)(arg0 + 0x12))) && func_00454460(arg0) != 0) {
+        if (((D_008C0252[0] & fA) || (D_008C027A[0] & *(u16*)(arg0 + 0x12))) && sdkListStateRepeatBack(arg0) != 0) {
             result = 4;
         }
         goto done;

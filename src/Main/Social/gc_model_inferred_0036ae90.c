@@ -28,7 +28,7 @@ typedef struct PersonaWork PersonaWork;
 
 
 
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern f32 iGpffff84a4;
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5,
@@ -151,7 +151,7 @@ void pscModelBuildTileVertices(u8 *arg0, u8 *arg1) {
     f32 scaled;
 
     stack130 = D_0064E490;
-    view = func_00457120();
+    view = kwlnGetCamera();
     mtx = func_003e9700(*(u8 **)(view + 4)) + 0x30;
     stackD0 = D_0064E4A0;
     stackC0 = D_0064E4B0;

@@ -255,15 +255,16 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Source unit: src/promoted/code1_0045.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 00456e40-00456e40 */
 
-extern u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
+extern u8 *H_Cdvd_CreateFileDevice(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 /* measured probe: opt_propagation off preserves allocator-table liveness for 00456c60. */
 /* measured probe: close opt_propagation scope after func_00456c60. */
+// Intent: creates the scene parent objects, the two UI camera slots, and the main camera with its clip planes. Stores each in its global.
 // FUN_00456E40
-void func_00456e40(void) {
+void kwlnInitSceneRig(void) {
     struct {
         u8 sp40[0x10];
         u8 sp50[8];

@@ -38,7 +38,7 @@ extern u8 D_0060A0E0[];
 extern u8 D_0060A0F0[];
 
 
-extern u8 *func_00457120();
+extern u8 *kwlnGetCamera();
 extern u8 D_008813B0[];
 extern u8 D_00607E50[];
 extern u8 D_00609558[];
@@ -301,7 +301,7 @@ void btlEffectSelectNeighbourTarget(u8 *arg0, u8 *arg1) {
     case 5: {
         u8 *cam;
 
-        cam = func_00457120() + 0x20;
+        cam = kwlnGetCamera() + 0x20;
         func_003e42a0(PROJ, (f32 *)D_00881430, cam);
         if (PROJ[2] != 0.0f) {
             stk[20] = 640.0f * (PROJ[0] / PROJ[2]);

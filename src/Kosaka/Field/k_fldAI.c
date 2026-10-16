@@ -14,7 +14,7 @@ extern u8 D_005F1CF0[];
 extern f32 iGpffffba6c;
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 FldAI_ChaserUpdate(u8 *arg0);
 extern s32 FldAI_PatrolUpdate(u8 *arg0);
 extern u8 *D_007EFA00[];
@@ -198,7 +198,7 @@ discoveryAvailabilityDone:
         tileX = FldFrameTask_GetTileX(*(u8 **)(D_007EFA00[1] + 0x220));
         tileZ = FldFrameTask_GetTileZ(*(u8 **)(D_007EFA00[1] + 0x220));
         {
-            struct RwFrame *frame = *(struct RwFrame **)((u8 *)(u32)func_00457120() + 4);
+            struct RwFrame *frame = *(struct RwFrame **)((u8 *)(u32)kwlnGetCamera() + 4);
             FldFrameTask_GetPosition(selfPosition.bytes,
                 *(u8 **)(*(u8 **)(*(u8 **)(work + 0x10) + 0x54) + 0x220));
             focusPosition = *(RwV3d *)selfPosition.bytes;
@@ -572,7 +572,7 @@ s32 FldAI_SpawnChaser(s32 arg0, s32 arg1, s32 arg2)
     *(s32 *)(work + 0x10) = arg1;
     *(s32 *)(work + 0x14) = arg2;
     *(s32 *)(work + 0x1C) = -1;
-    *(f32 *)(work + 0x64) = *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    *(f32 *)(work + 0x64) = *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
     return ret;
 }
 
@@ -1097,7 +1097,7 @@ availabilityDone:
     if ((*(unsigned int *)(temp_v0 + 0x40) & 1) == 0) {
       return 0;
     }
-    temp_v0 = func_00457120();
+    temp_v0 = kwlnGetCamera();
     temp_v0 = (int)func_003e9700((struct RwFrame *)*(unsigned int *)(temp_v0 + 4));
     puVar4 = (unsigned char *)mdlGetColor((void *)*(unsigned int *)(piVar1[3] + 0x50));
     {
@@ -1986,7 +1986,7 @@ s32 FldAI_SpawnPatrol(s32 arg0, s32 arg1, s32 arg2)
     *(s32 *)(work + 0xC) = arg1;
     *(s32 *)(work + 0x4) = 1;
     *(s32 *)(work + 0x8) = arg2;
-    *(f32 *)(work + 0x80) = *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+    *(f32 *)(work + 0x80) = *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
     *(f32 *)(work + 0x84) = iGpffffba6c;
     return ret;
 }

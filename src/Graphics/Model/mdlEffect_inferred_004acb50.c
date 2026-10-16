@@ -37,7 +37,7 @@ extern s32 D_00724C64;
 extern f32 D_00724C78[2];
 extern f32 D_00724C7C;
 extern u8 D_00714350[];
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern f32 D_00922D80[];
 extern u32 D_00922D90[];
 extern f32 D_00922D94[];
@@ -200,17 +200,17 @@ void EffModelDrawCallback(u8 *arg0)
     frame_count = *(s32 *)(arg0 + 0x9C);
     if (frame_count >= (s32)frame_index || frame_count == 0) {
         scale = func_0048aff0(arg0 + 0x44, frame_index, frame_count) / 10.0f;
-        node = ((u8 *)(u32)func_00457120()) + 0x68;
-        camera = ((u8 *)(u32)func_00457120());
+        node = ((u8 *)(u32)kwlnGetCamera()) + 0x68;
+        camera = ((u8 *)(u32)kwlnGetCamera());
         near_height = *(f32 *)(camera + 0x80);
-        camera = ((u8 *)(u32)func_00457120());
+        camera = ((u8 *)(u32)kwlnGetCamera());
         far_z = *(f32 *)(camera + 0x84);
         depth = (((f32)-0xFFFF * near_height) * far_z) /
                 (((f32)-0xFFFF * far_z) -
                  (-31.0f * (far_z - near_height)));
         width = 2.0f * (*(f32 *)(node + 0) * depth);
         near_height = 2.0f * (*(f32 *)(node + 4) * depth);
-        camera = ((u8 *)(u32)func_00457120());
+        camera = ((u8 *)(u32)kwlnGetCamera());
         matrix = func_003e9700(*(s32 *)(camera + 4));
         RwMatrixRotate(frame.matrix, &basis1,
                       *(f32 *)(arg0 + 0x90), 0);

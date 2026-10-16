@@ -39,7 +39,7 @@ extern void memset(void *dst, s32 value, s32 size);
 
 extern s32 datCalcGetLevelById(s32 arg0);
 
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern void datPanelResetCursor(u8 *arg0);
 extern void datPanelDrawByKind(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 extern f32 iGpffff84a4;
@@ -451,7 +451,7 @@ s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
     if (uv == NULL) {
         uv = defaultUv;
     }
-    inverse = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    inverse = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     depth = D_008872F8[0] - z;
     packed = ((u32)rgb << 8) | (u32)alpha;
     r = (packed >> 24) & 0xFF;

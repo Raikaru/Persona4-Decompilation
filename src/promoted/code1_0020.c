@@ -166,7 +166,7 @@ extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern f32 fGpffff82e0, fGpffff82e4;
 extern f32 D_008872F8[];
 extern f32 D_00626890[][2];
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
 
 
@@ -1090,7 +1090,7 @@ void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
 {
     extern f32 cosf(f32 fparg0);
     extern f32 sinf(f32 fparg0);
-    extern s32 func_00457120(void);
+    extern s32 kwlnGetCamera(void);
     extern f32 fGpffff837c;
     extern f32 fGpffff84a8;
     Vec2f center;
@@ -1239,7 +1239,7 @@ void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
         channel2 = (s32)((packedColor >> 8) & 0xFF);
         channel3 = (s32)(packedColor & 0xFF);
         depth = D_008872F8[0];
-        reciprocal = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+        reciprocal = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
         vertices[0][0] = 640.0f;
         vertices[0][1] = 0.0f;
         vertices[0][2] = depth;

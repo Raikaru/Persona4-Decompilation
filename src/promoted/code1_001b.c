@@ -240,7 +240,7 @@ extern void primQuad3D(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void primAxisLine3D(f32 *arg0, s32 arg1, f32 arg2);
 extern u8 *btlEncounterGetRecord(s32 arg0);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern f32 fGpffff8048;
 extern u8 D_005F74C0[];

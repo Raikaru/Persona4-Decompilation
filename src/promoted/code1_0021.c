@@ -761,7 +761,7 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
     extern f32 fGpffff8370;
     extern f32 fGpffff8374;
     extern void btlUiSetRenderMode(s32 mode);
-    extern s32 func_00457120(void);
+    extern s32 kwlnGetCamera(void);
     extern BtlShuffleMatrix *RwMatrixRotate(BtlShuffleMatrix *matrix,
         const BtlShuffleVec3 *axis, f32 angle, BtlShuffleCombine combine);
     extern void sdkSpriteDrawOnceAt(s32 file, s32 tile, f32 x, f32 y,
@@ -802,7 +802,7 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
     (void)drawPayload;
     (void)callback;
     work = (u8 *)(u32)workAddress;
-    camera = (u8 *)(u32)func_00457120();
+    camera = (u8 *)(u32)kwlnGetCamera();
     barReciprocalZ = 1.0f / *(f32 *)(camera + 0x80);
     animationFrame = *(s32 *)(work + 0x38);
     if (animationFrame == 0) {
@@ -855,7 +855,7 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
     blue = ((u32)packedColor >> 8) & 0xFF;
     opacity = (u32)packedColor & 0xFF;
     fanDepth = D_008872F8[0];
-    camera = (u8 *)(u32)func_00457120();
+    camera = (u8 *)(u32)kwlnGetCamera();
     fanReciprocalZ = 1.0f / *(f32 *)(camera + 0x80);
     fan[0].u.els.scrVertex.x = 640.0f;
     fan[0].u.els.scrVertex.y = 0.0f;
@@ -3250,7 +3250,7 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
             s32 firstIndex;
             s32 secondIndex;
             screenDepth = D_008872F8[0];
-            reciprocalDepth = 1.0f / *(f32 *)((u8 *)(u32)func_00457120() + 0x80);
+            reciprocalDepth = 1.0f / *(f32 *)((u8 *)(u32)kwlnGetCamera() + 0x80);
             sourceIndices = D_00628FA0;
             outputIndices = indexBytes;
             pairsLeft = 6;
@@ -3629,7 +3629,7 @@ void btlPanelDrawQuad(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
 {
     extern f32 D_008872F8[];
     extern s32 (*D_00887310[])(s32, void *, s32);
-    extern s32 func_00457120(void);
+    extern s32 kwlnGetCamera(void);
     f32 color;
     PanelQuad quads[4];
     union {
@@ -3642,7 +3642,7 @@ void btlPanelDrawQuad(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
     f32 scale;
 
     zval = D_008872F8[0] - fparg2;
-    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    scale = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     fparg5 = fparg5 / 256.0f;
     fparg6 = fparg6 / 256.0f;
     fparg7 = fparg7 / 256.0f;
@@ -3812,7 +3812,7 @@ extern f32 fGpffff84d0;
 extern f32 D_008872F8[];
 extern BtlShuffleRenderPrimitive D_00887310[];
 extern void kAssertFail(void *file, s32 line);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 
 static inline void btlAdvantageTile(s32 index, union ColorWord color)
 {
@@ -3888,7 +3888,7 @@ static inline void btlAdvantageBuildQuad(f32 x, f32 y, f32 z,
     BtlShuffleSkyVertex vertices[4];
     s32 count = 0;
     f32 depth = D_008872F8[0] - z;
-    f32 reciprocalZ = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    f32 reciprocalZ = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     u0 /= 256.0f;
     v0 /= 256.0f;
     u1 /= 256.0f;

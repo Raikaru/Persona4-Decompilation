@@ -237,15 +237,16 @@ static inline s32 fontAtlasColumn(s32 value)
 /* Source unit: src/promoted/code1_0045.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0045.c; members 00457130-00457130 */
 
-extern u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
+extern u8 *H_Cdvd_CreateFileDevice(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 /* measured probe: opt_propagation off preserves allocator-table liveness for 00456c60. */
 /* measured probe: close opt_propagation scope after func_00456c60. */
+// Intent: returns a pointer to the three colour bytes (R, G, B) of the kwln colour record.
 // FUN_00457130
-s8 *func_00457130(void)
+s8 *kwlnGetColorRgb(void)
 {
     return &iGpffffba88;
 }

@@ -111,7 +111,7 @@ extern void func_00440b68(const void *msg, u32 value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u32 *jtbl_008873E8[];
 extern s32 K_View_SetFov(void *arg0, f32 arg1);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern u8 *func_003e0f80(void);
 extern void RwMatrixTranslate(void *dst, void *src, s32 mode);
 extern u32 MT_Scene_GetShakeOffset(float *arg0);
@@ -1933,7 +1933,7 @@ void MT_Scene_UpdateCameraResource(u8 *param_1)
     f32 axis_z;
     f32 axis_x;
 
-    scene = func_00457120();
+    scene = kwlnGetCamera();
 
     {
         u64 xy = *(u64 *)D_0063B160_abs;

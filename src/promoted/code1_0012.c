@@ -3885,7 +3885,7 @@ s32 func_0012aa70(u8 *task)
     extern s32 cmpConfigCreate(void *task, s32 arg1);
     extern s32 cmpConfigIsStepDone(u8 *task);
     extern s32 cmpConfigIsFlagsSynced(u8 *task);
-    extern u8 *func_00457120(void);
+    extern u8 *kwlnGetCamera(void);
     extern void K_View_SetFov(void *task, f32 arg1);
     extern u8 *func_003e8180(u8 *camera, f32 nearClip);
     extern u8 *func_003e81c0(u8 *camera, f32 farClip);
@@ -3942,11 +3942,11 @@ s32 func_0012aa70(u8 *task)
         break;
     case 4:
         code12QuaternionMatrix(&matrix, &rotation);
-        func_003e9cb0(*(u8 **)(func_00457120() + 4), &matrix, 0);
-        func_003e9c10(*(u8 **)(func_00457120() + 4), translation.value, 2);
-        K_View_SetFov(func_00457120(), 50.0f);
-        func_003e81c0(func_00457120(), 25600.0f);
-        func_003e8180(func_00457120(), 10.0f);
+        func_003e9cb0(*(u8 **)(kwlnGetCamera() + 4), &matrix, 0);
+        func_003e9c10(*(u8 **)(kwlnGetCamera() + 4), translation.value, 2);
+        K_View_SetFov(kwlnGetCamera(), 50.0f);
+        func_003e81c0(kwlnGetCamera(), 25600.0f);
+        func_003e8180(kwlnGetCamera(), 10.0f);
         *(s32 *)work = 5;
         *(s32 *)(work + 0x14) = 0;
         *(s32 *)(work + 0xC) = 0;
@@ -3974,11 +3974,11 @@ s32 func_0012aa70(u8 *task)
         *(s32 *)(work + 0x14) = 0;
         *(s32 *)(work + 0xC) = 0;
         code12QuaternionMatrix(&matrix, &rotation);
-        func_003e9cb0(*(u8 **)(func_00457120() + 4), &matrix, 0);
-        func_003e9c10(*(u8 **)(func_00457120() + 4), translation.value, 2);
-        K_View_SetFov(func_00457120(), 50.0f);
-        func_003e81c0(func_00457120(), 25600.0f);
-        func_003e8180(func_00457120(), 10.0f);
+        func_003e9cb0(*(u8 **)(kwlnGetCamera() + 4), &matrix, 0);
+        func_003e9c10(*(u8 **)(kwlnGetCamera() + 4), translation.value, 2);
+        K_View_SetFov(kwlnGetCamera(), 50.0f);
+        func_003e81c0(kwlnGetCamera(), 25600.0f);
+        func_003e8180(kwlnGetCamera(), 10.0f);
         if (mdlPrepareModel(*(u8 **)(work + 0x44)) != 0) {
             activeModel = *(u8 **)(work + 0x44);
         } else {
@@ -4078,8 +4078,8 @@ s32 func_0012aa70(u8 *task)
         /* Preserve the original identity macro's read/OR of flags. This
          * branch does not initialize the pre-existing flag word. */
         matrix.flags |= 0x20003;
-        func_003e9cb0(*(u8 **)(func_00457120() + 4), &matrix, 0);
-        K_View_SetFov(func_00457120(), 70.0f);
+        func_003e9cb0(*(u8 **)(kwlnGetCamera() + 4), &matrix, 0);
+        K_View_SetFov(kwlnGetCamera(), 70.0f);
         *(s32 *)(work + 0x28) = 0;
         *(s32 *)(work + 0x24) = 0;
         *(s32 *)(work + 0x20) = 0;

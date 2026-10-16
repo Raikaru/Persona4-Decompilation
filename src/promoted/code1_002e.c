@@ -412,7 +412,7 @@ s32 func_002e72c0(u8 *arg0)
     s32 fclItemShopCreate(u8 *arg0);
     u8 *func_003e9cb0(u8 *arg0, ...);
     s32 kwlnTaskGetTaskByName(s8 *arg0);
-    u8 *func_00457120(void);
+    u8 *kwlnGetCamera(void);
     void K_View_SetFov(void *arg0, f32 arg1);
     s32 sdkSndPlayCue(s16 arg0, ...);
     extern s8 D_0063FC68[];
@@ -429,9 +429,9 @@ s32 func_002e72c0(u8 *arg0)
         /* fallthrough */
     case 2:
         if ((fieldSceneLoadStep() != 0) && (mtSceneResListPrepareAll() != 0)) {
-            view = func_00457120();
+            view = kwlnGetCamera();
             K_View_SetFov(view, MT_Scene_GetCameraFov());
-            view = func_00457120();
+            view = kwlnGetCamera();
             func_003e9cb0(*(u8 **)(view + 4), MT_Scene_GetCameraResFirst(), 0);
             *(s8 *)work = 3;
             sdkSndPlayCue((s16)0x15, 1);

@@ -44,7 +44,7 @@ extern void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s3
 extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern void func_0045c870(u8 *arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);

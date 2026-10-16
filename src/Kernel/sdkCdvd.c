@@ -339,7 +339,7 @@ void func_003dd760(s32 a0);
 void* func_003dea20(s32 a0, void* a1, s32 a2, void* a3, void* a4);
 s32 func_003dd830(void* a0);
 void func_003ddde0(void* a0);
-void* func_00456c60(s32 a0, void* a1, s32 a2, void* a3, void* a4);
+void* H_Cdvd_CreateFileDevice(s32 a0, void* a1, s32 a2, void* a3, void* a4);
 extern void (*D_008873AC[])(void*, void*);
 extern char D_00711670[];
 extern char D_00711690[];
@@ -437,7 +437,7 @@ void func_004559b0(void) {
     base = D_008873AC;
     base[0](&iGpffffba40, &iGpffffad78);
     base[0](&iGpffffba38, &iGpffffad80);
-    if (func_003dd830(func_00456c60(5, D_008C0F80, 0x800, &iGpffffba40, &iGpffffba38)) == 0) {
+    if (func_003dd830(H_Cdvd_CreateFileDevice(5, D_008C0F80, 0x800, &iGpffffba40, &iGpffffba38)) == 0) {
         func_00440b68(D_007116B0);
     }
     iGpffffbaa0 = 1;

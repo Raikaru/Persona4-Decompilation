@@ -107,7 +107,7 @@ extern void func_0044f720(void);
 extern s32 func_003e23e0(void);
 extern void func_003e82e0();
 extern void func_003e5510(s32 arg0);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern void func_00466c60(void);
 extern void func_0050cd80(void);
 extern void func_00466600(void);
@@ -256,7 +256,7 @@ s32 func_004633f0(u8 *unusedTask)
 
     func_0044f720();
     iGpffffba8c = func_003e23e0();
-    func_003e82e0(func_00457120(), 0, 0);
+    func_003e82e0(kwlnGetCamera(), 0, 0);
     timerNow = *(s32 *)0x10000000;
     iGpffffb198 = timerNow;
     elapsedTicks = timerNow - iGpffffb194;

@@ -54,7 +54,7 @@ extern void fclShopDrawSetMode(s32 arg0, s32 arg1);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
 extern void sdkSndPlayCue(s32 arg0, s32 arg1);
 extern s32 kwlnTaskGetTaskByName(void *arg0);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern s32 MT_Scene_GetCameraResFirst(void);
 extern f32 MT_Scene_GetCameraFov(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
@@ -177,9 +177,9 @@ s32 fclShopMainUpdate(u8 *arg0)
                 return 0;
             }
             sdkSndPlayCue(0x15, 1);
-            temp_17 = func_00457120();
+            temp_17 = kwlnGetCamera();
             K_View_SetFov(temp_17, MT_Scene_GetCameraFov());
-            temp_17_2 = func_00457120();
+            temp_17_2 = kwlnGetCamera();
             func_003e9cb0(*(s32 *)(temp_17_2 + 4), (void *)MT_Scene_GetCameraResFirst(), 0);
             *(s8 *)(temp_16 + 0) = 3;
         }

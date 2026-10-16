@@ -120,7 +120,7 @@ extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern void func_004b1150(s32 arg0);
 extern u8 D_007EF9B0[];
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern u8 D_007E8020[];
 extern u8 *func_003e9700(s32 arg0);
 
@@ -448,7 +448,7 @@ void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
 
     z = RwIm2DGetNearScreenZ() - fparg2;
     if (fparg2 == 0.0f) {
-        z = RwIm2DGetNearScreenZ() - *(f32 *)(((u8 *)(u32)func_00457120()) + 0x80);
+        z = RwIm2DGetNearScreenZ() - *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 0x80);
     }
     inverse = 1.0f / z;
     switch (arg4) {
@@ -829,7 +829,7 @@ s32 FldRc_TransitionStep(u8 *task)
         {
             u8 *child = *(u8 **)(work + 0xC);
             if (fieldTransitionChildReady(child)) {
-                s32 *source = (s32 *)func_003e9700(*(s32 *)(((u8 *)(u32)func_00457120()) + 4));
+                s32 *source = (s32 *)func_003e9700(*(s32 *)(((u8 *)(u32)kwlnGetCamera()) + 4));
                 s32 *destination = (s32 *)(work + 0x10);
                 s32 count = 8;
                 do {

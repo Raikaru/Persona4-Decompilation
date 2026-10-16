@@ -37,7 +37,7 @@ extern struct {
     s32 val;
 } D_00712490[6];
 extern u8 D_007124C0[];
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern f32 sinf(f32 x);
 extern f32 cosf(f32 x);
 extern f32 D_008872F8[];
@@ -124,7 +124,7 @@ void PrimBuildTransformedVertices(PrimVertex *out, const u8 *colors, const void 
     f32 negSine;
     u32 i;
 
-    inv = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    inv = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     depth = D_008872F8[0] - depth;
     angle = iGpffff81d0 * rotation;
     sine = sinf(angle);
@@ -183,7 +183,7 @@ void PrimDrawPoints(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4
     }
     chkmemAllocSiteTag(D_007124C0, 0x2DA);
     out = (PrimVertex *)D_008873F4[0](1, arg2 << 6, 0x40000);
-    inv = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    inv = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     z = D_008872F8[0] - fparg0;
     for (k = 0; k < (u32)arg2; k++) {
         position = arg1 + k * 8;
@@ -256,7 +256,7 @@ void PrimBatchExecute(void *unused, PrimBatch *work) {
     }
     chkmemAllocSiteTag(D_007124C0, 0x30D);
     out = (PrimVertex *)jtbl_008873E8[0](count << 6, 0x40000);
-    inv = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    inv = 1.0f / *(f32 *)(kwlnGetCamera() + 0x80);
     z = D_008872F8[0] - scale;
     for (k = 0; k < count; k++) {
         PrimPoint *pos = &positions[k];

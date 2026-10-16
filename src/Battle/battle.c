@@ -21,7 +21,7 @@ extern void func_001f9be0(void);
 extern void btlSoundAdvanceSlotQueue(void);
 extern void func_001eb8d0(void);
 extern void btlDestroyTask(void);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 func_003e8120(s32 arg0);
 extern void btlUnitUpdateAllLookAtTargets(void);
 extern void btlUnitQueueAllModelsForDraw(void);
@@ -119,7 +119,7 @@ s32 btlUpdateTask(u8 *unusedTask)
 // FUN_001926C0
 s32 btlUpdateDraw3DTask(u8 *unusedTask)
 {
-    if (func_003e8120(func_00457120()) != 0) {
+    if (func_003e8120(kwlnGetCamera()) != 0) {
         btlPacketStepSide(2);
         btlUnitUpdateAllLookAtTargets();
         btlUnitQueueAllModelsForDraw();
@@ -131,7 +131,7 @@ s32 btlUpdateDraw3DTask(u8 *unusedTask)
         *(s32 *)((u8 *)iGpffffb3ac + 0xE48) = 0;
         *(s32 *)((u8 *)iGpffffb3ac + 0xE4C) = 0;
         func_00460ac0(D_00794120, (u8 *)iGpffffb3ac + 0xE48);
-        func_003e8110(func_00457120());
+        func_003e8110(kwlnGetCamera());
     }
     return 0;
 }

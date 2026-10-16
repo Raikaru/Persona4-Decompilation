@@ -21,7 +21,7 @@ typedef struct
     /* 0x20 */ f32 f20;
 } PscLight;
 
-extern void* func_00457120(void);
+extern void* kwlnGetCamera(void);
 extern void kAssertFail(u8 *file, s32 line);
 extern u8 D_0064E480[];
 extern u16 D_00884690[];
@@ -403,7 +403,7 @@ void pscModelScreenPos(s32 unused, const f32* source, f32 scale, void* viewport)
     f32 panelScale = scale;
     f32* out = viewport;
 
-    camera = (f32*)((u8*)func_00457120() + 0x68);
+    camera = (f32*)((u8*)kwlnGetCamera() + 0x68);
     func_003e8970(size, func_003e89c0());
     out[0] = panelScale * (camera[0] * (1.0f + (-source[0] / (f32)(size[0] >> 1))));
     out[1] = panelScale * (camera[1] * (1.0f + (-source[1] / (f32)(size[1] >> 1))));
@@ -420,7 +420,7 @@ f32 pscModelPanelScale(const f32* value, f32 scale)
     f32* camera;
     f32 panelScale = scale;
 
-    camera = (f32*)((u8*)func_00457120() + 0x68);
+    camera = (f32*)((u8*)kwlnGetCamera() + 0x68);
     func_003e8970(size, func_003e89c0());
     return (6.0f * value[11] * (f32)(size[0] >> 1)) / (panelScale * camera[0]);
 }

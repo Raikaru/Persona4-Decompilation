@@ -44,7 +44,7 @@ extern void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s3
 extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern void func_0045c870(u8 *arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
@@ -150,7 +150,7 @@ s32 hFadeTaskUpdate(u8 *work) {
     s32 result;
     u32 stateIndex;
 
-    if (func_003e8120(func_00457120()) == 0) {
+    if (func_003e8120(kwlnGetCamera()) == 0) {
         return 0;
     }
     result = 0;
@@ -202,7 +202,7 @@ s32 hFadeTaskUpdate(u8 *work) {
                     colors.radial.bytes[3] = radialAlpha;
                 }
                 layerScale = 1.5f * ((f32)(u32)D_0076455A / 20.0f);
-                func_00457120();
+                kwlnGetCamera();
                 (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATESHADEMODE, (void *)2);
                 (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATECULLMODE, (void *)1);
                 (*(BattleRenderStateFunction *)stateInterface)(rwRENDERSTATEFOGENABLE, (void *)0);
@@ -270,7 +270,7 @@ s32 hFadeTaskUpdate(u8 *work) {
         D_00887300[0](rwRENDERSTATETEXTURERASTER, NULL);
         RpSkyRenderStateSet(2, (void *)0x44);
         RpSkyRenderStateSet(3, (void *)0x717FB);
-        func_003e8110(func_00457120());
+        func_003e8110(kwlnGetCamera());
     }
     return result;
 }

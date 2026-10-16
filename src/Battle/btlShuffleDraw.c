@@ -12,7 +12,7 @@ extern s32 datTextSlotLoadStep();
 
 extern void btlShuffleCardQueueDraw(u8 *arg0);
 extern void func_0036d8b0(void);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 struct RwCamera;
 extern void K_View_SetFov(struct RwCamera *camera, f32 fov);
 extern s32 btlShuffleDrawCardCreate(void *arg0);
@@ -425,14 +425,14 @@ loop_test:
 // FUN_00374910
 void btlShuffleDrawViewReset(u8 *arg0) {
     func_0036d8b0();
-    K_View_SetFov((struct RwCamera *)(u32)func_00457120(), *(f32 *)(arg0 + 0x1F310));
+    K_View_SetFov((struct RwCamera *)(u32)kwlnGetCamera(), *(f32 *)(arg0 + 0x1F310));
 }
 
 
 // FUN_00374960
 void btlShuffleDrawViewRestore(u8 *arg0) {
     func_0036d8b0();
-    K_View_SetFov((struct RwCamera *)(u32)func_00457120(), *(f32 *)(arg0 + 0x1F310));
+    K_View_SetFov((struct RwCamera *)(u32)kwlnGetCamera(), *(f32 *)(arg0 + 0x1F310));
     *(s32 *)(arg0 + 0x1F298) = btlShuffleDrawCardCreate((void *)*(s32 *)(arg0 + 0x1F2A8));
     *(s32 *)(arg0 + 0x1F294) = btlShuffleDrawViewCreate((void *)*(s32 *)(arg0 + 0x1F2A8));
     *(s32 *)(arg0 + 0x1F29C) = btlShuffleEffSpawn((void *)*(s32 *)(arg0 + 0x1F2A8));
@@ -582,7 +582,7 @@ void btlShuffleDrawCards(u8 *arg0) {
     backVertices = btlShuffleDrawFlagC(card);
     texture = btlShuffleDrawFlagD(card);
     m = (u8 *)func_003e0f80();
-    camera = *(s32 *)((u8 *)func_00457120() + 4);
+    camera = *(s32 *)((u8 *)kwlnGetCamera() + 4);
     inv = 2.0f / (rotation.x * rotation.x + rotation.y * rotation.y + rotation.z * rotation.z +
                   rotation.w * rotation.w);
     t2 = rotation.x * inv;
@@ -1523,7 +1523,7 @@ void btlShuffleDrawTrail(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba
                 f32 offsetX;
                 f32 offsetY;
                 u8 alpha;
-                func_003e9700(*(struct RwFrame **)((u8 *)func_00457120() + 4));
+                func_003e9700(*(struct RwFrame **)((u8 *)kwlnGetCamera() + 4));
                 front_s4 = first;
                 back_s4 = second;
                 alpha = (u8)opacity;
@@ -1622,7 +1622,7 @@ void btlShuffleDrawCardSprites(u8 *arg0, s32 arg1, const BtlShuffleVec3 *arg2, u
     s32 index;
 
     datw = D_008872F8_abs[0];
-    scale = 1.0f / *(f32 *)((u8 *)func_00457120() + 0x80);
+    scale = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
     if (arg2 != 0) {
         sp1B8v = *(BtlShuffleVec3 *)arg2;
     } else {
@@ -1635,7 +1635,7 @@ void btlShuffleDrawCardSprites(u8 *arg0, s32 arg1, const BtlShuffleVec3 *arg2, u
     halfW = btlShuffleCardWidth(card) / 2.0f;
     halfH = btlShuffleCardHeight(card) / 2.0f;
     matrix = func_003e0f80();
-    func_00457120();
+    kwlnGetCamera();
     norm = 2.0f / (sp70v.x * sp70v.x + sp70v.y * sp70v.y + sp70v.z * sp70v.z + sp70v.w * sp70v.w);
     n0 = sp70v.x * norm;
     n1 = sp70v.y * norm;

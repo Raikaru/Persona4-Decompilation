@@ -132,7 +132,7 @@ struct RwV3d;
 // FUN_001BA0E0
 s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
 {
-    extern u8 *func_00457130(void);
+    extern u8 *kwlnGetColorRgb(void);
     extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
     f32 t;
     f32 inv;
@@ -142,7 +142,7 @@ s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
     u8 a;
 
     if (work->frame == 0) {
-        work->start = *(BlendColor *)func_00457130();
+        work->start = *(BlendColor *)kwlnGetColorRgb();
     }
     if (work->frame < work->frames) {
         t = (f32)work->frame / (f32)work->frames;

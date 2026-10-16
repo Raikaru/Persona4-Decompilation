@@ -149,7 +149,7 @@ static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
     btlUnitInitChild(arg0, arg1);
 }
 /* RwCameraGetCurrentCamera (reads curCamera); cf. src/renderware/core/bacamera.c */
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 /* RwCameraBeginUpdate-equivalent, cf. src/renderware/core/bacamera.c */
 extern s32 func_003e8120(u8 *arg0);
 /* RpAtomicRender-equivalent atomic render guard, cf. src/renderware/world/baclump.c */
@@ -174,10 +174,10 @@ extern u8 D_00794150[];
  * func_003C1BD0 renders the atomic through its renderCallBack (+0x48). */
 // FUN_00191E20
 void *K_Clump_RenderAtomicCallBack(void *arg0, void *data) {
-    if (func_003e8120(func_00457120()) != 0) {
+    if (func_003e8120(kwlnGetCamera()) != 0) {
         func_003c1bd0((s32)(uintptr_t)arg0);
     }
-    func_003e8110(func_00457120());
+    func_003e8110(kwlnGetCamera());
     return arg0;
 }
 

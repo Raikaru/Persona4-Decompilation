@@ -183,7 +183,7 @@ void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
 {
 
     extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
-    extern u8 *func_00457120(void);
+    extern u8 *kwlnGetCamera(void);
     extern u8 *func_003c22f0(u8 *);
     extern u8 *func_003e9700(u8 *);
     extern u8 *func_003e9cb0(u8 *, u8 *, s32);
@@ -248,8 +248,8 @@ void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
     }
     if (*(u8 *)(*(u8 **)(owner + 0x14) + 7) == 0) return;
 
-    cameraDimensions = func_00457120() + 0x68;
-    farClip = *(f32 *)(func_00457120() + 0x80);
+    cameraDimensions = kwlnGetCamera() + 0x68;
+    farClip = *(f32 *)(kwlnGetCamera() + 0x80);
     xScale = *(f32 *)cameraDimensions;
     xExtent = xScale * farClip;
     yScale = *(f32 *)(cameraDimensions + 4);
@@ -267,7 +267,7 @@ void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
     case 0: {
         f32 depth, x, y;
         {
-            u8 *view = func_00457120() + 0x20;
+            u8 *view = kwlnGetCamera() + 0x20;
             func_003e42a0((u8 *)&interpolated, instance, view);
         }
         depth = interpolated.lane[2];
@@ -431,7 +431,7 @@ vertices[8] = *(f32 *)D_00713D18;
     }
 
     {
-        u8 *matrix = func_003e9700(*(u8 **)(func_00457120() + 4));
+        u8 *matrix = func_003e9700(*(u8 **)(kwlnGetCamera() + 4));
         func_003e9cb0(*(u8 **)(owner + 0xc), matrix, 0);
     }
 }
@@ -633,7 +633,7 @@ void LineNovaUpdateVertices(u8 *unused, u8 *effect)
 {
 
     extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
-    extern u8 *func_00457120(void);
+    extern u8 *kwlnGetCamera(void);
     extern u8 *func_003c22f0(u8 *);
     extern u8 *func_003e9700(u8 *);
     extern u8 *func_003e9cb0(u8 *, u8 *, s32);
@@ -734,8 +734,8 @@ void LineNovaUpdateVertices(u8 *unused, u8 *effect)
         extentX = (f32)*(s16 *)(config + 0x84);
         extentY = (f32)*(s16 *)(config + 0x86);
     }
-    cameraDimensions = func_00457120() + 0x68;
-    depth = novaAdd(*(f32 *)(func_00457120() + 0x80), 1.0f);
+    cameraDimensions = kwlnGetCamera() + 0x68;
+    depth = novaAdd(*(f32 *)(kwlnGetCamera() + 0x80), 1.0f);
     screenX = 640.0f;
     {
         f32 x = extentX * (*(f32 *)cameraDimensions * depth) / screenX;
@@ -811,7 +811,7 @@ vertices[17] = *(f32 *)D_00713D18;
         if (*(u16 *)owner & 4) *(u16 *)(geometry + 0xc) |= 1;
     }
 
-    matrix = func_003e9700(*(u8 **)(func_00457120() + 4));
+    matrix = func_003e9700(*(u8 **)(kwlnGetCamera() + 4));
     RwMatrixRotate(rotation, (const u8 *)&axis, (f32)*(s16 *)(config + 0x90), 0);
     *(f32 *)(rotation + 0x30) += novaCameraOffset(centerX, (const f32 *)cameraDimensions, depth, screenX, 320.0f);
     {

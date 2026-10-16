@@ -8,7 +8,7 @@
 #include "effect_vu0_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 iGpffffbb9c;
 /* gp - 0x4460 = 0x00764c90: base of a 0x1C-strided per-type handler table */
 extern u8 *iGpffffbba0;

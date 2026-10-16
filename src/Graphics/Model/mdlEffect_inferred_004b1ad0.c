@@ -8,7 +8,7 @@
 #include "effect_vu0_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 iGpffffbb9c;
 /* gp - 0x4460 = 0x00764c90: base of a 0x1C-strided per-type handler table */
 extern u8 *iGpffffbba0;
@@ -292,9 +292,9 @@ f32 *camera;
         f32 offsetY;
         u32 i;
 
-        camera = (f32 *)((u8 *)func_00457120() + 0x68);
-        nearZ = *(f32 *)((u8 *)func_00457120() + 0x80);
-        farZ = *(f32 *)((u8 *)func_00457120() + 0x84);
+        camera = (f32 *)((u8 *)kwlnGetCamera() + 0x68);
+        nearZ = *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
+        farZ = *(f32 *)((u8 *)kwlnGetCamera() + 0x84);
         offsetX = (f32)*(s32 *)(arg0 + 0x9C);
         offsetY = (f32)*(s32 *)(arg0 + 0xA0);
         depth = ((f32)(-65535) * nearZ * farZ) / ((f32)(-65535) * farZ - -31.0f * (farZ - nearZ));
@@ -320,7 +320,7 @@ f32 *camera;
         }
     }
     {
-        u8 *scene = (u8 *)func_00457120();
+        u8 *scene = (u8 *)kwlnGetCamera();
 
         func_003e9cb0(*(void **)(sprite + 0xC), (void *)((u32)*(u8 **)(scene + 4) + 0x10), 0);
     }

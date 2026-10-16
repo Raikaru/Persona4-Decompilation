@@ -37,7 +37,7 @@ extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *func_00455f70(void *arg0, void *arg1);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern void memset(void *arg0, s32 arg1, u32 arg2);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern s32 *MT_Scene_GetFrameState(void);
@@ -250,16 +250,16 @@ s32 func_00153d60(u8 *arg0, s32 arg1)
     iGpffffba68 = 0;
     func_00457140(*(u8 *)(data + 0xC), *(u8 *)(data + 0xD), *(u8 *)(data + 0xE), 0);
     func_00457170(*(u8 *)(data + 0xC), *(u8 *)(data + 0xD), *(u8 *)(data + 0xE), 0);
-    func_003e81c0(func_00457120(), *(f32 *)(data + 0x14));
+    func_003e81c0(kwlnGetCamera(), *(f32 *)(data + 0x14));
     fsave = *(f32 *)(data + 0x10);
-    *(f32 *)(func_00457120() + 0x88) = fsave;
-    func_00457120();
+    *(f32 *)(kwlnGetCamera() + 0x88) = fsave;
+    kwlnGetCamera();
     if ((u32)*(s32 *)(data + 4) > 0x10003U) {
         if (*(f32 *)(data + 0x18) > 1.0f) {
-            func_003e8180(func_00457120(), *(f32 *)(data + 0x18));
+            func_003e8180(kwlnGetCamera(), *(f32 *)(data + 0x18));
         }
         if (*(f32 *)(data + 0x18) == 50.0f) {
-            func_003e8180(func_00457120(), 100.0f);
+            func_003e8180(kwlnGetCamera(), 100.0f);
         }
         if (*(u8 *)(data + 0x1FF) == 0xFF) {
             func_00457140(*(u8 *)(data + 0x1FC), *(u8 *)(data + 0x1FD), *(u8 *)(data + 0x1FE), 0);
@@ -697,8 +697,8 @@ s32 FldCamReadRecord(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
         s32 first;
         s32 second;
 
-        K_View_SetFov(func_00457120(), *(f32 *)(data + 8));
-        func_003e9cb0((void *)*(s32 *)(func_00457120() + 4),
+        K_View_SetFov(kwlnGetCamera(), *(f32 *)(data + 8));
+        func_003e9cb0((void *)*(s32 *)(kwlnGetCamera() + 4),
                       data + 0x10, 0);
         FldCameraAdvanceCurve(MT_Scene_GetFrameState()[1], *(u16 *)(data + 0x50));
         FldFrame_SetViewOffset(MT_Scene_GetFrameState()[1], data + 0x54);

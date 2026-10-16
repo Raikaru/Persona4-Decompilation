@@ -108,7 +108,7 @@ extern void func_004b1250(void *object, f32 *position);
 extern void func_004b14f0(void *object, s32 *color);
 extern void func_004b13f0(void *object, s32 *color);
 extern u8 *func_001102f0(u8 *position, s32 screenX, s32 screenY, f32 distance);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern s32 func_003e9700(s32 arg0);
 extern void itfMesWindowSetString(s32 arg0, s32 arg1, void *arg2);
 extern void sdkSndStartChannel(s32 arg0, void *arg1);
@@ -2494,33 +2494,33 @@ s32 func_00257900(u8 *task) {
             temp_20 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_2 = func_0025ff60(temp_20);
-            func_004b12e0(temp_20_2, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_20_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_2), position);
         }
         if (*(s32 *)(context + 8) == 0) {
             temp_20_3 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636650, &resourceSize), 0x64, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_20_4 = func_0025ff60(temp_20_3);
-            func_004b12e0(temp_20_4, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_20_4, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_4), position);
         }
         if (*(s32 *)(context + 8) == 0x78) {
             temp_20_5 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636670, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_20_6 = func_0025ff60(temp_20_5);
-            func_004b12e0(temp_20_6, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_20_6, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_6), position);
         }
         if (*(s32 *)(context + 8) == 0x23A) {
             temp_20_7 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_8 = func_0025ff60(temp_20_7);
-            func_004b12e0(temp_20_8, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_20_8, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_8), position);
         }
         if ((*(s32 *)(context + 8) == 0x258) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
             temp_20_9 = (s32)(func_0025ff60(func_0025fe50((s32)(task), func_00455f70((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
-            func_004b12e0(temp_20_9, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_20_9, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_9), position);
         }
         if ((*(s32 *)(context + 8) == 0x280) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
@@ -2702,7 +2702,7 @@ s32 func_00257900(u8 *task) {
             temp_20_10 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_11 = func_0025ff60(temp_20_10);
-            func_004b12e0(temp_20_11, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_20_11, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_11), position);
         }
         if (*(s32 *)(context + 8) == 0xA) {
@@ -2713,7 +2713,7 @@ s32 func_00257900(u8 *task) {
             temp_20_12 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_006366F0, &resourceSize), 0x32, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_13 = func_0025ff60(temp_20_12);
-            func_004b12e0(temp_20_13, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_20_13, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_13), position);
             func_004b14f0((void *)temp_20_13, &drawColorValue.packed);
             rankUpScaleEffectAlpha(&drawColorValue, 0.5f);
@@ -2723,17 +2723,17 @@ s32 func_00257900(u8 *task) {
             temp_20_14 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_20_15 = func_0025ff60(temp_20_14);
-            func_004b12e0(temp_20_15, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_20_15, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_15), position);
         }
         if ((*(s32 *)(context + 8) == 0x23A) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
             temp_20_16 = (s32)(func_0025ff60(func_0025fe50((s32)(task), func_00455f70((s32)D_00636690, &resourceSize), 0x96, &D_005DC974)));
-            func_004b12e0(temp_20_16, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_20_16, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_20_16), position);
         }
         if ((*(s32 *)(context + 8) == 0x262) && (func_00257820(*(s32 *)(context + 0x20), (u8 *)position) != 0)) {
             temp_19_2 = (s32)(func_0025ff60(func_0025fe50((s32)(task), func_00455f70((s32)D_006366B0, &resourceSize), 0x96, &D_005DC974)));
-            func_004b12e0(temp_19_2, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_19_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_19_2), position);
         }
         mode10Frame = (s32)(*(s32 *)(context + 8));
@@ -2904,14 +2904,14 @@ s32 func_00257900(u8 *task) {
             temp_21 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_21_2 = func_0025ff60(temp_21);
-            func_004b12e0(temp_21_2, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_21_2, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_21_2), position);
         }
         if (*(s32 *)(context + 8) == 0xBE) {
             temp_19_4 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_19_5 = func_0025ff60(temp_19_4);
-            func_004b12e0(temp_19_5, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_19_5, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_19_5), position);
         }
         mode11Frame = (s32)(*(s32 *)(context + 8));
@@ -2981,14 +2981,14 @@ s32 func_00257900(u8 *task) {
             temp_17_4 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636630, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xA5, 300.0f);
             temp_17_5 = func_0025ff60(temp_17_4);
-            func_004b12e0(temp_17_5, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_17_5, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_17_5), position);
         }
         if (*(s32 *)(context + 8) == 0x9B) {
             temp_17_6 = (s32)(func_0025fe50((s32)(task), func_00455f70((s32)D_00636710, &resourceSize), 0x96, &D_005DC974));
             func_001102f0((u8 *)position, 0x140, 0xB4, 300.0f);
             temp_17_7 = func_0025ff60(temp_17_6);
-            func_004b12e0(temp_17_7, func_003e9700(*(s32 *)((u8 *)func_00457120() + 4)));
+            func_004b12e0(temp_17_7, func_003e9700(*(s32 *)((u8 *)kwlnGetCamera() + 4)));
             func_004b1250((void *)(temp_17_7), position);
         }
         mode12Frame = (s32)(*(s32 *)(context + 8));

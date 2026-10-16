@@ -281,7 +281,7 @@ void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *ar
     extern void RpSkyRenderStateSet(s32 param, s32 value);
     extern f32 cosf(f32 param);
     extern f32 sinf(f32 param);
-    extern s32 func_00457120(void);
+    extern s32 kwlnGetCamera(void);
     extern void func_003e42a0(DistortVec3 *out, DistortVec3 *in, void *matrix);
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
@@ -423,7 +423,7 @@ void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *ar
     tmpPos.x = ((f32 *)arg3)[0];
     tmpPos.y = ((f32 *)arg3)[1];
     tmpPos.z = ((f32 *)arg3)[2];
-    func_003e42a0(&tmpOut, &tmpPos, (u8 *)func_00457120() + 0x20);
+    func_003e42a0(&tmpOut, &tmpPos, (u8 *)kwlnGetCamera() + 0x20);
     {
         f32 ry = tmpOut.y / tmpOut.z;
         f32 rx = tmpOut.x / tmpOut.z;
@@ -439,8 +439,8 @@ void DistortParticleDrawSky(u8 *arg0, u8 *arg1, void *arg2, void *arg3, void *ar
     }
     bufferNear = D_008872FC[0];
     bufferFar = D_008872F8[0];
-    cameraFar = *(f32 *)((u8 *)func_00457120() + 0x84);
-    cameraNear = *(f32 *)((u8 *)func_00457120() + 0x80);
+    cameraFar = *(f32 *)((u8 *)kwlnGetCamera() + 0x84);
+    cameraNear = *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
     depth = (cameraNear / tmpOut.z) * ((tmpOut.z - cameraFar) * ((bufferFar - bufferNear) / (cameraNear - cameraFar))) + (bufferNear + 0.0f);
     if (depth < 0.0f) {
         depth = 0.0f;

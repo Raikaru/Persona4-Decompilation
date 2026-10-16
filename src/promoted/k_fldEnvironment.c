@@ -38,7 +38,7 @@ extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *func_00455f70(void *arg0, void *arg1);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern void memset(void *arg0, s32 arg1, u32 arg2);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern s32 *MT_Scene_GetFrameState(void);

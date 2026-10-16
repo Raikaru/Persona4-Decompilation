@@ -133,7 +133,7 @@ extern u8 *scrGetContext(void);
 extern void func_002bd240(s32 arg0);
 extern void func_002bd270(s32 arg0);
 extern void func_002bd280(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern void *mdlGetMatrix(void *arg0);
 extern void mdlScale(void *arg0, void *arg1, s32 arg2);
 extern s32 RwEngineGetMatrixTolerances(f32 *arg0);
@@ -815,7 +815,7 @@ void func_0017d100(u8 *arg0)
     u8 *temp_16;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_17 = (s32)(func_00457120() + 0x20);
+    temp_17 = (s32)(kwlnGetCamera() + 0x20);
     func_003e42a0(&sp30, (u8 *)mdlGetMatrix(*(u8 **)D_007EFA00) + 0x30, (u8 *)temp_17);
     temp_f1 = 640.0f * (sp30.first / sp30.second);
     if (temp_f1 <= 100.0f) {

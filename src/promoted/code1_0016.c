@@ -64,7 +64,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void H_Cdvd_ReadSync(void *arg0);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void H_Cdvd_Destroy(void *arg0);
-extern u8 *func_00457120();
+extern u8 *kwlnGetCamera();
 extern void func_003e9d50(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void K_ClumpLookAtBasis(u8 *arg0, void *arg1, void *arg2, s32 arg3);
 extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
@@ -295,7 +295,7 @@ void FldFilterLoadFile(void)
     H_Cdvd_ReadSync(temp_2);
     memcpy(iGpffffb2b0, *(void **)(temp_2 + 0x110), 0x12400);
     H_Cdvd_Destroy(temp_2);
-    K_FldFilter_InitQuads(func_00457120());
+    K_FldFilter_InitQuads(kwlnGetCamera());
 }
 /* measured: retail hoists the D_00887300 base into a saved local across
    five indirect calls; opt_propagation off preserves that address materialization. */

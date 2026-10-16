@@ -8,7 +8,7 @@
 #include "effect_vu0_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern s32 iGpffffbb9c;
 /* gp - 0x4460 = 0x00764c90: base of a 0x1C-strided per-type handler table */
 extern u8 *iGpffffbba0;
@@ -113,7 +113,7 @@ void func_004b2a00(u8 *fade) {
     (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)addressMode, (void *)addressMode);
     (*(BtlShuffleRenderStateSet *)stateInterface)((RwRenderState)4, (void *)3);
     screenDepth = *(f32 *)D_008872FC_abs;
-    reciprocalFar = 1.0f / *(f32 *)(((u8 *)(u32)func_00457120()) + 132);
+    reciprocalFar = 1.0f / *(f32 *)(((u8 *)(u32)kwlnGetCamera()) + 132);
     vertices[0].u.els.scrVertex.x = 0.0f;
     vertices[0].u.els.scrVertex.y = 0.0f;
     vertices[0].u.els.scrVertex.z = screenDepth;

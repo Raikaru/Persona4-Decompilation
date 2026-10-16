@@ -157,7 +157,7 @@ extern void func_003c38b0(void *arg0, void *arg1);
 extern void func_003e8110(void *arg0);
 extern void func_003e8120(void *arg0);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern u8 *K_Clump_GetLightA(void);
 extern u8 *K_Clump_GetLightB(void);
 extern u8 *K_Clump_GetLightC(void);

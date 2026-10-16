@@ -142,7 +142,7 @@ extern void frFontLayoutSlotText(s32 arg0, u8 *arg1);
 extern u8 iGpffffa734;
 extern f32 RwV3dLength(f32 *arg0);
 extern u8 *func_003e9700(s32 arg0);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern void func_004b1470(s32 arg0, f32 *arg1);
 
 extern s32 calGetWeekdayOfDay(s32 arg0);

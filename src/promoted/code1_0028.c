@@ -53,7 +53,7 @@ extern s32 func_00285dd0(u8 *task);
 
 extern void func_0028ad90(u8 *arg0, s32 arg1);
 extern void func_002865e0(UnkStruct_002865E0 *arg0);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern f32 K_View_GetFov(u8 *arg0);
 extern s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00293fc0(s32 arg0);
@@ -175,7 +175,7 @@ s32 func_00285dd0(u8 *sdkTaskBytes) {
             func_0028ad90(data, (*(u32 *)data & 0x80000000) != 0);
             func_002865e0((UnkStruct_002865E0 *)data);
             *(u32 *)data |= 1;
-            *(f32 *)(data + 0x750) = K_View_GetFov(func_00457120());
+            *(f32 *)(data + 0x750) = K_View_GetFov(kwlnGetCamera());
             *(s32 *)(data + 0x77C) =
                 func_00293ed0(*(s32 *)(data + 0x78C),
                               *(s32 *)(data + 0x790),

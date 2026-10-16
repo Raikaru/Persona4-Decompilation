@@ -74,7 +74,7 @@ extern void btlCameraFrameSideView(u8 *arg0, s32 arg1);
 extern void btlCameraUpdateOcclusion(u8 *arg0);
 extern void btlCameraMarkUnitFramed(u8 *arg0);
 extern void btlCameraClearUnitFramed(u8 *arg0);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *second);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
@@ -598,7 +598,7 @@ void btlCameraUpdateOcclusion(u8 *arg0)
     u8 *temp16;
 
     if (*(u16 *)(arg0 + 0x106) == 0) {
-        temp18 = *(u8 **)(func_00457120() + 4) + 0x10;
+        temp18 = *(u8 **)(kwlnGetCamera() + 4) + 0x10;
         temp19 = *(u8 **)((u8 *)func_001d8bc0(*(u8 **)(arg0 + 0xE0) + 0x98) + 0x30);
         temp16 = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
         if (btlCameraFindOccluder(temp19, &frame.value60, &frame.value88, temp18) != 0) {

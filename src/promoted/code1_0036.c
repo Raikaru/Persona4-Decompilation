@@ -53,7 +53,7 @@ extern s32 datCalcGetLevelById(s32 arg0);
 extern u8 *PrimAllocQueueNode(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00369440(void);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern void func_003e8180(void *arg0, f32 arg1);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void K_ClumpLookAtBasis(void *arg0, void *arg1, void *arg2, s32 arg3);
@@ -765,7 +765,7 @@ void func_0036d8b0(void)
     } local;
     s32 view;
 
-    view = (s32)func_00457120();
+    view = (s32)kwlnGetCamera();
     func_003e8180((void *)view, 1.0f);
     local.f30 = 0;
     local.f34 = 0;

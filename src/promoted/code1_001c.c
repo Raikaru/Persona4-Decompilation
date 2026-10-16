@@ -86,7 +86,7 @@ extern void btlCameraFrameSideView(u8 *arg0, s32 arg1);
 extern void btlCameraUpdateOcclusion(u8 *arg0);
 extern void btlCameraMarkUnitFramed(u8 *arg0);
 extern void btlCameraClearUnitFramed(u8 *arg0);
-extern u8 *func_00457120(void);
+extern u8 *kwlnGetCamera(void);
 extern void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *second);
 extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
 extern void btlCameraSetDuration(u8 *arg0, f32 arg1);

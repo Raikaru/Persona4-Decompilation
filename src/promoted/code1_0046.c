@@ -146,7 +146,7 @@ extern void func_0044f720(void);
 extern s32 func_003e23e0(void);
 extern void func_003e82e0();
 extern void func_003e5510(s32 arg0);
-extern s32 func_00457120(void);
+extern s32 kwlnGetCamera(void);
 extern void func_00466c60(void);
 extern void func_0050cd80(void);
 extern void func_00466600(void);
@@ -322,7 +322,7 @@ void movieLoadStep(void)
     extern s32 func_00468bf0(u8 *node, s32 slot);
     extern s32 func_004c9820(ADXF request);
     extern void *memset(void *dst, s32 value, size_t count);
-    extern void func_00456530(u8 *basePath, u8 *archive, s32 singleEntry);
+    extern void H_Cdvd_RegisterArchiveEntries(u8 *basePath, u8 *archive, s32 singleEntry);
     u8 *node;
     char *cursor;
     s8 value;
@@ -393,7 +393,7 @@ void movieLoadStep(void)
                  phase < *(s32 *)(node + 0x40) - *(s32 *)(node + 0x3C);
                  phase++) {
                 if ((*(s32 **)(node + 0x38))[phase] != 0) {
-                    func_00456530((u8 *)path,
+                    H_Cdvd_RegisterArchiveEntries((u8 *)path,
                                   (u8 *)(*(s32 **)(node + 0x38))[phase], 1);
                     (*(s32 **)(node + 0x38))[phase] += 0x100;
                 }
@@ -539,7 +539,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
     extern void chkmemSetLock(s32 arg0);
     extern u8 kwlnTaskDestroyWithHierarchyByName(const char *name);
     extern void H_Cdvd_StartPlayback(void *handle, void *path, s32 sync);
-    extern s32 func_00457120(void);
+    extern s32 kwlnGetCamera(void);
     extern void kAssertFail(void *arg0, s32 arg1);
     extern s32 mwPlyCalcWorkCprmSfd(MWSFD_CRPRM *arg0);
     extern s32 func_00509268(u8 *arg0);
@@ -637,7 +637,7 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
     default:                                        /* switch 1 */
         goto movieComplete;
     case 2:                                         /* switch 1 */
-        temp_f20 = 1.0f / (*(f32 *)((u8 *)func_00457120() + (0x80)));
+        temp_f20 = 1.0f / (*(f32 *)((u8 *)kwlnGetCamera() + (0x80)));
         if (++work->startupTicks == 1) {
             work->ownsList = 1;
         }
@@ -730,9 +730,9 @@ void movieNativeTaskUpdate(void *arg0, MovieNativeWork *work) {
                     work->state = 3;
                 }
             }
-            screenExtent.x = (f32)(*(s32 *)((u8 *)(*(u8 **)((u8 *)func_00457120() + (0x60))) + (0xC)));
-            screenExtent.y = (f32)(*(s32 *)((u8 *)(*(u8 **)((u8 *)func_00457120() + (0x60))) + (0x10)));
-            temp_f2 = 1.0f / (*(f32 *)((u8 *)func_00457120() + (0x80)));
+            screenExtent.x = (f32)(*(s32 *)((u8 *)(*(u8 **)((u8 *)kwlnGetCamera() + (0x60))) + (0xC)));
+            screenExtent.y = (f32)(*(s32 *)((u8 *)(*(u8 **)((u8 *)kwlnGetCamera() + (0x60))) + (0x10)));
+            temp_f2 = 1.0f / (*(f32 *)((u8 *)kwlnGetCamera() + (0x80)));
             if ((*(s16 *)(D_00712C50 + (work->movieIndex * 0x28))) == 0) {
                 work->vertices[0].u.els.scrVertex.x = 0;
                 work->vertices[1].u.els.scrVertex.x = 0;
