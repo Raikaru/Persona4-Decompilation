@@ -36,7 +36,7 @@ extern void *memset(void *dst, s32 value, u32 size);
 extern int sdkSndIsChannelPlaying(int param_1);
 extern void nmMesWindowResetRecords(void);
 extern int func_002e0d60(void);
-extern void func_002bcd20(void);
+extern void fclMiscCreateAssistTask(void);
 struct KwlnTask;
 extern s32 func_002e17f0(u8 *task);
 extern void frFontTaskDestroy(u8 *task);
@@ -2768,6 +2768,6 @@ void frFontStartup(void)
     *(int *)v = (s32)kwlnTaskCreate((const void *)(&D_00763840), 0xC8, 0, 0, func_002e17f0, 0, (u8 *)(0));
     frFontInitManager(0x100, 0x100);
     kwlnTaskCreate((const void *)(&D_00763848), 0, 0, 0, frFontMaintainCacheTask, frFontTaskDestroy, (u8 *)(0));
-    func_002bcd20();
+    fclMiscCreateAssistTask();
 }
 

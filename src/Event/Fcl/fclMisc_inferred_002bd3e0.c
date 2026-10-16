@@ -20,7 +20,7 @@ extern void fclMiscCloseActiveHandle(void);
 
 
 
-extern u64 func_002bcc60(u8 *arg0);
+extern u64 fclMiscPruneLists(u8 *arg0);
 extern u8 *D_0072466C;
 extern s32 D_0063F2C8[];
 extern s32 D_00882F60[];
@@ -103,12 +103,12 @@ extern void func_002b5120(s32 arg0, u8 *arg1);
 #pragma push
 #pragma pop
 // FUN_002BD3E0
-void func_002bd3e0(void) {
-    func_002bcc60(D_0072466C);
+void fclMiscPruneGlobal(void) {
+    fclMiscPruneLists(D_0072466C);
 }
 
 // FUN_002BD410
-void func_002bd410(void)
+void fclMiscStopAndClose(void)
 {
     sdkSndResetChannel(1, 0);
     fclMiscCloseActiveHandle();

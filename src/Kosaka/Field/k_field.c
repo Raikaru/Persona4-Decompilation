@@ -21,8 +21,8 @@ extern s32 D_007D2510[];
 
 extern void calendarPopValue(void);
 extern void FldUnit_ClearFlagBlock(void);
-extern void func_002bd410(void);
-extern void func_002bd3e0(void);
+extern void fclMiscStopAndClose(void);
+extern void fclMiscPruneGlobal(void);
 extern void resrcMngSelectDrawSet(s32);
 extern void kwlnTaskDestroyWithHierarchy(s32);
 extern void FldResource_Destroy(s32);
@@ -367,8 +367,8 @@ void FldRootDestroy(u8 *arg0)
         calendarPopValue();
     }
     FldUnit_ClearFlagBlock();
-    func_002bd410();
-    func_002bd3e0();
+    fclMiscStopAndClose();
+    fclMiscPruneGlobal();
     KFIELD_D_007D2540 = 0;
     resrcMngSelectDrawSet(0);
     temp_4 = *(s32 *)(temp_17 + 0x3C);
