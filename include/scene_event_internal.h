@@ -11,6 +11,43 @@ typedef struct EvtNode EvtNode;
 typedef struct EvtEventTask EvtEventTask;
 typedef struct EvtEventWork EvtEventWork;
 
+/* Event node kinds (EvtNode::kind), with the handler each one dispatches to in
+   D_0063C420 (evtDispatchNode). Only kinds with a named handler are listed;
+   kinds 0, 2, 3, 8, 9, 11-18, 20-27, 29-32, 34, 35, 38-46 have no handler, and
+   kinds 6, 10 and 36 are unnamed (func_0028A7C0, func_0028A850, func_0028A8E0).
+   Dispatch order is D_0063C1D0 (evtKeyIndex). Kind 48 shares its handler with
+   kind 1 [inferred: a second kind bound to the same routine]. Kinds 34 and 38 have no handler but are searched by kind (evtUpdateWaitState, evtSelectRangeChoice). */
+typedef enum EvtNodeKind {
+    EVT_NODE_RES_COMMAND = 1,          /* evtNodeResCommand */
+    EVT_NODE_MESSAGE_SELECT = 4,       /* evtNodeMessageSelect */
+    EVT_NODE_PLAY_CUE = 5,             /* evtCmdPlayCue */
+    EVT_NODE_RANGE_FLAG = 7,           /* evtCmdRangeFlag */
+    EVT_NODE_SOUND_CUE = 19,           /* evtNodeSoundCue */
+    EVT_NODE_DRAW_OR_RUMBLE = 28,      /* evtNodeDrawOrRumble */
+    EVT_NODE_CAMERA_MOVE = 33,         /* evtNodeCameraMove */
+    EVT_NODE_WAIT_SEARCH = 34,        /* evtUpdateWaitState: no handler, looked up by kind */
+    EVT_NODE_RES_PLACE = 37,           /* evtCmdResPlace */
+    EVT_NODE_CHOICE_RANGE = 38,       /* evtSelectRangeChoice: no handler, looked up by kind */
+    EVT_NODE_RES_DISPLAY = 47,         /* evtCmdResDisplay */
+    EVT_NODE_RES_COMMAND_ALT = 48,     /* evtNodeResCommand [inferred] */
+    EVT_NODE_RES_ENABLE = 49,          /* evtCmdResEnable */
+    EVT_NODE_PLAY_STREAM = 50,         /* evtCmdPlayStream */
+    EVT_NODE_LABEL_TEXT = 51,          /* evtCmdLabelText */
+    EVT_NODE_TASK_SLOT = 52,           /* evtCmdTaskSlot */
+    EVT_NODE_ENV_SLOT = 53,            /* evtCmdEnvSlot */
+    EVT_NODE_SOUND_TRACK = 54,         /* evtNodeSoundTrack */
+    EVT_NODE_SCREEN_COLOR = 55,        /* evtCmdScreenColor */
+    EVT_NODE_TASK_HANDLE = 56,         /* evtCmdTaskHandle */
+    EVT_NODE_CAM_POS = 57              /* evtCmdCamPos */
+} EvtNodeKind;
+
+/* Handler signature of D_0063C420 and D_00882204[0]: (mode, arg0, arg1, node, aux). */
+typedef s32 (*EvtDispatchHandler)(s32, s32, s32, u8 *, u8 *);
+/* Dispatch order: 58 s32 entries, a permutation of EvtNodeKind 0..57. evtKeyIndex inverts it. */
+extern s32 D_0063C1D0[58];
+/* Handler per EvtNodeKind, 58 entries, indexed by owner->kind in evtDispatchNode. */
+extern EvtDispatchHandler D_0063C420[58];
+
 /* Four colour bytes, copied as one word (evtNpcModelTaskUpdate). */
 typedef struct EvtColor {
     u8 b0;

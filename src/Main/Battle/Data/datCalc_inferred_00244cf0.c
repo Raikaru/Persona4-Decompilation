@@ -37,7 +37,7 @@ void datScriptCalcPhysicalDamageScaled(void)
 
     temp_f20 = datScriptCalcFloat(0xE, 2);
     temp_f20 += datScriptCalcFloat(0xE, 2);
-    temp_f0 = datScriptCalcFloat(0x13, 0);
+    temp_f0 = datScriptCalcFloat(DAT_SCRIPT_TERM_SKILL_POWER, 0);
     temp_f1 = temp_f0 / 2.0f;
     temp_f0 = 30.0f * temp_f1;
     temp_f1 = 5.0f * temp_f20;
@@ -47,8 +47,8 @@ void datScriptCalcPhysicalDamageScaled(void)
     temp_f0 = mul_f32_ordered(temp_f20, temp_f0);
     temp_f1 = sqrtf(temp_f0);
     temp_f20 = 10.0f * temp_f1;
-    temp_f20 *= datScriptCalcFloat(0xC, 0);
-    temp_f20 *= datScriptCalcFloat(0x17, 0);
+    temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_TARGET_AFFINITY_PCT, 0);
+    temp_f20 *= datScriptCalcFloat(DAT_SCRIPT_TERM_LEVEL_FACTOR, 0);
     temp_f20 *= datScriptCalcFloat(0x1B, 0);
     temp_f1 = temp_f20 * datScriptCalcFloat(0x21, 0);
     temp_f0 = temp_f1 * fGpffff811c;
