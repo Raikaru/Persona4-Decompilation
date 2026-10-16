@@ -8,6 +8,7 @@
 #include "btl_packet_create_internal.h"
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
+#include "btl_battle_internal.h"
 typedef struct RwV3d {
     f32 x;
     f32 y;
@@ -379,7 +380,7 @@ s32 btlRelease(void)
     btlFormationClearSlots();
     btlPacketFlushAll();
     itfMesWindowReleaseIfActive(*(s32 *)(iGpffffb3ac + 0xC60));
-    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x4000) != 0) {
+    if ((*(s32 *)(iGpffffb3ac + 0xC) & BTL_FLAG_FREE_UNITS) != 0) {
         for (i = 0; (u16)i < 4; i = (u16)(i + 1)) {
             base = (s32 *)iGpffffb3ac;
             temp = *(s32 *)((s32)base + (i & 0xFFFF) * 4 + 0xC74);

@@ -193,7 +193,7 @@ s32 btlUnitGetMotionState(u8 *arg0) {
 // FUN_00198840
 /* Ported from P3FES btlUnit00282c60: the P4 genus/flag/value fields retain
    the donor layout at 0xA2/0x98/0x9DA, with the result comparing unk_9EC. */
-u32 func_00198840(u8 *unit)
+u32 btlUnitIsAtRestMotion(u8 *unit)
 {
     s16 val;
 
@@ -214,7 +214,7 @@ u32 func_00198840(u8 *unit)
 // FUN_001988B0
 /* Ported from P3FES btlUnit00282cd0: the P4 genus/flag/value fields retain
    the donor layout at 0xA2/0x98/0x9DA, with the result testing val == 1. */
-u32 func_001988b0(u8 *unit)
+u32 btlUnitIsWalkingMotion(u8 *unit)
 {
     s16 val;
 

@@ -43,8 +43,8 @@ extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void btlUnitSetPos(void *arg0, void *arg1);
 extern void btlUnitSetRot(void *arg0, void *arg1);
 extern s32 btlUnitIsMoving(void *arg0);
-extern void func_00196b70(void *arg0);
-extern void func_00196ba0(void *arg0);
+extern void btlUnitClearMoveFlags(void *arg0);
+extern void btlUnitClearRotateFlags(void *arg0);
 extern void btlUnitRequestLookAt(void *arg0);
 extern void btlTargetRefreshRadiusNode(void *arg0);
 extern u8 *btlActionGetActiveOrQueueFront(void);
@@ -295,7 +295,7 @@ u32 btlFormationPlaceUnits(u32 *work)
                     btlTargetBlendVectors((u8 *)(quat), (u8 *)((f32 *)&centerB), (u8 *)(centerA));
                     btlUnitSetRot((struct BtlUnit *)(other), (const struct RtQuat *)(quat));
                 }
-                func_00196ba0(other);
+                btlUnitClearRotateFlags(other);
                 btlUnitRequestLookAt(other);
             }
             if (work[1] == 1) {
@@ -411,7 +411,7 @@ u32 btlFormationPlaceUnits(u32 *work)
                         if ((*(u16 *)(actionTarget + 0x1A) & 1) != 0 && actionTarget != base) {
                             btlTargetBlendVectors((u8 *)(quat), (u8 *)(*(u8 **)(actionTarget + 0x30) + 4), (u8 *)(unitB + 4));
                             btlUnitSetRot((struct BtlUnit *)(*(u8 **)(actionTarget + 0x30)), (const struct RtQuat *)(quat));
-                            func_00196ba0(*(u8 **)(actionTarget + 0x30));
+                            btlUnitClearRotateFlags(*(u8 **)(actionTarget + 0x30));
                             btlUnitRequestLookAt(*(u8 **)(actionTarget + 0x30));
                         }
                     }
@@ -527,7 +527,7 @@ u32 btlFormationPlaceUnits(u32 *work)
             }
             btlTargetBlendVectors((u8 *)(quat), (u8 *)(centerA), (u8 *)((f32 *)&best));
             btlUnitSetRot((struct BtlUnit *)(groupUnit), (const struct RtQuat *)(quat));
-            func_00196ba0(groupUnit);
+            btlUnitClearRotateFlags(groupUnit);
             btlUnitRequestLookAt(groupUnit);
         }
         for (groupNode = *(u8 **)(iGpffffb3ac + 0x17C); groupNode != NULL; groupNode = *(u8 **)(groupNode + 0xA68)) {
@@ -705,8 +705,8 @@ u32 btlFormationUpdatePose(u32 *work)
     sel = *(u16 *)(work + 2);
     switch (sel) {
     case 0:
-        func_00196b70((void *)work[0]);
-        func_00196ba0((void *)work[0]);
+        btlUnitClearMoveFlags((void *)work[0]);
+        btlUnitClearRotateFlags((void *)work[0]);
         btlUnitFaceTarget((void *)work[0], (u8 *)work[1] + 4);
         btlUnitFaceTarget((void *)work[1], (u8 *)work[0] + 4);
         diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
@@ -723,8 +723,8 @@ u32 btlFormationUpdatePose(u32 *work)
         btlUnitSetPos((void *)work[0], dest);
         break;
     case 1:
-        func_00196b70((void *)work[0]);
-        func_00196ba0((void *)work[0]);
+        btlUnitClearMoveFlags((void *)work[0]);
+        btlUnitClearRotateFlags((void *)work[0]);
         btlUnitFaceTarget((void *)work[0], (u8 *)work[1] + 4);
         btlUnitFaceTarget((void *)work[1], (u8 *)work[0] + 4);
         diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
@@ -761,11 +761,11 @@ u32 btlFormationUpdatePose(u32 *work)
         btlUnitSetPos((void *)work[1], dest);
         break;
     case 4:
-        func_00196b70((void *)work[0]);
-        func_00196ba0((void *)work[0]);
+        btlUnitClearMoveFlags((void *)work[0]);
+        btlUnitClearRotateFlags((void *)work[0]);
         btlUnitFaceTarget((void *)work[0], (u8 *)work[1] + 4);
         btlUnitFaceTarget((void *)work[1], (u8 *)work[0] + 4);
-        scale = func_00196bd0((u8 *)work[0], (u8 *)work[1], 7);
+        scale = btlUnitGetMotionDistance((u8 *)work[0], (u8 *)work[1], 7);
         diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
         diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
         diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
@@ -824,12 +824,12 @@ u32 btlFormationUpdateMovement(u16 *arg0)
                     func_00194ff0(var_20, sp80, sp70, NULL);
                     if (temp_16 != 0) {
                         btlUnitSetPos(var_20, sp80);
-                        func_00196b70(var_20);
+                        btlUnitClearMoveFlags(var_20);
                         btlTargetRefreshRadiusNode(var_20);
                     }
                     if (temp_21 != 0) {
                         btlUnitSetRot(var_20, sp70);
-                        func_00196ba0(var_20);
+                        btlUnitClearRotateFlags(var_20);
                         btlUnitRequestLookAt(var_20);
                     }
                 }
@@ -1030,8 +1030,8 @@ u32 btlFormationApplyDefaultPose(void)
 
     node = *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30);
     func_00194ff0(node, vectors.base, vectors.offsets, NULL);
-    func_00196b70(node);
-    func_00196ba0(node);
+    btlUnitClearMoveFlags(node);
+    btlUnitClearRotateFlags(node);
     btlUnitSetPos(node, vectors.base);
     btlUnitSetRot(node, vectors.offsets);
     RtQuatTransformVectors(vectors.transformed, D_00609470, 3, vectors.offsets);
@@ -1047,8 +1047,8 @@ u32 btlFormationApplyDefaultPose(void)
         vectors.result[0] = vectors.base[0] + offset[0];
         vectors.result[1] = vectors.base[1] + offset[1];
         vectors.result[2] = vectors.base[2] + offset[2];
-        func_00196b70(node);
-        func_00196ba0(node);
+        btlUnitClearMoveFlags(node);
+        btlUnitClearRotateFlags(node);
         btlUnitSetPos(node, vectors.result);
         btlUnitSetRot(node, vectors.offsets);
         index++;
