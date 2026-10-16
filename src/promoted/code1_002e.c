@@ -195,14 +195,14 @@ void fclObjStartTween(u8 *arg0, f32 first, f32 second, u8 mode, s32 duration, s6
    copy preserves retail's grouped output loads and store-source registers. */
 
 // FUN_002E0970
-void func_002e0970(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s64 arg5)
+void fclObjStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s64 arg5)
 {
     extern void fclSpriteStartColor(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s16 arg5);
     fclSpriteStartColor(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, arg5);
 }
 
 // FUN_002E09B0
-void func_002e09b0(u8 *arg0, f32 fparg0, s16 arg1)
+void fclObjSetHoldTimer(u8 *arg0, f32 fparg0, s16 arg1)
 {
     u8 *temp = *(u8 **)(arg0 + 0x38);
     s16 flags = *(s16 *)(temp + 4);
@@ -212,7 +212,7 @@ void func_002e09b0(u8 *arg0, f32 fparg0, s16 arg1)
     *(s16 *)(temp + 0xF2) = arg1;
 }
 // FUN_002E09E0
-void func_002e09e0(u8 *arg0, s32 arg1, f32 fparg0) {
+void fclObjSetAnchorPosition(u8 *arg0, s32 arg1, f32 fparg0) {
     u8 *work = *(u8 **)(arg0 + 0x38);
     f32 *entry = (f32 *)(D_0063F560 + *(s16 *)(work + 0xF8) * 8);
     f2 out;
@@ -225,7 +225,7 @@ void func_002e09e0(u8 *arg0, s32 arg1, f32 fparg0) {
 }
 
 // FUN_002E0A60
-void func_002e0a60(u8 *arg0, s32 arg1, f32 fparg0)
+void fclObjSetAnchorAlphaFull(u8 *arg0, s32 arg1, f32 fparg0)
 {
     u8 *work;
     u8 *entry;
@@ -257,7 +257,7 @@ void fclDrawEquipSprite(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
     sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FB50), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 // FUN_002E0BE0
-void func_002e0be0(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
+void fclDrawResourceSprite(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
                    s32 arg4, u8 *arg5)
 {
     sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FAA0), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
@@ -269,7 +269,7 @@ void fclDrawEquipHelpSprite(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
     sdkSpriteDrawQueued(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)resourceFindByName(D_0063FB90), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 // FUN_002E0D60
-s32 func_002e0d60(void)
+s32 fclBankManagerCreate(void)
 {
     u8 *temp = func_002e1db0(0x30, 0, 0, 0);
     iGpffffb588 = temp;
@@ -295,7 +295,7 @@ s64 func_002e0da0(void)
    against a 128-byte window). With the hoist it is byte-exact. */
 // FUN_002E6F90
 #pragma opt_loop_invariants on
-s32 func_002e6f90(u8 *arg0, s32 arg1) {
+s32 fclListAddUnique(u8 *arg0, s32 arg1) {
     s32 i = 0;
     s16 val = (s16)arg1;
     s16 n = *(s16 *)(arg0 + 0x60);
@@ -364,7 +364,7 @@ void fclFreeWorkBlock(u8 *arg0) {
     jtbl_008873EC[0](arg0);
 }
 // FUN_002E71C0
-s32 func_002e71c0(void)
+s32 fclUnlockMoonPhaseItems(void)
 {
     s16 item;
     s32 found;

@@ -35,7 +35,7 @@ extern u32 frFontFadeNodes(int param_1);
 extern void *memset(void *dst, s32 value, u32 size);
 extern int sdkSndIsChannelPlaying(int param_1);
 extern void nmMesWindowResetRecords(void);
-extern int func_002e0d60(void);
+extern int fclBankManagerCreate(void);
 extern void fclMiscCreateAssistTask(void);
 struct KwlnTask;
 extern s32 fclBankManagerUpdate(u8 *task);
@@ -2764,7 +2764,7 @@ void frFontStartup(void)
     int v;
 
     nmMesWindowResetRecords();
-    v = func_002e0d60();
+    v = fclBankManagerCreate();
     *(int *)v = (s32)kwlnTaskCreate((const void *)(&D_00763840), 0xC8, 0, 0, fclBankManagerUpdate, 0, (u8 *)(0));
     frFontInitManager(0x100, 0x100);
     kwlnTaskCreate((const void *)(&D_00763848), 0, 0, 0, frFontMaintainCacheTask, frFontTaskDestroy, (u8 *)(0));
