@@ -10,7 +10,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-OWNER = ROOT / 'src/promoted/k_fldEvent.c'
+OWNER = ROOT / 'src/Kosaka/Field/k_fldEvent.c'
 sys.path.insert(0, str(ROOT / 'tools'))
 from field_movement_source import movement_definition
 import verify
