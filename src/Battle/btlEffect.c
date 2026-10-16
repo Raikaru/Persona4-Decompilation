@@ -42,7 +42,7 @@ extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
 extern void btlEffectReleaseCdvdHandle(void);
 extern u32 btlEffectLoadTable(void);
 extern u32 btlEffectReleaseId(u16 *param_1);
-extern u32 func_001d7a60(u8 *param_1);
+extern u32 btlEffectApplyFadeCustomColor(u8 *param_1);
 
 typedef u8 bool;
 
@@ -272,7 +272,7 @@ BtlPacket* btlEffectCreateMessagePacket(u8 *param_1,u16 param_2)
   int packet = 0;
 
   packet = (int)btlPacketAlloc(0x30a,6);
-  *(code *)(packet + 0x6c) = (code)func_001d7a60;
+  *(code *)(packet + 0x6c) = (code)btlEffectApplyFadeCustomColor;
   work = *(u8 **)(packet + 0x78);
   *(BtlMessageArgs *)work = *(BtlMessageArgs *)param_1;
   *(u16 *)(work + 4) = param_2;

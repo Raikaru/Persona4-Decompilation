@@ -50,7 +50,7 @@ extern s32 func_00122640(s32 arg0, s32 arg1);
 
 extern void *btlPacketAlloc();
 
-extern s32 func_001d7b30(u16 *arg0);
+extern s32 btlEffectSetFadeLevel(u16 *arg0);
 
 typedef struct RwV3d RwV3d;
 struct RwV3d
@@ -88,18 +88,18 @@ extern f32 fGpffff8110;
 /* measured: opt_propagation off is required for the default GP load/store register order. */
 /* measured: close opt_propagation after btlEffectFlagToColor. */
 // FUN_001D7B30
-s32 func_001d7b30(u16 *arg0) {
+s32 btlEffectSetFadeLevel(u16 *arg0) {
     func_00122640(1, *arg0);
     return 1;
 }
 
 // FUN_001D7B60
-BtlPacket *func_001d7b60(u16 param_1)
+BtlPacket *btlEffectCreateFadeLevelPacket(u16 param_1)
 {
   int iVar1 = 0;
 
   iVar1 = (int)btlPacketAlloc(0x30B, 2);
-  *(code *)(iVar1 + 0x6c) = (code)func_001d7b30;
+  *(code *)(iVar1 + 0x6c) = (code)btlEffectSetFadeLevel;
   **(u16 **)(iVar1 + 0x78) = param_1;
   return (BtlPacket *)iVar1;
 }

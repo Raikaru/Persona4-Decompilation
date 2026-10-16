@@ -19,7 +19,7 @@ extern void memset(void* dst, s32 value, u32 size);
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/btlFormation/btlFormation_grouped.c; members 001d6f20-001d7040 */
 
 // FUN_001D6F20
-u8* func_001d6f20(s32 arg0)
+u8* btlEffectCreatePlacementEntry(s32 arg0)
 {
     u8* temp_2;
     u8* temp_2_2;
@@ -58,7 +58,7 @@ u8* func_001d6f20(s32 arg0)
 }
 
 // FUN_001D7040
-void func_001d7040(u8* arg0)
+void btlEffectDestroyPlacementEntry(u8* arg0)
 {
     u8* temp_16;
     u8* temp_3;
