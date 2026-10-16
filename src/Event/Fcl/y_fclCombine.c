@@ -164,7 +164,7 @@ extern void nmMesWindowSetNumber(u8 *, s16, s32, FclVec2, FclDrawColor, f32, s64
 extern u32 func_002e7a60(void);
 extern u8 *func_00349290(u8 *, s8);
 
-extern void func_00313b50(u8 *task);
+extern void cmmDateSelectionRefresh(u8 *task);
 extern s32 func_0033e3f0(u8 *task);
 
 
@@ -319,7 +319,7 @@ s32 fclCombineMenuCreate(u8 *arg0) {
     *out = 0;
     *(out + 1) = 0x11;
     *(out + 0x144) = 0;
-    func_00313b50((u8 *)(task));
+    cmmDateSelectionRefresh((u8 *)(task));
     *(out + 0x20) = 0;
     *(out + 0xB3) = 0;
     *(s32 *)(out + 0x254) = func_0034a4f0((s32)arg0, 0);
@@ -5926,7 +5926,7 @@ void fclCombineMenuDetailPanels(u8 *arg0) {
         func_0033e540(*(u8 **)(p + 0x250), sp250, sp248, 6, 0);
         fclCombineFadeLabelSprites(arg0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0);
     case 0x70:
-        func_00313b50(arg0);
+        cmmDateSelectionRefresh(arg0);
         *(s8 *)(p + 0xD) = nmMesWindowAcquire((void *)func_00331660());
         sprintf(buf, (const char *)&iGpffffa8a0, func_002e78a0());
         nmMesWindowSetSlotString(*(s8 *)(p + 0xD), 0, buf);

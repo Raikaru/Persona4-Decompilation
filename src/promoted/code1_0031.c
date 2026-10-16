@@ -25,7 +25,7 @@ extern u8 D_006432B0[];
 extern u8 func_002e78a0(void);
 extern s32 func_002e78e0(void);
 extern void func_002e7920(s32 *month, s32 *day);
-extern void func_00313d20(u8 *arg0, u8 month, s32 day, s8 mode);
+extern void cmmDateSelectionSelect(u8 *arg0, u8 month, s32 day, s8 mode);
 
 static inline s8 findDateEntry(u8 month, u8 day)
 {
@@ -383,7 +383,7 @@ s8 fclCombineItemSlot(s8 arg0, u16 arg1)
 #pragma push
 #pragma opt_loop_invariants on
 // FUN_00313B50
-void func_00313b50(u8 *arg0)
+void cmmDateSelectionRefresh(u8 *arg0)
 {
     s32 month;
     s32 day;
@@ -395,12 +395,12 @@ void func_00313b50(u8 *arg0)
     current_day = func_002e78e0();
     current_month = func_002e78a0();
     *(s8 *)(work + 0x2D4) = findDateEntry(current_month, current_day);
-    func_00313d20(arg0, func_002e78a0(), func_002e78e0(), 0);
+    cmmDateSelectionSelect(arg0, func_002e78a0(), func_002e78e0(), 0);
     month = func_002e78a0();
     day = (u8)func_002e78e0() + 1;
     func_002e7920(&month, &day);
     *(s8 *)(work + 0x2D5) = findDateEntry((u8)month, (u8)day);
-    func_00313d20(arg0, (u8)month, (u8)day, 1);
+    cmmDateSelectionSelect(arg0, (u8)month, (u8)day, 1);
     *(u8 *)(work + 0x2D2) = month;
     *(u8 *)(work + 0x2D3) = day;
     *(u8 *)(work + 0x2D6) = 0;
@@ -424,7 +424,7 @@ typedef struct DateSelectionWork {
 // FUN_00313D20
 #pragma push
 #pragma opt_loop_invariants on
-void func_00313d20(u8 *task, u8 month, s32 day, s8 mode)
+void cmmDateSelectionSelect(u8 *task, u8 month, s32 day, s8 mode)
 {
     extern s64 calGetDayEntryForMonthDay(s32 month, s32 day);
     extern u8 D_00643D00[];
