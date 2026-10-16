@@ -38,9 +38,9 @@ static inline u32 seqRecord(u32 offset, u32 base)
     return offset + base;
 }
 extern void btlShuffleDrawViewReset(u8 *a);
-extern s32 func_00379f90(u8 *a);
-extern s32 func_0037ad10(u8 *a);
-extern s32 func_0037bc80(u8 *a);
+extern s32 btlShuffleSeq1Run(u8 *a);
+extern s32 btlShuffleSeq2Run(u8 *a);
+extern s32 btlShuffleSeq3Run(u8 *a);
 extern s32 btlShuffleSeq4Run(u8 *a);
 extern s32 btlShuffleSeq5Run(u8 *a);
 extern s32 btlShuffleResultSpawn(s32 a, s32 b, s32 c, s32 d);
@@ -728,11 +728,11 @@ s32 btlShuffleSeqCardTask(u8 *arg0) {
     state = *(s32 *)(arg0 + 0x1F2FC);
     switch (state) {
     case 0:
-        return func_00379f90(arg0);
+        return btlShuffleSeq1Run(arg0);
     case 1:
-        return func_0037ad10(arg0);
+        return btlShuffleSeq2Run(arg0);
     case 2:
-        return func_0037bc80(arg0);
+        return btlShuffleSeq3Run(arg0);
     case 3:
         return btlShuffleSeq4Run(arg0);
     case 4:

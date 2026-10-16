@@ -508,7 +508,7 @@ void func_00379e90(u8 *arg0, s32 arg1, f32 *arg2) {
 // measured: loop invariants hoist (u16)mod out of the deal loops as retail does
 #pragma opt_loop_invariants on
 // FUN_00379F90
-s32 func_00379f90(u8 *arg0) {
+s32 btlShuffleSeq1Run(u8 *arg0) {
     extern s32 btlShuffleSeqPick(u8 *arg0, s32 arg1);
     extern s32 btlShuffleSeqLoadRecord(u8 *arg0);
     extern s32 btlShuffleSeqStep(u8 *arg0);
@@ -870,7 +870,7 @@ extern s32 btlShuffleSeqDispatch(u8 *arg0);
 // measured: MISMATCH without loop invariants (in-file build); retail hoists (u16)mod out of the loops
 #pragma opt_loop_invariants on
 // FUN_0037AD10
-s32 func_0037ad10(u8 *arg0) {
+s32 btlShuffleSeq2Run(u8 *arg0) {
     struct Vec3 {
         f32 x;
         f32 y;
@@ -1223,7 +1223,7 @@ void func_0037bac0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
 // measured: MISMATCH without loop invariants (in-file build); retail hoists (u16)mod out of the loops
 #pragma opt_loop_invariants on
 // FUN_0037BC80
-s32 func_0037bc80(u8 *arg0) {
+s32 btlShuffleSeq3Run(u8 *arg0) {
     struct Vec3 {
         f32 x;
         f32 y;
