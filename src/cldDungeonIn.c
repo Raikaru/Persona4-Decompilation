@@ -111,13 +111,13 @@ typedef struct DungeonInWork {
 } DungeonInWork;
 extern void PrimDrawFlatRectangle(u8 *, f32 *, f32, s32);
 extern void H_Fade_SetCustomColor(s32, s32, s32);
-extern void func_00267b20(f32, f32, f32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
+extern void PrimDrawContour(f32, f32, f32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
 extern s32 sdkSpriteDrawNow(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
 extern u8 *resourceFindByName(char *);
 extern u8 *func_002e2170(u8 *, u8 *, s32);
 extern void kAssertFail(const void *, s32);
 extern void *memcpy(void *, const void *, u32);
-extern void func_00267670(u8 **);
+extern void cldShapeListDraw(u8 **);
 extern u8 D_005E5810[];
 
 static inline f32 dungeonInBezier(f32 t, f32 start, f32 control1, f32 control2, f32 end)
@@ -174,7 +174,7 @@ void func_00268230(void *unused, void *task)
         if (frame < 41) {
             t = (f32)frame / 40.0f;
             curve = dungeonInBezier(t, 0.0f, 0.01f, 0.1f, 1.0f);
-            func_00267b20(288.0f, 222.0f, 0.0f, 0xC4C4C4, 255,
+            PrimDrawContour(288.0f, 222.0f, 0.0f, 0xC4C4C4, 255,
                           1, 9, 0, 0, 0.0f + -45.0f + 70.0f * curve,
                           3.0f * curve, 3.0f * curve);
         } else {
@@ -244,7 +244,7 @@ void func_00268230(void *unused, void *task)
                 memcpy(nodeWork->target, target, 16);
             }
         }
-        func_00267670((u8 **)work->list);
+        cldShapeListDraw((u8 **)work->list);
         if (work->frame >= 170) {
             work->frame = 0;
             work->state = 2;
