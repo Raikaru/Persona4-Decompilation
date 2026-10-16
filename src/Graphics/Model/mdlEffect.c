@@ -1654,9 +1654,9 @@ loop_0048cd60_check:
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
+/* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Multiplies with code1_0048_mul; kinds 8, 9 and 10 multiply with code1_0049_mul, and the bodies are otherwise identical. */
 // FUN_0048D820
-void func_0048d820(u8 *arg0, f32 fparg0) {
+void EffEmitterKind3ApplyScaleMul48(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1689,9 +1689,9 @@ loop_0048d820_check:
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
+/* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Multiplies with code1_0048_mul; kinds 8, 9 and 10 multiply with code1_0049_mul, and the bodies are otherwise identical. */
 // FUN_0048E270
-void func_0048e270(u8 *arg0, f32 fparg0) {
+void EffEmitterKind4ApplyScaleMul48(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1831,9 +1831,9 @@ loop_00490360_check:
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 #pragma pop
-/* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
+/* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Multiplies with code1_0049_mul; kinds 3 and 4 multiply with code1_0048_mul, and the bodies are otherwise identical. */
 // FUN_00490BB0
-void func_00490bb0(u8 *arg0, f32 fparg0) {
+void EffEmitterKind8ApplyScaleMul49(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1866,9 +1866,9 @@ loop_00490bb0_check:
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
+/* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Multiplies with code1_0049_mul; kinds 3 and 4 multiply with code1_0048_mul, and the bodies are otherwise identical. */
 // FUN_00491660
-void func_00491660(u8 *arg0, f32 fparg0) {
+void EffEmitterKind9ApplyScaleMul49(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
@@ -1900,9 +1900,9 @@ loop_00491660_check:
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 #pragma pop
-/* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
+/* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Multiplies with code1_0049_mul; kinds 3 and 4 multiply with code1_0048_mul, and the bodies are otherwise identical. */
 // FUN_00492080
-void func_00492080(u8 *arg0, f32 fparg0) {
+void EffEmitterKind10ApplyScaleMul49(u8 *arg0, f32 fparg0) {
     s32 temp_4;
     u32 var_7;
     u8 *temp_5;
