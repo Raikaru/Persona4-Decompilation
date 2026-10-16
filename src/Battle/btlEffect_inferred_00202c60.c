@@ -1414,7 +1414,7 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    extern void func_002bc860(f32 x, f32 y, f32 z, s32 color,
+    extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 z, s32 color,
                               s32 mode, s32 flags, s32 skill);
     u8 *glyphs;
     u8 *unit;
@@ -1494,7 +1494,7 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
     }
     if (showDetail != 0) {
         frFontSetFlagBits(0x40);
-        func_002bc860(10.0f + ((2.0f + textX) - 1.0f), 36.0f + y,
+        itfMesWindowDrawDefaultEntry(10.0f + ((2.0f + textX) - 1.0f), 36.0f + y,
                       0.0f, alpha | ~0xFF, 1, 0, skill);
         frFontClearFlagBits(0x40);
     }

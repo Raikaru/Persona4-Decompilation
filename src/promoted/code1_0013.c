@@ -60,9 +60,9 @@ extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern s32 func_00106600(s16 arg0);
 extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 extern void radarResetAndSetIndices(u8 *arg0, s16 arg1, s16 arg2);
-extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
+extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void radarDrawHeaderFrame(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3);
@@ -72,7 +72,7 @@ extern void datPanelDrawByKind(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg
 extern s32 datCalcGetLevelById(s32 arg0);
 extern f32 fGpffff82cc; /* gp -0x7d34 */
 extern void datEntryDrawByKind(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
-extern void func_002bc860(f32 x, f32 y, f32 depth,
+extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
                           s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_0012e2f0(u8 *arg0);
 extern s32 func_0012e8b0(u8 *arg0);
@@ -338,12 +338,12 @@ void radarDrawEntryRow(u8 *arg0, s32 arg1)
     pos.x = 60.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
     ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
     pos.y = 21.0f + (ty + yoff);
-    func_0034f2e0(*(void **)(arg0 + 0x1B90), pos.x, pos.y, color0[0], color0[1], color0[2], alpha);
+    sdkSpriteDrawAt(*(void **)(arg0 + 0x1B90), pos.x, pos.y, color0[0], color0[1], color0[2], alpha);
     if (highlight != 0) {
         pos.x = 2.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
         ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
         pos.y = 27.0f + (ty + yoff);
-        func_0034f2e0(*(void **)(arg0 + 0x1B94), pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
+        sdkSpriteDrawAt(*(void **)(arg0 + 0x1B94), pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
     }
     n = datCalcGetLevelById(id);
     pos.x = 43.0f + (x + ((f32 *)(arg0 + 0x1618))[arg1 * 12]);
@@ -353,7 +353,7 @@ void radarDrawEntryRow(u8 *arg0, s32 arg1)
         pos.x -= 11.0f;
     }
     while (n > 0) {
-        func_0034f2e0(*(void **)(arg0 + (n % 10) * 4 + 0x1BA4), pos.x, pos.y, color1[0], color1[1], color1[2], alpha);
+        sdkSpriteDrawAt(*(void **)(arg0 + (n % 10) * 4 + 0x1BA4), pos.x, pos.y, color1[0], color1[1], color1[2], alpha);
         pos.x -= 22.0f;
         n /= 10;
     }
@@ -361,7 +361,7 @@ void radarDrawEntryRow(u8 *arg0, s32 arg1)
     ty = y + ((f32 *)(arg0 + 0x161C))[arg1 * 12];
     pos.y = 53.0f + (ty + yoff);
     spr = *(void **)(arg0 + 0x1BE0);
-    func_0034f2e0(spr, pos.x, pos.y, color2[0], color2[1], color2[2], (u8)((f32)alpha * dim));
+    sdkSpriteDrawAt(spr, pos.x, pos.y, color2[0], color2[1], color2[2], (u8)((f32)alpha * dim));
 }
 #pragma pop
 // Intent: Draw a sprite at the given position and another 340 units to its right, with the given colour [inferred]
@@ -381,10 +381,10 @@ void radarDrawSpritePair(u8 *arg0, s64 arg1, s32 arg2)
     c2 = ((u8 *)&arg2)[2];
     c3 = ((u8 *)&arg2)[1];
     c0 = ((f32 *)&arg1)[1];
-    func_0034f2e0((void *)p,
+    sdkSpriteDrawAt((void *)p,
                   ((f32 *)&arg1)[0], c0,
                   ((u8 *)&arg2)[0], c3, c2, c1);
-    func_0034f2e0(*(void **)(arg0 + 0x1b64),
+    sdkSpriteDrawAt(*(void **)(arg0 + 0x1b64),
                   340.0f + ((f32 *)&arg1)[0], c0,
                   ((u8 *)&arg2)[0], c3, c2, c1);
 }
@@ -442,11 +442,11 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
         blue = colors.current.b[2];
         green = colors.current.b[1];
         y = position.xy.y;
-        func_0034f320(sprite, position.xy.x, y, 0.0f,
+        sdkSpriteDrawSized(sprite, position.xy.x, y, 0.0f,
                       ((u8 *)&colors.current)[0], green, blue, alpha,
                       0x1000, (u16)height, 0, 0.0f, 0);
         sprite = *(u8 **)(work + 0x1BD8);
-        func_0034f320(sprite, (f32)0x159 + position.xy.x, y, 0.0f,
+        sdkSpriteDrawSized(sprite, (f32)0x159 + position.xy.x, y, 0.0f,
                       ((u8 *)&colors.current)[0], green, blue, alpha,
                       0x1000, (u16)height, 0, 0.0f, 0);
     }
@@ -478,9 +478,9 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
         blue = colors.current.b[2];
         green = colors.current.b[1];
         y = position.xy.y;
-        func_0034f2e0(sprite, position.xy.x, y,
+        sdkSpriteDrawAt(sprite, position.xy.x, y,
                       ((u8 *)&colors.current)[0], green, blue, alpha);
-        func_0034f2e0(*(void **)(work + 0x1BD0), 330.0f + position.xy.x, y,
+        sdkSpriteDrawAt(*(void **)(work + 0x1BD0), 330.0f + position.xy.x, y,
                       ((u8 *)&colors.current)[0], green, blue, alpha);
     }
     position.xy.x = inputPosition.xy.x;
@@ -503,10 +503,10 @@ void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16
         blue = colors.copy.b[2];
         green = colors.copy.b[1];
         y = palettePosition.xy.y;
-        func_0034f2e0(sprite, palettePosition.xy.x,
+        sdkSpriteDrawAt(sprite, palettePosition.xy.x,
                       y, colors.copy.b[0], green, blue, alpha);
         sprite = *(u8 **)(work + 0x1B64);
-        func_0034f2e0(sprite, 340.0f + palettePosition.xy.x,
+        sdkSpriteDrawAt(sprite, 340.0f + palettePosition.xy.x,
                       y, colors.copy.b[0], green, blue, alpha);
     }
     position.xy.x = position.xy.x - 2.0f;
@@ -775,9 +775,9 @@ void radarDrawPalettePair(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
         break;
     }
     temp_f20 = ((f32 *)&arg1)[1] - 3.0f;
-    func_0034f2e0((void *)p, ((f32 *)&arg1)[0], temp_f20,
+    sdkSpriteDrawAt((void *)p, ((f32 *)&arg1)[0], temp_f20,
                   color[0], color[1], color[2], arg3);
-    func_0034f2e0((void *)p2, 241.0f + ((f32 *)&arg1)[0], temp_f20,
+    sdkSpriteDrawAt((void *)p2, 241.0f + ((f32 *)&arg1)[0], temp_f20,
                   color[0], color[1], color[2], arg3);
 }
 /* measured: close mixed-ABI palette draw pair pragma. */
@@ -796,20 +796,20 @@ void radarDrawPaletteSet(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
     case 0:
         p = *(s32 *)(arg0 + 0x14C8);
         temp_f20 = ((f32 *)&arg1)[1];
-        func_0034f2e0((void *)p,
+        sdkSpriteDrawAt((void *)p,
                       ((f32 *)&arg1)[0], temp_f20,
                       D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], arg3);
         p = *(s32 *)(arg0 + 0x1508);
-        func_0034f2e0((void *)p,
+        sdkSpriteDrawAt((void *)p,
                       36.0f + ((f32 *)&arg1)[0], 24.0f + temp_f20,
                       D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], arg3);
         p = *(s32 *)(arg0 + 0x1500);
         temp_f20 = code13Add(9.0f, temp_f20);
-        func_0034f2e0((void *)p,
+        sdkSpriteDrawAt((void *)p,
                       419.0f + ((f32 *)&arg1)[0], temp_f20,
                       D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], arg3);
         p = *(s32 *)(arg0 + 0x1504);
-        func_0034f2e0((void *)p,
+        sdkSpriteDrawAt((void *)p,
                       473.0f + ((f32 *)&arg1)[0], temp_f20,
                       D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], arg3);
         break;
@@ -817,11 +817,11 @@ void radarDrawPaletteSet(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
         color = D_0064B2E8;
         p = *(s32 *)(arg0 + 0x155C);
         temp_f20 = ((f32 *)&arg1)[1];
-        func_0034f2e0((void *)p,
+        sdkSpriteDrawAt((void *)p,
                       2.0f + ((f32 *)&arg1)[0], temp_f20,
                       color[0], color[1], color[2], arg3);
         p = *(s32 *)(arg0 + 0x1560);
-        func_0034f2e0((void *)p,
+        sdkSpriteDrawAt((void *)p,
                       474.0f + ((f32 *)&arg1)[0], temp_f20,
                       color[0], color[1], color[2], arg3);
         break;
@@ -877,24 +877,24 @@ void radarDrawItemCard(u8 *work, s64 inputPosition, u8 inputAlpha, u8 *entry)
     D_00887300[0](1, 0);
     func_0045d6e0((u8 *)&color, rectangle.words, 0.0f, 0);
     sprite = *(void **)(work + 0x1548);
-    func_0034f2e0(sprite, 4.0f + position.xy.x,
+    sdkSpriteDrawAt(sprite, 4.0f + position.xy.x,
                   10.0f + initialY, 0xFF, 0xFF, 0xFF, inputAlpha);
     position.xy.y = position.xy.y + 36.0f;
     borderY = position.xy.y;
-    func_0034f2e0(*(void **)(work + 0x154C), position.xy.x, borderY,
+    sdkSpriteDrawAt(*(void **)(work + 0x154C), position.xy.x, borderY,
                   color.rgb.r, color.rgb.g, color.rgb.b, inputAlpha);
     sprite = *(void **)(work + 0x1550);
     rightX = (f32)0x1C9 + position.xy.x;
-    func_0034f2e0(sprite, rightX, borderY,
+    sdkSpriteDrawAt(sprite, rightX, borderY,
                   color.rgb.r, color.rgb.g, color.rgb.b, inputAlpha);
     sprite = *(void **)(work + 0x1554);
     bottomY = 91.0f + borderY;
-    func_0034f2e0(sprite, position.xy.x, bottomY,
+    sdkSpriteDrawAt(sprite, position.xy.x, bottomY,
                   color.rgb.r, color.rgb.g, color.rgb.b, inputAlpha);
     sprite = *(void **)(work + 0x1558);
-    func_0034f2e0(sprite, rightX, bottomY,
+    sdkSpriteDrawAt(sprite, rightX, bottomY,
                   color.rgb.r, color.rgb.g, color.rgb.b, inputAlpha);
-    func_0034f2e0(*(void **)(work + 0x1588), 6.0f + position.xy.x,
+    sdkSpriteDrawAt(*(void **)(work + 0x1588), 6.0f + position.xy.x,
                   2.0f + borderY, color.rgb.r, color.rgb.g, color.rgb.b, inputAlpha);
     position.xy.x = ((f32 *)&inputPosition)[0];
     position.xy.y = originalY;
@@ -939,21 +939,21 @@ void radarDrawHeaderFrame(u8 *arg0, PackedVec2f arg1, u8 arg2, u16 arg3)
     arg1.xy.y = temp_f21;
     temp_16 = (u16)arg3;
     if (temp_16 & 2) {
-        func_0034f2e0(*(void **)(arg0 + 0x1538),
+        sdkSpriteDrawAt(*(void **)(arg0 + 0x1538),
                       (temp_f20 = arg1.xy.x), temp_f21,
                       temp_17, temp_18, temp_19, arg2);
         temp_p = *(void **)(arg0 + 0x153C);
         temp_f20 = 467.0f + arg1.xy.x;
-        func_0034f2e0(temp_p,
+        sdkSpriteDrawAt(temp_p,
                       temp_f20, temp_f21,
                       temp_17, temp_18, temp_19, arg2);
         temp_p = *(void **)(arg0 + 0x1540);
         temp_p = temp_p;
         temp_f20 = temp_f21 + 130.0f;
-        func_0034f2e0(temp_p,
+        sdkSpriteDrawAt(temp_p,
                       arg1.xy.x, temp_f20,
                       temp_17, temp_18, temp_19, arg2);
-        func_0034f2e0(*(void **)(arg0 + 0x1544),
+        sdkSpriteDrawAt(*(void **)(arg0 + 0x1544),
                       467.0f + arg1.xy.x, temp_f20,
                       temp_17, temp_18, temp_19, arg2);
     }
@@ -1056,12 +1056,12 @@ void radarDrawEntryRowGroup(u8 *arg0, s32 arg1, s32 arg2)
     pos.x = 60.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
     ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
     pos.y = 21.0f + (ty + yoff);
-    func_0034f2e0(*(void **)(arg0 + 0x12BC), pos.x, pos.y, color0[0], color0[1], color0[2], alpha);
+    sdkSpriteDrawAt(*(void **)(arg0 + 0x12BC), pos.x, pos.y, color0[0], color0[1], color0[2], alpha);
     if (highlight != 0) {
         pos.x = 2.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
         ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
         pos.y = 27.0f + (ty + yoff);
-        func_0034f2e0(*(void **)(arg0 + 0x12C0), pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
+        sdkSpriteDrawAt(*(void **)(arg0 + 0x12C0), pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
     }
     n = (u8)datCalcGetLevelById(id);
     pos.x = 43.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
@@ -1071,7 +1071,7 @@ void radarDrawEntryRowGroup(u8 *arg0, s32 arg1, s32 arg2)
         pos.x -= 11.0f;
     }
     while (n > 0) {
-        func_0034f2e0(*(void **)(arg0 + (n % 10) * 4 + 0x12C4), pos.x, pos.y, color1[0], color1[1], color1[2], alpha);
+        sdkSpriteDrawAt(*(void **)(arg0 + (n % 10) * 4 + 0x12C4), pos.x, pos.y, color1[0], color1[1], color1[2], alpha);
         pos.x -= 22.0f;
         n /= 10;
     }
@@ -1079,7 +1079,7 @@ void radarDrawEntryRowGroup(u8 *arg0, s32 arg1, s32 arg2)
     ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
     pos.y = 53.0f + (ty + yoff);
     spr = *(void **)(arg0 + 0x1330);
-    func_0034f2e0(spr, pos.x, pos.y, color2[0], color2[1], color2[2], (u8)((f32)alpha * dim));
+    sdkSpriteDrawAt(spr, pos.x, pos.y, color2[0], color2[1], color2[2], (u8)((f32)alpha * dim));
 }
 #pragma pop
 // Intent: Draw a sprite pair from the second sprite table at the given position, 340 units apart, with the given colour [inferred]
@@ -1101,10 +1101,10 @@ void radarDrawSecondSpritePair(u8 *arg0, Vec2f arg1, PackedColor4 arg2)
     c2 = ((u8 *)&arg2)[2];
     c3 = ((u8 *)&arg2)[1];
     c0 = ((f32 *)&arg1)[1];
-    func_0034f2e0((void *)p,
+    sdkSpriteDrawAt((void *)p,
                   ((f32 *)&arg1)[0], c0,
                   ((u8 *)&arg2)[0], c3, c2, c1);
-    func_0034f2e0(*(void **)(arg0 + 0x128c),
+    sdkSpriteDrawAt(*(void **)(arg0 + 0x128c),
                   340.0f + ((f32 *)&arg1)[0], c0,
                   ((u8 *)&arg2)[0], c3, c2, c1);
 }
@@ -1164,11 +1164,11 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
         blue = colors.current.b[2];
         green = colors.current.b[1];
         y = position.xy.y;
-        func_0034f320(sprite, position.xy.x, y, 0.0f,
+        sdkSpriteDrawSized(sprite, position.xy.x, y, 0.0f,
                       ((u8 *)&colors.current)[0], green, blue, alpha,
                       0x1000, (u16)height, 0, 0.0f, 0);
         sprite = *(u8 **)(work + 0x1328);
-        func_0034f320(sprite, (f32)0x159 + position.xy.x, y, 0.0f,
+        sdkSpriteDrawSized(sprite, (f32)0x159 + position.xy.x, y, 0.0f,
                       ((u8 *)&colors.current)[0], green, blue, alpha,
                       0x1000, (u16)height, 0, 0.0f, 0);
     }
@@ -1200,9 +1200,9 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
         blue = colors.current.b[2];
         green = colors.current.b[1];
         y = position.xy.y;
-        func_0034f2e0(sprite, position.xy.x, y,
+        sdkSpriteDrawAt(sprite, position.xy.x, y,
                       ((u8 *)&colors.current)[0], green, blue, alpha);
-        func_0034f2e0(*(void **)(work + 0x1320), 330.0f + position.xy.x, y,
+        sdkSpriteDrawAt(*(void **)(work + 0x1320), 330.0f + position.xy.x, y,
                       ((u8 *)&colors.current)[0], green, blue, alpha);
     }
     position.xy.x = inputPosition.x;
@@ -1225,10 +1225,10 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
         blue = colors.copy.b[2];
         green = colors.copy.b[1];
         y = palettePosition.xy.y;
-        func_0034f2e0(sprite, palettePosition.xy.x,
+        sdkSpriteDrawAt(sprite, palettePosition.xy.x,
                       y, colors.copy.b[0], green, blue, alpha);
         sprite = *(u8 **)(work + 0x128C);
-        func_0034f2e0(sprite, 340.0f + palettePosition.xy.x,
+        sdkSpriteDrawAt(sprite, 340.0f + palettePosition.xy.x,
                       y, colors.copy.b[0], green, blue, alpha);
     }
     position.xy.x = position.xy.x - 2.0f;
@@ -1236,7 +1236,7 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
     position.xy.x = 22.0f + inputPosition.x;
     position.xy.y = 54.0f + originalY;
     labelAlpha = (u8)scaledInputAlpha;
-    func_002bc860((f32)(s32)position.xy.x, (f32)(s32)position.xy.y, 0.0f,
+    itfMesWindowDrawDefaultEntry((f32)(s32)position.xy.x, (f32)(s32)position.xy.y, 0.0f,
                   (labelAlpha & 0xFF) | ~0xFF, 1, 8, *(u16 *)((u8 *)entry + 0xA));
 }
 static inline s32 code13GroupBefore(u8 *arg0, s32 index)

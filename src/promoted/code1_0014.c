@@ -203,7 +203,7 @@ extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern void fieldSceneUnload(void);
 extern u8 * iGpffff9db0;
-extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
                           u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void (*jtbl_008873EC[])(void *);
@@ -329,7 +329,7 @@ static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
  * it without another mask, while the matched definitions in this file keep
  * s32 because their own bodies use the full word.
  * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the func_0034f320
+ * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
  * call, so the label pointer is loaded before the stack argument. */
 #pragma push
 #pragma opt_loop_invariants on
@@ -360,8 +360,8 @@ extern f32 D_008872F8[];
 extern void func_0034f1e0(void);
 extern void func_0034c270(Float2_0014 work, s32 arg1, s32 arg2, f32 fparg0);
 extern f32 func_0034f720(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2);
-extern void func_0034f2e0(void *work, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-extern void func_0034f320(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawAt(void *work, f32 fparg0, f32 fparg1, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+extern void sdkSpriteDrawSized(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void func_0034f9d0(Float2_0014 work, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
 extern void func_00355410(u8 *work, u8 arg1);
 extern void func_00354ba0(void *work);

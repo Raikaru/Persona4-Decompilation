@@ -307,8 +307,9 @@ void func_002bc7f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f
     itfMesWindowQueueEntry(fparg0, fparg1, fparg2, arg1, arg2, arg3, 1, D_0063F2B0[(s8)arg4], arg0, &D_00793E80[arg5 * 0x30]);
 }
 
+// Intent: Draw a message-window entry at the given position using the default table entry and mode 1 [inferred]
 // FUN_002BC860
-void func_002bc860(f32 x, f32 y, f32 depth,
+void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
                     s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 depth, s32 arg0, s32 arg1,

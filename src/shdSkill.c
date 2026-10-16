@@ -26,7 +26,7 @@ u8 *func_00243840(s32 arg0);
 void sdkSpriteDrawOnceTinted(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8, f32 arg9, s32 arg10);
 extern char D_005E5830[];
 extern char D_005E5850[];
-void func_002bc860(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
+void itfMesWindowDrawDefaultEntry(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
 u8 *resourceFindByName(char *file);
 void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode);
 void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 texture);
@@ -592,7 +592,7 @@ void ShdSkill_DrawSelectionFrame(Vec2f arg0, f32 fparg0, u8 arg1, u16 arg2) {
     if (temp_7 != 0) {
         x = 62.0f + arg0.x;
         y = 22.0f + arg0.y;
-        func_002bc860((f32)(s32)x, (f32)(s32)y, fparg0, temp_17 | ~0xFF, 1, 8, temp_7);
+        itfMesWindowDrawDefaultEntry((f32)(s32)x, (f32)(s32)y, fparg0, temp_17 | ~0xFF, 1, 8, temp_7);
     }
 }
 
