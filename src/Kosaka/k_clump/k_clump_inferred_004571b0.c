@@ -245,7 +245,7 @@ extern u8 *func_00456c60(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 /* measured probe: opt_propagation off preserves allocator-table liveness for 00456c60. */
 /* measured probe: close opt_propagation scope after func_00456c60. */
 // FUN_004571B0
-u8 *func_004571b0(void)
+u8 *K_Clump_GetLightB(void)
 {
     return iGpffffba78;
 }

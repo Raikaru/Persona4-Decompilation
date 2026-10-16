@@ -13,8 +13,8 @@ void func_003e8180(void *arg0, f32 arg1);
 void func_003e81c0(void *arg0, f32 arg1);
 void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 u8 *func_00457120(void);
-u8 *func_004571a0(void);
-u8 *func_004571c0(void);
+u8 *K_Clump_GetLightA(void);
+u8 *K_Clump_GetLightC(void);
 void sprintf(void *dst, const void *fmt, s32 value);
 s32 strlen(const char *text);
 void kAssertFail(const void *file, s32 line);
@@ -261,14 +261,14 @@ void btlPanelSetupLayout(u8 *arg0) {
 
     dst = arg0;
     func_003e8110(func_00457120());
-    temp_2 = func_004571a0();
+    temp_2 = K_Clump_GetLightA();
     *(PanelVec4X *)(dst + 0x14) = *(PanelVec4X *)(temp_2 + 0x18);
     tmp.x = fGpffff847c;
     tmp.y = fGpffff847c;
     tmp.z = fGpffff847c;
     tmp.w = 1.0f;
     func_003c38b0(temp_2, &tmp);
-    temp_2_2 = func_004571c0();
+    temp_2_2 = K_Clump_GetLightC();
     *(PanelVec4X *)(dst + 0x24) = *(PanelVec4X *)(temp_2_2 + 0x18);
     tmp.x = fGpffff80cc;
     tmp.y = 1.0f;
@@ -304,8 +304,8 @@ void btlPanelResetLayout(u8 *arg0) {
     u8 *temp;
 
     func_003e8110(func_00457120());
-    func_003c38b0(func_004571a0(), arg0 + 0x14);
-    temp = func_004571c0();
+    func_003c38b0(K_Clump_GetLightA(), arg0 + 0x14);
+    temp = K_Clump_GetLightC();
     func_003c38b0(temp, arg0 + 0x24);
     func_003e9cb0((void *)*(s32 *)(temp + 4), arg0 + 0x40, 0);
     func_003e8180(func_00457120(), *(f32 *)(arg0 + 0x80));

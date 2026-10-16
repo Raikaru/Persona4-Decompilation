@@ -200,11 +200,11 @@ extern void func_003ec330(s32 arg0);
 extern void *func_003ef080(void *texture, void *raster);
 extern void func_003ef3a0(u8 *arg0);
 extern void func_003efd20(u8 *camera, u8 *frame);
-extern s32 func_00457190(void);
+extern s32 K_Clump_GetWorld(void);
 
-extern u8 *func_004571a0(void);
-extern u8 *func_004571b0(void);
-extern u8 *func_004571c0(void);
+extern u8 *K_Clump_GetLightA(void);
+extern u8 *K_Clump_GetLightB(void);
+extern u8 *K_Clump_GetLightC(void);
 
 
 

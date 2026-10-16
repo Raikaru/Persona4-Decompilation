@@ -25,9 +25,9 @@ extern void datFreeBlock(u8 *arg0);
 extern s32 mdlPrepareModel(u8 *arg0);
 extern void *func_00457120(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
-extern void *func_004571a0(void);
+extern void *K_Clump_GetLightA(void);
 extern void func_003c38b0(void *arg0, void *arg1);
-extern void *func_004571b0(void);
+extern void *K_Clump_GetLightB(void);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
 extern u8 *func_00104900(s8 arg0);
 extern void RwMatrixRotate(void *arg0, void *arg1, f32 arg2, s32 arg3);
@@ -98,8 +98,8 @@ void func_00349440(u8 *arg0, u8 *arg1)
     extern void mdlApplyModelMatrix(void *a, void *b, s32 c);
     extern void mdlScale(void *a, void *b, s32 c);
     extern void memcpy(void *dst, void *src, u32 size);
-    extern s32 func_00457190(void);
-    extern u8 *func_004571c0(void);
+    extern s32 K_Clump_GetWorld(void);
+    extern u8 *K_Clump_GetLightC(void);
     extern void func_003cbf30(s32 a, s32 b);
     extern void func_003e8130(void *a, void *b);
     extern u8 D_0064A648[];
@@ -226,15 +226,15 @@ void func_00349440(u8 *arg0, u8 *arg1)
         parent = *(u8 **)((u8 *)func_00457120() + 4) + 0x10;
         *(f32 *)(obj + 0x70) = K_View_GetFov(func_00457120());
         {
-            u8 *cam = (u8 *)func_004571a0();
+            u8 *cam = (u8 *)K_Clump_GetLightA();
             *(V4 *)(obj + 0x74) = *(V4 *)(cam + 0x18);
         }
         {
-            u8 *cam = (u8 *)func_004571b0();
+            u8 *cam = (u8 *)K_Clump_GetLightB();
             *(V4 *)(obj + 0x84) = *(V4 *)(cam + 0x18);
         }
         {
-            u8 *src = *(u8 **)((u8 *)func_004571b0() + 4);
+            u8 *src = *(u8 **)((u8 *)K_Clump_GetLightB() + 4);
             s32 *sp = (s32 *)(src + 0x10);
             s32 *dp = (s32 *)(obj + 0xA0);
             s32 cnt = 8;
@@ -272,8 +272,8 @@ void func_00349440(u8 *arg0, u8 *arg1)
             win[1] = (f32)tbl[*(u16 *)(obj + 8)].winY / 448.0f;
         }
         K_View_SetFov(func_00457120(), 40.0f);
-        func_003c38b0((u8 *)func_004571a0(), (u8 *)&colA);
-        func_003c38b0((u8 *)func_004571b0(), (u8 *)&colB);
+        func_003c38b0((u8 *)K_Clump_GetLightA(), (u8 *)&colA);
+        func_003c38b0((u8 *)K_Clump_GetLightB(), (u8 *)&colB);
         {
             u16 idx2 = *(u16 *)(obj + 8);
             s32 off2 = (s32)idx2 << 5;
@@ -327,10 +327,10 @@ void func_00349440(u8 *arg0, u8 *arg1)
         }
         RwMatrixMultiply(matB, matQ, parent);
         *(M64 *)matQ = *(M64 *)matB;
-        func_003e9cb0(*(s32 *)((u8 *)func_004571b0() + 4), matQ, 0);
-        *(u8 *)((u8 *)func_004571b0() + 2) = 3;
-        (void)func_004571b0();
-        func_003cbf30(func_00457190(), (s32)func_004571c0());
+        func_003e9cb0(*(s32 *)((u8 *)K_Clump_GetLightB() + 4), matQ, 0);
+        *(u8 *)((u8 *)K_Clump_GetLightB() + 2) = 3;
+        (void)K_Clump_GetLightB();
+        func_003cbf30(K_Clump_GetWorld(), (s32)K_Clump_GetLightC());
         func_003e8130(func_00457120(), win);
     }
 }
@@ -344,11 +344,11 @@ void func_00349b90(u8 *arg0, u8 *arg1)
     temp_4 = *(u8 **)(arg1 + 0xC);
     if ((temp_4 != NULL) && (mdlPrepareModel(temp_4) != 0)) {
         K_View_SetFov(func_00457120(), *(f32 *)(arg1 + 0x70));
-        func_003c38b0(func_004571a0(), arg1 + 0x74);
-        func_003c38b0(func_004571b0(), arg1 + 0x84);
-        func_003e9cb0(*(s32 *)((u8 *)func_004571b0() + 4), arg1 + 0xA0, 0);
-        *(s8 *)((u8 *)func_004571b0() + 2) = 3;
-        func_004571b0();
+        func_003c38b0(K_Clump_GetLightA(), arg1 + 0x74);
+        func_003c38b0(K_Clump_GetLightB(), arg1 + 0x84);
+        func_003e9cb0(*(s32 *)((u8 *)K_Clump_GetLightB() + 4), arg1 + 0xA0, 0);
+        *(s8 *)((u8 *)K_Clump_GetLightB() + 2) = 3;
+        K_Clump_GetLightB();
     }
 }
 

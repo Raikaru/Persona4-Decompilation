@@ -128,14 +128,14 @@ extern s32 iGpffffba48;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0017.c; members 00178a00-00178c00 */
 
 // FUN_00178A00
-s32 func_00178a00(void)
+s32 K_Spipe_GetStateIndex(void)
 {
     scrSetReturnInt(*(u16 *)(D_007643D0 + 0xC));
     return 1;
 }
 
 // FUN_00178A30
-s32 func_00178a30(void)
+s32 K_Spipe_GetRecordBand(void)
 {
     u16 temp_3_2;
     u8 *temp_3;
@@ -159,7 +159,7 @@ s32 func_00178a30(void)
 }
 
 // FUN_00178AF0
-s32 func_00178af0(void)
+s32 K_Spipe_IsRecordEnabled(void)
 {
     scrSetReturnInt((*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 7) & 1) != 0);
     return 1;
@@ -169,7 +169,7 @@ s32 func_00178af0(void)
    GP load versus zero-argument materialisation order remains (nd 6).
    Committed at nd 6. */
 // FUN_00178B30
-s32 func_00178b30(void)
+s32 K_Spipe_GetRecordState(void)
 {
   s32 value;
   s32 result;
@@ -184,21 +184,21 @@ s32 func_00178b30(void)
 }
 
 // FUN_00178B70
-s32 func_00178b70(void)
+s32 K_Spipe_GetRecordId(void)
 {
     scrSetReturnInt(*(u16 *)(*(u8 **)(D_007643D0 + 0x160) + 2));
     return 1;
 }
 
 // FUN_00178BA0
-s32 func_00178ba0(void)
+s32 K_Spipe_GetRecordKind(void)
 {
     scrSetReturnInt((u16)*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 6));
     return 1;
 }
 
 // FUN_00178BD0
-s32 func_00178bd0(void)
+s32 K_Spipe_GetRecordLevel(void)
 {
     scrSetReturnInt((u16)*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 4));
     return 1;
@@ -207,7 +207,7 @@ s32 func_00178bd0(void)
 // FUN_00178C00
 /* Returns the stored constant: retail materializes the 1 in $v0 and stores
    from there, which only happens when it is also the return value. */
-s32 func_00178c00(void)
+s32 K_Spipe_Finish(void)
 {
     *(s32 *)(D_007643D0 + 8) = 1;
     D_007643D0 = 0;

@@ -111,7 +111,7 @@ void K_Viewer_Destroy(u8 *arg0)
 }
 
 // FUN_0018F700
-s32 func_0018f700(s32 arg0)
+s32 K_Viewer_Create(s32 arg0)
 {
     s32 *buf;
     s32 ret;

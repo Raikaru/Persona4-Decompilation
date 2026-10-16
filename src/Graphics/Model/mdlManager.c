@@ -3161,8 +3161,8 @@ extern s32 RtQuatConvertFromMatrix(RtQuat* out, const RwMatrix* in);
 extern RwV3d* RtQuatTransformVectors(RwV3d* out, const RwV3d* in, s32 count, const RtQuat* quat);
 extern void func_003dcc70(f32* first, f32* second, void* result);
 extern f32 func_0044b920(f32 value);
-extern u8 *func_004571b0(void);
-extern u8 *func_004571c0(void);
+extern u8 *K_Clump_GetLightB(void);
+extern u8 *K_Clump_GetLightC(void);
 extern void mdlUpdateBlendTrack(u8* a, u8* b);
 extern void mdlDrawVisibleAtomics(void* a);
 extern void* mdlGetMatrix(void* a);
@@ -3228,9 +3228,9 @@ void func_00475cd0(MdlDrawState* owner)
     u8* material;
     flags = owner->flags;
     if ((flags & 1) != 0 && (flags & 0x20) == 0) {
-        material = *(u8**)((u8*)func_004571b0() + 4);
+        material = *(u8**)((u8*)K_Clump_GetLightB() + 4);
     } else {
-        material = *(u8**)((u8*)func_004571c0() + 4);
+        material = *(u8**)((u8*)K_Clump_GetLightC() + 4);
     }
 
     flags = owner->flags;
