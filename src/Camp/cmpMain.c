@@ -10,7 +10,7 @@ void func_00460ac0(void *param, void *work);
 s32 func_0034bb20(s32 arg0);
 void func_0034c260(s32 arg0);
 void resrcMngUnsuppressRender(void);
-void func_00355550(s32 a, u8 *b, s32 c, s32 d, s32 e, s32 f, s32 g, s32 h);
+void datGridEffectCreate(s32 a, u8 *b, s32 c, s32 d, s32 e, s32 f, s32 g, s32 h);
 void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 s32 func_00453960(void *arg0);
@@ -131,7 +131,7 @@ s32 func_0012c510(u8 *unusedTask) {
                     break;
                 case 0:
                     *(s32 *)(p + 8) = 5;
-                    func_00355550(0, iGpffff9cb0, 0x14, 8, 1, 2, 0xC7, 0xB1);
+                    datGridEffectCreate(0, iGpffff9cb0, 0x14, 8, 1, 2, 0xC7, 0xB1);
                     break;
                 case 2:
                     *(s32 *)(p + 8) = 6;
@@ -144,7 +144,7 @@ s32 func_0012c510(u8 *unusedTask) {
                     break;
                 case 5:
                     *(s32 *)(p + 8) = 9;
-                    func_00355550(0, iGpffff9cb4, 0x14, 8, 1, 2, 0xC7, 0xB1);
+                    datGridEffectCreate(0, iGpffff9cb4, 0x14, 8, 1, 2, 0xC7, 0xB1);
                     break;
                 case 6:
                     *(s32 *)(p + 8) = 0xA;

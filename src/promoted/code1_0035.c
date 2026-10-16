@@ -73,8 +73,8 @@ extern void func_004672c0(s32 arg0, s32 arg1);
 extern void H_Cdvd_Destroy(u8 *arg0);
 extern void func_003ef3a0(void *arg0);
 extern void memset(void *dst, s32 value, s32 size);
-extern void func_00355740(u8 *arg0, s64 arg1);
-extern void func_00355920(u8 *arg0, u8 *arg1);
+extern void datGridEffectSetLayout(u8 *arg0, s64 arg1);
+extern void datGridEffectDraw(u8 *arg0, u8 *arg1);
 extern void func_0035bc10(u8 *arg0, s8 arg1, s32 arg2);
 extern void func_0035c480(s32 arg0, u16 arg1, s32 arg2);
 extern void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
@@ -100,9 +100,9 @@ extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 
 
 extern u8 D_0064B410[];
-extern s32 func_003558a0(u8 *arg0);
-extern void func_00356140(u8 *arg0);
-extern void func_003556a0(u8 *arg0, s64 arg1, s32 arg2);
+extern s32 datGridEffectUpdate(u8 *arg0);
+extern void datGridEffectDestroy(u8 *arg0);
+extern void datGridEffectInit(u8 *arg0, s64 arg1, s32 arg2);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern u8 D_00793E80[];
 extern f32 iGpffff83d4;
@@ -968,8 +968,9 @@ void datScreenWipeDestroy(u8 *arg0)
    build/V035_00355550_body.c; no conversion idiom present. */
 /* measured: optimization_level 1 probe for byte-load register order. */
 #pragma optimization_level 1
+// Intent: Create the grid effect task with its update and destroy callbacks, store its kind, colour and offsets, and set its layout [inferred]
 // FUN_00355550
-s32 func_00355550(s16 arg0, s32 arg1, s16 arg2, s16 arg3,
+s32 datGridEffectCreate(s16 arg0, s32 arg1, s16 arg2, s16 arg3,
                   s64 arg4, s32 arg5, s32 arg6, s32 arg7)
 {
     s32 result;
@@ -979,7 +980,7 @@ s32 func_00355550(s16 arg0, s32 arg1, s16 arg2, s16 arg3,
     if (work == NULL) {
         kAssertFail(&D_0064B310, 0x63E);
     }
-    result = (s32)kwlnTaskCreate((const void *)(&D_0064B410), arg6, 0, 0, func_003558a0, func_00356140, (u8 *)(work));
+    result = (s32)kwlnTaskCreate((const void *)(&D_0064B410), arg6, 0, 0, datGridEffectUpdate, datGridEffectDestroy, (u8 *)(work));
     *(s16 *)(work + 0x0) = arg0;
     *(s32 *)(work + 0x4) = arg5;
     *(s16 *)(work + 0xC) = arg2;
@@ -994,12 +995,13 @@ s32 func_00355550(s16 arg0, s32 arg1, s16 arg2, s16 arg3,
         *(u8 *)(work + 0x16) = color_2;
         *(u8 *)(work + 0x17) = color_3;
     }
-    func_003556a0(work, arg4, arg7);
+    datGridEffectInit(work, arg4, arg7);
     return result;
 }
 #pragma optimization_level 2
+// Intent: Initialise the grid effect work block: clear its fifteen cell positions and set its update callback and state [inferred]
 // FUN_003556A0
-void func_003556a0(u8 *arg0, s64 arg1, s32 arg2)
+void datGridEffectInit(u8 *arg0, s64 arg1, s32 arg2)
 {
     s32 i;
     u8 *p;
@@ -1012,17 +1014,18 @@ void func_003556a0(u8 *arg0, s64 arg1, s32 arg2)
         *(s32 *)(p + 0x24) = 0;
         i += 1;
     }
-    func_00355740(arg0, (s16)arg1);
+    datGridEffectSetLayout(arg0, (s16)arg1);
     memset(arg0 + 0x1F8, 0, 0x30);
-    *(s32 *)(arg0 + 0x200) = (s32)func_00355920;
+    *(s32 *)(arg0 + 0x200) = (s32)datGridEffectDraw;
     *(s32 *)(arg0 + 0x208) = (s32)arg0;
     *(s32 *)(arg0 + 0x228) = arg2;
 }
 /* measured: optimization_level 1 with integer/float declaration shaping and
    an explicit second conversion local closes func_00355740 at normalized_diff 0. */
 #pragma optimization_level 1
+// Intent: Set the grid effect's cell positions for its layout: layout 0 places every cell at the origin, layout 1 spreads them in a diamond around the centre [inferred]
 // FUN_00355740
-void func_00355740(u8 *arg0, s64 arg1)
+void datGridEffectSetLayout(u8 *arg0, s64 arg1)
 {
     f32 step;
     f32 scale;
@@ -1087,8 +1090,9 @@ void func_00355740(u8 *arg0, s64 arg1)
     }
 }
 #pragma optimization_level 2
+// Intent: Grid effect task update: refresh the cell lookup and return -1 when the effect is marked done [inferred]
 // FUN_003558A0
-s32 func_003558a0(u8 *arg0)
+s32 datGridEffectUpdate(u8 *arg0)
 {
     u8 *work;
 
@@ -1122,16 +1126,17 @@ static inline s32 effect_timer_past_threshold(u8 *p)
     }
     return 0;
 }
+// Intent: Draw the grid effect's fifteen cells, each one fading in by its timer and drawn as a cell or a strip by its kind [inferred]
 // FUN_00355920
-void func_00355920(u8 *arg0, u8 *arg1) {
+void datGridEffectDraw(u8 *arg0, u8 *arg1) {
     extern u8 D_00887300[];
     extern void mdlEffectEmitMaskedTagPair(void);
     extern void mdlEffectEmitTagPair(void);
     extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
     extern void func_0045c870(u8 *arg0, s32 arg1);
     extern f32 cosf(f32 arg0);
-    extern void func_00356170(s64 arg0, f32 f0, f32 f1, s32 arg1, f32 f2, s32 arg2, s32 arg3);
-    extern void func_003561d0(Vec2f arg0, s32 arg1, f32 dummy, f32 f0, f32 f1, s32 arg2);
+    extern void datGridEffectDrawStrip(s64 arg0, f32 f0, f32 f1, s32 arg1, f32 f2, s32 arg2, s32 arg3);
+    extern void datGridEffectDrawCell(Vec2f arg0, s32 arg1, f32 dummy, f32 f0, f32 f1, s32 arg2);
     extern f32 fGpffff8504;
     extern f32 fGpffff8540;
     extern f32 fGpffff8548;
@@ -1190,10 +1195,10 @@ void func_00355920(u8 *arg0, u8 *arg1) {
                 s = 800.0f * sinf(f20);
                 switch (*(s16 *)p) {
                 case 0:
-                    func_00356170(xy.bits, 0.0f, s, col.w, 0.0f, 0x30, 0);
+                    datGridEffectDrawStrip(xy.bits, 0.0f, s, col.w, 0.0f, 0x30, 0);
                     break;
                 case 1:
-                    func_003561d0(xy.vec, col.w, 0.0f, s, f21, 0);
+                    datGridEffectDrawCell(xy.vec, col.w, 0.0f, s, f21, 0);
                     break;
                 }
             } else {
@@ -1292,16 +1297,17 @@ void func_00355920(u8 *arg0, u8 *arg1) {
         }
         switch (*(s16 *)p) {
         case 0:
-            func_003561d0(xy.vec, col.w, 0.0f, f13, f20, 1);
+            datGridEffectDrawCell(xy.vec, col.w, 0.0f, f13, f20, 1);
             break;
         case 1:
-            func_00356170(xy.bits, 0.0f, f13, col.w, 0.0f, 0x30, 1);
+            datGridEffectDrawStrip(xy.bits, 0.0f, f13, col.w, 0.0f, 0x30, 1);
             break;
         }
     }
 }
+// Intent: Grid effect task destroy: free the work block [inferred]
 // FUN_00356140
-void func_00356140(u8 *arg0)
+void datGridEffectDestroy(u8 *arg0)
 {
     (*D_008873EC)(*(u8 **)(arg0 + 0x38));
 }
@@ -1311,8 +1317,9 @@ void func_00356140(u8 *arg0)
    the arg2 parking move after those stores. */
 #pragma push
 #pragma opt_propagation off
+// Intent: Draw a grid effect strip at the packed position with the given opacity and size [inferred]
 // FUN_00356170
-void func_00356170(s64 arg0, f32 f0, f32 f1, s32 arg1,
+void datGridEffectDrawStrip(s64 arg0, f32 f0, f32 f1, s32 arg1,
                    f32 f2, s32 arg2, s32 arg3)
 {
     union { s64 bits; Vec2f position; } saved0[1];
@@ -1339,8 +1346,9 @@ void func_00356170(s64 arg0, f32 f0, f32 f1, s32 arg1,
 /* measured: object 116B/window 128B; normalized_diff 0. Named call-argument
    locals preserve retail materialisation order under opt_propagation off; the
    12-byte tail is retail zero padding. */
+// Intent: Draw a grid effect cell at the given position with the given opacity and size [inferred]
 // FUN_003561D0
-void func_003561d0(Vec2f arg0, s32 arg1, f32 dummy,
+void datGridEffectDrawCell(Vec2f arg0, s32 arg1, f32 dummy,
                    f32 f0, f32 f1, s32 arg2)
 {
     struct Frame {
