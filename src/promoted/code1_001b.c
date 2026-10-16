@@ -265,7 +265,7 @@ extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 extern void func_003dcc70(f32 *arg0, f32 *arg1, f32 *arg2);
 
-s32 func_001f2f90(u8 *arg0);
+s32 btlTargetIsSlotAlive(u8 *arg0);
 
 void func_004b1680(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
 

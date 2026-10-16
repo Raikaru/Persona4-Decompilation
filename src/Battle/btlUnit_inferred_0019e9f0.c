@@ -35,7 +35,7 @@ extern f32 D_005F6C10[];
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
 extern s32 btlActionAnyTargetHitRowFlagged(u8 *arg0);
-extern s32 func_001f11e0(s16 arg0);
+extern s32 btlTargetIsEntryActive(s16 arg0);
 extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
 
@@ -880,7 +880,7 @@ type_one_0019fc70:
 result_one_0019fc70:
         return 1;
     }
-    if (func_001f11e0((s16)temp_18) != 0) {
+    if (btlTargetIsEntryActive((s16)temp_18) != 0) {
         {
             u8 *flags_table;
             flags_table = (u8 *)iGpffffb3bc;
