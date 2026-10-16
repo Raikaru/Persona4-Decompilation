@@ -33,7 +33,7 @@ s16 datPersonaGetLeadSlot(void);
 u16 datPersonaCountValidMembers(void);
 struct DatPersonaRecord *datPersonaRosterSlot(s16);
 void datPersonaSetLeadSlot(s16);
-s32 datPersonaFillSkillCostRow(s32, s32, s32, void *);
+s32 datPersonaFillSkillCostRow(s32, struct DatPersonaRecord *, s32, void *);
 struct DatPersonaRecord *datPersonaGetRecord(u16);
 u16 *datPersonaGetSkills(struct DatPersonaRecord *);
 void datCalcSkillOutcomeById(s32, s32, u16, s32, s32 *, s32, s32);
@@ -313,7 +313,7 @@ void cmpSkillBuildAbilityList(void *arg0)
                 datPersonaSetLeadSlot((s16)i);
                 for (j = 0; j < 8; j++) {
                     p = b + count * 12;
-                    if (datPersonaFillSkillCostRow(1, w, j, p + 0x100) != 0) {
+                    if (datPersonaFillSkillCostRow(1, (struct DatPersonaRecord *)w, j, p + 0x100) != 0) {
                         *(s16 *)(p + 0x100) = (s16)i;
                         count++;
                     }
@@ -324,7 +324,7 @@ void cmpSkillBuildAbilityList(void *arg0)
         w = (s32)datPersonaGetRecord((u16)v);
         for (i = 0; i < 8; i++) {
             p = b + count * 12;
-            if (datPersonaFillSkillCostRow(v, w, i, p + 0x100) != 0) {
+            if (datPersonaFillSkillCostRow(v, (struct DatPersonaRecord *)w, i, p + 0x100) != 0) {
                 *(s16 *)(p + 0x100) = -1;
                 count++;
             }
