@@ -512,18 +512,10 @@ extern s32 func_003e3f80(Fn3f80A arg0, Fn3f80B arg1, Fn3f80A arg2, Fn3f80B arg3)
 #pragma no_branch_likely off
 /* measured: close schedule around func_003e3f80. */
 #pragma schedule off
-#pragma opt_propagation on
-/* measured: plain bc1t required for 003e4030. */
-/* measured: optimization_level 3 probe for 003e4030. */
-#pragma optimization_level 3
-// FUN_003E4030 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4030);
-/* measured: best reconstruction archived in build/E3E_003e4030_body.c at
-   normalized_diff 51, object 108B / window 128B; math byte-exact through the
-   FMA chain, sole residual is b210 hoisting mtc1 zero,$f1 above the FMAs
-   (len kept in $f0) which no probed source shape reproduces. */
-// FUN_003E40B0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e40b0);
+/* FUN_003E4030: matched byte-exact in src/promoted/code1_003e_cw119.c under cw3.0.1b119 */
+extern f32 func_003e4030(f32 *arg0, const f32 *arg1);
+/* FUN_003E40B0: matched byte-exact in src/promoted/code1_003e_cw119.c under cw3.0.1b119 */
+extern f32 func_003e40b0(f32 *arg0, const f32 *arg1);
 
 /* measured: optimization_level 3 is load-bearing for func_003e4180. */
 #pragma optimization_level 3
@@ -554,8 +546,8 @@ f32 RwV2dLength(f32 *arg0) {
 /* measured: closes optimization_level 3 around func_003e41b0. */
 #pragma optimization_level 2
 
-// FUN_003E41E0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e41e0);
+/* FUN_003E41E0: matched byte-exact in src/promoted/code1_003e_cw119.c under cw3.0.1b119 */
+extern f32 func_003e41e0(f32 *arg0, const f32 *arg1);
 
 /* measured: schedule on places the saved self in the jalr delay slot. */
 #pragma schedule on
