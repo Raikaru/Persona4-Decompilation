@@ -355,7 +355,7 @@ s32 fclShopStateUpdate(u8 *arg0)
     extern u8 fclCalendarMonth(void);
     extern s32 fclCalendarDay(void);
     extern void fclAddMoney(s32);
-    extern void func_00331fc0(u8 *);
+    extern void weaponShopTalkCreate(u8 *);
     extern s32 sprintf(char *, const char *, ...);
     extern s32 kwlnTaskGetTaskByName(void *);
     extern u8 sdkSndStartChannel(s16, const char *);
@@ -1324,7 +1324,7 @@ s32 fclShopStateUpdate(u8 *arg0)
                 fclObjStartAlpha((*(void * *)(work + 0xD8C)), 0xFFU, 0U, 0U, 0xA, 0);
                 fclObjStartAlpha((*(void * *)(work + 0xD90)), 0xFFU, 0U, 0U, 0xA, 0);
                 fclObjStartAlpha((*(void * *)(work + 0xD94)), 0xFFU, 0U, 0U, 0xA, 0);
-                func_00331fc0(arg0);
+                weaponShopTalkCreate(arg0);
                 (*(s8 *)(work + 0)) = 0x35;
                 break;
             case 5:                                 /* switch 2 */

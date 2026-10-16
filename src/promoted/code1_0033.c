@@ -82,7 +82,7 @@ extern f32 MT_Scene_GetCameraFov(void);
 extern s32 MT_Scene_GetCameraResFirst(void);
 extern void func_003e9cb0(s32 arg0, s32 arg1, s32 arg2);
 extern s32 fadeStatus(void);
-extern s32 func_0033de90(u8 *arg0, s32 arg1);
+extern s32 fclCombineEventGateCreate(u8 *arg0, s32 arg1);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_007955C0[];
 extern void PrimQueueBatchAlpha(void *, void *, f32, s32, s32, s32, s16, s16,
@@ -99,7 +99,7 @@ extern s32 func_00106600(s16 arg0);
 extern s32 nmMesWindowSlotStatus(s8 arg0);
 extern void nmMesWindowStepSlotRelease(s32 arg0);
 extern void nmMesWindowDestroySlot(s8 arg0);
-extern void func_003329e0(u8 *arg0);
+extern void wshopMaterialTalkCreate(u8 *arg0);
 extern u8 D_00644ED0[];
 extern u8 D_00645090[];
 extern u8 D_00645240[];
@@ -330,7 +330,7 @@ s32 weaponShopTalkUpdate(u8 *arg0)
         } while (*(s16 *)entry != -1);
         if (datGetFlag(0x1324) != 0) {
             *work = 2;
-            func_003329e0(arg0);
+            wshopMaterialTalkCreate(arg0);
             return 0;
         }
         j = 0;
@@ -392,14 +392,16 @@ void func_00332b60(u8 *arg0, u8 *arg1)
     func_00364320(*(Vec2f *)(arg1 + 0x1E0), 1.0f, 0xFF, fclGetMoney());
 }
 
+// Identical to fclObjectGetWork (code1_002e.c).
 // FUN_0033D310
-u8 *func_0033d310(u8 *arg0)
+u8 *fclBustupObjGetWork(u8 *arg0)
 {
     return *(u8 **)(arg0 + 0x38);
 }
 
+// Identical to fclObjChangeFlagBit (code1_002e.c).
 // FUN_0033D320
-void func_0033d320(u8 *arg0, s32 arg1, s8 arg2) {
+void fclBustupObjChangeFlagBit(u8 *arg0, s32 arg1, s8 arg2) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     if (arg2 == 0) {
@@ -409,8 +411,9 @@ void func_0033d320(u8 *arg0, s32 arg1, s8 arg2) {
     }
 }
 
+// Identical to fclObjTestFlagBit (code1_002e.c).
 // FUN_0033D390
-s32 func_0033d390(u8 *arg0, s32 arg1)
+s32 fclBustupObjTestFlagBit(u8 *arg0, s32 arg1)
 {
     return (*(s16 *)(*(u8 **)(arg0 + 0x38) + 4) & ((1 << arg1) & 0xFFFF)) >> arg1;
 }
@@ -425,8 +428,9 @@ void func_0033d3d0(u8 *arg0, s32 arg1)
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
 }
 
+// Identical to fclObjStartPosition (code1_002e.c).
 // FUN_0033D3E0
-void func_0033d3e0(u8 *arg0, F2_0033 p1, F2_0033 p2,
+void fclBustupObjStartPosition(u8 *arg0, F2_0033 p1, F2_0033 p2,
                    u32 arg3, u32 arg4, s16 arg5)
 {
     fclSpriteStartPosition(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
@@ -443,8 +447,9 @@ void func_0033d420(u8 *arg0, F2_0033 p1, F2_0033 p2,
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 4) |= 0x400;
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 4) &= (s16)~2;
 }
+// Identical to fclObjStartAlpha (code1_002e.c).
 // FUN_0033D4B0
-void func_0033d4b0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s64 arg5)
+void fclBustupObjStartAlpha(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, s64 arg5)
 {
     fclSpriteStartAlpha(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, (s16)arg5);
 }
@@ -454,6 +459,7 @@ void func_0033d4e0(u8 *arg0, f32 fparg0, f32 fparg1, u32 arg1, u32 arg2, s64 arg
 {
     fclSpriteStartRevealScale(*(u8 **)(arg0 + 0x38) + 4, fparg0, fparg1, fparg0, fparg1, arg1, arg2, (s16)arg3);
 }
+// Identical to fclObjStartTween (code1_002e.c).
 // FUN_0033D520
 void func_0033d520(u8 *arg0, f32 fparg0, f32 fparg1, u8 arg1, s32 arg2, s64 arg3)
 {
@@ -600,7 +606,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
          if (fieldSceneLoadStep() != 0) {
              *(s32 *)(work + 8) = func_002859e0(
                  0x5A, *(s8 *)(work + 0x10) + 1, 0);
-             *(s32 *)(work + 0xC) = func_0033de90(arg0, 0x58);
+             *(s32 *)(work + 0xC) = fclCombineEventGateCreate(arg0, 0x58);
              *(s8 *)work = *(s8 *)work + 1;
          }
          goto out;
