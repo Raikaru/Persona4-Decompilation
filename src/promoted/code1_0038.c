@@ -10,7 +10,7 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern void (*D_008873ec[])(s32);
 
-void func_003891b0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3);
+void btlShuffleDrawViewRequestStep(u8 *arg0, u8 arg1, u8 arg2, u8 arg3);
 
 s32 datGetFlag(u32 arg0);
 
@@ -34,7 +34,7 @@ extern void btlShuffleDrawCardReset(u8 *arg0);
 extern void func_003889b0(s32 arg0, u8 *arg1);
 extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 
-extern void func_00388d10(u8 *arg0);
+extern void btlShuffleDrawViewClearFlags(u8 *arg0);
 extern void func_003874c0(s32 arg0, u8 *arg1);
 extern s32 btlShuffleDrawViewStep(u8 *arg0);
 extern void btlShuffleDrawViewDestroy(u8 *arg0);
@@ -1520,11 +1520,11 @@ u8 *btlShuffleDrawViewCreate(s32 arg0)
     *(void **)(work + 0x60) = (void *)work;
     *(void **)(work + 0x88) = (void *)func_003889b0;
     *(void **)(work + 0x90) = (void *)work;
-    func_00388d10(task);
+    btlShuffleDrawViewClearFlags(task);
     return task;
 }
 // FUN_00388D10
-void func_00388d10(u8 *arg0)
+void btlShuffleDrawViewClearFlags(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = 0;
 }
@@ -1541,19 +1541,19 @@ void btlShuffleDrawViewClearActive(u8 *arg0)
 }
 
 // FUN_00388D60
-void func_00388d60(u8 *arg0) {
+void btlShuffleDrawViewSetMenuBusy(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     memset(p + 4, 0, 6);
-    *(u16 *)(p + 0x4C) |= 2;
+    *(u16 *)(p + 0x4C) |= BTL_SHUFFLE_VIEW_FLAG_MENU_BUSY;
     func_00389180(arg0);
     sdkSndStartStream(1, 3, 5, 0xD);
 }
 
 // FUN_00388DE0
-s32 func_00388de0(u8 *arg0)
+s32 btlShuffleDrawViewIsMenuReady(u8 *arg0)
 {
-    return (*(u16 *)(*(u8 **)(arg0 + 0x38) + 4) & 1) != 0;
+    return (*(u16 *)(*(u8 **)(arg0 + 0x38) + 4) & BTL_SHUFFLE_VIEW_STATE_READY) != 0;
 }
 // FUN_00388E00
 void func_00388e00(u8 *arg0)
@@ -1562,8 +1562,8 @@ void func_00388e00(u8 *arg0)
 }
 
 // FUN_00388E20
-s32 func_00388e20(u8 *arg0) {
-    return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 2);
+s32 btlShuffleDrawViewIsMenuIdle(u8 *arg0) {
+    return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & BTL_SHUFFLE_VIEW_FLAG_MENU_BUSY);
 }
 
 // FUN_00388E40
@@ -1577,9 +1577,9 @@ void func_00388e40(u8 *arg0) {
 }
 
 // FUN_00388EC0
-s32 func_00388ec0(u8 *arg0)
+s32 btlShuffleDrawViewIsRunReady(u8 *arg0)
 {
-    return (*(u16 *)(*(u8 **)(arg0 + 0x38) + 4) & 1) != 0;
+    return (*(u16 *)(*(u8 **)(arg0 + 0x38) + 4) & BTL_SHUFFLE_VIEW_STATE_READY) != 0;
 }
 // FUN_00388EE0
 void func_00388ee0(u8 *arg0)
@@ -1668,27 +1668,27 @@ void func_003890f0(u8 *arg0)
 }
 
 // FUN_00389110
-void func_00389110(u8 *arg0) {
+void btlShuffleDrawViewStartCue(u8 *arg0) {
     u8 *work;
 
     work = (u8 *)(*(u8 **)(arg0 + 0x38));
     *(s16 *)(work + 0x1E) = 0;
-    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | 8);
+    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | BTL_SHUFFLE_VIEW_FLAG_CUE);
     sdkSndStartStream(1, 5, 5, 0);
 }
 
 // FUN_00389160
-s32 func_00389160(u8 *arg0) {
-    return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 8);
+s32 btlShuffleDrawViewIsCueIdle(u8 *arg0) {
+    return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & BTL_SHUFFLE_VIEW_FLAG_CUE);
 }
 
 // FUN_00389180
 void func_00389180(u8 *arg0) {
-    func_003891b0(arg0, 0xFF, 0xFF, 0xFF);
+    btlShuffleDrawViewRequestStep(arg0, 0xFF, 0xFF, 0xFF);
 }
 
 // FUN_003891B0
-void func_003891b0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3)
+void btlShuffleDrawViewRequestStep(u8 *arg0, u8 arg1, u8 arg2, u8 arg3)
 {
     u8 *p;
 
@@ -1697,15 +1697,15 @@ void func_003891b0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3)
     *(u8 *)(p + 0x42) = arg1;
     *(u8 *)(p + 0x43) = arg2;
     *(u8 *)(p + 0x44) = arg3;
-    *(u16 *)(p + 0x4C) = *(u16 *)(p + 0x4C) | 0x100;
+    *(u16 *)(p + 0x4C) = *(u16 *)(p + 0x4C) | BTL_SHUFFLE_VIEW_FLAG_STEP_PENDING;
 }
 // FUN_003891E0
-s32 func_003891e0(u8 *arg0) {
-    return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0x100);
+s32 btlShuffleDrawViewIsStepIdle(u8 *arg0) {
+    return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & BTL_SHUFFLE_VIEW_FLAG_STEP_PENDING);
 }
 
 // FUN_00389200
-void func_00389200(u8 *arg0, s8 arg1, s8 arg2, s8 arg3) {
+void btlShuffleDrawViewSetFade(u8 *arg0, s8 arg1, s8 arg2, s8 arg3) {
     u8 *params;
     u8 *work;
 
@@ -1715,13 +1715,13 @@ void func_00389200(u8 *arg0, s8 arg1, s8 arg2, s8 arg3) {
     *(s8 *)(params + 2) = arg1;
     *(s8 *)(params + 3) = arg2;
     *(s8 *)(params + 4) = arg3;
-    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | 0x200);
+    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | BTL_SHUFFLE_VIEW_FLAG_FADE);
 }
 
 /* measured: opt_rebuildconditionals off preserves the retail positive branch. */
 #pragma opt_rebuildconditionals off
 // FUN_00389280
-s32 func_00389280(u8 *arg0)
+s32 btlShuffleDrawViewIsFadeDone(u8 *arg0)
 {
     u8 *p;
     u16 *field;
@@ -1730,7 +1730,7 @@ s32 func_00389280(u8 *arg0)
     p = *(u8 **)(arg0 + 0x38);
     field = (u16 *)(p + 0x46);
     flags = *(u16 *)(p + 0x4C);
-    if (!(flags & 0x200)) {
+    if (!(flags & BTL_SHUFFLE_VIEW_FLAG_FADE)) {
         return 1;
     }
     return *field >= 0x23;
@@ -1738,23 +1738,23 @@ s32 func_00389280(u8 *arg0)
 /* measured: restore conditional rebuilding after this function. */
 #pragma opt_rebuildconditionals on
 // FUN_003892C0
-void func_003892c0(u8 *arg0)
+void btlShuffleDrawViewClearFade(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0xFDFF;
 }
 
 // FUN_003892E0
-void func_003892e0(u8 *arg0) {
+void btlShuffleDrawViewStartReveal(u8 *arg0) {
     u8 *work;
 
     work = (u8 *)(*(u8 **)(arg0 + 0x38));
     memset(work + 0x46, 0, 6);
-    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | 0x400);
+    *(u16 *)(work + 0x4C) = (u16) (*(u16 *)(work + 0x4C) | BTL_SHUFFLE_VIEW_FLAG_REVEAL);
 }
 
 // FUN_00389330
-s32 func_00389330(u8 *arg0) {
-    return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0x400);
+s32 btlShuffleDrawViewIsRevealFinished(u8 *arg0) {
+    return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & BTL_SHUFFLE_VIEW_FLAG_REVEAL);
 }
 
 // FUN_00389350

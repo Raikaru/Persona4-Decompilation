@@ -86,5 +86,14 @@ typedef enum BtlShuffleTaskFlag {
     /* Set by btlShuffleCancel to request cancellation; the parent waits while it is set. */
     BTL_SHUFFLE_FLAG_CANCEL_REQUESTED = 4,
 } BtlShuffleTaskFlag;
-
+/* Bits in the draw view's flag word (view+0x4C). Each names the phase that sets it and the phase that waits on it. */
+#define BTL_SHUFFLE_VIEW_FLAG_MENU_BUSY 0x002   /* set at result menu start; cleared with the view's flags */
+#define BTL_SHUFFLE_VIEW_FLAG_ACTIVE 0x004      /* set while the view is the active one */
+#define BTL_SHUFFLE_VIEW_FLAG_CUE 0x008         /* set by a cue start; the run waits while it is set */
+#define BTL_SHUFFLE_VIEW_FLAG_HOLD 0x010        /* set to hold the view during a sequence step */
+#define BTL_SHUFFLE_VIEW_FLAG_STEP_PENDING 0x100 /* set by a step request; the seq waits while it is set */
+#define BTL_SHUFFLE_VIEW_FLAG_FADE 0x200        /* set by a fade start; cleared when the fade ends */
+#define BTL_SHUFFLE_VIEW_FLAG_REVEAL 0x400      /* set at the reveal start; the run waits while it is set */
+/* Bit in the draw view's state word (view+0x4), tested by the result menu and run start. */
+#define BTL_SHUFFLE_VIEW_STATE_READY 0x001
 #endif

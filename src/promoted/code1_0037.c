@@ -522,8 +522,8 @@ s32 btlShuffleSeq1Run(u8 *arg0) {
     extern void btlShuffleDrawSetFrames(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
     extern s32 btlShuffleDrawCheck(u8 *arg0, u8 *arg1);
     extern void btlShuffleDrawViewClearHold(u8 *arg0);
-    extern void func_00389110(u8 *arg0);
-    extern s32 func_00389160(u8 *arg0);
+    extern void btlShuffleDrawViewStartCue(u8 *arg0);
+    extern s32 btlShuffleDrawViewIsCueIdle(u8 *arg0);
     extern s32 sdkSndStartStream(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
     extern void kAssertFail(const void *file, u32 line);
     extern char D_0064EAC0[];
@@ -690,10 +690,10 @@ s32 btlShuffleSeq1Run(u8 *arg0) {
             *(u16 *)(arg0 + 0x1F2F4) = *(u16 *)(arg0 + 0x1F2F4) | 2;
             break;
         }
-        func_00389110(*(u8 **)(arg0 + 0x1F294));
+        btlShuffleDrawViewStartCue(*(u8 **)(arg0 + 0x1F294));
         *(u32 *)(arg0 + 0x1F2F8) = 8;
     case 8:
-        if (func_00389160(*(u8 **)(arg0 + 0x1F294)) == 0) {
+        if (btlShuffleDrawViewIsCueIdle(*(u8 **)(arg0 + 0x1F294)) == 0) {
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);
@@ -845,8 +845,8 @@ extern void btlShuffleDrawPoll(u8 *arg0, s32 arg1, s32 arg2);
 extern void btlShuffleDrawSetFrames(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 btlShuffleDrawCheck(u8 *arg0, u8 *arg1);
 extern void btlShuffleDrawViewClearHold(u8 *arg0);
-extern void func_00389110(u8 *arg0);
-extern s32 func_00389160(u8 *arg0);
+extern void btlShuffleDrawViewStartCue(u8 *arg0);
+extern s32 btlShuffleDrawViewIsCueIdle(u8 *arg0);
 extern s32 sdkSndStartStream(s16 arg0, s16 arg1, s16 arg2, s16 arg3);
 extern void kAssertFail(const void *file, u32 line);
 extern char D_0064EAE0[];
@@ -1023,10 +1023,10 @@ s32 btlShuffleSeq2Run(u8 *arg0) {
             *(u16 *)(arg0 + 0x1F2F4) = *(u16 *)(arg0 + 0x1F2F4) | 2;
             break;
         }
-        func_00389110(*(u8 **)(arg0 + 0x1F294));
+        btlShuffleDrawViewStartCue(*(u8 **)(arg0 + 0x1F294));
         *(u32 *)(arg0 + 0x1F2F8) = 8;
     case 8:
-        if (func_00389160(*(u8 **)(arg0 + 0x1F294)) == 0) {
+        if (btlShuffleDrawViewIsCueIdle(*(u8 **)(arg0 + 0x1F294)) == 0) {
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);
@@ -1350,10 +1350,10 @@ s32 btlShuffleSeq3Run(u8 *arg0) {
             *(u16 *)(arg0 + 0x1F2F4) = *(u16 *)(arg0 + 0x1F2F4) | 2;
             break;
         }
-        func_00389110(*(u8 **)(arg0 + 0x1F294));
+        btlShuffleDrawViewStartCue(*(u8 **)(arg0 + 0x1F294));
         *(u32 *)(arg0 + 0x1F2F8) = 8;
     case 8:
-        if (func_00389160(*(u8 **)(arg0 + 0x1F294)) == 0) {
+        if (btlShuffleDrawViewIsCueIdle(*(u8 **)(arg0 + 0x1F294)) == 0) {
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);

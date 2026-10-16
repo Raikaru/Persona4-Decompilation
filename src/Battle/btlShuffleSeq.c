@@ -48,7 +48,7 @@ extern s32 func_00383c00(s32 a);
 extern s32 func_00383c20(s32 a);
 extern void btlShuffleDrawReset(u8 *a);
 extern void btlShuffleDrawFrame(u8 *a);
-extern void func_00388d10(s32 a);
+extern void btlShuffleDrawViewClearFlags(s32 a);
 extern void btlShuffleEffRelease(s32 a);
 extern void btlShuffleDrawCardReset(s32 a);
 extern void func_002bd7b0(s32 a);
@@ -67,11 +67,11 @@ extern void nmMesWindowShowCurrentRecord(s32 a);
 extern void strcpy(char *dst, s32 value);
 extern char *datCalcGetSlotRecord(s32 a);
 extern void nmMesWindowSetCurrentString(s32 a, void *b);
-extern void func_00389200(s32 a, s32 b, s32 c, s32 d);
-extern s32 func_00389280(s32 a);
-extern s32 func_003891e0(s32 a);
-extern void func_003891b0(s32 a, s32 b, s32 c, s32 d);
-extern void func_003892c0(s32 a);
+extern void btlShuffleDrawViewSetFade(s32 a, s32 b, s32 c, s32 d);
+extern s32 btlShuffleDrawViewIsFadeDone(s32 a);
+extern s32 btlShuffleDrawViewIsStepIdle(s32 a);
+extern void btlShuffleDrawViewRequestStep(s32 a, s32 b, s32 c, s32 d);
+extern void btlShuffleDrawViewClearFade(s32 a);
 extern void btlShuffleCardInit(u8 *a, u8 *b);
 extern void btlShuffleCardReset(u8 *a);
 
@@ -541,14 +541,14 @@ s32 btlShuffleSeqStep(u8 *arg0) {
     case 0:
         nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
-            func_00389200(*(s32 *)(arg0 + 0x1F294), 0xFF, 0xFF, 0xFF);
+            btlShuffleDrawViewSetFade(*(s32 *)(arg0 + 0x1F294), 0xFF, 0xFF, 0xFF);
             *seq = 1;
             nmMesWindowResetCurrent();
         }
         goto done;
 
     case 1:
-        if (func_00389280(*(s32 *)(arg0 + 0x1F294)) == 0) {
+        if (btlShuffleDrawViewIsFadeDone(*(s32 *)(arg0 + 0x1F294)) == 0) {
             goto done;
         }
         sdkSndStartStream(1, 5, 2, 0);
@@ -584,13 +584,13 @@ s32 btlShuffleSeqStep(u8 *arg0) {
             }
             i1++;
         }
-        func_003892c0(*(s32 *)(arg0 + 0x1F294));
-        func_003891b0(*(s32 *)(arg0 + 0x1F294), 0xFF, 0xFF, 0xFF);
+        btlShuffleDrawViewClearFade(*(s32 *)(arg0 + 0x1F294));
+        btlShuffleDrawViewRequestStep(*(s32 *)(arg0 + 0x1F294), 0xFF, 0xFF, 0xFF);
         *seq = 2;
         /* fallthrough */
 
     case 2:
-        if (func_003891e0(*(s32 *)(arg0 + 0x1F294)) != 0) {
+        if (btlShuffleDrawViewIsStepIdle(*(s32 *)(arg0 + 0x1F294)) != 0) {
             return 1;
         }
         goto done;
@@ -598,14 +598,14 @@ s32 btlShuffleSeqStep(u8 *arg0) {
     case 3:
         nmMesWindowStepCurrent(1);
         if (nmMesWindowCurrentOpenState() == 0) {
-            func_00389200(*(s32 *)(arg0 + 0x1F294), 0xFF, 0, 0);
+            btlShuffleDrawViewSetFade(*(s32 *)(arg0 + 0x1F294), 0xFF, 0, 0);
             *seq = 4;
             nmMesWindowResetCurrent();
         }
         goto done;
 
     case 4:
-        if (func_00389280(*(s32 *)(arg0 + 0x1F294)) == 0) {
+        if (btlShuffleDrawViewIsFadeDone(*(s32 *)(arg0 + 0x1F294)) == 0) {
             goto done;
         }
         sdkSndStartStream(1, 5, 2, 1);
@@ -623,13 +623,13 @@ s32 btlShuffleSeqStep(u8 *arg0) {
             }
             i4++;
         }
-        func_003892c0(*(s32 *)(arg0 + 0x1F294));
-        func_003891b0(*(s32 *)(arg0 + 0x1F294), 0, 0, 0);
+        btlShuffleDrawViewClearFade(*(s32 *)(arg0 + 0x1F294));
+        btlShuffleDrawViewRequestStep(*(s32 *)(arg0 + 0x1F294), 0, 0, 0);
         *seq = 5;
         /* fallthrough */
 
     case 5:
-        if (func_003891e0(*(s32 *)(arg0 + 0x1F294)) != 0) {
+        if (btlShuffleDrawViewIsStepIdle(*(s32 *)(arg0 + 0x1F294)) != 0) {
             return 1;
         }
         goto done;
@@ -777,7 +777,7 @@ s32 btlShuffleSeqDispatch(u8 *arg0) {
             btlShuffleSeqCardSetup(arg0);
             btlShuffleDrawReset(arg0);
             btlShuffleDrawFrame(arg0);
-            func_00388d10(*(s32 *)(arg0 + 0x1F294));
+            btlShuffleDrawViewClearFlags(*(s32 *)(arg0 + 0x1F294));
             btlShuffleEffRelease(*(s32 *)(arg0 + 0x1F29C));
             btlShuffleDrawCardReset(*(s32 *)(arg0 + 0x1F298));
             return 0;
