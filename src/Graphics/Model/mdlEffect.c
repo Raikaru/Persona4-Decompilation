@@ -2341,8 +2341,9 @@ void FlashQuadSetVec3(u8 *arg0, f32 *arg1) {
 #pragma opt_loop_invariants on
 /* measured: restores the file's O2 loop-invariant baseline. */
 #pragma opt_loop_invariants off
+/* Calls kind slot +0x08 with the object, then frees it through the allocator free table. The kind index is at +0x38. */
 // FUN_004A58B0
-void func_004a58b0(u8 *arg0)
+void WindInstanceDestroy(u8 *arg0)
 {
     (*(void (**)(u8 *))(D_00714138 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
     jtbl_008873EC[0](arg0);
@@ -2363,24 +2364,27 @@ void *func_004a5910(void *source)
 }
 
 
+/* Calls kind slot +0x00 with no argument, then clears the counter at +0x34. The kind index is at +0x38. */
 // FUN_004A59B0
-void func_004a59b0(u8 *arg0)
+void WindInstanceStop(u8 *arg0)
 {
     (*(void (**)(void))(D_00714130 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
     *(s32 *)(arg0 + 0x34) = 0;
 }
 
 
+/* Calls kind slot +0x10 with no argument, then increments the counter at +0x34. */
 // FUN_004A5A00
-void func_004a5a00(u8 *arg0)
+void WindInstanceAdvance(u8 *arg0)
 {
     (*(void (**)(void))(D_00714140 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
     *(s32 *)(arg0 + 0x34) = *(s32 *)(arg0 + 0x34) + 1;
 }
 
 
+/* Calls kind slot +0x14 with no argument when the counter at +0x34 is positive. */
 // FUN_004A5A60
-void func_004a5a60(u8 *arg0)
+void WindInstanceUpdateIfActive(u8 *arg0)
 {
     if (*(s32 *)(arg0 + 0x34) > 0) {
         (*(void (**)(void))(D_00714144 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
@@ -2388,8 +2392,9 @@ void func_004a5a60(u8 *arg0)
 }
 
 
+/* Calls kind slot +0x10 with no argument, increments the counter at +0x34, then calls kind slot +0x14 with the object when the counter is positive. The kind index is at +0x38. */
 // FUN_004A5AB0
-void func_004a5ab0(u8 *arg0)
+void WindInstanceAdvanceAndUpdate(u8 *arg0)
 {
     s32 temp_3;
 
@@ -2402,8 +2407,9 @@ void func_004a5ab0(u8 *arg0)
 }
 
 
+/* Copies the 16-byte quad at arg1 to the object base and returns it. */
 // FUN_004A5B40
-u_long128 func_004a5b40(u8 *arg0, u8 *arg1) {
+u_long128 WindSetFirstQuad(u8 *arg0, u8 *arg1) {
     u_long128 value;
     value = *(u_long128 *)arg1;
     *(u_long128 *)arg0 = value;
@@ -2411,8 +2417,9 @@ u_long128 func_004a5b40(u8 *arg0, u8 *arg1) {
 }
 
 
+/* Copies the 16-byte quad at arg1 to +0x10 of the object and returns it. */
 // FUN_004A5B50
-u_long128 func_004a5b50(u8 *arg0, u8 *arg1) {
+u_long128 WindSetSecondQuad(u8 *arg0, u8 *arg1) {
     u_long128 value;
     value = *(u_long128 *)arg1;
     *(u_long128 *)(arg0 + 0x10) = value;
@@ -2427,16 +2434,18 @@ void func_004a5b60(u8 *arg0, s32 arg1)
 }
 
 
+/* Writes the same float to +0x20, +0x24 and +0x28, giving a uniform scale. */
 // FUN_004A5B70
-void func_004a5b70(u8 *arg0, f32 arg1) {
+void WindSetUniformScale(u8 *arg0, f32 arg1) {
     *(f32 *)(arg0 + 0x20) = arg1;
     *(f32 *)(arg0 + 0x24) = arg1;
     *(f32 *)(arg0 + 0x28) = arg1;
 }
 
 
+/* Copies the three floats of arg1 into +0x20, +0x24 and +0x28. */
 // FUN_004A5B90
-void func_004a5b90(u8 *arg0, f32 *arg1) {
+void WindSetVec3(u8 *arg0, f32 *arg1) {
     *(f32 *)(arg0 + 0x20) = arg1[0];
     *(f32 *)(arg0 + 0x24) = arg1[1];
     *(f32 *)(arg0 + 0x28) = arg1[2];
