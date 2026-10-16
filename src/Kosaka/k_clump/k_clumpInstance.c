@@ -36,9 +36,9 @@ extern void func_003e2ab0(void *arg0, void *arg1, s32 arg2);
 extern void K_Clump_FreeTextureNameList(void *arg0);
 extern void func_003e2e40(void *arg0, s32 arg1);
 extern void *func_00191e20(void *object, void *data);
-extern void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2);
-extern s32 func_001921a0(u8 *arg0);
-extern void func_00192480(u8 *arg0);
+extern void K_Clump_ReadChunks(u8 *arg0, s32 *arg1, u8 *arg2);
+extern s32 K_Clump_LoadDirUpdate(u8 *arg0);
+extern void K_Clump_LoadDestroy(u8 *arg0);
 extern char D_005F64C0[];
 extern char D_005F64E0[];
 extern char D_005F6500[];
@@ -69,7 +69,7 @@ extern char iGpffffa080;
 
 
 // FUN_00191E90
-void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
+void K_Clump_ReadChunks(u8 *arg0, s32 *arg1, u8 *arg2)
 {
     s32 sp70[8];
     union { s32 s[4]; u32 u[4]; } sp50;
@@ -143,7 +143,7 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
 /* measured: opt_loop_invariants hoists the '.' and '/' loop constants. */
 #pragma opt_loop_invariants on
 // FUN_001921A0
-s32 func_001921a0(u8 *arg0)
+s32 K_Clump_LoadDirUpdate(u8 *arg0)
 {
     ClumpWork *work;
     char *name_cursor;
@@ -214,7 +214,7 @@ s32 func_001921a0(u8 *arg0)
         {
         }
         strcat(local.buffer, path_cursor + 1);
-        func_00191e90(work->field_450, (s32 *)local.buffer, (u8 *)work);
+        K_Clump_ReadChunks(work->field_450, (s32 *)local.buffer, (u8 *)work);
         H_Cdvd_Destroy(work->field_450);
         work->state = 3;
         break;
@@ -237,13 +237,13 @@ s32 func_001921a0(u8 *arg0)
     }
     return 0;
 }
-/* measured: close the loop-invariant optimization scope for func_001921a0. */
+/* measured: close the loop-invariant optimization scope for K_Clump_LoadDirUpdate. */
 #pragma opt_loop_invariants off
 
 
 
 // FUN_00192480
-void func_00192480(u8 *arg0)
+void K_Clump_LoadDestroy(u8 *arg0)
 {
     s32 handle;
 
@@ -258,7 +258,7 @@ void func_00192480(u8 *arg0)
 
 
 // FUN_001924D0
-s32 func_001924d0(void)
+s32 K_Clump_CreateLoadTask(void)
 {
     void *mem;
 
@@ -268,5 +268,5 @@ s32 func_001924d0(void)
     {
         return 0;
     }
-    return (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F65A0), 0xF, 0, 0, func_001921a0, func_00192480, (u8 *)(mem));
+    return (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F65A0), 0xF, 0, 0, K_Clump_LoadDirUpdate, K_Clump_LoadDestroy, (u8 *)(mem));
 }

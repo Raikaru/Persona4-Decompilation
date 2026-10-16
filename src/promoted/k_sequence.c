@@ -17,7 +17,7 @@ extern void func_00187e80(s32 arg0, s32 arg1, s32 arg2);
 extern void func_0018f3c0(s32 arg0);
 extern void func_0018f700(s32 arg0);
 extern void func_00190130(s32 arg0);
-extern void func_0018dd40(s32 arg0);
+extern void K_FldFoodCourt_Create(s32 arg0);
 
 extern char D_005F16F8[];
 extern u8 D_005F1708[];
@@ -219,7 +219,7 @@ void func_00170840(void)
 // FUN_001708A0
 void func_001708a0(void)
 {
-    func_0018dd40(0);
+    K_FldFoodCourt_Create(0);
 }
 
 // FUN_001708D0
