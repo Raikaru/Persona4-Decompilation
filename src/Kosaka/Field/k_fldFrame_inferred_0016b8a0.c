@@ -6,6 +6,7 @@
 #include "model_callbacks_internal.h"
 #include "model_matrix_internal.h"
 #include "Kosaka/k_fldFrame_internal.h"
+#include "field_frame_internal.h"
 #include "Kosaka/k_model_internal.h"
 
 typedef struct RwMatrix RwMatrix;
@@ -2203,7 +2204,7 @@ s32 FldFrame_RotateTaskUpdate(u8 *arg0)
     switch (temp_3) {
     case 0:
         temp_f20 = *(f32 *)(temp_16 + 0xC);
-        temp_3_2 = *(s32 *)(*(u8 **)(*(u8 **)(((u8*)MT_Scene_GetFrameState()) + 4) + 0x38) + 8);
+        temp_3_2 = *(s32 *)(*(u8 **)(((FldFrame *)MT_Scene_GetFrameState())->cameraTask + 0x38) + 8);
         if (temp_3_2 == 0)
             goto process0;
         if (temp_3_2 == 6)
@@ -2241,10 +2242,10 @@ skip_process0:
             temp_f21 = sinf((iGpffff8094 *
                                       (f32)*(s32 *)(temp_16 + 8)) /
                                      (f32)*(s32 *)(temp_16 + 4));
-            if (*(s32 *)(((u8*)MT_Scene_GetFrameState()) + 4) != 0) {
+            if (((FldFrame *)MT_Scene_GetFrameState())->cameraTask != 0) {
                 temp_f20_2 = *(f32 *)(temp_16 + 0x10) *
                              (temp_f21 - *(f32 *)(temp_16 + 0x14));
-                temp_3_4 = *(s32 *)(*(u8 **)(*(u8 **)(((u8*)MT_Scene_GetFrameState()) + 4) +
+                temp_3_4 = *(s32 *)(*(u8 **)(((FldFrame *)MT_Scene_GetFrameState())->cameraTask +
                                              0x38) + 8);
                 if (temp_3_4 == 0)
                     goto process1;
@@ -2514,7 +2515,7 @@ void FldCameraApplyRecord(u8 *arg0, u8 *arg1)
     case 0:
     case 5:
     case 6:
-        FldCameraSetDistance(*(u8 **)(((u8*)MT_Scene_GetFrameState()) + 4), 0.0f);
+        FldCameraSetDistance(((FldFrame *)MT_Scene_GetFrameState())->cameraTask, 0.0f);
         return;
     case 2:
     {
