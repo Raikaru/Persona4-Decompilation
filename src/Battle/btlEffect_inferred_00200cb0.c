@@ -54,7 +54,7 @@ extern s32 iGpffffb448;
 extern s32 D_0062656C[];
 extern void btlPanelStartEntry(s32 arg0, s32 arg1);
 extern void btlPanelStartValues(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_00216d10(s32 task);
+extern void btlPanelMarkEntryStarted(s32 task);
 
 
 
@@ -596,7 +596,7 @@ void btlUiSelectEffect(s32 arg0, u32 arg1)
     }
     btlPanelStartEntry(*(s32 *)(D_0076449C + 0xDD4),
                   iGpffffb448 + (((arg1 - 0x1000) & 0xFFFF) * 0x13));
-    func_00216d10(*(s32 *)(D_0076449C + 0xDD4));
+    btlPanelMarkEntryStarted(*(s32 *)(D_0076449C + 0xDD4));
 }
 
 // Intent: packet callback; bumps both unit counters and flags a bad-status hit. [inferred]
