@@ -41,7 +41,7 @@ extern u8 *func_003e9d50(u8 *arg0);
 extern void FldResource_BeginDrawState(u8 *arg0, u8 *arg1);
 extern s32 K_Clump_CountIntUsrData(void *object, const char *name);
 extern void kAssertFail(const char *file, s32 line);
-extern void func_004b1290(s32 a0, f32 f12, f32 f13, f32 f14);
+extern void mdlEffectSetEulerRotation(s32 a0, f32 f12, f32 f13, f32 f14);
 extern void func_003c9d40(void *arg0);
 extern void func_003c0700(void *arg0);
 extern void func_00462bf0(void *arg0);
@@ -2253,7 +2253,7 @@ switch_case_1_test:
     if (temp_4 != 1) {
         goto switch_end;
     }
-    func_004b1290(*(s32 *)(temp_5 + 0x130), 0.0f, fparg0, 0.0f);
+    mdlEffectSetEulerRotation(*(s32 *)(temp_5 + 0x130), 0.0f, fparg0, 0.0f);
 switch_end:
     ;
     var_16_2 += 1;

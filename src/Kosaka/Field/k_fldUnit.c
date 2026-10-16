@@ -162,8 +162,8 @@ void chkmemAllocSiteTag(u8 *arg0, s32 arg1);
 f32 sinf(f32 arg0);
 u8 *mdlGetColor(s32 arg0);
 void mdlSetColor(s32 arg0, u8 *arg1);
-void func_004b14f0(u8 *arg0, u8 *arg1);
-void func_004b13f0(u8 *arg0, u8 *arg1);
+void mdlEffectGetPackedColor(u8 *arg0, u8 *arg1);
+void mdlEffectSetPackedColor(u8 *arg0, u8 *arg1);
 void *mdlGetMatrix(void *arg0);
 void MT_Scene_DestroyRes(u16 arg0);
 void mdlClearAlphaBlend(s32 arg0);
@@ -1998,7 +1998,7 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
         while (var_18 != NULL) {
             temp_4 = *(s32 *)(var_18 + 8);
             if (temp_4 != 0) {
-                func_004b13f0((u8 *)temp_4, (u8 *)&iGpffff9f28);
+                mdlEffectSetPackedColor((u8 *)temp_4, (u8 *)&iGpffff9f28);
             }
             var_18 = *(u8 **)(var_18 + 0x10);
         }
@@ -2374,11 +2374,11 @@ s32 FldUnit_PulseTintStep(u8 *arg0)
         node = *(u8 **)b;
         while (node != NULL) {
             if (*(u8 **)(node + 8) != NULL) {
-                func_004b14f0(*(u8 **)(node + 8), buf2);
+                mdlEffectGetPackedColor(*(u8 **)(node + 8), buf2);
                 buf2[0] = 0xFF;
                 buf2[1] = 0xFF;
                 buf2[2] = 0xFF;
-                func_004b13f0(*(u8 **)(node + 8), buf2);
+                mdlEffectSetPackedColor(*(u8 **)(node + 8), buf2);
             }
             node = *(u8 **)(node + 0x10);
         }
@@ -2390,11 +2390,11 @@ s32 FldUnit_PulseTintStep(u8 *arg0)
         u8 *d = *(u8 **)(c + 0x10);
         node = *(u8 **)(d + 0x10);
         if (*(u8 **)(node + 8) != NULL) {
-            func_004b14f0(*(u8 **)(node + 8), buf3);
+            mdlEffectGetPackedColor(*(u8 **)(node + 8), buf3);
             buf3[0] = buf1[0];
             buf3[1] = buf1[1];
             buf3[2] = buf1[2];
-            func_004b13f0(*(u8 **)(node + 8), buf3);
+            mdlEffectSetPackedColor(*(u8 **)(node + 8), buf3);
         }
     }
     mdlSetColor(*(u32 *)(*(u32 *)(p + 4) + 0x50), buf1);
@@ -2462,11 +2462,11 @@ s32 FldUnit_PulseTintPeriod(u8 *arg0)
         goto loop_16_check;
 loop_16_body:
         if (*(s32 *)(var_17 + 8) != 0) {
-            func_004b14f0(*(u8 **)(var_17 + 8), sp48);
+            mdlEffectGetPackedColor(*(u8 **)(var_17 + 8), sp48);
             sp48[0] = 0xFF;
             sp48[1] = 0xFF;
             sp48[2] = 0xFF;
-            func_004b13f0(*(u8 **)(var_17 + 8), sp48);
+            mdlEffectSetPackedColor(*(u8 **)(var_17 + 8), sp48);
         }
         var_17 = *(u8 **)(var_17 + 0x10);
 loop_16_check:
@@ -2480,11 +2480,11 @@ loop_16_check:
         temp_17 = *(u8 **)(temp_17 + 0x10);
         temp_17 = *(u8 **)(temp_17 + 0x10);
         if (*(s32 *)(temp_17 + 8) != 0) {
-            func_004b14f0(*(u8 **)(temp_17 + 8), sp44);
+            mdlEffectGetPackedColor(*(u8 **)(temp_17 + 8), sp44);
             sp44[0] = sp4C[0];
             sp44[1] = sp4C[1];
             sp44[2] = sp4C[2];
-            func_004b13f0(*(u8 **)(temp_17 + 8), sp44);
+            mdlEffectSetPackedColor(*(u8 **)(temp_17 + 8), sp44);
         }
     }
 mode_done:
@@ -2547,11 +2547,11 @@ s32 FldUnit_PulseTintBlend(u8 *arg0)
         goto loop_16_check;
 loop_16_body:
         if (*(s32 *)(var_17 + 8) != 0) {
-            func_004b14f0(*(u8 **)(var_17 + 8), sp48);
+            mdlEffectGetPackedColor(*(u8 **)(var_17 + 8), sp48);
             sp48[0] = 0xFF;
             sp48[1] = 0xFF;
             sp48[2] = 0xFF;
-            func_004b13f0(*(u8 **)(var_17 + 8), sp48);
+            mdlEffectSetPackedColor(*(u8 **)(var_17 + 8), sp48);
         }
         var_17 = *(u8 **)(var_17 + 0x10);
 loop_16_check:
@@ -2565,11 +2565,11 @@ loop_16_check:
         temp_17 = *(u8 **)(temp_17 + 0x10);
         temp_17 = *(u8 **)(temp_17 + 0x10);
         if (*(s32 *)(temp_17 + 8) != 0) {
-            func_004b14f0(*(u8 **)(temp_17 + 8), sp44);
+            mdlEffectGetPackedColor(*(u8 **)(temp_17 + 8), sp44);
             sp44[0] = sp4C[0];
             sp44[1] = sp4C[1];
             sp44[2] = sp4C[2];
-            func_004b13f0(*(u8 **)(temp_17 + 8), sp44);
+            mdlEffectSetPackedColor(*(u8 **)(temp_17 + 8), sp44);
         }
     }
 mode_done:

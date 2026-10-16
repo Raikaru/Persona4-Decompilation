@@ -103,7 +103,7 @@ extern s32 mdlIsLayerKeyEmpty(u32 arg0, u16 arg1, s16 arg2);
 extern void mdlSetLayerWeight(u32 arg0, u16 arg1, f32 arg2);
 extern void mdlSetLayerTime(u32 arg0, u16 arg1, f32 arg2);
 extern void *mdlGetColor();
-extern void func_004b14f0(void *object, s32 *color);
+extern void mdlEffectGetPackedColor(void *object, s32 *color);
 extern void chkmemAllocSiteTag(const void *msg, u32 id);
 
 extern void kAssertFail(const void *msg, u32 line);
@@ -519,7 +519,7 @@ u32 MT_Scene_SetResColorParam(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
         break;
     }
     case 6:
-        func_004b14f0(*(void **)((u8 *)param_1 + 0x144), (s32 *)tmp);
+        mdlEffectGetPackedColor(*(void **)((u8 *)param_1 + 0x144), (s32 *)tmp);
         bVar = tmp[3];
         break;
     default:
@@ -997,7 +997,7 @@ extern s32 MT_Scene_GetTerrainAtPoint(u16 *position);
 extern void mdlSetColor(Model *model, const RwRGBA *color);
 extern void mdlSetAlphaBlend(void *model);
 extern void mdlClearAlphaBlend(void *model);
-extern void func_004b13f0(void *effect, s32 *color);
+extern void mdlEffectSetPackedColor(void *effect, s32 *color);
 /* The companion forwarding provider requires this same object parameter. */
 
 extern s32 sdkSndStartStream(s16 index, s16 stream, s16 bank, s16 sound);
@@ -1397,9 +1397,9 @@ void MT_Scene_UpdateResource(u8 *arg0)
         case 6: {
             SceneEffectUpdate *effect = (SceneEffectUpdate *)resource;
             SceneEffectColor color;
-            func_004b14f0(effect->effect, &color.packed);
+            mdlEffectGetPackedColor(effect->effect, &color.packed);
             color.rgba.alpha = alpha;
-            func_004b13f0(effect->effect, &color.packed);
+            mdlEffectSetPackedColor(effect->effect, &color.packed);
             break;
         }
         }

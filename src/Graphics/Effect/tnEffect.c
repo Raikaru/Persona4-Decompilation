@@ -34,8 +34,8 @@ s32 tmxUploadStream(u8 *arg0, s32 arg1);
 u8 *func_003ef2e0(u8 *arg0);
 void kAssertFail(const char *file, s32 line);
 void ParticleDrawBillboards(u8 *arg0);
-s32 func_004b0f70(void *arg0);
-s32 func_004b0fa0(void *arg0);
+s32 DistortParticleProjectRecordsNoSky(void *arg0);
+s32 DistortParticleProjectRecordsSky(void *arg0);
 void ObjectParticleDraw(void *arg0);
 void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 void mdlEffectSeqStep(void);
@@ -265,8 +265,8 @@ void TnDispatchPairedDraw(void *arg0) {
         tbl = (TNFunc *)D_00887300_abs;
         (*tbl)(6, 0);
     }
-    func_004b0f70(arg0);
-    func_004b0fa0(arg0);
+    DistortParticleProjectRecordsNoSky(arg0);
+    DistortParticleProjectRecordsSky(arg0);
     if (!(*(u8 *)((u8 *)arg0 + 0x30) & 1)) {
         (*tbl)(6, 1);
     }

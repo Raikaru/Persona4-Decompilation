@@ -19,7 +19,7 @@ extern u8 *func_004b1130();
 extern void func_004b1150(u8 *a);
 extern void func_004b1170(s32 a);
 extern void func_004b1250(void *a, void *b);
-extern void func_004b1290(u8 *a, f32 b, f32 c, f32 d);
+extern void mdlEffectSetEulerRotation(u8 *a, f32 b, f32 c, f32 d);
 extern void func_004b13d0(u8 *a, f32 b);
 /* The callee's real signature is (f32 *, f32 *, f32); this caller-side prototype keeps the
    float in the second position because mwcc b210 materialises call args in declaration
@@ -133,7 +133,7 @@ void btlShuffleEffUpdate(u8 *arg0) {
             btlShuffleCalcStepPose(&sp68[0], src[2], &sp58[0]);
             btlShuffleCalcLookAt(sp58, sp58);
             func_004b1250(*(u8 **)(e + 4), sp58);
-            func_004b1290(*(u8 **)(e + 4), src[3], src[4], src[5]);
+            mdlEffectSetEulerRotation(*(u8 **)(e + 4), src[3], src[4], src[5]);
             func_004b13d0(*(u8 **)(e + 4), src[6]);
         }
     }

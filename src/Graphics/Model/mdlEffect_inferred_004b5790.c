@@ -73,8 +73,9 @@ void func_004b5790(u8 *arg0, s32 arg1)
     iGpffffbba4 = (s32 (*)(void))arg1;
 }
 
+// Binds the object's resource, stores arg1 at +0x20 of it, creates the instance, appends it to the list, and starts its sections. Returns the instance.
 // FUN_004B57A0
-u8 *func_004b57a0(void *object, s32 arg1) {
+u8 *AfPackCreateAndStartInstance(void *object, s32 arg1) {
     u8 *temp_2;
     u8 *temp_2_2;
 

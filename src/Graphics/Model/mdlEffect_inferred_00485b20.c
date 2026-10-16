@@ -61,7 +61,7 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 extern u_long128 func_00484b30(u8 *arg0);
 extern void func_00486330(u8 *arg0, u8 *arg1);
-extern void func_004865c0(u8 *arg0, s32 arg1);
+extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 static inline void model_normalize_packed_color(const u32 *source, f32 scale)
 {
     u32 scaleBits;
@@ -228,7 +228,7 @@ u8 *func_00485c80(u8 *arg0)
     func_004861f0(clone, (f32 *)&sp80);
     func_00486330(clone, (u8 *)&sp80);
     func_00486400(clone, 1.0f);
-    func_004865c0(clone, -1);
+    mdlEffectApplyPackedColor(clone, -1);
     return clone;
 }
 
@@ -544,10 +544,11 @@ loop_00486400_check:
     }
 }
 
+// Stores arg1 at +0x64 and normalises it into each child node's packed colour (node +0x64), walking the child list at +0x8C.
 // FUN_004865C0
 /* measured: 276B/288B, instruction-exact after relocation normalization; 12B zero tail.
  * Only the packed-word/VU bridges are assembly; locals and traversal remain C. */
-void func_004865c0(u8 *arg0, s32 arg1)
+void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1)
 {
     u32 baseColor;
     u32 childColor;

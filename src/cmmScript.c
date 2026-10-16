@@ -108,9 +108,9 @@ extern s32 cmmDateTableRollValue(s32 arg0);
 extern void cmmDateTableRunEffect(s32 arg0);
 extern void datEntryDrawGatedByFlag39(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern f32 sinf(f32 arg0);
-extern void func_004b14f0(s32 arg0, void* arg1);
+extern void mdlEffectGetPackedColor(s32 arg0, void* arg1);
 extern void func_004b1420(s32 arg0, void* arg1);
-extern void func_004b13f0(s32 arg0, void* arg1);
+extern void mdlEffectSetPackedColor(s32 arg0, void* arg1);
 extern u16 D_008C024E[];
 extern u8 D_00635B50[];
 extern u8 D_00635B90[];
@@ -1851,13 +1851,13 @@ s32 cmmScriptStepFishingRound(u8 *arg0)
             resource = 0;
         }
         if (resource != 0) {
-            func_004b14f0(resource, color);
+            mdlEffectGetPackedColor(resource, color);
             func_004b1420(resource, pos);
             value = sinf((iGpffff8084 * (f32)state) /
                                   (f32)*(s16 *)(entry + 4));
             *(f32 *)(pos + 4) = -55.0f - (20.0f * value);
             color[3] = (u8)(255.0f * (1.0f - value));
-            func_004b13f0(resource, color);
+            mdlEffectSetPackedColor(resource, color);
             func_004b1250((void *)(u32)(resource), (f32 *)(pos));
         }
         if (state <= *(s16 *)(entry + 4)) {

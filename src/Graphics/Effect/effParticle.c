@@ -877,7 +877,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
     extern void GeometryBlockBindResource(u8 * a, s32 b);
     extern void func_00484ae0(u8 * a, s32 b);
     extern void func_00484a00(u8 * a);
-    extern void func_004865c0(u8 * a, s32 b);
+    extern void mdlEffectApplyPackedColor(u8 * a, s32 b);
     extern void func_00485870(s32 a);
     extern s32 TnGetOffset1C(u16 a);
     extern void PrimAppendNode(u8 * list, u8 * node);
@@ -1466,7 +1466,7 @@ void ParticleProjectVertices(u8* particle, f32 scale)
                                  : "+r"(colorWord), "=m"(packedColor)
                                  :
                                  : "$vf2", "$vf10", "memory");
-                func_004865c0((u8*)*(s32*)emitterOrObjects, packedColor);
+                mdlEffectApplyPackedColor((u8*)*(s32*)emitterOrObjects, packedColor);
                 func_00485870(*(s32*)emitterOrObjects);
             }
             modelIndex++;

@@ -59,13 +59,15 @@ extern void (*jtbl_008873EC[])(void *);
 /* Source unit: src/promoted/code1_004b.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b0f70-004b1030 */
 
+// Projects the distort records with flag 0: the sky hook is not called, and the flag is passed to DistortParticleDrawSky.
 // FUN_004B0F70
-void func_004b0f70(void *object) {
+void DistortParticleProjectRecordsNoSky(void *object) {
     DistortParticleProjectRecords(object, 0);
 }
 
+// Projects the distort records with flag 1: calls the hook at D_00887300 with 1 first, and passes the flag to DistortParticleDrawSky.
 // FUN_004B0FA0
-void func_004b0fa0(void *object) {
+void DistortParticleProjectRecordsSky(void *object) {
     DistortParticleProjectRecords(object, 1);
 }
 
