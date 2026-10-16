@@ -10,22 +10,6 @@ extern s32 func_003ec480(s32 arg0);
 extern s32 (*D_0088737C)(void);
 extern void func_003e9680(void *arg0);
 
-/* `movz $s0,$zero,$v0` is the b119 lowering of `call() ? arg0 : 0`. */
-// FUN_003E82A0
-#pragma schedule on
-s32 func_003e82a0(s32 arg0) {
-    return DAT_0088737c_abs[0]() ? arg0 : 0;
-}
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
-
-// FUN_003E82E0
-#pragma schedule on
-u8 *func_003e82e0(u8 *arg0) {
-    return func_003ec480(*(s32 *)(arg0 + 0x60)) ? arg0 : NULL;
-}
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
 
 /* The alignment nop after the filled back-edge slot is the unit's -O2,p; the
    b210 residual (nd 16) is gone under b119. */
@@ -150,33 +134,7 @@ typedef struct {
     void *tail_next;
     void *tail_prev;
 } Ctx2430003e;
-/* Archived b210 near-miss (Y3EA_003e3370); exact under b119 with schedule on. */
-#pragma schedule on
-// FUN_003E3370
-s32 func_003e3370(u8 *arg0, s32 arg1) {
-    s32 (*callback)(s32, s32, s32);
-    s32 callback_result;
-    s32 total;
-    u8 *node;
 
-    node = *(u8 **)(arg0 + 0x10);
-    total = 0;
-    if (node != NULL) {
-        do {
-            callback = *(s32 (**)(s32, s32, s32))(node + 0x14);
-            if (callback != NULL) {
-                callback_result = callback(arg1, *(s32 *)(node + 0), *(s32 *)(node + 4));
-                if (callback_result > 0) {
-                    total += callback_result + 0xC;
-                }
-            }
-            node = *(u8 **)(node + 0x30);
-        } while (node != NULL);
-    }
-    return total;
-}
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
 
 extern void *D_00887408[];
 extern void *D_00764864;
@@ -211,22 +169,7 @@ extern void strncmp();
 extern void strlen();
 extern void func_00443f18();
 extern void sscanf();
-/* Archived b210 near-miss (P3E3_003e3c20); exact under b119 with schedule on. */
-// FUN_003E3C20
-#pragma schedule on
-u8 *func_003e3c20(u8 *arg0, s32 arg1) {
-    u8 *node = *(u8 **)(arg0 + 0x14);
-    if (node) {
-        do {
-            ((void (*)(s32, s32, s32))(*(s32 *)(node + 0x24)))(
-                arg1, *(s32 *)(node + 0), *(s32 *)(node + 4));
-            node = *(u8 **)(node + 0x34);
-        } while (node);
-    }
-    return arg0;
-}
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
+
 
 /* The archived b210 near miss carried 0x330404; retail loads 0x30404. Exact under b119 with schedule on. */
 #pragma schedule on

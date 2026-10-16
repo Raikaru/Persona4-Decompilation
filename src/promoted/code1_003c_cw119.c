@@ -14,29 +14,7 @@ extern u8 func_003ca740[];
 extern u8 func_003ca780[];
 extern u8 func_003ca7a0[];
 
-/* measured: schedule on fills ca830's call and return delay slots. */
-// FUN_003CA830
-#pragma schedule on
-u8 *func_003ca830(u8 *arg0) {
-    u8 *f60 = func_003ca7a0;
-    u8 *f00 = func_003ca740;
-    u8 *f40 = func_003ca780;
-    u8 *node = arg0 + iGpffffb708;
 
-    *(s32 *)(node + 0) = 0;
-    *(s32 *)(node + 4) = 0;
-    *(s32 *)(node + 8) = 0;
-    *(s32 *)(node + 0x10) = *(s32 *)(arg0 + 0x18);
-    *(s32 *)(node + 0x14) = *(s32 *)(arg0 + 0x1C);
-    *(s32 *)(node + 0x18) = *(s32 *)(arg0 + 0x10);
-    *(u8 **)(arg0 + 0x10) = f60;
-    *(u8 **)(arg0 + 0x18) = f00;
-    *(u8 **)(arg0 + 0x1C) = f40;
-    *(s32 *)(node + 0xC) = 0;
-    return arg0;
-}
-/* measured: closes the schedule bracket. */
-#pragma schedule off
 
 extern u8 D_008872E0[];
 extern void *(*D_008873F8[])(s32 arg0, s32 arg1);
@@ -55,13 +33,7 @@ s32 func_003cb790(s32 arg0, s32 arg1, u8 *arg2) {
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
-// FUN_003CB7E0
-#pragma schedule on
-s32 func_003cb7e0(s32 arg0, s32 arg1, u8 *arg2) {
-    return func_003cebb0((u8 *)arg0, arg2) ? arg0 : 0;
-}
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
+
 
 /* The b210 residual (base addu before the allocator load) is not there
    under b119: the archived body is exact. */
