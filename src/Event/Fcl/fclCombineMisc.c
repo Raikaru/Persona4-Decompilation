@@ -406,7 +406,7 @@ typedef struct {
 
 extern u32 datPersonaCountSkills(void *arg0);
 extern u8 *yListAllocIndexTable(void);
-extern void func_002e6f90(u8 *arg0, s16 arg1);
+extern void fclListAddUnique(u8 *arg0, s16 arg1);
 extern void func_002e7010(u8 *arg0, s16 arg1);
 extern void fclFreeWorkBlock(u8 *arg0);
 extern void func_00440b68(const void *arg0);
@@ -496,7 +496,7 @@ s8 fclFuseRollPersona(u16 *arg0, u8 *arg1, s32 arg2)
         for (; j < 8; j++) {
             cell = (u16 *)(row + j * 2 + 0xC);
             if (*cell != 0 && datPersonaFindSkillSlot((u8 *)arg0, *cell) == -1) {
-                func_002e6f90(pool, (s16)*cell);
+                fclListAddUnique(pool, (s16)*cell);
             }
         }
     }
