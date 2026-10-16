@@ -379,8 +379,9 @@ s32 nLineRefreshTask(u8 *unusedTask)
     return 0;
 }
 
+// Intent: Registered nLine callback that draws the layer at the origin [inferred]
 // FUN_0034B950
-void func_0034b950(void)
+void nLineDrawOriginCallback(void)
 {
     nLineDrawCurrent();
 }
@@ -610,8 +611,9 @@ f32 cmpGridCellFade(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2) {
             ((1.0f - fparg1) / (f32)(*(s32 *)(arg0 + 0x10) - 1)) +
             fparg1);
 }
+// Intent: Step a 16-bit value one unit toward its target on a timer, re-roll on expiry, and snap when it passes the target [inferred]
 // FUN_0034F8F0
-void func_0034f8f0(u8 *arg0)
+void datSmoothTargetStep(u8 *arg0)
 {
   s32 temp_3_2;
   s32 var_2;
