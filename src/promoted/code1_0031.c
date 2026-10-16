@@ -294,7 +294,7 @@ done:
 #pragma push
 #pragma opt_loop_invariants on
 // FUN_00313800
-void func_00313800(s8 arg0)
+void fclCombineMaterialListBuild(s8 arg0)
 {
     u8 *items;
     s16 row;
@@ -330,7 +330,7 @@ void func_00313800(s8 arg0)
 }
 #pragma pop
 // FUN_003139D0
-s32 func_003139d0(s8 arg0, s8 arg1)
+s32 fclCombineMaterialsHeld(s8 arg0, s8 arg1)
 {
     s32 i;
     s32 start;
@@ -356,14 +356,14 @@ done:
     return result;
 }
 // FUN_00313A80
-s32 func_00313a80(s8 arg0, s8 arg1)
+s32 fclCombineSlotOwned(s8 arg0, s8 arg1)
 {
     return datPersonaFindRosterRecordById(*(u16 *)(*(u8 **)((u8 *)D_00642EF0 + (arg0 * 8)) + (arg1 * 0x20))) != 0;
 }
 /* Slot of the given item in a kind's six-entry table (0 when absent).  The
    id is widened once on entry, as retail does before the table walk. */
 // FUN_00313AE0
-s8 func_00313ae0(s8 arg0, u16 arg1)
+s8 fclCombineItemSlot(s8 arg0, u16 arg1)
 {
     s32 i;
     s32 id;
