@@ -22,7 +22,7 @@ extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
 
 
 extern s32 func_0018ef50(u8 *arg0);
-extern s32 func_0018e520(u8 *arg0);
+extern s32 K_Test_CreateLauncher(u8 *arg0);
 extern void func_00190600(void);
 extern s32 func_001838d0(f32 f0, u8 *arg0, s32 arg1, f32 f1, f32 f2, f32 f3,
                           s32 arg2, s32 arg3, s32 arg4);
@@ -33,7 +33,7 @@ extern s32 func_00191bc0(s32 arg0);
 extern s32 func_00191d90(s32 arg0);
 
 // FUN_0018E050
-s32 func_0018e050(u8 *arg0)
+s32 K_TestMenu_Update(u8 *arg0)
 {
     u8 *p;
     s32 state;
@@ -61,7 +61,7 @@ s32 func_0018e050(u8 *arg0)
                 *(s32 *)(p + 8) = func_0018ef50(arg0);
                 break;
             case 1:
-                *(s32 *)(p + 8) = func_0018e520(arg0);
+                *(s32 *)(p + 8) = K_Test_CreateLauncher(arg0);
                 break;
             case 2:
                 func_00190600();
@@ -112,26 +112,26 @@ s32 func_0018e050(u8 *arg0)
 }
 
 // FUN_0018E310
-void func_0018e310(u8 *arg0)
+void K_TestMenu_Destroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
 // FUN_0018E340
-void func_0018e340(void)
+void K_TestMenu_Create(void)
 {
     chkmemAllocSiteTag(D_005F56F0, 0xCB);
-    kwlnTaskCreate((const void *)(D_005F5700), 0xF, 0, 0, func_0018e050, func_0018e310, (u8 *)(D_008873F4[0](1, 0xC, 0x40000)));
+    kwlnTaskCreate((const void *)(D_005F5700), 0xF, 0, 0, K_TestMenu_Update, K_TestMenu_Destroy, (u8 *)(D_008873F4[0](1, 0xC, 0x40000)));
 }
 
 // FUN_0018E3C0
-s32 func_0018e3c0(void)
+s32 K_TestMenu_IsActive(void)
 {
     return kwlnTaskGetTaskByName(D_005F5700) != 0;
 }
 
 // FUN_0018E3F0
-void func_0018e3f0(void)
+void K_TestMenu_Close(void)
 {
     s32 result;
 
