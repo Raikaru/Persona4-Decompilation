@@ -102,7 +102,7 @@ extern char D_005F1200[];
 extern s32 iGpffff9f08;
 extern u8 *iGpffff9db0;
 extern s32 datGetFlag();
-extern s32 func_0015a160();
+extern s32 FldStepIndex();
 extern s32 func_001623f0();
 extern s32 func_00162510(u16 arg0, u16 arg1);
 extern s32 D_005F1350[];
@@ -2650,7 +2650,7 @@ ret0_b:
 ret1_b:
             return 1;
         }
-        if (func_0015a160() != 0) {
+        if (FldStepIndex() != 0) {
             return 0;
         }
         if (func_001623f0() == 1) {
@@ -2696,7 +2696,7 @@ s32 func_0016fe80(s32 arg0)
                 if (datGetFlag(0xC01, 1) != 0) {
                     result--;
                 }
-            } else if (func_0015a160() != 0) {
+            } else if (FldStepIndex() != 0) {
                 result = 2;
             } else {
                 result = 3;
@@ -2739,7 +2739,7 @@ s32 func_0016ffd0(s32 arg0)
                 if (datGetFlag(0xC01, 1) != 0) {
                     result--;
                 }
-            } else if (func_0015a160() != 0) {
+            } else if (FldStepIndex() != 0) {
                 result = 2;
             } else {
                 result = 5;

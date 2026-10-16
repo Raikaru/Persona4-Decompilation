@@ -2,7 +2,7 @@
 #include "type.h"
 #include "include_asm.h"
 
-extern s32 func_00159e90(s32 arg0, s32 arg1, s32 arg2);
+extern s32 FldStepTaskCreate(s32 arg0, s32 arg1, s32 arg2);
 extern s32 D_00764334;
 
 extern u8 *MT_Scene_GetFrameState(void);
@@ -91,7 +91,7 @@ s32 func_00170440(void)
 // FUN_001704A0
 void func_001704a0(u8 *arg0)
 {
-    D_00764334 = func_00159e90(0, *(s32 *)(arg0 + 0), *(s32 *)(arg0 + 4));
+    D_00764334 = FldStepTaskCreate(0, *(s32 *)(arg0 + 0), *(s32 *)(arg0 + 4));
 }
 
 // FUN_001704E0

@@ -40,7 +40,7 @@ typedef struct
 extern s32 func_0016fd00(void);
 extern s32 func_00162510(u16 arg0, u16 arg1);
 extern u32 RpRandom(void);
-extern s32 func_0015a160(void);
+extern s32 FldStepIndex(void);
 /* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
    before the two lhu loads and $a3 (a) after them, which is the default-
    promotion order of an old-style call with a u16 local for b and an explicit
@@ -144,7 +144,7 @@ s32 func_00170120(s32 arg0)
     if ((*(s32 *)(temp_4 + 0) == 0x44) &&
         (*(s32 *)(temp_4 + 4) == 1))
         return (RpRandom() % 3U) + 6;
-    if (func_0015a160() != 0)
+    if (FldStepIndex() != 0)
         return 1;
     return (RpRandom() % 3U) + 6;
 }

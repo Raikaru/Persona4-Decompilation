@@ -119,7 +119,7 @@ extern char D_005F1200[];
 extern s32 iGpffff9f08;
 extern u8 *iGpffff9db0;
 extern s32 datGetFlag();
-extern s32 func_0015a160();
+extern s32 FldStepIndex();
 extern s32 func_001623f0();
 extern s32 func_00162510(u16 arg0, u16 arg1);
 extern s16 datGetPartyId(s32 arg0);
@@ -992,7 +992,7 @@ u8 *func_00162680(u16 field, u16 room, s32 member)
         } else if (field == 0x44 && room == 1) {
             modelKind = type = 9;
             id = 0x100;
-        } else if (func_0015a160() != 0) {
+        } else if (FldStepIndex() != 0) {
             modelKind = type = 1;
             id = member;
         } else if ((field == 7 && room == 2) || (field == 7 && room == 3)) {

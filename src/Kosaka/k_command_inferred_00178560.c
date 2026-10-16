@@ -41,7 +41,7 @@ typedef struct
 } FieldColor_0017;
 extern void FldEvent_StepGridCell();
 extern s32 *MT_Scene_GetFrameState(void);
-extern s32 func_0015a160(void);
+extern s32 FldStepIndex(void);
 /* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
    before the two lhu loads and $a3 (a) after them, which is the default-
    promotion order of an old-style call with a u16 local for b and an explicit
@@ -234,7 +234,7 @@ s32 Cmd_PickEncounter(void)
 {
     s32 a = scrGetParamInt(0);
     u8 *p = iGpffff9db0;
-    u16 b = func_0015a160();
+    u16 b = FldStepIndex();
 
     scrSetReturnInt(Encount_PickEncounter(*(u16 *)p, *(u16 *)(p + 4), b, (u16)a) & 0xFFFF);
     return 1;

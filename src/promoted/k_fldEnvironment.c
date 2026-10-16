@@ -10,7 +10,7 @@ extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
 extern s64 calGetDayEntryByPhase(s32 arg0, u32 arg1);
 extern u32 datGetFlag(s32 arg0);
-extern s32 func_0015a0c0(void);
+extern s32 FldStepEntry(void);
 extern s32 FldMap_IsCurrentInEitherBand(void);
 
 extern void chkmemAllocSiteTag(const void *msg, s32 id);
@@ -445,7 +445,7 @@ static inline s32 fldEnvironmentEventState(s32 state)
 {
     u8 *entry;
 
-    entry = (u8 *)func_0015a0c0();
+    entry = (u8 *)FldStepEntry();
     if (entry == NULL) {
         return state;
     }

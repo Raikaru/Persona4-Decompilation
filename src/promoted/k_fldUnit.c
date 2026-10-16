@@ -170,7 +170,7 @@ void mdlClearAlphaBlend(s32 arg0);
 void mdlDestroyModelObject(u8 *arg0);
 void kwlnTaskDestroyWithHierarchy(s32 arg0);
 s32 func_00162510(u16 arg0, u16 arg1);
-s32 func_0015a160(void);
+s32 FldStepIndex(void);
 s32 FldUnit_UpdatePartyState(u8 *arg0);
 u8 *MT_Scene_GetResListHead(s32 arg0);
 void kAssertFail(void *arg0, s32 arg1);
@@ -477,7 +477,7 @@ void FldUnit_UpdateFacing(void)
         if (unit->scene != NULL) {
             continue;
         }
-        if (func_0015a160() != 0 &&
+        if (FldStepIndex() != 0 &&
             func_00162510(((u16 *)iGpffff9db0)[0],
                           ((u16 *)iGpffff9db0)[2]) == 0) {
             resourceVariant = 3;
@@ -1129,7 +1129,7 @@ s32 FldUnit_SpawnEncounter(u32 arg0, s32 arg1)
     if (arg1 != 0) {
         while ((temp_2 = FldUnit_FindNearestUnits(var_17, arg0, (f32)0xBB8)) != NULL) {
             temp_19 = iGpffff9db0;
-            var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
+            var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(FldStepIndex() & 0xFFFF), 2);
             if ((var_2 & 0xFFFF) == 0xFFFF) {
                 var_2 = 1;
             }
@@ -1139,7 +1139,7 @@ s32 FldUnit_SpawnEncounter(u32 arg0, s32 arg1)
     } else {
         while ((temp_2 = FldUnit_FindNearestUnits(var_17, arg0, (f32)0x1770)) != NULL) {
             temp_19 = iGpffff9db0;
-            var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
+            var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(FldStepIndex() & 0xFFFF), 2);
             if ((var_2 & 0xFFFF) == 0xFFFF) {
                 var_2 = 1;
             }
@@ -1152,7 +1152,7 @@ s32 FldUnit_SpawnEncounter(u32 arg0, s32 arg1)
         }
         while ((temp_2 = FldUnit_FindNearestUnits(var_17, arg0, var_f20)) != NULL) {
             temp_19 = iGpffff9db0;
-            var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
+            var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(FldStepIndex() & 0xFFFF), 2);
             if ((var_2 & 0xFFFF) == 0xFFFF) {
                 var_2 = 1;
             }
@@ -1165,7 +1165,7 @@ s32 FldUnit_SpawnEncounter(u32 arg0, s32 arg1)
                 temp_16 = FldEvent_GetGridCellEntry(sp6C, sp68);
                 if (temp_16 != NULL) {
                     temp_19 = iGpffff9db0;
-                    var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(func_0015a160() & 0xFFFF), 2);
+                    var_2 = Encount_PickEncounter(*(u16 *)temp_19, *(u16 *)(temp_19 + 4), (u16)(FldStepIndex() & 0xFFFF), 2);
                     if ((var_2 & 0xFFFF) == 0xFFFF) {
                         var_2 = 1;
                     }
@@ -1309,7 +1309,7 @@ u8 *FldUnit_FindNearestUnits(s32 unused, u32 limit, f32 minimumDistance)
 
     MT_Scene_GetResListHead(0xF);
     best = NULL;
-    func_0015a160();
+    FldStepIndex();
     bestDistance = 1.1754944e-38f;
     if (FldMap_IsCurrentInBandA() == 1) {
         if (FldUnit_GetActiveCount() < (s32)limit) {
@@ -1801,7 +1801,7 @@ done:
     return;
 loop:
     for (i = 0; i < 8; i++) {
-        value = func_0015a160();
+        value = FldStepIndex();
         if (value == func_001064f0(i + 1)) {
             s32 state;
             s32 parity;
@@ -2087,7 +2087,7 @@ void FldUnit_ApplySlotTint(u8 *arg0, u8 *arg1, s32 arg2)
         if (temp_17 == 1) {
             mdlSetColor((s32)*(u8 **)(temp_2 + 0x144), (u8 *)&iGpffff9f24);
         } else {
-            mdlSetColor((s32)*(u8 **)(temp_2 + 0x144), D_005F1570 + ((func_0015a160() / 20U) * 4));
+            mdlSetColor((s32)*(u8 **)(temp_2 + 0x144), D_005F1570 + ((FldStepIndex() / 20U) * 4));
         }
         temp_2_2 = (u8 *)mdlCloneModelObject((u8 *)(D_00764364));
         *(u8 **)(temp_2 + 0x16C) = temp_2_2;
@@ -2123,7 +2123,7 @@ void FldUnit_UpdateEnemySlot(void)
     u8 *d;
     s32 k;
 
-    t17 = func_0015a160();
+    t17 = FldStepIndex();
     if (iGpffffb260 == 1) {
         return;
     }
@@ -2238,7 +2238,7 @@ u8 *FldUnit_FindNearestSlot(u8 *arg0, u32 *arg1, s32 arg2)
 
     var_19 = MT_Scene_GetResListHead(0x10);
     var_18 = NULL;
-    func_0015a160();
+    FldStepIndex();
     *arg1 = 0;
     var_16 = 0;
     if (FldMap_IsCurrentInBandA() == 1) {
@@ -2335,7 +2335,7 @@ s32 FldUnit_SetupEncounter(u8 *arg0)
         var_17 = *(u32 *)(temp_16 + 0xC);
         if (var_17 == -1U) {
             temp_17 = iGpffff9db0;
-            var_17 = Encount_GetEntryRateOrOverride(*(u16 *)temp_17, *(u16 *)(temp_17 + 4), (u16)(func_0015a160() & 0xFFFF));
+            var_17 = Encount_GetEntryRateOrOverride(*(u16 *)temp_17, *(u16 *)(temp_17 + 4), (u16)(FldStepIndex() & 0xFFFF));
         }
         if (FldMap_IsCurrentInBandB() == 1) {
             var_17 = *(u32 *)(temp_16 + 0xC);
@@ -2379,7 +2379,7 @@ s32 FldUnit_SetupEncounter(u8 *arg0)
         break;
     case 3:
         temp_17 = iGpffff9db0;
-        temp_2 = Encount_GetEntryFlags(*(u16 *)temp_17, *(u16 *)(temp_17 + 4), (u16)(func_0015a160() & 0xFFFF));
+        temp_2 = Encount_GetEntryFlags(*(u16 *)temp_17, *(u16 *)(temp_17 + 4), (u16)(FldStepIndex() & 0xFFFF));
         if ((u32)iGpffffb2e8 < temp_2 && FldUnit_SpawnEncounter(temp_2, 1) > 0) {
             *(s32 *)temp_16 = 2;
         }
@@ -3004,7 +3004,7 @@ s32 FldUnit_SpawnPartyTask(u8 *arg0)
     if (acc == 0) {
         return 0;
     }
-    if (func_00162510(*(u16 *)D_00762EA0, *(u16 *)(D_00762EA0 + 4)) == 1 || func_0015a160() == 0) {
+    if (func_00162510(*(u16 *)D_00762EA0, *(u16 *)(D_00762EA0 + 4)) == 1 || FldStepIndex() == 0) {
         return 0;
     }
     chkmemAllocSiteTag(D_005F1500, 0xED8);

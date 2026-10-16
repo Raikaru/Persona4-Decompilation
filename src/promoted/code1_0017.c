@@ -52,7 +52,7 @@ extern s32 datGetFlag(s32 arg0);
 extern s32 func_0016fd00(void);
 extern s32 func_00162510(u16 arg0, u16 arg1);
 extern u32 RpRandom(void);
-extern s32 func_0015a160(void);
+extern s32 FldStepIndex(void);
 /* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
    before the two lhu loads and $a3 (a) after them, which is the default-
    promotion order of an old-style call with a u16 local for b and an explicit
@@ -120,7 +120,7 @@ extern s32 sdlSchedulerTeardown(void);
 extern s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2);
 extern s32 sndRequestAreaTrack(void);
 extern void sndPlayAreaCue(void);
-extern s32 func_00159f70(s32 arg0);
+extern s32 FldStepAdvance(s32 arg0);
 extern s32 func_00155290(void);
 extern s32 FldRc_CreateTransitionTask(s32 arg0, s32 arg1);
 extern s32 scrGetAiState(void);
@@ -331,7 +331,7 @@ s32 func_00170bc0(u8 *arg0)
             if (*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30) != 0)
                 func_0018a000(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x30), 0);
             if (datGetFlag(0x1401) != 0) {
-                func_0015a7c0(func_0015a160());
+                func_0015a7c0(FldStepIndex());
                 datSetFlag(0x1401, 0);
                 temp_17 = func_0015a100();
                 func_0029db50(0xF, temp_17, func_0015a130(), 5);
@@ -517,7 +517,7 @@ s32 func_00171280(u8 *arg0)
     switch (state) {
     case 0:
         if (FldMap_IsCurrentInEitherBand() == 1)
-            func_0015a7c0(func_0015a160());
+            func_0015a7c0(FldStepIndex());
         func_002bd410();
         func_002bd3c0();
         func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
@@ -578,7 +578,7 @@ s32 func_001714b0(u8 *arg0)
     switch (state) {
     case 0:
         if (FldMap_IsCurrentInEitherBand() == 1)
-            func_0015a7c0(func_0015a160());
+            func_0015a7c0(FldStepIndex());
         func_002bd410();
         func_002bd3c0();
         func_0018e030(*(s32 *)((u8 *)MT_Scene_GetFrameState() + 0x1C), 1);
@@ -619,7 +619,7 @@ typedef struct { Vec3_00178590 right; u32 flags; Vec3_00178590 up; u32 pad1; Vec
 // FUN_00176880
 s32 func_00176880(void)
 {
-    scrSetReturnInt(func_0015a160());
+    scrSetReturnInt(FldStepIndex());
     return 1;
 }
 // FUN_001768B0

@@ -191,7 +191,7 @@ extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
 extern s64 calGetDayEntryByPhase(s32 arg0, u32 arg1);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern s32 func_0015a160(void);
+extern s32 FldStepIndex(void);
 extern void sdkSndStopChannel(s32 arg0);
 extern void sdkSndPlayCue(s16 arg0, s32 arg1);
 extern s32 iGpffffb264;
@@ -1978,7 +1978,7 @@ void func_0018a010(s32 arg0)
         return;
     }
     if (arg0 == -1) {
-        mode = func_0015a160();
+        mode = FldStepIndex();
         if (mode == 0) {
             index = 0;
             save = (s32 *)iGpffff9db0;
@@ -3086,7 +3086,7 @@ s32 sndPlayAreaCue(void) {
     s32 phase;
     s32 res;
 
-    dungeon = func_0015a160();
+    dungeon = FldStepIndex();
     res = 0;
     date = (s16)datGetDateIndex();
     w1 = (s8)calGetDayEntryByPhase(date, datGetTimeSlot() & 0xFF);
@@ -3203,7 +3203,7 @@ s32 sndRequestAreaTrack(void)
     u8 sub;
 
     result = 0;
-    mode = func_0015a160();
+    mode = FldStepIndex();
     kind = (s8)calGetDayEntryByPhase((s16)datGetDateIndex(), datGetTimeSlot() & 0xFF);
     sub = (u8)datGetTimeSlot();
     if (datGetFlag(0x3E0) == 1) {

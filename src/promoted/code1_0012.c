@@ -64,7 +64,7 @@ extern char D_00795F50[];
 extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
 extern s32 calGetDayTableValue(s16 arg0, s16 arg1);
-extern s32 func_0015a160(void);
+extern s32 FldStepIndex(void);
 extern s32 evtHasTaskHandle(void);
 extern s32 iGpffffb1c8;
 extern s32 datGetPendingDateIndex(void);
@@ -1042,7 +1042,7 @@ void calendarDrawBackdrop(void *unusedNode, void *work)
             } else {
                 sprite = (u8 *)sdkSpriteNewNode((u32)calendar->field_110, 0x1E);
             }
-        } else if ((func_0015a160() == 0) && (evtHasTaskHandle() == 0)) {
+        } else if ((FldStepIndex() == 0) && (evtHasTaskHandle() == 0)) {
             sprite = (u8 *)sdkSpriteNewNode((u32)calendar->field_110, 0x1D);
         } else {
             sprite = (u8 *)sdkSpriteNewNode((u32)calendar->field_110, 0x1E);
@@ -1122,7 +1122,7 @@ void calendarDrawBackdrop(void *unusedNode, void *work)
                     break;
                 }
             }
-        } else if ((func_0015a160() != 0) || (evtHasTaskHandle() != 0)) {
+        } else if ((FldStepIndex() != 0) || (evtHasTaskHandle() != 0)) {
             switch (spriteIndex) {
                 case 0x18:
                     spriteIndex = 0x1B;
@@ -1158,7 +1158,7 @@ void calendarDrawBackdrop(void *unusedNode, void *work)
                 xOffset = (f32)0x247;
                 sdkSpriteDrawOnceAux(parent, calendar->field_110, value, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
             }
-        } else if ((func_0015a160() == 0) && (evtHasTaskHandle() == 0)) {
+        } else if ((FldStepIndex() == 0) && (evtHasTaskHandle() == 0)) {
             xOffset = (f32)0x247;
             sdkSpriteDrawOnceAux(parent, calendar->field_110, 0x1F, xOffset + calendar->records[4].field_10, 51.0f + calendar->records[4].field_14, 0, (0xFF - calendar->records[4].field_1A) & 0xFF, 0.0f, 1);
             value = calendar->field_08 + 0x20;
@@ -1317,7 +1317,7 @@ void calendarRefreshPromptState(void) {
     p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
         p->field_18 = 1;
-        if (func_0015a160() != 0) {
+        if (FldStepIndex() != 0) {
             goto set1;
         }
         if (evtHasTaskHandle() != 0) {
