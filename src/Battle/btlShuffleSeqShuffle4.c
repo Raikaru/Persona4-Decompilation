@@ -32,8 +32,8 @@ extern void btlShuffleCardScaleVec(u8 *a, f32 *b, f32 d, f32 *c);
 extern void btlShuffleDrawClearFlags(u8 *a, s32 b);
 extern s32 datGetFlag(s32 a);
 extern void btlShuffleSeqClearA(u8 *a, s32 b);
-extern void func_00389110(u8 *a);
-extern s32 func_00389160(u8 *a);
+extern void btlShuffleDrawViewStartCue(u8 *a);
+extern s32 btlShuffleDrawViewIsCueIdle(u8 *a);
 extern void func_0038d160(u8 *a);
 extern void btlShuffleDrawViewSetHold(u8 *a);
 extern s32 btlShuffleDrawStateA(u8 *a);
@@ -684,10 +684,10 @@ s32 btlShuffleSeq4Run(u8 *arg0)
         *(u32 *)(arg0 + 0x1F2F8) = 9;
     case 9:
         *(u16 *)(sbase + 8) = 0;
-        func_00389110(*(u8 **)(arg0 + 0x1F294));
+        btlShuffleDrawViewStartCue(*(u8 **)(arg0 + 0x1F294));
         *(u32 *)(arg0 + 0x1F2F8) = 0xA;
     case 10:
-        if (func_00389160(*(u8 **)(arg0 + 0x1F294)) == 0) {
+        if (btlShuffleDrawViewIsCueIdle(*(u8 **)(arg0 + 0x1F294)) == 0) {
             break;
         }
         func_0038d160(*(u8 **)(arg0 + 0x1F298));
