@@ -6,6 +6,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scr_internal.h"
 #include "field_shadow_internal.h"
 #include "rw_atomic_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -111,11 +112,9 @@ extern u8 D_00794E70[];
 
 extern void (*jtbl_008873EC[])(void *);
 
-extern s32 scrGetCmdTimer(void);
 extern s32 calRestoreStateImage(void);
 extern u8 *MT_Scene_GetResListHead(s32 arg0);
 extern s32 K_FldFrame_IsPointInTriangle(void *arg0, void *arg1, void *arg2);
-extern void scrSetReturnInt(s32 arg0);
 extern s32 sdlSchedulerTeardown(void);
 extern s32 FldEvent_BeginEncounter(s32 arg0, s32 arg1, s32 arg2);
 extern s32 sndRequestAreaTrack(void);

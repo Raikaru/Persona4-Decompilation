@@ -2,6 +2,7 @@
 #include "sdk_task_registration.h"
 /* Original translation unit ed_sr.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "scr_internal.h"
 
 /* GP-owned work record shared across the opening/ending TU. */
 extern s32 *iGpffffb5b8;
@@ -39,7 +40,6 @@ extern s32 sdkSndPlayCue(s32 a, s32 b);
 extern void sdkSndStopChannel(s32 fadeDuration);
 extern s32 mwPlayerCreateReset(s32 a, s64 b, void *c);
 extern s32 mwPlayerGetCurrent(void);
-extern s32 scrGetCmdTimer(void);
 
 /* Data / jumptable globals. */
 extern char D_007964C0[];

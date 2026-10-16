@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "scr_internal.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 
@@ -15,7 +16,6 @@ extern s32 calGetDayWindowFlags(s64 arg0);
 extern s32 datMemberIsUnlocked(s64 arg0);
 extern s32 datGetFlag(s32 arg0);
 extern u8 *kwlnTaskGetTaskByName(const void *arg0);
-extern s32 scrGetParamInt(s32 arg0);
 extern u8 D_0064B320[];
 extern void datMemberNoticeSetup(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 D_0064B3B0[];

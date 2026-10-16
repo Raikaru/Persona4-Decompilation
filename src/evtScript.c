@@ -5,6 +5,7 @@
 #include "include_asm.h"
 #include "fr_font_internal.h"
 #include "scene_event_internal.h"
+#include "scr_internal.h"
 extern void datSetFlag();
 extern void (*jtbl_008873EC[])(void *ptr);
 
@@ -37,8 +38,6 @@ extern void evtNodeSetRes(u8 *, s32, u16 *);
 extern s32 evtEnsureEventTask(); /* lint: allow H011 -- caller stores the returned value; the definition is void */
 extern s32 evtGetEventTaskWork();
 extern u8 *evtFindSlotEntry();
-extern s32 scrGetParamInt();
-extern s32 scrGetCmdTimer(void);
 extern void *mdlFindOrCreateModelObject(u32, u16, u32);
 extern s32 evtFindTask();
 extern void itfMesWindowApplySlots(s32 arg0);
