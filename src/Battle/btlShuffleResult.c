@@ -72,8 +72,8 @@ extern s32 sdkListStateHandleInput(u8 *buf);
 extern void btlShuffleDrawCardActivate(u8 *arg0);
 extern void func_0038d0d0(u8 *arg0, s32 arg1);
 extern void func_0038d0a0(u8 *arg0);
-extern void func_00388d20(u8 *arg0);
-extern void func_00388d40(u8 *arg0);
+extern void btlShuffleDrawViewSetActive(u8 *arg0);
+extern void btlShuffleDrawViewClearActive(u8 *arg0);
 extern s32 datPersonaRemoveRosterMemberById(s32 arg0);
 extern u8 *datPersonaTryAddRosterMember(u16 personaId);
 extern u16 D_008C024E[];
@@ -177,7 +177,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                     btlShuffleDrawCardActivate((u8 *)(v));
                     func_0038d0d0((u8 *)(v), 4);
                 }
-                func_00388d20((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F294)));
+                btlShuffleDrawViewSetActive((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F294)));
             }
         }
         break;
@@ -317,7 +317,7 @@ s32 btlShuffleResultOpen(u8 *arg0)
                 shdPersonaFinishPhase((u8 *)(*(s32 *)(state + 0x18)));
                 *(s32 *)(state + 0x18) = 0;
                 func_0038d0a0((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F298)));
-                func_00388d40((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F294)));
+                btlShuffleDrawViewClearActive((u8 *)(*(s32 *)(*(u8 **)arg0 + 0x1F294)));
                 {
                     u8 **slot;
                     u8 *txt;
