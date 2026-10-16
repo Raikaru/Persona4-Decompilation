@@ -256,7 +256,7 @@ extern s32 H_Cdvd_IsFileLoaded(void *arg0);
 extern void fieldSceneLoad(s32, s32);
 extern void func_00144e10(s32);
 extern s16 datCategoryRank(s16);
-extern s32 func_0033e120(u8 *arg0, s32, s32);
+extern s32 fclCombineEventSceneCreate(u8 *arg0, s32, s32);
 extern void cmmCommunityAllocRecord(s32);
 extern s32 fieldSceneLoadStep(void);
 extern u8 *MT_Scene_GetResListHead(s32);
@@ -7990,7 +7990,7 @@ void fclCombineMenuResult(u8 *arg0) {
     extern s32 func_003488d0(u8 *, void *, s32);
     extern s8 *func_0033fa20(s32);
     extern s32 func_00348be0(s32);
-    extern s32 func_0033dc90(u8 *, s8);
+    extern s32 fclCombineEventTaskCreate(u8 *, s8);
     extern void frFontExCopyString(void *, void *, s32);
     extern void fclCombineClearState(s32);
     extern s32 func_00311900(s32);
@@ -8088,7 +8088,7 @@ void fclCombineMenuResult(u8 *arg0) {
     case 0xC6:
         if (*func_0033fa20(*(s32 *)(p + 0x304)) != 0 &&
             (func_00105f50(cls) <= 0 || func_00348be0(*(s32 *)(p + 0x308)) != 0)) {
-            *(s32 *)(p + 0x300) = func_0033dc90(arg0, *(s8 *)(p + 0x1A) - 2);
+            *(s32 *)(p + 0x300) = fclCombineEventTaskCreate(arg0, *(s8 *)(p + 0x1A) - 2);
             if (*(s8 *)(p + 0xB2) != 0) {
                 datSetFlag(0x5C, 1);
             }
@@ -10130,7 +10130,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
                 if (*(u32 *)(p + 0x1C) != 0) {
                     *(u32 *)(p + 0x1C) = 0;
                 }
-                *(u32 *)(p + 0x1C) = func_0033e120(arg0, 0x294, 0xA);
+                *(u32 *)(p + 0x1C) = fclCombineEventSceneCreate(arg0, 0x294, 0xA);
                 datSetFlag(0x413, 1);
                 if (!(cmmCommunityRecordValue(0x14) & 0xFFFF)) {
                     cmmCommunityAllocRecord(0x14);
@@ -10175,7 +10175,7 @@ s32 fclCombineTaskUpdate(u8 *arg0) {
                 if (*(u32 *)(p + 0x1C) != 0) {
                     *(u32 *)(p + 0x1C) = 0;
                 }
-                *(u32 *)(p + 0x1C) = func_0033e120(arg0, 0x294, 1);
+                *(u32 *)(p + 0x1C) = fclCombineEventSceneCreate(arg0, 0x294, 1);
                 p[0] = 0xE;
             } else {
                 p[0] = 0;

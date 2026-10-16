@@ -31,7 +31,7 @@ extern void fieldSceneUnload(void);
 
 
 // FUN_0033DC90
-void func_0033dc90(u8 *arg0, s8 arg1)
+void fclCombineEventTaskCreate(u8 *arg0, s8 arg1)
 {
     u8 *work;
 
@@ -79,7 +79,7 @@ void fclCombineEventDestroy(u8 *arg0) {
 
 
 // FUN_0033DE90
-void func_0033de90(u8 *arg0, s32 arg1)
+void fclCombineEventGateCreate(u8 *arg0, s32 arg1)
 {
     u8 *work;
 
@@ -155,7 +155,7 @@ void fclCombineEventSceneDestroy(u8 *arg0) {
 
 
 // FUN_0033E120
-void func_0033e120(u8 *arg0, s32 arg1, s32 arg2)
+void fclCombineEventSceneCreate(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 *work;
 
