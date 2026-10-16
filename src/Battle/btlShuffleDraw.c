@@ -11,7 +11,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 datTextSlotLoadStep();
 
 extern void btlShuffleCardQueueDraw(u8 *arg0);
-extern void func_0036d8b0(void);
+extern void pscCameraReset(void);
 extern s32 kwlnGetCamera(void);
 struct RwCamera;
 extern void K_View_SetFov(struct RwCamera *camera, f32 fov);
@@ -424,14 +424,14 @@ loop_test:
 
 // FUN_00374910
 void btlShuffleDrawViewReset(u8 *arg0) {
-    func_0036d8b0();
+    pscCameraReset();
     K_View_SetFov((struct RwCamera *)(u32)kwlnGetCamera(), *(f32 *)(arg0 + 0x1F310));
 }
 
 
 // FUN_00374960
 void btlShuffleDrawViewRestore(u8 *arg0) {
-    func_0036d8b0();
+    pscCameraReset();
     K_View_SetFov((struct RwCamera *)(u32)kwlnGetCamera(), *(f32 *)(arg0 + 0x1F310));
     *(s32 *)(arg0 + 0x1F298) = btlShuffleDrawCardCreate((void *)*(s32 *)(arg0 + 0x1F2A8));
     *(s32 *)(arg0 + 0x1F294) = btlShuffleDrawViewCreate((void *)*(s32 *)(arg0 + 0x1F2A8));
