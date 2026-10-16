@@ -50,7 +50,7 @@ extern void btlShuffleDrawReset(u8 *a);
 extern void btlShuffleDrawFrame(u8 *a);
 extern void func_00388d10(s32 a);
 extern void btlShuffleEffRelease(s32 a);
-extern void func_0038d020(s32 a);
+extern void btlShuffleDrawCardReset(s32 a);
 extern void func_002bd7b0(s32 a);
 extern void func_002bd840(s32 a);
 extern void func_002bb7c0(s32 a);
@@ -779,7 +779,7 @@ s32 btlShuffleSeqDispatch(u8 *arg0) {
             btlShuffleDrawFrame(arg0);
             func_00388d10(*(s32 *)(arg0 + 0x1F294));
             btlShuffleEffRelease(*(s32 *)(arg0 + 0x1F29C));
-            func_0038d020(*(s32 *)(arg0 + 0x1F298));
+            btlShuffleDrawCardReset(*(s32 *)(arg0 + 0x1F298));
             return 0;
         default:
             kAssertFail(D_0064EAA0, 0x296);

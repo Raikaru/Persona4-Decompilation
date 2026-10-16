@@ -30,14 +30,14 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
 extern u8 D_0064EED0[];
 extern void func_00389cb0(u8 *arg0);
-extern void func_0038d020(u8 *arg0);
+extern void btlShuffleDrawCardReset(u8 *arg0);
 extern void func_003889b0(s32 arg0, u8 *arg1);
 extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
 
 extern void func_00388d10(u8 *arg0);
 extern void func_003874c0(s32 arg0, u8 *arg1);
-extern s32 func_00388b40(u8 *arg0);
-extern void func_00388ba0(u8 *arg0);
+extern s32 btlShuffleDrawViewStep(u8 *arg0);
+extern void btlShuffleDrawViewDestroy(u8 *arg0);
 extern u8 *iGpffffb5b0;
 extern u8 D_00794990[];
 extern u8 D_00794E40[];
@@ -1480,7 +1480,7 @@ void func_003889b0(s32 arg0, u8 *arg1)
     }
 }
 // FUN_00388B40
-s32 func_00388b40(u8 *arg0)
+s32 btlShuffleDrawViewStep(u8 *arg0)
 {
     u8 *p;
 
@@ -1494,12 +1494,12 @@ s32 func_00388b40(u8 *arg0)
     return 0;
 }
 // FUN_00388BA0
-void func_00388ba0(u8 *arg0) {
+void btlShuffleDrawViewDestroy(u8 *arg0) {
     D_008873ec[0](*(s32 *)(arg0 + 0x38));
 }
 
 // FUN_00388BD0
-u8 *func_00388bd0(s32 arg0)
+u8 *btlShuffleDrawViewCreate(s32 arg0)
 {
     u8 *work;
     u8 *task;
@@ -1509,7 +1509,7 @@ u8 *func_00388bd0(s32 arg0)
     if (work == NULL) {
         kAssertFail(D_0064EEB0, 0x640);
     }
-    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064ECA0), 0x13, 0, 0, func_00388b40, func_00388ba0, (u8 *)(work));
+    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064ECA0), 0x13, 0, 0, btlShuffleDrawViewStep, btlShuffleDrawViewDestroy, (u8 *)(work));
     if (task == NULL) {
         kAssertFail(D_0064EEB0, 0x64A);
     }
@@ -2961,7 +2961,7 @@ void func_0038cd70(u8 *arg0, u8 *arg1)
     }
 }
 // FUN_0038CE30
-s32 func_0038ce30(u8 *arg0) {
+s32 btlShuffleDrawCardStep(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
     *(s32 *)(p + 8) = 0;
@@ -2974,13 +2974,13 @@ s32 func_0038ce30(u8 *arg0) {
 }
 
 // FUN_0038CE90
-void func_0038ce90(u8 *arg0)
+void btlShuffleDrawCardDestroy(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
 // FUN_0038CEC0
-u8 *func_0038cec0(s32 arg0)
+u8 *btlShuffleDrawCardCreate(s32 arg0)
 {
     u8 *work;
     u8 *task;
@@ -2990,7 +2990,7 @@ u8 *func_0038cec0(s32 arg0)
     if (work == NULL) {
         kAssertFail(D_0064F0E0, 0x59E);
     }
-    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064EED0), 0x13, 0, 0, func_0038ce30, func_0038ce90, (u8 *)(work));
+    task = kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064EED0), 0x13, 0, 0, btlShuffleDrawCardStep, btlShuffleDrawCardDestroy, (u8 *)(work));
     if (task == NULL) {
         kAssertFail(D_0064F0E0, 0x5A8);
     }
@@ -3003,11 +3003,11 @@ u8 *func_0038cec0(s32 arg0)
     memset(work + 0x38, 0, 0x30);
     *(void **)(work + 0x40) = (void *)func_0038cd70;
     *(u8 **)(work + 0x48) = work;
-    func_0038d020(task);
+    btlShuffleDrawCardReset(task);
     return task;
 }
 // FUN_0038D020
-void func_0038d020(u8 *arg0)
+void btlShuffleDrawCardReset(u8 *arg0)
 {
     u8 *p;
     u16 *field;
@@ -3024,7 +3024,7 @@ void func_0038d020(u8 *arg0)
     }
 }
 // FUN_0038D060
-void func_0038d060(u8 *arg0)
+void btlShuffleDrawCardActivate(u8 *arg0)
 {
     u8 *p;
 
@@ -3243,7 +3243,7 @@ void func_0038d330(s32 *raw_arg0)
     }
 }
 // FUN_0038D660
-s32 func_0038d660(u8 *arg0) {
+s32 btlShuffleEffStep(u8 *arg0) {
     s32 *work;
 
     work = (s32 *)(*(s32 **)(arg0 + 0x38));

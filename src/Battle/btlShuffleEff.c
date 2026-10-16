@@ -11,7 +11,7 @@ extern u8 D_0064F0F0[];
 extern f32 D_0064F110[];
 extern u8 D_0064F210[];
 extern s32 func_0036e910(void *arg0);
-extern s32 func_0038d660(u8 *arg0);
+extern s32 btlShuffleEffStep(u8 *arg0);
 extern void btlShuffleEffRelease(u8 *arg0);
 extern void btlShuffleEffInitTrail(u8 *arg0, s32 arg1);
 
@@ -67,7 +67,7 @@ u8 *btlShuffleEffSpawn(u8 *arg0) {
     if (tbl == NULL) {
         kAssertFail(&D_0064F210[0], 0x104);
     }
-    ctx = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064F0F0[0]), 0x13, 0, 0, func_0038d660, btlShuffleEffFree, (u8 *)(tbl));
+    ctx = (u8 *)(s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(&D_0064F0F0[0]), 0x13, 0, 0, btlShuffleEffStep, btlShuffleEffFree, (u8 *)(tbl));
     if (ctx == NULL) {
         kAssertFail(&D_0064F210[0], 0x10E);
     }

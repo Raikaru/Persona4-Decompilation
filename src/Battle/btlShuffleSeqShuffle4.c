@@ -16,7 +16,7 @@ extern s32 btlShuffleSeq4Dist(u8 *a, s64 b, s64 c);
 extern s32 btlShuffleSeqPick(u8 *a, s32 b);
 extern s32 btlShuffleSeqLoadRecord(u8 *a);
 extern s32 btlShuffleSeqStep(u8 *a);
-extern void func_0038d060(u8 *a);
+extern void btlShuffleDrawCardActivate(u8 *a);
 extern void func_0038d0d0(u8 *a, s32 b);
 extern void func_0038d0a0(u8 *a);
 extern void btlShuffleDrawSetPose(u8 *a, s32 b, u16 c, u16 d);
@@ -563,7 +563,7 @@ s32 btlShuffleSeq4Run(u8 *arg0)
             break;
         }
         deck = *(u8 **)(arg0 + 0x1F298);
-        func_0038d060(deck);
+        btlShuffleDrawCardActivate(deck);
         func_0038d0d0(deck, 1);
         *(u32 *)(arg0 + 0x1F2F8) = 3;
         break;
@@ -693,7 +693,7 @@ s32 btlShuffleSeq4Run(u8 *arg0)
         func_0038d160(*(u8 **)(arg0 + 0x1F298));
         func_00388f20(*(u8 **)(arg0 + 0x1F294));
         deck = *(u8 **)(arg0 + 0x1F298);
-        func_0038d060(deck);
+        btlShuffleDrawCardActivate(deck);
         func_0038d0d0(deck, 3);
         *(u32 *)(arg0 + 0x1F2F8) = 0xB;
     case 11:

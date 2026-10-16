@@ -15,8 +15,8 @@ extern void func_0036d8b0(void);
 extern s32 func_00457120(void);
 struct RwCamera;
 extern void K_View_SetFov(struct RwCamera *camera, f32 fov);
-extern s32 func_0038cec0(void *arg0);
-extern s32 func_00388bd0(void *arg0);
+extern s32 btlShuffleDrawCardCreate(void *arg0);
+extern s32 btlShuffleDrawViewCreate(void *arg0);
 extern s32 btlShuffleEffSpawn(void *arg0);
 extern void sdkRenderStateSetDefault(void);
 extern void btlShuffleDrawCards(u8 *arg0);
@@ -433,8 +433,8 @@ void btlShuffleDrawViewReset(u8 *arg0) {
 void btlShuffleDrawViewRestore(u8 *arg0) {
     func_0036d8b0();
     K_View_SetFov((struct RwCamera *)(u32)func_00457120(), *(f32 *)(arg0 + 0x1F310));
-    *(s32 *)(arg0 + 0x1F298) = func_0038cec0((void *)*(s32 *)(arg0 + 0x1F2A8));
-    *(s32 *)(arg0 + 0x1F294) = func_00388bd0((void *)*(s32 *)(arg0 + 0x1F2A8));
+    *(s32 *)(arg0 + 0x1F298) = btlShuffleDrawCardCreate((void *)*(s32 *)(arg0 + 0x1F2A8));
+    *(s32 *)(arg0 + 0x1F294) = btlShuffleDrawViewCreate((void *)*(s32 *)(arg0 + 0x1F2A8));
     *(s32 *)(arg0 + 0x1F29C) = btlShuffleEffSpawn((void *)*(s32 *)(arg0 + 0x1F2A8));
 }
 
