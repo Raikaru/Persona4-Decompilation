@@ -1096,9 +1096,10 @@ block_15:
    without the pragma mwcc b210 re-masks inside the loop (nd 43 -> 2). s32
    arg1 (not u16) is also required so the ladder calls pass the raw register
    instead of a CSE'd mask. */
+// Message-stream entry: returns the chunk 3 record (D_0088148C) for kind arg0 and community id arg1. When arg0 is 0 it derives the state code from cmmCommunityHasRecord and cmmCommunityCanRankUp (1, 2, 3, or 6). cmmMsgStreamStart stores the record as the stream source.
 // FUN_002485E0
 #pragma opt_loop_invariants on
-u8 *func_002485e0(s32 arg0, s32 arg1) {
+u8 *cmmMsgStreamEntry(s32 arg0, s32 arg1) {
     s32 var_4 = arg0;
     s32 var_2;
     s32 temp_18;
