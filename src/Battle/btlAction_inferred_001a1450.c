@@ -144,13 +144,13 @@ BtlPacket *btlEffectCreateReleasePacket(u16 mode);
 u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern s32 datCalcAilmentChance(u8 *unit, s32 element);
-u8 *func_001fa720(const void *data);
+u8 *btlSoundLoadPacketNew(const void *data);
 s32 func_001eb860(void);
 extern void btlMessageInstallWindow(s32 task, u8 *arg1);
-u8 *func_001fa8f0(void);
+u8 *btlSoundLoadTaskStart(void);
 extern s32 btlMessageIsActiveAlt2(s32 task);
 extern s32 btlMessageGetResultAlt2(s32 task);
-u8 *func_001faa60(void);
+u8 *btlSoundReleaseTaskStart(void);
 extern void btlMessageRelease(s32 task);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
 s32 btlActionCanFollowUpAfterEnemiesDown(u8 *arg0);
@@ -159,7 +159,7 @@ s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s3
                   s32 (*arg5)(u8 *arg0, s64 arg1));
 s32 btlTargetGetStatusEffectMsgCode(u8 *arg0, u8 *arg1);
 s32 datCalcSkillElement(u8 *arg0, u16 arg1);
-u8 *func_001fa9c0(void);
+u8 *btlSoundStopTaskStart(void);
 s32 btlAICommandNomalStatusCheck(u8 *arg0, s64 arg1);
 u32 btlCountUnitRecordsById(u32 arg0);
 u8 *btlCutinCreatePacket(u8 *arg0);
@@ -1646,7 +1646,7 @@ loop_test:
             2, 0x80000, 2, btlAICommandNomalStatusCheck);
     }
     if (status == 0) {
-        temp = func_001fa9c0();
+        temp = btlSoundStopTaskStart();
         *(s64 *)(temp + 0x60) = *(s64 *)action;
         btlPacketEnqueue(temp, 1);
         btlActionSetState(action, 0x20);
@@ -1681,7 +1681,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
             btlPacketEnqueue(btlCutinCreatePacket(frame), 1);
             btlActionFinishPresentation((BtlAction *)arg0);
             btlPacketEnqueue(btlPacketCreateEndSequence(), 1);
-            btlPacketEnqueue(func_001fa8f0(), 1);
+            btlPacketEnqueue(btlSoundLoadTaskStart(), 1);
             btlMessageStartLong(*(u8 **)(D_0076449C + 0xDD4), (u8 *)arg0);
             btlPacketEnqueue((u8 *)btlFormationCreateSlotPacket(3, 0xFFF), 0);
             partner = (void *)btlActionGetQueueFront();
@@ -1725,7 +1725,7 @@ void btlActionPursuitMesUpdate(u8 *arg0)
                 btlPacketEnqueue(effectPacket, 1);
                 btlPacketEnqueue(btlFormationCreateDefaultPacket(), 1);
             }
-            btlPacketEnqueue(func_001faa60(), 1);
+            btlPacketEnqueue(btlSoundReleaseTaskStart(), 1);
             *(s32 *)(arg0 + 0x420) = 1;
             *(u16 *)(arg0 + 0x424) = 6;
         }
@@ -3438,7 +3438,7 @@ createReaction:
     if (cutinUnit != NULL) {
         cutin.mode = 3;
         cutin.unitId = (u16)((*(u16 *)((u8 *)((*(u8 **)((u8 *)(cutinUnit) + (0x30)))) + (0xA4))));
-        btlPacketEnqueue(func_001fa720(&cutin), 1);
+        btlPacketEnqueue(btlSoundLoadPacketNew(&cutin), 1);
     }
     if (btlSoundCanReceiveStatus((s64 *)arg0) != 0) {
         btlActionSetState((BtlAction *)arg0, 0x1BU);
@@ -5496,7 +5496,7 @@ reactionPacket:
 
         cutin.mode = 3;
         cutin.unitId = *(u16 *)(*(u8 **)(partner + 0x30) + 0xA4);
-        btlPacketEnqueue((u8 *)(func_001fa720((u8 *)&cutin)), 1);
+        btlPacketEnqueue((u8 *)(btlSoundLoadPacketNew((u8 *)&cutin)), 1);
     }
     if ((s32)(btlSoundCanReceiveStatus(arg0)) != (s32)(0)) {
         btlActionSetState((BtlAction *)arg0, 0x1B);
@@ -6380,7 +6380,7 @@ void btlActionEscapeMesInit(u8 *arg0)
     *(s64 *)(cameraPacket + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(cameraPacket, 0);
     cutinParams[0] = 5;
-    cutinPacket = func_001fa720((u8 *)&cutinParams[0]);
+    cutinPacket = btlSoundLoadPacketNew((u8 *)&cutinParams[0]);
     *(s64 *)(cutinPacket + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(cutinPacket, 1);
     if (func_001eb860() == 1) {
@@ -6402,7 +6402,7 @@ void btlActionEscapeMesUpdate(u8 *arg0)
         goto done;
     }
     btlMessageInstallWindow(*(s32 *)(D_0076449C + 0xDD4), arg0);
-    temp = func_001fa8f0();
+    temp = btlSoundLoadTaskStart();
     *(s64 *)(temp + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(temp, 1);
     *(s32 *)(arg0 + 0x41C) = 1;
@@ -6424,7 +6424,7 @@ after_flag:
 alternate:
     btlActionSetState((BtlAction *)arg0, 0x20);
 after_state:
-    temp = func_001faa60();
+    temp = btlSoundReleaseTaskStart();
     *(s64 *)(temp + 0x60) = *(s64 *)arg0;
     btlPacketEnqueue(temp, 1);
     btlMessageRelease(*(s32 *)(D_0076449C + 0xDD4));
