@@ -31,7 +31,6 @@ extern s32 D_005E42F8[];
 extern f32 D_005E42FC[];
 extern f32 D_005E4300[];
 extern s32 cmmRosterHasArcana(s32 arg0);
-extern void *cmmEarnScaleTable(void);
 extern u8 *cmmEntryValueRecord(void);
 extern s32 datRankForPoints(s16 arg0, s16 arg1);
 extern s16 D_007973F4[];
@@ -873,33 +872,31 @@ f32 cmmCommunityEarnScale(s32 arg0) {
     f32 v;
     s32 i;
     s32 b;
-    s32 off;
     u32 *w;
     s32 *q;
     s32 hit;
 
     v = 1.0f;
     if (cmmRosterHasArcana((s8)cmmCommunityArcana(arg0)) != 0) {
-        v = v * *(f32 *)cmmEarnScaleTable();
+        v = v * cmmEarnScaleTable()->arcanaMul;
     }
-    if (*(s32 *)((u8 *)cmmEarnScaleTable() + 4) != 0) {
-        b = *(s32 *)((u8 *)cmmEarnScaleTable() + 4);
+    if (cmmEarnScaleTable()->eventBit != 0) {
+        b = cmmEarnScaleTable()->eventBit;
         w = &D_0079B1CC[b / 32];
         hit = (*w & (1 << (b % 32))) != 0;
         if (hit != 0) {
-            v = v * *(f32 *)((u8 *)cmmEarnScaleTable() + 8);
+            v = v * cmmEarnScaleTable()->eventMul;
         }
     }
     if ((((CmmKindRecord *)cmmKindRecord(arg0))->flags & 0x20) != 0) {
         i = 0;
         while (i < 3) {
-            off = i * 8;
-            if (*(s32 *)((u8 *)cmmEarnScaleTable() + off + 0xC) != 0) {
-                b = *(s32 *)((u8 *)cmmEarnScaleTable() + off + 0xC);
+            if (cmmEarnScaleTable()->slot[i].flagBit != 0) {
+                b = cmmEarnScaleTable()->slot[i].flagBit;
                 q = (s32 *)(D_007973A0 + (b / 32) * 4);
                 hit = (*(s32 *)((u8 *)q + 0x3E2C) & (1 << (b % 32))) != 0;
                 if (hit != 0) {
-                    v = v * *(f32 *)((u8 *)cmmEarnScaleTable() + off + 0x10);
+                    v = v * cmmEarnScaleTable()->slot[i].mul;
                 }
             }
             i++;
@@ -955,26 +952,25 @@ ret:
     }
     v = 1.0f;
     if (cmmRosterHasArcana((s8)cmmCommunityArcana(x)) != 0) {
-        v = v * *(f32 *)cmmEarnScaleTable();
+        v = v * cmmEarnScaleTable()->arcanaMul;
     }
-    if (*(s32 *)((u8 *)cmmEarnScaleTable() + 4) != 0) {
-        b = *(s32 *)((u8 *)cmmEarnScaleTable() + 4);
+    if (cmmEarnScaleTable()->eventBit != 0) {
+        b = cmmEarnScaleTable()->eventBit;
         w = &D_0079B1CC[b / 32];
         hit = (*w & (1 << (b % 32))) != 0;
         if (hit != 0) {
-            v = v * *(f32 *)((u8 *)cmmEarnScaleTable() + 8);
+            v = v * cmmEarnScaleTable()->eventMul;
         }
     }
     if ((((CmmKindRecord *)cmmKindRecord(x))->flags & 0x20) != 0) {
         x = 0;
         while (x < 3) {
-            id = x * 8;
-            if (*(s32 *)((u8 *)cmmEarnScaleTable() + id + 0xC) != 0) {
-                b = *(s32 *)((u8 *)cmmEarnScaleTable() + id + 0xC);
+            if (cmmEarnScaleTable()->slot[x].flagBit != 0) {
+                b = cmmEarnScaleTable()->slot[x].flagBit;
                 q = (s32 *)(D_007973A0 + (b / 32) * 4);
                 hit = (*(s32 *)((u8 *)q + 0x3E2C) & (1 << (b % 32))) != 0;
                 if (hit != 0) {
-                    v = v * *(f32 *)((u8 *)cmmEarnScaleTable() + id + 0x10);
+                    v = v * cmmEarnScaleTable()->slot[x].mul;
                 }
             }
             x++;

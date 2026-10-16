@@ -42,6 +42,27 @@ struct CmmKindRecord
     u16 rankThreshold[0x2A]; /* 0x10. Points needed for each rank level; indexed by level as an element (u16), not a byte offset */
 };
 
+/* Earn-scale table: chunk 14 of cmm.bin, returned by cmmEarnScaleTable (chunk +8).
+   arcanaMul applies when the roster has the arcana. eventBit and each slot flagBit
+   gate their multiplier on a game-flag bit; a zero flagBit means no gate. */
+typedef struct CmmEarnScaleSlot CmmEarnScaleSlot;
+struct CmmEarnScaleSlot
+{
+    s32 flagBit;             /* 0x00 */
+    f32 mul;                 /* 0x04 */
+};
+
+typedef struct CmmEarnScale CmmEarnScale;
+struct CmmEarnScale
+{
+    f32 arcanaMul;           /* 0x00 */
+    s32 eventBit;            /* 0x04 */
+    f32 eventMul;            /* 0x08 */
+    CmmEarnScaleSlot slot[3]; /* 0x0C, stride 8 */
+};
+
+CmmEarnScale *cmmEarnScaleTable(void);
+
 /* Chunk 24 of cmm.bin: 72-byte item record (cmmItemInfoRecord). Only the scalar
    fields read by cmmItemInfoShow and cmmRecordGetField are typed; the inline text
    strings at +0x0C and +0x22 and the text-slot ids at +0x10, +0x12 and +0x20 are

@@ -232,8 +232,8 @@ u8 *cmmLabelRecord(u32 arg0) {
 
 // Earn-scale table: returns the chunk 14 header (D_008814B8) at its record area. cmmCommunity earn scaling reads its f32 multipliers and counts from it.
 // FUN_00246B80
-s32 cmmEarnScaleTable(void) {
-    return D_008814B8[0] + 8;
+CmmEarnScale *cmmEarnScaleTable(void) {
+    return (CmmEarnScale *)(D_008814B8[0] + 8);
 }
 
 // Entry value record: 24-byte record from chunk 15 (D_008814BC) for entry arg0. cmmCommunityEntryValue reads its value from this record.
