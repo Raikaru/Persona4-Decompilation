@@ -70,8 +70,10 @@ extern void func_00460ac0(u8 *arg0, u8 *arg1);
 
 
 
+
 #pragma opt_propagation off
 #pragma opt_propagation on
+
 #pragma opt_propagation off
 #pragma opt_propagation on
 
