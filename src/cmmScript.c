@@ -152,8 +152,8 @@ extern s32 cmmArcanaCandidateAt(s32 arg0, s32 arg1, s32 arg2);
 
 extern void chkmemAllocSiteTag(const void* arg0, s32 arg1);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 func_0024f160(u8* arg0);
-extern s32 func_0024f790(u8* arg0);
+extern s32 cmmScriptStepFishingRound(u8* arg0);
+extern s32 cmmScriptStepFishingAim(u8* arg0);
 extern s32 cmmScriptLoadStep(u8 *task);
 extern void cmmScriptTaskDestroy(u8 *task);
 extern s32 cmmScriptStepWaveSprite(u8* arg0, u8* arg1);
@@ -1757,8 +1757,9 @@ void cmmScriptArmEntry(s32 arg0, s32 arg1)
         e->flags = e->flags | 2;
     }
 }
+// Fishing round step: state 0 resets the round (clears the bite flags, spawns handles, arms entries 2 and 0, rolls the weather and date values); later steps count the catch timer and, after the third bite, a random roll or the tenth bite sets flag 0x40 to start the bite sequence.
 // FUN_0024F160
-s32 func_0024f160(u8 *arg0)
+s32 cmmScriptStepFishingRound(u8 *arg0)
 {
     s32 result;
     s32 i;
@@ -1918,8 +1919,9 @@ static inline f32 cmmFishingBlend(f32 delta, f32 ratio, f32 origin)
     return 0.0f + origin + delta * ratio;
 }
 
+// Fishing aim step: state 0 clears the catch flags, spawns the handles, arms entry 1, and picks a random starting angle (90 to 449 degrees) for the lure; later steps steer it from the direction input.
 // FUN_0024F790
-s32 func_0024f790(u8 *work)
+s32 cmmScriptStepFishingAim(u8 *work)
 {
     s32 i;
     u8 *task;
@@ -2105,7 +2107,7 @@ s32 func_0024f790(u8 *work)
 done:
     return 0;
 }
-// Script entry update: state machine for one entry. Waits for the script task's loaded flag, then runs the step routine func_0024f160 (state 5) or func_0024f790 (state 7) until it returns nonzero.
+// Script entry update: state machine for one entry. Waits for the script task's loaded flag, then runs the step routine cmmScriptStepFishingRound (state 5) or cmmScriptStepFishingAim (state 7) until it returns nonzero.
 // FUN_0024FF60
 s32 cmmScriptEntryUpdate(u8 *task)
 {
@@ -2143,7 +2145,7 @@ s32 cmmScriptEntryUpdate(u8 *task)
         e->unk4 = 5;
         e->unk8 = 0;
     case 5:
-        if (func_0024f160((u8*)e) != 0) {
+        if (cmmScriptStepFishingRound((u8*)e) != 0) {
             e->unk4 = 3;
         }
         break;
@@ -2151,7 +2153,7 @@ s32 cmmScriptEntryUpdate(u8 *task)
         e->unk4 = 7;
         e->unk8 = 0;
     case 7:
-        if (func_0024f790((u8*)e) != 0) {
+        if (cmmScriptStepFishingAim((u8*)e) != 0) {
             e->unk4 = 3;
         }
         break;
