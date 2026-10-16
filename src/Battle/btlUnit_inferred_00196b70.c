@@ -181,19 +181,19 @@ extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 /* measured: closes opt_propagation for func_001949d0. */
 /* measured: optimization_level 1 reproduces the retail loop initialisation order. */
 // FUN_00196B70
-void func_00196b70(u8 *arg0) {
+void btlUnitClearMoveFlags(u8 *arg0) {
     *(s32 *)(arg0 + 0xC4) &= ~1;
-    *(u16 *)(arg0 + 0xC8) &= ~1;
+    *(u16 *)(arg0 + 0xC8) &= ~BTLUNIT_MOVEMENTFLAGS_MOVE;
 }
 
 // FUN_00196BA0
-void func_00196ba0(u8 *arg0) {
+void btlUnitClearRotateFlags(u8 *arg0) {
     *(s32 *)(arg0 + 0xC4) &= ~2;
-    *(u16 *)(arg0 + 0xC8) &= ~2;
+    *(u16 *)(arg0 + 0xC8) &= ~BTLUNIT_MOVEMENTFLAGS_ROTATE;
 }
 
 // FUN_00196BD0
-f32 func_00196bd0(u8 *unit, u8 *target, u16 motion)
+f32 btlUnitGetMotionDistance(u8 *unit, u8 *target, u16 motion)
 {
     f32 temp_f20;
     f32 temp_f0;

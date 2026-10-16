@@ -315,7 +315,7 @@ void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5,
     } else {
         btlUnitGetSphereCenterTowardTarget(arg2, arg1, origin);
         a3 = arg3;
-        dist = func_00196bd0(arg0, arg2, a3);
+        dist = btlUnitGetMotionDistance(arg0, arg2, a3);
         dist = dist + 50.0f;
         btlTargetBlendVectors(rot, arg1 + 4, origin);
         RtQuatTransformVectors(tmp, &D_0060A100, 1, rot);

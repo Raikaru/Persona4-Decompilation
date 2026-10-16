@@ -8,6 +8,7 @@
 #include "btl_packet_create_internal.h"
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
+#include "btl_battle_internal.h"
 typedef struct RwV3d {
     f32 x;
     f32 y;
@@ -192,7 +193,7 @@ s32 btlScriptGetUnitClass(void) {
 }
 
 // FUN_00193700
-s32 func_00193700(void) {
+s32 btlIsRunning(void) {
     s32 result;
 
     if (iGpffffb3ac != NULL) {
@@ -205,7 +206,7 @@ done_00193700:
 }
 
 // FUN_00193730
-void func_00193730(void) {
-    *(s32 *)(D_0076449C + 0xC) |= 0x4000;
+void btlSetFreeUnitsOnTeardown(void) {
+    *(s32 *)(D_0076449C + 0xC) |= BTL_FLAG_FREE_UNITS;
 }
 

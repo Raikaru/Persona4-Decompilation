@@ -96,7 +96,7 @@ s32 func_001eb860(void);
 u8 *func_001fa8f0(void);
 u8 *func_001faa60(void);
 extern void btlDamageSetSource(u8 *arg0, s32 arg1);
-s32 func_0019ff60(u8 *arg0);
+s32 btlActionCanFollowUpAfterEnemiesDown(u8 *arg0);
 s64 *btlActionGetQueueFront(void);
 s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   s32 (*arg5)(u8 *arg0, s64 arg1));
@@ -1197,7 +1197,7 @@ void btlActionEndInit(u8 *arg0)
 // FUN_001AFB50
 void btlActionEndUpdate(u8 *action)
 {
-    s32 func_0019ff60(u8 *action);
+    s32 btlActionCanFollowUpAfterEnemiesDown(u8 *action);
     s32 btlCheckBattleEnd(void);
     s32 btlActionActiveListPush(s32 action);
     s32 btlOrderRemoveActionAll(u8 *action);
@@ -1219,7 +1219,7 @@ void btlActionEndUpdate(u8 *action)
     if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x80) == 0) {
         entryFlags = *(u16 *)(action + 0x18);
         specialOrder = (entryFlags & 4) != 0;
-        if ((entryFlags & 8) != 0 && func_0019ff60(action) != 0) {
+        if ((entryFlags & 8) != 0 && btlActionCanFollowUpAfterEnemiesDown(action) != 0) {
             if (btlCountUnitRecordsById(0x504) != 0) {
                 return;
             }
