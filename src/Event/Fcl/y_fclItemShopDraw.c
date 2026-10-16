@@ -1699,7 +1699,7 @@ u8 *fclItemShopCreate(u8 *arg0) {
         *(s8 *)(temp_2 + (s16)i + 0x2D8) = one;
         i = (s16)(i + 1);
     }
-    if (func_002e71c0() == 1) {
+    if (fclUnlockMoonPhaseItems() == 1) {
         *(s8 *)(temp_2 + 0x424) = 1;
     }
     yListCreate(0x10000, 0, 2, 1);
