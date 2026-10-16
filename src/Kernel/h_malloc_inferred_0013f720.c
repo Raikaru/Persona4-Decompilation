@@ -47,7 +47,7 @@ extern void datSetUnitSp(s16 arg0, s16 arg1);
 extern void datSetFlag(s32 arg0, s32 arg1);
 extern void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
 extern s32 FldStepNotAtBoundaryQuery(void);
-extern void func_0013aa90(u8 *arg0);
+extern void cmpSkillRandomizeCellMotions(u8 *arg0);
 extern void *memset(void *arg0, s32 arg1, u32 arg2);
 extern s16 datBuildMemberIdList(s16 *arg0);
 extern u8 *datScreenWipeTaskCreate(s32 arg0, u16 arg1);
@@ -211,7 +211,7 @@ s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3) {
             if (var_17 == 0) {
                 var_19 = 2;
             } else {
-                func_0013aa90(arg3);
+                cmpSkillRandomizeCellMotions(arg3);
             }
         }
     }

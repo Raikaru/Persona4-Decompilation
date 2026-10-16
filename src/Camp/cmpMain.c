@@ -41,14 +41,14 @@ s32 func_003627b0(u32 *arg0, s32 *arg1, u8 *arg2);
 s32 datCommunityMenuStep(u8 *arg0, s32 *arg1, u8 *arg2);
 s32 func_0012d630(u8 *arg0);
 s32 radarStepSlotAnimA(u8 *arg0);
-s32 func_00138b20(u8 *arg0);
+s32 cmpSkillMenuUpdate(u8 *arg0);
 s32 datCommunityPanelUpdate(u8 *arg0);
 s32 func_00131910(u8 *arg0);
 s32 cmpPersonaMenuUpdate(u8 *arg0);
 s32 func_0013ffd0(u8 *arg0);
 s32 datCommunityMenuUpdate(u8 *arg0);
 void radarFreeSpriteNodes(u8 *arg0);
-void func_0013ab30(u8 *arg0);
+void cmpSkillFreeSprites(u8 *arg0);
 void radarReleaseSpritesAndEntries(u8 *arg0);
 void cmpPersonaMenuRelease(u8 *arg0);
 void radarDestroy(u8 *arg0);
@@ -330,7 +330,7 @@ void func_0012cc50(u8 *arg0) {
         radarFreeSpriteNodes(p + 0x2BC);
         break;
     case 5:
-        func_0013ab30(p + 0x1EA4);
+        cmpSkillFreeSprites(p + 0x1EA4);
         break;
     case 6:
         radarReleaseSpritesAndEntries(p + 0x31DC);
@@ -397,7 +397,7 @@ void func_0012cd90(void) {
             }
         }
         if (*(s32 *)(p + 0x10) & 4) {
-            result = func_00138b20(p + 0x1EA4);
+            result = cmpSkillMenuUpdate(p + 0x1EA4);
             if (result != 0) {
                 *(s32 *)(p + 0x10) &= ~4;
             }
