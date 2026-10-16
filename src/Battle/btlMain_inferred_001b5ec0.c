@@ -226,8 +226,8 @@ void func_001b6110(void)
 #pragma opt_loop_invariants on
 void btlMainSetupCameraAndEffects(void)
 {
-    extern u8 *func_004571a0(void);
-    extern u8 *func_004571c0(void);
+    extern u8 *K_Clump_GetLightA(void);
+    extern u8 *K_Clump_GetLightC(void);
     extern u8 *resrcMngGetTransform(void);
     extern s32 RtQuatConvertFromMatrix(void *quat, const void *matrix);
     extern void *memcpy(void *dst, const void *src, u32 size);
@@ -301,10 +301,10 @@ void btlMainSetupCameraAndEffects(void)
     f32 pos[3];
     typedef BtlCameraPalette Rgba;
     typedef struct { f32 r, g, b, a; } RgbaReal;
-    cam = (u8 *)func_004571a0();
+    cam = (u8 *)K_Clump_GetLightA();
     base = D_0076449C;
     *(RgbaReal *)(base + 0x270) = *(RgbaReal *)(cam + 0x18);
-    cam = (u8 *)func_004571c0();
+    cam = (u8 *)K_Clump_GetLightC();
     base = D_0076449C;
     *(RgbaReal *)(base + 0x280) = *(RgbaReal *)(cam + 0x18);
     vec = resrcMngGetColorValue();

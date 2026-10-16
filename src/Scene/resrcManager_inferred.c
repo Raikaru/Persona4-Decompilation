@@ -124,10 +124,10 @@ extern void func_003e8110(void *arg0);
 extern void func_003e8120(void *arg0);
 extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_00457120(void);
-extern u8 *func_004571a0(void);
-extern u8 *func_004571b0(void);
-extern u8 *func_004571c0(void);
-extern u8 *func_00457190(void);
+extern u8 *K_Clump_GetLightA(void);
+extern u8 *K_Clump_GetLightB(void);
+extern u8 *K_Clump_GetLightC(void);
+extern u8 *K_Clump_GetWorld(void);
 extern void func_003cbe80(void *arg0, void *arg1);
 extern u8 *resrcMngGetColorValue(void);
 extern u8 D_007E8020[];
@@ -367,7 +367,7 @@ void resrcMngRenderCameraFog(u8 *arg0, u8 *arg1) {
     void (**base)(u32, u32);
 
     func_003e8110(((u8 *)(u32)func_00457120()));
-    temp_2 = func_004571a0();
+    temp_2 = K_Clump_GetLightA();
     temp_f3 = *(f32 *)(temp_2 + 0x18);
     temp_f2 = *(f32 *)(temp_2 + 0x1C);
     temp_f1 = *(f32 *)(temp_2 + 0x20);
@@ -376,7 +376,7 @@ void resrcMngRenderCameraFog(u8 *arg0, u8 *arg1) {
     *(f32 *)(arg1 + 4) = temp_f2;
     *(f32 *)(arg1 + 8) = temp_f1;
     *(f32 *)(arg1 + 0xC) = temp_f0;
-    temp_2_2 = func_004571b0();
+    temp_2_2 = K_Clump_GetLightB();
     temp_f3 = *(f32 *)(temp_2_2 + 0x18);
     temp_f2 = *(f32 *)(temp_2_2 + 0x1C);
     temp_f1 = *(f32 *)(temp_2_2 + 0x20);
@@ -385,7 +385,7 @@ void resrcMngRenderCameraFog(u8 *arg0, u8 *arg1) {
     *(f32 *)(arg1 + 0x14) = temp_f2;
     *(f32 *)(arg1 + 0x18) = temp_f1;
     *(f32 *)(arg1 + 0x1C) = temp_f0;
-    var_6 = *(u8 **)(func_004571b0() + 4) + 0x10;
+    var_6 = *(u8 **)(K_Clump_GetLightB() + 4) + 0x10;
     var_5 = arg1 + 0x20;
     var_4 = 8;
     do {
@@ -397,14 +397,14 @@ void resrcMngRenderCameraFog(u8 *arg0, u8 *arg1) {
         *(s32 *)(var_5 + 4) = temp_2_3;
         var_5 += 8;
     } while (var_4 > 0);
-    temp_16 = (s32)func_00457190();
-    func_003cbf30(temp_16, func_004571c0());
+    temp_16 = (s32)K_Clump_GetWorld();
+    func_003cbf30(temp_16, K_Clump_GetLightC());
     if (resrcMngGetColorValue() != NULL) {
-        temp_16_2 = func_004571a0();
+        temp_16_2 = K_Clump_GetLightA();
         func_003c38b0(temp_16_2, resrcMngGetColorValue());
-        temp_16_3 = func_004571b0();
+        temp_16_3 = K_Clump_GetLightB();
         func_003c38b0(temp_16_3, resrcMngGetColorTarget());
-        temp_16_4 = func_004571b0();
+        temp_16_4 = K_Clump_GetLightB();
         func_003e9cb0(*(s32 *)(temp_16_4 + 4), resrcMngGetTransform(), 0);
     }
     func_003e8120(((u8 *)(u32)func_00457120()));
@@ -426,12 +426,12 @@ void resrcMngRenderCamera(u8 *arg0, u8 *arg1) {
     u8 *temp_16;
 
     func_003e8110(((u8 *)(u32)func_00457120()));
-    temp_16 = func_00457190();
-    func_003cbe80(temp_16, func_004571c0());
+    temp_16 = K_Clump_GetWorld();
+    func_003cbe80(temp_16, K_Clump_GetLightC());
     if (resrcMngGetColorValue() != NULL) {
-        func_003c38b0(func_004571a0(), arg1);
-        func_003c38b0(func_004571b0(), arg1 + 0x10);
-        func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x20, 0);
+        func_003c38b0(K_Clump_GetLightA(), arg1);
+        func_003c38b0(K_Clump_GetLightB(), arg1 + 0x10);
+        func_003e9cb0(*(s32 *)(K_Clump_GetLightB() + 4), arg1 + 0x20, 0);
     }
     func_003e8120(((u8 *)(u32)func_00457120()));
 }
@@ -459,7 +459,7 @@ void resrcMngRenderCameraFade(u8 *arg0, u8 *arg1) {
     void (**base)(u32, u32);
 
     func_003e8110(((u8 *)(u32)func_00457120()));
-    temp_2 = func_004571a0();
+    temp_2 = K_Clump_GetLightA();
     temp_f3 = *(f32 *)(temp_2 + 0x18);
     temp_f2 = *(f32 *)(temp_2 + 0x1C);
     temp_f1 = *(f32 *)(temp_2 + 0x20);
@@ -468,7 +468,7 @@ void resrcMngRenderCameraFade(u8 *arg0, u8 *arg1) {
     *(f32 *)(arg1 + 4) = temp_f2;
     *(f32 *)(arg1 + 8) = temp_f1;
     *(f32 *)(arg1 + 0xC) = temp_f0;
-    temp_2_2 = func_004571b0();
+    temp_2_2 = K_Clump_GetLightB();
     temp_f3 = *(f32 *)(temp_2_2 + 0x18);
     temp_f2 = *(f32 *)(temp_2_2 + 0x1C);
     temp_f1 = *(f32 *)(temp_2_2 + 0x20);
@@ -477,7 +477,7 @@ void resrcMngRenderCameraFade(u8 *arg0, u8 *arg1) {
     *(f32 *)(arg1 + 0x14) = temp_f2;
     *(f32 *)(arg1 + 0x18) = temp_f1;
     *(f32 *)(arg1 + 0x1C) = temp_f0;
-    var_6 = *(u8 **)(func_004571b0() + 4) + 0x10;
+    var_6 = *(u8 **)(K_Clump_GetLightB() + 4) + 0x10;
     var_5 = arg1 + 0x20;
     var_4 = 8;
     do {
@@ -489,7 +489,7 @@ void resrcMngRenderCameraFade(u8 *arg0, u8 *arg1) {
         *(s32 *)(var_5 + 4) = temp_2_3;
         var_5 += 8;
     } while (var_4 > 0);
-    temp_2_4 = func_004571c0();
+    temp_2_4 = K_Clump_GetLightC();
     temp_f3 = *(f32 *)(temp_2_4 + 0x18);
     temp_f2 = *(f32 *)(temp_2_4 + 0x1C);
     temp_f1 = *(f32 *)(temp_2_4 + 0x20);
@@ -498,7 +498,7 @@ void resrcMngRenderCameraFade(u8 *arg0, u8 *arg1) {
     *(f32 *)(arg1 + 0x64) = temp_f2;
     *(f32 *)(arg1 + 0x68) = temp_f1;
     *(f32 *)(arg1 + 0x6C) = temp_f0;
-    var_6_2 = *(u8 **)(func_004571c0() + 4) + 0x10;
+    var_6_2 = *(u8 **)(K_Clump_GetLightC() + 4) + 0x10;
     var_5_2 = arg1 + 0x70;
     var_4_2 = 8;
     do {
@@ -528,11 +528,11 @@ void resrcMngRenderCameraFade(u8 *arg0, u8 *arg1) {
 // FUN_00147AE0
 void resrcMngRenderCameraPair(u8 *arg0, u8 *arg1) {
     func_003e8110(((u8 *)(u32)func_00457120()));
-    func_003c38b0(func_004571a0(), arg1);
-    func_003c38b0(func_004571c0(), arg1 + 0x60);
-    func_003c38b0(func_004571b0(), arg1 + 0x10);
-    func_003e9cb0(*(s32 *)(func_004571c0() + 4), arg1 + 0x70, 0);
-    func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x20, 0);
+    func_003c38b0(K_Clump_GetLightA(), arg1);
+    func_003c38b0(K_Clump_GetLightC(), arg1 + 0x60);
+    func_003c38b0(K_Clump_GetLightB(), arg1 + 0x10);
+    func_003e9cb0(*(s32 *)(K_Clump_GetLightC() + 4), arg1 + 0x70, 0);
+    func_003e9cb0(*(s32 *)(K_Clump_GetLightB() + 4), arg1 + 0x20, 0);
     func_003e8120(((u8 *)(u32)func_00457120()));
 }
 
@@ -543,22 +543,22 @@ void resrcMngRenderAttached(u8 *arg0, u8 *arg1) {
 
     temp_16 = MT_Scene_GetResListHead(4);
     func_003e8110(((u8 *)(u32)func_00457120()));
-    func_003c38b0(func_004571a0(), temp_16 + 0x140);
-    func_003c38b0(func_004571c0(), temp_16 + 0x150);
-    func_003e9cb0(*(s32 *)(func_004571c0() + 4), temp_16 + 0x160, 0);
+    func_003c38b0(K_Clump_GetLightA(), temp_16 + 0x140);
+    func_003c38b0(K_Clump_GetLightC(), temp_16 + 0x150);
+    func_003e9cb0(*(s32 *)(K_Clump_GetLightC() + 4), temp_16 + 0x160, 0);
     temp_3 = *(s32 *)(arg1 + 0x28);
     if (temp_3 & 0x80000000) {
-        func_003c38b0(func_004571a0(), arg1 + 0x168);
-        func_003c38b0(func_004571c0(), arg1 + 0x178);
-        func_003c38b0(func_004571b0(), arg1 + 0x1D0);
-        func_003e9cb0(*(s32 *)(func_004571c0() + 4), arg1 + 0x190, 0);
-        func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x1E0, 0);
+        func_003c38b0(K_Clump_GetLightA(), arg1 + 0x168);
+        func_003c38b0(K_Clump_GetLightC(), arg1 + 0x178);
+        func_003c38b0(K_Clump_GetLightB(), arg1 + 0x1D0);
+        func_003e9cb0(*(s32 *)(K_Clump_GetLightC() + 4), arg1 + 0x190, 0);
+        func_003e9cb0(*(s32 *)(K_Clump_GetLightB() + 4), arg1 + 0x1E0, 0);
     } else if (temp_3 & 0x40000000) {
-        func_003c38b0(func_004571b0(), arg1 + 0x1D0);
-        func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x1E0, 0);
+        func_003c38b0(K_Clump_GetLightB(), arg1 + 0x1D0);
+        func_003e9cb0(*(s32 *)(K_Clump_GetLightB() + 4), arg1 + 0x1E0, 0);
     } else {
-        func_003c38b0(func_004571b0(), temp_16 + 0x1A0);
-        func_003e9cb0(*(s32 *)(func_004571b0() + 4), temp_16 + 0x1B0, 0);
+        func_003c38b0(K_Clump_GetLightB(), temp_16 + 0x1A0);
+        func_003e9cb0(*(s32 *)(K_Clump_GetLightB() + 4), temp_16 + 0x1B0, 0);
     }
     func_003e8120(((u8 *)(u32)func_00457120()));
 }
@@ -569,33 +569,33 @@ void resrcMngRenderCameraSlots(void) {
 
     temp_16 = MT_Scene_GetResListHead(5);
     func_003e8110(((u8 *)(u32)func_00457120()));
-    func_003c38b0(func_004571a0(), temp_16 + 0x140);
-    func_003c38b0(func_004571c0(), temp_16 + 0x150);
-    func_003c38b0(func_004571b0(), temp_16 + 0x1A0);
-    func_003e9cb0(*(s32 *)(func_004571c0() + 4), temp_16 + 0x160, 0);
-    func_003e9cb0(*(s32 *)(func_004571b0() + 4), temp_16 + 0x1B0, 0);
+    func_003c38b0(K_Clump_GetLightA(), temp_16 + 0x140);
+    func_003c38b0(K_Clump_GetLightC(), temp_16 + 0x150);
+    func_003c38b0(K_Clump_GetLightB(), temp_16 + 0x1A0);
+    func_003e9cb0(*(s32 *)(K_Clump_GetLightC() + 4), temp_16 + 0x160, 0);
+    func_003e9cb0(*(s32 *)(K_Clump_GetLightB() + 4), temp_16 + 0x1B0, 0);
     func_003e8120(((u8 *)(u32)func_00457120()));
 }
 
 // FUN_00147E60
 void resrcMngRenderAttachedPair(u8 *arg0, u8 *arg1) {
     func_003e8110(((u8 *)(u32)func_00457120()));
-    func_003c38b0(func_004571a0(), arg1 + 0x168);
-    func_003c38b0(func_004571c0(), arg1 + 0x178);
-    func_003c38b0(func_004571b0(), arg1 + 0x1D0);
-    func_003e9cb0(*(s32 *)(func_004571c0() + 4), arg1 + 0x190, 0);
-    func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x1E0, 0);
+    func_003c38b0(K_Clump_GetLightA(), arg1 + 0x168);
+    func_003c38b0(K_Clump_GetLightC(), arg1 + 0x178);
+    func_003c38b0(K_Clump_GetLightB(), arg1 + 0x1D0);
+    func_003e9cb0(*(s32 *)(K_Clump_GetLightC() + 4), arg1 + 0x190, 0);
+    func_003e9cb0(*(s32 *)(K_Clump_GetLightB() + 4), arg1 + 0x1E0, 0);
     func_003e8120(((u8 *)(u32)func_00457120()));
 }
 
 // FUN_00147F30
 void resrcMngRenderAttachedAlt(u8 *arg0, u8 *arg1) {
     func_003e8110(((u8 *)(u32)func_00457120()));
-    func_003c38b0(func_004571a0(), arg1 + 0x15C);
-    func_003c38b0(func_004571c0(), arg1 + 0x16C);
-    func_003c38b0(func_004571b0(), arg1 + 0x1C0);
-    func_003e9cb0(*(s32 *)(func_004571c0() + 4), arg1 + 0x180, 0);
-    func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x1D0, 0);
+    func_003c38b0(K_Clump_GetLightA(), arg1 + 0x15C);
+    func_003c38b0(K_Clump_GetLightC(), arg1 + 0x16C);
+    func_003c38b0(K_Clump_GetLightB(), arg1 + 0x1C0);
+    func_003e9cb0(*(s32 *)(K_Clump_GetLightC() + 4), arg1 + 0x180, 0);
+    func_003e9cb0(*(s32 *)(K_Clump_GetLightB() + 4), arg1 + 0x1D0, 0);
     func_003e8120(((u8 *)(u32)func_00457120()));
 }
 

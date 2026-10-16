@@ -242,7 +242,7 @@ static inline s32 fontAtlasColumn(s32 value)
 #pragma push
 #pragma pop
 // FUN_004571C0
-u8 *func_004571c0(void)
+u8 *K_Clump_GetLightC(void)
 {
     return iGpffffba7c;
 }

@@ -52,10 +52,10 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *func_00460e80(u8 *list, s32 arg1);
 extern u8 *func_00461290(u8 *list, s32 arg1);
 extern s32 func_00457120(void);
-extern s32 func_00457190(void);
-extern u8 *func_004571a0(void);
-extern u8 *func_004571b0(void);
-extern u8 *func_004571c0(void);
+extern s32 K_Clump_GetWorld(void);
+extern u8 *K_Clump_GetLightA(void);
+extern u8 *K_Clump_GetLightB(void);
+extern u8 *K_Clump_GetLightC(void);
 extern u32 func_003e8110(u32 camera);
 extern u32 func_003e8120(u32 camera);
 extern RpWorld *func_003cbf30(RpWorld *world, RpLight *light);
@@ -1762,11 +1762,11 @@ void FldResource_BeginDrawState(u8 *arg0, u8 *arg1)
     gs = (u8 *)D_00887300;
     (*(RwBool (**)(RwRenderState, void *))gs)(0x14, (void *)2);
     func_003e8110((u32)raster);
-    cam = (u8 *)(u32)func_004571a0();
+    cam = (u8 *)(u32)K_Clump_GetLightA();
     *(Vec4 *)(arg1 + 0xA50) = *(Vec4 *)(cam + 0x18);
-    cam = (u8 *)(u32)func_004571b0();
+    cam = (u8 *)(u32)K_Clump_GetLightB();
     *(Vec4 *)(arg1 + 0xA60) = *(Vec4 *)(cam + 0x18);
-    src = (CopyPair *)(*(u8 **)((u8 *)(u32)func_004571b0() + 4) + 0x10);
+    src = (CopyPair *)(*(u8 **)((u8 *)(u32)K_Clump_GetLightB() + 4) + 0x10);
     dst = (CopyPair *)(arg1 + 0xA70);
     n = 8;
     do {
@@ -1779,15 +1779,15 @@ void FldResource_BeginDrawState(u8 *arg0, u8 *arg1)
         dst++;
     } while (n > 0);
     if (resrcMngGetColorValue() != 0) {
-        func_003c38b0((RpLight *)(u32)func_004571a0(), (const RwRGBAReal *)resrcMngGetColorValue());
-        func_003c38b0((RpLight *)(u32)func_004571b0(), (const RwRGBAReal *)resrcMngGetColorTarget());
-        func_003e9cb0(*(RwFrame **)((u8 *)(u32)func_004571b0() + 4),
+        func_003c38b0((RpLight *)(u32)K_Clump_GetLightA(), (const RwRGBAReal *)resrcMngGetColorValue());
+        func_003c38b0((RpLight *)(u32)K_Clump_GetLightB(), (const RwRGBAReal *)resrcMngGetColorTarget());
+        func_003e9cb0(*(RwFrame **)((u8 *)(u32)K_Clump_GetLightB() + 4),
                       (const RwMatrix *)resrcMngGetTransform(), rwCOMBINEREPLACE);
     }
-    *(s8 *)((u8 *)(u32)func_004571b0() + 2) = 3;
-    func_004571b0();
+    *(s8 *)((u8 *)(u32)K_Clump_GetLightB() + 2) = 3;
+    K_Clump_GetLightB();
     if (*(s32 *)arg1 & 1) {
-        func_003cbc60(func_00457190(), (u8 *)raster);
+        func_003cbc60(K_Clump_GetWorld(), (u8 *)raster);
         flags = *(s32 *)arg1;
         if (flags & 0x80000000) {
             func_003cbc10(*(RpWorld **)(arg1 + 0xC), (RwCamera *)raster);
@@ -1804,24 +1804,24 @@ void FldResource_BeginDrawState(u8 *arg0, u8 *arg1)
         } else {
             func_003cbc10(*(RpWorld **)(arg1 + 8), (RwCamera *)raster);
         }
-        func_003cbf30((RpWorld *)(u32)func_00457190(), (RpLight *)(u32)func_004571a0());
-        func_003cbf30((RpWorld *)(u32)func_00457190(), (RpLight *)(u32)func_004571b0());
+        func_003cbf30((RpWorld *)(u32)K_Clump_GetWorld(), (RpLight *)(u32)K_Clump_GetLightA());
+        func_003cbf30((RpWorld *)(u32)K_Clump_GetWorld(), (RpLight *)(u32)K_Clump_GetLightB());
         flags = *(s32 *)arg1;
         if (flags & 0x80000000) {
-            func_003cbe80(*(RpWorld **)(arg1 + 0xC), (RpLight *)(u32)func_004571a0());
-            func_003cbe80(*(RpWorld **)(arg1 + 0xC), (RpLight *)(u32)func_004571b0());
+            func_003cbe80(*(RpWorld **)(arg1 + 0xC), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbe80(*(RpWorld **)(arg1 + 0xC), (RpLight *)(u32)K_Clump_GetLightB());
         } else if (flags & 0x40000000) {
-            func_003cbe80(*(RpWorld **)(arg1 + 0x10), (RpLight *)(u32)func_004571a0());
-            func_003cbe80(*(RpWorld **)(arg1 + 0x10), (RpLight *)(u32)func_004571b0());
+            func_003cbe80(*(RpWorld **)(arg1 + 0x10), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbe80(*(RpWorld **)(arg1 + 0x10), (RpLight *)(u32)K_Clump_GetLightB());
         } else if ((flags & 0x20000000) && (*(s32 *)(arg1 + 0x14) != 0)) {
-            func_003cbe80(*(RpWorld **)(arg1 + 0x14), (RpLight *)(u32)func_004571a0());
-            func_003cbe80(*(RpWorld **)(arg1 + 0x14), (RpLight *)(u32)func_004571b0());
+            func_003cbe80(*(RpWorld **)(arg1 + 0x14), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbe80(*(RpWorld **)(arg1 + 0x14), (RpLight *)(u32)K_Clump_GetLightB());
         } else {
-            func_003cbe80(*(RpWorld **)(arg1 + 8), (RpLight *)(u32)func_004571a0());
-            func_003cbe80(*(RpWorld **)(arg1 + 8), (RpLight *)(u32)func_004571b0());
+            func_003cbe80(*(RpWorld **)(arg1 + 8), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbe80(*(RpWorld **)(arg1 + 8), (RpLight *)(u32)K_Clump_GetLightB());
         }
     } else {
-        func_003cbf30((RpWorld *)(u32)func_00457190(), (RpLight *)(u32)func_004571c0());
+        func_003cbf30((RpWorld *)(u32)K_Clump_GetWorld(), (RpLight *)(u32)K_Clump_GetLightC());
     }
     func_003e8120((u32)raster);
     gs = (u8 *)D_00887300;
@@ -1850,22 +1850,22 @@ void FldResource_EndDrawState(u8 *arg0, u8 *arg1)
     func_003e8110((u32)temp_2);
     if (*(u32 *)arg1 & 1) {
         if (*(u32 *)arg1 & 0x80000000) {
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0xC), (RpLight *)(u32)func_004571a0());
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0xC), (RpLight *)(u32)func_004571b0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0xC), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0xC), (RpLight *)(u32)K_Clump_GetLightB());
         } else if (*(u32 *)arg1 & 0x40000000) {
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x10), (RpLight *)(u32)func_004571a0());
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x10), (RpLight *)(u32)func_004571b0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x10), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x10), (RpLight *)(u32)K_Clump_GetLightB());
         } else if ((*(u32 *)arg1 & 0x20000000) && *(s32 *)(arg1 + 0x14) != 0) {
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x14), (RpLight *)(u32)func_004571a0());
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x14), (RpLight *)(u32)func_004571b0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x14), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 0x14), (RpLight *)(u32)K_Clump_GetLightB());
         } else {
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 8), (RpLight *)(u32)func_004571a0());
-            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 8), (RpLight *)(u32)func_004571b0());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 8), (RpLight *)(u32)K_Clump_GetLightA());
+            func_003cbf30((RpWorld *)(u32)*(s32 *)(arg1 + 8), (RpLight *)(u32)K_Clump_GetLightB());
         }
-        temp_18 = (void *)(u32)func_00457190();
-        func_003cbe80((RpWorld *)temp_18, (RpLight *)(u32)func_004571a0());
-        temp_18_2 = (void *)(u32)func_00457190();
-        func_003cbe80((RpWorld *)temp_18_2, (RpLight *)(u32)func_004571b0());
+        temp_18 = (void *)(u32)K_Clump_GetWorld();
+        func_003cbe80((RpWorld *)temp_18, (RpLight *)(u32)K_Clump_GetLightA());
+        temp_18_2 = (void *)(u32)K_Clump_GetWorld();
+        func_003cbe80((RpWorld *)temp_18_2, (RpLight *)(u32)K_Clump_GetLightB());
         if (*(u32 *)arg1 & 0x80000000) {
             func_003cbc60(*(s32 *)(arg1 + 0xC), (u8 *)temp_2);
         } else if (*(u32 *)arg1 & 0x40000000) {
@@ -1875,17 +1875,17 @@ void FldResource_EndDrawState(u8 *arg0, u8 *arg1)
         } else {
             func_003cbc60(*(s32 *)(arg1 + 8), (u8 *)temp_2);
         }
-        func_003cbc10((RpWorld *)(u32)func_00457190(), (RwCamera *)temp_2);
+        func_003cbc10((RpWorld *)(u32)K_Clump_GetWorld(), (RwCamera *)temp_2);
     } else {
-        temp_18_3 = (void *)(u32)func_00457190();
-        func_003cbe80((RpWorld *)temp_18_3, (RpLight *)(u32)func_004571c0());
+        temp_18_3 = (void *)(u32)K_Clump_GetWorld();
+        func_003cbe80((RpWorld *)temp_18_3, (RpLight *)(u32)K_Clump_GetLightC());
     }
-    func_003c38b0((RpLight *)(u32)func_004571a0(), (const RwRGBAReal *)(arg1 + 0xA50));
-    func_003c38b0((RpLight *)(u32)func_004571b0(), (const RwRGBAReal *)(arg1 + 0xA60));
-    func_003e9cb0((RwFrame *)(u32)*(s32 *)((u8 *)(u32)func_004571b0() + 4),
+    func_003c38b0((RpLight *)(u32)K_Clump_GetLightA(), (const RwRGBAReal *)(arg1 + 0xA50));
+    func_003c38b0((RpLight *)(u32)K_Clump_GetLightB(), (const RwRGBAReal *)(arg1 + 0xA60));
+    func_003e9cb0((RwFrame *)(u32)*(s32 *)((u8 *)(u32)K_Clump_GetLightB() + 4),
                   (const RwMatrix *)(arg1 + 0xA70), rwCOMBINEREPLACE);
-    *(s8 *)((u8 *)(u32)func_004571b0() + 2) = 3;
-    func_004571b0();
+    *(s8 *)((u8 *)(u32)K_Clump_GetLightB() + 2) = 3;
+    K_Clump_GetLightB();
     func_003e8120((u32)temp_2);
 }
 

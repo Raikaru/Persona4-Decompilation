@@ -15,7 +15,7 @@ extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 kwlnTaskIsLinked(s32 buf);
 extern void func_00187e80(s32 arg0, s32 arg1, s32 arg2);
 extern void func_0018f3c0(s32 arg0);
-extern void func_0018f700(s32 arg0);
+extern void K_Viewer_Create(s32 arg0);
 extern void func_00190130(s32 arg0);
 extern void K_FldFoodCourt_Create(s32 arg0);
 
@@ -141,7 +141,7 @@ void func_001705d0(void)
 // FUN_00170630
 void func_00170630(void)
 {
-    func_0018f700(0);
+    K_Viewer_Create(0);
 }
 
 // FUN_00170660

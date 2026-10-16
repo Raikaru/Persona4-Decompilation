@@ -44,9 +44,9 @@ extern u32 iGpffff9f50;
 extern u32 iGpffffb308;
 extern u32 iGpffffb30c;
 extern s32 iGpffffba48;
-extern u8 *func_004571a0(void);
-extern u8 *func_004571b0(void);
-extern u8 *func_004571c0(void);
+extern u8 *K_Clump_GetLightA(void);
+extern u8 *K_Clump_GetLightB(void);
+extern u8 *K_Clump_GetLightC(void);
 extern u8 *func_003e9700(u8 *);
 extern u8 *func_003e81c0(u8 *, f32);
 extern u8 *func_003e8180(u8 *, f32);
@@ -259,7 +259,7 @@ void FldShadow_ReleaseCaster(u8 *arg0)
     temp_3 = *(u16 *)(temp_16 + 0xA);
     switch (temp_3) {
     case 1:
-        func_003cbc60(func_00457190(), *(u8 **)(temp_16 + 0x44));
+        func_003cbc60(K_Clump_GetWorld(), *(u8 **)(temp_16 + 0x44));
         temp_19 = *(u8 **)(temp_16 + 0x44);
         if (temp_19 != NULL) {
             temp_18 = *(s32 *)(temp_19 + 4);
@@ -415,7 +415,7 @@ camera_registered:
         camera_slot = (u8 **)(data + 0x44);
         *(u8 **)(data + 0x44) = camera;
         {
-            s32 world = func_00457190();
+            s32 world = K_Clump_GetWorld();
             func_003cbc10(world, *camera_slot);
         }
         *(u8 **)(*camera_slot + 0x60) = *raster_slot;
@@ -510,15 +510,15 @@ void FldShadow_SetRingParticles(u8 *arg0, f32 fparg0)
 // FUN_0017BB50
 void FldShadow_SaveFrameSlots(u8 *arg0, u8 *arg1)
 {
-    *(s32 *)(arg1 + 0x3C) = func_004571b0()[2];
-    func_004571b0()[2] = 0;
-    func_004571b0();
-    *(s32 *)(arg1 + 0x38) = func_004571c0()[2];
-    func_004571c0()[2] = 0;
-    func_004571c0();
-    *(s32 *)(arg1 + 0x34) = func_004571a0()[2];
-    func_004571a0()[2] = 0;
-    func_004571a0();
+    *(s32 *)(arg1 + 0x3C) = K_Clump_GetLightB()[2];
+    K_Clump_GetLightB()[2] = 0;
+    K_Clump_GetLightB();
+    *(s32 *)(arg1 + 0x38) = K_Clump_GetLightC()[2];
+    K_Clump_GetLightC()[2] = 0;
+    K_Clump_GetLightC();
+    *(s32 *)(arg1 + 0x34) = K_Clump_GetLightA()[2];
+    K_Clump_GetLightA()[2] = 0;
+    K_Clump_GetLightA();
 }
 
 
@@ -529,14 +529,14 @@ void FldShadow_RestoreFrameSlots(u8 *arg0, u8 *arg1)
     u8 temp_16;
 
     temp_16 = arg1[0x3C];
-    func_004571b0()[2] = temp_16;
-    func_004571b0();
+    K_Clump_GetLightB()[2] = temp_16;
+    K_Clump_GetLightB();
     temp_16 = arg1[0x38];
-    func_004571c0()[2] = temp_16;
-    func_004571c0();
+    K_Clump_GetLightC()[2] = temp_16;
+    K_Clump_GetLightC();
     temp_16 = arg1[0x34];
-    func_004571a0()[2] = temp_16;
-    func_004571a0();
+    K_Clump_GetLightA()[2] = temp_16;
+    K_Clump_GetLightA();
 }
 
 /*
