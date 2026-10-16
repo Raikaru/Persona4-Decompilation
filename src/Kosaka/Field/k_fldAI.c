@@ -1010,8 +1010,8 @@ extern int kwlnTaskDestroyWithHierarchy(void *);
 extern int sdkSndStartStream(short, short, short, short);
 extern void mdlSetAlphaBlend(unsigned char *);
 extern void mdlClearAlphaBlend(unsigned char *);
-extern void func_004b13f0(void *, int *);
-extern void func_004b14f0(void *, int *);
+extern void mdlEffectSetPackedColor(void *, int *);
+extern void mdlEffectGetPackedColor(void *, int *);
 
 extern unsigned char D_00794420[];
 extern unsigned char D_005F1CC0[];
@@ -1142,10 +1142,10 @@ availabilityDone:
     for (temp_v0 = **(int **)(*(int *)(piVar1[3] + 0x50) + 0x2cc); temp_v0 != 0;
         temp_v0 = *(int *)(temp_v0 + 0x10)) {
       if (*(void **)(temp_v0 + 8) != (void *)0x0) {
-        func_004b14f0(*(void **)(temp_v0 + 8),(int *)&color);
+        mdlEffectGetPackedColor(*(void **)(temp_v0 + 8),(int *)&color);
         temp_v8 = ((float *)piVar1)[0x1f];
         color.a = (unsigned char)temp_v8;
-        func_004b13f0(*(void **)(temp_v0 + 8),(int *)&color);
+        mdlEffectSetPackedColor(*(void **)(temp_v0 + 8),(int *)&color);
       }
     }
     switch(*piVar1) {

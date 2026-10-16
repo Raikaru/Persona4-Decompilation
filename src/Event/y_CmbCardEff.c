@@ -65,9 +65,9 @@ u8 *func_004b11b0(u8 *);
 
 void func_004b11d0(void *, void *);
 void func_004b1250(void *, u8 *);
-void func_004b1290(u8 *, f32, f32, f32);
+void mdlEffectSetEulerRotation(u8 *, f32, f32, f32);
 void func_004b13d0(u8 *, f32);
-void func_004b13f0(void *, u8 *);
+void mdlEffectSetPackedColor(void *, u8 *);
 s32 func_004b1520(u8 *);
 extern u8 D_005DC7D0[];
 
@@ -1745,16 +1745,16 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *arg0) {
             u8 *nv = func_004b1130(*(s32 *)(*(u8 **)(obj + 0) + 0x110));
             *(u8 **)(obj + 8) = nv;
             func_004b1250(nv, obj + 0x18);
-            func_004b1290(*(u8 **)(obj + 8), *(f32 *)(obj + 0x24), *(f32 *)(obj + 0x28), *(f32 *)(obj + 0x2C));
+            mdlEffectSetEulerRotation(*(u8 **)(obj + 8), *(f32 *)(obj + 0x24), *(f32 *)(obj + 0x28), *(f32 *)(obj + 0x2C));
             func_004b13d0(*(u8 **)(obj + 8), *(f32 *)(obj + 0x30));
-            func_004b13f0(*(u8 **)(obj + 8), obj + 0x34);
+            mdlEffectSetPackedColor(*(u8 **)(obj + 8), obj + 0x34);
             if (*(u8 *)(obj + 0x48) == 1) {
                 u8 *nv2 = func_004b11b0(*(u8 **)(obj + 8));
                 *(u8 **)(obj + 0x44) = nv2;
                 func_004b1250(nv2, obj + 0x4C);
-                func_004b1290(*(u8 **)(obj + 0x44), *(f32 *)(obj + 0x58), *(f32 *)(obj + 0x5C), *(f32 *)(obj + 0x60));
+                mdlEffectSetEulerRotation(*(u8 **)(obj + 0x44), *(f32 *)(obj + 0x58), *(f32 *)(obj + 0x5C), *(f32 *)(obj + 0x60));
                 func_004b13d0(*(u8 **)(obj + 0x44), *(f32 *)(obj + 0x64));
-                func_004b13f0(*(u8 **)(obj + 0x44), obj + 0x68);
+                mdlEffectSetPackedColor(*(u8 **)(obj + 0x44), obj + 0x68);
             }
         }
         *(u16 *)(obj + 0xC) = 0;
@@ -1791,10 +1791,10 @@ s32 cmbCardEffSpriteTaskUpdate(u8 *arg0) {
             *(s16 *)(obj + 0x3C) = fclAddClamped(*(s16 *)(obj + 0x3C), 1, *(s16 *)(obj + 0x3A), 0, 1);
             if (*(s16 *)(obj + 0x3C) < *(s16 *)(obj + 0x3A)) {
                 *(u8 *)(obj + 0x37) = *(u8 *)(obj + 0x38);
-                func_004b13f0(*(u8 **)(obj + 8), obj + 0x34);
+                mdlEffectSetPackedColor(*(u8 **)(obj + 8), obj + 0x34);
                 if (*(u8 *)(obj + 0x48) == 1) {
                     *(u8 *)(obj + 0x6B) = *(u8 *)(obj + 0x38);
-                    func_004b13f0(*(u8 **)(obj + 0x44), obj + 0x68);
+                    mdlEffectSetPackedColor(*(u8 **)(obj + 0x44), obj + 0x68);
                 }
             }
         }

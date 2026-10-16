@@ -22,7 +22,7 @@ extern u32 iGpffffb3b8;
 extern void func_00485870(s32 arg0);
 extern void TnSetTableBase(s32 arg0);
 extern void mdlSetColor(u8 *arg0, u32 *arg1);
-extern void func_004865c0(u8 *arg0, s32 arg1);
+extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 extern void mdlAdvanceModelFromFlags(s32 arg0);
 extern void func_00485630(u8 *arg0);
 extern void func_001d53e0(s32 arg0);
@@ -272,7 +272,7 @@ void btlEffectUpdateFadeNodes(void)
                 mdlQueueModelForDraw((s32)D_00794150, node->unknown18);
             }
             if (node->unknown14 != NULL) {
-                func_004865c0(node->unknown14, (s32)color);
+                mdlEffectApplyPackedColor(node->unknown14, (s32)color);
                 func_00485870((s32)node->unknown14);
             }
             if (node->unknown10 != NULL) {

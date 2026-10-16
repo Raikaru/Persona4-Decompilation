@@ -23,7 +23,7 @@ extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
 extern void func_00485870(s32 arg0);
 extern s32 TnGetTableBase(void);
 extern void TnSetTableBase(s32 arg0);
-extern void func_004865c0(u8 *arg0, s32 arg1);
+extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
 extern void func_00485630(u8 *arg0);
 extern void func_001d53e0(s32 arg0);
 extern u8 D_005DC7D0[];
@@ -509,7 +509,7 @@ void func_001d53e0(s32 arg0)
         func_004861f0(*handles, trans);
         func_001d5130((u8 *)w, unit, (u8 *)entry, (u8 *)rot);
         func_00486330(*handles, (u8 *)rot);
-        func_004865c0(*handles, (s32)color);
+        mdlEffectApplyPackedColor(*handles, (s32)color);
         func_00485630(*handles);
     }
     w->frame++;

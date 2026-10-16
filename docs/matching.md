@@ -4134,7 +4134,7 @@ A named aligned projection frame ties its prior score; 153 native cases
 with VU transfer hooks check transformed coordinates, negative depth,
 successive projections, positive-zero lanes and spill canaries.
 
-`func_004865c0` exposed invalid archive evidence: the old 51-word draft
+`mdlEffectApplyPackedColor` (was `func_004865c0`) exposed invalid archive evidence: the old 51-word draft
 hard-coded stack offsets and ordinary instructions inside purported
 hardware-only assembly. It is removed. The retained source-only reference
 uses byte aggregates and signed float-to-integer conversion: 396B/288B,
@@ -5264,7 +5264,7 @@ the entire `g_data.c` owner link-eligible. The superseded
 
 ### Packed-color propagation: VU bridges with C-owned state
 
-`func_004865c0` in `src/promoted/code1_0048.c` is now **MATCH**:
+`mdlEffectApplyPackedColor` (was `func_004865c0`) in `src/promoted/code1_0048.c` is now **MATCH**:
 **276B / 288B, normalized_diff 0**, with twelve bytes of zero tail padding.
 The prior scalar reference was 396B with 91 differing words.
 
@@ -5289,7 +5289,7 @@ Two details close the hardware candidate:
   only the three absent zero-padding words.
 
 No additional optimization pragma is needed. The producer and active C
-consumers use the explicit `void func_004865c0(u8 *, s32)` contract; the
+consumers use the explicit `void mdlEffectApplyPackedColor(u8 *, s32)` contract; the
 void-pointer and unprototyped declarations in the two external consumer
 units are replaced. Focused verification reports **215 MATCH, 28 ASM, zero
 mismatches** across the owner and both external consumer units.
