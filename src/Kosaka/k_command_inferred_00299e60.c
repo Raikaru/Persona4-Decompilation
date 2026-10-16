@@ -27,7 +27,7 @@ extern char D_0063D050[];
 
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
-extern void func_001238c0(s32 arg0);
+extern void calendarSetMode(s32 arg0);
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -66,7 +66,7 @@ extern void mtMiscCollectType1Records(u8 *arg0);
 
 // FUN_00299E60
 s32 K_Cmd_DATE_DISP(void) {
-    func_001238c0(scrGetParamInt(0) != 0);
+    calendarSetMode(scrGetParamInt(0) != 0);
     return 1;
 }
 

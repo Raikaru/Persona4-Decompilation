@@ -812,7 +812,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
     void FldUnit_SetPartySlotModel(s32);
     void FldUnit_SetFieldSlotModel(s32);
     void func_0015a520(s32);
-    void func_001238c0(s32);
+    void calendarSetMode(s32);
     s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *);
     void func_0018a000(u8 *, s32);
     void func_002bd410(void);
@@ -1213,7 +1213,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                         *(s32 *)((u8 *)func_00155280() + 0x1C) = 0;
                     }
                     func_0015a520(0);
-                    func_001238c0(0);
+                    calendarSetMode(0);
                     if (*(s32 *)((u8 *)func_00155280() + 0x4) != 0) {
                         func_0016f630(&snapshot, (u8 *)*(s32 *)((u8 *)func_00155280() + 0x4));
                         work->snapshot = snapshot;
@@ -1385,7 +1385,7 @@ s32 FldEvent_FieldToBattle(u8 *arg0)
                 if (*(s32 *)((u8 *)func_00155280() + 0x30) != 0) {
                     func_0018a000((u8 *)(*(s32 *)((u8 *)func_00155280() + 0x30)), 0);
                 }
-                func_001238c0(1);
+                calendarSetMode(1);
                 FldUnit_UpdateSlots(1);
                 FldUnit_UpdateSlotModels();
                 FldUnit_UpdateAllEnemySlots();

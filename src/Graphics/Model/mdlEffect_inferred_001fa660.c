@@ -69,7 +69,7 @@ extern s32 func_001fa7a0(s32 *arg0);
 extern s32 func_001fa940(void);
 extern s32 func_001faa00(void);
 extern s32 btlTaskSlotIsSet(void);
-extern s32 func_00120ee0(s32 arg0);
+extern s32 taskRecordIsDone(s32 arg0);
 extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 
 extern void func_00485b20(s32 arg0);
@@ -170,7 +170,7 @@ s32 func_001fa660(void)
 
     base = iGpffffb3ac;
     if (*(u16 *)(base + 0xB7C) == 5) {
-        return func_00120ee0(*(s32 *)(base + 0xB88));
+        return taskRecordIsDone(*(s32 *)(base + 0xB88));
     }
     if (H_Cdvd_IsFileLoaded(*(u8 **)(base + 0xB84)) != 0) {
         base = iGpffffb3ac;

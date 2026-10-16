@@ -26,7 +26,7 @@ extern void func_0028aaf0(s32, s32 *);
 extern void func_0028c3f0(s32 *);
 extern void func_00290bc0(s32 *);
 void func_002854e0(u8 *arg0);
-extern s32 func_00120ee0(s32);
+extern s32 taskRecordIsDone(s32);
 extern s32 func_00122720(void);
 extern s32 func_0028f8e0(s32);
 extern void func_00287310(u8 *);
@@ -65,13 +65,13 @@ void func_002854e0(u8 *arg0)
         if ((*(s32 *)(arg0 + 0) & 0x20) && (func_00290de0(arg0 + 0x678) == 1)) {
             *(s32 *)(arg0 + 0) &= ~0x20;
         }
-        if ((*(s32 *)(arg0 + 0) & 0x200) && ((temp_4 = *(s32 *)(arg0 + 0x6C4), temp_4 != 0) || (func_00120ee0(temp_4) != 0))) {
+        if ((*(s32 *)(arg0 + 0) & 0x200) && ((temp_4 = *(s32 *)(arg0 + 0x6C4), temp_4 != 0) || (taskRecordIsDone(temp_4) != 0))) {
             *(s32 *)(arg0 + 0) &= ~0x200;
         }
-        if ((*(s32 *)(arg0 + 0) & 0x400) && ((temp_4_2 = *(s32 *)(arg0 + 0x6C8), temp_4_2 != 0) || (func_00120ee0(temp_4_2) != 0))) {
+        if ((*(s32 *)(arg0 + 0) & 0x400) && ((temp_4_2 = *(s32 *)(arg0 + 0x6C8), temp_4_2 != 0) || (taskRecordIsDone(temp_4_2) != 0))) {
             *(s32 *)(arg0 + 0) &= ~0x400;
         }
-        if ((*(s32 *)(arg0 + 0) & 0x800) && ((temp_4_3 = *(s32 *)(arg0 + 0x6CC), temp_4_3 != 0) || (func_00120ee0(temp_4_3) != 0))) {
+        if ((*(s32 *)(arg0 + 0) & 0x800) && ((temp_4_3 = *(s32 *)(arg0 + 0x6CC), temp_4_3 != 0) || (taskRecordIsDone(temp_4_3) != 0))) {
             *(s32 *)(arg0 + 0) &= ~0x800;
         }
         if ((*(s32 *)(arg0 + 0) & 0x2000) && (func_00122720() != 1)) {
