@@ -12,7 +12,6 @@
 struct RpGeometry;
 #include "sdk_snd_internal.h"
 #include "rw/plcore/barenderstate.h"
-typedef struct RwRGBA RwRGBA;
 typedef s32 (*FieldRenderStateSetFunction)(RwRenderState, void *);
 struct Model;
 typedef struct
@@ -137,7 +136,7 @@ extern s32 iGpffffba48;
 /* Source unit: src/promoted/code1_0017.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0017.c; members 00179fc0-0017abd0 */
 
-typedef struct RwV3d { f32 x, y, z; } RwV3d;
+#include "rw_types_internal.h"
 struct RwMatrixTag;
 typedef struct FldShadowProjectionWork FldShadowProjectionWork;
 typedef struct FldShadowAtomicContext {

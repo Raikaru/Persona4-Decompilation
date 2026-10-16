@@ -2,13 +2,9 @@
 #define K_FLD_FRAME_INTERNAL_H
 
 #include "type.h"
+#include "rw_types_internal.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
+
 
 /* line contains two points; a miss leaves the three-component hit point unchanged. */
 extern u32 FldFrame_RaycastSelectedWorld(const RwV3d* line, RwV3d* hitPointDst);

@@ -9,8 +9,7 @@
 #include "include_asm.h"
 #include "type.h"
 
-typedef struct RwV3d { f32 x, y, z; } RwV3d;
-typedef struct RtQuat { RwV3d imag; f32 real; } RtQuat;
+#include "rw_types_internal.h"
 #include "btl_skill_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_packet_create_internal.h"

@@ -13,13 +13,7 @@ extern u8 *MT_Scene_GetResListHead(s32 arg0);
 #include "field_shadow_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "Kosaka/k_fldFrame_internal.h"
-typedef struct RwRGBA
-{
-    u8 red;
-    u8 green;
-    u8 blue;
-    u8 alpha;
-} RwRGBA;
+#include "rw_types_internal.h"
 typedef struct RwSphere
 {
     RwV3d center;

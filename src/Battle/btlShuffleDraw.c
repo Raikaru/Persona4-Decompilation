@@ -36,7 +36,8 @@ extern void btlShuffleCalcSetFrameFlags(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 typedef BtlShuffleVec3 ShuffleVec3;
 typedef struct { f32 x, y, z, w; } ShuffleVec4;
 extern void btlShuffleCalcSetQuat(u8 *arg0, u16 arg1, u16 arg2, u8 *arg3, ShuffleVec4 *arg4);
-typedef struct RtQuat { ShuffleVec3 imag; f32 real; } ShuffleQuaternion;
+#include "rw_types_internal.h"
+typedef RtQuat ShuffleQuaternion;
 typedef struct { s64 a; f32 b; } ShuffleVec2s;
 
 extern s32 sprintf(char *buf, const char *fmt, ...);
@@ -1271,9 +1272,7 @@ void btlShuffleDrawListFree(u8 **arg0) {
  * position/color setters follow include/rw/sky2/rwcore.h. Matrix flags are
  * defined explicitly: retail's load/OR of an unwritten stack flag word is
  * retained as an unresolved difference, not copied as an uninitialized read. */
-typedef struct RwRGBA {
-    u8 red, green, blue, alpha;
-} TrailRGBA;
+typedef RwRGBA TrailRGBA;
 
 typedef union RxColorUnion {
     TrailRGBA preLitColor;

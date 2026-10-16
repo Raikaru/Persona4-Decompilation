@@ -2,9 +2,10 @@
 #define SCENE_LIGHT_OVERRIDE_INTERNAL_H
 
 #include "type.h"
+#include "rw_types_internal.h"
 
 typedef struct SceneLightVector { f32 x, y, z, w; } SceneLightVector;
-typedef struct RwV3d { f32 x, y, z; } SceneLightAxis;
+typedef RwV3d SceneLightAxis;
 /* RenderWare's real 64-byte layout, including its three reserved words. */
 typedef struct RwMatrixTag {
     SceneLightAxis right;

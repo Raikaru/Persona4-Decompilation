@@ -7,13 +7,7 @@
 #include "type.h"
 #include "field_light_internal.h"
 #include "field_frame_internal.h"
-typedef struct RwRGBA
-{
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 a;
-} RwRGBA;
+#include "rw_types_internal.h"
 typedef struct P4_0015_Vec3
 {
     f32 x;
@@ -211,10 +205,10 @@ void MT_Scene_ScaleResColors(u32 *resource, const f32 *color)
     }
     while (node != 0)
     {
-        rgba.r = (s32)(color[0] * 255.0f + 0.5f);
-        rgba.g = (s32)(color[1] * 255.0f + 0.5f);
-        rgba.b = (s32)(color[2] * 255.0f + 0.5f);
-        rgba.a = (s32)(color[3] * 255.0f + 0.5f);
+        rgba.red = (s32)(color[0] * 255.0f + 0.5f);
+        rgba.green = (s32)(color[1] * 255.0f + 0.5f);
+        rgba.blue = (s32)(color[2] * 255.0f + 0.5f);
+        rgba.alpha = (s32)(color[3] * 255.0f + 0.5f);
         model = *(u32 *)(node + 0x144);
         mdlSetColor(model, &rgba);
         node = *(s32 *)(node + 0x138);
