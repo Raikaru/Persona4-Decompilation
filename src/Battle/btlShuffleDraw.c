@@ -6,9 +6,9 @@
 #include "btl_shuffle_draw_internal.h"
 #include "sdk_snd_internal.h"
 extern s32 btlShuffleDrawFlagA(u8 *task);
-extern void func_003549d0();
+extern void datTextSlotRelease();
 extern void (*jtbl_008873EC[])(void *ptr);
-extern s32 func_00354830();
+extern s32 datTextSlotLoadStep();
 
 extern void btlShuffleCardQueueDraw(u8 *arg0);
 extern void func_0036d8b0(void);
@@ -41,7 +41,7 @@ typedef struct { s64 a; f32 b; } ShuffleVec2s;
 
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern char D_0064EA80[];
-extern void func_003547c0(s32 *arg0, u8 *arg1);
+extern void datTextSlotSetString(s32 *arg0, u8 *arg1);
 extern char D_0064EA20[];
 extern void kAssertFail(void *file, s32 line);
 extern f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, s32 arg0, f32 fparg2);
@@ -1703,7 +1703,7 @@ s32 btlShuffleDrawTaskDone(u8 *arg0) {
     s32 *p = *(s32 **)(arg0 + 0x38);
 
     if (btlShuffleDrawFlagA(arg0) == 0) {
-        *p = func_00354830((u8 *)p + 8);
+        *p = datTextSlotLoadStep((u8 *)p + 8);
     }
     return 0;
 }
@@ -1713,7 +1713,7 @@ s32 btlShuffleDrawTaskDone(u8 *arg0) {
 void btlShuffleDrawTaskEnd(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
 
-    func_003549d0(p + 8);
+    datTextSlotRelease(p + 8);
     jtbl_008873EC[0](p);
 }
 
@@ -1849,7 +1849,7 @@ void btlShuffleDrawSpriteName(u8 *arg0, s32 arg1) {
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     sprintf(buf, D_0064EA80, arg1 & 0xFF);
-    func_003547c0((s32 *)(temp_16 + 8), (u8 *)buf);
+    datTextSlotSetString((s32 *)(temp_16 + 8), (u8 *)buf);
     *(s32 *)temp_16 = 0;
 }
 

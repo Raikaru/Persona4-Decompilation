@@ -106,7 +106,7 @@ extern void *memset(void *arg0, s32 arg1, u32 arg2);
 extern s16 func_00353c10(s16 *arg0);
 extern s16 func_00353b50(s16 *arg0);
 extern s32 FldUnit_SpawnPartyTask(u8 *arg0);
-extern u8 *func_00354a50(s32 arg0, u16 arg1);
+extern u8 *datScreenWipeTaskCreate(s32 arg0, u16 arg1);
 extern u8 *resourceFindByName(char *arg0);
 extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
 extern void kAssertFail(void *arg0, s32 arg1);
