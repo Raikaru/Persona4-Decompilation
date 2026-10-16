@@ -20,7 +20,6 @@ void func_00389180(u8 *arg0);
 extern void memset(void *dst, s32 value, u32 size);
 extern void nmMesWindowShowCurrentRecord(s32 arg0);
 extern void nmMesWindowSetCurrentString(s32 arg0, void *arg1);
-extern u8 *datPersonaAddRosterMember(u16 personaId);
 extern s32 btlShuffleDrawCheck(u8 *arg0, u8 *arg1);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
