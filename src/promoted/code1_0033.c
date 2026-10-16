@@ -45,7 +45,7 @@ extern void fclSpriteStartPosition(u8 *arg0, F2_0033 arg1, F2_0033 arg2,
 extern void func_00457140(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 extern s8 iGpffffb59c;
 extern u8 *kwlnTaskGetTaskByName(s8 *arg0);
-extern s32 func_0015f660(void);
+extern s32 mtSceneResListPrepareAll(void);
 extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 extern void calendarSetMode(s32 arg0);
 extern u8 D_00644E80[];
@@ -163,7 +163,7 @@ s32 func_00331680(void)
 {
     switch (iGpffffb59c) {
     case 0:
-        if (func_0015f660() != 0) {
+        if (mtSceneResListPrepareAll() != 0) {
             func_00457140(0, 0, 0, 0xFF);
             func_001029a0(0x16, 0, 0, 2);
             calendarSetMode(0);
@@ -194,7 +194,7 @@ s32 func_00331770(void)
 {
     switch (iGpffffb59c) {
     case 0:
-        if (func_0015f660() != 0) {
+        if (mtSceneResListPrepareAll() != 0) {
             func_00457140(0, 0, 0, 0xFF);
             func_001029a0(0x17, 0, 0, 2);
             calendarSetMode(0);
@@ -225,7 +225,7 @@ s32 func_00331860(void)
 {
     switch (iGpffffb59c) {
     case 0:
-        if (func_0015f660() != 0) {
+        if (mtSceneResListPrepareAll() != 0) {
             func_00457140(0, 0, 0, 0xFF);
             func_001029a0(0x18, 0, 0, 2);
             calendarSetMode(0);
@@ -633,7 +633,7 @@ f32 func_0033d630(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 alpha, s8 high
          if (fieldSceneLoadStep() == 0) {
              goto out;
          }
-         if (func_0015f660() == 0) {
+         if (mtSceneResListPrepareAll() == 0) {
              goto out;
          }
          view = func_00457120();

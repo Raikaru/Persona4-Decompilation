@@ -11,7 +11,7 @@ extern u32 kwlnTaskGetWork(void *task);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *, void *);
 extern void func_0045d6e0(void *, void *, f32, s32);
-extern void func_0025f230(u32 param_1);
+extern void sdkSpritePackDestroy(u32 param_1);
 extern s32 func_0025f3f0(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void func_002a6650(void *, void *);
 extern void mcQueueDrawJob(s32);
@@ -22,7 +22,7 @@ extern void kAssertFail(const void *file, u32 line);
 extern void RpSkyRenderStateSet(s32, s32);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
-extern s32 func_0025ef20(const void *);
+extern s32 sdkSpritePackCreate(const void *);
 extern s32 func_0025f110(s32);
 extern s32 func_00454a60(const char *path, s32 flags);
 extern void func_00440b68(const void *, ...);
@@ -1112,7 +1112,7 @@ s32 mcIconTaskUpdate(u8 *sdkTaskBytes) {
         /* fallthrough */
     case 3:
         *(s16 *)(w + 0) = 4;
-        *(u32 *)(w + 0x398) = func_0025ef20(D_0063EB20);
+        *(u32 *)(w + 0x398) = sdkSpritePackCreate(D_0063EB20);
         func_00440b68(&D_00763900, &D_007638F8, 0x47E);
         *(u32 *)(w + 0x3A4) = func_00454a60(D_0063ED38, 1);
         *(u32 *)(w + 0x568) = 0;
@@ -1165,7 +1165,7 @@ void mcIconTaskDestroy(u8 *sdkTaskBytes) {
         H_Cdvd_Destroy((struct HCdvd *)p);
         *(s32 *)(work + 0x3A4) = 0;
     }
-    func_0025f230(*(u32 *)(work + 0x398));
+    sdkSpritePackDestroy(*(u32 *)(work + 0x398));
     mcIconWorkFree(work);
 }
 

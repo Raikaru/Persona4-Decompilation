@@ -186,7 +186,7 @@ extern u8 D_005E76C8[];
 extern u8 D_005E5720[];
 extern s32 func_0012aa70(u8 *arg0);
 extern void titleLoaderTeardown(u8 *task);
-extern void func_0025f230(s32 arg0);
+extern void sdkSpritePackDestroy(s32 arg0);
 extern void H_Cdvd_Destroy(s32 arg0);
 extern void sdkSndStopChannel(s32 arg0);
 extern void mdlDestroyModelObject(s32 arg0);
@@ -3870,7 +3870,7 @@ s32 func_0012aa70(u8 *task)
     extern s32 func_00440b68(const char *, ...);
     extern u8 *func_00454a60(u8 *task, s32 arg1);
     extern s32 H_Cdvd_IsFileLoaded(void *task);
-    extern u8 *func_0025ef20(u8 *task);
+    extern u8 *sdkSpritePackCreate(u8 *task);
     extern s32 func_0025f110(u8 *task);
     extern s32 taskLoadSlotModels(u8 *task);
     extern s32 func_00124830(u8 *task);
@@ -3931,7 +3931,7 @@ s32 func_0012aa70(u8 *task)
     case 2:
         if (H_Cdvd_IsFileLoaded(*(u8 **)(work + 0x38)) != 0) {
             *(s32 *)work = 3;
-            *(u8 **)(work + 0x3C) = func_0025ef20(D_005E5220);
+            *(u8 **)(work + 0x3C) = sdkSpritePackCreate(D_005E5220);
         }
         break;
     case 3:
@@ -4200,7 +4200,7 @@ loop_10_test:
     if (var_17 < 0xF) {
         goto loop_10_body;
     }
-    func_0025f230(*(s32 *)(temp_2 + 0x3C));
+    sdkSpritePackDestroy(*(s32 *)(temp_2 + 0x3C));
     H_Cdvd_Destroy(*(s32 *)(temp_2 + 0x38));
     jtbl_008873EC[0](temp_2);
 }

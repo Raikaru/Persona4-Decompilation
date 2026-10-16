@@ -12,12 +12,12 @@
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern void kAssertFail(const void *file, u32 line);
 extern s32 func_0025f110(void *arg);
-extern void func_0025f230(u32 arg);
+extern void sdkSpritePackDestroy(u32 arg);
 extern void func_0046a750(void *arg);
 extern s32 func_00455f70(char *str, void *out);
 
-extern s32 func_0025ef20(char *str);
-extern s32 func_00266b70(void);
+extern s32 sdkSpritePackCreate(char *str);
+extern s32 mtSceneBuildSpriteTable(void);
 extern s32 memset(void *a0, s32 a1, s32 a2);
 
 extern void mdlEffectEmitMaskedTagPair(void);
@@ -1029,7 +1029,7 @@ s32 msgWinSelectionUpdate(u8 *unusedTask)
 
     switch (D_007245D0.state) {
     case 0:
-        work->sprite = func_0025ef20(D_0063C120);
+        work->sprite = sdkSpritePackCreate(D_0063C120);
         work->state = 1;
     case 1:
         if (func_0025f110((void *)work->sprite) != 0) {
@@ -1056,7 +1056,7 @@ void msgWinSelectionDestroy(u8 *unusedTask)
         if (func_0025f110((void *)work->sprite) == 0) {
             kAssertFail(D_0063BFC0, 0x3D9);
         }
-        func_0025f230(work->sprite);
+        sdkSpritePackDestroy(work->sprite);
         work->sprite = 0;
     }
 }
@@ -2327,8 +2327,8 @@ s32 msgCalResourceUpdate(u8 *unusedTask)
 
     switch (*(s16 *)&D_00882098) {
     case 0:
-        work->field4 = func_0025ef20(D_0063C170);
-        work->field8 = func_00266b70();
+        work->field4 = sdkSpritePackCreate(D_0063C170);
+        work->field8 = mtSceneBuildSpriteTable();
         work->field0 = 1;
     case 1:
         if (func_0025f110((void *)work->field4) != 0 && func_0025f110((void *)work->field8) != 0) {
@@ -2355,14 +2355,14 @@ void msgCalResourceDestroy(u8 *unusedTask)
         if (func_0025f110((void *)work->field4) == 0) {
             kAssertFail(D_0063BFC0, 0x7AA);
         }
-        func_0025f230(work->field4);
+        sdkSpritePackDestroy(work->field4);
         work->field4 = 0;
     }
     if (work->field8 != 0) {
         if (func_0025f110((void *)work->field8) == 0) {
             kAssertFail(D_0063BFC0, 0x7B0);
         }
-        func_0025f230(work->field8);
+        sdkSpritePackDestroy(work->field8);
         work->field8 = 0;
     }
 }

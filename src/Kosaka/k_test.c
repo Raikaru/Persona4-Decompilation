@@ -15,7 +15,7 @@ extern void *memset(void *dest, s32 value, s32 size);
 extern void func_001029a0(s32 id, void *data, s32 size, s32 flag);
 extern s32 *MT_Scene_GetFrameState(void);
 extern s32 FldLoadTaskIsDone(s32 handle);
-extern s32 func_0015f660(void);
+extern s32 mtSceneResListPrepareAll(void);
 
 extern s32 func_0018e450(u8 *arg0);
 extern void func_0018e4d0(u8 *arg0);
@@ -56,7 +56,7 @@ s32 K_Test_Update(u8 *arg0)
         *p = state + 1;
         break;
     case 4:
-        if (FldLoadTaskIsDone(*MT_Scene_GetFrameState()) != 0 && func_0015f660() != 0) {
+        if (FldLoadTaskIsDone(*MT_Scene_GetFrameState()) != 0 && mtSceneResListPrepareAll() != 0) {
             memset(&msg, 0, 0x1C);
             msg.field0 = 6;
             msg.field1 = 6;
@@ -72,7 +72,7 @@ s32 K_Test_Update(u8 *arg0)
         *p = state + 1;
         break;
     case 8:
-        if (FldLoadTaskIsDone(*MT_Scene_GetFrameState()) != 0 && func_0015f660() != 0) {
+        if (FldLoadTaskIsDone(*MT_Scene_GetFrameState()) != 0 && mtSceneResListPrepareAll() != 0) {
             memset(&msg, 0, 0x1C);
             msg.field0 = 6;
             msg.field1 = 2;

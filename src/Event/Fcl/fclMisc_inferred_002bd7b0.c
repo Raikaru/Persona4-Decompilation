@@ -45,7 +45,7 @@ extern char D_0063F380[];
 extern f32 iGpffff82fc;
 extern void fieldSceneLoad(s32 arg0, s32 arg1);
 extern s32 fieldSceneLoadStep(void);
-extern s32 func_0015f660(void);
+extern s32 mtSceneResListPrepareAll(void);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 extern s32 fadeStatus(void);
@@ -172,7 +172,7 @@ s32 func_002bd8e0(u8 *arg0)
         fieldSceneLoad(8, 4);
         *(s8 *)(temp_16 + 0) = 2;
     case 2:
-        if ((fieldSceneLoadStep() != 0) && (func_0015f660() != 0)) {
+        if ((fieldSceneLoadStep() != 0) && (mtSceneResListPrepareAll() != 0)) {
             if (fclShopDrawIsReady(*(s32 *)(temp_16 + 4)) == 0) {
                 return 0;
             }

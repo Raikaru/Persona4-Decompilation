@@ -40,7 +40,7 @@ typedef struct
 } FieldColor_0017;
 extern void FldStepResetTables();
 extern void FldEvent_StepGridCell();
-extern s32 func_0015f660();
+extern s32 mtSceneResListPrepareAll();
 extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
 extern s32 func_00102980(void);
 extern void fieldSceneUnload(void);
